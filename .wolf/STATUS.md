@@ -29,6 +29,12 @@ Documento é o ÚLTIMO entregável, não o primeiro. Construir, não documentar.
 - Entrevista de requisitos (2026-07-10). Todas as decisões abaixo.
 - Revisão do projeto com Fable 5 (2026-07-10): render fechado em **three.js**;
   código vai morar em `~/projetos/logica-em-jogo` (WSL), fora do OneDrive.
+- Git iniciado (branch `main`, identidade local) + commit dos docs (2026-07-10).
+- **Scaffold do monorepo (2026-07-10):** npm workspaces `shared/` + `server/` + `client/`.
+  TS 7 estrito (base em `tsconfig.base.json`), Vite 8, three.js 0.185, ws 8, tsx, vitest 4.
+  `/shared` exporta `BlockId` (0=ar…4=areia), `CHUNK_SIZE=16`, dims de mundo, `SERVER_TICK_RATE=10`
+  — com teste de contrato passando. `/client` = cena three.js mínima (prova pipeline).
+  `/server` = placeholder ws (checkpoint 5). Verificado: typecheck 3/3, testes, build, smoke do ws.
 
 ---
 
@@ -148,10 +154,13 @@ Ordem dos checkpoints (cada um jogável antes do próximo):
 Rede de segurança (dev sem revisão): TS estrito; `/shared` sem deps; testes automáticos
 em `/shared` desde o checkpoint 2 (gravidade testável sem abrir navegador); cada checkpoint jogável.
 
-**Próximo passo concreto (sessão nova, a partir de `~/projetos/logica-em-jogo`):**
-1. `git init` + primeiro commit dos docs.
-2. Scaffold do monorepo (`/shared`, `/server`, `/client`; TS estrito; Vite; three.js).
-3. Checkpoint 1: mundo estático + andar (WASD + pointer lock) + HUD F3 básico.
+**Próximo passo concreto:**
+1. ~~`git init` + primeiro commit dos docs~~ ✅
+2. ~~Scaffold do monorepo~~ ✅
+3. **Checkpoint 1: mundo estático + andar (WASD + pointer lock) + HUD F3 básico.**
+   Substitui `client/src/main.ts`. Mundo gerado em `/shared` (chunk Uint8Array +
+   culled mesher como função pura), cliente só desenha. Ainda sem rede.
+4. Criar repo privado no GitHub e fazer push (backup do código).
 
 ### Decisões pendentes (só quando chegar na fase)
 - Circuitos: blocos-no-mundo (estilo redstone) vs painel que colapsa em 1 bloco.
@@ -186,7 +195,11 @@ em `/shared` desde o checkpoint 2 (gravidade testável sem abrir navegador); cad
 ## 🔧 Comandos úteis
 
 ```bash
-# (a preencher quando o scaffold existir: dev server, build, empacotar exe)
+npm run dev         # Vite dev server do cliente (http://localhost:5173)
+npm run dev:server  # servidor Node+ws em watch (placeholder até checkpoint 5)
+npm test            # testes do /shared (vitest)
+npm run typecheck   # tsc --noEmit nos 3 workspaces
+npm run build       # build de produção do cliente
 ```
 
 ---

@@ -8,10 +8,122 @@
       "action": "create",
       "tokens": 18,
       "at": "2026-07-10T19:39:30.712Z"
+    },
+    {
+      "file": "/home/meketreve/projetos/logica-em-jogo/package.json",
+      "action": "create",
+      "tokens": 120,
+      "at": "2026-07-10T19:40:42.367Z"
+    },
+    {
+      "file": "/home/meketreve/projetos/logica-em-jogo/tsconfig.base.json",
+      "action": "create",
+      "tokens": 121,
+      "at": "2026-07-10T19:40:44.311Z"
+    },
+    {
+      "file": "/home/meketreve/projetos/logica-em-jogo/shared/package.json",
+      "action": "create",
+      "tokens": 56,
+      "at": "2026-07-10T19:40:52.641Z"
+    },
+    {
+      "file": "/home/meketreve/projetos/logica-em-jogo/shared/tsconfig.json",
+      "action": "create",
+      "tokens": 18,
+      "at": "2026-07-10T19:40:53.544Z"
+    },
+    {
+      "file": "/home/meketreve/projetos/logica-em-jogo/shared/src/index.ts",
+      "action": "create",
+      "tokens": 16,
+      "at": "2026-07-10T19:40:54.373Z"
+    },
+    {
+      "file": "/home/meketreve/projetos/logica-em-jogo/shared/src/blocks.ts",
+      "action": "create",
+      "tokens": 93,
+      "at": "2026-07-10T19:40:56.868Z"
+    },
+    {
+      "file": "/home/meketreve/projetos/logica-em-jogo/shared/src/constants.ts",
+      "action": "create",
+      "tokens": 156,
+      "at": "2026-07-10T19:41:00.189Z"
+    },
+    {
+      "file": "/home/meketreve/projetos/logica-em-jogo/shared/src/blocks.test.ts",
+      "action": "create",
+      "tokens": 165,
+      "at": "2026-07-10T19:41:03.179Z"
+    },
+    {
+      "file": "/home/meketreve/projetos/logica-em-jogo/server/package.json",
+      "action": "create",
+      "tokens": 70,
+      "at": "2026-07-10T19:41:10.227Z"
+    },
+    {
+      "file": "/home/meketreve/projetos/logica-em-jogo/server/tsconfig.json",
+      "action": "create",
+      "tokens": 33,
+      "at": "2026-07-10T19:41:11.212Z"
+    },
+    {
+      "file": "/home/meketreve/projetos/logica-em-jogo/server/src/index.ts",
+      "action": "create",
+      "tokens": 173,
+      "at": "2026-07-10T19:41:15.456Z"
+    },
+    {
+      "file": "/home/meketreve/projetos/logica-em-jogo/client/package.json",
+      "action": "create",
+      "tokens": 72,
+      "at": "2026-07-10T19:41:21.385Z"
+    },
+    {
+      "file": "/home/meketreve/projetos/logica-em-jogo/client/tsconfig.json",
+      "action": "create",
+      "tokens": 39,
+      "at": "2026-07-10T19:41:22.791Z"
+    },
+    {
+      "file": "/home/meketreve/projetos/logica-em-jogo/client/vite.config.ts",
+      "action": "create",
+      "tokens": 30,
+      "at": "2026-07-10T19:41:23.904Z"
+    },
+    {
+      "file": "/home/meketreve/projetos/logica-em-jogo/client/index.html",
+      "action": "create",
+      "tokens": 129,
+      "at": "2026-07-10T19:41:25.623Z"
+    },
+    {
+      "file": "/home/meketreve/projetos/logica-em-jogo/client/src/main.ts",
+      "action": "create",
+      "tokens": 370,
+      "at": "2026-07-10T19:41:31.310Z"
     }
   ],
   "edit_counts": {
-    ".gitignore": 1
+    ".gitignore": 1,
+    "package.json": 1,
+    "tsconfig.base.json": 1,
+    "shared/package.json": 1,
+    "shared/tsconfig.json": 1,
+    "shared/src/index.ts": 1,
+    "shared/src/blocks.ts": 1,
+    "shared/src/constants.ts": 1,
+    "shared/src/blocks.test.ts": 1,
+    "server/package.json": 1,
+    "server/tsconfig.json": 1,
+    "server/src/index.ts": 1,
+    "client/package.json": 1,
+    "client/tsconfig.json": 1,
+    "client/vite.config.ts": 1,
+    "client/index.html": 1,
+    "client/src/main.ts": 1
   },
   "anatomy_hits": 0,
   "anatomy_misses": 0,
