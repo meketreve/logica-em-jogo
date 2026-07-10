@@ -1,0 +1,242 @@
+{
+  "version": 1,
+  "created_at": "2026-07-10T12:04:51.079Z",
+  "lifetime": {
+    "total_tokens_estimated": 0,
+    "total_reads": 10,
+    "total_writes": 0,
+    "total_sessions": 8,
+    "anatomy_hits": 0,
+    "anatomy_misses": 10,
+    "repeated_reads_blocked": 0,
+    "estimated_savings_vs_bare_cli": 0
+  },
+  "sessions": [
+    {
+      "id": "session-2026-07-10-0913",
+      "started": "2026-07-10T12:13:38.462Z",
+      "ended": "2026-07-10T12:15:47.351Z",
+      "reads": [
+        {
+          "file": "/mnt/c/Users/leont/OneDrive/Documents/Projeto - Lógica em jogo/Projeto - Lógica em jogo.pdf",
+          "tokens_estimated": 0,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        }
+      ],
+      "writes": [],
+      "totals": {
+        "input_tokens_estimated": 0,
+        "output_tokens_estimated": 0,
+        "reads_count": 1,
+        "writes_count": 0,
+        "repeated_reads_blocked": 0,
+        "anatomy_lookups": 0
+      }
+    },
+    {
+      "id": "session-2026-07-10-0916",
+      "started": "2026-07-10T12:16:41.177Z",
+      "ended": "2026-07-10T12:21:55.806Z",
+      "reads": [
+        {
+          "file": "/mnt/c/Users/leont/OneDrive/Documents/Projeto - Lógica em jogo/projeto.txt",
+          "tokens_estimated": 0,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        }
+      ],
+      "writes": [],
+      "totals": {
+        "input_tokens_estimated": 0,
+        "output_tokens_estimated": 0,
+        "reads_count": 1,
+        "writes_count": 0,
+        "repeated_reads_blocked": 0,
+        "anatomy_lookups": 0
+      }
+    },
+    {
+      "id": "session-2026-07-10-0916",
+      "started": "2026-07-10T12:16:41.177Z",
+      "ended": "2026-07-10T12:31:25.189Z",
+      "reads": [
+        {
+          "file": "/mnt/c/Users/leont/OneDrive/Documents/Projeto - Lógica em jogo/projeto.txt",
+          "tokens_estimated": 0,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        }
+      ],
+      "writes": [],
+      "totals": {
+        "input_tokens_estimated": 0,
+        "output_tokens_estimated": 0,
+        "reads_count": 1,
+        "writes_count": 0,
+        "repeated_reads_blocked": 0,
+        "anatomy_lookups": 0
+      }
+    },
+    {
+      "id": "session-2026-07-10-0916",
+      "started": "2026-07-10T12:16:41.177Z",
+      "ended": "2026-07-10T13:00:04.523Z",
+      "reads": [
+        {
+          "file": "/mnt/c/Users/leont/OneDrive/Documents/Projeto - Lógica em jogo/projeto.txt",
+          "tokens_estimated": 0,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        }
+      ],
+      "writes": [],
+      "totals": {
+        "input_tokens_estimated": 0,
+        "output_tokens_estimated": 0,
+        "reads_count": 1,
+        "writes_count": 0,
+        "repeated_reads_blocked": 0,
+        "anatomy_lookups": 0
+      }
+    },
+    {
+      "id": "session-2026-07-10-0916",
+      "started": "2026-07-10T12:16:41.177Z",
+      "ended": "2026-07-10T14:32:05.904Z",
+      "reads": [
+        {
+          "file": "/mnt/c/Users/leont/OneDrive/Documents/Projeto - Lógica em jogo/projeto.txt",
+          "tokens_estimated": 0,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        }
+      ],
+      "writes": [],
+      "totals": {
+        "input_tokens_estimated": 0,
+        "output_tokens_estimated": 0,
+        "reads_count": 1,
+        "writes_count": 0,
+        "repeated_reads_blocked": 0,
+        "anatomy_lookups": 0
+      }
+    },
+    {
+      "id": "session-2026-07-10-0916",
+      "started": "2026-07-10T12:16:41.177Z",
+      "ended": "2026-07-10T14:49:12.759Z",
+      "reads": [
+        {
+          "file": "/mnt/c/Users/leont/OneDrive/Documents/Projeto - Lógica em jogo/projeto.txt",
+          "tokens_estimated": 0,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        }
+      ],
+      "writes": [],
+      "totals": {
+        "input_tokens_estimated": 0,
+        "output_tokens_estimated": 0,
+        "reads_count": 1,
+        "writes_count": 0,
+        "repeated_reads_blocked": 0,
+        "anatomy_lookups": 0
+      }
+    },
+    {
+      "id": "session-2026-07-10-0916",
+      "started": "2026-07-10T12:16:41.177Z",
+      "ended": "2026-07-10T15:04:21.943Z",
+      "reads": [
+        {
+          "file": "/mnt/c/Users/leont/OneDrive/Documents/Projeto - Lógica em jogo/projeto.txt",
+          "tokens_estimated": 0,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        }
+      ],
+      "writes": [],
+      "totals": {
+        "input_tokens_estimated": 0,
+        "output_tokens_estimated": 0,
+        "reads_count": 1,
+        "writes_count": 0,
+        "repeated_reads_blocked": 0,
+        "anatomy_lookups": 0
+      }
+    },
+    {
+      "id": "session-2026-07-10-0916",
+      "started": "2026-07-10T12:16:41.177Z",
+      "ended": "2026-07-10T16:36:25.722Z",
+      "reads": [
+        {
+          "file": "/mnt/c/Users/leont/OneDrive/Documents/Projeto - Lógica em jogo/projeto.txt",
+          "tokens_estimated": 0,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        }
+      ],
+      "writes": [],
+      "totals": {
+        "input_tokens_estimated": 0,
+        "output_tokens_estimated": 0,
+        "reads_count": 1,
+        "writes_count": 0,
+        "repeated_reads_blocked": 0,
+        "anatomy_lookups": 0
+      }
+    },
+    {
+      "id": "session-2026-07-10-0916",
+      "started": "2026-07-10T12:16:41.177Z",
+      "ended": "2026-07-10T16:41:35.351Z",
+      "reads": [
+        {
+          "file": "/mnt/c/Users/leont/OneDrive/Documents/Projeto - Lógica em jogo/projeto.txt",
+          "tokens_estimated": 0,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        }
+      ],
+      "writes": [],
+      "totals": {
+        "input_tokens_estimated": 0,
+        "output_tokens_estimated": 0,
+        "reads_count": 1,
+        "writes_count": 0,
+        "repeated_reads_blocked": 0,
+        "anatomy_lookups": 0
+      }
+    },
+    {
+      "id": "session-2026-07-10-0916",
+      "started": "2026-07-10T12:16:41.177Z",
+      "ended": "2026-07-10T17:10:56.929Z",
+      "reads": [
+        {
+          "file": "/mnt/c/Users/leont/OneDrive/Documents/Projeto - Lógica em jogo/projeto.txt",
+          "tokens_estimated": 0,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        }
+      ],
+      "writes": [],
+      "totals": {
+        "input_tokens_estimated": 0,
+        "output_tokens_estimated": 0,
+        "reads_count": 1,
+        "writes_count": 0,
+        "repeated_reads_blocked": 0,
+        "anatomy_lookups": 0
+      }
+    }
+  ],
+  "daemon_usage": [],
+  "waste_flags": [],
+  "optimization_report": {
+    "last_generated": null,
+    "patterns": []
+  }
+}
