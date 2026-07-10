@@ -66,3 +66,10 @@
 | 16:41 | Created client/index.html | — | ~120 |
 | 16:41 | Created client/src/main.ts | — | ~370 |
 | 16:43 | commit docs + scaffold monorepo (shared/server/client, TS estrito, Vite, three.js, ws, vitest); typecheck+test+build+smoke ok | package.json, tsconfig.base.json, shared/, server/, client/ | ok | ~4000 |
+| 16:44 | Session end: 17 writes across 11 files (.gitignore, package.json, tsconfig.base.json, tsconfig.json, index.ts) | 0 reads | ~1679 tok |
+
+## Session: 2026-07-10 17:46
+
+| Time | Action | File(s) | Outcome | ~Tokens |
+|------|--------|---------|---------|--------|
+| 17:49 | resumo de sessão: git init, commit docs (aae8a06), scaffold monorepo (3fbca1c), STATUS.md atualizado p/ checkpoint 1 | .wolf/ | ok | ~sessão |
