@@ -16,8 +16,8 @@ export interface HudRemeshStats {
 }
 
 export class Hud {
-  /** Preenchido pelo netcode a partir do checkpoint 2. */
-  net = { msgsPerSec: 0, bytesPerSec: 0, tickMs: 0 };
+  /** Preenchido pelo netcode (checkpoint 2+): taxas por segundo + tick do servidor. */
+  net = { msgsPerSec: 0, bytesPerSec: 0, tickAvgMs: 0, tickMaxMs: 0 };
 
   /** Linhas extras de diagnóstico (ex.: stats de input) — avaliadas a cada refresh. */
   extra: (() => string) | null = null;
@@ -98,7 +98,7 @@ export class Hud {
       `FPS ${s.fps}  frame ${s.frametimeAvgMs}ms méd / ${s.frametimeP95Ms}ms p95`,
       `draw calls ${s.drawCalls}  triângulos ${s.triangles}`,
       `remesh ${s.remeshCount}× / ${s.remeshTotalMs}ms total / ${s.remeshLastMs}ms último`,
-      `rede ${s.net.msgsPerSec} msg/s  ${s.net.bytesPerSec} B/s  tick ${s.net.tickMs}ms`,
+      `rede ${s.net.msgsPerSec} msg/s  ${s.net.bytesPerSec} B/s  tick ${s.net.tickAvgMs}ms méd / ${s.net.tickMaxMs}ms máx`,
     ];
     if (this.extra) lines.push(this.extra());
     this.textEl.textContent = lines.join("\n");
