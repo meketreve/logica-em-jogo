@@ -2,14 +2,14 @@
   "version": 1,
   "created_at": "2026-07-10T12:04:51.079Z",
   "lifetime": {
-    "total_tokens_estimated": 179047,
-    "total_reads": 147,
-    "total_writes": 316,
+    "total_tokens_estimated": 213881,
+    "total_reads": 171,
+    "total_writes": 378,
     "total_sessions": 14,
-    "anatomy_hits": 62,
-    "anatomy_misses": 81,
+    "anatomy_hits": 78,
+    "anatomy_misses": 89,
     "repeated_reads_blocked": 0,
-    "estimated_savings_vs_bare_cli": 12400
+    "estimated_savings_vs_bare_cli": 15600
   },
   "sessions": [
     {
@@ -2850,6 +2850,494 @@
         "output_tokens_estimated": 4880,
         "reads_count": 11,
         "writes_count": 18,
+        "repeated_reads_blocked": 0,
+        "anatomy_lookups": 8
+      }
+    },
+    {
+      "id": "session-2026-07-11-1748",
+      "started": "2026-07-11T20:48:59.483Z",
+      "ended": "2026-07-11T21:39:52.251Z",
+      "reads": [
+        {
+          "file": "/home/meketreve/logica-em-jogo/shared/src/protocol.ts",
+          "tokens_estimated": 1816,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "/home/meketreve/logica-em-jogo/shared/src/session.ts",
+          "tokens_estimated": 2194,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "/home/meketreve/logica-em-jogo/server/src/worker.ts",
+          "tokens_estimated": 252,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "/home/meketreve/logica-em-jogo/client/src/connection.ts",
+          "tokens_estimated": 385,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "/home/meketreve/logica-em-jogo/server/src/index.ts",
+          "tokens_estimated": 0,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "/home/meketreve/logica-em-jogo/client/src/main.ts",
+          "tokens_estimated": 2280,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "/home/meketreve/logica-em-jogo/shared/src/index.ts",
+          "tokens_estimated": 77,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "/home/meketreve/logica-em-jogo/shared/src/session.test.ts",
+          "tokens_estimated": 2581,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "/home/meketreve/logica-em-jogo/shared/src/protocol.test.ts",
+          "tokens_estimated": 1212,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "/tmp/claude-1000/-home-meketreve-logica-em-jogo/f3234578-5a68-4273-9e45-1b7d17f2b3db/scratchpad/cp5-ws.png",
+          "tokens_estimated": 0,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "/tmp/claude-1000/-home-meketreve-logica-em-jogo/f3234578-5a68-4273-9e45-1b7d17f2b3db/scratchpad/cp5-worker.png",
+          "tokens_estimated": 0,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "/tmp/claude-1000/-home-meketreve-logica-em-jogo/f3234578-5a68-4273-9e45-1b7d17f2b3db/scratchpad/ws-smoke.mts",
+          "tokens_estimated": 0,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        }
+      ],
+      "writes": [
+        {
+          "file": "/home/meketreve/logica-em-jogo/shared/src/protocol.ts",
+          "tokens_estimated": 168,
+          "action": "edit"
+        },
+        {
+          "file": "/home/meketreve/logica-em-jogo/shared/src/protocol.ts",
+          "tokens_estimated": 306,
+          "action": "edit"
+        },
+        {
+          "file": "/home/meketreve/logica-em-jogo/shared/src/session.ts",
+          "tokens_estimated": 155,
+          "action": "edit"
+        },
+        {
+          "file": "/home/meketreve/logica-em-jogo/shared/src/session.ts",
+          "tokens_estimated": 112,
+          "action": "edit"
+        },
+        {
+          "file": "/home/meketreve/logica-em-jogo/shared/src/session.ts",
+          "tokens_estimated": 66,
+          "action": "edit"
+        },
+        {
+          "file": "/home/meketreve/logica-em-jogo/server/src/index.ts",
+          "tokens_estimated": 504,
+          "action": "create"
+        },
+        {
+          "file": "/home/meketreve/logica-em-jogo/client/src/connection.ts",
+          "tokens_estimated": 486,
+          "action": "edit"
+        },
+        {
+          "file": "/home/meketreve/logica-em-jogo/client/src/main.ts",
+          "tokens_estimated": 156,
+          "action": "edit"
+        },
+        {
+          "file": "/home/meketreve/logica-em-jogo/client/src/main.ts",
+          "tokens_estimated": 390,
+          "action": "edit"
+        },
+        {
+          "file": "/home/meketreve/logica-em-jogo/client/src/main.ts",
+          "tokens_estimated": 350,
+          "action": "edit"
+        },
+        {
+          "file": "/home/meketreve/logica-em-jogo/client/src/main.ts",
+          "tokens_estimated": 45,
+          "action": "edit"
+        },
+        {
+          "file": "/home/meketreve/logica-em-jogo/shared/src/protocol.test.ts",
+          "tokens_estimated": 300,
+          "action": "edit"
+        },
+        {
+          "file": "/home/meketreve/logica-em-jogo/shared/src/session.test.ts",
+          "tokens_estimated": 534,
+          "action": "edit"
+        },
+        {
+          "file": "/tmp/claude-1000/-home-meketreve-logica-em-jogo/f3234578-5a68-4273-9e45-1b7d17f2b3db/scratchpad/ws-smoke.ts",
+          "tokens_estimated": 1083,
+          "action": "create"
+        },
+        {
+          "file": "/tmp/claude-1000/-home-meketreve-logica-em-jogo/f3234578-5a68-4273-9e45-1b7d17f2b3db/scratchpad/ws-smoke.ts",
+          "tokens_estimated": 47,
+          "action": "edit"
+        },
+        {
+          "file": "/tmp/claude-1000/-home-meketreve-logica-em-jogo/f3234578-5a68-4273-9e45-1b7d17f2b3db/scratchpad/ws-smoke.ts",
+          "tokens_estimated": 68,
+          "action": "edit"
+        },
+        {
+          "file": "/tmp/claude-1000/-home-meketreve-logica-em-jogo/f3234578-5a68-4273-9e45-1b7d17f2b3db/scratchpad/ws-smoke.ts",
+          "tokens_estimated": 68,
+          "action": "edit"
+        },
+        {
+          "file": "/tmp/claude-1000/-home-meketreve-logica-em-jogo/f3234578-5a68-4273-9e45-1b7d17f2b3db/scratchpad/ws-smoke.ts",
+          "tokens_estimated": 42,
+          "action": "edit"
+        },
+        {
+          "file": "/home/meketreve/logica-em-jogo/shared/src/protocol.ts",
+          "tokens_estimated": 122,
+          "action": "edit"
+        },
+        {
+          "file": "/home/meketreve/logica-em-jogo/shared/src/protocol.ts",
+          "tokens_estimated": 142,
+          "action": "edit"
+        },
+        {
+          "file": "/home/meketreve/logica-em-jogo/shared/src/session.ts",
+          "tokens_estimated": 86,
+          "action": "edit"
+        },
+        {
+          "file": "/home/meketreve/logica-em-jogo/shared/src/session.ts",
+          "tokens_estimated": 104,
+          "action": "edit"
+        },
+        {
+          "file": "/home/meketreve/logica-em-jogo/shared/src/session.ts",
+          "tokens_estimated": 169,
+          "action": "edit"
+        },
+        {
+          "file": "/home/meketreve/logica-em-jogo/client/src/main.ts",
+          "tokens_estimated": 36,
+          "action": "edit"
+        },
+        {
+          "file": "/home/meketreve/logica-em-jogo/client/src/main.ts",
+          "tokens_estimated": 51,
+          "action": "edit"
+        },
+        {
+          "file": "/home/meketreve/logica-em-jogo/client/src/main.ts",
+          "tokens_estimated": 182,
+          "action": "edit"
+        },
+        {
+          "file": "/home/meketreve/logica-em-jogo/shared/src/session.test.ts",
+          "tokens_estimated": 149,
+          "action": "edit"
+        },
+        {
+          "file": "/home/meketreve/logica-em-jogo/shared/src/session.test.ts",
+          "tokens_estimated": 356,
+          "action": "edit"
+        },
+        {
+          "file": "/home/meketreve/logica-em-jogo/shared/src/session.test.ts",
+          "tokens_estimated": 17,
+          "action": "edit"
+        },
+        {
+          "file": "/home/meketreve/logica-em-jogo/shared/src/protocol.test.ts",
+          "tokens_estimated": 153,
+          "action": "edit"
+        },
+        {
+          "file": "/tmp/claude-1000/-home-meketreve-logica-em-jogo/f3234578-5a68-4273-9e45-1b7d17f2b3db/scratchpad/ws-smoke.mts",
+          "tokens_estimated": 173,
+          "action": "edit"
+        }
+      ],
+      "totals": {
+        "input_tokens_estimated": 10797,
+        "output_tokens_estimated": 6620,
+        "reads_count": 12,
+        "writes_count": 31,
+        "repeated_reads_blocked": 0,
+        "anatomy_lookups": 8
+      }
+    },
+    {
+      "id": "session-2026-07-11-1748",
+      "started": "2026-07-11T20:48:59.483Z",
+      "ended": "2026-07-11T21:46:37.506Z",
+      "reads": [
+        {
+          "file": "/home/meketreve/logica-em-jogo/shared/src/protocol.ts",
+          "tokens_estimated": 1816,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "/home/meketreve/logica-em-jogo/shared/src/session.ts",
+          "tokens_estimated": 2194,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "/home/meketreve/logica-em-jogo/server/src/worker.ts",
+          "tokens_estimated": 252,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "/home/meketreve/logica-em-jogo/client/src/connection.ts",
+          "tokens_estimated": 385,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "/home/meketreve/logica-em-jogo/server/src/index.ts",
+          "tokens_estimated": 0,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "/home/meketreve/logica-em-jogo/client/src/main.ts",
+          "tokens_estimated": 2280,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "/home/meketreve/logica-em-jogo/shared/src/index.ts",
+          "tokens_estimated": 77,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "/home/meketreve/logica-em-jogo/shared/src/session.test.ts",
+          "tokens_estimated": 2581,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "/home/meketreve/logica-em-jogo/shared/src/protocol.test.ts",
+          "tokens_estimated": 1212,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "/tmp/claude-1000/-home-meketreve-logica-em-jogo/f3234578-5a68-4273-9e45-1b7d17f2b3db/scratchpad/cp5-ws.png",
+          "tokens_estimated": 0,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "/tmp/claude-1000/-home-meketreve-logica-em-jogo/f3234578-5a68-4273-9e45-1b7d17f2b3db/scratchpad/cp5-worker.png",
+          "tokens_estimated": 0,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "/tmp/claude-1000/-home-meketreve-logica-em-jogo/f3234578-5a68-4273-9e45-1b7d17f2b3db/scratchpad/ws-smoke.mts",
+          "tokens_estimated": 0,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        }
+      ],
+      "writes": [
+        {
+          "file": "/home/meketreve/logica-em-jogo/shared/src/protocol.ts",
+          "tokens_estimated": 168,
+          "action": "edit"
+        },
+        {
+          "file": "/home/meketreve/logica-em-jogo/shared/src/protocol.ts",
+          "tokens_estimated": 306,
+          "action": "edit"
+        },
+        {
+          "file": "/home/meketreve/logica-em-jogo/shared/src/session.ts",
+          "tokens_estimated": 155,
+          "action": "edit"
+        },
+        {
+          "file": "/home/meketreve/logica-em-jogo/shared/src/session.ts",
+          "tokens_estimated": 112,
+          "action": "edit"
+        },
+        {
+          "file": "/home/meketreve/logica-em-jogo/shared/src/session.ts",
+          "tokens_estimated": 66,
+          "action": "edit"
+        },
+        {
+          "file": "/home/meketreve/logica-em-jogo/server/src/index.ts",
+          "tokens_estimated": 504,
+          "action": "create"
+        },
+        {
+          "file": "/home/meketreve/logica-em-jogo/client/src/connection.ts",
+          "tokens_estimated": 486,
+          "action": "edit"
+        },
+        {
+          "file": "/home/meketreve/logica-em-jogo/client/src/main.ts",
+          "tokens_estimated": 156,
+          "action": "edit"
+        },
+        {
+          "file": "/home/meketreve/logica-em-jogo/client/src/main.ts",
+          "tokens_estimated": 390,
+          "action": "edit"
+        },
+        {
+          "file": "/home/meketreve/logica-em-jogo/client/src/main.ts",
+          "tokens_estimated": 350,
+          "action": "edit"
+        },
+        {
+          "file": "/home/meketreve/logica-em-jogo/client/src/main.ts",
+          "tokens_estimated": 45,
+          "action": "edit"
+        },
+        {
+          "file": "/home/meketreve/logica-em-jogo/shared/src/protocol.test.ts",
+          "tokens_estimated": 300,
+          "action": "edit"
+        },
+        {
+          "file": "/home/meketreve/logica-em-jogo/shared/src/session.test.ts",
+          "tokens_estimated": 534,
+          "action": "edit"
+        },
+        {
+          "file": "/tmp/claude-1000/-home-meketreve-logica-em-jogo/f3234578-5a68-4273-9e45-1b7d17f2b3db/scratchpad/ws-smoke.ts",
+          "tokens_estimated": 1083,
+          "action": "create"
+        },
+        {
+          "file": "/tmp/claude-1000/-home-meketreve-logica-em-jogo/f3234578-5a68-4273-9e45-1b7d17f2b3db/scratchpad/ws-smoke.ts",
+          "tokens_estimated": 47,
+          "action": "edit"
+        },
+        {
+          "file": "/tmp/claude-1000/-home-meketreve-logica-em-jogo/f3234578-5a68-4273-9e45-1b7d17f2b3db/scratchpad/ws-smoke.ts",
+          "tokens_estimated": 68,
+          "action": "edit"
+        },
+        {
+          "file": "/tmp/claude-1000/-home-meketreve-logica-em-jogo/f3234578-5a68-4273-9e45-1b7d17f2b3db/scratchpad/ws-smoke.ts",
+          "tokens_estimated": 68,
+          "action": "edit"
+        },
+        {
+          "file": "/tmp/claude-1000/-home-meketreve-logica-em-jogo/f3234578-5a68-4273-9e45-1b7d17f2b3db/scratchpad/ws-smoke.ts",
+          "tokens_estimated": 42,
+          "action": "edit"
+        },
+        {
+          "file": "/home/meketreve/logica-em-jogo/shared/src/protocol.ts",
+          "tokens_estimated": 122,
+          "action": "edit"
+        },
+        {
+          "file": "/home/meketreve/logica-em-jogo/shared/src/protocol.ts",
+          "tokens_estimated": 142,
+          "action": "edit"
+        },
+        {
+          "file": "/home/meketreve/logica-em-jogo/shared/src/session.ts",
+          "tokens_estimated": 86,
+          "action": "edit"
+        },
+        {
+          "file": "/home/meketreve/logica-em-jogo/shared/src/session.ts",
+          "tokens_estimated": 104,
+          "action": "edit"
+        },
+        {
+          "file": "/home/meketreve/logica-em-jogo/shared/src/session.ts",
+          "tokens_estimated": 169,
+          "action": "edit"
+        },
+        {
+          "file": "/home/meketreve/logica-em-jogo/client/src/main.ts",
+          "tokens_estimated": 36,
+          "action": "edit"
+        },
+        {
+          "file": "/home/meketreve/logica-em-jogo/client/src/main.ts",
+          "tokens_estimated": 51,
+          "action": "edit"
+        },
+        {
+          "file": "/home/meketreve/logica-em-jogo/client/src/main.ts",
+          "tokens_estimated": 182,
+          "action": "edit"
+        },
+        {
+          "file": "/home/meketreve/logica-em-jogo/shared/src/session.test.ts",
+          "tokens_estimated": 149,
+          "action": "edit"
+        },
+        {
+          "file": "/home/meketreve/logica-em-jogo/shared/src/session.test.ts",
+          "tokens_estimated": 356,
+          "action": "edit"
+        },
+        {
+          "file": "/home/meketreve/logica-em-jogo/shared/src/session.test.ts",
+          "tokens_estimated": 17,
+          "action": "edit"
+        },
+        {
+          "file": "/home/meketreve/logica-em-jogo/shared/src/protocol.test.ts",
+          "tokens_estimated": 153,
+          "action": "edit"
+        },
+        {
+          "file": "/tmp/claude-1000/-home-meketreve-logica-em-jogo/f3234578-5a68-4273-9e45-1b7d17f2b3db/scratchpad/ws-smoke.mts",
+          "tokens_estimated": 173,
+          "action": "edit"
+        }
+      ],
+      "totals": {
+        "input_tokens_estimated": 10797,
+        "output_tokens_estimated": 6620,
+        "reads_count": 12,
+        "writes_count": 31,
         "repeated_reads_blocked": 0,
         "anatomy_lookups": 8
       }

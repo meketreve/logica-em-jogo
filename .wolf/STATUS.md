@@ -106,7 +106,9 @@ Documento é o ÚLTIMO entregável, não o primeiro. Construir, não documentar.
   mensagem `spawn` nova no protocolo (enviada antes do snapshot); cliente usa o
   ponto do servidor pra nascer e pra respawn (nunca deriva do snapshot). 53 testes
   (2 novos, incl. regressão: escavar coluna não muda spawn do próximo join),
-  smoke real contra mundo escavado ✅. Fix pendente de re-playtest rápido.
+  smoke real contra mundo escavado ✅. Re-playtest do usuário ✅ (2026-07-11, "top").
+  **Checkpoint 5 FECHADO.** (Movimento remoto: usuário não reclamou de serrilhado —
+  lerp continua adiado, gatilho não disparou.)
 
 ---
 
@@ -227,11 +229,6 @@ Rede de segurança (dev sem revisão): TS estrito; `/shared` sem deps; testes au
 em `/shared` desde o checkpoint 2 (gravidade testável sem abrir navegador); cada checkpoint jogável.
 
 **Próximo passo concreto (começar por aqui na próxima sessão):**
-0. **Re-playtest rápido do fix do bug-010** (se ainda não feito): reiniciar
-   `npm run dev:server` (o anterior foi derrubado na sessão de 2026-07-11), cavar a
-   coluna do spawn, fechar e reabrir a aba — deve nascer no MESMO ponto da superfície
-   (e cair no buraco — esperado). Perguntar também se movimento remoto serrilha
-   (gatilho do lerp).
 1. **Checkpoint 6: chat + 1 comando (parser no servidor)** — fecha o MVP v0.
    - Protocolo: `chat` client→server (texto) e `chat` server→client (autor + texto).
    - Session: parser de comando (`/` prefixo); 1 comando de teste que MUDA o mundo

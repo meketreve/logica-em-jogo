@@ -535,6 +535,27 @@
       "related_bugs": [],
       "occurrences": 1,
       "last_seen": "2026-07-11T18:40:00-03:00"
+    },
+    {
+      "id": "bug-011",
+      "timestamp": "2026-07-11T18:55:00-03:00",
+      "error_message": "npm run dev / dev:server não fecham com Ctrl+C — processos presos ('bugou foi é tudo')",
+      "file": "— (processos, não código)",
+      "root_cause": "fuser -k 8080/tcp (bug-010, sessão anterior) matou só o processo FILHO do tsx watch; o watcher pai ficou órfão sem porta, e as árvores npm→sh→vite/tsx ficaram penduradas. tsx watch órfão ignora SIGTERM.",
+      "fix": "Listar árvores com pgrep -af 'npm run dev|vite|tsx'; kill -TERM em todos os PIDs; sobrevivente (tsx watch) exige kill -9. Prevenção: nunca fuser -k em porta compartilhada — matar pela árvore do processo que EU iniciei (ver cerebrum Do-Not-Repeat).",
+      "tags": [
+        "tsx-watch",
+        "processo-orfao",
+        "fuser",
+        "sigterm",
+        "sigkill",
+        "dev-server"
+      ],
+      "related_bugs": [
+        "bug-010"
+      ],
+      "occurrences": 1,
+      "last_seen": "2026-07-11T18:55:00-03:00"
     }
   ]
 }

@@ -249,3 +249,16 @@ Próxima sessão: checkpoint 5 (segundo cliente via Node+ws) — detalhes no STA
 | 18:30 | bug-010 (playtest cp5): rejoin nascia no fundo do buraco — spawn recalculado no join | shared/src/session.ts, protocol.ts, client/src/main.ts | fixado: spawn fixo na criação + msg spawn no protocolo | ~1200 |
 | 18:36 | smoke contra servidor REAL escavado (findSpawnY=12, spawn=26) — fix provado; 53 testes, typecheck 3/3, build ok | scratchpad/ws-smoke.mts | ok | ~500 |
 | 18:38 | ⚠️ derrubei o dev:server do usuário (fuser -k 8080) — avisado pra reiniciar | — | sem dano (mundo é volátil) | ~50 |
+| 18:39 | Session end: 31 writes across 9 files (protocol.ts, session.ts, index.ts, connection.ts, main.ts) | 12 reads | ~17417 tok |
+| 18:55 | bug-011: dev servers presos (tsx watch órfão do fuser -k anterior) — kill -TERM árvore + kill -9 no watcher | processos | portas 5173/8080 livres | ~300 |
+| 18:46 | Session end: 31 writes across 9 files (protocol.ts, session.ts, index.ts, connection.ts, main.ts) | 12 reads | ~17417 tok |
+
+## Sessão 2026-07-11 (checkpoint 5)
+Checkpoint 5 FECHADO: LAN via Node+ws real. Protocolo +player_moved (relay sem eco,
+cliente não sabe o próprio id) +player_left +spawn (ponto fixo do terreno pristino).
+Session: broadcastExcept, disconnect idempotente, spawn readonly no construtor.
+server/index.ts = host real (mesma GameSession do worker). Cliente: WsConnection
+(fila até open), ?server= escolhe hospedeiro, caixas coloridas p/ jogadores remotos.
+Bug-010 achado na playtest (rejoin no fundo do buraco) e corrigido; bug-011 (tsx watch
+órfão) limpo. 53 testes, smoke real 2 clientes, playtest ✅ "top". Próximo: checkpoint 6
+(chat + 1 comando) — fecha MVP v0. Lerp: gatilho não disparou.
