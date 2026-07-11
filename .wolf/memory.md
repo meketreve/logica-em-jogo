@@ -201,3 +201,34 @@ Push inicial pro GitHub + checkpoints 2, 3 e 4 completos e playtestados no mesmo
 - CP3: raycast DDA puro, place/break validados no servidor (bounds/reach/AABB), block_changed genérico, crosshair/highlight/hotbar. 42 testes. bug-004 investigado = borda do mundo, by design.
 - CP4: rules.ts — sistema genérico de vizinhança (REGRA DE OURO); areia = 1 regra; fila dirty + changedThisTick; cliente zero mudanças. 48 testes.
 Próxima sessão: checkpoint 5 (segundo cliente via Node+ws) — detalhes no STATUS.md.
+| 17:48 | Session end: 48 writes across 20 files (protocol.ts, session.ts, protocol.test.ts, session.test.ts, index.ts) | 15 reads | ~23074 tok |
+
+## Session: 2026-07-11 17:48
+
+| Time | Action | File(s) | Outcome | ~Tokens |
+|------|--------|---------|---------|--------|
+| 17:50 | Edited shared/src/protocol.ts | expanded (+15 lines) | ~168 |
+| 17:51 | Edited shared/src/protocol.ts | added 3 condition(s) | ~306 |
+| 17:51 | Edited shared/src/session.ts | expanded (+7 lines) | ~155 |
+| 17:51 | Edited shared/src/session.ts | added 1 condition(s) | ~112 |
+| 17:51 | Edited shared/src/session.ts | added 1 condition(s) | ~66 |
+| 17:51 | Created server/src/index.ts | — | ~504 |
+| 17:52 | Edited client/src/connection.ts | added optional chaining | ~486 |
+| 17:52 | Edited client/src/main.ts | 12→12 lines | ~156 |
+| 17:52 | Edited client/src/main.ts | added 2 condition(s) | ~390 |
+| 17:52 | Edited client/src/main.ts | added 2 condition(s) | ~350 |
+| 17:52 | Edited client/src/main.ts | added nullish coalescing | ~45 |
+| 17:53 | Edited shared/src/protocol.test.ts | expanded (+15 lines) | ~300 |
+| 17:53 | Edited shared/src/session.test.ts | added optional chaining | ~534 |
+| 17:54 | Created ../../../tmp/claude-1000/-home-meketreve-logica-em-jogo/f3234578-5a68-4273-9e45-1b7d17f2b3db/scratchpad/ws-smoke.ts | — | ~1083 |
+| 17:54 | Edited ../../../tmp/claude-1000/-home-meketreve-logica-em-jogo/f3234578-5a68-4273-9e45-1b7d17f2b3db/scratchpad/ws-smoke.ts | added 1 import(s) | ~47 |
+| 17:54 | Edited ../../../tmp/claude-1000/-home-meketreve-logica-em-jogo/f3234578-5a68-4273-9e45-1b7d17f2b3db/scratchpad/ws-smoke.ts | 2→3 lines | ~68 |
+| 17:54 | Edited ../../../tmp/claude-1000/-home-meketreve-logica-em-jogo/f3234578-5a68-4273-9e45-1b7d17f2b3db/scratchpad/ws-smoke.ts | 4→4 lines | ~68 |
+| 17:55 | Edited ../../../tmp/claude-1000/-home-meketreve-logica-em-jogo/f3234578-5a68-4273-9e45-1b7d17f2b3db/scratchpad/ws-smoke.ts | 2→2 lines | ~42 |
+| 18:05 | cp5: protocolo +player_moved/player_left (parse defensivo) | shared/src/protocol.ts | ok | ~600 |
+| 18:08 | cp5: session relay move→outros (sem eco) + player_left no disconnect | shared/src/session.ts | ok | ~500 |
+| 18:10 | cp5: hospedeiro Node+ws real (id/socket, close→disconnect, error handler) | server/src/index.ts | ok | ~500 |
+| 18:12 | cp5: WsConnection (fila até open, binaryType arraybuffer) + ?server= + caixas coloridas de jogadores remotos | client/src/connection.ts, client/src/main.ts | ok | ~900 |
+| 18:15 | cp5: 3 testes novos (relay/left/parse) → 51 passando, typecheck 3/3, build ok | shared/src/*.test.ts | ok | ~400 |
+| 18:17 | cp5: smoke real — servidor Node + 2 clientes ws: snapshot/relay/block_changed/left todos ✅ | scratchpad/ws-smoke.mts | ok | ~800 |
+| 18:19 | cp5: screenshots headless — cliente via ws E via worker renderizam | scratchpad/cp5-*.png | ok | ~300 |

@@ -62,6 +62,20 @@
   transiente duplicado é invisível no cliente; ordem inversa pisca buraco por 1 frame.
 - Regra de bloco NUNCA escreve no mundo — devolve BlockChange[] e a session aplica
   (broadcast + marca vizinhos). Escrever direto pularia a propagação e o netcode.
+- Presença de jogadores (cp5): cliente NUNCA sabe o próprio id — servidor relay
+  `player_moved` só pros OUTROS (broadcastExcept). Descoberta de quem está online =
+  o próprio fluxo de move a 10 Hz (novo cliente vê todo mundo em ≤100 ms); não
+  existe (nem precisa de) mensagem "player_joined"/lista no join. `player_left`
+  no disconnect remove a caixa.
+- WsConnection: WebSocket.send antes do open LANÇA — fila interna segura mensagens
+  em CONNECTING e despeja no onopen (o join é enviado logo após o construtor).
+- Host ws (Node): socket sem handler de "error" derruba o processo inteiro;
+  sempre registrar. Mensagem client→servidor: ignorar frames binários
+  (protocolo de subida é 100% JSON) e usar `data.toString()` no Buffer.
+- Node 22+ tem WebSocket GLOBAL (cliente) — smoke de netcode roda com zero deps,
+  importando /shared por caminho absoluto via tsx.
+- Smoke script em scratchpad (fora do repo): usar extensão `.mts` — sem
+  package.json type:module, tsx compila `.ts` como CJS e top-level await quebra.
 
 ## Do-Not-Repeat
 

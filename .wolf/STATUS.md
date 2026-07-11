@@ -85,6 +85,23 @@ Documento é o ÚLTIMO entregável, não o primeiro. Construir, não documentar.
   regra: materializa embaixo antes de limpar origem (sem buraco piscando). 48 testes
   (6 novos: regra pura + cascata via protocolo + rejeição out-of-bounds do bug-004),
   typecheck 3/3, build ok. Playtest do usuário ✅ (2026-07-11, "tudo certo").
+- **Checkpoint 5 (2026-07-11): segundo cliente (LAN) — Node+ws real.** Protocolo:
+  `player_moved` (relay SÓ pros outros — servidor nunca ecoa pro autor; cliente não
+  precisa saber o próprio id) e `player_left` (disconnect), parse defensivo dos dois.
+  Session: move → broadcastExcept; handleDisconnect avisa quem fica (idempotente).
+  `/server/src/index.ts` virou host real: embrulha a MESMA GameSession do worker
+  (id por socket via contador, close→handleDisconnect, handler de error obrigatório,
+  frames binários de subida ignorados), seed 20260710 igual ao worker. Cliente:
+  `WsConnection` (mesma interface Connection; fila até open; binaryType arraybuffer),
+  `?server=ws://host:8080` na URL escolhe hospedeiro (sem parâmetro = Web Worker
+  local como antes); outros jogadores = caixa colorida por id (HSL golden ratio),
+  sem lerp (gatilho: só se serrilhar). Sem "player_joined": presença emerge do move
+  a 10 Hz. 51 testes (3 novos), typecheck 3/3, build ok. Smoke real (Node 24,
+  WebSocket global, zero deps): 2 clientes ws no servidor — snapshot idêntico,
+  relay sem eco, block_changed pros dois, player_left ✅. Screenshots headless:
+  cliente via ws E via worker renderizam. **Playtest do usuário PENDENTE**
+  (2 navegadores: `npm run dev` + `npm run dev:server`, abrir 2 abas em
+  `http://localhost:5173/?server=ws://localhost:8080`).
 
 ---
 
@@ -198,24 +215,27 @@ Ordem dos checkpoints (cada um jogável antes do próximo):
 2. ✅ Servidor autoritativo (mundo vem de `/shared` via Web Worker; tela igual).
 3. ✅ Colocar/quebrar (clique→ação→`block_changed`).
 4. ✅ Areia cai (tick de gravidade no servidor).
-5. Segundo cliente (Web Worker → Node+ws; 2 navegadores, mesmo mundo).
+5. ✅ Segundo cliente (Web Worker → Node+ws; 2 navegadores, mesmo mundo).
 6. Chat + 1 comando (parser no servidor).
 
 Rede de segurança (dev sem revisão): TS estrito; `/shared` sem deps; testes automáticos
 em `/shared` desde o checkpoint 2 (gravidade testável sem abrir navegador); cada checkpoint jogável.
 
 **Próximo passo concreto (começar por aqui na próxima sessão):**
-1. **Checkpoint 5: segundo cliente (LAN).** Trocar o hospedeiro Web Worker pelo Node+ws
-   (`/server/src/index.ts` embrulha a MESMA GameSession; `WsConnection` no cliente com a
-   MESMA interface `Connection` de `client/src/connection.ts`). Precisa de:
-   - id de cliente por socket (contador no host ws) + `handleDisconnect` no close;
-   - `player_moved` broadcast (server→client, novo no protocolo) + mesh simples dos
-     outros jogadores no cliente (caixa colorida serve; lerp SÓ se serrilhar — gatilho);
-   - escolha de hospedeiro no cliente (ex.: `?server=ws://host:8080` na URL; sem
-     parâmetro = Web Worker local como hoje);
-   - snapshot binário via ws: `socket.binaryType = "arraybuffer"`.
-   Critério de aceitação 3: 2 navegadores, mesmo mundo, mudanças de um aparecem no outro.
-2. Depois: checkpoint 6 (chat + 1 comando com parser no servidor) — fecha o MVP v0.
+0. **Playtest do checkpoint 5** (se ainda não feito): `npm run dev` + `npm run dev:server`,
+   2 abas em `http://localhost:5173/?server=ws://localhost:8080` — andar (caixa colorida
+   do outro se mexe), colocar/quebrar bloco (aparece na outra aba), fechar 1 aba (caixa
+   some). Perguntar se movimento remoto serrilha (gatilho do lerp).
+1. **Checkpoint 6: chat + 1 comando (parser no servidor)** — fecha o MVP v0.
+   - Protocolo: `chat` client→server (texto) e `chat` server→client (autor + texto).
+   - Session: parser de comando (`/` prefixo); 1 comando de teste que MUDA o mundo
+     (ex.: `/bloco x y z id` via applyBlock — prova pipeline comando→estado→broadcast).
+   - Cliente: UI de chat em HTML/CSS por cima do canvas (Enter abre, Esc fecha;
+     cuidado com foco vs pointer lock), sem GUI de engine.
+   - Prever gatilhos de som (hooks de evento; sem áudio ainda).
+   Critério de aceitação 4: chat funciona e 1 comando executa no servidor e reflete no mundo.
+2. Depois do MVP v0: validação de física do move no servidor OU início da fase de
+   cenários/autoria (decidir com o usuário).
 
 ⚠️ Issue conhecida (bug-003, fix PARCIAL, NÃO bloqueante): pulos ocasionais de câmera
 por spikes de movementX/Y do Chrome no pointer lock. Filtro MAX_DELTA=200 +
