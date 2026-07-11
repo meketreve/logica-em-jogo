@@ -84,7 +84,7 @@ Documento é o ÚLTIMO entregável, não o primeiro. Construir, não documentar.
   `block_changed` NORMAIS — cliente mudou ZERO linhas (só rótulo do HUD → 4). Ordem da
   regra: materializa embaixo antes de limpar origem (sem buraco piscando). 48 testes
   (6 novos: regra pura + cascata via protocolo + rejeição out-of-bounds do bug-004),
-  typecheck 3/3, build ok.
+  typecheck 3/3, build ok. Playtest do usuário ✅ (2026-07-11, "tudo certo").
 
 ---
 
@@ -204,16 +204,18 @@ Ordem dos checkpoints (cada um jogável antes do próximo):
 Rede de segurança (dev sem revisão): TS estrito; `/shared` sem deps; testes automáticos
 em `/shared` desde o checkpoint 2 (gravidade testável sem abrir navegador); cada checkpoint jogável.
 
-**Próximo passo concreto:**
-1. **Playtest do checkpoint 4 pelo usuário:** colocar areia no ar → cai 1 célula/tick
-   (~10/s); quebrar bloco embaixo de areia → cai em cadeia; pedra/pedregulho no ar
-   ficam parados; F3 → tick ms deve continuar ~0.
-2. **Checkpoint 5: segundo cliente (LAN).** Trocar o hospedeiro Web Worker pelo Node+ws
+**Próximo passo concreto (começar por aqui na próxima sessão):**
+1. **Checkpoint 5: segundo cliente (LAN).** Trocar o hospedeiro Web Worker pelo Node+ws
    (`/server/src/index.ts` embrulha a MESMA GameSession; `WsConnection` no cliente com a
-   MESMA interface `Connection`). Precisa de: id de cliente por socket, `player_moved`
-   broadcast (outros jogadores visíveis — mesh simples), disconnect → handleDisconnect.
-   2 navegadores, mesmo mundo, mudanças de um aparecem no outro (critério de aceitação 3).
-3. Depois: checkpoint 6 (chat + 1 comando com parser no servidor).
+   MESMA interface `Connection` de `client/src/connection.ts`). Precisa de:
+   - id de cliente por socket (contador no host ws) + `handleDisconnect` no close;
+   - `player_moved` broadcast (server→client, novo no protocolo) + mesh simples dos
+     outros jogadores no cliente (caixa colorida serve; lerp SÓ se serrilhar — gatilho);
+   - escolha de hospedeiro no cliente (ex.: `?server=ws://host:8080` na URL; sem
+     parâmetro = Web Worker local como hoje);
+   - snapshot binário via ws: `socket.binaryType = "arraybuffer"`.
+   Critério de aceitação 3: 2 navegadores, mesmo mundo, mudanças de um aparecem no outro.
+2. Depois: checkpoint 6 (chat + 1 comando com parser no servidor) — fecha o MVP v0.
 
 ⚠️ Issue conhecida (bug-003, fix PARCIAL, NÃO bloqueante): pulos ocasionais de câmera
 por spikes de movementX/Y do Chrome no pointer lock. Filtro MAX_DELTA=200 +

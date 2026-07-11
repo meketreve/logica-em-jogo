@@ -192,3 +192,12 @@
 | 17:42 | Edited shared/src/session.test.ts | 3→3 lines | ~28 |
 | 17:42 | Edited client/src/main.ts | 2→2 lines | ~15 |
 | 17:43 | checkpoint 4: rules.ts (sistema genérico de vizinhança + sandRule), fila dirty/changedThisTick na session, tick drena e aplica; cliente ZERO mudanças (só rótulo HUD) | shared/src/{rules,rules.test,session,session.test,index}.ts client/src/main.ts | 48 testes, typecheck 3/3, build ok | ~20k |
+| 17:43 | Session end: 48 writes across 20 files (protocol.ts, session.ts, protocol.test.ts, session.test.ts, index.ts) | 15 reads | ~23074 tok |
+| 17:50 | playtest cp4 aprovado ("tudo certo"); sessão encerrada | — | STATUS.md pronto pra próxima sessão: começar no checkpoint 5 (Node+ws) | ~2k |
+
+## Resumo da sessão 2026-07-11 (tarde)
+Push inicial pro GitHub + checkpoints 2, 3 e 4 completos e playtestados no mesmo dia:
+- CP2: GameSession autoritativa em /shared + host Web Worker + protocolo (JSON defensivo + snapshot binário LJW0) + Connection no cliente. 33 testes.
+- CP3: raycast DDA puro, place/break validados no servidor (bounds/reach/AABB), block_changed genérico, crosshair/highlight/hotbar. 42 testes. bug-004 investigado = borda do mundo, by design.
+- CP4: rules.ts — sistema genérico de vizinhança (REGRA DE OURO); areia = 1 regra; fila dirty + changedThisTick; cliente zero mudanças. 48 testes.
+Próxima sessão: checkpoint 5 (segundo cliente via Node+ws) — detalhes no STATUS.md.
