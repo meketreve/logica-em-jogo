@@ -76,6 +76,11 @@
   importando /shared por caminho absoluto via tsx.
 - Smoke script em scratchpad (fora do repo): usar extensão `.mts` — sem
   package.json type:module, tsx compila `.ts` como CJS e top-level await quebra.
+- Spawn é propriedade da CRIAÇÃO do mundo (terreno pristino), não cálculo de
+  join: GameSession guarda `readonly spawn` do construtor e manda mensagem
+  `spawn` antes do snapshot. Cliente NUNCA deriva spawn do snapshot — snapshot
+  reflete o mundo já escavado/construído (bug-010). Vale pra qualquer valor
+  "do terreno original": derivar na criação, transmitir, nunca recalcular.
 
 ## Do-Not-Repeat
 
@@ -98,6 +103,13 @@
   o PDF do projeto (restaurado do index). Filtrar por extensão ou usar `git grep -Il ''` (só texto).
 - [2026-07-11] Saída de git via rtk é comprimida/cacheada — `git status` pode mentir. Verdade:
   `git diff --numstat` / `git diff-index HEAD --` / `git hash-object <arq>` vs `git ls-files -s`.
+- [2026-07-11] NÃO usar `fuser -k` cego em porta compartilhada (8080/5173): matei o
+  `npm run dev:server` do USUÁRIO achando que era o meu processo de fundo. Antes de matar,
+  conferir dono: `ps -o pid,cmd -p $(fuser 8080/tcp 2>/dev/null)` ou guardar o PID do
+  processo que EU iniciei e matar só ele.
+- [2026-07-11] Não recalcular valores do terreno pristino (spawn etc.) no join ou no cliente
+  a partir do snapshot — mundo/snapshot podem estar modificados (bug-010). Calcular na
+  criação do mundo e transmitir pelo protocolo.
 
 ## Decision Log
 

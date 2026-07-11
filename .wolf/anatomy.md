@@ -1,7 +1,7 @@
 # anatomy.md
 
-> Auto-maintained by OpenWolf. Last scanned: 2026-07-11T20:55:04.738Z
-> Files: 31 tracked | Anatomy hits: 0 | Misses: 0
+> Auto-maintained by OpenWolf. Last scanned: 2026-07-11T21:35:39.153Z
+> Files: 32 tracked | Anatomy hits: 0 | Misses: 0
 
 ## ../../../tmp/claude-1000/-home-meketreve-logica-em-jogo/a33579f2-d151-4a57-9677-89e57efca3e1/scratchpad/
 
@@ -9,6 +9,7 @@
 
 ## ../../../tmp/claude-1000/-home-meketreve-logica-em-jogo/f3234578-5a68-4273-9e45-1b7d17f2b3db/scratchpad/
 
+- `ws-smoke.mts` — Smoke do checkpoint 5: dois clientes ws no servidor Node real. (~1166 tok)
 - `ws-smoke.ts` — Smoke do checkpoint 5: dois clientes ws no servidor Node real. (~1146 tok)
 
 ## ./
@@ -32,7 +33,7 @@
 - `connection.ts` — Conexão do cliente com O SERVIDOR — interface única, hospedeiro invisível. (~846 tok)
 - `hud.ts` — HUD de perfilação (F3): FPS, frametime méd+p95, remesh, draw calls e (~1099 tok)
 - `input.ts` — Teclado + mouse (pointer lock). SÓ coleta input — nenhuma decisão de (~844 tok)
-- `main.ts` — Checkpoint 5: segundo cliente (LAN). `?server=ws://host:8080` na URL conecta (~2706 tok)
+- `main.ts` — Checkpoint 5: segundo cliente (LAN). `?server=ws://host:8080` na URL conecta (~2825 tok)
 
 ## server/
 
@@ -55,14 +56,14 @@
 - `mesher.ts` — Culled mesher: função PURA (bytes do mundo → geometria). Só emite faces que (~1443 tok)
 - `physics.test.ts` — Mundo 1 chunk com chão sólido em y ∈ [0,7]. (~856 tok)
 - `physics.ts` — Física do jogador (andar, gravidade, colisão AABB com o grid de voxels). (~1079 tok)
-- `protocol.test.ts` — Declares DIMS (~1486 tok)
-- `protocol.ts` — Protocolo v0 (checkpoint 2). Mensagens JSON dos dois lados + world_snapshot (~2110 tok)
+- `protocol.test.ts` — Declares DIMS (~1596 tok)
+- `protocol.ts` — Protocolo v0 (checkpoint 2). Mensagens JSON dos dois lados + world_snapshot (~2278 tok)
 - `raycast.test.ts` — Mundo 16³ com chão sólido em y ∈ [0,7]. (~604 tok)
 - `raycast.ts` — Raycast de voxel (DDA de Amanatides-Woo): anda célula a célula do grid até (~649 tok)
 - `rules.test.ts` — Declares DIMS (~392 tok)
 - `rules.ts` — Sistema GENÉRICO de atualização de bloco por vizinhança — a REGRA DE OURO (~481 tok)
-- `session.test.ts` — DIMS: collect (~3003 tok)
-- `session.ts` — GameSession: o SERVIDOR autoritativo, independente de hospedeiro. (~2373 tok)
+- `session.test.ts` — DIMS: collect (~3374 tok)
+- `session.ts` — GameSession: o SERVIDOR autoritativo, independente de hospedeiro. (~2500 tok)
 - `world.test.ts` — Declares DIMS (~761 tok)
 - `world.ts` — Dimensões do mundo em chunks. Parâmetro de criação, gravado no header do save/snapshot. (~848 tok)
 - `worldgen.ts` — Geração de terreno determinística (mesma seed = mesmos bytes em qualquer (~575 tok)

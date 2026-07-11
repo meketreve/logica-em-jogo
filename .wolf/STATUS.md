@@ -99,9 +99,14 @@ Documento é o ÚLTIMO entregável, não o primeiro. Construir, não documentar.
   a 10 Hz. 51 testes (3 novos), typecheck 3/3, build ok. Smoke real (Node 24,
   WebSocket global, zero deps): 2 clientes ws no servidor — snapshot idêntico,
   relay sem eco, block_changed pros dois, player_left ✅. Screenshots headless:
-  cliente via ws E via worker renderizam. **Playtest do usuário PENDENTE**
-  (2 navegadores: `npm run dev` + `npm run dev:server`, abrir 2 abas em
-  `http://localhost:5173/?server=ws://localhost:8080`).
+  cliente via ws E via worker renderizam. **Playtest do usuário ✅ (2026-07-11,
+  "tudo certo")** — achou o bug-010: rejoin nascia no fundo do buraco (spawn era
+  recalculado por findSpawnY a cada join, sobre o mundo já escavado). **Corrigido:**
+  spawn FIXO calculado uma vez no construtor da GameSession (terreno pristino) +
+  mensagem `spawn` nova no protocolo (enviada antes do snapshot); cliente usa o
+  ponto do servidor pra nascer e pra respawn (nunca deriva do snapshot). 53 testes
+  (2 novos, incl. regressão: escavar coluna não muda spawn do próximo join),
+  smoke real contra mundo escavado ✅. Fix pendente de re-playtest rápido.
 
 ---
 
@@ -222,10 +227,11 @@ Rede de segurança (dev sem revisão): TS estrito; `/shared` sem deps; testes au
 em `/shared` desde o checkpoint 2 (gravidade testável sem abrir navegador); cada checkpoint jogável.
 
 **Próximo passo concreto (começar por aqui na próxima sessão):**
-0. **Playtest do checkpoint 5** (se ainda não feito): `npm run dev` + `npm run dev:server`,
-   2 abas em `http://localhost:5173/?server=ws://localhost:8080` — andar (caixa colorida
-   do outro se mexe), colocar/quebrar bloco (aparece na outra aba), fechar 1 aba (caixa
-   some). Perguntar se movimento remoto serrilha (gatilho do lerp).
+0. **Re-playtest rápido do fix do bug-010** (se ainda não feito): reiniciar
+   `npm run dev:server` (o anterior foi derrubado na sessão de 2026-07-11), cavar a
+   coluna do spawn, fechar e reabrir a aba — deve nascer no MESMO ponto da superfície
+   (e cair no buraco — esperado). Perguntar também se movimento remoto serrilha
+   (gatilho do lerp).
 1. **Checkpoint 6: chat + 1 comando (parser no servidor)** — fecha o MVP v0.
    - Protocolo: `chat` client→server (texto) e `chat` server→client (autor + texto).
    - Session: parser de comando (`/` prefixo); 1 comando de teste que MUDA o mundo

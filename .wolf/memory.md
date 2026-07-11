@@ -232,3 +232,20 @@ Próxima sessão: checkpoint 5 (segundo cliente via Node+ws) — detalhes no STA
 | 18:15 | cp5: 3 testes novos (relay/left/parse) → 51 passando, typecheck 3/3, build ok | shared/src/*.test.ts | ok | ~400 |
 | 18:17 | cp5: smoke real — servidor Node + 2 clientes ws: snapshot/relay/block_changed/left todos ✅ | scratchpad/ws-smoke.mts | ok | ~800 |
 | 18:19 | cp5: screenshots headless — cliente via ws E via worker renderizam | scratchpad/cp5-*.png | ok | ~300 |
+| 18:21 | Session end: 18 writes across 8 files (protocol.ts, session.ts, index.ts, connection.ts, main.ts) | 11 reads | ~15677 tok |
+| 18:33 | Edited shared/src/protocol.ts | expanded (+11 lines) | ~122 |
+| 18:33 | Edited shared/src/protocol.ts | added 1 condition(s) | ~142 |
+| 18:33 | Edited shared/src/session.ts | 4→7 lines | ~86 |
+| 18:33 | Edited shared/src/session.ts | expanded (+7 lines) | ~104 |
+| 18:34 | Edited shared/src/session.ts | 16→18 lines | ~169 |
+| 18:34 | Edited client/src/main.ts | 1→2 lines | ~36 |
+| 18:34 | Edited client/src/main.ts | added 1 condition(s) | ~51 |
+| 18:34 | Edited client/src/main.ts | added nullish coalescing | ~182 |
+| 18:34 | Edited shared/src/session.test.ts | 8→11 lines | ~149 |
+| 18:34 | Edited shared/src/session.test.ts | added optional chaining | ~356 |
+| 18:35 | Edited shared/src/session.test.ts | inline fix | ~17 |
+| 18:35 | Edited shared/src/protocol.test.ts | expanded (+8 lines) | ~153 |
+| 18:35 | Edited ../../../tmp/claude-1000/-home-meketreve-logica-em-jogo/f3234578-5a68-4273-9e45-1b7d17f2b3db/scratchpad/ws-smoke.mts | expanded (+6 lines) | ~162 |
+| 18:30 | bug-010 (playtest cp5): rejoin nascia no fundo do buraco — spawn recalculado no join | shared/src/session.ts, protocol.ts, client/src/main.ts | fixado: spawn fixo na criação + msg spawn no protocolo | ~1200 |
+| 18:36 | smoke contra servidor REAL escavado (findSpawnY=12, spawn=26) — fix provado; 53 testes, typecheck 3/3, build ok | scratchpad/ws-smoke.mts | ok | ~500 |
+| 18:38 | ⚠️ derrubei o dev:server do usuário (fuser -k 8080) — avisado pra reiniciar | — | sem dano (mundo é volátil) | ~50 |

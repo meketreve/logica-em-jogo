@@ -404,6 +404,137 @@
       "related_bugs": [],
       "occurrences": 1,
       "last_seen": "2026-07-11T18:19:00-03:00"
+    },
+    {
+      "id": "bug-025",
+      "timestamp": "2026-07-11T21:33:39.662Z",
+      "error_message": "Type error",
+      "file": "shared/src/protocol.ts",
+      "root_cause": "Missing or incorrect type annotation",
+      "fix": "Added type assertion/annotation",
+      "tags": [
+        "auto-detected",
+        "type-fix",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-11T21:33:39.662Z"
+    },
+    {
+      "id": "bug-026",
+      "timestamp": "2026-07-11T21:34:19.241Z",
+      "error_message": "Type error",
+      "file": "client/src/main.ts",
+      "root_cause": "Missing or incorrect type annotation",
+      "fix": "Added type assertion/annotation",
+      "tags": [
+        "auto-detected",
+        "type-fix",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-11T21:34:19.241Z"
+    },
+    {
+      "id": "bug-027",
+      "timestamp": "2026-07-11T21:34:28.987Z",
+      "error_message": "Null/undefined access in ",
+      "file": "client/src/main.ts",
+      "root_cause": "Property access on potentially null/undefined value",
+      "fix": "Added null safety (optional chaining or null check)",
+      "tags": [
+        "auto-detected",
+        "null-safety",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-11T21:34:28.987Z"
+    },
+    {
+      "id": "bug-028",
+      "timestamp": "2026-07-11T21:34:41.777Z",
+      "error_message": "Significant refactor of ",
+      "file": "shared/src/session.test.ts",
+      "root_cause": "3 lines replaced/restructured",
+      "fix": "Rewrote 8→11 lines (3 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-11T21:34:41.777Z"
+    },
+    {
+      "id": "bug-029",
+      "timestamp": "2026-07-11T21:34:54.279Z",
+      "error_message": "Null/undefined access in ",
+      "file": "shared/src/session.test.ts",
+      "root_cause": "Property access on potentially null/undefined value",
+      "fix": "Added null safety (optional chaining or null check)",
+      "tags": [
+        "auto-detected",
+        "null-safety",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-11T21:34:54.279Z"
+    },
+    {
+      "id": "bug-030",
+      "timestamp": "2026-07-11T21:35:08.040Z",
+      "error_message": "Type error",
+      "file": "shared/src/protocol.test.ts",
+      "root_cause": "Missing or incorrect type annotation",
+      "fix": "Added type assertion/annotation",
+      "tags": [
+        "auto-detected",
+        "type-fix",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-11T21:35:08.040Z"
+    },
+    {
+      "id": "bug-031",
+      "timestamp": "2026-07-11T21:35:39.173Z",
+      "error_message": "Missing await",
+      "file": "../../../tmp/claude-1000/-home-meketreve-logica-em-jogo/f3234578-5a68-4273-9e45-1b7d17f2b3db/scratchpad/ws-smoke.mts",
+      "root_cause": "Async call without await — returned Promise instead of value",
+      "fix": "Added await to async call",
+      "tags": [
+        "auto-detected",
+        "async-fix",
+        "mts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-11T21:35:39.173Z"
+    },
+    {
+      "id": "bug-010",
+      "timestamp": "2026-07-11T18:40:00-03:00",
+      "error_message": "Rejoin nasce no fundo do buraco: escavei a coluna do spawn até o fim do mundo, refiz o login e apareci nas últimas camadas (primeiro login nascia na superfície)",
+      "file": "shared/src/session.ts, shared/src/protocol.ts, client/src/main.ts",
+      "root_cause": "Spawn recalculado via findSpawnY a CADA join, sobre o mundo JÁ modificado (primeira célula de ar da coluna central = fundo do buraco). Cliente fazia o mesmo cálculo sobre o snapshot (também modificado).",
+      "fix": "GameSession calcula spawn UMA vez no construtor (terreno pristino, logo após generateWorld) e guarda readonly. Join manda mensagem 'spawn' (nova no protocolo) ANTES do snapshot; cliente usa esse ponto pra nascer e pra respawn (fallback local só se a mensagem faltar).",
+      "tags": [
+        "spawn",
+        "session",
+        "protocol",
+        "findSpawnY",
+        "rejoin",
+        "checkpoint-5"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-11T18:40:00-03:00"
     }
   ]
 }
