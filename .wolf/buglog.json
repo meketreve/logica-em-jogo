@@ -94,6 +94,134 @@
       "related_bugs": [],
       "occurrences": 1,
       "last_seen": "2026-07-11T20:12:44.400Z"
+    },
+    {
+      "id": "bug-006",
+      "timestamp": "2026-07-11T20:23:05.329Z",
+      "error_message": "Type error",
+      "file": "shared/src/blocks.ts",
+      "root_cause": "Missing or incorrect type annotation",
+      "fix": "Added type assertion/annotation",
+      "tags": [
+        "auto-detected",
+        "type-fix",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-11T20:23:05.329Z"
+    },
+    {
+      "id": "bug-007",
+      "timestamp": "2026-07-11T20:23:48.262Z",
+      "error_message": "Significant refactor of ",
+      "file": "shared/src/protocol.ts",
+      "root_cause": "2 lines replaced/restructured",
+      "fix": "Rewrote 14→25 lines (2 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-11T20:23:48.262Z"
+    },
+    {
+      "id": "bug-008",
+      "timestamp": "2026-07-11T20:24:17.759Z",
+      "error_message": "Significant refactor of ",
+      "file": "shared/src/session.ts",
+      "root_cause": "2 lines replaced/restructured",
+      "fix": "Rewrote 8→10 lines (2 removed) | Also: case \"join\":; x: 0, y: 0, z: 0, yaw: 0, pitch: 0,",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 2,
+      "last_seen": "2026-07-11T20:24:38.575Z"
+    },
+    {
+      "id": "bug-009",
+      "timestamp": "2026-07-11T20:25:42.341Z",
+      "error_message": "Null/undefined access in ",
+      "file": "shared/src/session.test.ts",
+      "root_cause": "Property access on potentially null/undefined value",
+      "fix": "Added null safety (optional chaining or null check)",
+      "tags": [
+        "auto-detected",
+        "null-safety",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-11T20:25:42.341Z"
+    },
+    {
+      "id": "bug-010",
+      "timestamp": "2026-07-11T20:26:08.197Z",
+      "error_message": "Missing guard clause",
+      "file": "shared/src/session.test.ts",
+      "root_cause": "No early return/throw for edge case: stats?.type !== \"debug_stats\"",
+      "fix": "Added guard clause: if (stats?.type !== \"debug_stats\")",
+      "tags": [
+        "auto-detected",
+        "guard-clause",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-11T20:26:08.197Z"
+    },
+    {
+      "id": "bug-011",
+      "timestamp": "2026-07-11T20:26:18.560Z",
+      "error_message": "Null/undefined access in ",
+      "file": "client/src/input.ts",
+      "root_cause": "Property access on potentially null/undefined value",
+      "fix": "Added null safety (optional chaining or null check)",
+      "tags": [
+        "auto-detected",
+        "null-safety",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-11T20:26:18.560Z"
+    },
+    {
+      "id": "bug-012",
+      "timestamp": "2026-07-11T20:27:10.024Z",
+      "error_message": "Null/undefined access in ",
+      "file": "client/src/main.ts",
+      "root_cause": "Property access on potentially null/undefined value",
+      "fix": "Added null safety (optional chaining or null check) | Also: // mira: raycast local (visual) — decisão continua no servid; camera.getWorldDirection(lookDir);",
+      "tags": [
+        "auto-detected",
+        "null-safety",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 2,
+      "last_seen": "2026-07-11T20:27:35.387Z"
+    },
+    {
+      "id": "bug-013",
+      "timestamp": "2026-07-11T20:27:25.776Z",
+      "error_message": "Missing guard clause",
+      "file": "client/src/main.ts",
+      "root_cause": "No early return/throw for edge case: !hotbarEl",
+      "fix": "Added guard clause: if (!hotbarEl)",
+      "tags": [
+        "auto-detected",
+        "guard-clause",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-11T20:27:25.776Z"
     }
   ]
 }

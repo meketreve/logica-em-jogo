@@ -44,6 +44,17 @@
   chunkIndex(), CHUNK_VOLUME bytes cada. decode SEMPRE valida magic/dims/tamanho.
 - anatomy.md é rescaneado por hook do OpenWolf ao criar arquivos — não precisa (e não
   adianta) editar entradas de arquivos novos manualmente; o hook sobrescreve.
+- `block_changed` é GENÉRICO por contrato: mesmo formato pra ação de jogador, ação de
+  outro jogador e regra do tick (areia/circuitos). Cliente aplica sem distinguir origem —
+  o checkpoint 4 (gravidade) não muda NADA no cliente.
+- Validação de ação no servidor (session.ts): join obrigatório → bounds → célula
+  compatível (ar p/ place, sólida p/ break) → alcance (PLAYER_REACH+2 de folga, pos do
+  move chega a 10 Hz) → AABB de jogadores (place não pode emparedar). Rejeição = silêncio
+  (sem NACK); cliente só muda mundo via block_changed.
+- Remesh na borda de chunk: mudar bloco com coord local 0 ou 15 exige remesh do chunk
+  vizinho também (culled mesher lê o vizinho). `ChunkRenderer.remeshBlock()` cuida disso.
+- input.ts: mousedown só dispara handler com pointer lock ativo — primeiro clique trava
+  o mouse e NÃO conta como ação (evita quebrar bloco ao entrar no jogo).
 
 ## Do-Not-Repeat
 

@@ -59,6 +59,19 @@ Documento é o ÚLTIMO entregável, não o primeiro. Construir, não documentar.
   Física do próprio jogador segue local (servidor valida depois). 33 testes (13 novos:
   protocol roundtrip/validação + session), typecheck 3/3, build ok (worker = bundle
   separado de 3,3 kB), screenshot idêntico ao checkpoint 1 — como planejado.
+  Playtest do usuário ✅ ("tudo certo").
+- **Checkpoint 3 (2026-07-11): colocar e quebrar bloco.** Novo em `/shared`: `raycast.ts`
+  (DDA Amanatides-Woo, função pura — cliente mira, servidor pode validar depois),
+  `PLAYER_REACH=5` em constants, `isPlaceable()` em blocks. Protocolo: `place_block`/
+  `break_block` (coords inteiras validadas) e `block_changed` (ServerMessage virou união;
+  cliente NÃO distingue origem — jogador, outro jogador ou gravidade futura). Session
+  valida TUDO no servidor: join obrigatório, bounds, célula ar/sólida, alcance com folga
+  (pos do move a 10 Hz), não emparedar jogador (AABB); spawn agora é autoritativo.
+  Cliente: clique esq/dir → mensagem → servidor → `block_changed` → setBlock local +
+  `remeshBlock()` (remesh do chunk + vizinhos na borda); highlight de mira (LineSegments),
+  crosshair, hotbar 1–4 (grama/pedra/pedregulho/areia). 42 testes (9 novos), typecheck
+  3/3, build ok, screenshot com crosshair+hotbar. Areia colocada FLUTUA — esperado,
+  gravidade é o checkpoint 4.
 
 ---
 
@@ -170,7 +183,7 @@ circuitos futuros — NÃO código especial de areia).
 Ordem dos checkpoints (cada um jogável antes do próximo):
 1. ✅ Mundo estático + andar (só cliente three.js, WASD+mouse, sem rede).
 2. ✅ Servidor autoritativo (mundo vem de `/shared` via Web Worker; tela igual).
-3. Colocar/quebrar (clique→ação→`block_changed`).
+3. ✅ Colocar/quebrar (clique→ação→`block_changed`).
 4. Areia cai (tick de gravidade no servidor).
 5. Segundo cliente (Web Worker → Node+ws; 2 navegadores, mesmo mundo).
 6. Chat + 1 comando (parser no servidor).
@@ -179,14 +192,13 @@ Rede de segurança (dev sem revisão): TS estrito; `/shared` sem deps; testes au
 em `/shared` desde o checkpoint 2 (gravidade testável sem abrir navegador); cada checkpoint jogável.
 
 **Próximo passo concreto:**
-1. **Playtest do checkpoint 2 pelo usuário** (tela deve ser idêntica ao checkpoint 1;
-   F3 agora mostra rede real e tick do servidor).
-2. **Checkpoint 3: colocar/quebrar bloco.** Raycast no cliente (SÓ mira/visual — não
-   decide nada), clique → `place_block`/`break_block` → servidor valida e aplica →
-   `block_changed` → cliente aplica na cópia local e chama `remesh()` do chunk afetado
-   (+ chunk vizinho quando o bloco está na borda). Protocolo ganha essas 3 mensagens
-   em `/shared/protocol.ts` com parse defensivo + testes (session: aplicar/rejeitar ação).
-3. Depois: checkpoint 4 (areia cai — fila de vizinhança no tick; REGRA DE OURO acima).
+1. **Playtest do checkpoint 3 pelo usuário:** colocar/quebrar com os 4 blocos, trocar
+   com 1–4, conferir highlight de mira e remesh na borda de chunk. Areia flutuando = ok.
+2. **Checkpoint 4: areia cai.** Fila de atualização por vizinhança no tick do servidor
+   (REGRA DE OURO acima — regra GENÉRICA de bloco, não `if areia`): `setBlock` marca
+   vizinhos como sujos; tick drena a fila; regra da areia = "se célula de baixo é ar,
+   desce 1". Queda vira `block_changed` normais (cliente já trata sem mudança nenhuma).
+   Testes: coluna de areia cai, areia sobre pedra não cai, quebra embaixo → cai em cadeia.
 
 ⚠️ Issue conhecida (bug-003, fix PARCIAL, NÃO bloqueante): pulos ocasionais de câmera
 por spikes de movementX/Y do Chrome no pointer lock. Filtro MAX_DELTA=200 +

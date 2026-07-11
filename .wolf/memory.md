@@ -146,3 +146,34 @@
 | 17:12 | Edited client/src/hud.ts | "rede ${s.net.msgsPerSec} " → "rede ${s.net.msgsPerSec} " | ~36 |
 | 17:06 | push main pro GitHub (repo privado meketreve/logica-em-jogo já existia; commit chore(wolf) antes) | — | ok, main=origin/main | ~2k |
 | 17:14 | checkpoint 2: protocol.ts+session.ts em /shared (+13 testes), worker.ts em /server (lib WebWorker no tsconfig), connection.ts + main.ts refeito no /client, HUD tick méd/máx | shared/src/{protocol,session}{,.test}.ts server/src/worker.ts client/src/{connection,main,hud}.ts | 33 testes, typecheck 3/3, build ok, screenshot = checkpoint 1 | ~35k |
+| 17:17 | Session end: 11 writes across 10 files (protocol.ts, session.ts, protocol.test.ts, session.test.ts, index.ts) | 10 reads | ~10559 tok |
+| 17:18 | Session end: 11 writes across 10 files (protocol.ts, session.ts, protocol.test.ts, session.test.ts, index.ts) | 10 reads | ~10559 tok |
+| 17:40 | playtest do checkpoint 2 pelo usuário: "tudo certo" | — | aprovado, próximo = checkpoint 3 | ~1k |
+| 17:20 | Session end: 11 writes across 10 files (protocol.ts, session.ts, protocol.test.ts, session.test.ts, index.ts) | 10 reads | ~10559 tok |
+| 17:23 | Edited shared/src/constants.ts | 2→5 lines | ~62 |
+| 17:23 | Edited shared/src/blocks.ts | modified isPlaceable() | ~81 |
+| 17:23 | Created shared/src/raycast.ts | — | ~649 |
+| 17:23 | Created shared/src/raycast.test.ts | — | ~604 |
+| 17:23 | Edited shared/src/protocol.ts | expanded (+11 lines) | ~237 |
+| 17:23 | Edited shared/src/protocol.ts | added 2 condition(s) | ~311 |
+| 17:24 | Edited shared/src/protocol.ts | modified switch() | ~254 |
+| 17:24 | Edited shared/src/session.ts | added 2 import(s) | ~115 |
+| 17:24 | Edited shared/src/session.ts | added 11 condition(s) | ~912 |
+| 17:24 | Edited shared/src/session.ts | modified if() | ~95 |
+| 17:24 | Edited shared/src/index.ts | 2→3 lines | ~23 |
+| 17:24 | Edited shared/src/session.test.ts | added 1 import(s) | ~82 |
+| 17:25 | Edited shared/src/session.test.ts | added optional chaining | ~800 |
+| 17:25 | Edited shared/src/protocol.test.ts | expanded (+12 lines) | ~218 |
+| 17:25 | Edited shared/src/protocol.test.ts | 6→10 lines | ~175 |
+| 17:26 | Edited shared/src/session.test.ts | toBeNull() → Error() | ~102 |
+| 17:26 | Edited client/src/input.ts | 2→3 lines | ~42 |
+| 17:26 | Edited client/src/input.ts | added optional chaining | ~91 |
+| 17:26 | Edited client/src/input.ts | 4→9 lines | ~95 |
+| 17:26 | Edited client/src/chunks.ts | added 6 condition(s) | ~295 |
+| 17:26 | Edited client/index.html | expanded (+30 lines) | ~222 |
+| 17:26 | Edited client/index.html | 2→5 lines | ~61 |
+| 17:27 | Edited client/src/main.ts | 24→28 lines | ~222 |
+| 17:27 | Edited client/src/main.ts | added optional chaining | ~150 |
+| 17:27 | Edited client/src/main.ts | added 4 condition(s) | ~555 |
+| 17:27 | Edited client/src/main.ts | added 1 condition(s) | ~231 |
+| 17:30 | checkpoint 3: raycast DDA em /shared, place/break+block_changed no protocolo, validação completa na session (bounds/reach/AABB), highlight+crosshair+hotbar no cliente, remeshBlock com vizinhos | shared/src/{raycast,raycast.test,protocol,protocol.test,session,session.test,constants,blocks,index}.ts client/src/{main,input,chunks}.ts client/index.html | 42 testes, typecheck 3/3, build ok, screenshot com crosshair+hotbar | ~30k |
