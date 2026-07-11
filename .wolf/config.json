@@ -67,7 +67,7 @@
         { "name": "mobile", "width": 375, "height": 812 }
       ],
       "max_screenshots": 6,
-      "chrome_path": null
+      "chrome_path": "/home/meketreve/.cache/puppeteer/chrome/linux-150.0.7871.115/chrome-linux64/chrome"
     }
   }
 }

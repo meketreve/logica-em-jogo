@@ -73,3 +73,57 @@
 | Time | Action | File(s) | Outcome | ~Tokens |
 |------|--------|---------|---------|--------|
 | 17:49 | resumo de sessão: git init, commit docs (aae8a06), scaffold monorepo (3fbca1c), STATUS.md atualizado p/ checkpoint 1 | .wolf/ | ok | ~sessão |
+
+## Session: 2026-07-10 18:08
+
+| Time | Action | File(s) | Outcome | ~Tokens |
+|------|--------|---------|---------|--------|
+
+## Session: 2026-07-11 22:51
+
+| Time | Action | File(s) | Outcome | ~Tokens |
+|------|--------|---------|---------|--------|
+
+## Session: 2026-07-11 22:52
+
+| Time | Action | File(s) | Outcome | ~Tokens |
+|------|--------|---------|---------|--------|
+| 00:02 | Created shared/src/world.ts | — | ~848 |
+| 00:02 | Created shared/src/worldgen.ts | — | ~575 |
+| 00:02 | Created shared/src/mesher.ts | — | ~1443 |
+| 00:02 | Created shared/src/physics.ts | — | ~1079 |
+| 00:03 | Created shared/src/index.ts | — | ~46 |
+| 00:03 | Created shared/src/world.test.ts | — | ~761 |
+| 00:03 | Created shared/src/mesher.test.ts | — | ~561 |
+| 00:03 | Created shared/src/physics.test.ts | — | ~856 |
+| 10:35 | Created client/src/atlasTexture.ts | — | ~799 |
+| 10:35 | Created client/src/chunks.ts | — | ~527 |
+| 10:35 | Created client/src/input.ts | — | ~450 |
+| 10:35 | Created client/src/hud.ts | — | ~1019 |
+| 10:36 | Created client/src/main.ts | — | ~980 |
+| 10:36 | Created client/index.html | — | ~527 |
+| 10:36 | Edited client/src/atlasTexture.ts | 2→2 lines | ~15 |
+| 10:49 | designqc: captured 0 screenshots (0KB, ~0 tok) | / | ready for eval | ~0 |
+| 10:30 | npm install (node_modules ausente pós-migração pro WSL) | package-lock.json | ok, vitest voltou | ~200 |
+| 10:35 | Checkpoint 1 /shared: world.ts, worldgen.ts, mesher.ts, physics.ts + 3 arquivos de teste (16 testes novos) | shared/src/* | 20/20 testes, typecheck ok | ~8000 |
+| 10:45 | Checkpoint 1 /client: atlasTexture, chunks, input, hud, main reescrito, index.html (overlay+HUD) | client/src/*, client/index.html | typecheck 3/3, build ok | ~6000 |
+| 10:50 | Fix TS2345 literal-type em default param (bug-001) | client/src/atlasTexture.ts | corrigido | ~300 |
+| 10:55 | Chrome p/ screenshot: unzip ausente quebrava puppeteer install; extraído manual c/ python3, chrome_path setado (bug-002) | .wolf/config.json | chrome headless funcional | ~1500 |
+| 10:58 | Screenshot headless valida checkpoint 1: terreno grama/areia renderizando + overlay | scratchpad/checkpoint1.png | ✅ visual ok | ~1500 |
+| 11:00 | STATUS/anatomy/cerebrum/buglog atualizados; próxima: playtest do usuário + commit + checkpoint 2 | .wolf/* | ok | ~1000 |
+| 10:54 | Session end: 15 writes across 14 files (world.ts, worldgen.ts, mesher.ts, physics.ts, index.ts) | 9 reads | ~10523 tok |
+| 11:15 | Edited client/src/input.ts | 2→4 lines | ~72 |
+| 11:16 | Edited client/src/input.ts | added optional chaining | ~188 |
+| 11:20 | Fix câmera teleportando (spikes de movementX/Y do Chrome no pointer lock): MAX_DELTA=350 + unadjustedMovement (bug-003) | client/src/input.ts | typecheck ok, aguarda re-teste | ~800 |
+| 11:16 | Session end: 17 writes across 14 files (world.ts, worldgen.ts, mesher.ts, physics.ts, index.ts) | 9 reads | ~10783 tok |
+| 11:19 | Edited client/src/input.ts | 2→5 lines | ~79 |
+| 11:19 | Edited client/src/input.ts | added 1 condition(s) | ~161 |
+| 11:19 | Edited client/src/hud.ts | 2→5 lines | ~69 |
+| 11:19 | Edited client/src/hud.ts | added 1 condition(s) | ~128 |
+| 11:19 | Edited client/src/main.ts | 1→5 lines | ~53 |
+| 11:19 | Session end: 22 writes across 14 files (world.ts, worldgen.ts, mesher.ts, physics.ts, index.ts) | 9 reads | ~11273 tok |
+| 11:45 | Playtest usuário: checkpoint 1 ok; pulos de câmera melhoraram (fix parcial bug-003), restam raros | client/src/input.ts | parcial — dados no HUD p/ próxima rodada | ~500 |
+| 11:50 | STATUS/buglog atualizados (bug-004 auto-falso-positivo removido); commit do checkpoint 1 | .wolf/*, git | ok | ~800 |
+| 11:37 | Created .gitattributes | — | ~31 |
+| 12:10 | Saneamento git: CRLF→LF (sed corrompeu PDF, restaurado), .gitattributes, identidade local refeita, renormalize (bug-004) | .gitattributes, git config | árvore limpa | ~3000 |
+| 12:15 | Commits: 1d0c0a7 feat checkpoint 1 (+1140), e4e43f7 chore(wolf) (+860); push GitHub PENDENTE | git | ✅ | ~500 |

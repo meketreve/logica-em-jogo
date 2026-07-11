@@ -23,6 +23,14 @@
 - Areia/gravidade, circuitos lógicos e detecção de objetivo = MESMO subsistema (atualização
   de bloco por vizinhança no tick do servidor). Implementar genérico desde o início.
 - Painel de circuito que colapsa em 1 bloco reutilizável = abstração (pilar Wing/ISTE/CSTA).
+- Verificação visual de checkpoint sem navegador interativo: `npm run dev` em background +
+  `~/.cache/puppeteer/chrome/linux-150.0.7871.115/chrome-linux64/chrome --headless=new
+  --no-sandbox --disable-gpu --enable-unsafe-swiftshader --window-size=1280,800
+  --virtual-time-budget=8000 --screenshot=out.png http://localhost:5173/` (WebGL renderiza
+  via SwiftShader). `openwolf designqc` dá navigation timeout nesse app — usar o comando cru.
+- Convenção de índices (contrato binário): chunk em world.chunks = `(cy*dims.z+cz)*dims.x+cx`;
+  bloco no Uint8Array = `(ly*CHUNK_SIZE+lz)*CHUNK_SIZE+lx`. getBlock fora dos limites = Air
+  (borda do mundo renderiza face; jogador cai da borda → respawn no cliente).
 
 ## Do-Not-Repeat
 
@@ -36,6 +44,15 @@
   NÃO contorna (roda no sandbox). "Abrir pra LAN" é papel do HOST (.exe/servidor Node),
   não do aluno. Não prometer cliente-web que vira servidor-web.
 - [2026-07-10] Não escrever "relatório de aplicação" antes do piloto real acontecer.
+- [2026-07-11] Parâmetro de função com default vindo de objeto `as const` infere TIPO LITERAL
+  (ex.: `yEnd = ATLAS.tilePx` vira tipo `16` e rejeita outros valores). Sempre anotar:
+  `yEnd: number = ATLAS.tilePx`. (bug-001)
+- [2026-07-11] Com `noUncheckedIndexedAccess`, indexação de Uint8Array/array devolve
+  `T | undefined` — usar `?? fallback` (ex.: `?? BlockId.Air`) em vez de `!` nos acessos a chunk.
+- [2026-07-11] NUNCA rodar sed/normalização em `git ls-files` sem excluir binários — corrompeu
+  o PDF do projeto (restaurado do index). Filtrar por extensão ou usar `git grep -Il ''` (só texto).
+- [2026-07-11] Saída de git via rtk é comprimida/cacheada — `git status` pode mentir. Verdade:
+  `git diff --numstat` / `git diff-index HEAD --` / `git hash-object <arq>` vs `git ls-files -s`.
 
 ## Decision Log
 

@@ -1,7 +1,7 @@
 # STATUS — Projeto "Lógica em Jogo" (jogo voxel educacional)
 
 > Single source of truth for resuming work. Read this FIRST when starting a session.
-> Last updated: 2026-07-10
+> Last updated: 2026-07-11
 
 ---
 
@@ -35,6 +35,16 @@ Documento é o ÚLTIMO entregável, não o primeiro. Construir, não documentar.
   `/shared` exporta `BlockId` (0=ar…4=areia), `CHUNK_SIZE=16`, dims de mundo, `SERVER_TICK_RATE=10`
   — com teste de contrato passando. `/client` = cena three.js mínima (prova pipeline).
   `/server` = placeholder ws (checkpoint 5). Verificado: typecheck 3/3, testes, build, smoke do ws.
+- **Checkpoint 1 (2026-07-11): mundo estático + andar + HUD F3.** Novo em `/shared`
+  (TS puro, zero deps): `world.ts` (chunks Uint8Array, get/setBlock em coords de mundo),
+  `worldgen.ts` (value noise determinístico — mesma seed = mesmos bytes), `mesher.ts`
+  (culled mesher FUNÇÃO PURA + layout do atlas), `physics.ts` (gravidade/colisão AABB/pulo,
+  com sub-passos anti-tunneling; servidor reusa p/ validar depois). Novo em `/client`:
+  `atlasTexture.ts` (atlas procedural via canvas, sem assets externos), `chunks.ts`
+  (1 mesh/chunk, remesh() pronto pro checkpoint 3), `input.ts` (pointer lock + WASD),
+  `hud.ts` (F3: FPS, frametime méd/p95, remesh, draw calls/tris, rede zerada, export JSON),
+  `main.ts` reescrito. 20 testes passando (world/mesher/physics/blocks), typecheck 3/3,
+  build ok, screenshot headless confirma o mundo renderizando (terreno + areia + overlay).
 
 ---
 
@@ -157,10 +167,17 @@ em `/shared` desde o checkpoint 2 (gravidade testável sem abrir navegador); cad
 **Próximo passo concreto:**
 1. ~~`git init` + primeiro commit dos docs~~ ✅
 2. ~~Scaffold do monorepo~~ ✅
-3. **Checkpoint 1: mundo estático + andar (WASD + pointer lock) + HUD F3 básico.**
-   Substitui `client/src/main.ts`. Mundo gerado em `/shared` (chunk Uint8Array +
-   culled mesher como função pura), cliente só desenha. Ainda sem rede.
-4. Criar repo privado no GitHub e fazer push (backup do código).
+3. ~~Checkpoint 1: mundo estático + andar + HUD F3~~ ✅ (2026-07-11)
+4. ~~Playtest do usuário~~ ✅ (2026-07-11) — "renderiza certo", movimentação ok.
+   ⚠️ Issue conhecida (bug-003, fix PARCIAL): pulos ocasionais de câmera por spikes de
+   movementX/Y do Chrome no pointer lock. Filtro MAX_DELTA=200 + unadjustedMovement
+   melhorou bastante; restam pulos raros. HUD F3 mostra `mouse Δmáx/descartados` —
+   pedir esses números ao usuário antes de mexer de novo. NÃO é bloqueante.
+5. Criar repo privado no GitHub e fazer push (backup do código) — PENDENTE.
+6. **Checkpoint 2: servidor autoritativo via Web Worker.** Mundo passa a viver no
+   servidor (`/server` embrulha `/shared`); cliente conecta por mensagens (mesma
+   interface do WebSocket futuro), recebe `world_snapshot` binário (header com dims)
+   e desenha. Tela idêntica ao checkpoint 1 — prova a arquitetura, não muda o jogo.
 
 ### Decisões pendentes (só quando chegar na fase)
 - Circuitos: blocos-no-mundo (estilo redstone) vs painel que colapsa em 1 bloco.

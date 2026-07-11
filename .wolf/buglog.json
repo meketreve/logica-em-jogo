@@ -1,4 +1,73 @@
 {
   "version": 1,
-  "bugs": []
+  "bugs": [
+    {
+      "id": "bug-001",
+      "timestamp": "2026-07-11T13:36:32.085Z",
+      "error_message": "TS2345: Argument of type '4' is not assignable to parameter of type '16'",
+      "file": "client/src/atlasTexture.ts",
+      "root_cause": "Parâmetro com valor default vindo de objeto `as const` (yEnd = ATLAS.tilePx) faz o TS inferir o TIPO LITERAL (16) como tipo do parâmetro — qualquer outro valor vira erro.",
+      "fix": "Anotar o tipo explicitamente: `yEnd: number = ATLAS.tilePx`.",
+      "tags": [
+        "typescript",
+        "as-const",
+        "literal-type",
+        "default-param"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-11T13:36:32.085Z"
+    },
+    {
+      "id": "bug-002",
+      "timestamp": "2026-07-11T13:50:00.000Z",
+      "error_message": "openwolf designqc: 'Chrome/Edge not found' e depois 'Failed to launch the browser process: Code: 21' / 'Navigation timeout of 30000 ms exceeded'",
+      "file": ".wolf/config.json",
+      "root_cause": "WSL sem Chrome Linux. (1) chrome.exe do Windows não funciona com puppeteer do WSL (paths Linux passados pra exe Windows). (2) `@puppeteer/browsers install` falhava silenciosamente porque `unzip` não está instalado — criava a pasta sem extrair o binário. (3) Mesmo com chrome_path configurado, o designqc deu navigation timeout no app WebGL.",
+      "fix": "Baixado chrome-linux64.zip manualmente, extraído com `python3 -m zipfile -e` + chmod +x em ~/.cache/puppeteer/chrome/linux-150.0.7871.115/chrome-linux64/chrome; chrome_path apontado pra esse binário em .wolf/config.json. Screenshot que FUNCIONA: `chrome --headless=new --no-sandbox --disable-gpu --enable-unsafe-swiftshader --window-size=1280,800 --virtual-time-budget=8000 --screenshot=out.png http://localhost:5173/` com vite dev rodando.",
+      "tags": [
+        "wsl",
+        "chrome",
+        "designqc",
+        "puppeteer",
+        "unzip",
+        "webgl",
+        "screenshot"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-11T13:50:00.000Z"
+    },
+    {
+      "id": "bug-003",
+      "timestamp": "2026-07-11T14:16:04.093Z",
+      "error_message": "Câmera dá pulos/teleporta ao mover o mouse (esporádico, não sempre no mesmo ponto)",
+      "file": "client/src/input.ts",
+      "root_cause": "Bug conhecido do Chrome: com pointer lock ativo, mousemove esporadicamente entrega movementX/movementY com valores absurdos (centenas/milhares de px num evento só), principalmente no Windows.",
+      "fix": "PARCIAL: (1) descartar eventos com |movementX/Y| > MAX_DELTA (350→200 em input.ts); (2) requestPointerLock({ unadjustedMovement: true }) com fallback; (3) instrumentação: mouseStats no HUD F3 (Δmáx/descartados) + console.warn por spike. Melhorou bastante; restam pulos ocasionais (spikes < 200px?) — ajuste fino pendente, usar dados do HUD.",
+      "tags": [
+        "pointer-lock",
+        "chrome",
+        "mousemove",
+        "movementX",
+        "camera",
+        "input"
+      ],
+      "related_bugs": [],
+      "occurrences": 2,
+      "last_seen": "2026-07-11T15:00:00.000Z"
+    },
+    {
+      "id": "bug-004",
+      "timestamp": "2026-07-11T15:30:00.000Z",
+      "error_message": "git status mostrava TODOS os arquivos como modificados (44 files, ~6000 linhas de diff fantasma)",
+      "file": ".gitattributes",
+      "root_cause": "Migração OneDrive/Windows → WSL deixou worktree com CRLF (e blobs antigos mistos), index com LF. Sem .gitattributes, cada linha aparecia como mudada. Agravante: `git ls-files | xargs sed -i 's/\\r$//'` rodou também no PDF (binário) e o corrompeu — restaurado com `git checkout -- <pdf>`. Identidade do git (user.name/email local) também se perdeu na migração.",
+      "fix": "sed CRLF→LF só em texto; PDF restaurado do index; .gitattributes criado (`* text=auto eol=lf`, `*.pdf binary`); `git add --renormalize .`; `git config user.name/email` local reconfigurado. ATENÇÃO: rtk comprime/filtra saída de git status — pra verdade absoluta usar `git diff-index HEAD --` ou `git diff --numstat`.",
+      "tags": ["git", "crlf", "line-endings", "wsl", "onedrive", "gitattributes", "sed", "binario", "rtk"],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-11T15:30:00.000Z"
+    }
+  ]
 }

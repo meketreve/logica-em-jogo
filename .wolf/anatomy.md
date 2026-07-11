@@ -1,52 +1,46 @@
 # anatomy.md
 
-> Auto-maintained by OpenWolf. Last scanned: 2026-07-10T19:41:31.298Z
-> Files: 21 tracked | Anatomy hits: 0 | Misses: 0
+> Auto-maintained by OpenWolf. Last scanned: 2026-07-11T14:37:40.506Z
+> Files: 15 tracked | Anatomy hits: 0 | Misses: 0
 
 ## ./
 
-- `.gitignore` — Git ignore rules (~17 tok)
-- `CLAUDE.md` — OpenWolf (~57 tok)
-- `package.json` — Node.js package manifest (~120 tok)
-- `tsconfig.base.json` (~121 tok)
+- `.gitattributes` — LF em tudo (projeto vive no WSL/ext4; evita ruído CRLF de ferramentas Windows) (~31 tok)
 
 ## .claude/
 
-- `settings.json` (~441 tok)
-- `settings.local.json` (~89 tok)
 
 ## .claude/rules/
 
-- `openwolf.md` (~364 tok)
 
 ## client/
 
-- `index.html` — Lógica em Jogo (~120 tok)
-- `package.json` — Node.js package manifest (~72 tok)
-- `tsconfig.json` — TypeScript configuration (~39 tok)
-- `vite.config.ts` (~30 tok)
+- `index.html` — Lógica em Jogo (~527 tok)
 
 ## client/src/
 
-- `main.ts` — Cena mínima: prova o pipeline Vite + three.js + import de /shared. (~370 tok)
+- `atlasTexture.ts` — Texture atlas procedural pintado num canvas (sem assets externos — restrição (~804 tok)
+- `chunks.ts` — 1 mesh por chunk (BufferGeometry única, culled mesher do /shared). (~527 tok)
+- `hud.ts` — HUD de perfilação (F3): FPS, frametime méd+p95, remesh, draw calls e (~1076 tok)
+- `input.ts` — Teclado + mouse (pointer lock). SÓ coleta input — nenhuma decisão de (~708 tok)
+- `main.ts` — Checkpoint 1: mundo estático + andar (WASD + pointer lock) + HUD F3. (~1021 tok)
 
 ## server/
 
-- `package.json` — Node.js package manifest (~70 tok)
-- `tsconfig.json` — TypeScript configuration (~33 tok)
 
 ## server/src/
 
-- `index.ts` — Servidor LAN (hospedeiro Node+ws). Placeholder até o checkpoint 5 — (~173 tok)
 
 ## shared/
 
-- `package.json` — Node.js package manifest (~56 tok)
-- `tsconfig.json` — TypeScript configuration (~18 tok)
 
 ## shared/src/
 
-- `blocks.test.ts` (~165 tok)
-- `blocks.ts` — IDs de bloco. Gravados como bytes crus nos chunks (Uint8Array), no save e no (~93 tok)
-- `constants.ts` — Aresta do chunk em blocos (16³ = 4096 bytes, 1 byte por bloco). (~156 tok)
-- `index.ts` (~16 tok)
+- `index.ts` (~46 tok)
+- `mesher.test.ts` — Declares DIMS (~561 tok)
+- `mesher.ts` — Culled mesher: função PURA (bytes do mundo → geometria). Só emite faces que (~1443 tok)
+- `physics.test.ts` — Mundo 1 chunk com chão sólido em y ∈ [0,7]. (~856 tok)
+- `physics.ts` — Física do jogador (andar, gravidade, colisão AABB com o grid de voxels). (~1079 tok)
+- `world.test.ts` — Declares DIMS (~761 tok)
+- `world.ts` — Dimensões do mundo em chunks. Parâmetro de criação, gravado no header do save/snapshot. (~848 tok)
+- `worldgen.ts` — Geração de terreno determinística (mesma seed = mesmos bytes em qualquer (~575 tok)
