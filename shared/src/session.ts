@@ -81,11 +81,18 @@ export class GameSession {
         break;
       }
       case "move": {
-        // Checkpoint 3: só registra (validação de física e player_moved vêm depois).
         const p = this.players.get(clientId);
         if (!p) return;
         p.x = msg.x; p.y = msg.y; p.z = msg.z;
         p.yaw = msg.yaw; p.pitch = msg.pitch;
+        // Relay pros OUTROS (nunca ecoa pro autor — cliente não precisa saber
+        // o próprio id). Validação de física vem depois do MVP.
+        this.broadcastExcept(clientId, {
+          type: "player_moved",
+          id: clientId,
+          x: msg.x, y: msg.y, z: msg.z,
+          yaw: msg.yaw, pitch: msg.pitch,
+        });
         break;
       }
       case "place_block": {
@@ -147,6 +154,13 @@ export class GameSession {
     for (const clientId of this.players.keys()) this.send(clientId, raw);
   }
 
+  private broadcastExcept(exceptId: number, msg: ServerMessage): void {
+    const raw = JSON.stringify(msg);
+    for (const clientId of this.players.keys()) {
+      if (clientId !== exceptId) this.send(clientId, raw);
+    }
+  }
+
   /** Distância olho→centro do bloco, com folga (pos do move chega a 10 Hz). */
   private withinReach(p: SessionPlayer, x: number, y: number, z: number): boolean {
     const dx = x + 0.5 - p.x;
@@ -171,7 +185,9 @@ export class GameSession {
   }
 
   handleDisconnect(clientId: number): void {
-    this.players.delete(clientId);
+    // delete ANTES do broadcast — quem saiu não recebe (socket já fechou).
+    if (!this.players.delete(clientId)) return;
+    this.broadcast({ type: "player_left", id: clientId });
   }
 
   /**

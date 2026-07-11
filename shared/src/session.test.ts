@@ -210,4 +210,42 @@ describe("GameSession (servidor autoritativo)", () => {
     for (let i = 0; i < SERVER_TICK_RATE; i++) session.tick();
     expect(sent).toHaveLength(0);
   });
+
+  it("move vira player_moved SÓ pros outros — autor nunca recebe eco", () => {
+    const { sent, send } = collect();
+    const session = new GameSession(send, { dims: DIMS });
+    session.handleMessage(1, JSON.stringify({ type: "join", name: "ana" }));
+    session.handleMessage(2, JSON.stringify({ type: "join", name: "bia" }));
+    sent.length = 0;
+
+    session.handleMessage(1, JSON.stringify({
+      type: "move", x: 5.5, y: 20, z: 6.5, yaw: 1.2, pitch: -0.3,
+    }));
+    expect(sent).toHaveLength(1);
+    expect(sent[0]?.clientId).toBe(2);
+    expect(parseServerMessage(sent[0]?.data as string)).toEqual({
+      type: "player_moved", id: 1, x: 5.5, y: 20, z: 6.5, yaw: 1.2, pitch: -0.3,
+    });
+  });
+
+  it("disconnect vira player_left pra quem fica; id desconhecido é silêncio", () => {
+    const { sent, send } = collect();
+    const session = new GameSession(send, { dims: DIMS });
+    session.handleMessage(1, JSON.stringify({ type: "join", name: "ana" }));
+    session.handleMessage(2, JSON.stringify({ type: "join", name: "bia" }));
+    sent.length = 0;
+
+    session.handleDisconnect(1);
+    expect(sent).toHaveLength(1);
+    expect(sent[0]?.clientId).toBe(2);
+    expect(parseServerMessage(sent[0]?.data as string)).toEqual({
+      type: "player_left", id: 1,
+    });
+    sent.length = 0;
+
+    // desconectar quem nunca entrou (ou de novo) não emite nada
+    session.handleDisconnect(1);
+    session.handleDisconnect(99);
+    expect(sent).toHaveLength(0);
+  });
 });

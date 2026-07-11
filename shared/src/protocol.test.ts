@@ -84,6 +84,21 @@ describe("parse de mensagens JSON", () => {
     expect(parseClientMessage('{"type":"move","x":1e999,"y":2,"z":3,"yaw":0,"pitch":0}')).toBeNull();
   });
 
+  it("parseServerMessage aceita player_moved e player_left (checkpoint 5)", () => {
+    expect(
+      parseServerMessage('{"type":"player_moved","id":2,"x":1.5,"y":10,"z":3,"yaw":0.5,"pitch":-0.1}'),
+    ).toEqual({ type: "player_moved", id: 2, x: 1.5, y: 10, z: 3, yaw: 0.5, pitch: -0.1 });
+    expect(parseServerMessage('{"type":"player_left","id":2}')).toEqual({
+      type: "player_left", id: 2,
+    });
+    // id deve ser inteiro; coordenadas devem ser números finitos
+    expect(parseServerMessage('{"type":"player_moved","id":1.5,"x":1,"y":2,"z":3,"yaw":0,"pitch":0}')).toBeNull();
+    expect(parseServerMessage('{"type":"player_moved","id":2,"x":"a","y":2,"z":3,"yaw":0,"pitch":0}')).toBeNull();
+    expect(parseServerMessage('{"type":"player_moved","id":2,"x":1,"y":2,"z":3,"yaw":0}')).toBeNull();
+    expect(parseServerMessage('{"type":"player_left","id":"2"}')).toBeNull();
+    expect(parseServerMessage('{"type":"player_left"}')).toBeNull();
+  });
+
   it("parseServerMessage aceita debug_stats e block_changed, rejeita o resto", () => {
     expect(
       parseServerMessage('{"type":"debug_stats","tickAvgMs":0.1,"tickMaxMs":0.5,"tps":10}'),

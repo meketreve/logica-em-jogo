@@ -16,15 +16,15 @@ import {
 } from "@logica/shared";
 import { createAtlasTexture } from "./atlasTexture";
 import { ChunkRenderer } from "./chunks";
-import { WorkerConnection } from "./connection";
+import { type Connection, WorkerConnection, WsConnection } from "./connection";
 import { Hud } from "./hud";
 import { Input } from "./input";
 
 /**
- * Checkpoint 3: colocar e quebrar bloco. Raycast local SÓ pra mirar (visual);
- * o clique vira place_block/break_block pro servidor, que valida, aplica e
- * responde block_changed — só então o cliente altera a cópia local e faz
- * remesh. Cliente continua sem decidir estado de mundo nenhum.
+ * Checkpoint 5: segundo cliente (LAN). `?server=ws://host:8080` na URL conecta
+ * no hospedeiro Node+ws; sem parâmetro = Web Worker local (singleplayer).
+ * Mesma interface Connection, mesmas mensagens — o jogo não sabe qual é.
+ * Outros jogadores chegam como player_moved e viram caixa colorida.
  */
 
 // --- Render (independente do mundo) ---
@@ -61,17 +61,26 @@ window.addEventListener("resize", () => {
   renderer.setSize(window.innerWidth, window.innerHeight);
 });
 
-// --- Conexão com o servidor (hospedeiro atual: Web Worker) ---
-const worker = new Worker(new URL("../../server/src/worker.ts", import.meta.url), {
-  type: "module",
-});
-const conn = new WorkerConnection(worker);
+// --- Conexão com o servidor ---
+// ?server=ws://host:8080 → hospedeiro Node+ws (LAN); sem parâmetro → Web Worker.
+const serverUrl = new URLSearchParams(location.search).get("server");
+const conn: Connection = serverUrl
+  ? new WsConnection(serverUrl)
+  : new WorkerConnection(
+      new Worker(new URL("../../server/src/worker.ts", import.meta.url), {
+        type: "module",
+      }),
+    );
 
 let debugStats = { tickAvgMs: 0, tickMaxMs: 0 };
 let started = false;
 let applyBlockChanged:
   | ((msg: { x: number; y: number; z: number; blockId: number }) => void)
   | null = null;
+let applyPlayerMoved:
+  | ((msg: { id: number; x: number; y: number; z: number; yaw: number }) => void)
+  | null = null;
+let applyPlayerLeft: ((id: number) => void) | null = null;
 
 conn.onMessage((data) => {
   if (typeof data === "string") {
@@ -81,10 +90,14 @@ conn.onMessage((data) => {
       debugStats = { tickAvgMs: msg.tickAvgMs, tickMaxMs: msg.tickMaxMs };
     } else if (msg.type === "block_changed") {
       applyBlockChanged?.(msg);
+    } else if (msg.type === "player_moved") {
+      applyPlayerMoved?.(msg);
+    } else if (msg.type === "player_left") {
+      applyPlayerLeft?.(msg.id);
     }
     return;
   }
-  if (started) return; // snapshot é único no checkpoint 2
+  if (started) return; // snapshot é único por sessão
   started = true;
   startGame(decodeSnapshot(data));
 });
@@ -111,10 +124,37 @@ function startGame(snap: Snapshot): void {
   }
 
   // servidor mandou block_changed (nossa ação OU de outro jogador OU gravidade
-  // futura — cliente não distingue): aplica na cópia local e remesh
+  // — cliente não distingue): aplica na cópia local e remesh
   applyBlockChanged = (msg) => {
     setBlock(world, msg.x, msg.y, msg.z, msg.blockId);
     chunkRenderer.remeshBlock(msg.x, msg.y, msg.z);
+  };
+
+  // --- Outros jogadores: caixa colorida por id (lerp SÓ se serrilhar — gatilho) ---
+  const remotePlayers = new Map<number, THREE.Mesh>();
+  applyPlayerMoved = (msg) => {
+    let mesh = remotePlayers.get(msg.id);
+    if (!mesh) {
+      mesh = new THREE.Mesh(
+        new THREE.BoxGeometry(PLAYER.width, PLAYER.height, PLAYER.width),
+        new THREE.MeshLambertMaterial({
+          color: new THREE.Color().setHSL((msg.id * 0.618034) % 1, 0.7, 0.5),
+        }),
+      );
+      scene.add(mesh);
+      remotePlayers.set(msg.id, mesh);
+    }
+    // pos do servidor = pés do jogador; BoxGeometry é centrada
+    mesh.position.set(msg.x, msg.y + PLAYER.height / 2, msg.z);
+    mesh.rotation.y = msg.yaw;
+  };
+  applyPlayerLeft = (id) => {
+    const mesh = remotePlayers.get(id);
+    if (!mesh) return;
+    scene.remove(mesh);
+    mesh.geometry.dispose();
+    (mesh.material as THREE.Material).dispose();
+    remotePlayers.delete(id);
   };
 
   // --- Mira + colocar/quebrar ---
@@ -171,10 +211,10 @@ function startGame(snap: Snapshot): void {
   });
 
   const hud = new Hud(renderer, {
-    checkpoint: 4,
+    checkpoint: 5,
     worldChunks: world.dims,
     worldSeed: snap.seed,
-    serverHost: "web-worker",
+    serverHost: serverUrl ?? "web-worker",
   });
   hud.setRemesh({
     count: chunkRenderer.remeshCount,

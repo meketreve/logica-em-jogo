@@ -33,6 +33,21 @@ export type ServerMessage =
       y: number;
       z: number;
       blockId: number;
+    }
+  | {
+      /** OUTRO jogador se moveu (o servidor nunca ecoa o move do próprio autor). */
+      type: "player_moved";
+      id: number;
+      x: number;
+      y: number;
+      z: number;
+      yaw: number;
+      pitch: number;
+    }
+  | {
+      /** Jogador desconectou — cliente remove a representação dele. */
+      type: "player_left";
+      id: number;
     };
 
 /** Parse defensivo: servidor autoritativo nunca confia no que chega do fio. */
@@ -117,6 +132,24 @@ export function parseServerMessage(raw: string): ServerMessage | null {
         z: m["z"] as number,
         blockId: m["blockId"] as number,
       };
+    }
+    case "player_moved": {
+      if (typeof m["id"] !== "number" || !Number.isInteger(m["id"])) return null;
+      const nums = [m["x"], m["y"], m["z"], m["yaw"], m["pitch"]];
+      if (!nums.every((n) => typeof n === "number" && Number.isFinite(n))) return null;
+      return {
+        type: "player_moved",
+        id: m["id"],
+        x: m["x"] as number,
+        y: m["y"] as number,
+        z: m["z"] as number,
+        yaw: m["yaw"] as number,
+        pitch: m["pitch"] as number,
+      };
+    }
+    case "player_left": {
+      if (typeof m["id"] !== "number" || !Number.isInteger(m["id"])) return null;
+      return { type: "player_left", id: m["id"] };
     }
     default:
       return null;
