@@ -222,6 +222,72 @@
       "related_bugs": [],
       "occurrences": 1,
       "last_seen": "2026-07-11T20:27:25.776Z"
+    },
+    {
+      "id": "bug-004",
+      "timestamp": "2026-07-11T17:45:00.000Z",
+      "error_message": "Playtest cp3: 'não deixa colocar blocos na outra chunk' (na borda)",
+      "file": "shared/src/session.ts",
+      "root_cause": "NÃO É BUG: usuário estava na borda do MUNDO (128×128×64, tamanho fixo). A face do terreno renderiza na borda, o highlight aparece, mas a célula de colocação cai fora dos limites → inBounds() rejeita em silêncio. Colocar cruzando borda INTERNA de chunk funciona (repro script: place em chunk vizinho APLICADO, place fora do mundo REJEITADO).",
+      "fix": "Nenhum (comportamento intencional). Pendências de polish: feedback visual de ação rejeitada; teste automatizado de rejeição out-of-bounds (entra no checkpoint 4).",
+      "tags": [
+        "playtest",
+        "world-border",
+        "chunk",
+        "place-block",
+        "by-design"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-11T17:45:00.000Z"
+    },
+    {
+      "id": "bug-015",
+      "timestamp": "2026-07-11T20:41:22.278Z",
+      "error_message": "Missing guard clause",
+      "file": "shared/src/session.ts",
+      "root_cause": "No early return/throw for edge case: this.changedThisTick.has(key",
+      "fix": "Added guard clause: if (this.changedThisTick.has(key)",
+      "tags": [
+        "auto-detected",
+        "guard-clause",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-11T20:41:22.278Z"
+    },
+    {
+      "id": "bug-016",
+      "timestamp": "2026-07-11T20:41:58.759Z",
+      "error_message": "Null/undefined access in ",
+      "file": "shared/src/session.test.ts",
+      "root_cause": "Property access on potentially null/undefined value",
+      "fix": "Added null safety (optional chaining or null check)",
+      "tags": [
+        "auto-detected",
+        "null-safety",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-11T20:41:58.759Z"
+    },
+    {
+      "id": "bug-017",
+      "timestamp": "2026-07-11T20:42:27.496Z",
+      "error_message": "Significant refactor of ",
+      "file": "shared/src/session.test.ts",
+      "root_cause": "2 lines replaced/restructured",
+      "fix": "Rewrote 3→3 lines (2 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-11T20:42:27.496Z"
     }
   ]
 }

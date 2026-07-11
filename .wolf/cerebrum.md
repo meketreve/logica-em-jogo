@@ -55,6 +55,13 @@
   vizinho também (culled mesher lê o vizinho). `ChunkRenderer.remeshBlock()` cuida disso.
 - input.ts: mousedown só dispara handler com pointer lock ativo — primeiro clique trava
   o mouse e NÃO conta como ação (evita quebrar bloco ao entrar no jogo).
+- Fila de vizinhança (rules.ts + session): sujeiras novas vão pro PRÓXIMO tick (lote é
+  snapshot) → areia cai 1 célula/tick; `changedThisTick` impede 2ª mudança da mesma
+  célula no mesmo tick (senão areia teleporta se a célula-destino também estava suja).
+- Ordem das mudanças da regra da areia: materializar embaixo ANTES de limpar a origem —
+  transiente duplicado é invisível no cliente; ordem inversa pisca buraco por 1 frame.
+- Regra de bloco NUNCA escreve no mundo — devolve BlockChange[] e a session aplica
+  (broadcast + marca vizinhos). Escrever direto pularia a propagação e o netcode.
 
 ## Do-Not-Repeat
 

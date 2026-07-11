@@ -177,3 +177,18 @@
 | 17:27 | Edited client/src/main.ts | added 4 condition(s) | ~555 |
 | 17:27 | Edited client/src/main.ts | added 1 condition(s) | ~231 |
 | 17:30 | checkpoint 3: raycast DDA em /shared, place/break+block_changed no protocolo, validação completa na session (bounds/reach/AABB), highlight+crosshair+hotbar no cliente, remeshBlock com vizinhos | shared/src/{raycast,raycast.test,protocol,protocol.test,session,session.test,constants,blocks,index}.ts client/src/{main,input,chunks}.ts client/index.html | 42 testes, typecheck 3/3, build ok, screenshot com crosshair+hotbar | ~30k |
+| 17:31 | Session end: 37 writes across 17 files (protocol.ts, session.ts, protocol.test.ts, session.test.ts, index.ts) | 15 reads | ~19578 tok |
+| 17:36 | Created ../../../tmp/claude-1000/-home-meketreve-logica-em-jogo/a33579f2-d151-4a57-9677-89e57efca3e1/scratchpad/repro-border.ts | — | ~825 |
+| 17:45 | playtest cp3: quebrar/colocar ok, remesh na borda ok; "não coloca na outra chunk" investigado = borda do MUNDO (by design, bug-004); repro script confirma place interno entre chunks funciona | .wolf/buglog.json | não-bug documentado; polish futuro: feedback de rejeição | ~8k |
+| 17:37 | Session end: 38 writes across 18 files (protocol.ts, session.ts, protocol.test.ts, session.test.ts, index.ts) | 15 reads | ~20403 tok |
+| 17:40 | Created shared/src/rules.ts | — | ~481 |
+| 17:40 | Edited shared/src/session.ts | added 1 import(s) | ~36 |
+| 17:41 | Edited shared/src/session.ts | 5→9 lines | ~122 |
+| 17:41 | Edited shared/src/session.ts | added 1 condition(s) | ~336 |
+| 17:41 | Edited shared/src/session.ts | added 4 condition(s) | ~337 |
+| 17:41 | Edited shared/src/index.ts | 1→2 lines | ~15 |
+| 17:41 | Created shared/src/rules.test.ts | — | ~392 |
+| 17:41 | Edited shared/src/session.test.ts | added optional chaining | ~909 |
+| 17:42 | Edited shared/src/session.test.ts | 3→3 lines | ~28 |
+| 17:42 | Edited client/src/main.ts | 2→2 lines | ~15 |
+| 17:43 | checkpoint 4: rules.ts (sistema genérico de vizinhança + sandRule), fila dirty/changedThisTick na session, tick drena e aplica; cliente ZERO mudanças (só rótulo HUD) | shared/src/{rules,rules.test,session,session.test,index}.ts client/src/main.ts | 48 testes, typecheck 3/3, build ok | ~20k |

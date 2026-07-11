@@ -71,7 +71,20 @@ Documento é o ÚLTIMO entregável, não o primeiro. Construir, não documentar.
   `remeshBlock()` (remesh do chunk + vizinhos na borda); highlight de mira (LineSegments),
   crosshair, hotbar 1–4 (grama/pedra/pedregulho/areia). 42 testes (9 novos), typecheck
   3/3, build ok, screenshot com crosshair+hotbar. Areia colocada FLUTUA — esperado,
-  gravidade é o checkpoint 4.
+  gravidade é o checkpoint 4. Playtest ✅; "não coloca na outra chunk" investigado =
+  borda do MUNDO, by design (bug-004; repro script confirma place interno ok).
+- **Checkpoint 4 (2026-07-11): areia cai — REGRA DE OURO implementada.** Novo em
+  `/shared`: `rules.ts` — sistema GENÉRICO de atualização por vizinhança: `BlockRule`
+  (lê mundo → devolve `BlockChange[]`), registro `RULES`, `ruleFor()`. Areia = 1 regra
+  registrada ("baixo é ar → desce 1"); circuitos futuros = mais regras, MESMA engrenagem.
+  Session: fila `dirty` (Set de coords empacotadas); `applyBlock` marca célula+6 vizinhos;
+  tick drena o lote do tick anterior, roda regras, aplica mudanças (novas sujeiras ficam
+  pro próximo tick → areia cai 1 célula/tick ≈ 10/s); guarda `changedThisTick` impede
+  célula mudar 2× no mesmo tick (sem teleporte). Queda chega ao cliente como
+  `block_changed` NORMAIS — cliente mudou ZERO linhas (só rótulo do HUD → 4). Ordem da
+  regra: materializa embaixo antes de limpar origem (sem buraco piscando). 48 testes
+  (6 novos: regra pura + cascata via protocolo + rejeição out-of-bounds do bug-004),
+  typecheck 3/3, build ok.
 
 ---
 
@@ -184,7 +197,7 @@ Ordem dos checkpoints (cada um jogável antes do próximo):
 1. ✅ Mundo estático + andar (só cliente three.js, WASD+mouse, sem rede).
 2. ✅ Servidor autoritativo (mundo vem de `/shared` via Web Worker; tela igual).
 3. ✅ Colocar/quebrar (clique→ação→`block_changed`).
-4. Areia cai (tick de gravidade no servidor).
+4. ✅ Areia cai (tick de gravidade no servidor).
 5. Segundo cliente (Web Worker → Node+ws; 2 navegadores, mesmo mundo).
 6. Chat + 1 comando (parser no servidor).
 
@@ -192,13 +205,15 @@ Rede de segurança (dev sem revisão): TS estrito; `/shared` sem deps; testes au
 em `/shared` desde o checkpoint 2 (gravidade testável sem abrir navegador); cada checkpoint jogável.
 
 **Próximo passo concreto:**
-1. **Playtest do checkpoint 3 pelo usuário:** colocar/quebrar com os 4 blocos, trocar
-   com 1–4, conferir highlight de mira e remesh na borda de chunk. Areia flutuando = ok.
-2. **Checkpoint 4: areia cai.** Fila de atualização por vizinhança no tick do servidor
-   (REGRA DE OURO acima — regra GENÉRICA de bloco, não `if areia`): `setBlock` marca
-   vizinhos como sujos; tick drena a fila; regra da areia = "se célula de baixo é ar,
-   desce 1". Queda vira `block_changed` normais (cliente já trata sem mudança nenhuma).
-   Testes: coluna de areia cai, areia sobre pedra não cai, quebra embaixo → cai em cadeia.
+1. **Playtest do checkpoint 4 pelo usuário:** colocar areia no ar → cai 1 célula/tick
+   (~10/s); quebrar bloco embaixo de areia → cai em cadeia; pedra/pedregulho no ar
+   ficam parados; F3 → tick ms deve continuar ~0.
+2. **Checkpoint 5: segundo cliente (LAN).** Trocar o hospedeiro Web Worker pelo Node+ws
+   (`/server/src/index.ts` embrulha a MESMA GameSession; `WsConnection` no cliente com a
+   MESMA interface `Connection`). Precisa de: id de cliente por socket, `player_moved`
+   broadcast (outros jogadores visíveis — mesh simples), disconnect → handleDisconnect.
+   2 navegadores, mesmo mundo, mudanças de um aparecem no outro (critério de aceitação 3).
+3. Depois: checkpoint 6 (chat + 1 comando com parser no servidor).
 
 ⚠️ Issue conhecida (bug-003, fix PARCIAL, NÃO bloqueante): pulos ocasionais de câmera
 por spikes de movementX/Y do Chrome no pointer lock. Filtro MAX_DELTA=200 +
