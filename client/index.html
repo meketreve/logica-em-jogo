@@ -10,13 +10,71 @@
         margin: 0;
         height: 100%;
         overflow: hidden;
+        font-family: system-ui, sans-serif;
       }
       canvas {
         display: block;
       }
+      .hidden {
+        display: none !important;
+      }
+      #overlay {
+        position: fixed;
+        inset: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        background: rgba(0, 0, 0, 0.35);
+        color: #fff;
+        text-align: center;
+        pointer-events: none; /* clique atravessa até o canvas (pointer lock) */
+        text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
+      }
+      #overlay h1 {
+        margin: 0;
+        font-size: 1.6rem;
+      }
+      #overlay p {
+        margin: 0;
+        font-size: 1rem;
+      }
+      #hud {
+        position: fixed;
+        top: 8px;
+        left: 8px;
+        padding: 8px 10px;
+        background: rgba(0, 0, 0, 0.6);
+        color: #fff;
+        font-family: ui-monospace, monospace;
+        font-size: 12px;
+        line-height: 1.5;
+        border-radius: 4px;
+        z-index: 10;
+      }
+      #hud pre {
+        margin: 0 0 6px;
+        font: inherit;
+        white-space: pre;
+      }
+      #hud button {
+        font: inherit;
+        padding: 2px 8px;
+        cursor: pointer;
+      }
     </style>
   </head>
   <body>
+    <div id="overlay">
+      <h1>Lógica em Jogo</h1>
+      <p>Clique para jogar</p>
+      <p>WASD move · mouse olha · espaço pula · F3 mostra desempenho · Esc solta o mouse</p>
+    </div>
+    <div id="hud" class="hidden">
+      <pre id="hud-text"></pre>
+      <button id="hud-export" type="button">exportar JSON</button>
+    </div>
     <script type="module" src="/src/main.ts"></script>
   </body>
 </html>

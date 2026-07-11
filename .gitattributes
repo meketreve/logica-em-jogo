@@ -1,0 +1,3 @@
+# LF em tudo (projeto vive no WSL/ext4; evita ruído CRLF de ferramentas Windows)
+* text=auto eol=lf
+*.pdf binary
