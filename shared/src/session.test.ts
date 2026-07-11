@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { BlockId } from "./blocks";
-import { SERVER_TICK_RATE } from "./constants";
+import { MAX_CHAT_LENGTH, SERVER_TICK_RATE } from "./constants";
 import { decodeSnapshot, parseServerMessage } from "./protocol";
 import { GameSession } from "./session";
 import { findSpawnY, getBlock, setBlock } from "./world";
@@ -18,11 +18,15 @@ describe("GameSession (servidor autoritativo)", () => {
     const session = new GameSession(send, { dims: DIMS, seed: 99 });
     session.handleMessage(1, JSON.stringify({ type: "join", name: "ana" }));
 
-    expect(sent).toHaveLength(2);
+    expect(sent).toHaveLength(3); // spawn + snapshot + chat de boas-vindas
     expect(sent[0]?.clientId).toBe(1);
     expect(parseServerMessage(sent[0]?.data as string)).toEqual({
       type: "spawn", ...session.spawn,
     });
+    const welcome = parseServerMessage(sent[2]?.data as string);
+    if (welcome?.type !== "chat") throw new Error("esperava chat de boas-vindas");
+    expect(welcome.author).toBe("servidor");
+    expect(welcome.text).toContain("ana#1");
     const snap = decodeSnapshot(sent[1]?.data as ArrayBuffer);
     expect(snap.seed).toBe(99);
     for (let i = 0; i < session.world.chunks.length; i++) {
@@ -235,6 +239,84 @@ describe("GameSession (servidor autoritativo)", () => {
     const second = parseServerMessage(sent[0]?.data as string);
     if (second?.type !== "spawn") throw new Error("esperava spawn");
     expect(second).toEqual(first); // …mas o spawn não recalcula: mesmo ponto
+  });
+
+  it("chat vira broadcast pra TODOS com autor nome#id; vazio ou sem join é ignorado", () => {
+    const { sent, send } = collect();
+    const session = new GameSession(send, { dims: DIMS });
+    // sem join: ignorado
+    session.handleMessage(9, JSON.stringify({ type: "chat", text: "oi" }));
+    expect(sent).toHaveLength(0);
+
+    session.handleMessage(1, JSON.stringify({ type: "join", name: "ana" }));
+    session.handleMessage(2, JSON.stringify({ type: "join", name: "bia" }));
+    sent.length = 0;
+
+    session.handleMessage(1, JSON.stringify({ type: "chat", text: "  olá, turma!  " }));
+    expect(sent).toHaveLength(2); // TODOS, inclusive o autor (eco = confirmação)
+    expect(sent.map((s) => s.clientId).sort()).toEqual([1, 2]);
+    expect(parseServerMessage(sent[0]?.data as string)).toEqual({
+      type: "chat", author: "ana#1", text: "olá, turma!",
+    });
+    sent.length = 0;
+
+    // só espaço = nada; texto gigante é cortado no limite
+    session.handleMessage(1, JSON.stringify({ type: "chat", text: "   " }));
+    expect(sent).toHaveLength(0);
+    session.handleMessage(1, JSON.stringify({ type: "chat", text: "x".repeat(999) }));
+    const long = parseServerMessage(sent[0]?.data as string);
+    if (long?.type !== "chat") throw new Error("esperava chat");
+    expect(long.text).toHaveLength(MAX_CHAT_LENGTH);
+  });
+
+  it("/bloco muda o mundo longe do jogador, responde SÓ ao autor e acorda a gravidade", () => {
+    const { sent, send } = collect();
+    const session = new GameSession(send, { dims: DIMS, seed: 5 });
+    session.handleMessage(1, JSON.stringify({ type: "join", name: "ana" }));
+    session.handleMessage(2, JSON.stringify({ type: "join", name: "bia" }));
+    const world = session.world;
+    // canto do mundo, MUITO além do alcance de place_block — comando não checa alcance
+    const h = findSpawnY(world, 1, 1);
+    sent.length = 0;
+
+    session.handleMessage(1, JSON.stringify({ type: "chat", text: `/bloco 1 ${h + 1} 1 ${BlockId.Sand}` }));
+    expect(getBlock(world, 1, h + 1, 1)).toBe(BlockId.Sand);
+    // block_changed pros DOIS + resposta de chat só pro autor
+    const msgs = sent.map((s) => ({ to: s.clientId, msg: parseServerMessage(s.data as string) }));
+    expect(msgs.filter((m) => m.msg?.type === "block_changed").map((m) => m.to).sort()).toEqual([1, 2]);
+    const replies = msgs.filter((m) => m.msg?.type === "chat");
+    expect(replies).toHaveLength(1);
+    expect(replies[0]?.to).toBe(1);
+    sent.length = 0;
+
+    // areia colocada por comando cai no tick — mesma engrenagem de vizinhança
+    session.tick();
+    expect(getBlock(world, 1, h, 1)).toBe(BlockId.Sand);
+    expect(getBlock(world, 1, h + 1, 1)).toBe(BlockId.Air);
+  });
+
+  it("comando inválido: resposta de erro só pro autor, mundo intacto", () => {
+    const { sent, send } = collect();
+    const session = new GameSession(send, { dims: DIMS, seed: 5 });
+    session.handleMessage(1, JSON.stringify({ type: "join", name: "ana" }));
+    session.handleMessage(2, JSON.stringify({ type: "join", name: "bia" }));
+    sent.length = 0;
+
+    const bad = [
+      "/teleporte 1 2 3",                 // comando desconhecido
+      "/bloco 1 2",                       // args faltando
+      "/bloco 1.5 2 3 4",                 // não inteiro
+      "/bloco 999 0 0 1",                 // fora do mundo
+      "/bloco 5 5 5 99",                  // id inválido
+    ];
+    for (const text of bad) {
+      session.handleMessage(1, JSON.stringify({ type: "chat", text }));
+    }
+    expect(sent).toHaveLength(bad.length); // 1 resposta por comando…
+    for (const s of sent) {
+      expect(s.clientId).toBe(1); // …todas SÓ pro autor
+      expect(parseServerMessage(s.data as string)?.type).toBe("chat");
+    }
   });
 
   it("move vira player_moved SÓ pros outros — autor nunca recebe eco", () => {

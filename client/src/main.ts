@@ -15,16 +15,18 @@ import {
   stepPlayer,
 } from "@logica/shared";
 import { createAtlasTexture } from "./atlasTexture";
+import { ChatUi } from "./chat";
 import { ChunkRenderer } from "./chunks";
 import { type Connection, WorkerConnection, WsConnection } from "./connection";
+import { emitGameEvent } from "./events";
 import { Hud } from "./hud";
 import { Input } from "./input";
 
 /**
- * Checkpoint 5: segundo cliente (LAN). `?server=ws://host:8080` na URL conecta
- * no hospedeiro Node+ws; sem parâmetro = Web Worker local (singleplayer).
- * Mesma interface Connection, mesmas mensagens — o jogo não sabe qual é.
- * Outros jogadores chegam como player_moved e viram caixa colorida.
+ * Checkpoint 6: chat + 1 comando (/bloco, parser no SERVIDOR — fecha o MVP v0).
+ * `?server=ws://host:8080` na URL conecta no hospedeiro Node+ws; sem parâmetro
+ * = Web Worker local (singleplayer). Mesma interface Connection, mesmas
+ * mensagens — o jogo não sabe qual hospedeiro é.
  */
 
 // --- Render (independente do mundo) ---
@@ -51,9 +53,11 @@ scene.add(sun, new THREE.AmbientLight(0xffffff, 0.55));
 const input = new Input(renderer.domElement);
 
 const overlay = document.getElementById("overlay");
-document.addEventListener("pointerlockchange", () => {
-  overlay?.classList.toggle("hidden", input.locked);
-});
+function updateOverlay(): void {
+  // some quando o jogo tem o mouse OU o chat está aberto (senão cobre o input)
+  overlay?.classList.toggle("hidden", input.locked || chat.open);
+}
+document.addEventListener("pointerlockchange", updateOverlay);
 
 window.addEventListener("resize", () => {
   camera.aspect = window.innerWidth / window.innerHeight;
@@ -71,6 +75,20 @@ const conn: Connection = serverUrl
         type: "module",
       }),
     );
+
+// --- Chat (checkpoint 6): UI em HTML por cima do canvas; comando roda no servidor ---
+const chat = new ChatUi(
+  (text) => conn.send(JSON.stringify({ type: "chat", text })),
+  (open) => {
+    updateOverlay();
+    if (!open) input.lock(); // fechou o chat → devolve o mouse pro jogo
+  },
+);
+input.onKey("Enter", () => {
+  if (chat.open) return; // Enter DENTRO do chat é do campo (envia), não daqui
+  document.exitPointerLock();
+  chat.openInput();
+});
 
 let debugStats = { tickAvgMs: 0, tickMaxMs: 0 };
 let started = false;
@@ -97,6 +115,9 @@ conn.onMessage((data) => {
       applyPlayerLeft?.(msg.id);
     } else if (msg.type === "spawn") {
       serverSpawn = { x: msg.x, y: msg.y, z: msg.z };
+    } else if (msg.type === "chat") {
+      chat.addMessage(msg.author, msg.text);
+      emitGameEvent({ kind: "chat_message" });
     }
     return;
   }
@@ -136,6 +157,12 @@ function startGame(snap: Snapshot): void {
   applyBlockChanged = (msg) => {
     setBlock(world, msg.x, msg.y, msg.z, msg.blockId);
     chunkRenderer.remeshBlock(msg.x, msg.y, msg.z);
+    // gatilho de som (áudio pluga depois); areia caindo dispara os dois por tick
+    emitGameEvent(
+      msg.blockId === BlockId.Air
+        ? { kind: "block_broken" }
+        : { kind: "block_placed", blockId: msg.blockId },
+    );
   };
 
   // --- Outros jogadores: caixa colorida por id (lerp SÓ se serrilhar — gatilho) ---
@@ -219,7 +246,7 @@ function startGame(snap: Snapshot): void {
   });
 
   const hud = new Hud(renderer, {
-    checkpoint: 5,
+    checkpoint: 6,
     worldChunks: world.dims,
     worldSeed: snap.seed,
     serverHost: serverUrl ?? "web-worker",

@@ -109,10 +109,28 @@ Documento é o ÚLTIMO entregável, não o primeiro. Construir, não documentar.
   smoke real contra mundo escavado ✅. Re-playtest do usuário ✅ (2026-07-11, "top").
   **Checkpoint 5 FECHADO.** (Movimento remoto: usuário não reclamou de serrilhado —
   lerp continua adiado, gatilho não disparou.)
+- **Checkpoint 6 (2026-07-11): chat + /bloco — código do MVP v0 COMPLETO.** Protocolo:
+  `chat` client→server (texto) e server→client (autor+texto), parse defensivo;
+  `MAX_CHAT_LENGTH=200` e `MAX_NAME_LENGTH=24` (servidor corta; nome vazio → "jogador").
+  Session: chat exige join; texto vira broadcast pra TODOS com autor `nome#id`
+  (eco pro autor = confirmação do round-trip); prefixo `/` = comando com resposta
+  SÓ pro autor (autor "servidor"). 1 comando: `/bloco x y z id` — muda o mundo via
+  applyBlock (MESMO pipeline: block_changed + fila de vizinhança → areia colocada
+  por comando CAI no tick), sem checagem de alcance (comando é teleoperação),
+  valida bounds/id/não-emparedar. Boas-vindas no join (chat do servidor) — prova o
+  canal sem segundo cliente. Cliente: `chat.ts` (UI HTML/CSS sobre o canvas; Enter
+  abre/envia, Esc fecha; mensagem some em 10 s e volta com o chat aberto;
+  textContent = sem XSS), `events.ts` (gatilhos de som block_placed/block_broken/
+  chat_message — áudio pluga depois, fora do MVP), input.ts ignora teclas vindas
+  de campo de texto + `lock()` público (fechar chat re-trava o mouse). 57 testes
+  (6 novos), typecheck 3/3, build ok. Smoke real (2 clientes ws): welcome,
+  broadcast com autor, /bloco muda o mundo, resposta só pro autor, comando
+  inválido não vaza ✅. Screenshot headless: welcome chat renderizado na tela.
+  **Playtest do usuário PENDENTE** (testar: chat entre 2 navegadores + /bloco).
 
 ---
 
-## 🚀 Próxima fase — Walking skeleton (MVP v0)
+## 🚀 Próxima fase — Walking skeleton (MVP v0) — CÓDIGO COMPLETO, playtest cp6 pendente
 
 **Objetivo:** mundo voxel jogável no navegador com netcode cliente=servidor, blocos
 colocáveis/quebráveis, areia com gravidade, e chat com 1 comando de teste.
@@ -136,10 +154,11 @@ colocáveis/quebráveis, areia com gravidade, e chat com 1 comando de teste.
 - Mundos publicados online (por ora compartilhamento manual via Drive).
 
 ### Critérios de aceitação
-1. Abrir no navegador, andar num mundo de blocos, colocar e quebrar bloco.
-2. Areia cai quando o bloco de baixo é removido — via TICK DO SERVIDOR, não hack no cliente.
-3. Dois clientes veem o mesmo mundo e as mudanças um do outro (host + 1 cliente).
-4. Chat funciona e 1 comando de teste executa no servidor e reflete no mundo.
+1. ✅ Abrir no navegador, andar num mundo de blocos, colocar e quebrar bloco.
+2. ✅ Areia cai quando o bloco de baixo é removido — via TICK DO SERVIDOR, não hack no cliente.
+3. ✅ Dois clientes veem o mesmo mundo e as mudanças um do outro (host + 1 cliente).
+4. ✅ Chat funciona e 1 comando de teste executa no servidor e reflete no mundo
+   (código + smoke ok; playtest do usuário pendente).
 
 ### ⚠️ Regra de ouro de arquitetura (vibecode vai errar isso)
 Areia, circuitos e detecção de objetivo são **o MESMO subsistema**: "bloco muda de estado,
@@ -223,22 +242,19 @@ Ordem dos checkpoints (cada um jogável antes do próximo):
 3. ✅ Colocar/quebrar (clique→ação→`block_changed`).
 4. ✅ Areia cai (tick de gravidade no servidor).
 5. ✅ Segundo cliente (Web Worker → Node+ws; 2 navegadores, mesmo mundo).
-6. Chat + 1 comando (parser no servidor).
+6. ✅ Chat + 1 comando (parser no servidor).
 
 Rede de segurança (dev sem revisão): TS estrito; `/shared` sem deps; testes automáticos
 em `/shared` desde o checkpoint 2 (gravidade testável sem abrir navegador); cada checkpoint jogável.
 
 **Próximo passo concreto (começar por aqui na próxima sessão):**
-1. **Checkpoint 6: chat + 1 comando (parser no servidor)** — fecha o MVP v0.
-   - Protocolo: `chat` client→server (texto) e `chat` server→client (autor + texto).
-   - Session: parser de comando (`/` prefixo); 1 comando de teste que MUDA o mundo
-     (ex.: `/bloco x y z id` via applyBlock — prova pipeline comando→estado→broadcast).
-   - Cliente: UI de chat em HTML/CSS por cima do canvas (Enter abre, Esc fecha;
-     cuidado com foco vs pointer lock), sem GUI de engine.
-   - Prever gatilhos de som (hooks de evento; sem áudio ainda).
-   Critério de aceitação 4: chat funciona e 1 comando executa no servidor e reflete no mundo.
-2. Depois do MVP v0: validação de física do move no servidor OU início da fase de
-   cenários/autoria (decidir com o usuário).
+1. **Playtest do checkpoint 6** pelo usuário: chat entre 2 navegadores na LAN
+   (`?server=ws://host:8080`) + `/bloco x y z id` mudando o mundo pros dois.
+2. **MVP v0 FECHADO após o playtest.** Aí DECIDIR COM O USUÁRIO o rumo:
+   (a) validação de física do move no servidor (fecha o buraco "cliente decide
+   onde está" — anti-cheat básico), OU
+   (b) começar a fase de CENÁRIOS/AUTORIA — o coração pedagógico (objetivos,
+   detecção de padrão no mundo = MESMA engrenagem das rules; ver regra de ouro).
 
 ⚠️ Issue conhecida (bug-003, fix PARCIAL, NÃO bloqueante): pulos ocasionais de câmera
 por spikes de movementX/Y do Chrome no pointer lock. Filtro MAX_DELTA=200 +

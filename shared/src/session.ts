@@ -1,5 +1,11 @@
 import { BlockId, isPlaceable } from "./blocks";
-import { DEFAULT_WORLD_CHUNKS, PLAYER_REACH, SERVER_TICK_RATE } from "./constants";
+import {
+  DEFAULT_WORLD_CHUNKS,
+  MAX_CHAT_LENGTH,
+  MAX_NAME_LENGTH,
+  PLAYER_REACH,
+  SERVER_TICK_RATE,
+} from "./constants";
 import { PLAYER } from "./physics";
 import {
   type ServerMessage,
@@ -76,7 +82,7 @@ export class GameSession {
     switch (msg.type) {
       case "join": {
         this.players.set(clientId, {
-          name: msg.name,
+          name: msg.name.trim().slice(0, MAX_NAME_LENGTH) || "jogador",
           x: this.spawn.x,
           y: this.spawn.y,
           z: this.spawn.z,
@@ -90,6 +96,10 @@ export class GameSession {
           JSON.stringify({ type: "spawn", ...this.spawn } satisfies ServerMessage),
         );
         this.send(clientId, encodeSnapshot(this.world, this.seed));
+        this.sendServerChat(
+          clientId,
+          `bem-vindo, ${this.authorTag(clientId)}! Enter abre o chat · /bloco x y z id`,
+        );
         break;
       }
       case "move": {
@@ -127,7 +137,60 @@ export class GameSession {
         this.applyBlock(msg.x, msg.y, msg.z, BlockId.Air);
         break;
       }
+      case "chat": {
+        if (!this.players.has(clientId)) return;
+        const text = msg.text.trim().slice(0, MAX_CHAT_LENGTH);
+        if (!text) return;
+        if (text.startsWith("/")) {
+          // comando: executa no servidor, resposta SÓ pro autor
+          this.sendServerChat(clientId, this.runCommand(text));
+          return;
+        }
+        this.broadcast({ type: "chat", author: this.authorTag(clientId), text });
+        break;
+      }
     }
+  }
+
+  /**
+   * Comandos de chat (prefixo "/"). v0: só /bloco — existe pra provar o
+   * pipeline comando→estado→broadcast: a mudança sai como block_changed
+   * normal e acorda as regras de vizinhança (areia cai), igual a qualquer
+   * ação de jogador. Sem checagem de alcance: comando é teleoperação.
+   * Devolve a resposta pro autor.
+   */
+  private runCommand(text: string): string {
+    const parts = text.slice(1).split(/\s+/);
+    if (parts[0] !== "bloco") {
+      return `comando desconhecido: ${text} (existe: /bloco x y z id)`;
+    }
+    const x = Number(parts[1]);
+    const y = Number(parts[2]);
+    const z = Number(parts[3]);
+    const id = Number(parts[4]);
+    if (parts.length !== 5 || ![x, y, z, id].every(Number.isInteger)) {
+      return "uso: /bloco x y z id (inteiros; 0=ar 1=grama 2=pedra 3=pedregulho 4=areia)";
+    }
+    if (!inBounds(this.world, x, y, z)) return `(${x}, ${y}, ${z}) está fora do mundo`;
+    if (id !== BlockId.Air && !isPlaceable(id)) return `id de bloco inválido: ${id}`;
+    if (id !== BlockId.Air && this.overlapsAnyPlayer(x, y, z)) {
+      return "tem um jogador nessa célula";
+    }
+    this.applyBlock(x, y, z, id);
+    return `bloco (${x}, ${y}, ${z}) = ${id}`;
+  }
+
+  /** Nome público do jogador no chat: nome#id (distingue nomes repetidos). */
+  private authorTag(clientId: number): string {
+    return `${this.players.get(clientId)?.name ?? "?"}#${clientId}`;
+  }
+
+  /** Mensagem de chat do PRÓPRIO servidor (boas-vindas, resposta de comando). */
+  private sendServerChat(clientId: number, text: string): void {
+    this.send(
+      clientId,
+      JSON.stringify({ type: "chat", author: "servidor", text } satisfies ServerMessage),
+    );
   }
 
   /**

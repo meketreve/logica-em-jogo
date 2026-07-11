@@ -107,6 +107,19 @@ describe("parse de mensagens JSON", () => {
     expect(parseServerMessage('{"type":"spawn","x":"a","y":27,"z":64.5}')).toBeNull();
   });
 
+  it("chat: cliente manda texto, servidor manda autor+texto (checkpoint 6)", () => {
+    expect(parseClientMessage('{"type":"chat","text":"olá"}')).toEqual({
+      type: "chat", text: "olá",
+    });
+    expect(parseClientMessage('{"type":"chat"}')).toBeNull();
+    expect(parseClientMessage('{"type":"chat","text":5}')).toBeNull();
+    expect(parseServerMessage('{"type":"chat","author":"ana#1","text":"olá"}')).toEqual({
+      type: "chat", author: "ana#1", text: "olá",
+    });
+    expect(parseServerMessage('{"type":"chat","text":"olá"}')).toBeNull();
+    expect(parseServerMessage('{"type":"chat","author":1,"text":"olá"}')).toBeNull();
+  });
+
   it("parseServerMessage aceita debug_stats e block_changed, rejeita o resto", () => {
     expect(
       parseServerMessage('{"type":"debug_stats","tickAvgMs":0.1,"tickMaxMs":0.5,"tps":10}'),

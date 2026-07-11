@@ -81,6 +81,18 @@
   `spawn` antes do snapshot. Cliente NUNCA deriva spawn do snapshot — snapshot
   reflete o mundo já escavado/construído (bug-010). Vale pra qualquer valor
   "do terreno original": derivar na criação, transmitir, nunca recalcular.
+- Chat (cp6): broadcast ECOA pro autor (eco = confirmação do round-trip pelo
+  servidor) — DIFERENTE de player_moved, que nunca ecoa. Comando (`/` prefixo)
+  responde SÓ pro autor com author "servidor"; a mudança de mundo do comando sai
+  como block_changed normal (acorda gravidade/regras — mesma engrenagem).
+- Chat UI vs pointer lock (cp6): Enter keydown dá transient activation no Chrome
+  → `requestPointerLock()` ao FECHAR o chat funciona sem clique. Teclas do campo:
+  `stopPropagation` no keydown do input + guard em input.ts (`e.target instanceof
+  HTMLInputElement` → return) — senão Digit1–4 troca hotbar (e o preventDefault
+  do handler engoliria o caractere digitado).
+- `tsx watch` do `npm run dev:server` observa também os imports de /shared —
+  editar session/protocol reinicia o servidor sozinho (smoke do cp6 rodou contra
+  o dev:server do usuário sem restart manual).
 
 ## Do-Not-Repeat
 

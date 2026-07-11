@@ -556,6 +556,150 @@
       ],
       "occurrences": 1,
       "last_seen": "2026-07-11T18:55:00-03:00"
+    },
+    {
+      "id": "bug-034",
+      "timestamp": "2026-07-11T21:56:44.312Z",
+      "error_message": "Missing guard clause",
+      "file": "shared/src/protocol.ts",
+      "root_cause": "No early return/throw for edge case: !ints.every((n",
+      "fix": "Added guard clause: if (!ints.every((n)",
+      "tags": [
+        "auto-detected",
+        "guard-clause",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 2,
+      "last_seen": "2026-07-11T21:56:57.639Z"
+    },
+    {
+      "id": "bug-035",
+      "timestamp": "2026-07-11T21:57:36.125Z",
+      "error_message": "Null/undefined access in ",
+      "file": "shared/src/session.ts",
+      "root_cause": "Property access on potentially null/undefined value",
+      "fix": "Added null safety (optional chaining or null check)",
+      "tags": [
+        "auto-detected",
+        "null-safety",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-11T21:57:36.125Z"
+    },
+    {
+      "id": "bug-036",
+      "timestamp": "2026-07-11T21:57:46.445Z",
+      "error_message": "Missing guard clause",
+      "file": "shared/src/session.test.ts",
+      "root_cause": "No early return/throw for edge case: welcome?.type !== \"chat\"",
+      "fix": "Added guard clause: if (welcome?.type !== \"chat\")",
+      "tags": [
+        "auto-detected",
+        "guard-clause",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-11T21:57:46.445Z"
+    },
+    {
+      "id": "bug-037",
+      "timestamp": "2026-07-11T21:58:09.765Z",
+      "error_message": "Null/undefined access in ",
+      "file": "shared/src/session.test.ts",
+      "root_cause": "Property access on potentially null/undefined value",
+      "fix": "Added null safety (optional chaining or null check)",
+      "tags": [
+        "auto-detected",
+        "null-safety",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-11T21:58:09.765Z"
+    },
+    {
+      "id": "bug-038",
+      "timestamp": "2026-07-11T21:58:25.247Z",
+      "error_message": "Type error",
+      "file": "shared/src/protocol.test.ts",
+      "root_cause": "Missing or incorrect type annotation",
+      "fix": "Added type assertion/annotation",
+      "tags": [
+        "auto-detected",
+        "type-fix",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-11T21:58:25.247Z"
+    },
+    {
+      "id": "bug-039",
+      "timestamp": "2026-07-11T21:59:06.936Z",
+      "error_message": "Missing guard clause",
+      "file": "client/src/input.ts",
+      "root_cause": "No early return/throw for edge case: e.target instanceof HTMLInputElement || e.target instanceof ",
+      "fix": "Added guard clause: if (e.target instanceof HTMLInputElement || )",
+      "tags": [
+        "auto-detected",
+        "guard-clause",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-11T21:59:06.936Z"
+    },
+    {
+      "id": "bug-040",
+      "timestamp": "2026-07-11T21:59:24.673Z",
+      "error_message": "Missing error handling in unknown",
+      "file": "client/src/input.ts",
+      "root_cause": "Code path had no error handling — exceptions would propagate uncaught",
+      "fix": "Added try/catch block",
+      "tags": [
+        "auto-detected",
+        "error-handling",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-11T21:59:24.673Z"
+    },
+    {
+      "id": "bug-041",
+      "timestamp": "2026-07-11T21:59:42.873Z",
+      "error_message": "Significant refactor of ",
+      "file": "client/src/main.ts",
+      "root_cause": "3 lines replaced/restructured",
+      "fix": "Rewrote 4→6 lines (3 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-11T21:59:42.873Z"
+    },
+    {
+      "id": "bug-042",
+      "timestamp": "2026-07-11T21:59:51.594Z",
+      "error_message": "Missing guard clause",
+      "file": "client/src/main.ts",
+      "root_cause": "No early return/throw for edge case: !open",
+      "fix": "Added guard clause: if (!open)",
+      "tags": [
+        "auto-detected",
+        "guard-clause",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-11T21:59:51.594Z"
     }
   ]
 }

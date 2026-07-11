@@ -262,3 +262,40 @@ server/index.ts = host real (mesma GameSession do worker). Cliente: WsConnection
 Bug-010 achado na playtest (rejoin no fundo do buraco) e corrigido; bug-011 (tsx watch
 órfão) limpo. 53 testes, smoke real 2 clientes, playtest ✅ "top". Próximo: checkpoint 6
 (chat + 1 comando) — fecha MVP v0. Lerp: gatilho não disparou.
+| 18:50 | Session end: 31 writes across 9 files (protocol.ts, session.ts, index.ts, connection.ts, main.ts) | 12 reads | ~17417 tok |
+| 18:51 | Session end: 31 writes across 9 files (protocol.ts, session.ts, index.ts, connection.ts, main.ts) | 12 reads | ~17417 tok |
+
+## Session: 2026-07-11 18:52
+
+| Time | Action | File(s) | Outcome | ~Tokens |
+|------|--------|---------|---------|--------|
+| 18:56 | Edited shared/src/constants.ts | expanded (+6 lines) | ~96 |
+| 18:56 | Edited shared/src/protocol.ts | 5→6 lines | ~92 |
+| 18:56 | Edited shared/src/protocol.ts | expanded (+6 lines) | ~133 |
+| 18:56 | Edited shared/src/protocol.ts | added 1 condition(s) | ~132 |
+| 18:56 | Edited shared/src/protocol.ts | added 1 condition(s) | ~145 |
+| 18:57 | Edited shared/src/session.ts | expanded (+6 lines) | ~51 |
+| 18:57 | Edited shared/src/session.ts | 18→22 lines | ~224 |
+| 18:57 | Edited shared/src/session.ts | added optional chaining | ~728 |
+| 18:57 | Edited shared/src/session.test.ts | added 1 condition(s) | ~174 |
+| 18:58 | Edited shared/src/session.test.ts | added optional chaining | ~1087 |
+| 18:58 | Edited shared/src/session.test.ts | inline fix | ~19 |
+| 18:58 | Edited shared/src/protocol.test.ts | expanded (+13 lines) | ~210 |
+| 18:58 | Created client/src/events.ts | — | ~172 |
+| 18:58 | Created client/src/chat.ts | — | ~644 |
+| 18:59 | Edited client/src/input.ts | added 1 condition(s) | ~93 |
+| 18:59 | Edited client/src/input.ts | removed 8 lines | ~16 |
+| 18:59 | Edited client/src/input.ts | added optional chaining | ~158 |
+| 18:59 | Edited client/src/main.ts | added 2 import(s) | ~173 |
+| 18:59 | Edited client/src/main.ts | modified updateOverlay() | ~85 |
+| 18:59 | Edited client/src/main.ts | added 2 condition(s) | ~144 |
+| 18:59 | Edited client/src/main.ts | added 1 condition(s) | ~91 |
+| 19:00 | Edited client/src/main.ts | expanded (+6 lines) | ~109 |
+| 19:00 | Edited client/src/main.ts | 2→2 lines | ~15 |
+| 19:00 | Edited client/index.html | expanded (+38 lines) | ~303 |
+| 19:00 | Edited client/index.html | expanded (+11 lines) | ~130 |
+| 19:02 | Created ../../../tmp/claude-1000/-home-meketreve-logica-em-jogo/a0d99221-e98e-49ca-885e-fb3fd914cb11/scratchpad/chat-smoke.mts | — | ~1235 |
+| 19:05 | Checkpoint 6: chat + /bloco (parser no servidor) — protocolo chat 2 vias, session broadcast nome#id / comando só-autor, welcome no join, MAX_CHAT_LENGTH/MAX_NAME_LENGTH | shared/src/{protocol,session,constants}.ts + testes | 57 testes ✅ | ~9k |
+| 19:05 | Cliente cp6: chat.ts (UI HTML, Enter/Esc, anti-XSS), events.ts (gatilhos de som), input.ts (ignora campo de texto, lock() público), main.ts wiring, index.html CSS/DOM | client/src/{chat,events,input,main}.ts client/index.html | typecheck 3/3, build ✅ | ~6k |
+| 19:05 | Smoke real cp6: 2 clientes ws no dev:server do usuário (tsx watch recarregou /shared sozinho) — welcome, broadcast autor, /bloco muda mundo, resposta só-autor, inválido não vaza | scratchpad/chat-smoke.mts | PASSOU ✅ | ~2k |
+| 19:10 | Screenshot headless: welcome chat renderizado + overlay com ajuda nova; STATUS/cerebrum atualizados (cp6 código completo, playtest pendente) | .wolf/STATUS.md .wolf/cerebrum.md | ok | ~2k |

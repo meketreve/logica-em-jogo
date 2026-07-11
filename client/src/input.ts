@@ -20,6 +20,8 @@ export class Input {
 
   constructor(private canvas: HTMLCanvasElement) {
     window.addEventListener("keydown", (e) => {
+      // digitando num campo de texto (chat): tecla é do campo, não do jogo
+      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
       const handler = this.keyHandlers.get(e.code);
       if (handler) {
         e.preventDefault();
@@ -37,14 +39,7 @@ export class Input {
       this.mouseHandlers.get(e.button)?.();
     });
 
-    canvas.addEventListener("click", () => {
-      if (this.locked) return;
-      // unadjustedMovement: movimento cru, sem aceleração do SO (menos spikes no Chrome/Windows)
-      const req = canvas.requestPointerLock({ unadjustedMovement: true }) as
-        | Promise<void>
-        | undefined;
-      req?.catch(() => canvas.requestPointerLock());
-    });
+    canvas.addEventListener("click", () => this.lock());
 
     document.addEventListener("mousemove", (e) => {
       if (!this.locked) return;
@@ -66,6 +61,16 @@ export class Input {
 
   get locked(): boolean {
     return document.pointerLockElement === this.canvas;
+  }
+
+  /** Pede pointer lock (clique no canvas ou ao fechar o chat). Pode falhar sem gesto do usuário — aí o overlay "clique para jogar" cobre. */
+  lock(): void {
+    if (this.locked) return;
+    // unadjustedMovement: movimento cru, sem aceleração do SO (menos spikes no Chrome/Windows)
+    const req = this.canvas.requestPointerLock({ unadjustedMovement: true }) as
+      | Promise<void>
+      | undefined;
+    req?.catch(() => this.canvas.requestPointerLock());
   }
 
   down(code: string): boolean {

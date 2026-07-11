@@ -13,7 +13,8 @@ export type ClientMessage =
   | { type: "join"; name: string }
   | { type: "move"; x: number; y: number; z: number; yaw: number; pitch: number }
   | { type: "place_block"; x: number; y: number; z: number; blockId: number }
-  | { type: "break_block"; x: number; y: number; z: number };
+  | { type: "break_block"; x: number; y: number; z: number }
+  | { type: "chat"; text: string };
 
 // --- Mensagens JSON servidor→cliente ---
 
@@ -59,6 +60,12 @@ export type ServerMessage =
       x: number;
       y: number;
       z: number;
+    }
+  | {
+      /** Chat: mensagem de jogador (autor "nome#id") ou do servidor (autor "servidor"). */
+      type: "chat";
+      author: string;
+      text: string;
     };
 
 /** Parse defensivo: servidor autoritativo nunca confia no que chega do fio. */
@@ -108,6 +115,9 @@ export function parseClientMessage(raw: string): ClientMessage | null {
         z: m["z"] as number,
       };
     }
+    case "chat":
+      if (typeof m["text"] !== "string") return null;
+      return { type: "chat", text: m["text"] };
     default:
       return null;
   }
@@ -172,6 +182,9 @@ export function parseServerMessage(raw: string): ServerMessage | null {
         z: m["z"] as number,
       };
     }
+    case "chat":
+      if (typeof m["author"] !== "string" || typeof m["text"] !== "string") return null;
+      return { type: "chat", author: m["author"], text: m["text"] };
     default:
       return null;
   }

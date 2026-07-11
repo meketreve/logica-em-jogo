@@ -14,3 +14,9 @@ export const SERVER_TICK_RATE = 10;
 
 /** Alcance de interação (colocar/quebrar) em blocos, medido do olho do jogador. */
 export const PLAYER_REACH = 5;
+
+/** Tamanho máximo de mensagem de chat (o servidor corta o excedente). */
+export const MAX_CHAT_LENGTH = 200;
+
+/** Tamanho máximo de nome de jogador (o servidor corta o excedente). */
+export const MAX_NAME_LENGTH = 24;
