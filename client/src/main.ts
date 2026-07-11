@@ -171,7 +171,7 @@ function startGame(snap: Snapshot): void {
   });
 
   const hud = new Hud(renderer, {
-    checkpoint: 3,
+    checkpoint: 4,
     worldChunks: world.dims,
     worldSeed: snap.seed,
     serverHost: "web-worker",
