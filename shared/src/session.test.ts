@@ -3,7 +3,7 @@ import { BlockId } from "./blocks";
 import { SERVER_TICK_RATE } from "./constants";
 import { decodeSnapshot, parseServerMessage } from "./protocol";
 import { GameSession } from "./session";
-import { findSpawnY, getBlock } from "./world";
+import { findSpawnY, getBlock, setBlock } from "./world";
 
 const DIMS = { x: 2, z: 2, y: 2 };
 
@@ -13,14 +13,17 @@ function collect() {
 }
 
 describe("GameSession (servidor autoritativo)", () => {
-  it("join responde com world_snapshot idêntico ao mundo do servidor", () => {
+  it("join responde com spawn + world_snapshot idêntico ao mundo do servidor", () => {
     const { sent, send } = collect();
     const session = new GameSession(send, { dims: DIMS, seed: 99 });
     session.handleMessage(1, JSON.stringify({ type: "join", name: "ana" }));
 
-    expect(sent).toHaveLength(1);
+    expect(sent).toHaveLength(2);
     expect(sent[0]?.clientId).toBe(1);
-    const snap = decodeSnapshot(sent[0]?.data as ArrayBuffer);
+    expect(parseServerMessage(sent[0]?.data as string)).toEqual({
+      type: "spawn", ...session.spawn,
+    });
+    const snap = decodeSnapshot(sent[1]?.data as ArrayBuffer);
     expect(snap.seed).toBe(99);
     for (let i = 0; i < session.world.chunks.length; i++) {
       expect(snap.world.chunks[i]).toEqual(session.world.chunks[i]);
@@ -209,6 +212,29 @@ describe("GameSession (servidor autoritativo)", () => {
     session.handleDisconnect(1);
     for (let i = 0; i < SERVER_TICK_RATE; i++) session.tick();
     expect(sent).toHaveLength(0);
+  });
+
+  it("spawn é FIXO: escavar a coluna do spawn não muda onde o próximo nasce (bug-010)", () => {
+    const { sent, send } = collect();
+    const session = new GameSession(send, { dims: DIMS, seed: 5 });
+    session.handleMessage(1, JSON.stringify({ type: "join", name: "ana" }));
+    const first = parseServerMessage(sent[0]?.data as string);
+    if (first?.type !== "spawn") throw new Error("esperava spawn");
+
+    // escava a coluna do spawn até o fundo do mundo (direto no mundo — o
+    // alcance não deixaria fazer isso via mensagens num teste curto)
+    const bx = Math.floor(session.spawn.x);
+    const bz = Math.floor(session.spawn.z);
+    for (let y = 0; y < session.world.sizeY; y++) {
+      setBlock(session.world, bx, y, bz, BlockId.Air);
+    }
+    expect(findSpawnY(session.world, bx, bz)).not.toBe(first.y); // buraco mudaria o cálculo…
+    sent.length = 0;
+
+    session.handleMessage(2, JSON.stringify({ type: "join", name: "bia" }));
+    const second = parseServerMessage(sent[0]?.data as string);
+    if (second?.type !== "spawn") throw new Error("esperava spawn");
+    expect(second).toEqual(first); // …mas o spawn não recalcula: mesmo ponto
   });
 
   it("move vira player_moved SÓ pros outros — autor nunca recebe eco", () => {

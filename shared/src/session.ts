@@ -38,6 +38,9 @@ interface SessionPlayer {
 export class GameSession {
   readonly world: World;
   readonly seed: number;
+  /** Spawn FIXO: calculado uma vez sobre o terreno pristino (na criação).
+   *  Nunca recalcular no join — o mundo pode já estar escavado (bug-010). */
+  readonly spawn: { x: number; y: number; z: number };
   tickCount = 0;
 
   private readonly players = new Map<number, SessionPlayer>();
@@ -57,6 +60,13 @@ export class GameSession {
     this.seed = opts.seed ?? 1;
     this.now = opts.now ?? (() => Date.now());
     this.world = generateWorld(opts.dims ?? DEFAULT_WORLD_CHUNKS, this.seed);
+    const sx = this.world.sizeX / 2 + 0.5;
+    const sz = this.world.sizeZ / 2 + 0.5;
+    this.spawn = {
+      x: sx,
+      y: findSpawnY(this.world, Math.floor(sx), Math.floor(sz)),
+      z: sz,
+    };
   }
 
   /** Mensagem crua vinda do transporte. Inválida = descartada em silêncio. */
@@ -65,18 +75,20 @@ export class GameSession {
     if (!msg) return;
     switch (msg.type) {
       case "join": {
-        // Spawn autoritativo: mesmo cálculo que o cliente faz ao decodificar
-        // o snapshot (mesmos bytes ⇒ mesmo resultado).
-        const sx = this.world.sizeX / 2 + 0.5;
-        const sz = this.world.sizeZ / 2 + 0.5;
         this.players.set(clientId, {
           name: msg.name,
-          x: sx,
-          y: findSpawnY(this.world, Math.floor(sx), Math.floor(sz)),
-          z: sz,
+          x: this.spawn.x,
+          y: this.spawn.y,
+          z: this.spawn.z,
           yaw: 0,
           pitch: 0,
         });
+        // spawn ANTES do snapshot (transporte preserva ordem) — quando o
+        // snapshot chegar e o jogo começar, o cliente já sabe onde nascer.
+        this.send(
+          clientId,
+          JSON.stringify({ type: "spawn", ...this.spawn } satisfies ServerMessage),
+        );
         this.send(clientId, encodeSnapshot(this.world, this.seed));
         break;
       }

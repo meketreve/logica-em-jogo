@@ -48,6 +48,17 @@ export type ServerMessage =
       /** Jogador desconectou — cliente remove a representação dele. */
       type: "player_left";
       id: number;
+    }
+  | {
+      /**
+       * Ponto de spawn do mundo (fixo, calculado na CRIAÇÃO sobre o terreno
+       * pristino). Cliente NUNCA deriva spawn do snapshot — o snapshot pode
+       * já estar escavado/construído.
+       */
+      type: "spawn";
+      x: number;
+      y: number;
+      z: number;
     };
 
 /** Parse defensivo: servidor autoritativo nunca confia no que chega do fio. */
@@ -150,6 +161,16 @@ export function parseServerMessage(raw: string): ServerMessage | null {
     case "player_left": {
       if (typeof m["id"] !== "number" || !Number.isInteger(m["id"])) return null;
       return { type: "player_left", id: m["id"] };
+    }
+    case "spawn": {
+      const nums = [m["x"], m["y"], m["z"]];
+      if (!nums.every((n) => typeof n === "number" && Number.isFinite(n))) return null;
+      return {
+        type: "spawn",
+        x: m["x"] as number,
+        y: m["y"] as number,
+        z: m["z"] as number,
+      };
     }
     default:
       return null;

@@ -99,6 +99,14 @@ describe("parse de mensagens JSON", () => {
     expect(parseServerMessage('{"type":"player_left"}')).toBeNull();
   });
 
+  it("parseServerMessage aceita spawn (ponto fixo do mundo)", () => {
+    expect(parseServerMessage('{"type":"spawn","x":64.5,"y":27,"z":64.5}')).toEqual({
+      type: "spawn", x: 64.5, y: 27, z: 64.5,
+    });
+    expect(parseServerMessage('{"type":"spawn","x":64.5,"y":27}')).toBeNull();
+    expect(parseServerMessage('{"type":"spawn","x":"a","y":27,"z":64.5}')).toBeNull();
+  });
+
   it("parseServerMessage aceita debug_stats e block_changed, rejeita o resto", () => {
     expect(
       parseServerMessage('{"type":"debug_stats","tickAvgMs":0.1,"tickMaxMs":0.5,"tps":10}'),

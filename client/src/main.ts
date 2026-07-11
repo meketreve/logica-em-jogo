@@ -81,6 +81,7 @@ let applyPlayerMoved:
   | ((msg: { id: number; x: number; y: number; z: number; yaw: number }) => void)
   | null = null;
 let applyPlayerLeft: ((id: number) => void) | null = null;
+let serverSpawn: { x: number; y: number; z: number } | null = null;
 
 conn.onMessage((data) => {
   if (typeof data === "string") {
@@ -94,6 +95,8 @@ conn.onMessage((data) => {
       applyPlayerMoved?.(msg);
     } else if (msg.type === "player_left") {
       applyPlayerLeft?.(msg.id);
+    } else if (msg.type === "spawn") {
+      serverSpawn = { x: msg.x, y: msg.y, z: msg.z };
     }
     return;
   }
@@ -111,15 +114,20 @@ function startGame(snap: Snapshot): void {
   const chunkRenderer = new ChunkRenderer(world, material, scene);
   chunkRenderer.buildAll();
 
-  const spawnX = world.sizeX / 2 + 0.5;
-  const spawnZ = world.sizeZ / 2 + 0.5;
-  const spawnY = findSpawnY(world, Math.floor(spawnX), Math.floor(spawnZ));
-  const player = createPlayer(spawnX, spawnY, spawnZ);
+  // Spawn vem do SERVIDOR (fixo, do terreno pristino) — o snapshot pode já
+  // estar escavado, então findSpawnY local daria outro lugar (bug-010).
+  // Fallback local só se a mensagem spawn não chegou (não deve acontecer).
+  const spawn = serverSpawn ?? {
+    x: world.sizeX / 2 + 0.5,
+    y: findSpawnY(world, Math.floor(world.sizeX / 2), Math.floor(world.sizeZ / 2)),
+    z: world.sizeZ / 2 + 0.5,
+  };
+  const player = createPlayer(spawn.x, spawn.y, spawn.z);
 
   function respawn(): void {
-    player.pos.x = spawnX;
-    player.pos.y = spawnY;
-    player.pos.z = spawnZ;
+    player.pos.x = spawn.x;
+    player.pos.y = spawn.y;
+    player.pos.z = spawn.z;
     player.vel.x = player.vel.y = player.vel.z = 0;
   }
 
