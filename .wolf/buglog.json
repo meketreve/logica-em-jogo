@@ -64,10 +64,36 @@
       "file": ".gitattributes",
       "root_cause": "Migração OneDrive/Windows → WSL deixou worktree com CRLF (e blobs antigos mistos), index com LF. Sem .gitattributes, cada linha aparecia como mudada. Agravante: `git ls-files | xargs sed -i 's/\\r$//'` rodou também no PDF (binário) e o corrompeu — restaurado com `git checkout -- <pdf>`. Identidade do git (user.name/email local) também se perdeu na migração.",
       "fix": "sed CRLF→LF só em texto; PDF restaurado do index; .gitattributes criado (`* text=auto eol=lf`, `*.pdf binary`); `git add --renormalize .`; `git config user.name/email` local reconfigurado. ATENÇÃO: rtk comprime/filtra saída de git status — pra verdade absoluta usar `git diff-index HEAD --` ou `git diff --numstat`.",
-      "tags": ["git", "crlf", "line-endings", "wsl", "onedrive", "gitattributes", "sed", "binario", "rtk"],
+      "tags": [
+        "git",
+        "crlf",
+        "line-endings",
+        "wsl",
+        "onedrive",
+        "gitattributes",
+        "sed",
+        "binario",
+        "rtk"
+      ],
       "related_bugs": [],
       "occurrences": 1,
       "last_seen": "2026-07-11T15:30:00.000Z"
+    },
+    {
+      "id": "bug-005",
+      "timestamp": "2026-07-11T20:12:44.400Z",
+      "error_message": "Incorrect value in code",
+      "file": "client/src/hud.ts",
+      "root_cause": "Had `rede ${s.net.msgsPerSec} msg/s  ${s.net.bytesPerS",
+      "fix": "Changed to `rede ${s.net.msgsPerSec} msg/s  ${s.net.bytesPerS",
+      "tags": [
+        "auto-detected",
+        "wrong-value",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-11T20:12:44.400Z"
     }
   ]
 }

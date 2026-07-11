@@ -133,3 +133,16 @@
 
 | Time | Action | File(s) | Outcome | ~Tokens |
 |------|--------|---------|---------|--------|
+| 17:10 | Created shared/src/protocol.ts | — | ~1386 |
+| 17:10 | Created shared/src/session.ts | — | ~919 |
+| 17:10 | Created shared/src/protocol.test.ts | — | ~935 |
+| 17:11 | Created shared/src/session.test.ts | — | ~900 |
+| 17:11 | Created shared/src/index.ts | — | ~62 |
+| 17:11 | Created server/src/worker.ts | — | ~252 |
+| 17:11 | Edited server/tsconfig.json | 3→4 lines | ~25 |
+| 17:11 | Created client/src/connection.ts | — | ~385 |
+| 17:12 | Created client/src/main.ts | — | ~1520 |
+| 17:12 | Edited client/src/hud.ts | modified netcode() | ~46 |
+| 17:12 | Edited client/src/hud.ts | "rede ${s.net.msgsPerSec} " → "rede ${s.net.msgsPerSec} " | ~36 |
+| 17:06 | push main pro GitHub (repo privado meketreve/logica-em-jogo já existia; commit chore(wolf) antes) | — | ok, main=origin/main | ~2k |
+| 17:14 | checkpoint 2: protocol.ts+session.ts em /shared (+13 testes), worker.ts em /server (lib WebWorker no tsconfig), connection.ts + main.ts refeito no /client, HUD tick méd/máx | shared/src/{protocol,session}{,.test}.ts server/src/worker.ts client/src/{connection,main,hud}.ts | 33 testes, typecheck 3/3, build ok, screenshot = checkpoint 1 | ~35k |

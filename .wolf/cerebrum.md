@@ -31,6 +31,19 @@
 - Convenção de índices (contrato binário): chunk em world.chunks = `(cy*dims.z+cz)*dims.x+cx`;
   bloco no Uint8Array = `(ly*CHUNK_SIZE+lz)*CHUNK_SIZE+lx`. getBlock fora dos limites = Air
   (borda do mundo renderiza face; jogador cai da borda → respawn no cliente).
+- Worker de OUTRO workspace no Vite: `new Worker(new URL("../../server/src/worker.ts",
+  import.meta.url), { type: "module" })` funciona em dev e build (vira chunk separado).
+  Caminho relativo cruzando workspaces, sem `?worker` nem export no package.json.
+- `server/tsconfig.json` combina `lib: ["ES2022","WebWorker"]` + `types: ["node"]` sem
+  conflito (skipLibCheck) — index.ts (Node) e worker.ts (WebWorker) no mesmo programa.
+- `/shared` NÃO enxerga `performance` (lib ES2022 pura). GameSession recebe relógio
+  injetável (`opts.now`, default Date.now); hosts passam `() => performance.now()`.
+  Bônus: testes de tick usam clock fake determinístico.
+- Formato do world_snapshot (contrato binário, LE): u32 magic "LJW0" (0x304a574c) |
+  u8 dims.x | u8 dims.z | u8 dims.y | u8 reservado | u32 seed | chunks na ordem de
+  chunkIndex(), CHUNK_VOLUME bytes cada. decode SEMPRE valida magic/dims/tamanho.
+- anatomy.md é rescaneado por hook do OpenWolf ao criar arquivos — não precisa (e não
+  adianta) editar entradas de arquivos novos manualmente; o hook sobrescreve.
 
 ## Do-Not-Repeat
 

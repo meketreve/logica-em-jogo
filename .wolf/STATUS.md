@@ -45,6 +45,20 @@ Documento é o ÚLTIMO entregável, não o primeiro. Construir, não documentar.
   `hud.ts` (F3: FPS, frametime méd/p95, remesh, draw calls/tris, rede zerada, export JSON),
   `main.ts` reescrito. 20 testes passando (world/mesher/physics/blocks), typecheck 3/3,
   build ok, screenshot headless confirma o mundo renderizando (terreno + areia + overlay).
+- **Push pro GitHub (2026-07-11):** repo privado `meketreve/logica-em-jogo` (criado no
+  scaffold), remote `origin` já configurado — main sincronizada. Backup do código ok.
+- **Checkpoint 2 (2026-07-11): servidor autoritativo via Web Worker.** Novo em `/shared`:
+  `protocol.ts` (mensagens JSON com parse DEFENSIVO dos dois lados + `world_snapshot`
+  binário — header "LJW0" LE com dims+seed, validado no decode) e `session.ts`
+  (GameSession pura, independente de hospedeiro, clock injetável: `join`→snapshot,
+  `move` registrado, `debug_stats` 1×/s com tick méd/máx). Novo em `/server`: `worker.ts`
+  (host Web Worker — SÓ transporte + agendar tick). Novo em `/client`: `connection.ts`
+  (interface `Connection` = mesma do WebSocket do checkpoint 5, com contadores de rede).
+  `main.ts`: mundo agora CHEGA do servidor (join → snapshot → decode → render); cliente
+  manda `move` 10×/s; HUD F3 mostra rede real (msg/s, B/s, tick méd/máx do servidor).
+  Física do próprio jogador segue local (servidor valida depois). 33 testes (13 novos:
+  protocol roundtrip/validação + session), typecheck 3/3, build ok (worker = bundle
+  separado de 3,3 kB), screenshot idêntico ao checkpoint 1 — como planejado.
 
 ---
 
@@ -154,8 +168,8 @@ Areia = regra de atualização por vizinhança no tick do servidor (MESMA engren
 circuitos futuros — NÃO código especial de areia).
 
 Ordem dos checkpoints (cada um jogável antes do próximo):
-1. Mundo estático + andar (só cliente three.js, WASD+mouse, sem rede).
-2. Servidor autoritativo (mundo vem de `/shared` via Web Worker; tela igual).
+1. ✅ Mundo estático + andar (só cliente three.js, WASD+mouse, sem rede).
+2. ✅ Servidor autoritativo (mundo vem de `/shared` via Web Worker; tela igual).
 3. Colocar/quebrar (clique→ação→`block_changed`).
 4. Areia cai (tick de gravidade no servidor).
 5. Segundo cliente (Web Worker → Node+ws; 2 navegadores, mesmo mundo).
@@ -165,19 +179,19 @@ Rede de segurança (dev sem revisão): TS estrito; `/shared` sem deps; testes au
 em `/shared` desde o checkpoint 2 (gravidade testável sem abrir navegador); cada checkpoint jogável.
 
 **Próximo passo concreto:**
-1. ~~`git init` + primeiro commit dos docs~~ ✅
-2. ~~Scaffold do monorepo~~ ✅
-3. ~~Checkpoint 1: mundo estático + andar + HUD F3~~ ✅ (2026-07-11)
-4. ~~Playtest do usuário~~ ✅ (2026-07-11) — "renderiza certo", movimentação ok.
-   ⚠️ Issue conhecida (bug-003, fix PARCIAL): pulos ocasionais de câmera por spikes de
-   movementX/Y do Chrome no pointer lock. Filtro MAX_DELTA=200 + unadjustedMovement
-   melhorou bastante; restam pulos raros. HUD F3 mostra `mouse Δmáx/descartados` —
-   pedir esses números ao usuário antes de mexer de novo. NÃO é bloqueante.
-5. Criar repo privado no GitHub e fazer push (backup do código) — PENDENTE.
-6. **Checkpoint 2: servidor autoritativo via Web Worker.** Mundo passa a viver no
-   servidor (`/server` embrulha `/shared`); cliente conecta por mensagens (mesma
-   interface do WebSocket futuro), recebe `world_snapshot` binário (header com dims)
-   e desenha. Tela idêntica ao checkpoint 1 — prova a arquitetura, não muda o jogo.
+1. **Playtest do checkpoint 2 pelo usuário** (tela deve ser idêntica ao checkpoint 1;
+   F3 agora mostra rede real e tick do servidor).
+2. **Checkpoint 3: colocar/quebrar bloco.** Raycast no cliente (SÓ mira/visual — não
+   decide nada), clique → `place_block`/`break_block` → servidor valida e aplica →
+   `block_changed` → cliente aplica na cópia local e chama `remesh()` do chunk afetado
+   (+ chunk vizinho quando o bloco está na borda). Protocolo ganha essas 3 mensagens
+   em `/shared/protocol.ts` com parse defensivo + testes (session: aplicar/rejeitar ação).
+3. Depois: checkpoint 4 (areia cai — fila de vizinhança no tick; REGRA DE OURO acima).
+
+⚠️ Issue conhecida (bug-003, fix PARCIAL, NÃO bloqueante): pulos ocasionais de câmera
+por spikes de movementX/Y do Chrome no pointer lock. Filtro MAX_DELTA=200 +
+unadjustedMovement melhorou bastante; restam pulos raros. HUD F3 mostra
+`mouse Δmáx/descartados` — pedir esses números ao usuário antes de mexer de novo.
 
 ### Decisões pendentes (só quando chegar na fase)
 - Circuitos: blocos-no-mundo (estilo redstone) vs painel que colapsa em 1 bloco.
