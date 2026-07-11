@@ -63,6 +63,18 @@ describe("parse de mensagens JSON", () => {
     ).toEqual({ type: "move", x: 1, y: 2, z: 3, yaw: 0.5, pitch: -0.1 });
   });
 
+  it("aceita place_block e break_block válidos; coordenadas devem ser inteiras", () => {
+    expect(
+      parseClientMessage('{"type":"place_block","x":1,"y":2,"z":3,"blockId":4}'),
+    ).toEqual({ type: "place_block", x: 1, y: 2, z: 3, blockId: 4 });
+    expect(parseClientMessage('{"type":"break_block","x":-1,"y":0,"z":7}')).toEqual({
+      type: "break_block", x: -1, y: 0, z: 7,
+    });
+    expect(parseClientMessage('{"type":"place_block","x":1.5,"y":2,"z":3,"blockId":4}')).toBeNull();
+    expect(parseClientMessage('{"type":"break_block","x":1,"y":2}')).toBeNull();
+    expect(parseClientMessage('{"type":"place_block","x":1,"y":2,"z":3,"blockId":"4"}')).toBeNull();
+  });
+
   it("descarta lixo: JSON quebrado, type desconhecido, campos errados", () => {
     expect(parseClientMessage("não é json")).toBeNull();
     expect(parseClientMessage('{"type":"hack"}')).toBeNull();
@@ -72,10 +84,14 @@ describe("parse de mensagens JSON", () => {
     expect(parseClientMessage('{"type":"move","x":1e999,"y":2,"z":3,"yaw":0,"pitch":0}')).toBeNull();
   });
 
-  it("parseServerMessage aceita debug_stats e rejeita o resto", () => {
+  it("parseServerMessage aceita debug_stats e block_changed, rejeita o resto", () => {
     expect(
       parseServerMessage('{"type":"debug_stats","tickAvgMs":0.1,"tickMaxMs":0.5,"tps":10}'),
     ).toEqual({ type: "debug_stats", tickAvgMs: 0.1, tickMaxMs: 0.5, tps: 10 });
+    expect(
+      parseServerMessage('{"type":"block_changed","x":1,"y":2,"z":3,"blockId":0}'),
+    ).toEqual({ type: "block_changed", x: 1, y: 2, z: 3, blockId: 0 });
+    expect(parseServerMessage('{"type":"block_changed","x":1.5,"y":2,"z":3,"blockId":0}')).toBeNull();
     expect(parseServerMessage('{"type":"outra"}')).toBeNull();
   });
 });

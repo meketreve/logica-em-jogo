@@ -1,10 +1,12 @@
-import { DEFAULT_WORLD_CHUNKS, SERVER_TICK_RATE } from "./constants";
+import { BlockId, isPlaceable } from "./blocks";
+import { DEFAULT_WORLD_CHUNKS, PLAYER_REACH, SERVER_TICK_RATE } from "./constants";
+import { PLAYER } from "./physics";
 import {
   type ServerMessage,
   encodeSnapshot,
   parseClientMessage,
 } from "./protocol";
-import type { World, WorldDims } from "./world";
+import { type World, type WorldDims, findSpawnY, getBlock, inBounds, setBlock } from "./world";
 import { generateWorld } from "./worldgen";
 
 /**
@@ -57,22 +59,85 @@ export class GameSession {
     const msg = parseClientMessage(raw);
     if (!msg) return;
     switch (msg.type) {
-      case "join":
+      case "join": {
+        // Spawn autoritativo: mesmo cálculo que o cliente faz ao decodificar
+        // o snapshot (mesmos bytes ⇒ mesmo resultado).
+        const sx = this.world.sizeX / 2 + 0.5;
+        const sz = this.world.sizeZ / 2 + 0.5;
         this.players.set(clientId, {
           name: msg.name,
-          x: 0, y: 0, z: 0, yaw: 0, pitch: 0,
+          x: sx,
+          y: findSpawnY(this.world, Math.floor(sx), Math.floor(sz)),
+          z: sz,
+          yaw: 0,
+          pitch: 0,
         });
         this.send(clientId, encodeSnapshot(this.world, this.seed));
         break;
+      }
       case "move": {
-        // Checkpoint 2: só registra (validação e player_moved vêm depois).
+        // Checkpoint 3: só registra (validação de física e player_moved vêm depois).
         const p = this.players.get(clientId);
         if (!p) return;
         p.x = msg.x; p.y = msg.y; p.z = msg.z;
         p.yaw = msg.yaw; p.pitch = msg.pitch;
         break;
       }
+      case "place_block": {
+        const p = this.players.get(clientId);
+        if (!p) return;
+        if (!inBounds(this.world, msg.x, msg.y, msg.z)) return;
+        if (!isPlaceable(msg.blockId)) return;
+        if (getBlock(this.world, msg.x, msg.y, msg.z) !== BlockId.Air) return;
+        if (!this.withinReach(p, msg.x, msg.y, msg.z)) return;
+        if (this.overlapsAnyPlayer(msg.x, msg.y, msg.z)) return;
+        this.applyBlock(msg.x, msg.y, msg.z, msg.blockId);
+        break;
+      }
+      case "break_block": {
+        const p = this.players.get(clientId);
+        if (!p) return;
+        if (!inBounds(this.world, msg.x, msg.y, msg.z)) return;
+        if (getBlock(this.world, msg.x, msg.y, msg.z) === BlockId.Air) return;
+        if (!this.withinReach(p, msg.x, msg.y, msg.z)) return;
+        this.applyBlock(msg.x, msg.y, msg.z, BlockId.Air);
+        break;
+      }
     }
+  }
+
+  /** Aplica mudança no mundo autoritativo e avisa TODOS (inclusive o autor). */
+  private applyBlock(x: number, y: number, z: number, blockId: number): void {
+    setBlock(this.world, x, y, z, blockId);
+    this.broadcast({ type: "block_changed", x, y, z, blockId });
+  }
+
+  private broadcast(msg: ServerMessage): void {
+    const raw = JSON.stringify(msg);
+    for (const clientId of this.players.keys()) this.send(clientId, raw);
+  }
+
+  /** Distância olho→centro do bloco, com folga (pos do move chega a 10 Hz). */
+  private withinReach(p: SessionPlayer, x: number, y: number, z: number): boolean {
+    const dx = x + 0.5 - p.x;
+    const dy = y + 0.5 - (p.y + PLAYER.eyeHeight);
+    const dz = z + 0.5 - p.z;
+    return Math.hypot(dx, dy, dz) <= PLAYER_REACH + 2;
+  }
+
+  /** Célula (x,y,z) sobrepõe o AABB de algum jogador? (não emparedar ninguém) */
+  private overlapsAnyPlayer(x: number, y: number, z: number): boolean {
+    const half = PLAYER.width / 2;
+    for (const p of this.players.values()) {
+      if (
+        x < p.x + half && x + 1 > p.x - half &&
+        y < p.y + PLAYER.height && y + 1 > p.y &&
+        z < p.z + half && z + 1 > p.z - half
+      ) {
+        return true;
+      }
+    }
+    return false;
   }
 
   handleDisconnect(clientId: number): void {
@@ -96,14 +161,12 @@ export class GameSession {
     if (ms > this.tickMsMax) this.tickMsMax = ms;
 
     if (this.ticksInWindow >= SERVER_TICK_RATE) {
-      const stats: ServerMessage = {
+      this.broadcast({
         type: "debug_stats",
         tickAvgMs: +(this.tickMsSum / this.ticksInWindow).toFixed(3),
         tickMaxMs: +this.tickMsMax.toFixed(3),
         tps: this.ticksInWindow,
-      };
-      const raw = JSON.stringify(stats);
-      for (const clientId of this.players.keys()) this.send(clientId, raw);
+      });
       this.tickMsSum = this.tickMsMax = this.ticksInWindow = 0;
     }
   }

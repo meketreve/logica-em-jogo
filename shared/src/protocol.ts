@@ -11,18 +11,29 @@ import { type World, createWorld } from "./world";
 
 export type ClientMessage =
   | { type: "join"; name: string }
-  | { type: "move"; x: number; y: number; z: number; yaw: number; pitch: number };
+  | { type: "move"; x: number; y: number; z: number; yaw: number; pitch: number }
+  | { type: "place_block"; x: number; y: number; z: number; blockId: number }
+  | { type: "break_block"; x: number; y: number; z: number };
 
 // --- Mensagens JSON servidor→cliente ---
 
-export type ServerMessage = {
-  type: "debug_stats";
-  /** Duração média/máxima do tick (ms) na última janela de 1 s. */
-  tickAvgMs: number;
-  tickMaxMs: number;
-  /** Ticks executados na janela (alvo = SERVER_TICK_RATE). */
-  tps: number;
-};
+export type ServerMessage =
+  | {
+      type: "debug_stats";
+      /** Duração média/máxima do tick (ms) na última janela de 1 s. */
+      tickAvgMs: number;
+      tickMaxMs: number;
+      /** Ticks executados na janela (alvo = SERVER_TICK_RATE). */
+      tps: number;
+    }
+  | {
+      /** Bloco mudou no mundo autoritativo (ação de jogador OU regra do tick — o cliente não distingue). */
+      type: "block_changed";
+      x: number;
+      y: number;
+      z: number;
+      blockId: number;
+    };
 
 /** Parse defensivo: servidor autoritativo nunca confia no que chega do fio. */
 export function parseClientMessage(raw: string): ClientMessage | null {
@@ -50,6 +61,27 @@ export function parseClientMessage(raw: string): ClientMessage | null {
         pitch: m["pitch"] as number,
       };
     }
+    case "place_block": {
+      const ints = [m["x"], m["y"], m["z"], m["blockId"]];
+      if (!ints.every((n) => typeof n === "number" && Number.isInteger(n))) return null;
+      return {
+        type: "place_block",
+        x: m["x"] as number,
+        y: m["y"] as number,
+        z: m["z"] as number,
+        blockId: m["blockId"] as number,
+      };
+    }
+    case "break_block": {
+      const ints = [m["x"], m["y"], m["z"]];
+      if (!ints.every((n) => typeof n === "number" && Number.isInteger(n))) return null;
+      return {
+        type: "break_block",
+        x: m["x"] as number,
+        y: m["y"] as number,
+        z: m["z"] as number,
+      };
+    }
     default:
       return null;
   }
@@ -64,15 +96,31 @@ export function parseServerMessage(raw: string): ServerMessage | null {
   }
   if (typeof msg !== "object" || msg === null) return null;
   const m = msg as Record<string, unknown>;
-  if (m["type"] !== "debug_stats") return null;
-  const nums = [m["tickAvgMs"], m["tickMaxMs"], m["tps"]];
-  if (!nums.every((n) => typeof n === "number" && Number.isFinite(n))) return null;
-  return {
-    type: "debug_stats",
-    tickAvgMs: m["tickAvgMs"] as number,
-    tickMaxMs: m["tickMaxMs"] as number,
-    tps: m["tps"] as number,
-  };
+  switch (m["type"]) {
+    case "debug_stats": {
+      const nums = [m["tickAvgMs"], m["tickMaxMs"], m["tps"]];
+      if (!nums.every((n) => typeof n === "number" && Number.isFinite(n))) return null;
+      return {
+        type: "debug_stats",
+        tickAvgMs: m["tickAvgMs"] as number,
+        tickMaxMs: m["tickMaxMs"] as number,
+        tps: m["tps"] as number,
+      };
+    }
+    case "block_changed": {
+      const ints = [m["x"], m["y"], m["z"], m["blockId"]];
+      if (!ints.every((n) => typeof n === "number" && Number.isInteger(n))) return null;
+      return {
+        type: "block_changed",
+        x: m["x"] as number,
+        y: m["y"] as number,
+        z: m["z"] as number,
+        blockId: m["blockId"] as number,
+      };
+    }
+    default:
+      return null;
+  }
 }
 
 // --- world_snapshot binário ---

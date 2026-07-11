@@ -11,3 +11,6 @@ export const MAX_WORLD_CHUNKS = { x: 16, z: 16, y: 8 } as const;
 
 /** Tick fixo do servidor (desacoplado do render do cliente). */
 export const SERVER_TICK_RATE = 10;
+
+/** Alcance de interação (colocar/quebrar) em blocos, medido do olho do jogador. */
+export const PLAYER_REACH = 5;

@@ -4,5 +4,6 @@ export * from "./world";
 export * from "./worldgen";
 export * from "./mesher";
 export * from "./physics";
+export * from "./raycast";
 export * from "./protocol";
 export * from "./session";

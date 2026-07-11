@@ -8,6 +8,7 @@ export class Input {
 
   private keys = new Set<string>();
   private keyHandlers = new Map<string, () => void>();
+  private mouseHandlers = new Map<number, () => void>();
 
   private static readonly SENSITIVITY = 0.0025;
   private static readonly PITCH_LIMIT = Math.PI / 2 - 0.01;
@@ -29,6 +30,12 @@ export class Input {
     });
     window.addEventListener("keyup", (e) => this.keys.delete(e.code));
     window.addEventListener("blur", () => this.keys.clear());
+
+    canvas.addEventListener("contextmenu", (e) => e.preventDefault());
+    canvas.addEventListener("mousedown", (e) => {
+      if (!this.locked) return; // primeiro clique só trava o mouse
+      this.mouseHandlers.get(e.button)?.();
+    });
 
     canvas.addEventListener("click", () => {
       if (this.locked) return;
@@ -68,5 +75,10 @@ export class Input {
   /** Registra atalho (ex.: F3 → HUD). preventDefault automático. */
   onKey(code: string, fn: () => void): void {
     this.keyHandlers.set(code, fn);
+  }
+
+  /** Botão do mouse com pointer lock ativo (0 = esquerdo, 2 = direito). */
+  onMouseButton(button: number, fn: () => void): void {
+    this.mouseHandlers.set(button, fn);
   }
 }

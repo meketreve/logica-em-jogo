@@ -1,12 +1,17 @@
 import * as THREE from "three";
 import {
+  BlockId,
   PLAYER,
+  PLAYER_REACH,
+  type RayHit,
   SERVER_TICK_RATE,
   type Snapshot,
   createPlayer,
   decodeSnapshot,
   findSpawnY,
   parseServerMessage,
+  raycastBlock,
+  setBlock,
   stepPlayer,
 } from "@logica/shared";
 import { createAtlasTexture } from "./atlasTexture";
@@ -16,11 +21,10 @@ import { Hud } from "./hud";
 import { Input } from "./input";
 
 /**
- * Checkpoint 2: o mundo VEM DO SERVIDOR (GameSession de /shared rodando num
- * Web Worker). Cliente conecta, manda join, recebe world_snapshot binário
- * (header com dims + seed) e desenha. Física do próprio jogador ainda roda
- * local (servidor valida depois). Tela idêntica ao checkpoint 1 — de
- * propósito: este checkpoint prova a arquitetura, não muda o jogo.
+ * Checkpoint 3: colocar e quebrar bloco. Raycast local SÓ pra mirar (visual);
+ * o clique vira place_block/break_block pro servidor, que valida, aplica e
+ * responde block_changed — só então o cliente altera a cópia local e faz
+ * remesh. Cliente continua sem decidir estado de mundo nenhum.
  */
 
 // --- Render (independente do mundo) ---
@@ -65,11 +69,19 @@ const conn = new WorkerConnection(worker);
 
 let debugStats = { tickAvgMs: 0, tickMaxMs: 0 };
 let started = false;
+let applyBlockChanged:
+  | ((msg: { x: number; y: number; z: number; blockId: number }) => void)
+  | null = null;
 
 conn.onMessage((data) => {
   if (typeof data === "string") {
     const msg = parseServerMessage(data);
-    if (msg) debugStats = { tickAvgMs: msg.tickAvgMs, tickMaxMs: msg.tickMaxMs };
+    if (!msg) return;
+    if (msg.type === "debug_stats") {
+      debugStats = { tickAvgMs: msg.tickAvgMs, tickMaxMs: msg.tickMaxMs };
+    } else if (msg.type === "block_changed") {
+      applyBlockChanged?.(msg);
+    }
     return;
   }
   if (started) return; // snapshot é único no checkpoint 2
@@ -98,8 +110,68 @@ function startGame(snap: Snapshot): void {
     player.vel.x = player.vel.y = player.vel.z = 0;
   }
 
+  // servidor mandou block_changed (nossa ação OU de outro jogador OU gravidade
+  // futura — cliente não distingue): aplica na cópia local e remesh
+  applyBlockChanged = (msg) => {
+    setBlock(world, msg.x, msg.y, msg.z, msg.blockId);
+    chunkRenderer.remeshBlock(msg.x, msg.y, msg.z);
+  };
+
+  // --- Mira + colocar/quebrar ---
+  const highlight = new THREE.LineSegments(
+    new THREE.EdgesGeometry(new THREE.BoxGeometry(1.002, 1.002, 1.002)),
+    new THREE.LineBasicMaterial({ color: 0x000000 }),
+  );
+  highlight.visible = false;
+  scene.add(highlight);
+  let target: RayHit | null = null;
+  const lookDir = new THREE.Vector3();
+
+  const PLACEABLE = [
+    { id: BlockId.Grass, name: "grama" },
+    { id: BlockId.Stone, name: "pedra" },
+    { id: BlockId.Cobblestone, name: "pedregulho" },
+    { id: BlockId.Sand, name: "areia" },
+  ] as const;
+  let selected = 0;
+  const hotbarEl = document.getElementById("hotbar");
+  const refreshHotbar = (): void => {
+    if (!hotbarEl) return;
+    hotbarEl.innerHTML = PLACEABLE.map((b, i) =>
+      i === selected ? `<b>[${i + 1} ${b.name}]</b>` : ` ${i + 1} ${b.name} `,
+    ).join(" ");
+  };
+  refreshHotbar();
+  PLACEABLE.forEach((_, i) => {
+    input.onKey(`Digit${i + 1}`, () => {
+      selected = i;
+      refreshHotbar();
+    });
+  });
+
+  input.onMouseButton(0, () => {
+    if (!target) return;
+    conn.send(
+      JSON.stringify({ type: "break_block", x: target.x, y: target.y, z: target.z }),
+    );
+  });
+  input.onMouseButton(2, () => {
+    if (!target) return;
+    const block = PLACEABLE[selected];
+    if (!block) return;
+    conn.send(
+      JSON.stringify({
+        type: "place_block",
+        x: target.x + target.nx,
+        y: target.y + target.ny,
+        z: target.z + target.nz,
+        blockId: block.id,
+      }),
+    );
+  });
+
   const hud = new Hud(renderer, {
-    checkpoint: 2,
+    checkpoint: 3,
     worldChunks: world.dims,
     worldSeed: snap.seed,
     serverHost: "web-worker",
@@ -163,6 +235,24 @@ function startGame(snap: Snapshot): void {
     camera.position.set(player.pos.x, player.pos.y + PLAYER.eyeHeight, player.pos.z);
     camera.rotation.set(input.pitch, input.yaw, 0);
 
+    // mira: raycast local (visual) — decisão continua no servidor
+    camera.getWorldDirection(lookDir);
+    target = input.locked
+      ? raycastBlock(
+          world,
+          camera.position.x, camera.position.y, camera.position.z,
+          lookDir.x, lookDir.y, lookDir.z,
+          PLAYER_REACH,
+        )
+      : null;
+    highlight.visible = target !== null;
+    if (target) highlight.position.set(target.x + 0.5, target.y + 0.5, target.z + 0.5);
+
+    hud.setRemesh({
+      count: chunkRenderer.remeshCount,
+      totalMs: chunkRenderer.remeshMsTotal,
+      lastMs: chunkRenderer.lastRemeshMs,
+    });
     hud.frame(dtMs);
     renderer.render(scene, camera);
   });

@@ -11,3 +11,8 @@ export const BlockId = {
 } as const;
 
 export type BlockId = (typeof BlockId)[keyof typeof BlockId];
+
+/** O jogador pode colocar este ID? (v0: qualquer bloco menos ar; valida bytes do fio) */
+export function isPlaceable(id: number): boolean {
+  return Number.isInteger(id) && id >= BlockId.Grass && id <= BlockId.Sand;
+}

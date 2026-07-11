@@ -52,4 +52,25 @@ export class ChunkRenderer {
     this.remeshMsTotal += this.lastRemeshMs;
     this.remeshCount++;
   }
+
+  /**
+   * Remesh do chunk que contém o bloco (x,y,z) — e dos vizinhos quando o
+   * bloco está na borda (a face culled do chunk ao lado depende dele).
+   */
+  remeshBlock(x: number, y: number, z: number): void {
+    const cx = (x / CHUNK_SIZE) | 0;
+    const cy = (y / CHUNK_SIZE) | 0;
+    const cz = (z / CHUNK_SIZE) | 0;
+    this.remesh(cx, cy, cz);
+
+    const lx = x - cx * CHUNK_SIZE;
+    const ly = y - cy * CHUNK_SIZE;
+    const lz = z - cz * CHUNK_SIZE;
+    if (lx === 0 && cx > 0) this.remesh(cx - 1, cy, cz);
+    if (lx === CHUNK_SIZE - 1 && cx < this.world.dims.x - 1) this.remesh(cx + 1, cy, cz);
+    if (ly === 0 && cy > 0) this.remesh(cx, cy - 1, cz);
+    if (ly === CHUNK_SIZE - 1 && cy < this.world.dims.y - 1) this.remesh(cx, cy + 1, cz);
+    if (lz === 0 && cz > 0) this.remesh(cx, cy, cz - 1);
+    if (lz === CHUNK_SIZE - 1 && cz < this.world.dims.z - 1) this.remesh(cx, cy, cz + 1);
+  }
 }

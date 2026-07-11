@@ -63,14 +63,47 @@
         padding: 2px 8px;
         cursor: pointer;
       }
+      #crosshair {
+        position: fixed;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%);
+        font-size: 22px;
+        color: #fff;
+        text-shadow: 0 0 3px #000;
+        pointer-events: none;
+        z-index: 5;
+        user-select: none;
+      }
+      #hotbar {
+        position: fixed;
+        bottom: 12px;
+        left: 50%;
+        transform: translateX(-50%);
+        padding: 6px 12px;
+        background: rgba(0, 0, 0, 0.55);
+        color: #fff;
+        font-family: ui-monospace, monospace;
+        font-size: 13px;
+        border-radius: 4px;
+        pointer-events: none;
+        white-space: pre;
+        z-index: 5;
+      }
+      #hotbar b {
+        color: #ffd75e;
+      }
     </style>
   </head>
   <body>
     <div id="overlay">
       <h1>Lógica em Jogo</h1>
       <p>Clique para jogar</p>
-      <p>WASD move · mouse olha · espaço pula · F3 mostra desempenho · Esc solta o mouse</p>
+      <p>WASD move · mouse olha · espaço pula · Esc solta o mouse</p>
+      <p>botão esquerdo quebra · direito coloca · 1–4 escolhe bloco · F3 desempenho</p>
     </div>
+    <div id="crosshair">+</div>
+    <div id="hotbar"></div>
     <div id="hud" class="hidden">
       <pre id="hud-text"></pre>
       <button id="hud-export" type="button">exportar JSON</button>
