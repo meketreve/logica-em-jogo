@@ -21,12 +21,16 @@ import { type Connection, WorkerConnection, WsConnection } from "./connection";
 import { emitGameEvent } from "./events";
 import { Hud } from "./hud";
 import { Input } from "./input";
+import { type PlayWorldChoice, getPlayerName, showMenu } from "./menu";
+import { loadSettings } from "./settings";
+import { putWorld } from "./worldStore";
 
 /**
- * Checkpoint 6: chat + 1 comando (/bloco, parser no SERVIDOR — fecha o MVP v0).
- * `?server=ws://host:8080` na URL conecta no hospedeiro Node+ws; sem parâmetro
- * = Web Worker local (singleplayer). Mesma interface Connection, mesmas
- * mensagens — o jogo não sabe qual hospedeiro é.
+ * Checkpoint 8: menu principal. Sem parâmetro na URL o menu escolhe o rumo:
+ * singleplayer (Web Worker + mundo do IndexedDB, com autosave) ou rede
+ * (WsConnection). `?server=ws://host:8080` pula o menu (link direto/testes);
+ * `?nome=x` força o nome. Mesma interface Connection — o jogo não sabe
+ * qual hospedeiro é.
  */
 
 // --- Render (independente do mundo) ---
@@ -52,6 +56,18 @@ scene.add(sun, new THREE.AmbientLight(0xffffff, 0.55));
 
 const input = new Input(renderer.domElement);
 
+/** (Re)aplica as configurações do jogador — chamada no boot e ao iniciar jogo
+ *  (o menu pode ter mudado tudo antes do play). */
+function applySettings(): ReturnType<typeof loadSettings> {
+  const s = loadSettings();
+  input.sensitivity = s.sensitivity;
+  camera.fov = s.fov;
+  camera.updateProjectionMatrix();
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, s.pixelRatioCap));
+  return s;
+}
+let settings = applySettings();
+
 const overlay = document.getElementById("overlay");
 function updateOverlay(): void {
   // some quando o jogo tem o mouse OU o chat está aberto (senão cobre o input)
@@ -65,30 +81,25 @@ window.addEventListener("resize", () => {
   renderer.setSize(window.innerWidth, window.innerHeight);
 });
 
-// --- Conexão com o servidor ---
-// ?server=ws://host:8080 → hospedeiro Node+ws (LAN); sem parâmetro → Web Worker.
-const serverUrl = new URLSearchParams(location.search).get("server");
-const conn: Connection = serverUrl
-  ? new WsConnection(serverUrl)
-  : new WorkerConnection(
-      new Worker(new URL("../../server/src/worker.ts", import.meta.url), {
-        type: "module",
-      }),
-    );
+// --- Conexão com o servidor: escolhida pelo MENU (ou ?server= na URL) ---
+let conn: Connection | null = null;
+let serverHostLabel = "?";
+/** Mundo singleplayer atual (id/nome/criação — bytes vão pro IndexedDB). */
+let currentWorld: { id: string; name: string; createdAt: number } | null = null;
+
+// Nome: ?nome=x força (testes); senão o do menu (localStorage — bug-061).
+function playerName(): string {
+  return new URLSearchParams(location.search).get("nome") ?? getPlayerName();
+}
 
 // --- Chat (checkpoint 6): UI em HTML por cima do canvas; comando roda no servidor ---
 const chat = new ChatUi(
-  (text) => conn.send(JSON.stringify({ type: "chat", text })),
+  (text) => conn?.send(JSON.stringify({ type: "chat", text })),
   (open) => {
     updateOverlay();
     if (!open) input.lock(); // fechou o chat → devolve o mouse pro jogo
   },
 );
-input.onKey("Enter", () => {
-  if (chat.open) return; // Enter DENTRO do chat é do campo (envia), não daqui
-  document.exitPointerLock();
-  chat.openInput();
-});
 
 let debugStats = { tickAvgMs: 0, tickMaxMs: 0 };
 let started = false;
@@ -102,7 +113,7 @@ let applyPlayerLeft: ((id: number) => void) | null = null;
 let applyTeleport: ((pos: { x: number; y: number; z: number }) => void) | null = null;
 let serverSpawn: { x: number; y: number; z: number } | null = null;
 
-conn.onMessage((data) => {
+function handleServerData(data: string | ArrayBuffer): void {
   if (typeof data === "string") {
     const msg = parseServerMessage(data);
     if (!msg) return;
@@ -127,25 +138,70 @@ conn.onMessage((data) => {
   if (started) return; // snapshot é único por sessão
   started = true;
   startGame(decodeSnapshot(data));
+}
+
+// --- Iniciar jogo (menu ou URL escolhem o hospedeiro) ---
+
+function connect(c: Connection): void {
+  settings = applySettings(); // menu pode ter mudado config antes do play
+  conn = c;
+  c.onMessage(handleServerData);
+  input.onKey(settings.keys.chat, () => {
+    if (chat.open) return; // dentro do chat a tecla é do campo, não daqui
+    document.exitPointerLock();
+    chat.openInput();
+  });
+  c.send(JSON.stringify({ type: "join", name: playerName() }));
+}
+
+function startMultiplayer(url: string): void {
+  serverHostLabel = url;
+  // em rede quem salva é o host — o botão só volta pro menu
+  const sair = document.getElementById("btn-sair");
+  if (sair) sair.textContent = "voltar ao menu";
+  connect(new WsConnection(url));
+}
+
+function startSingleplayer(choice: PlayWorldChoice): void {
+  currentWorld = { id: choice.id, name: choice.name, createdAt: choice.createdAt };
+  serverHostLabel = `web-worker (${choice.name})`;
+  const wc = new WorkerConnection(
+    new Worker(new URL("../../server/src/worker.ts", import.meta.url), {
+      type: "module",
+    }),
+  );
+  // mundo novo = seed aleatória; mundo existente = bytes do IndexedDB
+  const seed = crypto.getRandomValues(new Uint32Array(1))[0] ?? 1;
+  wc.init({ save: choice.data ?? undefined, seed });
+  connect(wc);
+}
+
+/** Grava o mundo singleplayer no IndexedDB (autosave e botão sair). */
+async function persistWorld(): Promise<void> {
+  if (!(conn instanceof WorkerConnection) || !currentWorld) return;
+  const data = await conn.requestSave();
+  await putWorld({ ...currentWorld, updatedAt: Date.now(), data });
+}
+
+// sair: singleplayer grava antes; rede só recarrega (host é quem salva)
+document.getElementById("btn-sair")?.addEventListener("click", () => {
+  void persistWorld().finally(() => location.reload());
 });
 
-// Nome único por navegador até menu/PIN chegarem (cp8/cp9): o roster do save
-// é por NOME — dois "jogador" idênticos eram a MESMA pessoa pro mundo e
-// voltavam no mesmo lugar (bug-061). `?nome=ana` na URL força um nome.
-function playerName(): string {
-  const fromUrl = new URLSearchParams(location.search).get("nome");
-  if (fromUrl) return fromUrl;
-  let stored = localStorage.getItem("lj-nome");
-  if (!stored) {
-    stored = `jogador-${Math.random().toString(36).slice(2, 6)}`;
-    localStorage.setItem("lj-nome", stored);
-  }
-  return stored;
+const bootServer = new URLSearchParams(location.search).get("server");
+if (bootServer) {
+  startMultiplayer(bootServer);
+} else {
+  showMenu({
+    onPlayWorld: startSingleplayer,
+    onPlayMulti: startMultiplayer,
+  });
 }
-conn.send(JSON.stringify({ type: "join", name: playerName() }));
 
 // --- Jogo (só começa quando o snapshot chega do servidor) ---
 function startGame(snap: Snapshot): void {
+  const activeConn = conn;
+  if (!activeConn) return; // snapshot só chega depois do connect()
   const world = snap.world;
   const material = new THREE.MeshLambertMaterial({ map: createAtlasTexture() });
 
@@ -290,7 +346,7 @@ function startGame(snap: Snapshot): void {
 
   input.onMouseButton(0, () => {
     if (!target) return;
-    conn.send(
+    activeConn.send(
       JSON.stringify({ type: "break_block", x: target.x, y: target.y, z: target.z }),
     );
   });
@@ -298,7 +354,7 @@ function startGame(snap: Snapshot): void {
     if (!target) return;
     const block = PLACEABLE[selected];
     if (!block) return;
-    conn.send(
+    activeConn.send(
       JSON.stringify({
         type: "place_block",
         x: target.x + target.nx,
@@ -310,17 +366,17 @@ function startGame(snap: Snapshot): void {
   });
 
   const hud = new Hud(renderer, {
-    checkpoint: 6,
+    checkpoint: 8,
     worldChunks: world.dims,
     worldSeed: snap.seed,
-    serverHost: serverUrl ?? "web-worker",
+    serverHost: serverHostLabel,
   });
   hud.setRemesh({
     count: chunkRenderer.remeshCount,
     totalMs: chunkRenderer.remeshMsTotal,
     lastMs: chunkRenderer.lastRemeshMs,
   });
-  input.onKey("F3", () => hud.toggle());
+  input.onKey(settings.keys.hud, () => hud.toggle());
   hud.extra = () => {
     const m = input.mouseStats;
     return `mouse Δmáx ${m.maxDelta}px  descartados ${m.dropped} (último ${m.lastDropped}px)`;
@@ -328,7 +384,7 @@ function startGame(snap: Snapshot): void {
 
   // move 10×/s pro servidor (mesmo ritmo do tick) — prova o canal de subida
   setInterval(() => {
-    conn.send(
+    activeConn.send(
       JSON.stringify({
         type: "move",
         x: player.pos.x,
@@ -340,10 +396,17 @@ function startGame(snap: Snapshot): void {
     );
   }, 1000 / SERVER_TICK_RATE);
 
+  // singleplayer: mundo NASCE salvo (fechar a aba logo depois não perde nada)
+  // e autossalva no IndexedDB no mesmo ritmo do host Node (30 s)
+  if (activeConn instanceof WorkerConnection && currentWorld) {
+    void persistWorld();
+    setInterval(() => void persistWorld(), 30_000);
+  }
+
   // HUD de rede: taxa por segundo (entrada+saída) + duração do tick do servidor
-  let lastNet = { ...conn.stats };
+  let lastNet = { ...activeConn.stats };
   setInterval(() => {
-    const s = conn.stats;
+    const s = activeConn.stats;
     hud.net = {
       msgsPerSec: s.msgsIn + s.msgsOut - (lastNet.msgsIn + lastNet.msgsOut),
       bytesPerSec: s.bytesIn + s.bytesOut - (lastNet.bytesIn + lastNet.bytesOut),
@@ -361,12 +424,12 @@ function startGame(snap: Snapshot): void {
     const dt = Math.min(dtMs / 1000, 0.05);
 
     const forward = input.locked
-      ? (input.down("KeyW") ? 1 : 0) - (input.down("KeyS") ? 1 : 0)
+      ? (input.down(settings.keys.forward) ? 1 : 0) - (input.down(settings.keys.back) ? 1 : 0)
       : 0;
     const strafe = input.locked
-      ? (input.down("KeyD") ? 1 : 0) - (input.down("KeyA") ? 1 : 0)
+      ? (input.down(settings.keys.right) ? 1 : 0) - (input.down(settings.keys.left) ? 1 : 0)
       : 0;
-    const jump = input.locked && input.down("Space");
+    const jump = input.locked && input.down(settings.keys.jump);
 
     stepPlayer(world, player, { forward, strafe, jump, yaw: input.yaw }, dt);
     if (player.pos.y < -16) respawn(); // caiu da borda do mundo

@@ -1,7 +1,7 @@
 # anatomy.md
 
-> Auto-maintained by OpenWolf. Last scanned: 2026-07-12T02:02:28.010Z
-> Files: 38 tracked | Anatomy hits: 0 | Misses: 0
+> Auto-maintained by OpenWolf. Last scanned: 2026-07-12T02:23:03.889Z
+> Files: 41 tracked | Anatomy hits: 0 | Misses: 0
 
 ## ../../../tmp/claude-1000/-home-meketreve-logica-em-jogo/a0d99221-e98e-49ca-885e-fb3fd914cb11/scratchpad/
 
@@ -29,18 +29,21 @@
 
 ## client/
 
-- `index.html` — Lógica em Jogo (~1195 tok)
+- `index.html` — Lógica em Jogo (~2534 tok)
 
 ## client/src/
 
 - `atlasTexture.ts` — Texture atlas procedural pintado num canvas (sem assets externos — restrição (~1742 tok)
 - `chat.ts` — UI de chat em HTML/CSS por cima do canvas (regra: sem GUI de engine). (~644 tok)
 - `chunks.ts` — 1 mesh por chunk (BufferGeometry única, culled mesher do /shared). (~786 tok)
-- `connection.ts` — Conexão do cliente com O SERVIDOR — interface única, hospedeiro invisível. (~846 tok)
+- `connection.ts` — Conexão do cliente com O SERVIDOR — interface única, hospedeiro invisível. (~1137 tok)
 - `events.ts` — Gatilhos de som (checkpoint 6): pontos de evento do jogo onde o áudio vai (~172 tok)
 - `hud.ts` — HUD de perfilação (F3): FPS, frametime méd+p95, remesh, draw calls e (~1099 tok)
-- `input.ts` — Teclado + mouse (pointer lock). SÓ coleta input — nenhuma decisão de (~1069 tok)
-- `main.ts` — Checkpoint 6: chat + 1 comando (/bloco, parser no SERVIDOR — fecha o MVP v0). (~4044 tok)
+- `input.ts` — Teclado + mouse (pointer lock). SÓ coleta input — nenhuma decisão de (~1107 tok)
+- `main.ts` — Checkpoint 8: menu principal. Sem parâmetro na URL o menu escolhe o rumo: (~4749 tok)
+- `menu.ts` — Menu principal (cp8) — HTML/CSS por cima do canvas, sem GUI de engine. (~2655 tok)
+- `settings.ts` — Configurações do jogador, persistidas em localStorage (por navegador). (~867 tok)
+- `worldStore.ts` — Mundos do SINGLEPLAYER, guardados no navegador (IndexedDB) — decisão de (~780 tok)
 
 ## server/
 
@@ -49,7 +52,7 @@
 ## server/src/
 
 - `index.ts` — Hospedeiro Node+ws do servidor (LAN): embrulha a MESMA GameSession do Web (~993 tok)
-- `worker.ts` — Hospedeiro Web Worker do servidor (singleplayer): embrulha a GameSession (~252 tok)
+- `worker.ts` — Hospedeiro Web Worker do servidor (singleplayer): embrulha a GameSession (~576 tok)
 
 ## shared/
 

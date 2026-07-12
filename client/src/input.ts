@@ -5,6 +5,8 @@
 export class Input {
   yaw = 0;
   pitch = 0;
+  /** Multiplicador da sensibilidade do mouse (configurações do jogador). */
+  sensitivity = 1;
 
   private keys = new Set<string>();
   private keyHandlers = new Map<string, () => void>();
@@ -62,8 +64,8 @@ export class Input {
         console.warn(`[input] spike de mouse descartado: ${e.movementX},${e.movementY}`);
         return;
       }
-      this.yaw -= e.movementX * Input.SENSITIVITY;
-      this.pitch -= e.movementY * Input.SENSITIVITY;
+      this.yaw -= e.movementX * Input.SENSITIVITY * this.sensitivity;
+      this.pitch -= e.movementY * Input.SENSITIVITY * this.sensitivity;
       const lim = Input.PITCH_LIMIT;
       if (this.pitch > lim) this.pitch = lim;
       if (this.pitch < -lim) this.pitch = -lim;

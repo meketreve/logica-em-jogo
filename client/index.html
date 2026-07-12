@@ -103,6 +103,133 @@
       #hotbar b {
         color: #ffd75e;
       }
+      /* --- Menu principal (cp8) --- */
+      #menu {
+        position: fixed;
+        inset: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(180deg, #24344d 0%, #101826 100%);
+        color: #fff;
+        z-index: 30;
+        overflow-y: auto;
+      }
+      .menu-screen {
+        display: flex;
+        flex-direction: column;
+        gap: 0.7rem;
+        width: min(460px, 92vw);
+        padding: 28px 30px;
+        background: rgba(0, 0, 0, 0.35);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        border-radius: 10px;
+      }
+      .menu-screen h1 {
+        margin: 0 0 0.3rem;
+        text-align: center;
+        font-size: 2rem;
+      }
+      .menu-screen h2 {
+        margin: 0 0 0.3rem;
+        font-size: 1.3rem;
+      }
+      .menu-screen button {
+        font: inherit;
+        font-size: 1.05rem;
+        padding: 10px 14px;
+        border: 1px solid rgba(255, 255, 255, 0.25);
+        border-radius: 6px;
+        background: rgba(255, 255, 255, 0.1);
+        color: #fff;
+        cursor: pointer;
+        text-align: left;
+      }
+      .menu-screen button:hover {
+        background: rgba(255, 255, 255, 0.22);
+      }
+      .menu-screen button:disabled {
+        opacity: 0.4;
+        cursor: default;
+      }
+      .menu-screen label {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        font-size: 0.95rem;
+      }
+      .menu-screen input[type="text"] {
+        font: inherit;
+        flex: 1;
+        padding: 8px 10px;
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        border-radius: 6px;
+        background: rgba(0, 0, 0, 0.4);
+        color: #fff;
+        outline: none;
+        min-width: 0;
+      }
+      .menu-screen input[type="range"] {
+        flex: 1;
+      }
+      .menu-hint {
+        font-size: 0.8rem;
+        opacity: 0.65;
+        margin: 0;
+      }
+      #menu-world-list {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        max-height: 40vh;
+        overflow-y: auto;
+      }
+      .world-row {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 10px;
+        background: rgba(255, 255, 255, 0.07);
+        border-radius: 6px;
+      }
+      .world-row .world-name {
+        flex: 1;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+      .world-row small {
+        opacity: 0.6;
+      }
+      .world-row button {
+        font-size: 0.85rem;
+        padding: 5px 9px;
+      }
+      .config-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        font-size: 0.95rem;
+      }
+      .config-row output {
+        min-width: 2.5em;
+        text-align: right;
+        font-family: ui-monospace, monospace;
+      }
+      #overlay #btn-sair {
+        pointer-events: auto;
+        margin-top: 0.8rem;
+        font: inherit;
+        font-size: 0.95rem;
+        padding: 8px 14px;
+        border: 1px solid rgba(255, 255, 255, 0.4);
+        border-radius: 6px;
+        background: rgba(0, 0, 0, 0.5);
+        color: #fff;
+        cursor: pointer;
+      }
       #chat {
         position: fixed;
         left: 12px;
@@ -144,12 +271,43 @@
     </style>
   </head>
   <body>
+    <div id="menu" class="hidden">
+      <section id="menu-home" class="menu-screen">
+        <h1>Lógica em Jogo</h1>
+        <label>seu nome <input id="menu-nome" type="text" maxlength="24" autocomplete="off" /></label>
+        <button id="menu-btn-single" type="button">🌍 Jogar sozinho</button>
+        <button id="menu-btn-multi" type="button">🌐 Jogar em rede</button>
+        <button id="menu-btn-config" type="button">⚙️ Configurações</button>
+      </section>
+      <section id="menu-worlds" class="menu-screen hidden">
+        <h2>Meus mundos</h2>
+        <div id="menu-world-list"></div>
+        <button id="menu-btn-new" type="button">＋ criar mundo novo</button>
+        <button id="menu-btn-import" type="button">📂 importar arquivo .ljw…</button>
+        <input id="menu-import-file" type="file" accept=".ljw" class="hidden" />
+        <p class="menu-hint">mundos ficam salvos NESTE navegador · exportar gera um arquivo pra compartilhar (Drive, pen drive)</p>
+        <button class="menu-back" type="button">← voltar</button>
+      </section>
+      <section id="menu-multi" class="menu-screen hidden">
+        <h2>Jogar em rede</h2>
+        <label>endereço <input id="menu-endereco" type="text" autocomplete="off" /></label>
+        <p class="menu-hint">pergunte ao professor o endereço (ex.: ws://192.168.0.10:8080)</p>
+        <button id="menu-btn-conectar" type="button">entrar</button>
+        <button class="menu-back" type="button">← voltar</button>
+      </section>
+      <section id="menu-config" class="menu-screen hidden">
+        <h2>Configurações</h2>
+        <div id="menu-config-body"></div>
+        <button class="menu-back" type="button">← voltar</button>
+      </section>
+    </div>
     <div id="overlay">
       <h1>Lógica em Jogo</h1>
       <p>Clique para jogar</p>
       <p>WASD move · mouse olha · espaço pula · Esc solta o mouse</p>
       <p>botão esquerdo quebra · direito coloca · 1–9 e scroll escolhem bloco · F3 desempenho</p>
       <p>Enter abre o chat (Esc fecha) · /bloco x y z id muda um bloco</p>
+      <button id="btn-sair" type="button">💾 salvar e voltar ao menu</button>
     </div>
     <div id="crosshair">+</div>
     <div id="chat">

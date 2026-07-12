@@ -355,3 +355,25 @@ Bug-010 achado na playtest (rejoin no fundo do buraco) e corrigido; bug-011 (tsx
 | 23:02 | Edited client/src/main.ts | modified if() | ~388 |
 | 23:02 | Edited client/src/main.ts | expanded (+9 lines) | ~160 |
 | 23:55 | Playtest cp7 ✅ com 2 achados corrigidos: bug-061 (nome fixo "jogador" fundia jogadores no roster → nome único por navegador via localStorage) e bug-062 (serrilhado → lerp exponencial no render, gatilho da política disparou) | client/src/main.ts .wolf/buglog.json | typecheck+build+screenshot ✅ | ~5k |
+| 23:04 | Session end: 71 writes across 21 files (constants.ts, protocol.ts, session.ts, session.test.ts, protocol.test.ts) | 20 reads | ~37895 tok |
+| 23:13 | Created server/src/worker.ts | — | ~576 |
+| 23:14 | Edited client/src/connection.ts | added 2 condition(s) | ~534 |
+| 23:14 | Created client/src/worldStore.ts | — | ~780 |
+| 23:14 | Created client/src/settings.ts | — | ~867 |
+| 23:14 | Edited client/src/input.ts | 3→5 lines | ~40 |
+| 23:15 | Edited client/src/input.ts | 2→2 lines | ~41 |
+| 23:15 | Edited client/index.html | expanded (+127 lines) | ~866 |
+| 23:15 | Edited client/index.html | expanded (+31 lines) | ~570 |
+| 23:16 | Created client/src/menu.ts | — | ~2668 |
+| 23:16 | Edited client/src/menu.ts | 7→8 lines | ~37 |
+| 23:16 | Edited client/src/menu.ts | 9→8 lines | ~73 |
+| 23:17 | Edited client/src/main.ts | added 3 import(s) | ~228 |
+| 23:17 | Edited client/src/main.ts | modified applySettings() | ~154 |
+| 23:18 | Edited client/src/main.ts | added optional chaining | ~223 |
+| 23:18 | Edited client/src/main.ts | onMessage() → handleServerData() | ~28 |
+| 23:18 | Edited client/src/main.ts | added optional chaining | ~559 |
+| 23:18 | Edited client/src/main.ts | added 1 condition(s) | ~48 |
+| 23:19 | Edited client/src/main.ts | added 1 condition(s) | ~118 |
+| 23:23 | Edited client/src/main.ts | 2→2 lines | ~15 |
+| 23:23 | Edited client/src/main.ts | added 1 condition(s) | ~77 |
+| 00:20 | cp8 menu principal: menu.ts (4 telas), worldStore.ts (IndexedDB+export/import .ljw), settings.ts (config defensiva+rebind), worker com canal hostType init/save, main.ts boot via menu, autosave single 30s, botão sair | client/src/{menu,worldStore,settings,main,connection,input}.ts server/worker.ts index.html | typecheck+build+67 testes+screenshots ✅ playtest pendente | ~18k |

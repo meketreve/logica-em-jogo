@@ -287,14 +287,20 @@ em `/shared` desde o checkpoint 2 (gravidade testável sem abrir navegador); cad
    por nome fundia os dois; ponte = nome único por navegador via localStorage
    `lj-nome`, `?nome=` força; fix DEFINITIVO = PIN no cp9) e bug-062 (movimento
    remoto serrilhado → lerp exponencial, ver política de otimização).
-2. **cp8 — menu principal** (HTML/CSS por cima, sem GUI de engine): título →
-   • Singleplayer: listar mundos do IndexedDB, criar (nome; dims default), entrar,
-     EXPORTAR .ljw (download) e IMPORTAR (upload) — mesmo formato do host;
-     WorkerConnection ganha save/load via IndexedDB (autosave + ao sair).
-   • Multiplayer: campo endereço ws:// + nome (substitui ?server= da URL).
-   • Configurações: sensibilidade do mouse, rebind de teclas, gráficos básicos
-     (FOV/pixel ratio); persistir em localStorage; som = slider desabilitado
-     com aviso "em breve".
+2. ✅ **cp8 — menu principal (2026-07-11, playtest pendente).** Novos no cliente:
+   `menu.ts` (telas início/mundos/rede/config; só ESCOLHE — main inicia),
+   `worldStore.ts` (IndexedDB "logica-em-jogo"/"worlds": list/put/delete +
+   exportar = download .ljw + importar valida com decodeSave), `settings.ts`
+   (localStorage "lj-config", merge defensivo: sensibilidade, FOV, nitidez/
+   pixelRatioCap, volume guardado-mas-inerte, rebind de 7 ações). Worker ganhou
+   canal de HOST fora do protocolo de jogo: `{hostType:"init", save?, seed?}`
+   antes do join e `save_request`→`save` (quem grava IndexedDB é o CLIENTE;
+   worker só serializa). main.ts: boot → menu (ou `?server=` pula), conn virou
+   let, `connect()` reaplica config, singleplayer autossalva 30 s + grava logo
+   após snapshot (mundo nasce salvo), botão "salvar e voltar ao menu" no overlay
+   (rede: só "voltar" — host salva). Nome do jogador editável no menu (lj-nome).
+   Teclas do loop vêm de settings.keys. Typecheck 3/3, build ok, 67 testes,
+   screenshots: menu renderiza; jogo via ?server intacto.
 3. **cp9 — PIN + papel de professor:** join vira nome+PIN (msg `join_denied` com
    motivo); 1ª entrada registra no roster; `/resetpin nome`; código de professor
    na criação do mundo; comandos privilegiados (`/bloco`, `/resetpin`) gated;

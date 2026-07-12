@@ -20,6 +20,8 @@ export interface Connection {
 export class WorkerConnection implements Connection {
   readonly stats: NetStats = { msgsIn: 0, msgsOut: 0, bytesIn: 0, bytesOut: 0 };
   private cb: ((data: string | ArrayBuffer) => void) | null = null;
+  /** Resolve do save_request pendente (1 por vez basta — autosave é serial). */
+  private savePending: ((data: ArrayBuffer) => void) | null = null;
 
   constructor(private worker: Worker) {
     worker.onmessage = (e: MessageEvent) => {
@@ -32,8 +34,28 @@ export class WorkerConnection implements Connection {
         this.stats.msgsIn++;
         this.stats.bytesIn += data.byteLength;
         this.cb?.(data);
+      } else if (typeof data === "object" && data !== null) {
+        // canal de HOST (cp8): controle do hospedeiro, fora do protocolo de jogo
+        const msg = data as { hostType?: unknown; data?: unknown };
+        if (msg.hostType === "save" && msg.data instanceof ArrayBuffer) {
+          this.savePending?.(msg.data);
+          this.savePending = null;
+        }
       }
     };
+  }
+
+  /** Inicializa o hospedeiro: mundo do save (IndexedDB) OU novo com a seed. */
+  init(opts: { save?: ArrayBuffer; seed?: number }): void {
+    this.worker.postMessage({ hostType: "init", save: opts.save, seed: opts.seed });
+  }
+
+  /** Pede os bytes .ljw do mundo atual (quem grava no IndexedDB é o cliente). */
+  requestSave(): Promise<ArrayBuffer> {
+    return new Promise((resolve) => {
+      this.savePending = resolve;
+      this.worker.postMessage({ hostType: "save_request" });
+    });
   }
 
   send(data: string): void {

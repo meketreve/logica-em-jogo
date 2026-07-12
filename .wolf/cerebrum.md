@@ -107,6 +107,17 @@
 - Identidade provisória do cliente (até cp9): nome único por navegador em
   localStorage `lj-nome` (`jogador-<4 chars>`), `?nome=x` na URL sobrescreve.
   Roster do save é POR NOME — nomes iguais são a mesma pessoa pro mundo (bug-061).
+- Canal de HOST do worker (cp8): mensagens `{hostType: ...}` no MESMO postMessage,
+  filtradas pelo WorkerConnection ANTES do protocolo de jogo. init (save/seed)
+  obrigatório antes do join; save_request→save devolve bytes .ljw. Quem grava no
+  IndexedDB é o CLIENTE (armazenamento do navegador = domínio dele); worker só
+  serializa. Divisão vale pra qualquer host browser-side futuro.
+- Config do jogador: localStorage "lj-config" com merge DEFENSIVO por campo
+  (update do jogo nunca quebra config velha). Teclas por e.code; captura de
+  rebind usa keydown {once, capture} + stopPropagation pra não vazar pro Input.
+- Menu (cp8): telas em index.html, controles de config gerados em JS
+  (menu.ts buildConfigScreen). Menu SÓ escolhe; main.ts inicia o jogo.
+  `?server=` pula o menu (screenshots headless e links de LAN dependem disso).
 
 ## Do-Not-Repeat
 
