@@ -407,3 +407,92 @@ Bug-010 achado na playtest (rejoin no fundo do buraco) e corrigido; bug-011 (tsx
 - Decisões: PIN 4 dígitos (não senha), host salva no LAN + navegador salva no
   single, código de professor na criação, MVP v1 "Aula persistente" aprovado.
 - PRÓXIMO: cp9 (PIN + papel de professor) — detalhes no STATUS.md.
+| 11:06 | Session end: 105 writes across 27 files (constants.ts, protocol.ts, session.ts, session.test.ts, protocol.test.ts) | 24 reads | ~50381 tok |
+
+## Session: 2026-07-12 11:06
+
+| Time | Action | File(s) | Outcome | ~Tokens |
+|------|--------|---------|---------|--------|
+| 11:14 | Created shared/src/auth.ts | — | ~504 |
+| 11:14 | Edited shared/src/protocol.ts | expanded (+12 lines) | ~143 |
+| 11:14 | Edited shared/src/protocol.ts | expanded (+9 lines) | ~129 |
+| 11:14 | Edited shared/src/protocol.ts | added 2 condition(s) | ~151 |
+| 11:14 | Edited shared/src/protocol.ts | added 1 condition(s) | ~90 |
+| 11:15 | Edited shared/src/save.ts | added 1 import(s) | ~39 |
+| 11:15 | Edited shared/src/save.ts | expanded (+7 lines) | ~226 |
+| 11:15 | Edited shared/src/save.ts | 10→13 lines | ~199 |
+| 11:15 | Edited shared/src/save.ts | 9→10 lines | ~104 |
+| 11:15 | Edited shared/src/session.ts | expanded (+7 lines) | ~51 |
+| 11:15 | Edited shared/src/session.ts | modified singleplayer() | ~289 |
+| 11:16 | Edited shared/src/session.ts | expanded (+9 lines) | ~258 |
+| 11:16 | Edited shared/src/session.ts | added optional chaining | ~262 |
+| 11:16 | Edited shared/src/session.ts | added optional chaining | ~839 |
+| 11:16 | Edited shared/src/session.ts | added 2 condition(s) | ~308 |
+| 11:17 | Edited shared/src/session.ts | 4→5 lines | ~61 |
+| 11:17 | Edited shared/src/session.ts | 5→5 lines | ~58 |
+| 11:17 | Edited shared/src/session.ts | added optional chaining | ~583 |
+| 11:17 | Edited shared/src/index.ts | 1→2 lines | ~14 |
+| 11:17 | Edited server/src/worker.ts | modified tico() | ~40 |
+| 11:17 | Edited server/src/index.ts | added 1 import(s) | ~86 |
+| 11:18 | Edited server/src/index.ts | added optional chaining | ~361 |
+| 11:18 | Edited client/index.html | 1→2 lines | ~22 |
+| 11:18 | Edited client/index.html | expanded (+8 lines) | ~243 |
+| 11:18 | Edited client/index.html | inline fix | ~23 |
+| 11:18 | Edited client/src/menu.ts | modified onPlayWorld() | ~110 |
+| 11:18 | Edited client/src/menu.ts | added 1 condition(s) | ~264 |
+| 11:18 | Edited client/src/main.ts | inline fix | ~25 |
+| 11:18 | Edited client/src/main.ts | added 1 condition(s) | ~112 |
+| 11:19 | Edited client/src/main.ts | added optional chaining | ~262 |
+| 11:19 | Edited client/src/main.ts | added nullish coalescing | ~102 |
+| 11:19 | Edited client/src/main.ts | 2→2 lines | ~15 |
+| 11:19 | Edited shared/src/session.test.ts | inline fix | ~19 |
+| 11:19 | Edited shared/src/session.test.ts | inline fix | ~17 |
+| 11:19 | Edited shared/src/session.test.ts | inline fix | ~20 |
+| 11:19 | Edited shared/src/session.test.ts | inline fix | ~23 |
+| 11:19 | Edited shared/src/session.test.ts | inline fix | ~21 |
+| 11:20 | Edited shared/src/session.test.ts | added 1 import(s) | ~34 |
+| 11:20 | Edited shared/src/session.test.ts | 1→3 lines | ~51 |
+| 12:04 | Created ../../../tmp/claude-1000/-home-meketreve-logica-em-jogo/4f89a4f0-8ef8-406e-8a21-9868f1120f83/scratchpad/pin-smoke.mts | — | ~1971 |
+| 12:24 | Edited ../../../tmp/claude-1000/-home-meketreve-logica-em-jogo/4f89a4f0-8ef8-406e-8a21-9868f1120f83/scratchpad/pin-smoke.mts | modified direto() | ~59 |
+| 12:24 | Edited ../../../tmp/claude-1000/-home-meketreve-logica-em-jogo/4f89a4f0-8ef8-406e-8a21-9868f1120f83/scratchpad/pin-smoke.mts | modified stopServer() | ~83 |
+| 12:25 | Edited ../../../tmp/claude-1000/-home-meketreve-logica-em-jogo/4f89a4f0-8ef8-406e-8a21-9868f1120f83/scratchpad/pin-smoke.mts | 11→7 lines | ~103 |
+| 12:00 | cp9: auth.ts novo (hash síncrono FNV-1a, isValidPin), protocolo join+pin/codigo e join_denied, save com pinHash/papel/codigoHash | shared/src/{auth,protocol,save}.ts | ok | ~9k |
+| 12:05 | cp9: GameSession — identity separada do roster, join estrito default, rate-limit por nome + global de código, /bloco e /resetpin gated, singleplayer=professor sem persistir papel | shared/src/session.ts | ok | ~6k |
+| 12:10 | cp9: LJ_CODIGO no host Node (gera+imprime se ausente), worker singleplayer:true, menu com campos PIN/código, main com auth no join e handler de join_denied | server/src/{index,worker}.ts client/{index.html,src/{menu,main}.ts} | ok | ~5k |
+| 12:15 | 15 testes novos (auth, protocolo, save, sessão cp9); mecânica antiga movida pra singleplayer:true; typecheck 3/3, 83 testes, build ok | shared/src/*.test.ts | ok | ~7k |
+| 12:30 | smoke real 2 fases: PIN/nome-em-uso/gating/código/resetpin + persistência pós-reboot — 12/12 ✅; screenshot headless do join com PIN ok | scratchpad/pin-smoke.mts | ok | ~8k |
+| 12:35 | bug-092 enriquecido (npx engole SIGTERM no smoke) + bug-093 (alert trava screenshot headless); cerebrum atualizado (learnings + 3 decisões cp9) | .wolf/{buglog.json,cerebrum.md} | ok | ~2k |
+| 13:52 | Session end: 43 writes across 11 files (auth.ts, protocol.ts, save.ts, session.ts, index.ts) | 15 reads | ~34725 tok |
+| 14:36 | Created shared/src/auth.ts | — | ~255 |
+| 14:36 | Edited shared/src/save.ts | 4→4 lines | ~45 |
+| 14:36 | Edited shared/src/save.ts | 3→3 lines | ~66 |
+| 14:36 | Edited shared/src/save.ts | "codigoHash" → "codigo" | ~21 |
+| 14:37 | Edited shared/src/save.ts | 3→3 lines | ~39 |
+| 14:37 | Edited shared/src/session.ts | reduced (-6 lines) | ~24 |
+| 14:37 | Edited shared/src/session.ts | professor() → puro() | ~46 |
+| 14:37 | Edited shared/src/session.ts | 5→5 lines | ~39 |
+| 14:37 | Edited shared/src/session.ts | 5→5 lines | ~54 |
+| 14:37 | Edited shared/src/session.ts | 2→2 lines | ~31 |
+| 14:37 | Edited shared/src/session.ts | modified if() | ~85 |
+| 14:37 | Edited shared/src/session.ts | 13→13 lines | ~120 |
+| 14:37 | Edited shared/src/session.ts | modified if() | ~126 |
+| 14:37 | Edited shared/src/session.ts | inline fix | ~15 |
+| 14:37 | Edited shared/src/session.ts | 4→4 lines | ~45 |
+| 14:37 | Edited shared/src/session.ts | 3→3 lines | ~43 |
+| 14:37 | Edited server/src/index.ts | 11→10 lines | ~82 |
+| 14:38 | Edited server/src/index.ts | added nullish coalescing | ~166 |
+| 14:38 | Edited server/src/index.ts | inline fix | ~20 |
+| 14:38 | Edited shared/src/session.test.ts | 3→2 lines | ~24 |
+| 14:38 | Edited shared/src/session.test.ts | 4→3 lines | ~61 |
+| 14:38 | Edited shared/src/session.test.ts | hashSecret() → save() | ~84 |
+| 14:38 | Edited shared/src/session.test.ts | 4→3 lines | ~55 |
+| 14:38 | Edited shared/src/session.test.ts | 7→7 lines | ~89 |
+| 14:38 | Edited shared/src/session.test.ts | 4→3 lines | ~57 |
+| 15:18 | Edited shared/src/save.test.ts | 37→36 lines | ~400 |
+| 12:45 | CORREÇÃO do usuário: PIN/código sem hash — texto puro no save (sem dado sensível). auth.ts vira só isValidPin; host imprime código em TODO boot; 82 testes, smoke 12/12 de novo | shared/src/{auth,save,session}.ts server/src/index.ts | ok | ~4k |
+| 12:50 | Sessão cp9 encerrada: STATUS/cerebrum/buglog atualizados, commits feat+refactor+wolf. Próxima quest: playtest cp9 → MVP v2 (cenários) | .wolf/* | ok | ~2k |
+
+## Sessão 2026-07-12 (tarde) — cp9 completo
+cp9 (PIN + papel de professor) implementado, testado (82 unit + smoke real 2 fases 12/12), commitado.
+Correção do usuário no fim: hash removido, PIN/código em texto puro (simplicidade > segurança sem dado sensível).
+MVP v1 código completo — falta só playtest do usuário no cp9. Depois: MVP v2 (cenários/autoria).

@@ -2,7 +2,9 @@
 
 > Single source of truth for resuming work. Read this FIRST when starting a session.
 > Last updated: 2026-07-12
-> **PRÓXIMA QUEST: cp9 — PIN + papel de professor (fecha o MVP v1). Ver checkpoints abaixo.**
+> **PRÓXIMA QUEST: playtest do cp9 pelo usuário (PIN/professor) → MVP v1 FECHADO.
+> Depois: MVP v2 — CENÁRIOS/AUTORIA (coração pedagógico). cp10 (validação física
+> do move) só se o playtest apontar necessidade.**
 
 ---
 
@@ -314,23 +316,40 @@ em `/shared` desde o checkpoint 2 (gravidade testável sem abrir navegador); cad
    (input.yaw/pitch) — volta olhando pra onde olhava. Saves ANTIGOS continuam
    válidos (campo faltando → 0; testado). Playtest do usuário ✅ ("funcionou").
    **cp8 FECHADO.**
-3. **cp9 — PIN + papel de professor (PRÓXIMA QUEST):** join vira nome+PIN
-   (msg `join_denied` com motivo — cliente mostra e volta pro menu); 1ª entrada
-   com nome novo registra o PIN no roster; `/resetpin nome` (professor);
-   código de professor definido na CRIAÇÃO do mundo (host Node: env LJ_CODIGO?;
-   decidir); comandos privilegiados (`/bloco`, `/resetpin`) gated por papel;
-   singleplayer (worker) = professor automático. Cliente: campo PIN no menu
-   (tela rede; 4 dígitos, inputmode numeric). Hash: crypto.subtle existe em
-   Node E Worker, mas handleMessage é SÍNCRONO — opções: hash injetado pelo
-   host (como opts.now) ou pré-hash no cliente antes do join. Resolver na quest.
-   Ameaça real = colega na LAN (10k combinações + rate-limit no join basta).
+3. ✅ **cp9 — PIN + papel de professor (2026-07-12, código FECHADO — playtest
+   do usuário PENDENTE).** PIN e código de professor em **TEXTO PURO** no
+   save (decisão do usuário: sem dado sensível, sem hash — a pendência de
+   crypto.subtle/pré-hash morreu junto; `/shared/auth.ts` = isValidPin +
+   constantes de rate-limit). Protocolo: join ganha `pin`/`codigo`
+   opcionais; msg `join_denied` (motivo) — recusa não manda MAIS NADA.
+   Session: mapa `identity` (pin/papel por nome) SEPARADO do roster
+   (posição); ordem do join estrito: nome-já-online (antes do PIN — fecha
+   bug-061 de vez e não vaza acerto) → lockout (5 erros no nome → 30 s;
+   código errado tem contador GLOBAL próprio) → PIN 4 dígitos → código de
+   professor (errado NEGA — professor precisa saber que errou); 1ª entrada
+   registra o PIN; papel persiste. `/bloco` e `/resetpin nome` só professor
+   (resposta explica); welcome anuncia comandos só pra professor.
+   `singleplayer: true` (worker) = sem PIN, professor automático, e papel/PIN
+   NÃO persistem (mundo single exportado pra LAN não dá professor de graça);
+   identity restaurada do save sobrevive mesmo em singleplayer (LAN→single→LAN
+   não perde PINs da turma). Save: pin/papel/codigo no JSON de meta (save
+   antigo segue válido). Host Node: LJ_CODIGO define/troca o código; sem env
+   usa o do save; mundo novo gera 6 chars — e IMPRIME no console em TODO
+   boot (recuperação grátis, texto puro permite). Cliente: campos PIN
+   (numeric, nunca salvo — PC de lab é compartilhado) e código na tela rede;
+   `?pin=`/`?codigo=` no boot via `?server=`; join_denied → alert + menu
+   limpo. 82 testes (14 novos), typecheck 3/3, build ok. Smoke real 2 fases
+   (registro/recusas/gating/resetpin → reboot: PIN e papel persistem)
+   12/12 ✅. Screenshot headless: join com PIN renderiza mundo + welcome
+   de aluno.
 4. **cp10 (se sobrar fôlego)** — validação de física do move no servidor.
 
 **Critérios de aceitação do MVP v1:**
 1. Fechar o host (Ctrl+C ou autosave), reabrir → mundo E posições intactos. ✅ (cp7)
-2. Menu: criar mundo single, jogar, fechar aba, voltar → continua do save local.
-3. Exportar mundo single pra arquivo e importá-lo em outro navegador/host.
+2. Menu: criar mundo single, jogar, fechar aba, voltar → continua do save local. ✅ (cp8)
+3. Exportar mundo single pra arquivo e importá-lo em outro navegador/host. ✅ (cp8; smoke)
 4. Aluno não entra com nome alheio sem o PIN; professor reseta PIN; aluno não roda /bloco.
+   ✅ código + smoke (cp9) — **playtest do usuário pendente**.
 
 **Depois (anotado, não esquecer):**
 - **MVP v2 = CENÁRIOS/AUTORIA** (coração pedagógico): objetivos, detecção de

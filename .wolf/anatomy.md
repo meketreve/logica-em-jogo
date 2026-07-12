@@ -1,7 +1,11 @@
 # anatomy.md
 
-> Auto-maintained by OpenWolf. Last scanned: 2026-07-12T13:57:00.740Z
-> Files: 42 tracked | Anatomy hits: 0 | Misses: 0
+> Auto-maintained by OpenWolf. Last scanned: 2026-07-12T18:18:53.326Z
+> Files: 44 tracked | Anatomy hits: 0 | Misses: 0
+
+## ../../../tmp/claude-1000/-home-meketreve-logica-em-jogo/4f89a4f0-8ef8-406e-8a21-9868f1120f83/scratchpad/
+
+- `pin-smoke.mts` — Smoke do cp9: PIN + papel de professor contra o servidor Node+ws REAL. (~2005 tok)
 
 ## ../../../tmp/claude-1000/-home-meketreve-logica-em-jogo/a0d99221-e98e-49ca-885e-fb3fd914cb11/scratchpad/
 
@@ -30,7 +34,7 @@
 
 ## client/
 
-- `index.html` — Lógica em Jogo (~2534 tok)
+- `index.html` — Lógica em Jogo (~2677 tok)
 
 ## client/src/
 
@@ -41,8 +45,8 @@
 - `events.ts` — Gatilhos de som (checkpoint 6): pontos de evento do jogo onde o áudio vai (~172 tok)
 - `hud.ts` — HUD de perfilação (F3): FPS, frametime méd+p95, remesh, draw calls e (~1099 tok)
 - `input.ts` — Teclado + mouse (pointer lock). SÓ coleta input — nenhuma decisão de (~1107 tok)
-- `main.ts` — Checkpoint 8: menu principal. Sem parâmetro na URL o menu escolhe o rumo: (~4990 tok)
-- `menu.ts` — Menu principal (cp8) — HTML/CSS por cima do canvas, sem GUI de engine. (~2725 tok)
+- `main.ts` — Checkpoint 8: menu principal. Sem parâmetro na URL o menu escolhe o rumo: (~5209 tok)
+- `menu.ts` — Menu principal (cp8) — HTML/CSS por cima do canvas, sem GUI de engine. (~2919 tok)
 - `settings.ts` — Configurações do jogador, persistidas em localStorage (por navegador). (~867 tok)
 - `worldStore.ts` — Mundos do SINGLEPLAYER, guardados no navegador (IndexedDB) — decisão de (~780 tok)
 
@@ -52,31 +56,32 @@
 
 ## server/src/
 
-- `index.ts` — Hospedeiro Node+ws do servidor (LAN): embrulha a MESMA GameSession do Web (~993 tok)
-- `worker.ts` — Hospedeiro Web Worker do servidor (singleplayer): embrulha a GameSession (~576 tok)
+- `index.ts` — Hospedeiro Node+ws do servidor (LAN): embrulha a MESMA GameSession do Web (~1173 tok)
+- `worker.ts` — Hospedeiro Web Worker do servidor (singleplayer): embrulha a GameSession (~601 tok)
 
 ## shared/
 
 
 ## shared/src/
 
+- `auth.ts` — Identidade por mundo (cp9): nome + PIN de 4 dígitos, papel professor/aluno. (~255 tok)
 - `blocks.ts` — IDs de bloco. Gravados como bytes crus nos chunks (Uint8Array), no save e no (~388 tok)
 - `constants.ts` — Aresta do chunk em blocos (16³ = 4096 bytes, 1 byte por bloco). (~252 tok)
-- `index.ts` (~84 tok)
+- `index.ts` (~91 tok)
 - `mesher.test.ts` — Declares DIMS (~673 tok)
 - `mesher.ts` — Culled mesher: função PURA (bytes do mundo → geometria). Só emite faces que (~1695 tok)
 - `physics.test.ts` — Mundo 1 chunk com chão sólido em y ∈ [0,7]. (~856 tok)
 - `physics.ts` — Física do jogador (andar, gravidade, colisão AABB com o grid de voxels). (~1079 tok)
 - `protocol.test.ts` — Declares DIMS (~1919 tok)
-- `protocol.ts` — Protocolo v0 (checkpoint 2). Mensagens JSON dos dois lados + world_snapshot (~2628 tok)
+- `protocol.ts` — Protocolo v0 (checkpoint 2). Mensagens JSON dos dois lados + world_snapshot (~2992 tok)
 - `raycast.test.ts` — Mundo 16³ com chão sólido em y ∈ [0,7]. (~604 tok)
 - `raycast.ts` — Raycast de voxel (DDA de Amanatides-Woo): anda célula a célula do grid até (~649 tok)
 - `rules.test.ts` — Declares DIMS (~504 tok)
 - `rules.ts` — Sistema GENÉRICO de atualização de bloco por vizinhança — a REGRA DE OURO (~526 tok)
-- `save.test.ts` — Declares DIMS (~736 tok)
-- `save.ts` — Formato de save (.ljw) — MESMO arquivo em todos os hospedeiros: disco do (~1337 tok)
-- `session.test.ts` — DIMS: collect (~6208 tok)
-- `session.ts` — GameSession: o SERVIDOR autoritativo, independente de hospedeiro. (~4097 tok)
+- `save.test.ts` — Declares DIMS (~1194 tok)
+- `save.ts` — Formato de save (.ljw) — MESMO arquivo em todos os hospedeiros: disco do (~1529 tok)
+- `session.test.ts` — Testes de MECÂNICA rodam com singleplayer: true (join sem PIN) — a (~9060 tok)
+- `session.ts` — GameSession: o SERVIDOR autoritativo, independente de hospedeiro. (~5696 tok)
 - `world.test.ts` — Declares DIMS (~761 tok)
 - `world.ts` — Dimensões do mundo em chunks. Parâmetro de criação, gravado no header do save/snapshot. (~848 tok)
 - `worldgen.ts` — Geração de terreno determinística (mesma seed = mesmos bytes em qualquer (~575 tok)

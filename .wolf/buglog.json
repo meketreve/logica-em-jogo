@@ -1303,6 +1303,314 @@
       "related_bugs": [],
       "occurrences": 1,
       "last_seen": "2026-07-12T13:56:24.312Z"
+    },
+    {
+      "id": "bug-080",
+      "timestamp": "2026-07-12T14:14:27.667Z",
+      "error_message": "Type error",
+      "file": "shared/src/protocol.ts",
+      "root_cause": "Missing or incorrect type annotation",
+      "fix": "Added type assertion/annotation",
+      "tags": [
+        "auto-detected",
+        "type-fix",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-12T14:14:27.667Z"
+    },
+    {
+      "id": "bug-081",
+      "timestamp": "2026-07-12T14:14:47.351Z",
+      "error_message": "Null/undefined access in ",
+      "file": "shared/src/protocol.ts",
+      "root_cause": "Property access on potentially null/undefined value",
+      "fix": "Added null safety (optional chaining or null check)",
+      "tags": [
+        "auto-detected",
+        "null-safety",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-12T14:14:47.351Z"
+    },
+    {
+      "id": "bug-082",
+      "timestamp": "2026-07-12T14:15:02.111Z",
+      "error_message": "Incorrect value in code",
+      "file": "shared/src/save.ts",
+      "root_cause": "Had \"./protocol\"",
+      "fix": "Changed to \"./auth\"",
+      "tags": [
+        "auto-detected",
+        "wrong-value",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-12T14:15:02.111Z"
+    },
+    {
+      "id": "bug-083",
+      "timestamp": "2026-07-12T14:15:15.139Z",
+      "error_message": "Significant refactor of ",
+      "file": "shared/src/save.ts",
+      "root_cause": "2 lines replaced/restructured",
+      "fix": "Rewrote 17→24 lines (2 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-12T14:15:15.139Z"
+    },
+    {
+      "id": "bug-084",
+      "timestamp": "2026-07-12T14:16:11.360Z",
+      "error_message": "Significant refactor of ",
+      "file": "shared/src/session.ts",
+      "root_cause": "2 lines replaced/restructured",
+      "fix": "Rewrote 8→17 lines (2 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-12T14:16:11.360Z"
+    },
+    {
+      "id": "bug-085",
+      "timestamp": "2026-07-12T14:16:25.672Z",
+      "error_message": "Null/undefined access in ",
+      "file": "shared/src/session.ts",
+      "root_cause": "Property access on potentially null/undefined value",
+      "fix": "Added null safety (optional chaining or null check) | Also: roster: [...merged.entries()].map(([name, pos]) => {; const id = this.identity.get(name); | Also: // identidade (cp9): PIN + código de professor. Singleplayer; // (mundo do próprio jogador) e todo join é professor. | Also: * Comandos de chat (prefixo \"/\"), resposta SÓ pro autor. Pri; * (/bloco, /resetpin) exigem papel professor (cp9). /bloco p",
+      "tags": [
+        "auto-detected",
+        "null-safety",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 4,
+      "last_seen": "2026-07-12T14:17:34.247Z"
+    },
+    {
+      "id": "bug-086",
+      "timestamp": "2026-07-12T14:17:41.331Z",
+      "error_message": "Incorrect value in code",
+      "file": "shared/src/index.ts",
+      "root_cause": "Had \"./blocks\"",
+      "fix": "Changed to \"./auth\"",
+      "tags": [
+        "auto-detected",
+        "wrong-value",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-12T14:17:41.331Z"
+    },
+    {
+      "id": "bug-087",
+      "timestamp": "2026-07-12T14:18:04.413Z",
+      "error_message": "Null/undefined access in ",
+      "file": "server/src/index.ts",
+      "root_cause": "Property access on potentially null/undefined value",
+      "fix": "Added null safety (optional chaining or null check)",
+      "tags": [
+        "auto-detected",
+        "null-safety",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-12T14:18:04.413Z"
+    },
+    {
+      "id": "bug-088",
+      "timestamp": "2026-07-12T14:18:44.977Z",
+      "error_message": "Significant refactor of ",
+      "file": "client/src/menu.ts",
+      "root_cause": "2 lines replaced/restructured",
+      "fix": "Rewrote 13→21 lines (2 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-12T14:18:44.977Z"
+    },
+    {
+      "id": "bug-089",
+      "timestamp": "2026-07-12T14:18:56.621Z",
+      "error_message": "Type error",
+      "file": "client/src/main.ts",
+      "root_cause": "Missing or incorrect type annotation",
+      "fix": "Added type assertion/annotation",
+      "tags": [
+        "auto-detected",
+        "type-fix",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-12T14:18:56.621Z"
+    },
+    {
+      "id": "bug-090",
+      "timestamp": "2026-07-12T14:19:12.535Z",
+      "error_message": "Null/undefined access in ",
+      "file": "client/src/main.ts",
+      "root_cause": "Property access on potentially null/undefined value",
+      "fix": "Added null safety (optional chaining or null check) | Also: const bootParams = new URLSearchParams(location.search);; const bootServer = bootParams.get(\"server\");",
+      "tags": [
+        "auto-detected",
+        "null-safety",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 2,
+      "last_seen": "2026-07-12T14:19:22.031Z"
+    },
+    {
+      "id": "bug-091",
+      "timestamp": "2026-07-12T14:20:32.852Z",
+      "error_message": "Incorrect value in code",
+      "file": "shared/src/session.test.ts",
+      "root_cause": "Had \"./blocks\"",
+      "fix": "Changed to \"./auth\"",
+      "tags": [
+        "auto-detected",
+        "wrong-value",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-12T14:20:32.852Z"
+    },
+    {
+      "id": "bug-092",
+      "timestamp": "2026-07-12T15:24:54.062Z",
+      "error_message": "Error: listen EADDRINUSE: address already in use :::8093 (fase 2 do pin-smoke)",
+      "file": "../../../tmp/claude-1000/-home-meketreve-logica-em-jogo/4f89a4f0-8ef8-406e-8a21-9868f1120f83/scratchpad/pin-smoke.mts",
+      "root_cause": "smoke dava spawn do servidor via npx: npx cria arvore de processos e o SIGTERM morre no wrapper — o servidor real (processo neto) vira orfao segurando a porta; o exit do wrapper resolve o stopServer cedo demais",
+      "fix": "spawn(\"node\", [\"--import\", \"tsx\", \"server/src/index.ts\"]) direto (sinal chega no proprio servidor) + SIGKILL fallback 3s + 300ms de folga pro SO soltar a porta",
+      "tags": [
+        "smoke",
+        "spawn",
+        "npx",
+        "sigterm",
+        "eaddrinuse"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-12T15:24:54.062Z"
+    },
+    {
+      "id": "bug-093",
+      "timestamp": "2026-07-12T16:49:22.271Z",
+      "error_message": "screenshot headless da recusa de join nunca gerado — chrome pendurado sem erro",
+      "file": "client/src/main.ts",
+      "root_cause": "alert() abre dialogo modal no chrome headless=new e o --virtual-time-budget PARA de avancar com dialogo pendente — o screenshot nunca dispara. Em navegador real o fluxo funciona (usuario clica OK).",
+      "fix": "nenhum no produto (alert e a UX escolhida do join_denied); verificacao de fluxos com alert fica no smoke de protocolo, nao em screenshot headless",
+      "tags": [
+        "headless",
+        "screenshot",
+        "alert",
+        "virtual-time-budget",
+        "verificacao"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-12T16:49:22.275Z"
+    },
+    {
+      "id": "bug-094",
+      "timestamp": "2026-07-12T17:36:40.568Z",
+      "error_message": "Incorrect value in code",
+      "file": "shared/src/save.ts",
+      "root_cause": "Had \"pinHash\"",
+      "fix": "Changed to \"pin\"",
+      "tags": [
+        "auto-detected",
+        "wrong-value",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 2,
+      "last_seen": "2026-07-12T17:36:41.992Z"
+    },
+    {
+      "id": "bug-095",
+      "timestamp": "2026-07-12T17:37:24.182Z",
+      "error_message": "Wrong condition in logic",
+      "file": "shared/src/session.ts",
+      "root_cause": "Condition was: if (p.pinHash || p.papel === \"professor\")",
+      "fix": "Changed to: if (p.pin || p.papel === \"professor\")",
+      "tags": [
+        "auto-detected",
+        "logic-fix",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 3,
+      "last_seen": "2026-07-12T17:37:43.555Z"
+    },
+    {
+      "id": "bug-096",
+      "timestamp": "2026-07-12T17:38:01.792Z",
+      "error_message": "Null/undefined access in ",
+      "file": "server/src/index.ts",
+      "root_cause": "Property access on potentially null/undefined value",
+      "fix": "Added null safety (optional chaining or null check)",
+      "tags": [
+        "auto-detected",
+        "null-safety",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-12T17:38:01.792Z"
+    },
+    {
+      "id": "bug-097",
+      "timestamp": "2026-07-12T17:38:03.048Z",
+      "error_message": "Wrong reference: codigoHash should be codigo",
+      "file": "server/src/index.ts",
+      "root_cause": "Used \"codigoHash\" instead of \"codigo\"",
+      "fix": "Changed codigoHash → codigo",
+      "tags": [
+        "auto-detected",
+        "wrong-reference",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-12T17:38:03.048Z"
+    },
+    {
+      "id": "bug-098",
+      "timestamp": "2026-07-12T17:38:14.671Z",
+      "error_message": "Incorrect value in code",
+      "file": "shared/src/session.test.ts",
+      "root_cause": "Had \"./auth\"",
+      "fix": "Changed to \"./blocks\"",
+      "tags": [
+        "auto-detected",
+        "wrong-value",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-12T17:38:14.671Z"
     }
   ]
 }

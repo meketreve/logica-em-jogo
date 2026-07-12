@@ -10,6 +10,9 @@
 
 - Dev é **100% vibecode**: o usuário orquestra, NÃO revisa código. Arquitetura precisa
   carregar o peso sozinha (TS estrito, módulos pequenos, testes, checkpoints jogáveis).
+- **Simplicidade > segurança quando não há dado sensível** (correção 2026-07-12): usuário
+  mandou tirar o hash do PIN/código — "uso muito básico, sem informações importantes".
+  Não construir criptografia/ofuscação sem ameaça real; rate-limit basta.
 - Fala português. Responde em blocos numerados às perguntas.
 - Quer ser desafiado no design: aceita bem quando aponto furos pedagógicos/técnicos.
 
@@ -122,7 +125,31 @@
   rebind usa keydown {once, capture} + stopPropagation pra não vazar pro Input.
 - Menu (cp8): telas em index.html, controles de config gerados em JS
   (menu.ts buildConfigScreen). Menu SÓ escolhe; main.ts inicia o jogo.
-  `?server=` pula o menu (screenshots headless e links de LAN dependem disso).
+  `?server=` pula o menu (screenshots headless e links de LAN dependem disso);
+  cp9: `?pin=` e `?codigo=` fazem as vezes dos campos do menu nesse caminho.
+- Identidade (cp9): GameSession separa POSIÇÃO (roster) de IDENTIDADE
+  (identity: pin/papel por nome, TEXTO PURO — ver Decision Log 2026-07-12).
+  Join em modo estrito (default) valida: nome-já-online (ANTES do PIN — não
+  vaza se o PIN estava certo) → lockout → PIN 4 dígitos → código de professor.
+  Recusa = msg `join_denied` com motivo; NADA mais é enviado. 1ª entrada com
+  nome novo registra o PIN. `singleplayer: true` (worker) pula tudo e todo
+  join é professor.
+- Rate-limit do join (cp9): PIN errado conta por NOME (5 erros → 30 s de trava,
+  mesmo com PIN certo); código de professor errado tem contador GLOBAL próprio
+  (quem chuta código troca de nome a cada tentativa — gate por nome não pega).
+- toSave/identidade: em singleplayer o papel professor é do MODO, não da
+  pessoa — identity fica vazia e o save sai sem pin/papel (mundo single
+  exportado pra LAN não dá professor de graça). Identity restaurada do save
+  é preservada mesmo em singleplayer (mundo de LAN importado não perde PINs).
+- Testes de sessão: bateria de MECÂNICA roda com `singleplayer: true` (join
+  sem PIN); auth do cp9 tem describe próprio. Sessão nova em teste multiplayer
+  exige `pin` no join, senão tudo é join_denied.
+- Smoke com servidor filho: spawn `node --import tsx arquivo.ts` DIRETO —
+  npx cria árvore de processos e o SIGTERM morre no wrapper (bug-092; servidor
+  neto órfão segura a porta e a fase 2 leva EADDRINUSE).
+- alert() TRAVA screenshot headless: dialogo modal pausa o --virtual-time-budget
+  no headless=new e o screenshot nunca dispara (bug-093). Fluxo com alert se
+  verifica por smoke de protocolo, não por screenshot.
 
 ## Do-Not-Repeat
 
@@ -210,6 +237,17 @@
   + exportar/importar arquivo (= distribuição via Drive).
 - [2026-07-11] **Código de professor definido na CRIAÇÃO do mundo** (aprovado);
   no singleplayer o jogador é professor automático.
+- [2026-07-12] **PIN e código de professor em TEXTO PURO no save — SEM hash** (decisão
+  do usuário, revogando o hash FNV-1a implementado horas antes): "uso muito básico, não
+  tem informações importantes". Ganhos: auth.ts vira só isValidPin, host imprime o código
+  em TODO boot (recuperação grátis), professor lê PIN esquecido no save. O que segura a
+  ameaça real (colega na LAN) é o rate-limit do join, não criptografia.
+- [2026-07-12] **Código de professor no host Node: env LJ_CODIGO define/troca; sem env
+  usa o do save; mundo novo gera 6 chars.** Impresso no console em TODO boot (texto puro
+  permite). Errar o código NEGA o join em vez de entrar como aluno silenciosamente.
+- [2026-07-12] **join_denied no cliente = alert(motivo) + voltar pro menu limpo**
+  (location sem query — cobre o boot via ?server=). PIN nunca vai pro localStorage:
+  PC de laboratório é compartilhado.
 - [2026-07-10] **Código mora em `~/projetos/logica-em-jogo` (WSL ext4), NÃO no OneDrive.**
   OneDrive sincroniza node_modules (milhares de arquivos) e watcher do Vite via /mnt/c é
   lento no WSL. Docs + `.wolf/` ficam no OneDrive; backup do código via git/GitHub privado.
