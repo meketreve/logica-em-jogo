@@ -126,11 +126,23 @@ Documento é o ÚLTIMO entregável, não o primeiro. Construir, não documentar.
   (6 novos), typecheck 3/3, build ok. Smoke real (2 clientes ws): welcome,
   broadcast com autor, /bloco muda o mundo, resposta só pro autor, comando
   inválido não vaza ✅. Screenshot headless: welcome chat renderizado na tela.
-  **Playtest do usuário PENDENTE** (testar: chat entre 2 navegadores + /bloco).
+  **Playtest do usuário ✅ (2026-07-11, "tudo funciona"). Checkpoint 6 FECHADO —
+  MVP v0 COMPLETO: os 4 critérios de aceitação atendidos e jogados.**
+- **Grupo A de blocos (2026-07-11, aprovado pelo usuário): 14 blocos novos** —
+  terra, tronco (topo com anéis/lado com casca — prova textura por face), tábuas,
+  tijolo, cascalho (CAI — regra de queda virou `fallingRule` GENÉRICA, areia e
+  cascalho compartilham), rocha-matriz/bedrock (`isBreakable()` — jogador não
+  quebra, `/bloco` remove = caminho do professor), 8 lãs coloridas (base da
+  pedagogia de sequência). Atlas 4→8 tilesPerRow (20 tiles pintados, procedural).
+  IDs 5–18 (APPEND only). Cliente: hotbar 18 blocos (1–9 direto + scroll do mouse
+  cicla todos, `input.onWheel`), `?atlas` na URL mostra o atlas no canto
+  (inspeção visual de texturas). 60 testes (3 novos: queda genérica, bedrock,
+  cobertura mesher de TODO id colocável), typecheck 3/3, build ok, screenshot
+  com atlas confere. Playtest do usuário pendente (texturas = gosto).
 
 ---
 
-## 🚀 Próxima fase — Walking skeleton (MVP v0) — CÓDIGO COMPLETO, playtest cp6 pendente
+## 🚀 Próxima fase — pós-MVP (v0 FECHADO 2026-07-11; seções abaixo = referência viva de escopo/stack/política)
 
 **Objetivo:** mundo voxel jogável no navegador com netcode cliente=servidor, blocos
 colocáveis/quebráveis, areia com gravidade, e chat com 1 comando de teste.
@@ -158,7 +170,7 @@ colocáveis/quebráveis, areia com gravidade, e chat com 1 comando de teste.
 2. ✅ Areia cai quando o bloco de baixo é removido — via TICK DO SERVIDOR, não hack no cliente.
 3. ✅ Dois clientes veem o mesmo mundo e as mudanças um do outro (host + 1 cliente).
 4. ✅ Chat funciona e 1 comando de teste executa no servidor e reflete no mundo
-   (código + smoke ok; playtest do usuário pendente).
+   (playtest do usuário 2026-07-11 ✅).
 
 ### ⚠️ Regra de ouro de arquitetura (vibecode vai errar isso)
 Areia, circuitos e detecção de objetivo são **o MESMO subsistema**: "bloco muda de estado,
@@ -247,14 +259,29 @@ Ordem dos checkpoints (cada um jogável antes do próximo):
 Rede de segurança (dev sem revisão): TS estrito; `/shared` sem deps; testes automáticos
 em `/shared` desde o checkpoint 2 (gravidade testável sem abrir navegador); cada checkpoint jogável.
 
-**Próximo passo concreto (começar por aqui na próxima sessão):**
-1. **Playtest do checkpoint 6** pelo usuário: chat entre 2 navegadores na LAN
-   (`?server=ws://host:8080`) + `/bloco x y z id` mudando o mundo pros dois.
-2. **MVP v0 FECHADO após o playtest.** Aí DECIDIR COM O USUÁRIO o rumo:
-   (a) validação de física do move no servidor (fecha o buraco "cliente decide
-   onde está" — anti-cheat básico), OU
-   (b) começar a fase de CENÁRIOS/AUTORIA — o coração pedagógico (objetivos,
-   detecção de padrão no mundo = MESMA engrenagem das rules; ver regra de ouro).
+**Próximo passo concreto — MVP v1 "Aula persistente" (proposta apresentada 2026-07-11,
+aguarda aprovação do usuário):**
+1. **Save/load do mundo no PC do host** — formato: snapshot binário existente +
+   bloco de jogadores (nome, hash do PIN, posição) + spawn + seed. Autosave
+   periódico + ao fechar. Fundação da AUTORIA: sem save, professor perde o
+   cenário que criou.
+2. **Contas PIN por mundo (DECIDIDO 2026-07-11):** join vira nome+PIN; 1ª entrada
+   registra, seguintes exigem PIN igual; `/resetpin nome` pro professor. PIN de
+   4 dígitos protege contra "aluno entra com nome do outro" (ameaça real
+   confirmada pelo usuário). Hash: crypto.subtle (existe em Node E Worker) —
+   session síncrona, resolver injeção de hash na quest.
+3. **Papel de professor** — comandos privilegiados (`/bloco`, `/resetpin`) só pro
+   professor. Como identificar: código de professor na criação do mundo (decidir
+   na quest); no Web Worker (singleplayer) o jogador é professor automático.
+4. Se sobrar fôlego: validação de física do move (anti-cheat básico).
+
+**Depois (anotado, não esquecer):**
+- **MVP v2 = CENÁRIOS/AUTORIA** (coração pedagógico): objetivos, detecção de
+  padrão no mundo = mesma engrenagem das rules.
+- **Blocos grupo B** (transparentes: vidro, folhas, água — mexem no culled
+  mesher; água = fluido via regra de vizinhança + nado). **Grupo C** (não-cubos:
+  tocha, laje, escada — geometria nova no mesher).
+- Playtest das texturas do grupo A pelo usuário.
 
 ⚠️ Issue conhecida (bug-003, fix PARCIAL, NÃO bloqueante): pulos ocasionais de câmera
 por spikes de movementX/Y do Chrome no pointer lock. Filtro MAX_DELTA=200 +

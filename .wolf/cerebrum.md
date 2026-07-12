@@ -93,6 +93,14 @@
 - `tsx watch` do `npm run dev:server` observa também os imports de /shared —
   editar session/protocol reinicia o servidor sozinho (smoke do cp6 rodou contra
   o dev:server do usuário sem restart manual).
+- `?atlas` na URL do cliente pendura o canvas do texture atlas no canto
+  (inspeção visual de texturas novas em screenshot headless, sem playtest).
+- Regra de queda é `fallingRule` GENÉRICA (lê o id da célula e move o que
+  estiver lá): registrar bloco novo que cai = 1 linha no Map RULES. Não criar
+  regra por-bloco duplicada.
+- Hotbar: 1–9 escolhe direto, scroll do mouse cicla TODOS os colocáveis
+  (`input.onWheel`, só com pointer lock). Ordem do array PLACEABLE = ordem
+  dos ids — o texto de uso do /bloco aponta pra hotbar.
 
 ## Do-Not-Repeat
 
@@ -159,6 +167,13 @@
 - [2026-07-10] **Render: WebGLRenderer, não WebGPURenderer.** WebGPU do three.js ainda
   experimental (casos de perf PIOR que WebGL) e labs de escola têm GPU fraca/driver velho.
   Reavaliar só depois do piloto.
+- [2026-07-11] **Identidade por mundo: nome + PIN de 4 dígitos, NÃO senha.** Usuário pediu
+  senha; desafiei com as razões de 2026-07-10 (LGPD, senha esquecida aos 7 anos) e
+  perguntei o que protege. Resposta: "aluno entra com nome do outro e grava/destrói em
+  nome dele" → PIN resolve com fricção mínima. Aceito: auto-registro na 1ª entrada,
+  `/resetpin nome` pro professor. Guardar só hash, no save do mundo, no PC do host.
+- [2026-07-11] **Blocos grupo A aprovado e feito** (14 cubos opacos, IDs 5–18); grupos B
+  (transparentes — mexem no mesher) e C (não-cubos) explicitamente adiados pelo usuário.
 - [2026-07-10] **Código mora em `~/projetos/logica-em-jogo` (WSL ext4), NÃO no OneDrive.**
   OneDrive sincroniza node_modules (milhares de arquivos) e watcher do Vite via /mnt/c é
   lento no WSL. Docs + `.wolf/` ficam no OneDrive; backup do código via git/GitHub privado.

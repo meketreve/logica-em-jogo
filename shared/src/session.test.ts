@@ -295,6 +295,47 @@ describe("GameSession (servidor autoritativo)", () => {
     expect(getBlock(world, 1, h + 1, 1)).toBe(BlockId.Air);
   });
 
+  it("bedrock: jogador não quebra; /bloco coloca e remove (caminho do professor)", () => {
+    const { sent, send } = collect();
+    const session = new GameSession(send, { dims: DIMS, seed: 5 });
+    session.handleMessage(1, JSON.stringify({ type: "join", name: "ana" }));
+    const world = session.world;
+    const sx = Math.floor(world.sizeX / 2);
+    const sz = Math.floor(world.sizeZ / 2);
+    const h = findSpawnY(world, sx, sz);
+
+    // professor materializa bedrock via comando (célula de ar, acima da cabeça)
+    session.handleMessage(1, JSON.stringify({ type: "chat", text: `/bloco ${sx} ${h + 3} ${sz} ${BlockId.Bedrock}` }));
+    expect(getBlock(world, sx, h + 3, sz)).toBe(BlockId.Bedrock);
+    sent.length = 0;
+
+    // jogador tenta quebrar (ao alcance): rejeitado em silêncio
+    session.handleMessage(1, JSON.stringify({ type: "break_block", x: sx, y: h + 3, z: sz }));
+    expect(sent).toHaveLength(0);
+    expect(getBlock(world, sx, h + 3, sz)).toBe(BlockId.Bedrock);
+
+    // /bloco 0 remove (comando ignora isBreakable — teleoperação do professor)
+    session.handleMessage(1, JSON.stringify({ type: "chat", text: `/bloco ${sx} ${h + 3} ${sz} 0` }));
+    expect(getBlock(world, sx, h + 3, sz)).toBe(BlockId.Air);
+  });
+
+  it("cascalho cai igual areia — regra de queda é genérica", () => {
+    const { send } = collect();
+    const session = new GameSession(send, { dims: DIMS, seed: 5 });
+    session.handleMessage(1, JSON.stringify({ type: "join", name: "ana" }));
+    const world = session.world;
+    const sx = Math.floor(world.sizeX / 2);
+    const sz = Math.floor(world.sizeZ / 2);
+    const h = findSpawnY(world, sx, sz);
+
+    session.handleMessage(1, JSON.stringify({
+      type: "place_block", x: sx, y: h + 2, z: sz, blockId: BlockId.Gravel,
+    }));
+    session.tick();
+    expect(getBlock(world, sx, h + 1, sz)).toBe(BlockId.Gravel);
+    expect(getBlock(world, sx, h + 2, sz)).toBe(BlockId.Air);
+  });
+
   it("comando inválido: resposta de erro só pro autor, mundo intacto", () => {
     const { sent, send } = collect();
     const session = new GameSession(send, { dims: DIMS, seed: 5 });

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { BlockId, createWorld, meshChunk, setBlock } from "./index";
+import { BlockId, createWorld, isPlaceable, meshChunk, setBlock } from "./index";
 
 const DIMS = { x: 1, z: 1, y: 1 } as const;
 
@@ -45,6 +45,15 @@ describe("culled mesher (função pura: bytes → geometria)", () => {
     for (const uv of g.uvs) {
       expect(uv).toBeGreaterThanOrEqual(0);
       expect(uv).toBeLessThanOrEqual(1);
+    }
+  });
+
+  it("TODO bloco colocável tem tiles no atlas — mesher não pula nenhum id", () => {
+    for (let id = 1; isPlaceable(id); id++) {
+      const w = createWorld(DIMS);
+      setBlock(w, 8, 8, 8, id);
+      // sem entrada em BLOCK_TILES o mesher pularia o bloco (0 faces) — bloco invisível
+      expect(meshChunk(w, 0, 0, 0).indices.length, `bloco id ${id}`).toBe(36);
     }
   });
 

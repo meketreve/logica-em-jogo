@@ -1,38 +1,45 @@
 import { describe, expect, it } from "vitest";
 import { BlockId } from "./blocks";
-import { ruleFor, sandRule } from "./rules";
+import { fallingRule, ruleFor } from "./rules";
 import { createWorld, setBlock } from "./world";
 
 const DIMS = { x: 1, z: 1, y: 1 };
 
 describe("regras de bloco (sistema genérico de vizinhança)", () => {
-  it("só areia tem regra registrada (v0)", () => {
-    expect(ruleFor(BlockId.Sand)).toBe(sandRule);
+  it("areia e cascalho compartilham a MESMA regra de queda; o resto não tem regra", () => {
+    expect(ruleFor(BlockId.Sand)).toBe(fallingRule);
+    expect(ruleFor(BlockId.Gravel)).toBe(fallingRule);
     expect(ruleFor(BlockId.Air)).toBeUndefined();
     expect(ruleFor(BlockId.Grass)).toBeUndefined();
     expect(ruleFor(BlockId.Stone)).toBeUndefined();
     expect(ruleFor(BlockId.Cobblestone)).toBeUndefined();
+    expect(ruleFor(BlockId.Bedrock)).toBeUndefined();
   });
 
-  it("areia sobre ar desce 1: materializa embaixo ANTES de limpar a origem", () => {
+  it("bloco sobre ar desce 1 PRESERVANDO o id: materializa embaixo antes de limpar a origem", () => {
     const world = createWorld(DIMS);
     setBlock(world, 5, 10, 5, BlockId.Sand);
-    expect(sandRule(world, 5, 10, 5)).toEqual([
+    expect(fallingRule(world, 5, 10, 5)).toEqual([
       { x: 5, y: 9, z: 5, blockId: BlockId.Sand },
       { x: 5, y: 10, z: 5, blockId: BlockId.Air },
     ]);
+    setBlock(world, 3, 10, 3, BlockId.Gravel);
+    expect(fallingRule(world, 3, 10, 3)).toEqual([
+      { x: 3, y: 9, z: 3, blockId: BlockId.Gravel },
+      { x: 3, y: 10, z: 3, blockId: BlockId.Air },
+    ]);
   });
 
-  it("areia sobre sólido não faz nada", () => {
+  it("bloco sobre sólido não faz nada", () => {
     const world = createWorld(DIMS);
     setBlock(world, 5, 9, 5, BlockId.Stone);
     setBlock(world, 5, 10, 5, BlockId.Sand);
-    expect(sandRule(world, 5, 10, 5)).toBeNull();
+    expect(fallingRule(world, 5, 10, 5)).toBeNull();
   });
 
-  it("areia no fundo do mundo (y=0) não cai pro vazio", () => {
+  it("bloco no fundo do mundo (y=0) não cai pro vazio", () => {
     const world = createWorld(DIMS);
     setBlock(world, 5, 0, 5, BlockId.Sand);
-    expect(sandRule(world, 5, 0, 5)).toBeNull();
+    expect(fallingRule(world, 5, 0, 5)).toBeNull();
   });
 });

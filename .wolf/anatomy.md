@@ -1,6 +1,6 @@
 # anatomy.md
 
-> Auto-maintained by OpenWolf. Last scanned: 2026-07-11T22:02:16.388Z
+> Auto-maintained by OpenWolf. Last scanned: 2026-07-12T01:18:20.866Z
 > Files: 35 tracked | Anatomy hits: 0 | Misses: 0
 
 ## ../../../tmp/claude-1000/-home-meketreve-logica-em-jogo/a0d99221-e98e-49ca-885e-fb3fd914cb11/scratchpad/
@@ -28,18 +28,18 @@
 
 ## client/
 
-- `index.html` — Lógica em Jogo (~1132 tok)
+- `index.html` — Lógica em Jogo (~1195 tok)
 
 ## client/src/
 
-- `atlasTexture.ts` — Texture atlas procedural pintado num canvas (sem assets externos — restrição (~804 tok)
+- `atlasTexture.ts` — Texture atlas procedural pintado num canvas (sem assets externos — restrição (~1742 tok)
 - `chat.ts` — UI de chat em HTML/CSS por cima do canvas (regra: sem GUI de engine). (~644 tok)
 - `chunks.ts` — 1 mesh por chunk (BufferGeometry única, culled mesher do /shared). (~786 tok)
 - `connection.ts` — Conexão do cliente com O SERVIDOR — interface única, hospedeiro invisível. (~846 tok)
 - `events.ts` — Gatilhos de som (checkpoint 6): pontos de evento do jogo onde o áudio vai (~172 tok)
 - `hud.ts` — HUD de perfilação (F3): FPS, frametime méd+p95, remesh, draw calls e (~1099 tok)
-- `input.ts` — Teclado + mouse (pointer lock). SÓ coleta input — nenhuma decisão de (~942 tok)
-- `main.ts` — Checkpoint 6: chat + 1 comando (/bloco, parser no SERVIDOR — fecha o MVP v0). (~3114 tok)
+- `input.ts` — Teclado + mouse (pointer lock). SÓ coleta input — nenhuma decisão de (~1069 tok)
+- `main.ts` — Checkpoint 6: chat + 1 comando (/bloco, parser no SERVIDOR — fecha o MVP v0). (~3532 tok)
 
 ## server/
 
@@ -55,21 +55,21 @@
 
 ## shared/src/
 
-- `blocks.ts` — IDs de bloco. Gravados como bytes crus nos chunks (Uint8Array), no save e no (~156 tok)
+- `blocks.ts` — IDs de bloco. Gravados como bytes crus nos chunks (Uint8Array), no save e no (~388 tok)
 - `constants.ts` — Aresta do chunk em blocos (16³ = 4096 bytes, 1 byte por bloco). (~252 tok)
 - `index.ts` (~77 tok)
-- `mesher.test.ts` — Declares DIMS (~561 tok)
-- `mesher.ts` — Culled mesher: função PURA (bytes do mundo → geometria). Só emite faces que (~1443 tok)
+- `mesher.test.ts` — Declares DIMS (~673 tok)
+- `mesher.ts` — Culled mesher: função PURA (bytes do mundo → geometria). Só emite faces que (~1695 tok)
 - `physics.test.ts` — Mundo 1 chunk com chão sólido em y ∈ [0,7]. (~856 tok)
 - `physics.ts` — Física do jogador (andar, gravidade, colisão AABB com o grid de voxels). (~1079 tok)
 - `protocol.test.ts` — Declares DIMS (~1781 tok)
 - `protocol.ts` — Protocolo v0 (checkpoint 2). Mensagens JSON dos dois lados + world_snapshot (~2420 tok)
 - `raycast.test.ts` — Mundo 16³ com chão sólido em y ∈ [0,7]. (~604 tok)
 - `raycast.ts` — Raycast de voxel (DDA de Amanatides-Woo): anda célula a célula do grid até (~649 tok)
-- `rules.test.ts` — Declares DIMS (~392 tok)
-- `rules.ts` — Sistema GENÉRICO de atualização de bloco por vizinhança — a REGRA DE OURO (~481 tok)
-- `session.test.ts` — DIMS: collect (~4523 tok)
-- `session.ts` — GameSession: o SERVIDOR autoritativo, independente de hospedeiro. (~3184 tok)
+- `rules.test.ts` — Declares DIMS (~504 tok)
+- `rules.ts` — Sistema GENÉRICO de atualização de bloco por vizinhança — a REGRA DE OURO (~526 tok)
+- `session.test.ts` — DIMS: collect (~5075 tok)
+- `session.ts` — GameSession: o SERVIDOR autoritativo, independente de hospedeiro. (~3216 tok)
 - `world.test.ts` — Declares DIMS (~761 tok)
 - `world.ts` — Dimensões do mundo em chunks. Parâmetro de criação, gravado no header do save/snapshot. (~848 tok)
 - `worldgen.ts` — Geração de terreno determinística (mesma seed = mesmos bytes em qualquer (~575 tok)

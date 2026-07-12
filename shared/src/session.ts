@@ -1,4 +1,4 @@
-import { BlockId, isPlaceable } from "./blocks";
+import { BlockId, isBreakable, isPlaceable } from "./blocks";
 import {
   DEFAULT_WORLD_CHUNKS,
   MAX_CHAT_LENGTH,
@@ -132,7 +132,9 @@ export class GameSession {
         const p = this.players.get(clientId);
         if (!p) return;
         if (!inBounds(this.world, msg.x, msg.y, msg.z)) return;
-        if (getBlock(this.world, msg.x, msg.y, msg.z) === BlockId.Air) return;
+        const current = getBlock(this.world, msg.x, msg.y, msg.z);
+        if (current === BlockId.Air) return;
+        if (!isBreakable(current)) return; // bedrock: só /bloco remove
         if (!this.withinReach(p, msg.x, msg.y, msg.z)) return;
         this.applyBlock(msg.x, msg.y, msg.z, BlockId.Air);
         break;
@@ -169,7 +171,7 @@ export class GameSession {
     const z = Number(parts[3]);
     const id = Number(parts[4]);
     if (parts.length !== 5 || ![x, y, z, id].every(Number.isInteger)) {
-      return "uso: /bloco x y z id (inteiros; 0=ar 1=grama 2=pedra 3=pedregulho 4=areia)";
+      return "uso: /bloco x y z id (inteiros; 0=ar; demais ids na ordem da hotbar)";
     }
     if (!inBounds(this.world, x, y, z)) return `(${x}, ${y}, ${z}) está fora do mundo`;
     if (id !== BlockId.Air && !isPlaceable(id)) return `id de bloco inválido: ${id}`;

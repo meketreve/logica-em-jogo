@@ -10,7 +10,7 @@ import { type World, getBlock } from "./world";
  */
 
 /** Layout do texture atlas. O cliente pinta a textura seguindo ESTE layout. */
-export const ATLAS = { tilesPerRow: 4, tilePx: 16 } as const;
+export const ATLAS = { tilesPerRow: 8, tilePx: 16 } as const;
 
 /** Índice de cada tile no atlas (coluna = i % tilesPerRow, linha = ⌊i / tilesPerRow⌋). */
 export const TILE = {
@@ -20,6 +20,20 @@ export const TILE = {
   stone: 3,
   cobblestone: 4,
   sand: 5,
+  logTop: 6,
+  logSide: 7,
+  planks: 8,
+  brick: 9,
+  gravel: 10,
+  bedrock: 11,
+  woolWhite: 12,
+  woolBlack: 13,
+  woolRed: 14,
+  woolOrange: 15,
+  woolYellow: 16,
+  woolGreen: 17,
+  woolBlue: 18,
+  woolPurple: 19,
 } as const;
 
 interface FaceTiles {
@@ -28,15 +42,28 @@ interface FaceTiles {
   readonly side: number;
 }
 
+/** Bloco com o mesmo tile nas 6 faces. */
+const uniform = (tile: number): FaceTiles => ({ top: tile, bottom: tile, side: tile });
+
 const BLOCK_TILES: Readonly<Record<number, FaceTiles>> = {
   [BlockId.Grass]: { top: TILE.grassTop, bottom: TILE.dirt, side: TILE.grassSide },
-  [BlockId.Stone]: { top: TILE.stone, bottom: TILE.stone, side: TILE.stone },
-  [BlockId.Cobblestone]: {
-    top: TILE.cobblestone,
-    bottom: TILE.cobblestone,
-    side: TILE.cobblestone,
-  },
-  [BlockId.Sand]: { top: TILE.sand, bottom: TILE.sand, side: TILE.sand },
+  [BlockId.Stone]: uniform(TILE.stone),
+  [BlockId.Cobblestone]: uniform(TILE.cobblestone),
+  [BlockId.Sand]: uniform(TILE.sand),
+  [BlockId.Dirt]: uniform(TILE.dirt),
+  [BlockId.Log]: { top: TILE.logTop, bottom: TILE.logTop, side: TILE.logSide },
+  [BlockId.Planks]: uniform(TILE.planks),
+  [BlockId.Brick]: uniform(TILE.brick),
+  [BlockId.Gravel]: uniform(TILE.gravel),
+  [BlockId.Bedrock]: uniform(TILE.bedrock),
+  [BlockId.WoolWhite]: uniform(TILE.woolWhite),
+  [BlockId.WoolBlack]: uniform(TILE.woolBlack),
+  [BlockId.WoolRed]: uniform(TILE.woolRed),
+  [BlockId.WoolOrange]: uniform(TILE.woolOrange),
+  [BlockId.WoolYellow]: uniform(TILE.woolYellow),
+  [BlockId.WoolGreen]: uniform(TILE.woolGreen),
+  [BlockId.WoolBlue]: uniform(TILE.woolBlue),
+  [BlockId.WoolPurple]: uniform(TILE.woolPurple),
 };
 
 interface FaceCorner {

@@ -28,19 +28,23 @@ export type BlockRule = (
   z: number,
 ) => BlockChange[] | null;
 
-/** Areia: se a célula de baixo é ar, desce 1 célula por tick. */
-export const sandRule: BlockRule = (world, x, y, z) => {
+/** Queda: se a célula de baixo é ar, o bloco (o que ESTIVER na célula) desce 1
+ *  por tick. Genérica — serve areia, cascalho e qualquer futuro "bloco que cai". */
+export const fallingRule: BlockRule = (world, x, y, z) => {
   if (y === 0) return null; // fundo do mundo (fora = Air, mas não há onde cair)
   if (getBlock(world, x, y - 1, z) !== BlockId.Air) return null;
   return [
     // materializa embaixo ANTES de limpar a origem: o transiente (1 frame no
     // cliente) fica duplicado e invisível; na ordem inversa piscaria um buraco
-    { x, y: y - 1, z, blockId: BlockId.Sand },
+    { x, y: y - 1, z, blockId: getBlock(world, x, y, z) },
     { x, y, z, blockId: BlockId.Air },
   ];
 };
 
-const RULES: ReadonlyMap<number, BlockRule> = new Map([[BlockId.Sand, sandRule]]);
+const RULES: ReadonlyMap<number, BlockRule> = new Map([
+  [BlockId.Sand, fallingRule],
+  [BlockId.Gravel, fallingRule],
+]);
 
 /** Regra registrada pro tipo de bloco, se houver. */
 export function ruleFor(blockId: number): BlockRule | undefined {

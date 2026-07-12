@@ -9,6 +9,7 @@ export class Input {
   private keys = new Set<string>();
   private keyHandlers = new Map<string, () => void>();
   private mouseHandlers = new Map<number, () => void>();
+  private wheelHandler: ((dir: 1 | -1) => void) | null = null;
 
   private static readonly SENSITIVITY = 0.0025;
   private static readonly PITCH_LIMIT = Math.PI / 2 - 0.01;
@@ -38,6 +39,16 @@ export class Input {
       if (!this.locked) return; // primeiro clique só trava o mouse
       this.mouseHandlers.get(e.button)?.();
     });
+
+    canvas.addEventListener(
+      "wheel",
+      (e) => {
+        if (!this.locked) return;
+        e.preventDefault();
+        this.wheelHandler?.(e.deltaY > 0 ? 1 : -1);
+      },
+      { passive: false },
+    );
 
     canvas.addEventListener("click", () => this.lock());
 
@@ -85,5 +96,10 @@ export class Input {
   /** Botão do mouse com pointer lock ativo (0 = esquerdo, 2 = direito). */
   onMouseButton(button: number, fn: () => void): void {
     this.mouseHandlers.set(button, fn);
+  }
+
+  /** Roda do mouse com pointer lock ativo (1 = baixo/próximo, -1 = cima/anterior). */
+  onWheel(fn: (dir: 1 | -1) => void): void {
+    this.wheelHandler = fn;
   }
 }

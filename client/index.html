@@ -84,11 +84,21 @@
         background: rgba(0, 0, 0, 0.55);
         color: #fff;
         font-family: ui-monospace, monospace;
-        font-size: 13px;
+        font-size: 11px;
         border-radius: 4px;
         pointer-events: none;
-        white-space: pre;
+        max-width: min(920px, 92vw);
+        text-align: center;
+        line-height: 1.7;
         z-index: 5;
+      }
+      #hotbar span {
+        white-space: nowrap;
+        opacity: 0.85;
+      }
+      #hotbar b {
+        white-space: nowrap;
+        font-size: 13px;
       }
       #hotbar b {
         color: #ffd75e;
@@ -138,7 +148,7 @@
       <h1>Lógica em Jogo</h1>
       <p>Clique para jogar</p>
       <p>WASD move · mouse olha · espaço pula · Esc solta o mouse</p>
-      <p>botão esquerdo quebra · direito coloca · 1–4 escolhe bloco · F3 desempenho</p>
+      <p>botão esquerdo quebra · direito coloca · 1–9 e scroll escolhem bloco · F3 desempenho</p>
       <p>Enter abre o chat (Esc fecha) · /bloco x y z id muda um bloco</p>
     </div>
     <div id="crosshair">+</div>

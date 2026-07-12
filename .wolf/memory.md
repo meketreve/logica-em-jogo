@@ -299,3 +299,27 @@ Bug-010 achado na playtest (rejoin no fundo do buraco) e corrigido; bug-011 (tsx
 | 19:05 | Cliente cp6: chat.ts (UI HTML, Enter/Esc, anti-XSS), events.ts (gatilhos de som), input.ts (ignora campo de texto, lock() público), main.ts wiring, index.html CSS/DOM | client/src/{chat,events,input,main}.ts client/index.html | typecheck 3/3, build ✅ | ~6k |
 | 19:05 | Smoke real cp6: 2 clientes ws no dev:server do usuário (tsx watch recarregou /shared sozinho) — welcome, broadcast autor, /bloco muda mundo, resposta só-autor, inválido não vaza | scratchpad/chat-smoke.mts | PASSOU ✅ | ~2k |
 | 19:10 | Screenshot headless: welcome chat renderizado + overlay com ajuda nova; STATUS/cerebrum atualizados (cp6 código completo, playtest pendente) | .wolf/STATUS.md .wolf/cerebrum.md | ok | ~2k |
+| 19:06 | Session end: 26 writes across 11 files (constants.ts, protocol.ts, session.ts, session.test.ts, protocol.test.ts) | 12 reads | ~21676 tok |
+| 19:20 | Playtest cp6 do usuário ✅ ("tudo funciona") — MVP v0 FECHADO; STATUS atualizado; usuário pediu: login nome+senha por mundo (desafiado: conflita com decisão sem-senha; proposto PIN) + lista de blocos/texturas (entregue em 3 grupos por custo) | .wolf/STATUS.md | ok | ~3k |
+| 21:19 | Session end: 26 writes across 11 files (constants.ts, protocol.ts, session.ts, session.test.ts, protocol.test.ts) | 12 reads | ~21676 tok |
+| 22:13 | Created shared/src/blocks.ts | — | ~388 |
+| 22:14 | Edited shared/src/rules.ts | 13→17 lines | ~220 |
+| 22:14 | Edited shared/src/mesher.ts | expanded (+27 lines) | ~500 |
+| 22:14 | Edited shared/src/session.ts | added 1 condition(s) | ~140 |
+| 22:14 | Edited shared/src/session.ts | inline fix | ~18 |
+| 22:14 | Edited shared/src/session.ts | "uso: /bloco x y z id (int" → "uso: /bloco x y z id (int" | ~24 |
+| 22:15 | Edited client/src/atlasTexture.ts | added 3 condition(s) | ~793 |
+| 22:15 | Edited client/src/atlasTexture.ts | expanded (+21 lines) | ~340 |
+| 22:15 | Edited client/src/input.ts | added 1 condition(s) | ~131 |
+| 22:15 | Edited client/src/input.ts | 3→4 lines | ~60 |
+| 22:16 | Edited client/src/input.ts | 4→9 lines | ~98 |
+| 22:16 | Edited client/src/main.ts | modified bloco() | ~497 |
+| 22:16 | Edited client/index.html | expanded (+10 lines) | ~165 |
+| 22:16 | Edited client/index.html | inline fix | ~26 |
+| 22:17 | Edited shared/src/rules.test.ts | expanded (+7 lines) | ~504 |
+| 22:17 | Edited shared/src/mesher.test.ts | 2→2 lines | ~37 |
+| 22:17 | Edited shared/src/mesher.test.ts | expanded (+9 lines) | ~128 |
+| 22:17 | Edited shared/src/session.test.ts | modified quebrar() | ~575 |
+| 22:18 | Edited client/src/main.ts | added optional chaining | ~139 |
+| 22:20 | Grupo A: 14 blocos novos (terra/tronco/tábuas/tijolo/cascalho/bedrock/8 lãs), fallingRule genérica, isBreakable, atlas 8/linha + 14 tiles pintados, hotbar 1-9+scroll, ?atlas debug | shared/{blocks,rules,mesher,session}.ts client/{atlasTexture,input,main}.ts index.html + testes | 60 testes ✅ typecheck ✅ build ✅ screenshot atlas ✅ | ~12k |
+| 22:25 | Decisões do usuário: PIN 4 dígitos (não senha) + reset professor; grupos B/C adiados; proposta MVP v1 "Aula persistente" (save+PIN+papel professor) escrita no STATUS | .wolf/STATUS.md .wolf/cerebrum.md | aguarda aprovação | ~3k |

@@ -132,6 +132,14 @@ conn.send(JSON.stringify({ type: "join", name: "jogador" }));
 function startGame(snap: Snapshot): void {
   const world = snap.world;
   const material = new THREE.MeshLambertMaterial({ map: createAtlasTexture() });
+
+  // ?atlas na URL: pendura o canvas do texture atlas no canto (inspeção visual)
+  if (new URLSearchParams(location.search).has("atlas")) {
+    const img = material.map?.image as HTMLCanvasElement;
+    img.style.cssText =
+      "position:fixed;right:8px;top:8px;width:256px;image-rendering:pixelated;z-index:20;border:1px solid #000";
+    document.body.appendChild(img);
+  }
   const chunkRenderer = new ChunkRenderer(world, material, scene);
   chunkRenderer.buildAll();
 
@@ -202,26 +210,48 @@ function startGame(snap: Snapshot): void {
   let target: RayHit | null = null;
   const lookDir = new THREE.Vector3();
 
+  // Ordem = id do bloco (1..18): o texto de uso do /bloco aponta pra hotbar.
   const PLACEABLE = [
     { id: BlockId.Grass, name: "grama" },
     { id: BlockId.Stone, name: "pedra" },
     { id: BlockId.Cobblestone, name: "pedregulho" },
     { id: BlockId.Sand, name: "areia" },
+    { id: BlockId.Dirt, name: "terra" },
+    { id: BlockId.Log, name: "tronco" },
+    { id: BlockId.Planks, name: "tábuas" },
+    { id: BlockId.Brick, name: "tijolo" },
+    { id: BlockId.Gravel, name: "cascalho" },
+    { id: BlockId.Bedrock, name: "rocha-matriz" },
+    { id: BlockId.WoolWhite, name: "lã branca" },
+    { id: BlockId.WoolBlack, name: "lã preta" },
+    { id: BlockId.WoolRed, name: "lã vermelha" },
+    { id: BlockId.WoolOrange, name: "lã laranja" },
+    { id: BlockId.WoolYellow, name: "lã amarela" },
+    { id: BlockId.WoolGreen, name: "lã verde" },
+    { id: BlockId.WoolBlue, name: "lã azul" },
+    { id: BlockId.WoolPurple, name: "lã roxa" },
   ] as const;
   let selected = 0;
   const hotbarEl = document.getElementById("hotbar");
   const refreshHotbar = (): void => {
     if (!hotbarEl) return;
-    hotbarEl.innerHTML = PLACEABLE.map((b, i) =>
-      i === selected ? `<b>[${i + 1} ${b.name}]</b>` : ` ${i + 1} ${b.name} `,
-    ).join(" ");
+    // nomes são constantes do código (sem input externo) — innerHTML ok aqui
+    hotbarEl.innerHTML = PLACEABLE.map((b, i) => {
+      const label = i < 9 ? `${i + 1} ${b.name}` : b.name;
+      return i === selected ? `<b>[${label}]</b>` : `<span>${label}</span>`;
+    }).join(" · ");
   };
   refreshHotbar();
-  PLACEABLE.forEach((_, i) => {
+  // 1–9 escolhe direto os primeiros; scroll cicla TODOS os blocos
+  PLACEABLE.slice(0, 9).forEach((_, i) => {
     input.onKey(`Digit${i + 1}`, () => {
       selected = i;
       refreshHotbar();
     });
+  });
+  input.onWheel((dir) => {
+    selected = (selected + dir + PLACEABLE.length) % PLACEABLE.length;
+    refreshHotbar();
   });
 
   input.onMouseButton(0, () => {
