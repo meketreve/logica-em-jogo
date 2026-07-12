@@ -1255,6 +1255,54 @@
       "related_bugs": [],
       "occurrences": 1,
       "last_seen": "2026-07-12T13:50:57.495Z"
+    },
+    {
+      "id": "bug-077",
+      "timestamp": "2026-07-12T13:55:34.942Z",
+      "error_message": "Significant refactor of ",
+      "file": "shared/src/save.ts",
+      "root_cause": "2 lines replaced/restructured",
+      "fix": "Rewrote 13→21 lines (2 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-12T13:55:34.942Z"
+    },
+    {
+      "id": "bug-078",
+      "timestamp": "2026-07-12T13:56:04.855Z",
+      "error_message": "Significant refactor of ",
+      "file": "shared/src/protocol.ts",
+      "root_cause": "2 lines replaced/restructured",
+      "fix": "Rewrote 10→13 lines (2 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-12T13:56:04.855Z"
+    },
+    {
+      "id": "bug-079",
+      "timestamp": "2026-07-12T13:56:24.312Z",
+      "error_message": "Null/undefined access in ",
+      "file": "shared/src/session.ts",
+      "root_cause": "Property access on potentially null/undefined value",
+      "fix": "Added null safety (optional chaining or null check)",
+      "tags": [
+        "auto-detected",
+        "null-safety",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-12T13:56:24.312Z"
     }
   ]
 }

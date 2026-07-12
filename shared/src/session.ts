@@ -53,9 +53,12 @@ export class GameSession {
   tickCount = 0;
 
   private readonly players = new Map<number, SessionPlayer>();
-  /** Jogadores que o MUNDO lembra (por nome): volta onde parou entre sessões.
-   *  Base da identidade do cp9 (PIN e papel entram aqui). */
-  private readonly roster = new Map<string, { x: number; y: number; z: number }>();
+  /** Jogadores que o MUNDO lembra (por nome): volta onde parou, olhando pra
+   *  onde olhava. Base da identidade do cp9 (PIN e papel entram aqui). */
+  private readonly roster = new Map<
+    string,
+    { x: number; y: number; z: number; yaw: number; pitch: number }
+  >();
   private readonly now: () => number;
   private tickMsSum = 0;
   private tickMsMax = 0;
@@ -77,7 +80,7 @@ export class GameSession {
       this.seed = opts.restore.seed;
       this.spawn = { ...opts.restore.spawn };
       for (const p of opts.restore.roster) {
-        this.roster.set(p.name, { x: p.x, y: p.y, z: p.z });
+        this.roster.set(p.name, { x: p.x, y: p.y, z: p.z, yaw: p.yaw, pitch: p.pitch });
       }
     } else {
       this.seed = opts.seed ?? 1;
@@ -100,7 +103,7 @@ export class GameSession {
   toSave(): SaveMeta {
     const merged = new Map(this.roster);
     for (const p of this.players.values()) {
-      merged.set(p.name, { x: p.x, y: p.y, z: p.z });
+      merged.set(p.name, { x: p.x, y: p.y, z: p.z, yaw: p.yaw, pitch: p.pitch });
     }
     return {
       seed: this.seed,
@@ -124,8 +127,8 @@ export class GameSession {
           x: start.x,
           y: start.y,
           z: start.z,
-          yaw: 0,
-          pitch: 0,
+          yaw: returning?.yaw ?? 0,
+          pitch: returning?.pitch ?? 0,
         });
         // spawn ANTES do snapshot (transporte preserva ordem) — quando o
         // snapshot chegar e o jogo começar, o cliente já sabe onde nascer.
@@ -165,7 +168,7 @@ export class GameSession {
           type: "player_moved",
           id: clientId,
           x: start.x, y: start.y, z: start.z,
-          yaw: 0, pitch: 0,
+          yaw: returning?.yaw ?? 0, pitch: returning?.pitch ?? 0,
         });
         break;
       }
@@ -332,7 +335,7 @@ export class GameSession {
     const p = this.players.get(clientId);
     if (!p) return;
     // mundo lembra onde o jogador parou (vai pro save; volta aqui no rejoin)
-    this.roster.set(p.name, { x: p.x, y: p.y, z: p.z });
+    this.roster.set(p.name, { x: p.x, y: p.y, z: p.z, yaw: p.yaw, pitch: p.pitch });
     // delete ANTES do broadcast — quem saiu não recebe (socket já fechou).
     this.players.delete(clientId);
     this.broadcast({ type: "player_left", id: clientId });

@@ -69,13 +69,16 @@ export type ServerMessage =
     }
   | {
       /**
-       * Servidor manda o jogador pra uma posição (volta-onde-parou no join
-       * de mundo salvo; futuro /tp). Cliente aplica e zera velocidade.
+       * Servidor manda o jogador pra uma posição E orientação (volta-onde-
+       * parou de mundo salvo; futuro /tp). Cliente aplica, zera velocidade
+       * e aponta a câmera (yaw/pitch).
        */
       type: "teleport";
       x: number;
       y: number;
       z: number;
+      yaw: number;
+      pitch: number;
     };
 
 /** Parse defensivo: servidor autoritativo nunca confia no que chega do fio. */
@@ -196,13 +199,15 @@ export function parseServerMessage(raw: string): ServerMessage | null {
       if (typeof m["author"] !== "string" || typeof m["text"] !== "string") return null;
       return { type: "chat", author: m["author"], text: m["text"] };
     case "teleport": {
-      const nums = [m["x"], m["y"], m["z"]];
+      const nums = [m["x"], m["y"], m["z"], m["yaw"], m["pitch"]];
       if (!nums.every((n) => typeof n === "number" && Number.isFinite(n))) return null;
       return {
         type: "teleport",
         x: m["x"] as number,
         y: m["y"] as number,
         z: m["z"] as number,
+        yaw: m["yaw"] as number,
+        pitch: m["pitch"] as number,
       };
     }
     default:

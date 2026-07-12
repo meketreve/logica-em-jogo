@@ -308,6 +308,10 @@ em `/shared` desde o checkpoint 2 (gravidade testável sem abrir navegador); cad
    cada online pro novo, pós-snapshot, e anuncia o novo — sem isto jogador
    parado era invisível pro recém-chegado, e o heartbeat agravaria). 68 testes,
    smoke de presença contra servidor real ✅.
+   **+ Orientação persistida (2026-07-12, pedido do usuário):** roster/SavedPlayer
+   ganharam yaw/pitch; `teleport` carrega orientação e o cliente aponta a câmera
+   (input.yaw/pitch) — volta olhando pra onde olhava. Saves ANTIGOS continuam
+   válidos (campo faltando → 0; testado).
 3. **cp9 — PIN + papel de professor:** join vira nome+PIN (msg `join_denied` com
    motivo); 1ª entrada registra no roster; `/resetpin nome`; código de professor
    na criação do mundo; comandos privilegiados (`/bloco`, `/resetpin`) gated;

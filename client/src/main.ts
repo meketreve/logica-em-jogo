@@ -110,7 +110,9 @@ let applyPlayerMoved:
   | ((msg: { id: number; x: number; y: number; z: number; yaw: number }) => void)
   | null = null;
 let applyPlayerLeft: ((id: number) => void) | null = null;
-let applyTeleport: ((pos: { x: number; y: number; z: number }) => void) | null = null;
+let applyTeleport:
+  | ((pos: { x: number; y: number; z: number; yaw: number; pitch: number }) => void)
+  | null = null;
 let serverSpawn: { x: number; y: number; z: number } | null = null;
 
 function handleServerData(data: string | ArrayBuffer): void {
@@ -232,12 +234,14 @@ function startGame(snap: Snapshot): void {
     player.vel.x = player.vel.y = player.vel.z = 0;
   }
 
-  // servidor manda posição (volta-onde-parou em mundo salvo; futuro /tp)
+  // servidor manda posição E orientação (volta-onde-parou; futuro /tp)
   applyTeleport = (pos) => {
     player.pos.x = pos.x;
     player.pos.y = pos.y;
     player.pos.z = pos.z;
     player.vel.x = player.vel.y = player.vel.z = 0;
+    input.yaw = pos.yaw;
+    input.pitch = pos.pitch;
   };
 
   // servidor mandou block_changed (nossa ação OU de outro jogador OU gravidade

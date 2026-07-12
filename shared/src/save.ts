@@ -29,12 +29,15 @@ declare class TextDecoder {
 export const SAVE_MAGIC = 0x31534a4c; // bytes "LJS1" em little-endian
 const SAVE_HEADER_BYTES = 8;
 
-/** Jogador lembrado pelo mundo (volta onde parou). Cresce no cp9: PIN, papel. */
+/** Jogador lembrado pelo mundo (volta onde parou, olhando pra onde olhava).
+ *  Cresce no cp9: PIN, papel. */
 export interface SavedPlayer {
   name: string;
   x: number;
   y: number;
   z: number;
+  yaw: number;
+  pitch: number;
 }
 
 /** Metadados do save (a parte JSON — o mundo vai como snapshot binário). */
@@ -103,8 +106,16 @@ export function decodeSave(buf: ArrayBuffer): SaveData {
         typeof (entry as Record<string, unknown>)["name"] === "string" &&
         isFinitePos(entry)
       ) {
-        const e = entry as { name: string; x: number; y: number; z: number };
-        roster.push({ name: e.name, x: e.x, y: e.y, z: e.z });
+        const e = entry as Record<string, unknown> & { name: string; x: number; y: number; z: number };
+        // yaw/pitch entraram depois — save antigo sem eles continua válido (0)
+        const angle = (v: unknown): number =>
+          typeof v === "number" && Number.isFinite(v) ? v : 0;
+        roster.push({
+          name: e.name,
+          x: e.x, y: e.y, z: e.z,
+          yaw: angle(e["yaw"]),
+          pitch: angle(e["pitch"]),
+        });
       }
     }
   }

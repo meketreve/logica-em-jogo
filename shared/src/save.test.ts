@@ -9,8 +9,8 @@ const META = {
   seed: 42,
   spawn: { x: 16.5, y: 20, z: 16.5 },
   roster: [
-    { name: "ana", x: 3.5, y: 18, z: 7.5 },
-    { name: "bia", x: 20.1, y: 25, z: 4.9 },
+    { name: "ana", x: 3.5, y: 18, z: 7.5, yaw: 1.2, pitch: -0.3 },
+    { name: "bia", x: 20.1, y: 25, z: 4.9, yaw: 0, pitch: 0 },
   ],
 };
 
@@ -50,13 +50,14 @@ describe("save .ljw (JSON de metadados + snapshot binário)", () => {
       seed: 1,
       spawn: { x: 1, y: 2, z: 3 },
       roster: [
-        { name: "ok", x: 1, y: 2, z: 3 },
+        { name: "ok", x: 1, y: 2, z: 3 }, // formato ANTIGO (sem yaw/pitch)
         { name: 5, x: 1, y: 2, z: 3 }, // nome não-string
         { name: "sempos", x: "a", y: 2, z: 3 }, // pos inválida
       ],
     } as never;
     const save = decodeSave(encodeSave(world, meta));
-    expect(save.roster).toEqual([{ name: "ok", x: 1, y: 2, z: 3 }]);
+    // save antigo continua válido: orientação faltando vira 0
+    expect(save.roster).toEqual([{ name: "ok", x: 1, y: 2, z: 3, yaw: 0, pitch: 0 }]);
   });
 
   it("magic LJS1 correto no arquivo", () => {

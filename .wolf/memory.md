@@ -385,3 +385,13 @@ Bug-010 achado na playtest (rejoin no fundo do buraco) e corrigido; bug-011 (tsx
 | 10:49 | Edited shared/src/session.test.ts | added optional chaining | ~459 |
 | 10:50 | Created ../../../tmp/claude-1000/-home-meketreve-logica-em-jogo/a0d99221-e98e-49ca-885e-fb3fd914cb11/scratchpad/presence-smoke.mts | — | ~437 |
 | 10:55 | Playtest cp8 "top" + 4 pedidos feitos: rebind 1-captura (bug-075), coords no F3, move reativo (heartbeat 2s parado), presença no join (bug-076) | client/{menu,main}.ts shared/session.ts + teste | 68 testes ✅ smoke presença ✅ | ~7k |
+| 10:51 | Session end: 97 writes across 27 files (constants.ts, protocol.ts, session.ts, session.test.ts, protocol.test.ts) | 24 reads | ~49563 tok |
+| 10:55 | Edited shared/src/save.ts | 7→10 lines | ~66 |
+| 10:55 | Edited shared/src/save.ts | modified for() | ~217 |
+| 10:56 | Edited shared/src/protocol.ts | 10→13 lines | ~97 |
+| 10:56 | Edited shared/src/protocol.ts | 10→12 lines | ~112 |
+| 10:56 | Edited shared/src/session.ts | added optional chaining | ~70 |
+| 10:56 | Edited client/src/main.ts | 1→3 lines | ~35 |
+| 10:56 | Edited client/src/main.ts | 7→9 lines | ~83 |
+| 10:57 | Edited shared/src/protocol.test.ts | 7→7 lines | ~138 |
+| 11:05 | Orientação no save (pedido do usuário): roster+SavedPlayer com yaw/pitch, teleport orientado, cliente aponta câmera; compat com save antigo (default 0) testada | shared/{save,session,protocol}.ts client/main.ts + testes | 68 testes ✅ | ~5k |
