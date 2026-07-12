@@ -185,6 +185,11 @@
 - [2026-07-11] /shared (lib ES2022 pura) não declara TextEncoder/TextDecoder (existem
   em runtime nos 3 hospedeiros) — usar `declare class` ambiente mínima no arquivo que
   precisa (save.ts), NÃO adicionar lib DOM ao tsconfig (quebraria a pureza).
+- [2026-07-12] `npm run dev`/`dev:server` via Bash background do Claude morre com
+  exit 143 e log VAZIO (atrito npm+rtk+wrapper de background). Subir direto:
+  `cd server && nohup npx tsx src/index.ts > log 2>&1 &` e conferir porta com
+  `ss -tln`. Vite pode pular pra 5174 se 5173 estiver ocupada — sempre verificar
+  a porta real antes de passar URL ao usuário.
 
 ## Decision Log
 

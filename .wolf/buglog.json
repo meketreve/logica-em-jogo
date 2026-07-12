@@ -1611,6 +1611,24 @@
       "related_bugs": [],
       "occurrences": 1,
       "last_seen": "2026-07-12T17:38:14.671Z"
+    },
+    {
+      "id": "bug-099",
+      "timestamp": "2026-07-12T18:05:00.000Z",
+      "error_message": "npm run dev / dev:server via Bash background do Claude morre com exit 143 e output vazio; porta nunca escuta",
+      "file": "(ambiente dev, não código do jogo)",
+      "root_cause": "atrito npm + hook rtk + wrapper de background do Claude Code — processo filho perde stdout e é morto",
+      "fix": "subir direto: cd server && nohup npx tsx src/index.ts > log 2>&1 & ; vite idem; conferir porta real com ss -tln (Vite pula p/ 5174 se 5173 ocupada)",
+      "tags": [
+        "ambiente",
+        "npm",
+        "rtk",
+        "background",
+        "dev-server"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-12T18:05:00.000Z"
     }
   ]
 }

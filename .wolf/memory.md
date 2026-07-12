@@ -496,3 +496,14 @@ Bug-010 achado na playtest (rejoin no fundo do buraco) e corrigido; bug-011 (tsx
 cp9 (PIN + papel de professor) implementado, testado (82 unit + smoke real 2 fases 12/12), commitado.
 Correção do usuário no fim: hash removido, PIN/código em texto puro (simplicidade > segurança sem dado sensível).
 MVP v1 código completo — falta só playtest do usuário no cp9. Depois: MVP v2 (cenários/autoria).
+| 15:21 | Session end: 69 writes across 12 files (auth.ts, protocol.ts, save.ts, session.ts, index.ts) | 16 reads | ~37749 tok |
+
+## Session: 2026-07-12 15:21
+
+| Time | Action | File(s) | Outcome | ~Tokens |
+|------|--------|---------|---------|--------|
+
+## Sessão 2026-07-12 (tarde) — playtest cp9 → MVP v1 FECHADO
+| 17:50 | Subi servidores p/ playtest cp9; npm via background morreu (exit 143, log vazio) → tsx direto ok; Vite pulou p/ 5174 | server.log, cerebrum | ok | ~15k |
+| 18:00 | Playtest do usuário ✅ "tudo rodou" — critério 4 atendido, MVP v1 FECHADO; cp10 adiado (sem gatilho) | .wolf/STATUS.md | ok | ~5k |
+| 18:05 | Wrap-up: STATUS (quest → MVP v2 cenários/autoria), cerebrum Do-Not-Repeat (npm background), buglog-099 | .wolf/* | ok | ~5k |

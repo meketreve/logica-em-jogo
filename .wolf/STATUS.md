@@ -2,9 +2,13 @@
 
 > Single source of truth for resuming work. Read this FIRST when starting a session.
 > Last updated: 2026-07-12
-> **PRÓXIMA QUEST: playtest do cp9 pelo usuário (PIN/professor) → MVP v1 FECHADO.
-> Depois: MVP v2 — CENÁRIOS/AUTORIA (coração pedagógico). cp10 (validação física
-> do move) só se o playtest apontar necessidade.**
+> **PRÓXIMA QUEST: MVP v2 — CENÁRIOS/AUTORIA (coração pedagógico). MVP v1 FECHADO
+> (playtest cp9 ✅ 2026-07-12). Começar com entrevista curta de escopo: o que É um
+> cenário (mundo + objetivos + texto?), como o professor cria DENTRO do jogo, como
+> o aluno vê objetivo/progresso, como distribui (formato .ljw já cobre?). Detecção
+> de objetivo = MESMA engrenagem das rules — checar estado do mundo contra padrão
+> (regra de ouro). cp10 (validação física do move) ADIADO: playtest não apontou
+> necessidade.**
 
 ---
 
@@ -316,8 +320,8 @@ em `/shared` desde o checkpoint 2 (gravidade testável sem abrir navegador); cad
    (input.yaw/pitch) — volta olhando pra onde olhava. Saves ANTIGOS continuam
    válidos (campo faltando → 0; testado). Playtest do usuário ✅ ("funcionou").
    **cp8 FECHADO.**
-3. ✅ **cp9 — PIN + papel de professor (2026-07-12, código FECHADO — playtest
-   do usuário PENDENTE).** PIN e código de professor em **TEXTO PURO** no
+3. ✅ **cp9 — PIN + papel de professor (2026-07-12, FECHADO — playtest do
+   usuário ✅ "tudo rodou").** PIN e código de professor em **TEXTO PURO** no
    save (decisão do usuário: sem dado sensível, sem hash — a pendência de
    crypto.subtle/pré-hash morreu junto; `/shared/auth.ts` = isValidPin +
    constantes de rate-limit). Protocolo: join ganha `pin`/`codigo`
@@ -342,14 +346,18 @@ em `/shared` desde o checkpoint 2 (gravidade testável sem abrir navegador); cad
    (registro/recusas/gating/resetpin → reboot: PIN e papel persistem)
    12/12 ✅. Screenshot headless: join com PIN renderiza mundo + welcome
    de aluno.
-4. **cp10 (se sobrar fôlego)** — validação de física do move no servidor.
+4. **cp10 — ADIADO (2026-07-12):** validação de física do move no servidor.
+   Playtest do MVP v1 não apontou necessidade; retomar só com gatilho (trapaça
+   real em aula ou física divergindo entre cliente e servidor).
 
 **Critérios de aceitação do MVP v1:**
 1. Fechar o host (Ctrl+C ou autosave), reabrir → mundo E posições intactos. ✅ (cp7)
 2. Menu: criar mundo single, jogar, fechar aba, voltar → continua do save local. ✅ (cp8)
 3. Exportar mundo single pra arquivo e importá-lo em outro navegador/host. ✅ (cp8; smoke)
 4. Aluno não entra com nome alheio sem o PIN; professor reseta PIN; aluno não roda /bloco.
-   ✅ código + smoke (cp9) — **playtest do usuário pendente**.
+   ✅ (cp9; playtest do usuário 2026-07-12 ✅).
+
+**→ MVP v1 FECHADO (2026-07-12): os 4 critérios atendidos e jogados.**
 
 **Depois (anotado, não esquecer):**
 - **MVP v2 = CENÁRIOS/AUTORIA** (coração pedagógico): objetivos, detecção de
