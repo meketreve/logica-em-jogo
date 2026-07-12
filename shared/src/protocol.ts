@@ -10,7 +10,19 @@ import { type World, createWorld } from "./world";
 // --- Mensagens JSON cliente→servidor ---
 
 export type ClientMessage =
-  | { type: "join"; name: string }
+  | {
+      /**
+       * Entrada no mundo. pin: 4 dígitos — 1ª entrada com um nome registra o
+       * PIN, as seguintes exigem o mesmo (cp9). codigo: código de professor
+       * (opcional) — certo eleva o papel; errado NEGA o join (professor que
+       * digitou errado precisa saber, não entrar como aluno em silêncio).
+       * Hospedeiro singleplayer dispensa os dois.
+       */
+      type: "join";
+      name: string;
+      pin?: string;
+      codigo?: string;
+    }
   | { type: "move"; x: number; y: number; z: number; yaw: number; pitch: number }
   | { type: "place_block"; x: number; y: number; z: number; blockId: number }
   | { type: "break_block"; x: number; y: number; z: number }
@@ -69,6 +81,15 @@ export type ServerMessage =
     }
   | {
       /**
+       * Join RECUSADO (PIN errado, nome já em uso, código de professor
+       * errado, tentativas demais…). Cliente mostra o motivo e volta pro
+       * menu — nenhuma outra mensagem chega depois desta.
+       */
+      type: "join_denied";
+      reason: string;
+    }
+  | {
+      /**
        * Servidor manda o jogador pra uma posição E orientação (volta-onde-
        * parou de mundo salvo; futuro /tp). Cliente aplica, zera velocidade
        * e aponta a câmera (yaw/pitch).
@@ -92,9 +113,18 @@ export function parseClientMessage(raw: string): ClientMessage | null {
   if (typeof msg !== "object" || msg === null) return null;
   const m = msg as Record<string, unknown>;
   switch (m["type"]) {
-    case "join":
+    case "join": {
       if (typeof m["name"] !== "string") return null;
-      return { type: "join", name: m["name"] };
+      // pin/codigo são opcionais, mas se vierem TÊM que ser string
+      if (m["pin"] !== undefined && typeof m["pin"] !== "string") return null;
+      if (m["codigo"] !== undefined && typeof m["codigo"] !== "string") return null;
+      return {
+        type: "join",
+        name: m["name"],
+        ...(typeof m["pin"] === "string" ? { pin: m["pin"] } : {}),
+        ...(typeof m["codigo"] === "string" ? { codigo: m["codigo"] } : {}),
+      };
+    }
     case "move": {
       const nums = [m["x"], m["y"], m["z"], m["yaw"], m["pitch"]];
       if (!nums.every((n) => typeof n === "number" && Number.isFinite(n))) return null;
@@ -198,6 +228,9 @@ export function parseServerMessage(raw: string): ServerMessage | null {
     case "chat":
       if (typeof m["author"] !== "string" || typeof m["text"] !== "string") return null;
       return { type: "chat", author: m["author"], text: m["text"] };
+    case "join_denied":
+      if (typeof m["reason"] !== "string") return null;
+      return { type: "join_denied", reason: m["reason"] };
     case "teleport": {
       const nums = [m["x"], m["y"], m["z"], m["yaw"], m["pitch"]];
       if (!nums.every((n) => typeof n === "number" && Number.isFinite(n))) return null;

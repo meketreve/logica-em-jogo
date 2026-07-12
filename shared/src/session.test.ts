@@ -1,10 +1,13 @@
 import { describe, expect, it } from "vitest";
+import { hashSecret } from "./auth";
 import { BlockId } from "./blocks";
 import { MAX_CHAT_LENGTH, SERVER_TICK_RATE } from "./constants";
 import { decodeSnapshot, parseServerMessage } from "./protocol";
 import { GameSession } from "./session";
 import { findSpawnY, getBlock, setBlock } from "./world";
 
+// Testes de MECÂNICA rodam com singleplayer: true (join sem PIN) — a
+// identidade do cp9 tem bateria própria no describe do fim do arquivo.
 const DIMS = { x: 2, z: 2, y: 2 };
 
 function collect() {
@@ -15,7 +18,7 @@ function collect() {
 describe("GameSession (servidor autoritativo)", () => {
   it("join responde com spawn + world_snapshot idêntico ao mundo do servidor", () => {
     const { sent, send } = collect();
-    const session = new GameSession(send, { dims: DIMS, seed: 99 });
+    const session = new GameSession(send, { dims: DIMS, seed: 99, singleplayer: true });
     session.handleMessage(1, JSON.stringify({ type: "join", name: "ana" }));
 
     expect(sent).toHaveLength(3); // spawn + snapshot + chat de boas-vindas
@@ -38,7 +41,7 @@ describe("GameSession (servidor autoritativo)", () => {
 
   it("mensagem inválida não derruba nem responde", () => {
     const { sent, send } = collect();
-    const session = new GameSession(send, { dims: DIMS });
+    const session = new GameSession(send, { dims: DIMS, singleplayer: true });
     session.handleMessage(1, "lixo");
     session.handleMessage(1, '{"type":"place_block"}');
     expect(sent).toHaveLength(0);
@@ -46,7 +49,7 @@ describe("GameSession (servidor autoritativo)", () => {
 
   it("move só é aceito depois do join", () => {
     const { send } = collect();
-    const session = new GameSession(send, { dims: DIMS });
+    const session = new GameSession(send, { dims: DIMS, singleplayer: true });
     // sem join: não lança, só ignora
     session.handleMessage(1, JSON.stringify({ type: "move", x: 1, y: 2, z: 3, yaw: 0, pitch: 0 }));
     expect(session.tickCount).toBe(0);
@@ -55,7 +58,7 @@ describe("GameSession (servidor autoritativo)", () => {
   it("emite debug_stats a cada SERVER_TICK_RATE ticks, só pra quem entrou", () => {
     const { sent, send } = collect();
     let t = 0;
-    const session = new GameSession(send, { dims: DIMS, now: () => (t += 2) });
+    const session = new GameSession(send, { dims: DIMS, singleplayer: true, now: () => (t += 2) });
     session.handleMessage(7, JSON.stringify({ type: "join", name: "ana" }));
     sent.length = 0; // descarta o snapshot do join
 
@@ -77,7 +80,7 @@ describe("GameSession (servidor autoritativo)", () => {
 
   it("place/break: aplica, vira block_changed pra TODOS; inválido é ignorado", () => {
     const { sent, send } = collect();
-    const session = new GameSession(send, { dims: DIMS, seed: 5 });
+    const session = new GameSession(send, { dims: DIMS, seed: 5, singleplayer: true });
     session.handleMessage(1, JSON.stringify({ type: "join", name: "ana" }));
     session.handleMessage(2, JSON.stringify({ type: "join", name: "bia" }));
     const world = session.world;
@@ -135,7 +138,7 @@ describe("GameSession (servidor autoritativo)", () => {
 
   it("areia cai no tick do servidor: 1 célula por tick, em cascata, e para no chão", () => {
     const { sent, send } = collect();
-    const session = new GameSession(send, { dims: DIMS, seed: 5 });
+    const session = new GameSession(send, { dims: DIMS, seed: 5, singleplayer: true });
     session.handleMessage(1, JSON.stringify({ type: "join", name: "ana" }));
     const world = session.world;
     const sx = Math.floor(world.sizeX / 2);
@@ -181,7 +184,7 @@ describe("GameSession (servidor autoritativo)", () => {
 
   it("bloco sem regra não cai; place fora do mundo é rejeitado (bug-004)", () => {
     const { sent, send } = collect();
-    const session = new GameSession(send, { dims: DIMS, seed: 5 });
+    const session = new GameSession(send, { dims: DIMS, seed: 5, singleplayer: true });
     session.handleMessage(1, JSON.stringify({ type: "join", name: "ana" }));
     const world = session.world;
     const sx = Math.floor(world.sizeX / 2);
@@ -210,7 +213,7 @@ describe("GameSession (servidor autoritativo)", () => {
 
   it("disconnect remove o jogador dos broadcasts", () => {
     const { sent, send } = collect();
-    const session = new GameSession(send, { dims: DIMS });
+    const session = new GameSession(send, { dims: DIMS, singleplayer: true });
     session.handleMessage(1, JSON.stringify({ type: "join", name: "ana" }));
     sent.length = 0;
     session.handleDisconnect(1);
@@ -220,7 +223,7 @@ describe("GameSession (servidor autoritativo)", () => {
 
   it("spawn é FIXO: escavar a coluna do spawn não muda onde o próximo nasce (bug-010)", () => {
     const { sent, send } = collect();
-    const session = new GameSession(send, { dims: DIMS, seed: 5 });
+    const session = new GameSession(send, { dims: DIMS, seed: 5, singleplayer: true });
     session.handleMessage(1, JSON.stringify({ type: "join", name: "ana" }));
     const first = parseServerMessage(sent[0]?.data as string);
     if (first?.type !== "spawn") throw new Error("esperava spawn");
@@ -243,7 +246,7 @@ describe("GameSession (servidor autoritativo)", () => {
 
   it("chat vira broadcast pra TODOS com autor nome#id; vazio ou sem join é ignorado", () => {
     const { sent, send } = collect();
-    const session = new GameSession(send, { dims: DIMS });
+    const session = new GameSession(send, { dims: DIMS, singleplayer: true });
     // sem join: ignorado
     session.handleMessage(9, JSON.stringify({ type: "chat", text: "oi" }));
     expect(sent).toHaveLength(0);
@@ -271,7 +274,7 @@ describe("GameSession (servidor autoritativo)", () => {
 
   it("/bloco muda o mundo longe do jogador, responde SÓ ao autor e acorda a gravidade", () => {
     const { sent, send } = collect();
-    const session = new GameSession(send, { dims: DIMS, seed: 5 });
+    const session = new GameSession(send, { dims: DIMS, seed: 5, singleplayer: true });
     session.handleMessage(1, JSON.stringify({ type: "join", name: "ana" }));
     session.handleMessage(2, JSON.stringify({ type: "join", name: "bia" }));
     const world = session.world;
@@ -297,7 +300,7 @@ describe("GameSession (servidor autoritativo)", () => {
 
   it("bedrock: jogador não quebra; /bloco coloca e remove (caminho do professor)", () => {
     const { sent, send } = collect();
-    const session = new GameSession(send, { dims: DIMS, seed: 5 });
+    const session = new GameSession(send, { dims: DIMS, seed: 5, singleplayer: true });
     session.handleMessage(1, JSON.stringify({ type: "join", name: "ana" }));
     const world = session.world;
     const sx = Math.floor(world.sizeX / 2);
@@ -321,7 +324,7 @@ describe("GameSession (servidor autoritativo)", () => {
 
   it("cascalho cai igual areia — regra de queda é genérica", () => {
     const { send } = collect();
-    const session = new GameSession(send, { dims: DIMS, seed: 5 });
+    const session = new GameSession(send, { dims: DIMS, seed: 5, singleplayer: true });
     session.handleMessage(1, JSON.stringify({ type: "join", name: "ana" }));
     const world = session.world;
     const sx = Math.floor(world.sizeX / 2);
@@ -338,7 +341,7 @@ describe("GameSession (servidor autoritativo)", () => {
 
   it("comando inválido: resposta de erro só pro autor, mundo intacto", () => {
     const { sent, send } = collect();
-    const session = new GameSession(send, { dims: DIMS, seed: 5 });
+    const session = new GameSession(send, { dims: DIMS, seed: 5, singleplayer: true });
     session.handleMessage(1, JSON.stringify({ type: "join", name: "ana" }));
     session.handleMessage(2, JSON.stringify({ type: "join", name: "bia" }));
     sent.length = 0;
@@ -362,7 +365,7 @@ describe("GameSession (servidor autoritativo)", () => {
 
   it("presença no join (bug-064): novo vê quem está PARADO; os outros veem o novo", () => {
     const { sent, send } = collect();
-    const session = new GameSession(send, { dims: DIMS });
+    const session = new GameSession(send, { dims: DIMS, singleplayer: true });
     session.handleMessage(1, JSON.stringify({ type: "join", name: "ana" }));
     // ana anda até um canto e FICA PARADA (nenhum move depois)
     session.handleMessage(1, JSON.stringify({ type: "move", x: 3.5, y: 20, z: 4.5, yaw: 1, pitch: 0 }));
@@ -390,7 +393,7 @@ describe("GameSession (servidor autoritativo)", () => {
 
   it("move vira player_moved SÓ pros outros — autor nunca recebe eco", () => {
     const { sent, send } = collect();
-    const session = new GameSession(send, { dims: DIMS });
+    const session = new GameSession(send, { dims: DIMS, singleplayer: true });
     session.handleMessage(1, JSON.stringify({ type: "join", name: "ana" }));
     session.handleMessage(2, JSON.stringify({ type: "join", name: "bia" }));
     sent.length = 0;
@@ -408,7 +411,7 @@ describe("GameSession (servidor autoritativo)", () => {
   it("restore: mundo salvo volta byte a byte, spawn NÃO recalcula, roster teleporta", () => {
     // sessão original: escava perto do spawn e move a ana pra longe
     const { send } = collect();
-    const s1 = new GameSession(send, { dims: DIMS, seed: 5 });
+    const s1 = new GameSession(send, { dims: DIMS, seed: 5, singleplayer: true });
     s1.handleMessage(1, JSON.stringify({ type: "join", name: "ana" }));
     const sx = Math.floor(s1.spawn.x);
     const sz = Math.floor(s1.spawn.z);
@@ -423,7 +426,7 @@ describe("GameSession (servidor autoritativo)", () => {
     expect(save.roster).toEqual([{ name: "ana", x: 2.5, y: 20, z: 3.5, yaw: 1.2, pitch: -0.3 }]);
 
     const { sent: sent2, send: send2 } = collect();
-    const s2 = new GameSession(send2, { restore: save });
+    const s2 = new GameSession(send2, { restore: save, singleplayer: true });
     expect(s2.spawn).toEqual(s1.spawn); // spawn vem do save, nunca de findSpawnY de novo
     for (let i = 0; i < s1.world.chunks.length; i++) {
       expect(s2.world.chunks[i]).toEqual(s1.world.chunks[i]);
@@ -449,7 +452,7 @@ describe("GameSession (servidor autoritativo)", () => {
 
   it("toSave inclui jogador ONLINE com a posição atual (não só quem desconectou)", () => {
     const { send } = collect();
-    const session = new GameSession(send, { dims: DIMS, seed: 5 });
+    const session = new GameSession(send, { dims: DIMS, seed: 5, singleplayer: true });
     session.handleMessage(1, JSON.stringify({ type: "join", name: "ana" }));
     session.handleMessage(1, JSON.stringify({ type: "move", x: 9.5, y: 22, z: 8.5, yaw: 1, pitch: 0 }));
     expect(session.toSave().roster).toEqual([{ name: "ana", x: 9.5, y: 22, z: 8.5, yaw: 1, pitch: 0 }]);
@@ -457,7 +460,7 @@ describe("GameSession (servidor autoritativo)", () => {
 
   it("disconnect vira player_left pra quem fica; id desconhecido é silêncio", () => {
     const { sent, send } = collect();
-    const session = new GameSession(send, { dims: DIMS });
+    const session = new GameSession(send, { dims: DIMS, singleplayer: true });
     session.handleMessage(1, JSON.stringify({ type: "join", name: "ana" }));
     session.handleMessage(2, JSON.stringify({ type: "join", name: "bia" }));
     sent.length = 0;
@@ -474,5 +477,222 @@ describe("GameSession (servidor autoritativo)", () => {
     session.handleDisconnect(1);
     session.handleDisconnect(99);
     expect(sent).toHaveLength(0);
+  });
+});
+
+describe("identidade cp9: PIN + papel (default = estrito, PIN exigido)", () => {
+  const join = (name: string, pin?: string, codigo?: string) =>
+    JSON.stringify({ type: "join", name, pin, codigo });
+  const chatCmd = (text: string) => JSON.stringify({ type: "chat", text });
+
+  it("sem PIN ou PIN malformado → join_denied e NADA mais (nem snapshot)", () => {
+    const { sent, send } = collect();
+    const session = new GameSession(send, { dims: DIMS });
+    session.handleMessage(1, join("ana"));
+    session.handleMessage(1, join("ana", "12"));
+    session.handleMessage(1, join("ana", "abcd"));
+    expect(sent).toHaveLength(3); // 1 recusa por tentativa, zero snapshot
+    for (const s of sent) {
+      expect(parseServerMessage(s.data as string)).toEqual({
+        type: "join_denied", reason: "PIN precisa ter 4 números",
+      });
+    }
+  });
+
+  it("1ª entrada registra o PIN; rejoin exige o MESMO; errado → join_denied", () => {
+    const { sent, send } = collect();
+    const session = new GameSession(send, { dims: DIMS });
+    session.handleMessage(1, join("ana", "1234"));
+    expect(parseServerMessage(sent[0]?.data as string)?.type).toBe("spawn");
+    session.handleDisconnect(1);
+    sent.length = 0;
+
+    session.handleMessage(2, join("ana", "9999"));
+    expect(sent).toHaveLength(1);
+    expect(parseServerMessage(sent[0]?.data as string)).toEqual({
+      type: "join_denied", reason: "PIN errado",
+    });
+    sent.length = 0;
+
+    session.handleMessage(2, join("ana", "1234"));
+    expect(parseServerMessage(sent[0]?.data as string)?.type).toBe("spawn");
+  });
+
+  it("nome já ONLINE → recusado mesmo com o PIN certo (fecha o bug-061)", () => {
+    const { sent, send } = collect();
+    const session = new GameSession(send, { dims: DIMS });
+    session.handleMessage(1, join("ana", "1234"));
+    sent.length = 0;
+
+    session.handleMessage(2, join("ana", "1234"));
+    expect(sent).toHaveLength(1);
+    expect(sent[0]?.clientId).toBe(2);
+    const deny = parseServerMessage(sent[0]?.data as string);
+    if (deny?.type !== "join_denied") throw new Error("esperava join_denied");
+    expect(deny.reason).toContain("já está no jogo");
+  });
+
+  it("rate-limit: 5 PINs errados travam o nome por 30 s — até com o PIN certo", () => {
+    let t = 1000;
+    const { sent, send } = collect();
+    const session = new GameSession(send, { dims: DIMS, now: () => t });
+    session.handleMessage(1, join("ana", "1234"));
+    session.handleDisconnect(1);
+    for (let i = 0; i < 5; i++) session.handleMessage(2, join("ana", "0000"));
+    sent.length = 0;
+
+    session.handleMessage(2, join("ana", "1234")); // PIN certo, mas travado
+    expect(parseServerMessage(sent[0]?.data as string)).toEqual({
+      type: "join_denied", reason: "muitas tentativas erradas — espere meio minuto",
+    });
+    sent.length = 0;
+
+    t += 31_000; // trava expira
+    session.handleMessage(2, join("ana", "1234"));
+    expect(parseServerMessage(sent[0]?.data as string)?.type).toBe("spawn");
+  });
+
+  it("código de professor: certo eleva o papel (e fica); errado nega o join", () => {
+    const { sent, send } = collect();
+    const codigoHash = hashSecret("codigo", "salaverde");
+    const session = new GameSession(send, { dims: DIMS, seed: 5, codigoHash });
+    session.handleMessage(1, join("prof", "4321", "errado"));
+    expect(parseServerMessage(sent[0]?.data as string)).toEqual({
+      type: "join_denied", reason: "código de professor errado",
+    });
+    sent.length = 0;
+
+    session.handleMessage(1, join("prof", "4321", "salaverde"));
+    const welcome = sent
+      .map((s) => (typeof s.data === "string" ? parseServerMessage(s.data) : null))
+      .find((m) => m?.type === "chat");
+    if (welcome?.type !== "chat") throw new Error("esperava boas-vindas");
+    expect(welcome.text).toContain("/resetpin"); // dica só de professor
+
+    // /bloco funciona pra professor
+    const h = findSpawnY(session.world, 1, 1);
+    session.handleMessage(1, chatCmd(`/bloco 1 ${h} 1 ${BlockId.Stone}`));
+    expect(getBlock(session.world, 1, h, 1)).toBe(BlockId.Stone);
+
+    // papel + pinHash + codigoHash persistem no save
+    const meta = session.toSave();
+    expect(meta.codigoHash).toBe(codigoHash);
+    const entry = meta.roster.find((p) => p.name === "prof");
+    expect(entry?.papel).toBe("professor");
+    expect(entry?.pinHash).toBe(hashSecret("prof", "4321"));
+
+    // rejoin SEM o código continua professor (papel ficou na identidade)
+    session.handleDisconnect(1);
+    sent.length = 0;
+    session.handleMessage(2, join("prof", "4321"));
+    const welcome2 = sent
+      .map((s) => (typeof s.data === "string" ? parseServerMessage(s.data) : null))
+      .find((m) => m?.type === "chat");
+    if (welcome2?.type !== "chat") throw new Error("esperava boas-vindas");
+    expect(welcome2.text).toContain("/resetpin");
+  });
+
+  it("aluno não roda /bloco nem /resetpin — mundo intacto, recusa só pro autor", () => {
+    const { sent, send } = collect();
+    const session = new GameSession(send, { dims: DIMS, seed: 5 });
+    session.handleMessage(1, join("ana", "1111"));
+    const h = findSpawnY(session.world, 1, 1);
+    const before = getBlock(session.world, 1, h, 1);
+    sent.length = 0;
+
+    session.handleMessage(1, chatCmd(`/bloco 1 ${h} 1 ${BlockId.Stone}`));
+    session.handleMessage(1, chatCmd("/resetpin ana"));
+    expect(getBlock(session.world, 1, h, 1)).toBe(before);
+    expect(sent).toHaveLength(2);
+    for (const s of sent) {
+      expect(s.clientId).toBe(1);
+      const msg = parseServerMessage(s.data as string);
+      if (msg?.type !== "chat") throw new Error("esperava chat");
+      expect(msg.text).toContain("só o professor");
+    }
+  });
+
+  it("/resetpin apaga o PIN e a próxima entrada registra um novo", () => {
+    const { sent, send } = collect();
+    const codigoHash = hashSecret("codigo", "salaverde");
+    const session = new GameSession(send, { dims: DIMS, codigoHash });
+    session.handleMessage(1, join("prof", "4321", "salaverde"));
+    session.handleMessage(2, join("ana", "1111"));
+    session.handleDisconnect(2); // ana esqueceu o PIN e saiu
+    sent.length = 0;
+
+    session.handleMessage(1, chatCmd("/resetpin ana"));
+    const reply = parseServerMessage(sent[0]?.data as string);
+    if (reply?.type !== "chat") throw new Error("esperava chat");
+    expect(reply.text).toContain("apagado");
+    sent.length = 0;
+
+    // nome sem PIN registrado: resposta explica
+    session.handleMessage(1, chatCmd("/resetpin beto"));
+    const missing = parseServerMessage(sent[0]?.data as string);
+    if (missing?.type !== "chat") throw new Error("esperava chat");
+    expect(missing.text).toContain("não tem PIN");
+    sent.length = 0;
+
+    // ana volta com PIN NOVO (o velho não vale mais nada)
+    session.handleMessage(3, join("ana", "2222"));
+    expect(parseServerMessage(sent[0]?.data as string)?.type).toBe("spawn");
+    session.handleDisconnect(3);
+    sent.length = 0;
+    session.handleMessage(3, join("ana", "1111")); // PIN velho
+    expect(parseServerMessage(sent[0]?.data as string)).toEqual({
+      type: "join_denied", reason: "PIN errado",
+    });
+  });
+
+  it("singleplayer: entra sem PIN como professor, e o save NÃO carrega papel/PIN", () => {
+    const { sent, send } = collect();
+    const session = new GameSession(send, { dims: DIMS, seed: 5, singleplayer: true });
+    session.handleMessage(0, join("dona do mundo"));
+    const welcome = sent
+      .map((s) => (typeof s.data === "string" ? parseServerMessage(s.data) : null))
+      .find((m) => m?.type === "chat");
+    if (welcome?.type !== "chat") throw new Error("esperava boas-vindas");
+    expect(welcome.text).toContain("/bloco"); // professor automático
+
+    const h = findSpawnY(session.world, 1, 1);
+    session.handleMessage(0, chatCmd(`/bloco 1 ${h} 1 ${BlockId.Stone}`));
+    expect(getBlock(session.world, 1, h, 1)).toBe(BlockId.Stone);
+
+    // exportar este mundo pra LAN não pode dar professor de graça a ninguém
+    const meta = session.toSave();
+    const entry = meta.roster.find((p) => p.name === "dona do mundo");
+    expect(entry?.papel).toBeUndefined();
+    expect(entry?.pinHash).toBeUndefined();
+    expect(meta.codigoHash).toBeUndefined();
+  });
+
+  it("identidade sobrevive ao save/restore: recarregou, o MESMO PIN vale", () => {
+    const { send } = collect();
+    const codigoHash = hashSecret("codigo", "salaverde");
+    const s1 = new GameSession(send, { dims: DIMS, seed: 5, codigoHash });
+    s1.handleMessage(1, join("prof", "4321", "salaverde"));
+    s1.handleMessage(2, join("ana", "1111"));
+    s1.handleDisconnect(1);
+    s1.handleDisconnect(2);
+
+    const { sent: sent2, send: send2 } = collect();
+    const s2 = new GameSession(send2, { restore: { world: s1.world, ...s1.toSave() } });
+    s2.handleMessage(7, join("ana", "9999"));
+    expect(parseServerMessage(sent2[0]?.data as string)).toEqual({
+      type: "join_denied", reason: "PIN errado",
+    });
+    sent2.length = 0;
+    s2.handleMessage(7, join("ana", "1111"));
+    expect(parseServerMessage(sent2[0]?.data as string)?.type).toBe("spawn");
+    sent2.length = 0;
+
+    // professor volta professor (papel restaurado do save, sem código)
+    s2.handleMessage(8, join("prof", "4321"));
+    const welcome = sent2
+      .map((s) => (typeof s.data === "string" ? parseServerMessage(s.data) : null))
+      .find((m) => m?.type === "chat");
+    if (welcome?.type !== "chat") throw new Error("esperava boas-vindas");
+    expect(welcome.text).toContain("/resetpin");
   });
 });

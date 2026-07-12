@@ -31,9 +31,17 @@ export interface PlayWorldChoice {
   data: ArrayBuffer | null;
 }
 
+/** Credenciais do join em rede (cp9). PIN NUNCA persiste em localStorage —
+ *  PC de laboratório é compartilhado; guardar deixaria o próximo aluno entrar
+ *  com o nome do anterior. */
+export interface MultiAuth {
+  pin: string;
+  codigo?: string;
+}
+
 export interface MenuHandlers {
   onPlayWorld(choice: PlayWorldChoice): void;
-  onPlayMulti(url: string): void;
+  onPlayMulti(url: string, auth: MultiAuth): void;
 }
 
 const NAME_KEY = "lj-nome";
@@ -163,6 +171,8 @@ export function showMenu(handlers: MenuHandlers): void {
 
   // --- jogar em rede ---
   const addr = el<HTMLInputElement>("menu-endereco");
+  const pinInput = el<HTMLInputElement>("menu-pin");
+  const codigoInput = el<HTMLInputElement>("menu-codigo");
   addr.value = localStorage.getItem("lj-endereco") ?? `ws://${location.hostname}:8080`;
   el("menu-btn-conectar").addEventListener("click", () => {
     const url = addr.value.trim();
@@ -170,9 +180,15 @@ export function showMenu(handlers: MenuHandlers): void {
       alert("endereço precisa começar com ws:// (ex.: ws://192.168.0.10:8080)");
       return;
     }
-    localStorage.setItem("lj-endereco", url);
+    const pin = pinInput.value.trim();
+    if (!/^\d{4}$/.test(pin)) {
+      alert("PIN precisa ter 4 números (a primeira entrada com seu nome registra o PIN)");
+      return;
+    }
+    localStorage.setItem("lj-endereco", url); // só o endereço — PIN nunca
+    const codigo = codigoInput.value.trim();
     menu.classList.add("hidden");
-    handlers.onPlayMulti(url);
+    handlers.onPlayMulti(url, { pin, ...(codigo ? { codigo } : {}) });
   });
 
   buildConfigScreen();

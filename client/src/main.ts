@@ -21,7 +21,7 @@ import { type Connection, WorkerConnection, WsConnection } from "./connection";
 import { emitGameEvent } from "./events";
 import { Hud } from "./hud";
 import { Input } from "./input";
-import { type PlayWorldChoice, getPlayerName, showMenu } from "./menu";
+import { type MultiAuth, type PlayWorldChoice, getPlayerName, showMenu } from "./menu";
 import { loadSettings } from "./settings";
 import { putWorld } from "./worldStore";
 
@@ -131,6 +131,11 @@ function handleServerData(data: string | ArrayBuffer): void {
       serverSpawn = { x: msg.x, y: msg.y, z: msg.z };
     } else if (msg.type === "teleport") {
       applyTeleport?.(msg);
+    } else if (msg.type === "join_denied") {
+      // servidor recusou (PIN errado, nome em uso…): avisa e volta pro menu
+      // limpo (location sem query — cobre também o boot via ?server=)
+      alert(`não deu pra entrar: ${msg.reason}`);
+      location.href = location.pathname;
     } else if (msg.type === "chat") {
       chat.addMessage(msg.author, msg.text);
       emitGameEvent({ kind: "chat_message" });
@@ -144,7 +149,7 @@ function handleServerData(data: string | ArrayBuffer): void {
 
 // --- Iniciar jogo (menu ou URL escolhem o hospedeiro) ---
 
-function connect(c: Connection): void {
+function connect(c: Connection, auth?: MultiAuth): void {
   settings = applySettings(); // menu pode ter mudado config antes do play
   conn = c;
   c.onMessage(handleServerData);
@@ -153,15 +158,23 @@ function connect(c: Connection): void {
     document.exitPointerLock();
     chat.openInput();
   });
-  c.send(JSON.stringify({ type: "join", name: playerName() }));
+  // singleplayer (sem auth) entra sem PIN — o worker é professor automático
+  c.send(
+    JSON.stringify({
+      type: "join",
+      name: playerName(),
+      ...(auth ? { pin: auth.pin } : {}),
+      ...(auth?.codigo ? { codigo: auth.codigo } : {}),
+    }),
+  );
 }
 
-function startMultiplayer(url: string): void {
+function startMultiplayer(url: string, auth: MultiAuth): void {
   serverHostLabel = url;
   // em rede quem salva é o host — o botão só volta pro menu
   const sair = document.getElementById("btn-sair");
   if (sair) sair.textContent = "voltar ao menu";
-  connect(new WsConnection(url));
+  connect(new WsConnection(url), auth);
 }
 
 function startSingleplayer(choice: PlayWorldChoice): void {
@@ -190,9 +203,15 @@ document.getElementById("btn-sair")?.addEventListener("click", () => {
   void persistWorld().finally(() => location.reload());
 });
 
-const bootServer = new URLSearchParams(location.search).get("server");
+const bootParams = new URLSearchParams(location.search);
+const bootServer = bootParams.get("server");
 if (bootServer) {
-  startMultiplayer(bootServer);
+  // link direto/testes: ?pin=1234 (e ?codigo=) fazem as vezes do menu
+  const codigo = bootParams.get("codigo");
+  startMultiplayer(bootServer, {
+    pin: bootParams.get("pin") ?? "",
+    ...(codigo ? { codigo } : {}),
+  });
 } else {
   showMenu({
     onPlayWorld: startSingleplayer,
@@ -370,7 +389,7 @@ function startGame(snap: Snapshot): void {
   });
 
   const hud = new Hud(renderer, {
-    checkpoint: 8,
+    checkpoint: 9,
     worldChunks: world.dims,
     worldSeed: snap.seed,
     serverHost: serverHostLabel,

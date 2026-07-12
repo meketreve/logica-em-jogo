@@ -1,3 +1,4 @@
+export * from "./auth";
 export * from "./blocks";
 export * from "./constants";
 export * from "./world";

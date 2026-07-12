@@ -67,3 +67,43 @@ describe("save .ljw (JSON de metadados + snapshot binário)", () => {
     expect([...new Uint8Array(buf, 0, 4)]).toEqual([0x4c, 0x4a, 0x53, 0x31]);
   });
 });
+
+describe("identidade cp9 no save", () => {
+  it("pinHash/papel/codigoHash fazem roundtrip; save ANTIGO sem eles segue válido", () => {
+    const world = generateWorld(DIMS, 42);
+    const meta = {
+      seed: 42,
+      spawn: { x: 16.5, y: 20, z: 16.5 },
+      roster: [
+        { name: "prof", x: 1, y: 20, z: 1, yaw: 0, pitch: 0,
+          pinHash: "00c0ffee00c0ffee", papel: "professor" as const },
+        { name: "ana", x: 2, y: 20, z: 2, yaw: 0, pitch: 0,
+          pinHash: "00badc0de0badc0d" },
+      ],
+      codigoHash: "0123456789abcdef",
+    };
+    const loaded = decodeSave(encodeSave(world, meta));
+    expect(loaded.codigoHash).toBe("0123456789abcdef");
+    expect(loaded.roster).toEqual(meta.roster);
+
+    // save "antigo" (META sem os campos novos): decodifica sem PIN/papel/código
+    const old = decodeSave(encodeSave(world, META));
+    expect(old.codigoHash).toBeUndefined();
+    expect(old.roster[0]?.pinHash).toBeUndefined();
+    expect(old.roster[0]?.papel).toBeUndefined();
+  });
+
+  it("pinHash/papel com tipo errado são descartados sem derrubar a entrada", () => {
+    const world = generateWorld(DIMS, 42);
+    const meta = {
+      ...META,
+      roster: [
+        // simula lixo vindo de fora: pinHash número, papel inventado
+        { name: "ana", x: 1, y: 2, z: 3, yaw: 0, pitch: 0,
+          pinHash: 1234, papel: "diretor" },
+      ],
+    } as never;
+    const loaded = decodeSave(encodeSave(world, meta));
+    expect(loaded.roster).toEqual([{ name: "ana", x: 1, y: 2, z: 3, yaw: 0, pitch: 0 }]);
+  });
+});

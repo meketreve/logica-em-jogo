@@ -159,7 +159,8 @@
         gap: 10px;
         font-size: 0.95rem;
       }
-      .menu-screen input[type="text"] {
+      .menu-screen input[type="text"],
+      .menu-screen input[type="password"] {
         font: inherit;
         flex: 1;
         padding: 8px 10px;
@@ -292,6 +293,14 @@
         <h2>Jogar em rede</h2>
         <label>endereço <input id="menu-endereco" type="text" autocomplete="off" /></label>
         <p class="menu-hint">pergunte ao professor o endereço (ex.: ws://192.168.0.10:8080)</p>
+        <label>PIN
+          <input id="menu-pin" type="password" inputmode="numeric" pattern="[0-9]*"
+            maxlength="4" autocomplete="off" placeholder="4 números" />
+        </label>
+        <p class="menu-hint">a primeira entrada com seu nome registra o PIN — não esqueça! (professor: /resetpin nome)</p>
+        <label>código do professor
+          <input id="menu-codigo" type="password" autocomplete="off" placeholder="só se você for o professor" />
+        </label>
         <button id="menu-btn-conectar" type="button">entrar</button>
         <button class="menu-back" type="button">← voltar</button>
       </section>
@@ -306,7 +315,7 @@
       <p>Clique para jogar</p>
       <p>WASD move · mouse olha · espaço pula · Esc solta o mouse</p>
       <p>botão esquerdo quebra · direito coloca · 1–9 e scroll escolhem bloco · F3 desempenho</p>
-      <p>Enter abre o chat (Esc fecha) · /bloco x y z id muda um bloco</p>
+      <p>Enter abre o chat (Esc fecha) · /bloco x y z id muda um bloco (professor)</p>
       <button id="btn-sair" type="button">💾 salvar e voltar ao menu</button>
     </div>
     <div id="crosshair">+</div>

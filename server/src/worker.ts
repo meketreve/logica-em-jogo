@@ -31,7 +31,8 @@ function startSession(save: ArrayBuffer | undefined, seed: number): void {
       if (typeof data === "string") postMessage(data);
       else postMessage(data, { transfer: [data] });
     },
-    { seed, restore, now: () => performance.now() },
+    // singleplayer: sem PIN, jogador é professor automático (cp9)
+    { seed, restore, singleplayer: true, now: () => performance.now() },
   );
   setInterval(() => session?.tick(), 1000 / SERVER_TICK_RATE);
 }

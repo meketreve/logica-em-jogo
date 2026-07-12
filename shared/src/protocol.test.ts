@@ -139,3 +139,29 @@ describe("parse de mensagens JSON", () => {
     expect(parseServerMessage('{"type":"outra"}')).toBeNull();
   });
 });
+
+describe("identidade cp9 no protocolo", () => {
+  it("join aceita pin/codigo opcionais; presentes-mas-não-string rejeitam TUDO", () => {
+    expect(parseClientMessage('{"type":"join","name":"ana","pin":"1234"}')).toEqual({
+      type: "join", name: "ana", pin: "1234",
+    });
+    expect(
+      parseClientMessage('{"type":"join","name":"p","pin":"4321","codigo":"salaverde"}'),
+    ).toEqual({ type: "join", name: "p", pin: "4321", codigo: "salaverde" });
+    // sem pin continua válido (singleplayer dispensa)
+    expect(parseClientMessage('{"type":"join","name":"ana"}')).toEqual({
+      type: "join", name: "ana",
+    });
+    // tipo errado = mensagem inteira inválida (parse defensivo)
+    expect(parseClientMessage('{"type":"join","name":"ana","pin":1234}')).toBeNull();
+    expect(parseClientMessage('{"type":"join","name":"ana","codigo":7}')).toBeNull();
+  });
+
+  it("join_denied: parse defensivo do lado do cliente", () => {
+    expect(parseServerMessage('{"type":"join_denied","reason":"PIN errado"}')).toEqual({
+      type: "join_denied", reason: "PIN errado",
+    });
+    expect(parseServerMessage('{"type":"join_denied"}')).toBeNull();
+    expect(parseServerMessage('{"type":"join_denied","reason":42}')).toBeNull();
+  });
+});

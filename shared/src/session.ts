@@ -1,3 +1,10 @@
+import {
+  MAX_PIN_ATTEMPTS,
+  PIN_LOCKOUT_MS,
+  type Papel,
+  hashSecret,
+  isValidPin,
+} from "./auth";
 import { BlockId, isBreakable, isPlaceable } from "./blocks";
 import {
   DEFAULT_WORLD_CHUNKS,
@@ -33,15 +40,32 @@ export interface SessionOptions {
   now?: () => number;
   /** Mundo carregado de um save (.ljw) — ignora dims/seed e NÃO gera terreno. */
   restore?: SaveData;
+  /** Hash do código de professor (host Node: LJ_CODIGO). Sobrepõe o do
+   *  restore — é o caminho de recuperação de código perdido. */
+  codigoHash?: string;
+  /**
+   * Hospedeiro singleplayer (Web Worker): join sem PIN e todo jogador é
+   * professor. Papel e PIN NÃO são registrados no save — um mundo single
+   * exportado e hospedado na LAN não pode dar professor de graça pra quem
+   * chegar primeiro com o nome do dono.
+   */
+  singleplayer?: boolean;
 }
 
 interface SessionPlayer {
   name: string;
+  papel: Papel;
   x: number;
   y: number;
   z: number;
   yaw: number;
   pitch: number;
+}
+
+/** Identidade que o MUNDO lembra (separada da posição — o roster). */
+interface Identity {
+  pinHash: string | undefined;
+  papel: Papel;
 }
 
 export class GameSession {
@@ -53,12 +77,21 @@ export class GameSession {
   tickCount = 0;
 
   private readonly players = new Map<number, SessionPlayer>();
-  /** Jogadores que o MUNDO lembra (por nome): volta onde parou, olhando pra
-   *  onde olhava. Base da identidade do cp9 (PIN e papel entram aqui). */
+  /** Última POSIÇÃO conhecida por nome: volta onde parou, olhando pra onde
+   *  olhava. Identidade (PIN/papel) mora no mapa separado `identity`. */
   private readonly roster = new Map<
     string,
     { x: number; y: number; z: number; yaw: number; pitch: number }
   >();
+  /** PIN e papel por nome (cp9). Vazio no singleplayer — ver SessionOptions. */
+  private readonly identity = new Map<string, Identity>();
+  /** Tentativas erradas de PIN por nome — rate-limit da ameaça real (colega
+   *  na LAN chutando 10 mil combinações). Não persiste no save. */
+  private readonly pinFails = new Map<string, { fails: number; lockedUntil: number }>();
+  private codigoFails = 0;
+  private codigoLockedUntil = 0;
+  private readonly singleplayer: boolean;
+  private readonly codigoHash: string | undefined;
   private readonly now: () => number;
   private tickMsSum = 0;
   private tickMsMax = 0;
@@ -73,6 +106,8 @@ export class GameSession {
     opts: SessionOptions = {},
   ) {
     this.now = opts.now ?? (() => Date.now());
+    this.singleplayer = opts.singleplayer ?? false;
+    this.codigoHash = opts.codigoHash ?? opts.restore?.codigoHash;
     if (opts.restore) {
       // mundo vem do save: NADA é recalculado (spawn é do terreno pristino —
       // recalcular sobre mundo escavado repetiria o bug-010)
@@ -81,6 +116,11 @@ export class GameSession {
       this.spawn = { ...opts.restore.spawn };
       for (const p of opts.restore.roster) {
         this.roster.set(p.name, { x: p.x, y: p.y, z: p.z, yaw: p.yaw, pitch: p.pitch });
+        // identidade restaurada MESMO no singleplayer: mundo de LAN importado
+        // e re-exportado não perde os PINs da turma (aqui ela só não é usada)
+        if (p.pinHash || p.papel === "professor") {
+          this.identity.set(p.name, { pinHash: p.pinHash, papel: p.papel ?? "aluno" });
+        }
       }
     } else {
       this.seed = opts.seed ?? 1;
@@ -108,8 +148,74 @@ export class GameSession {
     return {
       seed: this.seed,
       spawn: { ...this.spawn },
-      roster: [...merged.entries()].map(([name, pos]) => ({ name, ...pos })),
+      roster: [...merged.entries()].map(([name, pos]) => {
+        const id = this.identity.get(name);
+        return {
+          name,
+          ...pos,
+          // JSON.stringify descarta undefined — aluno sem PIN sai enxuto
+          pinHash: id?.pinHash,
+          papel: id?.papel === "professor" ? ("professor" as const) : undefined,
+        };
+      }),
+      ...(this.codigoHash ? { codigoHash: this.codigoHash } : {}),
     };
+  }
+
+  /**
+   * Valida a entrada (PIN + código de professor) e, se aceita, registra
+   * PIN novo/papel no identity. Devolve o MOTIVO da recusa, ou null se ok.
+   * Nunca chamada no singleplayer.
+   */
+  private authenticate(
+    name: string,
+    pin: string | undefined,
+    codigo: string | undefined,
+  ): string | null {
+    // nome já ONLINE: segundo cliente com o mesmo nome fundiria os dois no
+    // roster (bug-061 — o PIN fecha o resto do caso)
+    for (const p of this.players.values()) {
+      if (p.name === name) return `"${name}" já está no jogo — escolha outro nome`;
+    }
+    const gate = this.pinFails.get(name);
+    if (gate && gate.lockedUntil > this.now()) {
+      return "muitas tentativas erradas — espere meio minuto";
+    }
+    if (pin === undefined || !isValidPin(pin)) return "PIN precisa ter 4 números";
+    const id = this.identity.get(name);
+    if (id?.pinHash) {
+      if (hashSecret(name, pin) !== id.pinHash) {
+        const fails = (gate?.fails ?? 0) + 1;
+        this.pinFails.set(name, {
+          fails,
+          lockedUntil: fails >= MAX_PIN_ATTEMPTS ? this.now() + PIN_LOCKOUT_MS : 0,
+        });
+        return "PIN errado";
+      }
+      this.pinFails.delete(name);
+    }
+    // código de professor: errado NEGA (professor que digitou errado precisa
+    // saber, não entrar como aluno em silêncio); rate-limit próprio, global —
+    // chutar código troca de nome a cada tentativa, o gate por nome não pega
+    let papel: Papel = id?.papel ?? "aluno";
+    if (codigo !== undefined && codigo !== "") {
+      if (this.codigoLockedUntil > this.now()) {
+        return "muitas tentativas de código — espere meio minuto";
+      }
+      if (!this.codigoHash || hashSecret("codigo", codigo) !== this.codigoHash) {
+        this.codigoFails++;
+        if (this.codigoFails >= MAX_PIN_ATTEMPTS) {
+          this.codigoLockedUntil = this.now() + PIN_LOCKOUT_MS;
+          this.codigoFails = 0;
+        }
+        return "código de professor errado";
+      }
+      this.codigoFails = 0;
+      papel = "professor";
+    }
+    // 1ª entrada com o nome registra o PIN; papel fica gravado pro rejoin
+    this.identity.set(name, { pinHash: id?.pinHash ?? hashSecret(name, pin), papel });
+    return null;
   }
 
   /** Mensagem crua vinda do transporte. Inválida = descartada em silêncio. */
@@ -119,11 +225,26 @@ export class GameSession {
     switch (msg.type) {
       case "join": {
         const name = msg.name.trim().slice(0, MAX_NAME_LENGTH) || "jogador";
+        // identidade (cp9): PIN + código de professor. Singleplayer dispensa
+        // (mundo do próprio jogador) e todo join é professor.
+        let papel: Papel = "professor";
+        if (!this.singleplayer) {
+          const denied = this.authenticate(name, msg.pin, msg.codigo);
+          if (denied !== null) {
+            this.send(
+              clientId,
+              JSON.stringify({ type: "join_denied", reason: denied } satisfies ServerMessage),
+            );
+            return;
+          }
+          papel = this.identity.get(name)?.papel ?? "aluno";
+        }
         // mundo salvo lembra o jogador: volta onde parou (senão, spawn do mundo)
         const returning = this.roster.get(name);
         const start = returning ?? this.spawn;
         this.players.set(clientId, {
           name,
+          papel,
           x: start.x,
           y: start.y,
           z: start.z,
@@ -146,7 +267,8 @@ export class GameSession {
         }
         this.sendServerChat(
           clientId,
-          `bem-vindo, ${this.authorTag(clientId)}! Enter abre o chat · /bloco x y z id`,
+          `bem-vindo, ${this.authorTag(clientId)}! Enter abre o chat` +
+            (papel === "professor" ? " · /bloco x y z id · /resetpin nome" : ""),
         );
         // Presença (bug-064): jogador PARADO não manda move — sem isto o
         // recém-chegado só via quem se mexia. Estado atual de todo mundo pro
@@ -215,7 +337,7 @@ export class GameSession {
         if (!text) return;
         if (text.startsWith("/")) {
           // comando: executa no servidor, resposta SÓ pro autor
-          this.sendServerChat(clientId, this.runCommand(text));
+          this.sendServerChat(clientId, this.runCommand(clientId, text));
           return;
         }
         this.broadcast({ type: "chat", author: this.authorTag(clientId), text });
@@ -225,31 +347,46 @@ export class GameSession {
   }
 
   /**
-   * Comandos de chat (prefixo "/"). v0: só /bloco — existe pra provar o
+   * Comandos de chat (prefixo "/"), resposta SÓ pro autor. Privilegiados
+   * (/bloco, /resetpin) exigem papel professor (cp9). /bloco prova o
    * pipeline comando→estado→broadcast: a mudança sai como block_changed
    * normal e acorda as regras de vizinhança (areia cai), igual a qualquer
    * ação de jogador. Sem checagem de alcance: comando é teleoperação.
-   * Devolve a resposta pro autor.
    */
-  private runCommand(text: string): string {
+  private runCommand(clientId: number, text: string): string {
     const parts = text.slice(1).split(/\s+/);
-    if (parts[0] !== "bloco") {
-      return `comando desconhecido: ${text} (existe: /bloco x y z id)`;
+    const professor = this.players.get(clientId)?.papel === "professor";
+    switch (parts[0]) {
+      case "bloco": {
+        if (!professor) return "só o professor pode usar /bloco";
+        const x = Number(parts[1]);
+        const y = Number(parts[2]);
+        const z = Number(parts[3]);
+        const id = Number(parts[4]);
+        if (parts.length !== 5 || ![x, y, z, id].every(Number.isInteger)) {
+          return "uso: /bloco x y z id (inteiros; 0=ar; demais ids na ordem da hotbar)";
+        }
+        if (!inBounds(this.world, x, y, z)) return `(${x}, ${y}, ${z}) está fora do mundo`;
+        if (id !== BlockId.Air && !isPlaceable(id)) return `id de bloco inválido: ${id}`;
+        if (id !== BlockId.Air && this.overlapsAnyPlayer(x, y, z)) {
+          return "tem um jogador nessa célula";
+        }
+        this.applyBlock(x, y, z, id);
+        return `bloco (${x}, ${y}, ${z}) = ${id}`;
+      }
+      case "resetpin": {
+        if (!professor) return "só o professor pode usar /resetpin";
+        const alvo = parts[1];
+        if (parts.length !== 2 || !alvo) return "uso: /resetpin nome";
+        const id = this.identity.get(alvo);
+        if (!id?.pinHash) return `"${alvo}" não tem PIN registrado neste mundo`;
+        id.pinHash = undefined;
+        this.pinFails.delete(alvo); // destrava tentativas antigas junto
+        return `PIN de "${alvo}" apagado — a próxima entrada com esse nome registra um novo`;
+      }
+      default:
+        return `comando desconhecido: ${text} (existem: /bloco x y z id · /resetpin nome)`;
     }
-    const x = Number(parts[1]);
-    const y = Number(parts[2]);
-    const z = Number(parts[3]);
-    const id = Number(parts[4]);
-    if (parts.length !== 5 || ![x, y, z, id].every(Number.isInteger)) {
-      return "uso: /bloco x y z id (inteiros; 0=ar; demais ids na ordem da hotbar)";
-    }
-    if (!inBounds(this.world, x, y, z)) return `(${x}, ${y}, ${z}) está fora do mundo`;
-    if (id !== BlockId.Air && !isPlaceable(id)) return `id de bloco inválido: ${id}`;
-    if (id !== BlockId.Air && this.overlapsAnyPlayer(x, y, z)) {
-      return "tem um jogador nessa célula";
-    }
-    this.applyBlock(x, y, z, id);
-    return `bloco (${x}, ${y}, ${z}) = ${id}`;
   }
 
   /** Nome público do jogador no chat: nome#id (distingue nomes repetidos). */
