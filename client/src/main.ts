@@ -129,7 +129,20 @@ conn.onMessage((data) => {
   startGame(decodeSnapshot(data));
 });
 
-conn.send(JSON.stringify({ type: "join", name: "jogador" }));
+// Nome único por navegador até menu/PIN chegarem (cp8/cp9): o roster do save
+// é por NOME — dois "jogador" idênticos eram a MESMA pessoa pro mundo e
+// voltavam no mesmo lugar (bug-061). `?nome=ana` na URL força um nome.
+function playerName(): string {
+  const fromUrl = new URLSearchParams(location.search).get("nome");
+  if (fromUrl) return fromUrl;
+  let stored = localStorage.getItem("lj-nome");
+  if (!stored) {
+    stored = `jogador-${Math.random().toString(36).slice(2, 6)}`;
+    localStorage.setItem("lj-nome", stored);
+  }
+  return stored;
+}
+conn.send(JSON.stringify({ type: "join", name: playerName() }));
 
 // --- Jogo (só começa quando o snapshot chega do servidor) ---
 function startGame(snap: Snapshot): void {
@@ -184,30 +197,40 @@ function startGame(snap: Snapshot): void {
     );
   };
 
-  // --- Outros jogadores: caixa colorida por id (lerp SÓ se serrilhar — gatilho) ---
-  const remotePlayers = new Map<number, THREE.Mesh>();
+  // --- Outros jogadores: caixa colorida por id, com LERP (gatilho disparou:
+  // usuário reportou serrilhado — updates chegam a 10 Hz, o render interpola) ---
+  interface RemotePlayer {
+    mesh: THREE.Mesh;
+    target: THREE.Vector3;
+    targetYaw: number;
+  }
+  const remotePlayers = new Map<number, RemotePlayer>();
   applyPlayerMoved = (msg) => {
-    let mesh = remotePlayers.get(msg.id);
-    if (!mesh) {
-      mesh = new THREE.Mesh(
+    let rp = remotePlayers.get(msg.id);
+    if (!rp) {
+      const mesh = new THREE.Mesh(
         new THREE.BoxGeometry(PLAYER.width, PLAYER.height, PLAYER.width),
         new THREE.MeshLambertMaterial({
           color: new THREE.Color().setHSL((msg.id * 0.618034) % 1, 0.7, 0.5),
         }),
       );
+      // primeira vez: aparece JÁ no lugar (sem deslizar desde a origem)
+      mesh.position.set(msg.x, msg.y + PLAYER.height / 2, msg.z);
+      mesh.rotation.y = msg.yaw;
       scene.add(mesh);
-      remotePlayers.set(msg.id, mesh);
+      rp = { mesh, target: mesh.position.clone(), targetYaw: msg.yaw };
+      remotePlayers.set(msg.id, rp);
     }
     // pos do servidor = pés do jogador; BoxGeometry é centrada
-    mesh.position.set(msg.x, msg.y + PLAYER.height / 2, msg.z);
-    mesh.rotation.y = msg.yaw;
+    rp.target.set(msg.x, msg.y + PLAYER.height / 2, msg.z);
+    rp.targetYaw = msg.yaw;
   };
   applyPlayerLeft = (id) => {
-    const mesh = remotePlayers.get(id);
-    if (!mesh) return;
-    scene.remove(mesh);
-    mesh.geometry.dispose();
-    (mesh.material as THREE.Material).dispose();
+    const rp = remotePlayers.get(id);
+    if (!rp) return;
+    scene.remove(rp.mesh);
+    rp.mesh.geometry.dispose();
+    (rp.mesh.material as THREE.Material).dispose();
     remotePlayers.delete(id);
   };
 
@@ -347,6 +370,15 @@ function startGame(snap: Snapshot): void {
 
     stepPlayer(world, player, { forward, strafe, jump, yaw: input.yaw }, dt);
     if (player.pos.y < -16) respawn(); // caiu da borda do mundo
+
+    // jogadores remotos deslizam até o último update (suave mesmo a 10 Hz);
+    // fator exponencial = independente do FPS (~90% do caminho em ~190 ms)
+    const k = 1 - Math.exp(-dt * 12);
+    for (const rp of remotePlayers.values()) {
+      rp.mesh.position.lerp(rp.target, k);
+      const dyaw = rp.targetYaw - rp.mesh.rotation.y;
+      rp.mesh.rotation.y += Math.atan2(Math.sin(dyaw), Math.cos(dyaw)) * k;
+    }
 
     camera.position.set(player.pos.x, player.pos.y + PLAYER.eyeHeight, player.pos.z);
     camera.rotation.set(input.pitch, input.yaw, 0);

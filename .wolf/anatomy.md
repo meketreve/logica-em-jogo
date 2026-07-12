@@ -1,6 +1,6 @@
 # anatomy.md
 
-> Auto-maintained by OpenWolf. Last scanned: 2026-07-12T01:47:01.702Z
+> Auto-maintained by OpenWolf. Last scanned: 2026-07-12T02:02:28.010Z
 > Files: 38 tracked | Anatomy hits: 0 | Misses: 0
 
 ## ../../../tmp/claude-1000/-home-meketreve-logica-em-jogo/a0d99221-e98e-49ca-885e-fb3fd914cb11/scratchpad/
@@ -40,7 +40,7 @@
 - `events.ts` — Gatilhos de som (checkpoint 6): pontos de evento do jogo onde o áudio vai (~172 tok)
 - `hud.ts` — HUD de perfilação (F3): FPS, frametime méd+p95, remesh, draw calls e (~1099 tok)
 - `input.ts` — Teclado + mouse (pointer lock). SÓ coleta input — nenhuma decisão de (~1069 tok)
-- `main.ts` — Checkpoint 6: chat + 1 comando (/bloco, parser no SERVIDOR — fecha o MVP v0). (~3645 tok)
+- `main.ts` — Checkpoint 6: chat + 1 comando (/bloco, parser no SERVIDOR — fecha o MVP v0). (~4044 tok)
 
 ## server/
 

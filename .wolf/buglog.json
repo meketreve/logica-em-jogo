@@ -991,6 +991,74 @@
       "related_bugs": [],
       "occurrences": 1,
       "last_seen": "2026-07-12T01:47:52.936Z"
+    },
+    {
+      "id": "bug-061",
+      "timestamp": "2026-07-12T02:02:02.013Z",
+      "error_message": "Missing guard clause",
+      "file": "client/src/main.ts",
+      "root_cause": "No early return/throw for edge case: fromUrl",
+      "fix": "Added guard clause: if (fromUrl)",
+      "tags": [
+        "auto-detected",
+        "guard-clause",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-12T02:02:02.013Z"
+    },
+    {
+      "id": "bug-062",
+      "timestamp": "2026-07-12T02:02:17.024Z",
+      "error_message": "Significant refactor of ",
+      "file": "client/src/main.ts",
+      "root_cause": "11 lines replaced/restructured",
+      "fix": "Rewrote 26→36 lines (11 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-12T02:02:17.024Z"
+    },
+    {
+      "id": "bug-061",
+      "timestamp": "2026-07-12T02:03:36.195Z",
+      "error_message": "usuário: \"ambos os jogadores voltaram no lugar de um dos jogadores\" após fechar/reabrir o servidor com save",
+      "file": "client/src/main.ts",
+      "root_cause": "roster do save é indexado por NOME e todos os clientes entravam com o nome fixo \"jogador\" — pro mundo eram a mesma pessoa; o último disconnect sobrescrevia a posição do outro",
+      "fix": "nome único por navegador: localStorage lj-nome = jogador-<4 chars aleatórios> (?nome=x na URL força). Fix DEFINITIVO é identidade real com PIN no cp9.",
+      "tags": [
+        "save",
+        "roster",
+        "identidade",
+        "nome",
+        "cp7"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-12T02:03:36.195Z"
+    },
+    {
+      "id": "bug-062",
+      "timestamp": "2026-07-12T02:03:36.195Z",
+      "error_message": "usuário: movimentação de outro jogador \"muito serrilhada\" (pediu mais frequência de update)",
+      "file": "client/src/main.ts",
+      "root_cause": "player_moved chega a 10 Hz e a caixa remota pulava direto pra cada update — gatilho do lerp previsto na política de otimização disparou",
+      "fix": "interpolação exponencial no render loop (fator 1-exp(-dt*12), ~90% em 190 ms; yaw pelo caminho curto). Taxa segue 10 Hz — subir frequência dobraria tráfego e continuaria discreto.",
+      "tags": [
+        "lerp",
+        "netcode",
+        "player_moved",
+        "render",
+        "gatilho-otimizacao"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-12T02:03:36.195Z"
     }
   ]
 }

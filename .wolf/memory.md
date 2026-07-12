@@ -350,3 +350,8 @@ Bug-010 achado na playtest (rejoin no fundo do buraco) e corrigido; bug-011 (tsx
 | 23:00 | MVP v1 aprovado + decisões: host salva no LAN, singleplayer salva no navegador, código professor na criação, menu principal no escopo (single/multi/config) | .wolf/STATUS.md .wolf/cerebrum.md | plano travado | ~2k |
 | 23:30 | cp7 save/load: save.ts (.ljw = LJS1+JSON meta+snapshot), session restore/toSave/roster, msg teleport, host com LJ_PORT/LJ_SAVE/autosave/SIGINT atômico, gitignore *.ljw | shared/{save,session,protocol}.ts server/index.ts client/main.ts + testes | 67 testes ✅ smoke 2 fases ✅ | ~14k |
 | 23:35 | bug-060: kill(SIGINT) em spawn(npx) não propaga árvore npx→tsx→node — usar spawn(node,[--import,tsx,...]) direto | buglog | logado | ~1k |
+| 22:49 | Session end: 68 writes across 21 files (constants.ts, protocol.ts, session.ts, session.test.ts, protocol.test.ts) | 19 reads | ~37170 tok |
+| 23:02 | Edited client/src/main.ts | added 2 condition(s) | ~177 |
+| 23:02 | Edited client/src/main.ts | modified if() | ~388 |
+| 23:02 | Edited client/src/main.ts | expanded (+9 lines) | ~160 |
+| 23:55 | Playtest cp7 ✅ com 2 achados corrigidos: bug-061 (nome fixo "jogador" fundia jogadores no roster → nome único por navegador via localStorage) e bug-062 (serrilhado → lerp exponencial no render, gatilho da política disparou) | client/src/main.ts .wolf/buglog.json | typecheck+build+screenshot ✅ | ~5k |

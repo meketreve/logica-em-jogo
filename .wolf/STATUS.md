@@ -216,7 +216,8 @@ arquivo morto/backup dos docs. Backup do código: git (repo privado no GitHub) �
 **Adiadas (só com gatilho medido):**
 - Greedy meshing ← FPS baixo em PC do lab (32³: ~73k→4k vértices, mas remesh + UV complicam).
 - Meshing em Web Worker ← hitch de frame ao editar/carregar chunk.
-- Lerp de jogadores remotos ← movimento serrilhado no checkpoint 5.
+- ✅ Lerp de jogadores remotos — GATILHO DISPAROU (2026-07-11, usuário reportou
+  serrilhado): interpolação exponencial no render loop (bug-062). Taxa segue 10 Hz.
 - gzip no save ← save > alguns MB.
 
 **Proibidas (overengineering p/ 20 alunos LAN, mundo pequeno):**
@@ -281,6 +282,11 @@ em `/shared` desde o checkpoint 2 (gravidade testável sem abrir navegador); cad
    (5 linhas). 67 testes (7 novos), typecheck 3/3, build ok. Smoke real 2 fases
    (sobe→edita→SIGINT→reabre): tijolo persiste, ana volta onde parou ✅.
    `.gitignore`: *.ljw. Worker (singleplayer) NÃO salva ainda — é o cp8.
+   Playtest ✅ (2026-07-11: "editei, fechei, voltei e salvou") com 2 achados,
+   ambos corrigidos: bug-061 (todos os clientes entravam como "jogador" → roster
+   por nome fundia os dois; ponte = nome único por navegador via localStorage
+   `lj-nome`, `?nome=` força; fix DEFINITIVO = PIN no cp9) e bug-062 (movimento
+   remoto serrilhado → lerp exponencial, ver política de otimização).
 2. **cp8 — menu principal** (HTML/CSS por cima, sem GUI de engine): título →
    • Singleplayer: listar mundos do IndexedDB, criar (nome; dims default), entrar,
      EXPORTAR .ljw (download) e IMPORTAR (upload) — mesmo formato do host;

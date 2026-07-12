@@ -101,6 +101,12 @@
 - Hotbar: 1–9 escolhe direto, scroll do mouse cicla TODOS os colocáveis
   (`input.onWheel`, só com pointer lock). Ordem do array PLACEABLE = ordem
   dos ids — o texto de uso do /bloco aponta pra hotbar.
+- Lerp de jogador remoto (bug-062): fator exponencial `1-exp(-dt*12)` por frame
+  (independe do FPS), yaw pelo caminho curto via `atan2(sin Δ, cos Δ)`. Caixa
+  NASCE já na primeira posição recebida (senão desliza desde a origem).
+- Identidade provisória do cliente (até cp9): nome único por navegador em
+  localStorage `lj-nome` (`jogador-<4 chars>`), `?nome=x` na URL sobrescreve.
+  Roster do save é POR NOME — nomes iguais são a mesma pessoa pro mundo (bug-061).
 
 ## Do-Not-Repeat
 
