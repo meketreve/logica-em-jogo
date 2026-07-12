@@ -395,3 +395,15 @@ Bug-010 achado na playtest (rejoin no fundo do buraco) e corrigido; bug-011 (tsx
 | 10:56 | Edited client/src/main.ts | 7→9 lines | ~83 |
 | 10:57 | Edited shared/src/protocol.test.ts | 7→7 lines | ~138 |
 | 11:05 | Orientação no save (pedido do usuário): roster+SavedPlayer com yaw/pitch, teleport orientado, cliente aponta câmera; compat com save antigo (default 0) testada | shared/{save,session,protocol}.ts client/main.ts + testes | 68 testes ✅ | ~5k |
+| 10:58 | Session end: 105 writes across 27 files (constants.ts, protocol.ts, session.ts, session.test.ts, protocol.test.ts) | 24 reads | ~50381 tok |
+
+## Sessão 2026-07-11/12 — resumo (wrap-up pré /clear)
+- Cp6 (chat+/bloco) → MVP v0 FECHADO com playtest. Cp7 (save/load .ljw no host,
+  roster volta-onde-parou) e cp8 (menu principal, IndexedDB, export/import,
+  configurações) FECHADOS com playtest. Grupo A: 14 blocos novos.
+- Fixes pós-playtest: lerp remoto (bug-062), nome único por navegador (bug-061),
+  rebind 1-captura (bug-075), presença no join (bug-076), move reativo
+  (heartbeat 2 s), coords no F3, orientação yaw/pitch no save.
+- Decisões: PIN 4 dígitos (não senha), host salva no LAN + navegador salva no
+  single, código de professor na criação, MVP v1 "Aula persistente" aprovado.
+- PRÓXIMO: cp9 (PIN + papel de professor) — detalhes no STATUS.md.

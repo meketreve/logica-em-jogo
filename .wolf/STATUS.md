@@ -1,7 +1,8 @@
 # STATUS — Projeto "Lógica em Jogo" (jogo voxel educacional)
 
 > Single source of truth for resuming work. Read this FIRST when starting a session.
-> Last updated: 2026-07-11
+> Last updated: 2026-07-12
+> **PRÓXIMA QUEST: cp9 — PIN + papel de professor (fecha o MVP v1). Ver checkpoints abaixo.**
 
 ---
 
@@ -311,11 +312,18 @@ em `/shared` desde o checkpoint 2 (gravidade testável sem abrir navegador); cad
    **+ Orientação persistida (2026-07-12, pedido do usuário):** roster/SavedPlayer
    ganharam yaw/pitch; `teleport` carrega orientação e o cliente aponta a câmera
    (input.yaw/pitch) — volta olhando pra onde olhava. Saves ANTIGOS continuam
-   válidos (campo faltando → 0; testado).
-3. **cp9 — PIN + papel de professor:** join vira nome+PIN (msg `join_denied` com
-   motivo); 1ª entrada registra no roster; `/resetpin nome`; código de professor
-   na criação do mundo; comandos privilegiados (`/bloco`, `/resetpin`) gated;
-   hash: crypto.subtle (Node E Worker) — session síncrona, resolver injeção.
+   válidos (campo faltando → 0; testado). Playtest do usuário ✅ ("funcionou").
+   **cp8 FECHADO.**
+3. **cp9 — PIN + papel de professor (PRÓXIMA QUEST):** join vira nome+PIN
+   (msg `join_denied` com motivo — cliente mostra e volta pro menu); 1ª entrada
+   com nome novo registra o PIN no roster; `/resetpin nome` (professor);
+   código de professor definido na CRIAÇÃO do mundo (host Node: env LJ_CODIGO?;
+   decidir); comandos privilegiados (`/bloco`, `/resetpin`) gated por papel;
+   singleplayer (worker) = professor automático. Cliente: campo PIN no menu
+   (tela rede; 4 dígitos, inputmode numeric). Hash: crypto.subtle existe em
+   Node E Worker, mas handleMessage é SÍNCRONO — opções: hash injetado pelo
+   host (como opts.now) ou pré-hash no cliente antes do join. Resolver na quest.
+   Ameaça real = colega na LAN (10k combinações + rate-limit no join basta).
 4. **cp10 (se sobrar fôlego)** — validação de física do move no servidor.
 
 **Critérios de aceitação do MVP v1:**
