@@ -1,10 +1,4 @@
-import {
-  MAX_PIN_ATTEMPTS,
-  PIN_LOCKOUT_MS,
-  type Papel,
-  hashSecret,
-  isValidPin,
-} from "./auth";
+import { MAX_PIN_ATTEMPTS, PIN_LOCKOUT_MS, type Papel, isValidPin } from "./auth";
 import { BlockId, isBreakable, isPlaceable } from "./blocks";
 import {
   DEFAULT_WORLD_CHUNKS,
@@ -40,9 +34,9 @@ export interface SessionOptions {
   now?: () => number;
   /** Mundo carregado de um save (.ljw) — ignora dims/seed e NÃO gera terreno. */
   restore?: SaveData;
-  /** Hash do código de professor (host Node: LJ_CODIGO). Sobrepõe o do
-   *  restore — é o caminho de recuperação de código perdido. */
-  codigoHash?: string;
+  /** Código de professor em texto puro (host Node: LJ_CODIGO). Sobrepõe o
+   *  do restore — é o caminho de troca/recuperação de código. */
+  codigo?: string;
   /**
    * Hospedeiro singleplayer (Web Worker): join sem PIN e todo jogador é
    * professor. Papel e PIN NÃO são registrados no save — um mundo single
@@ -64,7 +58,7 @@ interface SessionPlayer {
 
 /** Identidade que o MUNDO lembra (separada da posição — o roster). */
 interface Identity {
-  pinHash: string | undefined;
+  pin: string | undefined;
   papel: Papel;
 }
 
@@ -91,7 +85,7 @@ export class GameSession {
   private codigoFails = 0;
   private codigoLockedUntil = 0;
   private readonly singleplayer: boolean;
-  private readonly codigoHash: string | undefined;
+  private readonly codigo: string | undefined;
   private readonly now: () => number;
   private tickMsSum = 0;
   private tickMsMax = 0;
@@ -107,7 +101,7 @@ export class GameSession {
   ) {
     this.now = opts.now ?? (() => Date.now());
     this.singleplayer = opts.singleplayer ?? false;
-    this.codigoHash = opts.codigoHash ?? opts.restore?.codigoHash;
+    this.codigo = opts.codigo ?? opts.restore?.codigo;
     if (opts.restore) {
       // mundo vem do save: NADA é recalculado (spawn é do terreno pristino —
       // recalcular sobre mundo escavado repetiria o bug-010)
@@ -118,8 +112,8 @@ export class GameSession {
         this.roster.set(p.name, { x: p.x, y: p.y, z: p.z, yaw: p.yaw, pitch: p.pitch });
         // identidade restaurada MESMO no singleplayer: mundo de LAN importado
         // e re-exportado não perde os PINs da turma (aqui ela só não é usada)
-        if (p.pinHash || p.papel === "professor") {
-          this.identity.set(p.name, { pinHash: p.pinHash, papel: p.papel ?? "aluno" });
+        if (p.pin || p.papel === "professor") {
+          this.identity.set(p.name, { pin: p.pin, papel: p.papel ?? "aluno" });
         }
       }
     } else {
@@ -154,11 +148,11 @@ export class GameSession {
           name,
           ...pos,
           // JSON.stringify descarta undefined — aluno sem PIN sai enxuto
-          pinHash: id?.pinHash,
+          pin: id?.pin,
           papel: id?.papel === "professor" ? ("professor" as const) : undefined,
         };
       }),
-      ...(this.codigoHash ? { codigoHash: this.codigoHash } : {}),
+      ...(this.codigo ? { codigo: this.codigo } : {}),
     };
   }
 
@@ -183,8 +177,8 @@ export class GameSession {
     }
     if (pin === undefined || !isValidPin(pin)) return "PIN precisa ter 4 números";
     const id = this.identity.get(name);
-    if (id?.pinHash) {
-      if (hashSecret(name, pin) !== id.pinHash) {
+    if (id?.pin) {
+      if (pin !== id.pin) {
         const fails = (gate?.fails ?? 0) + 1;
         this.pinFails.set(name, {
           fails,
@@ -202,7 +196,7 @@ export class GameSession {
       if (this.codigoLockedUntil > this.now()) {
         return "muitas tentativas de código — espere meio minuto";
       }
-      if (!this.codigoHash || hashSecret("codigo", codigo) !== this.codigoHash) {
+      if (!this.codigo || codigo !== this.codigo) {
         this.codigoFails++;
         if (this.codigoFails >= MAX_PIN_ATTEMPTS) {
           this.codigoLockedUntil = this.now() + PIN_LOCKOUT_MS;
@@ -214,7 +208,7 @@ export class GameSession {
       papel = "professor";
     }
     // 1ª entrada com o nome registra o PIN; papel fica gravado pro rejoin
-    this.identity.set(name, { pinHash: id?.pinHash ?? hashSecret(name, pin), papel });
+    this.identity.set(name, { pin: id?.pin ?? pin, papel });
     return null;
   }
 
@@ -379,8 +373,8 @@ export class GameSession {
         const alvo = parts[1];
         if (parts.length !== 2 || !alvo) return "uso: /resetpin nome";
         const id = this.identity.get(alvo);
-        if (!id?.pinHash) return `"${alvo}" não tem PIN registrado neste mundo`;
-        id.pinHash = undefined;
+        if (!id?.pin) return `"${alvo}" não tem PIN registrado neste mundo`;
+        id.pin = undefined;
         this.pinFails.delete(alvo); // destrava tentativas antigas junto
         return `PIN de "${alvo}" apagado — a próxima entrada com esse nome registra um novo`;
       }

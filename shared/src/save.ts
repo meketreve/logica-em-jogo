@@ -38,9 +38,9 @@ export interface SavedPlayer {
   z: number;
   yaw: number;
   pitch: number;
-  /** Hash do PIN (auth.hashSecret(nome, pin)). Ausente = ainda sem PIN —
-   *  a próxima entrada com esse nome registra um. */
-  pinHash?: string;
+  /** PIN em texto puro (ver auth.ts). Ausente = ainda sem PIN — a próxima
+   *  entrada com esse nome registra um. */
+  pin?: string;
   /** Ausente = "aluno" (só "professor" é gravado). */
   papel?: Papel;
 }
@@ -50,9 +50,9 @@ export interface SaveMeta {
   seed: number;
   spawn: { x: number; y: number; z: number };
   roster: SavedPlayer[];
-  /** Hash do código de professor (auth.hashSecret("codigo", codigo)).
-   *  Ausente em mundo singleplayer/save antigo — o host Node define no boot. */
-  codigoHash?: string;
+  /** Código de professor em texto puro (ver auth.ts). Ausente em mundo
+   *  singleplayer/save antigo — o host Node define no boot. */
+  codigo?: string;
 }
 
 export interface SaveData extends SaveMeta {
@@ -124,7 +124,7 @@ export function decodeSave(buf: ArrayBuffer): SaveData {
           yaw: angle(e["yaw"]),
           pitch: angle(e["pitch"]),
           // cp9: campos ausentes/errados = sem PIN, aluno (save antigo válido)
-          ...(typeof e["pinHash"] === "string" ? { pinHash: e["pinHash"] } : {}),
+          ...(typeof e["pin"] === "string" ? { pin: e["pin"] } : {}),
           ...(e["papel"] === "professor" ? { papel: "professor" as const } : {}),
         });
       }
@@ -137,6 +137,6 @@ export function decodeSave(buf: ArrayBuffer): SaveData {
     seed: m["seed"],
     spawn: { x: m["spawn"].x, y: m["spawn"].y, z: m["spawn"].z },
     roster,
-    ...(typeof m["codigoHash"] === "string" ? { codigoHash: m["codigoHash"] } : {}),
+    ...(typeof m["codigo"] === "string" ? { codigo: m["codigo"] } : {}),
   };
 }

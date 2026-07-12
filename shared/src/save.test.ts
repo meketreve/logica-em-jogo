@@ -69,38 +69,37 @@ describe("save .ljw (JSON de metadados + snapshot binário)", () => {
 });
 
 describe("identidade cp9 no save", () => {
-  it("pinHash/papel/codigoHash fazem roundtrip; save ANTIGO sem eles segue válido", () => {
+  it("pin/papel/codigo fazem roundtrip; save ANTIGO sem eles segue válido", () => {
     const world = generateWorld(DIMS, 42);
     const meta = {
       seed: 42,
       spawn: { x: 16.5, y: 20, z: 16.5 },
       roster: [
         { name: "prof", x: 1, y: 20, z: 1, yaw: 0, pitch: 0,
-          pinHash: "00c0ffee00c0ffee", papel: "professor" as const },
-        { name: "ana", x: 2, y: 20, z: 2, yaw: 0, pitch: 0,
-          pinHash: "00badc0de0badc0d" },
+          pin: "4321", papel: "professor" as const },
+        { name: "ana", x: 2, y: 20, z: 2, yaw: 0, pitch: 0, pin: "1111" },
       ],
-      codigoHash: "0123456789abcdef",
+      codigo: "salaverde",
     };
     const loaded = decodeSave(encodeSave(world, meta));
-    expect(loaded.codigoHash).toBe("0123456789abcdef");
+    expect(loaded.codigo).toBe("salaverde");
     expect(loaded.roster).toEqual(meta.roster);
 
     // save "antigo" (META sem os campos novos): decodifica sem PIN/papel/código
     const old = decodeSave(encodeSave(world, META));
-    expect(old.codigoHash).toBeUndefined();
-    expect(old.roster[0]?.pinHash).toBeUndefined();
+    expect(old.codigo).toBeUndefined();
+    expect(old.roster[0]?.pin).toBeUndefined();
     expect(old.roster[0]?.papel).toBeUndefined();
   });
 
-  it("pinHash/papel com tipo errado são descartados sem derrubar a entrada", () => {
+  it("pin/papel com tipo errado são descartados sem derrubar a entrada", () => {
     const world = generateWorld(DIMS, 42);
     const meta = {
       ...META,
       roster: [
-        // simula lixo vindo de fora: pinHash número, papel inventado
+        // simula lixo vindo de fora: pin número, papel inventado
         { name: "ana", x: 1, y: 2, z: 3, yaw: 0, pitch: 0,
-          pinHash: 1234, papel: "diretor" },
+          pin: 1234, papel: "diretor" },
       ],
     } as never;
     const loaded = decodeSave(encodeSave(world, meta));

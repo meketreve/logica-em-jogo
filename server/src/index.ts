@@ -7,7 +7,6 @@ import {
   type SaveData,
   decodeSave,
   encodeSave,
-  hashSecret,
 } from "@logica/shared";
 
 /**
@@ -43,26 +42,17 @@ if (existsSync(SAVE_PATH)) {
 }
 
 // --- Código de professor (cp9): definido na CRIAÇÃO do mundo ---
-// LJ_CODIGO na env define/ATUALIZA (recuperação de código perdido — quem tem
-// acesso ao PC do host é o professor). Mundo novo sem env: gera e IMPRIME —
-// única chance de anotar, só o hash é guardado no save.
+// LJ_CODIGO na env define/ATUALIZA; mundo novo sem env gera um. Texto puro
+// no save (ver auth.ts) — dá pra imprimir em TODO boot: quem lê o console
+// do host é o professor.
 const envCodigo = process.env["LJ_CODIGO"];
-let codigoHash = restore?.codigoHash;
-if (envCodigo) {
-  const novo = hashSecret("codigo", envCodigo);
-  console.log(
-    `[server] código de professor ${codigoHash && codigoHash !== novo ? "ATUALIZADO" : "definido"} via LJ_CODIGO`,
-  );
-  codigoHash = novo;
-} else if (!codigoHash) {
+let codigo = envCodigo ?? restore?.codigo;
+if (!codigo) {
   const alfabeto = "23456789ABCDEFGHJKMNPQRSTUVWXYZ"; // sem 0/O/1/I/L
-  let codigo = "";
+  codigo = "";
   for (let i = 0; i < 6; i++) codigo += alfabeto[randomInt(alfabeto.length)];
-  codigoHash = hashSecret("codigo", codigo);
-  console.log(
-    `[server] código de professor deste mundo: ${codigo} — ANOTE (não aparece de novo; LJ_CODIGO=... escolhe outro)`,
-  );
 }
+console.log(`[server] código de professor deste mundo: ${codigo}`);
 
 const sockets = new Map<number, WebSocket>();
 
@@ -71,7 +61,7 @@ const session = new GameSession(
     const socket = sockets.get(clientId);
     if (socket && socket.readyState === socket.OPEN) socket.send(data);
   },
-  { seed: WORLD_SEED, now: () => performance.now(), restore, codigoHash },
+  { seed: WORLD_SEED, now: () => performance.now(), restore, codigo },
 );
 
 // --- Persistência: escrita atômica (tmp + rename) pra nunca truncar o save ---

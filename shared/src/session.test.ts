@@ -1,5 +1,4 @@
 import { describe, expect, it } from "vitest";
-import { hashSecret } from "./auth";
 import { BlockId } from "./blocks";
 import { MAX_CHAT_LENGTH, SERVER_TICK_RATE } from "./constants";
 import { decodeSnapshot, parseServerMessage } from "./protocol";
@@ -554,8 +553,7 @@ describe("identidade cp9: PIN + papel (default = estrito, PIN exigido)", () => {
 
   it("código de professor: certo eleva o papel (e fica); errado nega o join", () => {
     const { sent, send } = collect();
-    const codigoHash = hashSecret("codigo", "salaverde");
-    const session = new GameSession(send, { dims: DIMS, seed: 5, codigoHash });
+    const session = new GameSession(send, { dims: DIMS, seed: 5, codigo: "salaverde" });
     session.handleMessage(1, join("prof", "4321", "errado"));
     expect(parseServerMessage(sent[0]?.data as string)).toEqual({
       type: "join_denied", reason: "código de professor errado",
@@ -574,12 +572,12 @@ describe("identidade cp9: PIN + papel (default = estrito, PIN exigido)", () => {
     session.handleMessage(1, chatCmd(`/bloco 1 ${h} 1 ${BlockId.Stone}`));
     expect(getBlock(session.world, 1, h, 1)).toBe(BlockId.Stone);
 
-    // papel + pinHash + codigoHash persistem no save
+    // papel + PIN + código persistem no save (texto puro — ver auth.ts)
     const meta = session.toSave();
-    expect(meta.codigoHash).toBe(codigoHash);
+    expect(meta.codigo).toBe("salaverde");
     const entry = meta.roster.find((p) => p.name === "prof");
     expect(entry?.papel).toBe("professor");
-    expect(entry?.pinHash).toBe(hashSecret("prof", "4321"));
+    expect(entry?.pin).toBe("4321");
 
     // rejoin SEM o código continua professor (papel ficou na identidade)
     session.handleDisconnect(1);
@@ -614,8 +612,7 @@ describe("identidade cp9: PIN + papel (default = estrito, PIN exigido)", () => {
 
   it("/resetpin apaga o PIN e a próxima entrada registra um novo", () => {
     const { sent, send } = collect();
-    const codigoHash = hashSecret("codigo", "salaverde");
-    const session = new GameSession(send, { dims: DIMS, codigoHash });
+    const session = new GameSession(send, { dims: DIMS, codigo: "salaverde" });
     session.handleMessage(1, join("prof", "4321", "salaverde"));
     session.handleMessage(2, join("ana", "1111"));
     session.handleDisconnect(2); // ana esqueceu o PIN e saiu
@@ -663,14 +660,13 @@ describe("identidade cp9: PIN + papel (default = estrito, PIN exigido)", () => {
     const meta = session.toSave();
     const entry = meta.roster.find((p) => p.name === "dona do mundo");
     expect(entry?.papel).toBeUndefined();
-    expect(entry?.pinHash).toBeUndefined();
-    expect(meta.codigoHash).toBeUndefined();
+    expect(entry?.pin).toBeUndefined();
+    expect(meta.codigo).toBeUndefined();
   });
 
   it("identidade sobrevive ao save/restore: recarregou, o MESMO PIN vale", () => {
     const { send } = collect();
-    const codigoHash = hashSecret("codigo", "salaverde");
-    const s1 = new GameSession(send, { dims: DIMS, seed: 5, codigoHash });
+    const s1 = new GameSession(send, { dims: DIMS, seed: 5, codigo: "salaverde" });
     s1.handleMessage(1, join("prof", "4321", "salaverde"));
     s1.handleMessage(2, join("ana", "1111"));
     s1.handleDisconnect(1);
