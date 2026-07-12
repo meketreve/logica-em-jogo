@@ -99,6 +99,14 @@ describe("parse de mensagens JSON", () => {
     expect(parseServerMessage('{"type":"player_left"}')).toBeNull();
   });
 
+  it("parseServerMessage aceita teleport (volta-onde-parou / futuro /tp)", () => {
+    expect(parseServerMessage('{"type":"teleport","x":2.5,"y":20,"z":3.5}')).toEqual({
+      type: "teleport", x: 2.5, y: 20, z: 3.5,
+    });
+    expect(parseServerMessage('{"type":"teleport","x":2.5,"y":20}')).toBeNull();
+    expect(parseServerMessage('{"type":"teleport","x":"a","y":20,"z":3.5}')).toBeNull();
+  });
+
   it("parseServerMessage aceita spawn (ponto fixo do mundo)", () => {
     expect(parseServerMessage('{"type":"spawn","x":64.5,"y":27,"z":64.5}')).toEqual({
       type: "spawn", x: 64.5, y: 27, z: 64.5,

@@ -259,21 +259,47 @@ Ordem dos checkpoints (cada um jogável antes do próximo):
 Rede de segurança (dev sem revisão): TS estrito; `/shared` sem deps; testes automáticos
 em `/shared` desde o checkpoint 2 (gravidade testável sem abrir navegador); cada checkpoint jogável.
 
-**Próximo passo concreto — MVP v1 "Aula persistente" (proposta apresentada 2026-07-11,
-aguarda aprovação do usuário):**
-1. **Save/load do mundo no PC do host** — formato: snapshot binário existente +
-   bloco de jogadores (nome, hash do PIN, posição) + spawn + seed. Autosave
-   periódico + ao fechar. Fundação da AUTORIA: sem save, professor perde o
-   cenário que criou.
-2. **Contas PIN por mundo (DECIDIDO 2026-07-11):** join vira nome+PIN; 1ª entrada
-   registra, seguintes exigem PIN igual; `/resetpin nome` pro professor. PIN de
-   4 dígitos protege contra "aluno entra com nome do outro" (ameaça real
-   confirmada pelo usuário). Hash: crypto.subtle (existe em Node E Worker) —
-   session síncrona, resolver injeção de hash na quest.
-3. **Papel de professor** — comandos privilegiados (`/bloco`, `/resetpin`) só pro
-   professor. Como identificar: código de professor na criação do mundo (decidir
-   na quest); no Web Worker (singleplayer) o jogador é professor automático.
-4. Se sobrar fôlego: validação de física do move (anti-cheat básico).
+**MVP v1 "Aula persistente" — APROVADO pelo usuário (2026-07-11). Decisões travadas:**
+- Servidor LAN: SÓ o host salva. Singleplayer: cada jogador salva no PRÓPRIO
+  navegador (IndexedDB) + exportar/importar arquivo .ljw (= distribuição Drive).
+- Identidade: nome + PIN 4 dígitos por mundo; `/resetpin` do professor.
+- Código de professor definido na CRIAÇÃO do mundo; singleplayer = professor automático.
+- Menu principal pedido pelo usuário: singleplayer, multiplayer, configurações
+  (teclas, som, gráficos). Config v1 = sensibilidade do mouse + teclas + gráficos
+  básicos; SOM é placeholder até áudio existir (avisar na tela).
+
+**Checkpoints do MVP v1:**
+1. ✅ **cp7 — save/load no host Node (2026-07-11).** `/shared/save.ts`: formato
+   .ljw = u32 magic "LJS1" | u32 len | JSON meta (seed, spawn, roster) |
+   snapshot LJW0 (auto-validado). JSON de meta cresce sem re-versionar (PIN/papel
+   entram aí no cp9). Session: `opts.restore` (NADA recalculado — princípio
+   bug-010), `toSave()` (online = pos atual; offline = roster), roster por nome →
+   volta-onde-parou via msg `teleport` nova (enviada após snapshot; serve o /tp
+   futuro). Host index.ts: LJ_PORT/LJ_SAVE por env, carrega no boot (corrompido →
+   renomeia .corrompido-*, NUNCA sobrescreve evidência), autosave 30 s, SIGINT/
+   SIGTERM gravam (escrita atômica tmp+rename). Cliente: handler de teleport
+   (5 linhas). 67 testes (7 novos), typecheck 3/3, build ok. Smoke real 2 fases
+   (sobe→edita→SIGINT→reabre): tijolo persiste, ana volta onde parou ✅.
+   `.gitignore`: *.ljw. Worker (singleplayer) NÃO salva ainda — é o cp8.
+2. **cp8 — menu principal** (HTML/CSS por cima, sem GUI de engine): título →
+   • Singleplayer: listar mundos do IndexedDB, criar (nome; dims default), entrar,
+     EXPORTAR .ljw (download) e IMPORTAR (upload) — mesmo formato do host;
+     WorkerConnection ganha save/load via IndexedDB (autosave + ao sair).
+   • Multiplayer: campo endereço ws:// + nome (substitui ?server= da URL).
+   • Configurações: sensibilidade do mouse, rebind de teclas, gráficos básicos
+     (FOV/pixel ratio); persistir em localStorage; som = slider desabilitado
+     com aviso "em breve".
+3. **cp9 — PIN + papel de professor:** join vira nome+PIN (msg `join_denied` com
+   motivo); 1ª entrada registra no roster; `/resetpin nome`; código de professor
+   na criação do mundo; comandos privilegiados (`/bloco`, `/resetpin`) gated;
+   hash: crypto.subtle (Node E Worker) — session síncrona, resolver injeção.
+4. **cp10 (se sobrar fôlego)** — validação de física do move no servidor.
+
+**Critérios de aceitação do MVP v1:**
+1. Fechar o host (Ctrl+C ou autosave), reabrir → mundo E posições intactos. ✅ (cp7)
+2. Menu: criar mundo single, jogar, fechar aba, voltar → continua do save local.
+3. Exportar mundo single pra arquivo e importá-lo em outro navegador/host.
+4. Aluno não entra com nome alheio sem o PIN; professor reseta PIN; aluno não roda /bloco.
 
 **Depois (anotado, não esquecer):**
 - **MVP v2 = CENÁRIOS/AUTORIA** (coração pedagógico): objetivos, detecção de

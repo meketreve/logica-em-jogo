@@ -99,6 +99,7 @@ let applyPlayerMoved:
   | ((msg: { id: number; x: number; y: number; z: number; yaw: number }) => void)
   | null = null;
 let applyPlayerLeft: ((id: number) => void) | null = null;
+let applyTeleport: ((pos: { x: number; y: number; z: number }) => void) | null = null;
 let serverSpawn: { x: number; y: number; z: number } | null = null;
 
 conn.onMessage((data) => {
@@ -115,6 +116,8 @@ conn.onMessage((data) => {
       applyPlayerLeft?.(msg.id);
     } else if (msg.type === "spawn") {
       serverSpawn = { x: msg.x, y: msg.y, z: msg.z };
+    } else if (msg.type === "teleport") {
+      applyTeleport?.(msg);
     } else if (msg.type === "chat") {
       chat.addMessage(msg.author, msg.text);
       emitGameEvent({ kind: "chat_message" });
@@ -159,6 +162,14 @@ function startGame(snap: Snapshot): void {
     player.pos.z = spawn.z;
     player.vel.x = player.vel.y = player.vel.z = 0;
   }
+
+  // servidor manda posição (volta-onde-parou em mundo salvo; futuro /tp)
+  applyTeleport = (pos) => {
+    player.pos.x = pos.x;
+    player.pos.y = pos.y;
+    player.pos.z = pos.z;
+    player.vel.x = player.vel.y = player.vel.z = 0;
+  };
 
   // servidor mandou block_changed (nossa ação OU de outro jogador OU gravidade
   // — cliente não distingue): aplica na cópia local e remesh

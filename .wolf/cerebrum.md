@@ -130,6 +130,12 @@
 - [2026-07-11] Não recalcular valores do terreno pristino (spawn etc.) no join ou no cliente
   a partir do snapshot — mundo/snapshot podem estar modificados (bug-010). Calcular na
   criação do mundo e transmitir pelo protocolo.
+- [2026-07-11] `Buffer.buffer` do Node é o POOL compartilhado (byteOffset ≠ 0 em
+  readFileSync) — pra virar ArrayBuffer: `raw.buffer.slice(raw.byteOffset,
+  raw.byteOffset + raw.byteLength)`. Passar `.buffer` direto lê lixo de outros buffers.
+- [2026-07-11] /shared (lib ES2022 pura) não declara TextEncoder/TextDecoder (existem
+  em runtime nos 3 hospedeiros) — usar `declare class` ambiente mínima no arquivo que
+  precisa (save.ts), NÃO adicionar lib DOM ao tsconfig (quebraria a pureza).
 
 ## Decision Log
 
@@ -174,6 +180,14 @@
   `/resetpin nome` pro professor. Guardar só hash, no save do mundo, no PC do host.
 - [2026-07-11] **Blocos grupo A aprovado e feito** (14 cubos opacos, IDs 5–18); grupos B
   (transparentes — mexem no mesher) e C (não-cubos) explicitamente adiados pelo usuário.
+- [2026-07-11] **MVP v1 "Aula persistente" APROVADO** com escopo: save/load (cp7),
+  menu principal (cp8 — pedido do usuário: singleplayer, multiplayer, configurações
+  de teclas/som/gráficos), PIN+professor (cp9), física do move se sobrar (cp10).
+- [2026-07-11] **Save: no servidor SÓ o host grava; singleplayer salva no navegador
+  do próprio jogador** (IndexedDB) — decisão do usuário. Mesmo formato .ljw nos dois
+  + exportar/importar arquivo (= distribuição via Drive).
+- [2026-07-11] **Código de professor definido na CRIAÇÃO do mundo** (aprovado);
+  no singleplayer o jogador é professor automático.
 - [2026-07-10] **Código mora em `~/projetos/logica-em-jogo` (WSL ext4), NÃO no OneDrive.**
   OneDrive sincroniza node_modules (milhares de arquivos) e watcher do Vite via /mnt/c é
   lento no WSL. Docs + `.wolf/` ficam no OneDrive; backup do código via git/GitHub privado.

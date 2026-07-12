@@ -377,6 +377,55 @@ describe("GameSession (servidor autoritativo)", () => {
     });
   });
 
+  it("restore: mundo salvo volta byte a byte, spawn NÃO recalcula, roster teleporta", () => {
+    // sessão original: escava perto do spawn e move a ana pra longe
+    const { send } = collect();
+    const s1 = new GameSession(send, { dims: DIMS, seed: 5 });
+    s1.handleMessage(1, JSON.stringify({ type: "join", name: "ana" }));
+    const sx = Math.floor(s1.spawn.x);
+    const sz = Math.floor(s1.spawn.z);
+    s1.handleMessage(1, JSON.stringify({
+      type: "break_block", x: sx, y: Math.floor(s1.spawn.y) - 1, z: sz,
+    }));
+    s1.handleMessage(1, JSON.stringify({ type: "move", x: 2.5, y: 20, z: 3.5, yaw: 0, pitch: 0 }));
+    s1.handleDisconnect(1);
+
+    // "grava e recarrega" (encode/decode reais ficam no save.test — aqui o contrato da sessão)
+    const save = { world: s1.world, ...s1.toSave() };
+    expect(save.roster).toEqual([{ name: "ana", x: 2.5, y: 20, z: 3.5 }]);
+
+    const { sent: sent2, send: send2 } = collect();
+    const s2 = new GameSession(send2, { restore: save });
+    expect(s2.spawn).toEqual(s1.spawn); // spawn vem do save, nunca de findSpawnY de novo
+    for (let i = 0; i < s1.world.chunks.length; i++) {
+      expect(s2.world.chunks[i]).toEqual(s1.world.chunks[i]);
+    }
+
+    // ana volta: nasce onde parou (teleport depois do snapshot)
+    s2.handleMessage(7, JSON.stringify({ type: "join", name: "ana" }));
+    const types = sent2.map((s) =>
+      typeof s.data === "string" ? parseServerMessage(s.data)?.type : "snapshot",
+    );
+    expect(types).toEqual(["spawn", "snapshot", "teleport", "chat"]);
+    const tp = parseServerMessage(sent2[2]?.data as string);
+    expect(tp).toEqual({ type: "teleport", x: 2.5, y: 20, z: 3.5 });
+
+    // nome desconhecido: sem teleport (nasce no spawn do mundo)
+    sent2.length = 0;
+    s2.handleMessage(8, JSON.stringify({ type: "join", name: "bia" }));
+    expect(
+      sent2.some((s) => typeof s.data === "string" && parseServerMessage(s.data)?.type === "teleport"),
+    ).toBe(false);
+  });
+
+  it("toSave inclui jogador ONLINE com a posição atual (não só quem desconectou)", () => {
+    const { send } = collect();
+    const session = new GameSession(send, { dims: DIMS, seed: 5 });
+    session.handleMessage(1, JSON.stringify({ type: "join", name: "ana" }));
+    session.handleMessage(1, JSON.stringify({ type: "move", x: 9.5, y: 22, z: 8.5, yaw: 1, pitch: 0 }));
+    expect(session.toSave().roster).toEqual([{ name: "ana", x: 9.5, y: 22, z: 8.5 }]);
+  });
+
   it("disconnect vira player_left pra quem fica; id desconhecido é silêncio", () => {
     const { sent, send } = collect();
     const session = new GameSession(send, { dims: DIMS });

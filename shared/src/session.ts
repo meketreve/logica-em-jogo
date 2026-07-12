@@ -13,6 +13,7 @@ import {
   parseClientMessage,
 } from "./protocol";
 import { ruleFor } from "./rules";
+import { type SaveData, type SaveMeta } from "./save";
 import { type World, type WorldDims, findSpawnY, getBlock, inBounds, setBlock } from "./world";
 import { generateWorld } from "./worldgen";
 
@@ -30,6 +31,8 @@ export interface SessionOptions {
   seed?: number;
   /** Relógio em ms (injetável nos testes). Hosts passam performance.now. */
   now?: () => number;
+  /** Mundo carregado de um save (.ljw) — ignora dims/seed e NÃO gera terreno. */
+  restore?: SaveData;
 }
 
 interface SessionPlayer {
@@ -50,6 +53,9 @@ export class GameSession {
   tickCount = 0;
 
   private readonly players = new Map<number, SessionPlayer>();
+  /** Jogadores que o MUNDO lembra (por nome): volta onde parou entre sessões.
+   *  Base da identidade do cp9 (PIN e papel entram aqui). */
+  private readonly roster = new Map<string, { x: number; y: number; z: number }>();
   private readonly now: () => number;
   private tickMsSum = 0;
   private tickMsMax = 0;
@@ -63,15 +69,43 @@ export class GameSession {
     private readonly send: SendFn,
     opts: SessionOptions = {},
   ) {
-    this.seed = opts.seed ?? 1;
     this.now = opts.now ?? (() => Date.now());
-    this.world = generateWorld(opts.dims ?? DEFAULT_WORLD_CHUNKS, this.seed);
-    const sx = this.world.sizeX / 2 + 0.5;
-    const sz = this.world.sizeZ / 2 + 0.5;
-    this.spawn = {
-      x: sx,
-      y: findSpawnY(this.world, Math.floor(sx), Math.floor(sz)),
-      z: sz,
+    if (opts.restore) {
+      // mundo vem do save: NADA é recalculado (spawn é do terreno pristino —
+      // recalcular sobre mundo escavado repetiria o bug-010)
+      this.world = opts.restore.world;
+      this.seed = opts.restore.seed;
+      this.spawn = { ...opts.restore.spawn };
+      for (const p of opts.restore.roster) {
+        this.roster.set(p.name, { x: p.x, y: p.y, z: p.z });
+      }
+    } else {
+      this.seed = opts.seed ?? 1;
+      this.world = generateWorld(opts.dims ?? DEFAULT_WORLD_CHUNKS, this.seed);
+      const sx = this.world.sizeX / 2 + 0.5;
+      const sz = this.world.sizeZ / 2 + 0.5;
+      this.spawn = {
+        x: sx,
+        y: findSpawnY(this.world, Math.floor(sx), Math.floor(sz)),
+        z: sz,
+      };
+    }
+  }
+
+  /**
+   * Metadados pro save (.ljw). Jogadores ONLINE entram com a posição atual;
+   * quem já saiu fica com a última posição vista (roster). O host grava:
+   * `encodeSave(session.world, session.toSave())`.
+   */
+  toSave(): SaveMeta {
+    const merged = new Map(this.roster);
+    for (const p of this.players.values()) {
+      merged.set(p.name, { x: p.x, y: p.y, z: p.z });
+    }
+    return {
+      seed: this.seed,
+      spawn: { ...this.spawn },
+      roster: [...merged.entries()].map(([name, pos]) => ({ name, ...pos })),
     };
   }
 
@@ -81,11 +115,15 @@ export class GameSession {
     if (!msg) return;
     switch (msg.type) {
       case "join": {
+        const name = msg.name.trim().slice(0, MAX_NAME_LENGTH) || "jogador";
+        // mundo salvo lembra o jogador: volta onde parou (senão, spawn do mundo)
+        const returning = this.roster.get(name);
+        const start = returning ?? this.spawn;
         this.players.set(clientId, {
-          name: msg.name.trim().slice(0, MAX_NAME_LENGTH) || "jogador",
-          x: this.spawn.x,
-          y: this.spawn.y,
-          z: this.spawn.z,
+          name,
+          x: start.x,
+          y: start.y,
+          z: start.z,
           yaw: 0,
           pitch: 0,
         });
@@ -96,6 +134,13 @@ export class GameSession {
           JSON.stringify({ type: "spawn", ...this.spawn } satisfies ServerMessage),
         );
         this.send(clientId, encodeSnapshot(this.world, this.seed));
+        if (returning) {
+          // depois do snapshot: cliente já montou o jogo quando isto chegar
+          this.send(
+            clientId,
+            JSON.stringify({ type: "teleport", ...returning } satisfies ServerMessage),
+          );
+        }
         this.sendServerChat(
           clientId,
           `bem-vindo, ${this.authorTag(clientId)}! Enter abre o chat · /bloco x y z id`,
@@ -262,8 +307,12 @@ export class GameSession {
   }
 
   handleDisconnect(clientId: number): void {
+    const p = this.players.get(clientId);
+    if (!p) return;
+    // mundo lembra onde o jogador parou (vai pro save; volta aqui no rejoin)
+    this.roster.set(p.name, { x: p.x, y: p.y, z: p.z });
     // delete ANTES do broadcast — quem saiu não recebe (socket já fechou).
-    if (!this.players.delete(clientId)) return;
+    this.players.delete(clientId);
     this.broadcast({ type: "player_left", id: clientId });
   }
 

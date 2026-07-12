@@ -323,3 +323,30 @@ Bug-010 achado na playtest (rejoin no fundo do buraco) e corrigido; bug-011 (tsx
 | 22:18 | Edited client/src/main.ts | added optional chaining | ~139 |
 | 22:20 | Grupo A: 14 blocos novos (terra/tronco/tábuas/tijolo/cascalho/bedrock/8 lãs), fallingRule genérica, isBreakable, atlas 8/linha + 14 tiles pintados, hotbar 1-9+scroll, ?atlas debug | shared/{blocks,rules,mesher,session}.ts client/{atlasTexture,input,main}.ts index.html + testes | 60 testes ✅ typecheck ✅ build ✅ screenshot atlas ✅ | ~12k |
 | 22:25 | Decisões do usuário: PIN 4 dígitos (não senha) + reset professor; grupos B/C adiados; proposta MVP v1 "Aula persistente" (save+PIN+papel professor) escrita no STATUS | .wolf/STATUS.md .wolf/cerebrum.md | aguarda aprovação | ~3k |
+| 22:20 | Session end: 45 writes across 17 files (constants.ts, protocol.ts, session.ts, session.test.ts, protocol.test.ts) | 18 reads | ~30153 tok |
+| 22:28 | Created shared/src/save.ts | — | ~230 |
+| 22:28 | Created shared/src/save.ts | — | ~1134 |
+| 22:29 | Edited shared/src/protocol.ts | expanded (+10 lines) | ~121 |
+| 22:29 | Edited shared/src/protocol.ts | added 1 condition(s) | ~146 |
+| 22:29 | Edited shared/src/session.ts | added 1 import(s) | ~66 |
+| 22:29 | Edited shared/src/session.ts | 6→8 lines | ~79 |
+| 22:29 | Edited shared/src/session.ts | modified lembra() | ~93 |
+| 22:29 | Edited shared/src/session.ts | added 1 condition(s) | ~409 |
+| 22:30 | Edited shared/src/session.ts | added nullish coalescing | ~350 |
+| 22:30 | Edited shared/src/session.ts | modified handleDisconnect() | ~119 |
+| 22:30 | Created server/src/index.ts | — | ~945 |
+| 22:30 | Edited server/src/index.ts | 2→6 lines | ~71 |
+| 22:31 | Edited shared/src/index.ts | 2→3 lines | ~23 |
+| 22:31 | Edited client/src/main.ts | 2→3 lines | ~61 |
+| 22:31 | Edited client/src/main.ts | added optional chaining | ~58 |
+| 22:31 | Edited client/src/main.ts | modified respawn() | ~117 |
+| 22:31 | Created shared/src/save.test.ts | — | ~736 |
+| 22:31 | Edited shared/src/session.test.ts | added optional chaining | ~722 |
+| 22:32 | Edited shared/src/protocol.test.ts | expanded (+8 lines) | ~135 |
+| 22:32 | Edited shared/src/save.ts | modified encode() | ~125 |
+| 22:36 | Created ../../../tmp/claude-1000/-home-meketreve-logica-em-jogo/a0d99221-e98e-49ca-885e-fb3fd914cb11/scratchpad/save-smoke.mts | — | ~1135 |
+| 22:36 | Edited ../../../tmp/claude-1000/-home-meketreve-logica-em-jogo/a0d99221-e98e-49ca-885e-fb3fd914cb11/scratchpad/save-smoke.mts | inline fix | ~16 |
+| 22:47 | Edited ../../../tmp/claude-1000/-home-meketreve-logica-em-jogo/a0d99221-e98e-49ca-885e-fb3fd914cb11/scratchpad/save-smoke.mts | modified direto() | ~41 |
+| 23:00 | MVP v1 aprovado + decisões: host salva no LAN, singleplayer salva no navegador, código professor na criação, menu principal no escopo (single/multi/config) | .wolf/STATUS.md .wolf/cerebrum.md | plano travado | ~2k |
+| 23:30 | cp7 save/load: save.ts (.ljw = LJS1+JSON meta+snapshot), session restore/toSave/roster, msg teleport, host com LJ_PORT/LJ_SAVE/autosave/SIGINT atômico, gitignore *.ljw | shared/{save,session,protocol}.ts server/index.ts client/main.ts + testes | 67 testes ✅ smoke 2 fases ✅ | ~14k |
+| 23:35 | bug-060: kill(SIGINT) em spawn(npx) não propaga árvore npx→tsx→node — usar spawn(node,[--import,tsx,...]) direto | buglog | logado | ~1k |

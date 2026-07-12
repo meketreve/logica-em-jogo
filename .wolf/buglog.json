@@ -812,6 +812,185 @@
       "related_bugs": [],
       "occurrences": 1,
       "last_seen": "2026-07-12T01:18:20.886Z"
+    },
+    {
+      "id": "bug-050",
+      "timestamp": "2026-07-12T01:29:09.879Z",
+      "error_message": "Type error",
+      "file": "shared/src/protocol.ts",
+      "root_cause": "Missing or incorrect type annotation",
+      "fix": "Added type assertion/annotation",
+      "tags": [
+        "auto-detected",
+        "type-fix",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-12T01:29:09.879Z"
+    },
+    {
+      "id": "bug-051",
+      "timestamp": "2026-07-12T01:30:07.071Z",
+      "error_message": "Null/undefined access in ",
+      "file": "shared/src/session.ts",
+      "root_cause": "Property access on potentially null/undefined value",
+      "fix": "Added null safety (optional chaining or null check)",
+      "tags": [
+        "auto-detected",
+        "null-safety",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-12T01:30:07.071Z"
+    },
+    {
+      "id": "bug-052",
+      "timestamp": "2026-07-12T01:30:16.586Z",
+      "error_message": "Missing guard clause",
+      "file": "shared/src/session.ts",
+      "root_cause": "No early return/throw for edge case: !p",
+      "fix": "Added guard clause: if (!p)",
+      "tags": [
+        "auto-detected",
+        "guard-clause",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-12T01:30:16.586Z"
+    },
+    {
+      "id": "bug-053",
+      "timestamp": "2026-07-12T01:31:00.065Z",
+      "error_message": "Incorrect value in code",
+      "file": "shared/src/index.ts",
+      "root_cause": "Had \"./session\"",
+      "fix": "Changed to \"./save\"",
+      "tags": [
+        "auto-detected",
+        "wrong-value",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-12T01:31:00.065Z"
+    },
+    {
+      "id": "bug-054",
+      "timestamp": "2026-07-12T01:31:14.802Z",
+      "error_message": "Null/undefined access in ",
+      "file": "client/src/main.ts",
+      "root_cause": "Property access on potentially null/undefined value",
+      "fix": "Added null safety (optional chaining or null check)",
+      "tags": [
+        "auto-detected",
+        "null-safety",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-12T01:31:14.802Z"
+    },
+    {
+      "id": "bug-055",
+      "timestamp": "2026-07-12T01:31:59.003Z",
+      "error_message": "Null/undefined access in ",
+      "file": "shared/src/session.test.ts",
+      "root_cause": "Property access on potentially null/undefined value",
+      "fix": "Added null safety (optional chaining or null check)",
+      "tags": [
+        "auto-detected",
+        "null-safety",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-12T01:31:59.003Z"
+    },
+    {
+      "id": "bug-056",
+      "timestamp": "2026-07-12T01:32:06.811Z",
+      "error_message": "Type error",
+      "file": "shared/src/protocol.test.ts",
+      "root_cause": "Missing or incorrect type annotation",
+      "fix": "Added type assertion/annotation",
+      "tags": [
+        "auto-detected",
+        "type-fix",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-12T01:32:06.811Z"
+    },
+    {
+      "id": "bug-057",
+      "timestamp": "2026-07-12T01:32:50.022Z",
+      "error_message": "Type error",
+      "file": "shared/src/save.ts",
+      "root_cause": "Missing or incorrect type annotation",
+      "fix": "Added type assertion/annotation",
+      "tags": [
+        "auto-detected",
+        "type-fix",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-12T01:32:50.022Z"
+    },
+    {
+      "id": "bug-058",
+      "timestamp": "2026-07-12T01:36:45.275Z",
+      "error_message": "Incorrect value in code",
+      "file": "../../../tmp/claude-1000/-home-meketreve-logica-em-jogo/a0d99221-e98e-49ca-885e-fb3fd914cb11/scratchpad/save-smoke.mts",
+      "root_cause": "Had \"server/src/index.ts\"",
+      "fix": "Changed to \"src/index.ts\"",
+      "tags": [
+        "auto-detected",
+        "wrong-value",
+        "mts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-12T01:36:45.275Z"
+    },
+    {
+      "id": "bug-059",
+      "timestamp": "2026-07-12T01:47:01.727Z",
+      "error_message": "Incorrect value in code",
+      "file": "../../../tmp/claude-1000/-home-meketreve-logica-em-jogo/a0d99221-e98e-49ca-885e-fb3fd914cb11/scratchpad/save-smoke.mts",
+      "root_cause": "Had \"npx\"",
+      "fix": "Changed to \"SIGINT\"",
+      "tags": [
+        "auto-detected",
+        "wrong-value",
+        "mts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-12T01:47:01.727Z"
+    },
+    {
+      "id": "bug-060",
+      "timestamp": "2026-07-12T01:47:52.936Z",
+      "error_message": "smoke de save/load travou: child.kill(SIGINT) em spawn(npx,[tsx,...]) não propaga o sinal pela árvore npx→tsx→node; servidor ficou órfão e o script pendurou no stop()",
+      "file": "scratchpad/save-smoke.mts",
+      "root_cause": "npx cria árvore de processos; sinal vai só pro pai. O node real do servidor nunca recebe SIGINT (e o handler de save não roda).",
+      "fix": "spawn(\"node\", [\"--import\", \"tsx\", \"src/index.ts\"]) — processo único, kill(SIGINT) atinge o servidor direto e o handler grava o save. Órfãos limpos por PID (nunca fuser -k na porta).",
+      "tags": [
+        "spawn",
+        "sigint",
+        "npx",
+        "tsx",
+        "smoke",
+        "process-tree"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-12T01:47:52.936Z"
     }
   ]
 }
