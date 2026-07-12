@@ -301,6 +301,13 @@ em `/shared` desde o checkpoint 2 (gravidade testável sem abrir navegador); cad
    (rede: só "voltar" — host salva). Nome do jogador editável no menu (lj-nome).
    Teclas do loop vêm de settings.keys. Typecheck 3/3, build ok, 67 testes,
    screenshots: menu renderiza; jogo via ?server intacto.
+   **Playtest ✅ (2026-07-12, "top") com 4 pedidos, todos feitos:** rebind trava
+   1 captura por vez (bug-075); F3 mostra pos + bloco; move REATIVO no cliente
+   (parado = heartbeat 1×/2 s, mudou = 10 Hz — 20 alunos parados: ~200 msg/s →
+   ~10); presença no join (bug-076: servidor manda player_moved do estado de
+   cada online pro novo, pós-snapshot, e anuncia o novo — sem isto jogador
+   parado era invisível pro recém-chegado, e o heartbeat agravaria). 68 testes,
+   smoke de presença contra servidor real ✅.
 3. **cp9 — PIN + papel de professor:** join vira nome+PIN (msg `join_denied` com
    motivo); 1ª entrada registra no roster; `/resetpin nome`; código de professor
    na criação do mundo; comandos privilegiados (`/bloco`, `/resetpin`) gated;

@@ -1139,6 +1139,122 @@
       "related_bugs": [],
       "occurrences": 1,
       "last_seen": "2026-07-12T02:18:49.001Z"
+    },
+    {
+      "id": "bug-070",
+      "timestamp": "2026-07-12T13:48:49.915Z",
+      "error_message": "Missing guard clause",
+      "file": "client/src/menu.ts",
+      "root_cause": "No early return/throw for edge case: capturing",
+      "fix": "Added guard clause: if (capturing)",
+      "tags": [
+        "auto-detected",
+        "guard-clause",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-12T13:48:49.915Z"
+    },
+    {
+      "id": "bug-071",
+      "timestamp": "2026-07-12T13:48:57.860Z",
+      "error_message": "Wrong return value",
+      "file": "client/src/main.ts",
+      "root_cause": "Was returning: `mouse Δmáx ${m.maxDelta}px  descartados ${m.dropp",
+      "fix": "Now returns: (",
+      "tags": [
+        "auto-detected",
+        "return-value",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-12T13:48:57.860Z"
+    },
+    {
+      "id": "bug-072",
+      "timestamp": "2026-07-12T13:49:11.555Z",
+      "error_message": "Missing guard clause",
+      "file": "client/src/main.ts",
+      "root_cause": "No early return/throw for edge case: !changed && now - lastSentAt < IDLE_HEARTBEAT_MS",
+      "fix": "Added guard clause: if (!changed && now - lastSentAt < IDLE_HEAR)",
+      "tags": [
+        "auto-detected",
+        "guard-clause",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-12T13:49:11.555Z"
+    },
+    {
+      "id": "bug-073",
+      "timestamp": "2026-07-12T13:49:26.017Z",
+      "error_message": "Missing guard clause",
+      "file": "shared/src/session.ts",
+      "root_cause": "No early return/throw for edge case: otherId === clientId",
+      "fix": "Added guard clause: if (otherId === clientId)",
+      "tags": [
+        "auto-detected",
+        "guard-clause",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-12T13:49:26.017Z"
+    },
+    {
+      "id": "bug-074",
+      "timestamp": "2026-07-12T13:49:48.662Z",
+      "error_message": "Null/undefined access in ",
+      "file": "shared/src/session.test.ts",
+      "root_cause": "Property access on potentially null/undefined value",
+      "fix": "Added null safety (optional chaining or null check)",
+      "tags": [
+        "auto-detected",
+        "null-safety",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-12T13:49:48.662Z"
+    },
+    {
+      "id": "bug-075",
+      "timestamp": "2026-07-12T13:50:57.495Z",
+      "error_message": "usuário: clicando em vários botões de rebind, uma tecla só redefinia todas de uma vez",
+      "file": "client/src/menu.ts",
+      "root_cause": "cada clique registrava um listener keydown {once} independente — N botões clicados = N listeners vivos, todos resolvidos pelo mesmo keydown",
+      "fix": "flag capturing no buildConfigScreen: enquanto uma captura está ativa, cliques em outros botões são ignorados; keydown (inclusive Esc) libera",
+      "tags": [
+        "menu",
+        "configuracoes",
+        "rebind",
+        "keydown",
+        "cp8"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-12T13:50:57.495Z"
+    },
+    {
+      "id": "bug-076",
+      "timestamp": "2026-07-12T13:50:57.495Z",
+      "error_message": "usuário: ao entrar no servidor, outros jogadores não aparecem se não se moverem",
+      "file": "shared/src/session.ts",
+      "root_cause": "presença emergia SÓ do relay de move (design cp5) — jogador parado nunca era anunciado pro recém-chegado; o envio reativo de move (heartbeat 2s) agravaria",
+      "fix": "no join, servidor envia player_moved com o estado atual de cada jogador online pro novo cliente (após o snapshot) e anuncia o novo pros demais — formato existente, cliente inalterado",
+      "tags": [
+        "presenca",
+        "join",
+        "player_moved",
+        "netcode",
+        "session"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-12T13:50:57.495Z"
     }
   ]
 }

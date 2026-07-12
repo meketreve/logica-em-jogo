@@ -379,21 +379,39 @@ function startGame(snap: Snapshot): void {
   input.onKey(settings.keys.hud, () => hud.toggle());
   hud.extra = () => {
     const m = input.mouseStats;
-    return `mouse Δmáx ${m.maxDelta}px  descartados ${m.dropped} (último ${m.lastDropped}px)`;
+    const p = player.pos;
+    return (
+      `pos ${p.x.toFixed(1)} ${p.y.toFixed(1)} ${p.z.toFixed(1)}  ` +
+      `bloco ${Math.floor(p.x)} ${Math.floor(p.y)} ${Math.floor(p.z)}\n` +
+      `mouse Δmáx ${m.maxDelta}px  descartados ${m.dropped} (último ${m.lastDropped}px)`
+    );
   };
 
-  // move 10×/s pro servidor (mesmo ritmo do tick) — prova o canal de subida
+  // move REATIVO: até 10×/s enquanto muda; parado, vira heartbeat 1×/2 s
+  // (mantém presença/último estado sem inundar a LAN com posição repetida —
+  // 20 alunos parados: ~200 msg/s de subida caem pra ~10)
+  const IDLE_HEARTBEAT_MS = 2000;
+  let lastSent = { x: NaN, y: NaN, z: NaN, yaw: NaN, pitch: NaN };
+  let lastSentAt = 0;
   setInterval(() => {
-    activeConn.send(
-      JSON.stringify({
-        type: "move",
-        x: player.pos.x,
-        y: player.pos.y,
-        z: player.pos.z,
-        yaw: input.yaw,
-        pitch: input.pitch,
-      }),
-    );
+    const cur = {
+      x: player.pos.x,
+      y: player.pos.y,
+      z: player.pos.z,
+      yaw: input.yaw,
+      pitch: input.pitch,
+    };
+    const changed =
+      cur.x !== lastSent.x ||
+      cur.y !== lastSent.y ||
+      cur.z !== lastSent.z ||
+      cur.yaw !== lastSent.yaw ||
+      cur.pitch !== lastSent.pitch;
+    const now = performance.now();
+    if (!changed && now - lastSentAt < IDLE_HEARTBEAT_MS) return;
+    lastSent = cur;
+    lastSentAt = now;
+    activeConn.send(JSON.stringify({ type: "move", ...cur }));
   }, 1000 / SERVER_TICK_RATE);
 
   // singleplayer: mundo NASCE salvo (fechar a aba logo depois não perde nada)

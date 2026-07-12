@@ -145,6 +145,28 @@ export class GameSession {
           clientId,
           `bem-vindo, ${this.authorTag(clientId)}! Enter abre o chat · /bloco x y z id`,
         );
+        // Presença (bug-064): jogador PARADO não manda move — sem isto o
+        // recém-chegado só via quem se mexia. Estado atual de todo mundo pro
+        // novo (depois do snapshot: o cliente já montou o jogo) e o novo pros
+        // outros. Formato = player_moved normal, cliente não muda nada.
+        for (const [otherId, other] of this.players) {
+          if (otherId === clientId) continue;
+          this.send(
+            clientId,
+            JSON.stringify({
+              type: "player_moved",
+              id: otherId,
+              x: other.x, y: other.y, z: other.z,
+              yaw: other.yaw, pitch: other.pitch,
+            } satisfies ServerMessage),
+          );
+        }
+        this.broadcastExcept(clientId, {
+          type: "player_moved",
+          id: clientId,
+          x: start.x, y: start.y, z: start.z,
+          yaw: 0, pitch: 0,
+        });
         break;
       }
       case "move": {

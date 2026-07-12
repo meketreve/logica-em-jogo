@@ -377,3 +377,11 @@ Bug-010 achado na playtest (rejoin no fundo do buraco) e corrigido; bug-011 (tsx
 | 23:23 | Edited client/src/main.ts | 2→2 lines | ~15 |
 | 23:23 | Edited client/src/main.ts | added 1 condition(s) | ~77 |
 | 00:20 | cp8 menu principal: menu.ts (4 telas), worldStore.ts (IndexedDB+export/import .ljw), settings.ts (config defensiva+rebind), worker com canal hostType init/save, main.ts boot via menu, autosave single 30s, botão sair | client/src/{menu,worldStore,settings,main,connection,input}.ts server/worker.ts index.html | typecheck+build+67 testes+screenshots ✅ playtest pendente | ~18k |
+| 23:24 | Session end: 91 writes across 26 files (constants.ts, protocol.ts, session.ts, session.test.ts, protocol.test.ts) | 24 reads | ~47598 tok |
+| 10:48 | Edited client/src/menu.ts | added 1 condition(s) | ~378 |
+| 10:48 | Edited client/src/main.ts | 4→9 lines | ~97 |
+| 10:49 | Edited client/src/main.ts | servidor() → now() | ~261 |
+| 10:49 | Edited shared/src/session.ts | added 1 condition(s) | ~302 |
+| 10:49 | Edited shared/src/session.test.ts | added optional chaining | ~459 |
+| 10:50 | Created ../../../tmp/claude-1000/-home-meketreve-logica-em-jogo/a0d99221-e98e-49ca-885e-fb3fd914cb11/scratchpad/presence-smoke.mts | — | ~437 |
+| 10:55 | Playtest cp8 "top" + 4 pedidos feitos: rebind 1-captura (bug-075), coords no F3, move reativo (heartbeat 2s parado), presença no join (bug-076) | client/{menu,main}.ts shared/session.ts + teste | 68 testes ✅ smoke presença ✅ | ~7k |

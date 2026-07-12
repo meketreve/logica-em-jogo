@@ -62,11 +62,16 @@
   transiente duplicado é invisível no cliente; ordem inversa pisca buraco por 1 frame.
 - Regra de bloco NUNCA escreve no mundo — devolve BlockChange[] e a session aplica
   (broadcast + marca vizinhos). Escrever direto pularia a propagação e o netcode.
-- Presença de jogadores (cp5): cliente NUNCA sabe o próprio id — servidor relay
-  `player_moved` só pros OUTROS (broadcastExcept). Descoberta de quem está online =
-  o próprio fluxo de move a 10 Hz (novo cliente vê todo mundo em ≤100 ms); não
-  existe (nem precisa de) mensagem "player_joined"/lista no join. `player_left`
-  no disconnect remove a caixa.
+- Presença de jogadores (cp5, REVISTO 2026-07-12/bug-076): cliente NUNCA sabe o
+  próprio id — servidor relay `player_moved` só pros OUTROS (broadcastExcept).
+  "Presença emerge do move" FALHOU pra jogador parado: agora o JOIN envia
+  player_moved com o estado de cada online pro novo (APÓS o snapshot — antes
+  dele o cliente descarta) e anuncia o novo pros demais. Continua sem mensagem
+  "player_joined" dedicada. `player_left` no disconnect remove a caixa.
+- Move do cliente é REATIVO (2026-07-12): compara com o último enviado; igual =
+  só heartbeat 1×/2 s (presença/keepalive), mudou = até 10 Hz. Corta ~95% do
+  tráfego de subida com turma parada. Qualquer estado periódico novo deve seguir
+  o padrão "manda quando muda + heartbeat", não "manda sempre".
 - WsConnection: WebSocket.send antes do open LANÇA — fila interna segura mensagens
   em CONNECTING e despeja no onopen (o join é enviado logo após o construtor).
 - Host ws (Node): socket sem handler de "error" derruba o processo inteiro;

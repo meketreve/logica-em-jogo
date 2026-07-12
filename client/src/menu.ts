@@ -252,6 +252,9 @@ function buildConfigScreen(): void {
   title.className = "menu-hint";
   title.textContent = "teclas — clique num botão e aperte a tecla nova (Esc cancela):";
   body.appendChild(title);
+  // UMA captura por vez: sem isto, clicar em vários botões deixava todos
+  // "escutando" e uma tecla só redefinia todos juntos (bug-063)
+  let capturing = false;
   for (const action of Object.keys(KEY_ACTION_LABEL) as KeyAction[]) {
     const row = document.createElement("div");
     row.className = "config-row";
@@ -261,6 +264,8 @@ function buildConfigScreen(): void {
     btn.type = "button";
     btn.textContent = keyLabel(s.keys[action]);
     btn.addEventListener("click", () => {
+      if (capturing) return;
+      capturing = true;
       btn.textContent = "aperte a tecla…";
       window.addEventListener(
         "keydown",
@@ -272,6 +277,7 @@ function buildConfigScreen(): void {
             apply();
           }
           btn.textContent = keyLabel(s.keys[action]);
+          capturing = false;
         },
         { once: true, capture: true },
       );

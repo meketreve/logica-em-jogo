@@ -1,11 +1,12 @@
 # anatomy.md
 
-> Auto-maintained by OpenWolf. Last scanned: 2026-07-12T02:23:03.889Z
-> Files: 41 tracked | Anatomy hits: 0 | Misses: 0
+> Auto-maintained by OpenWolf. Last scanned: 2026-07-12T13:50:17.675Z
+> Files: 42 tracked | Anatomy hits: 0 | Misses: 0
 
 ## ../../../tmp/claude-1000/-home-meketreve-logica-em-jogo/a0d99221-e98e-49ca-885e-fb3fd914cb11/scratchpad/
 
 - `chat-smoke.mts` — Smoke do checkpoint 6: chat + /bloco contra o servidor Node+ws REAL. (~1235 tok)
+- `presence-smoke.mts` — Smoke bug-064: A entra, anda e FICA PARADO; B entra → tem que ver A. (~437 tok)
 - `save-smoke.mts` — Smoke do cp7: persistência real do host Node. (~1159 tok)
 
 ## ../../../tmp/claude-1000/-home-meketreve-logica-em-jogo/a33579f2-d151-4a57-9677-89e57efca3e1/scratchpad/
@@ -40,8 +41,8 @@
 - `events.ts` — Gatilhos de som (checkpoint 6): pontos de evento do jogo onde o áudio vai (~172 tok)
 - `hud.ts` — HUD de perfilação (F3): FPS, frametime méd+p95, remesh, draw calls e (~1099 tok)
 - `input.ts` — Teclado + mouse (pointer lock). SÓ coleta input — nenhuma decisão de (~1107 tok)
-- `main.ts` — Checkpoint 8: menu principal. Sem parâmetro na URL o menu escolhe o rumo: (~4749 tok)
-- `menu.ts` — Menu principal (cp8) — HTML/CSS por cima do canvas, sem GUI de engine. (~2655 tok)
+- `main.ts` — Checkpoint 8: menu principal. Sem parâmetro na URL o menu escolhe o rumo: (~4966 tok)
+- `menu.ts` — Menu principal (cp8) — HTML/CSS por cima do canvas, sem GUI de engine. (~2725 tok)
 - `settings.ts` — Configurações do jogador, persistidas em localStorage (por navegador). (~867 tok)
 - `worldStore.ts` — Mundos do SINGLEPLAYER, guardados no navegador (IndexedDB) — decisão de (~780 tok)
 
@@ -74,8 +75,8 @@
 - `rules.ts` — Sistema GENÉRICO de atualização de bloco por vizinhança — a REGRA DE OURO (~526 tok)
 - `save.test.ts` — Declares DIMS (~736 tok)
 - `save.ts` — Formato de save (.ljw) — MESMO arquivo em todos os hospedeiros: disco do (~1230 tok)
-- `session.test.ts` — DIMS: collect (~5772 tok)
-- `session.ts` — GameSession: o SERVIDOR autoritativo, independente de hospedeiro. (~3783 tok)
+- `session.test.ts` — DIMS: collect (~6208 tok)
+- `session.ts` — GameSession: o SERVIDOR autoritativo, independente de hospedeiro. (~4036 tok)
 - `world.test.ts` — Declares DIMS (~761 tok)
 - `world.ts` — Dimensões do mundo em chunks. Parâmetro de criação, gravado no header do save/snapshot. (~848 tok)
 - `worldgen.ts` — Geração de terreno determinística (mesma seed = mesmos bytes em qualquer (~575 tok)

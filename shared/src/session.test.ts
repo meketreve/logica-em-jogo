@@ -360,6 +360,34 @@ describe("GameSession (servidor autoritativo)", () => {
     }
   });
 
+  it("presença no join (bug-064): novo vê quem está PARADO; os outros veem o novo", () => {
+    const { sent, send } = collect();
+    const session = new GameSession(send, { dims: DIMS });
+    session.handleMessage(1, JSON.stringify({ type: "join", name: "ana" }));
+    // ana anda até um canto e FICA PARADA (nenhum move depois)
+    session.handleMessage(1, JSON.stringify({ type: "move", x: 3.5, y: 20, z: 4.5, yaw: 1, pitch: 0 }));
+    sent.length = 0;
+
+    session.handleMessage(2, JSON.stringify({ type: "join", name: "bia" }));
+    // bia recebe o estado atual da ana (mesmo sem a ana mandar move de novo)…
+    const toBia = sent.filter((s) => s.clientId === 2 && typeof s.data === "string")
+      .map((s) => parseServerMessage(s.data as string));
+    expect(toBia).toContainEqual({
+      type: "player_moved", id: 1, x: 3.5, y: 20, z: 4.5, yaw: 1, pitch: 0,
+    });
+    // …e a ana fica sabendo da bia (nascendo no spawn)
+    const toAna = sent.filter((s) => s.clientId === 1)
+      .map((s) => parseServerMessage(s.data as string));
+    expect(toAna).toContainEqual({
+      type: "player_moved", id: 2,
+      x: session.spawn.x, y: session.spawn.y, z: session.spawn.z, yaw: 0, pitch: 0,
+    });
+    // ordem: presença só DEPOIS do snapshot (cliente já montou o jogo)
+    const biaTypes = sent.filter((s) => s.clientId === 2)
+      .map((s) => (typeof s.data === "string" ? parseServerMessage(s.data)?.type : "snapshot"));
+    expect(biaTypes.indexOf("snapshot")).toBeLessThan(biaTypes.indexOf("player_moved"));
+  });
+
   it("move vira player_moved SÓ pros outros — autor nunca recebe eco", () => {
     const { sent, send } = collect();
     const session = new GameSession(send, { dims: DIMS });
