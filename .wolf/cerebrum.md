@@ -214,6 +214,38 @@
   (autoplay policy) — som disparado por mensagem de REDE usa playUiPassive
   (só toca se o contexto já existe). Botões do menu = delegação de clique
   no container. settings.volume agora controla o master gain (slider ativo).
+- Painéis do cp14 (client/src/panels.ts) = AÇÚCAR sobre comandos de chat:
+  cada botão COMPÕE um /objetivo|/regiao|/grupo e manda como msg `chat` —
+  validação 100% no servidor, ZERO protocolo novo pra ações. Estado volta
+  pelos broadcasts (regions/objectives/groups) que re-renderizam o painel
+  aberto; resposta de comando aparece no chat. Painel NUNCA decide estado.
+  Qualquer UI de autoria futura segue este desenho.
+- Painel adia re-render enquanto um input/select DELE tem foco (marca dirty,
+  re-renderiza no focusout) e guarda rascunho dos formulários em campos da
+  classe — broadcast de objectives não apaga o que o professor digita.
+- Msg `groups` (cp14): composição COMPLETA broadcast pra TODOS (painel de
+  grupo do aluno vive disto e só abre com grupos criados). Join manda DIRETO
+  pro recém-chegado (dedup não cobriria cliente novo); mudanças = broadcast.
+  Mesmo padrão sendX(client)/broadcastX() de regions/objectives.
+- Preset de mundo (cp14): `WorldPreset` = normal|plano|cabines em worldgen
+  (generateWorldForPreset; parseWorldPreset valida string de fora).
+  SessionOptions.preset VENCE o flat (alias legado dos testes/LJ_PLANO).
+  Host Node: LJ_PRESET=plano|cabines. Menu: select #menu-new-tipo. Preset
+  só vale pra mundo NOVO — restore ignora.
+- Cabines (worldgen): 1 por chunk no canto (0,0) local, footprint 5×5
+  (CABIN_SIZE), paredes de tábuas 2 de altura (CABIN_WALL_HEIGHT), lado +x
+  ABERTO (olha pro centro do chunk), sem teto. Spawn do preset desloca
+  +CHUNK_SIZE/2: o centro exato do mundo é canto de chunk = dentro de cabine.
+- `/objetivo texto id novo…` e `/objetivo mover id pos` (pos 1-based, com
+  clamp) — edição de autoria usada pelo painel; mover re-ativa o sequencial
+  na ordem nova via broadcastObjectives.
+- Tecla `painel` (default P, rebindável): professor abre AuthorPanel, aluno
+  abre GroupPanel (só com grupos criados; senão aviso local no chat, autor
+  "jogo"). Esc fecha (listener capture próprio do painel). `?painel` na URL
+  abre no boot — screenshot headless do cp14. updateOverlay esconde o menu
+  de pausa enquanto painel aberto.
+- PLACEABLE (hotbar) extraído pra client/src/blocksUi.ts — main.ts e os
+  selects de bloco do painel usam a MESMA lista.
 
 ## Do-Not-Repeat
 
@@ -254,6 +286,17 @@
   `cd server && nohup npx tsx src/index.ts > log 2>&1 &` e conferir porta com
   `ss -tln`. Vite pode pular pra 5174 se 5173 estiver ocupada — sempre verificar
   a porta real antes de passar URL ao usuário.
+- [2026-07-13] Variável de módulo usada por função chamada NO BOOT precisa ser
+  declarada ANTES do primeiro call site, não só do ponto de uso: `let activePanel`
+  no meio do main.ts + `updateOverlay()` no boot = TDZ ReferenceError e tela
+  cinza (bug-151). Vitest/typecheck NÃO pegam — só rodar a página pega.
+- [2026-07-13] Matar servidor de fundo iniciado com `nohup npx tsx &`: o PID do
+  `$!` é o wrapper npx — o node filho segue vivo segurando a porta (bug-092).
+  Achar o dono REAL com `ss -tlnp | grep PORTA` e matar esse PID (SIGINT no host
+  Node = salva antes de sair).
+- [2026-07-13] Smoke `.mts` no scratchpad: rodar `node --import tsx script.mts`
+  com CWD no repo (tsx resolve de node_modules do projeto); do scratchpad dá
+  ERR_MODULE_NOT_FOUND. Import de /shared por caminho absoluto continua valendo.
 
 ## Decision Log
 

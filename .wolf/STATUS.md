@@ -1,15 +1,18 @@
 # STATUS — Projeto "Lógica em Jogo" (jogo voxel educacional)
 
 > Single source of truth for resuming work. Read this FIRST when starting a session.
-> Last updated: 2026-07-12
-> **PRÓXIMA QUEST: cp14 — painéis HTML (fecha o MVP v2). cp11–cp13 FECHADOS
-> (playtests ✅ 2026-07-12). cp14 = painel de autoria do professor
-> (criar/editar objetivos, textos, ordem — substitui decorar comandos),
-> painel de grupo do aluno (abre só após grupos criados) e mundo-modelo
-> cabines no menu de criação. Depois: testar critério 4 do MVP v2
-> (export/import de mundo com cenário+grupos noutro host). Rename do
-> projeto: pedido e CANCELADO pelo usuário (2026-07-12) — nome fica
-> "Lógica em Jogo". cp10 segue ADIADO.**
+> Last updated: 2026-07-13
+> **MVP v2 FECHADO (2026-07-13): cp14 playtest do usuário ✅ "testado".
+> Os 4 critérios de aceitação atendidos e jogados. A plataforma de autoria
+> está completa: professor cria cenário inteiro dentro do jogo (painel ou
+> comandos), grupos, mundo-modelo cabines, tudo persiste e viaja no .ljw.
+> PRÓXIMA QUEST: entrevista de escopo da próxima fase. Candidatos, na
+> ordem do plano (motor → cenários → piloto → relatório): (a) CENÁRIOS
+> PEDAGÓGICOS REAIS por faixa etária (BNCC/Wing — conteúdo, não motor) +
+> teste em PC do lab + preparação do piloto; (b) blocos grupo B
+> (transparentes: vidro/folhas/água — mexem no mesher); (c) circuitos
+> lógicos (decisão pendente: painel-que-vira-bloco vs blocos-no-mundo).
+> cp10 segue ADIADO. Playtest das texturas do grupo A segue pendente.**
 
 ---
 
@@ -496,15 +499,43 @@ em `/shared` desde o checkpoint 2 (gravidade testável sem abrir navegador); cad
    **+ Config em CATEGORIAS (pedido do usuário): controles (sensibilidade +
    teclas) · som (volume) · gráficos (FOV + nitidez), mesma tela no menu
    principal e no Esc.**
-4. **cp14 — painéis HTML + mundo modelo.** Painel de autoria do professor;
-   painel de grupo do aluno (abre após grupos criados); mundo-modelo
-   cabines no menu de criação.
+4. ✅ **cp14 — painéis HTML + mundo modelo (2026-07-13, playtest do usuário
+   ✅ "testado". cp14 FECHADO — MVP v2 COMPLETO).** Desenho central:
+   painel = AÇÚCAR sobre comandos de chat —
+   cada botão compõe /objetivo|/regiao|/grupo e manda como msg `chat`;
+   validação segue 100% no servidor, ZERO protocolo novo pra ações; estado
+   volta pelos broadcasts. Novo em `/shared`: msg `groups` (composição
+   completa pra TODOS — join manda direto pro novo, mudanças broadcast);
+   `/objetivo texto id novo…` e `/objetivo mover id pos` (ordem re-ativa o
+   sequencial); `WorldPreset` normal|plano|cabines + `generateCabinsWorld`
+   (1 cabine de tábuas POR CHUNK no canto, 5×5, paredes 2 alto, lado +x
+   aberto pro centro do chunk, sem teto; spawn desloca +8 pro meio do
+   chunk); SessionOptions.preset (vence flat, que virou alias). Hosts:
+   worker init aceita `preset`; Node LJ_PRESET=plano|cabines (LJ_PLANO=1
+   ainda vale). Cliente: `panels.ts` (AuthorPanel professor: modo, lista de
+   objetivos com ↑↓/editar texto/remover armado, criar objetivo com selects
+   de região — inclui opção per-grupo prefixo-1…N, regiões com criar/apagar/
+   encher/carimbar, grupos criar N/de N; GroupPanel aluno: lista com
+   membros, entrar/sair; rascunho sobrevive re-render, re-render adia com
+   input focado, Esc fecha); tecla P rebindável ("painel"); `blocksUi.ts`
+   (PLACEABLE compartilhado hotbar+painel); menu de criação com SELECT de
+   tipo de mundo (pedido do usuário no meio da sessão); aviso de aluno sem
+   grupo aponta a tecla do painel; `?painel` abre no boot (headless).
+   129 testes (9 novos em cp14.test.ts), typecheck 3/3, build ok. Smoke
+   real 10/10 (cabines+spawn, groups broadcast, trocar grupo, texto/mover).
+   Restore noutro host 8/8 = critério 4 verificado (papel/regiões/ordem/
+   texto/grupos/cabines intactos). Screenshots ✅ (painel autoria + painel
+   grupo, cabines no fundo). bug-151 (TDZ activePanel) corrigido e logado.
 
 **Critérios de aceitação do MVP v2:**
 1. Professor cria cenário inteiro DENTRO do jogo e ele persiste no .ljw.
-2. Aluno vê objetivo/progresso no HUD, completa, sequência avança.
-3. Turma em grupos: auto-distribuição funciona, cada grupo progride na própria área.
+   ✅ (cp12/cp13, playtests do usuário; cp14 soma o painel)
+2. Aluno vê objetivo/progresso no HUD, completa, sequência avança. ✅ (cp12)
+3. Turma em grupos: auto-distribuição funciona, cada grupo progride na própria área. ✅ (cp13)
 4. Mundo-modelo cabines exportado abre em outro host com cenário intacto.
+   ✅ (restore-check 8/8 + playtest do usuário 2026-07-13).
+
+**→ MVP v2 FECHADO (2026-07-13): os 4 critérios atendidos e jogados.**
 
 **Depois (anotado, não esquecer):**
 - **MVP v2 = CENÁRIOS/AUTORIA** (coração pedagógico): objetivos, detecção de

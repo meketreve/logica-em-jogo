@@ -2205,6 +2205,264 @@
       "related_bugs": [],
       "occurrences": 1,
       "last_seen": "2026-07-13T02:21:16.331Z"
+    },
+    {
+      "id": "bug-136",
+      "timestamp": "2026-07-13T02:42:51.202Z",
+      "error_message": "Type error",
+      "file": "shared/src/worldgen.ts",
+      "root_cause": "Missing or incorrect type annotation",
+      "fix": "Added type assertion/annotation",
+      "tags": [
+        "auto-detected",
+        "type-fix",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-13T02:42:51.202Z"
+    },
+    {
+      "id": "bug-137",
+      "timestamp": "2026-07-13T02:43:08.242Z",
+      "error_message": "Missing guard clause",
+      "file": "shared/src/worldgen.ts",
+      "root_cause": "No early return/throw for edge case: preset === \"plano\"",
+      "fix": "Added guard clause: if (preset === \"plano\")",
+      "tags": [
+        "auto-detected",
+        "guard-clause",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-13T02:43:08.242Z"
+    },
+    {
+      "id": "bug-138",
+      "timestamp": "2026-07-13T02:43:37.733Z",
+      "error_message": "Incorrect value in code",
+      "file": "shared/src/session.ts",
+      "root_cause": "Had \"./worldgen\"",
+      "fix": "Changed to \"./constants\"",
+      "tags": [
+        "auto-detected",
+        "wrong-value",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 2,
+      "last_seen": "2026-07-13T02:43:48.402Z"
+    },
+    {
+      "id": "bug-139",
+      "timestamp": "2026-07-13T02:44:01.854Z",
+      "error_message": "Significant refactor of ",
+      "file": "shared/src/session.ts",
+      "root_cause": "5 lines replaced/restructured",
+      "fix": "Rewrote 13→15 lines (5 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-13T02:44:01.854Z"
+    },
+    {
+      "id": "bug-140",
+      "timestamp": "2026-07-13T02:44:55.662Z",
+      "error_message": "Wrong condition in logic",
+      "file": "shared/src/session.ts",
+      "root_cause": "Condition was: if (parts.length !== 3 || !Number.isInteger(id)",
+      "fix": "Changed to: if (!Number.isInteger(id)",
+      "tags": [
+        "auto-detected",
+        "logic-fix",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-13T02:44:55.662Z"
+    },
+    {
+      "id": "bug-141",
+      "timestamp": "2026-07-13T02:45:21.903Z",
+      "error_message": "Significant refactor of ",
+      "file": "server/src/index.ts",
+      "root_cause": "2 lines replaced/restructured",
+      "fix": "Rewrote 9→13 lines (2 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-13T02:45:21.903Z"
+    },
+    {
+      "id": "bug-142",
+      "timestamp": "2026-07-13T02:50:26.630Z",
+      "error_message": "Significant refactor of ",
+      "file": "client/index.html",
+      "root_cause": "2 lines replaced/restructured",
+      "fix": "Rewrote 3→7 lines (2 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "html"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-13T02:50:26.630Z"
+    },
+    {
+      "id": "bug-143",
+      "timestamp": "2026-07-13T02:50:48.564Z",
+      "error_message": "Incorrect value in code",
+      "file": "client/src/menu.ts",
+      "root_cause": "Had \"./audio\"",
+      "fix": "Changed to \"@logica/shared\"",
+      "tags": [
+        "auto-detected",
+        "wrong-value",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-13T02:50:48.564Z"
+    },
+    {
+      "id": "bug-144",
+      "timestamp": "2026-07-13T02:51:07.487Z",
+      "error_message": "Incorrect value in code",
+      "file": "client/src/objectivesUi.ts",
+      "root_cause": "Had \"⚠ entre num grupo pra participar — Enter e digite",
+      "fix": "Changed to `⚠ entre num grupo pra participar — tecla ${ctx.pa",
+      "tags": [
+        "auto-detected",
+        "wrong-value",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-13T02:51:07.487Z"
+    },
+    {
+      "id": "bug-145",
+      "timestamp": "2026-07-13T02:51:31.948Z",
+      "error_message": "Null/undefined access in ",
+      "file": "client/src/main.ts",
+      "root_cause": "Property access on potentially null/undefined value",
+      "fix": "Added null safety (optional chaining or null check) | Also: /** Composição dos grupos (cp14) — vem na mensagem `groups`;; let latestGroups: GroupDef[] = []; | Also: // painéis do cp14: professor = autoria; aluno = grupos. O p; // comandos de chat — decisão continua 100% no servidor. | Also: // ?painel na URL: abre o painel já no boot (verificação hea; if (new URLSearchParams(location.search).has(\"painel\")) acti",
+      "tags": [
+        "auto-detected",
+        "null-safety",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 4,
+      "last_seen": "2026-07-13T02:52:43.514Z"
+    },
+    {
+      "id": "bug-146",
+      "timestamp": "2026-07-13T02:52:10.469Z",
+      "error_message": "Significant refactor of ",
+      "file": "client/src/main.ts",
+      "root_cause": "21 lines replaced/restructured",
+      "fix": "Rewrote 22→3 lines (21 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-13T02:52:10.469Z"
+    },
+    {
+      "id": "bug-147",
+      "timestamp": "2026-07-13T02:57:15.992Z",
+      "error_message": "Incorrect value in code",
+      "file": "../../../tmp/claude-1000/-home-meketreve-logica-em-jogo/3c79478b-bfb0-42c1-b3ad-9f5b5f6ef74e/scratchpad/cp14-smoke.mts",
+      "root_cause": "Had \"/regiao criar base\"",
+      "fix": "Changed to \"limpar\"",
+      "tags": [
+        "auto-detected",
+        "wrong-value",
+        "mts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-13T02:57:15.992Z"
+    },
+    {
+      "id": "bug-148",
+      "timestamp": "2026-07-13T02:58:58.942Z",
+      "error_message": "Type error",
+      "file": "client/src/main.ts",
+      "root_cause": "Missing or incorrect type annotation",
+      "fix": "Added type assertion/annotation",
+      "tags": [
+        "auto-detected",
+        "type-fix",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-13T02:58:58.942Z"
+    },
+    {
+      "id": "bug-149",
+      "timestamp": "2026-07-13T02:59:01.353Z",
+      "error_message": "Significant refactor of ",
+      "file": "client/src/main.ts",
+      "root_cause": "2 lines replaced/restructured",
+      "fix": "Rewrote 5→3 lines (2 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-13T02:59:01.353Z"
+    },
+    {
+      "id": "bug-150",
+      "timestamp": "2026-07-13T10:18:15.637Z",
+      "error_message": "Incorrect value in code",
+      "file": "../../../tmp/claude-1000/-home-meketreve-logica-em-jogo/3c79478b-bfb0-42c1-b3ad-9f5b5f6ef74e/scratchpad/cp14-restore-check.mts",
+      "root_cause": "Had \"../../../../../home/meketreve/logica-em-jogo/shar",
+      "fix": "Changed to \"/home/meketreve/logica-em-jogo/shared/src/index\"",
+      "tags": [
+        "auto-detected",
+        "wrong-value",
+        "mts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-13T10:18:15.637Z"
+    },
+    {
+      "id": "bug-151",
+      "timestamp": "2026-07-13T11:56:12.319Z",
+      "error_message": "ReferenceError: Cannot access activePanel before initialization (updateOverlay no boot)",
+      "file": "client/src/main.ts",
+      "root_cause": "let activePanel declarado no meio do módulo, mas updateOverlay() roda no boot (logo após o ChatUi) antes da declaração — TDZ. Tela cinza, jogo não abria.",
+      "fix": "Declaração de activePanel movida pro topo do módulo, antes do primeiro updateOverlay(). Regra: variável usada por função chamada no BOOT precisa ser declarada antes do ponto de boot, não só do ponto de uso.",
+      "tags": [
+        "tdz",
+        "boot-order",
+        "main.ts",
+        "cp14",
+        "painel"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-13T11:56:12.319Z"
     }
   ]
 }

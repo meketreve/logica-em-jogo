@@ -681,3 +681,81 @@ MVP v1 código completo — falta só playtest do usuário no cp9. Depois: MVP v
 | 23:25 | cp13 implementado: groups.ts, /grupo (2 sintaxes, round-robin, menor grupo), progresso por grupo (completosGrupo, sequencial por grupo), /regiao carimbar, /objetivo per-grupo via prefixo, chegar todos/um, HUD porGrupo (aluno=seu grupo, prof=resumo), config em categorias; 120 testes, screenshots prof+aluno ✅ | shared/groups.ts, scenario.ts, session.ts, protocol.ts, save.ts, client/* | ok | ~45k |
 | 23:26 | Session end: 155 writes across 25 files (regions.ts, protocol.ts, save.ts, session.ts, index.ts) | 22 reads | ~83458 tok |
 | 23:36 | WRAP-UP da sessão: cp11 (varinha+regiões+áudio UI), cp12 (objetivos+detecção+HUD+mundo plano), cp13 (grupos+carimbo+per-grupo) TODOS fechados com playtest; polimento UI (sem popups, mira, menu Esc, config em categorias); rename cancelado; próxima quest cp14 (painéis HTML) | .wolf/STATUS.md | ok | sessão ~140k |
+| 23:37 | Session end: 155 writes across 25 files (regions.ts, protocol.ts, save.ts, session.ts, index.ts) | 22 reads | ~83458 tok |
+
+## Session: 2026-07-13 23:37
+
+| Time | Action | File(s) | Outcome | ~Tokens |
+|------|--------|---------|---------|--------|
+| 23:42 | Edited shared/src/worldgen.ts | modified parseWorldPreset() | ~145 |
+| 23:43 | Edited shared/src/worldgen.ts | added 2 condition(s) | ~610 |
+| 23:43 | Edited shared/src/protocol.ts | added 1 import(s) | ~62 |
+| 23:43 | Edited shared/src/protocol.ts | modified jogador() | ~167 |
+| 23:43 | Edited shared/src/protocol.ts | 5→8 lines | ~97 |
+| 23:43 | Edited shared/src/session.ts | added 1 import(s) | ~60 |
+| 23:43 | Edited shared/src/session.ts | 7→8 lines | ~41 |
+| 23:43 | Edited shared/src/session.ts | 3→2 lines | ~48 |
+| 23:43 | Edited shared/src/session.ts | modified NOVO() | ~87 |
+| 23:44 | Edited shared/src/session.ts | 13→15 lines | ~186 |
+| 23:44 | Edited shared/src/session.ts | modified sendGroup() | ~277 |
+| 23:44 | Edited shared/src/session.ts | added 1 condition(s) | ~243 |
+| 23:44 | Edited shared/src/session.ts | modified for() | ~80 |
+| 23:44 | Edited shared/src/session.ts | 5→6 lines | ~76 |
+| 23:44 | Edited shared/src/session.ts | 5→6 lines | ~78 |
+| 23:44 | Edited shared/src/session.ts | added 5 condition(s) | ~484 |
+| 23:44 | Edited shared/src/session.ts | 5→5 lines | ~68 |
+| 23:45 | Edited server/src/worker.ts | 7→9 lines | ~44 |
+| 23:45 | Edited server/src/worker.ts | modified startSession() | ~175 |
+| 23:45 | Edited server/src/worker.ts | modified if() | ~151 |
+| 23:45 | Edited server/src/index.ts | 7→8 lines | ~38 |
+| 23:45 | Edited server/src/index.ts | modified NOVO() | ~101 |
+| 23:45 | Edited client/src/connection.ts | modified init() | ~103 |
+| 23:45 | Edited client/src/settings.ts | 2→3 lines | ~34 |
+| 23:45 | Edited client/src/settings.ts | 5→6 lines | ~24 |
+| 23:45 | Edited client/src/settings.ts | 4→5 lines | ~45 |
+| 23:45 | Created client/src/blocksUi.ts | — | ~315 |
+| 23:50 | Created client/src/panels.ts | — | ~5674 |
+| 23:50 | Edited client/index.html | modified not() | ~722 |
+| 23:50 | Edited client/index.html | plano() → colinas() | ~92 |
+| 23:50 | Edited client/index.html | 4→4 lines | ~57 |
+| 23:50 | Edited client/index.html | 2→3 lines | ~31 |
+| 23:50 | Edited client/index.html | expanded (+13 lines) | ~108 |
+| 23:50 | Edited client/src/menu.ts | added 1 import(s) | ~33 |
+| 23:50 | Edited client/src/menu.ts | PLANO() → NOVO() | ~82 |
+| 23:50 | Edited client/src/menu.ts | modified if() | ~162 |
+| 23:51 | Edited client/src/objectivesUi.ts | 5→7 lines | ~67 |
+| 23:51 | Edited client/src/objectivesUi.ts | "⚠ entre num grupo pra par" → "⚠ entre num grupo pra par" | ~32 |
+| 23:51 | Edited client/src/main.ts | added 2 import(s) | ~328 |
+| 23:51 | Edited client/src/main.ts | added nullish coalescing | ~142 |
+| 23:51 | Edited client/src/main.ts | added optional chaining | ~228 |
+| 23:51 | Edited client/src/main.ts | 7→8 lines | ~77 |
+| 23:51 | Edited client/src/main.ts | added 1 condition(s) | ~194 |
+| 23:52 | Edited client/src/main.ts | 4→4 lines | ~66 |
+| 23:52 | Edited client/src/main.ts | removed 22 lines | ~42 |
+| 23:52 | Edited client/src/main.ts | modified for() | ~59 |
+| 23:52 | Edited client/src/main.ts | added optional chaining | ~333 |
+| 23:52 | Edited client/src/main.ts | 2→2 lines | ~16 |
+| 23:52 | Edited client/src/main.ts | added optional chaining | ~64 |
+| 23:53 | Created shared/src/cp14.test.ts | — | ~1998 |
+| 23:54 | Edited shared/src/cp14.test.ts | inline fix | ~20 |
+| 23:55 | Created ../../../tmp/claude-1000/-home-meketreve-logica-em-jogo/3c79478b-bfb0-42c1-b3ad-9f5b5f6ef74e/scratchpad/cp14-smoke.mts | — | ~1071 |
+| 23:57 | Edited ../../../tmp/claude-1000/-home-meketreve-logica-em-jogo/3c79478b-bfb0-42c1-b3ad-9f5b5f6ef74e/scratchpad/cp14-smoke.mts | 3→3 lines | ~36 |
+| 23:58 | Edited client/src/main.ts | 2→6 lines | ~80 |
+| 23:59 | Edited client/src/main.ts | 5→3 lines | ~46 |
+| 07:18 | Created ../../../tmp/claude-1000/-home-meketreve-logica-em-jogo/3c79478b-bfb0-42c1-b3ad-9f5b5f6ef74e/scratchpad/cp14-restore-check.mts | — | ~667 |
+| 07:18 | Edited ../../../tmp/claude-1000/-home-meketreve-logica-em-jogo/3c79478b-bfb0-42c1-b3ad-9f5b5f6ef74e/scratchpad/cp14-restore-check.mts | "../../../../../home/meket" → "/home/meketreve/logica-em" | ~27 |
+
+## Sessão 2026-07-13 — cp14: painéis HTML + mundo cabines
+
+| 10:00 | cp14 shared: msg groups, /objetivo texto+mover, WorldPreset+generateCabinsWorld, SessionOptions.preset | shared/src/{protocol,session,worldgen}.ts | ok | ~9k |
+| 10:15 | hosts: worker init preset; Node LJ_PRESET | server/src/{worker,index}.ts | ok | ~2k |
+| 10:30 | cliente: panels.ts (AuthorPanel+GroupPanel), blocksUi.ts, tecla P, select tipo de mundo, ?painel | client/src/{panels,blocksUi,main,menu,settings,connection,objectivesUi}.ts, index.html | ok | ~14k |
+| 10:45 | pedido do usuário mid-sessão: botão de tipo de mundo na criação → select colinas/plano/cabines | client/index.html, menu.ts | ok | ~1k |
+| 11:00 | testes cp14.test.ts (9) — 129 passando, typecheck 3/3, build ok | shared/src/cp14.test.ts | ok | ~4k |
+| 11:20 | bug-151: TDZ activePanel (updateOverlay no boot) — tela cinza; declaração movida pro topo | client/src/main.ts | corrigido+logado | ~2k |
+| 11:30 | smoke real 10/10 (porta 8091, preset cabines): groups broadcast, trocar grupo, texto/mover, spawn deslocado | scratchpad/cp14-smoke.mts | ok | ~3k |
+| 11:40 | screenshots headless: painel autoria (professor) e painel grupo (aluno), cabines no fundo | scratchpad/cp14-{prof,aluno}.png | ok | ~5k |
+| 11:50 | critério 4 MVP v2: save do host A reaberto no host B (8092) — 8/8 intacto (papel/regiões/ordem/texto/grupos/cabines) | scratchpad/cp14-restore-check.mts | ok | ~2k |
+| 12:00 | STATUS/cerebrum/buglog atualizados; próxima quest = playtest do cp14 | .wolf/* | ok | ~3k |
+| 08:58 | Session end: 57 writes across 16 files (worldgen.ts, protocol.ts, session.ts, worker.ts, index.ts) | 20 reads | ~62440 tok |
+| 12:30 | playtest do usuário ✅ "testado" — cp14 FECHADO, MVP v2 COMPLETO (4 critérios jogados); STATUS aponta entrevista da próxima fase | .wolf/STATUS.md | ok | ~1k |
