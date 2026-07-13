@@ -2,17 +2,18 @@
 
 > Single source of truth for resuming work. Read this FIRST when starting a session.
 > Last updated: 2026-07-13
-> **MVP v2 FECHADO (2026-07-13): cp14 playtest do usuário ✅ "testado".
-> Os 4 critérios de aceitação atendidos e jogados. A plataforma de autoria
-> está completa: professor cria cenário inteiro dentro do jogo (painel ou
-> comandos), grupos, mundo-modelo cabines, tudo persiste e viaja no .ljw.
-> FASE DE POLIMENTO "blocos + mecânica" (2026-07-13): cp15–cp18 CODADOS e
-> verificados (135 testes, typecheck 3/3, build, smoke real, screenshots) —
-> **PLAYTEST DO USUÁRIO PENDENTE nos 4.** Detalhe em "Checkpoints do
-> polimento" abaixo. Depois do playtest: próxima fase = cenários
-> pedagógicos reais + piloto (candidata já discutida). Água fica FORA
-> (fluido = fase própria). cp10 segue ADIADO. Playtest das texturas do
-> grupo A segue pendente (o do cp17/18 cobre junto).**
+> **MVP v2 FECHADO (2026-07-13): plataforma de autoria completa — professor cria
+> cenário inteiro dentro do jogo (painel ou comandos), grupos, mundo-modelo
+> cabines, tudo persiste e viaja no .ljw.
+> POLIMENTO "blocos + mecânica" FECHADO (2026-07-13): cp15–cp18 codados,
+> playtestados em 2 rodadas e APROVADOS ("sprint funcionando"). 4 achados do
+> playtest corrigidos no caminho (bug-167 face vidro↔folha, bug-168 semântica do
+> sprint, bug-169 dois "voltar" na config) + pick-block no botão do meio.
+> 137 testes, typecheck 3/3, build. Texturas do grupo A também aprovadas
+> ("todos top").
+> **PRÓXIMA FASE: cenários pedagógicos reais + piloto com uma turma.** Água fica
+> FORA (fluido = fase própria). cp10 (validação de física no servidor) segue
+> ADIADO — sem gatilho.**
 
 ---
 
@@ -574,11 +575,56 @@ playtest do usuário pendente):**
    Smoke real 21/21 via /bloco (servidor aceita ids novos) + screenshot:
    lã vermelha visível ATRAVÉS da parede de vidro.
 
-**Critérios de aceitação do polimento (playtest do usuário):**
-1. Correr com Ctrl E com duplo-W; agachado na beirada não cai; FOV/câmera
-   respondem. 2. E abre inventário, monta hotbar própria, persiste ao
-   reabrir o navegador. 3. Blocos novos aparecem no inventário e no mundo
-   com textura certa. 4. Vidro/folhas: vê-se através, sem faces piscando.
+**Critérios de aceitação do polimento — TODOS ✅ (playtest do usuário 2026-07-13):**
+1. ✅ Correr com Ctrl E com duplo-W; agachado na beirada não cai; FOV/câmera
+   respondem. 2. ✅ E abre inventário, monta hotbar própria, persiste ao
+   reabrir o navegador. 3. ✅ Blocos novos aparecem no inventário e no mundo
+   com textura certa ("todos top" — cobre o playtest pendente do grupo A).
+   4. ✅ Vidro/folhas: vê-se através, sem faces piscando.
+
+**→ POLIMENTO FECHADO (2026-07-13).** Achados do playtest, todos corrigidos e
+re-playtestados ✅:
+- **bug-168 (cp15):** correr dava velocidade total no ar. `PlayerState.sprinting`
+  novo = corrida ENGATADA: só liga com os pés no chão + tecla de correr.
+  **2ª rodada de playtest:** a tecla NÃO precisa ficar segurada — engatada, a
+  corrida vale enquanto o "frente" estiver apertado (semântica do Minecraft) e
+  atravessa pulo/queda; desengata ao soltar o "frente" ou agachar. FOV do
+  cliente segue `player.sprinting`, não a tecla. 2 testes.
+- **bug-167 (cp18):** face da folha colada no vidro sumia. Regra do mesher agora
+  olha SÓ o vizinho: aparece se vizinho é ar OU transparente de OUTRO id; mesmo
+  id funde (vidraça contínua); vizinho opaco esconde. Coplanares opostas não
+  brigam (material FrontSide → a de trás é backface). Teste atualizado.
+- **bug-169 (UI):** config tinha DOIS "voltar". `buildConfigScreen(body, onChanged?,
+  onBack?)` virou dona do único botão (raiz → menu anterior; categoria → raiz);
+  backs estáticos saíram de #menu-config e #overlay-config. Demais menus revisados
+  (mundos/rede/pausa: um voltar cada).
+- **Pedido novo (feito):** botão do MEIO do mouse copia o bloco mirado pro slot
+  selecionado (só colocáveis — bedrock não vai pra mão); hint do Esc atualizado.
+136 testes ✅, typecheck 3/3 ✅, build ✅.
+
+---
+
+## 🚀 PRÓXIMA QUEST — cenários pedagógicos reais (rumo ao piloto)
+
+**Estado:** motor + autoria PRONTOS e jogados. A pedagogia mora nos CENÁRIOS —
+esta fase é CONTEÚDO, não motor. Nada de feature nova sem cenário pedindo.
+
+**Objetivo:** montar 2–3 cenários jogáveis de verdade, DENTRO do jogo (painel/
+comandos — se faltar comando, isso vira a única razão pra tocar em código),
+exportar como .ljw e levar pro lab.
+
+**A decidir com o usuário na abertura da sessão (não decidir sozinho):**
+- Qual turma/ano do piloto (2º–9º) e quantos alunos — define a idade dos cenários.
+- Quais habilidades da BNCC/indicadores (projeto.txt seção 14) cada cenário cobre.
+- Cenário candidato já discutido: sequência de lãs coloridas nas cabines
+  (professor monta o gabarito na cabine dele, grupos replicam) — confirmar.
+- Duração da aula e como o professor distribui o .ljw (pasta do Drive).
+
+**Provável saída da fase:** arquivos .ljw versionados (ou script que os gera),
+roteiro de aula por cenário, e a lista de atritos encontrados ao AUTORAR de
+verdade — essa lista é que decide o próximo trabalho de motor.
+
+**Depois disso:** piloto com a turma → relatório de aplicação (entregável final).
 
 **Depois (anotado, não esquecer):**
 - **MVP v2 = CENÁRIOS/AUTORIA** (coração pedagógico): objetivos, detecção de

@@ -67,14 +67,18 @@ describe("culled mesher (função pura: bytes → geometria)", () => {
     expect(g.indices.length).toBe(11 * 6);
   });
 
-  it("cp18: entre dois transparentes nenhuma face interna", () => {
+  it("cp18: transparentes IGUAIS fundem; transparentes DIFERENTES mostram as faces", () => {
     const w = createWorld(DIMS);
     setBlock(w, 8, 8, 8, BlockId.Glass);
     setBlock(w, 9, 8, 8, BlockId.Glass);
-    const g = meshChunk(w, 0, 0, 0);
-    expect(g.indices.length).toBe(10 * 6); // 5 + 5, igual dois opacos
-    setBlock(w, 10, 8, 8, BlockId.Leaves); // tipos diferentes: mesma regra
-    expect(meshChunk(w, 0, 0, 0).indices.length).toBe(14 * 6);
+    // mesmo id encostado = vidraça contínua (sem face interna, sem z-fight)
+    expect(meshChunk(w, 0, 0, 0).indices.length).toBe(10 * 6); // 5 + 5
+
+    // folha colada no vidro: OS DOIS emitem a face de contato (bug do playtest —
+    // a folha sumia atrás do vidro). Coplanares opostas = uma é backface e some
+    // no culling, então não brigam por profundidade.
+    setBlock(w, 10, 8, 8, BlockId.Leaves);
+    expect(meshChunk(w, 0, 0, 0).indices.length).toBe(16 * 6); // 5 + 5 + 6
   });
 
   it("borda do mundo conta como ar (face externa aparece)", () => {

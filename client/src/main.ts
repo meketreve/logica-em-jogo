@@ -13,6 +13,8 @@ import {
   createPlayer,
   decodeSnapshot,
   findSpawnY,
+  getBlock,
+  isPlaceable,
   parseServerMessage,
   raycastBlock,
   setBlock,
@@ -130,14 +132,14 @@ function onSettingsChanged(): void {
 document.getElementById("overlay-voltar")?.addEventListener("click", () => input.lock());
 document.getElementById("overlay-config-btn")?.addEventListener("click", () => {
   const body = document.getElementById("overlay-config-body");
-  if (body) buildConfigScreen(body, onSettingsChanged); // reconstrói = estado atual
+  // reconstrói = estado atual; o "voltar" é da própria tela de config (um só)
+  if (body) buildConfigScreen(body, onSettingsChanged, showOverlayMain);
   overlayMain?.classList.add("hidden");
   overlayConfig?.classList.remove("hidden");
 });
-document.getElementById("overlay-config-back")?.addEventListener("click", showOverlayMain);
 overlay?.addEventListener("click", (e) => {
   const btn = e.target instanceof HTMLElement ? e.target.closest("button") : null;
-  if (btn) playUi(btn.id === "overlay-config-back" ? "back" : "click");
+  if (btn) playUi(btn.classList.contains("menu-back") ? "back" : "click");
 });
 
 window.addEventListener("resize", () => {
@@ -667,6 +669,16 @@ function startGame(snap: Snapshot): void {
     );
   });
 
+  // botão do meio = copiar o bloco mirado pro slot atual (pedido do usuário)
+  input.onMouseButton(1, () => {
+    if (!target || varinhaAtiva) return;
+    const id = getBlock(world, target.x, target.y, target.z);
+    if (!isPlaceable(id)) return; // bedrock e afins não vão pra mão
+    hotbar[selected] = id;
+    localStorage.setItem(HOTBAR_KEY, JSON.stringify(hotbar));
+    refreshHotbar();
+  });
+
   const hud = new Hud(renderer, {
     checkpoint: 14,
     worldChunks: world.dims,
@@ -784,7 +796,9 @@ function startGame(snap: Snapshot): void {
     // olho abaixa agachado; FOV abre correndo — transições suaves (independem do FPS)
     const kCam = 1 - Math.exp(-dt * 20);
     eyeHeight += ((sneak ? PLAYER.sneakEyeHeight : PLAYER.eyeHeight) - eyeHeight) * kCam;
-    const fovAlvo = settings.fov * (sprint ? 1.1 : 1);
+    // FOV segue a corrida ENGATADA (player.sprinting), não a tecla: soltar o
+    // Ctrl segurando o W continua correndo — o FOV tem que continuar aberto
+    const fovAlvo = settings.fov * (player.sprinting ? 1.1 : 1);
     if (Math.abs(camera.fov - fovAlvo) > 0.01) {
       camera.fov += (fovAlvo - camera.fov) * kCam;
       camera.updateProjectionMatrix();

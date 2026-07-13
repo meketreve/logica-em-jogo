@@ -79,6 +79,7 @@ describe("física do jogador (/shared — cliente usa, servidor valida)", () => 
   it("correr é mais rápido, agachar é mais lento (e agachar vence sprint)", () => {
     const w = flatWorld();
     const p = createPlayer(8, 8.001, 8);
+    simulate(w, p, IDLE, 0.5); // assenta no chão: corrida só engata com os pés no chão
     stepPlayer(w, p, { ...IDLE, forward: 1, sprint: true }, 1 / 60);
     expect(Math.hypot(p.vel.x, p.vel.z)).toBeCloseTo(PLAYER.walkSpeed * PLAYER.sprintFactor, 5);
     stepPlayer(w, p, { ...IDLE, forward: 1, sneak: true }, 1 / 60);
@@ -112,6 +113,54 @@ describe("física do jogador (/shared — cliente usa, servidor valida)", () => 
     // em X pode se debruçar até o AABB quase sair do bloco (footprint ainda
     // toca o trilho: |x-8.5| < 0.8), mas nunca além — não cai
     expect(Math.abs(p.pos.x - 8.5)).toBeLessThan(0.81);
+  });
+
+  it("corrida engatada segue sem a tecla de correr; solta o 'frente' e para", () => {
+    const w = flatWorld();
+    const walk = PLAYER.walkSpeed;
+    const run = PLAYER.walkSpeed * PLAYER.sprintFactor;
+    const p = createPlayer(8, 8.001, 8);
+    simulate(w, p, IDLE, 0.5);
+
+    stepPlayer(w, p, { ...IDLE, forward: 1, sprint: true }, 1 / 60); // engata
+    stepPlayer(w, p, { ...IDLE, forward: 1 }, 1 / 60); // soltou o Ctrl, W segurado
+    expect(Math.hypot(p.vel.x, p.vel.z)).toBeCloseTo(run, 5);
+    stepPlayer(w, p, { ...IDLE, forward: 1, sneak: true }, 1 / 60); // agachar corta
+    stepPlayer(w, p, { ...IDLE, forward: 1 }, 1 / 60);
+    expect(Math.hypot(p.vel.x, p.vel.z)).toBeCloseTo(walk, 5);
+
+    stepPlayer(w, p, { ...IDLE, forward: 1, sprint: true }, 1 / 60); // re-engata
+    stepPlayer(w, p, IDLE, 1 / 60); // soltou o W
+    stepPlayer(w, p, { ...IDLE, forward: 1 }, 1 / 60); // W de novo, sem Ctrl
+    expect(Math.hypot(p.vel.x, p.vel.z)).toBeCloseTo(walk, 5);
+  });
+
+  it("corrida só engata no chão, mas sobrevive ao pulo", () => {
+    const w = flatWorld();
+    const walk = PLAYER.walkSpeed;
+    const run = PLAYER.walkSpeed * PLAYER.sprintFactor;
+
+    // apertar correr NO AR (caindo) não dá velocidade de corrida
+    const aereo = createPlayer(8, 12, 8);
+    stepPlayer(w, aereo, { ...IDLE, forward: 1, sprint: true }, 1 / 60);
+    expect(Math.hypot(aereo.vel.x, aereo.vel.z)).toBeCloseTo(walk, 5);
+    simulate(w, aereo, { ...IDLE, sprint: true }, 1.5); // cai e pisa no chão
+    expect(aereo.onGround).toBe(true);
+    stepPlayer(w, aereo, { ...IDLE, forward: 1, sprint: true }, 1 / 60);
+    expect(Math.hypot(aereo.vel.x, aereo.vel.z)).toBeCloseTo(run, 5); // agora sim
+
+    // engatado no chão, o pulo NÃO derruba a corrida
+    const p = createPlayer(8, 8.001, 8);
+    simulate(w, p, IDLE, 0.5);
+    stepPlayer(w, p, { ...IDLE, forward: 1, sprint: true, jump: true }, 1 / 60);
+    expect(p.onGround).toBe(false); // pulou
+    stepPlayer(w, p, { ...IDLE, forward: 1, sprint: true }, 1 / 60);
+    expect(Math.hypot(p.vel.x, p.vel.z)).toBeCloseTo(run, 5);
+    // soltar o "frente" no ar desengata — e correr NÃO reengata sem tocar o chão
+    stepPlayer(w, p, IDLE, 1 / 60);
+    stepPlayer(w, p, { ...IDLE, forward: 1, sprint: true }, 1 / 60);
+    expect(p.onGround).toBe(false);
+    expect(Math.hypot(p.vel.x, p.vel.z)).toBeCloseTo(walk, 5);
   });
 
   it("agachar no ar não trava o movimento (guard só com chão)", () => {

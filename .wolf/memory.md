@@ -819,3 +819,36 @@ MVP v1 código completo — falta só playtest do usuário no cp9. Depois: MVP v
 | 13:20 | cp18: vidro+folhas (IDs 27-28) via CUTOUT alphaTest; regra de visibilidade do mesher p/ transparentes; 2 testes novos | shared/blocks.ts, mesher.ts, mesher.test.ts, client/atlasTexture.ts, main.ts, blocksUi.ts | 135 testes, smoke 21/21, screenshot vidro ok | ~7k |
 | 13:25 | Sessão: fase de polimento cp15-cp18 completa (código); STATUS/cerebrum atualizados; playtest do usuário pendente nos 4 cps | .wolf/* | wrap-up | ~2k |
 | 13:06 | Session end: 48 writes across 13 files (physics.ts, physics.test.ts, settings.ts, main.ts, index.html) | 18 reads | ~36078 tok |
+| 13:07 | Session end: 48 writes across 13 files (physics.ts, physics.test.ts, settings.ts, main.ts, index.html) | 18 reads | ~36078 tok |
+
+## Session: 2026-07-13 13:13
+
+| Time | Action | File(s) | Outcome | ~Tokens |
+|------|--------|---------|---------|--------|
+| 15:58 | Edited shared/src/physics.ts | 6→8 lines | ~68 |
+| 15:58 | Edited shared/src/physics.ts | inline fix | ~27 |
+| 15:58 | Edited shared/src/physics.ts | added 2 condition(s) | ~112 |
+| 15:58 | Edited shared/src/mesher.ts | modified if() | ~128 |
+| 15:58 | Edited client/index.html | 5→4 lines | ~40 |
+| 15:58 | Edited client/index.html | 4→3 lines | ~30 |
+| 15:59 | Edited client/index.html | 2→2 lines | ~51 |
+| 15:59 | Edited client/src/menu.ts | modified buildConfigScreen() | ~253 |
+| 15:59 | Edited client/src/menu.ts | added 1 condition(s) | ~254 |
+| 15:59 | Edited client/src/menu.ts | 7→2 lines | ~20 |
+| 15:59 | Edited client/src/menu.ts | 2→2 lines | ~22 |
+| 15:59 | Edited client/src/main.ts | modified closest() | ~169 |
+| 15:59 | Edited client/src/main.ts | added 2 condition(s) | ~130 |
+| 15:59 | Edited client/src/main.ts | 3→5 lines | ~23 |
+| 15:59 | Edited client/src/input.ts | added 1 condition(s) | ~71 |
+| 16:00 | Edited shared/src/mesher.test.ts | 9→13 lines | ~200 |
+| 16:00 | Edited shared/src/physics.test.ts | 4→5 lines | ~88 |
+| 16:00 | Edited shared/src/physics.test.ts | expanded (+27 lines) | ~411 |
+| 16:01 | Edited shared/src/physics.test.ts | 4→4 lines | ~75 |
+| 16:00 | playtest cp15-cp18 do usuário: 4 achados corrigidos (sprint só engata no chão; face vidro↔folha; 1 só botão voltar na config; botão do meio copia bloco) | shared/physics.ts, shared/mesher.ts, client/menu.ts, client/main.ts, client/input.ts, client/index.html, 2 testes | 136 testes ✅ typecheck 3/3 ✅ build ✅ — re-playtest pendente | ~18k |
+| 16:13 | Session end: 19 writes across 8 files (physics.ts, mesher.ts, index.html, menu.ts, main.ts) | 10 reads | ~27290 tok |
+| 19:38 | Edited shared/src/physics.ts | 4→6 lines | ~110 |
+| 19:38 | Edited shared/src/physics.test.ts | expanded (+20 lines) | ~300 |
+| 19:38 | Edited shared/src/physics.test.ts | desengata() → toBe() | ~82 |
+| 19:39 | Edited client/src/main.ts | 1→3 lines | ~63 |
+| 19:40 | re-playtest: cp18/voltar/pick-block ✅; sprint refinado — Ctrl só ENGATA, corrida segue enquanto W apertado (MC), FOV segue player.sprinting | shared/physics.ts, client/main.ts, physics.test.ts | 137 testes ✅ typecheck 3/3 ✅ | ~6k |
+| 19:39 | Session end: 23 writes across 8 files (physics.ts, mesher.ts, index.html, menu.ts, main.ts) | 10 reads | ~27961 tok |

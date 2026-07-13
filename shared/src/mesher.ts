@@ -197,11 +197,12 @@ export function meshChunk(world: World, cx: number, cy: number, cz: number): Chu
             oy + ly + face.dir[1],
             oz + lz + face.dir[2],
           );
-          // cp18: face aparece se o vizinho é ar OU se um bloco OPACO encosta
-          // num transparente (vidro/folhas deixam ver a face de trás). Entre
-          // transparentes nenhuma face interna é emitida (coplanar = z-fight).
+          // cp18: face aparece se o vizinho é ar OU transparente de OUTRO tipo
+          // (vidro encostado em folha: cada um mostra a sua face — a face oposta
+          // do outro é backface e some por culling, sem z-fight). Vizinho opaco
+          // esconde; MESMO transparente encostado funde (vidro contínuo).
           if (neighbor !== BlockId.Air) {
-            if (isTransparentBlock(id) || !isTransparentBlock(neighbor)) continue;
+            if (!isTransparentBlock(neighbor) || neighbor === id) continue;
           }
 
           const tile =

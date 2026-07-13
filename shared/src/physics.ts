@@ -41,6 +41,8 @@ export interface PlayerState {
   pos: Vec3;
   vel: Vec3;
   onGround: boolean;
+  /** Corrida ENGATADA: só liga com os pés no chão; segue valendo no ar. */
+  sprinting: boolean;
 }
 
 /** Input de movimento de um passo. forward/strafe em [-1,1]; yaw em radianos (0 = olhando -Z). */
@@ -56,7 +58,7 @@ export interface MoveInput {
 }
 
 export function createPlayer(x: number, y: number, z: number): PlayerState {
-  return { pos: { x, y, z }, vel: { x: 0, y: 0, z: 0 }, onGround: false };
+  return { pos: { x, y, z }, vel: { x: 0, y: 0, z: 0 }, onGround: false, sprinting: false };
 }
 
 /** O AABB do jogador na posição `pos` sobrepõe algum bloco sólido? */
@@ -139,7 +141,13 @@ export function stepPlayer(world: World, p: PlayerState, input: MoveInput, dt: n
   const f = input.forward;
   const s = input.strafe;
   const sneak = input.sneak === true;
-  const factor = sneak ? PLAYER.sneakFactor : input.sprint === true ? PLAYER.sprintFactor : 1;
+  // Corrida ENGATA só com os pés no chão (apertar correr no meio do pulo não
+  // vira turbo aéreo). Engatada, a tecla de correr não precisa mais ser
+  // segurada: vale enquanto andar pra frente — e atravessa pulo/queda.
+  // Desengata ao soltar o "frente" ou agachar.
+  if (sneak || f <= 0) p.sprinting = false;
+  else if (input.sprint === true && p.onGround) p.sprinting = true;
+  const factor = sneak ? PLAYER.sneakFactor : p.sprinting ? PLAYER.sprintFactor : 1;
   const len = Math.hypot(f, s);
   const scale = (len > 1 ? 1 / len : 1) * PLAYER.walkSpeed * factor;
   const sin = Math.sin(input.yaw);

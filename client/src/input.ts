@@ -39,6 +39,7 @@ export class Input {
     canvas.addEventListener("contextmenu", (e) => e.preventDefault());
     canvas.addEventListener("mousedown", (e) => {
       if (!this.locked) return; // primeiro clique só trava o mouse
+      if (e.button === 1) e.preventDefault(); // botão do meio: sem autoscroll
       this.mouseHandlers.get(e.button)?.();
     });
 

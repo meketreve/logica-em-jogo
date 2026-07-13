@@ -249,7 +249,7 @@ export function showMenu(handlers: MenuHandlers): void {
     handlers.onPlayMulti(url, { pin, ...(codigo ? { codigo } : {}) });
   });
 
-  buildConfigScreen(el("menu-config-body"));
+  buildConfigScreen(el("menu-config-body"), undefined, () => show("home"));
 }
 
 /**
@@ -257,9 +257,24 @@ export function showMenu(handlers: MenuHandlers): void {
  * Reusada pelo menu principal E pelo menu de pausa (Esc): `onChanged` roda a
  * cada mudança pro jogo aplicar AO VIVO (sensibilidade, FOV, teclas…).
  * Organizada em CATEGORIAS (pedido do usuário): controles · som · gráficos.
+ * O botão "voltar" é SEMPRE desta tela (nunca dois na mesma tela): na raiz sai
+ * pra `onBack`, dentro de uma categoria volta pra raiz.
  */
-export function buildConfigScreen(body: HTMLElement, onChanged?: () => void): void {
-  renderConfigRoot(body, onChanged);
+export function buildConfigScreen(
+  body: HTMLElement,
+  onChanged?: () => void,
+  onBack?: () => void,
+): void {
+  renderConfigRoot(body, onChanged, onBack);
+}
+
+function backButton(body: HTMLElement, onClick: () => void): void {
+  const back = document.createElement("button");
+  back.type = "button";
+  back.className = "menu-back";
+  back.textContent = "← voltar";
+  back.addEventListener("click", onClick);
+  body.appendChild(back);
 }
 
 type ConfigCategory = "controles" | "som" | "graficos";
@@ -270,13 +285,13 @@ const CONFIG_CATEGORIES: { id: ConfigCategory; label: string }[] = [
   { id: "graficos", label: "🖥️ gráficos" },
 ];
 
-function renderConfigRoot(body: HTMLElement, onChanged?: () => void): void {
+function renderConfigRoot(body: HTMLElement, onChanged?: () => void, onBack?: () => void): void {
   body.textContent = "";
   for (const cat of CONFIG_CATEGORIES) {
     const btn = document.createElement("button");
     btn.type = "button";
     btn.textContent = cat.label;
-    btn.addEventListener("click", () => renderConfigPanel(body, cat.id, onChanged));
+    btn.addEventListener("click", () => renderConfigPanel(body, cat.id, onChanged, onBack));
     body.appendChild(btn);
   }
   const reset = document.createElement("button");
@@ -285,15 +300,17 @@ function renderConfigRoot(body: HTMLElement, onChanged?: () => void): void {
   reset.addEventListener("click", () => {
     saveSettings(structuredClone(DEFAULT_SETTINGS));
     onChanged?.();
-    renderConfigRoot(body, onChanged);
+    renderConfigRoot(body, onChanged, onBack);
   });
   body.appendChild(reset);
+  if (onBack) backButton(body, onBack);
 }
 
 function renderConfigPanel(
   body: HTMLElement,
   category: ConfigCategory,
   onChanged?: () => void,
+  onBack?: () => void,
 ): void {
   body.textContent = "";
   const s = loadSettings();
@@ -410,10 +427,5 @@ function renderConfigPanel(
     body.appendChild(sharp);
   }
 
-  const back = document.createElement("button");
-  back.type = "button";
-  back.className = "menu-back-config";
-  back.textContent = "← voltar";
-  back.addEventListener("click", () => renderConfigRoot(body, onChanged));
-  body.appendChild(back);
+  backButton(body, () => renderConfigRoot(body, onChanged, onBack));
 }

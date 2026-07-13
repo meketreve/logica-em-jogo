@@ -15,6 +15,12 @@
   Não construir criptografia/ofuscação sem ameaça real; rate-limit basta.
 - Fala português. Responde em blocos numerados às perguntas.
 - Quer ser desafiado no design: aceita bem quando aponto furos pedagógicos/técnicos.
+- **Convenções de Minecraft são o padrão esperado** (playtest 2026-07-13): pediu
+  botão-do-meio = copiar bloco mirado; sprint que só engata com os pés no chão.
+  Quando houver dúvida de UX de jogo, seguir o que o Minecraft faz — o público
+  (alunos e professor) já tem esse modelo mental.
+- **Uma tela = UM botão "voltar"** (playtest 2026-07-13): a config mostrava dois
+  (o do HTML e o da categoria). Quem renderiza a tela é dono da navegação dela.
 
 ## Key Learnings
 
@@ -287,6 +293,17 @@
 
 <!-- Mistakes made and corrected. Each entry prevents the same mistake recurring. -->
 <!-- Format: [YYYY-MM-DD] Description of what went wrong and what to do instead. -->
+
+- [2026-07-13] Oclusão de face NÃO se decide pela transparência do bloco DONO da
+  face — só pela do VIZINHO. A regra do cp18 ("pula se id é transparente ou
+  vizinho é opaco") sumia com a face da folha colada no vidro (bug-167). Regra
+  certa: `face aparece se vizinho == ar || (transparente(vizinho) && vizinho != id)`.
+  Mesmo id encostado funde (vidraça contínua); ids transparentes diferentes
+  emitem as DUAS faces coplanares — sem z-fight, porque o material é FrontSide e
+  a face oposta vira backface.
+- [2026-07-13] Modificador de movimento (sprint) NÃO pode sair direto do input:
+  precisa de estado ENGATADO no PlayerState (bug-168). Ler `input.sprint` no
+  passo dava turbo no ar. Padrão: engata com `onGround`, desengata ao soltar.
 
 - [2026-07-10] NÃO usar código/assets do Minecraft ou Eaglercraft (Eaglercraft = port não
   licenciado). projeto.txt §9 rejeita software não licenciado. Copiar só o MODELO (voxel no

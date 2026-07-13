@@ -2623,6 +2623,171 @@
       "related_bugs": [],
       "occurrences": 1,
       "last_seen": "2026-07-13T15:43:29.348Z"
+    },
+    {
+      "id": "bug-162",
+      "timestamp": "2026-07-13T18:58:31.009Z",
+      "error_message": "Wrong return value",
+      "file": "shared/src/physics.ts",
+      "root_cause": "Was returning: { pos: { x, y, z }, vel: { x: 0, y: 0, z: 0 }, onG",
+      "fix": "Now returns: { pos: { x, y, z }, vel: { x: 0, y: 0, z: 0 }, onG",
+      "tags": [
+        "auto-detected",
+        "return-value",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-13T18:58:31.009Z"
+    },
+    {
+      "id": "bug-163",
+      "timestamp": "2026-07-13T18:59:10.078Z",
+      "error_message": "Significant refactor of ",
+      "file": "client/src/menu.ts",
+      "root_cause": "2 lines replaced/restructured",
+      "fix": "Rewrote 9→24 lines (2 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-13T18:59:10.078Z"
+    },
+    {
+      "id": "bug-164",
+      "timestamp": "2026-07-13T18:59:45.299Z",
+      "error_message": "Missing guard clause",
+      "file": "client/src/main.ts",
+      "root_cause": "No early return/throw for edge case: !target || varinhaAtiva",
+      "fix": "Added guard clause: if (!target || varinhaAtiva)",
+      "tags": [
+        "auto-detected",
+        "guard-clause",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-13T18:59:45.299Z"
+    },
+    {
+      "id": "bug-165",
+      "timestamp": "2026-07-13T19:00:22.299Z",
+      "error_message": "Type error",
+      "file": "shared/src/mesher.test.ts",
+      "root_cause": "Missing or incorrect type annotation",
+      "fix": "Added type assertion/annotation",
+      "tags": [
+        "auto-detected",
+        "type-fix",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-13T19:00:22.299Z"
+    },
+    {
+      "id": "bug-166",
+      "timestamp": "2026-07-13T19:00:43.115Z",
+      "error_message": "Type error",
+      "file": "shared/src/physics.test.ts",
+      "root_cause": "Missing or incorrect type annotation",
+      "fix": "Added type assertion/annotation",
+      "tags": [
+        "auto-detected",
+        "type-fix",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-13T19:00:43.115Z"
+    },
+    {
+      "id": "bug-167",
+      "timestamp": "2026-07-13T19:05:00.000Z",
+      "error_message": "playtest cp18: 'quando colocado vidro, folhas e depois lã, a face da folha que está em contato com o vidro não aparece'",
+      "file": "shared/src/mesher.ts",
+      "root_cause": "Regra de face do cp18 era 'pula se id é transparente OU vizinho é opaco' — isso escondia TODA face de bloco transparente encostado em qualquer não-ar, inclusive contra outro transparente de tipo diferente (vidro↔folha: some dos dois lados).",
+      "fix": "Regra virou 'face aparece se vizinho é ar OU transparente de OUTRO id'. Vizinho opaco esconde; mesmo transparente funde (vidraça contínua, sem z-fight). Coplanares opostas entre transparentes diferentes não brigam: material é FrontSide, a face oposta vira backface. Teste de mesher atualizado (5+5+6 faces).",
+      "tags": [
+        "mesher",
+        "cp18",
+        "transparencia",
+        "vidro",
+        "folhas",
+        "render"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-13T19:05:00.000Z"
+    },
+    {
+      "id": "bug-168",
+      "timestamp": "2026-07-13T19:05:00.000Z",
+      "error_message": "playtest cp15: 'correr precisa aplicar a velocidade total apenas depois de pisar no chão'",
+      "file": "shared/src/physics.ts",
+      "root_cause": "sprintFactor vinha direto de input.sprint, sem olhar onGround — apertar correr no meio de um pulo/queda dava turbo aéreo.",
+      "fix": "PlayerState ganhou `sprinting` (engate): liga só com p.onGround + tecla de correr. Correção do 2º playtest: a tecla NÃO precisa ficar segurada — engatada, a corrida vale enquanto o 'frente' estiver apertado (semântica do Minecraft) e atravessa pulo/queda; desengata ao soltar o 'frente' ou agachar. FOV do cliente passou a seguir player.sprinting (não a tecla). 2 testes.",
+      "tags": [
+        "physics",
+        "cp15",
+        "sprint",
+        "playtest"
+      ],
+      "related_bugs": [],
+      "occurrences": 2,
+      "last_seen": "2026-07-13T20:00:00.000Z"
+    },
+    {
+      "id": "bug-169",
+      "timestamp": "2026-07-13T19:05:00.000Z",
+      "error_message": "playtest: 'menu de configuração de som tem dois botões de voltar'",
+      "file": "client/src/menu.ts",
+      "root_cause": "A seção de config tinha um .menu-back ESTÁTICO no HTML (volta pro menu anterior) e renderConfigPanel ainda anexava outro 'voltar' dinâmico (volta pra raiz das categorias) — dois na mesma tela.",
+      "fix": "buildConfigScreen(body, onChanged?, onBack?) passou a ser DONA do único botão voltar: raiz → onBack (menu/overlay anterior), categoria → raiz. Botões estáticos removidos de #menu-config e #overlay-config no index.html; som de 'back' agora por classe .menu-back (não por id).",
+      "tags": [
+        "ui",
+        "menu",
+        "config",
+        "playtest"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-13T19:05:00.000Z"
+    },
+    {
+      "id": "bug-170",
+      "timestamp": "2026-07-13T22:38:41.132Z",
+      "error_message": "Wrong condition in logic",
+      "file": "shared/src/physics.ts",
+      "root_cause": "Condition was: if (input.sprint !== true || sneak || f <= 0)",
+      "fix": "Changed to: if (sneak || f <= 0)",
+      "tags": [
+        "auto-detected",
+        "logic-fix",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-13T22:38:41.132Z"
+    },
+    {
+      "id": "bug-171",
+      "timestamp": "2026-07-13T22:38:50.201Z",
+      "error_message": "Type error",
+      "file": "shared/src/physics.test.ts",
+      "root_cause": "Missing or incorrect type annotation",
+      "fix": "Added type assertion/annotation",
+      "tags": [
+        "auto-detected",
+        "type-fix",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-13T22:38:50.201Z"
     }
   ]
 }
