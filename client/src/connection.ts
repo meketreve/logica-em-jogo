@@ -45,9 +45,15 @@ export class WorkerConnection implements Connection {
     };
   }
 
-  /** Inicializa o hospedeiro: mundo do save (IndexedDB) OU novo com a seed. */
-  init(opts: { save?: ArrayBuffer; seed?: number }): void {
-    this.worker.postMessage({ hostType: "init", save: opts.save, seed: opts.seed });
+  /** Inicializa o hospedeiro: mundo do save (IndexedDB) OU novo com a seed
+   *  (flat = preset "plano" do cp12, só vale pra mundo novo). */
+  init(opts: { save?: ArrayBuffer; seed?: number; flat?: boolean }): void {
+    this.worker.postMessage({
+      hostType: "init",
+      save: opts.save,
+      seed: opts.seed,
+      flat: opts.flat === true,
+    });
   }
 
   /** Pede os bytes .ljw do mundo atual (quem grava no IndexedDB é o cliente). */

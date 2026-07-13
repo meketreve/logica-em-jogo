@@ -1,6 +1,6 @@
+import { playUi, setUiVolume } from "./audio";
 import {
   DEFAULT_SETTINGS,
-  type GameSettings,
   KEY_ACTION_LABEL,
   type KeyAction,
   keyLabel,
@@ -29,6 +29,8 @@ export interface PlayWorldChoice {
   createdAt: number;
   /** null = mundo novo (main gera seed); bytes = save carregado do IndexedDB. */
   data: ArrayBuffer | null;
+  /** Mundo novo nasce PLANO (preset de cenários, cp12). */
+  flat?: boolean;
 }
 
 /** Credenciais do join em rede (cp9). PIN NUNCA persiste em localStorage —
@@ -61,6 +63,18 @@ function el<T extends HTMLElement>(id: string): T {
   return node as T;
 }
 
+/** Erro inline no lugar de alert() (popup nativo trava headless e feia a UI). */
+function flashError(id: string, msg: string): void {
+  const node = document.getElementById(id);
+  if (!node) return;
+  node.textContent = msg;
+  node.classList.remove("hidden");
+}
+
+function clearError(id: string): void {
+  document.getElementById(id)?.classList.add("hidden");
+}
+
 export function showMenu(handlers: MenuHandlers): void {
   const menu = el<HTMLDivElement>("menu");
   const screens = {
@@ -76,6 +90,19 @@ export function showMenu(handlers: MenuHandlers): void {
   }
   menu.classList.remove("hidden");
   show("home");
+
+  // som de UI: delegação — QUALQUER botão do menu toca (voltar tem som próprio)
+  menu.addEventListener("click", (e) => {
+    const btn = e.target instanceof HTMLElement ? e.target.closest("button") : null;
+    if (btn) playUi(btn.classList.contains("menu-back") ? "back" : "click");
+  });
+
+  // motivo de um join recusado sobrevive ao reload via sessionStorage (main.ts)
+  const bootErr = sessionStorage.getItem("lj-erro");
+  if (bootErr) {
+    sessionStorage.removeItem("lj-erro");
+    flashError("menu-erro", bootErr);
+  }
 
   // --- nome do jogador (identidade provisória até o PIN do cp9) ---
   const nameInput = el<HTMLInputElement>("menu-nome");
@@ -134,12 +161,24 @@ export function showMenu(handlers: MenuHandlers): void {
       exp.title = "baixa o arquivo .ljw pra compartilhar";
       exp.addEventListener("click", () => downloadWorld(w));
 
+      // apagar em 2 cliques (sem confirm() nativo): 1º arma, 2º executa;
+      // 3 s sem o 2º clique desarma sozinho
       const del = document.createElement("button");
       del.type = "button";
       del.textContent = "apagar";
       del.addEventListener("click", () => {
-        if (!confirm(`Apagar o mundo "${w.name}"? Não dá pra desfazer.`)) return;
-        void deleteWorld(w.id).then(refreshWorlds);
+        if (del.dataset["armado"]) {
+          void deleteWorld(w.id).then(refreshWorlds);
+          return;
+        }
+        del.dataset["armado"] = "1";
+        del.textContent = "confirma?";
+        del.classList.add("world-del-armado");
+        window.setTimeout(() => {
+          delete del.dataset["armado"];
+          del.textContent = "apagar";
+          del.classList.remove("world-del-armado");
+        }, 3000);
       });
 
       row.append(name, when, play, exp, del);
@@ -147,10 +186,23 @@ export function showMenu(handlers: MenuHandlers): void {
     }
   }
 
+  // criação inline (sem prompt/confirm nativos)
+  const newName = el<HTMLInputElement>("menu-new-nome");
+  const newFlat = el<HTMLInputElement>("menu-new-plano");
   el("menu-btn-new").addEventListener("click", () => {
-    const name = prompt("Nome do mundo novo:", "meu mundo")?.trim();
-    if (!name) return;
-    startWorld({ id: crypto.randomUUID(), name, createdAt: Date.now(), data: null });
+    const name = newName.value.trim();
+    if (!name) {
+      flashError("menu-worlds-erro", "dê um nome pro mundo novo");
+      return;
+    }
+    clearError("menu-worlds-erro");
+    startWorld({
+      id: crypto.randomUUID(),
+      name,
+      createdAt: Date.now(),
+      data: null,
+      flat: newFlat.checked,
+    });
   });
 
   const fileInput = el<HTMLInputElement>("menu-import-file");
@@ -163,9 +215,13 @@ export function showMenu(handlers: MenuHandlers): void {
       .then(async (rec) => {
         await putWorld(rec);
         await refreshWorlds();
+        clearError("menu-worlds-erro");
       })
       .catch((err: unknown) => {
-        alert(`arquivo inválido: ${err instanceof Error ? err.message : String(err)}`);
+        flashError(
+          "menu-worlds-erro",
+          `arquivo inválido: ${err instanceof Error ? err.message : String(err)}`,
+        );
       });
   });
 
@@ -177,29 +233,77 @@ export function showMenu(handlers: MenuHandlers): void {
   el("menu-btn-conectar").addEventListener("click", () => {
     const url = addr.value.trim();
     if (!/^wss?:\/\//.test(url)) {
-      alert("endereço precisa começar com ws:// (ex.: ws://192.168.0.10:8080)");
+      flashError("menu-multi-erro", "endereço precisa começar com ws:// (ex.: ws://192.168.0.10:8080)");
       return;
     }
     const pin = pinInput.value.trim();
     if (!/^\d{4}$/.test(pin)) {
-      alert("PIN precisa ter 4 números (a primeira entrada com seu nome registra o PIN)");
+      flashError("menu-multi-erro", "PIN precisa ter 4 números (a primeira entrada com seu nome registra o PIN)");
       return;
     }
+    clearError("menu-multi-erro");
     localStorage.setItem("lj-endereco", url); // só o endereço — PIN nunca
     const codigo = codigoInput.value.trim();
     menu.classList.add("hidden");
     handlers.onPlayMulti(url, { pin, ...(codigo ? { codigo } : {}) });
   });
 
-  buildConfigScreen();
+  buildConfigScreen(el("menu-config-body"));
 }
 
-/** Tela de configurações — controles gerados aqui (HTML ficaria gigante). */
-function buildConfigScreen(): void {
-  const body = el<HTMLDivElement>("menu-config-body");
+/**
+ * Tela de configurações — controles gerados aqui (HTML ficaria gigante).
+ * Reusada pelo menu principal E pelo menu de pausa (Esc): `onChanged` roda a
+ * cada mudança pro jogo aplicar AO VIVO (sensibilidade, FOV, teclas…).
+ * Organizada em CATEGORIAS (pedido do usuário): controles · som · gráficos.
+ */
+export function buildConfigScreen(body: HTMLElement, onChanged?: () => void): void {
+  renderConfigRoot(body, onChanged);
+}
+
+type ConfigCategory = "controles" | "som" | "graficos";
+
+const CONFIG_CATEGORIES: { id: ConfigCategory; label: string }[] = [
+  { id: "controles", label: "🖱️ controles" },
+  { id: "som", label: "🔊 som" },
+  { id: "graficos", label: "🖥️ gráficos" },
+];
+
+function renderConfigRoot(body: HTMLElement, onChanged?: () => void): void {
+  body.textContent = "";
+  for (const cat of CONFIG_CATEGORIES) {
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.textContent = cat.label;
+    btn.addEventListener("click", () => renderConfigPanel(body, cat.id, onChanged));
+    body.appendChild(btn);
+  }
+  const reset = document.createElement("button");
+  reset.type = "button";
+  reset.textContent = "restaurar padrões";
+  reset.addEventListener("click", () => {
+    saveSettings(structuredClone(DEFAULT_SETTINGS));
+    onChanged?.();
+    renderConfigRoot(body, onChanged);
+  });
+  body.appendChild(reset);
+}
+
+function renderConfigPanel(
+  body: HTMLElement,
+  category: ConfigCategory,
+  onChanged?: () => void,
+): void {
   body.textContent = "";
   const s = loadSettings();
-  const apply = (): void => saveSettings(s);
+  const apply = (): void => {
+    saveSettings(s);
+    onChanged?.();
+  };
+
+  const title = document.createElement("h2");
+  title.textContent = CONFIG_CATEGORIES.find((c) => c.id === category)?.label ?? category;
+  body.appendChild(title);
 
   function slider(
     label: string,
@@ -209,7 +313,7 @@ function buildConfigScreen(): void {
     value: number,
     onChange: (v: number) => void,
     format: (v: number) => string = String,
-  ): void {
+  ): HTMLInputElement {
     const row = document.createElement("label");
     row.className = "config-row";
     const span = document.createElement("span");
@@ -230,84 +334,85 @@ function buildConfigScreen(): void {
     });
     row.append(span, input, out);
     body.appendChild(row);
+    return input;
   }
 
-  slider("sensibilidade do mouse", 0.2, 3, 0.1, s.sensitivity, (v) => (s.sensitivity = v), (v) => `${v.toFixed(1)}×`);
-  slider("campo de visão (FOV)", 60, 100, 1, s.fov, (v) => (s.fov = v), (v) => `${v}°`);
+  if (category === "controles") {
+    slider("sensibilidade do mouse", 0.2, 3, 0.1, s.sensitivity, (v) => (s.sensitivity = v), (v) => `${v.toFixed(1)}×`);
 
-  // nitidez: PCs fracos de escola renderizam menos pixels com cap 1
-  const sharp = document.createElement("label");
-  sharp.className = "config-row";
-  sharp.textContent = "alta nitidez (desligue em PC fraco) ";
-  const check = document.createElement("input");
-  check.type = "checkbox";
-  check.checked = s.pixelRatioCap > 1;
-  check.addEventListener("change", () => {
-    s.pixelRatioCap = check.checked ? 2 : 1;
-    apply();
-  });
-  sharp.appendChild(check);
-  body.appendChild(sharp);
+    const hint = document.createElement("p");
+    hint.className = "menu-hint";
+    hint.textContent = "teclas — clique num botão e aperte a tecla nova (Esc cancela):";
+    body.appendChild(hint);
+    // UMA captura por vez: sem isto, clicar em vários botões deixava todos
+    // "escutando" e uma tecla só redefinia todos juntos (bug-063)
+    let capturing = false;
+    for (const action of Object.keys(KEY_ACTION_LABEL) as KeyAction[]) {
+      const row = document.createElement("div");
+      row.className = "config-row";
+      const span = document.createElement("span");
+      span.textContent = KEY_ACTION_LABEL[action];
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.textContent = keyLabel(s.keys[action]);
+      btn.addEventListener("click", () => {
+        if (capturing) return;
+        capturing = true;
+        btn.textContent = "aperte a tecla…";
+        window.addEventListener(
+          "keydown",
+          (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            if (e.code !== "Escape") {
+              s.keys[action] = e.code;
+              apply();
+            }
+            btn.textContent = keyLabel(s.keys[action]);
+            capturing = false;
+          },
+          { once: true, capture: true },
+        );
+      });
+      row.append(span, btn);
+      body.appendChild(row);
+    }
+  } else if (category === "som") {
+    // som de interface (menus/botões/notificações) — sintetizado, sem assets
+    const vol = slider(
+      "volume dos sons de interface",
+      0, 1, 0.05,
+      s.volume,
+      (v) => {
+        s.volume = v;
+        setUiVolume(v); // vale já, sem reabrir nada
+      },
+      (v) => `${Math.round(v * 100)}%`,
+    );
+    // amostra ao SOLTAR o slider (no input tocaria uma metralhadora)
+    vol.addEventListener("change", () => playUi("notify"));
+  } else {
+    slider("campo de visão (FOV)", 60, 100, 1, s.fov, (v) => (s.fov = v), (v) => `${v}°`);
 
-  // som: valor guardado, áudio ainda não existe — controle desabilitado avisa
-  const soundRow = document.createElement("label");
-  soundRow.className = "config-row";
-  soundRow.textContent = "volume (som em breve) ";
-  const vol = document.createElement("input");
-  vol.type = "range";
-  vol.min = "0";
-  vol.max = "1";
-  vol.step = "0.05";
-  vol.value = String(s.volume);
-  vol.disabled = true;
-  soundRow.appendChild(vol);
-  body.appendChild(soundRow);
-
-  // teclas
-  const title = document.createElement("p");
-  title.className = "menu-hint";
-  title.textContent = "teclas — clique num botão e aperte a tecla nova (Esc cancela):";
-  body.appendChild(title);
-  // UMA captura por vez: sem isto, clicar em vários botões deixava todos
-  // "escutando" e uma tecla só redefinia todos juntos (bug-063)
-  let capturing = false;
-  for (const action of Object.keys(KEY_ACTION_LABEL) as KeyAction[]) {
-    const row = document.createElement("div");
-    row.className = "config-row";
-    const span = document.createElement("span");
-    span.textContent = KEY_ACTION_LABEL[action];
-    const btn = document.createElement("button");
-    btn.type = "button";
-    btn.textContent = keyLabel(s.keys[action]);
-    btn.addEventListener("click", () => {
-      if (capturing) return;
-      capturing = true;
-      btn.textContent = "aperte a tecla…";
-      window.addEventListener(
-        "keydown",
-        (e) => {
-          e.preventDefault();
-          e.stopPropagation();
-          if (e.code !== "Escape") {
-            s.keys[action] = e.code;
-            apply();
-          }
-          btn.textContent = keyLabel(s.keys[action]);
-          capturing = false;
-        },
-        { once: true, capture: true },
-      );
+    // nitidez: PCs fracos de escola renderizam menos pixels com cap 1
+    const sharp = document.createElement("label");
+    sharp.className = "config-row";
+    sharp.textContent = "alta nitidez (desligue em PC fraco) ";
+    const check = document.createElement("input");
+    check.type = "checkbox";
+    check.checked = s.pixelRatioCap > 1;
+    check.addEventListener("change", () => {
+      s.pixelRatioCap = check.checked ? 2 : 1;
+      apply();
     });
-    row.append(span, btn);
-    body.appendChild(row);
+    sharp.appendChild(check);
+    body.appendChild(sharp);
   }
 
-  const reset = document.createElement("button");
-  reset.type = "button";
-  reset.textContent = "restaurar padrões";
-  reset.addEventListener("click", () => {
-    saveSettings(structuredClone(DEFAULT_SETTINGS));
-    buildConfigScreen();
-  });
-  body.appendChild(reset);
+  const back = document.createElement("button");
+  back.type = "button";
+  back.className = "menu-back-config";
+  back.textContent = "← voltar";
+  back.addEventListener("click", () => renderConfigRoot(body, onChanged));
+  body.appendChild(back);
 }

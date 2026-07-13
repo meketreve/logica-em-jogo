@@ -95,6 +95,15 @@ export class Input {
     this.keyHandlers.set(code, fn);
   }
 
+  /** Move um atalho pra tecla nova (rebind AO VIVO no menu de pausa). */
+  rebind(oldCode: string, newCode: string): void {
+    if (oldCode === newCode) return;
+    const fn = this.keyHandlers.get(oldCode);
+    if (!fn) return;
+    this.keyHandlers.delete(oldCode);
+    this.keyHandlers.set(newCode, fn);
+  }
+
   /** Botão do mouse com pointer lock ativo (0 = esquerdo, 2 = direito). */
   onMouseButton(button: number, fn: () => void): void {
     this.mouseHandlers.set(button, fn);

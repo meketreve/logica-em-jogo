@@ -1,5 +1,8 @@
 import { type Papel } from "./auth";
+import { type GroupDef, parseGroups } from "./groups";
 import { decodeSnapshot, encodeSnapshot } from "./protocol";
+import { type NamedRegion, parseNamedRegion } from "./regions";
+import { type ScenarioMeta, parseScenarioMeta } from "./scenario";
 import { type World } from "./world";
 
 /**
@@ -53,6 +56,12 @@ export interface SaveMeta {
   /** Código de professor em texto puro (ver auth.ts). Ausente em mundo
    *  singleplayer/save antigo — o host Node define no boot. */
   codigo?: string;
+  /** Regiões nomeadas (cp11). Ausente em save antigo = nenhuma. */
+  regioes?: NamedRegion[];
+  /** Cenário: objetivos + progresso (cp12). Ausente = mundo sem cenário. */
+  cenario?: ScenarioMeta;
+  /** Grupos de alunos (cp13). Ausente = modo turma-toda-junta. */
+  grupos?: GroupDef[];
 }
 
 export interface SaveData extends SaveMeta {
@@ -130,6 +139,17 @@ export function decodeSave(buf: ArrayBuffer): SaveData {
       }
     }
   }
+  // cp11: entrada de região quebrada é PULADA (save antigo/editado continua válido)
+  const regioes: NamedRegion[] = [];
+  if (Array.isArray(m["regioes"])) {
+    for (const entry of m["regioes"]) {
+      const r = parseNamedRegion(entry);
+      if (r) regioes.push(r);
+    }
+  }
+  // cp12: cenário inválido/ausente = mundo sem cenário (save antigo válido)
+  const cenario = parseScenarioMeta(m["cenario"]);
+  const grupos = parseGroups(m["grupos"]);
   // snapshot valida a si mesmo (magic LJW0, dims, tamanho)
   const snapshot = decodeSnapshot(buf.slice(SAVE_HEADER_BYTES + jsonLen));
   return {
@@ -138,5 +158,8 @@ export function decodeSave(buf: ArrayBuffer): SaveData {
     spawn: { x: m["spawn"].x, y: m["spawn"].y, z: m["spawn"].z },
     roster,
     ...(typeof m["codigo"] === "string" ? { codigo: m["codigo"] } : {}),
+    ...(regioes.length ? { regioes } : {}),
+    ...(cenario?.objetivos.length ? { cenario } : {}),
+    ...(grupos.length ? { grupos } : {}),
   };
 }

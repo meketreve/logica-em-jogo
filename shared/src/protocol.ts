@@ -1,4 +1,7 @@
+import { type Papel } from "./auth";
 import { CHUNK_VOLUME, MAX_WORLD_CHUNKS } from "./constants";
+import { type NamedRegion, parseNamedRegion } from "./regions";
+import { type ObjectiveState, type ScenarioModo, parseObjectiveState } from "./scenario";
 import { type World, createWorld } from "./world";
 
 /**
@@ -26,7 +29,20 @@ export type ClientMessage =
   | { type: "move"; x: number; y: number; z: number; yaw: number; pitch: number }
   | { type: "place_block"; x: number; y: number; z: number; blockId: number }
   | { type: "break_block"; x: number; y: number; z: number }
-  | { type: "chat"; text: string };
+  | { type: "chat"; text: string }
+  | {
+      /**
+       * Varinha do professor (cp11): marca um canto de região na célula
+       * mirada. Dois cantos marcados + /regiao criar nome = região nomeada.
+       * Servidor valida papel e bounds — aluno mandando isto é ignorado
+       * com aviso no chat.
+       */
+      type: "wand_mark";
+      corner: 1 | 2;
+      x: number;
+      y: number;
+      z: number;
+    };
 
 // --- Mensagens JSON servidor→cliente ---
 
@@ -72,6 +88,37 @@ export type ServerMessage =
       x: number;
       y: number;
       z: number;
+      /** Papel do PRÓPRIO jogador (cp11): o cliente habilita UI de professor
+       *  (varinha, painel futuro). Ausente = aluno (compat com host antigo). */
+      papel?: Papel;
+    }
+  | {
+      /**
+       * Lista COMPLETA de regiões nomeadas (cp11). Só professores recebem
+       * (no join e após criar/apagar) — o que o aluno vê de cada região é
+       * decisão do objetivo (cp12+), não deste canal.
+       */
+      type: "regions";
+      regions: NamedRegion[];
+    }
+  | {
+      /**
+       * Estado COMPLETO do cenário (cp12) — TODOS recebem (o HUD do aluno
+       * vive disto): no join e sempre que progresso/objetivos mudarem.
+       * Cliente substitui, não mescla.
+       */
+      type: "objectives";
+      modo: ScenarioModo;
+      objetivos: ObjectiveState[];
+    }
+  | {
+      /**
+       * Grupo do PRÓPRIO jogador (cp13): no join e quando muda (/grupo
+       * criar|entrar|sair). null = sem grupo. HUD usa pra destacar a
+       * linha certa do porGrupo dos objetivos.
+       */
+      type: "group";
+      grupo: number | null;
     }
   | {
       /** Chat: mensagem de jogador (autor "nome#id") ou do servidor (autor "servidor"). */
@@ -161,6 +208,19 @@ export function parseClientMessage(raw: string): ClientMessage | null {
     case "chat":
       if (typeof m["text"] !== "string") return null;
       return { type: "chat", text: m["text"] };
+    case "wand_mark": {
+      const corner = m["corner"];
+      if (corner !== 1 && corner !== 2) return null;
+      const ints = [m["x"], m["y"], m["z"]];
+      if (!ints.every((n) => typeof n === "number" && Number.isInteger(n))) return null;
+      return {
+        type: "wand_mark",
+        corner,
+        x: m["x"] as number,
+        y: m["y"] as number,
+        z: m["z"] as number,
+      };
+    }
     default:
       return null;
   }
@@ -223,7 +283,35 @@ export function parseServerMessage(raw: string): ServerMessage | null {
         x: m["x"] as number,
         y: m["y"] as number,
         z: m["z"] as number,
+        // papel inválido/ausente = aluno (host antigo continua compatível)
+        ...(m["papel"] === "professor" || m["papel"] === "aluno"
+          ? { papel: m["papel"] as Papel }
+          : {}),
       };
+    }
+    case "regions": {
+      if (!Array.isArray(m["regions"])) return null;
+      const regions: NamedRegion[] = [];
+      for (const entry of m["regions"]) {
+        const r = parseNamedRegion(entry);
+        if (r) regions.push(r); // entrada quebrada não derruba a lista inteira
+      }
+      return { type: "regions", regions };
+    }
+    case "objectives": {
+      if (m["modo"] !== "sequencial" && m["modo"] !== "livre") return null;
+      if (!Array.isArray(m["objetivos"])) return null;
+      const objetivos: ObjectiveState[] = [];
+      for (const entry of m["objetivos"]) {
+        const s = parseObjectiveState(entry);
+        if (s) objetivos.push(s);
+      }
+      return { type: "objectives", modo: m["modo"], objetivos };
+    }
+    case "group": {
+      const g = m["grupo"];
+      if (g !== null && (typeof g !== "number" || !Number.isInteger(g))) return null;
+      return { type: "group", grupo: g };
     }
     case "chat":
       if (typeof m["author"] !== "string" || typeof m["text"] !== "string") return null;

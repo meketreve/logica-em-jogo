@@ -18,27 +18,41 @@
       .hidden {
         display: none !important;
       }
+      /* menu de pausa (Esc) — reusa o visual .menu-screen do menu principal */
       #overlay {
         position: fixed;
         inset: 0;
         display: flex;
-        flex-direction: column;
         align-items: center;
         justify-content: center;
-        gap: 0.5rem;
-        background: rgba(0, 0, 0, 0.35);
+        background: rgba(0, 0, 0, 0.45);
         color: #fff;
-        text-align: center;
-        pointer-events: none; /* clique atravessa até o canvas (pointer lock) */
-        text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
+        z-index: 20;
+        pointer-events: none; /* só o painel captura clique; resto vai pro canvas */
+      }
+      #overlay .menu-screen {
+        pointer-events: auto;
       }
       #overlay h1 {
-        margin: 0;
+        margin: 0 0 0.3rem;
+        text-align: center;
         font-size: 1.6rem;
       }
-      #overlay p {
-        margin: 0;
-        font-size: 1rem;
+      #overlay-main,
+      #overlay-config {
+        display: flex;
+        flex-direction: column;
+        gap: 0.7rem;
+      }
+      #overlay-config-body,
+      #menu-config-body {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+      }
+      #overlay-config-body {
+        max-height: 55vh;
+        overflow-y: auto;
       }
       #hud {
         position: fixed;
@@ -95,6 +109,36 @@
       #hotbar span {
         white-space: nowrap;
         opacity: 0.85;
+      }
+      /* painel de objetivos (cp12) — HUD do aluno */
+      #objetivos {
+        position: fixed;
+        top: 12px;
+        right: 12px;
+        max-width: min(340px, 44vw);
+        padding: 8px 12px;
+        background: rgba(0, 0, 0, 0.55);
+        color: #fff;
+        font-family: ui-monospace, monospace;
+        font-size: 12px;
+        line-height: 1.5;
+        border-radius: 4px;
+        border-left: 3px solid #2ecc71;
+        pointer-events: none;
+        z-index: 5;
+      }
+      #objetivos .obj-head {
+        font-size: 11px;
+        opacity: 0.8;
+        margin-bottom: 4px;
+      }
+      #objetivos .obj {
+        margin-top: 4px;
+      }
+      #objetivos .obj small {
+        display: block;
+        opacity: 0.85;
+        color: #9fe8bc;
       }
       #hotbar b {
         white-space: nowrap;
@@ -219,17 +263,24 @@
         text-align: right;
         font-family: ui-monospace, monospace;
       }
-      #overlay #btn-sair {
-        pointer-events: auto;
-        margin-top: 0.8rem;
-        font: inherit;
-        font-size: 0.95rem;
-        padding: 8px 14px;
-        border: 1px solid rgba(255, 255, 255, 0.4);
-        border-radius: 6px;
-        background: rgba(0, 0, 0, 0.5);
-        color: #fff;
-        cursor: pointer;
+      /* mensagens de erro inline (substituem alert/confirm/prompt) */
+      .menu-erro {
+        color: #ff9c9c;
+        font-size: 0.85rem;
+        margin: 0;
+      }
+      .world-new {
+        display: flex;
+        gap: 8px;
+      }
+      .menu-check {
+        justify-content: flex-start !important;
+        gap: 8px;
+        font-size: 0.9rem;
+        opacity: 0.9;
+      }
+      .world-del-armado {
+        background: rgba(200, 60, 60, 0.6) !important;
       }
       #chat {
         position: fixed;
@@ -248,6 +299,7 @@
         margin-top: 2px;
         border-radius: 3px;
         overflow-wrap: break-word;
+        white-space: pre-line; /* resposta multi-linha do servidor (/regiao lista) */
         text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
       }
       #chat-log .msg.old {
@@ -275,6 +327,7 @@
     <div id="menu" class="hidden">
       <section id="menu-home" class="menu-screen">
         <h1>Lógica em Jogo</h1>
+        <p id="menu-erro" class="menu-erro hidden"></p>
         <label>seu nome <input id="menu-nome" type="text" maxlength="24" autocomplete="off" /></label>
         <button id="menu-btn-single" type="button">🌍 Jogar sozinho</button>
         <button id="menu-btn-multi" type="button">🌐 Jogar em rede</button>
@@ -283,7 +336,15 @@
       <section id="menu-worlds" class="menu-screen hidden">
         <h2>Meus mundos</h2>
         <div id="menu-world-list"></div>
-        <button id="menu-btn-new" type="button">＋ criar mundo novo</button>
+        <div class="world-new">
+          <input id="menu-new-nome" type="text" maxlength="32" autocomplete="off"
+            placeholder="nome do mundo novo" />
+          <button id="menu-btn-new" type="button">＋ criar</button>
+        </div>
+        <label class="menu-check">
+          <input id="menu-new-plano" type="checkbox" /> mundo plano (bom pra criar cenários)
+        </label>
+        <p id="menu-worlds-erro" class="menu-erro hidden"></p>
         <button id="menu-btn-import" type="button">📂 importar arquivo .ljw…</button>
         <input id="menu-import-file" type="file" accept=".ljw" class="hidden" />
         <p class="menu-hint">mundos ficam salvos NESTE navegador · exportar gera um arquivo pra compartilhar (Drive, pen drive)</p>
@@ -301,6 +362,7 @@
         <label>código do professor
           <input id="menu-codigo" type="password" autocomplete="off" placeholder="só se você for o professor" />
         </label>
+        <p id="menu-multi-erro" class="menu-erro hidden"></p>
         <button id="menu-btn-conectar" type="button">entrar</button>
         <button class="menu-back" type="button">← voltar</button>
       </section>
@@ -311,12 +373,22 @@
       </section>
     </div>
     <div id="overlay">
-      <h1>Lógica em Jogo</h1>
-      <p>Clique para jogar</p>
-      <p>WASD move · mouse olha · espaço pula · Esc solta o mouse</p>
-      <p>botão esquerdo quebra · direito coloca · 1–9 e scroll escolhem bloco · F3 desempenho</p>
-      <p>Enter abre o chat (Esc fecha) · /bloco x y z id muda um bloco (professor)</p>
-      <button id="btn-sair" type="button">💾 salvar e voltar ao menu</button>
+      <section class="menu-screen">
+        <h1>Lógica em Jogo</h1>
+        <div id="overlay-main">
+          <button id="overlay-voltar" type="button">▶ voltar ao jogo</button>
+          <button id="overlay-config-btn" type="button">⚙️ configurações</button>
+          <button id="btn-sair" type="button">💾 salvar e voltar ao menu</button>
+          <p class="menu-hint">
+            WASD move · espaço pula · botão esquerdo quebra · direito coloca ·
+            1–9 e scroll escolhem bloco · Enter abre o chat · F3 desempenho
+          </p>
+        </div>
+        <div id="overlay-config" class="hidden">
+          <div id="overlay-config-body"></div>
+          <button id="overlay-config-back" type="button">← voltar</button>
+        </div>
+      </section>
     </div>
     <div id="crosshair">+</div>
     <div id="chat">
@@ -330,6 +402,7 @@
       />
     </div>
     <div id="hotbar"></div>
+    <div id="objetivos" class="hidden"></div>
     <div id="hud" class="hidden">
       <pre id="hud-text"></pre>
       <button id="hud-export" type="button">exportar JSON</button>

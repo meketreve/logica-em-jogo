@@ -6,7 +6,8 @@
 export type GameEvent =
   | { kind: "block_placed"; blockId: number }
   | { kind: "block_broken" }
-  | { kind: "chat_message" };
+  | { kind: "chat_message" }
+  | { kind: "objective_complete" };
 
 type Listener = (e: GameEvent) => void;
 

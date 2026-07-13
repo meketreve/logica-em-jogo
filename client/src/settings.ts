@@ -2,10 +2,11 @@
  * Configurações do jogador, persistidas em localStorage (por navegador).
  * Carregamento DEFENSIVO: campo faltando/inválido cai no default — atualizar
  * o jogo nunca quebra a config antiga de ninguém.
- * Som: só o valor é guardado; áudio ainda não existe (gatilhos em events.ts).
+ * Som: volume vale pros sons de INTERFACE (audio.ts) — som de mundo vem depois.
  */
 
-export type KeyAction = "forward" | "back" | "left" | "right" | "jump" | "chat" | "hud";
+export type KeyAction =
+  | "forward" | "back" | "left" | "right" | "jump" | "chat" | "hud" | "varinha";
 
 export interface GameSettings {
   /** Multiplicador da sensibilidade do mouse (1 = padrão). */
@@ -14,7 +15,7 @@ export interface GameSettings {
   fov: number;
   /** Teto do devicePixelRatio (1 = econômico p/ PC fraco; 2 = nítido). */
   pixelRatioCap: number;
-  /** Volume 0..1 — guardado, mas SEM efeito até o áudio existir. */
+  /** Volume 0..1 dos sons de interface (menus, botões, notificações). */
   volume: number;
   keys: Record<KeyAction, string>;
 }
@@ -32,6 +33,7 @@ export const DEFAULT_SETTINGS: GameSettings = {
     jump: "Space",
     chat: "Enter",
     hud: "F3",
+    varinha: "KeyR",
   },
 };
 
@@ -43,6 +45,7 @@ export const KEY_ACTION_LABEL: Record<KeyAction, string> = {
   jump: "pular",
   chat: "abrir chat",
   hud: "painel de desempenho",
+  varinha: "varinha de região (professor)",
 };
 
 const STORAGE_KEY = "lj-config";

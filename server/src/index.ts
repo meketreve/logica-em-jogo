@@ -61,7 +61,14 @@ const session = new GameSession(
     const socket = sockets.get(clientId);
     if (socket && socket.readyState === socket.OPEN) socket.send(data);
   },
-  { seed: WORLD_SEED, now: () => performance.now(), restore, codigo },
+  {
+    seed: WORLD_SEED,
+    now: () => performance.now(),
+    restore,
+    codigo,
+    // LJ_PLANO=1: mundo NOVO nasce plano (preset de cenários, cp12)
+    flat: process.env["LJ_PLANO"] === "1",
+  },
 );
 
 // --- Persistência: escrita atômica (tmp + rename) pra nunca truncar o save ---

@@ -23,7 +23,8 @@ describe("GameSession (servidor autoritativo)", () => {
     expect(sent).toHaveLength(3); // spawn + snapshot + chat de boas-vindas
     expect(sent[0]?.clientId).toBe(1);
     expect(parseServerMessage(sent[0]?.data as string)).toEqual({
-      type: "spawn", ...session.spawn,
+      // singleplayer: todo join é professor (cp9); papel viaja no spawn (cp11)
+      type: "spawn", ...session.spawn, papel: "professor",
     });
     const welcome = parseServerMessage(sent[2]?.data as string);
     if (welcome?.type !== "chat") throw new Error("esperava chat de boas-vindas");

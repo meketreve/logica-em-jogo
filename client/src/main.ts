@@ -1,10 +1,13 @@
 import * as THREE from "three";
 import {
   BlockId,
+  type NamedRegion,
+  type ObjectiveState,
   PLAYER,
   PLAYER_REACH,
   type RayHit,
   SERVER_TICK_RATE,
+  type ScenarioModo,
   type Snapshot,
   createPlayer,
   decodeSnapshot,
@@ -15,13 +18,22 @@ import {
   stepPlayer,
 } from "@logica/shared";
 import { createAtlasTexture } from "./atlasTexture";
+import { initUiAudio, playUi, setUiVolume } from "./audio";
 import { ChatUi } from "./chat";
 import { ChunkRenderer } from "./chunks";
 import { type Connection, WorkerConnection, WsConnection } from "./connection";
 import { emitGameEvent } from "./events";
 import { Hud } from "./hud";
 import { Input } from "./input";
-import { type MultiAuth, type PlayWorldChoice, getPlayerName, showMenu } from "./menu";
+import {
+  type MultiAuth,
+  type PlayWorldChoice,
+  buildConfigScreen,
+  getPlayerName,
+  showMenu,
+} from "./menu";
+import { ObjectivesUi } from "./objectivesUi";
+import { RegionRenderer } from "./regions";
 import { loadSettings } from "./settings";
 import { putWorld } from "./worldStore";
 
@@ -64,16 +76,54 @@ function applySettings(): ReturnType<typeof loadSettings> {
   camera.fov = s.fov;
   camera.updateProjectionMatrix();
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, s.pixelRatioCap));
+  setUiVolume(s.volume);
   return s;
 }
 let settings = applySettings();
+initUiAudio(settings.volume);
 
+// --- Menu de pausa (Esc = pointer lock solto) ---
 const overlay = document.getElementById("overlay");
+const overlayMain = document.getElementById("overlay-main");
+const overlayConfig = document.getElementById("overlay-config");
+const crosshairEl = document.getElementById("crosshair");
+
+function showOverlayMain(): void {
+  overlayMain?.classList.remove("hidden");
+  overlayConfig?.classList.add("hidden");
+}
+
 function updateOverlay(): void {
   // some quando o jogo tem o mouse OU o chat está aberto (senão cobre o input)
   overlay?.classList.toggle("hidden", input.locked || chat.open);
+  // mira só existe COM o mouse travado (pedido do usuário: invisível no Esc)
+  crosshairEl?.classList.toggle("hidden", !input.locked);
+  if (input.locked) showOverlayMain(); // próximo Esc abre no painel principal
 }
 document.addEventListener("pointerlockchange", updateOverlay);
+
+/** Config mudou no menu de pausa: aplica AO VIVO no jogo em andamento. */
+function onSettingsChanged(): void {
+  const oldKeys = settings.keys;
+  settings = applySettings();
+  // atalhos registrados por handler (chat/HUD/varinha) seguem o rebind na hora
+  for (const a of ["chat", "hud", "varinha"] as const) {
+    input.rebind(oldKeys[a], settings.keys[a]);
+  }
+}
+
+document.getElementById("overlay-voltar")?.addEventListener("click", () => input.lock());
+document.getElementById("overlay-config-btn")?.addEventListener("click", () => {
+  const body = document.getElementById("overlay-config-body");
+  if (body) buildConfigScreen(body, onSettingsChanged); // reconstrói = estado atual
+  overlayMain?.classList.add("hidden");
+  overlayConfig?.classList.remove("hidden");
+});
+document.getElementById("overlay-config-back")?.addEventListener("click", showOverlayMain);
+overlay?.addEventListener("click", (e) => {
+  const btn = e.target instanceof HTMLElement ? e.target.closest("button") : null;
+  if (btn) playUi(btn.id === "overlay-config-back" ? "back" : "click");
+});
 
 window.addEventListener("resize", () => {
   camera.aspect = window.innerWidth / window.innerHeight;
@@ -100,6 +150,7 @@ const chat = new ChatUi(
     if (!open) input.lock(); // fechou o chat → devolve o mouse pro jogo
   },
 );
+updateOverlay(); // estado inicial: sem lock → overlay visível, mira escondida
 
 let debugStats = { tickAvgMs: 0, tickMaxMs: 0 };
 let started = false;
@@ -114,6 +165,49 @@ let applyTeleport:
   | ((pos: { x: number; y: number; z: number; yaw: number; pitch: number }) => void)
   | null = null;
 let serverSpawn: { x: number; y: number; z: number } | null = null;
+/** Papel do próprio jogador — vem no spawn (cp11); habilita a varinha. */
+let papel: "professor" | "aluno" = "aluno";
+/** Última lista de regiões do servidor (chega só pra professor). */
+let latestRegions: NamedRegion[] = [];
+let applyRegions: ((regions: NamedRegion[]) => void) | null = null;
+// cenário (cp12/13): painel HTML vive fora do jogo 3D; caixas verdes no startGame
+const objectivesUi = new ObjectivesUi();
+let latestObjectives: { modo: ScenarioModo; objetivos: ObjectiveState[] } | null = null;
+let applyObjectiveBoxes: ((list: ObjectiveState[]) => void) | null = null;
+/** Grupo do PRÓPRIO jogador (cp13) — vem na mensagem `group`. */
+let myGrupo: number | null = null;
+const knownComplete = new Set<number>();
+let objectivesSeeded = false; // 1ª lista do join não toca som de conquista antiga
+
+/** Concluído NO MEU escopo (meu grupo; professor/sem grupos = agregado). */
+function ownDone(o: ObjectiveState): boolean {
+  if (o.porGrupo && papel !== "professor") {
+    if (myGrupo === null) return false;
+    return o.porGrupo.find((g) => g.grupo === myGrupo)?.completo ?? false;
+  }
+  return o.completo;
+}
+
+/** Re-renderiza painel + caixas; beep só pra conclusão NOVA do meu escopo. */
+function refreshObjectivesView(beep: boolean): void {
+  if (!latestObjectives) return;
+  for (const o of latestObjectives.objetivos) {
+    if (ownDone(o)) {
+      if (!knownComplete.has(o.id)) {
+        knownComplete.add(o.id);
+        if (beep && objectivesSeeded) emitGameEvent({ kind: "objective_complete" });
+      }
+    } else {
+      knownComplete.delete(o.id); // /objetivo resetar
+    }
+  }
+  objectivesSeeded = true;
+  objectivesUi.update(latestObjectives.modo, latestObjectives.objetivos, {
+    grupo: myGrupo,
+    professor: papel === "professor",
+  });
+  applyObjectiveBoxes?.(latestObjectives.objetivos);
+}
 
 function handleServerData(data: string | ArrayBuffer): void {
   if (typeof data === "string") {
@@ -129,12 +223,26 @@ function handleServerData(data: string | ArrayBuffer): void {
       applyPlayerLeft?.(msg.id);
     } else if (msg.type === "spawn") {
       serverSpawn = { x: msg.x, y: msg.y, z: msg.z };
+      papel = msg.papel ?? "aluno";
+    } else if (msg.type === "regions") {
+      latestRegions = msg.regions;
+      applyRegions?.(msg.regions);
+    } else if (msg.type === "objectives") {
+      latestObjectives = { modo: msg.modo, objetivos: msg.objetivos };
+      refreshObjectivesView(true);
+    } else if (msg.type === "group") {
+      // trocar de grupo NÃO toca som: re-sincroniza o "já visto" em silêncio
+      myGrupo = msg.grupo;
+      knownComplete.clear();
+      refreshObjectivesView(false);
     } else if (msg.type === "teleport") {
       applyTeleport?.(msg);
     } else if (msg.type === "join_denied") {
-      // servidor recusou (PIN errado, nome em uso…): avisa e volta pro menu
-      // limpo (location sem query — cobre também o boot via ?server=)
-      alert(`não deu pra entrar: ${msg.reason}`);
+      // servidor recusou (PIN errado, nome em uso…): volta pro menu limpo
+      // (location sem query — cobre o boot via ?server=); o motivo atravessa
+      // o reload via sessionStorage e vira banner no menu (sem alert nativo)
+      playUi("denied");
+      sessionStorage.setItem("lj-erro", `não deu pra entrar: ${msg.reason}`);
       location.href = location.pathname;
     } else if (msg.type === "chat") {
       chat.addMessage(msg.author, msg.text);
@@ -187,7 +295,7 @@ function startSingleplayer(choice: PlayWorldChoice): void {
   );
   // mundo novo = seed aleatória; mundo existente = bytes do IndexedDB
   const seed = crypto.getRandomValues(new Uint32Array(1))[0] ?? 1;
-  wc.init({ save: choice.data ?? undefined, seed });
+  wc.init({ save: choice.data ?? undefined, seed, flat: choice.flat });
   connect(wc);
 }
 
@@ -235,6 +343,43 @@ function startGame(snap: Snapshot): void {
   }
   const chunkRenderer = new ChunkRenderer(world, material, scene);
   chunkRenderer.buildAll();
+
+  // regiões nomeadas (cp11): wireframes — o servidor só manda pra professor
+  const regionRenderer = new RegionRenderer(scene);
+  regionRenderer.setRegions(latestRegions);
+  applyRegions = (regions) => {
+    regionRenderer.setRegions(regions);
+    regionRenderer.clearCorners(); // região criada/apagada: rascunho já era
+  };
+
+  // objetivos ATIVOS (cp12/13): caixa verde — aluno vê o alvo DO SEU grupo,
+  // professor vê os alvos de todos os grupos
+  const objectiveBoxes = new RegionRenderer(scene, 0x2ecc71);
+  const updateObjectiveBoxes = (list: ObjectiveState[]): void => {
+    const boxes: NamedRegion[] = [];
+    for (const o of list) {
+      if (o.porGrupo) {
+        let mostrouAlvo = false;
+        for (const g of o.porGrupo) {
+          const meu = myGrupo !== null && g.grupo === myGrupo;
+          if ((papel === "professor" || meu) && g.ativo && !g.completo) {
+            boxes.push({ nome: `${o.regiao} g${g.grupo}`, min: g.min, max: g.max });
+            mostrouAlvo = true;
+          }
+        }
+        // construir per-grupo: min/max do objetivo = caixa do MODELO — mostra
+        // junto (o aluno precisa VER o que copiar)
+        if (mostrouAlvo && o.kind === "construir") {
+          boxes.push({ nome: `modelo ${o.regiao}`, min: o.min, max: o.max });
+        }
+      } else if (o.ativo && !o.completo) {
+        boxes.push({ nome: o.regiao, min: o.min, max: o.max });
+      }
+    }
+    objectiveBoxes.setRegions(boxes);
+  };
+  applyObjectiveBoxes = updateObjectiveBoxes;
+  if (latestObjectives) updateObjectiveBoxes(latestObjectives.objetivos);
 
   // Spawn vem do SERVIDOR (fixo, do terreno pristino) — o snapshot pode já
   // estar escavado, então findSpawnY local daria outro lugar (bug-010).
@@ -345,16 +490,28 @@ function startGame(snap: Snapshot): void {
     { id: BlockId.WoolPurple, name: "lã roxa" },
   ] as const;
   let selected = 0;
+  // varinha (cp11, só professor): cliques viram marcas de canto de região
+  let varinhaAtiva = false;
   const hotbarEl = document.getElementById("hotbar");
   const refreshHotbar = (): void => {
     if (!hotbarEl) return;
     // nomes são constantes do código (sem input externo) — innerHTML ok aqui
+    if (varinhaAtiva) {
+      hotbarEl.innerHTML =
+        "<b>[varinha]</b> esq = canto 1 · dir = canto 2 · /regiao criar nome · R volta";
+      return;
+    }
     hotbarEl.innerHTML = PLACEABLE.map((b, i) => {
       const label = i < 9 ? `${i + 1} ${b.name}` : b.name;
       return i === selected ? `<b>[${label}]</b>` : `<span>${label}</span>`;
     }).join(" · ");
   };
   refreshHotbar();
+  input.onKey(settings.keys.varinha, () => {
+    if (papel !== "professor") return; // aluno não tem varinha
+    varinhaAtiva = !varinhaAtiva;
+    refreshHotbar();
+  });
   // 1–9 escolhe direto os primeiros; scroll cicla TODOS os blocos
   PLACEABLE.slice(0, 9).forEach((_, i) => {
     input.onKey(`Digit${i + 1}`, () => {
@@ -367,14 +524,30 @@ function startGame(snap: Snapshot): void {
     refreshHotbar();
   });
 
+  // varinha: marca o canto na célula MIRADA (o bloco existente, não o ar
+  // vizinho) e mostra a marca local — o servidor confirma via chat
+  const wandMark = (corner: 1 | 2, t: RayHit): void => {
+    activeConn.send(
+      JSON.stringify({ type: "wand_mark", corner, x: t.x, y: t.y, z: t.z }),
+    );
+    regionRenderer.setCorner(corner, t.x, t.y, t.z);
+  };
   input.onMouseButton(0, () => {
     if (!target) return;
+    if (varinhaAtiva) {
+      wandMark(1, target);
+      return;
+    }
     activeConn.send(
       JSON.stringify({ type: "break_block", x: target.x, y: target.y, z: target.z }),
     );
   });
   input.onMouseButton(2, () => {
     if (!target) return;
+    if (varinhaAtiva) {
+      wandMark(2, target);
+      return;
+    }
     const block = PLACEABLE[selected];
     if (!block) return;
     activeConn.send(
@@ -389,7 +562,7 @@ function startGame(snap: Snapshot): void {
   });
 
   const hud = new Hud(renderer, {
-    checkpoint: 9,
+    checkpoint: 11,
     worldChunks: world.dims,
     worldSeed: snap.seed,
     serverHost: serverHostLabel,

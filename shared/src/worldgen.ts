@@ -54,3 +54,24 @@ export function generateWorld(dims: WorldDims = DEFAULT_WORLD_CHUNKS, seed = 1):
   }
   return world;
 }
+
+/** Superfície do mundo plano (o y da grama). */
+export const FLAT_SURFACE_Y = 3;
+
+/**
+ * Mundo PLANO (cp12, preset pra cenários): rocha-matriz no fundo (aluno não
+ * fura o chão do mapa), terra, grama na superfície — resto ar. Determinístico
+ * sem seed (plano é plano).
+ */
+export function generateFlatWorld(dims: WorldDims = DEFAULT_WORLD_CHUNKS): World {
+  const world = createWorld(dims);
+  for (let x = 0; x < world.sizeX; x++) {
+    for (let z = 0; z < world.sizeZ; z++) {
+      setBlock(world, x, 0, z, BlockId.Bedrock);
+      setBlock(world, x, 1, z, BlockId.Dirt);
+      setBlock(world, x, 2, z, BlockId.Dirt);
+      setBlock(world, x, FLAT_SURFACE_Y, z, BlockId.Grass);
+    }
+  }
+  return world;
+}
