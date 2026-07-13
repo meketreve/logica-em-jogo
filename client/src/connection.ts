@@ -46,13 +46,13 @@ export class WorkerConnection implements Connection {
   }
 
   /** Inicializa o hospedeiro: mundo do save (IndexedDB) OU novo com a seed
-   *  (flat = preset "plano" do cp12, só vale pra mundo novo). */
-  init(opts: { save?: ArrayBuffer; seed?: number; flat?: boolean }): void {
+   *  e o preset (normal/plano/cabines — só vale pra mundo novo). */
+  init(opts: { save?: ArrayBuffer; seed?: number; preset?: string }): void {
     this.worker.postMessage({
       hostType: "init",
       save: opts.save,
       seed: opts.seed,
-      flat: opts.flat === true,
+      preset: opts.preset,
     });
   }
 

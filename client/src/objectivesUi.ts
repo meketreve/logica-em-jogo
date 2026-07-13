@@ -8,6 +8,8 @@ export interface ObjectivesCtx {
   /** Grupo do PRÓPRIO jogador (null = sem grupo). */
   grupo: number | null;
   professor: boolean;
+  /** Rótulo da tecla do painel (cp14) — entra no aviso "entre num grupo". */
+  painelKey: string;
 }
 
 /**
@@ -36,7 +38,7 @@ export class ObjectivesUi {
     if (temGrupos && !ctx.professor && ctx.grupo === null) {
       const aviso = document.createElement("div");
       aviso.className = "obj";
-      aviso.textContent = "⚠ entre num grupo pra participar — Enter e digite /grupo entrar n";
+      aviso.textContent = `⚠ entre num grupo pra participar — tecla ${ctx.painelKey} abre o painel de grupos`;
       this.root.appendChild(aviso);
       return;
     }

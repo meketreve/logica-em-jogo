@@ -1,5 +1,6 @@
 import { type Papel } from "./auth";
 import { CHUNK_VOLUME, MAX_WORLD_CHUNKS } from "./constants";
+import { type GroupDef, parseGroups } from "./groups";
 import { type NamedRegion, parseNamedRegion } from "./regions";
 import { type ObjectiveState, type ScenarioModo, parseObjectiveState } from "./scenario";
 import { type World, createWorld } from "./world";
@@ -119,6 +120,15 @@ export type ServerMessage =
        */
       type: "group";
       grupo: number | null;
+    }
+  | {
+      /**
+       * Composição COMPLETA dos grupos (cp14) — TODOS recebem (o painel de
+       * grupo do aluno vive disto; ele só abre depois de grupos criados):
+       * no join e sempre que a composição mudar. Cliente substitui, não mescla.
+       */
+      type: "groups";
+      grupos: GroupDef[];
     }
   | {
       /** Chat: mensagem de jogador (autor "nome#id") ou do servidor (autor "servidor"). */
@@ -313,6 +323,9 @@ export function parseServerMessage(raw: string): ServerMessage | null {
       if (g !== null && (typeof g !== "number" || !Number.isInteger(g))) return null;
       return { type: "group", grupo: g };
     }
+    case "groups":
+      // parseGroups pula entrada quebrada — mesma tolerância do save
+      return { type: "groups", grupos: parseGroups(m["grupos"]) };
     case "chat":
       if (typeof m["author"] !== "string" || typeof m["text"] !== "string") return null;
       return { type: "chat", author: m["author"], text: m["text"] };

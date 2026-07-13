@@ -6,7 +6,8 @@
  */
 
 export type KeyAction =
-  | "forward" | "back" | "left" | "right" | "jump" | "chat" | "hud" | "varinha";
+  | "forward" | "back" | "left" | "right" | "jump" | "chat" | "hud" | "varinha"
+  | "painel";
 
 export interface GameSettings {
   /** Multiplicador da sensibilidade do mouse (1 = padrão). */
@@ -34,6 +35,7 @@ export const DEFAULT_SETTINGS: GameSettings = {
     chat: "Enter",
     hud: "F3",
     varinha: "KeyR",
+    painel: "KeyP",
   },
 };
 
@@ -46,6 +48,7 @@ export const KEY_ACTION_LABEL: Record<KeyAction, string> = {
   chat: "abrir chat",
   hud: "painel de desempenho",
   varinha: "varinha de região (professor)",
+  painel: "painel (professor: autoria · aluno: grupo)",
 };
 
 const STORAGE_KEY = "lj-config";

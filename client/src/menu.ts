@@ -1,3 +1,4 @@
+import { type WorldPreset, parseWorldPreset } from "@logica/shared";
 import { playUi, setUiVolume } from "./audio";
 import {
   DEFAULT_SETTINGS,
@@ -29,8 +30,8 @@ export interface PlayWorldChoice {
   createdAt: number;
   /** null = mundo novo (main gera seed); bytes = save carregado do IndexedDB. */
   data: ArrayBuffer | null;
-  /** Mundo novo nasce PLANO (preset de cenários, cp12). */
-  flat?: boolean;
+  /** Tipo do mundo NOVO (cp14): colinas, plano ou cabines. */
+  preset?: WorldPreset;
 }
 
 /** Credenciais do join em rede (cp9). PIN NUNCA persiste em localStorage —
@@ -188,7 +189,7 @@ export function showMenu(handlers: MenuHandlers): void {
 
   // criação inline (sem prompt/confirm nativos)
   const newName = el<HTMLInputElement>("menu-new-nome");
-  const newFlat = el<HTMLInputElement>("menu-new-plano");
+  const newTipo = el<HTMLSelectElement>("menu-new-tipo");
   el("menu-btn-new").addEventListener("click", () => {
     const name = newName.value.trim();
     if (!name) {
@@ -201,7 +202,7 @@ export function showMenu(handlers: MenuHandlers): void {
       name,
       createdAt: Date.now(),
       data: null,
-      flat: newFlat.checked,
+      preset: parseWorldPreset(newTipo.value),
     });
   });
 

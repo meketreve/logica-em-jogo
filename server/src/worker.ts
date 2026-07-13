@@ -3,8 +3,10 @@ import {
   GameSession,
   SERVER_TICK_RATE,
   type SaveData,
+  type WorldPreset,
   decodeSave,
   encodeSave,
+  parseWorldPreset,
 } from "@logica/shared";
 
 /**
@@ -23,7 +25,11 @@ const CLIENT_ID = 0; // worker dedicado = exatamente 1 cliente
 
 let session: GameSession | null = null;
 
-function startSession(save: ArrayBuffer | undefined, seed: number, flat: boolean): void {
+function startSession(
+  save: ArrayBuffer | undefined,
+  seed: number,
+  preset: WorldPreset,
+): void {
   let restore: SaveData | undefined;
   if (save) restore = decodeSave(save); // inválido = lança; cliente validou antes
   session = new GameSession(
@@ -32,7 +38,7 @@ function startSession(save: ArrayBuffer | undefined, seed: number, flat: boolean
       else postMessage(data, { transfer: [data] });
     },
     // singleplayer: sem PIN, jogador é professor automático (cp9)
-    { seed, restore, flat, singleplayer: true, now: () => performance.now() },
+    { seed, restore, preset, singleplayer: true, now: () => performance.now() },
   );
   setInterval(() => session?.tick(), 1000 / SERVER_TICK_RATE);
 }
@@ -44,12 +50,19 @@ self.onmessage = (e: MessageEvent) => {
     return;
   }
   if (typeof d !== "object" || d === null) return;
-  const msg = d as { hostType?: unknown; save?: unknown; seed?: unknown; flat?: unknown };
+  const msg = d as {
+    hostType?: unknown;
+    save?: unknown;
+    seed?: unknown;
+    flat?: unknown;
+    preset?: unknown;
+  };
   if (msg.hostType === "init" && !session) {
     startSession(
       msg.save instanceof ArrayBuffer ? msg.save : undefined,
       typeof msg.seed === "number" ? msg.seed : 20260710,
-      msg.flat === true, // preset "plano" (cp12) — só vale pra mundo NOVO
+      // preset (cp14) só vale pra mundo NOVO; flat=true = alias antigo de plano
+      msg.flat === true ? "plano" : parseWorldPreset(msg.preset),
     );
   } else if (msg.hostType === "save_request" && session) {
     const data = encodeSave(session.world, session.toSave());

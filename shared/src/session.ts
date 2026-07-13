@@ -1,6 +1,7 @@
 import { MAX_PIN_ATTEMPTS, PIN_LOCKOUT_MS, type Papel, isValidPin } from "./auth";
 import { BlockId, isBreakable, isPlaceable } from "./blocks";
 import {
+  CHUNK_SIZE,
   DEFAULT_WORLD_CHUNKS,
   MAX_CHAT_LENGTH,
   MAX_NAME_LENGTH,
@@ -40,7 +41,7 @@ import {
   snapshotRegion,
 } from "./scenario";
 import { type World, type WorldDims, findSpawnY, getBlock, inBounds, setBlock } from "./world";
-import { generateFlatWorld, generateWorld } from "./worldgen";
+import { type WorldPreset, generateWorldForPreset } from "./worldgen";
 
 /**
  * GameSession: o SERVIDOR autoritativo, independente de hospedeiro.
@@ -68,8 +69,11 @@ export interface SessionOptions {
    * chegar primeiro com o nome do dono.
    */
   singleplayer?: boolean;
-  /** Mundo NOVO nasce plano (preset de cenários, cp12). Ignorado com restore. */
+  /** Mundo NOVO nasce plano (preset de cenários, cp12). Ignorado com restore.
+   *  Mantido por compat (testes, LJ_PLANO) — `preset` é o caminho novo. */
   flat?: boolean;
+  /** Preset do mundo NOVO (cp14): normal | plano | cabines. Vence o `flat`. */
+  preset?: WorldPreset;
 }
 
 interface SessionPlayer {
@@ -180,11 +184,13 @@ export class GameSession {
       }
     } else {
       this.seed = opts.seed ?? 1;
-      this.world = opts.flat
-        ? generateFlatWorld(opts.dims ?? DEFAULT_WORLD_CHUNKS)
-        : generateWorld(opts.dims ?? DEFAULT_WORLD_CHUNKS, this.seed);
-      const sx = this.world.sizeX / 2 + 0.5;
-      const sz = this.world.sizeZ / 2 + 0.5;
+      const preset = opts.preset ?? (opts.flat ? "plano" : "normal");
+      this.world = generateWorldForPreset(preset, opts.dims ?? DEFAULT_WORLD_CHUNKS, this.seed);
+      // cabines: o centro exato do mundo é canto de chunk = dentro de uma
+      // cabine — desloca o spawn pro MEIO do chunk (área aberta)
+      const off = preset === "cabines" ? CHUNK_SIZE / 2 : 0;
+      const sx = this.world.sizeX / 2 + off + 0.5;
+      const sz = this.world.sizeZ / 2 + off + 0.5;
       this.spawn = {
         x: sx,
         y: findSpawnY(this.world, Math.floor(sx), Math.floor(sz)),
@@ -368,16 +374,23 @@ export class GameSession {
         if (papel === "professor" && this.regions.size) this.sendRegions(clientId);
         // grupos (cp13): aluno novo cai no MENOR grupo ("até não ter aluno
         // sem grupo"); quem já tinha grupo salvo continua nele
+        let entrouEmGrupo = false;
         if (this.grupos.size && papel === "aluno" && this.grupoDe(name) === null) {
           const menor = [...this.grupos.entries()].sort(
             (a, b) => a[1].size - b[1].size,
           )[0];
           if (menor) {
             menor[1].add(name);
+            entrouEmGrupo = true;
             this.sendServerChat(clientId, `você entrou no grupo ${menor[0]} (troque com /grupo entrar n)`);
           }
         }
-        if (this.grupos.size) this.sendGroup(clientId);
+        if (this.grupos.size) {
+          this.sendGroup(clientId);
+          // composição pro painel (cp14): mudou = avisa todos; senão só o novo
+          if (entrouEmGrupo) this.broadcastGroups();
+          else this.sendGroups(clientId);
+        }
         // cenário vai pra TODOS (HUD do aluno vive disto)
         if (this.scenario.objetivos.length) this.sendObjectives(clientId);
         // Presença (bug-064): jogador PARADO não manda move — sem isto o
@@ -849,6 +862,33 @@ export class GameSession {
           })
           .join("\n");
       }
+      case "texto": {
+        // edição de autoria (cp14 — painel usa): troca só o enunciado
+        const id = Number(parts[2]);
+        const texto = parts.slice(3).join(" ").slice(0, MAX_OBJETIVO_TEXTO);
+        if (!Number.isInteger(id) || !texto) return "uso: /objetivo texto id novo texto…";
+        const o = this.scenario.objetivos.find((obj) => obj.id === id);
+        if (!o) return `não existe objetivo #${id}`;
+        o.texto = texto;
+        this.broadcastObjectives();
+        return `objetivo #${id}: texto atualizado`;
+      }
+      case "mover": {
+        // reordena (cp14 — painel usa): posição 1 = primeiro. Em modo
+        // sequencial a ordem É o cenário, por isso o broadcast re-ativa certo.
+        const id = Number(parts[2]);
+        const pos = Number(parts[3]);
+        if (parts.length !== 4 || !Number.isInteger(id) || !Number.isInteger(pos)) {
+          return "uso: /objetivo mover id posicao (1 = primeiro)";
+        }
+        const idx = this.scenario.objetivos.findIndex((o) => o.id === id);
+        if (idx === -1) return `não existe objetivo #${id}`;
+        const destino = Math.min(Math.max(pos, 1), this.scenario.objetivos.length) - 1;
+        const [o] = this.scenario.objetivos.splice(idx, 1);
+        if (o) this.scenario.objetivos.splice(destino, 0, o);
+        this.broadcastObjectives();
+        return `objetivo #${id} agora é o ${destino + 1}º`;
+      }
       case "remover": {
         const id = Number(parts[2]);
         if (parts.length !== 3 || !Number.isInteger(id)) return "uso: /objetivo remover id";
@@ -886,7 +926,7 @@ export class GameSession {
       default:
         return (
           "uso: /objetivo add construir modelo alvo texto… · add chegar|limpar regiao texto… · " +
-          "lista · remover id · modo sequencial|livre · resetar"
+          "lista · texto id novo… · mover id pos · remover id · modo sequencial|livre · resetar"
         );
     }
   }
@@ -911,6 +951,27 @@ export class GameSession {
         grupo: this.grupoDe(p.name),
       } satisfies ServerMessage),
     );
+  }
+
+  private groupsJson(): string {
+    return JSON.stringify({
+      type: "groups",
+      grupos: [...this.grupos.entries()].map(([id, membros]) => ({
+        id,
+        membros: [...membros],
+      })),
+    } satisfies ServerMessage);
+  }
+
+  /** Composição completa pro cliente novo (painéis do cp14 vivem disto). */
+  private sendGroups(clientId: number): void {
+    this.send(clientId, this.groupsJson());
+  }
+
+  /** Composição mudou (criar/entrar/sair/auto-distribuição): avisa TODOS. */
+  private broadcastGroups(): void {
+    const raw = this.groupsJson();
+    for (const clientId of this.players.keys()) this.send(clientId, raw);
   }
 
   /** Subcomandos de /grupo. criar = só professor; entrar/sair/lista = todos. */
@@ -950,6 +1011,7 @@ export class GameSession {
           if (g !== null) this.sendServerChat(id, `você está no grupo ${g}`);
           this.sendGroup(id);
         }
+        this.broadcastGroups();
         this.broadcastObjectives(true);
         return `grupos: ${[...this.grupos.entries()]
           .map(([g, m]) => `g${g}(${m.size})`)
@@ -965,6 +1027,7 @@ export class GameSession {
         if (atual !== null) this.grupos.get(atual)?.delete(p.name);
         this.grupos.get(g)?.add(p.name);
         this.sendGroup(clientId);
+        this.broadcastGroups();
         return `você agora está no grupo ${g}`;
       }
       case "sair": {
@@ -974,6 +1037,7 @@ export class GameSession {
         if (atual === null) return "você não está em nenhum grupo";
         this.grupos.get(atual)?.delete(p.name);
         this.sendGroup(clientId);
+        this.broadcastGroups();
         return `você saiu do grupo ${atual}`;
       }
       case "lista": {

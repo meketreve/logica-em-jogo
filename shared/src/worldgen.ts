@@ -1,6 +1,14 @@
 import { BlockId } from "./blocks";
-import { DEFAULT_WORLD_CHUNKS } from "./constants";
+import { CHUNK_SIZE, DEFAULT_WORLD_CHUNKS } from "./constants";
 import { type World, type WorldDims, createWorld, setBlock } from "./world";
+
+/** Preset de criação de mundo (cp14): escolhido no menu/host, só vale pra
+ *  mundo NOVO. "plano" e "cabines" são determinísticos (ignoram seed). */
+export type WorldPreset = "normal" | "plano" | "cabines";
+
+export function parseWorldPreset(v: unknown): WorldPreset {
+  return v === "plano" || v === "cabines" ? v : "normal";
+}
 
 /**
  * Geração de terreno determinística (mesma seed = mesmos bytes em qualquer
@@ -74,4 +82,46 @@ export function generateFlatWorld(dims: WorldDims = DEFAULT_WORLD_CHUNKS): World
     }
   }
   return world;
+}
+
+/** Lado da cabine em blocos (footprint CABIN_SIZE×CABIN_SIZE no canto do chunk). */
+export const CABIN_SIZE = 5;
+/** Altura das paredes (2 blocos: aluno não pula pra fora, professor vê por cima ao redor). */
+export const CABIN_WALL_HEIGHT = 2;
+
+/**
+ * Mundo-modelo "cabines" (cp14): plano + uma cabine de tábuas no canto de CADA
+ * chunk, sem teto, com o lado aberto voltado pro centro do chunk. A cabine do
+ * professor guarda a sequência-gabarito; os grupos replicam nas deles
+ * (marcar com a varinha ou /regiao carimbar). Determinístico, sem seed.
+ */
+export function generateCabinsWorld(dims: WorldDims = DEFAULT_WORLD_CHUNKS): World {
+  const world = generateFlatWorld(dims);
+  const y0 = FLAT_SURFACE_Y + 1; // paredes em cima da grama
+  for (let cx = 0; cx < dims.x; cx++) {
+    for (let cz = 0; cz < dims.z; cz++) {
+      const ox = cx * CHUNK_SIZE;
+      const oz = cz * CHUNK_SIZE;
+      for (let y = y0; y < y0 + CABIN_WALL_HEIGHT; y++) {
+        for (let i = 0; i < CABIN_SIZE; i++) {
+          setBlock(world, ox, y, oz + i, BlockId.Planks); // parede x=0
+          setBlock(world, ox + i, y, oz, BlockId.Planks); // parede z=0
+          setBlock(world, ox + i, y, oz + CABIN_SIZE - 1, BlockId.Planks); // parede z=4
+          // lado x=4 fica ABERTO — é o que olha pro centro do chunk
+        }
+      }
+    }
+  }
+  return world;
+}
+
+/** Gera o mundo NOVO do preset escolhido (mundo restaurado de save ignora isto). */
+export function generateWorldForPreset(
+  preset: WorldPreset,
+  dims: WorldDims,
+  seed: number,
+): World {
+  if (preset === "plano") return generateFlatWorld(dims);
+  if (preset === "cabines") return generateCabinsWorld(dims);
+  return generateWorld(dims, seed);
 }

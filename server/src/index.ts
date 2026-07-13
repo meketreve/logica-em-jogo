@@ -7,6 +7,7 @@ import {
   type SaveData,
   decodeSave,
   encodeSave,
+  parseWorldPreset,
 } from "@logica/shared";
 
 /**
@@ -66,8 +67,12 @@ const session = new GameSession(
     now: () => performance.now(),
     restore,
     codigo,
-    // LJ_PLANO=1: mundo NOVO nasce plano (preset de cenários, cp12)
-    flat: process.env["LJ_PLANO"] === "1",
+    // preset do mundo NOVO (cp14): LJ_PRESET=plano|cabines; LJ_PLANO=1 é o
+    // alias antigo de plano. Mundo restaurado do save ignora.
+    preset:
+      process.env["LJ_PLANO"] === "1"
+        ? "plano"
+        : parseWorldPreset(process.env["LJ_PRESET"]),
   },
 );
 

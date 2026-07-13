@@ -1,6 +1,7 @@
 import * as THREE from "three";
 import {
   BlockId,
+  type GroupDef,
   type NamedRegion,
   type ObjectiveState,
   PLAYER,
@@ -19,6 +20,7 @@ import {
 } from "@logica/shared";
 import { createAtlasTexture } from "./atlasTexture";
 import { initUiAudio, playUi, setUiVolume } from "./audio";
+import { PLACEABLE } from "./blocksUi";
 import { ChatUi } from "./chat";
 import { ChunkRenderer } from "./chunks";
 import { type Connection, WorkerConnection, WsConnection } from "./connection";
@@ -33,8 +35,9 @@ import {
   showMenu,
 } from "./menu";
 import { ObjectivesUi } from "./objectivesUi";
+import { AuthorPanel, type GamePanel, GroupPanel, type PanelData } from "./panels";
 import { RegionRenderer } from "./regions";
-import { loadSettings } from "./settings";
+import { keyLabel, loadSettings } from "./settings";
 import { putWorld } from "./worldStore";
 
 /**
@@ -82,6 +85,10 @@ function applySettings(): ReturnType<typeof loadSettings> {
 let settings = applySettings();
 initUiAudio(settings.volume);
 
+/** Painel do cp14 — criado no startGame conforme o papel (autoria OU grupo).
+ *  Declarado ANTES do updateOverlay do boot (TDZ). */
+let activePanel: GamePanel | null = null;
+
 // --- Menu de pausa (Esc = pointer lock solto) ---
 const overlay = document.getElementById("overlay");
 const overlayMain = document.getElementById("overlay-main");
@@ -94,8 +101,12 @@ function showOverlayMain(): void {
 }
 
 function updateOverlay(): void {
-  // some quando o jogo tem o mouse OU o chat está aberto (senão cobre o input)
-  overlay?.classList.toggle("hidden", input.locked || chat.open);
+  // some quando o jogo tem o mouse, o chat está aberto OU um painel do cp14
+  // está na tela (senão o menu de pausa cobre o painel)
+  overlay?.classList.toggle(
+    "hidden",
+    input.locked || chat.open || (activePanel?.open ?? false),
+  );
   // mira só existe COM o mouse travado (pedido do usuário: invisível no Esc)
   crosshairEl?.classList.toggle("hidden", !input.locked);
   if (input.locked) showOverlayMain(); // próximo Esc abre no painel principal
@@ -106,8 +117,8 @@ document.addEventListener("pointerlockchange", updateOverlay);
 function onSettingsChanged(): void {
   const oldKeys = settings.keys;
   settings = applySettings();
-  // atalhos registrados por handler (chat/HUD/varinha) seguem o rebind na hora
-  for (const a of ["chat", "hud", "varinha"] as const) {
+  // atalhos registrados por handler (chat/HUD/varinha/painel) seguem o rebind na hora
+  for (const a of ["chat", "hud", "varinha", "painel"] as const) {
     input.rebind(oldKeys[a], settings.keys[a]);
   }
 }
@@ -176,8 +187,21 @@ let latestObjectives: { modo: ScenarioModo; objetivos: ObjectiveState[] } | null
 let applyObjectiveBoxes: ((list: ObjectiveState[]) => void) | null = null;
 /** Grupo do PRÓPRIO jogador (cp13) — vem na mensagem `group`. */
 let myGrupo: number | null = null;
+/** Composição dos grupos (cp14) — vem na mensagem `groups`; painéis vivem disto. */
+let latestGroups: GroupDef[] = [];
 const knownComplete = new Set<number>();
 let objectivesSeeded = false; // 1ª lista do join não toca som de conquista antiga
+
+/** Estado consolidado pros painéis — chamada sempre que algo deles muda. */
+function pushPanelData(): void {
+  activePanel?.update({
+    regions: latestRegions,
+    modo: latestObjectives?.modo ?? "sequencial",
+    objetivos: latestObjectives?.objetivos ?? [],
+    grupos: latestGroups,
+    myGrupo,
+  } satisfies PanelData);
+}
 
 /** Concluído NO MEU escopo (meu grupo; professor/sem grupos = agregado). */
 function ownDone(o: ObjectiveState): boolean {
@@ -205,6 +229,7 @@ function refreshObjectivesView(beep: boolean): void {
   objectivesUi.update(latestObjectives.modo, latestObjectives.objetivos, {
     grupo: myGrupo,
     professor: papel === "professor",
+    painelKey: keyLabel(settings.keys.painel),
   });
   applyObjectiveBoxes?.(latestObjectives.objetivos);
 }
@@ -227,14 +252,20 @@ function handleServerData(data: string | ArrayBuffer): void {
     } else if (msg.type === "regions") {
       latestRegions = msg.regions;
       applyRegions?.(msg.regions);
+      pushPanelData();
     } else if (msg.type === "objectives") {
       latestObjectives = { modo: msg.modo, objetivos: msg.objetivos };
       refreshObjectivesView(true);
+      pushPanelData();
     } else if (msg.type === "group") {
       // trocar de grupo NÃO toca som: re-sincroniza o "já visto" em silêncio
       myGrupo = msg.grupo;
       knownComplete.clear();
       refreshObjectivesView(false);
+      pushPanelData();
+    } else if (msg.type === "groups") {
+      latestGroups = msg.grupos;
+      pushPanelData();
     } else if (msg.type === "teleport") {
       applyTeleport?.(msg);
     } else if (msg.type === "join_denied") {
@@ -295,7 +326,7 @@ function startSingleplayer(choice: PlayWorldChoice): void {
   );
   // mundo novo = seed aleatória; mundo existente = bytes do IndexedDB
   const seed = crypto.getRandomValues(new Uint32Array(1))[0] ?? 1;
-  wc.init({ save: choice.data ?? undefined, seed, flat: choice.flat });
+  wc.init({ save: choice.data ?? undefined, seed, preset: choice.preset });
   connect(wc);
 }
 
@@ -380,6 +411,33 @@ function startGame(snap: Snapshot): void {
   };
   applyObjectiveBoxes = updateObjectiveBoxes;
   if (latestObjectives) updateObjectiveBoxes(latestObjectives.objetivos);
+
+  // painéis do cp14: professor = autoria; aluno = grupos. O painel só COMPÕE
+  // comandos de chat — decisão continua 100% no servidor.
+  const sendCmd = (text: string): void =>
+    activeConn.send(JSON.stringify({ type: "chat", text }));
+  const onPanelToggle = (open: boolean): void => {
+    if (open) document.exitPointerLock();
+    else input.lock();
+    updateOverlay();
+  };
+  activePanel =
+    papel === "professor"
+      ? new AuthorPanel(sendCmd, onPanelToggle)
+      : new GroupPanel(sendCmd, onPanelToggle);
+  pushPanelData();
+  input.onKey(settings.keys.painel, () => {
+    if (chat.open) return;
+    // painel do aluno só abre DEPOIS do professor criar grupos (decisão do MVP v2)
+    if (papel !== "professor" && latestGroups.length === 0) {
+      chat.addMessage("jogo", "o professor ainda não criou grupos — o painel abre quando existirem");
+      return;
+    }
+    activePanel?.toggle();
+  });
+  if (papel === "professor") {
+    chat.addMessage("jogo", `tecla ${keyLabel(settings.keys.painel)} abre o painel de autoria`);
+  }
 
   // Spawn vem do SERVIDOR (fixo, do terreno pristino) — o snapshot pode já
   // estar escavado, então findSpawnY local daria outro lugar (bug-010).
@@ -468,27 +526,8 @@ function startGame(snap: Snapshot): void {
   let target: RayHit | null = null;
   const lookDir = new THREE.Vector3();
 
-  // Ordem = id do bloco (1..18): o texto de uso do /bloco aponta pra hotbar.
-  const PLACEABLE = [
-    { id: BlockId.Grass, name: "grama" },
-    { id: BlockId.Stone, name: "pedra" },
-    { id: BlockId.Cobblestone, name: "pedregulho" },
-    { id: BlockId.Sand, name: "areia" },
-    { id: BlockId.Dirt, name: "terra" },
-    { id: BlockId.Log, name: "tronco" },
-    { id: BlockId.Planks, name: "tábuas" },
-    { id: BlockId.Brick, name: "tijolo" },
-    { id: BlockId.Gravel, name: "cascalho" },
-    { id: BlockId.Bedrock, name: "rocha-matriz" },
-    { id: BlockId.WoolWhite, name: "lã branca" },
-    { id: BlockId.WoolBlack, name: "lã preta" },
-    { id: BlockId.WoolRed, name: "lã vermelha" },
-    { id: BlockId.WoolOrange, name: "lã laranja" },
-    { id: BlockId.WoolYellow, name: "lã amarela" },
-    { id: BlockId.WoolGreen, name: "lã verde" },
-    { id: BlockId.WoolBlue, name: "lã azul" },
-    { id: BlockId.WoolPurple, name: "lã roxa" },
-  ] as const;
+  // Blocos da hotbar agora moram em blocksUi.ts (o painel de autoria usa a
+  // mesma lista nos selects do /regiao encher).
   let selected = 0;
   // varinha (cp11, só professor): cliques viram marcas de canto de região
   let varinhaAtiva = false;
@@ -562,7 +601,7 @@ function startGame(snap: Snapshot): void {
   });
 
   const hud = new Hud(renderer, {
-    checkpoint: 11,
+    checkpoint: 14,
     worldChunks: world.dims,
     worldSeed: snap.seed,
     serverHost: serverHostLabel,
@@ -681,4 +720,7 @@ function startGame(snap: Snapshot): void {
     hud.frame(dtMs);
     renderer.render(scene, camera);
   });
+
+  // ?painel na URL: abre o painel já no boot (verificação headless do cp14)
+  if (new URLSearchParams(location.search).has("painel")) activePanel?.toggle();
 }
