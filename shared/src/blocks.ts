@@ -26,12 +26,30 @@ export const BlockId = {
   WoolGreen: 16,
   WoolBlue: 17,
   WoolPurple: 18,
+  // cp17 (2026-07-13): 2º lote de cubos opacos + 4 lãs (sequências mais ricas).
+  Sandstone: 19,
+  StoneBricks: 20,
+  Snow: 21,
+  Obsidian: 22,
+  WoolPink: 23,
+  WoolCyan: 24,
+  WoolGray: 25,
+  WoolBrown: 26,
+  // cp18 (2026-07-13): grupo B — transparentes (cutout/alphaTest no cliente).
+  Glass: 27,
+  Leaves: 28,
 } as const;
 
 export type BlockId = (typeof BlockId)[keyof typeof BlockId];
 
 /** Maior ID válido (mantém isPlaceable sem número mágico ao crescer a lista). */
-const MAX_BLOCK_ID = BlockId.WoolPurple;
+const MAX_BLOCK_ID = BlockId.Leaves;
+
+/** Bloco transparente (vidro/folhas): NÃO oculta a face do vizinho no mesher.
+ *  Continua sólido pra física/raycast — transparência é só visual. */
+export function isTransparentBlock(id: number): boolean {
+  return id === BlockId.Glass || id === BlockId.Leaves;
+}
 
 /** O jogador pode colocar este ID? (qualquer bloco menos ar; valida bytes do fio) */
 export function isPlaceable(id: number): boolean {

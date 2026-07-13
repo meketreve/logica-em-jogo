@@ -18,7 +18,13 @@ export const PLAYER = {
   width: 0.6,
   height: 1.8,
   eyeHeight: 1.62,
+  /** Olhos mais baixos enquanto agachado (feedback visual do sneak). */
+  sneakEyeHeight: 1.32,
   walkSpeed: 4.3,
+  /** Multiplicador de velocidade correndo (Ctrl/duplo-toque no andar). */
+  sprintFactor: 1.6,
+  /** Multiplicador de velocidade agachado (Shift). */
+  sneakFactor: 0.3,
   jumpSpeed: 8.4,
   gravity: 25,
   /** Velocidade máxima de queda (evita atravessar blocos com dt grande). */
@@ -43,6 +49,10 @@ export interface MoveInput {
   strafe: number;
   jump: boolean;
   yaw: number;
+  /** Correndo. Agachar vence: sneak=true ignora sprint. */
+  sprint?: boolean;
+  /** Agachado: mais lento e, no chão, não cai da borda do bloco. */
+  sneak?: boolean;
 }
 
 export function createPlayer(x: number, y: number, z: number): PlayerState {
@@ -93,13 +103,45 @@ function moveAxis(world: World, p: PlayerState, axis: "x" | "y" | "z", dist: num
   }
 }
 
+/** Há bloco sólido logo abaixo dos pés (sustentando o AABB)? */
+function hasSupport(world: World, pos: Vec3): boolean {
+  const half = PLAYER.width / 2;
+  const y = Math.floor(pos.y) - 1;
+  const x0 = Math.floor(pos.x - half);
+  const x1 = Math.floor(pos.x + half);
+  const z0 = Math.floor(pos.z - half);
+  const z1 = Math.floor(pos.z + half);
+  for (let z = z0; z <= z1; z++)
+    for (let x = x0; x <= x1; x++)
+      if (getBlock(world, x, y, z) !== BlockId.Air) return true;
+  return false;
+}
+
+/** moveAxis horizontal com edge-guard do agachar: passo que tiraria o chão de baixo dos pés é desfeito (por eixo — na diagonal o eixo seguro continua deslizando). */
+function moveAxisGuarded(
+  world: World,
+  p: PlayerState,
+  axis: "x" | "z",
+  dist: number,
+  guard: boolean,
+): void {
+  const before = p.pos[axis];
+  moveAxis(world, p, axis, dist);
+  if (guard && !hasSupport(world, p.pos)) {
+    p.pos[axis] = before;
+    p.vel[axis] = 0;
+  }
+}
+
 /** Um passo de simulação do jogador. Muta `p`. */
 export function stepPlayer(world: World, p: PlayerState, input: MoveInput, dt: number): void {
   // Velocidade horizontal direto do input (sem inércia — controle imediato).
   const f = input.forward;
   const s = input.strafe;
+  const sneak = input.sneak === true;
+  const factor = sneak ? PLAYER.sneakFactor : input.sprint === true ? PLAYER.sprintFactor : 1;
   const len = Math.hypot(f, s);
-  const scale = (len > 1 ? 1 / len : 1) * PLAYER.walkSpeed;
+  const scale = (len > 1 ? 1 / len : 1) * PLAYER.walkSpeed * factor;
   const sin = Math.sin(input.yaw);
   const cos = Math.cos(input.yaw);
   p.vel.x = (s * cos - f * sin) * scale;
@@ -117,7 +159,9 @@ export function stepPlayer(world: World, p: PlayerState, input: MoveInput, dt: n
   const h = dt / steps;
   for (let i = 0; i < steps; i++) {
     moveAxis(world, p, "y", p.vel.y * h);
-    moveAxis(world, p, "x", p.vel.x * h);
-    moveAxis(world, p, "z", p.vel.z * h);
+    // edge-guard só com os pés no chão — no ar (pulo/queda) agachar não trava nada
+    const guard = sneak && p.onGround;
+    moveAxisGuarded(world, p, "x", p.vel.x * h, guard);
+    moveAxisGuarded(world, p, "z", p.vel.z * h, guard);
   }
 }

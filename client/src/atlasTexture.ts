@@ -92,6 +92,40 @@ function paintPlankLines(ctx: CanvasRenderingContext2D, tile: number): void {
   }
 }
 
+/** Arenito: estratos horizontais sutis sobre a base clara. */
+function paintSandstoneStrata(ctx: CanvasRenderingContext2D, tile: number): void {
+  const [ox, oy] = tileOrigin(tile);
+  ctx.fillStyle = "rgb(196,178,124)";
+  for (let y = 3; y < ATLAS.tilePx; y += 5) {
+    for (let x = 0; x < ATLAS.tilePx; x++) {
+      if (pixelHash(x, y, tile * 41 + 5) < 0.7) ctx.fillRect(ox + x, oy + y, 1, 1);
+    }
+  }
+}
+
+/** Pedra-lavrada: fiadas de 8×4 com juntas escuras desencontradas. */
+function paintStoneBrickJoints(ctx: CanvasRenderingContext2D, tile: number): void {
+  const [ox, oy] = tileOrigin(tile);
+  ctx.fillStyle = "rgb(96,96,96)";
+  for (let y = 3; y < ATLAS.tilePx; y += 4) ctx.fillRect(ox, oy + y, ATLAS.tilePx, 1);
+  for (let row = 0; row < 4; row++) {
+    const joint = row % 2 === 0 ? 7 : 3;
+    ctx.fillRect(ox + joint, oy + row * 4, 1, 3);
+    ctx.fillRect(ox + ((joint + 8) % ATLAS.tilePx), oy + row * 4, 1, 3);
+  }
+}
+
+/** Obsidiana: pontinhos roxos esparsos sobre o quase-preto. */
+function paintObsidianSpecks(ctx: CanvasRenderingContext2D, tile: number): void {
+  const [ox, oy] = tileOrigin(tile);
+  ctx.fillStyle = "rgb(92,58,128)";
+  for (let y = 0; y < ATLAS.tilePx; y++) {
+    for (let x = 0; x < ATLAS.tilePx; x++) {
+      if (pixelHash(x, y, tile * 67 + 11) < 0.06) ctx.fillRect(ox + x, oy + y, 1, 1);
+    }
+  }
+}
+
 /** Tijolos: fiadas de 4px com juntas verticais desencontradas sobre argamassa. */
 function paintBricks(ctx: CanvasRenderingContext2D, tile: number): void {
   const [ox, oy] = tileOrigin(tile);
@@ -104,6 +138,33 @@ function paintBricks(ctx: CanvasRenderingContext2D, tile: number): void {
         ctx.fillStyle = `rgb(${Math.round(158 + v)},${Math.round(64 + v)},${Math.round(52 + v)})`;
         ctx.fillRect(ox + x, oy + row * 4 + y, 1, 1);
       }
+    }
+  }
+}
+
+/** Vidro (cp18): moldura + brilhos diagonais opacos; o RESTO do tile fica
+ *  transparente — o material usa alphaTest (cutout), sem blending/sorting. */
+function paintGlass(ctx: CanvasRenderingContext2D, tile: number): void {
+  const [ox, oy] = tileOrigin(tile);
+  const px = ATLAS.tilePx;
+  ctx.clearRect(ox, oy, px, px); // fundo 100% transparente
+  ctx.fillStyle = "rgb(214,232,240)";
+  ctx.fillRect(ox, oy, px, 1);
+  ctx.fillRect(ox, oy + px - 1, px, 1);
+  ctx.fillRect(ox, oy, 1, px);
+  ctx.fillRect(ox + px - 1, oy, 1, px);
+  // brilhos diagonais no canto
+  for (let i = 2; i < 6; i++) ctx.fillRect(ox + i, oy + 8 - i, 1, 1);
+  for (let i = 4; i < 10; i++) ctx.fillRect(ox + i, oy + 14 - i, 1, 1);
+}
+
+/** Folhas (cp18): verde denso com furos transparentes (cutout). */
+function paintLeaves(ctx: CanvasRenderingContext2D, tile: number): void {
+  paintNoise(ctx, tile, [52, 118, 44], 16);
+  const [ox, oy] = tileOrigin(tile);
+  for (let y = 0; y < ATLAS.tilePx; y++) {
+    for (let x = 0; x < ATLAS.tilePx; x++) {
+      if (pixelHash(x, y, tile * 97 + 13) < 0.22) ctx.clearRect(ox + x, oy + y, 1, 1);
     }
   }
 }
@@ -146,6 +207,23 @@ export function createAtlasTexture(): THREE.Texture {
   paintNoise(ctx, TILE.woolGreen, [74, 164, 62], 8);
   paintNoise(ctx, TILE.woolBlue, [58, 94, 194], 8);
   paintNoise(ctx, TILE.woolPurple, [142, 72, 182], 8);
+
+  // cp17 (2026-07-13): 2º lote de opacos
+  paintNoise(ctx, TILE.sandstone, [214, 198, 146], 8);
+  paintSandstoneStrata(ctx, TILE.sandstone);
+  paintNoise(ctx, TILE.stoneBricks, [128, 128, 128], 10);
+  paintStoneBrickJoints(ctx, TILE.stoneBricks);
+  paintNoise(ctx, TILE.snow, [240, 244, 248], 5);
+  paintNoise(ctx, TILE.obsidian, [30, 24, 42], 8);
+  paintObsidianSpecks(ctx, TILE.obsidian);
+  paintNoise(ctx, TILE.woolPink, [226, 140, 170], 8);
+  paintNoise(ctx, TILE.woolCyan, [70, 178, 190], 8);
+  paintNoise(ctx, TILE.woolGray, [130, 130, 134], 6);
+  paintNoise(ctx, TILE.woolBrown, [110, 80, 54], 8);
+
+  // cp18: transparentes (cutout — alphaTest no material do cliente)
+  paintGlass(ctx, TILE.glass);
+  paintLeaves(ctx, TILE.leaves);
 
   const tex = new THREE.CanvasTexture(canvas);
   tex.magFilter = THREE.NearestFilter;

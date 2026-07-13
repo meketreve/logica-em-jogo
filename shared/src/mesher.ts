@@ -1,4 +1,4 @@
-import { BlockId } from "./blocks";
+import { BlockId, isTransparentBlock } from "./blocks";
 import { CHUNK_SIZE } from "./constants";
 import { type World, getBlock } from "./world";
 
@@ -34,6 +34,18 @@ export const TILE = {
   woolGreen: 17,
   woolBlue: 18,
   woolPurple: 19,
+  // cp17
+  sandstone: 20,
+  stoneBricks: 21,
+  snow: 22,
+  obsidian: 23,
+  woolPink: 24,
+  woolCyan: 25,
+  woolGray: 26,
+  woolBrown: 27,
+  // cp18 (transparentes)
+  glass: 28,
+  leaves: 29,
 } as const;
 
 interface FaceTiles {
@@ -64,7 +76,22 @@ const BLOCK_TILES: Readonly<Record<number, FaceTiles>> = {
   [BlockId.WoolGreen]: uniform(TILE.woolGreen),
   [BlockId.WoolBlue]: uniform(TILE.woolBlue),
   [BlockId.WoolPurple]: uniform(TILE.woolPurple),
+  [BlockId.Sandstone]: uniform(TILE.sandstone),
+  [BlockId.StoneBricks]: uniform(TILE.stoneBricks),
+  [BlockId.Snow]: uniform(TILE.snow),
+  [BlockId.Obsidian]: uniform(TILE.obsidian),
+  [BlockId.WoolPink]: uniform(TILE.woolPink),
+  [BlockId.WoolCyan]: uniform(TILE.woolCyan),
+  [BlockId.WoolGray]: uniform(TILE.woolGray),
+  [BlockId.WoolBrown]: uniform(TILE.woolBrown),
+  [BlockId.Glass]: uniform(TILE.glass),
+  [BlockId.Leaves]: uniform(TILE.leaves),
 };
+
+/** Tile usado como ÍCONE 2D do bloco (hotbar/inventário do cliente) — a face lateral. */
+export function blockIconTile(id: number): number {
+  return BLOCK_TILES[id]?.side ?? TILE.stone;
+}
 
 interface FaceCorner {
   readonly pos: readonly [number, number, number];
@@ -170,7 +197,12 @@ export function meshChunk(world: World, cx: number, cy: number, cz: number): Chu
             oy + ly + face.dir[1],
             oz + lz + face.dir[2],
           );
-          if (neighbor !== BlockId.Air) continue;
+          // cp18: face aparece se o vizinho é ar OU se um bloco OPACO encosta
+          // num transparente (vidro/folhas deixam ver a face de trás). Entre
+          // transparentes nenhuma face interna é emitida (coplanar = z-fight).
+          if (neighbor !== BlockId.Air) {
+            if (isTransparentBlock(id) || !isTransparentBlock(neighbor)) continue;
+          }
 
           const tile =
             face.dir[1] === 1 ? tiles.top : face.dir[1] === -1 ? tiles.bottom : tiles.side;

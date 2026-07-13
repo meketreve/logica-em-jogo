@@ -57,6 +57,26 @@ describe("culled mesher (função pura: bytes → geometria)", () => {
     }
   });
 
+  it("cp18: opaco encostado em vidro EMITE a face (dá pra ver através)", () => {
+    const w = createWorld(DIMS);
+    setBlock(w, 8, 8, 8, BlockId.Stone);
+    setBlock(w, 8, 9, 8, BlockId.Glass);
+    const g = meshChunk(w, 0, 0, 0);
+    // pedra: 6 faces (5 ar + 1 contra o vidro); vidro: 5 faces (base coplanar
+    // com o topo da pedra NÃO é emitida — z-fight)
+    expect(g.indices.length).toBe(11 * 6);
+  });
+
+  it("cp18: entre dois transparentes nenhuma face interna", () => {
+    const w = createWorld(DIMS);
+    setBlock(w, 8, 8, 8, BlockId.Glass);
+    setBlock(w, 9, 8, 8, BlockId.Glass);
+    const g = meshChunk(w, 0, 0, 0);
+    expect(g.indices.length).toBe(10 * 6); // 5 + 5, igual dois opacos
+    setBlock(w, 10, 8, 8, BlockId.Leaves); // tipos diferentes: mesma regra
+    expect(meshChunk(w, 0, 0, 0).indices.length).toBe(14 * 6);
+  });
+
   it("borda do mundo conta como ar (face externa aparece)", () => {
     const w = createWorld(DIMS);
     setBlock(w, 0, 0, 0, BlockId.Stone); // canto do mundo

@@ -6,8 +6,8 @@
  */
 
 export type KeyAction =
-  | "forward" | "back" | "left" | "right" | "jump" | "chat" | "hud" | "varinha"
-  | "painel";
+  | "forward" | "back" | "left" | "right" | "jump" | "correr" | "agachar"
+  | "chat" | "hud" | "varinha" | "painel" | "inventario";
 
 export interface GameSettings {
   /** Multiplicador da sensibilidade do mouse (1 = padrão). */
@@ -32,10 +32,13 @@ export const DEFAULT_SETTINGS: GameSettings = {
     left: "KeyA",
     right: "KeyD",
     jump: "Space",
+    correr: "ControlLeft",
+    agachar: "ShiftLeft",
     chat: "Enter",
     hud: "F3",
     varinha: "KeyR",
     painel: "KeyP",
+    inventario: "KeyE",
   },
 };
 
@@ -45,10 +48,13 @@ export const KEY_ACTION_LABEL: Record<KeyAction, string> = {
   left: "andar pra esquerda",
   right: "andar pra direita",
   jump: "pular",
+  correr: "correr (segurar; ou 2× andar pra frente)",
+  agachar: "agachar (não cai da borda)",
   chat: "abrir chat",
   hud: "painel de desempenho",
   varinha: "varinha de região (professor)",
   painel: "painel (professor: autoria · aluno: grupo)",
+  inventario: "inventário de blocos",
 };
 
 const STORAGE_KEY = "lj-config";

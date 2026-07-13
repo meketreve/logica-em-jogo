@@ -76,6 +76,51 @@ describe("física do jogador (/shared — cliente usa, servidor valida)", () => 
     expect(p.pos.y).toBeCloseTo(8, 1);
   });
 
+  it("correr é mais rápido, agachar é mais lento (e agachar vence sprint)", () => {
+    const w = flatWorld();
+    const p = createPlayer(8, 8.001, 8);
+    stepPlayer(w, p, { ...IDLE, forward: 1, sprint: true }, 1 / 60);
+    expect(Math.hypot(p.vel.x, p.vel.z)).toBeCloseTo(PLAYER.walkSpeed * PLAYER.sprintFactor, 5);
+    stepPlayer(w, p, { ...IDLE, forward: 1, sneak: true }, 1 / 60);
+    expect(Math.hypot(p.vel.x, p.vel.z)).toBeCloseTo(PLAYER.walkSpeed * PLAYER.sneakFactor, 5);
+    stepPlayer(w, p, { ...IDLE, forward: 1, sprint: true, sneak: true }, 1 / 60);
+    expect(Math.hypot(p.vel.x, p.vel.z)).toBeCloseTo(PLAYER.walkSpeed * PLAYER.sneakFactor, 5);
+  });
+
+  it("agachado não cai da borda do bloco (edge-guard); sem agachar, cai", () => {
+    // pilar isolado de 1 bloco no ar: (8, 8, 8)
+    const w = createWorld({ x: 1, z: 1, y: 1 });
+    setBlock(w, 8, 8, 8, BlockId.Stone);
+    const sneaky = createPlayer(8.5, 9.001, 8.5);
+    simulate(w, sneaky, { ...IDLE, forward: 1, sneak: true }, 2);
+    expect(sneaky.onGround).toBe(true); // ficou em cima
+    expect(sneaky.pos.y).toBeCloseTo(9, 1);
+    const walker = createPlayer(8.5, 9.001, 8.5);
+    simulate(w, walker, { ...IDLE, forward: 1 }, 2);
+    expect(walker.pos.y).toBeLessThan(5); // caiu do pilar
+  });
+
+  it("edge-guard desliza pelo eixo seguro na diagonal", () => {
+    // trilho de 1 bloco de largura ao longo de -Z: andar diagonal (frente+direita)
+    // deve avançar em -Z (eixo seguro) sem cair pra +X
+    const w = createWorld({ x: 1, z: 1, y: 1 });
+    for (let z = 0; z < 16; z++) setBlock(w, 8, 8, z, BlockId.Stone);
+    const p = createPlayer(8.5, 9.001, 12.5);
+    simulate(w, p, { ...IDLE, forward: 1, strafe: 1, sneak: true }, 2);
+    expect(p.onGround).toBe(true); // não caiu do trilho
+    expect(p.pos.z).toBeLessThan(11); // avançou em -Z
+    // em X pode se debruçar até o AABB quase sair do bloco (footprint ainda
+    // toca o trilho: |x-8.5| < 0.8), mas nunca além — não cai
+    expect(Math.abs(p.pos.x - 8.5)).toBeLessThan(0.81);
+  });
+
+  it("agachar no ar não trava o movimento (guard só com chão)", () => {
+    const w = flatWorld();
+    const p = createPlayer(8, 12, 8); // no ar, caindo
+    stepPlayer(w, p, { ...IDLE, forward: 1, sneak: true }, 1 / 60);
+    expect(p.pos.z).toBeLessThan(8); // andou pra frente mesmo agachado no ar
+  });
+
   it("queda longa não atravessa o chão (sub-passos anti-tunneling)", () => {
     const w = flatWorld();
     const p = createPlayer(8, 15.9, 8);

@@ -147,8 +147,9 @@
       #hotbar b {
         color: #ffd75e;
       }
-      /* painéis do cp14 (autoria do professor / grupo do aluno) */
-      #painel {
+      /* painéis do cp14 (autoria do professor / grupo do aluno) + inventário (cp16) */
+      #painel,
+      #inventario {
         position: fixed;
         left: 50%;
         top: 50%;
@@ -164,7 +165,8 @@
         font-size: 0.9rem;
         z-index: 25;
       }
-      #painel h2 {
+      #painel h2,
+      #inventario h2 {
         margin: 0;
         font-size: 1.25rem;
       }
@@ -190,7 +192,8 @@
       .painel-row span {
         opacity: 0.85;
       }
-      #painel button {
+      #painel button,
+      #inventario button {
         font: inherit;
         font-size: 0.82rem;
         padding: 4px 9px;
@@ -200,7 +203,8 @@
         color: #fff;
         cursor: pointer;
       }
-      #painel button:hover:not(:disabled) {
+      #painel button:hover:not(:disabled),
+      #inventario button:hover:not(:disabled) {
         background: rgba(255, 255, 255, 0.22);
       }
       #painel button:disabled {
@@ -248,6 +252,102 @@
       }
       .painel-armado {
         background: rgba(200, 60, 60, 0.6) !important;
+      }
+      /* --- Inventário de blocos (cp16) --- */
+      .inv-dica {
+        font-size: 0.78rem;
+        opacity: 0.65;
+        margin: 6px 0 10px;
+      }
+      .inv-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(76px, 1fr));
+        gap: 6px;
+      }
+      .inv-bloco {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 4px;
+        padding: 8px 4px 6px !important;
+      }
+      .inv-bloco img {
+        width: 32px;
+        height: 32px;
+        image-rendering: pixelated;
+      }
+      .inv-bloco small {
+        font-size: 0.68rem;
+        opacity: 0.85;
+        line-height: 1.1;
+        text-align: center;
+      }
+      .inv-hotbar {
+        display: flex;
+        justify-content: center;
+        gap: 5px;
+        margin-top: 14px;
+        padding-top: 10px;
+        border-top: 1px solid rgba(255, 255, 255, 0.15);
+      }
+      .inv-slot {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 2px;
+        width: 46px;
+        padding: 4px 0 5px !important;
+      }
+      .inv-slot img {
+        width: 26px;
+        height: 26px;
+        image-rendering: pixelated;
+      }
+      .inv-slot small {
+        font-size: 0.62rem;
+        opacity: 0.7;
+        line-height: 1;
+      }
+      .inv-slot.sel {
+        border-color: #ffd75e !important;
+        box-shadow: 0 0 0 1px #ffd75e;
+      }
+      /* hotbar do HUD em slots (cp16) */
+      #hotbar .bar-nome {
+        display: block;
+        font-size: 12px;
+        color: #ffd75e;
+        margin-bottom: 4px;
+      }
+      #hotbar .slots {
+        display: flex;
+        justify-content: center;
+        gap: 4px;
+      }
+      #hotbar .slot {
+        display: inline-flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 1px;
+        width: 42px;
+        padding: 3px 0 4px;
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        border-radius: 4px;
+        background: rgba(0, 0, 0, 0.35);
+        line-height: 1;
+      }
+      #hotbar .slot img {
+        width: 26px;
+        height: 26px;
+        image-rendering: pixelated;
+      }
+      #hotbar .slot small {
+        font-size: 9px;
+        opacity: 0.7;
+      }
+      #hotbar .slot.sel {
+        border-color: #ffd75e;
+        box-shadow: 0 0 0 1px #ffd75e;
       }
       /* --- Menu principal (cp8) --- */
       #menu {
@@ -499,7 +599,8 @@
           <button id="overlay-config-btn" type="button">⚙️ configurações</button>
           <button id="btn-sair" type="button">💾 salvar e voltar ao menu</button>
           <p class="menu-hint">
-            WASD move · espaço pula · botão esquerdo quebra · direito coloca ·
+            WASD move · espaço pula · Ctrl (ou 2× W) corre · Shift agacha ·
+            botão esquerdo quebra · direito coloca ·
             1–9 e scroll escolhem bloco · Enter abre o chat · P painel · F3 desempenho
           </p>
         </div>
@@ -523,6 +624,7 @@
     <div id="hotbar"></div>
     <div id="objetivos" class="hidden"></div>
     <div id="painel" class="hidden"></div>
+    <div id="inventario" class="hidden"></div>
     <div id="hud" class="hidden">
       <pre id="hud-text"></pre>
       <button id="hud-export" type="button">exportar JSON</button>

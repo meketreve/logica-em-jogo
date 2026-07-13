@@ -20,7 +20,9 @@ import {
 } from "@logica/shared";
 import { createAtlasTexture } from "./atlasTexture";
 import { initUiAudio, playUi, setUiVolume } from "./audio";
+import { makeBlockIcons } from "./blockIcons";
 import { PLACEABLE } from "./blocksUi";
+import { InventoryPanel } from "./inventory";
 import { ChatUi } from "./chat";
 import { ChunkRenderer } from "./chunks";
 import { type Connection, WorkerConnection, WsConnection } from "./connection";
@@ -88,6 +90,8 @@ initUiAudio(settings.volume);
 /** Painel do cp14 — criado no startGame conforme o papel (autoria OU grupo).
  *  Declarado ANTES do updateOverlay do boot (TDZ). */
 let activePanel: GamePanel | null = null;
+/** Inventário de blocos (cp16) — criado no startGame (precisa do atlas). */
+let inventoryPanel: InventoryPanel | null = null;
 
 // --- Menu de pausa (Esc = pointer lock solto) ---
 const overlay = document.getElementById("overlay");
@@ -105,7 +109,7 @@ function updateOverlay(): void {
   // está na tela (senão o menu de pausa cobre o painel)
   overlay?.classList.toggle(
     "hidden",
-    input.locked || chat.open || (activePanel?.open ?? false),
+    input.locked || chat.open || (activePanel?.open ?? false) || (inventoryPanel?.open ?? false),
   );
   // mira só existe COM o mouse travado (pedido do usuário: invisível no Esc)
   crosshairEl?.classList.toggle("hidden", !input.locked);
@@ -117,8 +121,8 @@ document.addEventListener("pointerlockchange", updateOverlay);
 function onSettingsChanged(): void {
   const oldKeys = settings.keys;
   settings = applySettings();
-  // atalhos registrados por handler (chat/HUD/varinha/painel) seguem o rebind na hora
-  for (const a of ["chat", "hud", "varinha", "painel"] as const) {
+  // atalhos registrados por handler (chat/HUD/varinha/painel/inventário) seguem o rebind na hora
+  for (const a of ["chat", "hud", "varinha", "painel", "inventario"] as const) {
     input.rebind(oldKeys[a], settings.keys[a]);
   }
 }
@@ -363,7 +367,12 @@ function startGame(snap: Snapshot): void {
   const activeConn = conn;
   if (!activeConn) return; // snapshot só chega depois do connect()
   const world = snap.world;
-  const material = new THREE.MeshLambertMaterial({ map: createAtlasTexture() });
+  // alphaTest = cutout dos transparentes (vidro/folhas): pixel opaco ou
+  // descartado — sem blending, sem sorting, mesmo draw call por chunk (cp18)
+  const material = new THREE.MeshLambertMaterial({
+    map: createAtlasTexture(),
+    alphaTest: 0.5,
+  });
 
   // ?atlas na URL: pendura o canvas do texture atlas no canto (inspeção visual)
   if (new URLSearchParams(location.search).has("atlas")) {
@@ -433,6 +442,7 @@ function startGame(snap: Snapshot): void {
       chat.addMessage("jogo", "o professor ainda não criou grupos — o painel abre quando existirem");
       return;
     }
+    inventoryPanel?.hide(); // um painel por vez na tela
     activePanel?.toggle();
   });
   if (papel === "professor") {
@@ -526,24 +536,55 @@ function startGame(snap: Snapshot): void {
   let target: RayHit | null = null;
   const lookDir = new THREE.Vector3();
 
-  // Blocos da hotbar agora moram em blocksUi.ts (o painel de autoria usa a
-  // mesma lista nos selects do /regiao encher).
+  // cp16: hotbar virou 9 SLOTS configuráveis (persistem no navegador via
+  // localStorage); o inventário (tecla E) escolhe o bloco de cada slot.
+  // A lista de colocáveis segue em blocksUi.ts (painel de autoria usa a mesma).
+  const HOTBAR_KEY = "lj-hotbar";
+  const defaultHotbar = (): number[] => PLACEABLE.slice(0, 9).map((b) => b.id);
+  const loadHotbar = (): number[] => {
+    // defensivo por slot: id fora da lista (ou config velha) cai no default
+    const valid = new Set<number>(PLACEABLE.map((b) => b.id));
+    const def = defaultHotbar();
+    try {
+      const raw: unknown = JSON.parse(localStorage.getItem(HOTBAR_KEY) ?? "null");
+      if (!Array.isArray(raw)) return def;
+      return def.map((d, i) => {
+        const v: unknown = raw[i];
+        return typeof v === "number" && valid.has(v) ? v : d;
+      });
+    } catch {
+      return def;
+    }
+  };
+  const hotbar = loadHotbar();
   let selected = 0;
   // varinha (cp11, só professor): cliques viram marcas de canto de região
   let varinhaAtiva = false;
   const hotbarEl = document.getElementById("hotbar");
+  // ícones recortados do próprio texture atlas (blockIcons.ts)
+  const icons = makeBlockIcons(
+    material.map?.image as HTMLCanvasElement,
+    PLACEABLE.map((b) => b.id),
+  );
+  const blockName = (id: number): string => PLACEABLE.find((b) => b.id === id)?.name ?? "?";
   const refreshHotbar = (): void => {
     if (!hotbarEl) return;
-    // nomes são constantes do código (sem input externo) — innerHTML ok aqui
+    // nomes/ícones são constantes do código (sem input externo) — innerHTML ok aqui
     if (varinhaAtiva) {
       hotbarEl.innerHTML =
         "<b>[varinha]</b> esq = canto 1 · dir = canto 2 · /regiao criar nome · R volta";
       return;
     }
-    hotbarEl.innerHTML = PLACEABLE.map((b, i) => {
-      const label = i < 9 ? `${i + 1} ${b.name}` : b.name;
-      return i === selected ? `<b>[${label}]</b>` : `<span>${label}</span>`;
-    }).join(" · ");
+    const slots = hotbar
+      .map((id, i) => {
+        const sel = i === selected ? " sel" : "";
+        return `<span class="slot${sel}"><small>${i + 1}</small><img src="${icons.get(id) ?? ""}" alt=""></span>`;
+      })
+      .join("");
+    hotbarEl.innerHTML =
+      `<span class="bar-nome">${blockName(hotbar[selected] ?? BlockId.Grass)}</span>` +
+      `<span class="slots">${slots}</span>`;
+    inventoryPanel?.refresh();
   };
   refreshHotbar();
   input.onKey(settings.keys.varinha, () => {
@@ -551,16 +592,42 @@ function startGame(snap: Snapshot): void {
     varinhaAtiva = !varinhaAtiva;
     refreshHotbar();
   });
-  // 1–9 escolhe direto os primeiros; scroll cicla TODOS os blocos
-  PLACEABLE.slice(0, 9).forEach((_, i) => {
+  // 1–9 escolhe o slot; scroll cicla os 9 slots
+  for (let i = 0; i < 9; i++) {
     input.onKey(`Digit${i + 1}`, () => {
       selected = i;
       refreshHotbar();
     });
-  });
+  }
   input.onWheel((dir) => {
-    selected = (selected + dir + PLACEABLE.length) % PLACEABLE.length;
+    selected = (selected + dir + hotbar.length) % hotbar.length;
     refreshHotbar();
+  });
+
+  // inventário (cp16): grade de todos os colocáveis → slot selecionado
+  inventoryPanel = new InventoryPanel(
+    icons,
+    () => ({ hotbar, selected }),
+    (blockId) => {
+      hotbar[selected] = blockId;
+      localStorage.setItem(HOTBAR_KEY, JSON.stringify(hotbar));
+      refreshHotbar();
+    },
+    (slot) => {
+      selected = slot;
+      refreshHotbar();
+    },
+    (open) => {
+      if (open) {
+        activePanel?.hide(); // um painel por vez na tela
+        document.exitPointerLock();
+      } else input.lock();
+      updateOverlay();
+    },
+  );
+  input.onKey(settings.keys.inventario, () => {
+    if (chat.open) return;
+    inventoryPanel?.toggle();
   });
 
   // varinha: marca o canto na célula MIRADA (o bloco existente, não o ar
@@ -587,15 +654,15 @@ function startGame(snap: Snapshot): void {
       wandMark(2, target);
       return;
     }
-    const block = PLACEABLE[selected];
-    if (!block) return;
+    const blockId = hotbar[selected];
+    if (blockId === undefined) return;
     activeConn.send(
       JSON.stringify({
         type: "place_block",
         x: target.x + target.nx,
         y: target.y + target.ny,
         z: target.z + target.nz,
-        blockId: block.id,
+        blockId,
       }),
     );
   });
@@ -670,6 +737,12 @@ function startGame(snap: Snapshot): void {
   }, 1000);
 
   let last = performance.now();
+  // corrida por duplo-toque no andar: latch fica armado até soltar a tecla
+  let sprintLatch = false;
+  let forwardWasDown = false;
+  let lastForwardTap = 0;
+  // altura do olho com transição suave (agachar abaixa a câmera)
+  let eyeHeight = PLAYER.eyeHeight;
   renderer.setAnimationLoop(() => {
     const now = performance.now();
     const dtMs = now - last;
@@ -684,7 +757,19 @@ function startGame(snap: Snapshot): void {
       : 0;
     const jump = input.locked && input.down(settings.keys.jump);
 
-    stepPlayer(world, player, { forward, strafe, jump, yaw: input.yaw }, dt);
+    const forwardDown = input.locked && input.down(settings.keys.forward);
+    if (forwardDown && !forwardWasDown) {
+      if (now - lastForwardTap < 300) sprintLatch = true;
+      lastForwardTap = now;
+    }
+    if (!forwardDown) sprintLatch = false;
+    forwardWasDown = forwardDown;
+
+    const sneak = input.locked && input.down(settings.keys.agachar);
+    const sprint =
+      forward > 0 && !sneak && (sprintLatch || (input.locked && input.down(settings.keys.correr)));
+
+    stepPlayer(world, player, { forward, strafe, jump, yaw: input.yaw, sprint, sneak }, dt);
     if (player.pos.y < -16) respawn(); // caiu da borda do mundo
 
     // jogadores remotos deslizam até o último update (suave mesmo a 10 Hz);
@@ -696,7 +781,15 @@ function startGame(snap: Snapshot): void {
       rp.mesh.rotation.y += Math.atan2(Math.sin(dyaw), Math.cos(dyaw)) * k;
     }
 
-    camera.position.set(player.pos.x, player.pos.y + PLAYER.eyeHeight, player.pos.z);
+    // olho abaixa agachado; FOV abre correndo — transições suaves (independem do FPS)
+    const kCam = 1 - Math.exp(-dt * 20);
+    eyeHeight += ((sneak ? PLAYER.sneakEyeHeight : PLAYER.eyeHeight) - eyeHeight) * kCam;
+    const fovAlvo = settings.fov * (sprint ? 1.1 : 1);
+    if (Math.abs(camera.fov - fovAlvo) > 0.01) {
+      camera.fov += (fovAlvo - camera.fov) * kCam;
+      camera.updateProjectionMatrix();
+    }
+    camera.position.set(player.pos.x, player.pos.y + eyeHeight, player.pos.z);
     camera.rotation.set(input.pitch, input.yaw, 0);
 
     // mira: raycast local (visual) — decisão continua no servidor
@@ -723,4 +816,5 @@ function startGame(snap: Snapshot): void {
 
   // ?painel na URL: abre o painel já no boot (verificação headless do cp14)
   if (new URLSearchParams(location.search).has("painel")) activePanel?.toggle();
+  if (new URLSearchParams(location.search).has("inv")) inventoryPanel?.toggle();
 }
