@@ -2,13 +2,14 @@
 
 > Single source of truth for resuming work. Read this FIRST when starting a session.
 > Last updated: 2026-07-12
-> **PRÓXIMA QUEST: MVP v2 — CENÁRIOS/AUTORIA (coração pedagógico). MVP v1 FECHADO
-> (playtest cp9 ✅ 2026-07-12). Começar com entrevista curta de escopo: o que É um
-> cenário (mundo + objetivos + texto?), como o professor cria DENTRO do jogo, como
-> o aluno vê objetivo/progresso, como distribui (formato .ljw já cobre?). Detecção
-> de objetivo = MESMA engrenagem das rules — checar estado do mundo contra padrão
-> (regra de ouro). cp10 (validação física do move) ADIADO: playtest não apontou
-> necessidade.**
+> **PRÓXIMA QUEST: cp14 — painéis HTML (fecha o MVP v2). cp11–cp13 FECHADOS
+> (playtests ✅ 2026-07-12). cp14 = painel de autoria do professor
+> (criar/editar objetivos, textos, ordem — substitui decorar comandos),
+> painel de grupo do aluno (abre só após grupos criados) e mundo-modelo
+> cabines no menu de criação. Depois: testar critério 4 do MVP v2
+> (export/import de mundo com cenário+grupos noutro host). Rename do
+> projeto: pedido e CANCELADO pelo usuário (2026-07-12) — nome fica
+> "Lógica em Jogo". cp10 segue ADIADO.**
 
 ---
 
@@ -358,6 +359,152 @@ em `/shared` desde o checkpoint 2 (gravidade testável sem abrir navegador); cad
    ✅ (cp9; playtest do usuário 2026-07-12 ✅).
 
 **→ MVP v1 FECHADO (2026-07-12): os 4 critérios atendidos e jogados.**
+
+**MVP v2 "Cenários/Autoria" — entrevista de escopo (2026-07-12). Decisões travadas:**
+- Cenário = mundo + objetivos + texto por objetivo, TUDO no MESMO .ljw
+  (meta JSON cresce sem re-versionar — desenho do cp7).
+- Modo de progressão POR CENÁRIO, autor escolhe: sequencial (fase a fase)
+  OU lista livre (qualquer ordem).
+- Tipos de objetivo v2 (TODOS aprovados; mesma engrenagem das rules — checar
+  estado do mundo contra padrão): (a) construir padrão em região (gabarito),
+  (b) chegar em local (região-alvo), (c) limpar região (= (a) com padrão ar).
+- Autoria: comandos de chat PRIMEIRO (usáveis antes do painel existir),
+  painel HTML depois; marcar região com cliques (varinha do professor) +
+  painel pra texto/ordem.
+- Gabarito WYSIWYG: professor constrói o exemplo no mundo, marca a região,
+  jogo "fotografa" os blocos. Escolha POR OBJETIVO: manter modelo visível
+  pro aluno copiar OU apagar.
+- Progresso por MUNDO e por GRUPO (ambos). Sistema de grupos NOVO:
+  professor cria grupos por comando `{quantidade por grupo}`; aluno entra
+  por comando OU painel; painel do aluno só abre DEPOIS do professor criar
+  grupos com sucesso. Singleplayer = grupo de 1 implícito.
+- HUD do aluno: objetivo ativo + texto + contador ao vivo (ex. 12/20
+  corretos); completou → mensagem de chat do servidor + próximo objetivo.
+  Gatilho de som via events.ts (já existe).
+- Grupos (2ª rodada, 2026-07-12): `/grupo criar` AUTO-DISTRIBUI todos os
+  online (round-robin) e NOTIFICA cada aluno; entrar/trocar por comando ou
+  painel; aluno sem grupo NÃO participa (HUD/chat avisa — professor vê quem
+  ficou de fora); mundo SEM grupos criados = modo turma-toda-junta (grupos
+  são opcionais); grupo PERSISTE no save (projetos de várias aulas);
+  `/grupo criar` de novo = reseta. Parâmetro (decidido 2026-07-12): as DUAS
+  sintaxes — `/grupo criar 5` = 5 grupos; `/grupo criar 5 alunos` = grupos
+  de 5 alunos.
+- Construir por grupo: 1 gabarito + 1 área de trabalho POR GRUPO (grupo
+  completa quando a SUA área bate com o gabarito). Marcação manual (varinha)
+  + comando/painel de CARIMBO: dita tamanho da área e espaçamento em blocos
+  entre áreas, replica N vezes.
+- Mundo modelo "cabines": plano; cabines no canto do chunk com o lado aberto
+  voltado pro centro do chunk; cabine do professor guarda a sequência-gabarito,
+  alunos replicam nas cabines dos grupos.
+- "Chegar em local": conclusão CONFIGURÁVEL POR OBJETIVO — todos os membros
+  do grupo na região OU basta um (depende da idade da turma).
+- Mundos predefinidos: SIM no v2 (pedido do usuário) — preset "plano" na
+  criação de mundo + mundo-modelo de cabines gerado com a ferramenta de
+  carimbo.
+
+**Checkpoints do MVP v2 (plano APROVADO 2026-07-12):**
+1. ✅ **cp11 — varinha + regiões nomeadas (2026-07-12, playtest do usuário ✅
+   "testei tudo" — inclui áudio de UI). cp11 FECHADO.**
+   Novo em `/shared`: `regions.ts` (NamedRegion min/max inclusivo,
+   regionFromCorners normaliza cantos, regionContains/regionDims,
+   parseNamedRegion defensivo — reusado por protocolo E save; MAX_REGIONS=64).
+   Protocolo: `wand_mark {corner:1|2,x,y,z}` client→server; `regions` (lista
+   COMPLETA) server→SÓ professores (join + após criar/apagar — o que o aluno
+   vê é decisão do objetivo no cp12); `spawn` ganhou `papel?` opcional
+   (cliente habilita UI de professor; host antigo compatível). Session:
+   cantos pendentes por cliente (rascunho, morre no disconnect/criar),
+   `/regiao criar nome · apagar nome · lista` (só professor), regiões no
+   meta do save via toSave/restore. Cliente: `regions.ts` (wireframes HSL +
+   2 marcas de canto amarelo/ciano), tecla R (rebindável, "varinha") alterna
+   modo varinha — clique esq/dir marca canto 1/2 na célula MIRADA, hotbar
+   vira hint; welcome do professor anuncia /regiao. 95 testes (8 novos em
+   regions.test.ts: puras + protocolo + sessão + persistência), typecheck
+   3/3, build ok. Screenshot headless: professor via ?server vê wireframe
+   da região do save ✅.
+   **+ Áudio de UI (pedido do usuário, mesmo dia):** `client/audio.ts` —
+   WebAudio sintetizado (zero assets, regra do projeto): click/back/confirm
+   nos botões do menu (delegação), notify no chat recebido, denied no
+   join_denied; volume das configurações agora FUNCIONA (slider ativo,
+   amostra ao soltar); AudioContext só nasce em gesto (autoplay policy) —
+   mensagens de rede só tocam se o contexto já existe. Playtest PENDENTE.
+2. ✅ **cp12 — objetivos + detecção + HUD (2026-07-12, playtest do usuário ✅
+   "tudo testado e funcionando"). cp12 FECHADO.**
+   **+ Polimento de UI pós-playtest (2026-07-12, pedidos do usuário, playtest
+   PENDENTE):** (a) ZERO popups nativos — prompt/confirm/alert viraram UI
+   inline (criar mundo = input+checkbox plano na tela de mundos; apagar = 2
+   cliques com desarme em 3 s; erros de import/endereço/PIN = `.menu-erro`
+   inline; join_denied atravessa o reload via sessionStorage "lj-erro" e vira
+   banner no menu — bônus: alert não trava mais screenshot headless/bug-093);
+   (b) mira invisível sem pointer lock (updateOverlay também controla
+   #crosshair); (c) menu Esc DE VERDADE: overlay virou painel .menu-screen
+   com "voltar ao jogo" (re-lock), "configurações" (MESMO buildConfigScreen
+   do menu principal, exportado com parâmetro body+onChanged — aplica AO
+   VIVO: sensibilidade/FOV/nitidez/volume/teclas; Input.rebind() move
+   atalhos chat/HUD/varinha na hora) e "salvar e voltar ao menu". Screenshot
+   headless do menu Esc ✅ (sem mira no centro).
+   Novo em `/shared`: `scenario.ts` — Objective (id/kind/texto/min-max CÓPIA
+   da região + gabarito), snapshotRegion/matchRegion (ordem canônica y→z→x;
+   corretos/alvo/extras separados), countSolid, parsers defensivos
+   (parseScenarioMeta pro save, parseObjectiveState pro fio). DECISÃO DE
+   DESIGN: construir tem região MODELO (fotografada no add) ≠ região ALVO
+   (detectada) — mesma região = fluxo "apagar depois" (senão nasce completo;
+   o comando RECUSA alvo que já bate). Sessão: `/objetivo add construir
+   modelo alvo texto…` / `add chegar|limpar regiao texto…` / lista / remover
+   / `modo sequencial|livre` / resetar (conclusão NUNCA desfaz; reset exige
+   ação nova); detecção pela REGRA DE OURO: applyBlock marca objetivosDirty
+   → tick recheca (areia caindo no alvo conta); chegar = move pisou na
+   região; sequencial só ativa o primeiro incompleto (pisar no futuro não
+   vale). Broadcast `objectives` pra TODOS (dedup por JSON; anúncio de
+   conclusão no chat SEMPRE depois do estado — som certo no cliente).
+   `/regiao encher nome id` (autoria: id 0 limpa; não empareda jogador;
+   teto 4096). Preset "plano" (`generateFlatWorld`: bedrock/terra/grama):
+   confirm() na criação de mundo, `?flat` no init do worker, LJ_PLANO=1 no
+   host Node. Cenário persiste no meta .ljw (save antigo válido). Cliente:
+   `objectivesUi.ts` (painel canto sup. direito: ativos + contador ao vivo
+   + "cenário completo"), caixas VERDES nos alvos ativos (aluno vê o alvo;
+   RegionRenderer ganhou cor fixa), som de conquista (confirm) suprime o
+   ping de chat por 800 ms. 110 testes (14 novos), typecheck 3/3, build ok,
+   screenshot e2e visão do aluno ✅ (mundo plano + painel 0/4 + caixa verde
+   + modelo de lãs).
+3. ✅ **cp13 — grupos + progresso por grupo (2026-07-12, playtest do usuário
+   ✅ "testei tudo, funciona"). cp13 FECHADO.**
+   Novo em `/shared`: `groups.ts` (GroupDef, parseGroups, MAX_GRUPOS=20).
+   `/grupo criar 5` = 5 grupos; `/grupo criar 5 alunos` = grupos de 5
+   (só professor; RE-CRIAR zera composição E progresso por grupo);
+   auto-distribui alunos online em round-robin (professor FORA) + notifica
+   cada um; `/grupo entrar n · sair · lista` (todos); aluno que chega depois
+   cai no MENOR grupo; grupo persiste no save (meta `grupos`); msg `group`
+   (pessoal: join + mudanças). Progresso: `completosGrupo` (chaves
+   `obj:grupo`, persiste em cenario.completosGrupos); objetivo COMPARTILHADO
+   concluído vale pra todos os grupos; chegar em modo grupos é SEMPRE por
+   grupo (sem grupo NÃO pontua); sequencial anda POR GRUPO (ritmos
+   diferentes — pisar em objetivo futuro não vale). Objetivo per-grupo:
+   `alvos: Box[]` (área por grupo) — `/objetivo add` resolve nome exato =
+   compartilhado, `nome-1…N` = per-grupo; construir valida dims/instant-
+   complete POR área; min/max do construir per-grupo = caixa do MODELO
+   (referência visual). `/regiao carimbar modelo prefixo espacamento [z]`:
+   replica a região modelo (BLOCOS inclusos — cabines!) 1× por grupo ao
+   longo do eixo e nomeia prefixo-1…N (valida bounds ANTES de mudar
+   qualquer bloco). `/objetivo add chegar regiao [todos|um] texto` — todos =
+   grupo inteiro online dentro ao mesmo tempo. `objectives` ganhou
+   `porGrupo[]` (mesma msg pra todos; cliente escolhe a própria linha).
+   Cliente: HUD do aluno = progresso DO SEU grupo + "seu grupo: n"; aluno
+   sem grupo = aviso; professor = resumo por grupo (`g1 2/4 · g2 ✓`);
+   caixas verdes = alvo do MEU grupo (+ modelo no construir; professor vê
+   todas); trocar de grupo re-sincroniza sem tocar som. 120 testes (10
+   novos), typecheck 3/3, build ok, screenshots professor+aluno ✅.
+   **+ Config em CATEGORIAS (pedido do usuário): controles (sensibilidade +
+   teclas) · som (volume) · gráficos (FOV + nitidez), mesma tela no menu
+   principal e no Esc.**
+4. **cp14 — painéis HTML + mundo modelo.** Painel de autoria do professor;
+   painel de grupo do aluno (abre após grupos criados); mundo-modelo
+   cabines no menu de criação.
+
+**Critérios de aceitação do MVP v2:**
+1. Professor cria cenário inteiro DENTRO do jogo e ele persiste no .ljw.
+2. Aluno vê objetivo/progresso no HUD, completa, sequência avança.
+3. Turma em grupos: auto-distribuição funciona, cada grupo progride na própria área.
+4. Mundo-modelo cabines exportado abre em outro host com cenário intacto.
 
 **Depois (anotado, não esquecer):**
 - **MVP v2 = CENÁRIOS/AUTORIA** (coração pedagógico): objetivos, detecção de

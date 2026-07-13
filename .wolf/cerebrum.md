@@ -150,6 +150,70 @@
 - alert() TRAVA screenshot headless: dialogo modal pausa o --virtual-time-budget
   no headless=new e o screenshot nunca dispara (bug-093). Fluxo com alert se
   verifica por smoke de protocolo, não por screenshot.
+- Regiões (cp11): canal `regions` é SÓ pra professores (join + após criar/
+  apagar; lista sempre COMPLETA — cliente substitui, não mescla). Aluno não
+  recebe nada — o que ele vê de região é decisão do OBJETIVO (cp12), não do
+  canal. Papel do próprio jogador viaja no `spawn` (campo opcional — host
+  antigo compatível); cliente usa pra habilitar UI de professor (varinha).
+- Cantos da varinha são rascunho POR CLIENTE no servidor (wandMarks):
+  somem no /regiao criar e no disconnect, NÃO persistem no save. Varinha
+  marca a célula MIRADA (bloco existente), não o ar vizinho do place.
+- parseNamedRegion (regions.ts) é o validador ÚNICO de região vinda de fora
+  — protocolo E decodeSave reusam; entrada quebrada é PULADA (lista/save
+  continuam válidos). Padrão pra qualquer estrutura futura no meta do save.
+- Grupos (cp13): membros por NOME (grupo sobrevive a rejoin/reboot, igual
+  roster); professor FORA da auto-distribuição; recém-chegado cai no MENOR
+  grupo; RE-criar grupos zera composição e progresso por grupo. Progresso:
+  chaves "obj:grupo" em completosGrupo; objetivo compartilhado concluído
+  vale pra todos os grupos; chegar em modo grupos é SEMPRE por grupo (sem
+  grupo não pontua); sequencial anda POR GRUPO. Msg `objectives` é a MESMA
+  pra todos (porGrupo[]) — o cliente escolhe a própria linha via msg `group`
+  pessoal. Não fazer mensagem de objetivo por-destinatário: quebra o dedup.
+- /regiao carimbar (cp13): replica região modelo com BLOCOS (cabines) 1× por
+  grupo e nomeia prefixo-1…N; valida bounds de TODAS as cópias antes de
+  mudar o primeiro bloco (carimbo pela metade = lixo). /objetivo add resolve
+  nome exato = área compartilhada, prefixo-1…N = área por grupo (exige as N).
+- Config em CATEGORIAS (menu.ts): renderConfigRoot (controles/som/gráficos/
+  restaurar) + renderConfigPanel por categoria; mesma tela no menu principal
+  e no Esc (buildConfigScreen é só a raiz). Categoria nova = 1 entrada em
+  CONFIG_CATEGORIES + 1 ramo no panel.
+- SEM popups nativos (pedido do usuário 2026-07-12): prompt/confirm/alert são
+  proibidos no cliente — usar UI inline (.menu-erro, apagar em 2 cliques com
+  desarme, formulário na própria tela). Erro que precisa sobreviver a reload
+  (join_denied) vai via sessionStorage "lj-erro" → banner no menu. Bônus:
+  alert travava screenshot headless (bug-093) — problema morreu junto.
+- Menu de pausa (Esc) = #overlay reestilizado como .menu-screen: voltar ao
+  jogo (input.lock), configurações e sair. buildConfigScreen(body, onChanged)
+  é COMPARTILHADO menu principal/pausa — onChanged aplica ao vivo
+  (applySettings + Input.rebind pros atalhos por handler: chat/hud/varinha;
+  teclas de movimento já leem settings.keys a cada frame). Mira (#crosshair)
+  só aparece com pointer lock ativo — updateOverlay controla.
+- Objetivo construir (cp12): região MODELO (fotografada no /objetivo add) é
+  SEPARADA da região ALVO (onde detecta) — fotografar e detectar na mesma
+  região nasceria completo. Mesma região é permitida (fluxo "apagar o modelo
+  depois"), mas o add RECUSA alvo que já bate com o gabarito. Modelo/alvo
+  exigem dimensões iguais. Isto é a base do carimbo de áreas do cp13 (mesmo
+  gabarito, N alvos).
+- Detecção de objetivo (cp12) segue a regra de ouro: applyBlock marca
+  objetivosDirty → tick recheca SÓ os tocados (nunca varredura periódica);
+  chegar conclui no handler do move (pisar na região; heartbeat de 2 s cobre
+  jogador parado). Sequencial: pisar em objetivo FUTURO não conclui.
+  Conclusão nunca desfaz; /objetivo resetar exige ação nova pra re-concluir
+  construir (não re-checa o mundo atual de propósito — senão reset é no-op).
+- Broadcast de cenário: mensagem `objectives` completa pra TODOS, dedup por
+  JSON (lastObjectivesJson); anúncio "objetivo concluído" no chat sai SEMPRE
+  DEPOIS do estado novo — o cliente toca o som de conquista e suprime o ping
+  de notificação (janela 800 ms em audio.ts).
+- Coords de região DENTRO do objetivo são CÓPIA (min/max) — /regiao apagar
+  não quebra objetivo existente; região nomeada é só ferramenta de autoria.
+- Resposta de comando multi-linha: servidor junta com "\n" e o `.msg` do chat
+  tem `white-space: pre-line` (index.html) — vale pra /regiao lista e pra
+  qualquer listagem futura (/objetivo lista no cp12). Não mandar N mensagens.
+- Áudio de UI (client/audio.ts): sintetizado com WebAudio (blip = oscilador
+  + envelope), zero assets. AudioContext SÓ nasce em gesto do usuário
+  (autoplay policy) — som disparado por mensagem de REDE usa playUiPassive
+  (só toca se o contexto já existe). Botões do menu = delegação de clique
+  no container. settings.volume agora controla o master gain (slider ativo).
 
 ## Do-Not-Repeat
 
@@ -253,6 +317,22 @@
 - [2026-07-12] **join_denied no cliente = alert(motivo) + voltar pro menu limpo**
   (location sem query — cobre o boot via ?server=). PIN nunca vai pro localStorage:
   PC de laboratório é compartilhado.
+- [2026-07-12] **MVP v2 (cenários) — escopo travado na entrevista:** cenário = mundo +
+  objetivos + textos no MESMO .ljw; progressão sequencial OU livre, por cenário; 3 tipos
+  de objetivo (construir padrão / chegar em local / limpar região) na MESMA engrenagem
+  das rules; autoria por comandos de chat ANTES do painel (painel HTML vem depois);
+  gabarito FOTOGRAFADO do mundo (WYSIWYG), com escolha por objetivo de manter o modelo
+  visível ou apagar; progresso por mundo E por grupo — sistema de grupos: professor cria
+  com tamanho, aluno entra por comando/painel, painel de aluno só abre após grupos
+  criados; singleplayer = grupo de 1.
+- [2026-07-12] **Grupos MVP v2 (2ª rodada da entrevista):** `/grupo criar` auto-distribui
+  todos os online (round-robin) e notifica; aluno sem grupo NÃO participa; grupos são
+  opcionais por mundo (sem grupos = turma toda junta); grupo persiste no save; construir
+  por grupo = 1 gabarito + 1 área POR GRUPO, com carimbo de áreas (tamanho + espaçamento);
+  "chegar" com regra todos/um POR OBJETIVO (idade da turma); mundos predefinidos entram
+  no v2 (preset "plano" + mundo-modelo de cabines no canto do chunk, lado aberto pro
+  centro; cabine do professor = gabarito). Parâmetro do criar (decidido 2026-07-12):
+  as DUAS sintaxes — `/grupo criar 5` = 5 grupos; `/grupo criar 5 alunos` = grupos de 5.
 - [2026-07-10] **Código mora em `~/projetos/logica-em-jogo` (WSL ext4), NÃO no OneDrive.**
   OneDrive sincroniza node_modules (milhares de arquivos) e watcher do Vite via /mnt/c é
   lento no WSL. Docs + `.wolf/` ficam no OneDrive; backup do código via git/GitHub privado.

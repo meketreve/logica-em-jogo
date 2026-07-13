@@ -507,3 +507,177 @@ MVP v1 código completo — falta só playtest do usuário no cp9. Depois: MVP v
 | 17:50 | Subi servidores p/ playtest cp9; npm via background morreu (exit 143, log vazio) → tsx direto ok; Vite pulou p/ 5174 | server.log, cerebrum | ok | ~15k |
 | 18:00 | Playtest do usuário ✅ "tudo rodou" — critério 4 atendido, MVP v1 FECHADO; cp10 adiado (sem gatilho) | .wolf/STATUS.md | ok | ~5k |
 | 18:05 | Wrap-up: STATUS (quest → MVP v2 cenários/autoria), cerebrum Do-Not-Repeat (npm background), buglog-099 | .wolf/* | ok | ~5k |
+
+## Session: 2026-07-12 19:43
+
+| Time | Action | File(s) | Outcome | ~Tokens |
+|------|--------|---------|---------|--------|
+| 20:01 | Entrevista de escopo MVP v2 (cenários/autoria) — 7 respostas do usuário, decisões travadas em STATUS+cerebrum; faltam 3 perguntas de grupos | .wolf/STATUS.md, .wolf/cerebrum.md | ok | ~1k |
+| 20:10 | 2ª rodada da entrevista MVP v2: grupos auto-distribuídos, carimbo de áreas, mundo cabines, mundos predefinidos aprovados; plano cp11-cp14 proposto | .wolf/STATUS.md, .wolf/cerebrum.md | ok | ~1k |
+| 20:35 | Created shared/src/regions.ts | — | ~702 |
+| 20:35 | Edited shared/src/protocol.ts | added 2 import(s) | ~61 |
+| 20:35 | Edited shared/src/protocol.ts | modified professor() | ~159 |
+| 20:35 | Edited shared/src/protocol.ts | modified jogador() | ~157 |
+| 20:35 | Edited shared/src/protocol.ts | added 2 condition(s) | ~161 |
+| 20:36 | Edited shared/src/protocol.ts | added 2 condition(s) | ~238 |
+| 20:36 | Edited shared/src/save.ts | added 1 import(s) | ~57 |
+| 20:36 | Edited shared/src/save.ts | 4→6 lines | ~72 |
+| 20:36 | Edited shared/src/save.ts | added 2 condition(s) | ~193 |
+| 20:36 | Edited shared/src/session.ts | expanded (+8 lines) | ~74 |
+| 20:36 | Edited shared/src/session.ts | 2→6 lines | ~125 |
+| 20:36 | Edited shared/src/session.ts | modified if() | ~68 |
+| 20:36 | Edited shared/src/session.ts | 3→4 lines | ~41 |
+| 20:36 | Edited shared/src/session.ts | 6→7 lines | ~105 |
+| 20:36 | Edited shared/src/session.ts | added 1 condition(s) | ~123 |
+| 20:36 | Edited shared/src/session.ts | added nullish coalescing | ~253 |
+| 20:37 | Edited shared/src/session.ts | added 10 condition(s) | ~947 |
+| 20:37 | Edited shared/src/session.ts | modified handleDisconnect() | ~53 |
+| 20:37 | Edited shared/src/index.ts | 2→3 lines | ~23 |
+| 20:38 | Created shared/src/regions.test.ts | — | ~2316 |
+| 20:38 | Edited shared/src/session.test.ts | 3→4 lines | ~61 |
+| 20:39 | Created client/src/regions.ts | — | ~625 |
+| 20:39 | Created client/src/audio.ts | — | ~890 |
+| 20:39 | Edited client/src/settings.ts | existe() → INTERFACE() | ~55 |
+| 20:39 | Edited client/src/settings.ts | 2→2 lines | ~26 |
+| 20:39 | Edited client/src/settings.ts | 5→6 lines | ~24 |
+| 20:39 | Edited client/src/settings.ts | 4→5 lines | ~34 |
+| 20:39 | Edited client/src/menu.ts | added 1 import(s) | ~51 |
+| 20:39 | Edited client/src/menu.ts | added 1 condition(s) | ~98 |
+| 20:39 | Edited client/src/menu.ts | modified slider() | ~61 |
+| 20:39 | Edited client/src/menu.ts | 3→4 lines | ~24 |
+| 20:39 | Edited client/src/menu.ts | 13→13 lines | ~121 |
+| 20:40 | Edited client/src/main.ts | added 2 import(s) | ~250 |
+| 20:40 | Edited client/src/main.ts | modified applySettings() | ~103 |
+| 20:40 | Edited client/src/main.ts | 4→9 lines | ~138 |
+| 20:40 | Edited client/src/main.ts | added nullish coalescing | ~188 |
+| 20:40 | Edited client/src/main.ts | modified nomeadas() | ~121 |
+| 20:40 | Edited client/src/main.ts | added 2 condition(s) | ~252 |
+| 20:40 | Edited client/src/main.ts | added 2 condition(s) | ~293 |
+| 20:40 | Edited client/src/main.ts | 2→2 lines | ~16 |
+| 20:41 | Created ../../../tmp/claude-1000/-home-meketreve-logica-em-jogo/c40a8d44-8352-4fa5-b8e1-1e1eddf552e9/scratchpad/make-region-save.mts | — | ~332 |
+| 20:50 | cp11 implementado (varinha+regiões: shared/regions.ts, protocolo wand_mark/regions/spawn.papel, /regiao, persistência) + áudio de UI (client/audio.ts); 95 testes, typecheck 3/3, build ok, screenshot e2e ✅; servidor 8091 + vite 5173 DEIXADOS rodando pro playtest | shared/*, client/*, .wolf/* | ok | ~30k |
+| 20:51 | Session end: 41 writes across 12 files (regions.ts, protocol.ts, save.ts, session.ts, index.ts) | 11 reads | ~39357 tok |
+| 21:29 | Edited client/index.html | 8→9 lines | ~86 |
+| 21:30 | Edited shared/src/session.ts | 6→7 lines | ~98 |
+| 21:30 | Edited shared/src/regions.test.ts | added optional chaining | ~184 |
+| 21:30 | /regiao lista 1 região/linha (join \n + white-space:pre-line no .msg); todos os servidores fechados a pedido (8080 era dev:server de sessão antiga, ~6h) | session.ts, index.html, regions.test.ts | ok | ~3k |
+| 21:30 | Session end: 44 writes across 13 files (regions.ts, protocol.ts, save.ts, session.ts, index.ts) | 13 reads | ~43052 tok |
+| 21:38 | Session end: 44 writes across 13 files (regions.ts, protocol.ts, save.ts, session.ts, index.ts) | 13 reads | ~43052 tok |
+| 21:49 | Created shared/src/scenario.ts | — | ~2227 |
+| 21:49 | Edited shared/src/regions.ts | modified parseVec3i() | ~304 |
+| 21:49 | Edited shared/src/worldgen.ts | modified generateWorld() | ~334 |
+| 21:49 | Edited shared/src/protocol.ts | added 1 import(s) | ~87 |
+| 21:49 | Edited shared/src/protocol.ts | modified recebem() | ~104 |
+| 21:49 | Edited shared/src/protocol.ts | added 3 condition(s) | ~212 |
+| 21:49 | Edited shared/src/save.ts | added 1 import(s) | ~76 |
+| 21:49 | Edited shared/src/save.ts | 3→5 lines | ~57 |
+| 21:49 | Edited shared/src/save.ts | added optional chaining | ~51 |
+| 21:49 | Edited shared/src/save.ts | 2→4 lines | ~75 |
+| 21:49 | Edited shared/src/index.ts | 2→3 lines | ~23 |
+| 21:50 | Edited shared/src/session.ts | expanded (+13 lines) | ~138 |
+| 21:50 | Edited shared/src/regions.ts | modified regionContains() | ~56 |
+| 21:50 | Edited shared/src/session.ts | 8→9 lines | ~43 |
+| 21:50 | Edited shared/src/session.ts | 6→5 lines | ~23 |
+| 21:50 | Edited shared/src/session.ts | modified generateFlatWorld() | ~60 |
+| 21:50 | Edited shared/src/session.ts | modified rio() | ~258 |
+| 21:50 | Edited shared/src/session.ts | 2→4 lines | ~37 |
+| 21:50 | Edited shared/src/session.ts | added 2 condition(s) | ~135 |
+| 21:50 | Edited shared/src/session.ts | expanded (+9 lines) | ~116 |
+| 21:51 | Edited shared/src/session.ts | added 1 condition(s) | ~163 |
+| 21:51 | Edited shared/src/session.ts | 10→12 lines | ~135 |
+| 21:51 | Edited shared/src/session.ts | added 2 condition(s) | ~182 |
+| 21:51 | Edited shared/src/session.ts | added 3 condition(s) | ~289 |
+| 21:51 | Edited shared/src/session.ts | added 1 condition(s) | ~118 |
+| 21:51 | Edited shared/src/session.ts | added 6 condition(s) | ~505 |
+| 21:52 | Edited shared/src/session.ts | added nullish coalescing | ~2562 |
+| 21:52 | Edited shared/src/session.ts | modified completeObjetivo() | ~131 |
+| 21:52 | Edited shared/src/session.ts | modified broadcastObjectives() | ~164 |
+| 21:53 | Edited server/src/worker.ts | modified startSession() | ~349 |
+| 21:53 | Edited server/src/index.ts | expanded (+7 lines) | ~59 |
+| 21:54 | Created shared/src/scenario.test.ts | — | ~3639 |
+| 21:54 | Edited shared/src/scenario.test.ts | 3→3 lines | ~45 |
+| 21:54 | Edited shared/src/scenario.test.ts | 10→7 lines | ~104 |
+| 21:55 | Edited shared/src/scenario.test.ts | 7→8 lines | ~138 |
+| 21:56 | Edited client/src/connection.ts | modified init() | ~104 |
+| 21:56 | Edited client/src/menu.ts | 7→9 lines | ~79 |
+| 21:56 | Edited client/src/menu.ts | 5→9 lines | ~126 |
+| 21:56 | Edited client/src/events.ts | 4→5 lines | ~47 |
+| 21:56 | Edited client/src/audio.ts | added 2 condition(s) | ~204 |
+| 21:56 | Edited client/src/regions.ts | 2→7 lines | ~74 |
+| 21:56 | Edited client/src/regions.ts | added nullish coalescing | ~44 |
+| 21:56 | Created client/src/objectivesUi.ts | — | ~561 |
+| 21:57 | Edited client/index.html | expanded (+30 lines) | ~226 |
+| 21:57 | Edited client/index.html | 1→2 lines | ~19 |
+| 21:57 | Edited client/src/main.ts | 16→18 lines | ~86 |
+| 21:57 | Edited client/src/main.ts | added 1 import(s) | ~51 |
+| 21:57 | Edited client/src/main.ts | modified rio() | ~203 |
+| 21:57 | Edited client/src/main.ts | added 4 condition(s) | ~204 |
+| 21:57 | Edited client/src/main.ts | 9→9 lines | ~105 |
+| 21:57 | Edited client/src/main.ts | added 1 condition(s) | ~235 |
+| 21:58 | Created ../../../tmp/claude-1000/-home-meketreve-logica-em-jogo/c40a8d44-8352-4fa5-b8e1-1e1eddf552e9/scratchpad/make-scenario-save.mts | — | ~453 |
+| 22:04 | cp12 implementado: scenario.ts (objetivos construir/chegar/limpar, gabarito modelo≠alvo, detecção via dirty no tick), /objetivo + /regiao encher, msg objectives, painel HUD + caixas verdes, mundo plano (worker ?flat, LJ_PLANO); 110 testes, typecheck 3/3, build ok, screenshot aluno e2e ✅; processos meus fechados | shared/scenario.ts, session.ts, protocol.ts, save.ts, worldgen.ts, client/objectivesUi.ts, main.ts, menu.ts, index.html, server/* | ok | ~35k |
+| 22:04 | Session end: 96 writes across 21 files (regions.ts, protocol.ts, save.ts, session.ts, index.ts) | 19 reads | ~62818 tok |
+| 22:53 | Edited client/index.html | canvas() → pausa() | ~250 |
+| 22:53 | Edited client/index.html | expanded (+7 lines) | ~125 |
+| 22:53 | Edited client/index.html | expanded (+10 lines) | ~212 |
+| 22:53 | Edited client/index.html | 3→4 lines | ~65 |
+| 22:53 | Edited client/index.html | expanded (+8 lines) | ~155 |
+| 22:53 | Edited client/index.html | 3→4 lines | ~57 |
+| 22:53 | Edited client/src/menu.ts | added optional chaining | ~156 |
+| 22:54 | Edited client/src/menu.ts | added 1 condition(s) | ~166 |
+| 22:54 | Edited client/src/menu.ts | modified if() | ~203 |
+| 22:54 | Edited client/src/menu.ts | modified if() | ~157 |
+| 22:54 | Edited client/src/menu.ts | 9→13 lines | ~102 |
+| 22:54 | Edited client/src/menu.ts | 19→20 lines | ~222 |
+| 22:54 | Edited client/src/menu.ts | added optional chaining | ~127 |
+| 22:54 | Edited client/src/menu.ts | added optional chaining | ~88 |
+| 22:54 | Edited client/src/input.ts | added 2 condition(s) | ~133 |
+| 22:54 | Edited client/src/main.ts | expanded (+6 lines) | ~34 |
+| 22:54 | Edited client/src/main.ts | added 3 condition(s) | ~555 |
+| 22:55 | Edited client/src/main.ts | modified if() | ~131 |
+| 22:55 | Edited client/src/main.ts | 7→8 lines | ~81 |
+| 23:03 | Polimento UI pós-cp12: zero popups nativos (UI inline + sessionStorage p/ join_denied), mira some sem pointer lock, menu Esc real com config compartilhada aplicando ao vivo (Input.rebind) | index.html, menu.ts, main.ts, input.ts | ok | ~12k |
+| 23:03 | Session end: 115 writes across 22 files (regions.ts, protocol.ts, save.ts, session.ts, index.ts) | 20 reads | ~66115 tok |
+| 23:10 | Edited client/src/menu.ts | added nullish coalescing | ~1591 |
+| 23:12 | Created shared/src/groups.ts | — | ~280 |
+| 23:13 | Edited shared/src/scenario.ts | expanded (+24 lines) | ~448 |
+| 23:13 | Edited shared/src/scenario.ts | 3→5 lines | ~60 |
+| 23:13 | Edited shared/src/scenario.ts | added 2 condition(s) | ~121 |
+| 23:13 | Edited shared/src/scenario.ts | added 3 condition(s) | ~427 |
+| 23:13 | Edited shared/src/scenario.ts | added 3 condition(s) | ~273 |
+| 23:13 | Edited shared/src/scenario.ts | added 4 condition(s) | ~439 |
+| 23:13 | Edited shared/src/protocol.ts | modified jogador() | ~104 |
+| 23:13 | Edited shared/src/protocol.ts | added 1 condition(s) | ~72 |
+| 23:13 | Edited shared/src/save.ts | added 1 import(s) | ~92 |
+| 23:13 | Edited shared/src/save.ts | 3→5 lines | ~56 |
+| 23:13 | Edited shared/src/save.ts | 2→3 lines | ~49 |
+| 23:14 | Edited shared/src/save.ts | 4→5 lines | ~42 |
+| 23:14 | Edited shared/src/index.ts | 2→3 lines | ~23 |
+| 23:14 | Edited shared/src/session.ts | 12→15 lines | ~84 |
+| 23:14 | Edited shared/src/session.ts | modified Grupos() | ~192 |
+| 23:14 | Edited shared/src/session.ts | added nullish coalescing | ~191 |
+| 23:14 | Edited shared/src/session.ts | added nullish coalescing | ~305 |
+| 23:14 | Edited shared/src/session.ts | added 3 condition(s) | ~332 |
+| 23:14 | Edited shared/src/session.ts | 4→4 lines | ~37 |
+| 23:14 | Edited shared/src/session.ts | added 2 condition(s) | ~198 |
+| 23:15 | Edited shared/src/session.ts | added 1 condition(s) | ~236 |
+| 23:15 | Edited shared/src/session.ts | added optional chaining | ~2646 |
+| 23:16 | Edited shared/src/session.ts | modified broadcastObjectives() | ~63 |
+| 23:16 | Edited shared/src/session.ts | 8→10 lines | ~98 |
+| 23:17 | Edited shared/src/session.ts | added optional chaining | ~1765 |
+| 23:17 | Edited shared/src/session.ts | modified if() | ~245 |
+| 23:17 | Edited shared/src/session.ts | added 2 condition(s) | ~210 |
+| 23:17 | Edited shared/src/session.ts | 8→9 lines | ~124 |
+| 23:17 | Edited shared/src/session.ts | added nullish coalescing | ~943 |
+| 23:18 | Edited shared/src/session.ts | 2→2 lines | ~50 |
+| 23:19 | Created shared/src/groups.test.ts | — | ~2752 |
+| 23:19 | Edited shared/src/groups.test.ts | 4→4 lines | ~56 |
+| 23:20 | Created client/src/objectivesUi.ts | — | ~1218 |
+| 23:20 | Edited client/src/objectivesUi.ts | 5→4 lines | ~39 |
+| 23:21 | Edited client/src/main.ts | added optional chaining | ~436 |
+| 23:21 | Edited client/src/main.ts | modified if() | ~115 |
+| 23:21 | Edited client/src/main.ts | added 4 condition(s) | ~356 |
+| 23:22 | Created ../../../tmp/claude-1000/-home-meketreve-logica-em-jogo/c40a8d44-8352-4fa5-b8e1-1e1eddf552e9/scratchpad/make-groups-save.mts | — | ~537 |
+| 23:25 | cp13 implementado: groups.ts, /grupo (2 sintaxes, round-robin, menor grupo), progresso por grupo (completosGrupo, sequencial por grupo), /regiao carimbar, /objetivo per-grupo via prefixo, chegar todos/um, HUD porGrupo (aluno=seu grupo, prof=resumo), config em categorias; 120 testes, screenshots prof+aluno ✅ | shared/groups.ts, scenario.ts, session.ts, protocol.ts, save.ts, client/* | ok | ~45k |
+| 23:26 | Session end: 155 writes across 25 files (regions.ts, protocol.ts, save.ts, session.ts, index.ts) | 22 reads | ~83458 tok |
+| 23:36 | WRAP-UP da sessão: cp11 (varinha+regiões+áudio UI), cp12 (objetivos+detecção+HUD+mundo plano), cp13 (grupos+carimbo+per-grupo) TODOS fechados com playtest; polimento UI (sem popups, mira, menu Esc, config em categorias); rename cancelado; próxima quest cp14 (painéis HTML) | .wolf/STATUS.md | ok | sessão ~140k |

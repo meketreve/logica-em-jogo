@@ -1629,6 +1629,582 @@
       "related_bugs": [],
       "occurrences": 1,
       "last_seen": "2026-07-12T18:05:00.000Z"
+    },
+    {
+      "id": "bug-100",
+      "timestamp": "2026-07-12T23:35:59.988Z",
+      "error_message": "Type error",
+      "file": "shared/src/protocol.ts",
+      "root_cause": "Missing or incorrect type annotation",
+      "fix": "Added type assertion/annotation",
+      "tags": [
+        "auto-detected",
+        "type-fix",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-12T23:35:59.988Z"
+    },
+    {
+      "id": "bug-101",
+      "timestamp": "2026-07-12T23:36:36.787Z",
+      "error_message": "Type error",
+      "file": "shared/src/session.ts",
+      "root_cause": "Missing or incorrect type annotation",
+      "fix": "Added type assertion/annotation | Also: (papel === \"professor\"; ? \" · /bloco x y z id · /resetpin nome · /regiao (varinha: R",
+      "tags": [
+        "auto-detected",
+        "type-fix",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 2,
+      "last_seen": "2026-07-12T23:36:52.122Z"
+    },
+    {
+      "id": "bug-102",
+      "timestamp": "2026-07-12T23:36:55.932Z",
+      "error_message": "Null/undefined access in ",
+      "file": "shared/src/session.ts",
+      "root_cause": "Property access on potentially null/undefined value",
+      "fix": "Added null safety (optional chaining or null check)",
+      "tags": [
+        "auto-detected",
+        "null-safety",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-12T23:36:55.932Z"
+    },
+    {
+      "id": "bug-103",
+      "timestamp": "2026-07-12T23:37:19.233Z",
+      "error_message": "Incorrect value in code",
+      "file": "shared/src/index.ts",
+      "root_cause": "Had \"./rules\"",
+      "fix": "Changed to \"./regions\"",
+      "tags": [
+        "auto-detected",
+        "wrong-value",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-12T23:37:19.233Z"
+    },
+    {
+      "id": "bug-104",
+      "timestamp": "2026-07-12T23:39:38.519Z",
+      "error_message": "Type error",
+      "file": "client/src/menu.ts",
+      "root_cause": "Missing or incorrect type annotation",
+      "fix": "Added type assertion/annotation",
+      "tags": [
+        "auto-detected",
+        "type-fix",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-12T23:39:38.519Z"
+    },
+    {
+      "id": "bug-105",
+      "timestamp": "2026-07-12T23:40:21.355Z",
+      "error_message": "Null/undefined access in ",
+      "file": "client/src/main.ts",
+      "root_cause": "Property access on potentially null/undefined value",
+      "fix": "Added null safety (optional chaining or null check)",
+      "tags": [
+        "auto-detected",
+        "null-safety",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-12T23:40:21.355Z"
+    },
+    {
+      "id": "bug-106",
+      "timestamp": "2026-07-12T23:40:31.535Z",
+      "error_message": "Type error",
+      "file": "client/src/main.ts",
+      "root_cause": "Missing or incorrect type annotation",
+      "fix": "Added type assertion/annotation",
+      "tags": [
+        "auto-detected",
+        "type-fix",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-12T23:40:31.535Z"
+    },
+    {
+      "id": "bug-107",
+      "timestamp": "2026-07-13T00:30:12.376Z",
+      "error_message": "Null/undefined access in ",
+      "file": "shared/src/regions.test.ts",
+      "root_cause": "Property access on potentially null/undefined value",
+      "fix": "Added null safety (optional chaining or null check)",
+      "tags": [
+        "auto-detected",
+        "null-safety",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-13T00:30:12.376Z"
+    },
+    {
+      "id": "bug-108",
+      "timestamp": "2026-07-13T00:49:44.829Z",
+      "error_message": "Missing guard clause",
+      "file": "shared/src/protocol.ts",
+      "root_cause": "No early return/throw for edge case: !Array.isArray(m[\"regions\"]",
+      "fix": "Added guard clause: if (!Array.isArray(m[\"regions\"])",
+      "tags": [
+        "auto-detected",
+        "guard-clause",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-13T00:49:44.829Z"
+    },
+    {
+      "id": "bug-109",
+      "timestamp": "2026-07-13T00:49:52.345Z",
+      "error_message": "Null/undefined access in ",
+      "file": "shared/src/save.ts",
+      "root_cause": "Property access on potentially null/undefined value",
+      "fix": "Added null safety (optional chaining or null check)",
+      "tags": [
+        "auto-detected",
+        "null-safety",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-13T00:49:52.345Z"
+    },
+    {
+      "id": "bug-110",
+      "timestamp": "2026-07-13T00:49:55.183Z",
+      "error_message": "Type error",
+      "file": "shared/src/save.ts",
+      "root_cause": "Missing or incorrect type annotation",
+      "fix": "Added type assertion/annotation",
+      "tags": [
+        "auto-detected",
+        "type-fix",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-13T00:49:55.183Z"
+    },
+    {
+      "id": "bug-111",
+      "timestamp": "2026-07-13T00:50:28.715Z",
+      "error_message": "Type error",
+      "file": "shared/src/session.ts",
+      "root_cause": "Missing or incorrect type annotation",
+      "fix": "Added type assertion/annotation",
+      "tags": [
+        "auto-detected",
+        "type-fix",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-13T00:50:28.715Z"
+    },
+    {
+      "id": "bug-112",
+      "timestamp": "2026-07-13T00:52:31.837Z",
+      "error_message": "Null/undefined access in ",
+      "file": "shared/src/session.ts",
+      "root_cause": "Property access on potentially null/undefined value",
+      "fix": "Added null safety (optional chaining or null check)",
+      "tags": [
+        "auto-detected",
+        "null-safety",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-13T00:52:31.837Z"
+    },
+    {
+      "id": "bug-113",
+      "timestamp": "2026-07-13T00:52:51.818Z",
+      "error_message": "Significant refactor of ",
+      "file": "shared/src/session.ts",
+      "root_cause": "2 lines replaced/restructured",
+      "fix": "Rewrote 6→10 lines (2 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-13T00:52:51.818Z"
+    },
+    {
+      "id": "bug-114",
+      "timestamp": "2026-07-13T00:52:55.694Z",
+      "error_message": "Wrong operator: === should be !==",
+      "file": "shared/src/session.ts",
+      "root_cause": "Used \"===\" instead of \"!==\"",
+      "fix": "Changed operator === → !==",
+      "tags": [
+        "auto-detected",
+        "operator-fix",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-13T00:52:55.694Z"
+    },
+    {
+      "id": "bug-115",
+      "timestamp": "2026-07-13T00:56:23.588Z",
+      "error_message": "Significant refactor of ",
+      "file": "client/src/connection.ts",
+      "root_cause": "3 lines replaced/restructured",
+      "fix": "Rewrote 4→10 lines (3 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-13T00:56:23.588Z"
+    },
+    {
+      "id": "bug-116",
+      "timestamp": "2026-07-13T00:56:40.115Z",
+      "error_message": "Type error",
+      "file": "client/src/regions.ts",
+      "root_cause": "Missing or incorrect type annotation",
+      "fix": "Added type assertion/annotation",
+      "tags": [
+        "auto-detected",
+        "type-fix",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-13T00:56:40.115Z"
+    },
+    {
+      "id": "bug-117",
+      "timestamp": "2026-07-13T00:56:42.234Z",
+      "error_message": "Null/undefined access in ",
+      "file": "client/src/regions.ts",
+      "root_cause": "Property access on potentially null/undefined value",
+      "fix": "Added null safety (optional chaining or null check)",
+      "tags": [
+        "auto-detected",
+        "null-safety",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-13T00:56:42.234Z"
+    },
+    {
+      "id": "bug-118",
+      "timestamp": "2026-07-13T00:57:32.236Z",
+      "error_message": "Incorrect value in code",
+      "file": "client/src/main.ts",
+      "root_cause": "Had \"./regions\"",
+      "fix": "Changed to \"./objectivesUi\"",
+      "tags": [
+        "auto-detected",
+        "wrong-value",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-13T00:57:32.236Z"
+    },
+    {
+      "id": "bug-119",
+      "timestamp": "2026-07-13T01:53:32.351Z",
+      "error_message": "Significant refactor of ",
+      "file": "client/index.html",
+      "root_cause": "7 lines replaced/restructured",
+      "fix": "Rewrote 22→36 lines (7 removed) | Also: #overlay #btn-sair {; pointer-events: auto; | Also: <p>Clique para jogar</p>; <p>WASD move · mouse olha · espaço pula · Esc solt",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "html"
+      ],
+      "related_bugs": [],
+      "occurrences": 3,
+      "last_seen": "2026-07-13T01:53:41.347Z"
+    },
+    {
+      "id": "bug-120",
+      "timestamp": "2026-07-13T01:53:59.549Z",
+      "error_message": "Null/undefined access in ",
+      "file": "client/src/menu.ts",
+      "root_cause": "Property access on potentially null/undefined value",
+      "fix": "Added null safety (optional chaining or null check) | Also: /**; * Tela de configurações — controles gerados aqui (HTML ficar | Also: onChanged?.();; buildConfigScreen(body, onChanged);",
+      "tags": [
+        "auto-detected",
+        "null-safety",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 3,
+      "last_seen": "2026-07-13T01:54:35.603Z"
+    },
+    {
+      "id": "bug-121",
+      "timestamp": "2026-07-13T01:54:46.198Z",
+      "error_message": "Missing guard clause",
+      "file": "client/src/input.ts",
+      "root_cause": "No early return/throw for edge case: oldCode === newCode",
+      "fix": "Added guard clause: if (oldCode === newCode)",
+      "tags": [
+        "auto-detected",
+        "guard-clause",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-13T01:54:46.198Z"
+    },
+    {
+      "id": "bug-122",
+      "timestamp": "2026-07-13T01:54:57.102Z",
+      "error_message": "Type error",
+      "file": "client/src/main.ts",
+      "root_cause": "Missing or incorrect type annotation",
+      "fix": "Added type assertion/annotation",
+      "tags": [
+        "auto-detected",
+        "type-fix",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-13T01:54:57.102Z"
+    },
+    {
+      "id": "bug-123",
+      "timestamp": "2026-07-13T01:55:00.514Z",
+      "error_message": "Significant refactor of ",
+      "file": "client/src/main.ts",
+      "root_cause": "3 lines replaced/restructured",
+      "fix": "Rewrote 7→8 lines (3 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-13T01:55:00.514Z"
+    },
+    {
+      "id": "bug-124",
+      "timestamp": "2026-07-13T02:10:55.849Z",
+      "error_message": "Null/undefined access in ",
+      "file": "client/src/menu.ts",
+      "root_cause": "Property access on potentially null/undefined value",
+      "fix": "Added null safety (optional chaining or null check)",
+      "tags": [
+        "auto-detected",
+        "null-safety",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-13T02:10:55.849Z"
+    },
+    {
+      "id": "bug-125",
+      "timestamp": "2026-07-13T02:13:00.831Z",
+      "error_message": "Significant refactor of ",
+      "file": "shared/src/scenario.ts",
+      "root_cause": "2 lines replaced/restructured",
+      "fix": "Rewrote 22→46 lines (2 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-13T02:13:00.831Z"
+    },
+    {
+      "id": "bug-126",
+      "timestamp": "2026-07-13T02:13:13.803Z",
+      "error_message": "Missing guard clause",
+      "file": "shared/src/scenario.ts",
+      "root_cause": "No early return/throw for edge case: !mn || !mx",
+      "fix": "Added guard clause: if (!mn || !mx)",
+      "tags": [
+        "auto-detected",
+        "guard-clause",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 2,
+      "last_seen": "2026-07-13T02:13:29.242Z"
+    },
+    {
+      "id": "bug-127",
+      "timestamp": "2026-07-13T02:13:24.548Z",
+      "error_message": "Null/undefined access in ",
+      "file": "shared/src/scenario.ts",
+      "root_cause": "Property access on potentially null/undefined value",
+      "fix": "Added null safety (optional chaining or null check) | Also: let porGrupo: GroupObjectiveState[] | undefined;; if (o[\"porGrupo\"] !== undefined) {",
+      "tags": [
+        "auto-detected",
+        "null-safety",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 2,
+      "last_seen": "2026-07-13T02:13:37.050Z"
+    },
+    {
+      "id": "bug-128",
+      "timestamp": "2026-07-13T02:13:52.216Z",
+      "error_message": "Null/undefined access in ",
+      "file": "shared/src/protocol.ts",
+      "root_cause": "Property access on potentially null/undefined value",
+      "fix": "Added null safety (optional chaining or null check)",
+      "tags": [
+        "auto-detected",
+        "null-safety",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-13T02:13:52.216Z"
+    },
+    {
+      "id": "bug-129",
+      "timestamp": "2026-07-13T02:14:02.858Z",
+      "error_message": "Incorrect value in code",
+      "file": "shared/src/index.ts",
+      "root_cause": "Had \"./world\"",
+      "fix": "Changed to \"./groups\"",
+      "tags": [
+        "auto-detected",
+        "wrong-value",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-13T02:14:02.858Z"
+    },
+    {
+      "id": "bug-130",
+      "timestamp": "2026-07-13T02:14:27.008Z",
+      "error_message": "Significant refactor of ",
+      "file": "shared/src/session.ts",
+      "root_cause": "2 lines replaced/restructured",
+      "fix": "Rewrote 6→11 lines (2 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-13T02:14:27.008Z"
+    },
+    {
+      "id": "bug-131",
+      "timestamp": "2026-07-13T02:14:31.600Z",
+      "error_message": "Null/undefined access in ",
+      "file": "shared/src/session.ts",
+      "root_cause": "Property access on potentially null/undefined value",
+      "fix": "Added null safety (optional chaining or null check) | Also: ...(this.completosGrupo.size; ? { completosGrupos: this.completosGruposParaSave() } | Also: // --- Grupos (cp13) ---; private grupoDe(name: string): number | null { | Also: /**; * Resolve o nome de área de um objetivo: região exata = COMP | Also: case \"carimbar\": {; // /regiao carimbar modelo prefixo espacamento [z] — replica",
+      "tags": [
+        "auto-detected",
+        "null-safety",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 5,
+      "last_seen": "2026-07-13T02:17:57.935Z"
+    },
+    {
+      "id": "bug-132",
+      "timestamp": "2026-07-13T02:14:56.750Z",
+      "error_message": "Missing guard clause",
+      "file": "shared/src/session.ts",
+      "root_cause": "No early return/throw for edge case: o.kind === \"chegar\"",
+      "fix": "Added guard clause: if (o.kind === \"chegar\")",
+      "tags": [
+        "auto-detected",
+        "guard-clause",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 2,
+      "last_seen": "2026-07-13T02:15:02.555Z"
+    },
+    {
+      "id": "bug-133",
+      "timestamp": "2026-07-13T02:16:16.064Z",
+      "error_message": "Wrong condition in logic",
+      "file": "shared/src/session.ts",
+      "root_cause": "Condition was: if (raw !== this.lastObjectivesJson)",
+      "fix": "Changed to: if (force || raw !== this.lastObjectivesJson)",
+      "tags": [
+        "auto-detected",
+        "logic-fix",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-13T02:16:16.064Z"
+    },
+    {
+      "id": "bug-134",
+      "timestamp": "2026-07-13T02:21:11.581Z",
+      "error_message": "Null/undefined access in ",
+      "file": "client/src/main.ts",
+      "root_cause": "Property access on potentially null/undefined value",
+      "fix": "Added null safety (optional chaining or null check) | Also: // objetivos ATIVOS (cp12/13): caixa verde — aluno vê o alvo; // professor vê os alvos de todos os grupos",
+      "tags": [
+        "auto-detected",
+        "null-safety",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 2,
+      "last_seen": "2026-07-13T02:21:24.180Z"
+    },
+    {
+      "id": "bug-135",
+      "timestamp": "2026-07-13T02:21:16.331Z",
+      "error_message": "Significant refactor of ",
+      "file": "client/src/main.ts",
+      "root_cause": "11 lines replaced/restructured",
+      "fix": "Rewrote 14→9 lines (11 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-13T02:21:16.331Z"
     }
   ]
 }
