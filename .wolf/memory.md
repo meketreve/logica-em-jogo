@@ -759,3 +759,63 @@ MVP v1 código completo — falta só playtest do usuário no cp9. Depois: MVP v
 | 12:00 | STATUS/cerebrum/buglog atualizados; próxima quest = playtest do cp14 | .wolf/* | ok | ~3k |
 | 08:58 | Session end: 57 writes across 16 files (worldgen.ts, protocol.ts, session.ts, worker.ts, index.ts) | 20 reads | ~62440 tok |
 | 12:30 | playtest do usuário ✅ "testado" — cp14 FECHADO, MVP v2 COMPLETO (4 critérios jogados); STATUS aponta entrevista da próxima fase | .wolf/STATUS.md | ok | ~1k |
+| 11:03 | Session end: 57 writes across 16 files (worldgen.ts, protocol.ts, session.ts, worker.ts, index.ts) | 20 reads | ~62440 tok |
+
+## Session: 2026-07-13 11:21
+
+| Time | Action | File(s) | Outcome | ~Tokens |
+|------|--------|---------|---------|--------|
+| 11:47 | Edited shared/src/physics.ts | expanded (+6 lines) | ~144 |
+| 11:47 | Edited shared/src/physics.ts | 7→11 lines | ~105 |
+| 11:48 | Edited shared/src/physics.ts | added 2 condition(s) | ~417 |
+| 11:48 | Edited shared/src/physics.ts | modified for() | ~91 |
+| 11:48 | Edited shared/src/physics.test.ts | expanded (+43 lines) | ~656 |
+| 11:49 | Edited shared/src/physics.test.ts | 3→5 lines | ~88 |
+| 11:49 | Edited client/src/settings.ts | 3→3 lines | ~40 |
+| 11:49 | Edited client/src/settings.ts | 2→4 lines | ~26 |
+| 11:49 | Edited client/src/settings.ts | 2→4 lines | ~38 |
+| 11:50 | Edited client/src/main.ts | added 3 condition(s) | ~390 |
+| 11:50 | Edited client/src/main.ts | added 1 condition(s) | ~157 |
+| 11:56 | Edited client/index.html | 2→3 lines | ~58 |
+| 11:56 | cp15: corrida (Ctrl/2×W) + agachar Shift com edge-guard MC na física compartilhada; teclas rebindáveis novas; FOV kick + olho abaixa; 5 testes novos | shared/physics.ts, physics.test.ts, client/settings.ts, main.ts, index.html | 133 testes, typecheck 3/3, build ok, screenshot boot ok | ~9k |
+| 11:59 | Edited shared/src/mesher.ts | added optional chaining | ~61 |
+| 11:59 | Created client/src/blockIcons.ts | — | ~270 |
+| 12:00 | Created client/src/inventory.ts | — | ~1150 |
+| 12:00 | Edited client/src/settings.ts | 3→3 lines | ~45 |
+| 12:00 | Edited client/src/settings.ts | 4→5 lines | ~21 |
+| 12:00 | Edited client/src/settings.ts | 2→3 lines | ~28 |
+| 12:01 | Edited client/index.html | 2→3 lines | ~33 |
+| 12:01 | Edited client/index.html | 4→5 lines | ~26 |
+| 12:01 | Edited client/index.html | modified not() | ~121 |
+| 12:01 | Edited client/index.html | expanded (+96 lines) | ~649 |
+| 12:01 | Edited client/index.html | 1→2 lines | ~23 |
+| 12:01 | Edited client/src/main.ts | added 2 import(s) | ~70 |
+| 12:01 | Edited client/src/main.ts | 3→5 lines | ~86 |
+| 12:02 | Edited client/src/main.ts | 4→4 lines | ~42 |
+| 12:02 | Edited client/src/main.ts | modified for() | ~51 |
+| 12:02 | Edited client/src/main.ts | added error handling | ~930 |
+| 12:03 | Edited client/src/main.ts | 11→11 lines | ~81 |
+| 12:03 | Edited client/src/main.ts | modified if() | ~78 |
+| 12:03 | Edited client/src/main.ts | added 1 condition(s) | ~46 |
+| 12:42 | cp16: inventário (tecla E, grid de colocáveis com ícones do atlas) + hotbar 9 slots configuráveis com persistência localStorage lj-hotbar | client/inventory.ts, blockIcons.ts, main.ts, settings.ts, index.html, shared/mesher.ts | 133 testes, typecheck 3/3, build ok, screenshot ?inv ok | ~12k |
+| 12:39 | Edited shared/src/blocks.ts | modified cp17() | ~126 |
+| 12:39 | Edited shared/src/mesher.ts | expanded (+9 lines) | ~53 |
+| 12:39 | Edited shared/src/mesher.ts | expanded (+8 lines) | ~134 |
+| 12:40 | Edited client/src/atlasTexture.ts | added 2 condition(s) | ~406 |
+| 12:40 | Edited client/src/atlasTexture.ts | modified cp17() | ~204 |
+| 12:40 | Edited client/src/blocksUi.ts | expanded (+8 lines) | ~136 |
+| 12:42 | Edited shared/src/blocks.ts | modified isTransparentBlock() | ~181 |
+| 12:42 | Edited shared/src/mesher.ts | 5→8 lines | ~37 |
+| 12:42 | Edited shared/src/mesher.ts | 5→7 lines | ~78 |
+| 12:42 | Edited shared/src/mesher.ts | added 1 condition(s) | ~107 |
+| 12:42 | Edited shared/src/mesher.ts | 2→2 lines | ~28 |
+| 12:43 | Edited client/src/atlasTexture.ts | added 1 condition(s) | ~335 |
+| 12:43 | Edited client/src/atlasTexture.ts | 2→6 lines | ~69 |
+| 12:43 | Edited client/src/main.ts | modified transparentes() | ~74 |
+| 12:43 | Edited client/src/blocksUi.ts | 3→5 lines | ~54 |
+| 12:43 | Edited shared/src/mesher.test.ts | expanded (+20 lines) | ~263 |
+| 12:59 | Created ../../../tmp/claude-1000/-home-meketreve-logica-em-jogo/3962ee9a-001c-4ba8-abf3-6b384e5cba47/scratchpad/cp18-smoke.mts | — | ~703 |
+| 13:05 | cp17: 8 opacos novos (arenito, pedra-lavrada, neve, obsidiana, 4 lãs — IDs 19-26, tiles 20-27) | shared/blocks.ts, mesher.ts, client/atlasTexture.ts, blocksUi.ts | 133 testes, screenshot atlas+inventário ok | ~5k |
+| 13:20 | cp18: vidro+folhas (IDs 27-28) via CUTOUT alphaTest; regra de visibilidade do mesher p/ transparentes; 2 testes novos | shared/blocks.ts, mesher.ts, mesher.test.ts, client/atlasTexture.ts, main.ts, blocksUi.ts | 135 testes, smoke 21/21, screenshot vidro ok | ~7k |
+| 13:25 | Sessão: fase de polimento cp15-cp18 completa (código); STATUS/cerebrum atualizados; playtest do usuário pendente nos 4 cps | .wolf/* | wrap-up | ~2k |
+| 13:06 | Session end: 48 writes across 13 files (physics.ts, physics.test.ts, settings.ts, main.ts, index.html) | 18 reads | ~36078 tok |

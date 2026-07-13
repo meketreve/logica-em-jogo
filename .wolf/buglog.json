@@ -2463,6 +2463,166 @@
       "related_bugs": [],
       "occurrences": 1,
       "last_seen": "2026-07-13T11:56:12.319Z"
+    },
+    {
+      "id": "bug-152",
+      "timestamp": "2026-07-13T14:48:18.788Z",
+      "error_message": "Significant refactor of ",
+      "file": "shared/src/physics.ts",
+      "root_cause": "2 lines replaced/restructured",
+      "fix": "Rewrote 5→7 lines (2 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-13T14:48:18.788Z"
+    },
+    {
+      "id": "bug-153",
+      "timestamp": "2026-07-13T14:48:36.710Z",
+      "error_message": "Type error",
+      "file": "shared/src/physics.test.ts",
+      "root_cause": "Missing or incorrect type annotation",
+      "fix": "Added type assertion/annotation | Also: // em X pode se debruçar até o AABB quase sair do bloco (foo; // toca o trilho: |x-8.5| < 0.8), mas nunca além — não cai",
+      "tags": [
+        "auto-detected",
+        "type-fix",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 2,
+      "last_seen": "2026-07-13T14:49:14.654Z"
+    },
+    {
+      "id": "bug-154",
+      "timestamp": "2026-07-13T14:49:36.246Z",
+      "error_message": "Incorrect value in code",
+      "file": "client/src/settings.ts",
+      "root_cause": "Had \"chat\"",
+      "fix": "Changed to \"correr\"",
+      "tags": [
+        "auto-detected",
+        "wrong-value",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-13T14:49:36.246Z"
+    },
+    {
+      "id": "bug-155",
+      "timestamp": "2026-07-13T14:50:25.131Z",
+      "error_message": "Type error",
+      "file": "client/src/main.ts",
+      "root_cause": "Missing or incorrect type annotation",
+      "fix": "Added type assertion/annotation",
+      "tags": [
+        "auto-detected",
+        "type-fix",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-13T14:50:25.131Z"
+    },
+    {
+      "id": "bug-156",
+      "timestamp": "2026-07-13T14:59:14.771Z",
+      "error_message": "Null/undefined access in ",
+      "file": "shared/src/mesher.ts",
+      "root_cause": "Property access on potentially null/undefined value",
+      "fix": "Added null safety (optional chaining or null check)",
+      "tags": [
+        "auto-detected",
+        "null-safety",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-13T14:59:14.771Z"
+    },
+    {
+      "id": "bug-157",
+      "timestamp": "2026-07-13T15:01:02.865Z",
+      "error_message": "Wrong reference: painel should be invent",
+      "file": "client/index.html",
+      "root_cause": "Used \"painel\" instead of \"invent\"",
+      "fix": "Changed painel → invent",
+      "tags": [
+        "auto-detected",
+        "wrong-reference",
+        "html"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-13T15:01:02.865Z"
+    },
+    {
+      "id": "bug-158",
+      "timestamp": "2026-07-13T15:02:48.360Z",
+      "error_message": "Missing error handling in unknown",
+      "file": "client/src/main.ts",
+      "root_cause": "Code path had no error handling — exceptions would propagate uncaught",
+      "fix": "Added try/catch block",
+      "tags": [
+        "auto-detected",
+        "error-handling",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-13T15:02:48.360Z"
+    },
+    {
+      "id": "bug-159",
+      "timestamp": "2026-07-13T15:40:17.995Z",
+      "error_message": "Type error",
+      "file": "client/src/atlasTexture.ts",
+      "root_cause": "Missing or incorrect type annotation",
+      "fix": "Added type assertion/annotation | Also: // cp18: transparentes (cutout — alphaTest no material do cl; paintGlass(ctx, TILE.glass);",
+      "tags": [
+        "auto-detected",
+        "type-fix",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 2,
+      "last_seen": "2026-07-13T15:43:07.804Z"
+    },
+    {
+      "id": "bug-160",
+      "timestamp": "2026-07-13T15:42:38.086Z",
+      "error_message": "Type error",
+      "file": "shared/src/mesher.ts",
+      "root_cause": "Missing or incorrect type annotation",
+      "fix": "Added type assertion/annotation",
+      "tags": [
+        "auto-detected",
+        "type-fix",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-13T15:42:38.086Z"
+    },
+    {
+      "id": "bug-161",
+      "timestamp": "2026-07-13T15:43:29.348Z",
+      "error_message": "Type error",
+      "file": "shared/src/mesher.test.ts",
+      "root_cause": "Missing or incorrect type annotation",
+      "fix": "Added type assertion/annotation",
+      "tags": [
+        "auto-detected",
+        "type-fix",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-13T15:43:29.348Z"
     }
   ]
 }

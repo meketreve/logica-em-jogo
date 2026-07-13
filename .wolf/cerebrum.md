@@ -246,6 +246,42 @@
   de pausa enquanto painel aberto.
 - PLACEABLE (hotbar) extraído pra client/src/blocksUi.ts — main.ts e os
   selects de bloco do painel usam a MESMA lista.
+- Edge-guard do agachar (cp15): implementado POR EIXO no sub-passo
+  (moveAxisGuarded desfaz o eixo se hasSupport falhar) — diagonal desliza
+  pelo eixo seguro de graça, igual Minecraft. Guard SÓ com sneak && onGround
+  (recalculado após o move de y de cada sub-passo). Jogador debruça até o
+  footprint (largura 0.6) quase sair do bloco: drift máx |0.8| do centro —
+  é o comportamento certo, não bug (teste calibrado pra isso).
+- Sprint (cp15): detecção de duplo-toque por POLLING no render loop (borda
+  de subida da tecla forward + janela 300 ms + latch até soltar) — sem mexer
+  no Input. Ctrl segurado é lido direto por input.down. Agachar VENCE
+  sprint; sprint exige forward>0. FOV kick/altura do olho: lerp exponencial
+  no loop com camera.updateProjectionMatrix() só quando |Δfov|>0.01.
+- Teclas de SEGURAR novas (correr/agachar) = só entrada em KeyAction +
+  defaults + label; menu de rebind itera KEY_ACTION_LABEL e o loop lê
+  settings.keys a cada frame — zero fiação extra. Tecla de ATALHO nova
+  (inventario) exige também: input.onKey no startGame + entrada na lista do
+  onSettingsChanged (rebind ao vivo).
+- Hotbar (cp16) = 9 slots de BlockId em localStorage "lj-hotbar", parse
+  defensivo POR SLOT (id inválido cai no default daquele slot). Digit1-9 =
+  slot, scroll cicla os 9. Inventário (client/inventory.ts) segue o padrão
+  Panel do cp14 (Esc capture, exclusão mútua com painel P via hide()) mas é
+  100% local — nenhum comando pro servidor.
+- Ícones de bloco (cp16): blockIconTile(id) no mesher devolve o tile
+  LATERAL; client/blockIcons.ts recorta do canvas do atlas (material.map
+  .image) pra data URLs de 16px — CSS amplia com image-rendering:pixelated.
+  Vale pra qualquer UI futura que precise mostrar bloco.
+- Transparentes (cp18) são CUTOUT, não blend: alphaTest 0.5 no material
+  único — sem sorting, sem segundo draw call, sem passe extra. Regra de
+  visibilidade no mesher: face emitida se vizinho==Air OU (eu opaco &&
+  vizinho transparente); entre DOIS transparentes nunca (faces coplanares =
+  z-fight). isTransparentBlock() vive em blocks.ts (/shared) — física e
+  raycast continuam tratando como sólido.
+- Tiles com alpha no atlas: canvas 2d nasce transparente; clearRect apaga
+  pra alpha 0 (furos das folhas, centro do vidro). paintNoise pinta opaco.
+  Tile não pintado = invisível com alphaTest — todo bloco novo PRECISA de
+  pintura no createAtlasTexture (o teste "todo colocável tem tile" pega o
+  lado do mesher, não o do atlas).
 
 ## Do-Not-Repeat
 
@@ -376,6 +412,22 @@
   no v2 (preset "plano" + mundo-modelo de cabines no canto do chunk, lado aberto pro
   centro; cabine do professor = gabarito). Parâmetro do criar (decidido 2026-07-12):
   as DUAS sintaxes — `/grupo criar 5` = 5 grupos; `/grupo criar 5 alunos` = grupos de 5.
+- [2026-07-13] **Fase pós-MVP v2 escolhida pelo usuário: POLIMENTO "blocos +
+  mecânica" (cp15–cp18) antes dos cenários pedagógicos.** Pedidos: corrida
+  (Ctrl OU duplo-toque, os dois), agachar Shift SEM cair da borda (mecânica
+  Minecraft explícita), painel estilo inventário + hotbar. Blocos: usuário
+  escolheu "opacos + vidro/folhas" (recomendação aceita); água adiada
+  (fluido = fase própria). Cenários reais + piloto ficam pra fase seguinte.
+- [2026-07-13] **Transparentes por CUTOUT (alphaTest), não por blending.**
+  Razões: material/draw call únicos preservados (política de otimização),
+  zero problema de ordenação de faces, e o visual "vidro de moldura" é o
+  suficiente pro público. Água NÃO entra nesse esquema (precisa de blend de
+  verdade) — por isso ficou fora do cp18.
+- [2026-07-13] **Hotbar de 9 slots + inventário click-assign (sem drag).**
+  Clique no bloco põe no slot SELECIONADO; clique no slot seleciona. Drag &
+  drop rejeitado: complexidade sem ganho pra alunos de 7–14 anos em PC de
+  lab (mouse ruim). Hotbar persiste POR NAVEGADOR (localStorage), não no
+  save — é preferência de UI, não estado de mundo.
 - [2026-07-10] **Código mora em `~/projetos/logica-em-jogo` (WSL ext4), NÃO no OneDrive.**
   OneDrive sincroniza node_modules (milhares de arquivos) e watcher do Vite via /mnt/c é
   lento no WSL. Docs + `.wolf/` ficam no OneDrive; backup do código via git/GitHub privado.

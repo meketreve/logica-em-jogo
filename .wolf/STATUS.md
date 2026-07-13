@@ -6,13 +6,13 @@
 > Os 4 critérios de aceitação atendidos e jogados. A plataforma de autoria
 > está completa: professor cria cenário inteiro dentro do jogo (painel ou
 > comandos), grupos, mundo-modelo cabines, tudo persiste e viaja no .ljw.
-> PRÓXIMA QUEST: entrevista de escopo da próxima fase. Candidatos, na
-> ordem do plano (motor → cenários → piloto → relatório): (a) CENÁRIOS
-> PEDAGÓGICOS REAIS por faixa etária (BNCC/Wing — conteúdo, não motor) +
-> teste em PC do lab + preparação do piloto; (b) blocos grupo B
-> (transparentes: vidro/folhas/água — mexem no mesher); (c) circuitos
-> lógicos (decisão pendente: painel-que-vira-bloco vs blocos-no-mundo).
-> cp10 segue ADIADO. Playtest das texturas do grupo A segue pendente.**
+> FASE DE POLIMENTO "blocos + mecânica" (2026-07-13): cp15–cp18 CODADOS e
+> verificados (135 testes, typecheck 3/3, build, smoke real, screenshots) —
+> **PLAYTEST DO USUÁRIO PENDENTE nos 4.** Detalhe em "Checkpoints do
+> polimento" abaixo. Depois do playtest: próxima fase = cenários
+> pedagógicos reais + piloto (candidata já discutida). Água fica FORA
+> (fluido = fase própria). cp10 segue ADIADO. Playtest das texturas do
+> grupo A segue pendente (o do cp17/18 cobre junto).**
 
 ---
 
@@ -537,13 +537,56 @@ em `/shared` desde o checkpoint 2 (gravidade testável sem abrir navegador); cad
 
 **→ MVP v2 FECHADO (2026-07-13): os 4 critérios atendidos e jogados.**
 
+**Checkpoints do polimento "blocos + mecânica" (2026-07-13, TODOS codados —
+playtest do usuário pendente):**
+1. **cp15 — corrida + agachar.** `/shared/physics.ts`: MoveInput ganhou
+   `sprint?`/`sneak?`; PLAYER: sprintFactor 1.6, sneakFactor 0.3,
+   sneakEyeHeight 1.32. Edge-guard estilo Minecraft: agachado NO CHÃO,
+   passo horizontal que tiraria o suporte é desfeito POR EIXO (hasSupport
+   checa bloco sob o footprint; na diagonal o eixo seguro desliza; pode se
+   debruçar até |0.8| do centro — footprint ainda toca). Guard só com
+   onGround (no ar não trava). Cliente: Ctrl segurado OU duplo-toque no
+   andar (<300 ms, latch até soltar); Shift agacha; agachar VENCE sprint;
+   sprint exige forward>0. Teclas `correr`/`agachar` rebindáveis (entram
+   sozinhas no menu — itera KEY_ACTION_LABEL). FOV +10% correndo e olho
+   desce agachado, transições exponenciais (kCam = 1-exp(-dt·20)).
+   5 testes novos de física.
+2. **cp16 — inventário + hotbar de slots.** Hotbar virou 9 SLOTS
+   configuráveis (persistem em localStorage `lj-hotbar`, parse defensivo
+   por slot); 1–9 escolhe slot, scroll cicla os 9; HUD mostra slots com
+   ÍCONES + nome do bloco selecionado. Tecla E (rebindável `inventario`)
+   abre `client/inventory.ts`: grade de TODOS os colocáveis (ícone+nome) +
+   faixa da hotbar; clique no bloco → slot selecionado; clique no slot →
+   seleciona; Esc/E fecha e re-trava o mouse; exclusão mútua com painel P;
+   `?inv` abre no boot (headless). Ícones: `client/blockIcons.ts` recorta o
+   tile LATERAL do próprio atlas (blockIconTile novo no mesher) → data URL.
+3. **cp17 — 8 opacos novos (IDs 19–26, append):** arenito (estratos),
+   pedra-lavrada (fiadas 8×4), neve, obsidiana (pontinhos roxos) + lãs
+   rosa/ciano/cinza/marrom (12 lãs no total — sequências mais ricas).
+   Atlas tiles 20–27; cobertura automática pelo teste "todo colocável".
+4. **cp18 — vidro + folhas (grupo B, IDs 27–28, tiles 28–29).** Abordagem
+   CUTOUT: alphaTest 0.5 no material único — pixel opaco ou descartado,
+   SEM blending/sorting/draw call extra. `isTransparentBlock()` em blocks;
+   regra do mesher: face aparece se vizinho=ar OU opaco→transparente;
+   entre transparentes NUNCA (coplanar = z-fight). Transparência é só
+   visual (física/raycast tratam como sólido). Vidro = moldura+brilhos
+   (resto alpha 0); folhas = verde com 22% de furos. 2 testes de mesher.
+   Smoke real 21/21 via /bloco (servidor aceita ids novos) + screenshot:
+   lã vermelha visível ATRAVÉS da parede de vidro.
+
+**Critérios de aceitação do polimento (playtest do usuário):**
+1. Correr com Ctrl E com duplo-W; agachado na beirada não cai; FOV/câmera
+   respondem. 2. E abre inventário, monta hotbar própria, persiste ao
+   reabrir o navegador. 3. Blocos novos aparecem no inventário e no mundo
+   com textura certa. 4. Vidro/folhas: vê-se através, sem faces piscando.
+
 **Depois (anotado, não esquecer):**
 - **MVP v2 = CENÁRIOS/AUTORIA** (coração pedagógico): objetivos, detecção de
   padrão no mundo = mesma engrenagem das rules.
-- **Blocos grupo B** (transparentes: vidro, folhas, água — mexem no culled
-  mesher; água = fluido via regra de vizinhança + nado). **Grupo C** (não-cubos:
-  tocha, laje, escada — geometria nova no mesher).
-- Playtest das texturas do grupo A pelo usuário.
+- **Água** (resto do grupo B: fluido via regra de vizinhança + nado — fase
+  própria; vidro/folhas saíram no cp18). **Grupo C** (não-cubos: tocha,
+  laje, escada — geometria nova no mesher).
+- Playtest das texturas do grupo A pelo usuário (o playtest do cp17/18 cobre).
 
 ⚠️ Issue conhecida (bug-003, fix PARCIAL, NÃO bloqueante): pulos ocasionais de câmera
 por spikes de movementX/Y do Chrome no pointer lock. Filtro MAX_DELTA=200 +
