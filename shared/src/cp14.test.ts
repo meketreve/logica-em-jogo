@@ -64,7 +64,7 @@ describe("cp14 — edição de objetivos (/objetivo texto e mover)", () => {
     const s = makeSession();
     setup(s);
     s.chat(1, "/objetivo texto 1 Enunciado novo");
-    expect(s.lastChat(1)).toContain("texto atualizado");
+    expect(s.lastChat(1)).toContain("enunciado atualizado");
     expect(s.lastObjectives(1)?.objetivos[0]?.["texto"]).toBe("Enunciado novo");
   });
 
@@ -84,9 +84,9 @@ describe("cp14 — edição de objetivos (/objetivo texto e mover)", () => {
     const s = makeSession();
     setup(s);
     s.chat(1, "/objetivo mover 99 1");
-    expect(s.lastChat(1)).toContain("não existe objetivo #99");
+    expect(s.lastChat(1)).toContain("Não existe objetivo #99");
     s.chat(1, "/objetivo texto 99 Oi");
-    expect(s.lastChat(1)).toContain("não existe objetivo #99");
+    expect(s.lastChat(1)).toContain("Não existe objetivo #99");
     expect(s.lastObjectives(1)?.objetivos).toHaveLength(2);
   });
 });

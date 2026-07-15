@@ -852,3 +852,107 @@ MVP v1 código completo — falta só playtest do usuário no cp9. Depois: MVP v
 | 19:39 | Edited client/src/main.ts | 1→3 lines | ~63 |
 | 19:40 | re-playtest: cp18/voltar/pick-block ✅; sprint refinado — Ctrl só ENGATA, corrida segue enquanto W apertado (MC), FOV segue player.sprinting | shared/physics.ts, client/main.ts, physics.test.ts | 137 testes ✅ typecheck 3/3 ✅ | ~6k |
 | 19:39 | Session end: 23 writes across 8 files (physics.ts, mesher.ts, index.html, menu.ts, main.ts) | 10 reads | ~27961 tok |
+| 19:43 | Session end: 23 writes across 8 files (physics.ts, mesher.ts, index.html, menu.ts, main.ts) | 10 reads | ~27961 tok |
+| 19:43 | Session end: 23 writes across 8 files (physics.ts, mesher.ts, index.html, menu.ts, main.ts) | 10 reads | ~27961 tok |
+
+## Session: 2026-07-14 08:48
+
+| Time | Action | File(s) | Outcome | ~Tokens |
+|------|--------|---------|---------|--------|
+| 10:16 | Created server/src/cenarios/gerar.ts | — | ~2732 |
+| 10:16 | Edited server/package.json | 1→2 lines | ~22 |
+| 10:16 | Edited package.json | 1→2 lines | ~25 |
+| 10:17 | Edited server/src/cenarios/gerar.ts | modified constructor() | ~160 |
+| 10:17 | Edited server/src/cenarios/gerar.ts | modified cmd() | ~119 |
+| 10:17 | Created ../../../tmp/claude-1000/-home-meketreve-logica-em-jogo/1e53a721-e45d-4911-a026-f385f8f2c4e6/scratchpad/verificar.ts | — | ~1304 |
+| 10:18 | Edited server/src/cenarios/gerar.ts | added 1 import(s) | ~45 |
+| 10:18 | Edited server/src/cenarios/gerar.ts | 7→11 lines | ~123 |
+| 10:45 | Created server/src/cenarios/verificar.ts | — | ~1231 |
+| 10:45 | Edited server/src/cenarios/gerar.ts | added 1 import(s) | ~29 |
+| 10:45 | Edited server/src/cenarios/gerar.ts | added 2 condition(s) | ~165 |
+| 10:59 | Edited client/vite.config.ts | expanded (+7 lines) | ~82 |
+| 11:00 | Created cenarios/README.md | — | ~1349 |
+| 11:00 | Edited server/src/cenarios/verificar.ts | expanded (+9 lines) | ~52 |
+| 11:01 | Edited server/src/cenarios/verificar.ts | added 5 condition(s) | ~482 |
+| 11:01 | Edited server/src/cenarios/verificar.ts | 2→4 lines | ~43 |
+
+## Sessão 2026-07-14 — cenários pedagógicos (fase de CONTEÚDO, pós-polimento)
+| 12:00 | Decisões de abertura com o usuário | — | piloto 6º–9º; cenário 1 = sequência de lãs nas cabines; produção via SCRIPT GERADOR (.ljw regenerável, não versionado) | ~1k |
+| 12:00 | Gerador de cenários | server/src/cenarios/gerar.ts | 3 aulas (sequência/binário/depurar) — digita os MESMOS comandos de chat do professor contra a GameSession real | ~4k |
+| 12:00 | Conferência embutida | server/src/cenarios/verificar.ts | abre o .ljw num servidor novo, entra prof+2 alunos, completa a área do grupo 1; + geometria (faixa no chão, fora da cabine, dentro do chunk). Cenário que não fecha NÃO vira arquivo | ~3k |
+| 12:00 | Roteiro de aula | cenarios/README.md | como gerar/hospedar/distribuir + gabarito e condução das 3 aulas + o que observar | ~2k |
+| 12:00 | bug-172 (bloqueava o piloto) | client/vite.config.ts | Vite dev só atendia localhost → aluno na LAN não abria o cliente. host: true | ~200 |
+| 12:00 | bug-173 / bug-174 | server/src/cenarios/gerar.ts | saída caía em server/cenarios/ (cwd do workspace); asserção pegava só a última fala do servidor | ~300 |
+| 12:00 | Verificado | — | 137 testes ✅, typecheck 3/3 ✅, 3 .ljw gerados e conferidos; guarda de geometria testada NEGATIVAMENTE (reprova e não grava) | ~500 |
+| 11:15 | Session end: 16 writes across 5 files (gerar.ts, package.json, verificar.ts, vite.config.ts, README.md) | 6 reads | ~28023 tok |
+| 14:03 | Created server/src/paths.ts | — | ~158 |
+| 14:03 | Edited server/src/index.ts | added 2 import(s) | ~112 |
+| 14:04 | Edited server/src/index.ts | added 1 condition(s) | ~359 |
+| 14:04 | Edited server/src/index.ts | modified saveNow() | ~77 |
+| 14:31 | Created server/src/static.ts | — | ~1055 |
+| 14:31 | Edited server/src/index.ts | 3→6 lines | ~78 |
+| 14:31 | Edited server/src/index.ts | added 2 import(s) | ~51 |
+| 14:31 | Edited server/src/index.ts | added 1 import(s) | ~28 |
+| 14:31 | Edited server/src/index.ts | added nullish coalescing | ~258 |
+| 15:10 | Edited shared/src/session.ts | 11→15 lines | ~142 |
+| 15:11 | Edited shared/src/session.ts | expanded (+6 lines) | ~93 |
+| 15:11 | Edited shared/src/session.ts | 3→4 lines | ~93 |
+| 15:11 | Edited shared/src/session.ts | expanded (+6 lines) | ~95 |
+| 15:11 | Edited shared/src/session.ts | 2→3 lines | ~87 |
+| 15:17 | Edited shared/src/protocol.test.ts | 3→3 lines | ~44 |
+| 16:03 | Edited shared/src/session.ts | parou() → admitir() | ~42 |
+| 16:04 | Edited shared/src/session.ts | added optional chaining | ~1461 |
+| 16:19 | Edited shared/src/session.ts | added optional chaining | ~17 |
+| 16:19 | Edited server/src/index.ts | expanded (+6 lines) | ~153 |
+| 16:19 | Edited server/src/index.ts | modified saveNow() | ~134 |
+| 16:20 | Created server/src/mundos.ts | — | ~1534 |
+| 16:20 | Edited server/src/index.ts | added 1 condition(s) | ~88 |
+| 16:20 | Edited server/src/index.ts | added error handling | ~461 |
+| 16:20 | Edited server/src/index.ts | added 1 import(s) | ~39 |
+| 16:21 | Edited server/src/index.ts | modified gerarCodigo() | ~119 |
+| 16:21 | Edited client/src/chunks.ts | modified trocarMundo() | ~134 |
+| 16:21 | Edited client/src/main.ts | 2→4 lines | ~76 |
+| 16:21 | Edited client/src/main.ts | added optional chaining | ~79 |
+| 16:22 | Edited client/src/main.ts | added optional chaining | ~358 |
+| 16:22 | Edited client/src/main.ts | 4→9 lines | ~87 |
+| 16:23 | Created server/src/cenarios/_smoke-mundo.mjs | — | ~851 |
+| 16:40 | Edited server/src/paths.ts | added 1 condition(s) | ~314 |
+
+## Session: 2026-07-15 09:28
+
+| Time | Action | File(s) | Outcome | ~Tokens |
+|------|--------|---------|---------|--------|
+
+## Session: 2026-07-15 09:31
+
+| Time | Action | File(s) | Outcome | ~Tokens |
+|------|--------|---------|---------|--------|
+
+## Session: 2026-07-15 09:33
+
+| Time | Action | File(s) | Outcome | ~Tokens |
+|------|--------|---------|---------|--------|
+| 09:41 | Edited server/src/paths.ts | inline fix | ~20 |
+| 09:43 | Edited server/src/index.ts | 2→2 lines | ~26 |
+| 09:43 | Edited server/src/index.ts | modified if() | ~363 |
+| 09:43 | Edited server/src/index.ts | added 1 condition(s) | ~350 |
+| 09:43 | Edited server/src/index.ts | "${restore ? " → "mundo de ${CARREGAR_DE}" | ~25 |
+| 09:43 | Edited server/src/mundos.ts | 4→4 lines | ~66 |
+| 09:43 | Edited server/src/mundos.ts | modified mundosDisponiveis() | ~174 |
+| 09:44 | Edited server/src/mundos.ts | added nullish coalescing | ~482 |
+| 10:00 | Wired mundoDeTrabalho into boot | server/src/index.ts | model→aulas/ working copy at boot | ~120 |
+| 10:12 | Ran cp19 smoke after separation | _smoke-mundo.mjs | 13/13 ✅ | ~200 |
+| 10:14 | Verified models byte-identical post-swap | cenarios/*.ljw | md5 OK, copies in aulas/ | ~60 |
+| 10:18 | Regenerated scenarios | cenarios/*.ljw | roster:[] confirmed (boot "0 no roster") | ~80 |
+
+### Resumo da sessão 2026-07-15 (infra do piloto + integridade)
+Fechei 3 frentes pedidas (servidor serve cliente na mesma porta · varredura de
+mensagens de erro · cp19 trocar de aula sem derrubar) já codadas antes da compactação,
+e o refino que faltava: **cenarios/ = MODELO, aulas/ = cópia viva**. `mundoDeTrabalho()`
+em paths.ts, ligado no boot (index.ts) e no `/mundo carregar` (mundos.ts). Prova de
+integridade: swap real deixou os 3 modelos em cenarios/ byte-idênticos (md5 OK) e criou
+as cópias em aulas/; regeração confirmou roster:[] (boot "0 jogador(es) no roster").
+Smoke cp19 13/13, typecheck 3/3. buglog: +bug-194 (modelo poluído pelo autosave) e
+bug-195 (basename sem import). .exe/empacotamento segue ADIADO (decisão do usuário).
+**Próximo: playtest das 3 aulas pelo usuário.** Commit ainda NÃO feito — aguarda o usuário.
+| 10:57 | Session end: 8 writes across 3 files (paths.ts, index.ts, mundos.ts) | 2 reads | ~4940 tok |

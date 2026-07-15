@@ -1,7 +1,11 @@
 # anatomy.md
 
-> Auto-maintained by OpenWolf. Last scanned: 2026-07-13T22:39:12.805Z
-> Files: 64 tracked | Anatomy hits: 0 | Misses: 0
+> Auto-maintained by OpenWolf. Last scanned: 2026-07-15T12:44:03.640Z
+> Files: 78 tracked | Anatomy hits: 0 | Misses: 0
+
+## ../../../tmp/claude-1000/-home-meketreve-logica-em-jogo/1e53a721-e45d-4911-a026-f385f8f2c4e6/scratchpad/
+
+- `verificar.ts` — Verificação dos .ljw gerados: abre cada save num servidor NOVO (como o (~1304 tok)
 
 ## ../../../tmp/claude-1000/-home-meketreve-logica-em-jogo/3962ee9a-001c-4ba8-abf3-6b384e5cba47/scratchpad/
 
@@ -40,6 +44,7 @@
 ## ./
 
 - `.gitattributes` — LF em tudo (projeto vive no WSL/ext4; evita ruído CRLF de ferramentas Windows) (~31 tok)
+- `package.json` — Node.js package manifest (~157 tok)
 
 ## .claude/
 
@@ -47,9 +52,15 @@
 ## .claude/rules/
 
 
+## cenarios/
+
+- `README.md` — Project documentation (~1264 tok)
+- `README.md` — Roteiro de aula das 3 aulas (6º–9º): como gerar/hospedar/distribuir, gabarito de cada uma, condução e o que observar. Os .ljw são gitignored (regeneráveis) (~1100 tok)
+
 ## client/
 
 - `index.html` — Lógica em Jogo (~4786 tok)
+- `vite.config.ts` (~94 tok)
 
 ## client/src/
 
@@ -58,13 +69,13 @@
 - `blockIcons.ts` — Ícones 2D dos blocos pra hotbar e pro inventário: recorta o tile LATERAL do (~270 tok)
 - `blocksUi.ts` — Blocos colocáveis com nome em português — fonte única pra hotbar (main.ts) (~444 tok)
 - `chat.ts` — UI de chat em HTML/CSS por cima do canvas (regra: sem GUI de engine). (~644 tok)
-- `chunks.ts` — 1 mesh por chunk (BufferGeometry única, culled mesher do /shared). (~786 tok)
+- `chunks.ts` — 1 mesh por chunk (BufferGeometry única, culled mesher do /shared). (~914 tok)
 - `connection.ts` — Conexão do cliente com O SERVIDOR — interface única, hospedeiro invisível. (~1175 tok)
 - `events.ts` — Gatilhos de som (checkpoint 6): pontos de evento do jogo onde o áudio vai (~182 tok)
 - `hud.ts` — HUD de perfilação (F3): FPS, frametime méd+p95, remesh, draw calls e (~1099 tok)
 - `input.ts` — Teclado + mouse (pointer lock). SÓ coleta input — nenhuma decisão de (~1218 tok)
 - `inventory.ts` — Inventário de blocos (cp16) — grade com TODOS os colocáveis + faixa da (~1150 tok)
-- `main.ts` — Checkpoint 8: menu principal. Sem parâmetro na URL o menu escolhe o rumo: (~8851 tok)
+- `main.ts` — Checkpoint 8: menu principal. Sem parâmetro na URL o menu escolhe o rumo: (~9342 tok)
 - `menu.ts` — Menu principal (cp8) — HTML/CSS por cima do canvas, sem GUI de engine. (~4087 tok)
 - `objectivesUi.ts` — Grupo do PRÓPRIO jogador (null = sem grupo). (~1244 tok)
 - `panels.ts` — Painéis HTML do cp14 — açúcar visual sobre os comandos de chat: cada botão (~5674 tok)
@@ -74,12 +85,24 @@
 
 ## server/
 
+- `package.json` — Node.js package manifest (~119 tok)
 - `tsconfig.json` — TypeScript configuration (~43 tok)
 
 ## server/src/
 
-- `index.ts` — Hospedeiro Node+ws do servidor (LAN): embrulha a MESMA GameSession do Web (~1259 tok)
+- `cenarios/gerar.ts` — Gerador dos 3 cenários pedagógicos (.ljw): digita os MESMOS comandos de chat do professor contra a GameSession real. Flags: --grupos --codigo --revelar --saida (~1900 tok)
+- `cenarios/verificar.ts` — Conferência embutida na geração: abre o .ljw num servidor novo, entra prof+2 alunos, completa a área do grupo 1; + guarda de geometria da faixa (~1400 tok)
+- `index.ts` — Hospedeiro Node+ws do servidor (LAN): embrulha a MESMA GameSession do Web (~2758 tok)
+- `mundos.ts` — `/mundo lista·atual·carregar` (cp19) — trocar a aula SEM derrubar a turma (só professor, aceita só NOME de arquivo). Modelo de cenarios/ vira cópia viva em aulas/ ao carregar. (~1900 tok)
+- `paths.ts` — REPO_ROOT + daRaiz() (caminho relativo conta da raiz, não do cwd de server/). `mundoDeTrabalho()`: mundo em cenarios/ = MODELO → cópia de trabalho em aulas/ (autosave nunca escreve no modelo distribuído). (~600 tok)
+- `static.ts` — Serve o cliente já buildado (client/dist) NA MESMA PORTA do WebSocket. (~1055 tok)
 - `worker.ts` — Hospedeiro Web Worker do servidor (singleplayer): embrulha a GameSession (~682 tok)
+
+## server/src/cenarios/
+
+- `_smoke-mundo.mjs` — Smoke do cp19 contra o servidor REAL: professor + aluno conectados, o (~851 tok)
+- `gerar.ts` — Gerador dos cenários pedagógicos (.ljw) — MVP v2 em uso real. (~2986 tok)
+- `verificar.ts` — Conferência de um .ljw recém-gerado: abre o save num servidor NOVO (como o (~1728 tok)
 
 ## shared/
 
@@ -97,7 +120,7 @@
 - `mesher.ts` — Culled mesher: função PURA (bytes do mundo → geometria). Só emite faces que (~2053 tok)
 - `physics.test.ts` — Mundo 1 chunk com chão sólido em y ∈ [0,7]. (~2227 tok)
 - `physics.ts` — Física do jogador (andar, gravidade, colisão AABB com o grid de voxels). (~1698 tok)
-- `protocol.test.ts` — Declares DIMS (~1919 tok)
+- `protocol.test.ts` — Declares DIMS (~2276 tok)
 - `protocol.ts` — Protocolo v0 (checkpoint 2). Mensagens JSON dos dois lados + world_snapshot (~4041 tok)
 - `raycast.test.ts` — Mundo 16³ com chão sólido em y ∈ [0,7]. (~604 tok)
 - `raycast.ts` — Raycast de voxel (DDA de Amanatides-Woo): anda célula a célula do grid até (~649 tok)
@@ -110,7 +133,7 @@
 - `scenario.test.ts` — Marca cantos e cria região nomeada via varinha + /regiao (professor id). (~3629 tok)
 - `scenario.ts` — Cenário (cp12) — o coração pedagógico: objetivos que checam o ESTADO DO (~3246 tok)
 - `session.test.ts` — Testes de MECÂNICA rodam com singleplayer: true (join sem PIN) — a (~9089 tok)
-- `session.ts` — GameSession: o SERVIDOR autoritativo, independente de hospedeiro. (~16132 tok)
+- `session.ts` — GameSession: o SERVIDOR autoritativo, independente de hospedeiro. (~17047 tok)
 - `world.test.ts` — Declares DIMS (~761 tok)
 - `world.ts` — Dimensões do mundo em chunks. Parâmetro de criação, gravado no header do save/snapshot. (~848 tok)
 - `worldgen.ts` — Preset de criação de mundo (cp14): escolhido no menu/host, só vale pra (~1361 tok)

@@ -197,6 +197,8 @@ let myGrupo: number | null = null;
 let latestGroups: GroupDef[] = [];
 const knownComplete = new Set<number>();
 let objectivesSeeded = false; // 1ª lista do join não toca som de conquista antiga
+/** cp19: o professor trocou a aula — o mundo inteiro chega de novo, em jogo. */
+let reloadWorld: ((snap: Snapshot) => void) | null = null;
 
 /** Estado consolidado pros painéis — chamada sempre que algo deles muda. */
 function pushPanelData(): void {
@@ -287,7 +289,12 @@ function handleServerData(data: string | ArrayBuffer): void {
     }
     return;
   }
-  if (started) return; // snapshot é único por sessão
+  if (started) {
+    // segundo snapshot EM JOGO = o professor trocou a aula (cp19). O que vem
+    // depois (regiões, grupos, objetivos, teleporte) repovoa a tela.
+    reloadWorld?.(decodeSnapshot(data));
+    return;
+  }
   started = true;
   startGame(decodeSnapshot(data));
 }
@@ -368,7 +375,8 @@ if (bootServer) {
 function startGame(snap: Snapshot): void {
   const activeConn = conn;
   if (!activeConn) return; // snapshot só chega depois do connect()
-  const world = snap.world;
+  // `let`: a troca de aula (cp19) substitui o mundo debaixo dos closures abaixo
+  let world = snap.world;
   // alphaTest = cutout dos transparentes (vidro/folhas): pixel opaco ou
   // descartado — sem blending, sem sorting, mesmo draw call por chunk (cp18)
   const material = new THREE.MeshLambertMaterial({
@@ -454,7 +462,7 @@ function startGame(snap: Snapshot): void {
   // Spawn vem do SERVIDOR (fixo, do terreno pristino) — o snapshot pode já
   // estar escavado, então findSpawnY local daria outro lugar (bug-010).
   // Fallback local só se a mensagem spawn não chegou (não deve acontecer).
-  const spawn = serverSpawn ?? {
+  let spawn = serverSpawn ?? {
     x: world.sizeX / 2 + 0.5,
     y: findSpawnY(world, Math.floor(world.sizeX / 2), Math.floor(world.sizeZ / 2)),
     z: world.sizeZ / 2 + 0.5,
@@ -467,6 +475,41 @@ function startGame(snap: Snapshot): void {
     player.pos.z = spawn.z;
     player.vel.x = player.vel.y = player.vel.z = 0;
   }
+
+  /**
+   * cp19 — o professor trocou a aula: o mundo inteiro chega de novo, com o jogo
+   * rodando. Cuidado com o que o servidor NÃO reenvia: um mundo sem regiões (ou
+   * sem objetivos) não manda mensagem alguma sobre elas, então o que sobrou do
+   * mundo anterior ficaria de fantasma na tela. Por isso zeramos aqui e deixamos
+   * as mensagens seguintes (regiões, grupo, objetivos, teleporte) repovoarem.
+   */
+  reloadWorld = (novo) => {
+    world = novo.world;
+    chunkRenderer.trocarMundo(world);
+
+    latestRegions = [];
+    regionRenderer.setRegions([]);
+    regionRenderer.clearCorners();
+    latestObjectives = null;
+    applyObjectiveBoxes?.([]);
+    // lista vazia = o painel de objetivos se esconde sozinho
+    objectivesUi.update("livre", [], {
+      grupo: null,
+      professor: papel === "professor",
+      painelKey: keyLabel(settings.keys.painel),
+    });
+    knownComplete.clear();
+    objectivesSeeded = false; // o 1º objetivo do mundo novo não é "conquista"
+    latestGroups = [];
+    myGrupo = null;
+    pushPanelData();
+
+    // o teleporte chega logo atrás e põe o jogador no lugar certo; isto é a rede
+    // de segurança caso ele se perca (mundo novo pode ser menor que o antigo)
+    spawn = serverSpawn ?? spawn;
+    respawn();
+    chat.addMessage("jogo", "a aula mudou — mundo novo carregado");
+  };
 
   // servidor manda posição E orientação (volta-onde-parou; futuro /tp)
   applyTeleport = (pos) => {

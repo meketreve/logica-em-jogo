@@ -18,6 +18,21 @@ export class ChunkRenderer {
     private scene: THREE.Scene,
   ) {}
 
+  /**
+   * Troca o mundo inteiro (cp19: o professor mudou a aula sem derrubar a turma).
+   * Descarta TODA a geometria antiga — o mundo novo pode ter até outro tamanho,
+   * então não dá pra reaproveitar mesh nenhuma.
+   */
+  trocarMundo(novo: World): void {
+    for (const mesh of this.meshes.values()) {
+      this.scene.remove(mesh);
+      mesh.geometry.dispose();
+    }
+    this.meshes.clear();
+    this.world = novo;
+    this.buildAll();
+  }
+
   buildAll(): void {
     for (let cy = 0; cy < this.world.dims.y; cy++)
       for (let cz = 0; cz < this.world.dims.z; cz++)

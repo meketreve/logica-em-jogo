@@ -1,19 +1,28 @@
 # STATUS — Projeto "Lógica em Jogo" (jogo voxel educacional)
 
 > Single source of truth for resuming work. Read this FIRST when starting a session.
-> Last updated: 2026-07-13
+> Last updated: 2026-07-15
+> **INFRA DO PILOTO (2026-07-15, PLAYTEST DO USUÁRIO PENDENTE):** (1) servidor
+> serve o cliente na MESMA porta (aluno abre http://ip-do-prof:8080 e joga, sem
+> Vite separado); (2) varredura das mensagens de erro (66+ reescritas, frase
+> culta e clara); (3) **cp19 — trocar de aula SEM derrubar a turma** (`/mundo
+> carregar nome`, ninguém reconecta, professor segue professor); (4) cenários em
+> `cenarios/` são MODELO (nunca escritos) — o autosave grava CÓPIA DE TRABALHO em
+> `aulas/`, então distribuir um .ljw não carrega a turma anterior. Smoke cp19
+> 13/13, typecheck 3/3. **.exe/empacotamento ADIADO** (usuário ainda vai mexer).
 > **MVP v2 FECHADO (2026-07-13): plataforma de autoria completa — professor cria
 > cenário inteiro dentro do jogo (painel ou comandos), grupos, mundo-modelo
 > cabines, tudo persiste e viaja no .ljw.
-> POLIMENTO "blocos + mecânica" FECHADO (2026-07-13): cp15–cp18 codados,
-> playtestados em 2 rodadas e APROVADOS ("sprint funcionando"). 4 achados do
-> playtest corrigidos no caminho (bug-167 face vidro↔folha, bug-168 semântica do
-> sprint, bug-169 dois "voltar" na config) + pick-block no botão do meio.
-> 137 testes, typecheck 3/3, build. Texturas do grupo A também aprovadas
-> ("todos top").
-> **PRÓXIMA FASE: cenários pedagógicos reais + piloto com uma turma.** Água fica
-> FORA (fluido = fase própria). cp10 (validação de física no servidor) segue
-> ADIADO — sem gatilho.**
+> POLIMENTO "blocos + mecânica" FECHADO (2026-07-13): cp15–cp18 playtestados e
+> APROVADOS. 137 testes, typecheck 3/3, build.
+> **CENÁRIOS PEDAGÓGICOS CODADOS (2026-07-14) — PLAYTEST DO USUÁRIO PENDENTE.**
+> 3 aulas geradas por script (`npm run cenarios`), auto-conferidas, com roteiro
+> de aula. Turma do piloto: **6º–9º**. Achado que bloqueava o piloto e já
+> corrigido: bug-172 (Vite dev só atendia localhost → aluno na LAN não abria o
+> cliente).
+> **PRÓXIMO: playtest dos 3 cenários → piloto com a turma → relatório.** Água
+> fica FORA (fluido = fase própria). cp10 (validação de física no servidor)
+> segue ADIADO — sem gatilho.**
 
 ---
 
@@ -602,29 +611,121 @@ re-playtestados ✅:
   selecionado (só colocáveis — bedrock não vai pra mão); hint do Esc atualizado.
 136 testes ✅, typecheck 3/3 ✅, build ✅.
 
+- **CENÁRIOS PEDAGÓGICOS — 3 aulas (2026-07-14, PLAYTEST DO USUÁRIO PENDENTE).**
+  Decisões da abertura: piloto no **6º–9º**; 1º cenário = sequência de lãs nas
+  cabines (confirmado); produção por **script gerador**, não à mão no jogo.
+  Novo em `/server`: `src/cenarios/gerar.ts` — digita os MESMOS comandos de chat
+  do professor (`/grupo criar`, `/regiao criar`, `/bloco`, `/objetivo add
+  construir`) contra a GameSession real e grava o .ljw. Não existe caminho de
+  autoria privado: cenário que não sai daí também não sai da mão do professor.
+  `src/cenarios/verificar.ts` — conferência EMBUTIDA na geração: abre o .ljw num
+  servidor NOVO, professor entra com o código, 2 alunos entram e são
+  auto-distribuídos, o grupo 1 monta o gabarito e o objetivo TEM que fechar
+  (+ guarda de geometria: faixa no chão, fora da cabine, dentro do chunk).
+  Cenário que não fecha NÃO vira arquivo (exit 1) — testado negativamente.
+  Mundo de cada aula: cabines, dims 6×6×4; cabine do professor no chunk central
+  (spawn), 1 cabine por grupo na fileira à frente; faixa de blocos no chão a 4
+  passos da porta. As 3 aulas (6º–9º, 5 grupos por padrão):
+  1. `aula1-sequencia.ljw` — "Continue a regra" (padrão/generalização): faixa de
+     12, os 4 primeiros dados (vermelho-azul-azul-vermelho) → contador nasce 4/12.
+  2. `aula2-binario.ljw` — "Escreva 45 em binário" (abstração/representação):
+     8 blocos, branco=0/preto=1, faixa vazia → 0/8.
+  3. `aula3-depurar.ljw` — "Ache os 2 erros" (depuração): faixa já montada com 2
+     células erradas → 10/12; o contador diz QUANTOS, não QUAIS.
+  Gabarito é fotografado e APAGADO (aluno infere a regra); flag `--revelar` deixa
+  o modelo à vista (vira cópia — turmas mais novas). `.ljw` NÃO vai pro git
+  (577 kB, regenerável): versiona-se o gerador + `cenarios/README.md` (roteiro de
+  aula: gerar, hospedar, distribuir, gabarito e condução de cada aula, o que
+  observar). O .ljw sai com `roster: []` — não viaja com PIN/papel do autor.
+  **bug-172 (bloqueava o piloto, corrigido):** Vite dev só escutava em localhost
+  → aluno da LAN não abria o cliente; `host: true` em `client/vite.config.ts`.
+  bug-173 (cwd do workspace) e bug-174 (comando gera VÁRIAS falas do servidor)
+  também logados. 137 testes ✅, typecheck 3/3 ✅.
+
+- **INFRA DO PILOTO — servidor serve cliente + mensagens + cp19 (2026-07-15,
+  PLAYTEST DO USUÁRIO PENDENTE).** Três frentes pedidas pelo usuário, nesta ordem:
+  1. **Servidor serve o cliente (mesma porta).** Novo `server/src/static.ts`:
+     `servirCliente(req,res)` entrega `client/dist` na MESMA porta do WebSocket —
+     o aluno abre `http://ip-do-professor:8080` no navegador e joga, sem servidor
+     de página à parte e sem digitar endereço de WebSocket. HTTP+WS convivem via
+     `createServer(servirCliente)` + `new WebSocketServer({ server: http })`.
+     Guarda de path traversal (caminho resolvido tem que ser DIST ou começar com
+     DIST+sep; rota desconhecida → index.html; no-store no index). Página 503 de
+     aviso se o cliente não foi buildado. Boot imprime o IP da LAN
+     (`enderecoDaRede`) e avisa se falta `npm run build`. Motivo de subir tudo na
+     mesma porta: HTTPS bloqueia `ws://` (mixed content) e o servidor da escola
+     não tem certificado pra `wss://` — mesma origem resolve.
+  2. **Varredura das mensagens de erro (bug-176).** 66+ mensagens de
+     `shared/src/session.ts` reescritas de log-de-dev (minúsculo, telegráfico)
+     pra frase culta e clara: diz O QUE aconteceu + O QUE fazer. Ex.: "PIN errado"
+     → "PIN incorreto para este nome."; "só o professor pode usar /bloco" →
+     "Somente o professor pode usar /bloco." ~16 asserts de teste seguiram os
+     textos novos (só string, zero mudança de comportamento).
+  3. **cp19 — trocar de aula SEM derrubar a turma.** Novo `server/src/mundos.ts`:
+     `/mundo lista · atual · carregar nome` (SÓ professor; intercepta no HOST, não
+     na sessão — trocar de aula é ler arquivo, e a GameSession não tem filesystem).
+     Aceita só NOME de arquivo, nunca caminho (comando chega pela rede da escola).
+     A troca: salva o mundo atual → decodifica o novo (corrompido → aborta, nada
+     muda) → `session.jogadoresConectados()` → nova GameSession → `adotar()` cada
+     cliente (sem PIN/reconexão; professor segue professor; teleport obrigatório —
+     coords do mundo velho podem cair na rocha). `session.ts`: join refatorado —
+     2ª metade virou `admitir(id,name,papel,migrado)` (reusada por join e adotar);
+     `jogadoresConectados()` e `adotar()` novos. Cliente: `chunks.ts` `trocarMundo`
+     (descarta TODA a geometria — mundo novo pode ter outro tamanho); `main.ts`
+     `reloadWorld` (snapshot pós-jogo recarrega mundo, zera regiões/objetivos/
+     grupos, respawn). Smoke real `server/src/cenarios/_smoke-mundo.mjs` 13/13 ✅.
+  4. **cenarios/ = MODELO, aulas/ = cópia viva (integridade de dado).** Achado
+     durante o cp19: hospedar `cenarios/aula1.ljw` direto fazia o autosave gravar
+     roster/PINs/progresso DENTRO do arquivo distribuído — a próxima turma
+     começaria com a aula da anterior resolvida. Novo em `server/src/paths.ts`:
+     `mundoDeTrabalho(escolhido)` — se o mundo está em `cenarios/`, a cópia de
+     trabalho vai pra `aulas/` (mesmo nome); a cópia viva vence o modelo (turma
+     continua de onde parou); apagar em `aulas/` recomeça do zero. index.ts
+     (boot) e mundos.ts (`/mundo carregar`) carregam do modelo só na 1ª vez e
+     autossalvam SEMPRE em `aulas/`; modelo corrompido NÃO é renomeado (é
+     distribuído — regenerar). Verificado: swap real deixou os 3 modelos
+     byte-idênticos (md5 OK) e criou as cópias em `aulas/`. Gerador regerado com
+     `roster: []` confirmado (boot: "0 jogador(es) no roster"). `_smoke-mundo.mjs`
+     é smoke MANUAL (precisa do servidor no ar na 8080), não entra no `npm test`.
+
 ---
 
-## 🚀 PRÓXIMA QUEST — cenários pedagógicos reais (rumo ao piloto)
+## 🚀 PRÓXIMA QUEST — playtest dos cenários, depois o piloto
 
-**Estado:** motor + autoria PRONTOS e jogados. A pedagogia mora nos CENÁRIOS —
-esta fase é CONTEÚDO, não motor. Nada de feature nova sem cenário pedindo.
+**Estado:** motor + autoria + 3 cenários prontos. Falta a única coisa que o
+código não prova: **um humano jogando as aulas**.
 
-**Objetivo:** montar 2–3 cenários jogáveis de verdade, DENTRO do jogo (painel/
-comandos — se faltar comando, isso vira a única razão pra tocar em código),
-exportar como .ljw e levar pro lab.
+**Objetivo desta sessão:** o usuário playtesta as 3 aulas como professor E como
+aluno, e a lista de atritos que sair daí decide o próximo trabalho de motor.
 
-**A decidir com o usuário na abertura da sessão (não decidir sozinho):**
-- Qual turma/ano do piloto (2º–9º) e quantos alunos — define a idade dos cenários.
-- Quais habilidades da BNCC/indicadores (projeto.txt seção 14) cada cenário cobre.
-- Cenário candidato já discutido: sequência de lãs coloridas nas cabines
-  (professor monta o gabarito na cabine dele, grupos replicam) — confirmar.
-- Duração da aula e como o professor distribui o .ljw (pasta do Drive).
+**Como rodar (1 terminal — servidor já serve o cliente):**
+```bash
+npm run cenarios                                                    # gera os 3 .ljw
+npm run build                                                       # compila o cliente
+LJ_SAVE=cenarios/aula1-sequencia.ljw LJ_CODIGO=prof2026 npm run start -w server
+```
+Todos (professor E alunos) abrem `http://ip-do-professor:8080` no navegador — o
+IP sai impresso no boot do servidor. Professor entra com nome + PIN + código
+`prof2026`; aluno, sem o código. Trocar de aula ao vivo: `/mundo carregar
+aula2-binario` (só professor, ninguém cai). Para desenvolver o cliente com
+hot-reload, `npm run dev` (Vite na 5173) segue funcionando. Roteiro e gabaritos
+em `cenarios/README.md`.
 
-**Provável saída da fase:** arquivos .ljw versionados (ou script que os gera),
-roteiro de aula por cenário, e a lista de atritos encontrados ao AUTORAR de
-verdade — essa lista é que decide o próximo trabalho de motor.
+**O que olhar no playtest:**
+- O aluno ENTENDE o que fazer só com o enunciado + a caixa verde? (o enunciado
+  tem teto de 120 chars — se não couber, isso é atrito de motor)
+- A faixa está num lugar bom? (4 passos à frente da porta da cabine)
+- A caixa verde VAZIA na cabine do professor (gabarito apagado) confunde?
+- ✅ (RESOLVIDO cp19) Trocar de aula ao vivo com `/mundo carregar nome` — validar
+  no playtest que o fluxo é natural pro professor (achar o nome, avisar a turma).
+- Falta algum comando que o professor gostaria de ter na hora?
 
-**Depois disso:** piloto com a turma → relatório de aplicação (entregável final).
+**Depois:** piloto com a turma no lab → relatório de aplicação (entregável final).
+
+⚠️ **Pendência real do piloto:** o servidor já serve o cliente na mesma porta
+(basta `npm run build` uma vez + `npm run start -w server`; o aluno abre o IP no
+navegador). Falta só empacotar (Tauri/Node SEA) — ADIADO por decisão do usuário
+(ainda vai mexer em coisas); por ora o professor precisa de Node instalado.
 
 **Depois (anotado, não esquecer):**
 - **MVP v2 = CENÁRIOS/AUTORIA** (coração pedagógico): objetivos, detecção de

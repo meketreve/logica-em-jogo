@@ -97,7 +97,7 @@ describe("grupos — composição", () => {
     // g1 está vazio agora — recém-chegado cai nele (e é avisado)
     joinAluno(s, 5, "novato");
     expect(s.lastGroup(5)).toBe(1);
-    expect(s.lastChat(5)).toContain("você entrou no grupo 1");
+    expect(s.lastChat(5)).toContain("Você entrou no grupo 1");
   });
 
   it("grupo persiste no save; /grupo criar de novo zera progresso por grupo", () => {
@@ -154,7 +154,7 @@ describe("grupos — carimbo e objetivos per-grupo", () => {
     criarRegiao(s, 1, "area-1", [10, 4, 10], [11, 4, 10]);
     criarRegiao(s, 1, "area-2", [20, 4, 20], [21, 4, 20]);
     s.chat(1, "/objetivo add construir modelo area Copie o padrão");
-    expect(s.lastChat(1)).toContain("objetivo #1");
+    expect(s.lastChat(1)).toContain("Objetivo #1");
 
     // grupo 1 (aluno2) completa a área 1
     s.chat(1, `/bloco 10 4 10 ${BlockId.WoolRed}`);

@@ -158,8 +158,8 @@ describe("identidade cp9 no protocolo", () => {
   });
 
   it("join_denied: parse defensivo do lado do cliente", () => {
-    expect(parseServerMessage('{"type":"join_denied","reason":"PIN errado"}')).toEqual({
-      type: "join_denied", reason: "PIN errado",
+    expect(parseServerMessage('{"type":"join_denied","reason":"PIN incorreto."}')).toEqual({
+      type: "join_denied", reason: "PIN incorreto.",
     });
     expect(parseServerMessage('{"type":"join_denied"}')).toBeNull();
     expect(parseServerMessage('{"type":"join_denied","reason":42}')).toBeNull();

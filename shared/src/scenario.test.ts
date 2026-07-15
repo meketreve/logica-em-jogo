@@ -230,7 +230,7 @@ describe("scenario — sessão (autoria, detecção, HUD)", () => {
     s.chat(1, "/objetivo add chegar meta Vá");
     joinAluno(s);
     s.chat(2, "/objetivo add chegar meta hack");
-    expect(s.lastChat(2)).toContain("só o professor");
+    expect(s.lastChat(2)).toContain("Somente o professor");
     s.send(2, { type: "move", x: 20.5, y: 4, z: 20.5, yaw: 0, pitch: 0 });
     expect(s.lastObjectives(2)?.objetivos[0]).toMatchObject({ completo: true });
     s.chat(1, "/objetivo resetar");
@@ -259,7 +259,7 @@ describe("scenario — sessão (autoria, detecção, HUD)", () => {
     // id novo NÃO colide com os antigos
     criarRegiao(s2, 5, "meta3", [4, 3, 4], [5, 5, 5]);
     s2.chat(5, "/objetivo add chegar meta3 Mais um");
-    expect(s2.lastChat(5)).toContain("objetivo #3");
+    expect(s2.lastChat(5)).toContain("Objetivo #3");
   });
 
   it("/regiao encher respeita jogador dentro da região (não empareda)", () => {

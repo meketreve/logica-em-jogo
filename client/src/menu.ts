@@ -193,7 +193,7 @@ export function showMenu(handlers: MenuHandlers): void {
   el("menu-btn-new").addEventListener("click", () => {
     const name = newName.value.trim();
     if (!name) {
-      flashError("menu-worlds-erro", "dê um nome pro mundo novo");
+      flashError("menu-worlds-erro", "Dê um nome ao mundo novo.");
       return;
     }
     clearError("menu-worlds-erro");
@@ -234,12 +234,12 @@ export function showMenu(handlers: MenuHandlers): void {
   el("menu-btn-conectar").addEventListener("click", () => {
     const url = addr.value.trim();
     if (!/^wss?:\/\//.test(url)) {
-      flashError("menu-multi-erro", "endereço precisa começar com ws:// (ex.: ws://192.168.0.10:8080)");
+      flashError("menu-multi-erro", "O endereço precisa começar com ws:// (exemplo: ws://192.168.0.10:8080).");
       return;
     }
     const pin = pinInput.value.trim();
     if (!/^\d{4}$/.test(pin)) {
-      flashError("menu-multi-erro", "PIN precisa ter 4 números (a primeira entrada com seu nome registra o PIN)");
+      flashError("menu-multi-erro", "O PIN precisa ter 4 números. A primeira entrada com o seu nome é a que registra o PIN.");
       return;
     }
     clearError("menu-multi-erro");

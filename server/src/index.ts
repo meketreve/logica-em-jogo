@@ -1,5 +1,8 @@
 import { randomInt } from "node:crypto";
-import { existsSync, readFileSync, renameSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, renameSync, writeFileSync } from "node:fs";
+import { createServer } from "node:http";
+import { networkInterfaces } from "node:os";
+import { dirname } from "node:path";
 import { WebSocketServer, type WebSocket } from "ws";
 import {
   GameSession,
@@ -9,6 +12,9 @@ import {
   encodeSave,
   parseWorldPreset,
 } from "@logica/shared";
+import { comandoMundo } from "./mundos";
+import { daRaiz, mundoDeTrabalho } from "./paths";
+import { clienteFoiBuildado, servirCliente } from "./static";
 
 /**
  * Hospedeiro Node+ws do servidor (LAN): embrulha a MESMA GameSession do Web
@@ -18,27 +24,63 @@ import {
  */
 
 const PORT = Number(process.env["LJ_PORT"] ?? 8080);
-const SAVE_PATH = process.env["LJ_SAVE"] ?? "world.ljw";
+const SAVE_ENV = process.env["LJ_SAVE"];
+// Um cenário em cenarios/ é MODELO: o autosave grava numa CÓPIA DE TRABALHO em
+// aulas/ para não poluir o arquivo distribuído com roster, PINs e progresso da
+// turma. `vivo` é onde salvamos; `modelo` é a semente da primeira vez.
+const { vivo: SAVE_PATH, modelo: MODELO } = mundoDeTrabalho(SAVE_ENV ?? "world.ljw");
+// De onde carregar no boot: a cópia viva vence (a turma está continuando de onde
+// parou); na falta dela, o modelo; na falta dos dois, mundo novo.
+const CARREGAR_DE = existsSync(SAVE_PATH)
+  ? SAVE_PATH
+  : MODELO && existsSync(MODELO)
+    ? MODELO
+    : undefined;
 const AUTOSAVE_MS = 30_000;
 const WORLD_SEED = 20260710; // usada só na PRIMEIRA vez (sem save no disco)
 
+// Pedir um mundo que não existe é quase sempre erro de digitação no caminho.
+// Subir um mundo VAZIO em silêncio é o pior desfecho possível: o professor só
+// descobre com a turma na frente, na hora em que o cenário não aparece. Para
+// criar um mundo novo neste caminho de propósito, use LJ_NOVO=1.
+if (SAVE_ENV && !CARREGAR_DE && process.env["LJ_NOVO"] !== "1") {
+  console.error(
+    `[server] LJ_SAVE aponta para um arquivo que não existe:\n` +
+      `           ${SAVE_ENV}\n` +
+      `         Nenhum mundo foi carregado e o servidor não vai subir.\n` +
+      `         · Se o caminho está errado, corrija (caminho relativo conta a partir da raiz do repositório).\n` +
+      `         · Se os cenários ainda não foram gerados, rode: npm run cenarios\n` +
+      `         · Se a intenção é criar um mundo novo neste caminho, rode de novo com LJ_NOVO=1`,
+  );
+  process.exit(1);
+}
+
 // --- Carregar mundo salvo (se houver) ---
 let restore: SaveData | undefined;
-if (existsSync(SAVE_PATH)) {
+if (CARREGAR_DE) {
   try {
     // Buffer.buffer é o POOL compartilhado do Node — recortar pelo byteOffset
-    const raw = readFileSync(SAVE_PATH);
+    const raw = readFileSync(CARREGAR_DE);
     restore = decodeSave(
       raw.buffer.slice(raw.byteOffset, raw.byteOffset + raw.byteLength) as ArrayBuffer,
     );
-    console.log(`[server] mundo carregado de ${SAVE_PATH} (${restore.roster.length} jogador(es) no roster)`);
+    const origem = CARREGAR_DE === MODELO ? `modelo ${CARREGAR_DE} (cópia viva em ${SAVE_PATH})` : CARREGAR_DE;
+    console.log(`[server] mundo carregado de ${origem} (${restore.roster.length} jogador(es) no roster)`);
   } catch (err) {
-    // save corrompido: NUNCA sobrescrever a evidência — renomeia e recomeça
-    const backup = `${SAVE_PATH}.corrompido-${Date.now()}`;
-    renameSync(SAVE_PATH, backup);
-    console.error(
-      `[server] save inválido (${(err as Error).message}) — movido para ${backup}; gerando mundo novo`,
-    );
+    if (CARREGAR_DE === SAVE_PATH) {
+      // cópia de trabalho corrompida: NUNCA sobrescrever a evidência
+      const backup = `${SAVE_PATH}.corrompido-${Date.now()}`;
+      renameSync(SAVE_PATH, backup);
+      console.error(
+        `[server] save inválido (${(err as Error).message}) — movido para ${backup}; gerando mundo novo`,
+      );
+    } else {
+      // modelo corrompido: é arquivo DISTRIBUÍDO, não se renomeia — regenere-o.
+      console.error(
+        `[server] modelo inválido (${(err as Error).message}) em ${CARREGAR_DE}; ` +
+          `gere de novo com npm run cenarios. Subindo mundo novo por ora.`,
+      );
+    }
   }
 }
 
@@ -46,22 +88,30 @@ if (existsSync(SAVE_PATH)) {
 // LJ_CODIGO na env define/ATUALIZA; mundo novo sem env gera um. Texto puro
 // no save (ver auth.ts) — dá pra imprimir em TODO boot: quem lê o console
 // do host é o professor.
-const envCodigo = process.env["LJ_CODIGO"];
-let codigo = envCodigo ?? restore?.codigo;
-if (!codigo) {
+function gerarCodigo(): string {
   const alfabeto = "23456789ABCDEFGHJKMNPQRSTUVWXYZ"; // sem 0/O/1/I/L
-  codigo = "";
-  for (let i = 0; i < 6; i++) codigo += alfabeto[randomInt(alfabeto.length)];
+  let s = "";
+  for (let i = 0; i < 6; i++) s += alfabeto[randomInt(alfabeto.length)];
+  return s;
 }
+// const: o código do professor atravessa a troca de aula (cp19) — a turma não
+// vai receber um código novo no meio da aula
+const codigo: string = process.env["LJ_CODIGO"] ?? restore?.codigo ?? gerarCodigo();
 console.log(`[server] código de professor deste mundo: ${codigo}`);
 
 const sockets = new Map<number, WebSocket>();
 
-const session = new GameSession(
-  (clientId, data) => {
-    const socket = sockets.get(clientId);
-    if (socket && socket.readyState === socket.OPEN) socket.send(data);
-  },
+const entregar = (clientId: number, data: string | ArrayBuffer): void => {
+  const socket = sockets.get(clientId);
+  if (socket && socket.readyState === socket.OPEN) socket.send(data);
+};
+
+// `let`: a troca de aula (/mundo carregar) substitui a sessão E o caminho do
+// save sem derrubar ninguém. Tudo que usa `session`/`savePath` lê a variável na
+// hora da chamada, então continua apontando para o mundo em vigor.
+let savePath = SAVE_PATH;
+let session = new GameSession(
+  entregar,
   {
     seed: WORLD_SEED,
     now: () => performance.now(),
@@ -79,10 +129,11 @@ const session = new GameSession(
 // --- Persistência: escrita atômica (tmp + rename) pra nunca truncar o save ---
 function saveNow(reason: string): void {
   const buf = Buffer.from(encodeSave(session.world, session.toSave()));
-  const tmp = `${SAVE_PATH}.tmp`;
+  const tmp = `${savePath}.tmp`;
+  mkdirSync(dirname(savePath), { recursive: true }); // pasta do save pode não existir ainda
   writeFileSync(tmp, buf);
-  renameSync(tmp, SAVE_PATH);
-  console.log(`[server] mundo salvo em ${SAVE_PATH} (${buf.byteLength} bytes, ${reason})`);
+  renameSync(tmp, savePath);
+  console.log(`[server] mundo salvo em ${savePath} (${buf.byteLength} bytes, ${reason})`);
 }
 
 setInterval(() => saveNow("autosave"), AUTOSAVE_MS);
@@ -97,7 +148,58 @@ process.on("SIGTERM", () => {
 
 let nextClientId = 1;
 
-const wss = new WebSocketServer({ port: PORT });
+const falarCom = (clientId: number, texto: string): void =>
+  entregar(clientId, JSON.stringify({ type: "chat", author: "servidor", text: texto }));
+
+/**
+ * `/mundo` é o único comando que o HOST trata em vez da sessão: trocar de aula é
+ * ler um arquivo do disco, e a GameSession não tem sistema de arquivos.
+ * Devolve true quando engoliu a mensagem.
+ */
+function interceptarMundo(clientId: number, texto: string): boolean {
+  let msg: { type?: unknown; text?: unknown };
+  try {
+    msg = JSON.parse(texto) as { type?: unknown; text?: unknown };
+  } catch {
+    return false; // lixo no fio: deixa a sessão recusar, como sempre fez
+  }
+  if (msg.type !== "chat" || typeof msg.text !== "string") return false;
+  const partes = msg.text.trim().split(/\s+/);
+  if (partes[0] !== "/mundo") return false;
+
+  const quem = session.jogadoresConectados().find((j) => j.id === clientId);
+  if (!quem) {
+    falarCom(clientId, "Entre no mundo primeiro.");
+    return true;
+  }
+  if (quem.papel !== "professor") {
+    falarCom(clientId, "Somente o professor pode trocar a aula.");
+    return true;
+  }
+
+  const troca = comandoMundo(partes, {
+    session,
+    savePath,
+    codigo,
+    novaSessao: (restore) =>
+      new GameSession(entregar, { now: () => performance.now(), restore, codigo }),
+    salvarAgora: saveNow,
+    responder: (t) => falarCom(clientId, t),
+    anunciar: (t) => {
+      for (const outroId of sockets.keys()) falarCom(outroId, t);
+    },
+  });
+  if (troca) {
+    session = troca.session;
+    savePath = troca.savePath;
+  }
+  return true;
+}
+
+// HTTP e WebSocket na MESMA porta: o aluno abre http://ip-do-professor:8080 e
+// joga — sem servidor de página separado e sem digitar endereço de WebSocket.
+const http = createServer(servirCliente);
+const wss = new WebSocketServer({ server: http });
 
 wss.on("connection", (socket, req) => {
   const id = nextClientId++;
@@ -106,7 +208,10 @@ wss.on("connection", (socket, req) => {
 
   socket.on("message", (data, isBinary) => {
     // Protocolo cliente→servidor é 100% JSON; frame binário é lixo/ataque.
-    if (!isBinary) session.handleMessage(id, data.toString());
+    if (isBinary) return;
+    const texto = data.toString();
+    if (interceptarMundo(id, texto)) return; // /mundo é do HOST (mexe em arquivo)
+    session.handleMessage(id, texto);
   });
 
   socket.on("close", () => {
@@ -123,7 +228,24 @@ wss.on("connection", (socket, req) => {
 
 setInterval(() => session.tick(), 1000 / SERVER_TICK_RATE);
 
-console.log(
-  `[server] escutando em ws://0.0.0.0:${PORT} (tick alvo: ${SERVER_TICK_RATE} tps, ` +
-    `${restore ? `mundo do save ${SAVE_PATH}` : `mundo novo, seed ${WORLD_SEED}`})`,
-);
+/** IP da máquina na rede da escola — é o endereço que o professor dita à turma. */
+function enderecoDaRede(): string {
+  for (const placas of Object.values(networkInterfaces())) {
+    for (const p of placas ?? []) {
+      if (p.family === "IPv4" && !p.internal) return p.address;
+    }
+  }
+  return "localhost";
+}
+
+http.listen(PORT, () => {
+  const onde = restore ? `mundo de ${CARREGAR_DE}` : `mundo novo, seed ${WORLD_SEED}`;
+  console.log(`[server] no ar — ${onde}, tick alvo ${SERVER_TICK_RATE} tps`);
+  console.log(`[server] os alunos abrem no navegador:  http://${enderecoDaRede()}:${PORT}`);
+  if (!clienteFoiBuildado()) {
+    console.warn(
+      `[server] ATENÇÃO: o cliente não foi compilado — quem abrir esse endereço vê uma\n` +
+        `         página de aviso, não o jogo. Rode uma vez:  npm run build`,
+    );
+  }
+});

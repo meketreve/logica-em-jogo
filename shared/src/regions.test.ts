@@ -115,7 +115,7 @@ describe("regions — sessão (varinha + /regiao)", () => {
       { nome: "casa", min: { x: 0, y: 0, z: 0 }, max: { x: 3, y: 4, z: 5 } },
     ]);
     const reply = msgs.filter((m) => m["type"] === "chat").at(-1);
-    expect(reply?.["text"]).toContain('região "casa" criada: 4×5×6');
+    expect(reply?.["text"]).toContain('Região "casa" criada: 4×5×6');
   });
 
   it("aluno não marca (aviso no chat) e não recebe lista de regiões", () => {
@@ -137,14 +137,14 @@ describe("regions — sessão (varinha + /regiao)", () => {
     joinProf(s);
     s.send(1, { type: "chat", text: "/regiao criar casa" });
     expect(s.msgsTo(1).filter((m) => m["type"] === "chat").at(-1)?.["text"]).toContain(
-      "marque os 2 cantos",
+      "Marque os dois cantos",
     );
     criarCasa(s);
     s.send(1, { type: "wand_mark", corner: 1, x: 1, y: 1, z: 1 });
     s.send(1, { type: "wand_mark", corner: 2, x: 2, y: 2, z: 2 });
     s.send(1, { type: "chat", text: "/regiao criar casa" });
     expect(s.msgsTo(1).filter((m) => m["type"] === "chat").at(-1)?.["text"]).toContain(
-      "já existe",
+      "Já existe uma região",
     );
   });
 
@@ -194,7 +194,7 @@ describe("regions — sessão (varinha + /regiao)", () => {
     s.send(1, { type: "wand_mark", corner: 2, x: 0, y: 0, z: 0 });
     s.send(1, { type: "chat", text: "/regiao criar fora" });
     expect(s.msgsTo(1).filter((m) => m["type"] === "chat").at(-1)?.["text"]).toContain(
-      "marque os 2 cantos",
+      "Marque os dois cantos",
     );
   });
 

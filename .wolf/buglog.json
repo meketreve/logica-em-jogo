@@ -2788,6 +2788,409 @@
       "related_bugs": [],
       "occurrences": 1,
       "last_seen": "2026-07-13T22:38:50.201Z"
+    },
+    {
+      "id": "bug-172",
+      "timestamp": "2026-07-14T12:00:00.000Z",
+      "error_message": "aluno na LAN não abre o cliente (Vite dev só atende localhost)",
+      "file": "client/vite.config.ts",
+      "root_cause": "vite server.host default = 127.0.0.1; o dev server nunca escutou em 0.0.0.0, então só o PC do professor abria http://localhost:5173. Nunca apareceu antes porque todo playtest foi na mesma máquina.",
+      "fix": "server.host = true (e preview.host = true) no vite.config.ts — escuta em 0.0.0.0. Achado ao escrever o roteiro de aula do piloto.",
+      "tags": [
+        "vite",
+        "lan",
+        "piloto",
+        "cliente",
+        "rede"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-14T12:00:00.000Z"
+    },
+    {
+      "id": "bug-173",
+      "timestamp": "2026-07-14T12:00:00.000Z",
+      "error_message": "ENOENT: no such file or directory, open 'cenarios/aula1-sequencia.ljw'",
+      "file": "server/src/cenarios/gerar.ts",
+      "root_cause": "`npm run -w server` roda com cwd em server/, então a saída relativa caiu em server/cenarios/ em vez da raiz do repo.",
+      "fix": "Saída ancorada na RAIZ via fileURLToPath(import.meta.url) + resolve('../../..'); caminho absoluto passa direto.",
+      "tags": [
+        "npm-workspaces",
+        "cwd",
+        "script",
+        "cenarios"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-14T12:00:00.000Z"
+    },
+    {
+      "id": "bug-174",
+      "timestamp": "2026-07-14T12:00:00.000Z",
+      "error_message": "comando \"/grupo criar 5\" não fez o esperado — servidor disse: \"grupos: g1(0) g2(0)...\"",
+      "file": "server/src/cenarios/gerar.ts",
+      "root_cause": "Um comando do servidor pode gerar VÁRIAS falas (o /grupo criar avisa e depois lista). O gerador guardava só a ÚLTIMA e a asserção batia na fala errada.",
+      "fix": "Guardar TODAS as falas do servidor desde o comando e assertar com .some(includes).",
+      "tags": [
+        "protocolo",
+        "chat",
+        "asserção",
+        "cenarios"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-14T12:00:00.000Z"
+    },
+    {
+      "id": "bug-175",
+      "timestamp": "2026-07-14T17:31:36.665Z",
+      "error_message": "Null/undefined access in ",
+      "file": "server/src/index.ts",
+      "root_cause": "Property access on potentially null/undefined value",
+      "fix": "Added null safety (optional chaining or null check)",
+      "tags": [
+        "auto-detected",
+        "null-safety",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-14T17:31:36.665Z"
+    },
+    {
+      "id": "bug-176",
+      "timestamp": "2026-07-14T18:10:58.421Z",
+      "error_message": "Significant refactor of ",
+      "file": "shared/src/session.ts",
+      "root_cause": "3 lines replaced/restructured",
+      "fix": "Rewrote 11→15 lines (3 removed) | Also: \"uso: /objetivo add construir modelo alvo texto… —; \"MODELO agora e detecta na região ALVO (mesmo tama",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 2,
+      "last_seen": "2026-07-14T18:11:20.301Z"
+    },
+    {
+      "id": "bug-177",
+      "timestamp": "2026-07-14T18:11:06.558Z",
+      "error_message": "Wrong return value",
+      "file": "shared/src/session.ts",
+      "root_cause": "Was returning: `objetivo #${o.id} criado: ${kind} em \"${o.regiao}",
+      "fix": "Now returns: `Objetivo #${o.id} criado: ${kind} em \"${o.regiao}",
+      "tags": [
+        "auto-detected",
+        "return-value",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-14T18:11:06.558Z"
+    },
+    {
+      "id": "bug-178",
+      "timestamp": "2026-07-14T18:11:37.420Z",
+      "error_message": "Incorrect value in code",
+      "file": "shared/src/session.ts",
+      "root_cause": "Had \"uso: /objetivo add construir modelo alvo texto… ·",
+      "fix": "Changed to \"Uso: /objetivo add construir modelo alvo enunciad",
+      "tags": [
+        "auto-detected",
+        "wrong-value",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-14T18:11:37.420Z"
+    },
+    {
+      "id": "bug-179",
+      "timestamp": "2026-07-14T18:17:17.676Z",
+      "error_message": "Incorrect value in code",
+      "file": "shared/src/protocol.test.ts",
+      "root_cause": "Had \"PIN errado\"",
+      "fix": "Changed to \"PIN incorreto.\"",
+      "tags": [
+        "auto-detected",
+        "wrong-value",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-14T18:17:17.676Z"
+    },
+    {
+      "id": "bug-175",
+      "timestamp": "2026-07-14T14:00:00.000Z",
+      "error_message": "ENOENT: open 'cenarios/aula1-sequencia.ljw.tmp' — e antes disso o servidor subiu com 'mundo novo, seed 20260710' em vez do cenário",
+      "file": "server/src/index.ts",
+      "root_cause": "LJ_SAVE relativo é resolvido contra o cwd, e `npm run start -w server` roda dentro de server/. O arquivo não foi achado, o servidor caiu no fallback SILENCIOSO de gerar mundo novo, e o autosave quebrou porque server/cenarios/ não existe. Falha silenciosa era o pior dos três: o professor descobriria com a turma na frente.",
+      "fix": "Caminho relativo agora resolve a partir da RAIZ do repo (server/src/paths.ts, daRaiz()); autosave faz mkdirSync(dirname); e LJ_SAVE apontando pra arquivo inexistente ABORTA com instrução (LJ_NOVO=1 para criar de propósito) em vez de subir mundo vazio.",
+      "tags": [
+        "cwd",
+        "npm-workspaces",
+        "save",
+        "falha-silenciosa",
+        "piloto"
+      ],
+      "related_bugs": [
+        "bug-173"
+      ],
+      "occurrences": 1,
+      "last_seen": "2026-07-14T14:00:00.000Z"
+    },
+    {
+      "id": "bug-176",
+      "timestamp": "2026-07-14T14:00:00.000Z",
+      "error_message": "mensagens de erro em minúsculas, telegráficas, sem dizer o que fazer em seguida",
+      "file": "shared/src/session.ts",
+      "root_cause": "Textos foram escritos como log de dev, não como fala para professor/aluno de 6º-9º.",
+      "fix": "66+ mensagens reescritas: frase completa, o que houve + o que fazer. 16 asserções de teste atualizadas. protocol.test.ts usava a mensagem real como dado de parse — trocado por texto neutro.",
+      "tags": [
+        "ux",
+        "mensagens",
+        "i18n-pt",
+        "aula"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-14T14:00:00.000Z"
+    },
+    {
+      "id": "bug-182",
+      "timestamp": "2026-07-14T19:04:11.359Z",
+      "error_message": "Null/undefined access in ",
+      "file": "shared/src/session.ts",
+      "root_cause": "Property access on potentially null/undefined value",
+      "fix": "Added null safety (optional chaining or null check)",
+      "tags": [
+        "auto-detected",
+        "null-safety",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-14T19:04:11.359Z"
+    },
+    {
+      "id": "bug-183",
+      "timestamp": "2026-07-14T19:19:15.297Z",
+      "error_message": "Null/undefined access in ",
+      "file": "shared/src/session.ts",
+      "root_cause": "Property access on potentially null/undefined value",
+      "fix": "Added null safety (optional chaining or null check)",
+      "tags": [
+        "auto-detected",
+        "null-safety",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-14T19:19:15.297Z"
+    },
+    {
+      "id": "bug-184",
+      "timestamp": "2026-07-14T19:19:42.998Z",
+      "error_message": "Significant refactor of ",
+      "file": "server/src/index.ts",
+      "root_cause": "3 lines replaced/restructured",
+      "fix": "Rewrote 8→14 lines (3 removed) | Also: const envCodigo = process.env[\"LJ_CODIGO\"];; let codigo = envCodigo ?? restore?.codigo;",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 2,
+      "last_seen": "2026-07-14T19:21:02.747Z"
+    },
+    {
+      "id": "bug-185",
+      "timestamp": "2026-07-14T19:20:34.589Z",
+      "error_message": "Missing guard clause",
+      "file": "server/src/index.ts",
+      "root_cause": "No early return/throw for edge case: isBinary",
+      "fix": "Added guard clause: if (isBinary)",
+      "tags": [
+        "auto-detected",
+        "guard-clause",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-14T19:20:34.589Z"
+    },
+    {
+      "id": "bug-186",
+      "timestamp": "2026-07-14T19:20:45.281Z",
+      "error_message": "Missing error handling in interceptarMundo",
+      "file": "server/src/index.ts",
+      "root_cause": "Code path had no error handling — exceptions would propagate uncaught",
+      "fix": "Added try/catch block",
+      "tags": [
+        "auto-detected",
+        "error-handling",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-14T19:20:45.281Z"
+    },
+    {
+      "id": "bug-187",
+      "timestamp": "2026-07-14T19:20:49.606Z",
+      "error_message": "Incorrect value in code",
+      "file": "server/src/index.ts",
+      "root_cause": "Had \"./paths\"",
+      "fix": "Changed to \"./mundos\"",
+      "tags": [
+        "auto-detected",
+        "wrong-value",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-14T19:20:49.606Z"
+    },
+    {
+      "id": "bug-188",
+      "timestamp": "2026-07-14T19:21:48.647Z",
+      "error_message": "Type error",
+      "file": "client/src/main.ts",
+      "root_cause": "Missing or incorrect type annotation",
+      "fix": "Added type assertion/annotation",
+      "tags": [
+        "auto-detected",
+        "type-fix",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-14T19:21:48.647Z"
+    },
+    {
+      "id": "bug-189",
+      "timestamp": "2026-07-14T19:21:54.021Z",
+      "error_message": "Null/undefined access in ",
+      "file": "client/src/main.ts",
+      "root_cause": "Property access on potentially null/undefined value",
+      "fix": "Added null safety (optional chaining or null check) | Also: /**; * cp19 — o professor trocou a aula: o mundo inteiro chega de",
+      "tags": [
+        "auto-detected",
+        "null-safety",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 2,
+      "last_seen": "2026-07-14T19:22:18.403Z"
+    },
+    {
+      "id": "bug-190",
+      "timestamp": "2026-07-15T12:43:16.580Z",
+      "error_message": "Significant refactor of ",
+      "file": "server/src/index.ts",
+      "root_cause": "3 lines replaced/restructured",
+      "fix": "Rewrote 14→24 lines (3 removed) | Also: if (existsSync(SAVE_PATH)) {; const raw = readFileSync(SAVE_PATH);",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 2,
+      "last_seen": "2026-07-15T12:43:28.912Z"
+    },
+    {
+      "id": "bug-191",
+      "timestamp": "2026-07-15T12:43:30.658Z",
+      "error_message": "Incorrect value in code",
+      "file": "server/src/index.ts",
+      "root_cause": "Had `${restore ? `",
+      "fix": "Changed to `mundo de ${CARREGAR_DE}`",
+      "tags": [
+        "auto-detected",
+        "wrong-value",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-15T12:43:30.658Z"
+    },
+    {
+      "id": "bug-192",
+      "timestamp": "2026-07-15T12:43:45.355Z",
+      "error_message": "Significant refactor of ",
+      "file": "server/src/mundos.ts",
+      "root_cause": "3 lines replaced/restructured",
+      "fix": "Rewrote 10→13 lines (3 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-15T12:43:45.355Z"
+    },
+    {
+      "id": "bug-193",
+      "timestamp": "2026-07-15T12:44:03.660Z",
+      "error_message": "Null/undefined access in ",
+      "file": "server/src/mundos.ts",
+      "root_cause": "Property access on potentially null/undefined value",
+      "fix": "Added null safety (optional chaining or null check)",
+      "tags": [
+        "auto-detected",
+        "null-safety",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-15T12:44:03.660Z"
+    },
+    {
+      "id": "bug-194",
+      "timestamp": "2026-07-15T13:00:00.000Z",
+      "error_message": "Hospedar cenarios/aula1.ljw direto: o autosave grava roster/PINs/progresso DENTRO do arquivo distribuído — a próxima turma começa com a aula da anterior já resolvida.",
+      "file": "server/src/paths.ts",
+      "root_cause": "Um cenário gerado é MODELO, não save. SAVE_PATH apontava direto pro arquivo em cenarios/, então o autosave (index.ts) e a troca de aula (mundos.ts) escreviam por cima do modelo, poluindo o .ljw que se distribui.",
+      "fix": "mundoDeTrabalho(escolhido): mundo dentro de cenarios/ vira uma CÓPIA DE TRABALHO em aulas/ (mesmo nome). Carrega do modelo só na 1a vez; autossalva SEMPRE em aulas/; a cópia viva vence o modelo. Modelo corrompido nunca é renomeado (é distribuído). Verificado: swap real deixou os 3 modelos byte-idênticos (md5 OK).",
+      "tags": [
+        "cenarios",
+        "aulas",
+        "integridade-de-dado",
+        "modelo",
+        "autosave",
+        "cp19",
+        "distribuicao"
+      ],
+      "related_bugs": [
+        "bug-173",
+        "bug-175"
+      ],
+      "occurrences": 1,
+      "last_seen": "2026-07-15T13:00:00.000Z"
+    },
+    {
+      "id": "bug-195",
+      "timestamp": "2026-07-15T13:00:00.000Z",
+      "error_message": "server/src/paths.ts usava basename() com o import `{ dirname, isAbsolute, resolve }` — basename não importado, typecheck falharia.",
+      "file": "server/src/paths.ts",
+      "root_cause": "mundoDeTrabalho() foi escrito usando basename() sem adicionar o símbolo ao import de node:path.",
+      "fix": "import { basename, dirname, isAbsolute, resolve } from 'node:path'. typecheck 3/3 ok depois.",
+      "tags": [
+        "import",
+        "node:path",
+        "typecheck",
+        "ts"
+      ],
+      "related_bugs": [
+        "bug-194"
+      ],
+      "occurrences": 1,
+      "last_seen": "2026-07-15T13:00:00.000Z"
     }
   ]
 }

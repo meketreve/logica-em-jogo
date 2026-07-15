@@ -272,13 +272,13 @@ export class GameSession {
     // nome já ONLINE: segundo cliente com o mesmo nome fundiria os dois no
     // roster (bug-061 — o PIN fecha o resto do caso)
     for (const p of this.players.values()) {
-      if (p.name === name) return `"${name}" já está no jogo — escolha outro nome`;
+      if (p.name === name) return `Já existe alguém em jogo com o nome "${name}". Escolha outro nome.`;
     }
     const gate = this.pinFails.get(name);
     if (gate && gate.lockedUntil > this.now()) {
-      return "muitas tentativas erradas — espere meio minuto";
+      return "Muitas tentativas com o PIN errado. Aguarde 30 segundos e tente de novo.";
     }
-    if (pin === undefined || !isValidPin(pin)) return "PIN precisa ter 4 números";
+    if (pin === undefined || !isValidPin(pin)) return "O PIN precisa ter exatamente 4 números.";
     const id = this.identity.get(name);
     if (id?.pin) {
       if (pin !== id.pin) {
@@ -287,7 +287,7 @@ export class GameSession {
           fails,
           lockedUntil: fails >= MAX_PIN_ATTEMPTS ? this.now() + PIN_LOCKOUT_MS : 0,
         });
-        return "PIN errado";
+        return "PIN incorreto para este nome.";
       }
       this.pinFails.delete(name);
     }
@@ -297,7 +297,7 @@ export class GameSession {
     let papel: Papel = id?.papel ?? "aluno";
     if (codigo !== undefined && codigo !== "") {
       if (this.codigoLockedUntil > this.now()) {
-        return "muitas tentativas de código — espere meio minuto";
+        return "Muitas tentativas com o código de professor. Aguarde 30 segundos e tente de novo.";
       }
       if (!this.codigo || codigo !== this.codigo) {
         this.codigoFails++;
@@ -305,7 +305,7 @@ export class GameSession {
           this.codigoLockedUntil = this.now() + PIN_LOCKOUT_MS;
           this.codigoFails = 0;
         }
-        return "código de professor errado";
+        return "Código de professor incorreto.";
       }
       this.codigoFails = 0;
       papel = "professor";
@@ -336,85 +336,7 @@ export class GameSession {
           }
           papel = this.identity.get(name)?.papel ?? "aluno";
         }
-        // mundo salvo lembra o jogador: volta onde parou (senão, spawn do mundo)
-        const returning = this.roster.get(name);
-        const start = returning ?? this.spawn;
-        this.players.set(clientId, {
-          name,
-          papel,
-          x: start.x,
-          y: start.y,
-          z: start.z,
-          yaw: returning?.yaw ?? 0,
-          pitch: returning?.pitch ?? 0,
-        });
-        // spawn ANTES do snapshot (transporte preserva ordem) — quando o
-        // snapshot chegar e o jogo começar, o cliente já sabe onde nascer.
-        // Leva o papel junto: cliente habilita UI de professor (varinha).
-        this.send(
-          clientId,
-          JSON.stringify({ type: "spawn", ...this.spawn, papel } satisfies ServerMessage),
-        );
-        this.send(clientId, encodeSnapshot(this.world, this.seed));
-        if (returning) {
-          // depois do snapshot: cliente já montou o jogo quando isto chegar
-          this.send(
-            clientId,
-            JSON.stringify({ type: "teleport", ...returning } satisfies ServerMessage),
-          );
-        }
-        this.sendServerChat(
-          clientId,
-          `bem-vindo, ${this.authorTag(clientId)}! Enter abre o chat` +
-            (papel === "professor"
-              ? " · comandos: /bloco · /resetpin · /regiao (varinha: R) · /objetivo · /grupo"
-              : ""),
-        );
-        // professor vê as regiões existentes desde o join (depois do snapshot)
-        if (papel === "professor" && this.regions.size) this.sendRegions(clientId);
-        // grupos (cp13): aluno novo cai no MENOR grupo ("até não ter aluno
-        // sem grupo"); quem já tinha grupo salvo continua nele
-        let entrouEmGrupo = false;
-        if (this.grupos.size && papel === "aluno" && this.grupoDe(name) === null) {
-          const menor = [...this.grupos.entries()].sort(
-            (a, b) => a[1].size - b[1].size,
-          )[0];
-          if (menor) {
-            menor[1].add(name);
-            entrouEmGrupo = true;
-            this.sendServerChat(clientId, `você entrou no grupo ${menor[0]} (troque com /grupo entrar n)`);
-          }
-        }
-        if (this.grupos.size) {
-          this.sendGroup(clientId);
-          // composição pro painel (cp14): mudou = avisa todos; senão só o novo
-          if (entrouEmGrupo) this.broadcastGroups();
-          else this.sendGroups(clientId);
-        }
-        // cenário vai pra TODOS (HUD do aluno vive disto)
-        if (this.scenario.objetivos.length) this.sendObjectives(clientId);
-        // Presença (bug-064): jogador PARADO não manda move — sem isto o
-        // recém-chegado só via quem se mexia. Estado atual de todo mundo pro
-        // novo (depois do snapshot: o cliente já montou o jogo) e o novo pros
-        // outros. Formato = player_moved normal, cliente não muda nada.
-        for (const [otherId, other] of this.players) {
-          if (otherId === clientId) continue;
-          this.send(
-            clientId,
-            JSON.stringify({
-              type: "player_moved",
-              id: otherId,
-              x: other.x, y: other.y, z: other.z,
-              yaw: other.yaw, pitch: other.pitch,
-            } satisfies ServerMessage),
-          );
-        }
-        this.broadcastExcept(clientId, {
-          type: "player_moved",
-          id: clientId,
-          x: start.x, y: start.y, z: start.z,
-          yaw: returning?.yaw ?? 0, pitch: returning?.pitch ?? 0,
-        });
+        this.admitir(clientId, name, papel, false);
         break;
       }
       case "move": {
@@ -503,44 +425,44 @@ export class GameSession {
     const professor = this.players.get(clientId)?.papel === "professor";
     switch (parts[0]) {
       case "bloco": {
-        if (!professor) return "só o professor pode usar /bloco";
+        if (!professor) return "Somente o professor pode usar /bloco.";
         const x = Number(parts[1]);
         const y = Number(parts[2]);
         const z = Number(parts[3]);
         const id = Number(parts[4]);
         if (parts.length !== 5 || ![x, y, z, id].every(Number.isInteger)) {
-          return "uso: /bloco x y z id (inteiros; 0=ar; demais ids na ordem da hotbar)";
+          return "Uso: /bloco x y z id — coordenadas inteiras. O id 0 apaga o bloco; os demais seguem a ordem do inventário.";
         }
-        if (!inBounds(this.world, x, y, z)) return `(${x}, ${y}, ${z}) está fora do mundo`;
-        if (id !== BlockId.Air && !isPlaceable(id)) return `id de bloco inválido: ${id}`;
+        if (!inBounds(this.world, x, y, z)) return `As coordenadas (${x}, ${y}, ${z}) estão fora do mundo.`;
+        if (id !== BlockId.Air && !isPlaceable(id)) return `Não existe bloco com o id ${id}.`;
         if (id !== BlockId.Air && this.overlapsAnyPlayer(x, y, z)) {
-          return "tem um jogador nessa célula";
+          return "Há um jogador nessa célula: o bloco não foi colocado.";
         }
         this.applyBlock(x, y, z, id);
-        return `bloco (${x}, ${y}, ${z}) = ${id}`;
+        return `Bloco (${x}, ${y}, ${z}) definido como ${id}.`;
       }
       case "resetpin": {
-        if (!professor) return "só o professor pode usar /resetpin";
+        if (!professor) return "Somente o professor pode usar /resetpin.";
         const alvo = parts[1];
-        if (parts.length !== 2 || !alvo) return "uso: /resetpin nome";
+        if (parts.length !== 2 || !alvo) return "Uso: /resetpin nome.";
         const id = this.identity.get(alvo);
-        if (!id?.pin) return `"${alvo}" não tem PIN registrado neste mundo`;
+        if (!id?.pin) return `Ninguém entrou neste mundo com o nome "${alvo}" — não há PIN para apagar.`;
         id.pin = undefined;
         this.pinFails.delete(alvo); // destrava tentativas antigas junto
-        return `PIN de "${alvo}" apagado — a próxima entrada com esse nome registra um novo`;
+        return `PIN de "${alvo}" apagado. A próxima entrada com esse nome registra um novo PIN.`;
       }
       case "regiao": {
-        if (!professor) return "só o professor pode usar /regiao";
+        if (!professor) return "Somente o professor pode usar /regiao.";
         return this.runRegiao(clientId, parts);
       }
       case "objetivo": {
-        if (!professor) return "só o professor pode usar /objetivo";
+        if (!professor) return "Somente o professor pode usar /objetivo.";
         return this.runObjetivo(parts);
       }
       case "grupo":
         return this.runGrupo(clientId, parts);
       default:
-        return `comando desconhecido: ${text} (existem: /bloco · /resetpin · /regiao · /objetivo · /grupo)`;
+        return `Comando desconhecido: ${text}. Os comandos disponíveis são /bloco, /resetpin, /regiao, /objetivo e /grupo.`;
     }
   }
 
@@ -549,7 +471,7 @@ export class GameSession {
     switch (parts[1]) {
       case "lista": {
         if (this.regions.size === 0) {
-          return "nenhuma região ainda — marque 2 cantos com a varinha (R) e use /regiao criar nome";
+          return "Nenhuma região foi criada ainda. Marque os dois cantos com a varinha (tecla R) e use /regiao criar nome.";
         }
         // uma região por linha (cliente renderiza \n com white-space: pre-line)
         return [...this.regions.values()]
@@ -562,28 +484,28 @@ export class GameSession {
       case "criar": {
         const nome = parts[2];
         if (parts.length !== 3 || !nome) {
-          return "uso: /regiao criar nome (sem espaços; marque os 2 cantos com a varinha antes)";
+          return "Uso: /regiao criar nome (sem espaços). Marque os dois cantos com a varinha antes.";
         }
-        if (nome.length > MAX_REGION_NAME) return `nome grande demais (máx. ${MAX_REGION_NAME})`;
-        if (this.regions.has(nome)) return `já existe região "${nome}" — apague antes ou use outro nome`;
-        if (this.regions.size >= MAX_REGIONS) return `limite de ${MAX_REGIONS} regiões atingido`;
+        if (nome.length > MAX_REGION_NAME) return `O nome é grande demais (máximo de ${MAX_REGION_NAME} caracteres).`;
+        if (this.regions.has(nome)) return `Já existe uma região chamada "${nome}". Apague-a antes ou escolha outro nome.`;
+        if (this.regions.size >= MAX_REGIONS) return `Limite de ${MAX_REGIONS} regiões atingido.`;
         const marks = this.wandMarks.get(clientId);
         if (!marks?.c1 || !marks.c2) {
-          return "marque os 2 cantos com a varinha primeiro (R; clique esq = canto 1, dir = canto 2)";
+          return "Marque os dois cantos com a varinha primeiro (tecla R: clique esquerdo marca o canto 1, o direito marca o canto 2).";
         }
         const region: NamedRegion = { nome, ...regionFromCorners(marks.c1, marks.c2) };
         this.regions.set(nome, region);
         this.wandMarks.delete(clientId); // cantos são rascunho de UMA região
         this.broadcastRegions();
         const d = regionDims(region);
-        return `região "${nome}" criada: ${d.x}×${d.y}×${d.z} blocos`;
+        return `Região "${nome}" criada: ${d.x}×${d.y}×${d.z} blocos.`;
       }
       case "apagar": {
         const nome = parts[2];
-        if (parts.length !== 3 || !nome) return "uso: /regiao apagar nome";
-        if (!this.regions.delete(nome)) return `não existe região "${nome}"`;
+        if (parts.length !== 3 || !nome) return "Uso: /regiao apagar nome.";
+        if (!this.regions.delete(nome)) return `Não existe região chamada "${nome}".`;
         this.broadcastRegions();
-        return `região "${nome}" apagada`;
+        return `Região "${nome}" apagada.`;
       }
       case "encher": {
         // ferramenta de autoria: /regiao encher nome id (id 0 = limpar tudo).
@@ -591,13 +513,13 @@ export class GameSession {
         const nome = parts[2];
         const id = Number(parts[3]);
         if (parts.length !== 4 || !nome || !Number.isInteger(id)) {
-          return "uso: /regiao encher nome id (id 0 = ar/limpar; demais na ordem da hotbar)";
+          return "Uso: /regiao encher nome id — o id 0 esvazia a região; os demais seguem a ordem do inventário.";
         }
         const r = this.regions.get(nome);
-        if (!r) return `não existe região "${nome}"`;
-        if (id !== BlockId.Air && !isPlaceable(id)) return `id de bloco inválido: ${id}`;
+        if (!r) return `Não existe região chamada "${nome}".`;
+        if (id !== BlockId.Air && !isPlaceable(id)) return `Não existe bloco com o id ${id}.`;
         if (boxVolume(r) > MAX_OBJETIVO_CELLS) {
-          return `região grande demais pra encher (máx. ${MAX_OBJETIVO_CELLS} blocos)`;
+          return `A região é grande demais para encher (máximo de ${MAX_OBJETIVO_CELLS} blocos).`;
         }
         let mudados = 0;
         for (let y = r.min.y; y <= r.max.y; y++) {
@@ -611,7 +533,7 @@ export class GameSession {
             }
           }
         }
-        return `região "${nome}": ${mudados} bloco(s) alterado(s)`;
+        return `Região "${nome}": ${mudados} bloco(s) alterado(s).`;
       }
       case "carimbar": {
         // /regiao carimbar modelo prefixo espacamento [z] — replica a região
@@ -625,15 +547,15 @@ export class GameSession {
           !modelo || !prefixo || !Number.isInteger(esp) || esp < 0 ||
           parts.length > 6 || (parts.length === 6 && parts[5] !== "z" && parts[5] !== "x")
         ) {
-          return "uso: /regiao carimbar modelo prefixo espacamento [z] — copia a região modelo uma vez por grupo, lado a lado";
+          return "Uso: /regiao carimbar modelo prefixo espacamento [z] — copia a região modelo uma vez para cada grupo, lado a lado.";
         }
         const n = this.grupos.size;
-        if (n === 0) return "crie os grupos antes (/grupo criar n) — o carimbo faz 1 cópia por grupo";
+        if (n === 0) return "Crie os grupos antes (/grupo criar n): o carimbo faz uma cópia para cada grupo.";
         if (boxVolume(modelo) > MAX_OBJETIVO_CELLS) {
-          return `região grande demais pra carimbar (máx. ${MAX_OBJETIVO_CELLS} blocos)`;
+          return `A região é grande demais para carimbar (máximo de ${MAX_OBJETIVO_CELLS} blocos).`;
         }
-        if (prefixo.length + 3 > MAX_REGION_NAME) return "prefixo grande demais";
-        if (this.regions.size + n > MAX_REGIONS) return `limite de ${MAX_REGIONS} regiões`;
+        if (prefixo.length + 3 > MAX_REGION_NAME) return "O prefixo é grande demais.";
+        if (this.regions.size + n > MAX_REGIONS) return `Limite de ${MAX_REGIONS} regiões atingido.`;
         const d = regionDims(modelo);
         const passo = (eixo === "x" ? d.x : d.z) + esp;
         // valida TUDO antes de mudar qualquer bloco (carimbo pela metade = lixo)
@@ -642,7 +564,7 @@ export class GameSession {
           const maxX = modelo.max.x + (eixo === "x" ? off : 0);
           const maxZ = modelo.max.z + (eixo === "z" ? off : 0);
           if (!inBounds(this.world, maxX, modelo.max.y, maxZ)) {
-            return `não cabe: a cópia ${g} sairia do mundo (tente espaçamento menor ou eixo ${eixo === "x" ? "z" : "x"})`;
+            return `A cópia ${g} não cabe no mundo. Diminua o espaçamento ou carimbe no eixo ${eixo === "x" ? "z" : "x"}.`;
           }
         }
         let pulados = 0;
@@ -678,8 +600,129 @@ export class GameSession {
         );
       }
       default:
-        return "uso: /regiao criar nome · apagar nome · lista · encher nome id · carimbar modelo prefixo espacamento [z]";
+        return "Uso: /regiao criar nome · /regiao apagar nome · /regiao lista · /regiao encher nome id · /regiao carimbar modelo prefixo espacamento [z]";
     }
+  }
+
+  /**
+   * Coloca um jogador JÁ AUTORIZADO no mundo e manda tudo que ele precisa para
+   * montar a tela: spawn, snapshot, teleporte, boas-vindas, regiões, grupo e
+   * cenário. É a segunda metade do `join` — e é exatamente o que a troca de
+   * mundo (cp19) precisa repetir para quem já está conectado.
+   *
+   * `migrado` = o cliente já estava em jogo e o mundo trocou debaixo dele.
+   */
+  private admitir(clientId: number, name: string, papel: Papel, migrado: boolean): void {
+    // mundo salvo lembra o jogador: volta onde parou (senão, spawn do mundo)
+    const returning = this.roster.get(name);
+    const start = returning ?? this.spawn;
+    this.players.set(clientId, {
+      name,
+      papel,
+      x: start.x,
+      y: start.y,
+      z: start.z,
+      yaw: returning?.yaw ?? 0,
+      pitch: returning?.pitch ?? 0,
+    });
+    // spawn ANTES do snapshot (transporte preserva ordem) — quando o snapshot
+    // chegar e o jogo começar, o cliente já sabe onde nascer. Leva o papel
+    // junto: cliente habilita UI de professor (varinha).
+    this.send(
+      clientId,
+      JSON.stringify({ type: "spawn", ...this.spawn, papel } satisfies ServerMessage),
+    );
+    this.send(clientId, encodeSnapshot(this.world, this.seed));
+    // Na migração o teleporte é OBRIGATÓRIO mesmo sem roster: o jogador está
+    // parado nas coordenadas do mundo ANTIGO, que no mundo novo podem ser
+    // dentro da pedra ou no vazio.
+    const destino = returning ?? { ...start, yaw: 0, pitch: 0 };
+    if (returning || migrado) {
+      // depois do snapshot: o cliente já montou o jogo quando isto chegar
+      this.send(
+        clientId,
+        JSON.stringify({ type: "teleport", ...destino } satisfies ServerMessage),
+      );
+    }
+    this.sendServerChat(
+      clientId,
+      migrado
+        ? `A aula mudou: você está em um mundo novo${papel === "professor" ? "" : ". Confira o objetivo no canto da tela"}.`
+        : `Bem-vindo, ${this.authorTag(clientId)}! Pressione Enter para abrir o chat.` +
+            (papel === "professor"
+              ? " Comandos: /bloco · /resetpin · /regiao (varinha: R) · /objetivo · /grupo"
+              : ""),
+    );
+    // professor vê as regiões existentes desde o join (depois do snapshot)
+    if (papel === "professor" && this.regions.size) this.sendRegions(clientId);
+    // grupos (cp13): aluno novo cai no MENOR grupo ("até não ter aluno sem
+    // grupo"); quem já tinha grupo salvo continua nele
+    let entrouEmGrupo = false;
+    if (this.grupos.size && papel === "aluno" && this.grupoDe(name) === null) {
+      const menor = [...this.grupos.entries()].sort((a, b) => a[1].size - b[1].size)[0];
+      if (menor) {
+        menor[1].add(name);
+        entrouEmGrupo = true;
+        this.sendServerChat(
+          clientId,
+          `Você entrou no grupo ${menor[0]} (para trocar, use /grupo entrar n).`,
+        );
+      }
+    }
+    if (this.grupos.size) {
+      this.sendGroup(clientId);
+      // composição pro painel (cp14): mudou = avisa todos; senão só o novo
+      if (entrouEmGrupo) this.broadcastGroups();
+      else this.sendGroups(clientId);
+    }
+    // cenário vai pra TODOS (HUD do aluno vive disto)
+    if (this.scenario.objetivos.length) this.sendObjectives(clientId);
+    // Presença (bug-064): jogador PARADO não manda move — sem isto o
+    // recém-chegado só via quem se mexia. Estado atual de todo mundo pro novo
+    // (depois do snapshot: o cliente já montou o jogo) e o novo pros outros.
+    for (const [otherId, other] of this.players) {
+      if (otherId === clientId) continue;
+      this.send(
+        clientId,
+        JSON.stringify({
+          type: "player_moved",
+          id: otherId,
+          x: other.x, y: other.y, z: other.z,
+          yaw: other.yaw, pitch: other.pitch,
+        } satisfies ServerMessage),
+      );
+    }
+    this.broadcastExcept(clientId, {
+      type: "player_moved",
+      id: clientId,
+      x: destino.x, y: destino.y, z: destino.z,
+      yaw: destino.yaw, pitch: destino.pitch,
+    });
+  }
+
+  /** Quem está conectado agora — o host precisa disto para migrar todo mundo. */
+  jogadoresConectados(): { id: number; name: string; papel: Papel }[] {
+    return [...this.players.entries()].map(([id, p]) => ({
+      id,
+      name: p.name,
+      papel: p.papel,
+    }));
+  }
+
+  /**
+   * Traz para ESTA sessão um cliente que já estava autenticado em OUTRA (troca
+   * de aula sem derrubar ninguém). Não pede PIN nem código: quem chama é o
+   * próprio host, com um socket que já passou pela porta. Não é alcançável pelo
+   * protocolo — nenhuma mensagem do cliente leva até aqui.
+   */
+  adotar(clientId: number, name: string, papel: Papel): void {
+    // o papel viaja junto com o professor: ele não perde o comando ao trocar de
+    // aula. Se o mundo novo já conhece o nome, o PIN gravado lá continua valendo.
+    const atual = this.identity.get(name);
+    if (papel === "professor" && atual?.papel !== "professor") {
+      this.identity.set(name, { pin: atual?.pin, papel });
+    }
+    this.admitir(clientId, name, papel, true);
   }
 
   private sendRegions(clientId: number): void {
@@ -716,16 +759,20 @@ export class GameSession {
       for (let g = 1; g <= this.grupos.size; g++) {
         const r = this.regions.get(`${nome}-${g}`);
         if (!r) {
-          return { erro: `falta a região "${nome}-${g}" (o mundo tem ${this.grupos.size} grupos)` };
+          return {
+            erro:
+              `Falta a região "${nome}-${g}": o mundo tem ${this.grupos.size} grupos, ` +
+              `então é preciso uma área para cada um (crie-as com /regiao carimbar).`,
+          };
         }
         porGrupo.push(r);
       }
       return { porGrupo };
     }
     return {
-      erro:
-        `não existe região "${nome}"` +
-        (this.grupos.size ? ` nem "${nome}-1" (per-grupo)` : ""),
+      erro: this.grupos.size
+        ? `Não existe região chamada "${nome}", nem "${nome}-1" (uma área para cada grupo).`
+        : `Não existe região chamada "${nome}".`,
     };
   }
 
@@ -735,7 +782,7 @@ export class GameSession {
       case "add": {
         const kind = parts[2];
         if (this.scenario.objetivos.length >= MAX_OBJETIVOS) {
-          return `limite de ${MAX_OBJETIVOS} objetivos atingido`;
+          return `Limite de ${MAX_OBJETIVOS} objetivos atingido.`;
         }
         if (kind === "construir") {
           const modelo = this.regions.get(parts[3] ?? "");
@@ -744,9 +791,10 @@ export class GameSession {
           if (!modelo || (!res.shared && !res.porGrupo) || !texto) {
             return (
               res.erro ??
-              "uso: /objetivo add construir modelo alvo texto… — fotografa a região " +
-                "MODELO agora e detecta na região ALVO (mesmo tamanho; alvo pode ser " +
-                "um prefixo per-grupo criado pelo /regiao carimbar)"
+              "Uso: /objetivo add construir modelo alvo enunciado… — o jogo fotografa a " +
+                "região MODELO agora e passa a conferir a região ALVO, que precisa ter o " +
+                "mesmo tamanho. O alvo pode ser um prefixo com uma área para cada grupo, " +
+                "criado com /regiao carimbar."
             );
           }
           const caixas = res.porGrupo ?? [res.shared as NamedRegion];
@@ -754,15 +802,15 @@ export class GameSession {
           for (const caixa of caixas) {
             const da = regionDims(caixa);
             if (dm.x !== da.x || dm.y !== da.y || dm.z !== da.z) {
-              return `modelo (${dm.x}×${dm.y}×${dm.z}) e "${caixa.nome}" (${da.x}×${da.y}×${da.z}) precisam ter o mesmo tamanho`;
+              return `O modelo (${dm.x}×${dm.y}×${dm.z}) e a área "${caixa.nome}" (${da.x}×${da.y}×${da.z}) precisam ter o mesmo tamanho.`;
             }
           }
           if (boxVolume(modelo) > MAX_OBJETIVO_CELLS) {
-            return `região grande demais (máx. ${MAX_OBJETIVO_CELLS} blocos)`;
+            return `A região é grande demais (máximo de ${MAX_OBJETIVO_CELLS} blocos).`;
           }
           const gabarito = snapshotRegion(this.world, modelo);
           if (!gabarito.some((b) => b !== BlockId.Air)) {
-            return `a região modelo "${modelo.nome}" está vazia — construa o modelo antes de fotografar`;
+            return `A região modelo "${modelo.nome}" está vazia. Construa o modelo antes de fotografá-lo.`;
           }
           for (const caixa of caixas) {
             const m = matchRegion(this.world, caixa, gabarito);
@@ -792,7 +840,7 @@ export class GameSession {
           this.scenario.objetivos.push(o);
           this.broadcastObjectives();
           const alvoTotal = gabarito.filter((b) => b !== BlockId.Air).length;
-          return `objetivo #${o.id} criado: construir em "${alvoNome}" (${alvoTotal} blocos, modelo "${modelo.nome}")`;
+          return `Objetivo #${o.id} criado: construir em "${alvoNome}" — ${alvoTotal} blocos, modelo "${modelo.nome}".`;
         }
         if (kind === "chegar" || kind === "limpar") {
           // chegar aceita regra opcional depois da região: todos | um (default)
@@ -808,17 +856,23 @@ export class GameSession {
           if ((!res.shared && !res.porGrupo) || !texto) {
             return (
               res.erro ??
-              `uso: /objetivo add ${kind} regiao ${kind === "chegar" ? "[todos|um] " : ""}texto…`
+              `Uso: /objetivo add ${kind} regiao ${
+                kind === "chegar" ? "[todos|um] " : ""
+              }enunciado…${
+                kind === "chegar"
+                  ? " — todos = o grupo inteiro precisa estar na região ao mesmo tempo; um = basta um integrante (padrão)."
+                  : ""
+              }`
             );
           }
           const caixas = res.porGrupo ?? [res.shared as NamedRegion];
           if (kind === "limpar") {
             for (const caixa of caixas) {
               if (boxVolume(caixa) > MAX_OBJETIVO_CELLS) {
-                return `região grande demais (máx. ${MAX_OBJETIVO_CELLS} blocos)`;
+                return `A região é grande demais (máximo de ${MAX_OBJETIVO_CELLS} blocos).`;
               }
               if (countSolid(this.world, caixa) === 0) {
-                return `a região "${caixa.nome}" já está vazia — nada a limpar`;
+                return `A região "${caixa.nome}" já está vazia: não há nada para limpar.`;
               }
             }
           }
@@ -837,13 +891,19 @@ export class GameSession {
           };
           this.scenario.objetivos.push(o);
           this.broadcastObjectives();
-          return `objetivo #${o.id} criado: ${kind} em "${o.regiao}"${regra ? ` (regra: ${regra})` : ""}`;
+          const detalhe =
+            regra === "todos"
+              ? " — o grupo inteiro precisa estar na região ao mesmo tempo"
+              : regra === "um"
+                ? " — basta um integrante do grupo chegar"
+                : "";
+          return `Objetivo #${o.id} criado: ${kind} em "${o.regiao}"${detalhe}.`;
         }
-        return "uso: /objetivo add construir|chegar|limpar … (/objetivo pra ver tudo)";
+        return "Uso: /objetivo add construir|chegar|limpar … — digite /objetivo para ver a lista completa.";
       }
       case "lista": {
         if (this.scenario.objetivos.length === 0) {
-          return "nenhum objetivo ainda — /objetivo add construir|chegar|limpar";
+          return "Nenhum objetivo foi criado ainda. Use /objetivo add construir|chegar|limpar.";
         }
         const ativos = this.activeIdsFor(0);
         return this.scenario.objetivos
@@ -866,12 +926,12 @@ export class GameSession {
         // edição de autoria (cp14 — painel usa): troca só o enunciado
         const id = Number(parts[2]);
         const texto = parts.slice(3).join(" ").slice(0, MAX_OBJETIVO_TEXTO);
-        if (!Number.isInteger(id) || !texto) return "uso: /objetivo texto id novo texto…";
+        if (!Number.isInteger(id) || !texto) return "Uso: /objetivo texto id novo enunciado…";
         const o = this.scenario.objetivos.find((obj) => obj.id === id);
-        if (!o) return `não existe objetivo #${id}`;
+        if (!o) return `Não existe objetivo #${id}.`;
         o.texto = texto;
         this.broadcastObjectives();
-        return `objetivo #${id}: texto atualizado`;
+        return `Objetivo #${id}: enunciado atualizado.`;
       }
       case "mover": {
         // reordena (cp14 — painel usa): posição 1 = primeiro. Em modo
@@ -879,21 +939,21 @@ export class GameSession {
         const id = Number(parts[2]);
         const pos = Number(parts[3]);
         if (parts.length !== 4 || !Number.isInteger(id) || !Number.isInteger(pos)) {
-          return "uso: /objetivo mover id posicao (1 = primeiro)";
+          return "Uso: /objetivo mover id posição (1 = primeiro da lista).";
         }
         const idx = this.scenario.objetivos.findIndex((o) => o.id === id);
-        if (idx === -1) return `não existe objetivo #${id}`;
+        if (idx === -1) return `Não existe objetivo #${id}.`;
         const destino = Math.min(Math.max(pos, 1), this.scenario.objetivos.length) - 1;
         const [o] = this.scenario.objetivos.splice(idx, 1);
         if (o) this.scenario.objetivos.splice(destino, 0, o);
         this.broadcastObjectives();
-        return `objetivo #${id} agora é o ${destino + 1}º`;
+        return `Objetivo #${id} agora é o ${destino + 1}º da lista.`;
       }
       case "remover": {
         const id = Number(parts[2]);
-        if (parts.length !== 3 || !Number.isInteger(id)) return "uso: /objetivo remover id";
+        if (parts.length !== 3 || !Number.isInteger(id)) return "Uso: /objetivo remover id.";
         const idx = this.scenario.objetivos.findIndex((o) => o.id === id);
-        if (idx === -1) return `não existe objetivo #${id}`;
+        if (idx === -1) return `Não existe objetivo #${id}.`;
         this.scenario.objetivos.splice(idx, 1);
         this.scenario.completos.delete(id);
         for (const key of this.completosGrupo) {
@@ -903,16 +963,16 @@ export class GameSession {
           if (key.startsWith(`${id}:`)) this.objetivosDirty.delete(key);
         }
         this.broadcastObjectives();
-        return `objetivo #${id} removido`;
+        return `Objetivo #${id} removido.`;
       }
       case "modo": {
         const modo = parts[2];
         if (modo !== "sequencial" && modo !== "livre") {
-          return "uso: /objetivo modo sequencial|livre (sequencial = um de cada vez, na ordem)";
+          return "Uso: /objetivo modo sequencial|livre — no modo sequencial os objetivos valem um de cada vez, na ordem da lista.";
         }
         this.scenario.modo = modo;
         this.broadcastObjectives();
-        return `modo do cenário: ${modo}`;
+        return `Modo do cenário: ${modo}.`;
       }
       case "resetar": {
         this.scenario.completos.clear();
@@ -921,12 +981,13 @@ export class GameSession {
         // conclusão exige AÇÃO depois do reset (senão construir concluído
         // re-conclui na hora e o reset não serve pra re-jogar a aula)
         this.broadcastObjectives();
-        return "progresso zerado — os objetivos valem de novo";
+        return "Progresso zerado: os objetivos valem de novo.";
       }
       default:
         return (
-          "uso: /objetivo add construir modelo alvo texto… · add chegar|limpar regiao texto… · " +
-          "lista · texto id novo… · mover id pos · remover id · modo sequencial|livre · resetar"
+          "Uso: /objetivo add construir modelo alvo enunciado… · /objetivo add chegar|limpar regiao enunciado… · " +
+          "/objetivo lista · /objetivo texto id novo enunciado… · /objetivo mover id posição · " +
+          "/objetivo remover id · /objetivo modo sequencial|livre · /objetivo resetar"
         );
     }
   }
@@ -979,20 +1040,20 @@ export class GameSession {
     const professor = this.players.get(clientId)?.papel === "professor";
     switch (parts[1]) {
       case "criar": {
-        if (!professor) return "só o professor pode usar /grupo criar";
+        if (!professor) return "Somente o professor pode criar grupos.";
         const n = Number(parts[2]);
         const porAluno = parts[3] === "alunos";
         if (
           !Number.isInteger(n) || n < 1 ||
           (parts.length !== 3 && !(parts.length === 4 && porAluno))
         ) {
-          return "uso: /grupo criar 5 (cria 5 grupos) · /grupo criar 5 alunos (grupos de 5)";
+          return "Uso: /grupo criar 5 (cria 5 grupos) · /grupo criar 5 alunos (grupos de 5 alunos cada).";
         }
         const alunosOnline = [...this.players.values()]
           .filter((p) => p.papel === "aluno")
           .map((p) => p.name);
         const quantos = porAluno ? Math.max(1, Math.ceil(alunosOnline.length / n)) : n;
-        if (quantos > MAX_GRUPOS) return `máximo de ${MAX_GRUPOS} grupos`;
+        if (quantos > MAX_GRUPOS) return `O máximo é ${MAX_GRUPOS} grupos.`;
         // recriar grupos ZERA composição e progresso por grupo (turma nova)
         this.grupos.clear();
         this.completosGrupo.clear();
@@ -1004,7 +1065,7 @@ export class GameSession {
         this.broadcast({
           type: "chat",
           author: "servidor",
-          text: `${quantos} grupo(s) criados — veja o seu no aviso (trocar: /grupo entrar n)`,
+          text: `${quantos} grupo(s) criados. Veja o seu no aviso da tela; para trocar, use /grupo entrar n.`,
         });
         for (const [id, p] of this.players) {
           const g = this.grupoDe(p.name);
@@ -1019,35 +1080,35 @@ export class GameSession {
       }
       case "entrar": {
         const g = Number(parts[2]);
-        if (parts.length !== 3 || !Number.isInteger(g)) return "uso: /grupo entrar n";
-        if (!this.grupos.has(g)) return `não existe grupo ${g}`;
+        if (parts.length !== 3 || !Number.isInteger(g)) return "Uso: /grupo entrar n.";
+        if (!this.grupos.has(g)) return `Não existe o grupo ${g}.`;
         const p = this.players.get(clientId);
-        if (!p) return "entre no mundo primeiro";
+        if (!p) return "Entre no mundo primeiro.";
         const atual = this.grupoDe(p.name);
         if (atual !== null) this.grupos.get(atual)?.delete(p.name);
         this.grupos.get(g)?.add(p.name);
         this.sendGroup(clientId);
         this.broadcastGroups();
-        return `você agora está no grupo ${g}`;
+        return `Você agora está no grupo ${g}.`;
       }
       case "sair": {
         const p = this.players.get(clientId);
-        if (!p) return "entre no mundo primeiro";
+        if (!p) return "Entre no mundo primeiro.";
         const atual = this.grupoDe(p.name);
-        if (atual === null) return "você não está em nenhum grupo";
+        if (atual === null) return "Você não está em nenhum grupo.";
         this.grupos.get(atual)?.delete(p.name);
         this.sendGroup(clientId);
         this.broadcastGroups();
-        return `você saiu do grupo ${atual}`;
+        return `Você saiu do grupo ${atual}.`;
       }
       case "lista": {
-        if (this.grupos.size === 0) return "nenhum grupo — professor cria com /grupo criar n";
+        if (this.grupos.size === 0) return "Nenhum grupo foi criado. O professor cria os grupos com /grupo criar n.";
         return [...this.grupos.entries()]
           .map(([g, membros]) => `grupo ${g} (${membros.size}): ${[...membros].join(", ") || "—"}`)
           .join("\n");
       }
       default:
-        return "uso: /grupo criar n [alunos] · /grupo entrar n · /grupo sair · /grupo lista";
+        return "Uso: /grupo criar n [alunos] · /grupo entrar n · /grupo sair · /grupo lista";
     }
   }
 

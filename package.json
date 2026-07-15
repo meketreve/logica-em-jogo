@@ -12,6 +12,7 @@
     "dev:server": "npm run dev -w server",
     "build": "npm run build -w client",
     "test": "npm run test -w shared",
+    "cenarios": "npm run cenarios -w server --",
     "typecheck": "npm run typecheck -w shared && npm run typecheck -w server && npm run typecheck -w client"
   },
   "devDependencies": {

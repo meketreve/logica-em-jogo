@@ -494,7 +494,7 @@ describe("identidade cp9: PIN + papel (default = estrito, PIN exigido)", () => {
     expect(sent).toHaveLength(3); // 1 recusa por tentativa, zero snapshot
     for (const s of sent) {
       expect(parseServerMessage(s.data as string)).toEqual({
-        type: "join_denied", reason: "PIN precisa ter 4 números",
+        type: "join_denied", reason: "O PIN precisa ter exatamente 4 números.",
       });
     }
   });
@@ -510,7 +510,7 @@ describe("identidade cp9: PIN + papel (default = estrito, PIN exigido)", () => {
     session.handleMessage(2, join("ana", "9999"));
     expect(sent).toHaveLength(1);
     expect(parseServerMessage(sent[0]?.data as string)).toEqual({
-      type: "join_denied", reason: "PIN errado",
+      type: "join_denied", reason: "PIN incorreto para este nome.",
     });
     sent.length = 0;
 
@@ -529,7 +529,7 @@ describe("identidade cp9: PIN + papel (default = estrito, PIN exigido)", () => {
     expect(sent[0]?.clientId).toBe(2);
     const deny = parseServerMessage(sent[0]?.data as string);
     if (deny?.type !== "join_denied") throw new Error("esperava join_denied");
-    expect(deny.reason).toContain("já está no jogo");
+    expect(deny.reason).toContain("Já existe alguém em jogo");
   });
 
   it("rate-limit: 5 PINs errados travam o nome por 30 s — até com o PIN certo", () => {
@@ -543,7 +543,7 @@ describe("identidade cp9: PIN + papel (default = estrito, PIN exigido)", () => {
 
     session.handleMessage(2, join("ana", "1234")); // PIN certo, mas travado
     expect(parseServerMessage(sent[0]?.data as string)).toEqual({
-      type: "join_denied", reason: "muitas tentativas erradas — espere meio minuto",
+      type: "join_denied", reason: "Muitas tentativas com o PIN errado. Aguarde 30 segundos e tente de novo.",
     });
     sent.length = 0;
 
@@ -557,7 +557,7 @@ describe("identidade cp9: PIN + papel (default = estrito, PIN exigido)", () => {
     const session = new GameSession(send, { dims: DIMS, seed: 5, codigo: "salaverde" });
     session.handleMessage(1, join("prof", "4321", "errado"));
     expect(parseServerMessage(sent[0]?.data as string)).toEqual({
-      type: "join_denied", reason: "código de professor errado",
+      type: "join_denied", reason: "Código de professor incorreto.",
     });
     sent.length = 0;
 
@@ -607,7 +607,7 @@ describe("identidade cp9: PIN + papel (default = estrito, PIN exigido)", () => {
       expect(s.clientId).toBe(1);
       const msg = parseServerMessage(s.data as string);
       if (msg?.type !== "chat") throw new Error("esperava chat");
-      expect(msg.text).toContain("só o professor");
+      expect(msg.text).toContain("Somente o professor");
     }
   });
 
@@ -629,7 +629,7 @@ describe("identidade cp9: PIN + papel (default = estrito, PIN exigido)", () => {
     session.handleMessage(1, chatCmd("/resetpin beto"));
     const missing = parseServerMessage(sent[0]?.data as string);
     if (missing?.type !== "chat") throw new Error("esperava chat");
-    expect(missing.text).toContain("não tem PIN");
+    expect(missing.text).toContain("não há PIN para apagar");
     sent.length = 0;
 
     // ana volta com PIN NOVO (o velho não vale mais nada)
@@ -639,7 +639,7 @@ describe("identidade cp9: PIN + papel (default = estrito, PIN exigido)", () => {
     sent.length = 0;
     session.handleMessage(3, join("ana", "1111")); // PIN velho
     expect(parseServerMessage(sent[0]?.data as string)).toEqual({
-      type: "join_denied", reason: "PIN errado",
+      type: "join_denied", reason: "PIN incorreto para este nome.",
     });
   });
 
@@ -677,7 +677,7 @@ describe("identidade cp9: PIN + papel (default = estrito, PIN exigido)", () => {
     const s2 = new GameSession(send2, { restore: { world: s1.world, ...s1.toSave() } });
     s2.handleMessage(7, join("ana", "9999"));
     expect(parseServerMessage(sent2[0]?.data as string)).toEqual({
-      type: "join_denied", reason: "PIN errado",
+      type: "join_denied", reason: "PIN incorreto para este nome.",
     });
     sent2.length = 0;
     s2.handleMessage(7, join("ana", "1111"));

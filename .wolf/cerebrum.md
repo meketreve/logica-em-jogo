@@ -289,6 +289,47 @@
   pintura no createAtlasTexture (o teste "todo colocável tem tile" pega o
   lado do mesher, não o do atlas).
 
+### Cenários pedagógicos = conteúdo, não motor (2026-07-14)
+- Cenário nasce de COMANDOS rodando numa GameSession real — não existe editor
+  offline nem caminho de autoria privado. O gerador (`server/src/cenarios/gerar.ts`)
+  digita os mesmos `/grupo criar`, `/regiao criar`, `/bloco`, `/objetivo add` que o
+  professor digitaria. Se um cenário não sai daí, ele também não sai da mão do
+  professor — isso é atrito do MOTOR, não bug do script.
+- `.ljw` NÃO vai pro git (577 kB cada, 100% regenerável). Versiona-se o gerador.
+  `.gitignore` já ignora `*.ljw`.
+- O .ljw de distribuição sai com `roster: []` (sobrescrito no `toSave()`): senão o
+  mundo viaja com o PIN e o papel do autor de mentira, e qualquer um entraria como
+  professor usando aquele nome. Quem sabe o CÓDIGO vira professor; aluno registra
+  o PIN na 1ª entrada.
+- `/objetivo add construir modelo alvo` RECUSA alvo que já bate com o gabarito.
+  Por isso a área do grupo tem que nascer incompleta: pista parcial (aula 1), vazia
+  (aula 2) ou com erros plantados (aula 3).
+- Um comando do servidor pode gerar VÁRIAS falas de chat (`/grupo criar` avisa e
+  depois lista). Quem afirma em cima da resposta tem que olhar TODAS, não a última.
+- `npm run <script> -w server` roda com cwd em `server/` — caminho relativo de saída
+  não cai na raiz do repo. Ancorar em `fileURLToPath(import.meta.url)`.
+
+### Trocar de aula ao vivo + integridade dos modelos (cp19, 2026-07-15)
+- **Filesystem é do HOST, nunca da GameSession.** `/mundo` (trocar de aula = ler
+  arquivo) é interceptado em `server/src/index.ts` ANTES de chegar na sessão; a
+  GameSession não tem (nem deve ter) sistema de arquivos, senão o Web Worker do
+  singleplayer não roda. Mesmo princípio do save no cp7.
+- **Trocar de mundo sem derrubar ninguém** = salvar atual → decodificar o novo
+  (corrompido ABORTA, nada muda) → `session.jogadoresConectados()` → nova
+  GameSession → `session.adotar(id,name,papel)` por cliente. `adotar` reusa o
+  `admitir()` que o join usa (2ª metade do join extraída). Teleport é OBRIGATÓRIO
+  ao migrar: as coords do mundo velho podem cair dentro da rocha do mundo novo.
+- **Comando que chega pela rede aceita só NOME de arquivo, nunca caminho.** O
+  servidor é alcançável pela escola inteira; um caminho livre daria leitura do
+  disco do host. `acharMundo` faz `basename()` e casa contra a lista de mundos.
+- **Modelo ≠ save.** Um `.ljw` em `cenarios/` é MODELO distribuível; o servidor
+  NUNCA escreve nele. `mundoDeTrabalho()` (paths.ts) manda o autosave pra uma
+  cópia de trabalho em `aulas/` (mesmo nome). Sem isso, hospedar um cenário direto
+  gravaria roster/PINs/progresso da turma dentro do arquivo que se distribui, e a
+  próxima turma começaria com a aula anterior resolvida. Cópia viva vence o modelo
+  (turma continua); apagar em `aulas/` recomeça. Modelo corrompido NÃO se renomeia
+  (é distribuído — regenerar). Prova: swap real → 3 modelos byte-idênticos (md5).
+
 ## Do-Not-Repeat
 
 <!-- Mistakes made and corrected. Each entry prevents the same mistake recurring. -->
@@ -448,3 +489,33 @@
 - [2026-07-10] **Código mora em `~/projetos/logica-em-jogo` (WSL ext4), NÃO no OneDrive.**
   OneDrive sincroniza node_modules (milhares de arquivos) e watcher do Vite via /mnt/c é
   lento no WSL. Docs + `.wolf/` ficam no OneDrive; backup do código via git/GitHub privado.
+
+### 2026-07-14 — Cenários gerados por script, e auto-conferidos
+- **Produção via script gerador** (escolha do usuário) em vez de autorar à mão no jogo:
+  reprodutível, versionado, fácil de ajustar (mudar nº de grupos = uma flag).
+  Custo aceito: o fluxo do painel do professor NÃO é exercitado pelo gerador — quem
+  exercita é o playtest do usuário.
+- **A conferência roda DENTRO da geração** (`verificar.ts` chamado por `gerar.ts`):
+  abre o .ljw num servidor novo, entra prof + 2 alunos, completa a área do grupo 1 e
+  exige o "concluído". Cenário que não fecha não vira arquivo (exit 1). Motivo: um
+  .ljw quebrado só apareceria na frente de 20 alunos.
+- **Guarda de geometria** confere que a faixa está no chão, fora da cabine e dentro do
+  chunk do grupo — o roteiro promete isso ao professor, e nenhum teste lógico pegaria
+  uma faixa flutuando ou enfiada na parede.
+- **Turma do piloto: 6º–9º.** Por isso o gabarito é APAGADO depois de fotografado
+  (aluno infere a regra) — a flag `--revelar` deixa o modelo à vista e vira tarefa de
+  cópia, para turmas mais novas.
+
+### 2026-07-15 — Servidor serve o cliente na MESMA porta (não Vite separado no piloto)
+- Decisão: o host Node serve `client/dist` na MESMA porta do WebSocket
+  (`createServer(servirCliente)` + `WebSocketServer({ server: http })`), em vez de
+  o aluno abrir o Vite numa porta e o WS noutra.
+- **Porquê:** (1) HTTPS bloqueia `ws://` por mixed-content, e o servidor da escola
+  não tem certificado pra `wss://` — mesma origem (mesma porta) elimina o problema;
+  (2) o aluno digita UM endereço (`http://ip-do-prof:8080`) e joga, sem saber o que
+  é WebSocket; (3) um binário só (quando empacotar) já carrega o cliente junto.
+- Vite dev (`npm run dev`, 5173) segue vivo pra desenvolver com hot-reload — a
+  decisão é só sobre COMO o piloto roda, não substitui o fluxo de dev.
+- Empacotar (.exe Tauri/Node SEA) segue ADIADO por decisão do usuário ("ainda quero
+  alterar mais coisas"): por ora o professor precisa de Node instalado.
+
