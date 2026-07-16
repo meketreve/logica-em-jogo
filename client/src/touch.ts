@@ -25,7 +25,25 @@ export interface TouchActions {
   colocar(): void;
   copiar(): void;
   inventario(): void;
+  chat(): void;
   menu(): void;
+}
+
+/**
+ * Tela cheia no celular/tablet (pedido do playtest mobile): precisa de gesto
+ * do usuário — chamada no startPlay (tap no "voltar ao jogo") e no botão ⛶.
+ * Falha em silêncio (iPhone não tem requestFullscreen). Com a tela cheia
+ * concedida, tenta travar paisagem — o jogo é horizontal por natureza.
+ */
+export function solicitarTelaCheia(): void {
+  const el = document.documentElement;
+  void el
+    .requestFullscreen?.()
+    .then(() => {
+      const o = screen.orientation as { lock?: (or: string) => Promise<void> };
+      return o.lock?.("landscape");
+    })
+    .catch(() => {});
 }
 
 const CSS = `
@@ -160,12 +178,14 @@ export class TouchControls {
       this.tapButton("▣", "colocar", () => this.actions.colocar()),
     );
 
-    // topo: menu (pausa) + inventário
+    // topo: menu (pausa), inventário, chat e tela cheia
     const topo = document.createElement("div");
     topo.id = "touch-topo";
     topo.append(
       this.tapButton("☰", "menu", () => this.actions.menu()),
       this.tapButton("🧱", "blocos", () => this.actions.inventario()),
+      this.tapButton("💬", "chat", () => this.actions.chat()),
+      this.tapButton("⛶", "tela cheia", () => solicitarTelaCheia()),
     );
 
     this.root.append(look, joy, acoes, topo);

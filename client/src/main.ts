@@ -44,7 +44,7 @@ import { ObjectivesUi } from "./objectivesUi";
 import { AuthorPanel, type GamePanel, GroupPanel, type PanelData } from "./panels";
 import { RegionRenderer } from "./regions";
 import { keyLabel, loadSettings } from "./settings";
-import { TouchControls, isTouchDevice } from "./touch";
+import { TouchControls, isTouchDevice, solicitarTelaCheia } from "./touch";
 import { putWorld } from "./worldStore";
 
 /**
@@ -148,6 +148,7 @@ document.addEventListener("pointerlockchange", updateOverlay);
 function startPlay(): void {
   if (isTouchDevice()) {
     input.touch = true;
+    solicitarTelaCheia(); // gesto do tap ainda vale — celular vira tela cheia
     updateOverlay();
   } else {
     input.lock();
@@ -203,6 +204,11 @@ const chat = new ChatUi(
   },
 );
 updateOverlay(); // estado inicial: sem lock → overlay visível, mira escondida
+
+// toque: não existe Esc — tocar fora do campo (no canvas) fecha o chat
+renderer.domElement.addEventListener("pointerdown", () => {
+  if (input.touch && chat.open) chat.close();
+});
 
 let debugStats = { tickAvgMs: 0, tickMaxMs: 0 };
 let started = false;
@@ -787,6 +793,11 @@ function startGame(snap: Snapshot): void {
       colocar: () => input.press(2),
       copiar: () => input.press(1),
       inventario: () => inventoryPanel?.toggle(),
+      chat: () => {
+        if (chat.open) return;
+        document.exitPointerLock();
+        chat.openInput(); // foco no campo → teclado virtual sobe sozinho
+      },
       menu: () => {
         // pausa no toque: sai do modo toque → o overlay (menu Esc) aparece
         input.touch = false;

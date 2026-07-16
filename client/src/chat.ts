@@ -36,7 +36,8 @@ export class ChatUi {
         this.autocomplete();
         return;
       }
-      if (e.code === "Enter") {
+      // e.key cobre o teclado VIRTUAL (Android às vezes não preenche e.code)
+      if (e.code === "Enter" || e.key === "Enter") {
         const text = this.field?.value.trim() ?? "";
         if (text) onSend(text);
         this.close();
@@ -62,7 +63,8 @@ export class ChatUi {
     this.onToggle(true);
   }
 
-  private close(): void {
+  /** Público: no toque não existe Esc — tocar fora do campo fecha (main.ts). */
+  close(): void {
     if (!this.field) return;
     this.field.value = "";
     this.resetCycle();

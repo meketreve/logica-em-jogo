@@ -367,6 +367,18 @@
   sem admin: `Set-ExecutionPolicy -Scope CurrentUser RemoteSigned`; saída
   rápida: `npm.cmd`. Instruções de Windows pro usuário: sempre PowerShell com
   `$env:VAR="x";` em linha única, e prever esse bloqueio.
+- Terminal do host (`server/index.ts`): readline no stdin = console de
+  comandos do professor SEM estar no jogo (`/say` fala com a turma). Comando
+  novo de terminal entra no mesmo `terminal.on("line")`; candidato natural a
+  migrar: /mundo e /kicar (já são interceptados no host — o responder vira
+  console.log). Em nohup/background o stdin fecha na hora e nada quebra.
+- Chat no toque: Enter do teclado VIRTUAL precisa do fallback `e.key ===
+  "Enter"` (Android nem sempre preenche e.code); fechar sem enviar = tocar no
+  canvas (chat.close() público) — não existe Esc no celular.
+- Tela cheia mobile: requestFullscreen SÓ funciona em gesto do usuário — por
+  isso vive no startPlay (tap do "voltar ao jogo") e num botão; encadeia
+  `screen.orientation.lock("landscape")` DEPOIS da promise da tela cheia
+  (lock exige fullscreen); tudo com catch vazio (iPhone não suporta).
 - Controles de toque (2026-07-16, `client/src/touch.ts`): a UI de toque SÓ
   sintetiza o input que teclado+mouse já geram — `input.setKey` (joystick liga
   as MESMAS teclas de settings.keys → rebind vale de graça), `input.applyLook`

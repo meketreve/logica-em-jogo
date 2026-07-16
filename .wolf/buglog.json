@@ -3810,6 +3810,70 @@
       ],
       "occurrences": 1,
       "last_seen": "2026-07-16T19:30:00.000Z"
+    },
+    {
+      "id": "bug-234",
+      "timestamp": "2026-07-16T21:40:55.946Z",
+      "error_message": "Missing error handling in solicitarTelaCheia",
+      "file": "client/src/touch.ts",
+      "root_cause": "Code path had no error handling — exceptions would propagate uncaught",
+      "fix": "Added try/catch block",
+      "tags": [
+        "auto-detected",
+        "error-handling",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-16T21:40:55.946Z"
+    },
+    {
+      "id": "bug-235",
+      "timestamp": "2026-07-16T21:41:14.041Z",
+      "error_message": "Wrong condition in logic",
+      "file": "client/src/chat.ts",
+      "root_cause": "Condition was: if (e.code === \"Enter\")",
+      "fix": "Changed to: if (e.code === \"Enter\" || e.key === \"Enter\")",
+      "tags": [
+        "auto-detected",
+        "logic-fix",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-16T21:41:14.041Z"
+    },
+    {
+      "id": "bug-236",
+      "timestamp": "2026-07-16T21:41:52.450Z",
+      "error_message": "Missing guard clause",
+      "file": "client/src/main.ts",
+      "root_cause": "No early return/throw for edge case: chat.open",
+      "fix": "Added guard clause: if (chat.open)",
+      "tags": [
+        "auto-detected",
+        "guard-clause",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-16T21:41:52.450Z"
+    },
+    {
+      "id": "bug-237",
+      "timestamp": "2026-07-16T21:42:28.948Z",
+      "error_message": "Missing guard clause",
+      "file": "server/src/index.ts",
+      "root_cause": "No early return/throw for edge case: !texto",
+      "fix": "Added guard clause: if (!texto)",
+      "tags": [
+        "auto-detected",
+        "guard-clause",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-16T21:42:28.948Z"
     }
   ]
 }

@@ -3,6 +3,7 @@ import { existsSync, mkdirSync, readFileSync, renameSync, writeFileSync } from "
 import { createServer } from "node:http";
 import { networkInterfaces } from "node:os";
 import { dirname } from "node:path";
+import { createInterface } from "node:readline";
 import { WebSocketServer, type WebSocket } from "ws";
 import {
   GameSession,
@@ -150,6 +151,27 @@ let nextClientId = 1;
 
 const falarCom = (clientId: number, texto: string): void =>
   entregar(clientId, JSON.stringify({ type: "chat", author: "servidor", text: texto }));
+
+// --- Terminal do host: o professor digita comandos no PRÓPRIO console do
+// servidor, sem precisar estar dentro do jogo (modelo do Minecraft).
+// Em background (nohup) o stdin fecha na hora — o readline só não recebe nada.
+const terminal = createInterface({ input: process.stdin });
+terminal.on("line", (linha) => {
+  const texto = linha.trim();
+  if (!texto) return;
+  const partes = texto.split(/\s+/);
+  if (partes[0] === "/say") {
+    const msg = partes.slice(1).join(" ");
+    if (!msg) {
+      console.log("[server] uso: /say mensagem — fala com a turma pelo chat");
+      return;
+    }
+    for (const id of sockets.keys()) falarCom(id, msg);
+    console.log(`[server] <servidor> ${msg} (enviado a ${sockets.size} jogador(es))`);
+  } else {
+    console.log(`[server] comando desconhecido: ${partes[0]}. Comandos do terminal: /say mensagem`);
+  }
+});
 
 /**
  * `/mundo` é o único comando que o HOST trata em vez da sessão: trocar de aula é

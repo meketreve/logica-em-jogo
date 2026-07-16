@@ -1123,3 +1123,17 @@ bug-195 (basename sem import). .exe/empacotamento segue ADIADO (decisão do usu�
 | 19:06 | bug-232: ExecutionPolicy do PowerShell bloqueava npm no notebook da escola — fix Set-ExecutionPolicy CurrentUser RemoteSigned / npm.cmd | .wolf/buglog.json, cerebrum | orientação dada, logado | ~3k |
 | 17:05 | Session end: 16 writes across 4 files (input.ts, touch.ts, main.ts, index.html) | 7 reads | ~22241 tok |
 | 19:30 | bug-233: notebook rodava ZIP velho do repo (boot antigo denuncia — "escutando em ws://" morreu no 6973fe7); fix = clone atual | .wolf/buglog.json | diagnóstico por fingerprint do boot | ~10k |
+| 18:28 | Session end: 16 writes across 4 files (input.ts, touch.ts, main.ts, index.html) | 9 reads | ~26256 tok |
+| 18:40 | Edited client/src/touch.ts | added optional chaining | ~279 |
+| 18:41 | Edited client/src/touch.ts | 7→9 lines | ~121 |
+| 18:41 | Edited client/src/chat.ts | modified if() | ~80 |
+| 18:41 | Edited client/src/chat.ts | modified close() | ~37 |
+| 18:41 | Edited client/src/main.ts | inline fix | ~22 |
+| 18:41 | Edited client/src/main.ts | modified startPlay() | ~82 |
+| 18:41 | Edited client/src/main.ts | added 1 condition(s) | ~75 |
+| 18:41 | Edited client/src/main.ts | added 1 condition(s) | ~69 |
+| 18:42 | Edited client/index.html | 8→12 lines | ~102 |
+| 18:42 | Edited server/src/index.ts | added 1 import(s) | ~87 |
+| 18:42 | Edited server/src/index.ts | added 3 condition(s) | ~288 |
+| 18:43 | Created ../../../tmp/claude-1000/-home-meketreve-logica-em-jogo/79e5e357-9896-4502-b4f6-697b125f1983/scratchpad/smoke-say.mjs | — | ~522 |
+| 20:10 | Rodada 2 mobile: tela cheia (auto+botão, lock paisagem), botão chat + Enter virtual + tocar fora fecha, hotbar sticky no inventário, /say no terminal do host (smoke 3/3) | touch.ts, chat.ts, main.ts, index.html, server/index.ts | typecheck 3/3, 153 testes, build, screenshots ok | ~40k |

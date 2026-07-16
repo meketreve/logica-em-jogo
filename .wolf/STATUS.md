@@ -782,8 +782,24 @@ re-playtestados ✅:
   scroller interno). Desktop INTACTO (sem touch, `active === locked`).
   typecheck 3/3, 153 testes, build ✓; screenshots headless contra servidor
   real: com `?touch` = joystick/botões/mira/hotbar no mundo; sem = overlay
-  normal, zero UI de toque. **Falta só tocar num TABLET real (rede da
-  escola).**
+  normal, zero UI de toque.
+  **PLAYTEST MOBILE ✅ (2026-07-16, celular na rede de casa via notebook
+  Windows hospedando o main atual).** Rodada 2 (pedidos do playtest, FEITOS):
+  (a) **tela cheia** — `solicitarTelaCheia()` em touch.ts: auto no startPlay
+  (gesto do tap vale) + botão "⛶ tela cheia" no topo; tenta travar paisagem
+  (`screen.orientation.lock`), falha em silêncio (iPhone); (b) **botão 💬
+  chat** no topo — abre o campo (teclado virtual sobe no focus); Enter do
+  teclado VIRTUAL agora envia (`e.key === "Enter"` fallback — Android nem
+  sempre manda e.code) e tocar FORA do campo (canvas) fecha sem enviar
+  (chat.close() virou público — no toque não existe Esc); (c) **hotbar fixa
+  no pé do inventário** — `.inv-hotbar` position:sticky bottom, a grade rola
+  e os 9 slots ficam visíveis (screenshot confere); (d) **`/say` no TERMINAL
+  do host** — readline no stdin do server/index.ts: `/say mensagem` fala com
+  a turma como "servidor" sem o professor estar dentro do jogo (modelo
+  Minecraft); comando desconhecido lista os disponíveis; nohup/background =
+  stdin fecha, inofensivo. Smoke ws real 3/3 (2 clientes recebem, lixo não
+  vaza). typecheck 3/3, 153 testes, build ✓. **Resta validar no TABLET da
+  escola (rede da escola — AP isolation).**
 
 - **TRILHA SEQUENCIAL — auto-limpa + próxima sequência na MESMA faixa
   (2026-07-16, pedido do usuário).** No modo `sequencial`, quando um grupo
