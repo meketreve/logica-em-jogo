@@ -1,7 +1,7 @@
 # anatomy.md
 
-> Auto-maintained by OpenWolf. Last scanned: 2026-07-16T18:21:43.266Z
-> Files: 84 tracked | Anatomy hits: 0 | Misses: 0
+> Auto-maintained by OpenWolf. Last scanned: 2026-07-16T18:32:06.860Z
+> Files: 85 tracked | Anatomy hits: 0 | Misses: 0
 
 ## ../../../tmp/claude-1000/-home-meketreve-logica-em-jogo/1e53a721-e45d-4911-a026-f385f8f2c4e6/scratchpad/
 
@@ -59,7 +59,7 @@
 
 ## client/
 
-- `index.html` — Lógica em Jogo (~4922 tok)
+- `index.html` — Lógica em Jogo (~4997 tok)
 - `vite.config.ts` (~94 tok)
 
 ## client/src/
@@ -76,14 +76,15 @@
 - `daynight.ts` — Ciclo dia/noite (cp21) — SÓ visual. A hora é autoritativa do SERVIDOR (msg (~971 tok)
 - `events.ts` — Gatilhos de som (checkpoint 6): pontos de evento do jogo onde o áudio vai (~182 tok)
 - `hud.ts` — HUD de perfilação (F3): FPS, frametime méd+p95, remesh, draw calls e (~1099 tok)
-- `input.ts` — Teclado + mouse (pointer lock). SÓ coleta input — nenhuma decisão de (~1218 tok)
+- `input.ts` — Teclado + mouse (pointer lock). SÓ coleta input — nenhuma decisão de (~1542 tok)
 - `inventory.ts` — Inventário de blocos (cp16) — grade com TODOS os colocáveis + faixa da (~1150 tok)
-- `main.ts` — O cliente não tem filesystem: aprende os nomes das aulas pela resposta de (~9740 tok)
+- `main.ts` — O cliente não tem filesystem: aprende os nomes das aulas pela resposta de (~10247 tok)
 - `menu.ts` — Menu principal (cp8) — HTML/CSS por cima do canvas, sem GUI de engine. (~4087 tok)
 - `objectivesUi.ts` — Grupo do PRÓPRIO jogador (null = sem grupo). (~1244 tok)
 - `panels.ts` — Painéis HTML do cp14 — açúcar visual sobre os comandos de chat: cada botão (~5834 tok)
 - `regions.ts` — Wireframes das regiões nomeadas (cp11) — visão do PROFESSOR (o servidor só (~690 tok)
 - `settings.ts` — Configurações do jogador, persistidas em localStorage (por navegador). (~989 tok)
+- `touch.ts` — Controles de toque (tablet) — joystick, arrasto de olhar e botões. SÓ (~2436 tok)
 - `worldStore.ts` — Mundos do SINGLEPLAYER, guardados no navegador (IndexedDB) — decisão de (~780 tok)
 
 ## server/

@@ -1094,3 +1094,26 @@ bug-195 (basename sem import). .exe/empacotamento segue ADIADO (decisão do usu�
 | 15:21 | Edited client/src/input.ts | modified ENGATADO() | ~74 |
 | 15:21 | Edited client/src/input.ts | 8→6 lines | ~45 |
 | 15:23 | PIVOT: plano de touch controls p/ piloto amanhã gravado no STATUS (não codar agora, /clear e próxima sessão executa) | STATUS.md | plano A(touch)/B(checklist)/C(relatório); input.ts stub revertido | ~6k |
+| 15:23 | Session end: 14 writes across 9 files (worldgen.ts, cp14.test.ts, verificar.ts, session.ts, regions.test.ts) | 12 reads | ~54601 tok |
+
+## Session: 2026-07-16 15:24
+
+| Time | Action | File(s) | Outcome | ~Tokens |
+|------|--------|---------|---------|--------|
+| 15:29 | Edited client/src/input.ts | modified toque() | ~69 |
+| 15:29 | Edited client/src/input.ts | 2→4 lines | ~66 |
+| 15:29 | Edited client/src/input.ts | modified locked() | ~136 |
+| 15:29 | Edited client/src/input.ts | added optional chaining | ~223 |
+| 15:30 | Created client/src/touch.ts | — | ~2436 |
+| 15:30 | Edited client/src/main.ts | added 1 import(s) | ~56 |
+| 15:30 | Edited client/src/main.ts | 2→4 lines | ~74 |
+| 15:30 | Edited client/src/main.ts | added 1 condition(s) | ~280 |
+| 15:31 | Edited client/src/main.ts | inline fix | ~26 |
+| 15:31 | Edited client/src/main.ts | 9→9 lines | ~119 |
+| 15:31 | Edited client/src/main.ts | 3→3 lines | ~54 |
+| 15:31 | Edited client/src/main.ts | 2→2 lines | ~14 |
+| 15:31 | Edited client/src/main.ts | added optional chaining | ~423 |
+| 15:31 | Edited client/src/main.ts | added 1 condition(s) | ~103 |
+| 15:31 | Edited client/index.html | 1→4 lines | ~40 |
+| 15:32 | Edited client/index.html | 7→11 lines | ~95 |
+| 16:20 | Touch controls (tablet): touch.ts novo, input.active/setKey/applyLook/press, main.ts locked→active + startPlay + hotbar tocável, index.html viewport/touch-action | client/src/touch.ts, input.ts, main.ts, index.html | typecheck 3/3, 153 testes, build ✓, screenshots ?touch e desktop ok | ~55k |

@@ -2,6 +2,8 @@
 
 > Single source of truth for resuming work. Read this FIRST when starting a session.
 > Last updated: 2026-07-16
+> **TOUCH CONTROLS FEITOS (2026-07-16):** tablet joga (joystick/arrasto/botões);
+> teste em TABLET REAL pendente — era o último blocker do piloto de amanhã.
 > **INFRA DO PILOTO (2026-07-15, PLAYTEST DO USUÁRIO PENDENTE):** (1) servidor
 > serve o cliente na MESMA porta (aluno abre http://ip-do-prof:8080 e joga, sem
 > Vite separado); (2) varredura das mensagens de erro (66+ reescritas, frase
@@ -754,6 +756,35 @@ re-playtestados ✅:
   sequências" = `/objetivo modo sequencial` + N objetivos (uma faixa por
   objetivo por grupo).
 
+- **CONTROLES DE TOQUE (2026-07-16, TESTE EM TABLET REAL PENDENTE).** Tablet
+  joga sem teclado/mouse. Novo `client/src/touch.ts`: `isTouchDevice()` =
+  media query **`pointer: coarse`** (ponteiro PRIMÁRIO é o dedo; notebook com
+  touchscreen fica FORA de propósito — o mouse continua mandando e o pointer
+  lock não quebra; `?touch` na URL força, pra testar no desktop) e
+  `TouchControls` (DOM+CSS injetados, self-contained): joystick esquerdo
+  (8 direções + deadzone, sintetiza as MESMAS teclas de `settings.keys` via
+  `input.setKey` — rebind vale), arrasto em área livre = olhar
+  (`input.applyLook`, mesma conta e clamp do mousemove), botões quebrar/
+  colocar/copiar (disparam os handlers de mouse existentes via
+  `input.press(0|2|1)`), pular (segurar), menu (pausa) e blocos (inventário —
+  fecha no "✕ fechar" que já existia). `input.ts`: flag `touch` +
+  `get active()` (= locked OU touch); `lock()` vira no-op no toque — todos os
+  `input.lock()` espalhados (fechar chat/painéis) ficam inofensivos. main.ts:
+  loop de movimento/raycast/overlay/mira leem `input.active` (linha do
+  pointerlockchange segue `locked`); `startPlay()` no "▶ voltar ao jogo"
+  decide lock vs toque; botão menu do touch desliga o modo e mostra o overlay
+  de pausa; hotbar TOCÁVEL (pointer-events auto + tap escolhe slot); UI de
+  toque some sob chat/painéis/pausa (updateOverlay → `setShown`, que SOLTA
+  teclas seguradas — sem andar fantasma). index.html: viewport sem zoom
+  (maximum-scale=1, user-scalable=no, viewport-fit=cover) +
+  `overscroll-behavior:none; touch-action:none` no body (mata pull-to-refresh;
+  menus com overflow próprio seguem roláveis — touch-action não herda pra
+  scroller interno). Desktop INTACTO (sem touch, `active === locked`).
+  typecheck 3/3, 153 testes, build ✓; screenshots headless contra servidor
+  real: com `?touch` = joystick/botões/mira/hotbar no mundo; sem = overlay
+  normal, zero UI de toque. **Falta só tocar num TABLET real (rede da
+  escola).**
+
 - **TRILHA SEQUENCIAL — auto-limpa + próxima sequência na MESMA faixa
   (2026-07-16, pedido do usuário).** No modo `sequencial`, quando um grupo
   conclui a sequência ativa, o servidor LIMPA a faixa dele e carrega
@@ -770,65 +801,20 @@ re-playtestados ✅:
 
 ---
 
-## 🚀 PRÓXIMA QUEST — PILOTO AMANHÃ (2026-07-17): controles TOUCH + checklist
+## 🚀 PRÓXIMA QUEST — PILOTO AMANHÃ (2026-07-17): testar touch no tablet + checklist
 
-**Contexto:** o usuário dá aula AMANHÃ e quer rodar o piloto com a turma inteira
-e gerar relatório de uso. Alunos em **tablet/touchscreen** precisam de controles
-de toque — os notebooks já rodam (teclado+mouse). **Touch controls = o ÚNICO
-blocker de código.** Tudo commitado (`ad7f3e5`, árvore limpa). typecheck 3/3,
-153 testes.
+**Contexto:** o usuário dá aula AMANHÃ (piloto com a turma + relatório de uso).
+**Touch controls FEITOS (2026-07-16, ver ✅) — o único blocker de código caiu.**
+`npm run build` já rodou DEPOIS do touch: o cliente servido pelo servidor já tem
+os controles (se mexer no cliente de novo, rebuildar).
 
-### A. TOUCH CONTROLS (blocker) — plano de build (investigação já feita)
-Regra de arquitetura vale: cliente só desenha + envia input. Estratégia: **reusar
-o loop existente** — joystick sintetiza as teclas de movimento, drag vira
-yaw/pitch, botões chamam os MESMOS handlers de quebrar/colocar. Trocar
-`input.locked` → `input.active` (= locked OU touch). **Desktop fica intacto**
-(sem touch, `active === locked`).
-
-**Novo `client/src/input.ts` (métodos):** `touch = false`; `get active()` =
-`this.locked || this.touch`; `setKey(code, down)` (joystick liga/desliga tecla);
-`applyLook(dx, dy)` (mesma conta do mousemove, const TOUCH_LOOK≈0.004·sensitivity,
-mesmo clamp de pitch); `press(button)` = `this.mouseHandlers.get(button)?.()`;
-`spin(dir)` = `this.wheelHandler?.(dir)`.
-
-**Novo arquivo `client/src/touch.ts`:**
-- `isTouchDevice()` = `'ontouchstart' in window || navigator.maxTouchPoints > 0`
-  OU `?touch` na URL (força — testar no desktop).
-- `class TouchControls(root, input, actions)`: DOM sobre o canvas (abaixo do
-  #overlay do menu), Pointer Events + rastrear pointerId (multitouch),
-  `touch-action: none`. Joystick esquerdo → forward/back/left/right via
-  `input.setKey` (8 direções + deadzone, usa `settings.keys.*`). Zona de olhar
-  (direita, fora dos botões) → `input.applyLook(dx,dy)`. Botões: Quebrar →
-  `actions.break()`, Colocar → `actions.place()`, Pular (segurar) →
-  `setKey(jump)`, Inventário → `actions.inventory()`, Menu → `actions.menu()`.
-  CSS próprio via `<style>` injetado (self-contained).
-
-**Editar `client/src/main.ts` — trocar `input.locked` → `input.active` nestes
-sítios (linhas da investigação):** loop de movimento ~838 (forward), ~841
-(strafe), ~844 (jump), ~846 (forwardDown), ~854 (sneak), ~856 (sprint); raycast
-da mira ~885; `updateOverlay` linha 136 (overlay some) e 139 (crosshair). **Manter
-linha 140 como `input.locked`** (é do pointerlock). Adicionar `startPlay()`:
-touch → `input.touch=true`; senão `input.lock()` — ligar no `overlay-voltar`
-(linha 154) e no play inicial. Botão Menu no touch: `input.touch=false;
-updateOverlay()`. Instanciar TouchControls DEPOIS de input/chat/inventoryPanel/
-hotbar, ligando: break→`input.press(0)`, place→`input.press(2)`,
-pick→`input.press(1)`, jump→`input.setKey(settings.keys.jump, true/false)`,
-inventory→`inventoryPanel?.toggle()`, menu→sair do touch. **Hotbar tocável:** o
-HUD da hotbar é innerHTML de spans (~654-662) — adicionar handler no container
-pra selecionar o slot pelo índice tocado.
-
-**Editar `client/index.html`:** viewport (linha 5) += `maximum-scale=1,
-user-scalable=no, viewport-fit=cover`; CSS global `html,body{overscroll-behavior:
-none; touch-action:none;}` (mata pull-to-refresh/scroll no tablet).
-
-**Gotchas:** os handlers de break/place já existem em `onMouseButton(0)/(2)`
-usando `target` + `varinhaAtiva`; chamar `input.press` PULA o gate de lock →
-funciona, e `target` passa a ser calculado quando `input.active`. Aluno só
-precisa: mover, olhar, quebrar, colocar, escolher a lã (inventário) — NÃO precisa
-chat/varinha/painel (ferramentas de professor). UI de toque mínima.
-
-**Verificar:** typecheck 3/3, build; desktop inalterado; testar `?touch` no
-desktop e no TABLET do usuário. `npm run build` pro cliente servido ter o touch.
+### A. TESTE NO TABLET REAL (única pendência do touch)
+Tablet abre `http://<ip-do-professor>:8080` — a UI de toque liga sozinha
+(`pointer: coarse`); no desktop, `?touch` na URL força pra demonstrar. Olhar:
+joystick anda, arrasto gira a câmera, quebrar/colocar acertam o bloco mirado,
+pular segura, hotbar/inventário escolhem a lã, botão menu pausa e "▶ voltar ao
+jogo" retoma. Notebook com touchscreen NÃO liga a UI (mouse é o ponteiro
+primário — de propósito).
 
 ### B. CHECKLIST DE DIA DE AULA (não-código)
 1. Host: `npm run build` uma vez, depois

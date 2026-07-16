@@ -356,6 +356,22 @@
   sobrevivência pode, no futuro, nascer com o ciclo ligado. Mexeu em hora/ciclo
   default ou no formato → REGERAR cenários (`npm run cenarios`).
 
+- Controles de toque (2026-07-16, `client/src/touch.ts`): a UI de toque SÓ
+  sintetiza o input que teclado+mouse já geram — `input.setKey` (joystick liga
+  as MESMAS teclas de settings.keys → rebind vale de graça), `input.applyLook`
+  (mesma conta/clamp do mousemove) e `input.press(botão)` (dispara o handler
+  de onMouseButton existente). O loop lê `input.active` (= locked OU touch);
+  a linha do `pointerlockchange`/showOverlayMain segue `locked` (é específica
+  de pointer lock). `input.lock()` é no-op com touch ligado — os lock()
+  espalhados (fechar chat/painel/inventário) ficam inofensivos sem tocar
+  neles. `setShown(false)` SOLTA as teclas seguradas (heldKeys) — esconder a
+  UI no meio de um toque não deixa o jogador andando sozinho. Botão novo de
+  ação = compor sobre input.press/setKey, nunca handler paralelo.
+- `touch-action: none` no body NÃO trava scroll de container interno com
+  overflow próprio (menu, painéis): o gesto consulta touch-action só do alvo
+  até o elemento que ROLA — body fica fora da cadeia. Mata pull-to-refresh e
+  scroll da página sem quebrar os menus.
+
 ### Cenários pedagógicos = conteúdo, não motor (2026-07-14)
 - Cenário nasce de COMANDOS rodando numa GameSession real — não existe editor
   offline nem caminho de autoria privado. O gerador (`server/src/cenarios/gerar.ts`)
@@ -474,6 +490,14 @@
 
 <!-- Significant technical decisions with rationale. Why X was chosen over Y. -->
 
+- [2026-07-16] **Detecção de tablet: `pointer: coarse`, NÃO
+  `ontouchstart`/maxTouchPoints.** O plano original detectava "tem
+  touchscreen", mas notebook com tela de toque tem touchscreen E mouse — o
+  modo toque desligaria o pointer lock e QUEBRARIA o mouse de quem joga com
+  ele. `pointer: coarse` pergunta qual é o ponteiro PRIMÁRIO: tablet/celular =
+  dedo (liga a UI), notebook touch = mouse (desktop normal). `?touch` na URL
+  força pra teste/demonstração no desktop (e auto-entra no jogo — screenshot
+  headless depende disso).
 - [2026-07-16] **Trilha sequencial: auto-limpa + carrega a próxima sequência na
   MESMA faixa.** No modo `sequencial`, ao um escopo (grupo/mundo) concluir a
   sequência ativa, o tick chama `carregarProximaSequencia(g)` → repõe o

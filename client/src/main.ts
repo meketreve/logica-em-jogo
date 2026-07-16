@@ -44,6 +44,7 @@ import { ObjectivesUi } from "./objectivesUi";
 import { AuthorPanel, type GamePanel, GroupPanel, type PanelData } from "./panels";
 import { RegionRenderer } from "./regions";
 import { keyLabel, loadSettings } from "./settings";
+import { TouchControls, isTouchDevice } from "./touch";
 import { putWorld } from "./worldStore";
 
 /**
@@ -116,6 +117,8 @@ initUiAudio(settings.volume);
 let activePanel: GamePanel | null = null;
 /** Inventário de blocos (cp16) — criado no startGame (precisa do atlas). */
 let inventoryPanel: InventoryPanel | null = null;
+/** Controles de toque (tablet) — criados no startGame só em dispositivo touch. */
+let touchControls: TouchControls | null = null;
 
 // --- Menu de pausa (Esc = pointer lock solto) ---
 const overlay = document.getElementById("overlay");
@@ -129,17 +132,27 @@ function showOverlayMain(): void {
 }
 
 function updateOverlay(): void {
-  // some quando o jogo tem o mouse, o chat está aberto OU um painel do cp14
-  // está na tela (senão o menu de pausa cobre o painel)
-  overlay?.classList.toggle(
-    "hidden",
-    input.locked || chat.open || (activePanel?.open ?? false) || (inventoryPanel?.open ?? false),
-  );
-  // mira só existe COM o mouse travado (pedido do usuário: invisível no Esc)
-  crosshairEl?.classList.toggle("hidden", !input.locked);
+  // some quando o jogo tem o controle (mouse travado OU modo toque), o chat
+  // está aberto OU um painel do cp14 está na tela (senão cobre o painel)
+  const panelOpen = (activePanel?.open ?? false) || (inventoryPanel?.open ?? false);
+  overlay?.classList.toggle("hidden", input.active || chat.open || panelOpen);
+  // mira só existe COM o jogo no controle (pedido do usuário: invisível no Esc)
+  crosshairEl?.classList.toggle("hidden", !input.active);
   if (input.locked) showOverlayMain(); // próximo Esc abre no painel principal
+  // UI de toque acompanha: some sob menu de pausa, chat ou painel aberto
+  touchControls?.setShown(input.touch && !chat.open && !panelOpen);
 }
 document.addEventListener("pointerlockchange", updateOverlay);
+
+/** Entrar no jogo: desktop trava o mouse; tablet liga o modo toque. */
+function startPlay(): void {
+  if (isTouchDevice()) {
+    input.touch = true;
+    updateOverlay();
+  } else {
+    input.lock();
+  }
+}
 
 /** Config mudou no menu de pausa: aplica AO VIVO no jogo em andamento. */
 function onSettingsChanged(): void {
@@ -151,7 +164,7 @@ function onSettingsChanged(): void {
   }
 }
 
-document.getElementById("overlay-voltar")?.addEventListener("click", () => input.lock());
+document.getElementById("overlay-voltar")?.addEventListener("click", () => startPlay());
 document.getElementById("overlay-config-btn")?.addEventListener("click", () => {
   const body = document.getElementById("overlay-config-body");
   // reconstrói = estado atual; o "voltar" é da própria tela de config (um só)
@@ -753,6 +766,37 @@ function startGame(snap: Snapshot): void {
     refreshHotbar();
   });
 
+  // controles de toque (tablet): joystick/arrasto/botões sintetizam o MESMO
+  // input do teclado+mouse — o loop e os handlers acima não mudam
+  if (isTouchDevice()) {
+    if (hotbarEl) {
+      hotbarEl.style.pointerEvents = "auto"; // hotbar tocável escolhe o slot
+      hotbarEl.addEventListener("click", (e) => {
+        const slot = e.target instanceof HTMLElement ? e.target.closest(".slot") : null;
+        const idx = slot?.parentElement
+          ? Array.from(slot.parentElement.children).indexOf(slot)
+          : -1;
+        if (idx < 0) return;
+        selected = idx;
+        refreshHotbar();
+      });
+    }
+    touchControls = new TouchControls(input, {
+      keys: () => settings.keys,
+      quebrar: () => input.press(0),
+      colocar: () => input.press(2),
+      copiar: () => input.press(1),
+      inventario: () => inventoryPanel?.toggle(),
+      menu: () => {
+        // pausa no toque: sai do modo toque → o overlay (menu Esc) aparece
+        input.touch = false;
+        showOverlayMain();
+        updateOverlay();
+      },
+    });
+    updateOverlay();
+  }
+
   const hud = new Hud(renderer, {
     checkpoint: 14,
     worldChunks: world.dims,
@@ -835,15 +879,15 @@ function startGame(snap: Snapshot): void {
     last = now;
     const dt = Math.min(dtMs / 1000, 0.05);
 
-    const forward = input.locked
+    const forward = input.active
       ? (input.down(settings.keys.forward) ? 1 : 0) - (input.down(settings.keys.back) ? 1 : 0)
       : 0;
-    const strafe = input.locked
+    const strafe = input.active
       ? (input.down(settings.keys.right) ? 1 : 0) - (input.down(settings.keys.left) ? 1 : 0)
       : 0;
-    const jump = input.locked && input.down(settings.keys.jump);
+    const jump = input.active && input.down(settings.keys.jump);
 
-    const forwardDown = input.locked && input.down(settings.keys.forward);
+    const forwardDown = input.active && input.down(settings.keys.forward);
     if (forwardDown && !forwardWasDown) {
       if (now - lastForwardTap < 300) sprintLatch = true;
       lastForwardTap = now;
@@ -851,9 +895,9 @@ function startGame(snap: Snapshot): void {
     if (!forwardDown) sprintLatch = false;
     forwardWasDown = forwardDown;
 
-    const sneak = input.locked && input.down(settings.keys.agachar);
+    const sneak = input.active && input.down(settings.keys.agachar);
     const sprint =
-      forward > 0 && !sneak && (sprintLatch || (input.locked && input.down(settings.keys.correr)));
+      forward > 0 && !sneak && (sprintLatch || (input.active && input.down(settings.keys.correr)));
 
     stepPlayer(world, player, { forward, strafe, jump, yaw: input.yaw, sprint, sneak }, dt);
     if (player.pos.y < -16) respawn(); // caiu da borda do mundo
@@ -882,7 +926,7 @@ function startGame(snap: Snapshot): void {
 
     // mira: raycast local (visual) — decisão continua no servidor
     camera.getWorldDirection(lookDir);
-    target = input.locked
+    target = input.active
       ? raycastBlock(
           world,
           camera.position.x, camera.position.y, camera.position.z,
@@ -906,4 +950,6 @@ function startGame(snap: Snapshot): void {
   // ?painel na URL: abre o painel já no boot (verificação headless do cp14)
   if (new URLSearchParams(location.search).has("painel")) activePanel?.toggle();
   if (new URLSearchParams(location.search).has("inv")) inventoryPanel?.toggle();
+  // ?touch (teste no desktop/headless): entra direto no modo toque, sem tap
+  if (bootParams.has("touch")) startPlay();
 }

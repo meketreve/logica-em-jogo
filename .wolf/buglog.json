@@ -3706,6 +3706,70 @@
       "related_bugs": [],
       "occurrences": 1,
       "last_seen": "2026-07-16T18:21:43.287Z"
+    },
+    {
+      "id": "bug-228",
+      "timestamp": "2026-07-16T18:29:50.893Z",
+      "error_message": "Null/undefined access in ",
+      "file": "client/src/input.ts",
+      "root_cause": "Property access on potentially null/undefined value",
+      "fix": "Added null safety (optional chaining or null check)",
+      "tags": [
+        "auto-detected",
+        "null-safety",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-16T18:29:50.893Z"
+    },
+    {
+      "id": "bug-229",
+      "timestamp": "2026-07-16T18:30:55.898Z",
+      "error_message": "Significant refactor of ",
+      "file": "client/src/main.ts",
+      "root_cause": "8 lines replaced/restructured",
+      "fix": "Rewrote 12→22 lines (8 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-16T18:30:55.898Z"
+    },
+    {
+      "id": "bug-230",
+      "timestamp": "2026-07-16T18:31:02.719Z",
+      "error_message": "Wrong reference: input should be startPlay",
+      "file": "client/src/main.ts",
+      "root_cause": "Used \"input\" instead of \"startPlay\"",
+      "fix": "Changed input → startPlay",
+      "tags": [
+        "auto-detected",
+        "wrong-reference",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 2,
+      "last_seen": "2026-07-16T18:31:26.585Z"
+    },
+    {
+      "id": "bug-231",
+      "timestamp": "2026-07-16T18:31:42.466Z",
+      "error_message": "Null/undefined access in ",
+      "file": "client/src/main.ts",
+      "root_cause": "Property access on potentially null/undefined value",
+      "fix": "Added null safety (optional chaining or null check)",
+      "tags": [
+        "auto-detected",
+        "null-safety",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-16T18:31:42.466Z"
     }
   ]
 }

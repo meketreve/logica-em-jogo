@@ -7,6 +7,8 @@ export class Input {
   pitch = 0;
   /** Multiplicador da sensibilidade do mouse (configurações do jogador). */
   sensitivity = 1;
+  /** Modo toque (tablet): controles de toque sintetizam teclas/olhar/cliques. */
+  touch = false;
 
   private keys = new Set<string>();
   private keyHandlers = new Map<string, () => void>();
@@ -14,6 +16,8 @@ export class Input {
   private wheelHandler: ((dir: 1 | -1) => void) | null = null;
 
   private static readonly SENSITIVITY = 0.0025;
+  /** Sensibilidade do arrasto de olhar no toque (px de dedo → radianos). */
+  private static readonly TOUCH_LOOK = 0.004;
   private static readonly PITCH_LIMIT = Math.PI / 2 - 0.01;
   /** Chrome com pointer lock solta deltas absurdos esporádicos (câmera "teleporta") — descarta. */
   private static readonly MAX_DELTA = 200;
@@ -77,9 +81,14 @@ export class Input {
     return document.pointerLockElement === this.canvas;
   }
 
+  /** Jogo "tem o controle": mouse travado (desktop) OU modo toque (tablet). */
+  get active(): boolean {
+    return this.locked || this.touch;
+  }
+
   /** Pede pointer lock (clique no canvas ou ao fechar o chat). Pode falhar sem gesto do usuário — aí o overlay "clique para jogar" cobre. */
   lock(): void {
-    if (this.locked) return;
+    if (this.touch || this.locked) return; // no toque não existe pointer lock
     // unadjustedMovement: movimento cru, sem aceleração do SO (menos spikes no Chrome/Windows)
     const req = this.canvas.requestPointerLock({ unadjustedMovement: true }) as
       | Promise<void>
@@ -89,6 +98,26 @@ export class Input {
 
   down(code: string): boolean {
     return this.keys.has(code);
+  }
+
+  /** Toque: joystick liga/desliga a MESMA tecla que o teclado ligaria. */
+  setKey(code: string, down: boolean): void {
+    if (down) this.keys.add(code);
+    else this.keys.delete(code);
+  }
+
+  /** Toque: arrasto de olhar — mesma conta (e mesmo clamp) do mousemove. */
+  applyLook(dx: number, dy: number): void {
+    this.yaw -= dx * Input.TOUCH_LOOK * this.sensitivity;
+    this.pitch -= dy * Input.TOUCH_LOOK * this.sensitivity;
+    const lim = Input.PITCH_LIMIT;
+    if (this.pitch > lim) this.pitch = lim;
+    if (this.pitch < -lim) this.pitch = -lim;
+  }
+
+  /** Toque: botão da tela dispara o MESMO handler do botão do mouse. */
+  press(button: number): void {
+    this.mouseHandlers.get(button)?.();
   }
 
   /** Registra atalho (ex.: F3 → HUD). preventDefault automático. */
