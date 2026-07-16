@@ -36,6 +36,16 @@
       "count": 1,
       "tokens": 0,
       "first_read": "2026-07-16T19:17:41.939Z"
+    },
+    "/home/meketreve/logica-em-jogo/server/src/paths.ts": {
+      "count": 1,
+      "tokens": 600,
+      "first_read": "2026-07-16T20:09:28.292Z"
+    },
+    "/home/meketreve/logica-em-jogo/server/src/index.ts": {
+      "count": 1,
+      "tokens": 3415,
+      "first_read": "2026-07-16T20:09:39.147Z"
     }
   },
   "files_written": [
@@ -142,9 +152,9 @@
     "client/src/main.ts": 9,
     "client/index.html": 2
   },
-  "anatomy_hits": 5,
+  "anatomy_hits": 7,
   "anatomy_misses": 2,
   "repeated_reads_warned": 0,
   "cerebrum_warnings": 0,
-  "stop_count": 2
+  "stop_count": 3
 }

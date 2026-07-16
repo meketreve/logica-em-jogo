@@ -3789,6 +3789,27 @@
       "related_bugs": [],
       "occurrences": 1,
       "last_seen": "2026-07-16T19:05:00.000Z"
+    },
+    {
+      "id": "bug-233",
+      "timestamp": "2026-07-16T19:30:00.000Z",
+      "error_message": "ENOENT open server\\cenarios\\aula1-sequencia.ljw.tmp no notebook (Windows) + boot 'mundo novo' ignorando LJ_SAVE",
+      "file": "(deploy — não é o código atual)",
+      "root_cause": "Notebook rodava ZIP VELHO do repo (anterior a 2026-07-15): sem daRaiz/mundoDeTrabalho/guarda de LJ_SAVE/servidor estático. Diagnóstico pela impressão do boot: 'escutando em ws://' só existia até o commit 6973fe7; stack apontava saveNow na linha 83 (atual: 130).",
+      "fix": "Substituir a pasta no notebook por git clone (ou ZIP re-baixado) do main atual; conferir boot: 'mundo carregado de modelo …' + 'os alunos abrem no navegador'",
+      "tags": [
+        "deploy",
+        "windows",
+        "notebook-escola",
+        "versao-velha",
+        "piloto",
+        "zip"
+      ],
+      "related_bugs": [
+        "bug-232"
+      ],
+      "occurrences": 1,
+      "last_seen": "2026-07-16T19:30:00.000Z"
     }
   ]
 }

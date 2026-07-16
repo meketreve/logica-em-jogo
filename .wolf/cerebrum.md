@@ -356,6 +356,12 @@
   sobrevivência pode, no futuro, nascer com o ciclo ligado. Mexeu em hora/ciclo
   default ou no formato → REGERAR cenários (`npm run cenarios`).
 
+- Deploy no notebook: dá pra DATAR a versão que está rodando pelas frases do
+  boot (bug-233): "escutando em ws://" = código pré-2026-07-15 (sem servidor
+  estático, sem daRaiz/aulas/); atual imprime "mundo carregado de modelo …" e
+  "os alunos abrem no navegador: http://…". Erro estranho vindo do notebook →
+  PRIMEIRO conferir se a cópia é o main atual (pasta de ZIP `-main` = baixada
+  à mão, não sincroniza).
 - Notebook da escola (Windows 11, host do piloto): PowerShell padrão bloqueia
   `npm` (shim npm.ps1 + ExecutionPolicy Restricted — bug-232). Fix aplicável
   sem admin: `Set-ExecutionPolicy -Scope CurrentUser RemoteSigned`; saída
