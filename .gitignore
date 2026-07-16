@@ -1,11 +1,11 @@
+# dependências (reinstalam com npm install) e segredos
 node_modules/
-dist/
-*.log
 .env
 .env.*
-.wolf/designqc-captures/
 
-# saves de mundo (dado local do host, nunca vai pro repo)
-*.ljw
+# temporários gerados por testes/ferramentas
+*.log
+.wolf/designqc-captures/
+chrome/
 *.ljw.tmp
 *.ljw.corrompido-*

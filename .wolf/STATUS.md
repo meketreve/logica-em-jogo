@@ -817,8 +817,17 @@ jogo" retoma. Notebook com touchscreen NÃO liga a UI (mouse é o ponteiro
 primário — de propósito).
 
 ### B. CHECKLIST DE DIA DE AULA (não-código)
-1. Host: `npm run build` uma vez, depois
-   `LJ_SAVE=cenarios/aula1-sequencia.ljw LJ_CODIGO=<código> npm run start -w server`.
+0. **Levar o jogo pro notebook da escola (sync via git, decisão 2026-07-16):**
+   o repo agora carrega cenários .ljw, aulas/ e client/dist — clone = pronto
+   pra rodar, sem build. No notebook: instalar **Node no Windows nativo**
+   (evita o problema do IP do WSL do item 3), `git clone
+   https://github.com/meketreve/logica-em-jogo` (repo privado — logar com
+   `gh auth login` ou token), `npm install`.
+1. Host: `client/dist` já vem no repo (rebuildar só se mexer no cliente).
+   Linux/WSL:
+   `LJ_SAVE=cenarios/aula1-sequencia.ljw LJ_CODIGO=<código> npm run start -w server`
+   **Windows (PowerShell — env é em linha separada):**
+   `$env:LJ_SAVE="cenarios/aula1-sequencia.ljw"; $env:LJ_CODIGO="<código>"; npm run start -w server`
    O boot imprime o IP da LAN.
 2. Notebook do professor = host (precisa de Node). Alunos (tablet/notebook) abrem
    `http://<ip>:8080`. TODOS na MESMA rede/Wi-Fi.

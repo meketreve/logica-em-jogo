@@ -378,8 +378,11 @@
   digita os mesmos `/grupo criar`, `/regiao criar`, `/bloco`, `/objetivo add` que o
   professor digitaria. Se um cenário não sai daí, ele também não sai da mão do
   professor — isso é atrito do MOTOR, não bug do script.
-- `.ljw` NÃO vai pro git (577 kB cada, 100% regenerável). Versiona-se o gerador.
-  `.gitignore` já ignora `*.ljw`.
+- ~~`.ljw` NÃO vai pro git~~ **REVOGADO 2026-07-16 (decisão do usuário):** git é
+  o canal de SYNC casa↔escola — `.ljw` (cenarios/ e aulas/) e `client/dist/`
+  agora SÃO versionados; `.gitignore` só guarda temporários de teste
+  (*.ljw.tmp, *.ljw.corrompido-*, chrome/, designqc-captures/, *.log) +
+  node_modules/.env. O gerador continua sendo a fonte da verdade dos modelos.
 - O .ljw de distribuição sai com `roster: []` (sobrescrito no `toSave()`): senão o
   mundo viaja com o PIN e o papel do autor de mentira, e qualquer um entraria como
   professor usando aquele nome. Quem sabe o CÓDIGO vira professor; aluno registra
@@ -490,6 +493,12 @@
 
 <!-- Significant technical decisions with rationale. Why X was chosen over Y. -->
 
+- [2026-07-16] **Git = canal de sync casa↔escola (decisão do usuário).** O PC
+  de casa (onde o dev roda) é acessado do notebook da escola via Tailscale +
+  Moonlight; pra levar o jogo pro notebook, TUDO que não é temporário vai pro
+  repo: cenários .ljw, cópias de trabalho em aulas/, client/dist (notebook não
+  precisa buildar). `.gitignore` mínimo. Sempre COMMITAR + PUSH ao fechar
+  trabalho — o push é a sincronização.
 - [2026-07-16] **Detecção de tablet: `pointer: coarse`, NÃO
   `ontouchstart`/maxTouchPoints.** O plano original detectava "tem
   touchscreen", mas notebook com tela de toque tem touchscreen E mouse — o
