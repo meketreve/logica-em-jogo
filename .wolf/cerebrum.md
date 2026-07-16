@@ -356,6 +356,11 @@
   sobrevivência pode, no futuro, nascer com o ciclo ligado. Mexeu em hora/ciclo
   default ou no formato → REGERAR cenários (`npm run cenarios`).
 
+- Notebook da escola (Windows 11, host do piloto): PowerShell padrão bloqueia
+  `npm` (shim npm.ps1 + ExecutionPolicy Restricted — bug-232). Fix aplicável
+  sem admin: `Set-ExecutionPolicy -Scope CurrentUser RemoteSigned`; saída
+  rápida: `npm.cmd`. Instruções de Windows pro usuário: sempre PowerShell com
+  `$env:VAR="x";` em linha única, e prever esse bloqueio.
 - Controles de toque (2026-07-16, `client/src/touch.ts`): a UI de toque SÓ
   sintetiza o input que teclado+mouse já geram — `input.setKey` (joystick liga
   as MESMAS teclas de settings.keys → rebind vale de graça), `input.applyLook`

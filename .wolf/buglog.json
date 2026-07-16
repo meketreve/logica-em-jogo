@@ -3770,6 +3770,25 @@
       "related_bugs": [],
       "occurrences": 1,
       "last_seen": "2026-07-16T18:31:42.466Z"
+    },
+    {
+      "id": "bug-232",
+      "timestamp": "2026-07-16T19:05:00.000Z",
+      "error_message": "npm.ps1 não pode ser carregado porque a execução de scripts foi desabilitada neste sistema (PSSecurityException, Windows 11 do notebook da escola)",
+      "file": "(ambiente Windows — não é código do projeto)",
+      "root_cause": "ExecutionPolicy padrão do PowerShell (Restricted) bloqueia o shim npm.ps1 do Node no Windows",
+      "fix": "Set-ExecutionPolicy -Scope CurrentUser RemoteSigned (sem admin); alternativa: chamar npm.cmd em vez de npm",
+      "tags": [
+        "windows",
+        "powershell",
+        "execution-policy",
+        "npm",
+        "notebook-escola",
+        "piloto"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-16T19:05:00.000Z"
     }
   ]
 }

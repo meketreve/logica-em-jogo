@@ -1119,3 +1119,5 @@ bug-195 (basename sem import). .exe/empacotamento segue ADIADO (decisão do usu�
 | 16:20 | Touch controls (tablet): touch.ts novo, input.active/setKey/applyLook/press, main.ts locked→active + startPlay + hotbar tocável, index.html viewport/touch-action | client/src/touch.ts, input.ts, main.ts, index.html | typecheck 3/3, 153 testes, build ✓, screenshots ?touch e desktop ok | ~55k |
 | 16:24 | Session end: 16 writes across 4 files (input.ts, touch.ts, main.ts, index.html) | 7 reads | ~22241 tok |
 | 16:40 | Sync casa↔escola via git: gitignore mínimo (só temp de teste), .ljw + aulas/ + dist versionados, checklist ganhou passo 0 (clone no notebook) e sintaxe PowerShell | .gitignore, .wolf/STATUS.md, .wolf/cerebrum.md | commit + push | ~8k |
+| 16:49 | Session end: 16 writes across 4 files (input.ts, touch.ts, main.ts, index.html) | 7 reads | ~22241 tok |
+| 19:06 | bug-232: ExecutionPolicy do PowerShell bloqueava npm no notebook da escola — fix Set-ExecutionPolicy CurrentUser RemoteSigned / npm.cmd | .wolf/buglog.json, cerebrum | orientação dada, logado | ~3k |
