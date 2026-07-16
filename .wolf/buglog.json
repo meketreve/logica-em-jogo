@@ -3191,6 +3191,194 @@
       ],
       "occurrences": 1,
       "last_seen": "2026-07-15T13:00:00.000Z"
+    },
+    {
+      "id": "bug-196",
+      "timestamp": "2026-07-15T16:21:17.802Z",
+      "error_message": "Missing guard clause",
+      "file": "client/src/main.ts",
+      "root_cause": "No early return/throw for edge case: !m",
+      "fix": "Added guard clause: if (!m)",
+      "tags": [
+        "auto-detected",
+        "guard-clause",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-15T16:21:17.802Z"
+    },
+    {
+      "id": "bug-197",
+      "timestamp": "2026-07-15T16:21:59.936Z",
+      "error_message": "Wrong reference: basename should be semExt",
+      "file": "server/src/mundos.ts",
+      "root_cause": "Used \"basename\" instead of \"semExt\"",
+      "fix": "Changed basename → semExt",
+      "tags": [
+        "auto-detected",
+        "wrong-reference",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-15T16:21:59.936Z"
+    },
+    {
+      "id": "bug-198",
+      "timestamp": "2026-07-15T16:22:30.417Z",
+      "error_message": "Null/undefined access in ",
+      "file": "client/src/main.ts",
+      "root_cause": "Property access on potentially null/undefined value",
+      "fix": "Added null safety (optional chaining or null check)",
+      "tags": [
+        "auto-detected",
+        "null-safety",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-15T16:22:30.417Z"
+    },
+    {
+      "id": "bug-199",
+      "timestamp": "2026-07-15T16:44:08.339Z",
+      "error_message": "Missing guard clause",
+      "file": "shared/src/session.ts",
+      "root_cause": "No early return/throw for edge case: !professor",
+      "fix": "Added guard clause: if (!professor)",
+      "tags": [
+        "auto-detected",
+        "guard-clause",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-15T16:44:08.339Z"
+    },
+    {
+      "id": "bug-200",
+      "timestamp": "2026-07-15T16:45:33.820Z",
+      "error_message": "Null/undefined access in ",
+      "file": "shared/src/session.ts",
+      "root_cause": "Property access on potentially null/undefined value",
+      "fix": "Added null safety (optional chaining or null check)",
+      "tags": [
+        "auto-detected",
+        "null-safety",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-15T16:45:33.820Z"
+    },
+    {
+      "id": "bug-201",
+      "timestamp": "2026-07-15T16:45:42.971Z",
+      "error_message": "Incorrect value in code",
+      "file": "shared/src/session.ts",
+      "root_cause": "Had \" Comandos: /bloco · /resetpin · /regiao (varinha:",
+      "fix": "Changed to \" Comandos: /bloco · /resetpin · /regiao (varinha:",
+      "tags": [
+        "auto-detected",
+        "wrong-value",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-15T16:45:42.971Z"
+    },
+    {
+      "id": "bug-202",
+      "timestamp": "2026-07-15T16:46:55.160Z",
+      "error_message": "Null/undefined access in ",
+      "file": "shared/src/groups.test.ts",
+      "root_cause": "Property access on potentially null/undefined value",
+      "fix": "Added null safety (optional chaining or null check)",
+      "tags": [
+        "auto-detected",
+        "null-safety",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-15T16:46:55.160Z"
+    },
+    {
+      "id": "bug-203",
+      "timestamp": "2026-07-15T18:40:39.706Z",
+      "error_message": "Null/undefined access in ",
+      "file": "shared/src/scenario.ts",
+      "root_cause": "Property access on potentially null/undefined value",
+      "fix": "Added null safety (optional chaining or null check)",
+      "tags": [
+        "auto-detected",
+        "null-safety",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-15T18:40:39.706Z"
+    },
+    {
+      "id": "bug-204",
+      "timestamp": "2026-07-15T18:41:04.403Z",
+      "error_message": "Significant refactor of ",
+      "file": "shared/src/session.ts",
+      "root_cause": "7 lines replaced/restructured",
+      "fix": "Rewrote 9→6 lines (7 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-15T18:41:04.403Z"
+    },
+    {
+      "id": "bug-205",
+      "timestamp": "2026-07-15T18:41:19.857Z",
+      "error_message": "Type error",
+      "file": "shared/src/session.ts",
+      "root_cause": "Missing or incorrect type annotation",
+      "fix": "Added type assertion/annotation",
+      "tags": [
+        "auto-detected",
+        "type-fix",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-15T18:41:19.857Z"
+    },
+    {
+      "id": "bug-206",
+      "timestamp": "2026-07-15T18:41:35.702Z",
+      "error_message": "Null/undefined access in ",
+      "file": "shared/src/session.ts",
+      "root_cause": "Property access on potentially null/undefined value",
+      "fix": "Added null safety (optional chaining or null check)",
+      "tags": [
+        "auto-detected",
+        "null-safety",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-15T18:41:35.702Z"
+    },
+    {
+      "id": "bug-207",
+      "timestamp": "2026-07-15T18:55:00.000Z",
+      "error_message": "usuário: ao reiniciar (/iniciar), os objetivos zeram mas as áreas de blocos ficam com o que os alunos construíram — na aula de sequência precisava apagar os blocos extras OU recarregar o mundo original",
+      "file": "shared/src/session.ts",
+      "root_cause": "reset (/objetivo resetar e /iniciar) limpava só os flags de conclusão (completos/completosGrupo), nunca o MUNDO. Área construída pelos alunos permanecia; num construir isso re-concluía na hora ou deixava a faixa suja. Não havia registro do estado inicial autoral da área (as 4 sementes da aula1 não estão no objetivo, estão no mundo).",
+      "fix": "Objective.baseline: number[][] — fotografia autoral de cada área (y→z→x, alinhada com alvos), capturada no /objetivo add (construir/limpar) e PERSISTIDA no .ljw. zerarProgresso() agora chama restaurarAreasBaseline() que repõe cada área via applyBlock (block_changed + fila de vizinhança + recheca). Baseline mora no objetivo (não no mundo) → alunos mudam o mundo, não o objetivo → sobrevive ao autosave da cópia de trabalho. Cenários regenerados p/ capturar baseline (save antigo sem baseline degrada: reset não mexe nos blocos).",
+      "tags": ["reset", "iniciar", "baseline", "objetivo", "cenario", "persistencia"],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-15T18:55:00.000Z"
     }
   ]
 }

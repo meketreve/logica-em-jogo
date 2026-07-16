@@ -298,10 +298,27 @@ export class AuthorPanel extends Panel {
       p.textContent = this.erroMsg;
       root.append(p);
     }
+    this.renderAtividade(root);
     this.renderObjetivos(root);
     this.renderRegioes(root);
     this.renderGrupos(root);
     root.append(this.hint("as respostas dos comandos aparecem no chat (canto inferior esquerdo)"));
+  }
+
+  /** Atalhos de abertura da aula (açúcar sobre /iniciar e /tp grupos). */
+  private renderAtividade(root: HTMLElement): void {
+    root.append(this.sec("▶ começar a aula"));
+    root.append(
+      this.row(
+        this.armedBtn("▶ iniciar atividade", () => this.cmd("/iniciar")),
+        this.btn("↦ levar grupos às áreas", () => this.cmd("/tp grupos")),
+      ),
+    );
+    root.append(
+      this.hint(
+        "iniciar zera o progresso e leva cada grupo à sua área · pelo chat: /iniciar · /tp grupos",
+      ),
+    );
   }
 
   private renderObjetivos(root: HTMLElement): void {

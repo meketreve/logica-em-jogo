@@ -48,6 +48,14 @@ export interface Objective {
   /** Só chegar: "um" (default) = 1 membro basta; "todos" = grupo inteiro
    *  (online) dentro da região ao mesmo tempo. */
   regra?: "um" | "todos";
+  /**
+   * Estado AUTORAL das áreas (construir/limpar) — uma fotografia por área na
+   * ordem canônica y→z→x, alinhada com `alvos` (ou uma só, a compartilhada).
+   * Capturado no /objetivo add e PERSISTIDO: reiniciar a atividade restaura as
+   * áreas a isto (a faixa da aula de sequência volta aos blocos-semente, não
+   * fica vazia). Ausente = chegar, ou save antigo (reiniciar não mexe nos blocos).
+   */
+  baseline?: number[][];
 }
 
 export interface ScenarioMeta {
@@ -214,6 +222,25 @@ export function parseObjective(v: unknown): Objective | null {
       alvos.push(b);
     }
   }
+  // baseline autoral das áreas (uma por área, alinhado com alvos ou a shared).
+  // Malformado é DESCARTADO — não invalida o objetivo, só faz reiniciar não
+  // restaurar os blocos dessa área (degrada com elegância; save antigo idem).
+  let baseline: number[][] | undefined;
+  if (Array.isArray(o["baseline"])) {
+    const areas = alvos ?? [box];
+    const listas = o["baseline"];
+    if (
+      listas.length === areas.length &&
+      listas.every(
+        (arr, k) =>
+          Array.isArray(arr) &&
+          arr.length === boxVolume(areas[k] as Box) &&
+          arr.every((n) => typeof n === "number" && Number.isInteger(n) && n >= 0),
+      )
+    ) {
+      baseline = listas as number[][];
+    }
+  }
   return {
     id: o["id"],
     kind: o["kind"],
@@ -225,6 +252,7 @@ export function parseObjective(v: unknown): Objective | null {
     ...(gabarito ? { gabarito } : {}),
     ...(alvos ? { alvos } : {}),
     ...(o["regra"] === "todos" || o["regra"] === "um" ? { regra: o["regra"] } : {}),
+    ...(baseline ? { baseline } : {}),
   };
 }
 

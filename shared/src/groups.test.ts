@@ -213,6 +213,92 @@ describe("grupos — carimbo e objetivos per-grupo", () => {
     expect(obj.porGrupo[0]?.completo).toBe(true);
   });
 
+  const lastTeleport = (s: S, id: number) =>
+    s.msgsTo(id).filter((m) => m["type"] === "teleport").at(-1) as
+      | { x: number; y: number; z: number }
+      | undefined;
+
+  it("/tp grupos leva os alunos de cada grupo para a sua área", () => {
+    const s = makeSession();
+    setup(s); // prof(1) + aluno2(g1) + aluno3(g2) + modelo
+    criarRegiao(s, 1, "area-1", [10, 4, 10], [11, 4, 10]);
+    criarRegiao(s, 1, "area-2", [20, 4, 20], [21, 4, 20]);
+    s.chat(1, "/objetivo add construir modelo area Copie o padrão");
+
+    s.chat(1, "/tp grupos");
+    // centro da caixa no plano (+0.5), chão da coluna no y
+    expect(lastTeleport(s, 2)).toMatchObject({ x: 10.5, z: 10.5 });
+    expect(lastTeleport(s, 3)).toMatchObject({ x: 20.5, z: 20.5 });
+    expect(lastTeleport(s, 1)).toBeUndefined(); // professor fica onde está
+    expect(s.lastChat(1)).toContain("2 aluno(s) levado(s)");
+  });
+
+  it("aluno não pode /tp grupos", () => {
+    const s = makeSession();
+    setup(s);
+    s.chat(2, "/tp grupos");
+    expect(s.lastChat(2)).toContain("Somente o professor");
+  });
+
+  it("/iniciar zera o progresso, teleporta e avisa a turma", () => {
+    const s = makeSession();
+    setup(s);
+    criarRegiao(s, 1, "area-1", [10, 4, 10], [11, 4, 10]);
+    criarRegiao(s, 1, "area-2", [20, 4, 20], [21, 4, 20]);
+    s.chat(1, "/objetivo add construir modelo area Copie");
+    // grupo 1 conclui a sua área
+    s.chat(1, `/bloco 10 4 10 ${BlockId.WoolRed}`);
+    s.chat(1, `/bloco 11 4 10 ${BlockId.WoolBlue}`);
+    s.session.tick();
+    let obj = s.lastObjectives(2)?.objetivos[0] as { porGrupo: { completo: boolean }[] };
+    expect(obj.porGrupo[0]?.completo).toBe(true);
+
+    s.chat(1, "/iniciar");
+    obj = s.lastObjectives(2)?.objetivos[0] as { porGrupo: { completo: boolean }[] };
+    expect(obj.porGrupo[0]?.completo).toBe(false); // progresso zerado
+    // os blocos que o grupo colocou voltam ao estado inicial (área nasceu vazia)
+    expect(getBlock(s.session.world, 10, 4, 10)).toBe(BlockId.Air);
+    expect(getBlock(s.session.world, 11, 4, 10)).toBe(BlockId.Air);
+    expect(lastTeleport(s, 2)).toMatchObject({ x: 10.5, z: 10.5 }); // levado à área
+    expect(s.lastChat(2)).toContain("A atividade começou");
+  });
+
+  it("reiniciar restaura a área ao estado AUTORAL (mantém sementes, tira o resto)", () => {
+    const s = makeSession();
+    setup(s); // modelo = WoolRed(4,4,4) + WoolBlue(5,4,4)
+    criarRegiao(s, 1, "area-1", [10, 4, 10], [11, 4, 10]);
+    criarRegiao(s, 1, "area-2", [20, 4, 20], [21, 4, 20]);
+    // semente: a área NÃO nasce vazia — o 1º bloco já vem dado (como na aula1)
+    s.chat(1, `/bloco 10 4 10 ${BlockId.WoolRed}`);
+    s.chat(1, "/objetivo add construir modelo area Continue"); // baseline: [Red, ar]
+
+    // grupo 1 completa colocando o 2º bloco
+    s.chat(1, `/bloco 11 4 10 ${BlockId.WoolBlue}`);
+    s.session.tick();
+    let obj = s.lastObjectives(2)?.objetivos[0] as { porGrupo: { completo: boolean }[] };
+    expect(obj.porGrupo[0]?.completo).toBe(true);
+
+    s.chat(1, "/objetivo resetar");
+    s.session.tick();
+    // a semente FICA, o bloco do aluno SAI — 4/12 na vida real, aqui 1/2
+    expect(getBlock(s.session.world, 10, 4, 10)).toBe(BlockId.WoolRed);
+    expect(getBlock(s.session.world, 11, 4, 10)).toBe(BlockId.Air);
+    obj = s.lastObjectives(2)?.objetivos[0] as { porGrupo: { completo: boolean; atual: number }[] };
+    expect(obj.porGrupo[0]).toMatchObject({ completo: false, atual: 1 });
+    expect(s.lastChat(1)).toContain("áreas restauradas");
+  });
+
+  it("/iniciar n (re)cria os grupos com os alunos online", () => {
+    const s = makeSession();
+    joinProf(s);
+    joinAluno(s, 2);
+    joinAluno(s, 3);
+    s.chat(1, "/iniciar 1"); // um grupo só, ambos dentro
+    expect(s.lastGroup(2)).toBe(1);
+    expect(s.lastGroup(3)).toBe(1);
+    expect(s.lastChat(2)).toContain("A atividade começou");
+  });
+
   it("aluno sem grupo não pontua chegar; progresso por grupo persiste no save", () => {
     const s = makeSession();
     joinProf(s);

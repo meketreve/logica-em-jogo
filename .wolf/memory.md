@@ -956,3 +956,53 @@ Smoke cp19 13/13, typecheck 3/3. buglog: +bug-194 (modelo poluído pelo autosave
 bug-195 (basename sem import). .exe/empacotamento segue ADIADO (decisão do usuário).
 **Próximo: playtest das 3 aulas pelo usuário.** Commit ainda NÃO feito — aguarda o usuário.
 | 10:57 | Session end: 8 writes across 3 files (paths.ts, index.ts, mundos.ts) | 2 reads | ~4940 tok |
+| 10:58 | Session end: 8 writes across 3 files (paths.ts, index.ts, mundos.ts) | 2 reads | ~4940 tok |
+
+## Session: 2026-07-15 11:01
+
+| Time | Action | File(s) | Outcome | ~Tokens |
+|------|--------|---------|---------|--------|
+| 13:20 | Created client/src/commands.ts | — | ~512 |
+| 13:20 | Created client/src/chat.ts | — | ~1476 |
+| 13:20 | Edited client/index.html | 9→10 lines | ~80 |
+| 13:20 | Edited client/index.html | expanded (+18 lines) | ~145 |
+| 13:20 | Edited client/src/main.ts | added 1 condition(s) | ~57 |
+| 13:21 | Edited client/src/main.ts | added 1 import(s) | ~34 |
+| 13:21 | Edited client/src/main.ts | added 2 condition(s) | ~178 |
+| 13:21 | Edited server/src/mundos.ts | 2→5 lines | ~88 |
+| 13:21 | Edited server/src/mundos.ts | basename() → semExt() | ~34 |
+| 13:21 | Edited server/src/mundos.ts | 9→9 lines | ~97 |
+| 13:21 | Edited server/src/mundos.ts | basename() → semExt() | ~34 |
+| 13:21 | Edited server/src/mundos.ts | basename() → semExt() | ~50 |
+| 13:22 | Edited client/src/commands.ts | 5→5 lines | ~76 |
+| 13:22 | Edited client/src/main.ts | added optional chaining | ~49 |
+
+## Session: 2026-07-15 (playtest — QoL de comandos)
+| Time | Action | File(s) | Outcome | ~Tokens |
+|------|--------|---------|---------|--------|
+| — | Tab autocompleta comandos do chat (cicla opções + hint) | client/commands.ts (novo), chat.ts, index.html, main.ts | typecheck 3/3, build ok, lógica testada em node | ~8k |
+| — | /mundo exibe nomes SEM .ljw (já aceitava sem extensão) | server/mundos.ts | semExt helper; cliente cacheia nomes de /mundo lista | — |
+| 13:26 | Session end: 14 writes across 5 files (commands.ts, chat.ts, index.html, main.ts, mundos.ts) | 7 reads | ~36674 tok |
+| 13:44 | Edited shared/src/session.ts | added 3 condition(s) | ~186 |
+| 13:45 | Edited shared/src/session.ts | added nullish coalescing | ~1281 |
+| 13:45 | Edited shared/src/session.ts | " Comandos: /bloco · /rese" → " Comandos: /bloco · /rese" | ~33 |
+| 13:45 | Edited client/src/commands.ts | 8→9 lines | ~113 |
+| 13:46 | Edited shared/src/groups.test.ts | added optional chaining | ~698 |
+| 13:47 | Edited client/src/panels.ts | modified renderAtividade() | ~216 |
+| 13:49 | Edited server/src/cenarios/_smoke-mundo.mjs | 4→4 lines | ~41 |
+| 13:49 | Created server/src/cenarios/_smoke-atividade.mjs | — | ~794 |
+| — | /tp grupos + /iniciar [n]: teleporta grupos p/ suas áreas, macro de abertura da aula | shared/session.ts, client/commands.ts, client/panels.ts | 141 testes, smoke ws 11/11, botões no painel prof | ~14k |
+| 14:07 | Session end: 22 writes across 10 files (commands.ts, chat.ts, index.html, main.ts, mundos.ts) | 13 reads | ~57058 tok |
+| 15:40 | Edited shared/src/scenario.ts | expanded (+8 lines) | ~168 |
+| 15:40 | Edited shared/src/scenario.ts | added nullish coalescing | ~327 |
+| 15:40 | Edited shared/src/session.ts | 7→8 lines | ~116 |
+| 15:40 | Edited shared/src/session.ts | added 1 condition(s) | ~72 |
+| 15:41 | Edited shared/src/session.ts | 9→6 lines | ~85 |
+| 15:41 | Edited shared/src/session.ts | 7→5 lines | ~97 |
+| 15:41 | Edited shared/src/session.ts | added optional chaining | ~648 |
+| 15:42 | Edited shared/src/groups.test.ts | expanded (+28 lines) | ~527 |
+| — | reset restaura BLOCOS das áreas ao estado autoral (bug-207): Objective.baseline persistido no .ljw | shared/session.ts, shared/scenario.ts, gerar (regen) | 142 testes, smoke 11/11, aula1 4/12 no ar | ~16k |
+| 21:21 | Session end: 30 writes across 11 files (commands.ts, chat.ts, index.html, main.ts, mundos.ts) | 14 reads | ~60338 tok |
+| 22:15 | Session end: 30 writes across 11 files (commands.ts, chat.ts, index.html, main.ts, mundos.ts) | 14 reads | ~60338 tok |
+| 22:16 | Session end: 30 writes across 11 files (commands.ts, chat.ts, index.html, main.ts, mundos.ts) | 14 reads | ~60338 tok |
+| 22:16 | Session end: 30 writes across 11 files (commands.ts, chat.ts, index.html, main.ts, mundos.ts) | 14 reads | ~60338 tok |

@@ -711,6 +711,37 @@ aula2-binario` (só professor, ninguém cai). Para desenvolver o cliente com
 hot-reload, `npm run dev` (Vite na 5173) segue funcionando. Roteiro e gabaritos
 em `cenarios/README.md`.
 
+**Comandos de organização da aula (2026-07-15):** dois comandos de professor
+que facilitam abrir a atividade. (1) **`/tp grupos`** — teleporta os alunos
+conectados de cada grupo para a área do seu objetivo ATIVO (`areaDoGrupo` →
+`alvos[g-1]`; destino = centro da caixa no plano + `findSpawnY` na coluna, nunca
+dentro de bloco; professor NÃO se move). (2) **`/iniciar [n [alunos]]`** — macro
+num comando: (opcional) recria os grupos com os alunos online, zera o progresso
+(mesma semântica de `/objetivo resetar` — exige ação nova) e leva cada grupo à
+sua área; avisa a turma "A atividade começou". Botões no painel do professor:
+"▶ iniciar atividade" (armado, 2 cliques — zera progresso) e "↦ levar grupos às
+áreas". ZERO protocolo novo (reusa `teleport`/`player_moved` — cliente já
+trata). Autocomplete conhece ambos. smoke ws real 11/11
+(`server/src/cenarios/_smoke-atividade.mjs`).
+**+ RESET DE VERDADE (bug-207, 2026-07-15):** reiniciar (`/iniciar` e `/objetivo
+resetar`) agora restaura os BLOCOS das áreas ao estado autoral, não só os flags.
+`Objective.baseline: number[][]` = fotografia autoral de cada área, capturada no
+`/objetivo add` e PERSISTIDA no .ljw; `restaurarAreasBaseline()` repõe via
+applyBlock. A faixa da aula1 volta a 4/12 (sementes), não fica vazia nem com o
+que os alunos colocaram. Baseline mora no OBJETIVO (não no mundo) → sobrevive ao
+autosave da cópia de trabalho. **CENÁRIOS REGENERADOS** (`npm run cenarios`) pra
+capturar o baseline — save antigo sem baseline degrada (reset não mexe nos
+blocos). 142 testes, smoke ws 11/11, aula1 confere 4/12 no servidor real.
+
+**QoL adicionado no playtest (2026-07-15):** (1) **Tab autocompleta comandos**
+no chat — completa a palavra e, com várias opções, cicla a cada Tab (dica acima
+do campo); árvore em `client/commands.ts` espelha runCommand (shared) + /mundo
+(server). (2) **/mundo sem `.ljw`** — o comando já aceitava extensão opcional;
+agora os nomes SÃO EXIBIDOS sem `.ljw` (`semExt` em mundos.ts) e o cliente
+cacheia os nomes vistos em `/mundo lista` pra oferecê-los no Tab de `/mundo
+carregar` (precisa digitar `/mundo lista` uma vez pra popular). typecheck 3/3,
+build, 137 testes, lógica do autocomplete validada em node.
+
 **O que olhar no playtest:**
 - O aluno ENTENDE o que fazer só com o enunciado + a caixa verde? (o enunciado
   tem teto de 120 chars — se não couber, isso é atrito de motor)
@@ -718,6 +749,12 @@ em `cenarios/README.md`.
 - A caixa verde VAZIA na cabine do professor (gabarito apagado) confunde?
 - ✅ (RESOLVIDO cp19) Trocar de aula ao vivo com `/mundo carregar nome` — validar
   no playtest que o fluxo é natural pro professor (achar o nome, avisar a turma).
+- **Fluxo de abertura (2026-07-15):** alunos entram → auto-distribuem nos 5 grupos
+  → professor aperta **▶ iniciar atividade** no painel (ou `/iniciar 5` pra
+  rebalancear pelos presentes). Valida: teleporte cai num lugar bom pra começar?
+  **▶ iniciar** de novo restaura a faixa ao estado inicial (aula1→4/12)? O aluno
+  entende que foi reiniciado?
+- Tab autocompleta os comandos — o professor acha isso útil / descobre sozinho?
 - Falta algum comando que o professor gostaria de ter na hora?
 
 **Depois:** piloto com a turma no lab → relatório de aplicação (entregável final).

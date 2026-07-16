@@ -461,8 +461,19 @@ export class GameSession {
       }
       case "grupo":
         return this.runGrupo(clientId, parts);
+      case "tp": {
+        if (!professor) return "Somente o professor pode usar /tp.";
+        if (parts[1] !== "grupos") {
+          return "Uso: /tp grupos — leva cada grupo para a área do seu objetivo.";
+        }
+        return this.teleportarGrupos();
+      }
+      case "iniciar": {
+        if (!professor) return "Somente o professor pode iniciar a atividade.";
+        return this.runIniciar(clientId, parts);
+      }
       default:
-        return `Comando desconhecido: ${text}. Os comandos disponíveis são /bloco, /resetpin, /regiao, /objetivo e /grupo.`;
+        return `Comando desconhecido: ${text}. Os comandos disponíveis são /bloco, /resetpin, /regiao, /objetivo, /grupo, /tp e /iniciar.`;
     }
   }
 
@@ -650,7 +661,7 @@ export class GameSession {
         ? `A aula mudou: você está em um mundo novo${papel === "professor" ? "" : ". Confira o objetivo no canto da tela"}.`
         : `Bem-vindo, ${this.authorTag(clientId)}! Pressione Enter para abrir o chat.` +
             (papel === "professor"
-              ? " Comandos: /bloco · /resetpin · /regiao (varinha: R) · /objetivo · /grupo"
+              ? " Comandos: /bloco · /resetpin · /regiao (varinha: R) · /objetivo · /grupo · /tp grupos · /iniciar"
               : ""),
     );
     // professor vê as regiões existentes desde o join (depois do snapshot)
@@ -837,6 +848,7 @@ export class GameSession {
               ? { alvos: caixas.map((c) => ({ min: { ...c.min }, max: { ...c.max } })) }
               : {}),
           };
+          this.capturarBaseline(o); // estado autoral da área (semente) → reiniciar restaura
           this.scenario.objetivos.push(o);
           this.broadcastObjectives();
           const alvoTotal = gabarito.filter((b) => b !== BlockId.Air).length;
@@ -889,6 +901,7 @@ export class GameSession {
               : {}),
             ...(regra ? { regra } : {}),
           };
+          if (kind === "limpar") this.capturarBaseline(o); // reiniciar recompõe a bagunça
           this.scenario.objetivos.push(o);
           this.broadcastObjectives();
           const detalhe =
@@ -975,13 +988,10 @@ export class GameSession {
         return `Modo do cenário: ${modo}.`;
       }
       case "resetar": {
-        this.scenario.completos.clear();
-        this.completosGrupo.clear();
-        // tudo volta a valer — recheca já o que o mundo atual satisfaz? NÃO:
-        // conclusão exige AÇÃO depois do reset (senão construir concluído
-        // re-conclui na hora e o reset não serve pra re-jogar a aula)
-        this.broadcastObjectives();
-        return "Progresso zerado: os objetivos valem de novo.";
+        const mudados = this.zerarProgresso();
+        return mudados > 0
+          ? `Progresso zerado e áreas restauradas ao estado inicial (${mudados} bloco(s) repostos). Os objetivos valem de novo.`
+          : "Progresso zerado: os objetivos valem de novo.";
       }
       default:
         return (
@@ -1110,6 +1120,173 @@ export class GameSession {
       default:
         return "Uso: /grupo criar n [alunos] · /grupo entrar n · /grupo sair · /grupo lista";
     }
+  }
+
+  // --- Teleporte de grupos e início da atividade (/tp, /iniciar) ---
+
+  /**
+   * Teleporta um jogador conectado: move no servidor e avisa a rede — o próprio
+   * cliente pela msg `teleport` (reposiciona a câmera), os demais por
+   * `player_moved` (veem o boneco no lugar novo). Zera a orientação para todos
+   * olharem na mesma direção no começo da aula.
+   */
+  private teleportar(clientId: number, x: number, y: number, z: number): void {
+    const p = this.players.get(clientId);
+    if (!p) return;
+    p.x = x;
+    p.y = y;
+    p.z = z;
+    p.yaw = 0;
+    p.pitch = 0;
+    this.send(
+      clientId,
+      JSON.stringify({ type: "teleport", x, y, z, yaw: 0, pitch: 0 } satisfies ServerMessage),
+    );
+    this.broadcastExcept(clientId, {
+      type: "player_moved",
+      id: clientId,
+      x,
+      y,
+      z,
+      yaw: 0,
+      pitch: 0,
+    });
+  }
+
+  /**
+   * Caixa-alvo para onde levar o grupo: a área do objetivo ATIVO do grupo (o
+   * primeiro que ele ainda não fechou, no seu próprio ritmo); se já fechou
+   * todos, a do primeiro objetivo. `null` se o cenário não tem objetivo. Um
+   * objetivo per-grupo dá a área do grupo (`alvos[g-1]`); um compartilhado dá
+   * a área única (o próprio objetivo tem min/max e serve de caixa).
+   */
+  private areaDoGrupo(grupo: number): Box | null {
+    const objs = this.scenario.objetivos;
+    if (objs.length === 0) return null;
+    const ativos = this.activeIdsFor(grupo);
+    const o = objs.find((x) => ativos.has(x.id)) ?? objs[0];
+    if (!o) return null;
+    return o.alvos && grupo > 0 ? (o.alvos[grupo - 1] ?? o) : o;
+  }
+
+  /** Ponto seguro para nascer dentro de uma caixa: centro no plano, chão da
+   *  coluna (findSpawnY = primeira célula de ar — nunca dentro de um bloco). */
+  private destinoNaCaixa(box: Box): { x: number; y: number; z: number } {
+    const cx = Math.floor((box.min.x + box.max.x) / 2);
+    const cz = Math.floor((box.min.z + box.max.z) / 2);
+    return { x: cx + 0.5, y: findSpawnY(this.world, cx, cz), z: cz + 0.5 };
+  }
+
+  /** `/tp grupos`: leva os alunos conectados de cada grupo à área do seu objetivo. */
+  private teleportarGrupos(): string {
+    if (this.grupos.size === 0) {
+      return "Não há grupos. Crie-os com /grupo criar n antes de teleportar.";
+    }
+    if (this.scenario.objetivos.length === 0) {
+      return "Não há objetivos com áreas definidas — nada para onde levar os grupos.";
+    }
+    let movidos = 0;
+    let semArea = 0;
+    for (const [g, membros] of this.grupos) {
+      const box = this.areaDoGrupo(g);
+      if (!box) {
+        semArea++;
+        continue;
+      }
+      const d = this.destinoNaCaixa(box);
+      for (const [clientId, p] of this.players) {
+        if (p.papel === "aluno" && membros.has(p.name)) {
+          this.teleportar(clientId, d.x, d.y, d.z);
+          movidos++;
+        }
+      }
+    }
+    if (movidos === 0) return "Nenhum aluno dos grupos está conectado para teleportar.";
+    return (
+      `${movidos} aluno(s) levado(s) para a área do seu grupo.` +
+      (semArea > 0 ? ` ${semArea} grupo(s) ficaram sem área definida.` : "")
+    );
+  }
+
+  /**
+   * `/iniciar [n [alunos]]`: macro de abertura da atividade num comando só —
+   * (opcional) recria os grupos com os alunos online, zera o progresso e leva
+   * cada grupo para a sua área. Sem o número, mantém os grupos como estão.
+   */
+  private runIniciar(clientId: number, parts: string[]): string {
+    const etapas: string[] = [];
+    if (parts[1] !== undefined) {
+      const args =
+        parts[2] !== undefined
+          ? ["grupo", "criar", parts[1], parts[2]]
+          : ["grupo", "criar", parts[1]];
+      const r = this.runGrupo(clientId, args);
+      if (!r.startsWith("grupos:")) return `Não consegui criar os grupos — ${r}`;
+      etapas.push("grupos formados");
+    }
+    // zera o progresso E restaura as áreas ao estado autoral (a faixa volta às
+    // sementes — sem isto o mundo ficaria com o que os alunos construíram)
+    const repostos = this.zerarProgresso();
+    etapas.push(repostos > 0 ? `áreas restauradas (${repostos} bloco(s))` : "progresso zerado");
+    etapas.push(this.teleportarGrupos());
+    this.broadcast({
+      type: "chat",
+      author: "servidor",
+      text: "A atividade começou! Confira o objetivo no canto da tela.",
+    });
+    return `Atividade iniciada: ${etapas.join(" · ")}.`;
+  }
+
+  /** Áreas (na ordem de `alvos`, ou a shared) de um objetivo com blocos. */
+  private areasDe(o: Objective): Box[] {
+    return o.alvos ?? [{ min: o.min, max: o.max }];
+  }
+
+  /** Fotografa o estado AUTORAL das áreas do objetivo (para reiniciar depois). */
+  private capturarBaseline(o: Objective): void {
+    o.baseline = this.areasDe(o).map((box) => snapshotRegion(this.world, box));
+  }
+
+  /**
+   * Repõe cada área ao seu baseline autoral. É o que faz "reiniciar" resetar de
+   * verdade: sem isto os blocos que os alunos colocaram ficariam, e na aula de
+   * sequência o objetivo re-concluiria na hora. Passa pelo applyBlock (mesma
+   * engrenagem do /regiao encher): block_changed + fila de vizinhança + recheca
+   * o objetivo. Não emparedar jogador em pé numa célula que voltaria a ser bloco.
+   */
+  private restaurarAreasBaseline(): number {
+    let mudados = 0;
+    for (const o of this.scenario.objetivos) {
+      if (!o.baseline) continue;
+      this.areasDe(o).forEach((box, k) => {
+        const blocks = o.baseline?.[k];
+        if (!blocks) return;
+        let i = 0;
+        for (let y = box.min.y; y <= box.max.y; y++) {
+          for (let z = box.min.z; z <= box.max.z; z++) {
+            for (let x = box.min.x; x <= box.max.x; x++) {
+              const alvo = blocks[i++];
+              if (alvo === undefined) continue;
+              if (getBlock(this.world, x, y, z) === alvo) continue;
+              if (alvo !== BlockId.Air && this.overlapsAnyPlayer(x, y, z)) continue;
+              this.applyBlock(x, y, z, alvo);
+              mudados++;
+            }
+          }
+        }
+      });
+    }
+    return mudados;
+  }
+
+  /** Zera as conclusões E restaura as áreas ao estado inicial. Devolve quantos
+   *  blocos foram repostos (usado por /objetivo resetar e /iniciar). */
+  private zerarProgresso(): number {
+    this.scenario.completos.clear();
+    this.completosGrupo.clear();
+    const mudados = this.restaurarAreasBaseline();
+    this.broadcastObjectives();
+    return mudados;
   }
 
   // --- Detecção de objetivo (cp12/13) ---

@@ -49,8 +49,8 @@ console.log("== professor lista e troca ==");
 prof.ws.send(JSON.stringify({ type: "chat", text: "/mundo lista" }));
 await espera(300);
 ok(
-  prof.chats.some((c) => c.includes("aula2-binario.ljw") && c.includes("em curso")),
-  "/mundo lista mostra as aulas e marca a em curso",
+  prof.chats.some((c) => c.includes("aula2-binario") && c.includes("em curso")),
+  "/mundo lista mostra as aulas (sem .ljw) e marca a em curso",
 );
 
 prof.ws.send(JSON.stringify({ type: "chat", text: "/mundo carregar aula2-binario" }));

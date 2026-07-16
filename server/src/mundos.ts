@@ -16,6 +16,9 @@ import { daRaiz, mundoDeTrabalho } from "./paths";
  * novo, e o professor continua professor.
  */
 
+/** Nome de exibição: sem a extensão .ljw (o professor não precisa digitá-la). */
+const semExt = (caminho: string): string => basename(caminho).replace(/\.ljw$/i, "");
+
 /** Pastas onde um mundo pode estar: a do save em uso e a dos cenários gerados. */
 const pastasDeMundos = (savePath: string): string[] => [
   dirname(savePath),
@@ -79,7 +82,7 @@ export function comandoMundo(
   const sub = partes[1] ?? "lista";
 
   if (sub === "atual") {
-    ctx.responder(`A aula em curso é "${basename(ctx.savePath)}".`);
+    ctx.responder(`A aula em curso é "${semExt(ctx.savePath)}".`);
     return undefined;
   }
 
@@ -93,11 +96,11 @@ export function comandoMundo(
     }
     const atual = basename(ctx.savePath);
     ctx.responder(
-      "Mundos disponíveis: " +
+      "Aulas disponíveis: " +
         mundos
-          .map((m) => (basename(m) === atual ? `${basename(m)} (em curso)` : basename(m)))
+          .map((m) => (basename(m) === atual ? `${semExt(m)} (em curso)` : semExt(m)))
           .join(" · ") +
-        ". Para trocar: /mundo carregar nome",
+        ". Para trocar, digite: /mundo carregar nome (a extensão .ljw não é necessária).",
     );
     return undefined;
   }
@@ -126,7 +129,7 @@ export function comandoMundo(
   // modelo. O autosave grava sempre em `vivo`.
   const { vivo, modelo } = mundoDeTrabalho(encontrado);
   if (vivo === ctx.savePath) {
-    ctx.responder(`"${basename(vivo)}" já é a aula em curso.`);
+    ctx.responder(`"${semExt(vivo)}" já é a aula em curso.`);
     return undefined;
   }
   const fonte = existsSync(vivo) ? vivo : (modelo ?? encontrado);
@@ -161,4 +164,4 @@ export function comandoMundo(
 
 /** Anúncio da troca — a sessão nova já falou com cada um; isto é para o log/turma. */
 export const anuncioDeTroca = (caminho: string, quantos: number): string =>
-  `A aula agora é "${basename(caminho)}". ${quantos} jogador(es) foram levados para o mundo novo.`;
+  `A aula agora é "${semExt(caminho)}". ${quantos} jogador(es) foram levados para o mundo novo.`;

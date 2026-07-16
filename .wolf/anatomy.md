@@ -1,7 +1,7 @@
 # anatomy.md
 
-> Auto-maintained by OpenWolf. Last scanned: 2026-07-15T12:44:03.640Z
-> Files: 78 tracked | Anatomy hits: 0 | Misses: 0
+> Auto-maintained by OpenWolf. Last scanned: 2026-07-15T18:42:12.361Z
+> Files: 81 tracked | Anatomy hits: 0 | Misses: 0
 
 ## ../../../tmp/claude-1000/-home-meketreve-logica-em-jogo/1e53a721-e45d-4911-a026-f385f8f2c4e6/scratchpad/
 
@@ -59,7 +59,7 @@
 
 ## client/
 
-- `index.html` — Lógica em Jogo (~4786 tok)
+- `index.html` — Lógica em Jogo (~4919 tok)
 - `vite.config.ts` (~94 tok)
 
 ## client/src/
@@ -68,17 +68,19 @@
 - `audio.ts` — Som de INTERFACE (menus, botões, notificações) — sintetizado com WebAudio, (~992 tok)
 - `blockIcons.ts` — Ícones 2D dos blocos pra hotbar e pro inventário: recorta o tile LATERAL do (~270 tok)
 - `blocksUi.ts` — Blocos colocáveis com nome em português — fonte única pra hotbar (main.ts) (~444 tok)
-- `chat.ts` — UI de chat em HTML/CSS por cima do canvas (regra: sem GUI de engine). (~644 tok)
+- `chat.ts` — UI de chat em HTML/CSS por cima do canvas (regra: sem GUI de engine). Tab autocompleta comandos (cicla opções, hint acima do campo) via commands.ts. (~1476 tok)
 - `chunks.ts` — 1 mesh por chunk (BufferGeometry única, culled mesher do /shared). (~914 tok)
+- `commands.ts` — Autocompletar de comandos de chat (Tab). Puro, sem DOM — o chat.ts liga o (~526 tok)
+- `commands.ts` — Autocompletar de comandos de chat (Tab). Puro, sem DOM — o chat.ts liga o (~516 tok)
 - `connection.ts` — Conexão do cliente com O SERVIDOR — interface única, hospedeiro invisível. (~1175 tok)
 - `events.ts` — Gatilhos de som (checkpoint 6): pontos de evento do jogo onde o áudio vai (~182 tok)
 - `hud.ts` — HUD de perfilação (F3): FPS, frametime méd+p95, remesh, draw calls e (~1099 tok)
 - `input.ts` — Teclado + mouse (pointer lock). SÓ coleta input — nenhuma decisão de (~1218 tok)
 - `inventory.ts` — Inventário de blocos (cp16) — grade com TODOS os colocáveis + faixa da (~1150 tok)
-- `main.ts` — Checkpoint 8: menu principal. Sem parâmetro na URL o menu escolhe o rumo: (~9342 tok)
+- `main.ts` — O cliente não tem filesystem: aprende os nomes das aulas pela resposta de (~9535 tok)
 - `menu.ts` — Menu principal (cp8) — HTML/CSS por cima do canvas, sem GUI de engine. (~4087 tok)
 - `objectivesUi.ts` — Grupo do PRÓPRIO jogador (null = sem grupo). (~1244 tok)
-- `panels.ts` — Painéis HTML do cp14 — açúcar visual sobre os comandos de chat: cada botão (~5674 tok)
+- `panels.ts` — Painéis HTML do cp14 — açúcar visual sobre os comandos de chat: cada botão (~5834 tok)
 - `regions.ts` — Wireframes das regiões nomeadas (cp11) — visão do PROFESSOR (o servidor só (~690 tok)
 - `settings.ts` — Configurações do jogador, persistidas em localStorage (por navegador). (~989 tok)
 - `worldStore.ts` — Mundos do SINGLEPLAYER, guardados no navegador (IndexedDB) — decisão de (~780 tok)
@@ -93,14 +95,15 @@
 - `cenarios/gerar.ts` — Gerador dos 3 cenários pedagógicos (.ljw): digita os MESMOS comandos de chat do professor contra a GameSession real. Flags: --grupos --codigo --revelar --saida (~1900 tok)
 - `cenarios/verificar.ts` — Conferência embutida na geração: abre o .ljw num servidor novo, entra prof+2 alunos, completa a área do grupo 1; + guarda de geometria da faixa (~1400 tok)
 - `index.ts` — Hospedeiro Node+ws do servidor (LAN): embrulha a MESMA GameSession do Web (~2758 tok)
-- `mundos.ts` — `/mundo lista·atual·carregar` (cp19) — trocar a aula SEM derrubar a turma (só professor, aceita só NOME de arquivo). Modelo de cenarios/ vira cópia viva em aulas/ ao carregar. (~1900 tok)
+- `mundos.ts` — `/mundo` (cp19) — trocar a aula SEM derrubar a turma. Nomes exibidos SEM `.ljw` (semExt); comando aceita com ou sem extensão. (~1776 tok)
 - `paths.ts` — REPO_ROOT + daRaiz() (caminho relativo conta da raiz, não do cwd de server/). `mundoDeTrabalho()`: mundo em cenarios/ = MODELO → cópia de trabalho em aulas/ (autosave nunca escreve no modelo distribuído). (~600 tok)
 - `static.ts` — Serve o cliente já buildado (client/dist) NA MESMA PORTA do WebSocket. (~1055 tok)
 - `worker.ts` — Hospedeiro Web Worker do servidor (singleplayer): embrulha a GameSession (~682 tok)
 
 ## server/src/cenarios/
 
-- `_smoke-mundo.mjs` — Smoke do cp19 contra o servidor REAL: professor + aluno conectados, o (~851 tok)
+- `_smoke-atividade.mjs` — Smoke de /tp grupos e /iniciar contra o servidor REAL (aula1 na 8080). (~794 tok)
+- `_smoke-mundo.mjs` — Smoke do cp19 contra o servidor REAL: professor + aluno conectados, o (~853 tok)
 - `gerar.ts` — Gerador dos cenários pedagógicos (.ljw) — MVP v2 em uso real. (~2986 tok)
 - `verificar.ts` — Conferência de um .ljw recém-gerado: abre o save num servidor NOVO (como o (~1728 tok)
 
@@ -113,7 +116,7 @@
 - `blocks.ts` — IDs de bloco. Gravados como bytes crus nos chunks (Uint8Array), no save e no (~553 tok)
 - `constants.ts` — Aresta do chunk em blocos (16³ = 4096 bytes, 1 byte por bloco). (~252 tok)
 - `cp14.test.ts` — mundo plano 2×2×2 chunks (32³) — superfície em y=3 (~1998 tok)
-- `groups.test.ts` — prof + 2 alunos em 2 grupos; modelo 2×1×1 com lã vermelha+azul. (~2744 tok)
+- `groups.test.ts` — prof + 2 alunos em 2 grupos; modelo 2×1×1 com lã vermelha+azul. (~3848 tok)
 - `groups.ts` — Grupos de alunos (cp13) — membros por NOME (mesma identidade do roster: (~280 tok)
 - `index.ts` (~114 tok)
 - `mesher.test.ts` — Declares DIMS (~992 tok)
@@ -131,9 +134,9 @@
 - `save.test.ts` — Declares DIMS (~1194 tok)
 - `save.ts` — Formato de save (.ljw) — MESMO arquivo em todos os hospedeiros: disco do (~1834 tok)
 - `scenario.test.ts` — Marca cantos e cria região nomeada via varinha + /regiao (professor id). (~3629 tok)
-- `scenario.ts` — Cenário (cp12) — o coração pedagógico: objetivos que checam o ESTADO DO (~3246 tok)
+- `scenario.ts` — Cenário (cp12) — o coração pedagógico: objetivos que checam o ESTADO DO (~3583 tok)
 - `session.test.ts` — Testes de MECÂNICA rodam com singleplayer: true (join sem PIN) — a (~9089 tok)
-- `session.ts` — GameSession: o SERVIDOR autoritativo, independente de hospedeiro. (~17047 tok)
+- `session.ts` — GameSession: o SERVIDOR autoritativo, independente de hospedeiro. (~19008 tok)
 - `world.test.ts` — Declares DIMS (~761 tok)
 - `world.ts` — Dimensões do mundo em chunks. Parâmetro de criação, gravado no header do save/snapshot. (~848 tok)
 - `worldgen.ts` — Preset de criação de mundo (cp14): escolhido no menu/host, só vale pra (~1361 tok)

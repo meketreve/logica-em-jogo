@@ -523,6 +523,24 @@
       #chat.open #chat-log .msg.old {
         display: block; /* …mas reaparece com o chat aberto */
       }
+      #chat-hint {
+        margin-top: 4px;
+        padding: 3px 6px;
+        background: rgba(0, 0, 0, 0.55);
+        border-radius: 3px;
+        pointer-events: none;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 4px 10px;
+      }
+      #chat-hint span {
+        opacity: 0.6;
+      }
+      #chat-hint span.sel {
+        opacity: 1;
+        color: #ffd24a; /* a opção onde o Tab está agora */
+        font-weight: 600;
+      }
       #chat-input {
         width: 100%;
         box-sizing: border-box;
@@ -611,12 +629,13 @@
     <div id="crosshair">+</div>
     <div id="chat">
       <div id="chat-log"></div>
+      <div id="chat-hint" class="hidden"></div>
       <input
         id="chat-input"
         class="hidden"
         type="text"
         autocomplete="off"
-        placeholder="mensagem ou /bloco x y z id — Enter envia, Esc fecha"
+        placeholder="mensagem ou /comando — Tab completa · Enter envia · Esc fecha"
       />
     </div>
     <div id="hotbar"></div>

@@ -24,6 +24,26 @@
 
 ## Key Learnings
 
+- **Reiniciar atividade = zerar flags + restaurar MUNDO:** reset (`/objetivo
+  resetar`, `/iniciar`) precisa repor os blocos das áreas, não só limpar
+  completos. Estado inicial autoral mora em `Objective.baseline: number[][]`
+  (fotografia por área, capturada no `/objetivo add`, PERSISTIDA no .ljw). Mora
+  no OBJETIVO, não no mundo → aluno muda mundo, não objetivo → sobrevive ao
+  autosave da cópia de trabalho (aulas/). Snapshot/restore usam a MESMA ordem
+  canônica (y→z→x) do snapshotRegion/matchRegion. Mudou o baseline ou o gerador?
+  **regenerar os .ljw** (`npm run cenarios`) — save antigo sem baseline degrada.
+- **Teleporte de jogador (session):** helper `teleportar(clientId,x,y,z)` move o
+  jogador no servidor e avisa a rede REUSANDO msgs existentes — `teleport` pro
+  próprio (cliente já reposiciona a câmera desde cp8) + `player_moved` pros
+  outros. NÃO precisa de protocolo novo. `/tp grupos` e `/iniciar` (2026-07-15)
+  são construídos sobre isso; base pronta pro `/tp nome x y z` futuro. Área do
+  grupo = `areaDoGrupo(g)` → `objetivo.alvos[g-1]`; destino seguro = centro no
+  plano + `findSpawnY` (nunca dentro de bloco).
+- **Autocomplete do chat (Tab):** árvore de comandos vive em `client/commands.ts` e
+  DEVE espelhar `runCommand` (shared/session.ts) + `/mundo` (server/mundos.ts).
+  Comando novo no servidor = atualizar a árvore aqui, senão o Tab não o oferece.
+  Nomes de mundo entram ao vivo (`learnWorlds`) parseando a resposta de `/mundo lista`
+  — cliente não tem filesystem. Parse best-effort: casa "disponíveis: …. Para trocar".
 - **Project:** jogo voxel educacional "Lógica em Jogo" (ver `.wolf/STATUS.md`).
 - Público: 2º–9º ano fundamental, turmas homogêneas (máx 3 anos de diferença), 8–20 simultâneos.
 - Pedagogia mora nos **cenários autorais**, não no motor. Jogo = plataforma de autoria.

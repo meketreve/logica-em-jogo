@@ -27,6 +27,7 @@ import { PLACEABLE } from "./blocksUi";
 import { InventoryPanel } from "./inventory";
 import { ChatUi } from "./chat";
 import { ChunkRenderer } from "./chunks";
+import { learnWorlds } from "./commands";
 import { type Connection, WorkerConnection, WsConnection } from "./connection";
 import { emitGameEvent } from "./events";
 import { Hud } from "./hud";
@@ -43,6 +44,22 @@ import { AuthorPanel, type GamePanel, GroupPanel, type PanelData } from "./panel
 import { RegionRenderer } from "./regions";
 import { keyLabel, loadSettings } from "./settings";
 import { putWorld } from "./worldStore";
+
+/**
+ * O cliente não tem filesystem: aprende os nomes das aulas pela resposta de
+ * "/mundo lista" do servidor (autor "servidor") pra oferecer no Tab do
+ * "/mundo carregar". Best-effort — se a frase mudar, só perde o autocompletar.
+ */
+function cachearMundos(text: string): void {
+  const m = /dispon[ií]veis:\s*(.+?)\.\s*(?:para trocar|para continuar)/i.exec(text);
+  const lista = m?.[1];
+  if (!lista) return;
+  const nomes = lista
+    .split("·")
+    .map((s) => s.replace(/\(em curso\)/i, "").trim())
+    .filter(Boolean);
+  if (nomes.length) learnWorlds(nomes);
+}
 
 /**
  * Checkpoint 8: menu principal. Sem parâmetro na URL o menu escolhe o rumo:
@@ -285,6 +302,7 @@ function handleServerData(data: string | ArrayBuffer): void {
       location.href = location.pathname;
     } else if (msg.type === "chat") {
       chat.addMessage(msg.author, msg.text);
+      if (msg.author === "servidor") cachearMundos(msg.text);
       emitGameEvent({ kind: "chat_message" });
     }
     return;
