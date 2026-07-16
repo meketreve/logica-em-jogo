@@ -1,7 +1,7 @@
 # STATUS — Projeto "Lógica em Jogo" (jogo voxel educacional)
 
 > Single source of truth for resuming work. Read this FIRST when starting a session.
-> Last updated: 2026-07-15
+> Last updated: 2026-07-16
 > **INFRA DO PILOTO (2026-07-15, PLAYTEST DO USUÁRIO PENDENTE):** (1) servidor
 > serve o cliente na MESMA porta (aluno abre http://ip-do-prof:8080 e joga, sem
 > Vite separado); (2) varredura das mensagens de erro (66+ reescritas, frase
@@ -688,6 +688,56 @@ re-playtestados ✅:
      `roster: []` confirmado (boot: "0 jogador(es) no roster"). `_smoke-mundo.mjs`
      é smoke MANUAL (precisa do servidor no ar na 8080), não entra no `npm test`.
 
+- **cp20 — BLOCOS LETRA/NÚMERO (2026-07-16, do backlog `ideias para fazer.txt`;
+  legibilidade a confirmar no playtest).** 36 blocos-glifo: letras A–Z (ids
+  29–54) + dígitos 0–9 (ids 55–64), cubos opacos pelo MESMO caminho das lãs
+  (append de id + tile no atlas procedural, zero mesher/protocolo novo).
+  `ATLAS.tilesPerRow` 8→16 (64→256 tiles — coube o glifo + folga). FONTE ÚNICA
+  `GLYPH` em `shared/mesher.ts` (base=30, letras, dígitos) alimenta BLOCK_TILES,
+  o atlas (`paintGlyph`: base creme p/ letra, azul-claro p/ número + a letra via
+  `ctx.fillText` bold) e os nomes PT em `blocksUi.ts` — tudo por loop, sempre em
+  sincronia. Pedagogia: soletrar palavras / escrever números (enriquece
+  sequência e binário). typecheck 3/3, 143 testes (rede "todo colocável" do
+  mesher cobre cada glifo como cubo cheio + guard de append), build ok, layout
+  do atlas conferido em node (sem overflow, ícones certos, isPlaceable fecha em
+  64). **Falta só olho humano na legibilidade do glifo 16px (playtest).**
+
+- **cp21 — CICLO DIA/NOITE (2026-07-16, do backlog; render a confirmar no
+  playtest).** SÓ visual, server-autoritativo (a hora não decide nada de jogo).
+  Sessão guarda `horaDoDia` (0..24) + `cicloAtivo`; avança determinístico por
+  tick (`DIA_SEGUNDOS=600` → dia de 10 min; NÃO usa relógio de parede, hosts
+  andam iguais). Broadcast msg nova `time {hora,ciclo}` no join + 1×/s (junto do
+  debug_stats). Comandos de professor `/hora dia|noite|amanhecer|entardecer|
+  meio-dia|meia-noite|0-23` e `/ciclo ligar|desligar` (sem arg alterna). Cliente
+  `daynight.ts`: `SkyCycle` interpola céu (`scene.background`), cor/intensidade
+  do sol (arco leste→zênite→oeste) e luz ambiente entre keyframes por hora;
+  guarda a última hora do servidor e avança localmente entre syncs (céu sem
+  trancos). **NUNCA escurece 100%** (piso de ambiente — aluno constrói de noite).
+  **CONFIG (2026-07-16, decisão do usuário):** mundo NOVO nasce em **DIA
+  PERMANENTE, ciclo PARADO** (default `HORA_PADRAO=12` + `cicloAtivo=false` —
+  o céu não muda durante a aula). **hora + ciclo PERSISTEM no save** (SaveMeta,
+  cresce sem re-versionar): mundo de atividade grava ciclo OFF; **sobrevivência
+  (futuro) grava a hora corrente → continua de onde parou** no reload. Os 3
+  cenários foram REGENERADOS (`npm run cenarios`) com `/hora meio-dia` +
+  `/ciclo desligar` explícitos no gerador (day-lock não depende do default —
+  sobrevivência pode nascer com ciclo ON no futuro); .ljw conferido: hora=12
+  ciclo=false. typecheck 3/3, 150 testes (+time no protocolo; +/hora //ciclo,
+  default off e persistência na sessão; +hora/ciclo no save), build; smoke ws
+  real: cenário abre em dia permanente travado, /hora exato, /ciclo congela e
+  religa, hora avança só com ciclo ON ✅.
+
+- **cp22 — /kicar (2026-07-16, do backlog).** Professor remove aluno por mau
+  comportamento. Mora no HOST (`server/index.ts interceptarKicar`, padrão do
+  /mundo) porque FECHAR socket é transporte, não estado do mundo. Resolve
+  nome→id via `session.jogadoresConectados()` (case-insensitive; remove TODOS os
+  homônimos, menos o próprio professor → não se auto-remove), manda msg nova
+  `kicked {reason}` pro alvo e fecha o socket 150 ms depois (aviso sai antes),
+  avisa a turma no chat. É EXPULSÃO, não banimento — o aluno pode reentrar com o
+  PIN (ban list = trabalho futuro se o piloto pedir). Cliente trata `kicked` como
+  join_denied (banner no menu, sem alert). smoke ws real 9/9
+  (`_smoke-kicar.mjs`): kick, aviso, aluno barrado, nome inexistente, não
+  auto-remove ✅.
+
 ---
 
 ## 🚀 PRÓXIMA QUEST — playtest dos cenários, depois o piloto
@@ -756,6 +806,12 @@ build, 137 testes, lógica do autocomplete validada em node.
   entende que foi reiniciado?
 - Tab autocompleta os comandos — o professor acha isso útil / descobre sozinho?
 - Falta algum comando que o professor gostaria de ter na hora?
+- **Features novas (cp20–cp22, 2026-07-16) a olhar:** (a) blocos LETRA/NÚMERO
+  (tecla E, fim da grade) — o glifo 16px é LEGÍVEL no mundo? servem pra soletrar/
+  numerar? (b) DIA/NOITE — cenário abre em dia permanente (confirmado no fio); o
+  professor consegue demonstrar com `/hora noite` + `/ciclo ligar`? o céu de
+  noite deixa ver o suficiente pra construir? (c) `/kicar nome` — o fluxo de
+  remover um aluno bagunceiro é natural?
 
 **Depois:** piloto com a turma no lab → relatório de aplicação (entregável final).
 
@@ -771,6 +827,13 @@ navegador). Falta só empacotar (Tauri/Node SEA) — ADIADO por decisão do usu�
   própria; vidro/folhas saíram no cp18). **Grupo C** (não-cubos: tocha,
   laje, escada — geometria nova no mesher).
 - Playtest das texturas do grupo A pelo usuário (o playtest do cp17/18 cobre).
+- **Backlog do usuário `ideias para fazer.txt`** (12 itens). FEITO: letra/número
+  (cp20), `/kicar` aluno (cp22), dia/noite (cp21). PENDENTE, por frente: móveis
+  (tapete/cadeira/mesa/sofá/cama = GRUPO C, geometria não-cubo — mesher novo);
+  porta + janela abre-fecha (bloco COM ESTADO + interação, base de mecanismos
+  lógicos); quadro com texto/imagem (feature grande de UI); vidro (já existe
+  cp18 — talvez o usuário queira vidraça/painel). Escolha da próxima frente é do
+  usuário.
 
 ⚠️ Issue conhecida (bug-003, fix PARCIAL, NÃO bloqueante): pulos ocasionais de câmera
 por spikes de movementX/Y do Chrome no pointer lock. Filtro MAX_DELTA=200 +

@@ -106,3 +106,25 @@ describe("identidade cp9 no save", () => {
     expect(loaded.roster).toEqual([{ name: "ana", x: 1, y: 2, z: 3, yaw: 0, pitch: 0 }]);
   });
 });
+
+describe("ciclo dia/noite no save (cp21)", () => {
+  it("hora/ciclo fazem roundtrip; save antigo sem eles = undefined (padrão na sessão)", () => {
+    const world = generateWorld(DIMS, 42);
+    const loaded = decodeSave(encodeSave(world, { ...META, hora: 18.5, ciclo: true }));
+    expect(loaded.hora).toBe(18.5);
+    expect(loaded.ciclo).toBe(true);
+
+    // save "antigo" (META sem os campos): ausentes → a sessão aplica o padrão
+    const old = decodeSave(encodeSave(world, META));
+    expect(old.hora).toBeUndefined();
+    expect(old.ciclo).toBeUndefined();
+  });
+
+  it("hora/ciclo com tipo errado são ignorados (save editado à mão)", () => {
+    const world = generateWorld(DIMS, 42);
+    const meta = { ...META, hora: "meio-dia", ciclo: "sim" } as never;
+    const loaded = decodeSave(encodeSave(world, meta));
+    expect(loaded.hora).toBeUndefined();
+    expect(loaded.ciclo).toBeUndefined();
+  });
+});

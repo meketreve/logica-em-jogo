@@ -12,6 +12,14 @@ export const MAX_WORLD_CHUNKS = { x: 16, z: 16, y: 8 } as const;
 /** Tick fixo do servidor (desacoplado do render do cliente). */
 export const SERVER_TICK_RATE = 10;
 
+/** Ciclo dia/noite (cp21): duração de um dia completo em segundos reais.
+ *  10 min — o céu anda, mas não corre a ponto de atrapalhar a aula. */
+export const DIA_SEGUNDOS = 600;
+/** Hora (0..24) padrão de um mundo NOVO: MEIO-DIA. Mundo de atividade nasce em
+ *  DIA PERMANENTE com o ciclo PARADO (o céu não muda durante a aula) — o ciclo
+ *  e a hora corrente persistem no save (sobrevivência, futuro, continua a hora). */
+export const HORA_PADRAO = 12;
+
 /** Alcance de interação (colocar/quebrar) em blocos, medido do olho do jogador. */
 export const PLAYER_REACH = 5;
 

@@ -1006,3 +1006,69 @@ bug-195 (basename sem import). .exe/empacotamento segue ADIADO (decisão do usu�
 | 22:15 | Session end: 30 writes across 11 files (commands.ts, chat.ts, index.html, main.ts, mundos.ts) | 14 reads | ~60338 tok |
 | 22:16 | Session end: 30 writes across 11 files (commands.ts, chat.ts, index.html, main.ts, mundos.ts) | 14 reads | ~60338 tok |
 | 22:16 | Session end: 30 writes across 11 files (commands.ts, chat.ts, index.html, main.ts, mundos.ts) | 14 reads | ~60338 tok |
+| 22:17 | Session end: 30 writes across 11 files (commands.ts, chat.ts, index.html, main.ts, mundos.ts) | 14 reads | ~60338 tok |
+
+## Session: 2026-07-16 22:17
+
+| Time | Action | File(s) | Outcome | ~Tokens |
+|------|--------|---------|---------|--------|
+| — | cp20: 36 blocos-glifo letra A–Z (29–54) + dígito 0–9 (55–64), do backlog `ideias para fazer.txt`. Append de id + atlas procedural (tilesPerRow 8→16), fonte única GLYPH alimenta mesher/atlas/nomes | shared/blocks.ts, shared/mesher.ts, client/atlasTexture.ts, client/blocksUi.ts, shared/blocks.test.ts | typecheck 3/3, 143 testes, build ok, layout do atlas conferido em node; legibilidade do glifo p/ playtest | ~12k |
+| — | cp20 aprovado pelo usuário ("ficou bom"). | — | fechado | — |
+| — | cp21: ciclo dia/noite server-autoritativo (VISUAL). horaDoDia+cicloAtivo na sessão, avança por tick (DIA_SEGUNDOS=600), msg `time` no join+1×/s; /hora e /ciclo (professor); cliente SkyCycle interpola céu/sol/ambiente, nunca escurece 100%; hora não persiste | shared/constants.ts, protocol.ts, session.ts, client/daynight.ts (novo), main.ts, commands.ts | typecheck 3/3, 147 testes, build; smoke ws real time OK | ~20k |
+| — | cp22: /kicar aluno (professor). HOST intercepta (padrão /mundo, fecha socket), msg `kicked`→cliente volta ao menu; expulsão, não banimento | server/index.ts, shared/protocol.ts, client/main.ts, commands.ts, server/cenarios/_smoke-kicar.mjs (novo) | smoke ws real 9/9 | ~6k |
+| — | cp21 CONFIG (pedido do usuário): mundo de atividade = DIA PERMANENTE ciclo PARADO (default HORA_PADRAO=12, cicloAtivo=false); hora+ciclo PERSISTEM no save (sobrevivência futura continua a hora); gerador trava dia explícito; 3 cenários regerados (hora=12 ciclo=false) | shared/constants.ts, save.ts, session.ts, server/cenarios/gerar.ts, +testes | typecheck 3/3, 150 testes, build; smoke ws real: cenário abre em dia travado | ~14k |
+| 09:15 | Edited shared/src/blocks.ts | modified cp18() | ~307 |
+| 09:15 | Edited shared/src/mesher.ts | 2→3 lines | ~63 |
+| 09:15 | Edited shared/src/mesher.ts | expanded (+10 lines) | ~141 |
+| 09:15 | Edited shared/src/mesher.ts | 2→2 lines | ~38 |
+| 09:15 | Edited shared/src/mesher.ts | modified for() | ~118 |
+| 09:15 | Edited client/src/atlasTexture.ts | 2→2 lines | ~24 |
+| 09:16 | Edited client/src/atlasTexture.ts | modified paintGlyph() | ~220 |
+| 09:16 | Edited client/src/atlasTexture.ts | modified for() | ~154 |
+| 09:16 | Edited client/src/blocksUi.ts | expanded (+7 lines) | ~186 |
+| 09:16 | Edited client/src/blocksUi.ts | 3→4 lines | ~30 |
+| 09:16 | Edited shared/src/blocks.test.ts | expanded (+10 lines) | ~239 |
+| 09:30 | Session end: 11 writes across 5 files (blocks.ts, mesher.ts, atlasTexture.ts, blocksUi.ts, blocks.test.ts) | 8 reads | ~7610 tok |
+| 10:21 | Edited shared/src/constants.ts | modified noite() | ~111 |
+| 10:21 | Edited shared/src/protocol.ts | expanded (+19 lines) | ~272 |
+| 10:22 | Edited shared/src/protocol.ts | added 3 condition(s) | ~226 |
+| 10:22 | Edited shared/src/session.ts | 8→10 lines | ~50 |
+| 10:22 | Edited shared/src/session.ts | expanded (+7 lines) | ~136 |
+| 10:22 | Edited shared/src/session.ts | 2→3 lines | ~61 |
+| 10:23 | Edited shared/src/session.ts | added optional chaining | ~884 |
+| 10:23 | Edited shared/src/session.ts | " Comandos: /bloco · /rese" → " Comandos: /bloco · /rese" | ~38 |
+| 10:23 | Edited shared/src/session.ts | added 1 condition(s) | ~102 |
+| 10:23 | Edited shared/src/session.ts | modified if() | ~126 |
+| 10:23 | Created client/src/daynight.ts | — | ~971 |
+| 10:23 | Edited client/src/main.ts | modified noite() | ~102 |
+| 10:24 | Edited client/src/main.ts | added 1 import(s) | ~35 |
+| 10:24 | Edited client/src/main.ts | added 2 condition(s) | ~143 |
+| 10:24 | Edited client/src/main.ts | modified noite() | ~41 |
+| 10:24 | Edited server/src/index.ts | added error handling | ~662 |
+| 10:24 | Edited server/src/index.ts | added 1 condition(s) | ~58 |
+| 10:24 | Edited client/src/commands.ts | expanded (+14 lines) | ~252 |
+| 10:25 | Edited shared/src/session.test.ts | added 1 condition(s) | ~210 |
+| 10:26 | Edited shared/src/session.test.ts | modified cheia() | ~232 |
+| 10:26 | Edited shared/src/protocol.test.ts | expanded (+21 lines) | ~316 |
+| 10:27 | Edited shared/src/session.test.ts | added 2 condition(s) | ~790 |
+| 10:28 | Edited shared/src/session.test.ts | modified parseServerMessage() | ~159 |
+| 10:29 | Created server/src/cenarios/_smoke-kicar.mjs | — | ~746 |
+| 11:03 | Session end: 35 writes across 15 files (blocks.ts, mesher.ts, atlasTexture.ts, blocksUi.ts, blocks.test.ts) | 15 reads | ~62249 tok |
+| 11:08 | Edited shared/src/constants.ts | modified noite() | ~130 |
+| 11:08 | Edited shared/src/save.ts | expanded (+6 lines) | ~145 |
+| 11:08 | Edited shared/src/save.ts | 6→9 lines | ~134 |
+| 11:09 | Edited shared/src/session.ts | 5→5 lines | ~25 |
+| 11:09 | Edited shared/src/session.ts | 6→7 lines | ~124 |
+| 11:09 | Edited shared/src/session.ts | added 2 condition(s) | ~151 |
+| 11:09 | Edited shared/src/session.ts | 10→14 lines | ~128 |
+| 11:09 | Edited server/src/cenarios/gerar.ts | expanded (+6 lines) | ~186 |
+| 11:10 | Edited shared/src/session.test.ts | toBe() → toEqual() | ~82 |
+| 11:10 | Edited shared/src/session.test.ts | added 1 condition(s) | ~913 |
+| 11:10 | Edited shared/src/save.test.ts | expanded (+22 lines) | ~409 |
+| 11:35 | Session end: 46 writes across 18 files (blocks.ts, mesher.ts, atlasTexture.ts, blocksUi.ts, blocks.test.ts) | 18 reads | ~70770 tok |
+| 13:07 | Session end: 46 writes across 18 files (blocks.ts, mesher.ts, atlasTexture.ts, blocksUi.ts, blocks.test.ts) | 18 reads | ~70770 tok |
+
+## Session: 2026-07-16 13:12
+
+| Time | Action | File(s) | Outcome | ~Tokens |
+|------|--------|---------|---------|--------|

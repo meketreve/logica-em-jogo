@@ -38,12 +38,23 @@ export const BlockId = {
   // cp18 (2026-07-13): grupo B — transparentes (cutout/alphaTest no cliente).
   Glass: 27,
   Leaves: 28,
+  // cp20 (2026-07-16): blocos-glifo — letras A–Z e dígitos 0–9. Cubos opacos
+  // (mesmo caminho das lãs); pedagogia de soletrar palavras / escrever números.
+  // APPEND only: A=29 … Z=54, 0=55 … 9=64. LetterA e Digit0 são as âncoras dos
+  // loops que derivam tiles/nomes (ver GLYPH em mesher.ts).
+  LetterA: 29, LetterB: 30, LetterC: 31, LetterD: 32, LetterE: 33, LetterF: 34,
+  LetterG: 35, LetterH: 36, LetterI: 37, LetterJ: 38, LetterK: 39, LetterL: 40,
+  LetterM: 41, LetterN: 42, LetterO: 43, LetterP: 44, LetterQ: 45, LetterR: 46,
+  LetterS: 47, LetterT: 48, LetterU: 49, LetterV: 50, LetterW: 51, LetterX: 52,
+  LetterY: 53, LetterZ: 54,
+  Digit0: 55, Digit1: 56, Digit2: 57, Digit3: 58, Digit4: 59,
+  Digit5: 60, Digit6: 61, Digit7: 62, Digit8: 63, Digit9: 64,
 } as const;
 
 export type BlockId = (typeof BlockId)[keyof typeof BlockId];
 
 /** Maior ID válido (mantém isPlaceable sem número mágico ao crescer a lista). */
-const MAX_BLOCK_ID = BlockId.Leaves;
+const MAX_BLOCK_ID = BlockId.Digit9;
 
 /** Bloco transparente (vidro/folhas): NÃO oculta a face do vizinho no mesher.
  *  Continua sólido pra física/raycast — transparência é só visual. */

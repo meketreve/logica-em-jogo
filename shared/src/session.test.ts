@@ -20,13 +20,17 @@ describe("GameSession (servidor autoritativo)", () => {
     const session = new GameSession(send, { dims: DIMS, seed: 99, singleplayer: true });
     session.handleMessage(1, JSON.stringify({ type: "join", name: "ana" }));
 
-    expect(sent).toHaveLength(3); // spawn + snapshot + chat de boas-vindas
+    expect(sent).toHaveLength(4); // spawn + snapshot + time (cp21) + boas-vindas
     expect(sent[0]?.clientId).toBe(1);
     expect(parseServerMessage(sent[0]?.data as string)).toEqual({
       // singleplayer: todo join é professor (cp9); papel viaja no spawn (cp11)
       type: "spawn", ...session.spawn, papel: "professor",
     });
-    const welcome = parseServerMessage(sent[2]?.data as string);
+    // sent[2] = hora do dia (cp21) — mundo novo nasce ao meio-dia, ciclo PARADO
+    const hora = parseServerMessage(sent[2]?.data as string);
+    if (hora?.type !== "time") throw new Error("esperava mensagem de hora");
+    expect(hora).toEqual({ type: "time", hora: 12, ciclo: false });
+    const welcome = parseServerMessage(sent[3]?.data as string);
     if (welcome?.type !== "chat") throw new Error("esperava chat de boas-vindas");
     expect(welcome.author).toBe("servidor");
     expect(welcome.text).toContain("ana#1");
@@ -66,16 +70,20 @@ describe("GameSession (servidor autoritativo)", () => {
     expect(sent).toHaveLength(0);
 
     session.tick();
-    expect(sent).toHaveLength(1);
-    const stats = parseServerMessage(sent[0]?.data as string);
+    // janela cheia (1×/s): debug_stats E hora do dia (cp21) saem juntas
+    const stats = sent
+      .map((s) => parseServerMessage(s.data as string))
+      .find((m) => m?.type === "debug_stats");
     if (stats?.type !== "debug_stats") throw new Error("esperava debug_stats");
     expect(stats.tps).toBe(SERVER_TICK_RATE);
     expect(stats.tickAvgMs).toBe(2); // relógio fake avança 2 ms por chamada
     expect(stats.tickMaxMs).toBe(2);
+    expect(sent.some((s) => parseServerMessage(s.data as string)?.type === "time")).toBe(true);
 
     // janela zera: próximo lote só depois de mais SERVER_TICK_RATE ticks
+    sent.length = 0;
     session.tick();
-    expect(sent).toHaveLength(1);
+    expect(sent).toHaveLength(0);
   });
 
   it("place/break: aplica, vira block_changed pra TODOS; inválido é ignorado", () => {
@@ -363,6 +371,85 @@ describe("GameSession (servidor autoritativo)", () => {
     }
   });
 
+  it("ciclo dia/noite (cp21): nasce parado ao meio-dia; /ciclo liga, /hora ajusta", () => {
+    const { sent, send } = collect();
+    const session = new GameSession(send, { dims: DIMS, seed: 5, singleplayer: true });
+    session.handleMessage(1, JSON.stringify({ type: "join", name: "prof" }));
+    sent.length = 0;
+
+    const ultimaHora = (): { hora: number; ciclo: boolean } => {
+      const times = sent
+        .map((s) => (typeof s.data === "string" ? parseServerMessage(s.data) : null))
+        .filter((m): m is { type: "time"; hora: number; ciclo: boolean } => m?.type === "time");
+      const t = times[times.length - 1];
+      if (!t) throw new Error("nenhuma mensagem de hora foi enviada");
+      return { hora: t.hora, ciclo: t.ciclo };
+    };
+
+    // mundo de atividade: dia permanente, ciclo PARADO — ticks NÃO mexem na hora
+    for (let i = 0; i < SERVER_TICK_RATE * 2; i++) session.tick();
+    expect(ultimaHora()).toEqual({ hora: 12, ciclo: false });
+    sent.length = 0;
+
+    // /ciclo ligar → agora o tempo passa (1 s de ticks avança a hora)
+    session.handleMessage(1, JSON.stringify({ type: "chat", text: "/ciclo ligar" }));
+    expect(ultimaHora().ciclo).toBe(true);
+    for (let i = 0; i < SERVER_TICK_RATE; i++) session.tick();
+    expect(ultimaHora().hora).toBeGreaterThan(12);
+    sent.length = 0;
+
+    // /hora noite → preset 21h + broadcast; resposta de texto só pro autor
+    session.handleMessage(1, JSON.stringify({ type: "chat", text: "/hora noite" }));
+    expect(ultimaHora().hora).toBe(21);
+    expect(sent.some((s) => parseServerMessage(s.data as string)?.type === "chat")).toBe(true);
+    sent.length = 0;
+
+    // /ciclo desligar → congela; ticks não mexem mais na hora
+    session.handleMessage(1, JSON.stringify({ type: "chat", text: "/ciclo desligar" }));
+    expect(ultimaHora()).toEqual({ hora: 21, ciclo: false });
+    sent.length = 0;
+    for (let i = 0; i < SERVER_TICK_RATE * 2; i++) session.tick();
+    expect(ultimaHora().hora).toBe(21); // congelado em 21h
+  });
+
+  it("ciclo dia/noite (cp21): hora e ciclo PERSISTEM no save/restore", () => {
+    const { send } = collect();
+    const s1 = new GameSession(send, { dims: DIMS, seed: 5, singleplayer: true });
+    s1.handleMessage(1, JSON.stringify({ type: "join", name: "prof" }));
+    // sobrevivência: liga o ciclo e move a hora
+    s1.handleMessage(1, JSON.stringify({ type: "chat", text: "/ciclo ligar" }));
+    s1.handleMessage(1, JSON.stringify({ type: "chat", text: "/hora entardecer" }));
+    const meta = s1.toSave();
+    expect(meta.hora).toBe(18);
+    expect(meta.ciclo).toBe(true);
+
+    // recarrega: a hora e o ciclo voltam do save (não o padrão meio-dia/parado)
+    const { sent: sent2, send: send2 } = collect();
+    const s2 = new GameSession(send2, { restore: { world: s1.world, ...meta }, singleplayer: true });
+    s2.handleMessage(7, JSON.stringify({ type: "join", name: "prof" }));
+    const hora = sent2
+      .map((s) => (typeof s.data === "string" ? parseServerMessage(s.data) : null))
+      .find((m) => m?.type === "time");
+    if (hora?.type !== "time") throw new Error("esperava time no join");
+    expect(hora).toEqual({ type: "time", hora: 18, ciclo: true });
+  });
+
+  it("ciclo dia/noite: aluno não pode mudar a hora nem o ciclo", () => {
+    const { sent, send } = collect();
+    const session = new GameSession(send, { dims: DIMS, seed: 5, codigo: "sala" });
+    session.handleMessage(1, JSON.stringify({ type: "join", name: "ana", pin: "1111" }));
+    sent.length = 0;
+    for (const text of ["/hora dia", "/ciclo desligar"]) {
+      session.handleMessage(1, JSON.stringify({ type: "chat", text }));
+      const reply = parseServerMessage(sent[0]?.data as string);
+      if (reply?.type !== "chat") throw new Error("esperava recusa em chat");
+      expect(reply.text).toContain("Somente o professor");
+      // aluno não disparou broadcast de hora
+      expect(sent.some((s) => parseServerMessage(s.data as string)?.type === "time")).toBe(false);
+      sent.length = 0;
+    }
+  });
+
   it("presença no join (bug-064): novo vê quem está PARADO; os outros veem o novo", () => {
     const { sent, send } = collect();
     const session = new GameSession(send, { dims: DIMS, singleplayer: true });
@@ -437,8 +524,11 @@ describe("GameSession (servidor autoritativo)", () => {
     const types = sent2.map((s) =>
       typeof s.data === "string" ? parseServerMessage(s.data)?.type : "snapshot",
     );
-    expect(types).toEqual(["spawn", "snapshot", "teleport", "chat"]);
-    const tp = parseServerMessage(sent2[2]?.data as string);
+    // time (cp21) entra depois do snapshot, antes do teleport
+    expect(types).toEqual(["spawn", "snapshot", "time", "teleport", "chat"]);
+    const tp = sent2
+      .map((s) => (typeof s.data === "string" ? parseServerMessage(s.data) : null))
+      .find((m) => m?.type === "teleport");
     // volta onde parou E olhando pra onde olhava
     expect(tp).toEqual({ type: "teleport", x: 2.5, y: 20, z: 3.5, yaw: 1.2, pitch: -0.3 });
 

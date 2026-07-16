@@ -3,12 +3,24 @@
  * teclado; aqui mora só a árvore de comandos e a busca de candidatos.
  *
  * A árvore espelha os comandos do servidor (shared/session.ts: runCommand) e do
- * host (server/mundos.ts: /mundo). Se um comando novo nascer lá, atualize aqui.
- * O cliente NÃO tem sistema de arquivos: os nomes de mundo entram ao vivo, pelo
- * que o professor viu por último em "/mundo lista" (learnWorlds).
+ * host (server/mundos.ts: /mundo; server/index.ts: /kicar). Se um comando novo
+ * nascer lá, atualize aqui. O cliente NÃO tem sistema de arquivos: os nomes de
+ * mundo entram ao vivo, pelo que o professor viu por último em "/mundo lista".
  */
 
-const COMANDOS = ["bloco", "resetpin", "regiao", "objetivo", "grupo", "mundo", "tp", "iniciar"];
+const COMANDOS = [
+  "bloco",
+  "resetpin",
+  "regiao",
+  "objetivo",
+  "grupo",
+  "mundo",
+  "tp",
+  "iniciar",
+  "hora",
+  "ciclo",
+  "kicar",
+];
 
 const SUBCOMANDOS: Record<string, string[]> = {
   regiao: ["criar", "apagar", "lista", "encher", "carimbar"],
@@ -16,6 +28,8 @@ const SUBCOMANDOS: Record<string, string[]> = {
   grupo: ["criar", "entrar", "sair", "lista"],
   mundo: ["lista", "atual", "carregar"],
   tp: ["grupos"],
+  hora: ["dia", "noite", "amanhecer", "entardecer", "meio-dia", "meia-noite"],
+  ciclo: ["ligar", "desligar"],
 };
 
 let mundosConhecidos: string[] = [];

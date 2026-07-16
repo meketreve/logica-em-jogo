@@ -3,6 +3,8 @@ import { BlockId, isBreakable, isPlaceable } from "./blocks";
 import {
   CHUNK_SIZE,
   DEFAULT_WORLD_CHUNKS,
+  DIA_SEGUNDOS,
+  HORA_PADRAO,
   MAX_CHAT_LENGTH,
   MAX_NAME_LENGTH,
   PLAYER_REACH,
@@ -100,6 +102,14 @@ export class GameSession {
   readonly spawn: { x: number; y: number; z: number };
   tickCount = 0;
 
+  /** Hora do dia (0..24) do ciclo dia/noite (cp21). Server-autoritativa; SÓ
+   *  visual (não afeta física/jogo). Mundo NOVO nasce ao meio-dia; PERSISTE no
+   *  save (sobrevivência continua a hora — restore sobrescreve). */
+  private horaDoDia = HORA_PADRAO;
+  /** O ciclo avança sozinho? Mundo de atividade nasce PARADO (dia permanente);
+   *  professor liga/desliga com /ciclo; persiste no save. */
+  private cicloAtivo = false;
+
   private readonly players = new Map<number, SessionPlayer>();
   /** Última POSIÇÃO conhecida por nome: volta onde parou, olhando pra onde
    *  olhava. Identidade (PIN/papel) mora no mapa separado `identity`. */
@@ -182,6 +192,12 @@ export class GameSession {
       for (const g of opts.restore.grupos ?? []) {
         this.grupos.set(g.id, new Set(g.membros));
       }
+      // cp21: hora/ciclo do save vencem o padrão (mundo de atividade guarda
+      // ciclo OFF; sobrevivência guarda a hora corrente). Ausentes = padrão.
+      if (typeof opts.restore.hora === "number" && Number.isFinite(opts.restore.hora)) {
+        this.horaDoDia = ((opts.restore.hora % 24) + 24) % 24;
+      }
+      if (typeof opts.restore.ciclo === "boolean") this.cicloAtivo = opts.restore.ciclo;
     } else {
       this.seed = opts.seed ?? 1;
       const preset = opts.preset ?? (opts.flat ? "plano" : "normal");
@@ -244,6 +260,10 @@ export class GameSession {
             })),
           }
         : {}),
+      // cp21: hora + ciclo SEMPRE gravados (mundo de atividade guarda ciclo OFF;
+      // sobrevivência guarda a hora corrente pra continuar de onde parou)
+      hora: +this.horaDoDia.toFixed(3),
+      ciclo: this.cicloAtivo,
     };
   }
 
@@ -472,9 +492,88 @@ export class GameSession {
         if (!professor) return "Somente o professor pode iniciar a atividade.";
         return this.runIniciar(clientId, parts);
       }
+      case "hora": {
+        if (!professor) return "Somente o professor pode mudar a hora do dia.";
+        return this.runHora(parts);
+      }
+      case "ciclo": {
+        if (!professor) return "Somente o professor pode controlar o ciclo de dia e noite.";
+        return this.runCiclo(parts);
+      }
       default:
-        return `Comando desconhecido: ${text}. Os comandos disponíveis são /bloco, /resetpin, /regiao, /objetivo, /grupo, /tp e /iniciar.`;
+        return `Comando desconhecido: ${text}. Os comandos disponíveis são /bloco, /resetpin, /regiao, /objetivo, /grupo, /tp, /iniciar, /hora e /ciclo.`;
     }
+  }
+
+  /** `/hora` (cp21): mostra ou ajusta a hora do dia. Só professor. */
+  private runHora(parts: string[]): string {
+    if (parts.length === 1) {
+      return (
+        `Agora são ${this.horaFormatada()} (${this.cicloAtivo ? "o tempo está passando" : "ciclo parado"}). ` +
+        "Ajuste com /hora dia, /hora noite, /hora amanhecer, /hora entardecer, /hora meio-dia, /hora meia-noite ou /hora 0..23."
+      );
+    }
+    const alvo = (parts[1] ?? "").toLowerCase();
+    const presets: Record<string, number> = {
+      "meia-noite": 0,
+      madrugada: 3,
+      amanhecer: 6,
+      manha: 8,
+      manhã: 8,
+      dia: 8,
+      "meio-dia": 12,
+      tarde: 15,
+      entardecer: 18,
+      noite: 21,
+    };
+    let h: number;
+    if (alvo in presets) {
+      h = presets[alvo]!;
+    } else {
+      const n = Number(alvo);
+      if (!Number.isInteger(n) || n < 0 || n > 23) {
+        return "Uso: /hora dia|noite|amanhecer|entardecer|meio-dia|meia-noite ou um número inteiro de 0 a 23.";
+      }
+      h = n;
+    }
+    this.horaDoDia = h;
+    this.broadcastTime();
+    return `Hora ajustada para ${this.horaFormatada()}.`;
+  }
+
+  /** `/ciclo` (cp21): liga/desliga o avanço do tempo. Sem argumento, alterna. */
+  private runCiclo(parts: string[]): string {
+    const arg = parts[1]?.toLowerCase();
+    if (arg === "ligar" || arg === "on") this.cicloAtivo = true;
+    else if (arg === "desligar" || arg === "off") this.cicloAtivo = false;
+    else if (arg === undefined) this.cicloAtivo = !this.cicloAtivo;
+    else return "Uso: /ciclo ligar ou /ciclo desligar (sem argumento, alterna).";
+    this.broadcastTime();
+    return this.cicloAtivo
+      ? "Ciclo de dia e noite ativado — o tempo passa."
+      : `Ciclo de dia e noite parado em ${this.horaFormatada()}.`;
+  }
+
+  /** Hora do dia como "08h30" (leitura do professor no chat). */
+  private horaFormatada(): string {
+    const h = Math.floor(this.horaDoDia) % 24;
+    const m = Math.floor((this.horaDoDia - Math.floor(this.horaDoDia)) * 60);
+    return `${String(h).padStart(2, "0")}h${String(m).padStart(2, "0")}`;
+  }
+
+  private sendTime(clientId: number): void {
+    this.send(
+      clientId,
+      JSON.stringify({
+        type: "time",
+        hora: +this.horaDoDia.toFixed(3),
+        ciclo: this.cicloAtivo,
+      } satisfies ServerMessage),
+    );
+  }
+
+  private broadcastTime(): void {
+    this.broadcast({ type: "time", hora: +this.horaDoDia.toFixed(3), ciclo: this.cicloAtivo });
   }
 
   /** Subcomandos de /regiao (cp11) — só chega aqui com papel professor. */
@@ -644,6 +743,7 @@ export class GameSession {
       JSON.stringify({ type: "spawn", ...this.spawn, papel } satisfies ServerMessage),
     );
     this.send(clientId, encodeSnapshot(this.world, this.seed));
+    this.sendTime(clientId); // céu certo desde o primeiro frame (cp21)
     // Na migração o teleporte é OBRIGATÓRIO mesmo sem roster: o jogador está
     // parado nas coordenadas do mundo ANTIGO, que no mundo novo podem ser
     // dentro da pedra ou no vazio.
@@ -661,7 +761,7 @@ export class GameSession {
         ? `A aula mudou: você está em um mundo novo${papel === "professor" ? "" : ". Confira o objetivo no canto da tela"}.`
         : `Bem-vindo, ${this.authorTag(clientId)}! Pressione Enter para abrir o chat.` +
             (papel === "professor"
-              ? " Comandos: /bloco · /resetpin · /regiao (varinha: R) · /objetivo · /grupo · /tp grupos · /iniciar"
+              ? " Comandos: /bloco · /resetpin · /regiao (varinha: R) · /objetivo · /grupo · /tp grupos · /iniciar · /hora · /ciclo"
               : ""),
     );
     // professor vê as regiões existentes desde o join (depois do snapshot)
@@ -1573,6 +1673,12 @@ export class GameSession {
   tick(): void {
     const t0 = this.now();
 
+    // Ciclo dia/noite (cp21): a hora avança de forma determinística por tick
+    // (não usa o relógio de parede — hosts diferentes andam igual). SÓ visual.
+    if (this.cicloAtivo) {
+      this.horaDoDia = (this.horaDoDia + 24 / (DIA_SEGUNDOS * SERVER_TICK_RATE)) % 24;
+    }
+
     this.changedThisTick.clear();
     const batch = this.dirty;
     this.dirty = new Set();
@@ -1623,6 +1729,8 @@ export class GameSession {
         tickMaxMs: +this.tickMsMax.toFixed(3),
         tps: this.ticksInWindow,
       });
+      // hora nova 1×/s: o cliente interpola o céu localmente entre estas (cp21)
+      this.broadcastTime();
       this.tickMsSum = this.tickMsMax = this.ticksInWindow = 0;
     }
   }

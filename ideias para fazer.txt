@@ -1,0 +1,13 @@
+porta
+vidro
+tapete
+parte da janela que abre e fecha
+cama
+sofá
+cadeira
+mesa
+quadro( com interface para digitar textos e adicionar imagens)
+comando para kicar aluno por mau comportamento
+sistema de dia e noite
+blocos com as letras e números
+

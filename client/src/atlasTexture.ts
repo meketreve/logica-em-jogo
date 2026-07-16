@@ -1,5 +1,5 @@
 import * as THREE from "three";
-import { ATLAS, TILE } from "@logica/shared";
+import { ATLAS, GLYPH, TILE } from "@logica/shared";
 
 /**
  * Texture atlas procedural pintado num canvas (sem assets externos — restrição
@@ -158,6 +158,25 @@ function paintGlass(ctx: CanvasRenderingContext2D, tile: number): void {
   for (let i = 4; i < 10; i++) ctx.fillRect(ox + i, oy + 14 - i, 1, 1);
 }
 
+/** Bloco-glifo (cp20): base clara com ruído sutil + a letra/dígito no centro.
+ *  Fonte bold no tamanho do tile, NearestFilter deixa o traço em pixels
+ *  crocantes (legível à distância — soletrar palavras / escrever números). */
+function paintGlyph(
+  ctx: CanvasRenderingContext2D,
+  tile: number,
+  ch: string,
+  base: Rgb,
+): void {
+  paintNoise(ctx, tile, base, 6);
+  const [ox, oy] = tileOrigin(tile);
+  const px = ATLAS.tilePx;
+  ctx.fillStyle = "rgb(28,28,32)";
+  ctx.font = `bold ${px - 3}px sans-serif`;
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  ctx.fillText(ch, ox + px / 2, oy + px / 2 + 1);
+}
+
 /** Folhas (cp18): verde denso com furos transparentes (cutout). */
 function paintLeaves(ctx: CanvasRenderingContext2D, tile: number): void {
   paintNoise(ctx, tile, [52, 118, 44], 16);
@@ -224,6 +243,15 @@ export function createAtlasTexture(): THREE.Texture {
   // cp18: transparentes (cutout — alphaTest no material do cliente)
   paintGlass(ctx, TILE.glass);
   paintLeaves(ctx, TILE.leaves);
+
+  // cp20: blocos-glifo — letras em creme, dígitos em azul-claro (distinção
+  // rápida à distância entre "letra" e "número").
+  for (let i = 0; i < GLYPH.letters.length; i++) {
+    paintGlyph(ctx, GLYPH.base + i, GLYPH.letters[i]!, [236, 228, 206]);
+  }
+  for (let i = 0; i < GLYPH.digits.length; i++) {
+    paintGlyph(ctx, GLYPH.base + GLYPH.letters.length + i, GLYPH.digits[i]!, [206, 222, 240]);
+  }
 
   const tex = new THREE.CanvasTexture(canvas);
   tex.magFilter = THREE.NearestFilter;

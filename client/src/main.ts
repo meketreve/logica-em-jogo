@@ -28,6 +28,7 @@ import { InventoryPanel } from "./inventory";
 import { ChatUi } from "./chat";
 import { ChunkRenderer } from "./chunks";
 import { learnWorlds } from "./commands";
+import { SkyCycle } from "./daynight";
 import { type Connection, WorkerConnection, WsConnection } from "./connection";
 import { emitGameEvent } from "./events";
 import { Hud } from "./hud";
@@ -88,7 +89,11 @@ camera.rotation.order = "YXZ"; // yaw depois pitch (câmera FPS)
 
 const sun = new THREE.DirectionalLight(0xffffff, 2.2);
 sun.position.set(60, 100, 40);
-scene.add(sun, new THREE.AmbientLight(0xffffff, 0.55));
+const ambient = new THREE.AmbientLight(0xffffff, 0.55);
+scene.add(sun, ambient);
+// Ciclo dia/noite (cp21): a hora vem do servidor (msg `time`); o SkyCycle
+// interpola céu/sol/luz. update(dt) roda no loop de render.
+const skyCycle = new SkyCycle(sun, ambient, scene);
 
 const input = new Input(renderer.domElement);
 
@@ -293,6 +298,14 @@ function handleServerData(data: string | ArrayBuffer): void {
       pushPanelData();
     } else if (msg.type === "teleport") {
       applyTeleport?.(msg);
+    } else if (msg.type === "time") {
+      skyCycle.sync(msg.hora, msg.ciclo);
+    } else if (msg.type === "kicked") {
+      // professor removeu (cp22): mesmo caminho do join_denied — motivo vira
+      // banner no menu (sem alert nativo), o socket cai logo depois.
+      playUi("denied");
+      sessionStorage.setItem("lj-erro", msg.reason);
+      location.href = location.pathname;
     } else if (msg.type === "join_denied") {
       // servidor recusou (PIN errado, nome em uso…): volta pro menu limpo
       // (location sem query — cobre o boot via ?server=); o motivo atravessa
@@ -885,6 +898,7 @@ function startGame(snap: Snapshot): void {
       totalMs: chunkRenderer.remeshMsTotal,
       lastMs: chunkRenderer.lastRemeshMs,
     });
+    skyCycle.update(dt); // ciclo dia/noite (cp21): avança o céu e pinta a cena
     hud.frame(dtMs);
     renderer.render(scene, camera);
   });

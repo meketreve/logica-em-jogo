@@ -308,6 +308,53 @@
   Tile não pintado = invisível com alphaTest — todo bloco novo PRECISA de
   pintura no createAtlasTexture (o teste "todo colocável tem tile" pega o
   lado do mesher, não o do atlas).
+- RECEITA "adicionar bloco cúbico" (checklist — 4 pontos, tudo append):
+  (1) `shared/blocks.ts`: novo id no FIM do BlockId + bumpar MAX_BLOCK_ID
+  (isPlaceable segue sozinho; nunca renumerar id antigo — save é byte cru);
+  (2) `shared/mesher.ts` BLOCK_TILES: mapear id→tile (`uniform(t)` ou
+  top/bottom/side); (3) `client/atlasTexture.ts`: pintar o tile em
+  createAtlasTexture; (4) `client/blocksUi.ts` PLACEABLE: nome PT (hotbar,
+  inventário e selects derivam daí). Hotbar/ícones/inventário/`/bloco`/
+  `/regiao encher` são TODOS automáticos. Rede de segurança: o teste do
+  mesher "todo colocável tem tile" quebra se faltar o passo 2.
+- ATLAS.tilesPerRow é dinâmico: mesher (UV) e atlasTexture/blockIcons leem
+  ATLAS.tilesPerRow, então dá pra CRESCER a grade (8→16 no cp20, 64→256
+  tiles) sem tocar em UV, save ou snapshot — só o índice do tile importa,
+  não a posição no canvas.
+- Blocos-glifo (cp20, letras A–Z / dígitos 0–9): família regular derivada de
+  UMA const `GLYPH {base,letters,digits}` em mesher.ts (re-exportada) — o loop
+  em BLOCK_TILES, o `paintGlyph` (ctx.fillText bold, NearestFilter deixa o
+  traço crocante) e os nomes em blocksUi TODOS iteram GLYPH. Família regular =
+  loop numa fonte única, não 36 linhas explícitas (só as âncoras LetterA/Digit0
+  precisam de nome no BlockId).
+- RECEITA "nova mensagem servidor→cliente": (1) union + comentário em
+  protocol.ts ServerMessage; (2) `case` no parseServerMessage (defensivo — tipos
+  conferidos, senão null); (3) dispatch no cliente (main.ts handleServerData);
+  (4) o servidor emite via `this.send`/`this.broadcast`. Mensagem cliente→
+  servidor tem o caminho espelhado (ClientMessage + parseClientMessage +
+  session.handleMessage) — mas prefira REUSAR chat/comando quando é ação de
+  professor (cp14: painel = açúcar sobre /comando, zero protocolo novo).
+- Comando SÓ do host (fecha socket / lê arquivo): intercepta em server/index.ts
+  ANTES de session.handleMessage, como /mundo (cp19) e /kicar (cp22). A
+  GameSession é pura (sem sockets nem filesystem) — resolve nome→id por
+  `session.jogadoresConectados()`. No worker (singleplayer) esses comandos caem
+  em "comando desconhecido" (não há host de arquivo/rede) — aceitável, mesmo
+  padrão do /mundo. Adicione-os no autocomplete (client/commands.ts) à mão.
+- Ciclo dia/noite (cp21) = tempo SERVER-AUTORITATIVO e VISUAL. Avança
+  determinístico por TICK (`horaDoDia += 24/(DIA_SEGUNDOS*TICK_RATE)`), NUNCA
+  pelo relógio de parede — assim Web Worker, .exe e Node dedicado andam iguais.
+  Broadcast `time` 1×/s (na mesma janela do debug_stats) + no join; o cliente
+  interpola localmente entre syncs (SkyCycle) pra não pular. Nunca escurece
+  100% (piso de luz ambiente).
+- CONFIG do ciclo (decisão do usuário 2026-07-16): mundo de ATIVIDADE = DIA
+  PERMANENTE, ciclo PARADO (default `HORA_PADRAO=12`, `cicloAtivo=false`) — o céu
+  não muda durante a aula. **hora + ciclo PERSISTEM no save** (SaveMeta): mundo de
+  atividade grava ciclo OFF; SOBREVIVÊNCIA (futuro) grava a hora corrente pra
+  CONTINUIDADE (reload volta na hora salva). Restore sobrescreve o default;
+  ausente no save antigo = default. O gerador de cenários trava o dia
+  EXPLÍCITO (`/hora meio-dia` + `/ciclo desligar`), não confia no default —
+  sobrevivência pode, no futuro, nascer com o ciclo ligado. Mexeu em hora/ciclo
+  default ou no formato → REGERAR cenários (`npm run cenarios`).
 
 ### Cenários pedagógicos = conteúdo, não motor (2026-07-14)
 - Cenário nasce de COMANDOS rodando numa GameSession real — não existe editor
@@ -354,6 +401,17 @@
 
 <!-- Mistakes made and corrected. Each entry prevents the same mistake recurring. -->
 <!-- Format: [YYYY-MM-DD] Description of what went wrong and what to do instead. -->
+
+- [2026-07-16] Adicionar uma mensagem à sequência de `admitir()` (join) QUEBRA os
+  testes que contam/indexam mensagens do join. O `sendTime` do cp21 entrou depois
+  do snapshot e derrubou 3 asserts em session.test.ts (join `toHaveLength(3)→4`;
+  welcome saiu de sent[2]→sent[3]; sequência `["spawn","snapshot","teleport",
+  "chat"]` ganhou "time"). Ao mexer no join, rode `npm test` e ajuste esses
+  asserts — prefira FILTRAR por tipo (`.find(m=>m.type===...)`) a indexar posição.
+- [2026-07-16] Smoke de valor que MUDA sozinho não usa igualdade exata. O
+  primeiro `_smoke` de `time` assertou `hora===21` com o ciclo LIGADO — a hora já
+  tinha avançado pra 21.00x quando o check rodou. Congele primeiro (`/ciclo
+  desligar`) e então confira valor exato, ou use faixa. (Não era bug do produto.)
 
 - [2026-07-13] Oclusão de face NÃO se decide pela transparência do bloco DONO da
   face — só pela do VIZINHO. A regra do cp18 ("pula se id é transparente ou

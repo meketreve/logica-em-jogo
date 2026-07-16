@@ -3375,10 +3375,225 @@
       "file": "shared/src/session.ts",
       "root_cause": "reset (/objetivo resetar e /iniciar) limpava só os flags de conclusão (completos/completosGrupo), nunca o MUNDO. Área construída pelos alunos permanecia; num construir isso re-concluía na hora ou deixava a faixa suja. Não havia registro do estado inicial autoral da área (as 4 sementes da aula1 não estão no objetivo, estão no mundo).",
       "fix": "Objective.baseline: number[][] — fotografia autoral de cada área (y→z→x, alinhada com alvos), capturada no /objetivo add (construir/limpar) e PERSISTIDA no .ljw. zerarProgresso() agora chama restaurarAreasBaseline() que repõe cada área via applyBlock (block_changed + fila de vizinhança + recheca). Baseline mora no objetivo (não no mundo) → alunos mudam o mundo, não o objetivo → sobrevive ao autosave da cópia de trabalho. Cenários regenerados p/ capturar baseline (save antigo sem baseline degrada: reset não mexe nos blocos).",
-      "tags": ["reset", "iniciar", "baseline", "objetivo", "cenario", "persistencia"],
+      "tags": [
+        "reset",
+        "iniciar",
+        "baseline",
+        "objetivo",
+        "cenario",
+        "persistencia"
+      ],
       "related_bugs": [],
       "occurrences": 1,
       "last_seen": "2026-07-15T18:55:00.000Z"
+    },
+    {
+      "id": "bug-208",
+      "timestamp": "2026-07-16T12:16:23.048Z",
+      "error_message": "Significant refactor of ",
+      "file": "client/src/blocksUi.ts",
+      "root_cause": "2 lines replaced/restructured",
+      "fix": "Rewrote 8→15 lines (2 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-16T12:16:23.048Z"
+    },
+    {
+      "id": "bug-209",
+      "timestamp": "2026-07-16T13:21:43.315Z",
+      "error_message": "Type error",
+      "file": "shared/src/constants.ts",
+      "root_cause": "Missing or incorrect type annotation",
+      "fix": "Added type assertion/annotation",
+      "tags": [
+        "auto-detected",
+        "type-fix",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-16T13:21:43.315Z"
+    },
+    {
+      "id": "bug-210",
+      "timestamp": "2026-07-16T13:21:54.169Z",
+      "error_message": "Type error",
+      "file": "shared/src/protocol.ts",
+      "root_cause": "Missing or incorrect type annotation",
+      "fix": "Added type assertion/annotation",
+      "tags": [
+        "auto-detected",
+        "type-fix",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-16T13:21:54.169Z"
+    },
+    {
+      "id": "bug-211",
+      "timestamp": "2026-07-16T13:22:03.836Z",
+      "error_message": "Missing guard clause",
+      "file": "shared/src/protocol.ts",
+      "root_cause": "No early return/throw for edge case: !nums.every((n",
+      "fix": "Added guard clause: if (!nums.every((n)",
+      "tags": [
+        "auto-detected",
+        "guard-clause",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-16T13:22:03.836Z"
+    },
+    {
+      "id": "bug-212",
+      "timestamp": "2026-07-16T13:23:01.929Z",
+      "error_message": "Null/undefined access in ",
+      "file": "shared/src/session.ts",
+      "root_cause": "Property access on potentially null/undefined value",
+      "fix": "Added null safety (optional chaining or null check)",
+      "tags": [
+        "auto-detected",
+        "null-safety",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-16T13:23:01.929Z"
+    },
+    {
+      "id": "bug-213",
+      "timestamp": "2026-07-16T13:23:07.091Z",
+      "error_message": "Incorrect value in code",
+      "file": "shared/src/session.ts",
+      "root_cause": "Had \" Comandos: /bloco · /resetpin · /regiao (varinha:",
+      "fix": "Changed to \" Comandos: /bloco · /resetpin · /regiao (varinha:",
+      "tags": [
+        "auto-detected",
+        "wrong-value",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-16T13:23:07.091Z"
+    },
+    {
+      "id": "bug-214",
+      "timestamp": "2026-07-16T13:23:56.206Z",
+      "error_message": "Type error",
+      "file": "client/src/main.ts",
+      "root_cause": "Missing or incorrect type annotation",
+      "fix": "Added type assertion/annotation | Also: } else if (msg.type === \"time\") {; skyCycle.sync(msg.hora, msg.ciclo); | Also: skyCycle.update(dt); // ciclo dia/noite (cp21): avança o céu",
+      "tags": [
+        "auto-detected",
+        "type-fix",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 3,
+      "last_seen": "2026-07-16T13:24:18.113Z"
+    },
+    {
+      "id": "bug-215",
+      "timestamp": "2026-07-16T13:24:33.946Z",
+      "error_message": "Missing error handling in interceptarKicar",
+      "file": "server/src/index.ts",
+      "root_cause": "Code path had no error handling — exceptions would propagate uncaught",
+      "fix": "Added try/catch block",
+      "tags": [
+        "auto-detected",
+        "error-handling",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-16T13:24:33.946Z"
+    },
+    {
+      "id": "bug-216",
+      "timestamp": "2026-07-16T13:25:43.474Z",
+      "error_message": "Significant refactor of ",
+      "file": "shared/src/session.test.ts",
+      "root_cause": "2 lines replaced/restructured",
+      "fix": "Rewrote 8→12 lines (2 removed) | Also: expect(sent).toHaveLength(1);; const stats = parseServerMessage(sent[0]?.data as  | Also: expect(types).toEqual([\"spawn\", \"snapshot\", \"telep; const tp = parseServerMessage(sent2[2]?.data as st",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 3,
+      "last_seen": "2026-07-16T13:28:08.419Z"
+    },
+    {
+      "id": "bug-217",
+      "timestamp": "2026-07-16T13:26:36.873Z",
+      "error_message": "Type error",
+      "file": "shared/src/protocol.test.ts",
+      "root_cause": "Missing or incorrect type annotation",
+      "fix": "Added type assertion/annotation",
+      "tags": [
+        "auto-detected",
+        "type-fix",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-16T13:26:36.873Z"
+    },
+    {
+      "id": "bug-218",
+      "timestamp": "2026-07-16T13:27:33.439Z",
+      "error_message": "Missing guard clause",
+      "file": "shared/src/session.test.ts",
+      "root_cause": "No early return/throw for edge case: !t",
+      "fix": "Added guard clause: if (!t)",
+      "tags": [
+        "auto-detected",
+        "guard-clause",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-16T13:27:33.439Z"
+    },
+    {
+      "id": "bug-219",
+      "timestamp": "2026-07-16T14:08:41.037Z",
+      "error_message": "Significant refactor of ",
+      "file": "shared/src/constants.ts",
+      "root_cause": "2 lines replaced/restructured",
+      "fix": "Rewrote 5→7 lines (2 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-16T14:08:41.037Z"
+    },
+    {
+      "id": "bug-220",
+      "timestamp": "2026-07-16T14:10:26.205Z",
+      "error_message": "Significant refactor of ",
+      "file": "shared/src/session.test.ts",
+      "root_cause": "5 lines replaced/restructured",
+      "fix": "Rewrote 35→62 lines (5 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-16T14:10:26.205Z"
     }
   ]
 }

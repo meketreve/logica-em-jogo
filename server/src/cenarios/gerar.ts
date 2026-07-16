@@ -216,6 +216,12 @@ function gerar(c: Cenario, o: Opcoes): ArrayBuffer {
   // só tira a resposta da vista. Com --revelar, a tarefa vira copiar.
   if (!o.revelar) a.cmd("/regiao encher modelo 0", "bloco(s) alterado(s)");
 
+  // mundo de ATIVIDADE = dia permanente, ciclo PARADO (o céu não muda durante a
+  // aula — decisão do usuário). Explícito no gerador para não depender do padrão
+  // da sessão (sobrevivência pode, no futuro, nascer com o ciclo ligado).
+  a.cmd("/hora meio-dia", "Hora ajustada");
+  a.cmd("/ciclo desligar", "Ciclo de dia e noite parado");
+
   // roster VAZIO: o .ljw não viaja com o PIN nem o papel do autor de mentira.
   // Quem entrar com o código de professor vira professor; alunos registram PIN na 1ª entrada.
   return encodeSave(a.session.world, { ...a.session.toSave(), roster: [] });

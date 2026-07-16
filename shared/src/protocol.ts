@@ -157,6 +157,25 @@ export type ServerMessage =
       z: number;
       yaw: number;
       pitch: number;
+    }
+  | {
+      /**
+       * Hora do dia (cp21) — ciclo dia/noite SÓ visual e server-autoritativo.
+       * `hora` em [0,24); `ciclo` = o tempo está passando. No join e 1×/s;
+       * o cliente interpola o céu localmente entre as sincronizações.
+       */
+      type: "time";
+      hora: number;
+      ciclo: boolean;
+    }
+  | {
+      /**
+       * Aluno REMOVIDO da aula pelo professor (cp22, /kicar). Cliente mostra o
+       * motivo e volta pro menu — mesmo caminho do join_denied. O socket cai
+       * logo depois; ele pode entrar de novo com o PIN.
+       */
+      type: "kicked";
+      reason: string;
     };
 
 /** Parse defensivo: servidor autoritativo nunca confia no que chega do fio. */
@@ -344,6 +363,14 @@ export function parseServerMessage(raw: string): ServerMessage | null {
         pitch: m["pitch"] as number,
       };
     }
+    case "time": {
+      if (typeof m["hora"] !== "number" || !Number.isFinite(m["hora"])) return null;
+      if (typeof m["ciclo"] !== "boolean") return null;
+      return { type: "time", hora: m["hora"], ciclo: m["ciclo"] };
+    }
+    case "kicked":
+      if (typeof m["reason"] !== "string") return null;
+      return { type: "kicked", reason: m["reason"] };
     default:
       return null;
   }

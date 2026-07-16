@@ -9,8 +9,9 @@ import { type World, getBlock } from "./world";
  * então dá pra mover pra Worker depois sem mexer aqui.
  */
 
-/** Layout do texture atlas. O cliente pinta a textura seguindo ESTE layout. */
-export const ATLAS = { tilesPerRow: 8, tilePx: 16 } as const;
+/** Layout do texture atlas. O cliente pinta a textura seguindo ESTE layout.
+ *  cp20: 16×16 = 256 tiles (era 8×8 = 64) — coube os blocos-glifo + folga. */
+export const ATLAS = { tilesPerRow: 16, tilePx: 16 } as const;
 
 /** Índice de cada tile no atlas (coluna = i % tilesPerRow, linha = ⌊i / tilesPerRow⌋). */
 export const TILE = {
@@ -48,6 +49,16 @@ export const TILE = {
   leaves: 29,
 } as const;
 
+/** cp20: blocos-glifo. Letras A–Z e dígitos 0–9 ocupam tiles consecutivos a
+ *  partir de `base` (A=30 … Z=55, 0=56 … 9=65). O cliente pinta o glifo; o
+ *  mesher só precisa do índice do tile. FONTE ÚNICA de layout: atlas, tiles e
+ *  nomes (blocksUi) derivam daqui — mantém letras/dígitos sempre em sincronia. */
+export const GLYPH = {
+  base: 30,
+  letters: "ABCDEFGHIJKLMNOPQRSTUVWXYZ",
+  digits: "0123456789",
+} as const;
+
 interface FaceTiles {
   readonly top: number;
   readonly bottom: number;
@@ -57,7 +68,7 @@ interface FaceTiles {
 /** Bloco com o mesmo tile nas 6 faces. */
 const uniform = (tile: number): FaceTiles => ({ top: tile, bottom: tile, side: tile });
 
-const BLOCK_TILES: Readonly<Record<number, FaceTiles>> = {
+const BLOCK_TILES: Record<number, FaceTiles> = {
   [BlockId.Grass]: { top: TILE.grassTop, bottom: TILE.dirt, side: TILE.grassSide },
   [BlockId.Stone]: uniform(TILE.stone),
   [BlockId.Cobblestone]: uniform(TILE.cobblestone),
@@ -87,6 +98,14 @@ const BLOCK_TILES: Readonly<Record<number, FaceTiles>> = {
   [BlockId.Glass]: uniform(TILE.glass),
   [BlockId.Leaves]: uniform(TILE.leaves),
 };
+
+// cp20: letras/dígitos = cubos uniformes com o tile do glifo (append A→Z, 0→9).
+for (let i = 0; i < GLYPH.letters.length; i++) {
+  BLOCK_TILES[BlockId.LetterA + i] = uniform(GLYPH.base + i);
+}
+for (let i = 0; i < GLYPH.digits.length; i++) {
+  BLOCK_TILES[BlockId.Digit0 + i] = uniform(GLYPH.base + GLYPH.letters.length + i);
+}
 
 /** Tile usado como ÍCONE 2D do bloco (hotbar/inventário do cliente) — a face lateral. */
 export function blockIconTile(id: number): number {

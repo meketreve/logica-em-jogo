@@ -196,6 +196,75 @@ function interceptarMundo(clientId: number, texto: string): boolean {
   return true;
 }
 
+/**
+ * `/kicar nome` (cp22) — o professor remove um aluno por mau comportamento.
+ * Mora no HOST (como /mundo) porque FECHAR um socket é transporte, não estado
+ * do mundo — a GameSession não tem sockets. O aluno pode entrar de novo com o
+ * PIN (é expulsão, não banimento). Devolve true quando engoliu a mensagem.
+ */
+function interceptarKicar(clientId: number, texto: string): boolean {
+  let msg: { type?: unknown; text?: unknown };
+  try {
+    msg = JSON.parse(texto) as { type?: unknown; text?: unknown };
+  } catch {
+    return false;
+  }
+  if (msg.type !== "chat" || typeof msg.text !== "string") return false;
+  const partes = msg.text.trim().split(/\s+/);
+  if (partes[0] !== "/kicar") return false;
+
+  const quem = session.jogadoresConectados().find((j) => j.id === clientId);
+  if (!quem) {
+    falarCom(clientId, "Entre no mundo primeiro.");
+    return true;
+  }
+  if (quem.papel !== "professor") {
+    falarCom(clientId, "Somente o professor pode remover um aluno.");
+    return true;
+  }
+
+  const alvoNome = partes.slice(1).join(" ").trim();
+  if (!alvoNome) {
+    falarCom(
+      clientId,
+      "Uso: /kicar nome — remove o aluno da aula. Ele pode entrar de novo com o PIN.",
+    );
+    return true;
+  }
+
+  // nomes podem repetir (nome#id): remove TODOS os conectados com esse nome,
+  // menos o próprio professor que digitou o comando.
+  const alvos = session
+    .jogadoresConectados()
+    .filter((j) => j.name.toLowerCase() === alvoNome.toLowerCase() && j.id !== clientId);
+  if (alvos.length === 0) {
+    falarCom(clientId, `Ninguém chamado "${alvoNome}" está conectado agora.`);
+    return true;
+  }
+
+  for (const alvo of alvos) {
+    const sock = sockets.get(alvo.id);
+    entregar(
+      alvo.id,
+      JSON.stringify({ type: "kicked", reason: "Você foi removido da aula pelo professor." }),
+    );
+    // fecha DEPOIS de um instante: o aviso precisa sair antes do socket cair.
+    if (sock) {
+      setTimeout(() => {
+        try {
+          sock.close();
+        } catch {
+          /* socket já pode ter caído sozinho */
+        }
+      }, 150);
+    }
+  }
+  for (const outroId of sockets.keys()) {
+    falarCom(outroId, `${alvoNome} foi removido da aula pelo professor.`);
+  }
+  return true;
+}
+
 // HTTP e WebSocket na MESMA porta: o aluno abre http://ip-do-professor:8080 e
 // joga — sem servidor de página separado e sem digitar endereço de WebSocket.
 const http = createServer(servirCliente);
@@ -211,6 +280,7 @@ wss.on("connection", (socket, req) => {
     if (isBinary) return;
     const texto = data.toString();
     if (interceptarMundo(id, texto)) return; // /mundo é do HOST (mexe em arquivo)
+    if (interceptarKicar(id, texto)) return; // /kicar é do HOST (fecha socket)
     session.handleMessage(id, texto);
   });
 

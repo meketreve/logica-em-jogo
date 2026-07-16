@@ -62,6 +62,12 @@ export interface SaveMeta {
   cenario?: ScenarioMeta;
   /** Grupos de alunos (cp13). Ausente = modo turma-toda-junta. */
   grupos?: GroupDef[];
+  /** Ciclo dia/noite (cp21). `hora` em [0,24); `ciclo` = o tempo passa.
+   *  Ausente em save antigo = padrão do mundo novo (meio-dia, ciclo parado).
+   *  Mundo de atividade grava ciclo OFF; sobrevivência (futuro) grava a hora
+   *  corrente pra continuar de onde parou. */
+  hora?: number;
+  ciclo?: boolean;
 }
 
 export interface SaveData extends SaveMeta {
@@ -161,5 +167,8 @@ export function decodeSave(buf: ArrayBuffer): SaveData {
     ...(regioes.length ? { regioes } : {}),
     ...(cenario?.objetivos.length ? { cenario } : {}),
     ...(grupos.length ? { grupos } : {}),
+    // cp21: hora/ciclo ausentes ou inválidos = padrão do mundo novo (na sessão)
+    ...(typeof m["hora"] === "number" && Number.isFinite(m["hora"]) ? { hora: m["hora"] } : {}),
+    ...(typeof m["ciclo"] === "boolean" ? { ciclo: m["ciclo"] } : {}),
   };
 }

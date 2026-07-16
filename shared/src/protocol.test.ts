@@ -99,6 +99,27 @@ describe("parse de mensagens JSON", () => {
     expect(parseServerMessage('{"type":"player_left"}')).toBeNull();
   });
 
+  it("parseServerMessage aceita time (ciclo dia/noite, cp21)", () => {
+    expect(parseServerMessage('{"type":"time","hora":13.5,"ciclo":true}')).toEqual({
+      type: "time", hora: 13.5, ciclo: true,
+    });
+    expect(parseServerMessage('{"type":"time","hora":0,"ciclo":false}')).toEqual({
+      type: "time", hora: 0, ciclo: false,
+    });
+    // hora tem que ser número finito; ciclo tem que ser boolean
+    expect(parseServerMessage('{"type":"time","hora":"9","ciclo":true}')).toBeNull();
+    expect(parseServerMessage('{"type":"time","hora":9,"ciclo":"sim"}')).toBeNull();
+    expect(parseServerMessage('{"type":"time","hora":9}')).toBeNull();
+  });
+
+  it("parseServerMessage aceita kicked (aluno removido pelo professor, cp22)", () => {
+    expect(parseServerMessage('{"type":"kicked","reason":"fora"}')).toEqual({
+      type: "kicked", reason: "fora",
+    });
+    expect(parseServerMessage('{"type":"kicked"}')).toBeNull();
+    expect(parseServerMessage('{"type":"kicked","reason":5}')).toBeNull();
+  });
+
   it("parseServerMessage aceita teleport com orientação (volta-onde-parou / /tp)", () => {
     expect(
       parseServerMessage('{"type":"teleport","x":2.5,"y":20,"z":3.5,"yaw":1.2,"pitch":-0.3}'),

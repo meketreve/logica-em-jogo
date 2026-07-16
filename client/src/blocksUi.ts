@@ -1,11 +1,18 @@
-import { BlockId } from "@logica/shared";
+import { BlockId, GLYPH } from "@logica/shared";
 
 /**
  * Blocos colocáveis com nome em português — fonte única pra hotbar (main.ts)
  * e pros selects do painel de autoria (/regiao encher). A ORDEM segue os ids:
  * o texto de uso do /bloco aponta pra hotbar.
  */
-export const PLACEABLE = [
+
+// cp20: blocos-glifo derivam de GLYPH (mesmo layout do atlas/mesher).
+const GLYPH_BLOCKS: { id: number; name: string }[] = [
+  ...Array.from(GLYPH.letters, (ch, i) => ({ id: BlockId.LetterA + i, name: `letra ${ch}` })),
+  ...Array.from(GLYPH.digits, (ch, i) => ({ id: BlockId.Digit0 + i, name: `número ${ch}` })),
+];
+
+export const PLACEABLE: readonly { id: number; name: string }[] = [
   { id: BlockId.Grass, name: "grama" },
   { id: BlockId.Stone, name: "pedra" },
   { id: BlockId.Cobblestone, name: "pedregulho" },
@@ -34,4 +41,5 @@ export const PLACEABLE = [
   { id: BlockId.WoolBrown, name: "lã marrom" },
   { id: BlockId.Glass, name: "vidro" },
   { id: BlockId.Leaves, name: "folhas" },
-] as const;
+  ...GLYPH_BLOCKS,
+];
