@@ -3594,6 +3594,102 @@
       "related_bugs": [],
       "occurrences": 1,
       "last_seen": "2026-07-16T14:10:26.205Z"
+    },
+    {
+      "id": "bug-221",
+      "timestamp": "2026-07-16T16:55:00.917Z",
+      "error_message": "Missing guard clause",
+      "file": "shared/src/session.ts",
+      "root_cause": "No early return/throw for edge case: parts.length < 4 || !nome || ids.some((n",
+      "fix": "Added guard clause: if (parts.length < 4 || !nome || ids.some((n)",
+      "tags": [
+        "auto-detected",
+        "guard-clause",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-16T16:55:00.917Z"
+    },
+    {
+      "id": "bug-222",
+      "timestamp": "2026-07-16T16:55:05.321Z",
+      "error_message": "Incorrect value in code",
+      "file": "shared/src/regions.test.ts",
+      "root_cause": "Had \"./protocol\"",
+      "fix": "Changed to \"./blocks\"",
+      "tags": [
+        "auto-detected",
+        "wrong-value",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-16T16:55:05.321Z"
+    },
+    {
+      "id": "bug-223",
+      "timestamp": "2026-07-16T16:55:49.953Z",
+      "error_message": "Null/undefined access in ",
+      "file": "shared/src/regions.test.ts",
+      "root_cause": "Property access on potentially null/undefined value",
+      "fix": "Added null safety (optional chaining or null check)",
+      "tags": [
+        "auto-detected",
+        "null-safety",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-16T16:55:49.953Z"
+    },
+    {
+      "id": "bug-224",
+      "timestamp": "2026-07-16T16:55:54.983Z",
+      "error_message": "Incorrect value in code",
+      "file": "client/src/commands.ts",
+      "root_cause": "Had \"carimbar\"",
+      "fix": "Changed to \"sortear\"",
+      "tags": [
+        "auto-detected",
+        "wrong-value",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-16T16:55:54.983Z"
+    },
+    {
+      "id": "bug-225",
+      "timestamp": "2026-07-16T17:21:32.308Z",
+      "error_message": "Type error",
+      "file": "shared/src/session.ts",
+      "root_cause": "Missing or incorrect type annotation",
+      "fix": "Added type assertion/annotation",
+      "tags": [
+        "auto-detected",
+        "type-fix",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-16T17:21:32.308Z"
+    },
+    {
+      "id": "bug-226",
+      "timestamp": "2026-07-16T17:23:02.081Z",
+      "error_message": "Null/undefined access in ",
+      "file": "shared/src/scenario.test.ts",
+      "root_cause": "Property access on potentially null/undefined value",
+      "fix": "Added null safety (optional chaining or null check)",
+      "tags": [
+        "auto-detected",
+        "null-safety",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-16T17:23:02.081Z"
     }
   ]
 }

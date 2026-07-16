@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { BlockId } from "./blocks";
 import { parseClientMessage, parseServerMessage } from "./protocol";
 import {
   parseNamedRegion,
@@ -8,6 +9,7 @@ import {
 } from "./regions";
 import { decodeSave, encodeSave, type SaveMeta } from "./save";
 import { GameSession, type SessionOptions } from "./session";
+import { getBlock } from "./world";
 
 // mundo pequeno (2×2×2 chunks = 32³ blocos) — geração rápida nos testes
 const DIMS = { x: 2, z: 2, y: 2 };
@@ -195,6 +197,41 @@ describe("regions — sessão (varinha + /regiao)", () => {
     s.send(1, { type: "chat", text: "/regiao criar fora" });
     expect(s.msgsTo(1).filter((m) => m["type"] === "chat").at(-1)?.["text"]).toContain(
       "Marque os dois cantos",
+    );
+  });
+
+  it("/regiao sortear preenche a região só com os ids dados", () => {
+    const s = makeSession();
+    joinProf(s);
+    criarCasa(s); // (0,0,0)→(3,4,5)
+    s.send(1, {
+      type: "chat",
+      text: `/regiao sortear casa ${BlockId.WoolRed} ${BlockId.WoolBlue}`,
+    });
+    expect(s.msgsTo(1).filter((m) => m["type"] === "chat").at(-1)?.["text"]).toContain(
+      "sorteado(s) entre 2 tipo(s)",
+    );
+    // invariante independente do sorteio: toda célula é uma das duas lãs
+    for (let y = 0; y <= 4; y++)
+      for (let z = 0; z <= 5; z++)
+        for (let x = 0; x <= 3; x++) {
+          expect([BlockId.WoolRed, BlockId.WoolBlue]).toContain(
+            getBlock(s.session.world, x, y, z),
+          );
+        }
+  });
+
+  it("/regiao sortear recusa id inexistente e região que não existe", () => {
+    const s = makeSession();
+    joinProf(s);
+    criarCasa(s);
+    s.send(1, { type: "chat", text: "/regiao sortear casa 999" });
+    expect(s.msgsTo(1).filter((m) => m["type"] === "chat").at(-1)?.["text"]).toContain(
+      "Não existe bloco",
+    );
+    s.send(1, { type: "chat", text: `/regiao sortear fantasma ${BlockId.WoolRed}` });
+    expect(s.msgsTo(1).filter((m) => m["type"] === "chat").at(-1)?.["text"]).toContain(
+      'Não existe região chamada "fantasma"',
     );
   });
 

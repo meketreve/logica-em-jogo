@@ -23,7 +23,7 @@ const COMANDOS = [
 ];
 
 const SUBCOMANDOS: Record<string, string[]> = {
-  regiao: ["criar", "apagar", "lista", "encher", "carimbar"],
+  regiao: ["criar", "apagar", "lista", "encher", "sortear", "carimbar"],
   objetivo: ["add", "lista", "texto", "mover", "remover", "modo", "resetar"],
   grupo: ["criar", "entrar", "sair", "lista"],
   mundo: ["lista", "atual", "carregar"],

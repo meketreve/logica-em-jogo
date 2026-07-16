@@ -154,6 +154,42 @@ describe("scenario — sessão (autoria, detecção, HUD)", () => {
     expect(s.lastChat(2)).toContain("objetivo concluído: Reproduza o quadrado vermelho");
   });
 
+  it("sequencial: ao concluir, a faixa se limpa e a próxima sequência entra na MESMA área", () => {
+    const s = makeSession();
+    joinProf(s);
+    criarRegiao(s, 1, "modelo", [1, 4, 1], [1, 4, 2]);
+    criarRegiao(s, 1, "alvo", [5, 4, 1], [5, 4, 2]);
+    s.chat(1, "/objetivo modo sequencial");
+
+    // sequência 1 (vermelho, azul): modelo fotografado, faixa "alvo" nasce vazia
+    s.chat(1, `/bloco 1 4 1 ${BlockId.WoolRed}`);
+    s.chat(1, `/bloco 1 4 2 ${BlockId.WoolBlue}`);
+    s.chat(1, "/objetivo add construir modelo alvo Sequencia 1");
+    // sequência 2 (azul, vermelho) na MESMA faixa "alvo": só o modelo é refeito
+    s.chat(1, "/regiao encher modelo 0");
+    s.chat(1, `/bloco 1 4 1 ${BlockId.WoolBlue}`);
+    s.chat(1, `/bloco 1 4 2 ${BlockId.WoolRed}`);
+    s.chat(1, "/objetivo add construir modelo alvo Sequencia 2");
+
+    // conclui a 1ª sequência na faixa
+    s.chat(1, `/bloco 5 4 1 ${BlockId.WoolRed}`);
+    s.chat(1, `/bloco 5 4 2 ${BlockId.WoolBlue}`);
+    s.session.tick();
+
+    // a faixa se limpou sozinha (baseline vazio da 2ª) e a 2ª virou a ativa em 0
+    expect(getBlock(s.session.world, 5, 4, 1)).toBe(BlockId.Air);
+    expect(getBlock(s.session.world, 5, 4, 2)).toBe(BlockId.Air);
+    const objs = s.lastObjectives(1)?.objetivos ?? [];
+    expect(objs[0]).toMatchObject({ completo: true });
+    expect(objs[1]).toMatchObject({ completo: false, ativo: true, atual: 0 });
+
+    // conclui a 2ª na MESMA faixa → também fecha
+    s.chat(1, `/bloco 5 4 1 ${BlockId.WoolBlue}`);
+    s.chat(1, `/bloco 5 4 2 ${BlockId.WoolRed}`);
+    s.session.tick();
+    expect(s.lastObjectives(1)?.objetivos[1]).toMatchObject({ completo: true });
+  });
+
   it("construir: alvo que já bate com o modelo é recusado (nasceria completo)", () => {
     const s = makeSession();
     joinProf(s);

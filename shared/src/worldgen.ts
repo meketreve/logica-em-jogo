@@ -84,30 +84,30 @@ export function generateFlatWorld(dims: WorldDims = DEFAULT_WORLD_CHUNKS): World
   return world;
 }
 
-/** Lado da cabine em blocos (footprint CABIN_SIZE×CABIN_SIZE no canto do chunk). */
+/** Lado do plot em blocos (footprint CABIN_SIZE×CABIN_SIZE no canto do chunk). */
 export const CABIN_SIZE = 5;
-/** Altura das paredes (2 blocos: aluno não pula pra fora, professor vê por cima ao redor). */
-export const CABIN_WALL_HEIGHT = 2;
+/** Bloco da borda que demarca o plot de cada grupo, rente ao chão. */
+export const PLOT_MARKER = BlockId.StoneBricks;
 
 /**
- * Mundo-modelo "cabines" (cp14): plano + uma cabine de tábuas no canto de CADA
- * chunk, sem teto, com o lado aberto voltado pro centro do chunk. A cabine do
- * professor guarda a sequência-gabarito; os grupos replicam nas deles
- * (marcar com a varinha ou /regiao carimbar). Determinístico, sem seed.
+ * Mundo-modelo "cabines" (cp14; paredes removidas 2026-07-16 a pedido do
+ * usuário): plano + um PLOT demarcado no canto de CADA chunk — borda de
+ * pedra-lavrada rente ao chão (CABIN_SIZE×CABIN_SIZE), SEM paredes. Delimita a
+ * área de cada grupo sem obstruir o movimento nem tapar a visão. O plot do
+ * professor guarda a sequência-gabarito; os grupos replicam nos deles (varinha
+ * ou /regiao carimbar). Determinístico, sem seed.
  */
 export function generateCabinsWorld(dims: WorldDims = DEFAULT_WORLD_CHUNKS): World {
   const world = generateFlatWorld(dims);
-  const y0 = FLAT_SURFACE_Y + 1; // paredes em cima da grama
   for (let cx = 0; cx < dims.x; cx++) {
     for (let cz = 0; cz < dims.z; cz++) {
       const ox = cx * CHUNK_SIZE;
       const oz = cz * CHUNK_SIZE;
-      for (let y = y0; y < y0 + CABIN_WALL_HEIGHT; y++) {
-        for (let i = 0; i < CABIN_SIZE; i++) {
-          setBlock(world, ox, y, oz + i, BlockId.Planks); // parede x=0
-          setBlock(world, ox + i, y, oz, BlockId.Planks); // parede z=0
-          setBlock(world, ox + i, y, oz + CABIN_SIZE - 1, BlockId.Planks); // parede z=4
-          // lado x=4 fica ABERTO — é o que olha pro centro do chunk
+      // borda rente ao solo: substitui a grama SÓ no perímetro do footprint.
+      for (let i = 0; i < CABIN_SIZE; i++) {
+        for (let j = 0; j < CABIN_SIZE; j++) {
+          const borda = i === 0 || i === CABIN_SIZE - 1 || j === 0 || j === CABIN_SIZE - 1;
+          if (borda) setBlock(world, ox + i, FLAT_SURFACE_Y, oz + j, PLOT_MARKER);
         }
       }
     }

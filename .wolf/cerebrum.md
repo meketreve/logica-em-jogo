@@ -474,6 +474,32 @@
 
 <!-- Significant technical decisions with rationale. Why X was chosen over Y. -->
 
+- [2026-07-16] **Trilha sequencial: auto-limpa + carrega a próxima sequência na
+  MESMA faixa.** No modo `sequencial`, ao um escopo (grupo/mundo) concluir a
+  sequência ativa, o tick chama `carregarProximaSequencia(g)` → repõe o
+  `baseline` do PRÓXIMO objetivo ativo NA MESMA área (a semente, em geral vazia).
+  Assim o professor só cria os modelos (N objetivos `construir` na mesma faixa,
+  sequencial) e o aluno passa por cada um sem ninguém limpar à mão. Reusa o
+  baseline que já existia (bug-207). `restaurarAreasBaseline` passou a depender
+  do MODO: sequencial restaura só a faixa ATIVA de cada escopo (trilha começa na
+  1ª); livre restaura todas (objetivos simultâneos, cada faixa é sua). Sempre-
+  ligado em sequencial (sem flag): com faixas separadas por objetivo vira quase
+  no-op. Autoria: cada objetivo captura baseline no `/objetivo add` = estado da
+  faixa naquele instante — não semeou = começa vazio; semeou = pista por etapa.
+- [2026-07-16] **Cabines viraram PLOT demarcado (paredes removidas, pedido do
+  usuário).** `generateCabinsWorld` não faz mais paredes de tábua 2-alto: agora
+  desenha uma BORDA de pedra-lavrada (`PLOT_MARKER`=StoneBricks) rente ao chão
+  (substitui a grama do perímetro do footprint 5×5). Delimita a área do grupo
+  SEM obstruir movimento nem tapar visão. Preset key continua `"cabines"` (menos
+  churn em gerar.ts/hosts/menu/testes); só o comportamento e os comentários
+  mudaram. Spawn ainda desloca +8 pro meio do chunk. `verificar.ts` passou a
+  conferir o marcador em `FLAT_SURFACE_Y` no canto (antes checava Planks em y+1).
+- [2026-07-16] **`/regiao sortear nome id…`** — preenche a região sorteando
+  célula a célula entre os ids dados (Math.random; autoria = gabarito ALEATÓRIO
+  na hora: professor sorteia → refotografa com `/objetivo add construir` →
+  reinicia). Passa por `applyBlock` (regras + detecção acordam igual a `/regiao
+  encher`). Sortear é ação de autoria, não simulação → RNG não-semeado é ok;
+  teste valida só o invariante (toda célula ∈ ids), independente do sorteio.
 - [2026-07-10] **Voxel web, engine própria** (não Minecraft Edu): custo/licença zero p/ rede
   pública; e permite autoria de cenários pelo professor, que é o diferencial vs Minecraft Edu.
 - [2026-07-10] **Cliente=servidor (servidor integrado)**, igual Minecraft: um módulo de lógica

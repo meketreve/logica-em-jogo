@@ -709,8 +709,41 @@ export class GameSession {
           (pulados ? ` (${pulados} bloco(s) pulados por ter jogador no lugar)` : "")
         );
       }
+      case "sortear": {
+        // /regiao sortear nome id1 id2 … — preenche a região sorteando, célula a
+        // célula, entre os blocos indicados (gabarito ALEATÓRIO na hora: o
+        // professor sorteia, refotografa e reinicia). Passa por applyBlock, então
+        // regras de vizinhança e detecção de objetivo acordam igual a /regiao encher.
+        const nome = parts[2];
+        const ids = parts.slice(3).map(Number);
+        if (parts.length < 4 || !nome || ids.some((n) => !Number.isInteger(n))) {
+          return "Uso: /regiao sortear nome id1 id2 … — preenche a região sorteando entre os blocos indicados (o id 0 é o ar).";
+        }
+        const r = this.regions.get(nome);
+        if (!r) return `Não existe região chamada "${nome}".`;
+        for (const id of ids) {
+          if (id !== BlockId.Air && !isPlaceable(id)) return `Não existe bloco com o id ${id}.`;
+        }
+        if (boxVolume(r) > MAX_OBJETIVO_CELLS) {
+          return `A região é grande demais para sortear (máximo de ${MAX_OBJETIVO_CELLS} blocos).`;
+        }
+        let mudados = 0;
+        for (let y = r.min.y; y <= r.max.y; y++) {
+          for (let z = r.min.z; z <= r.max.z; z++) {
+            for (let x = r.min.x; x <= r.max.x; x++) {
+              const id = ids[Math.floor(Math.random() * ids.length)] as number;
+              if (getBlock(this.world, x, y, z) === id) continue;
+              // nunca emparedar: célula com jogador dentro fica como está
+              if (id !== BlockId.Air && this.overlapsAnyPlayer(x, y, z)) continue;
+              this.applyBlock(x, y, z, id);
+              mudados++;
+            }
+          }
+        }
+        return `Região "${nome}": ${mudados} bloco(s) sorteado(s) entre ${ids.length} tipo(s).`;
+      }
       default:
-        return "Uso: /regiao criar nome · /regiao apagar nome · /regiao lista · /regiao encher nome id · /regiao carimbar modelo prefixo espacamento [z]";
+        return "Uso: /regiao criar nome · /regiao apagar nome · /regiao lista · /regiao encher nome id · /regiao sortear nome id… · /regiao carimbar modelo prefixo espacamento [z]";
     }
   }
 
@@ -1354,29 +1387,73 @@ export class GameSession {
    * engrenagem do /regiao encher): block_changed + fila de vizinhança + recheca
    * o objetivo. Não emparedar jogador em pé numa célula que voltaria a ser bloco.
    */
+  /** Repõe UMA área (índice k) de um objetivo ao seu baseline autoral. */
+  private restaurarAreaBaseline(o: Objective, k: number): number {
+    const blocks = o.baseline?.[k];
+    const box = this.areasDe(o)[k];
+    if (!blocks || !box) return 0;
+    let mudados = 0;
+    let i = 0;
+    for (let y = box.min.y; y <= box.max.y; y++) {
+      for (let z = box.min.z; z <= box.max.z; z++) {
+        for (let x = box.min.x; x <= box.max.x; x++) {
+          const alvo = blocks[i++];
+          if (alvo === undefined) continue;
+          if (getBlock(this.world, x, y, z) === alvo) continue;
+          if (alvo !== BlockId.Air && this.overlapsAnyPlayer(x, y, z)) continue;
+          this.applyBlock(x, y, z, alvo);
+          mudados++;
+        }
+      }
+    }
+    return mudados;
+  }
+
+  /**
+   * Repõe as áreas ao baseline autoral — é o que faz "reiniciar" resetar de
+   * verdade (sem isto os blocos dos alunos ficariam e a sequência re-concluiria
+   * na hora). Passa pelo applyBlock (mesma engrenagem do /regiao encher).
+   *
+   * SEQUENCIAL: só a faixa ATIVA (primeiro objetivo incompleto) de cada escopo
+   * volta à semente — assim uma TRILHA de sequências na MESMA faixa começa na 1ª;
+   * as próximas entram sozinhas ao concluir (ver carregarProximaSequencia).
+   * LIVRE: todas as áreas (os objetivos valem ao mesmo tempo, cada faixa é sua).
+   */
   private restaurarAreasBaseline(): number {
     let mudados = 0;
+    if (this.scenario.modo === "sequencial") {
+      const escopos = this.grupos.size ? [...this.grupos.keys()] : [0];
+      for (const g of escopos) {
+        for (const id of this.activeIdsFor(g)) {
+          const o = this.scenario.objetivos.find((x) => x.id === id);
+          if (!o?.baseline) continue;
+          mudados += this.restaurarAreaBaseline(o, g > 0 && o.alvos ? g - 1 : 0);
+        }
+      }
+      return mudados;
+    }
     for (const o of this.scenario.objetivos) {
       if (!o.baseline) continue;
-      this.areasDe(o).forEach((box, k) => {
-        const blocks = o.baseline?.[k];
-        if (!blocks) return;
-        let i = 0;
-        for (let y = box.min.y; y <= box.max.y; y++) {
-          for (let z = box.min.z; z <= box.max.z; z++) {
-            for (let x = box.min.x; x <= box.max.x; x++) {
-              const alvo = blocks[i++];
-              if (alvo === undefined) continue;
-              if (getBlock(this.world, x, y, z) === alvo) continue;
-              if (alvo !== BlockId.Air && this.overlapsAnyPlayer(x, y, z)) continue;
-              this.applyBlock(x, y, z, alvo);
-              mudados++;
-            }
-          }
-        }
+      this.areasDe(o).forEach((_box, k) => {
+        mudados += this.restaurarAreaBaseline(o, k);
       });
     }
     return mudados;
+  }
+
+  /**
+   * SEQUENCIAL: ao concluir a sequência atual de um escopo, limpa a faixa e
+   * carrega a PRÓXIMA na MESMA área — repõe o baseline do novo objetivo ativo (a
+   * semente, em geral vazia). Assim o professor só cria os modelos e o aluno
+   * passa por cada sequência em ordem, sem ninguém limpar a faixa à mão. Se a
+   * próxima usa outra faixa (ou não há próxima), vira quase no-op.
+   */
+  private carregarProximaSequencia(grupo: number): void {
+    for (const id of this.activeIdsFor(grupo)) {
+      const o = this.scenario.objetivos.find((x) => x.id === id);
+      if (!o || o.kind === "chegar" || !o.baseline) continue;
+      this.restaurarAreaBaseline(o, grupo > 0 && o.alvos ? grupo - 1 : 0);
+    }
   }
 
   /** Zera as conclusões E restaura as áreas ao estado inicial. Devolve quantos
@@ -1701,6 +1778,7 @@ export class GameSession {
     // cp12/13: recheca objetivos tocados por mudanças (dos jogadores E das
     // regras acima — areia caindo dentro do alvo também conta/desconta)
     if (this.objetivosDirty.size) {
+      const avancaram = new Set<number>(); // escopos que concluíram a sequência ativa
       for (const key of this.objetivosDirty) {
         const [idS, gS] = key.split(":");
         const id = Number(idS);
@@ -1710,9 +1788,16 @@ export class GameSession {
         // sequencial: futuro só vale quando ativar (por grupo, se houver)
         if (!this.activeIdsFor(g).has(id)) continue;
         const box = g > 0 && o.alvos ? o.alvos[g - 1] : o;
-        if (box && this.isObjectiveDone(o, box)) this.completeObjetivo(o, g);
+        if (box && this.isObjectiveDone(o, box)) {
+          this.completeObjetivo(o, g); // ativo + feito = conclusão nova
+          avancaram.add(g);
+        }
       }
       this.objetivosDirty.clear();
+      // sequencial: limpa a faixa e traz a próxima sequência pra MESMA área
+      if (this.scenario.modo === "sequencial") {
+        for (const g of avancaram) this.carregarProximaSequencia(g);
+      }
       this.broadcastObjectives(); // contadores mudaram mesmo sem conclusão
     }
 

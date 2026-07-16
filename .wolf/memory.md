@@ -1072,3 +1072,20 @@ bug-195 (basename sem import). .exe/empacotamento segue ADIADO (decisão do usu�
 
 | Time | Action | File(s) | Outcome | ~Tokens |
 |------|--------|---------|---------|--------|
+| 13:33 | commit cp20-22 (letra/número, dia/noite, /kicar) | 25 arquivos | 47ae4f5, árvore limpa, 150 testes verdes | ~4k |
+| 13:54 | Edited shared/src/worldgen.ts | paredes() → deles() | ~383 |
+| 13:54 | Edited shared/src/cp14.test.ts | modified o() | ~418 |
+| 13:54 | Edited server/src/cenarios/verificar.ts | modified for() | ~214 |
+| 13:55 | Edited shared/src/session.ts | added 6 condition(s) | ~560 |
+| 13:55 | Edited shared/src/regions.test.ts | added 1 import(s) | ~44 |
+| 13:55 | Edited shared/src/regions.test.ts | added 1 import(s) | ~46 |
+| 13:55 | Edited shared/src/regions.test.ts | added optional chaining | ~392 |
+| 13:55 | Edited client/src/commands.ts | inline fix | ~21 |
+| 13:56 | Edited client/index.html | inline fix | ~25 |
+| 14:13 | cabines→plot demarcado (borda pedra-lavrada rente ao chão, sem tábua) + /regiao sortear | worldgen.ts, session.ts, verificar.ts, cp14/regions.test, index.html, commands.ts | typecheck 3/3, 152 testes, 3 aulas regeradas ✓, build ✓ | ~9k |
+| 14:14 | Session end: 9 writes across 7 files (worldgen.ts, cp14.test.ts, verificar.ts, session.ts, regions.test.ts) | 9 reads | ~37787 tok |
+| 14:21 | Edited shared/src/session.ts | added 3 condition(s) | ~798 |
+| 14:21 | Edited shared/src/session.ts | added 1 condition(s) | ~300 |
+| 14:23 | Edited shared/src/scenario.test.ts | added optional chaining | ~502 |
+| 14:23 | trilha sequencial: ao concluir, faixa auto-limpa e carrega a próxima sequência na MESMA área | session.ts (carregarProximaSequencia, restaurarAreaBaseline, tick, restaurarAreasBaseline split por modo), scenario.test.ts | typecheck 3/3, 153 testes | ~11k |
+| 14:24 | Session end: 12 writes across 8 files (worldgen.ts, cp14.test.ts, verificar.ts, session.ts, regions.test.ts) | 10 reads | ~43524 tok |

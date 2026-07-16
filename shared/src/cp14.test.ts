@@ -135,35 +135,34 @@ describe("cp14 — broadcast `groups` (composição pros painéis)", () => {
   });
 });
 
-describe("cp14 — mundo-modelo cabines", () => {
-  it("cabine no canto de cada chunk: 3 paredes de tábuas, lado +x aberto, sem teto", () => {
+describe("cp14 — mundo-modelo cabines (plot demarcado)", () => {
+  it("plot no canto de cada chunk: borda de pedra-lavrada rente ao chão, sem paredes", () => {
     const w = generateCabinsWorld(DIMS);
-    // parede x=0 (z 0..4) e paredes z=0/z=4 (x 0..4), 2 de altura (y 4..5)
-    expect(getBlock(w, 0, 4, 0)).toBe(BlockId.Planks);
-    expect(getBlock(w, 0, 5, 4)).toBe(BlockId.Planks);
-    expect(getBlock(w, 4, 4, 0)).toBe(BlockId.Planks); // canto da parede z=0
-    expect(getBlock(w, 2, 4, 4)).toBe(BlockId.Planks); // parede z=4
-    // lado x=4 ABERTO (olha pro centro do chunk) e topo aberto
-    expect(getBlock(w, 4, 4, 2)).toBe(BlockId.Air);
-    expect(getBlock(w, 0, 6, 0)).toBe(BlockId.Air);
-    // interior vazio, chão de grama embaixo
-    expect(getBlock(w, 2, 4, 2)).toBe(BlockId.Air);
+    // borda 5×5 no chão (y=3): cantos e lados = pedra-lavrada
+    expect(getBlock(w, 0, 3, 0)).toBe(BlockId.StoneBricks);
+    expect(getBlock(w, 4, 3, 0)).toBe(BlockId.StoneBricks);
+    expect(getBlock(w, 0, 3, 4)).toBe(BlockId.StoneBricks);
+    expect(getBlock(w, 2, 3, 4)).toBe(BlockId.StoneBricks); // lado z=4
+    // miolo do plot continua grama (borda só no perímetro)
     expect(getBlock(w, 2, 3, 2)).toBe(BlockId.Grass);
-    // uma cabine POR chunk (vizinho em x=16)
-    expect(getBlock(w, 16, 4, 0)).toBe(BlockId.Planks);
-    expect(getBlock(w, 16, 5, 8)).toBe(BlockId.Air); // fora da cabine
+    // NADA acima do chão: sem paredes, sem teto
+    expect(getBlock(w, 0, 4, 0)).toBe(BlockId.Air);
+    expect(getBlock(w, 0, 5, 0)).toBe(BlockId.Air);
+    // um plot POR chunk (vizinho em x=16); fora do footprint = grama
+    expect(getBlock(w, 16, 3, 0)).toBe(BlockId.StoneBricks);
+    expect(getBlock(w, 16 + 8, 3, 8)).toBe(BlockId.Grass);
   });
 
-  it("preset cabines na sessão: spawn desloca pro meio do chunk (fora da cabine)", () => {
+  it("preset cabines na sessão: spawn desloca pro meio do chunk (fora do plot)", () => {
     const sent: unknown[] = [];
     const session = new GameSession(() => sent.push(0), {
       dims: DIMS,
       preset: "cabines",
       singleplayer: true,
     });
-    // centro do mundo (16) é canto de chunk = cabine; spawn vai pra 16+8+0.5
+    // centro do mundo (16) é canto de chunk = borda do plot; spawn vai pra 16+8+0.5
     expect(session.spawn).toEqual({ x: 24.5, y: 4, z: 24.5 });
-    expect(getBlock(session.world, 16, 4, 16)).toBe(BlockId.Planks);
+    expect(getBlock(session.world, 16, 3, 16)).toBe(BlockId.StoneBricks);
   });
 
   it("flat: true continua valendo como alias do preset plano", () => {

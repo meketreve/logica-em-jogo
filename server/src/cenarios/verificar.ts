@@ -55,8 +55,8 @@ function conferirGeometria(world: World, alvos: Box[], problemas: string[]): voi
     }
     const ox = Math.floor(a.min.x / CHUNK_SIZE) * CHUNK_SIZE;
     const oz = Math.floor(a.min.z / CHUNK_SIZE) * CHUNK_SIZE;
-    if (getBlock(world, ox, y, oz) !== BlockId.Planks) {
-      problemas.push(`o grupo ${g} não tem cabine no chunk da área dele`);
+    if (getBlock(world, ox, FLAT_SURFACE_Y, oz) !== BlockId.StoneBricks) {
+      problemas.push(`o grupo ${g} não tem o plot demarcado no chunk da área dele`);
     }
     for (let z = a.min.z; z <= a.max.z; z++) {
       for (let x = a.min.x; x <= a.max.x; x++) {
@@ -65,7 +65,7 @@ function conferirGeometria(world: World, alvos: Box[], problemas: string[]): voi
           return;
         }
         if (x - ox < CABIN_SIZE && z - oz < CABIN_SIZE) {
-          problemas.push(`área do grupo ${g}: célula (${x},${z}) cai dentro da cabine`);
+          problemas.push(`área do grupo ${g}: célula (${x},${z}) cai dentro do plot`);
           return;
         }
         if (Math.floor(x / CHUNK_SIZE) * CHUNK_SIZE !== ox || Math.floor(z / CHUNK_SIZE) * CHUNK_SIZE !== oz) {

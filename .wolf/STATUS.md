@@ -738,12 +738,43 @@ re-playtestados ✅:
   (`_smoke-kicar.mjs`): kick, aviso, aluno barrado, nome inexistente, não
   auto-remove ✅.
 
+- **CABINES → PLOT DEMARCADO + /regiao sortear (2026-07-16, pedido do usuário).**
+  (1) Tirar as tábuas das cabines: `generateCabinsWorld` não faz mais paredes —
+  desenha uma BORDA de pedra-lavrada (StoneBricks) rente ao chão no perímetro do
+  footprint 5×5 de cada chunk. Delimita a área do grupo sem parede/teto. Preset
+  key segue `"cabines"`; spawn ainda vai pro meio do chunk. `verificar.ts` agora
+  confere o marcador. Label do menu virou "áreas demarcadas". As 3 aulas foram
+  REGENERADAS (`npm run cenarios`) e passaram no `conferir` embutido.
+  (2) `/regiao sortear nome id…` (novo, só professor): preenche a região
+  sorteando entre os ids dados — o professor gera um gabarito ALEATÓRIO na hora,
+  refotografa com `/objetivo add construir` e reinicia. typecheck 3/3, 152
+  testes (+2 sortear), build ✓. **Gerar sequência nova ao vivo já era possível
+  só com os comandos existentes** (remover objetivo → limpar area-N → montar na
+  faixa modelo → `/objetivo add construir modelo area`); "sequência de
+  sequências" = `/objetivo modo sequencial` + N objetivos (uma faixa por
+  objetivo por grupo).
+
+- **TRILHA SEQUENCIAL — auto-limpa + próxima sequência na MESMA faixa
+  (2026-07-16, pedido do usuário).** No modo `sequencial`, quando um grupo
+  conclui a sequência ativa, o servidor LIMPA a faixa dele e carrega
+  automaticamente a próxima na MESMA área (`carregarProximaSequencia` repõe o
+  baseline/semente do próximo objetivo ativo). Professor só cria os modelos; o
+  aluno percorre as sequências em ordem sem ninguém limpar à mão. **Autoria:**
+  `/objetivo modo sequencial` → (para cada etapa) construir o modelo numa região
+  `modelo` e `/objetivo add construir modelo <alvo> <texto>`, reusando o MESMO
+  `<alvo>` (`area` per-grupo ou uma região compartilhada) em todos → `/iniciar`.
+  Cada etapa começa VAZIA por padrão (baseline = estado da faixa no `add`; semeie
+  antes do `add` se quiser pista por etapa). `restaurarAreasBaseline` agora
+  depende do modo (sequencial = só a faixa ativa; livre = todas). 100% servidor
+  (cliente já trata block_changed + objectives). typecheck 3/3, 153 testes (+1).
+
 ---
 
 ## 🚀 PRÓXIMA QUEST — playtest dos cenários, depois o piloto
 
-**Estado:** motor + autoria + 3 cenários prontos. Falta a única coisa que o
-código não prova: **um humano jogando as aulas**.
+**Estado:** motor + autoria + 3 cenários prontos. cp20-22 COMMITADOS
+(`47ae4f5`, 2026-07-16 — árvore limpa). Falta a única coisa que o código não
+prova: **um humano jogando as aulas**.
 
 **Objetivo desta sessão:** o usuário playtesta as 3 aulas como professor E como
 aluno, e a lista de atritos que sair daí decide o próximo trabalho de motor.
@@ -811,7 +842,11 @@ build, 137 testes, lógica do autocomplete validada em node.
   numerar? (b) DIA/NOITE — cenário abre em dia permanente (confirmado no fio); o
   professor consegue demonstrar com `/hora noite` + `/ciclo ligar`? o céu de
   noite deixa ver o suficiente pra construir? (c) `/kicar nome` — o fluxo de
-  remover um aluno bagunceiro é natural?
+  remover um aluno bagunceiro é natural? (d) PLOT demarcado (sem cabines de
+  tábua) — a borda de pedra-lavrada no chão delimita bem a área do grupo? o mapa
+  ficou melhor sem paredes? (e) `/regiao sortear modelo <ids>` seguido de
+  refotografar + reiniciar — o professor consegue gerar uma sequência nova/
+  aleatória na hora?
 
 **Depois:** piloto com a turma no lab → relatório de aplicação (entregável final).
 
