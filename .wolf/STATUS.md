@@ -825,6 +825,12 @@ primário — de propósito).
 3. Rede: Wi-Fi da escola pode ter **isolamento de clientes** (AP isolation) → os
    dispositivos não se enxergam. **Testar UM tablet ANTES da aula.** Firewall do
    host pode bloquear a 8080 → liberar.
+   **⚠️ Se o servidor rodar dentro do WSL** (como no PC de dev): o IP que o boot
+   imprime é o INTERNO do WSL (172.x.x.x, NAT) — aluno da LAN NÃO alcança. Usar
+   o IP do WINDOWS (`ipconfig`) e encaminhar a porta (PowerShell admin):
+   `netsh interface portproxy add v4tov4 listenport=8080 listenaddress=0.0.0.0 connectport=8080 connectaddress=<ip-do-wsl>`
+   (+ liberar 8080 no firewall do Windows). Alternativas: Node instalado no
+   Windows (roda o servidor fora do WSL, zero proxy) ou WSL2 `networkingMode=mirrored`.
 4. Fluxo: aluno digita nome + PIN (registra na 1ª vez); professor também põe o
    código. Auto-distribui em grupos → professor aperta **▶ iniciar** (ou
    `/iniciar 5`). Trocar de aula ao vivo: `/mundo carregar aula2-binario`.
