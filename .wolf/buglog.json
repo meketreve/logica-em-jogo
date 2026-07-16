@@ -3690,6 +3690,22 @@
       "related_bugs": [],
       "occurrences": 1,
       "last_seen": "2026-07-16T17:23:02.081Z"
+    },
+    {
+      "id": "bug-227",
+      "timestamp": "2026-07-16T18:21:43.287Z",
+      "error_message": "Significant refactor of ",
+      "file": "client/src/input.ts",
+      "root_cause": "2 lines replaced/restructured",
+      "fix": "Rewrote 8→6 lines (2 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-16T18:21:43.287Z"
     }
   ]
 }

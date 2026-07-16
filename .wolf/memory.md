@@ -1089,3 +1089,8 @@ bug-195 (basename sem import). .exe/empacotamento segue ADIADO (decisão do usu�
 | 14:23 | Edited shared/src/scenario.test.ts | added optional chaining | ~502 |
 | 14:23 | trilha sequencial: ao concluir, faixa auto-limpa e carrega a próxima sequência na MESMA área | session.ts (carregarProximaSequencia, restaurarAreaBaseline, tick, restaurarAreasBaseline split por modo), scenario.test.ts | typecheck 3/3, 153 testes | ~11k |
 | 14:24 | Session end: 12 writes across 8 files (worldgen.ts, cp14.test.ts, verificar.ts, session.ts, regions.test.ts) | 10 reads | ~43524 tok |
+| 15:02 | Session end: 12 writes across 8 files (worldgen.ts, cp14.test.ts, verificar.ts, session.ts, regions.test.ts) | 10 reads | ~43524 tok |
+| 15:12 | Session end: 12 writes across 8 files (worldgen.ts, cp14.test.ts, verificar.ts, session.ts, regions.test.ts) | 10 reads | ~43524 tok |
+| 15:21 | Edited client/src/input.ts | modified ENGATADO() | ~74 |
+| 15:21 | Edited client/src/input.ts | 8→6 lines | ~45 |
+| 15:23 | PIVOT: plano de touch controls p/ piloto amanhã gravado no STATUS (não codar agora, /clear e próxima sessão executa) | STATUS.md | plano A(touch)/B(checklist)/C(relatório); input.ts stub revertido | ~6k |
