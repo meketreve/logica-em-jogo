@@ -234,6 +234,14 @@ let applyTeleport:
 let serverSpawn: { x: number; y: number; z: number } | null = null;
 /** Papel do próprio jogador — vem no spawn (cp11); habilita a varinha. */
 let papel: "professor" | "aluno" = "aluno";
+/** Voo criativo liberado pra TURMA (msg `voo`). Professor voa independente disto. */
+let vooLiberado = false;
+/** Estou voando agora? Alterna com duplo-toque no espaço (se podeVoar). */
+let flying = false;
+/** Posso voar? Professor sempre; aluno só com o voo liberado pra turma. */
+function podeVoar(): boolean {
+  return papel === "professor" || vooLiberado;
+}
 /** Última lista de regiões do servidor (chega só pra professor). */
 let latestRegions: NamedRegion[] = [];
 let applyRegions: ((regions: NamedRegion[]) => void) | null = null;
@@ -330,6 +338,16 @@ function handleServerData(data: string | ArrayBuffer): void {
       applyTeleport?.(msg);
     } else if (msg.type === "time") {
       skyCycle.sync(msg.hora, msg.ciclo);
+    } else if (msg.type === "voo") {
+      vooLiberado = msg.liberado;
+      // aluno perdeu a liberação no meio do voo: cai (professor voa sempre)
+      if (!podeVoar()) flying = false;
+      chat.addMessage(
+        "jogo",
+        msg.liberado
+          ? "voo liberado — dois toques no espaço para voar (espaço sobe, agachar desce)"
+          : "voo trancado pela turma",
+      );
     } else if (msg.type === "kicked") {
       // professor removeu (cp22): mesmo caminho do join_denied — motivo vira
       // banner no menu (sem alert nativo), o socket cai logo depois.
@@ -982,6 +1000,9 @@ function startGame(snap: Snapshot): void {
   let sprintLatch = false;
   let forwardWasDown = false;
   let lastForwardTap = 0;
+  // voo por duplo-toque no pular (só quem pode voar)
+  let jumpWasDown = false;
+  let lastJumpTap = 0;
   // altura do olho com transição suave (agachar abaixa a câmera)
   let eyeHeight = PLAYER.eyeHeight;
   renderer.setAnimationLoop(() => {
@@ -1010,7 +1031,15 @@ function startGame(snap: Snapshot): void {
     const sprint =
       forward > 0 && !sneak && (sprintLatch || (input.active && input.down(settings.keys.correr)));
 
-    stepPlayer(world, player, { forward, strafe, jump, yaw: input.yaw, sprint, sneak }, dt);
+    // duplo-toque no pular alterna o voo (só quem pode voar); em voo, pular sobe
+    if (jump && !jumpWasDown) {
+      if (podeVoar() && now - lastJumpTap < 300) flying = !flying;
+      lastJumpTap = now;
+    }
+    jumpWasDown = jump;
+    const fly = flying && podeVoar();
+
+    stepPlayer(world, player, { forward, strafe, jump, yaw: input.yaw, sprint, sneak, fly }, dt);
     if (player.pos.y < -16) respawn(); // caiu da borda do mundo
 
     // jogadores remotos deslizam até o último update (suave mesmo a 10 Hz);
@@ -1024,7 +1053,7 @@ function startGame(snap: Snapshot): void {
 
     // olho abaixa agachado; FOV abre correndo — transições suaves (independem do FPS)
     const kCam = 1 - Math.exp(-dt * 20);
-    eyeHeight += ((sneak ? PLAYER.sneakEyeHeight : PLAYER.eyeHeight) - eyeHeight) * kCam;
+    eyeHeight += ((sneak && !fly ? PLAYER.sneakEyeHeight : PLAYER.eyeHeight) - eyeHeight) * kCam;
     // FOV segue a corrida ENGATADA (player.sprinting), não a tecla: soltar o
     // Ctrl segurando o W continua correndo — o FOV tem que continuar aberto
     const fovAlvo = settings.fov * (player.sprinting ? 1.1 : 1);

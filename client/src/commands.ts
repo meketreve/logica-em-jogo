@@ -21,6 +21,7 @@ const COMANDOS = [
   "iniciar",
   "hora",
   "ciclo",
+  "voo",
   "kicar",
 ];
 
@@ -32,6 +33,7 @@ const SUBCOMANDOS: Record<string, string[]> = {
   tp: ["grupos"],
   hora: ["dia", "noite", "amanhecer", "entardecer", "meio-dia", "meia-noite"],
   ciclo: ["ligar", "desligar"],
+  voo: ["ligar", "desligar"],
 };
 
 let mundosConhecidos: string[] = [];

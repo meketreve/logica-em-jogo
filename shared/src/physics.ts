@@ -29,6 +29,10 @@ export const PLAYER = {
   gravity: 25,
   /** Velocidade máxima de queda (evita atravessar blocos com dt grande). */
   terminalVelocity: 40,
+  /** Voo criativo: velocidade horizontal (mais rápido que andar). */
+  flySpeed: 9,
+  /** Voo criativo: subir/descer (tecla de pular / de agachar). */
+  flyVertSpeed: 7,
 } as const;
 
 /** Folga deixada ao encostar num bloco (evita re-colisão por arredondamento). */
@@ -53,8 +57,10 @@ export interface MoveInput {
   yaw: number;
   /** Correndo. Agachar vence: sneak=true ignora sprint. */
   sprint?: boolean;
-  /** Agachado: mais lento e, no chão, não cai da borda do bloco. */
+  /** Agachado: mais lento e, no chão, não cai da borda do bloco. Em voo, DESCE. */
   sneak?: boolean;
+  /** Em voo (modo criativo): sem gravidade; `jump` sobe e `sneak` desce. */
+  fly?: boolean;
 }
 
 export function createPlayer(x: number, y: number, z: number): PlayerState {
@@ -141,6 +147,30 @@ export function stepPlayer(world: World, p: PlayerState, input: MoveInput, dt: n
   // Velocidade horizontal direto do input (sem inércia — controle imediato).
   const f = input.forward;
   const s = input.strafe;
+
+  // Voo criativo: sem gravidade; pular sobe, agachar desce. Ainda COLIDE com
+  // blocos (não atravessa parede — convenção Minecraft criativo).
+  if (input.fly === true) {
+    p.sprinting = false;
+    p.onGround = false;
+    const sin = Math.sin(input.yaw);
+    const cos = Math.cos(input.yaw);
+    const len = Math.hypot(f, s);
+    const scale = (len > 1 ? 1 / len : 1) * PLAYER.flySpeed;
+    p.vel.x = (s * cos - f * sin) * scale;
+    p.vel.z = (-f * cos - s * sin) * scale;
+    p.vel.y = ((input.jump ? 1 : 0) - (input.sneak === true ? 1 : 0)) * PLAYER.flyVertSpeed;
+    const maxDist = Math.max(Math.abs(p.vel.x), Math.abs(p.vel.y), Math.abs(p.vel.z)) * dt;
+    const steps = Math.max(1, Math.ceil(maxDist / MAX_STEP));
+    const h = dt / steps;
+    for (let i = 0; i < steps; i++) {
+      moveAxis(world, p, "y", p.vel.y * h);
+      moveAxis(world, p, "x", p.vel.x * h);
+      moveAxis(world, p, "z", p.vel.z * h);
+    }
+    return;
+  }
+
   const sneak = input.sneak === true;
   // Corrida ENGATA só com os pés no chão (apertar correr no meio do pulo não
   // vira turbo aéreo). Engatada, a tecla de correr não precisa mais ser

@@ -56,7 +56,9 @@ export function generateWorld(dims: WorldDims = DEFAULT_WORLD_CHUNKS, seed = 1):
   for (let x = 0; x < world.sizeX; x++) {
     for (let z = 0; z < world.sizeZ; z++) {
       const h = Math.min(heightAt(x, z, seed), world.sizeY - 2);
-      for (let y = 0; y < h; y++) setBlock(world, x, y, z, BlockId.Stone);
+      // camada 0 = rocha-matriz (aluno não fura o fundo do mundo); igual ao plano
+      setBlock(world, x, 0, z, BlockId.Bedrock);
+      for (let y = 1; y < h; y++) setBlock(world, x, y, z, BlockId.Stone);
       setBlock(world, x, h, z, h <= SAND_HEIGHT ? BlockId.Sand : BlockId.Grass);
     }
   }

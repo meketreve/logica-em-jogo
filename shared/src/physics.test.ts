@@ -180,3 +180,38 @@ describe("física do jogador (/shared — cliente usa, servidor valida)", () => 
     expect(p.onGround).toBe(true);
   });
 });
+
+describe("voo criativo (fly)", () => {
+  it("em voo não cai — sem tecla, fica parado no ar", () => {
+    const w = flatWorld();
+    const p = createPlayer(8, 20, 8);
+    simulate(w, p, { ...IDLE, fly: true }, 2);
+    expect(p.pos.y).toBeCloseTo(20, 3); // gravidade desligada
+    expect(p.onGround).toBe(false);
+  });
+
+  it("pular sobe e agachar desce em voo", () => {
+    const w = flatWorld();
+    const p = createPlayer(8, 20, 8);
+    simulate(w, p, { ...IDLE, fly: true, jump: true }, 1);
+    expect(p.pos.y).toBeGreaterThan(24); // ~flyVertSpeed blocos/s pra cima
+
+    const q = createPlayer(8, 20, 8);
+    simulate(w, q, { ...IDLE, fly: true, sneak: true }, 1);
+    expect(q.pos.y).toBeLessThan(16); // desce
+  });
+
+  it("voo ainda colide com blocos (não atravessa o chão)", () => {
+    const w = flatWorld(); // sólido y ∈ [0,7]
+    const p = createPlayer(8, 8.001, 8);
+    simulate(w, p, { ...IDLE, fly: true, sneak: true }, 2); // tenta descer pro chão
+    expect(p.pos.y).toBeGreaterThanOrEqual(8 - 1e-2); // parou em cima
+  });
+
+  it("voo move na horizontal mais rápido que andar", () => {
+    const w = flatWorld();
+    const p = createPlayer(8, 20, 8);
+    simulate(w, p, { ...IDLE, fly: true, forward: 1 }, 1);
+    expect(p.pos.z).toBeLessThan(8 - PLAYER.walkSpeed); // > walkSpeed blocos/s
+  });
+});

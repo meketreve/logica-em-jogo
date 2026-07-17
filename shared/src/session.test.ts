@@ -801,3 +801,72 @@ describe("identidade cp9: PIN + papel (default = estrito, PIN exigido)", () => {
     expect(welcome.text).toContain("/resetpin");
   });
 });
+
+describe("voo criativo (/voo): professor libera pra turma", () => {
+  const join = (name: string, pin?: string, codigo?: string) =>
+    JSON.stringify({ type: "join", name, pin, codigo });
+  const chatCmd = (text: string) => JSON.stringify({ type: "chat", text });
+
+  it("professor liga/desliga e a turma recebe o broadcast", () => {
+    const { sent, send } = collect();
+    const session = new GameSession(send, { dims: DIMS, seed: 5, codigo: "sala" });
+    session.handleMessage(1, join("prof", "4321", "sala")); // professor
+    session.handleMessage(2, join("ana", "1111")); // aluno
+    sent.length = 0;
+
+    session.handleMessage(1, chatCmd("/voo ligar"));
+    // broadcast `voo liberado` pros DOIS + resposta do comando só pro autor
+    const voos = sent
+      .map((s) => ({ id: s.clientId, m: parseServerMessage(s.data as string) }))
+      .filter((x) => x.m?.type === "voo");
+    expect(voos.map((v) => v.id).sort()).toEqual([1, 2]);
+    expect(voos.every((v) => v.m?.type === "voo" && v.m.liberado)).toBe(true);
+    sent.length = 0;
+
+    session.handleMessage(1, chatCmd("/voo desligar"));
+    const off = sent
+      .map((s) => parseServerMessage(s.data as string))
+      .filter((m) => m?.type === "voo");
+    expect(off.length).toBe(2);
+    expect(off.every((m) => m?.type === "voo" && m.liberado === false)).toBe(true);
+  });
+
+  it("aluno não libera voo — recusa só pro autor, turma nada recebe", () => {
+    const { sent, send } = collect();
+    const session = new GameSession(send, { dims: DIMS, seed: 5, codigo: "sala" });
+    session.handleMessage(1, join("prof", "4321", "sala"));
+    session.handleMessage(2, join("ana", "1111"));
+    sent.length = 0;
+
+    session.handleMessage(2, chatCmd("/voo ligar"));
+    expect(sent).toHaveLength(1);
+    expect(sent[0]?.clientId).toBe(2);
+    const msg = parseServerMessage(sent[0]?.data as string);
+    if (msg?.type !== "chat") throw new Error("esperava chat");
+    expect(msg.text).toContain("Somente o professor");
+  });
+
+  it("aluno que entra DEPOIS do /voo ligar recebe o estado no join", () => {
+    const { sent, send } = collect();
+    const session = new GameSession(send, { dims: DIMS, seed: 5, codigo: "sala" });
+    session.handleMessage(1, join("prof", "4321", "sala"));
+    session.handleMessage(1, chatCmd("/voo ligar"));
+    sent.length = 0;
+
+    session.handleMessage(2, join("bia", "2222")); // aluno chega com voo já liberado
+    const voo = sent
+      .filter((s) => s.clientId === 2)
+      .map((s) => parseServerMessage(s.data as string))
+      .find((m) => m?.type === "voo");
+    if (voo?.type !== "voo") throw new Error("esperava msg voo no join");
+    expect(voo.liberado).toBe(true);
+  });
+
+  it("voo trancado (default): join NÃO manda msg voo (sem churn)", () => {
+    const { sent, send } = collect();
+    const session = new GameSession(send, { dims: DIMS, seed: 5, singleplayer: true });
+    session.handleMessage(1, join("ana"));
+    const temVoo = sent.some((s) => parseServerMessage(s.data as string)?.type === "voo");
+    expect(temVoo).toBe(false);
+  });
+});

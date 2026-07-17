@@ -441,6 +441,22 @@
   neles. `setShown(false)` SOLTA as teclas seguradas (heldKeys) — esconder a
   UI no meio de um toque não deixa o jogador andando sozinho. Botão novo de
   ação = compor sobre input.press/setKey, nunca handler paralelo.
+- **Voo criativo (2026-07-17):** voo é 100% CLIENTE (física em /shared, cp10
+  server-validation adiado) — `MoveInput.fly` desliga a gravidade em stepPlayer,
+  `jump` sobe e `sneak` desce, mas AINDA colide (moveAxis, não atravessa parede;
+  convenção Minecraft criativo). Cliente: duplo-toque no pular alterna `flying`
+  (espelha o latch do sprint), só se `podeVoar()` = papel professor OU voo
+  liberado pra turma. Descer voando NÃO agacha a câmera (`sneak && !fly`).
+- **`/voo` (2026-07-17):** professor libera/tranca voo pra TURMA; ele voa sempre
+  (independe do flag). Estado `vooLiberado` na session, NÃO persiste (nasce
+  desligado a cada sessão). Msg `voo {liberado}` server→cliente: broadcast no
+  toggle + enviada no join SÓ quando `liberado` (default false = zero churn nos
+  asserts de contagem do join — ver Do-Not-Repeat de 2026-07-16). Aluno que perde
+  a liberação no meio do voo cai (handler do cliente zera `flying`). Padrão de
+  "flag de turma com toggle do professor" reusável (ex.: futuro modo construir).
+- **Rocha-matriz na camada 0 (2026-07-17):** `generateWorld` (preset normal)
+  põe Bedrock em y=0 e Stone de y=1..h — igual ao plano/cabines (que derivam de
+  generateFlatWorld e já tinham). Aluno não fura o fundo do mundo em nenhum preset.
 - `touch-action: none` no body NÃO trava scroll de container interno com
   overflow próprio (menu, painéis): o gesto consulta touch-action só do alvo
   até o elemento que ROLA — body fica fora da cadeia. Mata pull-to-refresh e
@@ -559,6 +575,11 @@
   `$!` é o wrapper npx — o node filho segue vivo segurando a porta (bug-092).
   Achar o dono REAL com `ss -tlnp | grep PORTA` e matar esse PID (SIGINT no host
   Node = salva antes de sair).
+- [2026-07-17] Smoke do HOST Node sem `LJ_SAVE` grava/sobrescreve o
+  `server/world.ljw` RASTREADO (save-default do host, versionado no commit de
+  sync casa↔escola) — poluiu o arquivo e depois `rm` deu `D` no git. Ao subir o
+  host pra teste/screenshot, SEMPRE passar `LJ_SAVE=<scratchpad>/teste.ljw` (e
+  LJ_PORT próprio). Se já poluiu: `git checkout -- server/world.ljw`.
 - [2026-07-13] Smoke `.mts` no scratchpad: rodar `node --import tsx script.mts`
   com CWD no repo (tsx resolve de node_modules do projeto); do scratchpad dá
   ERR_MODULE_NOT_FOUND. Import de /shared por caminho absoluto continua valendo.

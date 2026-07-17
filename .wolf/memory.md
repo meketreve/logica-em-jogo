@@ -1251,3 +1251,33 @@ bug-195 (basename sem import). .exe/empacotamento segue ADIADO (decisão do usu�
 | 12:02 | /tpr pede + /tpa aceita (30s) + /tp nome direto do professor (~ relativo ao teleportado) | shared/src/session.ts, shared/src/tp.test.ts, client/src/commands.ts | 182 testes, typecheck 3/3, build ok | ~25k |
 | 12:03 | Session end: 68 writes across 21 files (session.ts, regions.test.ts, session.test.ts, blocks.ts, physics.ts) | 21 reads | ~89059 tok |
 | 14:22 | SESSÃO FECHADA (handoff pré /clear): /regiao criar coords+~, ~ no /bloco, cp23 cerca/porta/tocha, encher em lote 65536, /tpr+/tpa+/tp nome. 182 testes, 4 commits pushados. Backlog novo: voo criativo, bedrock camada 0 | .wolf/* | tudo verde, dist no repo | - |
+| 14:22 | Session end: 68 writes across 21 files (session.ts, regions.test.ts, session.test.ts, blocks.ts, physics.ts) | 21 reads | ~89059 tok |
+
+## Session: 2026-07-17 14:23
+
+| Time | Action | File(s) | Outcome | ~Tokens |
+|------|--------|---------|---------|--------|
+| 14:39 | Edited shared/src/protocol.ts | expanded (+9 lines) | ~132 |
+| 14:39 | Edited shared/src/protocol.ts | added 1 condition(s) | ~109 |
+| 14:39 | Edited shared/src/physics.ts | 5→9 lines | ~91 |
+| 14:39 | Edited shared/src/physics.ts | modified voo() | ~80 |
+| 14:39 | Edited shared/src/physics.ts | added 1 condition(s) | ~346 |
+| 14:40 | Edited shared/src/worldgen.ts | 3→5 lines | ~101 |
+| 14:40 | Edited shared/src/session.ts | 3→7 lines | ~123 |
+| 14:40 | Edited shared/src/session.ts | added 1 condition(s) | ~151 |
+| 14:40 | Edited shared/src/session.ts | added optional chaining | ~322 |
+| 14:40 | Edited shared/src/session.ts | added 1 condition(s) | ~165 |
+| 14:40 | Edited client/src/main.ts | modified podeVoar() | ~138 |
+| 14:41 | Edited client/src/main.ts | added 2 condition(s) | ~144 |
+| 14:41 | Edited client/src/main.ts | 4→7 lines | ~75 |
+| 14:41 | Edited client/src/main.ts | added 2 condition(s) | ~179 |
+| 14:41 | Edited client/src/main.ts | inline fix | ~28 |
+| 14:41 | Edited client/src/commands.ts | 5→6 lines | ~16 |
+| 14:41 | Edited client/src/commands.ts | 3→4 lines | ~41 |
+| 14:43 | Edited shared/src/session.test.ts | added 2 condition(s) | ~913 |
+| 14:43 | Edited shared/src/physics.test.ts | expanded (+35 lines) | ~418 |
+| 14:43 | Created shared/src/worldgen.test.ts | — | ~264 |
+| 14:44 | Edited shared/src/worldgen.test.ts | modified for() | ~97 |
+| 15:58 | Sessão: voo criativo (/voo) + bedrock camada 0 | physics/protocol/session/worldgen/main/commands | 192 testes, typecheck 3/3, build+dist ok, screenshot boot ok | ~sessão |
+| 15:58 | Edited ideias para fazer.txt | 6→6 lines | ~95 |
+| 15:59 | Session end: 22 writes across 10 files (protocol.ts, physics.ts, worldgen.ts, session.ts, main.ts) | 10 reads | ~61910 tok |

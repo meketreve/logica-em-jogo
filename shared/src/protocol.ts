@@ -188,6 +188,15 @@ export type ServerMessage =
     }
   | {
       /**
+       * Voo liberado pra TURMA (modo criativo). O professor voa sempre; este
+       * flag diz se os alunos também podem (professor alterna com /voo). No
+       * join só é enviado quando `liberado` (default false = sem churn no join).
+       */
+      type: "voo";
+      liberado: boolean;
+    }
+  | {
+      /**
        * Aluno REMOVIDO da aula pelo professor (cp22, /kicar). Cliente mostra o
        * motivo e volta pro menu — mesmo caminho do join_denied. O socket cai
        * logo depois; ele pode entrar de novo com o PIN.
@@ -408,6 +417,9 @@ export function parseServerMessage(raw: string): ServerMessage | null {
       if (typeof m["ciclo"] !== "boolean") return null;
       return { type: "time", hora: m["hora"], ciclo: m["ciclo"] };
     }
+    case "voo":
+      if (typeof m["liberado"] !== "boolean") return null;
+      return { type: "voo", liberado: m["liberado"] };
     case "kicked":
       if (typeof m["reason"] !== "string") return null;
       return { type: "kicked", reason: m["reason"] };

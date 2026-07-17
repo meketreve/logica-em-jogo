@@ -1,5 +1,4 @@
-porta
-vidro
+
 tapete
 parte da janela que abre e fecha
 cama
@@ -7,10 +6,14 @@ sofá
 cadeira
 mesa
 quadro( com interface para digitar textos e adicionar imagens)
-comando para kicar aluno por mau comportamento
-sistema de dia e noite
-blocos com as letras e números
-cerca de madeira ( meio bloco vertical )
-voo do modo criativo do minecraft
-alterar a geração de terreno dos mundos para adicionar bedrock na camada 0
-/tpa e /tpr para aceitar e pedir tp comando todo seria /tpr (nome) e o player alvo recebe mensagen com (player) quer teleportar até você, use /tpa para aceitar.
+comando para kicar aluno por mau comportamento  -- JÁ EXISTE (/kicar, cp22)
+arrumar sistema de dia e noite
+
+voo do modo criativo do minecraft  -- FEITO (2026-07-17: /voo do professor libera pra turma; duplo-toque no espaço)
+alterar a geração de terreno dos mundos para adicionar bedrock na camada 0  -- FEITO (2026-07-17)
+auto completar nomes dos jogadores
+
+corrigir o nome do jogador para não aceitar nomes com espaços
+corrigir a animação da porta, está girando no próprio eixo, precisa girar 90 graus usando uma das pontas como referencia para o eixo de rotação
+
+interceptar atalhos do navegador em quando o mouse estiver capturado ( pra evitar de fechar a aba se apertar crtl+w para correr)

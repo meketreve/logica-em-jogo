@@ -1,7 +1,7 @@
 # anatomy.md
 
-> Auto-maintained by OpenWolf. Last scanned: 2026-07-17T15:01:55.107Z
-> Files: 93 tracked | Anatomy hits: 0 | Misses: 0
+> Auto-maintained by OpenWolf. Last scanned: 2026-07-17T18:58:05.159Z
+> Files: 95 tracked | Anatomy hits: 0 | Misses: 0
 
 ## ../../../tmp/claude-1000/-home-meketreve-logica-em-jogo/1e53a721-e45d-4911-a026-f385f8f2c4e6/scratchpad/
 
@@ -58,6 +58,7 @@
 ## ./
 
 - `.gitattributes` — LF em tudo (projeto vive no WSL/ext4; evita ruído CRLF de ferramentas Windows) (~31 tok)
+- `ideias para fazer.txt` — Declares para (~210 tok)
 - `package.json` — Node.js package manifest (~157 tok)
 
 ## .claude/
@@ -84,7 +85,7 @@
 - `blocksUi.ts` — Blocos colocáveis com nome em português — fonte única pra hotbar (main.ts) (~633 tok)
 - `chat.ts` — UI de chat em HTML/CSS por cima do canvas (regra: sem GUI de engine). (~1525 tok)
 - `chunks.ts` — 1 mesh por chunk (BufferGeometry única, culled mesher do /shared). (~1171 tok)
-- `commands.ts` — Autocompletar de comandos de chat (Tab). Puro, sem DOM — o chat.ts liga o (~583 tok)
+- `commands.ts` — Autocompletar de comandos de chat (Tab). Puro, sem DOM — o chat.ts liga o (~594 tok)
 - `commands.ts` — Autocompletar de comandos de chat (Tab). Puro, sem DOM — o chat.ts liga o (~516 tok)
 - `connection.ts` — Conexão do cliente com O SERVIDOR — interface única, hospedeiro invisível. (~1175 tok)
 - `daynight.ts` — Ciclo dia/noite (cp21) — SÓ visual. A hora é autoritativa do SERVIDOR (msg (~971 tok)
@@ -92,7 +93,7 @@
 - `hud.ts` — HUD de perfilação (F3): FPS, frametime méd+p95, remesh, draw calls e (~1099 tok)
 - `input.ts` — Teclado + mouse (pointer lock). SÓ coleta input — nenhuma decisão de (~1542 tok)
 - `inventory.ts` — Inventário de blocos (cp16) — grade com TODOS os colocáveis + faixa da (~1150 tok)
-- `main.ts` — O cliente não tem filesystem: aprende os nomes das aulas pela resposta de (~11607 tok)
+- `main.ts` — O cliente não tem filesystem: aprende os nomes das aulas pela resposta de (~11933 tok)
 - `menu.ts` — Menu principal (cp8) — HTML/CSS por cima do canvas, sem GUI de engine. (~4087 tok)
 - `objectivesUi.ts` — Grupo do PRÓPRIO jogador (null = sem grupo). (~1244 tok)
 - `panels.ts` — Painéis HTML do cp14 — açúcar visual sobre os comandos de chat: cada botão (~5834 tok)
@@ -141,10 +142,10 @@
 - `index.ts` (~114 tok)
 - `mesher.test.ts` — Declares DIMS (~992 tok)
 - `mesher.ts` — Culled mesher: função PURA (bytes do mundo → geometria). Só emite faces que (~4048 tok)
-- `physics.test.ts` — Mundo 1 chunk com chão sólido em y ∈ [0,7]. (~2227 tok)
-- `physics.ts` — Física do jogador (andar, gravidade, colisão AABB com o grid de voxels). (~1721 tok)
+- `physics.test.ts` — Mundo 1 chunk com chão sólido em y ∈ [0,7]. (~2603 tok)
+- `physics.ts` — Física do jogador (andar, gravidade, colisão AABB com o grid de voxels). (~2071 tok)
 - `protocol.test.ts` — Declares DIMS (~2707 tok)
-- `protocol.ts` — Protocolo v0 (checkpoint 2). Mensagens JSON dos dois lados + world_snapshot (~4822 tok)
+- `protocol.ts` — Protocolo v0 (checkpoint 2). Mensagens JSON dos dois lados + world_snapshot (~4949 tok)
 - `raycast.test.ts` — Mundo 16³ com chão sólido em y ∈ [0,7]. (~604 tok)
 - `raycast.ts` — Raycast de voxel (DDA de Amanatides-Woo): anda célula a célula do grid até (~649 tok)
 - `regions.test.ts` — Marca os 2 cantos e cria a região "casa" (0,0,0)→(3,4,5). (~3510 tok)
@@ -155,9 +156,10 @@
 - `save.ts` — Formato de save (.ljw) — MESMO arquivo em todos os hospedeiros: disco do (~1994 tok)
 - `scenario.test.ts` — Marca cantos e cria região nomeada via varinha + /regiao (professor id). (~4106 tok)
 - `scenario.ts` — Cenário (cp12) — o coração pedagógico: objetivos que checam o ESTADO DO (~3680 tok)
-- `session.test.ts` — Testes de MECÂNICA rodam com singleplayer: true (join sem PIN) — a (~10737 tok)
-- `session.ts` — GameSession: o SERVIDOR autoritativo, independente de hospedeiro. (~24518 tok)
+- `session.test.ts` — Testes de MECÂNICA rodam com singleplayer: true (join sem PIN) — a (~11611 tok)
+- `session.ts` — GameSession: o SERVIDOR autoritativo, independente de hospedeiro. (~24970 tok)
 - `tp.test.ts` — /tpr (pedir teleporte) + /tpa (aceitar) — todos os jogadores; e /tp nome / (~1490 tok)
 - `world.test.ts` — Declares DIMS (~761 tok)
 - `world.ts` — Dimensões do mundo em chunks. Parâmetro de criação, gravado no header do save/snapshot. (~848 tok)
-- `worldgen.ts` — Preset de criação de mundo (cp14): escolhido no menu/host, só vale pra (~1360 tok)
+- `worldgen.test.ts` — Declares DIMS (~287 tok)
+- `worldgen.ts` — Preset de criação de mundo (cp14): escolhido no menu/host, só vale pra (~1397 tok)

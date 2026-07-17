@@ -138,6 +138,10 @@ export class GameSession {
   /** O ciclo avança sozinho? Mundo de atividade nasce PARADO (dia permanente);
    *  professor liga/desliga com /ciclo; persiste no save. */
   private cicloAtivo = false;
+  /** Voo do modo criativo LIBERADO pra turma? O professor voa sempre; este
+   *  flag decide se os alunos também podem (professor alterna com /voo).
+   *  Transitório — NÃO persiste no save (nasce desligado a cada sessão). */
+  private vooLiberado = false;
 
   private readonly players = new Map<number, SessionPlayer>();
   /** Última POSIÇÃO conhecida por nome: volta onde parou, olhando pra onde
@@ -580,8 +584,12 @@ export class GameSession {
         if (!professor) return "Somente o professor pode controlar o ciclo de dia e noite.";
         return this.runCiclo(parts);
       }
+      case "voo": {
+        if (!professor) return "Somente o professor pode liberar o voo. Você pode voar quando o professor liberar.";
+        return this.runVoo(parts);
+      }
       default:
-        return `Comando desconhecido: ${text}. Os comandos disponíveis são /bloco, /resetpin, /regiao, /objetivo, /grupo, /tp, /tpr, /tpa, /iniciar, /hora e /ciclo.`;
+        return `Comando desconhecido: ${text}. Os comandos disponíveis são /bloco, /resetpin, /regiao, /objetivo, /grupo, /tp, /tpr, /tpa, /iniciar, /hora, /ciclo e /voo.`;
     }
   }
 
@@ -654,6 +662,28 @@ export class GameSession {
 
   private broadcastTime(): void {
     this.broadcast({ type: "time", hora: +this.horaDoDia.toFixed(3), ciclo: this.cicloAtivo });
+  }
+
+  /** `/voo`: libera/tranca o voo criativo pra TURMA. Sem argumento, alterna.
+   *  O professor voa sempre (independe disto). */
+  private runVoo(parts: string[]): string {
+    const arg = parts[1]?.toLowerCase();
+    if (arg === "ligar" || arg === "on") this.vooLiberado = true;
+    else if (arg === "desligar" || arg === "off") this.vooLiberado = false;
+    else if (arg === undefined) this.vooLiberado = !this.vooLiberado;
+    else return "Uso: /voo ligar ou /voo desligar (sem argumento, alterna).";
+    this.broadcastVoo();
+    return this.vooLiberado
+      ? "Voo liberado para a turma — dê dois toques no espaço para voar; espaço sobe e agachar desce."
+      : "Voo trancado para a turma (você continua podendo voar).";
+  }
+
+  private sendVoo(clientId: number): void {
+    this.send(clientId, JSON.stringify({ type: "voo", liberado: this.vooLiberado } satisfies ServerMessage));
+  }
+
+  private broadcastVoo(): void {
+    this.broadcast({ type: "voo", liberado: this.vooLiberado });
   }
 
   /** Subcomandos de /regiao (cp11) — só chega aqui com papel professor. */
@@ -927,11 +957,13 @@ export class GameSession {
         ? `A aula mudou: você está em um mundo novo${papel === "professor" ? "" : ". Confira o objetivo no canto da tela"}.`
         : `Bem-vindo, ${this.authorTag(clientId)}! Pressione Enter para abrir o chat.` +
             (papel === "professor"
-              ? " Comandos: /bloco · /resetpin · /regiao (varinha: R) · /objetivo · /grupo · /tp grupos · /tp nome · /iniciar · /hora · /ciclo"
+              ? " Comandos: /bloco · /resetpin · /regiao (varinha: R) · /objetivo · /grupo · /tp grupos · /tp nome · /iniciar · /hora · /ciclo · /voo"
               : " Comandos: /tpr nome (pedir teleporte até um colega) · /tpa (aceitar)"),
     );
     // professor vê as regiões existentes desde o join (depois do snapshot)
     if (papel === "professor" && this.regions.size) this.sendRegions(clientId);
+    // voo liberado pra turma: avisa o novo (default false = sem msg, sem churn no join)
+    if (this.vooLiberado) this.sendVoo(clientId);
     // grupos (cp13): aluno novo cai no MENOR grupo ("até não ter aluno sem
     // grupo"); quem já tinha grupo salvo continua nele
     let entrouEmGrupo = false;
