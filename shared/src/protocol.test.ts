@@ -88,6 +88,13 @@ describe("parse de mensagens JSON", () => {
     expect(
       parseServerMessage('{"type":"player_moved","id":2,"x":1.5,"y":10,"z":3,"yaw":0.5,"pitch":-0.1}'),
     ).toEqual({ type: "player_moved", id: 2, x: 1.5, y: 10, z: 3, yaw: 0.5, pitch: -0.1 });
+    // nome viaja opcional (plaquinha sobre o boneco); inválido é descartado
+    expect(
+      parseServerMessage('{"type":"player_moved","id":2,"x":1,"y":2,"z":3,"yaw":0,"pitch":0,"name":"ana"}'),
+    ).toEqual({ type: "player_moved", id: 2, x: 1, y: 2, z: 3, yaw: 0, pitch: 0, name: "ana" });
+    expect(
+      parseServerMessage('{"type":"player_moved","id":2,"x":1,"y":2,"z":3,"yaw":0,"pitch":0,"name":7}'),
+    ).toEqual({ type: "player_moved", id: 2, x: 1, y: 2, z: 3, yaw: 0, pitch: 0 });
     expect(parseServerMessage('{"type":"player_left","id":2}')).toEqual({
       type: "player_left", id: 2,
     });

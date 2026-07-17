@@ -463,7 +463,7 @@ describe("GameSession (servidor autoritativo)", () => {
     const toBia = sent.filter((s) => s.clientId === 2 && typeof s.data === "string")
       .map((s) => parseServerMessage(s.data as string));
     expect(toBia).toContainEqual({
-      type: "player_moved", id: 1, x: 3.5, y: 20, z: 4.5, yaw: 1, pitch: 0,
+      type: "player_moved", id: 1, x: 3.5, y: 20, z: 4.5, yaw: 1, pitch: 0, name: "ana",
     });
     // …e a ana fica sabendo da bia (nascendo no spawn)
     const toAna = sent.filter((s) => s.clientId === 1)
@@ -471,6 +471,7 @@ describe("GameSession (servidor autoritativo)", () => {
     expect(toAna).toContainEqual({
       type: "player_moved", id: 2,
       x: session.spawn.x, y: session.spawn.y, z: session.spawn.z, yaw: 0, pitch: 0,
+      name: "bia",
     });
     // ordem: presença só DEPOIS do snapshot (cliente já montou o jogo)
     const biaTypes = sent.filter((s) => s.clientId === 2)
@@ -491,7 +492,7 @@ describe("GameSession (servidor autoritativo)", () => {
     expect(sent).toHaveLength(1);
     expect(sent[0]?.clientId).toBe(2);
     expect(parseServerMessage(sent[0]?.data as string)).toEqual({
-      type: "player_moved", id: 1, x: 5.5, y: 20, z: 6.5, yaw: 1.2, pitch: -0.3,
+      type: "player_moved", id: 1, x: 5.5, y: 20, z: 6.5, yaw: 1.2, pitch: -0.3, name: "ana",
     });
   });
 

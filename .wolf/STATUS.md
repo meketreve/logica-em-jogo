@@ -2,6 +2,10 @@
 
 > Single source of truth for resuming work. Read this FIRST when starting a session.
 > Last updated: 2026-07-17 (DIA DO PILOTO)
+> **PLAQUINHA DE NOME (2026-07-17):** nome do jogador flutua sobre o boneco
+> (Sprite canvas, visível através de parede — professor acha aluno). `name`
+> opcional em `player_moved` (host antigo compatível). 153 testes, typecheck
+> 3/3, build + dist atualizados, screenshot headless confirma.
 > **TOUCH CONTROLS FEITOS + PLAYTEST MOBILE ✅ (2026-07-16):** celular jogou na
 > rede de casa via notebook Windows (host = clone do git). Rodada 2 (tela cheia,
 > botão chat, hotbar fixa, /say no terminal) FEITA e pushada. Piloto é HOJE —

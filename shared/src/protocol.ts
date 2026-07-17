@@ -73,6 +73,9 @@ export type ServerMessage =
       z: number;
       yaw: number;
       pitch: number;
+      /** Nome do jogador — o cliente desenha a plaquinha sobre o boneco.
+       *  Ausente = host antigo (compatível: caixa sem nome). */
+      name?: string;
     }
   | {
       /** Jogador desconectou — cliente remove a representação dele. */
@@ -298,6 +301,8 @@ export function parseServerMessage(raw: string): ServerMessage | null {
         z: m["z"] as number,
         yaw: m["yaw"] as number,
         pitch: m["pitch"] as number,
+        // nome inválido/ausente = sem plaquinha (host antigo compatível)
+        ...(typeof m["name"] === "string" ? { name: m["name"] } : {}),
       };
     }
     case "player_left": {

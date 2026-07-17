@@ -372,6 +372,19 @@
   novo de terminal entra no mesmo `terminal.on("line")`; candidato natural a
   migrar: /mundo e /kicar (já são interceptados no host — o responder vira
   console.log). Em nohup/background o stdin fecha na hora e nada quebra.
+- Plaquinha de nome (2026-07-17): o nome viaja OPCIONAL em `player_moved`
+  (parse defensivo descarta não-string; ausente = host antigo, caixa sem nome)
+  — servidor inclui `name` nos 4 pontos de emissão (move relay, presença ×2 no
+  admitir, teleportar). Cliente: THREE.Sprite FILHO da mesh do boneco (sprite
+  sempre encara a câmera e ignora o yaw do pai; offset só em Y não gira),
+  textura = canvas 2d procedural (texto branco, fundo rgba(0,0,0,0.4)),
+  `LinearFilter` (canvas não-potência-de-2 sem mipmap), `depthTest: false` =
+  nome visível através de parede (convenção Minecraft; professor acha aluno).
+  PEGADINHA: redimensionar o canvas RESETA ctx.font — setar de novo após
+  width/height. Dispose no player_left: map + material + remove do pai.
+  Mudança de nome (rejoin com id novo é o normal) recria o sprite via
+  labelName. Testes que dão toEqual em player_moved GANHARAM o campo name —
+  emissão nova sem name quebra esses asserts.
 - Chat no toque: Enter do teclado VIRTUAL precisa do fallback `e.key ===
   "Enter"` (Android nem sempre preenche e.code); fechar sem enviar = tocar no
   canvas (chat.close() público) — não existe Esc no celular.

@@ -216,7 +216,7 @@ let applyBlockChanged:
   | ((msg: { x: number; y: number; z: number; blockId: number }) => void)
   | null = null;
 let applyPlayerMoved:
-  | ((msg: { id: number; x: number; y: number; z: number; yaw: number }) => void)
+  | ((msg: { id: number; x: number; y: number; z: number; yaw: number; name?: string }) => void)
   | null = null;
 let applyPlayerLeft: ((id: number) => void) | null = null;
 let applyTeleport:
@@ -590,8 +590,47 @@ function startGame(snap: Snapshot): void {
     mesh: THREE.Mesh;
     target: THREE.Vector3;
     targetYaw: number;
+    /** Plaquinha de nome sobre a cabeça (filha da mesh; Sprite sempre encara a câmera). */
+    label?: THREE.Sprite;
+    labelName?: string;
   }
   const remotePlayers = new Map<number, RemotePlayer>();
+  // Plaquinha desenhada num canvas (zero assets, mesma regra do atlas):
+  // texto branco sobre fundo escuro translúcido, visível através de parede
+  // (convenção Minecraft — e o professor acha o aluno atrás do bloco).
+  const makeNameSprite = (name: string): THREE.Sprite => {
+    const canvas = document.createElement("canvas");
+    const ctx = canvas.getContext("2d")!;
+    const font = "bold 32px sans-serif";
+    ctx.font = font;
+    const pad = 10;
+    canvas.width = Math.ceil(ctx.measureText(name).width) + pad * 2;
+    canvas.height = 44;
+    ctx.font = font; // redimensionar o canvas reseta o contexto
+    ctx.fillStyle = "rgba(0,0,0,0.4)";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = "#fff";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText(name, canvas.width / 2, canvas.height / 2);
+    const texture = new THREE.CanvasTexture(canvas);
+    texture.minFilter = THREE.LinearFilter; // canvas não-potência-de-2: sem mipmap
+    const sprite = new THREE.Sprite(
+      new THREE.SpriteMaterial({ map: texture, depthTest: false, transparent: true }),
+    );
+    sprite.renderOrder = 999; // depois do mundo — depthTest off não briga com nada
+    const h = 0.32; // altura no mundo; largura segue a proporção do texto
+    sprite.scale.set((h * canvas.width) / canvas.height, h, 1);
+    sprite.position.set(0, PLAYER.height / 2 + 0.35, 0); // acima da caixa
+    return sprite;
+  };
+  const disposeLabel = (rp: RemotePlayer): void => {
+    if (!rp.label) return;
+    rp.label.material.map?.dispose();
+    rp.label.material.dispose();
+    rp.mesh.remove(rp.label);
+    rp.label = undefined;
+  };
   applyPlayerMoved = (msg) => {
     let rp = remotePlayers.get(msg.id);
     if (!rp) {
@@ -608,6 +647,13 @@ function startGame(snap: Snapshot): void {
       rp = { mesh, target: mesh.position.clone(), targetYaw: msg.yaw };
       remotePlayers.set(msg.id, rp);
     }
+    // nome viaja no player_moved (ausente = host antigo, caixa fica sem nome)
+    if (msg.name && msg.name !== rp.labelName) {
+      disposeLabel(rp);
+      rp.label = makeNameSprite(msg.name);
+      rp.labelName = msg.name;
+      rp.mesh.add(rp.label);
+    }
     // pos do servidor = pés do jogador; BoxGeometry é centrada
     rp.target.set(msg.x, msg.y + PLAYER.height / 2, msg.z);
     rp.targetYaw = msg.yaw;
@@ -615,6 +661,7 @@ function startGame(snap: Snapshot): void {
   applyPlayerLeft = (id) => {
     const rp = remotePlayers.get(id);
     if (!rp) return;
+    disposeLabel(rp);
     scene.remove(rp.mesh);
     rp.mesh.geometry.dispose();
     (rp.mesh.material as THREE.Material).dispose();

@@ -371,6 +371,7 @@ export class GameSession {
           id: clientId,
           x: msg.x, y: msg.y, z: msg.z,
           yaw: msg.yaw, pitch: msg.pitch,
+          name: p.name,
         });
         // objetivo "chegar" (cp12/13): pisar dentro da região conclui
         this.checkChegar(clientId);
@@ -833,6 +834,7 @@ export class GameSession {
           id: otherId,
           x: other.x, y: other.y, z: other.z,
           yaw: other.yaw, pitch: other.pitch,
+          name: other.name,
         } satisfies ServerMessage),
       );
     }
@@ -841,6 +843,7 @@ export class GameSession {
       id: clientId,
       x: destino.x, y: destino.y, z: destino.z,
       yaw: destino.yaw, pitch: destino.pitch,
+      name,
     });
   }
 
@@ -1283,6 +1286,7 @@ export class GameSession {
       z,
       yaw: 0,
       pitch: 0,
+      name: p.name,
     });
   }
 

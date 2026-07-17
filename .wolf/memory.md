@@ -1139,3 +1139,22 @@ bug-195 (basename sem import). .exe/empacotamento segue ADIADO (decisão do usu�
 | 20:10 | Rodada 2 mobile: tela cheia (auto+botão, lock paisagem), botão chat + Enter virtual + tocar fora fecha, hotbar sticky no inventário, /say no terminal do host (smoke 3/3) | touch.ts, chat.ts, main.ts, index.html, server/index.ts | typecheck 3/3, 153 testes, build, screenshots ok | ~40k |
 | 18:46 | Session end: 28 writes across 7 files (input.ts, touch.ts, main.ts, index.html, chat.ts) | 12 reads | ~29541 tok |
 | 07:00 | Sessão 2026-07-16→17 encerrada: touch controls (cp-touch) + rodada 2 mobile + sync via git + bug-232/233; STATUS aponta piloto HOJE, git pull no notebook antes de rodar | .wolf/* | handoff pronto pro /clear | — |
+| 09:19 | Session end: 28 writes across 7 files (input.ts, touch.ts, main.ts, index.html, chat.ts) | 12 reads | ~29541 tok |
+
+## Session: 2026-07-17 09:20
+
+| Time | Action | File(s) | Outcome | ~Tokens |
+|------|--------|---------|---------|--------|
+| 09:22 | Edited shared/src/protocol.ts | 10→13 lines | ~113 |
+| 09:22 | Edited shared/src/protocol.ts | 9→11 lines | ~108 |
+| 09:22 | Edited shared/src/session.ts | 6→7 lines | ~62 |
+| 09:22 | Edited shared/src/session.ts | 16→18 lines | ~139 |
+| 09:23 | Edited shared/src/session.ts | 9→10 lines | ~49 |
+| 09:23 | Edited client/src/main.ts | added optional chaining | ~984 |
+| 09:23 | Edited shared/src/session.test.ts | 3→3 lines | ~38 |
+| 09:23 | Edited shared/src/session.test.ts | 4→5 lines | ~52 |
+| 09:23 | Edited shared/src/session.test.ts | 3→3 lines | ~48 |
+| 09:23 | Edited shared/src/protocol.test.ts | expanded (+7 lines) | ~168 |
+| 09:24 | Edited client/src/main.ts | 3→3 lines | ~39 |
+| 09:25 | Created ../../../tmp/claude-1000/-home-meketreve-logica-em-jogo/96d96e4c-0809-43a9-bed0-c422babfbfe8/scratchpad/nametag-fakes.mts | — | ~296 |
+| 09:35 | Plaquinha de nome sobre jogadores remotos: name opcional em player_moved (4 emissões na session) + Sprite canvas no cliente; screenshot headless prova | shared/protocol.ts, shared/session.ts, client/main.ts, testes | 153 testes ✅, typecheck 3/3, build+dist | ~35k |
