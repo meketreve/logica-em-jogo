@@ -3890,6 +3890,24 @@
       "related_bugs": [],
       "occurrences": 1,
       "last_seen": "2026-07-17T12:23:40.125Z"
+    },
+    {
+      "id": "bug-239",
+      "timestamp": "2026-07-17T09:30:00-03:00",
+      "error_message": "TS2339: Property 'name' does not exist on type '{ id: number; x: number; y: number; z: number; yaw: number; }' (main.ts:654)",
+      "file": "client/src/main.ts",
+      "root_cause": "applyPlayerMoved tem tipo de callback DECLARADO A PARTE (linha ~218) com shape proprio, nao a uniao do protocolo — adicionar campo em player_moved no protocol.ts nao propaga sozinho",
+      "fix": "Adicionado name?: string no tipo do callback applyPlayerMoved em main.ts. Regra: campo novo em msg do protocolo = conferir os tipos locais de callback apply* no main.ts",
+      "tags": [
+        "typescript",
+        "protocol",
+        "player_moved",
+        "nametag",
+        "callback-type"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-17T09:30:00-03:00"
     }
   ]
 }

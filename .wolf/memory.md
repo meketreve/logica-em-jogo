@@ -1158,3 +1158,12 @@ bug-195 (basename sem import). .exe/empacotamento segue ADIADO (decisão do usu�
 | 09:24 | Edited client/src/main.ts | 3→3 lines | ~39 |
 | 09:25 | Created ../../../tmp/claude-1000/-home-meketreve-logica-em-jogo/96d96e4c-0809-43a9-bed0-c422babfbfe8/scratchpad/nametag-fakes.mts | — | ~296 |
 | 09:35 | Plaquinha de nome sobre jogadores remotos: name opcional em player_moved (4 emissões na session) + Sprite canvas no cliente; screenshot headless prova | shared/protocol.ts, shared/session.ts, client/main.ts, testes | 153 testes ✅, typecheck 3/3, build+dist | ~35k |
+| 09:53 | Session end: 12 writes across 6 files (protocol.ts, session.ts, main.ts, session.test.ts, protocol.test.ts) | 7 reads | ~51861 tok |
+
+## Sessão 2026-07-17 (manhã, pré-piloto) — plaquinha de nome
+- Quest única: nome do jogador flutuando sobre o boneco. FEITA e pushada (ce897a3).
+- name opcional em player_moved (4 emissões na session; parse defensivo; host antigo ok).
+- Cliente: Sprite filho da mesh, canvas procedural, depthTest false (vê através de parede).
+- 153 testes ✅ · typecheck 3/3 ✅ · build + client/dist no push · screenshot headless prova.
+- bug-239: campo novo no protocolo não propaga pro tipo local do callback apply* no main.ts.
+- Handoff: STATUS.md atualizado; piloto é HOJE — notebook da escola: git pull.
