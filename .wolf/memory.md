@@ -1137,3 +1137,5 @@ bug-195 (basename sem import). .exe/empacotamento segue ADIADO (decisão do usu�
 | 18:42 | Edited server/src/index.ts | added 3 condition(s) | ~288 |
 | 18:43 | Created ../../../tmp/claude-1000/-home-meketreve-logica-em-jogo/79e5e357-9896-4502-b4f6-697b125f1983/scratchpad/smoke-say.mjs | — | ~522 |
 | 20:10 | Rodada 2 mobile: tela cheia (auto+botão, lock paisagem), botão chat + Enter virtual + tocar fora fecha, hotbar sticky no inventário, /say no terminal do host (smoke 3/3) | touch.ts, chat.ts, main.ts, index.html, server/index.ts | typecheck 3/3, 153 testes, build, screenshots ok | ~40k |
+| 18:46 | Session end: 28 writes across 7 files (input.ts, touch.ts, main.ts, index.html, chat.ts) | 12 reads | ~29541 tok |
+| 07:00 | Sessão 2026-07-16→17 encerrada: touch controls (cp-touch) + rodada 2 mobile + sync via git + bug-232/233; STATUS aponta piloto HOJE, git pull no notebook antes de rodar | .wolf/* | handoff pronto pro /clear | — |

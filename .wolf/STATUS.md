@@ -1,9 +1,11 @@
 # STATUS — Projeto "Lógica em Jogo" (jogo voxel educacional)
 
 > Single source of truth for resuming work. Read this FIRST when starting a session.
-> Last updated: 2026-07-16
-> **TOUCH CONTROLS FEITOS (2026-07-16):** tablet joga (joystick/arrasto/botões);
-> teste em TABLET REAL pendente — era o último blocker do piloto de amanhã.
+> Last updated: 2026-07-17 (DIA DO PILOTO)
+> **TOUCH CONTROLS FEITOS + PLAYTEST MOBILE ✅ (2026-07-16):** celular jogou na
+> rede de casa via notebook Windows (host = clone do git). Rodada 2 (tela cheia,
+> botão chat, hotbar fixa, /say no terminal) FEITA e pushada. Piloto é HOJE —
+> checklist na seção 🚀; notebook da escola: `git pull` antes de rodar.
 > **INFRA DO PILOTO (2026-07-15, PLAYTEST DO USUÁRIO PENDENTE):** (1) servidor
 > serve o cliente na MESMA porta (aluno abre http://ip-do-prof:8080 e joga, sem
 > Vite separado); (2) varredura das mensagens de erro (66+ reescritas, frase
@@ -817,20 +819,21 @@ re-playtestados ✅:
 
 ---
 
-## 🚀 PRÓXIMA QUEST — PILOTO AMANHÃ (2026-07-17): testar touch no tablet + checklist
+## 🚀 QUEST DE HOJE (2026-07-17): PILOTO COM A TURMA + anotações pro relatório
 
-**Contexto:** o usuário dá aula AMANHÃ (piloto com a turma + relatório de uso).
-**Touch controls FEITOS (2026-07-16, ver ✅) — o único blocker de código caiu.**
-`npm run build` já rodou DEPOIS do touch: o cliente servido pelo servidor já tem
-os controles (se mexer no cliente de novo, rebuildar).
+**Contexto:** aula HOJE. Código pronto e pushado; celular já jogou em casa
+(2026-07-16). **No notebook da escola: `git pull` antes de rodar** (clone em
+`C:\projeto\logica-em-jogo`; git é o canal de sync — nunca ZIP). Se mexer no
+cliente, `npm run build` + commit do dist.
 
-### A. TESTE NO TABLET REAL (única pendência do touch)
+### A. TESTE NO TABLET DA ESCOLA (antes da aula — único cheque que falta)
 Tablet abre `http://<ip-do-professor>:8080` — a UI de toque liga sozinha
 (`pointer: coarse`); no desktop, `?touch` na URL força pra demonstrar. Olhar:
 joystick anda, arrasto gira a câmera, quebrar/colocar acertam o bloco mirado,
-pular segura, hotbar/inventário escolhem a lã, botão menu pausa e "▶ voltar ao
-jogo" retoma. Notebook com touchscreen NÃO liga a UI (mouse é o ponteiro
-primário — de propósito).
+pular segura, hotbar/inventário escolhem a lã, botões 💬 chat e ⛶ tela cheia,
+menu pausa e "▶ voltar ao jogo" retoma. Notebook com touchscreen NÃO liga a UI
+(mouse é o ponteiro primário — de propósito). Risco real: AP isolation do
+Wi-Fi da escola (item 3 do checklist).
 
 ### B. CHECKLIST DE DIA DE AULA (não-código)
 0. **Levar o jogo pro notebook da escola (sync via git, decisão 2026-07-16):**
@@ -937,6 +940,8 @@ build, 137 testes, lógica do autocomplete validada em node.
   entende que foi reiniciado?
 - Tab autocompleta os comandos — o professor acha isso útil / descobre sozinho?
 - Falta algum comando que o professor gostaria de ter na hora?
+- (menor, opcional) Welcome diz "Pressione Enter para abrir o chat" — no
+  celular/tablet o certo é o botão 💬. Adaptar o texto se confundir os alunos.
 - **Features novas (cp20–cp22, 2026-07-16) a olhar:** (a) blocos LETRA/NÚMERO
   (tecla E, fim da grade) — o glifo 16px é LEGÍVEL no mundo? servem pra soletrar/
   numerar? (b) DIA/NOITE — cenário abre em dia permanente (confirmado no fio); o
