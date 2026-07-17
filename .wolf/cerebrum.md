@@ -388,9 +388,9 @@
 - Coordenada digitada em comando (2026-07-17): `parseCoordArg(token, base)`
   (module-level em session.ts) entende inteiro, `~` e `~n` — relativos à CÉLULA
   do autor (Math.floor da posição). Usado por `/regiao criar nome x1 y1 z1 x2
-  y2 z2` (forma com varinha continua valendo; 3 OU 9 parts). REUSAR no futuro
-  `/tp nome x y z` em vez de duplicar o parse. Bounds: os DOIS cantos passam
-  por inBounds antes de criar.
+  y2 z2` (forma com varinha continua valendo; 3 OU 9 parts) E por `/bloco x y
+  z id`. REUSAR no futuro `/tp nome x y z` em vez de duplicar o parse. Bounds:
+  os DOIS cantos passam por inBounds antes de criar.
 - Chat no toque: Enter do teclado VIRTUAL precisa do fallback `e.key ===
   "Enter"` (Android nem sempre preenche e.code); fechar sem enviar = tocar no
   canvas (chat.close() público) — não existe Esc no celular.

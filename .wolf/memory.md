@@ -1178,3 +1178,8 @@ bug-195 (basename sem import). .exe/empacotamento segue ADIADO (decisão do usu�
 | 10:52 | Edited shared/src/session.ts | "Uso: /regiao criar nome ·" → "Uso: /regiao criar nome [" | ~58 |
 | 10:52 | Edited shared/src/regions.test.ts | added optional chaining | ~655 |
 | 10:53 | /regiao criar por coordenadas digitadas com ~ e ~n (varinha segue valendo) | shared/src/session.ts, shared/src/regions.test.ts | 156 testes + typecheck 3/3 + build ok | ~35k |
+| 10:54 | Session end: 4 writes across 2 files (session.ts, regions.test.ts) | 4 reads | ~27351 tok |
+| 10:56 | Edited shared/src/session.ts | added 1 condition(s) | ~202 |
+| 10:57 | Edited shared/src/session.test.ts | expanded (+17 lines) | ~281 |
+| 10:57 | Edited shared/src/session.test.ts | inline fix | ~19 |
+| 10:57 | ~ e ~n também no /bloco (mesmo parseCoordArg) | shared/src/session.ts, shared/src/session.test.ts | 157 testes + typecheck 3/3 + build ok | ~8k |

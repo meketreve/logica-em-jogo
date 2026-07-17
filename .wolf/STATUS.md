@@ -4,9 +4,9 @@
 > Last updated: 2026-07-17 (DIA DO PILOTO)
 > **/REGIAO CRIAR POR COORDENADAS (2026-07-17):** `/regiao criar nome x1 y1 z1
 > x2 y2 z2` cria sem varinha; `~`/`~n` = coordenada atual do autor (célula,
-> estilo Minecraft). Varinha continua valendo (3 parts). parseCoordArg em
-> session.ts é reusável pro /tp futuro. 156 testes (3 novos), typecheck 3/3,
-> build + dist atualizados.
+> estilo Minecraft). Varinha continua valendo (3 parts). MESMO `~` no
+> `/bloco x y z id`. parseCoordArg em session.ts é reusável pro /tp futuro.
+> 157 testes (4 novos), typecheck 3/3, build + dist atualizados.
 > **PLAQUINHA DE NOME (2026-07-17):** nome do jogador flutua sobre o boneco
 > (Sprite canvas, visível através de parede — professor acha aluno). `name`
 > opcional em `player_moved` (host antigo compatível). 153 testes, typecheck

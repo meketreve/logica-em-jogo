@@ -464,12 +464,14 @@ export class GameSession {
     switch (parts[0]) {
       case "bloco": {
         if (!professor) return "Somente o professor pode usar /bloco.";
-        const x = Number(parts[1]);
-        const y = Number(parts[2]);
-        const z = Number(parts[3]);
+        const p = this.players.get(clientId);
+        if (!p) return "Entre no mundo antes de usar /bloco.";
+        const x = parseCoordArg(parts[1], Math.floor(p.x));
+        const y = parseCoordArg(parts[2], Math.floor(p.y));
+        const z = parseCoordArg(parts[3], Math.floor(p.z));
         const id = Number(parts[4]);
-        if (parts.length !== 5 || ![x, y, z, id].every(Number.isInteger)) {
-          return "Uso: /bloco x y z id — coordenadas inteiras. O id 0 apaga o bloco; os demais seguem a ordem do inventário.";
+        if (parts.length !== 5 || x === null || y === null || z === null || !Number.isInteger(id)) {
+          return "Uso: /bloco x y z id — coordenadas inteiras; o ~ copia a sua coordenada (~2 = a sua mais 2). O id 0 apaga o bloco; os demais seguem a ordem do inventário.";
         }
         if (!inBounds(this.world, x, y, z)) return `As coordenadas (${x}, ${y}, ${z}) estão fora do mundo.`;
         if (id !== BlockId.Air && !isPlaceable(id)) return `Não existe bloco com o id ${id}.`;

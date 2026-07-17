@@ -306,6 +306,23 @@ describe("GameSession (servidor autoritativo)", () => {
     expect(getBlock(world, 1, h + 1, 1)).toBe(BlockId.Air);
   });
 
+  it("/bloco com ~ usa a célula do autor como base (~n desloca)", () => {
+    const { send } = collect();
+    const session = new GameSession(send, { dims: DIMS, seed: 5, singleplayer: true });
+    session.handleMessage(1, JSON.stringify({ type: "join", name: "ana" }));
+    const base = {
+      x: Math.floor(session.spawn.x),
+      y: Math.floor(session.spawn.y),
+      z: Math.floor(session.spawn.z),
+    };
+    // 3 acima dos pés = acima da cabeça: célula de ar garantida
+    session.handleMessage(1, JSON.stringify({ type: "chat", text: `/bloco ~ ~3 ~ ${BlockId.Stone}` }));
+    expect(getBlock(session.world, base.x, base.y + 3, base.z)).toBe(BlockId.Stone);
+    // ~ quebrado (letra depois do ~) explica o uso, mundo intacto
+    session.handleMessage(1, JSON.stringify({ type: "chat", text: "/bloco ~a ~ ~ 1" }));
+    expect(getBlock(session.world, base.x, base.y, base.z)).toBe(BlockId.Air);
+  });
+
   it("bedrock: jogador não quebra; /bloco coloca e remove (caminho do professor)", () => {
     const { sent, send } = collect();
     const session = new GameSession(send, { dims: DIMS, seed: 5, singleplayer: true });
