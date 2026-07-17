@@ -16,6 +16,8 @@ const COMANDOS = [
   "grupo",
   "mundo",
   "tp",
+  "tpr",
+  "tpa",
   "iniciar",
   "hora",
   "ciclo",

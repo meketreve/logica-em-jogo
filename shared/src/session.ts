@@ -108,6 +108,9 @@ interface Identity {
  * "~n" (atual + n) — convenção do Minecraft, o modelo mental do público.
  * `base` = célula onde o autor está. null = token inválido.
  */
+/** Validade de um pedido de /tpr (aceite com /tpa) — 30 s. */
+const TP_PEDIDO_MS = 30_000;
+
 function parseCoordArg(token: string | undefined, base: number): number | null {
   if (token === undefined) return null;
   if (token.startsWith("~")) {
@@ -149,6 +152,12 @@ export class GameSession {
   private readonly regions = new Map<string, NamedRegion>();
   /** Cantos pendentes da varinha, por cliente (não persistem — são rascunho). */
   private readonly wandMarks = new Map<number, { c1?: Vec3i; c2?: Vec3i }>();
+  /** Pedidos de /tpr pendentes, por DESTINATÁRIO (id do cliente). Rascunho de
+   *  sessão: não persiste, expira em TP_PEDIDO_MS e morre no disconnect. */
+  private readonly tpPedidos = new Map<
+    number,
+    { deId: number; deNome: string; expira: number }[]
+  >();
   /** Cenário (cp12): objetivos + progresso do MUNDO. Persiste no save. */
   private readonly scenario: {
     modo: ScenarioModo;
@@ -549,12 +558,16 @@ export class GameSession {
       case "grupo":
         return this.runGrupo(clientId, parts);
       case "tp": {
-        if (!professor) return "Somente o professor pode usar /tp.";
-        if (parts[1] !== "grupos") {
-          return "Uso: /tp grupos — leva cada grupo para a área do seu objetivo.";
+        if (!professor) {
+          return "Somente o professor pode usar /tp. Para pedir teleporte até um colega, use /tpr nome.";
         }
-        return this.teleportarGrupos();
+        if (parts[1] === "grupos") return this.teleportarGrupos();
+        return this.runTp(clientId, parts);
       }
+      case "tpr":
+        return this.runTpr(clientId, parts);
+      case "tpa":
+        return this.runTpa(clientId, parts);
       case "iniciar": {
         if (!professor) return "Somente o professor pode iniciar a atividade.";
         return this.runIniciar(clientId, parts);
@@ -568,7 +581,7 @@ export class GameSession {
         return this.runCiclo(parts);
       }
       default:
-        return `Comando desconhecido: ${text}. Os comandos disponíveis são /bloco, /resetpin, /regiao, /objetivo, /grupo, /tp, /iniciar, /hora e /ciclo.`;
+        return `Comando desconhecido: ${text}. Os comandos disponíveis são /bloco, /resetpin, /regiao, /objetivo, /grupo, /tp, /tpr, /tpa, /iniciar, /hora e /ciclo.`;
     }
   }
 
@@ -914,8 +927,8 @@ export class GameSession {
         ? `A aula mudou: você está em um mundo novo${papel === "professor" ? "" : ". Confira o objetivo no canto da tela"}.`
         : `Bem-vindo, ${this.authorTag(clientId)}! Pressione Enter para abrir o chat.` +
             (papel === "professor"
-              ? " Comandos: /bloco · /resetpin · /regiao (varinha: R) · /objetivo · /grupo · /tp grupos · /iniciar · /hora · /ciclo"
-              : ""),
+              ? " Comandos: /bloco · /resetpin · /regiao (varinha: R) · /objetivo · /grupo · /tp grupos · /tp nome · /iniciar · /hora · /ciclo"
+              : " Comandos: /tpr nome (pedir teleporte até um colega) · /tpa (aceitar)"),
     );
     // professor vê as regiões existentes desde o join (depois do snapshot)
     if (papel === "professor" && this.regions.size) this.sendRegions(clientId);
@@ -1434,6 +1447,87 @@ export class GameSession {
   }
 
   /** `/tp grupos`: leva os alunos conectados de cada grupo à área do seu objetivo. */
+  /** Id do cliente ONLINE com este nome (identidade = nome, igual roster). */
+  private clientePorNome(nome: string): number | null {
+    for (const [id, p] of this.players) if (p.name === nome) return id;
+    return null;
+  }
+
+  /** `/tp nome` = professor vai até o jogador; `/tp nome x y z` = envia o
+   *  jogador (~ copia a coordenada DO TELEPORTADO — convenção Minecraft).
+   *  Teleoperação do professor: sem pedido, sem aceite. */
+  private runTp(clientId: number, parts: string[]): string {
+    const nome = parts[1];
+    if (!nome || (parts.length !== 2 && parts.length !== 5)) {
+      return "Uso: /tp grupos · /tp nome (ir até o jogador) · /tp nome x y z (enviar o jogador; ~ copia a coordenada dele).";
+    }
+    const alvoId = this.clientePorNome(nome);
+    const alvo = alvoId === null ? undefined : this.players.get(alvoId);
+    if (alvoId === null || !alvo) return `"${nome}" não está no mundo agora.`;
+    if (parts.length === 2) {
+      if (alvoId === clientId) return "Você já está aí.";
+      this.teleportar(clientId, alvo.x, alvo.y, alvo.z);
+      return `Teleportado até ${nome}.`;
+    }
+    const base = { x: Math.floor(alvo.x), y: Math.floor(alvo.y), z: Math.floor(alvo.z) };
+    const x = parseCoordArg(parts[2], base.x);
+    const y = parseCoordArg(parts[3], base.y);
+    const z = parseCoordArg(parts[4], base.z);
+    if (x === null || y === null || z === null) {
+      return "Não entendi as coordenadas. Use números inteiros, ~ (a coordenada do jogador) ou ~n.";
+    }
+    if (!inBounds(this.world, x, y, z)) return `As coordenadas (${x}, ${y}, ${z}) estão fora do mundo.`;
+    this.teleportar(alvoId, x + 0.5, y, z + 0.5);
+    if (alvoId !== clientId) this.sendServerChat(alvoId, "O professor teleportou você.");
+    return `${nome} foi teleportado para (${x}, ${y}, ${z}).`;
+  }
+
+  /** `/tpr nome` (todos): pede para se teleportar até o jogador — ele aceita
+   *  com /tpa. Um pedido por solicitante (o novo substitui o antigo). */
+  private runTpr(clientId: number, parts: string[]): string {
+    const nome = parts[1];
+    if (parts.length !== 2 || !nome) {
+      return "Uso: /tpr nome — pede para se teleportar até o jogador; ele aceita com /tpa.";
+    }
+    const de = this.players.get(clientId);
+    if (!de) return "Entre no mundo antes de pedir teleporte.";
+    const alvoId = this.clientePorNome(nome);
+    if (alvoId === null) return `"${nome}" não está no mundo agora.`;
+    if (alvoId === clientId) return "Você já está aí.";
+    const fila = (this.tpPedidos.get(alvoId) ?? []).filter((p) => p.deId !== clientId);
+    fila.push({ deId: clientId, deNome: de.name, expira: this.now() + TP_PEDIDO_MS });
+    this.tpPedidos.set(alvoId, fila);
+    this.sendServerChat(
+      alvoId,
+      `${de.name} quer se teleportar até você. Digite /tpa para aceitar — o pedido expira em 30 segundos.`,
+    );
+    return `Pedido enviado a ${nome}. Ele tem 30 segundos para aceitar com /tpa.`;
+  }
+
+  /** `/tpa [nome]`: aceita o pedido de teleporte mais recente (ou o de `nome`). */
+  private runTpa(clientId: number, parts: string[]): string {
+    if (parts.length > 2) return "Uso: /tpa (aceita o pedido mais recente) ou /tpa nome.";
+    const eu = this.players.get(clientId);
+    if (!eu) return "Entre no mundo antes.";
+    const agora = this.now();
+    // poda: pedidos expirados ou de quem já saiu do mundo
+    const fila = (this.tpPedidos.get(clientId) ?? []).filter(
+      (p) => p.expira > agora && this.players.has(p.deId),
+    );
+    const nome = parts[1];
+    const pedido = nome ? fila.find((p) => p.deNome === nome) : fila.at(-1);
+    if (!pedido) {
+      this.tpPedidos.set(clientId, fila);
+      return nome
+        ? `Não há pedido de teleporte de "${nome}" — pode ter expirado (o prazo é de 30 segundos).`
+        : "Não há pedido de teleporte pendente. Peça com /tpr nome (o pedido dura 30 segundos).";
+    }
+    this.tpPedidos.set(clientId, fila.filter((p) => p !== pedido));
+    this.teleportar(pedido.deId, eu.x, eu.y, eu.z);
+    this.sendServerChat(pedido.deId, `${eu.name} aceitou: você foi teleportado.`);
+    return `Você aceitou o pedido de ${pedido.deNome}.`;
+  }
+
   private teleportarGrupos(): string {
     if (this.grupos.size === 0) {
       return "Não há grupos. Crie-os com /grupo criar n antes de teleportar.";
@@ -1861,6 +1955,8 @@ export class GameSession {
 
   handleDisconnect(clientId: number): void {
     this.wandMarks.delete(clientId); // rascunho de canto morre com a conexão
+    this.tpPedidos.delete(clientId); // pedidos ENDEREÇADOS a quem saiu morrem
+    // (pedidos FEITOS por quem saiu são podados no /tpa — players.has(deId))
     const p = this.players.get(clientId);
     if (!p) return;
     // mundo lembra onde o jogador parou (vai pro save; volta aqui no rejoin)

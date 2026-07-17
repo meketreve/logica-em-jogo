@@ -2,6 +2,11 @@
 
 > Single source of truth for resuming work. Read this FIRST when starting a session.
 > Last updated: 2026-07-17 (DIA DO PILOTO)
+> **/TPR + /TPA + /TP NOME (2026-07-17):** aluno pede teleporte (/tpr nome,
+> expira 30 s) e o outro aceita (/tpa [nome]); professor teleporta direto
+> (/tp nome = ir até; /tp nome x y z = enviar, ~ relativo ao teleportado).
+> Welcome atualizado, autocomplete com /tpr /tpa. 182 testes, typecheck 3/3,
+> build+dist ok.
 > **cp23 — CERCA + PORTA + TOCHA (grupo C rodada 1) + ENCHER EM LOTE
 > (2026-07-17, playtest do usuário PENDENTE):** primeiros NÃO-CUBOS (ids
 > 65–70). Cerca conecta sozinha (poste+travessas, estilo Minecraft); porta de

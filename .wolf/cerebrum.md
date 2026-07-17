@@ -409,6 +409,14 @@
   `remeshBox` (1 remesh por chunk tocado, não por bloco) + 1 gatilho de som.
   Teto: MAX_ENCHER_CELLS=65536 (16× o antigo); MAX_OBJETIVO_CELLS segue 4096
   porque detecção recheca a região a CADA mudança (custo recorrente).
+- **/tpr + /tpa + /tp nome (2026-07-17):** aluno NUNCA teleporta ninguém sem
+  consentimento — /tpr nome registra pedido (Map por DESTINATÁRIO em
+  `tpPedidos`, expira TP_PEDIDO_MS=30 s pelo clock injetado `this.now()`),
+  /tpa [nome] aceita (poda expirados e desconectados via players.has no
+  aceite; disconnect do destinatário apaga a fila dele). Professor: /tp nome
+  vai direto; /tp nome x y z ENVIA o jogador (~ relativo ao TELEPORTADO,
+  convenção Minecraft; +0.5 no centro da célula). Tudo sobre o helper
+  `teleportar()` — zero protocolo novo. /tp grupos intacto.
 - Coordenada digitada em comando (2026-07-17): `parseCoordArg(token, base)`
   (module-level em session.ts) entende inteiro, `~` e `~n` — relativos à CÉLULA
   do autor (Math.floor da posição). Usado por `/regiao criar nome x1 y1 z1 x2
