@@ -72,6 +72,25 @@ export class ChunkRenderer {
    * Remesh do chunk que contém o bloco (x,y,z) — e dos vizinhos quando o
    * bloco está na borda (a face culled do chunk ao lado depende dele).
    */
+  /**
+   * Remesh de todos os chunks que tocam a caixa [min..max] (encher em lote,
+   * cp23b) — expandida em 1 bloco: a face culled do chunk vizinho depende da
+   * borda. Cada chunk remesha UMA vez, não uma vez por bloco.
+   */
+  remeshBox(min: { x: number; y: number; z: number }, max: { x: number; y: number; z: number }): void {
+    const c = (v: number, hi: number): number =>
+      Math.max(0, Math.min(Math.floor(v / CHUNK_SIZE), hi - 1));
+    const cx0 = c(min.x - 1, this.world.dims.x);
+    const cx1 = c(max.x + 1, this.world.dims.x);
+    const cy0 = c(min.y - 1, this.world.dims.y);
+    const cy1 = c(max.y + 1, this.world.dims.y);
+    const cz0 = c(min.z - 1, this.world.dims.z);
+    const cz1 = c(max.z + 1, this.world.dims.z);
+    for (let cy = cy0; cy <= cy1; cy++)
+      for (let cz = cz0; cz <= cz1; cz++)
+        for (let cx = cx0; cx <= cx1; cx++) this.remesh(cx, cy, cz);
+  }
+
   remeshBlock(x: number, y: number, z: number): void {
     const cx = (x / CHUNK_SIZE) | 0;
     const cy = (y / CHUNK_SIZE) | 0;

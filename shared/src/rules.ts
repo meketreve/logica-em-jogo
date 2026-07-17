@@ -1,4 +1,4 @@
-import { BlockId } from "./blocks";
+import { BlockId, isFullCube } from "./blocks";
 import { type World, getBlock } from "./world";
 
 /**
@@ -41,9 +41,30 @@ export const fallingRule: BlockRule = (world, x, y, z) => {
   ];
 };
 
+/** Porta (cp23): metade sem o PAR (mesmo id logo acima OU logo abaixo)
+ *  evapora — quebrar uma célula derruba a outra no tick seguinte, sem
+ *  código especial no break_block. */
+export const doorRule: BlockRule = (world, x, y, z) => {
+  const id = getBlock(world, x, y, z);
+  if (getBlock(world, x, y + 1, z) === id) return null;
+  if (getBlock(world, x, y - 1, z) === id) return null;
+  return [{ x, y, z, blockId: BlockId.Air }];
+};
+
+/** Tocha (cp23): precisa de cubo CHEIO embaixo; perdeu o suporte, some. */
+export const torchRule: BlockRule = (world, x, y, z) => {
+  if (isFullCube(getBlock(world, x, y - 1, z))) return null;
+  return [{ x, y, z, blockId: BlockId.Air }];
+};
+
 const RULES: ReadonlyMap<number, BlockRule> = new Map([
   [BlockId.Sand, fallingRule],
   [BlockId.Gravel, fallingRule],
+  [BlockId.PortaXFechada, doorRule],
+  [BlockId.PortaXAberta, doorRule],
+  [BlockId.PortaZFechada, doorRule],
+  [BlockId.PortaZAberta, doorRule],
+  [BlockId.Tocha, torchRule],
 ]);
 
 /** Regra registrada pro tipo de bloco, se houver. */

@@ -177,6 +177,50 @@ function paintGlyph(
   ctx.fillText(ch, ox + px / 2, oy + px / 2 + 1);
 }
 
+/** Cerca (cp23): madeira mais escura que as tábuas, veios verticais — as
+ *  caixas do mesher usam UV proporcional, então QUALQUER sub-região do tile
+ *  precisa parecer madeira. */
+function paintCerca(ctx: CanvasRenderingContext2D, tile: number): void {
+  paintNoise(ctx, tile, [146, 112, 66], 10);
+  const [ox, oy] = tileOrigin(tile);
+  ctx.fillStyle = "rgb(116,86,48)";
+  for (let x = 2; x < ATLAS.tilePx; x += 3) {
+    for (let y = 0; y < ATLAS.tilePx; y++) {
+      if (pixelHash(x, y, tile * 29 + 7) < 0.6) ctx.fillRect(ox + x, oy + y, 1, 1);
+    }
+  }
+}
+
+/** Porta (cp23): folha de madeira com moldura; a metade de CIMA tem janela
+ *  transparente (cutout — mesmo truque do vidro). */
+function paintPorta(ctx: CanvasRenderingContext2D, tile: number, janela: boolean): void {
+  paintNoise(ctx, tile, [164, 126, 76], 8);
+  const [ox, oy] = tileOrigin(tile);
+  const px = ATLAS.tilePx;
+  ctx.fillStyle = "rgb(112,82,46)";
+  ctx.fillRect(ox, oy, px, 1);
+  ctx.fillRect(ox, oy + px - 1, px, 1);
+  ctx.fillRect(ox, oy, 1, px);
+  ctx.fillRect(ox + px - 1, oy, 1, px);
+  // sulco central (folha dupla)
+  ctx.fillRect(ox + 8, oy, 1, px);
+  if (janela) {
+    ctx.fillRect(ox + 3, oy + 3, 10, 1);
+    ctx.fillRect(ox + 3, oy + 9, 10, 1);
+    ctx.fillRect(ox + 3, oy + 3, 1, 7);
+    ctx.fillRect(ox + 12, oy + 3, 1, 7);
+    ctx.clearRect(ox + 4, oy + 4, 8, 5); // o vidro da janela é ausência
+  }
+}
+
+/** Tocha (cp23): chama clara em cima, cabo de madeira embaixo. A caixa do
+ *  mesher (2×10×2 "pixels") amostra as colunas centrais — o tile inteiro é
+ *  pintado pra qualquer amostra cair certo. */
+function paintTocha(ctx: CanvasRenderingContext2D, tile: number): void {
+  paintNoise(ctx, tile, [255, 232, 122], 14, 0, 10); // chama (sempre clara)
+  paintNoise(ctx, tile, [122, 92, 56], 10, 10, ATLAS.tilePx); // cabo
+}
+
 /** Folhas (cp18): verde denso com furos transparentes (cutout). */
 function paintLeaves(ctx: CanvasRenderingContext2D, tile: number): void {
   paintNoise(ctx, tile, [52, 118, 44], 16);
@@ -243,6 +287,12 @@ export function createAtlasTexture(): THREE.Texture {
   // cp18: transparentes (cutout — alphaTest no material do cliente)
   paintGlass(ctx, TILE.glass);
   paintLeaves(ctx, TILE.leaves);
+
+  // cp23: não-cubos (cerca, porta, tocha)
+  paintCerca(ctx, TILE.cerca);
+  paintPorta(ctx, TILE.portaBaixo, false);
+  paintPorta(ctx, TILE.portaCima, true);
+  paintTocha(ctx, TILE.tocha);
 
   // cp20: blocos-glifo — letras em creme, dígitos em azul-claro (distinção
   // rápida à distância entre "letra" e "número").

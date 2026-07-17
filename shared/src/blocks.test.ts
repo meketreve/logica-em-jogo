@@ -15,9 +15,12 @@ describe("formato de bloco/chunk (contrato de save e snapshot)", () => {
     expect(BlockId.LetterZ).toBe(54);
     expect(BlockId.Digit0).toBe(55);
     expect(BlockId.Digit9).toBe(64);
+    // cp23: não-cubos em append depois dos glifos
+    expect(BlockId.Cerca).toBe(65);
+    expect(BlockId.Tocha).toBe(70);
     // isPlaceable acompanha o último id; o próximo byte NÃO é bloco
-    expect(isPlaceable(BlockId.Digit9)).toBe(true);
-    expect(isPlaceable(65)).toBe(false);
+    expect(isPlaceable(BlockId.Tocha)).toBe(true);
+    expect(isPlaceable(71)).toBe(false);
   });
 
   it("volume do chunk cabe em 1 byte por bloco", () => {

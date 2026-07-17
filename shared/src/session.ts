@@ -1,5 +1,13 @@
 import { MAX_PIN_ATTEMPTS, PIN_LOCKOUT_MS, type Papel, isValidPin } from "./auth";
-import { BlockId, isBreakable, isPlaceable } from "./blocks";
+import {
+  BlockId,
+  isBreakable,
+  isFullCube,
+  isPlaceable,
+  isPorta,
+  isSolidBlock,
+  portaToggled,
+} from "./blocks";
 import {
   CHUNK_SIZE,
   DEFAULT_WORLD_CHUNKS,
@@ -32,6 +40,7 @@ import {
   type Box,
   type GroupObjectiveState,
   MAX_OBJETIVOS,
+  MAX_ENCHER_CELLS,
   MAX_OBJETIVO_CELLS,
   MAX_OBJETIVO_TEXTO,
   type Objective,
@@ -402,7 +411,44 @@ export class GameSession {
         if (getBlock(this.world, msg.x, msg.y, msg.z) !== BlockId.Air) return;
         if (!this.withinReach(p, msg.x, msg.y, msg.z)) return;
         if (this.overlapsAnyPlayer(msg.x, msg.y, msg.z)) return;
+        if (isPorta(msg.blockId)) {
+          // porta ocupa 2 células (cp23): valida o par ANTES de materializar
+          const yCima = msg.y + 1;
+          if (!inBounds(this.world, msg.x, yCima, msg.z)) return;
+          if (getBlock(this.world, msg.x, yCima, msg.z) !== BlockId.Air) return;
+          if (this.overlapsAnyPlayer(msg.x, yCima, msg.z)) return;
+          this.applyBlock(msg.x, msg.y, msg.z, msg.blockId);
+          this.applyBlock(msg.x, yCima, msg.z, msg.blockId);
+          break;
+        }
+        if (
+          msg.blockId === BlockId.Tocha &&
+          !isFullCube(getBlock(this.world, msg.x, msg.y - 1, msg.z))
+        ) {
+          return; // tocha exige apoio: sem cubo cheio embaixo, nem coloca
+        }
         this.applyBlock(msg.x, msg.y, msg.z, msg.blockId);
+        break;
+      }
+      case "use_block": {
+        const p = this.players.get(clientId);
+        if (!p) return;
+        if (!inBounds(this.world, msg.x, msg.y, msg.z)) return;
+        if (!this.withinReach(p, msg.x, msg.y, msg.z)) return;
+        const id = getBlock(this.world, msg.x, msg.y, msg.z);
+        if (!isPorta(id)) return; // único interativo por ora (cp23)
+        const novo = portaToggled(id);
+        // par da porta: mesmo id logo acima ou logo abaixo
+        const yPar =
+          getBlock(this.world, msg.x, msg.y + 1, msg.z) === id ? msg.y + 1 :
+          getBlock(this.world, msg.x, msg.y - 1, msg.z) === id ? msg.y - 1 : null;
+        // fechar não pode emparedar: jogador em qualquer célula da porta cancela
+        if (isSolidBlock(novo)) {
+          if (this.overlapsAnyPlayer(msg.x, msg.y, msg.z)) return;
+          if (yPar !== null && this.overlapsAnyPlayer(msg.x, yPar, msg.z)) return;
+        }
+        this.applyBlock(msg.x, msg.y, msg.z, novo);
+        if (yPar !== null) this.applyBlock(msg.x, yPar, msg.z, novo);
         break;
       }
       case "break_block": {
@@ -475,6 +521,7 @@ export class GameSession {
         }
         if (!inBounds(this.world, x, y, z)) return `As coordenadas (${x}, ${y}, ${z}) estão fora do mundo.`;
         if (id !== BlockId.Air && !isPlaceable(id)) return `Não existe bloco com o id ${id}.`;
+        if (isPorta(id)) return "A porta ocupa 2 blocos e se coloca com o clique direito, não por comando.";
         if (id !== BlockId.Air && this.overlapsAnyPlayer(x, y, z)) {
           return "Há um jogador nessa célula: o bloco não foi colocado.";
         }
@@ -667,7 +714,10 @@ export class GameSession {
       }
       case "encher": {
         // ferramenta de autoria: /regiao encher nome id (id 0 = limpar tudo).
-        // Passa pelo applyBlock — regras e detecção de objetivo acordam normal.
+        // cp23b: aplica EM LOTE — regras e objetivos acordam célula a célula
+        // (applyBlockQuieto), mas a rede recebe UMA blocks_filled no lugar de
+        // milhares de block_changed. Por isso o teto é MAX_ENCHER_CELLS (16×
+        // o dos objetivos).
         const nome = parts[2];
         const id = Number(parts[3]);
         if (parts.length !== 4 || !nome || !Number.isInteger(id)) {
@@ -676,19 +726,40 @@ export class GameSession {
         const r = this.regions.get(nome);
         if (!r) return `Não existe região chamada "${nome}".`;
         if (id !== BlockId.Air && !isPlaceable(id)) return `Não existe bloco com o id ${id}.`;
-        if (boxVolume(r) > MAX_OBJETIVO_CELLS) {
-          return `A região é grande demais para encher (máximo de ${MAX_OBJETIVO_CELLS} blocos).`;
+        if (isPorta(id)) return "A porta ocupa 2 blocos e se coloca com o clique direito, não por comando.";
+        if (boxVolume(r) > MAX_ENCHER_CELLS) {
+          return `A região é grande demais para encher (máximo de ${MAX_ENCHER_CELLS} blocos).`;
         }
         let mudados = 0;
+        // nunca emparedar: célula com jogador dentro fica como está — e é
+        // corrigida na rede DEPOIS do lote (blocks_filled pinta a caixa toda)
+        const puladas: { x: number; y: number; z: number }[] = [];
         for (let y = r.min.y; y <= r.max.y; y++) {
           for (let z = r.min.z; z <= r.max.z; z++) {
             for (let x = r.min.x; x <= r.max.x; x++) {
               if (getBlock(this.world, x, y, z) === id) continue;
-              // nunca emparedar: célula com jogador dentro fica como está
-              if (id !== BlockId.Air && this.overlapsAnyPlayer(x, y, z)) continue;
-              this.applyBlock(x, y, z, id);
+              if (id !== BlockId.Air && this.overlapsAnyPlayer(x, y, z)) {
+                puladas.push({ x, y, z });
+                continue;
+              }
+              this.applyBlockQuieto(x, y, z, id);
               mudados++;
             }
+          }
+        }
+        if (mudados > 0 || puladas.length > 0) {
+          this.broadcast({
+            type: "blocks_filled",
+            x0: r.min.x, y0: r.min.y, z0: r.min.z,
+            x1: r.max.x, y1: r.max.y, z1: r.max.z,
+            blockId: id,
+          });
+          for (const c of puladas) {
+            this.broadcast({
+              type: "block_changed",
+              x: c.x, y: c.y, z: c.z,
+              blockId: getBlock(this.world, c.x, c.y, c.z),
+            });
           }
         }
         return `Região "${nome}": ${mudados} bloco(s) alterado(s).`;
@@ -771,6 +842,7 @@ export class GameSession {
         if (!r) return `Não existe região chamada "${nome}".`;
         for (const id of ids) {
           if (id !== BlockId.Air && !isPlaceable(id)) return `Não existe bloco com o id ${id}.`;
+          if (isPorta(id)) return "A porta ocupa 2 blocos e se coloca com o clique direito, não por comando.";
         }
         if (boxVolume(r) > MAX_OBJETIVO_CELLS) {
           return `A região é grande demais para sortear (máximo de ${MAX_OBJETIVO_CELLS} blocos).`;
@@ -1704,10 +1776,17 @@ export class GameSession {
    * futuros) reagirem a QUALQUER mudança, sem código especial no chamador.
    */
   private applyBlock(x: number, y: number, z: number, blockId: number): void {
+    this.applyBlockQuieto(x, y, z, blockId);
+    this.broadcast({ type: "block_changed", x, y, z, blockId });
+  }
+
+  /** Tudo do applyBlock MENOS o broadcast — o encher em lote (cp23b) avisa a
+   *  rede com UMA mensagem blocks_filled no fim; regras de vizinhança e
+   *  detecção de objetivo acordam exatamente igual. */
+  private applyBlockQuieto(x: number, y: number, z: number, blockId: number): void {
     setBlock(this.world, x, y, z, blockId);
     this.changedThisTick.add(this.packCoord(x, y, z));
     this.markDirtyAround(x, y, z);
-    this.broadcast({ type: "block_changed", x, y, z, blockId });
     // cp12/13: mudança dentro de objetivo construir/limpar → rechecar no tick
     // (mesma filosofia da fila de vizinhança: acorda por mudança, sem scan)
     for (const o of this.scenario.objetivos) {

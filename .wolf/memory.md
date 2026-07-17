@@ -1183,3 +1183,58 @@ bug-195 (basename sem import). .exe/empacotamento segue ADIADO (decisão do usu�
 | 10:57 | Edited shared/src/session.test.ts | expanded (+17 lines) | ~281 |
 | 10:57 | Edited shared/src/session.test.ts | inline fix | ~19 |
 | 10:57 | ~ e ~n também no /bloco (mesmo parseCoordArg) | shared/src/session.ts, shared/src/session.test.ts | 157 testes + typecheck 3/3 + build ok | ~8k |
+| 10:57 | Session end: 7 writes across 3 files (session.ts, regions.test.ts, session.test.ts) | 5 reads | ~38331 tok |
+| 10:58 | Session end: 7 writes across 3 files (session.ts, regions.test.ts, session.test.ts) | 6 reads | ~38331 tok |
+| 11:10 | Edited shared/src/blocks.ts | added 1 condition(s) | ~816 |
+| 11:10 | Edited shared/src/physics.ts | 2→2 lines | ~26 |
+| 11:10 | Edited shared/src/physics.ts | 6→7 lines | ~52 |
+| 11:10 | Edited shared/src/physics.ts | 5→5 lines | ~43 |
+| 11:10 | Edited shared/src/rules.ts | 2→2 lines | ~28 |
+| 11:10 | Edited shared/src/rules.ts | added 3 condition(s) | ~282 |
+| 11:10 | Edited shared/src/mesher.ts | inline fix | ~20 |
+| 11:10 | Edited shared/src/mesher.ts | 4→9 lines | ~52 |
+| 11:11 | Edited shared/src/mesher.ts | expanded (+8 lines) | ~148 |
+| 11:11 | Edited shared/src/mesher.ts | added nullish coalescing | ~268 |
+| 11:11 | Edited shared/src/mesher.ts | added 8 condition(s) | ~1492 |
+| 11:12 | Edited shared/src/protocol.ts | 2→5 lines | ~102 |
+| 11:12 | Edited shared/src/protocol.ts | added 1 condition(s) | ~174 |
+| 11:12 | Edited shared/src/session.ts | expanded (+8 lines) | ~36 |
+| 11:12 | Edited shared/src/session.ts | added 13 condition(s) | ~579 |
+| 11:12 | Edited shared/src/session.ts | added 1 condition(s) | ~90 |
+| 11:12 | Edited shared/src/session.ts | added 1 condition(s) | ~134 |
+| 11:12 | Edited shared/src/session.ts | added 1 condition(s) | ~117 |
+| 11:13 | Created shared/src/cp23.test.ts | — | ~2698 |
+| 11:15 | Created shared/src/cp23.test.ts | — | ~2743 |
+| 11:16 | Edited shared/src/blocks.test.ts | 4→7 lines | ~83 |
+| 11:17 | Edited shared/src/mesher.ts | added 3 condition(s) | ~392 |
+| 11:17 | Edited shared/src/mesher.ts | 9→9 lines | ~130 |
+| 11:17 | Edited shared/src/mesher.ts | 9→9 lines | ~115 |
+| 11:18 | Edited shared/src/cp23.test.ts | 48→50 lines | ~689 |
+| 11:19 | Edited client/src/atlasTexture.ts | added 2 condition(s) | ~539 |
+| 11:19 | Edited client/src/atlasTexture.ts | expanded (+6 lines) | ~92 |
+| 11:19 | Edited client/src/blocksUi.ts | 4→9 lines | ~111 |
+| 11:20 | Created client/src/torchGlow.ts | — | ~757 |
+| 11:20 | Edited client/src/main.ts | modified tochas() | ~68 |
+| 11:20 | Edited client/src/main.ts | 3→4 lines | ~36 |
+| 11:20 | Edited client/src/main.ts | 3→4 lines | ~58 |
+| 11:20 | Edited client/src/main.ts | added 2 condition(s) | ~320 |
+| 11:20 | Edited client/src/main.ts | added 1 condition(s) | ~139 |
+| 11:20 | Edited client/src/main.ts | 3→4 lines | ~17 |
+| 11:20 | Edited client/src/main.ts | added 1 import(s) | ~34 |
+| 11:21 | Created ../../../tmp/claude-1000/-home-meketreve-logica-em-jogo/8d9e190e-57d7-40a0-86df-331736df0502/scratchpad/cp23-stage.mts | — | ~451 |
+| 11:30 | Created ../../../tmp/claude-1000/-home-meketreve-logica-em-jogo/8d9e190e-57d7-40a0-86df-331736df0502/scratchpad/cp23-stage2.mts | — | ~235 |
+| 11:39 | Edited shared/src/protocol.ts | expanded (+12 lines) | ~200 |
+| 11:39 | Edited shared/src/protocol.ts | added 1 condition(s) | ~163 |
+| 11:39 | Edited shared/src/session.ts | modified applyBlock() | ~222 |
+| 11:39 | Edited shared/src/scenario.ts | expanded (+6 lines) | ~108 |
+| 11:40 | Edited shared/src/session.ts | added 1 condition(s) | ~686 |
+| 11:40 | Edited shared/src/session.ts | 1→2 lines | ~12 |
+| 11:40 | Edited client/src/chunks.ts | modified remeshBox() | ~272 |
+| 11:40 | Edited client/src/torchGlow.ts | added 2 condition(s) | ~309 |
+| 11:40 | Edited client/src/main.ts | expanded (+7 lines) | ~83 |
+| 11:40 | Edited client/src/main.ts | added 1 condition(s) | ~58 |
+| 11:41 | Edited client/src/main.ts | modified lote() | ~349 |
+| 11:41 | Edited shared/src/cp23.test.ts | modified makeFlat() | ~221 |
+| 11:41 | Edited shared/src/cp23.test.ts | added optional chaining | ~701 |
+| 11:42 | Created ../../../tmp/claude-1000/-home-meketreve-logica-em-jogo/8d9e190e-57d7-40a0-86df-331736df0502/scratchpad/cp23-stage3.mts | — | ~500 |
+| 11:56 | cp23: cerca+porta+tocha (não-cubos) e /regiao encher em lote (blocks_filled, teto 65536) | shared: blocks/mesher/physics/rules/protocol/session/scenario + cp23.test; client: atlas/blocksUi/main/chunks/torchGlow | 173 testes, typecheck 3/3, build, screenshots ok | ~85k |

@@ -2,6 +2,17 @@
 
 > Single source of truth for resuming work. Read this FIRST when starting a session.
 > Last updated: 2026-07-17 (DIA DO PILOTO)
+> **cp23 — CERCA + PORTA + TOCHA (grupo C rodada 1) + ENCHER EM LOTE
+> (2026-07-17, playtest do usuário PENDENTE):** primeiros NÃO-CUBOS (ids
+> 65–70). Cerca conecta sozinha (poste+travessas, estilo Minecraft); porta de
+> 2 blocos abre/fecha no clique direito (`use_block` novo no protocolo; estado
+> no ID, metade órfã evapora por regra); tocha decorativa (halo no cliente,
+> precisa de apoio, SEM luz voxel — decisão do usuário). Física: porta aberta
+> e tocha atravessam (`isSolidBlock`). Mesher ganhou formas (`emitBox` UV
+> proporcional + culling de face rente). `/regiao encher` virou LOTE: 1 msg
+> `blocks_filled`, teto 4096→65536 (`MAX_ENCHER_CELLS`); regras/objetivos
+> acordam igual. 173 testes, typecheck 3/3, build+dist ok, screenshots
+> headless (cena + platô de 5390 blocos) conferem.
 > **/REGIAO CRIAR POR COORDENADAS (2026-07-17):** `/regiao criar nome x1 y1 z1
 > x2 y2 z2` cria sem varinha; `~`/`~n` = coordenada atual do autor (célula,
 > estilo Minecraft). Varinha continua valendo (3 parts). MESMO `~` no

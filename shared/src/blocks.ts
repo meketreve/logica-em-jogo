@@ -49,12 +49,26 @@ export const BlockId = {
   LetterY: 53, LetterZ: 54,
   Digit0: 55, Digit1: 56, Digit2: 57, Digit3: 58, Digit4: 59,
   Digit5: 60, Digit6: 61, Digit7: 62, Digit8: 63, Digit9: 64,
+  // cp23 (2026-07-17): grupo C rodada 1 — primeiros NÃO-CUBOS (forma custom no
+  // mesher). O ESTADO da porta (eixo + aberta/fechada) mora no PRÓPRIO id:
+  // abrir = trocar o byte via block_changed, mesma engrenagem de tudo.
+  Cerca: 65,
+  /** Porta fina no eixo X (lâmina fina em x, bloqueia passagem leste-oeste).
+   *  Ocupa 2 células verticais com o MESMO id; a metade de cima se reconhece
+   *  pelo vizinho de baixo. Clique direito alterna fechada↔aberta. */
+  PortaXFechada: 66,
+  PortaXAberta: 67,
+  PortaZFechada: 68,
+  PortaZAberta: 69,
+  /** Decorativa (sem luz voxel — decisão 2026-07-17): brilha por textura +
+   *  halo no cliente. Precisa de cubo cheio embaixo; sem suporte, some. */
+  Tocha: 70,
 } as const;
 
 export type BlockId = (typeof BlockId)[keyof typeof BlockId];
 
 /** Maior ID válido (mantém isPlaceable sem número mágico ao crescer a lista). */
-const MAX_BLOCK_ID = BlockId.Digit9;
+const MAX_BLOCK_ID = BlockId.Tocha;
 
 /** Bloco transparente (vidro/folhas): NÃO oculta a face do vizinho no mesher.
  *  Continua sólido pra física/raycast — transparência é só visual. */
@@ -62,8 +76,43 @@ export function isTransparentBlock(id: number): boolean {
   return id === BlockId.Glass || id === BlockId.Leaves;
 }
 
-/** O jogador pode colocar este ID? (qualquer bloco menos ar; valida bytes do fio) */
+/** Porta em qualquer eixo/estado? */
+export function isPorta(id: number): boolean {
+  return id >= BlockId.PortaXFechada && id <= BlockId.PortaZAberta;
+}
+
+/** Id da mesma porta com o estado alternado (fechada↔aberta, mesmo eixo). */
+export function portaToggled(id: number): number {
+  switch (id) {
+    case BlockId.PortaXFechada: return BlockId.PortaXAberta;
+    case BlockId.PortaXAberta: return BlockId.PortaXFechada;
+    case BlockId.PortaZFechada: return BlockId.PortaZAberta;
+    case BlockId.PortaZAberta: return BlockId.PortaZFechada;
+    default: return id;
+  }
+}
+
+/** Cubo CHEIO (ocupa a célula inteira)? Não-cubos nunca ocluem a face do
+ *  vizinho no mesher, e não servem de suporte pra tocha. */
+export function isFullCube(id: number): boolean {
+  return id !== BlockId.Air && !(id >= BlockId.Cerca && id <= BlockId.Tocha);
+}
+
+/** Sólido pra FÍSICA (colisão do jogador). Porta aberta e tocha atravessam;
+ *  cerca colide como cubo cheio (simplificação: barreira é o papel dela). */
+export function isSolidBlock(id: number): boolean {
+  return (
+    id !== BlockId.Air &&
+    id !== BlockId.PortaXAberta &&
+    id !== BlockId.PortaZAberta &&
+    id !== BlockId.Tocha
+  );
+}
+
+/** O jogador pode colocar este ID? (valida bytes do fio). Porta ABERTA não se
+ *  coloca na mão — só existe alternando uma fechada com o clique direito. */
 export function isPlaceable(id: number): boolean {
+  if (id === BlockId.PortaXAberta || id === BlockId.PortaZAberta) return false;
   return Number.isInteger(id) && id >= BlockId.Grass && id <= MAX_BLOCK_ID;
 }
 

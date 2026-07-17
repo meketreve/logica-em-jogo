@@ -385,6 +385,30 @@
   Mudança de nome (rejoin com id novo é o normal) recria o sprite via
   labelName. Testes que dão toEqual em player_moved GANHARAM o campo name —
   emissão nova sem name quebra esses asserts.
+- **Não-cubos (cp23, 2026-07-17) — cerca/porta/tocha, ids 65–70:** forma vive
+  no mesher (`emitShape` + `emitBox` com UV PROPORCIONAL — face amostra do tile
+  a região que ocuparia no cubo cheio). Culling do emitBox: face RENTE à borda
+  da célula some se o vizinho é cubo opaco (sem z-fight com o topo da grama) ou
+  tem o MESMO id (metades da porta fundem). `isFullCube()` em blocks.ts: não-
+  cubo NUNCA oclui vizinho no mesher nem segura tocha. FÍSICA usa
+  `isSolidBlock()` (não mais `!== Air`): porta aberta e tocha atravessam.
+  RECEITA bloco não-cubo novo: id em blocks.ts + isFullCube/isSolidBlock +
+  case no emitShape + tile pintado + entrada BLOCK_TILES (ícone) + PLACEABLE.
+- **Porta (cp23): estado mora no ID** (PortaX/Z × Fechada/Aberta) — abrir =
+  trocar byte via block_changed, zero metadata. Par vertical = MESMO id nas 2
+  células; metade de cima se reconhece pelo vizinho de baixo. `use_block`
+  (clique direito em interativo) alterna as duas; fechar recusa com jogador no
+  vão (senão trava preso). `doorRule` limpa metade órfã no tick (quebrar uma
+  derruba a outra — sem código especial no break). Porta REJEITADA em /bloco,
+  /regiao encher e sortear (comando de célula única criaria metade órfã).
+  Eixo escolhido no CLIENTE pelo yaw na hora do place; hotbar tem UMA entrada.
+- **Encher em lote (cp23b):** /regiao encher usa `applyBlockQuieto` (tudo do
+  applyBlock MENOS o broadcast — regras e objetivos acordam célula a célula) e
+  UMA msg `blocks_filled` (caixa+id); células puladas (jogador dentro) são
+  corrigidas com block_changed DEPOIS do lote. Cliente: setBlock em loop +
+  `remeshBox` (1 remesh por chunk tocado, não por bloco) + 1 gatilho de som.
+  Teto: MAX_ENCHER_CELLS=65536 (16× o antigo); MAX_OBJETIVO_CELLS segue 4096
+  porque detecção recheca a região a CADA mudança (custo recorrente).
 - Coordenada digitada em comando (2026-07-17): `parseCoordArg(token, base)`
   (module-level em session.ts) entende inteiro, `~` e `~n` — relativos à CÉLULA
   do autor (Math.floor da posição). Usado por `/regiao criar nome x1 y1 z1 x2

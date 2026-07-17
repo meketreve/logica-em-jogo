@@ -1,4 +1,4 @@
-import { BlockId, isTransparentBlock } from "./blocks";
+import { BlockId, isFullCube, isTransparentBlock } from "./blocks";
 import { CHUNK_SIZE } from "./constants";
 import { type World, getBlock } from "./world";
 
@@ -47,6 +47,11 @@ export const TILE = {
   // cp18 (transparentes)
   glass: 28,
   leaves: 29,
+  // cp23 (não-cubos) — glifos ocupam 30..65 (ver GLYPH)
+  cerca: 66,
+  portaBaixo: 67,
+  portaCima: 68,
+  tocha: 69,
 } as const;
 
 /** cp20: blocos-glifo. Letras A–Z e dígitos 0–9 ocupam tiles consecutivos a
@@ -97,6 +102,14 @@ const BLOCK_TILES: Record<number, FaceTiles> = {
   [BlockId.WoolBrown]: uniform(TILE.woolBrown),
   [BlockId.Glass]: uniform(TILE.glass),
   [BlockId.Leaves]: uniform(TILE.leaves),
+  // cp23: não-cubos NÃO passam pelo caminho de cubo do mesher (têm forma
+  // própria) — estas entradas alimentam só o ícone 2D (blockIconTile).
+  [BlockId.Cerca]: uniform(TILE.cerca),
+  [BlockId.PortaXFechada]: uniform(TILE.portaCima),
+  [BlockId.PortaXAberta]: uniform(TILE.portaCima),
+  [BlockId.PortaZFechada]: uniform(TILE.portaCima),
+  [BlockId.PortaZAberta]: uniform(TILE.portaCima),
+  [BlockId.Tocha]: uniform(TILE.tocha),
 };
 
 // cp20: letras/dígitos = cubos uniformes com o tile do glifo (append A→Z, 0→9).
@@ -180,6 +193,29 @@ const FACES: readonly Face[] = [
   },
 ];
 
+/** Eixo do mundo que uma coordenada UV da face percorre (pré-computado das
+ *  FACES): u=0→1 anda neste eixo; flip = anda no sentido decrescente. */
+interface UvAxis {
+  axis: 0 | 1 | 2;
+  flip: boolean;
+}
+
+function uvAxisOf(a: FaceCorner, b: FaceCorner): UvAxis {
+  for (const axis of [0, 1, 2] as const) {
+    if (a.pos[axis] !== b.pos[axis]) return { axis, flip: a.pos[axis] === 1 };
+  }
+  return { axis: 0, flip: false };
+}
+
+const FACE_UVS: readonly { u: UvAxis; v: UvAxis }[] = FACES.map((f) => {
+  const at = (u: 0 | 1, v: 0 | 1): FaceCorner =>
+    f.corners.find((c) => c.uv[0] === u && c.uv[1] === v) ?? f.corners[0];
+  return { u: uvAxisOf(at(0, 0), at(1, 0)), v: uvAxisOf(at(0, 0), at(0, 1)) };
+});
+
+/** 1/16 da célula — o "pixel" das formas não-cubo (16 texels por face). */
+const P = 1 / 16;
+
 export interface ChunkGeometry {
   positions: Float32Array;
   normals: Float32Array;
@@ -201,11 +237,119 @@ export function meshChunk(world: World, cx: number, cy: number, cz: number): Chu
   // Meia-texel de recuo nas UVs contra bleeding entre tiles vizinhos.
   const inset = 0.5 / (n * ATLAS.tilePx);
 
+  /** Caixa parcial da célula (frações [0..1]), UV PROPORCIONAL: cada face
+   *  amostra do tile a mesma região que ocuparia no cubo cheio — textura de
+   *  caixa fina não estica. Face RENTE à borda da célula é coplanar com a face
+   *  do vizinho: some se o vizinho é cubo opaco (oclusão) OU tem o MESMO id
+   *  (metades da porta fundem — sem z-fight). Base das formas do cp23. */
+  const emitBox = (
+    lx: number, ly: number, lz: number, id: number, tile: number,
+    x0: number, y0: number, z0: number, x1: number, y1: number, z1: number,
+  ): void => {
+    const col = tile % n;
+    const row = (tile / n) | 0;
+    const lo = [x0, y0, z0] as const;
+    const hi = [x1, y1, z1] as const;
+    for (let i = 0; i < FACES.length; i++) {
+      const face = FACES[i];
+      const axes = FACE_UVS[i];
+      if (!face || !axes) continue;
+      const flush =
+        face.dir[0] === -1 ? x0 === 0 : face.dir[0] === 1 ? x1 === 1 :
+        face.dir[1] === -1 ? y0 === 0 : face.dir[1] === 1 ? y1 === 1 :
+        face.dir[2] === -1 ? z0 === 0 : z1 === 1;
+      if (flush) {
+        const nb = getBlock(
+          world,
+          ox + lx + face.dir[0],
+          oy + ly + face.dir[1],
+          oz + lz + face.dir[2],
+        );
+        if (nb === id) continue;
+        if (isFullCube(nb) && !isTransparentBlock(nb)) continue;
+      }
+      const base = positions.length / 3;
+      for (const corner of face.corners) {
+        const px = corner.pos[0] === 0 ? x0 : x1;
+        const py = corner.pos[1] === 0 ? y0 : y1;
+        const pz = corner.pos[2] === 0 ? z0 : z1;
+        positions.push(lx + px, ly + py, lz + pz);
+        normals.push(face.dir[0], face.dir[1], face.dir[2]);
+        const fracOf = (a: UvAxis, flag: 0 | 1): number => {
+          const world01 = flag === 0 ? (a.flip ? hi[a.axis] : lo[a.axis])
+                                     : (a.flip ? lo[a.axis] : hi[a.axis]);
+          return a.flip ? 1 - world01 : world01;
+        };
+        const uf = fracOf(axes.u, corner.uv[0]);
+        const vf = fracOf(axes.v, corner.uv[1]);
+        uvs.push(
+          col / n + inset + uf * (1 / n - 2 * inset),
+          1 - (row + 1) / n + inset + vf * (1 / n - 2 * inset),
+        );
+      }
+      indices.push(base, base + 1, base + 2, base + 2, base + 1, base + 3);
+    }
+  };
+
+  /** Cerca conecta neste vizinho? Outra cerca ou qualquer cubo cheio. */
+  const cercaConecta = (wx: number, wy: number, wz: number): boolean => {
+    const nb = getBlock(world, wx, wy, wz);
+    return nb === BlockId.Cerca || isFullCube(nb);
+  };
+
+  /** Geometria das formas não-cubo (cp23). true = era forma, célula emitida. */
+  const emitShape = (id: number, lx: number, ly: number, lz: number): boolean => {
+    const wx = ox + lx;
+    const wy = oy + ly;
+    const wz = oz + lz;
+    switch (id) {
+      case BlockId.Cerca: {
+        // poste central + travessas (2 alturas) até cada vizinho conectável
+        emitBox(lx, ly, lz, id, TILE.cerca, 6 * P, 0, 6 * P, 10 * P, 1, 10 * P);
+        const rails = (
+          xa: number, za: number, xb: number, zb: number,
+        ): void => {
+          emitBox(lx, ly, lz, id, TILE.cerca, xa, 12 * P, za, xb, 15 * P, zb);
+          emitBox(lx, ly, lz, id, TILE.cerca, xa, 6 * P, za, xb, 9 * P, zb);
+        };
+        if (cercaConecta(wx - 1, wy, wz)) rails(0, 7 * P, 6 * P, 9 * P);
+        if (cercaConecta(wx + 1, wy, wz)) rails(10 * P, 7 * P, 1, 9 * P);
+        if (cercaConecta(wx, wy, wz - 1)) rails(7 * P, 0, 9 * P, 6 * P);
+        if (cercaConecta(wx, wy, wz + 1)) rails(7 * P, 10 * P, 9 * P, 1);
+        return true;
+      }
+      case BlockId.PortaXFechada:
+      case BlockId.PortaXAberta:
+      case BlockId.PortaZFechada:
+      case BlockId.PortaZAberta: {
+        // metade de cima se reconhece pelo vizinho de baixo com o MESMO id
+        const tile =
+          getBlock(world, wx, wy - 1, wz) === id ? TILE.portaCima : TILE.portaBaixo;
+        // lâmina fina no eixo que a porta BLOQUEIA (aberta = girada 90°)
+        const finaEmX = id === BlockId.PortaXFechada || id === BlockId.PortaZAberta;
+        if (finaEmX) emitBox(lx, ly, lz, id, tile, 7 * P, 0, 0, 9 * P, 1, 1);
+        else emitBox(lx, ly, lz, id, tile, 0, 0, 7 * P, 1, 1, 9 * P);
+        return true;
+      }
+      case BlockId.Tocha: {
+        emitBox(lx, ly, lz, id, TILE.tocha, 7 * P, 0, 7 * P, 9 * P, 10 * P, 9 * P);
+        return true;
+      }
+      default:
+        return false;
+    }
+  };
+
   for (let ly = 0; ly < CHUNK_SIZE; ly++) {
     for (let lz = 0; lz < CHUNK_SIZE; lz++) {
       for (let lx = 0; lx < CHUNK_SIZE; lx++) {
         const id = getBlock(world, ox + lx, oy + ly, oz + lz);
         if (id === BlockId.Air) continue;
+        // cp23: não-cubo tem forma própria e nunca passa pelo caminho de cubo
+        if (!isFullCube(id)) {
+          emitShape(id, lx, ly, lz);
+          continue;
+        }
         const tiles = BLOCK_TILES[id];
         if (!tiles) continue;
 
@@ -220,8 +364,13 @@ export function meshChunk(world: World, cx: number, cy: number, cz: number): Chu
           // (vidro encostado em folha: cada um mostra a sua face — a face oposta
           // do outro é backface e some por culling, sem z-fight). Vizinho opaco
           // esconde; MESMO transparente encostado funde (vidro contínuo).
+          // cp23: não-cubo (cerca/porta/tocha) NUNCA oclui o vizinho.
           if (neighbor !== BlockId.Air) {
-            if (!isTransparentBlock(neighbor) || neighbor === id) continue;
+            if (!isFullCube(neighbor)) {
+              // vizinho é forma: minha face aparece
+            } else if (!isTransparentBlock(neighbor) || neighbor === id) {
+              continue;
+            }
           }
 
           const tile =

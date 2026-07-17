@@ -1,4 +1,4 @@
-import { BlockId } from "./blocks";
+import { isSolidBlock } from "./blocks";
 import { type World, getBlock } from "./world";
 
 /**
@@ -73,7 +73,8 @@ function collides(world: World, pos: Vec3): boolean {
   for (let y = y0; y <= y1; y++) {
     for (let z = z0; z <= z1; z++) {
       for (let x = x0; x <= x1; x++) {
-        if (getBlock(world, x, y, z) !== BlockId.Air) return true;
+        // cp23: sólido de FÍSICA, não "≠ ar" — porta aberta e tocha atravessam
+        if (isSolidBlock(getBlock(world, x, y, z))) return true;
       }
     }
   }
@@ -115,7 +116,7 @@ function hasSupport(world: World, pos: Vec3): boolean {
   const z1 = Math.floor(pos.z + half);
   for (let z = z0; z <= z1; z++)
     for (let x = x0; x <= x1; x++)
-      if (getBlock(world, x, y, z) !== BlockId.Air) return true;
+      if (isSolidBlock(getBlock(world, x, y, z))) return true;
   return false;
 }
 

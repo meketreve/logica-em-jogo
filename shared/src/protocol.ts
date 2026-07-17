@@ -30,6 +30,9 @@ export type ClientMessage =
   | { type: "move"; x: number; y: number; z: number; yaw: number; pitch: number }
   | { type: "place_block"; x: number; y: number; z: number; blockId: number }
   | { type: "break_block"; x: number; y: number; z: number }
+  /** Clique direito num bloco INTERATIVO (cp23: porta) — o servidor decide o
+   *  efeito (alternar aberta/fechada) e responde com block_changed normais. */
+  | { type: "use_block"; x: number; y: number; z: number }
   | { type: "chat"; text: string }
   | {
       /**
@@ -62,6 +65,18 @@ export type ServerMessage =
       x: number;
       y: number;
       z: number;
+      blockId: number;
+    }
+  | {
+      /**
+       * Caixa INTEIRA virou um só bloco (/regiao encher em lote — cp23b).
+       * UMA mensagem no lugar de milhares de block_changed; o cliente aplica
+       * a caixa e remesha os chunks tocados uma vez. Células que o servidor
+       * PULOU (jogador dentro) chegam logo atrás como block_changed normais.
+       */
+      type: "blocks_filled";
+      x0: number; y0: number; z0: number;
+      x1: number; y1: number; z1: number;
       blockId: number;
     }
   | {
@@ -237,6 +252,16 @@ export function parseClientMessage(raw: string): ClientMessage | null {
         z: m["z"] as number,
       };
     }
+    case "use_block": {
+      const ints = [m["x"], m["y"], m["z"]];
+      if (!ints.every((n) => typeof n === "number" && Number.isInteger(n))) return null;
+      return {
+        type: "use_block",
+        x: m["x"] as number,
+        y: m["y"] as number,
+        z: m["z"] as number,
+      };
+    }
     case "chat":
       if (typeof m["text"] !== "string") return null;
       return { type: "chat", text: m["text"] };
@@ -286,6 +311,16 @@ export function parseServerMessage(raw: string): ServerMessage | null {
         x: m["x"] as number,
         y: m["y"] as number,
         z: m["z"] as number,
+        blockId: m["blockId"] as number,
+      };
+    }
+    case "blocks_filled": {
+      const ints = [m["x0"], m["y0"], m["z0"], m["x1"], m["y1"], m["z1"], m["blockId"]];
+      if (!ints.every((n) => typeof n === "number" && Number.isInteger(n))) return null;
+      return {
+        type: "blocks_filled",
+        x0: m["x0"] as number, y0: m["y0"] as number, z0: m["z0"] as number,
+        x1: m["x1"] as number, y1: m["y1"] as number, z1: m["z1"] as number,
         blockId: m["blockId"] as number,
       };
     }

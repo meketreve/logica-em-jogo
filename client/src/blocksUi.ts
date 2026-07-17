@@ -42,4 +42,9 @@ export const PLACEABLE: readonly { id: number; name: string }[] = [
   { id: BlockId.Glass, name: "vidro" },
   { id: BlockId.Leaves, name: "folhas" },
   ...GLYPH_BLOCKS,
+  // cp23 — não-cubos. A porta tem UMA entrada: na hora de colocar, o cliente
+  // escolhe o eixo (X ou Z) pela direção do olhar; aberta só existe no mundo.
+  { id: BlockId.Cerca, name: "cerca" },
+  { id: BlockId.PortaXFechada, name: "porta" },
+  { id: BlockId.Tocha, name: "tocha" },
 ];

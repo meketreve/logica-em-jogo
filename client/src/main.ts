@@ -15,6 +15,7 @@ import {
   findSpawnY,
   getBlock,
   isPlaceable,
+  isPorta,
   parseServerMessage,
   raycastBlock,
   setBlock,
@@ -44,6 +45,7 @@ import { ObjectivesUi } from "./objectivesUi";
 import { AuthorPanel, type GamePanel, GroupPanel, type PanelData } from "./panels";
 import { RegionRenderer } from "./regions";
 import { keyLabel, loadSettings } from "./settings";
+import { TorchGlow } from "./torchGlow";
 import { TouchControls, isTouchDevice, solicitarTelaCheia } from "./touch";
 import { putWorld } from "./worldStore";
 
@@ -215,6 +217,13 @@ let started = false;
 let applyBlockChanged:
   | ((msg: { x: number; y: number; z: number; blockId: number }) => void)
   | null = null;
+let applyBlocksFilled:
+  | ((msg: {
+      x0: number; y0: number; z0: number;
+      x1: number; y1: number; z1: number;
+      blockId: number;
+    }) => void)
+  | null = null;
 let applyPlayerMoved:
   | ((msg: { id: number; x: number; y: number; z: number; yaw: number; name?: string }) => void)
   | null = null;
@@ -291,6 +300,8 @@ function handleServerData(data: string | ArrayBuffer): void {
       debugStats = { tickAvgMs: msg.tickAvgMs, tickMaxMs: msg.tickMaxMs };
     } else if (msg.type === "block_changed") {
       applyBlockChanged?.(msg);
+    } else if (msg.type === "blocks_filled") {
+      applyBlocksFilled?.(msg);
     } else if (msg.type === "player_moved") {
       applyPlayerMoved?.(msg);
     } else if (msg.type === "player_left") {
@@ -443,6 +454,9 @@ function startGame(snap: Snapshot): void {
   }
   const chunkRenderer = new ChunkRenderer(world, material, scene);
   chunkRenderer.buildAll();
+  // halo das tochas (cp23): visual puro, segue o mundo autoritativo
+  const torchGlow = new TorchGlow(scene);
+  torchGlow.setFromWorld(world);
 
   // regiões nomeadas (cp11): wireframes — o servidor só manda pra professor
   const regionRenderer = new RegionRenderer(scene);
@@ -536,6 +550,7 @@ function startGame(snap: Snapshot): void {
   reloadWorld = (novo) => {
     world = novo.world;
     chunkRenderer.trocarMundo(world);
+    torchGlow.setFromWorld(world);
 
     latestRegions = [];
     regionRenderer.setRegions([]);
@@ -576,7 +591,26 @@ function startGame(snap: Snapshot): void {
   applyBlockChanged = (msg) => {
     setBlock(world, msg.x, msg.y, msg.z, msg.blockId);
     chunkRenderer.remeshBlock(msg.x, msg.y, msg.z);
+    torchGlow.onBlockChanged(msg.x, msg.y, msg.z, msg.blockId);
     // gatilho de som (áudio pluga depois); areia caindo dispara os dois por tick
+    emitGameEvent(
+      msg.blockId === BlockId.Air
+        ? { kind: "block_broken" }
+        : { kind: "block_placed", blockId: msg.blockId },
+    );
+  };
+
+  // /regiao encher em lote (cp23b): a caixa inteira chega numa mensagem só —
+  // aplica os bytes e remesha cada chunk tocado UMA vez (não uma por bloco)
+  applyBlocksFilled = (msg) => {
+    for (let y = msg.y0; y <= msg.y1; y++)
+      for (let z = msg.z0; z <= msg.z1; z++)
+        for (let x = msg.x0; x <= msg.x1; x++) setBlock(world, x, y, z, msg.blockId);
+    const min = { x: msg.x0, y: msg.y0, z: msg.z0 };
+    const max = { x: msg.x1, y: msg.y1, z: msg.z1 };
+    chunkRenderer.remeshBox(min, max);
+    torchGlow.onRegionFilled(min, max, msg.blockId);
+    // UM gatilho de som pro lote inteiro (não milhares)
     emitGameEvent(
       msg.blockId === BlockId.Air
         ? { kind: "block_broken" }
@@ -796,8 +830,24 @@ function startGame(snap: Snapshot): void {
       wandMark(2, target);
       return;
     }
-    const blockId = hotbar[selected];
+    // cp23: clique direito em bloco INTERATIVO (porta) interage, não coloca —
+    // convenção Minecraft; o servidor alterna as duas metades
+    if (isPorta(getBlock(world, target.x, target.y, target.z))) {
+      activeConn.send(
+        JSON.stringify({ type: "use_block", x: target.x, y: target.y, z: target.z }),
+      );
+      return;
+    }
+    let blockId = hotbar[selected];
     if (blockId === undefined) return;
+    // porta na mão: o EIXO sai da direção do olhar (a lâmina fecha a passagem
+    // que o jogador está encarando)
+    if (blockId === BlockId.PortaXFechada || blockId === BlockId.PortaZFechada) {
+      blockId =
+        Math.abs(Math.sin(input.yaw)) > Math.abs(Math.cos(input.yaw))
+          ? BlockId.PortaXFechada
+          : BlockId.PortaZFechada;
+    }
     activeConn.send(
       JSON.stringify({
         type: "place_block",
@@ -812,7 +862,10 @@ function startGame(snap: Snapshot): void {
   // botão do meio = copiar o bloco mirado pro slot atual (pedido do usuário)
   input.onMouseButton(1, () => {
     if (!target || varinhaAtiva) return;
-    const id = getBlock(world, target.x, target.y, target.z);
+    let id = getBlock(world, target.x, target.y, target.z);
+    // qualquer porta copiada vira a entrada única "porta" da hotbar (o eixo
+    // é re-escolhido pelo olhar na hora de colocar)
+    if (isPorta(id)) id = BlockId.PortaXFechada;
     if (!isPlaceable(id)) return; // bedrock e afins não vão pra mão
     hotbar[selected] = id;
     localStorage.setItem(HOTBAR_KEY, JSON.stringify(hotbar));

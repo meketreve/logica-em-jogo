@@ -107,6 +107,12 @@ export const MAX_OBJETIVO_TEXTO = 120;
 /** Teto de células de região fotografada/varrida (e do /regiao encher). */
 export const MAX_OBJETIVO_CELLS = 4096;
 
+/** Teto do /regiao encher (cp23b) — bem maior que o dos objetivos porque o
+ *  lote sai numa ÚNICA mensagem blocks_filled (não 1 block_changed por
+ *  célula); objetivo continua em MAX_OBJETIVO_CELLS porque a detecção
+ *  recheca a região a cada mudança, custo RECORRENTE. 64×64×16 = um platô. */
+export const MAX_ENCHER_CELLS = 65536;
+
 export function boxVolume(b: Box): number {
   return (
     (b.max.x - b.min.x + 1) * (b.max.y - b.min.y + 1) * (b.max.z - b.min.z + 1)
