@@ -11,3 +11,6 @@ comando para kicar aluno por mau comportamento
 sistema de dia e noite
 blocos com as letras e números
 cerca de madeira ( meio bloco vertical )
+voo do modo criativo do minecraft
+alterar a geração de terreno dos mundos para adicionar bedrock na camada 0
+/tpa e /tpr para aceitar e pedir tp comando todo seria /tpr (nome) e o player alvo recebe mensagen com (player) quer teleportar até você, use /tpa para aceitar.

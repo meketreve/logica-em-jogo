@@ -1249,3 +1249,5 @@ bug-195 (basename sem import). .exe/empacotamento segue ADIADO (decisão do usu�
 | 12:01 | Edited client/src/commands.ts | 3→5 lines | ~14 |
 | 12:01 | Created shared/src/tp.test.ts | — | ~1490 |
 | 12:02 | /tpr pede + /tpa aceita (30s) + /tp nome direto do professor (~ relativo ao teleportado) | shared/src/session.ts, shared/src/tp.test.ts, client/src/commands.ts | 182 testes, typecheck 3/3, build ok | ~25k |
+| 12:03 | Session end: 68 writes across 21 files (session.ts, regions.test.ts, session.test.ts, blocks.ts, physics.ts) | 21 reads | ~89059 tok |
+| 14:22 | SESSÃO FECHADA (handoff pré /clear): /regiao criar coords+~, ~ no /bloco, cp23 cerca/porta/tocha, encher em lote 65536, /tpr+/tpa+/tp nome. 182 testes, 4 commits pushados. Backlog novo: voo criativo, bedrock camada 0 | .wolf/* | tudo verde, dist no repo | - |

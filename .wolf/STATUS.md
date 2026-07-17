@@ -1,7 +1,14 @@
 # STATUS — Projeto "Lógica em Jogo" (jogo voxel educacional)
 
 > Single source of truth for resuming work. Read this FIRST when starting a session.
-> Last updated: 2026-07-17 (DIA DO PILOTO)
+> Last updated: 2026-07-17 (DIA DO PILOTO — fim da sessão da tarde)
+> **BACKLOG NOVO (ideias para fazer.txt, 2026-07-17):** (a) voo do modo
+> criativo; (b) bedrock na camada 0 da geração de terreno (mundos normal/
+> plano/cabines — plano já tem; conferir os outros). O item /tpa+/tpr do
+> arquivo JÁ FOI FEITO nesta sessão.
+> **PRÓXIMA SESSÃO:** playtest do usuário — cp23 (cerca/porta/tocha),
+> /regiao encher grande, /regiao criar por coords, /tp·/tpr·/tpa — e o
+> piloto com a turma. Nada codado pendente de verificação.
 > **/TPR + /TPA + /TP NOME (2026-07-17):** aluno pede teleporte (/tpr nome,
 > expira 30 s) e o outro aceita (/tpa [nome]); professor teleporta direto
 > (/tp nome = ir até; /tp nome x y z = enviar, ~ relativo ao teleportado).

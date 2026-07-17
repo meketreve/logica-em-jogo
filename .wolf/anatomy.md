@@ -1,7 +1,7 @@
 # anatomy.md
 
-> Auto-maintained by OpenWolf. Last scanned: 2026-07-17T12:25:22.901Z
-> Files: 87 tracked | Anatomy hits: 0 | Misses: 0
+> Auto-maintained by OpenWolf. Last scanned: 2026-07-17T15:01:55.107Z
+> Files: 93 tracked | Anatomy hits: 0 | Misses: 0
 
 ## ../../../tmp/claude-1000/-home-meketreve-logica-em-jogo/1e53a721-e45d-4911-a026-f385f8f2c4e6/scratchpad/
 
@@ -23,6 +23,12 @@
 ## ../../../tmp/claude-1000/-home-meketreve-logica-em-jogo/79e5e357-9896-4502-b4f6-697b125f1983/scratchpad/
 
 - `smoke-say.mjs` — Smoke do /say no terminal do host: sobe o servidor com stdin em pipe, (~522 tok)
+
+## ../../../tmp/claude-1000/-home-meketreve-logica-em-jogo/8d9e190e-57d7-40a0-86df-331736df0502/scratchpad/
+
+- `cp23-stage.mts` — Monta a cena do cp23 no servidor REAL (porta 8093, mundo plano): professor (~451 tok)
+- `cp23-stage2.mts` — Tocha em pilar à frente do spawn (visível no screenshot) + halo. (~235 tok)
+- `cp23-stage3.mts` — Cena completa do cp23 + platô via /regiao encher em LOTE (5390 células, (~500 tok)
 
 ## ../../../tmp/claude-1000/-home-meketreve-logica-em-jogo/96d96e4c-0809-43a9-bed0-c422babfbfe8/scratchpad/
 
@@ -72,13 +78,13 @@
 
 ## client/src/
 
-- `atlasTexture.ts` — Texture atlas procedural pintado num canvas (sem assets externos — restrição (~2953 tok)
+- `atlasTexture.ts` — Texture atlas procedural pintado num canvas (sem assets externos — restrição (~3526 tok)
 - `audio.ts` — Som de INTERFACE (menus, botões, notificações) — sintetizado com WebAudio, (~992 tok)
 - `blockIcons.ts` — Ícones 2D dos blocos pra hotbar e pro inventário: recorta o tile LATERAL do (~270 tok)
-- `blocksUi.ts` — Blocos colocáveis com nome em português — fonte única pra hotbar (main.ts) (~552 tok)
+- `blocksUi.ts` — Blocos colocáveis com nome em português — fonte única pra hotbar (main.ts) (~633 tok)
 - `chat.ts` — UI de chat em HTML/CSS por cima do canvas (regra: sem GUI de engine). (~1525 tok)
-- `chunks.ts` — 1 mesh por chunk (BufferGeometry única, culled mesher do /shared). (~914 tok)
-- `commands.ts` — Autocompletar de comandos de chat (Tab). Puro, sem DOM — o chat.ts liga o (~578 tok)
+- `chunks.ts` — 1 mesh por chunk (BufferGeometry única, culled mesher do /shared). (~1171 tok)
+- `commands.ts` — Autocompletar de comandos de chat (Tab). Puro, sem DOM — o chat.ts liga o (~583 tok)
 - `commands.ts` — Autocompletar de comandos de chat (Tab). Puro, sem DOM — o chat.ts liga o (~516 tok)
 - `connection.ts` — Conexão do cliente com O SERVIDOR — interface única, hospedeiro invisível. (~1175 tok)
 - `daynight.ts` — Ciclo dia/noite (cp21) — SÓ visual. A hora é autoritativa do SERVIDOR (msg (~971 tok)
@@ -86,12 +92,13 @@
 - `hud.ts` — HUD de perfilação (F3): FPS, frametime méd+p95, remesh, draw calls e (~1099 tok)
 - `input.ts` — Teclado + mouse (pointer lock). SÓ coleta input — nenhuma decisão de (~1542 tok)
 - `inventory.ts` — Inventário de blocos (cp16) — grade com TODOS os colocáveis + faixa da (~1150 tok)
-- `main.ts` — O cliente não tem filesystem: aprende os nomes das aulas pela resposta de (~10977 tok)
+- `main.ts` — O cliente não tem filesystem: aprende os nomes das aulas pela resposta de (~11607 tok)
 - `menu.ts` — Menu principal (cp8) — HTML/CSS por cima do canvas, sem GUI de engine. (~4087 tok)
 - `objectivesUi.ts` — Grupo do PRÓPRIO jogador (null = sem grupo). (~1244 tok)
 - `panels.ts` — Painéis HTML do cp14 — açúcar visual sobre os comandos de chat: cada botão (~5834 tok)
 - `regions.ts` — Wireframes das regiões nomeadas (cp11) — visão do PROFESSOR (o servidor só (~690 tok)
 - `settings.ts` — Configurações do jogador, persistidas em localStorage (por navegador). (~989 tok)
+- `torchGlow.ts` — Halo das tochas (cp23) — SÓ visual (decisão 2026-07-17: tocha decorativa, (~996 tok)
 - `touch.ts` — Controles de toque (tablet) — joystick, arrasto de olhar e botões. SÓ (~2654 tok)
 - `worldStore.ts` — Mundos do SINGLEPLAYER, guardados no navegador (IndexedDB) — decisão de (~780 tok)
 
@@ -124,31 +131,33 @@
 ## shared/src/
 
 - `auth.ts` — Identidade por mundo (cp9): nome + PIN de 4 dígitos, papel professor/aluno. (~255 tok)
-- `blocks.test.ts` (~283 tok)
-- `blocks.ts` — IDs de bloco. Gravados como bytes crus nos chunks (Uint8Array), no save e no (~774 tok)
+- `blocks.test.ts` (~318 tok)
+- `blocks.ts` — IDs de bloco. Gravados como bytes crus nos chunks (Uint8Array), no save e no (~1361 tok)
 - `constants.ts` — Aresta do chunk em blocos (16³ = 4096 bytes, 1 byte por bloco). (~382 tok)
 - `cp14.test.ts` — mundo plano 2×2×2 chunks (32³) — superfície em y=3 (~1992 tok)
+- `cp23.test.ts` — DIMS: makeFlat (~3494 tok)
 - `groups.test.ts` — prof + 2 alunos em 2 grupos; modelo 2×1×1 com lã vermelha+azul. (~3848 tok)
 - `groups.ts` — Grupos de alunos (cp13) — membros por NOME (mesma identidade do roster: (~280 tok)
 - `index.ts` (~114 tok)
 - `mesher.test.ts` — Declares DIMS (~992 tok)
-- `mesher.ts` — Culled mesher: função PURA (bytes do mundo → geometria). Só emite faces que (~2288 tok)
+- `mesher.ts` — Culled mesher: função PURA (bytes do mundo → geometria). Só emite faces que (~4048 tok)
 - `physics.test.ts` — Mundo 1 chunk com chão sólido em y ∈ [0,7]. (~2227 tok)
-- `physics.ts` — Física do jogador (andar, gravidade, colisão AABB com o grid de voxels). (~1698 tok)
+- `physics.ts` — Física do jogador (andar, gravidade, colisão AABB com o grid de voxels). (~1721 tok)
 - `protocol.test.ts` — Declares DIMS (~2707 tok)
-- `protocol.ts` — Protocolo v0 (checkpoint 2). Mensagens JSON dos dois lados + world_snapshot (~4406 tok)
+- `protocol.ts` — Protocolo v0 (checkpoint 2). Mensagens JSON dos dois lados + world_snapshot (~4822 tok)
 - `raycast.test.ts` — Mundo 16³ com chão sólido em y ∈ [0,7]. (~604 tok)
 - `raycast.ts` — Raycast de voxel (DDA de Amanatides-Woo): anda célula a célula do grid até (~649 tok)
-- `regions.test.ts` — Marca os 2 cantos e cria a região "casa" (0,0,0)→(3,4,5). (~2875 tok)
+- `regions.test.ts` — Marca os 2 cantos e cria a região "casa" (0,0,0)→(3,4,5). (~3510 tok)
 - `regions.ts` — Regiões nomeadas (cp11) — caixas de blocos com nome, marcadas pelo professor (~756 tok)
 - `rules.test.ts` — Declares DIMS (~504 tok)
-- `rules.ts` — Sistema GENÉRICO de atualização de bloco por vizinhança — a REGRA DE OURO (~526 tok)
+- `rules.ts` — Sistema GENÉRICO de atualização de bloco por vizinhança — a REGRA DE OURO (~775 tok)
 - `save.test.ts` — Declares DIMS (~1454 tok)
 - `save.ts` — Formato de save (.ljw) — MESMO arquivo em todos os hospedeiros: disco do (~1994 tok)
 - `scenario.test.ts` — Marca cantos e cria região nomeada via varinha + /regiao (professor id). (~4106 tok)
-- `scenario.ts` — Cenário (cp12) — o coração pedagógico: objetivos que checam o ESTADO DO (~3583 tok)
-- `session.test.ts` — Testes de MECÂNICA rodam com singleplayer: true (join sem PIN) — a (~10478 tok)
-- `session.ts` — GameSession: o SERVIDOR autoritativo, independente de hospedeiro. (~21446 tok)
+- `scenario.ts` — Cenário (cp12) — o coração pedagógico: objetivos que checam o ESTADO DO (~3680 tok)
+- `session.test.ts` — Testes de MECÂNICA rodam com singleplayer: true (join sem PIN) — a (~10737 tok)
+- `session.ts` — GameSession: o SERVIDOR autoritativo, independente de hospedeiro. (~24518 tok)
+- `tp.test.ts` — /tpr (pedir teleporte) + /tpa (aceitar) — todos os jogadores; e /tp nome / (~1490 tok)
 - `world.test.ts` — Declares DIMS (~761 tok)
 - `world.ts` — Dimensões do mundo em chunks. Parâmetro de criação, gravado no header do save/snapshot. (~848 tok)
 - `worldgen.ts` — Preset de criação de mundo (cp14): escolhido no menu/host, só vale pra (~1360 tok)
