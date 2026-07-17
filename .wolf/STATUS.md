@@ -972,8 +972,9 @@ navegador). Falta só empacotar (Tauri/Node SEA) — ADIADO por decisão do usu�
   (tapete/cadeira/mesa/sofá/cama = GRUPO C, geometria não-cubo — mesher novo);
   porta + janela abre-fecha (bloco COM ESTADO + interação, base de mecanismos
   lógicos); quadro com texto/imagem (feature grande de UI); vidro (já existe
-  cp18 — talvez o usuário queira vidraça/painel). Escolha da próxima frente é do
-  usuário.
+  cp18 — talvez o usuário queira vidraça/painel); cerca de madeira, meio bloco
+  vertical (novo 2026-07-17 — grupo C, não-cubo). Escolha da próxima frente é
+  do usuário.
 
 ⚠️ Issue conhecida (bug-003, fix PARCIAL, NÃO bloqueante): pulos ocasionais de câmera
 por spikes de movementX/Y do Chrome no pointer lock. Filtro MAX_DELTA=200 +
