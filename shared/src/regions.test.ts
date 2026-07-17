@@ -200,6 +200,61 @@ describe("regions — sessão (varinha + /regiao)", () => {
     );
   });
 
+  it("criar com coordenadas digitadas dispensa a varinha e normaliza os cantos", () => {
+    const s = makeSession();
+    joinProf(s);
+    s.send(1, { type: "chat", text: "/regiao criar caixa 1 2 3 0 0 0" });
+    const regions = s.msgsTo(1).filter((m) => m["type"] === "regions").at(-1);
+    expect(regions?.["regions"]).toEqual([
+      { nome: "caixa", min: { x: 0, y: 0, z: 0 }, max: { x: 1, y: 2, z: 3 } },
+    ]);
+    expect(s.msgsTo(1).filter((m) => m["type"] === "chat").at(-1)?.["text"]).toContain(
+      'Região "caixa" criada: 2×3×4',
+    );
+  });
+
+  it("criar com ~ e ~n usa a célula do autor como base", () => {
+    const s = makeSession();
+    joinProf(s);
+    const spawn = s.session.spawn;
+    const base = { x: Math.floor(spawn.x), y: Math.floor(spawn.y), z: Math.floor(spawn.z) };
+    s.send(1, { type: "chat", text: "/regiao criar aqui ~ ~ ~ ~2 ~2 ~2" });
+    const regions = s.msgsTo(1).filter((m) => m["type"] === "regions").at(-1);
+    expect(regions?.["regions"]).toEqual([
+      {
+        nome: "aqui",
+        min: base,
+        max: { x: base.x + 2, y: base.y + 2, z: base.z + 2 },
+      },
+    ]);
+    // ~-n também vale (desconta da coordenada do autor)
+    s.send(1, { type: "chat", text: "/regiao criar atras ~-1 ~ ~ ~ ~ ~" });
+    const lista = s.msgsTo(1).filter((m) => m["type"] === "regions").at(-1);
+    expect(lista?.["regions"]).toContainEqual({
+      nome: "atras",
+      min: { x: base.x - 1, y: base.y, z: base.z },
+      max: base,
+    });
+  });
+
+  it("criar digitado recusa coordenada fora do mundo e token inválido", () => {
+    const s = makeSession();
+    joinProf(s);
+    s.send(1, { type: "chat", text: "/regiao criar fora 0 0 0 99 0 0" });
+    expect(s.msgsTo(1).filter((m) => m["type"] === "chat").at(-1)?.["text"]).toContain(
+      "fora do mundo",
+    );
+    s.send(1, { type: "chat", text: "/regiao criar torta 0 0 0 a 0 0" });
+    expect(s.msgsTo(1).filter((m) => m["type"] === "chat").at(-1)?.["text"]).toContain(
+      "Não entendi as coordenadas",
+    );
+    // nada disso criou região
+    s.send(1, { type: "chat", text: "/regiao lista" });
+    expect(s.msgsTo(1).filter((m) => m["type"] === "chat").at(-1)?.["text"]).toContain(
+      "Nenhuma região",
+    );
+  });
+
   it("/regiao sortear preenche a região só com os ids dados", () => {
     const s = makeSession();
     joinProf(s);

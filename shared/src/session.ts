@@ -94,6 +94,23 @@ interface Identity {
   papel: Papel;
 }
 
+/**
+ * Coordenada digitada num comando: inteiro, "~" (coordenada atual do autor) ou
+ * "~n" (atual + n) — convenção do Minecraft, o modelo mental do público.
+ * `base` = célula onde o autor está. null = token inválido.
+ */
+function parseCoordArg(token: string | undefined, base: number): number | null {
+  if (token === undefined) return null;
+  if (token.startsWith("~")) {
+    const off = token.slice(1);
+    if (off === "") return base;
+    const n = Number(off);
+    return Number.isInteger(n) ? base + n : null;
+  }
+  const n = Number(token);
+  return Number.isInteger(n) ? n : null;
+}
+
 export class GameSession {
   readonly world: World;
   readonly seed: number;
@@ -593,18 +610,46 @@ export class GameSession {
           .join("\n");
       }
       case "criar": {
+        // duas formas: cantos da varinha (3 partes) ou coordenadas digitadas
+        // (9 partes), com ~ / ~n relativos à célula do autor (estilo Minecraft)
         const nome = parts[2];
-        if (parts.length !== 3 || !nome) {
-          return "Uso: /regiao criar nome (sem espaços). Marque os dois cantos com a varinha antes.";
+        if ((parts.length !== 3 && parts.length !== 9) || !nome) {
+          return "Uso: /regiao criar nome (com os dois cantos da varinha) ou /regiao criar nome x1 y1 z1 x2 y2 z2 — o ~ copia a sua coordenada (ex.: /regiao criar teste ~ ~ ~ 64 64 64).";
         }
         if (nome.length > MAX_REGION_NAME) return `O nome é grande demais (máximo de ${MAX_REGION_NAME} caracteres).`;
         if (this.regions.has(nome)) return `Já existe uma região chamada "${nome}". Apague-a antes ou escolha outro nome.`;
         if (this.regions.size >= MAX_REGIONS) return `Limite de ${MAX_REGIONS} regiões atingido.`;
-        const marks = this.wandMarks.get(clientId);
-        if (!marks?.c1 || !marks.c2) {
-          return "Marque os dois cantos com a varinha primeiro (tecla R: clique esquerdo marca o canto 1, o direito marca o canto 2).";
+        let c1: Vec3i;
+        let c2: Vec3i;
+        if (parts.length === 9) {
+          const p = this.players.get(clientId);
+          if (!p) return "Entre no mundo antes de criar regiões.";
+          const base = { x: Math.floor(p.x), y: Math.floor(p.y), z: Math.floor(p.z) };
+          const x1 = parseCoordArg(parts[3], base.x);
+          const y1 = parseCoordArg(parts[4], base.y);
+          const z1 = parseCoordArg(parts[5], base.z);
+          const x2 = parseCoordArg(parts[6], base.x);
+          const y2 = parseCoordArg(parts[7], base.y);
+          const z2 = parseCoordArg(parts[8], base.z);
+          if (x1 === null || y1 === null || z1 === null || x2 === null || y2 === null || z2 === null) {
+            return "Não entendi as coordenadas. Use números inteiros, ~ (a sua coordenada) ou ~n (a sua coordenada mais n).";
+          }
+          c1 = { x: x1, y: y1, z: z1 };
+          c2 = { x: x2, y: y2, z: z2 };
+          for (const c of [c1, c2]) {
+            if (!inBounds(this.world, c.x, c.y, c.z)) {
+              return `As coordenadas (${c.x}, ${c.y}, ${c.z}) estão fora do mundo.`;
+            }
+          }
+        } else {
+          const marks = this.wandMarks.get(clientId);
+          if (!marks?.c1 || !marks.c2) {
+            return "Marque os dois cantos com a varinha primeiro (tecla R: clique esquerdo marca o canto 1, o direito marca o canto 2) — ou digite as coordenadas: /regiao criar nome x1 y1 z1 x2 y2 z2 (o ~ copia a sua coordenada).";
+          }
+          c1 = marks.c1;
+          c2 = marks.c2;
         }
-        const region: NamedRegion = { nome, ...regionFromCorners(marks.c1, marks.c2) };
+        const region: NamedRegion = { nome, ...regionFromCorners(c1, c2) };
         this.regions.set(nome, region);
         this.wandMarks.delete(clientId); // cantos são rascunho de UMA região
         this.broadcastRegions();
@@ -744,7 +789,7 @@ export class GameSession {
         return `Região "${nome}": ${mudados} bloco(s) sorteado(s) entre ${ids.length} tipo(s).`;
       }
       default:
-        return "Uso: /regiao criar nome · /regiao apagar nome · /regiao lista · /regiao encher nome id · /regiao sortear nome id… · /regiao carimbar modelo prefixo espacamento [z]";
+        return "Uso: /regiao criar nome [x1 y1 z1 x2 y2 z2] · /regiao apagar nome · /regiao lista · /regiao encher nome id · /regiao sortear nome id… · /regiao carimbar modelo prefixo espacamento [z]";
     }
   }
 

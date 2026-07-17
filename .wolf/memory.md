@@ -1167,3 +1167,14 @@ bug-195 (basename sem import). .exe/empacotamento segue ADIADO (decisão do usu�
 - 153 testes ✅ · typecheck 3/3 ✅ · build + client/dist no push · screenshot headless prova.
 - bug-239: campo novo no protocolo não propaga pro tipo local do callback apply* no main.ts.
 - Handoff: STATUS.md atualizado; piloto é HOJE — notebook da escola: git pull.
+| 09:58 | Session end: 12 writes across 6 files (protocol.ts, session.ts, main.ts, session.test.ts, protocol.test.ts) | 7 reads | ~51861 tok |
+
+## Session: 2026-07-17 09:58
+
+| Time | Action | File(s) | Outcome | ~Tokens |
+|------|--------|---------|---------|--------|
+| 10:51 | Edited shared/src/session.ts | added 3 condition(s) | ~208 |
+| 10:52 | Edited shared/src/session.ts | added 4 condition(s) | ~775 |
+| 10:52 | Edited shared/src/session.ts | "Uso: /regiao criar nome ·" → "Uso: /regiao criar nome [" | ~58 |
+| 10:52 | Edited shared/src/regions.test.ts | added optional chaining | ~655 |
+| 10:53 | /regiao criar por coordenadas digitadas com ~ e ~n (varinha segue valendo) | shared/src/session.ts, shared/src/regions.test.ts | 156 testes + typecheck 3/3 + build ok | ~35k |
