@@ -1,4 +1,5 @@
 import { type Papel } from "./auth";
+import { type Claim, type GrupoAmigos, parseClaim, parseGrupoAmigos } from "./claims";
 import { type GroupDef, parseGroups } from "./groups";
 import { decodeSnapshot, encodeSnapshot } from "./protocol";
 import { type NamedRegion, parseNamedRegion } from "./regions";
@@ -62,6 +63,15 @@ export interface SaveMeta {
   cenario?: ScenarioMeta;
   /** Grupos de alunos (cp13). Ausente = modo turma-toda-junta. */
   grupos?: GroupDef[];
+  /** Anti-griefing (cp24): proteção de áreas ligada? Ausente = desligada. */
+  claimsAtivo?: boolean;
+  /** Áreas reivindicadas pelos alunos (cp24). Ausente = nenhuma. */
+  claims?: Claim[];
+  /** Grupos de amigos criados pelos alunos (cp24). Ausente = nenhum. */
+  amigos?: GrupoAmigos[];
+  /** Confinamento (cp25): aluno só edita na área do seu grupo? Ausente =
+   *  desligado. Em mundo-aula o host força ligado no boot (não vem do save). */
+  confinamento?: boolean;
   /** Ciclo dia/noite (cp21). `hora` em [0,24); `ciclo` = o tempo passa.
    *  Ausente em save antigo = padrão do mundo novo (meio-dia, ciclo parado).
    *  Mundo de atividade grava ciclo OFF; sobrevivência (futuro) grava a hora
@@ -156,6 +166,21 @@ export function decodeSave(buf: ArrayBuffer): SaveData {
   // cp12: cenário inválido/ausente = mundo sem cenário (save antigo válido)
   const cenario = parseScenarioMeta(m["cenario"]);
   const grupos = parseGroups(m["grupos"]);
+  // cp24: claims + grupos de amigos — entrada quebrada é PULADA (save antigo válido)
+  const claims: Claim[] = [];
+  if (Array.isArray(m["claims"])) {
+    for (const entry of m["claims"]) {
+      const c = parseClaim(entry);
+      if (c) claims.push(c);
+    }
+  }
+  const amigos: GrupoAmigos[] = [];
+  if (Array.isArray(m["amigos"])) {
+    for (const entry of m["amigos"]) {
+      const g = parseGrupoAmigos(entry);
+      if (g) amigos.push(g);
+    }
+  }
   // snapshot valida a si mesmo (magic LJW0, dims, tamanho)
   const snapshot = decodeSnapshot(buf.slice(SAVE_HEADER_BYTES + jsonLen));
   return {
@@ -167,6 +192,12 @@ export function decodeSave(buf: ArrayBuffer): SaveData {
     ...(regioes.length ? { regioes } : {}),
     ...(cenario?.objetivos.length ? { cenario } : {}),
     ...(grupos.length ? { grupos } : {}),
+    // cp24: proteção de áreas (só grava o que existe — save antigo enxuto)
+    ...(m["claimsAtivo"] === true ? { claimsAtivo: true } : {}),
+    ...(claims.length ? { claims } : {}),
+    ...(amigos.length ? { amigos } : {}),
+    // cp25: confinamento por área de grupo (ausente = desligado)
+    ...(m["confinamento"] === true ? { confinamento: true } : {}),
     // cp21: hora/ciclo ausentes ou inválidos = padrão do mundo novo (na sessão)
     ...(typeof m["hora"] === "number" && Number.isFinite(m["hora"]) ? { hora: m["hora"] } : {}),
     ...(typeof m["ciclo"] === "boolean" ? { ciclo: m["ciclo"] } : {}),

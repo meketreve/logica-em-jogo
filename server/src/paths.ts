@@ -25,8 +25,22 @@ export const PASTA_AULAS = daRaiz("aulas");
  * aulas/. Se a cópia já existe, ela vence o modelo — é a turma continuando de
  * onde parou. Para recomeçar do zero, basta apagar o arquivo em aulas/.
  */
-export function mundoDeTrabalho(escolhido: string): { vivo: string; modelo?: string } {
+export function mundoDeTrabalho(escolhido: string): {
+  vivo: string;
+  modelo?: string;
+  somenteLeitura: boolean;
+} {
   const alvo = daRaiz(escolhido);
-  if (dirname(alvo) !== PASTA_CENARIOS) return { vivo: alvo };
-  return { vivo: resolve(PASTA_AULAS, basename(alvo)), modelo: alvo };
+  const somenteLeitura = ehMundoDeAula(alvo);
+  if (dirname(alvo) !== PASTA_CENARIOS) return { vivo: alvo, somenteLeitura };
+  return { vivo: resolve(PASTA_AULAS, basename(alvo)), modelo: alvo, somenteLeitura };
+}
+
+/**
+ * Mundos de AULA (lição) são REUTILIZÁVEIS: começam sempre do modelo e nunca
+ * salvam a turma. Assim a próxima turma reaproveita a mesma aula sem o professor
+ * mover ou apagar arquivos. Chave = nome do arquivo começa com "aula".
+ */
+export function ehMundoDeAula(caminho: string): boolean {
+  return /^aula/i.test(basename(caminho));
 }

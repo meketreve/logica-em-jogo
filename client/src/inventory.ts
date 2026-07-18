@@ -1,5 +1,4 @@
 import { playUi } from "./audio";
-import { PLACEABLE } from "./blocksUi";
 
 /**
  * Inventário de blocos (cp16) — grade com TODOS os colocáveis + faixa da
@@ -20,6 +19,8 @@ export class InventoryPanel {
 
   constructor(
     private readonly icons: Map<number, string>,
+    /** Colocáveis visíveis pra este jogador (aluno não vê rocha-matriz). */
+    private readonly blocks: () => readonly { id: number; name: string }[],
     private readonly state: () => { hotbar: readonly number[]; selected: number },
     private readonly pick: (blockId: number) => void,
     private readonly select: (slot: number) => void,
@@ -86,7 +87,7 @@ export class InventoryPanel {
 
     const grid = document.createElement("div");
     grid.className = "inv-grid";
-    for (const b of PLACEABLE) {
+    for (const b of this.blocks()) {
       const btn = document.createElement("button");
       btn.type = "button";
       btn.className = "inv-bloco";

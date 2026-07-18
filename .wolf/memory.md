@@ -1281,3 +1281,110 @@ bug-195 (basename sem import). .exe/empacotamento segue ADIADO (decisão do usu�
 | 15:58 | Sessão: voo criativo (/voo) + bedrock camada 0 | physics/protocol/session/worldgen/main/commands | 192 testes, typecheck 3/3, build+dist ok, screenshot boot ok | ~sessão |
 | 15:58 | Edited ideias para fazer.txt | 6→6 lines | ~95 |
 | 15:59 | Session end: 22 writes across 10 files (protocol.ts, physics.ts, worldgen.ts, session.ts, main.ts) | 10 reads | ~61910 tok |
+| 16:00 | Session end: 22 writes across 10 files (protocol.ts, physics.ts, worldgen.ts, session.ts, main.ts) | 10 reads | ~61910 tok |
+
+## Session: 2026-07-17 16:00
+
+| Time | Action | File(s) | Outcome | ~Tokens |
+|------|--------|---------|---------|--------|
+| 16:07 | Edited shared/src/blocks.ts | modified isBreakable() | ~142 |
+| 16:07 | Edited shared/src/session.ts | 4→5 lines | ~21 |
+| 16:07 | Edited shared/src/session.ts | added 1 condition(s) | ~122 |
+| 16:07 | Edited client/src/blocksUi.ts | inline fix | ~19 |
+| 16:07 | Edited client/src/blocksUi.ts | added 1 condition(s) | ~141 |
+| 16:07 | Edited client/src/inventory.ts | 2→1 lines | ~10 |
+| 16:07 | Edited client/src/inventory.ts | 4→6 lines | ~101 |
+| 16:07 | Edited client/src/inventory.ts | 3→3 lines | ~34 |
+| 16:07 | Edited client/src/main.ts | 3→4 lines | ~16 |
+| 16:07 | Edited client/src/main.ts | inline fix | ~16 |
+| 16:08 | Edited client/src/main.ts | modified spawn() | ~140 |
+| 16:08 | Edited client/src/main.ts | 3→4 lines | ~30 |
+| 16:08 | Edited client/src/main.ts | added 1 condition(s) | ~63 |
+| 16:08 | Edited server/src/paths.ts | modified mundoDeTrabalho() | ~204 |
+| 16:08 | Edited server/src/index.ts | expanded (+12 lines) | ~192 |
+| 16:08 | Edited server/src/index.ts | added 1 condition(s) | ~123 |
+| 16:08 | Edited server/src/index.ts | added 1 condition(s) | ~54 |
+| 16:09 | Edited server/src/mundos.ts | modified aula() | ~68 |
+| 16:09 | Edited server/src/mundos.ts | modified if() | ~140 |
+| 16:09 | Edited server/src/mundos.ts | 2→2 lines | ~20 |
+| 16:09 | Edited server/src/index.ts | modified if() | ~39 |
+| 16:10 | Edited shared/src/session.test.ts | expanded (+20 lines) | ~342 |
+| 16:20 | Edited ideias para fazer.txt | modified griefing() | ~212 |
+| 16:10 | rocha-matriz só-professor: isProfessorOnly() + gate no place_block + placeableFor(papel) esconde no cliente | shared/blocks.ts, shared/session.ts, client/blocksUi.ts, client/inventory.ts, client/main.ts | 193 testes, typecheck 3/3, build ok; bug-281 | ~9k |
+| 16:11 | mundos "aula" read-only: ehMundoDeAula() → carrega do modelo + saveNow no-op; /mundo propaga flag | server/paths.ts, server/index.ts, server/mundos.ts | smoke boot real ✅ (loga AULA, mtime intacto), typecheck 3/3 | ~6k |
+| 16:12 | cenários APROVADOS pela turma; anti-griefing (claim+grupos de amigos) foi pro backlog (talvez, precisa entrevista) | STATUS.md, ideias para fazer.txt | registrado | ~1k |
+| 16:22 | Session end: 23 writes across 10 files (blocks.ts, session.ts, blocksUi.ts, inventory.ts, main.ts) | 10 reads | ~60184 tok |
+| 16:32 | Session end: 23 writes across 10 files (blocks.ts, session.ts, blocksUi.ts, inventory.ts, main.ts) | 10 reads | ~60184 tok |
+| 16:41 | Created shared/src/claims.ts | — | ~953 |
+| 16:42 | Edited shared/src/index.ts | 3→4 lines | ~30 |
+| 16:42 | Edited shared/src/protocol.ts | added 1 import(s) | ~77 |
+| 16:42 | Edited shared/src/protocol.ts | expanded (+19 lines) | ~230 |
+| 16:42 | Edited shared/src/protocol.ts | added 4 condition(s) | ~313 |
+| 16:42 | Edited shared/src/save.ts | added 1 import(s) | ~69 |
+| 16:42 | Edited shared/src/save.ts | modified griefing() | ~109 |
+| 16:42 | Edited shared/src/save.ts | added 4 condition(s) | ~179 |
+| 16:42 | Edited shared/src/save.ts | 3→7 lines | ~115 |
+| 16:43 | Edited shared/src/session.ts | expanded (+8 lines) | ~75 |
+| 16:43 | Edited shared/src/session.ts | modified Grupos() | ~236 |
+| 16:43 | Edited shared/src/session.ts | modified for() | ~122 |
+| 16:43 | Edited shared/src/session.ts | expanded (+11 lines) | ~194 |
+| 16:43 | Edited shared/src/session.ts | modified if() | ~318 |
+| 16:44 | Edited shared/src/session.ts | added 1 condition(s) | ~182 |
+| 16:44 | Edited shared/src/session.ts | added 1 condition(s) | ~108 |
+| 16:44 | Edited shared/src/session.ts | added 1 condition(s) | ~134 |
+| 16:44 | Edited shared/src/session.ts | 6→10 lines | ~149 |
+| 16:44 | Edited shared/src/session.ts | added optional chaining | ~161 |
+| 16:44 | Edited shared/src/session.ts | 3→6 lines | ~129 |
+| 16:47 | Edited shared/src/session.ts | added optional chaining | ~3996 |
+| 16:47 | Edited client/src/main.ts | modified griefing() | ~128 |
+| 16:47 | Edited client/src/main.ts | 5→6 lines | ~30 |
+| 16:48 | Edited client/src/main.ts | added optional chaining | ~188 |
+| 16:48 | Edited client/src/main.ts | added 1 condition(s) | ~208 |
+| 16:48 | Edited client/src/main.ts | modified if() | ~110 |
+| 16:48 | Edited client/src/main.ts | modified nomeadas() | ~274 |
+| 16:49 | Edited client/src/main.ts | 5→7 lines | ~84 |
+| 16:49 | Edited client/src/main.ts | modified if() | ~67 |
+| 16:52 | Created shared/src/claims.test.ts | — | ~2206 |
+| 16:52 | cp24 anti-griefing CODADO: claims por região + grupos de amigos (convite/aceite); gate no servidor; varinha liberada pro aluno; wireframes | shared/claims.ts(+test), protocol.ts, save.ts, session.ts, client/main.ts | 201 testes (8 novos), typecheck 3/3, build+dist ok; playtest pendente | ~34k |
+| 16:54 | Edited client/src/main.ts | added 1 condition(s) | ~135 |
+| 16:54 | Session end: 54 writes across 14 files (blocks.ts, session.ts, blocksUi.ts, inventory.ts, main.ts) | 15 reads | ~81579 tok |
+| 17:05 | fecho de sessão pré-/clear: STATUS com cp24 CODADO+playtest pendente, nova ideia cp25 (confinamento em mundos-aula), cerebrum com prefs de entrevista/fase-2 | STATUS.md, cerebrum.md, memory.md | handoff pronto | ~2k |
+| 22:46 | Session end: 54 writes across 14 files (blocks.ts, session.ts, blocksUi.ts, inventory.ts, main.ts) | 15 reads | ~81579 tok |
+
+## Session: 2026-07-18 22:51
+
+| Time | Action | File(s) | Outcome | ~Tokens |
+|------|--------|---------|---------|--------|
+
+## Session: 2026-07-18 22:52
+
+| Time | Action | File(s) | Outcome | ~Tokens |
+|------|--------|---------|---------|--------|
+| 23:01 | Edited shared/src/save.ts | modified Confinamento() | ~80 |
+| 23:01 | Edited shared/src/save.ts | 3→5 lines | ~81 |
+| 23:02 | Edited shared/src/session.ts | modified Confinamento() | ~131 |
+| 23:02 | Edited shared/src/session.ts | modified NOVO() | ~84 |
+| 23:02 | Edited shared/src/session.ts | 3→4 lines | ~88 |
+| 23:02 | Edited shared/src/session.ts | added 1 condition(s) | ~126 |
+| 23:02 | Edited shared/src/session.ts | 4→6 lines | ~62 |
+| 23:03 | Edited shared/src/session.ts | added 5 condition(s) | ~604 |
+| 23:03 | Edited shared/src/session.ts | modified claimBloqueia() | ~222 |
+| 23:03 | Edited shared/src/session.ts | modified if() | ~136 |
+| 23:03 | Edited shared/src/session.ts | added 1 condition(s) | ~149 |
+| 23:04 | Edited shared/src/session.ts | added optional chaining | ~603 |
+| 23:04 | Edited shared/src/session.ts | " Comandos: /bloco · /rese" → " Comandos: /bloco · /rese" | ~49 |
+| 23:04 | Edited server/src/mundos.ts | 2→6 lines | ~75 |
+| 23:04 | Edited server/src/mundos.ts | inline fix | ~17 |
+| 23:04 | Edited server/src/index.ts | modified NOVO() | ~130 |
+| 23:04 | Edited server/src/index.ts | 2→7 lines | ~53 |
+| 23:05 | Edited client/src/commands.ts | 4→5 lines | ~14 |
+| 23:05 | Edited client/src/commands.ts | 2→3 lines | ~22 |
+| 23:06 | Created shared/src/confinamento.test.ts | — | ~2498 |
+| 23:08 | Edited ideias para fazer.txt | inline fix | ~81 |
+| 23:10 | cp25 CONFINAMENTO por área de grupo: /confinar + auto em mundo-aula; confinaBloqueia (inverso do claim) em place/break; 207 testes (+6), typecheck 3/3, build+dist, boot smoke ok. Playtest PENDENTE | shared/session.ts+save.ts+confinamento.test.ts, server/index.ts+mundos.ts, client/commands.ts | ~9000 |
+| 23:09 | Session end: 21 writes across 7 files (save.ts, session.ts, mundos.ts, index.ts, commands.ts) | 8 reads | ~48498 tok |
+| 08:24 | Created iniciar-servidor.bat | — | ~526 |
+| 08:25 | Created iniciar-servidor.sh | — | ~465 |
+| 23:20 | Launchers do servidor: iniciar-servidor.bat (Windows/escola, duplo-clique via cmd.exe evita bloqueio PowerShell) + .sh (casa/WSL). Menu de mundo (livre/aula1-3), codigo opcional, LJ_NOVO=1, npm run start -w server. Boot smoke via .sh ok | iniciar-servidor.bat, iniciar-servidor.sh | ~1200 |
+| 08:40 | Session end: 23 writes across 9 files (save.ts, session.ts, mundos.ts, index.ts, commands.ts) | 9 reads | ~50182 tok |
+| 08:41 | Created ../../../tmp/claude-1000/-home-meketreve-logica-em-jogo/260487cb-8d41-4a2f-8969-3ebc1582156d/scratchpad/commitmsg.txt | — | ~391 |

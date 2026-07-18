@@ -56,14 +56,20 @@ export interface TrocaDeMundo {
   /** Sessão em vigor (o host substitui a dele pela devolvida aqui). */
   session: GameSession;
   savePath: string;
+  /** Mundo de aula (reutilizável): não salva alterações. */
+  somenteLeitura: boolean;
 }
 
 export interface ContextoMundo {
   session: GameSession;
   savePath: string;
   codigo: string;
-  /** Constrói a sessão do mundo novo (o host sabe montar; este módulo não). */
-  novaSessao: (restore: ReturnType<typeof decodeSave>) => GameSession;
+  /** Constrói a sessão do mundo novo (o host sabe montar; este módulo não).
+   *  `somenteLeitura` = mundo de aula → a sessão nasce confinada (cp25). */
+  novaSessao: (
+    restore: ReturnType<typeof decodeSave>,
+    somenteLeitura: boolean,
+  ) => GameSession;
   salvarAgora: (motivo: string) => void;
   /** Fala do servidor só para quem digitou o comando. */
   responder: (texto: string) => void;
@@ -127,12 +133,18 @@ export function comandoMundo(
   // Modelo em cenarios/ nunca é aberto para escrita: vira uma cópia de trabalho
   // em aulas/. Se a cópia já existe (turma continuando), carrega dela; senão, do
   // modelo. O autosave grava sempre em `vivo`.
-  const { vivo, modelo } = mundoDeTrabalho(encontrado);
+  const { vivo, modelo, somenteLeitura } = mundoDeTrabalho(encontrado);
   if (vivo === ctx.savePath) {
     ctx.responder(`"${semExt(vivo)}" já é a aula em curso.`);
     return undefined;
   }
-  const fonte = existsSync(vivo) ? vivo : (modelo ?? encontrado);
+  // Aula (só leitura) começa sempre do modelo; mundo normal continua da cópia
+  // viva se existir. Fallback final = o próprio arquivo achado.
+  const fonte = somenteLeitura
+    ? (modelo ?? (existsSync(vivo) ? vivo : encontrado))
+    : existsSync(vivo)
+      ? vivo
+      : (modelo ?? encontrado);
 
   // decodifica ANTES de mexer em qualquer coisa: arquivo corrompido não pode
   // deixar a turma sem mundo nenhum
@@ -152,14 +164,14 @@ export function comandoMundo(
 
   ctx.salvarAgora("troca de aula");
   const jogadores = ctx.session.jogadoresConectados();
-  const sessionNova = ctx.novaSessao(novo);
+  const sessionNova = ctx.novaSessao(novo, somenteLeitura);
   // cada cliente já conectado entra no mundo novo sem reconectar nem digitar PIN
   for (const j of jogadores) sessionNova.adotar(j.id, j.name, j.papel);
 
   console.log(
     `[server] aula trocada para ${vivo} (de ${basename(fonte)}, ${jogadores.length} jogador(es) migrado(s))`,
   );
-  return { session: sessionNova, savePath: vivo };
+  return { session: sessionNova, savePath: vivo, somenteLeitura };
 }
 
 /** Anúncio da troca — a sessão nova já falou com cada um; isto é para o log/turma. */

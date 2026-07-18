@@ -1,4 +1,4 @@
-import { BlockId, GLYPH } from "@logica/shared";
+import { BlockId, GLYPH, isProfessorOnly } from "@logica/shared";
 
 /**
  * Blocos colocáveis com nome em português — fonte única pra hotbar (main.ts)
@@ -48,3 +48,13 @@ export const PLACEABLE: readonly { id: number; name: string }[] = [
   { id: BlockId.PortaXFechada, name: "porta" },
   { id: BlockId.Tocha, name: "tocha" },
 ];
+
+/** Colocáveis visíveis PARA ESTE PAPEL: o aluno não vê rocha-matriz (autoria
+ *  do professor). Usado pelo inventário e pela hotbar; o servidor recusa o
+ *  place de qualquer jeito. */
+export function placeableFor(
+  papel: "professor" | "aluno",
+): readonly { id: number; name: string }[] {
+  if (papel === "professor") return PLACEABLE;
+  return PLACEABLE.filter((b) => !isProfessorOnly(b.id));
+}

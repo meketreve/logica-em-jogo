@@ -1,6 +1,7 @@
 import * as THREE from "three";
 import {
   BlockId,
+  type Claim,
   type GroupDef,
   type NamedRegion,
   type ObjectiveState,
@@ -16,6 +17,7 @@ import {
   getBlock,
   isPlaceable,
   isPorta,
+  isProfessorOnly,
   parseServerMessage,
   raycastBlock,
   setBlock,
@@ -24,7 +26,7 @@ import {
 import { createAtlasTexture } from "./atlasTexture";
 import { initUiAudio, playUi, setUiVolume } from "./audio";
 import { makeBlockIcons } from "./blockIcons";
-import { PLACEABLE } from "./blocksUi";
+import { PLACEABLE, placeableFor } from "./blocksUi";
 import { InventoryPanel } from "./inventory";
 import { ChatUi } from "./chat";
 import { ChunkRenderer } from "./chunks";
@@ -245,6 +247,11 @@ function podeVoar(): boolean {
 /** Última lista de regiões do servidor (chega só pra professor). */
 let latestRegions: NamedRegion[] = [];
 let applyRegions: ((regions: NamedRegion[]) => void) | null = null;
+/** Anti-griefing (cp24): proteção de áreas ligada? + claims (TODOS recebem).
+ *  Com a proteção ligada o aluno também usa a varinha (pra /claim criar). */
+let claimsAtivo = false;
+let latestClaims: Claim[] = [];
+let applyClaims: ((claims: Claim[]) => void) | null = null;
 // cenário (cp12/13): painel HTML vive fora do jogo 3D; caixas verdes no startGame
 const objectivesUi = new ObjectivesUi();
 let latestObjectives: { modo: ScenarioModo; objetivos: ObjectiveState[] } | null = null;
@@ -334,6 +341,15 @@ function handleServerData(data: string | ArrayBuffer): void {
     } else if (msg.type === "groups") {
       latestGroups = msg.grupos;
       pushPanelData();
+    } else if (msg.type === "claims") {
+      // cp24: proteção de áreas — wireframes pra todo mundo + habilita a varinha
+      // do aluno quando ligada. O servidor é quem barra a edição de fato.
+      claimsAtivo = msg.ativo;
+      latestClaims = msg.claims;
+      applyClaims?.(msg.claims); // o closure lê claimsAtivo (já atualizado acima)
+    } else if (msg.type === "friends") {
+      // cp24: grupo de amigos + convites. O feedback textual já chega por chat
+      // do servidor; o painel de amigos é fase 2 (comandos primeiro, cp14).
     } else if (msg.type === "teleport") {
       applyTeleport?.(msg);
     } else if (msg.type === "time") {
@@ -482,6 +498,22 @@ function startGame(snap: Snapshot): void {
   applyRegions = (regions) => {
     regionRenderer.setRegions(regions);
     regionRenderer.clearCorners(); // região criada/apagada: rascunho já era
+  };
+
+  // claims (cp24): áreas protegidas — wireframe laranja pra TODOS (todo mundo vê
+  // onde não pode mexer). A varinha do aluno usa o mesmo regionRenderer (cantos).
+  const claimRenderer = new RegionRenderer(scene, 0xff8c1a);
+  const drawClaims = (claims: Claim[]): void => {
+    claimRenderer.setRegions(claims.map((c) => ({ nome: c.dono, min: c.min, max: c.max })));
+  };
+  drawClaims(latestClaims);
+  applyClaims = (claims) => {
+    drawClaims(claims);
+    regionRenderer.clearCorners(); // claim criado: os cantos-rascunho da varinha já eram
+    // proteção desligada no meio do jogo: tira o aluno do modo varinha (senão a
+    // tecla R fica travada — o guard não deixa reentrar sem proteção ligada)
+    if (!claimsAtivo && papel !== "professor" && varinhaAtiva) varinhaAtiva = false;
+    refreshHotbar(); // a dica da varinha muda conforme a proteção liga/desliga
   };
 
   // objetivos ATIVOS (cp12/13): caixa verde — aluno vê o alvo DO SEU grupo,
@@ -733,11 +765,14 @@ function startGame(snap: Snapshot): void {
   // cp16: hotbar virou 9 SLOTS configuráveis (persistem no navegador via
   // localStorage); o inventário (tecla E) escolhe o bloco de cada slot.
   // A lista de colocáveis segue em blocksUi.ts (painel de autoria usa a mesma).
+  // papel já chegou no spawn (antes do snapshot que dispara startGame): a
+  // hotbar do aluno nunca oferece rocha-matriz, nem por slot salvo antigo.
   const HOTBAR_KEY = "lj-hotbar";
-  const defaultHotbar = (): number[] => PLACEABLE.slice(0, 9).map((b) => b.id);
+  const meusBlocos = placeableFor(papel);
+  const defaultHotbar = (): number[] => meusBlocos.slice(0, 9).map((b) => b.id);
   const loadHotbar = (): number[] => {
     // defensivo por slot: id fora da lista (ou config velha) cai no default
-    const valid = new Set<number>(PLACEABLE.map((b) => b.id));
+    const valid = new Set<number>(meusBlocos.map((b) => b.id));
     const def = defaultHotbar();
     try {
       const raw: unknown = JSON.parse(localStorage.getItem(HOTBAR_KEY) ?? "null");
@@ -765,8 +800,9 @@ function startGame(snap: Snapshot): void {
     if (!hotbarEl) return;
     // nomes/ícones são constantes do código (sem input externo) — innerHTML ok aqui
     if (varinhaAtiva) {
+      const criar = papel === "professor" ? "/regiao criar nome" : "/claim criar";
       hotbarEl.innerHTML =
-        "<b>[varinha]</b> esq = canto 1 · dir = canto 2 · /regiao criar nome · R volta";
+        `<b>[varinha]</b> esq = canto 1 · dir = canto 2 · ${criar} · R volta`;
       return;
     }
     const slots = hotbar
@@ -782,7 +818,9 @@ function startGame(snap: Snapshot): void {
   };
   refreshHotbar();
   input.onKey(settings.keys.varinha, () => {
-    if (papel !== "professor") return; // aluno não tem varinha
+    // professor: varinha p/ regiões (sempre). aluno: só com a proteção de áreas
+    // ligada (cp24), pra marcar o próprio claim.
+    if (papel !== "professor" && !claimsAtivo) return;
     varinhaAtiva = !varinhaAtiva;
     refreshHotbar();
   });
@@ -801,6 +839,7 @@ function startGame(snap: Snapshot): void {
   // inventário (cp16): grade de todos os colocáveis → slot selecionado
   inventoryPanel = new InventoryPanel(
     icons,
+    () => meusBlocos,
     () => ({ hotbar, selected }),
     (blockId) => {
       hotbar[selected] = blockId;
@@ -884,7 +923,8 @@ function startGame(snap: Snapshot): void {
     // qualquer porta copiada vira a entrada única "porta" da hotbar (o eixo
     // é re-escolhido pelo olhar na hora de colocar)
     if (isPorta(id)) id = BlockId.PortaXFechada;
-    if (!isPlaceable(id)) return; // bedrock e afins não vão pra mão
+    if (!isPlaceable(id)) return; // ar/porta-aberta e afins não vão pra mão
+    if (isProfessorOnly(id) && papel !== "professor") return; // aluno não copia rocha-matriz
     hotbar[selected] = id;
     localStorage.setItem(HOTBAR_KEY, JSON.stringify(hotbar));
     refreshHotbar();

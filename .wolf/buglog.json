@@ -4388,6 +4388,376 @@
       "related_bugs": [],
       "occurrences": 1,
       "last_seen": "2026-07-17T18:58:05.182Z"
+    },
+    {
+      "id": "bug-270",
+      "timestamp": "2026-07-17T19:07:17.279Z",
+      "error_message": "Type error",
+      "file": "shared/src/session.ts",
+      "root_cause": "Missing or incorrect type annotation",
+      "fix": "Added type assertion/annotation",
+      "tags": [
+        "auto-detected",
+        "type-fix",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-17T19:07:17.279Z"
+    },
+    {
+      "id": "bug-271",
+      "timestamp": "2026-07-17T19:07:27.718Z",
+      "error_message": "Missing guard clause",
+      "file": "client/src/blocksUi.ts",
+      "root_cause": "No early return/throw for edge case: papel === \"professor\"",
+      "fix": "Added guard clause: if (papel === \"professor\")",
+      "tags": [
+        "auto-detected",
+        "guard-clause",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-17T19:07:27.718Z"
+    },
+    {
+      "id": "bug-272",
+      "timestamp": "2026-07-17T19:07:43.015Z",
+      "error_message": "Wrong reference: PLACEABLE should be this",
+      "file": "client/src/inventory.ts",
+      "root_cause": "Used \"PLACEABLE\" instead of \"this\"",
+      "fix": "Changed PLACEABLE → this",
+      "tags": [
+        "auto-detected",
+        "wrong-reference",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-17T19:07:43.015Z"
+    },
+    {
+      "id": "bug-273",
+      "timestamp": "2026-07-17T19:08:01.440Z",
+      "error_message": "Significant refactor of ",
+      "file": "client/src/main.ts",
+      "root_cause": "2 lines replaced/restructured",
+      "fix": "Rewrote 5→8 lines (2 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-17T19:08:01.440Z"
+    },
+    {
+      "id": "bug-274",
+      "timestamp": "2026-07-17T19:08:24.345Z",
+      "error_message": "Wrong return value",
+      "file": "server/src/paths.ts",
+      "root_cause": "Was returning: { vivo: alvo };",
+      "fix": "Now returns: { vivo: alvo, somenteLeitura };",
+      "tags": [
+        "auto-detected",
+        "return-value",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-17T19:08:24.345Z"
+    },
+    {
+      "id": "bug-275",
+      "timestamp": "2026-07-17T19:08:46.833Z",
+      "error_message": "Significant refactor of ",
+      "file": "server/src/index.ts",
+      "root_cause": "4 lines replaced/restructured",
+      "fix": "Rewrote 8→20 lines (4 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-17T19:08:46.833Z"
+    },
+    {
+      "id": "bug-276",
+      "timestamp": "2026-07-17T19:08:53.710Z",
+      "error_message": "Type error",
+      "file": "server/src/index.ts",
+      "root_cause": "Missing or incorrect type annotation",
+      "fix": "Added type assertion/annotation",
+      "tags": [
+        "auto-detected",
+        "type-fix",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-17T19:08:53.710Z"
+    },
+    {
+      "id": "bug-277",
+      "timestamp": "2026-07-17T19:08:57.726Z",
+      "error_message": "Missing guard clause",
+      "file": "server/src/index.ts",
+      "root_cause": "No early return/throw for edge case: somenteLeitura",
+      "fix": "Added guard clause: if (somenteLeitura)",
+      "tags": [
+        "auto-detected",
+        "guard-clause",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-17T19:08:57.726Z"
+    },
+    {
+      "id": "bug-278",
+      "timestamp": "2026-07-17T19:09:13.030Z",
+      "error_message": "Significant refactor of ",
+      "file": "server/src/mundos.ts",
+      "root_cause": "2 lines replaced/restructured",
+      "fix": "Rewrote 6→12 lines (2 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-17T19:09:13.030Z"
+    },
+    {
+      "id": "bug-279",
+      "timestamp": "2026-07-17T19:09:17.456Z",
+      "error_message": "Wrong return value",
+      "file": "server/src/mundos.ts",
+      "root_cause": "Was returning: { session: sessionNova, savePath: vivo };",
+      "fix": "Now returns: { session: sessionNova, savePath: vivo, somenteLei",
+      "tags": [
+        "auto-detected",
+        "return-value",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-17T19:09:17.456Z"
+    },
+    {
+      "id": "bug-280",
+      "timestamp": "2026-07-17T19:10:30.279Z",
+      "error_message": "Type error",
+      "file": "shared/src/session.test.ts",
+      "root_cause": "Missing or incorrect type annotation",
+      "fix": "Added type assertion/annotation",
+      "tags": [
+        "auto-detected",
+        "type-fix",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-17T19:10:30.279Z"
+    },
+    {
+      "id": "bug-281",
+      "timestamp": "2026-07-17T19:20:00.000Z",
+      "error_message": "aluno via/copiava/colocava rocha-matriz (bloco de professor)",
+      "file": "shared/src/session.ts",
+      "root_cause": "isPlaceable(Bedrock)=true e nenhum gate de papel no place_block; PLACEABLE do cliente listava rocha-matriz pra todos, e o botão do meio copiava (isPlaceable passava). O comentário 'bedrock e afins não vão pra mão' estava ERRADO — nunca bloqueava de fato.",
+      "fix": "Novo isProfessorOnly(id) em blocks.ts (rocha-matriz). Servidor: place_block recusa se isProfessorOnly && papel!=professor (barreira real). Cliente: placeableFor(papel) esconde do inventário e da hotbar (default+valid), botão do meio checa isProfessorOnly.",
+      "tags": [
+        "permissao",
+        "professor",
+        "bedrock",
+        "inventario",
+        "seguranca"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-17T19:20:00.000Z"
+    },
+    {
+      "id": "bug-282",
+      "timestamp": "2026-07-17T19:42:20.057Z",
+      "error_message": "Type error",
+      "file": "shared/src/protocol.ts",
+      "root_cause": "Missing or incorrect type annotation",
+      "fix": "Added type assertion/annotation | Also: case \"claims\": {; if (typeof m[\"ativo\"] !== \"boolean\" || !Array.isArray(m[\"cla",
+      "tags": [
+        "auto-detected",
+        "type-fix",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 2,
+      "last_seen": "2026-07-17T19:42:28.459Z"
+    },
+    {
+      "id": "bug-283",
+      "timestamp": "2026-07-17T19:43:29.213Z",
+      "error_message": "Type error",
+      "file": "shared/src/session.ts",
+      "root_cause": "Missing or incorrect type annotation",
+      "fix": "Added type assertion/annotation | Also: // cp24: área protegida por outro aluno — colocar barrado (p; // células, checa as duas). Professor e dono/amigos passam.",
+      "tags": [
+        "auto-detected",
+        "type-fix",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 2,
+      "last_seen": "2026-07-17T19:44:05.408Z"
+    },
+    {
+      "id": "bug-284",
+      "timestamp": "2026-07-17T19:43:48.366Z",
+      "error_message": "Significant refactor of ",
+      "file": "shared/src/session.ts",
+      "root_cause": "3 lines replaced/restructured",
+      "fix": "Rewrote 20→24 lines (3 removed) | Also: ? \" Comandos: /bloco · /resetpin · /regiao (varinh; : \" Comandos: /tpr nome (pedir teleporte até um co",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 2,
+      "last_seen": "2026-07-17T19:44:50.806Z"
+    },
+    {
+      "id": "bug-285",
+      "timestamp": "2026-07-17T19:44:42.513Z",
+      "error_message": "Null/undefined access in ",
+      "file": "shared/src/session.ts",
+      "root_cause": "Property access on potentially null/undefined value",
+      "fix": "Added null safety (optional chaining or null check) | Also: // --- Anti-griefing (cp24): claims + grupos de amigos ---; /** Claim que contém a célula, ou null. */",
+      "tags": [
+        "auto-detected",
+        "null-safety",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 2,
+      "last_seen": "2026-07-17T19:47:11.238Z"
+    },
+    {
+      "id": "bug-286",
+      "timestamp": "2026-07-17T19:48:06.161Z",
+      "error_message": "Null/undefined access in ",
+      "file": "client/src/main.ts",
+      "root_cause": "Property access on potentially null/undefined value",
+      "fix": "Added null safety (optional chaining or null check)",
+      "tags": [
+        "auto-detected",
+        "null-safety",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-17T19:48:06.161Z"
+    },
+    {
+      "id": "bug-287",
+      "timestamp": "2026-07-17T19:49:26.402Z",
+      "error_message": "Wrong condition in logic",
+      "file": "client/src/main.ts",
+      "root_cause": "Condition was: if (papel !== \"professor\")",
+      "fix": "Changed to: if (papel !== \"professor\" && !claimsAtivo)",
+      "tags": [
+        "auto-detected",
+        "logic-fix",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-17T19:49:26.402Z"
+    },
+    {
+      "id": "bug-288",
+      "timestamp": "2026-07-18T02:02:07.055Z",
+      "error_message": "Type error",
+      "file": "shared/src/session.ts",
+      "root_cause": "Missing or incorrect type annotation",
+      "fix": "Added type assertion/annotation",
+      "tags": [
+        "auto-detected",
+        "type-fix",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-18T02:02:07.055Z"
+    },
+    {
+      "id": "bug-289",
+      "timestamp": "2026-07-18T02:03:07.077Z",
+      "error_message": "Missing guard clause",
+      "file": "shared/src/session.ts",
+      "root_cause": "No early return/throw for edge case: !c || c.dono === p.name || this.mesmaEquipe(p.name, c.dono",
+      "fix": "Added guard clause: if (!c || c.dono === p.name || this.mesmaEqu)",
+      "tags": [
+        "auto-detected",
+        "guard-clause",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 2,
+      "last_seen": "2026-07-18T02:03:51.509Z"
+    },
+    {
+      "id": "bug-290",
+      "timestamp": "2026-07-18T02:03:24.594Z",
+      "error_message": "Significant refactor of ",
+      "file": "shared/src/session.ts",
+      "root_cause": "3 lines replaced/restructured",
+      "fix": "Rewrote 12→15 lines (3 removed) | Also: // cp24: área protegida por outro aluno — quebrar ; const bloqueio = this.claimBloqueia(clientId, msg.",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 2,
+      "last_seen": "2026-07-18T02:03:38.442Z"
+    },
+    {
+      "id": "bug-291",
+      "timestamp": "2026-07-18T02:04:15.662Z",
+      "error_message": "Null/undefined access in ",
+      "file": "shared/src/session.ts",
+      "root_cause": "Property access on potentially null/undefined value",
+      "fix": "Added null safety (optional chaining or null check)",
+      "tags": [
+        "auto-detected",
+        "null-safety",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-18T02:04:15.662Z"
+    },
+    {
+      "id": "bug-292",
+      "timestamp": "2026-07-18T02:04:30.733Z",
+      "error_message": "Incorrect value in code",
+      "file": "shared/src/session.ts",
+      "root_cause": "Had \" Comandos: /bloco · /resetpin · /regiao (varinha:",
+      "fix": "Changed to \" Comandos: /bloco · /resetpin · /regiao (varinha:",
+      "tags": [
+        "auto-detected",
+        "wrong-value",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-18T02:04:30.733Z"
     }
   ]
 }

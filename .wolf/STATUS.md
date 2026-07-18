@@ -1,7 +1,57 @@
 # STATUS — Projeto "Lógica em Jogo" (jogo voxel educacional)
 
 > Single source of truth for resuming work. Read this FIRST when starting a session.
-> Last updated: 2026-07-17 (sessão pós-playtest — voo + bedrock)
+> Last updated: 2026-07-17 (sessão: cp25 CONFINAMENTO por área de grupo)
+> **cp25 CONFINAMENTO CODADO (2026-07-17, PLAYTEST DO USUÁRIO PENDENTE):** inverso
+> do claim — em mundo de aula/atividade o aluno só COLOCA e QUEBRA dentro da área
+> do seu grupo (cp13, `areaDoGrupo`→ nova `areasDoGrupo(g)` = todas as caixas do
+> grupo, todos os objetivos). `confinamentoAtivo` na session; gate `confinaBloqueia`
+> plugado em place_block (porta checa as 2 células) e break_block, ao lado do
+> `claimBloqueia`. Professor isento; aluno SEM grupo = travado em tudo (decisão de
+> escopo). Liga por `/confinar ligar|desligar|status` (professor) E auto em
+> mundo-aula (`SessionOptions.somenteLeitura` novo, propagado pelo host: index.ts
+> boot + mundos.ts `novaSessao(restore, somenteLeitura)`). Persiste no save de
+> mundo LIVRE (`SaveMeta.confinamento`); em aula não salva (read-only) — reseta por
+> turma. SEM protocolo/UI novo: aluno já vê a caixa VERDE do objetivo; barra =
+> chat de aviso (mesma barreira-no-servidor da rocha-matriz/claim). 207 testes (6
+> novos em confinamento.test.ts), typecheck 3/3, build+dist ok, boot smoke do host
+> limpo. Entrevista de escopo feita (4 perguntas AskUserQuestion — decisões travadas).
+> **PLAYTEST cp25 — roteiro:** professor cria grupos (/grupo criar N) + objetivo
+> per-grupo com área (/objetivo add ... prefixo-1..N), `/confinar ligar`; aluno A
+> (grupo 1) constrói só na área dele, tenta na área do grupo 2 → barrado com aviso;
+> aluno sem grupo → barrado em tudo; professor edita em qualquer lugar; trocar pra
+> mundo-aula já entra confinado sem digitar /confinar.
+> **CENÁRIOS APROVADOS ✅ (2026-07-17):** usuário aplicou as 3 aulas com a turma
+> INTEIRA — "cenarios testados, todos bons". Playtest pedagógico FEITO.
+> **ROCHA-MATRIZ SÓ-PROFESSOR (2026-07-17):** `isProfessorOnly(id)` novo em
+> blocks.ts (só bedrock por ora). Servidor recusa `place_block` de rocha-matriz
+> se papel≠professor (barreira real). Cliente: `placeableFor(papel)` esconde do
+> inventário e da hotbar (default+valid set), botão-do-meio não copia. 193 testes
+> (1 novo), typecheck 3/3, build ok. bug-281 logado (aluno colocava/copiava antes).
+> **MUNDOS "AULA" NÃO SALVAM (2026-07-17):** mundo cujo arquivo começa com "aula"
+> (as 3 lições) roda REUTILIZÁVEL: `ehMundoDeAula()` em paths.ts → começa SEMPRE
+> do modelo em cenarios/ e `saveNow` vira no-op (autosave + SIGINT + troca de
+> aula). Próxima turma reaproveita sem mover/apagar arquivos. `/mundo carregar`
+> propaga o flag (TrocaDeMundo.somenteLeitura). Smoke real: boot em aula1 loga
+> "mundo de AULA", carrega do modelo, mtime de aulas/ intacto no exit. typecheck
+> 3/3, build ok. (server sem harness de teste — verificado por boot real.)
+> **cp24 ANTI-GRIEFING CODADO (2026-07-17, PLAYTEST DO USUÁRIO PENDENTE):**
+> claim por REGIÃO (varinha) + grupo de amigos do aluno (convite+aceite).
+> `shared/claims.ts` (Claim/GrupoAmigos, MAX_CLAIM_DIM=16, MAX_AMIGOS=6,
+> caixasSeCruzam/claimDentroDoLimite/parseClaim/parseGrupoAmigos). Servidor:
+> gate `claimBloqueia` em place/break/use_block (professor e dono+amigos passam;
+> estranho recebe chat de aviso), `/claim ligar|desligar|criar|remover|lista`,
+> `/amigos convidar|aceitar|recusar|sair|expulsar|lista`, msgs `claims` (todos)
+> + `friends` (pessoal), toSave/restore (claimsAtivo+claims+amigos no meta; some
+> em mundo-aula read-only). Varinha liberada pro ALUNO quando a proteção está
+> ligada (marca cantos → /claim criar). Cliente: wireframes laranja dos claims
+> pra todos, varinha do aluno, dica role-aware. Painel de amigos = FASE 2
+> (comandos primeiro, convenção cp14). 201 testes (8 novos em claims.test.ts),
+> typecheck 3/3, build+dist ok. Decisões no cerebrum Decision Log (2026-07-17).
+> **PLAYTEST cp24 — roteiro:** professor `/claim ligar`; aluno A marca área com
+> R (esq=canto1, dir=canto2) e `/claim criar casa`; aluno B tenta quebrar dentro
+> → barrado com aviso; A `/amigos convidar B`, B `/amigos aceitar A` → B edita;
+> professor edita por cima (ignora); trocar pra mundo-aula → claim some (ok).
 > **VOO CRIATIVO + BEDROCK CAMADA 0 (2026-07-17, PLAYTEST DO USUÁRIO PENDENTE):**
 > (a) voo do modo criativo — professor voa SEMPRE (duplo-toque no espaço; espaço
 > sobe, agachar desce, sem gravidade mas colide); `/voo ligar|desligar` libera/
@@ -16,9 +66,14 @@
 > pivotar 90° numa ponta); interceptar atalhos do navegador com mouse capturado
 > (Ctrl+W fecha aba ao correr); móveis (tapete/janela abre-fecha/cama/sofá/
 > cadeira/mesa/quadro com interface texto+imagem); arrumar dia/noite. /kicar já
-> existe (cp22).
-> **PRÓXIMA SESSÃO:** playtest do voo + bedrock; depois um item do backlog acima
-> (candidatos rápidos: nome sem espaços, autocomplete de nomes). E o piloto.
+> existe (cp22). **NOVA IDEIA (cp25 candidato):** modo "confinamento" — em
+> mundos de aula/atividade, aluno só coloca bloco DENTRO da sua área/da área do
+> seu grupo (inverte o claim: confinar em vez de proteger). ✅ CODADO (bloco cp25
+> no topo) — playtest pendente. Reusou claims (cp24) + grupos pedagógicos (cp13).
+> **PRÓXIMA SESSÃO:** playtest acumulado (cp24 anti-griefing + voo + bedrock + cp25
+> confinamento — todos codados, roteiros nos blocos respectivos). Depois: item
+> rápido do backlog (nome sem espaços, autocomplete de nomes, animação da porta).
+> E o piloto.
 > **Playtest anterior FEITO (resultados no ideias para fazer.txt):** cp23,
 > /regiao encher/criar, /tp·/tpr·/tpa aprovados — backlog acima veio dele.
 > **/TPR + /TPA + /TP NOME (2026-07-17):** aluno pede teleporte (/tpr nome,
@@ -63,7 +118,8 @@
 > cabines, tudo persiste e viaja no .ljw.
 > POLIMENTO "blocos + mecânica" FECHADO (2026-07-13): cp15–cp18 playtestados e
 > APROVADOS. 137 testes, typecheck 3/3, build.
-> **CENÁRIOS PEDAGÓGICOS CODADOS (2026-07-14) — PLAYTEST DO USUÁRIO PENDENTE.**
+> **CENÁRIOS PEDAGÓGICOS CODADOS (2026-07-14) — APROVADOS ✅ (playtest com a
+> turma inteira, 2026-07-17: "todos bons").**
 > 3 aulas geradas por script (`npm run cenarios`), auto-conferidas, com roteiro
 > de aula. Turma do piloto: **6º–9º**. Achado que bloqueava o piloto e já
 > corrigido: bug-172 (Vite dev só atendia localhost → aluno na LAN não abria o

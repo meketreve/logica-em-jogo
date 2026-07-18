@@ -1,5 +1,6 @@
 export * from "./auth";
 export * from "./blocks";
+export * from "./claims";
 export * from "./constants";
 export * from "./groups";
 export * from "./world";

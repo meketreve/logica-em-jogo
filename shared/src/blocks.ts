@@ -120,3 +120,10 @@ export function isPlaceable(id: number): boolean {
 export function isBreakable(id: number): boolean {
   return id !== BlockId.Bedrock;
 }
+
+/** Bloco SÓ do professor (rocha-matriz = fundo do mundo, ferramenta de autoria).
+ *  O aluno não vê no inventário, não copia com o botão do meio e o servidor
+ *  recusa o place. Gate autoritativo mora no servidor; o cliente só esconde. */
+export function isProfessorOnly(id: number): boolean {
+  return id === BlockId.Bedrock;
+}

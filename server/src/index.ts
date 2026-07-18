@@ -29,14 +29,26 @@ const SAVE_ENV = process.env["LJ_SAVE"];
 // Um cenário em cenarios/ é MODELO: o autosave grava numa CÓPIA DE TRABALHO em
 // aulas/ para não poluir o arquivo distribuído com roster, PINs e progresso da
 // turma. `vivo` é onde salvamos; `modelo` é a semente da primeira vez.
-const { vivo: SAVE_PATH, modelo: MODELO } = mundoDeTrabalho(SAVE_ENV ?? "world.ljw");
-// De onde carregar no boot: a cópia viva vence (a turma está continuando de onde
-// parou); na falta dela, o modelo; na falta dos dois, mundo novo.
-const CARREGAR_DE = existsSync(SAVE_PATH)
-  ? SAVE_PATH
-  : MODELO && existsSync(MODELO)
+const {
+  vivo: SAVE_PATH,
+  modelo: MODELO,
+  somenteLeitura: LEITURA_INICIAL,
+} = mundoDeTrabalho(SAVE_ENV ?? "world.ljw");
+// De onde carregar no boot. Mundo de AULA (só leitura) começa SEMPRE do modelo,
+// ignorando qualquer cópia viva da turma anterior — é reutilizável de graça.
+// Mundo normal: a cópia viva vence (a turma continua de onde parou); na falta
+// dela, o modelo; na falta dos dois, mundo novo.
+const CARREGAR_DE = LEITURA_INICIAL
+  ? MODELO && existsSync(MODELO)
     ? MODELO
-    : undefined;
+    : existsSync(SAVE_PATH)
+      ? SAVE_PATH
+      : undefined
+  : existsSync(SAVE_PATH)
+    ? SAVE_PATH
+    : MODELO && existsSync(MODELO)
+      ? MODELO
+      : undefined;
 const AUTOSAVE_MS = 30_000;
 const WORLD_SEED = 20260710; // usada só na PRIMEIRA vez (sem save no disco)
 
@@ -111,6 +123,15 @@ const entregar = (clientId: number, data: string | ArrayBuffer): void => {
 // save sem derrubar ninguém. Tudo que usa `session`/`savePath` lê a variável na
 // hora da chamada, então continua apontando para o mundo em vigor.
 let savePath = SAVE_PATH;
+// Mundo de aula (reutilizável) não salva. `let`: a troca de aula (/mundo
+// carregar) atualiza junto com savePath — a aula nova decide se persiste.
+let somenteLeitura = LEITURA_INICIAL;
+if (somenteLeitura) {
+  console.log(
+    `[server] mundo de AULA (reutilizável): alterações NÃO são salvas — a próxima ` +
+      `turma reaproveita esta aula sem mover arquivos.`,
+  );
+}
 let session = new GameSession(
   entregar,
   {
@@ -118,6 +139,8 @@ let session = new GameSession(
     now: () => performance.now(),
     restore,
     codigo,
+    // mundo de aula (read-only) nasce confinado — cada aluno na área do grupo (cp25)
+    somenteLeitura,
     // preset do mundo NOVO (cp14): LJ_PRESET=plano|cabines; LJ_PLANO=1 é o
     // alias antigo de plano. Mundo restaurado do save ignora.
     preset:
@@ -129,6 +152,7 @@ let session = new GameSession(
 
 // --- Persistência: escrita atômica (tmp + rename) pra nunca truncar o save ---
 function saveNow(reason: string): void {
+  if (somenteLeitura) return; // mundo de aula: reutilizável, nunca persiste
   const buf = Buffer.from(encodeSave(session.world, session.toSave()));
   const tmp = `${savePath}.tmp`;
   mkdirSync(dirname(savePath), { recursive: true }); // pasta do save pode não existir ainda
@@ -203,8 +227,13 @@ function interceptarMundo(clientId: number, texto: string): boolean {
     session,
     savePath,
     codigo,
-    novaSessao: (restore) =>
-      new GameSession(entregar, { now: () => performance.now(), restore, codigo }),
+    novaSessao: (restore, somenteLeitura) =>
+      new GameSession(entregar, {
+        now: () => performance.now(),
+        restore,
+        codigo,
+        somenteLeitura,
+      }),
     salvarAgora: saveNow,
     responder: (t) => falarCom(clientId, t),
     anunciar: (t) => {
@@ -214,6 +243,7 @@ function interceptarMundo(clientId: number, texto: string): boolean {
   if (troca) {
     session = troca.session;
     savePath = troca.savePath;
+    somenteLeitura = troca.somenteLeitura;
   }
   return true;
 }

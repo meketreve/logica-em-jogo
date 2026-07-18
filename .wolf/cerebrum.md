@@ -21,6 +21,16 @@
   (alunos e professor) já tem esse modelo mental.
 - **Uma tela = UM botão "voltar"** (playtest 2026-07-13): a config mostrava dois
   (o do HTML e o da categoria). Quem renderiza a tela é dono da navegação dela.
+- **Feature grande / "talvez" → ENTREVISTA de escopo antes de codar** (2026-07-17):
+  no cp24 (anti-griefing) o usuário pediu "faz a entrevista de escopo" e respondeu
+  2 rodadas de AskUserQuestion (4 perguntas cada) — gostou de travar decisões com
+  perguntas objetivas antes de escrever código. Pedidos BEM DEFINIDOS (rocha-matriz,
+  mundos-aula) ele quer feitos inline na hora; ideias vagas/"talvez" ele quer
+  scopadas primeiro. Costuma empilhar vários pedidos no mesmo turno — separar
+  concreto (fazer já) de exploratório (backlog + entrevista).
+- **Painel HTML é sempre FASE 2** (reforço cp24): a convenção do cp14 vale — codar
+  os comandos de chat primeiro (usáveis no playtest), painel depois. O usuário
+  aprova features só com comandos e pede o painel numa rodada seguinte.
 
 ## Key Learnings
 
@@ -505,6 +515,67 @@
   próxima turma começaria com a aula anterior resolvida. Cópia viva vence o modelo
   (turma continua); apagar em `aulas/` recomeça. Modelo corrompido NÃO se renomeia
   (é distribuído — regenerar). Prova: swap real → 3 modelos byte-idênticos (md5).
+- **Mundos "aula" são REUTILIZÁVEIS (read-only), 2026-07-17.** Estende o "modelo ≠
+  save": um mundo cujo ARQUIVO começa com "aula" (`ehMundoDeAula()` em paths.ts,
+  regex `^aula/i`) roda em modo só-leitura — `saveNow` vira no-op e o boot carrega
+  SEMPRE do modelo em `cenarios/`, ignorando qualquer cópia viva da turma anterior.
+  Motivo (pedido do usuário): as 3 lições são reaplicadas em várias turmas; sem
+  isso o professor teria que apagar `aulas/aulaN.ljw` entre turmas. O flag
+  `somenteLeitura` viaja em `mundoDeTrabalho()` e em `TrocaDeMundo` (`/mundo
+  carregar` propaga). Um mundo de construção livre (nome sem "aula") salva normal.
+
+### Blocos só-de-professor: servidor é a barreira, cliente só esconde (2026-07-17)
+- **`isProfessorOnly(id)` em blocks.ts** (por ora só rocha-matriz/bedrock). Regra
+  de ouro de segurança: o CLIENTE esconde (UX), o SERVIDOR recusa (verdade). Aluno
+  com fio adulterado ainda é barrado no `place_block` (`isProfessorOnly && papel!=
+  professor → return`). Nunca confiar só no esconde-no-cliente.
+- **Esconder no cliente = `placeableFor(papel)` em blocksUi.ts**, usado pelo
+  inventário (provider `blocks()`) E pela hotbar (default + `valid` set do
+  localStorage, senão um slot salvo antigo com o bloco sobrevive). `papel` já
+  chegou no `spawn` antes do snapshot que dispara `startGame`, então dá pra
+  filtrar na montagem da hotbar. Botão-do-meio (copiar) também checa isProfessorOnly
+  — o comentário antigo "bedrock não vai pra mão" era mentira (isPlaceable passava).
+
+### Confinamento por área de grupo = INVERSO do claim (cp25, 2026-07-17)
+- **`confinaBloqueia(clientId,x,y,z)` espelha `claimBloqueia`**: mesmo formato
+  (retorna motivo `string` ou `null`), plugado nos MESMOS gates de place_block
+  (porta ⇒ checa as 2 células com `??`) e break_block, encadeado com `??` DEPOIS
+  do claim. Claim PROTEGE (barra quem NÃO é dono/amigo); confinamento CONFINA
+  (barra fora da área do grupo). Professor isento nos dois. use_block ficou LIVRE
+  (decisão de escopo: só colocar+quebrar).
+- **Área = `areasDoGrupo(g)`** (nova, plural): para CADA objetivo, `alvos[g-1]`
+  (per-grupo, cp13) ou o próprio objetivo (área compartilhada = liberada a todo
+  grupo). Coleta de TODOS os objetivos, não só o ativo (`areaDoGrupo` singular usa
+  `activeIdsFor`; confinamento quer todas). Guardar `o.alvos[g-1]` com
+  noUncheckedIndexedAccess ⇒ `Box|undefined`, checar antes de `push`.
+- **Aluno SEM grupo = travado em tudo** (decisão do usuário). Mas o join AUTO-põe
+  aluno no menor grupo quando `grupos.size>0` — então "sem grupo" só acontece antes
+  de o professor criar grupos, ou após `/grupo sair`. Se `/confinar ligar` com 0
+  grupos ou 0 objetivos, TODOS os alunos ficam travados: o comando AVISA o professor.
+- **Auto em mundo-aula** via `SessionOptions.somenteLeitura` novo (o host já sabe
+  isso do cp19). Setado no FIM do construtor (`if (opts.somenteLeitura)
+  this.confinamentoAtivo = true`), VENCE o valor do save (aula distribui o modelo).
+  Propagação no host: index.ts boot passa `somenteLeitura`; `novaSessao` do ctx
+  (mundos.ts) ganhou 2º param `somenteLeitura` pra troca de aula (/mundo carregar).
+- **Persiste só em mundo LIVRE** (`SaveMeta.confinamento?`, grava só se ligado;
+  em aula read-only não salva ⇒ reseta por turma, coerente com claims). SEM
+  protocolo/UI novo no cliente: o aluno já enxerga a caixa VERDE do objetivo (cp12),
+  então a barreira dá só feedback de chat — mesmo desenho da rocha-matriz/claim
+  (servidor barra, cliente não precisa saber). `/confinar` NÃO entrou em claim/amigos
+  no autocomplete porque esses 2 do cp24 nunca foram adicionados (gap pré-existente).
+
+### Launchers do servidor (raiz do repo, 2026-07-18)
+- **`iniciar-servidor.bat` (Windows/escola) + `iniciar-servidor.sh` (casa/WSL)**
+  facilitam o professor subir o host: menu de mundo (1=livre→`world.ljw`, 2-4=
+  `cenarios/aulaN.ljw`), pergunta o código do professor (opcional → LJ_CODIGO),
+  seta `LJ_NOVO=1` (cria o mundo livre na 1ª vez) e roda `npm run start -w server`.
+- **O `.bat` roda por cmd.exe (duplo-clique)** — de propósito: cmd.exe usa
+  `npm.cmd`, então NÃO cai no bloqueio de PowerShell (npm.ps1 + ExecutionPolicy,
+  bug-232). Auto-`npm install` se `node_modules` não existe. `chcp 65001` pros acentos.
+- Caminhos usam `/` (barra normal) e são relativos à RAIZ do repo — `daRaiz()`
+  (paths.ts) resolve de REPO_ROOT independente do cwd, então `cenarios/aula1.ljw`
+  funciona mesmo com o cwd em server/ (efeito do `-w server`). O banner cita 8080
+  (default do LJ_PORT); trocar de aula ao vivo continua via `/mundo carregar` no jogo.
 
 ## Do-Not-Repeat
 
@@ -751,3 +822,25 @@
 - Empacotar (.exe Tauri/Node SEA) segue ADIADO por decisão do usuário ("ainda quero
   alterar mais coisas"): por ora o professor precisa de Node instalado.
 
+
+### 2026-07-17 — Anti-griefing (cp24): escopo travado por entrevista
+Sistema de CLAIMS + GRUPOS DE AMIGOS pra aluno proteger sua área. Decisões
+fixadas com o usuário (2 rodadas de AskUserQuestion):
+- **Unidade = REGIÃO (varinha).** Reusa regions.ts + a varinha do cp11; aluno marca
+  2 cantos. NÃO por bloco (caro) nem raio (formato fixo).
+- **Quem edita = dono + grupo de amigos.** Fora disso, bloqueado (menos professor).
+- **Grupo de amigos = sistema NOVO do aluno** (não os grupos pedagógicos do cp13).
+  Aluno cria, convida; entrada por CONVITE + ACEITE (os dois consentem).
+- **Ativação = professor liga/desliga** (`/claim ligar|desligar`, tipo /voo). NÃO é
+  automático nem sempre-ligado — mundo-aula normalmente fica desligado.
+- **Limite = 1 claim por aluno, tamanho máx fixo** (anti-abuso escolar).
+- **Persiste no .ljw** (meta JSON, cresce sem re-versionar — cp7). Em mundo-aula
+  (read-only) não salva → claim reseta por turma, coerente com aula efêmera.
+- **Aluno ganha a varinha** só pra claims: as marcas dele alimentam `/claim criar`,
+  não `/regiao` (que segue só-professor no servidor).
+Assumido (não perguntado, confirmar se mudar): professor ignora todo claim;
+bloqueio manda chat de aviso + som `denied`; servidor é a barreira real (regra da
+rocha-matriz); claim não sobrepõe outro claim nem região do professor; aluno em 1
+grupo de amigos por vez; claim bloqueia AÇÃO DE JOGADOR (place/break/use), não
+regra automática (areia caindo não é grief). NÚMEROS a confirmar: MAX_CLAIM_DIM
+(proposto 16/eixo), MAX_AMIGOS (proposto 6 incl. dono).

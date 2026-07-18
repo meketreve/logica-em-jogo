@@ -1,4 +1,5 @@
 import { type Papel } from "./auth";
+import { type Claim, parseClaim } from "./claims";
 import { CHUNK_VOLUME, MAX_WORLD_CHUNKS } from "./constants";
 import { type GroupDef, parseGroups } from "./groups";
 import { type NamedRegion, parseNamedRegion } from "./regions";
@@ -147,6 +148,25 @@ export type ServerMessage =
        */
       type: "groups";
       grupos: GroupDef[];
+    }
+  | {
+      /**
+       * Anti-griefing (cp24) — lista COMPLETA de claims + se a proteção está
+       * ligada. TODOS recebem (todo mundo vê as áreas protegidas como wireframe;
+       * o servidor é quem barra a edição). No join e a cada mudança/toggle.
+       */
+      type: "claims";
+      ativo: boolean;
+      claims: Claim[];
+    }
+  | {
+      /**
+       * Grupo de amigos do PRÓPRIO jogador (cp24) + convites pendentes. `equipe`
+       * null = sem grupo. Pessoal: no join (se houver algo) e quando muda.
+       */
+      type: "friends";
+      equipe: { dono: string; membros: string[] } | null;
+      convites: string[];
     }
   | {
       /** Chat: mensagem de jogador (autor "nome#id") ou do servidor (autor "servidor"). */
@@ -394,6 +414,28 @@ export function parseServerMessage(raw: string): ServerMessage | null {
     case "groups":
       // parseGroups pula entrada quebrada — mesma tolerância do save
       return { type: "groups", grupos: parseGroups(m["grupos"]) };
+    case "claims": {
+      if (typeof m["ativo"] !== "boolean" || !Array.isArray(m["claims"])) return null;
+      const claims: Claim[] = [];
+      for (const entry of m["claims"]) {
+        const c = parseClaim(entry);
+        if (c) claims.push(c); // entrada quebrada não derruba a lista
+      }
+      return { type: "claims", ativo: m["ativo"], claims };
+    }
+    case "friends": {
+      const onlyStrings = (v: unknown): string[] =>
+        Array.isArray(v) ? v.filter((s): s is string => typeof s === "string") : [];
+      let equipe: { dono: string; membros: string[] } | null = null;
+      const eq = m["equipe"];
+      if (eq && typeof eq === "object") {
+        const o = eq as Record<string, unknown>;
+        if (typeof o["dono"] === "string") {
+          equipe = { dono: o["dono"], membros: onlyStrings(o["membros"]) };
+        }
+      }
+      return { type: "friends", equipe, convites: onlyStrings(m["convites"]) };
+    }
     case "chat":
       if (typeof m["author"] !== "string" || typeof m["text"] !== "string") return null;
       return { type: "chat", author: m["author"], text: m["text"] };

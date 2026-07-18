@@ -5,6 +5,7 @@ import {
   isFullCube,
   isPlaceable,
   isPorta,
+  isProfessorOnly,
   isSolidBlock,
   portaToggled,
 } from "./blocks";
@@ -33,6 +34,14 @@ import {
   regionDims,
   regionFromCorners,
 } from "./regions";
+import {
+  type Claim,
+  MAX_AMIGOS,
+  MAX_CLAIM_DIM,
+  MAX_CLAIM_NAME,
+  caixasSeCruzam,
+  claimDentroDoLimite,
+} from "./claims";
 import { ruleFor } from "./rules";
 import { type SaveData, type SaveMeta } from "./save";
 import { MAX_GRUPOS } from "./groups";
@@ -85,6 +94,9 @@ export interface SessionOptions {
   flat?: boolean;
   /** Preset do mundo NOVO (cp14): normal | plano | cabines. Vence o `flat`. */
   preset?: WorldPreset;
+  /** Mundo de aula/atividade (read-only, cp19): o host passa true. Aqui liga
+   *  o CONFINAMENTO (cp25) por padrão — cada aluno só edita na área do grupo. */
+  somenteLeitura?: boolean;
 }
 
 interface SessionPlayer {
@@ -179,6 +191,20 @@ export class GameSession {
   private readonly grupos = new Map<number, Set<string>>();
   /** Conclusões POR GRUPO, chave `${objetivoId}:${grupo}`. Persiste. */
   private completosGrupo = new Set<string>();
+  /** Anti-griefing (cp24): proteção de áreas ligada? Professor alterna. Persiste. */
+  private claimsAtivo = false;
+  /** Claims por aluno (chave = nome do dono; 1 por aluno). Persiste. */
+  private readonly claims = new Map<string, Claim>();
+  /** Grupos de amigos (chave = dono; valor = membros SEM o dono). Persiste. */
+  private readonly amigos = new Map<string, Set<string>>();
+  /** Convites de amigo pendentes: convidado → donos que convidaram. Rascunho
+   *  de sessão, NÃO persiste (morre no reboot). */
+  private readonly convitesAmigo = new Map<string, Set<string>>();
+  /** Confinamento (cp25): o aluno só coloca/quebra DENTRO da área do seu grupo.
+   *  Inverte o claim (confina em vez de proteger). Professor alterna (/confinar)
+   *  e em mundo-aula nasce ligado (opts.somenteLeitura). Persiste no save de
+   *  mundo livre; em aula não salva (read-only) — reseta por turma. */
+  private confinamentoAtivo = false;
   /** Tentativas erradas de PIN por nome — rate-limit da ameaça real (colega
    *  na LAN chutando 10 mil combinações). Não persiste no save. */
   private readonly pinFails = new Map<string, { fails: number; lockedUntil: number }>();
@@ -231,6 +257,11 @@ export class GameSession {
       for (const g of opts.restore.grupos ?? []) {
         this.grupos.set(g.id, new Set(g.membros));
       }
+      // cp24: proteção de áreas + claims + grupos de amigos (convites não persistem)
+      this.claimsAtivo = opts.restore.claimsAtivo ?? false;
+      for (const c of opts.restore.claims ?? []) this.claims.set(c.dono, c);
+      for (const g of opts.restore.amigos ?? []) this.amigos.set(g.dono, new Set(g.membros));
+      this.confinamentoAtivo = opts.restore.confinamento ?? false; // cp25
       // cp21: hora/ciclo do save vencem o padrão (mundo de atividade guarda
       // ciclo OFF; sobrevivência guarda a hora corrente). Ausentes = padrão.
       if (typeof opts.restore.hora === "number" && Number.isFinite(opts.restore.hora)) {
@@ -252,6 +283,10 @@ export class GameSession {
         z: sz,
       };
     }
+    // cp25: mundo de aula/atividade nasce CONFINADO (cada aluno na área do seu
+    // grupo). Vence o que veio do save (aula é read-only e distribui o modelo);
+    // em mundo livre o padrão continua desligado até o professor usar /confinar.
+    if (opts.somenteLeitura) this.confinamentoAtivo = true;
   }
 
   /**
@@ -299,6 +334,19 @@ export class GameSession {
             })),
           }
         : {}),
+      // cp24: proteção de áreas — só grava o que existe (save antigo enxuto)
+      ...(this.claimsAtivo ? { claimsAtivo: true } : {}),
+      ...(this.claims.size ? { claims: [...this.claims.values()] } : {}),
+      ...(this.amigos.size
+        ? {
+            amigos: [...this.amigos.entries()].map(([dono, membros]) => ({
+              dono,
+              membros: [...membros],
+            })),
+          }
+        : {}),
+      // cp25: confinamento por área de grupo (só grava ligado)
+      ...(this.confinamentoAtivo ? { confinamento: true } : {}),
       // cp21: hora + ciclo SEMPRE gravados (mundo de atividade guarda ciclo OFF;
       // sobrevivência guarda a hora corrente pra continuar de onde parou)
       hora: +this.horaDoDia.toFixed(3),
@@ -421,9 +469,26 @@ export class GameSession {
         if (!p) return;
         if (!inBounds(this.world, msg.x, msg.y, msg.z)) return;
         if (!isPlaceable(msg.blockId)) return;
+        // rocha-matriz é ferramenta de professor: aluno nem coloca (o cliente
+        // já esconde, mas o servidor é a barreira real contra fio adulterado)
+        if (isProfessorOnly(msg.blockId) && p.papel !== "professor") return;
         if (getBlock(this.world, msg.x, msg.y, msg.z) !== BlockId.Air) return;
         if (!this.withinReach(p, msg.x, msg.y, msg.z)) return;
         if (this.overlapsAnyPlayer(msg.x, msg.y, msg.z)) return;
+        // cp24/cp25: área protegida por outro aluno (claim) OU fora da área do
+        // grupo (confinamento) — colocar barrado (porta ocupa 2 células, checa as
+        // duas). Professor e dono/amigos passam; confinamento libera a área do grupo.
+        {
+          const bloqueio =
+            this.claimBloqueia(clientId, msg.x, msg.y, msg.z) ??
+            (isPorta(msg.blockId) ? this.claimBloqueia(clientId, msg.x, msg.y + 1, msg.z) : null) ??
+            this.confinaBloqueia(clientId, msg.x, msg.y, msg.z) ??
+            (isPorta(msg.blockId) ? this.confinaBloqueia(clientId, msg.x, msg.y + 1, msg.z) : null);
+          if (bloqueio) {
+            this.sendServerChat(clientId, bloqueio);
+            return;
+          }
+        }
         if (isPorta(msg.blockId)) {
           // porta ocupa 2 células (cp23): valida o par ANTES de materializar
           const yCima = msg.y + 1;
@@ -450,6 +515,13 @@ export class GameSession {
         if (!this.withinReach(p, msg.x, msg.y, msg.z)) return;
         const id = getBlock(this.world, msg.x, msg.y, msg.z);
         if (!isPorta(id)) return; // único interativo por ora (cp23)
+        {
+          const bloqueio = this.claimBloqueia(clientId, msg.x, msg.y, msg.z);
+          if (bloqueio) {
+            this.sendServerChat(clientId, bloqueio);
+            return;
+          }
+        }
         const novo = portaToggled(id);
         // par da porta: mesmo id logo acima ou logo abaixo
         const yPar =
@@ -472,6 +544,17 @@ export class GameSession {
         if (current === BlockId.Air) return;
         if (!isBreakable(current)) return; // bedrock: só /bloco remove
         if (!this.withinReach(p, msg.x, msg.y, msg.z)) return;
+        // cp24/cp25: área protegida por outro aluno (claim) OU fora da área do
+        // grupo (confinamento) — quebrar barrado
+        {
+          const bloqueio =
+            this.claimBloqueia(clientId, msg.x, msg.y, msg.z) ??
+            this.confinaBloqueia(clientId, msg.x, msg.y, msg.z);
+          if (bloqueio) {
+            this.sendServerChat(clientId, bloqueio);
+            return;
+          }
+        }
         this.applyBlock(msg.x, msg.y, msg.z, BlockId.Air);
         break;
       }
@@ -490,7 +573,10 @@ export class GameSession {
       case "wand_mark": {
         const p = this.players.get(clientId);
         if (!p) return;
-        if (p.papel !== "professor") {
+        // cp24: o aluno também marca cantos — pra criar CLAIM (quando a proteção
+        // está ligada). Professor marca pra /regiao. Rejeita só o aluno sem
+        // proteção ativa (não teria o que fazer com os cantos).
+        if (p.papel !== "professor" && !this.claimsAtivo) {
           this.sendServerChat(clientId, "só o professor pode marcar regiões");
           return;
         }
@@ -500,10 +586,11 @@ export class GameSession {
         if (msg.corner === 1) marks.c1 = corner;
         else marks.c2 = corner;
         this.wandMarks.set(clientId, marks);
+        const pronto = marks.c1 && marks.c2;
+        const dica = p.papel === "professor" ? " — agora /regiao criar nome" : " — agora /claim criar";
         this.sendServerChat(
           clientId,
-          `canto ${msg.corner}: (${msg.x}, ${msg.y}, ${msg.z})` +
-            (marks.c1 && marks.c2 ? " — agora /regiao criar nome" : ""),
+          `canto ${msg.corner}: (${msg.x}, ${msg.y}, ${msg.z})` + (pronto ? dica : ""),
         );
         break;
       }
@@ -588,8 +675,16 @@ export class GameSession {
         if (!professor) return "Somente o professor pode liberar o voo. Você pode voar quando o professor liberar.";
         return this.runVoo(parts);
       }
+      case "claim":
+        return this.runClaim(clientId, parts);
+      case "amigos":
+        return this.runAmigos(clientId, parts);
+      case "confinar": {
+        if (!professor) return "Somente o professor pode controlar o confinamento das áreas.";
+        return this.runConfinar(parts);
+      }
       default:
-        return `Comando desconhecido: ${text}. Os comandos disponíveis são /bloco, /resetpin, /regiao, /objetivo, /grupo, /tp, /tpr, /tpa, /iniciar, /hora, /ciclo e /voo.`;
+        return `Comando desconhecido: ${text}. Os comandos disponíveis são /bloco, /resetpin, /regiao, /objetivo, /grupo, /tp, /tpr, /tpa, /iniciar, /hora, /ciclo, /voo, /claim, /amigos e /confinar.`;
     }
   }
 
@@ -684,6 +779,46 @@ export class GameSession {
 
   private broadcastVoo(): void {
     this.broadcast({ type: "voo", liberado: this.vooLiberado });
+  }
+
+  /** `/confinar` (cp25): liga/desliga o confinamento por área de grupo. Só
+   *  professor (o dispatcher já barrou o aluno). Sem argumento = mostra o estado.
+   *  Avisa a turma no toggle; alerta o professor se ligou sem grupos/áreas
+   *  (aí ninguém consegue construir — decisão de escopo: sem grupo, nada). */
+  private runConfinar(parts: string[]): string {
+    const arg = parts[1]?.toLowerCase();
+    if (arg === undefined || arg === "status") {
+      return `Confinamento por área de grupo está ${this.confinamentoAtivo ? "LIGADO" : "desligado"}. Use /confinar ligar ou /confinar desligar.`;
+    }
+    let novo: boolean;
+    if (arg === "ligar" || arg === "on") novo = true;
+    else if (arg === "desligar" || arg === "off") novo = false;
+    else return "Uso: /confinar ligar ou /confinar desligar (ou /confinar status).";
+    if (novo === this.confinamentoAtivo) {
+      return `O confinamento já está ${novo ? "ligado" : "desligado"}.`;
+    }
+    this.confinamentoAtivo = novo;
+    // a turma inteira precisa saber que a regra mudou (o aluno já vê a caixa
+    // verde do objetivo, então não há UI nova — só o aviso de chat)
+    this.broadcast({
+      type: "chat",
+      author: "servidor",
+      text: novo
+        ? "Modo confinamento LIGADO: cada aluno só constrói e quebra na área do seu grupo."
+        : "Modo confinamento desligado: os alunos voltam a editar livremente.",
+    });
+    if (novo && (this.grupos.size === 0 || this.scenario.objetivos.length === 0)) {
+      return (
+        "Confinamento ligado, mas ATENÇÃO: ainda não há " +
+        (this.grupos.size === 0 ? "grupos" : "áreas de objetivo") +
+        " definidos — nenhum aluno conseguirá construir até você criar " +
+        (this.grupos.size === 0 ? "os grupos (/grupo)" : "os objetivos com área de grupo (/objetivo)") +
+        "."
+      );
+    }
+    return novo
+      ? "Confinamento ligado: cada aluno fica preso à área do seu grupo (você, professor, edita em qualquer lugar)."
+      : "Confinamento desligado.";
   }
 
   /** Subcomandos de /regiao (cp11) — só chega aqui com papel professor. */
@@ -957,8 +1092,11 @@ export class GameSession {
         ? `A aula mudou: você está em um mundo novo${papel === "professor" ? "" : ". Confira o objetivo no canto da tela"}.`
         : `Bem-vindo, ${this.authorTag(clientId)}! Pressione Enter para abrir o chat.` +
             (papel === "professor"
-              ? " Comandos: /bloco · /resetpin · /regiao (varinha: R) · /objetivo · /grupo · /tp grupos · /tp nome · /iniciar · /hora · /ciclo · /voo"
-              : " Comandos: /tpr nome (pedir teleporte até um colega) · /tpa (aceitar)"),
+              ? " Comandos: /bloco · /resetpin · /regiao (varinha: R) · /objetivo · /grupo · /tp grupos · /tp nome · /iniciar · /hora · /ciclo · /voo · /claim · /confinar"
+              : " Comandos: /tpr nome (pedir teleporte até um colega) · /tpa (aceitar)" +
+                (this.claimsAtivo
+                  ? " · /claim criar (proteja sua área: marque com a varinha R) · /amigos convidar nome"
+                  : "")),
     );
     // professor vê as regiões existentes desde o join (depois do snapshot)
     if (papel === "professor" && this.regions.size) this.sendRegions(clientId);
@@ -986,6 +1124,13 @@ export class GameSession {
     }
     // cenário vai pra TODOS (HUD do aluno vive disto)
     if (this.scenario.objetivos.length) this.sendObjectives(clientId);
+    // cp24: claims — TODOS recebem (todo mundo vê as áreas protegidas e sabe se
+    // a proteção está ligada). Só manda se há algo a mostrar (senão zero churn).
+    if (this.claimsAtivo || this.claims.size) this.sendClaims(clientId);
+    // grupo de amigos + convites: só quem tem algo (rejoin de membro / convidado)
+    if (this.equipeDe(name) !== null || this.convitesAmigo.get(name)?.size) {
+      this.sendFriends(clientId);
+    }
     // Presença (bug-064): jogador PARADO não manda move — sem isto o
     // recém-chegado só via quem se mexia. Estado atual de todo mundo pro novo
     // (depois do snapshot: o cliente já montou o jogo) e o novo pros outros.
@@ -1050,6 +1195,372 @@ export class GameSession {
   private broadcastRegions(): void {
     for (const [id, p] of this.players) {
       if (p.papel === "professor") this.sendRegions(id);
+    }
+  }
+
+  // --- Anti-griefing (cp24): claims + grupos de amigos ---
+
+  /** Claim que contém a célula, ou null. */
+  private claimEm(x: number, y: number, z: number): Claim | null {
+    for (const c of this.claims.values()) {
+      if (regionContains(c, x, y, z)) return c;
+    }
+    return null;
+  }
+
+  /** Time de amigos do aluno (chave = dono), como dono OU membro. null = sem time. */
+  private equipeDe(name: string): string | null {
+    if (this.amigos.has(name)) return name;
+    for (const [dono, membros] of this.amigos) {
+      if (membros.has(name)) return dono;
+    }
+    return null;
+  }
+
+  /** Dois nomes no MESMO time de amigos? (o próprio nome conta). */
+  private mesmaEquipe(a: string, b: string): boolean {
+    if (a === b) return true;
+    const ea = this.equipeDe(a);
+    return ea !== null && ea === this.equipeDe(b);
+  }
+
+  /** Nomes do time (dono + membros). Vazio se o dono não tem time. */
+  private membrosDaEquipe(dono: string): string[] {
+    const membros = this.amigos.get(dono);
+    return membros ? [dono, ...membros] : [];
+  }
+
+  /**
+   * A célula está protegida contra ESTE cliente? Devolve a mensagem de recusa,
+   * ou null se pode editar. Regra da rocha-matriz: o servidor é a barreira real.
+   * Professor ignora todo claim; o dono e os amigos do dono passam.
+   */
+  private claimBloqueia(clientId: number, x: number, y: number, z: number): string | null {
+    if (!this.claimsAtivo) return null;
+    const p = this.players.get(clientId);
+    if (!p || p.papel === "professor") return null;
+    const c = this.claimEm(x, y, z);
+    if (!c || c.dono === p.name || this.mesmaEquipe(p.name, c.dono)) return null;
+    return `Esta área é protegida por ${c.dono}. Entre no grupo de amigos dele (/amigos) para construir aqui.`;
+  }
+
+  /**
+   * Todas as caixas de trabalho do grupo: para CADA objetivo, a área do grupo
+   * (`alvos[g-1]`, per-grupo) ou a área compartilhada (o próprio objetivo). O
+   * aluno confinado edita dentro de QUALQUER uma (todos os objetivos do seu
+   * grupo, não só o ativo); a área compartilhada é liberada para todo grupo.
+   */
+  private areasDoGrupo(grupo: number): Box[] {
+    const boxes: Box[] = [];
+    for (const o of this.scenario.objetivos) {
+      const b = o.alvos && grupo > 0 ? o.alvos[grupo - 1] : o;
+      if (b) boxes.push(b);
+    }
+    return boxes;
+  }
+
+  /**
+   * Confinamento (cp25) — INVERSO do claim: em mundo de aula/atividade o aluno
+   * só edita DENTRO da área do seu grupo. Devolve o motivo (string) se a célula
+   * (x,y,z) está fora, ou null se pode editar. Professor ignora. Aluno SEM grupo
+   * (ou grupo sem área) é barrado em tudo — decisão de escopo: sem grupo, nada.
+   * Mesma barreira-no-servidor da rocha-matriz/claim; o cliente já vê a caixa
+   * verde do objetivo, então não precisa de UI nova.
+   */
+  private confinaBloqueia(clientId: number, x: number, y: number, z: number): string | null {
+    if (!this.confinamentoAtivo) return null;
+    const p = this.players.get(clientId);
+    if (!p || p.papel === "professor") return null;
+    const grupo = this.grupoDe(p.name);
+    if (grupo === null) {
+      return "Modo confinamento: você ainda não está em um grupo. Peça ao professor para criar os grupos (/grupo) — só então poderá construir na área do seu grupo.";
+    }
+    for (const a of this.areasDoGrupo(grupo)) {
+      if (
+        x >= a.min.x && x <= a.max.x &&
+        y >= a.min.y && y <= a.max.y &&
+        z >= a.min.z && z <= a.max.z
+      ) {
+        return null;
+      }
+    }
+    return "Modo confinamento: você só pode construir e quebrar na área do seu grupo. Use /tp grupos ou siga a caixa verde do seu objetivo.";
+  }
+
+  /** O nome é conhecido nesta aula? (online, roster salvo ou identidade). Evita
+   *  convidar/remover um nome que nunca existiu. */
+  private nomeConhecido(name: string): boolean {
+    if (this.roster.has(name) || this.identity.has(name)) return true;
+    for (const p of this.players.values()) {
+      if (p.name === name) return true;
+    }
+    return false;
+  }
+
+  /** clientId de um nome ONLINE, ou null. */
+  private clientIdDe(name: string): number | null {
+    for (const [id, p] of this.players) {
+      if (p.name === name) return id;
+    }
+    return null;
+  }
+
+  private claimsJson(): string {
+    return JSON.stringify({
+      type: "claims",
+      ativo: this.claimsAtivo,
+      claims: [...this.claims.values()],
+    } satisfies ServerMessage);
+  }
+
+  /** Claims mudaram (ou o toggle liga/desliga): a lista COMPLETA vai pra todos. */
+  private broadcastClaims(): void {
+    const raw = this.claimsJson();
+    for (const id of this.players.keys()) this.send(id, raw);
+  }
+
+  private sendClaims(clientId: number): void {
+    this.send(clientId, this.claimsJson());
+  }
+
+  /** Manda ao cliente o PRÓPRIO grupo de amigos + convites pendentes. */
+  private sendFriends(clientId: number): void {
+    const p = this.players.get(clientId);
+    if (!p) return;
+    const dono = this.equipeDe(p.name);
+    this.send(
+      clientId,
+      JSON.stringify({
+        type: "friends",
+        equipe: dono !== null ? { dono, membros: this.membrosDaEquipe(dono) } : null,
+        convites: [...(this.convitesAmigo.get(p.name) ?? [])],
+      } satisfies ServerMessage),
+    );
+  }
+
+  /** Reenvia o feed `friends` a todo membro ONLINE do time (entrar/sair/expulsar). */
+  private atualizarEquipe(dono: string): void {
+    for (const n of this.membrosDaEquipe(dono)) {
+      const id = this.clientIdDe(n);
+      if (id !== null) this.sendFriends(id);
+    }
+  }
+
+  /** Chat do servidor a cada membro ONLINE do time. */
+  private avisarEquipe(dono: string, texto: string): void {
+    for (const n of this.membrosDaEquipe(dono)) {
+      const id = this.clientIdDe(n);
+      if (id !== null) this.sendServerChat(id, texto);
+    }
+  }
+
+  /** `/claim` — proteção de áreas. ligar/desligar = professor; criar/remover/
+   *  lista = aluno. O professor edita qualquer lugar (ignora claims). */
+  private runClaim(clientId: number, parts: string[]): string {
+    const p = this.players.get(clientId);
+    if (!p) return "Entre no mundo primeiro.";
+    const professor = p.papel === "professor";
+    switch (parts[1]) {
+      case "ligar":
+      case "desligar": {
+        if (!professor) return "Somente o professor liga ou desliga a proteção de áreas.";
+        const novo = parts[1] === "ligar";
+        if (novo === this.claimsAtivo) {
+          return novo ? "A proteção de áreas já está ligada." : "A proteção de áreas já está desligada.";
+        }
+        this.claimsAtivo = novo;
+        this.broadcastClaims();
+        this.broadcast({
+          type: "chat",
+          author: "servidor",
+          text: novo
+            ? "Proteção de áreas LIGADA. Marque sua área com a varinha (tecla R) e use /claim criar; convide amigos com /amigos convidar nome."
+            : "Proteção de áreas desligada — as áreas voltam a ser livres.",
+        });
+        return novo ? "Proteção de áreas ligada." : "Proteção de áreas desligada.";
+      }
+      case "criar": {
+        if (professor) return "O professor pode editar qualquer lugar — não precisa reivindicar área.";
+        if (!this.claimsAtivo) return "A proteção de áreas está desligada. Peça ao professor para ligar com /claim ligar.";
+        if (this.claims.has(p.name)) return "Você já tem uma área protegida. Use /claim remover antes de marcar outra.";
+        const marks = this.wandMarks.get(clientId);
+        if (!marks?.c1 || !marks.c2) {
+          return "Marque os dois cantos com a varinha primeiro (tecla R: clique esquerdo = canto 1, direito = canto 2).";
+        }
+        const { min, max } = regionFromCorners(marks.c1, marks.c2);
+        if (!claimDentroDoLimite(min, max)) {
+          return `A área é grande demais (máximo de ${MAX_CLAIM_DIM}×${MAX_CLAIM_DIM}×${MAX_CLAIM_DIM} blocos).`;
+        }
+        for (const c of this.claims.values()) {
+          if (caixasSeCruzam({ min, max }, c)) return `Sua área encosta na área de ${c.dono}. Marque em outro lugar.`;
+        }
+        for (const r of this.regions.values()) {
+          if (caixasSeCruzam({ min, max }, r)) {
+            return "Sua área encosta numa região reservada pelo professor. Marque em outro lugar.";
+          }
+        }
+        const nome = parts[2];
+        const claim: Claim = {
+          dono: p.name,
+          min,
+          max,
+          ...(nome && nome.length <= MAX_CLAIM_NAME ? { nome } : {}),
+        };
+        this.claims.set(p.name, claim);
+        this.wandMarks.delete(clientId);
+        this.broadcastClaims();
+        const d = regionDims({ nome: "", min, max });
+        return `Área protegida: ${d.x}×${d.y}×${d.z} blocos. Só você e seus amigos constroem aqui (/amigos convidar nome).`;
+      }
+      case "remover": {
+        const alvo = parts[2];
+        if (alvo) {
+          if (!professor) return "Você só pode remover a SUA área (/claim remover, sem nome).";
+          if (!this.claims.delete(alvo)) return `${alvo} não tem área protegida.`;
+          this.broadcastClaims();
+          return `Área de ${alvo} removida.`;
+        }
+        if (!this.claims.delete(p.name)) return "Você não tem área protegida.";
+        this.broadcastClaims();
+        return "Sua área protegida foi removida.";
+      }
+      case "lista": {
+        if (this.claims.size === 0) return "Nenhuma área protegida ainda.";
+        return [...this.claims.values()]
+          .map((c) => {
+            const d = regionDims({ nome: "", min: c.min, max: c.max });
+            return `${c.dono}${c.nome ? ` (${c.nome})` : ""}: (${c.min.x},${c.min.y},${c.min.z})→(${c.max.x},${c.max.y},${c.max.z}) ${d.x}×${d.y}×${d.z}`;
+          })
+          .join("\n");
+      }
+      default:
+        return professor
+          ? "Uso: /claim ligar · /claim desligar · /claim criar · /claim remover [nome] · /claim lista"
+          : "Uso: /claim criar [nome] (marque a área com a varinha R antes) · /claim remover · /claim lista";
+    }
+  }
+
+  /** `/amigos` — grupo de amigos do aluno. Entrada por convite + aceite. */
+  private runAmigos(clientId: number, parts: string[]): string {
+    const p = this.players.get(clientId);
+    if (!p) return "Entre no mundo primeiro.";
+    const me = p.name;
+    switch (parts[1]) {
+      case "convidar": {
+        const alvo = parts.slice(2).join(" ").trim();
+        if (!alvo) return "Uso: /amigos convidar nome.";
+        if (alvo === me) return "Você não pode convidar a si mesmo.";
+        const minha = this.equipeDe(me);
+        if (minha !== null && minha !== me) {
+          return "Você está no grupo de outra pessoa. Saia dele (/amigos sair) para criar o seu.";
+        }
+        if (!this.nomeConhecido(alvo)) return `Ninguém chamado "${alvo}" está nesta aula.`;
+        if (this.equipeDe(alvo) !== null) return `${alvo} já está em um grupo de amigos.`;
+        const membros = this.amigos.get(me) ?? new Set<string>();
+        if (1 + membros.size >= MAX_AMIGOS) {
+          return `Seu grupo já está cheio (máximo de ${MAX_AMIGOS}, contando você).`;
+        }
+        this.amigos.set(me, membros); // primeira vez cria o time (vazio)
+        const conv = this.convitesAmigo.get(alvo) ?? new Set<string>();
+        if (conv.has(me)) return `Você já convidou ${alvo}. Espere ele aceitar.`;
+        conv.add(me);
+        this.convitesAmigo.set(alvo, conv);
+        const idAlvo = this.clientIdDe(alvo);
+        if (idAlvo !== null) {
+          this.sendServerChat(idAlvo, `${me} convidou você para o grupo de amigos. Aceite com /amigos aceitar ${me}.`);
+          this.sendFriends(idAlvo);
+        }
+        return `Convite enviado para ${alvo}.`;
+      }
+      case "aceitar": {
+        const conv = this.convitesAmigo.get(me);
+        if (!conv || conv.size === 0) return "Você não tem convites de amigo pendentes.";
+        let dono = parts.slice(2).join(" ").trim();
+        if (!dono) {
+          if (conv.size > 1) return `Você tem convites de ${[...conv].join(", ")}. Escolha: /amigos aceitar nome.`;
+          dono = [...conv][0] ?? "";
+        }
+        if (!conv.has(dono)) return `${dono || "Esse jogador"} não te convidou.`;
+        if (this.equipeDe(me) !== null) return "Você já está em um grupo. Saia dele antes (/amigos sair).";
+        const membros = this.amigos.get(dono);
+        if (!membros) {
+          conv.delete(dono);
+          return `O grupo de ${dono} não existe mais.`;
+        }
+        if (1 + membros.size >= MAX_AMIGOS) return `O grupo de ${dono} está cheio.`;
+        membros.add(me);
+        this.convitesAmigo.delete(me); // aceitou um: descarta os outros convites
+        this.avisarEquipe(dono, `${me} entrou no grupo de amigos.`);
+        this.atualizarEquipe(dono);
+        return `Você entrou no grupo de ${dono}.`;
+      }
+      case "recusar": {
+        const conv = this.convitesAmigo.get(me);
+        if (!conv || conv.size === 0) return "Você não tem convites pendentes.";
+        let dono = parts.slice(2).join(" ").trim();
+        if (!dono) {
+          if (conv.size > 1) return `Escolha qual recusar: /amigos recusar nome (${[...conv].join(", ")}).`;
+          dono = [...conv][0] ?? "";
+        }
+        if (!conv.delete(dono)) return `${dono || "Esse jogador"} não te convidou.`;
+        if (conv.size === 0) this.convitesAmigo.delete(me);
+        this.sendFriends(clientId);
+        return `Convite de ${dono} recusado.`;
+      }
+      case "sair": {
+        const equipe = this.equipeDe(me);
+        if (equipe === null) return "Você não está em nenhum grupo de amigos.";
+        if (equipe === me) {
+          // dono saiu: dissolve o time (membros ficam livres)
+          const outros = this.membrosDaEquipe(me).filter((n) => n !== me);
+          this.amigos.delete(me);
+          for (const n of outros) {
+            const id = this.clientIdDe(n);
+            if (id !== null) {
+              this.sendServerChat(id, `${me} dissolveu o grupo de amigos.`);
+              this.sendFriends(id);
+            }
+          }
+          this.sendFriends(clientId);
+          return "Seu grupo de amigos foi dissolvido.";
+        }
+        this.amigos.get(equipe)?.delete(me);
+        this.avisarEquipe(equipe, `${me} saiu do grupo de amigos.`);
+        this.atualizarEquipe(equipe);
+        this.sendFriends(clientId);
+        return `Você saiu do grupo de ${equipe}.`;
+      }
+      case "expulsar": {
+        const alvo = parts.slice(2).join(" ").trim();
+        if (!alvo) return "Uso: /amigos expulsar nome.";
+        const membros = this.amigos.get(me);
+        if (!membros) return "Você não é dono de um grupo de amigos.";
+        if (!membros.delete(alvo)) return `${alvo} não está no seu grupo.`;
+        const id = this.clientIdDe(alvo);
+        if (id !== null) {
+          this.sendServerChat(id, `${me} removeu você do grupo de amigos.`);
+          this.sendFriends(id);
+        }
+        this.atualizarEquipe(me);
+        this.sendFriends(clientId);
+        return `${alvo} foi removido do seu grupo.`;
+      }
+      case "lista": {
+        const equipe = this.equipeDe(me);
+        const conv = this.convitesAmigo.get(me);
+        const linhas: string[] = [];
+        linhas.push(
+          equipe !== null
+            ? `Grupo de ${equipe}: ${this.membrosDaEquipe(equipe).join(", ")}`
+            : "Você não está em nenhum grupo de amigos.",
+        );
+        if (conv && conv.size) {
+          linhas.push(`Convites pendentes: ${[...conv].join(", ")} (aceite com /amigos aceitar nome).`);
+        }
+        return linhas.join("\n");
+      }
+      default:
+        return "Uso: /amigos convidar nome · /amigos aceitar [nome] · /amigos recusar [nome] · /amigos sair · /amigos expulsar nome · /amigos lista";
     }
   }
 

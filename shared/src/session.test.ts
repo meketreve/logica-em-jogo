@@ -347,6 +347,26 @@ describe("GameSession (servidor autoritativo)", () => {
     expect(getBlock(world, sx, h + 3, sz)).toBe(BlockId.Air);
   });
 
+  it("rocha-matriz: aluno não coloca (só professor); professor coloca", () => {
+    const { send } = collect();
+    const session = new GameSession(send, { dims: DIMS, seed: 5, codigo: "sala" });
+    session.handleMessage(1, JSON.stringify({ type: "join", name: "prof", pin: "4321", codigo: "sala" }));
+    session.handleMessage(2, JSON.stringify({ type: "join", name: "ana", pin: "1111" }));
+    const world = session.world;
+    const sx = Math.floor(world.sizeX / 2);
+    const sz = Math.floor(world.sizeZ / 2);
+    const h = findSpawnY(world, sx, sz);
+    const alvo = { x: sx, y: h + 3, z: sz }; // ar, ao alcance dos dois no spawn
+
+    // aluno tenta colocar rocha-matriz: recusado em silêncio, célula segue ar
+    session.handleMessage(2, JSON.stringify({ type: "place_block", ...alvo, blockId: BlockId.Bedrock }));
+    expect(getBlock(world, alvo.x, alvo.y, alvo.z)).toBe(BlockId.Air);
+
+    // professor coloca no mesmo lugar: aceito
+    session.handleMessage(1, JSON.stringify({ type: "place_block", ...alvo, blockId: BlockId.Bedrock }));
+    expect(getBlock(world, alvo.x, alvo.y, alvo.z)).toBe(BlockId.Bedrock);
+  });
+
   it("cascalho cai igual areia — regra de queda é genérica", () => {
     const { send } = collect();
     const session = new GameSession(send, { dims: DIMS, seed: 5, singleplayer: true });
