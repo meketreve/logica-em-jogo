@@ -1,7 +1,16 @@
 # STATUS — Projeto "Lógica em Jogo" (jogo voxel educacional)
 
 > Single source of truth for resuming work. Read this FIRST when starting a session.
-> Last updated: 2026-07-17 (sessão: cp25 CONFINAMENTO por área de grupo)
+> Last updated: 2026-07-18 (sessão: cp25 CONFINAMENTO + launchers + commit/push)
+> **COMMITADO + PUSHADO (2026-07-18):** commit 361f73d varreu TUDO desde voo/bedrock
+> (cp25 confinamento, cp24 claims/amigos, rocha-matriz só-professor, mundos-aula
+> read-only, launchers, docs, dist). `git push origin main` OK — escola faz `git pull`.
+> **LAUNCHERS DO SERVIDOR (2026-07-18):** `iniciar-servidor.bat` (Windows/escola,
+> DUPLO-CLIQUE via cmd.exe — escapa do bloqueio PowerShell/npm bug-232) e
+> `iniciar-servidor.sh` (WSL/Linux/casa). Menu de mundo (1=livre→world.ljw, 2-4=
+> cenarios/aulaN.ljw), pergunta código do professor (LJ_CODIGO opcional), LJ_NOVO=1,
+> auto-npm-install, roda `npm run start -w server`. Boot smoke do .sh OK (imprime
+> código + URL). Trocar de aula ao vivo segue via /mundo carregar no jogo.
 > **cp25 CONFINAMENTO CODADO (2026-07-17, PLAYTEST DO USUÁRIO PENDENTE):** inverso
 > do claim — em mundo de aula/atividade o aluno só COLOCA e QUEBRA dentro da área
 > do seu grupo (cp13, `areaDoGrupo`→ nova `areasDoGrupo(g)` = todas as caixas do

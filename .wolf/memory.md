@@ -1388,3 +1388,6 @@ bug-195 (basename sem import). .exe/empacotamento segue ADIADO (decisão do usu�
 | 23:20 | Launchers do servidor: iniciar-servidor.bat (Windows/escola, duplo-clique via cmd.exe evita bloqueio PowerShell) + .sh (casa/WSL). Menu de mundo (livre/aula1-3), codigo opcional, LJ_NOVO=1, npm run start -w server. Boot smoke via .sh ok | iniciar-servidor.bat, iniciar-servidor.sh | ~1200 |
 | 08:40 | Session end: 23 writes across 9 files (save.ts, session.ts, mundos.ts, index.ts, commands.ts) | 9 reads | ~50182 tok |
 | 08:41 | Created ../../../tmp/claude-1000/-home-meketreve-logica-em-jogo/260487cb-8d41-4a2f-8969-3ebc1582156d/scratchpad/commitmsg.txt | — | ~391 |
+| 08:41 | Session end: 24 writes across 10 files (save.ts, session.ts, mundos.ts, index.ts, commands.ts) | 9 reads | ~50601 tok |
+| 08:43 | Session end: 24 writes across 10 files (save.ts, session.ts, mundos.ts, index.ts, commands.ts) | 9 reads | ~50601 tok |
+| 23:35 | FECHO sessão 2026-07-18: cp25 confinamento + launchers .bat/.sh, commit 361f73d pushado pra origin/main. Handoff no STATUS. Playtest acumulado pendente (cp24+voo+bedrock+cp25) | .wolf/STATUS.md, .wolf/memory.md | ~600 |
