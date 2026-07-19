@@ -5020,6 +5020,70 @@
       ],
       "occurrences": 1,
       "last_seen": "2026-07-19T18:55:00-03:00"
+    },
+    {
+      "id": "bug-309",
+      "timestamp": "2026-07-19T21:40:12.168Z",
+      "error_message": "Wrong reference: TapeteMarrom should be JanelaZAberta",
+      "file": "shared/src/blocks.ts",
+      "root_cause": "Used \"TapeteMarrom\" instead of \"JanelaZAberta\"",
+      "fix": "Changed TapeteMarrom → JanelaZAberta",
+      "tags": [
+        "auto-detected",
+        "wrong-reference",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-19T21:40:12.168Z"
+    },
+    {
+      "id": "bug-310",
+      "timestamp": "2026-07-19T21:41:17.279Z",
+      "error_message": "Wrong condition in logic",
+      "file": "client/src/main.ts",
+      "root_cause": "Condition was: if (isPorta(getBlock(world, target.x, target.y, target)",
+      "fix": "Changed to: if (isInterativo(getBlock(world, target.x, target.y, t)",
+      "tags": [
+        "auto-detected",
+        "logic-fix",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-19T21:41:17.279Z"
+    },
+    {
+      "id": "bug-311",
+      "timestamp": "2026-07-19T21:41:22.509Z",
+      "error_message": "Significant refactor of ",
+      "file": "client/src/main.ts",
+      "root_cause": "2 lines replaced/restructured",
+      "fix": "Rewrote 8→14 lines (2 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-19T21:41:22.509Z"
+    },
+    {
+      "id": "bug-312",
+      "timestamp": "2026-07-19T21:41:37.624Z",
+      "error_message": "Significant refactor of ",
+      "file": "shared/src/blocks.test.ts",
+      "root_cause": "2 lines replaced/restructured",
+      "fix": "Rewrote 6→10 lines (2 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-19T21:41:37.624Z"
     }
   ]
 }

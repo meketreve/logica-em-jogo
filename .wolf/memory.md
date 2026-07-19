@@ -1475,3 +1475,24 @@ bug-195 (basename sem import). .exe/empacotamento segue ADIADO (decisão do usu�
 | 18:33 | Edited client/src/main.ts | added 1 condition(s) | ~146 |
 | 18:33 | Edited client/src/main.ts | 3→3 lines | ~65 |
 | 18:38 | tapetes 12 cores (ids 71-82): lâmina 1/16, atravessável, regra de apoio da tocha; + fix Number(null)=0 no ?hora (bug-302) | blocks.ts, rules.ts, mesher.ts, session.ts, blocksUi.ts, main.ts | 213 testes, smoke 12/12 + evaporação ✅, screenshot ✅ | ~12k |
+| 18:40 | Edited shared/src/blocks.ts | modified Janela() | ~153 |
+| 18:40 | Edited shared/src/blocks.ts | inline fix | ~13 |
+| 18:40 | Edited shared/src/blocks.ts | modified portaToggled() | ~344 |
+| 18:40 | Edited shared/src/blocks.ts | modified isFullCube() | ~53 |
+| 18:40 | Edited shared/src/blocks.ts | modified isSolidBlock() | ~81 |
+| 18:40 | Edited shared/src/blocks.ts | added 1 condition(s) | ~129 |
+| 18:40 | Edited shared/src/session.ts | modified janela() | ~212 |
+| 18:40 | Edited shared/src/session.ts | 5→6 lines | ~31 |
+| 18:40 | Edited shared/src/mesher.ts | 6→8 lines | ~63 |
+| 18:40 | Edited shared/src/mesher.ts | 4→8 lines | ~98 |
+| 18:41 | Edited shared/src/mesher.ts | added 1 condition(s) | ~178 |
+| 18:41 | Edited client/src/atlasTexture.ts | 5→7 lines | ~70 |
+| 18:41 | Edited client/src/atlasTexture.ts | modified paintJanela() | ~256 |
+| 18:41 | Edited client/src/main.ts | 3→3 lines | ~65 |
+| 18:41 | Edited client/src/main.ts | added 1 condition(s) | ~175 |
+| 18:41 | Edited client/src/main.ts | added 1 condition(s) | ~66 |
+| 18:41 | Edited client/src/blocksUi.ts | modified olhar() | ~70 |
+| 18:41 | Edited client/src/main.ts | 3→5 lines | ~21 |
+| 18:41 | Edited shared/src/blocks.test.ts | modified tapetes() | ~160 |
+| 19:38 | Created ../../../tmp/claude-1000/-home-meketreve-logica-em-jogo/d5fb946a-7df1-4f81-8d6e-b29e8b26f43a/scratchpad/janela.mts | — | ~587 |
+| 19:40 | janela abre-fecha (ids 83-86): 1 célula, dobradiça da porta, isInterativo/interativoToggled generalizam use_block | blocks.ts, session.ts, mesher.ts, atlasTexture.ts, main.ts, blocksUi.ts | 216 testes, stage+screenshot ✅ | ~10k |

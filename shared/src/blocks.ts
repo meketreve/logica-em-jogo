@@ -70,12 +70,19 @@ export const BlockId = {
   TapeteBranco: 71, TapetePreto: 72, TapeteVermelho: 73, TapeteLaranja: 74,
   TapeteAmarelo: 75, TapeteVerde: 76, TapeteAzul: 77, TapeteRoxo: 78,
   TapeteRosa: 79, TapeteCiano: 80, TapeteCinza: 81, TapeteMarrom: 82,
+  /** Janela (backlog 2026-07-19): painel de vidro com moldura que abre/fecha
+   *  no clique direito — mesmo desenho da porta (estado no ID, dobradiça na
+   *  aresta do canto), mas UMA célula só (sem par vertical). */
+  JanelaXFechada: 83,
+  JanelaXAberta: 84,
+  JanelaZFechada: 85,
+  JanelaZAberta: 86,
 } as const;
 
 export type BlockId = (typeof BlockId)[keyof typeof BlockId];
 
 /** Maior ID válido (mantém isPlaceable sem número mágico ao crescer a lista). */
-const MAX_BLOCK_ID = BlockId.TapeteMarrom;
+const MAX_BLOCK_ID = BlockId.JanelaZAberta;
 
 /** Tapete de qualquer cor? */
 export function isTapete(id: number): boolean {
@@ -110,11 +117,35 @@ export function portaToggled(id: number): number {
   }
 }
 
+/** Janela em qualquer eixo/estado? */
+export function isJanela(id: number): boolean {
+  return id >= BlockId.JanelaXFechada && id <= BlockId.JanelaZAberta;
+}
+
+/** Bloco interativo (clique direito alterna em vez de colocar): porta ou janela. */
+export function isInterativo(id: number): boolean {
+  return isPorta(id) || isJanela(id);
+}
+
+/** Id do interativo com o estado alternado (fechada↔aberta, mesmo eixo). */
+export function interativoToggled(id: number): number {
+  switch (id) {
+    case BlockId.JanelaXFechada: return BlockId.JanelaXAberta;
+    case BlockId.JanelaXAberta: return BlockId.JanelaXFechada;
+    case BlockId.JanelaZFechada: return BlockId.JanelaZAberta;
+    case BlockId.JanelaZAberta: return BlockId.JanelaZFechada;
+    default: return portaToggled(id);
+  }
+}
+
 /** Cubo CHEIO (ocupa a célula inteira)? Não-cubos nunca ocluem a face do
  *  vizinho no mesher, e não servem de suporte pra tocha. */
 export function isFullCube(id: number): boolean {
   return (
-    id !== BlockId.Air && !(id >= BlockId.Cerca && id <= BlockId.Tocha) && !isTapete(id)
+    id !== BlockId.Air &&
+    !(id >= BlockId.Cerca && id <= BlockId.Tocha) &&
+    !isTapete(id) &&
+    !isJanela(id)
   );
 }
 
@@ -125,15 +156,18 @@ export function isSolidBlock(id: number): boolean {
     id !== BlockId.Air &&
     id !== BlockId.PortaXAberta &&
     id !== BlockId.PortaZAberta &&
+    id !== BlockId.JanelaXAberta &&
+    id !== BlockId.JanelaZAberta &&
     id !== BlockId.Tocha &&
     !isTapete(id)
   );
 }
 
-/** O jogador pode colocar este ID? (valida bytes do fio). Porta ABERTA não se
- *  coloca na mão — só existe alternando uma fechada com o clique direito. */
+/** O jogador pode colocar este ID? (valida bytes do fio). Porta/janela ABERTA
+ *  não se coloca na mão — só existe alternando uma fechada no clique direito. */
 export function isPlaceable(id: number): boolean {
   if (id === BlockId.PortaXAberta || id === BlockId.PortaZAberta) return false;
+  if (id === BlockId.JanelaXAberta || id === BlockId.JanelaZAberta) return false;
   return Number.isInteger(id) && id >= BlockId.Grass && id <= MAX_BLOCK_ID;
 }
 

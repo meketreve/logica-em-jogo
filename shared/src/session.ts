@@ -5,9 +5,10 @@ import {
   isFullCube,
   isPlaceable,
   isPorta,
+  isInterativo,
   isProfessorOnly,
   isSolidBlock,
-  portaToggled,
+  interativoToggled,
   precisaApoio,
 } from "./blocks";
 import {
@@ -514,7 +515,7 @@ export class GameSession {
         if (!inBounds(this.world, msg.x, msg.y, msg.z)) return;
         if (!this.withinReach(p, msg.x, msg.y, msg.z)) return;
         const id = getBlock(this.world, msg.x, msg.y, msg.z);
-        if (!isPorta(id)) return; // único interativo por ora (cp23)
+        if (!isInterativo(id)) return; // porta (cp23) e janela (2026-07-19)
         {
           const bloqueio = this.claimBloqueia(clientId, msg.x, msg.y, msg.z);
           if (bloqueio) {
@@ -522,9 +523,10 @@ export class GameSession {
             return;
           }
         }
-        const novo = portaToggled(id);
-        // par da porta: mesmo id logo acima ou logo abaixo
-        const yPar =
+        const novo = interativoToggled(id);
+        // par SÓ da porta (janela é 1 célula — duas janelas empilhadas com o
+        // mesmo id NÃO são um par, alternariam juntas por engano)
+        const yPar = !isPorta(id) ? null :
           getBlock(this.world, msg.x, msg.y + 1, msg.z) === id ? msg.y + 1 :
           getBlock(this.world, msg.x, msg.y - 1, msg.z) === id ? msg.y - 1 : null;
         // fechar não pode emparedar: jogador em qualquer célula da porta cancela

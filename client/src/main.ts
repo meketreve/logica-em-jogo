@@ -15,6 +15,8 @@ import {
   decodeSnapshot,
   findSpawnY,
   getBlock,
+  isInterativo,
+  isJanela,
   isPlaceable,
   isPorta,
   isProfessorOnly,
@@ -917,9 +919,9 @@ function startGame(snap: Snapshot): void {
       wandMark(2, target);
       return;
     }
-    // cp23: clique direito em bloco INTERATIVO (porta) interage, não coloca —
-    // convenção Minecraft; o servidor alterna as duas metades
-    if (isPorta(getBlock(world, target.x, target.y, target.z))) {
+    // cp23: clique direito em bloco INTERATIVO (porta/janela) interage, não
+    // coloca — convenção Minecraft; o servidor alterna (porta: as 2 metades)
+    if (isInterativo(getBlock(world, target.x, target.y, target.z))) {
       activeConn.send(
         JSON.stringify({ type: "use_block", x: target.x, y: target.y, z: target.z }),
       );
@@ -927,13 +929,19 @@ function startGame(snap: Snapshot): void {
     }
     let blockId = hotbar[selected];
     if (blockId === undefined) return;
-    // porta na mão: o EIXO sai da direção do olhar (a lâmina fecha a passagem
-    // que o jogador está encarando)
+    // porta/janela na mão: o EIXO sai da direção do olhar (a lâmina fecha a
+    // passagem que o jogador está encarando)
     if (blockId === BlockId.PortaXFechada || blockId === BlockId.PortaZFechada) {
       blockId =
         Math.abs(Math.sin(input.yaw)) > Math.abs(Math.cos(input.yaw))
           ? BlockId.PortaXFechada
           : BlockId.PortaZFechada;
+    }
+    if (blockId === BlockId.JanelaXFechada || blockId === BlockId.JanelaZFechada) {
+      blockId =
+        Math.abs(Math.sin(input.yaw)) > Math.abs(Math.cos(input.yaw))
+          ? BlockId.JanelaXFechada
+          : BlockId.JanelaZFechada;
     }
     activeConn.send(
       JSON.stringify({
@@ -950,9 +958,10 @@ function startGame(snap: Snapshot): void {
   input.onMouseButton(1, () => {
     if (!target || varinhaAtiva) return;
     let id = getBlock(world, target.x, target.y, target.z);
-    // qualquer porta copiada vira a entrada única "porta" da hotbar (o eixo
+    // qualquer porta/janela copiada vira a entrada única da hotbar (o eixo
     // é re-escolhido pelo olhar na hora de colocar)
     if (isPorta(id)) id = BlockId.PortaXFechada;
+    if (isJanela(id)) id = BlockId.JanelaXFechada;
     if (!isPlaceable(id)) return; // ar/porta-aberta e afins não vão pra mão
     if (isProfessorOnly(id) && papel !== "professor") return; // aluno não copia rocha-matriz
     hotbar[selected] = id;

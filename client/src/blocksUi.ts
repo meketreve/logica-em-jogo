@@ -47,6 +47,8 @@ export const PLACEABLE: readonly { id: number; name: string }[] = [
   { id: BlockId.Cerca, name: "cerca" },
   { id: BlockId.PortaXFechada, name: "porta" },
   { id: BlockId.Tocha, name: "tocha" },
+  // janela: entrada única, eixo escolhido pelo olhar (igual porta)
+  { id: BlockId.JanelaXFechada, name: "janela" },
   // Tapetes (2026-07-19): ordem = TapeteBranco..TapeteMarrom (âncora + offset)
   ...["branco", "preto", "vermelho", "laranja", "amarelo", "verde", "azul", "roxo",
       "rosa", "ciano", "cinza", "marrom"].map((cor, i) => ({

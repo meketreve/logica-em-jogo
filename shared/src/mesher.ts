@@ -52,6 +52,8 @@ export const TILE = {
   portaBaixo: 67,
   portaCima: 68,
   tocha: 69,
+  // 2026-07-19: janela (moldura + cruz de madeira, vidro = ausência/cutout)
+  janela: 70,
 } as const;
 
 /** cp20: blocos-glifo. Letras A–Z e dígitos 0–9 ocupam tiles consecutivos a
@@ -110,6 +112,10 @@ const BLOCK_TILES: Record<number, FaceTiles> = {
   [BlockId.PortaZFechada]: uniform(TILE.portaCima),
   [BlockId.PortaZAberta]: uniform(TILE.portaCima),
   [BlockId.Tocha]: uniform(TILE.tocha),
+  [BlockId.JanelaXFechada]: uniform(TILE.janela),
+  [BlockId.JanelaXAberta]: uniform(TILE.janela),
+  [BlockId.JanelaZFechada]: uniform(TILE.janela),
+  [BlockId.JanelaZAberta]: uniform(TILE.janela),
 };
 
 // cp20: letras/dígitos = cubos uniformes com o tile do glifo (append A→Z, 0→9).
@@ -347,6 +353,16 @@ export function meshChunk(world: World, cx: number, cy: number, cz: number): Chu
       }
       case BlockId.Tocha: {
         emitBox(lx, ly, lz, id, TILE.tocha, 7 * P, 0, 7 * P, 9 * P, 10 * P, 9 * P);
+        return true;
+      }
+      case BlockId.JanelaXFechada:
+      case BlockId.JanelaXAberta:
+      case BlockId.JanelaZFechada:
+      case BlockId.JanelaZAberta: {
+        // mesma dobradiça da porta (aresta do canto 0,·,0), 1 célula só
+        const finaEmX = id === BlockId.JanelaXFechada || id === BlockId.JanelaZAberta;
+        if (finaEmX) emitBox(lx, ly, lz, id, TILE.janela, 0, 0, 0, 2 * P, 1, 1);
+        else emitBox(lx, ly, lz, id, TILE.janela, 0, 0, 0, 1, 1, 2 * P);
         return true;
       }
       default: {

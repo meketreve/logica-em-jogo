@@ -221,6 +221,23 @@ function paintTocha(ctx: CanvasRenderingContext2D, tile: number): void {
   paintNoise(ctx, tile, [122, 92, 56], 10, 10, ATLAS.tilePx); // cabo
 }
 
+/** Janela (2026-07-19): moldura de madeira + cruz central; o vidro é
+ *  AUSÊNCIA (cutout, mesmo truque do vidro/porta) com brilhos diagonais. */
+function paintJanela(ctx: CanvasRenderingContext2D, tile: number): void {
+  paintNoise(ctx, tile, [164, 126, 76], 8); // moldura = madeira da porta
+  const [ox, oy] = tileOrigin(tile);
+  const px = ATLAS.tilePx;
+  ctx.clearRect(ox + 2, oy + 2, px - 4, px - 4); // vidro = ausência
+  // cruz central de madeira escura (4 vidraças)
+  ctx.fillStyle = "rgb(112,82,46)";
+  ctx.fillRect(ox + 7, oy + 2, 2, px - 4);
+  ctx.fillRect(ox + 2, oy + 7, px - 4, 2);
+  // brilhos diagonais nas vidraças
+  ctx.fillStyle = "rgb(214,232,240)";
+  for (let i = 0; i < 3; i++) ctx.fillRect(ox + 3 + i, oy + 6 - i, 1, 1);
+  for (let i = 0; i < 3; i++) ctx.fillRect(ox + 10 + i, oy + 13 - i, 1, 1);
+}
+
 /** Folhas (cp18): verde denso com furos transparentes (cutout). */
 function paintLeaves(ctx: CanvasRenderingContext2D, tile: number): void {
   paintNoise(ctx, tile, [52, 118, 44], 16);
@@ -293,6 +310,8 @@ export function createAtlasTexture(): THREE.Texture {
   paintPorta(ctx, TILE.portaBaixo, false);
   paintPorta(ctx, TILE.portaCima, true);
   paintTocha(ctx, TILE.tocha);
+  // 2026-07-19: janela
+  paintJanela(ctx, TILE.janela);
 
   // cp20: blocos-glifo — letras em creme, dígitos em azul-claro (distinção
   // rápida à distância entre "letra" e "número").

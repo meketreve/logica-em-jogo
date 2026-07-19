@@ -21,9 +21,13 @@ describe("formato de bloco/chunk (contrato de save e snapshot)", () => {
     // tapetes (2026-07-19): 12 cores em append depois da tocha
     expect(BlockId.TapeteBranco).toBe(71);
     expect(BlockId.TapeteMarrom).toBe(82);
+    // janela (2026-07-19): 4 estados em append depois dos tapetes
+    expect(BlockId.JanelaXFechada).toBe(83);
+    expect(BlockId.JanelaZAberta).toBe(86);
     // isPlaceable acompanha o último id; o próximo byte NÃO é bloco
-    expect(isPlaceable(BlockId.TapeteMarrom)).toBe(true);
-    expect(isPlaceable(83)).toBe(false);
+    expect(isPlaceable(BlockId.JanelaXFechada)).toBe(true);
+    expect(isPlaceable(BlockId.JanelaXAberta)).toBe(false); // aberta só via clique
+    expect(isPlaceable(87)).toBe(false);
   });
 
   it("volume do chunk cabe em 1 byte por bloco", () => {

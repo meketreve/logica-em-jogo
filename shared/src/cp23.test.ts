@@ -261,3 +261,41 @@ describe("cp23b — /regiao encher em lote", () => {
     );
   });
 });
+
+describe("janela (2026-07-19) — sessão", () => {
+  it("clique alterna aberta↔fechada; 1 célula só, sem par", () => {
+    const { session, send } = makeFlat();
+    const y = FLAT_SURFACE_Y + 1;
+    send({ type: "place_block", x: 6, y, z: 5, blockId: BlockId.JanelaXFechada });
+    expect(getBlock(session.world, 6, y, 5)).toBe(BlockId.JanelaXFechada);
+    // janela NÃO materializa segunda célula (diferente da porta)
+    expect(getBlock(session.world, 6, y + 1, 5)).toBe(BlockId.Air);
+    send({ type: "use_block", x: 6, y, z: 5 });
+    expect(getBlock(session.world, 6, y, 5)).toBe(BlockId.JanelaXAberta);
+    send({ type: "use_block", x: 6, y, z: 5 });
+    expect(getBlock(session.world, 6, y, 5)).toBe(BlockId.JanelaXFechada);
+    // sobrevive ao tick (sem regra de par órfão)
+    session.tick();
+    expect(getBlock(session.world, 6, y, 5)).toBe(BlockId.JanelaXFechada);
+  });
+
+  it("duas janelas empilhadas NÃO alternam juntas (par é só de porta)", () => {
+    const { session, send } = makeFlat();
+    const y = FLAT_SURFACE_Y + 1;
+    send({ type: "place_block", x: 5, y, z: 6, blockId: BlockId.JanelaZFechada });
+    send({ type: "place_block", x: 5, y: y + 1, z: 6, blockId: BlockId.JanelaZFechada });
+    send({ type: "use_block", x: 5, y, z: 6 }); // abre SÓ a de baixo
+    expect(getBlock(session.world, 5, y, 6)).toBe(BlockId.JanelaZAberta);
+    expect(getBlock(session.world, 5, y + 1, 6)).toBe(BlockId.JanelaZFechada);
+  });
+
+  it("fechar janela com jogador na célula é recusado", () => {
+    const { session, send } = makeFlat();
+    const y = FLAT_SURFACE_Y + 1;
+    send({ type: "place_block", x: 5, y, z: 6, blockId: BlockId.JanelaXFechada });
+    send({ type: "use_block", x: 5, y, z: 6 }); // abre
+    send({ type: "move", x: 5.5, y, z: 6.5, yaw: 0, pitch: 0 }); // entra na célula
+    send({ type: "use_block", x: 5, y, z: 6 }); // tenta fechar
+    expect(getBlock(session.world, 5, y, 6)).toBe(BlockId.JanelaXAberta);
+  });
+});
