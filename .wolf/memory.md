@@ -1429,3 +1429,5 @@ bug-195 (basename sem import). .exe/empacotamento segue ADIADO (decisão do usu�
 | 13:00 | Backlog 1/3: sanitizeName (já codado sessão anterior) verificado + commitado 9c5349a | auth.ts, session.ts, menu.ts, index.html | 212 testes ok | ~2k |
 | 13:05 | Backlog 2/3: autocomplete de nomes no Tab + /claim /amigos na árvore, commit b46f52c | commands.ts, main.ts | smoke tsx ok | ~3k |
 | 13:20 | Backlog 3/3: porta pivota na dobradiça (painel na borda, aresta compartilhada) | mesher.ts | 212 testes + screenshot headless | ~8k |
+| 13:59 | Session end: 10 writes across 4 files (commands.ts, main.ts, mesher.ts, porta-stage.mts) | 11 reads | ~23092 tok |
+| 13:30 | Session end: backlog 3/3 (sanitizeName, autocomplete nomes, porta dobradiça) — commits 9c5349a b46f52c 6875406 + push | STATUS/cerebrum/memory atualizados | próxima: playtest acumulado | ~60k |
