@@ -99,9 +99,19 @@ const ambient = new THREE.AmbientLight(0xffffff, 0.55);
 scene.add(sun, ambient);
 // Ciclo dia/noite (cp21): a hora vem do servidor (msg `time`); o SkyCycle
 // interpola céu/sol/luz. update(dt) roda no loop de render.
-const skyCycle = new SkyCycle(sun, ambient, scene);
+const skyCycle = new SkyCycle(sun, ambient, scene, camera);
+// ?hora=21.5 na URL: força a hora do céu (screenshot headless de noite/entardecer
+// sem depender do servidor — o sync de rede é ignorado enquanto forçada)
+const horaForcada = ((): number | null => {
+  const v = Number(new URLSearchParams(location.search).get("hora"));
+  return Number.isFinite(v) ? v : null;
+})();
+if (horaForcada !== null) skyCycle.sync(horaForcada, false);
 
 const input = new Input(renderer.domElement);
+// ?yaw=-1.57 na URL: aponta a câmera no boot (par do ?hora — mirar o sol/lua)
+const yawForcado = Number(new URLSearchParams(location.search).get("yaw"));
+if (Number.isFinite(yawForcado)) input.yaw = yawForcado;
 
 /** (Re)aplica as configurações do jogador — chamada no boot e ao iniciar jogo
  *  (o menu pode ter mudado tudo antes do play). */
@@ -364,7 +374,8 @@ function handleServerData(data: string | ArrayBuffer): void {
     } else if (msg.type === "teleport") {
       applyTeleport?.(msg);
     } else if (msg.type === "time") {
-      skyCycle.sync(msg.hora, msg.ciclo);
+      // ?hora= na URL congela o céu local (inspeção visual — ver ?atlas)
+      if (horaForcada === null) skyCycle.sync(msg.hora, msg.ciclo);
     } else if (msg.type === "voo") {
       vooLiberado = msg.liberado;
       // aluno perdeu a liberação no meio do voo: cai (professor voa sempre)

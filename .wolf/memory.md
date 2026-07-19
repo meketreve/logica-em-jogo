@@ -1444,3 +1444,14 @@ bug-195 (basename sem import). .exe/empacotamento segue ADIADO (decisão do usu�
 | 18:15 | Edited client/src/main.ts | 4→5 lines | ~80 |
 | 18:15 | Edited client/src/main.ts | modified startGame() | ~74 |
 | 18:15 | guarda de atalhos do navegador: beforeunload + preventDefault combos + Keyboard Lock (Ctrl+W ao correr não fecha aba) | client/src/shortcutGuard.ts, main.ts | 212 testes, typecheck 3/3, build+dist | ~8k |
+| 18:21 | Edited shared/src/constants.ts | modified noite() | ~74 |
+| 18:21 | Edited shared/src/session.ts | 4→5 lines | ~75 |
+| 18:21 | Edited shared/src/session.ts | modified runHora() | ~139 |
+| 18:22 | Created client/src/daynight.ts | — | ~2281 |
+| 18:22 | Edited client/src/main.ts | inline fix | ~17 |
+| 18:23 | Edited client/src/main.ts | added 1 condition(s) | ~62 |
+| 18:23 | Edited client/src/main.ts | added 1 condition(s) | ~125 |
+| 18:24 | Edited client/src/main.ts | added 1 condition(s) | ~78 |
+| 18:25 | Edited client/src/main.ts | 4→1 lines | ~18 |
+| 18:25 | Edited client/src/main.ts | added 1 condition(s) | ~74 |
+| 18:27 | dia/noite: sol/lua/estrelas visíveis + keyframes ricos c/ smoothstep + DIA_SEGUNDOS 1200 + /hora consulta liberada + ?hora/?yaw debug | daynight.ts, main.ts, constants.ts, session.ts | 212 testes, screenshots noite/entardecer/sol ✅ | ~15k |

@@ -663,8 +663,9 @@ export class GameSession {
         return this.runIniciar(clientId, parts);
       }
       case "hora": {
-        if (!professor) return "Somente o professor pode mudar a hora do dia.";
-        return this.runHora(parts);
+        // consultar a hora (`/hora` sem argumento) é de todos; MUDAR é do professor
+        if (parts.length > 1 && !professor) return "Somente o professor pode mudar a hora do dia.";
+        return this.runHora(parts, professor);
       }
       case "ciclo": {
         if (!professor) return "Somente o professor pode controlar o ciclo de dia e noite.";
@@ -687,12 +688,14 @@ export class GameSession {
     }
   }
 
-  /** `/hora` (cp21): mostra ou ajusta a hora do dia. Só professor. */
-  private runHora(parts: string[]): string {
+  /** `/hora` (cp21): mostra (todos) ou ajusta (só professor) a hora do dia. */
+  private runHora(parts: string[], professor: boolean): string {
     if (parts.length === 1) {
       return (
-        `Agora são ${this.horaFormatada()} (${this.cicloAtivo ? "o tempo está passando" : "ciclo parado"}). ` +
-        "Ajuste com /hora dia, /hora noite, /hora amanhecer, /hora entardecer, /hora meio-dia, /hora meia-noite ou /hora 0..23."
+        `Agora são ${this.horaFormatada()} (${this.cicloAtivo ? "o tempo está passando" : "ciclo parado"}).` +
+        (professor
+          ? " Ajuste com /hora dia, /hora noite, /hora amanhecer, /hora entardecer, /hora meio-dia, /hora meia-noite ou /hora 0..23."
+          : "")
       );
     }
     const alvo = (parts[1] ?? "").toLowerCase();

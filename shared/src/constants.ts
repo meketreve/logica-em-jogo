@@ -13,8 +13,9 @@ export const MAX_WORLD_CHUNKS = { x: 16, z: 16, y: 8 } as const;
 export const SERVER_TICK_RATE = 10;
 
 /** Ciclo dia/noite (cp21): duração de um dia completo em segundos reais.
- *  10 min — o céu anda, mas não corre a ponto de atrapalhar a aula. */
-export const DIA_SEGUNDOS = 600;
+ *  20 min (convenção Minecraft) — 10 min de sol pleno dá tempo de construir
+ *  sem o céu correr (backlog 2026-07-19: 10 min ficava rápido demais). */
+export const DIA_SEGUNDOS = 1200;
 /** Hora (0..24) padrão de um mundo NOVO: MEIO-DIA. Mundo de atividade nasce em
  *  DIA PERMANENTE com o ciclo PARADO (o céu não muda durante a aula) — o ciclo
  *  e a hora corrente persistem no save (sobrevivência, futuro, continua a hora). */
