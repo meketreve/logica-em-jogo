@@ -1,4 +1,4 @@
-import { type WorldPreset, parseWorldPreset } from "@logica/shared";
+import { type WorldPreset, parseWorldPreset, sanitizeName } from "@logica/shared";
 import { playUi, setUiVolume } from "./audio";
 import {
   DEFAULT_SETTINGS,
@@ -50,12 +50,12 @@ export interface MenuHandlers {
 const NAME_KEY = "lj-nome";
 
 export function getPlayerName(): string {
-  let stored = localStorage.getItem(NAME_KEY);
-  if (!stored) {
-    stored = `jogador-${Math.random().toString(36).slice(2, 6)}`;
-    localStorage.setItem(NAME_KEY, stored);
-  }
-  return stored;
+  const stored = localStorage.getItem(NAME_KEY);
+  // sanitiza na leitura: nome antigo com espaço/especial (gravado antes desta
+  // regra) é migrado sozinho; vazio/ausente ganha um genérico novo.
+  const nome = stored ? sanitizeName(stored) : `jogador-${Math.random().toString(36).slice(2, 6)}`;
+  if (nome !== stored) localStorage.setItem(NAME_KEY, nome);
+  return nome;
 }
 
 function el<T extends HTMLElement>(id: string): T {
@@ -109,9 +109,10 @@ export function showMenu(handlers: MenuHandlers): void {
   const nameInput = el<HTMLInputElement>("menu-nome");
   nameInput.value = getPlayerName();
   nameInput.addEventListener("change", () => {
-    const v = nameInput.value.trim().slice(0, 24);
-    if (v) localStorage.setItem(NAME_KEY, v);
-    nameInput.value = getPlayerName();
+    // sem espaço nem caractere especial (quebrariam /kicar, /tp, /grupo…)
+    const v = sanitizeName(nameInput.value);
+    localStorage.setItem(NAME_KEY, v);
+    nameInput.value = v;
   });
 
   // --- navegação ---

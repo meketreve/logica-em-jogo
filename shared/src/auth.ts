@@ -9,11 +9,29 @@
  * do join, não criptografia.
  */
 
+import { MAX_NAME_LENGTH } from "./constants";
+
 export type Papel = "professor" | "aluno";
 
 /** PIN válido = exatamente 4 dígitos. */
 export function isValidPin(pin: string): boolean {
   return /^\d{4}$/.test(pin);
+}
+
+/**
+ * Normaliza o nome de um jogador: só letra, número, acento, `_` e `-`.
+ * ESPAÇO e caractere especial são REMOVIDOS — o espaço quebrava todo comando
+ * que lê o nome por posição (`/kicar ana maria` viraria `parts[1]="ana"`, sem
+ * como mirar o aluno; idem /tp, /grupo entrar, /amigos…). Acento de nome
+ * brasileiro (José, João) continua valendo — `\p{L}`/`\p{M}` cobrem Unicode.
+ * Corta em MAX_NAME_LENGTH; se sobrar vazio, cai no genérico "jogador".
+ * Servidor e cliente chamam a MESMA função (fio adulterado é saneado no host).
+ */
+export function sanitizeName(raw: string): string {
+  const limpo = [...raw.trim()]
+    .filter((c) => /[\p{L}\p{N}\p{M}_-]/u.test(c))
+    .join("");
+  return limpo.slice(0, MAX_NAME_LENGTH) || "jogador";
 }
 
 /** Tentativas erradas seguidas antes de travar o nome no join. */

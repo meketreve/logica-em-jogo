@@ -4758,6 +4758,54 @@
       "related_bugs": [],
       "occurrences": 1,
       "last_seen": "2026-07-18T02:04:30.733Z"
+    },
+    {
+      "id": "bug-293",
+      "timestamp": "2026-07-18T16:45:27.734Z",
+      "error_message": "Wrong reference: MAX_NAME_LENGTH should be PLAYER_REACH",
+      "file": "shared/src/session.ts",
+      "root_cause": "Used \"MAX_NAME_LENGTH\" instead of \"PLAYER_REACH\"",
+      "fix": "Changed MAX_NAME_LENGTH → PLAYER_REACH",
+      "tags": [
+        "auto-detected",
+        "wrong-reference",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-18T16:45:27.734Z"
+    },
+    {
+      "id": "bug-294",
+      "timestamp": "2026-07-18T16:45:38.960Z",
+      "error_message": "Significant refactor of ",
+      "file": "client/src/menu.ts",
+      "root_cause": "5 lines replaced/restructured",
+      "fix": "Rewrote 8→8 lines (5 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-18T16:45:38.960Z"
+    },
+    {
+      "id": "bug-295",
+      "timestamp": "2026-07-18T16:46:02.295Z",
+      "error_message": "Wrong reference: label should be pattern",
+      "file": "client/index.html",
+      "root_cause": "Used \"label\" instead of \"pattern\"",
+      "fix": "Changed label → pattern",
+      "tags": [
+        "auto-detected",
+        "wrong-reference",
+        "html"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-18T16:46:02.295Z"
     }
   ]
 }

@@ -1,4 +1,4 @@
-import { MAX_PIN_ATTEMPTS, PIN_LOCKOUT_MS, type Papel, isValidPin } from "./auth";
+import { MAX_PIN_ATTEMPTS, PIN_LOCKOUT_MS, type Papel, isValidPin, sanitizeName } from "./auth";
 import {
   BlockId,
   isBreakable,
@@ -15,7 +15,6 @@ import {
   DIA_SEGUNDOS,
   HORA_PADRAO,
   MAX_CHAT_LENGTH,
-  MAX_NAME_LENGTH,
   PLAYER_REACH,
   SERVER_TICK_RATE,
 } from "./constants";
@@ -428,7 +427,7 @@ export class GameSession {
     if (!msg) return;
     switch (msg.type) {
       case "join": {
-        const name = msg.name.trim().slice(0, MAX_NAME_LENGTH) || "jogador";
+        const name = sanitizeName(msg.name);
         // identidade (cp9): PIN + código de professor. Singleplayer dispensa
         // (mundo do próprio jogador) e todo join é professor.
         let papel: Papel = "professor";

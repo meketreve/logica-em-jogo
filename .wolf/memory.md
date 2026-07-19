@@ -1391,3 +1391,28 @@ bug-195 (basename sem import). .exe/empacotamento segue ADIADO (decisão do usu�
 | 08:41 | Session end: 24 writes across 10 files (save.ts, session.ts, mundos.ts, index.ts, commands.ts) | 9 reads | ~50601 tok |
 | 08:43 | Session end: 24 writes across 10 files (save.ts, session.ts, mundos.ts, index.ts, commands.ts) | 9 reads | ~50601 tok |
 | 23:35 | FECHO sessão 2026-07-18: cp25 confinamento + launchers .bat/.sh, commit 361f73d pushado pra origin/main. Handoff no STATUS. Playtest acumulado pendente (cp24+voo+bedrock+cp25) | .wolf/STATUS.md, .wolf/memory.md | ~600 |
+| 13:38 | Session end: 24 writes across 10 files (save.ts, session.ts, mundos.ts, index.ts, commands.ts) | 9 reads | ~50601 tok |
+
+## Session: 2026-07-18 13:39
+
+| Time | Action | File(s) | Outcome | ~Tokens |
+|------|--------|---------|---------|--------|
+| 13:44 | Edited shared/src/auth.ts | modified isValidPin() | ~276 |
+| 13:45 | Edited shared/src/session.ts | inline fix | ~28 |
+| 13:45 | Edited shared/src/session.ts | inline fix | ~13 |
+| 13:45 | Edited shared/src/session.ts | 3→2 lines | ~10 |
+| 13:45 | Edited client/src/menu.ts | inline fix | ~24 |
+| 13:45 | Edited client/src/menu.ts | modified getPlayerName() | ~119 |
+| 13:45 | Edited client/src/menu.ts | 5→6 lines | ~68 |
+| 13:46 | Edited client/index.html | inline fix | ~60 |
+| 13:46 | Edited shared/src/auth.test.ts | modified describe() | ~427 |
+
+## Session: 2026-07-19 12:48
+
+| Time | Action | File(s) | Outcome | ~Tokens |
+|------|--------|---------|---------|--------|
+
+## Session: 2026-07-19 12:48
+
+| Time | Action | File(s) | Outcome | ~Tokens |
+|------|--------|---------|---------|--------|
