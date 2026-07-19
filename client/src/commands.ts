@@ -24,6 +24,8 @@ const COMANDOS = [
   "voo",
   "confinar",
   "kicar",
+  "claim",
+  "amigos",
 ];
 
 const SUBCOMANDOS: Record<string, string[]> = {
@@ -36,19 +38,33 @@ const SUBCOMANDOS: Record<string, string[]> = {
   ciclo: ["ligar", "desligar"],
   voo: ["ligar", "desligar"],
   confinar: ["ligar", "desligar", "status"],
+  claim: ["ligar", "desligar", "criar", "remover", "lista"],
+  amigos: ["convidar", "aceitar", "recusar", "sair", "expulsar", "lista"],
 };
 
+/** Comandos cujo 2º token é um NOME de jogador. /tp também aceita "grupos". */
+const CMD_COM_NOME = new Set(["kicar", "resetpin", "tpr", "tpa"]);
+/** Subcomandos de /amigos cujo 3º token é um nome de jogador. */
+const AMIGOS_COM_NOME = new Set(["convidar", "aceitar", "recusar", "expulsar"]);
+
 let mundosConhecidos: string[] = [];
+let jogadoresConhecidos: string[] = [];
 
 /** O cliente memoriza os nomes que o professor viu em /mundo lista. */
 export function learnWorlds(nomes: string[]): void {
   mundosConhecidos = nomes;
 }
 
+/** Quem está online agora — o main.ts alimenta pelo player_moved/player_left. */
+export function learnPlayers(nomes: string[]): void {
+  jogadoresConhecidos = nomes;
+}
+
 function nivel3(cmd: string, sub: string): string[] {
   if (cmd === "objetivo" && sub === "add") return ["construir", "chegar", "limpar"];
   if (cmd === "objetivo" && sub === "modo") return ["sequencial", "livre"];
   if (cmd === "mundo" && sub === "carregar") return mundosConhecidos;
+  if (cmd === "amigos" && AMIGOS_COM_NOME.has(sub)) return jogadoresConhecidos;
   return [];
 }
 
@@ -59,7 +75,11 @@ function nivel3(cmd: string, sub: string): string[] {
 export function candidatos(completos: string[]): string[] {
   if (completos.length === 0) return COMANDOS.map((c) => `/${c}`);
   const cmd = (completos[0] ?? "").replace(/^\//, "");
-  if (completos.length === 1) return SUBCOMANDOS[cmd] ?? [];
+  if (completos.length === 1) {
+    if (CMD_COM_NOME.has(cmd)) return jogadoresConhecidos;
+    if (cmd === "tp") return ["grupos", ...jogadoresConhecidos];
+    return SUBCOMANDOS[cmd] ?? [];
+  }
   if (completos.length === 2) return nivel3(cmd, completos[1] ?? "");
   return [];
 }

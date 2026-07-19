@@ -30,7 +30,7 @@ import { PLACEABLE, placeableFor } from "./blocksUi";
 import { InventoryPanel } from "./inventory";
 import { ChatUi } from "./chat";
 import { ChunkRenderer } from "./chunks";
-import { learnWorlds } from "./commands";
+import { learnPlayers, learnWorlds } from "./commands";
 import { SkyCycle } from "./daynight";
 import { type Connection, WorkerConnection, WsConnection } from "./connection";
 import { emitGameEvent } from "./events";
@@ -265,6 +265,9 @@ let objectivesSeeded = false; // 1ª lista do join não toca som de conquista an
 /** cp19: o professor trocou a aula — o mundo inteiro chega de novo, em jogo. */
 let reloadWorld: ((snap: Snapshot) => void) | null = null;
 
+/** Nomes online (id→nome) pro autocomplete de comandos com nome de jogador. */
+const nomesOnline = new Map<number, string>();
+
 /** Estado consolidado pros painéis — chamada sempre que algo deles muda. */
 function pushPanelData(): void {
   activePanel?.update({
@@ -318,8 +321,15 @@ function handleServerData(data: string | ArrayBuffer): void {
     } else if (msg.type === "blocks_filled") {
       applyBlocksFilled?.(msg);
     } else if (msg.type === "player_moved") {
+      // autocomplete de nomes (Tab): quem está online, aprendido do relay
+      if (msg.name && nomesOnline.get(msg.id) !== msg.name) {
+        nomesOnline.set(msg.id, msg.name);
+        learnPlayers([...new Set(nomesOnline.values())]);
+      }
       applyPlayerMoved?.(msg);
     } else if (msg.type === "player_left") {
+      nomesOnline.delete(msg.id);
+      learnPlayers([...new Set(nomesOnline.values())]);
       applyPlayerLeft?.(msg.id);
     } else if (msg.type === "spawn") {
       serverSpawn = { x: msg.x, y: msg.y, z: msg.z };

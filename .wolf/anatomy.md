@@ -1,6 +1,6 @@
 # anatomy.md
 
-> Auto-maintained by OpenWolf. Last scanned: 2026-07-18T16:46:17.840Z
+> Auto-maintained by OpenWolf. Last scanned: 2026-07-19T16:00:42.852Z
 > Files: 102 tracked | Anatomy hits: 0 | Misses: 0
 
 ## ../../../tmp/claude-1000/-home-meketreve-logica-em-jogo/1e53a721-e45d-4911-a026-f385f8f2c4e6/scratchpad/
@@ -91,7 +91,7 @@
 - `blocksUi.ts` — Blocos colocáveis com nome em português — fonte única pra hotbar (main.ts) (~753 tok)
 - `chat.ts` — UI de chat em HTML/CSS por cima do canvas (regra: sem GUI de engine). (~1525 tok)
 - `chunks.ts` — 1 mesh por chunk (BufferGeometry única, culled mesher do /shared). (~1171 tok)
-- `commands.ts` — Autocompletar de comandos de chat (Tab). Puro, sem DOM — o chat.ts liga o (~611 tok)
+- `commands.ts` — Autocompletar de comandos de chat (Tab). Puro, sem DOM — o chat.ts liga o (~862 tok)
 - `commands.ts` — Autocompletar de comandos de chat (Tab). Puro, sem DOM — o chat.ts liga o (~516 tok)
 - `connection.ts` — Conexão do cliente com O SERVIDOR — interface única, hospedeiro invisível. (~1175 tok)
 - `daynight.ts` — Ciclo dia/noite (cp21) — SÓ visual. A hora é autoritativa do SERVIDOR (msg (~971 tok)
@@ -99,7 +99,7 @@
 - `hud.ts` — HUD de perfilação (F3): FPS, frametime méd+p95, remesh, draw calls e (~1099 tok)
 - `input.ts` — Teclado + mouse (pointer lock). SÓ coleta input — nenhuma decisão de (~1542 tok)
 - `inventory.ts` — Inventário de blocos (cp16) — grade com TODOS os colocáveis + faixa da (~1184 tok)
-- `main.ts` — O cliente não tem filesystem: aprende os nomes das aulas pela resposta de (~12576 tok)
+- `main.ts` — O cliente não tem filesystem: aprende os nomes das aulas pela resposta de (~12713 tok)
 - `menu.ts` — Menu principal (cp8) — HTML/CSS por cima do canvas, sem GUI de engine. (~4161 tok)
 - `objectivesUi.ts` — Grupo do PRÓPRIO jogador (null = sem grupo). (~1244 tok)
 - `panels.ts` — Painéis HTML do cp14 — açúcar visual sobre os comandos de chat: cada botão (~5834 tok)
