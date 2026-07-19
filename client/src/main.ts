@@ -47,6 +47,7 @@ import { ObjectivesUi } from "./objectivesUi";
 import { AuthorPanel, type GamePanel, GroupPanel, type PanelData } from "./panels";
 import { RegionRenderer } from "./regions";
 import { keyLabel, loadSettings } from "./settings";
+import { armarGuardaDeAtalhos, desarmarGuardaDeAtalhos } from "./shortcutGuard";
 import { TorchGlow } from "./torchGlow";
 import { TouchControls, isTouchDevice, solicitarTelaCheia } from "./touch";
 import { putWorld } from "./worldStore";
@@ -379,6 +380,7 @@ function handleServerData(data: string | ArrayBuffer): void {
       // banner no menu (sem alert nativo), o socket cai logo depois.
       playUi("denied");
       sessionStorage.setItem("lj-erro", msg.reason);
+      desarmarGuardaDeAtalhos(); // saída pedida pelo servidor, não acidente
       location.href = location.pathname;
     } else if (msg.type === "join_denied") {
       // servidor recusou (PIN errado, nome em uso…): volta pro menu limpo
@@ -386,6 +388,7 @@ function handleServerData(data: string | ArrayBuffer): void {
       // o reload via sessionStorage e vira banner no menu (sem alert nativo)
       playUi("denied");
       sessionStorage.setItem("lj-erro", `não deu pra entrar: ${msg.reason}`);
+      desarmarGuardaDeAtalhos();
       location.href = location.pathname;
     } else if (msg.type === "chat") {
       chat.addMessage(msg.author, msg.text);
@@ -457,6 +460,7 @@ async function persistWorld(): Promise<void> {
 
 // sair: singleplayer grava antes; rede só recarrega (host é quem salva)
 document.getElementById("btn-sair")?.addEventListener("click", () => {
+  desarmarGuardaDeAtalhos(); // saída legítima — sem diálogo "sair do site?"
   void persistWorld().finally(() => location.reload());
 });
 
@@ -480,6 +484,8 @@ if (bootServer) {
 function startGame(snap: Snapshot): void {
   const activeConn = conn;
   if (!activeConn) return; // snapshot só chega depois do connect()
+  // atalhos do navegador (Ctrl+W ao correr!) — guarda ativa enquanto joga
+  armarGuardaDeAtalhos(() => input.active);
   // `let`: a troca de aula (cp19) substitui o mundo debaixo dos closures abaixo
   let world = snap.world;
   // alphaTest = cutout dos transparentes (vidro/folhas): pixel opaco ou

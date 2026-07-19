@@ -1431,3 +1431,16 @@ bug-195 (basename sem import). .exe/empacotamento segue ADIADO (decisão do usu�
 | 13:20 | Backlog 3/3: porta pivota na dobradiça (painel na borda, aresta compartilhada) | mesher.ts | 212 testes + screenshot headless | ~8k |
 | 13:59 | Session end: 10 writes across 4 files (commands.ts, main.ts, mesher.ts, porta-stage.mts) | 11 reads | ~23092 tok |
 | 13:30 | Session end: backlog 3/3 (sanitizeName, autocomplete nomes, porta dobradiça) — commits 9c5349a b46f52c 6875406 + push | STATUS/cerebrum/memory atualizados | próxima: playtest acumulado | ~60k |
+| 14:28 | Session end: 10 writes across 4 files (commands.ts, main.ts, mesher.ts, porta-stage.mts) | 11 reads | ~23092 tok |
+
+## Session: 2026-07-19 14:35
+
+| Time | Action | File(s) | Outcome | ~Tokens |
+|------|--------|---------|---------|--------|
+| 18:14 | Created client/src/shortcutGuard.ts | — | ~995 |
+| 18:15 | Edited client/src/main.ts | added 1 import(s) | ~51 |
+| 18:15 | Edited client/src/main.ts | 3→4 lines | ~56 |
+| 18:15 | Edited client/src/main.ts | 3→4 lines | ~50 |
+| 18:15 | Edited client/src/main.ts | 4→5 lines | ~80 |
+| 18:15 | Edited client/src/main.ts | modified startGame() | ~74 |
+| 18:15 | guarda de atalhos do navegador: beforeunload + preventDefault combos + Keyboard Lock (Ctrl+W ao correr não fecha aba) | client/src/shortcutGuard.ts, main.ts | 212 testes, typecheck 3/3, build+dist | ~8k |
