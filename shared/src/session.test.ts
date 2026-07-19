@@ -128,7 +128,7 @@ describe("GameSession (servidor autoritativo)", () => {
       type: "place_block", x: sx, y: spawnY + 3, z: sz, blockId: 0,
     }));
     session.handleMessage(1, JSON.stringify({
-      type: "place_block", x: sx, y: spawnY + 3, z: sz, blockId: 99,
+      type: "place_block", x: sx, y: spawnY + 3, z: sz, blockId: 200,
     }));
     // fora do alcance (chão do mundo, ≥16 blocos abaixo)
     session.handleMessage(1, JSON.stringify({ type: "break_block", x: sx, y: 0, z: sz }));
@@ -396,7 +396,7 @@ describe("GameSession (servidor autoritativo)", () => {
       "/bloco 1 2",                       // args faltando
       "/bloco 1.5 2 3 4",                 // não inteiro
       "/bloco 999 0 0 1",                 // fora do mundo
-      "/bloco 5 5 5 99",                  // id inválido
+      "/bloco 5 5 5 200",                 // id inválido
     ];
     for (const text of bad) {
       session.handleMessage(1, JSON.stringify({ type: "chat", text }));

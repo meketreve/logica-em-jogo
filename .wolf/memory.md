@@ -1496,3 +1496,22 @@ bug-195 (basename sem import). .exe/empacotamento segue ADIADO (decisão do usu�
 | 18:41 | Edited shared/src/blocks.test.ts | modified tapetes() | ~160 |
 | 19:38 | Created ../../../tmp/claude-1000/-home-meketreve-logica-em-jogo/d5fb946a-7df1-4f81-8d6e-b29e8b26f43a/scratchpad/janela.mts | — | ~587 |
 | 19:40 | janela abre-fecha (ids 83-86): 1 célula, dobradiça da porta, isInterativo/interativoToggled generalizam use_block | blocks.ts, session.ts, mesher.ts, atlasTexture.ts, main.ts, blocksUi.ts | 216 testes, stage+screenshot ✅ | ~10k |
+| 19:41 | Edited shared/src/blocks.ts | modified Janela() | ~250 |
+| 19:41 | Edited shared/src/blocks.ts | modified isCadeira() | ~202 |
+| 19:41 | Edited shared/src/blocks.ts | modified isFullCube() | ~59 |
+| 19:42 | Edited shared/src/mesher.ts | 3→7 lines | ~68 |
+| 19:42 | Edited shared/src/mesher.ts | expanded (+9 lines) | ~38 |
+| 19:42 | Edited shared/src/mesher.ts | modified veis() | ~178 |
+| 19:42 | Edited shared/src/mesher.ts | added 1 condition(s) | ~833 |
+| 19:42 | Edited shared/src/mesher.ts | modified rotXZ() | ~152 |
+| 19:42 | Edited client/src/atlasTexture.ts | modified paintEstofado() | ~253 |
+| 19:42 | Edited client/src/atlasTexture.ts | 2→4 lines | ~40 |
+| 19:43 | Edited client/src/blocksUi.ts | modified olhar() | ~103 |
+| 19:43 | Edited client/src/main.ts | added 1 condition(s) | ~258 |
+| 19:43 | Edited client/src/main.ts | added 3 condition(s) | ~106 |
+| 19:43 | Edited client/src/main.ts | 5→8 lines | ~30 |
+| 19:43 | Edited shared/src/blocks.test.ts | modified veis() | ~128 |
+| 20:08 | Edited shared/src/session.test.ts | 3→3 lines | ~36 |
+| 20:08 | Edited shared/src/session.test.ts | "/bloco 5 5 5 99" → "/bloco 5 5 5 200" | ~16 |
+| 20:09 | Created ../../../tmp/claude-1000/-home-meketreve-logica-em-jogo/d5fb946a-7df1-4f81-8d6e-b29e8b26f43a/scratchpad/moveis.mts | — | ~499 |
+| 20:26 | móveis decorativos (ids 87-99): mesa + cadeira/sofá/cama em 4 direções (rotXZ 90°, forma escrita 1× de frente pra +x); direção pelo olhar no place | blocks.ts, mesher.ts, atlasTexture.ts, main.ts, blocksUi.ts | 218 testes, stage+screenshot ✅ | ~12k |

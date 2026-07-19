@@ -77,12 +77,39 @@ export const BlockId = {
   JanelaXAberta: 84,
   JanelaZFechada: 85,
   JanelaZAberta: 86,
+  // Móveis decorativos (backlog 2026-07-19): mesa simétrica; cadeira/sofá/
+  // cama têm 4 DIREÇÕES no id (sufixo = pra onde a FRENTE aponta; XP=+x,
+  // ZP=+z, XN=−x, ZN=−z — a ordem é a rotação de 90° em 90°). A hotbar tem
+  // UMA entrada; o cliente escolhe a direção pelo olhar na hora do place.
+  // Sem interação (decisão de escopo) — colisão de célula cheia, forma no mesher.
+  Mesa: 87,
+  CadeiraXP: 88, CadeiraZP: 89, CadeiraXN: 90, CadeiraZN: 91,
+  SofaXP: 92, SofaZP: 93, SofaXN: 94, SofaZN: 95,
+  CamaXP: 96, CamaZP: 97, CamaXN: 98, CamaZN: 99,
 } as const;
 
 export type BlockId = (typeof BlockId)[keyof typeof BlockId];
 
 /** Maior ID válido (mantém isPlaceable sem número mágico ao crescer a lista). */
-const MAX_BLOCK_ID = BlockId.JanelaZAberta;
+const MAX_BLOCK_ID = BlockId.CamaZN;
+
+/** Cadeira em qualquer direção? */
+export function isCadeira(id: number): boolean {
+  return id >= BlockId.CadeiraXP && id <= BlockId.CadeiraZN;
+}
+/** Sofá em qualquer direção? */
+export function isSofa(id: number): boolean {
+  return id >= BlockId.SofaXP && id <= BlockId.SofaZN;
+}
+/** Cama em qualquer direção? */
+export function isCama(id: number): boolean {
+  return id >= BlockId.CamaXP && id <= BlockId.CamaZN;
+}
+/** Móvel decorativo (mesa/cadeira/sofá/cama)? Forma própria no mesher,
+ *  colisão de célula cheia (simplificação, mesmo racional da cerca). */
+export function isMovel(id: number): boolean {
+  return id >= BlockId.Mesa && id <= BlockId.CamaZN;
+}
 
 /** Tapete de qualquer cor? */
 export function isTapete(id: number): boolean {
@@ -145,7 +172,8 @@ export function isFullCube(id: number): boolean {
     id !== BlockId.Air &&
     !(id >= BlockId.Cerca && id <= BlockId.Tocha) &&
     !isTapete(id) &&
-    !isJanela(id)
+    !isJanela(id) &&
+    !isMovel(id)
   );
 }
 

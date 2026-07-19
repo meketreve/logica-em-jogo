@@ -15,11 +15,14 @@ import {
   decodeSnapshot,
   findSpawnY,
   getBlock,
+  isCadeira,
+  isCama,
   isInterativo,
   isJanela,
   isPlaceable,
   isPorta,
   isProfessorOnly,
+  isSofa,
   parseServerMessage,
   raycastBlock,
   setBlock,
@@ -943,6 +946,20 @@ function startGame(snap: Snapshot): void {
           ? BlockId.JanelaXFechada
           : BlockId.JanelaZFechada;
     }
+    // móveis direcionais: a FRENTE do móvel encara o jogador (encosto/cabeceira
+    // pro lado de lá — convenção Minecraft). Quadrante do olhar → k×90°.
+    if (isCadeira(blockId) || isSofa(blockId) || isCama(blockId)) {
+      const dx = -Math.sin(input.yaw);
+      const dz = -Math.cos(input.yaw);
+      const olhar = Math.abs(dx) > Math.abs(dz) ? (dx > 0 ? 0 : 2) : (dz > 0 ? 1 : 3);
+      const frente = (olhar + 2) % 4; // oposto do olhar = de frente pro jogador
+      const anchor = isCadeira(blockId)
+        ? BlockId.CadeiraXP
+        : isSofa(blockId)
+          ? BlockId.SofaXP
+          : BlockId.CamaXP;
+      blockId = anchor + frente;
+    }
     activeConn.send(
       JSON.stringify({
         type: "place_block",
@@ -958,10 +975,13 @@ function startGame(snap: Snapshot): void {
   input.onMouseButton(1, () => {
     if (!target || varinhaAtiva) return;
     let id = getBlock(world, target.x, target.y, target.z);
-    // qualquer porta/janela copiada vira a entrada única da hotbar (o eixo
-    // é re-escolhido pelo olhar na hora de colocar)
+    // qualquer porta/janela/móvel copiado vira a entrada única da hotbar
+    // (o eixo/direção é re-escolhido pelo olhar na hora de colocar)
     if (isPorta(id)) id = BlockId.PortaXFechada;
     if (isJanela(id)) id = BlockId.JanelaXFechada;
+    if (isCadeira(id)) id = BlockId.CadeiraXP;
+    if (isSofa(id)) id = BlockId.SofaXP;
+    if (isCama(id)) id = BlockId.CamaXP;
     if (!isPlaceable(id)) return; // ar/porta-aberta e afins não vão pra mão
     if (isProfessorOnly(id) && papel !== "professor") return; // aluno não copia rocha-matriz
     hotbar[selected] = id;

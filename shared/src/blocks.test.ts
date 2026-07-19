@@ -24,10 +24,14 @@ describe("formato de bloco/chunk (contrato de save e snapshot)", () => {
     // janela (2026-07-19): 4 estados em append depois dos tapetes
     expect(BlockId.JanelaXFechada).toBe(83);
     expect(BlockId.JanelaZAberta).toBe(86);
+    // móveis (2026-07-19): mesa + 4 direções de cadeira/sofá/cama
+    expect(BlockId.Mesa).toBe(87);
+    expect(BlockId.CamaZN).toBe(99);
     // isPlaceable acompanha o último id; o próximo byte NÃO é bloco
     expect(isPlaceable(BlockId.JanelaXFechada)).toBe(true);
     expect(isPlaceable(BlockId.JanelaXAberta)).toBe(false); // aberta só via clique
-    expect(isPlaceable(87)).toBe(false);
+    expect(isPlaceable(BlockId.CamaZN)).toBe(true);
+    expect(isPlaceable(100)).toBe(false);
   });
 
   it("volume do chunk cabe em 1 byte por bloco", () => {

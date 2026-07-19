@@ -1,4 +1,13 @@
-import { BlockId, isFullCube, isTapete, isTransparentBlock } from "./blocks";
+import {
+  BlockId,
+  isCadeira,
+  isCama,
+  isFullCube,
+  isMovel,
+  isSofa,
+  isTapete,
+  isTransparentBlock,
+} from "./blocks";
 import { CHUNK_SIZE } from "./constants";
 import { type World, getBlock } from "./world";
 
@@ -54,6 +63,10 @@ export const TILE = {
   tocha: 69,
   // 2026-07-19: janela (moldura + cruz de madeira, vidro = ausência/cutout)
   janela: 70,
+  // 2026-07-19: móveis — estofado (sofá) e colchão (cama); mesa/cadeira
+  // reusam o tile das tábuas
+  estofado: 71,
+  colchao: 72,
 } as const;
 
 /** cp20: blocos-glifo. Letras A–Z e dígitos 0–9 ocupam tiles consecutivos a
@@ -116,7 +129,17 @@ const BLOCK_TILES: Record<number, FaceTiles> = {
   [BlockId.JanelaXAberta]: uniform(TILE.janela),
   [BlockId.JanelaZFechada]: uniform(TILE.janela),
   [BlockId.JanelaZAberta]: uniform(TILE.janela),
+  // móveis (2026-07-19): estas entradas alimentam SÓ o ícone 2D — a forma
+  // (e o tile por caixa) vive no emitShape
+  [BlockId.Mesa]: uniform(TILE.planks),
 };
+
+// móveis direcionais: mesmo ícone pras 4 direções
+for (let k = 0; k < 4; k++) {
+  BLOCK_TILES[BlockId.CadeiraXP + k] = uniform(TILE.planks);
+  BLOCK_TILES[BlockId.SofaXP + k] = uniform(TILE.estofado);
+  BLOCK_TILES[BlockId.CamaXP + k] = uniform(TILE.colchao);
+}
 
 // cp20: letras/dígitos = cubos uniformes com o tile do glifo (append A→Z, 0→9).
 for (let i = 0; i < GLYPH.letters.length; i++) {
@@ -232,6 +255,22 @@ const FACE_UVS: readonly { u: UvAxis; v: UvAxis }[] = FACES.map((f) => {
 
 /** 1/16 da célula — o "pixel" das formas não-cubo (16 texels por face). */
 const P = 1 / 16;
+
+/** Gira o retângulo XZ de uma caixa k×90° em torno do centro da célula
+ *  (0.5, 0.5). Usado pelos móveis direcionais: forma escrita uma vez de
+ *  frente pra +x, as outras 3 direções saem daqui. */
+function rotXZ(
+  xa: number, za: number, xb: number, zb: number, k: number,
+): [number, number, number, number] {
+  for (let i = 0; i < k; i++) {
+    const nxa = 1 - zb;
+    const nzb = xb;
+    const nxb = 1 - za;
+    const nza = xa;
+    xa = nxa; za = nza; xb = nxb; zb = nzb;
+  }
+  return [xa, za, xb, zb];
+}
 
 export interface ChunkGeometry {
   positions: Float32Array;
@@ -365,7 +404,54 @@ export function meshChunk(world: World, cx: number, cy: number, cz: number): Chu
         else emitBox(lx, ly, lz, id, TILE.janela, 0, 0, 0, 1, 1, 2 * P);
         return true;
       }
+      case BlockId.Mesa: {
+        // tampo + 4 pernas nos cantos (tábuas)
+        emitBox(lx, ly, lz, id, TILE.planks, 0, 12 * P, 0, 1, 14 * P, 1);
+        for (const [xa, za] of [[1, 1], [13, 1], [1, 13], [13, 13]] as const) {
+          emitBox(lx, ly, lz, id, TILE.planks, xa * P, 0, za * P, (xa + 2) * P, 12 * P, (za + 2) * P);
+        }
+        return true;
+      }
       default: {
+        // móveis direcionais (2026-07-19): forma definida DE FRENTE PRA +x,
+        // girada k×90° pro sufixo do id (XP=0, ZP=1, XN=2, ZN=3)
+        if (isCadeira(id) || isSofa(id) || isCama(id)) {
+          const k = isCadeira(id)
+            ? id - BlockId.CadeiraXP
+            : isSofa(id)
+              ? id - BlockId.SofaXP
+              : id - BlockId.CamaXP;
+          const boxes: readonly (readonly [number, number, number, number, number, number, number])[] =
+            isCadeira(id)
+              ? [
+                  // assento, 4 pernas, encosto no lado −x (costas)
+                  [TILE.planks, 3 * P, 6 * P, 3 * P, 13 * P, 8 * P, 13 * P],
+                  [TILE.planks, 3 * P, 0, 3 * P, 5 * P, 6 * P, 5 * P],
+                  [TILE.planks, 11 * P, 0, 3 * P, 13 * P, 6 * P, 5 * P],
+                  [TILE.planks, 3 * P, 0, 11 * P, 5 * P, 6 * P, 13 * P],
+                  [TILE.planks, 11 * P, 0, 11 * P, 13 * P, 6 * P, 13 * P],
+                  [TILE.planks, 3 * P, 8 * P, 3 * P, 5 * P, 1, 13 * P],
+                ]
+              : isSofa(id)
+                ? [
+                    // assento cheio, encosto no −x, braços nas laterais z
+                    [TILE.estofado, 0, 0, 0, 1, 8 * P, 1],
+                    [TILE.estofado, 0, 8 * P, 0, 4 * P, 15 * P, 1],
+                    [TILE.estofado, 4 * P, 8 * P, 0, 1, 12 * P, 2 * P],
+                    [TILE.estofado, 4 * P, 8 * P, 14 * P, 1, 12 * P, 1],
+                  ]
+                : [
+                    // cama: estrado de madeira, colchão, travesseiro na cabeceira (−x)
+                    [TILE.planks, 0, 0, 0, 1, 3 * P, 1],
+                    [TILE.colchao, 0, 3 * P, 1 * P, 1, 7 * P, 15 * P],
+                    [TILE.woolWhite, 1 * P, 7 * P, 3 * P, 6 * P, 9 * P, 13 * P],
+                  ];
+          for (const [tile, xa, ya, za, xb, yb, zb] of boxes) {
+            const [rxa, rza, rxb, rzb] = rotXZ(xa, za, xb, zb, k);
+            emitBox(lx, ly, lz, id, tile, rxa, ya, rza, rxb, yb, rzb);
+          }
+          return true;
+        }
         // tapete: lâmina de 1/16 cobrindo o chão da célula, tile da própria lã
         if (isTapete(id)) {
           emitBox(lx, ly, lz, id, TAPETE_TILES[id - BlockId.TapeteBranco]!, 0, 0, 0, 1, P, 1);

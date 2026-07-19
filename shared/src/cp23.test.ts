@@ -299,3 +299,30 @@ describe("janela (2026-07-19) — sessão", () => {
     expect(getBlock(session.world, 5, y, 6)).toBe(BlockId.JanelaXAberta);
   });
 });
+
+describe("móveis (2026-07-19) — forma e classificação", () => {
+  it("móvel não é cubo cheio (não oclui vizinho) mas colide como célula", () => {
+    for (const id of [BlockId.Mesa, BlockId.CadeiraXP, BlockId.SofaZP, BlockId.CamaXN]) {
+      expect(isFullCube(id)).toBe(false);
+      expect(isSolidBlock(id)).toBe(true);
+      expect(isPlaceable(id)).toBe(true);
+    }
+  });
+
+  it("as 4 direções emitem a MESMA quantidade de geometria (rotação pura)", () => {
+    const geomFor = (id: number): number => {
+      const world = generateFlatWorld(DIMS);
+      setBlock(world, 5, SOLO + 1, 5, id);
+      return meshChunk(world, 0, 0, 0).positions.length;
+    };
+    const cadeira = geomFor(BlockId.CadeiraXP);
+    for (let k = 1; k < 4; k++) expect(geomFor(BlockId.CadeiraXP + k)).toBe(cadeira);
+    const cama = geomFor(BlockId.CamaXP);
+    for (let k = 1; k < 4; k++) expect(geomFor(BlockId.CamaXP + k)).toBe(cama);
+    const sofa = geomFor(BlockId.SofaXP);
+    for (let k = 1; k < 4; k++) expect(geomFor(BlockId.SofaXP + k)).toBe(sofa);
+    // e todas geram geometria de verdade
+    expect(cadeira).toBeGreaterThan(0);
+    expect(geomFor(BlockId.Mesa)).toBeGreaterThan(0);
+  });
+});

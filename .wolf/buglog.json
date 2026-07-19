@@ -5084,6 +5084,70 @@
       "related_bugs": [],
       "occurrences": 1,
       "last_seen": "2026-07-19T21:41:37.624Z"
+    },
+    {
+      "id": "bug-313",
+      "timestamp": "2026-07-19T22:41:50.709Z",
+      "error_message": "Type error",
+      "file": "shared/src/blocks.ts",
+      "root_cause": "Missing or incorrect type annotation",
+      "fix": "Added type assertion/annotation",
+      "tags": [
+        "auto-detected",
+        "type-fix",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-19T22:41:50.709Z"
+    },
+    {
+      "id": "bug-314",
+      "timestamp": "2026-07-19T22:42:30.386Z",
+      "error_message": "Type error",
+      "file": "shared/src/mesher.ts",
+      "root_cause": "Missing or incorrect type annotation",
+      "fix": "Added type assertion/annotation | Also: /** Gira o retângulo XZ de uma caixa k×90° em torno do centr; *  (0.5, 0.5). Usado pelos móveis direcionais: forma escrita",
+      "tags": [
+        "auto-detected",
+        "type-fix",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 2,
+      "last_seen": "2026-07-19T22:42:41.997Z"
+    },
+    {
+      "id": "bug-315",
+      "timestamp": "2026-07-19T22:43:16.543Z",
+      "error_message": "Significant refactor of ",
+      "file": "client/src/main.ts",
+      "root_cause": "2 lines replaced/restructured",
+      "fix": "Rewrote 4→7 lines (2 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-19T22:43:16.543Z"
+    },
+    {
+      "id": "bug-316",
+      "timestamp": "2026-07-19T23:08:39.312Z",
+      "error_message": "Incorrect value in code",
+      "file": "shared/src/session.test.ts",
+      "root_cause": "Had \"/bloco 5 5 5 99\"",
+      "fix": "Changed to \"/bloco 5 5 5 200\"",
+      "tags": [
+        "auto-detected",
+        "wrong-value",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-19T23:08:39.312Z"
     }
   ]
 }

@@ -238,6 +238,26 @@ function paintJanela(ctx: CanvasRenderingContext2D, tile: number): void {
   for (let i = 0; i < 3; i++) ctx.fillRect(ox + 10 + i, oy + 13 - i, 1, 1);
 }
 
+/** Estofado (2026-07-19, sofá): azul acolchoado com costuras em grade. */
+function paintEstofado(ctx: CanvasRenderingContext2D, tile: number): void {
+  paintNoise(ctx, tile, [72, 104, 168], 8);
+  const [ox, oy] = tileOrigin(tile);
+  ctx.fillStyle = "rgb(54,80,132)";
+  for (let i = 5; i < ATLAS.tilePx; i += 6) {
+    ctx.fillRect(ox, oy + i, ATLAS.tilePx, 1);
+    ctx.fillRect(ox + i, oy, 1, ATLAS.tilePx);
+  }
+}
+
+/** Colchão (2026-07-19, cama): vermelho com costuras — o travesseiro é uma
+ *  caixa separada de lã branca no mesher. */
+function paintColchao(ctx: CanvasRenderingContext2D, tile: number): void {
+  paintNoise(ctx, tile, [178, 54, 48], 8);
+  const [ox, oy] = tileOrigin(tile);
+  ctx.fillStyle = "rgb(140,40,36)";
+  for (let i = 4; i < ATLAS.tilePx; i += 5) ctx.fillRect(ox, oy + i, ATLAS.tilePx, 1);
+}
+
 /** Folhas (cp18): verde denso com furos transparentes (cutout). */
 function paintLeaves(ctx: CanvasRenderingContext2D, tile: number): void {
   paintNoise(ctx, tile, [52, 118, 44], 16);
@@ -310,8 +330,10 @@ export function createAtlasTexture(): THREE.Texture {
   paintPorta(ctx, TILE.portaBaixo, false);
   paintPorta(ctx, TILE.portaCima, true);
   paintTocha(ctx, TILE.tocha);
-  // 2026-07-19: janela
+  // 2026-07-19: janela + móveis
   paintJanela(ctx, TILE.janela);
+  paintEstofado(ctx, TILE.estofado);
+  paintColchao(ctx, TILE.colchao);
 
   // cp20: blocos-glifo — letras em creme, dígitos em azul-claro (distinção
   // rápida à distância entre "letra" e "número").
