@@ -4806,6 +4806,22 @@
       "related_bugs": [],
       "occurrences": 1,
       "last_seen": "2026-07-18T16:46:02.295Z"
+    },
+    {
+      "id": "bug-296",
+      "timestamp": "2026-07-19T16:02:38.095Z",
+      "error_message": "Significant refactor of ",
+      "file": "shared/src/mesher.ts",
+      "root_cause": "3 lines replaced/restructured",
+      "fix": "Rewrote 4→7 lines (3 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-19T16:02:38.095Z"
     }
   ]
 }

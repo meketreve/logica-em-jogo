@@ -412,6 +412,18 @@
   derruba a outra — sem código especial no break). Porta REJEITADA em /bloco,
   /regiao encher e sortear (comando de célula única criaria metade órfã).
   Eixo escolhido no CLIENTE pelo yaw na hora do place; hotbar tem UMA entrada.
+- **Porta com DOBRADIÇA (2026-07-19, backlog):** painel na BORDA da célula, não
+  centrado — fechada e aberta compartilham a aresta vertical do canto (0,·,0)
+  da célula (= dobradiça), então abrir pivota 90° na ponta como porta real.
+  Fechada PortaX: x∈[0,2P]; aberta: z∈[0,2P] (PortaZ espelha). Sem id novo de
+  lado-da-dobradiça (8 ids a mais = fora do escopo rápido); dobradiça é sempre
+  o canto de coord baixa. Testes de contagem de face do cp23 NÃO mudaram
+  (painel na borda em vão de ar emite as mesmas faces do centrado).
+- **Autocomplete de NOMES (2026-07-19):** `learnPlayers` em client/commands.ts
+  espelha learnWorlds; main.ts alimenta com Map id→nome do `player_moved`
+  (guard: só quando nome novo/diferente — senão roda a 10 Hz×N jogadores) e
+  poda no `player_left`. Slots com nome: /kicar /resetpin /tpr /tpa nível 2,
+  /tp = ["grupos", ...nomes], /amigos convidar|aceitar|recusar|expulsar nível 3.
 - **Encher em lote (cp23b):** /regiao encher usa `applyBlockQuieto` (tudo do
   applyBlock MENOS o broadcast — regras e objetivos acordam célula a célula) e
   UMA msg `blocks_filled` (caixa+id); células puladas (jogador dentro) são
@@ -581,6 +593,16 @@
 
 <!-- Mistakes made and corrected. Each entry prevents the same mistake recurring. -->
 <!-- Format: [YYYY-MM-DD] Description of what went wrong and what to do instead. -->
+
+- [2026-07-19] `pkill -f` no ambiente com hook rtk mata o próprio wrapper (exit
+  144) e o servidor de stage SOBREVIVE segurando a porta — o restage seguinte
+  fala com o servidor VELHO e o screenshot sai da cena antiga (idêntico byte a
+  byte foi a pista). Matar por `fuser -k PORT/tcp` e conferir `ss -tln | grep
+  PORT` ANTES de subir o novo. E `node --import tsx` resolve o tsx a partir do
+  CWD — rodar da RAIZ do repo, nunca do scratchpad (ERR_MODULE_NOT_FOUND).
+- [2026-07-19] `/bloco` RECUSA porta (criaria metade órfã) — script de stage
+  que precisa de porta usa `place_block` de verdade (materializa as 2 células
+  e exige alcance: mandar um `move` pro spawn antes).
 
 - [2026-07-16] Adicionar uma mensagem à sequência de `admitir()` (join) QUEBRA os
   testes que contam/indexam mensagens do join. O `sendTime` do cp21 entrou depois

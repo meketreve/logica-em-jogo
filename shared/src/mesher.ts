@@ -325,10 +325,13 @@ export function meshChunk(world: World, cx: number, cy: number, cz: number): Chu
         // metade de cima se reconhece pelo vizinho de baixo com o MESMO id
         const tile =
           getBlock(world, wx, wy - 1, wz) === id ? TILE.portaCima : TILE.portaBaixo;
-        // lâmina fina no eixo que a porta BLOQUEIA (aberta = girada 90°)
+        // lâmina fina no eixo que a porta BLOQUEIA. Painel na BORDA da célula
+        // (não centrado): fechada e aberta compartilham a aresta vertical do
+        // canto (0,·,0) = DOBRADIÇA — abrir pivota 90° na ponta, como porta de
+        // verdade, em vez de girar no próprio eixo (backlog 2026-07-17).
         const finaEmX = id === BlockId.PortaXFechada || id === BlockId.PortaZAberta;
-        if (finaEmX) emitBox(lx, ly, lz, id, tile, 7 * P, 0, 0, 9 * P, 1, 1);
-        else emitBox(lx, ly, lz, id, tile, 0, 0, 7 * P, 1, 1, 9 * P);
+        if (finaEmX) emitBox(lx, ly, lz, id, tile, 0, 0, 0, 2 * P, 1, 1);
+        else emitBox(lx, ly, lz, id, tile, 0, 0, 0, 1, 1, 2 * P);
         return true;
       }
       case BlockId.Tocha: {

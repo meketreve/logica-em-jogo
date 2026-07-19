@@ -1,7 +1,18 @@
 # STATUS — Projeto "Lógica em Jogo" (jogo voxel educacional)
 
 > Single source of truth for resuming work. Read this FIRST when starting a session.
-> Last updated: 2026-07-18 (sessão: cp25 CONFINAMENTO + launchers + commit/push)
+> Last updated: 2026-07-19 (sessão: 3 itens rápidos do backlog)
+> **BACKLOG RÁPIDO FEITO (2026-07-19, 3 commits — playtest pendente):**
+> (1) nome SEM espaço/especial — `sanitizeName` (shared/auth.ts) filtra pra
+> letra/número/acento/_/- e corta em 24; servidor sanitiza no join, menu migra
+> nome antigo do localStorage, input com pattern (9c5349a; grosso já vinha
+> codado da sessão 2026-07-18, verificado+commitado aqui). (2) autocomplete de
+> NOMES no Tab — learnPlayers (commands.ts) alimentado pelo player_moved/left;
+> /tp /tpr /tpa /kicar /resetpin /amigos; fecha gap: /claim e /amigos entraram
+> na árvore (b46f52c). (3) PORTA pivota na DOBRADIÇA — painel na borda da
+> célula, fechada/aberta compartilham a aresta do canto = abrir gira 90° na
+> ponta, não no próprio eixo (mesher.ts). 212 testes, typecheck 3/3, build+dist,
+> screenshot headless das 2 portas confere.
 > **COMMITADO + PUSHADO (2026-07-18):** commit 361f73d varreu TUDO desde voo/bedrock
 > (cp25 confinamento, cp24 claims/amigos, rocha-matriz só-professor, mundos-aula
 > read-only, launchers, docs, dist). `git push origin main` OK — escola faz `git pull`.
@@ -70,19 +81,19 @@
 > na camada 0 do preset NORMAL (plano/cabines já tinham). 192 testes (10 novos),
 > typecheck 3/3, build+dist ok, screenshot de boot confere (sem TDZ, welcome com
 > /voo). Autocomplete e welcome atualizados.
-> **BACKLOG RESTANTE (ideias para fazer.txt, 2026-07-17):** autocompletar nomes
-> de jogadores; nome sem espaços; animação da porta (gira no eixo próprio, devia
-> pivotar 90° numa ponta); interceptar atalhos do navegador com mouse capturado
+> **BACKLOG RESTANTE (ideias para fazer.txt, 2026-07-17):** ✅ FEITOS 2026-07-19:
+> autocompletar nomes, nome sem espaços, porta pivota na dobradiça. AINDA ABERTOS:
+> interceptar atalhos do navegador com mouse capturado
 > (Ctrl+W fecha aba ao correr); móveis (tapete/janela abre-fecha/cama/sofá/
 > cadeira/mesa/quadro com interface texto+imagem); arrumar dia/noite. /kicar já
 > existe (cp22). **NOVA IDEIA (cp25 candidato):** modo "confinamento" — em
 > mundos de aula/atividade, aluno só coloca bloco DENTRO da sua área/da área do
 > seu grupo (inverte o claim: confinar em vez de proteger). ✅ CODADO (bloco cp25
 > no topo) — playtest pendente. Reusou claims (cp24) + grupos pedagógicos (cp13).
-> **PRÓXIMA SESSÃO:** playtest acumulado (cp24 anti-griefing + voo + bedrock + cp25
-> confinamento — todos codados, roteiros nos blocos respectivos). Depois: item
-> rápido do backlog (nome sem espaços, autocomplete de nomes, animação da porta).
-> E o piloto.
+> **PRÓXIMA SESSÃO:** playtest acumulado (cp24 anti-griefing + voo + bedrock +
+> cp25 confinamento + backlog de 2026-07-19: nome sem espaço, Tab completa nomes,
+> porta na dobradiça — todos codados, roteiros nos blocos respectivos). Depois:
+> próximo item do backlog (atalhos do navegador, móveis, dia/noite). E o piloto.
 > **Playtest anterior FEITO (resultados no ideias para fazer.txt):** cp23,
 > /regiao encher/criar, /tp·/tpr·/tpa aprovados — backlog acima veio dele.
 > **/TPR + /TPA + /TP NOME (2026-07-17):** aluno pede teleporte (/tpr nome,

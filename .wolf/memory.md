@@ -1422,3 +1422,10 @@ bug-195 (basename sem import). .exe/empacotamento segue ADIADO (decisão do usu�
 | 13:00 | Edited client/src/main.ts | inline fix | ~16 |
 | 13:00 | Edited client/src/main.ts | added 1 condition(s) | ~152 |
 | 13:00 | Edited client/src/main.ts | 2→5 lines | ~77 |
+| 13:02 | Edited shared/src/mesher.ts | 4→7 lines | ~153 |
+| 13:03 | Created ../../../tmp/claude-1000/-home-meketreve-logica-em-jogo/260487cb-8d41-4a2f-8969-3ebc1582156d/scratchpad/porta-stage.mts | — | ~438 |
+| 13:03 | Created ../../../tmp/claude-1000/-home-meketreve-logica-em-jogo/260487cb-8d41-4a2f-8969-3ebc1582156d/scratchpad/porta-stage.mts | — | ~637 |
+| 13:11 | Edited ../../../tmp/claude-1000/-home-meketreve-logica-em-jogo/260487cb-8d41-4a2f-8969-3ebc1582156d/scratchpad/porta-stage.mts | modified for() | ~220 |
+| 13:00 | Backlog 1/3: sanitizeName (já codado sessão anterior) verificado + commitado 9c5349a | auth.ts, session.ts, menu.ts, index.html | 212 testes ok | ~2k |
+| 13:05 | Backlog 2/3: autocomplete de nomes no Tab + /claim /amigos na árvore, commit b46f52c | commands.ts, main.ts | smoke tsx ok | ~3k |
+| 13:20 | Backlog 3/3: porta pivota na dobradiça (painel na borda, aresta compartilhada) | mesher.ts | 212 testes + screenshot headless | ~8k |
