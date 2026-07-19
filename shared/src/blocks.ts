@@ -63,12 +63,30 @@ export const BlockId = {
   /** Decorativa (sem luz voxel — decisão 2026-07-17): brilha por textura +
    *  halo no cliente. Precisa de cubo cheio embaixo; sem suporte, some. */
   Tocha: 70,
+  // Tapetes (backlog 2026-07-19): lã FINA no chão (1/16 da célula), decorativo.
+  // Mesmas 12 cores das lãs (tile reusado — zero pintura nova); atravessável
+  // (colisão desprezível, estilo Minecraft) e precisa de cubo cheio embaixo
+  // (mesma regra da tocha). Ordem = âncora TapeteBranco + offset (loops).
+  TapeteBranco: 71, TapetePreto: 72, TapeteVermelho: 73, TapeteLaranja: 74,
+  TapeteAmarelo: 75, TapeteVerde: 76, TapeteAzul: 77, TapeteRoxo: 78,
+  TapeteRosa: 79, TapeteCiano: 80, TapeteCinza: 81, TapeteMarrom: 82,
 } as const;
 
 export type BlockId = (typeof BlockId)[keyof typeof BlockId];
 
 /** Maior ID válido (mantém isPlaceable sem número mágico ao crescer a lista). */
-const MAX_BLOCK_ID = BlockId.Tocha;
+const MAX_BLOCK_ID = BlockId.TapeteMarrom;
+
+/** Tapete de qualquer cor? */
+export function isTapete(id: number): boolean {
+  return id >= BlockId.TapeteBranco && id <= BlockId.TapeteMarrom;
+}
+
+/** Precisa de cubo CHEIO embaixo pra ser colocado E pra continuar existindo
+ *  (regra no tick). Tocha e tapetes. */
+export function precisaApoio(id: number): boolean {
+  return id === BlockId.Tocha || isTapete(id);
+}
 
 /** Bloco transparente (vidro/folhas): NÃO oculta a face do vizinho no mesher.
  *  Continua sólido pra física/raycast — transparência é só visual. */
@@ -95,7 +113,9 @@ export function portaToggled(id: number): number {
 /** Cubo CHEIO (ocupa a célula inteira)? Não-cubos nunca ocluem a face do
  *  vizinho no mesher, e não servem de suporte pra tocha. */
 export function isFullCube(id: number): boolean {
-  return id !== BlockId.Air && !(id >= BlockId.Cerca && id <= BlockId.Tocha);
+  return (
+    id !== BlockId.Air && !(id >= BlockId.Cerca && id <= BlockId.Tocha) && !isTapete(id)
+  );
 }
 
 /** Sólido pra FÍSICA (colisão do jogador). Porta aberta e tocha atravessam;
@@ -105,7 +125,8 @@ export function isSolidBlock(id: number): boolean {
     id !== BlockId.Air &&
     id !== BlockId.PortaXAberta &&
     id !== BlockId.PortaZAberta &&
-    id !== BlockId.Tocha
+    id !== BlockId.Tocha &&
+    !isTapete(id)
   );
 }
 

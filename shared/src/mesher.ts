@@ -1,4 +1,4 @@
-import { BlockId, isFullCube, isTransparentBlock } from "./blocks";
+import { BlockId, isFullCube, isTapete, isTransparentBlock } from "./blocks";
 import { CHUNK_SIZE } from "./constants";
 import { type World, getBlock } from "./world";
 
@@ -118,6 +118,17 @@ for (let i = 0; i < GLYPH.letters.length; i++) {
 }
 for (let i = 0; i < GLYPH.digits.length; i++) {
   BLOCK_TILES[BlockId.Digit0 + i] = uniform(GLYPH.base + GLYPH.letters.length + i);
+}
+
+/** Tapetes (2026-07-19): tile da PRÓPRIA lã, na ordem TapeteBranco..TapeteMarrom
+ *  (a forma fina vive no emitShape; estas entradas dão o ícone 2D + o tile). */
+const TAPETE_TILES: readonly number[] = [
+  TILE.woolWhite, TILE.woolBlack, TILE.woolRed, TILE.woolOrange,
+  TILE.woolYellow, TILE.woolGreen, TILE.woolBlue, TILE.woolPurple,
+  TILE.woolPink, TILE.woolCyan, TILE.woolGray, TILE.woolBrown,
+];
+for (let i = 0; i < TAPETE_TILES.length; i++) {
+  BLOCK_TILES[BlockId.TapeteBranco + i] = uniform(TAPETE_TILES[i]!);
 }
 
 /** Tile usado como ÍCONE 2D do bloco (hotbar/inventário do cliente) — a face lateral. */
@@ -338,8 +349,14 @@ export function meshChunk(world: World, cx: number, cy: number, cz: number): Chu
         emitBox(lx, ly, lz, id, TILE.tocha, 7 * P, 0, 7 * P, 9 * P, 10 * P, 9 * P);
         return true;
       }
-      default:
+      default: {
+        // tapete: lâmina de 1/16 cobrindo o chão da célula, tile da própria lã
+        if (isTapete(id)) {
+          emitBox(lx, ly, lz, id, TAPETE_TILES[id - BlockId.TapeteBranco]!, 0, 0, 0, 1, P, 1);
+          return true;
+        }
         return false;
+      }
     }
   };
 

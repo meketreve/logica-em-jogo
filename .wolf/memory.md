@@ -1455,3 +1455,23 @@ bug-195 (basename sem import). .exe/empacotamento segue ADIADO (decisão do usu�
 | 18:25 | Edited client/src/main.ts | 4→1 lines | ~18 |
 | 18:25 | Edited client/src/main.ts | added 1 condition(s) | ~74 |
 | 18:27 | dia/noite: sol/lua/estrelas visíveis + keyframes ricos c/ smoothstep + DIA_SEGUNDOS 1200 + /hora consulta liberada + ?hora/?yaw debug | daynight.ts, main.ts, constants.ts, session.ts | 212 testes, screenshots noite/entardecer/sol ✅ | ~15k |
+| 18:28 | Edited shared/src/blocks.ts | modified Decorativa() | ~201 |
+| 18:28 | Edited shared/src/blocks.ts | modified isTapete() | ~141 |
+| 18:28 | Edited shared/src/blocks.ts | modified isFullCube() | ~45 |
+| 18:28 | Edited shared/src/blocks.ts | modified isSolidBlock() | ~61 |
+| 18:29 | Edited shared/src/rules.ts | modified Tapetes() | ~149 |
+| 18:29 | Edited shared/src/session.ts | 6→6 lines | ~65 |
+| 18:29 | Edited shared/src/session.ts | 4→5 lines | ~25 |
+| 18:29 | Edited shared/src/mesher.ts | inline fix | ~22 |
+| 18:29 | Edited shared/src/mesher.ts | modified for() | ~243 |
+| 18:29 | Edited shared/src/mesher.ts | added 1 condition(s) | ~121 |
+| 18:29 | Edited client/src/blocksUi.ts | modified Tapetes() | ~121 |
+| 18:29 | Edited shared/src/rules.test.ts | 4→4 lines | ~66 |
+| 18:30 | Edited shared/src/rules.test.ts | modified it() | ~278 |
+| 18:30 | Edited shared/src/blocks.test.ts | modified tapetes() | ~126 |
+| 18:31 | Created ../../../tmp/claude-1000/-home-meketreve-logica-em-jogo/d5fb946a-7df1-4f81-8d6e-b29e8b26f43a/scratchpad/tapetes.mts | — | ~711 |
+| 18:31 | Edited ../../../tmp/claude-1000/-home-meketreve-logica-em-jogo/d5fb946a-7df1-4f81-8d6e-b29e8b26f43a/scratchpad/tapetes.mts | "./shared/src/index" → "/home/meketreve/logica-em" | ~36 |
+| 18:31 | Edited ../../../tmp/claude-1000/-home-meketreve-logica-em-jogo/d5fb946a-7df1-4f81-8d6e-b29e8b26f43a/scratchpad/tapetes.mts | inline fix | ~12 |
+| 18:33 | Edited client/src/main.ts | added 1 condition(s) | ~146 |
+| 18:33 | Edited client/src/main.ts | 3→3 lines | ~65 |
+| 18:38 | tapetes 12 cores (ids 71-82): lâmina 1/16, atravessável, regra de apoio da tocha; + fix Number(null)=0 no ?hora (bug-302) | blocks.ts, rules.ts, mesher.ts, session.ts, blocksUi.ts, main.ts | 213 testes, smoke 12/12 + evaporação ✅, screenshot ✅ | ~12k |

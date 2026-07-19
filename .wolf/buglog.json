@@ -4904,6 +4904,122 @@
       "related_bugs": [],
       "occurrences": 1,
       "last_seen": "2026-07-19T18:30:00-03:00"
+    },
+    {
+      "id": "bug-302",
+      "timestamp": "2026-07-19T21:28:54.082Z",
+      "error_message": "Type error",
+      "file": "shared/src/blocks.ts",
+      "root_cause": "Missing or incorrect type annotation",
+      "fix": "Added type assertion/annotation",
+      "tags": [
+        "auto-detected",
+        "type-fix",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-19T21:28:54.083Z"
+    },
+    {
+      "id": "bug-303",
+      "timestamp": "2026-07-19T21:28:56.024Z",
+      "error_message": "Wrong return value",
+      "file": "shared/src/blocks.ts",
+      "root_cause": "Was returning: id !== BlockId.Air && !(id >= BlockId.Cerca && id ",
+      "fix": "Now returns: (",
+      "tags": [
+        "auto-detected",
+        "return-value",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-19T21:28:56.024Z"
+    },
+    {
+      "id": "bug-304",
+      "timestamp": "2026-07-19T21:30:27.894Z",
+      "error_message": "Significant refactor of ",
+      "file": "shared/src/blocks.test.ts",
+      "root_cause": "2 lines replaced/restructured",
+      "fix": "Rewrote 6→9 lines (2 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-19T21:30:27.894Z"
+    },
+    {
+      "id": "bug-305",
+      "timestamp": "2026-07-19T21:31:38.782Z",
+      "error_message": "Incorrect value in code",
+      "file": "../../../tmp/claude-1000/-home-meketreve-logica-em-jogo/d5fb946a-7df1-4f81-8d6e-b29e8b26f43a/scratchpad/tapetes.mts",
+      "root_cause": "Had \"./shared/src/index\"",
+      "fix": "Changed to \"/home/meketreve/logica-em-jogo/shared/src/index\"",
+      "tags": [
+        "auto-detected",
+        "wrong-value",
+        "mts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-19T21:31:38.782Z"
+    },
+    {
+      "id": "bug-306",
+      "timestamp": "2026-07-19T21:33:48.751Z",
+      "error_message": "Missing guard clause",
+      "file": "client/src/main.ts",
+      "root_cause": "No early return/throw for edge case: raw === null",
+      "fix": "Added guard clause: if (raw === null)",
+      "tags": [
+        "auto-detected",
+        "guard-clause",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-19T21:33:48.751Z"
+    },
+    {
+      "id": "bug-307",
+      "timestamp": "2026-07-19T21:33:51.256Z",
+      "error_message": "Null/undefined access in ",
+      "file": "client/src/main.ts",
+      "root_cause": "Property access on potentially null/undefined value",
+      "fix": "Added null safety (optional chaining or null check)",
+      "tags": [
+        "auto-detected",
+        "null-safety",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-19T21:33:51.256Z"
+    },
+    {
+      "id": "bug-302",
+      "timestamp": "2026-07-19T18:55:00-03:00",
+      "error_message": "céu de MEIA-NOITE com servidor em hora=12: sem ?hora na URL o cliente ignorava o sync de time do servidor",
+      "file": "client/src/main.ts",
+      "root_cause": "Number(null) === 0 em JS — URLSearchParams.get('hora') sem o param devolve null, Number(null)=0 é finito, então horaForcada=0 (meia-noite) e o guard descartava toda msg time",
+      "fix": "checar raw === null ANTES de Number(); mesmo ajuste no ?yaw. Padrão: param numérico opcional de URL exige teste de null explícito",
+      "tags": [
+        "number-null",
+        "urlsearchparams",
+        "coercao",
+        "daynight",
+        "debug-param"
+      ],
+      "related_bugs": [
+        "bug-301"
+      ],
+      "occurrences": 1,
+      "last_seen": "2026-07-19T18:55:00-03:00"
     }
   ]
 }

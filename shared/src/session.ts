@@ -8,6 +8,7 @@ import {
   isProfessorOnly,
   isSolidBlock,
   portaToggled,
+  precisaApoio,
 } from "./blocks";
 import {
   CHUNK_SIZE,
@@ -499,10 +500,10 @@ export class GameSession {
           break;
         }
         if (
-          msg.blockId === BlockId.Tocha &&
+          precisaApoio(msg.blockId) &&
           !isFullCube(getBlock(this.world, msg.x, msg.y - 1, msg.z))
         ) {
-          return; // tocha exige apoio: sem cubo cheio embaixo, nem coloca
+          return; // tocha/tapete exigem apoio: sem cubo cheio embaixo, nem coloca
         }
         this.applyBlock(msg.x, msg.y, msg.z, msg.blockId);
         break;

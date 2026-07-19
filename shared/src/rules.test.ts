@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { BlockId } from "./blocks";
-import { fallingRule, ruleFor } from "./rules";
+import { BlockId, isSolidBlock, isTapete, precisaApoio } from "./blocks";
+import { fallingRule, ruleFor, torchRule } from "./rules";
 import { createWorld, setBlock } from "./world";
 
 const DIMS = { x: 1, z: 1, y: 1 };
@@ -41,5 +41,22 @@ describe("regras de bloco (sistema genérico de vizinhança)", () => {
     const world = createWorld(DIMS);
     setBlock(world, 5, 0, 5, BlockId.Sand);
     expect(fallingRule(world, 5, 0, 5)).toBeNull();
+  });
+
+  it("tapete (12 cores): atravessável, precisa de apoio e evapora sem cubo embaixo", () => {
+    for (let id = BlockId.TapeteBranco; id <= BlockId.TapeteMarrom; id++) {
+      expect(isTapete(id)).toBe(true);
+      expect(isSolidBlock(id)).toBe(false);
+      expect(precisaApoio(id)).toBe(true);
+      expect(ruleFor(id)).toBe(torchRule); // mesma regra de apoio da tocha
+    }
+    const world = createWorld(DIMS);
+    setBlock(world, 5, 9, 5, BlockId.Stone);
+    setBlock(world, 5, 10, 5, BlockId.TapeteVermelho);
+    expect(torchRule(world, 5, 10, 5)).toBeNull(); // apoiado: fica
+    setBlock(world, 5, 9, 5, BlockId.Air);
+    expect(torchRule(world, 5, 10, 5)).toEqual([
+      { x: 5, y: 10, z: 5, blockId: BlockId.Air }, // perdeu o apoio: some
+    ]);
   });
 });

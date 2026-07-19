@@ -1,7 +1,7 @@
 # anatomy.md
 
-> Auto-maintained by OpenWolf. Last scanned: 2026-07-19T21:25:22.396Z
-> Files: 104 tracked | Anatomy hits: 0 | Misses: 0
+> Auto-maintained by OpenWolf. Last scanned: 2026-07-19T21:33:51.232Z
+> Files: 105 tracked | Anatomy hits: 0 | Misses: 0
 
 ## ../../../tmp/claude-1000/-home-meketreve-logica-em-jogo/1e53a721-e45d-4911-a026-f385f8f2c4e6/scratchpad/
 
@@ -55,6 +55,10 @@
 - `make-region-save.mts` — Gera um save .ljw com 1 região nomeada em volta do spawn (cp11) — (~332 tok)
 - `make-scenario-save.mts` — Save .ljw de cp12: mundo PLANO + cenário (construir com modelo visível + (~453 tok)
 
+## ../../../tmp/claude-1000/-home-meketreve-logica-em-jogo/d5fb946a-7df1-4f81-8d6e-b29e8b26f43a/scratchpad/
+
+- `tapetes.mts` — Smoke dos tapetes: coloca as 12 cores no chão perto do spawn (professor via (~714 tok)
+
 ## ../../../tmp/claude-1000/-home-meketreve-logica-em-jogo/f3234578-5a68-4273-9e45-1b7d17f2b3db/scratchpad/
 
 - `ws-smoke.mts` — Smoke do checkpoint 5: dois clientes ws no servidor Node real. (~1166 tok)
@@ -89,7 +93,7 @@
 - `atlasTexture.ts` — Texture atlas procedural pintado num canvas (sem assets externos — restrição (~3526 tok)
 - `audio.ts` — Som de INTERFACE (menus, botões, notificações) — sintetizado com WebAudio, (~992 tok)
 - `blockIcons.ts` — Ícones 2D dos blocos pra hotbar e pro inventário: recorta o tile LATERAL do (~270 tok)
-- `blocksUi.ts` — Blocos colocáveis com nome em português — fonte única pra hotbar (main.ts) (~753 tok)
+- `blocksUi.ts` — Blocos colocáveis com nome em português — fonte única pra hotbar (main.ts) (~836 tok)
 - `chat.ts` — UI de chat em HTML/CSS por cima do canvas (regra: sem GUI de engine). (~1525 tok)
 - `chunks.ts` — 1 mesh por chunk (BufferGeometry única, culled mesher do /shared). (~1171 tok)
 - `commands.ts` — Autocompletar de comandos de chat (Tab). Puro, sem DOM — o chat.ts liga o (~862 tok)
@@ -100,7 +104,7 @@
 - `hud.ts` — HUD de perfilação (F3): FPS, frametime méd+p95, remesh, draw calls e (~1099 tok)
 - `input.ts` — Teclado + mouse (pointer lock). SÓ coleta input — nenhuma decisão de (~1542 tok)
 - `inventory.ts` — Inventário de blocos (cp16) — grade com TODOS os colocáveis + faixa da (~1184 tok)
-- `main.ts` — O cliente não tem filesystem: aprende os nomes das aulas pela resposta de (~13023 tok)
+- `main.ts` — O cliente não tem filesystem: aprende os nomes das aulas pela resposta de (~13065 tok)
 - `menu.ts` — Menu principal (cp8) — HTML/CSS por cima do canvas, sem GUI de engine. (~4161 tok)
 - `objectivesUi.ts` — Grupo do PRÓPRIO jogador (null = sem grupo). (~1244 tok)
 - `panels.ts` — Painéis HTML do cp14 — açúcar visual sobre os comandos de chat: cada botão (~5834 tok)
@@ -141,8 +145,8 @@
 
 - `auth.test.ts` (~428 tok)
 - `auth.ts` — Identidade por mundo (cp9): nome + PIN de 4 dígitos, papel professor/aluno. (~483 tok)
-- `blocks.test.ts` (~318 tok)
-- `blocks.ts` — IDs de bloco. Gravados como bytes crus nos chunks (Uint8Array), no save e no (~1455 tok)
+- `blocks.test.ts` (~363 tok)
+- `blocks.ts` — IDs de bloco. Gravados como bytes crus nos chunks (Uint8Array), no save e no (~1727 tok)
 - `claims.test.ts` — Último texto de chat enviado a um cliente (rejeições/respostas de comando). (~2206 tok)
 - `claims.ts` — Anti-griefing (cp24) — CLAIMS + GRUPOS DE AMIGOS. (~953 tok)
 - `confinamento.test.ts` — Save-base válido (mundo/spawn reais) para injetar grupos + áreas per-grupo. (~2498 tok)
@@ -153,7 +157,7 @@
 - `groups.ts` — Grupos de alunos (cp13) — membros por NOME (mesma identidade do roster: (~280 tok)
 - `index.ts` (~121 tok)
 - `mesher.test.ts` — Declares DIMS (~992 tok)
-- `mesher.ts` — Culled mesher: função PURA (bytes do mundo → geometria). Só emite faces que (~4114 tok)
+- `mesher.ts` — Culled mesher: função PURA (bytes do mundo → geometria). Só emite faces que (~4336 tok)
 - `physics.test.ts` — Mundo 1 chunk com chão sólido em y ∈ [0,7]. (~2603 tok)
 - `physics.ts` — Física do jogador (andar, gravidade, colisão AABB com o grid de voxels). (~2071 tok)
 - `protocol.test.ts` — Declares DIMS (~2707 tok)
@@ -162,14 +166,14 @@
 - `raycast.ts` — Raycast de voxel (DDA de Amanatides-Woo): anda célula a célula do grid até (~649 tok)
 - `regions.test.ts` — Marca os 2 cantos e cria a região "casa" (0,0,0)→(3,4,5). (~3510 tok)
 - `regions.ts` — Regiões nomeadas (cp11) — caixas de blocos com nome, marcadas pelo professor (~756 tok)
-- `rules.test.ts` — Declares DIMS (~504 tok)
-- `rules.ts` — Sistema GENÉRICO de atualização de bloco por vizinhança — a REGRA DE OURO (~775 tok)
+- `rules.test.ts` — Declares DIMS (~736 tok)
+- `rules.ts` — Sistema GENÉRICO de atualização de bloco por vizinhança — a REGRA DE OURO (~838 tok)
 - `save.test.ts` — Declares DIMS (~1454 tok)
 - `save.ts` — Formato de save (.ljw) — MESMO arquivo em todos os hospedeiros: disco do (~2386 tok)
 - `scenario.test.ts` — Marca cantos e cria região nomeada via varinha + /regiao (professor id). (~4106 tok)
 - `scenario.ts` — Cenário (cp12) — o coração pedagógico: objetivos que checam o ESTADO DO (~3680 tok)
 - `session.test.ts` — Testes de MECÂNICA rodam com singleplayer: true (join sem PIN) — a (~11934 tok)
-- `session.ts` — GameSession: o SERVIDOR autoritativo, independente de hospedeiro. (~31593 tok)
+- `session.ts` — GameSession: o SERVIDOR autoritativo, independente de hospedeiro. (~31599 tok)
 - `tp.test.ts` — /tpr (pedir teleporte) + /tpa (aceitar) — todos os jogadores; e /tp nome / (~1490 tok)
 - `world.test.ts` — Declares DIMS (~761 tok)
 - `world.ts` — Dimensões do mundo em chunks. Parâmetro de criação, gravado no header do save/snapshot. (~848 tok)

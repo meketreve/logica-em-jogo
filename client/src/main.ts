@@ -101,17 +101,20 @@ scene.add(sun, ambient);
 // interpola céu/sol/luz. update(dt) roda no loop de render.
 const skyCycle = new SkyCycle(sun, ambient, scene, camera);
 // ?hora=21.5 na URL: força a hora do céu (screenshot headless de noite/entardecer
-// sem depender do servidor — o sync de rede é ignorado enquanto forçada)
+// sem depender do servidor — o sync de rede é ignorado enquanto forçada).
+// CUIDADO: Number(null) === 0 — sem o param tem que dar null, não meia-noite.
 const horaForcada = ((): number | null => {
-  const v = Number(new URLSearchParams(location.search).get("hora"));
+  const raw = new URLSearchParams(location.search).get("hora");
+  if (raw === null) return null;
+  const v = Number(raw);
   return Number.isFinite(v) ? v : null;
 })();
 if (horaForcada !== null) skyCycle.sync(horaForcada, false);
 
 const input = new Input(renderer.domElement);
 // ?yaw=-1.57 na URL: aponta a câmera no boot (par do ?hora — mirar o sol/lua)
-const yawForcado = Number(new URLSearchParams(location.search).get("yaw"));
-if (Number.isFinite(yawForcado)) input.yaw = yawForcado;
+const yawRaw = new URLSearchParams(location.search).get("yaw");
+if (yawRaw !== null && Number.isFinite(Number(yawRaw))) input.yaw = Number(yawRaw);
 
 /** (Re)aplica as configurações do jogador — chamada no boot e ao iniciar jogo
  *  (o menu pode ter mudado tudo antes do play). */

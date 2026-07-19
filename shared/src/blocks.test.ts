@@ -18,9 +18,12 @@ describe("formato de bloco/chunk (contrato de save e snapshot)", () => {
     // cp23: não-cubos em append depois dos glifos
     expect(BlockId.Cerca).toBe(65);
     expect(BlockId.Tocha).toBe(70);
+    // tapetes (2026-07-19): 12 cores em append depois da tocha
+    expect(BlockId.TapeteBranco).toBe(71);
+    expect(BlockId.TapeteMarrom).toBe(82);
     // isPlaceable acompanha o último id; o próximo byte NÃO é bloco
-    expect(isPlaceable(BlockId.Tocha)).toBe(true);
-    expect(isPlaceable(71)).toBe(false);
+    expect(isPlaceable(BlockId.TapeteMarrom)).toBe(true);
+    expect(isPlaceable(83)).toBe(false);
   });
 
   it("volume do chunk cabe em 1 byte por bloco", () => {

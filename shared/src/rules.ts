@@ -57,7 +57,7 @@ export const torchRule: BlockRule = (world, x, y, z) => {
   return [{ x, y, z, blockId: BlockId.Air }];
 };
 
-const RULES: ReadonlyMap<number, BlockRule> = new Map([
+const rulesMap = new Map<number, BlockRule>([
   [BlockId.Sand, fallingRule],
   [BlockId.Gravel, fallingRule],
   [BlockId.PortaXFechada, doorRule],
@@ -66,6 +66,11 @@ const RULES: ReadonlyMap<number, BlockRule> = new Map([
   [BlockId.PortaZAberta, doorRule],
   [BlockId.Tocha, torchRule],
 ]);
+// Tapetes (2026-07-19): mesma regra de apoio da tocha, pras 12 cores.
+for (let id = BlockId.TapeteBranco; id <= BlockId.TapeteMarrom; id++) {
+  rulesMap.set(id, torchRule);
+}
+const RULES: ReadonlyMap<number, BlockRule> = rulesMap;
 
 /** Regra registrada pro tipo de bloco, se houver. */
 export function ruleFor(blockId: number): BlockRule | undefined {

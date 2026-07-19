@@ -47,6 +47,12 @@ export const PLACEABLE: readonly { id: number; name: string }[] = [
   { id: BlockId.Cerca, name: "cerca" },
   { id: BlockId.PortaXFechada, name: "porta" },
   { id: BlockId.Tocha, name: "tocha" },
+  // Tapetes (2026-07-19): ordem = TapeteBranco..TapeteMarrom (âncora + offset)
+  ...["branco", "preto", "vermelho", "laranja", "amarelo", "verde", "azul", "roxo",
+      "rosa", "ciano", "cinza", "marrom"].map((cor, i) => ({
+    id: BlockId.TapeteBranco + i,
+    name: `tapete ${cor}`,
+  })),
 ];
 
 /** Colocáveis visíveis PARA ESTE PAPEL: o aluno não vê rocha-matriz (autoria
