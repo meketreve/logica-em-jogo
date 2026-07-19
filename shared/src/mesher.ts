@@ -4,6 +4,7 @@ import {
   isCama,
   isFullCube,
   isMovel,
+  isQuadro,
   isSofa,
   isTapete,
   isTransparentBlock,
@@ -67,6 +68,9 @@ export const TILE = {
   // reusam o tile das tábuas
   estofado: 71,
   colchao: 72,
+  // 2026-07-19: quadro (moldura de madeira + tela branca; o CONTEÚDO é um
+  // plane com canvas por cima, no cliente)
+  quadro: 73,
 } as const;
 
 /** cp20: blocos-glifo. Letras A–Z e dígitos 0–9 ocupam tiles consecutivos a
@@ -139,6 +143,7 @@ for (let k = 0; k < 4; k++) {
   BLOCK_TILES[BlockId.CadeiraXP + k] = uniform(TILE.planks);
   BLOCK_TILES[BlockId.SofaXP + k] = uniform(TILE.estofado);
   BLOCK_TILES[BlockId.CamaXP + k] = uniform(TILE.colchao);
+  BLOCK_TILES[BlockId.QuadroXP + k] = uniform(TILE.quadro);
 }
 
 // cp20: letras/dígitos = cubos uniformes com o tile do glifo (append A→Z, 0→9).
@@ -413,6 +418,13 @@ export function meshChunk(world: World, cx: number, cy: number, cz: number): Chu
         return true;
       }
       default: {
+        // quadro (2026-07-19): painel fino encostado na parede de trás (lado
+        // oposto da frente), mesma rotação dos móveis
+        if (isQuadro(id)) {
+          const [rxa, rza, rxb, rzb] = rotXZ(0, 1 * P, 2 * P, 15 * P, id - BlockId.QuadroXP);
+          emitBox(lx, ly, lz, id, TILE.quadro, rxa, 1 * P, rza, rxb, 15 * P, rzb);
+          return true;
+        }
         // móveis direcionais (2026-07-19): forma definida DE FRENTE PRA +x,
         // girada k×90° pro sufixo do id (XP=0, ZP=1, XN=2, ZN=3)
         if (isCadeira(id) || isSofa(id) || isCama(id)) {

@@ -8,6 +8,7 @@ export * from "./worldgen";
 export * from "./mesher";
 export * from "./physics";
 export * from "./raycast";
+export * from "./quadros";
 export * from "./regions";
 export * from "./rules";
 export * from "./scenario";

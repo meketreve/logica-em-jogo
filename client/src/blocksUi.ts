@@ -54,6 +54,7 @@ export const PLACEABLE: readonly { id: number; name: string }[] = [
   { id: BlockId.CadeiraXP, name: "cadeira" },
   { id: BlockId.SofaXP, name: "sofá" },
   { id: BlockId.CamaXP, name: "cama" },
+  { id: BlockId.QuadroXP, name: "quadro" },
   // Tapetes (2026-07-19): ordem = TapeteBranco..TapeteMarrom (âncora + offset)
   ...["branco", "preto", "vermelho", "laranja", "amarelo", "verde", "azul", "roxo",
       "rosa", "ciano", "cinza", "marrom"].map((cor, i) => ({

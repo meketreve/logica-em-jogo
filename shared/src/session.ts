@@ -7,10 +7,12 @@ import {
   isPorta,
   isInterativo,
   isProfessorOnly,
+  isQuadro,
   isSolidBlock,
   interativoToggled,
   precisaApoio,
 } from "./blocks";
+import { MAX_QUADRO_TEXTO, type QuadroConteudo, quadroKey } from "./quadros";
 import {
   CHUNK_SIZE,
   DEFAULT_WORLD_CHUNKS,
@@ -206,6 +208,9 @@ export class GameSession {
    *  e em mundo-aula nasce ligado (opts.somenteLeitura). Persiste no save de
    *  mundo livre; em aula não salva (read-only) — reseta por turma. */
   private confinamentoAtivo = false;
+  /** Quadros (2026-07-19): conteúdo (texto/imagem) por posição — primeiro
+   *  estado FORA do id de bloco. Chave = quadroKey(x,y,z). Persiste. */
+  private readonly quadros = new Map<string, QuadroConteudo>();
   /** Tentativas erradas de PIN por nome — rate-limit da ameaça real (colega
    *  na LAN chutando 10 mil combinações). Não persiste no save. */
   private readonly pinFails = new Map<string, { fails: number; lockedUntil: number }>();
@@ -263,6 +268,12 @@ export class GameSession {
       for (const c of opts.restore.claims ?? []) this.claims.set(c.dono, c);
       for (const g of opts.restore.amigos ?? []) this.amigos.set(g.dono, new Set(g.membros));
       this.confinamentoAtivo = opts.restore.confinamento ?? false; // cp25
+      // quadros (2026-07-19): só entra conteúdo cuja célula AINDA é quadro
+      for (const q of opts.restore.quadros ?? []) {
+        if (isQuadro(getBlock(this.world, q.x, q.y, q.z))) {
+          this.quadros.set(quadroKey(q.x, q.y, q.z), q);
+        }
+      }
       // cp21: hora/ciclo do save vencem o padrão (mundo de atividade guarda
       // ciclo OFF; sobrevivência guarda a hora corrente). Ausentes = padrão.
       if (typeof opts.restore.hora === "number" && Number.isFinite(opts.restore.hora)) {
@@ -348,6 +359,8 @@ export class GameSession {
         : {}),
       // cp25: confinamento por área de grupo (só grava ligado)
       ...(this.confinamentoAtivo ? { confinamento: true } : {}),
+      // quadros (2026-07-19): conteúdo autoral por posição (só grava se há)
+      ...(this.quadros.size ? { quadros: [...this.quadros.values()] } : {}),
       // cp21: hora + ciclo SEMPRE gravados (mundo de atividade guarda ciclo OFF;
       // sobrevivência guarda a hora corrente pra continuar de onde parou)
       hora: +this.horaDoDia.toFixed(3),
@@ -536,6 +549,40 @@ export class GameSession {
         }
         this.applyBlock(msg.x, msg.y, msg.z, novo);
         if (yPar !== null) this.applyBlock(msg.x, yPar, msg.z, novo);
+        break;
+      }
+      case "quadro_set": {
+        // quadro (2026-07-19): editar conteúdo = mesma disciplina de editar
+        // bloco (join, bounds, alcance, claim/confinamento)
+        const p = this.players.get(clientId);
+        if (!p) return;
+        if (!inBounds(this.world, msg.x, msg.y, msg.z)) return;
+        if (!this.withinReach(p, msg.x, msg.y, msg.z)) return;
+        if (!isQuadro(getBlock(this.world, msg.x, msg.y, msg.z))) return;
+        {
+          const bloqueio =
+            this.claimBloqueia(clientId, msg.x, msg.y, msg.z) ??
+            this.confinaBloqueia(clientId, msg.x, msg.y, msg.z);
+          if (bloqueio) {
+            this.sendServerChat(clientId, bloqueio);
+            return;
+          }
+        }
+        const texto = msg.texto.trim().slice(0, MAX_QUADRO_TEXTO);
+        const key = quadroKey(msg.x, msg.y, msg.z);
+        if (!texto && !msg.imagem) {
+          this.quadros.delete(key); // vazio = limpar o quadro
+        } else {
+          this.quadros.set(key, {
+            x: msg.x, y: msg.y, z: msg.z, texto,
+            ...(msg.imagem ? { imagem: msg.imagem } : {}),
+          });
+        }
+        this.broadcast({
+          type: "quadro_changed",
+          x: msg.x, y: msg.y, z: msg.z, texto,
+          ...(msg.imagem ? { imagem: msg.imagem } : {}),
+        });
         break;
       }
       case "break_block": {
@@ -1132,6 +1179,16 @@ export class GameSession {
     // cp24: claims — TODOS recebem (todo mundo vê as áreas protegidas e sabe se
     // a proteção está ligada). Só manda se há algo a mostrar (senão zero churn).
     if (this.claimsAtivo || this.claims.size) this.sendClaims(clientId);
+    // quadros (2026-07-19): só se houver conteúdo (contagens do join intactas)
+    if (this.quadros.size) {
+      this.send(
+        clientId,
+        JSON.stringify({
+          type: "quadros",
+          lista: [...this.quadros.values()],
+        } satisfies ServerMessage),
+      );
+    }
     // grupo de amigos + convites: só quem tem algo (rejoin de membro / convidado)
     if (this.equipeDe(name) !== null || this.convitesAmigo.get(name)?.size) {
       this.sendFriends(clientId);
@@ -2426,6 +2483,9 @@ export class GameSession {
    *  rede com UMA mensagem blocks_filled no fim; regras de vizinhança e
    *  detecção de objetivo acordam exatamente igual. */
   private applyBlockQuieto(x: number, y: number, z: number, blockId: number): void {
+    // quadro (2026-07-19): a célula deixou de ser quadro → conteúdo morre junto
+    // (o cliente limpa pelo próprio block_changed/blocks_filled; sem msg extra)
+    if (!isQuadro(blockId)) this.quadros.delete(quadroKey(x, y, z));
     setBlock(this.world, x, y, z, blockId);
     this.changedThisTick.add(this.packCoord(x, y, z));
     this.markDirtyAround(x, y, z);

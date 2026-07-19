@@ -5148,6 +5148,118 @@
       "related_bugs": [],
       "occurrences": 1,
       "last_seen": "2026-07-19T23:08:39.312Z"
+    },
+    {
+      "id": "bug-317",
+      "timestamp": "2026-07-19T23:29:28.172Z",
+      "error_message": "Incorrect value in code",
+      "file": "shared/src/index.ts",
+      "root_cause": "Had \"./regions\"",
+      "fix": "Changed to \"./quadros\"",
+      "tags": [
+        "auto-detected",
+        "wrong-value",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-19T23:29:28.172Z"
+    },
+    {
+      "id": "bug-318",
+      "timestamp": "2026-07-19T23:29:35.130Z",
+      "error_message": "Type error",
+      "file": "shared/src/blocks.ts",
+      "root_cause": "Missing or incorrect type annotation",
+      "fix": "Added type assertion/annotation",
+      "tags": [
+        "auto-detected",
+        "type-fix",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-19T23:29:35.130Z"
+    },
+    {
+      "id": "bug-319",
+      "timestamp": "2026-07-19T23:29:56.743Z",
+      "error_message": "Wrong condition in logic",
+      "file": "shared/src/protocol.ts",
+      "root_cause": "Condition was: if (typeof m[\"text\"] !== \"string\")",
+      "fix": "Changed to: if (!c)",
+      "tags": [
+        "auto-detected",
+        "logic-fix",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 2,
+      "last_seen": "2026-07-19T23:30:15.428Z"
+    },
+    {
+      "id": "bug-320",
+      "timestamp": "2026-07-19T23:30:55.744Z",
+      "error_message": "Type error",
+      "file": "shared/src/session.ts",
+      "root_cause": "Missing or incorrect type annotation",
+      "fix": "Added type assertion/annotation | Also: // quadros (2026-07-19): só se houver conteúdo (contagens do; if (this.quadros.size) {",
+      "tags": [
+        "auto-detected",
+        "type-fix",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 2,
+      "last_seen": "2026-07-19T23:31:08.466Z"
+    },
+    {
+      "id": "bug-321",
+      "timestamp": "2026-07-19T23:31:16.942Z",
+      "error_message": "Type error",
+      "file": "shared/src/save.ts",
+      "root_cause": "Missing or incorrect type annotation",
+      "fix": "Added type assertion/annotation",
+      "tags": [
+        "auto-detected",
+        "type-fix",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-19T23:31:16.942Z"
+    },
+    {
+      "id": "bug-322",
+      "timestamp": "2026-07-19T23:33:13.550Z",
+      "error_message": "Incorrect value in code",
+      "file": "client/src/main.ts",
+      "root_cause": "Had \"./shortcutGuard\"",
+      "fix": "Changed to \"./quadros\"",
+      "tags": [
+        "auto-detected",
+        "wrong-value",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-19T23:33:13.550Z"
+    },
+    {
+      "id": "bug-323",
+      "timestamp": "2026-07-19T23:33:40.710Z",
+      "error_message": "Missing guard clause",
+      "file": "client/src/main.ts",
+      "root_cause": "No early return/throw for edge case: isQuadro(alvoId",
+      "fix": "Added guard clause: if (isQuadro(alvoId)",
+      "tags": [
+        "auto-detected",
+        "guard-clause",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-19T23:33:40.710Z"
     }
   ]
 }

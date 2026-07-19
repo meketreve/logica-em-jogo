@@ -22,7 +22,9 @@ import {
   isPlaceable,
   isPorta,
   isProfessorOnly,
+  isQuadro,
   isSofa,
+  type QuadroConteudo,
   parseServerMessage,
   raycastBlock,
   setBlock,
@@ -52,6 +54,7 @@ import { ObjectivesUi } from "./objectivesUi";
 import { AuthorPanel, type GamePanel, GroupPanel, type PanelData } from "./panels";
 import { RegionRenderer } from "./regions";
 import { keyLabel, loadSettings } from "./settings";
+import { QuadroEditor, QuadroRenderer } from "./quadros";
 import { armarGuardaDeAtalhos, desarmarGuardaDeAtalhos } from "./shortcutGuard";
 import { TorchGlow } from "./torchGlow";
 import { TouchControls, isTouchDevice, solicitarTelaCheia } from "./touch";
@@ -271,6 +274,9 @@ let applyRegions: ((regions: NamedRegion[]) => void) | null = null;
 let claimsAtivo = false;
 let latestClaims: Claim[] = [];
 let applyClaims: ((claims: Claim[]) => void) | null = null;
+/** Quadros (2026-07-19): conteúdo por posição — closures setados no startGame. */
+let applyQuadros: ((lista: QuadroConteudo[]) => void) | null = null;
+let applyQuadroChanged: ((c: QuadroConteudo) => void) | null = null;
 // cenário (cp12/13): painel HTML vive fora do jogo 3D; caixas verdes no startGame
 const objectivesUi = new ObjectivesUi();
 let latestObjectives: { modo: ScenarioModo; objetivos: ObjectiveState[] } | null = null;
@@ -370,6 +376,10 @@ function handleServerData(data: string | ArrayBuffer): void {
     } else if (msg.type === "groups") {
       latestGroups = msg.grupos;
       pushPanelData();
+    } else if (msg.type === "quadros") {
+      applyQuadros?.(msg.lista);
+    } else if (msg.type === "quadro_changed") {
+      applyQuadroChanged?.(msg);
     } else if (msg.type === "claims") {
       // cp24: proteção de áreas — wireframes pra todo mundo + habilita a varinha
       // do aluno quando ligada. O servidor é quem barra a edição de fato.
@@ -551,6 +561,12 @@ function startGame(snap: Snapshot): void {
     refreshHotbar(); // a dica da varinha muda conforme a proteção liga/desliga
   };
 
+  // quadros (2026-07-19): planes de conteúdo (texto/imagem) + editor
+  const quadroRenderer = new QuadroRenderer(scene);
+  const quadroEditor = new QuadroEditor();
+  applyQuadros = (lista) => quadroRenderer.setAll(lista, world);
+  applyQuadroChanged = (c) => quadroRenderer.aplicar(c, world);
+
   // objetivos ATIVOS (cp12/13): caixa verde — aluno vê o alvo DO SEU grupo,
   // professor vê os alvos de todos os grupos
   const objectiveBoxes = new RegionRenderer(scene, 0x2ecc71);
@@ -677,6 +693,7 @@ function startGame(snap: Snapshot): void {
     setBlock(world, msg.x, msg.y, msg.z, msg.blockId);
     chunkRenderer.remeshBlock(msg.x, msg.y, msg.z);
     torchGlow.onBlockChanged(msg.x, msg.y, msg.z, msg.blockId);
+    quadroRenderer.onBlockChanged(msg.x, msg.y, msg.z, msg.blockId, world);
     // gatilho de som (áudio pluga depois); areia caindo dispara os dois por tick
     emitGameEvent(
       msg.blockId === BlockId.Air
@@ -695,6 +712,7 @@ function startGame(snap: Snapshot): void {
     const max = { x: msg.x1, y: msg.y1, z: msg.z1 };
     chunkRenderer.remeshBox(min, max);
     torchGlow.onRegionFilled(min, max, msg.blockId);
+    quadroRenderer.validarTodos(world); // encher pode ter engolido quadros
     // UM gatilho de som pro lote inteiro (não milhares)
     emitGameEvent(
       msg.blockId === BlockId.Air
@@ -922,6 +940,25 @@ function startGame(snap: Snapshot): void {
       wandMark(2, target);
       return;
     }
+    // quadro (2026-07-19): clique direito abre o EDITOR (texto/imagem); o
+    // conteúdo vai por quadro_set e volta pra todos por quadro_changed
+    {
+      const alvoId = getBlock(world, target.x, target.y, target.z);
+      if (isQuadro(alvoId)) {
+        const { x, y, z } = target;
+        quadroEditor.open(quadroRenderer.get(x, y, z), (r) => {
+          input.lock();
+          if (!r) return; // cancelou
+          activeConn.send(
+            JSON.stringify({
+              type: "quadro_set", x, y, z, texto: r.texto,
+              ...(r.imagem ? { imagem: r.imagem } : {}),
+            }),
+          );
+        });
+        return;
+      }
+    }
     // cp23: clique direito em bloco INTERATIVO (porta/janela) interage, não
     // coloca — convenção Minecraft; o servidor alterna (porta: as 2 metades)
     if (isInterativo(getBlock(world, target.x, target.y, target.z))) {
@@ -946,9 +983,9 @@ function startGame(snap: Snapshot): void {
           ? BlockId.JanelaXFechada
           : BlockId.JanelaZFechada;
     }
-    // móveis direcionais: a FRENTE do móvel encara o jogador (encosto/cabeceira
-    // pro lado de lá — convenção Minecraft). Quadrante do olhar → k×90°.
-    if (isCadeira(blockId) || isSofa(blockId) || isCama(blockId)) {
+    // móveis/quadro direcionais: a FRENTE encara o jogador (encosto/cabeceira/
+    // parede pro lado de lá — convenção Minecraft). Quadrante do olhar → k×90°.
+    if (isCadeira(blockId) || isSofa(blockId) || isCama(blockId) || isQuadro(blockId)) {
       const dx = -Math.sin(input.yaw);
       const dz = -Math.cos(input.yaw);
       const olhar = Math.abs(dx) > Math.abs(dz) ? (dx > 0 ? 0 : 2) : (dz > 0 ? 1 : 3);
@@ -957,7 +994,9 @@ function startGame(snap: Snapshot): void {
         ? BlockId.CadeiraXP
         : isSofa(blockId)
           ? BlockId.SofaXP
-          : BlockId.CamaXP;
+          : isCama(blockId)
+            ? BlockId.CamaXP
+            : BlockId.QuadroXP;
       blockId = anchor + frente;
     }
     activeConn.send(
@@ -982,6 +1021,7 @@ function startGame(snap: Snapshot): void {
     if (isCadeira(id)) id = BlockId.CadeiraXP;
     if (isSofa(id)) id = BlockId.SofaXP;
     if (isCama(id)) id = BlockId.CamaXP;
+    if (isQuadro(id)) id = BlockId.QuadroXP;
     if (!isPlaceable(id)) return; // ar/porta-aberta e afins não vão pra mão
     if (isProfessorOnly(id) && papel !== "professor") return; // aluno não copia rocha-matriz
     hotbar[selected] = id;

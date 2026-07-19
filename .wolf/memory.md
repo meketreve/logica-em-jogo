@@ -1515,3 +1515,47 @@ bug-195 (basename sem import). .exe/empacotamento segue ADIADO (decisão do usu�
 | 20:08 | Edited shared/src/session.test.ts | "/bloco 5 5 5 99" → "/bloco 5 5 5 200" | ~16 |
 | 20:09 | Created ../../../tmp/claude-1000/-home-meketreve-logica-em-jogo/d5fb946a-7df1-4f81-8d6e-b29e8b26f43a/scratchpad/moveis.mts | — | ~499 |
 | 20:26 | móveis decorativos (ids 87-99): mesa + cadeira/sofá/cama em 4 direções (rotXZ 90°, forma escrita 1× de frente pra +x); direção pelo olhar no place | blocks.ts, mesher.ts, atlasTexture.ts, main.ts, blocksUi.ts | 218 testes, stage+screenshot ✅ | ~12k |
+| 20:29 | Created shared/src/quadros.ts | — | ~540 |
+| 20:29 | Edited shared/src/index.ts | 1→2 lines | ~16 |
+| 20:29 | Edited shared/src/blocks.ts | modified Quadro() | ~134 |
+| 20:29 | Edited shared/src/blocks.ts | modified isQuadro() | ~53 |
+| 20:29 | Edited shared/src/blocks.ts | 5→6 lines | ~25 |
+| 20:29 | Edited shared/src/blocks.ts | 4→5 lines | ~21 |
+| 20:29 | Edited shared/src/protocol.ts | modified Quadro() | ~120 |
+| 20:29 | Edited shared/src/protocol.ts | added 1 condition(s) | ~74 |
+| 20:30 | Edited shared/src/protocol.ts | modified Quadro() | ~228 |
+| 20:30 | Edited shared/src/protocol.ts | added 3 condition(s) | ~186 |
+| 20:30 | Edited shared/src/protocol.ts | added 1 import(s) | ~35 |
+| 20:30 | Edited shared/src/session.ts | added 1 condition(s) | ~129 |
+| 20:30 | Edited shared/src/session.ts | modified quadros() | ~81 |
+| 20:30 | Edited shared/src/session.ts | modified Confinamento() | ~161 |
+| 20:30 | Edited shared/src/session.ts | added 1 condition(s) | ~97 |
+| 20:31 | Edited shared/src/session.ts | added 6 condition(s) | ~425 |
+| 20:31 | Edited shared/src/session.ts | added 1 condition(s) | ~104 |
+| 20:31 | Edited shared/src/session.ts | added 1 import(s) | ~56 |
+| 20:31 | Edited shared/src/save.ts | modified Quadros() | ~62 |
+| 20:31 | Edited shared/src/save.ts | added 2 condition(s) | ~133 |
+| 20:31 | Edited shared/src/save.ts | 2→3 lines | ~51 |
+| 20:31 | Edited shared/src/save.ts | added 1 import(s) | ~45 |
+| 20:31 | Edited shared/src/mesher.ts | 5→8 lines | ~80 |
+| 20:31 | Edited shared/src/mesher.ts | modified for() | ~92 |
+| 20:31 | Edited shared/src/mesher.ts | added 1 condition(s) | ~212 |
+| 20:31 | Edited shared/src/mesher.ts | 10→11 lines | ~41 |
+| 20:31 | Edited client/src/atlasTexture.ts | 4→5 lines | ~52 |
+| 20:31 | Edited client/src/atlasTexture.ts | modified paintQuadro() | ~170 |
+| 20:32 | Created client/src/quadros.ts | — | ~3156 |
+| 20:33 | Edited client/src/main.ts | modified Quadros() | ~97 |
+| 20:33 | Edited client/src/main.ts | added 2 condition(s) | ~143 |
+| 20:33 | Edited client/src/main.ts | 2→4 lines | ~18 |
+| 20:33 | Edited client/src/main.ts | added 1 import(s) | ~40 |
+| 20:33 | Edited client/src/main.ts | modified quadros() | ~137 |
+| 20:33 | Edited client/src/main.ts | 4→5 lines | ~80 |
+| 20:33 | Edited client/src/main.ts | 2→3 lines | ~48 |
+| 20:33 | Edited client/src/main.ts | added 2 condition(s) | ~252 |
+| 20:33 | Edited client/src/main.ts | 14→16 lines | ~213 |
+| 20:33 | Edited client/src/main.ts | added 1 condition(s) | ~50 |
+| 20:33 | Edited client/src/blocksUi.ts | 4→5 lines | ~60 |
+| 20:34 | Created shared/src/quadros.test.ts | — | ~1603 |
+| 20:34 | Edited shared/src/blocks.test.ts | modified veis() | ~154 |
+| 20:35 | Created ../../../tmp/claude-1000/-home-meketreve-logica-em-jogo/d5fb946a-7df1-4f81-8d6e-b29e8b26f43a/scratchpad/quadro.mts | — | ~642 |
+| 20:41 | quadro texto+imagem (ids 100-103): 1º estado FORA do id — quadros.ts (shared+client), quadro_set/quadro_changed/quadros no protocolo, Map na session, persiste no meta, editor HTML sem popup, imagem comprimida a data URL ≤32k | quadros.ts ×2, protocol, session, save, mesher, atlas, main, blocksUi | 225 testes, stage 2 quadros + screenshot ✅ | ~25k |

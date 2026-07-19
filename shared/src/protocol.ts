@@ -1,5 +1,6 @@
 import { type Papel } from "./auth";
 import { type Claim, parseClaim } from "./claims";
+import { type QuadroConteudo, parseQuadroConteudo } from "./quadros";
 import { CHUNK_VOLUME, MAX_WORLD_CHUNKS } from "./constants";
 import { type GroupDef, parseGroups } from "./groups";
 import { type NamedRegion, parseNamedRegion } from "./regions";
@@ -34,6 +35,10 @@ export type ClientMessage =
   /** Clique direito num bloco INTERATIVO (cp23: porta) — o servidor decide o
    *  efeito (alternar aberta/fechada) e responde com block_changed normais. */
   | { type: "use_block"; x: number; y: number; z: number }
+  /** Quadro (2026-07-19): define o CONTEÚDO do quadro naquela célula (texto
+   *  e/ou imagem data URL pequena). Servidor valida célula/alcance/gates e
+   *  responde com quadro_changed broadcast. Texto vazio sem imagem = limpa. */
+  | { type: "quadro_set"; x: number; y: number; z: number; texto: string; imagem?: string }
   | { type: "chat"; text: string }
   | {
       /**
@@ -169,6 +174,28 @@ export type ServerMessage =
       convites: string[];
     }
   | {
+      /**
+       * Quadro (2026-07-19): conteúdo de UM quadro mudou. Broadcast a cada
+       * quadro_set aceito. Texto vazio sem imagem = quadro limpo (o cliente
+       * remove o painel de conteúdo).
+       */
+      type: "quadro_changed";
+      x: number;
+      y: number;
+      z: number;
+      texto: string;
+      imagem?: string;
+    }
+  | {
+      /**
+       * Quadro (2026-07-19): lista COMPLETA de conteúdos — só no join, e só
+       * se houver algum (senão nada é enviado; contagens do join não mudam).
+       * Cliente substitui, não mescla.
+       */
+      type: "quadros";
+      lista: QuadroConteudo[];
+    }
+  | {
       /** Chat: mensagem de jogador (autor "nome#id") ou do servidor (autor "servidor"). */
       type: "chat";
       author: string;
@@ -290,6 +317,11 @@ export function parseClientMessage(raw: string): ClientMessage | null {
         y: m["y"] as number,
         z: m["z"] as number,
       };
+    }
+    case "quadro_set": {
+      const c = parseQuadroConteudo(m);
+      if (!c) return null;
+      return { type: "quadro_set", ...c };
     }
     case "chat":
       if (typeof m["text"] !== "string") return null;
@@ -435,6 +467,20 @@ export function parseServerMessage(raw: string): ServerMessage | null {
         }
       }
       return { type: "friends", equipe, convites: onlyStrings(m["convites"]) };
+    }
+    case "quadro_changed": {
+      const c = parseQuadroConteudo(m);
+      if (!c) return null;
+      return { type: "quadro_changed", ...c };
+    }
+    case "quadros": {
+      if (!Array.isArray(m["lista"])) return null;
+      const lista: QuadroConteudo[] = [];
+      for (const entry of m["lista"]) {
+        const c = parseQuadroConteudo(entry);
+        if (c) lista.push(c); // entrada quebrada não derruba a lista
+      }
+      return { type: "quadros", lista };
     }
     case "chat":
       if (typeof m["author"] !== "string" || typeof m["text"] !== "string") return null;

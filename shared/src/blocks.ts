@@ -86,12 +86,21 @@ export const BlockId = {
   CadeiraXP: 88, CadeiraZP: 89, CadeiraXN: 90, CadeiraZN: 91,
   SofaXP: 92, SofaZP: 93, SofaXN: 94, SofaZN: 95,
   CamaXP: 96, CamaZP: 97, CamaXN: 98, CamaZN: 99,
+  /** Quadro (backlog 2026-07-19): painel fino de parede com CONTEÚDO (texto/
+   *  imagem — ver quadros.ts). 4 direções como os móveis; clique direito abre
+   *  o editor no cliente. Atravessável (painel na parede). */
+  QuadroXP: 100, QuadroZP: 101, QuadroXN: 102, QuadroZN: 103,
 } as const;
 
 export type BlockId = (typeof BlockId)[keyof typeof BlockId];
 
 /** Maior ID válido (mantém isPlaceable sem número mágico ao crescer a lista). */
-const MAX_BLOCK_ID = BlockId.CamaZN;
+const MAX_BLOCK_ID = BlockId.QuadroZN;
+
+/** Quadro em qualquer direção? */
+export function isQuadro(id: number): boolean {
+  return id >= BlockId.QuadroXP && id <= BlockId.QuadroZN;
+}
 
 /** Cadeira em qualquer direção? */
 export function isCadeira(id: number): boolean {
@@ -173,7 +182,8 @@ export function isFullCube(id: number): boolean {
     !(id >= BlockId.Cerca && id <= BlockId.Tocha) &&
     !isTapete(id) &&
     !isJanela(id) &&
-    !isMovel(id)
+    !isMovel(id) &&
+    !isQuadro(id)
   );
 }
 
@@ -187,7 +197,8 @@ export function isSolidBlock(id: number): boolean {
     id !== BlockId.JanelaXAberta &&
     id !== BlockId.JanelaZAberta &&
     id !== BlockId.Tocha &&
-    !isTapete(id)
+    !isTapete(id) &&
+    !isQuadro(id)
   );
 }
 

@@ -258,6 +258,19 @@ function paintColchao(ctx: CanvasRenderingContext2D, tile: number): void {
   for (let i = 4; i < ATLAS.tilePx; i += 5) ctx.fillRect(ox, oy + i, ATLAS.tilePx, 1);
 }
 
+/** Quadro (2026-07-19): tela branca com moldura de madeira. O conteúdo
+ *  (texto/imagem) é desenhado num plane por cima, no cliente. */
+function paintQuadro(ctx: CanvasRenderingContext2D, tile: number): void {
+  paintNoise(ctx, tile, [242, 238, 228], 4); // tela
+  const [ox, oy] = tileOrigin(tile);
+  const px = ATLAS.tilePx;
+  ctx.fillStyle = "rgb(122,86,50)"; // moldura 2px
+  ctx.fillRect(ox, oy, px, 2);
+  ctx.fillRect(ox, oy + px - 2, px, 2);
+  ctx.fillRect(ox, oy, 2, px);
+  ctx.fillRect(ox + px - 2, oy, 2, px);
+}
+
 /** Folhas (cp18): verde denso com furos transparentes (cutout). */
 function paintLeaves(ctx: CanvasRenderingContext2D, tile: number): void {
   paintNoise(ctx, tile, [52, 118, 44], 16);
@@ -330,10 +343,11 @@ export function createAtlasTexture(): THREE.Texture {
   paintPorta(ctx, TILE.portaBaixo, false);
   paintPorta(ctx, TILE.portaCima, true);
   paintTocha(ctx, TILE.tocha);
-  // 2026-07-19: janela + móveis
+  // 2026-07-19: janela + móveis + quadro
   paintJanela(ctx, TILE.janela);
   paintEstofado(ctx, TILE.estofado);
   paintColchao(ctx, TILE.colchao);
+  paintQuadro(ctx, TILE.quadro);
 
   // cp20: blocos-glifo — letras em creme, dígitos em azul-claro (distinção
   // rápida à distância entre "letra" e "número").

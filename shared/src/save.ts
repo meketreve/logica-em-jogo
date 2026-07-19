@@ -1,5 +1,6 @@
 import { type Papel } from "./auth";
 import { type Claim, type GrupoAmigos, parseClaim, parseGrupoAmigos } from "./claims";
+import { type QuadroConteudo, parseQuadroConteudo } from "./quadros";
 import { type GroupDef, parseGroups } from "./groups";
 import { decodeSnapshot, encodeSnapshot } from "./protocol";
 import { type NamedRegion, parseNamedRegion } from "./regions";
@@ -72,6 +73,9 @@ export interface SaveMeta {
   /** Confinamento (cp25): aluno só edita na área do seu grupo? Ausente =
    *  desligado. Em mundo-aula o host força ligado no boot (não vem do save). */
   confinamento?: boolean;
+  /** Quadros (2026-07-19): conteúdo (texto/imagem) por posição. Ausente =
+   *  nenhum quadro com conteúdo. */
+  quadros?: QuadroConteudo[];
   /** Ciclo dia/noite (cp21). `hora` em [0,24); `ciclo` = o tempo passa.
    *  Ausente em save antigo = padrão do mundo novo (meio-dia, ciclo parado).
    *  Mundo de atividade grava ciclo OFF; sobrevivência (futuro) grava a hora
@@ -181,6 +185,14 @@ export function decodeSave(buf: ArrayBuffer): SaveData {
       if (g) amigos.push(g);
     }
   }
+  // quadros (2026-07-19): entrada quebrada é PULADA (mesma tolerância)
+  const quadros: QuadroConteudo[] = [];
+  if (Array.isArray(m["quadros"])) {
+    for (const entry of m["quadros"]) {
+      const q = parseQuadroConteudo(entry);
+      if (q) quadros.push(q);
+    }
+  }
   // snapshot valida a si mesmo (magic LJW0, dims, tamanho)
   const snapshot = decodeSnapshot(buf.slice(SAVE_HEADER_BYTES + jsonLen));
   return {
@@ -198,6 +210,7 @@ export function decodeSave(buf: ArrayBuffer): SaveData {
     ...(amigos.length ? { amigos } : {}),
     // cp25: confinamento por área de grupo (ausente = desligado)
     ...(m["confinamento"] === true ? { confinamento: true } : {}),
+    ...(quadros.length ? { quadros } : {}),
     // cp21: hora/ciclo ausentes ou inválidos = padrão do mundo novo (na sessão)
     ...(typeof m["hora"] === "number" && Number.isFinite(m["hora"]) ? { hora: m["hora"] } : {}),
     ...(typeof m["ciclo"] === "boolean" ? { ciclo: m["ciclo"] } : {}),
