@@ -26,6 +26,10 @@ pivôs OPOSTOS (abrem pro meio, double door) — **FEITO** (2026-07-20): 4 ids R
 dobradiça alta) espelham as base; o SERVIDOR escolhe a dobradiça no place\_block pelos
 vizinhos (porta do mesmo eixo → oposta; senão parede/cubo cheio → lado da parede; empate →
 base). Só o mesher muda a folha ABERTA de lado; física/cliente não mudam (tudo em /shared).
+* \[x] janela: escolher o lado do PIVÔ igual à porta — **FEITO** (2026-07-20): 4 ids R
+(112-115); reusa o MESMO `escolherDobradica` do servidor (agora genérico, parametrizado
+por altura=1 e pelos helpers da janela). Mesma regra: janela vizinha do mesmo eixo → oposta;
+senão lado com parede; empate → base. Cliente inalterado.
 
 ## Mundo / professor
 

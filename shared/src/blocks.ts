@@ -104,12 +104,21 @@ export const BlockId = {
   PortaXAbertaR: 109,
   PortaZFechadaR: 110,
   PortaZAbertaR: 111,
+  /** Janela com DOBRADIÇA na aresta ALTA do flanco (variante "R") — igual às
+   *  portas R, mas 1 célula só. O servidor escolhe a variante no place_block
+   *  pelos vizinhos (parede/janela ao lado). APPEND depois das portas R;
+   *  isJanela cobre os 2 trechos. Fechada idêntica à base; só a ABERTA muda de
+   *  lado (dobra na parede ALTA em vez da baixa). */
+  JanelaXFechadaR: 112,
+  JanelaXAbertaR: 113,
+  JanelaZFechadaR: 114,
+  JanelaZAbertaR: 115,
 } as const;
 
 export type BlockId = (typeof BlockId)[keyof typeof BlockId];
 
 /** Maior ID válido (mantém isPlaceable sem número mágico ao crescer a lista). */
-const MAX_BLOCK_ID = BlockId.PortaZAbertaR;
+const MAX_BLOCK_ID = BlockId.JanelaZAbertaR;
 
 /** Flor decorativa (qualquer cor)? */
 export function isFlor(id: number): boolean {
@@ -221,9 +230,42 @@ export function portaToggled(id: number): number {
   }
 }
 
-/** Janela em qualquer eixo/estado? */
+/** Janela em qualquer eixo/estado/dobradiça? (2 trechos de id — ver JanelaXFechadaR) */
 export function isJanela(id: number): boolean {
-  return id >= BlockId.JanelaXFechada && id <= BlockId.JanelaZAberta;
+  return (
+    (id >= BlockId.JanelaXFechada && id <= BlockId.JanelaZAberta) ||
+    (id >= BlockId.JanelaXFechadaR && id <= BlockId.JanelaZAbertaR)
+  );
+}
+
+/** Janela ABERTA (qualquer eixo/dobradiça)? */
+export function isJanelaAberta(id: number): boolean {
+  return (
+    id === BlockId.JanelaXAberta || id === BlockId.JanelaZAberta ||
+    id === BlockId.JanelaXAbertaR || id === BlockId.JanelaZAbertaR
+  );
+}
+
+/** Janela que BLOQUEIA passagem no eixo X (painel varre o flanco Z)? */
+export function janelaEixoX(id: number): boolean {
+  return (
+    id === BlockId.JanelaXFechada || id === BlockId.JanelaXAberta ||
+    id === BlockId.JanelaXFechadaR || id === BlockId.JanelaXAbertaR
+  );
+}
+
+/** Janela com dobradiça na aresta ALTA do flanco (variante "R")? */
+export function janelaHingeAlta(id: number): boolean {
+  return id >= BlockId.JanelaXFechadaR && id <= BlockId.JanelaZAbertaR;
+}
+
+/** Deslocamento base→variante-de-dobradiça das janelas. */
+const JANELA_HINGE_OFFSET = BlockId.JanelaXFechadaR - BlockId.JanelaXFechada;
+
+/** Mesma janela (eixo+estado) com a dobradiça pedida. Aceita id base OU R. */
+export function janelaComHinge(id: number, alta: boolean): number {
+  const base = janelaHingeAlta(id) ? id - JANELA_HINGE_OFFSET : id;
+  return alta ? base + JANELA_HINGE_OFFSET : base;
 }
 
 /** Bloco interativo (clique direito alterna em vez de colocar): porta ou janela. */
@@ -231,13 +273,17 @@ export function isInterativo(id: number): boolean {
   return isPorta(id) || isJanela(id);
 }
 
-/** Id do interativo com o estado alternado (fechada↔aberta, mesmo eixo). */
+/** Id do interativo com o estado alternado (fechada↔aberta; eixo e dobradiça iguais). */
 export function interativoToggled(id: number): number {
   switch (id) {
     case BlockId.JanelaXFechada: return BlockId.JanelaXAberta;
     case BlockId.JanelaXAberta: return BlockId.JanelaXFechada;
     case BlockId.JanelaZFechada: return BlockId.JanelaZAberta;
     case BlockId.JanelaZAberta: return BlockId.JanelaZFechada;
+    case BlockId.JanelaXFechadaR: return BlockId.JanelaXAbertaR;
+    case BlockId.JanelaXAbertaR: return BlockId.JanelaXFechadaR;
+    case BlockId.JanelaZFechadaR: return BlockId.JanelaZAbertaR;
+    case BlockId.JanelaZAbertaR: return BlockId.JanelaZFechadaR;
     default: return portaToggled(id);
   }
 }
@@ -263,8 +309,7 @@ export function isSolidBlock(id: number): boolean {
   return (
     id !== BlockId.Air &&
     !isPortaAberta(id) && // porta aberta (base OU R) atravessa
-    id !== BlockId.JanelaXAberta &&
-    id !== BlockId.JanelaZAberta &&
+    !isJanelaAberta(id) && // janela aberta (base OU R) atravessa
     id !== BlockId.Tocha &&
     !isTapete(id) &&
     !isQuadro(id) &&
@@ -276,7 +321,7 @@ export function isSolidBlock(id: number): boolean {
  *  não se coloca na mão — só existe alternando uma fechada no clique direito. */
 export function isPlaceable(id: number): boolean {
   if (isPortaAberta(id)) return false; // porta aberta (base OU R) só nasce alternando uma fechada
-  if (id === BlockId.JanelaXAberta || id === BlockId.JanelaZAberta) return false;
+  if (isJanelaAberta(id)) return false; // idem janela aberta
   return Number.isInteger(id) && id >= BlockId.Grass && id <= MAX_BLOCK_ID;
 }
 

@@ -2,10 +2,15 @@ import { describe, expect, it } from "vitest";
 import {
   BlockId,
   isFullCube,
+  isJanela,
+  isJanelaAberta,
   isPlaceable,
   isPorta,
   isPortaAberta,
   isSolidBlock,
+  janelaComHinge,
+  janelaEixoX,
+  janelaHingeAlta,
   portaComHinge,
   portaEixoX,
   portaHingeAlta,
@@ -343,6 +348,82 @@ describe("porta — dobradiça/pivô (2026-07-20)", () => {
     expect(Math.max(...base)).toBeLessThan(5.3);
     // R: lâmina encostada na borda z=6 (alta) → menor z fica perto de 6
     expect(Math.min(...alta)).toBeGreaterThan(5.7);
+  });
+});
+
+describe("janela — dobradiça/pivô (2026-07-20)", () => {
+  it("helpers das janelas R (dobradiça alta)", () => {
+    expect(isJanela(BlockId.JanelaXFechadaR)).toBe(true);
+    expect(isJanela(BlockId.JanelaZAbertaR)).toBe(true);
+    expect(janelaHingeAlta(BlockId.JanelaXFechada)).toBe(false);
+    expect(janelaHingeAlta(BlockId.JanelaXFechadaR)).toBe(true);
+    expect(janelaEixoX(BlockId.JanelaXAbertaR)).toBe(true);
+    expect(janelaEixoX(BlockId.JanelaZFechadaR)).toBe(false);
+    expect(isJanelaAberta(BlockId.JanelaXAbertaR)).toBe(true);
+    expect(isJanelaAberta(BlockId.JanelaXFechadaR)).toBe(false);
+    expect(janelaComHinge(BlockId.JanelaXFechada, true)).toBe(BlockId.JanelaXFechadaR);
+    expect(janelaComHinge(BlockId.JanelaXFechadaR, false)).toBe(BlockId.JanelaXFechada);
+    // R aberta atravessa e não vai à mão; R fechada não é cubo cheio
+    expect(isSolidBlock(BlockId.JanelaXAbertaR)).toBe(false);
+    expect(isSolidBlock(BlockId.JanelaXFechadaR)).toBe(true);
+    expect(isFullCube(BlockId.JanelaXFechadaR)).toBe(false);
+    expect(isPlaceable(BlockId.JanelaXAbertaR)).toBe(false);
+  });
+
+  it("parede no lado ALTO do flanco vira dobradiça alta (R); baixo mantém base", () => {
+    {
+      const { session, send } = makeFlat();
+      const y = SOLO + 1;
+      send({ type: "place_block", x: 5, y, z: 6, blockId: BlockId.Stone }); // z+1 (alto)
+      send({ type: "place_block", x: 5, y, z: 5, blockId: BlockId.JanelaXFechada });
+      expect(getBlock(session.world, 5, y, 5)).toBe(BlockId.JanelaXFechadaR);
+    }
+    {
+      const { session, send } = makeFlat();
+      const y = SOLO + 1;
+      send({ type: "place_block", x: 5, y, z: 4, blockId: BlockId.Stone }); // z-1 (baixo)
+      send({ type: "place_block", x: 5, y, z: 5, blockId: BlockId.JanelaXFechada });
+      expect(getBlock(session.world, 5, y, 5)).toBe(BlockId.JanelaXFechada);
+    }
+  });
+
+  it("duas janelas lado a lado = dobradiças OPOSTAS (janela dupla)", () => {
+    const { session, send } = makeFlat();
+    const y = SOLO + 1;
+    send({ type: "place_block", x: 5, y, z: 5, blockId: BlockId.JanelaXFechada });
+    send({ type: "place_block", x: 5, y, z: 6, blockId: BlockId.JanelaXFechada });
+    expect(getBlock(session.world, 5, y, 5)).toBe(BlockId.JanelaXFechada); // A intacta
+    expect(getBlock(session.world, 5, y, 6)).toBe(BlockId.JanelaXFechadaR); // B oposta
+  });
+
+  it("janela R abre/fecha (1 célula, sem par)", () => {
+    const { session, send } = makeFlat();
+    const y = SOLO + 1;
+    send({ type: "place_block", x: 5, y, z: 6, blockId: BlockId.Stone }); // força R
+    send({ type: "place_block", x: 5, y, z: 5, blockId: BlockId.JanelaXFechada });
+    expect(getBlock(session.world, 5, y, 5)).toBe(BlockId.JanelaXFechadaR);
+    send({ type: "use_block", x: 5, y, z: 5 });
+    expect(getBlock(session.world, 5, y, 5)).toBe(BlockId.JanelaXAbertaR);
+    send({ type: "use_block", x: 5, y, z: 5 });
+    expect(getBlock(session.world, 5, y, 5)).toBe(BlockId.JanelaXFechadaR);
+  });
+
+  it("mesher: janela aberta base dobra no flanco BAIXO; R no flanco ALTO", () => {
+    const zsDaJanela = (id: number): number[] => {
+      const world = generateFlatWorld(DIMS);
+      const yd = SOLO + 5;
+      setBlock(world, 5, yd, 5, id);
+      const { positions } = meshChunk(world, 0, 0, 0);
+      const zs: number[] = [];
+      for (let i = 0; i < positions.length; i += 3) {
+        if (positions[i + 1]! >= yd - 0.5 && positions[i + 1]! <= yd + 1.5) {
+          zs.push(positions[i + 2]!);
+        }
+      }
+      return zs;
+    };
+    expect(Math.max(...zsDaJanela(BlockId.JanelaXAberta))).toBeLessThan(5.3);
+    expect(Math.min(...zsDaJanela(BlockId.JanelaXAbertaR))).toBeGreaterThan(5.7);
   });
 });
 

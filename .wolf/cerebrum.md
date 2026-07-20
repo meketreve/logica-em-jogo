@@ -441,6 +441,15 @@
   → precisou `!isPorta(id)` explícito (senão porta R viraria cubo cheio e ocluiria vizinho).
   `isSolidBlock`/`isPlaceable` trocaram os literais PortaXAberta/PortaZAberta por `isPortaAberta`
   (cobre R). Padrão reusável pra JANELA (mesmo desenho) se um dia pedir dobradiça escolhida.
+- **JANELA ganhou a mesma dobradiça (2026-07-20, sessão 7b):** 4 ids R (112-115) + helpers
+  espelho (`isJanelaAberta`/`janelaEixoX`/`janelaHingeAlta`/`janelaComHinge`). `escolherDobradica`
+  (session.ts) foi GENERALIZADO em vez de duplicado: recebe `alturas` (porta=2 → checa parede em
+  y E y+1; janela=1 → só y) + os predicados da família (`mesmoTipo/ehEixoX/hingeAlta/comHinge`).
+  Porta e janela chamam o MESMO método com seus helpers. Janela = 1 célula, sem par vertical nem
+  regra de órfão (não entra em RULES) → branch próprio no place_block (só 1 applyBlock). Cliente
+  ZERO mudança nas duas (copy `isPorta`/`isJanela`→base cobre R; place manda só o eixo). LIÇÃO:
+  ao adicionar a 2ª família com a mesma mecânica, generalizar o método (params) rende mais que
+  copiar — mas os IDs/helpers ficam por família (id é byte de save, não dá pra unificar).
 - **Autocomplete de NOMES (2026-07-19):** `learnPlayers` em client/commands.ts
   espelha learnWorlds; main.ts alimenta com Map id→nome do `player_moved`
   (guard: só quando nome novo/diferente — senão roda a 10 Hz×N jogadores) e

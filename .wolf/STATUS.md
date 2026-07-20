@@ -1,7 +1,17 @@
 # STATUS — Projeto "Lógica em Jogo" (jogo voxel educacional)
 
 > Single source of truth for resuming work. Read this FIRST when starting a session.
-> Last updated: 2026-07-20 (SESSÃO 7 — PIVÔ DA PORTA. NÃO commitado ainda.)
+> Last updated: 2026-07-20 (SESSÃO 7 — PIVÔ DA PORTA **E DA JANELA**. Porta COMMITADA+PUSHADA;
+> janela commitar a seguir.)
+> **SESSÃO 7b (2026-07-20) — PIVÔ DA JANELA (igual à porta):** 4 ids R da janela
+> (`JanelaXFechadaR`..`JanelaZAbertaR` = 112-115); helpers espelho (`isJanelaAberta`,
+> `janelaEixoX`, `janelaHingeAlta`, `janelaComHinge`). `escolherDobradica` (session.ts) virou
+> GENÉRICO — parametrizado por `alturas` (porta=2, janela=1) + os helpers da família; porta e
+> janela chamam o mesmo método. Branch novo de janela no place_block (1 célula, sem par). Mesher
+> da janela reescrito igual ao da porta (folha aberta dobra no flanco alto se R). Cliente
+> inalterado (copy `isJanela`→base já cobre R). 246 testes (+5 janela em cp23.test), typecheck
+> 3/3, build ok, screenshot da janela dupla confere. bug-370 recorreu (sentinel do blocks.test
+> 108→112→116 ao subir MAX 2×).
 > **SESSÃO 7 (2026-07-20) — PIVÔ/DOBRADIÇA DA PORTA (backlog do todo.md):** porta agora
 > escolhe o lado da DOBRADIÇA ao ser colocada. 4 ids R novos (`PortaXFechadaR`..`PortaZAbertaR`
 > = 108-111, APPEND depois das flores; dobradiça na aresta ALTA do flanco, espelho das base

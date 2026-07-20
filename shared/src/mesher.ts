@@ -5,12 +5,15 @@ import {
   isCama,
   isFlor,
   isFullCube,
+  isJanelaAberta,
   isMovel,
   isPortaAberta,
   isQuadro,
   isSofa,
   isTapete,
   isTransparentBlock,
+  janelaEixoX,
+  janelaHingeAlta,
   portaEixoX,
   portaHingeAlta,
 } from "./blocks";
@@ -151,6 +154,11 @@ const BLOCK_TILES: Record<number, FaceTiles> = {
   [BlockId.JanelaXAberta]: uniform(TILE.janela),
   [BlockId.JanelaZFechada]: uniform(TILE.janela),
   [BlockId.JanelaZAberta]: uniform(TILE.janela),
+  // janelas R (dobradiça alta) — mesmo ícone; nunca vão à hotbar (copy → base)
+  [BlockId.JanelaXFechadaR]: uniform(TILE.janela),
+  [BlockId.JanelaXAbertaR]: uniform(TILE.janela),
+  [BlockId.JanelaZFechadaR]: uniform(TILE.janela),
+  [BlockId.JanelaZAbertaR]: uniform(TILE.janela),
   // móveis (2026-07-19): estas entradas alimentam SÓ o ícone 2D — a forma
   // (e o tile por caixa) vive no emitShape
   [BlockId.Mesa]: uniform(TILE.planks),
@@ -451,11 +459,23 @@ export function meshChunk(world: World, cx: number, cy: number, cz: number): Chu
       case BlockId.JanelaXFechada:
       case BlockId.JanelaXAberta:
       case BlockId.JanelaZFechada:
-      case BlockId.JanelaZAberta: {
-        // mesma dobradiça da porta (aresta do canto 0,·,0), 1 célula só
-        const finaEmX = id === BlockId.JanelaXFechada || id === BlockId.JanelaZAberta;
-        if (finaEmX) emitBox(lx, ly, lz, id, TILE.janela, 0, 0, 0, 2 * P, 1, 1);
-        else emitBox(lx, ly, lz, id, TILE.janela, 0, 0, 0, 1, 1, 2 * P);
+      case BlockId.JanelaZAberta:
+      case BlockId.JanelaXFechadaR:
+      case BlockId.JanelaXAbertaR:
+      case BlockId.JanelaZFechadaR:
+      case BlockId.JanelaZAbertaR: {
+        // mesma dobradiça da porta (aresta do canto), 1 célula só. FECHADA varre
+        // o vão; ABERTA dobra no flanco BAIXO (base) ou ALTO (variante R) — o
+        // servidor escolhe a dobradiça pelos vizinhos (igual à porta).
+        const eixoX = janelaEixoX(id);
+        if (!isJanelaAberta(id)) {
+          if (eixoX) emitBox(lx, ly, lz, id, TILE.janela, 0, 0, 0, 2 * P, 1, 1);
+          else emitBox(lx, ly, lz, id, TILE.janela, 0, 0, 0, 1, 1, 2 * P);
+        } else {
+          const c = janelaHingeAlta(id) ? 1 - 2 * P : 0;
+          if (eixoX) emitBox(lx, ly, lz, id, TILE.janela, 0, 0, c, 1, 1, c + 2 * P);
+          else emitBox(lx, ly, lz, id, TILE.janela, c, 0, 0, c + 2 * P, 1, 1);
+        }
         return true;
       }
       case BlockId.Mesa: {

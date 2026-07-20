@@ -1,7 +1,7 @@
 # anatomy.md
 
-> Auto-maintained by OpenWolf. Last scanned: 2026-07-20T19:11:23.113Z
-> Files: 118 tracked | Anatomy hits: 0 | Misses: 0
+> Auto-maintained by OpenWolf. Last scanned: 2026-07-20T19:40:56.670Z
+> Files: 119 tracked | Anatomy hits: 0 | Misses: 0
 
 ## ../../../tmp/claude-1000/-home-meketreve-logica-em-jogo/1e53a721-e45d-4911-a026-f385f8f2c4e6/scratchpad/
 
@@ -71,6 +71,7 @@
 ## ../.claude/jobs/a35a297d/tmp/
 
 - `chatsmoke.mjs` — Smoke: conecta, join (dispara welcome), manda 1 chat. Prova o log de chat. (~175 tok)
+- `janela-stage.mts` — Stage da dobradiça da JANELA: parede com 2 janelas lado a lado (janela dupla) (~450 tok)
 - `porta-stage.mts` — Stage da dobradiça: parede com vão de 2 células + porta dupla (2 portas lado (~541 tok)
 
 ## ../.claude/plans/
@@ -84,7 +85,7 @@
 - `iniciar-servidor.bat` (~1128 tok)
 - `iniciar-servidor.sh` — ============================================================ (~1103 tok)
 - `package.json` — Node.js package manifest (~157 tok)
-- `todo.md` — Ideias para fazer (~1112 tok)
+- `todo.md` — Ideias para fazer (~1199 tok)
 
 ## .claude/
 
@@ -160,19 +161,19 @@
 
 - `auth.test.ts` (~428 tok)
 - `auth.ts` — Identidade por mundo (cp9): nome + PIN de 4 dígitos, papel professor/aluno. (~483 tok)
-- `blocks.test.ts` (~654 tok)
-- `blocks.ts` — IDs de bloco. Gravados como bytes crus nos chunks (Uint8Array), no save e no (~3530 tok)
+- `blocks.test.ts` (~747 tok)
+- `blocks.ts` — IDs de bloco. Gravados como bytes crus nos chunks (Uint8Array), no save e no (~4096 tok)
 - `claims.test.ts` — Último texto de chat enviado a um cliente (rejeições/respostas de comando). (~2283 tok)
 - `claims.ts` — Anti-griefing (cp24) — CLAIMS + GRUPOS DE AMIGOS. (~965 tok)
 - `confinamento.test.ts` — Save-base válido (mundo/spawn reais) para injetar grupos + áreas per-grupo. (~2498 tok)
 - `constants.ts` — Aresta do chunk em blocos (16³ = 4096 bytes, 1 byte por bloco). (~405 tok)
 - `cp14.test.ts` — mundo plano 2×2×2 chunks (32³) — superfície em y=3 (~1992 tok)
-- `cp23.test.ts` — DIMS: makeFlat (~6531 tok)
+- `cp23.test.ts` — DIMS: makeFlat (~7611 tok)
 - `groups.test.ts` — prof + 2 alunos em 2 grupos; modelo 2×1×1 com lã vermelha+azul. (~3848 tok)
 - `groups.ts` — Grupos de alunos (cp13) — membros por NOME (mesma identidade do roster: (~280 tok)
 - `index.ts` (~137 tok)
 - `mesher.test.ts` — Declares DIMS (~992 tok)
-- `mesher.ts` — Culled mesher: função PURA (bytes do mundo → geometria). Só emite faces que (~6742 tok)
+- `mesher.ts` — Culled mesher: função PURA (bytes do mundo → geometria). Só emite faces que (~6992 tok)
 - `physics.test.ts` — Mundo 1 chunk com chão sólido em y ∈ [0,7]. (~2603 tok)
 - `physics.ts` — Física do jogador (andar, gravidade, colisão AABB com o grid de voxels). (~2071 tok)
 - `protocol.test.ts` — Declares DIMS (~3009 tok)
@@ -190,7 +191,7 @@
 - `scenario.test.ts` — Marca cantos e cria região nomeada via varinha + /regiao (professor id). (~4106 tok)
 - `scenario.ts` — Cenário (cp12) — o coração pedagógico: objetivos que checam o ESTADO DO (~3680 tok)
 - `session.test.ts` — Testes de MECÂNICA rodam com singleplayer: true (join sem PIN) — a (~11934 tok)
-- `session.ts` — GameSession: o SERVIDOR autoritativo, independente de hospedeiro. (~33344 tok)
+- `session.ts` — GameSession: o SERVIDOR autoritativo, independente de hospedeiro. (~33596 tok)
 - `tp.test.ts` — /tpr (pedir teleporte) + /tpa (aceitar) — todos os jogadores; e /tp nome / (~1496 tok)
 - `version.ts` — Versão do jogo (VERSION) — FONTE ÚNICA. Constante TS pura, importada pelo boot do server e pelo menu do cliente (~90 tok)
 - `version.ts` — Versão do jogo — FONTE ÚNICA. Constante TS pura: roda igual no navegador (~76 tok)

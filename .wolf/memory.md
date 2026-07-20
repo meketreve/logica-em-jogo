@@ -1796,3 +1796,25 @@ só o mesher muda a folha ABERTA de lado. Files: shared/src/blocks.ts, mesher.ts
 session.ts (+escolherDobradica), cp23.test.ts (+8), blocks.test.ts. 241 testes, typecheck 3/3,
 build ok, screenshot da porta dupla confere. NÃO commitado.
 | 16:13 | Session end: 17 writes across 8 files (blocks.ts, mesher.ts, rules.ts, session.ts, blocks.test.ts) | 10 reads | ~69831 tok |
+| 16:35 | Edited shared/src/blocks.ts | expanded (+9 lines) | ~215 |
+| 16:35 | Edited shared/src/blocks.ts | modified isJanela() | ~666 |
+| 16:36 | Edited shared/src/blocks.ts | 10→9 lines | ~71 |
+| 16:36 | Edited shared/src/blocks.ts | 3→3 lines | ~68 |
+| 16:36 | Edited shared/src/mesher.ts | 9→12 lines | ~54 |
+| 16:36 | Edited shared/src/mesher.ts | added 2 condition(s) | ~292 |
+| 16:36 | Edited shared/src/mesher.ts | 4→9 lines | ~137 |
+| 16:36 | Edited shared/src/session.ts | 11→15 lines | ~70 |
+| 16:37 | Edited shared/src/session.ts | added 1 condition(s) | ~599 |
+| 16:37 | Edited shared/src/session.ts | added 1 condition(s) | ~239 |
+| 16:37 | Edited shared/src/blocks.test.ts | modified R() | ~280 |
+| 16:37 | Edited shared/src/cp23.test.ts | 12→17 lines | ~74 |
+| 16:38 | Edited shared/src/cp23.test.ts | added 1 condition(s) | ~1160 |
+| 16:39 | Created ../.claude/jobs/a35a297d/tmp/janela-stage.mts | — | ~450 |
+| 16:40 | Edited todo.md | 3→7 lines | ~136 |
+
+## Sessão 7b (2026-07-20) — pivô da janela + commit da porta
+Porta commitada+pushada (ab3e87d). Depois: JANELA ganhou a mesma dobradiça — 4 ids R (112-115),
+helpers espelho, `escolherDobradica` generalizado (alturas + predicados da família; porta e
+janela compartilham). Branch de janela no place_block (1 célula). Mesher da janela reescrito.
+Cliente inalterado. 246 testes, typecheck 3/3, build ok, screenshot da janela dupla confere.
+Files: blocks.ts, mesher.ts, session.ts, blocks.test.ts, cp23.test.ts. Commitar+pushar janela.
