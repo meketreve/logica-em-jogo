@@ -1818,3 +1818,4 @@ helpers espelho, `escolherDobradica` generalizado (alturas + predicados da famí
 janela compartilham). Branch de janela no place_block (1 célula). Mesher da janela reescrito.
 Cliente inalterado. 246 testes, typecheck 3/3, build ok, screenshot da janela dupla confere.
 Files: blocks.ts, mesher.ts, session.ts, blocks.test.ts, cp23.test.ts. Commitar+pushar janela.
+| 16:41 | Session end: 32 writes across 9 files (blocks.ts, mesher.ts, rules.ts, session.ts, blocks.test.ts) | 11 reads | ~78296 tok |
