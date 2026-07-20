@@ -52,7 +52,25 @@ export type ClientMessage =
       x: number;
       y: number;
       z: number;
+    }
+  | {
+      /**
+       * Profiler (backlog "ferramentas de dev"): cliente manda o snapshot do
+       * HUD F3 (botão "enviar pro servidor") pro host persistir em disco —
+       * roda o profile em vários dispositivos (notebook, tablet…) e centraliza
+       * as medidas na MESMA pasta, sem precisar catar arquivo exportado de
+       * cada máquina. Opaco: o servidor só grava, não interpreta — o shape
+       * acompanha o que hud.ts exporta e pode crescer sem re-versionar o
+       * protocolo. Tratado no HOST (como /mundo, /kicar): gravar arquivo é
+       * transporte, a GameSession não tem sistema de arquivos.
+       */
+      type: "profile_report";
+      stats: Record<string, unknown>;
     };
+
+/** Teto do texto bruto de um profile_report (chars) — payload é só números e
+ *  strings curtas (sem imagem); acima disso é lixo/abuso, não perfilação real. */
+export const MAX_PROFILE_REPORT_CHARS = 8192;
 
 // --- Mensagens JSON servidor→cliente ---
 
@@ -338,6 +356,12 @@ export function parseClientMessage(raw: string): ClientMessage | null {
         y: m["y"] as number,
         z: m["z"] as number,
       };
+    }
+    case "profile_report": {
+      if (raw.length > MAX_PROFILE_REPORT_CHARS) return null;
+      const stats = m["stats"];
+      if (typeof stats !== "object" || stats === null || Array.isArray(stats)) return null;
+      return { type: "profile_report", stats: stats as Record<string, unknown> };
     }
     default:
       return null;

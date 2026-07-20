@@ -73,7 +73,8 @@ export class Hud {
     return { fps: 1000 / avgMs, avgMs, p95Ms };
   }
 
-  private stats() {
+  /** Mesmo snapshot do export local — usado pelo botão "enviar pro servidor". */
+  stats() {
     const { fps, avgMs, p95Ms } = this.frameStats();
     const info = this.renderer.info;
     return {

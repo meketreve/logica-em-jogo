@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { CHUNK_VOLUME, MAX_WORLD_CHUNKS } from "./constants";
 import {
+  MAX_PROFILE_REPORT_CHARS,
   SNAPSHOT_HEADER_BYTES,
   SNAPSHOT_MAGIC,
   decodeSnapshot,
@@ -191,5 +192,24 @@ describe("identidade cp9 no protocolo", () => {
     });
     expect(parseServerMessage('{"type":"join_denied"}')).toBeNull();
     expect(parseServerMessage('{"type":"join_denied","reason":42}')).toBeNull();
+  });
+});
+
+describe("profile_report (profiler — backlog ferramentas de dev)", () => {
+  it("aceita stats como objeto opaco; rejeita null/array/tipo errado", () => {
+    expect(
+      parseClientMessage('{"type":"profile_report","stats":{"fps":60,"net":{"msgsPerSec":1}}}'),
+    ).toEqual({ type: "profile_report", stats: { fps: 60, net: { msgsPerSec: 1 } } });
+    expect(parseClientMessage('{"type":"profile_report","stats":null}')).toBeNull();
+    expect(parseClientMessage('{"type":"profile_report","stats":[1,2]}')).toBeNull();
+    expect(parseClientMessage('{"type":"profile_report","stats":"x"}')).toBeNull();
+    expect(parseClientMessage('{"type":"profile_report"}')).toBeNull();
+  });
+
+  it("rejeita payload acima do teto (guarda contra abuso de disco no host)", () => {
+    const gigante = "x".repeat(MAX_PROFILE_REPORT_CHARS);
+    const raw = `{"type":"profile_report","stats":{"lixo":"${gigante}"}}`;
+    expect(raw.length).toBeGreaterThan(MAX_PROFILE_REPORT_CHARS);
+    expect(parseClientMessage(raw)).toBeNull();
   });
 });

@@ -9,3 +9,4 @@ node_modules/
 chrome/
 *.ljw.tmp
 *.ljw.corrompido-*
+/profiles/

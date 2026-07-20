@@ -1047,6 +1047,11 @@ function startGame(snap: Snapshot): void {
     lastMs: chunkRenderer.lastRemeshMs,
   });
   input.onKey(settings.keys.hud, () => hud.toggle());
+  // profiler (backlog "ferramentas de dev"): singleplayer roda em Web Worker
+  // sem filesystem — o host ignora a mensagem em silêncio, sem erro no cliente.
+  document.getElementById("hud-report")?.addEventListener("click", () => {
+    activeConn.send(JSON.stringify({ type: "profile_report", stats: hud.stats() }));
+  });
 
   // controles de toque (tablet): joystick/arrasto/botões sintetizam o MESMO
   // input do teclado+mouse — o loop e os handlers acima não mudam

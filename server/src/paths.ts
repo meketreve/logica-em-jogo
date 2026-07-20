@@ -15,6 +15,9 @@ export const daRaiz = (caminho: string): string =>
 export const PASTA_CENARIOS = daRaiz("cenarios");
 /** Mundos vivos: o que a turma construiu. É aqui que o autosave grava. */
 export const PASTA_AULAS = daRaiz("aulas");
+/** Relatórios do profiler (HUD F3 → "enviar pro servidor"): diagnóstico de
+ *  vários dispositivos, não save de mundo. */
+export const PASTA_PROFILES = daRaiz("profiles");
 
 /**
  * Um cenário é MODELO, não save. Hospedar `cenarios/aula1.ljw` direto faria o

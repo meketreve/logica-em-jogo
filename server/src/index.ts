@@ -2,7 +2,7 @@ import { randomInt } from "node:crypto";
 import { existsSync, mkdirSync, readFileSync, renameSync, writeFileSync } from "node:fs";
 import { createServer } from "node:http";
 import { networkInterfaces } from "node:os";
-import { dirname } from "node:path";
+import { dirname, resolve } from "node:path";
 import { createInterface } from "node:readline";
 import { WebSocketServer, type WebSocket } from "ws";
 import {
@@ -12,11 +12,12 @@ import {
   TAMANHO_CHUNKS,
   decodeSave,
   encodeSave,
+  parseClientMessage,
   parseWorldPreset,
   parseWorldTamanho,
 } from "@logica/shared";
 import { comandoMundo } from "./mundos";
-import { daRaiz, mundoDeTrabalho } from "./paths";
+import { PASTA_PROFILES, daRaiz, mundoDeTrabalho } from "./paths";
 import { clienteFoiBuildado, servirCliente } from "./static";
 
 /**
@@ -321,6 +322,31 @@ function interceptarKicar(clientId: number, texto: string): boolean {
   return true;
 }
 
+/**
+ * `profile_report` (HUD F3 → "enviar pro servidor") mora no HOST porque
+ * gravar arquivo é transporte, a GameSession não tem sistema de arquivos —
+ * mesmo raciocínio de /mundo e /kicar. Exige join (o nome já sanitizado no
+ * join vira parte do nome do arquivo, sem risco de path traversal). Devolve
+ * true quando engoliu a mensagem.
+ */
+function interceptarProfile(clientId: number, texto: string): boolean {
+  const msg = parseClientMessage(texto);
+  if (!msg || msg.type !== "profile_report") return false;
+
+  const quem = session.jogadoresConectados().find((j) => j.id === clientId);
+  if (!quem) {
+    falarCom(clientId, "Entre no mundo primeiro.");
+    return true;
+  }
+
+  mkdirSync(PASTA_PROFILES, { recursive: true });
+  const nomeArquivo = `perf-${quem.name}-${Date.now()}.json`;
+  writeFileSync(resolve(PASTA_PROFILES, nomeArquivo), JSON.stringify(msg.stats, null, 2));
+  console.log(`[server] perfil recebido de ${quem.name} → profiles/${nomeArquivo}`);
+  falarCom(clientId, `Perfil salvo no servidor: ${nomeArquivo}`);
+  return true;
+}
+
 // HTTP e WebSocket na MESMA porta: o aluno abre http://ip-do-professor:8080 e
 // joga — sem servidor de página separado e sem digitar endereço de WebSocket.
 const http = createServer(servirCliente);
@@ -344,6 +370,7 @@ wss.on("connection", (socket, req) => {
     const texto = data.toString();
     if (interceptarMundo(id, texto)) return; // /mundo é do HOST (mexe em arquivo)
     if (interceptarKicar(id, texto)) return; // /kicar é do HOST (fecha socket)
+    if (interceptarProfile(id, texto)) return; // profile_report é do HOST (grava arquivo)
     session.handleMessage(id, texto);
   });
 

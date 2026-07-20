@@ -47,8 +47,13 @@
 
 ## Ferramentas de dev
 
-- [ ] profiler complexo pra diagnóstico, com opção do cliente enviar o resultado pro servidor
+- [x] profiler complexo pra diagnóstico, com opção do cliente enviar o resultado pro servidor
   (salva na pasta do servidor — facilita rodar o profile em vários dispositivos e centralizar as medidas)
+  — **FEITO** (2026-07-20): botão "enviar pro servidor" no HUD F3, ao lado do "exportar JSON"; msg
+  `profile_report` nova no protocolo, tratada no HOST (como /mundo, /kicar — grava arquivo, a
+  GameSession não tem filesystem); salva em `profiles/perf-<nome>-<timestamp>.json` (gitignored).
+  Singleplayer (Web Worker) não tem fs — mensagem cai no vácuo em silêncio, sem erro no cliente.
+  Playtest do usuário PENDENTE.
 
 ## Sistema de sobrevivência (feature grande)
 
