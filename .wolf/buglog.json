@@ -5373,6 +5373,38 @@
       "related_bugs": [],
       "occurrences": 1,
       "last_seen": "2026-07-20T00:30:00-03:00"
+    },
+    {
+      "id": "bug-331",
+      "timestamp": "2026-07-20T03:14:09.129Z",
+      "error_message": "Null/undefined access in ",
+      "file": "server/src/cenarios/verificar.ts",
+      "root_cause": "Property access on potentially null/undefined value",
+      "fix": "Added null safety (optional chaining or null check)",
+      "tags": [
+        "auto-detected",
+        "null-safety",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-20T03:14:09.129Z"
+    },
+    {
+      "id": "bug-332",
+      "timestamp": "2026-07-20T03:16:11.270Z",
+      "error_message": "Significant refactor of ",
+      "file": "cenarios/README.md",
+      "root_cause": "8 lines replaced/restructured",
+      "fix": "Rewrote 12→20 lines (8 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "md"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-20T03:16:11.270Z"
     }
   ]
 }

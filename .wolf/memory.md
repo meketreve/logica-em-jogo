@@ -1590,3 +1590,10 @@ bug-195 (basename sem import). .exe/empacotamento segue ADIADO (decisão do usu�
 | 00:03 | Edited cenarios/README.md | modified Erros() | ~600 |
 | 00:04 | Edited cenarios/README.md | Erros() → erros() | ~120 |
 | 00:04 | 3 cenários novos (aula4 decifrar/glifos, aula5 simetria 2D, aula6 manual/quadros+móveis): gerador refatorado pra área em CAIXA + extras + conferirExtra; launchers corrigidos (bug-303) e com aulas novas; README atualizado | gerar.ts, verificar.ts, launchers, cenarios/*.ljw, README | 6/6 gerados+conferidos, 3 screenshots ✅, 228 testes | ~20k |
+| 00:05 | Session end: 142 writes across 34 files (shortcutGuard.ts, main.ts, constants.ts, session.ts, daynight.ts) | 43 reads | ~141775 tok |
+| 00:09 | Session end: 142 writes across 34 files (shortcutGuard.ts, main.ts, constants.ts, session.ts, daynight.ts) | 43 reads | ~141775 tok |
+| 00:13 | Created server/src/cenarios/gerar.ts | — | ~5369 |
+| 00:14 | Edited server/src/cenarios/verificar.ts | added nullish coalescing | ~238 |
+| 00:14 | Edited server/src/cenarios/verificar.ts | modified for() | ~505 |
+| 00:16 | Edited cenarios/README.md | expanded (+8 lines) | ~309 |
+| 00:16 | FASES nos cenários: Cenario.fases[] (1=livre, 2+=sequencial auto), layout lado a lado, verificador joga todas em ordem; aula1 virou 3 fases (período 3 → período 4 → crescente) | gerar.ts, verificar.ts, cenarios/*.ljw, README | 6/6 gerados, HUD 0/3 + fase 1 ativa no screenshot ✅ | ~12k |

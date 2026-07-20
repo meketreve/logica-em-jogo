@@ -57,18 +57,26 @@ coloca, botão do meio copia o bloco mirado.
 
 ---
 
-## Aula 1 — `aula1-sequencia.ljw` · "Continue a regra"
+## Aula 1 — `aula1-sequencia.ljw` · "Continue a regra" · **3 FASES**
 
-**Pilar:** reconhecimento de padrão + generalização.
+**Pilar:** reconhecimento de padrão + generalização, em dificuldade crescente.
 
-A faixa do grupo tem 12 blocos e os **4 primeiros já estão montados**: vermelho, azul, azul,
-vermelho. O grupo precisa continuar a regra até o 12º.
+Modo **sequencial**: cada grupo só vê a fase seguinte quando fecha a atual, no próprio ritmo.
+As 3 faixas ficam lado a lado na frente da cabine (a caixa verde mostra a fase ativa).
 
-**Resposta:** vermelho–azul–azul, repetido 4 vezes.
+- **Fase 1** — 12 blocos, 4 dados. Regra: vermelho–azul–azul (período 3). Quem lê "vai
+  alternando" erra no terceiro bloco e o contador denuncia. Peça a regra em voz alta
+  **antes** do quinto bloco.
+- **Fase 2** — período MAIOR: amarelo–vermelho–vermelho–azul (período 4), 5 dados.
+- **Fase 3** — a regra **cresce**: vermelho, e o número de azuis aumenta a cada vermelho
+  (R B · R B B · R B B B · …), 6 dados. Resposta dos 12: R B R B B R B B B R B B.
 
-Os 4 blocos dados não são enfeite: quem lê "vai alternando uma cor de cada vez" erra já no
-terceiro bloco, e o contador denuncia na hora. A discussão que interessa é *"qual é a regra?"* —
-peça ao grupo que diga a regra em voz alta **antes** de colocar o quinto bloco.
+### Como criar/mudar fases
+
+No `gerar.ts`, cada cenário tem `fases: [...]` — uma fase = `faixa1d(gabarito, partida,
+enunciado)` (ou uma área 2D/3D como nas aulas 5/6). 1 fase = modo livre; 2+ = sequencial
+automático. As fases ficam lado a lado no chunk (largura total ≤ 8 colunas). Depois:
+`npm run cenarios` — o verificador joga TODAS as fases em ordem antes de gravar.
 
 ## Aula 2 — `aula2-binario.ljw` · "Escreva 45 em binário"
 

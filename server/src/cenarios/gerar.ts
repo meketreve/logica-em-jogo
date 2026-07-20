@@ -8,9 +8,10 @@
  * (Única exceção: o CONTEÚDO dos quadros da aula 6 entra por `quadro_set`,
  * a mesma mensagem que o clique direito do professor manda no jogo.)
  *
- * Desde 2026-07-19 a área do grupo é uma CAIXA (dx×dy×dz): a faixa 1D das
- * aulas 1-3 virou caso particular; a aula 5 usa parede 2D e a aula 6 um plano
- * 3×3 com móveis direcionais.
+ * Desde 2026-07-19 a área do grupo é uma CAIXA (dx×dy×dz); desde 2026-07-20
+ * um cenário pode ter VÁRIAS FASES (objetivos em modo sequencial — cada grupo
+ * avança no próprio ritmo, cp13). As fases ficam lado a lado no chunk do
+ * grupo, com 1 coluna de vão; 1 fase = modo livre, como sempre foi.
  *
  * uso: npm run cenarios -- [--grupos 5] [--codigo prof2026] [--revelar] [--saida cenarios]
  *   --revelar  deixa o gabarito à vista na cabine do professor (vira tarefa de
@@ -41,7 +42,7 @@ const FAIXA_DX = 8; // a cabine acaba em ox+4; 8 deixa a área na parte aberta
 const FAIXA_DZ = 2; // recuo dentro do chunk (cabine ocupa z 0..4)
 /** Profundidade máxima (z) sem vazar pro chunk vizinho. */
 const FAIXA_MAX = CHUNK_SIZE - FAIXA_DZ - 1;
-/** Largura máxima (x) da área — extras (parede de quadros) podem ir além. */
+/** Largura máxima (x) somada das fases — extras (parede de quadros) podem ir além. */
 const LARGURA_MAX = CHUNK_SIZE - FAIXA_DX;
 
 /** Um "professor" de mentira: digita comando e EXIGE a resposta certa do servidor. */
@@ -110,11 +111,8 @@ interface Vec {
   z: number;
 }
 
-interface Cenario {
-  arquivo: string;
-  titulo: string;
-  /** Pilar do pensamento computacional que a tarefa exercita (vai pro roteiro). */
-  pilar: string;
+/** Uma FASE = um objetivo "construir" com modelo próprio. */
+interface Fase {
   /** Enunciado do objetivo (o servidor corta em 120 chars). */
   texto: string;
   /** Tamanho da área-alvo: colunas (x), altura (y), profundidade (z). */
@@ -122,14 +120,26 @@ interface Cenario {
   /** Sequência CERTA na célula relativa (i,j,k) — é o que o objetivo fotografa. */
   gabarito: (i: number, j: number, k: number) => number;
   /**
-   * O que já nasce na área de CADA grupo. 0 = ar. É a pista (aula 1), o vazio
-   * (aulas 2/4/6) ou o estado com erros (aulas 3/5). NUNCA pode ser igual ao
-   * gabarito — objetivo que já nasce completo é recusado.
+   * O que já nasce na área de CADA grupo. 0 = ar. É a pista, o vazio ou o
+   * estado com erros. NUNCA pode ser igual ao gabarito — objetivo que já
+   * nasce completo é recusado.
    */
   partida: (i: number, j: number, k: number) => number;
   /** Decoração FORA da área-alvo (dica cifrada, quadros-manual) — 1× por
-   *  grupo, com a origem (canto min) da área daquele grupo. */
+   *  grupo, com a origem (canto min) da área daquele grupo NESSA fase.
+   *  CUIDADO em cenário multi-fase: extras à direita (+x) podem colidir com
+   *  a fase seguinte. */
   extras?: (a: Autoria, origem: Vec) => void;
+}
+
+interface Cenario {
+  arquivo: string;
+  titulo: string;
+  /** Pilar do pensamento computacional que a tarefa exercita (vai pro roteiro). */
+  pilar: string;
+  /** 1 fase = modo livre (como sempre). 2+ = modo SEQUENCIAL: o grupo só vê a
+   *  fase seguinte quando fecha a atual, cada grupo no próprio ritmo. */
+  fases: Fase[];
   /** Conferência extra do save gerado (ex.: aula 6 exige os quadros). */
   conferirExtra?: (buf: ArrayBuffer, grupos: number) => string[];
 }
@@ -145,11 +155,23 @@ const repetir = (padrao: number[], n: number): number[] =>
 const bits = (valor: number, largura: number): number[] =>
   Array.from({ length: largura }, (_, i) => ((valor >> (largura - 1 - i)) & 1 ? K : W));
 
-/** Faixa 1D ao longo de z (as aulas 1-3 são o caso particular da caixa). */
-const linha = (arr: number[]) => ({
-  area: { dx: 1, dy: 1, dz: arr.length },
-  fn: (_i: number, _j: number, k: number): number => arr[k] ?? AR,
+/** Fase de faixa 1D ao longo de z (o caso clássico das aulas 1-3). */
+const faixa1d = (
+  gabarito: number[],
+  partida: number[],
+  texto: string,
+  extras?: Fase["extras"],
+): Fase => ({
+  texto,
+  area: { dx: 1, dy: 1, dz: gabarito.length },
+  gabarito: (_i, _j, k) => gabarito[k] ?? AR,
+  partida: (_i, _j, k) => partida[k] ?? AR,
+  ...(extras ? { extras } : {}),
 });
+
+/** Os `dado` primeiros blocos do gabarito já montados, o resto ar. */
+const primeiros = (gabarito: number[], dado: number): number[] =>
+  gabarito.map((id, i) => (i < dado ? id : AR));
 
 /** Bloco-letra do caractere (A..Z). */
 const letra = (ch: string): number => BlockId.LetterA + (ch.charCodeAt(0) - 65);
@@ -157,7 +179,9 @@ const letra = (ch: string): number => BlockId.LetterA + (ch.charCodeAt(0) - 65);
 // --- aula 4: decifrar (glifos) ---
 const PALAVRA = "LOGICA";
 /** A mesma palavra com cada letra ADIANTADA em 1 (cifra de César +1). */
-const CIFRADA = [...PALAVRA].map((c) => String.fromCharCode(65 + (c.charCodeAt(0) - 65 + 1) % 26)).join("");
+const CIFRADA = [...PALAVRA]
+  .map((c) => String.fromCharCode(65 + (c.charCodeAt(0) - 65 + 1) % 26))
+  .join("");
 
 // --- aula 5: coração simétrico 7 (z) × 6 (y); linha 0 = TOPO da parede ---
 const CORACAO = [
@@ -187,95 +211,121 @@ const PASSOS = [
   "PASSO 3 — 4 cadeiras, uma em cada lado, todas viradas PRA mesa.",
 ] as const;
 
-const aula1 = linha(repetir([R, B, B], 12));
-const aula1partida = linha([...repetir([R, B, B], 4), ...Array<number>(8).fill(AR)]);
-const aula2 = linha(bits(45, 8));
-const aula3 = linha(repetir([R, Y, B, B], 12));
-const aula3partida = linha(repetir([R, Y, B, B], 12).map((b, i) => (i === 5 ? B : i === 9 ? R : b)));
-const aula4 = linha([...PALAVRA].map(letra));
+// --- aula 1 (3 FASES, 2026-07-20): sequências em dificuldade crescente ---
+const A1F1 = repetir([R, B, B], 12);
+const A1F2 = repetir([Y, R, R, B], 12);
+/** Fase 3: o número de azuis cresce a cada vermelho — R B R BB R BBB R B(B). */
+const A1F3 = [R, B, R, B, B, R, B, B, B, R, B, B];
 
 const CENARIOS: Cenario[] = [
   {
     arquivo: "aula1-sequencia.ljw",
     titulo: "Continue a regra",
-    pilar: "reconhecimento de padrão + generalização",
-    area: aula1.area,
-    gabarito: aula1.fn,
-    // pista: só os 4 primeiros. 4 termos (R B B R) já obrigam a ver o período 3
-    // — quem chuta "alterna uma a uma" erra na 3ª célula e o contador denuncia.
-    partida: aula1partida.fn,
-    texto:
-      "Continue a regra ate completar os 12 blocos da sua faixa. Os 4 primeiros ja estao la.",
+    pilar: "reconhecimento de padrão + generalização (3 fases)",
+    fases: [
+      // pista: só os 4 primeiros. 4 termos (R B B R) já obrigam a ver o
+      // período 3 — quem chuta "alterna" erra na 3ª célula e o contador denuncia.
+      faixa1d(
+        A1F1,
+        primeiros(A1F1, 4),
+        "Fase 1: continue a regra ate completar os 12 blocos. Os 4 primeiros ja estao la.",
+      ),
+      faixa1d(
+        A1F2,
+        primeiros(A1F2, 5),
+        "Fase 2: regra nova, com periodo MAIOR. Os 5 primeiros ja estao la.",
+      ),
+      faixa1d(
+        A1F3,
+        primeiros(A1F3, 6),
+        "Fase 3: dessa vez a regra CRESCE. Olhe os azuis com atencao e complete os 12.",
+      ),
+    ],
   },
   {
     arquivo: "aula2-binario.ljw",
     titulo: "Escreva 45 em binário",
     pilar: "abstração + representação",
-    area: aula2.area,
-    gabarito: aula2.fn,
-    partida: () => AR,
-    texto:
-      "Escreva 45 em binario com 8 blocos: branco=0, preto=1. Comece pelo bit de maior valor (128).",
+    fases: [
+      faixa1d(
+        bits(45, 8),
+        [],
+        "Escreva 45 em binario com 8 blocos: branco=0, preto=1. Comece pelo bit de maior valor (128).",
+      ),
+    ],
   },
   {
     arquivo: "aula3-depurar.ljw",
     titulo: "Ache os 2 erros",
     pilar: "depuração (testar hipótese contra a regra)",
-    area: aula3.area,
-    gabarito: aula3.fn,
-    // mesma sequência com 2 células trocadas — o aluno não constrói, ele CORRIGE
-    partida: aula3partida.fn,
-    texto: "Ha 2 erros nesta sequencia. Ache e corrija — a regra se repete a cada 4 blocos.",
+    fases: [
+      // mesma sequência com 2 células trocadas — o aluno não constrói, ele CORRIGE
+      faixa1d(
+        repetir([R, Y, B, B], 12),
+        repetir([R, Y, B, B], 12).map((b, i) => (i === 5 ? B : i === 9 ? R : b)),
+        "Ha 2 erros nesta sequencia. Ache e corrija — a regra se repete a cada 4 blocos.",
+      ),
+    ],
   },
   {
     arquivo: "aula4-decifrar.ljw",
     titulo: "Decifre a mensagem",
     pilar: "representação + decodificação (cifra de César)",
-    area: aula4.area,
-    gabarito: aula4.fn,
-    partida: () => AR,
-    texto:
-      "Decifre: cada letra da mensagem ao lado vale a letra ANTERIOR do alfabeto. Escreva a palavra decifrada aqui.",
-    // a mensagem CIFRADA fica à vista, colada na área (coluna x-1) — é dica, não alvo
-    extras: (a, o) => {
-      [...CIFRADA].forEach((ch, k) => a.bloco(o.x - 1, o.y, o.z + k, letra(ch)));
-    },
+    fases: [
+      // a mensagem CIFRADA fica à vista, colada na área (coluna x-1) — é dica, não alvo
+      faixa1d(
+        [...PALAVRA].map(letra),
+        [],
+        "Decifre: cada letra da mensagem ao lado vale a letra ANTERIOR do alfabeto. Escreva a palavra decifrada aqui.",
+        (a, o) => {
+          [...CIFRADA].forEach((ch, k) => a.bloco(o.x - 1, o.y, o.z + k, letra(ch)));
+        },
+      ),
+    ],
   },
   {
     arquivo: "aula5-simetria.ljw",
     titulo: "Conserte o desenho",
     pilar: "decomposição + depuração com invariante (simetria)",
-    area: { dx: 1, dy: CORACAO.length, dz: (CORACAO[0] ?? "").length },
-    gabarito: (_i, j, k) => coracaoEm(j, k),
-    // o coração com 4 células trocadas — nenhuma com a espelhada trocada junto,
-    // então TODA troca quebra a simetria e a regra do enunciado denuncia
-    partida: (_i, j, k) => {
-      if (ERROS.some(([ej, ek]) => ej === j && ek === k)) {
-        return coracaoEm(j, k) === R ? W : R;
-      }
-      return coracaoEm(j, k);
-    },
-    texto:
-      "A parede devia ser um coracao SIMETRICO (esquerda = espelho da direita). Ha 4 celulas erradas — conserte.",
+    fases: [
+      {
+        area: { dx: 1, dy: CORACAO.length, dz: (CORACAO[0] ?? "").length },
+        gabarito: (_i, j, k) => coracaoEm(j, k),
+        // o coração com 4 células trocadas — nenhuma com a espelhada trocada
+        // junto, então TODA troca quebra a simetria e a regra denuncia
+        partida: (_i, j, k) => {
+          if (ERROS.some(([ej, ek]) => ej === j && ek === k)) {
+            return coracaoEm(j, k) === R ? W : R;
+          }
+          return coracaoEm(j, k);
+        },
+        texto:
+          "A parede devia ser um coracao SIMETRICO (esquerda = espelho da direita). Ha 4 celulas erradas — conserte.",
+      },
+    ],
   },
   {
     arquivo: "aula6-manual.ljw",
     titulo: "Siga o manual",
     pilar: "seguir algoritmo (instruções em passos, ordem e precisão)",
-    area: { dx: 3, dy: 1, dz: 3 },
-    gabarito: (i, _j, k) => SALA[`${i},${k}`] ?? AR,
-    partida: () => AR,
-    texto:
-      "Monte a sala seguindo os 3 quadros na parede. Capricho: ate a DIRECAO das cadeiras conta.",
-    // parede de pedra com os 3 quadros-manual, atrás da área (lado +x),
-    // de frente pros alunos (QuadroXN olha pra -x)
-    extras: (a, o) => {
-      PASSOS.forEach((passo, t) => {
-        a.bloco(o.x + 4, o.y, o.z + t, BlockId.Stone);
-        a.bloco(o.x + 4, o.y + 1, o.z + t, BlockId.Stone);
-        a.quadro(o.x + 3, o.y + 1, o.z + t, BlockId.QuadroXN, passo);
-      });
-    },
+    fases: [
+      {
+        area: { dx: 3, dy: 1, dz: 3 },
+        gabarito: (i, _j, k) => SALA[`${i},${k}`] ?? AR,
+        partida: () => AR,
+        texto:
+          "Monte a sala seguindo os 3 quadros na parede. Capricho: ate a DIRECAO das cadeiras conta.",
+        // parede de pedra com os 3 quadros-manual, atrás da área (lado +x),
+        // de frente pros alunos (QuadroXN olha pra -x)
+        extras: (a, o) => {
+          PASSOS.forEach((passo, t) => {
+            a.bloco(o.x + 4, o.y, o.z + t, BlockId.Stone);
+            a.bloco(o.x + 4, o.y + 1, o.z + t, BlockId.Stone);
+            a.quadro(o.x + 3, o.y + 1, o.z + t, BlockId.QuadroXN, passo);
+          });
+        },
+      },
+    ],
     conferirExtra: (buf, grupos) => {
       const q = decodeSave(buf).quadros ?? [];
       return q.length === grupos * PASSOS.length
@@ -294,9 +344,19 @@ interface Opcoes {
 
 function gerar(c: Cenario, o: Opcoes): ArrayBuffer {
   const n = o.grupos;
-  const { dx, dy, dz } = c.area;
-  if (dz > FAIXA_MAX) throw new Error(`${c.arquivo}: profundidade ${dz} não cabe no chunk (máx. ${FAIXA_MAX})`);
-  if (dx > LARGURA_MAX) throw new Error(`${c.arquivo}: largura ${dx} não cabe no chunk (máx. ${LARGURA_MAX})`);
+  // offset x de cada fase: lado a lado com 1 coluna de vão
+  const offsets: number[] = [];
+  let offX = 0;
+  for (const f of c.fases) {
+    if (f.area.dz > FAIXA_MAX) {
+      throw new Error(`${c.arquivo}: profundidade ${f.area.dz} não cabe no chunk (máx. ${FAIXA_MAX})`);
+    }
+    offsets.push(offX);
+    offX += f.area.dx + 1;
+  }
+  if (offX - 1 > LARGURA_MAX) {
+    throw new Error(`${c.arquivo}: fases somam largura ${offX - 1} (máx. ${LARGURA_MAX})`);
+  }
 
   // mundo par (o spawn cai no CANTO do chunk central) e largo o bastante pra
   // uma cabine por grupo lado a lado
@@ -308,20 +368,26 @@ function gerar(c: Cenario, o: Opcoes): ArrayBuffer {
   // cabine do professor = chunk central (é onde todo mundo nasce)
   const profOx = a.session.world.sizeX / 2;
   const profOz = a.session.world.sizeZ / 2;
-  const canto = (ox: number, oz: number): Vec => ({
-    x: ox + FAIXA_DX,
+  const canto = (ox: number, oz: number, f: number): Vec => ({
+    x: ox + FAIXA_DX + (offsets[f] ?? 0),
     y: FAIXA_Y,
     z: oz + FAIXA_DZ,
   });
-  const fim = (org: Vec): Vec => ({ x: org.x + dx - 1, y: org.y + dy - 1, z: org.z + dz - 1 });
-  const plantar = (org: Vec, fn: Cenario["gabarito"]): void => {
-    for (let j = 0; j < dy; j++)
-      for (let k = 0; k < dz; k++)
-        for (let i = 0; i < dx; i++) {
+  const fim = (org: Vec, f: Fase): Vec => ({
+    x: org.x + f.area.dx - 1,
+    y: org.y + f.area.dy - 1,
+    z: org.z + f.area.dz - 1,
+  });
+  const plantar = (org: Vec, f: Fase, fn: Fase["gabarito"]): void => {
+    for (let j = 0; j < f.area.dy; j++)
+      for (let k = 0; k < f.area.dz; k++)
+        for (let i = 0; i < f.area.dx; i++) {
           const id = fn(i, j, k);
           if (id !== AR) a.bloco(org.x + i, org.y + j, org.z + k, id);
         }
   };
+  /** Sufixo dos nomes de região: fase 1 fica sem ("modelo"/"area" — compat). */
+  const suf = (f: number): string => (f === 0 ? "" : String(f + 1));
 
   // grupos PRIMEIRO: o carimbo e o objetivo per-grupo só existem se houver grupos
   a.cmd(`/grupo criar ${n}`, `${n} grupo(s) criados`);
@@ -331,27 +397,40 @@ function gerar(c: Cenario, o: Opcoes): ArrayBuffer {
   const cz = profOz / CHUNK_SIZE + 1;
   const cx0 = Math.min(Math.max(profCx - Math.floor((n - 1) / 2), 0), dims.x - n);
 
-  // área-modelo (professor) — o estado CERTO, que o objetivo vai fotografar
-  const orgProf = canto(profOx, profOz);
-  a.regiao("modelo", orgProf, fim(orgProf));
-  plantar(orgProf, c.gabarito);
+  // modelo de CADA fase na cabine do professor — o estado certo, fotografado
+  c.fases.forEach((fase, f) => {
+    const org = canto(profOx, profOz, f);
+    a.regiao(`modelo${suf(f)}`, org, fim(org, fase));
+    plantar(org, fase, fase.gabarito);
+  });
 
-  // área-alvo de cada grupo, já com o ponto de partida montado + extras (dica/quadros)
+  // áreas de cada grupo (todas as fases), com partida + extras (dica/quadros)
   for (let g = 1; g <= n; g++) {
-    const org = canto((cx0 + g - 1) * CHUNK_SIZE, cz * CHUNK_SIZE);
-    a.regiao(`area-${g}`, org, fim(org));
-    plantar(org, c.partida);
-    c.extras?.(a, org);
+    const ox = (cx0 + g - 1) * CHUNK_SIZE;
+    const oz = cz * CHUNK_SIZE;
+    c.fases.forEach((fase, f) => {
+      const org = canto(ox, oz, f);
+      a.regiao(`area${suf(f)}-${g}`, org, fim(org, fase));
+      plantar(org, fase, fase.partida);
+      fase.extras?.(a, org);
+    });
     a.afastar(1.5, 20, 1.5); // extras podem ter chegado perto — volta pro alto
   }
 
-  // "area" resolve pra area-1…area-N = uma área POR GRUPO (cada grupo no seu ritmo)
-  a.cmd("/objetivo modo livre", "Modo do cenário: livre");
-  a.cmd(`/objetivo add construir modelo area ${c.texto}`, "criado: construir em");
+  // modo: 1 fase = livre (como sempre); 2+ = sequencial (fase a fase, por grupo)
+  const modo = c.fases.length > 1 ? "sequencial" : "livre";
+  a.cmd(`/objetivo modo ${modo}`, `Modo do cenário: ${modo}`);
+  c.fases.forEach((fase, f) => {
+    a.cmd(`/objetivo add construir modelo${suf(f)} area${suf(f)} ${fase.texto}`, "criado: construir em");
+  });
 
-  // gabarito já está FOTOGRAFADO: apagar a área-modelo não desfaz o objetivo,
-  // só tira a resposta da vista. Com --revelar, a tarefa vira copiar.
-  if (!o.revelar) a.cmd("/regiao encher modelo 0", "bloco(s) alterado(s)");
+  // gabaritos já estão FOTOGRAFADOS: apagar as áreas-modelo não desfaz os
+  // objetivos, só tira a resposta da vista. Com --revelar, a tarefa vira copiar.
+  if (!o.revelar) {
+    c.fases.forEach((_fase, f) => {
+      a.cmd(`/regiao encher modelo${suf(f)} 0`, "bloco(s) alterado(s)");
+    });
+  }
 
   // mundo de ATIVIDADE = dia permanente, ciclo PARADO (o céu não muda durante a
   // aula — decisão do usuário). Explícito no gerador para não depender do padrão
@@ -406,7 +485,8 @@ for (const c of CENARIOS) {
   }
   const caminho = join(o.saida, c.arquivo);
   writeFileSync(caminho, new Uint8Array(buf));
-  console.log(`  ✓ ${caminho} — "${c.titulo}" (${(buf.byteLength / 1024).toFixed(0)} kB)`);
+  const fases = c.fases.length > 1 ? `, ${c.fases.length} fases` : "";
+  console.log(`  ✓ ${caminho} — "${c.titulo}" (${(buf.byteLength / 1024).toFixed(0)} kB${fases})`);
 }
 if (falhou) process.exit(1);
 console.log(`pronto. hospede com: LJ_SAVE=${join(o.saida, CENARIOS[0]!.arquivo)} npm run start -w server`);

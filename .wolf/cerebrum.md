@@ -612,6 +612,18 @@
 - **Tile de UI de móvel** pode REUSAR tile existente (tapete→lã, cadeira→tábuas);
   só pinta tile novo quando a cara é nova (estofado, colchão, janela, quadro).
 
+### Fases nos cenários (2026-07-20)
+- **`Cenario.fases: Fase[]`** no gerar.ts: cada fase = objetivo construir com
+  modelo próprio. 1 fase → `/objetivo modo livre` (compat); 2+ → `sequencial`
+  (o grupo só vê a próxima ao fechar a atual — motor do cp13, zero mudança).
+  Layout: fases lado a lado em x com 1 coluna de vão (Σ larguras ≤ 8).
+  Nomes: fase 1 sem sufixo ("modelo"/"area-g" — receitas antigas valem);
+  fase 2+ = "modelo2"/"area2-g". `faixa1d(gab, partida, texto)` = helper do
+  caso 1D; `primeiros(gab, n)` = partida com os n primeiros dados.
+- verificar.ts joga TODAS as fases em ordem (monta gabarito no alvo do grupo 1,
+  tick, exige completo por fase + grupo 2 isolado) e exige modo sequencial em
+  multi-fase. Aula 1 é o showcase: período 3 → período 4 → regra crescente.
+
 ### Cenários 4-6 (2026-07-20): gerador com área em CAIXA
 - **Cenario do gerar.ts é FUNÇÃO agora:** `gabarito(i,j,k)`/`partida(i,j,k)` +
   `area {dx,dy,dz}` — faixa 1D das aulas 1-3 = caso particular (`linha()`).

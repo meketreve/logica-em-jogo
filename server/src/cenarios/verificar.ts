@@ -88,14 +88,19 @@ export function conferir(buf: ArrayBuffer, o: Conferencia): string[] {
   const save = decodeSave(buf); // valida o formato do arquivo de quebra
   exigir(save.roster.length === 0, "o save carrega identidade do autor (roster devia estar vazio)");
   exigir(save.grupos?.length === o.grupos, `esperava ${o.grupos} grupos no save`);
-  exigir(save.cenario?.objetivos.length === 1, "esperava exatamente 1 objetivo no cenário");
-  const objetivo = save.cenario?.objetivos[0];
-  if (!objetivo?.gabarito || !objetivo.alvos?.length) {
-    problemas.push("objetivo sem gabarito ou sem área por grupo");
-    return problemas;
+  const objetivos = save.cenario?.objetivos ?? [];
+  exigir(objetivos.length >= 1, "cenário sem objetivo");
+  // 2+ fases exigem modo sequencial (fase a fase); 1 fase = livre, como sempre
+  if (objetivos.length > 1) {
+    exigir(save.cenario?.modo === "sequencial", "cenário multi-fase devia estar em modo sequencial");
   }
-
-  conferirGeometria(save.world, objetivo.alvos, problemas);
+  for (const obj of objetivos) {
+    if (!obj.gabarito || !obj.alvos?.length) {
+      problemas.push(`objetivo ${obj.id} sem gabarito ou sem área por grupo`);
+      return problemas;
+    }
+    conferirGeometria(save.world, obj.alvos, problemas);
+  }
 
   const msgs = new Map<number, Record<string, unknown>[]>();
   const s = new GameSession(
@@ -133,28 +138,35 @@ export function conferir(buf: ArrayBuffer, o: Conferencia): string[] {
   exigir(!!antes?.texto, "o aluno não recebeu o enunciado");
   exigir(!!g1 && !g1.completo && g1.atual < g1.total, "o objetivo já nasce completo pro grupo 1");
 
-  // o grupo 1 monta o gabarito na SUA área, célula a célula (ordem canônica y→z→x)
-  const alvo = objetivo.alvos[0]!;
-  const { min, max } = objetivo;
-  let i = 0;
-  for (let y = min.y; y <= max.y; y++) {
-    for (let z = min.z; z <= max.z; z++) {
-      for (let x = min.x; x <= max.x; x++) {
-        const id = objetivo.gabarito[i++]!;
-        send(1, {
-          type: "chat",
-          text: `/bloco ${alvo.min.x + (x - min.x)} ${alvo.min.y + (y - min.y)} ${alvo.min.z + (z - min.z)} ${id}`,
-        });
+  // o grupo 1 monta o gabarito de CADA fase na SUA área, na ordem — em modo
+  // sequencial a fase seguinte só ativa quando a anterior fecha (por grupo)
+  objetivos.forEach((objetivo, f) => {
+    const alvo = objetivo.alvos![0]!;
+    const { min, max } = objetivo;
+    let i = 0;
+    // célula a célula, ordem canônica y→z→x (a MESMA da fotografia)
+    for (let y = min.y; y <= max.y; y++) {
+      for (let z = min.z; z <= max.z; z++) {
+        for (let x = min.x; x <= max.x; x++) {
+          const id = objetivo.gabarito![i++]!;
+          send(1, {
+            type: "chat",
+            text: `/bloco ${alvo.min.x + (x - min.x)} ${alvo.min.y + (y - min.y)} ${alvo.min.z + (z - min.z)} ${id}`,
+          });
+        }
       }
     }
-  }
-  s.tick(); // a detecção roda no TICK do servidor (regra de ouro), não no clique
+    s.tick(); // a detecção roda no TICK do servidor (regra de ouro), não no clique
 
-  const depois = ultima<{ objetivos: Objetivo[] }>(2, "objectives")?.objetivos[0];
-  const f1 = depois?.porGrupo?.find((g) => g.grupo === 1);
-  const f2 = depois?.porGrupo?.find((g) => g.grupo === 2);
-  exigir(!!f1?.completo, `grupo 1 montou o gabarito e NÃO completou (${f1?.atual}/${f1?.total})`);
-  exigir(!f2?.completo, "grupo 2 completou junto — o progresso não está isolado por grupo");
+    const depois = ultima<{ objetivos: Objetivo[] }>(2, "objectives")?.objetivos[f];
+    const d1 = depois?.porGrupo?.find((g) => g.grupo === 1);
+    const d2 = depois?.porGrupo?.find((g) => g.grupo === 2);
+    exigir(
+      !!d1?.completo,
+      `fase ${f + 1}: grupo 1 montou o gabarito e NÃO completou (${d1?.atual}/${d1?.total})`,
+    );
+    exigir(!d2?.completo, `fase ${f + 1}: grupo 2 completou junto — progresso não isolado por grupo`);
+  });
   const fala = msgs.get(2)?.filter((m) => m["type"] === "chat").at(-1)?.["text"];
   exigir(/conclu/i.test(String(fala ?? "")), "o chat não anunciou a conclusão pro aluno");
 
