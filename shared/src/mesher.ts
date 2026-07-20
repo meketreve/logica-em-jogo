@@ -6,10 +6,13 @@ import {
   isFlor,
   isFullCube,
   isMovel,
+  isPortaAberta,
   isQuadro,
   isSofa,
   isTapete,
   isTransparentBlock,
+  portaEixoX,
+  portaHingeAlta,
 } from "./blocks";
 import { CHUNK_SIZE } from "./constants";
 import { type World, chunkIndex, getBlock } from "./world";
@@ -136,6 +139,13 @@ const BLOCK_TILES: Record<number, FaceTiles> = {
   [BlockId.PortaXAberta]: uniform(TILE.portaCima),
   [BlockId.PortaZFechada]: uniform(TILE.portaCima),
   [BlockId.PortaZAberta]: uniform(TILE.portaCima),
+  // portas R (dobradiça alta) — mesmo ícone; nunca vão à hotbar (o servidor as
+  // grava, o cliente sempre copia porta → PortaXFechada), mas blockIconTile não
+  // pode faltar caso algo peça o ícone de uma porta R.
+  [BlockId.PortaXFechadaR]: uniform(TILE.portaCima),
+  [BlockId.PortaXAbertaR]: uniform(TILE.portaCima),
+  [BlockId.PortaZFechadaR]: uniform(TILE.portaCima),
+  [BlockId.PortaZAbertaR]: uniform(TILE.portaCima),
   [BlockId.Tocha]: uniform(TILE.tocha),
   [BlockId.JanelaXFechada]: uniform(TILE.janela),
   [BlockId.JanelaXAberta]: uniform(TILE.janela),
@@ -409,17 +419,29 @@ export function meshChunk(world: World, cx: number, cy: number, cz: number): Chu
       case BlockId.PortaXFechada:
       case BlockId.PortaXAberta:
       case BlockId.PortaZFechada:
-      case BlockId.PortaZAberta: {
+      case BlockId.PortaZAberta:
+      case BlockId.PortaXFechadaR:
+      case BlockId.PortaXAbertaR:
+      case BlockId.PortaZFechadaR:
+      case BlockId.PortaZAbertaR: {
         // metade de cima se reconhece pelo vizinho de baixo com o MESMO id
         const tile =
           getBlock(world, wx, wy - 1, wz) === id ? TILE.portaCima : TILE.portaBaixo;
-        // lâmina fina no eixo que a porta BLOQUEIA. Painel na BORDA da célula
-        // (não centrado): fechada e aberta compartilham a aresta vertical do
-        // canto (0,·,0) = DOBRADIÇA — abrir pivota 90° na ponta, como porta de
-        // verdade, em vez de girar no próprio eixo (backlog 2026-07-17).
-        const finaEmX = id === BlockId.PortaXFechada || id === BlockId.PortaZAberta;
-        if (finaEmX) emitBox(lx, ly, lz, id, tile, 0, 0, 0, 2 * P, 1, 1);
-        else emitBox(lx, ly, lz, id, tile, 0, 0, 0, 1, 1, 2 * P);
+        // Lâmina fina na BORDA da célula (não centrada), pivota 90° na aresta
+        // vertical do canto = DOBRADIÇA (backlog 2026-07-17). FECHADA: varre o
+        // vão todo, encostada na face do eixo que BLOQUEIA (idêntica nas 2
+        // dobradiças). ABERTA: dobrada contra a parede do flanco — na aresta
+        // BAIXA (base) ou ALTA (variante R, dobradiça oposta) do flanco. Assim
+        // 2 portas lado a lado abrem pra lados opostos (porta dupla, 2026-07-20).
+        const eixoX = portaEixoX(id); // bloqueia X ⇒ flanco varre Z
+        if (!isPortaAberta(id)) {
+          if (eixoX) emitBox(lx, ly, lz, id, tile, 0, 0, 0, 2 * P, 1, 1);
+          else emitBox(lx, ly, lz, id, tile, 0, 0, 0, 1, 1, 2 * P);
+        } else {
+          const c = portaHingeAlta(id) ? 1 - 2 * P : 0; // borda do flanco: alta ou baixa
+          if (eixoX) emitBox(lx, ly, lz, id, tile, 0, 0, c, 1, 1, c + 2 * P);
+          else emitBox(lx, ly, lz, id, tile, c, 0, 0, c + 2 * P, 1, 1);
+        }
         return true;
       }
       case BlockId.Tocha: {

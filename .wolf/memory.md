@@ -1764,3 +1764,35 @@ bug-195 (basename sem import). .exe/empacotamento segue ADIADO (decisão do usu�
 | 15:08 | flores (ids 104-107, 4 cores): cruz de 2 lâminas + tile cutout, apoio+regra da tocha | blocks.ts, mesher.ts, atlasTexture.ts, rules.ts, blocksUi.ts | typecheck ok, 233 testes, mesh ✓ | ~10k |
 | 15:08 | FIX bug-359: /tp ~ usava coord do alvo, agora usa a do autor (professor) | session.ts, tp.test.ts | 9/9 tp, buglog | ~3k |
 | 15:08 | Session end: 77 writes across 23 files (todo.md, version.ts, index.ts, index.html, menu.ts) | 21 reads | ~101148 tok |
+| 15:47 | Session end: 77 writes across 23 files (todo.md, version.ts, index.ts, index.html, menu.ts) | 21 reads | ~101148 tok |
+
+## Session: 2026-07-20 15:48
+
+| Time | Action | File(s) | Outcome | ~Tokens |
+|------|--------|---------|---------|--------|
+| 16:01 | Edited shared/src/blocks.ts | expanded (+11 lines) | ~261 |
+| 16:01 | Edited shared/src/blocks.ts | modified isPorta() | ~628 |
+| 16:01 | Edited shared/src/blocks.ts | modified isFullCube() | ~92 |
+| 16:01 | Edited shared/src/blocks.ts | 11→10 lines | ~76 |
+| 16:01 | Edited shared/src/blocks.ts | modified isPlaceable() | ~89 |
+| 16:02 | Edited shared/src/mesher.ts | 6→9 lines | ~39 |
+| 16:02 | Edited shared/src/mesher.ts | added 2 condition(s) | ~421 |
+| 16:02 | Edited shared/src/mesher.ts | expanded (+7 lines) | ~181 |
+| 16:02 | Edited shared/src/rules.ts | modified R() | ~118 |
+| 16:02 | Edited shared/src/session.ts | 8→11 lines | ~51 |
+| 16:03 | Edited shared/src/session.ts | modified lulas() | ~215 |
+| 16:04 | Edited shared/src/session.ts | added 2 condition(s) | ~586 |
+| 16:04 | Edited shared/src/blocks.test.ts | modified flores() | ~230 |
+| 16:06 | Edited shared/src/cp23.test.ts | 8→12 lines | ~51 |
+| 16:06 | Edited shared/src/cp23.test.ts | added 1 condition(s) | ~1584 |
+| 16:08 | Created ../.claude/jobs/a35a297d/tmp/porta-stage.mts | — | ~541 |
+| 16:11 | Edited todo.md | 4→7 lines | ~199 |
+
+## Sessão 7 (2026-07-20) — pivô/dobradiça da porta
+Backlog "pivô da porta" FEITO. 4 ids R (108-111, dobradiça alta) espelham as portas base;
+servidor escolhe a dobradiça no place_block (porta vizinha do mesmo eixo → oposta = porta
+dupla; senão lado com parede/cubo cheio; empate → base). Cliente inalterado (manda só o eixo);
+só o mesher muda a folha ABERTA de lado. Files: shared/src/blocks.ts, mesher.ts, rules.ts,
+session.ts (+escolherDobradica), cp23.test.ts (+8), blocks.test.ts. 241 testes, typecheck 3/3,
+build ok, screenshot da porta dupla confere. NÃO commitado.
+| 16:13 | Session end: 17 writes across 8 files (blocks.ts, mesher.ts, rules.ts, session.ts, blocks.test.ts) | 10 reads | ~69831 tok |

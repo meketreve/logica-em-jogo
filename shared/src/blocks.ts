@@ -93,12 +93,23 @@ export const BlockId = {
   /** Flores decorativas (2026-07-20): plantinha fina em cruz, ATRAVESSÁVEL,
    *  precisa de apoio (some sem chão embaixo — regra da tocha). */
   FlorVermelha: 104, FlorAmarela: 105, FlorAzul: 106, FlorBranca: 107,
+  /** Porta com DOBRADIÇA na aresta ALTA do flanco (variante "R") — espelho das
+   *  portas base (66-69, dobradiça na aresta baixa). O servidor escolhe qual
+   *  variante gravar no place_block pelos vizinhos (parede/porta ao lado), não
+   *  o cliente: 2 portas lado a lado abrem pro meio (dobradiça oposta). APPEND
+   *  (não dá pra numerar junto das base sem quebrar bytes de save antigos) —
+   *  isPorta cobre os 2 trechos. Fechada é idêntica à base (varre o vão todo);
+   *  só a ABERTA muda de lado (dobra na parede ALTA em vez da baixa). */
+  PortaXFechadaR: 108,
+  PortaXAbertaR: 109,
+  PortaZFechadaR: 110,
+  PortaZAbertaR: 111,
 } as const;
 
 export type BlockId = (typeof BlockId)[keyof typeof BlockId];
 
 /** Maior ID válido (mantém isPlaceable sem número mágico ao crescer a lista). */
-const MAX_BLOCK_ID = BlockId.FlorBranca;
+const MAX_BLOCK_ID = BlockId.PortaZAbertaR;
 
 /** Flor decorativa (qualquer cor)? */
 export function isFlor(id: number): boolean {
@@ -156,18 +167,56 @@ export function isTransparentBlock(id: number): boolean {
   return id === BlockId.Glass || id === BlockId.Leaves;
 }
 
-/** Porta em qualquer eixo/estado? */
+/** Porta em qualquer eixo/estado/dobradiça? (2 trechos de id — ver PortaXFechadaR) */
 export function isPorta(id: number): boolean {
-  return id >= BlockId.PortaXFechada && id <= BlockId.PortaZAberta;
+  return (
+    (id >= BlockId.PortaXFechada && id <= BlockId.PortaZAberta) ||
+    (id >= BlockId.PortaXFechadaR && id <= BlockId.PortaZAbertaR)
+  );
 }
 
-/** Id da mesma porta com o estado alternado (fechada↔aberta, mesmo eixo). */
+/** Porta ABERTA (qualquer eixo/dobradiça)? */
+export function isPortaAberta(id: number): boolean {
+  return (
+    id === BlockId.PortaXAberta || id === BlockId.PortaZAberta ||
+    id === BlockId.PortaXAbertaR || id === BlockId.PortaZAbertaR
+  );
+}
+
+/** Porta que BLOQUEIA passagem no eixo X (painel varre o flanco Z)? */
+export function portaEixoX(id: number): boolean {
+  return (
+    id === BlockId.PortaXFechada || id === BlockId.PortaXAberta ||
+    id === BlockId.PortaXFechadaR || id === BlockId.PortaXAbertaR
+  );
+}
+
+/** Dobradiça na aresta ALTA do flanco (variante "R")? false = aresta baixa (base). */
+export function portaHingeAlta(id: number): boolean {
+  return id >= BlockId.PortaXFechadaR && id <= BlockId.PortaZAbertaR;
+}
+
+/** Deslocamento base→variante-de-dobradiça (os 4 ids R são os 4 base + isto). */
+const PORTA_HINGE_OFFSET = BlockId.PortaXFechadaR - BlockId.PortaXFechada;
+
+/** Mesma porta (eixo+estado) com a dobradiça pedida (alta = R, baixa = base).
+ *  Aceita id base OU R na entrada (normaliza antes de aplicar). */
+export function portaComHinge(id: number, alta: boolean): number {
+  const base = portaHingeAlta(id) ? id - PORTA_HINGE_OFFSET : id;
+  return alta ? base + PORTA_HINGE_OFFSET : base;
+}
+
+/** Id da mesma porta com o estado alternado (fechada↔aberta; eixo e dobradiça iguais). */
 export function portaToggled(id: number): number {
   switch (id) {
     case BlockId.PortaXFechada: return BlockId.PortaXAberta;
     case BlockId.PortaXAberta: return BlockId.PortaXFechada;
     case BlockId.PortaZFechada: return BlockId.PortaZAberta;
     case BlockId.PortaZAberta: return BlockId.PortaZFechada;
+    case BlockId.PortaXFechadaR: return BlockId.PortaXAbertaR;
+    case BlockId.PortaXAbertaR: return BlockId.PortaXFechadaR;
+    case BlockId.PortaZFechadaR: return BlockId.PortaZAbertaR;
+    case BlockId.PortaZAbertaR: return BlockId.PortaZFechadaR;
     default: return id;
   }
 }
@@ -199,6 +248,7 @@ export function isFullCube(id: number): boolean {
   return (
     id !== BlockId.Air &&
     !(id >= BlockId.Cerca && id <= BlockId.Tocha) &&
+    !isPorta(id) && // portas R (108-111) ficam FORA da faixa Cerca..Tocha
     !isTapete(id) &&
     !isJanela(id) &&
     !isMovel(id) &&
@@ -212,8 +262,7 @@ export function isFullCube(id: number): boolean {
 export function isSolidBlock(id: number): boolean {
   return (
     id !== BlockId.Air &&
-    id !== BlockId.PortaXAberta &&
-    id !== BlockId.PortaZAberta &&
+    !isPortaAberta(id) && // porta aberta (base OU R) atravessa
     id !== BlockId.JanelaXAberta &&
     id !== BlockId.JanelaZAberta &&
     id !== BlockId.Tocha &&
@@ -226,7 +275,7 @@ export function isSolidBlock(id: number): boolean {
 /** O jogador pode colocar este ID? (valida bytes do fio). Porta/janela ABERTA
  *  não se coloca na mão — só existe alternando uma fechada no clique direito. */
 export function isPlaceable(id: number): boolean {
-  if (id === BlockId.PortaXAberta || id === BlockId.PortaZAberta) return false;
+  if (isPortaAberta(id)) return false; // porta aberta (base OU R) só nasce alternando uma fechada
   if (id === BlockId.JanelaXAberta || id === BlockId.JanelaZAberta) return false;
   return Number.isInteger(id) && id >= BlockId.Grass && id <= MAX_BLOCK_ID;
 }

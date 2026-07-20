@@ -75,6 +75,11 @@ const rulesMap = new Map<number, BlockRule>([
   [BlockId.PortaXAberta, doorRule],
   [BlockId.PortaZFechada, doorRule],
   [BlockId.PortaZAberta, doorRule],
+  // portas R (dobradiça alta, 2026-07-20): mesma regra de órfão do par vertical
+  [BlockId.PortaXFechadaR, doorRule],
+  [BlockId.PortaXAbertaR, doorRule],
+  [BlockId.PortaZFechadaR, doorRule],
+  [BlockId.PortaZAbertaR, doorRule],
   [BlockId.Tocha, torchRule],
 ]);
 // Tapetes (2026-07-19): mesma regra de apoio da tocha, pras 12 cores.

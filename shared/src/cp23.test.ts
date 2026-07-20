@@ -4,7 +4,11 @@ import {
   isFullCube,
   isPlaceable,
   isPorta,
+  isPortaAberta,
   isSolidBlock,
+  portaComHinge,
+  portaEixoX,
+  portaHingeAlta,
   portaToggled,
 } from "./blocks";
 import { meshChunk } from "./mesher";
@@ -236,6 +240,109 @@ describe("cp23 — sessão (porta e tocha)", () => {
     const { session, send } = makeFlat();
     send({ type: "chat", text: `/bloco 5 ${SOLO + 1} 5 ${BlockId.PortaXFechada}` });
     expect(getBlock(session.world, 5, SOLO + 1, 5)).toBe(BlockId.Air);
+  });
+});
+
+describe("porta — dobradiça/pivô (2026-07-20)", () => {
+  it("helpers das portas R (dobradiça alta)", () => {
+    expect(isPorta(BlockId.PortaXFechadaR)).toBe(true);
+    expect(isPorta(BlockId.PortaZAbertaR)).toBe(true);
+    expect(portaHingeAlta(BlockId.PortaXFechada)).toBe(false);
+    expect(portaHingeAlta(BlockId.PortaXFechadaR)).toBe(true);
+    expect(portaEixoX(BlockId.PortaXAbertaR)).toBe(true);
+    expect(portaEixoX(BlockId.PortaZFechadaR)).toBe(false);
+    expect(isPortaAberta(BlockId.PortaXAbertaR)).toBe(true);
+    expect(isPortaAberta(BlockId.PortaXFechadaR)).toBe(false);
+    // normaliza a entrada e aplica a dobradiça pedida (base ↔ R)
+    expect(portaComHinge(BlockId.PortaXFechada, true)).toBe(BlockId.PortaXFechadaR);
+    expect(portaComHinge(BlockId.PortaXFechadaR, false)).toBe(BlockId.PortaXFechada);
+    expect(portaToggled(BlockId.PortaXFechadaR)).toBe(BlockId.PortaXAbertaR);
+    // R aberta atravessa e não vai à mão; R fechada é cubo? não
+    expect(isSolidBlock(BlockId.PortaXAbertaR)).toBe(false);
+    expect(isSolidBlock(BlockId.PortaXFechadaR)).toBe(true);
+    expect(isFullCube(BlockId.PortaXFechadaR)).toBe(false);
+    expect(isPlaceable(BlockId.PortaXAbertaR)).toBe(false);
+  });
+
+  it("sem parede/porta vizinha: dobradiça baixa (base, comportamento antigo)", () => {
+    const { session, send } = makeFlat();
+    const y = SOLO + 1;
+    send({ type: "place_block", x: 5, y, z: 5, blockId: BlockId.PortaXFechada });
+    expect(getBlock(session.world, 5, y, 5)).toBe(BlockId.PortaXFechada);
+  });
+
+  it("parede no lado ALTO do flanco vira dobradiça alta (R)", () => {
+    const { session, send } = makeFlat();
+    const y = SOLO + 1;
+    // PortaX flanca em Z: parede em z+1 (lado alto) → pivô alto
+    send({ type: "place_block", x: 5, y, z: 6, blockId: BlockId.Stone });
+    send({ type: "place_block", x: 5, y, z: 5, blockId: BlockId.PortaXFechada });
+    expect(getBlock(session.world, 5, y, 5)).toBe(BlockId.PortaXFechadaR);
+    expect(getBlock(session.world, 5, y + 1, 5)).toBe(BlockId.PortaXFechadaR); // par igual
+  });
+
+  it("parede no lado BAIXO do flanco mantém dobradiça baixa (base)", () => {
+    const { session, send } = makeFlat();
+    const y = SOLO + 1;
+    send({ type: "place_block", x: 5, y, z: 4, blockId: BlockId.Stone });
+    send({ type: "place_block", x: 5, y, z: 5, blockId: BlockId.PortaXFechada });
+    expect(getBlock(session.world, 5, y, 5)).toBe(BlockId.PortaXFechada);
+  });
+
+  it("PortaZ: parede no lado alto do flanco X vira R (eixo espelhado)", () => {
+    const { session, send } = makeFlat();
+    const y = SOLO + 1;
+    // PortaZ flanca em X: parede em x+1 (lado alto) → pivô alto
+    send({ type: "place_block", x: 6, y, z: 5, blockId: BlockId.Stone });
+    send({ type: "place_block", x: 5, y, z: 5, blockId: BlockId.PortaZFechada });
+    expect(getBlock(session.world, 5, y, 5)).toBe(BlockId.PortaZFechadaR);
+  });
+
+  it("duas portas lado a lado = dobradiças OPOSTAS (porta dupla)", () => {
+    const { session, send } = makeFlat();
+    const y = SOLO + 1;
+    // A sem vizinho → base; B ao lado (z+1) espelha → R (abrem pro meio)
+    send({ type: "place_block", x: 5, y, z: 5, blockId: BlockId.PortaXFechada });
+    send({ type: "place_block", x: 5, y, z: 6, blockId: BlockId.PortaXFechada });
+    expect(getBlock(session.world, 5, y, 5)).toBe(BlockId.PortaXFechada); // A intacta
+    expect(getBlock(session.world, 5, y, 6)).toBe(BlockId.PortaXFechadaR); // B oposta
+    // porta vizinha VENCE parede: mesmo com parede no outro lado de B, ainda espelha A
+  });
+
+  it("porta R abre/fecha e a metade órfã evapora (mesma engrenagem da base)", () => {
+    const { session, send } = makeFlat();
+    const y = SOLO + 1;
+    send({ type: "place_block", x: 5, y, z: 6, blockId: BlockId.Stone }); // força R
+    send({ type: "place_block", x: 5, y, z: 5, blockId: BlockId.PortaXFechada });
+    expect(getBlock(session.world, 5, y, 5)).toBe(BlockId.PortaXFechadaR);
+    send({ type: "use_block", x: 5, y, z: 5 });
+    expect(getBlock(session.world, 5, y, 5)).toBe(BlockId.PortaXAbertaR);
+    expect(getBlock(session.world, 5, y + 1, 5)).toBe(BlockId.PortaXAbertaR);
+    send({ type: "break_block", x: 5, y, z: 5 });
+    session.tick();
+    expect(getBlock(session.world, 5, y + 1, 5)).toBe(BlockId.Air); // órfã caiu
+  });
+
+  it("mesher: porta aberta base dobra no flanco BAIXO; R no flanco ALTO", () => {
+    const zsDaPorta = (id: number): number[] => {
+      const world = generateFlatWorld(DIMS);
+      const yd = SOLO + 5; // acima do chão: única geometria nessa faixa de Y
+      setBlock(world, 5, yd, 5, id);
+      const { positions } = meshChunk(world, 0, 0, 0);
+      const zs: number[] = [];
+      for (let i = 0; i < positions.length; i += 3) {
+        if (positions[i + 1]! >= yd - 0.5 && positions[i + 1]! <= yd + 1.5) {
+          zs.push(positions[i + 2]!);
+        }
+      }
+      return zs;
+    };
+    const base = zsDaPorta(BlockId.PortaXAberta);
+    const alta = zsDaPorta(BlockId.PortaXAbertaR);
+    // base: lâmina encostada na borda z=5 (baixa) → maior z fica perto de 5
+    expect(Math.max(...base)).toBeLessThan(5.3);
+    // R: lâmina encostada na borda z=6 (alta) → menor z fica perto de 6
+    expect(Math.min(...alta)).toBeGreaterThan(5.7);
   });
 });
 

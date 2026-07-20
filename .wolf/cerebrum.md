@@ -424,6 +424,23 @@
   lado-da-dobradiça (8 ids a mais = fora do escopo rápido); dobradiça é sempre
   o canto de coord baixa. Testes de contagem de face do cp23 NÃO mudaram
   (painel na borda em vão de ar emite as mesmas faces do centrado).
+- **Escolher o LADO da dobradiça (2026-07-20, sessão 7):** o "fora do escopo" acima
+  foi revogado — o usuário pediu. Encoding = 4 ids R (`PortaXFechadaR`..`PortaZAbertaR`,
+  108-111, APPEND depois das flores; NÃO dá pra numerar junto das base sem quebrar bytes
+  de save). R = dobradiça na aresta ALTA do "flanco" (eixo que o painel varre: PortaX
+  flanca em Z, PortaZ em X). FECHADA idêntica nas 2 dobradiças (varre o vão todo) — só a
+  ABERTA muda de lado; por isso a variante é PURO VISUAL (mesher), física é por célula
+  (sólida/vazia). A ESCOLHA mora no SERVIDOR, não no cliente (`escolherDobradica` em
+  session.ts, no place_block da porta): (1) porta vizinha do MESMO eixo em qualquer lado do
+  flanco → dobradiça OPOSTA à dela (porta dupla, abre pro meio); (2) senão, cubo cheio num
+  lado do flanco e não no outro → dobradiça do lado da parede (checa y E y+1, porta é 2 alta);
+  (3) empate → base. Cliente NÃO mudou (segue mandando só o eixo — PortaXFechada/PortaZFechada;
+  copy mapeia qualquer porta → PortaXFechada). Helpers: `isPortaAberta`/`portaEixoX`/
+  `portaHingeAlta`/`portaComHinge` (este NORMALIZA a entrada, aceita base ou R). PEGADINHA:
+  `isFullCube` dependia da faixa `Cerca..Tocha` pra excluir portas; os ids R saíram da faixa
+  → precisou `!isPorta(id)` explícito (senão porta R viraria cubo cheio e ocluiria vizinho).
+  `isSolidBlock`/`isPlaceable` trocaram os literais PortaXAberta/PortaZAberta por `isPortaAberta`
+  (cobre R). Padrão reusável pra JANELA (mesmo desenho) se um dia pedir dobradiça escolhida.
 - **Autocomplete de NOMES (2026-07-19):** `learnPlayers` em client/commands.ts
   espelha learnWorlds; main.ts alimenta com Map id→nome do `player_moved`
   (guard: só quando nome novo/diferente — senão roda a 10 Hz×N jogadores) e

@@ -12,6 +12,9 @@ import {
   isQuadro,
   isSolidBlock,
   interativoToggled,
+  portaComHinge,
+  portaEixoX,
+  portaHingeAlta,
   precisaApoio,
 } from "./blocks";
 import { MAX_QUADRO_TEXTO, type QuadroConteudo, quadroKey } from "./quadros";
@@ -517,8 +520,11 @@ export class GameSession {
           if (!inBounds(this.world, msg.x, yCima, msg.z)) return;
           if (getBlock(this.world, msg.x, yCima, msg.z) !== BlockId.Air) return;
           if (this.overlapsAnyPlayer(msg.x, yCima, msg.z)) return;
-          this.applyBlock(msg.x, msg.y, msg.z, msg.blockId);
-          this.applyBlock(msg.x, yCima, msg.z, msg.blockId);
+          // dobradiça escolhida pelo mundo (parede/porta ao lado), não pelo
+          // cliente — as 2 metades levam o MESMO id (par se reconhece por igualdade)
+          const idPorta = this.escolherDobradica(msg.blockId, msg.x, msg.y, msg.z);
+          this.applyBlock(msg.x, msg.y, msg.z, idPorta);
+          this.applyBlock(msg.x, yCima, msg.z, idPorta);
           break;
         }
         if (isCama(msg.blockId)) {
@@ -2491,6 +2497,37 @@ export class GameSession {
       clientId,
       JSON.stringify({ type: "chat", author: "servidor", text } satisfies ServerMessage),
     );
+  }
+
+  /**
+   * Escolhe a DOBRADIÇA de uma porta ao colocar, pelo estado do mundo (backlog
+   * "pivô da porta", 2026-07-20). O cliente decide só o EIXO; o servidor (a
+   * autoridade) decide o lado do pivô, na ordem: (1) porta vizinha do MESMO eixo
+   * ⇒ dobradiça OPOSTA à dela — 2 portas lado a lado abrem pro meio (porta dupla,
+   * convenção Minecraft); (2) senão, dobradiça no lado que TEM parede (cubo
+   * cheio), só quando um lado tem e o outro não; (3) empate/nenhum ⇒ dobradiça
+   * baixa (base, comportamento antigo). "Flanco" = eixo que o painel varre
+   * (perpendicular ao que a porta bloqueia): PortaX flanca em Z, PortaZ em X.
+   */
+  private escolherDobradica(baseId: number, x: number, y: number, z: number): number {
+    const dx = portaEixoX(baseId) ? 0 : 1; // PortaX flanca em Z; PortaZ flanca em X
+    const dz = portaEixoX(baseId) ? 1 : 0;
+    const cheia = (cx: number, cz: number): boolean =>
+      isFullCube(getBlock(this.world, cx, y, cz)) ||
+      isFullCube(getBlock(this.world, cx, y + 1, cz)); // porta tem 2 células de altura
+    // (1) porta dupla: vizinha do MESMO eixo em QUALQUER lado do flanco → oposta
+    for (const s of [-1, 1] as const) {
+      const nb = getBlock(this.world, x + s * dx, y, z + s * dz);
+      if (isPorta(nb) && portaEixoX(nb) === portaEixoX(baseId)) {
+        return portaComHinge(baseId, !portaHingeAlta(nb));
+      }
+    }
+    // (2) parede: dobradiça no lado do flanco que tem cubo cheio (o outro, não)
+    const paredeBaixa = cheia(x - dx, z - dz);
+    const paredeAlta = cheia(x + dx, z + dz);
+    if (paredeAlta && !paredeBaixa) return portaComHinge(baseId, true);
+    // (3) default: dobradiça na aresta baixa (base)
+    return portaComHinge(baseId, false);
   }
 
   /**

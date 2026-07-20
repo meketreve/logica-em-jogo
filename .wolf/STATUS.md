@@ -1,8 +1,26 @@
 # STATUS — Projeto "Lógica em Jogo" (jogo voxel educacional)
 
 > Single source of truth for resuming work. Read this FIRST when starting a session.
-> Last updated: 2026-07-20 (SESSÃO 6 FECHADA + COMMITADA + PUSHADA — versão, mundos/ em pastas,
-> chat.log, claim 32×32×64, cama de 2 blocos, flores, fix /tp ~. Próxima: PLAYTEST — ver bloco abaixo.)
+> Last updated: 2026-07-20 (SESSÃO 7 — PIVÔ DA PORTA. NÃO commitado ainda.)
+> **SESSÃO 7 (2026-07-20) — PIVÔ/DOBRADIÇA DA PORTA (backlog do todo.md):** porta agora
+> escolhe o lado da DOBRADIÇA ao ser colocada. 4 ids R novos (`PortaXFechadaR`..`PortaZAbertaR`
+> = 108-111, APPEND depois das flores; dobradiça na aresta ALTA do flanco, espelho das base
+> 66-69). `isPorta` cobre os 2 trechos; helpers novos em blocks.ts: `isPortaAberta`,
+> `portaEixoX`, `portaHingeAlta`, `portaComHinge`. A ESCOLHA mora no SERVIDOR (autoridade):
+> `escolherDobradica` (session.ts) roda no `place_block` da porta, na ordem — (1) porta vizinha
+> do MESMO eixo → dobradiça OPOSTA (2 portas lado a lado abrem pro meio = porta dupla); (2)
+> senão, parede (cubo cheio) num lado do flanco e não no outro → dobradiça do lado da parede;
+> (3) empate → base (dobradiça baixa, comportamento antigo). O cliente NÃO muda: segue mandando
+> só o eixo (PortaXFechada/PortaZFechada); o servidor grava a variante. Só o MESHER muda a folha
+> ABERTA de lado (dobra no flanco alto se R); FECHADA e física idênticas (célula sólida/vazia —
+> dobradiça é puro visual). `isFullCube`/`isSolidBlock`/`isPlaceable`/`portaToggled`/`doorRule`
+> estendidos pros ids R (`isFullCube` ganhou `!isPorta` porque R saiu da faixa Cerca..Tocha).
+> BLOCK_TILES ganhou os 4 R (mesmo tile portaCima — nunca vão à hotbar). 241 testes (+8 em
+> cp23.test: helpers R, 4 casos de placement, abre/fecha+órfã R, e mesher provando a folha base
+> dobra no flanco baixo e a R no alto), typecheck 3/3, build ok. Screenshot headless da porta
+> dupla aberta confere (folhas dobram pra lados opostos). NÃO commitado ainda.
+> **SESSÃO 6 FECHADA + COMMITADA + PUSHADA (2026-07-20)** — versão, mundos/ em pastas,
+> chat.log, claim 32×32×64, cama de 2 blocos, flores, fix /tp ~. Próxima: PLAYTEST — ver bloco abaixo.
 > **SESSÃO 6c (2026-07-20):** (6) MUNDO = PASTA PRÓPRIA — cada
 > mundo agora mora em `mundos/<nome>/` com `<nome>.ljw` (save) + `chat.log`
 > (transcrição). paths.ts ganhou `nomeDoMundo`/`pastaDoMundo`/`savePathDoMundo`/
@@ -44,9 +62,12 @@
 > marca área maior com a varinha); (e) CAMA colocada vira 2 blocos orientados pelo
 > olhar (cabeceira longe, com travesseiro; quebrar 1 metade some a outra); (f) FLORES
 > na hotbar (colocar no chão, atravessar, quebrar o chão → some); (g) `/tp nome ~ ~ ~`
-> manda o aluno pra posição do PROFESSOR. Backlog aberto (todo.md): pivô da porta
-> (lado com bloco; 2 portas = pivôs opostos), animação sentar/deitar, modelo de player,
+> manda o aluno pra posição do PROFESSOR. Backlog aberto (todo.md): ~~pivô da porta~~
+> (FEITO sessão 7), animação sentar/deitar, modelo de player, atalhos do navegador,
 > sobrevivência, geração procedural. Depois do playtest: o PILOTO e o relatório.
+> **Playtest da SESSÃO 7 (adicionar ao roteiro):** (h) porta com PAREDE só de um lado →
+> dobra pro lado da parede; (i) 2 portas lado a lado → abrem pra lados opostos (porta dupla);
+> (j) porta solta (sem parede/vizinha) → dobra como antes (base).
 > **SESSÃO 6b (2026-07-20, sem commit ainda):** (4) PASTA `aulas/` → `mundos/`
 > (`PASTA_AULAS`→`PASTA_MUNDOS` em paths.ts). Agora é o lar de TODOS os saves vivos:
 > mundo livre + cópias de trabalho das aulas. Mundo livre PADRÃO (sem LJ_SAVE) mudou
