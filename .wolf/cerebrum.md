@@ -612,6 +612,25 @@
 - **Tile de UI de móvel** pode REUSAR tile existente (tapete→lã, cadeira→tábuas);
   só pinta tile novo quando a cara é nova (estofado, colchão, janela, quadro).
 
+### Mundo G + medição de desempenho (2026-07-19 sessão 3)
+- **Bench do mundo G (16×16×8 = 256×256×128, Node local):** worldgen 80 ms ·
+  mesh dos 2048 chunks ~970 ms (pior chunk 10 ms; 512 com geometria, 740k
+  vértices) · encode/decode snapshot 7/18 ms · encodeSave 24 ms · tick com 500
+  areias ≈ 0 ms. Script: scratchpad bench.mts (regenerável).
+- **O que FOI otimizado (dor real):** (a) fast path de chunk 100% ar no
+  meshChunk (75% dos chunks do G são céu; checar 4096 bytes custa ~µs);
+  (b) `perMessageDeflate {threshold:1024}` no WebSocketServer — snapshot de
+  8 MB vira **41,6 KB no fio** (terreno repetitivo; join da turma 160 MB→<1 MB).
+  Smoke com cliente `ws` confirma negociação (undici/WebSocket global NÃO
+  negocia deflate — testar compressão exige o pacote ws como cliente).
+- **O que NÃO foi otimizado (decisão, 2026-07-19):** gzip do save em disco
+  (24 ms/8 MB a cada 30 s não dói; mudaria o formato .ljw e o navegador não
+  gunzipa síncrono — import quebraria); mesh de chunk maciço (greedy/worker
+  seguem ADIADOS — gatilho = hitch/FPS reclamado no lab; ~1 s de mesh no join
+  do mundo G, uma vez, é aceitável); time-slicing do buildAll (mesmo gatilho).
+- Tamanho P/M/G: SÓ criação (menu select, worker init `tamanho`, LJ_TAMANHO,
+  launchers perguntam). Save/snapshot sempre carregaram dims — zero migração.
+
 ### Launchers do servidor (raiz do repo, 2026-07-18)
 - **`iniciar-servidor.bat` (Windows/escola) + `iniciar-servidor.sh` (casa/WSL)**
   facilitam o professor subir o host: menu de mundo (1=livre→`world.ljw`, 2-4=

@@ -1577,3 +1577,8 @@ bug-195 (basename sem import). .exe/empacotamento segue ADIADO (decisão do usu�
 | 22:02 | Edited iniciar-servidor.bat | modified professor() | ~115 |
 | 22:08 | Edited shared/src/worldgen.test.ts | expanded (+7 lines) | ~85 |
 | 22:08 | tamanho de mundo P/M/G na criação: menu select + worker init dims + LJ_TAMANHO + launchers | worldgen.ts, menu.ts, index.html, connection.ts, main.ts, worker.ts, server/index.ts, launchers | 227 testes | ~8k |
+| 22:09 | Created ../../../tmp/claude-1000/-home-meketreve-logica-em-jogo/d5fb946a-7df1-4f81-8d6e-b29e8b26f43a/scratchpad/bench.mts | — | ~965 |
+| 22:11 | Edited shared/src/mesher.ts | added 1 condition(s) | ~248 |
+| 22:11 | Edited shared/src/mesher.ts | 2→2 lines | ~29 |
+| 22:11 | Edited server/src/index.ts | modified perMessageDeflate() | ~167 |
+| 23:55 | medição mundo G + otimizações: fast path chunk-ar no mesher, perMessageDeflate no ws (8MB→41,6KB no fio); greedy/gzip-save adiados com registro | mesher.ts, server/index.ts, cerebrum | 228 testes, bench + smoke deflate ✅ | ~10k |

@@ -1,7 +1,7 @@
 # anatomy.md
 
-> Auto-maintained by OpenWolf. Last scanned: 2026-07-20T01:08:26.498Z
-> Files: 111 tracked | Anatomy hits: 0 | Misses: 0
+> Auto-maintained by OpenWolf. Last scanned: 2026-07-20T01:11:37.335Z
+> Files: 112 tracked | Anatomy hits: 0 | Misses: 0
 
 ## ../../../tmp/claude-1000/-home-meketreve-logica-em-jogo/1e53a721-e45d-4911-a026-f385f8f2c4e6/scratchpad/
 
@@ -57,6 +57,7 @@
 
 ## ../../../tmp/claude-1000/-home-meketreve-logica-em-jogo/d5fb946a-7df1-4f81-8d6e-b29e8b26f43a/scratchpad/
 
+- `bench.mts` — Bench do mundo G (16×16×8 chunks = 256×256×128): gera, mesha TUDO (custo do (~965 tok)
 - `janela.mts` — Stage janela: parede de pedra com 2 janelas na frente do spawn; abre a da (~587 tok)
 - `moveis.mts` — Stage móveis: mesa com 4 cadeiras em volta (uma por direção), sofá e cama. (~499 tok)
 - `quadro.mts` — Stage quadro: dois quadros de frente pro spawn — um só texto, um com imagem. (~642 tok)
@@ -128,7 +129,7 @@
 
 - `cenarios/gerar.ts` — Gerador dos 3 cenários pedagógicos (.ljw): digita os MESMOS comandos de chat do professor contra a GameSession real. Flags: --grupos --codigo --revelar --saida (~1900 tok)
 - `cenarios/verificar.ts` — Conferência embutida na geração: abre o .ljw num servidor novo, entra prof+2 alunos, completa a área do grupo 1; + guarda de geometria da faixa (~1400 tok)
-- `index.ts` — Hospedeiro Node+ws do servidor (LAN): embrulha a MESMA GameSession do Web (~4012 tok)
+- `index.ts` — Hospedeiro Node+ws do servidor (LAN): embrulha a MESMA GameSession do Web (~4106 tok)
 - `mundos.ts` — `/mundo` (cp19) — trocar a aula SEM derrubar a turma. (~1914 tok)
 - `paths.ts` — `npm run <script> -w server` roda com o cwd dentro de server/, então caminho (~572 tok)
 - `static.ts` — Serve o cliente já buildado (client/dist) NA MESMA PORTA do WebSocket. (~1055 tok)
@@ -161,7 +162,7 @@
 - `groups.ts` — Grupos de alunos (cp13) — membros por NOME (mesma identidade do roster: (~280 tok)
 - `index.ts` (~129 tok)
 - `mesher.test.ts` — Declares DIMS (~992 tok)
-- `mesher.ts` — Culled mesher: função PURA (bytes do mundo → geometria). Só emite faces que (~5732 tok)
+- `mesher.ts` — Culled mesher: função PURA (bytes do mundo → geometria). Só emite faces que (~5895 tok)
 - `physics.test.ts` — Mundo 1 chunk com chão sólido em y ∈ [0,7]. (~2603 tok)
 - `physics.ts` — Física do jogador (andar, gravidade, colisão AABB com o grid de voxels). (~2071 tok)
 - `protocol.test.ts` — Declares DIMS (~2707 tok)

@@ -324,7 +324,14 @@ function interceptarKicar(clientId: number, texto: string): boolean {
 // HTTP e WebSocket na MESMA porta: o aluno abre http://ip-do-professor:8080 e
 // joga — sem servidor de página separado e sem digitar endereço de WebSocket.
 const http = createServer(servirCliente);
-const wss = new WebSocketServer({ server: http });
+// perMessageDeflate (2026-07-19): o snapshot do mundo G tem 8 MB e comprime
+// pra ~40 KB (terreno é MUITO repetitivo) — turma inteira entrando junto na
+// LAN caía de 160 MB pra <1 MB. threshold poupa as mensagens pequenas (move/
+// chat) do custo de CPU; o navegador negocia sozinho.
+const wss = new WebSocketServer({
+  server: http,
+  perMessageDeflate: { threshold: 1024 },
+});
 
 wss.on("connection", (socket, req) => {
   const id = nextClientId++;

@@ -10,7 +10,7 @@ import {
   isTransparentBlock,
 } from "./blocks";
 import { CHUNK_SIZE } from "./constants";
-import { type World, getBlock } from "./world";
+import { type World, chunkIndex, getBlock } from "./world";
 
 /**
  * Culled mesher: função PURA (bytes do mundo → geometria). Só emite faces que
@@ -285,6 +285,20 @@ export interface ChunkGeometry {
 }
 
 export function meshChunk(world: World, cx: number, cy: number, cz: number): ChunkGeometry {
+  // Fast path (2026-07-19): chunk 100% AR não emite face nenhuma (culled
+  // mesher só olha células sólidas DESTE chunk). No mundo G, 75% dos chunks
+  // são céu — varrer 4096 células × 6 faces à toa dominava o mesh do join
+  // (bench: 1,1 s → ~0,3 s). Checar 4096 bytes custa ~µs.
+  const bytes = world.chunks[chunkIndex(world, cx, cy, cz)];
+  if (bytes && bytes.every((b) => b === 0)) {
+    return {
+      positions: new Float32Array(0),
+      normals: new Float32Array(0),
+      uvs: new Float32Array(0),
+      indices: new Uint32Array(0),
+    };
+  }
+
   const positions: number[] = [];
   const normals: number[] = [];
   const uvs: number[] = [];

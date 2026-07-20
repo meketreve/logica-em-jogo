@@ -88,3 +88,15 @@ describe("culled mesher (função pura: bytes → geometria)", () => {
     expect(g.indices.length).toBe(36); // 6 faces mesmo encostado na borda
   });
 });
+
+describe("fast path de chunk vazio (2026-07-19)", () => {
+  it("chunk 100% ar devolve geometria vazia; com 1 bloco, emite", () => {
+    const world = createWorld({ x: 1, z: 1, y: 2 });
+    setBlock(world, 5, 5, 5, BlockId.Stone); // chunk de BAIXO tem 1 bloco
+    const cheio = meshChunk(world, 0, 0, 0);
+    expect(cheio.positions.length).toBeGreaterThan(0);
+    const vazio = meshChunk(world, 0, 1, 0); // chunk de cima é só ar
+    expect(vazio.positions.length).toBe(0);
+    expect(vazio.indices.length).toBe(0);
+  });
+});
