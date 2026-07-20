@@ -15,3 +15,4 @@ export * from "./scenario";
 export * from "./protocol";
 export * from "./save";
 export * from "./session";
+export * from "./version";

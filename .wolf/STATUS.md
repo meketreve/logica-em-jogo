@@ -1,7 +1,21 @@
 # STATUS — Projeto "Lógica em Jogo" (jogo voxel educacional)
 
 > Single source of truth for resuming work. Read this FIRST when starting a session.
-> Last updated: 2026-07-20 (sessão 5: playtest a/b/c confirmado + profiler enviar-pro-servidor + bug-333 quadro fantasma + rename todo.md)
+> Last updated: 2026-07-20 (sessão 6: arquivo de VERSÃO + exibir no boot do server e menu do cliente; +2 itens no todo.md; commit da sessão)
+> **SESSÃO 6 (2026-07-20):** (1) ARQUIVO DE VERSÃO — `shared/src/version.ts`
+> exporta `VERSION` ("0.6.0"), FONTE ÚNICA (barrel `shared/index.ts` reexporta;
+> nenhum package.json tem `version`). Server loga `Lógica em Jogo v0.6.0` no boot
+> (`server/index.ts`, callback do http.listen). Cliente: badge `#menu-version` no
+> canto inferior direito do overlay `#menu` (`menu.ts` seta em `showMenu`; CSS
+> `position:absolute` no `#menu` que já é `position:fixed` → visível em TODA tela
+> do menu). typecheck 3/3, build ok, 230 testes. Bump futuro: mexer SÓ em
+> version.ts. (2) TODO.MD +2 itens de backlog: (a) salvar o log do chat em arquivo
+> (mesmo padrão do profiler "enviar pro servidor" — HOST grava, GameSession não tem
+> fs; singleplayer/Web Worker sem fs cai no vácuo); (b) salvar mundo em PASTAS (uma
+> pasta por mundo em vez de `.ljw` único) — VAI PRECISAR mudar o sistema de exportar
+> mundos do singleplayer (hoje worldStore.ts exporta blob .ljw único via download).
+> (3) Commit da sessão — versionado tudo EXCETO os arquivos de runtime do OpenWolf
+> (`_session.json`, `token-ledger.json`).
 > **SESSÃO 5 (2026-07-20, sem commit ainda):** (0) PLAYTEST a/b/c CONFIRMADO pelo usuário: (a)
 > roteiro sessão 2 (atalhos/dia-noite/tapetes/janela/móveis/quadro), (b) aulas 4-6 + aula1 3
 > fases, (c) mundo M/G no lab (FPS/hitch de join). Restam (d) cp24 claims + cp25 confinamento.

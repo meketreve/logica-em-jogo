@@ -1,7 +1,7 @@
 # anatomy.md
 
-> Auto-maintained by OpenWolf. Last scanned: 2026-07-20T12:32:07.309Z
-> Files: 114 tracked | Anatomy hits: 0 | Misses: 0
+> Auto-maintained by OpenWolf. Last scanned: 2026-07-20T14:12:42.964Z
+> Files: 115 tracked | Anatomy hits: 0 | Misses: 0
 
 ## ../../../tmp/claude-1000/-home-meketreve-logica-em-jogo/1e53a721-e45d-4911-a026-f385f8f2c4e6/scratchpad/
 
@@ -79,7 +79,7 @@
 - `iniciar-servidor.bat` (~695 tok)
 - `iniciar-servidor.sh` — ============================================================ (~630 tok)
 - `package.json` — Node.js package manifest (~157 tok)
-- `todo.md` — Ideias para fazer (~796 tok)
+- `todo.md` — Ideias para fazer (~939 tok)
 
 ## .claude/
 
@@ -94,7 +94,7 @@
 
 ## client/
 
-- `index.html` — Lógica em Jogo (~5178 tok)
+- `index.html` — Lógica em Jogo (~5242 tok)
 - `vite.config.ts` (~94 tok)
 
 ## client/src/
@@ -114,7 +114,7 @@
 - `input.ts` — Teclado + mouse (pointer lock). SÓ coleta input — nenhuma decisão de (~1542 tok)
 - `inventory.ts` — Inventário de blocos (cp16) — grade com TODOS os colocáveis + faixa da (~1184 tok)
 - `main.ts` — O cliente não tem filesystem: aprende os nomes das aulas pela resposta de (~14036 tok)
-- `menu.ts` — Menu principal (cp8) — HTML/CSS por cima do canvas, sem GUI de engine. (~4230 tok)
+- `menu.ts` — Menu principal (cp8) — HTML/CSS por cima do canvas, sem GUI de engine. (~4252 tok)
 - `objectivesUi.ts` — Grupo do PRÓPRIO jogador (null = sem grupo). (~1244 tok)
 - `panels.ts` — Painéis HTML do cp14 — açúcar visual sobre os comandos de chat: cada botão (~5834 tok)
 - `quadros.ts` — Quadros (2026-07-19) — lado cliente. Duas peças: (~3156 tok)
@@ -134,7 +134,7 @@
 
 - `cenarios/gerar.ts` — Gerador dos 3 cenários pedagógicos (.ljw): digita os MESMOS comandos de chat do professor contra a GameSession real. Flags: --grupos --codigo --revelar --saida (~1900 tok)
 - `cenarios/verificar.ts` — Conferência embutida na geração: abre o .ljw num servidor novo, entra prof+2 alunos, completa a área do grupo 1; + guarda de geometria da faixa (~1400 tok)
-- `index.ts` — Hospedeiro Node+ws do servidor (LAN): embrulha a MESMA GameSession do Web (~4448 tok)
+- `index.ts` — Hospedeiro Node+ws do servidor (LAN): embrulha a MESMA GameSession do Web (~4466 tok)
 - `mundos.ts` — `/mundo` (cp19) — trocar a aula SEM derrubar a turma. (~1914 tok)
 - `paths.ts` — `npm run <script> -w server` roda com o cwd dentro de server/, então caminho (~622 tok)
 - `static.ts` — Serve o cliente já buildado (client/dist) NA MESMA PORTA do WebSocket. (~1055 tok)
@@ -165,7 +165,7 @@
 - `cp23.test.ts` — DIMS: makeFlat (~3494 tok)
 - `groups.test.ts` — prof + 2 alunos em 2 grupos; modelo 2×1×1 com lã vermelha+azul. (~3848 tok)
 - `groups.ts` — Grupos de alunos (cp13) — membros por NOME (mesma identidade do roster: (~280 tok)
-- `index.ts` (~129 tok)
+- `index.ts` (~137 tok)
 - `mesher.test.ts` — Declares DIMS (~992 tok)
 - `mesher.ts` — Culled mesher: função PURA (bytes do mundo → geometria). Só emite faces que (~5895 tok)
 - `physics.test.ts` — Mundo 1 chunk com chão sólido em y ∈ [0,7]. (~2603 tok)
@@ -187,6 +187,8 @@
 - `session.test.ts` — Testes de MECÂNICA rodam com singleplayer: true (join sem PIN) — a (~11934 tok)
 - `session.ts` — GameSession: o SERVIDOR autoritativo, independente de hospedeiro. (~32372 tok)
 - `tp.test.ts` — /tpr (pedir teleporte) + /tpa (aceitar) — todos os jogadores; e /tp nome / (~1490 tok)
+- `version.ts` — Versão do jogo (VERSION) — FONTE ÚNICA. Constante TS pura, importada pelo boot do server e pelo menu do cliente (~90 tok)
+- `version.ts` — Versão do jogo — FONTE ÚNICA. Constante TS pura: roda igual no navegador (~76 tok)
 - `world.test.ts` — Declares DIMS (~761 tok)
 - `world.ts` — Dimensões do mundo em chunks. Parâmetro de criação, gravado no header do save/snapshot. (~848 tok)
 - `worldgen.test.ts` — Declares DIMS (~602 tok)

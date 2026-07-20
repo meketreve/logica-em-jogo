@@ -679,6 +679,15 @@
   funciona mesmo com o cwd em server/ (efeito do `-w server`). O banner cita 8080
   (default do LJ_PORT); trocar de aula ao vivo continua via `/mundo carregar` no jogo.
 
+### Versão do jogo = fonte única em shared/ (2026-07-20)
+- **`shared/src/version.ts` exporta `VERSION`** (constante TS pura). É a ÚNICA fonte
+  de verdade da versão. Nenhum `package.json` tem campo `version` — não usar como fonte
+  (o bundle do cliente não lê package.json sem config de Vite; duas fontes = drift).
+- Importada pelos DOIS hospedeiros: boot do server (`index.ts` loga `Lógica em Jogo vX`)
+  e menu do cliente (`menu.ts` → badge `#menu-version`, canto inferior direito do `#menu`,
+  visível em toda tela do menu porque é filho absoluto do overlay `position:fixed`).
+- Bump é MANUAL a cada marco. Ao subir a versão, mexer só em version.ts.
+
 ## Do-Not-Repeat
 
 <!-- Mistakes made and corrected. Each entry prevents the same mistake recurring. -->

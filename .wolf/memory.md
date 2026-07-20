@@ -1663,3 +1663,21 @@ bug-195 (basename sem import). .exe/empacotamento segue ADIADO (decisão do usu�
 | 09:29 | Edited shared/src/protocol.test.ts | expanded (+19 lines) | ~402 |
 | 09:32 | Edited todo.md | 2→7 lines | ~166 |
 | 09:33 | Session end: 13 writes across 9 files (protocol.ts, paths.ts, .gitignore, index.ts, hud.ts) | 9 reads | ~63948 tok |
+| 09:35 | Session end: 13 writes across 9 files (protocol.ts, paths.ts, .gitignore, index.ts, hud.ts) | 9 reads | ~63948 tok |
+
+## Session: 2026-07-20 09:39
+
+| Time | Action | File(s) | Outcome | ~Tokens |
+|------|--------|---------|---------|--------|
+| 11:10 | Edited todo.md | 2→6 lines | ~96 |
+| 11:10 | Edited todo.md | 2→6 lines | ~126 |
+| 11:12 | Created shared/src/version.ts | — | ~76 |
+| 11:12 | Edited shared/src/index.ts | 2→3 lines | ~22 |
+| 11:12 | Edited server/src/index.ts | 11→12 lines | ~59 |
+| 11:12 | Edited server/src/index.ts | 2→3 lines | ~63 |
+| 11:12 | Edited client/index.html | 2→3 lines | ~38 |
+| 11:12 | Edited client/index.html | expanded (+8 lines) | ~74 |
+| 11:12 | Edited client/src/menu.ts | 7→8 lines | ~41 |
+| 11:12 | Edited client/src/menu.ts | 2→3 lines | ~34 |
+| 11:15 | versão: shared/src/version.ts (VERSION) + boot server loga + badge no menu cliente | version.ts, shared/index.ts, server/index.ts, client/index.html, menu.ts | typecheck 3/3, build, 230 testes | ~9k |
+| 11:15 | todo.md +2: log do chat em arquivo; salvar mundo em pastas (muda export single) | todo.md | done | ~1k |

@@ -1,4 +1,5 @@
 import {
+  VERSION,
   type WorldPreset,
   type WorldTamanho,
   parseWorldPreset,
@@ -99,6 +100,7 @@ export function showMenu(handlers: MenuHandlers): void {
   }
   menu.classList.remove("hidden");
   show("home");
+  el<HTMLDivElement>("menu-version").textContent = `v${VERSION}`;
 
   // som de UI: delegação — QUALQUER botão do menu toca (voltar tem som próprio)
   menu.addEventListener("click", (e) => {
