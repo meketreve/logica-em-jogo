@@ -1600,3 +1600,25 @@ bug-195 (basename sem import). .exe/empacotamento segue ADIADO (decisão do usu�
 | 00:17 | Session end: 146 writes across 34 files (shortcutGuard.ts, main.ts, constants.ts, session.ts, daynight.ts) | 44 reads | ~148218 tok |
 | 00:18 | Session end: 146 writes across 34 files (shortcutGuard.ts, main.ts, constants.ts, session.ts, daynight.ts) | 44 reads | ~148218 tok |
 | 00:19 | fecho de sessão pré-/clear: STATUS com próxima sessão (playtest acumulado → piloto), tudo pushado | .wolf/* | 228 testes, 5 commits na sessão | ~3k |
+| 00:19 | Session end: 146 writes across 34 files (shortcutGuard.ts, main.ts, constants.ts, session.ts, daynight.ts) | 44 reads | ~148218 tok |
+
+## Session: 2026-07-20 00:19
+
+| Time | Action | File(s) | Outcome | ~Tokens |
+|------|--------|---------|---------|--------|
+
+## Session: 2026-07-20 07:13
+
+| Time | Action | File(s) | Outcome | ~Tokens |
+|------|--------|---------|---------|--------|
+| 08:50 | Created ../.claude/plans/zesty-kindling-lighthouse.md | — | ~640 |
+| 08:58 | Edited client/src/main.ts | modified toque() | ~472 |
+| 08:58 | Edited client/src/touch.ts | modified inventario() | ~20 |
+| 08:58 | Edited client/src/touch.ts | 3→4 lines | ~57 |
+| 08:58 | botão HUD/F3 nos controles de toque (touch.ts topo + main.ts) | client/src/touch.ts, client/src/main.ts | typecheck 3/3 ok | ~1.2k |
+| 08:58 | Session end: 4 writes across 3 files (zesty-kindling-lighthouse.md, main.ts, touch.ts) | 2 reads | ~17791 tok |
+| 09:01 | Created ideias para fazer.md | — | ~548 |
+| 09:01 | Session end: 5 writes across 4 files (zesty-kindling-lighthouse.md, main.ts, touch.ts, ideias para fazer.md) | 4 reads | ~18834 tok |
+| 09:08 | Edited ideias.md | expanded (+24 lines) | ~273 |
+| 09:08 | Session end: 6 writes across 5 files (zesty-kindling-lighthouse.md, main.ts, touch.ts, ideias para fazer.md, ideias.md) | 5 reads | ~19126 tok |
+| 09:12 | Sessão 4 fechada: botão HUD/F3 no touch + backlog migrado pra ideias.md (rm .txt) | client/src/touch.ts, client/src/main.ts, ideias.md, .wolf/STATUS.md, .wolf/anatomy.md | typecheck 3/3, sem playtest ainda | ~2k |

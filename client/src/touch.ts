@@ -27,6 +27,7 @@ export interface TouchActions {
   inventario(): void;
   chat(): void;
   menu(): void;
+  hud(): void;
 }
 
 /**
@@ -186,6 +187,7 @@ export class TouchControls {
       this.tapButton("🧱", "blocos", () => this.actions.inventario()),
       this.tapButton("💬", "chat", () => this.actions.chat()),
       this.tapButton("⛶", "tela cheia", () => solicitarTelaCheia()),
+      this.tapButton("📊", "hud", () => this.actions.hud()),
     );
 
     this.root.append(look, joy, acoes, topo);

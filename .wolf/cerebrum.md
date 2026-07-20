@@ -34,6 +34,11 @@
 
 ## Key Learnings
 
+- **anatomy.md acumula entradas duplicadas em rename:** renomear arquivo 2x na
+  mesma sessão (ideias para fazer.txt → .md → ideias.md) deixou 2 linhas
+  fantasma no anatomy.md apontando pros nomes intermediários. Auto-update só
+  ADICIONA, não remove — ao renomear/apagar arquivo, checar `grep` no
+  anatomy.md pelo nome velho e limpar manualmente.
 - **Reiniciar atividade = zerar flags + restaurar MUNDO:** reset (`/objetivo
   resetar`, `/iniciar`) precisa repor os blocos das áreas, não só limpar
   completos. Estado inicial autoral mora em `Objective.baseline: number[][]`

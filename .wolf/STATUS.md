@@ -1,7 +1,23 @@
 # STATUS — Projeto "Lógica em Jogo" (jogo voxel educacional)
 
 > Single source of truth for resuming work. Read this FIRST when starting a session.
-> Last updated: 2026-07-20 (sessão 3: cenários 4-6 + FASES + mundo P/M/G + otimização medida)
+> Last updated: 2026-07-20 (sessão 4: botão HUD/F3 no touch + backlog reorganizado em ideias.md)
+> **SESSÃO 4 (2026-07-20, sem commit ainda):** (1) BOTÃO HUD NO TOQUE — tablet não
+> tem tecla F3; `TouchActions.hud()` novo (touch.ts) + botão "📊 hud" na fileira do
+> topo, chama o MESMO `hud.toggle()` do atalho de teclado (main.ts: criação do
+> `Hud` movida pra ANTES do bloco `isTouchDevice()` só pra existir no escopo da
+> wiring — zero lógica nova). typecheck 3/3 ok; playtest em tablet real PENDENTE
+> (sem harness pra DOM de toque). (2) BACKLOG VIROU `ideias.md` — `ideias para
+> fazer.txt` apagado, conteúdo migrado pra markdown com checkboxes `[x]`/`[ ]`
+> por seção (móveis, comandos, mundo, anti-griefing) preservando os registros de
+> FEITO existentes; 4 seções novas de ideias do usuário: animação sentar/deitar
+> (cadeira/cama, passar a noite), modelo de player estilo Minecraft, sol
+> quadrado estilo Minecraft, profiler complexo com upload de resultado do
+> cliente pro servidor (centraliza medidas de vários dispositivos — puxa a
+> política de otimização/HUD F3 já existente), sistema de sobrevivência (fome/
+> vida/ferramentas/craft/minérios — feature grande, sem escopo ainda), geração
+> procedural de terreno + otimização de save/load de mundo. Nenhuma dessas 4
+> tem decisão de escopo — são candidatas de backlog, não próxima fase travada.
 > **FASES (2026-07-20): Cenario.fases[] no gerador — 2+ fases = modo sequencial
 > automático, cada grupo no seu ritmo; aula1 virou 3 fases (período 3 → 4 →
 > crescente). Receita de criar/mudar fases no cenarios/README.md.**

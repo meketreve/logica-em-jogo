@@ -1034,6 +1034,19 @@ function startGame(snap: Snapshot): void {
     refreshHotbar();
   });
 
+  const hud = new Hud(renderer, {
+    checkpoint: 14,
+    worldChunks: world.dims,
+    worldSeed: snap.seed,
+    serverHost: serverHostLabel,
+  });
+  hud.setRemesh({
+    count: chunkRenderer.remeshCount,
+    totalMs: chunkRenderer.remeshMsTotal,
+    lastMs: chunkRenderer.lastRemeshMs,
+  });
+  input.onKey(settings.keys.hud, () => hud.toggle());
+
   // controles de toque (tablet): joystick/arrasto/botões sintetizam o MESMO
   // input do teclado+mouse — o loop e os handlers acima não mudam
   if (isTouchDevice()) {
@@ -1066,22 +1079,11 @@ function startGame(snap: Snapshot): void {
         showOverlayMain();
         updateOverlay();
       },
+      hud: () => hud.toggle(),
     });
     updateOverlay();
   }
 
-  const hud = new Hud(renderer, {
-    checkpoint: 14,
-    worldChunks: world.dims,
-    worldSeed: snap.seed,
-    serverHost: serverHostLabel,
-  });
-  hud.setRemesh({
-    count: chunkRenderer.remeshCount,
-    totalMs: chunkRenderer.remeshMsTotal,
-    lastMs: chunkRenderer.lastRemeshMs,
-  });
-  input.onKey(settings.keys.hud, () => hud.toggle());
   hud.extra = () => {
     const m = input.mouseStats;
     const p = player.pos;
