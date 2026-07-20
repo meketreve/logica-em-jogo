@@ -13,9 +13,11 @@
  */
 import { type Vec3i, parseVec3i } from "./regions";
 
-/** Aresta máxima do claim: 32 na horizontal (x e z) e 64 na vertical (y). */
+/** Aresta horizontal máxima do claim (x e z). A altura NÃO tem limite: todo
+ *  claim cobre a COLUNA inteira, da camada 0 (bedrock) ao teto do mundo — assim
+ *  ninguém constrói uma ilha flutuante por cima nem escava por baixo da área
+ *  reivindicada. Só a pegada XZ que o aluno marca com a varinha importa. */
 export const MAX_CLAIM_XZ = 32;
-export const MAX_CLAIM_Y = 64;
 /** Tamanho do grupo de amigos, INCLUINDO o dono (dono + 5 convidados). */
 export const MAX_AMIGOS = 6;
 export const MAX_CLAIM_NAME = 24;
@@ -36,11 +38,11 @@ export interface GrupoAmigos {
   membros: string[];
 }
 
-/** Caixa (2 cantos já normalizados) cabe no limite por eixo? */
+/** Caixa (2 cantos já normalizados) cabe no limite horizontal? A altura é
+ *  ignorada — o claim vira sempre uma coluna de altura total. */
 export function claimDentroDoLimite(min: Vec3i, max: Vec3i): boolean {
   return (
     max.x - min.x + 1 <= MAX_CLAIM_XZ &&
-    max.y - min.y + 1 <= MAX_CLAIM_Y &&
     max.z - min.z + 1 <= MAX_CLAIM_XZ
   );
 }

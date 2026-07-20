@@ -11,6 +11,7 @@ import {
   SERVER_TICK_RATE,
   type ScenarioModo,
   type Snapshot,
+  blockSelectionBox,
   createPlayer,
   decodeSnapshot,
   findSpawnY,
@@ -812,8 +813,10 @@ function startGame(snap: Snapshot): void {
   };
 
   // --- Mira + colocar/quebrar ---
+  // Cubo unitário centrado na origem: o loop o REESCALA/reposiciona pela
+  // blockSelectionBox do bloco mirado (contorno segue a forma dos não-cubos).
   const highlight = new THREE.LineSegments(
-    new THREE.EdgesGeometry(new THREE.BoxGeometry(1.002, 1.002, 1.002)),
+    new THREE.EdgesGeometry(new THREE.BoxGeometry(1, 1, 1)),
     new THREE.LineBasicMaterial({ color: 0x000000 }),
   );
   highlight.visible = false;
@@ -1227,7 +1230,18 @@ function startGame(snap: Snapshot): void {
         )
       : null;
     highlight.visible = target !== null;
-    if (target) highlight.position.set(target.x + 0.5, target.y + 0.5, target.z + 0.5);
+    if (target) {
+      const [bx0, by0, bz0, bx1, by1, bz1] = blockSelectionBox(
+        getBlock(world, target.x, target.y, target.z),
+      );
+      highlight.position.set(
+        target.x + (bx0 + bx1) / 2,
+        target.y + (by0 + by1) / 2,
+        target.z + (bz0 + bz1) / 2,
+      );
+      // +0.004 = folga do antigo 1.002 (contorno não some dentro da face)
+      highlight.scale.set(bx1 - bx0 + 0.004, by1 - by0 + 0.004, bz1 - bz0 + 0.004);
+    }
 
     hud.setRemesh({
       count: chunkRenderer.remeshCount,

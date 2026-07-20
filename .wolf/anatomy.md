@@ -1,7 +1,7 @@
 # anatomy.md
 
-> Auto-maintained by OpenWolf. Last scanned: 2026-07-20T19:40:56.670Z
-> Files: 119 tracked | Anatomy hits: 0 | Misses: 0
+> Auto-maintained by OpenWolf. Last scanned: 2026-07-20T23:30:16.197Z
+> Files: 121 tracked | Anatomy hits: 0 | Misses: 0
 
 ## ../../../tmp/claude-1000/-home-meketreve-logica-em-jogo/1e53a721-e45d-4911-a026-f385f8f2c4e6/scratchpad/
 
@@ -71,6 +71,7 @@
 ## ../.claude/jobs/a35a297d/tmp/
 
 - `chatsmoke.mjs` — Smoke: conecta, join (dispara welcome), manda 1 chat. Prova o log de chat. (~175 tok)
+- `flor-stage.mts` — Stage das flores refeitas (cruz diagonal 45°): fileira das 4 cores num (~513 tok)
 - `janela-stage.mts` — Stage da dobradiça da JANELA: parede com 2 janelas lado a lado (janela dupla) (~450 tok)
 - `porta-stage.mts` — Stage da dobradiça: parede com vão de 2 células + porta dupla (2 portas lado (~541 tok)
 
@@ -84,8 +85,9 @@
 - `.gitignore` — Git ignore rules (~99 tok)
 - `iniciar-servidor.bat` (~1128 tok)
 - `iniciar-servidor.sh` — ============================================================ (~1103 tok)
-- `package.json` — Node.js package manifest (~157 tok)
-- `todo.md` — Ideias para fazer (~1199 tok)
+- `package.json` — Node.js package manifest (~164 tok)
+- `todo.md` — Ideias para fazer (~1863 tok)
+- `tsconfig.base.json` (~130 tok)
 
 ## .claude/
 
@@ -119,7 +121,7 @@
 - `hud.ts` — HUD de perfilação (F3): FPS, frametime méd+p95, remesh, draw calls e (~1120 tok)
 - `input.ts` — Teclado + mouse (pointer lock). SÓ coleta input — nenhuma decisão de (~1542 tok)
 - `inventory.ts` — Inventário de blocos (cp16) — grade com TODOS os colocáveis + faixa da (~1184 tok)
-- `main.ts` — O cliente não tem filesystem: aprende os nomes das aulas pela resposta de (~14036 tok)
+- `main.ts` — O cliente não tem filesystem: aprende os nomes das aulas pela resposta de (~14188 tok)
 - `menu.ts` — Menu principal (cp8) — HTML/CSS por cima do canvas, sem GUI de engine. (~4252 tok)
 - `objectivesUi.ts` — Grupo do PRÓPRIO jogador (null = sem grupo). (~1244 tok)
 - `panels.ts` — Painéis HTML do cp14 — açúcar visual sobre os comandos de chat: cada botão (~5834 tok)
@@ -163,17 +165,17 @@
 - `auth.ts` — Identidade por mundo (cp9): nome + PIN de 4 dígitos, papel professor/aluno. (~483 tok)
 - `blocks.test.ts` (~747 tok)
 - `blocks.ts` — IDs de bloco. Gravados como bytes crus nos chunks (Uint8Array), no save e no (~4096 tok)
-- `claims.test.ts` — Último texto de chat enviado a um cliente (rejeições/respostas de comando). (~2283 tok)
-- `claims.ts` — Anti-griefing (cp24) — CLAIMS + GRUPOS DE AMIGOS. (~965 tok)
+- `claims.test.ts` — Último texto de chat enviado a um cliente (rejeições/respostas de comando). (~2585 tok)
+- `claims.ts` — Anti-griefing (cp24) — CLAIMS + GRUPOS DE AMIGOS. (~1033 tok)
 - `confinamento.test.ts` — Save-base válido (mundo/spawn reais) para injetar grupos + áreas per-grupo. (~2498 tok)
 - `constants.ts` — Aresta do chunk em blocos (16³ = 4096 bytes, 1 byte por bloco). (~405 tok)
 - `cp14.test.ts` — mundo plano 2×2×2 chunks (32³) — superfície em y=3 (~1992 tok)
-- `cp23.test.ts` — DIMS: makeFlat (~7611 tok)
+- `cp23.test.ts` — DIMS: makeFlat (~8067 tok)
 - `groups.test.ts` — prof + 2 alunos em 2 grupos; modelo 2×1×1 com lã vermelha+azul. (~3848 tok)
 - `groups.ts` — Grupos de alunos (cp13) — membros por NOME (mesma identidade do roster: (~280 tok)
 - `index.ts` (~137 tok)
 - `mesher.test.ts` — Declares DIMS (~992 tok)
-- `mesher.ts` — Culled mesher: função PURA (bytes do mundo → geometria). Só emite faces que (~6992 tok)
+- `mesher.ts` — Culled mesher: função PURA (bytes do mundo → geometria). Só emite faces que (~8028 tok)
 - `physics.test.ts` — Mundo 1 chunk com chão sólido em y ∈ [0,7]. (~2603 tok)
 - `physics.ts` — Física do jogador (andar, gravidade, colisão AABB com o grid de voxels). (~2071 tok)
 - `protocol.test.ts` — Declares DIMS (~3009 tok)
@@ -191,10 +193,9 @@
 - `scenario.test.ts` — Marca cantos e cria região nomeada via varinha + /regiao (professor id). (~4106 tok)
 - `scenario.ts` — Cenário (cp12) — o coração pedagógico: objetivos que checam o ESTADO DO (~3680 tok)
 - `session.test.ts` — Testes de MECÂNICA rodam com singleplayer: true (join sem PIN) — a (~11934 tok)
-- `session.ts` — GameSession: o SERVIDOR autoritativo, independente de hospedeiro. (~33596 tok)
+- `session.ts` — GameSession: o SERVIDOR autoritativo, independente de hospedeiro. (~33734 tok)
 - `tp.test.ts` — /tpr (pedir teleporte) + /tpa (aceitar) — todos os jogadores; e /tp nome / (~1496 tok)
-- `version.ts` — Versão do jogo (VERSION) — FONTE ÚNICA. Constante TS pura, importada pelo boot do server e pelo menu do cliente (~90 tok)
-- `version.ts` — Versão do jogo — FONTE ÚNICA. Constante TS pura: roda igual no navegador (~76 tok)
+- `version.ts` — Versão do jogo — FONTE ÚNICA = campo "version" do package.json da raiz (import JSON tree-shaken); bump via `npm version`. (~135 tok)
 - `world.test.ts` — Declares DIMS (~761 tok)
 - `world.ts` — Dimensões do mundo em chunks. Parâmetro de criação, gravado no header do save/snapshot. (~848 tok)
 - `worldgen.test.ts` — Declares DIMS (~602 tok)

@@ -50,7 +50,6 @@ import {
   type Claim,
   MAX_AMIGOS,
   MAX_CLAIM_XZ,
-  MAX_CLAIM_Y,
   MAX_CLAIM_NAME,
   caixasSeCruzam,
   claimDentroDoLimite,
@@ -275,7 +274,13 @@ export class GameSession {
       }
       // cp24: proteção de áreas + claims + grupos de amigos (convites não persistem)
       this.claimsAtivo = opts.restore.claimsAtivo ?? false;
-      for (const c of opts.restore.claims ?? []) this.claims.set(c.dono, c);
+      // o claim cobre a coluna inteira (0..teto); saves antigos guardavam altura
+      // parcial — sobe pra coluna cheia ao carregar (mesma semântica pra todos).
+      for (const c of opts.restore.claims ?? []) {
+        c.min.y = 0;
+        c.max.y = this.world.sizeY - 1;
+        this.claims.set(c.dono, c);
+      }
       for (const g of opts.restore.amigos ?? []) this.amigos.set(g.dono, new Set(g.membros));
       this.confinamentoAtivo = opts.restore.confinamento ?? false; // cp25
       // quadros (2026-07-19): só entra conteúdo cuja célula AINDA é quadro
@@ -1491,8 +1496,13 @@ export class GameSession {
         }
         const { min, max } = regionFromCorners(marks.c1, marks.c2);
         if (!claimDentroDoLimite(min, max)) {
-          return `A área é grande demais (máximo de ${MAX_CLAIM_XZ}×${MAX_CLAIM_XZ}×${MAX_CLAIM_Y} blocos: ${MAX_CLAIM_XZ} na horizontal, ${MAX_CLAIM_Y} de altura).`;
+          return `A área é grande demais (máximo de ${MAX_CLAIM_XZ}×${MAX_CLAIM_XZ} blocos na horizontal).`;
         }
+        // o claim protege a COLUNA inteira: da camada 0 (bedrock) ao teto do
+        // mundo. Assim ninguém constrói ilha flutuante por cima nem escava por
+        // baixo — só a pegada XZ que o aluno marcou define a área.
+        min.y = 0;
+        max.y = this.world.sizeY - 1;
         for (const c of this.claims.values()) {
           if (caixasSeCruzam({ min, max }, c)) return `Sua área encosta na área de ${c.dono}. Marque em outro lugar.`;
         }
@@ -1512,7 +1522,7 @@ export class GameSession {
         this.wandMarks.delete(clientId);
         this.broadcastClaims();
         const d = regionDims({ nome: "", min, max });
-        return `Área protegida: ${d.x}×${d.y}×${d.z} blocos. Só você e seus amigos constroem aqui (/amigos convidar nome).`;
+        return `Área protegida: coluna de ${d.x}×${d.z} blocos, da base ao topo do mundo. Só você e seus amigos constroem aqui (/amigos convidar nome).`;
       }
       case "remover": {
         const alvo = parts[2];

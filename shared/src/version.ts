@@ -1,6 +1,10 @@
 /**
- * Versão do jogo — FONTE ÚNICA. Constante TS pura: roda igual no navegador
- * (menu do cliente) e no Node (boot do servidor), sem depender de ler o
- * package.json nem de config de build. Bump manual a cada marco/release.
+ * Versão do jogo — FONTE ÚNICA = campo "version" do package.json da raiz.
+ * Suba com `npm version patch|minor|major` (bumpa o package.json e faz o commit
+ * + tag git). Importada como named export do JSON: o bundler faz tree-shake, o
+ * resto do package.json NÃO entra no bundle do cliente. Roda igual no navegador
+ * (Vite), no Node do servidor (tsx) e nos testes (vitest).
  */
-export const VERSION = "0.6.0";
+import { version } from "../../package.json";
+
+export const VERSION: string = version;

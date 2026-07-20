@@ -1,6 +1,33 @@
 # STATUS — Projeto "Lógica em Jogo" (jogo voxel educacional)
 
 > Single source of truth for resuming work. Read this FIRST when starting a session.
+> **SESSÃO 9 (2026-07-20) — CLAIM = COLUNA + VERSÃO DO package.json (commit único desta sessão):**
+> (A) CLAIM VIRA COLUNA DE ALTURA TOTAL — pedido do usuário: claim protege da camada 0
+> (bedrock) ao teto do mundo, não só a caixa marcada — mata ilha flutuante por cima e
+> escavação por baixo. `claims.ts`: removido `MAX_CLAIM_Y`; `claimDentroDoLimite` só checa
+> XZ (altura livre). `session.ts` runClaim/criar: após `regionFromCorners`, força `min.y=0`
+> / `max.y=world.sizeY-1` antes dos overlaps; mensagens atualizadas ("coluna de X×Z, da base
+> ao topo"). Restore sobe claims de saves antigos pra coluna cheia. Cliente inalterado
+> (wireframe laranja já desenha a caixa → agora coluna alta).
+> (B) VERSÃO SAI DO package.json — `shared/src/version.ts` deixou de ter a string
+> hardcoded; agora `import { version } from "../../package.json"` (named import → tree-shake
+> não vaza o resto pro bundle). `resolveJsonModule:true` no tsconfig.base. Root package.json
+> ganhou `"version"`. **Bump daqui pra frente: `npm version patch|minor|major`** na raiz com
+> a árvore limpa (bumpa package.json + faz commit + tag `vX.Y.Z`; push com `git push
+> --follow-tags`). Bump desta sessão: 0.6.0 → **0.7.0**. Server loga `v0.7.0`, badge do menu
+> idem (lê VERSION). Este commit inclui TB a sessão 8 (flor `emitCrossPlane` + hitbox segue a
+> forma). 250 testes (+1 claim-coluna), typecheck 3/3, build + boot do server ok (loga v0.7.0).
+> **PENDENTE: `git push` (commitei local; push não foi pedido — escola precisa de `git pull`).**
+> **SESSÃO 8 (2026-07-20) — FLOR refeita + HITBOX segue a forma (NÃO commitado ainda):**
+> Playtest: porta+janela OK; FLOR com textura bugada. Causa: flor era 2 emitBox (caixas
+> finas) → sprite esticado + z-fight (bug-375). Fix: `emitCrossPlane` (mesher) = 2 lâminas
+> PLANAS na diagonal da célula, a 90°, UV do tile inteiro, emitidas dos 2 LADOS (estilo
+> Minecraft cross). Além disso `blockSelectionBox(id)` (mesher, PURA) devolve a caixa que
+> envolve cada não-cubo; o contorno da mira (client/main.ts) virou cubo unitário
+> reescalado por frame por essa caixa → "hitbox segue a textura" (flor/tapete/tocha/porta/
+> janela/quadro/móveis). 249 testes (+3 em cp23.test: flor=48 floats, blockSelectionBox
+> cubo/flor/tapete/porta), typecheck 3/3, build ok. Screenshot headless das 4 flores no
+> muro confere (cruz diagonal limpa). PRÓXIMA: playtest da flor + hitbox; depois commitar.
 > Last updated: 2026-07-20 (SESSÃO 7 — PIVÔ DA PORTA **E DA JANELA**, ambos COMMITADOS+PUSHADOS.
 > Commits: `ab3e87d` porta + `a10ad81` janela. Escola: `git pull`. Próxima: PLAYTEST — ver blocos abaixo.)
 > **SESSÃO 7b (2026-07-20) — PIVÔ DA JANELA (igual à porta):** 4 ids R da janela

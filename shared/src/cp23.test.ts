@@ -16,7 +16,7 @@ import {
   portaHingeAlta,
   portaToggled,
 } from "./blocks";
-import { meshChunk } from "./mesher";
+import { blockSelectionBox, meshChunk } from "./mesher";
 import { createPlayer, stepPlayer } from "./physics";
 import { parseClientMessage } from "./protocol";
 import { GameSession } from "./session";
@@ -127,6 +127,38 @@ describe("cp23 — mesher (formas não-cubo)", () => {
     const empty = geomLen(world);
     setBlock(world, 5, SOLO + 1, 5, BlockId.Tocha);
     expect(geomLen(world) - empty).toBe(5 * FACE);
+  });
+
+  it("flor = 2 lâminas cruzadas, cada uma dos 2 lados (sem oclusão)", () => {
+    const world = generateFlatWorld(DIMS);
+    const empty = geomLen(world);
+    setBlock(world, 5, SOLO + 1, 5, BlockId.FlorVermelha);
+    // 2 planos × 2 lados × 4 cantos × 3 floats = 48 (nenhuma face rente = nada
+    // some contra o chão/vizinho, ao contrário das caixas)
+    expect(geomLen(world) - empty).toBe(48);
+  });
+});
+
+describe("blockSelectionBox — hitbox visual segue a forma", () => {
+  it("cubo cheio = célula inteira; não-cubos são menores", () => {
+    expect(blockSelectionBox(BlockId.Stone)).toEqual([0, 0, 0, 1, 1, 1]);
+    expect(blockSelectionBox(BlockId.Glass)).toEqual([0, 0, 0, 1, 1, 1]);
+    // flor: caixa central baixa e estreita (não a célula toda)
+    const flor = blockSelectionBox(BlockId.FlorVermelha);
+    expect(flor[0]).toBeGreaterThan(0);
+    expect(flor[3]).toBeLessThan(1);
+    // tapete = lâmina de 1/16 no chão
+    expect(blockSelectionBox(BlockId.TapeteBranco)).toEqual([0, 0, 0, 1, 1 / 16, 1]);
+  });
+
+  it("porta segue o eixo e a folha aberta muda de lado", () => {
+    const P = 1 / 16;
+    // fechada no eixo X = lâmina fina em x, varre o vão
+    expect(blockSelectionBox(BlockId.PortaXFechada)).toEqual([0, 0, 0, 2 * P, 1, 1]);
+    // aberta base (dobradiça baixa) = lâmina no flanco baixo (z pequeno)
+    expect(blockSelectionBox(BlockId.PortaXAberta)).toEqual([0, 0, 0, 1, 1, 2 * P]);
+    // aberta R (dobradiça alta) = lâmina no flanco alto (z grande)
+    expect(blockSelectionBox(BlockId.PortaXAbertaR)).toEqual([0, 0, 1 - 2 * P, 1, 1, 1]);
   });
 });
 

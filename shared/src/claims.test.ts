@@ -36,10 +36,10 @@ function ultimaChat(sent: Sent, clientId: number): string | null {
 }
 
 describe("claims — helpers puros", () => {
-  it("claimDentroDoLimite: até 32 na horizontal e 64 na vertical", () => {
-    expect(claimDentroDoLimite({ x: 0, y: 0, z: 0 }, { x: 31, y: 63, z: 31 })).toBe(true);
+  it("claimDentroDoLimite: até 32 na horizontal, altura livre (coluna cheia)", () => {
+    expect(claimDentroDoLimite({ x: 0, y: 0, z: 0 }, { x: 31, y: 0, z: 31 })).toBe(true);
     expect(claimDentroDoLimite({ x: 0, y: 0, z: 0 }, { x: 32, y: 0, z: 0 })).toBe(false); // 33 de largura
-    expect(claimDentroDoLimite({ x: 0, y: 0, z: 0 }, { x: 0, y: 64, z: 0 })).toBe(false); // 65 de altura
+    expect(claimDentroDoLimite({ x: 0, y: 0, z: 0 }, { x: 0, y: 999, z: 0 })).toBe(true); // altura não limita
   });
 
   it("caixasSeCruzam é inclusiva (tocar num canto conta)", () => {
@@ -122,6 +122,26 @@ describe("claims — proteção de áreas (cp24)", () => {
     // professor ignora a proteção
     session.handleMessage(1, JSON.stringify({ type: "place_block", ...alvo, blockId: BlockId.Stone }));
     expect(getBlock(world, alvo.x, alvo.y, alvo.z)).toBe(BlockId.Stone);
+  });
+
+  it("claim protege a COLUNA inteira (0..teto) — sem escavar por baixo nem ilha flutuante", () => {
+    const { sent, session, world, sx, sz, h } = mundoComTurma();
+    session.handleMessage(1, cmd("/claim ligar"));
+    anaCriaClaim(session, sx, sz, h, "casa"); // marca só h-1..h+2
+
+    // a caixa guardada cobre a coluna toda: da base (0) ao teto do mundo
+    const claim = session.toSave().claims?.[0];
+    expect(claim?.min.y).toBe(0);
+    expect(claim?.max.y).toBe(world.sizeY - 1);
+
+    // bia (estranha) não escava por BAIXO da área (fora do trecho marcado, mas
+    // dentro da coluna e ao alcance): quebra barrada, chão intacto, aviso.
+    const baixo = { x: sx, y: h - 2, z: sz };
+    const antes = getBlock(world, baixo.x, baixo.y, baixo.z);
+    expect(antes).not.toBe(BlockId.Air); // chão sólido sob o claim
+    session.handleMessage(3, JSON.stringify({ type: "break_block", ...baixo }));
+    expect(getBlock(world, baixo.x, baixo.y, baixo.z)).toBe(antes);
+    expect(ultimaChat(sent, 3)).toContain("protegida por ana");
   });
 
   it("claim novo não sobrepõe outro nem passa do tamanho máximo", () => {

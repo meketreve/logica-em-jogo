@@ -409,6 +409,22 @@
   `isSolidBlock()` (não mais `!== Air`): porta aberta e tocha atravessam.
   RECEITA bloco não-cubo novo: id em blocks.ts + isFullCube/isSolidBlock +
   case no emitShape + tile pintado + entrada BLOCK_TILES (ícone) + PLACEABLE.
+- **Sprite em CRUZ (flores, 2026-07-20 sessão 8):** NÃO usar emitBox (caixa fina)
+  pra sprite plano — a caixa emite 6 faces com UV proporcional, o tile estica nas
+  laterais e 2 lajes sobrepostas z-fightam (era o "bug" da flor). Certo =
+  `emitCrossPlane` (mesher): 2 lâminas PLANAS na diagonal da célula ((0,0)→(1,1) e
+  (0,1)→(1,0), a 90°), altura 0..1, UV do tile INTEIRO (0..1). Material é FrontSide
+  (1 draw call/chunk), então cada lâmina emite os 2 LADOS (verso = winding invertido
+  + normal negada) pra aparecer de qualquer ângulo. Cutout (alphaTest) some o fundo.
+  Padrão reusável pra qualquer sprite-billboard futuro (grama alta, mudas).
+- **Hitbox VISUAL segue a forma (2026-07-20 sessão 8):** `blockSelectionBox(id)` no
+  mesher devolve a caixa [x0,y0,z0,x1,y1,z1] (frações da célula) que ENVOLVE a forma
+  do não-cubo; cubo cheio = célula inteira. PURA (só o id — estado/direção já moram
+  no id: porta/janela aberta, quadro/móvel direcional; usa rotXZ pro quadro). O
+  contorno preto da mira (client/main.ts) virou um cubo unitário REESCALADO/
+  reposicionado por frame a partir dessa caixa (getBlock no target → box → scale+pos,
+  +0.004 de folga do antigo 1.002). Antes era sempre 1.002³ (flor fininha com contorno
+  de bloco cheio flutuando = feio). Mesa/cadeira/sofá/cama usam caixa quase-cheia.
 - **Porta (cp23): estado mora no ID** (PortaX/Z × Fechada/Aberta) — abrir =
   trocar byte via block_changed, zero metadata. Par vertical = MESMO id nas 2
   células; metade de cima se reconhece pelo vizinho de baixo. `use_block`
@@ -898,6 +914,28 @@
 ## Decision Log
 
 <!-- Significant technical decisions with rationale. Why X was chosen over Y. -->
+
+- [2026-07-20] **Versão do jogo sai do package.json da raiz; bump com `npm version`.**
+  Antes `shared/src/version.ts` tinha a string hardcoded (bump manual). Pedido do usuário:
+  usar o fluxo padrão do npm. Agora version.ts faz `import { version } from "../../package.json"`
+  (named import → o bundler faz tree-shake, o resto do package.json não entra no bundle do
+  cliente). Precisou de `resolveJsonModule:true` no tsconfig.base (sem `rootDir` + `noEmit`, o
+  import fora de `src/` não gera erro de escopo). Funciona nos 3 hosts: Vite inlina o JSON,
+  tsx resolve em runtime (server loga a versão), vitest idem. Bump daqui pra frente:
+  `npm version patch|minor|major` na RAIZ com árvore limpa (bumpa + commit + tag `vX.Y.Z`);
+  push com `git push --follow-tags`. NÃO rodar `npm version` com working tree suja (ele exige
+  limpo, salvo `--no-git-tag-version`). Os packages dos workspaces seguem sem campo `version`.
+- [2026-07-20] **Claim (cp24) = COLUNA de altura total, não caixa 3D.** Decisão do
+  usuário: o claim deve pegar da camada 0 (bedrock) ao teto do mundo. Motivo: com claim
+  de altura parcial, um estranho podia construir uma ILHA FLUTUANTE por cima da área
+  reivindicada (ou escavar por baixo). Implementação: aluno ainda marca 2 cantos com a
+  varinha, mas o servidor IGNORA o Y marcado e força `min.y=0` / `max.y=world.sizeY-1`
+  no `/claim criar`. `MAX_CLAIM_Y` removido; `claimDentroDoLimite` só valida XZ (≤32).
+  Guardar a caixa full-height (em vez de tornar `claimEm`/`caixasSeCruzam` XZ-only)
+  mantém TODA a lógica 3D existente intacta (regionContains, overlap, wireframe do
+  cliente, dims do /claim lista) — zero mudança no cliente. Efeito colateral desejado:
+  2 claims não podem mais dividir a mesma pegada XZ em alturas diferentes (colunas não
+  se empilham). Saves antigos sobem pra coluna cheia no restore.
 
 - [2026-07-16] **Git = canal de sync casa↔escola (decisão do usuário).** O PC
   de casa (onde o dev roda) é acessado do notebook da escola via Tailscale +

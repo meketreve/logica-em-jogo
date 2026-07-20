@@ -1,6 +1,7 @@
 {
   "name": "logica-em-jogo",
   "private": true,
+  "version": "0.7.0",
   "type": "module",
   "workspaces": [
     "shared",

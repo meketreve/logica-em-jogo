@@ -5,8 +5,10 @@ import {
   isCama,
   isFlor,
   isFullCube,
+  isJanela,
   isJanelaAberta,
   isMovel,
+  isPorta,
   isPortaAberta,
   isQuadro,
   isSofa,
@@ -199,6 +201,44 @@ for (let i = 0; i < TAPETE_TILES.length; i++) {
 /** Tile usado como ÍCONE 2D do bloco (hotbar/inventário do cliente) — a face lateral. */
 export function blockIconTile(id: number): number {
   return BLOCK_TILES[id]?.side ?? TILE.stone;
+}
+
+/** Caixa de SELEÇÃO (o contorno preto da mira / "hitbox" visual) de um bloco,
+ *  em frações da célula: [x0,y0,z0,x1,y1,z1]. Cubo cheio = célula inteira;
+ *  cada não-cubo devolve a caixa que ENVOLVE a forma do mesher, então o
+ *  contorno segue a textura (estilo Minecraft). PURA — estado/direção moram no
+ *  próprio id (porta/janela aberta, quadro/móvel direcional). */
+export function blockSelectionBox(
+  id: number,
+): readonly [number, number, number, number, number, number] {
+  if (isFlor(id)) return [4 * P, 0, 4 * P, 12 * P, 1, 12 * P];
+  if (isTapete(id)) return [0, 0, 0, 1, P, 1];
+  if (id === BlockId.Tocha) return [7 * P, 0, 7 * P, 9 * P, 10 * P, 9 * P];
+  if (id === BlockId.Cerca) return [6 * P, 0, 6 * P, 10 * P, 1, 10 * P];
+  if (isPorta(id)) {
+    if (!isPortaAberta(id))
+      return portaEixoX(id) ? [0, 0, 0, 2 * P, 1, 1] : [0, 0, 0, 1, 1, 2 * P];
+    const c = portaHingeAlta(id) ? 1 - 2 * P : 0;
+    return portaEixoX(id) ? [0, 0, c, 1, 1, c + 2 * P] : [c, 0, 0, c + 2 * P, 1, 1];
+  }
+  if (isJanela(id)) {
+    if (!isJanelaAberta(id))
+      return janelaEixoX(id) ? [0, 0, 0, 2 * P, 1, 1] : [0, 0, 0, 1, 1, 2 * P];
+    const c = janelaHingeAlta(id) ? 1 - 2 * P : 0;
+    return janelaEixoX(id) ? [0, 0, c, 1, 1, c + 2 * P] : [c, 0, 0, c + 2 * P, 1, 1];
+  }
+  if (isQuadro(id)) {
+    const [rxa, rza, rxb, rzb] = rotXZ(0, 1 * P, 2 * P, 15 * P, id - BlockId.QuadroXP);
+    return [
+      Math.min(rxa, rxb), 1 * P, Math.min(rza, rzb),
+      Math.max(rxa, rxb), 15 * P, Math.max(rza, rzb),
+    ];
+  }
+  if (id === BlockId.Mesa) return [0, 0, 0, 1, 14 * P, 1];
+  if (isCadeira(id)) return [3 * P, 0, 3 * P, 13 * P, 1, 13 * P];
+  if (isSofa(id)) return [0, 0, 0, 1, 15 * P, 1];
+  if (isCama(id)) return [0, 0, 0, 1, 9 * P, 1];
+  return [0, 0, 0, 1, 1, 1]; // cubo cheio (e fallback)
 }
 
 interface FaceCorner {
@@ -397,6 +437,49 @@ export function meshChunk(world: World, cx: number, cy: number, cz: number): Chu
     }
   };
 
+  /** Plano vertical fino (2 triângulos) com o tile INTEIRO (UV 0..1), varrendo
+   *  a célula em Y (0..1) e a diagonal XZ de (x0,z0) a (x1,z1). Emitido dos DOIS
+   *  lados (verso com winding invertido + normal negada) pra aparecer de
+   *  qualquer ângulo com material FrontSide. Base do sprite em cruz das flores
+   *  (duas lâminas a 90° na diagonal, estilo Minecraft). */
+  const emitCrossPlane = (
+    lx: number, ly: number, lz: number, tile: number,
+    x0: number, z0: number, x1: number, z1: number,
+  ): void => {
+    const col = tile % n;
+    const row = (tile / n) | 0;
+    const u0 = col / n + inset;
+    const u1 = (col + 1) / n - inset;
+    const v0 = 1 - (row + 1) / n + inset;
+    const v1 = 1 - row / n - inset;
+    // cantos: base-esq, base-dir, topo-dir, topo-esq
+    const corners: readonly (readonly [number, number, number])[] = [
+      [lx + x0, ly, lz + z0],
+      [lx + x1, ly, lz + z1],
+      [lx + x1, ly + 1, lz + z1],
+      [lx + x0, ly + 1, lz + z0],
+    ];
+    const cu = [u0, u1, u1, u0] as const;
+    const cv = [v0, v0, v1, v1] as const;
+    // normal horizontal perpendicular à diagonal (o Lambert precisa iluminar)
+    let nx = z1 - z0;
+    let nz = -(x1 - x0);
+    const len = Math.hypot(nx, nz) || 1;
+    nx /= len;
+    nz /= len;
+    for (const sign of [1, -1] as const) {
+      const base = positions.length / 3;
+      for (let i = 0; i < 4; i++) {
+        const c = corners[i]!;
+        positions.push(c[0], c[1], c[2]);
+        normals.push(nx * sign, 0, nz * sign);
+        uvs.push(cu[i]!, cv[i]!);
+      }
+      if (sign > 0) indices.push(base, base + 1, base + 2, base, base + 2, base + 3);
+      else indices.push(base, base + 2, base + 1, base, base + 3, base + 2);
+    }
+  };
+
   /** Cerca conecta neste vizinho? Outra cerca ou qualquer cubo cheio. */
   const cercaConecta = (wx: number, wy: number, wz: number): boolean => {
     const nb = getBlock(world, wx, wy, wz);
@@ -494,12 +577,14 @@ export function meshChunk(world: World, cx: number, cy: number, cz: number): Chu
           emitBox(lx, ly, lz, id, TILE.quadro, rxa, 1 * P, rza, rxb, 15 * P, rzb);
           return true;
         }
-        // flores (2026-07-20): duas lâminas verticais cruzadas (+), com o tile
-        // de fundo TRANSPARENTE (cutout) — parece uma plantinha. Atravessável.
+        // flores (2026-07-20, refeitas): duas lâminas PLANAS na diagonal da
+        // célula, a 90° uma da outra (X estilo Minecraft), tile de fundo
+        // TRANSPARENTE (cutout). Cada lâmina aparece dos 2 lados (emitCrossPlane
+        // emite o verso). Atravessável.
         if (isFlor(id)) {
           const tile = TILE.florVermelha + (id - BlockId.FlorVermelha);
-          emitBox(lx, ly, lz, id, tile, 7 * P, 0, 0, 9 * P, 12 * P, 1); // lâmina ao longo de z
-          emitBox(lx, ly, lz, id, tile, 0, 0, 7 * P, 1, 12 * P, 9 * P); // lâmina ao longo de x
+          emitCrossPlane(lx, ly, lz, tile, 0, 0, 1, 1); // diagonal ↘
+          emitCrossPlane(lx, ly, lz, tile, 0, 1, 1, 0); // anti-diagonal ↗
           return true;
         }
         // móveis direcionais (2026-07-19): forma definida DE FRENTE PRA +x,

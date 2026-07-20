@@ -1819,3 +1819,55 @@ janela compartilham). Branch de janela no place_block (1 célula). Mesher da jan
 Cliente inalterado. 246 testes, typecheck 3/3, build ok, screenshot da janela dupla confere.
 Files: blocks.ts, mesher.ts, session.ts, blocks.test.ts, cp23.test.ts. Commitar+pushar janela.
 | 16:41 | Session end: 32 writes across 9 files (blocks.ts, mesher.ts, rules.ts, session.ts, blocks.test.ts) | 11 reads | ~78296 tok |
+| 18:33 | Session end: 32 writes across 9 files (blocks.ts, mesher.ts, rules.ts, session.ts, blocks.test.ts) | 11 reads | ~78296 tok |
+
+## Session: 2026-07-20 18:36
+
+| Time | Action | File(s) | Outcome | ~Tokens |
+|------|--------|---------|---------|--------|
+| 18:41 | Edited shared/src/mesher.ts | 6→8 lines | ~30 |
+| 18:42 | Edited shared/src/mesher.ts | added 1 condition(s) | ~536 |
+| 18:42 | Edited shared/src/mesher.ts | modified flores() | ~157 |
+| 18:42 | Edited shared/src/mesher.ts | added 13 condition(s) | ~545 |
+| 18:42 | Edited client/src/main.ts | 4→5 lines | ~27 |
+| 18:42 | Edited client/src/main.ts | 5→7 lines | ~101 |
+| 18:42 | Edited client/src/main.ts | modified if() | ~143 |
+| 18:43 | Edited shared/src/cp23.test.ts | expanded (+9 lines) | ~190 |
+| 18:43 | Edited shared/src/cp23.test.ts | inline fix | ~16 |
+| 18:43 | Edited shared/src/cp23.test.ts | expanded (+23 lines) | ~452 |
+| 18:45 | Created ../.claude/jobs/a35a297d/tmp/flor-stage.mts | — | ~513 |
+| 22:20 | SESSÃO 8 — FLOR refeita (cruz diagonal 45°, estilo Minecraft) | shared/src/mesher.ts (emitCrossPlane), flor-stage screenshot | flor com textura bugada → 2 lâminas planas na diagonal, 2 lados; bug-375 | ~600 |
+| 22:20 | HITBOX segue a forma (contorno da mira) | shared/src/mesher.ts (blockSelectionBox), client/src/main.ts (highlight reescala/reposiciona) | não-cubos: caixa que envolve a forma (flor/tapete/tocha/porta/janela/quadro/móveis) | ~400 |
+| 22:20 | Testes: +3 em cp23.test (flor 48 floats, blockSelectionBox cubo/flor/tapete/porta) | shared/src/cp23.test.ts | 249 testes, typecheck 3/3, build ok | ~150 |
+| 18:48 | Session end: 11 writes across 4 files (mesher.ts, main.ts, cp23.test.ts, flor-stage.mts) | 8 reads | ~40329 tok |
+| 19:45 | Session end: 11 writes across 4 files (mesher.ts, main.ts, cp23.test.ts, flor-stage.mts) | 8 reads | ~40329 tok |
+
+## Session: 2026-07-20 19:45
+
+| Time | Action | File(s) | Outcome | ~Tokens |
+|------|--------|---------|---------|--------|
+| 20:10 | Edited todo.md | 10→11 lines | ~340 |
+| 20:10 | Edited todo.md | inline fix | ~71 |
+| 20:10 | Edited todo.md | 2→2 lines | ~120 |
+| 20:10 | Edited todo.md | inline fix | ~102 |
+| 20:10 | atualizar todo.md: marca FEITO 11 itens já entregados (tapete/janela/cama/sofá/cadeira/mesa/quadro/flores + dia-noite/autocomplete-nome/nome-sem-espaço/atalhos-navegador) c/ ids e datas | todo.md | pendentes reais: vidro colorido, sentar/deitar, modelo player, sol quadrado, sobrevivência, geração procedural, anti-griefing claim | ~1k |
+| 20:10 | Session end: 4 writes across 1 files (todo.md) | 1 reads | ~1877 tok |
+| 20:16 | Edited todo.md | modified es() | ~297 |
+| 20:16 | fix todo.md: claim (cp24) É o anti-griefing e já FOI codado 2026-07-17 → marcado FEITO (playtest pendente); decisões pendentes viraram travadas | todo.md | correção do usuário | ~300 |
+| 20:17 | Session end: 5 writes across 1 files (todo.md) | 1 reads | ~2195 tok |
+| 20:17 | Session end: 5 writes across 1 files (todo.md) | 1 reads | ~2195 tok |
+| 20:22 | Edited shared/src/claims.ts | 3→5 lines | ~99 |
+| 20:22 | Edited shared/src/claims.ts | modified claimDentroDoLimite() | ~88 |
+| 20:22 | Edited shared/src/session.ts | 3→2 lines | ~10 |
+| 20:22 | Edited shared/src/session.ts | 4→9 lines | ~148 |
+| 20:22 | Edited shared/src/session.ts | 2→2 lines | ~60 |
+| 20:22 | Edited shared/src/session.ts | modified for() | ~109 |
+| 20:22 | Edited shared/src/claims.test.ts | 5→5 lines | ~115 |
+| 20:22 | Edited shared/src/claims.test.ts | added optional chaining | ~319 |
+| 20:23 | Edited todo.md | inline fix | ~84 |
+| 20:23 | claim vira COLUNA de altura total (0..teto) — mata ilha flutuante/escavação por baixo | shared/claims.ts, shared/session.ts, shared/claims.test.ts, todo.md, STATUS.md | removido MAX_CLAIM_Y, claimDentroDoLimite só XZ, criar força min.y=0/max.y=sizeY-1, restore sobe saves antigos; 250 testes (+1), typecheck 3/3, build ok | ~4k |
+| 20:24 | Session end: 14 writes across 4 files (todo.md, claims.ts, session.ts, claims.test.ts) | 4 reads | ~40077 tok |
+| 20:29 | Edited package.json | 3→4 lines | ~26 |
+| 20:30 | Edited tsconfig.base.json | 1→2 lines | ~19 |
+| 20:30 | Created shared/src/version.ts | — | ~135 |
+| 20:32 | versão sai do package.json (import JSON tree-shaken) + resolveJsonModule; bump via npm version; 0.6.0->0.7.0 | shared/src/version.ts, package.json, tsconfig.base.json | typecheck 3/3, 250 testes, build+boot ok (server loga v0.7.0) | ~3k |
