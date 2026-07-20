@@ -41,16 +41,17 @@ export interface Conferencia {
 }
 
 /**
- * A faixa do grupo tem que estar NO CHÃO, FORA da cabine e DENTRO do chunk dela
- * — é o que o roteiro de aula promete ao professor ("alguns passos à frente da
- * porta"). Faixa flutuando ou enfiada na parede passaria em todo teste lógico.
+ * A área do grupo tem que COMEÇAR no chão, ficar FORA da cabine e DENTRO do
+ * chunk dela — é o que o roteiro de aula promete ao professor ("alguns passos
+ * à frente da porta"). Desde 2026-07-19 a área pode ter ALTURA (parede de
+ * pixel-art da aula 5): a base continua rente ao chão.
  */
 function conferirGeometria(world: World, alvos: Box[], problemas: string[]): void {
   const y = FLAT_SURFACE_Y + 1;
   alvos.forEach((a, i) => {
     const g = i + 1;
-    if (a.min.y !== y || a.max.y !== y) {
-      problemas.push(`área do grupo ${g} não está na altura do chão (y=${a.min.y}, esperado ${y})`);
+    if (a.min.y !== y) {
+      problemas.push(`área do grupo ${g} não começa na altura do chão (y=${a.min.y}, esperado ${y})`);
       return;
     }
     const ox = Math.floor(a.min.x / CHUNK_SIZE) * CHUNK_SIZE;

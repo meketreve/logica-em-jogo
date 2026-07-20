@@ -1,6 +1,6 @@
 # anatomy.md
 
-> Auto-maintained by OpenWolf. Last scanned: 2026-07-20T01:11:37.335Z
+> Auto-maintained by OpenWolf. Last scanned: 2026-07-20T03:04:12.833Z
 > Files: 112 tracked | Anatomy hits: 0 | Misses: 0
 
 ## ../../../tmp/claude-1000/-home-meketreve-logica-em-jogo/1e53a721-e45d-4911-a026-f385f8f2c4e6/scratchpad/
@@ -72,8 +72,8 @@
 
 - `.gitattributes` — LF em tudo (projeto vive no WSL/ext4; evita ruído CRLF de ferramentas Windows) (~31 tok)
 - `ideias para fazer.txt` — Declares para (~456 tok)
-- `iniciar-servidor.bat` (~592 tok)
-- `iniciar-servidor.sh` — ============================================================ (~533 tok)
+- `iniciar-servidor.bat` (~695 tok)
+- `iniciar-servidor.sh` — ============================================================ (~630 tok)
 - `package.json` — Node.js package manifest (~157 tok)
 
 ## .claude/
@@ -84,7 +84,7 @@
 
 ## cenarios/
 
-- `README.md` — Project documentation (~1264 tok)
+- `README.md` — Project documentation (~1821 tok)
 - `README.md` — Roteiro de aula das 3 aulas (6º–9º): como gerar/hospedar/distribuir, gabarito de cada uma, condução e o que observar. Os .ljw são gitignored (regeneráveis) (~1100 tok)
 
 ## client/
@@ -140,8 +140,8 @@
 - `_smoke-atividade.mjs` — Smoke de /tp grupos e /iniciar contra o servidor REAL (aula1 na 8080). (~794 tok)
 - `_smoke-kicar.mjs` — Smoke de /kicar (cp22) contra o servidor REAL. Prova o caminho de host de (~746 tok)
 - `_smoke-mundo.mjs` — Smoke do cp19 contra o servidor REAL: professor + aluno conectados, o (~853 tok)
-- `gerar.ts` — Gerador dos cenários pedagógicos (.ljw) — MVP v2 em uso real. (~3088 tok)
-- `verificar.ts` — Conferência de um .ljw recém-gerado: abre o save num servidor NOVO (como o (~1735 tok)
+- `gerar.ts` — Gerador dos cenários pedagógicos (.ljw) — MVP v2 em uso real. (~4746 tok)
+- `verificar.ts` — Conferência de um .ljw recém-gerado: abre o save num servidor NOVO (como o (~1744 tok)
 
 ## shared/
 

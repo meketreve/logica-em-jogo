@@ -21,16 +21,22 @@ fi
 # --- Qual mundo abrir ---
 echo "Escolha o mundo:"
 echo "   [1] Mundo livre (construção livre)   <-- padrão"
-echo "   [2] Aula 1"
-echo "   [3] Aula 2"
-echo "   [4] Aula 3"
+echo "   [2] Aula 1 — Continue a regra"
+echo "   [3] Aula 2 — Escreva 45 em binário"
+echo "   [4] Aula 3 — Ache os 2 erros"
+echo "   [5] Aula 4 — Decifre a mensagem"
+echo "   [6] Aula 5 — Conserte o desenho"
+echo "   [7] Aula 6 — Siga o manual"
 echo
 read -r -p "Digite o número e tecle Enter (Enter direto = 1): " ESCOLHA
 
 case "$ESCOLHA" in
-  2) export LJ_SAVE="cenarios/aula1.ljw" ;;
-  3) export LJ_SAVE="cenarios/aula2.ljw" ;;
-  4) export LJ_SAVE="cenarios/aula3.ljw" ;;
+  2) export LJ_SAVE="cenarios/aula1-sequencia.ljw" ;;
+  3) export LJ_SAVE="cenarios/aula2-binario.ljw" ;;
+  4) export LJ_SAVE="cenarios/aula3-depurar.ljw" ;;
+  5) export LJ_SAVE="cenarios/aula4-decifrar.ljw" ;;
+  6) export LJ_SAVE="cenarios/aula5-simetria.ljw" ;;
+  7) export LJ_SAVE="cenarios/aula6-manual.ljw" ;;
   *) export LJ_SAVE="world.ljw" ;;
 esac
 

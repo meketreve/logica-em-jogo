@@ -31,16 +31,22 @@ if not exist "node_modules" (
 REM --- Qual mundo abrir ---
 echo Escolha o mundo:
 echo    [1] Mundo livre ^(construcao livre^)   ^<-- padrao
-echo    [2] Aula 1
-echo    [3] Aula 2
-echo    [4] Aula 3
+echo    [2] Aula 1 - Continue a regra
+echo    [3] Aula 2 - Escreva 45 em binario
+echo    [4] Aula 3 - Ache os 2 erros
+echo    [5] Aula 4 - Decifre a mensagem
+echo    [6] Aula 5 - Conserte o desenho
+echo    [7] Aula 6 - Siga o manual
 echo.
 set "ESCOLHA="
 set /p "ESCOLHA=Digite o numero e tecle Enter (Enter direto = 1): "
 
-if "%ESCOLHA%"=="2" set "LJ_SAVE=cenarios/aula1.ljw"
-if "%ESCOLHA%"=="3" set "LJ_SAVE=cenarios/aula2.ljw"
-if "%ESCOLHA%"=="4" set "LJ_SAVE=cenarios/aula3.ljw"
+if "%ESCOLHA%"=="2" set "LJ_SAVE=cenarios/aula1-sequencia.ljw"
+if "%ESCOLHA%"=="3" set "LJ_SAVE=cenarios/aula2-binario.ljw"
+if "%ESCOLHA%"=="4" set "LJ_SAVE=cenarios/aula3-depurar.ljw"
+if "%ESCOLHA%"=="5" set "LJ_SAVE=cenarios/aula4-decifrar.ljw"
+if "%ESCOLHA%"=="6" set "LJ_SAVE=cenarios/aula5-simetria.ljw"
+if "%ESCOLHA%"=="7" set "LJ_SAVE=cenarios/aula6-manual.ljw"
 if not defined LJ_SAVE set "LJ_SAVE=world.ljw"
 
 REM --- Codigo do professor (opcional) ---

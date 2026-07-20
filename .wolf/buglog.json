@@ -5324,6 +5324,55 @@
       "related_bugs": [],
       "occurrences": 1,
       "last_seen": "2026-07-20T01:11:37.361Z"
+    },
+    {
+      "id": "bug-328",
+      "timestamp": "2026-07-20T03:02:50.846Z",
+      "error_message": "Significant refactor of ",
+      "file": "iniciar-servidor.sh",
+      "root_cause": "6 lines replaced/restructured",
+      "fix": "Rewrote 14→20 lines (6 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "sh"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-20T03:02:50.846Z"
+    },
+    {
+      "id": "bug-329",
+      "timestamp": "2026-07-20T03:02:57.775Z",
+      "error_message": "Significant refactor of ",
+      "file": "iniciar-servidor.bat",
+      "root_cause": "6 lines replaced/restructured",
+      "fix": "Rewrote 13→19 lines (6 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "bat"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-20T03:02:57.775Z"
+    },
+    {
+      "id": "bug-303",
+      "timestamp": "2026-07-20T00:30:00-03:00",
+      "error_message": "launchers ofereciam Aula 1-3 apontando cenarios/aulaN.ljw — arquivos que NUNCA existiram (gerador sempre gravou aulaN-<tema>.ljw); com LJ_NOVO=1 o professor ganharia um mundo vazio em vez da aula",
+      "file": "iniciar-servidor.sh / iniciar-servidor.bat",
+      "root_cause": "launcher escrito de memória sem conferir os nomes reais gerados pelo gerar.ts",
+      "fix": "caminhos corrigidos pros nomes reais + menu ganhou as aulas 4-6; achado ao adicionar as aulas novas",
+      "tags": [
+        "launcher",
+        "caminho",
+        "cenarios",
+        "nome-de-arquivo"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-20T00:30:00-03:00"
     }
   ]
 }

@@ -1582,3 +1582,11 @@ bug-195 (basename sem import). .exe/empacotamento segue ADIADO (decisão do usu�
 | 22:11 | Edited shared/src/mesher.ts | 2→2 lines | ~29 |
 | 22:11 | Edited server/src/index.ts | modified perMessageDeflate() | ~167 |
 | 23:55 | medição mundo G + otimizações: fast path chunk-ar no mesher, perMessageDeflate no ws (8MB→41,6KB no fio); greedy/gzip-save adiados com registro | mesher.ts, server/index.ts, cerebrum | 228 testes, bench + smoke deflate ✅ | ~10k |
+| 23:59 | Edited server/src/cenarios/verificar.ts | modified conferirGeometria() | ~174 |
+| 00:01 | Created server/src/cenarios/gerar.ts | — | ~4746 |
+| 00:02 | Edited iniciar-servidor.sh | modified Enter() | ~208 |
+| 00:02 | Edited iniciar-servidor.bat | modified Enter() | ~219 |
+| 00:03 | Edited cenarios/README.md | 11→12 lines | ~152 |
+| 00:03 | Edited cenarios/README.md | modified Erros() | ~600 |
+| 00:04 | Edited cenarios/README.md | Erros() → erros() | ~120 |
+| 00:04 | 3 cenários novos (aula4 decifrar/glifos, aula5 simetria 2D, aula6 manual/quadros+móveis): gerador refatorado pra área em CAIXA + extras + conferirExtra; launchers corrigidos (bug-303) e com aulas novas; README atualizado | gerar.ts, verificar.ts, launchers, cenarios/*.ljw, README | 6/6 gerados+conferidos, 3 screenshots ✅, 228 testes | ~20k |

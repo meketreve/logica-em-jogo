@@ -612,6 +612,24 @@
 - **Tile de UI de móvel** pode REUSAR tile existente (tapete→lã, cadeira→tábuas);
   só pinta tile novo quando a cara é nova (estofado, colchão, janela, quadro).
 
+### Cenários 4-6 (2026-07-20): gerador com área em CAIXA
+- **Cenario do gerar.ts é FUNÇÃO agora:** `gabarito(i,j,k)`/`partida(i,j,k)` +
+  `area {dx,dy,dz}` — faixa 1D das aulas 1-3 = caso particular (`linha()`).
+  `extras(a, origem)` roda 1× por grupo pra decoração FORA do alvo (dica
+  cifrada da aula4, parede de quadros da aula6); `conferirExtra(buf, grupos)`
+  pra invariantes específicas (aula6 exige grupos×3 quadros no save).
+  verificar.ts aceita área com ALTURA (base rente ao chão; era 1 célula).
+- **Autoria.quadro(x,y,z,id,texto):** /bloco coloca o quadro e o autor se
+  APROXIMA antes do quadro_set (a msg exige alcance). Única saída do princípio
+  "só comandos de professor" — quadro_set é a mesma msg do clique direito.
+- **Aula com dica visível**: blocos FORA da região-alvo não são fotografados
+  nem apagados — dica cifrada fica em pé mesmo com o modelo apagado. Em
+  mundo-aula o confinamento (cp25) impede aluno de vandalizar a dica/quadros
+  (fora da área do grupo).
+- Erros de simetria (aula5): trocar célula SEM trocar a espelhada — toda
+  troca vira detectável pela regra; consertar "pelo espelho errado" deixa
+  simétrico mas ≠ gabarito (contador não fecha) = discussão pedagógica, não bug.
+
 ### Mundo G + medição de desempenho (2026-07-19 sessão 3)
 - **Bench do mundo G (16×16×8 = 256×256×128, Node local):** worldgen 80 ms ·
   mesh dos 2048 chunks ~970 ms (pior chunk 10 ms; 512 com geometria, 740k

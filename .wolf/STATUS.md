@@ -1,7 +1,27 @@
 # STATUS — Projeto "Lógica em Jogo" (jogo voxel educacional)
 
 > Single source of truth for resuming work. Read this FIRST when starting a session.
-> Last updated: 2026-07-19 (sessão 2: BACKLOG COMPLETO — playtest do usuário amanhã com alunos)
+> Last updated: 2026-07-20 (sessão 3: cenários 4-6 + mundo P/M/G + otimização medida)
+> **SESSÃO 3 (2026-07-20, 3 commits):** (1) TAMANHO DE MUNDO P/M/G na criação —
+> menu select, worker init `tamanho`, LJ_TAMANHO no host, launchers perguntam;
+> P=128² (padrão), M=192², G=256²×128; save sempre carregou dims = zero migração.
+> (2) OTIMIZAÇÃO MEDIDA (bench no scratchpad, números no cerebrum): fast path
+> de chunk 100% ar no meshChunk + perMessageDeflate no ws (snapshot G de 8 MB
+> = 41,6 KB no fio — join da turma 160 MB→<1 MB). Greedy/worker/gzip-save
+> ADIADOS com registro (sem dor medida). (3) CENÁRIOS 4-6 (aprovados pelo
+> usuário, gerados+conferidos): aula4-decifrar (cifra de César em blocos-letra,
+> dica cifrada visível ao lado da área), aula5-simetria (parede 7×6 de coração
+> com 4 erros assimétricos — gerador agora suporta área em CAIXA dx×dy×dz),
+> aula6-manual (3 QUADROS com passos guiam sala 3×3 de móveis DIRECIONAIS —
+> cadeira virada errada conta erro). Gerador refatorado: gabarito/partida viram
+> funções (i,j,k), extras() por grupo, conferirExtra(). bug-303: launchers
+> apontavam cenarios/aulaN.ljw que nunca existiu — corrigido + aulas 4-6 no
+> menu. README dos cenários atualizado (6 aulas, .ljw versionados). 228 testes,
+> typecheck 3/3, screenshots das 3 aulas novas ✅ (contador 38/42 da aula5
+> confere os 4 erros).
+> **PLAYTEST PENDENTE ACUMULADO:** roteiro da sessão 2 (atalhos/dia-noite/
+> tapetes/janela/móveis/quadro) + aulas 4-6 com a turma + mundo M/G no lab
+> (medir FPS/hitch de join no PC fraco — gatilho do greedy/worker).
 > **BACKLOG COMPLETO FEITO (2026-07-19 sessão 2, 5 commits — playtest AMANHÃ):**
 > (1) ATALHOS DO NAVEGADOR: guarda de 3 camadas (client/shortcutGuard.ts) —
 > beforeunload ("sair do site?"), preventDefault nos combos interceptáveis
