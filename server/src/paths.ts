@@ -20,24 +20,43 @@ export const PASTA_MUNDOS = daRaiz("mundos");
  *  vários dispositivos, não save de mundo. */
 export const PASTA_PROFILES = daRaiz("profiles");
 
+/** Nome do mundo (sem extensão .ljw) a partir de um caminho ou nome escolhido. */
+export const nomeDoMundo = (escolhido: string): string =>
+  basename(escolhido).replace(/\.ljw$/i, "");
+
+/** Cada mundo mora na SUA pasta: mundos/<nome>/. Guarda o save e o log do chat. */
+export const pastaDoMundo = (nome: string): string => resolve(PASTA_MUNDOS, nome);
+/** Save do mundo: mundos/<nome>/<nome>.ljw. */
+export const savePathDoMundo = (nome: string): string =>
+  resolve(pastaDoMundo(nome), `${nome}.ljw`);
+/** Log de chat do mundo: mundos/<nome>/chat.log (append-only, escrito pelo host). */
+export const chatLogDoMundo = (nome: string): string =>
+  resolve(pastaDoMundo(nome), "chat.log");
+
 /**
  * Um cenário é MODELO, não save. Hospedar `cenarios/aula1.ljw` direto faria o
  * autosave gravar a turma (roster, PINs, progresso) dentro do arquivo que você
  * distribui — e a próxima turma começaria com a aula da anterior já resolvida.
  *
- * Então: mundo escolhido dentro de cenarios/ vira uma CÓPIA DE TRABALHO em
- * mundos/. Se a cópia já existe, ela vence o modelo — é a turma continuando de
- * onde parou. Para recomeçar do zero, basta apagar o arquivo em mundos/.
+ * Então: cada mundo escolhido vira uma pasta própria em mundos/<nome>/ com o
+ * save (<nome>.ljw) e o log do chat (chat.log). Um cenário de cenarios/ semeia
+ * essa pasta na primeira vez; a cópia viva vence o modelo depois (turma
+ * continuando). Para recomeçar do zero, apague a pasta do mundo em mundos/.
  */
 export function mundoDeTrabalho(escolhido: string): {
   vivo: string;
   modelo?: string;
   somenteLeitura: boolean;
+  chatLog: string;
 } {
   const alvo = daRaiz(escolhido);
+  const nome = nomeDoMundo(alvo);
   const somenteLeitura = ehMundoDeAula(alvo);
-  if (dirname(alvo) !== PASTA_CENARIOS) return { vivo: alvo, somenteLeitura };
-  return { vivo: resolve(PASTA_MUNDOS, basename(alvo)), modelo: alvo, somenteLeitura };
+  const vivo = savePathDoMundo(nome);
+  const chatLog = chatLogDoMundo(nome);
+  // cenarios/ é MODELO (nunca escrito): a cópia viva nasce na pasta do mundo.
+  if (dirname(alvo) === PASTA_CENARIOS) return { vivo, modelo: alvo, somenteLeitura, chatLog };
+  return { vivo, somenteLeitura, chatLog };
 }
 
 /**

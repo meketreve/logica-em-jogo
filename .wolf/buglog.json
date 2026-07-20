@@ -5583,6 +5583,198 @@
       "related_bugs": [],
       "occurrences": 1,
       "last_seen": "2026-07-20T14:28:37.945Z"
+    },
+    {
+      "id": "bug-344",
+      "timestamp": "2026-07-20T14:50:10.057Z",
+      "error_message": "Wrong operator: !== should be ===",
+      "file": "server/src/paths.ts",
+      "root_cause": "Used \"!==\" instead of \"===\"",
+      "fix": "Changed operator !== → ===",
+      "tags": [
+        "auto-detected",
+        "operator-fix",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-20T14:50:10.057Z"
+    },
+    {
+      "id": "bug-345",
+      "timestamp": "2026-07-20T14:51:26.978Z",
+      "error_message": "Wrong return value",
+      "file": "server/src/mundos.ts",
+      "root_cause": "Was returning: { session: sessionNova, savePath: vivo, somenteLei",
+      "fix": "Now returns: { session: sessionNova, savePath: vivo, somenteLei",
+      "tags": [
+        "auto-detected",
+        "return-value",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-20T14:51:26.978Z"
+    },
+    {
+      "id": "bug-346",
+      "timestamp": "2026-07-20T14:52:04.841Z",
+      "error_message": "Wrong condition in logic",
+      "file": "server/src/index.ts",
+      "root_cause": "Condition was: if (socket && socket.readyState === socket.OPEN)",
+      "fix": "Changed to: if (typeof data === \"string\")",
+      "tags": [
+        "auto-detected",
+        "logic-fix",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-20T14:52:04.841Z"
+    },
+    {
+      "id": "bug-347",
+      "timestamp": "2026-07-20T14:52:18.758Z",
+      "error_message": "Missing error handling in registrarChat",
+      "file": "server/src/index.ts",
+      "root_cause": "Code path had no error handling — exceptions would propagate uncaught",
+      "fix": "Added try/catch block",
+      "tags": [
+        "auto-detected",
+        "error-handling",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-20T14:52:18.758Z"
+    },
+    {
+      "id": "bug-348",
+      "timestamp": "2026-07-20T14:53:09.498Z",
+      "error_message": "Significant refactor of ",
+      "file": "iniciar-servidor.sh",
+      "root_cause": "7 lines replaced/restructured",
+      "fix": "Rewrote 9→19 lines (7 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "sh"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-20T14:53:09.498Z"
+    },
+    {
+      "id": "bug-349",
+      "timestamp": "2026-07-20T14:53:47.250Z",
+      "error_message": "Significant refactor of ",
+      "file": "iniciar-servidor.bat",
+      "root_cause": "5 lines replaced/restructured",
+      "fix": "Rewrote 7→17 lines (5 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "bat"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-20T14:53:47.250Z"
+    },
+    {
+      "id": "bug-350",
+      "timestamp": "2026-07-20T14:53:51.924Z",
+      "error_message": "Wrong reference: ljw should be mundo",
+      "file": "iniciar-servidor.bat",
+      "root_cause": "Used \"ljw\" instead of \"mundo\"",
+      "fix": "Changed ljw → mundo",
+      "tags": [
+        "auto-detected",
+        "wrong-reference",
+        "bat"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-20T14:53:51.924Z"
+    },
+    {
+      "id": "bug-351",
+      "timestamp": "2026-07-20T16:19:17.964Z",
+      "error_message": "Significant refactor of ",
+      "file": "todo.md",
+      "root_cause": "3 lines replaced/restructured",
+      "fix": "Rewrote 3→4 lines (3 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "md"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-20T16:19:17.964Z"
+    },
+    {
+      "id": "bug-352",
+      "timestamp": "2026-07-20T17:27:01.592Z",
+      "error_message": "Type error",
+      "file": "shared/src/claims.ts",
+      "root_cause": "Missing or incorrect type annotation",
+      "fix": "Added type assertion/annotation",
+      "tags": [
+        "auto-detected",
+        "type-fix",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-20T17:27:01.592Z"
+    },
+    {
+      "id": "bug-353",
+      "timestamp": "2026-07-20T17:27:09.156Z",
+      "error_message": "Wrong reference: MAX_CLAIM_DIM should be MAX_CLAIM_XZ",
+      "file": "shared/src/session.ts",
+      "root_cause": "Used \"MAX_CLAIM_DIM\" instead of \"MAX_CLAIM_XZ\"",
+      "fix": "Changed MAX_CLAIM_DIM → MAX_CLAIM_XZ",
+      "tags": [
+        "auto-detected",
+        "wrong-reference",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-20T17:27:09.156Z"
+    },
+    {
+      "id": "bug-354",
+      "timestamp": "2026-07-20T17:27:11.821Z",
+      "error_message": "Incorrect value in code",
+      "file": "shared/src/session.ts",
+      "root_cause": "Had `A área é grande demais (máximo de ${MAX_CLAIM_DIM",
+      "fix": "Changed to `A área é grande demais (máximo de ${MAX_CLAIM_XZ}",
+      "tags": [
+        "auto-detected",
+        "wrong-value",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-20T17:27:11.821Z"
+    },
+    {
+      "id": "bug-355",
+      "timestamp": "2026-07-20T17:27:44.229Z",
+      "error_message": "Significant refactor of ",
+      "file": "shared/src/claims.test.ts",
+      "root_cause": "3 lines replaced/restructured",
+      "fix": "Rewrote 4→5 lines (3 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-20T17:27:44.229Z"
     }
   ]
 }

@@ -1,5 +1,5 @@
 import { randomInt } from "node:crypto";
-import { existsSync, mkdirSync, readFileSync, renameSync, writeFileSync } from "node:fs";
+import { appendFileSync, existsSync, mkdirSync, readFileSync, renameSync, writeFileSync } from "node:fs";
 import { createServer } from "node:http";
 import { networkInterfaces } from "node:os";
 import { dirname, resolve } from "node:path";
@@ -38,6 +38,7 @@ const {
   vivo: SAVE_PATH,
   modelo: MODELO,
   somenteLeitura: LEITURA_INICIAL,
+  chatLog: CHAT_LOG_INICIAL,
 } = mundoDeTrabalho(SAVE_ENV ?? "mundos/mundo-livre.ljw");
 // De onde carregar no boot. Mundo de AULA (só leitura) começa SEMPRE do modelo,
 // ignorando qualquer cópia viva da turma anterior — é reutilizável de graça.
@@ -120,6 +121,7 @@ console.log(`[server] código de professor deste mundo: ${codigo}`);
 const sockets = new Map<number, WebSocket>();
 
 const entregar = (clientId: number, data: string | ArrayBuffer): void => {
+  if (typeof data === "string") registrarChat(data);
   const socket = sockets.get(clientId);
   if (socket && socket.readyState === socket.OPEN) socket.send(data);
 };
@@ -128,9 +130,40 @@ const entregar = (clientId: number, data: string | ArrayBuffer): void => {
 // save sem derrubar ninguém. Tudo que usa `session`/`savePath` lê a variável na
 // hora da chamada, então continua apontando para o mundo em vigor.
 let savePath = SAVE_PATH;
+// Log de chat da pasta do mundo em vigor (mundos/<nome>/chat.log). `let`: a
+// troca de aula reaponta pro chat.log do mundo novo.
+let chatLogPath = CHAT_LOG_INICIAL;
 // Mundo de aula (reutilizável) não salva. `let`: a troca de aula (/mundo
 // carregar) atualiza junto com savePath — a aula nova decide se persiste.
 let somenteLeitura = LEITURA_INICIAL;
+
+// --- Log do chat em arquivo (mundos/<nome>/chat.log) ---
+// Todo chat server→cliente passa por `entregar`. Um broadcast chama `entregar`
+// uma vez por destinatário com o MESMO payload; deduplico pelo payload
+// consecutivo pra não repetir a linha N vezes. Mora no HOST (não em /shared)
+// porque escrever arquivo é filesystem — a GameSession e o singleplayer
+// (Web Worker) não têm fs; lá o chat simplesmente não vira arquivo.
+let ultimoChatLogado = "";
+function registrarChat(data: string): void {
+  if (!data.includes('"type":"chat"')) return; // pré-filtro barato
+  let msg: { type?: unknown; author?: unknown; text?: unknown };
+  try {
+    msg = JSON.parse(data) as typeof msg;
+  } catch {
+    return;
+  }
+  if (msg.type !== "chat" || typeof msg.text !== "string") return;
+  if (data === ultimoChatLogado) return; // mesma linha do broadcast anterior
+  ultimoChatLogado = data;
+  const autor = typeof msg.author === "string" ? msg.author : "?";
+  const linha = `[${new Date().toISOString()}] ${autor}: ${msg.text}\n`;
+  try {
+    mkdirSync(dirname(chatLogPath), { recursive: true });
+    appendFileSync(chatLogPath, linha);
+  } catch (err) {
+    console.error(`[server] não consegui gravar o log do chat: ${(err as Error).message}`);
+  }
+}
 if (somenteLeitura) {
   console.log(
     `[server] mundo de AULA (reutilizável): alterações NÃO são salvas — a próxima ` +
@@ -250,6 +283,7 @@ function interceptarMundo(clientId: number, texto: string): boolean {
   if (troca) {
     session = troca.session;
     savePath = troca.savePath;
+    chatLogPath = troca.chatLog;
     somenteLeitura = troca.somenteLeitura;
   }
   return true;

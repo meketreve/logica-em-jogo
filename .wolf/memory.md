@@ -1697,3 +1697,37 @@ bug-195 (basename sem import). .exe/empacotamento segue ADIADO (decisão do usu�
 | 11:35 | pasta aulas/ -> mundos/ (PASTA_MUNDOS); mundo livre salva em mundos/mundo-livre.ljw | paths.ts, index.ts, mundos.ts, .gitignore | typecheck ok, boot smoke: save em mundos/ ✓ | ~7k |
 | 11:35 | launcher opcao [8] carregar mundo salvo + migra world.ljw antigo | iniciar-servidor.sh, .bat | bash -n ok, listagem simulada ✓ | ~3k |
 | 11:35 | Session end: 21 writes across 11 files (todo.md, version.ts, index.ts, index.html, menu.ts) | 9 reads | ~20971 tok |
+| 11:38 | Session end: 21 writes across 11 files (todo.md, version.ts, index.ts, index.html, menu.ts) | 9 reads | ~20971 tok |
+| 11:50 | Edited server/src/paths.ts | modified mundoDeTrabalho() | ~515 |
+| 11:50 | Edited server/src/mundos.ts | 4→4 lines | ~75 |
+| 11:51 | Edited server/src/mundos.ts | added 2 condition(s) | ~227 |
+| 11:51 | Edited server/src/mundos.ts | modified acharMundo() | ~80 |
+| 11:51 | Edited server/src/mundos.ts | modified aula() | ~94 |
+| 11:51 | Edited server/src/mundos.ts | inline fix | ~12 |
+| 11:51 | Edited server/src/mundos.ts | inline fix | ~12 |
+| 11:51 | Edited server/src/mundos.ts | inline fix | ~23 |
+| 11:51 | Edited server/src/mundos.ts | inline fix | ~22 |
+| 11:51 | Edited server/src/index.ts | inline fix | ~30 |
+| 11:52 | Edited server/src/index.ts | 5→6 lines | ~48 |
+| 11:52 | Edited server/src/index.ts | added 1 condition(s) | ~69 |
+| 11:52 | Edited server/src/index.ts | added error handling | ~466 |
+| 11:52 | Edited server/src/index.ts | modified if() | ~44 |
+| 11:53 | Edited iniciar-servidor.sh | expanded (+10 lines) | ~223 |
+| 11:53 | Edited iniciar-servidor.sh | modified salvo() | ~246 |
+| 11:53 | Edited iniciar-servidor.bat | expanded (+10 lines) | ~217 |
+| 11:53 | Edited iniciar-servidor.bat | 2→2 lines | ~30 |
+| 11:53 | Edited iniciar-servidor.bat | modified salvo() | ~162 |
+| 11:54 | Created ../.claude/jobs/a35a297d/tmp/chatsmoke.mjs | — | ~175 |
+| 13:19 | Edited todo.md | grava() → host() | ~94 |
+| 13:19 | Edited todo.md | 4→5 lines | ~118 |
+| 14:23 | mundo = pasta mundos/<nome>/ com <nome>.ljw + chat.log; helpers em paths.ts | paths.ts, mundos.ts, index.ts | typecheck ok, smoke: chat.log + save na pasta ✓ | ~10k |
+| 14:23 | log de chat: registrarChat engancha entregar, dedup broadcast; launcher migra+lista pastas | index.ts, iniciar-servidor.sh/.bat | smoke real: welcome+chat gravados ✓ | ~5k |
+| 14:23 | Session end: 43 writes across 12 files (todo.md, version.ts, index.ts, index.html, menu.ts) | 9 reads | ~24045 tok |
+| 14:27 | Edited shared/src/claims.ts | 2→3 lines | ~40 |
+| 14:27 | Edited shared/src/claims.ts | modified claimDentroDoLimite() | ~78 |
+| 14:27 | Edited shared/src/session.ts | 1→2 lines | ~9 |
+| 14:27 | Edited shared/src/session.ts | "A área é grande demais (m" → "A área é grande demais (m" | ~48 |
+| 14:27 | Edited shared/src/claims.test.ts | 4→5 lines | ~110 |
+| 14:27 | Edited shared/src/claims.test.ts | modified mundoComTurma() | ~45 |
+| 14:27 | Edited shared/src/claims.test.ts | 17→18 lines | ~253 |
+| 14:30 | limite de claim 16^3 -> 32x32x64 (MAX_CLAIM_XZ=32, MAX_CLAIM_Y=64) | claims.ts, session.ts, claims.test.ts | typecheck ok, 230 testes | ~3k |

@@ -28,12 +28,22 @@ if not exist "node_modules" (
   )
 )
 
-REM --- Pasta dos mundos salvos + migracao do save antigo ---
+REM --- Pasta dos mundos salvos + migracao de saves antigos ---
+REM Cada mundo virou uma PASTA: mundos\<nome>\<nome>.ljw + chat.log.
 if not exist "mundos" mkdir "mundos"
-if not exist "mundos\mundo-livre.ljw" if exist "world.ljw" (
-  move /y "world.ljw" "mundos\mundo-livre.ljw" >nul
-  echo ^(mundo livre antigo movido para mundos\mundo-livre.ljw^)
-  echo.
+REM 1) world.ljw na raiz (layout mais antigo) -> mundos\mundo-livre\
+if exist "world.ljw" if not exist "mundos\mundo-livre\mundo-livre.ljw" (
+  if not exist "mundos\mundo-livre" mkdir "mundos\mundo-livre"
+  move /y "world.ljw" "mundos\mundo-livre\mundo-livre.ljw" >nul
+  echo ^(world.ljw antigo movido para mundos\mundo-livre\^)
+)
+REM 2) mundos\*.ljw achatados (layout anterior) -> mundos\<nome>\<nome>.ljw
+for %%f in ("mundos\*.ljw") do (
+  if not exist "mundos\%%~nf\%%~nf.ljw" (
+    if not exist "mundos\%%~nf" mkdir "mundos\%%~nf"
+    move /y "%%f" "mundos\%%~nf\%%~nf.ljw" >nul
+    echo ^(mundo "%%~nf" movido para a propria pasta^)
+  )
 )
 
 REM --- Qual mundo abrir ---
@@ -57,7 +67,7 @@ if "%ESCOLHA%"=="5" set "LJ_SAVE=cenarios/aula4-decifrar.ljw"
 if "%ESCOLHA%"=="6" set "LJ_SAVE=cenarios/aula5-simetria.ljw"
 if "%ESCOLHA%"=="7" set "LJ_SAVE=cenarios/aula6-manual.ljw"
 if "%ESCOLHA%"=="8" call :carregar_salvo
-if not defined LJ_SAVE set "LJ_SAVE=mundos/mundo-livre.ljw"
+if not defined LJ_SAVE set "LJ_SAVE=mundos/mundo-livre/mundo-livre.ljw"
 
 REM --- Codigo do professor (opcional) ---
 echo.
@@ -98,10 +108,12 @@ setlocal enabledelayedexpansion
 echo.
 echo Mundos salvos em mundos/:
 set "i=0"
-for %%f in ("mundos\*.ljw") do (
-  set /a i+=1
-  set "SAVE[!i!]=mundos/%%~nxf"
-  echo    [!i!] %%~nf
+for /d %%d in ("mundos\*") do (
+  if exist "%%d\%%~nxd.ljw" (
+    set /a i+=1
+    set "SAVE[!i!]=mundos/%%~nxd/%%~nxd.ljw"
+    echo    [!i!] %%~nxd
+  )
 )
 if !i!==0 goto :cs_livre
 echo.
@@ -115,5 +127,5 @@ goto :eof
 :cs_invalido
 echo ^(numero invalido - abrindo o mundo livre^)
 :cs_livre
-endlocal & set "LJ_SAVE=mundos/mundo-livre.ljw"
+endlocal & set "LJ_SAVE=mundos/mundo-livre/mundo-livre.ljw"
 goto :eof

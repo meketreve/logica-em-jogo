@@ -13,8 +13,9 @@
  */
 import { type Vec3i, parseVec3i } from "./regions";
 
-/** Aresta máxima do claim por eixo (até 16×16×16 no total). */
-export const MAX_CLAIM_DIM = 16;
+/** Aresta máxima do claim: 32 na horizontal (x e z) e 64 na vertical (y). */
+export const MAX_CLAIM_XZ = 32;
+export const MAX_CLAIM_Y = 64;
 /** Tamanho do grupo de amigos, INCLUINDO o dono (dono + 5 convidados). */
 export const MAX_AMIGOS = 6;
 export const MAX_CLAIM_NAME = 24;
@@ -38,9 +39,9 @@ export interface GrupoAmigos {
 /** Caixa (2 cantos já normalizados) cabe no limite por eixo? */
 export function claimDentroDoLimite(min: Vec3i, max: Vec3i): boolean {
   return (
-    max.x - min.x + 1 <= MAX_CLAIM_DIM &&
-    max.y - min.y + 1 <= MAX_CLAIM_DIM &&
-    max.z - min.z + 1 <= MAX_CLAIM_DIM
+    max.x - min.x + 1 <= MAX_CLAIM_XZ &&
+    max.y - min.y + 1 <= MAX_CLAIM_Y &&
+    max.z - min.z + 1 <= MAX_CLAIM_XZ
   );
 }
 

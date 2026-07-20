@@ -18,15 +18,25 @@ if [ ! -d node_modules ]; then
   npm install || { echo "ERRO ao instalar as dependências. O Node.js está instalado?"; exit 1; }
 fi
 
-# --- Pasta dos mundos salvos + migração do save antigo ---
+# --- Pasta dos mundos salvos + migração de saves antigos ---
 mkdir -p mundos
-# Versões antigas salvavam o mundo livre em world.ljw na raiz. Move pra mundos/
-# na primeira execução pra não perder a construção da turma.
-if [ ! -f mundos/mundo-livre.ljw ] && [ -f world.ljw ]; then
-  mv world.ljw mundos/mundo-livre.ljw
-  echo "(mundo livre antigo movido para mundos/mundo-livre.ljw)"
-  echo
+# Cada mundo virou uma PASTA própria: mundos/<nome>/<nome>.ljw + chat.log.
+# Migra layouts antigos pra esse formato na 1ª execução, sem perder a turma.
+# 1) world.ljw na raiz (layout mais antigo) -> mundos/mundo-livre/
+if [ -f world.ljw ] && [ ! -e mundos/mundo-livre/mundo-livre.ljw ]; then
+  mkdir -p mundos/mundo-livre
+  mv world.ljw mundos/mundo-livre/mundo-livre.ljw
+  echo "(world.ljw antigo movido para mundos/mundo-livre/)"
 fi
+# 2) mundos/*.ljw achatados (layout anterior) -> mundos/<nome>/<nome>.ljw
+for f in mundos/*.ljw; do
+  [ -e "$f" ] || continue
+  nome="$(basename "${f%.ljw}")"
+  [ -e "mundos/$nome/$nome.ljw" ] && continue
+  mkdir -p "mundos/$nome"
+  mv "$f" "mundos/$nome/$nome.ljw"
+  echo "(mundo '$nome' movido para a própria pasta)"
+done
 
 # --- Qual mundo abrir ---
 echo "Escolha o mundo:"
@@ -52,15 +62,18 @@ case "$ESCOLHA" in
     echo
     echo "Mundos salvos em mundos/:"
     SAVES=()
-    while IFS= read -r f; do SAVES+=("$f"); done < <(ls -1 mundos/*.ljw 2>/dev/null)
+    for d in mundos/*/; do
+      [ -d "$d" ] || continue
+      nome="$(basename "$d")"
+      [ -f "$d$nome.ljw" ] && SAVES+=("mundos/$nome/$nome.ljw")
+    done
     if [ ${#SAVES[@]} -eq 0 ]; then
       echo "   (nenhum mundo salvo ainda — abrindo o mundo livre)"
-      export LJ_SAVE="mundos/mundo-livre.ljw"
+      export LJ_SAVE="mundos/mundo-livre/mundo-livre.ljw"
     else
       i=1
       for f in "${SAVES[@]}"; do
-        nome="$(basename "$f")"
-        echo "   [$i] ${nome%.ljw}"
+        echo "   [$i] $(basename "$(dirname "$f")")"
         i=$((i + 1))
       done
       echo
@@ -71,11 +84,11 @@ case "$ESCOLHA" in
         export LJ_SAVE="$SEL"
       else
         echo "(número inválido — abrindo o mundo livre)"
-        export LJ_SAVE="mundos/mundo-livre.ljw"
+        export LJ_SAVE="mundos/mundo-livre/mundo-livre.ljw"
       fi
     fi
     ;;
-  *) export LJ_SAVE="mundos/mundo-livre.ljw" ;;
+  *) export LJ_SAVE="mundos/mundo-livre/mundo-livre.ljw" ;;
 esac
 
 # --- Código do professor (opcional) ---

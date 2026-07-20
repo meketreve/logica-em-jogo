@@ -696,15 +696,48 @@
   conflito no `git pull`.
 - Mundo livre PADRÃO (sem LJ_SAVE) agora é `mundos/mundo-livre.ljw` (era `world.ljw`
   na raiz). Launcher migra o world.ljw antigo pra lá na 1ª execução (não perde a turma).
-- Launcher (.sh/.bat) ganhou opção [8] "Carregar mundo salvo": lista `mundos/*.ljw`
-  e seta LJ_SAVE pro escolhido. `/mundo lista` no jogo já pega os saves porque
-  escaneia `dirname(savePath)` (= mundos/) + cenarios/ — nada a mudar lá.
+- Launcher (.sh/.bat) tem opção [8] "Carregar mundo salvo" e `/mundo lista` no jogo
+  listam os saves de `mundos/`.
+
+### Mundo = pasta própria + log de chat (2026-07-20)
+- **Cada mundo virou uma PASTA: `mundos/<nome>/`** contendo `<nome>.ljw` (save) +
+  `chat.log` (transcrição). Helpers em paths.ts: `nomeDoMundo`, `pastaDoMundo`,
+  `savePathDoMundo`, `chatLogDoMundo`. `mundoDeTrabalho` devolve `{vivo, modelo?,
+  somenteLeitura, chatLog}` — deriva o nome do basename, então LJ_SAVE pode ser o
+  caminho antigo achatado OU o novo (normaliza pros dois).
+- **Listagem** (mundos.ts `mundosDisponiveis`): escaneia as SUBPASTAS de `mundos/`
+  (cada `<nome>/<nome>.ljw`) + `cenarios/*.ljw` (modelos); save vivo vence modelo de
+  mesmo nome. Launcher [8] lista `for /d`/`for d in mundos/*/`.
+- **Log de chat**: `registrarChat` no host (index.ts) engancha em `entregar` (ponto
+  ÚNICO server→cliente). Um broadcast chama `entregar` 1×/destinatário com o MESMO
+  payload → dedup por payload consecutivo (`ultimoChatLogado`) evita N linhas iguais.
+  Grava `mundos/<nome>/chat.log` (append, `[ISO] autor: texto`). Reaponta na troca de
+  aula (`chatLogPath` = `troca.chatLog`). Read-only (aula) TAMBÉM loga chat (útil pro
+  professor), só não grava o .ljw.
+- Migração nos launchers: `world.ljw` (raiz) e `mundos/*.ljw` achatados → `mundos/<nome>/<nome>.ljw`.
+- Singleplayer (Web Worker/IndexedDB) NÃO tem fs → sem chat.log, sem pasta; export
+  segue blob .ljw único (worldStore.ts). Fora de escopo, como o profiler-pro-servidor.
+
+### Limite de claim é POR EIXO (2026-07-20)
+- `claims.ts` exporta `MAX_CLAIM_XZ=32` (x e z) e `MAX_CLAIM_Y=64` (altura) — não
+  é mais um `MAX_CLAIM_DIM` único. `claimDentroDoLimite` e a mensagem de erro em
+  session.ts usam os dois. Ao mexer no limite, mexer só nessas duas constantes.
+- Teste do "claim gigante" (claims.test.ts) precisa de um mundo MAIOR que o limite
+  pra estourar: `mundoComTurma` virou parametrizável por `dims` (o mundo padrão de
+  2×2×2 chunks = 32³ não cabe um claim > 32). A checagem de tamanho vem ANTES da de
+  sobreposição em session.ts, então dá pra marcar por cima de outro claim que o erro
+  de tamanho aparece primeiro.
 
 ## Do-Not-Repeat
 
 <!-- Mistakes made and corrected. Each entry prevents the same mistake recurring. -->
 <!-- Format: [YYYY-MM-DD] Description of what went wrong and what to do instead. -->
 
+- [2026-07-20] Smoke do HOST — `pkill/pgrep -f '<padrão>'` casa o PRÓPRIO shell do
+  comando quando o padrão está no cmdline dele (ex: `pgrep -f 'src/index.ts'` dentro de
+  um comando cujo script menciona `src/index.ts` → mata o próprio shell, exit 130). Não
+  use `-f` com um padrão presente no seu comando. Mate por PORTA (`lsof -ti tcp:PORT | xargs kill`)
+  OU rode o server como JOB de background separado e mande o sinal de outro comando.
 - [2026-07-20] Smoke do HOST: pra disparar o save de SIGINT do servidor,
   `tsx src/index.ts` roda em VÁRIOS processos (sh → node .bin/tsx → node --require
   --import). Só o node filho FINAL registra `process.on("SIGINT")`. `kill -INT <pid>`

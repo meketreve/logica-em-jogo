@@ -40,7 +40,8 @@ import {
 import {
   type Claim,
   MAX_AMIGOS,
-  MAX_CLAIM_DIM,
+  MAX_CLAIM_XZ,
+  MAX_CLAIM_Y,
   MAX_CLAIM_NAME,
   caixasSeCruzam,
   claimDentroDoLimite,
@@ -1451,7 +1452,7 @@ export class GameSession {
         }
         const { min, max } = regionFromCorners(marks.c1, marks.c2);
         if (!claimDentroDoLimite(min, max)) {
-          return `A área é grande demais (máximo de ${MAX_CLAIM_DIM}×${MAX_CLAIM_DIM}×${MAX_CLAIM_DIM} blocos).`;
+          return `A área é grande demais (máximo de ${MAX_CLAIM_XZ}×${MAX_CLAIM_XZ}×${MAX_CLAIM_Y} blocos: ${MAX_CLAIM_XZ} na horizontal, ${MAX_CLAIM_Y} de altura).`;
         }
         for (const c of this.claims.values()) {
           if (caixasSeCruzam({ min, max }, c)) return `Sua área encosta na área de ${c.dono}. Marque em outro lugar.`;

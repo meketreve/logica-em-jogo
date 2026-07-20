@@ -1,7 +1,25 @@
 # STATUS — Projeto "Lógica em Jogo" (jogo voxel educacional)
 
 > Single source of truth for resuming work. Read this FIRST when starting a session.
-> Last updated: 2026-07-20 (sessão 6: VERSÃO no boot/menu; +2 todo; pasta aulas→mundos + launcher carrega mundo salvo)
+> Last updated: 2026-07-20 (sessão 6: VERSÃO; aulas→mundos; mundo=pasta própria + LOG DE CHAT em arquivo)
+> **SESSÃO 6c (2026-07-20, sem commit ainda):** (6) MUNDO = PASTA PRÓPRIA — cada
+> mundo agora mora em `mundos/<nome>/` com `<nome>.ljw` (save) + `chat.log`
+> (transcrição). paths.ts ganhou `nomeDoMundo`/`pastaDoMundo`/`savePathDoMundo`/
+> `chatLogDoMundo`; `mundoDeTrabalho` devolve `chatLog` junto. mundos.ts
+> `mundosDisponiveis` agora escaneia SUBPASTAS de mundos/ + cenarios/ (save vivo
+> vence modelo). (7) LOG DE CHAT EM ARQUIVO — `registrarChat` (index.ts) engancha
+> no `entregar` (ponto único server→cliente), deduplica o fan-out do broadcast
+> (`ultimoChatLogado`) e grava `mundos/<nome>/chat.log` (append, `[ISO] autor: texto`);
+> reaponta na troca de aula. Mora no HOST (fs) — singleplayer/Web Worker não loga,
+> como o profiler. (8) LAUNCHERS migram layouts antigos (`world.ljw` raiz e
+> `mundos/*.ljw` achatados → `mundos/<nome>/<nome>.ljw`) e a opção [8] lista as
+> PASTAS. todo.md: os 2 itens (log de chat, salvar em pastas) marcados FEITO (host).
+> typecheck 3/3, build ok, smoke real com cliente ws: join+chat gravaram em
+> `mundos/mundo-livre/chat.log` (welcome + msg, dedup ok) e save na pasta ✓.
+> NÃO commitado ainda. (9) LIMITE DE CLAIM 16³ → 32×32×64: `claims.ts` agora tem
+> `MAX_CLAIM_XZ=32` + `MAX_CLAIM_Y=64` (por eixo, não mais um valor só);
+> `claimDentroDoLimite`, import e mensagem de erro em session.ts atualizados; testes
+> em claims.test.ts ajustados (mundoComTurma parametrizável). 230 testes, typecheck 3/3.
 > **SESSÃO 6b (2026-07-20, sem commit ainda):** (4) PASTA `aulas/` → `mundos/`
 > (`PASTA_AULAS`→`PASTA_MUNDOS` em paths.ts). Agora é o lar de TODOS os saves vivos:
 > mundo livre + cópias de trabalho das aulas. Mundo livre PADRÃO (sem LJ_SAVE) mudou

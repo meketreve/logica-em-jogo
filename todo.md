@@ -55,9 +55,10 @@
   Singleplayer (Web Worker) não tem fs — mensagem cai no vácuo em silêncio, sem erro no cliente.
   Playtest do usuário PENDENTE.
 
-- [ ] salvar o log do chat em arquivo (no servidor). Mesmo padrão do profiler "enviar pro
-  servidor" e do /mundo: o HOST grava (a GameSession não tem filesystem). Singleplayer
-  (Web Worker) não tem fs — cai no vácuo em silêncio.
+- [x] salvar o log do chat em arquivo (no servidor) — **FEITO** (2026-07-20): `registrarChat`
+  no host (index.ts) engancha no `entregar` (ponto único server→cliente), deduplica o
+  fan-out do broadcast e grava `mundos/<nome>/chat.log` (append, `[ISO] autor: texto`).
+  Singleplayer (Web Worker) não tem fs — chat não vira arquivo lá, como planejado.
 
 ## Sistema de sobrevivência (feature grande)
 
@@ -71,7 +72,8 @@
 
 - [ ] algoritmo de geração de terreno procedural pra mundos
 - [ ] consequente otimização de como os mundos são salvos e carregados
-- [ ] salvar mundo em PASTAS (uma pasta por mundo em vez de um único arquivo .ljw).
-  **Vai precisar MUDAR o sistema de exportar mundos do singleplayer** — hoje o single
-  guarda no IndexedDB e exporta como .ljw único via download (worldStore.ts); com pastas
-  o export/import de um mundo passa a lidar com vários arquivos, não um blob só.
+- [x] salvar mundo em PASTAS (uma pasta por mundo) — **FEITO** (2026-07-20, HOST): cada
+  mundo mora em `mundos/<nome>/` com `<nome>.ljw` + `chat.log` (paths.ts: `pastaDoMundo`,
+  `savePathDoMundo`, `chatLogDoMundo`). Launcher migra layouts antigos e lista as pastas.
+  Singleplayer (IndexedDB, export .ljw único via worldStore.ts) NÃO mudou — o navegador
+  não tem filesystem; export de "pasta" no single fica de fora (não faz sentido lá).

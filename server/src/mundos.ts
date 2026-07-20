@@ -1,7 +1,7 @@
 import { existsSync, readFileSync, readdirSync } from "node:fs";
-import { basename, dirname, join } from "node:path";
+import { basename, join } from "node:path";
 import { type GameSession, decodeSave } from "@logica/shared";
-import { daRaiz, mundoDeTrabalho } from "./paths";
+import { PASTA_CENARIOS, PASTA_MUNDOS, mundoDeTrabalho, savePathDoMundo } from "./paths";
 
 /**
  * `/mundo` (cp19) — trocar a aula SEM derrubar a turma.
@@ -19,21 +19,24 @@ import { daRaiz, mundoDeTrabalho } from "./paths";
 /** Nome de exibição: sem a extensão .ljw (o professor não precisa digitá-la). */
 const semExt = (caminho: string): string => basename(caminho).replace(/\.ljw$/i, "");
 
-/** Pastas onde um mundo pode estar: a do save em uso e a dos cenários gerados. */
-const pastasDeMundos = (savePath: string): string[] => [
-  dirname(savePath),
-  daRaiz("cenarios"),
-];
-
-function mundosDisponiveis(savePath: string): string[] {
-  // Uma aula por NOME de arquivo: a cópia viva em mundos/ e o modelo em cenarios/
-  // têm o mesmo nome e não devem aparecer duas vezes. O 1º achado (pasta do save
-  // em uso) vence — se a turma já mexeu na aula, é essa cópia que se carrega.
+/**
+ * Todos os mundos disponíveis, por caminho do .ljw. Duas fontes:
+ *  - saves vivos: cada subpasta de mundos/ com <nome>/<nome>.ljw;
+ *  - modelos: cenarios/*.ljw.
+ * Uma aula tem o mesmo NOME nos dois lugares; o save vivo vence o modelo
+ * (turma continuando de onde parou).
+ */
+function mundosDisponiveis(): string[] {
   const porNome = new Map<string, string>();
-  for (const pasta of pastasDeMundos(savePath)) {
-    if (!existsSync(pasta)) continue;
-    for (const f of readdirSync(pasta)) {
-      if (f.endsWith(".ljw") && !porNome.has(f)) porNome.set(f, join(pasta, f));
+  if (existsSync(PASTA_MUNDOS)) {
+    for (const nome of readdirSync(PASTA_MUNDOS)) {
+      const ljw = savePathDoMundo(nome);
+      if (existsSync(ljw)) porNome.set(`${nome}.ljw`, ljw);
+    }
+  }
+  if (existsSync(PASTA_CENARIOS)) {
+    for (const f of readdirSync(PASTA_CENARIOS)) {
+      if (f.endsWith(".ljw") && !porNome.has(f)) porNome.set(f, join(PASTA_CENARIOS, f));
     }
   }
   return [...porNome.values()].sort();
@@ -44,10 +47,10 @@ function mundosDisponiveis(savePath: string): string[] {
  * do arquivo, nunca um caminho: o comando chega pela rede da escola, e um
  * caminho livre daria a qualquer professor a leitura do disco do host.
  */
-function acharMundo(pedido: string, savePath: string): string | undefined {
+function acharMundo(pedido: string): string | undefined {
   const alvo = basename(pedido).toLowerCase();
   const comExtensao = alvo.endsWith(".ljw") ? alvo : `${alvo}.ljw`;
-  return mundosDisponiveis(savePath).find(
+  return mundosDisponiveis().find(
     (caminho) => basename(caminho).toLowerCase() === comExtensao,
   );
 }
@@ -58,6 +61,8 @@ export interface TrocaDeMundo {
   savePath: string;
   /** Mundo de aula (reutilizável): não salva alterações. */
   somenteLeitura: boolean;
+  /** Log de chat da pasta do mundo novo (mundos/<nome>/chat.log). */
+  chatLog: string;
 }
 
 export interface ContextoMundo {
@@ -93,7 +98,7 @@ export function comandoMundo(
   }
 
   if (sub === "lista") {
-    const mundos = mundosDisponiveis(ctx.savePath);
+    const mundos = mundosDisponiveis();
     if (mundos.length === 0) {
       ctx.responder(
         "Nenhum mundo encontrado. Gere os cenários com `npm run cenarios` na máquina que hospeda a aula.",
@@ -122,7 +127,7 @@ export function comandoMundo(
     return undefined;
   }
 
-  const encontrado = acharMundo(pedido, ctx.savePath);
+  const encontrado = acharMundo(pedido);
   if (!encontrado) {
     ctx.responder(
       `Não encontrei o mundo "${pedido}". Veja os nomes disponíveis com /mundo lista.`,
@@ -133,7 +138,7 @@ export function comandoMundo(
   // Modelo em cenarios/ nunca é aberto para escrita: vira uma cópia de trabalho
   // em mundos/. Se a cópia já existe (turma continuando), carrega dela; senão, do
   // modelo. O autosave grava sempre em `vivo`.
-  const { vivo, modelo, somenteLeitura } = mundoDeTrabalho(encontrado);
+  const { vivo, modelo, somenteLeitura, chatLog } = mundoDeTrabalho(encontrado);
   if (vivo === ctx.savePath) {
     ctx.responder(`"${semExt(vivo)}" já é a aula em curso.`);
     return undefined;
@@ -171,7 +176,7 @@ export function comandoMundo(
   console.log(
     `[server] aula trocada para ${vivo} (de ${basename(fonte)}, ${jogadores.length} jogador(es) migrado(s))`,
   );
-  return { session: sessionNova, savePath: vivo, somenteLeitura };
+  return { session: sessionNova, savePath: vivo, somenteLeitura, chatLog };
 }
 
 /** Anúncio da troca — a sessão nova já falou com cada um; isto é para o log/turma. */

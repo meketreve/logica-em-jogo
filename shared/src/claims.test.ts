@@ -36,9 +36,10 @@ function ultimaChat(sent: Sent, clientId: number): string | null {
 }
 
 describe("claims — helpers puros", () => {
-  it("claimDentroDoLimite: até 16 por eixo", () => {
-    expect(claimDentroDoLimite({ x: 0, y: 0, z: 0 }, { x: 15, y: 15, z: 15 })).toBe(true);
-    expect(claimDentroDoLimite({ x: 0, y: 0, z: 0 }, { x: 16, y: 0, z: 0 })).toBe(false);
+  it("claimDentroDoLimite: até 32 na horizontal e 64 na vertical", () => {
+    expect(claimDentroDoLimite({ x: 0, y: 0, z: 0 }, { x: 31, y: 63, z: 31 })).toBe(true);
+    expect(claimDentroDoLimite({ x: 0, y: 0, z: 0 }, { x: 32, y: 0, z: 0 })).toBe(false); // 33 de largura
+    expect(claimDentroDoLimite({ x: 0, y: 0, z: 0 }, { x: 0, y: 64, z: 0 })).toBe(false); // 65 de altura
   });
 
   it("caixasSeCruzam é inclusiva (tocar num canto conta)", () => {
@@ -65,9 +66,9 @@ describe("claims — helpers puros", () => {
 });
 
 describe("claims — proteção de áreas (cp24)", () => {
-  function mundoComTurma() {
+  function mundoComTurma(dims = DIMS) {
     const { sent, send } = collect();
-    const session = new GameSession(send, { dims: DIMS, seed: 5, codigo: "sala" });
+    const session = new GameSession(send, { dims, seed: 5, codigo: "sala" });
     session.handleMessage(1, join("prof", "4321", "sala")); // professor
     session.handleMessage(2, join("ana", "1111")); // aluno
     session.handleMessage(3, join("bia", "2222")); // aluno
@@ -124,7 +125,8 @@ describe("claims — proteção de áreas (cp24)", () => {
   });
 
   it("claim novo não sobrepõe outro nem passa do tamanho máximo", () => {
-    const { sent, session, sx, sz, h } = mundoComTurma();
+    // mundo mais largo (48) pra caber um claim maior que o limite horizontal de 32
+    const { sent, session, sx, sz, h } = mundoComTurma({ x: 3, z: 2, y: 2 });
     session.handleMessage(1, cmd("/claim ligar"));
     anaCriaClaim(session, sx, sz, h);
 
@@ -134,9 +136,9 @@ describe("claims — proteção de áreas (cp24)", () => {
     session.handleMessage(3, cmd("/claim criar"));
     expect(ultimaChat(sent, 3)).toContain("encosta na área de ana");
 
-    // bia tenta um claim gigante (17 de largura)
+    // bia tenta um claim gigante (33 de largura, passa dos 32)
     session.handleMessage(3, mark(1, 0, 0, 0));
-    session.handleMessage(3, mark(2, 16, 0, 0));
+    session.handleMessage(3, mark(2, 32, 0, 0));
     session.handleMessage(3, cmd("/claim criar"));
     expect(ultimaChat(sent, 3)).toContain("grande demais");
   });

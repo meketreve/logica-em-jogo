@@ -1,7 +1,7 @@
 # anatomy.md
 
-> Auto-maintained by OpenWolf. Last scanned: 2026-07-20T14:28:40.025Z
-> Files: 116 tracked | Anatomy hits: 0 | Misses: 0
+> Auto-maintained by OpenWolf. Last scanned: 2026-07-20T17:27:53.049Z
+> Files: 117 tracked | Anatomy hits: 0 | Misses: 0
 
 ## ../../../tmp/claude-1000/-home-meketreve-logica-em-jogo/1e53a721-e45d-4911-a026-f385f8f2c4e6/scratchpad/
 
@@ -68,6 +68,10 @@
 - `ws-smoke.mts` — Smoke do checkpoint 5: dois clientes ws no servidor Node real. (~1166 tok)
 - `ws-smoke.ts` — Smoke do checkpoint 5: dois clientes ws no servidor Node real. (~1146 tok)
 
+## ../.claude/jobs/a35a297d/tmp/
+
+- `chatsmoke.mjs` — Smoke: conecta, join (dispara welcome), manda 1 chat. Prova o log de chat. (~175 tok)
+
 ## ../.claude/plans/
 
 - `zesty-kindling-lighthouse.md` — Botão de HUD (F3) nos controles de toque (~600 tok)
@@ -76,10 +80,10 @@
 
 - `.gitattributes` — LF em tudo (projeto vive no WSL/ext4; evita ruído CRLF de ferramentas Windows) (~31 tok)
 - `.gitignore` — Git ignore rules (~99 tok)
-- `iniciar-servidor.bat` (~967 tok)
-- `iniciar-servidor.sh` — ============================================================ (~959 tok)
+- `iniciar-servidor.bat` (~1128 tok)
+- `iniciar-servidor.sh` — ============================================================ (~1103 tok)
 - `package.json` — Node.js package manifest (~157 tok)
-- `todo.md` — Ideias para fazer (~939 tok)
+- `todo.md` — Ideias para fazer (~994 tok)
 
 ## .claude/
 
@@ -134,9 +138,9 @@
 
 - `cenarios/gerar.ts` — Gerador dos 3 cenários pedagógicos (.ljw): digita os MESMOS comandos de chat do professor contra a GameSession real. Flags: --grupos --codigo --revelar --saida (~1900 tok)
 - `cenarios/verificar.ts` — Conferência embutida na geração: abre o .ljw num servidor novo, entra prof+2 alunos, completa a área do grupo 1; + guarda de geometria da faixa (~1400 tok)
-- `index.ts` — Hospedeiro Node+ws do servidor (LAN): embrulha a MESMA GameSession do Web (~4493 tok)
-- `mundos.ts` — `/mundo` (cp19) — trocar a aula SEM derrubar a turma. (~1915 tok)
-- `paths.ts` — `npm run <script> -w server` roda com o cwd dentro de server/, então caminho (~647 tok)
+- `index.ts` — Hospedeiro Node+ws do servidor (LAN): embrulha a MESMA GameSession do Web (~4935 tok)
+- `mundos.ts` — `/mundo` (cp19) — trocar a aula SEM derrubar a turma. (~1939 tok)
+- `paths.ts` — `npm run <script> -w server` roda com o cwd dentro de server/, então caminho (~920 tok)
 - `static.ts` — Serve o cliente já buildado (client/dist) NA MESMA PORTA do WebSocket. (~1055 tok)
 - `worker.ts` — Hospedeiro Web Worker do servidor (singleplayer): embrulha a GameSession (~767 tok)
 
@@ -157,8 +161,8 @@
 - `auth.ts` — Identidade por mundo (cp9): nome + PIN de 4 dígitos, papel professor/aluno. (~483 tok)
 - `blocks.test.ts` (~513 tok)
 - `blocks.ts` — IDs de bloco. Gravados como bytes crus nos chunks (Uint8Array), no save e no (~2581 tok)
-- `claims.test.ts` — Último texto de chat enviado a um cliente (rejeições/respostas de comando). (~2206 tok)
-- `claims.ts` — Anti-griefing (cp24) — CLAIMS + GRUPOS DE AMIGOS. (~953 tok)
+- `claims.test.ts` — Último texto de chat enviado a um cliente (rejeições/respostas de comando). (~2283 tok)
+- `claims.ts` — Anti-griefing (cp24) — CLAIMS + GRUPOS DE AMIGOS. (~965 tok)
 - `confinamento.test.ts` — Save-base válido (mundo/spawn reais) para injetar grupos + áreas per-grupo. (~2498 tok)
 - `constants.ts` — Aresta do chunk em blocos (16³ = 4096 bytes, 1 byte por bloco). (~405 tok)
 - `cp14.test.ts` — mundo plano 2×2×2 chunks (32³) — superfície em y=3 (~1992 tok)
@@ -185,7 +189,7 @@
 - `scenario.test.ts` — Marca cantos e cria região nomeada via varinha + /regiao (professor id). (~4106 tok)
 - `scenario.ts` — Cenário (cp12) — o coração pedagógico: objetivos que checam o ESTADO DO (~3680 tok)
 - `session.test.ts` — Testes de MECÂNICA rodam com singleplayer: true (join sem PIN) — a (~11934 tok)
-- `session.ts` — GameSession: o SERVIDOR autoritativo, independente de hospedeiro. (~32372 tok)
+- `session.ts` — GameSession: o SERVIDOR autoritativo, independente de hospedeiro. (~32392 tok)
 - `tp.test.ts` — /tpr (pedir teleporte) + /tpa (aceitar) — todos os jogadores; e /tp nome / (~1490 tok)
 - `version.ts` — Versão do jogo (VERSION) — FONTE ÚNICA. Constante TS pura, importada pelo boot do server e pelo menu do cliente (~90 tok)
 - `version.ts` — Versão do jogo — FONTE ÚNICA. Constante TS pura: roda igual no navegador (~76 tok)
