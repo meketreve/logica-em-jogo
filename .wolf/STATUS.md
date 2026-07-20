@@ -1,7 +1,20 @@
 # STATUS — Projeto "Lógica em Jogo" (jogo voxel educacional)
 
 > Single source of truth for resuming work. Read this FIRST when starting a session.
-> Last updated: 2026-07-20 (sessão 4: botão HUD/F3 no touch + backlog reorganizado em ideias.md)
+> Last updated: 2026-07-20 (sessão 5: playtest mundo G confirmado + bug-333 quadro fantasma + rename todo.md)
+> **SESSÃO 5 (2026-07-20, sem commit ainda):** (1) PLAYTEST MUNDO G CONFIRMADO —
+> usuário testou com os alunos: mundo tamanho G renderiza e carrega normal em
+> notebooks E tablets da escola (item do checklist de playtest acumulado, ver
+> "PRÓXIMA SESSÃO" abaixo). (2) BUG-333 — quadro (texto/imagem) ficava fantasma:
+> painel branco com texto renderizado na MESMA coordenada mesmo depois de trocar
+> de mundo. Causa: `reloadWorld` (cp19, main.ts) zera regions/objectives/groups
+> na troca de aula mas esquecia `quadroRenderer` — servidor só reenvia a msg
+> `quadros` se o mundo NOVO tiver conteúdo (session.ts, `this.quadros.size`), daí
+> mundo sem quadro não manda nada e o plane 3D antigo sobrevive na cena. Fix: 1
+> linha (`quadroRenderer.setAll([], world)` junto da limpeza de regions/
+> objectives). typecheck 3/3. Playtest da correção PENDENTE. (3) `ideias.md` →
+> `todo.md` (rename pedido pelo usuário; anatomy.md atualizado; histórico de
+> sessões passadas mantido como estava, sem reescrever log).
 > **SESSÃO 4 (2026-07-20, sem commit ainda):** (1) BOTÃO HUD NO TOQUE — tablet não
 > tem tecla F3; `TouchActions.hud()` novo (touch.ts) + botão "📊 hud" na fileira do
 > topo, chama o MESMO `hud.toggle()` do atalho de teclado (main.ts: criação do

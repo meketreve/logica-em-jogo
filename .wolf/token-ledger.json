@@ -2,14 +2,14 @@
   "version": 1,
   "created_at": "2026-07-10T12:04:51.079Z",
   "lifetime": {
-    "total_tokens_estimated": 4498563,
-    "total_reads": 1404,
-    "total_writes": 4093,
-    "total_sessions": 41,
-    "anatomy_hits": 1048,
-    "anatomy_misses": 352,
-    "repeated_reads_blocked": 687,
-    "estimated_savings_vs_bare_cli": 10949559
+    "total_tokens_estimated": 4536206,
+    "total_reads": 1413,
+    "total_writes": 4100,
+    "total_sessions": 43,
+    "anatomy_hits": 1056,
+    "anatomy_misses": 353,
+    "repeated_reads_blocked": 689,
+    "estimated_savings_vs_bare_cli": 10978963
   },
   "sessions": [
     {
@@ -30852,6 +30852,145 @@
         "writes_count": 6,
         "repeated_reads_blocked": 2,
         "anatomy_lookups": 4
+      }
+    },
+    {
+      "id": "session-2026-07-20-0713",
+      "started": "2026-07-20T10:13:45.814Z",
+      "ended": "2026-07-20T12:12:40.750Z",
+      "reads": [
+        {
+          "file": "/home/meketreve/logica-em-jogo/client/src/touch.ts",
+          "tokens_estimated": 2654,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "/home/meketreve/logica-em-jogo/client/src/main.ts",
+          "tokens_estimated": 13902,
+          "was_repeated": true,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "/home/meketreve/logica-em-jogo/ ideias para fazer.txt",
+          "tokens_estimated": 0,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "/home/meketreve/logica-em-jogo/ideias para fazer.txt",
+          "tokens_estimated": 456,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "/home/meketreve/logica-em-jogo/ideias.md",
+          "tokens_estimated": 0,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        }
+      ],
+      "writes": [
+        {
+          "file": "/home/meketreve/.claude/plans/zesty-kindling-lighthouse.md",
+          "tokens_estimated": 686,
+          "action": "create"
+        },
+        {
+          "file": "/home/meketreve/logica-em-jogo/client/src/main.ts",
+          "tokens_estimated": 472,
+          "action": "edit"
+        },
+        {
+          "file": "/home/meketreve/logica-em-jogo/client/src/touch.ts",
+          "tokens_estimated": 20,
+          "action": "edit"
+        },
+        {
+          "file": "/home/meketreve/logica-em-jogo/client/src/touch.ts",
+          "tokens_estimated": 57,
+          "action": "edit"
+        },
+        {
+          "file": "/home/meketreve/logica-em-jogo/ideias para fazer.md",
+          "tokens_estimated": 587,
+          "action": "create"
+        },
+        {
+          "file": "/home/meketreve/logica-em-jogo/ideias.md",
+          "tokens_estimated": 292,
+          "action": "edit"
+        }
+      ],
+      "totals": {
+        "input_tokens_estimated": 17012,
+        "output_tokens_estimated": 2114,
+        "reads_count": 5,
+        "writes_count": 6,
+        "repeated_reads_blocked": 2,
+        "anatomy_lookups": 4
+      }
+    },
+    {
+      "id": "session-2026-07-20-0914",
+      "started": "2026-07-20T12:14:01.326Z",
+      "ended": "2026-07-20T12:14:43.430Z",
+      "reads": [
+        {
+          "file": "/home/meketreve/logica-em-jogo/ideias.md",
+          "tokens_estimated": 691,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        }
+      ],
+      "writes": [],
+      "totals": {
+        "input_tokens_estimated": 691,
+        "output_tokens_estimated": 0,
+        "reads_count": 1,
+        "writes_count": 0,
+        "repeated_reads_blocked": 0,
+        "anatomy_lookups": 1
+      }
+    },
+    {
+      "id": "session-2026-07-20-0914",
+      "started": "2026-07-20T12:14:01.326Z",
+      "ended": "2026-07-20T12:20:30.312Z",
+      "reads": [
+        {
+          "file": "/home/meketreve/logica-em-jogo/ideias.md",
+          "tokens_estimated": 691,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "/home/meketreve/logica-em-jogo/client/src/quadros.ts",
+          "tokens_estimated": 3156,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "/home/meketreve/logica-em-jogo/client/src/main.ts",
+          "tokens_estimated": 13912,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        }
+      ],
+      "writes": [
+        {
+          "file": "/home/meketreve/logica-em-jogo/client/src/main.ts",
+          "tokens_estimated": 67,
+          "action": "edit"
+        }
+      ],
+      "totals": {
+        "input_tokens_estimated": 17759,
+        "output_tokens_estimated": 67,
+        "reads_count": 3,
+        "writes_count": 1,
+        "repeated_reads_blocked": 0,
+        "anatomy_lookups": 3
       }
     }
   ],

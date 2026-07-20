@@ -5405,6 +5405,24 @@
       "related_bugs": [],
       "occurrences": 1,
       "last_seen": "2026-07-20T03:16:11.270Z"
+    },
+    {
+      "id": "bug-333",
+      "timestamp": "2026-07-20T00:00:00.000Z",
+      "error_message": "quadro (texto/imagem) fica com o painel branco renderizado no mesmo lugar mesmo depois de carregar outro mundo",
+      "file": "client/src/main.ts",
+      "root_cause": "reloadWorld (cp19, troca de aula) zera regions/objectives/groups mas esqueceu quadroRenderer. Servidor só reenvia a msg quadros se o mundo NOVO tiver quadro com conteudo (session.ts:1182 - this.quadros.size), entao um mundo sem quadro nao manda nada e o plane 3D antigo (QuadroRenderer.planes) fica fantasma na cena, preso na coordenada do mundo anterior.",
+      "fix": "reloadWorld agora chama quadroRenderer.setAll([], world) junto com o resto da limpeza (regions/objectives/groups), mesmo padrao ja usado pra evitar fantasmas na troca de mundo.",
+      "tags": [
+        "quadros",
+        "troca-de-mundo",
+        "cp19",
+        "ghost-state",
+        "main.ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-20T00:00:00.000Z"
     }
   ]
 }

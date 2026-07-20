@@ -1622,3 +1622,24 @@ bug-195 (basename sem import). .exe/empacotamento segue ADIADO (decisão do usu�
 | 09:08 | Edited ideias.md | expanded (+24 lines) | ~273 |
 | 09:08 | Session end: 6 writes across 5 files (zesty-kindling-lighthouse.md, main.ts, touch.ts, ideias para fazer.md, ideias.md) | 5 reads | ~19126 tok |
 | 09:12 | Sessão 4 fechada: botão HUD/F3 no touch + backlog migrado pra ideias.md (rm .txt) | client/src/touch.ts, client/src/main.ts, ideias.md, .wolf/STATUS.md, .wolf/anatomy.md | typecheck 3/3, sem playtest ainda | ~2k |
+| 09:12 | Session end: 6 writes across 5 files (zesty-kindling-lighthouse.md, main.ts, touch.ts, ideias para fazer.md, ideias.md) | 5 reads | ~19126 tok |
+
+## Session: 2026-07-20 09:13
+
+| Time | Action | File(s) | Outcome | ~Tokens |
+|------|--------|---------|---------|--------|
+
+## Session: 2026-07-20 09:13
+
+| Time | Action | File(s) | Outcome | ~Tokens |
+|------|--------|---------|---------|--------|
+
+## Session: 2026-07-20 09:14
+
+| Time | Action | File(s) | Outcome | ~Tokens |
+|------|--------|---------|---------|--------|
+| 09:17 | Edited client/src/main.ts | 4→5 lines | ~67 |
+| — | Playtest confirmado: mundo G renderiza+carrega em notebooks e tablets da escola | — | ✅ | — |
+| — | bug-333: quadro fantasma na troca de mundo — reloadWorld esquecia quadroRenderer.setAll([]) | client/src/main.ts | fixed, typecheck 3/3 | ~400 |
+| — | Rename ideias.md → todo.md (pedido do usuário) | ideias.md, .wolf/anatomy.md | done | ~150 |
+| 09:20 | Session end: 1 writes across 1 files (main.ts) | 3 reads | ~17826 tok |

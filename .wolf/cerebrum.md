@@ -684,6 +684,14 @@
 <!-- Mistakes made and corrected. Each entry prevents the same mistake recurring. -->
 <!-- Format: [YYYY-MM-DD] Description of what went wrong and what to do instead. -->
 
+- [2026-07-20] Novo state client-side indexado por POSIÇÃO (tipo QuadroRenderer)
+  precisa entrar na lista de limpeza do `reloadWorld` (main.ts, cp19) — o
+  servidor só reenvia mensagens "lista completa" (regions/objectives/quadros)
+  quando o mundo NOVO tem conteúdo daquele tipo; mundo sem conteúdo não manda
+  nada e o estado antigo fica fantasma na cena. bug-333: quadroRenderer ficou
+  de fora do bloco de reset quando a feature foi codada (2026-07-19), só
+  regions/objectives/groups foram lembrados. Checklist ao adicionar renderer
+  novo indexado por posição: registrar em reloadWorld também.
 - [2026-07-19] `Number(null) === 0` — param numérico OPCIONAL de URL exige
   checar `raw === null` ANTES de `Number(raw)`, senão a ausência vira 0 válido
   (bug-302: cliente sem ?hora travou o céu na meia-noite ignorando o servidor).

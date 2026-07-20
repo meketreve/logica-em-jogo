@@ -661,6 +661,7 @@ function startGame(snap: Snapshot): void {
     latestRegions = [];
     regionRenderer.setRegions([]);
     regionRenderer.clearCorners();
+    quadroRenderer.setAll([], world); // mundo sem quadro não reenvia — sem isso fica fantasma (bug relatado)
     latestObjectives = null;
     applyObjectiveBoxes?.([]);
     // lista vazia = o painel de objetivos se esconde sozinho
