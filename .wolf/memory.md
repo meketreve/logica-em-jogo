@@ -1597,3 +1597,6 @@ bug-195 (basename sem import). .exe/empacotamento segue ADIADO (decisão do usu�
 | 00:14 | Edited server/src/cenarios/verificar.ts | modified for() | ~505 |
 | 00:16 | Edited cenarios/README.md | expanded (+8 lines) | ~309 |
 | 00:16 | FASES nos cenários: Cenario.fases[] (1=livre, 2+=sequencial auto), layout lado a lado, verificador joga todas em ordem; aula1 virou 3 fases (período 3 → período 4 → crescente) | gerar.ts, verificar.ts, cenarios/*.ljw, README | 6/6 gerados, HUD 0/3 + fase 1 ativa no screenshot ✅ | ~12k |
+| 00:17 | Session end: 146 writes across 34 files (shortcutGuard.ts, main.ts, constants.ts, session.ts, daynight.ts) | 44 reads | ~148218 tok |
+| 00:18 | Session end: 146 writes across 34 files (shortcutGuard.ts, main.ts, constants.ts, session.ts, daynight.ts) | 44 reads | ~148218 tok |
+| 00:19 | fecho de sessão pré-/clear: STATUS com próxima sessão (playtest acumulado → piloto), tudo pushado | .wolf/* | 228 testes, 5 commits na sessão | ~3k |

@@ -22,9 +22,13 @@
 > menu. README dos cenários atualizado (6 aulas, .ljw versionados). 228 testes,
 > typecheck 3/3, screenshots das 3 aulas novas ✅ (contador 38/42 da aula5
 > confere os 4 erros).
-> **PLAYTEST PENDENTE ACUMULADO:** roteiro da sessão 2 (atalhos/dia-noite/
-> tapetes/janela/móveis/quadro) + aulas 4-6 com a turma + mundo M/G no lab
-> (medir FPS/hitch de join no PC fraco — gatilho do greedy/worker).
+> **PRÓXIMA SESSÃO:** playtest pendente ACUMULADO — (a) roteiro da sessão 2
+> (atalhos Ctrl+W em tela cheia F11, dia/noite com astros, tapetes, janela,
+> móveis direcionais, quadro texto+imagem), (b) aulas 4-6 + aula1 em 3 FASES
+> com a turma, (c) mundo M/G no lab (medir FPS/hitch de join no PC fraco —
+> gatilho registrado do greedy/worker), (d) cp24 claims + cp25 confinamento
+> (roteiros nos blocos antigos). Depois do playtest: o PILOTO e o relatório.
+> Tudo commitado e PUSHADO (escola: git pull). 228 testes, typecheck 3/3.
 > **BACKLOG COMPLETO FEITO (2026-07-19 sessão 2, 5 commits — playtest AMANHÃ):**
 > (1) ATALHOS DO NAVEGADOR: guarda de 3 camadas (client/shortcutGuard.ts) —
 > beforeunload ("sair do site?"), preventDefault nos combos interceptáveis
