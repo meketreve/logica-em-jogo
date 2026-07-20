@@ -1,5 +1,5 @@
 import { BlockId } from "./blocks";
-import { CHUNK_SIZE, DEFAULT_WORLD_CHUNKS } from "./constants";
+import { CHUNK_SIZE, DEFAULT_WORLD_CHUNKS, MAX_WORLD_CHUNKS } from "./constants";
 import { type World, type WorldDims, createWorld, setBlock } from "./world";
 
 /** Preset de criação de mundo (cp14): escolhido no menu/host, só vale pra
@@ -8,6 +8,21 @@ export type WorldPreset = "normal" | "plano" | "cabines";
 
 export function parseWorldPreset(v: unknown): WorldPreset {
   return v === "plano" || v === "cabines" ? v : "normal";
+}
+
+/** Tamanho de mundo NOVO (2026-07-19): escolhido no menu/host, só vale na
+ *  criação — mundo restaurado lê as dims do próprio save (header LJW0).
+ *  P = o padrão de sempre; G = teto validado do motor. */
+export type WorldTamanho = "P" | "M" | "G";
+
+export const TAMANHO_CHUNKS: Record<WorldTamanho, WorldDims> = {
+  P: DEFAULT_WORLD_CHUNKS, // 128×128×64 (1 MB)
+  M: { x: 12, z: 12, y: 6 }, // 192×192×96 (~3,4 MB)
+  G: MAX_WORLD_CHUNKS, // 256×256×128 (8 MB)
+};
+
+export function parseWorldTamanho(v: unknown): WorldTamanho {
+  return v === "M" || v === "G" ? v : "P";
 }
 
 /**

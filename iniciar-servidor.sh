@@ -39,6 +39,15 @@ echo
 read -r -p "Código do professor (Enter = manter o atual / gerar um): " CODIGO
 [ -n "$CODIGO" ] && export LJ_CODIGO="$CODIGO"
 
+# --- Tamanho do mundo (só vale se o mundo for NOVO) ---
+echo
+read -r -p "Tamanho do mundo novo P/M/G (Enter = P pequeno): " TAMANHO
+case "$TAMANHO" in
+  [mM]) export LJ_TAMANHO="M" ;;
+  [gG]) export LJ_TAMANHO="G" ;;
+  *) export LJ_TAMANHO="P" ;;
+esac
+
 # Cria o mundo caso ainda não exista (vale para o "mundo livre" na 1ª vez).
 export LJ_NOVO=1
 

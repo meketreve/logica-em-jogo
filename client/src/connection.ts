@@ -45,14 +45,15 @@ export class WorkerConnection implements Connection {
     };
   }
 
-  /** Inicializa o hospedeiro: mundo do save (IndexedDB) OU novo com a seed
-   *  e o preset (normal/plano/cabines — só vale pra mundo novo). */
-  init(opts: { save?: ArrayBuffer; seed?: number; preset?: string }): void {
+  /** Inicializa o hospedeiro: mundo do save (IndexedDB) OU novo com a seed,
+   *  o preset (normal/plano/cabines) e o tamanho (P/M/G) — só valem pra mundo novo. */
+  init(opts: { save?: ArrayBuffer; seed?: number; preset?: string; tamanho?: string }): void {
     this.worker.postMessage({
       hostType: "init",
       save: opts.save,
       seed: opts.seed,
       preset: opts.preset,
+      tamanho: opts.tamanho,
     });
   }
 

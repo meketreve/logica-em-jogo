@@ -1,4 +1,10 @@
-import { type WorldPreset, parseWorldPreset, sanitizeName } from "@logica/shared";
+import {
+  type WorldPreset,
+  type WorldTamanho,
+  parseWorldPreset,
+  parseWorldTamanho,
+  sanitizeName,
+} from "@logica/shared";
 import { playUi, setUiVolume } from "./audio";
 import {
   DEFAULT_SETTINGS,
@@ -32,6 +38,8 @@ export interface PlayWorldChoice {
   data: ArrayBuffer | null;
   /** Tipo do mundo NOVO (cp14): colinas, plano ou cabines. */
   preset?: WorldPreset;
+  /** Tamanho do mundo NOVO (2026-07-19): P/M/G — save carrega as próprias dims. */
+  tamanho?: WorldTamanho;
 }
 
 /** Credenciais do join em rede (cp9). PIN NUNCA persiste em localStorage —
@@ -204,6 +212,7 @@ export function showMenu(handlers: MenuHandlers): void {
       createdAt: Date.now(),
       data: null,
       preset: parseWorldPreset(newTipo.value),
+      tamanho: parseWorldTamanho(el<HTMLSelectElement>("menu-new-tamanho").value),
     });
   });
 

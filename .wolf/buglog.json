@@ -5260,6 +5260,54 @@
       "related_bugs": [],
       "occurrences": 1,
       "last_seen": "2026-07-19T23:33:40.710Z"
+    },
+    {
+      "id": "bug-324",
+      "timestamp": "2026-07-20T01:00:42.351Z",
+      "error_message": "Type error",
+      "file": "shared/src/worldgen.ts",
+      "root_cause": "Missing or incorrect type annotation",
+      "fix": "Added type assertion/annotation",
+      "tags": [
+        "auto-detected",
+        "type-fix",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-20T01:00:42.351Z"
+    },
+    {
+      "id": "bug-325",
+      "timestamp": "2026-07-20T01:00:55.429Z",
+      "error_message": "Type error",
+      "file": "client/src/menu.ts",
+      "root_cause": "Missing or incorrect type annotation",
+      "fix": "Added type assertion/annotation",
+      "tags": [
+        "auto-detected",
+        "type-fix",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-20T01:00:55.429Z"
+    },
+    {
+      "id": "bug-326",
+      "timestamp": "2026-07-20T01:01:24.183Z",
+      "error_message": "Type error",
+      "file": "server/src/worker.ts",
+      "root_cause": "Missing or incorrect type annotation",
+      "fix": "Added type assertion/annotation",
+      "tags": [
+        "auto-detected",
+        "type-fix",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-20T01:01:24.183Z"
     }
   ]
 }

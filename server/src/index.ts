@@ -9,9 +9,11 @@ import {
   GameSession,
   SERVER_TICK_RATE,
   type SaveData,
+  TAMANHO_CHUNKS,
   decodeSave,
   encodeSave,
   parseWorldPreset,
+  parseWorldTamanho,
 } from "@logica/shared";
 import { comandoMundo } from "./mundos";
 import { daRaiz, mundoDeTrabalho } from "./paths";
@@ -147,6 +149,8 @@ let session = new GameSession(
       process.env["LJ_PLANO"] === "1"
         ? "plano"
         : parseWorldPreset(process.env["LJ_PRESET"]),
+    // tamanho do mundo NOVO (2026-07-19): LJ_TAMANHO=P|M|G (restaurado ignora)
+    dims: TAMANHO_CHUNKS[parseWorldTamanho(process.env["LJ_TAMANHO"])],
   },
 );
 

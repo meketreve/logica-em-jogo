@@ -49,6 +49,14 @@ set "CODIGO="
 set /p "CODIGO=Codigo do professor (Enter = manter o atual / gerar um): "
 if defined CODIGO set "LJ_CODIGO=%CODIGO%"
 
+REM --- Tamanho do mundo (so vale se o mundo for NOVO) ---
+echo.
+set "TAMANHO="
+set /p "TAMANHO=Tamanho do mundo novo P/M/G (Enter = P pequeno): "
+set "LJ_TAMANHO=P"
+if /i "%TAMANHO%"=="M" set "LJ_TAMANHO=M"
+if /i "%TAMANHO%"=="G" set "LJ_TAMANHO=G"
+
 REM Cria o mundo caso ainda nao exista (vale para o "mundo livre" na 1a vez).
 set "LJ_NOVO=1"
 

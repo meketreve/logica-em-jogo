@@ -1,6 +1,6 @@
 # anatomy.md
 
-> Auto-maintained by OpenWolf. Last scanned: 2026-07-19T23:35:20.997Z
+> Auto-maintained by OpenWolf. Last scanned: 2026-07-20T01:08:26.498Z
 > Files: 111 tracked | Anatomy hits: 0 | Misses: 0
 
 ## ../../../tmp/claude-1000/-home-meketreve-logica-em-jogo/1e53a721-e45d-4911-a026-f385f8f2c4e6/scratchpad/
@@ -71,8 +71,8 @@
 
 - `.gitattributes` — LF em tudo (projeto vive no WSL/ext4; evita ruído CRLF de ferramentas Windows) (~31 tok)
 - `ideias para fazer.txt` — Declares para (~456 tok)
-- `iniciar-servidor.bat` (~526 tok)
-- `iniciar-servidor.sh` — ============================================================ (~465 tok)
+- `iniciar-servidor.bat` (~592 tok)
+- `iniciar-servidor.sh` — ============================================================ (~533 tok)
 - `package.json` — Node.js package manifest (~157 tok)
 
 ## .claude/
@@ -88,7 +88,7 @@
 
 ## client/
 
-- `index.html` — Lógica em Jogo (~5074 tok)
+- `index.html` — Lógica em Jogo (~5159 tok)
 - `vite.config.ts` (~94 tok)
 
 ## client/src/
@@ -101,14 +101,14 @@
 - `chunks.ts` — 1 mesh por chunk (BufferGeometry única, culled mesher do /shared). (~1171 tok)
 - `commands.ts` — Autocompletar de comandos de chat (Tab). Puro, sem DOM — o chat.ts liga o (~862 tok)
 - `commands.ts` — Autocompletar de comandos de chat (Tab). Puro, sem DOM — o chat.ts liga o (~516 tok)
-- `connection.ts` — Conexão do cliente com O SERVIDOR — interface única, hospedeiro invisível. (~1175 tok)
+- `connection.ts` — Conexão do cliente com O SERVIDOR — interface única, hospedeiro invisível. (~1194 tok)
 - `daynight.ts` — Ciclo dia/noite (cp21; astros no backlog 2026-07-19) — SÓ visual. A hora é (~2281 tok)
 - `events.ts` — Gatilhos de som (checkpoint 6): pontos de evento do jogo onde o áudio vai (~182 tok)
 - `hud.ts` — HUD de perfilação (F3): FPS, frametime méd+p95, remesh, draw calls e (~1099 tok)
 - `input.ts` — Teclado + mouse (pointer lock). SÓ coleta input — nenhuma decisão de (~1542 tok)
 - `inventory.ts` — Inventário de blocos (cp16) — grade com TODOS os colocáveis + faixa da (~1184 tok)
-- `main.ts` — O cliente não tem filesystem: aprende os nomes das aulas pela resposta de (~13890 tok)
-- `menu.ts` — Menu principal (cp8) — HTML/CSS por cima do canvas, sem GUI de engine. (~4161 tok)
+- `main.ts` — O cliente não tem filesystem: aprende os nomes das aulas pela resposta de (~13902 tok)
+- `menu.ts` — Menu principal (cp8) — HTML/CSS por cima do canvas, sem GUI de engine. (~4230 tok)
 - `objectivesUi.ts` — Grupo do PRÓPRIO jogador (null = sem grupo). (~1244 tok)
 - `panels.ts` — Painéis HTML do cp14 — açúcar visual sobre os comandos de chat: cada botão (~5834 tok)
 - `quadros.ts` — Quadros (2026-07-19) — lado cliente. Duas peças: (~3156 tok)
@@ -128,11 +128,11 @@
 
 - `cenarios/gerar.ts` — Gerador dos 3 cenários pedagógicos (.ljw): digita os MESMOS comandos de chat do professor contra a GameSession real. Flags: --grupos --codigo --revelar --saida (~1900 tok)
 - `cenarios/verificar.ts` — Conferência embutida na geração: abre o .ljw num servidor novo, entra prof+2 alunos, completa a área do grupo 1; + guarda de geometria da faixa (~1400 tok)
-- `index.ts` — Hospedeiro Node+ws do servidor (LAN): embrulha a MESMA GameSession do Web (~3957 tok)
+- `index.ts` — Hospedeiro Node+ws do servidor (LAN): embrulha a MESMA GameSession do Web (~4012 tok)
 - `mundos.ts` — `/mundo` (cp19) — trocar a aula SEM derrubar a turma. (~1914 tok)
 - `paths.ts` — `npm run <script> -w server` roda com o cwd dentro de server/, então caminho (~572 tok)
 - `static.ts` — Serve o cliente já buildado (client/dist) NA MESMA PORTA do WebSocket. (~1055 tok)
-- `worker.ts` — Hospedeiro Web Worker do servidor (singleplayer): embrulha a GameSession (~682 tok)
+- `worker.ts` — Hospedeiro Web Worker do servidor (singleplayer): embrulha a GameSession (~767 tok)
 
 ## server/src/cenarios/
 
@@ -183,5 +183,5 @@
 - `tp.test.ts` — /tpr (pedir teleporte) + /tpa (aceitar) — todos os jogadores; e /tp nome / (~1490 tok)
 - `world.test.ts` — Declares DIMS (~761 tok)
 - `world.ts` — Dimensões do mundo em chunks. Parâmetro de criação, gravado no header do save/snapshot. (~848 tok)
-- `worldgen.test.ts` — Declares DIMS (~287 tok)
-- `worldgen.ts` — Preset de criação de mundo (cp14): escolhido no menu/host, só vale pra (~1397 tok)
+- `worldgen.test.ts` — Declares DIMS (~602 tok)
+- `worldgen.ts` — Preset de criação de mundo (cp14): escolhido no menu/host, só vale pra (~1567 tok)

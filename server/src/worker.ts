@@ -3,10 +3,13 @@ import {
   GameSession,
   SERVER_TICK_RATE,
   type SaveData,
+  TAMANHO_CHUNKS,
   type WorldPreset,
+  type WorldTamanho,
   decodeSave,
   encodeSave,
   parseWorldPreset,
+  parseWorldTamanho,
 } from "@logica/shared";
 
 /**
@@ -29,6 +32,7 @@ function startSession(
   save: ArrayBuffer | undefined,
   seed: number,
   preset: WorldPreset,
+  tamanho: WorldTamanho,
 ): void {
   let restore: SaveData | undefined;
   if (save) restore = decodeSave(save); // inválido = lança; cliente validou antes
@@ -37,8 +41,16 @@ function startSession(
       if (typeof data === "string") postMessage(data);
       else postMessage(data, { transfer: [data] });
     },
-    // singleplayer: sem PIN, jogador é professor automático (cp9)
-    { seed, restore, preset, singleplayer: true, now: () => performance.now() },
+    // singleplayer: sem PIN, jogador é professor automático (cp9).
+    // dims (tamanho P/M/G) só valem pra mundo NOVO — restore traz as próprias.
+    {
+      seed,
+      restore,
+      preset,
+      dims: TAMANHO_CHUNKS[tamanho],
+      singleplayer: true,
+      now: () => performance.now(),
+    },
   );
   setInterval(() => session?.tick(), 1000 / SERVER_TICK_RATE);
 }
@@ -56,6 +68,7 @@ self.onmessage = (e: MessageEvent) => {
     seed?: unknown;
     flat?: unknown;
     preset?: unknown;
+    tamanho?: unknown;
   };
   if (msg.hostType === "init" && !session) {
     startSession(
@@ -63,6 +76,7 @@ self.onmessage = (e: MessageEvent) => {
       typeof msg.seed === "number" ? msg.seed : 20260710,
       // preset (cp14) só vale pra mundo NOVO; flat=true = alias antigo de plano
       msg.flat === true ? "plano" : parseWorldPreset(msg.preset),
+      parseWorldTamanho(msg.tamanho),
     );
   } else if (msg.hostType === "save_request" && session) {
     const data = encodeSave(session.world, session.toSave());

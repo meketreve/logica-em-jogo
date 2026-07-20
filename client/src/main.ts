@@ -476,7 +476,12 @@ function startSingleplayer(choice: PlayWorldChoice): void {
   );
   // mundo novo = seed aleatória; mundo existente = bytes do IndexedDB
   const seed = crypto.getRandomValues(new Uint32Array(1))[0] ?? 1;
-  wc.init({ save: choice.data ?? undefined, seed, preset: choice.preset });
+  wc.init({
+    save: choice.data ?? undefined,
+    seed,
+    preset: choice.preset,
+    tamanho: choice.tamanho,
+  });
   connect(wc);
 }
 

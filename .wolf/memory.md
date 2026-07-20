@@ -1560,3 +1560,20 @@ bug-195 (basename sem import). .exe/empacotamento segue ADIADO (decisão do usu�
 | 20:35 | Created ../../../tmp/claude-1000/-home-meketreve-logica-em-jogo/d5fb946a-7df1-4f81-8d6e-b29e8b26f43a/scratchpad/quadro.mts | — | ~642 |
 | 20:41 | quadro texto+imagem (ids 100-103): 1º estado FORA do id — quadros.ts (shared+client), quadro_set/quadro_changed/quadros no protocolo, Map na session, persiste no meta, editor HTML sem popup, imagem comprimida a data URL ≤32k | quadros.ts ×2, protocol, session, save, mesher, atlas, main, blocksUi | 225 testes, stage 2 quadros + screenshot ✅ | ~25k |
 | 21:04 | fecho de sessão: STATUS.md + cerebrum + push — backlog 100% (atalhos, dia/noite, tapetes, janela, móveis, quadro) | .wolf/* | 225 testes, 5 commits | ~4k |
+| 21:05 | Session end: 116 writes across 22 files (shortcutGuard.ts, main.ts, constants.ts, session.ts, daynight.ts) | 27 reads | ~107032 tok |
+| 22:00 | Edited shared/src/worldgen.ts | modified parseWorldPreset() | ~314 |
+| 22:00 | Edited client/index.html | expanded (+7 lines) | ~179 |
+| 22:00 | Edited client/src/menu.ts | modified NOVO() | ~57 |
+| 22:00 | Edited client/src/menu.ts | 7→8 lines | ~70 |
+| 22:01 | Edited client/src/menu.ts | expanded (+6 lines) | ~38 |
+| 22:01 | Edited client/src/connection.ts | modified init() | ~122 |
+| 22:01 | Edited client/src/main.ts | 3→8 lines | ~74 |
+| 22:01 | Edited server/src/worker.ts | modified startSession() | ~226 |
+| 22:01 | Edited server/src/worker.ts | modified if() | ~168 |
+| 22:01 | Edited server/src/worker.ts | 9→12 lines | ~61 |
+| 22:01 | Edited server/src/index.ts | modified NOVO() | ~120 |
+| 22:02 | Edited server/src/index.ts | 8→10 lines | ~50 |
+| 22:02 | Edited iniciar-servidor.sh | modified professor() | ~114 |
+| 22:02 | Edited iniciar-servidor.bat | modified professor() | ~115 |
+| 22:08 | Edited shared/src/worldgen.test.ts | expanded (+7 lines) | ~85 |
+| 22:08 | tamanho de mundo P/M/G na criação: menu select + worker init dims + LJ_TAMANHO + launchers | worldgen.ts, menu.ts, index.html, connection.ts, main.ts, worker.ts, server/index.ts, launchers | 227 testes | ~8k |
