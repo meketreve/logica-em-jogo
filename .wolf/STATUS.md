@@ -1,7 +1,10 @@
 # STATUS — Projeto "Lógica em Jogo" (jogo voxel educacional)
 
 > Single source of truth for resuming work. Read this FIRST when starting a session.
-> Last updated: 2026-07-20 (sessão 3: cenários 4-6 + mundo P/M/G + otimização medida)
+> Last updated: 2026-07-20 (sessão 3: cenários 4-6 + FASES + mundo P/M/G + otimização medida)
+> **FASES (2026-07-20): Cenario.fases[] no gerador — 2+ fases = modo sequencial
+> automático, cada grupo no seu ritmo; aula1 virou 3 fases (período 3 → 4 →
+> crescente). Receita de criar/mudar fases no cenarios/README.md.**
 > **SESSÃO 3 (2026-07-20, 3 commits):** (1) TAMANHO DE MUNDO P/M/G na criação —
 > menu select, worker init `tamanho`, LJ_TAMANHO no host, launchers perguntam;
 > P=128² (padrão), M=192², G=256²×128; save sempre carregou dims = zero migração.
