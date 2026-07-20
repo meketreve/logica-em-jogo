@@ -20,6 +20,8 @@
 - [ ] corrigir o nome do jogador para não aceitar nomes com espaços
 - [ ] corrigir a animação da porta — está girando no próprio eixo, precisa girar 90° usando uma das pontas como referência para o eixo de rotação
 - [ ] interceptar atalhos do navegador quando o mouse estiver capturado (pra evitar de fechar a aba se apertar Ctrl+W ao correr)
+- [ ] porta: escolher o lado do PIVÔ (dobradiça) usando como referência o lado que TEM bloco;
+  duas portas lado a lado devem ter pivôs em lados OPOSTOS (abrem pro meio, estilo Minecraft double door)
 
 ## Mundo / professor
 

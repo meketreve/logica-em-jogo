@@ -29,11 +29,14 @@ describe("formato de bloco/chunk (contrato de save e snapshot)", () => {
     expect(BlockId.CamaZN).toBe(99);
     expect(BlockId.QuadroXP).toBe(100);
     expect(BlockId.QuadroZN).toBe(103);
+    // flores (2026-07-20): 4 cores em append depois do quadro
+    expect(BlockId.FlorVermelha).toBe(104);
+    expect(BlockId.FlorBranca).toBe(107);
     // isPlaceable acompanha o último id; o próximo byte NÃO é bloco
     expect(isPlaceable(BlockId.JanelaXFechada)).toBe(true);
     expect(isPlaceable(BlockId.JanelaXAberta)).toBe(false); // aberta só via clique
-    expect(isPlaceable(BlockId.QuadroZN)).toBe(true);
-    expect(isPlaceable(104)).toBe(false);
+    expect(isPlaceable(BlockId.FlorBranca)).toBe(true);
+    expect(isPlaceable(108)).toBe(false);
   });
 
   it("volume do chunk cabe em 1 byte por bloco", () => {

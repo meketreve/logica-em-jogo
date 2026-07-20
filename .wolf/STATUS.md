@@ -1,8 +1,9 @@
 # STATUS — Projeto "Lógica em Jogo" (jogo voxel educacional)
 
 > Single source of truth for resuming work. Read this FIRST when starting a session.
-> Last updated: 2026-07-20 (sessão 6: VERSÃO; aulas→mundos; mundo=pasta própria + LOG DE CHAT em arquivo)
-> **SESSÃO 6c (2026-07-20, sem commit ainda):** (6) MUNDO = PASTA PRÓPRIA — cada
+> Last updated: 2026-07-20 (SESSÃO 6 FECHADA + COMMITADA + PUSHADA — versão, mundos/ em pastas,
+> chat.log, claim 32×32×64, cama de 2 blocos, flores, fix /tp ~. Próxima: PLAYTEST — ver bloco abaixo.)
+> **SESSÃO 6c (2026-07-20):** (6) MUNDO = PASTA PRÓPRIA — cada
 > mundo agora mora em `mundos/<nome>/` com `<nome>.ljw` (save) + `chat.log`
 > (transcrição). paths.ts ganhou `nomeDoMundo`/`pastaDoMundo`/`savePathDoMundo`/
 > `chatLogDoMundo`; `mundoDeTrabalho` devolve `chatLog` junto. mundos.ts
@@ -20,6 +21,32 @@
 > `MAX_CLAIM_XZ=32` + `MAX_CLAIM_Y=64` (por eixo, não mais um valor só);
 > `claimDentroDoLimite`, import e mensagem de erro em session.ts atualizados; testes
 > em claims.test.ts ajustados (mundoComTurma parametrizável). 230 testes, typecheck 3/3.
+> (10) CAMA = PAR DE 2 CÉLULAS (horizontal, estilo Minecraft) orientada pelo yaw:
+> sem novos ids — as 4 direções (96-99) ocupam 2 células com o mesmo id; `camaHeadDir`
+> (blocks.ts) = vetor pé→cabeceira; placement valida o par (session.ts, igual à porta);
+> `camaRule` (rules.ts) evapora metade órfã; mesher infere pé/cabeceira pelo vizinho
+> (pé sem travesseiro). 232 testes (2 novos em cp23.test), typecheck 3/3, build, mesh
+> smoke ✓. (11) TODO anotado: porta escolher pivô pelo lado com bloco (2 portas lado a
+> lado = pivôs opostos). (12) FLORES (ids 104-107, 4 cores: vermelha/amarela/azul/
+> branca) — plantinhas atravessáveis, precisam de apoio, somem sem chão (regra da
+> tocha). Render = 2 lâminas cruzadas + tile cutout (transparente, como folhas);
+> `isFlor` fora de isFullCube/isSolidBlock; entrada na hotbar (blocksUi). (13) FIX
+> bug-359: `/tp nome x y z` com `~` usava a coordenada do jogador ALVO; agora usa a
+> de QUEM digita (o professor), convenção Minecraft. 233 testes (cama+flor), typecheck
+> 3/3, build, mesh smokes ✓.
+> **TODA A SESSÃO 6 COMMITADA + PUSHADA (2026-07-20).** Commits desta sessão:
+> versão no boot/menu → mundos/ saves + launcher → mundo=pasta + chat.log + claim
+> 32×32×64 → cama de 2 blocos + flores + fix /tp ~. Escola: `git pull`.
+> **PRÓXIMA SESSÃO — PLAYTEST do que a sessão 6 entregou:** (a) versão aparece no
+> boot do server e no canto do menu; (b) mundo livre salva em `mundos/mundo-livre/`;
+> launcher opção [8] "carregar mundo salvo" lista as pastas; (c) `chat.log` grava em
+> `mundos/<nome>/` (abrir o arquivo depois de uma aula); (d) claim até 32×32×64 (aluno
+> marca área maior com a varinha); (e) CAMA colocada vira 2 blocos orientados pelo
+> olhar (cabeceira longe, com travesseiro; quebrar 1 metade some a outra); (f) FLORES
+> na hotbar (colocar no chão, atravessar, quebrar o chão → some); (g) `/tp nome ~ ~ ~`
+> manda o aluno pra posição do PROFESSOR. Backlog aberto (todo.md): pivô da porta
+> (lado com bloco; 2 portas = pivôs opostos), animação sentar/deitar, modelo de player,
+> sobrevivência, geração procedural. Depois do playtest: o PILOTO e o relatório.
 > **SESSÃO 6b (2026-07-20, sem commit ainda):** (4) PASTA `aulas/` → `mundos/`
 > (`PASTA_AULAS`→`PASTA_MUNDOS` em paths.ts). Agora é o lar de TODOS os saves vivos:
 > mundo livre + cópias de trabalho das aulas. Mundo livre PADRÃO (sem LJ_SAVE) mudou

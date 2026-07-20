@@ -1,4 +1,4 @@
-import { BlockId, isFullCube } from "./blocks";
+import { BlockId, camaHeadDir, isFullCube } from "./blocks";
 import { type World, getBlock } from "./world";
 
 /**
@@ -51,6 +51,17 @@ export const doorRule: BlockRule = (world, x, y, z) => {
   return [{ x, y, z, blockId: BlockId.Air }];
 };
 
+/** Cama (2026-07-20): ocupa 2 células no horizontal (pé + cabeceira). A metade
+ *  sem o PAR (mesma cama no eixo, de um lado OU do outro) evapora — quebrar uma
+ *  derruba a outra no tick seguinte, sem código especial no break (igual à porta). */
+export const camaRule: BlockRule = (world, x, y, z) => {
+  const id = getBlock(world, x, y, z);
+  const { dx, dz } = camaHeadDir(id);
+  if (getBlock(world, x + dx, y, z + dz) === id) return null; // par na cabeceira (este é o pé)
+  if (getBlock(world, x - dx, y, z - dz) === id) return null; // par no pé (este é a cabeceira)
+  return [{ x, y, z, blockId: BlockId.Air }];
+};
+
 /** Tocha (cp23): precisa de cubo CHEIO embaixo; perdeu o suporte, some. */
 export const torchRule: BlockRule = (world, x, y, z) => {
   if (isFullCube(getBlock(world, x, y - 1, z))) return null;
@@ -68,6 +79,14 @@ const rulesMap = new Map<number, BlockRule>([
 ]);
 // Tapetes (2026-07-19): mesma regra de apoio da tocha, pras 12 cores.
 for (let id = BlockId.TapeteBranco; id <= BlockId.TapeteMarrom; id++) {
+  rulesMap.set(id, torchRule);
+}
+// Cama (2026-07-20): as 4 direções usam a regra de órfão do par horizontal.
+for (const id of [BlockId.CamaXP, BlockId.CamaZP, BlockId.CamaXN, BlockId.CamaZN]) {
+  rulesMap.set(id, camaRule);
+}
+// Flores (2026-07-20): mesma regra de apoio da tocha — sem chão embaixo, some.
+for (let id = BlockId.FlorVermelha; id <= BlockId.FlorBranca; id++) {
   rulesMap.set(id, torchRule);
 }
 const RULES: ReadonlyMap<number, BlockRule> = rulesMap;

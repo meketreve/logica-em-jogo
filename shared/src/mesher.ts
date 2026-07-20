@@ -1,7 +1,9 @@
 import {
   BlockId,
+  camaHeadDir,
   isCadeira,
   isCama,
+  isFlor,
   isFullCube,
   isMovel,
   isQuadro,
@@ -71,6 +73,12 @@ export const TILE = {
   // 2026-07-19: quadro (moldura de madeira + tela branca; o CONTEÚDO é um
   // plane com canvas por cima, no cliente)
   quadro: 73,
+  // 2026-07-20: flores (sprite em cruz, fundo transparente/cutout). Ordem =
+  // âncora florVermelha + (id − FlorVermelha).
+  florVermelha: 74,
+  florAmarela: 75,
+  florAzul: 76,
+  florBranca: 77,
 } as const;
 
 /** cp20: blocos-glifo. Letras A–Z e dígitos 0–9 ocupam tiles consecutivos a
@@ -144,6 +152,11 @@ for (let k = 0; k < 4; k++) {
   BLOCK_TILES[BlockId.SofaXP + k] = uniform(TILE.estofado);
   BLOCK_TILES[BlockId.CamaXP + k] = uniform(TILE.colchao);
   BLOCK_TILES[BlockId.QuadroXP + k] = uniform(TILE.quadro);
+}
+
+// flores (2026-07-20): um tile por cor; alimenta o ícone 2D e a forma-cruz.
+for (let i = 0; i < 4; i++) {
+  BLOCK_TILES[BlockId.FlorVermelha + i] = uniform(TILE.florVermelha + i);
 }
 
 // cp20: letras/dígitos = cubos uniformes com o tile do glifo (append A→Z, 0→9).
@@ -439,14 +452,46 @@ export function meshChunk(world: World, cx: number, cy: number, cz: number): Chu
           emitBox(lx, ly, lz, id, TILE.quadro, rxa, 1 * P, rza, rxb, 15 * P, rzb);
           return true;
         }
+        // flores (2026-07-20): duas lâminas verticais cruzadas (+), com o tile
+        // de fundo TRANSPARENTE (cutout) — parece uma plantinha. Atravessável.
+        if (isFlor(id)) {
+          const tile = TILE.florVermelha + (id - BlockId.FlorVermelha);
+          emitBox(lx, ly, lz, id, tile, 7 * P, 0, 0, 9 * P, 12 * P, 1); // lâmina ao longo de z
+          emitBox(lx, ly, lz, id, tile, 0, 0, 7 * P, 1, 12 * P, 9 * P); // lâmina ao longo de x
+          return true;
+        }
         // móveis direcionais (2026-07-19): forma definida DE FRENTE PRA +x,
         // girada k×90° pro sufixo do id (XP=0, ZP=1, XN=2, ZN=3)
-        if (isCadeira(id) || isSofa(id) || isCama(id)) {
-          const k = isCadeira(id)
-            ? id - BlockId.CadeiraXP
-            : isSofa(id)
-              ? id - BlockId.SofaXP
-              : id - BlockId.CamaXP;
+        // cama (2026-07-20): 2 células horizontais. Cabeceira (com travesseiro)
+        // ou pé, decidido pelo vizinho no eixo. Forma DE FRENTE PRA +x, girada k.
+        if (isCama(id)) {
+          const k = id - BlockId.CamaXP;
+          const { dx, dz } = camaHeadDir(id);
+          // é o PÉ se a cabeceira (mesma cama) está no vizinho da direção dela
+          const ehPe = getBlock(world, ox + lx + dx, oy + ly, oz + lz + dz) === id;
+          const boxes: readonly (readonly [number, number, number, number, number, number, number])[] =
+            ehPe
+              ? [
+                  // pé: estrado + colchão, sem travesseiro
+                  [TILE.planks, 0, 0, 0, 1, 3 * P, 1],
+                  [TILE.colchao, 0, 3 * P, 1 * P, 1, 7 * P, 15 * P],
+                ]
+              : [
+                  // cabeceira: estrado + colchão + travesseiro no fundo (−x)
+                  [TILE.planks, 0, 0, 0, 1, 3 * P, 1],
+                  [TILE.colchao, 0, 3 * P, 1 * P, 1, 7 * P, 15 * P],
+                  [TILE.woolWhite, 1 * P, 7 * P, 3 * P, 6 * P, 9 * P, 13 * P],
+                ];
+          for (const [tile, xa, ya, za, xb, yb, zb] of boxes) {
+            const [rxa, rza, rxb, rzb] = rotXZ(xa, za, xb, zb, k);
+            emitBox(lx, ly, lz, id, tile, rxa, ya, rza, rxb, yb, rzb);
+          }
+          return true;
+        }
+        // móveis direcionais (2026-07-19): forma definida DE FRENTE PRA +x,
+        // girada k×90° pro sufixo do id (XP=0, ZP=1, XN=2, ZN=3)
+        if (isCadeira(id) || isSofa(id)) {
+          const k = isCadeira(id) ? id - BlockId.CadeiraXP : id - BlockId.SofaXP;
           const boxes: readonly (readonly [number, number, number, number, number, number, number])[] =
             isCadeira(id)
               ? [
@@ -458,20 +503,13 @@ export function meshChunk(world: World, cx: number, cy: number, cz: number): Chu
                   [TILE.planks, 11 * P, 0, 11 * P, 13 * P, 6 * P, 13 * P],
                   [TILE.planks, 3 * P, 8 * P, 3 * P, 5 * P, 1, 13 * P],
                 ]
-              : isSofa(id)
-                ? [
-                    // assento cheio, encosto no −x, braços nas laterais z
-                    [TILE.estofado, 0, 0, 0, 1, 8 * P, 1],
-                    [TILE.estofado, 0, 8 * P, 0, 4 * P, 15 * P, 1],
-                    [TILE.estofado, 4 * P, 8 * P, 0, 1, 12 * P, 2 * P],
-                    [TILE.estofado, 4 * P, 8 * P, 14 * P, 1, 12 * P, 1],
-                  ]
-                : [
-                    // cama: estrado de madeira, colchão, travesseiro na cabeceira (−x)
-                    [TILE.planks, 0, 0, 0, 1, 3 * P, 1],
-                    [TILE.colchao, 0, 3 * P, 1 * P, 1, 7 * P, 15 * P],
-                    [TILE.woolWhite, 1 * P, 7 * P, 3 * P, 6 * P, 9 * P, 13 * P],
-                  ];
+              : [
+                  // assento cheio, encosto no −x, braços nas laterais z
+                  [TILE.estofado, 0, 0, 0, 1, 8 * P, 1],
+                  [TILE.estofado, 0, 8 * P, 0, 4 * P, 15 * P, 1],
+                  [TILE.estofado, 4 * P, 8 * P, 0, 1, 12 * P, 2 * P],
+                  [TILE.estofado, 4 * P, 8 * P, 14 * P, 1, 12 * P, 1],
+                ];
           for (const [tile, xa, ya, za, xb, yb, zb] of boxes) {
             const [rxa, rza, rxb, rzb] = rotXZ(xa, za, xb, zb, k);
             emitBox(lx, ly, lz, id, tile, rxa, ya, rza, rxb, yb, rzb);

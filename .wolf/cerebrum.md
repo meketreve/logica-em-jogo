@@ -728,6 +728,30 @@
   sobreposição em session.ts, então dá pra marcar por cima de outro claim que o erro
   de tamanho aparece primeiro.
 
+### Cama = par horizontal de 2 células (2026-07-20)
+- **Cama ocupa 2 células**, estilo Minecraft (pé + cabeceira), sem novos block ids:
+  as MESMAS 4 direções (CamaXP..ZN, 96-99) são colocadas em DUAS células com o
+  mesmo id. Espelha a PORTA (par vertical), mas horizontal.
+- `camaHeadDir(id)` (blocks.ts) = vetor pé→cabeceira (oposto da frente, que encara
+  o jogador). Placement (session.ts, igual à porta): valida a 2ª célula (bounds/ar/
+  jogador/claim/confina) ANTES de materializar as duas.
+- Metade cabeceira vs pé é INFERIDA pelo vizinho no eixo: no mesher (`isCama`),
+  `ehPe = vizinho na direção da cabeceira é a mesma cama` → sem travesseiro; senão
+  cabeceira (com travesseiro). Na regra de órfão (`camaRule`, rules.ts), a célula
+  sem par no eixo (de um lado OU do outro) evapora — quebrar uma derruba a outra.
+- Cliente NÃO muda: já manda 1 place com CamaXP+frente; o SERVIDOR coloca o par.
+- Padrão reutilizável pra qualquer bloco multi-célula: par de mesmo id + vizinho
+  infere a metade + regra de órfão. Não precisa de id novo por metade.
+
+### Flores = sprite em cruz de 2 lâminas + tile cutout (2026-07-20)
+- Flores (ids 104-107, 4 cores) são plantas ATRAVESSÁVEIS que precisam de apoio.
+  Reusam padrões existentes: `precisaApoio` (place checa cubo cheio embaixo) +
+  `torchRule` (some no tick sem apoio) + `isFlor` fora de isFullCube/isSolidBlock.
+- Render SEM primitiva nova: 2 lâminas verticais finas cruzadas (+) via emitBox,
+  com o tile de fundo TRANSPARENTE (`clearRect` = cutout, igual folhas/janela) →
+  parece plantinha. Um tile por cor (74-77); no mesher `TILE.florVermelha + (id −
+  FlorVermelha)`. blocksUi dá a entrada da hotbar; place usa o caminho genérico.
+
 ## Do-Not-Repeat
 
 <!-- Mistakes made and corrected. Each entry prevents the same mistake recurring. -->

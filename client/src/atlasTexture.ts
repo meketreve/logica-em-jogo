@@ -282,6 +282,33 @@ function paintLeaves(ctx: CanvasRenderingContext2D, tile: number): void {
   }
 }
 
+/** Flor (2026-07-20): sprite de plantinha em fundo TRANSPARENTE (cutout, como
+ *  folhas/janela) — caule verde + folhas + pétalas coloridas. As duas lâminas
+ *  cruzadas do mesher amostram este tile. */
+function paintFlor(
+  ctx: CanvasRenderingContext2D,
+  tile: number,
+  bloom: [number, number, number],
+): void {
+  const [ox, oy] = tileOrigin(tile);
+  const px = ATLAS.tilePx;
+  ctx.clearRect(ox, oy, px, px); // fundo transparente (cutout)
+  const cx = ox + (px >> 1);
+  // caule verde (metade de baixo, centro) + duas folhinhas
+  ctx.fillStyle = "rgb(56,132,52)";
+  ctx.fillRect(cx - 1, oy + (px >> 1), 2, px >> 1);
+  ctx.fillRect(cx - 3, oy + px - 5, 2, 2);
+  ctx.fillRect(cx + 1, oy + px - 7, 2, 2);
+  // pétalas coloridas (topo)
+  ctx.fillStyle = `rgb(${bloom[0]},${bloom[1]},${bloom[2]})`;
+  ctx.fillRect(cx - 3, oy + 2, 6, 6);
+  ctx.fillRect(cx - 4, oy + 4, 8, 2);
+  ctx.fillRect(cx - 2, oy + 1, 4, 8);
+  // miolo
+  ctx.fillStyle = "rgb(250,214,74)";
+  ctx.fillRect(cx - 1, oy + 4, 2, 2);
+}
+
 export function createAtlasTexture(): THREE.Texture {
   const size = ATLAS.tilesPerRow * ATLAS.tilePx;
   const canvas = document.createElement("canvas");
@@ -348,6 +375,12 @@ export function createAtlasTexture(): THREE.Texture {
   paintEstofado(ctx, TILE.estofado);
   paintColchao(ctx, TILE.colchao);
   paintQuadro(ctx, TILE.quadro);
+
+  // flores (2026-07-20): 4 cores, sprite em cutout
+  paintFlor(ctx, TILE.florVermelha, [214, 58, 54]);
+  paintFlor(ctx, TILE.florAmarela, [242, 206, 62]);
+  paintFlor(ctx, TILE.florAzul, [86, 122, 220]);
+  paintFlor(ctx, TILE.florBranca, [238, 240, 246]);
 
   // cp20: blocos-glifo — letras em creme, dígitos em azul-claro (distinção
   // rápida à distância entre "letra" e "número").

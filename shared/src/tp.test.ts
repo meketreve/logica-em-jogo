@@ -105,13 +105,13 @@ describe("/tp nome — teleoperação do professor", () => {
     expect(s.lastChat(2)).toContain("/tpr");
   });
 
-  it("/tp nome x y z envia o aluno; ~ é relativo ao TELEPORTADO", () => {
+  it("/tp nome x y z envia o aluno; ~ é relativo a QUEM DIGITA (o professor)", () => {
     const s = makeTp();
     s.chat(1, "/tp ana 25 ~ ~2");
-    // ana estava em (10.5, 4, 10.5) → célula (10,4,10); ~2 em z = 12
-    expect(s.lastTeleport(2)).toMatchObject({ x: 25.5, y: 4, z: 12.5 });
+    // professor está em (4.5, 4, 4.5) → célula (4,4,4); ~ em y = 4, ~2 em z = 6
+    expect(s.lastTeleport(2)).toMatchObject({ x: 25.5, y: 4, z: 6.5 });
     expect(s.lastChat(2)).toContain("O professor teleportou você");
-    expect(s.lastChat(1)).toContain("ana foi teleportado para (25, 4, 12)");
+    expect(s.lastChat(1)).toContain("ana foi teleportado para (25, 4, 6)");
   });
 
   it("/tp valida: offline, coords fora do mundo, coord quebrada", () => {

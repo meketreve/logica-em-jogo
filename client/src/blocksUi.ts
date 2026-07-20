@@ -61,6 +61,11 @@ export const PLACEABLE: readonly { id: number; name: string }[] = [
     id: BlockId.TapeteBranco + i,
     name: `tapete ${cor}`,
   })),
+  // Flores (2026-07-20): plantinhas decorativas, atravessáveis, precisam de apoio
+  ...["vermelha", "amarela", "azul", "branca"].map((cor, i) => ({
+    id: BlockId.FlorVermelha + i,
+    name: `flor ${cor}`,
+  })),
 ];
 
 /** Colocáveis visíveis PARA ESTE PAPEL: o aluno não vê rocha-matriz (autoria

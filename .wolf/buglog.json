@@ -5775,6 +5775,137 @@
       "related_bugs": [],
       "occurrences": 1,
       "last_seen": "2026-07-20T17:27:44.229Z"
+    },
+    {
+      "id": "bug-356",
+      "timestamp": "2026-07-20T17:40:01.141Z",
+      "error_message": "Type error",
+      "file": "shared/src/rules.ts",
+      "root_cause": "Missing or incorrect type annotation",
+      "fix": "Added type assertion/annotation",
+      "tags": [
+        "auto-detected",
+        "type-fix",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-20T17:40:01.141Z"
+    },
+    {
+      "id": "bug-357",
+      "timestamp": "2026-07-20T17:41:27.112Z",
+      "error_message": "Significant refactor of ",
+      "file": "shared/src/mesher.ts",
+      "root_cause": "8 lines replaced/restructured",
+      "fix": "Rewrote 37→54 lines (8 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-20T17:41:27.112Z"
+    },
+    {
+      "id": "bug-358",
+      "timestamp": "2026-07-20T17:42:43.160Z",
+      "error_message": "Type error",
+      "file": "shared/src/cp23.test.ts",
+      "root_cause": "Missing or incorrect type annotation",
+      "fix": "Added type assertion/annotation",
+      "tags": [
+        "auto-detected",
+        "type-fix",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-20T17:42:43.160Z"
+    },
+    {
+      "id": "bug-359",
+      "timestamp": "2026-07-20T18:00:51.316984+00:00",
+      "error_message": "/tp nome x y z com ~ usava a coordenada do jogador ALVO (teleportado) como referencia, nao a de quem digita o comando",
+      "file": "shared/src/session.ts",
+      "root_cause": "runTp montava `base` a partir de `alvo` (o jogador teleportado). O ~ do Minecraft e relativo a QUEM EXECUTA o comando (o professor), nao ao alvo.",
+      "fix": "base agora vem de this.players.get(clientId) (autor/professor); comentarios e strings de uso atualizados; teste tp.test.ts ajustado (~ relativo ao professor em (4,4,4)).",
+      "tags": [
+        "tp",
+        "teleport",
+        "coordenadas",
+        "til",
+        "professor",
+        "minecraft"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-20T18:00:51.316984+00:00"
+    },
+    {
+      "id": "bug-360",
+      "timestamp": "2026-07-20T18:03:47.040Z",
+      "error_message": "Type error",
+      "file": "shared/src/blocks.ts",
+      "root_cause": "Missing or incorrect type annotation",
+      "fix": "Added type assertion/annotation",
+      "tags": [
+        "auto-detected",
+        "type-fix",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-20T18:03:47.040Z"
+    },
+    {
+      "id": "bug-361",
+      "timestamp": "2026-07-20T18:03:56.571Z",
+      "error_message": "Wrong return value",
+      "file": "shared/src/blocks.ts",
+      "root_cause": "Was returning: id === BlockId.Tocha || isTapete(id);",
+      "fix": "Now returns: id === BlockId.Tocha || isTapete(id) || isFlor(id)",
+      "tags": [
+        "auto-detected",
+        "return-value",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-20T18:03:56.571Z"
+    },
+    {
+      "id": "bug-362",
+      "timestamp": "2026-07-20T18:06:50.308Z",
+      "error_message": "Significant refactor of ",
+      "file": "shared/src/blocks.test.ts",
+      "root_cause": "2 lines replaced/restructured",
+      "fix": "Rewrote 8→11 lines (2 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-20T18:06:50.308Z"
+    },
+    {
+      "id": "bug-363",
+      "timestamp": "2026-07-20T18:07:18.552Z",
+      "error_message": "Type error",
+      "file": "shared/src/cp23.test.ts",
+      "root_cause": "Missing or incorrect type annotation",
+      "fix": "Added type assertion/annotation",
+      "tags": [
+        "auto-detected",
+        "type-fix",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-20T18:07:18.552Z"
     }
   ]
 }

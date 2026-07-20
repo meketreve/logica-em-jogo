@@ -1,7 +1,9 @@
 import { MAX_PIN_ATTEMPTS, PIN_LOCKOUT_MS, type Papel, isValidPin, sanitizeName } from "./auth";
 import {
   BlockId,
+  camaHeadDir,
   isBreakable,
+  isCama,
   isFullCube,
   isPlaceable,
   isPorta,
@@ -494,11 +496,16 @@ export class GameSession {
         // grupo (confinamento) — colocar barrado (porta ocupa 2 células, checa as
         // duas). Professor e dono/amigos passam; confinamento libera a área do grupo.
         {
+          // blocos de 2 células checam TAMBÉM a 2ª célula: porta (vertical, y+1)
+          // e cama (horizontal, direção da cabeceira).
+          const camaDir = isCama(msg.blockId) ? camaHeadDir(msg.blockId) : null;
           const bloqueio =
             this.claimBloqueia(clientId, msg.x, msg.y, msg.z) ??
             (isPorta(msg.blockId) ? this.claimBloqueia(clientId, msg.x, msg.y + 1, msg.z) : null) ??
+            (camaDir ? this.claimBloqueia(clientId, msg.x + camaDir.dx, msg.y, msg.z + camaDir.dz) : null) ??
             this.confinaBloqueia(clientId, msg.x, msg.y, msg.z) ??
-            (isPorta(msg.blockId) ? this.confinaBloqueia(clientId, msg.x, msg.y + 1, msg.z) : null);
+            (isPorta(msg.blockId) ? this.confinaBloqueia(clientId, msg.x, msg.y + 1, msg.z) : null) ??
+            (camaDir ? this.confinaBloqueia(clientId, msg.x + camaDir.dx, msg.y, msg.z + camaDir.dz) : null);
           if (bloqueio) {
             this.sendServerChat(clientId, bloqueio);
             return;
@@ -512,6 +519,18 @@ export class GameSession {
           if (this.overlapsAnyPlayer(msg.x, yCima, msg.z)) return;
           this.applyBlock(msg.x, msg.y, msg.z, msg.blockId);
           this.applyBlock(msg.x, yCima, msg.z, msg.blockId);
+          break;
+        }
+        if (isCama(msg.blockId)) {
+          // cama ocupa 2 células horizontais (pé + cabeceira): valida o par ANTES
+          const { dx, dz } = camaHeadDir(msg.blockId);
+          const hx = msg.x + dx;
+          const hz = msg.z + dz;
+          if (!inBounds(this.world, hx, msg.y, hz)) return;
+          if (getBlock(this.world, hx, msg.y, hz) !== BlockId.Air) return;
+          if (this.overlapsAnyPlayer(hx, msg.y, hz)) return;
+          this.applyBlock(msg.x, msg.y, msg.z, msg.blockId);
+          this.applyBlock(hx, msg.y, hz, msg.blockId);
           break;
         }
         if (
@@ -2060,12 +2079,12 @@ export class GameSession {
   }
 
   /** `/tp nome` = professor vai até o jogador; `/tp nome x y z` = envia o
-   *  jogador (~ copia a coordenada DO TELEPORTADO — convenção Minecraft).
-   *  Teleoperação do professor: sem pedido, sem aceite. */
+   *  jogador (~ copia a SUA coordenada — a de QUEM digita, convenção Minecraft:
+   *  ~ é relativo a quem executa). Teleoperação do professor: sem pedido, sem aceite. */
   private runTp(clientId: number, parts: string[]): string {
     const nome = parts[1];
     if (!nome || (parts.length !== 2 && parts.length !== 5)) {
-      return "Uso: /tp grupos · /tp nome (ir até o jogador) · /tp nome x y z (enviar o jogador; ~ copia a coordenada dele).";
+      return "Uso: /tp grupos · /tp nome (ir até o jogador) · /tp nome x y z (enviar o jogador; ~ copia a SUA coordenada).";
     }
     const alvoId = this.clientePorNome(nome);
     const alvo = alvoId === null ? undefined : this.players.get(alvoId);
@@ -2075,12 +2094,16 @@ export class GameSession {
       this.teleportar(clientId, alvo.x, alvo.y, alvo.z);
       return `Teleportado até ${nome}.`;
     }
-    const base = { x: Math.floor(alvo.x), y: Math.floor(alvo.y), z: Math.floor(alvo.z) };
+    // ~ é relativo a QUEM DIGITA (o professor), não ao teleportado — igual ao
+    // Minecraft (~ = posição de quem executa o comando).
+    const autor = this.players.get(clientId);
+    if (!autor) return "Entre no mundo antes de usar /tp.";
+    const base = { x: Math.floor(autor.x), y: Math.floor(autor.y), z: Math.floor(autor.z) };
     const x = parseCoordArg(parts[2], base.x);
     const y = parseCoordArg(parts[3], base.y);
     const z = parseCoordArg(parts[4], base.z);
     if (x === null || y === null || z === null) {
-      return "Não entendi as coordenadas. Use números inteiros, ~ (a coordenada do jogador) ou ~n.";
+      return "Não entendi as coordenadas. Use números inteiros, ~ (a sua coordenada) ou ~n.";
     }
     if (!inBounds(this.world, x, y, z)) return `As coordenadas (${x}, ${y}, ${z}) estão fora do mundo.`;
     this.teleportar(alvoId, x + 0.5, y, z + 0.5);

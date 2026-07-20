@@ -90,12 +90,20 @@ export const BlockId = {
    *  imagem — ver quadros.ts). 4 direções como os móveis; clique direito abre
    *  o editor no cliente. Atravessável (painel na parede). */
   QuadroXP: 100, QuadroZP: 101, QuadroXN: 102, QuadroZN: 103,
+  /** Flores decorativas (2026-07-20): plantinha fina em cruz, ATRAVESSÁVEL,
+   *  precisa de apoio (some sem chão embaixo — regra da tocha). */
+  FlorVermelha: 104, FlorAmarela: 105, FlorAzul: 106, FlorBranca: 107,
 } as const;
 
 export type BlockId = (typeof BlockId)[keyof typeof BlockId];
 
 /** Maior ID válido (mantém isPlaceable sem número mágico ao crescer a lista). */
-const MAX_BLOCK_ID = BlockId.QuadroZN;
+const MAX_BLOCK_ID = BlockId.FlorBranca;
+
+/** Flor decorativa (qualquer cor)? */
+export function isFlor(id: number): boolean {
+  return id >= BlockId.FlorVermelha && id <= BlockId.FlorBranca;
+}
 
 /** Quadro em qualquer direção? */
 export function isQuadro(id: number): boolean {
@@ -114,6 +122,17 @@ export function isSofa(id: number): boolean {
 export function isCama(id: number): boolean {
   return id >= BlockId.CamaXP && id <= BlockId.CamaZN;
 }
+/** Cama ocupa 2 células no horizontal. Vetor do PÉ para a CABECEIRA
+ *  (travesseiro), oposto da frente (que encara o jogador). Só faz sentido
+ *  para um id de cama. */
+export function camaHeadDir(id: number): { dx: number; dz: number } {
+  switch (id - BlockId.CamaXP) {
+    case 0: return { dx: -1, dz: 0 }; // frente +x → cabeceira −x
+    case 1: return { dx: 0, dz: -1 }; // frente +z → cabeceira −z
+    case 2: return { dx: 1, dz: 0 }; // frente −x → cabeceira +x
+    default: return { dx: 0, dz: 1 }; // frente −z → cabeceira +z
+  }
+}
 /** Móvel decorativo (mesa/cadeira/sofá/cama)? Forma própria no mesher,
  *  colisão de célula cheia (simplificação, mesmo racional da cerca). */
 export function isMovel(id: number): boolean {
@@ -128,7 +147,7 @@ export function isTapete(id: number): boolean {
 /** Precisa de cubo CHEIO embaixo pra ser colocado E pra continuar existindo
  *  (regra no tick). Tocha e tapetes. */
 export function precisaApoio(id: number): boolean {
-  return id === BlockId.Tocha || isTapete(id);
+  return id === BlockId.Tocha || isTapete(id) || isFlor(id);
 }
 
 /** Bloco transparente (vidro/folhas): NÃO oculta a face do vizinho no mesher.
@@ -183,7 +202,8 @@ export function isFullCube(id: number): boolean {
     !isTapete(id) &&
     !isJanela(id) &&
     !isMovel(id) &&
-    !isQuadro(id)
+    !isQuadro(id) &&
+    !isFlor(id)
   );
 }
 
@@ -198,7 +218,8 @@ export function isSolidBlock(id: number): boolean {
     id !== BlockId.JanelaZAberta &&
     id !== BlockId.Tocha &&
     !isTapete(id) &&
-    !isQuadro(id)
+    !isQuadro(id) &&
+    !isFlor(id)
   );
 }
 

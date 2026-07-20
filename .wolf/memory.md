@@ -1731,3 +1731,36 @@ bug-195 (basename sem import). .exe/empacotamento segue ADIADO (decisão do usu�
 | 14:27 | Edited shared/src/claims.test.ts | modified mundoComTurma() | ~45 |
 | 14:27 | Edited shared/src/claims.test.ts | 17→18 lines | ~253 |
 | 14:30 | limite de claim 16^3 -> 32x32x64 (MAX_CLAIM_XZ=32, MAX_CLAIM_Y=64) | claims.ts, session.ts, claims.test.ts | typecheck ok, 230 testes | ~3k |
+| 14:31 | Session end: 50 writes across 15 files (todo.md, version.ts, index.ts, index.html, menu.ts) | 12 reads | ~60159 tok |
+| 14:37 | Edited todo.md | 1→3 lines | ~88 |
+| 14:39 | Edited shared/src/blocks.ts | modified isCama() | ~194 |
+| 14:39 | Edited shared/src/rules.ts | inline fix | ~18 |
+| 14:39 | Edited shared/src/rules.ts | added 2 condition(s) | ~200 |
+| 14:40 | Edited shared/src/rules.ts | modified Tapetes() | ~106 |
+| 14:40 | Edited shared/src/session.ts | 13→15 lines | ~63 |
+| 14:40 | Edited shared/src/session.ts | added 4 condition(s) | ~578 |
+| 14:40 | Edited shared/src/mesher.ts | 11→12 lines | ~45 |
+| 14:41 | Edited shared/src/mesher.ts | added 1 condition(s) | ~832 |
+| 14:42 | Edited shared/src/cp23.test.ts | expanded (+28 lines) | ~395 |
+| 14:57 | cama = par horizontal de 2 células (pé+cabeceira) orientado por yaw; regra de órfão | blocks.ts, rules.ts, session.ts, mesher.ts, cp23.test.ts | typecheck ok, 232 testes, mesh smoke ✓ | ~11k |
+| 14:57 | todo: porta escolhe pivô pelo lado com bloco; 2 portas lado a lado = pivôs opostos | todo.md | anotado | ~0.5k |
+| 15:00 | Edited shared/src/session.ts | added 1 condition(s) | ~442 |
+| 15:00 | Edited shared/src/tp.test.ts | 8→8 lines | ~128 |
+| 15:03 | Edited shared/src/blocks.ts | modified decorativas() | ~83 |
+| 15:03 | Edited shared/src/blocks.ts | modified isFlor() | ~79 |
+| 15:03 | Edited shared/src/blocks.ts | modified precisaApoio() | ~33 |
+| 15:03 | Edited shared/src/blocks.ts | 6→7 lines | ~30 |
+| 15:04 | Edited shared/src/blocks.ts | 5→6 lines | ~27 |
+| 15:04 | Edited shared/src/mesher.ts | expanded (+6 lines) | ~98 |
+| 15:04 | Edited shared/src/mesher.ts | 12→13 lines | ~48 |
+| 15:04 | Edited shared/src/mesher.ts | modified for() | ~145 |
+| 15:04 | Edited shared/src/mesher.ts | added 1 condition(s) | ~206 |
+| 15:04 | Edited shared/src/rules.ts | modified Cama() | ~108 |
+| 15:05 | Edited client/src/atlasTexture.ts | modified paintFlor() | ~302 |
+| 15:05 | Edited client/src/atlasTexture.ts | modified flores() | ~90 |
+| 15:05 | Edited client/src/blocksUi.ts | modified Flores() | ~123 |
+| 15:06 | Edited shared/src/blocks.test.ts | modified flores() | ~156 |
+| 15:07 | Edited shared/src/cp23.test.ts | modified ar() | ~271 |
+| 15:08 | flores (ids 104-107, 4 cores): cruz de 2 lâminas + tile cutout, apoio+regra da tocha | blocks.ts, mesher.ts, atlasTexture.ts, rules.ts, blocksUi.ts | typecheck ok, 233 testes, mesh ✓ | ~10k |
+| 15:08 | FIX bug-359: /tp ~ usava coord do alvo, agora usa a do autor (professor) | session.ts, tp.test.ts | 9/9 tp, buglog | ~3k |
+| 15:08 | Session end: 77 writes across 23 files (todo.md, version.ts, index.ts, index.html, menu.ts) | 21 reads | ~101148 tok |

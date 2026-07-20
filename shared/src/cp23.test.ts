@@ -215,6 +215,23 @@ describe("cp23 — sessão (porta e tocha)", () => {
     expect(getBlock(session.world, 5, y, 5)).toBe(BlockId.Air);
   });
 
+  it("flor: atravessável, precisa de apoio, some sem chão no tick", () => {
+    const { session, send } = makeFlat();
+    const y = SOLO + 1;
+    expect(isSolidBlock(BlockId.FlorVermelha)).toBe(false); // atravessável
+    expect(isFullCube(BlockId.FlorVermelha)).toBe(false); // não oclui vizinho
+    // no ar (sem apoio): recusa silenciosa
+    send({ type: "place_block", x: 5, y: y + 1, z: 5, blockId: BlockId.FlorVermelha });
+    expect(getBlock(session.world, 5, y + 1, 5)).toBe(BlockId.Air);
+    // no chão: ok
+    send({ type: "place_block", x: 5, y, z: 5, blockId: BlockId.FlorVermelha });
+    expect(getBlock(session.world, 5, y, 5)).toBe(BlockId.FlorVermelha);
+    // quebra o apoio: some no tick seguinte
+    send({ type: "break_block", x: 5, y: SOLO, z: 5 });
+    session.tick();
+    expect(getBlock(session.world, 5, y, 5)).toBe(BlockId.Air);
+  });
+
   it("/bloco recusa porta com explicação (metade órfã não nasce por comando)", () => {
     const { session, send } = makeFlat();
     send({ type: "chat", text: `/bloco 5 ${SOLO + 1} 5 ${BlockId.PortaXFechada}` });
@@ -324,5 +341,33 @@ describe("móveis (2026-07-19) — forma e classificação", () => {
     // e todas geram geometria de verdade
     expect(cadeira).toBeGreaterThan(0);
     expect(geomFor(BlockId.Mesa)).toBeGreaterThan(0);
+  });
+});
+
+describe("cama de 2 células (2026-07-20)", () => {
+  it("place materializa pé + cabeceira; quebrar uma derruba a outra no tick", () => {
+    const { session, send } = makeFlat();
+    const y = SOLO + 1;
+    // CamaXP: frente +x, cabeceira em −x → pé em (5,y,5), cabeceira em (4,y,5)
+    send({ type: "place_block", x: 5, y, z: 5, blockId: BlockId.CamaXP });
+    expect(getBlock(session.world, 5, y, 5)).toBe(BlockId.CamaXP); // pé
+    expect(getBlock(session.world, 4, y, 5)).toBe(BlockId.CamaXP); // cabeceira
+    // par completo sobrevive aos ticks
+    session.tick();
+    session.tick();
+    expect(getBlock(session.world, 4, y, 5)).toBe(BlockId.CamaXP);
+    // quebra o pé → cabeceira fica órfã e evapora no tick seguinte
+    send({ type: "break_block", x: 5, y, z: 5 });
+    expect(getBlock(session.world, 4, y, 5)).toBe(BlockId.CamaXP);
+    session.tick();
+    expect(getBlock(session.world, 4, y, 5)).toBe(BlockId.Air);
+  });
+
+  it("place de cama sem espaço pro par é recusado", () => {
+    const { session, send } = makeFlat();
+    const y = SOLO + 1;
+    setBlock(session.world, 4, y, 5, BlockId.Stone); // ocupa a célula da cabeceira
+    send({ type: "place_block", x: 5, y, z: 5, blockId: BlockId.CamaXP });
+    expect(getBlock(session.world, 5, y, 5)).toBe(BlockId.Air); // não nasce pela metade
   });
 });
