@@ -1,8 +1,21 @@
 # STATUS — Projeto "Lógica em Jogo" (jogo voxel educacional)
 
 > Single source of truth for resuming work. Read this FIRST when starting a session.
-> Last updated: 2026-07-20 (sessão 5: playtest mundo G confirmado + bug-333 quadro fantasma + rename todo.md)
-> **SESSÃO 5 (2026-07-20, sem commit ainda):** (1) PLAYTEST MUNDO G CONFIRMADO —
+> Last updated: 2026-07-20 (sessão 5: playtest a/b/c confirmado + profiler enviar-pro-servidor + bug-333 quadro fantasma + rename todo.md)
+> **SESSÃO 5 (2026-07-20, sem commit ainda):** (0) PLAYTEST a/b/c CONFIRMADO pelo usuário: (a)
+> roteiro sessão 2 (atalhos/dia-noite/tapetes/janela/móveis/quadro), (b) aulas 4-6 + aula1 3
+> fases, (c) mundo M/G no lab (FPS/hitch de join). Restam (d) cp24 claims + cp25 confinamento.
+> (0b) PROFILER "ENVIAR PRO SERVIDOR" (backlog todo.md) — botão novo no HUD F3 ao lado de
+> "exportar JSON"; msg `profile_report{stats}` nova no protocolo (opaco, cresce sem
+> re-versionar — mesmo padrão do meta de save/quadros), teto `MAX_PROFILE_REPORT_CHARS=8192`
+> contra abuso de disco. Tratada no HOST (index.ts, `interceptarProfile`, MESMO padrão de
+> /mundo e /kicar: escrever arquivo é transporte, GameSession não tem filesystem) — exige
+> join, grava `profiles/perf-<nome>-<timestamp>.json` (pasta gitignored), responde confirmação
+> por chat. Singleplayer (Web Worker) não tem fs: a mensagem cai no vácuo em silêncio (sem case
+> no switch da session), sem erro no cliente — comportamento intencional. 230 testes (2 novos
+> em protocol.test.ts: roundtrip + teto de tamanho), typecheck 3/3, build ok. Smoke real (host
+> Node + ws real, join com PIN → profile_report → arquivo em disco + confirmação por chat) ✅.
+> Playtest do usuário PENDENTE (botão no F3, testar em notebook + tablet). (1) PLAYTEST MUNDO G CONFIRMADO —
 > usuário testou com os alunos: mundo tamanho G renderiza e carrega normal em
 > notebooks E tablets da escola (item do checklist de playtest acumulado, ver
 > "PRÓXIMA SESSÃO" abaixo). (2) BUG-333 — quadro (texto/imagem) ficava fantasma:
@@ -51,7 +64,11 @@
 > menu. README dos cenários atualizado (6 aulas, .ljw versionados). 228 testes,
 > typecheck 3/3, screenshots das 3 aulas novas ✅ (contador 38/42 da aula5
 > confere os 4 erros).
-> **PRÓXIMA SESSÃO:** playtest pendente ACUMULADO — (a) roteiro da sessão 2
+> **PRÓXIMA SESSÃO:** (a)(b)(c) abaixo CONFIRMADOS pelo usuário (2026-07-20, sessão 5) — resta
+> playtest de: (d) cp24 claims + cp25 confinamento (roteiros nos blocos antigos), (e) fix
+> bug-333 (quadro fantasma na troca de mundo), (f) botão HUD no touch (tablet real), (g)
+> profiler "enviar pro servidor" (botão no F3, notebook + tablet, conferir `profiles/` no
+> host). Playtest ACUMULADO original (a-d, referência): (a) roteiro da sessão 2
 > (atalhos Ctrl+W em tela cheia F11, dia/noite com astros, tapetes, janela,
 > móveis direcionais, quadro texto+imagem), (b) aulas 4-6 + aula1 em 3 FASES
 > com a turma, (c) mundo M/G no lab (medir FPS/hitch de join no PC fraco —

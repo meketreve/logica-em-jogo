@@ -5423,6 +5423,70 @@
       "related_bugs": [],
       "occurrences": 1,
       "last_seen": "2026-07-20T00:00:00.000Z"
+    },
+    {
+      "id": "bug-334",
+      "timestamp": "2026-07-20T12:28:00.028Z",
+      "error_message": "Type error",
+      "file": "shared/src/protocol.ts",
+      "root_cause": "Missing or incorrect type annotation",
+      "fix": "Added type assertion/annotation",
+      "tags": [
+        "auto-detected",
+        "type-fix",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-20T12:28:00.028Z"
+    },
+    {
+      "id": "bug-335",
+      "timestamp": "2026-07-20T12:28:37.769Z",
+      "error_message": "Missing guard clause",
+      "file": "server/src/index.ts",
+      "root_cause": "No early return/throw for edge case: !msg || msg.type !== \"profile_report\"",
+      "fix": "Added guard clause: if (!msg || msg.type !== \"profile_report\")",
+      "tags": [
+        "auto-detected",
+        "guard-clause",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-20T12:28:37.769Z"
+    },
+    {
+      "id": "bug-336",
+      "timestamp": "2026-07-20T12:28:54.035Z",
+      "error_message": "Wrong reference: div should be button",
+      "file": "client/index.html",
+      "root_cause": "Used \"div\" instead of \"button\"",
+      "fix": "Changed div → button",
+      "tags": [
+        "auto-detected",
+        "wrong-reference",
+        "html"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-20T12:28:54.035Z"
+    },
+    {
+      "id": "bug-337",
+      "timestamp": "2026-07-20T12:29:01.706Z",
+      "error_message": "Null/undefined access in ",
+      "file": "client/src/main.ts",
+      "root_cause": "Property access on potentially null/undefined value",
+      "fix": "Added null safety (optional chaining or null check)",
+      "tags": [
+        "auto-detected",
+        "null-safety",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-20T12:29:01.706Z"
     }
   ]
 }

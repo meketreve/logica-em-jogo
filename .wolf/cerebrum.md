@@ -973,3 +973,16 @@ rocha-matriz); claim não sobrepõe outro claim nem região do professor; aluno 
 grupo de amigos por vez; claim bloqueia AÇÃO DE JOGADOR (place/break/use), não
 regra automática (areia caindo não é grief). NÚMEROS a confirmar: MAX_CLAIM_DIM
 (proposto 16/eixo), MAX_AMIGOS (proposto 6 incl. dono).
+- [2026-07-20] **Operações "escrever arquivo no host" viram mensagem de protocolo
+  interceptada no server/src/index.ts, NUNCA um case na GameSession.** Padrão
+  fixado por /mundo (cp19) e /kicar (cp22), reusado pro `profile_report` do
+  profiler: `session.handleMessage` roda DEPOIS de `interceptarX()` checar o
+  `type` e devolver `true` se engoliu a mensagem. Racional: GameSession é pura/
+  host-agnóstica (roda igual em Web Worker e Node+ws) — filesystem só existe no
+  host Node. Consequência: em singleplayer (Web Worker) essas mensagens caem no
+  vácuo em silêncio (sem case no switch da session) — comportamento aceito, não
+  bug, pois não há pasta de servidor pra gravar. Payload "diagnóstico" (não
+  estado de jogo) fica **opaco** no protocolo (`Record<string, unknown>` +
+  teto de tamanho, ex. `MAX_PROFILE_REPORT_CHARS`) em vez de tipado campo a
+  campo — mesmo espírito do meta JSON de save/quadros: cresce sem re-versionar
+  o protocolo toda vez que hud.ts ganha uma métrica nova.

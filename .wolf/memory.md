@@ -1643,3 +1643,23 @@ bug-195 (basename sem import). .exe/empacotamento segue ADIADO (decisão do usu�
 | — | bug-333: quadro fantasma na troca de mundo — reloadWorld esquecia quadroRenderer.setAll([]) | client/src/main.ts | fixed, typecheck 3/3 | ~400 |
 | — | Rename ideias.md → todo.md (pedido do usuário) | ideias.md, .wolf/anatomy.md | done | ~150 |
 | 09:20 | Session end: 1 writes across 1 files (main.ts) | 3 reads | ~17826 tok |
+| 09:21 | Session end: 1 writes across 1 files (main.ts) | 3 reads | ~17826 tok |
+
+## Session: 2026-07-20 09:21
+
+| Time | Action | File(s) | Outcome | ~Tokens |
+|------|--------|---------|---------|--------|
+| 09:28 | Edited shared/src/protocol.ts | modified Profiler() | ~289 |
+| 09:28 | Edited shared/src/protocol.ts | added 2 condition(s) | ~213 |
+| 09:28 | Edited server/src/paths.ts | modified profiler() | ~84 |
+| 09:28 | Edited .gitignore | 2→3 lines | ~11 |
+| 09:28 | Edited server/src/index.ts | 18→19 lines | ~180 |
+| 09:28 | Edited server/src/index.ts | added 2 condition(s) | ~324 |
+| 09:28 | Edited server/src/index.ts | added 1 condition(s) | ~84 |
+| 09:28 | Edited client/src/hud.ts | modified stats() | ~27 |
+| 09:28 | Edited client/index.html | 2→3 lines | ~40 |
+| 09:29 | Edited client/src/main.ts | added optional chaining | ~150 |
+| 09:29 | Edited shared/src/protocol.test.ts | 8→9 lines | ~52 |
+| 09:29 | Edited shared/src/protocol.test.ts | expanded (+19 lines) | ~402 |
+| 09:32 | Edited todo.md | 2→7 lines | ~166 |
+| 09:33 | Session end: 13 writes across 9 files (protocol.ts, paths.ts, .gitignore, index.ts, hud.ts) | 9 reads | ~63948 tok |

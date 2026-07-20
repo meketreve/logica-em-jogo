@@ -1,7 +1,7 @@
 # anatomy.md
 
-> Auto-maintained by OpenWolf. Last scanned: 2026-07-20T12:17:59.867Z
-> Files: 113 tracked | Anatomy hits: 0 | Misses: 0
+> Auto-maintained by OpenWolf. Last scanned: 2026-07-20T12:32:07.309Z
+> Files: 114 tracked | Anatomy hits: 0 | Misses: 0
 
 ## ../../../tmp/claude-1000/-home-meketreve-logica-em-jogo/1e53a721-e45d-4911-a026-f385f8f2c4e6/scratchpad/
 
@@ -75,10 +75,11 @@
 ## ./
 
 - `.gitattributes` — LF em tudo (projeto vive no WSL/ext4; evita ruído CRLF de ferramentas Windows) (~31 tok)
-- `todo.md` — Backlog de ideias/features (móveis, sistema de sobrevivência, gen. procedural, profiler). Checkboxes [x]/[ ]. Renomeado de ideias.md (2026-07-20). (~691 tok)
+- `.gitignore` — Git ignore rules (~55 tok)
 - `iniciar-servidor.bat` (~695 tok)
 - `iniciar-servidor.sh` — ============================================================ (~630 tok)
 - `package.json` — Node.js package manifest (~157 tok)
+- `todo.md` — Ideias para fazer (~796 tok)
 
 ## .claude/
 
@@ -93,7 +94,7 @@
 
 ## client/
 
-- `index.html` — Lógica em Jogo (~5159 tok)
+- `index.html` — Lógica em Jogo (~5178 tok)
 - `vite.config.ts` (~94 tok)
 
 ## client/src/
@@ -109,10 +110,10 @@
 - `connection.ts` — Conexão do cliente com O SERVIDOR — interface única, hospedeiro invisível. (~1194 tok)
 - `daynight.ts` — Ciclo dia/noite (cp21; astros no backlog 2026-07-19) — SÓ visual. A hora é (~2281 tok)
 - `events.ts` — Gatilhos de som (checkpoint 6): pontos de evento do jogo onde o áudio vai (~182 tok)
-- `hud.ts` — HUD de perfilação (F3): FPS, frametime méd+p95, remesh, draw calls e (~1099 tok)
+- `hud.ts` — HUD de perfilação (F3): FPS, frametime méd+p95, remesh, draw calls e (~1120 tok)
 - `input.ts` — Teclado + mouse (pointer lock). SÓ coleta input — nenhuma decisão de (~1542 tok)
 - `inventory.ts` — Inventário de blocos (cp16) — grade com TODOS os colocáveis + faixa da (~1184 tok)
-- `main.ts` — O cliente não tem filesystem: aprende os nomes das aulas pela resposta de (~13943 tok)
+- `main.ts` — O cliente não tem filesystem: aprende os nomes das aulas pela resposta de (~14036 tok)
 - `menu.ts` — Menu principal (cp8) — HTML/CSS por cima do canvas, sem GUI de engine. (~4230 tok)
 - `objectivesUi.ts` — Grupo do PRÓPRIO jogador (null = sem grupo). (~1244 tok)
 - `panels.ts` — Painéis HTML do cp14 — açúcar visual sobre os comandos de chat: cada botão (~5834 tok)
@@ -133,9 +134,9 @@
 
 - `cenarios/gerar.ts` — Gerador dos 3 cenários pedagógicos (.ljw): digita os MESMOS comandos de chat do professor contra a GameSession real. Flags: --grupos --codigo --revelar --saida (~1900 tok)
 - `cenarios/verificar.ts` — Conferência embutida na geração: abre o .ljw num servidor novo, entra prof+2 alunos, completa a área do grupo 1; + guarda de geometria da faixa (~1400 tok)
-- `index.ts` — Hospedeiro Node+ws do servidor (LAN): embrulha a MESMA GameSession do Web (~4106 tok)
+- `index.ts` — Hospedeiro Node+ws do servidor (LAN): embrulha a MESMA GameSession do Web (~4448 tok)
 - `mundos.ts` — `/mundo` (cp19) — trocar a aula SEM derrubar a turma. (~1914 tok)
-- `paths.ts` — `npm run <script> -w server` roda com o cwd dentro de server/, então caminho (~572 tok)
+- `paths.ts` — `npm run <script> -w server` roda com o cwd dentro de server/, então caminho (~622 tok)
 - `static.ts` — Serve o cliente já buildado (client/dist) NA MESMA PORTA do WebSocket. (~1055 tok)
 - `worker.ts` — Hospedeiro Web Worker do servidor (singleplayer): embrulha a GameSession (~767 tok)
 
@@ -169,8 +170,8 @@
 - `mesher.ts` — Culled mesher: função PURA (bytes do mundo → geometria). Só emite faces que (~5895 tok)
 - `physics.test.ts` — Mundo 1 chunk com chão sólido em y ∈ [0,7]. (~2603 tok)
 - `physics.ts` — Física do jogador (andar, gravidade, colisão AABB com o grid de voxels). (~2071 tok)
-- `protocol.test.ts` — Declares DIMS (~2707 tok)
-- `protocol.ts` — Protocolo v0 (checkpoint 2). Mensagens JSON dos dois lados + world_snapshot (~5881 tok)
+- `protocol.test.ts` — Declares DIMS (~3009 tok)
+- `protocol.ts` — Protocolo v0 (checkpoint 2). Mensagens JSON dos dois lados + world_snapshot (~6227 tok)
 - `quadros.test.ts` — DIMS: makeFlat (~1603 tok)
 - `quadros.ts` — Quadro (backlog 2026-07-19): bloco de parede com CONTEÚDO autoral — texto (~540 tok)
 - `raycast.test.ts` — Mundo 16³ com chão sólido em y ∈ [0,7]. (~604 tok)
