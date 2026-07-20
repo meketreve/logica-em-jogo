@@ -576,6 +576,42 @@
   (servidor barra, cliente não precisa saber). `/confinar` NÃO entrou em claim/amigos
   no autocomplete porque esses 2 do cp24 nunca foram adicionados (gap pré-existente).
 
+### Backlog 2026-07-19 sessão 2 (atalhos, dia/noite, tapetes, janela, móveis, quadro)
+- **Ctrl+W NÃO é interceptável por JS** em janela comum (atalho reservado).
+  Defesas reais (client/shortcutGuard.ts): (1) beforeunload = diálogo "sair do
+  site?" (universal); (2) preventDefault só nos combos que o navegador deixa
+  (Ctrl/Alt/Meta+tecla, Tab, F1/F5/F6/F7/F10/F12 — F5 sim, Ctrl+R não); (3)
+  Keyboard Lock API `navigator.keyboard.lock(["KeyW","KeyT","KeyN","KeyR","F4"])`
+  Chrome/Edge, SÓ age em tela cheia — aí Ctrl+W chega como keydown e a camada 2
+  segura. Esc fica FORA do lock (menu de pausa depende do exit do pointer lock).
+  preventDefault não esconde a tecla do Input (listeners separados) — jogo segue.
+  DESARMAR antes de navegação legítima (btn-sair, kicked/join_denied) senão o
+  diálogo trava a saída pedida.
+- **Família DIRECIONAL de bloco (4 ids XP/ZP/XN/ZN)**: forma escrita UMA vez
+  "de frente pra +x" e girada por `rotXZ(xa,za,xb,zb,k)` (mesher.ts, k×90° no
+  centro da célula). No place o cliente escolhe: quadrante do olhar `(olhar+2)%4`
+  = frente encara o jogador (convenção Minecraft). Hotbar = entrada única
+  (âncora XP); botão-do-meio copia de volta pra âncora. Usada por cadeira/sofá/
+  cama/quadro — móvel novo direcional segue este molde.
+- **Estado FORA do id (quadros) — molde pra metadata futura (placas, baús):**
+  shared/quadros.ts (tipo + parse defensivo + tetos), Map<posKey,conteudo> na
+  GameSession, msgs set/changed/lista-no-join (lista SÓ se não-vazia — asserts
+  de contagem do join intactos), persiste no SaveMeta (entrada quebrada pulada;
+  restore descarta conteúdo cuja célula não é mais o bloco), limpeza central no
+  applyBlockQuieto (célula deixou de ser o bloco → metadata morre; cliente limpa
+  pelo próprio block_changed, sem msg extra). Cliente: renderer de planes com
+  canvas-texture + editor overlay HTML (sem popup nativo); imagem SEMPRE
+  comprimida no cliente (canvas 192px, JPEG qualidade decrescente até caber no
+  teto) — servidor só valida prefixo data:image/ e tamanho.
+- **Astros do céu (daynight.ts):** sol/lua/estrelas num Group que COPIA a
+  posição da câmera por frame (nunca se aproximam); materiais transparent +
+  depthWrite:false = passe transparente depois do terreno → montanha oclui de
+  graça. Estrelas determinísticas (LCG seed fixa). Fade por altura do sol
+  (clamp01 perto do horizonte) evita pop. `?hora=` e `?yaw=` na URL congelam
+  céu/câmera pra screenshot headless (par do ?atlas).
+- **Tile de UI de móvel** pode REUSAR tile existente (tapete→lã, cadeira→tábuas);
+  só pinta tile novo quando a cara é nova (estofado, colchão, janela, quadro).
+
 ### Launchers do servidor (raiz do repo, 2026-07-18)
 - **`iniciar-servidor.bat` (Windows/escola) + `iniciar-servidor.sh` (casa/WSL)**
   facilitam o professor subir o host: menu de mundo (1=livre→`world.ljw`, 2-4=
@@ -594,6 +630,15 @@
 <!-- Mistakes made and corrected. Each entry prevents the same mistake recurring. -->
 <!-- Format: [YYYY-MM-DD] Description of what went wrong and what to do instead. -->
 
+- [2026-07-19] `Number(null) === 0` — param numérico OPCIONAL de URL exige
+  checar `raw === null` ANTES de `Number(raw)`, senão a ausência vira 0 válido
+  (bug-302: cliente sem ?hora travou o céu na meia-noite ignorando o servidor).
+- [2026-07-19] Teste que quer "id de bloco inválido" usa 200, NUNCA `MAX+1`
+  literal — cada append de bloco quebrava o assert (aconteceu 2× na mesma
+  sessão: 71 virou tapete, 99 virou cama, 100 virou quadro).
+- [2026-07-19] Bloco de código module-level em main.ts: declarar DEPOIS das
+  consts que usa — `?yaw` referenciou `input` antes do `const input` e o módulo
+  inteiro morreu em TDZ (tela cinza; bug-301). Screenshot headless pega.
 - [2026-07-19] `pkill -f` no ambiente com hook rtk mata o próprio wrapper (exit
   144) e o servidor de stage SOBREVIVE segurando a porta — o restage seguinte
   fala com o servidor VELHO e o screenshot sai da cena antiga (idêntico byte a

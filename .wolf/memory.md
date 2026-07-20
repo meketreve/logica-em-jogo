@@ -1559,3 +1559,4 @@ bug-195 (basename sem import). .exe/empacotamento segue ADIADO (decisão do usu�
 | 20:34 | Edited shared/src/blocks.test.ts | modified veis() | ~154 |
 | 20:35 | Created ../../../tmp/claude-1000/-home-meketreve-logica-em-jogo/d5fb946a-7df1-4f81-8d6e-b29e8b26f43a/scratchpad/quadro.mts | — | ~642 |
 | 20:41 | quadro texto+imagem (ids 100-103): 1º estado FORA do id — quadros.ts (shared+client), quadro_set/quadro_changed/quadros no protocolo, Map na session, persiste no meta, editor HTML sem popup, imagem comprimida a data URL ≤32k | quadros.ts ×2, protocol, session, save, mesher, atlas, main, blocksUi | 225 testes, stage 2 quadros + screenshot ✅ | ~25k |
+| 21:04 | fecho de sessão: STATUS.md + cerebrum + push — backlog 100% (atalhos, dia/noite, tapetes, janela, móveis, quadro) | .wolf/* | 225 testes, 5 commits | ~4k |

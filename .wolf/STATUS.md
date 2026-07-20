@@ -1,7 +1,34 @@
 # STATUS — Projeto "Lógica em Jogo" (jogo voxel educacional)
 
 > Single source of truth for resuming work. Read this FIRST when starting a session.
-> Last updated: 2026-07-19 (sessão: 3 itens rápidos do backlog)
+> Last updated: 2026-07-19 (sessão 2: BACKLOG COMPLETO — playtest do usuário amanhã com alunos)
+> **BACKLOG COMPLETO FEITO (2026-07-19 sessão 2, 5 commits — playtest AMANHÃ):**
+> (1) ATALHOS DO NAVEGADOR: guarda de 3 camadas (client/shortcutGuard.ts) —
+> beforeunload ("sair do site?"), preventDefault nos combos interceptáveis
+> (Ctrl/Alt/Meta+tecla, Tab, F1/F5/F6/F7/F10/F12) e Keyboard Lock API (Chrome,
+> só em tela cheia F11 — aí Ctrl+W/T/N/R vira keydown comum). Desarma em saída
+> legítima (menu/kick). Ctrl+W em janela COMUM só mostra o diálogo — limitação
+> do navegador, avisar professor: tela cheia = proteção total. (2) DIA/NOITE:
+> sol/lua/estrelas visíveis (grupo segue câmera, oclusão grátis), keyframes
+> ricos c/ smoothstep, dia 10→20 min (DIA_SEGUNDOS=1200), /hora consulta
+> liberada pra aluno, ?hora=/?yaw= na URL pra screenshot. bug-301 (TDZ) e
+> bug-302 (Number(null)=0 travava céu na meia-noite) achados e corrigidos.
+> (3) TAPETES 12 cores (ids 71-82): lâmina 1/16, atravessável, regra de apoio
+> da tocha (precisaApoio). (4) JANELA abre-fecha (83-86): 1 célula, dobradiça
+> da porta, isInterativo/interativoToggled generalizam use_block (par vertical
+> segue SÓ da porta). (5) MÓVEIS (87-99): mesa + cadeira/sofá/cama em 4
+> direções (rotXZ k×90°, frente encara o jogador no place, entrada única na
+> hotbar). (6) QUADRO texto+imagem (100-103): 1º estado FORA do id —
+> shared/quadros.ts + client/quadros.ts, quadro_set/quadro_changed/quadros no
+> protocolo, Map por posição na session, persiste no meta, editor overlay sem
+> popup, imagem comprimida local (192px JPEG, teto 32k chars). 225 testes,
+> typecheck 3/3, build+dist, screenshots headless de tudo.
+> **PLAYTEST AMANHÃ — roteiro extra do backlog novo:** correr com Ctrl+W (aba
+> não fecha em tela cheia; janela comum pergunta antes de sair); F11 tela
+> cheia; /hora como aluno; noite com estrelas + lua (professor /ciclo ligar ou
+> /hora noite); tapetes/janela (clique direito)/mesa+cadeira+sofá+cama (direção
+> ao colocar); quadro: colocar na parede, clique direito, digitar texto,
+> escolher foto do PC, ver no outro cliente, fechar host e reabrir (persiste).
 > **BACKLOG RÁPIDO FEITO (2026-07-19, 3 commits — playtest pendente):**
 > (1) nome SEM espaço/especial — `sanitizeName` (shared/auth.ts) filtra pra
 > letra/número/acento/_/- e corta em 24; servidor sanitiza no join, menu migra
