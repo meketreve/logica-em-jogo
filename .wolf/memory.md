@@ -1681,3 +1681,19 @@ bug-195 (basename sem import). .exe/empacotamento segue ADIADO (decisão do usu�
 | 11:12 | Edited client/src/menu.ts | 2→3 lines | ~34 |
 | 11:15 | versão: shared/src/version.ts (VERSION) + boot server loga + badge no menu cliente | version.ts, shared/index.ts, server/index.ts, client/index.html, menu.ts | typecheck 3/3, build, 230 testes | ~9k |
 | 11:15 | todo.md +2: log do chat em arquivo; salvar mundo em pastas (muda export single) | todo.md | done | ~1k |
+| 11:16 | Session end: 10 writes across 5 files (todo.md, version.ts, index.ts, index.html, menu.ts) | 5 reads | ~15434 tok |
+| 11:17 | Session end: 10 writes across 5 files (todo.md, version.ts, index.ts, index.html, menu.ts) | 5 reads | ~15434 tok |
+| 11:24 | Edited server/src/paths.ts | 4→5 lines | ~95 |
+| 11:24 | Edited server/src/index.ts | 8→9 lines | ~129 |
+| 11:24 | Edited server/src/mundos.ts | inline fix | ~24 |
+| 11:24 | Edited server/src/mundos.ts | 2→2 lines | ~47 |
+| 11:25 | Edited server/src/paths.ts | 4→4 lines | ~67 |
+| 11:25 | Edited server/src/paths.ts | inline fix | ~25 |
+| 11:26 | Edited iniciar-servidor.sh | modified Enter() | ~544 |
+| 11:27 | Edited iniciar-servidor.bat | modified Enter() | ~332 |
+| 11:27 | Edited iniciar-servidor.bat | modified salvo() | ~184 |
+| 11:28 | Edited server/src/cenarios/_smoke-kicar.mjs | inline fix | ~24 |
+| 11:28 | Edited .gitignore | 3→8 lines | ~55 |
+| 11:35 | pasta aulas/ -> mundos/ (PASTA_MUNDOS); mundo livre salva em mundos/mundo-livre.ljw | paths.ts, index.ts, mundos.ts, .gitignore | typecheck ok, boot smoke: save em mundos/ ✓ | ~7k |
+| 11:35 | launcher opcao [8] carregar mundo salvo + migra world.ljw antigo | iniciar-servidor.sh, .bat | bash -n ok, listagem simulada ✓ | ~3k |
+| 11:35 | Session end: 21 writes across 11 files (todo.md, version.ts, index.ts, index.html, menu.ts) | 9 reads | ~20971 tok |

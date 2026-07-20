@@ -1,7 +1,19 @@
 # STATUS — Projeto "Lógica em Jogo" (jogo voxel educacional)
 
 > Single source of truth for resuming work. Read this FIRST when starting a session.
-> Last updated: 2026-07-20 (sessão 6: arquivo de VERSÃO + exibir no boot do server e menu do cliente; +2 itens no todo.md; commit da sessão)
+> Last updated: 2026-07-20 (sessão 6: VERSÃO no boot/menu; +2 todo; pasta aulas→mundos + launcher carrega mundo salvo)
+> **SESSÃO 6b (2026-07-20, sem commit ainda):** (4) PASTA `aulas/` → `mundos/`
+> (`PASTA_AULAS`→`PASTA_MUNDOS` em paths.ts). Agora é o lar de TODOS os saves vivos:
+> mundo livre + cópias de trabalho das aulas. Mundo livre PADRÃO (sem LJ_SAVE) mudou
+> de `world.ljw` (raiz) → `mundos/mundo-livre.ljw` (index.ts). Saves vivos viraram
+> GITIGNORED (`/mundos/`, `/world.ljw`); modelos seguem tracked em `cenarios/`.
+> Resquício stale `aulas/aula1-sequencia.ljw` removido (git rm; era cópia regenerável
+> do modelo). (5) LAUNCHER (.sh + .bat) opção [8] "Carregar mundo salvo": lista
+> `mundos/*.ljw` e carrega o escolhido; migra `world.ljw` antigo → `mundos/mundo-livre.ljw`
+> na 1ª execução (não perde a construção da turma). `/mundo lista` no jogo já pega os
+> saves (escaneia dirname(savePath)=mundos/ + cenarios/) — nada a mudar. typecheck 3/3,
+> build ok, boot smoke real: server sobe, autosave E save-ao-encerrar gravam em
+> `mundos/mundo-livre.ljw` ✓. NÃO commitado ainda (aguardando ordem do usuário).
 > **SESSÃO 6 (2026-07-20):** (1) ARQUIVO DE VERSÃO — `shared/src/version.ts`
 > exporta `VERSION` ("0.6.0"), FONTE ÚNICA (barrel `shared/index.ts` reexporta;
 > nenhum package.json tem `version`). Server loga `Lógica em Jogo v0.6.0` no boot

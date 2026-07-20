@@ -13,8 +13,9 @@ export const daRaiz = (caminho: string): string =>
 
 /** Modelos gerados por `npm run cenarios`. O servidor NUNCA escreve aqui. */
 export const PASTA_CENARIOS = daRaiz("cenarios");
-/** Mundos vivos: o que a turma construiu. É aqui que o autosave grava. */
-export const PASTA_AULAS = daRaiz("aulas");
+/** Mundos vivos: o que a turma construiu (mundo livre + cópias de trabalho das
+ *  aulas). É aqui que o autosave grava e de onde o launcher carrega saves. */
+export const PASTA_MUNDOS = daRaiz("mundos");
 /** Relatórios do profiler (HUD F3 → "enviar pro servidor"): diagnóstico de
  *  vários dispositivos, não save de mundo. */
 export const PASTA_PROFILES = daRaiz("profiles");
@@ -25,8 +26,8 @@ export const PASTA_PROFILES = daRaiz("profiles");
  * distribui — e a próxima turma começaria com a aula da anterior já resolvida.
  *
  * Então: mundo escolhido dentro de cenarios/ vira uma CÓPIA DE TRABALHO em
- * aulas/. Se a cópia já existe, ela vence o modelo — é a turma continuando de
- * onde parou. Para recomeçar do zero, basta apagar o arquivo em aulas/.
+ * mundos/. Se a cópia já existe, ela vence o modelo — é a turma continuando de
+ * onde parou. Para recomeçar do zero, basta apagar o arquivo em mundos/.
  */
 export function mundoDeTrabalho(escolhido: string): {
   vivo: string;
@@ -36,7 +37,7 @@ export function mundoDeTrabalho(escolhido: string): {
   const alvo = daRaiz(escolhido);
   const somenteLeitura = ehMundoDeAula(alvo);
   if (dirname(alvo) !== PASTA_CENARIOS) return { vivo: alvo, somenteLeitura };
-  return { vivo: resolve(PASTA_AULAS, basename(alvo)), modelo: alvo, somenteLeitura };
+  return { vivo: resolve(PASTA_MUNDOS, basename(alvo)), modelo: alvo, somenteLeitura };
 }
 
 /**

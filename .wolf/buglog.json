@@ -5519,6 +5519,70 @@
       "related_bugs": [],
       "occurrences": 1,
       "last_seen": "2026-07-20T14:12:34.059Z"
+    },
+    {
+      "id": "bug-340",
+      "timestamp": "2026-07-20T14:24:32.333Z",
+      "error_message": "Significant refactor of ",
+      "file": "server/src/paths.ts",
+      "root_cause": "2 lines replaced/restructured",
+      "fix": "Rewrote 4→5 lines (2 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-20T14:24:32.333Z"
+    },
+    {
+      "id": "bug-341",
+      "timestamp": "2026-07-20T14:24:57.640Z",
+      "error_message": "Wrong reference: aulas should be mundos",
+      "file": "server/src/mundos.ts",
+      "root_cause": "Used \"aulas\" instead of \"mundos\"",
+      "fix": "Changed aulas → mundos",
+      "tags": [
+        "auto-detected",
+        "wrong-reference",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 2,
+      "last_seen": "2026-07-20T14:24:59.788Z"
+    },
+    {
+      "id": "bug-342",
+      "timestamp": "2026-07-20T14:25:12.186Z",
+      "error_message": "Wrong reference: PASTA_AULAS should be PASTA_MUNDOS",
+      "file": "server/src/paths.ts",
+      "root_cause": "Used \"PASTA_AULAS\" instead of \"PASTA_MUNDOS\"",
+      "fix": "Changed PASTA_AULAS → PASTA_MUNDOS",
+      "tags": [
+        "auto-detected",
+        "wrong-reference",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-20T14:25:12.186Z"
+    },
+    {
+      "id": "bug-343",
+      "timestamp": "2026-07-20T14:28:37.945Z",
+      "error_message": "Wrong reference: aulas should be mundos",
+      "file": "server/src/cenarios/_smoke-kicar.mjs",
+      "root_cause": "Used \"aulas\" instead of \"mundos\"",
+      "fix": "Changed aulas → mundos",
+      "tags": [
+        "auto-detected",
+        "wrong-reference",
+        "mjs"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-20T14:28:37.945Z"
     }
   ]
 }

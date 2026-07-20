@@ -26,7 +26,7 @@ const pastasDeMundos = (savePath: string): string[] => [
 ];
 
 function mundosDisponiveis(savePath: string): string[] {
-  // Uma aula por NOME de arquivo: a cópia viva em aulas/ e o modelo em cenarios/
+  // Uma aula por NOME de arquivo: a cópia viva em mundos/ e o modelo em cenarios/
   // têm o mesmo nome e não devem aparecer duas vezes. O 1º achado (pasta do save
   // em uso) vence — se a turma já mexeu na aula, é essa cópia que se carrega.
   const porNome = new Map<string, string>();
@@ -131,7 +131,7 @@ export function comandoMundo(
   }
 
   // Modelo em cenarios/ nunca é aberto para escrita: vira uma cópia de trabalho
-  // em aulas/. Se a cópia já existe (turma continuando), carrega dela; senão, do
+  // em mundos/. Se a cópia já existe (turma continuando), carrega dela; senão, do
   // modelo. O autosave grava sempre em `vivo`.
   const { vivo, modelo, somenteLeitura } = mundoDeTrabalho(encontrado);
   if (vivo === ctx.savePath) {

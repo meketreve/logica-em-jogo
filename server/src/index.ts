@@ -31,13 +31,14 @@ import { clienteFoiBuildado, servirCliente } from "./static";
 const PORT = Number(process.env["LJ_PORT"] ?? 8080);
 const SAVE_ENV = process.env["LJ_SAVE"];
 // Um cenário em cenarios/ é MODELO: o autosave grava numa CÓPIA DE TRABALHO em
-// aulas/ para não poluir o arquivo distribuído com roster, PINs e progresso da
+// mundos/ para não poluir o arquivo distribuído com roster, PINs e progresso da
 // turma. `vivo` é onde salvamos; `modelo` é a semente da primeira vez.
+// Sem LJ_SAVE = mundo livre padrão, que salva em mundos/ como qualquer outro.
 const {
   vivo: SAVE_PATH,
   modelo: MODELO,
   somenteLeitura: LEITURA_INICIAL,
-} = mundoDeTrabalho(SAVE_ENV ?? "world.ljw");
+} = mundoDeTrabalho(SAVE_ENV ?? "mundos/mundo-livre.ljw");
 // De onde carregar no boot. Mundo de AULA (só leitura) começa SEMPRE do modelo,
 // ignorando qualquer cópia viva da turma anterior — é reutilizável de graça.
 // Mundo normal: a cópia viva vence (a turma continua de onde parou); na falta

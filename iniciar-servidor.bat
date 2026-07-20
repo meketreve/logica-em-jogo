@@ -28,6 +28,14 @@ if not exist "node_modules" (
   )
 )
 
+REM --- Pasta dos mundos salvos + migracao do save antigo ---
+if not exist "mundos" mkdir "mundos"
+if not exist "mundos\mundo-livre.ljw" if exist "world.ljw" (
+  move /y "world.ljw" "mundos\mundo-livre.ljw" >nul
+  echo ^(mundo livre antigo movido para mundos\mundo-livre.ljw^)
+  echo.
+)
+
 REM --- Qual mundo abrir ---
 echo Escolha o mundo:
 echo    [1] Mundo livre ^(construcao livre^)   ^<-- padrao
@@ -37,6 +45,7 @@ echo    [4] Aula 3 - Ache os 2 erros
 echo    [5] Aula 4 - Decifre a mensagem
 echo    [6] Aula 5 - Conserte o desenho
 echo    [7] Aula 6 - Siga o manual
+echo    [8] Carregar mundo salvo ^(da pasta mundos^)
 echo.
 set "ESCOLHA="
 set /p "ESCOLHA=Digite o numero e tecle Enter (Enter direto = 1): "
@@ -47,7 +56,8 @@ if "%ESCOLHA%"=="4" set "LJ_SAVE=cenarios/aula3-depurar.ljw"
 if "%ESCOLHA%"=="5" set "LJ_SAVE=cenarios/aula4-decifrar.ljw"
 if "%ESCOLHA%"=="6" set "LJ_SAVE=cenarios/aula5-simetria.ljw"
 if "%ESCOLHA%"=="7" set "LJ_SAVE=cenarios/aula6-manual.ljw"
-if not defined LJ_SAVE set "LJ_SAVE=world.ljw"
+if "%ESCOLHA%"=="8" call :carregar_salvo
+if not defined LJ_SAVE set "LJ_SAVE=mundos/mundo-livre.ljw"
 
 REM --- Codigo do professor (opcional) ---
 echo.
@@ -80,3 +90,30 @@ call npm run start -w server
 echo.
 echo O servidor parou.
 pause
+exit /b 0
+
+REM --- Sub-rotina: listar e escolher um mundo salvo em mundos/ ---
+:carregar_salvo
+setlocal enabledelayedexpansion
+echo.
+echo Mundos salvos em mundos/:
+set "i=0"
+for %%f in ("mundos\*.ljw") do (
+  set /a i+=1
+  set "SAVE[!i!]=mundos/%%~nxf"
+  echo    [!i!] %%~nf
+)
+if !i!==0 goto :cs_livre
+echo.
+set "N="
+set /p "N=Numero do mundo salvo (Enter = 1): "
+if not defined N set "N=1"
+set "PICK=!SAVE[%N%]!"
+if not defined PICK goto :cs_invalido
+endlocal & set "LJ_SAVE=%PICK%"
+goto :eof
+:cs_invalido
+echo ^(numero invalido - abrindo o mundo livre^)
+:cs_livre
+endlocal & set "LJ_SAVE=mundos/mundo-livre.ljw"
+goto :eof

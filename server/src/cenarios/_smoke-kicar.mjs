@@ -5,7 +5,7 @@
  * inexistente e o próprio professor não removem ninguém.
  *
  * Rode com o servidor no ar (mundo qualquer serve):
- *   LJ_SAVE=aulas/_smoke-kicar.ljw LJ_CODIGO=prof2026 LJ_NOVO=1 npm run start -w server
+ *   LJ_SAVE=mundos/_smoke-kicar.ljw LJ_CODIGO=prof2026 LJ_NOVO=1 npm run start -w server
  *   node server/src/cenarios/_smoke-kicar.mjs
  */
 const URL = "ws://localhost:8080";

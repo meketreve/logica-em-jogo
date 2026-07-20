@@ -688,10 +688,29 @@
   visível em toda tela do menu porque é filho absoluto do overlay `position:fixed`).
 - Bump é MANUAL a cada marco. Ao subir a versão, mexer só em version.ts.
 
+### Saves vivos em mundos/ + carregar no launcher (2026-07-20)
+- **`aulas/` foi renomeada pra `mundos/`** (`PASTA_MUNDOS` em paths.ts). É onde
+  moram TODOS os saves vivos: mundo livre (`mundos/mundo-livre.ljw`) + cópias de
+  trabalho das aulas. Os MODELOS distribuídos seguem em `cenarios/` (tracked); os
+  saves vivos viraram gitignored (`/mundos/`, `/world.ljw`) — turma não gera
+  conflito no `git pull`.
+- Mundo livre PADRÃO (sem LJ_SAVE) agora é `mundos/mundo-livre.ljw` (era `world.ljw`
+  na raiz). Launcher migra o world.ljw antigo pra lá na 1ª execução (não perde a turma).
+- Launcher (.sh/.bat) ganhou opção [8] "Carregar mundo salvo": lista `mundos/*.ljw`
+  e seta LJ_SAVE pro escolhido. `/mundo lista` no jogo já pega os saves porque
+  escaneia `dirname(savePath)` (= mundos/) + cenarios/ — nada a mudar lá.
+
 ## Do-Not-Repeat
 
 <!-- Mistakes made and corrected. Each entry prevents the same mistake recurring. -->
 <!-- Format: [YYYY-MM-DD] Description of what went wrong and what to do instead. -->
+
+- [2026-07-20] Smoke do HOST: pra disparar o save de SIGINT do servidor,
+  `tsx src/index.ts` roda em VÁRIOS processos (sh → node .bin/tsx → node --require
+  --import). Só o node filho FINAL registra `process.on("SIGINT")`. `kill -INT <pid>`
+  num wrapper NÃO grava. Use `pkill -INT -f 'index.ts'` (pega todos) e rode o server
+  como JOB de background separado do shell — senão o SIGINT propaga pro próprio shell
+  do comando e mata o teste antes de conferir o resultado.
 
 - [2026-07-20] Novo state client-side indexado por POSIÇÃO (tipo QuadroRenderer)
   precisa entrar na lista de limpeza do `reloadWorld` (main.ts, cp19) — o

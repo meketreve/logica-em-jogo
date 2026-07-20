@@ -1,7 +1,7 @@
 # anatomy.md
 
-> Auto-maintained by OpenWolf. Last scanned: 2026-07-20T14:12:42.964Z
-> Files: 115 tracked | Anatomy hits: 0 | Misses: 0
+> Auto-maintained by OpenWolf. Last scanned: 2026-07-20T14:28:40.025Z
+> Files: 116 tracked | Anatomy hits: 0 | Misses: 0
 
 ## ../../../tmp/claude-1000/-home-meketreve-logica-em-jogo/1e53a721-e45d-4911-a026-f385f8f2c4e6/scratchpad/
 
@@ -75,9 +75,9 @@
 ## ./
 
 - `.gitattributes` — LF em tudo (projeto vive no WSL/ext4; evita ruído CRLF de ferramentas Windows) (~31 tok)
-- `.gitignore` — Git ignore rules (~55 tok)
-- `iniciar-servidor.bat` (~695 tok)
-- `iniciar-servidor.sh` — ============================================================ (~630 tok)
+- `.gitignore` — Git ignore rules (~99 tok)
+- `iniciar-servidor.bat` (~967 tok)
+- `iniciar-servidor.sh` — ============================================================ (~959 tok)
 - `package.json` — Node.js package manifest (~157 tok)
 - `todo.md` — Ideias para fazer (~939 tok)
 
@@ -134,9 +134,9 @@
 
 - `cenarios/gerar.ts` — Gerador dos 3 cenários pedagógicos (.ljw): digita os MESMOS comandos de chat do professor contra a GameSession real. Flags: --grupos --codigo --revelar --saida (~1900 tok)
 - `cenarios/verificar.ts` — Conferência embutida na geração: abre o .ljw num servidor novo, entra prof+2 alunos, completa a área do grupo 1; + guarda de geometria da faixa (~1400 tok)
-- `index.ts` — Hospedeiro Node+ws do servidor (LAN): embrulha a MESMA GameSession do Web (~4466 tok)
-- `mundos.ts` — `/mundo` (cp19) — trocar a aula SEM derrubar a turma. (~1914 tok)
-- `paths.ts` — `npm run <script> -w server` roda com o cwd dentro de server/, então caminho (~622 tok)
+- `index.ts` — Hospedeiro Node+ws do servidor (LAN): embrulha a MESMA GameSession do Web (~4493 tok)
+- `mundos.ts` — `/mundo` (cp19) — trocar a aula SEM derrubar a turma. (~1915 tok)
+- `paths.ts` — `npm run <script> -w server` roda com o cwd dentro de server/, então caminho (~647 tok)
 - `static.ts` — Serve o cliente já buildado (client/dist) NA MESMA PORTA do WebSocket. (~1055 tok)
 - `worker.ts` — Hospedeiro Web Worker do servidor (singleplayer): embrulha a GameSession (~767 tok)
 

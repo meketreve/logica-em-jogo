@@ -18,6 +18,16 @@ if [ ! -d node_modules ]; then
   npm install || { echo "ERRO ao instalar as dependências. O Node.js está instalado?"; exit 1; }
 fi
 
+# --- Pasta dos mundos salvos + migração do save antigo ---
+mkdir -p mundos
+# Versões antigas salvavam o mundo livre em world.ljw na raiz. Move pra mundos/
+# na primeira execução pra não perder a construção da turma.
+if [ ! -f mundos/mundo-livre.ljw ] && [ -f world.ljw ]; then
+  mv world.ljw mundos/mundo-livre.ljw
+  echo "(mundo livre antigo movido para mundos/mundo-livre.ljw)"
+  echo
+fi
+
 # --- Qual mundo abrir ---
 echo "Escolha o mundo:"
 echo "   [1] Mundo livre (construção livre)   <-- padrão"
@@ -27,6 +37,7 @@ echo "   [4] Aula 3 — Ache os 2 erros"
 echo "   [5] Aula 4 — Decifre a mensagem"
 echo "   [6] Aula 5 — Conserte o desenho"
 echo "   [7] Aula 6 — Siga o manual"
+echo "   [8] Carregar mundo salvo (da pasta mundos/)"
 echo
 read -r -p "Digite o número e tecle Enter (Enter direto = 1): " ESCOLHA
 
@@ -37,7 +48,34 @@ case "$ESCOLHA" in
   5) export LJ_SAVE="cenarios/aula4-decifrar.ljw" ;;
   6) export LJ_SAVE="cenarios/aula5-simetria.ljw" ;;
   7) export LJ_SAVE="cenarios/aula6-manual.ljw" ;;
-  *) export LJ_SAVE="world.ljw" ;;
+  8)
+    echo
+    echo "Mundos salvos em mundos/:"
+    SAVES=()
+    while IFS= read -r f; do SAVES+=("$f"); done < <(ls -1 mundos/*.ljw 2>/dev/null)
+    if [ ${#SAVES[@]} -eq 0 ]; then
+      echo "   (nenhum mundo salvo ainda — abrindo o mundo livre)"
+      export LJ_SAVE="mundos/mundo-livre.ljw"
+    else
+      i=1
+      for f in "${SAVES[@]}"; do
+        nome="$(basename "$f")"
+        echo "   [$i] ${nome%.ljw}"
+        i=$((i + 1))
+      done
+      echo
+      read -r -p "Número do mundo salvo (Enter = 1): " N
+      [ -z "$N" ] && N=1
+      SEL="${SAVES[$((N - 1))]}"
+      if [ -n "$SEL" ]; then
+        export LJ_SAVE="$SEL"
+      else
+        echo "(número inválido — abrindo o mundo livre)"
+        export LJ_SAVE="mundos/mundo-livre.ljw"
+      fi
+    fi
+    ;;
+  *) export LJ_SAVE="mundos/mundo-livre.ljw" ;;
 esac
 
 # --- Código do professor (opcional) ---

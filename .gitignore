@@ -10,3 +10,8 @@ chrome/
 *.ljw.tmp
 *.ljw.corrompido-*
 /profiles/
+
+# mundos vivos (saves da turma) — ficam locais no host, não versionados.
+# Os MODELOS distribuídos ficam em cenarios/ (esses sim versionados).
+/mundos/
+/world.ljw
