@@ -15,10 +15,15 @@
 > save/restore de edição, eviction unit-testada.
 > **COMO USAR:** menu → novo mundo → tamanho "ENORME"; ou host `LJ_TAMANHO=E`.
 > Mundo E nasce vazio, colunas chegam conforme explora. Denso (P/M/G/aula/plano)
-> INTOCADO. **PRÓXIMA: (a) playtest do mundo E com a turma (andar longe, cavar,
-> construir, sair e voltar → construção persiste), (b) opcional: HUD mostrar
-> colunas carregadas/raio, (c) decidir push (escola git pull) após aprovação,
-> (d) PILOTO + relatório — o entregável real.**
+> INTOCADO. **JÁ PUSHADO (usuário autorizou); escola faz `git pull`. Follow-ups
+> desta sessão TB pushados: launcher .bat opção [9] "Criar mundo PROCEDURAL"
+> (mundos/<nome>/, LJ_TAMANHO=E) + prompt de tamanho com [E]; menu do jogo e
+> config renomeiam "ENORME"→"procedural" (value="E" inalterado; tirado o falso
+> "sem save ainda"). PRÓXIMA: (a) usuário vai PLAYTESTAR o mundo procedural
+> SOZINHO na escola (andar longe, cavar, construir, sair e voltar → persiste),
+> (b) opcional: HUD mostrar colunas carregadas/raio, (c) v2 da geração (backlog:
+> cavernas, altura por bioma, madeira por espécie — NUNCA feita), (d) PILOTO +
+> relatório — o entregável real.**
 > **SESSÃO 10 (2026-07-20) — GERAÇÃO PROCEDURAL COM BIOMAS v1 (NÃO commitado):**
 > Arquitetura travada (decisões no cerebrum): biomas via 2 CAMPOS DE CLIMA (value
 > noise temp+umid, x/80) → lookup Whittaker — truth table descartada (N², vira WFC);

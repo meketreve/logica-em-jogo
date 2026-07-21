@@ -6874,6 +6874,22 @@
       "related_bugs": [],
       "occurrences": 1,
       "last_seen": "2026-07-21T11:14:40.466Z"
+    },
+    {
+      "id": "bug-424",
+      "timestamp": "2026-07-21T11:18:43.608Z",
+      "error_message": "Incorrect value in code",
+      "file": "client/src/menu.ts",
+      "root_cause": "Had \"raio de render (mundo enorme)\"",
+      "fix": "Changed to \"raio de render (mundo procedural)\"",
+      "tags": [
+        "auto-detected",
+        "wrong-value",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-21T11:18:43.608Z"
     }
   ]
 }

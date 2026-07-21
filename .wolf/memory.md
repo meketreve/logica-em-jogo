@@ -2030,3 +2030,7 @@ Files: blocks.ts, mesher.ts, session.ts, blocks.test.ts, cp23.test.ts. Commitar+
 | 08:14 | Edited iniciar-servidor.bat | modified E() | ~184 |
 | 08:15 | Edited iniciar-servidor.bat | modified mundo() | ~184 |
 | (sessão 11 cont.) | iniciar-servidor.bat: opção [9] "Criar mundo PROCEDURAL" (nome próprio → mundos/<nome>/, LJ_TAMANHO=E, pula menu de tamanho) + prompt de tamanho ganhou [E] procedural (rótulo do usuário). [8] já reconhecia mundos/<nome>/ (nada a mudar). .sh NÃO tocado (usuário pediu só .bat) | iniciar-servidor.bat | commitado+pushado | ~2k |
+| 08:16 | Session end: 127 writes across 31 files (blocks.ts, mesher.ts, blocks.test.ts, blocksUi.ts, atlasTexture.ts) | 33 reads | ~146994 tok |
+| 08:18 | Edited client/index.html | inline fix | ~24 |
+| 08:18 | Edited client/src/menu.ts | modified streaming() | ~47 |
+| 08:19 | Session end: 129 writes across 31 files (blocks.ts, mesher.ts, blocks.test.ts, blocksUi.ts, atlasTexture.ts) | 33 reads | ~147197 tok |
