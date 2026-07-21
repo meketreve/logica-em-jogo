@@ -1,6 +1,24 @@
 # STATUS — Projeto "Lógica em Jogo" (jogo voxel educacional)
 
 > Single source of truth for resuming work. Read this FIRST when starting a session.
+> **SESSÃO 11 (2026-07-21) — STREAMING DE CHUNKS F1-F5 COMPLETO (mundo GIGANTE
+> em runtime). Plano detalhado em `.wolf/streaming-plan.md`. COMMITADO LOCAL,
+> NÃO PUSHADO — escola fica no `89d6710` até playtest+aprovação (obra instável
+> pra quem depende do build estável).** Commits desta obra:
+> `e7dc4f7` F1 (mundo esparso + gen por coluna ordem-independente) ·
+> `0da59be` F2 (tamanho E 3840²×128, protocolo LJE0/LJC0/radius, streaming por
+> raio de interesse, configs raioRender+meshPorFrame+LJ_COLUNAS_TICK) ·
+> `2c1a2e3` F3 (save ESPARSO LJS2 — só chunks editados; smoke: obsidiana
+> sobrevive save+restart) · `b95e40f` F4+F5 (bordas verificadas + evictColunas
+> 1×/s libera coluna sem interesse e sem edição; regenera idêntica ao voltar).
+> 278 testes, typecheck 3/3, build ok. Smokes reais: streaming 81+81 colunas,
+> save/restore de edição, eviction unit-testada.
+> **COMO USAR:** menu → novo mundo → tamanho "ENORME"; ou host `LJ_TAMANHO=E`.
+> Mundo E nasce vazio, colunas chegam conforme explora. Denso (P/M/G/aula/plano)
+> INTOCADO. **PRÓXIMA: (a) playtest do mundo E com a turma (andar longe, cavar,
+> construir, sair e voltar → construção persiste), (b) opcional: HUD mostrar
+> colunas carregadas/raio, (c) decidir push (escola git pull) após aprovação,
+> (d) PILOTO + relatório — o entregável real.**
 > **SESSÃO 10 (2026-07-20) — GERAÇÃO PROCEDURAL COM BIOMAS v1 (NÃO commitado):**
 > Arquitetura travada (decisões no cerebrum): biomas via 2 CAMPOS DE CLIMA (value
 > noise temp+umid, x/80) → lookup Whittaker — truth table descartada (N², vira WFC);

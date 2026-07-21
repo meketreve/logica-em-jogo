@@ -2022,3 +2022,4 @@ Files: blocks.ts, mesher.ts, session.ts, blocks.test.ts, cp23.test.ts. Commitar+
 | 07:06 | Edited shared/src/session.ts | added 1 condition(s) | ~177 |
 | 07:07 | Edited shared/src/streaming.test.ts | added 1 condition(s) | ~1244 |
 | 07:09 | STREAMING F4+F5 COMPLETO: F4 = verificação de bordas (areia cai na aresta de coluna — teste; packCoord no E cabe em 2³¹; borda finita esperada). F5 = evictColunas() 1×/s no tick lazy libera colunas sem interesse E sem edição; toda geração via gerarColuna (residentCols); editedCols nunca liberada; regenera idêntica ao voltar. residentColCount exposto | shared/{session,streaming.test}.ts | 278 testes (+4), typecheck 3/3, build. STREAMING F1-F5 FEITO | ~30k |
+| 07:11 | Created ../.claude/jobs/a35a297d/tmp/stream-check.mjs | — | ~422 |

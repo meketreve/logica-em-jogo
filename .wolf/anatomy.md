@@ -1,7 +1,7 @@
 # anatomy.md
 
-> Auto-maintained by OpenWolf. Last scanned: 2026-07-21T10:07:52.313Z
-> Files: 129 tracked | Anatomy hits: 0 | Misses: 0
+> Auto-maintained by OpenWolf. Last scanned: 2026-07-21T10:11:31.814Z
+> Files: 130 tracked | Anatomy hits: 0 | Misses: 0
 
 ## ../../../tmp/claude-1000/-home-meketreve-logica-em-jogo/1e53a721-e45d-4911-a026-f385f8f2c4e6/scratchpad/
 
@@ -78,6 +78,7 @@
 - `janela-stage.mts` — Stage da dobradiça da JANELA: parede com 2 janelas lado a lado (janela dupla) (~450 tok)
 - `move-smoke.mjs` — Smoke F2: cliente ws real no mundo ENORME — conta lotes LJC0 ao entrar, (~493 tok)
 - `porta-stage.mts` — Stage da dobradiça: parede com vão de 2 células + porta dupla (2 portas lado (~541 tok)
+- `stream-check.mjs` — Smoke robusto pós-F5: join no E, conta colunas ao entrar e ao andar longe. (~422 tok)
 
 ## ../.claude/plans/
 
