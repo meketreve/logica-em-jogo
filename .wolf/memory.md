@@ -2024,3 +2024,9 @@ Files: blocks.ts, mesher.ts, session.ts, blocks.test.ts, cp23.test.ts. Commitar+
 | 07:09 | STREAMING F4+F5 COMPLETO: F4 = verificação de bordas (areia cai na aresta de coluna — teste; packCoord no E cabe em 2³¹; borda finita esperada). F5 = evictColunas() 1×/s no tick lazy libera colunas sem interesse E sem edição; toda geração via gerarColuna (residentCols); editedCols nunca liberada; regenera idêntica ao voltar. residentColCount exposto | shared/{session,streaming.test}.ts | 278 testes (+4), typecheck 3/3, build. STREAMING F1-F5 FEITO | ~30k |
 | 07:11 | Created ../.claude/jobs/a35a297d/tmp/stream-check.mjs | — | ~422 |
 | 07:12 | Session end: 123 writes across 30 files (blocks.ts, mesher.ts, blocks.test.ts, blocksUi.ts, atlasTexture.ts) | 32 reads | ~145069 tok |
+| 07:35 | Session end: 123 writes across 30 files (blocks.ts, mesher.ts, blocks.test.ts, blocksUi.ts, atlasTexture.ts) | 32 reads | ~145069 tok |
+| 08:14 | Edited iniciar-servidor.bat | modified Enter() | ~58 |
+| 08:14 | Edited iniciar-servidor.bat | 2→3 lines | ~42 |
+| 08:14 | Edited iniciar-servidor.bat | modified E() | ~184 |
+| 08:15 | Edited iniciar-servidor.bat | modified mundo() | ~184 |
+| (sessão 11 cont.) | iniciar-servidor.bat: opção [9] "Criar mundo PROCEDURAL" (nome próprio → mundos/<nome>/, LJ_TAMANHO=E, pula menu de tamanho) + prompt de tamanho ganhou [E] procedural (rótulo do usuário). [8] já reconhecia mundos/<nome>/ (nada a mudar). .sh NÃO tocado (usuário pediu só .bat) | iniciar-servidor.bat | commitado+pushado | ~2k |

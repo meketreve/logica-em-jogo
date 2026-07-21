@@ -56,6 +56,7 @@ echo    [5] Aula 4 - Decifre a mensagem
 echo    [6] Aula 5 - Conserte o desenho
 echo    [7] Aula 6 - Siga o manual
 echo    [8] Carregar mundo salvo ^(da pasta mundos^)
+echo    [9] Criar mundo PROCEDURAL ^(gigante, gera conforme voce explora^)
 echo.
 set "ESCOLHA="
 set /p "ESCOLHA=Digite o numero e tecle Enter (Enter direto = 1): "
@@ -67,6 +68,7 @@ if "%ESCOLHA%"=="5" set "LJ_SAVE=cenarios/aula4-decifrar.ljw"
 if "%ESCOLHA%"=="6" set "LJ_SAVE=cenarios/aula5-simetria.ljw"
 if "%ESCOLHA%"=="7" set "LJ_SAVE=cenarios/aula6-manual.ljw"
 if "%ESCOLHA%"=="8" call :carregar_salvo
+if "%ESCOLHA%"=="9" call :criar_procedural
 if not defined LJ_SAVE set "LJ_SAVE=mundos/mundo-livre/mundo-livre.ljw"
 
 REM --- Codigo do professor (opcional) ---
@@ -76,12 +78,22 @@ set /p "CODIGO=Codigo do professor (Enter = manter o atual / gerar um): "
 if defined CODIGO set "LJ_CODIGO=%CODIGO%"
 
 REM --- Tamanho do mundo (so vale se o mundo for NOVO) ---
+REM O procedural [9] ja fixou LJ_TAMANHO=E; nesse caso, pula o menu de tamanho.
+if /i "%LJ_TAMANHO%"=="E" goto :depois_tamanho
 echo.
+echo Tamanho do mundo novo:
+echo    [P] pequeno 128x128        ^(padrao^)
+echo    [M] medio 192x192
+echo    [G] grande 256x256         ^(exige PC melhor^)
+echo    [E] procedural - gigante, gera conforme voce explora
 set "TAMANHO="
-set /p "TAMANHO=Tamanho do mundo novo P/M/G (Enter = P pequeno): "
+set /p "TAMANHO=Escolha P/M/G/E (Enter = P pequeno): "
 set "LJ_TAMANHO=P"
 if /i "%TAMANHO%"=="M" set "LJ_TAMANHO=M"
 if /i "%TAMANHO%"=="G" set "LJ_TAMANHO=G"
+if /i "%TAMANHO%"=="E" set "LJ_TAMANHO=E"
+if /i "%TAMANHO%"=="procedural" set "LJ_TAMANHO=E"
+:depois_tamanho
 
 REM Cria o mundo caso ainda nao exista (vale para o "mundo livre" na 1a vez).
 set "LJ_NOVO=1"
@@ -128,4 +140,19 @@ goto :eof
 echo ^(numero invalido - abrindo o mundo livre^)
 :cs_livre
 endlocal & set "LJ_SAVE=mundos/mundo-livre/mundo-livre.ljw"
+goto :eof
+
+REM --- Sub-rotina: criar/abrir um mundo PROCEDURAL (enorme) com nome proprio ---
+:criar_procedural
+echo.
+echo Mundo PROCEDURAL: gigante ^(3840x3840^), so gera onde voce anda.
+echo O terreno regenera do zero; so o que voce CONSTRUIR e salvo.
+set "PNOME="
+set /p "PNOME=Nome do mundo (Enter = 'procedural'): "
+if not defined PNOME set "PNOME=procedural"
+REM sem espacos no nome (vira o nome da pasta em mundos\)
+set "PNOME=%PNOME: =-%"
+set "LJ_SAVE=mundos/%PNOME%/%PNOME%.ljw"
+set "LJ_TAMANHO=E"
+echo ^(mundo procedural: mundos\%PNOME%\^)
 goto :eof
