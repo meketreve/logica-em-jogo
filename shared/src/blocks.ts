@@ -113,12 +113,36 @@ export const BlockId = {
   JanelaXAbertaR: 113,
   JanelaZFechadaR: 114,
   JanelaZAbertaR: 115,
+  /** Minérios (2026-07-20): porta de entrada do survival — por ora SÓ cubos
+   *  com textura placeholder (pedra + pepitas + sigla). Drop/craft/ferramenta
+   *  = fase própria. Nascem em veias no subsolo do gen procedural. */
+  MinerioCarvao: 116,
+  MinerioFerro: 117,
+  MinerioOuro: 118,
+  MinerioDiamante: 119,
+  /** Gramas climáticas (2026-07-20): o gen escolhe a variante pelo CLIMA
+   *  (temperatura/umidade) — faixas de transição nas fronteiras = blend visual
+   *  de bioma. ID próprio (não tint no cliente): mesher segue função pura de
+   *  bytes e o save carrega a aparência sozinho. */
+  GramaSeca: 120,
+  GramaFria: 121,
+  /** Árvores brasileiras (2026-07-20): cada espécie só nasce no seu bioma
+   *  (biomas.ts). Ipê = cerrado, copa AMARELA (florido); araucária = Sul/frio,
+   *  copa em disco no alto; pau-brasil = mata úmida. */
+  LogIpe: 122,
+  FolhasIpe: 123,
+  LogAraucaria: 124,
+  FolhasAraucaria: 125,
+  LogPauBrasil: 126,
+  FolhasPauBrasil: 127,
+  /** Mandacaru (2026-07-20): cacto da caatinga — cubo cheio na v1. */
+  Mandacaru: 128,
 } as const;
 
 export type BlockId = (typeof BlockId)[keyof typeof BlockId];
 
 /** Maior ID válido (mantém isPlaceable sem número mágico ao crescer a lista). */
-const MAX_BLOCK_ID = BlockId.JanelaZAbertaR;
+const MAX_BLOCK_ID = BlockId.Mandacaru;
 
 /** Flor decorativa (qualquer cor)? */
 export function isFlor(id: number): boolean {
@@ -173,7 +197,11 @@ export function precisaApoio(id: number): boolean {
 /** Bloco transparente (vidro/folhas): NÃO oculta a face do vizinho no mesher.
  *  Continua sólido pra física/raycast — transparência é só visual. */
 export function isTransparentBlock(id: number): boolean {
-  return id === BlockId.Glass || id === BlockId.Leaves;
+  return (
+    id === BlockId.Glass || id === BlockId.Leaves ||
+    id === BlockId.FolhasIpe || id === BlockId.FolhasAraucaria ||
+    id === BlockId.FolhasPauBrasil
+  );
 }
 
 /** Porta em qualquer eixo/estado/dobradiça? (2 trechos de id — ver PortaXFechadaR) */

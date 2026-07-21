@@ -46,7 +46,14 @@ describe("formato de bloco/chunk (contrato de save e snapshot)", () => {
     expect(isPlaceable(BlockId.PortaZAbertaR)).toBe(false); // R aberta só via clique
     expect(isPlaceable(BlockId.JanelaXFechadaR)).toBe(true);
     expect(isPlaceable(BlockId.JanelaZAbertaR)).toBe(false); // R aberta só via clique
-    expect(isPlaceable(116)).toBe(false);
+    // minérios + gramas climáticas + árvores brasileiras + mandacaru (2026-07-20)
+    expect(BlockId.MinerioCarvao).toBe(116);
+    expect(BlockId.GramaSeca).toBe(120);
+    expect(BlockId.LogIpe).toBe(122);
+    expect(BlockId.Mandacaru).toBe(128);
+    expect(isPlaceable(BlockId.MinerioDiamante)).toBe(true);
+    expect(isPlaceable(BlockId.Mandacaru)).toBe(true);
+    expect(isPlaceable(129)).toBe(false);
   });
 
   it("volume do chunk cabe em 1 byte por bloco", () => {

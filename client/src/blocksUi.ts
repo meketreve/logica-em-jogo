@@ -66,6 +66,22 @@ export const PLACEABLE: readonly { id: number; name: string }[] = [
     id: BlockId.FlorVermelha + i,
     name: `flor ${cor}`,
   })),
+  // Minérios (2026-07-20): porta de entrada do survival — por ora só blocos
+  { id: BlockId.MinerioCarvao, name: "minério de carvão" },
+  { id: BlockId.MinerioFerro, name: "minério de ferro" },
+  { id: BlockId.MinerioOuro, name: "minério de ouro" },
+  { id: BlockId.MinerioDiamante, name: "minério de diamante" },
+  // Gramas climáticas (2026-07-20): o gen escolhe pelo clima; colocáveis também
+  { id: BlockId.GramaSeca, name: "grama seca" },
+  { id: BlockId.GramaFria, name: "grama fria" },
+  // Árvores brasileiras (2026-07-20): ipê/araucária/pau-brasil + mandacaru
+  { id: BlockId.LogIpe, name: "tronco de ipê" },
+  { id: BlockId.FolhasIpe, name: "folhas de ipê" },
+  { id: BlockId.LogAraucaria, name: "tronco de araucária" },
+  { id: BlockId.FolhasAraucaria, name: "folhas de araucária" },
+  { id: BlockId.LogPauBrasil, name: "tronco de pau-brasil" },
+  { id: BlockId.FolhasPauBrasil, name: "folhas de pau-brasil" },
+  { id: BlockId.Mandacaru, name: "mandacaru" },
 ];
 
 /** Colocáveis visíveis PARA ESTE PAPEL: o aluno não vê rocha-matriz (autoria

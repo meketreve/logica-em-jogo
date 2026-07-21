@@ -271,15 +271,73 @@ function paintQuadro(ctx: CanvasRenderingContext2D, tile: number): void {
   ctx.fillRect(ox + px - 2, oy, 2, px);
 }
 
-/** Folhas (cp18): verde denso com furos transparentes (cutout). */
-function paintLeaves(ctx: CanvasRenderingContext2D, tile: number): void {
-  paintNoise(ctx, tile, [52, 118, 44], 16);
+/** Folhas (cp18): folhagem densa com furos transparentes (cutout). A cor
+ *  varia por espécie (2026-07-20): ipê floresce AMARELO, araucária é escura. */
+function paintLeaves(
+  ctx: CanvasRenderingContext2D,
+  tile: number,
+  base: Rgb = [52, 118, 44],
+): void {
+  paintNoise(ctx, tile, base, 16);
   const [ox, oy] = tileOrigin(tile);
   for (let y = 0; y < ATLAS.tilePx; y++) {
     for (let x = 0; x < ATLAS.tilePx; x++) {
       if (pixelHash(x, y, tile * 97 + 13) < 0.22) ctx.clearRect(ox + x, oy + y, 1, 1);
     }
   }
+}
+
+/** Minério (2026-07-20): pedra + pepitas 2×2 da cor do minério + SIGLA no
+ *  centro — textura placeholder assumida ("ferro aqui") até a arte final. */
+function paintMinerio(
+  ctx: CanvasRenderingContext2D,
+  tile: number,
+  cor: Rgb,
+  sigla: string,
+): void {
+  paintNoise(ctx, tile, [136, 136, 136], 12); // mesma pedra do TILE.stone
+  const [ox, oy] = tileOrigin(tile);
+  ctx.fillStyle = `rgb(${cor[0]},${cor[1]},${cor[2]})`;
+  for (let y = 1; y < ATLAS.tilePx - 2; y++) {
+    for (let x = 1; x < ATLAS.tilePx - 2; x++) {
+      if (pixelHash(x, y, tile * 131 + 17) < 0.07) ctx.fillRect(ox + x, oy + y, 2, 2);
+    }
+  }
+  const cx = ox + ATLAS.tilePx / 2;
+  const cy = oy + ATLAS.tilePx / 2;
+  ctx.font = "bold 8px sans-serif";
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  ctx.fillStyle = "rgb(20,20,24)"; // sombra: legível sobre pedra clara
+  ctx.fillText(sigla, cx + 1, cy + 2);
+  ctx.fillStyle = "rgb(244,244,248)";
+  ctx.fillText(sigla, cx, cy + 1);
+}
+
+/** Mandacaru (2026-07-20): verde do cacto com costelas verticais + espinhos. */
+function paintMandacaru(ctx: CanvasRenderingContext2D, tile: number): void {
+  paintNoise(ctx, tile, [66, 138, 74], 10);
+  const [ox, oy] = tileOrigin(tile);
+  ctx.fillStyle = "rgb(48,104,56)"; // costelas
+  for (let x = 2; x < ATLAS.tilePx; x += 4) ctx.fillRect(ox + x, oy, 1, ATLAS.tilePx);
+  ctx.fillStyle = "rgb(230,238,214)"; // espinhos
+  for (let y = 1; y < ATLAS.tilePx; y += 3) {
+    for (let x = 3; x < ATLAS.tilePx; x += 4) {
+      if (pixelHash(x, y, tile * 61 + 19) < 0.5) ctx.fillRect(ox + x, oy + y, 1, 1);
+    }
+  }
+}
+
+/** Topo do mandacaru: miolo claro com borda escura (corte do cacto). */
+function paintMandacaruTopo(ctx: CanvasRenderingContext2D, tile: number): void {
+  paintNoise(ctx, tile, [96, 168, 100], 8);
+  const [ox, oy] = tileOrigin(tile);
+  const px = ATLAS.tilePx;
+  ctx.fillStyle = "rgb(48,104,56)";
+  ctx.fillRect(ox, oy, px, 1);
+  ctx.fillRect(ox, oy + px - 1, px, 1);
+  ctx.fillRect(ox, oy, 1, px);
+  ctx.fillRect(ox + px - 1, oy, 1, px);
 }
 
 /** Flor (2026-07-20): sprite de plantinha em fundo TRANSPARENTE (cutout, como
@@ -381,6 +439,35 @@ export function createAtlasTexture(): THREE.Texture {
   paintFlor(ctx, TILE.florAmarela, [242, 206, 62]);
   paintFlor(ctx, TILE.florAzul, [86, 122, 220]);
   paintFlor(ctx, TILE.florBranca, [238, 240, 246]);
+
+  // minérios (2026-07-20): pepita colorida + sigla placeholder
+  paintMinerio(ctx, TILE.minerioCarvao, [40, 40, 44], "C");
+  paintMinerio(ctx, TILE.minerioFerro, [216, 162, 122], "Fe");
+  paintMinerio(ctx, TILE.minerioOuro, [244, 208, 64], "Au");
+  paintMinerio(ctx, TILE.minerioDiamante, [108, 226, 222], "D");
+
+  // gramas climáticas (2026-07-20): mesmo desenho da grama, paleta por clima
+  paintNoise(ctx, TILE.gramaSecaTop, [178, 162, 66], 14); // amarelada (cerrado)
+  paintNoise(ctx, TILE.gramaSecaSide, [121, 88, 58], 12);
+  paintNoise(ctx, TILE.gramaSecaSide, [178, 162, 66], 14, 0, 4);
+  paintNoise(ctx, TILE.gramaFriaTop, [96, 138, 116], 12); // verde-azulada (frio)
+  paintNoise(ctx, TILE.gramaFriaSide, [121, 88, 58], 12);
+  paintNoise(ctx, TILE.gramaFriaSide, [96, 138, 116], 12, 0, 4);
+
+  // árvores brasileiras (2026-07-20): casca por espécie + copa por espécie
+  paintNoise(ctx, TILE.logIpe, [128, 110, 86], 10); // casca acinzentada
+  paintLogStripes(ctx, TILE.logIpe);
+  paintNoise(ctx, TILE.logAraucaria, [86, 60, 42], 10); // casca escura do Sul
+  paintLogStripes(ctx, TILE.logAraucaria);
+  paintNoise(ctx, TILE.logPauBrasil, [124, 66, 46], 10); // cerne avermelhado
+  paintLogStripes(ctx, TILE.logPauBrasil);
+  paintLeaves(ctx, TILE.folhasIpe, [222, 186, 48]); // ipê-amarelo florido
+  paintLeaves(ctx, TILE.folhasAraucaria, [34, 88, 46]); // verde-escuro
+  paintLeaves(ctx, TILE.folhasPauBrasil, [42, 130, 54]); // verde vivo da mata
+
+  // mandacaru (2026-07-20)
+  paintMandacaru(ctx, TILE.mandacaruSide);
+  paintMandacaruTopo(ctx, TILE.mandacaruTop);
 
   // cp20: blocos-glifo — letras em creme, dígitos em azul-claro (distinção
   // rápida à distância entre "letra" e "número").

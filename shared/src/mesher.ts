@@ -87,6 +87,26 @@ export const TILE = {
   florAmarela: 75,
   florAzul: 76,
   florBranca: 77,
+  // 2026-07-20: minérios (pedra + pepitas + sigla — placeholder do survival)
+  minerioCarvao: 78,
+  minerioFerro: 79,
+  minerioOuro: 80,
+  minerioDiamante: 81,
+  // 2026-07-20: gramas climáticas (topo + lado; bottom reusa dirt)
+  gramaSecaTop: 82,
+  gramaSecaSide: 83,
+  gramaFriaTop: 84,
+  gramaFriaSide: 85,
+  // 2026-07-20: árvores brasileiras — casca (lado; topo reusa logTop) + copa
+  logIpe: 86,
+  folhasIpe: 87,
+  logAraucaria: 88,
+  folhasAraucaria: 89,
+  logPauBrasil: 90,
+  folhasPauBrasil: 91,
+  // 2026-07-20: mandacaru (cacto da caatinga; topo próprio)
+  mandacaruSide: 92,
+  mandacaruTop: 93,
 } as const;
 
 /** cp20: blocos-glifo. Letras A–Z e dígitos 0–9 ocupam tiles consecutivos a
@@ -164,6 +184,20 @@ const BLOCK_TILES: Record<number, FaceTiles> = {
   // móveis (2026-07-19): estas entradas alimentam SÓ o ícone 2D — a forma
   // (e o tile por caixa) vive no emitShape
   [BlockId.Mesa]: uniform(TILE.planks),
+  // 2026-07-20: minérios + gramas climáticas + árvores brasileiras + mandacaru
+  [BlockId.MinerioCarvao]: uniform(TILE.minerioCarvao),
+  [BlockId.MinerioFerro]: uniform(TILE.minerioFerro),
+  [BlockId.MinerioOuro]: uniform(TILE.minerioOuro),
+  [BlockId.MinerioDiamante]: uniform(TILE.minerioDiamante),
+  [BlockId.GramaSeca]: { top: TILE.gramaSecaTop, bottom: TILE.dirt, side: TILE.gramaSecaSide },
+  [BlockId.GramaFria]: { top: TILE.gramaFriaTop, bottom: TILE.dirt, side: TILE.gramaFriaSide },
+  [BlockId.LogIpe]: { top: TILE.logTop, bottom: TILE.logTop, side: TILE.logIpe },
+  [BlockId.FolhasIpe]: uniform(TILE.folhasIpe),
+  [BlockId.LogAraucaria]: { top: TILE.logTop, bottom: TILE.logTop, side: TILE.logAraucaria },
+  [BlockId.FolhasAraucaria]: uniform(TILE.folhasAraucaria),
+  [BlockId.LogPauBrasil]: { top: TILE.logTop, bottom: TILE.logTop, side: TILE.logPauBrasil },
+  [BlockId.FolhasPauBrasil]: uniform(TILE.folhasPauBrasil),
+  [BlockId.Mandacaru]: { top: TILE.mandacaruTop, bottom: TILE.mandacaruTop, side: TILE.mandacaruSide },
 };
 
 // móveis direcionais: mesmo ícone pras 4 direções
