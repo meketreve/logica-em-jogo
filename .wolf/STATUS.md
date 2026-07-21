@@ -2,9 +2,9 @@
 
 > Single source of truth for resuming work. Read this FIRST when starting a session.
 > **SESSÃO 11 (2026-07-21) — STREAMING DE CHUNKS F1-F5 COMPLETO (mundo GIGANTE
-> em runtime). Plano detalhado em `.wolf/streaming-plan.md`. COMMITADO LOCAL,
-> NÃO PUSHADO — escola fica no `89d6710` até playtest+aprovação (obra instável
-> pra quem depende do build estável).** Commits desta obra:
+> em runtime). Plano detalhado em `.wolf/streaming-plan.md`. COMMITADO + PUSHADO
+> (`c9e465e`) — escola faz `git pull`. Usuário vai PLAYTESTAR sozinho na escola
+> (teste solo controlado, não é o piloto com a turma ainda).** Commits desta obra:
 > `e7dc4f7` F1 (mundo esparso + gen por coluna ordem-independente) ·
 > `0da59be` F2 (tamanho E 3840²×128, protocolo LJE0/LJC0/radius, streaming por
 > raio de interesse, configs raioRender+meshPorFrame+LJ_COLUNAS_TICK) ·
