@@ -1,6 +1,6 @@
 # anatomy.md
 
-> Auto-maintained by OpenWolf. Last scanned: 2026-07-21T10:11:31.814Z
+> Auto-maintained by OpenWolf. Last scanned: 2026-07-21T11:15:04.647Z
 > Files: 130 tracked | Anatomy hits: 0 | Misses: 0
 
 ## ../../../tmp/claude-1000/-home-meketreve-logica-em-jogo/1e53a721-e45d-4911-a026-f385f8f2c4e6/scratchpad/
@@ -88,7 +88,7 @@
 
 - `.gitattributes` — LF em tudo (projeto vive no WSL/ext4; evita ruído CRLF de ferramentas Windows) (~31 tok)
 - `.gitignore` — Git ignore rules (~99 tok)
-- `iniciar-servidor.bat` (~1128 tok)
+- `iniciar-servidor.bat` (~1423 tok)
 - `iniciar-servidor.sh` — ============================================================ (~1103 tok)
 - `package.json` — Node.js package manifest (~164 tok)
 - `todo.md` — Ideias para fazer (~1863 tok)

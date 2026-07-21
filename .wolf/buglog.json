@@ -6858,6 +6858,22 @@
       "related_bugs": [],
       "occurrences": 1,
       "last_seen": "2026-07-21T10:07:52.337Z"
+    },
+    {
+      "id": "bug-423",
+      "timestamp": "2026-07-21T11:14:40.466Z",
+      "error_message": "Incorrect value in code",
+      "file": "iniciar-servidor.bat",
+      "root_cause": "Had \" call :carregar_salvo\nif not defined LJ_SAVE set ",
+      "fix": "Changed to \" call :carregar_salvo\nif \"",
+      "tags": [
+        "auto-detected",
+        "wrong-value",
+        "bat"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-21T11:14:40.466Z"
     }
   ]
 }
