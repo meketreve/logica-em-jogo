@@ -1,6 +1,54 @@
 # STATUS — Projeto "Lógica em Jogo" (jogo voxel educacional)
 
 > Single source of truth for resuming work. Read this FIRST when starting a session.
+> **SESSÃO 10 (2026-07-20) — GERAÇÃO PROCEDURAL COM BIOMAS v1 (NÃO commitado):**
+> Arquitetura travada (decisões no cerebrum): biomas via 2 CAMPOS DE CLIMA (value
+> noise temp+umid, x/80) → lookup Whittaker — truth table descartada (N², vira WFC);
+> heightmap GLOBAL único, bioma = pintura+decoração (sem penhasco de fronteira);
+> variante de grama = ID próprio (mesher puro, save carrega aparência) com thresholds
+> INDEPENDENTES dos do bioma → faixas de transição = blend visual nas fronteiras.
+> (A) 13 BLOCOS NOVOS (ids 116-128, append; bug-370 sentinel 116→129): 4 minérios
+> placeholder (Carvão/Ferro/Ouro/Diamante — pedra+pepitas+SIGLA, porta de entrada do
+> survival, sem drop/craft), GramaSeca+GramaFria, árvores BRASILEIRAS (LogIpe/
+> FolhasIpe AMARELAS, LogAraucaria/FolhasAraucaria, LogPauBrasil/FolhasPauBrasil),
+> Mandacaru (cubo cheio v1). Folhas novas em isTransparentBlock (cutout); tudo na
+> hotbar (blocksUi); 14 tiles novos no atlas (TILE 78-93).
+> (B) `biomas.ts` NOVO: registro caatinga/cerrado/mata/araucárias (geografia BR na
+> pedagogia) — topo/subsolo/árvores/flores/mandacaru por bioma; biomaPorClima +
+> gramaPorClima. Bioma novo = registrar objeto. (C) `arvores.ts` NOVO: formas
+> (ipê=copa larga amarela, araucária=tronco alto nu+copa disco, pau-brasil, comum,
+> mandacaru 2-3); espécie SÓ nasce no bioma dono. (D) worldgen v2: climaAt, coluna
+> bedrock→pedra→subsolo(3)→topo (praia SAND_HEIGHT=18 e neve SNOW_HEIGHT=28 globais
+> por altura), veias de minério (mulberry32 seedado, banda de profundidade: carvão
+> <40, ferro <24, ouro <16, diamante <8, só substitui Stone), features por hash de
+> coluna. Presets plano/cabines e saves antigos INTOCADOS. (E) seed do host Node
+> vira ALEATÓRIA sem LJ_SEED (singleplayer já era); save guarda a seed no header.
+> 257 testes (+7: determinismo, Whittaker, blend, bandas de minério, árvore-só-no-
+> bioma-dono, mandacaru-só-caatinga, grama=clima), typecheck 3/3, build ok. 4
+> screenshots headless conferem os 4 biomas + blend caatinga↔cerrado (receita de
+> captura no cerebrum Key Learnings 2026-07-20 — fuser -k, nunca kill $!).
+> **PLAYTEST DO USUÁRIO ✅ ("ficou massa") + REFINOS aplicados:** neve agora exige
+> altura E frio (temp<0.6 — caatinga sem neve, pedido do playtest); copa do ipê
+> desceu 1 nível (copa DEVE englobar ≥1 bloco de tronco — contrato testado nas 4
+> espécies em `arvores.test.ts` NOVO). todo.md: +abas/categorias no inventário
+> (mobília/blocos/vegetação/minérios — grade única ficou longa). 261 testes.
+> Minérios e inventário NÃO playtestados ainda. Server de teste no ar (porta 8080,
+> código BIOMAS, mundo `mundos/teste-biomas/` — descartável).
+> **MINÉRIOS + INVENTÁRIO PLAYTESTADOS ✅. MONTANHAS (pedido do usuário):** altura
+> 128 em P/M/G (P {8,8,8} 2MB, M {12,12,8} 4,5MB; DEFAULT/plano/aula fica 64 — save
+> menor, sem céu à toa). `heightAt` ganhou SERRAS: máscara smoothstep (x/90) × pico
+> (x/28) levanta até ~120, **gated por `sizeY>=128`** (param novo — mundo baixo
+> manteria mesa clampada E quebraria 15 testes de session/claims que assumem o
+> relevo antigo; quem compara heightAt com mundo gerado passa world.sizeY).
+> SNOW_HEIGHT 28→58 (neve = coisa de serra, só frio), ROCHA_HEIGHT=85 (serra quente
+> expõe pedra — chapada), carvão teto 72 / ferro 40 (montanha minerável). Minério
+> aparece exposto em encosta íngreme de graça (encosta corta abaixo do subsolo).
+> 262 testes, typecheck 3/3, screenshot serra seed 13 confere (paredão + araucárias).
+> Server de teste reiniciado (8080, código BIOMAS, mundo novo 128).
+> **PRÓXIMA: (a) commitar (pedir ordem), (b) playtest das montanhas (subir serra,
+> neve no topo frio, chapada quente, minério na encosta), (c) candidatos v2:
+> cavernas, altura por bioma, forma custom do mandacaru, madeira por espécie,
+> abas no inventário (todo.md).**
 > **SESSÃO 9 (2026-07-20) — CLAIM = COLUNA + VERSÃO DO package.json (commit único desta sessão):**
 > (A) CLAIM VIRA COLUNA DE ALTURA TOTAL — pedido do usuário: claim protege da camada 0
 > (bedrock) ao teto do mundo, não só a caixa marcada — mata ilha flutuante por cima e

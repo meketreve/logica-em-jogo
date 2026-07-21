@@ -1871,3 +1871,61 @@ Files: blocks.ts, mesher.ts, session.ts, blocks.test.ts, cp23.test.ts. Commitar+
 | 20:30 | Edited tsconfig.base.json | 1→2 lines | ~19 |
 | 20:30 | Created shared/src/version.ts | — | ~135 |
 | 20:32 | versão sai do package.json (import JSON tree-shaken) + resolveJsonModule; bump via npm version; 0.6.0->0.7.0 | shared/src/version.ts, package.json, tsconfig.base.json | typecheck 3/3, 250 testes, build+boot ok (server loga v0.7.0) | ~3k |
+| 20:34 | Session end: 17 writes across 7 files (todo.md, claims.ts, session.ts, claims.test.ts, package.json) | 5 reads | ~40347 tok |
+| 20:34 | Session end: 17 writes across 7 files (todo.md, claims.ts, session.ts, claims.test.ts, package.json) | 5 reads | ~40347 tok |
+
+## Session: 2026-07-20 20:34
+
+| Time | Action | File(s) | Outcome | ~Tokens |
+|------|--------|---------|---------|--------|
+| 23:59 | Plano v1 terreno procedural: clima 2-noise (não truth table), bioma=pintura sobre heightmap global, 11 blocos novos (4 minérios placeholder, 2 gramas climáticas, bétula/pinheiro, cacto), seed por mundo | .wolf/cerebrum.md | plano entregue, decisões no cerebrum, implementação aguarda ordem | ~9k |
+| 21:13 | Edited shared/src/blocks.ts | modified rios() | ~333 |
+| 21:13 | Edited shared/src/blocks.ts | inline fix | ~12 |
+| 21:13 | Edited shared/src/blocks.ts | modified isTransparentBlock() | ~66 |
+| 21:13 | Edited shared/src/mesher.ts | expanded (+20 lines) | ~198 |
+| 21:13 | Edited shared/src/mesher.ts | modified veis() | ~342 |
+| 21:13 | Edited shared/src/blocks.test.ts | expanded (+7 lines) | ~158 |
+| 21:13 | Edited client/src/blocksUi.ts | modified Flores() | ~340 |
+| 21:13 | Edited client/src/atlasTexture.ts | added 2 condition(s) | ~732 |
+| 21:14 | Edited client/src/atlasTexture.ts | modified flores() | ~524 |
+| 21:14 | Created shared/src/biomas.ts | — | ~886 |
+| 21:15 | Created shared/src/arvores.ts | — | ~1299 |
+| 21:16 | Edited shared/src/worldgen.ts | added 2 import(s) | ~96 |
+| 21:16 | Edited shared/src/worldgen.ts | added 9 condition(s) | ~1584 |
+| 21:16 | Edited shared/src/index.ts | 2→4 lines | ~30 |
+| 21:16 | Edited server/src/index.ts | expanded (+7 lines) | ~131 |
+| 21:17 | Edited shared/src/worldgen.test.ts | 11→15 lines | ~118 |
+| 21:17 | Edited shared/src/worldgen.test.ts | added 2 condition(s) | ~1318 |
+| 21:18 | Edited shared/src/world.test.ts | modified 20() | ~241 |
+| 21:18 | Edited shared/src/worldgen.test.ts | modified for() | ~62 |
+| 21:20 | Created ../.claude/jobs/a35a297d/tmp/acha-seeds.mts | — | ~462 |
+| 21:30 | GEN PROCEDURAL v1 COMPLETO: 13 blocos novos (116-128: 4 minérios placeholder, 2 gramas climáticas, ipê/araucária/pau-brasil, mandacaru), biomas.ts (caatinga/cerrado/mata/araucárias via clima 2-noise), arvores.ts (formas), worldgen v2 (subsolo+minérios em veia+features por bioma), seed aleatória no host Node | shared/{blocks,mesher,biomas,arvores,worldgen,index}.ts, client/{atlasTexture,blocksUi}.ts, server/index.ts, testes | 257 testes, typecheck 3/3, build ok, 4 screenshots headless dos biomas conferem (blend caatinga-cerrado visível). NÃO commitado | ~60k |
+| 21:29 | Session end: 20 writes across 12 files (blocks.ts, mesher.ts, blocks.test.ts, blocksUi.ts, atlasTexture.ts) | 17 reads | ~84180 tok |
+| 21:37 | Session end: 20 writes across 12 files (blocks.ts, mesher.ts, blocks.test.ts, blocksUi.ts, atlasTexture.ts) | 18 reads | ~84180 tok |
+| 21:42 | Edited shared/src/worldgen.ts | modified gramaPorClima() | ~101 |
+| 21:42 | Edited shared/src/arvores.ts | 10→12 lines | ~177 |
+| 21:43 | Created shared/src/arvores.test.ts | — | ~661 |
+| 21:43 | Edited shared/src/worldgen.test.ts | expanded (+9 lines) | ~101 |
+| 21:45 | Refinos do playtest: neve exige frio (temp<0.6, caatinga sem neve), copa do ipê desce 1 (engloba topo do tronco), todo.md ganha abas de inventário; arvores.test.ts novo (4 espécies, copa envolve tronco) | worldgen.ts, arvores.ts, worldgen.test.ts, arvores.test.ts, todo.md | 261 testes, typecheck 3/3; server de teste reiniciado com mundo novo | ~8k |
+| 21:44 | Session end: 24 writes across 13 files (blocks.ts, mesher.ts, blocks.test.ts, blocksUi.ts, atlasTexture.ts) | 18 reads | ~85220 tok |
+| 21:51 | Edited shared/src/worldgen.ts | modified tamanhos() | ~122 |
+| 21:52 | Edited shared/src/worldgen.ts | modified heightAt() | ~255 |
+| 21:52 | Edited shared/src/worldgen.ts | modified colinas() | ~82 |
+| 21:52 | Edited shared/src/worldgen.ts | modified gramaPorClima() | ~130 |
+| 21:52 | Edited shared/src/worldgen.ts | modified 40() | ~89 |
+| 21:52 | Edited shared/src/worldgen.test.ts | 3→5 lines | ~84 |
+| 21:52 | Edited shared/src/worldgen.test.ts | 9→9 lines | ~87 |
+| 21:52 | Edited shared/src/worldgen.test.ts | added 1 condition(s) | ~139 |
+| 21:53 | Edited shared/src/worldgen.ts | added 1 condition(s) | ~278 |
+| 21:54 | Edited shared/src/worldgen.ts | modified for() | ~60 |
+| 21:54 | Edited shared/src/worldgen.ts | modified for() | ~82 |
+| 21:54 | Edited shared/src/world.test.ts | inline fix | ~19 |
+| 22:00 | ALTURA 128 em P/M/G + SERRAS no heightAt (máscara smoothstep x/90, picos ~120, só em mundo sizeY>=128 — mundo 64 de aula/teste mantém colinas, 15 testes de session/claims intactos); SNOW_HEIGHT 28→58, ROCHA_HEIGHT=85 (chapada), carvão teto 72 / ferro 40 (minerar montanha); minério fica exposto em encosta íngreme de graça | worldgen.ts, worldgen.test.ts, world.test.ts | 262 testes, typecheck 3/3, screenshot da serra seed 13 confere; server teste reiniciado | ~15k |
+| 21:57 | Session end: 36 writes across 13 files (blocks.ts, mesher.ts, blocks.test.ts, blocksUi.ts, atlasTexture.ts) | 19 reads | ~86647 tok |
+| 22:00 | Edited client/src/main.ts | expanded (+7 lines) | ~62 |
+| 22:00 | Edited client/src/main.ts | 3→4 lines | ~48 |
+| 22:00 | Edited client/src/main.ts | 2→3 lines | ~54 |
+| 22:01 | Edited client/src/main.ts | modified atual() | ~408 |
+| 22:10 | F3 ganha linhas de clima pra afinar o gen: bioma/temp/umid/seed + h do terreno + topo previsto + thresholds (praia/neve/chapada); worldSeed vira let (troca de aula atualiza) | client/src/main.ts (hud.extra) | typecheck 3/3, build, server 8080 reiniciado servindo dist novo | ~4k |
+| 22:02 | Session end: 40 writes across 14 files (blocks.ts, mesher.ts, blocks.test.ts, blocksUi.ts, atlasTexture.ts) | 20 reads | ~88390 tok |
+| 22:27 | Session end: 40 writes across 14 files (blocks.ts, mesher.ts, blocks.test.ts, blocksUi.ts, atlasTexture.ts) | 20 reads | ~88390 tok |

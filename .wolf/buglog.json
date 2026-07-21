@@ -6009,7 +6009,7 @@
       "error_message": "blocks.test.ts:39 expected isPlaceable(108) toBe false, got true",
       "file": "shared/src/blocks.test.ts",
       "root_cause": "Teste usava 108 como sentinel 'byte acima do MAX_BLOCK_ID'. A sessao 7 adicionou as portas R em 108-111 e subiu MAX_BLOCK_ID pra 111, entao 108 virou PortaXFechadaR (colocavel).",
-      "fix": "Sentinel movido pra 112, depois 116 (janela R subiu MAX de novo) + asserts das portas/janelas R. Ao subir MAX_BLOCK_ID, o sentinel 'byte acima do MAX' do blocks.test SEMPRE precisa subir junto.",
+      "fix": "Sentinel movido pra 112, depois 116 (janela R subiu MAX de novo) + asserts das portas/janelas R. Ao subir MAX_BLOCK_ID, o sentinel 'byte acima do MAX' do blocks.test SEMPRE precisa subir junto. | 2026-07-20: recorreu ao subir MAX 116->129 (13 blocos: minerios+gramas climaticas+arvores brasileiras+mandacaru); sentinel isPlaceable(129)=false atualizado no mesmo commit.",
       "tags": [
         "blocos",
         "sentinel",
@@ -6021,8 +6021,8 @@
         "append-id"
       ],
       "related_bugs": [],
-      "occurrences": 2,
-      "last_seen": "2026-07-20T19:40:00.000Z"
+      "occurrences": 3,
+      "last_seen": "2026-07-20"
     },
     {
       "id": "bug-371",
@@ -6202,6 +6202,214 @@
       "related_bugs": [],
       "occurrences": 1,
       "last_seen": "2026-07-20T23:22:55.036Z"
+    },
+    {
+      "id": "bug-382",
+      "timestamp": "2026-07-21T00:13:07.115Z",
+      "error_message": "Wrong reference: JanelaZAbertaR should be Mandacaru",
+      "file": "shared/src/blocks.ts",
+      "root_cause": "Used \"JanelaZAbertaR\" instead of \"Mandacaru\"",
+      "fix": "Changed JanelaZAbertaR → Mandacaru",
+      "tags": [
+        "auto-detected",
+        "wrong-reference",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-21T00:13:07.115Z"
+    },
+    {
+      "id": "bug-383",
+      "timestamp": "2026-07-21T00:13:09.071Z",
+      "error_message": "Wrong return value",
+      "file": "shared/src/blocks.ts",
+      "root_cause": "Was returning: id === BlockId.Glass || id === BlockId.Leaves;",
+      "fix": "Now returns: (",
+      "tags": [
+        "auto-detected",
+        "return-value",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-21T00:13:09.071Z"
+    },
+    {
+      "id": "bug-384",
+      "timestamp": "2026-07-21T00:13:55.889Z",
+      "error_message": "Significant refactor of ",
+      "file": "client/src/atlasTexture.ts",
+      "root_cause": "3 lines replaced/restructured",
+      "fix": "Rewrote 10→68 lines (3 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-21T00:13:55.889Z"
+    },
+    {
+      "id": "bug-385",
+      "timestamp": "2026-07-21T00:16:29.227Z",
+      "error_message": "Significant refactor of ",
+      "file": "shared/src/worldgen.ts",
+      "root_cause": "2 lines replaced/restructured",
+      "fix": "Rewrote 16→134 lines (2 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-21T00:16:29.227Z"
+    },
+    {
+      "id": "bug-386",
+      "timestamp": "2026-07-21T00:16:46.798Z",
+      "error_message": "Type error",
+      "file": "server/src/index.ts",
+      "root_cause": "Missing or incorrect type annotation",
+      "fix": "Added type assertion/annotation",
+      "tags": [
+        "auto-detected",
+        "type-fix",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-21T00:16:46.798Z"
+    },
+    {
+      "id": "bug-387",
+      "timestamp": "2026-07-21T00:17:32.243Z",
+      "error_message": "Missing guard clause",
+      "file": "shared/src/worldgen.test.ts",
+      "root_cause": "No early return/throw for edge case: getBlock(world, x, y, z",
+      "fix": "Added guard clause: if (getBlock(world, x, y, z)",
+      "tags": [
+        "auto-detected",
+        "guard-clause",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-21T00:17:32.243Z"
+    },
+    {
+      "id": "bug-388",
+      "timestamp": "2026-07-21T00:18:07.224Z",
+      "error_message": "Significant refactor of ",
+      "file": "shared/src/world.test.ts",
+      "root_cause": "4 lines replaced/restructured",
+      "fix": "Rewrote 13→20 lines (4 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-21T00:18:07.224Z"
+    },
+    {
+      "id": "bug-389",
+      "timestamp": "2026-07-21T00:42:28.634Z",
+      "error_message": "Significant refactor of ",
+      "file": "shared/src/worldgen.ts",
+      "root_cause": "2 lines replaced/restructured",
+      "fix": "Rewrote 6→7 lines (2 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-21T00:42:28.634Z"
+    },
+    {
+      "id": "bug-390",
+      "timestamp": "2026-07-21T00:42:33.490Z",
+      "error_message": "Significant refactor of ",
+      "file": "shared/src/arvores.ts",
+      "root_cause": "3 lines replaced/restructured",
+      "fix": "Rewrote 10→12 lines (3 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-21T00:42:33.490Z"
+    },
+    {
+      "id": "bug-391",
+      "timestamp": "2026-07-21T00:51:57.988Z",
+      "error_message": "Significant refactor of ",
+      "file": "shared/src/worldgen.ts",
+      "root_cause": "2 lines replaced/restructured",
+      "fix": "Rewrote 5→8 lines (2 removed) | Also: /** Altura do terreno (y do bloco de topo) na colu; return Math.floor(16 + n1 * 12 + n2 * 4);",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 2,
+      "last_seen": "2026-07-21T00:52:04.079Z"
+    },
+    {
+      "id": "bug-392",
+      "timestamp": "2026-07-21T00:52:06.949Z",
+      "error_message": "Type error",
+      "file": "shared/src/worldgen.ts",
+      "root_cause": "Missing or incorrect type annotation",
+      "fix": "Added type assertion/annotation",
+      "tags": [
+        "auto-detected",
+        "type-fix",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-21T00:52:06.949Z"
+    },
+    {
+      "id": "bug-393",
+      "timestamp": "2026-07-21T00:52:32.589Z",
+      "error_message": "Type error",
+      "file": "shared/src/worldgen.test.ts",
+      "root_cause": "Missing or incorrect type annotation",
+      "fix": "Added type assertion/annotation",
+      "tags": [
+        "auto-detected",
+        "type-fix",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-21T00:52:32.589Z"
+    },
+    {
+      "id": "bug-394",
+      "timestamp": "2026-07-21T00:53:58.533Z",
+      "error_message": "Missing guard clause",
+      "file": "shared/src/worldgen.ts",
+      "root_cause": "No early return/throw for edge case: sizeY < 128",
+      "fix": "Added guard clause: if (sizeY < 128)",
+      "tags": [
+        "auto-detected",
+        "guard-clause",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-21T00:53:58.533Z"
     }
   ]
 }

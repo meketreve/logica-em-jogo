@@ -1135,3 +1135,30 @@ regra automática (areia caindo não é grief). NÚMEROS a confirmar: MAX_CLAIM_
   teto de tamanho, ex. `MAX_PROFILE_REPORT_CHARS`) em vez de tipado campo a
   campo — mesmo espírito do meta JSON de save/quadros: cresce sem re-versionar
   o protocolo toda vez que hud.ts ganha uma métrica nova.
+
+### 2026-07-20 — Terreno procedural v1 (plano aprovado em discussão, pré-implementação)
+- **Biomas via campos de clima, NÃO truth table**: 2 value-noise de baixa freq (temp+umid, x/80) → lookup Whittaker. Coerência de vizinhança emerge da continuidade do noise (deserto nunca encosta em neve). Truth table foi considerada pelo usuário e descartada: N² entradas + vira WFC + pouca diversidade.
+- **Heightmap global único; bioma = pintura + decoração** (v1). Sem penhasco de fronteira por construção. Blend de altura por parâmetro fica pra v2.
+- **Variante de grama = ID de bloco próprio** (GramaSeca/GramaFria), não tint: mesher é puro (bytes→geometria, sem seed), save carrega aparência. Thresholds da grama independentes dos do bioma → faixas de transição = blend visual (pedido do usuário).
+- **Minérios = cubos placeholder** (textura pedra+pontos+sigla), sem drop/craft — porta de entrada do survival sem mecânica nova.
+- **Árvores por espécie restritas ao bioma dono** (registro em biomas.ts): carvalho=planície/floresta, bétula=floresta, pinheiro=tundra, cacto=deserto.
+- **Cacto = cubo cheio v1** (forma custom adiada).
+- **Seed por mundo novo vira aleatória** (header LJW0 já grava seed; hoje WORLD_SEED fixo 20260710 = todo mundo normal idêntico).
+
+### 2026-07-20 — Key Learnings (sessão gen procedural)
+- **LJ_SAVE SEMPRE mapeia pra `mundos/<nome>/` do repo** (layout sessão 6c): path absoluto externo em LJ_SAVE é renomeado pra dentro de PASTA_MUNDOS pelo paths.ts. Server de teste/screenshot POLUI `mundos/` — apagar a pasta do mundo de teste depois. (`flor-world/`, `jstage/`, `stage/` em mundos/ são resíduos de sessões antigas.)
+- **Screenshot headless do jogo**: chrome do puppeteer (`~/.cache/puppeteer/chrome/*/chrome-linux64/chrome`) `--headless --no-sandbox --screenshot=X --window-size=1280,720 --virtual-time-budget=25000` + URL `?server=ws://127.0.0.1:PORT&nome=cam&pin=1234&hora=10&yaw=N` (auto-join sem menu). Server: `LJ_PORT=… LJ_SEED=… LJ_NOVO=1 npx tsx src/index.ts` em bg; esperar ~10s antes do chrome.
+- **Matar o server de teste: `fuser -k PORT/tcp`**, NUNCA `kill $!` (npm/npx deixam filho órfão segurando a porta → screenshots seguintes batem no server errado) e NUNCA `pkill -f "padrão"` de dentro do mesmo Bash (o padrão casa com a cmdline do próprio shell → suicídio, exit 144; truque `[s]rc` não salva se a string aparece noutro trecho do script).
+
+### 2026-07-20 — Do-Not-Repeat
+- NÃO usar `kill $PID_DO_NPM` pra derrubar server de teste (órfão) nem `pkill -f` dentro do próprio script Bash que contém o padrão. Usar `fuser -k porta/tcp`.
+
+### 2026-07-20 — User Preferences (playtest do gen v1)
+- **Neve NÃO combina com bioma quente**: pico da caatinga fica areia; neve exige altura E temp<0.6 (worldgen). Estética > regra puramente de altura.
+- **Copa de árvore deve ENGLOBAR ≥1 bloco de tronco** — copa "flutuando" acima do tronco (ipê v1) ficou estranho. Teste de contrato em arvores.test.ts cobre as 4 espécies.
+- Inventário com 100+ blocos: usuário quer ABAS por categoria (mobília/blocos/vegetação/minérios) — registrado no todo.md, não é próxima fase travada.
+
+### 2026-07-20 — Decision Log (montanhas)
+- **Altura 128 pra TODOS os tamanhos de mundo novo** (P 2MB, M 4,5MB, G 8MB) — pedido do usuário ("montanhas de verdade"). DEFAULT_WORLD_CHUNKS (64) fica: mundo plano/aula/testes não precisa de céu e o save é metade.
+- **Serra do heightAt é GATED por sizeY>=128** (param novo, default 128): em mundo baixo a serra clampada viraria mesa cortada E quebraria 15 testes de session/claims que assumem o relevo antigo no mundo default. heightAt(x,z,seed,sizeY) — quem compara heightAt com mundo gerado DEVE passar world.sizeY.
+- Neve 58+ (só frio temp<0.6), pedra nua 85+ (chapada quente), carvão até 72 / ferro até 40 — montanha minerável.

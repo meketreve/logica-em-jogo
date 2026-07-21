@@ -26,6 +26,13 @@ import {
   isQuadro,
   isSofa,
   type QuadroConteudo,
+  ROCHA_HEIGHT,
+  SAND_HEIGHT,
+  SNOW_HEIGHT,
+  biomaPorClima,
+  climaAt,
+  gramaPorClima,
+  heightAt,
   parseServerMessage,
   raycastBlock,
   setBlock,
@@ -523,6 +530,7 @@ function startGame(snap: Snapshot): void {
   armarGuardaDeAtalhos(() => input.active);
   // `let`: a troca de aula (cp19) substitui o mundo debaixo dos closures abaixo
   let world = snap.world;
+  let worldSeed = snap.seed; // clima/bioma do F3 derivam da seed (funções puras)
   // alphaTest = cutout dos transparentes (vidro/folhas): pixel opaco ou
   // descartado — sem blending, sem sorting, mesmo draw call por chunk (cp18)
   const material = new THREE.MeshLambertMaterial({
@@ -656,6 +664,7 @@ function startGame(snap: Snapshot): void {
    */
   reloadWorld = (novo) => {
     world = novo.world;
+    worldSeed = novo.seed; // F3 mostra clima/bioma — a seed muda com a aula
     chunkRenderer.trocarMundo(world);
     torchGlow.setFromWorld(world);
 
@@ -1096,9 +1105,29 @@ function startGame(snap: Snapshot): void {
   hud.extra = () => {
     const m = input.mouseStats;
     const p = player.pos;
+    // clima/bioma da COLUNA atual (2026-07-20): mesmas funções puras do gen —
+    // vale pro terreno GERADO (preset normal); em mundo plano/aula é só o que
+    // o gen FARIA ali. Serve pra afinar thresholds (neve/chapada/gramas).
+    const bx = Math.floor(p.x);
+    const bz = Math.floor(p.z);
+    const clima = climaAt(bx, bz, worldSeed);
+    const bioma = biomaPorClima(clima);
+    const grama = gramaPorClima(clima);
+    const h = Math.min(heightAt(bx, bz, worldSeed, world.sizeY), world.sizeY - 2);
+    const topo =
+      h <= SAND_HEIGHT ? "areia (praia)"
+      : h >= SNOW_HEIGHT && clima.temp < 0.6 ? "neve"
+      : h >= ROCHA_HEIGHT ? "pedra (chapada)"
+      : bioma.topo !== "grama" ? "areia (caatinga)"
+      : grama === BlockId.GramaSeca ? "grama seca"
+      : grama === BlockId.GramaFria ? "grama fria"
+      : "grama";
     return (
       `pos ${p.x.toFixed(1)} ${p.y.toFixed(1)} ${p.z.toFixed(1)}  ` +
       `bloco ${Math.floor(p.x)} ${Math.floor(p.y)} ${Math.floor(p.z)}\n` +
+      `bioma ${bioma.nome}  temp ${clima.temp.toFixed(2)}  umid ${clima.umid.toFixed(2)}  seed ${worldSeed}\n` +
+      `terreno h ${h}  topo ${topo}  ` +
+      `[praia ≤${SAND_HEIGHT} · neve ≥${SNOW_HEIGHT} se temp<0.60 · chapada ≥${ROCHA_HEIGHT}]\n` +
       `mouse Δmáx ${m.maxDelta}px  descartados ${m.dropped} (último ${m.lastDropped}px)`
     );
   };
