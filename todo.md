@@ -88,3 +88,12 @@ mundo mora em `mundos/<nome>/` com `<nome>.ljw` + `chat.log` (paths.ts: `pastaDo
 Singleplayer (IndexedDB, export .ljw único via worldStore.ts) NÃO mudou — o navegador
 não tem filesystem; export de "pasta" no single fica de fora (não faz sentido lá).
 
+
+## Inventário
+
+* \[ ] abas/categorias no painel de inventário (mobília, blocos, vegetação, minérios, …)
+  — pedido do playtest 2026-07-20: com 100+ blocos a grade única ficou longa demais.
+* \[x] geração de terreno procedural — **FEITO v1** (2026-07-20): biomas brasileiros
+  (caatinga/cerrado/mata/araucárias) por campos de clima, minérios em veia, árvores
+  por bioma (ipê/araucária/pau-brasil), gramas climáticas com blend. Candidatos v2:
+  altura por bioma, cavernas, forma custom do mandacaru, madeira por espécie.

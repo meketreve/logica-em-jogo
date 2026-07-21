@@ -55,17 +55,24 @@ describe("worldgen (determinístico — contrato de snapshot/save)", () => {
     expect(differs).toBe(true);
   });
 
-  it("coluna: sólido até a altura, topo grama/areia, ar acima", () => {
+  it("coluna: sólido até a altura, topo do bioma, ar/feature acima", () => {
     const w = generateWorld(DIMS, 7);
+    // 2026-07-20 (gen com biomas): h-1 = subsolo do bioma (terra/arenito);
+    // topo = grama (3 climas)/areia/neve; h+1 pode ter FEATURE (árvore/flor/
+    // mandacaru) — só não pode ser bloco de CHÃO.
+    const topos = [
+      BlockId.Grass, BlockId.GramaSeca, BlockId.GramaFria, BlockId.Sand, BlockId.Snow,
+    ];
+    const subsolos = [BlockId.Dirt, BlockId.Sandstone];
     for (const [x, z] of [
       [0, 0],
       [10, 20],
       [w.sizeX - 1, w.sizeZ - 1],
     ] as const) {
-      const h = Math.min(heightAt(x, z, 7), w.sizeY - 2);
-      expect(getBlock(w, x, h - 1, z)).toBe(BlockId.Stone);
-      expect([BlockId.Grass, BlockId.Sand]).toContain(getBlock(w, x, h, z));
-      expect(getBlock(w, x, h + 1, z)).toBe(BlockId.Air);
+      const h = Math.min(heightAt(x, z, 7, w.sizeY), w.sizeY - 2);
+      expect(subsolos).toContain(getBlock(w, x, h - 1, z));
+      expect(topos).toContain(getBlock(w, x, h, z));
+      expect(topos).not.toContain(getBlock(w, x, h + 1, z));
     }
   });
 

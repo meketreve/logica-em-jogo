@@ -56,7 +56,14 @@ const CARREGAR_DE = LEITURA_INICIAL
       ? MODELO
       : undefined;
 const AUTOSAVE_MS = 30_000;
-const WORLD_SEED = 20260710; // usada só na PRIMEIRA vez (sem save no disco)
+// Usada só na PRIMEIRA vez (sem save no disco). Sem LJ_SEED = aleatória —
+// cada mundo novo tem terreno próprio (2026-07-20, gen com biomas); o save
+// grava a seed no header, então recarregar mantém o mundo. LJ_SEED fixa
+// reproduz um terreno específico (testes/depuração).
+const SEED_ENV = Number(process.env["LJ_SEED"]);
+const WORLD_SEED = Number.isFinite(SEED_ENV) && process.env["LJ_SEED"]
+  ? SEED_ENV >>> 0
+  : (Math.random() * 0xffffffff) >>> 0;
 
 // Pedir um mundo que não existe é quase sempre erro de digitação no caminho.
 // Subir um mundo VAZIO em silêncio é o pior desfecho possível: o professor só
