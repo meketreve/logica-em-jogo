@@ -19,6 +19,7 @@
 | Público | 2º ao 9º ano do Ensino Fundamental (turmas homogêneas, incl. AEE) |
 | Nº de alunos | ✏️ PREENCHER (total; por turma na seção 5) |
 | Área / componente | Pensamento computacional / raciocínio lógico (BNCC) |
+| Versão do jogo | **v0.8.0** (2026-07-21) |
 
 ---
 
@@ -64,6 +65,24 @@
 - Modo professor (código próprio): painel de autoria, comandos de chat, anti-griefing
   (claims/confinamento por grupo), trocar de aula sem derrubar a turma.
 - ✏️ PREENCHER: 2–4 **screenshots** do jogo (mundo, atividade, contador, painel).
+
+### 3.1 Recursos de operação em sala e acessibilidade (v0.8.0)
+
+Melhorias da versão 0.8.0 voltadas à **gestão da turma** e à **acessibilidade** — os
+dois pontos que mais pesam numa aplicação real com muitos alunos e dispositivos variados:
+
+- **Moderação da turma:** painel de jogadores do professor (tecla P) lista quem está
+  conectado, com **expulsar** e **banir por apelido** (o banido não reentra; há aba de
+  banidos com **desbanir**). Dá ao professor controle imediato sobre comportamento sem
+  precisar reiniciar o servidor.
+- **Organização do espaço:** o **professor** passa a **reservar terreno** com `/claim`
+  (antes só o aluno) — pode delimitar áreas de trabalho da coluna à base do mundo.
+- **Construção livre ampliada:** novo bloco de **água** com **mecânica de natação**
+  (o jogador entra na água, nada, sobe/desce) — mais possibilidades no mundo procedural.
+- **Acessibilidade em tablet** (a escola usa tablets, incl. AEE): controles de toque
+  ganharam botão de **varinha** (marcar áreas sem teclado), botão de **agachar** e um
+  ajuste de **escala da interface** — botões maiores/menores conforme o tamanho da tela e
+  a coordenação motora do aluno. Reforça o ponto de inclusão da seção 6.2.
 
 ---
 
@@ -166,6 +185,13 @@ simultâneos** (12 clientes), **zero problema de sincronismo**.
 - O host é sempre o mais pesado (roda servidor **e** cliente); com máquina dedicada a
   servidor, todos os clientes ficam acima de 60 FPS.
 
+> **Profiler ampliado (v0.8.0):** os 25 relatórios acima foram coletados como *retrato
+> instantâneo*. Na v0.8.0 o profiler passou a **gravar 10 s** e resumir a **distribuição**
+> do frametime (mediana, p95, p99 e **pior quadro** = maior travada), além de contar
+> *frames* lentos (> 50 ms) e medir **memória, jitter de rede, colunas carregadas/fila de
+> renderização, GPU e bateria** do aparelho. Medições futuras ficam mais fiéis à
+> experiência real (uma travada some numa média, mas aparece no p99/pior-quadro).
+
 ---
 
 ## 8. Discussão e limitações
@@ -195,18 +221,29 @@ simultâneos** (12 clientes), **zero problema de sincronismo**.
   (singleplayer) e em Node (multiplayer).
 - **Mundo por chunks + streaming:** mundo finito gigante (3840²) gerado em runtime por
   raio de interesse; save **esparso** (só chunks editados). Geração procedural com
-  biomas brasileiros (caatinga, cerrado, mata, araucárias) e serras.
+  biomas brasileiros (caatinga, cerrado, mata, araucárias) e serras. Blocos autorais
+  (grama, pedra, lãs, letras/números, móveis, flores, minérios e **água** com natação).
 - **Ferramentas do professor:** autoria de cenários no jogo, grupos, objetivos com
-  correção automática, anti-griefing (claims / confinamento por grupo), trocar de aula
-  ao vivo, log de chat por mundo.
-- **Qualidade:** ~278 testes automatizados, typecheck estrito, build verificado.
+  correção automática, anti-griefing (claims / confinamento por grupo — professor também
+  reserva terreno), **painel de jogadores** (expulsar / banir / desbanir por apelido),
+  trocar de aula ao vivo, log de chat por mundo.
+- **Acessibilidade:** roda em navegador em notebooks e **tablets**; controles de toque com
+  joystick, botões de ação (incl. varinha e agachar) e **escala de UI ajustável**.
+- **Instrumentação:** profiler embutido (HUD) grava 10 s e envia relatório agregado ao
+  servidor — frametime (mediana/p95/p99/pior), memória, jitter de rede, GPU e dispositivo.
+- **Qualidade:** 283 testes automatizados, typecheck estrito, build verificado.
 - ✏️ PREENCHER: diagrama de arquitetura (opcional).
 
 ## Anexo B — Dados de performance (brutos)
 
-- 25 arquivos JSON em `profiles-escola/` (um por sessão de dispositivo).
-- Campos: `fps`, `frametimeAvgMs`, `frametimeP95Ms`, `drawCalls`, `triangles`,
+- 25 arquivos JSON em `profiles-escola/` (um por sessão de dispositivo, coletados na
+  aplicação — formato *retrato instantâneo*).
+- Campos (piloto): `fps`, `frametimeAvgMs`, `frametimeP95Ms`, `drawCalls`, `triangles`,
   `net.{msgsPerSec,bytesPerSec,tickAvgMs,tickMaxMs}`, `meta.worldChunks`, `userAgent`.
+- Campos adicionais no formato v0.8.0 (gravação de 10 s), para próximas medições:
+  `gravacao.frametimeMs.{p50,p95,p99,max}`, `gravacao.framesLentos50ms`,
+  `gravacao.longTasks`, `gravacao.memoriaMB`, `net.jitterMs`, `stream.{colunas,fila}`,
+  `dispositivo.{nucleos,ramGB,gpu,bateria}`, `rede.{tipo,downlinkMbps,rttMs}`.
 - ✏️ Opcional: gerar tabela/gráfico consolidado a partir desses JSON.
 
 ## Anexo C — Roteiros das aulas
