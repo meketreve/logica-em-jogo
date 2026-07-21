@@ -1952,3 +1952,42 @@ Files: blocks.ts, mesher.ts, session.ts, blocks.test.ts, cp23.test.ts. Commitar+
 | 23:07 | Edited shared/src/worldgen.test.ts | 15→16 lines | ~132 |
 | 23:10 | STREAMING F1 COMPLETA: World esparso ((Uint8Array|undefined)[], alocarColuna/colunaGerada), arvores.ts refeito puro (celulasDaArvore/aplicarCelula), worldgen por COLUNA DE CHUNKS (gerarColunaDeChunks: terreno + veias re-derivadas 3×3 + árvores margem 2 + flores/mandacaru) com decisões 100% puras (topoPrevisto/arvoreDaColuna); generateWorld = materializa tudo (compat). TESTE de ordem-independência (embaralhado = mesmos bytes) ✓ | shared/src/{world,arvores,worldgen,mesher}.ts, worldgen.test.ts | 264 testes, typecheck 3/3, build ok. NÃO commitado. F2 (protocolo streaming+cliente+configs) é a próxima | ~35k |
 | 23:08 | Session end: 55 writes across 17 files (blocks.ts, mesher.ts, blocks.test.ts, blocksUi.ts, atlasTexture.ts) | 26 reads | ~109257 tok |
+| 23:16 | Edited shared/src/protocol.ts | added 1 condition(s) | ~146 |
+| 23:16 | Edited shared/src/protocol.ts | modified Streaming() | ~77 |
+| 23:17 | Edited shared/src/protocol.ts | added 9 condition(s) | ~1504 |
+| 23:17 | Edited shared/src/protocol.ts | inline fix | ~27 |
+| 23:19 | Edited shared/src/session.ts | expanded (+8 lines) | ~66 |
+| 23:19 | Edited shared/src/session.ts | expanded (+13 lines) | ~68 |
+| 23:19 | Edited shared/src/session.ts | modified atividade() | ~106 |
+| 23:19 | Edited shared/src/worldgen.ts | modified parseWorldTamanho() | ~331 |
+| 23:19 | Edited shared/src/worldgen.ts | added 1 condition(s) | ~177 |
+| 23:20 | Edited shared/src/session.ts | added 1 condition(s) | ~337 |
+| 23:20 | Edited shared/src/session.ts | modified constructor() | ~316 |
+| 23:20 | Edited shared/src/session.ts | added 1 condition(s) | ~190 |
+| 23:20 | Edited shared/src/session.ts | modified handleDisconnect() | ~81 |
+| 23:21 | Edited shared/src/session.ts | added 1 condition(s) | ~157 |
+| 23:21 | Edited shared/src/session.ts | added 1 condition(s) | ~189 |
+| 23:21 | Edited shared/src/session.ts | added 8 condition(s) | ~914 |
+| 23:22 | Created shared/src/streaming.test.ts | — | ~2041 |
+| 23:24 | Edited client/src/settings.ts | modified Streaming() | ~159 |
+| 23:24 | Edited client/src/settings.ts | 4→6 lines | ~89 |
+| 23:24 | Edited client/src/menu.ts | modified streaming() | ~122 |
+| 23:24 | Edited client/index.html | 2→3 lines | ~51 |
+| 23:24 | Edited client/src/chunks.ts | modified remesh() | ~114 |
+| 23:25 | Edited client/src/chunks.ts | added 4 condition(s) | ~535 |
+| 23:25 | Edited client/src/main.ts | modified Streaming() | ~128 |
+| 23:25 | Edited client/src/main.ts | added 1 condition(s) | ~193 |
+| 23:25 | Edited client/src/main.ts | expanded (+6 lines) | ~149 |
+| 23:25 | Edited client/src/main.ts | added 1 condition(s) | ~117 |
+| 23:25 | Edited client/src/main.ts | 4→6 lines | ~82 |
+| 23:26 | Edited client/src/main.ts | added 4 condition(s) | ~404 |
+| 23:26 | Edited client/src/main.ts | 4→5 lines | ~86 |
+| 23:26 | Edited client/src/main.ts | 7→10 lines | ~126 |
+| 23:26 | Edited client/src/main.ts | 12→12 lines | ~139 |
+| 23:26 | Edited client/src/main.ts | added 1 condition(s) | ~108 |
+| 23:26 | Edited client/src/main.ts | 13→18 lines | ~84 |
+| 23:27 | Edited server/src/index.ts | added 1 condition(s) | ~180 |
+| 23:27 | Edited server/src/index.ts | added 1 condition(s) | ~54 |
+| 23:27 | Edited server/src/worker.ts | added 1 condition(s) | ~108 |
+| 06:45 | Created ../.claude/jobs/a35a297d/tmp/move-smoke.mjs | — | ~493 |
+| 00:15 | STREAMING F2 COMPLETA fim-a-fim: protocolo LJE0 (header lazy, dims u16) + LJC0 (lote de colunas) + msg radius; session com motor de interesse por anéis (streamColunas, esquece além raio+2 e re-envia), materialização em applyBlockQuieto; cliente com roteamento por magic, fila de mesh (N/frame), descarte espelhado, física congelada sem chão; configs raioRender+meshPorFrame (menu sliders) e LJ_COLUNAS_TICK (host); tamanho E 3840×3840×128 no menu/env; save bloqueado em E (F3) | protocol.ts, session.ts, worldgen.ts, chunks.ts, main.ts, settings.ts, menu.ts, index.html, server/{index,worker}.ts, streaming.test.ts | 271 testes, typecheck 3/3, build; smoke real: 81 colunas join (9×9 raio 4), +81 longe, +81 re-envio; screenshot mundo E renderizado ✓ | ~55k |

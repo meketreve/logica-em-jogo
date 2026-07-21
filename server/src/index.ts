@@ -192,14 +192,25 @@ let session = new GameSession(
       process.env["LJ_PLANO"] === "1"
         ? "plano"
         : parseWorldPreset(process.env["LJ_PRESET"]),
-    // tamanho do mundo NOVO (2026-07-19): LJ_TAMANHO=P|M|G (restaurado ignora)
+    // tamanho do mundo NOVO (2026-07-19): LJ_TAMANHO=P|M|G|E (restaurado ignora)
     dims: TAMANHO_CHUNKS[parseWorldTamanho(process.env["LJ_TAMANHO"])],
+    // streaming (F2): colunas por tick por jogador — config de desempenho
+    ...(Number.isFinite(Number(process.env["LJ_COLUNAS_TICK"])) && process.env["LJ_COLUNAS_TICK"]
+      ? { colunasPorTick: Number(process.env["LJ_COLUNAS_TICK"]) }
+      : {}),
   },
 );
+if (session.isLazy) {
+  console.log(
+    `[server] mundo ENORME (streaming): colunas geradas conforme os jogadores ` +
+      `exploram. SAVE ainda não suportado neste tamanho (fase F3) — nada será gravado.`,
+  );
+}
 
 // --- Persistência: escrita atômica (tmp + rename) pra nunca truncar o save ---
 function saveNow(reason: string): void {
   if (somenteLeitura) return; // mundo de aula: reutilizável, nunca persiste
+  if (session.isLazy) return; // mundo ENORME: save esparso é a fase F3
   const buf = Buffer.from(encodeSave(session.world, session.toSave()));
   const tmp = `${savePath}.tmp`;
   mkdirSync(dirname(savePath), { recursive: true }); // pasta do save pode não existir ainda

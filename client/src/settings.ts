@@ -18,6 +18,11 @@ export interface GameSettings {
   pixelRatioCap: number;
   /** Volume 0..1 dos sons de interface (menus, botões, notificações). */
   volume: number;
+  /** Streaming (mundo ENORME): raio de render em COLUNAS de chunks — quanto
+   *  do mundo fica carregado em volta do jogador. Config de desempenho. */
+  raioRender: number;
+  /** Streaming: chunks re-meshados por FRAME (fila) — PC fraco usa menos. */
+  meshPorFrame: number;
   keys: Record<KeyAction, string>;
 }
 
@@ -26,6 +31,8 @@ export const DEFAULT_SETTINGS: GameSettings = {
   fov: 75,
   pixelRatioCap: 2,
   volume: 0.8,
+  raioRender: 6,
+  meshPorFrame: 8,
   keys: {
     forward: "KeyW",
     back: "KeyS",
@@ -84,6 +91,8 @@ export function loadSettings(): GameSettings {
     fov: num(s["fov"], DEFAULT_SETTINGS.fov, 60, 100),
     pixelRatioCap: num(s["pixelRatioCap"], DEFAULT_SETTINGS.pixelRatioCap, 1, 2),
     volume: num(s["volume"], DEFAULT_SETTINGS.volume, 0, 1),
+    raioRender: num(s["raioRender"], DEFAULT_SETTINGS.raioRender, 2, 12),
+    meshPorFrame: num(s["meshPorFrame"], DEFAULT_SETTINGS.meshPorFrame, 2, 32),
     keys,
   };
 }

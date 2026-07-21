@@ -8,6 +8,10 @@ import { CHUNK_SIZE, type World, chunkIndex, meshChunk } from "@logica/shared";
  */
 export class ChunkRenderer {
   private meshes = new Map<number, THREE.Mesh>();
+  /** Fila de remesh (streaming F2): chunks entram quando a coluna chega e
+   *  saem N por frame (processarFila) — o custo de mesh não estoura o frame. */
+  private fila: { cx: number; cy: number; cz: number }[] = [];
+  private filaSet = new Set<number>();
   remeshCount = 0;
   remeshMsTotal = 0;
   lastRemeshMs = 0;
@@ -89,6 +93,53 @@ export class ChunkRenderer {
     for (let cy = cy0; cy <= cy1; cy++)
       for (let cz = cz0; cz <= cz1; cz++)
         for (let cx = cx0; cx <= cx1; cx++) this.remesh(cx, cy, cz);
+  }
+
+  /** Enfileira os chunks da coluna (cx,cz) recém-chegada + os vizinhos JÁ
+   *  carregados (a face culled na borda deles depende da coluna nova). */
+  enfileirarColuna(cx: number, cz: number): void {
+    const poe = (qx: number, qy: number, qz: number): void => {
+      const key = chunkIndex(this.world, qx, qy, qz);
+      if (this.filaSet.has(key)) return;
+      this.filaSet.add(key);
+      this.fila.push({ cx: qx, cy: qy, cz: qz });
+    };
+    for (let cy = 0; cy < this.world.dims.y; cy++) poe(cx, cy, cz);
+    for (const [dx, dz] of [[1, 0], [-1, 0], [0, 1], [0, -1]] as const) {
+      const nx = cx + dx;
+      const nz = cz + dz;
+      if (nx < 0 || nz < 0 || nx >= this.world.dims.x || nz >= this.world.dims.z) continue;
+      // vizinho ausente não tem nada pra re-culled — pula
+      if (!this.world.chunks[chunkIndex(this.world, nx, 0, nz)]) continue;
+      for (let cy = 0; cy < this.world.dims.y; cy++) poe(nx, cy, nz);
+    }
+  }
+
+  /** Processa até `budget` chunks da fila (1×/frame no loop de render). */
+  processarFila(budget: number): void {
+    for (let i = 0; i < budget && this.fila.length > 0; i++) {
+      const c = this.fila.shift()!;
+      this.filaSet.delete(chunkIndex(this.world, c.cx, c.cy, c.cz));
+      this.remesh(c.cx, c.cy, c.cz);
+    }
+  }
+
+  get filaPendente(): number {
+    return this.fila.length;
+  }
+
+  /** Descarta a geometria da coluna (streaming: saiu do raio de render).
+   *  Os BYTES do mundo são descartados pelo chamador (main). */
+  descartarColuna(cx: number, cz: number): void {
+    for (let cy = 0; cy < this.world.dims.y; cy++) {
+      const key = chunkIndex(this.world, cx, cy, cz);
+      const mesh = this.meshes.get(key);
+      if (mesh) {
+        this.scene.remove(mesh);
+        mesh.geometry.dispose();
+        this.meshes.delete(key);
+      }
+    }
   }
 
   remeshBlock(x: number, y: number, z: number): void {

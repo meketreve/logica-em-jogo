@@ -5,7 +5,7 @@ import { CHUNK_VOLUME, MAX_WORLD_CHUNKS } from "./constants";
 import { type GroupDef, parseGroups } from "./groups";
 import { type NamedRegion, parseNamedRegion } from "./regions";
 import { type ObjectiveState, type ScenarioModo, parseObjectiveState } from "./scenario";
-import { type World, createWorld } from "./world";
+import { type World, type WorldDims, alocarColuna, chunkIndex, createWorld } from "./world";
 
 /**
  * Protocolo v0 (checkpoint 2). Mensagens JSON dos dois lados + world_snapshot
@@ -66,7 +66,10 @@ export type ClientMessage =
        */
       type: "profile_report";
       stats: Record<string, unknown>;
-    };
+    }
+  /** Streaming (F2): raio de interesse do cliente em COLUNAS de chunks —
+   *  config de desempenho do menu. Servidor clampa em [RAIO_MIN, RAIO_MAX]. */
+  | { type: "radius"; chunks: number };
 
 /** Teto do texto bruto de um profile_report (chars) — payload é só números e
  *  strings curtas (sem imagem); acima disso é lixo/abuso, não perfilação real. */
@@ -363,6 +366,10 @@ export function parseClientMessage(raw: string): ClientMessage | null {
       if (typeof stats !== "object" || stats === null || Array.isArray(stats)) return null;
       return { type: "profile_report", stats: stats as Record<string, unknown> };
     }
+    case "radius": {
+      if (typeof m["chunks"] !== "number" || !Number.isInteger(m["chunks"])) return null;
+      return { type: "radius", chunks: m["chunks"] };
+    }
     default:
       return null;
   }
@@ -606,4 +613,138 @@ export function decodeSnapshot(buf: ArrayBuffer): Snapshot {
     );
   }
   return { world, seed };
+}
+
+// --- Mundo LAZY / streaming de colunas (F2, 2026-07-20) ---
+// Mundo gigante NÃO viaja inteiro: o join manda só um header "LJE0" (dims em
+// u16 + seed) e as colunas de chunks chegam depois em lotes binários "LJC0"
+// conforme o raio de interesse. O cliente distingue os 3 formatos binários
+// pelo magic (peekMagic).
+
+export const LAZY_MAGIC = 0x30454a4c; // "LJE0" em little-endian
+export const LAZY_HEADER_BYTES = 16;
+
+/** Teto do mundo LAZY (dims em chunks, u16 no header — 240×240 = 3840²
+ *  blocos, ~900× a área do P). Denso continua no teto antigo. */
+export const MAX_LAZY_CHUNKS = { x: 240, z: 240, y: 8 } as const;
+
+/** Raio de interesse (em colunas de chunks) — clamp do servidor. */
+export const RAIO_MIN = 2;
+export const RAIO_MAX = 12;
+export const RAIO_PADRAO = 6;
+/** Histerese de descarte: além de raio+FOLGA_DESCARTE, cliente E servidor
+ *  esquecem a coluna (mesma regra dos dois lados = sem mensagem extra). */
+export const FOLGA_DESCARTE = 2;
+/** Colunas enviadas por tick por jogador (config de desempenho do host). */
+export const COLUNAS_POR_TICK_PADRAO = 8;
+
+/** Magic dos primeiros 4 bytes de um frame binário (roteamento no cliente). */
+export function peekMagic(buf: ArrayBuffer): number {
+  if (buf.byteLength < 4) return 0;
+  return new DataView(buf).getUint32(0, true);
+}
+
+export function encodeLazyInfo(dims: WorldDims, seed: number): ArrayBuffer {
+  const buf = new ArrayBuffer(LAZY_HEADER_BYTES);
+  const view = new DataView(buf);
+  view.setUint32(0, LAZY_MAGIC, true);
+  view.setUint16(4, dims.x, true);
+  view.setUint16(6, dims.z, true);
+  view.setUint16(8, dims.y, true);
+  view.setUint16(10, 0, true);
+  view.setUint32(12, seed >>> 0, true);
+  return buf;
+}
+
+/** Decodifica e VALIDA um header LJE0 — devolve o mundo VAZIO (esparso). */
+export function decodeLazyInfo(buf: ArrayBuffer): Snapshot {
+  if (buf.byteLength !== LAZY_HEADER_BYTES) {
+    throw new Error(`LJE0 com tamanho errado (${buf.byteLength} bytes)`);
+  }
+  const view = new DataView(buf);
+  if (view.getUint32(0, true) !== LAZY_MAGIC) {
+    throw new Error("LJE0 com magic inválido");
+  }
+  const dims = {
+    x: view.getUint16(4, true),
+    z: view.getUint16(6, true),
+    y: view.getUint16(8, true),
+  };
+  if (
+    dims.x < 1 || dims.z < 1 || dims.y < 1 ||
+    dims.x > MAX_LAZY_CHUNKS.x || dims.z > MAX_LAZY_CHUNKS.z || dims.y > MAX_LAZY_CHUNKS.y
+  ) {
+    throw new Error(`LJE0 com dims fora do limite: ${dims.x}×${dims.z}×${dims.y}`);
+  }
+  return { world: createWorld(dims, false), seed: view.getUint32(12, true) };
+}
+
+export const COLUNAS_MAGIC = 0x30434a4c; // "LJC0" em little-endian
+const COLUNAS_HEADER_BYTES = 8;
+
+export interface ColunaRef {
+  readonly cx: number;
+  readonly cz: number;
+}
+
+/** Lote binário de colunas de chunks: header (magic + count) + por coluna
+ *  [cx u16, cz u16, dims.y × CHUNK_VOLUME bytes]. Servidor SEMPRE manda
+ *  coluna materializada (gera antes de enviar). */
+export function encodeColunas(world: World, colunas: readonly ColunaRef[]): ArrayBuffer {
+  const porColuna = 4 + world.dims.y * CHUNK_VOLUME;
+  const buf = new ArrayBuffer(COLUNAS_HEADER_BYTES + colunas.length * porColuna);
+  const view = new DataView(buf);
+  view.setUint32(0, COLUNAS_MAGIC, true);
+  view.setUint16(4, colunas.length, true);
+  view.setUint16(6, 0, true);
+  const body = new Uint8Array(buf);
+  let off = COLUNAS_HEADER_BYTES;
+  for (const { cx, cz } of colunas) {
+    view.setUint16(off, cx, true);
+    view.setUint16(off + 2, cz, true);
+    off += 4;
+    for (let cy = 0; cy < world.dims.y; cy++) {
+      const chunk = world.chunks[chunkIndex(world, cx, cy, cz)];
+      if (chunk) body.set(chunk, off);
+      off += CHUNK_VOLUME;
+    }
+  }
+  return buf;
+}
+
+/** Decodifica e APLICA um lote LJC0 no mundo (aloca as colunas e copia os
+ *  bytes). Devolve as colunas aplicadas (o cliente remesha essas + bordas).
+ *  Lança Error em dados inválidos. */
+export function decodeColunas(buf: ArrayBuffer, world: World): ColunaRef[] {
+  if (buf.byteLength < COLUNAS_HEADER_BYTES) {
+    throw new Error(`LJC0 menor que o header (${buf.byteLength} bytes)`);
+  }
+  const view = new DataView(buf);
+  if (view.getUint32(0, true) !== COLUNAS_MAGIC) {
+    throw new Error("LJC0 com magic inválido");
+  }
+  const n = view.getUint16(4, true);
+  const porColuna = 4 + world.dims.y * CHUNK_VOLUME;
+  if (buf.byteLength !== COLUNAS_HEADER_BYTES + n * porColuna) {
+    throw new Error(`LJC0 com tamanho errado (${buf.byteLength} bytes p/ ${n} colunas)`);
+  }
+  const out: ColunaRef[] = [];
+  let off = COLUNAS_HEADER_BYTES;
+  for (let i = 0; i < n; i++) {
+    const cx = view.getUint16(off, true);
+    const cz = view.getUint16(off + 2, true);
+    off += 4;
+    if (cx >= world.dims.x || cz >= world.dims.z) {
+      throw new Error(`LJC0 com coluna fora do mundo: ${cx},${cz}`);
+    }
+    alocarColuna(world, cx, cz);
+    for (let cy = 0; cy < world.dims.y; cy++) {
+      world.chunks[chunkIndex(world, cx, cy, cz)]?.set(
+        new Uint8Array(buf, off, CHUNK_VOLUME),
+      );
+      off += CHUNK_VOLUME;
+    }
+    out.push({ cx, cz });
+  }
+  return out;
 }

@@ -437,6 +437,18 @@ function renderConfigPanel(
     });
     sharp.appendChild(check);
     body.appendChild(sharp);
+
+    // streaming (mundo ENORME): quanto mundo carrega em volta + custo por frame
+    slider(
+      "raio de render (mundo enorme)", 2, 12, 1, s.raioRender,
+      (v) => (s.raioRender = v),
+      (v) => `${v} chunks`,
+    );
+    slider(
+      "chunks re-meshados por frame", 2, 32, 1, s.meshPorFrame,
+      (v) => (s.meshPorFrame = v),
+      (v) => `${v}`,
+    );
   }
 
   backButton(body, () => renderConfigRoot(body, onChanged, onBack));

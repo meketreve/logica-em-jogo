@@ -1,7 +1,7 @@
 # anatomy.md
 
-> Auto-maintained by OpenWolf. Last scanned: 2026-07-21T02:07:25.859Z
-> Files: 124 tracked | Anatomy hits: 0 | Misses: 0
+> Auto-maintained by OpenWolf. Last scanned: 2026-07-21T09:45:20.510Z
+> Files: 126 tracked | Anatomy hits: 0 | Misses: 0
 
 ## ../../../tmp/claude-1000/-home-meketreve-logica-em-jogo/1e53a721-e45d-4911-a026-f385f8f2c4e6/scratchpad/
 
@@ -74,6 +74,7 @@
 - `chatsmoke.mjs` — Smoke: conecta, join (dispara welcome), manda 1 chat. Prova o log de chat. (~175 tok)
 - `flor-stage.mts` — Stage das flores refeitas (cruz diagonal 45°): fileira das 4 cores num (~513 tok)
 - `janela-stage.mts` — Stage da dobradiça da JANELA: parede com 2 janelas lado a lado (janela dupla) (~450 tok)
+- `move-smoke.mjs` — Smoke F2: cliente ws real no mundo ENORME — conta lotes LJC0 ao entrar, (~493 tok)
 - `porta-stage.mts` — Stage da dobradiça: parede com vão de 2 células + porta dupla (2 portas lado (~541 tok)
 
 ## ../.claude/plans/
@@ -103,7 +104,7 @@
 
 ## client/
 
-- `index.html` — Lógica em Jogo (~5475 tok)
+- `index.html` — Lógica em Jogo (~5502 tok)
 - `vite.config.ts` (~94 tok)
 
 ## client/src/
@@ -113,7 +114,7 @@
 - `blockIcons.ts` — Ícones 2D dos blocos pra hotbar e pro inventário: recorta o tile LATERAL do (~270 tok)
 - `blocksUi.ts` — Blocos colocáveis com nome em português — fonte única pra hotbar (main.ts) (~1751 tok)
 - `chat.ts` — UI de chat em HTML/CSS por cima do canvas (regra: sem GUI de engine). (~1525 tok)
-- `chunks.ts` — 1 mesh por chunk (BufferGeometry única, culled mesher do /shared). (~1171 tok)
+- `chunks.ts` — 1 mesh por chunk (BufferGeometry única, culled mesher do /shared). (~1764 tok)
 - `commands.ts` — Autocompletar de comandos de chat (Tab). Puro, sem DOM — o chat.ts liga o (~862 tok)
 - `commands.ts` — Autocompletar de comandos de chat (Tab). Puro, sem DOM — o chat.ts liga o (~516 tok)
 - `connection.ts` — Conexão do cliente com O SERVIDOR — interface única, hospedeiro invisível. (~1194 tok)
@@ -122,13 +123,13 @@
 - `hud.ts` — HUD de perfilação (F3): FPS, frametime méd+p95, remesh, draw calls e (~1120 tok)
 - `input.ts` — Teclado + mouse (pointer lock). SÓ coleta input — nenhuma decisão de (~1542 tok)
 - `inventory.ts` — Inventário de blocos (cp16) — grade dos colocáveis + faixa da hotbar de 9 (~1449 tok)
-- `main.ts` — O cliente não tem filesystem: aprende os nomes das aulas pela resposta de (~14574 tok)
-- `menu.ts` — Menu principal (cp8) — HTML/CSS por cima do canvas, sem GUI de engine. (~4252 tok)
+- `main.ts` — O cliente não tem filesystem: aprende os nomes das aulas pela resposta de (~15480 tok)
+- `menu.ts` — Menu principal (cp8) — HTML/CSS por cima do canvas, sem GUI de engine. (~4356 tok)
 - `objectivesUi.ts` — Grupo do PRÓPRIO jogador (null = sem grupo). (~1244 tok)
 - `panels.ts` — Painéis HTML do cp14 — açúcar visual sobre os comandos de chat: cada botão (~5834 tok)
 - `quadros.ts` — Quadros (2026-07-19) — lado cliente. Duas peças: (~3156 tok)
 - `regions.ts` — Wireframes das regiões nomeadas (cp11) — visão do PROFESSOR (o servidor só (~690 tok)
-- `settings.ts` — Configurações do jogador, persistidas em localStorage (por navegador). (~989 tok)
+- `settings.ts` — Configurações do jogador, persistidas em localStorage (por navegador). (~1122 tok)
 - `shortcutGuard.ts` — Guarda contra atalhos do navegador com o jogo no controle (backlog (~995 tok)
 - `torchGlow.ts` — Halo das tochas (cp23) — SÓ visual (decisão 2026-07-17: tocha decorativa, (~996 tok)
 - `touch.ts` — Controles de toque (tablet) — joystick, arrasto de olhar e botões. SÓ (~2676 tok)
@@ -143,11 +144,11 @@
 
 - `cenarios/gerar.ts` — Gerador dos 3 cenários pedagógicos (.ljw): digita os MESMOS comandos de chat do professor contra a GameSession real. Flags: --grupos --codigo --revelar --saida (~1900 tok)
 - `cenarios/verificar.ts` — Conferência embutida na geração: abre o .ljw num servidor novo, entra prof+2 alunos, completa a área do grupo 1; + guarda de geometria da faixa (~1400 tok)
-- `index.ts` — Hospedeiro Node+ws do servidor (LAN): embrulha a MESMA GameSession do Web (~5043 tok)
+- `index.ts` — Hospedeiro Node+ws do servidor (LAN): embrulha a MESMA GameSession do Web (~5198 tok)
 - `mundos.ts` — `/mundo` (cp19) — trocar a aula SEM derrubar a turma. (~1939 tok)
 - `paths.ts` — `npm run <script> -w server` roda com o cwd dentro de server/, então caminho (~920 tok)
 - `static.ts` — Serve o cliente já buildado (client/dist) NA MESMA PORTA do WebSocket. (~1055 tok)
-- `worker.ts` — Hospedeiro Web Worker do servidor (singleplayer): embrulha a GameSession (~767 tok)
+- `worker.ts` — Hospedeiro Web Worker do servidor (singleplayer): embrulha a GameSession (~820 tok)
 
 ## server/src/cenarios/
 
@@ -183,7 +184,7 @@
 - `physics.test.ts` — Mundo 1 chunk com chão sólido em y ∈ [0,7]. (~2603 tok)
 - `physics.ts` — Física do jogador (andar, gravidade, colisão AABB com o grid de voxels). (~2071 tok)
 - `protocol.test.ts` — Declares DIMS (~3009 tok)
-- `protocol.ts` — Protocolo v0 (checkpoint 2). Mensagens JSON dos dois lados + world_snapshot (~6227 tok)
+- `protocol.ts` — Protocolo v0 (checkpoint 2). Mensagens JSON dos dois lados + world_snapshot (~7791 tok)
 - `quadros.test.ts` — DIMS: makeFlat (~1603 tok)
 - `quadros.ts` — Quadro (backlog 2026-07-19): bloco de parede com CONTEÚDO autoral — texto (~540 tok)
 - `raycast.test.ts` — Mundo 16³ com chão sólido em y ∈ [0,7]. (~604 tok)
@@ -197,10 +198,11 @@
 - `scenario.test.ts` — Marca cantos e cria região nomeada via varinha + /regiao (professor id). (~4106 tok)
 - `scenario.ts` — Cenário (cp12) — o coração pedagógico: objetivos que checam o ESTADO DO (~3680 tok)
 - `session.test.ts` — Testes de MECÂNICA rodam com singleplayer: true (join sem PIN) — a (~11934 tok)
-- `session.ts` — GameSession: o SERVIDOR autoritativo, independente de hospedeiro. (~33734 tok)
+- `session.ts` — GameSession: o SERVIDOR autoritativo, independente de hospedeiro. (~35248 tok)
+- `streaming.test.ts` — Dims LAZY de teste: 64×64×8 chunks (33k chunks > teto denso de 2048) — (~2041 tok)
 - `tp.test.ts` — /tpr (pedir teleporte) + /tpa (aceitar) — todos os jogadores; e /tp nome / (~1496 tok)
 - `version.ts` — Versão do jogo — FONTE ÚNICA = campo "version" do package.json da raiz (import JSON tree-shaken); bump via `npm version`. (~135 tok)
 - `world.test.ts` — Declares DIMS (~866 tok)
 - `world.ts` — Dimensões do mundo em chunks. Parâmetro de criação, gravado no header do save/snapshot. (~1194 tok)
 - `worldgen.test.ts` — Declares World (~2440 tok)
-- `worldgen.ts` — Preset de criação de mundo (cp14): escolhido no menu/host, só vale pra (~4464 tok)
+- `worldgen.ts` — Preset de criação de mundo (cp14): escolhido no menu/host, só vale pra (~4705 tok)

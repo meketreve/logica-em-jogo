@@ -26,14 +26,19 @@ import {
   isQuadro,
   isSofa,
   type QuadroConteudo,
+  COLUNAS_MAGIC,
+  LAZY_MAGIC,
   ROCHA_HEIGHT,
   SAND_HEIGHT,
   SNOW_HEIGHT,
   biomaPorClima,
   climaAt,
+  decodeColunas,
+  decodeLazyInfo,
   gramaPorClima,
   heightAt,
   parseServerMessage,
+  peekMagic,
   raycastBlock,
   setBlock,
   stepPlayer,
@@ -297,6 +302,11 @@ const knownComplete = new Set<number>();
 let objectivesSeeded = false; // 1ª lista do join não toca som de conquista antiga
 /** cp19: o professor trocou a aula — o mundo inteiro chega de novo, em jogo. */
 let reloadWorld: ((snap: Snapshot) => void) | null = null;
+/** Streaming (F2): lote binário de colunas chegou — aplicado pelo startGame. */
+let aplicarColunas: ((buf: ArrayBuffer) => void) | null = null;
+/** O snapshot/header decodificado por último era LAZY (LJE0)? O startGame e o
+ *  reloadWorld leem isto pra ligar o modo streaming. */
+let proximoLazy = false;
 
 /** Nomes online (id→nome) pro autocomplete de comandos com nome de jogador. */
 const nomesOnline = new Map<number, string>();
@@ -434,14 +444,25 @@ function handleServerData(data: string | ArrayBuffer): void {
     }
     return;
   }
+  // roteamento binário (F2): LJW0 = mundo inteiro; LJE0 = header de mundo
+  // ENORME (colunas viajam depois); LJC0 = lote de colunas do streaming
+  const magic = peekMagic(data);
+  if (magic === COLUNAS_MAGIC) {
+    aplicarColunas?.(data);
+    return;
+  }
+  const decodificar = (): Snapshot => {
+    proximoLazy = magic === LAZY_MAGIC;
+    return proximoLazy ? decodeLazyInfo(data) : decodeSnapshot(data);
+  };
   if (started) {
     // segundo snapshot EM JOGO = o professor trocou a aula (cp19). O que vem
     // depois (regiões, grupos, objetivos, teleporte) repovoa a tela.
-    reloadWorld?.(decodeSnapshot(data));
+    reloadWorld?.(decodificar());
     return;
   }
   started = true;
-  startGame(decodeSnapshot(data));
+  startGame(decodificar());
 }
 
 // --- Iniciar jogo (menu ou URL escolhem o hospedeiro) ---
@@ -464,6 +485,9 @@ function connect(c: Connection, auth?: MultiAuth): void {
       ...(auth?.codigo ? { codigo: auth.codigo } : {}),
     }),
   );
+  // F2 streaming: raio de interesse (config de desempenho) — depois do join
+  // (transporte preserva ordem); em mundo denso o servidor só ignora
+  c.send(JSON.stringify({ type: "radius", chunks: settings.raioRender }));
 }
 
 function startMultiplayer(url: string, auth: MultiAuth): void {
@@ -496,6 +520,7 @@ function startSingleplayer(choice: PlayWorldChoice): void {
 /** Grava o mundo singleplayer no IndexedDB (autosave e botão sair). */
 async function persistWorld(): Promise<void> {
   if (!(conn instanceof WorkerConnection) || !currentWorld) return;
+  if (proximoLazy) return; // mundo ENORME ainda não salva (save esparso = F3)
   const data = await conn.requestSave();
   await putWorld({ ...currentWorld, updatedAt: Date.now(), data });
 }
@@ -531,6 +556,13 @@ function startGame(snap: Snapshot): void {
   // `let`: a troca de aula (cp19) substitui o mundo debaixo dos closures abaixo
   let world = snap.world;
   let worldSeed = snap.seed; // clima/bioma do F3 derivam da seed (funções puras)
+  // F2 streaming: mundo ENORME chega vazio (LJE0) e as colunas viajam depois
+  let mundoLazy = proximoLazy;
+  /** Colunas carregadas (chave cz*dims.x+cx) — espelha a regra do servidor:
+   *  além de raio+folga, descarta (bytes + geometria) e o servidor re-envia
+   *  quando voltar. */
+  let colunasCarregadas = new Set<number>();
+  let frameCount = 0; // varredura de descarte roda 1×/s (a cada 60 frames)
   // alphaTest = cutout dos transparentes (vidro/folhas): pixel opaco ou
   // descartado — sem blending, sem sorting, mesmo draw call por chunk (cp18)
   const material = new THREE.MeshLambertMaterial({
@@ -546,7 +578,16 @@ function startGame(snap: Snapshot): void {
     document.body.appendChild(img);
   }
   const chunkRenderer = new ChunkRenderer(world, material, scene);
-  chunkRenderer.buildAll();
+  // lazy: nada a meshar ainda — as colunas entram na fila conforme chegam
+  if (!mundoLazy) chunkRenderer.buildAll();
+
+  aplicarColunas = (buf) => {
+    const cols = decodeColunas(buf, world);
+    for (const { cx, cz } of cols) {
+      colunasCarregadas.add(cz * world.dims.x + cx);
+      chunkRenderer.enfileirarColuna(cx, cz);
+    }
+  };
   // halo das tochas (cp23): visual puro, segue o mundo autoritativo
   const torchGlow = new TorchGlow(scene);
   torchGlow.setFromWorld(world);
@@ -665,6 +706,8 @@ function startGame(snap: Snapshot): void {
   reloadWorld = (novo) => {
     world = novo.world;
     worldSeed = novo.seed; // F3 mostra clima/bioma — a seed muda com a aula
+    mundoLazy = proximoLazy; // aula nova pode ser mundo ENORME (ou deixar de ser)
+    colunasCarregadas = new Set();
     chunkRenderer.trocarMundo(world);
     torchGlow.setFromWorld(world);
 
@@ -1223,7 +1266,33 @@ function startGame(snap: Snapshot): void {
     jumpWasDown = jump;
     const fly = flying && podeVoar();
 
-    stepPlayer(world, player, { forward, strafe, jump, yaw: input.yaw, sprint, sneak, fly }, dt);
+    // F2 streaming: processa a fila de mesh (N chunks/frame — config) e SÓ
+    // simula física com o chão debaixo dos pés carregado (coluna ausente =
+    // ar → cairia no vazio; congela até a coluna chegar)
+    let chaoCarregado = true;
+    if (mundoLazy) {
+      chunkRenderer.processarFila(settings.meshPorFrame);
+      const pcx = Math.max(0, Math.min(world.dims.x - 1, Math.floor(player.pos.x / 16)));
+      const pcz = Math.max(0, Math.min(world.dims.z - 1, Math.floor(player.pos.z / 16)));
+      chaoCarregado = colunasCarregadas.has(pcz * world.dims.x + pcx);
+      // varredura de descarte 1×/s (mesma regra do servidor: raio + folga)
+      if ((frameCount = (frameCount + 1) % 60) === 0) {
+        for (const key of colunasCarregadas) {
+          const cx = key % world.dims.x;
+          const cz = (key - cx) / world.dims.x;
+          if (Math.max(Math.abs(cx - pcx), Math.abs(cz - pcz)) > settings.raioRender + 2) {
+            colunasCarregadas.delete(key);
+            chunkRenderer.descartarColuna(cx, cz);
+            for (let cy = 0; cy < world.dims.y; cy++) {
+              world.chunks[(cy * world.dims.z + cz) * world.dims.x + cx] = undefined;
+            }
+          }
+        }
+      }
+    }
+    if (chaoCarregado) {
+      stepPlayer(world, player, { forward, strafe, jump, yaw: input.yaw, sprint, sneak, fly }, dt);
+    }
     if (player.pos.y < -16) respawn(); // caiu da borda do mundo
 
     // jogadores remotos deslizam até o último update (suave mesmo a 10 Hz);

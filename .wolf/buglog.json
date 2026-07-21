@@ -6522,6 +6522,198 @@
       "related_bugs": [],
       "occurrences": 1,
       "last_seen": "2026-07-21T02:07:18.068Z"
+    },
+    {
+      "id": "bug-402",
+      "timestamp": "2026-07-21T02:17:17.728Z",
+      "error_message": "Missing guard clause",
+      "file": "shared/src/protocol.ts",
+      "root_cause": "No early return/throw for edge case: buf.byteLength < 4",
+      "fix": "Added guard clause: if (buf.byteLength < 4)",
+      "tags": [
+        "auto-detected",
+        "guard-clause",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-21T02:17:17.729Z"
+    },
+    {
+      "id": "bug-403",
+      "timestamp": "2026-07-21T02:19:32.986Z",
+      "error_message": "Type error",
+      "file": "shared/src/worldgen.ts",
+      "root_cause": "Missing or incorrect type annotation",
+      "fix": "Added type assertion/annotation",
+      "tags": [
+        "auto-detected",
+        "type-fix",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-21T02:19:32.986Z"
+    },
+    {
+      "id": "bug-404",
+      "timestamp": "2026-07-21T02:21:00.497Z",
+      "error_message": "Missing guard clause",
+      "file": "shared/src/session.ts",
+      "root_cause": "No early return/throw for edge case: !st",
+      "fix": "Added guard clause: if (!st)",
+      "tags": [
+        "auto-detected",
+        "guard-clause",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 2,
+      "last_seen": "2026-07-21T02:21:30.387Z"
+    },
+    {
+      "id": "bug-405",
+      "timestamp": "2026-07-21T02:21:06.265Z",
+      "error_message": "Wrong condition in logic",
+      "file": "shared/src/session.ts",
+      "root_cause": "Condition was: if (!isQuadro(blockId)",
+      "fix": "Changed to: if (this.lazy)",
+      "tags": [
+        "auto-detected",
+        "logic-fix",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-21T02:21:06.265Z"
+    },
+    {
+      "id": "bug-406",
+      "timestamp": "2026-07-21T02:24:43.405Z",
+      "error_message": "Type error",
+      "file": "client/src/menu.ts",
+      "root_cause": "Missing or incorrect type annotation",
+      "fix": "Added type assertion/annotation",
+      "tags": [
+        "auto-detected",
+        "type-fix",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-21T02:24:43.405Z"
+    },
+    {
+      "id": "bug-407",
+      "timestamp": "2026-07-21T02:24:45.127Z",
+      "error_message": "Wrong reference: select should be option",
+      "file": "client/index.html",
+      "root_cause": "Used \"select\" instead of \"option\"",
+      "fix": "Changed select → option",
+      "tags": [
+        "auto-detected",
+        "wrong-reference",
+        "html"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-21T02:24:45.127Z"
+    },
+    {
+      "id": "bug-408",
+      "timestamp": "2026-07-21T02:25:02.798Z",
+      "error_message": "Missing guard clause",
+      "file": "client/src/chunks.ts",
+      "root_cause": "No early return/throw for edge case: this.filaSet.has(key",
+      "fix": "Added guard clause: if (this.filaSet.has(key)",
+      "tags": [
+        "auto-detected",
+        "guard-clause",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-21T02:25:02.798Z"
+    },
+    {
+      "id": "bug-409",
+      "timestamp": "2026-07-21T02:25:37.072Z",
+      "error_message": "Significant refactor of ",
+      "file": "client/src/main.ts",
+      "root_cause": "2 lines replaced/restructured",
+      "fix": "Rewrote 9→20 lines (2 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-21T02:25:37.072Z"
+    },
+    {
+      "id": "bug-410",
+      "timestamp": "2026-07-21T02:25:44.491Z",
+      "error_message": "Type error",
+      "file": "client/src/main.ts",
+      "root_cause": "Missing or incorrect type annotation",
+      "fix": "Added type assertion/annotation | Also: // lazy: nada a meshar ainda — as colunas entram na fila con; if (!mundoLazy) chunkRenderer.buildAll();",
+      "tags": [
+        "auto-detected",
+        "type-fix",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 2,
+      "last_seen": "2026-07-21T02:25:47.889Z"
+    },
+    {
+      "id": "bug-411",
+      "timestamp": "2026-07-21T02:26:09.338Z",
+      "error_message": "Wrong condition in logic",
+      "file": "client/src/main.ts",
+      "root_cause": "Condition was: if (player.pos.y < -16)",
+      "fix": "Changed to: if (mundoLazy)",
+      "tags": [
+        "auto-detected",
+        "logic-fix",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-21T02:26:09.338Z"
+    },
+    {
+      "id": "bug-412",
+      "timestamp": "2026-07-21T02:26:44.482Z",
+      "error_message": "Missing guard clause",
+      "file": "client/src/main.ts",
+      "root_cause": "No early return/throw for edge case: !(conn instanceof WorkerConnection",
+      "fix": "Added guard clause: if (!(conn instanceof WorkerConnection)",
+      "tags": [
+        "auto-detected",
+        "guard-clause",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-21T02:26:44.482Z"
+    },
+    {
+      "id": "bug-413",
+      "timestamp": "2026-07-21T02:27:23.199Z",
+      "error_message": "Missing guard clause",
+      "file": "server/src/worker.ts",
+      "root_cause": "No early return/throw for edge case: msg.hostType === \"save_request\" && session",
+      "fix": "Added guard clause: if (msg.hostType === \"save_request\" && sessi)",
+      "tags": [
+        "auto-detected",
+        "guard-clause",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-21T02:27:23.199Z"
     }
   ]
 }

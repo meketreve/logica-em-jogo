@@ -33,7 +33,15 @@ import {
 } from "./constants";
 import { PLAYER } from "./physics";
 import {
+  COLUNAS_POR_TICK_PADRAO,
+  type ColunaRef,
+  FOLGA_DESCARTE,
+  RAIO_MAX,
+  RAIO_MIN,
+  RAIO_PADRAO,
   type ServerMessage,
+  encodeColunas,
+  encodeLazyInfo,
   encodeSnapshot,
   parseClientMessage,
 } from "./protocol";
@@ -72,8 +80,21 @@ import {
   matchRegion,
   snapshotRegion,
 } from "./scenario";
-import { type World, type WorldDims, findSpawnY, getBlock, inBounds, setBlock } from "./world";
-import { type WorldPreset, generateWorldForPreset } from "./worldgen";
+import {
+  type World,
+  type WorldDims,
+  colunaGerada,
+  findSpawnY,
+  getBlock,
+  inBounds,
+  setBlock,
+} from "./world";
+import {
+  type WorldPreset,
+  ehMundoLazy,
+  generateWorldForPreset,
+  gerarColunaDeChunks,
+} from "./worldgen";
 
 /**
  * GameSession: o SERVIDOR autoritativo, independente de hospedeiro.
@@ -109,6 +130,9 @@ export interface SessionOptions {
   /** Mundo de aula/atividade (read-only, cp19): o host passa true. Aqui liga
    *  o CONFINAMENTO (cp25) por padrão — cada aluno só edita na área do grupo. */
   somenteLeitura?: boolean;
+  /** Streaming (F2): colunas de chunks enviadas por TICK por jogador —
+   *  config de desempenho do host (LJ_COLUNAS_TICK). Só vale em mundo lazy. */
+  colunasPorTick?: number;
 }
 
 interface SessionPlayer {
@@ -235,6 +259,14 @@ export class GameSession {
   private dirty = new Set<number>();
   /** Células já alteradas neste tick (máx. 1 mudança por célula por tick). */
   private changedThisTick = new Set<number>();
+  /** F2 streaming: mundo LAZY (gigante) — colunas materializam sob demanda e
+   *  viajam por raio de interesse; o join manda só o header LJE0. */
+  private lazy = false;
+  private readonly colunasPorTick: number;
+  /** Estado de streaming por cliente: raio de interesse + colunas já enviadas
+   *  (chave = cz*dims.x+cx). Sai do raio+folga = esquece → re-envia na volta
+   *  (cliente descarta pela MESMA regra — sem mensagem de unload). */
+  private readonly stream = new Map<number, { raio: number; enviadas: Set<number> }>();
 
   constructor(
     private readonly send: SendFn,
@@ -242,6 +274,7 @@ export class GameSession {
   ) {
     this.now = opts.now ?? (() => Date.now());
     this.singleplayer = opts.singleplayer ?? false;
+    this.colunasPorTick = Math.max(1, opts.colunasPorTick ?? COLUNAS_POR_TICK_PADRAO);
     this.codigo = opts.codigo ?? opts.restore?.codigo;
     if (opts.restore) {
       // mundo vem do save: NADA é recalculado (spawn é do terreno pristino —
@@ -299,6 +332,18 @@ export class GameSession {
       this.seed = opts.seed ?? 1;
       const preset = opts.preset ?? (opts.flat ? "plano" : "normal");
       this.world = generateWorldForPreset(preset, opts.dims ?? DEFAULT_WORLD_CHUNKS, this.seed);
+      // F2 streaming: mundo LAZY nasce vazio — materializa o entorno do spawn
+      // antes do findSpawnY (o resto vem por raio de interesse no tick)
+      this.lazy = ehMundoLazy(this.world.dims);
+      if (this.lazy) {
+        const ccx = Math.floor(this.world.dims.x / 2);
+        const ccz = Math.floor(this.world.dims.z / 2);
+        for (let dx = -1; dx <= 1; dx++) {
+          for (let dz = -1; dz <= 1; dz++) {
+            gerarColunaDeChunks(this.world, ccx + dx, ccz + dz, this.seed);
+          }
+        }
+      }
       // cabines: o centro exato do mundo é canto de chunk = dentro de uma
       // cabine — desloca o spawn pro MEIO do chunk (área aberta)
       const off = preset === "cabines" ? CHUNK_SIZE / 2 : 0;
@@ -491,6 +536,14 @@ export class GameSession {
         });
         // objetivo "chegar" (cp12/13): pisar dentro da região conclui
         this.checkChegar(clientId);
+        break;
+      }
+      case "radius": {
+        // F2 streaming: raio de interesse do cliente (config de desempenho).
+        // Encolher o raio NÃO manda unload — cliente descarta pela mesma regra.
+        const st = this.stream.get(clientId);
+        if (!st) return; // mundo denso (ou sem join) — nada a fazer
+        st.raio = Math.max(RAIO_MIN, Math.min(RAIO_MAX, msg.chunks));
         break;
       }
       case "place_block": {
@@ -1170,7 +1223,15 @@ export class GameSession {
       clientId,
       JSON.stringify({ type: "spawn", ...this.spawn, papel } satisfies ServerMessage),
     );
-    this.send(clientId, encodeSnapshot(this.world, this.seed));
+    if (this.lazy) {
+      // F2 streaming: mundo gigante NÃO viaja inteiro — só o header; as
+      // colunas chegam por raio de interesse no tick (o entorno do jogador
+      // entra na primeira leva porque `enviadas` nasce vazio)
+      this.stream.set(clientId, { raio: RAIO_PADRAO, enviadas: new Set() });
+      this.send(clientId, encodeLazyInfo(this.world.dims, this.seed));
+    } else {
+      this.send(clientId, encodeSnapshot(this.world, this.seed));
+    }
     this.sendTime(clientId); // céu certo desde o primeiro frame (cp21)
     // Na migração o teleporte é OBRIGATÓRIO mesmo sem roster: o jogador está
     // parado nas coordenadas do mundo ANTIGO, que no mundo novo podem ser
@@ -2581,6 +2642,10 @@ export class GameSession {
    *  rede com UMA mensagem blocks_filled no fim; regras de vizinhança e
    *  detecção de objetivo acordam exatamente igual. */
   private applyBlockQuieto(x: number, y: number, z: number, blockId: number): void {
+    // F2 streaming: edição em coluna não materializada (teleoperação: /bloco,
+    // /regiao encher) gera o terreno ANTES — o bloco novo entra por cima, e a
+    // vizinhança 3×3 garante as leituras das regras/validações na borda
+    if (this.lazy) this.garantirColunas(x - 1, z - 1, x + 1, z + 1);
     // quadro (2026-07-19): a célula deixou de ser quadro → conteúdo morre junto
     // (o cliente limpa pelo próprio block_changed/blocks_filled; sem msg extra)
     if (!isQuadro(blockId)) this.quadros.delete(quadroKey(x, y, z));
@@ -2660,6 +2725,7 @@ export class GameSession {
   }
 
   handleDisconnect(clientId: number): void {
+    this.stream.delete(clientId); // interesse de streaming morre com a conexão
     this.wandMarks.delete(clientId); // rascunho de canto morre com a conexão
     this.tpPedidos.delete(clientId); // pedidos ENDEREÇADOS a quem saiu morrem
     // (pedidos FEITOS por quem saiu são podados no /tpa — players.has(deId))
@@ -2733,6 +2799,9 @@ export class GameSession {
       this.broadcastObjectives(); // contadores mudaram mesmo sem conclusão
     }
 
+    // F2 streaming: mundo lazy manda colunas por raio de interesse
+    if (this.lazy) this.streamColunas();
+
     const ms = this.now() - t0;
     this.tickCount++;
     this.ticksInWindow++;
@@ -2749,6 +2818,64 @@ export class GameSession {
       // hora nova 1×/s: o cliente interpola o céu localmente entre estas (cp21)
       this.broadcastTime();
       this.tickMsSum = this.tickMsMax = this.ticksInWindow = 0;
+    }
+  }
+
+  /** Mundo lazy (streaming F2)? Host usa pra pular autosave (save esparso = F3). */
+  get isLazy(): boolean {
+    return this.lazy;
+  }
+
+  /** Materializa as colunas de chunks que intersectam o retângulo de BLOCOS
+   *  [bx0..bx1]×[bz0..bz1] (clampado ao mundo). */
+  private garantirColunas(bx0: number, bz0: number, bx1: number, bz1: number): void {
+    const c0x = Math.max(0, Math.floor(bx0 / CHUNK_SIZE));
+    const c1x = Math.min(this.world.dims.x - 1, Math.floor(bx1 / CHUNK_SIZE));
+    const c0z = Math.max(0, Math.floor(bz0 / CHUNK_SIZE));
+    const c1z = Math.min(this.world.dims.z - 1, Math.floor(bz1 / CHUNK_SIZE));
+    for (let cx = c0x; cx <= c1x; cx++) {
+      for (let cz = c0z; cz <= c1z; cz++) {
+        gerarColunaDeChunks(this.world, cx, cz, this.seed);
+      }
+    }
+  }
+
+  /**
+   * Motor de interesse (F2): por jogador, anda em ANÉIS do mais perto pro mais
+   * longe e envia até `colunasPorTick` colunas que ainda faltam (materializa
+   * na hora). Coluna além de raio+FOLGA_DESCARTE é esquecida — o cliente
+   * descarta pela MESMA regra, então voltar re-envia sem mensagem de unload.
+   */
+  private streamColunas(): void {
+    const dims = this.world.dims;
+    for (const [clientId, p] of this.players) {
+      const st = this.stream.get(clientId);
+      if (!st) continue;
+      const pcx = Math.max(0, Math.min(dims.x - 1, Math.floor(p.x / CHUNK_SIZE)));
+      const pcz = Math.max(0, Math.min(dims.z - 1, Math.floor(p.z / CHUNK_SIZE)));
+      for (const key of st.enviadas) {
+        const cx = key % dims.x;
+        const cz = (key - cx) / dims.x;
+        if (Math.max(Math.abs(cx - pcx), Math.abs(cz - pcz)) > st.raio + FOLGA_DESCARTE) {
+          st.enviadas.delete(key);
+        }
+      }
+      const lote: ColunaRef[] = [];
+      anel: for (let r = 0; r <= st.raio; r++) {
+        for (let cx = pcx - r; cx <= pcx + r; cx++) {
+          for (let cz = pcz - r; cz <= pcz + r; cz++) {
+            if (Math.max(Math.abs(cx - pcx), Math.abs(cz - pcz)) !== r) continue;
+            if (cx < 0 || cz < 0 || cx >= dims.x || cz >= dims.z) continue;
+            const key = cz * dims.x + cx;
+            if (st.enviadas.has(key)) continue;
+            gerarColunaDeChunks(this.world, cx, cz, this.seed);
+            st.enviadas.add(key);
+            lote.push({ cx, cz });
+            if (lote.length >= this.colunasPorTick) break anel;
+          }
+        }
+      }
+      if (lote.length > 0) this.send(clientId, encodeColunas(this.world, lote));
     }
   }
 }

@@ -28,7 +28,7 @@ export function parseWorldPreset(v: unknown): WorldPreset {
 /** Tamanho de mundo NOVO (2026-07-19): escolhido no menu/host, só vale na
  *  criação — mundo restaurado lê as dims do próprio save (header LJW0).
  *  P = o padrão de sempre; G = teto validado do motor. */
-export type WorldTamanho = "P" | "M" | "G";
+export type WorldTamanho = "P" | "M" | "G" | "E";
 
 export const TAMANHO_CHUNKS: Record<WorldTamanho, WorldDims> = {
   // Altura 128 em TODOS os tamanhos (2026-07-20): montanhas de verdade — as
@@ -37,10 +37,20 @@ export const TAMANHO_CHUNKS: Record<WorldTamanho, WorldDims> = {
   P: { x: 8, z: 8, y: 8 }, // 128×128×128 (2 MB)
   M: { x: 12, z: 12, y: 8 }, // 192×192×128 (~4,5 MB)
   G: MAX_WORLD_CHUNKS, // 256×256×128 (8 MB)
+  // E = ENORME (F2 streaming): 3840×3840×128, ~900× a área do P. LAZY — as
+  // colunas nascem sob demanda conforme os jogadores exploram; o join manda
+  // só o header (LJE0) e as colunas viajam por raio de interesse.
+  E: { x: 240, z: 240, y: 8 },
 };
 
 export function parseWorldTamanho(v: unknown): WorldTamanho {
-  return v === "M" || v === "G" ? v : "P";
+  return v === "M" || v === "G" || v === "E" ? v : "P";
+}
+
+/** Mundo LAZY (streaming F2)? Qualquer coisa MAIOR que o teto denso (G) é
+ *  gerada sob demanda — materializar tudo não cabe em memória/snapshot. */
+export function ehMundoLazy(dims: WorldDims): boolean {
+  return dims.x * dims.z * dims.y > MAX_WORLD_CHUNKS.x * MAX_WORLD_CHUNKS.z * MAX_WORLD_CHUNKS.y;
 }
 
 /**
@@ -380,12 +390,16 @@ export function generateCabinsWorld(dims: WorldDims = DEFAULT_WORLD_CHUNKS): Wor
   return world;
 }
 
-/** Gera o mundo NOVO do preset escolhido (mundo restaurado de save ignora isto). */
+/** Gera o mundo NOVO do preset escolhido (mundo restaurado de save ignora isto).
+ *  Mundo LAZY (tamanho E): nasce VAZIO — a session materializa o spawn e o
+ *  streaming gera o resto sob demanda (preset é sempre o terreno normal;
+ *  plano/cabines gigantes não fazem sentido pedagógico). */
 export function generateWorldForPreset(
   preset: WorldPreset,
   dims: WorldDims,
   seed: number,
 ): World {
+  if (ehMundoLazy(dims)) return createWorld(dims, false);
   if (preset === "plano") return generateFlatWorld(dims);
   if (preset === "cabines") return generateCabinsWorld(dims);
   return generateWorld(dims, seed);
