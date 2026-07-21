@@ -23,17 +23,24 @@ Mundo E persiste só os chunks EDITADOS; terreno regenera do seed.
 5. ✅ Testes (save-lazy.test.ts) + SMOKE REAL: obsidiana em 1920,70,1920 no
    mundo E → save 4341 bytes → restart restaurando → obsidiana de volta. ✓
 
-## ⏳ F4 — bordas / robustez
-- /tp em coord distante do E materializa (garantirColunas no destino).
-- rules (areia) na borda de coluna não carregada — verificar (edição já
-  materializa 3×3; provar areia caindo na borda).
-- borda do mundo (x=0/3839): jogador não cai no vazio — nota/parede.
-- packCoord no E (3840²×128 = 1,88 bi < 2³¹) — verificar limite.
+## ✅ F4 — bordas / robustez (verificado, testes de regressão)
+- rules (areia) na aresta de coluna: CAI certo (edição materializa 3×3 →
+  vizinho presente). Teste de regressão em streaming.test.ts.
+- packCoord no E: 3840²×128 = 1,887 bi < 2³¹ (e chave de Set é float64 —
+  exato até 2⁵³). OK, sem fix.
+- borda do mundo / interesse fora dos limites: streamColunas já clampa e pula
+  colunas fora — a borda finita é o comportamento esperado.
 
-## ⏳ F5 — eviction de memória no servidor
-Coluna sem interesse de NENHUM jogador E sem edição (editedChunks) é liberada
-do world.chunks do servidor. Espelha o descarte do cliente. Sem isso, sessão
-longa explorando cresce a RAM do host sem parar.
+## ✅ F5 — eviction de memória no servidor (feito, 278 testes)
+`evictColunas()` roda 1×/s no tick lazy: libera colunas que NENHUM jogador
+quer (fora de raio+FOLGA de todos) E sem edição (editedCols). Coluna liberada
+regenera IDÊNTICA do seed quando alguém volta. Coluna EDITADA fica residente
+(bytes só vivem na RAM até o save). Toda geração do servidor passa por
+`gerarColuna` (marca residentCols). `residentColCount` exposto (telemetria).
+Testes: coluna longe liberada, editada preservada, regenera idêntica ao voltar.
+
+## STREAMING COMPLETO (F1-F5). Falta: HUD do cliente mostrar colunas
+carregadas/raio (nice-to-have), playtest com a turma, e o piloto.
 
 ## Regras invariantes (não quebrar)
 - Determinismo: mesma seed = mesmos bytes, qualquer ordem de geração.

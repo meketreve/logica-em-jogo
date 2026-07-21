@@ -272,6 +272,13 @@ export class GameSession {
    *  gravidade, tudo passa por applyBlockQuieto. Terreno só-gerado NÃO entra
    *  (regenera do seed). Só o mundo lazy usa; no save vira o delta gravado. */
   private readonly editedChunks = new Set<number>();
+  /** F5 eviction: colunas materializadas no servidor (chave cz*dims.x+cx).
+   *  A eviction libera as que ninguém quer E que não têm edição. */
+  private readonly residentCols = new Set<number>();
+  /** F5: colunas com edição (chave de coluna) — derivado de editedChunks, pra
+   *  a eviction consultar rápido. Coluna editada NUNCA é liberada (os bytes
+   *  editados só vivem na RAM até o save). */
+  private readonly editedCols = new Set<number>();
 
   constructor(
     private readonly send: SendFn,
@@ -297,9 +304,10 @@ export class GameSession {
           const cx = index % dims.x;
           const rest = (index - cx) / dims.x;
           const cz = rest % dims.z;
-          gerarColunaDeChunks(this.world, cx, cz, this.seed); // no-op se já gerada
+          this.gerarColuna(cx, cz); // no-op se já gerada; marca residente
           this.world.chunks[index]?.set(bytes); // sobrepõe a edição salva
           this.editedChunks.add(index);
+          this.editedCols.add(cz * dims.x + cx); // coluna editada nunca é liberada
         }
       }
       for (const p of opts.restore.roster) {
@@ -360,7 +368,7 @@ export class GameSession {
         const ccz = Math.floor(this.world.dims.z / 2);
         for (let dx = -1; dx <= 1; dx++) {
           for (let dz = -1; dz <= 1; dz++) {
-            gerarColunaDeChunks(this.world, ccx + dx, ccz + dz, this.seed);
+            this.gerarColuna(ccx + dx, ccz + dz);
           }
         }
       }
@@ -2670,9 +2678,10 @@ export class GameSession {
       // F3 save esparso: este chunk foi EDITADO (jogador ou gravidade) → entra
       // no delta gravado. O terreno só-gerado regenera do seed, não é salvo.
       if (inBounds(this.world, x, y, z)) {
-        this.editedChunks.add(
-          chunkIndex(this.world, (x / CHUNK_SIZE) | 0, (y / CHUNK_SIZE) | 0, (z / CHUNK_SIZE) | 0),
-        );
+        const cx = (x / CHUNK_SIZE) | 0;
+        const cz = (z / CHUNK_SIZE) | 0;
+        this.editedChunks.add(chunkIndex(this.world, cx, (y / CHUNK_SIZE) | 0, cz));
+        this.editedCols.add(cz * this.world.dims.x + cx); // F5: coluna editada fica residente
       }
     }
     // quadro (2026-07-19): a célula deixou de ser quadro → conteúdo morre junto
@@ -2846,6 +2855,9 @@ export class GameSession {
       });
       // hora nova 1×/s: o cliente interpola o céu localmente entre estas (cp21)
       this.broadcastTime();
+      // F5: libera 1×/s as colunas que ninguém quer (mundo lazy só) — segura a
+      // RAM do host numa sessão longa de exploração
+      if (this.lazy) this.evictColunas();
       this.tickMsSum = this.tickMsMax = this.ticksInWindow = 0;
     }
   }
@@ -2861,6 +2873,14 @@ export class GameSession {
     return [...this.editedChunks];
   }
 
+  /** Materializa a coluna (cx,cz) e a marca RESIDENTE (F5 eviction). Toda
+   *  geração do servidor passa por aqui — a eviction só conhece o que nasceu
+   *  por este caminho. */
+  private gerarColuna(cx: number, cz: number): void {
+    gerarColunaDeChunks(this.world, cx, cz, this.seed); // no-op se já gerada
+    this.residentCols.add(cz * this.world.dims.x + cx);
+  }
+
   /** Materializa as colunas de chunks que intersectam o retângulo de BLOCOS
    *  [bx0..bx1]×[bz0..bz1] (clampado ao mundo). */
   private garantirColunas(bx0: number, bz0: number, bx1: number, bz1: number): void {
@@ -2870,9 +2890,49 @@ export class GameSession {
     const c1z = Math.min(this.world.dims.z - 1, Math.floor(bz1 / CHUNK_SIZE));
     for (let cx = c0x; cx <= c1x; cx++) {
       for (let cz = c0z; cz <= c1z; cz++) {
-        gerarColunaDeChunks(this.world, cx, cz, this.seed);
+        this.gerarColuna(cx, cz);
       }
     }
+  }
+
+  /**
+   * F5 eviction: libera colunas materializadas que NENHUM jogador quer mais
+   * (fora de raio+FOLGA de todos) e que NÃO têm edição (bytes editados só
+   * vivem na RAM até o save — regenerar as perderia). Coluna liberada regenera
+   * idêntica do seed quando alguém voltar. Roda 1×/s no tick do mundo lazy.
+   */
+  private evictColunas(): void {
+    const dims = this.world.dims;
+    // pré-computa o centro/raio de interesse de cada jogador
+    const interesses: { pcx: number; pcz: number; raio: number }[] = [];
+    for (const [clientId, p] of this.players) {
+      const st = this.stream.get(clientId);
+      if (!st) continue;
+      interesses.push({
+        pcx: Math.max(0, Math.min(dims.x - 1, Math.floor(p.x / CHUNK_SIZE))),
+        pcz: Math.max(0, Math.min(dims.z - 1, Math.floor(p.z / CHUNK_SIZE))),
+        raio: st.raio + FOLGA_DESCARTE,
+      });
+    }
+    for (const key of this.residentCols) {
+      if (this.editedCols.has(key)) continue; // edição fica residente
+      const cx = key % dims.x;
+      const cz = (key - cx) / dims.x;
+      const querido = interesses.some(
+        (i) => Math.max(Math.abs(cx - i.pcx), Math.abs(cz - i.pcz)) <= i.raio,
+      );
+      if (querido) continue;
+      // libera os bytes de todos os cy da coluna
+      for (let cy = 0; cy < dims.y; cy++) {
+        this.world.chunks[chunkIndex(this.world, cx, cy, cz)] = undefined;
+      }
+      this.residentCols.delete(key);
+    }
+  }
+
+  /** F5: nº de colunas materializadas no servidor (debug/telemetria). */
+  get residentColCount(): number {
+    return this.residentCols.size;
   }
 
   /**
@@ -2903,7 +2963,7 @@ export class GameSession {
             if (cx < 0 || cz < 0 || cx >= dims.x || cz >= dims.z) continue;
             const key = cz * dims.x + cx;
             if (st.enviadas.has(key)) continue;
-            gerarColunaDeChunks(this.world, cx, cz, this.seed);
+            this.gerarColuna(cx, cz);
             st.enviadas.add(key);
             lote.push({ cx, cz });
             if (lote.length >= this.colunasPorTick) break anel;

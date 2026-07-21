@@ -150,6 +150,87 @@ describe("streaming F2 — mundo lazy por raio de interesse", () => {
     expect(changed).toBe(true);
   });
 
+  it("F5 eviction: coluna longe de todos e sem edição é liberada", () => {
+    const { session } = novaSessaoLazy();
+    session.handleMessage(1, JSON.stringify({ type: "join", name: "ana" }));
+    for (let i = 0; i < 30; i++) session.tick(); // entorno do spawn resident
+    const scx = Math.floor(DIMS_LAZY.x / 2);
+    const scz = Math.floor(DIMS_LAZY.z / 2);
+    expect(colunaGerada(session.world, scx, scz)).toBe(true);
+    const residentesAntes = session.residentColCount;
+    // teletransporta o interesse pra LONGE (18 chunks > raio+folga)
+    session.handleMessage(1, JSON.stringify({
+      type: "move", x: (scx + 18) * CHUNK_SIZE, y: 40, z: (scz + 18) * CHUNK_SIZE, yaw: 0, pitch: 0,
+    }));
+    for (let i = 0; i < 40; i++) session.tick(); // stream novo + evict (1×/10 ticks)
+    // a coluna do spawn (agora longe, sem edição) foi liberada
+    expect(colunaGerada(session.world, scx, scz)).toBe(false);
+    // e a RAM não cresceu sem parar: resident ~ área de interesse, não tudo
+    expect(session.residentColCount).toBeLessThanOrEqual(residentesAntes + 40);
+  });
+
+  it("F5: coluna EDITADA nunca é liberada (bytes só vivem na RAM até o save)", () => {
+    const { session } = novaSessaoLazy();
+    session.handleMessage(1, JSON.stringify({ type: "join", name: "ana" }));
+    for (let i = 0; i < 20; i++) session.tick();
+    const scx = Math.floor(DIMS_LAZY.x / 2);
+    const scz = Math.floor(DIMS_LAZY.z / 2);
+    const bx = scx * CHUNK_SIZE + 4;
+    const bz = scz * CHUNK_SIZE + 4;
+    // edita a coluna do spawn (via /bloco — teleoperação, no ar alto)
+    session.handleMessage(1, JSON.stringify({ type: "chat", text: `/bloco ${bx} 70 ${bz} 22` }));
+    // vai pra LONGE e roda a eviction
+    session.handleMessage(1, JSON.stringify({
+      type: "move", x: (scx + 18) * CHUNK_SIZE, y: 40, z: (scz + 18) * CHUNK_SIZE, yaw: 0, pitch: 0,
+    }));
+    for (let i = 0; i < 40; i++) session.tick();
+    // coluna editada segue residente E o bloco continua lá
+    expect(colunaGerada(session.world, scx, scz)).toBe(true);
+    expect(getBlock(session.world, bx, 70, bz)).toBe(22);
+  });
+
+  it("F5: coluna liberada regenera IDÊNTICA quando o jogador volta", () => {
+    const { session } = novaSessaoLazy();
+    session.handleMessage(1, JSON.stringify({ type: "join", name: "ana" }));
+    for (let i = 0; i < 20; i++) session.tick();
+    const scx = Math.floor(DIMS_LAZY.x / 2);
+    const scz = Math.floor(DIMS_LAZY.z / 2);
+    const bx = scx * CHUNK_SIZE + 7;
+    const bz = scz * CHUNK_SIZE + 7;
+    const antes: number[] = [];
+    for (let y = 0; y < 40; y++) antes.push(getBlock(session.world, bx, y, bz));
+    // longe → evict → volta
+    session.handleMessage(1, JSON.stringify({
+      type: "move", x: (scx + 18) * CHUNK_SIZE, y: 40, z: (scz + 18) * CHUNK_SIZE, yaw: 0, pitch: 0,
+    }));
+    for (let i = 0; i < 40; i++) session.tick();
+    expect(colunaGerada(session.world, scx, scz)).toBe(false);
+    session.handleMessage(1, JSON.stringify({
+      type: "move", x: (scx + 0.5) * CHUNK_SIZE, y: 40, z: (scz + 0.5) * CHUNK_SIZE, yaw: 0, pitch: 0,
+    }));
+    for (let i = 0; i < 20; i++) session.tick();
+    expect(colunaGerada(session.world, scx, scz)).toBe(true);
+    for (let y = 0; y < 40; y++) expect(getBlock(session.world, bx, y, bz)).toBe(antes[y]);
+  });
+
+  it("F4 borda: areia colocada no mundo lazy CAI (rules com vizinhos materializados)", () => {
+    const { session } = novaSessaoLazy();
+    session.handleMessage(1, JSON.stringify({ type: "join", name: "ana" }));
+    for (let i = 0; i < 10; i++) session.tick();
+    // areia (id 4) no AR alto, na aresta de uma coluna de chunks (x múltiplo de 16)
+    const scx = Math.floor(DIMS_LAZY.x / 2);
+    const bx = scx * CHUNK_SIZE; // aresta exata da coluna
+    const bz = scx * CHUNK_SIZE;
+    session.handleMessage(1, JSON.stringify({ type: "chat", text: `/bloco ${bx} 90 ${bz} 4` }));
+    expect(getBlock(session.world, bx, 90, bz)).toBe(4);
+    for (let i = 0; i < 60; i++) session.tick(); // deixa cair
+    // caiu: não está mais em 90, e existe areia em algum y < 90 da coluna
+    expect(getBlock(session.world, bx, 90, bz)).not.toBe(4);
+    let achou = false;
+    for (let y = 0; y < 90; y++) if (getBlock(session.world, bx, y, bz) === 4) achou = true;
+    expect(achou).toBe(true);
+  });
+
   it("gen lazy sob demanda = mesmo mundo do gen completo (amostra)", () => {
     // materializa 2 colunas isoladas num mundo lazy e compara com o denso
     const lazy = createWorld({ x: 4, z: 4, y: 8 }, false);

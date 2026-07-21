@@ -2013,3 +2013,12 @@ Files: blocks.ts, mesher.ts, session.ts, blocks.test.ts, cp23.test.ts. Commitar+
 | 07:00 | Created ../.claude/jobs/a35a297d/tmp/f3-place.mjs | — | ~370 |
 | 07:02 | Created ../.claude/jobs/a35a297d/tmp/f3-verify.mjs | — | ~459 |
 | 07:03 | STREAMING F3 (save esparso) COMPLETA: session rastreia editedChunks (marcado em applyBlockQuieto, só lazy); save.ts formato LJS2 (encodeLazySave = header+meta com dims+chunks editados; decodeLazySave → world vazio + editedChunks; readSaveMeta compartilhado denso/lazy); restore regenera coluna + sobrepõe bytes; host/worker/cliente usam save esparso. Plano em .wolf/streaming-plan.md | shared/{session,save,save-lazy.test}.ts, server/{index,worker}.ts, client/main.ts | 274 testes (+3), typecheck 3/3, build; SMOKE REAL: obsidiana 1920,70,1920 no E → save 4341 bytes → restart → volta ✓ | ~40k |
+| 07:05 | Edited shared/src/session.ts | expanded (+7 lines) | ~212 |
+| 07:06 | Edited shared/src/session.ts | added 3 condition(s) | ~740 |
+| 07:06 | Edited shared/src/session.ts | gerarColunaDeChunks() → gerarColuna() | ~46 |
+| 07:06 | Edited shared/src/session.ts | gerarColunaDeChunks() → gerarColuna() | ~135 |
+| 07:06 | Edited shared/src/session.ts | gerarColunaDeChunks() → gerarColuna() | ~86 |
+| 07:06 | Edited shared/src/session.ts | 7→8 lines | ~135 |
+| 07:06 | Edited shared/src/session.ts | added 1 condition(s) | ~177 |
+| 07:07 | Edited shared/src/streaming.test.ts | added 1 condition(s) | ~1244 |
+| 07:09 | STREAMING F4+F5 COMPLETO: F4 = verificação de bordas (areia cai na aresta de coluna — teste; packCoord no E cabe em 2³¹; borda finita esperada). F5 = evictColunas() 1×/s no tick lazy libera colunas sem interesse E sem edição; toda geração via gerarColuna (residentCols); editedCols nunca liberada; regenera idêntica ao voltar. residentColCount exposto | shared/{session,streaming.test}.ts | 278 testes (+4), typecheck 3/3, build. STREAMING F1-F5 FEITO | ~30k |

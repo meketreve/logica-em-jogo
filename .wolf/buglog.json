@@ -6794,6 +6794,70 @@
       "related_bugs": [],
       "occurrences": 1,
       "last_seen": "2026-07-21T09:56:44.874Z"
+    },
+    {
+      "id": "bug-419",
+      "timestamp": "2026-07-21T10:05:37.628Z",
+      "error_message": "Type error",
+      "file": "shared/src/session.ts",
+      "root_cause": "Missing or incorrect type annotation",
+      "fix": "Added type assertion/annotation | Also: // F5: libera 1×/s as colunas que ninguém quer (mundo lazy s; // RAM do host numa sessão longa de exploração",
+      "tags": [
+        "auto-detected",
+        "type-fix",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 2,
+      "last_seen": "2026-07-21T10:06:56.052Z"
+    },
+    {
+      "id": "bug-420",
+      "timestamp": "2026-07-21T10:06:04.923Z",
+      "error_message": "Missing guard clause",
+      "file": "shared/src/session.ts",
+      "root_cause": "No early return/throw for edge case: !st",
+      "fix": "Added guard clause: if (!st)",
+      "tags": [
+        "auto-detected",
+        "guard-clause",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-21T10:06:04.923Z"
+    },
+    {
+      "id": "bug-421",
+      "timestamp": "2026-07-21T10:06:45.812Z",
+      "error_message": "Significant refactor of ",
+      "file": "shared/src/session.ts",
+      "root_cause": "3 lines replaced/restructured",
+      "fix": "Rewrote 7→8 lines (3 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-21T10:06:45.812Z"
+    },
+    {
+      "id": "bug-422",
+      "timestamp": "2026-07-21T10:07:52.337Z",
+      "error_message": "Type error",
+      "file": "shared/src/streaming.test.ts",
+      "root_cause": "Missing or incorrect type annotation",
+      "fix": "Added type assertion/annotation",
+      "tags": [
+        "auto-detected",
+        "type-fix",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-21T10:07:52.337Z"
     }
   ]
 }
