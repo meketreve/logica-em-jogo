@@ -438,9 +438,9 @@ function renderConfigPanel(
     sharp.appendChild(check);
     body.appendChild(sharp);
 
-    // streaming (mundo ENORME): quanto mundo carrega em volta + custo por frame
+    // streaming (mundo procedural): quanto mundo carrega em volta + custo por frame
     slider(
-      "raio de render (mundo enorme)", 2, 12, 1, s.raioRender,
+      "raio de render (mundo procedural)", 2, 12, 1, s.raioRender,
       (v) => (s.raioRender = v),
       (v) => `${v} chunks`,
     );
