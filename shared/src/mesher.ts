@@ -394,8 +394,9 @@ export function meshChunk(world: World, cx: number, cy: number, cz: number): Chu
   // mesher só olha células sólidas DESTE chunk). No mundo G, 75% dos chunks
   // são céu — varrer 4096 células × 6 faces à toa dominava o mesh do join
   // (bench: 1,1 s → ~0,3 s). Checar 4096 bytes custa ~µs.
+  // chunk ausente (mundo esparso, 2026-07-20) = ar puro → mesmo fast path
   const bytes = world.chunks[chunkIndex(world, cx, cy, cz)];
-  if (bytes && bytes.every((b) => b === 0)) {
+  if (!bytes || bytes.every((b) => b === 0)) {
     return {
       positions: new Float32Array(0),
       normals: new Float32Array(0),

@@ -1941,3 +1941,14 @@ Files: blocks.ts, mesher.ts, session.ts, blocks.test.ts, cp23.test.ts. Commitar+
 | 22:42 | Edited client/index.html | 5→9 lines | ~86 |
 | 22:40 | Refino das abas: painel de inventário com ALTURA FIXA (560px/84vh, flex column) + rolagem SÓ na grade (flex:1, overflow-y, align-content:start) — trocar de aba não muda o tamanho. Verificado com harness estático de CSS (aba 36 vs aba 4, mesma altura) | client/index.html | build ok, server 8080 reiniciado. Abas ainda NÃO commitadas | ~5k |
 | 22:46 | Session end: 48 writes across 16 files (blocks.ts, mesher.ts, blocks.test.ts, blocksUi.ts, atlasTexture.ts) | 25 reads | ~97702 tok |
+| 22:48 | Session end: 48 writes across 16 files (blocks.ts, mesher.ts, blocks.test.ts, blocksUi.ts, atlasTexture.ts) | 25 reads | ~97702 tok |
+| 22:51 | Session end: 48 writes across 16 files (blocks.ts, mesher.ts, blocks.test.ts, blocksUi.ts, atlasTexture.ts) | 25 reads | ~97702 tok |
+| 23:03 | Edited shared/src/world.ts | added 2 condition(s) | ~573 |
+| 23:04 | Created shared/src/arvores.ts | — | ~1642 |
+| 23:04 | Edited shared/src/worldgen.ts | expanded (+13 lines) | ~124 |
+| 23:06 | Edited shared/src/worldgen.ts | inline fix | ~25 |
+| 23:06 | Edited shared/src/mesher.ts | 2→3 lines | ~52 |
+| 23:07 | Edited shared/src/worldgen.test.ts | modified for() | ~449 |
+| 23:07 | Edited shared/src/worldgen.test.ts | 15→16 lines | ~132 |
+| 23:10 | STREAMING F1 COMPLETA: World esparso ((Uint8Array|undefined)[], alocarColuna/colunaGerada), arvores.ts refeito puro (celulasDaArvore/aplicarCelula), worldgen por COLUNA DE CHUNKS (gerarColunaDeChunks: terreno + veias re-derivadas 3×3 + árvores margem 2 + flores/mandacaru) com decisões 100% puras (topoPrevisto/arvoreDaColuna); generateWorld = materializa tudo (compat). TESTE de ordem-independência (embaralhado = mesmos bytes) ✓ | shared/src/{world,arvores,worldgen,mesher}.ts, worldgen.test.ts | 264 testes, typecheck 3/3, build ok. NÃO commitado. F2 (protocolo streaming+cliente+configs) é a próxima | ~35k |
+| 23:08 | Session end: 55 writes across 17 files (blocks.ts, mesher.ts, blocks.test.ts, blocksUi.ts, atlasTexture.ts) | 26 reads | ~109257 tok |

@@ -51,10 +51,30 @@
 > letras-e-números), tab bar no InventoryPanel (filtro só de exibição; aba ativa
 > sobrevive abrir/fechar), painel com ALTURA FIXA (560px/84vh) e rolagem SÓ na
 > grade. Hotbar/scroll//regiao encher intocados. TUDO PUSHADO — escola: `git pull`.
-> **PRÓXIMA: PILOTO com a turma + relatório (entregável real do projeto). Motor
-> em espera. Backlog (todo.md): gen v2 (cavernas, altura por bioma, mandacaru
-> custom, madeira por espécie), sobrevivência (precisa entrevista de escopo),
-> animação sentar/deitar, modelo de player.**
+> **OBRA NOVA (pedido do usuário, decisão travada): STREAMING DE CHUNKS — mundo
+> GIGANTE FINITO (ex. 4096²) com chunks gerados em RUNTIME + configs de
+> desempenho (raio de render, chunks/tick). Plano de 5 fases no cerebrum
+> (Decision Log 2026-07-20). ⚠️ ESCOLA NÃO DEVE DAR git pull até estabilizar.**
+> **F1 FEITA (NÃO commitada): núcleo esparso + gen por coluna de chunks.**
+> World.chunks virou `(Uint8Array|undefined)[]` (denso de REFERÊNCIAS — hot
+> paths O(1) intactos; ausente = ar/ignora). `alocarColuna`/`colunaGerada`;
+> createWorld(dims, alocar=false) = mundo vazio. arvores.ts refeito PURO
+> (`celulasDaArvore` devolve células; `aplicarCelula` aplica com política
+> tronco/copa). worldgen: `gerarColunaDeChunks(world,ccx,ccz,seed)` ORDEM-
+> INDEPENDENTE — decisões puras (`topoPrevisto`/`arvoreDaColuna` nunca leem o
+> mundo), veias re-derivadas das 3×3 vizinhas (filtro de escrita local),
+> árvores re-derivadas com margem ARVORE_RAIO_MAX=2, flores leem só a própria
+> coluna. TESTADO: gerar colunas embaralhadas = mesmos bytes. 264 testes,
+> typecheck 3/3, build ok. Minério muda de layout vs v1 (PRNG por coluna) —
+> só em mundo NOVO.
+> **PRÓXIMA — F2 (protocolo/cliente): tamanho "E" (gigante, ex. 256×256 chunks
+> = 4096²); join manda SÓ header+spawn; msgs novas chunk_data (lote binário por
+> raio de interesse) + chunk_unsub; server materializa colunas sob demanda pelo
+> interest por jogador (N colunas/tick configurável); cliente: carregar/mesh
+> por fila (M/frame), descartar fora do raio, física trata coluna ausente como
+> SÓLIDA até chegar; configs: raio de render (menu settings), LJ_RAIO/LJ_CHUNKS_TICK
+> (launcher). Depois F3 save esparso LJW1 (só chunks EDITADOS), F4 bordas
+> (rules//tp/spawn), F5 eviction. Piloto usa o commit 89d6710 (estável).**
 > **SESSÃO 9 (2026-07-20) — CLAIM = COLUNA + VERSÃO DO package.json (commit único desta sessão):**
 > (A) CLAIM VIRA COLUNA DE ALTURA TOTAL — pedido do usuário: claim protege da camada 0
 > (bedrock) ao teto do mundo, não só a caixa marcada — mata ilha flutuante por cima e

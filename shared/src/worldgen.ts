@@ -1,8 +1,21 @@
-import { plantarArvore, plantarMandacaru } from "./arvores";
-import { type Clima, biomaPorClima, gramaPorClima } from "./biomas";
+import {
+  ARVORE_RAIO_MAX,
+  aplicarCelula,
+  celulasDaArvore,
+  celulasDoMandacaru,
+} from "./arvores";
+import { type ArvoreTipo, type Clima, biomaPorClima, gramaPorClima } from "./biomas";
 import { BlockId } from "./blocks";
 import { CHUNK_SIZE, DEFAULT_WORLD_CHUNKS, MAX_WORLD_CHUNKS } from "./constants";
-import { type World, type WorldDims, createWorld, getBlock, setBlock } from "./world";
+import {
+  type World,
+  type WorldDims,
+  alocarColuna,
+  colunaGerada,
+  createWorld,
+  getBlock,
+  setBlock,
+} from "./world";
 
 /** Preset de criação de mundo (cp14): escolhido no menu/host, só vale pra
  *  mundo NOVO. "plano" e "cabines" são determinísticos (ignoram seed). */
@@ -98,8 +111,8 @@ export function climaAt(x: number, z: number, seed: number): Clima {
   };
 }
 
-/** PRNG determinístico (mulberry32) — SÓ pro gen: o mundo é finito e gerado
- *  inteiro na criação, então a ordem das chamadas é fixa = mesmos bytes. */
+/** PRNG determinístico (mulberry32) — SÓ pro gen, com seed derivada POR
+ *  COLUNA DE CHUNKS: a sequência é local e re-derivável por qualquer vizinho. */
 function mulberry32(seed: number): () => number {
   let a = seed >>> 0;
   return () => {
@@ -129,96 +142,189 @@ const MINERIOS: readonly {
   { id: BlockId.MinerioDiamante, teto: 8, porColuna: 1 / 256, tamMin: 1, tamMax: 3 },
 ];
 
-/** Passeio aleatório curto que SÓ substitui pedra — nunca fura superfície,
- *  subsolo ou bedrock. */
-function plantarMinerios(world: World, seed: number): void {
-  const rng = mulberry32(seed ^ 0x0d1ce5);
+/** Bloco do TOPO da coluna (x,z) — função PURA da fórmula, sem ler mundo.
+ *  Praia é global por altura; neve exige altura E frio (playtest 2026-07-20:
+ *  neve na caatinga não combina); serra quente muito alta expõe pedra
+ *  (chapada). A geração por chunk depende disto ser puro: decisão de feature
+ *  nunca lê o mundo (a ordem de geração não pode mudar bytes). */
+export function topoPrevisto(x: number, z: number, seed: number, sizeY: number): number {
+  const h = Math.min(heightAt(x, z, seed, sizeY), sizeY - 2);
+  const clima = climaAt(x, z, seed);
+  const bioma = biomaPorClima(clima);
+  return h <= SAND_HEIGHT ? BlockId.Sand
+    : h >= SNOW_HEIGHT && clima.temp < 0.6 ? BlockId.Snow
+    : h >= ROCHA_HEIGHT ? BlockId.Stone
+    : bioma.topo === "grama" ? gramaPorClima(clima)
+    : bioma.topo;
+}
+
+/** Mistura (a,b,seed) num int 32 — seed derivada por coluna de chunks. */
+function hashInt(a: number, b: number, seed: number): number {
+  let h = seed ^ Math.imul(a, 374761393) ^ Math.imul(b, 668265263);
+  h = Math.imul(h ^ (h >>> 13), 1274126177);
+  return (h ^ (h >>> 16)) | 0;
+}
+
+interface Veia {
+  readonly id: number;
+  /** Células do passeio, em coordenadas ABSOLUTAS (podem vazar da coluna). */
+  readonly celulas: readonly { x: number; y: number; z: number }[];
+}
+
+/** Veias de minério cuja ORIGEM cai na coluna de chunks (ccx,ccz) — função
+ *  PURA de (ccx,ccz,seed): qualquer vizinho re-deriva a MESMA lista e aplica
+ *  só a fatia que cai nele (passeio máx 8 passos < 1 chunk = margem 1). */
+function veiasDaColuna(ccx: number, ccz: number, seed: number, sizeY: number): Veia[] {
+  const rng = mulberry32(hashInt(ccx, ccz, seed ^ 0x0d1ce5));
+  const out: Veia[] = [];
+  const area = CHUNK_SIZE * CHUNK_SIZE;
   for (const m of MINERIOS) {
-    const teto = Math.min(m.teto, world.sizeY - 1);
-    const veias = Math.max(1, Math.floor(world.sizeX * world.sizeZ * m.porColuna));
-    for (let v = 0; v < veias; v++) {
-      let x = Math.floor(rng() * world.sizeX);
+    const teto = Math.min(m.teto, sizeY - 1);
+    const alvo = area * m.porColuna; // média de veias por coluna de chunks
+    const n = Math.floor(alvo) + (rng() < alvo - Math.floor(alvo) ? 1 : 0);
+    for (let v = 0; v < n; v++) {
+      let x = ccx * CHUNK_SIZE + Math.floor(rng() * CHUNK_SIZE);
       let y = 1 + Math.floor(rng() * (teto - 1));
-      let z = Math.floor(rng() * world.sizeZ);
+      let z = ccz * CHUNK_SIZE + Math.floor(rng() * CHUNK_SIZE);
       const tam = m.tamMin + Math.floor(rng() * (m.tamMax - m.tamMin + 1));
+      const celulas: { x: number; y: number; z: number }[] = [];
       for (let i = 0; i < tam; i++) {
-        if (getBlock(world, x, y, z) === BlockId.Stone) setBlock(world, x, y, z, m.id);
+        celulas.push({ x, y, z });
         const eixo = rng();
         const passo = rng() < 0.5 ? -1 : 1;
         if (eixo < 1 / 3) x += passo;
         else if (eixo < 2 / 3) z += passo;
         else y = Math.min(teto - 1, Math.max(1, y + passo));
       }
+      out.push({ id: m.id, celulas });
     }
   }
+  return out;
 }
 
-/** Árvores (espécie restrita ao bioma dono), flores e mandacaru — decididos
- *  por hash da coluna (determinístico e local). */
-function plantarFeatures(world: World, seed: number): void {
-  for (let x = 0; x < world.sizeX; x++) {
-    for (let z = 0; z < world.sizeZ; z++) {
-      const h = Math.min(heightAt(x, z, seed, world.sizeY), world.sizeY - 2);
-      const topo = getBlock(world, x, h, z);
-      const clima = climaAt(x, z, seed);
-      const bioma = biomaPorClima(clima);
+/** Árvore na coluna de blocos (x,z)? Decisão PURA (nunca lê o mundo). */
+function arvoreDaColuna(
+  x: number,
+  z: number,
+  seed: number,
+  sizeY: number,
+): { tipo: ArvoreTipo; varia: number } | null {
+  const topo = topoPrevisto(x, z, seed, sizeY);
+  const ehGrama =
+    topo === BlockId.Grass || topo === BlockId.GramaSeca || topo === BlockId.GramaFria;
+  if (!ehGrama) return null; // praia/neve/caatinga/chapada ficam de fora
+  const bioma = biomaPorClima(climaAt(x, z, seed));
+  const r = hash2(x, z, seed ^ 0x7ee5);
+  let acc = 0;
+  for (const [tipo, chance] of bioma.arvores) {
+    acc += chance;
+    if (r < acc) return { tipo, varia: hash2(x, z, seed ^ 0xa17a) };
+  }
+  return null;
+}
+
+/**
+ * Gera a coluna de chunks (ccx,ccz) — TODOS os cy juntos (terreno é por
+ * coluna de blocos). ORDEM-INDEPENDENTE: decisões são puras por coluna;
+ * veias e árvores vizinhas são re-derivadas (margem) e só a fatia local é
+ * escrita. Mesma seed = mesmos bytes, gere-se na ordem que for.
+ */
+export function gerarColunaDeChunks(
+  world: World,
+  ccx: number,
+  ccz: number,
+  seed: number,
+): void {
+  if (colunaGerada(world, ccx, ccz)) return;
+  alocarColuna(world, ccx, ccz);
+  const x0 = ccx * CHUNK_SIZE;
+  const z0 = ccz * CHUNK_SIZE;
+  const x1 = x0 + CHUNK_SIZE - 1;
+  const z1 = z0 + CHUNK_SIZE - 1;
+  const sizeY = world.sizeY;
+
+  // 1) terreno das colunas locais
+  for (let x = x0; x <= x1; x++) {
+    for (let z = z0; z <= z1; z++) {
+      const h = Math.min(heightAt(x, z, seed, sizeY), sizeY - 2);
+      const bioma = biomaPorClima(climaAt(x, z, seed));
+      // camada 0 = rocha-matriz (aluno não fura o fundo); igual ao plano
+      setBlock(world, x, 0, z, BlockId.Bedrock);
+      const iniSubsolo = Math.max(1, h - bioma.profundidadeSubsolo);
+      for (let y = 1; y < iniSubsolo; y++) setBlock(world, x, y, z, BlockId.Stone);
+      for (let y = iniSubsolo; y < h; y++) setBlock(world, x, y, z, bioma.subsolo);
+      setBlock(world, x, h, z, topoPrevisto(x, z, seed, sizeY));
+    }
+  }
+
+  // 2) veias de minério: re-deriva as 3×3 colunas de chunks e aplica a fatia
+  //    local (só substitui pedra — nunca fura superfície/subsolo/bedrock)
+  for (let dcx = -1; dcx <= 1; dcx++) {
+    for (let dcz = -1; dcz <= 1; dcz++) {
+      for (const veia of veiasDaColuna(ccx + dcx, ccz + dcz, seed, sizeY)) {
+        for (const c of veia.celulas) {
+          if (c.x < x0 || c.x > x1 || c.z < z0 || c.z > z1) continue;
+          if (getBlock(world, c.x, c.y, c.z) === BlockId.Stone) {
+            setBlock(world, c.x, c.y, c.z, veia.id);
+          }
+        }
+      }
+    }
+  }
+
+  // 3) árvores: re-deriva troncos até ARVORE_RAIO_MAX além da borda; só a
+  //    fatia local é escrita (filtro evita tocar coluna vizinha já gerada)
+  const M = ARVORE_RAIO_MAX;
+  for (let x = x0 - M; x <= x1 + M; x++) {
+    for (let z = z0 - M; z <= z1 + M; z++) {
+      const arv = arvoreDaColuna(x, z, seed, sizeY);
+      if (!arv) continue;
+      const h = Math.min(heightAt(x, z, seed, sizeY), sizeY - 2);
+      for (const c of celulasDaArvore(x, h + 1, z, arv.tipo, arv.varia)) {
+        if (c.x < x0 || c.x > x1 || c.z < z0 || c.z > z1) continue;
+        aplicarCelula(world, c);
+      }
+    }
+  }
+
+  // 4) flores e mandacaru (margem zero — só colunas locais)
+  for (let x = x0; x <= x1; x++) {
+    for (let z = z0; z <= z1; z++) {
+      const h = Math.min(heightAt(x, z, seed, sizeY), sizeY - 2);
+      const topo = topoPrevisto(x, z, seed, sizeY);
+      const bioma = biomaPorClima(climaAt(x, z, seed));
       const ehGrama =
         topo === BlockId.Grass || topo === BlockId.GramaSeca || topo === BlockId.GramaFria;
       if (ehGrama) {
-        // árvores só em grama — praia/neve/caatinga ficam de fora por construção
-        const r = hash2(x, z, seed ^ 0x7ee5);
-        let acc = 0;
-        let plantou = false;
-        for (const [tipo, chance] of bioma.arvores) {
-          acc += chance;
-          if (r < acc) {
-            plantarArvore(world, x, h + 1, z, tipo, hash2(x, z, seed ^ 0xa17a));
-            plantou = true;
-            break;
-          }
-        }
-        if (!plantou && bioma.flores > 0 && hash2(x, z, seed ^ 0xf10e) < bioma.flores) {
+        if (arvoreDaColuna(x, z, seed, sizeY)) continue; // coluna já tem árvore
+        if (bioma.flores > 0 && hash2(x, z, seed ^ 0xf10e) < bioma.flores) {
+          // copa vizinha pode ocupar a célula — as árvores do passo 3 já
+          // moram NESTA coluna, então a leitura é local e determinística
           if (getBlock(world, x, h + 1, z) === BlockId.Air) {
             const cor = Math.floor(hash2(x, z, seed ^ 0xc0e5) * 4);
             setBlock(world, x, h + 1, z, BlockId.FlorVermelha + cor);
           }
         }
       } else if (topo === BlockId.Sand && h > SAND_HEIGHT && bioma.mandacaru > 0) {
-        // caatinga (areia FORA da praia): mandacaru esparso
         if (hash2(x, z, seed ^ 0xcac70) < bioma.mandacaru) {
-          plantarMandacaru(world, x, h + 1, z, hash2(x, z, seed ^ 0xa17a));
+          for (const c of celulasDoMandacaru(x, h + 1, z, hash2(x, z, seed ^ 0xa17a))) {
+            aplicarCelula(world, c);
+          }
         }
       }
     }
   }
 }
 
+/** Gera o mundo INTEIRO (materializa todas as colunas) — comportamento dos
+ *  tamanhos atuais. O streaming (F2) chamará gerarColunaDeChunks sob demanda. */
 export function generateWorld(dims: WorldDims = DEFAULT_WORLD_CHUNKS, seed = 1): World {
-  const world = createWorld(dims);
-  for (let x = 0; x < world.sizeX; x++) {
-    for (let z = 0; z < world.sizeZ; z++) {
-      const h = Math.min(heightAt(x, z, seed, world.sizeY), world.sizeY - 2);
-      const clima = climaAt(x, z, seed);
-      const bioma = biomaPorClima(clima);
-      // camada 0 = rocha-matriz (aluno não fura o fundo do mundo); igual ao plano
-      setBlock(world, x, 0, z, BlockId.Bedrock);
-      const iniSubsolo = Math.max(1, h - bioma.profundidadeSubsolo);
-      for (let y = 1; y < iniSubsolo; y++) setBlock(world, x, y, z, BlockId.Stone);
-      for (let y = iniSubsolo; y < h; y++) setBlock(world, x, y, z, bioma.subsolo);
-      // praia é global por altura; pico nevado exige altura E frio (playtest
-      // 2026-07-20: neve em cima da caatinga não combina — deserto quente);
-      // serra quente muito alta expõe pedra (chapada)
-      const topo =
-        h <= SAND_HEIGHT ? BlockId.Sand
-        : h >= SNOW_HEIGHT && clima.temp < 0.6 ? BlockId.Snow
-        : h >= ROCHA_HEIGHT ? BlockId.Stone
-        : bioma.topo === "grama" ? gramaPorClima(clima)
-        : bioma.topo;
-      setBlock(world, x, h, z, topo);
+  const world = createWorld(dims, false);
+  for (let ccx = 0; ccx < dims.x; ccx++) {
+    for (let ccz = 0; ccz < dims.z; ccz++) {
+      gerarColunaDeChunks(world, ccx, ccz, seed);
     }
   }
-  plantarMinerios(world, seed);
-  plantarFeatures(world, seed);
   return world;
 }
 

@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { BIOMAS, biomaPorClima, gramaPorClima } from "./biomas";
 import { BlockId } from "./blocks";
 import { MAX_WORLD_CHUNKS } from "./constants";
-import { type World, getBlock } from "./world";
+import { type World, colunaGerada, createWorld, getBlock } from "./world";
 import {
   SAND_HEIGHT,
   TAMANHO_CHUNKS,
@@ -10,6 +10,7 @@ import {
   generateCabinsWorld,
   generateFlatWorld,
   generateWorld,
+  gerarColunaDeChunks,
   heightAt,
   parseWorldTamanho,
 } from "./worldgen";
@@ -71,6 +72,33 @@ describe("gen procedural com biomas (2026-07-20)", () => {
     for (let i = 0; i < a.chunks.length; i++) {
       expect(a.chunks[i]).toEqual(b.chunks[i]);
     }
+  });
+
+  it("ORDEM-INDEPENDENTE: colunas geradas em ordem embaralhada = mesmos bytes (streaming F1)", () => {
+    const dims = { x: 4, z: 4, y: 8 };
+    const a = generateWorld(dims, 13); // ordem natural (ccx,ccz crescente)
+    const b = createWorld(dims, false);
+    // ordem embaralhada determinística (stride primo cobre todas as colunas)
+    const colunas: Array<[number, number]> = [];
+    for (let cx = 0; cx < dims.x; cx++)
+      for (let cz = 0; cz < dims.z; cz++) colunas.push([cx, cz]);
+    const n = colunas.length;
+    for (let i = 0; i < n; i++) {
+      const [cx, cz] = colunas[(i * 7) % n]!;
+      gerarColunaDeChunks(b, cx, cz, 13);
+    }
+    for (let i = 0; i < a.chunks.length; i++) {
+      expect(a.chunks[i], `chunk ${i}`).toEqual(b.chunks[i]);
+    }
+  });
+
+  it("mundo esparso: coluna não gerada = ar (getBlock) e colunaGerada responde", () => {
+    const w = createWorld({ x: 4, z: 4, y: 8 }, false);
+    gerarColunaDeChunks(w, 1, 1, 13);
+    expect(colunaGerada(w, 1, 1)).toBe(true);
+    expect(colunaGerada(w, 0, 0)).toBe(false);
+    expect(getBlock(w, 20, 0, 20)).not.toBe(BlockId.Air); // bedrock gerado
+    expect(getBlock(w, 0, 0, 0)).toBe(BlockId.Air); // coluna ausente = ar
   });
 
   it("biomaPorClima: lookup Whittaker nos 4 biomas brasileiros", () => {

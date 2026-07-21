@@ -6410,6 +6410,118 @@
       "related_bugs": [],
       "occurrences": 1,
       "last_seen": "2026-07-21T00:53:58.533Z"
+    },
+    {
+      "id": "bug-395",
+      "timestamp": "2026-07-21T01:36:06.368Z",
+      "error_message": "Significant refactor of ",
+      "file": "client/src/inventory.ts",
+      "root_cause": "4 lines replaced/restructured",
+      "fix": "Rewrote 11→17 lines (4 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-21T01:36:06.368Z"
+    },
+    {
+      "id": "bug-396",
+      "timestamp": "2026-07-21T01:36:13.517Z",
+      "error_message": "Type error",
+      "file": "client/src/inventory.ts",
+      "root_cause": "Missing or incorrect type annotation",
+      "fix": "Added type assertion/annotation",
+      "tags": [
+        "auto-detected",
+        "type-fix",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-21T01:36:13.517Z"
+    },
+    {
+      "id": "bug-397",
+      "timestamp": "2026-07-21T01:42:42.106Z",
+      "error_message": "Significant refactor of ",
+      "file": "client/index.html",
+      "root_cause": "2 lines replaced/restructured",
+      "fix": "Rewrote 16→20 lines (2 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "html"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-21T01:42:42.106Z"
+    },
+    {
+      "id": "bug-398",
+      "timestamp": "2026-07-21T02:03:43.944Z",
+      "error_message": "Null/undefined access in ",
+      "file": "shared/src/world.ts",
+      "root_cause": "Property access on potentially null/undefined value",
+      "fix": "Added null safety (optional chaining or null check)",
+      "tags": [
+        "auto-detected",
+        "null-safety",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-21T02:03:43.944Z"
+    },
+    {
+      "id": "bug-399",
+      "timestamp": "2026-07-21T02:06:47.192Z",
+      "error_message": "Wrong reference: Bioma should be ArvoreTipo",
+      "file": "shared/src/worldgen.ts",
+      "root_cause": "Used \"Bioma\" instead of \"ArvoreTipo\"",
+      "fix": "Changed Bioma → ArvoreTipo",
+      "tags": [
+        "auto-detected",
+        "wrong-reference",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-21T02:06:47.192Z"
+    },
+    {
+      "id": "bug-400",
+      "timestamp": "2026-07-21T02:06:57.945Z",
+      "error_message": "Wrong condition in logic",
+      "file": "shared/src/mesher.ts",
+      "root_cause": "Condition was: if (bytes && bytes.every((b)",
+      "fix": "Changed to: if (!bytes || bytes.every((b)",
+      "tags": [
+        "auto-detected",
+        "logic-fix",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-21T02:06:57.945Z"
+    },
+    {
+      "id": "bug-401",
+      "timestamp": "2026-07-21T02:07:18.068Z",
+      "error_message": "Type error",
+      "file": "shared/src/worldgen.test.ts",
+      "root_cause": "Missing or incorrect type annotation",
+      "fix": "Added type assertion/annotation",
+      "tags": [
+        "auto-detected",
+        "type-fix",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-21T02:07:18.068Z"
     }
   ]
 }

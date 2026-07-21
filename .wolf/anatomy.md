@@ -1,6 +1,6 @@
 # anatomy.md
 
-> Auto-maintained by OpenWolf. Last scanned: 2026-07-21T01:01:03.144Z
+> Auto-maintained by OpenWolf. Last scanned: 2026-07-21T02:07:25.859Z
 > Files: 124 tracked | Anatomy hits: 0 | Misses: 0
 
 ## ../../../tmp/claude-1000/-home-meketreve-logica-em-jogo/1e53a721-e45d-4911-a026-f385f8f2c4e6/scratchpad/
@@ -103,7 +103,7 @@
 
 ## client/
 
-- `index.html` — Lógica em Jogo (~5242 tok)
+- `index.html` — Lógica em Jogo (~5475 tok)
 - `vite.config.ts` (~94 tok)
 
 ## client/src/
@@ -111,7 +111,7 @@
 - `atlasTexture.ts` — Texture atlas procedural pintado num canvas (sem assets externos — restrição (~5623 tok)
 - `audio.ts` — Som de INTERFACE (menus, botões, notificações) — sintetizado com WebAudio, (~992 tok)
 - `blockIcons.ts` — Ícones 2D dos blocos pra hotbar e pro inventário: recorta o tile LATERAL do (~270 tok)
-- `blocksUi.ts` — Blocos colocáveis com nome em português — fonte única pra hotbar (main.ts) (~1291 tok)
+- `blocksUi.ts` — Blocos colocáveis com nome em português — fonte única pra hotbar (main.ts) (~1751 tok)
 - `chat.ts` — UI de chat em HTML/CSS por cima do canvas (regra: sem GUI de engine). (~1525 tok)
 - `chunks.ts` — 1 mesh por chunk (BufferGeometry única, culled mesher do /shared). (~1171 tok)
 - `commands.ts` — Autocompletar de comandos de chat (Tab). Puro, sem DOM — o chat.ts liga o (~862 tok)
@@ -121,7 +121,7 @@
 - `events.ts` — Gatilhos de som (checkpoint 6): pontos de evento do jogo onde o áudio vai (~182 tok)
 - `hud.ts` — HUD de perfilação (F3): FPS, frametime méd+p95, remesh, draw calls e (~1120 tok)
 - `input.ts` — Teclado + mouse (pointer lock). SÓ coleta input — nenhuma decisão de (~1542 tok)
-- `inventory.ts` — Inventário de blocos (cp16) — grade com TODOS os colocáveis + faixa da (~1184 tok)
+- `inventory.ts` — Inventário de blocos (cp16) — grade dos colocáveis + faixa da hotbar de 9 (~1449 tok)
 - `main.ts` — O cliente não tem filesystem: aprende os nomes das aulas pela resposta de (~14574 tok)
 - `menu.ts` — Menu principal (cp8) — HTML/CSS por cima do canvas, sem GUI de engine. (~4252 tok)
 - `objectivesUi.ts` — Grupo do PRÓPRIO jogador (null = sem grupo). (~1244 tok)
@@ -163,7 +163,7 @@
 ## shared/src/
 
 - `arvores.test.ts` — Declares DIMS (~661 tok)
-- `arvores.ts` — Formas das árvores brasileiras (2026-07-20) — mutação de mundo usada SÓ pelo (~1344 tok)
+- `arvores.ts` — Formas das árvores brasileiras (2026-07-20) — usadas SÓ pelo gen (~1642 tok)
 - `auth.test.ts` (~428 tok)
 - `auth.ts` — Identidade por mundo (cp9): nome + PIN de 4 dígitos, papel professor/aluno. (~483 tok)
 - `biomas.ts` — Biomas do gen procedural (2026-07-20) — a REGRA DE OURO aplicada ao terreno: (~886 tok)
@@ -179,7 +179,7 @@
 - `groups.ts` — Grupos de alunos (cp13) — membros por NOME (mesma identidade do roster: (~280 tok)
 - `index.ts` (~152 tok)
 - `mesher.test.ts` — Declares DIMS (~992 tok)
-- `mesher.ts` — Culled mesher: função PURA (bytes do mundo → geometria). Só emite faces que (~8498 tok)
+- `mesher.ts` — Culled mesher: função PURA (bytes do mundo → geometria). Só emite faces que (~8519 tok)
 - `physics.test.ts` — Mundo 1 chunk com chão sólido em y ∈ [0,7]. (~2603 tok)
 - `physics.ts` — Física do jogador (andar, gravidade, colisão AABB com o grid de voxels). (~2071 tok)
 - `protocol.test.ts` — Declares DIMS (~3009 tok)
@@ -201,6 +201,6 @@
 - `tp.test.ts` — /tpr (pedir teleporte) + /tpa (aceitar) — todos os jogadores; e /tp nome / (~1496 tok)
 - `version.ts` — Versão do jogo — FONTE ÚNICA = campo "version" do package.json da raiz (import JSON tree-shaken); bump via `npm version`. (~135 tok)
 - `world.test.ts` — Declares DIMS (~866 tok)
-- `world.ts` — Dimensões do mundo em chunks. Parâmetro de criação, gravado no header do save/snapshot. (~848 tok)
-- `worldgen.test.ts` — Declares World (~2081 tok)
-- `worldgen.ts` — Preset de criação de mundo (cp14): escolhido no menu/host, só vale pra (~3400 tok)
+- `world.ts` — Dimensões do mundo em chunks. Parâmetro de criação, gravado no header do save/snapshot. (~1194 tok)
+- `worldgen.test.ts` — Declares World (~2440 tok)
+- `worldgen.ts` — Preset de criação de mundo (cp14): escolhido no menu/host, só vale pra (~4464 tok)

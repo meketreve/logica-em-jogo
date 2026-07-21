@@ -9,9 +9,15 @@ export interface WorldDims {
 }
 
 /**
- * Mundo voxel: grade densa de chunks, cada chunk um Uint8Array plano
- * (1 byte por bloco). Estrutura AUTORITATIVA — vive em /shared e roda
- * igual no cliente, no Web Worker e no Node.
+ * Mundo voxel: grade de chunks, cada chunk um Uint8Array plano (1 byte por
+ * bloco). Estrutura AUTORITATIVA — vive em /shared e roda igual no cliente,
+ * no Web Worker e no Node.
+ *
+ * ESPARSO (2026-07-20, obra do streaming): o array de chunks é DENSO DE
+ * REFERÊNCIAS mas cada slot pode ser undefined = chunk ainda não gerado.
+ * Indexação segue O(1) (hot paths de mesher/física intocados; 4096² de mundo
+ * = 4 MB de ponteiros). getBlock em chunk ausente devolve ar; setBlock
+ * ignora — mesmo contrato que já valia fora dos limites.
  */
 export interface World {
   readonly dims: WorldDims;
@@ -19,14 +25,16 @@ export interface World {
   readonly sizeX: number;
   readonly sizeY: number;
   readonly sizeZ: number;
-  /** Chunks indexados por chunkIndex(). */
-  readonly chunks: Uint8Array[];
+  /** Chunks indexados por chunkIndex(); undefined = não gerado ainda. */
+  readonly chunks: (Uint8Array | undefined)[];
 }
 
-export function createWorld(dims: WorldDims): World {
+/** `alocar=false` cria o mundo VAZIO (todo slot undefined) pra geração
+ *  preguiçosa por coluna — alocarColuna() materializa sob demanda. */
+export function createWorld(dims: WorldDims, alocar = true): World {
   const count = dims.x * dims.y * dims.z;
-  const chunks: Uint8Array[] = [];
-  for (let i = 0; i < count; i++) chunks.push(new Uint8Array(CHUNK_VOLUME));
+  const chunks: (Uint8Array | undefined)[] = new Array(count);
+  if (alocar) for (let i = 0; i < count; i++) chunks[i] = new Uint8Array(CHUNK_VOLUME);
   return {
     dims,
     sizeX: dims.x * CHUNK_SIZE,
@@ -34,6 +42,20 @@ export function createWorld(dims: WorldDims): World {
     sizeZ: dims.z * CHUNK_SIZE,
     chunks,
   };
+}
+
+/** A coluna de chunks (cx,cz) já foi materializada? (os chunks Y de uma
+ *  coluna nascem SEMPRE juntos — cy=0 existir prova a coluna inteira). */
+export function colunaGerada(world: World, cx: number, cz: number): boolean {
+  return world.chunks[chunkIndex(world, cx, 0, cz)] !== undefined;
+}
+
+/** Aloca (zerada) a coluna de chunks (cx,cz) inteira — todos os cy. */
+export function alocarColuna(world: World, cx: number, cz: number): void {
+  for (let cy = 0; cy < world.dims.y; cy++) {
+    const i = chunkIndex(world, cx, cy, cz);
+    if (!world.chunks[i]) world.chunks[i] = new Uint8Array(CHUNK_VOLUME);
+  }
 }
 
 /** Índice do chunk (cx,cy,cz) dentro de world.chunks. */
