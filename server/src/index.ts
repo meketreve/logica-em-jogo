@@ -12,6 +12,7 @@ import {
   TAMANHO_CHUNKS,
   VERSION,
   decodeSave,
+  encodeLazySave,
   encodeSave,
   parseClientMessage,
   parseWorldPreset,
@@ -203,15 +204,21 @@ let session = new GameSession(
 if (session.isLazy) {
   console.log(
     `[server] mundo ENORME (streaming): colunas geradas conforme os jogadores ` +
-      `exploram. SAVE ainda não suportado neste tamanho (fase F3) — nada será gravado.`,
+      `exploram. Save ESPARSO — só o que a turma editar é gravado; o terreno ` +
+      `regenera do seed.`,
   );
 }
 
 // --- Persistência: escrita atômica (tmp + rename) pra nunca truncar o save ---
 function saveNow(reason: string): void {
   if (somenteLeitura) return; // mundo de aula: reutilizável, nunca persiste
-  if (session.isLazy) return; // mundo ENORME: save esparso é a fase F3
-  const buf = Buffer.from(encodeSave(session.world, session.toSave()));
+  // mundo ENORME (lazy): save ESPARSO (F3) — só os chunks editados; o terreno
+  // regenera do seed. Mundo denso vai inteiro como sempre.
+  const buf = Buffer.from(
+    session.isLazy
+      ? encodeLazySave(session.world, session.toSave(), session.editedChunkIndices())
+      : encodeSave(session.world, session.toSave()),
+  );
   const tmp = `${savePath}.tmp`;
   mkdirSync(dirname(savePath), { recursive: true }); // pasta do save pode não existir ainda
   writeFileSync(tmp, buf);

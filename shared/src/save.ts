@@ -1,11 +1,12 @@
 import { type Papel } from "./auth";
 import { type Claim, type GrupoAmigos, parseClaim, parseGrupoAmigos } from "./claims";
+import { CHUNK_VOLUME } from "./constants";
 import { type QuadroConteudo, parseQuadroConteudo } from "./quadros";
 import { type GroupDef, parseGroups } from "./groups";
-import { decodeSnapshot, encodeSnapshot } from "./protocol";
+import { MAX_LAZY_CHUNKS, decodeSnapshot, encodeSnapshot } from "./protocol";
 import { type NamedRegion, parseNamedRegion } from "./regions";
 import { type ScenarioMeta, parseScenarioMeta } from "./scenario";
-import { type World } from "./world";
+import { type World, type WorldDims, createWorld } from "./world";
 
 /**
  * Formato de save (.ljw) — MESMO arquivo em todos os hospedeiros: disco do
@@ -33,6 +34,10 @@ declare class TextDecoder {
 }
 
 export const SAVE_MAGIC = 0x31534a4c; // bytes "LJS1" em little-endian
+/** F3: save ESPARSO do mundo lazy (tamanho E) — só os chunks EDITADOS, o
+ *  terreno regenera do seed. Layout: header + JSON meta (com `dims`) + u32
+ *  count + por chunk [chunkIndex u32, CHUNK_VOLUME bytes]. */
+export const LAZY_SAVE_MAGIC = 0x32534a4c; // bytes "LJS2" em little-endian
 const SAVE_HEADER_BYTES = 8;
 
 /** Jogador lembrado pelo mundo (volta onde parou, olhando pra onde olhava). */
@@ -82,10 +87,16 @@ export interface SaveMeta {
    *  corrente pra continuar de onde parou. */
   hora?: number;
   ciclo?: boolean;
+  /** Dimensões do mundo em chunks — GRAVADO só no save esparso (lazy), onde
+   *  não há snapshot binário pra carregar as dims. Denso as tira do LJW0. */
+  dims?: WorldDims;
 }
 
 export interface SaveData extends SaveMeta {
   world: World;
+  /** F3 (save esparso): chunks editados a sobrepor DEPOIS de regenerar as
+   *  colunas do seed. Presente só em save lazy — a session aplica no restore. */
+  editedChunks?: { index: number; bytes: Uint8Array }[];
 }
 
 export function encodeSave(world: World, meta: SaveMeta): ArrayBuffer {
@@ -97,6 +108,34 @@ export function encodeSave(world: World, meta: SaveMeta): ArrayBuffer {
   view.setUint32(4, json.byteLength, true);
   new Uint8Array(buf, SAVE_HEADER_BYTES).set(json);
   new Uint8Array(buf, SAVE_HEADER_BYTES + json.byteLength).set(new Uint8Array(snapshot));
+  return buf;
+}
+
+/** F3: save ESPARSO do mundo lazy — grava só os chunks editados (índices em
+ *  editedIndices). As dims vão no JSON (não há snapshot). */
+export function encodeLazySave(
+  world: World,
+  meta: SaveMeta,
+  editedIndices: readonly number[],
+): ArrayBuffer {
+  const json = new TextEncoder().encode(JSON.stringify({ ...meta, dims: world.dims }));
+  const n = editedIndices.length;
+  const buf = new ArrayBuffer(SAVE_HEADER_BYTES + json.byteLength + 4 + n * (4 + CHUNK_VOLUME));
+  const view = new DataView(buf);
+  view.setUint32(0, LAZY_SAVE_MAGIC, true);
+  view.setUint32(4, json.byteLength, true);
+  new Uint8Array(buf, SAVE_HEADER_BYTES).set(json);
+  let off = SAVE_HEADER_BYTES + json.byteLength;
+  view.setUint32(off, n, true);
+  off += 4;
+  const body = new Uint8Array(buf);
+  for (const index of editedIndices) {
+    view.setUint32(off, index, true);
+    off += 4;
+    const chunk = world.chunks[index];
+    if (chunk) body.set(chunk, off); // ausente (não deveria) = zeros = ar
+    off += CHUNK_VOLUME;
+  }
   return buf;
 }
 
@@ -114,23 +153,76 @@ export function decodeSave(buf: ArrayBuffer): SaveData {
     throw new Error(`save menor que o header (${buf.byteLength} bytes)`);
   }
   const view = new DataView(buf);
-  if (view.getUint32(0, true) !== SAVE_MAGIC) {
+  const magic = view.getUint32(0, true);
+  if (magic === LAZY_SAVE_MAGIC) return decodeLazySave(buf, view);
+  if (magic !== SAVE_MAGIC) {
     throw new Error("save com magic inválido — não é um arquivo .ljw");
   }
+  const { jsonLen, meta } = readSaveMeta(buf, view);
+  // snapshot valida a si mesmo (magic LJW0, dims, tamanho)
+  const snapshot = decodeSnapshot(buf.slice(SAVE_HEADER_BYTES + jsonLen));
+  return { ...meta, world: snapshot.world };
+}
+
+/** F3: decodifica um save ESPARSO (lazy). Devolve o mundo VAZIO + os chunks
+ *  editados — a session regenera as colunas do seed e sobrepõe estes bytes. */
+function decodeLazySave(buf: ArrayBuffer, view: DataView): SaveData {
+  const { jsonLen, m, meta } = readSaveMeta(buf, view);
+  const d = m["dims"];
+  const dims =
+    typeof d === "object" && d !== null &&
+    typeof (d as Record<string, unknown>)["x"] === "number" &&
+    typeof (d as Record<string, unknown>)["z"] === "number" &&
+    typeof (d as Record<string, unknown>)["y"] === "number"
+      ? (d as WorldDims)
+      : null;
+  if (
+    !dims || dims.x < 1 || dims.z < 1 || dims.y < 1 ||
+    dims.x > MAX_LAZY_CHUNKS.x || dims.z > MAX_LAZY_CHUNKS.z || dims.y > MAX_LAZY_CHUNKS.y
+  ) {
+    throw new Error("save esparso sem dims válidas");
+  }
+  let off = SAVE_HEADER_BYTES + jsonLen;
+  if (off + 4 > buf.byteLength) throw new Error("save esparso truncado (sem contagem)");
+  const n = view.getUint32(off, true);
+  off += 4;
+  if (off + n * (4 + CHUNK_VOLUME) > buf.byteLength) {
+    throw new Error(`save esparso truncado (${n} chunks não cabem)`);
+  }
+  const total = dims.x * dims.y * dims.z;
+  const editedChunks: { index: number; bytes: Uint8Array }[] = [];
+  for (let i = 0; i < n; i++) {
+    const index = view.getUint32(off, true);
+    off += 4;
+    if (index < total) {
+      editedChunks.push({ index, bytes: new Uint8Array(buf.slice(off, off + CHUNK_VOLUME)) });
+    }
+    off += CHUNK_VOLUME;
+  }
+  return { ...meta, dims, world: createWorld(dims, false), editedChunks };
+}
+
+/** Lê o header + JSON de metadados (comum aos dois formatos de save). Devolve
+ *  o tamanho do JSON, o objeto cru `m` (pra campos específicos do formato) e
+ *  o `meta` já validado/montado. */
+function readSaveMeta(
+  buf: ArrayBuffer,
+  view: DataView,
+): { jsonLen: number; m: Record<string, unknown>; meta: SaveMeta } {
   const jsonLen = view.getUint32(4, true);
   if (SAVE_HEADER_BYTES + jsonLen > buf.byteLength) {
     throw new Error("save truncado: JSON de metadados maior que o arquivo");
   }
-  let meta: unknown;
+  let parsed: unknown;
   try {
-    meta = JSON.parse(
+    parsed = JSON.parse(
       new TextDecoder().decode(new Uint8Array(buf, SAVE_HEADER_BYTES, jsonLen)),
     );
   } catch {
     throw new Error("save com JSON de metadados quebrado");
   }
-  if (typeof meta !== "object" || meta === null) throw new Error("metadados não são objeto");
-  const m = meta as Record<string, unknown>;
+  if (typeof parsed !== "object" || parsed === null) throw new Error("metadados não são objeto");
+  const m = parsed as Record<string, unknown>;
   if (typeof m["seed"] !== "number" || !Number.isFinite(m["seed"])) {
     throw new Error("save sem seed válida");
   }
@@ -193,10 +285,7 @@ export function decodeSave(buf: ArrayBuffer): SaveData {
       if (q) quadros.push(q);
     }
   }
-  // snapshot valida a si mesmo (magic LJW0, dims, tamanho)
-  const snapshot = decodeSnapshot(buf.slice(SAVE_HEADER_BYTES + jsonLen));
-  return {
-    world: snapshot.world,
+  const meta: SaveMeta = {
     seed: m["seed"],
     spawn: { x: m["spawn"].x, y: m["spawn"].y, z: m["spawn"].z },
     roster,
@@ -215,4 +304,5 @@ export function decodeSave(buf: ArrayBuffer): SaveData {
     ...(typeof m["hora"] === "number" && Number.isFinite(m["hora"]) ? { hora: m["hora"] } : {}),
     ...(typeof m["ciclo"] === "boolean" ? { ciclo: m["ciclo"] } : {}),
   };
+  return { jsonLen, m, meta };
 }

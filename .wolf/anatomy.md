@@ -1,7 +1,7 @@
 # anatomy.md
 
-> Auto-maintained by OpenWolf. Last scanned: 2026-07-21T09:45:20.510Z
-> Files: 126 tracked | Anatomy hits: 0 | Misses: 0
+> Auto-maintained by OpenWolf. Last scanned: 2026-07-21T10:02:12.166Z
+> Files: 129 tracked | Anatomy hits: 0 | Misses: 0
 
 ## ../../../tmp/claude-1000/-home-meketreve-logica-em-jogo/1e53a721-e45d-4911-a026-f385f8f2c4e6/scratchpad/
 
@@ -72,6 +72,8 @@
 
 - `acha-seeds.mts` — Varre seeds e classifica o bioma do SPAWN (centro do mundo P) + conta (~462 tok)
 - `chatsmoke.mjs` — Smoke: conecta, join (dispara welcome), manda 1 chat. Prova o log de chat. (~175 tok)
+- `f3-place.mjs` — F3 fase 1: entra no mundo E como professor, coloca bloco via /bloco perto do (~370 tok)
+- `f3-verify.mjs` — F3 fase 2: rejoin no mundo E RESTAURADO; decodifica as colunas LJC0 e (~459 tok)
 - `flor-stage.mts` — Stage das flores refeitas (cruz diagonal 45°): fileira das 4 cores num (~513 tok)
 - `janela-stage.mts` — Stage da dobradiça da JANELA: parede com 2 janelas lado a lado (janela dupla) (~450 tok)
 - `move-smoke.mjs` — Smoke F2: cliente ws real no mundo ENORME — conta lotes LJC0 ao entrar, (~493 tok)
@@ -144,11 +146,11 @@
 
 - `cenarios/gerar.ts` — Gerador dos 3 cenários pedagógicos (.ljw): digita os MESMOS comandos de chat do professor contra a GameSession real. Flags: --grupos --codigo --revelar --saida (~1900 tok)
 - `cenarios/verificar.ts` — Conferência embutida na geração: abre o .ljw num servidor novo, entra prof+2 alunos, completa a área do grupo 1; + guarda de geometria da faixa (~1400 tok)
-- `index.ts` — Hospedeiro Node+ws do servidor (LAN): embrulha a MESMA GameSession do Web (~5198 tok)
+- `index.ts` — Hospedeiro Node+ws do servidor (LAN): embrulha a MESMA GameSession do Web (~5262 tok)
 - `mundos.ts` — `/mundo` (cp19) — trocar a aula SEM derrubar a turma. (~1939 tok)
 - `paths.ts` — `npm run <script> -w server` roda com o cwd dentro de server/, então caminho (~920 tok)
 - `static.ts` — Serve o cliente já buildado (client/dist) NA MESMA PORTA do WebSocket. (~1055 tok)
-- `worker.ts` — Hospedeiro Web Worker do servidor (singleplayer): embrulha a GameSession (~820 tok)
+- `worker.ts` — Hospedeiro Web Worker do servidor (singleplayer): embrulha a GameSession (~842 tok)
 
 ## server/src/cenarios/
 
@@ -193,12 +195,13 @@
 - `regions.ts` — Regiões nomeadas (cp11) — caixas de blocos com nome, marcadas pelo professor (~756 tok)
 - `rules.test.ts` — Declares DIMS (~736 tok)
 - `rules.ts` — Sistema GENÉRICO de atualização de bloco por vizinhança — a REGRA DE OURO (~1194 tok)
+- `save-lazy.test.ts` — Dims lazy de teste (33k chunks > teto denso) — mesmo caminho do tamanho E. (~1031 tok)
 - `save.test.ts` — Declares DIMS (~1454 tok)
-- `save.ts` — Formato de save (.ljw) — MESMO arquivo em todos os hospedeiros: disco do (~2537 tok)
+- `save.ts` — Formato de save (.ljw) — MESMO arquivo em todos os hospedeiros: disco do (~3650 tok)
 - `scenario.test.ts` — Marca cantos e cria região nomeada via varinha + /regiao (professor id). (~4106 tok)
 - `scenario.ts` — Cenário (cp12) — o coração pedagógico: objetivos que checam o ESTADO DO (~3680 tok)
 - `session.test.ts` — Testes de MECÂNICA rodam com singleplayer: true (join sem PIN) — a (~11934 tok)
-- `session.ts` — GameSession: o SERVIDOR autoritativo, independente de hospedeiro. (~35248 tok)
+- `session.ts` — GameSession: o SERVIDOR autoritativo, independente de hospedeiro. (~35724 tok)
 - `streaming.test.ts` — Dims LAZY de teste: 64×64×8 chunks (33k chunks > teto denso de 2048) — (~2041 tok)
 - `tp.test.ts` — /tpr (pedir teleporte) + /tpa (aceitar) — todos os jogadores; e /tp nome / (~1496 tok)
 - `version.ts` — Versão do jogo — FONTE ÚNICA = campo "version" do package.json da raiz (import JSON tree-shaken); bump via `npm version`. (~135 tok)

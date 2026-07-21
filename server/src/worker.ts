@@ -7,6 +7,7 @@ import {
   type WorldPreset,
   type WorldTamanho,
   decodeSave,
+  encodeLazySave,
   encodeSave,
   parseWorldPreset,
   parseWorldTamanho,
@@ -79,10 +80,11 @@ self.onmessage = (e: MessageEvent) => {
       parseWorldTamanho(msg.tamanho),
     );
   } else if (msg.hostType === "save_request" && session) {
-    // mundo ENORME (lazy): encodar o mundo inteiro seria GB — save esparso é
-    // a fase F3. O cliente já nem pede (persistWorld pula), isto é cinto.
-    if (session.isLazy) return;
-    const data = encodeSave(session.world, session.toSave());
+    // mundo ENORME (lazy): save ESPARSO (F3) — só os chunks editados (o mundo
+    // inteiro seria GB). Denso vai inteiro como sempre.
+    const data = session.isLazy
+      ? encodeLazySave(session.world, session.toSave(), session.editedChunkIndices())
+      : encodeSave(session.world, session.toSave());
     postMessage({ hostType: "save", data }, { transfer: [data] });
   }
 };

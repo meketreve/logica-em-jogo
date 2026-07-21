@@ -83,6 +83,7 @@ import {
 import {
   type World,
   type WorldDims,
+  chunkIndex,
   colunaGerada,
   findSpawnY,
   getBlock,
@@ -267,6 +268,10 @@ export class GameSession {
    *  (chave = cz*dims.x+cx). Sai do raio+folga = esquece → re-envia na volta
    *  (cliente descarta pela MESMA regra — sem mensagem de unload). */
   private readonly stream = new Map<number, { raio: number; enviadas: Set<number> }>();
+  /** F3 save esparso: índices de chunk (chunkIndex) com EDIÇÃO — jogador ou
+   *  gravidade, tudo passa por applyBlockQuieto. Terreno só-gerado NÃO entra
+   *  (regenera do seed). Só o mundo lazy usa; no save vira o delta gravado. */
+  private readonly editedChunks = new Set<number>();
 
   constructor(
     private readonly send: SendFn,
@@ -282,6 +287,21 @@ export class GameSession {
       this.world = opts.restore.world;
       this.seed = opts.restore.seed;
       this.spawn = { ...opts.restore.spawn };
+      // F3 save esparso: mundo lazy restaurado nasce VAZIO — para cada chunk
+      // editado, regenera a coluna do seed e sobrepõe os bytes salvos. O resto
+      // do mundo continua vindo por streaming (regenera igual, é determinístico).
+      this.lazy = ehMundoLazy(this.world.dims);
+      if (this.lazy && opts.restore.editedChunks) {
+        const dims = this.world.dims;
+        for (const { index, bytes } of opts.restore.editedChunks) {
+          const cx = index % dims.x;
+          const rest = (index - cx) / dims.x;
+          const cz = rest % dims.z;
+          gerarColunaDeChunks(this.world, cx, cz, this.seed); // no-op se já gerada
+          this.world.chunks[index]?.set(bytes); // sobrepõe a edição salva
+          this.editedChunks.add(index);
+        }
+      }
       for (const p of opts.restore.roster) {
         this.roster.set(p.name, { x: p.x, y: p.y, z: p.z, yaw: p.yaw, pitch: p.pitch });
         // identidade restaurada MESMO no singleplayer: mundo de LAN importado
@@ -2645,7 +2665,16 @@ export class GameSession {
     // F2 streaming: edição em coluna não materializada (teleoperação: /bloco,
     // /regiao encher) gera o terreno ANTES — o bloco novo entra por cima, e a
     // vizinhança 3×3 garante as leituras das regras/validações na borda
-    if (this.lazy) this.garantirColunas(x - 1, z - 1, x + 1, z + 1);
+    if (this.lazy) {
+      this.garantirColunas(x - 1, z - 1, x + 1, z + 1);
+      // F3 save esparso: este chunk foi EDITADO (jogador ou gravidade) → entra
+      // no delta gravado. O terreno só-gerado regenera do seed, não é salvo.
+      if (inBounds(this.world, x, y, z)) {
+        this.editedChunks.add(
+          chunkIndex(this.world, (x / CHUNK_SIZE) | 0, (y / CHUNK_SIZE) | 0, (z / CHUNK_SIZE) | 0),
+        );
+      }
+    }
     // quadro (2026-07-19): a célula deixou de ser quadro → conteúdo morre junto
     // (o cliente limpa pelo próprio block_changed/blocks_filled; sem msg extra)
     if (!isQuadro(blockId)) this.quadros.delete(quadroKey(x, y, z));
@@ -2821,9 +2850,15 @@ export class GameSession {
     }
   }
 
-  /** Mundo lazy (streaming F2)? Host usa pra pular autosave (save esparso = F3). */
+  /** Mundo lazy (streaming F2)? Host escolhe o formato de save (esparso = F3). */
   get isLazy(): boolean {
     return this.lazy;
+  }
+
+  /** F3: índices de chunk editados (delta a gravar no save esparso do mundo
+   *  lazy). Vazio em mundo denso — lá salva-se o mundo inteiro. */
+  editedChunkIndices(): number[] {
+    return [...this.editedChunks];
   }
 
   /** Materializa as colunas de chunks que intersectam o retângulo de BLOCOS

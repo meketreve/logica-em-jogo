@@ -1991,3 +1991,25 @@ Files: blocks.ts, mesher.ts, session.ts, blocks.test.ts, cp23.test.ts. Commitar+
 | 23:27 | Edited server/src/worker.ts | added 1 condition(s) | ~108 |
 | 06:45 | Created ../.claude/jobs/a35a297d/tmp/move-smoke.mjs | — | ~493 |
 | 00:15 | STREAMING F2 COMPLETA fim-a-fim: protocolo LJE0 (header lazy, dims u16) + LJC0 (lote de colunas) + msg radius; session com motor de interesse por anéis (streamColunas, esquece além raio+2 e re-envia), materialização em applyBlockQuieto; cliente com roteamento por magic, fila de mesh (N/frame), descarte espelhado, física congelada sem chão; configs raioRender+meshPorFrame (menu sliders) e LJ_COLUNAS_TICK (host); tamanho E 3840×3840×128 no menu/env; save bloqueado em E (F3) | protocol.ts, session.ts, worldgen.ts, chunks.ts, main.ts, settings.ts, menu.ts, index.html, server/{index,worker}.ts, streaming.test.ts | 271 testes, typecheck 3/3, build; smoke real: 81 colunas join (9×9 raio 4), +81 longe, +81 re-envio; screenshot mundo E renderizado ✓ | ~55k |
+| 06:51 | Edited shared/src/session.ts | 4→8 lines | ~173 |
+| 06:52 | Edited shared/src/session.ts | 9→10 lines | ~40 |
+| 06:52 | Edited shared/src/session.ts | added 1 condition(s) | ~203 |
+| 06:52 | Edited shared/src/session.ts | modified isLazy() | ~102 |
+| 06:53 | Edited shared/src/save.ts | added 1 import(s) | ~163 |
+| 06:53 | Edited shared/src/save.ts | 2→6 lines | ~111 |
+| 06:53 | Edited shared/src/save.ts | modified F3() | ~130 |
+| 06:53 | Edited shared/src/save.ts | added 1 condition(s) | ~317 |
+| 06:53 | Edited shared/src/save.ts | added 1 condition(s) | ~159 |
+| 06:55 | Edited shared/src/save.ts | added 4 condition(s) | ~1727 |
+| 06:55 | Edited shared/src/session.ts | added optional chaining | ~306 |
+| 06:56 | Edited server/src/index.ts | 4→5 lines | ~23 |
+| 06:56 | Edited server/src/index.ts | modified saveNow() | ~137 |
+| 06:56 | Edited server/src/index.ts | modified if() | ~67 |
+| 06:57 | Edited server/src/worker.ts | 5→6 lines | ~32 |
+| 06:57 | Edited server/src/worker.ts | modified if() | ~125 |
+| 06:57 | Edited client/src/main.ts | modified persistWorld() | ~108 |
+| 06:58 | Created shared/src/save-lazy.test.ts | — | ~1031 |
+| 06:59 | Edited shared/src/save.ts | 10→8 lines | ~74 |
+| 07:00 | Created ../.claude/jobs/a35a297d/tmp/f3-place.mjs | — | ~370 |
+| 07:02 | Created ../.claude/jobs/a35a297d/tmp/f3-verify.mjs | — | ~459 |
+| 07:03 | STREAMING F3 (save esparso) COMPLETA: session rastreia editedChunks (marcado em applyBlockQuieto, só lazy); save.ts formato LJS2 (encodeLazySave = header+meta com dims+chunks editados; decodeLazySave → world vazio + editedChunks; readSaveMeta compartilhado denso/lazy); restore regenera coluna + sobrepõe bytes; host/worker/cliente usam save esparso. Plano em .wolf/streaming-plan.md | shared/{session,save,save-lazy.test}.ts, server/{index,worker}.ts, client/main.ts | 274 testes (+3), typecheck 3/3, build; SMOKE REAL: obsidiana 1920,70,1920 no E → save 4341 bytes → restart → volta ✓ | ~40k |

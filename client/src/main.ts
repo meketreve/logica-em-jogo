@@ -517,10 +517,10 @@ function startSingleplayer(choice: PlayWorldChoice): void {
   connect(wc);
 }
 
-/** Grava o mundo singleplayer no IndexedDB (autosave e botão sair). */
+/** Grava o mundo singleplayer no IndexedDB (autosave e botão sair). O mundo
+ *  ENORME (lazy) grava um save ESPARSO (F3) — só os chunks editados. */
 async function persistWorld(): Promise<void> {
   if (!(conn instanceof WorkerConnection) || !currentWorld) return;
-  if (proximoLazy) return; // mundo ENORME ainda não salva (save esparso = F3)
   const data = await conn.requestSave();
   await putWorld({ ...currentWorld, updatedAt: Date.now(), data });
 }
