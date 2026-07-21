@@ -1,6 +1,32 @@
 # STATUS — Projeto "Lógica em Jogo" (jogo voxel educacional)
 
 > Single source of truth for resuming work. Read this FIRST when starting a session.
+> **SESSÃO 12 (2026-07-21) — ✅ PLAYTEST MULTIPLAYER DO MUNDO PROCEDURAL NA ESCOLA
+> (MARCO — streaming validado EM CAMPO com turma real).** Usuário criou um mundo
+> procedural (streaming F1-F5, `worldChunks` 240×240×8 = 3840²×128, seed 3158887957)
+> e rodou COM A TURMA: **10 alunos + 2 professores simultâneos**. **ZERO problema de
+> sincronismo com os alunos.** Único incidente: chunk não carregava — SÓ no notebook
+> do próprio usuário, e a causa foi ele mexendo AO VIVO na QUANTIDADE de chunks
+> exibidos (raio de render), NÃO bug do streaming. Reports de performance de todos os
+> dispositivos salvos em `profiles-escola/` (25 arquivos JSON, `checkpoint:14`).
+> NÚMEROS: tablets Android da escola (Kindle Fire Silk / Chrome Android) rodaram o
+> mundo GIGANTE a **60-90 FPS** (Adriamff 89 / Tilapia 90 / Teste-Kindle 60 fps,
+> frametime ~11-17ms); servidor FOLGADO em TODOS (tickAvgMs < 1ms, tickMax < 1.7ms →
+> confirma sem gargalo de sync); rede 22-101 msg/s, 3-16 KB/s por cliente. Notebook do
+> usuário (host = servidor+cliente+ele mexendo em chunks, Windows Chrome, ws://
+> localhost) = 37 FPS / P95 37ms / remesh acumulado 66s — o mais carregado da sessão,
+> esperado (host + dev mexendo ao vivo). remeshCount alto (22k-496k) é acumulado da
+> sessão, remeshLastMs ≤ 2.1ms → sem hitch por frame. **CONCLUSÃO: o motor + streaming
+> estão PRONTOS e PROVADOS com turma real.**
+> **✅ PILOTO FEITO (2026-07-21) — o usuário JÁ APLICOU o jogo com alunos de TODAS as
+> turmas** (não foi evento único; foi cobertura incremental, turma a turma). Inclui aula
+> com alunos do **AEE (Atendimento Educacional Especializado / educação especial)** —
+> **tiveram BOM DESEMPENHO** nas atividades de SEQUÊNCIA DE CORES e CONSTRUÇÃO LIVRE.
+> Resultado de inclusão/acessibilidade forte pro relatório. **RESTA SÓ O ENTREGÁVEL
+> FINAL: o RELATÓRIO de aplicação (parte técnica como anexo).** Daqui pra frente o
+> trabalho é ESCREVER o relatório, não codar — o código está completo e provado. Backlog
+> de motor é OPCIONAL e não bloqueia nada: HUD de colunas/raio carregado; v2 da geração
+> (cavernas, altura por bioma, madeira por espécie — nunca feita).**
 > **SESSÃO 11 (2026-07-21) — STREAMING DE CHUNKS F1-F5 COMPLETO (mundo GIGANTE
 > em runtime). Plano detalhado em `.wolf/streaming-plan.md`. COMMITADO + PUSHADO
 > (`c9e465e`) — escola faz `git pull`. Usuário vai PLAYTESTAR sozinho na escola

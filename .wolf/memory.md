@@ -2034,3 +2034,11 @@ Files: blocks.ts, mesher.ts, session.ts, blocks.test.ts, cp23.test.ts. Commitar+
 | 08:18 | Edited client/index.html | inline fix | ~24 |
 | 08:18 | Edited client/src/menu.ts | modified streaming() | ~47 |
 | 08:19 | Session end: 129 writes across 31 files (blocks.ts, mesher.ts, blocks.test.ts, blocksUi.ts, atlasTexture.ts) | 33 reads | ~147197 tok |
+| 08:23 | Session end: 129 writes across 31 files (blocks.ts, mesher.ts, blocks.test.ts, blocksUi.ts, atlasTexture.ts) | 33 reads | ~147197 tok |
+
+## Session: 2026-07-21 09:38
+
+| Time | Action | File(s) | Outcome | ~Tokens |
+|------|--------|---------|---------|--------|
+| 10:01 | Playtest MULTIPLAYER escola: mundo procedural 3840²×128, 10 alunos + 2 profs, ZERO dessincronia; tablets 60-90fps, tick<1ms; chunk-nao-carrega so no host (raio de render mexido ao vivo) | profiles-escola/*.json (25), STATUS.md, cerebrum.md | MARCO validado em campo | ~9000 |
+| 10:54 | PILOTO FEITO: aplicado com TODAS as turmas + AEE (bom desempenho em sequencia de cores + construcao livre). Resta so o RELATORIO. | STATUS.md, cerebrum.md | entregavel pedagogico cumprido | ~4000 |

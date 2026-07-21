@@ -34,6 +34,32 @@
 
 ## Key Learnings
 
+- **PILOTO FEITO (2026-07-21) — o entregável pedagógico está cumprido.** O usuário
+  aplicou o jogo com alunos de TODAS as turmas da escola (cobertura incremental, não um
+  evento único). **Inclui AEE (Atendimento Educacional Especializado / educação
+  especial): bom desempenho em SEQUÊNCIA DE CORES e CONSTRUÇÃO LIVRE** — resultado de
+  inclusão/acessibilidade, ponto forte pro relatório. Implicação: o projeto saiu da fase
+  "codar motor" pra fase "ESCREVER O RELATÓRIO de aplicação". Não propor mais features de
+  motor como próximo passo, salvo pedido explícito — o entregável final é o documento.
+  As atividades que funcionaram na prática: sequência de cores (pensamento lógico) e
+  construção livre (autonomia/criatividade), incl. com público AEE.
+- **Streaming validado EM CAMPO (2026-07-21, escola): mundo procedural gigante
+  (240×240×8 chunks = 3840²×128) rodou com 10 alunos + 2 professores simultâneos,
+  ZERO problema de sincronismo.** Perf reports em `profiles-escola/` (25 JSON,
+  `checkpoint:14`, meta.worldChunks/worldSeed/serverHost). Tablets Android da escola
+  (Kindle Fire Silk, Chrome Android) = **60-90 FPS no mundo gigante** (frametime
+  ~11-17ms). Servidor FOLGADO com a turma inteira: **tickAvgMs < 1ms, tickMax < 1.7ms**
+  em todos os clientes → o gargalo NÃO é o server tick nem a rede (22-101 msg/s, 3-16
+  KB/s por cliente). O host (notebook do usuário rodando server+cliente) é sempre o
+  mais pesado (37 FPS). `remeshCount` é ACUMULADO da sessão (22k-496k); o que importa é
+  `remeshLastMs` (≤ 2.1ms = sem hitch por frame), não o total. O relatório do piloto
+  pode citar esses números como prova de escalabilidade.
+- **"Chunk não carrega" ≠ bug do streaming se o usuário mexeu no raio de render ao
+  vivo.** Ajustar a QUANTIDADE de chunks exibidos (raio de interesse) em runtime pode
+  deixar colunas sem carregar no cliente que mexeu — sintoma local, não dessincronia.
+  Antes de investigar "chunk sumiu", perguntar se o raio de render foi alterado na
+  sessão. Aconteceu SÓ no notebook do usuário no playtest da escola; os 12 clientes
+  reais não tiveram o problema.
 - **anatomy.md acumula entradas duplicadas em rename:** renomear arquivo 2x na
   mesma sessão (ideias para fazer.txt → .md → ideias.md) deixou 2 linhas
   fantasma no anatomy.md apontando pros nomes intermediários. Auto-update só
