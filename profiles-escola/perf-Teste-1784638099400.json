@@ -1,0 +1,28 @@
+{
+  "timestamp": "2026-07-21T12:48:19.983Z",
+  "userAgent": "Mozilla/5.0 (Linux; Android 11; KFRAWI) AppleWebKit/537.36 (KHTML, like Gecko) Silk/126.6.2 like Chrome/126.0.6478.238 Safari/537.36",
+  "meta": {
+    "checkpoint": 14,
+    "worldChunks": {
+      "x": 240,
+      "z": 240,
+      "y": 8
+    },
+    "worldSeed": 3158887957,
+    "serverHost": "ws://10.100.95.96:8080"
+  },
+  "fps": 60,
+  "frametimeAvgMs": 16.8,
+  "frametimeP95Ms": 18.3,
+  "drawCalls": 175,
+  "triangles": 138330,
+  "remeshCount": 2315,
+  "remeshTotalMs": 5792.8,
+  "remeshLastMs": 0.1,
+  "net": {
+    "msgsPerSec": 79,
+    "bytesPerSec": 11942,
+    "tickAvgMs": 0.241,
+    "tickMaxMs": 0.373
+  }
+}
