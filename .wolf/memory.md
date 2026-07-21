@@ -2042,3 +2042,7 @@ Files: blocks.ts, mesher.ts, session.ts, blocks.test.ts, cp23.test.ts. Commitar+
 |------|--------|---------|---------|--------|
 | 10:01 | Playtest MULTIPLAYER escola: mundo procedural 3840²×128, 10 alunos + 2 profs, ZERO dessincronia; tablets 60-90fps, tick<1ms; chunk-nao-carrega so no host (raio de render mexido ao vivo) | profiles-escola/*.json (25), STATUS.md, cerebrum.md | MARCO validado em campo | ~9000 |
 | 10:54 | PILOTO FEITO: aplicado com TODAS as turmas + AEE (bom desempenho em sequencia de cores + construcao livre). Resta so o RELATORIO. | STATUS.md, cerebrum.md | entregavel pedagogico cumprido | ~4000 |
+| 10:58 | Created relatorio/relatorio-aplicacao.md | — | ~2688 |
+| 10:58 | Montou esqueleto do relatorio de aplicacao (entregavel final): estrutura completa + perf/tech pre-preenchidos, campos PREENCHER pro usuario | relatorio/relatorio-aplicacao.md (novo), anatomy.md | esqueleto pronto | ~6000 |
+| 10:58 | Session end: 1 writes across 1 files (relatorio-aplicacao.md) | 1 reads | ~4846 tok |
+| 13:36 | Session-end prep (/clear): STATUS aponta proxima sessao ao esqueleto do relatorio (sec 2/3 redigivel sem dado de sala) | STATUS.md | pronto pra /clear | ~2500 |

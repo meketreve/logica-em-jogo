@@ -1,7 +1,7 @@
 # anatomy.md
 
-> Auto-maintained by OpenWolf. Last scanned: 2026-07-21T11:18:43.584Z
-> Files: 130 tracked | Anatomy hits: 0 | Misses: 0
+> Auto-maintained by OpenWolf. Last scanned: 2026-07-21T13:58:20.713Z
+> Files: 131 tracked | Anatomy hits: 0 | Misses: 0
 
 ## ../../../tmp/claude-1000/-home-meketreve-logica-em-jogo/1e53a721-e45d-4911-a026-f385f8f2c4e6/scratchpad/
 
@@ -138,6 +138,10 @@
 - `touch.ts` — Controles de toque (tablet) — joystick, arrasto de olhar e botões. SÓ (~2676 tok)
 - `worldStore.ts` — Mundos do SINGLEPLAYER, guardados no navegador (IndexedDB) — decisão de (~780 tok)
 
+## relatorio/
+
+- `relatorio-aplicacao.md` — Relatório de Aplicação — *Lógica em Jogo* (~2520 tok)
+
 ## server/
 
 - `package.json` — Node.js package manifest (~119 tok)
@@ -210,3 +214,7 @@
 - `world.ts` — Dimensões do mundo em chunks. Parâmetro de criação, gravado no header do save/snapshot. (~1194 tok)
 - `worldgen.test.ts` — Declares World (~2440 tok)
 - `worldgen.ts` — Preset de criação de mundo (cp14): escolhido no menu/host, só vale pra (~4705 tok)
+
+## relatorio/
+
+- `relatorio-aplicacao.md` — Esqueleto do RELATORIO de aplicacao (entregavel final): ficha, contexto BNCC/ISTE/Wing, 6 aulas+construcao livre, metodologia, resultados (incl AEE), perf/escalabilidade (dados escola), anexos tecnicos. Campos ✏️ PREENCHER = observacao de sala. (~2200 tok)

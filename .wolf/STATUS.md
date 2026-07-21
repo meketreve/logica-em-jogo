@@ -23,7 +23,17 @@
 > com alunos do **AEE (Atendimento Educacional Especializado / educação especial)** —
 > **tiveram BOM DESEMPENHO** nas atividades de SEQUÊNCIA DE CORES e CONSTRUÇÃO LIVRE.
 > Resultado de inclusão/acessibilidade forte pro relatório. **RESTA SÓ O ENTREGÁVEL
-> FINAL: o RELATÓRIO de aplicação (parte técnica como anexo).** Daqui pra frente o
+> FINAL: o RELATÓRIO de aplicação (parte técnica como anexo).** ✅ ESQUELETO DO RELATÓRIO
+> MONTADO (2026-07-21): `relatorio/relatorio-aplicacao.md` — 9 seções + 3 anexos + refs.
+> JÁ preenchido com dado TÉCNICO (tabela dos 6 pilares↔atividade; tabela de perf da
+> escola: tablets 60-90 FPS, tick servidor < 1ms, 12 clientes, zero dessincronia;
+> arquitetura/stack). Campos `✏️ PREENCHER` = dados de SALA que só o usuário tem (datas,
+> nº alunos/turma, detalhe AEE, observações qualitativas, screenshots do jogo, refs
+> bibliográficas completas). Ordem de escrita sugerida: seção 5 (metodologia) → 6
+> (resultados) → 1 (resumo por último). **Seções 2 (introdução/justificativa) e 3 (visão
+> geral do jogo) podem ser REDIGIDAS SEM dado de sala** — bom ponto de partida numa
+> próxima sessão. Roteiro pedagógico das 6 aulas (pilar/gabarito/condução) em
+> `cenarios/README.md` → vira o Anexo C. Daqui pra frente o
 > trabalho é ESCREVER o relatório, não codar — o código está completo e provado. Backlog
 > de motor é OPCIONAL e não bloqueia nada: HUD de colunas/raio carregado; v2 da geração
 > (cavernas, altura por bioma, madeira por espécie — nunca feita).**
