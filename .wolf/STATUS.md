@@ -32,8 +32,10 @@
 > (browser) — a lógica é toda cliente. Depois de codar: typecheck + build, atualizar este bloco.
 > **SESSÃO 13 (2026-07-21) — ÁGUA+NADO · /CLAIM (professor cria, COLUNA) · PAINEL DE
 > JOGADORES+BAN · MOBILE (varinha, agachar, escala UI) · PROFILER 10s+RAM/vídeo.
-> CODADO + VERDE (typecheck 0 erros, 283 testes, build ok). NÃO playtestado, NÃO
-> commitado.** Sessão longa, 4 mensagens de pedido acumuladas — TUDO implementado:
+> CODADO + VERDE (typecheck 0 erros, 283 testes, build ok). ✅ COMMITADO
+> (`d8ca720`) + TAG `v0.8.0` (bump minor 0.7.0→0.8.0, badge rebuildado). NÃO PUSHADO
+> (usuário não pediu push) · NÃO playtestado.** Sessão longa, 4 mensagens de pedido
+> acumuladas — TUDO implementado:
 > (1) **ÁGUA (id 129, append)** — bloco ESTÁTICO (sem fluxo; fluido dinâmico = fase própria).
 > Atravessável (`isSolidBlock`=false → entra e NADA) mas cubo cheio pro mesher
 > (`isFullCube`=true → funde com água vizinha, só a casca aparece). Translúcida SEM mexer no
