@@ -36,9 +36,10 @@ function ultimaChat(sent: Sent, clientId: number): string | null {
 }
 
 describe("claims — helpers puros", () => {
-  it("claimDentroDoLimite: até 32 na horizontal, altura livre (coluna cheia)", () => {
-    expect(claimDentroDoLimite({ x: 0, y: 0, z: 0 }, { x: 31, y: 0, z: 31 })).toBe(true);
-    expect(claimDentroDoLimite({ x: 0, y: 0, z: 0 }, { x: 32, y: 0, z: 0 })).toBe(false); // 33 de largura
+  it("claimDentroDoLimite: até 64 (x) × 32 (z), altura livre (coluna cheia)", () => {
+    expect(claimDentroDoLimite({ x: 0, y: 0, z: 0 }, { x: 63, y: 0, z: 31 })).toBe(true);
+    expect(claimDentroDoLimite({ x: 0, y: 0, z: 0 }, { x: 64, y: 0, z: 0 })).toBe(false); // 65 de largura
+    expect(claimDentroDoLimite({ x: 0, y: 0, z: 0 }, { x: 0, y: 0, z: 32 })).toBe(false); // 33 de fundo
     expect(claimDentroDoLimite({ x: 0, y: 0, z: 0 }, { x: 0, y: 999, z: 0 })).toBe(true); // altura não limita
   });
 
@@ -144,9 +145,28 @@ describe("claims — proteção de áreas (cp24)", () => {
     expect(ultimaChat(sent, 3)).toContain("protegida por ana");
   });
 
+  it("professor também reserva área com /claim (mesmo acesso do aluno)", () => {
+    const { sent, session, world, sx, sz, h } = mundoComTurma();
+    session.handleMessage(1, cmd("/claim ligar"));
+    // professor marca com a varinha e cria — antes era barrado
+    session.handleMessage(1, mark(1, sx - 1, h, sz - 1));
+    session.handleMessage(1, mark(2, sx + 1, h + 1, sz + 1));
+    session.handleMessage(1, cmd("/claim criar palco"));
+    const claim = session.toSave().claims?.find((c) => c.dono === "prof");
+    expect(claim).toBeDefined();
+    expect(claim?.min.y).toBe(0); // coluna cheia, como a do aluno
+
+    // aluno estranho é barrado dentro da área do professor (célula longe do
+    // spawn da ana pra não bater na guarda de "não emparedar jogador")
+    const alvo = { x: sx + 1, y: h, z: sz + 1 };
+    session.handleMessage(2, JSON.stringify({ type: "place_block", ...alvo, blockId: BlockId.Stone }));
+    expect(getBlock(world, alvo.x, alvo.y, alvo.z)).toBe(BlockId.Air);
+    expect(ultimaChat(sent, 2)).toContain("protegida por prof");
+  });
+
   it("claim novo não sobrepõe outro nem passa do tamanho máximo", () => {
-    // mundo mais largo (48) pra caber um claim maior que o limite horizontal de 32
-    const { sent, session, sx, sz, h } = mundoComTurma({ x: 3, z: 2, y: 2 });
+    // mundo largo (5 chunks = 80) pra caber um claim maior que o limite X de 64
+    const { sent, session, sx, sz, h } = mundoComTurma({ x: 5, z: 2, y: 2 });
     session.handleMessage(1, cmd("/claim ligar"));
     anaCriaClaim(session, sx, sz, h);
 
@@ -156,9 +176,9 @@ describe("claims — proteção de áreas (cp24)", () => {
     session.handleMessage(3, cmd("/claim criar"));
     expect(ultimaChat(sent, 3)).toContain("encosta na área de ana");
 
-    // bia tenta um claim gigante (33 de largura, passa dos 32)
+    // bia tenta um claim gigante (65 de largura, passa dos 64)
     session.handleMessage(3, mark(1, 0, 0, 0));
-    session.handleMessage(3, mark(2, 32, 0, 0));
+    session.handleMessage(3, mark(2, 64, 0, 0));
     session.handleMessage(3, cmd("/claim criar"));
     expect(ultimaChat(sent, 3)).toContain("grande demais");
   });
@@ -188,5 +208,46 @@ describe("claims — proteção de áreas (cp24)", () => {
     s2.handleMessage(6, join("bia", "2222")); // amigo do save
     s2.handleMessage(6, JSON.stringify({ type: "break_block", ...alvo }));
     expect(getBlock(s2.world, alvo.x, alvo.y, alvo.z)).toBe(BlockId.Air);
+  });
+});
+
+describe("banimento (2026-07-21)", () => {
+  function mk() {
+    const { sent, send } = collect();
+    const session = new GameSession(send, { dims: DIMS, seed: 5, codigo: "sala" });
+    session.handleMessage(1, join("prof", "4321", "sala")); // professor
+    return { sent, session };
+  }
+  const recebeu = (sent: Sent, clientId: number, tipo: string): boolean =>
+    sent.some((s) => s.clientId === clientId && parseServerMessage(s.data as string)?.type === tipo);
+
+  it("banir é idempotente e case-insensitive; join de banido é recusado", () => {
+    const { sent, session } = mk();
+    expect(session.banir("Zezinho")).toBe(true);
+    expect(session.banir("zezinho")).toBe(false); // já banido (case-insensitive)
+    expect(session.estaBanido("ZEZINHO")).toBe(true);
+
+    session.handleMessage(2, join("zezinho", "1111")); // tenta entrar banido
+    expect(recebeu(sent, 2, "join_denied")).toBe(true);
+    expect(recebeu(sent, 2, "spawn")).toBe(false);
+  });
+
+  it("desbanir libera o nick a entrar de novo", () => {
+    const { sent, session } = mk();
+    session.banir("zezinho");
+    expect(session.desbanir("ZEZINHO")).toBe(true); // case-insensitive
+    expect(session.desbanir("zezinho")).toBe(false); // já não estava
+    session.handleMessage(3, join("zezinho", "1111"));
+    expect(recebeu(sent, 3, "spawn")).toBe(true);
+  });
+
+  it("a lista de banidos sobrevive ao save/restore", () => {
+    const { session } = mk();
+    session.banir("grifador");
+    const restore = decodeSave(encodeSave(session.world, session.toSave()));
+    expect(restore.banidos).toContain("grifador");
+    const { send: send2 } = collect();
+    const s2 = new GameSession(send2, { restore, codigo: "sala" });
+    expect(s2.estaBanido("Grifador")).toBe(true);
   });
 });

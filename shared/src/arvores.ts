@@ -82,7 +82,9 @@ export function celulasDaArvore(
   const poeTronco = (alt: number): void => {
     for (let i = 0; i < alt; i++) out.push({ x, y: yBase + i, z, id: tronco, tronco: true });
   };
-  const centro = (y: number): void => out.push({ x, y, z, id: copa, tronco: false });
+  const centro = (y: number): void => {
+    out.push({ x, y, z, id: copa, tronco: false });
+  };
   switch (tipo) {
     case "comum": {
       // carvalho genérico: tronco 4-5, copa em bola (2 camadas largas + tampa)

@@ -1,5 +1,13 @@
 import { describe, expect, it } from "vitest";
-import { BlockId, CHUNK_SIZE, CHUNK_VOLUME, isPlaceable } from "./index";
+import {
+  BlockId,
+  CHUNK_SIZE,
+  CHUNK_VOLUME,
+  isAgua,
+  isPlaceable,
+  isSolidBlock,
+  isTransparentBlock,
+} from "./index";
 
 describe("formato de bloco/chunk (contrato de save e snapshot)", () => {
   it("IDs de bloco batem com o formato binário", () => {
@@ -51,9 +59,18 @@ describe("formato de bloco/chunk (contrato de save e snapshot)", () => {
     expect(BlockId.GramaSeca).toBe(120);
     expect(BlockId.LogIpe).toBe(122);
     expect(BlockId.Mandacaru).toBe(128);
+    // água (2026-07-21): append, novo último id
+    expect(BlockId.Agua).toBe(129);
     expect(isPlaceable(BlockId.MinerioDiamante)).toBe(true);
     expect(isPlaceable(BlockId.Mandacaru)).toBe(true);
-    expect(isPlaceable(129)).toBe(false);
+    expect(isPlaceable(BlockId.Agua)).toBe(true);
+    expect(isPlaceable(130)).toBe(false);
+  });
+
+  it("água: atravessável (não-sólida) e translúcida no mesher", () => {
+    expect(isAgua(BlockId.Agua)).toBe(true);
+    expect(isSolidBlock(BlockId.Agua)).toBe(false); // o jogador entra e nada
+    expect(isTransparentBlock(BlockId.Agua)).toBe(true); // funde com água vizinha
   });
 
   it("volume do chunk cabe em 1 byte por bloco", () => {

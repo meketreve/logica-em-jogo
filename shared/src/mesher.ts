@@ -107,6 +107,8 @@ export const TILE = {
   // 2026-07-20: mandacaru (cacto da caatinga; topo próprio)
   mandacaruSide: 92,
   mandacaruTop: 93,
+  // 2026-07-21: água (azul furado em xadrez → translucidez via alphaTest)
+  agua: 94,
 } as const;
 
 /** cp20: blocos-glifo. Letras A–Z e dígitos 0–9 ocupam tiles consecutivos a
@@ -198,6 +200,9 @@ const BLOCK_TILES: Record<number, FaceTiles> = {
   [BlockId.LogPauBrasil]: { top: TILE.logTop, bottom: TILE.logTop, side: TILE.logPauBrasil },
   [BlockId.FolhasPauBrasil]: uniform(TILE.folhasPauBrasil),
   [BlockId.Mandacaru]: { top: TILE.mandacaruTop, bottom: TILE.mandacaruTop, side: TILE.mandacaruSide },
+  // água (2026-07-21): cubo cheio p/ o mesher (transparente → funde com água
+  // vizinha, mostra só a casca); não-sólido só pra física (blocks.ts).
+  [BlockId.Agua]: uniform(TILE.agua),
 };
 
 // móveis direcionais: mesmo ícone pras 4 direções

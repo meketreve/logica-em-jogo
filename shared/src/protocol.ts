@@ -196,6 +196,16 @@ export type ServerMessage =
     }
   | {
       /**
+       * Painel de jogadores (2026-07-21) — SÓ para o professor: quem está
+       * conectado agora + a lista de nicks banidos. No join do professor e a
+       * cada join/saída/banimento. O painel manda /kicar, /banir, /desbanir.
+       */
+      type: "players";
+      conectados: { name: string; papel: "professor" | "aluno" }[];
+      banidos: string[];
+    }
+  | {
+      /**
        * Quadro (2026-07-19): conteúdo de UM quadro mudou. Broadcast a cada
        * quadro_set aceito. Texto vazio sem imagem = quadro limpo (o cliente
        * remove o painel de conteúdo).
@@ -498,6 +508,21 @@ export function parseServerMessage(raw: string): ServerMessage | null {
         }
       }
       return { type: "friends", equipe, convites: onlyStrings(m["convites"]) };
+    }
+    case "players": {
+      if (!Array.isArray(m["conectados"]) || !Array.isArray(m["banidos"])) return null;
+      const conectados: { name: string; papel: "professor" | "aluno" }[] = [];
+      for (const entry of m["conectados"]) {
+        if (!entry || typeof entry !== "object") continue;
+        const o = entry as Record<string, unknown>;
+        if (typeof o["name"] !== "string") continue;
+        conectados.push({
+          name: o["name"],
+          papel: o["papel"] === "professor" ? "professor" : "aluno",
+        });
+      }
+      const banidos = m["banidos"].filter((s): s is string => typeof s === "string");
+      return { type: "players", conectados, banidos };
     }
     case "quadro_changed": {
       const c = parseQuadroConteudo(m);

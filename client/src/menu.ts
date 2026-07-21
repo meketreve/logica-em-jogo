@@ -23,6 +23,7 @@ import {
   listWorlds,
   putWorld,
 } from "./worldStore";
+import { isTouchDevice } from "./touch";
 
 /**
  * Menu principal (cp8) — HTML/CSS por cima do canvas, sem GUI de engine.
@@ -369,6 +370,13 @@ function renderConfigPanel(
 
   if (category === "controles") {
     slider("sensibilidade do mouse", 0.2, 3, 0.1, s.sensitivity, (v) => (s.sensitivity = v), (v) => `${v.toFixed(1)}×`);
+    // escala dos controles de toque (2026-07-21): só faz sentido no celular/tablet
+    if (isTouchDevice()) {
+      slider(
+        "escala dos controles (toque)", 0.6, 1.8, 0.1, s.uiScale,
+        (v) => (s.uiScale = v), (v) => `${Math.round(v * 100)}%`,
+      );
+    }
 
     const hint = document.createElement("p");
     hint.className = "menu-hint";

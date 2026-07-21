@@ -384,6 +384,88 @@ function interceptarKicar(clientId: number, texto: string): boolean {
 }
 
 /**
+ * `/banir nome` e `/desbanir nome` (2026-07-21) — o professor bane/desbane por
+ * NICK. Mora no HOST (como /kicar) porque banir também FECHA o socket de quem
+ * está conectado; o ESTADO (lista de banidos + gate de join) vive na GameSession
+ * e persiste no save. Devolve true quando engoliu a mensagem.
+ */
+function interceptarBanimento(clientId: number, texto: string): boolean {
+  let msg: { type?: unknown; text?: unknown };
+  try {
+    msg = JSON.parse(texto) as { type?: unknown; text?: unknown };
+  } catch {
+    return false;
+  }
+  if (msg.type !== "chat" || typeof msg.text !== "string") return false;
+  const partes = msg.text.trim().split(/\s+/);
+  const cmd = partes[0];
+  if (cmd !== "/banir" && cmd !== "/desbanir") return false;
+
+  const quem = session.jogadoresConectados().find((j) => j.id === clientId);
+  if (!quem) {
+    falarCom(clientId, "Entre no mundo primeiro.");
+    return true;
+  }
+  if (quem.papel !== "professor") {
+    falarCom(clientId, "Somente o professor pode banir ou desbanir.");
+    return true;
+  }
+
+  const alvoNome = partes.slice(1).join(" ").trim();
+  if (!alvoNome) {
+    falarCom(
+      clientId,
+      cmd === "/banir"
+        ? "Uso: /banir nome — bane o nick (não entra mais) e remove quem está online."
+        : "Uso: /desbanir nome — libera o nick banido a entrar de novo.",
+    );
+    return true;
+  }
+
+  if (cmd === "/desbanir") {
+    const ok = session.desbanir(alvoNome);
+    falarCom(clientId, ok ? `"${alvoNome}" foi desbanido.` : `"${alvoNome}" não estava banido.`);
+    return true;
+  }
+
+  // /banir: professor não bane a si mesmo
+  if (alvoNome.toLowerCase() === quem.name.toLowerCase()) {
+    falarCom(clientId, "Você não pode banir a si mesmo.");
+    return true;
+  }
+  const novo = session.banir(alvoNome);
+  // fecha o socket de TODOS os conectados com esse nick (menos quem digitou)
+  const alvos = session
+    .jogadoresConectados()
+    .filter((j) => j.name.toLowerCase() === alvoNome.toLowerCase() && j.id !== clientId);
+  for (const alvo of alvos) {
+    const sock = sockets.get(alvo.id);
+    entregar(
+      alvo.id,
+      JSON.stringify({ type: "kicked", reason: "Você foi banido da aula pelo professor." }),
+    );
+    if (sock) {
+      setTimeout(() => {
+        try {
+          sock.close();
+        } catch {
+          /* socket já pode ter caído sozinho */
+        }
+      }, 150);
+    }
+  }
+  if (novo) {
+    for (const outroId of sockets.keys()) falarCom(outroId, `${alvoNome} foi banido pelo professor.`);
+  } else {
+    falarCom(
+      clientId,
+      `"${alvoNome}" já estava banido.` + (alvos.length ? " Removido da sala agora." : ""),
+    );
+  }
+  return true;
+}
+
+/**
  * `profile_report` (HUD F3 → "enviar pro servidor") mora no HOST porque
  * gravar arquivo é transporte, a GameSession não tem sistema de arquivos —
  * mesmo raciocínio de /mundo e /kicar. Exige join (o nome já sanitizado no
@@ -431,6 +513,7 @@ wss.on("connection", (socket, req) => {
     const texto = data.toString();
     if (interceptarMundo(id, texto)) return; // /mundo é do HOST (mexe em arquivo)
     if (interceptarKicar(id, texto)) return; // /kicar é do HOST (fecha socket)
+    if (interceptarBanimento(id, texto)) return; // /banir·/desbanir do HOST (fecha socket + estado na session)
     if (interceptarProfile(id, texto)) return; // profile_report é do HOST (grava arquivo)
     session.handleMessage(id, texto);
   });

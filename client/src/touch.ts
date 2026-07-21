@@ -20,7 +20,7 @@ export function isTouchDevice(): boolean {
 /** O que os botões fazem — fiação vem do main.ts (handlers já existentes). */
 export interface TouchActions {
   /** Teclas configuradas AGORA (rebind ao vivo muda o retorno). */
-  keys(): { forward: string; back: string; left: string; right: string; jump: string };
+  keys(): { forward: string; back: string; left: string; right: string; jump: string; agachar: string };
   quebrar(): void;
   colocar(): void;
   copiar(): void;
@@ -28,6 +28,8 @@ export interface TouchActions {
   chat(): void;
   menu(): void;
   hud(): void;
+  /** Liga/desliga a varinha (marcar cantos de região/claim sem a tecla R). */
+  varinha(): void;
 }
 
 /**
@@ -47,22 +49,28 @@ export function solicitarTelaCheia(): void {
     .catch(() => {});
 }
 
+// --ts = escala da UI de toque (settings.uiScale, aplicada por setScale). Os
+// TAMANHOS escalam por calc() — evito transform:scale() porque o joystick lê
+// getBoundingClientRect e o polegar se posiciona por px reais.
 const CSS = `
+#touch-ui { --ts: 1; }
 #touch-ui, #touch-ui * { touch-action: none; user-select: none; -webkit-user-select: none; }
 #touch-look { position: fixed; inset: 0; z-index: 4; }
 #touch-joy {
-  position: fixed; left: 20px; bottom: 88px; width: 128px; height: 128px;
+  position: fixed; left: 20px; bottom: 88px;
+  width: calc(128px * var(--ts)); height: calc(128px * var(--ts));
   border-radius: 50%; background: rgba(255,255,255,0.08);
   border: 2px solid rgba(255,255,255,0.3); z-index: 8;
 }
 #touch-joy-thumb {
-  position: absolute; left: 50%; top: 50%; width: 52px; height: 52px;
-  margin: -26px 0 0 -26px; border-radius: 50%;
+  position: absolute; left: 50%; top: 50%;
+  width: calc(52px * var(--ts)); height: calc(52px * var(--ts));
+  margin: calc(-26px * var(--ts)) 0 0 calc(-26px * var(--ts)); border-radius: 50%;
   background: rgba(255,255,255,0.4); pointer-events: none;
 }
 #touch-acoes {
   position: fixed; right: 16px; bottom: 88px; display: grid;
-  grid-template-columns: repeat(2, 64px); gap: 10px; z-index: 8;
+  grid-template-columns: repeat(2, calc(64px * var(--ts))); gap: calc(10px * var(--ts)); z-index: 8;
 }
 #touch-topo {
   position: fixed; top: 8px; left: 50%; transform: translateX(-50%);
@@ -70,11 +78,11 @@ const CSS = `
 }
 .touch-btn {
   display: flex; flex-direction: column; align-items: center; justify-content: center;
-  gap: 2px; width: 64px; height: 64px; border-radius: 14px;
+  gap: 2px; width: calc(64px * var(--ts)); height: calc(64px * var(--ts)); border-radius: 14px;
   border: 1px solid rgba(255,255,255,0.35); background: rgba(0,0,0,0.4);
-  color: #fff; font: inherit; font-size: 22px; line-height: 1; cursor: pointer;
+  color: #fff; font: inherit; font-size: calc(22px * var(--ts)); line-height: 1; cursor: pointer;
 }
-.touch-btn small { font-size: 10px; opacity: 0.85; }
+.touch-btn small { font-size: calc(10px * var(--ts)); opacity: 0.85; }
 .touch-btn:active { background: rgba(255,255,255,0.25); }
 #touch-topo .touch-btn { width: auto; height: auto; padding: 6px 12px; font-size: 16px; flex-direction: row; gap: 6px; }
 #touch-topo .touch-btn small { font-size: 12px; }
@@ -174,7 +182,10 @@ export class TouchControls {
     acoes.id = "touch-acoes";
     acoes.append(
       this.tapButton("✋", "copiar", () => this.actions.copiar()),
-      this.holdButton("⤒", "pular"),
+      this.holdButton("⤒", "pular", () => this.actions.keys().jump),
+      // agachar (2026-07-21): segura = mesma tecla do Shift (andando não cai da
+      // borda; voando DESCE). Segurar, como o pular.
+      this.holdButton("⤓", "agachar", () => this.actions.keys().agachar),
       this.tapButton("⛏", "quebrar", () => this.actions.quebrar()),
       this.tapButton("▣", "colocar", () => this.actions.colocar()),
     );
@@ -186,12 +197,21 @@ export class TouchControls {
       this.tapButton("☰", "menu", () => this.actions.menu()),
       this.tapButton("🧱", "blocos", () => this.actions.inventario()),
       this.tapButton("💬", "chat", () => this.actions.chat()),
+      // varinha: sem tecla R no celular — o toggle liga o modo; aí os botões
+      // ⛏/▣ marcam canto 1/canto 2 (mesmo caminho do clique esq/dir)
+      this.tapButton("🪄", "varinha", () => this.actions.varinha()),
       this.tapButton("⛶", "tela cheia", () => solicitarTelaCheia()),
       this.tapButton("📊", "hud", () => this.actions.hud()),
     );
 
     this.root.append(look, joy, acoes, topo);
     document.body.appendChild(this.root);
+  }
+
+  /** Escala da UI de toque (settings.uiScale) — muda o tamanho de joystick e
+   *  botões via a var CSS `--ts`. Aplicada no boot e quando a config muda. */
+  setScale(scale: number): void {
+    this.root.style.setProperty("--ts", String(scale));
   }
 
   /** Mostra/esconde a UI de toque (main.ts decide junto com o overlay). */
@@ -224,14 +244,16 @@ export class TouchControls {
     return btn;
   }
 
-  private holdButton(icon: string, label: string): HTMLButtonElement {
+  /** Botão de SEGURAR: mantém a tecla `keyOf()` pressionada enquanto o dedo
+   *  está no botão (pular, agachar). Lê a tecla na hora (rebind ao vivo). */
+  private holdButton(icon: string, label: string, keyOf: () => string): HTMLButtonElement {
     const btn = this.makeButton(icon, label);
     btn.addEventListener("pointerdown", (e) => {
       e.preventDefault();
       btn.setPointerCapture(e.pointerId);
-      this.syncKey(this.actions.keys().jump, true);
+      this.syncKey(keyOf(), true);
     });
-    const solta = (): void => this.syncKey(this.actions.keys().jump, false);
+    const solta = (): void => this.syncKey(keyOf(), false);
     btn.addEventListener("pointerup", solta);
     btn.addEventListener("pointercancel", solta);
     return btn;

@@ -367,6 +367,26 @@ function paintFlor(
   ctx.fillRect(cx - 1, oy + 4, 2, 2);
 }
 
+/** Água (2026-07-21): azul com furos em XADREZ ESPARSO — o material do chunk é
+ *  cutout (alphaTest), sem blending; os furos deixam ver o fundo e dão uma
+ *  translucidez barata (mesmo draw call por chunk). ~⅓ dos texels são furo. */
+function paintAgua(ctx: CanvasRenderingContext2D, tile: number): void {
+  const [ox, oy] = tileOrigin(tile);
+  const px = ATLAS.tilePx;
+  ctx.clearRect(ox, oy, px, px); // furos = transparente (cutout)
+  for (let y = 0; y < px; y++) {
+    for (let x = 0; x < px; x++) {
+      if ((x + y) % 3 === 0) continue; // furo → vê o fundo
+      const v = (pixelHash(x, y, tile * 7919 + 1) - 0.5) * 2 * 14;
+      const r = Math.round(46 + v);
+      const g = Math.round(104 + v);
+      const b = Math.round(178 + v);
+      ctx.fillStyle = `rgb(${r},${g},${b})`;
+      ctx.fillRect(ox + x, oy + y, 1, 1);
+    }
+  }
+}
+
 export function createAtlasTexture(): THREE.Texture {
   const size = ATLAS.tilesPerRow * ATLAS.tilePx;
   const canvas = document.createElement("canvas");
@@ -468,6 +488,9 @@ export function createAtlasTexture(): THREE.Texture {
   // mandacaru (2026-07-20)
   paintMandacaru(ctx, TILE.mandacaruSide);
   paintMandacaruTopo(ctx, TILE.mandacaruTop);
+
+  // água (2026-07-21): translúcida por furos (cutout)
+  paintAgua(ctx, TILE.agua);
 
   // cp20: blocos-glifo — letras em creme, dígitos em azul-claro (distinção
   // rápida à distância entre "letra" e "número").

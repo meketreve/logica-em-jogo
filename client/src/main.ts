@@ -64,6 +64,7 @@ import {
   showMenu,
 } from "./menu";
 import { ObjectivesUi } from "./objectivesUi";
+import { PlayersPanel } from "./players";
 import { AuthorPanel, type GamePanel, GroupPanel, type PanelData } from "./panels";
 import { RegionRenderer } from "./regions";
 import { keyLabel, loadSettings } from "./settings";
@@ -146,6 +147,7 @@ function applySettings(): ReturnType<typeof loadSettings> {
   camera.updateProjectionMatrix();
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, s.pixelRatioCap));
   setUiVolume(s.volume);
+  touchControls?.setScale(s.uiScale); // escala da UI de toque (2026-07-21)
   return s;
 }
 let settings = applySettings();
@@ -156,6 +158,8 @@ initUiAudio(settings.volume);
 let activePanel: GamePanel | null = null;
 /** Inventário de blocos (cp16) — criado no startGame (precisa do atlas). */
 let inventoryPanel: InventoryPanel | null = null;
+/** Painel de jogadores (2026-07-21) — só professor (expulsar/banir/desbanir). */
+let playersPanel: PlayersPanel | null = null;
 /** Controles de toque (tablet) — criados no startGame só em dispositivo touch. */
 let touchControls: TouchControls | null = null;
 
@@ -173,7 +177,8 @@ function showOverlayMain(): void {
 function updateOverlay(): void {
   // some quando o jogo tem o controle (mouse travado OU modo toque), o chat
   // está aberto OU um painel do cp14 está na tela (senão cobre o painel)
-  const panelOpen = (activePanel?.open ?? false) || (inventoryPanel?.open ?? false);
+  const panelOpen =
+    (activePanel?.open ?? false) || (inventoryPanel?.open ?? false) || (playersPanel?.open ?? false);
   overlay?.classList.toggle("hidden", input.active || chat.open || panelOpen);
   // mira só existe COM o jogo no controle (pedido do usuário: invisível no Esc)
   crosshairEl?.classList.toggle("hidden", !input.active);
@@ -250,6 +255,25 @@ renderer.domElement.addEventListener("pointerdown", () => {
 });
 
 let debugStats = { tickAvgMs: 0, tickMaxMs: 0 };
+// jitter de rede (2026-07-21): desvio-padrão do intervalo entre mensagens do
+// servidor (janela deslizante) — mede a evenness da entrega/sincronia.
+let ultimaMsgTs = 0;
+const msgGaps: number[] = [];
+function registrarChegadaDeRede(): void {
+  const now = performance.now();
+  if (ultimaMsgTs > 0) {
+    msgGaps.push(now - ultimaMsgTs);
+    if (msgGaps.length > 300) msgGaps.shift();
+  }
+  ultimaMsgTs = now;
+}
+function jitterDeRede(): number {
+  const n = msgGaps.length;
+  if (n < 2) return 0;
+  const med = msgGaps.reduce((a, b) => a + b, 0) / n;
+  const varc = msgGaps.reduce((a, b) => a + (b - med) ** 2, 0) / n;
+  return Math.round(Math.sqrt(varc));
+}
 let started = false;
 let applyBlockChanged:
   | ((msg: { x: number; y: number; z: number; blockId: number }) => void)
@@ -354,6 +378,7 @@ function refreshObjectivesView(beep: boolean): void {
 }
 
 function handleServerData(data: string | ArrayBuffer): void {
+  registrarChegadaDeRede(); // jitter: gap entre mensagens do servidor
   if (typeof data === "string") {
     const msg = parseServerMessage(data);
     if (!msg) return;
@@ -407,6 +432,9 @@ function handleServerData(data: string | ArrayBuffer): void {
     } else if (msg.type === "friends") {
       // cp24: grupo de amigos + convites. O feedback textual já chega por chat
       // do servidor; o painel de amigos é fase 2 (comandos primeiro, cp14).
+    } else if (msg.type === "players") {
+      // 2026-07-21: painel de jogadores do professor (conectados + banidos)
+      playersPanel?.update({ conectados: msg.conectados, banidos: msg.banidos });
     } else if (msg.type === "teleport") {
       applyTeleport?.(msg);
     } else if (msg.type === "time") {
@@ -660,9 +688,17 @@ function startGame(snap: Snapshot): void {
     else input.lock();
     updateOverlay();
   };
+  // painel de jogadores (2026-07-21): só professor; aberto por um botão no topo
+  // do painel de autoria (some quando não é professor).
+  if (papel === "professor") playersPanel = new PlayersPanel(sendCmd, onPanelToggle);
+  const openPlayers = (): void => {
+    activePanel?.hide(); // troca do painel de autoria pro de jogadores
+    inventoryPanel?.hide();
+    playersPanel?.show();
+  };
   activePanel =
     papel === "professor"
-      ? new AuthorPanel(sendCmd, onPanelToggle)
+      ? new AuthorPanel(sendCmd, onPanelToggle, openPlayers)
       : new GroupPanel(sendCmd, onPanelToggle);
   pushPanelData();
   input.onKey(settings.keys.painel, () => {
@@ -673,6 +709,7 @@ function startGame(snap: Snapshot): void {
       return;
     }
     inventoryPanel?.hide(); // um painel por vez na tela
+    playersPanel?.hide();
     activePanel?.toggle();
   });
   if (papel === "professor") {
@@ -916,7 +953,7 @@ function startGame(snap: Snapshot): void {
     if (varinhaAtiva) {
       const criar = papel === "professor" ? "/regiao criar nome" : "/claim criar";
       hotbarEl.innerHTML =
-        `<b>[varinha]</b> esq = canto 1 · dir = canto 2 · ${criar} · R volta`;
+        `<b>[varinha]</b> esq = canto 1 · dir = canto 2 · ${criar} · R/🪄 volta`;
       return;
     }
     const slots = hotbar
@@ -931,13 +968,15 @@ function startGame(snap: Snapshot): void {
     inventoryPanel?.refresh();
   };
   refreshHotbar();
-  input.onKey(settings.keys.varinha, () => {
-    // professor: varinha p/ regiões (sempre). aluno: só com a proteção de áreas
-    // ligada (cp24), pra marcar o próprio claim.
+  // professor: varinha p/ regiões (sempre). aluno: só com a proteção de áreas
+  // ligada (cp24), pra marcar o próprio claim. Extraído pra ser chamado tanto
+  // pela tecla R quanto pelo botão 🪄 do toque (celular não tem R).
+  const toggleVarinha = (): void => {
     if (papel !== "professor" && !claimsAtivo) return;
     varinhaAtiva = !varinhaAtiva;
     refreshHotbar();
-  });
+  };
+  input.onKey(settings.keys.varinha, toggleVarinha);
   // 1–9 escolhe o slot; scroll cicla os 9 slots
   for (let i = 0; i < 9; i++) {
     input.onKey(`Digit${i + 1}`, () => {
@@ -967,6 +1006,7 @@ function startGame(snap: Snapshot): void {
     (open) => {
       if (open) {
         activePanel?.hide(); // um painel por vez na tela
+        playersPanel?.hide();
         document.exitPointerLock();
       } else input.lock();
       updateOverlay();
@@ -1105,7 +1145,10 @@ function startGame(snap: Snapshot): void {
   // profiler (backlog "ferramentas de dev"): singleplayer roda em Web Worker
   // sem filesystem — o host ignora a mensagem em silêncio, sem erro no cliente.
   document.getElementById("hud-report")?.addEventListener("click", () => {
-    activeConn.send(JSON.stringify({ type: "profile_report", stats: hud.stats() }));
+    // grava 10 s e SÓ ENTÃO envia o relatório agregado (perf.ts do host grava)
+    hud.record((report) => {
+      activeConn.send(JSON.stringify({ type: "profile_report", stats: report }));
+    });
   });
 
   // controles de toque (tablet): joystick/arrasto/botões sintetizam o MESMO
@@ -1141,7 +1184,9 @@ function startGame(snap: Snapshot): void {
         updateOverlay();
       },
       hud: () => hud.toggle(),
+      varinha: () => toggleVarinha(),
     });
+    touchControls.setScale(settings.uiScale); // aplica a escala salva de cara
     updateOverlay();
   }
 
@@ -1218,7 +1263,10 @@ function startGame(snap: Snapshot): void {
       bytesPerSec: s.bytesIn + s.bytesOut - (lastNet.bytesIn + lastNet.bytesOut),
       tickAvgMs: debugStats.tickAvgMs,
       tickMaxMs: debugStats.tickMaxMs,
+      jitterMs: jitterDeRede(),
     };
+    // streaming (mundo procedural): colunas carregadas + fila de remesh
+    hud.stream = { colunas: colunasCarregadas.size, fila: chunkRenderer.filaPendente };
     lastNet = { ...s };
   }, 1000);
 

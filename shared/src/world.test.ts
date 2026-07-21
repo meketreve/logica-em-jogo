@@ -50,7 +50,7 @@ describe("worldgen (determinístico — contrato de snapshot/save)", () => {
     const b = generateWorld(DIMS, 2);
     const differs = a.chunks.some((chunk, i) => {
       const other = b.chunks[i]!;
-      return chunk.some((v, j) => v !== other[j]);
+      return chunk!.some((v, j) => v !== other[j]);
     });
     expect(differs).toBe(true);
   });

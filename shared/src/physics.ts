@@ -1,4 +1,4 @@
-import { isSolidBlock } from "./blocks";
+import { isAgua, isSolidBlock } from "./blocks";
 import { type World, getBlock } from "./world";
 
 /**
@@ -33,6 +33,14 @@ export const PLAYER = {
   flySpeed: 9,
   /** Voo criativo: subir/descer (tecla de pular / de agachar). */
   flyVertSpeed: 7,
+  /** Água (2026-07-21): modificador de velocidade horizontal submerso. */
+  waterFactor: 0.5,
+  /** Água: empuxo — gravidade reduzida submerso (afunda devagar). */
+  waterGravity: 8,
+  /** Água: velocidade de nadar pra cima/baixo (pular sobe, agachar desce). */
+  swimSpeed: 4,
+  /** Água: queda máxima submerso (afunda devagar, não despenca). */
+  waterSinkMax: 3,
 } as const;
 
 /** Folga deixada ao encostar num bloco (evita re-colisão por arredondamento). */
@@ -112,6 +120,18 @@ function moveAxis(world: World, p: PlayerState, axis: "x" | "y" | "z", dist: num
   }
 }
 
+/** O TORSO do jogador está dentro de um bloco de água? (dispara nado/empuxo). */
+function inWater(world: World, pos: Vec3): boolean {
+  return isAgua(
+    getBlock(
+      world,
+      Math.floor(pos.x),
+      Math.floor(pos.y + PLAYER.height * 0.5),
+      Math.floor(pos.z),
+    ),
+  );
+}
+
 /** Há bloco sólido logo abaixo dos pés (sustentando o AABB)? */
 function hasSupport(world: World, pos: Vec3): boolean {
   const half = PLAYER.width / 2;
@@ -172,13 +192,19 @@ export function stepPlayer(world: World, p: PlayerState, input: MoveInput, dt: n
   }
 
   const sneak = input.sneak === true;
+  // Nado (2026-07-21): torso submerso em água → mais lento, empuxo e nado
+  // vertical (pular sobe, agachar desce). Água NÃO é sólida (blocks.ts), então
+  // a colisão AABB a ignora — o movimento livre aqui é o que faz "entrar e nadar".
+  const submerso = inWater(world, p.pos);
   // Corrida ENGATA só com os pés no chão (apertar correr no meio do pulo não
   // vira turbo aéreo). Engatada, a tecla de correr não precisa mais ser
   // segurada: vale enquanto andar pra frente — e atravessa pulo/queda.
-  // Desengata ao soltar o "frente" ou agachar.
-  if (sneak || f <= 0) p.sprinting = false;
+  // Desengata ao soltar o "frente", agachar ou entrar na água.
+  if (sneak || f <= 0 || submerso) p.sprinting = false;
   else if (input.sprint === true && p.onGround) p.sprinting = true;
-  const factor = sneak ? PLAYER.sneakFactor : p.sprinting ? PLAYER.sprintFactor : 1;
+  const factor =
+    (sneak ? PLAYER.sneakFactor : p.sprinting ? PLAYER.sprintFactor : 1) *
+    (submerso ? PLAYER.waterFactor : 1);
   const len = Math.hypot(f, s);
   const scale = (len > 1 ? 1 / len : 1) * PLAYER.walkSpeed * factor;
   const sin = Math.sin(input.yaw);
@@ -186,9 +212,20 @@ export function stepPlayer(world: World, p: PlayerState, input: MoveInput, dt: n
   p.vel.x = (s * cos - f * sin) * scale;
   p.vel.z = (-f * cos - s * sin) * scale;
 
-  if (input.jump && p.onGround) p.vel.y = PLAYER.jumpSpeed;
-  p.vel.y -= PLAYER.gravity * dt;
-  if (p.vel.y < -PLAYER.terminalVelocity) p.vel.y = -PLAYER.terminalVelocity;
+  if (submerso) {
+    // pular = subir, agachar = descer; solto = afunda devagar (empuxo)
+    if (input.jump) p.vel.y = PLAYER.swimSpeed;
+    else if (sneak) p.vel.y = -PLAYER.swimSpeed;
+    else {
+      p.vel.y -= PLAYER.waterGravity * dt;
+      if (p.vel.y < -PLAYER.waterSinkMax) p.vel.y = -PLAYER.waterSinkMax;
+      if (p.vel.y > PLAYER.waterSinkMax) p.vel.y = PLAYER.waterSinkMax;
+    }
+  } else {
+    if (input.jump && p.onGround) p.vel.y = PLAYER.jumpSpeed;
+    p.vel.y -= PLAYER.gravity * dt;
+    if (p.vel.y < -PLAYER.terminalVelocity) p.vel.y = -PLAYER.terminalVelocity;
+  }
 
   p.onGround = false;
 

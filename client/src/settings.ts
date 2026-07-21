@@ -23,6 +23,9 @@ export interface GameSettings {
   raioRender: number;
   /** Streaming: chunks re-meshados por FRAME (fila) — PC fraco usa menos. */
   meshPorFrame: number;
+  /** Escala da UI de toque (2026-07-21): joystick e botões maiores/menores
+   *  conforme o tamanho da tela do celular/tablet. 1 = padrão. Só afeta o toque. */
+  uiScale: number;
   keys: Record<KeyAction, string>;
 }
 
@@ -33,6 +36,7 @@ export const DEFAULT_SETTINGS: GameSettings = {
   volume: 0.8,
   raioRender: 6,
   meshPorFrame: 8,
+  uiScale: 1,
   keys: {
     forward: "KeyW",
     back: "KeyS",
@@ -93,6 +97,7 @@ export function loadSettings(): GameSettings {
     volume: num(s["volume"], DEFAULT_SETTINGS.volume, 0, 1),
     raioRender: num(s["raioRender"], DEFAULT_SETTINGS.raioRender, 2, 12),
     meshPorFrame: num(s["meshPorFrame"], DEFAULT_SETTINGS.meshPorFrame, 2, 32),
+    uiScale: num(s["uiScale"], DEFAULT_SETTINGS.uiScale, 0.6, 1.8),
     keys,
   };
 }

@@ -6890,6 +6890,444 @@
       "related_bugs": [],
       "occurrences": 1,
       "last_seen": "2026-07-21T11:18:43.608Z"
+    },
+    {
+      "id": "bug-425",
+      "timestamp": "2026-07-21T16:53:18.396Z",
+      "error_message": "Type error",
+      "file": "client/src/atlasTexture.ts",
+      "root_cause": "Missing or incorrect type annotation",
+      "fix": "Added type assertion/annotation",
+      "tags": [
+        "auto-detected",
+        "type-fix",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-21T16:53:18.396Z"
+    },
+    {
+      "id": "bug-426",
+      "timestamp": "2026-07-21T16:53:40.489Z",
+      "error_message": "Type error",
+      "file": "shared/src/physics.ts",
+      "root_cause": "Missing or incorrect type annotation",
+      "fix": "Added type assertion/annotation",
+      "tags": [
+        "auto-detected",
+        "type-fix",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-21T16:53:40.489Z"
+    },
+    {
+      "id": "bug-427",
+      "timestamp": "2026-07-21T16:53:57.718Z",
+      "error_message": "Significant refactor of ",
+      "file": "shared/src/physics.ts",
+      "root_cause": "3 lines replaced/restructured",
+      "fix": "Rewrote 20→37 lines (3 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-21T16:53:57.718Z"
+    },
+    {
+      "id": "bug-428",
+      "timestamp": "2026-07-21T16:54:21.687Z",
+      "error_message": "Type error",
+      "file": "shared/src/blocks.test.ts",
+      "root_cause": "Missing or incorrect type annotation",
+      "fix": "Added type assertion/annotation",
+      "tags": [
+        "auto-detected",
+        "type-fix",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-21T16:54:21.687Z"
+    },
+    {
+      "id": "bug-429",
+      "timestamp": "2026-07-21T16:55:39.968Z",
+      "error_message": "Significant refactor of ",
+      "file": "client/src/main.ts",
+      "root_cause": "3 lines replaced/restructured",
+      "fix": "Rewrote 7→9 lines (3 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-21T16:55:39.968Z"
+    },
+    {
+      "id": "bug-430",
+      "timestamp": "2026-07-21T16:55:49.910Z",
+      "error_message": "Incorrect value in code",
+      "file": "client/src/main.ts",
+      "root_cause": "Had `<b>[varinha]</b> esq = canto 1 · dir = canto 2 · ",
+      "fix": "Changed to `<b>[varinha]</b> esq = canto 1 · dir = canto 2 · ",
+      "tags": [
+        "auto-detected",
+        "wrong-value",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-21T16:55:49.910Z"
+    },
+    {
+      "id": "bug-431",
+      "timestamp": "2026-07-21T16:56:14.715Z",
+      "error_message": "Significant refactor of ",
+      "file": "shared/src/claims.test.ts",
+      "root_cause": "9 lines replaced/restructured",
+      "fix": "Rewrote 19→34 lines (9 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-21T16:56:14.715Z"
+    },
+    {
+      "id": "bug-432",
+      "timestamp": "2026-07-21T17:00:38.646Z",
+      "error_message": "Wrong return value",
+      "file": "shared/src/world.test.ts",
+      "root_cause": "Was returning: chunk.some((v, j) => v !== other[j]);",
+      "fix": "Now returns: chunk!.some((v, j) => v !== other[j]);",
+      "tags": [
+        "auto-detected",
+        "return-value",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-21T17:00:38.646Z"
+    },
+    {
+      "id": "bug-433",
+      "timestamp": "2026-07-21T17:05:00.000Z",
+      "error_message": "blocks.test.ts sentinel: isPlaceable(129) toBe(false) quebrou ao adicionar Agua=129",
+      "file": "shared/src/blocks.test.ts",
+      "root_cause": "Sentinel de bug-370: o teste fixa o PRÓXIMO byte após o último id como não-colocável. Adicionar bloco (Agua=129) faz o sentinel recorrer, como aconteceu 108→112→116.",
+      "fix": "Bumpou o sentinel: expect(BlockId.Agua).toBe(129), isPlaceable(129)=true, isPlaceable(130)=false. MAX_BLOCK_ID=BlockId.Agua em blocks.ts.",
+      "tags": [
+        "block-add",
+        "sentinel",
+        "bug-370-recorrencia",
+        "agua"
+      ],
+      "related_bugs": [
+        "bug-370"
+      ],
+      "occurrences": 1,
+      "last_seen": "2026-07-21T17:05:00.000Z"
+    },
+    {
+      "id": "bug-434",
+      "timestamp": "2026-07-21T17:06:00.000Z",
+      "error_message": "Teste 'professor reserva área': esperava chat 'protegida por prof', recebeu broadcast 'Proteção LIGADA'",
+      "file": "shared/src/claims.test.ts",
+      "root_cause": "O place_block do aluno mirava a célula do PRÓPRIO spawn dele (sx,h,sz). A guarda de 'não emparedar jogador' barra o place ANTES do gate de claim — sem chat de claim, o bloco fica Air mas a última chat é a do /claim ligar.",
+      "fix": "Mirar célula dentro do claim mas longe do spawn do aluno (sx+1,h,sz+1). Ordem no place_block: reach/overlap-de-jogador ANTES de claimBloqueia.",
+      "tags": [
+        "claims",
+        "test",
+        "place-order",
+        "player-overlap-guard"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-21T17:06:00.000Z"
+    },
+    {
+      "id": "bug-435",
+      "timestamp": "2026-07-21T17:21:39.539Z",
+      "error_message": "Missing guard clause",
+      "file": "shared/src/protocol.ts",
+      "root_cause": "No early return/throw for edge case: !Array.isArray(m[\"conectados\"]",
+      "fix": "Added guard clause: if (!Array.isArray(m[\"conectados\"])",
+      "tags": [
+        "auto-detected",
+        "guard-clause",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-21T17:21:39.539Z"
+    },
+    {
+      "id": "bug-436",
+      "timestamp": "2026-07-21T17:22:20.435Z",
+      "error_message": "Wrong condition in logic",
+      "file": "shared/src/session.ts",
+      "root_cause": "Condition was: if (p.name === name)",
+      "fix": "Changed to: if (this.estaBanido(name)",
+      "tags": [
+        "auto-detected",
+        "logic-fix",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-21T17:22:20.435Z"
+    },
+    {
+      "id": "bug-437",
+      "timestamp": "2026-07-21T17:23:38.887Z",
+      "error_message": "Missing error handling in interceptarBanimento",
+      "file": "server/src/index.ts",
+      "root_cause": "Code path had no error handling — exceptions would propagate uncaught",
+      "fix": "Added try/catch block",
+      "tags": [
+        "auto-detected",
+        "error-handling",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-21T17:23:38.887Z"
+    },
+    {
+      "id": "bug-438",
+      "timestamp": "2026-07-21T17:25:30.109Z",
+      "error_message": "Significant refactor of ",
+      "file": "client/index.html",
+      "root_cause": "2 lines replaced/restructured",
+      "fix": "Rewrote 3→5 lines (2 removed) | Also: #inventario button {; #inventario button:hover:not(:disabled) {",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "html"
+      ],
+      "related_bugs": [],
+      "occurrences": 2,
+      "last_seen": "2026-07-21T17:25:46.984Z"
+    },
+    {
+      "id": "bug-439",
+      "timestamp": "2026-07-21T17:25:58.415Z",
+      "error_message": "Type error",
+      "file": "client/src/panels.ts",
+      "root_cause": "Missing or incorrect type annotation",
+      "fix": "Added type assertion/annotation",
+      "tags": [
+        "auto-detected",
+        "type-fix",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-21T17:25:58.415Z"
+    },
+    {
+      "id": "bug-440",
+      "timestamp": "2026-07-21T17:26:03.030Z",
+      "error_message": "Null/undefined access in ",
+      "file": "client/src/panels.ts",
+      "root_cause": "Property access on potentially null/undefined value",
+      "fix": "Added null safety (optional chaining or null check)",
+      "tags": [
+        "auto-detected",
+        "null-safety",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-21T17:26:03.030Z"
+    },
+    {
+      "id": "bug-441",
+      "timestamp": "2026-07-21T17:26:44.178Z",
+      "error_message": "Null/undefined access in ",
+      "file": "client/src/main.ts",
+      "root_cause": "Property access on potentially null/undefined value",
+      "fix": "Added null safety (optional chaining or null check) | Also: } else if (msg.type === \"players\") {; // 2026-07-21: painel de jogadores do professor (conectados  | Also: touchControls?.setScale(s.uiScale); // escala da UI de toque",
+      "tags": [
+        "auto-detected",
+        "null-safety",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 3,
+      "last_seen": "2026-07-21T17:31:24.480Z"
+    },
+    {
+      "id": "bug-442",
+      "timestamp": "2026-07-21T17:28:08.768Z",
+      "error_message": "Null/undefined access in ",
+      "file": "shared/src/claims.test.ts",
+      "root_cause": "Property access on potentially null/undefined value",
+      "fix": "Added null safety (optional chaining or null check)",
+      "tags": [
+        "auto-detected",
+        "null-safety",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-21T17:28:08.768Z"
+    },
+    {
+      "id": "bug-443",
+      "timestamp": "2026-07-21T17:30:41.397Z",
+      "error_message": "Significant refactor of ",
+      "file": "client/src/touch.ts",
+      "root_cause": "4 lines replaced/restructured",
+      "fix": "Rewrote 17→23 lines (4 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-21T17:30:41.397Z"
+    },
+    {
+      "id": "bug-444",
+      "timestamp": "2026-07-21T17:31:53.827Z",
+      "error_message": "Type error",
+      "file": "client/src/menu.ts",
+      "root_cause": "Missing or incorrect type annotation",
+      "fix": "Added type assertion/annotation",
+      "tags": [
+        "auto-detected",
+        "type-fix",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-21T17:31:53.827Z"
+    },
+    {
+      "id": "bug-445",
+      "timestamp": "2026-07-21T17:35:38.462Z",
+      "error_message": "Missing guard clause",
+      "file": "shared/src/session.ts",
+      "root_cause": "No early return/throw for edge case: this.singleplayer",
+      "fix": "Added guard clause: if (this.singleplayer)",
+      "tags": [
+        "auto-detected",
+        "guard-clause",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-21T17:35:38.462Z"
+    },
+    {
+      "id": "bug-446",
+      "timestamp": "2026-07-21T17:36:32.667Z",
+      "error_message": "Incorrect value in code",
+      "file": "todo.md",
+      "root_cause": "Had \"coluna cheia\"",
+      "fix": "Changed to `client/players.ts`",
+      "tags": [
+        "auto-detected",
+        "wrong-value",
+        "md"
+      ],
+      "related_bugs": [],
+      "occurrences": 2,
+      "last_seen": "2026-07-21T17:36:45.182Z"
+    },
+    {
+      "id": "bug-447",
+      "timestamp": "2026-07-21T18:30:00.000Z",
+      "error_message": "session.test.ts: expected sent toHaveLength(4), got 5 (join/restore/disconnect)",
+      "file": "shared/src/session.ts",
+      "root_cause": "broadcastPlayers() (novo, painel de jogadores) emitia 1 msg 'players' a mais no join/saida - inclusive em singleplayer, quebrando 3 testes de contrato que contam mensagens exatas.",
+      "fix": "broadcastPlayers() retorna cedo se this.singleplayer (Web Worker nao gere turma; /kicar e /banir sao do host). Multiplayer segue emitindo aos professores.",
+      "tags": [
+        "ban",
+        "players-panel",
+        "singleplayer",
+        "test-contract",
+        "message-count"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-21T18:30:00.000Z"
+    },
+    {
+      "id": "bug-448",
+      "timestamp": "2026-07-21T17:46:05.177Z",
+      "error_message": "Missing error handling in unknown",
+      "file": "client/src/hud.ts",
+      "root_cause": "Code path had no error handling — exceptions would propagate uncaught",
+      "fix": "Added try/catch block",
+      "tags": [
+        "auto-detected",
+        "error-handling",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-21T17:46:05.177Z"
+    },
+    {
+      "id": "bug-449",
+      "timestamp": "2026-07-21T17:46:26.926Z",
+      "error_message": "Missing guard clause",
+      "file": "client/src/hud.ts",
+      "root_cause": "No early return/throw for edge case: !c",
+      "fix": "Added guard clause: if (!c)",
+      "tags": [
+        "auto-detected",
+        "guard-clause",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-21T17:46:26.926Z"
+    },
+    {
+      "id": "bug-450",
+      "timestamp": "2026-07-21T17:47:35.889Z",
+      "error_message": "Missing guard clause",
+      "file": "client/src/main.ts",
+      "root_cause": "No early return/throw for edge case: ultimaMsgTs > 0",
+      "fix": "Added guard clause: if (ultimaMsgTs > 0)",
+      "tags": [
+        "auto-detected",
+        "guard-clause",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-21T17:47:35.889Z"
+    },
+    {
+      "id": "bug-451",
+      "timestamp": "2026-07-21T17:48:46.489Z",
+      "error_message": "Significant refactor of ",
+      "file": "todo.md",
+      "root_cause": "4 lines replaced/restructured",
+      "fix": "Rewrote 4→6 lines (4 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "md"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-21T17:48:46.489Z"
     }
   ]
 }

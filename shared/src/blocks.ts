@@ -137,12 +137,22 @@ export const BlockId = {
   FolhasPauBrasil: 127,
   /** Mandacaru (2026-07-20): cacto da caatinga — cubo cheio na v1. */
   Mandacaru: 128,
+  /** Água (2026-07-21): bloco de terreno. ATRAVESSÁVEL (não-sólido: o jogador
+   *  entra e NADA — empuxo + velocidade reduzida em physics.ts) e translúcido no
+   *  mesher (funde com água vizinha → só a casca do volume aparece). SEM fluxo /
+   *  espalhamento — fluido dinâmico é fase própria. */
+  Agua: 129,
 } as const;
 
 export type BlockId = (typeof BlockId)[keyof typeof BlockId];
 
 /** Maior ID válido (mantém isPlaceable sem número mágico ao crescer a lista). */
-const MAX_BLOCK_ID = BlockId.Mandacaru;
+const MAX_BLOCK_ID = BlockId.Agua;
+
+/** Água? Bloco de fluido estático — atravessável e translúcido. */
+export function isAgua(id: number): boolean {
+  return id === BlockId.Agua;
+}
 
 /** Flor decorativa (qualquer cor)? */
 export function isFlor(id: number): boolean {
@@ -200,7 +210,7 @@ export function isTransparentBlock(id: number): boolean {
   return (
     id === BlockId.Glass || id === BlockId.Leaves ||
     id === BlockId.FolhasIpe || id === BlockId.FolhasAraucaria ||
-    id === BlockId.FolhasPauBrasil
+    id === BlockId.FolhasPauBrasil || id === BlockId.Agua
   );
 }
 
@@ -341,7 +351,8 @@ export function isSolidBlock(id: number): boolean {
     id !== BlockId.Tocha &&
     !isTapete(id) &&
     !isQuadro(id) &&
-    !isFlor(id)
+    !isFlor(id) &&
+    !isAgua(id) // água atravessa — o jogador entra e nada (physics.ts)
   );
 }
 

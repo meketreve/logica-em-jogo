@@ -786,15 +786,18 @@
 - Singleplayer (Web Worker/IndexedDB) NÃO tem fs → sem chat.log, sem pasta; export
   segue blob .ljw único (worldStore.ts). Fora de escopo, como o profiler-pro-servidor.
 
-### Limite de claim é POR EIXO (2026-07-20)
-- `claims.ts` exporta `MAX_CLAIM_XZ=32` (x e z) e `MAX_CLAIM_Y=64` (altura) — não
-  é mais um `MAX_CLAIM_DIM` único. `claimDentroDoLimite` e a mensagem de erro em
-  session.ts usam os dois. Ao mexer no limite, mexer só nessas duas constantes.
-- Teste do "claim gigante" (claims.test.ts) precisa de um mundo MAIOR que o limite
-  pra estourar: `mundoComTurma` virou parametrizável por `dims` (o mundo padrão de
-  2×2×2 chunks = 32³ não cabe um claim > 32). A checagem de tamanho vem ANTES da de
-  sobreposição em session.ts, então dá pra marcar por cima de outro claim que o erro
-  de tamanho aparece primeiro.
+### Claim = COLUNA cheia, limite 64(X)×32(Z), professor cria (2026-07-20 → FINAL 2026-07-21)
+- **ATUAL (2026-07-21, decisão FINAL do usuário):** claim é sempre COLUNA de altura
+  total (força `min.y=0/max.y=teto` no runClaim E no restore) — NÃO é caixa. Isso impede
+  ilha flutuante por cima / escavar por baixo. `claims.ts` exporta `MAX_CLAIM_X=64` e
+  `MAX_CLAIM_Z=32` (SÓ dois — altura livre); `claimDentroDoLimite` checa só X e Z.
+- **PROFESSOR cria claim** (2026-07-21): removido o `if (professor) return "..."` do
+  `case "criar"` — professor reserva plot como o aluno (mesmo acesso, mesma 1-por-dono).
+- **⚠️ Zigue-zague do usuário nesta sessão**: 1º pediu caixa 64×63×32 (implementei),
+  2º mandou MANTER a coluna cheia (revertido). LIÇÃO: quando o pedido reverte um design
+  deliberado (coluna anti-griefing da sessão 9), confirmar antes de escrever muito código.
+- Teste do "claim gigante" (claims.test.ts): `mundoComTurma` é parametrizável por `dims`;
+  pra estourar X=64 usa mundo de 5 chunks (80). Tamanho é checado ANTES da sobreposição.
 
 ### Cama = par horizontal de 2 células (2026-07-20)
 - **Cama ocupa 2 células**, estilo Minecraft (pé + cabeceira), sem novos block ids:
@@ -1201,3 +1204,56 @@ regra automática (areia caindo não é grief). NÚMEROS a confirmar: MAX_CLAIM_
 - **Save esparso do mundo lazy (LJS2)**: só chunks EDITADOS (editedChunks marcado em applyBlockQuieto, pega jogador+gravidade). Restore regenera cada coluna editada do seed e SOBREPÕE os bytes salvos — determinismo do gen garante que o resto do mundo é idêntico. Save de mundo E gigante = KB (4341 bytes com 1 edição), não GB.
 - **SIGINT não propaga por `npx tsx ... &`** (npx engole o sinal, filho vira órfão, porta fica aberta). Pra smoke que precisa do saveNow no SIGINT (process.on("SIGINT")), rodar `node --import tsx server/src/index.ts` — aí `kill -INT $!` atinge o processo certo e o server sai limpo gravando o save.
 - **LJ_SAVE com path absoluto/relativo é SEMPRE remapeado pra mundos/<nome>/<nome>.ljw** (paths.ts). O save do smoke não aparece no path que você passou — procurar em mundos/.
+
+### 2026-07-21 — Decision Log + Key Learnings (água + /claim professor/caixa + varinha mobile)
+- **Bloco de água (id 129, append)**: cubo cheio pro MESHER (`isFullCube`=true → funde
+  com água vizinha: `neighbor===id` no mesher culla a face interna, mostra só a casca do
+  volume) mas NÃO-sólido pra física (`isSolidBlock`=false → o jogador entra). Translúcida
+  SEM tocar no material: o chunk é 1 draw call cutout (`alphaTest:0.5`, sem blending) — o
+  tile de água é azul com furos em XADREZ (`(x+y)%3===0`), os furos deixam ver o fundo =
+  translucidez barata. `isTransparentBlock`+=Agua. Truque reusável pra qualquer "vidro/água".
+- **Nado (physics.ts)**: `inWater(pos)` amostra o TORSO (`y+height*0.5`). Submerso →
+  velocidade horizontal × `waterFactor`(0.5), empuxo (`waterGravity`=8 < 25, afunda até
+  `waterSinkMax`=3), pular = subir / agachar = descer a `swimSpeed`(4). SEM fluxo de fluido
+  (fase própria). stepPlayer NÃO mudou de assinatura — testes de física antigos (mundo sem
+  água) seguem idênticos.
+- **/claim: professor cria + claim vira CAIXA + limite 64×63×32** (pedido do usuário,
+  reverte a coluna cheia da sessão 9). Motivo do usuário: professor reserva "terreno"/plot
+  como o aluno; caixa (não coluna) porque plot não precisa travar do bedrock ao céu.
+- **GOTCHA de teste (bug-434)**: no `place_block` a guarda "não emparedar jogador" roda
+  ANTES do gate de claim. Testar claim mirando a célula do PRÓPRIO spawn do aluno barra pela
+  guarda (bloco fica Air) mas SEM a chat de claim → mirar longe do spawn (sx±1, sz±1).
+- **Varinha no mobile (sem tecla R)**: os botões de toque ⛏/▣ chamam `input.press(0/2)`
+  = MESMO handler do clique esq/dir, que já checa `varinhaAtiva`. Então basta um botão
+  toggle 🪄 (chama o `toggleVarinha` extraído) — zero caminho novo de marcação de canto.
+- **Adicionar bloco = bumpar o sentinel de blocks.test.ts** (bug-370, recorreu de novo):
+  `expect(BlockId.Novo).toBe(N)`, `isPlaceable(N)=true`, `isPlaceable(N+1)=false`, e
+  `MAX_BLOCK_ID` em blocks.ts. Checklist de bloco novo: BlockId + MAX_BLOCK_ID + helper +
+  isTransparentBlock/isSolidBlock (se for o caso) + TILE + BLOCK_TILES + paint no atlas +
+  chamada do paint + PLACEABLE (blocksUi) + sentinel do teste.
+
+### 2026-07-21 — Banimento + painel de jogadores + profiler 10s
+- **Kick é do HOST, ban é DIVIDIDO**: `/kicar` fecha socket (transporte) → mora no host
+  (index.ts). Ban precisa de ESTADO (lista + gate de join + persistência) → na GameSession,
+  MAS banir alguém online também fecha o socket → então `/banir`·`/desbanir` moram no HOST
+  (interceptarBanimento), que chama `session.banir/desbanir` e fecha o socket como o /kicar.
+  Gate de join: `estaBanido` no topo de `authenticate` (antes do PIN). Persiste em
+  `SaveMeta.banidos[]` (só mundo livre; some em aula read-only). Case-insensitive.
+- **`broadcastPlayers` PULA singleplayer** (`if (this.singleplayer) return`): a Web Worker
+  não gere turma e /kicar·/banir são do host (nem intercepta). Sem esse guard, o join/saída
+  emite 1 msg `players` a mais e QUEBRA os testes de contrato que contam mensagens
+  (`toHaveLength(4)` em session.test.ts) — bug-435.
+- **PlayersPanel copiou a moldura do InventoryPanel** (altura fixa `#painel/#inventario/
+  #jogadores` compartilham CSS; rolagem só na `.jog-lista` com `flex:1;overflow-y:auto`).
+  Abas reusam `.inv-abas/.inv-aba`. Botão perigoso = armado (2 cliques), padrão dos painéis.
+  Aberto por um botão no topo do AuthorPanel (callback `onOpenPlayers` opcional no construtor).
+- **Escala da UI de toque = var CSS `--ts` + calc(), NÃO transform:scale()**: o joystick lê
+  `getBoundingClientRect` e o polegar se posiciona por px reais — transform:scale distorce a
+  matemática do polegar. `settings.uiScale` (persistido) aplicado por `TouchControls.setScale`
+  (seta `--ts` inline no root) em `applySettings()` e ao criar o TouchControls.
+- **Memória no browser**: RAM = JS heap `performance.memory.usedJSHeapSize/jsHeapSizeLimit`
+  (SÓ Chrome/Chromium; undefined em FF/Safari → mostrar "n/d"). VRAM real NÃO existe no WebGL:
+  o proxy é `renderer.info.memory` (CONTAGENS de geometrias/texturas, não bytes). GPU pelo
+  `WEBGL_debug_renderer_info` (`UNMASKED_RENDERER_WEBGL`), cacheável. `navigator.deviceMemory`
+  = RAM aproximada DO APARELHO (não uso). Profiler grava 10s e agrega (só o resumo vai no fio,
+  respeita `MAX_PROFILE_REPORT_CHARS=8192` — nunca o array de frames cru).

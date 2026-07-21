@@ -225,6 +225,15 @@ abstract class Panel implements GamePanel {
 // --- Painel de autoria (professor) ---
 
 export class AuthorPanel extends Panel {
+  constructor(
+    send: (cmd: string) => void,
+    onToggle: (open: boolean) => void,
+    /** Abre o painel de jogadores (expulsar/banir) — botão no topo. */
+    private readonly onOpenPlayers?: () => void,
+  ) {
+    super(send, onToggle);
+  }
+
   /** Rascunho dos formulários — sobrevive aos re-renders dos broadcasts. */
   private draft = {
     objKind: "construir" as "construir" | "chegar" | "limpar",
@@ -292,6 +301,9 @@ export class AuthorPanel extends Panel {
     if (!root) return;
     root.textContent = "";
     root.append(this.head("painel de autoria"));
+    if (this.onOpenPlayers) {
+      root.append(this.row(this.btn("👥 jogadores (expulsar / banir)", () => this.onOpenPlayers?.())));
+    }
     if (this.erroMsg) {
       const p = document.createElement("p");
       p.className = "painel-erro";

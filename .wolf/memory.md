@@ -2046,3 +2046,138 @@ Files: blocks.ts, mesher.ts, session.ts, blocks.test.ts, cp23.test.ts. Commitar+
 | 10:58 | Montou esqueleto do relatorio de aplicacao (entregavel final): estrutura completa + perf/tech pre-preenchidos, campos PREENCHER pro usuario | relatorio/relatorio-aplicacao.md (novo), anatomy.md | esqueleto pronto | ~6000 |
 | 10:58 | Session end: 1 writes across 1 files (relatorio-aplicacao.md) | 1 reads | ~4846 tok |
 | 13:36 | Session-end prep (/clear): STATUS aponta proxima sessao ao esqueleto do relatorio (sec 2/3 redigivel sem dado de sala) | STATUS.md | pronto pra /clear | ~2500 |
+
+## Session: 2026-07-21 13:37
+
+| Time | Action | File(s) | Outcome | ~Tokens |
+|------|--------|---------|---------|--------|
+| 13:52 | Edited shared/src/blocks.ts | modified isAgua() | ~212 |
+| 13:52 | Edited shared/src/blocks.ts | 5→5 lines | ~55 |
+| 13:52 | Edited shared/src/blocks.ts | 9→10 lines | ~95 |
+| 13:52 | Edited shared/src/mesher.ts | 4→6 lines | ~58 |
+| 13:53 | Edited shared/src/mesher.ts | modified gua() | ~84 |
+| 13:53 | Edited client/src/atlasTexture.ts | added 1 condition(s) | ~256 |
+| 13:53 | Edited client/src/atlasTexture.ts | modified gua() | ~50 |
+| 13:53 | Edited client/src/blocksUi.ts | modified gua() | ~54 |
+| 13:53 | Edited shared/src/physics.ts | 2→2 lines | ~28 |
+| 13:53 | Edited shared/src/physics.ts | modified gua() | ~133 |
+| 13:53 | Edited shared/src/physics.ts | modified inWater() | ~102 |
+| 13:53 | Edited shared/src/physics.ts | added 5 condition(s) | ~494 |
+| 13:54 | Edited shared/src/blocks.test.ts | modified gua() | ~97 |
+| 13:54 | Edited shared/src/blocks.test.ts | expanded (+8 lines) | ~38 |
+| 13:54 | Edited shared/src/blocks.test.ts | expanded (+6 lines) | ~110 |
+| 13:54 | Edited shared/src/claims.ts | 5→6 lines | ~95 |
+| 13:54 | Edited shared/src/claims.ts | modified claimDentroDoLimite() | ~79 |
+| 13:54 | Edited shared/src/session.ts | 8→10 lines | ~46 |
+| 13:54 | Edited shared/src/session.ts | added 1 condition(s) | ~135 |
+| 13:55 | Edited shared/src/session.ts | modified if() | ~531 |
+| 13:55 | Edited client/src/touch.ts | modified quebrar() | ~64 |
+| 13:55 | Edited client/src/touch.ts | 7→10 lines | ~162 |
+| 13:55 | Edited client/src/main.ts | 7→9 lines | ~124 |
+| 13:55 | Edited client/src/main.ts | 8→9 lines | ~75 |
+| 13:55 | Edited client/src/main.ts | 2→2 lines | ~31 |
+| 13:55 | Edited shared/src/claims.test.ts | 5→6 lines | ~137 |
+| 13:56 | Edited shared/src/claims.test.ts | expanded (+15 lines) | ~503 |
+| 13:56 | Edited shared/src/claims.test.ts | 18→18 lines | ~252 |
+| 14:00 | Edited shared/src/claims.test.ts | 5→6 lines | ~125 |
+| 14:00 | Edited shared/src/arvores.ts | 1→3 lines | ~28 |
+| 14:00 | Edited shared/src/world.test.ts | 4→4 lines | ~41 |
+| 14:01 | Edited todo.md | 2→3 lines | ~167 |
+| 14:01 | Edited todo.md | modified NOVO() | ~268 |
+| 14:01 | Edited todo.md | 3→8 lines | ~177 |
+
+## SESSÃO 13 (2026-07-21) — água + /claim professor/caixa + varinha mobile
+| HH:MM | descrição | arquivo(s) | resultado | ~tokens |
+| --- | --- | --- | --- | --- |
+| — | bloco de água id 129 (atravessável, translúcida por furos+alphaTest, nado) | blocks.ts, mesher.ts, atlasTexture.ts, blocksUi.ts, physics.ts, blocks.test.ts | typecheck ok, testes ok | ~4k |
+| — | /claim: professor cria + CAIXA + limite 64×63×32 (reverte coluna cheia sessão 9) | claims.ts, session.ts, claims.test.ts | 280 testes verdes | ~3k |
+| — | varinha no mobile: botão 🪄 no touch UI (toggleVarinha extraído) | touch.ts, main.ts | build ok | ~1k |
+| — | consertei 2 typecheck pré-existentes (arvores.ts:85, world.test.ts:53) | arvores.ts, world.test.ts | typecheck 0 erros | ~0.5k |
+| — | 2 backlog novos anotados (aba jogadores P + ban por nick; escala UI mobile) | todo.md | logado | ~0.5k |
+| 14:04 | Session end: 34 writes across 14 files (blocks.ts, mesher.ts, atlasTexture.ts, blocksUi.ts, physics.ts) | 16 reads | ~91063 tok |
+| 14:18 | Edited shared/src/claims.ts | 6→7 lines | ~119 |
+| 14:18 | Edited shared/src/claims.ts | Caixa() → Pegada() | ~88 |
+| 14:18 | Edited shared/src/session.ts | 10→9 lines | ~42 |
+| 14:18 | Edited shared/src/session.ts | modified for() | ~133 |
+| 14:19 | Edited shared/src/session.ts | 26→29 lines | ~408 |
+| 14:19 | Edited shared/src/claims.test.ts | 6→6 lines | ~144 |
+| 14:19 | Edited shared/src/claims.test.ts | modified rea() | ~600 |
+| 14:21 | Edited shared/src/save.ts | 2→5 lines | ~80 |
+| 14:21 | Edited shared/src/save.ts | added 2 condition(s) | ~139 |
+| 14:21 | Edited shared/src/save.ts | 3→4 lines | ~56 |
+| 14:21 | Edited shared/src/protocol.ts | expanded (+10 lines) | ~141 |
+| 14:21 | Edited shared/src/protocol.ts | added 3 condition(s) | ~221 |
+| 14:22 | Edited shared/src/session.ts | 3→7 lines | ~133 |
+| 14:22 | Edited shared/src/session.ts | 2→3 lines | ~73 |
+| 14:22 | Edited shared/src/session.ts | 9→10 lines | ~102 |
+| 14:22 | Edited shared/src/session.ts | added 1 condition(s) | ~128 |
+| 14:22 | Edited shared/src/session.ts | added 4 condition(s) | ~578 |
+| 14:22 | Edited shared/src/session.ts | modified jogadores() | ~127 |
+| 14:23 | Edited shared/src/session.ts | 4→5 lines | ~69 |
+| 14:23 | Edited server/src/index.ts | added error handling | ~779 |
+| 14:23 | Edited server/src/index.ts | added 1 condition(s) | ~105 |
+| 14:25 | Created client/src/players.ts | — | ~1668 |
+| 14:25 | Edited client/index.html | 2→3 lines | ~36 |
+| 14:25 | Edited client/index.html | 3→5 lines | ~58 |
+| 14:25 | Edited client/index.html | 5→6 lines | ~31 |
+| 14:25 | Edited client/index.html | modified not() | ~302 |
+| 14:25 | Edited client/src/panels.ts | expanded (+9 lines) | ~110 |
+| 14:26 | Edited client/src/panels.ts | added optional chaining | ~69 |
+| 14:26 | Edited client/src/main.ts | 1→2 lines | ~35 |
+| 14:26 | Edited client/src/main.ts | 2→4 lines | ~73 |
+| 14:26 | Edited client/src/main.ts | added 1 import(s) | ~34 |
+| 14:26 | Edited client/src/main.ts | added optional chaining | ~147 |
+| 14:26 | Edited client/src/main.ts | added optional chaining | ~126 |
+| 14:27 | Edited client/src/main.ts | 4→5 lines | ~48 |
+| 14:27 | Edited client/src/main.ts | 3→4 lines | ~33 |
+| 14:27 | Edited client/src/main.ts | modified if() | ~62 |
+| 14:28 | Edited shared/src/claims.test.ts | added optional chaining | ~566 |
+| 14:29 | Edited client/src/settings.ts | modified toque() | ~91 |
+| 14:29 | Edited client/src/settings.ts | 3→4 lines | ~17 |
+| 14:30 | Edited client/src/settings.ts | 3→4 lines | ~66 |
+| 14:30 | Edited client/src/touch.ts | expanded (+6 lines) | ~313 |
+| 14:30 | Edited client/src/touch.ts | 7→7 lines | ~126 |
+| 14:30 | Edited client/src/touch.ts | modified agachar() | ~144 |
+| 14:31 | Edited client/src/touch.ts | inline fix | ~30 |
+| 14:31 | Edited client/src/touch.ts | 12→14 lines | ~180 |
+| 14:31 | Edited client/src/touch.ts | modified setScale() | ~104 |
+| 14:31 | Edited client/src/main.ts | added optional chaining | ~55 |
+| 14:31 | Edited client/src/main.ts | 5→6 lines | ~52 |
+| 14:31 | Edited client/src/menu.ts | added 1 import(s) | ~49 |
+| 14:31 | Edited client/src/menu.ts | added 1 condition(s) | ~122 |
+| 14:34 | Created client/src/hud.ts | — | ~2524 |
+| 14:34 | Edited client/src/main.ts | 3→6 lines | ~80 |
+| 14:35 | Edited shared/src/session.ts | added 1 condition(s) | ~147 |
+| 14:36 | Edited todo.md | 2→2 lines | ~242 |
+| 14:36 | Edited todo.md | 2→3 lines | ~247 |
+| 14:37 | Edited todo.md | modified profiler() | ~281 |
+
+## SESSÃO 13 cont. (2026-07-21) — ban/painel + mobile + profiler
+| HH:MM | descrição | arquivo(s) | resultado | ~tokens |
+| --- | --- | --- | --- | --- |
+| — | /claim REVERTIDO pra COLUNA cheia (usuário mudou de ideia); professor cria; limite 64×32 | claims.ts, session.ts, claims.test.ts | 283 testes verdes | ~2k |
+| — | painel de jogadores (abas conectados/banidos) + ban por nick (host+session+save+protocol) | players.ts, session.ts, index.ts, save.ts, protocol.ts, main.ts, panels.ts, index.html | typecheck ok, 3 testes ban | ~6k |
+| — | mobile: botão agachar (segurar) + escala da UI (settings.uiScale, var --ts) | touch.ts, settings.ts, menu.ts, main.ts | build ok | ~2k |
+| — | profiler grava 10s (relatório agregado) + F3 RAM(JS heap)/vídeo(info.memory) + GPU | hud.ts, main.ts | typecheck ok | ~2k |
+| — | fix bug-435: broadcastPlayers pula singleplayer (não quebra testes de contrato) | session.ts | 283 testes | ~0.3k |
+| 14:40 | Session end: 90 writes across 23 files (blocks.ts, mesher.ts, atlasTexture.ts, blocksUi.ts, physics.ts) | 25 reads | ~140194 tok |
+| 14:46 | Edited client/src/hud.ts | added error handling | ~837 |
+| 14:46 | Edited client/src/hud.ts | modified if() | ~48 |
+| 14:46 | Edited client/src/hud.ts | expanded (+7 lines) | ~101 |
+| 14:46 | Edited client/src/hud.ts | added 1 condition(s) | ~284 |
+| 14:46 | Edited client/src/hud.ts | expanded (+8 lines) | ~216 |
+| 14:46 | Edited client/src/hud.ts | modified buildRecordingReport() | ~446 |
+| 14:47 | Edited client/src/hud.ts | modified RAM() | ~193 |
+| 14:47 | Edited client/src/main.ts | added 3 condition(s) | ~208 |
+| 14:47 | Edited client/src/main.ts | modified handleServerData() | ~48 |
+| 14:47 | Edited client/src/main.ts | modified streaming() | ~140 |
+| 14:48 | Edited todo.md | modified ABERTO() | ~144 |
+
+## SESSÃO 13 cont.2 (2026-07-21) — 7 métricas novas no profiler
+| HH:MM | descrição | arquivo(s) | resultado | ~tokens |
+| --- | --- | --- | --- | --- |
+| — | plano escrito no STATUS antes de codar (pedido do usuário) | .wolf/STATUS.md | plano | ~0.5k |
+| — | hud.ts: long tasks, points/lines, ctx-lost, sessão, bateria, conexão + campos net.jitterMs/stream | client/hud.ts | typecheck ok | ~2k |
+| — | main.ts: jitter (desvio do gap entre msgs no handleServerData) + colunas/fila no intervalo 1s | client/main.ts | 283 testes, build ok | ~0.5k |
+| 14:49 | Session end: 101 writes across 23 files (blocks.ts, mesher.ts, atlasTexture.ts, blocksUi.ts, physics.ts) | 26 reads | ~144666 tok |
+| 14:57 | Created ../../../tmp/claude-1000/-home-meketreve-logica-em-jogo/e684f215-8460-451a-81e1-2d120f98d9a6/scratchpad/commitmsg.txt | — | ~376 |

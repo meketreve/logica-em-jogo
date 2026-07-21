@@ -75,6 +75,9 @@ export interface SaveMeta {
   claims?: Claim[];
   /** Grupos de amigos criados pelos alunos (cp24). Ausente = nenhum. */
   amigos?: GrupoAmigos[];
+  /** Nicks banidos pelo professor (2026-07-21). Ausente = ninguém banido.
+   *  O join recusa quem está aqui; persiste no mundo livre (some em mundo-aula). */
+  banidos?: string[];
   /** Confinamento (cp25): aluno só edita na área do seu grupo? Ausente =
    *  desligado. Em mundo-aula o host força ligado no boot (não vem do save). */
   confinamento?: boolean;
@@ -277,6 +280,13 @@ function readSaveMeta(
       if (g) amigos.push(g);
     }
   }
+  // nicks banidos (2026-07-21): só strings, sem duplicata (save antigo = vazio)
+  const banidos: string[] = [];
+  if (Array.isArray(m["banidos"])) {
+    for (const entry of m["banidos"]) {
+      if (typeof entry === "string" && entry && !banidos.includes(entry)) banidos.push(entry);
+    }
+  }
   // quadros (2026-07-19): entrada quebrada é PULADA (mesma tolerância)
   const quadros: QuadroConteudo[] = [];
   if (Array.isArray(m["quadros"])) {
@@ -297,6 +307,7 @@ function readSaveMeta(
     ...(m["claimsAtivo"] === true ? { claimsAtivo: true } : {}),
     ...(claims.length ? { claims } : {}),
     ...(amigos.length ? { amigos } : {}),
+    ...(banidos.length ? { banidos } : {}),
     // cp25: confinamento por área de grupo (ausente = desligado)
     ...(m["confinamento"] === true ? { confinamento: true } : {}),
     ...(quadros.length ? { quadros } : {}),

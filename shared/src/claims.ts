@@ -13,11 +13,13 @@
  */
 import { type Vec3i, parseVec3i } from "./regions";
 
-/** Aresta horizontal máxima do claim (x e z). A altura NÃO tem limite: todo
- *  claim cobre a COLUNA inteira, da camada 0 (bedrock) ao teto do mundo — assim
- *  ninguém constrói uma ilha flutuante por cima nem escava por baixo da área
- *  reivindicada. Só a pegada XZ que o aluno marca com a varinha importa. */
-export const MAX_CLAIM_XZ = 32;
+/** Pegada horizontal máxima do claim (2026-07-21). O claim é sempre uma COLUNA
+ *  de altura total (camada 0 → teto do mundo) — só a pegada X×Z que o autor marca
+ *  com a varinha importa; a altura é forçada no servidor. Assim ninguém constrói
+ *  ilha flutuante por cima nem escava por baixo. Professor e aluno reservam plots
+ *  do mesmo tamanho. */
+export const MAX_CLAIM_X = 64;
+export const MAX_CLAIM_Z = 32;
 /** Tamanho do grupo de amigos, INCLUINDO o dono (dono + 5 convidados). */
 export const MAX_AMIGOS = 6;
 export const MAX_CLAIM_NAME = 24;
@@ -38,12 +40,12 @@ export interface GrupoAmigos {
   membros: string[];
 }
 
-/** Caixa (2 cantos já normalizados) cabe no limite horizontal? A altura é
+/** Pegada (2 cantos já normalizados) cabe no limite horizontal? A altura é
  *  ignorada — o claim vira sempre uma coluna de altura total. */
 export function claimDentroDoLimite(min: Vec3i, max: Vec3i): boolean {
   return (
-    max.x - min.x + 1 <= MAX_CLAIM_XZ &&
-    max.z - min.z + 1 <= MAX_CLAIM_XZ
+    max.x - min.x + 1 <= MAX_CLAIM_X &&
+    max.z - min.z + 1 <= MAX_CLAIM_Z
   );
 }
 

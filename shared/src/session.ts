@@ -57,7 +57,8 @@ import {
 import {
   type Claim,
   MAX_AMIGOS,
-  MAX_CLAIM_XZ,
+  MAX_CLAIM_X,
+  MAX_CLAIM_Z,
   MAX_CLAIM_NAME,
   caixasSeCruzam,
   claimDentroDoLimite,
@@ -237,6 +238,10 @@ export class GameSession {
   /** Convites de amigo pendentes: convidado → donos que convidaram. Rascunho
    *  de sessão, NÃO persiste (morre no reboot). */
   private readonly convitesAmigo = new Map<string, Set<string>>();
+  /** Nicks banidos pelo professor (2026-07-21). O join recusa quem está aqui;
+   *  persiste no save de mundo livre (some em mundo-aula read-only). Guardado
+   *  como o nick digitado; a checagem é case-insensitive. */
+  private readonly banidos = new Set<string>();
   /** Confinamento (cp25): o aluno só coloca/quebra DENTRO da área do seu grupo.
    *  Inverte o claim (confina em vez de proteger). Professor alterna (/confinar)
    *  e em mundo-aula nasce ligado (opts.somenteLeitura). Persiste no save de
@@ -343,6 +348,7 @@ export class GameSession {
         this.claims.set(c.dono, c);
       }
       for (const g of opts.restore.amigos ?? []) this.amigos.set(g.dono, new Set(g.membros));
+      for (const n of opts.restore.banidos ?? []) this.banidos.add(n); // 2026-07-21
       this.confinamentoAtivo = opts.restore.confinamento ?? false; // cp25
       // quadros (2026-07-19): só entra conteúdo cuja célula AINDA é quadro
       for (const q of opts.restore.quadros ?? []) {
@@ -445,6 +451,7 @@ export class GameSession {
             })),
           }
         : {}),
+      ...(this.banidos.size ? { banidos: [...this.banidos] } : {}),
       // cp25: confinamento por área de grupo (só grava ligado)
       ...(this.confinamentoAtivo ? { confinamento: true } : {}),
       // quadros (2026-07-19): conteúdo autoral por posição (só grava se há)
@@ -478,6 +485,8 @@ export class GameSession {
     pin: string | undefined,
     codigo: string | undefined,
   ): string | null {
+    // banido (2026-07-21): recusa antes de tudo — nem chega a pedir PIN certo.
+    if (this.estaBanido(name)) return "Você foi banido desta sala pelo professor.";
     // nome já ONLINE: segundo cliente com o mesmo nome fundiria os dois no
     // roster (bug-061 — o PIN fecha o resto do caso)
     for (const p of this.players.values()) {
@@ -1350,6 +1359,9 @@ export class GameSession {
       yaw: destino.yaw, pitch: destino.pitch,
       name,
     });
+    // painel de jogadores (2026-07-21): a lista mudou → avisa os professores
+    // (inclui o recém-chegado se for professor).
+    this.broadcastPlayers();
   }
 
   /** Quem está conectado agora — o host precisa disto para migrar todo mundo. */
@@ -1359,6 +1371,62 @@ export class GameSession {
       name: p.name,
       papel: p.papel,
     }));
+  }
+
+  // --- Banimento + painel de jogadores (2026-07-21) ---
+  // Estado (lista de banidos) e o gate de join moram AQUI (autoridade + save);
+  // FECHAR o socket de quem foi banido é do HOST (index.ts), como o /kicar.
+
+  /** Nick está banido? (case-insensitive — o nick é sanitizado no join). */
+  estaBanido(name: string): boolean {
+    const alvo = name.toLowerCase();
+    for (const b of this.banidos) if (b.toLowerCase() === alvo) return true;
+    return false;
+  }
+
+  /** Bane um nick (idempotente). false se já estava banido. Atualiza o painel
+   *  dos professores. NÃO desconecta ninguém — o host fecha o socket. */
+  banir(name: string): boolean {
+    if (!name || this.estaBanido(name)) return false;
+    this.banidos.add(name);
+    this.broadcastPlayers();
+    return true;
+  }
+
+  /** Tira o banimento de um nick (case-insensitive). false se não estava banido. */
+  desbanir(name: string): boolean {
+    const alvo = name.toLowerCase();
+    for (const b of this.banidos) {
+      if (b.toLowerCase() === alvo) {
+        this.banidos.delete(b);
+        this.broadcastPlayers();
+        return true;
+      }
+    }
+    return false;
+  }
+
+  /** Lista dos nicks banidos (cópia). */
+  listaBanidos(): string[] {
+    return [...this.banidos];
+  }
+
+  private playersJson(): string {
+    return JSON.stringify({
+      type: "players",
+      conectados: [...this.players.values()].map((p) => ({ name: p.name, papel: p.papel })),
+      banidos: [...this.banidos],
+    } satisfies ServerMessage);
+  }
+
+  /** Estado dos jogadores (conectados + banidos) → SÓ professores (painel P).
+   *  No singleplayer (Web Worker) não roda: não há turma a gerir e /kicar·/banir
+   *  são do HOST (a Web Worker nem os intercepta). Mantém o retrato de mensagens
+   *  do join/saída idêntico no singleplayer (testes de contrato). */
+  private broadcastPlayers(): void {
+    if (this.singleplayer) return;
+    const raw = this.playersJson();
+    for (const [id, p] of this.players) if (p.papel === "professor") this.send(id, raw);
   }
 
   /**
@@ -1576,20 +1644,20 @@ export class GameSession {
         return novo ? "Proteção de áreas ligada." : "Proteção de áreas desligada.";
       }
       case "criar": {
-        if (professor) return "O professor pode editar qualquer lugar — não precisa reivindicar área.";
-        if (!this.claimsAtivo) return "A proteção de áreas está desligada. Peça ao professor para ligar com /claim ligar.";
-        if (this.claims.has(p.name)) return "Você já tem uma área protegida. Use /claim remover antes de marcar outra.";
+        // 2026-07-21: o PROFESSOR também reserva área (mesmo acesso do aluno).
+        if (!this.claimsAtivo) return "A proteção de áreas está desligada. Ligue com /claim ligar.";
+        if (this.claims.has(p.name)) return "Você já tem uma área reservada. Use /claim remover antes de marcar outra.";
         const marks = this.wandMarks.get(clientId);
         if (!marks?.c1 || !marks.c2) {
-          return "Marque os dois cantos com a varinha primeiro (tecla R: clique esquerdo = canto 1, direito = canto 2).";
+          return "Marque os dois cantos com a varinha primeiro (tecla R ou o botão 🪄: clique esquerdo = canto 1, direito = canto 2).";
         }
         const { min, max } = regionFromCorners(marks.c1, marks.c2);
         if (!claimDentroDoLimite(min, max)) {
-          return `A área é grande demais (máximo de ${MAX_CLAIM_XZ}×${MAX_CLAIM_XZ} blocos na horizontal).`;
+          return `A área é grande demais (máximo de ${MAX_CLAIM_X}×${MAX_CLAIM_Z} blocos na horizontal).`;
         }
         // o claim protege a COLUNA inteira: da camada 0 (bedrock) ao teto do
         // mundo. Assim ninguém constrói ilha flutuante por cima nem escava por
-        // baixo — só a pegada XZ que o aluno marcou define a área.
+        // baixo — só a pegada XZ que o autor marcou define a área.
         min.y = 0;
         max.y = this.world.sizeY - 1;
         for (const c of this.claims.values()) {
@@ -1611,7 +1679,7 @@ export class GameSession {
         this.wandMarks.delete(clientId);
         this.broadcastClaims();
         const d = regionDims({ nome: "", min, max });
-        return `Área protegida: coluna de ${d.x}×${d.z} blocos, da base ao topo do mundo. Só você e seus amigos constroem aqui (/amigos convidar nome).`;
+        return `Área reservada: coluna de ${d.x}×${d.z} blocos, da base ao topo do mundo. Só você e seus amigos constroem aqui (/amigos convidar nome).`;
       }
       case "remover": {
         const alvo = parts[2];
@@ -2774,6 +2842,7 @@ export class GameSession {
     // delete ANTES do broadcast — quem saiu não recebe (socket já fechou).
     this.players.delete(clientId);
     this.broadcast({ type: "player_left", id: clientId });
+    this.broadcastPlayers(); // painel dos professores (2026-07-21)
   }
 
   /**

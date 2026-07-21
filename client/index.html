@@ -154,9 +154,11 @@
       #hotbar b {
         color: #ffd75e;
       }
-      /* painéis do cp14 (autoria do professor / grupo do aluno) + inventário (cp16) */
+      /* painéis do cp14 (autoria do professor / grupo do aluno) + inventário (cp16)
+         + jogadores (2026-07-21) — todos com a mesma moldura de altura fixa */
       #painel,
-      #inventario {
+      #inventario,
+      #jogadores {
         position: fixed;
         left: 50%;
         top: 50%;
@@ -177,7 +179,8 @@
         z-index: 25;
       }
       #painel h2,
-      #inventario h2 {
+      #inventario h2,
+      #jogadores h2 {
         margin: 0;
         font-size: 1.25rem;
       }
@@ -204,7 +207,8 @@
         opacity: 0.85;
       }
       #painel button,
-      #inventario button {
+      #inventario button,
+      #jogadores button {
         font: inherit;
         font-size: 0.82rem;
         padding: 4px 9px;
@@ -215,8 +219,32 @@
         cursor: pointer;
       }
       #painel button:hover:not(:disabled),
-      #inventario button:hover:not(:disabled) {
+      #inventario button:hover:not(:disabled),
+      #jogadores button:hover:not(:disabled) {
         background: rgba(255, 255, 255, 0.22);
+      }
+      /* --- Painel de jogadores (2026-07-21) --- */
+      .jog-lista {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        flex: 1; /* a rolagem mora AQUI — o painel tem altura fixa */
+        overflow-y: auto;
+        align-content: start;
+      }
+      .jog-row {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 7px 10px;
+        background: rgba(255, 255, 255, 0.07);
+        border-radius: 6px;
+      }
+      .jog-nome {
+        flex: 1;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
       }
       #painel button:disabled {
         opacity: 0.45;
@@ -696,6 +724,7 @@
     <div id="objetivos" class="hidden"></div>
     <div id="painel" class="hidden"></div>
     <div id="inventario" class="hidden"></div>
+    <div id="jogadores" class="hidden"></div>
     <div id="hud" class="hidden">
       <pre id="hud-text"></pre>
       <button id="hud-export" type="button">exportar JSON</button>

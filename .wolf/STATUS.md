@@ -1,6 +1,81 @@
 # STATUS — Projeto "Lógica em Jogo" (jogo voxel educacional)
 
 > Single source of truth for resuming work. Read this FIRST when starting a session.
+> **✅ FEITO (2026-07-21) — MAIS MÉTRICAS NO PROFILER (7 itens). typecheck 0 erros, 283
+> testes, build ok. NÃO playtestado (UI cliente, precisa browser).** Plano executado como
+> escrito abaixo. hud.ts ganhou: long tasks (PerformanceObserver), points/lines, contexto
+> WebGL perdido, tempo de sessão, bateria (getBattery), conexão (navigator.connection),
+> `net.jitterMs` + `stream{colunas,fila}` alimentados pelo main.ts (jitter = desvio-padrão do
+> gap entre msgs no `handleServerData`; colunas/fila no intervalo de 1s). F3 mostra tudo; o
+> relatório de 10s inclui long tasks DA JANELA. Plano original (referência):
+> Pedido: implementar long tasks + jitter de rede + colunas/fila + os outros. Fontes de
+> dado JÁ mapeadas. Onde cada uma entra:
+> 1. **Long tasks** (jank do main thread) — `PerformanceObserver({type:'longtask'})` no
+>    construtor do Hud (try/catch; Chrome-only). Contador acumulado + tempo bloqueado; a
+>    gravação de 10s captura o DELTA da janela. Linha no F3 + `gravacao.longTasks`.
+> 2. **points/lines** — `renderer.info.render.points/lines` (hoje só calls/triangles) → stats().
+> 3. **Contexto WebGL perdido** — listener `webglcontextlost` em `renderer.domElement` (o Hud
+>    tem o renderer) incrementa contador → stats(). Sinal de crash de GPU no tablet.
+> 4. **Tempo de sessão** — `sessionStartMs` no construtor do Hud → `sessaoS` (normaliza o
+>    remeshCount acumulado, que hoje cresce sem denominador).
+> 5. **Bateria** — `navigator.getBattery()` (async, cacheia {level,charging}; Chrome) → em
+>    `dispositivo()`. Bateria baixa/throttle térmico derruba FPS no tablet.
+> 6. **Conexão** — `navigator.connection` {effectiveType,downlink,rtt} → seção rede do relatório.
+> 7. **Jitter de rede + colunas/fila** — precisam de dado de FORA do Hud:
+>    - jitter: em `handleServerData` (main.ts:481) medir o gap entre msgs (ring buffer ~300),
+>      desvio-padrão em ms → `hud.net.jitterMs`. Linha no F3.
+>    - colunas/fila: no intervalo de 1s (main.ts:1239) setar `hud.stream = {colunas:
+>      colunasCarregadas.size, fila: chunkRenderer.filaPendente}` (getter JÁ existe). F3 + stats.
+> **Arquivos:** hud.ts (métricas próprias + campos novos `stream`/`net.jitterMs` + linhas F3 +
+> relatório), main.ts (jitter no handleServerData + stream/jitter no intervalo de 1s). O relatório
+> agregado continua pequeno (só resumo, respeita `MAX_PROFILE_REPORT_CHARS=8192`). Sem teste de UI
+> (browser) — a lógica é toda cliente. Depois de codar: typecheck + build, atualizar este bloco.
+> **SESSÃO 13 (2026-07-21) — ÁGUA+NADO · /CLAIM (professor cria, COLUNA) · PAINEL DE
+> JOGADORES+BAN · MOBILE (varinha, agachar, escala UI) · PROFILER 10s+RAM/vídeo.
+> CODADO + VERDE (typecheck 0 erros, 283 testes, build ok). NÃO playtestado, NÃO
+> commitado.** Sessão longa, 4 mensagens de pedido acumuladas — TUDO implementado:
+> (1) **ÁGUA (id 129, append)** — bloco ESTÁTICO (sem fluxo; fluido dinâmico = fase própria).
+> Atravessável (`isSolidBlock`=false → entra e NADA) mas cubo cheio pro mesher
+> (`isFullCube`=true → funde com água vizinha, só a casca aparece). Translúcida SEM mexer no
+> material (chunk = 1 draw call cutout `alphaTest:0.5`): tile azul com FUROS em xadrez
+> `(x+y)%3===0`. NADO (physics.ts): `inWater` amostra o torso; submerso = velocidade ×
+> `waterFactor`(0.5) + empuxo (`waterGravity` 8, afunda até `waterSinkMax` 3) + pular sobe /
+> agachar desce (`swimSpeed` 4). blocks/mesher/atlasTexture/blocksUi/physics + sentinel bumpado.
+> (2) **/CLAIM: professor cria; SEGUE COLUNA CHEIA (0→teto)** — o usuário PRIMEIRO pediu caixa
+> 64×63×32, DEPOIS mandou MANTER a coluna cheia (decisão final = COLUNA). Então: professor
+> deixou de ser bloqueado no `/claim criar` (reserva plot como o aluno, 1-por-dono); claim
+> força min.y=0/max.y=teto como sempre; limite horizontal virou 64(X)×32(Z) (era 32×32).
+> `claims.ts`: MAX_CLAIM_X=64 + MAX_CLAIM_Z=32 (tirei MAX_CLAIM_Y — altura livre).
+> (3) **PAINEL DE JOGADORES + BANIMENTO** — `client/players.ts` (PlayersPanel, ESTRUTURA DO
+> INVENTÁRIO: altura fixa, abas, scroll só na lista). Abas "conectados" (expulsar/banir, 2
+> cliques) e "banidos" (desbanir). Aberto por botão "👥 jogadores" no topo do painel de
+> autoria. Ban por NICK: ESTADO + gate de join na GameSession (`banir`/`desbanir`/`estaBanido`,
+> case-insensitive; persiste no meta `banidos[]` do save de mundo livre); `/banir`·`/desbanir`
+> no HOST (index.ts, fecham socket como o /kicar); msg `players` (conectados+banidos) → SÓ
+> professores, no join/saída/ban. `broadcastPlayers` PULA singleplayer (Web Worker não gere
+> turma; mantém o retrato de mensagens dos testes de contrato). save.ts (banidos), protocol.ts
+> (msg players), 3 testes de ban.
+> (4) **MOBILE**: (a) **varinha** — botão 🪄 no touch UI → `toggleVarinha` (⛏/▣ viram
+> canto1/canto2). (b) **agachar** — botão de SEGURAR ⤓ mantém a tecla `agachar` (Shift):
+> andando não cai da borda, voando DESCE. (c) **escala da UI** — `settings.uiScale` (60–180%,
+> persistido), slider "escala dos controles (toque)" (só em touch); aplicado por var CSS `--ts`
+> nos tamanhos do `#touch-ui` via `calc()` (NÃO transform:scale — o joystick lê
+> getBoundingClientRect).
+> (5) **PROFILER grava 10s + F3 RAM/vídeo** — "exportar JSON" e "enviar pro servidor" agora
+> GRAVAM 10s (`hud.record`, contagem regressiva no F3) e devolvem relatório AGREGADO (frametime
+> min/méd/p50/p95/p99/pior-frame, frames lentos >50ms/>100ms, faixa de memória) — só o resumo
+> vai no fio (poucos KB). F3 mostra RAM (JS heap `performance.memory`; n/d fora do Chrome) e
+> vídeo (contadores `renderer.info.memory`). Relatório guarda dispositivo (núcleos, RAM GB, DPR,
+> tela, GPU via WEBGL_debug_renderer_info). Sugeri MAIS dados úteis (todo.md, seção profiler):
+> points/lines, long tasks (PerformanceObserver), bateria, tipo de conexão, colunas/fila de
+> mesh, tempo de sessão, jitter de rede, limites do WebGL.
+> **DE QUEBRA:** consertei 2 erros de typecheck PRÉ-EXISTENTES (não meus): arvores.ts:85 (arrow
+> `():void=>` corpo concha → bloco) e world.test.ts:53 (`chunk!`). typecheck 0 erros.
+> **PRÓXIMA:** commit/push (usuário decide) + PLAYTEST em notebook E tablet: nadar na água;
+> professor /claim criar (coluna); painel P → aba jogadores → banir/desbanir (LAN, 2+ clientes);
+> varinha+agachar+escala no celular; profiler "gravar 10s" (F3 mostra RAM/vídeo + relatório com
+> distribuição). Nada testável em browser aqui — a lógica de servidor tem teste, a UI cliente
+> NÃO. O RELATÓRIO segue sendo o entregável final.
 > **SESSÃO 12 (2026-07-21) — ✅ PLAYTEST MULTIPLAYER DO MUNDO PROCEDURAL NA ESCOLA
 > (MARCO — streaming validado EM CAMPO com turma real).** Usuário criou um mundo
 > procedural (streaming F1-F5, `worldChunks` 240×240×8 = 3840²×128, seed 3158887957)

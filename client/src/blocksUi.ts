@@ -113,6 +113,8 @@ export const PLACEABLE: readonly PlaceableEntry[] = [
   { id: BlockId.LogPauBrasil, name: "tronco de pau-brasil", cat: "vegetacao" },
   { id: BlockId.FolhasPauBrasil, name: "folhas de pau-brasil", cat: "vegetacao" },
   { id: BlockId.Mandacaru, name: "mandacaru", cat: "vegetacao" },
+  // Água (2026-07-21): bloco de terreno atravessável (nada dentro)
+  { id: BlockId.Agua, name: "água", cat: "blocos" },
 ];
 
 /** Colocáveis visíveis PARA ESTE PAPEL: o aluno não vê rocha-matriz (autoria

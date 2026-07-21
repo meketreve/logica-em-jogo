@@ -10,6 +10,7 @@
 * \[x] mesa — **FEITO** (2026-07-19): móvel, faixa 87-99.
 * \[x] quadro (com interface para digitar textos e adicionar imagens) — **FEITO** (2026-07-19): ids 100-103; `shared/quadros.ts` + `client/quadros.ts`, editor overlay, imagem JPEG 192px comprimida local (teto 32k chars), persiste no meta.
 * \[x] flores — **FEITO** (2026-07-19 ids 104-107, 4 cores atravessáveis com regra de apoio da tocha; 2026-07-20 sessão 8 refez render com `emitCrossPlane` = 2 lâminas planas na diagonal, estilo Minecraft cross, fim do z-fight/sprite esticado).
+* \[x] bloco de água — **FEITO** (2026-07-21): id 129, atravessável (não-sólido), translúcida via furos em xadrez + alphaTest (sem blending). Nado em physics.ts: torso submerso → velocidade × `waterFactor` (0.5), empuxo (gravidade reduzida, afunda devagar), pular sobe / agachar desce (`swimSpeed`). SEM fluxo/espalhamento — fluido dinâmico é fase própria.
 * \[ ] vidro colorido
 
 ## Comandos / jogador
@@ -36,6 +37,8 @@ senão lado com parede; empate → base. Cliente inalterado.
 
 * \[x] rocha-matriz só para professor (inventário/copiar/colocar) — **FEITO** (2026-07-17)
 * \[x] mundos com nome "aula" não salvam alterações, reutilizáveis sem mover arquivos — **FEITO** (2026-07-17)
+* \[x] professor cria área com /claim (mesmo acesso do aluno) — **FEITO** (2026-07-21): removido o bloqueio do professor no `/claim criar`; ele reserva "terreno"/plot como o aluno. Claim SEGUE sendo COLUNA cheia (camada 0 → teto — decisão do usuário 2026-07-21, mantida); limite horizontal 64 (X) × 32 (Z) pra TODOS (era 32×32).
+* \[x] **aba de JOGADORES no painel da tecla P (professor)** — **FEITO** (2026-07-21): `client/players.ts` (PlayersPanel, estrutura do inventário: altura fixa, abas, scroll só na lista). Abas "conectados" (botões expulsar/banir, 2 cliques) e "banidos" (desbanir). Aberto por um botão "👥 jogadores" no topo do painel de autoria. Ban por NICK: estado + gate de join na GameSession (`banir`/`desbanir`/`estaBanido`, persiste no meta `banidos[]`); `/banir`·`/desbanir` no HOST (fecham socket como o /kicar); msg `players` (conectados+banidos) → só professores, no join/saída/ban.
 
 ## Sistema anti-griefing (claim de blocos)
 
@@ -49,6 +52,12 @@ senão lado com parede; empate → base. Cliente inalterado.
   * professor IGNORA todo claim (sempre edita).
   * persiste no `.ljw` (meta do mundo livre); em mundo-aula read-only o claim some — sem conflito.
 * \[x] bloquear que alunos coloquem blocos fora das áreas de cada grupo nos mundos de aula/atividades — **FEITO** (2026-07-17, cp25 confinamento: `/confinar ligar|desligar` + auto em mundo-aula; aluno só coloca/quebra na área do seu grupo (cp13); sem grupo = travado; professor livre. Playtest do usuário PENDENTE)
+
+## Mobile / toque
+
+* \[x] varinha no celular (sem tecla R) — **FEITO** (2026-07-21): botão 🪄 na fileira do topo do touch UI liga/desliga o modo varinha (mesmo `toggleVarinha` da tecla R); aí os botões ⛏/▣ marcam canto 1/canto 2 (já roteiam pelo mesmo handler de clique esq/dir que checa `varinhaAtiva`).
+* \[x] botão de AGACHAR no celular — **FEITO** (2026-07-21): botão de SEGURAR ⤓ nas ações do touch, mantém a tecla `agachar` (Shift) pressionada — andando não cai da borda, voando DESCE (mesma `input.down(settings.keys.agachar)` do teclado).
+* \[x] **config no painel do mobile pra mudar a ESCALA da UI dos controles** — **FEITO** (2026-07-21): `settings.uiScale` (persistido, 60–180%), slider "escala dos controles (toque)" na aba controles (só em dispositivo touch). Aplicado por `--ts` (var CSS) nos tamanhos do `#touch-ui` via `calc()` — NÃO transform:scale() (o joystick lê getBoundingClientRect e o polegar se posiciona por px reais).
 
 ## Visual / player
 
@@ -65,6 +74,19 @@ senão lado com parede; empate → base. Cliente inalterado.
 GameSession não tem filesystem); salva em `profiles/perf-<nome>-<timestamp>.json` (gitignored).
 Singleplayer (Web Worker) não tem fs — mensagem cai no vácuo em silêncio, sem erro no cliente.
 Playtest do usuário PENDENTE.
+* \[x] profiler grava 10s + RAM/vídeo no F3 — **FEITO** (2026-07-21): "exportar JSON" e "enviar
+pro servidor" agora GRAVAM 10s (`hud.record`, contagem regressiva no F3) e devolvem relatório
+AGREGADO (frametime min/méd/p50/p95/p99/pior-frame, frames lentos >50ms/>100ms, faixa de
+memória) — só o resumo vai no fio (poucos KB, sem array cru). F3 mostra RAM (JS heap
+`performance.memory`; n/d fora do Chrome) e vídeo (contadores `renderer.info.memory`:
+geometrias/texturas). O relatório guarda também o dispositivo (núcleos, RAM GB, DPR, tela, GPU
+via WEBGL_debug_renderer_info). Playtest PENDENTE.
+* \[x] mais dados úteis no profiler — **FEITO** (2026-07-21): long tasks (PerformanceObserver,
+jank do main thread + delta na gravação de 10s), jitter de rede (desvio-padrão do gap entre msgs),
+colunas carregadas + fila de mesh (mundo procedural), points/lines do renderer, contexto WebGL
+perdido, tempo de sessão, bateria (getBattery), conexão (navigator.connection effectiveType/
+downlink/rtt). Tudo no F3 + no relatório agregado. Ainda ABERTO (candidato): limites do WebGL
+(MAX_TEXTURE_SIZE), uso de storage (navigator.storage.estimate).
 * \[x] salvar o log do chat em arquivo (no servidor) — **FEITO** (2026-07-20): `registrarChat`
 no host (index.ts) engancha no `entregar` (ponto único server→cliente), deduplica o
 fan-out do broadcast e grava `mundos/<nome>/chat.log` (append, `\[ISO] autor: texto`).
