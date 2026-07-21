@@ -1929,3 +1929,15 @@ Files: blocks.ts, mesher.ts, session.ts, blocks.test.ts, cp23.test.ts. Commitar+
 | 22:10 | F3 ganha linhas de clima pra afinar o gen: bioma/temp/umid/seed + h do terreno + topo previsto + thresholds (praia/neve/chapada); worldSeed vira let (troca de aula atualiza) | client/src/main.ts (hud.extra) | typecheck 3/3, build, server 8080 reiniciado servindo dist novo | ~4k |
 | 22:02 | Session end: 40 writes across 14 files (blocks.ts, mesher.ts, blocks.test.ts, blocksUi.ts, atlasTexture.ts) | 20 reads | ~88390 tok |
 | 22:27 | Session end: 40 writes across 14 files (blocks.ts, mesher.ts, blocks.test.ts, blocksUi.ts, atlasTexture.ts) | 20 reads | ~88390 tok |
+| 22:35 | Created client/src/blocksUi.ts | — | ~1751 |
+| 22:36 | Edited client/src/inventory.ts | modified categoria() | ~222 |
+| 22:36 | Edited client/src/inventory.ts | 3→3 lines | ~54 |
+| 22:36 | Edited client/src/inventory.ts | added 1 condition(s) | ~266 |
+| 22:36 | Edited client/src/inventory.ts | inline fix | ~13 |
+| 22:36 | Edited client/index.html | expanded (+18 lines) | ~164 |
+| 22:25 | 3 COMMITS da sessão 10 (e08cf0e blocos, 3a82c3f gen+serras, 0fffc7c hud+dist+wolf; push pendente, 4 à frente). ABAS no inventário: Categoria em blocksUi (fonte única, PlaceableEntry.cat), tab bar no InventoryPanel (filtro de exibição, aba sobrevive abrir/fechar), CSS .inv-abas; hotbar/scroll intocados | client/src/{blocksUi,inventory}.ts, client/index.html | typecheck 3/3, build, screenshot com ?inv confere (5 abas, aluno sem rocha-matriz). Abas NÃO commitadas — aguardando playtest | ~10k |
+| 22:38 | Session end: 46 writes across 16 files (blocks.ts, mesher.ts, blocks.test.ts, blocksUi.ts, atlasTexture.ts) | 23 reads | ~97298 tok |
+| 22:42 | Edited client/index.html | modified FIXA() | ~173 |
+| 22:42 | Edited client/index.html | 5→9 lines | ~86 |
+| 22:40 | Refino das abas: painel de inventário com ALTURA FIXA (560px/84vh, flex column) + rolagem SÓ na grade (flex:1, overflow-y, align-content:start) — trocar de aba não muda o tamanho. Verificado com harness estático de CSS (aba 36 vs aba 4, mesma altura) | client/index.html | build ok, server 8080 reiniciado. Abas ainda NÃO commitadas | ~5k |
+| 22:46 | Session end: 48 writes across 16 files (blocks.ts, mesher.ts, blocks.test.ts, blocksUi.ts, atlasTexture.ts) | 25 reads | ~97702 tok |

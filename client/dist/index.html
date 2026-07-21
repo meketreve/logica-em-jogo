@@ -162,8 +162,12 @@
         top: 50%;
         transform: translate(-50%, -50%);
         width: min(580px, 94vw);
-        max-height: 84vh;
-        overflow-y: auto;
+        /* altura FIXA (2026-07-20, playtest): trocar de aba não muda o
+           tamanho do painel — a GRADE rola por dentro quando não cabe */
+        height: min(560px, 84vh);
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
         padding: 16px 20px;
         background: rgba(10, 16, 26, 0.93);
         border: 1px solid rgba(255, 255, 255, 0.2);
@@ -266,10 +270,32 @@
         opacity: 0.65;
         margin: 6px 0 10px;
       }
+      .inv-abas {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 4px;
+        margin: 0 0 10px;
+        padding-bottom: 8px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+      }
+      .inv-aba {
+        font-size: 0.78rem;
+        padding: 5px 10px !important;
+        opacity: 0.7;
+      }
+      .inv-aba.sel {
+        opacity: 1;
+        background: rgba(90, 140, 220, 0.35) !important;
+        outline: 1px solid rgba(120, 170, 255, 0.6);
+      }
       .inv-grid {
         display: grid;
         grid-template-columns: repeat(auto-fill, minmax(76px, 1fr));
         gap: 6px;
+        /* a rolagem do painel mora AQUI (painel tem altura fixa) */
+        flex: 1;
+        overflow-y: auto;
+        align-content: start; /* aba curta: blocos no topo, sem esticar */
       }
       .inv-bloco {
         display: flex;
@@ -574,7 +600,7 @@
         pointer-events: auto;
       }
     </style>
-    <script type="module" crossorigin src="/assets/index-DFA3H38A.js"></script>
+    <script type="module" crossorigin src="/assets/index-81bZP0pf.js"></script>
   </head>
   <body>
     <div id="menu" class="hidden">

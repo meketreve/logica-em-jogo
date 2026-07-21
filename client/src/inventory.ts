@@ -1,14 +1,20 @@
 import { playUi } from "./audio";
+import { CATEGORIAS, type Categoria, type PlaceableEntry } from "./blocksUi";
 
 /**
- * Inventário de blocos (cp16) — grade com TODOS os colocáveis + faixa da
- * hotbar de 9 slots. Clicar um bloco põe no slot selecionado; clicar um slot
- * seleciona. O estado da hotbar mora no main.ts (vem pelos callbacks) — o
- * painel é SÓ UI, igual aos painéis do cp14: nunca decide estado de jogo.
+ * Inventário de blocos (cp16) — grade dos colocáveis + faixa da hotbar de 9
+ * slots. Clicar um bloco põe no slot selecionado; clicar um slot seleciona.
+ * O estado da hotbar mora no main.ts (vem pelos callbacks) — o painel é SÓ
+ * UI, igual aos painéis do cp14: nunca decide estado de jogo.
+ *
+ * ABAS por categoria (2026-07-20, pedido do playtest): com 100+ blocos a
+ * grade única ficou longa. A aba ativa é só filtro de exibição.
  */
 export class InventoryPanel {
   private readonly root = document.getElementById("inventario");
   private isOpen = false;
+  /** Aba ativa — sobrevive a abrir/fechar dentro da sessão. */
+  private cat: Categoria = "blocos";
 
   private readonly onEsc = (e: KeyboardEvent): void => {
     if (e.code !== "Escape") return;
@@ -20,7 +26,7 @@ export class InventoryPanel {
   constructor(
     private readonly icons: Map<number, string>,
     /** Colocáveis visíveis pra este jogador (aluno não vê rocha-matriz). */
-    private readonly blocks: () => readonly { id: number; name: string }[],
+    private readonly blocks: () => readonly PlaceableEntry[],
     private readonly state: () => { hotbar: readonly number[]; selected: number },
     private readonly pick: (blockId: number) => void,
     private readonly select: (slot: number) => void,
@@ -85,9 +91,26 @@ export class InventoryPanel {
     dica.textContent =
       "clique num bloco pra pôr no slot selecionado · 1–9 ou clique escolhem o slot";
 
+    // abas de categoria — só aparecem as que têm bloco visível pro papel
+    const todos = this.blocks();
+    const abas = document.createElement("div");
+    abas.className = "inv-abas";
+    for (const c of CATEGORIAS) {
+      if (!todos.some((b) => b.cat === c.id)) continue;
+      const tab = document.createElement("button");
+      tab.type = "button";
+      tab.className = "inv-aba" + (c.id === this.cat ? " sel" : "");
+      tab.textContent = c.label;
+      tab.addEventListener("click", () => {
+        this.cat = c.id;
+        this.render();
+      });
+      abas.appendChild(tab);
+    }
+
     const grid = document.createElement("div");
     grid.className = "inv-grid";
-    for (const b of this.blocks()) {
+    for (const b of todos.filter((x) => x.cat === this.cat)) {
       const btn = document.createElement("button");
       btn.type = "button";
       btn.className = "inv-bloco";
@@ -125,6 +148,6 @@ export class InventoryPanel {
       bar.appendChild(slot);
     });
 
-    root.append(head, dica, grid, bar);
+    root.append(head, dica, abas, grid, bar);
   }
 }

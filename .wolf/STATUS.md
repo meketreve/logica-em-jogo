@@ -45,10 +45,16 @@
 > aparece exposto em encosta íngreme de graça (encosta corta abaixo do subsolo).
 > 262 testes, typecheck 3/3, screenshot serra seed 13 confere (paredão + araucárias).
 > Server de teste reiniciado (8080, código BIOMAS, mundo novo 128).
-> **PRÓXIMA: (a) commitar (pedir ordem), (b) playtest das montanhas (subir serra,
-> neve no topo frio, chapada quente, minério na encosta), (c) candidatos v2:
-> cavernas, altura por bioma, forma custom do mandacaru, madeira por espécie,
-> abas no inventário (todo.md).**
+> **TUDO DA SESSÃO 10 PLAYTESTADO ✅ E COMMITADO (biomas+serras+F3: e08cf0e,
+> 3a82c3f, 0fffc7c). ABAS DO INVENTÁRIO FEITAS ✅ (playtest ok):** categoria em
+> blocksUi (fonte única, `PlaceableEntry.cat`: blocos/vegetação/mobília/minérios/
+> letras-e-números), tab bar no InventoryPanel (filtro só de exibição; aba ativa
+> sobrevive abrir/fechar), painel com ALTURA FIXA (560px/84vh) e rolagem SÓ na
+> grade. Hotbar/scroll//regiao encher intocados. TUDO PUSHADO — escola: `git pull`.
+> **PRÓXIMA: PILOTO com a turma + relatório (entregável real do projeto). Motor
+> em espera. Backlog (todo.md): gen v2 (cavernas, altura por bioma, mandacaru
+> custom, madeira por espécie), sobrevivência (precisa entrevista de escopo),
+> animação sentar/deitar, modelo de player.**
 > **SESSÃO 9 (2026-07-20) — CLAIM = COLUNA + VERSÃO DO package.json (commit único desta sessão):**
 > (A) CLAIM VIRA COLUNA DE ALTURA TOTAL — pedido do usuário: claim protege da camada 0
 > (bedrock) ao teto do mundo, não só a caixa marcada — mata ilha flutuante por cima e
