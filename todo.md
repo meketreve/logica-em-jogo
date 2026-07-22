@@ -12,6 +12,33 @@
 * \[x] flores — **FEITO** (2026-07-19 ids 104-107, 4 cores atravessáveis com regra de apoio da tocha; 2026-07-20 sessão 8 refez render com `emitCrossPlane` = 2 lâminas planas na diagonal, estilo Minecraft cross, fim do z-fight/sprite esticado).
 * \[x] bloco de água — **FEITO** (2026-07-21): id 129, atravessável (não-sólido), translúcida via furos em xadrez + alphaTest (sem blending). Nado em physics.ts: torso submerso → velocidade × `waterFactor` (0.5), empuxo (gravidade reduzida, afunda devagar), pular sobe / agachar desce (`swimSpeed`). SEM fluxo/espalhamento — fluido dinâmico é fase própria.
 * \[ ] vidro colorido
+* \[ ] **meio-blocos (slabs)** — meia altura (superior/inferior) de blocos existentes.
+  Refino:
+  * IDs: uma família por material vira caro (pedra/madeira/… × 2 metades). Melhor
+    começar com poucos materiais (pedra, tábua, uma cor de lã) e um bit de "metade"
+    no par de ids (Baixo/Cima), estilo porta (2 ids por variante). Append depois de 129.
+  * Mesher (`shared/mesher.ts`, PURO): já tem `emitBox` com UV proporcional — o slab é
+    uma caixa de 0..0.5 (ou 0.5..1) em Y. Cai fora de `isFullCube` (não funde faces com
+    vizinho cheio → a face do meio aparece). Fica em `isTransparentBlock`? Não — é opaco,
+    mas NÃO é cubo cheio, então precisa emitir todas as faces expostas (como cerca/tocha).
+  * **FÍSICA é o trabalho pesado:** `physics.ts collides()` trata todo `isSolidBlock` como
+    cubo 1×1×1. Slab exige colisão de ALTURA PARCIAL (subir meio bloco sem pular, cabeça
+    passa por baixo do slab de cima). Hoje o AABB não sabe de sub-blocos → precisa de uma
+    `alturaColisao(id)` (ou caixa de colisão por bloco, reusando a ideia do
+    `blockSelectionBox` do mesher) e `collides`/`moveAxis` passam a ler essa caixa. Decisão
+    a travar: step-up automático (subir slab andando) ou só pulo?
+  * 2 slabs no mesmo lugar = bloco cheio (Minecraft) — opcional, decisão de escopo.
+* \[ ] **escadas (stairs)** — bloco em L (degrau), 4 orientações + meia-volta (topo/base).
+  Refino:
+  * Extensão natural do slab, MAIS complexo: orientação direcional (rotXZ k×90°, como os
+    móveis 87-99) + variante superior/inferior. IDs: 4 direções × 2 = 8 por material →
+    caro; escopo mínimo = 1 material (pedra) primeiro.
+  * Mesher: 2 caixas (`emitBox` base 0..0.5 + degrau 0.5..1 em metade da célula) — o
+    culling de face rente já existe. Forma pura, sem material novo (1 draw call).
+  * Física: mesma dor do slab, PIOR — a caixa de colisão é um L (não uma altura única).
+    Ou aproxima por step-up de meio bloco (colide como slab, sobe andando) — mais simples
+    e "bom o bastante" pra um jogo pedagógico. Travar isso antes de codar.
+  * Depende de `alturaColisao`/caixa-por-bloco do slab → fazer slab PRIMEIRO.
 
 ## Comandos / jogador
 
@@ -58,12 +85,75 @@ senão lado com parede; empate → base. Cliente inalterado.
 * \[x] varinha no celular (sem tecla R) — **FEITO** (2026-07-21): botão 🪄 na fileira do topo do touch UI liga/desliga o modo varinha (mesmo `toggleVarinha` da tecla R); aí os botões ⛏/▣ marcam canto 1/canto 2 (já roteiam pelo mesmo handler de clique esq/dir que checa `varinhaAtiva`).
 * \[x] botão de AGACHAR no celular — **FEITO** (2026-07-21): botão de SEGURAR ⤓ nas ações do touch, mantém a tecla `agachar` (Shift) pressionada — andando não cai da borda, voando DESCE (mesma `input.down(settings.keys.agachar)` do teclado).
 * \[x] **config no painel do mobile pra mudar a ESCALA da UI dos controles** — **FEITO** (2026-07-21): `settings.uiScale` (persistido, 60–180%), slider "escala dos controles (toque)" na aba controles (só em dispositivo touch). Aplicado por `--ts` (var CSS) nos tamanhos do `#touch-ui` via `calc()` — NÃO transform:scale() (o joystick lê getBoundingClientRect e o polegar se posiciona por px reais).
+* \[ ] **layouts diferentes pros controles do mobile** — o usuário escolhe a disposição
+  dos botões de toque (não só a escala). Refino:
+  * Presets nomeados (ex.: "destro"/"canhoto" espelham joystick↔botões de ação; "compacto"
+    junta as ações; "espalhado" separa) — `settings.touchLayout` (persistido, sibling do
+    `uiScale`), seletor na aba controles (só em touch).
+  * Implementar como CLASSE no `#touch-ui` (`data-layout="canhoto"`) + CSS por classe —
+    NÃO recriar os elementos. `touch.ts` já monta os botões uma vez; layout é só
+    posicionamento (grid-area / left↔right). Joystick lê getBoundingClientRect → posição
+    real por px continua valendo, como no uiScale.
+  * Escopo mínimo travável: só destro/canhoto (espelhar) — já cobre o pedido mais comum.
+    Botões reposicionáveis por arrasto = fase 2 (guarda x/y por botão no settings).
 
 ## Visual / player
 
 * \[ ] animação de sentar na cadeira e deitar na cama (pra passar a noite)
 * \[ ] trocar modelo do player pra estilo Minecraft
 * \[ ] trocar sol pra ser quadrado, estilo Minecraft (kkk)
+
+## Água (visual + fluido)
+
+* \[x] **tirar os FUROS da água + material próprio** — **FEITO** (2026-07-22): a água ganhou
+  um 2º material transparente DE VERDADE (blend, `opacity:0.72`, `depthWrite:false`) separado
+  do material opaco/cutout do chunk. O mesher fatia os índices em 2 grupos por
+  `opaqueIndexCount` (água concatenada depois do opaco); `ChunkRenderer` usa `[material,
+  materialAgua]` com `geometry.addGroup` — three manda o grupo da água pro passe de
+  transparência sozinho. `paintAgua` repintado azul CHEIO (sem xadrez), com ondulação/ruído
+  sutil. +1 draw call SÓ em chunk com água (grupo count 0 não desenha). 287 testes (novo:
+  split de grupo no mesher.test), typecheck 0 erros, build ok. Playtest no browser PENDENTE.
+* \[ ] **mudar a textura da água (refino visual)** — agora que a água tem material próprio,
+  dá pra caprichar no tile sem restrição de furos. Pintar no atlas procedural (`paintAgua`
+  em atlasTexture.ts) — gradiente, espuma na borda, tom por profundidade. Barato e isolado.
+* \[ ] **textura ANIMADA (ciclo de N tiles) — DESTRAVADA** (a água já está em material
+  próprio, 2026-07-22). Caminhos agora diretos:
+  1. **UV-scroll**: animar `materialAgua.map.offset` no render loop → correnteza contínua.
+     Mais barato; a textura precisa ladrilhar (tile-able) no eixo do scroll.
+  2. **Flipbook**: N quadros lado a lado no atlas + trocar `map.offset.x` a cada ~200ms.
+     Como a água tem material próprio, o offset NÃO afeta os blocos opacos.
+  * Atenção: `map.offset` é da TEXTURA (compartilhada com o material opaco via mesmo atlas).
+    Pra animar SÓ a água sem mexer no resto, clonar a textura pro materialAgua
+    (`atlas.clone()`, `needsUpdate=true`) OU usar um shader/uniform próprio. Decidir ao codar.
+  * Fazer como teste isolado primeiro (1 bloco), medir custo em tablet.
+* \[ ] **água FLUIDA (fluido dinâmico — FASE PRÓPRIA, grande)** — hoje a água é ESTÁTICA
+  (bloco parado, sem espalhar). Regra pedida pelo usuário: bloco-fonte cria água e ela FLUI
+  pros blocos adjacentes na MESMA camada (limite de 8 na horizontal) SE houver bloco de
+  apoio embaixo; se a água (fonte ou fluida) estiver sobre AR, cai; ao cair, a regra dos 8
+  se reaplica na camada onde pousa. Refino:
+  * **FONTE vs FLUINDO + NÍVEL.** Bloco é 1 byte de id só (sem metadata). Codar o nível NO
+    id: `AguaFonte` + `Agua1..Agua7` (8 ids novos, append depois de 129). Fonte = nível 8;
+    fluir na horizontal DECREMENTA o nível (8→7→…→1, 0 seca); queda restaura nível cheio.
+    (Estilo Minecraft: o nível vira a ALTURA visual do fluido no mesher.)
+  * **AUTORIDADE = SERVIDOR** (`session.ts`), como place/break — é estado de mundo que
+    persiste e sincroniza pra turma. Cliente só renderiza. NÃO é física de cliente.
+  * **Propagação:** o `rules.ts` (REGRA DE OURO) é update por VIZINHANÇA em cima de UMA
+    mudança — fluido precisa TICAR até assentar (autômato celular). Precisa de uma FILA de
+    células de água "ativas" que o tick do servidor processa (N por tick, configurável, como
+    o streaming) e ESVAZIA ao assentar (senão tica pra sempre — mata tablet). Regras por
+    célula: sobre ar → cria queda (nível cheio) abaixo e some horizontalmente; sobre sólido →
+    espalha pros 4 vizinhos da MESMA camada com nível-1, respeitando o teto de 8 de distância;
+    procura o "buraco mais próximo" (desce preferível a espalhar) = comportamento Minecraft.
+  * **Save:** os ids (com nível) já vão pro `.ljw` de graça (é byte cru). Mas fluido salvo
+    pode congelar meio-fluxo — decisão: no restore, marcar só as FONTES e recomputar o fluxo
+    (re-enfileira vizinhos das fontes), OU salvar como está e deixar reassentar no 1º tick.
+  * **Interações:** física do nado (já existe) vale pra fonte E fluindo (`isAgua` cobre a
+    faixa toda). Quebrar a fonte → o fluxo recua (níveis reavaliam e secam). Colocar bloco
+    sólido no caminho → corta o fluxo (rules reenfileira vizinhos).
+  * **Escopo/decisões a travar ANTES:** teto de células ativas por tick (orçamento de
+    tablet); água infinita (2 fontes fazem fonte nova, estilo Minecraft) SIM/NÃO; nível
+    vira altura visual no mesher SIM/NÃO (senão fica cubo cheio "degrau"). Feature grande —
+    provavelmente depois do relatório/piloto.
 
 ## Ferramentas de dev
 

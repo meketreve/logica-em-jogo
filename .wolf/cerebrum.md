@@ -34,6 +34,29 @@
 
 ## Key Learnings
 
+- **Restrição de assets = LICENCIAMENTO, não "zero arquivo de imagem" (leitura de projeto.txt §9, 2026-07-22).**
+  A §9 fala de custo/legalidade: Minecraft Education exige licença cara; "versões NÃO
+  LICENCIADAS de softwares comerciais" são ilegais pra rede pública → solução = plataforma
+  PRÓPRIA. O que ela PROÍBE: código/textura/asset RIPADO de terceiro (Minecraft/Eaglercraft),
+  software pirata. O que ela NÃO proíbe: assets PRÓPRIOS (desenhados pelo usuário/pela IA) nem
+  assets de licença livre (CC0). ⇒ "tudo pintado no canvas procedural, zero PNG" é ESCOLHA DE
+  IMPLEMENTAÇÃO nossa (repo 100% texto, sem pipeline de asset, sem loader assíncrono, deploy =
+  1 bundle, testável headless, "próprio" garantido), NÃO exigência do documento. Assets
+  PRÓPRIOS/CC0 seriam permitidos se um dia valer a pena (textura rica, sprite sheet de animação).
+  Não tratar "sem assets externos" como regra absoluta — é convenção defensável, revisável.
+- **Água = 2º material transparente via GRUPOS de geometria (2026-07-22, RESOLVIDO).**
+  Antes a água fingia translucidez com furos xadrez (cutout no material único do chunk).
+  Decisão do usuário (AskUserQuestion) = transparência DE VERDADE. Padrão implementado, reusável
+  pra qualquer bloco transparente futuro (vidro colorido, gelo): o mesher (`mesher.ts`) mantém
+  UM vertex buffer mas separa os ÍNDICES em 2 grupos — opaco primeiro, água depois — expostos
+  por `ChunkGeometry.opaqueIndexCount`; faces de água vão pra `waterIndices` no caminho de cubo.
+  O `ChunkRenderer` (chunks.ts) monta `geometry.addGroup(0,opaque,0)` + `addGroup(opaque,resto,1)`
+  e passa material ARRAY `[opaco, agua]` — three roteia o grupo transparente pro passe de
+  transparência AUTOMATICAMENTE (sort por z), e grupo com count 0 não gera draw call (chunk sem
+  água não paga nada). `materialAgua` (main.ts) = MeshLambert transparent, opacity 0.72,
+  depthWrite:false, MESMA textura do atlas (as UVs do tile batem). `paintAgua` = azul cheio, sem
+  furos. Testado: mesher.test prova o split (só-pedra opaque==total; só-água opaque==0; misto 36/36).
+  Se um dia quiser animar SÓ a água: clonar a textura pro materialAgua antes de mexer em map.offset.
 - **PILOTO FEITO (2026-07-21) — o entregável pedagógico está cumprido.** O usuário
   aplicou o jogo com alunos de TODAS as turmas da escola (cobertura incremental, não um
   evento único). **Inclui AEE (Atendimento Educacional Especializado / educação

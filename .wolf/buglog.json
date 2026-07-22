@@ -7328,6 +7328,137 @@
       "related_bugs": [],
       "occurrences": 1,
       "last_seen": "2026-07-21T17:48:46.489Z"
+    },
+    {
+      "id": "bug-452",
+      "timestamp": "2026-07-21T18:20:05.803Z",
+      "error_message": "Significant refactor of ",
+      "file": "relatorio/relatorio-aplicacao.md",
+      "root_cause": "4 lines replaced/restructured",
+      "fix": "Rewrote 8→14 lines (4 removed) | Also: - 25 arquivos JSON em `profiles-escola/` (um por s; - Campos: `fps`, `frametimeAvgMs`, `frametimeP95Ms",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "md"
+      ],
+      "related_bugs": [],
+      "occurrences": 2,
+      "last_seen": "2026-07-21T18:20:16.227Z"
+    },
+    {
+      "id": "bug-453",
+      "timestamp": "2026-07-22T13:50:57.413Z",
+      "error_message": "Significant refactor of ",
+      "file": "shared/src/physics.ts",
+      "root_cause": "2 lines replaced/restructured",
+      "fix": "Rewrote 4→8 lines (2 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-22T13:50:57.413Z"
+    },
+    {
+      "id": "bug-454",
+      "timestamp": "2026-07-22T13:52:32.092Z",
+      "error_message": "Type error",
+      "file": "shared/src/physics.test.ts",
+      "root_cause": "Missing or incorrect type annotation",
+      "fix": "Added type assertion/annotation",
+      "tags": [
+        "auto-detected",
+        "type-fix",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-22T13:52:32.092Z"
+    },
+    {
+      "id": "bug-455",
+      "timestamp": "2026-07-22T00:00:00.000Z",
+      "error_message": "nadar pra cima não escalava bloco cheio na borda — jogador bobava na superfície sem sair da água",
+      "file": "shared/src/physics.ts",
+      "root_cause": "ramo submerso do stepPlayer dava só swimSpeed(4) ao pular; ao sair d'água o resíduo (v²/2g≈0.32) não alcança o topo de um bloco na borda, então o jogador afunda de volta.",
+      "fix": "constante waterJumpSpeed(7.5) + helper paredeAdjacente (checa sólido nos 4 lados, níveis pés+torso); submerso+pular perto de parede usa o pulo forte (limpa o topo), água aberta mantém swimSpeed. +3 testes em physics.test.ts.",
+      "tags": [
+        "fisica",
+        "agua",
+        "nado",
+        "physics",
+        "water",
+        "jump"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-22T00:00:00.000Z"
+    },
+    {
+      "id": "bug-456",
+      "timestamp": "2026-07-22T14:11:48.025Z",
+      "error_message": "Significant refactor of ",
+      "file": "shared/src/mesher.ts",
+      "root_cause": "2 lines replaced/restructured",
+      "fix": "Rewrote 19→22 lines (2 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-22T14:11:48.025Z"
+    },
+    {
+      "id": "bug-457",
+      "timestamp": "2026-07-22T14:12:06.464Z",
+      "error_message": "Type error",
+      "file": "client/src/chunks.ts",
+      "root_cause": "Missing or incorrect type annotation",
+      "fix": "Added type assertion/annotation",
+      "tags": [
+        "auto-detected",
+        "type-fix",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-22T14:12:06.464Z"
+    },
+    {
+      "id": "bug-458",
+      "timestamp": "2026-07-22T14:12:24.423Z",
+      "error_message": "Wrong reference: scene should be materialAgua",
+      "file": "client/src/main.ts",
+      "root_cause": "Used \"scene\" instead of \"materialAgua\"",
+      "fix": "Changed scene → materialAgua",
+      "tags": [
+        "auto-detected",
+        "wrong-reference",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-22T14:12:24.423Z"
+    },
+    {
+      "id": "bug-459",
+      "timestamp": "2026-07-22T14:14:32.313Z",
+      "error_message": "Type error",
+      "file": "shared/src/mesher.test.ts",
+      "root_cause": "Missing or incorrect type annotation",
+      "fix": "Added type assertion/annotation",
+      "tags": [
+        "auto-detected",
+        "type-fix",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-22T14:14:32.313Z"
     }
   ]
 }

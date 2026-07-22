@@ -1,6 +1,39 @@
 # STATUS — Projeto "Lógica em Jogo" (jogo voxel educacional)
 
 > Single source of truth for resuming work. Read this FIRST when starting a session.
+> **SESSÃO 14 (2026-07-22) — PULO DE SAÍDA DA ÁGUA + REFINO DE IDEIAS.** (1) FÍSICA:
+> nadar pra cima com `swimSpeed`(4) não escalava bloco cheio na borda (bobava na
+> superfície). Fix em `physics.ts`: constante `waterJumpSpeed`(7.5) + helper
+> `paredeAdjacente` (4 lados nos níveis pés+torso); no ramo submerso, pular perto de
+> parede/borda usa o pulo FORTE (limpa o topo do bloco), água ABERTA mantém `swimSpeed`
+> (não vira foguete). +3 testes em `physics.test.ts` (nado NUNCA teve teste): água aberta =
+> swimSpeed, borda = waterJumpSpeed, integração escala muralha (pico > y8). 286 testes,
+> typecheck 0 erros, build ok. NÃO commitado, NÃO playtestado (UI cliente). (2) TODO.MD
+> ganhou 6 ideias REFINADAS (com escopo/decisões/obstáculo técnico ancorado no código):
+> slabs + escadas (Móveis/blocos — trabalho pesado = colisão de altura parcial em
+> physics.ts, que hoje trata tudo como cubo cheio); layouts do mobile (Mobile — presets
+> destro/canhoto por classe CSS no #touch-ui); e nova seção **Água**: trocar textura (repintar
+> tile do atlas), TESTE de textura animada (obstáculo: mesher assa UV → precisa água em
+> material próprio; 3 opções listadas), e água FLUIDA (fase grande: ids AguaFonte+Agua1..7
+> pro nível, autoridade no servidor, fila de células ativas por tick, regra dos 8 + queda,
+> decisões a travar antes). ANTES de codar as próximas: começar por slab (escada e a colisão
+> parcial dependem dele); água animada destrava com "água em 2º material/mesh".
+> **(3) ÁGUA SEM FUROS + MATERIAL PRÓPRIO (2026-07-22, decisão do usuário via AskUserQuestion
+> = "transparente de verdade").** Tirei o xadrez de furos; água agora usa 2º material
+> transparente com blend. COMO: `mesher.ts` fatia índices em 2 grupos (`ChunkGeometry.
+> opaqueIndexCount` — opaco primeiro, água concatenada depois; faces de água roteadas p/
+> `waterIndices` no caminho de cubo); `ChunkRenderer` (chunks.ts) virou material ARRAY
+> `[material, materialAgua]` + `geometry.addGroup(0,opaque,0)`/`addGroup(opaque,resto,1)`
+> (three manda o grupo transparente pro passe de transparência sozinho; grupo count 0 = sem
+> draw); `main.ts` cria `materialAgua` (MeshLambert, transparent, opacity 0.72, depthWrite
+> false, MESMA textura do atlas); `paintAgua` (atlasTexture.ts) repintado azul cheio +
+> ondulação (sem furos). +1 draw call SÓ em chunk com água. 287 testes (+1 split de grupo no
+> mesher.test), typecheck 0, build ok. NÃO commitado, playtest no browser PENDENTE.
+> **(4) RESTRIÇÃO DE ASSETS esclarecida (projeto.txt §9):** §9 proíbe SOFTWARE/ASSET NÃO
+> LICENCIADO de terceiro (Minecraft/Eaglercraft) e exige plataforma PRÓPRIA — NÃO proíbe
+> assets próprios nem CC0. "Tudo procedural no canvas" é ESCOLHA nossa (repo texto, sem
+> pipeline, deploy simples, testável), não exigência. Registrado no cerebrum. Textura animada
+> agora DESTRAVADA (água em material próprio) — ver todo.md seção Água.
 > **✅ FEITO (2026-07-21) — MAIS MÉTRICAS NO PROFILER (7 itens). typecheck 0 erros, 283
 > testes, build ok. NÃO playtestado (UI cliente, precisa browser).** Plano executado como
 > escrito abaixo. hud.ts ganhou: long tasks (PerformanceObserver), points/lines, contexto
