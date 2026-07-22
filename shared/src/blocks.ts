@@ -154,6 +154,14 @@ export function isAgua(id: number): boolean {
   return id === BlockId.Agua;
 }
 
+/** SUBSTITUÍVEL? Colocar um bloco por cima sobrescreve direto, sem quebrar
+ *  antes (líquido é "vazio pra colocação"). Hoje só água; lava/outros
+ *  líquidos — e talvez capim alto/neve — herdam ao serem adicionados. Usado no
+ *  gate do place_block (session.ts): célula vazia OU substituível aceita bloco. */
+export function isReplaceable(id: number): boolean {
+  return isAgua(id);
+}
+
 /** Flor decorativa (qualquer cor)? */
 export function isFlor(id: number): boolean {
   return id >= BlockId.FlorVermelha && id <= BlockId.FlorBranca;

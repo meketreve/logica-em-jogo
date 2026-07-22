@@ -11,6 +11,7 @@ import {
   isJanela,
   isProfessorOnly,
   isQuadro,
+  isReplaceable,
   isSolidBlock,
   interativoToggled,
   janelaComHinge,
@@ -591,7 +592,12 @@ export class GameSession {
         // rocha-matriz é ferramenta de professor: aluno nem coloca (o cliente
         // já esconde, mas o servidor é a barreira real contra fio adulterado)
         if (isProfessorOnly(msg.blockId) && p.papel !== "professor") return;
-        if (getBlock(this.world, msg.x, msg.y, msg.z) !== BlockId.Air) return;
+        // célula precisa estar VAZIA ou com líquido substituível (água): colocar
+        // por cima da água a troca direto, sem quebrar antes (decisão 2026-07-22).
+        {
+          const alvo = getBlock(this.world, msg.x, msg.y, msg.z);
+          if (alvo !== BlockId.Air && !isReplaceable(alvo)) return;
+        }
         if (!this.withinReach(p, msg.x, msg.y, msg.z)) return;
         if (this.overlapsAnyPlayer(msg.x, msg.y, msg.z)) return;
         // cp24/cp25: área protegida por outro aluno (claim) OU fora da área do
@@ -617,7 +623,8 @@ export class GameSession {
           // porta ocupa 2 células (cp23): valida o par ANTES de materializar
           const yCima = msg.y + 1;
           if (!inBounds(this.world, msg.x, yCima, msg.z)) return;
-          if (getBlock(this.world, msg.x, yCima, msg.z) !== BlockId.Air) return;
+          const alvoCima = getBlock(this.world, msg.x, yCima, msg.z);
+          if (alvoCima !== BlockId.Air && !isReplaceable(alvoCima)) return;
           if (this.overlapsAnyPlayer(msg.x, yCima, msg.z)) return;
           // dobradiça escolhida pelo mundo (parede/porta ao lado), não pelo
           // cliente — as 2 metades levam o MESMO id (par se reconhece por igualdade)
@@ -642,7 +649,8 @@ export class GameSession {
           const hx = msg.x + dx;
           const hz = msg.z + dz;
           if (!inBounds(this.world, hx, msg.y, hz)) return;
-          if (getBlock(this.world, hx, msg.y, hz) !== BlockId.Air) return;
+          const alvoCama = getBlock(this.world, hx, msg.y, hz);
+          if (alvoCama !== BlockId.Air && !isReplaceable(alvoCama)) return;
           if (this.overlapsAnyPlayer(hx, msg.y, hz)) return;
           this.applyBlock(msg.x, msg.y, msg.z, msg.blockId);
           this.applyBlock(hx, msg.y, hz, msg.blockId);

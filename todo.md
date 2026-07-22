@@ -39,6 +39,25 @@
     Ou aproxima por step-up de meio bloco (colide como slab, sobe andando) — mais simples
     e "bom o bastante" pra um jogo pedagógico. Travar isso antes de codar.
   * Depende de `alturaColisao`/caixa-por-bloco do slab → fazer slab PRIMEIRO.
+* \[x] **hitbox REAL dos não-cubos na mira/colocação (raycast por FORMA, não cubo cheio)** —
+  **FEITO** (2026-07-22): `raycastBlock` (raycast.ts) agora, ao entrar numa célula com NÃO-cubo
+  (`!isFullCube`), faz ray-vs-AABB (slab test, `subBoxNormal`) contra `blockSelectionBox(id)` —
+  a MESMA caixa do contorno da mira. Acertou → hit com a normal da face do sub-box (pro
+  `hit+normal` da colocação); errou → segue marchando (o raio passa reto pelo VÃO — buraco da
+  cerca, porta aberta). Cubo cheio mantém o fast path (normal do DDA); água pulada de vez.
+  `raycast.ts` importa `blockSelectionBox` do mesher (sem ciclo: mesher não importa raycast).
+  292 testes (+2: mira no centro da cerca acerta o poste; mira pelo vão passa e acerta o sólido
+  atrás), typecheck 0, build ok. Playtest no browser PENDENTE. Refino original abaixo:
+  o DDA tratava TODA célula como cubo 1×1×1 → a mira "grudava" na porta/cerca/tocha/flor/tapete
+  mesmo olhando pelo vão. O contorno JÁ seguia a forma (sessão 8), só o RAIO enxergava cubo cheio.
+  * Consequência natural: pra USAR (porta/janela clique direito) e COPIAR (botão do meio) agora
+    é preciso mirar na FORMA real (ex.: painel fino da porta fechada), não em qualquer ponto da
+    célula — é o comportamento pedido ("hitbox = textura"), estilo Minecraft.
+  * Casa com slab/escada (backlog): a MESMA caixa-por-bloco serve pra mira E pra colisão
+    (physics.ts ainda trata tudo como cubo cheio) — unificar `blockSelectionBox`/`alturaColisao`
+    numa fonte só de AABB-por-id quando fizer slab.
+  * Nota: `blockSelectionBox(Cerca)` cobre só o POSTE (não as travessas de conexão) — a mira
+    ignora os trilhos, como o contorno já fazia. Refinar a caixa da cerca é opcional.
 
 ## Comandos / jogador
 
@@ -113,6 +132,31 @@ senão lado com parede; empate → base. Cliente inalterado.
   transparência sozinho. `paintAgua` repintado azul CHEIO (sem xadrez), com ondulação/ruído
   sutil. +1 draw call SÓ em chunk com água (grupo count 0 não desenha). 287 testes (novo:
   split de grupo no mesher.test), typecheck 0 erros, build ok. Playtest no browser PENDENTE.
+* \[x] **água SEM hitbox na mira + LÍQUIDO SUBSTITUÍVEL** — **FEITO** (2026-07-22, opção B):
+  raycast pula `isAgua` (raycast.ts) → a mira atravessa a água e para no sólido atrás; `place_block`
+  aceita célula com líquido substituível (`isReplaceable` novo em blocks.ts) nos 3 gates (célula
+  principal + 2ª da porta + 2ª da cama, session.ts) → colocar bloco por cima da água a TROCA sem
+  quebrar antes. 290 testes (+2 raycast: atravessa água/origem submersa; +1 session: place troca
+  água), typecheck 0, build ok. Registro original abaixo:
+  a água (id 129, `isAgua` blocks.ts:153) atravessa na física, mas `raycastBlock` (raycast.ts)
+  PARA nela. DECISÃO DO USUÁRIO: **sempre pular água no raycast** (não só ao colocar). Refino:
+  * A mira NUNCA pega água → dá pra colocar bloco olhando através dela (pedido original), MAS
+    também não dá pra QUEBRAR água direto — a mira é a MESMA pra place e break (main.ts `target`),
+    então left-click atravessa e quebra o sólido atrás. Consequência aceita: **remover água = pôr
+    outro bloco NO LUGAR dela** (sem o ciclo quebrar+colocar).
+  * Pra isso o líquido precisa ser SUBSTITUÍVEL: hoje `place_block` recusa célula ocupada
+    (`getBlock !== Air` em session.ts:594; idem 2ª célula da porta:620 e da cama:645). Trocar o
+    gate por "célula vazia OU substituível" → `isReplaceable(id)` NOVO em blocks.ts (água agora;
+    lava/outros líquidos — e talvez capim alto/neve — no futuro herdam). `applyBlock` já
+    sobrescreve; só o gate muda. Claim/confinamento/apoio (precisaApoio) continuam valendo.
+  * **Qual célula de água a colocação atinge:** o raio pula a água e para no SÓLIDO atrás/embaixo;
+    `target+normal` (main.ts:1117) cai na água COLADA nesse sólido → é ela que o bloco substitui.
+    Efeito: poça funda enche de TRÁS pra frente (a colada no fundo/parede primeiro). OK pro escopo
+    estático; a fase de água FLUIDA reavalia (níveis/fluxo). Sem sólido no alcance (água flutuando)
+    → raio não acha nada → aquela água não dá pra substituir. Borda rara (água precisa de apoio).
+  * Testes (raycast.test/session): raio atravessa água e para no sólido; place sobre água TROCA
+    (não é recusado); break através de água atinge o de trás. É o caso EXTREMO do item "hitbox real
+    dos não-cubos" (Móveis/blocos) — água não tem forma sólida, some de vez da mira.
 * \[ ] **mudar a textura da água (refino visual)** — agora que a água tem material próprio,
   dá pra caprichar no tile sem restrição de furos. Pintar no atlas procedural (`paintAgua`
   em atlasTexture.ts) — gradiente, espuma na borda, tom por profundidade. Barato e isolado.

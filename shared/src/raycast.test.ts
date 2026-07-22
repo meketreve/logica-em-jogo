@@ -53,4 +53,37 @@ describe("raycastBlock (DDA de voxel)", () => {
     expect(hit?.y).toBe(7);
     expect(hit?.ny).toBe(1);
   });
+
+  it("água é INVISÍVEL pra mira: o raio atravessa e para no sólido atrás", () => {
+    const world = floorWorld();
+    setBlock(world, 8, 10, 4, BlockId.Agua); // água no caminho — deve ser ignorada
+    setBlock(world, 10, 10, 4, BlockId.Cobblestone);
+    const hit = raycastBlock(world, 4.5, 10.5, 4.5, 1, 0, 0, 20);
+    expect(hit).toEqual({ x: 10, y: 10, z: 4, nx: -1, ny: 0, nz: 0 });
+  });
+
+  it("origem DENTRO da água atravessa até o sólido", () => {
+    const world = floorWorld();
+    setBlock(world, 4, 10, 4, BlockId.Agua); // câmera submersa
+    const hit = raycastBlock(world, 4.5, 10.5, 4.5, 0, -1, 0, 20);
+    expect(hit).toEqual({ x: 4, y: 7, z: 4, nx: 0, ny: 1, nz: 0 });
+  });
+
+  it("mira no centro da cerca acerta o poste (hitbox da forma, não cubo cheio)", () => {
+    const world = floorWorld();
+    setBlock(world, 8, 10, 4, BlockId.Cerca);
+    setBlock(world, 10, 10, 4, BlockId.Cobblestone); // sólido atrás
+    // z=4.5 passa pelo poste central (6/16..10/16 = 0.375..0.625)
+    const hit = raycastBlock(world, 4.5, 10.5, 4.5, 1, 0, 0, 20);
+    expect(hit).toEqual({ x: 8, y: 10, z: 4, nx: -1, ny: 0, nz: 0 });
+  });
+
+  it("mira pelo VÃO da cerca passa reto e acerta o sólido atrás", () => {
+    const world = floorWorld();
+    setBlock(world, 8, 10, 4, BlockId.Cerca);
+    setBlock(world, 10, 10, 4, BlockId.Cobblestone);
+    // z=4.1 fica FORA do poste (< 0.375) → o raio erra a cerca e segue
+    const hit = raycastBlock(world, 4.5, 10.5, 4.1, 1, 0, 0, 20);
+    expect(hit).toEqual({ x: 10, y: 10, z: 4, nx: -1, ny: 0, nz: 0 });
+  });
 });

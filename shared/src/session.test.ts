@@ -144,6 +144,30 @@ describe("GameSession (servidor autoritativo)", () => {
     expect(getBlock(world, sx, spawnY, sz)).toBe(BlockId.Air);
   });
 
+  it("place sobre líquido substituível (água) troca direto, sem quebrar antes", () => {
+    const { sent, send } = collect();
+    const session = new GameSession(send, { dims: DIMS, seed: 5, singleplayer: true });
+    session.handleMessage(1, JSON.stringify({ type: "join", name: "ana" }));
+    const world = session.world;
+    const sx = Math.floor(world.sizeX / 2);
+    const sz = Math.floor(world.sizeZ / 2);
+    const spawnY = findSpawnY(world, sx, sz);
+    // célula ao lado do jogador (não empareda), ao alcance, cheia de água
+    const cell = { x: sx + 1, y: spawnY, z: sz };
+    setBlock(world, cell.x, cell.y, cell.z, BlockId.Agua);
+    sent.length = 0;
+
+    session.handleMessage(1, JSON.stringify({
+      type: "place_block", ...cell, blockId: BlockId.Stone,
+    }));
+    // água foi SUBSTITUÍDA (não recusada como célula ocupada) e virou block_changed
+    expect(getBlock(world, cell.x, cell.y, cell.z)).toBe(BlockId.Stone);
+    expect(sent.length).toBeGreaterThan(0);
+    expect(parseServerMessage(sent[0]?.data as string)).toEqual({
+      type: "block_changed", ...cell, blockId: BlockId.Stone,
+    });
+  });
+
   it("areia cai no tick do servidor: 1 célula por tick, em cascata, e para no chão", () => {
     const { sent, send } = collect();
     const session = new GameSession(send, { dims: DIMS, seed: 5, singleplayer: true });
