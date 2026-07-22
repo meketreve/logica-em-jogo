@@ -34,6 +34,16 @@
 
 ## Key Learnings
 
+- **Mira por FORMA dos não-cubos + água invisível — ✅ IMPLEMENTADO (2026-07-22).**
+  Antes `raycastBlock` (raycast.ts) parava em qualquer bloco ≠ Ar, tratando cada célula como
+  AABB 1×1×1 — inclusive água/cerca/porta/tocha/flor/tapete; só o CONTORNO (main.ts:1391) seguia
+  a forma via `blockSelectionBox` (mesher.ts:250) → divergiam. Agora o DDA: (1) pula `isAgua`
+  (água invisível pra mira); (2) em célula `!isFullCube` faz ray-vs-AABB (`subBoxNormal`, slab
+  test) contra `blockSelectionBox(id)` — acerta a forma real, erra o vão e segue; (3) cubo cheio
+  = fast path com a normal do DDA. `raycast.ts` importa `blockSelectionBox` do mesher (SEM ciclo:
+  mesher só importa blocks/constants/world). A MESMA caixa-por-id deve servir pra colisão quando
+  vier slab (physics.ts ainda trata tudo como cubo cheio) → unificar então. Mira é 100% cliente;
+  servidor valida regra de bloco à parte. Consequência: usar/copiar não-cubo exige mirar na forma.
 - **Restrição de assets = LICENCIAMENTO, não "zero arquivo de imagem" (leitura de projeto.txt §9, 2026-07-22).**
   A §9 fala de custo/legalidade: Minecraft Education exige licença cara; "versões NÃO
   LICENCIADAS de softwares comerciais" são ilegais pra rede pública → solução = plataforma
@@ -967,6 +977,19 @@
 
 <!-- Significant technical decisions with rationale. Why X was chosen over Y. -->
 
+- [2026-07-22] **Água = SEMPRE pulada no raycast de mira (opção B) + LÍQUIDO SUBSTITUÍVEL.**
+  Pedido: colocar bloco olhando ATRAVÉS da água. Escolha do usuário entre (a) pular só ao colocar
+  (mantém mira pra quebrar) e (b) SEMPRE pular = usuário escolheu **(b)**. Consequência aceita: a
+  mira é a mesma pra place e break (main.ts `target`), então água nunca é alvo — não dá pra QUEBRAR
+  água, só SUBSTITUIR pondo outro bloco no lugar. Pra isso o gate de colocação (session.ts:594,
+  +porta:620/cama:645, hoje `getBlock !== Air`) passa a aceitar "vazio OU substituível" via
+  `isReplaceable(id)` novo em blocks.ts (água já; lava/capim/neve futuros herdam). `applyBlock` já
+  sobrescreve. A colocação atinge a água COLADA no sólido atrás (`target+normal`), então poça funda
+  enche de trás pra frente — OK no estático; reavaliar na fase de água FLUIDA. Refino no todo.md
+  (seção Água) + Key Learning do raycast cubo-cheio. ✅ CODADO (2026-07-22): `isReplaceable` em
+  blocks.ts, raycast pula `isAgua`, 3 gates de place_block em session.ts; 290 testes, typecheck 0,
+  build ok. NÃO commitado, playtest no browser pendente. O caso GERAL (porta/cerca por forma no
+  raycast) segue backlog no todo.md.
 - [2026-07-20] **Versão do jogo sai do package.json da raiz; bump com `npm version`.**
   Antes `shared/src/version.ts` tinha a string hardcoded (bump manual). Pedido do usuário:
   usar o fluxo padrão do npm. Agora version.ts faz `import { version } from "../../package.json"`

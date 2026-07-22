@@ -7459,6 +7459,118 @@
       "related_bugs": [],
       "occurrences": 1,
       "last_seen": "2026-07-22T14:14:32.313Z"
+    },
+    {
+      "id": "bug-460",
+      "timestamp": "2026-07-22T14:36:24.464Z",
+      "error_message": "Significant refactor of ",
+      "file": "todo.md",
+      "root_cause": "10 lines replaced/restructured",
+      "fix": "Rewrote 10→20 lines (10 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "md"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-22T14:36:24.465Z"
+    },
+    {
+      "id": "bug-461",
+      "timestamp": "2026-07-22T14:40:38.814Z",
+      "error_message": "Wrong condition in logic",
+      "file": "shared/src/raycast.ts",
+      "root_cause": "Condition was: if (getBlock(world, x, y, z)",
+      "fix": "Changed to: if (b !== BlockId.Air && !isAgua(b)",
+      "tags": [
+        "auto-detected",
+        "logic-fix",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-22T14:40:38.814Z"
+    },
+    {
+      "id": "bug-462",
+      "timestamp": "2026-07-22T14:40:58.677Z",
+      "error_message": "Type error",
+      "file": "shared/src/session.ts",
+      "root_cause": "Missing or incorrect type annotation",
+      "fix": "Added type assertion/annotation",
+      "tags": [
+        "auto-detected",
+        "type-fix",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-22T14:40:58.677Z"
+    },
+    {
+      "id": "bug-463",
+      "timestamp": "2026-07-22T14:42:06.704Z",
+      "error_message": "Null/undefined access in ",
+      "file": "shared/src/session.test.ts",
+      "root_cause": "Property access on potentially null/undefined value",
+      "fix": "Added null safety (optional chaining or null check)",
+      "tags": [
+        "auto-detected",
+        "null-safety",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-22T14:42:06.704Z"
+    },
+    {
+      "id": "bug-464",
+      "timestamp": "2026-07-22T14:43:13.564Z",
+      "error_message": "Significant refactor of ",
+      "file": "todo.md",
+      "root_cause": "2 lines replaced/restructured",
+      "fix": "Rewrote 3→8 lines (2 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "md"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-22T14:43:13.564Z"
+    },
+    {
+      "id": "bug-465",
+      "timestamp": "2026-07-22T14:50:46.679Z",
+      "error_message": "Missing guard clause",
+      "file": "shared/src/raycast.ts",
+      "root_cause": "No early return/throw for edge case: d[a] !== 0",
+      "fix": "Added guard clause: if (d[a] !== 0)",
+      "tags": [
+        "auto-detected",
+        "guard-clause",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 2,
+      "last_seen": "2026-07-22T14:50:56.926Z"
+    },
+    {
+      "id": "bug-466",
+      "timestamp": "2026-07-22T14:52:42.336Z",
+      "error_message": "Significant refactor of ",
+      "file": "shared/src/raycast.ts",
+      "root_cause": "18 lines replaced/restructured",
+      "fix": "Rewrote 28→44 lines (18 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-22T14:52:42.336Z"
     }
   ]
 }

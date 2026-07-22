@@ -1,6 +1,26 @@
 # STATUS — Projeto "Lógica em Jogo" (jogo voxel educacional)
 
 > Single source of truth for resuming work. Read this FIRST when starting a session.
+> **SESSÃO 15b (2026-07-22) — HITBOX REAL DOS NÃO-CUBOS NO RAYCAST DE MIRA.** `raycastBlock`
+> (raycast.ts) agora, ao entrar em célula com NÃO-cubo (`!isFullCube`), faz ray-vs-AABB
+> (`subBoxNormal`, slab test) contra `blockSelectionBox(id)` — a MESMA caixa do contorno da mira.
+> Acertou → hit com a normal da face do sub-box; errou → segue marchando (raio passa pelo VÃO:
+> buraco da cerca, porta aberta). Cubo cheio mantém fast path (normal DDA); água pulada de vez.
+> Importa `blockSelectionBox` do mesher (sem ciclo). Consequência: usar (porta/janela) e copiar
+> (botão do meio) agora exigem mirar na FORMA real. 292 testes (+2 cerca: poste no centro / vão
+> passa reto), typecheck 0, build ok. ✅ COMMITADO (feat c0a4012 + chore wolf), NÃO pushado; playtest no browser PENDENTE. Fica p/ slab
+> (backlog): unificar essa caixa-por-bloco com a colisão (physics.ts ainda trata tudo como cubo).
+> **SESSÃO 15 (2026-07-22) — ÁGUA SEM HITBOX NA MIRA + LÍQUIDO SUBSTITUÍVEL (opção B).**
+> `raycastBlock` (raycast.ts) agora PULA `isAgua` → a mira atravessa a água e para no sólido
+> atrás (dá pra colocar bloco olhando através da água). Pra REMOVER água = colocar bloco no lugar
+> dela: `isReplaceable` NOVO em blocks.ts (água agora; lava/capim/neve futuros herdam) + os 3
+> gates de `place_block` (session.ts: célula principal + 2ª da porta + 2ª da cama) aceitam "vazio
+> OU substituível" → colocar por cima da água TROCA direto, sem quebrar antes. Água nunca mais é
+> alvo (a mira é a MESMA pra place e break) → não dá pra QUEBRAR água, só substituir. A colocação
+> atinge a água colada no sólido atrás (`target+normal`) — poça funda enche de trás pra frente (OK
+> no estático; a fase de água FLUIDA reavalia). 290 testes (+2 raycast: atravessa água/origem
+> submersa; +1 session: place troca água), typecheck 0, build ok. ✅ COMMITADO (feat c0a4012), NÃO
+> pushado; playtest no browser PENDENTE. (O caso GERAL dos não-cubos foi RESOLVIDO na sessão 15b, acima.)
 > **SESSÃO 14 (2026-07-22) — PULO DE SAÍDA DA ÁGUA + REFINO DE IDEIAS.** (1) FÍSICA:
 > nadar pra cima com `swimSpeed`(4) não escalava bloco cheio na borda (bobava na
 > superfície). Fix em `physics.ts`: constante `waterJumpSpeed`(7.5) + helper

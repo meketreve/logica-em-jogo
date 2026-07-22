@@ -1,7 +1,7 @@
 # anatomy.md
 
-> Auto-maintained by OpenWolf. Last scanned: 2026-07-22T14:15:34.577Z
-> Files: 134 tracked | Anatomy hits: 0 | Misses: 0
+> Auto-maintained by OpenWolf. Last scanned: 2026-07-22T14:59:09.328Z
+> Files: 135 tracked | Anatomy hits: 0 | Misses: 0
 
 ## ../../../tmp/claude-1000/-home-meketreve-logica-em-jogo/1e53a721-e45d-4911-a026-f385f8f2c4e6/scratchpad/
 
@@ -49,6 +49,10 @@
 
 - `repro-border.ts` — Repro: colocar bloco cruzando borda interna de chunk (x=16, entre chunk 0 e 1). (~825 tok)
 
+## ../../../tmp/claude-1000/-home-meketreve-logica-em-jogo/b991a170-8d68-4bc9-820b-cfee5cca062f/scratchpad/
+
+- `feat-msg.txt` (~250 tok)
+
 ## ../../../tmp/claude-1000/-home-meketreve-logica-em-jogo/c40a8d44-8352-4fa5-b8e1-1e1eddf552e9/scratchpad/
 
 - `make-groups-save.mts` — Save cp13: mundo plano + 2 grupos + objetivo construir per-grupo. (~537 tok)
@@ -95,7 +99,7 @@
 - `iniciar-servidor.bat` (~1423 tok)
 - `iniciar-servidor.sh` — ============================================================ (~1103 tok)
 - `package.json` — Node.js package manifest (~164 tok)
-- `todo.md` — Ideias para fazer (~4631 tok)
+- `todo.md` — Ideias para fazer (~5642 tok)
 - `tsconfig.base.json` (~130 tok)
 
 ## .claude/
@@ -182,7 +186,7 @@
 - `auth.ts` — Identidade por mundo (cp9): nome + PIN de 4 dígitos, papel professor/aluno. (~483 tok)
 - `biomas.ts` — Biomas do gen procedural (2026-07-20) — a REGRA DE OURO aplicada ao terreno: (~886 tok)
 - `blocks.test.ts` (~987 tok)
-- `blocks.ts` — IDs de bloco. Gravados como bytes crus nos chunks (Uint8Array), no save e no (~4587 tok)
+- `blocks.ts` — IDs de bloco. Gravados como bytes crus nos chunks (Uint8Array), no save e no (~4698 tok)
 - `claims.test.ts` — Último texto de chat enviado a um cliente (rejeições/respostas de comando). (~3418 tok)
 - `claims.ts` — Anti-griefing (cp24) — CLAIMS + GRUPOS DE AMIGOS. (~1053 tok)
 - `confinamento.test.ts` — Save-base válido (mundo/spawn reais) para injetar grupos + áreas per-grupo. (~2498 tok)
@@ -200,8 +204,8 @@
 - `protocol.ts` — Protocolo v0 (checkpoint 2). Mensagens JSON dos dois lados + world_snapshot (~8096 tok)
 - `quadros.test.ts` — DIMS: makeFlat (~1603 tok)
 - `quadros.ts` — Quadro (backlog 2026-07-19): bloco de parede com CONTEÚDO autoral — texto (~540 tok)
-- `raycast.test.ts` — Mundo 16³ com chão sólido em y ∈ [0,7]. (~604 tok)
-- `raycast.ts` — Raycast de voxel (DDA de Amanatides-Woo): anda célula a célula do grid até (~649 tok)
+- `raycast.test.ts` — Mundo 16³ com chão sólido em y ∈ [0,7]. (~1050 tok)
+- `raycast.ts` — Raycast de voxel (DDA de Amanatides-Woo): anda célula a célula do grid até (~1533 tok)
 - `regions.test.ts` — Marca os 2 cantos e cria a região "casa" (0,0,0)→(3,4,5). (~3510 tok)
 - `regions.ts` — Regiões nomeadas (cp11) — caixas de blocos com nome, marcadas pelo professor (~756 tok)
 - `rules.test.ts` — Declares DIMS (~736 tok)
@@ -211,8 +215,8 @@
 - `save.ts` — Formato de save (.ljw) — MESMO arquivo em todos os hospedeiros: disco do (~3798 tok)
 - `scenario.test.ts` — Marca cantos e cria região nomeada via varinha + /regiao (professor id). (~4106 tok)
 - `scenario.ts` — Cenário (cp12) — o coração pedagógico: objetivos que checam o ESTADO DO (~3680 tok)
-- `session.test.ts` — Testes de MECÂNICA rodam com singleplayer: true (join sem PIN) — a (~11934 tok)
-- `session.ts` — GameSession: o SERVIDOR autoritativo, independente de hospedeiro. (~37298 tok)
+- `session.test.ts` — Testes de MECÂNICA rodam com singleplayer: true (join sem PIN) — a (~12255 tok)
+- `session.ts` — GameSession: o SERVIDOR autoritativo, independente de hospedeiro. (~37409 tok)
 - `streaming.test.ts` — Dims LAZY de teste: 64×64×8 chunks (33k chunks > teto denso de 2048) — (~3263 tok)
 - `tp.test.ts` — /tpr (pedir teleporte) + /tpa (aceitar) — todos os jogadores; e /tp nome / (~1496 tok)
 - `version.ts` — Versão do jogo — FONTE ÚNICA = campo "version" do package.json da raiz (import JSON tree-shaken); bump via `npm version`. (~135 tok)

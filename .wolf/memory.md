@@ -2221,3 +2221,36 @@ Files: blocks.ts, mesher.ts, session.ts, blocks.test.ts, cp23.test.ts. Commitar+
 | 11:15 | Edited todo.md | reduced (-6 lines) | ~479 |
 | 11:16 | agua sem furos: 2 material transparente via grupos de geometria | mesher.ts,chunks.ts,main.ts,atlasTexture.ts,mesher.test.ts | 287 testes, typecheck 0, build ok | ~12k |
 | 11:16 | Session end: 19 writes across 8 files (physics.ts, physics.test.ts, todo.md, mesher.ts, chunks.ts) | 11 reads | ~64561 tok |
+| 11:19 | Session end: 19 writes across 8 files (physics.ts, physics.test.ts, todo.md, mesher.ts, chunks.ts) | 11 reads | ~64561 tok |
+
+## Session: 2026-07-22 11:20
+
+| Time | Action | File(s) | Outcome | ~Tokens |
+|------|--------|---------|---------|--------|
+| 11:26 | Edited todo.md | expanded (+20 lines) | ~506 |
+| 11:26 | Edited todo.md | expanded (+10 lines) | ~271 |
+| 11:26 | Regras hitbox da agua/nao-cubos no raycast de mira | todo.md, cerebrum.md | 2 refinos ancorados no codigo (raycast.ts:65 cubo cheio; blockSelectionBox tem forma real) | ~900 |
+| 11:27 | Session end: 2 writes across 1 files (todo.md) | 4 reads | ~31237 tok |
+| 11:36 | Edited todo.md | modified Testes() | ~503 |
+| 11:31 | Decisao agua opcao B (sempre pular raycast) + regra liquido substituivel | todo.md, cerebrum.md | gate place_block session.ts:594 aceitar isReplaceable; remover agua=colocar bloco | ~700 |
+| 11:37 | Session end: 3 writes across 1 files (todo.md) | 5 reads | ~69073 tok |
+| 11:40 | Edited shared/src/blocks.ts | modified isAgua() | ~153 |
+| 11:40 | Edited shared/src/raycast.ts | 2→2 lines | ~26 |
+| 11:40 | Edited shared/src/raycast.ts | modified while() | ~85 |
+| 11:40 | Edited shared/src/session.ts | 3→4 lines | ~18 |
+| 11:40 | Edited shared/src/session.ts | modified vel() | ~132 |
+| 11:41 | Edited shared/src/session.ts | 4→5 lines | ~90 |
+| 11:41 | Edited shared/src/session.ts | 5→6 lines | ~94 |
+| 11:41 | Edited shared/src/raycast.test.ts | expanded (+15 lines) | ~287 |
+| 11:42 | Edited shared/src/session.test.ts | added optional chaining | ~348 |
+| 11:43 | Edited todo.md | 3→8 lines | ~196 |
+| 11:42 | Implementado: agua sem hitbox na mira + liquido substituivel | blocks.ts, raycast.ts, session.ts, raycast.test, session.test | isReplaceable novo; raycast pula isAgua; 3 gates place aceitam substituivel; 290 testes typecheck0 build ok | ~3500 |
+| 11:44 | Session end: 13 writes across 6 files (todo.md, blocks.ts, raycast.ts, session.ts, raycast.test.ts) | 8 reads | ~87641 tok |
+| 11:50 | Edited shared/src/raycast.ts | added 8 condition(s) | ~761 |
+| 11:50 | Edited shared/src/raycast.ts | added 2 condition(s) | ~205 |
+| 11:51 | Edited shared/src/raycast.test.ts | expanded (+18 lines) | ~334 |
+| 11:52 | Edited shared/src/raycast.ts | added 14 condition(s) | ~448 |
+| 11:53 | Edited todo.md | modified escada() | ~458 |
+| 12:00 | Hitbox real dos nao-cubos: raycast por FORMA (blockSelectionBox) | raycast.ts, raycast.test.ts | subBoxNormal slab test; cerca vao passa/poste acerta; 292 testes typecheck0 build ok | ~2500 |
+| 11:54 | Session end: 18 writes across 6 files (todo.md, blocks.ts, raycast.ts, session.ts, raycast.test.ts) | 8 reads | ~89937 tok |
+| 11:59 | Created ../../../tmp/claude-1000/-home-meketreve-logica-em-jogo/b991a170-8d68-4bc9-820b-cfee5cca062f/scratchpad/feat-msg.txt | — | ~266 |
