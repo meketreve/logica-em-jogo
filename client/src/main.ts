@@ -593,9 +593,20 @@ function startGame(snap: Snapshot): void {
   let frameCount = 0; // varredura de descarte roda 1×/s (a cada 60 frames)
   // alphaTest = cutout dos transparentes (vidro/folhas): pixel opaco ou
   // descartado — sem blending, sem sorting, mesmo draw call por chunk (cp18)
+  const atlas = createAtlasTexture();
   const material = new THREE.MeshLambertMaterial({
-    map: createAtlasTexture(),
+    map: atlas,
     alphaTest: 0.5,
+  });
+  // água (2026-07-22): material SEPARADO, transparente DE VERDADE (blend) — sem
+  // os furos xadrez. Mesma textura do atlas (as UVs do tile da água batem).
+  // depthWrite:false = várias faces de água blendam sem brigar pelo z-buffer;
+  // renderiza no passe de transparência do three (grupo próprio do mesh do chunk).
+  const materialAgua = new THREE.MeshLambertMaterial({
+    map: atlas,
+    transparent: true,
+    opacity: 0.72,
+    depthWrite: false,
   });
 
   // ?atlas na URL: pendura o canvas do texture atlas no canto (inspeção visual)
@@ -605,7 +616,7 @@ function startGame(snap: Snapshot): void {
       "position:fixed;right:8px;top:8px;width:256px;image-rendering:pixelated;z-index:20;border:1px solid #000";
     document.body.appendChild(img);
   }
-  const chunkRenderer = new ChunkRenderer(world, material, scene);
+  const chunkRenderer = new ChunkRenderer(world, [material, materialAgua], scene);
   // lazy: nada a meshar ainda — as colunas entram na fila conforme chegam
   if (!mundoLazy) chunkRenderer.buildAll();
 

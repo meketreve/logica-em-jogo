@@ -21,6 +21,29 @@ describe("culled mesher (função pura: bytes → geometria)", () => {
     expect(g.indices.length).toBe(36);
   });
 
+  it("água vai pro grupo separado (opaqueIndexCount fatia opaco × água)", () => {
+    // só pedra → tudo opaco, sem grupo de água
+    const so = createWorld(DIMS);
+    setBlock(so, 8, 8, 8, BlockId.Stone);
+    const gso = meshChunk(so, 0, 0, 0);
+    expect(gso.opaqueIndexCount).toBe(gso.indices.length); // 36, zero água
+
+    // só água isolada → 6 faces, TODAS no grupo da água (opaco = 0)
+    const sa = createWorld(DIMS);
+    setBlock(sa, 8, 8, 8, BlockId.Agua);
+    const gsa = meshChunk(sa, 0, 0, 0);
+    expect(gsa.indices.length).toBe(36);
+    expect(gsa.opaqueIndexCount).toBe(0); // nada opaco
+
+    // pedra + água lado a lado: opaco antes, água depois (concatenados)
+    const mix = createWorld(DIMS);
+    setBlock(mix, 8, 8, 8, BlockId.Stone);
+    setBlock(mix, 10, 8, 8, BlockId.Agua); // separadas (não fundem, não se ocluem)
+    const gmix = meshChunk(mix, 0, 0, 0);
+    expect(gmix.opaqueIndexCount).toBe(36); // 6 faces de pedra
+    expect(gmix.indices.length - gmix.opaqueIndexCount).toBe(36); // 6 faces de água
+  });
+
   it("2 blocos adjacentes = 10 faces (faces internas culled)", () => {
     const w = createWorld(DIMS);
     setBlock(w, 8, 8, 8, BlockId.Stone);

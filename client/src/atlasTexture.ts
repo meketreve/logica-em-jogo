@@ -367,20 +367,21 @@ function paintFlor(
   ctx.fillRect(cx - 1, oy + 4, 2, 2);
 }
 
-/** Água (2026-07-21): azul com furos em XADREZ ESPARSO — o material do chunk é
- *  cutout (alphaTest), sem blending; os furos deixam ver o fundo e dão uma
- *  translucidez barata (mesmo draw call por chunk). ~⅓ dos texels são furo. */
+/** Água (2026-07-22): azul CHEIO, sem furos — a translucidez agora vem do
+ *  material próprio da água (transparente/blend no cliente, `opacity`), não de
+ *  furos xadrez. O tile é só a cor + uma ondulação sutil (ripple diagonal) pra
+ *  não ficar chapado; a transparência de verdade é aplicada no material. */
 function paintAgua(ctx: CanvasRenderingContext2D, tile: number): void {
   const [ox, oy] = tileOrigin(tile);
   const px = ATLAS.tilePx;
-  ctx.clearRect(ox, oy, px, px); // furos = transparente (cutout)
   for (let y = 0; y < px; y++) {
     for (let x = 0; x < px; x++) {
-      if ((x + y) % 3 === 0) continue; // furo → vê o fundo
-      const v = (pixelHash(x, y, tile * 7919 + 1) - 0.5) * 2 * 14;
+      // ruído leve + onda diagonal (senoide) = brilho de superfície discreto
+      const ripple = Math.sin((x + y) * 0.9) * 6;
+      const v = (pixelHash(x, y, tile * 7919 + 1) - 0.5) * 2 * 8 + ripple;
       const r = Math.round(46 + v);
-      const g = Math.round(104 + v);
-      const b = Math.round(178 + v);
+      const g = Math.round(108 + v);
+      const b = Math.round(182 + v);
       ctx.fillStyle = `rgb(${r},${g},${b})`;
       ctx.fillRect(ox + x, oy + y, 1, 1);
     }

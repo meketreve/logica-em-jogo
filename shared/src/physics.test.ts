@@ -181,6 +181,54 @@ describe("física do jogador (/shared — cliente usa, servidor valida)", () => 
   });
 });
 
+describe("nado (água)", () => {
+  /** Piscina: chão sólido y∈[0,3] e água y∈[4,7] num miolo 4..11 (longe da borda
+   *  do chunk, para os vizinhos do jogador serem água, não OOB). */
+  function poolWorld() {
+    const w = createWorld({ x: 1, z: 1, y: 1 });
+    for (let x = 0; x < 16; x++)
+      for (let z = 0; z < 16; z++) {
+        for (let y = 0; y < 4; y++) setBlock(w, x, y, z, BlockId.Stone);
+        if (x >= 4 && x <= 11 && z >= 4 && z <= 11)
+          for (let y = 4; y < 8; y++) setBlock(w, x, y, z, BlockId.Agua);
+      }
+    return w;
+  }
+
+  it("pular em água ABERTA sobe devagar (swimSpeed, sem foguete)", () => {
+    const w = poolWorld();
+    const p = createPlayer(8.5, 6, 8.5); // torso (y≈6.9) submerso, sem parede ao lado
+    stepPlayer(w, p, { ...IDLE, jump: true }, 1 / 60);
+    expect(p.vel.y).toBeCloseTo(PLAYER.swimSpeed, 5);
+  });
+
+  it("pular com bloco cheio na borda dá pulo FORTE de saída (waterJumpSpeed)", () => {
+    const w = poolWorld();
+    setBlock(w, 9, 6, 8, BlockId.Stone); // parede a leste, na altura do torso/pés
+    const p = createPlayer(8.5, 6, 8.5);
+    stepPlayer(w, p, { ...IDLE, jump: true }, 1 / 60);
+    expect(p.vel.y).toBeCloseTo(PLAYER.waterJumpSpeed, 5);
+    expect(PLAYER.waterJumpSpeed).toBeGreaterThan(PLAYER.swimSpeed);
+  });
+
+  it("escala um bloco cheio na borda (pico ultrapassa o topo da muralha)", () => {
+    const w = poolWorld();
+    // muralha a leste (x=8, z=4..11) com topo em y=8 = nível da água
+    for (let z = 4; z <= 11; z++) for (let y = 4; y < 8; y++) setBlock(w, 8, y, z, BlockId.Stone);
+    // começa colado na muralha, submerso; olhar +X (leste) empurra contra ela
+    const p = createPlayer(7.6, 5, 8.5);
+    let picoPes = p.pos.y;
+    const dt = 1 / 60;
+    for (let t = 0; t < 2; t += dt) {
+      stepPlayer(w, p, { ...IDLE, forward: 1, jump: true, yaw: -Math.PI / 2 }, dt);
+      picoPes = Math.max(picoPes, p.pos.y);
+    }
+    // com swimSpeed (4) o pico dos pés não passa de ~7.4; o waterJumpSpeed leva
+    // acima de 8 = limpa o topo da muralha e permite subir por cima
+    expect(picoPes).toBeGreaterThan(8);
+  });
+});
+
 describe("voo criativo (fly)", () => {
   it("em voo não cai — sem tecla, fica parado no ar", () => {
     const w = flatWorld();

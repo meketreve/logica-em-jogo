@@ -16,9 +16,11 @@ export class ChunkRenderer {
   remeshMsTotal = 0;
   lastRemeshMs = 0;
 
+  /** `materials[0]` = opaco (cutout), `materials[1]` = água (transparente/blend).
+   *  O mesher fatia os índices em 2 grupos por `opaqueIndexCount`. */
   constructor(
     private world: World,
-    private material: THREE.Material,
+    private materials: [THREE.Material, THREE.Material],
     private scene: THREE.Scene,
   ) {}
 
@@ -61,7 +63,11 @@ export class ChunkRenderer {
       geometry.setAttribute("normal", new THREE.BufferAttribute(g.normals, 3));
       geometry.setAttribute("uv", new THREE.BufferAttribute(g.uvs, 2));
       geometry.setIndex(new THREE.BufferAttribute(g.indices, 1));
-      const mesh = new THREE.Mesh(geometry, this.material);
+      // 2 grupos: opaco [0, opaqueIndexCount) + água [opaqueIndexCount, fim).
+      // Grupo da água com count 0 (chunk sem água) não gera draw call.
+      geometry.addGroup(0, g.opaqueIndexCount, 0);
+      geometry.addGroup(g.opaqueIndexCount, g.indices.length - g.opaqueIndexCount, 1);
+      const mesh = new THREE.Mesh(geometry, this.materials);
       mesh.position.set(cx * CHUNK_SIZE, cy * CHUNK_SIZE, cz * CHUNK_SIZE);
       this.scene.add(mesh);
       this.meshes.set(key, mesh);

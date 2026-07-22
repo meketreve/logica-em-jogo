@@ -391,7 +391,12 @@ export interface ChunkGeometry {
   positions: Float32Array;
   normals: Float32Array;
   uvs: Float32Array;
+  /** Índices OPACOS primeiro, ÁGUA depois (concatenados). O cliente fatia em 2
+   *  grupos: [0, opaqueIndexCount) = material opaco (cutout); o resto = material
+   *  da água (transparente/blend). Água = 2º draw call SÓ em chunk que a contém. */
   indices: Uint32Array;
+  /** Quantos índices são opacos (o restante, até `indices.length`, é água). */
+  opaqueIndexCount: number;
 }
 
 export function meshChunk(world: World, cx: number, cy: number, cz: number): ChunkGeometry {
@@ -407,6 +412,7 @@ export function meshChunk(world: World, cx: number, cy: number, cz: number): Chu
       normals: new Float32Array(0),
       uvs: new Float32Array(0),
       indices: new Uint32Array(0),
+      opaqueIndexCount: 0,
     };
   }
 
@@ -414,6 +420,9 @@ export function meshChunk(world: World, cx: number, cy: number, cz: number): Chu
   const normals: number[] = [];
   const uvs: number[] = [];
   const indices: number[] = [];
+  // Água (2026-07-22): faces vão pra ESTE array separado → 2º grupo/material
+  // (transparente de verdade, blend). Concatenado depois de `indices`.
+  const waterIndices: number[] = [];
 
   const ox = cx * CHUNK_SIZE;
   const oy = cy * CHUNK_SIZE;
@@ -705,6 +714,8 @@ export function meshChunk(world: World, cx: number, cy: number, cz: number): Chu
         }
         const tiles = BLOCK_TILES[id];
         if (!tiles) continue;
+        // água → grupo transparente separado; resto → grupo opaco
+        const idxTarget = id === BlockId.Agua ? waterIndices : indices;
 
         for (const face of FACES) {
           const neighbor = getBlock(
@@ -741,16 +752,19 @@ export function meshChunk(world: World, cx: number, cy: number, cz: number): Chu
             normals.push(face.dir[0], face.dir[1], face.dir[2]);
             uvs.push(corner.uv[0] === 1 ? u1 : u0, corner.uv[1] === 1 ? v1 : v0);
           }
-          indices.push(base, base + 1, base + 2, base + 2, base + 1, base + 3);
+          idxTarget.push(base, base + 1, base + 2, base + 2, base + 1, base + 3);
         }
       }
     }
   }
 
+  // opaco primeiro, água depois — o cliente fatia em 2 grupos por opaqueIndexCount
+  const allIndices = waterIndices.length ? indices.concat(waterIndices) : indices;
   return {
     positions: new Float32Array(positions),
     normals: new Float32Array(normals),
     uvs: new Float32Array(uvs),
-    indices: new Uint32Array(indices),
+    indices: new Uint32Array(allIndices),
+    opaqueIndexCount: indices.length,
   };
 }

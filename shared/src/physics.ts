@@ -39,6 +39,9 @@ export const PLAYER = {
   waterGravity: 8,
   /** Água: velocidade de nadar pra cima/baixo (pular sobe, agachar desce). */
   swimSpeed: 4,
+  /** Água: pulo FORTE de saída — só perto de uma parede/borda (bloco cheio
+   *  adjacente), salta pra cima do bloco em vez de bobear na superfície. */
+  waterJumpSpeed: 7.5,
   /** Água: queda máxima submerso (afunda devagar, não despenca). */
   waterSinkMax: 3,
 } as const;
@@ -146,6 +149,30 @@ function hasSupport(world: World, pos: Vec3): boolean {
   return false;
 }
 
+/** Há bloco sólido colado ao jogador na horizontal (parede/borda para sair da
+ *  água)? Amostra os 4 lados nos níveis dos pés E do torso. */
+function paredeAdjacente(world: World, pos: Vec3): boolean {
+  const half = PLAYER.width / 2;
+  const cx = Math.floor(pos.x);
+  const cz = Math.floor(pos.z);
+  const xLeste = Math.floor(pos.x + half) + 1;
+  const xOeste = Math.floor(pos.x - half) - 1;
+  const zSul = Math.floor(pos.z + half) + 1;
+  const zNorte = Math.floor(pos.z - half) - 1;
+  const yPes = Math.floor(pos.y);
+  const yTorso = Math.floor(pos.y + PLAYER.height * 0.5);
+  for (let y = yPes; y <= yTorso; y++) {
+    if (
+      isSolidBlock(getBlock(world, xLeste, y, cz)) ||
+      isSolidBlock(getBlock(world, xOeste, y, cz)) ||
+      isSolidBlock(getBlock(world, cx, y, zSul)) ||
+      isSolidBlock(getBlock(world, cx, y, zNorte))
+    )
+      return true;
+  }
+  return false;
+}
+
 /** moveAxis horizontal com edge-guard do agachar: passo que tiraria o chão de baixo dos pés é desfeito (por eixo — na diagonal o eixo seguro continua deslizando). */
 function moveAxisGuarded(
   world: World,
@@ -213,8 +240,12 @@ export function stepPlayer(world: World, p: PlayerState, input: MoveInput, dt: n
   p.vel.z = (-f * cos - s * sin) * scale;
 
   if (submerso) {
-    // pular = subir, agachar = descer; solto = afunda devagar (empuxo)
-    if (input.jump) p.vel.y = PLAYER.swimSpeed;
+    // pular = subir, agachar = descer; solto = afunda devagar (empuxo).
+    // Perto de uma parede/borda (bloco cheio adjacente) o pulo é FORTE para
+    // saltar por cima do bloco; em água aberta é só o nado vertical suave
+    // (não vira foguete).
+    if (input.jump)
+      p.vel.y = paredeAdjacente(world, p.pos) ? PLAYER.waterJumpSpeed : PLAYER.swimSpeed;
     else if (sneak) p.vel.y = -PLAYER.swimSpeed;
     else {
       p.vel.y -= PLAYER.waterGravity * dt;
