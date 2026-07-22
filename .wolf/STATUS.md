@@ -32,10 +32,11 @@
 > (browser) — a lógica é toda cliente. Depois de codar: typecheck + build, atualizar este bloco.
 > **SESSÃO 13 (2026-07-21) — ÁGUA+NADO · /CLAIM (professor cria, COLUNA) · PAINEL DE
 > JOGADORES+BAN · MOBILE (varinha, agachar, escala UI) · PROFILER 10s+RAM/vídeo.
-> CODADO + VERDE (typecheck 0 erros, 283 testes, build ok). ✅ COMMITADO
-> (`d8ca720`) + TAG `v0.8.0` (bump minor 0.7.0→0.8.0, badge rebuildado). NÃO PUSHADO
-> (usuário não pediu push) · NÃO playtestado.** Sessão longa, 4 mensagens de pedido
-> acumuladas — TUDO implementado:
+> CODADO + VERDE (typecheck 0 erros, 283 testes, build ok). ✅ COMMITADO + PUSHADO
+> + TAG `v0.8.0` (bump minor 0.7.0→0.8.0, badge rebuildado). Commits: `d8ca720` (feat)
+> · `240acd9` (chore wolf) · `5466ab8` (docs relatório com features v0.8.0). origin/main
+> sincronizado, escola faz `git pull`. **FALTA SÓ PLAYTEST no navegador** (UI cliente não
+> validável aqui).** Sessão longa, 4 mensagens de pedido acumuladas — TUDO implementado:
 > (1) **ÁGUA (id 129, append)** — bloco ESTÁTICO (sem fluxo; fluido dinâmico = fase própria).
 > Atravessável (`isSolidBlock`=false → entra e NADA) mas cubo cheio pro mesher
 > (`isFullCube`=true → funde com água vizinha, só a casca aparece). Translúcida SEM mexer no
@@ -73,11 +74,14 @@
 > mesh, tempo de sessão, jitter de rede, limites do WebGL.
 > **DE QUEBRA:** consertei 2 erros de typecheck PRÉ-EXISTENTES (não meus): arvores.ts:85 (arrow
 > `():void=>` corpo concha → bloco) e world.test.ts:53 (`chunk!`). typecheck 0 erros.
-> **PRÓXIMA:** commit/push (usuário decide) + PLAYTEST em notebook E tablet: nadar na água;
-> professor /claim criar (coluna); painel P → aba jogadores → banir/desbanir (LAN, 2+ clientes);
-> varinha+agachar+escala no celular; profiler "gravar 10s" (F3 mostra RAM/vídeo + relatório com
-> distribuição). Nada testável em browser aqui — a lógica de servidor tem teste, a UI cliente
-> NÃO. O RELATÓRIO segue sendo o entregável final.
+> **PRÓXIMA (v0.8.0 já commitada+pushada+relatada):** (1) **PLAYTEST** em notebook E tablet:
+> nadar na água; professor /claim criar (coluna); painel P → botão jogadores → aba
+> conectados (expulsar/banir) + aba banidos (desbanir), LAN com 2+ clientes; varinha+agachar+
+> escala da UI no celular; profiler "gravar 10s" (F3 mostra RAM/vídeo/long-tasks/stream/jitter
+> + relatório agregado). (2) **RELATÓRIO** (entregável final) — preencher os campos `✏️
+> PREENCHER` de SALA (datas, nº alunos/turma, AEE, resultados por aula, qualitativo,
+> screenshots). A parte técnica + as features v0.8.0 já estão no relatório. UI cliente não é
+> testável aqui (só a lógica de servidor tem teste).
 > **SESSÃO 12 (2026-07-21) — ✅ PLAYTEST MULTIPLAYER DO MUNDO PROCEDURAL NA ESCOLA
 > (MARCO — streaming validado EM CAMPO com turma real).** Usuário criou um mundo
 > procedural (streaming F1-F5, `worldChunks` 240×240×8 = 3840²×128, seed 3158887957)
