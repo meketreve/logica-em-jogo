@@ -76,6 +76,18 @@ describe("parse de mensagens JSON", () => {
     expect(parseClientMessage('{"type":"place_block","x":1,"y":2,"z":3,"blockId":"4"}')).toBeNull();
   });
 
+  it("aceita balde: coords inteiras + encher booleano; resto é descartado", () => {
+    expect(parseClientMessage('{"type":"balde","x":1,"y":2,"z":3,"encher":false}')).toEqual({
+      type: "balde", x: 1, y: 2, z: 3, encher: false,
+    });
+    expect(parseClientMessage('{"type":"balde","x":1,"y":2,"z":3,"encher":true}')).toEqual({
+      type: "balde", x: 1, y: 2, z: 3, encher: true,
+    });
+    expect(parseClientMessage('{"type":"balde","x":1.5,"y":2,"z":3,"encher":true}')).toBeNull();
+    expect(parseClientMessage('{"type":"balde","x":1,"y":2,"z":3,"encher":"sim"}')).toBeNull();
+    expect(parseClientMessage('{"type":"balde","x":1,"y":2,"z":3}')).toBeNull();
+  });
+
   it("descarta lixo: JSON quebrado, type desconhecido, campos errados", () => {
     expect(parseClientMessage("não é json")).toBeNull();
     expect(parseClientMessage('{"type":"hack"}')).toBeNull();

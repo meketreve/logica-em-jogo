@@ -95,6 +95,9 @@ export function raycastBlock(
   dy: number,
   dz: number,
   maxDist: number,
+  /** Balde VAZIO na mão: a mira PARA na água (pra recolher a fonte). Fora isso
+   *  a água é invisível pra mira (atravessa e para no sólido atrás). */
+  pararNaAgua = false,
 ): RayHit | null {
   const len = Math.hypot(dx, dy, dz);
   if (len === 0 || !Number.isFinite(len)) return null;
@@ -128,7 +131,9 @@ export function raycastBlock(
   while (t <= maxDist) {
     // Líquido (água) é INVISÍVEL pra mira: o raio atravessa e para no sólido
     // atrás → dá pra colocar bloco olhando através da água (decisão 2026-07-22).
+    // EXCEÇÃO: balde vazio (pararNaAgua) mira a água pra recolher a fonte.
     const b = getBlock(world, x, y, z);
+    if (pararNaAgua && isAgua(b)) return { x, y, z, nx, ny, nz };
     if (b !== BlockId.Air && !isAgua(b)) {
       if (isFullCube(b)) return { x, y, z, nx, ny, nz }; // cubo cheio: normal do DDA
       // não-cubo: testa a hitbox REAL da forma dentro da célula. Acertou →

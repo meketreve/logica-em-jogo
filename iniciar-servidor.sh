@@ -82,6 +82,7 @@ case "$ESCOLHA" in
       SEL="${SAVES[$((N - 1))]}"
       if [ -n "$SEL" ]; then
         export LJ_SAVE="$SEL"
+        PULAR_TAMANHO=1
       else
         echo "(número inválido — abrindo o mundo livre)"
         export LJ_SAVE="mundos/mundo-livre/mundo-livre.ljw"
@@ -97,13 +98,23 @@ read -r -p "Código do professor (Enter = manter o atual / gerar um): " CODIGO
 [ -n "$CODIGO" ] && export LJ_CODIGO="$CODIGO"
 
 # --- Tamanho do mundo (só vale se o mundo for NOVO) ---
+# Carregar mundo salvo [8]: o save já tem as dimensões -> pula o menu de tamanho.
+if [ -z "$PULAR_TAMANHO" ]; then
+  echo
+  read -r -p "Tamanho do mundo novo P/M/G (Enter = P pequeno): " TAMANHO
+  case "$TAMANHO" in
+    [mM]) export LJ_TAMANHO="M" ;;
+    [gG]) export LJ_TAMANHO="G" ;;
+    *) export LJ_TAMANHO="P" ;;
+  esac
+fi
+
+# --- Desempenho da água (opcional, só se o FPS cair) ---
+# Teto de células de água que FLUEM por tick. Menor = FPS mais estável numa
+# cascata grande (a água escorre um pouco mais devagar). Enter = padrão (256).
 echo
-read -r -p "Tamanho do mundo novo P/M/G (Enter = P pequeno): " TAMANHO
-case "$TAMANHO" in
-  [mM]) export LJ_TAMANHO="M" ;;
-  [gG]) export LJ_TAMANHO="G" ;;
-  *) export LJ_TAMANHO="P" ;;
-esac
+read -r -p "Água por tick — só se o FPS cair em cascata grande (Enter = padrão 256): " AGUA
+[ -n "$AGUA" ] && export LJ_AGUA_TICK="$AGUA"
 
 # Cria o mundo caso ainda não exista (vale para o "mundo livre" na 1ª vez).
 export LJ_NOVO=1

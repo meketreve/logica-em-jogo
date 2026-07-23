@@ -3,7 +3,10 @@ import {
   BlockId,
   CHUNK_SIZE,
   CHUNK_VOLUME,
+  aguaComNivel,
+  aguaNivel,
   isAgua,
+  isAguaFonte,
   isPlaceable,
   isSolidBlock,
   isTransparentBlock,
@@ -59,18 +62,38 @@ describe("formato de bloco/chunk (contrato de save e snapshot)", () => {
     expect(BlockId.GramaSeca).toBe(120);
     expect(BlockId.LogIpe).toBe(122);
     expect(BlockId.Mandacaru).toBe(128);
-    // água (2026-07-21): append, novo último id
+    // água (2026-07-21): fonte 129; fluida 130-136 em append (2026-07-22)
     expect(BlockId.Agua).toBe(129);
+    expect(BlockId.AguaFluida7).toBe(136);
     expect(isPlaceable(BlockId.MinerioDiamante)).toBe(true);
     expect(isPlaceable(BlockId.Mandacaru)).toBe(true);
-    expect(isPlaceable(BlockId.Agua)).toBe(true);
-    expect(isPlaceable(130)).toBe(false);
+    // água NÃO é colocável por place_block cru — só o balde/fluxo cria
+    expect(isPlaceable(BlockId.Agua)).toBe(false);
+    expect(isPlaceable(BlockId.AguaFluida7)).toBe(false);
+    expect(isPlaceable(137)).toBe(false); // próximo byte NÃO é bloco
   });
 
-  it("água: atravessável (não-sólida) e translúcida no mesher", () => {
-    expect(isAgua(BlockId.Agua)).toBe(true);
-    expect(isSolidBlock(BlockId.Agua)).toBe(false); // o jogador entra e nada
-    expect(isTransparentBlock(BlockId.Agua)).toBe(true); // funde com água vizinha
+  it("água: fonte + fluida atravessável (não-sólida) e translúcida no mesher", () => {
+    for (const id of [BlockId.Agua, BlockId.AguaFluida1, BlockId.AguaFluida7]) {
+      expect(isAgua(id)).toBe(true);
+      expect(isSolidBlock(id)).toBe(false); // o jogador entra e nada
+      expect(isTransparentBlock(id)).toBe(true); // funde com água vizinha
+    }
+  });
+
+  it("água: nível ↔ id (fonte=8, fluida 7..1, 0=ar)", () => {
+    expect(aguaNivel(BlockId.Agua)).toBe(8);
+    expect(aguaNivel(BlockId.AguaFluida7)).toBe(7);
+    expect(aguaNivel(BlockId.AguaFluida1)).toBe(1);
+    expect(aguaNivel(BlockId.Air)).toBe(0);
+    expect(aguaNivel(BlockId.Stone)).toBe(0);
+    expect(aguaComNivel(8)).toBe(BlockId.Agua);
+    expect(aguaComNivel(9)).toBe(BlockId.Agua); // clampa em fonte
+    expect(aguaComNivel(7)).toBe(BlockId.AguaFluida7);
+    expect(aguaComNivel(1)).toBe(BlockId.AguaFluida1);
+    expect(aguaComNivel(0)).toBe(BlockId.Air); // secou
+    expect(isAguaFonte(BlockId.Agua)).toBe(true);
+    expect(isAguaFonte(BlockId.AguaFluida7)).toBe(false);
   });
 
   it("volume do chunk cabe em 1 byte por bloco", () => {

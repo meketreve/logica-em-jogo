@@ -34,6 +34,27 @@
 
 ## Key Learnings
 
+- **Água FLUIDA prioriza o DESNÍVEL mais próximo (fluxo estilo Minecraft) — ✅ 2026-07-22 (sessão 16).**
+  Antes `waterRule` (rules.ts) espalhava pros 4 lados IGUALMENTE em chão sólido = flood-fill em
+  DISCO. Numa pirâmide escalonada com água de um lado, cada degrau enchia toda a superfície e
+  cascateava pelas 4 faces → centenas de células ativas = tick + REMESH do cliente afogados = FPS
+  morre (relato do usuário, Xeon/RTX2060). Fix: cada célula de água em chão sólido faz uma busca
+  em profundidade (`passosAteQueda`, limite `DROP_SEARCH=4`) pela QUEDA mais próxima e só escorre
+  naquela direção; sem queda no alcance → espalha nos 4 lados (poça). Resultado = água em FIO
+  (pirâmide: 12 células vs. centenas). 2 armadilhas que quebram o fluxo se esquecidas: (1) o custo
+  até a queda tem de ser medido sobre TODA célula que a água ATRAVESSA (ar OU fluida, `aguaAtravessa`),
+  NÃO só as preenchíveis — senão, quando a direção do desnível já está cheia/saturada, ela sai da
+  comparação e a água floodava perpendicular; array `empurra[]` separado diz quais dá pra encher.
+  (2) `temQueda` conta como descida AR **e ÁGUA FLUIDA** embaixo — ao encher o buraco a coluna
+  vira água, e se só ar contasse o alvo "sumia" e a água voltava a espalhar em disco. Padrão
+  reusável se um dia a lava fluir. TROCA de comportamento em piso de 1 bloco de largura: a água
+  agora escorre pelas beiras (correto) → testes de canal 1-wide viraram plano cheio (sem beira).
+- **Teto de água por tick (proteção de FPS) — session.ts, 2026-07-22.** Trava dura além da
+  priorização: `AGUA_POR_TICK_PADRAO=256` (constants.ts), opt `aguaPorTick`, env host `LJ_AGUA_TICK`
+  (espelha o `LJ_COLUNAS_TICK`). No tick, conta só células de água que REALMENTE mudam; ao esgotar,
+  as demais voltam pra `this.dirty` (escorrem no tick seguinte). Água PARADA (nível assentado)
+  devolve null → não gasta orçamento → o teto só morde durante fluxo pesado. Areia/portas/etc não
+  contam. Mesmo padrão de config de desempenho por-tick do streaming.
 - **Mira por FORMA dos não-cubos + água invisível — ✅ IMPLEMENTADO (2026-07-22).**
   Antes `raycastBlock` (raycast.ts) parava em qualquer bloco ≠ Ar, tratando cada célula como
   AABB 1×1×1 — inclusive água/cerca/porta/tocha/flor/tapete; só o CONTORNO (main.ts:1391) seguia
@@ -856,9 +877,35 @@
   parece plantinha. Um tile por cor (74-77); no mesher `TILE.florVermelha + (id −
   FlorVermelha)`. blocksUi dá a entrada da hotbar; place usa o caminho genérico.
 
+### Perfilador é ANÔNIMO + carrega a versão (2026-07-23)
+- Saída do perfilador (HUD F3 → JSON/enviar): corpo carrega `versao: VERSION`
+  (hud.ts `stats()`, import de @logica/shared) — todo perfil identifica a versão do
+  jogo que rodou. NOME de jogador NÃO é coletado: o corpo nunca teve; o filename do
+  host virou `perf-<timestamp>-<sufixoAleatório>.json` (index.ts `interceptarProfile`),
+  sem `quem.name`. Identifica-se por versão + dispositivo (userAgent/GPU), nunca por aluno.
+- JSONs crus são gitignored (`/profiles/`, `/profiles-escola/`). O que vale como
+  registro histórico é o resumo AGREGADO e anônimo em `registros/perfilador-*.md`
+  (uma linha por dispositivo, sem nome). Ver [[registros-folder]] conceito no README.
+
+### registros/ = memória de evolução do projeto (2026-07-23)
+- Pasta na raiz pra registro de longo prazo FORA do `.wolf/` (que é log técnico do
+  OpenWolf): resumos de perfilador por versão + `prints/` de marcos. Capturas headless
+  de dev saem em pasta temporária/scratchpad — as que valem registro são copiadas
+  manualmente pra `registros/prints/`. NÃO há galeria automática de prints ainda.
+
 ## Do-Not-Repeat
 
 <!-- Mistakes made and corrected. Each entry prevents the same mistake recurring. -->
+
+### NÃO confiar em "typecheck 0" do STATUS sem rodar (2026-07-23)
+- STATUS.md da sessão 16 afirmava "VERDE: typecheck 0" mas a árvore tinha 3 erros
+  em rules.ts (bug-490). Testes passavam (304) mas typecheck estava vermelho. LIÇÃO:
+  antes de qualquer commit/push, RODAR `npm run typecheck` — o "verde" registrado no
+  STATUS pode ser aspiracional ou de um estado que não foi o commitado.
+- Causa técnica: `noUncheckedIndexedAccess: true` (tsconfig.base). Índice de array
+  (`arr[i]`) tipa `T | undefined`. NUNCA usar `for (let i...)` + `arr[i]` em código
+  novo neste repo — usar `for (const x of arr)` ou `for (const [i, x] of arr.entries())`
+  (elemento não-undefined) e narrow (`?? default`) ao ler outro array por índice.
 <!-- Format: [YYYY-MM-DD] Description of what went wrong and what to do instead. -->
 
 - [2026-07-20] Smoke do HOST — `pkill/pgrep -f '<padrão>'` casa o PRÓPRIO shell do
@@ -977,6 +1024,19 @@
 
 <!-- Significant technical decisions with rationale. Why X was chosen over Y. -->
 
+- [2026-07-22] **Água FLUIDA (autômato celular) — escopo travado por AskUserQuestion (2 rodadas).**
+  Decisões do usuário: (1) v1 CUBO CHEIO, não altura-visual-por-nível (destrava o fluxo antes; altura =
+  refino); (2) água INFINITA sim (2 fontes+chão→fonte, estilo Minecraft); (3) fonte via ITEM BALDE (não
+  bloco na hotbar); (4) fluxo SEMPRE LIGADO (o usuário abriu mão do gate anti-grief `/agua` que eu havia
+  recomendado); (5) balde RECOLHE (cheio↔vazio, exige raycast acertar a água com balde vazio); (6) o id
+  de água 129 SAIU da hotbar (água só via balde/fluxo). Modelo: `Agua`=129 vira a FONTE (nível 8);
+  `AguaFluida1..7`=130-136 codam o nível NO id (1 byte, sem metadata). `waterRule` entra na REGRA DE OURO
+  (rules.ts) — NADA de engenharia nova no tick; o autômato "empurra vizinho + recomputa o próprio nível"
+  reusa `dirty`+`applyBlock`+`markDirtyAround`. **INSIGHT-CHAVE que matou o "disco flutuante":** espalhar
+  lateral SÓ com APOIO SÓLIDO embaixo (`isFullCube(below) && !isAgua(below)`); AR embaixo → só CAI (coluna
+  cheia 7), nunca lateral. Assim fonte no ar despenca em coluna única; água fluida embaixo NÃO é apoio
+  (senão a coluna que enche vira "chão" e o disco cresce a cada tick). Alcance 7 (nível decrementa por
+  distância) = bounded → não trava tablet, sem teto de células/tick explícito. Ver [[bug-disco-flutuante-agua]].
 - [2026-07-22] **Água = SEMPRE pulada no raycast de mira (opção B) + LÍQUIDO SUBSTITUÍVEL.**
   Pedido: colocar bloco olhando ATRAVÉS da água. Escolha do usuário entre (a) pular só ao colocar
   (mantém mira pra quebrar) e (b) SEMPRE pular = usuário escolheu **(b)**. Consequência aceita: a

@@ -1,5 +1,13 @@
-import { BlockId, camaHeadDir, isFullCube } from "./blocks";
-import { type World, getBlock } from "./world";
+import {
+  BlockId,
+  aguaComNivel,
+  aguaNivel,
+  camaHeadDir,
+  isAgua,
+  isAguaFonte,
+  isFullCube,
+} from "./blocks";
+import { type World, getBlock, inBounds } from "./world";
 
 /**
  * Sistema GENÉRICO de atualização de bloco por vizinhança — a REGRA DE OURO
@@ -68,6 +76,168 @@ export const torchRule: BlockRule = (world, x, y, z) => {
   return [{ x, y, z, blockId: BlockId.Air }];
 };
 
+/** 4 vizinhos horizontais (a água só espalha na MESMA camada + cai). */
+const LADOS: ReadonlyArray<readonly [number, number]> = [
+  [1, 0],
+  [-1, 0],
+  [0, 1],
+  [0, -1],
+];
+
+/** Quantos dos 4 vizinhos laterais são FONTE (água infinita: ≥2 = vira fonte). */
+function fontesLaterais(world: World, x: number, y: number, z: number): number {
+  let n = 0;
+  for (const [dx, dz] of LADOS) {
+    if (isAguaFonte(getBlock(world, x + dx, y, z + dz))) n++;
+  }
+  return n;
+}
+
+/** Nível que ESTA célula fluida deveria ter, olhando o entorno. 0 = deve secar.
+ *  Fonte de suprimento: água ACIMA (queda → nível cheio 7) OU o maior vizinho
+ *  lateral menos 1 (fonte=8→7, fluida k→k−1). Recomputar a cada tick é o que
+ *  faz o fluxo ENCHER e SECAR sozinho quando a fonte some. */
+function nivelSuportado(world: World, x: number, y: number, z: number): number {
+  if (isAgua(getBlock(world, x, y + 1, z))) return 7; // alimentada pela queda de cima
+  let best = 0;
+  for (const [dx, dz] of LADOS) {
+    const nl = aguaNivel(getBlock(world, x + dx, y, z + dz));
+    if (nl > 0) best = Math.max(best, nl - 1);
+  }
+  return best;
+}
+
+/** Alcance da busca pelo desnível mais próximo (fluxo estilo Minecraft): a água
+ *  procura uma QUEDA em até 4 células andando na horizontal. Achou → escorre só
+ *  na direção dela (não dá a volta no obstáculo); não achou → espalha nos 4
+ *  lados (poça). Alcance curto = busca barata + água em FIO, não em disco. */
+const DROP_SEARCH = 4;
+
+/** true se a água nesta célula DESCERIA: há um desnível abaixo. Conta ar (queda
+ *  seca) E água fluida (uma coluna já caindo ainda é descida — senão, assim que
+ *  a água enche o buraco ela "some" como alvo e o fluxo volta a espalhar). Fonte
+ *  e sólido embaixo NÃO são descida; o fundo do mundo também não (não vaza). */
+function temQueda(world: World, x: number, y: number, z: number): boolean {
+  if (!inBounds(world, x, y - 1, z)) return false;
+  const b = getBlock(world, x, y - 1, z);
+  return b === BlockId.Air || (isAgua(b) && !isAguaFonte(b));
+}
+
+/** Célula por onde a água correria na horizontal durante a busca: ar OU fluida
+ *  (nunca fonte, nunca sólido, nunca fora do mundo). Parede/fonte BARRAM a busca
+ *  — é o que faz a água ignorar o caminho longo quando a queda está mais perto. */
+function aguaAtravessa(world: World, x: number, y: number, z: number): boolean {
+  if (!inBounds(world, x, y, z)) return false;
+  const b = getBlock(world, x, y, z);
+  return b === BlockId.Air || (isAgua(b) && !isAguaFonte(b));
+}
+
+/** Passos até a queda mais próxima a partir de (x,z) na camada y, andando só por
+ *  células que a água atravessa e sem voltar pela direção de onde veio. Busca em
+ *  profundidade limitada a DROP_SEARCH; Infinity se nenhuma queda no alcance. */
+function passosAteQueda(
+  world: World,
+  x: number,
+  y: number,
+  z: number,
+  dist: number,
+  veioDx: number,
+  veioDz: number,
+): number {
+  let best = Infinity;
+  for (const [dx, dz] of LADOS) {
+    if (dx === veioDx && dz === veioDz) continue; // não volta pra trás
+    const nx = x + dx;
+    const nz = z + dz;
+    if (!aguaAtravessa(world, nx, y, nz)) continue; // parede/fonte: barra a busca
+    if (temQueda(world, nx, y, nz)) return dist; // achou o desnível
+    if (dist >= DROP_SEARCH) continue; // fim do alcance por este ramo
+    const sub = passosAteQueda(world, nx, y, nz, dist + 1, -dx, -dz);
+    if (sub < best) best = sub;
+  }
+  return best;
+}
+
+/**
+ * Água FLUIDA (2026-07-22): autômato celular na MESMA engrenagem da regra de
+ * ouro. Cada célula de água (fonte ou fluida) recomputa o próprio nível e
+ * EMPURRA água pros vizinhos elegíveis (ar embaixo → cai; senão espalha lateral
+ * com nível−1). Fonte (nível 8) é permanente; fluida seca quando o suprimento
+ * some (o recomputo baixa o nível → 0 = ar). Água infinita: fluida sobre chão
+ * sólido com ≥2 fontes laterais VIRA fonte. Alcance horizontal = 7 células
+ * (nível decrementa por distância) → bounded, não trava tablet.
+ */
+export const waterRule: BlockRule = (world, x, y, z) => {
+  const cur = getBlock(world, x, y, z);
+  const changes: BlockChange[] = [];
+  const below = getBlock(world, x, y - 1, z);
+
+  // nível efetivo desta célula (define o quanto espalha)
+  let nivel: number;
+  if (isAguaFonte(cur)) {
+    nivel = 8; // fonte nunca seca pela regra — só balde/bloco por cima remove
+  } else if (isFullCube(below) && !isAgua(below) && fontesLaterais(world, x, y, z) >= 2) {
+    // ÁGUA INFINITA: fluida em chão sólido cercada por 2+ fontes vira fonte
+    changes.push({ x, y, z, blockId: BlockId.Agua });
+    nivel = 8;
+  } else {
+    const sup = nivelSuportado(world, x, y, z);
+    if (sup <= 0) return [{ x, y, z, blockId: BlockId.Air }]; // secou → some (sem espalhar)
+    if (sup !== aguaNivel(cur)) changes.push({ x, y, z, blockId: aguaComNivel(sup) });
+    nivel = sup;
+  }
+
+  // ESPALHAMENTO.
+  if (below === BlockId.Air) {
+    // QUEDA preferível: há ar embaixo → despenca (coluna cheia 7) e NÃO espalha
+    // lateral. Água sobre água/vazio nunca vira disco flutuante — só cai.
+    changes.push({ x, y: y - 1, z, blockId: BlockId.AguaFluida7 });
+  } else if (isFullCube(below) && !isAgua(below)) {
+    // APOIADA em chão SÓLIDO de verdade → escorre na horizontal com nível−1.
+    // (água fluida embaixo NÃO é apoio: seria coluna caindo, não alarga o topo.)
+    // FLUXO PRIORIZADO (estilo Minecraft): procura o DESNÍVEL mais próximo e só
+    // escorre naquela direção — a água não dá a volta na pirâmide/obstáculo
+    // quando há uma queda perto. Sem queda no alcance → espalha nos 4 lados
+    // (poça). Água em FIO em vez de disco = MUITO menos célula ativa = menos
+    // custo de tick/remesh (o gargalo de FPS na cascata grande).
+    const espalha = nivel - 1; // fonte(8)→7, fluida n→n−1
+    if (espalha >= 1) {
+      // Custo (passos até a queda) por direção medido sobre TODA célula por onde
+      // a água corre — ar OU fluida (não só as que dá pra encher). Assim, se o
+      // caminho do desnível JÁ está cheio de água (escorrendo), a gente NÃO
+      // redireciona o fluxo pros lados: a beira continua vencendo. `empurra`
+      // marca à parte quais dá pra de fato preencher (ar / fluida de nível menor).
+      const custo = [Infinity, Infinity, Infinity, Infinity];
+      const empurra = [false, false, false, false];
+      let melhor = Infinity;
+      for (const [i, [dx, dz]] of LADOS.entries()) {
+        const nx = x + dx;
+        const nz = z + dz;
+        const viz = getBlock(world, nx, y, nz);
+        empurra[i] =
+          inBounds(world, nx, y, nz) &&
+          (viz === BlockId.Air ||
+            (isAgua(viz) && !isAguaFonte(viz) && aguaNivel(viz) < espalha));
+        if (!aguaAtravessa(world, nx, y, nz)) continue; // parede/fonte: sem custo
+        const c = temQueda(world, nx, y, nz)
+          ? 0 // a própria célula-alvo já é a beira do desnível
+          : passosAteQueda(world, nx, y, nz, 1, -dx, -dz);
+        custo[i] = c;
+        if (c < melhor) melhor = c;
+      }
+      const priorizar = melhor !== Infinity; // achou ao menos uma queda no alcance
+      for (const [i, [dx, dz]] of LADOS.entries()) {
+        if (!empurra[i]) continue;
+        if (priorizar && (custo[i] ?? Infinity) > melhor) continue; // fora da rota do desnível
+        changes.push({ x: x + dx, y, z: z + dz, blockId: aguaComNivel(espalha) });
+      }
+    }
+  }
+  // (below é água fluida/fonte: nem cai nem espalha — só ajusta o próprio nível)
+
+  return changes.length ? changes : null;
+};
+
 const rulesMap = new Map<number, BlockRule>([
   [BlockId.Sand, fallingRule],
   [BlockId.Gravel, fallingRule],
@@ -93,6 +263,11 @@ for (const id of [BlockId.CamaXP, BlockId.CamaZP, BlockId.CamaXN, BlockId.CamaZN
 // Flores (2026-07-20): mesma regra de apoio da tocha — sem chão embaixo, some.
 for (let id = BlockId.FlorVermelha; id <= BlockId.FlorBranca; id++) {
   rulesMap.set(id, torchRule);
+}
+// Água FLUIDA (2026-07-22): fonte (129) + os 7 níveis fluidos ticam pelo
+// waterRule (espalha, cai, seca, água infinita).
+for (let id = BlockId.Agua; id <= BlockId.AguaFluida7; id++) {
+  rulesMap.set(id, waterRule);
 }
 const RULES: ReadonlyMap<number, BlockRule> = rulesMap;
 

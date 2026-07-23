@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { BlockId } from "./blocks";
+import { BlockId, aguaNivel } from "./blocks";
 import { MAX_CHAT_LENGTH, SERVER_TICK_RATE } from "./constants";
 import { decodeSnapshot, parseServerMessage } from "./protocol";
 import { GameSession } from "./session";
@@ -142,6 +142,60 @@ describe("GameSession (servidor autoritativo)", () => {
     expect(getBlock(world, target.x, target.y, target.z)).toBe(before);
     expect(getBlock(world, sx, 0, sz)).not.toBe(BlockId.Air);
     expect(getBlock(world, sx, spawnY, sz)).toBe(BlockId.Air);
+  });
+
+  it("balde: despeja FONTE de água e recolhe SÓ a fonte (fluxo não é coletável)", () => {
+    const { send } = collect();
+    const session = new GameSession(send, { dims: DIMS, seed: 5, singleplayer: true });
+    session.handleMessage(1, JSON.stringify({ type: "join", name: "ana" }));
+    const world = session.world;
+    const sx = Math.floor(world.sizeX / 2);
+    const sz = Math.floor(world.sizeZ / 2);
+    const spawnY = findSpawnY(world, sx, sz);
+    const cell = { x: sx, y: spawnY - 1, z: sz };
+    // abre espaço (ar) na célula alvo, ao alcance
+    session.handleMessage(1, JSON.stringify({ type: "break_block", ...cell }));
+    expect(getBlock(world, cell.x, cell.y, cell.z)).toBe(BlockId.Air);
+
+    // balde CHEIO despeja → célula vira FONTE (id Agua)
+    session.handleMessage(1, JSON.stringify({ type: "balde", ...cell, encher: false }));
+    expect(getBlock(world, cell.x, cell.y, cell.z)).toBe(BlockId.Agua);
+
+    // balde VAZIO recolhe a fonte → ar de volta
+    session.handleMessage(1, JSON.stringify({ type: "balde", ...cell, encher: true }));
+    expect(getBlock(world, cell.x, cell.y, cell.z)).toBe(BlockId.Air);
+
+    // recolher onde NÃO há fonte (fluxo derivado) = ignorado, célula intacta
+    setBlock(world, cell.x, cell.y, cell.z, BlockId.AguaFluida3);
+    session.handleMessage(1, JSON.stringify({ type: "balde", ...cell, encher: true }));
+    expect(getBlock(world, cell.x, cell.y, cell.z)).toBe(BlockId.AguaFluida3);
+  });
+
+  it("água fluida: fonte do balde FLUI pelo tick do servidor (regra de ouro)", () => {
+    const { send } = collect();
+    const session = new GameSession(send, { dims: DIMS, singleplayer: true });
+    session.handleMessage(1, JSON.stringify({ type: "join", name: "ana" }));
+    const world = session.world;
+    const sx = Math.floor(world.sizeX / 2);
+    const sz = Math.floor(world.sizeZ / 2);
+    const y = findSpawnY(world, sx, sz);
+    // plataforma LARGA (chão sólido em y−1, ar em y) centrada na fonte — folgada
+    // o bastante pra NÃO haver desnível no alcance da busca (4): sem beira perto,
+    // a água espalha em disco (decremento por distância), não escorre pra um lado.
+    for (let dx = -4; dx <= 4; dx++) {
+      for (let dz = -4; dz <= 4; dz++) {
+        setBlock(world, sx + dx, y - 1, sz + dz, BlockId.Stone);
+        setBlock(world, sx + dx, y, sz + dz, BlockId.Air);
+      }
+    }
+    // balde despeja a fonte (via mensagem → applyBlock marca dirty → tica)
+    session.handleMessage(1, JSON.stringify({ type: "balde", x: sx, y, z: sz, encher: false }));
+    expect(getBlock(world, sx, y, sz)).toBe(BlockId.Agua);
+    for (let i = 0; i < 15; i++) session.tick(); // deixa assentar
+    // decremento por distância: fonte(8) → 7 → 6 → 5
+    expect(aguaNivel(getBlock(world, sx + 1, y, sz))).toBe(7);
+    expect(aguaNivel(getBlock(world, sx + 2, y, sz))).toBe(6);
+    expect(aguaNivel(getBlock(world, sx + 3, y, sz))).toBe(5);
   });
 
   it("place sobre líquido substituível (água) troca direto, sem quebrar antes", () => {

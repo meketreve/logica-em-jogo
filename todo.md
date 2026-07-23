@@ -226,6 +226,39 @@ no host (index.ts) engancha no `entregar` (ponto único server→cliente), dedup
 fan-out do broadcast e grava `mundos/<nome>/chat.log` (append, `\[ISO] autor: texto`).
 Singleplayer (Web Worker) não tem fs — chat não vira arquivo lá, como planejado.
 
+## Deploy / auto-update
+
+* \[ ] **auto-update do servidor** — hoje a escola atualiza rodando `git pull` À MÃO (é o padrão
+  de deploy: quase todo bloco de STATUS termina com "escola: git pull"). Ideia: o launcher busca a
+  versão nova sozinho antes de subir o servidor. Refino:
+  * **Gatilho no LAUNCHER** (`iniciar-servidor.bat` Windows/escola + `iniciar-servidor.sh` WSL/casa):
+    antes do `npm run start`, um passo de update opcional. Fluxo mínimo: `git fetch` → comparar
+    versão local × remota → se houver nova, `git pull` + `npm install` (se `package-lock` mudou) e
+    seguir. Já existe o esqueleto: os launchers rodam `npm install` na 1ª vez (bat:20, sh:18) — o
+    update entra no MESMO ponto, antes do boot.
+  * **REPO PÚBLICO (obstáculo principal, aceito pelo usuário):** `git pull` sem credencial exige
+    repo PÚBLICO (ou deploy key/token no PC da escola — pior de manter). Público resolve e ia
+    acontecer de qualquer jeito. ⚠️ ANTES de tornar público: varrer histórico por segredo (não
+    deve haver — PIN/código são texto simples por decisão, e mundos/profiles são gitignored; mas
+    conferir `chat.log`, saves e QUALQUER token). O README/licença viram públicos também.
+  * **Pré-requisito: a cópia da escola tem de ser um CLONE git, não ZIP.** bug-233: pasta de ZIP
+    `-main` (baixada à mão) NÃO é repo git → `git pull` falha. O auto-update FORÇA padronizar em
+    `git clone` no PC da escola (documentar no README/launcher; detectar `.git` ausente e avisar).
+  * **Windows tem git?** O notebook da escola bloqueia `npm` no PowerShell (bug-232) — por isso os
+    launchers rodam por cmd.exe/duplo-clique. `git` via cmd.exe deve passar igual; confirmar que o
+    Git está instalado (checar `git --version`, senão instruir a instalar / cair no modo manual).
+  * **`client/dist` versionado:** hoje o dist buildado é COMMITADO (vai no repo) → um `git pull`
+    já traz o cliente novo, SEM `npm run build` na escola (bom: build no PC fraco é lento). Manter
+    essa disciplina (buildar+commitar o dist ao lançar versão) OU mudar pra buildar no update —
+    decisão a travar. Se manter, o auto-update é só pull (barato).
+  * **Segurança/robustez:** só puxa com a árvore limpa (a escola só RODA, não edita tracked; mundos/
+    são gitignored — sem conflito esperado); se `git pull` falhar (offline, conflito), NÃO travar —
+    cair pro servidor com a versão atual e avisar. Boot já loga a versão (`v0.8.0`) — dá pra mostrar
+    "atualizado da vX pra vY" ou "sem internet, rodando vX".
+  * **Escopo mínimo travável:** um prompt no launcher "procurar atualização? (Enter=sim)" →
+    `git pull --ff-only` + `npm install` se o lock mudou → boot. Sem UI no jogo, sem daemon. A
+    checagem de versão bonita (comparar tags, changelog) é fase 2.
+
 ## Sistema de sobrevivência (feature grande)
 
 * \[ ] fome

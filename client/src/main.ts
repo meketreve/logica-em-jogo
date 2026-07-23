@@ -11,11 +11,14 @@ import {
   SERVER_TICK_RATE,
   type ScenarioModo,
   type Snapshot,
+  ITEM_BALDE_AGUA,
+  ITEM_BALDE_VAZIO,
   blockSelectionBox,
   createPlayer,
   decodeSnapshot,
   findSpawnY,
   getBlock,
+  isBalde,
   isCadeira,
   isCama,
   isInterativo,
@@ -935,6 +938,7 @@ function startGame(snap: Snapshot): void {
   const loadHotbar = (): number[] => {
     // defensivo por slot: id fora da lista (ou config velha) cai no default
     const valid = new Set<number>(meusBlocos.map((b) => b.id));
+    valid.add(ITEM_BALDE_VAZIO); // balde esvaziado guardado no slot sobrevive ao reload
     const def = defaultHotbar();
     try {
       const raw: unknown = JSON.parse(localStorage.getItem(HOTBAR_KEY) ?? "null");
@@ -955,9 +959,14 @@ function startGame(snap: Snapshot): void {
   // ícones recortados do próprio texture atlas (blockIcons.ts)
   const icons = makeBlockIcons(
     material.map?.image as HTMLCanvasElement,
-    PLACEABLE.map((b) => b.id),
+    // balde VAZIO não está em PLACEABLE (só o cheio); precisa do ícone dele
+    [...PLACEABLE.map((b) => b.id), ITEM_BALDE_VAZIO],
   );
-  const blockName = (id: number): string => PLACEABLE.find((b) => b.id === id)?.name ?? "?";
+  const blockName = (id: number): string => {
+    if (id === ITEM_BALDE_VAZIO) return "balde vazio";
+    if (id === ITEM_BALDE_AGUA) return "balde de água";
+    return PLACEABLE.find((b) => b.id === id)?.name ?? "?";
+  };
   const refreshHotbar = (): void => {
     if (!hotbarEl) return;
     // nomes/ícones são constantes do código (sem input externo) — innerHTML ok aqui
@@ -1042,6 +1051,7 @@ function startGame(snap: Snapshot): void {
       wandMark(1, target);
       return;
     }
+    if (isBalde(hotbar[selected] ?? -1)) return; // balde não quebra bloco
     activeConn.send(
       JSON.stringify({ type: "break_block", x: target.x, y: target.y, z: target.z }),
     );
@@ -1051,6 +1061,37 @@ function startGame(snap: Snapshot): void {
     if (varinhaAtiva) {
       wandMark(2, target);
       return;
+    }
+    // balde (2026-07-22): clique direito com balde na mão sempre faz água
+    // (prioridade sobre porta/quadro). Cheio → DESPEJA fonte na célula da face
+    // mirada (target+normal). Vazio → RECOLHE a fonte mirada (o raycast parou
+    // na água). Estado cheio/vazio troca no slot da hotbar.
+    {
+      const held = hotbar[selected];
+      if (isBalde(held ?? -1)) {
+        if (held === ITEM_BALDE_AGUA) {
+          activeConn.send(
+            JSON.stringify({
+              type: "balde",
+              x: target.x + target.nx,
+              y: target.y + target.ny,
+              z: target.z + target.nz,
+              encher: false,
+            }),
+          );
+          hotbar[selected] = ITEM_BALDE_VAZIO; // esvaziou
+        } else {
+          // só recolhe se mirou numa FONTE (id Agua); fluxo derivado não coleta
+          if (getBlock(world, target.x, target.y, target.z) !== BlockId.Agua) return;
+          activeConn.send(
+            JSON.stringify({ type: "balde", x: target.x, y: target.y, z: target.z, encher: true }),
+          );
+          hotbar[selected] = ITEM_BALDE_AGUA; // encheu
+        }
+        localStorage.setItem(HOTBAR_KEY, JSON.stringify(hotbar));
+        refreshHotbar();
+        return;
+      }
     }
     // quadro (2026-07-19): clique direito abre o EDITOR (texto/imagem); o
     // conteúdo vai por quadro_set e volta pra todos por quadro_changed
@@ -1384,6 +1425,7 @@ function startGame(snap: Snapshot): void {
           camera.position.x, camera.position.y, camera.position.z,
           lookDir.x, lookDir.y, lookDir.z,
           PLAYER_REACH,
+          hotbar[selected] === ITEM_BALDE_VAZIO, // balde vazio mira a água (recolher)
         )
       : null;
     highlight.visible = target !== null;

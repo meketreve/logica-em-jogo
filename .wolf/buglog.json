@@ -7571,6 +7571,442 @@
       "related_bugs": [],
       "occurrences": 1,
       "last_seen": "2026-07-22T14:52:42.336Z"
+    },
+    {
+      "id": "bug-467",
+      "timestamp": "2026-07-22T16:19:25.398Z",
+      "error_message": "Missing guard clause",
+      "file": "shared/src/blocks.ts",
+      "root_cause": "No early return/throw for edge case: id === BlockId.Agua",
+      "fix": "Added guard clause: if (id === BlockId.Agua)",
+      "tags": [
+        "auto-detected",
+        "guard-clause",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-22T16:19:25.398Z"
+    },
+    {
+      "id": "bug-468",
+      "timestamp": "2026-07-22T16:21:04.842Z",
+      "error_message": "Missing guard clause",
+      "file": "shared/src/rules.ts",
+      "root_cause": "No early return/throw for edge case: isAguaFonte(getBlock(world, x + dx, y, z + dz",
+      "fix": "Added guard clause: if (isAguaFonte(getBlock(world, x + dx, y, z)",
+      "tags": [
+        "auto-detected",
+        "guard-clause",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-22T16:21:04.842Z"
+    },
+    {
+      "id": "bug-469",
+      "timestamp": "2026-07-22T16:22:26.329Z",
+      "error_message": "Significant refactor of ",
+      "file": "shared/src/blocks.test.ts",
+      "root_cause": "7 lines replaced/restructured",
+      "fix": "Rewrote 13→33 lines (7 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-22T16:22:26.329Z"
+    },
+    {
+      "id": "bug-470",
+      "timestamp": "2026-07-22T16:24:53.795Z",
+      "error_message": "Significant refactor of ",
+      "file": "shared/src/water.test.ts",
+      "root_cause": "8 lines replaced/restructured",
+      "fix": "Rewrote 13→21 lines (8 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-22T16:24:53.795Z"
+    },
+    {
+      "id": "bug-471",
+      "timestamp": "2026-07-22T16:28:49.164Z",
+      "error_message": "Significant refactor of ",
+      "file": "shared/src/rules.ts",
+      "root_cause": "3 lines replaced/restructured",
+      "fix": "Rewrote 23→27 lines (3 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-22T16:28:49.164Z"
+    },
+    {
+      "id": "bug-472",
+      "timestamp": "2026-07-22T16:33:18.159Z",
+      "error_message": "Wrong condition in logic",
+      "file": "shared/src/raycast.ts",
+      "root_cause": "Condition was: if (b !== BlockId.Air && !isAgua(b)",
+      "fix": "Changed to: if (pararNaAgua && isAgua(b)",
+      "tags": [
+        "auto-detected",
+        "logic-fix",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-22T16:33:18.159Z"
+    },
+    {
+      "id": "bug-473",
+      "timestamp": "2026-07-22T16:33:39.739Z",
+      "error_message": "Wrong condition in logic",
+      "file": "shared/src/protocol.ts",
+      "root_cause": "Condition was: if (!c)",
+      "fix": "Changed to: if (!ints.every((n)",
+      "tags": [
+        "auto-detected",
+        "logic-fix",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-22T16:33:39.739Z"
+    },
+    {
+      "id": "bug-474",
+      "timestamp": "2026-07-22T16:34:03.801Z",
+      "error_message": "Missing guard clause",
+      "file": "shared/src/session.ts",
+      "root_cause": "No early return/throw for edge case: !p",
+      "fix": "Added guard clause: if (!p)",
+      "tags": [
+        "auto-detected",
+        "guard-clause",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-22T16:34:03.801Z"
+    },
+    {
+      "id": "bug-475",
+      "timestamp": "2026-07-22T16:34:25.469Z",
+      "error_message": "Significant refactor of ",
+      "file": "client/src/blocksUi.ts",
+      "root_cause": "2 lines replaced/restructured",
+      "fix": "Rewrote 4→6 lines (2 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-22T16:34:25.469Z"
+    },
+    {
+      "id": "bug-476",
+      "timestamp": "2026-07-22T16:34:49.380Z",
+      "error_message": "Type error",
+      "file": "client/src/blockIcons.ts",
+      "root_cause": "Missing or incorrect type annotation",
+      "fix": "Added type assertion/annotation",
+      "tags": [
+        "auto-detected",
+        "type-fix",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-22T16:34:49.380Z"
+    },
+    {
+      "id": "bug-477",
+      "timestamp": "2026-07-22T16:35:22.414Z",
+      "error_message": "Missing guard clause",
+      "file": "client/src/main.ts",
+      "root_cause": "No early return/throw for edge case: id === ITEM_BALDE_VAZIO",
+      "fix": "Added guard clause: if (id === ITEM_BALDE_VAZIO)",
+      "tags": [
+        "auto-detected",
+        "guard-clause",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-22T16:35:22.414Z"
+    },
+    {
+      "id": "bug-478",
+      "timestamp": "2026-07-22T16:35:51.892Z",
+      "error_message": "Null/undefined access in ",
+      "file": "client/src/main.ts",
+      "root_cause": "Property access on potentially null/undefined value",
+      "fix": "Added null safety (optional chaining or null check) | Also: // balde (2026-07-22): clique direito com balde na mão sempr; // (prioridade sobre porta/quadro). Cheio → DESPEJA fonte na",
+      "tags": [
+        "auto-detected",
+        "null-safety",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 2,
+      "last_seen": "2026-07-22T16:36:02.284Z"
+    },
+    {
+      "id": "bug-479",
+      "timestamp": "2026-07-22T16:37:25.917Z",
+      "error_message": "Type error",
+      "file": "shared/src/session.test.ts",
+      "root_cause": "Missing or incorrect type annotation",
+      "fix": "Added type assertion/annotation | Also: it(\"água fluida: fonte do balde FLUI pelo tick do servidor (; const { send } = collect();",
+      "tags": [
+        "auto-detected",
+        "type-fix",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 2,
+      "last_seen": "2026-07-22T16:38:34.982Z"
+    },
+    {
+      "id": "bug-480",
+      "timestamp": "2026-07-22T16:37:36.550Z",
+      "error_message": "Type error",
+      "file": "shared/src/protocol.test.ts",
+      "root_cause": "Missing or incorrect type annotation",
+      "fix": "Added type assertion/annotation",
+      "tags": [
+        "auto-detected",
+        "type-fix",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-22T16:37:36.550Z"
+    },
+    {
+      "id": "bug-481",
+      "timestamp": "2026-07-22T17:00:00.000Z",
+      "error_message": "agua fluida virava DISCO flutuante no ar (fonte suspensa espalhava r7 no proprio nivel em vez de so cair)",
+      "file": "shared/src/rules.ts",
+      "root_cause": "waterRule espalhava lateral sempre que below != AR. Ao cair, a celula-de-baixo enchia (vira agua) em 1 tick -> below deixa de ser AR -> o topo passa a espalhar lateral; cada anel repetia -> disco r7 flutuante. Testei 3 variantes do gate (below===air; below-below===air) antes de acertar.",
+      "fix": "Espalhar lateral SO com apoio SOLIDO: isFullCube(below) && !isAgua(below). AR embaixo => so cai (coluna cheia 7), nunca lateral. Agua fluida embaixo NAO conta como apoio. Fonte no ar vira coluna unica; sem disco. Teste water.test.ts pina a propriedade.",
+      "tags": [
+        "agua",
+        "fluido",
+        "automato-celular",
+        "rules",
+        "regra-de-ouro",
+        "disco-flutuante"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-22T17:00:00.000Z"
+    },
+    {
+      "id": "bug-482",
+      "timestamp": "2026-07-22T23:48:42.449Z",
+      "error_message": "Missing guard clause",
+      "file": "shared/src/rules.ts",
+      "root_cause": "No early return/throw for edge case: !inBounds(world, x, y, z",
+      "fix": "Added guard clause: if (!inBounds(world, x, y, z)",
+      "tags": [
+        "auto-detected",
+        "guard-clause",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 2,
+      "last_seen": "2026-07-22T23:48:58.313Z"
+    },
+    {
+      "id": "bug-483",
+      "timestamp": "2026-07-22T23:49:43.133Z",
+      "error_message": "Type error",
+      "file": "shared/src/session.ts",
+      "root_cause": "Missing or incorrect type annotation",
+      "fix": "Added type assertion/annotation",
+      "tags": [
+        "auto-detected",
+        "type-fix",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-22T23:49:43.133Z"
+    },
+    {
+      "id": "bug-484",
+      "timestamp": "2026-07-22T23:54:40.227Z",
+      "error_message": "Type error",
+      "file": "shared/src/rules.ts",
+      "root_cause": "Missing or incorrect type annotation",
+      "fix": "Added type assertion/annotation",
+      "tags": [
+        "auto-detected",
+        "type-fix",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-22T23:54:40.228Z"
+    },
+    {
+      "id": "bug-485",
+      "timestamp": "2026-07-22T23:56:16.456Z",
+      "error_message": "Wrong return value",
+      "file": "shared/src/rules.ts",
+      "root_cause": "Was returning: inBounds(world, x, y - 1, z) && getBlock(world, x,",
+      "fix": "Now returns: false;",
+      "tags": [
+        "auto-detected",
+        "return-value",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-22T23:56:16.456Z"
+    },
+    {
+      "id": "bug-486",
+      "timestamp": "2026-07-22T23:58:54.501Z",
+      "error_message": "Significant refactor of ",
+      "file": "shared/src/session.test.ts",
+      "root_cause": "4 lines replaced/restructured",
+      "fix": "Rewrote 10→14 lines (4 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-22T23:58:54.501Z"
+    },
+    {
+      "id": "bug-487",
+      "timestamp": "2026-07-23T00:00:00.000Z",
+      "error_message": "usuário: FPS morre (Xeon/RTX2060) numa cascata em forma de pirâmide com água de um lado — 'a água dá a volta na pirâmide, tá muito lateralizado'",
+      "file": "shared/src/rules.ts",
+      "root_cause": "waterRule espalhava pros 4 vizinhos laterais IGUALMENTE (flood-fill em disco). Numa pirâmide escalonada, cada degrau enchia toda a superfície e cascateava pelas 4 faces → centenas de células de água ativas = tick + remesh do cliente afogados = FPS morre.",
+      "fix": "Fluxo priorizado estilo Minecraft: cada célula de água em chão sólido busca o DESNÍVEL mais próximo (busca em profundidade ≤ DROP_SEARCH=4 sobre células que a água atravessa) e só escorre naquela direção; sem queda no alcance → espalha nos 4 lados (poça). Água em FIO, não disco (pirâmide: 12 células em vez de centenas). + teto configurável de água/tick (AGUA_POR_TICK_PADRAO=256, LJ_AGUA_TICK) na session como trava dura de FPS.",
+      "tags": [
+        "agua",
+        "fluxo",
+        "waterRule",
+        "performance",
+        "fps",
+        "remesh",
+        "minecraft",
+        "piramide"
+      ],
+      "related_bugs": [
+        "bug-488",
+        "bug-489"
+      ],
+      "occurrences": 1,
+      "last_seen": "2026-07-23T00:00:00.000Z"
+    },
+    {
+      "id": "bug-488",
+      "timestamp": "2026-07-23T00:00:01.000Z",
+      "error_message": "Fluxo priorizado ainda dava a volta: assim que a água descia a 1ª célula, o fluxo espalhava perpendicular (disco) em vez de seguir a beira",
+      "file": "shared/src/rules.ts",
+      "root_cause": "O custo até o desnível era medido só sobre células PREENCHÍVEIS (ar/fluida de nível menor). Quando o vizinho da direção do desnível já estava CHEIO (nível máx = saturado), essa direção saía da comparação de custo, `melhor` passava a ser o das direções perpendiculares (custo maior) e a água floodava pros lados.",
+      "fix": "Medir o custo sobre TODA célula que a água ATRAVESSA (ar OU fluida, via aguaAtravessa), não só as preenchíveis. Array `empurra[]` separado marca quais dá pra de fato encher. Assim a rota do desnível continua vencendo mesmo já cheia de água (a água só escorre por ela, não redireciona).",
+      "tags": [
+        "agua",
+        "fluxo",
+        "waterRule",
+        "custo",
+        "saturado"
+      ],
+      "related_bugs": [
+        "bug-487"
+      ],
+      "occurrences": 1,
+      "last_seen": "2026-07-23T00:00:01.000Z"
+    },
+    {
+      "id": "bug-489",
+      "timestamp": "2026-07-23T00:00:02.000Z",
+      "error_message": "Após ~5 ticks a água voltava a espalhar em disco: assim que enchia o buraco, o alvo do fluxo 'sumia'",
+      "file": "shared/src/rules.ts",
+      "root_cause": "temQueda só considerava desnível quando a célula de baixo era AR. Ao cair no buraco, a água enchia a coluna abaixo → a de baixo virava ÁGUA, não ar → temQueda=false → as células a montante perdiam o alvo e voltavam a espalhar (melhor=Infinity → poça).",
+      "fix": "temQueda passa a contar como descida tanto AR quanto ÁGUA FLUIDA embaixo (uma coluna já caindo ainda é descida). Fonte/sólido embaixo e o fundo do mundo NÃO contam. Steady-state vira um fio estável da fonte até a beira + coluna cheia descendo.",
+      "tags": [
+        "agua",
+        "fluxo",
+        "waterRule",
+        "temQueda",
+        "coluna",
+        "queda"
+      ],
+      "related_bugs": [
+        "bug-487"
+      ],
+      "occurrences": 1,
+      "last_seen": "2026-07-23T00:00:02.000Z"
+    },
+    {
+      "id": "bug-489",
+      "timestamp": "2026-07-23T00:00:00.000Z",
+      "error_message": "Usuario: toda vez que uso a opcao 8 (carregar mundo salvo) o launcher pede qual tamanho de mundo criar.",
+      "file": "iniciar-servidor.bat, iniciar-servidor.sh",
+      "root_cause": "O menu de tamanho de mundo (P/M/G/E) so era pulado quando LJ_TAMANHO==E (procedural). A opcao [8] carrega um .ljw existente (dims ja no save), mas nao setava nada -> caia no menu de tamanho a toa. Tamanho so vale para mundo NOVO; save existente ignora LJ_TAMANHO.",
+      "fix": "Ao escolher um save valido em [8] marca PULAR_TAMANHO=1; o menu de tamanho passa a ser pulado quando PULAR_TAMANHO definido (goto :depois_tamanho no .bat; guard 'if [ -z ]' no .sh).",
+      "tags": [
+        "launcher",
+        "bat",
+        "sh",
+        "menu",
+        "tamanho",
+        "carregar-mundo",
+        "opcao-8"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-23T00:00:00.000Z"
+    },
+    {
+      "id": "bug-491",
+      "timestamp": "2026-07-23T11:48:36.504Z",
+      "error_message": "Null/undefined access in ",
+      "file": "shared/src/rules.ts",
+      "root_cause": "Property access on potentially null/undefined value",
+      "fix": "Added null safety (optional chaining or null check)",
+      "tags": [
+        "auto-detected",
+        "null-safety",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-23T11:48:36.504Z"
+    },
+    {
+      "id": "bug-490",
+      "timestamp": "2026-07-23T11:48:00.000Z",
+      "error_message": "rules.ts(214,232,233): TS2488/TS2532 - 'readonly [number,number] | undefined' e 'Object is possibly undefined' no waterRule. STATUS sessao 16 alegava 'typecheck 0' mas a arvore nunca passou.",
+      "file": "shared/src/rules.ts",
+      "root_cause": "noUncheckedIndexedAccess:true no tsconfig.base. O fluxo priorizado da agua (sessao 16) iterou com 'for (let i...)' + LADOS[i]/custo[i] (index access -> T|undefined); os outros loops do arquivo usam for...of (elemento nao-undefined) e por isso nao acusavam.",
+      "fix": "Trocar os dois 'for (let i...)' por 'for (const [i, [dx,dz]] of LADOS.entries())' (elemento tipado readonly [number,number]) e narrow no compare 'custo[i] ?? Infinity'. typecheck 0, 304 testes, build ok.",
+      "tags": ["typecheck", "noUncheckedIndexedAccess", "rules", "agua", "waterRule", "LADOS", "regressao-status"],
+      "related_bugs": ["bug-487", "bug-488"],
+      "occurrences": 1,
+      "last_seen": "2026-07-23T11:48:00.000Z"
     }
   ]
 }

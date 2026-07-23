@@ -21,6 +21,12 @@ export const DIA_SEGUNDOS = 1200;
  *  e a hora corrente persistem no save (sobrevivência, futuro, continua a hora). */
 export const HORA_PADRAO = 12;
 
+/** Teto de células de ÁGUA que MUDAM por tick (proteção de FPS). Com MUITA água
+ *  mexendo (cascata gigante), o excedente escorre no tick SEGUINTE — a água flui
+ *  um pouco mais devagar, mas o cliente não afoga em remesh. Água parada (nível
+ *  já assentado) não gasta orçamento. Configurável no host via LJ_AGUA_TICK. */
+export const AGUA_POR_TICK_PADRAO = 256;
+
 /** Alcance de interação (colocar/quebrar) em blocos, medido do olho do jogador. */
 export const PLAYER_REACH = 5;
 

@@ -79,6 +79,8 @@ if defined CODIGO set "LJ_CODIGO=%CODIGO%"
 
 REM --- Tamanho do mundo (so vale se o mundo for NOVO) ---
 REM O procedural [9] ja fixou LJ_TAMANHO=E; nesse caso, pula o menu de tamanho.
+REM Carregar mundo salvo [8]: o save ja tem as dimensoes -> pula o menu de tamanho.
+if defined PULAR_TAMANHO goto :depois_tamanho
 if /i "%LJ_TAMANHO%"=="E" goto :depois_tamanho
 echo.
 echo Tamanho do mundo novo:
@@ -94,6 +96,14 @@ if /i "%TAMANHO%"=="G" set "LJ_TAMANHO=G"
 if /i "%TAMANHO%"=="E" set "LJ_TAMANHO=E"
 if /i "%TAMANHO%"=="procedural" set "LJ_TAMANHO=E"
 :depois_tamanho
+
+REM --- Desempenho da agua (opcional, so se o FPS cair) ---
+REM Teto de celulas de agua que FLUEM por tick. Menor = FPS mais estavel numa
+REM cascata grande (a agua escorre um pouco mais devagar). Enter = padrao (256).
+echo.
+set "AGUA="
+set /p "AGUA=Agua por tick - so se o FPS cair em cascata grande (Enter = padrao 256): "
+if defined AGUA set "LJ_AGUA_TICK=%AGUA%"
 
 REM Cria o mundo caso ainda nao exista (vale para o "mundo livre" na 1a vez).
 set "LJ_NOVO=1"
@@ -134,7 +144,7 @@ set /p "N=Numero do mundo salvo (Enter = 1): "
 if not defined N set "N=1"
 set "PICK=!SAVE[%N%]!"
 if not defined PICK goto :cs_invalido
-endlocal & set "LJ_SAVE=%PICK%"
+endlocal & set "LJ_SAVE=%PICK%" & set "PULAR_TAMANHO=1"
 goto :eof
 :cs_invalido
 echo ^(numero invalido - abrindo o mundo livre^)

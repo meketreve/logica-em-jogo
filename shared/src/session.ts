@@ -2,6 +2,8 @@ import { MAX_PIN_ATTEMPTS, PIN_LOCKOUT_MS, type Papel, isValidPin, sanitizeName 
 import {
   BlockId,
   camaHeadDir,
+  isAgua,
+  isAguaFonte,
   isBreakable,
   isCama,
   isFullCube,
@@ -24,6 +26,7 @@ import {
 } from "./blocks";
 import { MAX_QUADRO_TEXTO, type QuadroConteudo, quadroKey } from "./quadros";
 import {
+  AGUA_POR_TICK_PADRAO,
   CHUNK_SIZE,
   DEFAULT_WORLD_CHUNKS,
   DIA_SEGUNDOS,
@@ -136,6 +139,9 @@ export interface SessionOptions {
   /** Streaming (F2): colunas de chunks enviadas por TICK por jogador —
    *  config de desempenho do host (LJ_COLUNAS_TICK). Só vale em mundo lazy. */
   colunasPorTick?: number;
+  /** Teto de células de água que MUDAM por tick (proteção de FPS na cascata
+   *  gigante). Config de desempenho do host (LJ_AGUA_TICK). */
+  aguaPorTick?: number;
 }
 
 interface SessionPlayer {
@@ -270,6 +276,9 @@ export class GameSession {
    *  viajam por raio de interesse; o join manda só o header LJE0. */
   private lazy = false;
   private readonly colunasPorTick: number;
+  /** Teto de mudanças de água por tick (proteção de FPS). Excedente escorre no
+   *  tick seguinte. Configurável via LJ_AGUA_TICK no host. */
+  private readonly aguaMaxPorTick: number;
   /** Estado de streaming por cliente: raio de interesse + colunas já enviadas
    *  (chave = cz*dims.x+cx). Sai do raio+folga = esquece → re-envia na volta
    *  (cliente descarta pela MESMA regra — sem mensagem de unload). */
@@ -293,6 +302,7 @@ export class GameSession {
     this.now = opts.now ?? (() => Date.now());
     this.singleplayer = opts.singleplayer ?? false;
     this.colunasPorTick = Math.max(1, opts.colunasPorTick ?? COLUNAS_POR_TICK_PADRAO);
+    this.aguaMaxPorTick = Math.max(1, opts.aguaPorTick ?? AGUA_POR_TICK_PADRAO);
     this.codigo = opts.codigo ?? opts.restore?.codigo;
     if (opts.restore) {
       // mundo vem do save: NADA é recalculado (spawn é do terreno pristino —
@@ -748,6 +758,34 @@ export class GameSession {
           }
         }
         this.applyBlock(msg.x, msg.y, msg.z, BlockId.Air);
+        break;
+      }
+      case "balde": {
+        // balde (2026-07-22): despeja/recolhe FONTE de água. Mesma disciplina
+        // de place/break: join, bounds, alcance, claim/confinamento.
+        const p = this.players.get(clientId);
+        if (!p) return;
+        if (!inBounds(this.world, msg.x, msg.y, msg.z)) return;
+        if (!this.withinReach(p, msg.x, msg.y, msg.z)) return;
+        {
+          const bloqueio =
+            this.claimBloqueia(clientId, msg.x, msg.y, msg.z) ??
+            this.confinaBloqueia(clientId, msg.x, msg.y, msg.z);
+          if (bloqueio) {
+            this.sendServerChat(clientId, bloqueio);
+            return;
+          }
+        }
+        const alvo = getBlock(this.world, msg.x, msg.y, msg.z);
+        if (msg.encher) {
+          // balde VAZIO: só recolhe uma FONTE (o fluxo derivado seca sozinho)
+          if (!isAguaFonte(alvo)) return;
+          this.applyBlock(msg.x, msg.y, msg.z, BlockId.Air);
+        } else {
+          // balde CHEIO: célula vazia OU água substituível vira FONTE
+          if (alvo !== BlockId.Air && !isReplaceable(alvo)) return;
+          this.applyBlock(msg.x, msg.y, msg.z, BlockId.Agua);
+        }
         break;
       }
       case "chat": {
@@ -2872,16 +2910,27 @@ export class GameSession {
     this.changedThisTick.clear();
     const batch = this.dirty;
     this.dirty = new Set();
+    // Teto de água por tick (proteção de FPS): conta só células de água que
+    // REALMENTE mudam; ao esgotar, as demais células de água voltam pra fila e
+    // escorrem no tick seguinte. Areia/portas/etc não gastam orçamento.
+    let aguaOrcamento = this.aguaMaxPorTick;
     for (const key of batch) {
       if (this.changedThisTick.has(key)) continue; // célula já mudou neste tick
       const x = key % this.world.sizeX;
       const rest = (key - x) / this.world.sizeX;
       const z = rest % this.world.sizeZ;
       const y = (rest - z) / this.world.sizeZ;
-      const rule = ruleFor(getBlock(this.world, x, y, z));
+      const atual = getBlock(this.world, x, y, z);
+      const rule = ruleFor(atual);
       if (!rule) continue;
+      const ehAgua = isAgua(atual);
+      if (ehAgua && aguaOrcamento <= 0) {
+        this.dirty.add(key); // teto atingido → escorre no próximo tick
+        continue;
+      }
       const changes = rule(this.world, x, y, z);
       if (!changes) continue;
+      if (ehAgua) aguaOrcamento--; // gastou orçamento só quando houve trabalho
       for (const c of changes) {
         if (!inBounds(this.world, c.x, c.y, c.z)) continue; // regra defeituosa não vaza
         this.applyBlock(c.x, c.y, c.z, c.blockId);

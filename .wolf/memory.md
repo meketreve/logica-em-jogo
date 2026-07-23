@@ -2254,3 +2254,114 @@ Files: blocks.ts, mesher.ts, session.ts, blocks.test.ts, cp23.test.ts. Commitar+
 | 12:00 | Hitbox real dos nao-cubos: raycast por FORMA (blockSelectionBox) | raycast.ts, raycast.test.ts | subBoxNormal slab test; cerca vao passa/poste acerta; 292 testes typecheck0 build ok | ~2500 |
 | 11:54 | Session end: 18 writes across 6 files (todo.md, blocks.ts, raycast.ts, session.ts, raycast.test.ts) | 8 reads | ~89937 tok |
 | 11:59 | Created ../../../tmp/claude-1000/-home-meketreve-logica-em-jogo/b991a170-8d68-4bc9-820b-cfee5cca062f/scratchpad/feat-msg.txt | — | ~266 |
+| 12:00 | Session end: 19 writes across 7 files (todo.md, blocks.ts, raycast.ts, session.ts, raycast.test.ts) | 8 reads | ~90222 tok |
+
+## Session: 2026-07-22 13:05
+
+| Time | Action | File(s) | Outcome | ~Tokens |
+|------|--------|---------|---------|--------|
+| 13:19 | Edited shared/src/blocks.ts | added 4 condition(s) | ~506 |
+| 13:19 | Edited shared/src/blocks.ts | 2→2 lines | ~16 |
+| 13:19 | Edited shared/src/blocks.ts | added 1 condition(s) | ~93 |
+| 13:20 | Edited shared/src/rules.ts | expanded (+8 lines) | ~49 |
+| 13:21 | Edited shared/src/rules.ts | added 10 condition(s) | ~980 |
+| 13:21 | Edited shared/src/rules.ts | modified Flores() | ~131 |
+| 13:21 | Edited shared/src/mesher.ts | 4→5 lines | ~17 |
+| 13:21 | Edited shared/src/mesher.ts | modified fluida() | ~79 |
+| 13:21 | Edited shared/src/mesher.ts | 2→2 lines | ~41 |
+| 13:21 | Edited shared/src/mesher.ts | added 1 condition(s) | ~113 |
+| 13:22 | Edited shared/src/blocks.test.ts | modified gua() | ~454 |
+| 13:22 | Edited shared/src/blocks.test.ts | 9→12 lines | ~50 |
+| 13:23 | Created shared/src/water.test.ts | — | ~1169 |
+| 13:24 | Edited shared/src/water.test.ts | expanded (+8 lines) | ~322 |
+| 13:27 | Edited shared/src/water.test.ts | 11→13 lines | ~210 |
+| 13:28 | Edited shared/src/rules.ts | added 1 condition(s) | ~330 |
+| 13:29 | Edited shared/src/water.test.ts | 13→11 lines | ~172 |
+| 13:33 | Edited shared/src/blocks.ts | modified aguaComNivel() | ~244 |
+| 13:33 | Edited shared/src/raycast.ts | modified raycastBlock() | ~98 |
+| 13:33 | Edited shared/src/raycast.ts | added 1 condition(s) | ~110 |
+| 13:33 | Edited shared/src/protocol.ts | modified Balde() | ~106 |
+| 13:33 | Edited shared/src/protocol.ts | added 2 condition(s) | ~152 |
+| 13:33 | Edited shared/src/session.ts | 3→4 lines | ~16 |
+| 13:34 | Edited shared/src/session.ts | added 7 condition(s) | ~366 |
+| 13:34 | Edited client/src/blocksUi.ts | modified gua() | ~108 |
+| 13:34 | Edited client/src/blocksUi.ts | inline fix | ~24 |
+| 13:34 | Edited client/src/blocksUi.ts | expanded (+7 lines) | ~141 |
+| 13:34 | Edited client/src/blockIcons.ts | added 2 condition(s) | ~374 |
+| 13:34 | Edited client/src/blockIcons.ts | added 1 condition(s) | ~127 |
+| 13:35 | Edited client/src/main.ts | 11→14 lines | ~61 |
+| 13:35 | Edited client/src/main.ts | added 2 condition(s) | ~125 |
+| 13:35 | Edited client/src/main.ts | 2→3 lines | ~66 |
+| 13:35 | Edited client/src/main.ts | added nullish coalescing | ~93 |
+| 13:36 | Edited client/src/main.ts | added nullish coalescing | ~413 |
+| 13:36 | Edited client/src/main.ts | 8→9 lines | ~89 |
+| 13:37 | Edited shared/src/session.test.ts | expanded (+27 lines) | ~440 |
+| 13:37 | Edited shared/src/protocol.test.ts | expanded (+12 lines) | ~224 |
+| 13:38 | Edited shared/src/session.test.ts | modified for() | ~371 |
+| 13:38 | Edited shared/src/session.test.ts | inline fix | ~14 |
+
+## Sessão 15c (2026-07-22) — ÁGUA FLUIDA + ITEM BALDE
+Autômato celular na REGRA DE OURO (waterRule em rules.ts, 8 ids água): fonte 129 (nível 8) +
+AguaFluida1..7 (130-136, nível=alcance). Espalha lateral só com apoio SÓLIDO; AR embaixo → só cai
+(sem disco flutuante — bug-481). Infinito (2 fontes+chão). Tick do servidor já roda tudo (zero mudança
+na engenharia). Balde = ITEM (900/901), msg `balde{x,y,z,encher}`, raycast `pararNaAgua`, ícone
+procedural. Decisões travadas por AskUserQuestion (2 rodadas): cubo-cheio v1 / infinita / balde /
+sempre-ligado / recolhe / água fora da hotbar. typecheck 0, 302 testes (+10), build ok, boot ok.
+NÃO commitado; playtest no browser PENDENTE. Refinos adiados: altura-visual, re-tica no restore.
+| 13:42 | Session end: 39 writes across 13 files (blocks.ts, rules.ts, mesher.ts, blocks.test.ts, water.test.ts) | 10 reads | ~102162 tok |
+| 20:00 | Session end: 39 writes across 13 files (blocks.ts, rules.ts, mesher.ts, blocks.test.ts, water.test.ts) | 10 reads | ~102162 tok |
+
+## Session: 2026-07-22 20:30
+
+| Time | Action | File(s) | Outcome | ~Tokens |
+|------|--------|---------|---------|--------|
+| 20:48 | Edited shared/src/rules.ts | inline fix | ~17 |
+| 20:48 | Edited shared/src/rules.ts | added 6 condition(s) | ~617 |
+| 20:48 | Edited shared/src/rules.ts | added 3 condition(s) | ~552 |
+| 20:49 | Edited shared/src/constants.ts | expanded (+6 lines) | ~138 |
+| 20:49 | Edited shared/src/session.ts | 4→5 lines | ~19 |
+| 20:49 | Edited shared/src/session.ts | 8→9 lines | ~49 |
+| 20:49 | Edited shared/src/session.ts | modified Streaming() | ~99 |
+| 20:49 | Edited shared/src/session.ts | 2→5 lines | ~72 |
+| 20:49 | Edited shared/src/session.ts | 1→2 lines | ~48 |
+| 20:49 | Edited shared/src/session.ts | added 2 condition(s) | ~369 |
+| 20:49 | Edited server/src/index.ts | modified streaming() | ~166 |
+| 20:51 | Created shared/src/water.test.ts | — | ~1673 |
+| 20:53 | Created ../../../tmp/claude-1000/-home-meketreve-logica-em-jogo/db19e955-fc6c-486f-b997-8fbb992d1b661/scratchpad/dbg.mts | — | ~408 |
+| 20:54 | Edited shared/src/rules.ts | modified if() | ~480 |
+| 20:56 | Edited shared/src/rules.ts | added 1 condition(s) | ~160 |
+| 20:58 | Edited shared/src/session.test.ts | modified busca() | ~234 |
+| 20:59 | Created ../../../tmp/claude-1000/-home-meketreve-logica-em-jogo/db19e955-fc6c-486f-b997-8fbb992d1b661/scratchpad/piramide.mts | — | ~596 |
+| 21:00 | água prioriza desnível mais próximo (fluxo estilo Minecraft, DROP_SEARCH=4) + teto água/tick (LJ_AGUA_TICK) — pirâmide vira fio, não disco | rules.ts, session.ts, constants.ts, server/index.ts, water.test.ts, session.test.ts | typecheck 0, 304 testes, build ok; pirâmide demo = 12 células | ~9k |
+| 21:01 | Session end: 17 writes across 8 files (rules.ts, constants.ts, session.ts, index.ts, water.test.ts) | 6 reads | ~61728 tok |
+| 21:12 | Edited iniciar-servidor.sh | modified grande() | ~152 |
+| 21:12 | Edited iniciar-servidor.bat | modified grande() | ~128 |
+| 21:10 | expus LJ_AGUA_TICK nos launchers (prompt opcional "água por tick", Enter=256) | iniciar-servidor.sh, iniciar-servidor.bat | sh syntax OK; chain launcher→env→index.ts→session | ~1k |
+| 21:12 | Session end: 19 writes across 10 files (rules.ts, constants.ts, session.ts, index.ts, water.test.ts) | 8 reads | ~64554 tok |
+| 08:41 | Session end: 19 writes across 10 files (rules.ts, constants.ts, session.ts, index.ts, water.test.ts) | 8 reads | ~64554 tok |
+| 08:42 | Edited todo.md | modified BLICO() | ~770 |
+| 21:20 | todo.md: nova seção Deploy/auto-update — launcher faz git pull antes do boot (refino: repo público, clone≠ZIP bug-233, git no Windows, dist versionado, pull só árvore limpa) | todo.md | backlog registrado | ~1k |
+| 08:43 | Session end: 20 writes across 11 files (rules.ts, constants.ts, session.ts, index.ts, water.test.ts) | 9 reads | ~71021 tok |
+
+## Session: 2026-07-23 08:43
+
+| Time | Action | File(s) | Outcome | ~Tokens |
+|------|--------|---------|---------|--------|
+| 08:45 | Edited iniciar-servidor.bat | 3→5 lines | ~84 |
+| 08:45 | Edited iniciar-servidor.bat | 2→2 lines | ~18 |
+| 08:45 | Edited iniciar-servidor.sh | 3→4 lines | ~25 |
+| 08:45 | Edited iniciar-servidor.sh | modified G() | ~103 |
+| 08:45 | opcao 8 (carregar salvo) nao pergunta mais tamanho: PULAR_TAMANHO pula o menu | iniciar-servidor.bat/.sh | verde (bug-489) | ~2k |
+| 08:45 | Session end: 4 writes across 2 files (iniciar-servidor.bat, iniciar-servidor.sh) | 2 reads | ~2966 tok |
+| 08:48 | Edited shared/src/rules.ts | added nullish coalescing | ~287 |
+| 19:34 | Edited client/src/hud.ts | added 1 import(s) | ~23 |
+| 19:34 | Edited client/src/hud.ts | 4→5 lines | ~57 |
+| 19:34 | Edited server/src/index.ts | modified interceptarProfile() | ~334 |
+| 19:35 | Created ../../../tmp/claude-1000/-home-meketreve-logica-em-jogo/cd337f12-f500-4265-b245-12e92188425a/scratchpad/resumo.mjs | — | ~527 |
+| 19:35 | Created registros/README.md | — | ~316 |
+| 19:36 | Created ../../../tmp/claude-1000/-home-meketreve-logica-em-jogo/cd337f12-f500-4265-b245-12e92188425a/scratchpad/genlog.mjs | — | ~776 |
+| 19:36 | Edited .gitignore | 2→5 lines | ~40 |
+| 19:38 | perfilador anonimo: +versao:VERSION no corpo, sem nome no filename | hud.ts, server/index.ts | verde | ~3k |
+| 19:38 | profiles-escola removido do tracking + gitignore; resumo agregado | .gitignore, registros/ | 52 perfis anonimos | ~4k |
+| 19:38 | fix typecheck rules.ts (noUncheckedIndexedAccess, bug-490) | shared/rules.ts | typecheck 0 | ~2k |
+| 19:38 | wrap-up sessao 17: STATUS/cerebrum/anatomy + commit+push acumulado | .wolf/* | pronto p/ push | ~3k |

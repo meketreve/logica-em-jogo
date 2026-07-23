@@ -142,16 +142,64 @@ export const BlockId = {
    *  mesher (funde com água vizinha → só a casca do volume aparece). SEM fluxo /
    *  espalhamento — fluido dinâmico é fase própria. */
   Agua: 129,
+  /** Água FLUIDA (2026-07-22): 7 níveis de fluxo (7 = quase cheia / queda,
+   *  1 = ponta rasa; 0 seca). A FONTE é `Agua` (129, nível 8). O nível vira o
+   *  alcance máximo do espalhamento horizontal (fonte alcança 7 células). Cubo
+   *  CHEIO no mesher v1 (visual em degrau; altura-por-nível é refino futuro).
+   *  NUNCA vão à hotbar — só o balde (fonte) e o `waterRule` (fluxo) criam. */
+  AguaFluida1: 130,
+  AguaFluida2: 131,
+  AguaFluida3: 132,
+  AguaFluida4: 133,
+  AguaFluida5: 134,
+  AguaFluida6: 135,
+  AguaFluida7: 136,
 } as const;
 
 export type BlockId = (typeof BlockId)[keyof typeof BlockId];
 
 /** Maior ID válido (mantém isPlaceable sem número mágico ao crescer a lista). */
-const MAX_BLOCK_ID = BlockId.Agua;
+const MAX_BLOCK_ID = BlockId.AguaFluida7;
 
-/** Água? Bloco de fluido estático — atravessável e translúcido. */
+/** Água? Fonte (129) OU fluida (130-136) — atravessável e translúcida. */
 export function isAgua(id: number): boolean {
+  return id >= BlockId.Agua && id <= BlockId.AguaFluida7;
+}
+
+/** Bloco-FONTE de água (nível 8, permanente)? Só o balde cheio e a regra de
+ *  água infinita criam. O fluxo (AguaFluida1..7) recua/seca; a fonte não. */
+export function isAguaFonte(id: number): boolean {
   return id === BlockId.Agua;
+}
+
+/** Nível do fluido: 8 = fonte, 7..1 = fluida (7 mais alta), 0 = não é água.
+ *  O `waterRule` decrementa o nível a cada célula de distância (alcance 7). */
+export function aguaNivel(id: number): number {
+  if (id === BlockId.Agua) return 8;
+  if (id >= BlockId.AguaFluida1 && id <= BlockId.AguaFluida7) {
+    return id - BlockId.AguaFluida1 + 1;
+  }
+  return 0;
+}
+
+/** Id da água para um nível: 8+ = fonte, 7..1 = fluida, ≤0 = ar (seca). */
+export function aguaComNivel(n: number): number {
+  if (n >= 8) return BlockId.Agua;
+  if (n >= 1) return BlockId.AguaFluida1 + (n - 1);
+  return BlockId.Air;
+}
+
+/** ITENS (2026-07-22): não são BLOCOS — ficam ACIMA da faixa de ids de bloco,
+ *  então `isPlaceable` os recusa (nunca entram no mundo por place_block). O
+ *  balde é o único item hoje. Estado cheio/vazio = 2 ids que trocam no uso (o
+ *  slot da hotbar guarda qual). Cheio despeja FONTE de água; vazio recolhe uma
+ *  fonte de volta. A água só existe no mundo via balde (ou via o fluxo). */
+export const ITEM_BALDE_VAZIO = 900;
+export const ITEM_BALDE_AGUA = 901;
+
+/** É o item balde (cheio ou vazio)? */
+export function isBalde(id: number): boolean {
+  return id === ITEM_BALDE_VAZIO || id === ITEM_BALDE_AGUA;
 }
 
 /** SUBSTITUÍVEL? Colocar um bloco por cima sobrescreve direto, sem quebrar
@@ -218,7 +266,7 @@ export function isTransparentBlock(id: number): boolean {
   return (
     id === BlockId.Glass || id === BlockId.Leaves ||
     id === BlockId.FolhasIpe || id === BlockId.FolhasAraucaria ||
-    id === BlockId.FolhasPauBrasil || id === BlockId.Agua
+    id === BlockId.FolhasPauBrasil || isAgua(id)
   );
 }
 
@@ -369,6 +417,7 @@ export function isSolidBlock(id: number): boolean {
 export function isPlaceable(id: number): boolean {
   if (isPortaAberta(id)) return false; // porta aberta (base OU R) só nasce alternando uma fechada
   if (isJanelaAberta(id)) return false; // idem janela aberta
+  if (isAgua(id)) return false; // água só via balde/fluxo — nunca por place_block cru
   return Number.isInteger(id) && id >= BlockId.Grass && id <= MAX_BLOCK_ID;
 }
 

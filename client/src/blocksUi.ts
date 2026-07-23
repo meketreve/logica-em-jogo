@@ -1,4 +1,4 @@
-import { BlockId, GLYPH, isProfessorOnly } from "@logica/shared";
+import { BlockId, GLYPH, ITEM_BALDE_AGUA, isProfessorOnly } from "@logica/shared";
 
 /**
  * Blocos colocáveis com nome em português — fonte única pra hotbar (main.ts)
@@ -10,7 +10,13 @@ import { BlockId, GLYPH, isProfessorOnly } from "@logica/shared";
  * painel; a ordem/scroll da hotbar não muda.
  */
 
-export type Categoria = "blocos" | "vegetacao" | "mobilia" | "minerios" | "glifos";
+export type Categoria =
+  | "blocos"
+  | "vegetacao"
+  | "mobilia"
+  | "minerios"
+  | "ferramentas"
+  | "glifos";
 
 /** Abas do inventário, na ordem de exibição. */
 export const CATEGORIAS: readonly { id: Categoria; label: string }[] = [
@@ -18,6 +24,7 @@ export const CATEGORIAS: readonly { id: Categoria; label: string }[] = [
   { id: "vegetacao", label: "vegetação" },
   { id: "mobilia", label: "mobília" },
   { id: "minerios", label: "minérios" },
+  { id: "ferramentas", label: "ferramentas" },
   { id: "glifos", label: "letras e números" },
 ];
 
@@ -113,8 +120,10 @@ export const PLACEABLE: readonly PlaceableEntry[] = [
   { id: BlockId.LogPauBrasil, name: "tronco de pau-brasil", cat: "vegetacao" },
   { id: BlockId.FolhasPauBrasil, name: "folhas de pau-brasil", cat: "vegetacao" },
   { id: BlockId.Mandacaru, name: "mandacaru", cat: "vegetacao" },
-  // Água (2026-07-21): bloco de terreno atravessável (nada dentro)
-  { id: BlockId.Agua, name: "água", cat: "blocos" },
+  // Balde de água (2026-07-22): ITEM (não-bloco). Clique direito DESPEJA fonte;
+  // esvazia na mão → clique direito numa fonte RECOLHE. A água só entra no
+  // mundo por aqui (o id de bloco saiu da hotbar). Ver ITEM_BALDE_* em blocks.ts.
+  { id: ITEM_BALDE_AGUA, name: "balde de água", cat: "ferramentas" },
 ];
 
 /** Colocáveis visíveis PARA ESTE PAPEL: o aluno não vê rocha-matriz (autoria

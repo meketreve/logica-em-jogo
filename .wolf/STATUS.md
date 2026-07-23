@@ -1,6 +1,80 @@
 # STATUS — Projeto "Lógica em Jogo" (jogo voxel educacional)
 
 > Single source of truth for resuming work. Read this FIRST when starting a session.
+> **SESSÃO 17 (2026-07-23) — LAUNCHER opção 8 + PERFILADOR ANÔNIMO + registros/. ✅ COMMITADO + PUSHADO.**
+> Pedidos do usuário nesta sessão: (1) **launcher opção [8] (carregar mundo salvo) não perguntar
+> tamanho** — o save já tem as dimensões. FIX (.bat e .sh): ao escolher um save válido marca
+> `PULAR_TAMANHO=1` e pula o menu de tamanho (bug-489). (2) **Perfilador ANÔNIMO + versão**:
+> `hud.ts stats()` agora carrega `versao: VERSION` (import @logica/shared); o host parou de pôr o
+> nome do aluno no arquivo — filename virou `perf-<timestamp>-<sufixo>.json` (index.ts
+> `interceptarProfile`), corpo já era anônimo. (3) **profiles-escola/**: era TRACKED (nomes de aluno
+> no histórico desde a sessão 12) — removido do tracking + gitignored (`/profiles-escola/`); os 52
+> JSONs crus deletados; resumo AGREGADO e anônimo salvo em `registros/perfilador-v0.8.0-escola.md`
+> (FPS 25–90, tick servidor <5.4ms). (4) **registros/** NOVA pasta na raiz (README + log) =
+> memória de evolução fora do `.wolf/`; prints de marcos vão em `registros/prints/` (ainda vazia —
+> capturas headless de dev não são guardadas hoje). **DE QUEBRA: bug-490** — STATUS da sessão 16
+> alegava "typecheck 0" mas rules.ts tinha 3 erros (`noUncheckedIndexedAccess` + `for(let i)` com
+> `LADOS[i]`/`custo[i]`); troquei por `LADOS.entries()` + narrow. **VERDE de verdade: typecheck 0,
+> 304 testes, build ok.** Esta sessão fechou o PUSH ACUMULADO das sessões 14/15/15b/15c/16/17
+> (água fluida + balde, hitbox real dos não-cubos, água transparente, fluxo priorizado, launcher,
+> perfilador anônimo). **PENDENTE p/ próxima:** o PLAYTEST no browser de TODA a água acumulada
+> (balde/fonte/fluir/cair/secar/nadar/pulo de saída + fluxo-em-fio na cascata-pirâmide + FPS) e o
+> **RELATÓRIO** (entregável final — preencher campos de sala). Histórico do git ainda contém os
+> nomes antigos em profiles-escola (purga de history = force-push, quebra clones da escola — NÃO
+> feito de propósito; só remoção do tracking daqui pra frente).
+> **SESSÃO 16 (2026-07-22) — FLUXO DE ÁGUA PRIORIZA O DESNÍVEL (estilo Minecraft) + TETO/TICK. NÃO commitado; PLAYTEST no browser PENDENTE.**
+> Relato do usuário: FPS morre (Xeon/RTX2060) numa cascata em forma de PIRÂMIDE com água só de um
+> lado — "a água dá a volta na pirâmide, tá muito lateralizado". Causa: `waterRule` (rules.ts)
+> espalhava pros 4 lados IGUALMENTE (disco) → cada degrau da pirâmide enchia toda a superfície e
+> cascateava pelas 4 faces → centenas de células ativas = tick + REMESH afogados. Decisões do
+> usuário (AskUserQuestion): (1) alcance da busca = 4 blocos (padrão Minecraft); (2) SIM ao teto
+> de água/tick. **FIX (rules.ts):** cada célula de água em chão sólido faz busca em profundidade
+> (`passosAteQueda`, `DROP_SEARCH=4`) pela QUEDA mais próxima e só escorre PRA LÁ; sem queda no
+> alcance → espalha nos 4 lados (poça). Água em FIO, não disco (pirâmide de teste: **12 células**
+> vs. centenas). 2 sub-bugs corrigidos no caminho: o custo é medido sobre TODA célula que a água
+> ATRAVESSA (ar OU fluida — `aguaAtravessa`), não só as preenchíveis (`empurra[]` separado), senão
+> a direção do desnível já-cheia saía da conta e floodava perpendicular; e `temQueda` conta descida
+> em AR **e ÁGUA FLUIDA** embaixo (ao encher o buraco a coluna vira água — se só ar contasse, o
+> alvo "sumia" e voltava ao disco). **TETO/TICK (session.ts):** `AGUA_POR_TICK_PADRAO=256`
+> (constants.ts), opt `aguaPorTick`, env host `LJ_AGUA_TICK` (espelha `LJ_COLUNAS_TICK`); no tick
+> conta só água que MUDA, excedente volta pra `dirty` (escorre no tick seguinte); água parada não
+> gasta orçamento. **VERDE: typecheck 0, 304 testes (+2 água: prioriza-desnível/não-dá-a-volta e
+> poça-sem-queda; 6 testes de canal 1-wide viraram plano cheio pq a água agora escorre pelas beiras
+> — correto; 1 teste de session de plataforma 1-wide idem), build ok.** **PENDENTE:** PLAYTEST no
+> browser (fazer a cascata-pirâmide e ver o fio descer uma face só + FPS) e o `git push` acumulado
+> das sessões 15/15b/15c/16. `LJ_AGUA_TICK` JÁ exposto nos launchers .bat/.sh (prompt opcional
+> "água por tick — só se o FPS cair", Enter = padrão 256).
+> **SESSÃO 15c (2026-07-22) — ÁGUA FLUIDA (autômato celular) + ITEM BALDE. NÃO commitado; PLAYTEST no browser PENDENTE.**
+> Decisões do usuário (AskUserQuestion, 2 rodadas): (1) v1 CUBO CHEIO (nível=alcance, não altura visual;
+> altura-por-nível fica p/ refino); (2) água INFINITA (2 fontes+chão→fonte); (3) fonte via ITEM BALDE (não
+> bloco na hotbar); (4) fluxo SEMPRE LIGADO (sem comando de professor); (5) balde RECOLHE (cheio↔vazio);
+> (6) o bloco de água 129 SAIU da hotbar (só balde/fluxo criam água).
+> **NÚCLEO (shared, testado):** ids `Agua`=129 vira a FONTE (nível 8); `AguaFluida1..7`=130-136 (nível=alcance,
+> 7 mais alta). `blocks.ts`: `isAgua` vira FAIXA 129-136; novos `isAguaFonte`/`aguaNivel`/`aguaComNivel`;
+> `isReplaceable`/`isTransparentBlock` cobrem a faixa; `isPlaceable` RECUSA água (só balde). `waterRule`
+> (rules.ts) na REGRA DE OURO (registrado p/ os 8 ids): cada célula recomputa o próprio nível (enche E
+> seca) e EMPURRA água — AR embaixo → CAI (coluna cheia 7, sem lateral, sem disco flutuante); chão SÓLIDO
+> (cubo cheio NÃO-água) embaixo → espalha 4 lados com nível−1; infinito = fluida em chão sólido com ≥2
+> fontes laterais vira FONTE. Fonte permanente (só balde/bloco-por-cima remove); alcance 7 = bounded (não
+> trava tablet). O tick do servidor JÁ roda tudo (rule no RULES + dirty + applyBlock broadcast) — ZERO
+> mudança na engenharia do tick. `mesher.ts`: os 7 ids fluidos = tile da água; água (fonte OU fluida)
+> roteada p/ `waterIndices` (grupo transparente); culling FUNDE água-com-água de QUALQUER nível (sem
+> z-fight). **BALDE (item, não-bloco):** `ITEM_BALDE_VAZIO`=900/`ITEM_BALDE_AGUA`=901 + `isBalde` em
+> blocks.ts (acima da faixa de bloco → nunca colocável). Msg nova `balde{x,y,z,encher}` (protocol.ts) +
+> handler no session.ts (mesma disciplina de place/break: join/bounds/alcance/claim/confinamento; encher=false
+> despeja FONTE em ar/substituível, encher=true recolhe SÓ fonte). `raycastBlock` ganhou `pararNaAgua` (balde
+> vazio mira a água p/ recolher; senão água invisível pra mira). Cliente: entrada "balde de água" (cat nova
+> "ferramentas") em blocksUi; ícone procedural do balde (blockIcons `drawBalde`, cheio=água azul); main.ts —
+> botão esq com balde não quebra; botão dir com balde faz água (cheio despeja em target+normal e esvazia o
+> slot; vazio recolhe a fonte mirada só se for id Agua e enche o slot); raycast passa pararNaAgua quando slot
+> = balde vazio. **VERDE: typecheck 0, 302 testes (+10: 6 water.test fluxo/queda/seca/infinita, blocks nível↔id,
+> session balde+integração-pelo-tick, protocol balde), build ok, boot do host ok (v0.8.0).**
+> **PENDENTE:** (a) PLAYTEST no browser — balde na hotbar (aba ferramentas), despejar fonte (clique dir),
+> ver fluir/cair/secar, encher lago com 2 fontes (infinito), recolher com balde vazio; nadar no fluxo.
+> (b) `git push` (sessões 15/15b/15c acumuladas sem push). (c) Refinos deixados p/ depois: altura-visual-por-nível
+> no mesher; RESTORE do save re-tica a água (hoje fluxo salvo fica congelado até algo encostar — água antiga
+> vira fonte que só flui quando editada perto; aceitável v1); orçamento de células/tick (hoje o alcance-7
+> já limita; sem teto explícito).
 > **SESSÃO 15b (2026-07-22) — HITBOX REAL DOS NÃO-CUBOS NO RAYCAST DE MIRA.** `raycastBlock`
 > (raycast.ts) agora, ao entrar em célula com NÃO-cubo (`!isFullCube`), faz ray-vs-AABB
 > (`subBoxNormal`, slab test) contra `blockSelectionBox(id)` — a MESMA caixa do contorno da mira.

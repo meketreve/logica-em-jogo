@@ -199,6 +199,11 @@ let session = new GameSession(
     ...(Number.isFinite(Number(process.env["LJ_COLUNAS_TICK"])) && process.env["LJ_COLUNAS_TICK"]
       ? { colunasPorTick: Number(process.env["LJ_COLUNAS_TICK"]) }
       : {}),
+    // água (2026-07-22): teto de células de água que mudam por tick — trava
+    // dura de FPS pra cascata gigante; excedente escorre no tick seguinte
+    ...(Number.isFinite(Number(process.env["LJ_AGUA_TICK"])) && process.env["LJ_AGUA_TICK"]
+      ? { aguaPorTick: Number(process.env["LJ_AGUA_TICK"]) }
+      : {}),
   },
 );
 if (session.isLazy) {
@@ -468,9 +473,12 @@ function interceptarBanimento(clientId: number, texto: string): boolean {
 /**
  * `profile_report` (HUD F3 → "enviar pro servidor") mora no HOST porque
  * gravar arquivo é transporte, a GameSession não tem sistema de arquivos —
- * mesmo raciocínio de /mundo e /kicar. Exige join (o nome já sanitizado no
- * join vira parte do nome do arquivo, sem risco de path traversal). Devolve
- * true quando engoliu a mensagem.
+ * mesmo raciocínio de /mundo e /kicar. Exige join. O NOME do jogador NÃO entra
+ * no arquivo (nem no conteúdo, nem no filename) — o perfil é anônimo de
+ * propósito; identifica-se pela versão do jogo + dispositivo (userAgent/GPU).
+ * Filename = timestamp + sufixo aleatório (evita colisão de 2 aparelhos no
+ * mesmo ms; sem path traversal por não vir de dado do usuário). Devolve true
+ * quando engoliu a mensagem.
  */
 function interceptarProfile(clientId: number, texto: string): boolean {
   const msg = parseClientMessage(texto);
@@ -483,9 +491,10 @@ function interceptarProfile(clientId: number, texto: string): boolean {
   }
 
   mkdirSync(PASTA_PROFILES, { recursive: true });
-  const nomeArquivo = `perf-${quem.name}-${Date.now()}.json`;
+  const sufixo = Math.random().toString(36).slice(2, 6);
+  const nomeArquivo = `perf-${Date.now()}-${sufixo}.json`;
   writeFileSync(resolve(PASTA_PROFILES, nomeArquivo), JSON.stringify(msg.stats, null, 2));
-  console.log(`[server] perfil recebido de ${quem.name} → profiles/${nomeArquivo}`);
+  console.log(`[server] perfil recebido → profiles/${nomeArquivo}`);
   falarCom(clientId, `Perfil salvo no servidor: ${nomeArquivo}`);
   return true;
 }

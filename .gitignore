@@ -10,6 +10,9 @@ chrome/
 *.ljw.tmp
 *.ljw.corrompido-*
 /profiles/
+# perfis crus do perfilador (podem ter dado de aparelho) — só o resumo agregado
+# e anônimo em registros/ é versionado.
+/profiles-escola/
 
 # mundos vivos (saves da turma) — ficam locais no host, não versionados.
 # Os MODELOS distribuídos ficam em cenarios/ (esses sim versionados).

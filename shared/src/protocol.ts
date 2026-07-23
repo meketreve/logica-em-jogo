@@ -35,6 +35,10 @@ export type ClientMessage =
   /** Clique direito num bloco INTERATIVO (cp23: porta) — o servidor decide o
    *  efeito (alternar aberta/fechada) e responde com block_changed normais. */
   | { type: "use_block"; x: number; y: number; z: number }
+  /** Balde (2026-07-22): `encher=false` (balde cheio) DESPEJA fonte de água na
+   *  célula; `encher=true` (balde vazio) RECOLHE a fonte de volta. Servidor
+   *  valida célula/alcance/gates de claim/confinamento e aplica via applyBlock. */
+  | { type: "balde"; x: number; y: number; z: number; encher: boolean }
   /** Quadro (2026-07-19): define o CONTEÚDO do quadro naquela célula (texto
    *  e/ou imagem data URL pequena). Servidor valida célula/alcance/gates e
    *  responde com quadro_changed broadcast. Texto vazio sem imagem = limpa. */
@@ -347,6 +351,18 @@ export function parseClientMessage(raw: string): ClientMessage | null {
         x: m["x"] as number,
         y: m["y"] as number,
         z: m["z"] as number,
+      };
+    }
+    case "balde": {
+      const ints = [m["x"], m["y"], m["z"]];
+      if (!ints.every((n) => typeof n === "number" && Number.isInteger(n))) return null;
+      if (typeof m["encher"] !== "boolean") return null;
+      return {
+        type: "balde",
+        x: m["x"] as number,
+        y: m["y"] as number,
+        z: m["z"] as number,
+        encher: m["encher"] as boolean,
       };
     }
     case "quadro_set": {

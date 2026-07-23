@@ -1,6 +1,7 @@
 import {
   BlockId,
   camaHeadDir,
+  isAgua,
   isCadeira,
   isCama,
   isFlor,
@@ -204,6 +205,11 @@ const BLOCK_TILES: Record<number, FaceTiles> = {
   // vizinha, mostra só a casca); não-sólido só pra física (blocks.ts).
   [BlockId.Agua]: uniform(TILE.agua),
 };
+// água fluida (2026-07-22): os 7 níveis usam o MESMO tile da fonte (v1 cubo
+// cheio; a altura-por-nível é refino futuro).
+for (let id = BlockId.AguaFluida1; id <= BlockId.AguaFluida7; id++) {
+  BLOCK_TILES[id] = uniform(TILE.agua);
+}
 
 // móveis direcionais: mesmo ícone pras 4 direções
 for (let k = 0; k < 4; k++) {
@@ -714,8 +720,8 @@ export function meshChunk(world: World, cx: number, cy: number, cz: number): Chu
         }
         const tiles = BLOCK_TILES[id];
         if (!tiles) continue;
-        // água → grupo transparente separado; resto → grupo opaco
-        const idxTarget = id === BlockId.Agua ? waterIndices : indices;
+        // água (fonte OU fluida) → grupo transparente separado; resto → opaco
+        const idxTarget = isAgua(id) ? waterIndices : indices;
 
         for (const face of FACES) {
           const neighbor = getBlock(
@@ -732,6 +738,8 @@ export function meshChunk(world: World, cx: number, cy: number, cz: number): Chu
           if (neighbor !== BlockId.Air) {
             if (!isFullCube(neighbor)) {
               // vizinho é forma: minha face aparece
+            } else if (isAgua(id) && isAgua(neighbor)) {
+              continue; // água funde com água (fonte/fluida, QUALQUER nível)
             } else if (!isTransparentBlock(neighbor) || neighbor === id) {
               continue;
             }
