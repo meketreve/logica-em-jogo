@@ -22,6 +22,15 @@
 > **RELATÓRIO** (entregável final — preencher campos de sala). Histórico do git ainda contém os
 > nomes antigos em profiles-escola (purga de history = force-push, quebra clones da escola — NÃO
 > feito de propósito; só remoção do tracking daqui pra frente).
+> **PRÓXIMA QUEST (parkada 2026-07-23) — PRINTS DE PONTOS-CHAVE p/ apresentação:** montar render
+> headless (receita no cerebrum Key Learnings 2026-07-20: `fuser -k`, NUNCA `kill $!`) e capturar ~6
+> cenas em `registros/prints/`: (1) menu/título c/ badge de versão; (2) mundo procedural com os 4
+> biomas BR (caatinga/cerrado/mata/araucária); (3) água fluindo (cascata); (4) uma aula (aula1
+> sequência de cores OU aula2 binário); (5) construção livre (móveis/quadro); (6) HUD F3 (perfilador).
+> Multiplayer é difícil headless → print manual do usuário se quiser. Decisão do usuário: SÓ alguns
+> prints de pontos-chave (não capturar tudo). **DECISÃO (2026-07-23):** histórico do git NÃO será
+> purgado — só primeiros nomes/apelidos (baixo risco) e purga (force-push) quebraria os clones da
+> escola; o fix desta sessão resolve o vazamento daqui pra frente, o passado fica.
 > **SESSÃO 16 (2026-07-22) — FLUXO DE ÁGUA PRIORIZA O DESNÍVEL (estilo Minecraft) + TETO/TICK. NÃO commitado; PLAYTEST no browser PENDENTE.**
 > Relato do usuário: FPS morre (Xeon/RTX2060) numa cascata em forma de PIRÂMIDE com água só de um
 > lado — "a água dá a volta na pirâmide, tá muito lateralizado". Causa: `waterRule` (rules.ts)

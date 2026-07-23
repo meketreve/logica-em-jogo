@@ -2365,3 +2365,4 @@ NÃO commitado; playtest no browser PENDENTE. Refinos adiados: altura-visual, re
 | 19:38 | profiles-escola removido do tracking + gitignore; resumo agregado | .gitignore, registros/ | 52 perfis anonimos | ~4k |
 | 19:38 | fix typecheck rules.ts (noUncheckedIndexedAccess, bug-490) | shared/rules.ts | typecheck 0 | ~2k |
 | 19:38 | wrap-up sessao 17: STATUS/cerebrum/anatomy + commit+push acumulado | .wolf/* | pronto p/ push | ~3k |
+| 19:40 | Session end: 12 writes across 9 files (iniciar-servidor.bat, iniciar-servidor.sh, rules.ts, hud.ts, index.ts) | 6 reads | ~18464 tok |

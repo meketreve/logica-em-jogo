@@ -1363,3 +1363,15 @@ regra automática (areia caindo não é grief). NÚMEROS a confirmar: MAX_CLAIM_
   `WEBGL_debug_renderer_info` (`UNMASKED_RENDERER_WEBGL`), cacheável. `navigator.deviceMemory`
   = RAM aproximada DO APARELHO (não uso). Profiler grava 10s e agrega (só o resumo vai no fio,
   respeita `MAX_PROFILE_REPORT_CHARS=8192` — nunca o array de frames cru).
+
+### 2026-07-23 — Decision Log (privacidade do perfilador + prints)
+- **Nome do aluno NÃO é dado de perfil.** Perfilador é anônimo: identifica versão
+  (`versao:VERSION`) + dispositivo (userAgent/GPU), nunca aluno. Filename do host sem nome.
+  JSONs crus gitignored; só resumo agregado anônimo em `registros/` é versionado. Ver Do-Not-Repeat.
+- **Histórico do git NÃO será purgado.** profiles-escola tinha nomes tracked (sessão 12, repo
+  PÚBLICO github.com/meketreve/logica-em-jogo). Decisão do usuário: purga (filter-repo/BFG =
+  force-push) é prejudicial — quebraria os clones da escola — e o risco é baixo (só primeiros
+  nomes/apelidos). Remoção do tracking + gitignore resolve o vazamento futuro; o passado fica.
+- **Prints de apresentação = parkado.** Fazer SÓ alguns prints de pontos-chave (não capturar tudo)
+  em `registros/prints/` na próxima sessão. Lista de cenas no STATUS/todo. Repo é PÚBLICO — ao
+  render headless usar `fuser -k` p/ liberar a porta, NUNCA `kill $!` (mata o processo errado).
