@@ -1,6 +1,37 @@
 # STATUS — Projeto "Lógica em Jogo" (jogo voxel educacional)
 
 > Single source of truth for resuming work. Read this FIRST when starting a session.
+> **SESSÃO 18 (2026-07-23) — PRINTS DE PONTOS-CHAVE (6) + BUG-495 (TDZ no boot do vite DEV; prod OK) + hook ?yaw/?pitch. ✅ COMMITADO + PUSHADO.**
+> Usuário pediu: "faz os prints enquanto eu faço a playtest". Montei render headless e capturei
+> **6 prints em `registros/prints/`** (README indexa cada um): `01-menu.png` (título + badge v0.8.0),
+> `02-biomas.png` (mundo procedural seed 314 = mata + ipê dourado + serra rochosa/nevada, vários
+> biomas num quadro), `03-agua.png` (CASCATA de água transparente caindo numa bacia — água fluida),
+> `04-aula.png` (aula1 sequência de cores: painel de objetivos "4/12" + região-alvo + padrão no chão),
+> `05-construcao.png` (sala mobiliada: parede + 2 quadros c/ texto + sofá + cama + mesa+cadeira +
+> tapete + flores), `06-hud-f3.png` (perfilador F3 completo sobre a paisagem). **QUEST PARKADA DOS
+> PRINTS = FEITA.** ⚠️ Caveats headless: menu com emoji-quadradinho (falta fonte emoji no chrome —
+> num PC real aparece); HUD mostra **FPS 8** = swiftshader SOFTWARE do headless, NÃO hardware (no PC
+> da escola é 60–90, documentado sessão 12). **DE QUEBRA — BUG-495 (TDZ, só no vite DEV):** ao rodar o
+> client headless (dev) descobri `ReferenceError: Cannot access 'touchControls' before initialization`
+> em `main.ts` (`applySettings()` no top-level lia `touchControls?.setScale` mas o `let touchControls`
+> estava declarado ABAIXO da chamada → TDZ; `?.` NÃO salva de TDZ). **SÓ afeta o vite DEV server** (ESM
+> nativo, ordem de topo estrita) — o BUILD de produção (o que a escola roda) NÃO disparava o TDZ: o
+> usuário **rodou com a turma em 2026-07-23 e funcionou normal, playtest da água inclusive ("ficou
+> top")**. Ficou latente no DEV porque ninguém abriu o vite dev desde a sessão 12 (13–17 deferiram
+> playtest de browser); apareceu agora nos prints. **FIX:** movi `let touchControls` pra ANTES de
+> `applySettings()` (mesmo padrão de bug-093/activePanel e do ?yaw-TDZ) — tira o TDZ latente independente
+> do bundler. **VERDE: typecheck 0 (3/3), 304 testes.** **DE QUEBRA 2:** o hook de screenshot `?yaw`
+> estava QUEBRADO (o `applyTeleport` do join sobrescrevia com o yaw do spawn) — fiz `?yaw`/`?pitch`
+> (novo) vencerem o spawn; sem isso não dá pra enquadrar screenshot nenhum. **COMMITADO EM 3 COMMITS
+> SEPARADOS + PUSHADO** (fix client / prints / chore wolf). **PENDENTE p/ próxima:** só o **RELATÓRIO**
+> (entregável final — preencher campos de sala). Playtest (mundo procedural + água) já FEITO e aprovado
+> pelo usuário. Escola: `git pull` pega o fix do dev + os 6 prints.
+> **Receita dos prints (cerebrum Key Learnings 2026-07-23):** vite dev em porta própria (5199) +
+> game server com `LJ_SAVE` em scratchpad (NUNCA `mundos/mundo-livre` = mundo do usuário) + chrome
+> headless dirigido por CDP (`scratchpad/capture.mjs`: navega, espera, teclas F3, esconde `#overlay`
+> de pausa que aparece sem pointer-lock, screenshot). Água/móveis headless = CONSTRUIR via ws
+> (`scratchpad/build.mjs`: join → lê spawn → place_block/balde/quadro_set; `PLAYER_REACH=7`); a água
+> precisa de CAIXA de contenção senão inunda e afoga a câmera. Aula pra screenshot: `LJ_SAVE=cenarios/aulaN.ljw` (modelo read-only, semeia cópia viva em mundos/, não escreve no tracked).
 > **SESSÃO 17 (2026-07-23) — LAUNCHER opção 8 + PERFILADOR ANÔNIMO + registros/. ✅ COMMITADO + PUSHADO.**
 > Pedidos do usuário nesta sessão: (1) **launcher opção [8] (carregar mundo salvo) não perguntar
 > tamanho** — o save já tem as dimensões. FIX (.bat e .sh): ao escolher um save válido marca

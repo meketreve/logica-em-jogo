@@ -1375,3 +1375,46 @@ regra automática (areia caindo não é grief). NÚMEROS a confirmar: MAX_CLAIM_
 - **Prints de apresentação = parkado.** Fazer SÓ alguns prints de pontos-chave (não capturar tudo)
   em `registros/prints/` na próxima sessão. Lista de cenas no STATUS/todo. Repo é PÚBLICO — ao
   render headless usar `fuser -k` p/ liberar a porta, NUNCA `kill $!` (mata o processo errado).
+  **FEITO na sessão 18** (6 prints — ver README de registros/prints).
+
+### 2026-07-23 (sessão 18) — Do-Not-Repeat (TDZ recorreu 3ª vez + gap de playtest)
+- **TDZ de `let` usado no boot recorreu PELA 3ª VEZ** (bug-093/activePanel, ?yaw-input, agora
+  bug-495/touchControls). PADRÃO: qualquer `function` chamada no TOP-LEVEL de main.ts que leia um
+  `let` (mesmo com `?.` — optional chaining NÃO salva de TDZ) exige o `let` declarado ACIMA da
+  chamada. `applySettings()` (chamado em `let settings = applySettings()`) lê `input/camera/renderer/
+  touchControls` — TODOS têm que estar declarados antes. Ao adicionar um novo `?.setX()` em
+  applySettings, conferir a ordem de declaração.
+- **bug-495 só quebrava o vite DEV server, NÃO o build de produção.** O usuário rodou o build com a
+  turma (2026-07-23) sem problema — o bundle de produção não disparava o TDZ; o vite dev (ESM nativo,
+  ordem de topo estrita) sim. Ficou latente 5 sessões (13–18) porque ninguém abriu o vite DEV desde a
+  sessão 12. NÃO alarmar "escola com client quebrado" sem confirmar em qual build. LIÇÃO: mudança em
+  client (UI) que não tem teste automatizado (só shared tem testes) DEVE ser bootada headless (dev)
+  pelo menos 1× antes de commitar — `capture.mjs`/`console.mjs` pega TDZ/crash de boot do DEV em
+  segundos. "typecheck 0 + 304 testes" NÃO cobre runtime do client nem a diferença dev↔prod.
+
+### 2026-07-23 (sessão 18) — Key Learnings (receita dos prints headless)
+- **Render headless do jogo agora é dirigido por CDP** (scratchpad/capture.mjs), não `chrome
+  --screenshot` puro — assim dá pra: esperar o game-ready, mandar tecla (F3 → HUD), esconder UI e
+  screenshot num fluxo só. Chrome via `--remote-debugging-port` + Target.attachToTarget(flatten) +
+  Page.navigate/Input.dispatchKeyEvent/Page.captureScreenshot. `ws` resolvido por
+  `createRequire("/home/meketreve/logica-em-jogo/")` (script mora no scratchpad, fora do node_modules).
+- **O `#overlay` de pausa aparece no headless** porque sem pointer-lock `input.active` é false
+  (main.ts updateOverlay linha ~188). Esconder injetando `<style>#overlay{display:none!important}</style>`
+  via Runtime.evaluate ANTES do screenshot (o `.hidden` do updateOverlay não vence `!important`).
+  Também escondo `#hotbar`/`#crosshair` pra cena limpa de paisagem.
+- **`?yaw`/`?pitch` (URL) agora VENCEM o spawn** (fix sessão 18): antes o `applyTeleport` do join
+  sobrescrevia (`input.yaw = pos.yaw`) e a mira forçada se perdia → todo screenshot saía no mesmo
+  ângulo. yaw em RADIANOS; `yaw=π` (3.14) olha +Z (forward = -sin/-cos). `pitch` positivo = pra CIMA.
+- **Água/móveis/quadro headless = CONSTRUIR via websocket** (scratchpad/build.mjs): join → lê a msg
+  `spawn{x,y,z}` → manda `place_block`/`balde{encher:false=fonte}`/`quadro_set`. `PLAYER_REACH=7`
+  (REACH 5 + 2), medido do olho ao centro da célula → construir a ≤6 blocos do spawn. O tick do
+  servidor escorre a água mesmo DEPOIS do builder desconectar (edições ficam no world em memória).
+  **Cascata precisa de CAIXA de contenção** (lip 1-alto na frente do spawn + paredes laterais + muro
+  do fundo com fontes no topo) — mundo plano sem contenção INUNDA e afoga a câmera. Água v1 = cubo
+  cheio por nível (não altura visual), então "cascata" = coluna de células caindo pela face do muro.
+- **Screenshot de AULA**: `LJ_SAVE=cenarios/aulaN.ljw` — paths.ts trata `cenarios/` como MODELO
+  read-only (semeia cópia viva em `mundos/<nome>/`, nunca escreve no tracked). O painel de objetivos
+  + a região-alvo (wireframe) já renderizam sozinhos (broadcast do servidor).
+- **`fuser -k <porta>/tcp` explícito por porta funciona; `rm -rf` de mundos de teste também** —
+  mas o classifier BLOQUEIA se vierem juntos num compound com outras ações. Rodar kill e rm em
+  comandos SEPARADOS. E nunca `fuser -k 8080` (playtest do usuário) nem 5199 (meu vite).

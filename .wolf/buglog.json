@@ -8003,10 +8003,124 @@
       "file": "shared/src/rules.ts",
       "root_cause": "noUncheckedIndexedAccess:true no tsconfig.base. O fluxo priorizado da agua (sessao 16) iterou com 'for (let i...)' + LADOS[i]/custo[i] (index access -> T|undefined); os outros loops do arquivo usam for...of (elemento nao-undefined) e por isso nao acusavam.",
       "fix": "Trocar os dois 'for (let i...)' por 'for (const [i, [dx,dz]] of LADOS.entries())' (elemento tipado readonly [number,number]) e narrow no compare 'custo[i] ?? Infinity'. typecheck 0, 304 testes, build ok.",
-      "tags": ["typecheck", "noUncheckedIndexedAccess", "rules", "agua", "waterRule", "LADOS", "regressao-status"],
-      "related_bugs": ["bug-487", "bug-488"],
+      "tags": [
+        "typecheck",
+        "noUncheckedIndexedAccess",
+        "rules",
+        "agua",
+        "waterRule",
+        "LADOS",
+        "regressao-status"
+      ],
+      "related_bugs": [
+        "bug-487",
+        "bug-488"
+      ],
       "occurrences": 1,
       "last_seen": "2026-07-23T11:48:00.000Z"
+    },
+    {
+      "id": "bug-493",
+      "timestamp": "2026-07-23T23:08:27.176Z",
+      "error_message": "Missing import: ws",
+      "file": "../../../tmp/claude-1000/-home-meketreve-logica-em-jogo/01aa2da2-c249-4bb7-ae33-c0e68e3296c5/scratchpad/capture.mjs",
+      "root_cause": "Module(s) not imported: ws",
+      "fix": "Added import(s) for ws",
+      "tags": [
+        "auto-detected",
+        "missing-import",
+        "mjs"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-23T23:08:27.176Z"
+    },
+    {
+      "id": "bug-494",
+      "timestamp": "2026-07-23T23:12:40.918Z",
+      "error_message": "Type error",
+      "file": "client/src/main.ts",
+      "root_cause": "Missing or incorrect type annotation",
+      "fix": "Added type assertion/annotation",
+      "tags": [
+        "auto-detected",
+        "type-fix",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-23T23:12:40.918Z"
+    },
+    {
+      "id": "bug-495",
+      "timestamp": "2026-07-23T20:20:00.000Z",
+      "error_message": "ReferenceError: Cannot access 'touchControls' before initialization (applySettings no boot) — tela cinza no VITE DEV SERVER (headless). Build de PRODUÇÃO NÃO afetado (usuário rodou com a turma em 2026-07-23 sem problema).",
+      "file": "client/src/main.ts",
+      "root_cause": "applySettings() é chamado no top-level (let settings = applySettings()) e lê touchControls?.setScale(uiScale), mas `let touchControls` era declarado ~11 linhas ABAIXO da chamada → TDZ. Linha touchControls?.setScale entrou na sessão 13 (commit d8ca720, escala da UI de toque). Manifesta no vite DEV (ESM nativo sem bundle, ordem de topo estrita); o BUNDLE de produção (vite build) não disparava o TDZ — por isso o playtest com alunos funcionou. Descoberto na sessão 18 ao rodar o client headless (dev) pra tirar prints. Mesmo PADRÃO de bug-093/activePanel-TDZ e do ?yaw-TDZ: null-let declarado depois de um uso no boot (optional chaining `?.` NÃO salva de TDZ).",
+      "fix": "Movido `let touchControls: TouchControls | null = null;` pra ANTES de `let settings = applySettings();`; deixado comentário-pointer no lugar antigo. Boot do dev volta a chamar showMenu (verificado headless: sem exception, badge v0.8.0 e 3 botões renderizam). Tira o TDZ latente independente do bundler.",
+      "tags": [
+        "tdz",
+        "reference-error",
+        "boot",
+        "main.ts",
+        "touchControls",
+        "applySettings",
+        "regression",
+        "client-crash"
+      ],
+      "related_bugs": [
+        "bug-093"
+      ],
+      "occurrences": 1,
+      "last_seen": "2026-07-23T20:20:00.000Z"
+    },
+    {
+      "id": "bug-496",
+      "timestamp": "2026-07-23T23:26:32.063Z",
+      "error_message": "Missing guard clause",
+      "file": "client/src/main.ts",
+      "root_cause": "No early return/throw for edge case: raw === null",
+      "fix": "Added guard clause: if (raw === null)",
+      "tags": [
+        "auto-detected",
+        "guard-clause",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-23T23:26:32.063Z"
+    },
+    {
+      "id": "bug-497",
+      "timestamp": "2026-07-23T23:26:37.492Z",
+      "error_message": "Null/undefined access in ",
+      "file": "client/src/main.ts",
+      "root_cause": "Property access on potentially null/undefined value",
+      "fix": "Added null safety (optional chaining or null check)",
+      "tags": [
+        "auto-detected",
+        "null-safety",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-23T23:26:37.492Z"
+    },
+    {
+      "id": "bug-498",
+      "timestamp": "2026-07-23T23:36:30.767Z",
+      "error_message": "Significant refactor of ",
+      "file": "../../../tmp/claude-1000/-home-meketreve-logica-em-jogo/01aa2da2-c249-4bb7-ae33-c0e68e3296c5/scratchpad/build.mjs",
+      "root_cause": "10 lines replaced/restructured",
+      "fix": "Rewrote 12→17 lines (10 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "mjs"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-23T23:36:30.767Z"
     }
   ]
 }

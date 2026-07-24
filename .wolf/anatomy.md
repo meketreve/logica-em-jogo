@@ -1,7 +1,13 @@
 # anatomy.md
 
-> Auto-maintained by OpenWolf. Last scanned: 2026-07-23T22:36:41.731Z
-> Files: 141 tracked | Anatomy hits: 0 | Misses: 0
+> Auto-maintained by OpenWolf. Last scanned: 2026-07-23T23:42:01.917Z
+> Files: 147 tracked | Anatomy hits: 0 | Misses: 0
+
+## ../../../tmp/claude-1000/-home-meketreve-logica-em-jogo/01aa2da2-c249-4bb7-ae33-c0e68e3296c5/scratchpad/
+
+- `build.mjs` — Builder via ws: junta num mundo, lê o spawn e constrói uma cena (room|water) (~1108 tok)
+- `capture.mjs` — Driver CDP: spawn chrome headless -> navega -> espera -> teclas -> screenshot. (~1192 tok)
+- `console.mjs` — Diagnóstico: navega e imprime console + exceptions do client. (~727 tok)
 
 ## ../../../tmp/claude-1000/-home-meketreve-logica-em-jogo/1e53a721-e45d-4911-a026-f385f8f2c4e6/scratchpad/
 
@@ -118,11 +124,6 @@
 ## .claude/rules/
 
 
-## registros/
-
-- `README.md` — Registro de evolução do projeto/aplicações: resumos agregados e ANÔNIMOS do perfilador por versão + prints de marcos. JSONs crus (profiles/, profiles-escola/) são gitignored (~430 tok)
-- `perfilador-v0.8.0-escola.md` — Tabela agregada dos 52 perfis do piloto v0.8.0 (dispositivo/GPU/FPS/tick, sem nome de aluno) (~1400 tok)
-
 ## cenarios/
 
 - `README.md` — Project documentation (~1966 tok)
@@ -149,7 +150,7 @@
 - `hud.ts` — HUD de perfilação (F3): FPS, frametime méd+p95, remesh, draw calls e (~3395 tok)
 - `input.ts` — Teclado + mouse (pointer lock). SÓ coleta input — nenhuma decisão de (~1542 tok)
 - `inventory.ts` — Inventário de blocos (cp16) — grade dos colocáveis + faixa da hotbar de 9 (~1449 tok)
-- `main.ts` — O cliente não tem filesystem: aprende os nomes das aulas pela resposta de (~16770 tok)
+- `main.ts` — O cliente não tem filesystem: aprende os nomes das aulas pela resposta de (~16990 tok)
 - `menu.ts` — Menu principal (cp8) — HTML/CSS por cima do canvas, sem GUI de engine. (~4448 tok)
 - `objectivesUi.ts` — Grupo do PRÓPRIO jogador (null = sem grupo). (~1244 tok)
 - `panels.ts` — Painéis HTML do cp14 — açúcar visual sobre os comandos de chat: cada botão (~5944 tok)
@@ -164,7 +165,14 @@
 
 ## registros/
 
+- `perfilador-v0.8.0-escola.md` — Tabela agregada dos 52 perfis do piloto v0.8.0 (dispositivo/GPU/FPS/tick, sem nome de aluno) (~1400 tok)
+- `README.md` — Registro de evolução do projeto/aplicações: resumos agregados e ANÔNIMOS do perfilador por versão + prints de marcos. JSONs crus (profiles/, profiles-escola/) são gitignored (~430 tok)
 - `README.md` — Project documentation (~297 tok)
+
+## registros/prints/
+
+- `README.md` — Índice dos 6 prints de marcos v0.8.0 (o que cada um mostra + caveats do render headless: emoji-quadradinho, FPS 8 = software). Receita de captura no cerebrum (~600 tok)
+- `01-menu.png` .. `06-hud-f3.png` — Prints de pontos-chave (menu+versão, biomas seed 314, cascata d'água, aula1, sala mobiliada, HUD F3). Render headless 1280×720. Versionados (marcos de apresentação)
 
 ## relatorio/
 

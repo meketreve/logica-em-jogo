@@ -2366,3 +2366,22 @@ NÃO commitado; playtest no browser PENDENTE. Refinos adiados: altura-visual, re
 | 19:38 | fix typecheck rules.ts (noUncheckedIndexedAccess, bug-490) | shared/rules.ts | typecheck 0 | ~2k |
 | 19:38 | wrap-up sessao 17: STATUS/cerebrum/anatomy + commit+push acumulado | .wolf/* | pronto p/ push | ~3k |
 | 19:40 | Session end: 12 writes across 9 files (iniciar-servidor.bat, iniciar-servidor.sh, rules.ts, hud.ts, index.ts) | 6 reads | ~18464 tok |
+| 19:58 | Session end: 12 writes across 9 files (iniciar-servidor.bat, iniciar-servidor.sh, rules.ts, hud.ts, index.ts) | 6 reads | ~18464 tok |
+
+## Session: 2026-07-23 20:00
+
+| Time | Action | File(s) | Outcome | ~Tokens |
+|------|--------|---------|---------|--------|
+| 20:08 | Created ../../../tmp/claude-1000/-home-meketreve-logica-em-jogo/01aa2da2-c249-4bb7-ae33-c0e68e3296c5/scratchpad/capture.mjs | — | ~1043 |
+| 20:08 | Edited ../../../tmp/claude-1000/-home-meketreve-logica-em-jogo/01aa2da2-c249-4bb7-ae33-c0e68e3296c5/scratchpad/capture.mjs | 2→4 lines | ~48 |
+| 20:10 | Created ../../../tmp/claude-1000/-home-meketreve-logica-em-jogo/01aa2da2-c249-4bb7-ae33-c0e68e3296c5/scratchpad/console.mjs | — | ~727 |
+| 20:12 | Edited client/src/main.ts | modified applySettings() | ~102 |
+| 20:12 | Edited client/src/main.ts | toque() → cima() | ~23 |
+| 20:17 | Edited ../../../tmp/claude-1000/-home-meketreve-logica-em-jogo/01aa2da2-c249-4bb7-ae33-c0e68e3296c5/scratchpad/capture.mjs | added 1 condition(s) | ~145 |
+| 20:26 | Edited client/src/main.ts | added 2 condition(s) | ~196 |
+| 20:26 | Edited client/src/main.ts | added nullish coalescing | ~66 |
+| 20:32 | Created ../../../tmp/claude-1000/-home-meketreve-logica-em-jogo/01aa2da2-c249-4bb7-ae33-c0e68e3296c5/scratchpad/build.mjs | — | ~1024 |
+| 20:36 | Edited ../../../tmp/claude-1000/-home-meketreve-logica-em-jogo/01aa2da2-c249-4bb7-ae33-c0e68e3296c5/scratchpad/build.mjs | modified for() | ~267 |
+| 20:38 | Edited ../../../tmp/claude-1000/-home-meketreve-logica-em-jogo/01aa2da2-c249-4bb7-ae33-c0e68e3296c5/scratchpad/build.mjs | modified for() | ~220 |
+| 20:42 | Created registros/prints/README.md | — | ~601 |
+| 20:43 | Session end: 12 writes across 5 files (capture.mjs, console.mjs, main.ts, build.mjs, README.md) | 24 reads | ~76026 tok |
