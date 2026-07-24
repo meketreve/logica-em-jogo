@@ -137,9 +137,19 @@ const horaForcada = ((): number | null => {
 if (horaForcada !== null) skyCycle.sync(horaForcada, false);
 
 const input = new Input(renderer.domElement);
-// ?yaw=-1.57 na URL: aponta a câmera no boot (par do ?hora — mirar o sol/lua)
-const yawRaw = new URLSearchParams(location.search).get("yaw");
-if (yawRaw !== null && Number.isFinite(Number(yawRaw))) input.yaw = Number(yawRaw);
+// ?yaw=-1.57 e ?pitch=-0.4 na URL: apontam a câmera (screenshot headless — par do
+// ?hora). Guardados em const pra VENCER o applyTeleport do spawn: o join reorienta
+// pelo pos do servidor e, sem isso, a mira forçada se perdia (yaw não aplicava).
+const numParam = (k: string): number | null => {
+  const raw = new URLSearchParams(location.search).get(k);
+  if (raw === null) return null;
+  const v = Number(raw);
+  return Number.isFinite(v) ? v : null;
+};
+const yawForcado = numParam("yaw");
+const pitchForcado = numParam("pitch");
+if (yawForcado !== null) input.yaw = yawForcado;
+if (pitchForcado !== null) input.pitch = pitchForcado;
 
 /** (Re)aplica as configurações do jogador — chamada no boot e ao iniciar jogo
  *  (o menu pode ter mudado tudo antes do play). */
@@ -153,6 +163,10 @@ function applySettings(): ReturnType<typeof loadSettings> {
   touchControls?.setScale(s.uiScale); // escala da UI de toque (2026-07-21)
   return s;
 }
+/** Controles de toque (tablet) — criados no startGame só em dispositivo touch.
+ *  Declarado AQUI, acima da chamada de applySettings(): ela lê `touchControls`
+ *  pra escala da UI de toque; declarar depois = TDZ (tela cinza no boot, bug-495). */
+let touchControls: TouchControls | null = null;
 let settings = applySettings();
 initUiAudio(settings.volume);
 
@@ -163,8 +177,7 @@ let activePanel: GamePanel | null = null;
 let inventoryPanel: InventoryPanel | null = null;
 /** Painel de jogadores (2026-07-21) — só professor (expulsar/banir/desbanir). */
 let playersPanel: PlayersPanel | null = null;
-/** Controles de toque (tablet) — criados no startGame só em dispositivo touch. */
-let touchControls: TouchControls | null = null;
+// touchControls: declarado lá em cima (acima de applySettings, TDZ — bug-495).
 
 // --- Menu de pausa (Esc = pointer lock solto) ---
 const overlay = document.getElementById("overlay");
@@ -793,8 +806,9 @@ function startGame(snap: Snapshot): void {
     player.pos.y = pos.y;
     player.pos.z = pos.z;
     player.vel.x = player.vel.y = player.vel.z = 0;
-    input.yaw = pos.yaw;
-    input.pitch = pos.pitch;
+    // ?yaw/?pitch (screenshot) vencem a orientação do servidor; senão volta-onde-parou
+    input.yaw = yawForcado ?? pos.yaw;
+    input.pitch = pitchForcado ?? pos.pitch;
   };
 
   // servidor mandou block_changed (nossa ação OU de outro jogador OU gravidade
