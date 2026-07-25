@@ -8121,6 +8121,102 @@
       "related_bugs": [],
       "occurrences": 1,
       "last_seen": "2026-07-23T23:36:30.767Z"
+    },
+    {
+      "id": "bug-499",
+      "timestamp": "2026-07-24T20:29:24.062Z",
+      "error_message": "Wrong reference: 283 should be 304",
+      "file": "relatorio/relatorio-aplicacao.md",
+      "root_cause": "Used \"283\" instead of \"304\"",
+      "fix": "Changed 283 → 304",
+      "tags": [
+        "auto-detected",
+        "wrong-reference",
+        "md"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-24T20:29:24.062Z"
+    },
+    {
+      "id": "bug-500",
+      "timestamp": "2026-07-24T20:29:32.062Z",
+      "error_message": "Significant refactor of ",
+      "file": "relatorio/relatorio-aplicacao.md",
+      "root_cause": "2 lines replaced/restructured",
+      "fix": "Rewrote 3→5 lines (2 removed) | Also: ## Anexo B — Dados de performance (brutos); - 25 arquivos JSON em `profiles-escola/` (um por s",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "md"
+      ],
+      "related_bugs": [],
+      "occurrences": 2,
+      "last_seen": "2026-07-24T20:29:46.903Z"
+    },
+    {
+      "id": "bug-501",
+      "timestamp": "2026-07-24T23:22:57.715Z",
+      "error_message": "Significant refactor of ",
+      "file": "relatorio/relatorio-aplicacao.md",
+      "root_cause": "2 lines replaced/restructured",
+      "fix": "Rewrote 3→8 lines (2 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "md"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-24T23:22:57.715Z"
+    },
+    {
+      "id": "bug-502",
+      "timestamp": "2026-07-24T23:40:09.274Z",
+      "error_message": "Significant refactor of ",
+      "file": "relatorio/relatorio-aplicacao.md",
+      "root_cause": "11 lines replaced/restructured",
+      "fix": "Rewrote 12→16 lines (11 removed) | Also: * **Resultado observado:** alunos do AEE tiveram *; **sequência de cores** e **construção livre**.",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "md"
+      ],
+      "related_bugs": [],
+      "occurrences": 2,
+      "last_seen": "2026-07-24T23:40:16.847Z"
+    },
+    {
+      "id": "bug-503",
+      "timestamp": "2026-07-24T23:50:05.739Z",
+      "error_message": "Significant refactor of ",
+      "file": "relatorio/relatorio-aplicacao.md",
+      "root_cause": "5 lines replaced/restructured",
+      "fix": "Rewrote 5→13 lines (5 removed) | Also: * ✏️ PREENCHER: o projeto atingiu o objetivo de \\[; próprio, gratuito, inclusivo]. Síntese do pedagógi | Also: > ✏️ Escrever por ÚLTIMO (1 parágrafo, \\~150 palav; > principal. Rascunho de apoio: \\*\"Este relatório  | Also: * BNCC — Base Nacional Comum Curricular. ✏️ comple; * ISTE / CSTA — padrões de pensamento computaciona",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "md"
+      ],
+      "related_bugs": [],
+      "occurrences": 4,
+      "last_seen": "2026-07-24T23:51:09.703Z"
+    },
+    {
+      "id": "bug-504",
+      "timestamp": "2026-07-25T01:11:04.808Z",
+      "error_message": "Significant refactor of ",
+      "file": "relatorio/relatorio-aplicacao.md",
+      "root_cause": "15 lines replaced/restructured",
+      "fix": "Rewrote 16→21 lines (15 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "md"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-25T01:11:04.808Z"
     }
   ]
 }

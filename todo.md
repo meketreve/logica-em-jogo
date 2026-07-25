@@ -290,11 +290,11 @@ não tem filesystem; export de "pasta" no single fica de fora (não faz sentido 
 
 ## Registros / apresentação
 
-* \[ ] PRINTS DE PONTOS-CHAVE p/ apresentação (parkado 2026-07-23) — render headless
-  (receita cerebrum 2026-07-20: `fuser -k`, NUNCA `kill $!`), ~6 cenas em `registros/prints/`:
-  menu/título c/ badge de versão; mundo procedural (4 biomas BR); água fluindo (cascata);
-  uma aula (aula1 cores OU aula2 binário); construção livre (móveis/quadro); HUD F3 (perfilador).
-  Multiplayer difícil headless → print manual. SÓ pontos-chave, não capturar tudo.
+* \[x] PRINTS DE PONTOS-CHAVE p/ apresentação — **FEITO** (2026-07-23, sessão 18): 6 cenas
+  headless em `registros/prints/` (README indexa): `01-menu` (título + badge v0.8.0),
+  `02-biomas` (procedural seed 314 — mata + ipê dourado + serra), `03-agua` (cascata),
+  `04-aula` (aula1 cores, painel 4/12), `05-construcao` (sala mobiliada), `06-hud-f3` (perfilador).
+  Multiplayer não capturado (difícil headless) → print manual do usuário se quiser.
 * \[x] perfilador anônimo + versão do jogo — **FEITO** (2026-07-23): saída carrega `versao:VERSION`,
   nome do aluno não é mais coletado (filename `perf-<timestamp>-<sufixo>.json`). profiles-escola/
   removido do tracking + gitignored; resumo agregado anônimo em `registros/perfilador-v0.8.0-escola.md`.

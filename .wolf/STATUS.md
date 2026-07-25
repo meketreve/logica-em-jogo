@@ -1,6 +1,30 @@
 # STATUS — Projeto "Lógica em Jogo" (jogo voxel educacional)
 
 > Single source of truth for resuming work. Read this FIRST when starting a session.
+> **SESSÃO 19 (2026-07-25) — RELATÓRIO DE APLICAÇÃO PREENCHIDO + REVISADO ponta-a-ponta. NÃO commitado (só o entregável; sem código). O entregável final está essencialmente PRONTO.**
+> Trabalho 100% no `relatorio/relatorio-aplicacao.md` (NÃO mexi em código). Usuário preencheu a
+> Ficha (autor **Leonardo De Jesus Silvano**; **E.E.B. Prof. Otília da Silva Berti**, rede estadual
+> SC; período **13–20/07/2026**; **61 alunos**; público 2º ao 9º) e eu redigi tema-a-tema, via
+> AskUserQuestion, TODAS as seções que dependiam de dado de sala: §1 resumo, §2 justificativa,
+> §5 metodologia, §6 resultados, §8 discussão, §9 conclusão, referências. **DADOS DE SALA (agora
+> no relatório):** ~4 **turmas MULTISSERIADAS** (2 anos/turma: 2º/3º, 4º/5º, 6º/7º, 8º/9º, ~15 cada);
+> **laboratório de informática**; **várias sessões** por turma; condução combinou projetor+regra+
+> mediação+exploração livre. **AULAS: aplicou 1 (sequência), 3 (depurar), 5 (simetria), 6 (manual) +
+> construção livre; NÃO aplicou 2 (binário) nem 4 (César)** — alunos sem conhecimento prévio (virou
+> ponto do §8: preparar pré-requisito/escalonar). **RESULTADOS:** maioria fechou o contador COM
+> mediação; **aula 1 travou vários alunos = valor DIAGNÓSTICO** (expôs fragilidade lógica); **AEE 3–5
+> alunos, mediação pontual, bom desempenho** (sequência+construção livre); engajamento alto (4 sinais).
+> **FALAS (§6.3):** contentamento ao completar a sequência; **unânime a felicidade na construção livre,
+> "grito de alegria" dos pequenos**. **DE QUEBRA — 4 FATOS TÉCNICOS DEFASADOS corrigidos no relatório:**
+> (1) 283→**304 testes**; (2) `profiles-escola/` foi APAGADA (privacidade, sessão 17) → aponta agora no
+> agregado anônimo `registros/perfilador-v0.8.0-escola.md`; (3) **25→52 perfis** (nº real, 2 lugares);
+> (4) screenshots agora existem em `registros/prints/` (§3 aponta os 6). **REVISÃO ponta-a-ponta:** 5
+> fixes mecânicos (espaço na ficha, ref quebrada "seção 14"→projeto pedagógico, bullet duplicado no §6.2,
+> "padrão"→"período crescente", nota no §4) + turmas=multisseriadas alinhadas (ficha+§5.1). **TODO.md:
+> item dos prints marcado [x]** (estava [ ] à toa — prints já eram da sessão 18). **PENDENTE (só opcional,
+> NÃO bloqueia entrega):** embutir 2–4 screenshots no §3; obs específicas das aulas 3 e 6; diagrama no
+> Anexo A; formatar refs em ABNT. **PRÓXIMA:** usuário pode pedir PDF/HTML do relatório pra entrega, ou
+> embutir os prints. O relatório é o ÚLTIMO entregável — depois dele o projeto está fechado. Sessão 18 abaixo ↓
 > **SESSÃO 18 (2026-07-23) — PRINTS DE PONTOS-CHAVE (6) + BUG-495 (TDZ no boot do vite DEV; prod OK) + hook ?yaw/?pitch. ✅ COMMITADO + PUSHADO.**
 > Usuário pediu: "faz os prints enquanto eu faço a playtest". Montei render headless e capturei
 > **6 prints em `registros/prints/`** (README indexa cada um): `01-menu.png` (título + badge v0.8.0),

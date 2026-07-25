@@ -1,6 +1,6 @@
 # anatomy.md
 
-> Auto-maintained by OpenWolf. Last scanned: 2026-07-23T23:42:01.917Z
+> Auto-maintained by OpenWolf. Last scanned: 2026-07-25T03:06:35.375Z
 > Files: 147 tracked | Anatomy hits: 0 | Misses: 0
 
 ## ../../../tmp/claude-1000/-home-meketreve-logica-em-jogo/01aa2da2-c249-4bb7-ae33-c0e68e3296c5/scratchpad/
@@ -115,7 +115,7 @@
 - `iniciar-servidor.bat` (~1562 tok)
 - `iniciar-servidor.sh` — ============================================================ (~1240 tok)
 - `package.json` — Node.js package manifest (~164 tok)
-- `todo.md` — Ideias para fazer (~6332 tok)
+- `todo.md` — Ideias para fazer (~6528 tok)
 - `tsconfig.base.json` (~130 tok)
 
 ## .claude/
@@ -172,11 +172,10 @@
 ## registros/prints/
 
 - `README.md` — Índice dos 6 prints de marcos v0.8.0 (o que cada um mostra + caveats do render headless: emoji-quadradinho, FPS 8 = software). Receita de captura no cerebrum (~600 tok)
-- `01-menu.png` .. `06-hud-f3.png` — Prints de pontos-chave (menu+versão, biomas seed 314, cascata d'água, aula1, sala mobiliada, HUD F3). Render headless 1280×720. Versionados (marcos de apresentação)
 
 ## relatorio/
 
-- `relatorio-aplicacao.md` — Relatório de Aplicação — *Lógica em Jogo* (~3200 tok)
+- `relatorio-aplicacao.md` — Relatório de Aplicação — *Lógica em Jogo* (~5176 tok)
 - `relatorio-aplicacao.md` — Esqueleto do RELATORIO de aplicacao (entregavel final): ficha, contexto BNCC/ISTE/Wing, 6 aulas+construcao livre, metodologia, resultados (incl AEE), perf/escalabilidade (dados escola), anexos tecnicos. Campos ✏️ PREENCHER = observacao de sala. (~2200 tok)
 
 ## server/

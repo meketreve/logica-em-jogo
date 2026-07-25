@@ -2385,3 +2385,62 @@ NÃO commitado; playtest no browser PENDENTE. Refinos adiados: altura-visual, re
 | 20:38 | Edited ../../../tmp/claude-1000/-home-meketreve-logica-em-jogo/01aa2da2-c249-4bb7-ae33-c0e68e3296c5/scratchpad/build.mjs | modified for() | ~220 |
 | 20:42 | Created registros/prints/README.md | — | ~601 |
 | 20:43 | Session end: 12 writes across 5 files (capture.mjs, console.mjs, main.ts, build.mjs, README.md) | 24 reads | ~76026 tok |
+| 17:15 | Session end: 12 writes across 5 files (capture.mjs, console.mjs, main.ts, build.mjs, README.md) | 24 reads | ~76026 tok |
+| 17:24 | Session end: 12 writes across 5 files (capture.mjs, console.mjs, main.ts, build.mjs, README.md) | 24 reads | ~76026 tok |
+| 17:25 | Session end: 12 writes across 5 files (capture.mjs, console.mjs, main.ts, build.mjs, README.md) | 24 reads | ~76026 tok |
+
+## Session: 2026-07-24 17:26
+
+| Time | Action | File(s) | Outcome | ~Tokens |
+|------|--------|---------|---------|--------|
+| 17:29 | Edited relatorio/relatorio-aplicacao.md | 283 → 304 | ~22 |
+| 17:29 | Edited relatorio/relatorio-aplicacao.md | 3→5 lines | ~106 |
+| 17:29 | Edited relatorio/relatorio-aplicacao.md | 11→14 lines | ~295 |
+| 17:29 | Edited relatorio/relatorio-aplicacao.md | 1→4 lines | ~91 |
+| 17:30 | relatório: corrigidos fatos técnicos defasados (283→304 testes; profiles-escola apagada→agregado registros/; 25→52 perfis; screenshots reais em registros/prints) | relatorio/relatorio-aplicacao.md | pronto p/ usuário preencher campos de sala | ~5k |
+| 17:30 | Session end: 4 writes across 1 files (relatorio-aplicacao.md) | 2 reads | ~5151 tok |
+| 17:56 | Edited todo.md | 5→5 lines | ~120 |
+| 17:56 | Session end: 5 writes across 2 files (relatorio-aplicacao.md, todo.md) | 3 reads | ~11611 tok |
+| 20:22 | Edited relatorio/relatorio-aplicacao.md | 3→8 lines | ~137 |
+| 20:23 | Edited relatorio/relatorio-aplicacao.md | escolha() → pago() | ~114 |
+| 20:25 | Edited relatorio/relatorio-aplicacao.md | 1→2 lines | ~47 |
+| 20:25 | Edited relatorio/relatorio-aplicacao.md | inline fix | ~14 |
+| 20:26 | Edited relatorio/relatorio-aplicacao.md | expanded (+6 lines) | ~180 |
+| 20:40 | Edited relatorio/relatorio-aplicacao.md | 12→16 lines | ~318 |
+| 20:40 | Edited relatorio/relatorio-aplicacao.md | 4→8 lines | ~154 |
+| 20:40 | Edited relatorio/relatorio-aplicacao.md | expanded (+9 lines) | ~178 |
+| 20:40 | Edited relatorio/relatorio-aplicacao.md | modified AEE() | ~62 |
+| 20:49 | Edited relatorio/relatorio-aplicacao.md | inline fix | ~25 |
+| 20:50 | Edited relatorio/relatorio-aplicacao.md | expanded (+8 lines) | ~259 |
+| 20:50 | Edited relatorio/relatorio-aplicacao.md | passos() → funcionou() | ~354 |
+| 20:50 | Edited relatorio/relatorio-aplicacao.md | 9→13 lines | ~287 |
+| 20:51 | Edited relatorio/relatorio-aplicacao.md | expanded (+6 lines) | ~192 |
+| 20:51 | Edited relatorio/relatorio-aplicacao.md | 3→4 lines | ~76 |
+| 20:51 | Edited relatorio/relatorio-aplicacao.md | inline fix | ~18 |
+| 20:51 | relatório redigido tema-a-tema c/ dados de sala do usuário (§1 resumo, §2 justificativa, §5 metodologia, §6 resultados+AEE, §8, §9 conclusão, refs) — só refinos opcionais restam | relatorio/relatorio-aplicacao.md | RASCUNHO COMPLETO, pronto p/ revisão | ~9k |
+| 20:52 | Session end: 21 writes across 2 files (relatorio-aplicacao.md, todo.md) | 3 reads | ~15776 tok |
+| 22:11 | Edited relatorio/relatorio-aplicacao.md | 16→21 lines | ~476 |
+| 22:11 | Edited relatorio/relatorio-aplicacao.md | 4→8 lines | ~142 |
+| 22:11 | Edited relatorio/relatorio-aplicacao.md | 6→11 lines | ~236 |
+| 22:11 | Edited relatorio/relatorio-aplicacao.md | 2→3 lines | ~74 |
+| 22:12 | §6/§8/§1 corrigidos: só aulas 1/3/5/6 aplicadas (2 bin e 4 césar fora=sem pré-requisito); falas de aluno no §6.3 (contentamento sequência + grito de alegria na livre) | relatorio/relatorio-aplicacao.md | consistente | ~3k |
+| 22:12 | Edited relatorio/relatorio-aplicacao.md | 3→2 lines | ~44 |
+| 22:12 | Session end: 26 writes across 2 files (relatorio-aplicacao.md, todo.md) | 3 reads | ~17030 tok |
+| 00:04 | Edited relatorio/relatorio-aplicacao.md | inline fix | ~19 |
+| 00:04 | Edited relatorio/relatorio-aplicacao.md | inline fix | ~19 |
+| 00:04 | Edited relatorio/relatorio-aplicacao.md | 5→4 lines | ~76 |
+| 00:05 | Edited relatorio/relatorio-aplicacao.md | inline fix | ~23 |
+| 00:05 | Edited relatorio/relatorio-aplicacao.md | inline fix | ~50 |
+| 00:05 | Edited relatorio/relatorio-aplicacao.md | 2→6 lines | ~86 |
+| 00:06 | Edited relatorio/relatorio-aplicacao.md | inline fix | ~27 |
+| 00:06 | Edited relatorio/relatorio-aplicacao.md | 2→3 lines | ~53 |
+| 00:06 | revisão ponta-a-ponta do relatório: 5 fixes mecânicos (espaço ficha, ref quebrada seção14, bullet dup §6.2, período crescente, nota §4) + turmas=multisseriadas (ficha+§5.1) | relatorio/relatorio-aplicacao.md | consistente e completo | ~4k |
+| 00:06 | Session end: 34 writes across 2 files (relatorio-aplicacao.md, todo.md) | 3 reads | ~17531 tok |
+| 00:11 | Session end: 34 writes across 2 files (relatorio-aplicacao.md, todo.md) | 3 reads | ~17531 tok |
+| 00:12 | FIM SESSÃO 19 — relatório de aplicação preenchido (dados de sala via AskUserQuestion) + revisado ponta-a-ponta + fatos técnicos defasados corrigidos; só código NÃO tocado; entregável final essencialmente pronto | relatorio/relatorio-aplicacao.md, .wolf/STATUS.md, todo.md | pronto p/ /clear | ~1k |
+| 00:13 | Session end: 34 writes across 2 files (relatorio-aplicacao.md, todo.md) | 3 reads | ~17531 tok |
+
+## Session: 2026-07-25 00:59
+
+| Time | Action | File(s) | Outcome | ~Tokens |
+|------|--------|---------|---------|--------|
