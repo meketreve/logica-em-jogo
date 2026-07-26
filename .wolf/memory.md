@@ -344,3 +344,4 @@ NÃO commitado; playtest no browser pendente.
 | 22:56 | Playtest aprovado (movimentação + vidros); opacidade do vidro colorido 0.2 → 0.4 a pedido do usuário | client/src/main.ts | build ok, dist regerado | ~2k |
 | 22:32 | Session end: 24 writes across 7 files (physics.ts, physics.test.ts, mesher.ts, chunks.ts, main.ts) | 9 reads | ~56519 tok |
 | 22:35 | Edited .gitignore | expanded (+6 lines) | ~87 |
+| 23:05 | Commit + push das sessões 20+21 (2 commits) e STATUS/TODO preparados pro /clear; quest velha do piloto movida pro ROADMAP | git, .wolf/STATUS.md, .wolf/TODO.md, .wolf/ROADMAP.md | main == origin/main, árvore limpa | ~6k |

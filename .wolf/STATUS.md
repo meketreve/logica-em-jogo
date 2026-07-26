@@ -1,21 +1,22 @@
 # STATUS — Projeto "Lógica em Jogo" (jogo voxel educacional)
 
 > Single source of truth for resuming work. Read this FIRST when starting a session.
-> **SESSÃO 21 (2026-07-25) — PLAYTEST da sessão 20: 3 correções aplicadas. VERDE, NÃO commitado; re-playtest PENDENTE.**
+> **SESSÃO 21 (2026-07-25) — PLAYTEST da sessão 20: 3 correções + re-playtest ✅ + COMMITADO E PUSHADO (`26151f9` blocos, `41211ff` wolf; main == origin/main).**
 > Usuário jogou os blocos novos e reprovou 3 coisas. **(1) ESCADA EMPURRAVA PRA TRÁS (bug-512):**
 > `moveAxis` (physics.ts) encostava o jogador na fronteira da CÉLULA — premissa de pegada XZ cheia.
 > O degrau da escada ocupa MEIA célula em XZ → esbarrar nele teleportava ~0,65 bloco pra trás.
 > Fix: `resolveHoriz()` novo — devolve a face REAL da sub-caixa penetrada (menor x0 indo pro +,
 > maior x1 indo pro −); fronteira de célula virou fallback. **(2) VIDRO COLORIDO (bug-513):** o dither
 > cutout virou "tela de mosquiteiro" → agora tile do atlas é cor CHEIA opaca (ícone da hotbar sólido)
-> e a translucidez mora num MATERIAL novo (`materialVidro`, opacity 0.2, depthWrite false). Mesher
+> e a translucidez mora num MATERIAL novo (`materialVidro`, **opacity 0.4** — calibrado no playtest,
+> 0.2 ficou fraco; depthWrite false). Mesher
 > ganhou 3º grupo de índices (opaco | água | vidro) via `aguaIndexCount`; `ChunkRenderer` recebe 3
 > materiais. **(3) STEP-UP BRUSCO (bug-514):** física continua subindo 0,5 de uma vez (servidor valida
 > a mesma) — quem suaviza é o OLHO: `stepSuave` desconta de `camera.position.y` e decai `exp(-dt*14)`
 > (~0,15 s). `STEP_HEIGHT` virou export do physics. **VERDE: typecheck 3/3, 316 testes (+3), build ok.**
 > **RE-PLAYTEST ✅ (2026-07-25):** usuário aprovou movimentação (escada/step-up suave) e vidros;
 > pediu opacidade do vidro 0.2 → **0.4** (aplicado em `materialVidro`, main.ts, dist rebuildado).
-> **PENDENTE:** (a) commit das sessões 20+21; (b) pergunta ABERTA do usuário — "hitbox dos meio blocos
+> **PENDENTE:** só a pergunta ABERTA do usuário — "hitbox dos meio blocos
 > igual das cercas/portas": mira (`blockSelectionBox`: laje = só a metade hoje, o raio atravessa a
 > metade vazia) OU colisão (cerca/porta = célula CHEIA)? Não mexi até ele responder.
 > **MANUTENÇÃO:** cerebrum.md consolidado (~27k → ~8k tokens) — narrativa por checkpoint foi pro
@@ -181,65 +182,28 @@ Documento é o ÚLTIMO entregável, não o primeiro. Construir, não documentar.
 
 ---
 
-## 🚀 Próxima fase
+## 🚀 Próxima fase — A DECIDIR com o usuário
 
-> Backlog e referência de escopo movidos para `.wolf/ROADMAP.md`. Mantenha aqui só a quest ATIVA.
+> Backlog e referência de escopo vivem em `.wolf/ROADMAP.md` (inclui o checklist de dia de
+> aula do piloto). Mantenha aqui só a quest ATIVA.
 
-## 🚀 QUEST DE HOJE (2026-07-17): PILOTO COM A TURMA + anotações pro relatório
+Sessões 20+21 fechadas, commitadas e pushadas (`26151f9` blocos + `41211ff` wolf).
+Árvore limpa, main == origin/main. Nada em andamento.
 
-**Contexto:** aula HOJE. Código pronto e pushado; celular já jogou em casa
-(2026-07-16). **No notebook da escola: `git pull` antes de rodar** (clone em
-`C:\projeto\logica-em-jogo`; git é o canal de sync — nunca ZIP). Se mexer no
-cliente, `npm run build` + commit do dist.
+**Pergunta ABERTA (não respondida):** "a hitbox dos meio blocos precisa ser igual das
+cercas, portas e afins" — qual das duas?
+- **Mira** (`blockSelectionBox`, mesher.ts): hoje a laje devolve só a metade, então o
+  raio atravessa a metade vazia e acerta o bloco de trás. Cerca/porta têm caixa própria.
+- **Colisão**: cerca/porta/móvel colidem como CÉLULA CHEIA (`temColisaoParcial` só liga
+  pra laje/escada). Copiar isso pra laje = ela vira parede e o jogador anda 0,5 acima do
+  topo visível. Provavelmente NÃO é o que ele quer — confirmar antes de mexer.
 
-### A. TESTE NO TABLET DA ESCOLA (antes da aula — único cheque que falta)
-Tablet abre `http://<ip-do-professor>:8080` — a UI de toque liga sozinha
-(`pointer: coarse`); no desktop, `?touch` na URL força pra demonstrar. Olhar:
-joystick anda, arrasto gira a câmera, quebrar/colocar acertam o bloco mirado,
-pular segura, hotbar/inventário escolhem a lã, botões 💬 chat e ⛶ tela cheia,
-menu pausa e "▶ voltar ao jogo" retoma. Notebook com touchscreen NÃO liga a UI
-(mouse é o ponteiro primário — de propósito). Risco real: AP isolation do
-Wi-Fi da escola (item 3 do checklist).
+**Candidatos de backlog** (ver ROADMAP.md pro resto): layouts mobile · textura de água
+animada/refino · auto-update do servidor · sobrevivência (fome/vida/craft) · v2 da geração.
 
-### B. CHECKLIST DE DIA DE AULA (não-código)
-0. **Levar o jogo pro notebook da escola (sync via git, decisão 2026-07-16):**
-   o repo agora carrega cenários .ljw, aulas/ e client/dist — clone = pronto
-   pra rodar, sem build. No notebook: instalar **Node no Windows nativo**
-   (evita o problema do IP do WSL do item 3), `git clone
-   https://github.com/meketreve/logica-em-jogo` (repo privado — logar com
-   `gh auth login` ou token), `npm install`.
-1. Host: `client/dist` já vem no repo (rebuildar só se mexer no cliente).
-   Linux/WSL:
-   `LJ_SAVE=cenarios/aula1-sequencia.ljw LJ_CODIGO=<código> npm run start -w server`
-   **Windows (PowerShell — env é em linha separada):**
-   `$env:LJ_SAVE="cenarios/aula1-sequencia.ljw"; $env:LJ_CODIGO="<código>"; npm run start -w server`
-   O boot imprime o IP da LAN.
-2. Notebook do professor = host (precisa de Node). Alunos (tablet/notebook) abrem
-   `http://<ip>:8080`. TODOS na MESMA rede/Wi-Fi.
-3. Rede: Wi-Fi da escola pode ter **isolamento de clientes** (AP isolation) → os
-   dispositivos não se enxergam. **Testar UM tablet ANTES da aula.** Firewall do
-   host pode bloquear a 8080 → liberar.
-   **⚠️ Se o servidor rodar dentro do WSL** (como no PC de dev): o IP que o boot
-   imprime é o INTERNO do WSL (172.x.x.x, NAT) — aluno da LAN NÃO alcança. Usar
-   o IP do WINDOWS (`ipconfig`) e encaminhar a porta (PowerShell admin):
-   `netsh interface portproxy add v4tov4 listenport=8080 listenaddress=0.0.0.0 connectport=8080 connectaddress=<ip-do-wsl>`
-   (+ liberar 8080 no firewall do Windows). Alternativas: Node instalado no
-   Windows (roda o servidor fora do WSL, zero proxy) ou WSL2 `networkingMode=mirrored`.
-4. Fluxo: aluno digita nome + PIN (registra na 1ª vez); professor também põe o
-   código. Auto-distribui em grupos → professor aperta **▶ iniciar** (ou
-   `/iniciar 5`). Trocar de aula ao vivo: `/mundo carregar aula2-binario`.
-5. **Fallback:** se o tablet falhar (isolamento/WebGL), roda só nos notebooks
-   (já funciona hoje).
-
-### C. RELATÓRIO DE USO
-Ainda NÃO existe log de conclusão por aluno. Amanhã = **manual**: o HUD do
-professor mostra progresso por grupo (`g1 2/4 · g2 ✓`) → screenshots + anotações;
-F3 exporta JSON de perf. Relatório de verdade (quem/o quê/quando concluiu,
-export) = tarefa à parte, NÃO hoje.
-
-### Deferido / não precisa amanhã
-Empacotar em binário único (tem admin, Node roda); trocar stack (decidido: manter
-web + empacotar host depois — ver Decision Log); água/outros blocos.
+**Entregável final (relatório) está essencialmente PRONTO** — pendências só opcionais:
+embutir 2–4 prints no §3, refs em ABNT, diagrama no Anexo A. Se o usuário pedir entrega,
+o passo é gerar PDF/HTML de `relatorio/relatorio-aplicacao.md`.
 
 ---
 

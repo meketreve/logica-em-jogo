@@ -8,11 +8,11 @@
 
 ## 🔥 Now (this session)
 
-- [ ] Commit das sessões 20 + 21 (blocos novos + fixes do playtest) — nada commitado ainda
-- [ ] **Aguardando resposta:** "hitbox dos meio blocos igual das cercas/portas" = mira (blockSelectionBox) ou colisão (célula cheia)?
+- (nada em andamento — sessão 21 fechada, commitada e pushada)
 
 ## ⏭️ Next (queued, ready to pick up)
-- [ ] Consolidar `.wolf/cerebrum.md` (~14k tokens, orçamento 2k) — mesclar learnings duplicados, mover Decision Log datado pro history.md
+
+- [ ] **Aguardando resposta do usuário:** "hitbox dos meio blocos igual das cercas/portas" = mira (`blockSelectionBox`, mesher.ts) ou colisão (célula cheia)? Ver STATUS 🚀 pro trade-off.
 
 ## 💡 Later / backlog (not scheduled)
 
@@ -22,12 +22,10 @@
 - [ ] Sobrevivência (fome/vida/craft)
 - [ ] v2 da geração de mundo
 - [ ] Relatório: embutir 2–4 screenshots no §3, refs em ABNT, diagrama no Anexo A (opcional, não bloqueia entrega)
+- [ ] Gerar PDF/HTML de `relatorio/relatorio-aplicacao.md` quando o usuário pedir a entrega
 
 ## ✅ Recently done
 
 <!-- Checked items land here. Sweep them into STATUS.md "✅ Done" when a phase closes, then clear this list. -->
 
-- [x] Colisão horizontal parcial correta (`resolveHoriz`) — escada não empurra mais pra trás (bug-512)
-- [x] Vidro colorido com material próprio (blend ~20%) em vez de dither cutout (bug-513)
-- [x] Step-up suave na câmera (bug-514)
-- [x] Re-playtest aprovado (movimentação + vidros); opacidade do vidro calibrada em 0.4
+- (limpo em 2026-07-25 — sessões 20+21 foram pro STATUS ✅ e pro git)

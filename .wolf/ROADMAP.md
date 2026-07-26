@@ -771,3 +771,62 @@ unadjustedMovement melhorou bastante; restam pulos raros. HUD F3 mostra
   escola desiste). Problema de ADOÇÃO, não de código. Resolver antes de distribuir amplo.
 
 ---
+
+## Checklist de dia de aula (do piloto de 2026-07-17)
+
+> Movido do STATUS.md em 2026-07-25: o piloto já aconteceu, mas o checklist
+> operacional (host, rede, fallback) vale pra qualquer aula futura.
+
+**Contexto:** aula HOJE. Código pronto e pushado; celular já jogou em casa
+(2026-07-16). **No notebook da escola: `git pull` antes de rodar** (clone em
+`C:\projeto\logica-em-jogo`; git é o canal de sync — nunca ZIP). Se mexer no
+cliente, `npm run build` + commit do dist.
+
+### A. TESTE NO TABLET DA ESCOLA (antes da aula — único cheque que falta)
+Tablet abre `http://<ip-do-professor>:8080` — a UI de toque liga sozinha
+(`pointer: coarse`); no desktop, `?touch` na URL força pra demonstrar. Olhar:
+joystick anda, arrasto gira a câmera, quebrar/colocar acertam o bloco mirado,
+pular segura, hotbar/inventário escolhem a lã, botões 💬 chat e ⛶ tela cheia,
+menu pausa e "▶ voltar ao jogo" retoma. Notebook com touchscreen NÃO liga a UI
+(mouse é o ponteiro primário — de propósito). Risco real: AP isolation do
+Wi-Fi da escola (item 3 do checklist).
+
+### B. CHECKLIST DE DIA DE AULA (não-código)
+0. **Levar o jogo pro notebook da escola (sync via git, decisão 2026-07-16):**
+   o repo agora carrega cenários .ljw, aulas/ e client/dist — clone = pronto
+   pra rodar, sem build. No notebook: instalar **Node no Windows nativo**
+   (evita o problema do IP do WSL do item 3), `git clone
+   https://github.com/meketreve/logica-em-jogo` (repo privado — logar com
+   `gh auth login` ou token), `npm install`.
+1. Host: `client/dist` já vem no repo (rebuildar só se mexer no cliente).
+   Linux/WSL:
+   `LJ_SAVE=cenarios/aula1-sequencia.ljw LJ_CODIGO=<código> npm run start -w server`
+   **Windows (PowerShell — env é em linha separada):**
+   `$env:LJ_SAVE="cenarios/aula1-sequencia.ljw"; $env:LJ_CODIGO="<código>"; npm run start -w server`
+   O boot imprime o IP da LAN.
+2. Notebook do professor = host (precisa de Node). Alunos (tablet/notebook) abrem
+   `http://<ip>:8080`. TODOS na MESMA rede/Wi-Fi.
+3. Rede: Wi-Fi da escola pode ter **isolamento de clientes** (AP isolation) → os
+   dispositivos não se enxergam. **Testar UM tablet ANTES da aula.** Firewall do
+   host pode bloquear a 8080 → liberar.
+   **⚠️ Se o servidor rodar dentro do WSL** (como no PC de dev): o IP que o boot
+   imprime é o INTERNO do WSL (172.x.x.x, NAT) — aluno da LAN NÃO alcança. Usar
+   o IP do WINDOWS (`ipconfig`) e encaminhar a porta (PowerShell admin):
+   `netsh interface portproxy add v4tov4 listenport=8080 listenaddress=0.0.0.0 connectport=8080 connectaddress=<ip-do-wsl>`
+   (+ liberar 8080 no firewall do Windows). Alternativas: Node instalado no
+   Windows (roda o servidor fora do WSL, zero proxy) ou WSL2 `networkingMode=mirrored`.
+4. Fluxo: aluno digita nome + PIN (registra na 1ª vez); professor também põe o
+   código. Auto-distribui em grupos → professor aperta **▶ iniciar** (ou
+   `/iniciar 5`). Trocar de aula ao vivo: `/mundo carregar aula2-binario`.
+5. **Fallback:** se o tablet falhar (isolamento/WebGL), roda só nos notebooks
+   (já funciona hoje).
+
+### C. RELATÓRIO DE USO
+Ainda NÃO existe log de conclusão por aluno. Amanhã = **manual**: o HUD do
+professor mostra progresso por grupo (`g1 2/4 · g2 ✓`) → screenshots + anotações;
+F3 exporta JSON de perf. Relatório de verdade (quem/o quê/quando concluiu,
+export) = tarefa à parte, NÃO hoje.
+
+### Deferido / não precisa amanhã
+Empacotar em binário único (tem admin, Node roda); trocar stack (decidido: manter
+web + empacotar host depois — ver Decision Log); água/outros blocos.
