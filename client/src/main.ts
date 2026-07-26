@@ -7,6 +7,7 @@ import {
   type ObjectiveState,
   PLAYER,
   PLAYER_REACH,
+  STEP_HEIGHT,
   type RayHit,
   SERVER_TICK_RATE,
   type ScenarioModo,
@@ -27,7 +28,13 @@ import {
   isPorta,
   isProfessorOnly,
   isQuadro,
+  isSlab,
   isSofa,
+  isStairs,
+  escadaId,
+  slabMaterial,
+  slabTop,
+  stairsMaterial,
   type QuadroConteudo,
   COLUNAS_MAGIC,
   LAZY_MAGIC,
@@ -624,6 +631,17 @@ function startGame(snap: Snapshot): void {
     opacity: 0.72,
     depthWrite: false,
   });
+  // vidro colorido (2026-07-25): material PRÓPRIO, blend de verdade — o tile do
+  // atlas é a cor CHEIA (ícone da hotbar sai sólido) e a translucidez vem daqui.
+  // (Antes era dither cutout no atlas — ficou "tela de mosquiteiro", rejeitado
+  // no playtest.) 0.4 = cor bem legível, ainda dá pra ver através; calibrado no
+  // playtest de 2026-07-25 (0.2 ficou fraco). depthWrite:false igual à água.
+  const materialVidro = new THREE.MeshLambertMaterial({
+    map: atlas,
+    transparent: true,
+    opacity: 0.4,
+    depthWrite: false,
+  });
 
   // ?atlas na URL: pendura o canvas do texture atlas no canto (inspeção visual)
   if (new URLSearchParams(location.search).has("atlas")) {
@@ -632,7 +650,7 @@ function startGame(snap: Snapshot): void {
       "position:fixed;right:8px;top:8px;width:256px;image-rendering:pixelated;z-index:20;border:1px solid #000";
     document.body.appendChild(img);
   }
-  const chunkRenderer = new ChunkRenderer(world, [material, materialAgua], scene);
+  const chunkRenderer = new ChunkRenderer(world, [material, materialAgua, materialVidro], scene);
   // lazy: nada a meshar ainda — as colunas entram na fila conforme chegam
   if (!mundoLazy) chunkRenderer.buildAll();
 
@@ -1166,6 +1184,20 @@ function startGame(snap: Snapshot): void {
             : BlockId.QuadroXP;
       blockId = anchor + frente;
     }
+    // laje (2026-07-25): mirou por BAIXO (face de baixo do bloco) → laje de
+    // CIMA; senão laje de baixo (piso). A hotbar guarda a âncora "baixo".
+    if (isSlab(blockId)) {
+      const baixo = blockId - (slabTop(blockId) ? 1 : 0);
+      blockId = target.ny < 0 ? baixo + 1 : baixo;
+    }
+    // escada (2026-07-25): direção SOBE pra onde o jogador olha; metade
+    // (base/cabeça-pra-baixo) pela face clicada (por baixo = de cabeça pra baixo).
+    if (isStairs(blockId)) {
+      const dx = -Math.sin(input.yaw);
+      const dz = -Math.cos(input.yaw);
+      const olhar = Math.abs(dx) > Math.abs(dz) ? (dx > 0 ? 0 : 2) : (dz > 0 ? 1 : 3);
+      blockId = escadaId(stairsMaterial(blockId), olhar, target.ny < 0);
+    }
     activeConn.send(
       JSON.stringify({
         type: "place_block",
@@ -1189,6 +1221,9 @@ function startGame(snap: Snapshot): void {
     if (isSofa(id)) id = BlockId.SofaXP;
     if (isCama(id)) id = BlockId.CamaXP;
     if (isQuadro(id)) id = BlockId.QuadroXP;
+    // laje/escada: copia pra âncora do material (metade/direção re-escolhidas no place)
+    if (isSlab(id)) id = BlockId.LajePedraBaixo + slabMaterial(id) * 2;
+    if (isStairs(id)) id = BlockId.EscadaPedraXP + stairsMaterial(id) * 8;
     if (!isPlaceable(id)) return; // ar/porta-aberta e afins não vão pra mão
     if (isProfessorOnly(id) && papel !== "professor") return; // aluno não copia rocha-matriz
     hotbar[selected] = id;
@@ -1346,6 +1381,11 @@ function startGame(snap: Snapshot): void {
   let lastJumpTap = 0;
   // altura do olho com transição suave (agachar abaixa a câmera)
   let eyeHeight = PLAYER.eyeHeight;
+  // step-up suave (2026-07-25): a FÍSICA sobe o degrau (laje/escada) de uma vez
+  // — tem que ser assim, o servidor valida a mesma simulação. Quem suaviza é o
+  // OLHO: guarda aqui quanto da subida ainda falta "alcançar" e desconta da
+  // câmera, decaindo em ~0,15 s. Visual puro, não muda colisão nem rede.
+  let stepSuave = 0;
   renderer.setAnimationLoop(() => {
     const now = performance.now();
     const dtMs = now - last;
@@ -1404,9 +1444,18 @@ function startGame(snap: Snapshot): void {
         }
       }
     }
+    const yAntesDoPasso = player.pos.y;
     if (chaoCarregado) {
       stepPlayer(world, player, { forward, strafe, jump, yaw: input.yaw, sprint, sneak, fly }, dt);
     }
+    // subiu um degrau andando (só step-up: no chão, sem pular/voar) → a câmera
+    // fica pra trás e recupera suave; decaimento exponencial = independe do FPS
+    const subiu = player.pos.y - yAntesDoPasso;
+    if (player.onGround && !fly && subiu > 0.01 && subiu <= STEP_HEIGHT + 0.01) {
+      stepSuave = Math.min(stepSuave + subiu, STEP_HEIGHT);
+    }
+    stepSuave *= Math.exp(-dt * 14);
+    if (stepSuave < 0.002) stepSuave = 0;
     if (player.pos.y < -16) respawn(); // caiu da borda do mundo
 
     // jogadores remotos deslizam até o último update (suave mesmo a 10 Hz);
@@ -1428,7 +1477,7 @@ function startGame(snap: Snapshot): void {
       camera.fov += (fovAlvo - camera.fov) * kCam;
       camera.updateProjectionMatrix();
     }
-    camera.position.set(player.pos.x, player.pos.y + eyeHeight, player.pos.z);
+    camera.position.set(player.pos.x, player.pos.y + eyeHeight - stepSuave, player.pos.z);
     camera.rotation.set(input.pitch, input.yaw, 0);
 
     // mira: raycast local (visual) — decisão continua no servidor

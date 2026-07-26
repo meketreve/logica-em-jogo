@@ -154,12 +154,38 @@ export const BlockId = {
   AguaFluida5: 134,
   AguaFluida6: 135,
   AguaFluida7: 136,
+  /** Vidro colorido (2026-07-25): 12 cores (mesma paleta das lãs). Cubo CHEIO
+   *  transparente (cutout tingido no atlas — dither, sem material novo); funde
+   *  com vidro do MESMO id no mesher e mostra a face contra vidro de outra cor. */
+  VidroBranco: 137, VidroPreto: 138, VidroVermelho: 139, VidroLaranja: 140,
+  VidroAmarelo: 141, VidroVerde: 142, VidroAzul: 143, VidroRoxo: 144,
+  VidroRosa: 145, VidroCiano: 146, VidroCinza: 147, VidroMarrom: 148,
+  /** Lajes / meio-blocos (2026-07-25): meia altura. Baixo = 0..0.5 (piso),
+   *  Cima = 0.5..1 (teto). NÃO-cubo (forma própria no mesher; colisão de altura
+   *  PARCIAL + step-up automático na física). 3 materiais (pedra/tábua/tijolo),
+   *  cada um Baixo+Cima. A hotbar tem 1 entrada por material; o cliente escolhe
+   *  a metade pela face clicada. Tile reusa o do material (sem pintura nova). */
+  LajePedraBaixo: 149, LajePedraCima: 150,
+  LajeTabuaBaixo: 151, LajeTabuaCima: 152,
+  LajeTijoloBaixo: 153, LajeTijoloCima: 154,
+  /** Escadas (2026-07-25): degrau em L (base meia-altura + degrau de meia
+   *  pegada). 4 DIREÇÕES no sufixo = pra onde o degrau SOBE (XP=+x, ZP=+z,
+   *  XN=−x, ZN=−z, ordem de rotação k×90° como os móveis) × 2 metades: base
+   *  (embaixo) e "C" = Cima (de cabeça pra baixo). 3 materiais. A hotbar tem 1
+   *  entrada por material; direção sai do olhar, metade da face clicada.
+   *  Âncora por material = ...XP (base). Layout: 4 base, depois 4 Cima. */
+  EscadaPedraXP: 155, EscadaPedraZP: 156, EscadaPedraXN: 157, EscadaPedraZN: 158,
+  EscadaPedraXPC: 159, EscadaPedraZPC: 160, EscadaPedraXNC: 161, EscadaPedraZNC: 162,
+  EscadaTabuaXP: 163, EscadaTabuaZP: 164, EscadaTabuaXN: 165, EscadaTabuaZN: 166,
+  EscadaTabuaXPC: 167, EscadaTabuaZPC: 168, EscadaTabuaXNC: 169, EscadaTabuaZNC: 170,
+  EscadaTijoloXP: 171, EscadaTijoloZP: 172, EscadaTijoloXN: 173, EscadaTijoloZN: 174,
+  EscadaTijoloXPC: 175, EscadaTijoloZPC: 176, EscadaTijoloXNC: 177, EscadaTijoloZNC: 178,
 } as const;
 
 export type BlockId = (typeof BlockId)[keyof typeof BlockId];
 
 /** Maior ID válido (mantém isPlaceable sem número mágico ao crescer a lista). */
-const MAX_BLOCK_ID = BlockId.AguaFluida7;
+const MAX_BLOCK_ID = BlockId.EscadaTijoloZNC;
 
 /** Água? Fonte (129) OU fluida (130-136) — atravessável e translúcida. */
 export function isAgua(id: number): boolean {
@@ -215,6 +241,83 @@ export function isFlor(id: number): boolean {
   return id >= BlockId.FlorVermelha && id <= BlockId.FlorBranca;
 }
 
+/** Vidro colorido (qualquer cor)? Cubo cheio transparente (cutout tingido). */
+export function isVidroColorido(id: number): boolean {
+  return id >= BlockId.VidroBranco && id <= BlockId.VidroMarrom;
+}
+
+/** Laje / meio-bloco (qualquer material/metade)? */
+export function isSlab(id: number): boolean {
+  return id >= BlockId.LajePedraBaixo && id <= BlockId.LajeTijoloCima;
+}
+
+/** Laje da metade de CIMA (0.5..1)? false = metade de baixo (0..0.5, piso). */
+export function slabTop(id: number): boolean {
+  return ((id - BlockId.LajePedraBaixo) & 1) === 1;
+}
+
+/** Índice do material da laje: 0 pedra, 1 tábua, 2 tijolo. */
+export function slabMaterial(id: number): number {
+  return (id - BlockId.LajePedraBaixo) >> 1;
+}
+
+/** Escada (qualquer material/direção/metade)? Degrau em L. */
+export function isStairs(id: number): boolean {
+  return id >= BlockId.EscadaPedraXP && id <= BlockId.EscadaTijoloZNC;
+}
+
+/** Direção da escada (pra onde SOBE): 0 +x, 1 +z, 2 −x, 3 −z (rotação k×90°). */
+export function stairsFacing(id: number): number {
+  return (id - BlockId.EscadaPedraXP) % 4;
+}
+
+/** Escada de cabeça pra baixo (variante "C", degrau no teto)? */
+export function stairsTop(id: number): boolean {
+  return (id - BlockId.EscadaPedraXP) % 8 >= 4;
+}
+
+/** Índice do material da escada: 0 pedra, 1 tábua, 2 tijolo. */
+export function stairsMaterial(id: number): number {
+  return ((id - BlockId.EscadaPedraXP) / 8) | 0;
+}
+
+/** Id de escada a partir de (material, direção k, cima?). Âncora por material
+ *  = EscadaPedraXP + mat*8; +4 = variante de cima; +k = direção. */
+export function escadaId(material: number, facing: number, top: boolean): number {
+  return BlockId.EscadaPedraXP + material * 8 + (top ? 4 : 0) + (facing & 3);
+}
+
+/** Caixa (frações da célula): [x0,y0,z0,x1,y1,z1]. */
+export type Aabb = readonly [number, number, number, number, number, number];
+
+/** Pegada XZ do DEGRAU superior da escada (metade da célula), por direção k.
+ *  Padrão (k=0, sobe +x) = metade +x; rotaciona k×90° (mesma rotXZ do mesher). */
+function stepFootprint(k: number): readonly [number, number, number, number] {
+  switch (k & 3) {
+    case 1: return [0, 0.5, 1, 1]; // +z
+    case 2: return [0, 0, 0.5, 1]; // −x
+    case 3: return [0, 0, 1, 0.5]; // −z
+    default: return [0.5, 0, 1, 1]; // +x
+  }
+}
+
+/** Caixas de COLISÃO de um bloco, em frações da célula. Cubo cheio = a célula
+ *  inteira; laje = uma metade; escada = base/teto de meia-altura + degrau de
+ *  meia-pegada (L). Fonte única da colisão parcial (physics.ts) — a física trata
+ *  cada caixa como AABB. Blocos comuns caem no fallback de cubo cheio. */
+export function collisionBoxes(id: number): readonly Aabb[] {
+  if (isSlab(id)) {
+    return slabTop(id) ? [[0, 0.5, 0, 1, 1, 1]] : [[0, 0, 0, 1, 0.5, 1]];
+  }
+  if (isStairs(id)) {
+    const [sx0, sz0, sx1, sz1] = stepFootprint(stairsFacing(id));
+    return stairsTop(id)
+      ? [[0, 0.5, 0, 1, 1, 1], [sx0, 0, sz0, sx1, 0.5, sz1]] // teto + degrau embaixo
+      : [[0, 0, 0, 1, 0.5, 1], [sx0, 0.5, sz0, sx1, 1, sz1]]; // base + degrau em cima
+  }
+  return [[0, 0, 0, 1, 1, 1]];
+}
+
 /** Quadro em qualquer direção? */
 export function isQuadro(id: number): boolean {
   return id >= BlockId.QuadroXP && id <= BlockId.QuadroZN;
@@ -266,7 +369,7 @@ export function isTransparentBlock(id: number): boolean {
   return (
     id === BlockId.Glass || id === BlockId.Leaves ||
     id === BlockId.FolhasIpe || id === BlockId.FolhasAraucaria ||
-    id === BlockId.FolhasPauBrasil || isAgua(id)
+    id === BlockId.FolhasPauBrasil || isAgua(id) || isVidroColorido(id)
   );
 }
 
@@ -393,7 +496,9 @@ export function isFullCube(id: number): boolean {
     !isJanela(id) &&
     !isMovel(id) &&
     !isQuadro(id) &&
-    !isFlor(id)
+    !isFlor(id) &&
+    !isSlab(id) && // laje = meia altura (forma própria + colisão parcial)
+    !isStairs(id) // escada = L (forma própria + colisão parcial)
   );
 }
 

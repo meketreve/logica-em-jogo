@@ -181,6 +181,99 @@ describe("física do jogador (/shared — cliente usa, servidor valida)", () => 
   });
 });
 
+describe("laje / escada (colisão parcial + step-up)", () => {
+  it("pousa no TOPO de uma laje de baixo (pés em cell+0,5)", () => {
+    const w = flatWorld(); // chão y∈[0,7], topo em y=8
+    setBlock(w, 8, 8, 8, BlockId.LajePedraBaixo); // laje ocupa y∈[8, 8.5]
+    const p = createPlayer(8.5, 12, 8.5);
+    simulate(w, p, IDLE, 2);
+    expect(p.onGround).toBe(true);
+    expect(p.pos.y).toBeCloseTo(8.5, 2); // pousou no topo da meia-altura
+  });
+
+  it("laje de baixo NÃO bloqueia a passagem no nível do torso (só a metade baixa)", () => {
+    const w = flatWorld();
+    // laje de baixo suspensa no nível do TORSO (não dos pés): não deve barrar
+    setBlock(w, 8, 10, 5, BlockId.LajePedraBaixo);
+    const p = createPlayer(8.5, 8.001, 8);
+    simulate(w, p, { ...IDLE, forward: 1 }, 2);
+    expect(p.pos.z).toBeLessThan(4); // passou reto por baixo da metade vazia
+  });
+
+  it("SOBE numa laje de baixo andando, sem pular (step-up)", () => {
+    const w = flatWorld();
+    for (let z = 2; z <= 6; z++) setBlock(w, 8, 8, z, BlockId.LajePedraBaixo); // faixa de laje
+    const p = createPlayer(8.5, 8.001, 8);
+    simulate(w, p, { ...IDLE, forward: 1 }, 1); // anda pra -Z, SEM jump (~4 blocos)
+    expect(p.onGround).toBe(true);
+    expect(p.pos.y).toBeCloseTo(8.5, 1); // subiu meio bloco andando
+    expect(p.pos.z).toBeGreaterThan(3); // parou EM CIMA da faixa de laje
+    expect(p.pos.z).toBeLessThan(6.5);
+  });
+
+  it("NÃO sobe um cubo cheio andando (step-up é só ≤ meia altura)", () => {
+    const w = flatWorld();
+    for (let z = 3; z <= 6; z++) setBlock(w, 8, 8, z, BlockId.Stone); // parede de cubo cheio
+    const p = createPlayer(8.5, 8.001, 8);
+    simulate(w, p, { ...IDLE, forward: 1 }, 2);
+    expect(p.pos.y).toBeLessThan(8.4); // não escalou o bloco inteiro
+    expect(p.pos.z).toBeGreaterThan(6.9); // barrado na face do cubo
+  });
+
+  it("bate a cabeça na BASE de uma laje de cima (teto de meia altura)", () => {
+    const w = flatWorld();
+    setBlock(w, 8, 10, 8, BlockId.LajePedraCima); // laje ocupa y∈[10.5, 11]
+    const p = createPlayer(8.5, 8.001, 8.5);
+    p.vel.y = 6;
+    simulate(w, p, { ...IDLE, jump: true }, 2);
+    // a cabeça (pés+1.8) não passa da base do teto (10.5) → pés < 10.5-1.8 = 8.7
+    expect(p.pos.y).toBeLessThan(8.71);
+  });
+
+  it("sobe o degrau de uma escada andando", () => {
+    const w = flatWorld();
+    setBlock(w, 8, 8, 5, BlockId.EscadaPedraZN); // escada sobe pra -z (base + degrau)
+    for (let y = 8; y <= 10; y++) setBlock(w, 8, y, 4, BlockId.Stone); // parede: segura no degrau
+    const p = createPlayer(8.5, 8.001, 8);
+    simulate(w, p, { ...IDLE, forward: 1 }, 2); // anda -Z contra a escada
+    expect(p.onGround).toBe(true);
+    expect(p.pos.y).toBeCloseTo(9, 1); // subiu base (8,5) E degrau (9,0)
+    expect(p.pos.y).toBeGreaterThan(8.4); // subiu pelo menos a base (meia altura)
+  });
+
+  // bug-512 (2026-07-25): o degrau da escada ocupa MEIA célula em XZ; encostar
+  // nele empurrava o jogador até a fronteira da CÉLULA (~0,65 pra trás).
+  it("não é EMPURRADO PRA TRÁS ao esbarrar no degrau da escada", () => {
+    const w = flatWorld();
+    setBlock(w, 8, 8, 5, BlockId.EscadaPedraZN); // sobe pra −z: degrau na metade −z
+    const p = createPlayer(8.5, 8.001, 8);
+    const dt = 1 / 60;
+    let zAnterior = p.pos.z;
+    for (let i = 0; i < 120; i++) {
+      stepPlayer(w, p, { ...IDLE, forward: 1 }, dt); // anda −Z contra a escada
+      expect(p.pos.z).toBeLessThanOrEqual(zAnterior + 1e-3); // nunca volta pra +Z
+      zAnterior = p.pos.z;
+    }
+  });
+
+  it("sobe uma ESCADARIA de 2 lances andando e para na parede do topo", () => {
+    const w = flatWorld(); // chão topo em y=8
+    setBlock(w, 8, 8, 5, BlockId.EscadaPedraZN); // 1º lance: 8 → 9
+    setBlock(w, 8, 8, 4, BlockId.Stone);
+    setBlock(w, 8, 9, 4, BlockId.EscadaPedraZN); // 2º lance: 9 → 10
+    setBlock(w, 8, 8, 3, BlockId.Stone);
+    setBlock(w, 8, 9, 3, BlockId.Stone); // patamar em y=10
+    setBlock(w, 8, 10, 2, BlockId.Stone);
+    setBlock(w, 8, 11, 2, BlockId.Stone); // parede que segura o jogador no topo
+    const p = createPlayer(8.5, 8.001, 8);
+    simulate(w, p, { ...IDLE, forward: 1 }, 3);
+    expect(p.onGround).toBe(true);
+    expect(p.pos.y).toBeCloseTo(10, 1); // subiu os 2 lances andando
+    expect(p.pos.z).toBeLessThan(4); // chegou ao patamar
+    expect(p.pos.z).toBeGreaterThan(3); // parado na parede, não dentro dela
+  });
+});
+
 describe("nado (água)", () => {
   /** Piscina: chão sólido y∈[0,3] e água y∈[4,7] num miolo 4..11 (longe da borda
    *  do chunk, para os vizinhos do jogador serem água, não OOB). */

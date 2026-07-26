@@ -5,11 +5,22 @@ import {
   CHUNK_VOLUME,
   aguaComNivel,
   aguaNivel,
+  collisionBoxes,
+  escadaId,
   isAgua,
   isAguaFonte,
+  isFullCube,
   isPlaceable,
+  isSlab,
   isSolidBlock,
+  isStairs,
   isTransparentBlock,
+  isVidroColorido,
+  slabMaterial,
+  slabTop,
+  stairsFacing,
+  stairsMaterial,
+  stairsTop,
 } from "./index";
 
 describe("formato de bloco/chunk (contrato de save e snapshot)", () => {
@@ -70,7 +81,15 @@ describe("formato de bloco/chunk (contrato de save e snapshot)", () => {
     // água NÃO é colocável por place_block cru — só o balde/fluxo cria
     expect(isPlaceable(BlockId.Agua)).toBe(false);
     expect(isPlaceable(BlockId.AguaFluida7)).toBe(false);
-    expect(isPlaceable(137)).toBe(false); // próximo byte NÃO é bloco
+    // vidro colorido + laje + escada (2026-07-25): append 137-178, colocáveis
+    expect(BlockId.VidroBranco).toBe(137);
+    expect(BlockId.LajePedraBaixo).toBe(149);
+    expect(BlockId.EscadaPedraXP).toBe(155);
+    expect(BlockId.EscadaTijoloZNC).toBe(178);
+    expect(isPlaceable(BlockId.VidroBranco)).toBe(true);
+    expect(isPlaceable(BlockId.LajeTijoloCima)).toBe(true);
+    expect(isPlaceable(BlockId.EscadaTijoloZNC)).toBe(true);
+    expect(isPlaceable(179)).toBe(false); // próximo byte NÃO é bloco
   });
 
   it("água: fonte + fluida atravessável (não-sólida) e translúcida no mesher", () => {
@@ -94,6 +113,43 @@ describe("formato de bloco/chunk (contrato de save e snapshot)", () => {
     expect(aguaComNivel(0)).toBe(BlockId.Air); // secou
     expect(isAguaFonte(BlockId.Agua)).toBe(true);
     expect(isAguaFonte(BlockId.AguaFluida7)).toBe(false);
+  });
+
+  it("vidro colorido (2026-07-25): cubo cheio transparente, colocável", () => {
+    for (const id of [BlockId.VidroBranco, BlockId.VidroAzul, BlockId.VidroMarrom]) {
+      expect(isVidroColorido(id)).toBe(true);
+      expect(isTransparentBlock(id)).toBe(true); // funde com vidro do mesmo id
+      expect(isFullCube(id)).toBe(true); // ocupa a célula inteira (colisão de cubo)
+      expect(isSolidBlock(id)).toBe(true);
+    }
+    expect(isVidroColorido(BlockId.Glass)).toBe(false); // vidro comum não é "colorido"
+  });
+
+  it("laje: meia altura, NÃO-cubo, colisão da metade certa", () => {
+    expect(isSlab(BlockId.LajePedraBaixo)).toBe(true);
+    expect(isFullCube(BlockId.LajePedraBaixo)).toBe(false);
+    expect(isSolidBlock(BlockId.LajePedraBaixo)).toBe(true);
+    expect(slabTop(BlockId.LajePedraBaixo)).toBe(false);
+    expect(slabTop(BlockId.LajePedraCima)).toBe(true);
+    expect(slabMaterial(BlockId.LajeTijoloBaixo)).toBe(2);
+    // baixo = piso (0..0.5); cima = teto (0.5..1)
+    expect(collisionBoxes(BlockId.LajePedraBaixo)).toEqual([[0, 0, 0, 1, 0.5, 1]]);
+    expect(collisionBoxes(BlockId.LajePedraCima)).toEqual([[0, 0.5, 0, 1, 1, 1]]);
+  });
+
+  it("escada: L de base + degrau, direção/metade no id", () => {
+    expect(isStairs(BlockId.EscadaPedraXP)).toBe(true);
+    expect(isFullCube(BlockId.EscadaPedraXP)).toBe(false);
+    expect(stairsFacing(BlockId.EscadaPedraXP)).toBe(0); // +x
+    expect(stairsFacing(BlockId.EscadaPedraZN)).toBe(3); // -z
+    expect(stairsTop(BlockId.EscadaPedraXP)).toBe(false);
+    expect(stairsTop(BlockId.EscadaPedraXPC)).toBe(true); // variante de cima
+    expect(stairsMaterial(BlockId.EscadaTijoloXP)).toBe(2);
+    expect(escadaId(2, 3, true)).toBe(BlockId.EscadaTijoloZNC); // round-trip
+    // base de baixo (0..0.5, pegada cheia) + degrau na metade +x (0.5..1)
+    const boxes = collisionBoxes(BlockId.EscadaPedraXP);
+    expect(boxes[0]).toEqual([0, 0, 0, 1, 0.5, 1]);
+    expect(boxes[1]).toEqual([0.5, 0.5, 0, 1, 1, 1]);
   });
 
   it("volume do chunk cabe em 1 byte por bloco", () => {

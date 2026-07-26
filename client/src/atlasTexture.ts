@@ -158,6 +158,31 @@ function paintGlass(ctx: CanvasRenderingContext2D, tile: number): void {
   for (let i = 4; i < 10; i++) ctx.fillRect(ox + i, oy + 14 - i, 1, 1);
 }
 
+/** Vidro colorido (2026-07-25, refeito no playtest): tile CHEIO na cor, 100%
+ *  opaco. A translucidez NÃO mora mais aqui — vem do material próprio do vidro
+ *  no cliente (blend com ~20% de opacidade). Assim a cor fica limpa (nada de
+ *  dither/"mosquiteiro") e o ícone 2D da hotbar, que copia o tile do atlas,
+ *  sai sólido. Moldura da cor clareada + brilho diagonal dão a leitura de vidro. */
+function paintVidroCor(ctx: CanvasRenderingContext2D, tile: number, cor: Rgb): void {
+  const [ox, oy] = tileOrigin(tile);
+  const px = ATLAS.tilePx;
+  // corpo: cor cheia (o material dilui pra ~20% na cena)
+  ctx.fillStyle = `rgb(${cor[0]},${cor[1]},${cor[2]})`;
+  ctx.fillRect(ox, oy, px, px);
+  // moldura na cor clareada (mistura com branco)
+  const lr = Math.round((cor[0] + 255) / 2);
+  const lg = Math.round((cor[1] + 255) / 2);
+  const lb = Math.round((cor[2] + 255) / 2);
+  ctx.fillStyle = `rgb(${lr},${lg},${lb})`;
+  ctx.fillRect(ox, oy, px, 1);
+  ctx.fillRect(ox, oy + px - 1, px, 1);
+  ctx.fillRect(ox, oy, 1, px);
+  ctx.fillRect(ox + px - 1, oy, 1, px);
+  // brilho diagonal (reflexo)
+  ctx.fillStyle = "rgb(240,246,250)";
+  for (let i = 3; i < 8; i++) ctx.fillRect(ox + i, oy + 11 - i, 1, 1);
+}
+
 /** Bloco-glifo (cp20): base clara com ruído sutil + a letra/dígito no centro.
  *  Fonte bold no tamanho do tile, NearestFilter deixa o traço em pixels
  *  crocantes (legível à distância — soletrar palavras / escrever números). */
@@ -492,6 +517,16 @@ export function createAtlasTexture(): THREE.Texture {
 
   // água (2026-07-21): translúcida por furos (cutout)
   paintAgua(ctx, TILE.agua);
+
+  // vidro colorido (2026-07-25): mesma paleta das lãs, na ordem VidroBranco..Marrom
+  const CORES_VIDRO: readonly Rgb[] = [
+    [232, 232, 230], [38, 38, 42], [196, 52, 46], [226, 132, 38],
+    [232, 206, 58], [74, 164, 62], [58, 94, 194], [142, 72, 182],
+    [226, 140, 170], [70, 178, 190], [130, 130, 134], [110, 80, 54],
+  ];
+  for (let i = 0; i < CORES_VIDRO.length; i++) {
+    paintVidroCor(ctx, TILE.vidroBranco + i, CORES_VIDRO[i]!);
+  }
 
   // cp20: blocos-glifo — letras em creme, dígitos em azul-claro (distinção
   // rápida à distância entre "letra" e "número").

@@ -1,6 +1,7 @@
 import {
   BlockId,
   camaHeadDir,
+  collisionBoxes,
   isAgua,
   isCadeira,
   isCama,
@@ -12,13 +13,18 @@ import {
   isPorta,
   isPortaAberta,
   isQuadro,
+  isSlab,
   isSofa,
+  isStairs,
   isTapete,
   isTransparentBlock,
+  isVidroColorido,
   janelaEixoX,
   janelaHingeAlta,
   portaEixoX,
   portaHingeAlta,
+  slabMaterial,
+  stairsMaterial,
 } from "./blocks";
 import { CHUNK_SIZE } from "./constants";
 import { type World, chunkIndex, getBlock } from "./world";
@@ -110,6 +116,11 @@ export const TILE = {
   mandacaruTop: 93,
   // 2026-07-21: água (azul furado em xadrez → translucidez via alphaTest)
   agua: 94,
+  // 2026-07-25: vidro colorido (12 cores — cutout tingido/dither). Lajes e
+  // escadas NÃO ganham tile: reusam pedra/tábua/tijolo (SLAB_STAIR_TILES).
+  vidroBranco: 95, vidroPreto: 96, vidroVermelho: 97, vidroLaranja: 98,
+  vidroAmarelo: 99, vidroVerde: 100, vidroAzul: 101, vidroRoxo: 102,
+  vidroRosa: 103, vidroCiano: 104, vidroCinza: 105, vidroMarrom: 106,
 } as const;
 
 /** cp20: blocos-glifo. Letras A–Z e dígitos 0–9 ocupam tiles consecutivos a
@@ -211,6 +222,23 @@ for (let id = BlockId.AguaFluida1; id <= BlockId.AguaFluida7; id++) {
   BLOCK_TILES[id] = uniform(TILE.agua);
 }
 
+// vidro colorido (2026-07-25): 12 cores, tiles consecutivos a partir de vidroBranco.
+for (let i = 0; i < 12; i++) {
+  BLOCK_TILES[BlockId.VidroBranco + i] = uniform(TILE.vidroBranco + i);
+}
+
+/** Tile por material de laje/escada (0 pedra, 1 tábua, 2 tijolo) — reusa os
+ *  tiles dos blocos cheios (sem pintura nova). */
+const SLAB_STAIR_TILES: readonly number[] = [TILE.stone, TILE.planks, TILE.brick];
+// lajes (2026-07-25): ícone 2D = tile do material (a forma vive no emitShape).
+for (let id = BlockId.LajePedraBaixo; id <= BlockId.LajeTijoloCima; id++) {
+  BLOCK_TILES[id] = uniform(SLAB_STAIR_TILES[slabMaterial(id)]!);
+}
+// escadas (2026-07-25): idem, ícone = tile do material.
+for (let id = BlockId.EscadaPedraXP; id <= BlockId.EscadaTijoloZNC; id++) {
+  BLOCK_TILES[id] = uniform(SLAB_STAIR_TILES[stairsMaterial(id)]!);
+}
+
 // móveis direcionais: mesmo ícone pras 4 direções
 for (let k = 0; k < 4; k++) {
   BLOCK_TILES[BlockId.CadeiraXP + k] = uniform(TILE.planks);
@@ -283,6 +311,10 @@ export function blockSelectionBox(
   if (isCadeira(id)) return [3 * P, 0, 3 * P, 13 * P, 1, 13 * P];
   if (isSofa(id)) return [0, 0, 0, 1, 15 * P, 1];
   if (isCama(id)) return [0, 0, 0, 1, 9 * P, 1];
+  // laje = a própria metade (a mira atravessa a metade vazia, estilo Minecraft);
+  // escada = envelope de cubo cheio (simples de mirar; degrau real fica no mesher).
+  if (isSlab(id)) return collisionBoxes(id)[0]!;
+  if (isStairs(id)) return [0, 0, 0, 1, 1, 1];
   return [0, 0, 0, 1, 1, 1]; // cubo cheio (e fallback)
 }
 
@@ -397,12 +429,16 @@ export interface ChunkGeometry {
   positions: Float32Array;
   normals: Float32Array;
   uvs: Float32Array;
-  /** Índices OPACOS primeiro, ÁGUA depois (concatenados). O cliente fatia em 2
-   *  grupos: [0, opaqueIndexCount) = material opaco (cutout); o resto = material
-   *  da água (transparente/blend). Água = 2º draw call SÓ em chunk que a contém. */
+  /** Índices OPACOS primeiro, ÁGUA depois, VIDRO COLORIDO por último
+   *  (concatenados). O cliente fatia em 3 grupos: [0, opaqueIndexCount) =
+   *  material opaco (cutout); os `aguaIndexCount` seguintes = material da água;
+   *  o resto = material do vidro colorido. Ambos transparentes DE VERDADE
+   *  (blend) — e cada um só vira draw call no chunk que o contém. */
   indices: Uint32Array;
-  /** Quantos índices são opacos (o restante, até `indices.length`, é água). */
+  /** Quantos índices são opacos (o restante é água + vidro colorido). */
   opaqueIndexCount: number;
+  /** Quantos índices são de água (logo depois dos opacos). 2026-07-25. */
+  aguaIndexCount: number;
 }
 
 export function meshChunk(world: World, cx: number, cy: number, cz: number): ChunkGeometry {
@@ -419,6 +455,7 @@ export function meshChunk(world: World, cx: number, cy: number, cz: number): Chu
       uvs: new Float32Array(0),
       indices: new Uint32Array(0),
       opaqueIndexCount: 0,
+      aguaIndexCount: 0,
     };
   }
 
@@ -429,6 +466,9 @@ export function meshChunk(world: World, cx: number, cy: number, cz: number): Chu
   // Água (2026-07-22): faces vão pra ESTE array separado → 2º grupo/material
   // (transparente de verdade, blend). Concatenado depois de `indices`.
   const waterIndices: number[] = [];
+  // Vidro colorido (2026-07-25): 3º grupo/material — blend de verdade (~20% de
+  // opacidade tingida), não mais o dither cutout do vidro comum.
+  const vidroIndices: number[] = [];
 
   const ox = cx * CHUNK_SIZE;
   const oy = cy * CHUNK_SIZE;
@@ -625,6 +665,16 @@ export function meshChunk(world: World, cx: number, cy: number, cz: number): Chu
         return true;
       }
       default: {
+        // laje/escada (2026-07-25): a FORMA é exatamente a caixa de colisão
+        // (collisionBoxes) — meia altura (laje) ou base+degrau em L (escada).
+        // emitBox já culla a face rente ao vizinho cheio e funde com id igual.
+        if (isSlab(id) || isStairs(id)) {
+          const tile = SLAB_STAIR_TILES[isSlab(id) ? slabMaterial(id) : stairsMaterial(id)]!;
+          for (const [bx0, by0, bz0, bx1, by1, bz1] of collisionBoxes(id)) {
+            emitBox(lx, ly, lz, id, tile, bx0, by0, bz0, bx1, by1, bz1);
+          }
+          return true;
+        }
         // quadro (2026-07-19): painel fino encostado na parede de trás (lado
         // oposto da frente), mesma rotação dos móveis
         if (isQuadro(id)) {
@@ -720,8 +770,12 @@ export function meshChunk(world: World, cx: number, cy: number, cz: number): Chu
         }
         const tiles = BLOCK_TILES[id];
         if (!tiles) continue;
-        // água (fonte OU fluida) → grupo transparente separado; resto → opaco
-        const idxTarget = isAgua(id) ? waterIndices : indices;
+        // água e vidro colorido → grupos transparentes separados; resto → opaco
+        const idxTarget = isAgua(id)
+          ? waterIndices
+          : isVidroColorido(id)
+            ? vidroIndices
+            : indices;
 
         for (const face of FACES) {
           const neighbor = getBlock(
@@ -766,13 +820,17 @@ export function meshChunk(world: World, cx: number, cy: number, cz: number): Chu
     }
   }
 
-  // opaco primeiro, água depois — o cliente fatia em 2 grupos por opaqueIndexCount
-  const allIndices = waterIndices.length ? indices.concat(waterIndices) : indices;
+  // opaco, água, vidro — o cliente fatia em 3 grupos pelos dois contadores
+  const allIndices =
+    waterIndices.length || vidroIndices.length
+      ? indices.concat(waterIndices, vidroIndices)
+      : indices;
   return {
     positions: new Float32Array(positions),
     normals: new Float32Array(normals),
     uvs: new Float32Array(uvs),
     indices: new Uint32Array(allIndices),
     opaqueIndexCount: indices.length,
+    aguaIndexCount: waterIndices.length,
   };
 }

@@ -44,6 +44,18 @@ describe("culled mesher (função pura: bytes → geometria)", () => {
     expect(gmix.indices.length - gmix.opaqueIndexCount).toBe(36); // 6 faces de água
   });
 
+  // 2026-07-25: vidro colorido saiu do cutout e virou 3º grupo (blend ~20%)
+  it("vidro colorido vai pro 3º grupo (opaco | água | vidro, nessa ordem)", () => {
+    const w = createWorld(DIMS);
+    setBlock(w, 8, 8, 8, BlockId.Stone);
+    setBlock(w, 10, 8, 8, BlockId.Agua);
+    setBlock(w, 12, 8, 8, BlockId.VidroAzul); // os 3 separados: nada funde/oclui
+    const g = meshChunk(w, 0, 0, 0);
+    expect(g.opaqueIndexCount).toBe(36); // pedra
+    expect(g.aguaIndexCount).toBe(36); // água, logo depois
+    expect(g.indices.length - g.opaqueIndexCount - g.aguaIndexCount).toBe(36); // vidro por último
+  });
+
   it("2 blocos adjacentes = 10 faces (faces internas culled)", () => {
     const w = createWorld(DIMS);
     setBlock(w, 8, 8, 8, BlockId.Stone);

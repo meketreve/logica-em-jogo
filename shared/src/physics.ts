@@ -1,4 +1,4 @@
-import { isAgua, isSolidBlock } from "./blocks";
+import { collisionBoxes, isAgua, isSlab, isSolidBlock, isStairs } from "./blocks";
 import { type World, getBlock } from "./world";
 
 /**
@@ -50,6 +50,15 @@ export const PLAYER = {
 const EPS = 1e-3;
 /** Deslocamento máximo por sub-passo de integração (< 1 bloco = sem tunneling). */
 const MAX_STEP = 0.4;
+/** Altura máxima que o jogador SOBE andando, sem pular (laje/degrau de escada =
+ *  0,5). Uma pitada acima de 0,5 pra limpar o topo da laje com folga. */
+export const STEP_HEIGHT = 0.55;
+
+/** Bloco com colisão PARCIAL (sub-caixas, não a célula inteira)? Só laje/escada
+ *  hoje; o resto sólido colide como célula cheia (cubo, cerca, porta, móvel). */
+function temColisaoParcial(id: number): boolean {
+  return isSlab(id) || isStairs(id);
+}
 
 export interface PlayerState {
   /** Posição dos PÉS (centro do AABB em x/z, base em y). */
@@ -78,24 +87,127 @@ export function createPlayer(x: number, y: number, z: number): PlayerState {
   return { pos: { x, y, z }, vel: { x: 0, y: 0, z: 0 }, onGround: false, sprinting: false };
 }
 
-/** O AABB do jogador na posição `pos` sobrepõe algum bloco sólido? */
+/** O AABB do jogador na posição `pos` sobrepõe algum bloco sólido? Cubo cheio
+ *  (e cerca/porta/móvel) ocupa a célula inteira → overlap imediato; laje/escada
+ *  testam as sub-caixas de `collisionBoxes` (colisão de altura parcial). */
 function collides(world: World, pos: Vec3): boolean {
   const half = PLAYER.width / 2;
-  const x0 = Math.floor(pos.x - half);
-  const x1 = Math.floor(pos.x + half);
-  const y0 = Math.floor(pos.y);
-  const y1 = Math.floor(pos.y + PLAYER.height);
-  const z0 = Math.floor(pos.z - half);
-  const z1 = Math.floor(pos.z + half);
+  const pMinX = pos.x - half, pMaxX = pos.x + half;
+  const pMinY = pos.y, pMaxY = pos.y + PLAYER.height;
+  const pMinZ = pos.z - half, pMaxZ = pos.z + half;
+  const x0 = Math.floor(pMinX), x1 = Math.floor(pMaxX);
+  const y0 = Math.floor(pMinY), y1 = Math.floor(pMaxY);
+  const z0 = Math.floor(pMinZ), z1 = Math.floor(pMaxZ);
   for (let y = y0; y <= y1; y++) {
     for (let z = z0; z <= z1; z++) {
       for (let x = x0; x <= x1; x++) {
+        const id = getBlock(world, x, y, z);
         // cp23: sólido de FÍSICA, não "≠ ar" — porta aberta e tocha atravessam
-        if (isSolidBlock(getBlock(world, x, y, z))) return true;
+        if (!isSolidBlock(id)) continue;
+        // célula inteira (cubo cheio, cerca, porta fechada, móvel) → overlap certo
+        if (!temColisaoParcial(id)) return true;
+        // laje/escada: overlap AABB contra cada sub-caixa (frações da célula)
+        for (const b of collisionBoxes(id)) {
+          if (
+            pMaxX > x + b[0] && pMinX < x + b[3] &&
+            pMaxY > y + b[1] && pMinY < y + b[4] &&
+            pMaxZ > z + b[2] && pMinZ < z + b[5]
+          )
+            return true;
+        }
       }
     }
   }
   return false;
+}
+
+const FULL_BOX: readonly (readonly [number, number, number, number, number, number])[] =
+  [[0, 0, 0, 1, 1, 1]];
+
+/** Superfície de apoio (topo/base) de colisão sob/sobre o jogador ao longo de Y,
+ *  respeitando sub-caixas parciais. `dir<0` = descendo (topo mais alto sob os
+ *  pés → onde os pés pousam); `dir>0` = subindo (base mais baixa sobre a cabeça).
+ *  Só considera caixas que o AABB toca em X/Z. Devolve NaN se não achar. */
+function resolveVertical(world: World, pos: Vec3, dir: number): number {
+  const half = PLAYER.width / 2;
+  const pMinX = pos.x - half, pMaxX = pos.x + half;
+  const pMinZ = pos.z - half, pMaxZ = pos.z + half;
+  const x0 = Math.floor(pMinX), x1 = Math.floor(pMaxX);
+  const z0 = Math.floor(pMinZ), z1 = Math.floor(pMaxZ);
+  // janela de células em Y que cobre o AABB (+1 de folga em cada ponta)
+  const yLo = Math.floor(pos.y) - 1;
+  const yHi = Math.floor(pos.y + PLAYER.height) + 1;
+  const feet = pos.y;
+  const head = pos.y + PLAYER.height;
+  let best = NaN;
+  for (let y = yLo; y <= yHi; y++) {
+    for (let z = z0; z <= z1; z++) {
+      for (let x = x0; x <= x1; x++) {
+        const id = getBlock(world, x, y, z);
+        if (!isSolidBlock(id)) continue;
+        const boxes = temColisaoParcial(id) ? collisionBoxes(id) : FULL_BOX;
+        for (const b of boxes) {
+          // toca o jogador em X/Z?
+          if (pMaxX <= x + b[0] || pMinX >= x + b[3]) continue;
+          if (pMaxZ <= z + b[2] || pMinZ >= z + b[5]) continue;
+          const wy0 = y + b[1], wy1 = y + b[4];
+          if (dir < 0) {
+            // caixa de PISO (base no ou abaixo dos pés) → maior topo
+            if (wy0 <= feet + EPS && (Number.isNaN(best) || wy1 > best)) best = wy1;
+          } else {
+            // caixa de TETO (topo no ou acima da cabeça) → menor base
+            if (wy1 >= head - EPS && (Number.isNaN(best) || wy0 < best)) best = wy0;
+          }
+        }
+      }
+    }
+  }
+  return best;
+}
+
+/** Face de colisão HORIZONTAL mais restritiva no eixo `axis`, respeitando
+ *  sub-caixas parciais. `dir>0` = indo pro + (queremos a MENOR face de entrada
+ *  `x0`); `dir<0` = indo pro − (a MAIOR face de saída `x1`). Só conta caixa que
+ *  o AABB do jogador realmente penetra nos 3 eixos. Devolve NaN se não achar.
+ *  (2026-07-25 — bug-512: o snap antigo era na fronteira da CÉLULA, o que jogava
+ *  o jogador pra trás ao esbarrar no degrau de meia pegada da escada.) */
+function resolveHoriz(world: World, pos: Vec3, axis: "x" | "z", dir: number): number {
+  const half = PLAYER.width / 2;
+  const eixoX = axis === "x";
+  // índices da caixa: [min,max] do eixo do movimento e do outro eixo horizontal
+  const iMinA = eixoX ? 0 : 2, iMaxA = eixoX ? 3 : 5;
+  const iMinO = eixoX ? 2 : 0, iMaxO = eixoX ? 5 : 3;
+  const pMinA = pos[axis] - half, pMaxA = pos[axis] + half;
+  const outro = eixoX ? pos.z : pos.x;
+  const pMinO = outro - half, pMaxO = outro + half;
+  const pMinY = pos.y, pMaxY = pos.y + PLAYER.height;
+  const a0 = Math.floor(pMinA), a1 = Math.floor(pMaxA);
+  const o0 = Math.floor(pMinO), o1 = Math.floor(pMaxO);
+  const y0 = Math.floor(pMinY), y1 = Math.floor(pMaxY);
+  let best = NaN;
+  for (let y = y0; y <= y1; y++) {
+    for (let o = o0; o <= o1; o++) {
+      for (let a = a0; a <= a1; a++) {
+        const id = getBlock(world, eixoX ? a : o, y, eixoX ? o : a);
+        if (!isSolidBlock(id)) continue;
+        const boxes = temColisaoParcial(id) ? collisionBoxes(id) : FULL_BOX;
+        for (const b of boxes) {
+          // só caixa realmente penetrada (overlap nos 3 eixos) empurra
+          if (pMaxY <= y + b[1] || pMinY >= y + b[4]) continue;
+          if (pMaxO <= o + b[iMinO] || pMinO >= o + b[iMaxO]) continue;
+          if (pMaxA <= a + b[iMinA] || pMinA >= a + b[iMaxA]) continue;
+          if (dir > 0) {
+            const face = a + b[iMinA];
+            if (Number.isNaN(best) || face < best) best = face;
+          } else {
+            const face = a + b[iMaxA];
+            if (Number.isNaN(best) || face > best) best = face;
+          }
+        }
+      }
+    }
+  }
+  return best;
 }
 
 /** Move um eixo e, se colidir, encosta na face do bloco e zera a velocidade do eixo. */
@@ -107,17 +219,26 @@ function moveAxis(world: World, p: PlayerState, axis: "x" | "y" | "z", dist: num
   const half = PLAYER.width / 2;
   if (axis === "y") {
     if (dist < 0) {
-      p.pos.y = Math.floor(p.pos.y) + 1 + EPS;
+      // pousa no TOPO da superfície de apoio (laje = 0,5; cubo = topo da célula)
+      const top = resolveVertical(world, p.pos, -1);
+      p.pos.y = (Number.isNaN(top) ? Math.floor(p.pos.y) + 1 : top) + EPS;
       p.onGround = true;
     } else {
-      p.pos.y = Math.floor(p.pos.y + PLAYER.height) - PLAYER.height - EPS;
+      // bate a cabeça na BASE da caixa acima
+      const bot = resolveVertical(world, p.pos, 1);
+      p.pos.y =
+        (Number.isNaN(bot) ? Math.floor(p.pos.y + PLAYER.height) : bot) - PLAYER.height - EPS;
     }
     p.vel.y = 0;
   } else {
+    // X/Z: encosta na face REAL da caixa que bloqueou (cubo cheio = fronteira de
+    // célula; degrau de escada = meia célula). Fallback na fronteira de célula
+    // se nada for achado (não deve acontecer — `collides` já disse que há caixa).
+    const face = resolveHoriz(world, p.pos, axis, dist);
     if (dist > 0) {
-      p.pos[axis] = Math.floor(p.pos[axis] + half) - half - EPS;
+      p.pos[axis] = (Number.isNaN(face) ? Math.floor(p.pos[axis] + half) : face) - half - EPS;
     } else {
-      p.pos[axis] = Math.floor(p.pos[axis] - half) + 1 + half + EPS;
+      p.pos[axis] = (Number.isNaN(face) ? Math.floor(p.pos[axis] - half) + 1 : face) + half + EPS;
     }
     p.vel[axis] = 0;
   }
@@ -135,18 +256,69 @@ function inWater(world: World, pos: Vec3): boolean {
   );
 }
 
-/** Há bloco sólido logo abaixo dos pés (sustentando o AABB)? */
+/** Há superfície de colisão sustentando os pés (topo ≈ pos.y)? Considera laje/
+ *  escada: o apoio pode ser um topo parcial (0,5) na PRÓPRIA célula dos pés, não
+ *  só a célula de baixo. */
 function hasSupport(world: World, pos: Vec3): boolean {
   const half = PLAYER.width / 2;
-  const y = Math.floor(pos.y) - 1;
-  const x0 = Math.floor(pos.x - half);
-  const x1 = Math.floor(pos.x + half);
-  const z0 = Math.floor(pos.z - half);
-  const z1 = Math.floor(pos.z + half);
-  for (let z = z0; z <= z1; z++)
-    for (let x = x0; x <= x1; x++)
-      if (isSolidBlock(getBlock(world, x, y, z))) return true;
+  const pMinX = pos.x - half, pMaxX = pos.x + half;
+  const pMinZ = pos.z - half, pMaxZ = pos.z + half;
+  const x0 = Math.floor(pMinX), x1 = Math.floor(pMaxX);
+  const z0 = Math.floor(pMinZ), z1 = Math.floor(pMaxZ);
+  const yLo = Math.floor(pos.y - 0.06);
+  const yHi = Math.floor(pos.y);
+  for (let y = yLo; y <= yHi; y++) {
+    for (let z = z0; z <= z1; z++) {
+      for (let x = x0; x <= x1; x++) {
+        const id = getBlock(world, x, y, z);
+        if (!isSolidBlock(id)) continue;
+        const boxes = temColisaoParcial(id) ? collisionBoxes(id) : FULL_BOX;
+        for (const b of boxes) {
+          if (pMaxX <= x + b[0] || pMinX >= x + b[3]) continue;
+          if (pMaxZ <= z + b[2] || pMinZ >= z + b[5]) continue;
+          const top = y + b[4];
+          if (top <= pos.y + EPS && top >= pos.y - 0.06) return true;
+        }
+      }
+    }
+  }
   return false;
+}
+
+/** Move na horizontal com SUBIDA automática de degrau/laje (≤ STEP_HEIGHT). Se
+ *  a parede bloqueou o passo e há espaço pra subir e continuar, o jogador sobe
+ *  andando (sem pular) e pousa no ressalto — estilo Minecraft. `canStep` só
+ *  liga com os pés no chão. Mantém o edge-guard do agachar (`guard`). */
+function moveHoriz(
+  world: World,
+  p: PlayerState,
+  axis: "x" | "z",
+  dist: number,
+  guard: boolean,
+  canStep: boolean,
+): void {
+  const startAxis = p.pos[axis];
+  moveAxisGuarded(world, p, axis, dist, guard);
+  const moved = p.pos[axis] - startAxis;
+  if (!canStep || Math.abs(moved) >= Math.abs(dist) - EPS) return; // chegou ou não pode subir
+
+  // parede no caminho: tenta subir o ressalto. Trabalha numa posição de teste,
+  // só confirma se subir + avançar + pousar der certo.
+  const savedAxis = p.pos[axis];
+  const savedY = p.pos.y;
+  p.pos.y = savedY + STEP_HEIGHT;
+  if (collides(world, p.pos)) { p.pos.y = savedY; return; } // sem teto pra subir
+  p.pos[axis] += dist - moved; // avança o que faltava, já elevado
+  if (collides(world, p.pos)) { // ainda bate → não é ressalto subível
+    p.pos[axis] = savedAxis;
+    p.pos.y = savedY;
+    return;
+  }
+  moveAxis(world, p, "y", -STEP_HEIGHT); // pousa no ressalto (Y preciso, seta onGround)
+  if (guard && !hasSupport(world, p.pos)) { // agachado: não pisa no vazio
+    p.pos[axis] = savedAxis;
+    p.pos.y = savedY;
+  }
 }
 
 /** Há bloco sólido colado ao jogador na horizontal (parede/borda para sair da
@@ -268,7 +440,10 @@ export function stepPlayer(world: World, p: PlayerState, input: MoveInput, dt: n
     moveAxis(world, p, "y", p.vel.y * h);
     // edge-guard só com os pés no chão — no ar (pulo/queda) agachar não trava nada
     const guard = sneak && p.onGround;
-    moveAxisGuarded(world, p, "x", p.vel.x * h, guard);
-    moveAxisGuarded(world, p, "z", p.vel.z * h, guard);
+    // subida automática de laje/degrau só com os pés no chão e fora d'água
+    // (submerso o nado resolve a subida; no ar não sobe ressalto).
+    const canStep = p.onGround && !submerso;
+    moveHoriz(world, p, "x", p.vel.x * h, guard, canStep);
+    moveHoriz(world, p, "z", p.vel.z * h, guard, canStep);
   }
 }

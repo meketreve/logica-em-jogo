@@ -16,11 +16,12 @@ export class ChunkRenderer {
   remeshMsTotal = 0;
   lastRemeshMs = 0;
 
-  /** `materials[0]` = opaco (cutout), `materials[1]` = água (transparente/blend).
-   *  O mesher fatia os índices em 2 grupos por `opaqueIndexCount`. */
+  /** `materials[0]` = opaco (cutout), `materials[1]` = água (transparente/blend),
+   *  `materials[2]` = vidro colorido (blend, 2026-07-25). O mesher fatia os
+   *  índices em 3 grupos por `opaqueIndexCount` + `aguaIndexCount`. */
   constructor(
     private world: World,
-    private materials: [THREE.Material, THREE.Material],
+    private materials: [THREE.Material, THREE.Material, THREE.Material],
     private scene: THREE.Scene,
   ) {}
 
@@ -63,10 +64,12 @@ export class ChunkRenderer {
       geometry.setAttribute("normal", new THREE.BufferAttribute(g.normals, 3));
       geometry.setAttribute("uv", new THREE.BufferAttribute(g.uvs, 2));
       geometry.setIndex(new THREE.BufferAttribute(g.indices, 1));
-      // 2 grupos: opaco [0, opaqueIndexCount) + água [opaqueIndexCount, fim).
-      // Grupo da água com count 0 (chunk sem água) não gera draw call.
+      // 3 grupos: opaco + água + vidro colorido, nessa ordem. Grupo com count 0
+      // (chunk sem água / sem vidro) não gera draw call.
+      const vidroStart = g.opaqueIndexCount + g.aguaIndexCount;
       geometry.addGroup(0, g.opaqueIndexCount, 0);
-      geometry.addGroup(g.opaqueIndexCount, g.indices.length - g.opaqueIndexCount, 1);
+      geometry.addGroup(g.opaqueIndexCount, g.aguaIndexCount, 1);
+      geometry.addGroup(vidroStart, g.indices.length - vidroStart, 2);
       const mesh = new THREE.Mesh(geometry, this.materials);
       mesh.position.set(cx * CHUNK_SIZE, cy * CHUNK_SIZE, cz * CHUNK_SIZE);
       this.scene.add(mesh);

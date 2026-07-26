@@ -120,6 +120,25 @@ export const PLACEABLE: readonly PlaceableEntry[] = [
   { id: BlockId.LogPauBrasil, name: "tronco de pau-brasil", cat: "vegetacao" },
   { id: BlockId.FolhasPauBrasil, name: "folhas de pau-brasil", cat: "vegetacao" },
   { id: BlockId.Mandacaru, name: "mandacaru", cat: "vegetacao" },
+  // Vidro colorido (2026-07-25): 12 cores (mesma paleta das lãs). Cubo cheio
+  // transparente tingido. Ordem = VidroBranco + offset.
+  ...["branco", "preto", "vermelho", "laranja", "amarelo", "verde", "azul", "roxo",
+      "rosa", "ciano", "cinza", "marrom"].map((cor, i) => ({
+    id: BlockId.VidroBranco + i,
+    name: `vidro ${cor}`,
+    cat: "blocos" as const,
+  })),
+  // Lajes / meio-blocos (2026-07-25): UMA entrada por material (a metade
+  // baixo/cima é escolhida pela face clicada no place). O id na hotbar é a
+  // âncora "baixo"; o cliente troca pra "cima" (âncora+1) ao mirar por baixo.
+  { id: BlockId.LajePedraBaixo, name: "laje de pedra", cat: "blocos" },
+  { id: BlockId.LajeTabuaBaixo, name: "laje de tábuas", cat: "blocos" },
+  { id: BlockId.LajeTijoloBaixo, name: "laje de tijolo", cat: "blocos" },
+  // Escadas (2026-07-25): UMA entrada por material; a direção sai do olhar e a
+  // metade (base/cabeça-pra-baixo) da face clicada. Âncora = ...XP.
+  { id: BlockId.EscadaPedraXP, name: "escada de pedra", cat: "blocos" },
+  { id: BlockId.EscadaTabuaXP, name: "escada de tábuas", cat: "blocos" },
+  { id: BlockId.EscadaTijoloXP, name: "escada de tijolo", cat: "blocos" },
   // Balde de água (2026-07-22): ITEM (não-bloco). Clique direito DESPEJA fonte;
   // esvazia na mão → clique direito numa fonte RECOLHE. A água só entra no
   // mundo por aqui (o id de bloco saiu da hotbar). Ver ITEM_BALDE_* em blocks.ts.
