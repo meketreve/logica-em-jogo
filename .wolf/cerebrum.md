@@ -33,10 +33,52 @@
   Costuma empilhar vários pedidos no mesmo turno — separar concreto de exploratório.
 - **Painel HTML é sempre FASE 2**: comandos de chat primeiro (usáveis no playtest),
   painel numa rodada seguinte.
+- **Ele PERFILA de verdade** (2026-07-26): quando entrego feature de streaming/render, ele
+  joga no pior caso (raio no máximo, voando) e manda o perfil pelo botão do F3 → o arquivo
+  cai em `profiles/perf-*.json` no host. LER o perfil quando ele disser que perfilou — a
+  resposta esperada é análise dos números, não "ok". Manter o F3 rico em contadores paga.
+- **Backlog é para ANOTAR, não para fazer** (2026-07-26): "pode anotar só pra melhorar
+  depois… anota tudo isso no roadmap" = escrever no ROADMAP com escopo e ORDEM por custo, e
+  seguir a quest atual. Não começar a implementar o que ele mandou anotar.
+- **Ele decide a ordem das frentes** e costuma pedir "commita tudo, segue para X e Y, mas
+  antes prepara para /clear" — ou seja: fechar handoff (STATUS/TODO/cerebrum) ANTES de
+  encostar na próxima quest, e derrubar servidores de teste que ficaram no ar.
 
 ## Key Learnings
 
 <!-- Regra acionável. Narrativa/histórico completo: .wolf/history.md -->
+
+### Streaming F2 (colunas) — quem sabe o quê
+
+- **Config de cliente que o SERVIDOR precisa saber tem que ser re-enviada quando muda.**
+  `{type:"radius"}` sai UMA vez, logo após o join (`main.ts:542`); a config de raio de render
+  aplica ao vivo no cliente mas nunca reavisa o servidor → `st.raio` (`session.ts:603`) fica
+  velho e o anel novo não é streamado (bug-211). Ao adicionar QUALQUER setting que o servidor
+  espelha, ligar no `onChanged` do `buildConfigScreen` além do `connect()`.
+- Cliente e servidor descartam coluna pela MESMA regra (raio + FOLGA_DESCARTE) — é o que
+  dispensa mensagem de unload. Consequência: DIMINUIR o raio parece funcionar mesmo com o
+  servidor desatualizado; só AUMENTAR expõe o bug. Sintoma enganoso = "mantém mais chunks
+  renderizados, não carrega novos".
+- Re-enviar coluna NÃO precisa de caminho de envio paralelo: basta `st.enviadas.delete(key)`
+  e o `streamColunas` do tick seguinte a repõe no lote. **Implementado em 2026-07-26**
+  (`pedir_coluna`, bug-215) — o padrão vale pra qualquer "reenvia isso pra mim": mexer no
+  ESTADO que decide o envio, nunca abrir um segundo caminho de send.
+- **Comando cliente→servidor que dispara TRABALHO precisa de teto no SERVIDOR**, não só de
+  backoff no cliente: o fio chega pela rede da escola e um cliente adulterado vira gerador de
+  carga. Receita usada em `pedir_coluna`: contador + início de janela no estado por cliente,
+  `if (agora - desde >= 1000) { desde = agora; n = 0 }` e `if (++n > TETO) return`. O teto
+  fica em `protocol.ts` (é contrato, não detalhe do host).
+- **Varredura periódica do cliente: dar CARÊNCIA antes do 1º pedido.** O streaming é gradual
+  (`colunasPorTick`), então "não chegou ainda" e "buraco" são indistinguíveis no instante 0 —
+  sem carência (4 s hoje) a rede de segurança repede o mundo inteiro durante o load normal.
+- **`repedidas` é o termômetro da varredura** (F3). Playtest de 2026-07-26 (234 s voando a raio
+  12, mundo E): **16 re-pedidos em 719 colunas = 2%, `faltando` fechou em 0**. Guardar como
+  BASELINE: se uma mudança futura na carência/backoff levar isso pra dezenas de %, a rede de
+  segurança virou gerador de tráfego.
+- **Decode/mesh que joga exceção precisa de try/catch NO LOOP**, não só de log: `decodeColunas`
+  subia pelo handler de mensagem e matava o resto do frame; `remesh` matava o resto da fila. Com
+  o catch, a coluna simplesmente não entra em `colunasCarregadas` e a varredura 1×/s a repede —
+  "detecção de corrompido" sai de graça da detecção de "faltando".
 
 ### Contratos binários e invariantes
 
@@ -107,6 +149,12 @@
   encher; (2) `temQueda` conta ar **e água fluida** embaixo. Teto por tick:
   `AGUA_POR_TICK_PADRAO=256` (opt `aguaPorTick`, env `LJ_AGUA_TICK`), conta só células que
   MUDAM, resto volta pra `dirty`.
+- Mar/lago do worldgen (2026-07-26): `NIVEL_MAR=22` inunda toda coluna com `h < NIVEL_MAR` de
+  água-FONTE (nível 8) — fonte é auto-regenerativa e não escorre, então o oceano é estável. A
+  água nasce ESTÁTICA: a fila de vizinhança só acorda em `applyBlock`, logo o mar custa ZERO
+  tick no boot. `SAND_HEIGHT = NIVEL_MAR + 1` (a praia contorna a água). Preset plano/cabines
+  (aulas) NÃO tem água. Spawn: `findSpawnSeco` (world.ts) anda anel por anel até uma coluna
+  cujo topo não seja água — ninguém nasce nadando.
 - Encher em lote: `applyBlockQuieto` (tudo menos broadcast) + UMA msg `blocks_filled`;
   células puladas corrigidas com `block_changed` depois. `MAX_ENCHER_CELLS=65536`;
   `MAX_OBJETIVO_CELLS` segue 4096 (detecção recheca a cada mudança = custo recorrente).
@@ -151,6 +199,22 @@
   CÉLULA CHEIA (simplificação deliberada). **Validado em playtest (2026-07-26): a laje FICA
   com mira na metade + colisão de meia altura** — o usuário confirmou "hitbox já está
   correta". Não uniformizar com o modelo de célula cheia da cerca/porta.
+- **Superfície de fluido = altura POR VÉRTICE, nunca modelo por vizinho** (água 2026-07-26):
+  a altura de cada canto do topo é a média dos níveis das **4 células que compartilham aquele
+  canto**. A vizinha calcula o MESMO canto a partir do MESMO conjunto → as pontas encaixam sem
+  costura, e não existe explosão combinatória (8⁴ variantes). Regras de borda: água EM CIMA de
+  qualquer uma das 4 → canto = 1 (coluna submersa não pode ter fresta); nível máximo →
+  `AGUA_TOPO` (0.875, lâmina d'água). Vale pro quad de topo E pro topo das faces laterais
+  (trapézios). Água↔água continua FUNDINDO (sem face entre elas) — o topo inclinado fecha o
+  volume. É só VISUAL: colisão/mira não olham (água não é sólida, `raycastBlock` a pula).
+- Textura animada sem custo: repintar SÓ o tile no canvas do atlas + `texture.needsUpdate`
+  (`animarAguaAtlas`, ~8 fps a partir do render loop). Ruído do tile fica FIXO (hash da
+  posição) e só a fase da onda anda — senão o bloco pisca. Zero UV/material/geometria novos.
+- Overlay de tela cheia (tint submerso) vai em `z-index: 1` — ACIMA do canvas e ABAIXO de
+  TODA a UI (mira 5, hotbar 6, toque 8, chat 10, menus 20+). Com z-index 5 a hotbar e os
+  botões de toque saem tingidos.
+- `scene.fog` (FogExp2) NÃO pinta o `scene.background` do three: submerso, o tint DOM é que
+  cobre o céu. Os dois juntos = sensação de fundo; sozinho, cada um deixa buraco.
 - `ATLAS.tilesPerRow` é dinâmico (mesher/atlasTexture/blockIcons leem dele) — dá pra crescer
   a grade sem tocar em UV, save ou snapshot.
 - Tiles com alpha: canvas nasce transparente, `clearRect` = furo. Tile não pintado = bloco
@@ -266,6 +330,22 @@
   índices próprio no mesher + material `transparent/opacity/depthWrite:false`
   (é o que a água já fazia). Bônus: mantendo o tile do atlas OPACO, o ícone 2D da
   hotbar (que copia o tile) sai sólido de graça.
+
+### Constante de gen fazendo DOIS trabalhos quebra o bioma no dia que ela muda (2026-07-26)
+- `SAND_HEIGHT` era ao mesmo tempo (a) a linha de praia e (b) o gate "não nasce mandacaru
+  aqui". Ao criar o mar, amarrei praia = `NIVEL_MAR+1` → SAND_HEIGHT 18→23 → a caatinga baixa
+  da seed de teste perdeu TODOS os cactos (bug-210, pego pelo `npm test`). Lição: quando uma
+  constante de worldgen for reusada como gate de feature, reescrever o gate na intenção REAL
+  (aqui: "cacto não nasce molhado" = `h > NIVEL_MAR`), não deixá-lo pendurado na constante.
+- De quebra: densidade da caatinga era 1/96 → ~2 cactos no mundo M INTEIRO (bioma sem sua
+  planta). Teste `expect(n).toBeGreaterThan(0)` que passa por 2 unidades é falso-verde
+  esperando acontecer — subiu pra 1/16 (~5 nas colunas secas).
+
+### Verificação headless a 1280×720 dá TELA CINZA intermitente (2026-07-26)
+- Chrome headless + swiftshader: ~40% dos screenshots a 1280×720 saíram cinza (HTML estático
+  do `index.html` visível, mundo não renderizado, PNG de 28 KB idêntico). A 800×450 foi 8/8.
+  NÃO é TDZ nem bug do cliente — antes de caçar bug por tela cinza, repetir em resolução
+  menor e comparar o TAMANHO do PNG (mundo renderizado ≈ 200 KB+; cinza ≈ 28 KB).
 
 ### NÃO confiar em "typecheck 0" do STATUS sem rodar (2026-07-23)
 - STATUS.md da sessão 16 afirmava "VERDE: typecheck 0" mas a árvore tinha 3 erros

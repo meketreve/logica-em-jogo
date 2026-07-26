@@ -5,30 +5,6 @@
 
 | id | tags | file | error (truncated) |
 |---|---|---|---|
-| bug-325 | auto-detected,type-fix,ts | client/src/menu.ts | Type error |
-| bug-326 | auto-detected,type-fix,ts | server/src/worker.ts | Type error |
-| bug-327 | auto-detected,type-fix,ts | server/src/index.ts | Type error |
-| bug-328 | auto-detected,refactor,sh | iniciar-servidor.sh | Significant refactor of  |
-| bug-329 | auto-detected,refactor,bat | iniciar-servidor.bat | Significant refactor of  |
-| bug-303 | launcher,caminho,cenarios,nome-de-arquivo | iniciar-servidor.sh / iniciar-servidor.bat | launchers ofereciam Aula 1-3 apontando cenarios/aulaN.ljw — arquivos que NUNCA e |
-| bug-331 | auto-detected,null-safety,ts | server/src/cenarios/verificar.ts | Null/undefined access in  |
-| bug-332 | auto-detected,refactor,md | cenarios/README.md | Significant refactor of  |
-| bug-333 | quadros,troca-de-mundo,cp19,ghost-state,main.ts | client/src/main.ts | quadro (texto/imagem) fica com o painel branco renderizado no mesmo lugar mesmo  |
-| bug-334 | auto-detected,type-fix,ts | shared/src/protocol.ts | Type error |
-| bug-335 | auto-detected,guard-clause,ts | server/src/index.ts | Missing guard clause |
-| bug-336 | auto-detected,wrong-reference,html | client/index.html | Wrong reference: div should be button |
-| bug-337 | auto-detected,null-safety,ts | client/src/main.ts | Null/undefined access in  |
-| bug-338 | auto-detected,wrong-value,ts | server/src/index.ts | Incorrect value in code |
-| bug-339 | auto-detected,wrong-value,html | client/index.html | Incorrect value in code |
-| bug-340 | auto-detected,refactor,ts | server/src/paths.ts | Significant refactor of  |
-| bug-341 | auto-detected,wrong-reference,ts | server/src/mundos.ts | Wrong reference: aulas should be mundos |
-| bug-342 | auto-detected,wrong-reference,ts | server/src/paths.ts | Wrong reference: PASTA_AULAS should be PASTA_MUNDOS |
-| bug-343 | auto-detected,wrong-reference,mjs | server/src/cenarios/_smoke-kicar.mjs | Wrong reference: aulas should be mundos |
-| bug-344 | auto-detected,operator-fix,ts | server/src/paths.ts | Wrong operator: !== should be === |
-| bug-345 | auto-detected,return-value,ts | server/src/mundos.ts | Wrong return value |
-| bug-346 | auto-detected,logic-fix,ts | server/src/index.ts | Wrong condition in logic |
-| bug-347 | auto-detected,error-handling,ts | server/src/index.ts | Missing error handling in registrarChat |
-| bug-348 | auto-detected,refactor,sh | iniciar-servidor.sh | Significant refactor of  |
 | bug-349 | auto-detected,refactor,bat | iniciar-servidor.bat | Significant refactor of  |
 | bug-350 | auto-detected,wrong-reference,bat | iniciar-servidor.bat | Wrong reference: ljw should be mundo |
 | bug-351 | auto-detected,refactor,md | todo.md | Significant refactor of  |
@@ -205,3 +181,27 @@
 | bug-512 | fisica,colisao,escada,step-up,hitbox,playtest | shared/src/physics.ts | playtest: 'a escada, o primeiro degrau funciona mas quando caminha pra o topo da |
 | bug-513 | vidro,material,three,mesher,atlas,playtest | client/src/atlasTexture.ts | playtest: 'nao gostei de como ficou os vidros, precisa de material novo pra o vi |
 | bug-514 | camera,step-up,polimento,cliente,playtest | client/src/main.ts | playtest: 'adiciona um smooth no movimento quando sobe na laje ou escada, o movi |
+| bug-201 | auto-detected,logic-fix,ts | shared/src/mesher.ts | Wrong condition in logic |
+| bug-202 | auto-detected,null-safety,ts | shared/src/mesher.ts | Null/undefined access in  |
+| bug-203 | auto-detected,guard-clause,ts | client/src/atlasTexture.ts | Missing guard clause |
+| bug-204 | auto-detected,type-fix,ts | client/src/main.ts | Type error |
+| bug-205 | auto-detected,type-fix,ts | shared/src/worldgen.ts | Type error |
+| bug-206 | auto-detected,guard-clause,ts | shared/src/world.ts | Missing guard clause |
+| bug-207 | auto-detected,refactor,ts | shared/src/session.ts | Significant refactor of  |
+| bug-208 | auto-detected,logic-fix,ts | shared/src/worldgen.ts | Wrong condition in logic |
+| bug-209 | auto-detected,type-fix,ts | client/src/aguaFx.ts | Type error |
+| bug-210 | worldgen,agua,nivel-do-mar,biomas,mandacaru,teste-fragil | shared/src/worldgen.ts + shared/src/biomas.ts + shared/src/worldgen.test.ts | worldgen.test.ts > "mandacaru só na caatinga e fora da praia": AssertionError: e |
+| bug-211 | streaming,f2,raio-de-render,chunks,protocolo,corrigido | client/src/main.ts (+ shared/src/session.ts streamColunas) | aumentar a distância de render não carrega chunks novos — só mantém mais chunks  |
+| bug-202 | auto-detected,type-fix,ts | shared/src/protocol.ts | Type error |
+| bug-203 | auto-detected,logic-fix,ts | shared/src/protocol.ts | Wrong condition in logic |
+| bug-204 | auto-detected,guard-clause,ts | shared/src/session.ts | Missing guard clause |
+| bug-205 | auto-detected,wrong-reference,ts | shared/src/session.ts | Wrong reference: RAIO_MAX should be PEDIDOS_COLUNA_POR_S |
+| bug-206 | auto-detected,guard-clause,ts | client/src/main.ts | Missing guard clause |
+| bug-207 | auto-detected,type-fix,ts | client/src/main.ts | Type error |
+| bug-208 | auto-detected,error-handling,ts | client/src/main.ts | Missing error handling in unknown |
+| bug-209 | auto-detected,wrong-reference,ts | client/src/main.ts | Wrong reference: COLUNAS_MAGIC should be type |
+| bug-210 | auto-detected,error-handling,ts | client/src/chunks.ts | Missing error handling in unknown |
+| bug-214 | auto-detected,refactor,ts | client/src/hud.ts | Significant refactor of  |
+| bug-212 | auto-detected,wrong-value,ts | client/src/hud.ts | Incorrect value in code |
+| bug-213 | auto-detected,type-fix,ts | shared/src/streaming.test.ts | Type error |
+| bug-215 | streaming,f2,colunas,protocolo,rede-de-seguranca,corrigido | client/src/main.ts, client/src/chunks.ts, shared/src/session.ts, shared/src/protocol.ts | streaming F2 é fire-and-forget: lote perdido / decode LJC0 inválido / mesh que j |

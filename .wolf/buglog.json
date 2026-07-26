@@ -2,393 +2,6 @@
   "version": 1,
   "bugs": [
     {
-      "id": "bug-325",
-      "timestamp": "2026-07-20T01:00:55.429Z",
-      "error_message": "Type error",
-      "file": "client/src/menu.ts",
-      "root_cause": "Missing or incorrect type annotation",
-      "fix": "Added type assertion/annotation",
-      "tags": [
-        "auto-detected",
-        "type-fix",
-        "ts"
-      ],
-      "related_bugs": [],
-      "occurrences": 1,
-      "last_seen": "2026-07-20T01:00:55.429Z"
-    },
-    {
-      "id": "bug-326",
-      "timestamp": "2026-07-20T01:01:24.183Z",
-      "error_message": "Type error",
-      "file": "server/src/worker.ts",
-      "root_cause": "Missing or incorrect type annotation",
-      "fix": "Added type assertion/annotation",
-      "tags": [
-        "auto-detected",
-        "type-fix",
-        "ts"
-      ],
-      "related_bugs": [],
-      "occurrences": 1,
-      "last_seen": "2026-07-20T01:01:24.183Z"
-    },
-    {
-      "id": "bug-327",
-      "timestamp": "2026-07-20T01:11:37.361Z",
-      "error_message": "Type error",
-      "file": "server/src/index.ts",
-      "root_cause": "Missing or incorrect type annotation",
-      "fix": "Added type assertion/annotation",
-      "tags": [
-        "auto-detected",
-        "type-fix",
-        "ts"
-      ],
-      "related_bugs": [],
-      "occurrences": 1,
-      "last_seen": "2026-07-20T01:11:37.361Z"
-    },
-    {
-      "id": "bug-328",
-      "timestamp": "2026-07-20T03:02:50.846Z",
-      "error_message": "Significant refactor of ",
-      "file": "iniciar-servidor.sh",
-      "root_cause": "6 lines replaced/restructured",
-      "fix": "Rewrote 14→20 lines (6 removed)",
-      "tags": [
-        "auto-detected",
-        "refactor",
-        "sh"
-      ],
-      "related_bugs": [],
-      "occurrences": 1,
-      "last_seen": "2026-07-20T03:02:50.846Z"
-    },
-    {
-      "id": "bug-329",
-      "timestamp": "2026-07-20T03:02:57.775Z",
-      "error_message": "Significant refactor of ",
-      "file": "iniciar-servidor.bat",
-      "root_cause": "6 lines replaced/restructured",
-      "fix": "Rewrote 13→19 lines (6 removed)",
-      "tags": [
-        "auto-detected",
-        "refactor",
-        "bat"
-      ],
-      "related_bugs": [],
-      "occurrences": 1,
-      "last_seen": "2026-07-20T03:02:57.775Z"
-    },
-    {
-      "id": "bug-303",
-      "timestamp": "2026-07-20T00:30:00-03:00",
-      "error_message": "launchers ofereciam Aula 1-3 apontando cenarios/aulaN.ljw — arquivos que NUNCA existiram (gerador sempre gravou aulaN-<tema>.ljw); com LJ_NOVO=1 o professor ganharia um mundo vazio em vez da aula",
-      "file": "iniciar-servidor.sh / iniciar-servidor.bat",
-      "root_cause": "launcher escrito de memória sem conferir os nomes reais gerados pelo gerar.ts",
-      "fix": "caminhos corrigidos pros nomes reais + menu ganhou as aulas 4-6; achado ao adicionar as aulas novas",
-      "tags": [
-        "launcher",
-        "caminho",
-        "cenarios",
-        "nome-de-arquivo"
-      ],
-      "related_bugs": [],
-      "occurrences": 1,
-      "last_seen": "2026-07-20T00:30:00-03:00"
-    },
-    {
-      "id": "bug-331",
-      "timestamp": "2026-07-20T03:14:09.129Z",
-      "error_message": "Null/undefined access in ",
-      "file": "server/src/cenarios/verificar.ts",
-      "root_cause": "Property access on potentially null/undefined value",
-      "fix": "Added null safety (optional chaining or null check)",
-      "tags": [
-        "auto-detected",
-        "null-safety",
-        "ts"
-      ],
-      "related_bugs": [],
-      "occurrences": 1,
-      "last_seen": "2026-07-20T03:14:09.129Z"
-    },
-    {
-      "id": "bug-332",
-      "timestamp": "2026-07-20T03:16:11.270Z",
-      "error_message": "Significant refactor of ",
-      "file": "cenarios/README.md",
-      "root_cause": "8 lines replaced/restructured",
-      "fix": "Rewrote 12→20 lines (8 removed)",
-      "tags": [
-        "auto-detected",
-        "refactor",
-        "md"
-      ],
-      "related_bugs": [],
-      "occurrences": 1,
-      "last_seen": "2026-07-20T03:16:11.270Z"
-    },
-    {
-      "id": "bug-333",
-      "timestamp": "2026-07-20T00:00:00.000Z",
-      "error_message": "quadro (texto/imagem) fica com o painel branco renderizado no mesmo lugar mesmo depois de carregar outro mundo",
-      "file": "client/src/main.ts",
-      "root_cause": "reloadWorld (cp19, troca de aula) zera regions/objectives/groups mas esqueceu quadroRenderer. Servidor só reenvia a msg quadros se o mundo NOVO tiver quadro com conteudo (session.ts:1182 - this.quadros.size), entao um mundo sem quadro nao manda nada e o plane 3D antigo (QuadroRenderer.planes) fica fantasma na cena, preso na coordenada do mundo anterior.",
-      "fix": "reloadWorld agora chama quadroRenderer.setAll([], world) junto com o resto da limpeza (regions/objectives/groups), mesmo padrao ja usado pra evitar fantasmas na troca de mundo.",
-      "tags": [
-        "quadros",
-        "troca-de-mundo",
-        "cp19",
-        "ghost-state",
-        "main.ts"
-      ],
-      "related_bugs": [],
-      "occurrences": 1,
-      "last_seen": "2026-07-20T00:00:00.000Z"
-    },
-    {
-      "id": "bug-334",
-      "timestamp": "2026-07-20T12:28:00.028Z",
-      "error_message": "Type error",
-      "file": "shared/src/protocol.ts",
-      "root_cause": "Missing or incorrect type annotation",
-      "fix": "Added type assertion/annotation",
-      "tags": [
-        "auto-detected",
-        "type-fix",
-        "ts"
-      ],
-      "related_bugs": [],
-      "occurrences": 1,
-      "last_seen": "2026-07-20T12:28:00.028Z"
-    },
-    {
-      "id": "bug-335",
-      "timestamp": "2026-07-20T12:28:37.769Z",
-      "error_message": "Missing guard clause",
-      "file": "server/src/index.ts",
-      "root_cause": "No early return/throw for edge case: !msg || msg.type !== \"profile_report\"",
-      "fix": "Added guard clause: if (!msg || msg.type !== \"profile_report\")",
-      "tags": [
-        "auto-detected",
-        "guard-clause",
-        "ts"
-      ],
-      "related_bugs": [],
-      "occurrences": 1,
-      "last_seen": "2026-07-20T12:28:37.769Z"
-    },
-    {
-      "id": "bug-336",
-      "timestamp": "2026-07-20T12:28:54.035Z",
-      "error_message": "Wrong reference: div should be button",
-      "file": "client/index.html",
-      "root_cause": "Used \"div\" instead of \"button\"",
-      "fix": "Changed div → button",
-      "tags": [
-        "auto-detected",
-        "wrong-reference",
-        "html"
-      ],
-      "related_bugs": [],
-      "occurrences": 1,
-      "last_seen": "2026-07-20T12:28:54.035Z"
-    },
-    {
-      "id": "bug-337",
-      "timestamp": "2026-07-20T12:29:01.706Z",
-      "error_message": "Null/undefined access in ",
-      "file": "client/src/main.ts",
-      "root_cause": "Property access on potentially null/undefined value",
-      "fix": "Added null safety (optional chaining or null check)",
-      "tags": [
-        "auto-detected",
-        "null-safety",
-        "ts"
-      ],
-      "related_bugs": [],
-      "occurrences": 1,
-      "last_seen": "2026-07-20T12:29:01.706Z"
-    },
-    {
-      "id": "bug-338",
-      "timestamp": "2026-07-20T14:12:24.235Z",
-      "error_message": "Incorrect value in code",
-      "file": "server/src/index.ts",
-      "root_cause": "Had `[server] no ar — ${onde}, tick alvo ${SERVER_TICK",
-      "fix": "Changed to `[server] Lógica em Jogo v${VERSION}`",
-      "tags": [
-        "auto-detected",
-        "wrong-value",
-        "ts"
-      ],
-      "related_bugs": [],
-      "occurrences": 1,
-      "last_seen": "2026-07-20T14:12:24.235Z"
-    },
-    {
-      "id": "bug-339",
-      "timestamp": "2026-07-20T14:12:34.059Z",
-      "error_message": "Incorrect value in code",
-      "file": "client/index.html",
-      "root_cause": "Had \"menu-home\"",
-      "fix": "Changed to \"menu-version\"",
-      "tags": [
-        "auto-detected",
-        "wrong-value",
-        "html"
-      ],
-      "related_bugs": [],
-      "occurrences": 1,
-      "last_seen": "2026-07-20T14:12:34.059Z"
-    },
-    {
-      "id": "bug-340",
-      "timestamp": "2026-07-20T14:24:32.333Z",
-      "error_message": "Significant refactor of ",
-      "file": "server/src/paths.ts",
-      "root_cause": "2 lines replaced/restructured",
-      "fix": "Rewrote 4→5 lines (2 removed)",
-      "tags": [
-        "auto-detected",
-        "refactor",
-        "ts"
-      ],
-      "related_bugs": [],
-      "occurrences": 1,
-      "last_seen": "2026-07-20T14:24:32.333Z"
-    },
-    {
-      "id": "bug-341",
-      "timestamp": "2026-07-20T14:24:57.640Z",
-      "error_message": "Wrong reference: aulas should be mundos",
-      "file": "server/src/mundos.ts",
-      "root_cause": "Used \"aulas\" instead of \"mundos\"",
-      "fix": "Changed aulas → mundos",
-      "tags": [
-        "auto-detected",
-        "wrong-reference",
-        "ts"
-      ],
-      "related_bugs": [],
-      "occurrences": 2,
-      "last_seen": "2026-07-20T14:24:59.788Z"
-    },
-    {
-      "id": "bug-342",
-      "timestamp": "2026-07-20T14:25:12.186Z",
-      "error_message": "Wrong reference: PASTA_AULAS should be PASTA_MUNDOS",
-      "file": "server/src/paths.ts",
-      "root_cause": "Used \"PASTA_AULAS\" instead of \"PASTA_MUNDOS\"",
-      "fix": "Changed PASTA_AULAS → PASTA_MUNDOS",
-      "tags": [
-        "auto-detected",
-        "wrong-reference",
-        "ts"
-      ],
-      "related_bugs": [],
-      "occurrences": 1,
-      "last_seen": "2026-07-20T14:25:12.186Z"
-    },
-    {
-      "id": "bug-343",
-      "timestamp": "2026-07-20T14:28:37.945Z",
-      "error_message": "Wrong reference: aulas should be mundos",
-      "file": "server/src/cenarios/_smoke-kicar.mjs",
-      "root_cause": "Used \"aulas\" instead of \"mundos\"",
-      "fix": "Changed aulas → mundos",
-      "tags": [
-        "auto-detected",
-        "wrong-reference",
-        "mjs"
-      ],
-      "related_bugs": [],
-      "occurrences": 1,
-      "last_seen": "2026-07-20T14:28:37.945Z"
-    },
-    {
-      "id": "bug-344",
-      "timestamp": "2026-07-20T14:50:10.057Z",
-      "error_message": "Wrong operator: !== should be ===",
-      "file": "server/src/paths.ts",
-      "root_cause": "Used \"!==\" instead of \"===\"",
-      "fix": "Changed operator !== → ===",
-      "tags": [
-        "auto-detected",
-        "operator-fix",
-        "ts"
-      ],
-      "related_bugs": [],
-      "occurrences": 1,
-      "last_seen": "2026-07-20T14:50:10.057Z"
-    },
-    {
-      "id": "bug-345",
-      "timestamp": "2026-07-20T14:51:26.978Z",
-      "error_message": "Wrong return value",
-      "file": "server/src/mundos.ts",
-      "root_cause": "Was returning: { session: sessionNova, savePath: vivo, somenteLei",
-      "fix": "Now returns: { session: sessionNova, savePath: vivo, somenteLei",
-      "tags": [
-        "auto-detected",
-        "return-value",
-        "ts"
-      ],
-      "related_bugs": [],
-      "occurrences": 1,
-      "last_seen": "2026-07-20T14:51:26.978Z"
-    },
-    {
-      "id": "bug-346",
-      "timestamp": "2026-07-20T14:52:04.841Z",
-      "error_message": "Wrong condition in logic",
-      "file": "server/src/index.ts",
-      "root_cause": "Condition was: if (socket && socket.readyState === socket.OPEN)",
-      "fix": "Changed to: if (typeof data === \"string\")",
-      "tags": [
-        "auto-detected",
-        "logic-fix",
-        "ts"
-      ],
-      "related_bugs": [],
-      "occurrences": 1,
-      "last_seen": "2026-07-20T14:52:04.841Z"
-    },
-    {
-      "id": "bug-347",
-      "timestamp": "2026-07-20T14:52:18.758Z",
-      "error_message": "Missing error handling in registrarChat",
-      "file": "server/src/index.ts",
-      "root_cause": "Code path had no error handling — exceptions would propagate uncaught",
-      "fix": "Added try/catch block",
-      "tags": [
-        "auto-detected",
-        "error-handling",
-        "ts"
-      ],
-      "related_bugs": [],
-      "occurrences": 1,
-      "last_seen": "2026-07-20T14:52:18.758Z"
-    },
-    {
-      "id": "bug-348",
-      "timestamp": "2026-07-20T14:53:09.498Z",
-      "error_message": "Significant refactor of ",
-      "file": "iniciar-servidor.sh",
-      "root_cause": "7 lines replaced/restructured",
-      "fix": "Rewrote 9→19 lines (7 removed)",
-      "tags": [
-        "auto-detected",
-        "refactor",
-        "sh"
-      ],
-      "related_bugs": [],
-      "occurrences": 1,
-      "last_seen": "2026-07-20T14:53:09.498Z"
-    },
-    {
       "id": "bug-349",
       "timestamp": "2026-07-20T14:53:47.250Z",
       "error_message": "Significant refactor of ",
@@ -3271,6 +2884,401 @@
       ],
       "occurrences": 1,
       "last_seen": "2026-07-25T22:20:00-03:00"
+    },
+    {
+      "id": "bug-201",
+      "timestamp": "2026-07-26T15:26:20.492Z",
+      "error_message": "Wrong condition in logic",
+      "file": "shared/src/mesher.ts",
+      "root_cause": "Condition was: if (id === BlockId.Air)",
+      "fix": "Changed to: if (!isAgua(b)",
+      "tags": [
+        "auto-detected",
+        "logic-fix",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-26T15:26:20.492Z"
+    },
+    {
+      "id": "bug-202",
+      "timestamp": "2026-07-26T15:26:42.655Z",
+      "error_message": "Null/undefined access in ",
+      "file": "shared/src/mesher.ts",
+      "root_cause": "Property access on potentially null/undefined value",
+      "fix": "Added null safety (optional chaining or null check)",
+      "tags": [
+        "auto-detected",
+        "null-safety",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-26T15:26:42.655Z"
+    },
+    {
+      "id": "bug-203",
+      "timestamp": "2026-07-26T15:28:55.296Z",
+      "error_message": "Missing guard clause",
+      "file": "client/src/atlasTexture.ts",
+      "root_cause": "No early return/throw for edge case: !ctx",
+      "fix": "Added guard clause: if (!ctx)",
+      "tags": [
+        "auto-detected",
+        "guard-clause",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-26T15:28:55.296Z"
+    },
+    {
+      "id": "bug-204",
+      "timestamp": "2026-07-26T15:29:15.892Z",
+      "error_message": "Type error",
+      "file": "client/src/main.ts",
+      "root_cause": "Missing or incorrect type annotation",
+      "fix": "Added type assertion/annotation",
+      "tags": [
+        "auto-detected",
+        "type-fix",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-26T15:29:15.892Z"
+    },
+    {
+      "id": "bug-205",
+      "timestamp": "2026-07-26T15:30:37.285Z",
+      "error_message": "Type error",
+      "file": "shared/src/worldgen.ts",
+      "root_cause": "Missing or incorrect type annotation",
+      "fix": "Added type assertion/annotation",
+      "tags": [
+        "auto-detected",
+        "type-fix",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-26T15:30:37.285Z"
+    },
+    {
+      "id": "bug-206",
+      "timestamp": "2026-07-26T15:31:07.179Z",
+      "error_message": "Missing guard clause",
+      "file": "shared/src/world.ts",
+      "root_cause": "No early return/throw for edge case: getBlock(world, x, y, z",
+      "fix": "Added guard clause: if (getBlock(world, x, y, z)",
+      "tags": [
+        "auto-detected",
+        "guard-clause",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-26T15:31:07.179Z"
+    },
+    {
+      "id": "bug-207",
+      "timestamp": "2026-07-26T15:31:18.513Z",
+      "error_message": "Significant refactor of ",
+      "file": "shared/src/session.ts",
+      "root_cause": "2 lines replaced/restructured",
+      "fix": "Rewrote 8→16 lines (2 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-26T15:31:18.513Z"
+    },
+    {
+      "id": "bug-208",
+      "timestamp": "2026-07-26T15:34:00.949Z",
+      "error_message": "Wrong condition in logic",
+      "file": "shared/src/worldgen.ts",
+      "root_cause": "Condition was: if (topo === BlockId.Sand && h > SAND_HEIGHT && bioma.)",
+      "fix": "Changed to: if (topo === BlockId.Sand && h > NIVEL_MAR && bioma.ma)",
+      "tags": [
+        "auto-detected",
+        "logic-fix",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-26T15:34:00.949Z"
+    },
+    {
+      "id": "bug-209",
+      "timestamp": "2026-07-26T15:40:16.903Z",
+      "error_message": "Type error",
+      "file": "client/src/aguaFx.ts",
+      "root_cause": "Missing or incorrect type annotation",
+      "fix": "Added type assertion/annotation",
+      "tags": [
+        "auto-detected",
+        "type-fix",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-26T15:40:16.903Z"
+    },
+    {
+      "id": "bug-210",
+      "timestamp": "2026-07-26T15:44:33.589Z",
+      "error_message": "worldgen.test.ts > \"mandacaru só na caatinga e fora da praia\": AssertionError: expected 0 to be greater than 0",
+      "file": "shared/src/worldgen.ts + shared/src/biomas.ts + shared/src/worldgen.test.ts",
+      "root_cause": "Ao criar o nível do mar (NIVEL_MAR) amarrei SAND_HEIGHT nele (mar+1: praia contorna a água). SAND_HEIGHT saltou 18→23, e o gate do mandacaru era h > SAND_HEIGHT — a caatinga daquela seed é baixa, então as colunas elegíveis caíram de 244 pra 84 e, com densidade 1/96, o mundo M inteiro ficou com ZERO cactos. Constante fazendo dois trabalhos: linha de praia E gate de vegetação.",
+      "fix": "Gate do mandacaru passou a ser a linha d’ÁGUA (h > NIVEL_MAR), que é a intenção real (cacto não nasce molhado), e a densidade da caatinga subiu 1/96 → 1/16 (com 1/96 o mundo M tinha ~2 cactos: caatinga sem cacto). Teste atualizado pra assertar y > NIVEL_MAR + 1. 58 colunas elegíveis × 1/16 ≈ 5 cactos — teste deixou de ser knife-edge.",
+      "tags": [
+        "worldgen",
+        "agua",
+        "nivel-do-mar",
+        "biomas",
+        "mandacaru",
+        "teste-fragil"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-26T15:44:33.589Z"
+    },
+    {
+      "id": "bug-211",
+      "timestamp": "2026-07-26T00:00:00.000Z",
+      "error_message": "aumentar a distância de render não carrega chunks novos — só mantém mais chunks renderizados (relato do usuário, 2026-07-26)",
+      "file": "client/src/main.ts (+ shared/src/session.ts streamColunas)",
+      "root_cause": "O cliente manda {type:\"radius\"} UMA única vez, logo depois do join (main.ts:542). Mudar o \"raio de render\" na config ao vivo (Esc → gráficos) só altera a regra de DESCARTE do cliente (main.ts:1442); o servidor nunca é avisado, st.raio segue o valor antigo (session.ts:603) e o anel novo jamais entra no lote de streamColunas. Diminuir o raio parece funcionar porque os dois lados descartam pela mesma regra.",
+      "fix": "CORRIGIDO (2026-07-26, §🔁 frente 1). Cliente: `enviarRaio()` novo em main.ts guarda o último raio anunciado (`raioEnviado`) e reenvia `{type:\"radius\"}` sempre que a config muda — chamado no `connect()` (reset pra -1: conexão nova = servidor novo) e no `onSettingsChanged()`, que é o `onChanged` do buildConfigScreen tanto no menu principal quanto no Esc. Servidor não mudou (o case \"radius\" já atualizava st.raio). Regressão travada em shared/src/streaming.test.ts (\"bug-211: AUMENTAR o raio depois do join traz o anel novo\") + smoke ws real server/src/cenarios/_smoke-pedir-coluna.mjs (raio 4→8 = 200 colunas do anel novo).",
+      "tags": [
+        "streaming",
+        "f2",
+        "raio-de-render",
+        "chunks",
+        "protocolo",
+        "corrigido"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-26T00:00:00.000Z"
+    },
+    {
+      "id": "bug-202",
+      "timestamp": "2026-07-26T16:47:24.394Z",
+      "error_message": "Type error",
+      "file": "shared/src/protocol.ts",
+      "root_cause": "Missing or incorrect type annotation",
+      "fix": "Added type assertion/annotation | Also: /** Teto de `pedir_coluna` aceitos por cliente por segundo (; *  chega pela rede da escola: cliente adulterado não vira ge",
+      "tags": [
+        "auto-detected",
+        "type-fix",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 2,
+      "last_seen": "2026-07-26T16:47:42.729Z"
+    },
+    {
+      "id": "bug-203",
+      "timestamp": "2026-07-26T16:47:33.232Z",
+      "error_message": "Wrong condition in logic",
+      "file": "shared/src/protocol.ts",
+      "root_cause": "Condition was: if (!isInt(m[\"cx\"])",
+      "fix": "Changed to: if (!ints.every((n)",
+      "tags": [
+        "auto-detected",
+        "logic-fix",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-26T16:47:33.232Z"
+    },
+    {
+      "id": "bug-204",
+      "timestamp": "2026-07-26T16:48:18.589Z",
+      "error_message": "Missing guard clause",
+      "file": "shared/src/session.ts",
+      "root_cause": "No early return/throw for edge case: !st || !p",
+      "fix": "Added guard clause: if (!st || !p)",
+      "tags": [
+        "auto-detected",
+        "guard-clause",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-26T16:48:18.589Z"
+    },
+    {
+      "id": "bug-205",
+      "timestamp": "2026-07-26T16:48:21.851Z",
+      "error_message": "Wrong reference: RAIO_MAX should be PEDIDOS_COLUNA_POR_S",
+      "file": "shared/src/session.ts",
+      "root_cause": "Used \"RAIO_MAX\" instead of \"PEDIDOS_COLUNA_POR_S\"",
+      "fix": "Changed RAIO_MAX → PEDIDOS_COLUNA_POR_S",
+      "tags": [
+        "auto-detected",
+        "wrong-reference",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-26T16:48:21.851Z"
+    },
+    {
+      "id": "bug-206",
+      "timestamp": "2026-07-26T16:48:41.693Z",
+      "error_message": "Missing guard clause",
+      "file": "client/src/main.ts",
+      "root_cause": "No early return/throw for edge case: !conn || settings.raioRender === raioEnviado",
+      "fix": "Added guard clause: if (!conn || settings.raioRender === raioEnv)",
+      "tags": [
+        "auto-detected",
+        "guard-clause",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 2,
+      "last_seen": "2026-07-26T16:50:02.889Z"
+    },
+    {
+      "id": "bug-207",
+      "timestamp": "2026-07-26T16:48:53.579Z",
+      "error_message": "Type error",
+      "file": "client/src/main.ts",
+      "root_cause": "Missing or incorrect type annotation",
+      "fix": "Added type assertion/annotation | Also: // mesh que falhou = coluna suspeita: sai de `colunasCarrega; // varredura abaixo a repede (§🔁)",
+      "tags": [
+        "auto-detected",
+        "type-fix",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 2,
+      "last_seen": "2026-07-26T16:50:22.656Z"
+    },
+    {
+      "id": "bug-208",
+      "timestamp": "2026-07-26T16:49:02.257Z",
+      "error_message": "Missing error handling in unknown",
+      "file": "client/src/main.ts",
+      "root_cause": "Code path had no error handling — exceptions would propagate uncaught",
+      "fix": "Added try/catch block",
+      "tags": [
+        "auto-detected",
+        "error-handling",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-26T16:49:02.257Z"
+    },
+    {
+      "id": "bug-209",
+      "timestamp": "2026-07-26T16:49:10.716Z",
+      "error_message": "Wrong reference: COLUNAS_MAGIC should be type",
+      "file": "client/src/main.ts",
+      "root_cause": "Used \"COLUNAS_MAGIC\" instead of \"type\"",
+      "fix": "Changed COLUNAS_MAGIC → type",
+      "tags": [
+        "auto-detected",
+        "wrong-reference",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 2,
+      "last_seen": "2026-07-26T16:51:02.917Z"
+    },
+    {
+      "id": "bug-210",
+      "timestamp": "2026-07-26T16:50:13.837Z",
+      "error_message": "Missing error handling in unknown",
+      "file": "client/src/chunks.ts",
+      "root_cause": "Code path had no error handling — exceptions would propagate uncaught",
+      "fix": "Added try/catch block",
+      "tags": [
+        "auto-detected",
+        "error-handling",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-26T16:50:13.837Z"
+    },
+    {
+      "id": "bug-214",
+      "timestamp": "2026-07-26T16:50:28.106Z",
+      "error_message": "Significant refactor of ",
+      "file": "client/src/hud.ts",
+      "root_cause": "3 lines replaced/restructured",
+      "fix": "Rewrote 3→5 lines (3 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-26T16:50:28.106Z"
+    },
+    {
+      "id": "bug-212",
+      "timestamp": "2026-07-26T16:50:34.443Z",
+      "error_message": "Incorrect value in code",
+      "file": "client/src/hud.ts",
+      "root_cause": "Had `stream ${s.stream.colunas} colunas · fila ${s.str",
+      "fix": "Changed to `stream ${s.stream.colunas} colunas · fila ${s.str",
+      "tags": [
+        "auto-detected",
+        "wrong-value",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-26T16:50:34.443Z"
+    },
+    {
+      "id": "bug-213",
+      "timestamp": "2026-07-26T16:52:04.313Z",
+      "error_message": "Type error",
+      "file": "shared/src/streaming.test.ts",
+      "root_cause": "Missing or incorrect type annotation",
+      "fix": "Added type assertion/annotation | Also: it(\"bug-211: AUMENTAR o raio depois do join traz o anel novo; const { session, sent } = novaSessaoLazy();",
+      "tags": [
+        "auto-detected",
+        "type-fix",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 2,
+      "last_seen": "2026-07-26T16:53:58.208Z"
+    },
+    {
+      "id": "bug-215",
+      "timestamp": "2026-07-26T00:00:00.000Z",
+      "error_message": "streaming F2 é fire-and-forget: lote perdido / decode LJC0 inválido / mesh que joga exceção deixavam BURACO PERMANENTE no mundo (só sair do raio e voltar consertava)",
+      "file": "client/src/main.ts, client/src/chunks.ts, shared/src/session.ts, shared/src/protocol.ts",
+      "root_cause": "Não existia caminho de re-pedido. `st.enviadas` do servidor marca a coluna como enviada no momento do send; se o cliente não aplicasse (lote perdido, `decodeColunas` jogando exceção pelo handler de mensagem, ou `remesh` falhando na fila), ninguém percebia. `colunasCarregadas` do cliente ficava sem a chave e nada re-sincronizava.",
+      "fix": "§🔁: (1) msg nova cliente→servidor `pedir_coluna {cx,cz}` — o servidor só faz `st.enviadas.delete(key)` e o `streamColunas` do tick seguinte reenvia pelo caminho NORMAL (zero envio paralelo); guardas no servidor: exige join+stream, bounds, dentro de raio+FOLGA_DESCARTE e teto `PEDIDOS_COLUNA_POR_S=8` por cliente por segundo (o comando chega pela rede da escola). (2) Cliente: `varrerFaltando()` roda na MESMA passada 1×/s do descarte, percorre o quadrado até raioRender, registra coluna ausente com carência de 4 s e repede com backoff exponencial (2 s → 30 s), teto de 4 pedidos por varredura, descartando bytes+geometria antes de repedir. (3) `decodeColunas` embrulhado em try/catch (antes a exceção subia pelo handler de mensagem) e `processarFila(budget, onFalha)` reporta chunk que falhou no mesh → a coluna sai de `colunasCarregadas` e é repedida. (4) F3 mostra `faltando` e `repedidas`.",
+      "tags": [
+        "streaming",
+        "f2",
+        "colunas",
+        "protocolo",
+        "rede-de-seguranca",
+        "corrigido"
+      ],
+      "related_bugs": [
+        "bug-211"
+      ],
+      "occurrences": 1,
+      "last_seen": "2026-07-26T00:00:00.000Z"
     }
   ]
 }

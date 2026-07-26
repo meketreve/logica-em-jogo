@@ -1,47 +1,61 @@
 # STATUS — Projeto "Lógica em Jogo" (jogo voxel educacional)
 
 > Single source of truth for resuming work. Read this FIRST when starting a session.
-> **SESSÃO 21 (2026-07-25) — PLAYTEST da sessão 20: 3 correções + re-playtest ✅ + COMMITADO E PUSHADO (`26151f9` blocos, `41211ff` wolf; main == origin/main).**
-> Usuário jogou os blocos novos e reprovou 3 coisas. **(1) ESCADA EMPURRAVA PRA TRÁS (bug-512):**
-> `moveAxis` (physics.ts) encostava o jogador na fronteira da CÉLULA — premissa de pegada XZ cheia.
-> O degrau da escada ocupa MEIA célula em XZ → esbarrar nele teleportava ~0,65 bloco pra trás.
-> Fix: `resolveHoriz()` novo — devolve a face REAL da sub-caixa penetrada (menor x0 indo pro +,
-> maior x1 indo pro −); fronteira de célula virou fallback. **(2) VIDRO COLORIDO (bug-513):** o dither
-> cutout virou "tela de mosquiteiro" → agora tile do atlas é cor CHEIA opaca (ícone da hotbar sólido)
-> e a translucidez mora num MATERIAL novo (`materialVidro`, **opacity 0.4** — calibrado no playtest,
-> 0.2 ficou fraco; depthWrite false). Mesher
-> ganhou 3º grupo de índices (opaco | água | vidro) via `aguaIndexCount`; `ChunkRenderer` recebe 3
-> materiais. **(3) STEP-UP BRUSCO (bug-514):** física continua subindo 0,5 de uma vez (servidor valida
-> a mesma) — quem suaviza é o OLHO: `stepSuave` desconta de `camera.position.y` e decai `exp(-dt*14)`
-> (~0,15 s). `STEP_HEIGHT` virou export do physics. **VERDE: typecheck 3/3, 316 testes (+3), build ok.**
-> **RE-PLAYTEST ✅ (2026-07-25):** usuário aprovou movimentação (escada/step-up suave) e vidros;
-> pediu opacidade do vidro 0.2 → **0.4** (aplicado em `materialVidro`, main.ts, dist rebuildado).
-> **PENDENTE:** só a pergunta ABERTA do usuário — "hitbox dos meio blocos
-> igual das cercas/portas": mira (`blockSelectionBox`: laje = só a metade hoje, o raio atravessa a
-> metade vazia) OU colisão (cerca/porta = célula CHEIA)? Não mexi até ele responder.
-> **MANUTENÇÃO:** cerebrum.md consolidado (~27k → ~8k tokens) — narrativa por checkpoint foi pro
-> `history.md` (`## Key Learnings arquivados`), cerebrum ficou só regra/receita; User Preferences e
-> Do-Not-Repeat preservados 100%; budget do config 2000 → 10000 (o de 2k era inatingível). Sessão 20 abaixo ↓
-> **SESSÃO 20 (2026-07-25) — VIDRO COLORIDO + LAJES + ESCADAS (colisão parcial + step-up). VERDE, NÃO commitado; PLAYTEST no browser PENDENTE.**
-> Usuário: revisar backlog do todo.md + "fazer os blocos: vidros, slabs e escadas" + perguntou se
-> troca OpenWolf por Obsidian. **RESPOSTA TOOLING:** não trocar — Obsidian é visualizador humano, não
-> substitui o protocolo de handoff da IA; complementar (apontar Obsidian pro repo, `.wolf/` é md).
-> PROBLEMA REAL levantado: STATUS.md tá gigante (1785 linhas/65k tok) — sugeri PODAR (só estado atual
-> + próxima quest, logs antigos num HISTORICO.md). Usuário NÃO respondeu essa pergunta ainda (não podei).
-> **FEITO (append ids 137-178, MAX_BLOCK_ID=178):** (1) **VIDRO COLORIDO** 12 cores (137-148) — cubo
-> cheio transparente via cutout DITHER tingido (`paintVidroCor` no atlas, sem material novo). (2)
-> **LAJES** 6 ids (149-154, pedra/tábua/tijolo × baixo/cima). (3) **ESCADAS** 24 ids (155-178, 3 mat ×
-> 4 dir × base/cima). **Fonte única `collisionBoxes(id)` em blocks.ts alimenta mesher (forma) E física
-> (colisão).** Física ganhou COLISÃO PARCIAL + `resolveVertical` (pousa no topo real 0.5) + **STEP-UP
-> automático** (`moveHoriz`: sobe ≤0.55 andando, cubo cheio não sobe) + `hasSupport` parcial. Cliente:
-> blocksUi (1 entrada/material) + main.ts (metade pela face clicada, direção da escada pelo olhar,
-> `escadaId`; copy normaliza pra âncora). **SERVER NÃO MUDOU** (1 célula, applyBlock genérico). **VERDE:
-> typecheck 0 (3/3), 313 testes (+9: colisão laje/escada, step-up, vidro), build ok.** Detalhes no
-> cerebrum Key Learnings 2026-07-25. **DE QUEBRA:** marquei no todo.md 2 itens que estavam [ ] à toa
-> (água fluida — feita sessões 15c/16; abas do inventário — feita sessão 10). **PRÓXIMA:** PLAYTEST no
-> browser (colocar laje/escada, subir andando, vidro colorido translúcido) — UI cliente não testável
-> aqui. Backlog aberto restante: layouts mobile, textura de água animada/refino, auto-update servidor,
-> sobrevivência (fome/vida/craft), v2 geração. Sessão 19 abaixo ↓
+> **SESSÃO 24 (2026-07-26) — ÁGUA APROVADA NO PLAYTEST + §🔁 CODADO E VERDE (playtest do
+> browser pendente).** Abertura: o usuário respondeu o ponto de decisão da sessão 23 —
+> **playtestou o refino de água e APROVOU** ("worldgen novo com água, animação de textura e o
+> render por nível com conexão de textura, ficou muito bom"). Pediu pra ANOTAR (não fazer) uma
+> frente nova: **melhorar a textura da água + a direção da animação seguir o VENTO** — e o que
+> o vento puxa junto (nuvens, folhas balançando, grama, flores). Virou `ROADMAP.md §🌬️` com 6
+> frentes ordenadas por custo. **§🔁 IMPLEMENTADO (as duas frentes):**
+> **(1) bug-211 FECHADO** — `enviarRaio()` novo (main.ts) guarda o último raio anunciado
+> (`raioEnviado`) e reenvia `{type:"radius"}` quando a config muda; chamado no `connect()`
+> (reset pra −1: conexão nova = servidor novo) e no `onSettingsChanged()` (que é o `onChanged`
+> do `buildConfigScreen` no menu principal E no Esc). O servidor não mudou.
+> **(2) Rede de segurança** — msg nova `pedir_coluna {cx,cz}`: o servidor só faz
+> `st.enviadas.delete(key)` e o `streamColunas` do tick seguinte reenvia pelo caminho normal
+> (ZERO envio paralelo, decisão de desenho). Guardas no SERVIDOR: exige join+stream, bounds,
+> dentro de raio+`FOLGA_DESCARTE`, e teto `PEDIDOS_COLUNA_POR_S=8` por cliente por segundo
+> (janela de 1 s no `this.now()`) — o comando chega pela rede da escola. No CLIENTE:
+> `varrerFaltando()` roda na MESMA passada 1×/s do descarte (o contador que a §🕐 vai
+> precisar já nasce aqui), com carência de 4 s antes do 1º pedido (streaming é gradual),
+> backoff exponencial 2 s→30 s, teto de 4 pedidos/varredura e descarte de bytes+geometria
+> ANTES de repedir (decode que morreu no meio deixa meia coluna). Detecção de CORROMPIDO caiu
+> de graça: `decodeColunas` agora em try/catch (antes a exceção subia pelo handler de
+> mensagem) e `processarFila(budget, onFalha)` reporta chunk cujo mesh jogou exceção → a
+> coluna sai de `colunasCarregadas` e a varredura repede. F3 ganhou `faltando` e `repedidas`.
+> **VERDE: typecheck 3/3, 329 testes (+5), build ok. Smoke ws REAL 10/10**
+> (`server/src/cenarios/_smoke-pedir-coluna.mjs`, mundo LJ_TAMANHO=E: raio 4→8 trouxe 200
+> colunas do anel novo ✅, `pedir_coluna` reenviou a coluna do spawn ✅, flood de 24 pedidos
+> virou 7 colunas ✅, pedidos inválidos não derrubam o host ✅). **bug-215 logado** (a rede de
+> segurança) e **bug-211 marcado corrigido**; de quebra, o `bug-211` DUPLICADO que um hook
+> criou (auto-detected, hud.ts) virou `bug-214`.
+> **PLAYTEST DO USUÁRIO ✅ (mesma sessão):** "mudar distância de render carrega corretamente,
+> F3 mostra informações corretamente". Perfilou o pior caso (mundo E, raio 12, VOANDO, 234 s,
+> RTX 2060) e enviou pelo botão do F3 → `profiles/perf-1785086834711-wmi5.json`. **§🔁 passou:
+> `faltando 0`, `repedidas 16` em 719 colunas (2%)** — carência de 4 s + backoff calibrados.
+> O mesmo perfil expôs o CUSTO DE RENDER (47 FPS, p95 39 ms, 2895 draw calls, 157 long
+> tasks) — tabela e leitura na política de otimização do ROADMAP. **TUDO COMMITADO em
+> `e3eaac4`** (água + §🔁, a pedido do usuário; árvore limpa). Sessão 23 abaixo ↓
+> **SESSÃO 23 (2026-07-26) — SESSÃO DE PLANEJAMENTO (zero código). Duas frentes novas no
+> ROADMAP + causa raiz de um bug achada de graça.** Usuário pediu pra anotar (não implementar):
+> **(A) §🕐 TELA DE CARREGAMENTO** (single + rede) — taxa em BITS/s (converter de `bytesIn/
+> bytesOut`, que `connection.ts` já conta), colunas carregadas × em transferência, fase/ETA/
+> ping/host; DUAS animações desacopladas de propósito: spinner decorativo no canto (sinal de
+> vida — gira mesmo se a rede parar) + progresso REAL no centro (colunas prontas ÷ total do
+> raio). Bloqueio que o próprio usuário apontou: `updateOverlay()` (`main.ts:206`) mostra o
+> menu Esc sempre que `!input.active` → suprimir enquanto `loading.ativo`.
+> **(B) §🔁 RECARREGAR COLUNA FALTANDO/CORROMPIDA** — varredura 1×/s (mesma passada que já faz
+> o descarte, `main.ts:1439`) lista coluna dentro do raio ausente de `colunasCarregadas` ou com
+> decode/mesh falho → msg nova `pedir_coluna {cx,cz}`; servidor só faz `st.enviadas.delete(key)`
+> e o `streamColunas` do tick seguinte reenvia sozinho (sem caminho de envio paralelo).
+> **CAUSA RAIZ DO bug-211 achada ao escrever a nota** (o usuário só sabia do sintoma "aumentar
+> a distância de render não traz chunk novo, só mantém mais renderizado"): `main.ts:542` manda
+> `{type:"radius"}` UMA vez, logo após o join. Mexer no raio na config ao vivo só muda a regra de
+> DESCARTE do cliente (`main.ts:1442`); o servidor nunca sabe, `st.raio` fica no valor velho
+> (`session.ts:603`) e o anel novo jamais entra no lote. Diminuir "funciona" por acidente (os dois
+> lados descartam pela mesma regra). bug-211 LOGADO como ABERTO. **ORDEM DECIDIDA: §🔁 antes de
+> §🕐** — motivo abaixo na Próxima fase. Sessão 22 abaixo ↓
 
 ---
 
@@ -182,13 +196,58 @@ Documento é o ÚLTIMO entregável, não o primeiro. Construir, não documentar.
 
 ---
 
-## 🚀 Próxima fase — NENHUMA quest ativa (escolher com o usuário)
+## 🚀 Próxima fase — §🕐 TELA DE CARREGAMENTO, depois CUSTO DE RENDER
 
 > Backlog e referência de escopo vivem em `.wolf/ROADMAP.md` (inclui o checklist de dia de
-> aula do piloto). Mantenha aqui só a quest ATIVA.
+> aula do piloto). Mantenha aqui só a quest ATIVA. §🕐 está detalhada lá — **ler a seção §🕐
+> do ROADMAP antes de codar.**
 
-Sessões 20+21 fechadas, commitadas e pushadas (`26151f9` blocos + `41211ff` wolf +
-`5d18899` handoff). Árvore limpa, main == origin/main. Nada em andamento.
+**ORDEM (decidida pelo usuário no fim da sessão 24): §🕐 primeiro, custo de render depois.**
+As duas quests da sessão 24 estão COMMITADAS (ver abaixo) — árvore limpa, nada empilhado.
+
+### 1ª — §🕐 tela de carregamento (single + rede)
+
+Reusa os contadores que a sessão 24 acabou de validar em playtest:
+- `colunasFaltando.size` (main.ts, dentro de `startGame`) já é o "em transferência";
+  `colunasCarregadas.size` é o "pronto". A varredura 1×/s (`varrerFaltando`) é o lugar
+  natural pra amostrar — **não escrever uma segunda medição.**
+- Taxa em **BITS/s**: converter de `bytesIn/bytesOut` do `connection.ts` (×8), amostrando
+  1×/s como o HUD F3 já faz.
+- Total esperado do raio sai das dims do header do snapshot cruzadas com `settings.raioRender`.
+- **DUAS animações desacopladas de propósito:** spinner decorativo no canto (CSS puro, gira
+  mesmo se a rede parar = sinal de vida) + progresso REAL no centro (prontas ÷ total; nunca
+  volta atrás nem passa de 100%, só clampa).
+- ⚠️ **Bloqueio conhecido (o usuário apontou na sessão 23):** `updateOverlay()` em `main.ts`
+  mostra o menu Esc SEMPRE que `!input.active` — durante o load o ponteiro não está travado,
+  então o menu de pausa apareceria junto. Suprimir enquanto `loading.ativo`.
+- Novo `client/src/loading.ts`, self-contained (DOM+CSS injetados, padrão do `touch.ts`).
+  Fechar só quando o snapshot chegou **E** a primeira leva de chunks foi meshada.
+- Toque: `touchControls.setShown(false)` enquanto carrega (mesma regra de chat/painéis).
+
+### 2ª — custo de render (perfil de 2026-07-26 já está na mão)
+
+O usuário perfilou o pior caso (mundo E, raio 12, voando, RTX 2060): **47 FPS, p95 39 ms,
+2895 draw calls, 755 k triângulos, 157 long tasks**. Tabela completa e leitura honesta na
+**política de otimização do `ROADMAP.md`** (bloco "MEDIÇÃO DE 2026-07-26"). Resumo do que
+fazer: o custo está em **draw calls + mesh**, não na rede nem na GPU. Ordem sugerida:
+1. **Mesher em Web Worker** — mata o hitch episódico, que é o que o aluno SENTE
+   (a gravação de 10 s teve 0 long task; os 157 são picos de chegada de terreno).
+2. **Greedy meshing** — ataca draw calls e triângulos juntos (o caro de verdade).
+3. Baixar o teto de `raioRender` em máquina fraca.
+⚠️ **Ressalva registrada:** o gatilho ESCRITO na política é "FPS baixo em PC do lab", e
+esta medição é de PC de dev com o raio 2× o padrão. **Falta o número do PC do lab** —
+vale medir lá antes de investir muito.
+
+### Backlog que nasceu nesta sessão
+
+- **`ROADMAP.md §🌬️` — vento + vida ambiental** (pedido do usuário no playtest da água):
+  textura da água → vento autoritativo (molde do `horaDoDia`) → animação da água seguindo o
+  vento → nuvens → folhas balançando → grama e flores. Nada codado.
+- **Som de água** (splash/borbulha/balde, WebAudio em `audio.ts`) — 4ª opção do refino de
+  água, nunca escolhida.
+
+Sessões 20+21 commitadas e pushadas (`26151f9` blocos + `41211ff` wolf + `5d18899` handoff).
+Sessão 24 commitada: `e3eaac4` (água + streaming §🔁).
 
 **Hitbox da laje: ENCERRADA (2026-07-26).** O usuário testou e confirmou — "hitbox já está
 correta", NADA a mudar. Ou seja: laje segue com mira na METADE (`blockSelectionBox`) e
@@ -196,8 +255,8 @@ colisão de MEIA ALTURA (`temColisaoParcial`); NÃO copiar o modelo de célula c
 cerca/porta. Se uma sessão futura achar isso "inconsistente", é decisão validada em
 playtest — deixar como está.
 
-**Candidatos de backlog** (ver ROADMAP.md pro resto): layouts mobile · textura de água
-animada/refino · auto-update do servidor · sobrevivência (fome/vida/craft) · v2 da geração.
+**Candidatos de backlog** (ver ROADMAP.md pro resto): layouts mobile · auto-update do
+servidor · sobrevivência (fome/vida/craft) · v2 da geração.
 
 **Entregável final (relatório) está essencialmente PRONTO** — pendências só opcionais:
 embutir 2–4 prints no §3, refs em ABNT, diagrama no Anexo A. Se o usuário pedir entrega,

@@ -4,6 +4,77 @@
 
 ## Session Journal
 
+> **SESSÃO 22 (2026-07-26) — REFINO DE ÁGUA (4 frentes). VERDE, PLAYTEST NO BROWSER PENDENTE.**
+> Usuário pediu "vamos para água fluida" — mas a MECÂNICA já existia (fonte + níveis 1-7 +
+> `waterRule` + balde + nado, sessões 15c/16/2026-07-21-22); o ROADMAP é que estava desatualizado.
+> Escolheu (AskUserQuestion) 3 das 4 opções de REFINO + fez uma pergunta técnica: "os níveis
+> precisam conectar as pontas nos vizinhos — procedural ou modelo por combinação?".
+> **RESPOSTA: procedural, altura POR VÉRTICE.** (1) **SUPERFÍCIE POR NÍVEL** (`mesher.ts`):
+> `alturaCantoAgua(x,y,z,cx,cz)` = média dos níveis das **4 células que compartilham o canto**;
+> a vizinha calcula o MESMO canto do MESMO conjunto → pontas encaixam exatas, ZERO combinatória
+> (modelo por vizinho seriam 8⁴ casos). Água EM CIMA → canto vai a 1 (coluna submersa sem
+> fresta); topo do nível 8 = `AGUA_TOPO=0.875` (lâmina d'água, convenção MC). Vale pro quad de
+> topo E pro topo das laterais (trapézios). Só visual: colisão/mira não usam (água não é sólida,
+> raycast a ignora). (2) **SUBMERSO** (`client/aguaFx.ts` NOVO): `FogExp2` na cena + div de tint
+> `z-index:1` (ACIMA do canvas, ABAIXO de toda UI — na 1ª tentativa z-index 5 tingiu hotbar/
+> botões); decide pelo OLHO (`olhoNaAgua` respeita o nível: ponta rasa não submerge), a física
+> segue decidindo pelo torso. (3) **CORRENTEZA**: `animarAguaAtlas(texture, frame)` repinta SÓ o
+> tile da água com fase (`AGUA_FRAMES=16`, ~8 fps no render loop) + `needsUpdate`; ruído fica
+> FIXO (não pisca), só a onda anda. Zero UV/geometria/material novo. (4) **MAR/LAGOS**
+> (`worldgen.ts`): `NIVEL_MAR=22` inunda toda coluna com `h < 22` de FONTE (auto-regenerativa,
+> não escorre) — ~15% das colunas, fundo até 6; `SAND_HEIGHT` virou `NIVEL_MAR+1` (praia contorna
+> a água); água NASCE ESTÁTICA (a fila de vizinhança só acorda em `applyBlock` → oceano custa 0
+> no boot); `findSpawnSeco` (world.ts, anel por anel) tira o spawn de dentro d'água. Mundo
+> plano/cabines (AULAS) segue SEM água — testado. **bug-210:** amarrar SAND_HEIGHT ao mar zerou
+> os mandacarus (gate era `h > SAND_HEIGHT`); virou `h > NIVEL_MAR` (intenção real: cacto não
+> nasce molhado) + densidade caatinga 1/96 → 1/16 (com 1/96 o mundo M inteiro tinha ~2 cactos).
+> **VERDE: typecheck 3/3, 324 testes (+8: 3 de superfície no mesher, 5 de mar/praia/spawn seco),
+> build ok.** Screenshots headless contra servidor real (seed 66): lago com praia ✅, submerso com
+> tint+névoa e UI limpa ✅. (Headless a 1280×720 dá tela cinza ~40% das vezes — swiftshader;
+> a 800×450 foi 8/8. Não é bug do produto.) Sessão 21 abaixo ↓
+> **SESSÃO 21 (2026-07-25) — PLAYTEST da sessão 20: 3 correções + re-playtest ✅ + COMMITADO E PUSHADO (`26151f9` blocos, `41211ff` wolf; main == origin/main).**
+> Usuário jogou os blocos novos e reprovou 3 coisas. **(1) ESCADA EMPURRAVA PRA TRÁS (bug-512):**
+> `moveAxis` (physics.ts) encostava o jogador na fronteira da CÉLULA — premissa de pegada XZ cheia.
+> O degrau da escada ocupa MEIA célula em XZ → esbarrar nele teleportava ~0,65 bloco pra trás.
+> Fix: `resolveHoriz()` novo — devolve a face REAL da sub-caixa penetrada (menor x0 indo pro +,
+> maior x1 indo pro −); fronteira de célula virou fallback. **(2) VIDRO COLORIDO (bug-513):** o dither
+> cutout virou "tela de mosquiteiro" → agora tile do atlas é cor CHEIA opaca (ícone da hotbar sólido)
+> e a translucidez mora num MATERIAL novo (`materialVidro`, **opacity 0.4** — calibrado no playtest,
+> 0.2 ficou fraco; depthWrite false). Mesher
+> ganhou 3º grupo de índices (opaco | água | vidro) via `aguaIndexCount`; `ChunkRenderer` recebe 3
+> materiais. **(3) STEP-UP BRUSCO (bug-514):** física continua subindo 0,5 de uma vez (servidor valida
+> a mesma) — quem suaviza é o OLHO: `stepSuave` desconta de `camera.position.y` e decai `exp(-dt*14)`
+> (~0,15 s). `STEP_HEIGHT` virou export do physics. **VERDE: typecheck 3/3, 316 testes (+3), build ok.**
+> **RE-PLAYTEST ✅ (2026-07-25):** usuário aprovou movimentação (escada/step-up suave) e vidros;
+> pediu opacidade do vidro 0.2 → **0.4** (aplicado em `materialVidro`, main.ts, dist rebuildado).
+> **PENDENTE:** só a pergunta ABERTA do usuário — "hitbox dos meio blocos
+> igual das cercas/portas": mira (`blockSelectionBox`: laje = só a metade hoje, o raio atravessa a
+> metade vazia) OU colisão (cerca/porta = célula CHEIA)? Não mexi até ele responder.
+> **MANUTENÇÃO:** cerebrum.md consolidado (~27k → ~8k tokens) — narrativa por checkpoint foi pro
+> `history.md` (`## Key Learnings arquivados`), cerebrum ficou só regra/receita; User Preferences e
+> Do-Not-Repeat preservados 100%; budget do config 2000 → 10000 (o de 2k era inatingível). Sessão 20 abaixo ↓
+
+> **SESSÃO 20 (2026-07-25) — VIDRO COLORIDO + LAJES + ESCADAS (colisão parcial + step-up). VERDE, NÃO commitado; PLAYTEST no browser PENDENTE.**
+> Usuário: revisar backlog do todo.md + "fazer os blocos: vidros, slabs e escadas" + perguntou se
+> troca OpenWolf por Obsidian. **RESPOSTA TOOLING:** não trocar — Obsidian é visualizador humano, não
+> substitui o protocolo de handoff da IA; complementar (apontar Obsidian pro repo, `.wolf/` é md).
+> PROBLEMA REAL levantado: STATUS.md tá gigante (1785 linhas/65k tok) — sugeri PODAR (só estado atual
+> + próxima quest, logs antigos num HISTORICO.md). Usuário NÃO respondeu essa pergunta ainda (não podei).
+> **FEITO (append ids 137-178, MAX_BLOCK_ID=178):** (1) **VIDRO COLORIDO** 12 cores (137-148) — cubo
+> cheio transparente via cutout DITHER tingido (`paintVidroCor` no atlas, sem material novo). (2)
+> **LAJES** 6 ids (149-154, pedra/tábua/tijolo × baixo/cima). (3) **ESCADAS** 24 ids (155-178, 3 mat ×
+> 4 dir × base/cima). **Fonte única `collisionBoxes(id)` em blocks.ts alimenta mesher (forma) E física
+> (colisão).** Física ganhou COLISÃO PARCIAL + `resolveVertical` (pousa no topo real 0.5) + **STEP-UP
+> automático** (`moveHoriz`: sobe ≤0.55 andando, cubo cheio não sobe) + `hasSupport` parcial. Cliente:
+> blocksUi (1 entrada/material) + main.ts (metade pela face clicada, direção da escada pelo olhar,
+> `escadaId`; copy normaliza pra âncora). **SERVER NÃO MUDOU** (1 célula, applyBlock genérico). **VERDE:
+> typecheck 0 (3/3), 313 testes (+9: colisão laje/escada, step-up, vidro), build ok.** Detalhes no
+> cerebrum Key Learnings 2026-07-25. **DE QUEBRA:** marquei no todo.md 2 itens que estavam [ ] à toa
+> (água fluida — feita sessões 15c/16; abas do inventário — feita sessão 10). **PRÓXIMA:** PLAYTEST no
+> browser (colocar laje/escada, subir andando, vidro colorido translúcido) — UI cliente não testável
+> aqui. Backlog aberto restante: layouts mobile, textura de água animada/refino, auto-update servidor,
+> sobrevivência (fome/vida/craft), v2 geração. Sessão 19 abaixo ↓
+
 > **SESSÃO 19 (2026-07-25) — RELATÓRIO DE APLICAÇÃO PREENCHIDO + REVISADO ponta-a-ponta. NÃO commitado (só o entregável; sem código). O entregável final está essencialmente PRONTO.**
 > Trabalho 100% no `relatorio/relatorio-aplicacao.md` (NÃO mexi em código). Usuário preencheu a
 > Ficha (autor **Leonardo De Jesus Silvano**; **E.E.B. Prof. Otília da Silva Berti**, rede estadual
@@ -788,6 +859,157 @@
 > segue ADIADO — sem gatilho.**
 
 ## Action Log
+
+## Session: 2026-07-22 20:30
+
+| Time | Action | File(s) | Outcome | ~Tokens |
+|------|--------|---------|---------|--------|
+| 20:48 | Edited shared/src/rules.ts | inline fix | ~17 |
+| 20:48 | Edited shared/src/rules.ts | added 6 condition(s) | ~617 |
+| 20:48 | Edited shared/src/rules.ts | added 3 condition(s) | ~552 |
+| 20:49 | Edited shared/src/constants.ts | expanded (+6 lines) | ~138 |
+| 20:49 | Edited shared/src/session.ts | 4→5 lines | ~19 |
+| 20:49 | Edited shared/src/session.ts | 8→9 lines | ~49 |
+| 20:49 | Edited shared/src/session.ts | modified Streaming() | ~99 |
+| 20:49 | Edited shared/src/session.ts | 2→5 lines | ~72 |
+| 20:49 | Edited shared/src/session.ts | 1→2 lines | ~48 |
+| 20:49 | Edited shared/src/session.ts | added 2 condition(s) | ~369 |
+| 20:49 | Edited server/src/index.ts | modified streaming() | ~166 |
+| 20:51 | Created shared/src/water.test.ts | — | ~1673 |
+| 20:53 | Created ../../../tmp/claude-1000/-home-meketreve-logica-em-jogo/db19e955-fc6c-486f-b997-8fbb992d1b661/scratchpad/dbg.mts | — | ~408 |
+| 20:54 | Edited shared/src/rules.ts | modified if() | ~480 |
+| 20:56 | Edited shared/src/rules.ts | added 1 condition(s) | ~160 |
+| 20:58 | Edited shared/src/session.test.ts | modified busca() | ~234 |
+| 20:59 | Created ../../../tmp/claude-1000/-home-meketreve-logica-em-jogo/db19e955-fc6c-486f-b997-8fbb992d1b661/scratchpad/piramide.mts | — | ~596 |
+| 21:00 | água prioriza desnível mais próximo (fluxo estilo Minecraft, DROP_SEARCH=4) + teto água/tick (LJ_AGUA_TICK) — pirâmide vira fio, não disco | rules.ts, session.ts, constants.ts, server/index.ts, water.test.ts, session.test.ts | typecheck 0, 304 testes, build ok; pirâmide demo = 12 células | ~9k |
+| 21:01 | Session end: 17 writes across 8 files (rules.ts, constants.ts, session.ts, index.ts, water.test.ts) | 6 reads | ~61728 tok |
+| 21:12 | Edited iniciar-servidor.sh | modified grande() | ~152 |
+| 21:12 | Edited iniciar-servidor.bat | modified grande() | ~128 |
+| 21:10 | expus LJ_AGUA_TICK nos launchers (prompt opcional "água por tick", Enter=256) | iniciar-servidor.sh, iniciar-servidor.bat | sh syntax OK; chain launcher→env→index.ts→session | ~1k |
+| 21:12 | Session end: 19 writes across 10 files (rules.ts, constants.ts, session.ts, index.ts, water.test.ts) | 8 reads | ~64554 tok |
+| 08:41 | Session end: 19 writes across 10 files (rules.ts, constants.ts, session.ts, index.ts, water.test.ts) | 8 reads | ~64554 tok |
+| 08:42 | Edited todo.md | modified BLICO() | ~770 |
+| 21:20 | todo.md: nova seção Deploy/auto-update — launcher faz git pull antes do boot (refino: repo público, clone≠ZIP bug-233, git no Windows, dist versionado, pull só árvore limpa) | todo.md | backlog registrado | ~1k |
+| 08:43 | Session end: 20 writes across 11 files (rules.ts, constants.ts, session.ts, index.ts, water.test.ts) | 9 reads | ~71021 tok |
+
+## Session: 2026-07-22 13:05
+
+| Time | Action | File(s) | Outcome | ~Tokens |
+|------|--------|---------|---------|--------|
+| 13:19 | Edited shared/src/blocks.ts | added 4 condition(s) | ~506 |
+| 13:19 | Edited shared/src/blocks.ts | 2→2 lines | ~16 |
+| 13:19 | Edited shared/src/blocks.ts | added 1 condition(s) | ~93 |
+| 13:20 | Edited shared/src/rules.ts | expanded (+8 lines) | ~49 |
+| 13:21 | Edited shared/src/rules.ts | added 10 condition(s) | ~980 |
+| 13:21 | Edited shared/src/rules.ts | modified Flores() | ~131 |
+| 13:21 | Edited shared/src/mesher.ts | 4→5 lines | ~17 |
+| 13:21 | Edited shared/src/mesher.ts | modified fluida() | ~79 |
+| 13:21 | Edited shared/src/mesher.ts | 2→2 lines | ~41 |
+| 13:21 | Edited shared/src/mesher.ts | added 1 condition(s) | ~113 |
+| 13:22 | Edited shared/src/blocks.test.ts | modified gua() | ~454 |
+| 13:22 | Edited shared/src/blocks.test.ts | 9→12 lines | ~50 |
+| 13:23 | Created shared/src/water.test.ts | — | ~1169 |
+| 13:24 | Edited shared/src/water.test.ts | expanded (+8 lines) | ~322 |
+| 13:27 | Edited shared/src/water.test.ts | 11→13 lines | ~210 |
+| 13:28 | Edited shared/src/rules.ts | added 1 condition(s) | ~330 |
+| 13:29 | Edited shared/src/water.test.ts | 13→11 lines | ~172 |
+| 13:33 | Edited shared/src/blocks.ts | modified aguaComNivel() | ~244 |
+| 13:33 | Edited shared/src/raycast.ts | modified raycastBlock() | ~98 |
+| 13:33 | Edited shared/src/raycast.ts | added 1 condition(s) | ~110 |
+| 13:33 | Edited shared/src/protocol.ts | modified Balde() | ~106 |
+| 13:33 | Edited shared/src/protocol.ts | added 2 condition(s) | ~152 |
+| 13:33 | Edited shared/src/session.ts | 3→4 lines | ~16 |
+| 13:34 | Edited shared/src/session.ts | added 7 condition(s) | ~366 |
+| 13:34 | Edited client/src/blocksUi.ts | modified gua() | ~108 |
+| 13:34 | Edited client/src/blocksUi.ts | inline fix | ~24 |
+| 13:34 | Edited client/src/blocksUi.ts | expanded (+7 lines) | ~141 |
+| 13:34 | Edited client/src/blockIcons.ts | added 2 condition(s) | ~374 |
+| 13:34 | Edited client/src/blockIcons.ts | added 1 condition(s) | ~127 |
+| 13:35 | Edited client/src/main.ts | 11→14 lines | ~61 |
+| 13:35 | Edited client/src/main.ts | added 2 condition(s) | ~125 |
+| 13:35 | Edited client/src/main.ts | 2→3 lines | ~66 |
+| 13:35 | Edited client/src/main.ts | added nullish coalescing | ~93 |
+| 13:36 | Edited client/src/main.ts | added nullish coalescing | ~413 |
+| 13:36 | Edited client/src/main.ts | 8→9 lines | ~89 |
+| 13:37 | Edited shared/src/session.test.ts | expanded (+27 lines) | ~440 |
+| 13:37 | Edited shared/src/protocol.test.ts | expanded (+12 lines) | ~224 |
+| 13:38 | Edited shared/src/session.test.ts | modified for() | ~371 |
+| 13:38 | Edited shared/src/session.test.ts | inline fix | ~14 |
+
+## Sessão 15c (2026-07-22) — ÁGUA FLUIDA + ITEM BALDE
+Autômato celular na REGRA DE OURO (waterRule em rules.ts, 8 ids água): fonte 129 (nível 8) +
+AguaFluida1..7 (130-136, nível=alcance). Espalha lateral só com apoio SÓLIDO; AR embaixo → só cai
+(sem disco flutuante — bug-481). Infinito (2 fontes+chão). Tick do servidor já roda tudo (zero mudança
+na engenharia). Balde = ITEM (900/901), msg `balde{x,y,z,encher}`, raycast `pararNaAgua`, ícone
+procedural. Decisões travadas por AskUserQuestion (2 rodadas): cubo-cheio v1 / infinita / balde /
+sempre-ligado / recolhe / água fora da hotbar. typecheck 0, 302 testes (+10), build ok, boot ok.
+NÃO commitado; playtest no browser PENDENTE. Refinos adiados: altura-visual, re-tica no restore.
+| 13:42 | Session end: 39 writes across 13 files (blocks.ts, rules.ts, mesher.ts, blocks.test.ts, water.test.ts) | 10 reads | ~102162 tok |
+| 20:00 | Session end: 39 writes across 13 files (blocks.ts, rules.ts, mesher.ts, blocks.test.ts, water.test.ts) | 10 reads | ~102162 tok |
+
+## Session: 2026-07-22 11:20
+
+| Time | Action | File(s) | Outcome | ~Tokens |
+|------|--------|---------|---------|--------|
+| 11:26 | Edited todo.md | expanded (+20 lines) | ~506 |
+| 11:26 | Edited todo.md | expanded (+10 lines) | ~271 |
+| 11:26 | Regras hitbox da agua/nao-cubos no raycast de mira | todo.md, cerebrum.md | 2 refinos ancorados no codigo (raycast.ts:65 cubo cheio; blockSelectionBox tem forma real) | ~900 |
+| 11:27 | Session end: 2 writes across 1 files (todo.md) | 4 reads | ~31237 tok |
+| 11:36 | Edited todo.md | modified Testes() | ~503 |
+| 11:31 | Decisao agua opcao B (sempre pular raycast) + regra liquido substituivel | todo.md, cerebrum.md | gate place_block session.ts:594 aceitar isReplaceable; remover agua=colocar bloco | ~700 |
+| 11:37 | Session end: 3 writes across 1 files (todo.md) | 5 reads | ~69073 tok |
+| 11:40 | Edited shared/src/blocks.ts | modified isAgua() | ~153 |
+| 11:40 | Edited shared/src/raycast.ts | 2→2 lines | ~26 |
+| 11:40 | Edited shared/src/raycast.ts | modified while() | ~85 |
+| 11:40 | Edited shared/src/session.ts | 3→4 lines | ~18 |
+| 11:40 | Edited shared/src/session.ts | modified vel() | ~132 |
+| 11:41 | Edited shared/src/session.ts | 4→5 lines | ~90 |
+| 11:41 | Edited shared/src/session.ts | 5→6 lines | ~94 |
+| 11:41 | Edited shared/src/raycast.test.ts | expanded (+15 lines) | ~287 |
+| 11:42 | Edited shared/src/session.test.ts | added optional chaining | ~348 |
+| 11:43 | Edited todo.md | 3→8 lines | ~196 |
+| 11:42 | Implementado: agua sem hitbox na mira + liquido substituivel | blocks.ts, raycast.ts, session.ts, raycast.test, session.test | isReplaceable novo; raycast pula isAgua; 3 gates place aceitam substituivel; 290 testes typecheck0 build ok | ~3500 |
+| 11:44 | Session end: 13 writes across 6 files (todo.md, blocks.ts, raycast.ts, session.ts, raycast.test.ts) | 8 reads | ~87641 tok |
+| 11:50 | Edited shared/src/raycast.ts | added 8 condition(s) | ~761 |
+| 11:50 | Edited shared/src/raycast.ts | added 2 condition(s) | ~205 |
+| 11:51 | Edited shared/src/raycast.test.ts | expanded (+18 lines) | ~334 |
+| 11:52 | Edited shared/src/raycast.ts | added 14 condition(s) | ~448 |
+| 11:53 | Edited todo.md | modified escada() | ~458 |
+| 12:00 | Hitbox real dos nao-cubos: raycast por FORMA (blockSelectionBox) | raycast.ts, raycast.test.ts | subBoxNormal slab test; cerca vao passa/poste acerta; 292 testes typecheck0 build ok | ~2500 |
+| 11:54 | Session end: 18 writes across 6 files (todo.md, blocks.ts, raycast.ts, session.ts, raycast.test.ts) | 8 reads | ~89937 tok |
+| 11:59 | Created ../../../tmp/claude-1000/-home-meketreve-logica-em-jogo/b991a170-8d68-4bc9-820b-cfee5cca062f/scratchpad/feat-msg.txt | — | ~266 |
+| 12:00 | Session end: 19 writes across 7 files (todo.md, blocks.ts, raycast.ts, session.ts, raycast.test.ts) | 8 reads | ~90222 tok |
+
+## Session: 2026-07-22 08:50
+
+| Time | Action | File(s) | Outcome | ~Tokens |
+|------|--------|---------|---------|--------|
+| 08:56 | verifiquei envio do profile_report (gravação 10s) | hud.ts,main.ts,index.ts | envio OK; arquivos novos = 16 c/gravacao (cliente atual) + 11 sem (build velho pre-upgrade) | ~4k |
+| 10:50 | Edited shared/src/physics.ts | 2→5 lines | ~78 |
+| 10:50 | Edited shared/src/physics.ts | added 1 condition(s) | ~302 |
+| 10:50 | Edited shared/src/physics.ts | modified if() | ~123 |
+| 10:52 | Edited shared/src/physics.test.ts | added 1 condition(s) | ~580 |
+| 10:53 | Edited shared/src/physics.test.ts | modified for() | ~234 |
+| 10:55 | Edited todo.md | modified Mesher() | ~579 |
+| 10:55 | Edited todo.md | expanded (+11 lines) | ~340 |
+| 10:56 | Edited todo.md | expanded (+58 lines) | ~1248 |
+| 10:56 | pulo de saida da agua (waterJumpSpeed+paredeAdjacente) + 3 testes de nado | physics.ts,physics.test.ts | 286 testes verdes, typecheck ok, build ok | ~8k |
+| 10:56 | refino de 6 ideias no todo.md (slabs, escadas, layouts mobile, textura agua, textura animada, agua fluida) | todo.md,STATUS.md | ideias com escopo/decisoes/obstaculo tecnico | ~4k |
+| 10:57 | Session end: 8 writes across 3 files (physics.ts, physics.test.ts, todo.md) | 7 reads | ~45180 tok |
+| 11:11 | Edited shared/src/mesher.ts | 6→11 lines | ~139 |
+| 11:11 | Edited shared/src/mesher.ts | modified gua() | ~158 |
+| 11:11 | Edited shared/src/mesher.ts | modified for() | ~70 |
+| 11:11 | Edited shared/src/mesher.ts | modified for() | ~238 |
+| 11:12 | Edited client/src/chunks.ts | modified constructor() | ~83 |
+| 11:12 | Edited client/src/chunks.ts | 2→6 lines | ~119 |
+| 11:12 | Edited client/src/main.ts | modified transparentes() | ~213 |
+| 11:12 | Edited client/src/main.ts | inline fix | ~24 |
+| 11:12 | Edited client/src/atlasTexture.ts | modified paintAgua() | ~265 |
+| 11:14 | Edited shared/src/mesher.test.ts | expanded (+23 lines) | ~317 |
+| 11:15 | Edited todo.md | reduced (-6 lines) | ~479 |
+| 11:16 | agua sem furos: 2 material transparente via grupos de geometria | mesher.ts,chunks.ts,main.ts,atlasTexture.ts,mesher.test.ts | 287 testes, typecheck 0, build ok | ~12k |
+| 11:16 | Session end: 19 writes across 8 files (physics.ts, physics.test.ts, todo.md, mesher.ts, chunks.ts) | 11 reads | ~64561 tok |
+| 11:19 | Session end: 19 writes across 8 files (physics.ts, physics.test.ts, todo.md, mesher.ts, chunks.ts) | 11 reads | ~64561 tok |
 
 ## Session: 2026-07-21 13:37
 

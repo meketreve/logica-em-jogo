@@ -5276,6 +5276,393 @@
       "related_bugs": [],
       "occurrences": 1,
       "last_seen": "2026-07-20T01:00:42.351Z"
+    },
+    {
+      "id": "bug-325",
+      "timestamp": "2026-07-20T01:00:55.429Z",
+      "error_message": "Type error",
+      "file": "client/src/menu.ts",
+      "root_cause": "Missing or incorrect type annotation",
+      "fix": "Added type assertion/annotation",
+      "tags": [
+        "auto-detected",
+        "type-fix",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-20T01:00:55.429Z"
+    },
+    {
+      "id": "bug-326",
+      "timestamp": "2026-07-20T01:01:24.183Z",
+      "error_message": "Type error",
+      "file": "server/src/worker.ts",
+      "root_cause": "Missing or incorrect type annotation",
+      "fix": "Added type assertion/annotation",
+      "tags": [
+        "auto-detected",
+        "type-fix",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-20T01:01:24.183Z"
+    },
+    {
+      "id": "bug-327",
+      "timestamp": "2026-07-20T01:11:37.361Z",
+      "error_message": "Type error",
+      "file": "server/src/index.ts",
+      "root_cause": "Missing or incorrect type annotation",
+      "fix": "Added type assertion/annotation",
+      "tags": [
+        "auto-detected",
+        "type-fix",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-20T01:11:37.361Z"
+    },
+    {
+      "id": "bug-328",
+      "timestamp": "2026-07-20T03:02:50.846Z",
+      "error_message": "Significant refactor of ",
+      "file": "iniciar-servidor.sh",
+      "root_cause": "6 lines replaced/restructured",
+      "fix": "Rewrote 14→20 lines (6 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "sh"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-20T03:02:50.846Z"
+    },
+    {
+      "id": "bug-329",
+      "timestamp": "2026-07-20T03:02:57.775Z",
+      "error_message": "Significant refactor of ",
+      "file": "iniciar-servidor.bat",
+      "root_cause": "6 lines replaced/restructured",
+      "fix": "Rewrote 13→19 lines (6 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "bat"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-20T03:02:57.775Z"
+    },
+    {
+      "id": "bug-303",
+      "timestamp": "2026-07-20T00:30:00-03:00",
+      "error_message": "launchers ofereciam Aula 1-3 apontando cenarios/aulaN.ljw — arquivos que NUNCA existiram (gerador sempre gravou aulaN-<tema>.ljw); com LJ_NOVO=1 o professor ganharia um mundo vazio em vez da aula",
+      "file": "iniciar-servidor.sh / iniciar-servidor.bat",
+      "root_cause": "launcher escrito de memória sem conferir os nomes reais gerados pelo gerar.ts",
+      "fix": "caminhos corrigidos pros nomes reais + menu ganhou as aulas 4-6; achado ao adicionar as aulas novas",
+      "tags": [
+        "launcher",
+        "caminho",
+        "cenarios",
+        "nome-de-arquivo"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-20T00:30:00-03:00"
+    },
+    {
+      "id": "bug-331",
+      "timestamp": "2026-07-20T03:14:09.129Z",
+      "error_message": "Null/undefined access in ",
+      "file": "server/src/cenarios/verificar.ts",
+      "root_cause": "Property access on potentially null/undefined value",
+      "fix": "Added null safety (optional chaining or null check)",
+      "tags": [
+        "auto-detected",
+        "null-safety",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-20T03:14:09.129Z"
+    },
+    {
+      "id": "bug-332",
+      "timestamp": "2026-07-20T03:16:11.270Z",
+      "error_message": "Significant refactor of ",
+      "file": "cenarios/README.md",
+      "root_cause": "8 lines replaced/restructured",
+      "fix": "Rewrote 12→20 lines (8 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "md"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-20T03:16:11.270Z"
+    },
+    {
+      "id": "bug-333",
+      "timestamp": "2026-07-20T00:00:00.000Z",
+      "error_message": "quadro (texto/imagem) fica com o painel branco renderizado no mesmo lugar mesmo depois de carregar outro mundo",
+      "file": "client/src/main.ts",
+      "root_cause": "reloadWorld (cp19, troca de aula) zera regions/objectives/groups mas esqueceu quadroRenderer. Servidor só reenvia a msg quadros se o mundo NOVO tiver quadro com conteudo (session.ts:1182 - this.quadros.size), entao um mundo sem quadro nao manda nada e o plane 3D antigo (QuadroRenderer.planes) fica fantasma na cena, preso na coordenada do mundo anterior.",
+      "fix": "reloadWorld agora chama quadroRenderer.setAll([], world) junto com o resto da limpeza (regions/objectives/groups), mesmo padrao ja usado pra evitar fantasmas na troca de mundo.",
+      "tags": [
+        "quadros",
+        "troca-de-mundo",
+        "cp19",
+        "ghost-state",
+        "main.ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-20T00:00:00.000Z"
+    },
+    {
+      "id": "bug-334",
+      "timestamp": "2026-07-20T12:28:00.028Z",
+      "error_message": "Type error",
+      "file": "shared/src/protocol.ts",
+      "root_cause": "Missing or incorrect type annotation",
+      "fix": "Added type assertion/annotation",
+      "tags": [
+        "auto-detected",
+        "type-fix",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-20T12:28:00.028Z"
+    },
+    {
+      "id": "bug-335",
+      "timestamp": "2026-07-20T12:28:37.769Z",
+      "error_message": "Missing guard clause",
+      "file": "server/src/index.ts",
+      "root_cause": "No early return/throw for edge case: !msg || msg.type !== \"profile_report\"",
+      "fix": "Added guard clause: if (!msg || msg.type !== \"profile_report\")",
+      "tags": [
+        "auto-detected",
+        "guard-clause",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-20T12:28:37.769Z"
+    },
+    {
+      "id": "bug-336",
+      "timestamp": "2026-07-20T12:28:54.035Z",
+      "error_message": "Wrong reference: div should be button",
+      "file": "client/index.html",
+      "root_cause": "Used \"div\" instead of \"button\"",
+      "fix": "Changed div → button",
+      "tags": [
+        "auto-detected",
+        "wrong-reference",
+        "html"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-20T12:28:54.035Z"
+    },
+    {
+      "id": "bug-337",
+      "timestamp": "2026-07-20T12:29:01.706Z",
+      "error_message": "Null/undefined access in ",
+      "file": "client/src/main.ts",
+      "root_cause": "Property access on potentially null/undefined value",
+      "fix": "Added null safety (optional chaining or null check)",
+      "tags": [
+        "auto-detected",
+        "null-safety",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-20T12:29:01.706Z"
+    },
+    {
+      "id": "bug-338",
+      "timestamp": "2026-07-20T14:12:24.235Z",
+      "error_message": "Incorrect value in code",
+      "file": "server/src/index.ts",
+      "root_cause": "Had `[server] no ar — ${onde}, tick alvo ${SERVER_TICK",
+      "fix": "Changed to `[server] Lógica em Jogo v${VERSION}`",
+      "tags": [
+        "auto-detected",
+        "wrong-value",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-20T14:12:24.235Z"
+    },
+    {
+      "id": "bug-339",
+      "timestamp": "2026-07-20T14:12:34.059Z",
+      "error_message": "Incorrect value in code",
+      "file": "client/index.html",
+      "root_cause": "Had \"menu-home\"",
+      "fix": "Changed to \"menu-version\"",
+      "tags": [
+        "auto-detected",
+        "wrong-value",
+        "html"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-20T14:12:34.059Z"
+    },
+    {
+      "id": "bug-340",
+      "timestamp": "2026-07-20T14:24:32.333Z",
+      "error_message": "Significant refactor of ",
+      "file": "server/src/paths.ts",
+      "root_cause": "2 lines replaced/restructured",
+      "fix": "Rewrote 4→5 lines (2 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-20T14:24:32.333Z"
+    },
+    {
+      "id": "bug-341",
+      "timestamp": "2026-07-20T14:24:57.640Z",
+      "error_message": "Wrong reference: aulas should be mundos",
+      "file": "server/src/mundos.ts",
+      "root_cause": "Used \"aulas\" instead of \"mundos\"",
+      "fix": "Changed aulas → mundos",
+      "tags": [
+        "auto-detected",
+        "wrong-reference",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 2,
+      "last_seen": "2026-07-20T14:24:59.788Z"
+    },
+    {
+      "id": "bug-342",
+      "timestamp": "2026-07-20T14:25:12.186Z",
+      "error_message": "Wrong reference: PASTA_AULAS should be PASTA_MUNDOS",
+      "file": "server/src/paths.ts",
+      "root_cause": "Used \"PASTA_AULAS\" instead of \"PASTA_MUNDOS\"",
+      "fix": "Changed PASTA_AULAS → PASTA_MUNDOS",
+      "tags": [
+        "auto-detected",
+        "wrong-reference",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-20T14:25:12.186Z"
+    },
+    {
+      "id": "bug-343",
+      "timestamp": "2026-07-20T14:28:37.945Z",
+      "error_message": "Wrong reference: aulas should be mundos",
+      "file": "server/src/cenarios/_smoke-kicar.mjs",
+      "root_cause": "Used \"aulas\" instead of \"mundos\"",
+      "fix": "Changed aulas → mundos",
+      "tags": [
+        "auto-detected",
+        "wrong-reference",
+        "mjs"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-20T14:28:37.945Z"
+    },
+    {
+      "id": "bug-344",
+      "timestamp": "2026-07-20T14:50:10.057Z",
+      "error_message": "Wrong operator: !== should be ===",
+      "file": "server/src/paths.ts",
+      "root_cause": "Used \"!==\" instead of \"===\"",
+      "fix": "Changed operator !== → ===",
+      "tags": [
+        "auto-detected",
+        "operator-fix",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-20T14:50:10.057Z"
+    },
+    {
+      "id": "bug-345",
+      "timestamp": "2026-07-20T14:51:26.978Z",
+      "error_message": "Wrong return value",
+      "file": "server/src/mundos.ts",
+      "root_cause": "Was returning: { session: sessionNova, savePath: vivo, somenteLei",
+      "fix": "Now returns: { session: sessionNova, savePath: vivo, somenteLei",
+      "tags": [
+        "auto-detected",
+        "return-value",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-20T14:51:26.978Z"
+    },
+    {
+      "id": "bug-346",
+      "timestamp": "2026-07-20T14:52:04.841Z",
+      "error_message": "Wrong condition in logic",
+      "file": "server/src/index.ts",
+      "root_cause": "Condition was: if (socket && socket.readyState === socket.OPEN)",
+      "fix": "Changed to: if (typeof data === \"string\")",
+      "tags": [
+        "auto-detected",
+        "logic-fix",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-20T14:52:04.841Z"
+    },
+    {
+      "id": "bug-347",
+      "timestamp": "2026-07-20T14:52:18.758Z",
+      "error_message": "Missing error handling in registrarChat",
+      "file": "server/src/index.ts",
+      "root_cause": "Code path had no error handling — exceptions would propagate uncaught",
+      "fix": "Added try/catch block",
+      "tags": [
+        "auto-detected",
+        "error-handling",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-20T14:52:18.758Z"
+    },
+    {
+      "id": "bug-348",
+      "timestamp": "2026-07-20T14:53:09.498Z",
+      "error_message": "Significant refactor of ",
+      "file": "iniciar-servidor.sh",
+      "root_cause": "7 lines replaced/restructured",
+      "fix": "Rewrote 9→19 lines (7 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "sh"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-20T14:53:09.498Z"
     }
   ]
 }

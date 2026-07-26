@@ -79,6 +79,33 @@ arquivo morto/backup dos docs. Backup do código: git (repo privado no GitHub) �
 **Adiadas (só com gatilho medido):**
 - Greedy meshing ← FPS baixo em PC do lab (32³: ~73k→4k vértices, mas remesh + UV complicam).
 - Meshing em Web Worker ← hitch de frame ao editar/carregar chunk.
+
+> **MEDIÇÃO DE 2026-07-26** (perfil real; `profiles/` é GITIGNORADO — o arquivo
+> `perf-1785086834711-wmi5.json` só existe na máquina de dev, por isso os números estão
+> transcritos aqui).
+> Pior caso proposital: mundo E (240×240×8 chunks), **raio de render no MÁXIMO (12)**,
+> **voando pra frente** 234 s, numa **RTX 2060 / 24 núcleos / 32 GB**.
+> | | mundo P (24/07) | mundo E, raio 12, voando |
+> |---|---|---|
+> | FPS | 60 | **47** |
+> | frametime p95 | 16,8 ms | **39,3 ms** |
+> | draw calls | 172 | **2895** |
+> | triângulos | 68 k | **755 k** |
+> | long tasks | 2 (1 s) | **157 (37,5 s)** |
+> - **11%** do tempo de sessão em mesh (19 504 remesh / 26,5 s): voando a raio 12 a fila
+>   do mesher nunca esvazia (`meshPorFrame` 8 × 47 fps ≈ 380 chunks/s de teto contra
+>   83 chunks/s consumidos de forma constante).
+> - **16%** do tempo em long task — MAS a gravação de 10 s teve **0 long tasks e 0 frames
+>   >50 ms**. Os travões são episódicos (chegada de terreno novo, mudança de raio), não o
+>   regime permanente.
+> - Rede 820 kB/s (6,5 Mbps) sustentados = o streaming voando. RAM estável 166–228 MB,
+>   zero context lost.
+> - **Leitura honesta:** o gatilho ESCRITO é "FPS baixo em PC do lab" — isto é PC de dev
+>   no pior caso, com o raio 2× o padrão (6). **Não é a medição do lab.** O que a medição
+>   diz é ONDE está o custo: draw calls + mesh, não a rede nem a GPU. Se o piloto pedir
+>   otimização, atacar nessa ordem: (1) mesher em Web Worker (mata o hitch episódico, que
+>   é o que o aluno SENTE), (2) greedy meshing (ataca draw calls e triângulos juntos),
+>   (3) baixar o teto de `raioRender` em máquina fraca. Falta o número do PC do lab.
 - ✅ Lerp de jogadores remotos — GATILHO DISPAROU (2026-07-11, usuário reportou
   serrilhado): interpolação exponencial no render loop (bug-062). Taxa segue 10 Hz.
 - gzip no save ← save > alguns MB.
@@ -656,6 +683,143 @@ re-playtestados ✅:
   (cliente já trata block_changed + objectives). typecheck 3/3, 153 testes (+1).
 
 ---
+
+## 🕐 BACKLOG — TELA DE CARREGAMENTO (single + multiplayer)
+
+> Pedido do usuário em 2026-07-26. NÃO iniciado. Vale pros DOIS caminhos de
+> entrada: singleplayer (worker) e rede (Node+ws) — mesma tela, mesmo componente.
+
+**Objetivo:** entre "apertei jogar" e "o mundo aparece", o jogador vê uma tela de
+carregamento com números reais em vez de tela preta. Hoje o cliente só espera o
+`world_snapshot` e cai direto no jogo; se o mundo for grande (streaming F2), o
+aluno olha pra um canvas vazio sem saber se travou.
+
+**Dados a mostrar (pedido explícito):**
+- **Taxa de transferência em BITS/s** (bps → kbps → Mbps, converter de bytes×8).
+  Fonte: `connection.ts` já contabiliza `bytesIn/bytesOut` (o HUD F3 usa em
+  `main.ts:1369`) — expor uma amostragem por segundo pra tela de loading.
+- **Chunks/colunas CARREGADAS** (aplicadas + meshadas) e **ainda em transferência**
+  (pendentes do raio inicial). Fonte: `colunasCarregadas` + o raio de streaming em
+  `startGame`; total esperado sai das dims do header do `world_snapshot`
+  (`protocol.ts:591`) cruzadas com o raio.
+- **Outros úteis:** fase corrente (conectando → autenticando → recebendo mundo →
+  montando malha → pronto), bytes recebidos / total estimado, tempo decorrido,
+  ETA grosseiro pela taxa, RTT/ping, nome do mundo + seed, tipo de host
+  (worker local × servidor `ip:porta`).
+- **Singleplayer:** transferência é instantânea (worker na mesma aba) — a fase que
+  domina é geração + meshing. Mesmos widgets, rótulos honestos ("gerando mundo",
+  "montando malha"); não fingir taxa de rede alta como se fosse mérito.
+
+**Duas animações (desacopladas de propósito):**
+1. **Canto da tela** — spinner/loop puramente decorativo (CSS `@keyframes`, sem
+   depender de progresso). Serve de sinal de vida: se ele gira e o número não
+   anda, o problema é a rede, não o navegador travado.
+2. **Centro da tela** — progresso REAL (barra ou anel) = colunas prontas ÷ total
+   do raio inicial. Nunca voltar atrás nem passar de 100%: se o total for
+   reestimado, só clampa.
+
+**Implementação (esboço):**
+- Novo `client/src/loading.ts` — overlay próprio em cima do canvas, self-contained
+  (DOM+CSS injetados, padrão do `touch.ts`), com API `abrir(fase) / atualizar(stats)
+  / fechar()`.
+- ⚠️ **Bloqueio conhecido (o usuário já apontou):** hoje `updateOverlay()`
+  (`main.ts:206`) mostra o menu Esc SEMPRE que `!input.active` — e durante o
+  carregamento o ponteiro não está travado, então o menu de pausa aparece por
+  baixo/por cima da tela de loading. Suprimir o overlay enquanto `loading.ativo`
+  (uma condição a mais em `updateOverlay`), e só liberar Esc quando o jogo começar.
+- Fechar a tela quando o snapshot chegou **E** a primeira leva de chunks foi
+  meshada (evita entrar num mundo com buracos), aí sim `startPlay()`/lock.
+- Toque: a tela cobre a UI de toque; `setShown(false)` enquanto carrega (mesma
+  regra de chat/painéis) pra não deixar joystick fantasma por baixo.
+- ZERO protocolo novo se der: tudo sai de contadores que o cliente já tem. Só
+  medir e mostrar.
+
+---
+
+## 🔁 BACKLOG — RECARREGAR COLUNA FALTANDO/CORROMPIDA (rede de segurança do streaming)
+
+> Pedido do usuário em 2026-07-26. NÃO iniciado. Resolve de tabela o **bug-211**
+> (aumentar o raio de render não traz chunk novo).
+
+**Objetivo:** o cliente detecta sozinho coluna que DEVERIA estar carregada e não
+está (ou chegou corrompida) e pede de volta. Hoje o streaming F2 é fire-and-forget:
+se um lote se perder, decodificar falhar ou o servidor achar que já mandou, o
+buraco fica lá pra sempre — só sair do raio e voltar conserta.
+
+**Causa raiz do bug-211 (já rastreada, vale anotar antes de esquecer):**
+`main.ts:542` manda `{type:"radius"}` UMA vez, logo depois do join. Mexer no
+"raio de render" na config ao vivo (Esc → gráficos) só afeta a regra de DESCARTE
+do cliente (`main.ts:1442`) — o servidor nunca sabe, `st.raio` continua o antigo
+(`session.ts:603`) e o anel novo nunca entra no lote de `streamColunas`. Efeito
+exato que o usuário descreveu: aumentar a distância **segura mais chunks
+renderizados**, não carrega novos. (Diminuir funciona por acidente: os dois lados
+descartam pela mesma regra.)
+
+**Duas frentes, nesta ordem:**
+1. **Fix direto (barato):** re-enviar `radius` sempre que `settings.raioRender`
+   mudar — gancho no `onChanged` do `buildConfigScreen` (já aplica ao vivo) e no
+   `connect()` (que já reaplica config). ~5 linhas.
+2. **Rede de segurança (o pedido de verdade):** varredura periódica no cliente +
+   pedido de re-envio.
+   - **Detecção "não carregada":** a varredura de descarte já roda 1×/s
+     (`main.ts:1439`, a cada 60 frames). Na mesma passada, percorrer o anel até
+     `raioRender` e listar coluna que NÃO está em `colunasCarregadas`. Faltando
+     há mais de N s (não no 1º tick — streaming é gradual, `colunasPorTick`) →
+     pedir.
+   - **Detecção "corrompida":** `decodeColunas` que joga exceção (tamanho/magic
+     errado — `protocol.ts:731+`) marca a(s) coluna(s) do lote como suspeitas em
+     vez de só logar; idem coluna aplicada cuja malha falhou no mesher.
+   - **Protocolo:** msg nova cliente→servidor `pedir_coluna {cx,cz}` (ou lista).
+     Servidor só faz `st.enviadas.delete(key)` (+ `gerarColuna` se preciso) — o
+     `streamColunas` do tick seguinte reenvia sozinho, sem caminho de envio
+     paralelo. Cliente descarta bytes+geometria da coluna antes de repedir
+     (senão remesha por cima do lixo).
+   - **Guardas obrigatórias:** dedup por coluna (1 pedido em voo), backoff
+     exponencial (servidor lento ≠ convite pra flood), teto de pedidos/s por
+     cliente NO SERVIDOR (comando chega pela rede da escola), e ignorar coluna
+     fora de raio+folga.
+   - **F3:** expor "colunas faltando / repedidas" junto de `colunasCarregadas`
+     e da fila do mesher (já mostrados em `main.ts:1375`) — sem número, o
+     playtest não distingue "buraco" de "ainda chegando".
+- Vale igual pro singleplayer (worker É o servidor — mesmo caminho de código) e
+  pro fluxo de troca de aula (`trocarMundo` zera `colunasCarregadas`).
+- Casa com a **tela de carregamento** (§🕐): o contador de "em transferência"
+  sai da MESMA varredura; fazer as duas juntas evita medir duas vezes.
+
+---
+
+## 🌬️ BACKLOG — VENTO + VIDA AMBIENTAL (pedido do usuário 2026-07-26, pós-playtest da água)
+
+> Nasceu do playtest do refino de água: o usuário aprovou tudo ("worldgen novo com água,
+> animação de textura e o render por nível com conexão de textura — ficou muito bom") e
+> pediu para ANOTAR as evoluções a seguir. NÃO iniciado, nenhuma linha codada.
+
+**Semente da ideia:** a correnteza da água hoje anda numa direção FIXA
+(`animarAguaAtlas`, `client/src/atlasTexture.ts` — fase por quadro, `AGUA_FRAMES=16`,
+~8 fps). O pedido: **a direção da animação seguir o VENTO**. Isso puxa um sistema de
+vento — e, com vento existindo, todo o resto do ambiente pode responder a ele.
+
+**Frentes, da mais barata pra mais cara:**
+1. **Textura da água (polimento).** Melhorar o tile em si — hoje é ruído fixo + onda que
+   anda. Olhar: contraste da onda, brilho especular fake, borda de espuma na praia.
+   Isolado, não depende de vento.
+2. **Vento como estado do mundo.** Vetor (direção + força) determinístico, autoritativo
+   no servidor (mesmo padrão de `horaDoDia`/`cicloAtivo` do cp21: avança por TICK, não
+   por relógio de parede, broadcast 1×/s junto do `time`). Comandos de professor
+   `/vento` no mesmo molde de `/hora`. Vento é SÓ VISUAL (não empurra jogador) até
+   alguém decidir o contrário.
+3. **Animação da água pelo vento.** `animarAguaAtlas` ganha direção: a fase anda no
+   eixo do vento (4 ou 8 direções bastam pro tile 16px), velocidade pela força.
+4. **Nuvens.** Camada no céu (plano/skybox em `daynight.ts`) andando na direção do
+   vento; densidade/velocidade pelo estado. Cuidado com custo em PC de lab.
+5. **Folhas balançando.** Vértices da folha (bloco id 28) com deslocamento senoidal no
+   shader/material — GRUPO C de esforço: mexe em material, não só em atlas.
+6. **Grama (bloco novo, não-cubo)** e **flores** — geometria cruzada (2 quads em X),
+   mesma família dos não-cubos (tocha/laje/escada, já resolvida no mesher). Balanço
+   pelo vento junto com as folhas.
+
+**Ordem sugerida:** 1 → 2 → 3 (entrega visível cedo, tudo procedural) e só depois 4/5/6,
+que são geometria e material novos. Nada disso bloqueia o piloto.
 
 ---
 
