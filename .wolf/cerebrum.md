@@ -1,8 +1,10 @@
 # Cerebrum
 
-> OpenWolf's learning memory. Updated automatically as the AI learns from interactions.
-> Do not edit manually unless correcting an error.
-> Last updated: 2026-07-10
+> OpenWolf's learning memory. Curated knowledge only: User Preferences, timeless Key Learnings, Do-Not-Repeat.
+> **Consolidado em 2026-07-25** (27k → ~9k tokens): a narrativa por checkpoint (motivação, antes/depois,
+> números de bug) foi movida pra `.wolf/history.md` → `## Key Learnings arquivados (2026-07-25)`.
+> Aqui fica só a REGRA acionável. O Decision Log completo também vive no history.md.
+> Last updated: 2026-07-25
 
 ## User Preferences
 
@@ -14,888 +16,254 @@
   mandou tirar o hash do PIN/código — "uso muito básico, sem informações importantes".
   Não construir criptografia/ofuscação sem ameaça real; rate-limit basta.
 - Fala português. Responde em blocos numerados às perguntas.
+- **Exige POLIMENTO de sensação, não só "funciona"** (playtest 2026-07-25): reprovou
+  vidro que "funcionava" (dither) por parecer mosquiteiro e pediu suavização do
+  step-up ("movimento muito brusco"). Ao entregar mecânica nova, já prever o
+  acabamento visual/de câmera — ele testa jogando, não lendo teste verde.
 - Quer ser desafiado no design: aceita bem quando aponto furos pedagógicos/técnicos.
 - **Convenções de Minecraft são o padrão esperado** (playtest 2026-07-13): pediu
   botão-do-meio = copiar bloco mirado; sprint que só engata com os pés no chão.
   Quando houver dúvida de UX de jogo, seguir o que o Minecraft faz — o público
   (alunos e professor) já tem esse modelo mental.
-- **Uma tela = UM botão "voltar"** (playtest 2026-07-13): a config mostrava dois
-  (o do HTML e o da categoria). Quem renderiza a tela é dono da navegação dela.
+- **Uma tela = UM botão "voltar"** (playtest 2026-07-13): quem renderiza a tela é dono
+  da navegação dela.
 - **Feature grande / "talvez" → ENTREVISTA de escopo antes de codar** (2026-07-17):
-  no cp24 (anti-griefing) o usuário pediu "faz a entrevista de escopo" e respondeu
-  2 rodadas de AskUserQuestion (4 perguntas cada) — gostou de travar decisões com
-  perguntas objetivas antes de escrever código. Pedidos BEM DEFINIDOS (rocha-matriz,
-  mundos-aula) ele quer feitos inline na hora; ideias vagas/"talvez" ele quer
-  scopadas primeiro. Costuma empilhar vários pedidos no mesmo turno — separar
-  concreto (fazer já) de exploratório (backlog + entrevista).
-- **Painel HTML é sempre FASE 2** (reforço cp24): a convenção do cp14 vale — codar
-  os comandos de chat primeiro (usáveis no playtest), painel depois. O usuário
-  aprova features só com comandos e pede o painel numa rodada seguinte.
+  gosta de travar decisões com AskUserQuestion objetivo. Pedidos BEM DEFINIDOS ele
+  quer feitos inline na hora; ideias vagas/"talvez" ele quer scopadas primeiro.
+  Costuma empilhar vários pedidos no mesmo turno — separar concreto de exploratório.
+- **Painel HTML é sempre FASE 2**: comandos de chat primeiro (usáveis no playtest),
+  painel numa rodada seguinte.
 
 ## Key Learnings
 
-- **Água FLUIDA prioriza o DESNÍVEL mais próximo (fluxo estilo Minecraft) — ✅ 2026-07-22 (sessão 16).**
-  Antes `waterRule` (rules.ts) espalhava pros 4 lados IGUALMENTE em chão sólido = flood-fill em
-  DISCO. Numa pirâmide escalonada com água de um lado, cada degrau enchia toda a superfície e
-  cascateava pelas 4 faces → centenas de células ativas = tick + REMESH do cliente afogados = FPS
-  morre (relato do usuário, Xeon/RTX2060). Fix: cada célula de água em chão sólido faz uma busca
-  em profundidade (`passosAteQueda`, limite `DROP_SEARCH=4`) pela QUEDA mais próxima e só escorre
-  naquela direção; sem queda no alcance → espalha nos 4 lados (poça). Resultado = água em FIO
-  (pirâmide: 12 células vs. centenas). 2 armadilhas que quebram o fluxo se esquecidas: (1) o custo
-  até a queda tem de ser medido sobre TODA célula que a água ATRAVESSA (ar OU fluida, `aguaAtravessa`),
-  NÃO só as preenchíveis — senão, quando a direção do desnível já está cheia/saturada, ela sai da
-  comparação e a água floodava perpendicular; array `empurra[]` separado diz quais dá pra encher.
-  (2) `temQueda` conta como descida AR **e ÁGUA FLUIDA** embaixo — ao encher o buraco a coluna
-  vira água, e se só ar contasse o alvo "sumia" e a água voltava a espalhar em disco. Padrão
-  reusável se um dia a lava fluir. TROCA de comportamento em piso de 1 bloco de largura: a água
-  agora escorre pelas beiras (correto) → testes de canal 1-wide viraram plano cheio (sem beira).
-- **Teto de água por tick (proteção de FPS) — session.ts, 2026-07-22.** Trava dura além da
-  priorização: `AGUA_POR_TICK_PADRAO=256` (constants.ts), opt `aguaPorTick`, env host `LJ_AGUA_TICK`
-  (espelha o `LJ_COLUNAS_TICK`). No tick, conta só células de água que REALMENTE mudam; ao esgotar,
-  as demais voltam pra `this.dirty` (escorrem no tick seguinte). Água PARADA (nível assentado)
-  devolve null → não gasta orçamento → o teto só morde durante fluxo pesado. Areia/portas/etc não
-  contam. Mesmo padrão de config de desempenho por-tick do streaming.
-- **Mira por FORMA dos não-cubos + água invisível — ✅ IMPLEMENTADO (2026-07-22).**
-  Antes `raycastBlock` (raycast.ts) parava em qualquer bloco ≠ Ar, tratando cada célula como
-  AABB 1×1×1 — inclusive água/cerca/porta/tocha/flor/tapete; só o CONTORNO (main.ts:1391) seguia
-  a forma via `blockSelectionBox` (mesher.ts:250) → divergiam. Agora o DDA: (1) pula `isAgua`
-  (água invisível pra mira); (2) em célula `!isFullCube` faz ray-vs-AABB (`subBoxNormal`, slab
-  test) contra `blockSelectionBox(id)` — acerta a forma real, erra o vão e segue; (3) cubo cheio
-  = fast path com a normal do DDA. `raycast.ts` importa `blockSelectionBox` do mesher (SEM ciclo:
-  mesher só importa blocks/constants/world). A MESMA caixa-por-id deve servir pra colisão quando
-  vier slab (physics.ts ainda trata tudo como cubo cheio) → unificar então. Mira é 100% cliente;
-  servidor valida regra de bloco à parte. Consequência: usar/copiar não-cubo exige mirar na forma.
-- **Restrição de assets = LICENCIAMENTO, não "zero arquivo de imagem" (leitura de projeto.txt §9, 2026-07-22).**
-  A §9 fala de custo/legalidade: Minecraft Education exige licença cara; "versões NÃO
-  LICENCIADAS de softwares comerciais" são ilegais pra rede pública → solução = plataforma
-  PRÓPRIA. O que ela PROÍBE: código/textura/asset RIPADO de terceiro (Minecraft/Eaglercraft),
-  software pirata. O que ela NÃO proíbe: assets PRÓPRIOS (desenhados pelo usuário/pela IA) nem
-  assets de licença livre (CC0). ⇒ "tudo pintado no canvas procedural, zero PNG" é ESCOLHA DE
-  IMPLEMENTAÇÃO nossa (repo 100% texto, sem pipeline de asset, sem loader assíncrono, deploy =
-  1 bundle, testável headless, "próprio" garantido), NÃO exigência do documento. Assets
-  PRÓPRIOS/CC0 seriam permitidos se um dia valer a pena (textura rica, sprite sheet de animação).
-  Não tratar "sem assets externos" como regra absoluta — é convenção defensável, revisável.
-- **Água = 2º material transparente via GRUPOS de geometria (2026-07-22, RESOLVIDO).**
-  Antes a água fingia translucidez com furos xadrez (cutout no material único do chunk).
-  Decisão do usuário (AskUserQuestion) = transparência DE VERDADE. Padrão implementado, reusável
-  pra qualquer bloco transparente futuro (vidro colorido, gelo): o mesher (`mesher.ts`) mantém
-  UM vertex buffer mas separa os ÍNDICES em 2 grupos — opaco primeiro, água depois — expostos
-  por `ChunkGeometry.opaqueIndexCount`; faces de água vão pra `waterIndices` no caminho de cubo.
-  O `ChunkRenderer` (chunks.ts) monta `geometry.addGroup(0,opaque,0)` + `addGroup(opaque,resto,1)`
-  e passa material ARRAY `[opaco, agua]` — three roteia o grupo transparente pro passe de
-  transparência AUTOMATICAMENTE (sort por z), e grupo com count 0 não gera draw call (chunk sem
-  água não paga nada). `materialAgua` (main.ts) = MeshLambert transparent, opacity 0.72,
-  depthWrite:false, MESMA textura do atlas (as UVs do tile batem). `paintAgua` = azul cheio, sem
-  furos. Testado: mesher.test prova o split (só-pedra opaque==total; só-água opaque==0; misto 36/36).
-  Se um dia quiser animar SÓ a água: clonar a textura pro materialAgua antes de mexer em map.offset.
-- **PILOTO FEITO (2026-07-21) — o entregável pedagógico está cumprido.** O usuário
-  aplicou o jogo com alunos de TODAS as turmas da escola (cobertura incremental, não um
-  evento único). **Inclui AEE (Atendimento Educacional Especializado / educação
-  especial): bom desempenho em SEQUÊNCIA DE CORES e CONSTRUÇÃO LIVRE** — resultado de
-  inclusão/acessibilidade, ponto forte pro relatório. Implicação: o projeto saiu da fase
-  "codar motor" pra fase "ESCREVER O RELATÓRIO de aplicação". Não propor mais features de
-  motor como próximo passo, salvo pedido explícito — o entregável final é o documento.
-  As atividades que funcionaram na prática: sequência de cores (pensamento lógico) e
-  construção livre (autonomia/criatividade), incl. com público AEE.
-- **Streaming validado EM CAMPO (2026-07-21, escola): mundo procedural gigante
-  (240×240×8 chunks = 3840²×128) rodou com 10 alunos + 2 professores simultâneos,
-  ZERO problema de sincronismo.** Perf reports em `profiles-escola/` (25 JSON,
-  `checkpoint:14`, meta.worldChunks/worldSeed/serverHost). Tablets Android da escola
-  (Kindle Fire Silk, Chrome Android) = **60-90 FPS no mundo gigante** (frametime
-  ~11-17ms). Servidor FOLGADO com a turma inteira: **tickAvgMs < 1ms, tickMax < 1.7ms**
-  em todos os clientes → o gargalo NÃO é o server tick nem a rede (22-101 msg/s, 3-16
-  KB/s por cliente). O host (notebook do usuário rodando server+cliente) é sempre o
-  mais pesado (37 FPS). `remeshCount` é ACUMULADO da sessão (22k-496k); o que importa é
-  `remeshLastMs` (≤ 2.1ms = sem hitch por frame), não o total. O relatório do piloto
-  pode citar esses números como prova de escalabilidade.
-- **"Chunk não carrega" ≠ bug do streaming se o usuário mexeu no raio de render ao
-  vivo.** Ajustar a QUANTIDADE de chunks exibidos (raio de interesse) em runtime pode
-  deixar colunas sem carregar no cliente que mexeu — sintoma local, não dessincronia.
-  Antes de investigar "chunk sumiu", perguntar se o raio de render foi alterado na
-  sessão. Aconteceu SÓ no notebook do usuário no playtest da escola; os 12 clientes
-  reais não tiveram o problema.
-- **anatomy.md acumula entradas duplicadas em rename:** renomear arquivo 2x na
-  mesma sessão (ideias para fazer.txt → .md → ideias.md) deixou 2 linhas
-  fantasma no anatomy.md apontando pros nomes intermediários. Auto-update só
-  ADICIONA, não remove — ao renomear/apagar arquivo, checar `grep` no
-  anatomy.md pelo nome velho e limpar manualmente.
-- **Reiniciar atividade = zerar flags + restaurar MUNDO:** reset (`/objetivo
-  resetar`, `/iniciar`) precisa repor os blocos das áreas, não só limpar
-  completos. Estado inicial autoral mora em `Objective.baseline: number[][]`
-  (fotografia por área, capturada no `/objetivo add`, PERSISTIDA no .ljw). Mora
-  no OBJETIVO, não no mundo → aluno muda mundo, não objetivo → sobrevive ao
-  autosave da cópia de trabalho (aulas/). Snapshot/restore usam a MESMA ordem
-  canônica (y→z→x) do snapshotRegion/matchRegion. Mudou o baseline ou o gerador?
-  **regenerar os .ljw** (`npm run cenarios`) — save antigo sem baseline degrada.
-- **Teleporte de jogador (session):** helper `teleportar(clientId,x,y,z)` move o
-  jogador no servidor e avisa a rede REUSANDO msgs existentes — `teleport` pro
-  próprio (cliente já reposiciona a câmera desde cp8) + `player_moved` pros
-  outros. NÃO precisa de protocolo novo. `/tp grupos` e `/iniciar` (2026-07-15)
-  são construídos sobre isso; base pronta pro `/tp nome x y z` futuro. Área do
-  grupo = `areaDoGrupo(g)` → `objetivo.alvos[g-1]`; destino seguro = centro no
-  plano + `findSpawnY` (nunca dentro de bloco).
-- **Autocomplete do chat (Tab):** árvore de comandos vive em `client/commands.ts` e
-  DEVE espelhar `runCommand` (shared/session.ts) + `/mundo` (server/mundos.ts).
-  Comando novo no servidor = atualizar a árvore aqui, senão o Tab não o oferece.
-  Nomes de mundo entram ao vivo (`learnWorlds`) parseando a resposta de `/mundo lista`
-  — cliente não tem filesystem. Parse best-effort: casa "disponíveis: …. Para trocar".
-- **Project:** jogo voxel educacional "Lógica em Jogo" (ver `.wolf/STATUS.md`).
-- Público: 2º–9º ano fundamental, turmas homogêneas (máx 3 anos de diferença), 8–20 simultâneos.
-- Pedagogia mora nos **cenários autorais**, não no motor. Jogo = plataforma de autoria.
-- Ordem de entrega: motor → cenários → piloto com turma → **relatório de aplicação** (entregável
-  principal p/ coordenadoria regional). Documento técnico é anexo, não o começo.
-- Areia/gravidade, circuitos lógicos e detecção de objetivo = MESMO subsistema (atualização
-  de bloco por vizinhança no tick do servidor). Implementar genérico desde o início.
-- Painel de circuito que colapsa em 1 bloco reutilizável = abstração (pilar Wing/ISTE/CSTA).
-- Verificação visual de checkpoint sem navegador interativo: `npm run dev` em background +
-  `~/.cache/puppeteer/chrome/linux-150.0.7871.115/chrome-linux64/chrome --headless=new
-  --no-sandbox --disable-gpu --enable-unsafe-swiftshader --window-size=1280,800
-  --virtual-time-budget=8000 --screenshot=out.png http://localhost:5173/` (WebGL renderiza
-  via SwiftShader). `openwolf designqc` dá navigation timeout nesse app — usar o comando cru.
-- Convenção de índices (contrato binário): chunk em world.chunks = `(cy*dims.z+cz)*dims.x+cx`;
-  bloco no Uint8Array = `(ly*CHUNK_SIZE+lz)*CHUNK_SIZE+lx`. getBlock fora dos limites = Air
-  (borda do mundo renderiza face; jogador cai da borda → respawn no cliente).
+<!-- Regra acionável. Narrativa/histórico completo: .wolf/history.md -->
+
+### Contratos binários e invariantes
+
+- Índices: chunk em `world.chunks` = `(cy*dims.z+cz)*dims.x+cx`; bloco no Uint8Array =
+  `(ly*CHUNK_SIZE+lz)*CHUNK_SIZE+lx`. `getBlock` fora dos limites = Air.
+- `world_snapshot` (LE): u32 magic "LJW0" | u8 dims.x | u8 dims.z | u8 dims.y | u8 reservado |
+  u32 seed | chunks na ordem de `chunkIndex()`, CHUNK_VOLUME bytes cada. decode SEMPRE
+  valida magic/dims/tamanho.
+- Id de bloco é BYTE DE SAVE: **nunca renumerar/reordenar id antigo**, só append no fim do
+  `BlockId` + bump do `MAX_BLOCK_ID`. Famílias novas ficam fora da faixa antiga (ver a
+  pegadinha do `isFullCube` em Do-Not-Repeat/porta R).
+- `block_changed` é GENÉRICO por contrato: mesma msg pra ação de jogador, de outro jogador e
+  de regra do tick. Cliente aplica sem distinguir origem.
+- Spawn (e qualquer valor "do terreno pristino") é propriedade da CRIAÇÃO do mundo: calcular
+  no construtor, transmitir por protocolo, NUNCA derivar do snapshot (mundo já escavado).
+- `/shared` é lib ES2022 pura: sem `performance` (clock injetável `opts.now`), sem
+  TextEncoder/TextDecoder (usar `declare class` mínima no arquivo, não lib DOM no tsconfig).
+
+### Servidor autoritativo, regras e rede
+
+- Validação de ação (session.ts): join obrigatório → bounds → célula compatível → alcance
+  (`PLAYER_REACH+2` de folga, pos do move chega a 10 Hz) → AABB de jogadores (place não
+  emparedar). Rejeição = SILÊNCIO; cliente só muda mundo via `block_changed`.
+- Regra de bloco NUNCA escreve no mundo: devolve `BlockChange[]` e a session aplica
+  (broadcast + marca vizinhos). Fila de vizinhança: sujeiras novas vão pro PRÓXIMO tick
+  (lote é snapshot) → areia cai 1 célula/tick; `changedThisTick` impede 2ª mudança da mesma
+  célula no mesmo tick. Ordem da areia: materializar embaixo ANTES de limpar a origem.
+- Queda é `fallingRule` GENÉRICA — bloco novo que cai = 1 linha no Map `RULES`.
+- Move do cliente é REATIVO: manda quando muda (até 10 Hz) + heartbeat 1×/2 s. Qualquer
+  estado periódico novo segue "manda quando muda + heartbeat", não "manda sempre".
+- Presença: cliente NUNCA sabe o próprio id; relay `player_moved` só pros OUTROS
+  (broadcastExcept). O JOIN envia `player_moved` de cada online pro novo (DEPOIS do
+  snapshot) e anuncia o novo pros demais. `player_left` no disconnect.
+- Chat: broadcast ECOA pro autor (confirmação de round-trip); comando (`/`) responde SÓ pro
+  autor com author "servidor". Resposta multi-linha = 1 msg com "\n" (`white-space: pre-line`).
+- Teleporte: helper `teleportar(clientId,x,y,z)` reusa `teleport` (pro próprio) +
+  `player_moved` (pros outros). ZERO protocolo novo — base de `/tp`, `/iniciar`, `/tpa`.
+- Broadcast de estado (regions/objectives/groups/quadros): lista COMPLETA, cliente
+  SUBSTITUI (não mescla); dedup por JSON; join manda direto pro recém-chegado. Não fazer
+  mensagem por-destinatário (quebra o dedup) — o cliente escolhe a própria linha.
+- Anúncio "objetivo concluído" sai SEMPRE DEPOIS do estado novo (o cliente toca conquista
+  e suprime o ping em janela de 800 ms).
+- Rate-limit do join: PIN errado conta por NOME (5 → 30 s de trava); código de professor
+  tem contador GLOBAL próprio (quem chuta troca de nome).
+- Identidade (cp9) separa POSIÇÃO (roster) de IDENTIDADE (pin/papel por nome, TEXTO PURO).
+  `singleplayer:true` pula tudo e todo join é professor; save de single sai sem pin/papel,
+  mas identidade restaurada de save é preservada.
+- Comando SÓ do host (fecha socket / lê arquivo): interceptar em `server/index.ts` ANTES do
+  `session.handleMessage` (`/mundo`, `/kicar`). GameSession é pura. No worker esses caem em
+  "comando desconhecido" — aceitável. Adicionar à mão no autocomplete.
+- Terminal do host: readline no stdin = console do professor sem entrar no jogo (`/say`).
+- Ciclo dia/noite: tempo SERVER-AUTORITATIVO por TICK (`horaDoDia += 24/(DIA_SEGUNDOS*
+  TICK_RATE)`), NUNCA relógio de parede; broadcast `time` 1×/s + no join, cliente interpola.
+  Mundo de ATIVIDADE = dia permanente, ciclo parado (`HORA_PADRAO=12`, `cicloAtivo=false`);
+  hora+ciclo PERSISTEM no save. Gerador de cenários trava o dia EXPLÍCITO. Mexeu no default
+  ou no formato → **regerar cenários** (`npm run cenarios`).
+- Objetivos: região MODELO ≠ região ALVO (fotografar e detectar na mesma nasceria completo).
+  Detecção segue a regra de ouro — `applyBlock` marca `objetivosDirty`, o tick recheca SÓ os
+  tocados (nunca varredura periódica); "chegar" conclui no handler do move (heartbeat cobre
+  parado). Reset (`/objetivo resetar`, `/iniciar`) precisa REPOR os blocos:
+  `Objective.baseline` (fotografia por área, persistida no .ljw, ordem canônica y→z→x).
+- Grupos: membros por NOME (sobrevivem a rejoin/reboot); professor fora da auto-distribuição;
+  recém-chegado cai no MENOR grupo; re-criar zera composição e progresso.
+- Água fluida (`waterRule`): cada célula em chão sólido busca a QUEDA mais próxima
+  (`passosAteQueda`, `DROP_SEARCH=4`) e escorre SÓ naquela direção; sem queda = espalha nos 4
+  lados (poça). 2 armadilhas: (1) o custo até a queda mede TODA célula ATRAVESSADA (ar OU
+  fluida, `aguaAtravessa`), não só as preenchíveis — array `empurra[]` separado diz quais
+  encher; (2) `temQueda` conta ar **e água fluida** embaixo. Teto por tick:
+  `AGUA_POR_TICK_PADRAO=256` (opt `aguaPorTick`, env `LJ_AGUA_TICK`), conta só células que
+  MUDAM, resto volta pra `dirty`.
+- Encher em lote: `applyBlockQuieto` (tudo menos broadcast) + UMA msg `blocks_filled`;
+  células puladas corrigidas com `block_changed` depois. `MAX_ENCHER_CELLS=65536`;
+  `MAX_OBJETIVO_CELLS` segue 4096 (detecção recheca a cada mudança = custo recorrente).
+- `parseCoordArg(token, base)` (session.ts) entende inteiro, `~` e `~n` relativos à célula do
+  autor — REUSAR em qualquer comando com coordenada.
+- `parseNamedRegion` (regions.ts) é o validador ÚNICO de região vinda de fora (protocolo E
+  save); entrada quebrada é PULADA. Padrão pra qualquer estrutura futura no meta do save.
+- Regiões: canal `regions` é SÓ pra professor; o que o aluno vê é decisão do OBJETIVO.
+  Varinha = rascunho POR CLIENTE (`wandMarks`), some no criar/disconnect, não persiste.
+
+### Render / mesher / atlas
+
+- Mesher é FUNÇÃO PURA (bytes → geometria) e roda no cliente.
+- **Transparência de verdade = GRUPO de índices + material próprio** (água 2026-07-22,
+  vidro colorido 2026-07-25). UM vertex buffer, índices fatiados em 3 grupos — opaco,
+  água, vidro — expostos por `ChunkGeometry.opaqueIndexCount` + `aguaIndexCount`;
+  `ChunkRenderer` monta `addGroup` ×3 e recebe material ARRAY `[opaco, agua, vidro]`.
+  Grupo com count 0 não gera draw call. Materiais transparentes: `transparent:true`,
+  `opacity`, `depthWrite:false`, MESMA textura do atlas. Tile do atlas fica OPACO (o ícone
+  2D da hotbar copia o tile e sai sólido).
+- **Cutout (alphaTest 0.5) é pra RECORTE** (folha, flor, moldura, vidro incolor): sem
+  sorting, sem draw call extra. NUNCA pra meia-transparência de superfície (vira dither).
+- Oclusão de face se decide pela transparência do VIZINHO, não do dono da face: face aparece
+  se `vizinho == ar || (transparente(vizinho) && vizinho != id)`. Mesmo id funde (vidraça
+  contínua); não-cubo NUNCA oclui vizinho.
+- Remesh na borda: mudar bloco com coord local 0 ou 15 exige remesh do chunk vizinho
+  (`ChunkRenderer.remeshBlock()` cuida).
+- Não-cubos: forma no `emitShape` + `emitBox` com UV PROPORCIONAL (face amostra do tile a
+  região que ocuparia no cubo cheio); face RENTE à borda some se o vizinho é cubo opaco ou
+  tem o MESMO id. Sprite plano (flor) NÃO usa emitBox — usa `emitCrossPlane` (2 lâminas
+  diagonais a 90°, UV do tile inteiro, cada uma emitindo os 2 lados porque o material é
+  FrontSide).
+- `blockSelectionBox(id)` (mesher) = caixa que envolve a forma, PURA (estado/direção já moram
+  no id). O contorno da mira é um cubo unitário reescalado por frame a partir dela.
+- `raycastBlock` segue a FORMA: pula `isAgua` (água invisível pra mira) e faz ray-vs-AABB
+  contra `blockSelectionBox` em célula `!isFullCube`; cubo cheio = fast path com a normal do
+  DDA. Mira é 100% cliente; o servidor valida a regra à parte.
+- Colisão parcial (laje/escada, 2026-07-25): fonte única `collisionBoxes(id)` em blocks.ts
+  alimenta mesher (forma) E física. `resolveVertical` (pouso/teto) e `resolveHoriz` (parede)
+  resolvem contra a SUB-CAIXA, nunca contra a fronteira da célula. Step-up ≤ `STEP_HEIGHT`
+  (0.55) em `moveHoriz`, só com os pés no chão. Cerca/porta/móvel continuam com colisão de
+  CÉLULA CHEIA (simplificação deliberada).
+- `ATLAS.tilesPerRow` é dinâmico (mesher/atlasTexture/blockIcons leem dele) — dá pra crescer
+  a grade sem tocar em UV, save ou snapshot.
+- Tiles com alpha: canvas nasce transparente, `clearRect` = furo. Tile não pintado = bloco
+  invisível — o teste "todo colocável tem tile" pega o lado do mesher, não o do atlas.
+- Família regular de blocos (glifos A–Z/0–9) sai de UMA const (`GLYPH`) iterada em
+  BLOCK_TILES, pintura e nomes — não 36 linhas explícitas.
+- `?atlas` na URL pendura o canvas do atlas no canto (inspeção visual em screenshot headless).
+
+### Receitas (checklists)
+
+- **Bloco cúbico novo** (tudo append): (1) `shared/blocks.ts` id no FIM + bump `MAX_BLOCK_ID`;
+  (2) `shared/mesher.ts` BLOCK_TILES id→tile; (3) `client/atlasTexture.ts` pintar o tile;
+  (4) `client/blocksUi.ts` PLACEABLE nome PT. Hotbar/ícones/inventário/`/bloco`/`/regiao
+  encher` são automáticos.
+- **Bloco NÃO-cubo:** id + `isFullCube`/`isSolidBlock` + case no `emitShape` + tile +
+  BLOCK_TILES (ícone) + PLACEABLE. Se a família tem estado (aberto/direção/dobradiça), o
+  estado mora NO ID e o cliente manda só a variante base (copy normaliza).
+- **Mensagem servidor→cliente:** (1) union + comentário em `protocol.ts`; (2) `case` no
+  `parseServerMessage` (defensivo, senão null); (3) dispatch em `main.ts handleServerData`;
+  (4) servidor emite via `this.send`/`this.broadcast`. Cliente→servidor espelha — mas
+  PREFIRA reusar chat/comando quando é ação de professor (painel = açúcar sobre `/comando`).
+- **Comando novo:** atualizar a árvore de autocomplete em `client/commands.ts` (espelha
+  `runCommand` do shared + `/mundo` do server), senão o Tab não oferece.
+
+### Cliente (UI, input, câmera)
+
+- Painéis (`panels.ts`) são AÇÚCAR sobre comandos de chat: o botão COMPÕE um `/comando` e
+  manda como msg `chat`. Validação 100% no servidor, zero protocolo novo. Painel NUNCA decide
+  estado; re-renderiza pelos broadcasts, adia re-render enquanto um input DELE tem foco.
+- **SEM popups nativos** (prompt/confirm/alert proibidos): UI inline; erro que precisa
+  sobreviver a reload vai por sessionStorage. (Bônus: `alert` TRAVA screenshot headless.)
+- Config do jogador: localStorage `lj-config`, merge DEFENSIVO por campo; teclas por
+  `e.code`; rebind com keydown `{once, capture}` + stopPropagation.
+- Tecla de SEGURAR nova = entrada em `KeyAction` + default + label (o loop lê
+  `settings.keys` por frame). Tecla de ATALHO nova exige também `input.onKey` no startGame
+  + entrada na lista do `onSettingsChanged`.
+- Hotbar = 9 slots em localStorage `lj-hotbar` com parse defensivo POR SLOT; inventário é
+  100% local. Ícones via `blockIconTile` recortado do canvas do atlas.
+- `PLACEABLE` mora em `client/src/blocksUi.ts` — main.ts e os selects do painel usam a MESMA
+  lista.
+- Movimento: edge-guard do agachar é POR EIXO no sub-passo (diagonal desliza pelo eixo
+  seguro). Sprint = duplo-toque detectado por POLLING no render loop, ENGATA só com
+  `onGround`, agachar vence. Voo criativo é 100% cliente (`MoveInput.fly`), mas COLIDE.
+- Suavização é do OLHO, nunca da física: FOV/altura do olho/step-up usam lerp exponencial
+  `1-exp(-dt*k)` (independe do FPS) sobre `camera.position`; a simulação continua
+  determinística porque o servidor valida a mesma.
+- Lerp de jogador remoto: `1-exp(-dt*12)`, yaw pelo caminho curto (`atan2(sin Δ, cos Δ)`);
+  a caixa NASCE na primeira posição recebida.
+- Plaquinha de nome: `THREE.Sprite` FILHO da mesh (ignora o yaw do pai), textura de canvas
+  procedural, `depthTest:false`. Redimensionar canvas RESETA `ctx.font`.
+- Chat/pointer lock: Enter dá transient activation → `requestPointerLock()` ao fechar o chat
+  funciona sem clique; guard em input.ts pra teclas vindas de `<input>`.
+- Estado client-side indexado por POSIÇÃO precisa entrar na limpeza do `reloadWorld`.
+- Toque (`touch.ts`): a UI de toque só SINTETIZA o input de teclado/mouse (`input.setKey`,
+  `applyLook`, `press`) — rebind vale de graça. `input.active` = locked OU touch.
+  `setShown(false)` solta as teclas seguradas. Fullscreen/orientation lock só em gesto.
+- Áudio (`audio.ts`): WebAudio sintetizado, zero assets; AudioContext só nasce em gesto —
+  som disparado por REDE usa `playUiPassive`.
+
+### Ambiente, build e campo
+
+- Verificação visual sem navegador: `npm run dev` em background + chrome headless
+  (`--headless=new --no-sandbox --disable-gpu --enable-unsafe-swiftshader
+  --virtual-time-budget=8000 --screenshot=out.png`). `openwolf designqc` dá navigation
+  timeout neste app — usar o comando cru.
 - Worker de OUTRO workspace no Vite: `new Worker(new URL("../../server/src/worker.ts",
-  import.meta.url), { type: "module" })` funciona em dev e build (vira chunk separado).
-  Caminho relativo cruzando workspaces, sem `?worker` nem export no package.json.
-- `server/tsconfig.json` combina `lib: ["ES2022","WebWorker"]` + `types: ["node"]` sem
-  conflito (skipLibCheck) — index.ts (Node) e worker.ts (WebWorker) no mesmo programa.
-- `/shared` NÃO enxerga `performance` (lib ES2022 pura). GameSession recebe relógio
-  injetável (`opts.now`, default Date.now); hosts passam `() => performance.now()`.
-  Bônus: testes de tick usam clock fake determinístico.
-- Formato do world_snapshot (contrato binário, LE): u32 magic "LJW0" (0x304a574c) |
-  u8 dims.x | u8 dims.z | u8 dims.y | u8 reservado | u32 seed | chunks na ordem de
-  chunkIndex(), CHUNK_VOLUME bytes cada. decode SEMPRE valida magic/dims/tamanho.
-- anatomy.md é rescaneado por hook do OpenWolf ao criar arquivos — não precisa (e não
-  adianta) editar entradas de arquivos novos manualmente; o hook sobrescreve.
-- `block_changed` é GENÉRICO por contrato: mesmo formato pra ação de jogador, ação de
-  outro jogador e regra do tick (areia/circuitos). Cliente aplica sem distinguir origem —
-  o checkpoint 4 (gravidade) não muda NADA no cliente.
-- Validação de ação no servidor (session.ts): join obrigatório → bounds → célula
-  compatível (ar p/ place, sólida p/ break) → alcance (PLAYER_REACH+2 de folga, pos do
-  move chega a 10 Hz) → AABB de jogadores (place não pode emparedar). Rejeição = silêncio
-  (sem NACK); cliente só muda mundo via block_changed.
-- Remesh na borda de chunk: mudar bloco com coord local 0 ou 15 exige remesh do chunk
-  vizinho também (culled mesher lê o vizinho). `ChunkRenderer.remeshBlock()` cuida disso.
-- input.ts: mousedown só dispara handler com pointer lock ativo — primeiro clique trava
-  o mouse e NÃO conta como ação (evita quebrar bloco ao entrar no jogo).
-- Fila de vizinhança (rules.ts + session): sujeiras novas vão pro PRÓXIMO tick (lote é
-  snapshot) → areia cai 1 célula/tick; `changedThisTick` impede 2ª mudança da mesma
-  célula no mesmo tick (senão areia teleporta se a célula-destino também estava suja).
-- Ordem das mudanças da regra da areia: materializar embaixo ANTES de limpar a origem —
-  transiente duplicado é invisível no cliente; ordem inversa pisca buraco por 1 frame.
-- Regra de bloco NUNCA escreve no mundo — devolve BlockChange[] e a session aplica
-  (broadcast + marca vizinhos). Escrever direto pularia a propagação e o netcode.
-- Presença de jogadores (cp5, REVISTO 2026-07-12/bug-076): cliente NUNCA sabe o
-  próprio id — servidor relay `player_moved` só pros OUTROS (broadcastExcept).
-  "Presença emerge do move" FALHOU pra jogador parado: agora o JOIN envia
-  player_moved com o estado de cada online pro novo (APÓS o snapshot — antes
-  dele o cliente descarta) e anuncia o novo pros demais. Continua sem mensagem
-  "player_joined" dedicada. `player_left` no disconnect remove a caixa.
-- Move do cliente é REATIVO (2026-07-12): compara com o último enviado; igual =
-  só heartbeat 1×/2 s (presença/keepalive), mudou = até 10 Hz. Corta ~95% do
-  tráfego de subida com turma parada. Qualquer estado periódico novo deve seguir
-  o padrão "manda quando muda + heartbeat", não "manda sempre".
-- WsConnection: WebSocket.send antes do open LANÇA — fila interna segura mensagens
-  em CONNECTING e despeja no onopen (o join é enviado logo após o construtor).
-- Host ws (Node): socket sem handler de "error" derruba o processo inteiro;
-  sempre registrar. Mensagem client→servidor: ignorar frames binários
-  (protocolo de subida é 100% JSON) e usar `data.toString()` no Buffer.
-- Node 22+ tem WebSocket GLOBAL (cliente) — smoke de netcode roda com zero deps,
-  importando /shared por caminho absoluto via tsx.
-- Smoke script em scratchpad (fora do repo): usar extensão `.mts` — sem
-  package.json type:module, tsx compila `.ts` como CJS e top-level await quebra.
-- Spawn é propriedade da CRIAÇÃO do mundo (terreno pristino), não cálculo de
-  join: GameSession guarda `readonly spawn` do construtor e manda mensagem
-  `spawn` antes do snapshot. Cliente NUNCA deriva spawn do snapshot — snapshot
-  reflete o mundo já escavado/construído (bug-010). Vale pra qualquer valor
-  "do terreno original": derivar na criação, transmitir, nunca recalcular.
-- Chat (cp6): broadcast ECOA pro autor (eco = confirmação do round-trip pelo
-  servidor) — DIFERENTE de player_moved, que nunca ecoa. Comando (`/` prefixo)
-  responde SÓ pro autor com author "servidor"; a mudança de mundo do comando sai
-  como block_changed normal (acorda gravidade/regras — mesma engrenagem).
-- Chat UI vs pointer lock (cp6): Enter keydown dá transient activation no Chrome
-  → `requestPointerLock()` ao FECHAR o chat funciona sem clique. Teclas do campo:
-  `stopPropagation` no keydown do input + guard em input.ts (`e.target instanceof
-  HTMLInputElement` → return) — senão Digit1–4 troca hotbar (e o preventDefault
-  do handler engoliria o caractere digitado).
-- `tsx watch` do `npm run dev:server` observa também os imports de /shared —
-  editar session/protocol reinicia o servidor sozinho (smoke do cp6 rodou contra
-  o dev:server do usuário sem restart manual).
-- `?atlas` na URL do cliente pendura o canvas do texture atlas no canto
-  (inspeção visual de texturas novas em screenshot headless, sem playtest).
-- Regra de queda é `fallingRule` GENÉRICA (lê o id da célula e move o que
-  estiver lá): registrar bloco novo que cai = 1 linha no Map RULES. Não criar
-  regra por-bloco duplicada.
-- Hotbar: 1–9 escolhe direto, scroll do mouse cicla TODOS os colocáveis
-  (`input.onWheel`, só com pointer lock). Ordem do array PLACEABLE = ordem
-  dos ids — o texto de uso do /bloco aponta pra hotbar.
-- Lerp de jogador remoto (bug-062): fator exponencial `1-exp(-dt*12)` por frame
-  (independe do FPS), yaw pelo caminho curto via `atan2(sin Δ, cos Δ)`. Caixa
-  NASCE já na primeira posição recebida (senão desliza desde a origem).
-- Identidade provisória do cliente (até cp9): nome único por navegador em
-  localStorage `lj-nome` (`jogador-<4 chars>`), `?nome=x` na URL sobrescreve.
-  Roster do save é POR NOME — nomes iguais são a mesma pessoa pro mundo (bug-061).
-- Canal de HOST do worker (cp8): mensagens `{hostType: ...}` no MESMO postMessage,
-  filtradas pelo WorkerConnection ANTES do protocolo de jogo. init (save/seed)
-  obrigatório antes do join; save_request→save devolve bytes .ljw. Quem grava no
-  IndexedDB é o CLIENTE (armazenamento do navegador = domínio dele); worker só
-  serializa. Divisão vale pra qualquer host browser-side futuro.
-- Config do jogador: localStorage "lj-config" com merge DEFENSIVO por campo
-  (update do jogo nunca quebra config velha). Teclas por e.code; captura de
-  rebind usa keydown {once, capture} + stopPropagation pra não vazar pro Input.
-- Menu (cp8): telas em index.html, controles de config gerados em JS
-  (menu.ts buildConfigScreen). Menu SÓ escolhe; main.ts inicia o jogo.
-  `?server=` pula o menu (screenshots headless e links de LAN dependem disso);
-  cp9: `?pin=` e `?codigo=` fazem as vezes dos campos do menu nesse caminho.
-- Identidade (cp9): GameSession separa POSIÇÃO (roster) de IDENTIDADE
-  (identity: pin/papel por nome, TEXTO PURO — ver Decision Log 2026-07-12).
-  Join em modo estrito (default) valida: nome-já-online (ANTES do PIN — não
-  vaza se o PIN estava certo) → lockout → PIN 4 dígitos → código de professor.
-  Recusa = msg `join_denied` com motivo; NADA mais é enviado. 1ª entrada com
-  nome novo registra o PIN. `singleplayer: true` (worker) pula tudo e todo
-  join é professor.
-- Rate-limit do join (cp9): PIN errado conta por NOME (5 erros → 30 s de trava,
-  mesmo com PIN certo); código de professor errado tem contador GLOBAL próprio
-  (quem chuta código troca de nome a cada tentativa — gate por nome não pega).
-- toSave/identidade: em singleplayer o papel professor é do MODO, não da
-  pessoa — identity fica vazia e o save sai sem pin/papel (mundo single
-  exportado pra LAN não dá professor de graça). Identity restaurada do save
-  é preservada mesmo em singleplayer (mundo de LAN importado não perde PINs).
-- Testes de sessão: bateria de MECÂNICA roda com `singleplayer: true` (join
-  sem PIN); auth do cp9 tem describe próprio. Sessão nova em teste multiplayer
-  exige `pin` no join, senão tudo é join_denied.
-- Smoke com servidor filho: spawn `node --import tsx arquivo.ts` DIRETO —
-  npx cria árvore de processos e o SIGTERM morre no wrapper (bug-092; servidor
-  neto órfão segura a porta e a fase 2 leva EADDRINUSE).
-- alert() TRAVA screenshot headless: dialogo modal pausa o --virtual-time-budget
-  no headless=new e o screenshot nunca dispara (bug-093). Fluxo com alert se
-  verifica por smoke de protocolo, não por screenshot.
-- Regiões (cp11): canal `regions` é SÓ pra professores (join + após criar/
-  apagar; lista sempre COMPLETA — cliente substitui, não mescla). Aluno não
-  recebe nada — o que ele vê de região é decisão do OBJETIVO (cp12), não do
-  canal. Papel do próprio jogador viaja no `spawn` (campo opcional — host
-  antigo compatível); cliente usa pra habilitar UI de professor (varinha).
-- Cantos da varinha são rascunho POR CLIENTE no servidor (wandMarks):
-  somem no /regiao criar e no disconnect, NÃO persistem no save. Varinha
-  marca a célula MIRADA (bloco existente), não o ar vizinho do place.
-- parseNamedRegion (regions.ts) é o validador ÚNICO de região vinda de fora
-  — protocolo E decodeSave reusam; entrada quebrada é PULADA (lista/save
-  continuam válidos). Padrão pra qualquer estrutura futura no meta do save.
-- Grupos (cp13): membros por NOME (grupo sobrevive a rejoin/reboot, igual
-  roster); professor FORA da auto-distribuição; recém-chegado cai no MENOR
-  grupo; RE-criar grupos zera composição e progresso por grupo. Progresso:
-  chaves "obj:grupo" em completosGrupo; objetivo compartilhado concluído
-  vale pra todos os grupos; chegar em modo grupos é SEMPRE por grupo (sem
-  grupo não pontua); sequencial anda POR GRUPO. Msg `objectives` é a MESMA
-  pra todos (porGrupo[]) — o cliente escolhe a própria linha via msg `group`
-  pessoal. Não fazer mensagem de objetivo por-destinatário: quebra o dedup.
-- /regiao carimbar (cp13): replica região modelo com BLOCOS (cabines) 1× por
-  grupo e nomeia prefixo-1…N; valida bounds de TODAS as cópias antes de
-  mudar o primeiro bloco (carimbo pela metade = lixo). /objetivo add resolve
-  nome exato = área compartilhada, prefixo-1…N = área por grupo (exige as N).
-- Config em CATEGORIAS (menu.ts): renderConfigRoot (controles/som/gráficos/
-  restaurar) + renderConfigPanel por categoria; mesma tela no menu principal
-  e no Esc (buildConfigScreen é só a raiz). Categoria nova = 1 entrada em
-  CONFIG_CATEGORIES + 1 ramo no panel.
-- SEM popups nativos (pedido do usuário 2026-07-12): prompt/confirm/alert são
-  proibidos no cliente — usar UI inline (.menu-erro, apagar em 2 cliques com
-  desarme, formulário na própria tela). Erro que precisa sobreviver a reload
-  (join_denied) vai via sessionStorage "lj-erro" → banner no menu. Bônus:
-  alert travava screenshot headless (bug-093) — problema morreu junto.
-- Menu de pausa (Esc) = #overlay reestilizado como .menu-screen: voltar ao
-  jogo (input.lock), configurações e sair. buildConfigScreen(body, onChanged)
-  é COMPARTILHADO menu principal/pausa — onChanged aplica ao vivo
-  (applySettings + Input.rebind pros atalhos por handler: chat/hud/varinha;
-  teclas de movimento já leem settings.keys a cada frame). Mira (#crosshair)
-  só aparece com pointer lock ativo — updateOverlay controla.
-- Objetivo construir (cp12): região MODELO (fotografada no /objetivo add) é
-  SEPARADA da região ALVO (onde detecta) — fotografar e detectar na mesma
-  região nasceria completo. Mesma região é permitida (fluxo "apagar o modelo
-  depois"), mas o add RECUSA alvo que já bate com o gabarito. Modelo/alvo
-  exigem dimensões iguais. Isto é a base do carimbo de áreas do cp13 (mesmo
-  gabarito, N alvos).
-- Detecção de objetivo (cp12) segue a regra de ouro: applyBlock marca
-  objetivosDirty → tick recheca SÓ os tocados (nunca varredura periódica);
-  chegar conclui no handler do move (pisar na região; heartbeat de 2 s cobre
-  jogador parado). Sequencial: pisar em objetivo FUTURO não conclui.
-  Conclusão nunca desfaz; /objetivo resetar exige ação nova pra re-concluir
-  construir (não re-checa o mundo atual de propósito — senão reset é no-op).
-- Broadcast de cenário: mensagem `objectives` completa pra TODOS, dedup por
-  JSON (lastObjectivesJson); anúncio "objetivo concluído" no chat sai SEMPRE
-  DEPOIS do estado novo — o cliente toca o som de conquista e suprime o ping
-  de notificação (janela 800 ms em audio.ts).
-- Coords de região DENTRO do objetivo são CÓPIA (min/max) — /regiao apagar
-  não quebra objetivo existente; região nomeada é só ferramenta de autoria.
-- Resposta de comando multi-linha: servidor junta com "\n" e o `.msg` do chat
-  tem `white-space: pre-line` (index.html) — vale pra /regiao lista e pra
-  qualquer listagem futura (/objetivo lista no cp12). Não mandar N mensagens.
-- Áudio de UI (client/audio.ts): sintetizado com WebAudio (blip = oscilador
-  + envelope), zero assets. AudioContext SÓ nasce em gesto do usuário
-  (autoplay policy) — som disparado por mensagem de REDE usa playUiPassive
-  (só toca se o contexto já existe). Botões do menu = delegação de clique
-  no container. settings.volume agora controla o master gain (slider ativo).
-- Painéis do cp14 (client/src/panels.ts) = AÇÚCAR sobre comandos de chat:
-  cada botão COMPÕE um /objetivo|/regiao|/grupo e manda como msg `chat` —
-  validação 100% no servidor, ZERO protocolo novo pra ações. Estado volta
-  pelos broadcasts (regions/objectives/groups) que re-renderizam o painel
-  aberto; resposta de comando aparece no chat. Painel NUNCA decide estado.
-  Qualquer UI de autoria futura segue este desenho.
-- Painel adia re-render enquanto um input/select DELE tem foco (marca dirty,
-  re-renderiza no focusout) e guarda rascunho dos formulários em campos da
-  classe — broadcast de objectives não apaga o que o professor digita.
-- Msg `groups` (cp14): composição COMPLETA broadcast pra TODOS (painel de
-  grupo do aluno vive disto e só abre com grupos criados). Join manda DIRETO
-  pro recém-chegado (dedup não cobriria cliente novo); mudanças = broadcast.
-  Mesmo padrão sendX(client)/broadcastX() de regions/objectives.
-- Preset de mundo (cp14): `WorldPreset` = normal|plano|cabines em worldgen
-  (generateWorldForPreset; parseWorldPreset valida string de fora).
-  SessionOptions.preset VENCE o flat (alias legado dos testes/LJ_PLANO).
-  Host Node: LJ_PRESET=plano|cabines. Menu: select #menu-new-tipo. Preset
-  só vale pra mundo NOVO — restore ignora.
-- Cabines (worldgen): 1 por chunk no canto (0,0) local, footprint 5×5
-  (CABIN_SIZE), paredes de tábuas 2 de altura (CABIN_WALL_HEIGHT), lado +x
-  ABERTO (olha pro centro do chunk), sem teto. Spawn do preset desloca
-  +CHUNK_SIZE/2: o centro exato do mundo é canto de chunk = dentro de cabine.
-- `/objetivo texto id novo…` e `/objetivo mover id pos` (pos 1-based, com
-  clamp) — edição de autoria usada pelo painel; mover re-ativa o sequencial
-  na ordem nova via broadcastObjectives.
-- Tecla `painel` (default P, rebindável): professor abre AuthorPanel, aluno
-  abre GroupPanel (só com grupos criados; senão aviso local no chat, autor
-  "jogo"). Esc fecha (listener capture próprio do painel). `?painel` na URL
-  abre no boot — screenshot headless do cp14. updateOverlay esconde o menu
-  de pausa enquanto painel aberto.
-- PLACEABLE (hotbar) extraído pra client/src/blocksUi.ts — main.ts e os
-  selects de bloco do painel usam a MESMA lista.
-- Edge-guard do agachar (cp15): implementado POR EIXO no sub-passo
-  (moveAxisGuarded desfaz o eixo se hasSupport falhar) — diagonal desliza
-  pelo eixo seguro de graça, igual Minecraft. Guard SÓ com sneak && onGround
-  (recalculado após o move de y de cada sub-passo). Jogador debruça até o
-  footprint (largura 0.6) quase sair do bloco: drift máx |0.8| do centro —
-  é o comportamento certo, não bug (teste calibrado pra isso).
-- Sprint (cp15): detecção de duplo-toque por POLLING no render loop (borda
-  de subida da tecla forward + janela 300 ms + latch até soltar) — sem mexer
-  no Input. Ctrl segurado é lido direto por input.down. Agachar VENCE
-  sprint; sprint exige forward>0. FOV kick/altura do olho: lerp exponencial
-  no loop com camera.updateProjectionMatrix() só quando |Δfov|>0.01.
-- Teclas de SEGURAR novas (correr/agachar) = só entrada em KeyAction +
-  defaults + label; menu de rebind itera KEY_ACTION_LABEL e o loop lê
-  settings.keys a cada frame — zero fiação extra. Tecla de ATALHO nova
-  (inventario) exige também: input.onKey no startGame + entrada na lista do
-  onSettingsChanged (rebind ao vivo).
-- Hotbar (cp16) = 9 slots de BlockId em localStorage "lj-hotbar", parse
-  defensivo POR SLOT (id inválido cai no default daquele slot). Digit1-9 =
-  slot, scroll cicla os 9. Inventário (client/inventory.ts) segue o padrão
-  Panel do cp14 (Esc capture, exclusão mútua com painel P via hide()) mas é
-  100% local — nenhum comando pro servidor.
-- Ícones de bloco (cp16): blockIconTile(id) no mesher devolve o tile
-  LATERAL; client/blockIcons.ts recorta do canvas do atlas (material.map
-  .image) pra data URLs de 16px — CSS amplia com image-rendering:pixelated.
-  Vale pra qualquer UI futura que precise mostrar bloco.
-- Transparentes (cp18) são CUTOUT, não blend: alphaTest 0.5 no material
-  único — sem sorting, sem segundo draw call, sem passe extra. Regra de
-  visibilidade no mesher: face emitida se vizinho==Air OU (eu opaco &&
-  vizinho transparente); entre DOIS transparentes nunca (faces coplanares =
-  z-fight). isTransparentBlock() vive em blocks.ts (/shared) — física e
-  raycast continuam tratando como sólido.
-- Tiles com alpha no atlas: canvas 2d nasce transparente; clearRect apaga
-  pra alpha 0 (furos das folhas, centro do vidro). paintNoise pinta opaco.
-  Tile não pintado = invisível com alphaTest — todo bloco novo PRECISA de
-  pintura no createAtlasTexture (o teste "todo colocável tem tile" pega o
-  lado do mesher, não o do atlas).
-- RECEITA "adicionar bloco cúbico" (checklist — 4 pontos, tudo append):
-  (1) `shared/blocks.ts`: novo id no FIM do BlockId + bumpar MAX_BLOCK_ID
-  (isPlaceable segue sozinho; nunca renumerar id antigo — save é byte cru);
-  (2) `shared/mesher.ts` BLOCK_TILES: mapear id→tile (`uniform(t)` ou
-  top/bottom/side); (3) `client/atlasTexture.ts`: pintar o tile em
-  createAtlasTexture; (4) `client/blocksUi.ts` PLACEABLE: nome PT (hotbar,
-  inventário e selects derivam daí). Hotbar/ícones/inventário/`/bloco`/
-  `/regiao encher` são TODOS automáticos. Rede de segurança: o teste do
-  mesher "todo colocável tem tile" quebra se faltar o passo 2.
-- ATLAS.tilesPerRow é dinâmico: mesher (UV) e atlasTexture/blockIcons leem
-  ATLAS.tilesPerRow, então dá pra CRESCER a grade (8→16 no cp20, 64→256
-  tiles) sem tocar em UV, save ou snapshot — só o índice do tile importa,
-  não a posição no canvas.
-- Blocos-glifo (cp20, letras A–Z / dígitos 0–9): família regular derivada de
-  UMA const `GLYPH {base,letters,digits}` em mesher.ts (re-exportada) — o loop
-  em BLOCK_TILES, o `paintGlyph` (ctx.fillText bold, NearestFilter deixa o
-  traço crocante) e os nomes em blocksUi TODOS iteram GLYPH. Família regular =
-  loop numa fonte única, não 36 linhas explícitas (só as âncoras LetterA/Digit0
-  precisam de nome no BlockId).
-- RECEITA "nova mensagem servidor→cliente": (1) union + comentário em
-  protocol.ts ServerMessage; (2) `case` no parseServerMessage (defensivo — tipos
-  conferidos, senão null); (3) dispatch no cliente (main.ts handleServerData);
-  (4) o servidor emite via `this.send`/`this.broadcast`. Mensagem cliente→
-  servidor tem o caminho espelhado (ClientMessage + parseClientMessage +
-  session.handleMessage) — mas prefira REUSAR chat/comando quando é ação de
-  professor (cp14: painel = açúcar sobre /comando, zero protocolo novo).
-- Comando SÓ do host (fecha socket / lê arquivo): intercepta em server/index.ts
-  ANTES de session.handleMessage, como /mundo (cp19) e /kicar (cp22). A
-  GameSession é pura (sem sockets nem filesystem) — resolve nome→id por
-  `session.jogadoresConectados()`. No worker (singleplayer) esses comandos caem
-  em "comando desconhecido" (não há host de arquivo/rede) — aceitável, mesmo
-  padrão do /mundo. Adicione-os no autocomplete (client/commands.ts) à mão.
-- Ciclo dia/noite (cp21) = tempo SERVER-AUTORITATIVO e VISUAL. Avança
-  determinístico por TICK (`horaDoDia += 24/(DIA_SEGUNDOS*TICK_RATE)`), NUNCA
-  pelo relógio de parede — assim Web Worker, .exe e Node dedicado andam iguais.
-  Broadcast `time` 1×/s (na mesma janela do debug_stats) + no join; o cliente
-  interpola localmente entre syncs (SkyCycle) pra não pular. Nunca escurece
-  100% (piso de luz ambiente).
-- CONFIG do ciclo (decisão do usuário 2026-07-16): mundo de ATIVIDADE = DIA
-  PERMANENTE, ciclo PARADO (default `HORA_PADRAO=12`, `cicloAtivo=false`) — o céu
-  não muda durante a aula. **hora + ciclo PERSISTEM no save** (SaveMeta): mundo de
-  atividade grava ciclo OFF; SOBREVIVÊNCIA (futuro) grava a hora corrente pra
-  CONTINUIDADE (reload volta na hora salva). Restore sobrescreve o default;
-  ausente no save antigo = default. O gerador de cenários trava o dia
-  EXPLÍCITO (`/hora meio-dia` + `/ciclo desligar`), não confia no default —
-  sobrevivência pode, no futuro, nascer com o ciclo ligado. Mexeu em hora/ciclo
-  default ou no formato → REGERAR cenários (`npm run cenarios`).
-
-- Deploy no notebook: dá pra DATAR a versão que está rodando pelas frases do
-  boot (bug-233): "escutando em ws://" = código pré-2026-07-15 (sem servidor
-  estático, sem daRaiz/aulas/); atual imprime "mundo carregado de modelo …" e
-  "os alunos abrem no navegador: http://…". Erro estranho vindo do notebook →
-  PRIMEIRO conferir se a cópia é o main atual (pasta de ZIP `-main` = baixada
-  à mão, não sincroniza).
-- Notebook da escola (Windows 11, host do piloto): PowerShell padrão bloqueia
-  `npm` (shim npm.ps1 + ExecutionPolicy Restricted — bug-232). Fix aplicável
-  sem admin: `Set-ExecutionPolicy -Scope CurrentUser RemoteSigned`; saída
-  rápida: `npm.cmd`. Instruções de Windows pro usuário: sempre PowerShell com
-  `$env:VAR="x";` em linha única, e prever esse bloqueio.
-- Terminal do host (`server/index.ts`): readline no stdin = console de
-  comandos do professor SEM estar no jogo (`/say` fala com a turma). Comando
-  novo de terminal entra no mesmo `terminal.on("line")`; candidato natural a
-  migrar: /mundo e /kicar (já são interceptados no host — o responder vira
-  console.log). Em nohup/background o stdin fecha na hora e nada quebra.
-- Plaquinha de nome (2026-07-17): o nome viaja OPCIONAL em `player_moved`
-  (parse defensivo descarta não-string; ausente = host antigo, caixa sem nome)
-  — servidor inclui `name` nos 4 pontos de emissão (move relay, presença ×2 no
-  admitir, teleportar). Cliente: THREE.Sprite FILHO da mesh do boneco (sprite
-  sempre encara a câmera e ignora o yaw do pai; offset só em Y não gira),
-  textura = canvas 2d procedural (texto branco, fundo rgba(0,0,0,0.4)),
-  `LinearFilter` (canvas não-potência-de-2 sem mipmap), `depthTest: false` =
-  nome visível através de parede (convenção Minecraft; professor acha aluno).
-  PEGADINHA: redimensionar o canvas RESETA ctx.font — setar de novo após
-  width/height. Dispose no player_left: map + material + remove do pai.
-  Mudança de nome (rejoin com id novo é o normal) recria o sprite via
-  labelName. Testes que dão toEqual em player_moved GANHARAM o campo name —
-  emissão nova sem name quebra esses asserts.
-- **Não-cubos (cp23, 2026-07-17) — cerca/porta/tocha, ids 65–70:** forma vive
-  no mesher (`emitShape` + `emitBox` com UV PROPORCIONAL — face amostra do tile
-  a região que ocuparia no cubo cheio). Culling do emitBox: face RENTE à borda
-  da célula some se o vizinho é cubo opaco (sem z-fight com o topo da grama) ou
-  tem o MESMO id (metades da porta fundem). `isFullCube()` em blocks.ts: não-
-  cubo NUNCA oclui vizinho no mesher nem segura tocha. FÍSICA usa
-  `isSolidBlock()` (não mais `!== Air`): porta aberta e tocha atravessam.
-  RECEITA bloco não-cubo novo: id em blocks.ts + isFullCube/isSolidBlock +
-  case no emitShape + tile pintado + entrada BLOCK_TILES (ícone) + PLACEABLE.
-- **Sprite em CRUZ (flores, 2026-07-20 sessão 8):** NÃO usar emitBox (caixa fina)
-  pra sprite plano — a caixa emite 6 faces com UV proporcional, o tile estica nas
-  laterais e 2 lajes sobrepostas z-fightam (era o "bug" da flor). Certo =
-  `emitCrossPlane` (mesher): 2 lâminas PLANAS na diagonal da célula ((0,0)→(1,1) e
-  (0,1)→(1,0), a 90°), altura 0..1, UV do tile INTEIRO (0..1). Material é FrontSide
-  (1 draw call/chunk), então cada lâmina emite os 2 LADOS (verso = winding invertido
-  + normal negada) pra aparecer de qualquer ângulo. Cutout (alphaTest) some o fundo.
-  Padrão reusável pra qualquer sprite-billboard futuro (grama alta, mudas).
-- **Hitbox VISUAL segue a forma (2026-07-20 sessão 8):** `blockSelectionBox(id)` no
-  mesher devolve a caixa [x0,y0,z0,x1,y1,z1] (frações da célula) que ENVOLVE a forma
-  do não-cubo; cubo cheio = célula inteira. PURA (só o id — estado/direção já moram
-  no id: porta/janela aberta, quadro/móvel direcional; usa rotXZ pro quadro). O
-  contorno preto da mira (client/main.ts) virou um cubo unitário REESCALADO/
-  reposicionado por frame a partir dessa caixa (getBlock no target → box → scale+pos,
-  +0.004 de folga do antigo 1.002). Antes era sempre 1.002³ (flor fininha com contorno
-  de bloco cheio flutuando = feio). Mesa/cadeira/sofá/cama usam caixa quase-cheia.
-- **Porta (cp23): estado mora no ID** (PortaX/Z × Fechada/Aberta) — abrir =
-  trocar byte via block_changed, zero metadata. Par vertical = MESMO id nas 2
-  células; metade de cima se reconhece pelo vizinho de baixo. `use_block`
-  (clique direito em interativo) alterna as duas; fechar recusa com jogador no
-  vão (senão trava preso). `doorRule` limpa metade órfã no tick (quebrar uma
-  derruba a outra — sem código especial no break). Porta REJEITADA em /bloco,
-  /regiao encher e sortear (comando de célula única criaria metade órfã).
-  Eixo escolhido no CLIENTE pelo yaw na hora do place; hotbar tem UMA entrada.
-- **Porta com DOBRADIÇA (2026-07-19, backlog):** painel na BORDA da célula, não
-  centrado — fechada e aberta compartilham a aresta vertical do canto (0,·,0)
-  da célula (= dobradiça), então abrir pivota 90° na ponta como porta real.
-  Fechada PortaX: x∈[0,2P]; aberta: z∈[0,2P] (PortaZ espelha). Sem id novo de
-  lado-da-dobradiça (8 ids a mais = fora do escopo rápido); dobradiça é sempre
-  o canto de coord baixa. Testes de contagem de face do cp23 NÃO mudaram
-  (painel na borda em vão de ar emite as mesmas faces do centrado).
-- **Escolher o LADO da dobradiça (2026-07-20, sessão 7):** o "fora do escopo" acima
-  foi revogado — o usuário pediu. Encoding = 4 ids R (`PortaXFechadaR`..`PortaZAbertaR`,
-  108-111, APPEND depois das flores; NÃO dá pra numerar junto das base sem quebrar bytes
-  de save). R = dobradiça na aresta ALTA do "flanco" (eixo que o painel varre: PortaX
-  flanca em Z, PortaZ em X). FECHADA idêntica nas 2 dobradiças (varre o vão todo) — só a
-  ABERTA muda de lado; por isso a variante é PURO VISUAL (mesher), física é por célula
-  (sólida/vazia). A ESCOLHA mora no SERVIDOR, não no cliente (`escolherDobradica` em
-  session.ts, no place_block da porta): (1) porta vizinha do MESMO eixo em qualquer lado do
-  flanco → dobradiça OPOSTA à dela (porta dupla, abre pro meio); (2) senão, cubo cheio num
-  lado do flanco e não no outro → dobradiça do lado da parede (checa y E y+1, porta é 2 alta);
-  (3) empate → base. Cliente NÃO mudou (segue mandando só o eixo — PortaXFechada/PortaZFechada;
-  copy mapeia qualquer porta → PortaXFechada). Helpers: `isPortaAberta`/`portaEixoX`/
-  `portaHingeAlta`/`portaComHinge` (este NORMALIZA a entrada, aceita base ou R). PEGADINHA:
-  `isFullCube` dependia da faixa `Cerca..Tocha` pra excluir portas; os ids R saíram da faixa
-  → precisou `!isPorta(id)` explícito (senão porta R viraria cubo cheio e ocluiria vizinho).
-  `isSolidBlock`/`isPlaceable` trocaram os literais PortaXAberta/PortaZAberta por `isPortaAberta`
-  (cobre R). Padrão reusável pra JANELA (mesmo desenho) se um dia pedir dobradiça escolhida.
-- **JANELA ganhou a mesma dobradiça (2026-07-20, sessão 7b):** 4 ids R (112-115) + helpers
-  espelho (`isJanelaAberta`/`janelaEixoX`/`janelaHingeAlta`/`janelaComHinge`). `escolherDobradica`
-  (session.ts) foi GENERALIZADO em vez de duplicado: recebe `alturas` (porta=2 → checa parede em
-  y E y+1; janela=1 → só y) + os predicados da família (`mesmoTipo/ehEixoX/hingeAlta/comHinge`).
-  Porta e janela chamam o MESMO método com seus helpers. Janela = 1 célula, sem par vertical nem
-  regra de órfão (não entra em RULES) → branch próprio no place_block (só 1 applyBlock). Cliente
-  ZERO mudança nas duas (copy `isPorta`/`isJanela`→base cobre R; place manda só o eixo). LIÇÃO:
-  ao adicionar a 2ª família com a mesma mecânica, generalizar o método (params) rende mais que
-  copiar — mas os IDs/helpers ficam por família (id é byte de save, não dá pra unificar).
-- **Autocomplete de NOMES (2026-07-19):** `learnPlayers` em client/commands.ts
-  espelha learnWorlds; main.ts alimenta com Map id→nome do `player_moved`
-  (guard: só quando nome novo/diferente — senão roda a 10 Hz×N jogadores) e
-  poda no `player_left`. Slots com nome: /kicar /resetpin /tpr /tpa nível 2,
-  /tp = ["grupos", ...nomes], /amigos convidar|aceitar|recusar|expulsar nível 3.
-- **Encher em lote (cp23b):** /regiao encher usa `applyBlockQuieto` (tudo do
-  applyBlock MENOS o broadcast — regras e objetivos acordam célula a célula) e
-  UMA msg `blocks_filled` (caixa+id); células puladas (jogador dentro) são
-  corrigidas com block_changed DEPOIS do lote. Cliente: setBlock em loop +
-  `remeshBox` (1 remesh por chunk tocado, não por bloco) + 1 gatilho de som.
-  Teto: MAX_ENCHER_CELLS=65536 (16× o antigo); MAX_OBJETIVO_CELLS segue 4096
-  porque detecção recheca a região a CADA mudança (custo recorrente).
-- **/tpr + /tpa + /tp nome (2026-07-17):** aluno NUNCA teleporta ninguém sem
-  consentimento — /tpr nome registra pedido (Map por DESTINATÁRIO em
-  `tpPedidos`, expira TP_PEDIDO_MS=30 s pelo clock injetado `this.now()`),
-  /tpa [nome] aceita (poda expirados e desconectados via players.has no
-  aceite; disconnect do destinatário apaga a fila dele). Professor: /tp nome
-  vai direto; /tp nome x y z ENVIA o jogador (~ relativo ao TELEPORTADO,
-  convenção Minecraft; +0.5 no centro da célula). Tudo sobre o helper
-  `teleportar()` — zero protocolo novo. /tp grupos intacto.
-- Coordenada digitada em comando (2026-07-17): `parseCoordArg(token, base)`
-  (module-level em session.ts) entende inteiro, `~` e `~n` — relativos à CÉLULA
-  do autor (Math.floor da posição). Usado por `/regiao criar nome x1 y1 z1 x2
-  y2 z2` (forma com varinha continua valendo; 3 OU 9 parts) E por `/bloco x y
-  z id`. REUSAR no futuro `/tp nome x y z` em vez de duplicar o parse. Bounds:
-  os DOIS cantos passam por inBounds antes de criar.
-- Chat no toque: Enter do teclado VIRTUAL precisa do fallback `e.key ===
-  "Enter"` (Android nem sempre preenche e.code); fechar sem enviar = tocar no
-  canvas (chat.close() público) — não existe Esc no celular.
-- Tela cheia mobile: requestFullscreen SÓ funciona em gesto do usuário — por
-  isso vive no startPlay (tap do "voltar ao jogo") e num botão; encadeia
-  `screen.orientation.lock("landscape")` DEPOIS da promise da tela cheia
-  (lock exige fullscreen); tudo com catch vazio (iPhone não suporta).
-- Controles de toque (2026-07-16, `client/src/touch.ts`): a UI de toque SÓ
-  sintetiza o input que teclado+mouse já geram — `input.setKey` (joystick liga
-  as MESMAS teclas de settings.keys → rebind vale de graça), `input.applyLook`
-  (mesma conta/clamp do mousemove) e `input.press(botão)` (dispara o handler
-  de onMouseButton existente). O loop lê `input.active` (= locked OU touch);
-  a linha do `pointerlockchange`/showOverlayMain segue `locked` (é específica
-  de pointer lock). `input.lock()` é no-op com touch ligado — os lock()
-  espalhados (fechar chat/painel/inventário) ficam inofensivos sem tocar
-  neles. `setShown(false)` SOLTA as teclas seguradas (heldKeys) — esconder a
-  UI no meio de um toque não deixa o jogador andando sozinho. Botão novo de
-  ação = compor sobre input.press/setKey, nunca handler paralelo.
-- **Voo criativo (2026-07-17):** voo é 100% CLIENTE (física em /shared, cp10
-  server-validation adiado) — `MoveInput.fly` desliga a gravidade em stepPlayer,
-  `jump` sobe e `sneak` desce, mas AINDA colide (moveAxis, não atravessa parede;
-  convenção Minecraft criativo). Cliente: duplo-toque no pular alterna `flying`
-  (espelha o latch do sprint), só se `podeVoar()` = papel professor OU voo
-  liberado pra turma. Descer voando NÃO agacha a câmera (`sneak && !fly`).
-- **`/voo` (2026-07-17):** professor libera/tranca voo pra TURMA; ele voa sempre
-  (independe do flag). Estado `vooLiberado` na session, NÃO persiste (nasce
-  desligado a cada sessão). Msg `voo {liberado}` server→cliente: broadcast no
-  toggle + enviada no join SÓ quando `liberado` (default false = zero churn nos
-  asserts de contagem do join — ver Do-Not-Repeat de 2026-07-16). Aluno que perde
-  a liberação no meio do voo cai (handler do cliente zera `flying`). Padrão de
-  "flag de turma com toggle do professor" reusável (ex.: futuro modo construir).
-- **Rocha-matriz na camada 0 (2026-07-17):** `generateWorld` (preset normal)
-  põe Bedrock em y=0 e Stone de y=1..h — igual ao plano/cabines (que derivam de
-  generateFlatWorld e já tinham). Aluno não fura o fundo do mundo em nenhum preset.
-- `touch-action: none` no body NÃO trava scroll de container interno com
-  overflow próprio (menu, painéis): o gesto consulta touch-action só do alvo
-  até o elemento que ROLA — body fica fora da cadeia. Mata pull-to-refresh e
-  scroll da página sem quebrar os menus.
-
-### Cenários pedagógicos = conteúdo, não motor (2026-07-14)
-- Cenário nasce de COMANDOS rodando numa GameSession real — não existe editor
-  offline nem caminho de autoria privado. O gerador (`server/src/cenarios/gerar.ts`)
-  digita os mesmos `/grupo criar`, `/regiao criar`, `/bloco`, `/objetivo add` que o
-  professor digitaria. Se um cenário não sai daí, ele também não sai da mão do
-  professor — isso é atrito do MOTOR, não bug do script.
-- ~~`.ljw` NÃO vai pro git~~ **REVOGADO 2026-07-16 (decisão do usuário):** git é
-  o canal de SYNC casa↔escola — `.ljw` (cenarios/ e aulas/) e `client/dist/`
-  agora SÃO versionados; `.gitignore` só guarda temporários de teste
-  (*.ljw.tmp, *.ljw.corrompido-*, chrome/, designqc-captures/, *.log) +
-  node_modules/.env. O gerador continua sendo a fonte da verdade dos modelos.
-- O .ljw de distribuição sai com `roster: []` (sobrescrito no `toSave()`): senão o
-  mundo viaja com o PIN e o papel do autor de mentira, e qualquer um entraria como
-  professor usando aquele nome. Quem sabe o CÓDIGO vira professor; aluno registra
-  o PIN na 1ª entrada.
-- `/objetivo add construir modelo alvo` RECUSA alvo que já bate com o gabarito.
-  Por isso a área do grupo tem que nascer incompleta: pista parcial (aula 1), vazia
-  (aula 2) ou com erros plantados (aula 3).
-- Um comando do servidor pode gerar VÁRIAS falas de chat (`/grupo criar` avisa e
-  depois lista). Quem afirma em cima da resposta tem que olhar TODAS, não a última.
-- `npm run <script> -w server` roda com cwd em `server/` — caminho relativo de saída
-  não cai na raiz do repo. Ancorar em `fileURLToPath(import.meta.url)`.
-
-### Trocar de aula ao vivo + integridade dos modelos (cp19, 2026-07-15)
-- **Filesystem é do HOST, nunca da GameSession.** `/mundo` (trocar de aula = ler
-  arquivo) é interceptado em `server/src/index.ts` ANTES de chegar na sessão; a
-  GameSession não tem (nem deve ter) sistema de arquivos, senão o Web Worker do
-  singleplayer não roda. Mesmo princípio do save no cp7.
-- **Trocar de mundo sem derrubar ninguém** = salvar atual → decodificar o novo
-  (corrompido ABORTA, nada muda) → `session.jogadoresConectados()` → nova
-  GameSession → `session.adotar(id,name,papel)` por cliente. `adotar` reusa o
-  `admitir()` que o join usa (2ª metade do join extraída). Teleport é OBRIGATÓRIO
-  ao migrar: as coords do mundo velho podem cair dentro da rocha do mundo novo.
-- **Comando que chega pela rede aceita só NOME de arquivo, nunca caminho.** O
-  servidor é alcançável pela escola inteira; um caminho livre daria leitura do
-  disco do host. `acharMundo` faz `basename()` e casa contra a lista de mundos.
-- **Modelo ≠ save.** Um `.ljw` em `cenarios/` é MODELO distribuível; o servidor
-  NUNCA escreve nele. `mundoDeTrabalho()` (paths.ts) manda o autosave pra uma
-  cópia de trabalho em `aulas/` (mesmo nome). Sem isso, hospedar um cenário direto
-  gravaria roster/PINs/progresso da turma dentro do arquivo que se distribui, e a
-  próxima turma começaria com a aula anterior resolvida. Cópia viva vence o modelo
-  (turma continua); apagar em `aulas/` recomeça. Modelo corrompido NÃO se renomeia
-  (é distribuído — regenerar). Prova: swap real → 3 modelos byte-idênticos (md5).
-- **Mundos "aula" são REUTILIZÁVEIS (read-only), 2026-07-17.** Estende o "modelo ≠
-  save": um mundo cujo ARQUIVO começa com "aula" (`ehMundoDeAula()` em paths.ts,
-  regex `^aula/i`) roda em modo só-leitura — `saveNow` vira no-op e o boot carrega
-  SEMPRE do modelo em `cenarios/`, ignorando qualquer cópia viva da turma anterior.
-  Motivo (pedido do usuário): as 3 lições são reaplicadas em várias turmas; sem
-  isso o professor teria que apagar `aulas/aulaN.ljw` entre turmas. O flag
-  `somenteLeitura` viaja em `mundoDeTrabalho()` e em `TrocaDeMundo` (`/mundo
-  carregar` propaga). Um mundo de construção livre (nome sem "aula") salva normal.
-
-### Blocos só-de-professor: servidor é a barreira, cliente só esconde (2026-07-17)
-- **`isProfessorOnly(id)` em blocks.ts** (por ora só rocha-matriz/bedrock). Regra
-  de ouro de segurança: o CLIENTE esconde (UX), o SERVIDOR recusa (verdade). Aluno
-  com fio adulterado ainda é barrado no `place_block` (`isProfessorOnly && papel!=
-  professor → return`). Nunca confiar só no esconde-no-cliente.
-- **Esconder no cliente = `placeableFor(papel)` em blocksUi.ts**, usado pelo
-  inventário (provider `blocks()`) E pela hotbar (default + `valid` set do
-  localStorage, senão um slot salvo antigo com o bloco sobrevive). `papel` já
-  chegou no `spawn` antes do snapshot que dispara `startGame`, então dá pra
-  filtrar na montagem da hotbar. Botão-do-meio (copiar) também checa isProfessorOnly
-  — o comentário antigo "bedrock não vai pra mão" era mentira (isPlaceable passava).
-
-### Confinamento por área de grupo = INVERSO do claim (cp25, 2026-07-17)
-- **`confinaBloqueia(clientId,x,y,z)` espelha `claimBloqueia`**: mesmo formato
-  (retorna motivo `string` ou `null`), plugado nos MESMOS gates de place_block
-  (porta ⇒ checa as 2 células com `??`) e break_block, encadeado com `??` DEPOIS
-  do claim. Claim PROTEGE (barra quem NÃO é dono/amigo); confinamento CONFINA
-  (barra fora da área do grupo). Professor isento nos dois. use_block ficou LIVRE
-  (decisão de escopo: só colocar+quebrar).
-- **Área = `areasDoGrupo(g)`** (nova, plural): para CADA objetivo, `alvos[g-1]`
-  (per-grupo, cp13) ou o próprio objetivo (área compartilhada = liberada a todo
-  grupo). Coleta de TODOS os objetivos, não só o ativo (`areaDoGrupo` singular usa
-  `activeIdsFor`; confinamento quer todas). Guardar `o.alvos[g-1]` com
-  noUncheckedIndexedAccess ⇒ `Box|undefined`, checar antes de `push`.
-- **Aluno SEM grupo = travado em tudo** (decisão do usuário). Mas o join AUTO-põe
-  aluno no menor grupo quando `grupos.size>0` — então "sem grupo" só acontece antes
-  de o professor criar grupos, ou após `/grupo sair`. Se `/confinar ligar` com 0
-  grupos ou 0 objetivos, TODOS os alunos ficam travados: o comando AVISA o professor.
-- **Auto em mundo-aula** via `SessionOptions.somenteLeitura` novo (o host já sabe
-  isso do cp19). Setado no FIM do construtor (`if (opts.somenteLeitura)
-  this.confinamentoAtivo = true`), VENCE o valor do save (aula distribui o modelo).
-  Propagação no host: index.ts boot passa `somenteLeitura`; `novaSessao` do ctx
-  (mundos.ts) ganhou 2º param `somenteLeitura` pra troca de aula (/mundo carregar).
-- **Persiste só em mundo LIVRE** (`SaveMeta.confinamento?`, grava só se ligado;
-  em aula read-only não salva ⇒ reseta por turma, coerente com claims). SEM
-  protocolo/UI novo no cliente: o aluno já enxerga a caixa VERDE do objetivo (cp12),
-  então a barreira dá só feedback de chat — mesmo desenho da rocha-matriz/claim
-  (servidor barra, cliente não precisa saber). `/confinar` NÃO entrou em claim/amigos
-  no autocomplete porque esses 2 do cp24 nunca foram adicionados (gap pré-existente).
-
-### Backlog 2026-07-19 sessão 2 (atalhos, dia/noite, tapetes, janela, móveis, quadro)
-- **Ctrl+W NÃO é interceptável por JS** em janela comum (atalho reservado).
-  Defesas reais (client/shortcutGuard.ts): (1) beforeunload = diálogo "sair do
-  site?" (universal); (2) preventDefault só nos combos que o navegador deixa
-  (Ctrl/Alt/Meta+tecla, Tab, F1/F5/F6/F7/F10/F12 — F5 sim, Ctrl+R não); (3)
-  Keyboard Lock API `navigator.keyboard.lock(["KeyW","KeyT","KeyN","KeyR","F4"])`
-  Chrome/Edge, SÓ age em tela cheia — aí Ctrl+W chega como keydown e a camada 2
-  segura. Esc fica FORA do lock (menu de pausa depende do exit do pointer lock).
-  preventDefault não esconde a tecla do Input (listeners separados) — jogo segue.
-  DESARMAR antes de navegação legítima (btn-sair, kicked/join_denied) senão o
-  diálogo trava a saída pedida.
-- **Família DIRECIONAL de bloco (4 ids XP/ZP/XN/ZN)**: forma escrita UMA vez
-  "de frente pra +x" e girada por `rotXZ(xa,za,xb,zb,k)` (mesher.ts, k×90° no
-  centro da célula). No place o cliente escolhe: quadrante do olhar `(olhar+2)%4`
-  = frente encara o jogador (convenção Minecraft). Hotbar = entrada única
-  (âncora XP); botão-do-meio copia de volta pra âncora. Usada por cadeira/sofá/
-  cama/quadro — móvel novo direcional segue este molde.
-- **Estado FORA do id (quadros) — molde pra metadata futura (placas, baús):**
-  shared/quadros.ts (tipo + parse defensivo + tetos), Map<posKey,conteudo> na
-  GameSession, msgs set/changed/lista-no-join (lista SÓ se não-vazia — asserts
-  de contagem do join intactos), persiste no SaveMeta (entrada quebrada pulada;
-  restore descarta conteúdo cuja célula não é mais o bloco), limpeza central no
-  applyBlockQuieto (célula deixou de ser o bloco → metadata morre; cliente limpa
-  pelo próprio block_changed, sem msg extra). Cliente: renderer de planes com
-  canvas-texture + editor overlay HTML (sem popup nativo); imagem SEMPRE
-  comprimida no cliente (canvas 192px, JPEG qualidade decrescente até caber no
-  teto) — servidor só valida prefixo data:image/ e tamanho.
-- **Astros do céu (daynight.ts):** sol/lua/estrelas num Group que COPIA a
-  posição da câmera por frame (nunca se aproximam); materiais transparent +
-  depthWrite:false = passe transparente depois do terreno → montanha oclui de
-  graça. Estrelas determinísticas (LCG seed fixa). Fade por altura do sol
-  (clamp01 perto do horizonte) evita pop. `?hora=` e `?yaw=` na URL congelam
-  céu/câmera pra screenshot headless (par do ?atlas).
-- **Tile de UI de móvel** pode REUSAR tile existente (tapete→lã, cadeira→tábuas);
-  só pinta tile novo quando a cara é nova (estofado, colchão, janela, quadro).
-
-### Fases nos cenários (2026-07-20)
-- **`Cenario.fases: Fase[]`** no gerar.ts: cada fase = objetivo construir com
-  modelo próprio. 1 fase → `/objetivo modo livre` (compat); 2+ → `sequencial`
-  (o grupo só vê a próxima ao fechar a atual — motor do cp13, zero mudança).
-  Layout: fases lado a lado em x com 1 coluna de vão (Σ larguras ≤ 8).
-  Nomes: fase 1 sem sufixo ("modelo"/"area-g" — receitas antigas valem);
-  fase 2+ = "modelo2"/"area2-g". `faixa1d(gab, partida, texto)` = helper do
-  caso 1D; `primeiros(gab, n)` = partida com os n primeiros dados.
-- verificar.ts joga TODAS as fases em ordem (monta gabarito no alvo do grupo 1,
-  tick, exige completo por fase + grupo 2 isolado) e exige modo sequencial em
-  multi-fase. Aula 1 é o showcase: período 3 → período 4 → regra crescente.
-
-### Cenários 4-6 (2026-07-20): gerador com área em CAIXA
-- **Cenario do gerar.ts é FUNÇÃO agora:** `gabarito(i,j,k)`/`partida(i,j,k)` +
-  `area {dx,dy,dz}` — faixa 1D das aulas 1-3 = caso particular (`linha()`).
-  `extras(a, origem)` roda 1× por grupo pra decoração FORA do alvo (dica
-  cifrada da aula4, parede de quadros da aula6); `conferirExtra(buf, grupos)`
-  pra invariantes específicas (aula6 exige grupos×3 quadros no save).
-  verificar.ts aceita área com ALTURA (base rente ao chão; era 1 célula).
-- **Autoria.quadro(x,y,z,id,texto):** /bloco coloca o quadro e o autor se
-  APROXIMA antes do quadro_set (a msg exige alcance). Única saída do princípio
-  "só comandos de professor" — quadro_set é a mesma msg do clique direito.
-- **Aula com dica visível**: blocos FORA da região-alvo não são fotografados
-  nem apagados — dica cifrada fica em pé mesmo com o modelo apagado. Em
-  mundo-aula o confinamento (cp25) impede aluno de vandalizar a dica/quadros
-  (fora da área do grupo).
-- Erros de simetria (aula5): trocar célula SEM trocar a espelhada — toda
-  troca vira detectável pela regra; consertar "pelo espelho errado" deixa
-  simétrico mas ≠ gabarito (contador não fecha) = discussão pedagógica, não bug.
-
-### Mundo G + medição de desempenho (2026-07-19 sessão 3)
-- **Bench do mundo G (16×16×8 = 256×256×128, Node local):** worldgen 80 ms ·
-  mesh dos 2048 chunks ~970 ms (pior chunk 10 ms; 512 com geometria, 740k
-  vértices) · encode/decode snapshot 7/18 ms · encodeSave 24 ms · tick com 500
-  areias ≈ 0 ms. Script: scratchpad bench.mts (regenerável).
-- **O que FOI otimizado (dor real):** (a) fast path de chunk 100% ar no
-  meshChunk (75% dos chunks do G são céu; checar 4096 bytes custa ~µs);
-  (b) `perMessageDeflate {threshold:1024}` no WebSocketServer — snapshot de
-  8 MB vira **41,6 KB no fio** (terreno repetitivo; join da turma 160 MB→<1 MB).
-  Smoke com cliente `ws` confirma negociação (undici/WebSocket global NÃO
-  negocia deflate — testar compressão exige o pacote ws como cliente).
-- **O que NÃO foi otimizado (decisão, 2026-07-19):** gzip do save em disco
-  (24 ms/8 MB a cada 30 s não dói; mudaria o formato .ljw e o navegador não
-  gunzipa síncrono — import quebraria); mesh de chunk maciço (greedy/worker
-  seguem ADIADOS — gatilho = hitch/FPS reclamado no lab; ~1 s de mesh no join
-  do mundo G, uma vez, é aceitável); time-slicing do buildAll (mesmo gatilho).
-- Tamanho P/M/G: SÓ criação (menu select, worker init `tamanho`, LJ_TAMANHO,
-  launchers perguntam). Save/snapshot sempre carregaram dims — zero migração.
-
-### Launchers do servidor (raiz do repo, 2026-07-18)
-- **`iniciar-servidor.bat` (Windows/escola) + `iniciar-servidor.sh` (casa/WSL)**
-  facilitam o professor subir o host: menu de mundo (1=livre→`world.ljw`, 2-4=
-  `cenarios/aulaN.ljw`), pergunta o código do professor (opcional → LJ_CODIGO),
-  seta `LJ_NOVO=1` (cria o mundo livre na 1ª vez) e roda `npm run start -w server`.
-- **O `.bat` roda por cmd.exe (duplo-clique)** — de propósito: cmd.exe usa
-  `npm.cmd`, então NÃO cai no bloqueio de PowerShell (npm.ps1 + ExecutionPolicy,
-  bug-232). Auto-`npm install` se `node_modules` não existe. `chcp 65001` pros acentos.
-- Caminhos usam `/` (barra normal) e são relativos à RAIZ do repo — `daRaiz()`
-  (paths.ts) resolve de REPO_ROOT independente do cwd, então `cenarios/aula1.ljw`
-  funciona mesmo com o cwd em server/ (efeito do `-w server`). O banner cita 8080
-  (default do LJ_PORT); trocar de aula ao vivo continua via `/mundo carregar` no jogo.
-
-### Versão do jogo = fonte única em shared/ (2026-07-20)
-- **`shared/src/version.ts` exporta `VERSION`** (constante TS pura). É a ÚNICA fonte
-  de verdade da versão. Nenhum `package.json` tem campo `version` — não usar como fonte
-  (o bundle do cliente não lê package.json sem config de Vite; duas fontes = drift).
-- Importada pelos DOIS hospedeiros: boot do server (`index.ts` loga `Lógica em Jogo vX`)
-  e menu do cliente (`menu.ts` → badge `#menu-version`, canto inferior direito do `#menu`,
-  visível em toda tela do menu porque é filho absoluto do overlay `position:fixed`).
-- Bump é MANUAL a cada marco. Ao subir a versão, mexer só em version.ts.
-
-### Saves vivos em mundos/ + carregar no launcher (2026-07-20)
-- **`aulas/` foi renomeada pra `mundos/`** (`PASTA_MUNDOS` em paths.ts). É onde
-  moram TODOS os saves vivos: mundo livre (`mundos/mundo-livre.ljw`) + cópias de
-  trabalho das aulas. Os MODELOS distribuídos seguem em `cenarios/` (tracked); os
-  saves vivos viraram gitignored (`/mundos/`, `/world.ljw`) — turma não gera
-  conflito no `git pull`.
-- Mundo livre PADRÃO (sem LJ_SAVE) agora é `mundos/mundo-livre.ljw` (era `world.ljw`
-  na raiz). Launcher migra o world.ljw antigo pra lá na 1ª execução (não perde a turma).
-- Launcher (.sh/.bat) tem opção [8] "Carregar mundo salvo" e `/mundo lista` no jogo
-  listam os saves de `mundos/`.
-
-### Mundo = pasta própria + log de chat (2026-07-20)
-- **Cada mundo virou uma PASTA: `mundos/<nome>/`** contendo `<nome>.ljw` (save) +
-  `chat.log` (transcrição). Helpers em paths.ts: `nomeDoMundo`, `pastaDoMundo`,
-  `savePathDoMundo`, `chatLogDoMundo`. `mundoDeTrabalho` devolve `{vivo, modelo?,
-  somenteLeitura, chatLog}` — deriva o nome do basename, então LJ_SAVE pode ser o
-  caminho antigo achatado OU o novo (normaliza pros dois).
-- **Listagem** (mundos.ts `mundosDisponiveis`): escaneia as SUBPASTAS de `mundos/`
-  (cada `<nome>/<nome>.ljw`) + `cenarios/*.ljw` (modelos); save vivo vence modelo de
-  mesmo nome. Launcher [8] lista `for /d`/`for d in mundos/*/`.
-- **Log de chat**: `registrarChat` no host (index.ts) engancha em `entregar` (ponto
-  ÚNICO server→cliente). Um broadcast chama `entregar` 1×/destinatário com o MESMO
-  payload → dedup por payload consecutivo (`ultimoChatLogado`) evita N linhas iguais.
-  Grava `mundos/<nome>/chat.log` (append, `[ISO] autor: texto`). Reaponta na troca de
-  aula (`chatLogPath` = `troca.chatLog`). Read-only (aula) TAMBÉM loga chat (útil pro
-  professor), só não grava o .ljw.
-- Migração nos launchers: `world.ljw` (raiz) e `mundos/*.ljw` achatados → `mundos/<nome>/<nome>.ljw`.
-- Singleplayer (Web Worker/IndexedDB) NÃO tem fs → sem chat.log, sem pasta; export
-  segue blob .ljw único (worldStore.ts). Fora de escopo, como o profiler-pro-servidor.
-
-### Claim = COLUNA cheia, limite 64(X)×32(Z), professor cria (2026-07-20 → FINAL 2026-07-21)
-- **ATUAL (2026-07-21, decisão FINAL do usuário):** claim é sempre COLUNA de altura
-  total (força `min.y=0/max.y=teto` no runClaim E no restore) — NÃO é caixa. Isso impede
-  ilha flutuante por cima / escavar por baixo. `claims.ts` exporta `MAX_CLAIM_X=64` e
-  `MAX_CLAIM_Z=32` (SÓ dois — altura livre); `claimDentroDoLimite` checa só X e Z.
-- **PROFESSOR cria claim** (2026-07-21): removido o `if (professor) return "..."` do
-  `case "criar"` — professor reserva plot como o aluno (mesmo acesso, mesma 1-por-dono).
-- **⚠️ Zigue-zague do usuário nesta sessão**: 1º pediu caixa 64×63×32 (implementei),
-  2º mandou MANTER a coluna cheia (revertido). LIÇÃO: quando o pedido reverte um design
-  deliberado (coluna anti-griefing da sessão 9), confirmar antes de escrever muito código.
-- Teste do "claim gigante" (claims.test.ts): `mundoComTurma` é parametrizável por `dims`;
-  pra estourar X=64 usa mundo de 5 chunks (80). Tamanho é checado ANTES da sobreposição.
-
-### Cama = par horizontal de 2 células (2026-07-20)
-- **Cama ocupa 2 células**, estilo Minecraft (pé + cabeceira), sem novos block ids:
-  as MESMAS 4 direções (CamaXP..ZN, 96-99) são colocadas em DUAS células com o
-  mesmo id. Espelha a PORTA (par vertical), mas horizontal.
-- `camaHeadDir(id)` (blocks.ts) = vetor pé→cabeceira (oposto da frente, que encara
-  o jogador). Placement (session.ts, igual à porta): valida a 2ª célula (bounds/ar/
-  jogador/claim/confina) ANTES de materializar as duas.
-- Metade cabeceira vs pé é INFERIDA pelo vizinho no eixo: no mesher (`isCama`),
-  `ehPe = vizinho na direção da cabeceira é a mesma cama` → sem travesseiro; senão
-  cabeceira (com travesseiro). Na regra de órfão (`camaRule`, rules.ts), a célula
-  sem par no eixo (de um lado OU do outro) evapora — quebrar uma derruba a outra.
-- Cliente NÃO muda: já manda 1 place com CamaXP+frente; o SERVIDOR coloca o par.
-- Padrão reutilizável pra qualquer bloco multi-célula: par de mesmo id + vizinho
-  infere a metade + regra de órfão. Não precisa de id novo por metade.
-
-### Flores = sprite em cruz de 2 lâminas + tile cutout (2026-07-20)
-- Flores (ids 104-107, 4 cores) são plantas ATRAVESSÁVEIS que precisam de apoio.
-  Reusam padrões existentes: `precisaApoio` (place checa cubo cheio embaixo) +
-  `torchRule` (some no tick sem apoio) + `isFlor` fora de isFullCube/isSolidBlock.
-- Render SEM primitiva nova: 2 lâminas verticais finas cruzadas (+) via emitBox,
-  com o tile de fundo TRANSPARENTE (`clearRect` = cutout, igual folhas/janela) →
-  parece plantinha. Um tile por cor (74-77); no mesher `TILE.florVermelha + (id −
-  FlorVermelha)`. blocksUi dá a entrada da hotbar; place usa o caminho genérico.
-
-### Perfilador é ANÔNIMO + carrega a versão (2026-07-23)
-- Saída do perfilador (HUD F3 → JSON/enviar): corpo carrega `versao: VERSION`
-  (hud.ts `stats()`, import de @logica/shared) — todo perfil identifica a versão do
-  jogo que rodou. NOME de jogador NÃO é coletado: o corpo nunca teve; o filename do
-  host virou `perf-<timestamp>-<sufixoAleatório>.json` (index.ts `interceptarProfile`),
-  sem `quem.name`. Identifica-se por versão + dispositivo (userAgent/GPU), nunca por aluno.
-- JSONs crus são gitignored (`/profiles/`, `/profiles-escola/`). O que vale como
-  registro histórico é o resumo AGREGADO e anônimo em `registros/perfilador-*.md`
-  (uma linha por dispositivo, sem nome). Ver [[registros-folder]] conceito no README.
-
-### registros/ = memória de evolução do projeto (2026-07-23)
-- Pasta na raiz pra registro de longo prazo FORA do `.wolf/` (que é log técnico do
-  OpenWolf): resumos de perfilador por versão + `prints/` de marcos. Capturas headless
-  de dev saem em pasta temporária/scratchpad — as que valem registro são copiadas
-  manualmente pra `registros/prints/`. NÃO há galeria automática de prints ainda.
+  import.meta.url), { type: "module" })` — sem `?worker`, sem export no package.json.
+- `tsx watch` do `dev:server` observa também os imports de /shared (editar session/protocol
+  reinicia sozinho). Node 22+ tem WebSocket GLOBAL → smoke de netcode com zero deps.
+- Host ws (Node): socket sem handler de `error` derruba o processo; ignorar frames binários
+  de subida; `data.toString()` no Buffer.
+- Canal de HOST do worker: msgs `{hostType: ...}` no MESMO postMessage, filtradas ANTES do
+  protocolo de jogo. Quem grava no IndexedDB é o CLIENTE; o worker só serializa.
+- `?server=` pula o menu (screenshots headless e links de LAN dependem disso); `?pin=`/
+  `?codigo=`/`?painel`/`?touch` completam o boot direto.
+- Notebook da escola (Windows 11): PowerShell bloqueia `npm` (shim + ExecutionPolicy) →
+  `Set-ExecutionPolicy -Scope CurrentUser RemoteSigned` ou `npm.cmd`. Instrução pro usuário
+  sempre com `$env:VAR="x";` em linha única.
+- Dá pra DATAR a versão rodando no notebook pelas frases do boot ("escutando em ws://" =
+  pré-2026-07-15). Erro estranho vindo de lá → primeiro conferir se a cópia é o main atual.
+- `anatomy.md` auto-update só ADICIONA: ao renomear/apagar arquivo, `grep` pelo nome velho e
+  limpar à mão.
+- "Chunk não carrega" ≠ bug do streaming se o raio de render foi mexido ao vivo (sintoma
+  local do cliente que mexeu). Perguntar antes de investigar.
+- `remeshCount` do F3 é ACUMULADO da sessão; o que importa é `remeshLastMs` (≤ 2.1 ms = sem
+  hitch).
+- Restrição de assets é de LICENCIAMENTO (projeto.txt §9), não "zero PNG": asset PRÓPRIO ou
+  CC0 é permitido. "Tudo procedural no canvas" é ESCOLHA nossa (repo 100% texto, sem loader,
+  testável headless) — convenção defensável, revisável.
 
 ## Do-Not-Repeat
 
 <!-- Mistakes made and corrected. Each entry prevents the same mistake recurring. -->
+
+### Colisor de forma PARCIAL exige resolução por SUB-CAIXA nos 3 eixos (2026-07-25)
+- Ao criar laje/escada, `collisionBoxes` passou a alimentar a física, mas o
+  `moveAxis` horizontal continuou encostando o jogador na **fronteira da CÉLULA**
+  (`Math.floor(pos±half)`). Isso só é exato pra caixa de pegada XZ cheia. O degrau
+  da escada ocupa meia célula → o snap jogava o jogador ~0,65 bloco PRA TRÁS
+  (bug-512, achado no playtest, não pelos testes). LIÇÃO: ao dar forma parcial a um
+  bloco, revisar TODAS as resoluções de colisão (Y **e** X/Z) — `resolveVertical`
+  existia, `resolveHoriz` faltava. Teste de regressão bom aqui é de TRAJETÓRIA
+  ("nunca recua no eixo do movimento"), não só de posição final.
+- Efeito colateral: um teste antigo ("sobe o degrau de uma escada") passava POR
+  CAUSA do bug (o empurrão prendia o jogador perto da escada). Com o fix ele
+  atravessava e caía. Teste que depende do bug é falso-verde: precisou de parede.
+
+### Translucidez de bloco: material com blend, NÃO dither no atlas (2026-07-25)
+- Vidro colorido foi feito com dither cutout (~40% dos pixels, alphaTest) pra
+  evitar um material novo. Usuário reprovou no playtest: parece "tela de
+  mosquiteiro", não vidro. Cutout serve pra recorte (folha, flor, moldura), NUNCA
+  pra meia-transparência de superfície. Padrão certo neste projeto: grupo de
+  índices próprio no mesher + material `transparent/opacity/depthWrite:false`
+  (é o que a água já fazia). Bônus: mantendo o tile do atlas OPACO, o ícone 2D da
+  hotbar (que copia o tile) sai sólido de graça.
 
 ### NÃO confiar em "typecheck 0" do STATUS sem rodar (2026-07-23)
 - STATUS.md da sessão 16 afirmava "VERDE: typecheck 0" mas a árvore tinha 3 erros
@@ -1019,402 +387,3 @@
 - [2026-07-13] Smoke `.mts` no scratchpad: rodar `node --import tsx script.mts`
   com CWD no repo (tsx resolve de node_modules do projeto); do scratchpad dá
   ERR_MODULE_NOT_FOUND. Import de /shared por caminho absoluto continua valendo.
-
-## Decision Log
-
-<!-- Significant technical decisions with rationale. Why X was chosen over Y. -->
-
-- [2026-07-22] **Água FLUIDA (autômato celular) — escopo travado por AskUserQuestion (2 rodadas).**
-  Decisões do usuário: (1) v1 CUBO CHEIO, não altura-visual-por-nível (destrava o fluxo antes; altura =
-  refino); (2) água INFINITA sim (2 fontes+chão→fonte, estilo Minecraft); (3) fonte via ITEM BALDE (não
-  bloco na hotbar); (4) fluxo SEMPRE LIGADO (o usuário abriu mão do gate anti-grief `/agua` que eu havia
-  recomendado); (5) balde RECOLHE (cheio↔vazio, exige raycast acertar a água com balde vazio); (6) o id
-  de água 129 SAIU da hotbar (água só via balde/fluxo). Modelo: `Agua`=129 vira a FONTE (nível 8);
-  `AguaFluida1..7`=130-136 codam o nível NO id (1 byte, sem metadata). `waterRule` entra na REGRA DE OURO
-  (rules.ts) — NADA de engenharia nova no tick; o autômato "empurra vizinho + recomputa o próprio nível"
-  reusa `dirty`+`applyBlock`+`markDirtyAround`. **INSIGHT-CHAVE que matou o "disco flutuante":** espalhar
-  lateral SÓ com APOIO SÓLIDO embaixo (`isFullCube(below) && !isAgua(below)`); AR embaixo → só CAI (coluna
-  cheia 7), nunca lateral. Assim fonte no ar despenca em coluna única; água fluida embaixo NÃO é apoio
-  (senão a coluna que enche vira "chão" e o disco cresce a cada tick). Alcance 7 (nível decrementa por
-  distância) = bounded → não trava tablet, sem teto de células/tick explícito. Ver [[bug-disco-flutuante-agua]].
-- [2026-07-22] **Água = SEMPRE pulada no raycast de mira (opção B) + LÍQUIDO SUBSTITUÍVEL.**
-  Pedido: colocar bloco olhando ATRAVÉS da água. Escolha do usuário entre (a) pular só ao colocar
-  (mantém mira pra quebrar) e (b) SEMPRE pular = usuário escolheu **(b)**. Consequência aceita: a
-  mira é a mesma pra place e break (main.ts `target`), então água nunca é alvo — não dá pra QUEBRAR
-  água, só SUBSTITUIR pondo outro bloco no lugar. Pra isso o gate de colocação (session.ts:594,
-  +porta:620/cama:645, hoje `getBlock !== Air`) passa a aceitar "vazio OU substituível" via
-  `isReplaceable(id)` novo em blocks.ts (água já; lava/capim/neve futuros herdam). `applyBlock` já
-  sobrescreve. A colocação atinge a água COLADA no sólido atrás (`target+normal`), então poça funda
-  enche de trás pra frente — OK no estático; reavaliar na fase de água FLUIDA. Refino no todo.md
-  (seção Água) + Key Learning do raycast cubo-cheio. ✅ CODADO (2026-07-22): `isReplaceable` em
-  blocks.ts, raycast pula `isAgua`, 3 gates de place_block em session.ts; 290 testes, typecheck 0,
-  build ok. NÃO commitado, playtest no browser pendente. O caso GERAL (porta/cerca por forma no
-  raycast) segue backlog no todo.md.
-- [2026-07-20] **Versão do jogo sai do package.json da raiz; bump com `npm version`.**
-  Antes `shared/src/version.ts` tinha a string hardcoded (bump manual). Pedido do usuário:
-  usar o fluxo padrão do npm. Agora version.ts faz `import { version } from "../../package.json"`
-  (named import → o bundler faz tree-shake, o resto do package.json não entra no bundle do
-  cliente). Precisou de `resolveJsonModule:true` no tsconfig.base (sem `rootDir` + `noEmit`, o
-  import fora de `src/` não gera erro de escopo). Funciona nos 3 hosts: Vite inlina o JSON,
-  tsx resolve em runtime (server loga a versão), vitest idem. Bump daqui pra frente:
-  `npm version patch|minor|major` na RAIZ com árvore limpa (bumpa + commit + tag `vX.Y.Z`);
-  push com `git push --follow-tags`. NÃO rodar `npm version` com working tree suja (ele exige
-  limpo, salvo `--no-git-tag-version`). Os packages dos workspaces seguem sem campo `version`.
-- [2026-07-20] **Claim (cp24) = COLUNA de altura total, não caixa 3D.** Decisão do
-  usuário: o claim deve pegar da camada 0 (bedrock) ao teto do mundo. Motivo: com claim
-  de altura parcial, um estranho podia construir uma ILHA FLUTUANTE por cima da área
-  reivindicada (ou escavar por baixo). Implementação: aluno ainda marca 2 cantos com a
-  varinha, mas o servidor IGNORA o Y marcado e força `min.y=0` / `max.y=world.sizeY-1`
-  no `/claim criar`. `MAX_CLAIM_Y` removido; `claimDentroDoLimite` só valida XZ (≤32).
-  Guardar a caixa full-height (em vez de tornar `claimEm`/`caixasSeCruzam` XZ-only)
-  mantém TODA a lógica 3D existente intacta (regionContains, overlap, wireframe do
-  cliente, dims do /claim lista) — zero mudança no cliente. Efeito colateral desejado:
-  2 claims não podem mais dividir a mesma pegada XZ em alturas diferentes (colunas não
-  se empilham). Saves antigos sobem pra coluna cheia no restore.
-
-- [2026-07-16] **Git = canal de sync casa↔escola (decisão do usuário).** O PC
-  de casa (onde o dev roda) é acessado do notebook da escola via Tailscale +
-  Moonlight; pra levar o jogo pro notebook, TUDO que não é temporário vai pro
-  repo: cenários .ljw, cópias de trabalho em aulas/, client/dist (notebook não
-  precisa buildar). `.gitignore` mínimo. Sempre COMMITAR + PUSH ao fechar
-  trabalho — o push é a sincronização.
-- [2026-07-16] **Detecção de tablet: `pointer: coarse`, NÃO
-  `ontouchstart`/maxTouchPoints.** O plano original detectava "tem
-  touchscreen", mas notebook com tela de toque tem touchscreen E mouse — o
-  modo toque desligaria o pointer lock e QUEBRARIA o mouse de quem joga com
-  ele. `pointer: coarse` pergunta qual é o ponteiro PRIMÁRIO: tablet/celular =
-  dedo (liga a UI), notebook touch = mouse (desktop normal). `?touch` na URL
-  força pra teste/demonstração no desktop (e auto-entra no jogo — screenshot
-  headless depende disso).
-- [2026-07-16] **Trilha sequencial: auto-limpa + carrega a próxima sequência na
-  MESMA faixa.** No modo `sequencial`, ao um escopo (grupo/mundo) concluir a
-  sequência ativa, o tick chama `carregarProximaSequencia(g)` → repõe o
-  `baseline` do PRÓXIMO objetivo ativo NA MESMA área (a semente, em geral vazia).
-  Assim o professor só cria os modelos (N objetivos `construir` na mesma faixa,
-  sequencial) e o aluno passa por cada um sem ninguém limpar à mão. Reusa o
-  baseline que já existia (bug-207). `restaurarAreasBaseline` passou a depender
-  do MODO: sequencial restaura só a faixa ATIVA de cada escopo (trilha começa na
-  1ª); livre restaura todas (objetivos simultâneos, cada faixa é sua). Sempre-
-  ligado em sequencial (sem flag): com faixas separadas por objetivo vira quase
-  no-op. Autoria: cada objetivo captura baseline no `/objetivo add` = estado da
-  faixa naquele instante — não semeou = começa vazio; semeou = pista por etapa.
-- [2026-07-16] **Cabines viraram PLOT demarcado (paredes removidas, pedido do
-  usuário).** `generateCabinsWorld` não faz mais paredes de tábua 2-alto: agora
-  desenha uma BORDA de pedra-lavrada (`PLOT_MARKER`=StoneBricks) rente ao chão
-  (substitui a grama do perímetro do footprint 5×5). Delimita a área do grupo
-  SEM obstruir movimento nem tapar visão. Preset key continua `"cabines"` (menos
-  churn em gerar.ts/hosts/menu/testes); só o comportamento e os comentários
-  mudaram. Spawn ainda desloca +8 pro meio do chunk. `verificar.ts` passou a
-  conferir o marcador em `FLAT_SURFACE_Y` no canto (antes checava Planks em y+1).
-- [2026-07-16] **`/regiao sortear nome id…`** — preenche a região sorteando
-  célula a célula entre os ids dados (Math.random; autoria = gabarito ALEATÓRIO
-  na hora: professor sorteia → refotografa com `/objetivo add construir` →
-  reinicia). Passa por `applyBlock` (regras + detecção acordam igual a `/regiao
-  encher`). Sortear é ação de autoria, não simulação → RNG não-semeado é ok;
-  teste valida só o invariante (toda célula ∈ ids), independente do sorteio.
-- [2026-07-10] **Voxel web, engine própria** (não Minecraft Edu): custo/licença zero p/ rede
-  pública; e permite autoria de cenários pelo professor, que é o diferencial vs Minecraft Edu.
-- [2026-07-10] **Cliente=servidor (servidor integrado)**, igual Minecraft: um módulo de lógica
-  autoritativo roda em Web Worker (single), .exe portátil (Tauri/Node SEA) e servidor Node
-  (dedicado) sem reescrita. Escolhido vs P2P WebRTC (signaling = servidor de qualquer forma).
-- [2026-07-10] **Contas:** nome + código de turma, SEM senha → sem dado sensível de menor,
-  sem LGPD, sem senha esquecida. Rejeitado login completo (backend + LGPD) por ora.
-- [2026-07-10] **Save no PC do host** (professor). Rejeitado save-no-Drive automático de início
-  (dependeria de o professor lembrar de exportar).
-- [2026-07-10] **MVP v0 enxuto:** blocos + movimentação + netcode + chat/1 comando. FORA:
-  crafting, comandos complexos, circuitos, contas com senha, mundos online.
-- [2026-07-10] **Render 3D FECHADO: three.js** (vs Babylon.js). Razões: (a) arquitetura já
-  põe física/colisão/estado em `/shared` — os extras do Babylon rodariam no cliente e
-  violariam "cliente só desenha"; (b) exemplos voxel em three.js abundam (manual oficial tem
-  capítulo voxel) → vibecode acerta mais; (c) chunk meshing custom = BufferGeometry puro,
-  forte do three.js; (d) UI/chat em HTML/CSS sobre o canvas, GUI de engine desnecessária.
-- [2026-07-10] **Política de otimização fechada** (ver STATUS.md): baseline = mesh por chunk +
-  culled meshing + Uint8Array + atlas + snapshot binário + mundo fixo pequeno (isso é
-  viabilidade, não otimização prematura — retrofit seria reescrita). Adiadas com gatilho:
-  greedy meshing, worker de meshing, lerp, gzip. Proibidas: prediction/rollback, ECS, octree,
-  WebGPU, protobuf, LOD/streaming, WASM. Racional: 8–20 alunos em LAN, mundo pequeno, PCs
-  fracos — escopo fixo elimina a necessidade das técnicas pesadas.
-- [2026-07-10] **Tamanho do mundo: parâmetro de CRIAÇÃO do mundo** (chunks X×Z×Y no header
-  de save/snapshot), não constante nem resize ao vivo. Default 8×8×4, teto 16×16×8 validado
-  no servidor. UI de escolha fica pra fase de autoria. Pedido do usuário.
-- [2026-07-10] **Perfilação nasce com o código** (pedido do usuário): HUD F3 (FPS, frametime
-  méd+p95, remesh, renderer.info, rede) + `debug_stats` do servidor 1×/s + export JSON pros
-  testes de lab/relatório. Racional: gatilhos da política de otimização exigem medição, e
-  dev vibecode decide por métrica visível, não lendo código. FORA: flame graph/telemetria.
-- [2026-07-10] **Render: WebGLRenderer, não WebGPURenderer.** WebGPU do three.js ainda
-  experimental (casos de perf PIOR que WebGL) e labs de escola têm GPU fraca/driver velho.
-  Reavaliar só depois do piloto.
-- [2026-07-11] **Identidade por mundo: nome + PIN de 4 dígitos, NÃO senha.** Usuário pediu
-  senha; desafiei com as razões de 2026-07-10 (LGPD, senha esquecida aos 7 anos) e
-  perguntei o que protege. Resposta: "aluno entra com nome do outro e grava/destrói em
-  nome dele" → PIN resolve com fricção mínima. Aceito: auto-registro na 1ª entrada,
-  `/resetpin nome` pro professor. Guardar só hash, no save do mundo, no PC do host.
-- [2026-07-11] **Blocos grupo A aprovado e feito** (14 cubos opacos, IDs 5–18); grupos B
-  (transparentes — mexem no mesher) e C (não-cubos) explicitamente adiados pelo usuário.
-- [2026-07-11] **MVP v1 "Aula persistente" APROVADO** com escopo: save/load (cp7),
-  menu principal (cp8 — pedido do usuário: singleplayer, multiplayer, configurações
-  de teclas/som/gráficos), PIN+professor (cp9), física do move se sobrar (cp10).
-- [2026-07-11] **Save: no servidor SÓ o host grava; singleplayer salva no navegador
-  do próprio jogador** (IndexedDB) — decisão do usuário. Mesmo formato .ljw nos dois
-  + exportar/importar arquivo (= distribuição via Drive).
-- [2026-07-11] **Código de professor definido na CRIAÇÃO do mundo** (aprovado);
-  no singleplayer o jogador é professor automático.
-- [2026-07-12] **PIN e código de professor em TEXTO PURO no save — SEM hash** (decisão
-  do usuário, revogando o hash FNV-1a implementado horas antes): "uso muito básico, não
-  tem informações importantes". Ganhos: auth.ts vira só isValidPin, host imprime o código
-  em TODO boot (recuperação grátis), professor lê PIN esquecido no save. O que segura a
-  ameaça real (colega na LAN) é o rate-limit do join, não criptografia.
-- [2026-07-12] **Código de professor no host Node: env LJ_CODIGO define/troca; sem env
-  usa o do save; mundo novo gera 6 chars.** Impresso no console em TODO boot (texto puro
-  permite). Errar o código NEGA o join em vez de entrar como aluno silenciosamente.
-- [2026-07-12] **join_denied no cliente = alert(motivo) + voltar pro menu limpo**
-  (location sem query — cobre o boot via ?server=). PIN nunca vai pro localStorage:
-  PC de laboratório é compartilhado.
-- [2026-07-12] **MVP v2 (cenários) — escopo travado na entrevista:** cenário = mundo +
-  objetivos + textos no MESMO .ljw; progressão sequencial OU livre, por cenário; 3 tipos
-  de objetivo (construir padrão / chegar em local / limpar região) na MESMA engrenagem
-  das rules; autoria por comandos de chat ANTES do painel (painel HTML vem depois);
-  gabarito FOTOGRAFADO do mundo (WYSIWYG), com escolha por objetivo de manter o modelo
-  visível ou apagar; progresso por mundo E por grupo — sistema de grupos: professor cria
-  com tamanho, aluno entra por comando/painel, painel de aluno só abre após grupos
-  criados; singleplayer = grupo de 1.
-- [2026-07-12] **Grupos MVP v2 (2ª rodada da entrevista):** `/grupo criar` auto-distribui
-  todos os online (round-robin) e notifica; aluno sem grupo NÃO participa; grupos são
-  opcionais por mundo (sem grupos = turma toda junta); grupo persiste no save; construir
-  por grupo = 1 gabarito + 1 área POR GRUPO, com carimbo de áreas (tamanho + espaçamento);
-  "chegar" com regra todos/um POR OBJETIVO (idade da turma); mundos predefinidos entram
-  no v2 (preset "plano" + mundo-modelo de cabines no canto do chunk, lado aberto pro
-  centro; cabine do professor = gabarito). Parâmetro do criar (decidido 2026-07-12):
-  as DUAS sintaxes — `/grupo criar 5` = 5 grupos; `/grupo criar 5 alunos` = grupos de 5.
-- [2026-07-13] **Fase pós-MVP v2 escolhida pelo usuário: POLIMENTO "blocos +
-  mecânica" (cp15–cp18) antes dos cenários pedagógicos.** Pedidos: corrida
-  (Ctrl OU duplo-toque, os dois), agachar Shift SEM cair da borda (mecânica
-  Minecraft explícita), painel estilo inventário + hotbar. Blocos: usuário
-  escolheu "opacos + vidro/folhas" (recomendação aceita); água adiada
-  (fluido = fase própria). Cenários reais + piloto ficam pra fase seguinte.
-- [2026-07-13] **Transparentes por CUTOUT (alphaTest), não por blending.**
-  Razões: material/draw call únicos preservados (política de otimização),
-  zero problema de ordenação de faces, e o visual "vidro de moldura" é o
-  suficiente pro público. Água NÃO entra nesse esquema (precisa de blend de
-  verdade) — por isso ficou fora do cp18.
-- [2026-07-13] **Hotbar de 9 slots + inventário click-assign (sem drag).**
-  Clique no bloco põe no slot SELECIONADO; clique no slot seleciona. Drag &
-  drop rejeitado: complexidade sem ganho pra alunos de 7–14 anos em PC de
-  lab (mouse ruim). Hotbar persiste POR NAVEGADOR (localStorage), não no
-  save — é preferência de UI, não estado de mundo.
-- [2026-07-10] **Código mora em `~/projetos/logica-em-jogo` (WSL ext4), NÃO no OneDrive.**
-  OneDrive sincroniza node_modules (milhares de arquivos) e watcher do Vite via /mnt/c é
-  lento no WSL. Docs + `.wolf/` ficam no OneDrive; backup do código via git/GitHub privado.
-
-### 2026-07-14 — Cenários gerados por script, e auto-conferidos
-- **Produção via script gerador** (escolha do usuário) em vez de autorar à mão no jogo:
-  reprodutível, versionado, fácil de ajustar (mudar nº de grupos = uma flag).
-  Custo aceito: o fluxo do painel do professor NÃO é exercitado pelo gerador — quem
-  exercita é o playtest do usuário.
-- **A conferência roda DENTRO da geração** (`verificar.ts` chamado por `gerar.ts`):
-  abre o .ljw num servidor novo, entra prof + 2 alunos, completa a área do grupo 1 e
-  exige o "concluído". Cenário que não fecha não vira arquivo (exit 1). Motivo: um
-  .ljw quebrado só apareceria na frente de 20 alunos.
-- **Guarda de geometria** confere que a faixa está no chão, fora da cabine e dentro do
-  chunk do grupo — o roteiro promete isso ao professor, e nenhum teste lógico pegaria
-  uma faixa flutuando ou enfiada na parede.
-- **Turma do piloto: 6º–9º.** Por isso o gabarito é APAGADO depois de fotografado
-  (aluno infere a regra) — a flag `--revelar` deixa o modelo à vista e vira tarefa de
-  cópia, para turmas mais novas.
-
-### 2026-07-15 — Servidor serve o cliente na MESMA porta (não Vite separado no piloto)
-- Decisão: o host Node serve `client/dist` na MESMA porta do WebSocket
-  (`createServer(servirCliente)` + `WebSocketServer({ server: http })`), em vez de
-  o aluno abrir o Vite numa porta e o WS noutra.
-- **Porquê:** (1) HTTPS bloqueia `ws://` por mixed-content, e o servidor da escola
-  não tem certificado pra `wss://` — mesma origem (mesma porta) elimina o problema;
-  (2) o aluno digita UM endereço (`http://ip-do-prof:8080`) e joga, sem saber o que
-  é WebSocket; (3) um binário só (quando empacotar) já carrega o cliente junto.
-- Vite dev (`npm run dev`, 5173) segue vivo pra desenvolver com hot-reload — a
-  decisão é só sobre COMO o piloto roda, não substitui o fluxo de dev.
-- Empacotar (.exe Tauri/Node SEA) segue ADIADO por decisão do usuário ("ainda quero
-  alterar mais coisas"): por ora o professor precisa de Node instalado.
-
-
-### 2026-07-17 — Anti-griefing (cp24): escopo travado por entrevista
-Sistema de CLAIMS + GRUPOS DE AMIGOS pra aluno proteger sua área. Decisões
-fixadas com o usuário (2 rodadas de AskUserQuestion):
-- **Unidade = REGIÃO (varinha).** Reusa regions.ts + a varinha do cp11; aluno marca
-  2 cantos. NÃO por bloco (caro) nem raio (formato fixo).
-- **Quem edita = dono + grupo de amigos.** Fora disso, bloqueado (menos professor).
-- **Grupo de amigos = sistema NOVO do aluno** (não os grupos pedagógicos do cp13).
-  Aluno cria, convida; entrada por CONVITE + ACEITE (os dois consentem).
-- **Ativação = professor liga/desliga** (`/claim ligar|desligar`, tipo /voo). NÃO é
-  automático nem sempre-ligado — mundo-aula normalmente fica desligado.
-- **Limite = 1 claim por aluno, tamanho máx fixo** (anti-abuso escolar).
-- **Persiste no .ljw** (meta JSON, cresce sem re-versionar — cp7). Em mundo-aula
-  (read-only) não salva → claim reseta por turma, coerente com aula efêmera.
-- **Aluno ganha a varinha** só pra claims: as marcas dele alimentam `/claim criar`,
-  não `/regiao` (que segue só-professor no servidor).
-Assumido (não perguntado, confirmar se mudar): professor ignora todo claim;
-bloqueio manda chat de aviso + som `denied`; servidor é a barreira real (regra da
-rocha-matriz); claim não sobrepõe outro claim nem região do professor; aluno em 1
-grupo de amigos por vez; claim bloqueia AÇÃO DE JOGADOR (place/break/use), não
-regra automática (areia caindo não é grief). NÚMEROS a confirmar: MAX_CLAIM_DIM
-(proposto 16/eixo), MAX_AMIGOS (proposto 6 incl. dono).
-- [2026-07-20] **Operações "escrever arquivo no host" viram mensagem de protocolo
-  interceptada no server/src/index.ts, NUNCA um case na GameSession.** Padrão
-  fixado por /mundo (cp19) e /kicar (cp22), reusado pro `profile_report` do
-  profiler: `session.handleMessage` roda DEPOIS de `interceptarX()` checar o
-  `type` e devolver `true` se engoliu a mensagem. Racional: GameSession é pura/
-  host-agnóstica (roda igual em Web Worker e Node+ws) — filesystem só existe no
-  host Node. Consequência: em singleplayer (Web Worker) essas mensagens caem no
-  vácuo em silêncio (sem case no switch da session) — comportamento aceito, não
-  bug, pois não há pasta de servidor pra gravar. Payload "diagnóstico" (não
-  estado de jogo) fica **opaco** no protocolo (`Record<string, unknown>` +
-  teto de tamanho, ex. `MAX_PROFILE_REPORT_CHARS`) em vez de tipado campo a
-  campo — mesmo espírito do meta JSON de save/quadros: cresce sem re-versionar
-  o protocolo toda vez que hud.ts ganha uma métrica nova.
-
-### 2026-07-20 — Terreno procedural v1 (plano aprovado em discussão, pré-implementação)
-- **Biomas via campos de clima, NÃO truth table**: 2 value-noise de baixa freq (temp+umid, x/80) → lookup Whittaker. Coerência de vizinhança emerge da continuidade do noise (deserto nunca encosta em neve). Truth table foi considerada pelo usuário e descartada: N² entradas + vira WFC + pouca diversidade.
-- **Heightmap global único; bioma = pintura + decoração** (v1). Sem penhasco de fronteira por construção. Blend de altura por parâmetro fica pra v2.
-- **Variante de grama = ID de bloco próprio** (GramaSeca/GramaFria), não tint: mesher é puro (bytes→geometria, sem seed), save carrega aparência. Thresholds da grama independentes dos do bioma → faixas de transição = blend visual (pedido do usuário).
-- **Minérios = cubos placeholder** (textura pedra+pontos+sigla), sem drop/craft — porta de entrada do survival sem mecânica nova.
-- **Árvores por espécie restritas ao bioma dono** (registro em biomas.ts): carvalho=planície/floresta, bétula=floresta, pinheiro=tundra, cacto=deserto.
-- **Cacto = cubo cheio v1** (forma custom adiada).
-- **Seed por mundo novo vira aleatória** (header LJW0 já grava seed; hoje WORLD_SEED fixo 20260710 = todo mundo normal idêntico).
-
-### 2026-07-20 — Key Learnings (sessão gen procedural)
-- **LJ_SAVE SEMPRE mapeia pra `mundos/<nome>/` do repo** (layout sessão 6c): path absoluto externo em LJ_SAVE é renomeado pra dentro de PASTA_MUNDOS pelo paths.ts. Server de teste/screenshot POLUI `mundos/` — apagar a pasta do mundo de teste depois. (`flor-world/`, `jstage/`, `stage/` em mundos/ são resíduos de sessões antigas.)
-- **Screenshot headless do jogo**: chrome do puppeteer (`~/.cache/puppeteer/chrome/*/chrome-linux64/chrome`) `--headless --no-sandbox --screenshot=X --window-size=1280,720 --virtual-time-budget=25000` + URL `?server=ws://127.0.0.1:PORT&nome=cam&pin=1234&hora=10&yaw=N` (auto-join sem menu). Server: `LJ_PORT=… LJ_SEED=… LJ_NOVO=1 npx tsx src/index.ts` em bg; esperar ~10s antes do chrome.
-- **Matar o server de teste: `fuser -k PORT/tcp`**, NUNCA `kill $!` (npm/npx deixam filho órfão segurando a porta → screenshots seguintes batem no server errado) e NUNCA `pkill -f "padrão"` de dentro do mesmo Bash (o padrão casa com a cmdline do próprio shell → suicídio, exit 144; truque `[s]rc` não salva se a string aparece noutro trecho do script).
-
-### 2026-07-20 — Do-Not-Repeat
-- NÃO usar `kill $PID_DO_NPM` pra derrubar server de teste (órfão) nem `pkill -f` dentro do próprio script Bash que contém o padrão. Usar `fuser -k porta/tcp`.
-
-### 2026-07-20 — User Preferences (playtest do gen v1)
-- **Neve NÃO combina com bioma quente**: pico da caatinga fica areia; neve exige altura E temp<0.6 (worldgen). Estética > regra puramente de altura.
-- **Copa de árvore deve ENGLOBAR ≥1 bloco de tronco** — copa "flutuando" acima do tronco (ipê v1) ficou estranho. Teste de contrato em arvores.test.ts cobre as 4 espécies.
-- Inventário com 100+ blocos: usuário quer ABAS por categoria (mobília/blocos/vegetação/minérios) — registrado no todo.md, não é próxima fase travada.
-
-### 2026-07-20 — Decision Log (montanhas)
-- **Altura 128 pra TODOS os tamanhos de mundo novo** (P 2MB, M 4,5MB, G 8MB) — pedido do usuário ("montanhas de verdade"). DEFAULT_WORLD_CHUNKS (64) fica: mundo plano/aula/testes não precisa de céu e o save é metade.
-- **Serra do heightAt é GATED por sizeY>=128** (param novo, default 128): em mundo baixo a serra clampada viraria mesa cortada E quebraria 15 testes de session/claims que assumem o relevo antigo no mundo default. heightAt(x,z,seed,sizeY) — quem compara heightAt com mundo gerado DEVE passar world.sizeY.
-- Neve 58+ (só frio temp<0.6), pedra nua 85+ (chapada quente), carvão até 72 / ferro até 40 — montanha minerável.
-
-### 2026-07-20 — Decision Log (STREAMING DE CHUNKS — obra em fases)
-- **Usuário quer mundo procedural MUITO maior com chunks gerados em runtime** + configs de desempenho (raio de render, chunks/tick). Decisão travada (AskUserQuestion): **GIGANTE FINITO** (ex. 4096², limite no header como sempre), não infinito — bounds/claims/confinamento seguem simples.
-- A política antiga "streaming = proibido/overengineering" cai — produto evoluiu (direção survival/exploração). Anotar: escola NÃO deve dar git pull até estabilizar.
-- **Fases**: F1 núcleo esparso+gen por chunk ordem-independente (esta sessão); F2 protocolo de streaming por raio de interesse + cliente carrega/descarta + configs; F3 save esparso LJW1 (só chunks EDITADOS — gerado limpo regenera); F4 bordas (física em chunk ausente, rules, /tp, spawn); F5 eviction/perf.
-- **Design F1**: `World.chunks` vira `(Uint8Array | undefined)[]` — array DENSO DE REFERÊNCIAS (não Map): indexação O(1) intacta nos hot paths (mesher/física), 4096²=524k slots=4MB de ponteiros. Chunk ausente: getBlock=ar, setBlock=ignora (comportamento que já existia pra OOB).
-- **Invariante-chave do gen lazy: ORDEM-INDEPENDÊNCIA** — gerar colunas de chunks em qualquer ordem = mesmos bytes. Como: (a) decisão de feature NUNCA lê o mundo — `topoPrevisto(x,z,seed,sizeY)` puro (fórmula, igual ao F3/HUD); (b) árvore vira lista PURA de células (`celulasDaArvore`) e cada chunk-coluna re-deriva árvores das colunas vizinhas (margem 2) escrevendo SÓ a própria fatia; (c) veias de minério por chunk-coluna (seed derivado de cx,cz) re-derivadas pelas 8 vizinhas com filtro de escrita.
-- Unidade de geração/streaming = COLUNA de chunks (cx,cz) — os 8 chunks Y nascem juntos (terreno é por coluna de blocos).
-
-### 2026-07-21 — Key Learnings (streaming F3 + tooling)
-- **Save esparso do mundo lazy (LJS2)**: só chunks EDITADOS (editedChunks marcado em applyBlockQuieto, pega jogador+gravidade). Restore regenera cada coluna editada do seed e SOBREPÕE os bytes salvos — determinismo do gen garante que o resto do mundo é idêntico. Save de mundo E gigante = KB (4341 bytes com 1 edição), não GB.
-- **SIGINT não propaga por `npx tsx ... &`** (npx engole o sinal, filho vira órfão, porta fica aberta). Pra smoke que precisa do saveNow no SIGINT (process.on("SIGINT")), rodar `node --import tsx server/src/index.ts` — aí `kill -INT $!` atinge o processo certo e o server sai limpo gravando o save.
-- **LJ_SAVE com path absoluto/relativo é SEMPRE remapeado pra mundos/<nome>/<nome>.ljw** (paths.ts). O save do smoke não aparece no path que você passou — procurar em mundos/.
-
-### 2026-07-21 — Decision Log + Key Learnings (água + /claim professor/caixa + varinha mobile)
-- **Bloco de água (id 129, append)**: cubo cheio pro MESHER (`isFullCube`=true → funde
-  com água vizinha: `neighbor===id` no mesher culla a face interna, mostra só a casca do
-  volume) mas NÃO-sólido pra física (`isSolidBlock`=false → o jogador entra). Translúcida
-  SEM tocar no material: o chunk é 1 draw call cutout (`alphaTest:0.5`, sem blending) — o
-  tile de água é azul com furos em XADREZ (`(x+y)%3===0`), os furos deixam ver o fundo =
-  translucidez barata. `isTransparentBlock`+=Agua. Truque reusável pra qualquer "vidro/água".
-- **Nado (physics.ts)**: `inWater(pos)` amostra o TORSO (`y+height*0.5`). Submerso →
-  velocidade horizontal × `waterFactor`(0.5), empuxo (`waterGravity`=8 < 25, afunda até
-  `waterSinkMax`=3), pular = subir / agachar = descer a `swimSpeed`(4). SEM fluxo de fluido
-  (fase própria). stepPlayer NÃO mudou de assinatura — testes de física antigos (mundo sem
-  água) seguem idênticos.
-- **/claim: professor cria + claim vira CAIXA + limite 64×63×32** (pedido do usuário,
-  reverte a coluna cheia da sessão 9). Motivo do usuário: professor reserva "terreno"/plot
-  como o aluno; caixa (não coluna) porque plot não precisa travar do bedrock ao céu.
-- **GOTCHA de teste (bug-434)**: no `place_block` a guarda "não emparedar jogador" roda
-  ANTES do gate de claim. Testar claim mirando a célula do PRÓPRIO spawn do aluno barra pela
-  guarda (bloco fica Air) mas SEM a chat de claim → mirar longe do spawn (sx±1, sz±1).
-- **Varinha no mobile (sem tecla R)**: os botões de toque ⛏/▣ chamam `input.press(0/2)`
-  = MESMO handler do clique esq/dir, que já checa `varinhaAtiva`. Então basta um botão
-  toggle 🪄 (chama o `toggleVarinha` extraído) — zero caminho novo de marcação de canto.
-- **Adicionar bloco = bumpar o sentinel de blocks.test.ts** (bug-370, recorreu de novo):
-  `expect(BlockId.Novo).toBe(N)`, `isPlaceable(N)=true`, `isPlaceable(N+1)=false`, e
-  `MAX_BLOCK_ID` em blocks.ts. Checklist de bloco novo: BlockId + MAX_BLOCK_ID + helper +
-  isTransparentBlock/isSolidBlock (se for o caso) + TILE + BLOCK_TILES + paint no atlas +
-  chamada do paint + PLACEABLE (blocksUi) + sentinel do teste.
-
-### 2026-07-21 — Banimento + painel de jogadores + profiler 10s
-- **Kick é do HOST, ban é DIVIDIDO**: `/kicar` fecha socket (transporte) → mora no host
-  (index.ts). Ban precisa de ESTADO (lista + gate de join + persistência) → na GameSession,
-  MAS banir alguém online também fecha o socket → então `/banir`·`/desbanir` moram no HOST
-  (interceptarBanimento), que chama `session.banir/desbanir` e fecha o socket como o /kicar.
-  Gate de join: `estaBanido` no topo de `authenticate` (antes do PIN). Persiste em
-  `SaveMeta.banidos[]` (só mundo livre; some em aula read-only). Case-insensitive.
-- **`broadcastPlayers` PULA singleplayer** (`if (this.singleplayer) return`): a Web Worker
-  não gere turma e /kicar·/banir são do host (nem intercepta). Sem esse guard, o join/saída
-  emite 1 msg `players` a mais e QUEBRA os testes de contrato que contam mensagens
-  (`toHaveLength(4)` em session.test.ts) — bug-435.
-- **PlayersPanel copiou a moldura do InventoryPanel** (altura fixa `#painel/#inventario/
-  #jogadores` compartilham CSS; rolagem só na `.jog-lista` com `flex:1;overflow-y:auto`).
-  Abas reusam `.inv-abas/.inv-aba`. Botão perigoso = armado (2 cliques), padrão dos painéis.
-  Aberto por um botão no topo do AuthorPanel (callback `onOpenPlayers` opcional no construtor).
-- **Escala da UI de toque = var CSS `--ts` + calc(), NÃO transform:scale()**: o joystick lê
-  `getBoundingClientRect` e o polegar se posiciona por px reais — transform:scale distorce a
-  matemática do polegar. `settings.uiScale` (persistido) aplicado por `TouchControls.setScale`
-  (seta `--ts` inline no root) em `applySettings()` e ao criar o TouchControls.
-- **Memória no browser**: RAM = JS heap `performance.memory.usedJSHeapSize/jsHeapSizeLimit`
-  (SÓ Chrome/Chromium; undefined em FF/Safari → mostrar "n/d"). VRAM real NÃO existe no WebGL:
-  o proxy é `renderer.info.memory` (CONTAGENS de geometrias/texturas, não bytes). GPU pelo
-  `WEBGL_debug_renderer_info` (`UNMASKED_RENDERER_WEBGL`), cacheável. `navigator.deviceMemory`
-  = RAM aproximada DO APARELHO (não uso). Profiler grava 10s e agrega (só o resumo vai no fio,
-  respeita `MAX_PROFILE_REPORT_CHARS=8192` — nunca o array de frames cru).
-
-### 2026-07-23 — Decision Log (privacidade do perfilador + prints)
-- **Nome do aluno NÃO é dado de perfil.** Perfilador é anônimo: identifica versão
-  (`versao:VERSION`) + dispositivo (userAgent/GPU), nunca aluno. Filename do host sem nome.
-  JSONs crus gitignored; só resumo agregado anônimo em `registros/` é versionado. Ver Do-Not-Repeat.
-- **Histórico do git NÃO será purgado.** profiles-escola tinha nomes tracked (sessão 12, repo
-  PÚBLICO github.com/meketreve/logica-em-jogo). Decisão do usuário: purga (filter-repo/BFG =
-  force-push) é prejudicial — quebraria os clones da escola — e o risco é baixo (só primeiros
-  nomes/apelidos). Remoção do tracking + gitignore resolve o vazamento futuro; o passado fica.
-- **Prints de apresentação = parkado.** Fazer SÓ alguns prints de pontos-chave (não capturar tudo)
-  em `registros/prints/` na próxima sessão. Lista de cenas no STATUS/todo. Repo é PÚBLICO — ao
-  render headless usar `fuser -k` p/ liberar a porta, NUNCA `kill $!` (mata o processo errado).
-  **FEITO na sessão 18** (6 prints — ver README de registros/prints).
-
-### 2026-07-23 (sessão 18) — Do-Not-Repeat (TDZ recorreu 3ª vez + gap de playtest)
-- **TDZ de `let` usado no boot recorreu PELA 3ª VEZ** (bug-093/activePanel, ?yaw-input, agora
-  bug-495/touchControls). PADRÃO: qualquer `function` chamada no TOP-LEVEL de main.ts que leia um
-  `let` (mesmo com `?.` — optional chaining NÃO salva de TDZ) exige o `let` declarado ACIMA da
-  chamada. `applySettings()` (chamado em `let settings = applySettings()`) lê `input/camera/renderer/
-  touchControls` — TODOS têm que estar declarados antes. Ao adicionar um novo `?.setX()` em
-  applySettings, conferir a ordem de declaração.
-- **bug-495 só quebrava o vite DEV server, NÃO o build de produção.** O usuário rodou o build com a
-  turma (2026-07-23) sem problema — o bundle de produção não disparava o TDZ; o vite dev (ESM nativo,
-  ordem de topo estrita) sim. Ficou latente 5 sessões (13–18) porque ninguém abriu o vite DEV desde a
-  sessão 12. NÃO alarmar "escola com client quebrado" sem confirmar em qual build. LIÇÃO: mudança em
-  client (UI) que não tem teste automatizado (só shared tem testes) DEVE ser bootada headless (dev)
-  pelo menos 1× antes de commitar — `capture.mjs`/`console.mjs` pega TDZ/crash de boot do DEV em
-  segundos. "typecheck 0 + 304 testes" NÃO cobre runtime do client nem a diferença dev↔prod.
-
-### 2026-07-23 (sessão 18) — Key Learnings (receita dos prints headless)
-- **Render headless do jogo agora é dirigido por CDP** (scratchpad/capture.mjs), não `chrome
-  --screenshot` puro — assim dá pra: esperar o game-ready, mandar tecla (F3 → HUD), esconder UI e
-  screenshot num fluxo só. Chrome via `--remote-debugging-port` + Target.attachToTarget(flatten) +
-  Page.navigate/Input.dispatchKeyEvent/Page.captureScreenshot. `ws` resolvido por
-  `createRequire("/home/meketreve/logica-em-jogo/")` (script mora no scratchpad, fora do node_modules).
-- **O `#overlay` de pausa aparece no headless** porque sem pointer-lock `input.active` é false
-  (main.ts updateOverlay linha ~188). Esconder injetando `<style>#overlay{display:none!important}</style>`
-  via Runtime.evaluate ANTES do screenshot (o `.hidden` do updateOverlay não vence `!important`).
-  Também escondo `#hotbar`/`#crosshair` pra cena limpa de paisagem.
-- **`?yaw`/`?pitch` (URL) agora VENCEM o spawn** (fix sessão 18): antes o `applyTeleport` do join
-  sobrescrevia (`input.yaw = pos.yaw`) e a mira forçada se perdia → todo screenshot saía no mesmo
-  ângulo. yaw em RADIANOS; `yaw=π` (3.14) olha +Z (forward = -sin/-cos). `pitch` positivo = pra CIMA.
-- **Água/móveis/quadro headless = CONSTRUIR via websocket** (scratchpad/build.mjs): join → lê a msg
-  `spawn{x,y,z}` → manda `place_block`/`balde{encher:false=fonte}`/`quadro_set`. `PLAYER_REACH=7`
-  (REACH 5 + 2), medido do olho ao centro da célula → construir a ≤6 blocos do spawn. O tick do
-  servidor escorre a água mesmo DEPOIS do builder desconectar (edições ficam no world em memória).
-  **Cascata precisa de CAIXA de contenção** (lip 1-alto na frente do spawn + paredes laterais + muro
-  do fundo com fontes no topo) — mundo plano sem contenção INUNDA e afoga a câmera. Água v1 = cubo
-  cheio por nível (não altura visual), então "cascata" = coluna de células caindo pela face do muro.
-- **Screenshot de AULA**: `LJ_SAVE=cenarios/aulaN.ljw` — paths.ts trata `cenarios/` como MODELO
-  read-only (semeia cópia viva em `mundos/<nome>/`, nunca escreve no tracked). O painel de objetivos
-  + a região-alvo (wireframe) já renderizam sozinhos (broadcast do servidor).
-- **`fuser -k <porta>/tcp` explícito por porta funciona; `rm -rf` de mundos de teste também** —
-  mas o classifier BLOQUEIA se vierem juntos num compound com outras ações. Rodar kill e rm em
-  comandos SEPARADOS. E nunca `fuser -k 8080` (playtest do usuário) nem 5199 (meu vite).

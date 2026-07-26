@@ -1,0 +1,773 @@
+# ROADMAP — Projeto "Lógica em Jogo"
+
+> Backlog / referência de escopo movido do STATUS.md. STATUS.md = quest ATIVA; ROADMAP.md = planejado-mas-não-ativo.
+> Quando pegar um item, move pra STATUS.md "🚀 Próxima fase".
+
+---
+
+## 🚀 Próxima fase — pós-MVP (v0 FECHADO 2026-07-11; seções abaixo = referência viva de escopo/stack/política)
+
+**Objetivo:** mundo voxel jogável no navegador com netcode cliente=servidor, blocos
+colocáveis/quebráveis, areia com gravidade, e chat com 1 comando de teste.
+
+### Escopo do MVP v0 (ENXUTO — travado)
+- Blocos: **grama, pedra, pedregulho, areia** (areia afetada por gravidade).
+- Movimentação 1ª pessoa (WASD + mouse look / pointer lock).
+- Colocar e quebrar bloco.
+- **Netcode cliente=servidor** (igual Minecraft): singleplayer roda servidor local
+  embutido no cliente; LAN = host serve os outros. Servidor é autoritativo.
+- Chat + **1 comando simples** só pra provar o pipeline de comando (parser no servidor).
+- Sem som (mas prever **gatilhos de som** — hooks de evento pra plugar áudio depois).
+- Texturas simples.
+
+### FORA do MVP v0 (adiar, explicitamente)
+- Crafting / inventário / "produzir item".
+- Comandos complexos (`/tp` etc.), níveis de permissão elaborados.
+- Salvar mundo no Drive (fica só no host; exportar Drive é manual/futuro).
+- Circuitos lógicos, truth tables, sequência de blocos coloridos (vêm depois; ver arquitetura).
+- Contas com senha; painel completo de professor.
+- Mundos publicados online (por ora compartilhamento manual via Drive).
+
+### Critérios de aceitação
+1. ✅ Abrir no navegador, andar num mundo de blocos, colocar e quebrar bloco.
+2. ✅ Areia cai quando o bloco de baixo é removido — via TICK DO SERVIDOR, não hack no cliente.
+3. ✅ Dois clientes veem o mesmo mundo e as mudanças um do outro (host + 1 cliente).
+4. ✅ Chat funciona e 1 comando de teste executa no servidor e reflete no mundo
+   (playtest do usuário 2026-07-11 ✅).
+
+### ⚠️ Regra de ouro de arquitetura (vibecode vai errar isso)
+Areia, circuitos e detecção de objetivo são **o MESMO subsistema**: "bloco muda de estado,
+avisa vizinhos, propaga no tick do servidor". NÃO implementar areia como `if (bloco===AREIA)`
+especial — implementar como regra genérica de atualização de bloco por vizinhança, senão
+circuitos do 9º ano exigem reescrita. Areia = 1 vizinho/1 regra. Circuito = N vizinhos/N regras.
+
+Idem: validação de objetivo (coletar N, chegar em coord) e sequência de blocos coloridos
+= mesmo sistema de "checar estado do mundo contra um padrão". Um sistema, várias idades.
+
+### Stack (TRAVADA — completa)
+TypeScript em tudo + módulo de lógica compartilhado; build **Vite**; servidor **Node + ws**;
+empacotar depois com Tauri/Node SEA. Render 3D: **three.js** (FECHADO 2026-07-10 — ver
+cerebrum Decision Log). UI/chat em HTML/CSS por cima do canvas, não GUI de engine.
+
+**Local do projeto (ATUALIZADO 2026-07-10):** projeto INTEIRO (docs + `.wolf/` + código
+futuro) movido para `~/projetos/logica-em-jogo` (filesystem do WSL). Motivo: node_modules
+no OneDrive trava sync e watcher do Vite via /mnt/c é lento. Cópia no OneDrive fica como
+arquivo morto/backup dos docs. Backup do código: git (repo privado no GitHub) — criar no scaffold.
+
+### Política de otimização (FECHADA 2026-07-10 — "não otimizar o desnecessário")
+
+**Baseline (checkpoint 1 — viabilidade/estrutura, não otimização):**
+- 1 mesh por chunk (BufferGeometry única). NUNCA 1 mesh/objeto por bloco.
+- Culled meshing: só gerar faces vizinhas de ar (corta >90% das faces).
+- Chunk = `Uint8Array` plano (4096 bytes por 16³). Estrutural: afeta /shared, snapshot, save.
+- Texture atlas → 1 material, 1 draw call por chunk.
+- Mesher = função pura (bytes → geometria) → mover pra Worker depois fica barato.
+- Tick fixo do servidor (~10 tps) desacoplado do render.
+- Updates por fila de vizinhança sujos (regra de ouro), sem scan do mundo todo.
+- Mundo pequeno de tamanho **definido na criação** (em chunks X×Z×Y), gravado no header
+  do save e do `world_snapshot` — cliente nunca assume tamanho. Sem resize ao vivo.
+  Default v0: 8×8×4 chunks (128×128×64 blocos, 1 MB). Teto validado pelo servidor:
+  16×16×8 (revisar com métricas do lab). UI de escolha = fase de autoria, não MVP.
+- `world_snapshot` binário (bytes de chunk); resto do protocolo JSON.
+- Render: **WebGLRenderer** (WebGPU experimental + PCs fracos de escola).
+- **HUD de perfilação (F3)** desde o checkpoint 1: FPS, frametime (méd+p95), tempo de
+  remesh, draw calls/triângulos (`renderer.info`), msgs/s + bytes/s. Servidor manda
+  `debug_stats` 1×/s com duração do tick (a partir do checkpoint 2). Botão exporta JSON
+  (dados p/ testes no lab e p/ relatório final). FORA: flame graph, telemetria persistente,
+  dashboard — DevTools já cobre análise profunda.
+
+**Adiadas (só com gatilho medido):**
+- Greedy meshing ← FPS baixo em PC do lab (32³: ~73k→4k vértices, mas remesh + UV complicam).
+- Meshing em Web Worker ← hitch de frame ao editar/carregar chunk.
+- ✅ Lerp de jogadores remotos — GATILHO DISPAROU (2026-07-11, usuário reportou
+  serrilhado): interpolação exponencial no render loop (bug-062). Taxa segue 10 Hz.
+- gzip no save ← save > alguns MB.
+
+**Proibidas (overengineering p/ 20 alunos LAN, mundo pequeno):**
+- Client-side prediction/rollback (LAN ~1ms). ECS. Octree/SVO. InstancedMesh/BatchedMesh
+  por bloco. WebGPURenderer. protobuf/msgpack. LOD/streaming/occlusion culling.
+  Servidor multithread. WASM.
+- Frustum culling: three.js já faz por objeto — nada a construir.
+
+### Plano de arquitetura (APROVADO 2026-07-10 — construir a partir daqui)
+
+Monorepo:
+- `/shared` — lógica AUTORITATIVA (mundo, blocos, física da areia, tick, aplicar ações).
+  TS puro, ZERO dependência de navegador ou Node. Roda igual nos 3 hospedeiros.
+- `/server` — embrulha `/shared`. Web Worker (single) OU Node+ws (host). Única "verdade".
+- `/client` — three.js. SÓ desenha e manda input. Nunca decide estado.
+  REGRA: se uma linha decide estado do mundo e está em `/client`, está no lugar errado.
+
+Cliente=servidor: o cliente SEMPRE fala com um servidor por WebSocket, mesmo sozinho
+(single = Web Worker na aba; LAN = .exe do professor). Mesmo código de cliente, mesma
+conexão, mesmas mensagens — cliente não sabe qual hospedeiro é.
+
+Protocolo v0 (só isso):
+- cliente→servidor: `join`, `move`, `place_block`, `break_block`, `chat`
+- servidor→cliente: `world_snapshot`, `block_changed`, `player_moved`, `chat`, `debug_stats` (1×/s, duração do tick)
+- Areia caindo chega como `block_changed` normais (cliente não sabe que foi gravidade).
+- Header do `world_snapshot` carrega dimensões do mundo em chunks.
+
+Mundo: chunks pequenos (~16³). IDs: 0=ar, 1=grama, 2=pedra, 3=pedregulho, 4=areia.
+Areia = regra de atualização por vizinhança no tick do servidor (MESMA engrenagem dos
+circuitos futuros — NÃO código especial de areia).
+
+Ordem dos checkpoints (cada um jogável antes do próximo):
+1. ✅ Mundo estático + andar (só cliente three.js, WASD+mouse, sem rede).
+2. ✅ Servidor autoritativo (mundo vem de `/shared` via Web Worker; tela igual).
+3. ✅ Colocar/quebrar (clique→ação→`block_changed`).
+4. ✅ Areia cai (tick de gravidade no servidor).
+5. ✅ Segundo cliente (Web Worker → Node+ws; 2 navegadores, mesmo mundo).
+6. ✅ Chat + 1 comando (parser no servidor).
+
+Rede de segurança (dev sem revisão): TS estrito; `/shared` sem deps; testes automáticos
+em `/shared` desde o checkpoint 2 (gravidade testável sem abrir navegador); cada checkpoint jogável.
+
+**MVP v1 "Aula persistente" — APROVADO pelo usuário (2026-07-11). Decisões travadas:**
+- Servidor LAN: SÓ o host salva. Singleplayer: cada jogador salva no PRÓPRIO
+  navegador (IndexedDB) + exportar/importar arquivo .ljw (= distribuição Drive).
+- Identidade: nome + PIN 4 dígitos por mundo; `/resetpin` do professor.
+- Código de professor definido na CRIAÇÃO do mundo; singleplayer = professor automático.
+- Menu principal pedido pelo usuário: singleplayer, multiplayer, configurações
+  (teclas, som, gráficos). Config v1 = sensibilidade do mouse + teclas + gráficos
+  básicos; SOM é placeholder até áudio existir (avisar na tela).
+
+**Checkpoints do MVP v1:**
+1. ✅ **cp7 — save/load no host Node (2026-07-11).** `/shared/save.ts`: formato
+   .ljw = u32 magic "LJS1" | u32 len | JSON meta (seed, spawn, roster) |
+   snapshot LJW0 (auto-validado). JSON de meta cresce sem re-versionar (PIN/papel
+   entram aí no cp9). Session: `opts.restore` (NADA recalculado — princípio
+   bug-010), `toSave()` (online = pos atual; offline = roster), roster por nome →
+   volta-onde-parou via msg `teleport` nova (enviada após snapshot; serve o /tp
+   futuro). Host index.ts: LJ_PORT/LJ_SAVE por env, carrega no boot (corrompido →
+   renomeia .corrompido-*, NUNCA sobrescreve evidência), autosave 30 s, SIGINT/
+   SIGTERM gravam (escrita atômica tmp+rename). Cliente: handler de teleport
+   (5 linhas). 67 testes (7 novos), typecheck 3/3, build ok. Smoke real 2 fases
+   (sobe→edita→SIGINT→reabre): tijolo persiste, ana volta onde parou ✅.
+   `.gitignore`: *.ljw. Worker (singleplayer) NÃO salva ainda — é o cp8.
+   Playtest ✅ (2026-07-11: "editei, fechei, voltei e salvou") com 2 achados,
+   ambos corrigidos: bug-061 (todos os clientes entravam como "jogador" → roster
+   por nome fundia os dois; ponte = nome único por navegador via localStorage
+   `lj-nome`, `?nome=` força; fix DEFINITIVO = PIN no cp9) e bug-062 (movimento
+   remoto serrilhado → lerp exponencial, ver política de otimização).
+2. ✅ **cp8 — menu principal (2026-07-11, playtest pendente).** Novos no cliente:
+   `menu.ts` (telas início/mundos/rede/config; só ESCOLHE — main inicia),
+   `worldStore.ts` (IndexedDB "logica-em-jogo"/"worlds": list/put/delete +
+   exportar = download .ljw + importar valida com decodeSave), `settings.ts`
+   (localStorage "lj-config", merge defensivo: sensibilidade, FOV, nitidez/
+   pixelRatioCap, volume guardado-mas-inerte, rebind de 7 ações). Worker ganhou
+   canal de HOST fora do protocolo de jogo: `{hostType:"init", save?, seed?}`
+   antes do join e `save_request`→`save` (quem grava IndexedDB é o CLIENTE;
+   worker só serializa). main.ts: boot → menu (ou `?server=` pula), conn virou
+   let, `connect()` reaplica config, singleplayer autossalva 30 s + grava logo
+   após snapshot (mundo nasce salvo), botão "salvar e voltar ao menu" no overlay
+   (rede: só "voltar" — host salva). Nome do jogador editável no menu (lj-nome).
+   Teclas do loop vêm de settings.keys. Typecheck 3/3, build ok, 67 testes,
+   screenshots: menu renderiza; jogo via ?server intacto.
+   **Playtest ✅ (2026-07-12, "top") com 4 pedidos, todos feitos:** rebind trava
+   1 captura por vez (bug-075); F3 mostra pos + bloco; move REATIVO no cliente
+   (parado = heartbeat 1×/2 s, mudou = 10 Hz — 20 alunos parados: ~200 msg/s →
+   ~10); presença no join (bug-076: servidor manda player_moved do estado de
+   cada online pro novo, pós-snapshot, e anuncia o novo — sem isto jogador
+   parado era invisível pro recém-chegado, e o heartbeat agravaria). 68 testes,
+   smoke de presença contra servidor real ✅.
+   **+ Orientação persistida (2026-07-12, pedido do usuário):** roster/SavedPlayer
+   ganharam yaw/pitch; `teleport` carrega orientação e o cliente aponta a câmera
+   (input.yaw/pitch) — volta olhando pra onde olhava. Saves ANTIGOS continuam
+   válidos (campo faltando → 0; testado). Playtest do usuário ✅ ("funcionou").
+   **cp8 FECHADO.**
+3. ✅ **cp9 — PIN + papel de professor (2026-07-12, FECHADO — playtest do
+   usuário ✅ "tudo rodou").** PIN e código de professor em **TEXTO PURO** no
+   save (decisão do usuário: sem dado sensível, sem hash — a pendência de
+   crypto.subtle/pré-hash morreu junto; `/shared/auth.ts` = isValidPin +
+   constantes de rate-limit). Protocolo: join ganha `pin`/`codigo`
+   opcionais; msg `join_denied` (motivo) — recusa não manda MAIS NADA.
+   Session: mapa `identity` (pin/papel por nome) SEPARADO do roster
+   (posição); ordem do join estrito: nome-já-online (antes do PIN — fecha
+   bug-061 de vez e não vaza acerto) → lockout (5 erros no nome → 30 s;
+   código errado tem contador GLOBAL próprio) → PIN 4 dígitos → código de
+   professor (errado NEGA — professor precisa saber que errou); 1ª entrada
+   registra o PIN; papel persiste. `/bloco` e `/resetpin nome` só professor
+   (resposta explica); welcome anuncia comandos só pra professor.
+   `singleplayer: true` (worker) = sem PIN, professor automático, e papel/PIN
+   NÃO persistem (mundo single exportado pra LAN não dá professor de graça);
+   identity restaurada do save sobrevive mesmo em singleplayer (LAN→single→LAN
+   não perde PINs da turma). Save: pin/papel/codigo no JSON de meta (save
+   antigo segue válido). Host Node: LJ_CODIGO define/troca o código; sem env
+   usa o do save; mundo novo gera 6 chars — e IMPRIME no console em TODO
+   boot (recuperação grátis, texto puro permite). Cliente: campos PIN
+   (numeric, nunca salvo — PC de lab é compartilhado) e código na tela rede;
+   `?pin=`/`?codigo=` no boot via `?server=`; join_denied → alert + menu
+   limpo. 82 testes (14 novos), typecheck 3/3, build ok. Smoke real 2 fases
+   (registro/recusas/gating/resetpin → reboot: PIN e papel persistem)
+   12/12 ✅. Screenshot headless: join com PIN renderiza mundo + welcome
+   de aluno.
+4. **cp10 — ADIADO (2026-07-12):** validação de física do move no servidor.
+   Playtest do MVP v1 não apontou necessidade; retomar só com gatilho (trapaça
+   real em aula ou física divergindo entre cliente e servidor).
+
+**Critérios de aceitação do MVP v1:**
+1. Fechar o host (Ctrl+C ou autosave), reabrir → mundo E posições intactos. ✅ (cp7)
+2. Menu: criar mundo single, jogar, fechar aba, voltar → continua do save local. ✅ (cp8)
+3. Exportar mundo single pra arquivo e importá-lo em outro navegador/host. ✅ (cp8; smoke)
+4. Aluno não entra com nome alheio sem o PIN; professor reseta PIN; aluno não roda /bloco.
+   ✅ (cp9; playtest do usuário 2026-07-12 ✅).
+
+**→ MVP v1 FECHADO (2026-07-12): os 4 critérios atendidos e jogados.**
+
+**MVP v2 "Cenários/Autoria" — entrevista de escopo (2026-07-12). Decisões travadas:**
+- Cenário = mundo + objetivos + texto por objetivo, TUDO no MESMO .ljw
+  (meta JSON cresce sem re-versionar — desenho do cp7).
+- Modo de progressão POR CENÁRIO, autor escolhe: sequencial (fase a fase)
+  OU lista livre (qualquer ordem).
+- Tipos de objetivo v2 (TODOS aprovados; mesma engrenagem das rules — checar
+  estado do mundo contra padrão): (a) construir padrão em região (gabarito),
+  (b) chegar em local (região-alvo), (c) limpar região (= (a) com padrão ar).
+- Autoria: comandos de chat PRIMEIRO (usáveis antes do painel existir),
+  painel HTML depois; marcar região com cliques (varinha do professor) +
+  painel pra texto/ordem.
+- Gabarito WYSIWYG: professor constrói o exemplo no mundo, marca a região,
+  jogo "fotografa" os blocos. Escolha POR OBJETIVO: manter modelo visível
+  pro aluno copiar OU apagar.
+- Progresso por MUNDO e por GRUPO (ambos). Sistema de grupos NOVO:
+  professor cria grupos por comando `{quantidade por grupo}`; aluno entra
+  por comando OU painel; painel do aluno só abre DEPOIS do professor criar
+  grupos com sucesso. Singleplayer = grupo de 1 implícito.
+- HUD do aluno: objetivo ativo + texto + contador ao vivo (ex. 12/20
+  corretos); completou → mensagem de chat do servidor + próximo objetivo.
+  Gatilho de som via events.ts (já existe).
+- Grupos (2ª rodada, 2026-07-12): `/grupo criar` AUTO-DISTRIBUI todos os
+  online (round-robin) e NOTIFICA cada aluno; entrar/trocar por comando ou
+  painel; aluno sem grupo NÃO participa (HUD/chat avisa — professor vê quem
+  ficou de fora); mundo SEM grupos criados = modo turma-toda-junta (grupos
+  são opcionais); grupo PERSISTE no save (projetos de várias aulas);
+  `/grupo criar` de novo = reseta. Parâmetro (decidido 2026-07-12): as DUAS
+  sintaxes — `/grupo criar 5` = 5 grupos; `/grupo criar 5 alunos` = grupos
+  de 5 alunos.
+- Construir por grupo: 1 gabarito + 1 área de trabalho POR GRUPO (grupo
+  completa quando a SUA área bate com o gabarito). Marcação manual (varinha)
+  + comando/painel de CARIMBO: dita tamanho da área e espaçamento em blocos
+  entre áreas, replica N vezes.
+- Mundo modelo "cabines": plano; cabines no canto do chunk com o lado aberto
+  voltado pro centro do chunk; cabine do professor guarda a sequência-gabarito,
+  alunos replicam nas cabines dos grupos.
+- "Chegar em local": conclusão CONFIGURÁVEL POR OBJETIVO — todos os membros
+  do grupo na região OU basta um (depende da idade da turma).
+- Mundos predefinidos: SIM no v2 (pedido do usuário) — preset "plano" na
+  criação de mundo + mundo-modelo de cabines gerado com a ferramenta de
+  carimbo.
+
+**Checkpoints do MVP v2 (plano APROVADO 2026-07-12):**
+1. ✅ **cp11 — varinha + regiões nomeadas (2026-07-12, playtest do usuário ✅
+   "testei tudo" — inclui áudio de UI). cp11 FECHADO.**
+   Novo em `/shared`: `regions.ts` (NamedRegion min/max inclusivo,
+   regionFromCorners normaliza cantos, regionContains/regionDims,
+   parseNamedRegion defensivo — reusado por protocolo E save; MAX_REGIONS=64).
+   Protocolo: `wand_mark {corner:1|2,x,y,z}` client→server; `regions` (lista
+   COMPLETA) server→SÓ professores (join + após criar/apagar — o que o aluno
+   vê é decisão do objetivo no cp12); `spawn` ganhou `papel?` opcional
+   (cliente habilita UI de professor; host antigo compatível). Session:
+   cantos pendentes por cliente (rascunho, morre no disconnect/criar),
+   `/regiao criar nome · apagar nome · lista` (só professor), regiões no
+   meta do save via toSave/restore. Cliente: `regions.ts` (wireframes HSL +
+   2 marcas de canto amarelo/ciano), tecla R (rebindável, "varinha") alterna
+   modo varinha — clique esq/dir marca canto 1/2 na célula MIRADA, hotbar
+   vira hint; welcome do professor anuncia /regiao. 95 testes (8 novos em
+   regions.test.ts: puras + protocolo + sessão + persistência), typecheck
+   3/3, build ok. Screenshot headless: professor via ?server vê wireframe
+   da região do save ✅.
+   **+ Áudio de UI (pedido do usuário, mesmo dia):** `client/audio.ts` —
+   WebAudio sintetizado (zero assets, regra do projeto): click/back/confirm
+   nos botões do menu (delegação), notify no chat recebido, denied no
+   join_denied; volume das configurações agora FUNCIONA (slider ativo,
+   amostra ao soltar); AudioContext só nasce em gesto (autoplay policy) —
+   mensagens de rede só tocam se o contexto já existe. Playtest PENDENTE.
+2. ✅ **cp12 — objetivos + detecção + HUD (2026-07-12, playtest do usuário ✅
+   "tudo testado e funcionando"). cp12 FECHADO.**
+   **+ Polimento de UI pós-playtest (2026-07-12, pedidos do usuário, playtest
+   PENDENTE):** (a) ZERO popups nativos — prompt/confirm/alert viraram UI
+   inline (criar mundo = input+checkbox plano na tela de mundos; apagar = 2
+   cliques com desarme em 3 s; erros de import/endereço/PIN = `.menu-erro`
+   inline; join_denied atravessa o reload via sessionStorage "lj-erro" e vira
+   banner no menu — bônus: alert não trava mais screenshot headless/bug-093);
+   (b) mira invisível sem pointer lock (updateOverlay também controla
+   #crosshair); (c) menu Esc DE VERDADE: overlay virou painel .menu-screen
+   com "voltar ao jogo" (re-lock), "configurações" (MESMO buildConfigScreen
+   do menu principal, exportado com parâmetro body+onChanged — aplica AO
+   VIVO: sensibilidade/FOV/nitidez/volume/teclas; Input.rebind() move
+   atalhos chat/HUD/varinha na hora) e "salvar e voltar ao menu". Screenshot
+   headless do menu Esc ✅ (sem mira no centro).
+   Novo em `/shared`: `scenario.ts` — Objective (id/kind/texto/min-max CÓPIA
+   da região + gabarito), snapshotRegion/matchRegion (ordem canônica y→z→x;
+   corretos/alvo/extras separados), countSolid, parsers defensivos
+   (parseScenarioMeta pro save, parseObjectiveState pro fio). DECISÃO DE
+   DESIGN: construir tem região MODELO (fotografada no add) ≠ região ALVO
+   (detectada) — mesma região = fluxo "apagar depois" (senão nasce completo;
+   o comando RECUSA alvo que já bate). Sessão: `/objetivo add construir
+   modelo alvo texto…` / `add chegar|limpar regiao texto…` / lista / remover
+   / `modo sequencial|livre` / resetar (conclusão NUNCA desfaz; reset exige
+   ação nova); detecção pela REGRA DE OURO: applyBlock marca objetivosDirty
+   → tick recheca (areia caindo no alvo conta); chegar = move pisou na
+   região; sequencial só ativa o primeiro incompleto (pisar no futuro não
+   vale). Broadcast `objectives` pra TODOS (dedup por JSON; anúncio de
+   conclusão no chat SEMPRE depois do estado — som certo no cliente).
+   `/regiao encher nome id` (autoria: id 0 limpa; não empareda jogador;
+   teto 4096). Preset "plano" (`generateFlatWorld`: bedrock/terra/grama):
+   confirm() na criação de mundo, `?flat` no init do worker, LJ_PLANO=1 no
+   host Node. Cenário persiste no meta .ljw (save antigo válido). Cliente:
+   `objectivesUi.ts` (painel canto sup. direito: ativos + contador ao vivo
+   + "cenário completo"), caixas VERDES nos alvos ativos (aluno vê o alvo;
+   RegionRenderer ganhou cor fixa), som de conquista (confirm) suprime o
+   ping de chat por 800 ms. 110 testes (14 novos), typecheck 3/3, build ok,
+   screenshot e2e visão do aluno ✅ (mundo plano + painel 0/4 + caixa verde
+   + modelo de lãs).
+3. ✅ **cp13 — grupos + progresso por grupo (2026-07-12, playtest do usuário
+   ✅ "testei tudo, funciona"). cp13 FECHADO.**
+   Novo em `/shared`: `groups.ts` (GroupDef, parseGroups, MAX_GRUPOS=20).
+   `/grupo criar 5` = 5 grupos; `/grupo criar 5 alunos` = grupos de 5
+   (só professor; RE-CRIAR zera composição E progresso por grupo);
+   auto-distribui alunos online em round-robin (professor FORA) + notifica
+   cada um; `/grupo entrar n · sair · lista` (todos); aluno que chega depois
+   cai no MENOR grupo; grupo persiste no save (meta `grupos`); msg `group`
+   (pessoal: join + mudanças). Progresso: `completosGrupo` (chaves
+   `obj:grupo`, persiste em cenario.completosGrupos); objetivo COMPARTILHADO
+   concluído vale pra todos os grupos; chegar em modo grupos é SEMPRE por
+   grupo (sem grupo NÃO pontua); sequencial anda POR GRUPO (ritmos
+   diferentes — pisar em objetivo futuro não vale). Objetivo per-grupo:
+   `alvos: Box[]` (área por grupo) — `/objetivo add` resolve nome exato =
+   compartilhado, `nome-1…N` = per-grupo; construir valida dims/instant-
+   complete POR área; min/max do construir per-grupo = caixa do MODELO
+   (referência visual). `/regiao carimbar modelo prefixo espacamento [z]`:
+   replica a região modelo (BLOCOS inclusos — cabines!) 1× por grupo ao
+   longo do eixo e nomeia prefixo-1…N (valida bounds ANTES de mudar
+   qualquer bloco). `/objetivo add chegar regiao [todos|um] texto` — todos =
+   grupo inteiro online dentro ao mesmo tempo. `objectives` ganhou
+   `porGrupo[]` (mesma msg pra todos; cliente escolhe a própria linha).
+   Cliente: HUD do aluno = progresso DO SEU grupo + "seu grupo: n"; aluno
+   sem grupo = aviso; professor = resumo por grupo (`g1 2/4 · g2 ✓`);
+   caixas verdes = alvo do MEU grupo (+ modelo no construir; professor vê
+   todas); trocar de grupo re-sincroniza sem tocar som. 120 testes (10
+   novos), typecheck 3/3, build ok, screenshots professor+aluno ✅.
+   **+ Config em CATEGORIAS (pedido do usuário): controles (sensibilidade +
+   teclas) · som (volume) · gráficos (FOV + nitidez), mesma tela no menu
+   principal e no Esc.**
+4. ✅ **cp14 — painéis HTML + mundo modelo (2026-07-13, playtest do usuário
+   ✅ "testado". cp14 FECHADO — MVP v2 COMPLETO).** Desenho central:
+   painel = AÇÚCAR sobre comandos de chat —
+   cada botão compõe /objetivo|/regiao|/grupo e manda como msg `chat`;
+   validação segue 100% no servidor, ZERO protocolo novo pra ações; estado
+   volta pelos broadcasts. Novo em `/shared`: msg `groups` (composição
+   completa pra TODOS — join manda direto pro novo, mudanças broadcast);
+   `/objetivo texto id novo…` e `/objetivo mover id pos` (ordem re-ativa o
+   sequencial); `WorldPreset` normal|plano|cabines + `generateCabinsWorld`
+   (1 cabine de tábuas POR CHUNK no canto, 5×5, paredes 2 alto, lado +x
+   aberto pro centro do chunk, sem teto; spawn desloca +8 pro meio do
+   chunk); SessionOptions.preset (vence flat, que virou alias). Hosts:
+   worker init aceita `preset`; Node LJ_PRESET=plano|cabines (LJ_PLANO=1
+   ainda vale). Cliente: `panels.ts` (AuthorPanel professor: modo, lista de
+   objetivos com ↑↓/editar texto/remover armado, criar objetivo com selects
+   de região — inclui opção per-grupo prefixo-1…N, regiões com criar/apagar/
+   encher/carimbar, grupos criar N/de N; GroupPanel aluno: lista com
+   membros, entrar/sair; rascunho sobrevive re-render, re-render adia com
+   input focado, Esc fecha); tecla P rebindável ("painel"); `blocksUi.ts`
+   (PLACEABLE compartilhado hotbar+painel); menu de criação com SELECT de
+   tipo de mundo (pedido do usuário no meio da sessão); aviso de aluno sem
+   grupo aponta a tecla do painel; `?painel` abre no boot (headless).
+   129 testes (9 novos em cp14.test.ts), typecheck 3/3, build ok. Smoke
+   real 10/10 (cabines+spawn, groups broadcast, trocar grupo, texto/mover).
+   Restore noutro host 8/8 = critério 4 verificado (papel/regiões/ordem/
+   texto/grupos/cabines intactos). Screenshots ✅ (painel autoria + painel
+   grupo, cabines no fundo). bug-151 (TDZ activePanel) corrigido e logado.
+
+**Critérios de aceitação do MVP v2:**
+1. Professor cria cenário inteiro DENTRO do jogo e ele persiste no .ljw.
+   ✅ (cp12/cp13, playtests do usuário; cp14 soma o painel)
+2. Aluno vê objetivo/progresso no HUD, completa, sequência avança. ✅ (cp12)
+3. Turma em grupos: auto-distribuição funciona, cada grupo progride na própria área. ✅ (cp13)
+4. Mundo-modelo cabines exportado abre em outro host com cenário intacto.
+   ✅ (restore-check 8/8 + playtest do usuário 2026-07-13).
+
+**→ MVP v2 FECHADO (2026-07-13): os 4 critérios atendidos e jogados.**
+
+**Checkpoints do polimento "blocos + mecânica" (2026-07-13, TODOS codados —
+playtest do usuário pendente):**
+1. **cp15 — corrida + agachar.** `/shared/physics.ts`: MoveInput ganhou
+   `sprint?`/`sneak?`; PLAYER: sprintFactor 1.6, sneakFactor 0.3,
+   sneakEyeHeight 1.32. Edge-guard estilo Minecraft: agachado NO CHÃO,
+   passo horizontal que tiraria o suporte é desfeito POR EIXO (hasSupport
+   checa bloco sob o footprint; na diagonal o eixo seguro desliza; pode se
+   debruçar até |0.8| do centro — footprint ainda toca). Guard só com
+   onGround (no ar não trava). Cliente: Ctrl segurado OU duplo-toque no
+   andar (<300 ms, latch até soltar); Shift agacha; agachar VENCE sprint;
+   sprint exige forward>0. Teclas `correr`/`agachar` rebindáveis (entram
+   sozinhas no menu — itera KEY_ACTION_LABEL). FOV +10% correndo e olho
+   desce agachado, transições exponenciais (kCam = 1-exp(-dt·20)).
+   5 testes novos de física.
+2. **cp16 — inventário + hotbar de slots.** Hotbar virou 9 SLOTS
+   configuráveis (persistem em localStorage `lj-hotbar`, parse defensivo
+   por slot); 1–9 escolhe slot, scroll cicla os 9; HUD mostra slots com
+   ÍCONES + nome do bloco selecionado. Tecla E (rebindável `inventario`)
+   abre `client/inventory.ts`: grade de TODOS os colocáveis (ícone+nome) +
+   faixa da hotbar; clique no bloco → slot selecionado; clique no slot →
+   seleciona; Esc/E fecha e re-trava o mouse; exclusão mútua com painel P;
+   `?inv` abre no boot (headless). Ícones: `client/blockIcons.ts` recorta o
+   tile LATERAL do próprio atlas (blockIconTile novo no mesher) → data URL.
+3. **cp17 — 8 opacos novos (IDs 19–26, append):** arenito (estratos),
+   pedra-lavrada (fiadas 8×4), neve, obsidiana (pontinhos roxos) + lãs
+   rosa/ciano/cinza/marrom (12 lãs no total — sequências mais ricas).
+   Atlas tiles 20–27; cobertura automática pelo teste "todo colocável".
+4. **cp18 — vidro + folhas (grupo B, IDs 27–28, tiles 28–29).** Abordagem
+   CUTOUT: alphaTest 0.5 no material único — pixel opaco ou descartado,
+   SEM blending/sorting/draw call extra. `isTransparentBlock()` em blocks;
+   regra do mesher: face aparece se vizinho=ar OU opaco→transparente;
+   entre transparentes NUNCA (coplanar = z-fight). Transparência é só
+   visual (física/raycast tratam como sólido). Vidro = moldura+brilhos
+   (resto alpha 0); folhas = verde com 22% de furos. 2 testes de mesher.
+   Smoke real 21/21 via /bloco (servidor aceita ids novos) + screenshot:
+   lã vermelha visível ATRAVÉS da parede de vidro.
+
+**Critérios de aceitação do polimento — TODOS ✅ (playtest do usuário 2026-07-13):**
+1. ✅ Correr com Ctrl E com duplo-W; agachado na beirada não cai; FOV/câmera
+   respondem. 2. ✅ E abre inventário, monta hotbar própria, persiste ao
+   reabrir o navegador. 3. ✅ Blocos novos aparecem no inventário e no mundo
+   com textura certa ("todos top" — cobre o playtest pendente do grupo A).
+   4. ✅ Vidro/folhas: vê-se através, sem faces piscando.
+
+**→ POLIMENTO FECHADO (2026-07-13).** Achados do playtest, todos corrigidos e
+re-playtestados ✅:
+- **bug-168 (cp15):** correr dava velocidade total no ar. `PlayerState.sprinting`
+  novo = corrida ENGATADA: só liga com os pés no chão + tecla de correr.
+  **2ª rodada de playtest:** a tecla NÃO precisa ficar segurada — engatada, a
+  corrida vale enquanto o "frente" estiver apertado (semântica do Minecraft) e
+  atravessa pulo/queda; desengata ao soltar o "frente" ou agachar. FOV do
+  cliente segue `player.sprinting`, não a tecla. 2 testes.
+- **bug-167 (cp18):** face da folha colada no vidro sumia. Regra do mesher agora
+  olha SÓ o vizinho: aparece se vizinho é ar OU transparente de OUTRO id; mesmo
+  id funde (vidraça contínua); vizinho opaco esconde. Coplanares opostas não
+  brigam (material FrontSide → a de trás é backface). Teste atualizado.
+- **bug-169 (UI):** config tinha DOIS "voltar". `buildConfigScreen(body, onChanged?,
+  onBack?)` virou dona do único botão (raiz → menu anterior; categoria → raiz);
+  backs estáticos saíram de #menu-config e #overlay-config. Demais menus revisados
+  (mundos/rede/pausa: um voltar cada).
+- **Pedido novo (feito):** botão do MEIO do mouse copia o bloco mirado pro slot
+  selecionado (só colocáveis — bedrock não vai pra mão); hint do Esc atualizado.
+136 testes ✅, typecheck 3/3 ✅, build ✅.
+
+- **CENÁRIOS PEDAGÓGICOS — 3 aulas (2026-07-14, PLAYTEST DO USUÁRIO PENDENTE).**
+  Decisões da abertura: piloto no **6º–9º**; 1º cenário = sequência de lãs nas
+  cabines (confirmado); produção por **script gerador**, não à mão no jogo.
+  Novo em `/server`: `src/cenarios/gerar.ts` — digita os MESMOS comandos de chat
+  do professor (`/grupo criar`, `/regiao criar`, `/bloco`, `/objetivo add
+  construir`) contra a GameSession real e grava o .ljw. Não existe caminho de
+  autoria privado: cenário que não sai daí também não sai da mão do professor.
+  `src/cenarios/verificar.ts` — conferência EMBUTIDA na geração: abre o .ljw num
+  servidor NOVO, professor entra com o código, 2 alunos entram e são
+  auto-distribuídos, o grupo 1 monta o gabarito e o objetivo TEM que fechar
+  (+ guarda de geometria: faixa no chão, fora da cabine, dentro do chunk).
+  Cenário que não fecha NÃO vira arquivo (exit 1) — testado negativamente.
+  Mundo de cada aula: cabines, dims 6×6×4; cabine do professor no chunk central
+  (spawn), 1 cabine por grupo na fileira à frente; faixa de blocos no chão a 4
+  passos da porta. As 3 aulas (6º–9º, 5 grupos por padrão):
+  1. `aula1-sequencia.ljw` — "Continue a regra" (padrão/generalização): faixa de
+     12, os 4 primeiros dados (vermelho-azul-azul-vermelho) → contador nasce 4/12.
+  2. `aula2-binario.ljw` — "Escreva 45 em binário" (abstração/representação):
+     8 blocos, branco=0/preto=1, faixa vazia → 0/8.
+  3. `aula3-depurar.ljw` — "Ache os 2 erros" (depuração): faixa já montada com 2
+     células erradas → 10/12; o contador diz QUANTOS, não QUAIS.
+  Gabarito é fotografado e APAGADO (aluno infere a regra); flag `--revelar` deixa
+  o modelo à vista (vira cópia — turmas mais novas). `.ljw` NÃO vai pro git
+  (577 kB, regenerável): versiona-se o gerador + `cenarios/README.md` (roteiro de
+  aula: gerar, hospedar, distribuir, gabarito e condução de cada aula, o que
+  observar). O .ljw sai com `roster: []` — não viaja com PIN/papel do autor.
+  **bug-172 (bloqueava o piloto, corrigido):** Vite dev só escutava em localhost
+  → aluno da LAN não abria o cliente; `host: true` em `client/vite.config.ts`.
+  bug-173 (cwd do workspace) e bug-174 (comando gera VÁRIAS falas do servidor)
+  também logados. 137 testes ✅, typecheck 3/3 ✅.
+
+- **INFRA DO PILOTO — servidor serve cliente + mensagens + cp19 (2026-07-15,
+  PLAYTEST DO USUÁRIO PENDENTE).** Três frentes pedidas pelo usuário, nesta ordem:
+  1. **Servidor serve o cliente (mesma porta).** Novo `server/src/static.ts`:
+     `servirCliente(req,res)` entrega `client/dist` na MESMA porta do WebSocket —
+     o aluno abre `http://ip-do-professor:8080` no navegador e joga, sem servidor
+     de página à parte e sem digitar endereço de WebSocket. HTTP+WS convivem via
+     `createServer(servirCliente)` + `new WebSocketServer({ server: http })`.
+     Guarda de path traversal (caminho resolvido tem que ser DIST ou começar com
+     DIST+sep; rota desconhecida → index.html; no-store no index). Página 503 de
+     aviso se o cliente não foi buildado. Boot imprime o IP da LAN
+     (`enderecoDaRede`) e avisa se falta `npm run build`. Motivo de subir tudo na
+     mesma porta: HTTPS bloqueia `ws://` (mixed content) e o servidor da escola
+     não tem certificado pra `wss://` — mesma origem resolve.
+  2. **Varredura das mensagens de erro (bug-176).** 66+ mensagens de
+     `shared/src/session.ts` reescritas de log-de-dev (minúsculo, telegráfico)
+     pra frase culta e clara: diz O QUE aconteceu + O QUE fazer. Ex.: "PIN errado"
+     → "PIN incorreto para este nome."; "só o professor pode usar /bloco" →
+     "Somente o professor pode usar /bloco." ~16 asserts de teste seguiram os
+     textos novos (só string, zero mudança de comportamento).
+  3. **cp19 — trocar de aula SEM derrubar a turma.** Novo `server/src/mundos.ts`:
+     `/mundo lista · atual · carregar nome` (SÓ professor; intercepta no HOST, não
+     na sessão — trocar de aula é ler arquivo, e a GameSession não tem filesystem).
+     Aceita só NOME de arquivo, nunca caminho (comando chega pela rede da escola).
+     A troca: salva o mundo atual → decodifica o novo (corrompido → aborta, nada
+     muda) → `session.jogadoresConectados()` → nova GameSession → `adotar()` cada
+     cliente (sem PIN/reconexão; professor segue professor; teleport obrigatório —
+     coords do mundo velho podem cair na rocha). `session.ts`: join refatorado —
+     2ª metade virou `admitir(id,name,papel,migrado)` (reusada por join e adotar);
+     `jogadoresConectados()` e `adotar()` novos. Cliente: `chunks.ts` `trocarMundo`
+     (descarta TODA a geometria — mundo novo pode ter outro tamanho); `main.ts`
+     `reloadWorld` (snapshot pós-jogo recarrega mundo, zera regiões/objetivos/
+     grupos, respawn). Smoke real `server/src/cenarios/_smoke-mundo.mjs` 13/13 ✅.
+  4. **cenarios/ = MODELO, aulas/ = cópia viva (integridade de dado).** Achado
+     durante o cp19: hospedar `cenarios/aula1.ljw` direto fazia o autosave gravar
+     roster/PINs/progresso DENTRO do arquivo distribuído — a próxima turma
+     começaria com a aula da anterior resolvida. Novo em `server/src/paths.ts`:
+     `mundoDeTrabalho(escolhido)` — se o mundo está em `cenarios/`, a cópia de
+     trabalho vai pra `aulas/` (mesmo nome); a cópia viva vence o modelo (turma
+     continua de onde parou); apagar em `aulas/` recomeça do zero. index.ts
+     (boot) e mundos.ts (`/mundo carregar`) carregam do modelo só na 1ª vez e
+     autossalvam SEMPRE em `aulas/`; modelo corrompido NÃO é renomeado (é
+     distribuído — regenerar). Verificado: swap real deixou os 3 modelos
+     byte-idênticos (md5 OK) e criou as cópias em `aulas/`. Gerador regerado com
+     `roster: []` confirmado (boot: "0 jogador(es) no roster"). `_smoke-mundo.mjs`
+     é smoke MANUAL (precisa do servidor no ar na 8080), não entra no `npm test`.
+
+- **cp20 — BLOCOS LETRA/NÚMERO (2026-07-16, do backlog `ideias para fazer.txt`;
+  legibilidade a confirmar no playtest).** 36 blocos-glifo: letras A–Z (ids
+  29–54) + dígitos 0–9 (ids 55–64), cubos opacos pelo MESMO caminho das lãs
+  (append de id + tile no atlas procedural, zero mesher/protocolo novo).
+  `ATLAS.tilesPerRow` 8→16 (64→256 tiles — coube o glifo + folga). FONTE ÚNICA
+  `GLYPH` em `shared/mesher.ts` (base=30, letras, dígitos) alimenta BLOCK_TILES,
+  o atlas (`paintGlyph`: base creme p/ letra, azul-claro p/ número + a letra via
+  `ctx.fillText` bold) e os nomes PT em `blocksUi.ts` — tudo por loop, sempre em
+  sincronia. Pedagogia: soletrar palavras / escrever números (enriquece
+  sequência e binário). typecheck 3/3, 143 testes (rede "todo colocável" do
+  mesher cobre cada glifo como cubo cheio + guard de append), build ok, layout
+  do atlas conferido em node (sem overflow, ícones certos, isPlaceable fecha em
+  64). **Falta só olho humano na legibilidade do glifo 16px (playtest).**
+
+- **cp21 — CICLO DIA/NOITE (2026-07-16, do backlog; render a confirmar no
+  playtest).** SÓ visual, server-autoritativo (a hora não decide nada de jogo).
+  Sessão guarda `horaDoDia` (0..24) + `cicloAtivo`; avança determinístico por
+  tick (`DIA_SEGUNDOS=600` → dia de 10 min; NÃO usa relógio de parede, hosts
+  andam iguais). Broadcast msg nova `time {hora,ciclo}` no join + 1×/s (junto do
+  debug_stats). Comandos de professor `/hora dia|noite|amanhecer|entardecer|
+  meio-dia|meia-noite|0-23` e `/ciclo ligar|desligar` (sem arg alterna). Cliente
+  `daynight.ts`: `SkyCycle` interpola céu (`scene.background`), cor/intensidade
+  do sol (arco leste→zênite→oeste) e luz ambiente entre keyframes por hora;
+  guarda a última hora do servidor e avança localmente entre syncs (céu sem
+  trancos). **NUNCA escurece 100%** (piso de ambiente — aluno constrói de noite).
+  **CONFIG (2026-07-16, decisão do usuário):** mundo NOVO nasce em **DIA
+  PERMANENTE, ciclo PARADO** (default `HORA_PADRAO=12` + `cicloAtivo=false` —
+  o céu não muda durante a aula). **hora + ciclo PERSISTEM no save** (SaveMeta,
+  cresce sem re-versionar): mundo de atividade grava ciclo OFF; **sobrevivência
+  (futuro) grava a hora corrente → continua de onde parou** no reload. Os 3
+  cenários foram REGENERADOS (`npm run cenarios`) com `/hora meio-dia` +
+  `/ciclo desligar` explícitos no gerador (day-lock não depende do default —
+  sobrevivência pode nascer com ciclo ON no futuro); .ljw conferido: hora=12
+  ciclo=false. typecheck 3/3, 150 testes (+time no protocolo; +/hora //ciclo,
+  default off e persistência na sessão; +hora/ciclo no save), build; smoke ws
+  real: cenário abre em dia permanente travado, /hora exato, /ciclo congela e
+  religa, hora avança só com ciclo ON ✅.
+
+- **cp22 — /kicar (2026-07-16, do backlog).** Professor remove aluno por mau
+  comportamento. Mora no HOST (`server/index.ts interceptarKicar`, padrão do
+  /mundo) porque FECHAR socket é transporte, não estado do mundo. Resolve
+  nome→id via `session.jogadoresConectados()` (case-insensitive; remove TODOS os
+  homônimos, menos o próprio professor → não se auto-remove), manda msg nova
+  `kicked {reason}` pro alvo e fecha o socket 150 ms depois (aviso sai antes),
+  avisa a turma no chat. É EXPULSÃO, não banimento — o aluno pode reentrar com o
+  PIN (ban list = trabalho futuro se o piloto pedir). Cliente trata `kicked` como
+  join_denied (banner no menu, sem alert). smoke ws real 9/9
+  (`_smoke-kicar.mjs`): kick, aviso, aluno barrado, nome inexistente, não
+  auto-remove ✅.
+
+- **CABINES → PLOT DEMARCADO + /regiao sortear (2026-07-16, pedido do usuário).**
+  (1) Tirar as tábuas das cabines: `generateCabinsWorld` não faz mais paredes —
+  desenha uma BORDA de pedra-lavrada (StoneBricks) rente ao chão no perímetro do
+  footprint 5×5 de cada chunk. Delimita a área do grupo sem parede/teto. Preset
+  key segue `"cabines"`; spawn ainda vai pro meio do chunk. `verificar.ts` agora
+  confere o marcador. Label do menu virou "áreas demarcadas". As 3 aulas foram
+  REGENERADAS (`npm run cenarios`) e passaram no `conferir` embutido.
+  (2) `/regiao sortear nome id…` (novo, só professor): preenche a região
+  sorteando entre os ids dados — o professor gera um gabarito ALEATÓRIO na hora,
+  refotografa com `/objetivo add construir` e reinicia. typecheck 3/3, 152
+  testes (+2 sortear), build ✓. **Gerar sequência nova ao vivo já era possível
+  só com os comandos existentes** (remover objetivo → limpar area-N → montar na
+  faixa modelo → `/objetivo add construir modelo area`); "sequência de
+  sequências" = `/objetivo modo sequencial` + N objetivos (uma faixa por
+  objetivo por grupo).
+
+- **CONTROLES DE TOQUE (2026-07-16, TESTE EM TABLET REAL PENDENTE).** Tablet
+  joga sem teclado/mouse. Novo `client/src/touch.ts`: `isTouchDevice()` =
+  media query **`pointer: coarse`** (ponteiro PRIMÁRIO é o dedo; notebook com
+  touchscreen fica FORA de propósito — o mouse continua mandando e o pointer
+  lock não quebra; `?touch` na URL força, pra testar no desktop) e
+  `TouchControls` (DOM+CSS injetados, self-contained): joystick esquerdo
+  (8 direções + deadzone, sintetiza as MESMAS teclas de `settings.keys` via
+  `input.setKey` — rebind vale), arrasto em área livre = olhar
+  (`input.applyLook`, mesma conta e clamp do mousemove), botões quebrar/
+  colocar/copiar (disparam os handlers de mouse existentes via
+  `input.press(0|2|1)`), pular (segurar), menu (pausa) e blocos (inventário —
+  fecha no "✕ fechar" que já existia). `input.ts`: flag `touch` +
+  `get active()` (= locked OU touch); `lock()` vira no-op no toque — todos os
+  `input.lock()` espalhados (fechar chat/painéis) ficam inofensivos. main.ts:
+  loop de movimento/raycast/overlay/mira leem `input.active` (linha do
+  pointerlockchange segue `locked`); `startPlay()` no "▶ voltar ao jogo"
+  decide lock vs toque; botão menu do touch desliga o modo e mostra o overlay
+  de pausa; hotbar TOCÁVEL (pointer-events auto + tap escolhe slot); UI de
+  toque some sob chat/painéis/pausa (updateOverlay → `setShown`, que SOLTA
+  teclas seguradas — sem andar fantasma). index.html: viewport sem zoom
+  (maximum-scale=1, user-scalable=no, viewport-fit=cover) +
+  `overscroll-behavior:none; touch-action:none` no body (mata pull-to-refresh;
+  menus com overflow próprio seguem roláveis — touch-action não herda pra
+  scroller interno). Desktop INTACTO (sem touch, `active === locked`).
+  typecheck 3/3, 153 testes, build ✓; screenshots headless contra servidor
+  real: com `?touch` = joystick/botões/mira/hotbar no mundo; sem = overlay
+  normal, zero UI de toque.
+  **PLAYTEST MOBILE ✅ (2026-07-16, celular na rede de casa via notebook
+  Windows hospedando o main atual).** Rodada 2 (pedidos do playtest, FEITOS):
+  (a) **tela cheia** — `solicitarTelaCheia()` em touch.ts: auto no startPlay
+  (gesto do tap vale) + botão "⛶ tela cheia" no topo; tenta travar paisagem
+  (`screen.orientation.lock`), falha em silêncio (iPhone); (b) **botão 💬
+  chat** no topo — abre o campo (teclado virtual sobe no focus); Enter do
+  teclado VIRTUAL agora envia (`e.key === "Enter"` fallback — Android nem
+  sempre manda e.code) e tocar FORA do campo (canvas) fecha sem enviar
+  (chat.close() virou público — no toque não existe Esc); (c) **hotbar fixa
+  no pé do inventário** — `.inv-hotbar` position:sticky bottom, a grade rola
+  e os 9 slots ficam visíveis (screenshot confere); (d) **`/say` no TERMINAL
+  do host** — readline no stdin do server/index.ts: `/say mensagem` fala com
+  a turma como "servidor" sem o professor estar dentro do jogo (modelo
+  Minecraft); comando desconhecido lista os disponíveis; nohup/background =
+  stdin fecha, inofensivo. Smoke ws real 3/3 (2 clientes recebem, lixo não
+  vaza). typecheck 3/3, 153 testes, build ✓. **Resta validar no TABLET da
+  escola (rede da escola — AP isolation).**
+
+- **TRILHA SEQUENCIAL — auto-limpa + próxima sequência na MESMA faixa
+  (2026-07-16, pedido do usuário).** No modo `sequencial`, quando um grupo
+  conclui a sequência ativa, o servidor LIMPA a faixa dele e carrega
+  automaticamente a próxima na MESMA área (`carregarProximaSequencia` repõe o
+  baseline/semente do próximo objetivo ativo). Professor só cria os modelos; o
+  aluno percorre as sequências em ordem sem ninguém limpar à mão. **Autoria:**
+  `/objetivo modo sequencial` → (para cada etapa) construir o modelo numa região
+  `modelo` e `/objetivo add construir modelo <alvo> <texto>`, reusando o MESMO
+  `<alvo>` (`area` per-grupo ou uma região compartilhada) em todos → `/iniciar`.
+  Cada etapa começa VAZIA por padrão (baseline = estado da faixa no `add`; semeie
+  antes do `add` se quiser pista por etapa). `restaurarAreasBaseline` agora
+  depende do modo (sequencial = só a faixa ativa; livre = todas). 100% servidor
+  (cliente já trata block_changed + objectives). typecheck 3/3, 153 testes (+1).
+
+---
+
+---
+
+## 🗒️ Referência — playtest dos cenários (quando o touch estiver pronto)
+
+**Estado:** motor + autoria + 3 cenários prontos. Falta a única coisa que o
+código não prova: **um humano jogando as aulas**.
+
+**Como rodar (1 terminal — servidor já serve o cliente):**
+```bash
+npm run cenarios                                                    # gera os 3 .ljw
+npm run build                                                       # compila o cliente
+LJ_SAVE=cenarios/aula1-sequencia.ljw LJ_CODIGO=prof2026 npm run start -w server
+```
+Todos (professor E alunos) abrem `http://ip-do-professor:8080` no navegador — o
+IP sai impresso no boot do servidor. Professor entra com nome + PIN + código
+`prof2026`; aluno, sem o código. Trocar de aula ao vivo: `/mundo carregar
+aula2-binario` (só professor, ninguém cai). Para desenvolver o cliente com
+hot-reload, `npm run dev` (Vite na 5173) segue funcionando. Roteiro e gabaritos
+em `cenarios/README.md`.
+
+**Comandos de organização da aula (2026-07-15):** dois comandos de professor
+que facilitam abrir a atividade. (1) **`/tp grupos`** — teleporta os alunos
+conectados de cada grupo para a área do seu objetivo ATIVO (`areaDoGrupo` →
+`alvos[g-1]`; destino = centro da caixa no plano + `findSpawnY` na coluna, nunca
+dentro de bloco; professor NÃO se move). (2) **`/iniciar [n [alunos]]`** — macro
+num comando: (opcional) recria os grupos com os alunos online, zera o progresso
+(mesma semântica de `/objetivo resetar` — exige ação nova) e leva cada grupo à
+sua área; avisa a turma "A atividade começou". Botões no painel do professor:
+"▶ iniciar atividade" (armado, 2 cliques — zera progresso) e "↦ levar grupos às
+áreas". ZERO protocolo novo (reusa `teleport`/`player_moved` — cliente já
+trata). Autocomplete conhece ambos. smoke ws real 11/11
+(`server/src/cenarios/_smoke-atividade.mjs`).
+**+ RESET DE VERDADE (bug-207, 2026-07-15):** reiniciar (`/iniciar` e `/objetivo
+resetar`) agora restaura os BLOCOS das áreas ao estado autoral, não só os flags.
+`Objective.baseline: number[][]` = fotografia autoral de cada área, capturada no
+`/objetivo add` e PERSISTIDA no .ljw; `restaurarAreasBaseline()` repõe via
+applyBlock. A faixa da aula1 volta a 4/12 (sementes), não fica vazia nem com o
+que os alunos colocaram. Baseline mora no OBJETIVO (não no mundo) → sobrevive ao
+autosave da cópia de trabalho. **CENÁRIOS REGENERADOS** (`npm run cenarios`) pra
+capturar o baseline — save antigo sem baseline degrada (reset não mexe nos
+blocos). 142 testes, smoke ws 11/11, aula1 confere 4/12 no servidor real.
+
+**QoL adicionado no playtest (2026-07-15):** (1) **Tab autocompleta comandos**
+no chat — completa a palavra e, com várias opções, cicla a cada Tab (dica acima
+do campo); árvore em `client/commands.ts` espelha runCommand (shared) + /mundo
+(server). (2) **/mundo sem `.ljw`** — o comando já aceitava extensão opcional;
+agora os nomes SÃO EXIBIDOS sem `.ljw` (`semExt` em mundos.ts) e o cliente
+cacheia os nomes vistos em `/mundo lista` pra oferecê-los no Tab de `/mundo
+carregar` (precisa digitar `/mundo lista` uma vez pra popular). typecheck 3/3,
+build, 137 testes, lógica do autocomplete validada em node.
+
+**O que olhar no playtest:**
+- O aluno ENTENDE o que fazer só com o enunciado + a caixa verde? (o enunciado
+  tem teto de 120 chars — se não couber, isso é atrito de motor)
+- A faixa está num lugar bom? (4 passos à frente da porta da cabine)
+- A caixa verde VAZIA na cabine do professor (gabarito apagado) confunde?
+- ✅ (RESOLVIDO cp19) Trocar de aula ao vivo com `/mundo carregar nome` — validar
+  no playtest que o fluxo é natural pro professor (achar o nome, avisar a turma).
+- **Fluxo de abertura (2026-07-15):** alunos entram → auto-distribuem nos 5 grupos
+  → professor aperta **▶ iniciar atividade** no painel (ou `/iniciar 5` pra
+  rebalancear pelos presentes). Valida: teleporte cai num lugar bom pra começar?
+  **▶ iniciar** de novo restaura a faixa ao estado inicial (aula1→4/12)? O aluno
+  entende que foi reiniciado?
+- Tab autocompleta os comandos — o professor acha isso útil / descobre sozinho?
+- Falta algum comando que o professor gostaria de ter na hora?
+- (menor, opcional) Welcome diz "Pressione Enter para abrir o chat" — no
+  celular/tablet o certo é o botão 💬. Adaptar o texto se confundir os alunos.
+- **Features novas (cp20–cp22, 2026-07-16) a olhar:** (a) blocos LETRA/NÚMERO
+  (tecla E, fim da grade) — o glifo 16px é LEGÍVEL no mundo? servem pra soletrar/
+  numerar? (b) DIA/NOITE — cenário abre em dia permanente (confirmado no fio); o
+  professor consegue demonstrar com `/hora noite` + `/ciclo ligar`? o céu de
+  noite deixa ver o suficiente pra construir? (c) `/kicar nome` — o fluxo de
+  remover um aluno bagunceiro é natural? (d) PLOT demarcado (sem cabines de
+  tábua) — a borda de pedra-lavrada no chão delimita bem a área do grupo? o mapa
+  ficou melhor sem paredes? (e) `/regiao sortear modelo <ids>` seguido de
+  refotografar + reiniciar — o professor consegue gerar uma sequência nova/
+  aleatória na hora?
+
+**Depois:** piloto com a turma no lab → relatório de aplicação (entregável final).
+
+⚠️ **Pendência real do piloto:** o servidor já serve o cliente na mesma porta
+(basta `npm run build` uma vez + `npm run start -w server`; o aluno abre o IP no
+navegador). Falta só empacotar (Tauri/Node SEA) — ADIADO por decisão do usuário
+(ainda vai mexer em coisas); por ora o professor precisa de Node instalado.
+
+**Depois (anotado, não esquecer):**
+- **MVP v2 = CENÁRIOS/AUTORIA** (coração pedagógico): objetivos, detecção de
+  padrão no mundo = mesma engrenagem das rules.
+- **Água** (resto do grupo B: fluido via regra de vizinhança + nado — fase
+  própria; vidro/folhas saíram no cp18). **Grupo C** (não-cubos: tocha,
+  laje, escada — geometria nova no mesher).
+- Playtest das texturas do grupo A pelo usuário (o playtest do cp17/18 cobre).
+- **Backlog do usuário `ideias para fazer.txt`** (12 itens). FEITO: letra/número
+  (cp20), `/kicar` aluno (cp22), dia/noite (cp21). PENDENTE, por frente: móveis
+  (tapete/cadeira/mesa/sofá/cama = GRUPO C, geometria não-cubo — mesher novo);
+  porta + janela abre-fecha (bloco COM ESTADO + interação, base de mecanismos
+  lógicos); quadro com texto/imagem (feature grande de UI); vidro (já existe
+  cp18 — talvez o usuário queira vidraça/painel); cerca de madeira, meio bloco
+  vertical (novo 2026-07-17 — grupo C, não-cubo). Escolha da próxima frente é
+  do usuário.
+
+⚠️ Issue conhecida (bug-003, fix PARCIAL, NÃO bloqueante): pulos ocasionais de câmera
+por spikes de movementX/Y do Chrome no pointer lock. Filtro MAX_DELTA=200 +
+unadjustedMovement melhorou bastante; restam pulos raros. HUD F3 mostra
+`mouse Δmáx/descartados` — pedir esses números ao usuário antes de mexer de novo.
+
+### Decisões pendentes (só quando chegar na fase)
+- Circuitos: blocos-no-mundo (estilo redstone) vs painel que colapsa em 1 bloco.
+  Inclinação atual: **painel que vira bloco reutilizável** (= abstração, pilar da Wing).
+  Decidir só quando chegar nessa fase.
+- Assinatura de código do .exe (SmartScreen bloqueia .exe não assinado → professor de outra
+  escola desiste). Problema de ADOÇÃO, não de código. Resolver antes de distribuir amplo.
+
+---

@@ -11,9 +11,15 @@
 * \[x] quadro (com interface para digitar textos e adicionar imagens) — **FEITO** (2026-07-19): ids 100-103; `shared/quadros.ts` + `client/quadros.ts`, editor overlay, imagem JPEG 192px comprimida local (teto 32k chars), persiste no meta.
 * \[x] flores — **FEITO** (2026-07-19 ids 104-107, 4 cores atravessáveis com regra de apoio da tocha; 2026-07-20 sessão 8 refez render com `emitCrossPlane` = 2 lâminas planas na diagonal, estilo Minecraft cross, fim do z-fight/sprite esticado).
 * \[x] bloco de água — **FEITO** (2026-07-21): id 129, atravessável (não-sólido), translúcida via furos em xadrez + alphaTest (sem blending). Nado em physics.ts: torso submerso → velocidade × `waterFactor` (0.5), empuxo (gravidade reduzida, afunda devagar), pular sobe / agachar desce (`swimSpeed`). SEM fluxo/espalhamento — fluido dinâmico é fase própria.
-* \[ ] vidro colorido
-* \[ ] **meio-blocos (slabs)** — meia altura (superior/inferior) de blocos existentes.
-  Refino:
+* \[x] vidro colorido — **FEITO** (2026-07-25): 12 cores (ids 137-148, paleta das lãs).
+  Cubo cheio TRANSPARENTE via cutout tingido (dither ~40% no atlas, `paintVidroCor`) —
+  sem material novo, mesmo alphaTest do vidro comum. Funde com vidro do MESMO id no mesher.
+* \[x] **meio-blocos (slabs)** — **FEITO** (2026-07-25): ids 149-154 (pedra/tábua/tijolo ×
+  baixo/cima). NÃO-cubo com forma no mesher = a própria `collisionBoxes` (meia altura). Física
+  ganhou COLISÃO PARCIAL (`collides` testa sub-caixas) + resolução Y precisa (`resolveVertical`:
+  pousa no topo real 0.5, não no topo da célula) + **STEP-UP AUTOMÁTICO** (`moveHoriz`: sobe ≤0.55
+  andando, sem pular; cubo cheio NÃO sobe). 1 entrada por material na hotbar; metade escolhida pela
+  face clicada (mira por baixo = laje de cima). Tile reusa o do material. +9 testes. Refino original:
   * IDs: uma família por material vira caro (pedra/madeira/… × 2 metades). Melhor
     começar com poucos materiais (pedra, tábua, uma cor de lã) e um bit de "metade"
     no par de ids (Baixo/Cima), estilo porta (2 ids por variante). Append depois de 129.
@@ -28,8 +34,12 @@
     `blockSelectionBox` do mesher) e `collides`/`moveAxis` passam a ler essa caixa. Decisão
     a travar: step-up automático (subir slab andando) ou só pulo?
   * 2 slabs no mesmo lugar = bloco cheio (Minecraft) — opcional, decisão de escopo.
-* \[ ] **escadas (stairs)** — bloco em L (degrau), 4 orientações + meia-volta (topo/base).
-  Refino:
+* \[x] **escadas (stairs)** — **FEITO** (2026-07-25): ids 155-178 (pedra/tábua/tijolo × 4
+  direções × base/cabeça-pra-baixo). Forma em L = 2 caixas em `collisionBoxes` (base meia-altura
+  pegada cheia + degrau meia-pegada), reusadas pelo mesher E pela física. Sobe andando via o mesmo
+  step-up da laje (a base é meia-altura). Direção SOBE pra onde o jogador olha; metade pela face
+  clicada. 1 entrada por material; `escadaId(mat,dir,cima)` monta o id. Mira = envelope de cubo.
+  Refino original:
   * Extensão natural do slab, MAIS complexo: orientação direcional (rotXZ k×90°, como os
     móveis 87-99) + variante superior/inferior. IDs: 4 direções × 2 = 8 por material →
     caro; escopo mínimo = 1 material (pedra) primeiro.
@@ -170,7 +180,12 @@ senão lado com parede; empate → base. Cliente inalterado.
     Pra animar SÓ a água sem mexer no resto, clonar a textura pro materialAgua
     (`atlas.clone()`, `needsUpdate=true`) OU usar um shader/uniform próprio. Decidir ao codar.
   * Fazer como teste isolado primeiro (1 bloco), medir custo em tablet.
-* \[ ] **água FLUIDA (fluido dinâmico — FASE PRÓPRIA, grande)** — hoje a água é ESTÁTICA
+* \[x] **água FLUIDA (fluido dinâmico — FASE PRÓPRIA, grande)** — **FEITO** (2026-07-22, sessões
+  15c/16): ids `Agua`=129 (fonte, nível 8) + `AguaFluida1..7`=130-136; `waterRule` (rules.ts) autômato
+  celular no tick do servidor (empurra/cai/seca/infinito), item BALDE (900/901) cria/recolhe fonte,
+  fluxo prioriza o desnível (`DROP_SEARCH=4`, estilo Minecraft — fio, não disco), teto de células/tick
+  (`LJ_AGUA_TICK`, padrão 256). Playtest no browser feito e aprovado (sessão 18). Plano original abaixo:
+  hoje a água é ESTÁTICA
   (bloco parado, sem espalhar). Regra pedida pelo usuário: bloco-fonte cria água e ela FLUI
   pros blocos adjacentes na MESMA camada (limite de 8 na horizontal) SE houver bloco de
   apoio embaixo; se a água (fonte ou fluida) estiver sobre AR, cai; ao cair, a regra dos 8
@@ -280,8 +295,10 @@ não tem filesystem; export de "pasta" no single fica de fora (não faz sentido 
 
 ## Inventário
 
-* \[ ] abas/categorias no painel de inventário (mobília, blocos, vegetação, minérios, …)
-  — pedido do playtest 2026-07-20: com 100+ blocos a grade única ficou longa demais.
+* \[x] abas/categorias no painel de inventário (mobília, blocos, vegetação, minérios, …)
+  — **FEITO** (2026-07-20, sessão 10): categoria em blocksUi (`PlaceableEntry.cat`), tab bar no
+  InventoryPanel (filtro de exibição, aba ativa sobrevive abrir/fechar), painel altura fixa com
+  scroll só na grade. Pedido do playtest 2026-07-20 (100+ blocos = grade única longa demais).
 * \[x] geração de terreno procedural — **FEITO v1** (2026-07-20): biomas brasileiros
   (caatinga/cerrado/mata/araucárias) por campos de clima, minérios em veia, árvores
   por bioma (ipê/araucária/pau-brasil), gramas climáticas com blend. Candidatos v2:

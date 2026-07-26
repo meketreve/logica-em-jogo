@@ -22,3 +22,9 @@ chrome/
 # OpenWolf runtime (estado local por máquina — não versionar; solta a árvore pro `npm version`)
 .wolf/hooks/_session.json
 .wolf/token-ledger.json
+.wolf/_scan-state.json
+# token do dashboard local = SEGREDO, nunca versionar
+.wolf/dashboard-token
+# backups locais de upgrades/consolidações do OpenWolf
+.wolf.bak-*/
+.wolf/*.bak

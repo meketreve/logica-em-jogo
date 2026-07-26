@@ -34,7 +34,7 @@
       "report_frequency": "weekly",
       "waste_threshold_percent": 15,
       "chars_per_token_code": 3.5,
-      "chars_per_token_prose": 4.0
+      "chars_per_token_prose": 4
     },
     "cron": {
       "enabled": true,
@@ -46,10 +46,15 @@
     },
     "memory": {
       "consolidation_after_days": 7,
-      "max_entries_before_consolidation": 200
+      "max_entries_before_consolidation": 200,
+      "max_sessions": 10
+    },
+    "status": {
+      "max_sessions": 2,
+      "archive_file": "history.md"
     },
     "cerebrum": {
-      "max_tokens": 2000,
+      "max_tokens": 10000,
       "reflection_frequency": "weekly"
     },
     "daemon": {
@@ -63,11 +68,29 @@
     "designqc": {
       "enabled": true,
       "viewports": [
-        { "name": "desktop", "width": 1440, "height": 900 },
-        { "name": "mobile", "width": 375, "height": 812 }
+        {
+          "name": "desktop",
+          "width": 1440,
+          "height": 900
+        },
+        {
+          "name": "mobile",
+          "width": 375,
+          "height": 812
+        }
       ],
       "max_screenshots": 6,
       "chrome_path": "/home/meketreve/.cache/puppeteer/chrome/linux-150.0.7871.115/chrome-linux64/chrome"
+    },
+    "agents": [
+      "claude"
+    ],
+    "todo": {
+      "enabled": true
+    },
+    "buglog": {
+      "auto_detect": true,
+      "max_entries": 200
     }
   }
 }

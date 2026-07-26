@@ -118,4 +118,3 @@ function tokenize(text) {
         .map(w => w.toLowerCase()));
 }
 main().catch(() => process.exit(0));
-//# sourceMappingURL=pre-write.js.map
