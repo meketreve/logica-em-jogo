@@ -1,9 +1,17 @@
 import { describe, expect, it } from "vitest";
 import { BIOMAS, biomaPorClima, gramaPorClima } from "./biomas";
-import { BlockId } from "./blocks";
+import { BlockId, isAgua } from "./blocks";
 import { MAX_WORLD_CHUNKS } from "./constants";
-import { type World, colunaGerada, createWorld, getBlock } from "./world";
 import {
+  type World,
+  colunaGerada,
+  createWorld,
+  findSpawnSeco,
+  findSpawnY,
+  getBlock,
+} from "./world";
+import {
+  NIVEL_MAR,
   SAND_HEIGHT,
   TAMANHO_CHUNKS,
   climaAt,
@@ -188,12 +196,12 @@ describe("gen procedural com biomas (2026-07-20)", () => {
     expect(n).toBeGreaterThan(0); // a seed tem pico frio nevado
   });
 
-  it("mandacaru só na caatinga e fora da praia", () => {
+  it("mandacaru só na caatinga e fora d'água", () => {
     let n = 0;
     varre(mundo, BlockId.Mandacaru, (x, y, z) => {
       n++;
       expect(biomaPorClima(climaAt(x, z, seed))).toBe(BIOMAS.caatinga);
-      expect(y).toBeGreaterThan(SAND_HEIGHT + 1); // base acima da linha de praia
+      expect(y).toBeGreaterThan(NIVEL_MAR + 1); // base acima da linha d'água
     });
     expect(n).toBeGreaterThan(0);
   });
@@ -213,5 +221,80 @@ describe("gen procedural com biomas (2026-07-20)", () => {
       }
     }
     expect(conferidas).toBeGreaterThan(50);
+  });
+});
+
+describe("mar e lagos (2026-07-26)", () => {
+  const seedMar = 20260720;
+  const mundoMar = generateWorld(TAMANHO_CHUNKS.P, seedMar);
+
+  it("coluna abaixo do nível do mar é inundada até a linha d'água; acima fica seca", () => {
+    let inundadas = 0;
+    let secas = 0;
+    for (let x = 0; x < mundoMar.sizeX; x++) {
+      for (let z = 0; z < mundoMar.sizeZ; z++) {
+        const h = heightAt(x, z, seedMar, mundoMar.sizeY);
+        if (h < NIVEL_MAR) {
+          inundadas++;
+          // água da superfície do terreno até o nível do mar, e AR logo acima
+          expect(getBlock(mundoMar, x, h + 1, z)).toBe(BlockId.Agua);
+          expect(getBlock(mundoMar, x, NIVEL_MAR, z)).toBe(BlockId.Agua);
+          expect(getBlock(mundoMar, x, NIVEL_MAR + 1, z)).toBe(BlockId.Air);
+        } else {
+          secas++;
+          expect(getBlock(mundoMar, x, h + 1, z)).not.toBe(BlockId.Agua);
+        }
+      }
+    }
+    expect(inundadas).toBeGreaterThan(0); // a seed tem bacia
+    expect(secas).toBeGreaterThan(inundadas); // ...e o mundo não é só oceano
+  });
+
+  it("a água é FONTE (nível 8) — poça auto-regenerativa, não escorre sozinha", () => {
+    for (let x = 0; x < mundoMar.sizeX && x < 64; x++) {
+      for (let z = 0; z < mundoMar.sizeZ && z < 64; z++) {
+        const b = getBlock(mundoMar, x, NIVEL_MAR, z);
+        if (b !== BlockId.Air) expect(b === BlockId.Agua || !isAgua(b)).toBe(true);
+      }
+    }
+  });
+
+  it("praia: o topo seco na beira d'água é areia (SAND_HEIGHT acompanha o mar)", () => {
+    expect(SAND_HEIGHT).toBe(NIVEL_MAR + 1);
+    for (let x = 0; x < mundoMar.sizeX; x++) {
+      for (let z = 0; z < mundoMar.sizeZ; z++) {
+        const h = heightAt(x, z, seedMar, mundoMar.sizeY);
+        if (h === NIVEL_MAR || h === SAND_HEIGHT) {
+          expect(getBlock(mundoMar, x, h, z)).toBe(BlockId.Sand);
+        }
+      }
+    }
+  });
+
+  it("mundo plano e cabines (aulas) NÃO têm água", () => {
+    for (const w of [generateFlatWorld(DIMS), generateCabinsWorld(DIMS)]) {
+      let agua = 0;
+      for (let x = 0; x < w.sizeX; x++)
+        for (let z = 0; z < w.sizeZ; z++)
+          for (let y = 0; y < w.sizeY; y++) if (isAgua(getBlock(w, x, y, z))) agua++;
+      expect(agua).toBe(0);
+    }
+  });
+
+  it("findSpawnSeco tira o spawn de dentro d'água", () => {
+    // acha uma coluna inundada e pede um spawn seco a partir dela
+    let molhada: { x: number; z: number } | null = null;
+    for (let x = 0; x < mundoMar.sizeX && !molhada; x++) {
+      for (let z = 0; z < mundoMar.sizeZ; z++) {
+        if (heightAt(x, z, seedMar, mundoMar.sizeY) < NIVEL_MAR) {
+          molhada = { x, z };
+          break;
+        }
+      }
+    }
+    expect(molhada).not.toBeNull();
+    const seco = findSpawnSeco(mundoMar, molhada!.x, molhada!.z);
+    const y = findSpawnY(mundoMar, seco.x, seco.z);
+    expect(isAgua(getBlock(mundoMar, seco.x, y - 1, seco.z))).toBe(false);
   });
 });

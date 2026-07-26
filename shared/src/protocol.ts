@@ -73,7 +73,15 @@ export type ClientMessage =
     }
   /** Streaming (F2): raio de interesse do cliente em COLUNAS de chunks —
    *  config de desempenho do menu. Servidor clampa em [RAIO_MIN, RAIO_MAX]. */
-  | { type: "radius"; chunks: number };
+  | { type: "radius"; chunks: number }
+  /**
+   * Streaming (§🔁): rede de segurança. O cliente detectou que uma coluna
+   * DENTRO do seu raio não chegou (lote perdido, decode falhou, mesh falhou) e
+   * pede o re-envio. O servidor NÃO abre caminho de envio paralelo: só esquece
+   * a coluna (`enviadas.delete`) e o `streamColunas` do tick seguinte reenvia
+   * pelo caminho normal, respeitando `colunasPorTick`.
+   */
+  | { type: "pedir_coluna"; cx: number; cz: number };
 
 /** Teto do texto bruto de um profile_report (chars) — payload é só números e
  *  strings curtas (sem imagem); acima disso é lixo/abuso, não perfilação real. */
@@ -396,6 +404,11 @@ export function parseClientMessage(raw: string): ClientMessage | null {
       if (typeof m["chunks"] !== "number" || !Number.isInteger(m["chunks"])) return null;
       return { type: "radius", chunks: m["chunks"] };
     }
+    case "pedir_coluna": {
+      const ints = [m["cx"], m["cz"]];
+      if (!ints.every((n) => typeof n === "number" && Number.isInteger(n))) return null;
+      return { type: "pedir_coluna", cx: m["cx"] as number, cz: m["cz"] as number };
+    }
     default:
       return null;
   }
@@ -678,6 +691,11 @@ export const RAIO_PADRAO = 6;
 export const FOLGA_DESCARTE = 2;
 /** Colunas enviadas por tick por jogador (config de desempenho do host). */
 export const COLUNAS_POR_TICK_PADRAO = 8;
+/** Teto de `pedir_coluna` aceitos por cliente por segundo (§🔁). O comando
+ *  chega pela rede da escola: cliente adulterado não vira gerador de carga.
+ *  Acima do teto o servidor IGNORA em silêncio (o cliente honesto tem backoff
+ *  próprio e nunca encosta nisso). */
+export const PEDIDOS_COLUNA_POR_S = 8;
 
 /** Magic dos primeiros 4 bytes de um frame binário (roteamento no cliente). */
 export function peekMagic(buf: ArrayBuffer): number {

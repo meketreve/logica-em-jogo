@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { BlockId, createWorld, isPlaceable, meshChunk, setBlock } from "./index";
+import { AGUA_TOPO, BlockId, createWorld, isPlaceable, meshChunk, setBlock } from "./index";
 
 const DIMS = { x: 1, z: 1, y: 1 } as const;
 
@@ -133,5 +133,54 @@ describe("fast path de chunk vazio (2026-07-19)", () => {
     const vazio = meshChunk(world, 0, 1, 0); // chunk de cima é só ar
     expect(vazio.positions.length).toBe(0);
     expect(vazio.indices.length).toBe(0);
+  });
+});
+
+describe("superfície da água por nível (2026-07-26)", () => {
+  /** Todos os vértices de topo, agrupados por canto (x,z) do mundo. */
+  function cantos(g: { positions: Float32Array }, yCelula: number): Map<string, Set<number>> {
+    const m = new Map<string, Set<number>>();
+    for (let i = 0; i < g.positions.length; i += 3) {
+      const y = g.positions[i + 1]!;
+      if (y <= yCelula + 1e-6 || y > yCelula + 1 + 1e-6) continue; // só o topo da célula
+      const k = `${g.positions[i]!.toFixed(3)},${g.positions[i + 2]!.toFixed(3)}`;
+      const s = m.get(k) ?? new Set<number>();
+      s.add(Number(y.toFixed(5)));
+      m.set(k, s);
+    }
+    return m;
+  }
+
+  it("fonte isolada: topo abaixo do teto da célula (lâmina d'água)", () => {
+    const w = createWorld(DIMS);
+    setBlock(w, 8, 8, 8, BlockId.Agua);
+    const g = meshChunk(w, 0, 0, 0);
+    for (const [, alturas] of cantos(g, 8)) {
+      expect([...alturas]).toEqual([8 + AGUA_TOPO]);
+    }
+  });
+
+  it("níveis vizinhos casam as pontas: 1 altura por canto compartilhado", () => {
+    const w = createWorld(DIMS);
+    setBlock(w, 8, 8, 8, BlockId.Agua); // nível 8
+    setBlock(w, 9, 8, 8, BlockId.AguaFluida4); // nível 4
+    setBlock(w, 10, 8, 8, BlockId.AguaFluida1); // nível 1
+    const g = meshChunk(w, 0, 0, 0);
+    // cada canto (x,z) tem UM único y — sem degrau/fresta entre as células
+    for (const [k, alturas] of cantos(g, 8)) {
+      expect(`${k}: ${[...alturas]}`).toBe(`${k}: ${[...alturas][0]}`);
+    }
+    // e a superfície DESCE com o nível: canto entre 8 e 4 > canto entre 4 e 1
+    const alto = [...(cantos(g, 8).get("9.000,8.000") ?? [])][0]!;
+    const baixo = [...(cantos(g, 8).get("10.000,8.000") ?? [])][0]!;
+    expect(alto).toBeGreaterThan(baixo);
+  });
+
+  it("água submersa (água em cima) vai ao teto da célula — sem fresta", () => {
+    const w = createWorld(DIMS);
+    setBlock(w, 8, 8, 8, BlockId.Agua);
+    setBlock(w, 8, 9, 8, BlockId.Agua);
+    const g = meshChunk(w, 0, 0, 0);
+    for (const [, alturas] of cantos(g, 8)) expect([...alturas]).toEqual([9]);
   });
 });

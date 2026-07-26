@@ -40,6 +40,7 @@ import {
   COLUNAS_POR_TICK_PADRAO,
   type ColunaRef,
   FOLGA_DESCARTE,
+  PEDIDOS_COLUNA_POR_S,
   RAIO_MAX,
   RAIO_MIN,
   RAIO_PADRAO,
@@ -90,6 +91,7 @@ import {
   type WorldDims,
   chunkIndex,
   colunaGerada,
+  findSpawnSeco,
   findSpawnY,
   getBlock,
   inBounds,
@@ -282,7 +284,16 @@ export class GameSession {
   /** Estado de streaming por cliente: raio de interesse + colunas já enviadas
    *  (chave = cz*dims.x+cx). Sai do raio+folga = esquece → re-envia na volta
    *  (cliente descarta pela MESMA regra — sem mensagem de unload). */
-  private readonly stream = new Map<number, { raio: number; enviadas: Set<number> }>();
+  private readonly stream = new Map<
+    number,
+    {
+      raio: number;
+      enviadas: Set<number>;
+      /** §🔁 teto de `pedir_coluna`: janela de 1 s (início + contador). */
+      pedidos: number;
+      pedidosDesde: number;
+    }
+  >();
   /** F3 save esparso: índices de chunk (chunkIndex) com EDIÇÃO — jogador ou
    *  gravidade, tudo passa por applyBlockQuieto. Terreno só-gerado NÃO entra
    *  (regenera do seed). Só o mundo lazy usa; no save vira o delta gravado. */
@@ -392,8 +403,16 @@ export class GameSession {
       // cabines: o centro exato do mundo é canto de chunk = dentro de uma
       // cabine — desloca o spawn pro MEIO do chunk (área aberta)
       const off = preset === "cabines" ? CHUNK_SIZE / 2 : 0;
-      const sx = this.world.sizeX / 2 + off + 0.5;
-      const sz = this.world.sizeZ / 2 + off + 0.5;
+      // mar/lago (2026-07-26): se o centro do mundo caiu na água, anda até a
+      // coluna SECA mais próxima — ninguém nasce nadando. Mundo sem água
+      // (plano/cabines/aulas) devolve o próprio centro, sem mudar nada.
+      const seco = findSpawnSeco(
+        this.world,
+        Math.floor(this.world.sizeX / 2 + off),
+        Math.floor(this.world.sizeZ / 2 + off),
+      );
+      const sx = seco.x + 0.5;
+      const sz = seco.z + 0.5;
       this.spawn = {
         x: sx,
         y: findSpawnY(this.world, Math.floor(sx), Math.floor(sz)),
@@ -592,6 +611,33 @@ export class GameSession {
         const st = this.stream.get(clientId);
         if (!st) return; // mundo denso (ou sem join) — nada a fazer
         st.raio = Math.max(RAIO_MIN, Math.min(RAIO_MAX, msg.chunks));
+        break;
+      }
+      case "pedir_coluna": {
+        // §🔁 rede de segurança do streaming: o cliente viu um buraco dentro do
+        // raio dele. NÃO existe caminho de envio paralelo — só ESQUECEMOS a
+        // coluna e o `streamColunas` do tick seguinte reenvia pelo caminho
+        // normal (mesmo lote, mesmo `colunasPorTick`).
+        const st = this.stream.get(clientId);
+        const p = this.players.get(clientId);
+        if (!st || !p) return; // mundo denso (ou sem join) — nada a reenviar
+        // teto por segundo: o comando chega pela rede da escola
+        const agora = this.now();
+        if (agora - st.pedidosDesde >= 1000) {
+          st.pedidosDesde = agora;
+          st.pedidos = 0;
+        }
+        if (++st.pedidos > PEDIDOS_COLUNA_POR_S) return;
+        const dims = this.world.dims;
+        if (msg.cx < 0 || msg.cz < 0 || msg.cx >= dims.x || msg.cz >= dims.z) return;
+        // fora do raio de interesse = pedido sem sentido (o `streamColunas` nem
+        // olharia essa coluna); a folga acompanha a regra de descarte
+        const pcx = Math.max(0, Math.min(dims.x - 1, Math.floor(p.x / CHUNK_SIZE)));
+        const pcz = Math.max(0, Math.min(dims.z - 1, Math.floor(p.z / CHUNK_SIZE)));
+        if (Math.max(Math.abs(msg.cx - pcx), Math.abs(msg.cz - pcz)) > st.raio + FOLGA_DESCARTE) {
+          return;
+        }
+        st.enviadas.delete(msg.cz * dims.x + msg.cx);
         break;
       }
       case "place_block": {
@@ -1310,7 +1356,12 @@ export class GameSession {
       // F2 streaming: mundo gigante NÃO viaja inteiro — só o header; as
       // colunas chegam por raio de interesse no tick (o entorno do jogador
       // entra na primeira leva porque `enviadas` nasce vazio)
-      this.stream.set(clientId, { raio: RAIO_PADRAO, enviadas: new Set() });
+      this.stream.set(clientId, {
+        raio: RAIO_PADRAO,
+        enviadas: new Set(),
+        pedidos: 0,
+        pedidosDesde: this.now(),
+      });
       this.send(clientId, encodeLazyInfo(this.world.dims, this.seed));
     } else {
       this.send(clientId, encodeSnapshot(this.world, this.seed));

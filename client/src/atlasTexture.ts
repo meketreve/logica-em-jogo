@@ -396,13 +396,14 @@ function paintFlor(
  *  material próprio da água (transparente/blend no cliente, `opacity`), não de
  *  furos xadrez. O tile é só a cor + uma ondulação sutil (ripple diagonal) pra
  *  não ficar chapado; a transparência de verdade é aplicada no material. */
-function paintAgua(ctx: CanvasRenderingContext2D, tile: number): void {
+function paintAgua(ctx: CanvasRenderingContext2D, tile: number, fase = 0): void {
   const [ox, oy] = tileOrigin(tile);
   const px = ATLAS.tilePx;
   for (let y = 0; y < px; y++) {
     for (let x = 0; x < px; x++) {
-      // ruído leve + onda diagonal (senoide) = brilho de superfície discreto
-      const ripple = Math.sin((x + y) * 0.9) * 6;
+      // ruído leve (FIXO, não pisca) + onda diagonal que ANDA com a fase =
+      // correnteza. O ruído usa hash da posição, então só o ripple se move.
+      const ripple = Math.sin((x + y) * 0.9 + fase) * 6;
       const v = (pixelHash(x, y, tile * 7919 + 1) - 0.5) * 2 * 8 + ripple;
       const r = Math.round(46 + v);
       const g = Math.round(108 + v);
@@ -411,6 +412,21 @@ function paintAgua(ctx: CanvasRenderingContext2D, tile: number): void {
       ctx.fillRect(ox + x, oy + y, 1, 1);
     }
   }
+}
+
+/** Quantos quadros tem o ciclo da correnteza (fase 0..2π). Loop perfeito. */
+export const AGUA_FRAMES = 16;
+
+/** Repinta SÓ o tile da água no canvas do atlas e reenvia a textura à GPU.
+ *  Custo: 16×16 pixels + 1 upload do atlas (256², ~µs) — chamado a ~8 fps pelo
+ *  render loop, não por frame. Não mexe em UV, geometria nem material: a
+ *  correnteza é a mesma textura mudando de conteúdo. */
+export function animarAguaAtlas(texture: THREE.Texture, frame: number): void {
+  const canvas = texture.image as HTMLCanvasElement;
+  const ctx = canvas.getContext("2d");
+  if (!ctx) return;
+  paintAgua(ctx, TILE.agua, (frame % AGUA_FRAMES) * ((Math.PI * 2) / AGUA_FRAMES));
+  texture.needsUpdate = true;
 }
 
 export function createAtlasTexture(): THREE.Texture {

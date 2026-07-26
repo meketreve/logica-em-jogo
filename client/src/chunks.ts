@@ -124,12 +124,21 @@ export class ChunkRenderer {
     }
   }
 
-  /** Processa até `budget` chunks da fila (1×/frame no loop de render). */
-  processarFila(budget: number): void {
+  /**
+   * Processa até `budget` chunks da fila (1×/frame no loop de render).
+   * `onFalha` (§🔁): mesh que joga exceção NÃO derruba o frame — a coluna é
+   * reportada pro chamador, que a marca como faltando e repede ao servidor.
+   */
+  processarFila(budget: number, onFalha?: (cx: number, cz: number) => void): void {
     for (let i = 0; i < budget && this.fila.length > 0; i++) {
       const c = this.fila.shift()!;
       this.filaSet.delete(chunkIndex(this.world, c.cx, c.cy, c.cz));
-      this.remesh(c.cx, c.cy, c.cz);
+      try {
+        this.remesh(c.cx, c.cy, c.cz);
+      } catch (e) {
+        console.warn(`[mesh] chunk ${c.cx},${c.cy},${c.cz} falhou:`, e);
+        onFalha?.(c.cx, c.cz);
+      }
     }
   }
 

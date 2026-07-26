@@ -36,6 +36,7 @@ import {
   slabTop,
   stairsMaterial,
   type QuadroConteudo,
+  type ColunaRef,
   COLUNAS_MAGIC,
   LAZY_MAGIC,
   ROCHA_HEIGHT,
@@ -53,7 +54,8 @@ import {
   setBlock,
   stepPlayer,
 } from "@logica/shared";
-import { createAtlasTexture } from "./atlasTexture";
+import { AGUA_FRAMES, animarAguaAtlas, createAtlasTexture } from "./atlasTexture";
+import { AguaFx } from "./aguaFx";
 import { initUiAudio, playUi, setUiVolume } from "./audio";
 import { makeBlockIcons } from "./blockIcons";
 import { PLACEABLE, placeableFor } from "./blocksUi";
@@ -230,6 +232,25 @@ function onSettingsChanged(): void {
   for (const a of ["chat", "hud", "varinha", "painel", "inventario"] as const) {
     input.rebind(oldKeys[a], settings.keys[a]);
   }
+  enviarRaio(); // bug-211: mudar o raio na config precisa chegar no servidor
+}
+
+/** Raio de interesse já anunciado ao servidor (evita mandar msg repetida a cada
+ *  mexida na config — `onChanged` roda a cada tecla/arrasto de slider). */
+let raioEnviado = -1;
+
+/**
+ * Manda o raio de interesse (F2) pro servidor. **bug-211:** antes isso saía UMA
+ * vez, logo após o join — aumentar o raio na config ao vivo só mudava a regra de
+ * DESCARTE do cliente, o servidor seguia com o raio velho e o anel novo nunca
+ * entrava no lote de `streamColunas` ("aumentar a distância não carrega chunk
+ * novo, só mantém mais chunk renderizado"). Agora todo caminho que muda a config
+ * reanuncia.
+ */
+function enviarRaio(): void {
+  if (!conn || settings.raioRender === raioEnviado) return;
+  raioEnviado = settings.raioRender;
+  conn.send(JSON.stringify({ type: "radius", chunks: raioEnviado }));
 }
 
 document.getElementById("overlay-voltar")?.addEventListener("click", () => startPlay());
@@ -538,7 +559,8 @@ function connect(c: Connection, auth?: MultiAuth): void {
   );
   // F2 streaming: raio de interesse (config de desempenho) — depois do join
   // (transporte preserva ordem); em mundo denso o servidor só ignora
-  c.send(JSON.stringify({ type: "radius", chunks: settings.raioRender }));
+  raioEnviado = -1; // conexão nova = servidor novo, reanuncia mesmo se igual
+  enviarRaio();
 }
 
 function startMultiplayer(url: string, auth: MultiAuth): void {
@@ -614,6 +636,10 @@ function startGame(snap: Snapshot): void {
    *  quando voltar. */
   let colunasCarregadas = new Set<number>();
   let frameCount = 0; // varredura de descarte roda 1×/s (a cada 60 frames)
+  /** §🔁 rede de segurança: coluna DENTRO do raio que não chegou (lote perdido,
+   *  decode falhou, mesh falhou). `proximo` = quando pedir de novo (backoff). */
+  const colunasFaltando = new Map<number, { tentativas: number; proximo: number }>();
+  let repedidas = 0; // total de `pedir_coluna` mandados (F3)
   // alphaTest = cutout dos transparentes (vidro/folhas): pixel opaco ou
   // descartado — sem blending, sem sorting, mesmo draw call por chunk (cp18)
   const atlas = createAtlasTexture();
@@ -651,16 +677,90 @@ function startGame(snap: Snapshot): void {
     document.body.appendChild(img);
   }
   const chunkRenderer = new ChunkRenderer(world, [material, materialAgua, materialVidro], scene);
+  // efeitos de água (2026-07-26): névoa+tint ao submergir, animação da textura
+  const aguaFx = new AguaFx(scene);
+  let aguaRelogio = 0;
+  let aguaQuadro = -1;
   // lazy: nada a meshar ainda — as colunas entram na fila conforme chegam
   if (!mundoLazy) chunkRenderer.buildAll();
 
   aplicarColunas = (buf) => {
-    const cols = decodeColunas(buf, world);
+    // §🔁 lote CORROMPIDO (tamanho/magic errado) joga exceção no meio da
+    // aplicação: as colunas que já entraram valem, as demais simplesmente não
+    // entram em `colunasCarregadas` — a varredura 1×/s vê o buraco e repede.
+    // Sem o catch, a exceção subiria pelo handler de mensagem e derrubaria o
+    // resto do frame.
+    let cols: ColunaRef[] = [];
+    try {
+      cols = decodeColunas(buf, world);
+    } catch (e) {
+      console.warn("[streaming] lote de colunas inválido, será repedido:", e);
+      return;
+    }
     for (const { cx, cz } of cols) {
-      colunasCarregadas.add(cz * world.dims.x + cx);
+      const key = cz * world.dims.x + cx;
+      colunasCarregadas.add(key);
+      colunasFaltando.delete(key);
       chunkRenderer.enfileirarColuna(cx, cz);
     }
   };
+
+  // §🔁 rede de segurança do streaming (ver ROADMAP). O streaming F2 é
+  // fire-and-forget: lote perdido, decode falho ou mesh falho deixava buraco
+  // PERMANENTE (só sair do raio e voltar consertava).
+  /** Carência antes do 1º pedido: o lote pode estar a caminho (o servidor manda
+   *  `colunasPorTick` por vez, o mundo inteiro não chega num tick). */
+  const ESPERA_INICIAL_MS = 4000;
+  const BACKOFF_BASE_MS = 2000; // dobra a cada tentativa…
+  const BACKOFF_MAX_MS = 30_000; // …até este teto (servidor lento ≠ flood)
+  /** Teto de pedidos por varredura (o servidor tem o SEU teto — este evita
+   *  gastar upload à toa quando o mundo inteiro está faltando). */
+  const PEDIDOS_POR_VARREDURA = 4;
+
+  /**
+   * Percorre o quadrado até `raioRender` e pede de volta a coluna que deveria
+   * estar carregada e não está. Roda na MESMA passada 1×/s do descarte.
+   */
+  const varrerFaltando = (pcx: number, pcz: number, agora: number): void => {
+    const dims = world.dims;
+    const r = settings.raioRender;
+    let pedidos = 0;
+    for (let cx = pcx - r; cx <= pcx + r; cx++) {
+      for (let cz = pcz - r; cz <= pcz + r; cz++) {
+        if (cx < 0 || cz < 0 || cx >= dims.x || cz >= dims.z) continue;
+        const key = cz * dims.x + cx;
+        if (colunasCarregadas.has(key)) continue;
+        const f = colunasFaltando.get(key);
+        if (!f) {
+          colunasFaltando.set(key, { tentativas: 0, proximo: agora + ESPERA_INICIAL_MS });
+          continue;
+        }
+        if (agora < f.proximo || pedidos >= PEDIDOS_POR_VARREDURA) continue;
+        // descarta bytes + geometria ANTES de repedir: um decode que morreu no
+        // meio pode ter deixado meia coluna, e remeshar por cima do lixo
+        // esconderia o buraco em vez de consertar
+        chunkRenderer.descartarColuna(cx, cz);
+        for (let cy = 0; cy < dims.y; cy++) {
+          world.chunks[(cy * dims.z + cz) * dims.x + cx] = undefined;
+        }
+        activeConn.send(JSON.stringify({ type: "pedir_coluna", cx, cz }));
+        f.tentativas++;
+        f.proximo = agora + Math.min(BACKOFF_MAX_MS, BACKOFF_BASE_MS * 2 ** (f.tentativas - 1));
+        pedidos++;
+        repedidas++;
+      }
+    }
+    // saiu do raio (ou finalmente chegou): esquece — o mapa não pode crescer
+    // enquanto o jogador anda pelo mundo
+    for (const key of colunasFaltando.keys()) {
+      const cx = key % dims.x;
+      const cz = (key - cx) / dims.x;
+      if (colunasCarregadas.has(key) || Math.max(Math.abs(cx - pcx), Math.abs(cz - pcz)) > r) {
+        colunasFaltando.delete(key);
+      }
+    }
+  };
+
   // halo das tochas (cp23): visual puro, segue o mundo autoritativo
   const torchGlow = new TorchGlow(scene);
   torchGlow.setFromWorld(world);
@@ -790,6 +890,7 @@ function startGame(snap: Snapshot): void {
     worldSeed = novo.seed; // F3 mostra clima/bioma — a seed muda com a aula
     mundoLazy = proximoLazy; // aula nova pode ser mundo ENORME (ou deixar de ser)
     colunasCarregadas = new Set();
+    colunasFaltando.clear(); // §🔁 buracos do mundo VELHO não valem no novo
     chunkRenderer.trocarMundo(world);
     torchGlow.setFromWorld(world);
 
@@ -1367,7 +1468,12 @@ function startGame(snap: Snapshot): void {
       jitterMs: jitterDeRede(),
     };
     // streaming (mundo procedural): colunas carregadas + fila de remesh
-    hud.stream = { colunas: colunasCarregadas.size, fila: chunkRenderer.filaPendente };
+    hud.stream = {
+      colunas: colunasCarregadas.size,
+      fila: chunkRenderer.filaPendente,
+      faltando: colunasFaltando.size,
+      repedidas,
+    };
     lastNet = { ...s };
   }, 1000);
 
@@ -1425,7 +1531,11 @@ function startGame(snap: Snapshot): void {
     // ar → cairia no vazio; congela até a coluna chegar)
     let chaoCarregado = true;
     if (mundoLazy) {
-      chunkRenderer.processarFila(settings.meshPorFrame);
+      // mesh que falhou = coluna suspeita: sai de `colunasCarregadas` e a
+      // varredura abaixo a repede (§🔁)
+      chunkRenderer.processarFila(settings.meshPorFrame, (fx, fz) => {
+        colunasCarregadas.delete(fz * world.dims.x + fx);
+      });
       const pcx = Math.max(0, Math.min(world.dims.x - 1, Math.floor(player.pos.x / 16)));
       const pcz = Math.max(0, Math.min(world.dims.z - 1, Math.floor(player.pos.z / 16)));
       chaoCarregado = colunasCarregadas.has(pcz * world.dims.x + pcx);
@@ -1442,6 +1552,8 @@ function startGame(snap: Snapshot): void {
             }
           }
         }
+        // §🔁 MESMA passada: coluna que DEVERIA estar aqui e não está
+        varrerFaltando(pcx, pcz, now);
       }
     }
     const yAntesDoPasso = player.pos.y;
@@ -1511,6 +1623,15 @@ function startGame(snap: Snapshot): void {
       lastMs: chunkRenderer.lastRemeshMs,
     });
     skyCycle.update(dt); // ciclo dia/noite (cp21): avança o céu e pinta a cena
+    // água (2026-07-26): névoa/tint quando o OLHO está submerso + correnteza no
+    // tile do atlas (~8 fps, independente do FPS de render)
+    aguaFx.update(world, camera.position.x, camera.position.y, camera.position.z);
+    aguaRelogio += dt;
+    const quadroAgua = Math.floor(aguaRelogio * 8) % AGUA_FRAMES;
+    if (quadroAgua !== aguaQuadro) {
+      aguaQuadro = quadroAgua;
+      animarAguaAtlas(atlas, quadroAgua);
+    }
     hud.frame(dtMs);
     renderer.render(scene, camera);
   });

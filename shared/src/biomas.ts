@@ -43,7 +43,9 @@ export const BIOMAS = {
     profundidadeSubsolo: 3,
     arvores: [],
     flores: 0,
-    mandacaru: 1 / 96,
+    // 1/16 (2026-07-26): com 1/96 o mundo M inteiro tinha ~2 cactos — caatinga
+    // sem cacto nenhum. A densidade só vale nas colunas SECAS (h > NIVEL_MAR).
+    mandacaru: 1 / 16,
   },
   cerrado: {
     nome: "cerrado",

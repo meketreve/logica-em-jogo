@@ -1,4 +1,4 @@
-import { BlockId } from "./blocks";
+import { BlockId, isAgua } from "./blocks";
 import { CHUNK_SIZE, CHUNK_VOLUME } from "./constants";
 
 /** Dimensões do mundo em chunks. Parâmetro de criação, gravado no header do save/snapshot. */
@@ -102,4 +102,36 @@ export function findSpawnY(world: World, x: number, z: number): number {
     if (getBlock(world, x, y, z) !== BlockId.Air) return y + 1;
   }
   return 1;
+}
+
+/** A coluna (x,z) termina em água? (topo submerso = nascer nadando.) */
+function colunaMolhada(world: World, x: number, z: number): boolean {
+  return isAgua(getBlock(world, x, findSpawnY(world, x, z) - 1, z));
+}
+
+/** Coluna SECA mais próxima de (x,z) — anel por anel até `raio` (2026-07-26,
+ *  mar/lago no worldgen). Mundo sem água devolve (x,z) na primeira checagem, e
+ *  o mundo LAZY só olha o que já foi materializado; sem coluna seca no alcance,
+ *  devolve a original (nascer na água é feio, travar o join é pior). */
+export function findSpawnSeco(
+  world: World,
+  x: number,
+  z: number,
+  raio = 24,
+): { x: number; z: number } {
+  if (!colunaMolhada(world, x, z)) return { x, z };
+  for (let r = 1; r <= raio; r++) {
+    for (let d = -r; d <= r; d++) {
+      for (const [cx, cz] of [
+        [x + d, z - r],
+        [x + d, z + r],
+        [x - r, z + d],
+        [x + r, z + d],
+      ] as const) {
+        if (cx < 0 || cz < 0 || cx >= world.sizeX || cz >= world.sizeZ) continue;
+        if (!colunaMolhada(world, cx, cz)) return { x: cx, z: cz };
+      }
+    }
+  }
+  return { x, z };
 }

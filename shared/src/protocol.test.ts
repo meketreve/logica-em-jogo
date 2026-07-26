@@ -225,3 +225,22 @@ describe("profile_report (profiler — backlog ferramentas de dev)", () => {
     expect(parseClientMessage(raw)).toBeNull();
   });
 });
+
+describe("pedir_coluna (§🔁 rede de segurança do streaming)", () => {
+  it("aceita par de inteiros; rejeita faltando, fracionário e tipo errado", () => {
+    expect(parseClientMessage('{"type":"pedir_coluna","cx":3,"cz":7}')).toEqual({
+      type: "pedir_coluna",
+      cx: 3,
+      cz: 7,
+    });
+    // negativo passa no parse (o servidor é quem confere bounds e raio)
+    expect(parseClientMessage('{"type":"pedir_coluna","cx":-1,"cz":0}')).toEqual({
+      type: "pedir_coluna",
+      cx: -1,
+      cz: 0,
+    });
+    expect(parseClientMessage('{"type":"pedir_coluna","cx":3}')).toBeNull();
+    expect(parseClientMessage('{"type":"pedir_coluna","cx":3,"cz":1.5}')).toBeNull();
+    expect(parseClientMessage('{"type":"pedir_coluna","cx":"3","cz":7}')).toBeNull();
+  });
+});

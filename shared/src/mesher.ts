@@ -1,5 +1,6 @@
 import {
   BlockId,
+  aguaNivel,
   camaHeadDir,
   collisionBoxes,
   isAgua,
@@ -409,6 +410,12 @@ const FACE_UVS: readonly { u: UvAxis; v: UvAxis }[] = FACES.map((f) => {
 /** 1/16 da célula — o "pixel" das formas não-cubo (16 texels por face). */
 const P = 1 / 16;
 
+/** Altura do topo da água de nível MÁXIMO (fonte, 8/8). Fica abaixo do teto da
+ *  célula pra a superfície ler como "lâmina d'água" e não como bloco cheio —
+ *  convenção do Minecraft. Água com água EM CIMA ignora isto e vai a 1 (coluna
+ *  submersa não pode ter fresta). */
+export const AGUA_TOPO = 0.875;
+
 /** Gira o retângulo XZ de uma caixa k×90° em torno do centro da célula
  *  (0.5, 0.5). Usado pelos móveis direcionais: forma escrita uma vez de
  *  frente pra +x, as outras 3 direções saem daqui. */
@@ -758,6 +765,31 @@ export function meshChunk(world: World, cx: number, cy: number, cz: number): Chu
     }
   };
 
+  /** Altura (0..1) do canto `(cx,cz)` da superfície de água da célula (x,y,z).
+   *
+   *  PROCEDURAL, sem modelo por combinação de vizinho: o canto é a média dos
+   *  níveis das **4 células que o compartilham** (a própria + 2 laterais + a
+   *  diagonal). A célula vizinha calcula o MESMO canto a partir do MESMO
+   *  conjunto de 4 → chega no mesmo número → as pontas encaixam exatas, sem
+   *  costura e sem 8⁴ variantes. Água EM CIMA de qualquer uma delas = coluna
+   *  cheia (o canto sobe ao teto, como o Minecraft faz na superfície). */
+  const alturaCantoAgua = (x: number, y: number, z: number, cx: number, cz: number): number => {
+    let soma = 0;
+    let n = 0;
+    for (let i = 0; i < 2; i++) {
+      for (let j = 0; j < 2; j++) {
+        const wx = x + cx - 1 + i;
+        const wz = z + cz - 1 + j;
+        const b = getBlock(world, wx, y, wz);
+        if (!isAgua(b)) continue;
+        if (isAgua(getBlock(world, wx, y + 1, wz))) return 1;
+        soma += aguaNivel(b);
+        n++;
+      }
+    }
+    return n === 0 ? AGUA_TOPO : (soma / n / 8) * AGUA_TOPO;
+  };
+
   for (let ly = 0; ly < CHUNK_SIZE; ly++) {
     for (let lz = 0; lz < CHUNK_SIZE; lz++) {
       for (let lx = 0; lx < CHUNK_SIZE; lx++) {
@@ -776,6 +808,22 @@ export function meshChunk(world: World, cx: number, cy: number, cz: number): Chu
           : isVidroColorido(id)
             ? vidroIndices
             : indices;
+        // Água: os 4 cantos do TETO da célula viram alturas por vértice (topo
+        // inclinado que casa com o vizinho). Ordem [cx][cz]. Só o topo muda —
+        // o chão da célula continua em y=0. Colisão/mira NÃO usam isto: água
+        // não é sólida e o raycast a ignora (blocks.ts / raycast.ts).
+        const cantos = isAgua(id)
+          ? [
+              [
+                alturaCantoAgua(ox + lx, oy + ly, oz + lz, 0, 0),
+                alturaCantoAgua(ox + lx, oy + ly, oz + lz, 0, 1),
+              ],
+              [
+                alturaCantoAgua(ox + lx, oy + ly, oz + lz, 1, 0),
+                alturaCantoAgua(ox + lx, oy + ly, oz + lz, 1, 1),
+              ],
+            ]
+          : null;
 
         for (const face of FACES) {
           const neighbor = getBlock(
@@ -810,7 +858,14 @@ export function meshChunk(world: World, cx: number, cy: number, cz: number): Chu
 
           const base = positions.length / 3;
           for (const corner of face.corners) {
-            positions.push(lx + corner.pos[0], ly + corner.pos[1], lz + corner.pos[2]);
+            // topo da água: y=1 vira a altura do canto (mesma conta nos 2 lados
+            // da fronteira → superfície contínua). Vale pro quad de topo E pro
+            // topo das faces laterais (viram trapézios).
+            const cy =
+              cantos && corner.pos[1] === 1
+                ? (cantos[corner.pos[0]]?.[corner.pos[2]] ?? 1)
+                : corner.pos[1];
+            positions.push(lx + corner.pos[0], ly + cy, lz + corner.pos[2]);
             normals.push(face.dir[0], face.dir[1], face.dir[2]);
             uvs.push(corner.uv[0] === 1 ? u1 : u0, corner.uv[1] === 1 ? v1 : v0);
           }

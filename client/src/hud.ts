@@ -35,9 +35,11 @@ interface Recording {
 export class Hud {
   /** Preenchido pelo netcode (checkpoint 2+): taxas por segundo + tick + jitter. */
   net = { msgsPerSec: 0, bytesPerSec: 0, tickAvgMs: 0, tickMaxMs: 0, jitterMs: 0 };
-  /** Streaming (mundo procedural): colunas carregadas + fila de remesh. Alimentado
-   *  pelo main.ts (1×/s). */
-  stream = { colunas: 0, fila: 0 };
+  /** Streaming (mundo procedural): colunas carregadas + fila de remesh +
+   *  (§🔁) colunas faltando no raio e total de re-pedidos. Alimentado pelo
+   *  main.ts (1×/s). Sem `faltando`, o playtest não distingue "buraco" de
+   *  "ainda chegando". */
+  stream = { colunas: 0, fila: 0, faltando: 0, repedidas: 0 };
 
   /** Linhas extras de diagnóstico (ex.: stats de input) — avaliadas a cada refresh. */
   extra: (() => string) | null = null;
@@ -295,7 +297,7 @@ export class Hud {
       `FPS ${s.fps}  frame ${s.frametimeAvgMs}ms méd / ${s.frametimeP95Ms}ms p95`,
       `draw calls ${s.drawCalls}  triângulos ${s.triangles}  long tasks ${s.longTasksTotal}×`,
       `remesh ${s.remeshCount}× / ${s.remeshTotalMs}ms total / ${s.remeshLastMs}ms último`,
-      `stream ${s.stream.colunas} colunas · fila ${s.stream.fila}`,
+      `stream ${s.stream.colunas} colunas · fila ${s.stream.fila} · faltando ${s.stream.faltando} · repedidas ${s.stream.repedidas}`,
       mem ? `RAM (JS) ${mem.usadaMB}/${mem.limiteMB} MB` : "RAM (JS): n/d (só no Chrome)",
       `vídeo ${s.video.geometrias} geometrias · ${s.video.texturas} texturas`,
       `rede ${s.net.msgsPerSec} msg/s  ${s.net.bytesPerSec} B/s  jitter ${s.net.jitterMs}ms  tick ${s.net.tickAvgMs}/${s.net.tickMaxMs}ms`,

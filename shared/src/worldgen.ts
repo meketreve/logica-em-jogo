@@ -101,8 +101,18 @@ export function heightAt(x: number, z: number, seed: number, sizeY = 128): numbe
   return Math.floor(base + fator * (28 + pico * 60));
 }
 
-/** Abaixo (ou igual) a esta altura o topo vira areia — cria "praias" nas partes baixas. */
-export const SAND_HEIGHT = 18;
+/** Nível do mar (2026-07-26): toda coluna cujo terreno termina ABAIXO disto é
+ *  inundada com água-FONTE de `h+1` até aqui — mar nas bacias grandes, lago nas
+ *  depressões pequenas. Sai ~1/6 das colunas com água, fundo de até 4 blocos.
+ *  A água nasce estática: a fila de vizinhança do tick só acorda quando alguém
+ *  edita um bloco (`applyBlock`), então o oceano não custa tick nenhum no boot.
+ *  Só vale pro preset "normal" — plano/cabines (aulas) não têm água. */
+export const NIVEL_MAR = 22;
+
+/** Abaixo (ou igual) a esta altura o topo vira areia — cria "praias" nas partes
+ *  baixas. Fica 1 acima do mar: a faixa seca de areia contorna a água (praia) e
+ *  o fundo submerso também é areia. */
+export const SAND_HEIGHT = NIVEL_MAR + 1;
 
 /** A partir desta altura o topo vira neve — SE o clima for frio (temp<0.6).
  *  58 fica ACIMA das colinas (máx ~31): neve agora é coisa de serra. */
@@ -264,6 +274,11 @@ export function gerarColunaDeChunks(
       for (let y = 1; y < iniSubsolo; y++) setBlock(world, x, y, z, BlockId.Stone);
       for (let y = iniSubsolo; y < h; y++) setBlock(world, x, y, z, bioma.subsolo);
       setBlock(world, x, h, z, topoPrevisto(x, z, seed, sizeY));
+      // mar/lago: inunda o que ficou abaixo do nível do mar. FONTE (nível 8) em
+      // toda célula — poça de fonte é auto-regenerativa (o aluno cava e enche
+      // de volta pela regra dos 2 vizinhos-fonte) e não escorre sozinha.
+      const mar = Math.min(NIVEL_MAR, sizeY - 2);
+      for (let y = h + 1; y <= mar; y++) setBlock(world, x, y, z, BlockId.Agua);
     }
   }
 
@@ -315,7 +330,10 @@ export function gerarColunaDeChunks(
             setBlock(world, x, h + 1, z, BlockId.FlorVermelha + cor);
           }
         }
-      } else if (topo === BlockId.Sand && h > SAND_HEIGHT && bioma.mandacaru > 0) {
+        // gate do mandacaru = linha d'ÁGUA (2026-07-26), não mais SAND_HEIGHT:
+        // com o mar, a faixa de areia desceu junto e a caatinga baixa perdia
+        // TODOS os cactos. O que importa é o cacto não nascer molhado.
+      } else if (topo === BlockId.Sand && h > NIVEL_MAR && bioma.mandacaru > 0) {
         if (hash2(x, z, seed ^ 0xcac70) < bioma.mandacaru) {
           for (const c of celulasDoMandacaru(x, h + 1, z, hash2(x, z, seed ^ 0xa17a))) {
             aplicarCelula(world, c);
