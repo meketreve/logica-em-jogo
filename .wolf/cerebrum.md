@@ -148,7 +148,9 @@
   alimenta mesher (forma) E física. `resolveVertical` (pouso/teto) e `resolveHoriz` (parede)
   resolvem contra a SUB-CAIXA, nunca contra a fronteira da célula. Step-up ≤ `STEP_HEIGHT`
   (0.55) em `moveHoriz`, só com os pés no chão. Cerca/porta/móvel continuam com colisão de
-  CÉLULA CHEIA (simplificação deliberada).
+  CÉLULA CHEIA (simplificação deliberada). **Validado em playtest (2026-07-26): a laje FICA
+  com mira na metade + colisão de meia altura** — o usuário confirmou "hitbox já está
+  correta". Não uniformizar com o modelo de célula cheia da cerca/porta.
 - `ATLAS.tilesPerRow` é dinâmico (mesher/atlasTexture/blockIcons leem dele) — dá pra crescer
   a grade sem tocar em UV, save ou snapshot.
 - Tiles com alpha: canvas nasce transparente, `clearRect` = furo. Tile não pintado = bloco

@@ -345,3 +345,10 @@ NÃO commitado; playtest no browser pendente.
 | 22:32 | Session end: 24 writes across 7 files (physics.ts, physics.test.ts, mesher.ts, chunks.ts, main.ts) | 9 reads | ~56519 tok |
 | 22:35 | Edited .gitignore | expanded (+6 lines) | ~87 |
 | 23:05 | Commit + push das sessões 20+21 (2 commits) e STATUS/TODO preparados pro /clear; quest velha do piloto movida pro ROADMAP | git, .wolf/STATUS.md, .wolf/TODO.md, .wolf/ROADMAP.md | main == origin/main, árvore limpa | ~6k |
+| 22:38 | Session end: 25 writes across 8 files (physics.ts, physics.test.ts, mesher.ts, chunks.ts, main.ts) | 10 reads | ~56787 tok |
+
+## Session: 2026-07-26 03:00
+
+| Time | Action | File(s) | Outcome | ~Tokens |
+|------|--------|---------|---------|--------|
+| 23:20 | Hitbox da laje ENCERRADA: usuário confirmou que já está correta (mira na metade + colisão meia altura ficam como estão); STATUS/TODO/cerebrum fechados pro /clear | .wolf/STATUS.md, .wolf/TODO.md, .wolf/cerebrum.md | sem mudança de código; nenhuma quest ativa | ~3k |

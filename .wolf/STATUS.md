@@ -182,21 +182,19 @@ Documento é o ÚLTIMO entregável, não o primeiro. Construir, não documentar.
 
 ---
 
-## 🚀 Próxima fase — A DECIDIR com o usuário
+## 🚀 Próxima fase — NENHUMA quest ativa (escolher com o usuário)
 
 > Backlog e referência de escopo vivem em `.wolf/ROADMAP.md` (inclui o checklist de dia de
 > aula do piloto). Mantenha aqui só a quest ATIVA.
 
-Sessões 20+21 fechadas, commitadas e pushadas (`26151f9` blocos + `41211ff` wolf).
-Árvore limpa, main == origin/main. Nada em andamento.
+Sessões 20+21 fechadas, commitadas e pushadas (`26151f9` blocos + `41211ff` wolf +
+`5d18899` handoff). Árvore limpa, main == origin/main. Nada em andamento.
 
-**Pergunta ABERTA (não respondida):** "a hitbox dos meio blocos precisa ser igual das
-cercas, portas e afins" — qual das duas?
-- **Mira** (`blockSelectionBox`, mesher.ts): hoje a laje devolve só a metade, então o
-  raio atravessa a metade vazia e acerta o bloco de trás. Cerca/porta têm caixa própria.
-- **Colisão**: cerca/porta/móvel colidem como CÉLULA CHEIA (`temColisaoParcial` só liga
-  pra laje/escada). Copiar isso pra laje = ela vira parede e o jogador anda 0,5 acima do
-  topo visível. Provavelmente NÃO é o que ele quer — confirmar antes de mexer.
+**Hitbox da laje: ENCERRADA (2026-07-26).** O usuário testou e confirmou — "hitbox já está
+correta", NADA a mudar. Ou seja: laje segue com mira na METADE (`blockSelectionBox`) e
+colisão de MEIA ALTURA (`temColisaoParcial`); NÃO copiar o modelo de célula cheia da
+cerca/porta. Se uma sessão futura achar isso "inconsistente", é decisão validada em
+playtest — deixar como está.
 
 **Candidatos de backlog** (ver ROADMAP.md pro resto): layouts mobile · textura de água
 animada/refino · auto-update do servidor · sobrevivência (fome/vida/craft) · v2 da geração.

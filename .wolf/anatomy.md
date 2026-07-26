@@ -1,6 +1,6 @@
 # anatomy.md
 
-> Auto-maintained by OpenWolf. Last scanned: 2026-07-26T01:35:36.757Z
+> Auto-maintained by OpenWolf. Last scanned: 2026-07-26T15:00:00.136Z
 > Files: 180 tracked | Anatomy hits: 0 | Misses: 0
 
 ## ./
@@ -382,7 +382,7 @@
 
 ## mundos/mundo-livre/
 
-- `chat.log` (~890 tok)
+- `chat.log` (~1023 tok)
 
 ## mundos/stage/
 

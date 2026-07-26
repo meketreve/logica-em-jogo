@@ -12,7 +12,7 @@
 
 ## ⏭️ Next (queued, ready to pick up)
 
-- [ ] **Aguardando resposta do usuário:** "hitbox dos meio blocos igual das cercas/portas" = mira (`blockSelectionBox`, mesher.ts) ou colisão (célula cheia)? Ver STATUS 🚀 pro trade-off.
+- (vazio — próxima quest a escolher com o usuário; ver 💡 abaixo e `.wolf/ROADMAP.md`)
 
 ## 💡 Later / backlog (not scheduled)
 
@@ -29,3 +29,4 @@
 <!-- Checked items land here. Sweep them into STATUS.md "✅ Done" when a phase closes, then clear this list. -->
 
 - (limpo em 2026-07-25 — sessões 20+21 foram pro STATUS ✅ e pro git)
+- [x] Hitbox da laje: usuário confirmou que já está correta — nada a mudar (2026-07-26)

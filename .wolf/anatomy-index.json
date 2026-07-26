@@ -1,12 +1,12 @@
 {
   "version": 1,
   "meta": {
-    "lastScanned": "2026-07-26T01:35:36.757Z",
+    "lastScanned": "2026-07-26T15:00:00.136Z",
     "fileCount": 180,
     "hits": 0,
     "misses": 0,
-    "renderedHash": "2069a5d96062c4f8328cf10a4cd919c5d5ccef27e13af1010e9d1e079a9351de",
-    "storeUpdatedAt": "2026-07-26T01:35:36.778Z"
+    "renderedHash": "a3966e5fcb9be0858445c069f26fa2020a027c5d17cd0fb32891d85175e23375",
+    "storeUpdatedAt": "2026-07-26T15:00:00.138Z"
   },
   "files": {
     ".claude/commands/reframe.md": {
@@ -15,7 +15,7 @@
       "hash": "17a75695be5d4629",
       "size": 2221,
       "mtimeMs": 1784958617978.735,
-      "updatedAt": "2026-07-25T21:00:00.005Z",
+      "updatedAt": "2026-07-26T15:00:00.003Z",
       "source": "scan"
     },
     ".claude/commands/security-audit.md": {
@@ -24,7 +24,7 @@
       "hash": "e6f7e0b7337c9c86",
       "size": 2060,
       "mtimeMs": 1784958617978.735,
-      "updatedAt": "2026-07-25T21:00:00.006Z",
+      "updatedAt": "2026-07-26T15:00:00.003Z",
       "source": "scan"
     },
     ".claude/rules/openwolf.md": {
@@ -33,7 +33,7 @@
       "hash": "41db21e2a5a8e9be",
       "size": 1637,
       "mtimeMs": 1784982110066.7358,
-      "updatedAt": "2026-07-25T21:00:00.006Z",
+      "updatedAt": "2026-07-26T15:00:00.003Z",
       "source": "scan"
     },
     ".claude/settings.json": {
@@ -42,7 +42,7 @@
       "hash": "d8888b729911cfaf",
       "size": 1799,
       "mtimeMs": 1784958617774.735,
-      "updatedAt": "2026-07-25T21:00:00.007Z",
+      "updatedAt": "2026-07-26T15:00:00.003Z",
       "source": "scan"
     },
     ".claude/settings.local.json": {
@@ -51,7 +51,7 @@
       "hash": "dc7d39ac3038ca42",
       "size": 22122,
       "mtimeMs": 1784569171012.358,
-      "updatedAt": "2026-07-25T21:00:00.008Z",
+      "updatedAt": "2026-07-26T15:00:00.004Z",
       "source": "scan"
     },
     ".gitattributes": {
@@ -60,7 +60,7 @@
       "hash": "9f882e7b33fcaca1",
       "size": 114,
       "mtimeMs": 1783780660396.0913,
-      "updatedAt": "2026-07-25T21:00:00.009Z",
+      "updatedAt": "2026-07-26T15:00:00.004Z",
       "source": "scan"
     },
     ".gitignore": {
@@ -69,8 +69,8 @@
       "hash": "0033ea900c3584e0",
       "size": 852,
       "mtimeMs": 1785029736638.731,
-      "updatedAt": "2026-07-26T01:35:36.757Z",
-      "source": "hook"
+      "updatedAt": "2026-07-26T15:00:00.004Z",
+      "source": "scan"
     },
     ".wolf.bak-pre-lean/anatomy-index.json": {
       "description": "",
@@ -78,7 +78,7 @@
       "hash": "0589d553d78e88e5",
       "size": 35286,
       "mtimeMs": 1784982110010.7358,
-      "updatedAt": "2026-07-25T21:00:00.011Z",
+      "updatedAt": "2026-07-26T15:00:00.006Z",
       "source": "scan"
     },
     ".wolf.bak-pre-lean/anatomy.md": {
@@ -87,7 +87,7 @@
       "hash": "f926b9cb0350f5f4",
       "size": 16778,
       "mtimeMs": 1784982110006.7358,
-      "updatedAt": "2026-07-25T21:00:00.012Z",
+      "updatedAt": "2026-07-26T15:00:00.006Z",
       "source": "scan"
     },
     ".wolf.bak-pre-lean/buglog.json": {
@@ -96,7 +96,7 @@
       "hash": "b378a659bed058f6",
       "size": 272540,
       "mtimeMs": 1784982110010.7358,
-      "updatedAt": "2026-07-25T21:00:00.017Z",
+      "updatedAt": "2026-07-26T15:00:00.010Z",
       "source": "scan"
     },
     ".wolf.bak-pre-lean/cerebrum.md": {
@@ -105,7 +105,7 @@
       "hash": "79d3990b59ed2cff",
       "size": 116786,
       "mtimeMs": 1784982110010.7358,
-      "updatedAt": "2026-07-25T21:00:00.020Z",
+      "updatedAt": "2026-07-26T15:00:00.011Z",
       "source": "scan"
     },
     ".wolf.bak-pre-lean/config.json": {
@@ -114,7 +114,7 @@
       "hash": "b6bffcfc8c800824",
       "size": 1869,
       "mtimeMs": 1784982110018.7358,
-      "updatedAt": "2026-07-25T21:00:00.020Z",
+      "updatedAt": "2026-07-26T15:00:00.011Z",
       "source": "scan"
     },
     ".wolf.bak-pre-lean/cron-manifest.json": {
@@ -123,7 +123,7 @@
       "hash": "5c39ea43ee48cebf",
       "size": 3246,
       "mtimeMs": 1784982110018.7358,
-      "updatedAt": "2026-07-25T21:00:00.021Z",
+      "updatedAt": "2026-07-26T15:00:00.012Z",
       "source": "scan"
     },
     ".wolf.bak-pre-lean/cron-state.json": {
@@ -132,7 +132,7 @@
       "hash": "cb1702362c2bd56c",
       "size": 148,
       "mtimeMs": 1784982110022.7358,
-      "updatedAt": "2026-07-25T21:00:00.021Z",
+      "updatedAt": "2026-07-26T15:00:00.012Z",
       "source": "scan"
     },
     ".wolf.bak-pre-lean/daemon.log": {
@@ -141,7 +141,7 @@
       "hash": "4d3dc07b7d60fb5d",
       "size": 612,
       "mtimeMs": 1784982110022.7358,
-      "updatedAt": "2026-07-25T21:00:00.022Z",
+      "updatedAt": "2026-07-26T15:00:00.012Z",
       "source": "scan"
     },
     ".wolf.bak-pre-lean/dashboard-token": {
@@ -150,7 +150,7 @@
       "hash": "4d1ccf09835043d7",
       "size": 65,
       "mtimeMs": 1784982110022.7358,
-      "updatedAt": "2026-07-25T21:00:00.022Z",
+      "updatedAt": "2026-07-26T15:00:00.012Z",
       "source": "scan"
     },
     ".wolf.bak-pre-lean/designqc-report.json": {
@@ -159,7 +159,7 @@
       "hash": "747082a345652ffd",
       "size": 90,
       "mtimeMs": 1784982110010.7358,
-      "updatedAt": "2026-07-25T21:00:00.023Z",
+      "updatedAt": "2026-07-26T15:00:00.012Z",
       "source": "scan"
     },
     ".wolf.bak-pre-lean/hooks/_session.json": {
@@ -168,7 +168,7 @@
       "hash": "bc945a2809a77f5c",
       "size": 7571,
       "mtimeMs": 1784982110014.7358,
-      "updatedAt": "2026-07-25T21:00:00.023Z",
+      "updatedAt": "2026-07-26T15:00:00.013Z",
       "source": "scan"
     },
     ".wolf.bak-pre-lean/hooks/anatomy-lock.js": {
@@ -177,7 +177,7 @@
       "hash": "35a2eb1d1178f407",
       "size": 3645,
       "mtimeMs": 1784982110018.7358,
-      "updatedAt": "2026-07-25T21:00:00.024Z",
+      "updatedAt": "2026-07-26T15:00:00.013Z",
       "source": "scan",
       "symbols": [
         {
@@ -223,7 +223,7 @@
       "hash": "06beb5db24c469eb",
       "size": 10192,
       "mtimeMs": 1784982110018.7358,
-      "updatedAt": "2026-07-25T21:00:00.025Z",
+      "updatedAt": "2026-07-26T15:00:00.013Z",
       "source": "scan",
       "symbols": [
         {
@@ -318,7 +318,7 @@
       "hash": "3ca9d4afd2142508",
       "size": 23,
       "mtimeMs": 1784982110018.7358,
-      "updatedAt": "2026-07-25T21:00:00.025Z",
+      "updatedAt": "2026-07-26T15:00:00.013Z",
       "source": "scan"
     },
     ".wolf.bak-pre-lean/hooks/post-read.js": {
@@ -327,7 +327,7 @@
       "hash": "1e3f925aa8b6bcca",
       "size": 2304,
       "mtimeMs": 1784982110014.7358,
-      "updatedAt": "2026-07-25T21:00:00.025Z",
+      "updatedAt": "2026-07-26T15:00:00.013Z",
       "source": "scan",
       "symbols": [
         {
@@ -345,7 +345,7 @@
       "hash": "803605e70c86d482",
       "size": 24043,
       "mtimeMs": 1784982110014.7358,
-      "updatedAt": "2026-07-25T21:00:00.027Z",
+      "updatedAt": "2026-07-26T15:00:00.014Z",
       "source": "scan",
       "symbols": [
         {
@@ -426,7 +426,7 @@
       "hash": "26bb3edd10d30bf9",
       "size": 3720,
       "mtimeMs": 1784982110014.7358,
-      "updatedAt": "2026-07-25T21:00:00.027Z",
+      "updatedAt": "2026-07-26T15:00:00.014Z",
       "source": "scan",
       "symbols": [
         {
@@ -444,7 +444,7 @@
       "hash": "c3f16cb435b7896b",
       "size": 5457,
       "mtimeMs": 1784982110014.7358,
-      "updatedAt": "2026-07-25T21:00:00.029Z",
+      "updatedAt": "2026-07-26T15:00:00.015Z",
       "source": "scan",
       "symbols": [
         {
@@ -483,7 +483,7 @@
       "hash": "059511f905bbda75",
       "size": 1284,
       "mtimeMs": 1784982110018.7358,
-      "updatedAt": "2026-07-25T21:00:00.029Z",
+      "updatedAt": "2026-07-26T15:00:00.016Z",
       "source": "scan"
     },
     ".wolf.bak-pre-lean/hooks/session-start.js": {
@@ -492,7 +492,7 @@
       "hash": "3dcf824f97fb3771",
       "size": 9925,
       "mtimeMs": 1784982110014.7358,
-      "updatedAt": "2026-07-25T21:00:00.030Z",
+      "updatedAt": "2026-07-26T15:00:00.016Z",
       "source": "scan",
       "symbols": [
         {
@@ -538,7 +538,7 @@
       "hash": "53924dda9bca652d",
       "size": 33100,
       "mtimeMs": 1784982110018.7358,
-      "updatedAt": "2026-07-25T21:00:00.031Z",
+      "updatedAt": "2026-07-26T15:00:00.017Z",
       "source": "scan",
       "symbols": [
         {
@@ -668,7 +668,7 @@
       "hash": "ec33531d99273f71",
       "size": 15496,
       "mtimeMs": 1784982110014.7358,
-      "updatedAt": "2026-07-25T21:00:00.032Z",
+      "updatedAt": "2026-07-26T15:00:00.017Z",
       "source": "scan",
       "symbols": [
         {
@@ -728,7 +728,7 @@
       "hash": "25fa19c35fd46f2d",
       "size": 3869,
       "mtimeMs": 1784982110018.7358,
-      "updatedAt": "2026-07-25T21:00:00.032Z",
+      "updatedAt": "2026-07-26T15:00:00.017Z",
       "source": "scan",
       "symbols": [
         {
@@ -753,7 +753,7 @@
       "hash": "b707a5ffbd25f2f3",
       "size": 371,
       "mtimeMs": 1784982110018.7358,
-      "updatedAt": "2026-07-25T21:00:00.033Z",
+      "updatedAt": "2026-07-26T15:00:00.017Z",
       "source": "scan"
     },
     ".wolf.bak-pre-lean/memory.md": {
@@ -762,7 +762,7 @@
       "hash": "4fede9257f58a7ab",
       "size": 204493,
       "mtimeMs": 1784982110006.7358,
-      "updatedAt": "2026-07-25T21:00:00.036Z",
+      "updatedAt": "2026-07-26T15:00:00.020Z",
       "source": "scan"
     },
     ".wolf.bak-pre-lean/OPENWOLF.md": {
@@ -771,7 +771,7 @@
       "hash": "763dc6c1d2391954",
       "size": 9236,
       "mtimeMs": 1784982109998.7358,
-      "updatedAt": "2026-07-25T21:00:00.037Z",
+      "updatedAt": "2026-07-26T15:00:00.020Z",
       "source": "scan"
     },
     ".wolf.bak-pre-lean/reframe-frameworks.md": {
@@ -780,7 +780,7 @@
       "hash": "44acc3e2561ebba9",
       "size": 31141,
       "mtimeMs": 1784982110010.7358,
-      "updatedAt": "2026-07-25T21:00:00.038Z",
+      "updatedAt": "2026-07-26T15:00:00.021Z",
       "source": "scan"
     },
     ".wolf.bak-pre-lean/STATUS-archive.md": {
@@ -789,7 +789,7 @@
       "hash": "20afd6e3f9c2ef61",
       "size": 65658,
       "mtimeMs": 1784982110006.7358,
-      "updatedAt": "2026-07-25T21:00:00.040Z",
+      "updatedAt": "2026-07-26T15:00:00.022Z",
       "source": "scan"
     },
     ".wolf.bak-pre-lean/STATUS.md": {
@@ -798,7 +798,7 @@
       "hash": "a3ada206837ad535",
       "size": 73719,
       "mtimeMs": 1784982110010.7358,
-      "updatedAt": "2026-07-25T21:00:00.042Z",
+      "updatedAt": "2026-07-26T15:00:00.023Z",
       "source": "scan"
     },
     ".wolf.bak-pre-lean/STATUS.md.bak": {
@@ -807,7 +807,7 @@
       "hash": "7be44d2ace8a95ef",
       "size": 137152,
       "mtimeMs": 1784982110006.7358,
-      "updatedAt": "2026-07-25T21:00:00.045Z",
+      "updatedAt": "2026-07-26T15:00:00.025Z",
       "source": "scan"
     },
     ".wolf.bak-pre-lean/streaming-plan.md": {
@@ -816,7 +816,7 @@
       "hash": "63f86f00cb4c2c95",
       "size": 2843,
       "mtimeMs": 1784982110006.7358,
-      "updatedAt": "2026-07-25T21:00:00.046Z",
+      "updatedAt": "2026-07-26T15:00:00.025Z",
       "source": "scan"
     },
     ".wolf.bak-pre-lean/suggestions.json": {
@@ -825,7 +825,7 @@
       "hash": "77f9790b0404c49a",
       "size": 47,
       "mtimeMs": 1784982110010.7358,
-      "updatedAt": "2026-07-25T21:00:00.046Z",
+      "updatedAt": "2026-07-26T15:00:00.025Z",
       "source": "scan"
     },
     ".wolf.bak-pre-lean/TODO.md": {
@@ -834,7 +834,7 @@
       "hash": "f84db922aff22fec",
       "size": 665,
       "mtimeMs": 1784982110022.7358,
-      "updatedAt": "2026-07-25T21:00:00.047Z",
+      "updatedAt": "2026-07-26T15:00:00.025Z",
       "source": "scan"
     },
     ".wolf.bak-pre-v2/anatomy.md": {
@@ -843,7 +843,7 @@
       "hash": "f926b9cb0350f5f4",
       "size": 16778,
       "mtimeMs": 1784956656822.735,
-      "updatedAt": "2026-07-25T21:00:00.048Z",
+      "updatedAt": "2026-07-26T15:00:00.026Z",
       "source": "scan"
     },
     ".wolf.bak-pre-v2/buglog.json": {
@@ -852,7 +852,7 @@
       "hash": "b378a659bed058f6",
       "size": 272540,
       "mtimeMs": 1784956656822.735,
-      "updatedAt": "2026-07-25T21:00:00.053Z",
+      "updatedAt": "2026-07-26T15:00:00.029Z",
       "source": "scan"
     },
     ".wolf.bak-pre-v2/cerebrum.md": {
@@ -861,7 +861,7 @@
       "hash": "79d3990b59ed2cff",
       "size": 116786,
       "mtimeMs": 1784956656822.735,
-      "updatedAt": "2026-07-25T21:00:00.056Z",
+      "updatedAt": "2026-07-26T15:00:00.032Z",
       "source": "scan"
     },
     ".wolf.bak-pre-v2/config.json": {
@@ -870,7 +870,7 @@
       "hash": "14911b999f67f499",
       "size": 1714,
       "mtimeMs": 1784956656822.735,
-      "updatedAt": "2026-07-25T21:00:00.056Z",
+      "updatedAt": "2026-07-26T15:00:00.032Z",
       "source": "scan"
     },
     ".wolf.bak-pre-v2/cron-manifest.json": {
@@ -879,7 +879,7 @@
       "hash": "5c39ea43ee48cebf",
       "size": 3246,
       "mtimeMs": 1784956656826.735,
-      "updatedAt": "2026-07-25T21:00:00.057Z",
+      "updatedAt": "2026-07-26T15:00:00.032Z",
       "source": "scan"
     },
     ".wolf.bak-pre-v2/cron-state.json": {
@@ -888,7 +888,7 @@
       "hash": "c2f4cc3e739e1d13",
       "size": 148,
       "mtimeMs": 1784956656822.735,
-      "updatedAt": "2026-07-25T21:00:00.057Z",
+      "updatedAt": "2026-07-26T15:00:00.032Z",
       "source": "scan"
     },
     ".wolf.bak-pre-v2/designqc-report.json": {
@@ -897,7 +897,7 @@
       "hash": "747082a345652ffd",
       "size": 90,
       "mtimeMs": 1784956656826.735,
-      "updatedAt": "2026-07-25T21:00:00.058Z",
+      "updatedAt": "2026-07-26T15:00:00.032Z",
       "source": "scan"
     },
     ".wolf.bak-pre-v2/hooks/_session.json": {
@@ -906,7 +906,7 @@
       "hash": "bc945a2809a77f5c",
       "size": 7571,
       "mtimeMs": 1784956656826.735,
-      "updatedAt": "2026-07-25T21:00:00.059Z",
+      "updatedAt": "2026-07-26T15:00:00.032Z",
       "source": "scan"
     },
     ".wolf.bak-pre-v2/hooks/package.json": {
@@ -915,7 +915,7 @@
       "hash": "3ca9d4afd2142508",
       "size": 23,
       "mtimeMs": 1784956656826.735,
-      "updatedAt": "2026-07-25T21:00:00.060Z",
+      "updatedAt": "2026-07-26T15:00:00.033Z",
       "source": "scan"
     },
     ".wolf.bak-pre-v2/hooks/post-read.js": {
@@ -924,7 +924,7 @@
       "hash": "fb55dd5a846b1b84",
       "size": 2797,
       "mtimeMs": 1784956656826.735,
-      "updatedAt": "2026-07-25T21:00:00.061Z",
+      "updatedAt": "2026-07-26T15:00:00.033Z",
       "source": "scan",
       "symbols": [
         {
@@ -942,7 +942,7 @@
       "hash": "95919865e5583d4c",
       "size": 22629,
       "mtimeMs": 1784956656826.735,
-      "updatedAt": "2026-07-25T21:00:00.062Z",
+      "updatedAt": "2026-07-26T15:00:00.033Z",
       "source": "scan",
       "symbols": [
         {
@@ -1016,7 +1016,7 @@
       "hash": "6c7155a7da14fe26",
       "size": 3206,
       "mtimeMs": 1784956656826.735,
-      "updatedAt": "2026-07-25T21:00:00.063Z",
+      "updatedAt": "2026-07-26T15:00:00.034Z",
       "source": "scan",
       "symbols": [
         {
@@ -1034,7 +1034,7 @@
       "hash": "a3d931c71982a509",
       "size": 5494,
       "mtimeMs": 1784956656826.735,
-      "updatedAt": "2026-07-25T21:00:00.063Z",
+      "updatedAt": "2026-07-26T15:00:00.034Z",
       "source": "scan",
       "symbols": [
         {
@@ -1073,7 +1073,7 @@
       "hash": "d6d4bbda4a67b9c3",
       "size": 3530,
       "mtimeMs": 1784956656826.735,
-      "updatedAt": "2026-07-25T21:00:00.064Z",
+      "updatedAt": "2026-07-26T15:00:00.034Z",
       "source": "scan",
       "symbols": [
         {
@@ -1091,7 +1091,7 @@
       "hash": "f5777fcb2c16d15a",
       "size": 30797,
       "mtimeMs": 1784956656826.735,
-      "updatedAt": "2026-07-25T21:00:00.066Z",
+      "updatedAt": "2026-07-26T15:00:00.035Z",
       "source": "scan",
       "symbols": [
         {
@@ -1200,7 +1200,7 @@
       "hash": "3677906178eefa14",
       "size": 11538,
       "mtimeMs": 1784956656826.735,
-      "updatedAt": "2026-07-25T21:00:00.067Z",
+      "updatedAt": "2026-07-26T15:00:00.035Z",
       "source": "scan",
       "symbols": [
         {
@@ -1246,7 +1246,7 @@
       "hash": "b707a5ffbd25f2f3",
       "size": 371,
       "mtimeMs": 1784956656826.735,
-      "updatedAt": "2026-07-25T21:00:00.067Z",
+      "updatedAt": "2026-07-26T15:00:00.035Z",
       "source": "scan"
     },
     ".wolf.bak-pre-v2/memory.md": {
@@ -1255,7 +1255,7 @@
       "hash": "4fede9257f58a7ab",
       "size": 204493,
       "mtimeMs": 1784956656822.735,
-      "updatedAt": "2026-07-25T21:00:00.071Z",
+      "updatedAt": "2026-07-26T15:00:00.038Z",
       "source": "scan"
     },
     ".wolf.bak-pre-v2/OPENWOLF.md": {
@@ -1264,7 +1264,7 @@
       "hash": "2fa5051dfe938488",
       "size": 7891,
       "mtimeMs": 1784956656818.735,
-      "updatedAt": "2026-07-25T21:00:00.072Z",
+      "updatedAt": "2026-07-26T15:00:00.039Z",
       "source": "scan"
     },
     ".wolf.bak-pre-v2/reframe-frameworks.md": {
@@ -1273,7 +1273,7 @@
       "hash": "9a12be53c7910ed1",
       "size": 26494,
       "mtimeMs": 1784956656826.735,
-      "updatedAt": "2026-07-25T21:00:00.073Z",
+      "updatedAt": "2026-07-26T15:00:00.039Z",
       "source": "scan"
     },
     ".wolf.bak-pre-v2/STATUS-archive.md": {
@@ -1282,7 +1282,7 @@
       "hash": "20afd6e3f9c2ef61",
       "size": 65658,
       "mtimeMs": 1784956656822.735,
-      "updatedAt": "2026-07-25T21:00:00.075Z",
+      "updatedAt": "2026-07-26T15:00:00.041Z",
       "source": "scan"
     },
     ".wolf.bak-pre-v2/STATUS.md": {
@@ -1291,7 +1291,7 @@
       "hash": "a3ada206837ad535",
       "size": 73719,
       "mtimeMs": 1784956656822.735,
-      "updatedAt": "2026-07-25T21:00:00.077Z",
+      "updatedAt": "2026-07-26T15:00:00.042Z",
       "source": "scan"
     },
     ".wolf.bak-pre-v2/STATUS.md.bak": {
@@ -1300,7 +1300,7 @@
       "hash": "7be44d2ace8a95ef",
       "size": 137152,
       "mtimeMs": 1784956656822.735,
-      "updatedAt": "2026-07-25T21:00:00.080Z",
+      "updatedAt": "2026-07-26T15:00:00.044Z",
       "source": "scan"
     },
     ".wolf.bak-pre-v2/streaming-plan.md": {
@@ -1309,7 +1309,7 @@
       "hash": "63f86f00cb4c2c95",
       "size": 2843,
       "mtimeMs": 1784956656822.735,
-      "updatedAt": "2026-07-25T21:00:00.080Z",
+      "updatedAt": "2026-07-26T15:00:00.044Z",
       "source": "scan"
     },
     ".wolf.bak-pre-v2/suggestions.json": {
@@ -1318,7 +1318,7 @@
       "hash": "77f9790b0404c49a",
       "size": 47,
       "mtimeMs": 1784956656826.735,
-      "updatedAt": "2026-07-25T21:00:00.080Z",
+      "updatedAt": "2026-07-26T15:00:00.044Z",
       "source": "scan"
     },
     "cenarios/aula1-sequencia.ljw": {
@@ -1327,7 +1327,7 @@
       "hash": "ae391c58ccd024d5",
       "size": 593672,
       "mtimeMs": 1784517513420.3557,
-      "updatedAt": "2026-07-25T21:00:00.091Z",
+      "updatedAt": "2026-07-26T15:00:00.052Z",
       "source": "scan"
     },
     "cenarios/aula2-binario.ljw": {
@@ -1336,7 +1336,7 @@
       "hash": "cf18f51eae5af917",
       "size": 591251,
       "mtimeMs": 1784517513440.3557,
-      "updatedAt": "2026-07-25T21:00:00.101Z",
+      "updatedAt": "2026-07-26T15:00:00.059Z",
       "source": "scan"
     },
     "cenarios/aula3-depurar.ljw": {
@@ -1345,7 +1345,7 @@
       "hash": "3d712727b1476a2a",
       "size": 591352,
       "mtimeMs": 1784517513456.3557,
-      "updatedAt": "2026-07-25T21:00:00.110Z",
+      "updatedAt": "2026-07-26T15:00:00.067Z",
       "source": "scan"
     },
     "cenarios/aula4-decifrar.ljw": {
@@ -1354,7 +1354,7 @@
       "hash": "f851fc5c266df2ed",
       "size": 591241,
       "mtimeMs": 1784517513472.3557,
-      "updatedAt": "2026-07-25T21:00:00.118Z",
+      "updatedAt": "2026-07-26T15:00:00.074Z",
       "source": "scan"
     },
     "cenarios/aula5-simetria.ljw": {
@@ -1363,7 +1363,7 @@
       "hash": "759990dcb681e8ac",
       "size": 591918,
       "mtimeMs": 1784517513488.3557,
-      "updatedAt": "2026-07-25T21:00:00.127Z",
+      "updatedAt": "2026-07-26T15:00:00.081Z",
       "source": "scan"
     },
     "cenarios/aula6-manual.ljw": {
@@ -1372,7 +1372,7 @@
       "hash": "819ae4537a7a744c",
       "size": 592513,
       "mtimeMs": 1784517513508.3557,
-      "updatedAt": "2026-07-25T21:00:00.136Z",
+      "updatedAt": "2026-07-26T15:00:00.088Z",
       "source": "scan"
     },
     "cenarios/README.md": {
@@ -1381,7 +1381,7 @@
       "hash": "89eb9b389076a1ad",
       "size": 8134,
       "mtimeMs": 1784517371140.3584,
-      "updatedAt": "2026-07-25T21:00:00.137Z",
+      "updatedAt": "2026-07-26T15:00:00.089Z",
       "source": "scan"
     },
     "CLAUDE.md": {
@@ -1390,7 +1390,7 @@
       "hash": "b1ca356fa9d5f3a6",
       "size": 225,
       "mtimeMs": 1783780454096.0908,
-      "updatedAt": "2026-07-25T21:00:00.139Z",
+      "updatedAt": "2026-07-26T15:00:00.089Z",
       "source": "scan"
     },
     "client/index.html": {
@@ -1399,7 +1399,7 @@
       "hash": "f6914bb19a718e13",
       "size": 21582,
       "mtimeMs": 1784654746858.7646,
-      "updatedAt": "2026-07-25T21:00:00.141Z",
+      "updatedAt": "2026-07-26T15:00:00.089Z",
       "source": "scan"
     },
     "client/package.json": {
@@ -1408,7 +1408,7 @@
       "hash": "cb328a26968e8a66",
       "size": 356,
       "mtimeMs": 1783780454104.0908,
-      "updatedAt": "2026-07-25T21:00:00.141Z",
+      "updatedAt": "2026-07-26T15:00:00.090Z",
       "source": "scan"
     },
     "client/src/atlasTexture.ts": {
@@ -1417,8 +1417,8 @@
       "hash": "9d8a0c3f50066d75",
       "size": 22476,
       "mtimeMs": 1785028278838.7336,
-      "updatedAt": "2026-07-26T01:11:18.938Z",
-      "source": "hook",
+      "updatedAt": "2026-07-26T15:00:00.090Z",
+      "source": "scan",
       "symbols": [
         {
           "name": "pixelHash",
@@ -1624,7 +1624,7 @@
       "hash": "afbc574f47a18f11",
       "size": 3510,
       "mtimeMs": 1783904198285.4753,
-      "updatedAt": "2026-07-25T21:00:00.144Z",
+      "updatedAt": "2026-07-26T15:00:00.090Z",
       "source": "scan",
       "symbols": [
         {
@@ -1677,7 +1677,7 @@
       "hash": "7570fc0ddfabaf43",
       "size": 2365,
       "mtimeMs": 1784738095783.393,
-      "updatedAt": "2026-07-25T21:00:00.144Z",
+      "updatedAt": "2026-07-26T15:00:00.090Z",
       "source": "scan",
       "symbols": [
         {
@@ -1702,7 +1702,7 @@
       "hash": "bf2d6e90262c1ed0",
       "size": 7816,
       "mtimeMs": 1784956149378.733,
-      "updatedAt": "2026-07-25T21:00:00.145Z",
+      "updatedAt": "2026-07-26T15:00:00.091Z",
       "source": "scan",
       "symbols": [
         {
@@ -1727,7 +1727,7 @@
       "hash": "91cdc3c378b0e9e7",
       "size": 5376,
       "mtimeMs": 1784238080482.2207,
-      "updatedAt": "2026-07-25T21:00:00.145Z",
+      "updatedAt": "2026-07-26T15:00:00.091Z",
       "source": "scan",
       "symbols": [
         {
@@ -1745,8 +1745,8 @@
       "hash": "c1d2ef1a1b3d30ad",
       "size": 6865,
       "mtimeMs": 1785028257118.734,
-      "updatedAt": "2026-07-26T01:10:57.231Z",
-      "source": "hook",
+      "updatedAt": "2026-07-26T15:00:00.091Z",
+      "source": "scan",
       "symbols": [
         {
           "name": "ChunkRenderer",
@@ -1763,7 +1763,7 @@
       "hash": "2da8a52c081fbba7",
       "size": 3034,
       "mtimeMs": 1784476824069.7625,
-      "updatedAt": "2026-07-25T21:00:00.147Z",
+      "updatedAt": "2026-07-26T15:00:00.092Z",
       "source": "scan",
       "symbols": [
         {
@@ -1802,7 +1802,7 @@
       "hash": "7e31ae88ebfacae9",
       "size": 4202,
       "mtimeMs": 1784509275453.7615,
-      "updatedAt": "2026-07-25T21:00:00.147Z",
+      "updatedAt": "2026-07-26T15:00:00.092Z",
       "source": "scan",
       "symbols": [
         {
@@ -1841,7 +1841,7 @@
       "hash": "4ad4d2d7482c448a",
       "size": 8042,
       "mtimeMs": 1784496161113.7634,
-      "updatedAt": "2026-07-25T21:00:00.148Z",
+      "updatedAt": "2026-07-26T15:00:00.092Z",
       "source": "scan",
       "symbols": [
         {
@@ -1866,7 +1866,7 @@
       "hash": "fc6c4f92373594db",
       "size": 642,
       "mtimeMs": 1783904192477.4753,
-      "updatedAt": "2026-07-25T21:00:00.148Z",
+      "updatedAt": "2026-07-26T15:00:00.092Z",
       "source": "scan"
     },
     "client/src/hud.ts": {
@@ -1875,7 +1875,7 @@
       "hash": "5c1b9cf3038a88fd",
       "size": 11966,
       "mtimeMs": 1784846069076.3035,
-      "updatedAt": "2026-07-25T21:00:00.149Z",
+      "updatedAt": "2026-07-26T15:00:00.092Z",
       "source": "scan",
       "symbols": [
         {
@@ -1907,7 +1907,7 @@
       "hash": "27699c56618b7afe",
       "size": 5431,
       "mtimeMs": 1784226590774.2207,
-      "updatedAt": "2026-07-25T21:00:00.150Z",
+      "updatedAt": "2026-07-26T15:00:00.093Z",
       "source": "scan",
       "symbols": [
         {
@@ -1925,7 +1925,7 @@
       "hash": "5e2b92450fae104c",
       "size": 5109,
       "mtimeMs": 1784597774572.6829,
-      "updatedAt": "2026-07-25T21:00:00.150Z",
+      "updatedAt": "2026-07-26T15:00:00.093Z",
       "source": "scan",
       "symbols": [
         {
@@ -1943,8 +1943,8 @@
       "hash": "c54bad08e73e915a",
       "size": 62438,
       "mtimeMs": 1785029515434.7324,
-      "updatedAt": "2026-07-26T01:31:55.552Z",
-      "source": "hook",
+      "updatedAt": "2026-07-26T15:00:00.094Z",
+      "source": "scan",
       "symbols": [
         {
           "name": "cachearMundos",
@@ -2087,7 +2087,7 @@
       "hash": "2d456c09d2930957",
       "size": 15665,
       "mtimeMs": 1784655113714.7642,
-      "updatedAt": "2026-07-25T21:00:00.153Z",
+      "updatedAt": "2026-07-26T15:00:00.095Z",
       "source": "scan",
       "symbols": [
         {
@@ -2182,7 +2182,7 @@
       "hash": "e4e4e002740da62b",
       "size": 4391,
       "mtimeMs": 1783911067353.4763,
-      "updatedAt": "2026-07-25T21:00:00.154Z",
+      "updatedAt": "2026-07-26T15:00:00.095Z",
       "source": "scan",
       "symbols": [
         {
@@ -2207,7 +2207,7 @@
       "hash": "03eb67bd211b8fd6",
       "size": 20951,
       "mtimeMs": 1784654762914.7644,
-      "updatedAt": "2026-07-25T21:00:00.155Z",
+      "updatedAt": "2026-07-26T15:00:00.096Z",
       "source": "scan",
       "symbols": [
         {
@@ -2253,7 +2253,7 @@
       "hash": "6e59d99c61a65ad6",
       "size": 5868,
       "mtimeMs": 1784654719646.7644,
-      "updatedAt": "2026-07-25T21:00:00.156Z",
+      "updatedAt": "2026-07-26T15:00:00.096Z",
       "source": "scan",
       "symbols": [
         {
@@ -2278,7 +2278,7 @@
       "hash": "f0753194956c8350",
       "size": 11097,
       "mtimeMs": 1784503965169.7603,
-      "updatedAt": "2026-07-25T21:00:00.157Z",
+      "updatedAt": "2026-07-26T15:00:00.097Z",
       "source": "scan",
       "symbols": [
         {
@@ -2317,7 +2317,7 @@
       "hash": "7c306ce28b388905",
       "size": 2427,
       "mtimeMs": 1783904202105.4753,
-      "updatedAt": "2026-07-25T21:00:00.157Z",
+      "updatedAt": "2026-07-26T15:00:00.097Z",
       "source": "scan",
       "symbols": [
         {
@@ -2335,7 +2335,7 @@
       "hash": "7f0ea81abb885722",
       "size": 4230,
       "mtimeMs": 1784655004662.7656,
-      "updatedAt": "2026-07-25T21:00:00.158Z",
+      "updatedAt": "2026-07-26T15:00:00.097Z",
       "source": "scan",
       "symbols": [
         {
@@ -2381,7 +2381,7 @@
       "hash": "175b2de972a44340",
       "size": 3523,
       "mtimeMs": 1784495699493.7593,
-      "updatedAt": "2026-07-25T21:00:00.159Z",
+      "updatedAt": "2026-07-26T15:00:00.097Z",
       "source": "scan",
       "symbols": [
         {
@@ -2434,7 +2434,7 @@
       "hash": "d7dc6741af4fb8ca",
       "size": 3502,
       "mtimeMs": 1784299250932.3687,
-      "updatedAt": "2026-07-25T21:00:00.159Z",
+      "updatedAt": "2026-07-26T15:00:00.098Z",
       "source": "scan",
       "symbols": [
         {
@@ -2452,7 +2452,7 @@
       "hash": "b573cbbab6d5c146",
       "size": 10882,
       "mtimeMs": 1784655078922.764,
-      "updatedAt": "2026-07-25T21:00:00.160Z",
+      "updatedAt": "2026-07-26T15:00:00.098Z",
       "source": "scan",
       "symbols": [
         {
@@ -2491,7 +2491,7 @@
       "hash": "e6025ab17cb2b065",
       "size": 2745,
       "mtimeMs": 1783822470725.4783,
-      "updatedAt": "2026-07-25T21:00:00.161Z",
+      "updatedAt": "2026-07-26T15:00:00.098Z",
       "source": "scan",
       "symbols": [
         {
@@ -2558,7 +2558,7 @@
       "hash": "bf2a471c0429f519",
       "size": 136,
       "mtimeMs": 1783780454104.0908,
-      "updatedAt": "2026-07-25T21:00:00.161Z",
+      "updatedAt": "2026-07-26T15:00:00.098Z",
       "source": "scan"
     },
     "client/vite.config.ts": {
@@ -2567,7 +2567,7 @@
       "hash": "16825100bb7507ec",
       "size": 331,
       "mtimeMs": 1784037564732.0417,
-      "updatedAt": "2026-07-25T21:00:00.162Z",
+      "updatedAt": "2026-07-26T15:00:00.098Z",
       "source": "scan"
     },
     "iniciar-servidor.bat": {
@@ -2576,7 +2576,7 @@
       "hash": "e3944995fc5b4bf1",
       "size": 5856,
       "mtimeMs": 1784807101244.303,
-      "updatedAt": "2026-07-25T21:00:00.163Z",
+      "updatedAt": "2026-07-26T15:00:00.099Z",
       "source": "scan"
     },
     "iniciar-servidor.sh": {
@@ -2585,7 +2585,7 @@
       "hash": "d33a3cdf0419fd0e",
       "size": 4711,
       "mtimeMs": 1784807123356.3027,
-      "updatedAt": "2026-07-25T21:00:00.164Z",
+      "updatedAt": "2026-07-26T15:00:00.099Z",
       "source": "scan"
     },
     "mundos/aula1-sequencia/chat.log": {
@@ -2594,7 +2594,7 @@
       "hash": "92a244e02a1c62db",
       "size": 398,
       "mtimeMs": 1784931198712.857,
-      "updatedAt": "2026-07-25T21:00:00.166Z",
+      "updatedAt": "2026-07-26T15:00:00.100Z",
       "source": "scan"
     },
     "mundos/flor-world/chat.log": {
@@ -2603,7 +2603,7 @@
       "hash": "d3835fd3983ad094",
       "size": 1644,
       "mtimeMs": 1784936235584.8582,
-      "updatedAt": "2026-07-25T21:00:00.167Z",
+      "updatedAt": "2026-07-26T15:00:00.100Z",
       "source": "scan"
     },
     "mundos/jstage/chat.log": {
@@ -2612,16 +2612,16 @@
       "hash": "d999722ef31ab9c5",
       "size": 511,
       "mtimeMs": 1784576416364.3574,
-      "updatedAt": "2026-07-25T21:00:00.168Z",
+      "updatedAt": "2026-07-26T15:00:00.100Z",
       "source": "scan"
     },
     "mundos/mundo-livre/chat.log": {
       "description": "",
-      "tokens": 890,
-      "hash": "0a9680af9b041e83",
-      "size": 3470,
-      "mtimeMs": 1784984105458.7349,
-      "updatedAt": "2026-07-25T21:00:00.169Z",
+      "tokens": 1023,
+      "hash": "343bb62d7a1aef37",
+      "size": 3990,
+      "mtimeMs": 1785029598694.7322,
+      "updatedAt": "2026-07-26T15:00:00.100Z",
       "source": "scan"
     },
     "mundos/stage/chat.log": {
@@ -2630,7 +2630,7 @@
       "hash": "a3b9c881558668e6",
       "size": 1898,
       "mtimeMs": 1784585650092.3542,
-      "updatedAt": "2026-07-25T21:00:00.170Z",
+      "updatedAt": "2026-07-26T15:00:00.101Z",
       "source": "scan"
     },
     "mundos/teste-biomas/chat.log": {
@@ -2639,7 +2639,7 @@
       "hash": "55206f4a0abf64f7",
       "size": 1275,
       "mtimeMs": 1784598715358.7644,
-      "updatedAt": "2026-07-25T21:00:00.171Z",
+      "updatedAt": "2026-07-26T15:00:00.101Z",
       "source": "scan"
     },
     "package-lock.json": {
@@ -2648,7 +2648,7 @@
       "hash": "2b4b12182c883350",
       "size": 70418,
       "mtimeMs": 1784656608982.763,
-      "updatedAt": "2026-07-25T21:00:00.173Z",
+      "updatedAt": "2026-07-26T15:00:00.101Z",
       "source": "scan"
     },
     "package.json": {
@@ -2657,7 +2657,7 @@
       "hash": "a39542c4caca0b50",
       "size": 571,
       "mtimeMs": 1784656608978.763,
-      "updatedAt": "2026-07-25T21:00:00.173Z",
+      "updatedAt": "2026-07-26T15:00:00.101Z",
       "source": "scan"
     },
     "profiles/perf-1784923796301-gius.json": {
@@ -2666,7 +2666,7 @@
       "hash": "6b1fd088047de085",
       "size": 1687,
       "mtimeMs": 1784923796296.8596,
-      "updatedAt": "2026-07-25T21:00:00.175Z",
+      "updatedAt": "2026-07-26T15:00:00.103Z",
       "source": "scan"
     },
     "profiles/perf-1784923813150-01rx.json": {
@@ -2675,7 +2675,7 @@
       "hash": "6c38b0a4d7ac297c",
       "size": 1689,
       "mtimeMs": 1784923813144.8596,
-      "updatedAt": "2026-07-25T21:00:00.175Z",
+      "updatedAt": "2026-07-26T15:00:00.103Z",
       "source": "scan"
     },
     "projeto.txt": {
@@ -2684,7 +2684,7 @@
       "hash": "f19fe7802d1fba27",
       "size": 19459,
       "mtimeMs": 1783780454112.0908,
-      "updatedAt": "2026-07-25T21:00:00.177Z",
+      "updatedAt": "2026-07-26T15:00:00.103Z",
       "source": "scan"
     },
     "registros/perfilador-v0.8.0-escola.md": {
@@ -2693,7 +2693,7 @@
       "hash": "02f8ee6daeb3303b",
       "size": 4719,
       "mtimeMs": 1784846189756.3027,
-      "updatedAt": "2026-07-25T21:00:00.178Z",
+      "updatedAt": "2026-07-26T15:00:00.104Z",
       "source": "scan"
     },
     "registros/prints/README.md": {
@@ -2702,7 +2702,7 @@
       "hash": "9b3be794838de50d",
       "size": 2321,
       "mtimeMs": 1784850121824.3022,
-      "updatedAt": "2026-07-25T21:00:00.178Z",
+      "updatedAt": "2026-07-26T15:00:00.104Z",
       "source": "scan"
     },
     "registros/README.md": {
@@ -2711,7 +2711,7 @@
       "hash": "41bb69e1ba49d933",
       "size": 1217,
       "mtimeMs": 1784846149164.3032,
-      "updatedAt": "2026-07-25T21:00:00.179Z",
+      "updatedAt": "2026-07-26T15:00:00.104Z",
       "source": "scan"
     },
     "relatorio/relatorio-aplicacao.md": {
@@ -2720,7 +2720,7 @@
       "hash": "c580d79bd4755a72",
       "size": 21434,
       "mtimeMs": 1784948795262.7332,
-      "updatedAt": "2026-07-25T21:00:00.181Z",
+      "updatedAt": "2026-07-26T15:00:00.105Z",
       "source": "scan"
     },
     "server/package.json": {
@@ -2729,7 +2729,7 @@
       "hash": "6327a023bd75a1a3",
       "size": 416,
       "mtimeMs": 1784035016068.0422,
-      "updatedAt": "2026-07-25T21:00:00.183Z",
+      "updatedAt": "2026-07-26T15:00:00.105Z",
       "source": "scan"
     },
     "server/src/cenarios/_smoke-atividade.mjs": {
@@ -2738,7 +2738,7 @@
       "hash": "e6a1261fbd6332fc",
       "size": 2992,
       "mtimeMs": 1784134174015.411,
-      "updatedAt": "2026-07-25T21:00:00.185Z",
+      "updatedAt": "2026-07-26T15:00:00.106Z",
       "source": "scan",
       "symbols": [
         {
@@ -2777,7 +2777,7 @@
       "hash": "555a3af315df28d2",
       "size": 2818,
       "mtimeMs": 1784557717836.3572,
-      "updatedAt": "2026-07-25T21:00:00.186Z",
+      "updatedAt": "2026-07-26T15:00:00.106Z",
       "source": "scan",
       "symbols": [
         {
@@ -2816,7 +2816,7 @@
       "hash": "6aa98812a9d3152a",
       "size": 3214,
       "mtimeMs": 1784134146807.4106,
-      "updatedAt": "2026-07-25T21:00:00.188Z",
+      "updatedAt": "2026-07-26T15:00:00.106Z",
       "source": "scan",
       "symbols": [
         {
@@ -2848,7 +2848,7 @@
       "hash": "b3239db0c1e65b7a",
       "size": 19016,
       "mtimeMs": 1784517237060.3562,
-      "updatedAt": "2026-07-25T21:00:00.190Z",
+      "updatedAt": "2026-07-26T15:00:00.107Z",
       "source": "scan",
       "symbols": [
         {
@@ -2908,7 +2908,7 @@
       "hash": "b23cf401d35ded19",
       "size": 6663,
       "mtimeMs": 1784517263524.3567,
-      "updatedAt": "2026-07-25T21:00:00.191Z",
+      "updatedAt": "2026-07-26T15:00:00.107Z",
       "source": "scan",
       "symbols": [
         {
@@ -2961,7 +2961,7 @@
       "hash": "e55aa8abba4ff0b4",
       "size": 22001,
       "mtimeMs": 1784846094124.3035,
-      "updatedAt": "2026-07-25T21:00:00.192Z",
+      "updatedAt": "2026-07-26T15:00:00.108Z",
       "source": "scan",
       "symbols": [
         {
@@ -3028,7 +3028,7 @@
       "hash": "b16c212d98c47bd1",
       "size": 6862,
       "mtimeMs": 1784559086856.3574,
-      "updatedAt": "2026-07-25T21:00:00.193Z",
+      "updatedAt": "2026-07-26T15:00:00.109Z",
       "source": "scan",
       "symbols": [
         {
@@ -3074,7 +3074,7 @@
       "hash": "4e26cf36c38fc5a7",
       "size": 3252,
       "mtimeMs": 1784559009932.3584,
-      "updatedAt": "2026-07-25T21:00:00.194Z",
+      "updatedAt": "2026-07-26T15:00:00.109Z",
       "source": "scan",
       "symbols": [
         {
@@ -3099,7 +3099,7 @@
       "hash": "95c3c4725f764a96",
       "size": 3730,
       "mtimeMs": 1784050273432.041,
-      "updatedAt": "2026-07-25T21:00:00.196Z",
+      "updatedAt": "2026-07-26T15:00:00.109Z",
       "source": "scan",
       "symbols": [
         {
@@ -3131,7 +3131,7 @@
       "hash": "eabf45132bc16012",
       "size": 2968,
       "mtimeMs": 1784627833542.764,
-      "updatedAt": "2026-07-25T21:00:00.197Z",
+      "updatedAt": "2026-07-26T15:00:00.109Z",
       "source": "scan",
       "symbols": [
         {
@@ -3149,7 +3149,7 @@
       "hash": "38f8c30a652950e8",
       "size": 149,
       "mtimeMs": 1783800698780.0908,
-      "updatedAt": "2026-07-25T21:00:00.197Z",
+      "updatedAt": "2026-07-26T15:00:00.109Z",
       "source": "scan"
     },
     "shared/package.json": {
@@ -3158,7 +3158,7 @@
       "hash": "b269352ac97149eb",
       "size": 194,
       "mtimeMs": 1783780454112.0908,
-      "updatedAt": "2026-07-25T21:00:00.198Z",
+      "updatedAt": "2026-07-26T15:00:00.110Z",
       "source": "scan"
     },
     "shared/src/arvores.test.ts": {
@@ -3167,7 +3167,7 @@
       "hash": "beb0e1537852027d",
       "size": 2325,
       "mtimeMs": 1784594589156.3552,
-      "updatedAt": "2026-07-25T21:00:00.201Z",
+      "updatedAt": "2026-07-26T15:00:00.110Z",
       "source": "scan"
     },
     "shared/src/arvores.ts": {
@@ -3176,7 +3176,7 @@
       "hash": "12bfe62e77def2a6",
       "size": 5819,
       "mtimeMs": 1784653234218.7644,
-      "updatedAt": "2026-07-25T21:00:00.202Z",
+      "updatedAt": "2026-07-26T15:00:00.110Z",
       "source": "scan",
       "symbols": [
         {
@@ -3236,7 +3236,7 @@
       "hash": "29e5d3d6a88b634f",
       "size": 1510,
       "mtimeMs": 1784393177754.9072,
-      "updatedAt": "2026-07-25T21:00:00.202Z",
+      "updatedAt": "2026-07-26T15:00:00.111Z",
       "source": "scan"
     },
     "shared/src/auth.ts": {
@@ -3245,7 +3245,7 @@
       "hash": "3f085ad28ebc2dee",
       "size": 1729,
       "mtimeMs": 1784393091074.9092,
-      "updatedAt": "2026-07-25T21:00:00.203Z",
+      "updatedAt": "2026-07-26T15:00:00.111Z",
       "source": "scan"
     },
     "shared/src/biomas.ts": {
@@ -3254,7 +3254,7 @@
       "hash": "6cfe7ba667793cf9",
       "size": 3138,
       "mtimeMs": 1784592884628.3572,
-      "updatedAt": "2026-07-25T21:00:00.205Z",
+      "updatedAt": "2026-07-26T15:00:00.111Z",
       "source": "scan",
       "symbols": [
         {
@@ -3293,7 +3293,7 @@
       "hash": "4966b879aff281dc",
       "size": 7138,
       "mtimeMs": 1784956021986.7349,
-      "updatedAt": "2026-07-25T21:00:00.206Z",
+      "updatedAt": "2026-07-26T15:00:00.112Z",
       "source": "scan"
     },
     "shared/src/blocks.ts": {
@@ -3302,7 +3302,7 @@
       "hash": "d35b9947262c8e7f",
       "size": 24181,
       "mtimeMs": 1784955566054.7349,
-      "updatedAt": "2026-07-25T21:00:00.208Z",
+      "updatedAt": "2026-07-26T15:00:00.113Z",
       "source": "scan",
       "symbols": [
         {
@@ -3523,7 +3523,7 @@
       "hash": "7665ac1dd79895f9",
       "size": 12016,
       "mtimeMs": 1784654888662.7651,
-      "updatedAt": "2026-07-25T21:00:00.209Z",
+      "updatedAt": "2026-07-26T15:00:00.113Z",
       "source": "scan",
       "symbols": [
         {
@@ -3569,7 +3569,7 @@
       "hash": "0ee5b1d0b1d04a22",
       "size": 3727,
       "mtimeMs": 1784654324730.7644,
-      "updatedAt": "2026-07-25T21:00:00.210Z",
+      "updatedAt": "2026-07-26T15:00:00.113Z",
       "source": "scan",
       "symbols": [
         {
@@ -3622,7 +3622,7 @@
       "hash": "6ab1809f9889e7ac",
       "size": 8798,
       "mtimeMs": 1784340400012.3667,
-      "updatedAt": "2026-07-25T21:00:00.212Z",
+      "updatedAt": "2026-07-26T15:00:00.114Z",
       "source": "scan",
       "symbols": [
         {
@@ -3689,7 +3689,7 @@
       "hash": "45412e368dc7cda5",
       "size": 1827,
       "mtimeMs": 1784764145511.3923,
-      "updatedAt": "2026-07-25T21:00:00.214Z",
+      "updatedAt": "2026-07-26T15:00:00.114Z",
       "source": "scan"
     },
     "shared/src/cp14.test.ts": {
@@ -3698,7 +3698,7 @@
       "hash": "2d381e5b77f2bf4b",
       "size": 7001,
       "mtimeMs": 1784220873934.2222,
-      "updatedAt": "2026-07-25T21:00:00.215Z",
+      "updatedAt": "2026-07-26T15:00:00.114Z",
       "source": "scan",
       "symbols": [
         {
@@ -3737,7 +3737,7 @@
       "hash": "b96c36079c90da61",
       "size": 28462,
       "mtimeMs": 1784583813676.356,
-      "updatedAt": "2026-07-25T21:00:00.217Z",
+      "updatedAt": "2026-07-26T15:00:00.115Z",
       "source": "scan",
       "symbols": [
         {
@@ -3755,7 +3755,7 @@
       "hash": "d9fa52f95bebb7d1",
       "size": 13548,
       "mtimeMs": 1784140932259.4033,
-      "updatedAt": "2026-07-25T21:00:00.219Z",
+      "updatedAt": "2026-07-26T15:00:00.115Z",
       "source": "scan",
       "symbols": [
         {
@@ -3794,7 +3794,7 @@
       "hash": "5256d9b9535d2376",
       "size": 987,
       "mtimeMs": 1783908749009.4753,
-      "updatedAt": "2026-07-25T21:00:00.219Z",
+      "updatedAt": "2026-07-26T15:00:00.115Z",
       "source": "scan"
     },
     "shared/src/index.ts": {
@@ -3803,7 +3803,7 @@
       "hash": "74ae7c39c074b5d7",
       "size": 530,
       "mtimeMs": 1784592990196.3564,
-      "updatedAt": "2026-07-25T21:00:00.221Z",
+      "updatedAt": "2026-07-26T15:00:00.116Z",
       "source": "scan"
     },
     "shared/src/mesher.test.ts": {
@@ -3812,8 +3812,8 @@
       "hash": "896a8ff1a3be6a46",
       "size": 5701,
       "mtimeMs": 1785028348338.7332,
-      "updatedAt": "2026-07-26T01:12:28.434Z",
-      "source": "hook"
+      "updatedAt": "2026-07-26T15:00:00.116Z",
+      "source": "scan"
     },
     "shared/src/mesher.ts": {
       "description": "Culled mesher: função PURA (bytes do mundo → geometria). Só emite faces que",
@@ -3821,8 +3821,8 @@
       "hash": "e67c2bbcf60725b3",
       "size": 34426,
       "mtimeMs": 1785028245986.7336,
-      "updatedAt": "2026-07-26T01:10:46.084Z",
-      "source": "hook",
+      "updatedAt": "2026-07-26T15:00:00.117Z",
+      "source": "scan",
       "symbols": [
         {
           "name": "FaceTiles",
@@ -3902,8 +3902,8 @@
       "hash": "722a94e3f885648d",
       "size": 15748,
       "mtimeMs": 1785028387002.7332,
-      "updatedAt": "2026-07-26T01:13:07.103Z",
-      "source": "hook",
+      "updatedAt": "2026-07-26T15:00:00.117Z",
+      "source": "scan",
       "symbols": [
         {
           "name": "flatWorld",
@@ -3927,8 +3927,8 @@
       "hash": "bd70bc9248b8a24c",
       "size": 18386,
       "mtimeMs": 1785028382058.7332,
-      "updatedAt": "2026-07-26T01:13:02.184Z",
-      "source": "hook",
+      "updatedAt": "2026-07-26T15:00:00.118Z",
+      "source": "scan",
       "symbols": [
         {
           "name": "Vec3",
@@ -4043,7 +4043,7 @@
       "hash": "52d597dc3858d9cc",
       "size": 11232,
       "mtimeMs": 1784738256415.3926,
-      "updatedAt": "2026-07-25T21:00:00.227Z",
+      "updatedAt": "2026-07-26T15:00:00.118Z",
       "source": "scan"
     },
     "shared/src/protocol.ts": {
@@ -4052,7 +4052,7 @@
       "hash": "3fb57f74d05e94a5",
       "size": 29248,
       "mtimeMs": 1784738019623.393,
-      "updatedAt": "2026-07-25T21:00:00.229Z",
+      "updatedAt": "2026-07-26T15:00:00.119Z",
       "source": "scan",
       "symbols": [
         {
@@ -4140,7 +4140,7 @@
       "hash": "56b3386e00f831e0",
       "size": 5640,
       "mtimeMs": 1784504065673.7603,
-      "updatedAt": "2026-07-25T21:00:00.230Z",
+      "updatedAt": "2026-07-26T15:00:00.119Z",
       "source": "scan",
       "symbols": [
         {
@@ -4158,7 +4158,7 @@
       "hash": "b67b9f1e807b2514",
       "size": 1903,
       "mtimeMs": 1784503766657.7568,
-      "updatedAt": "2026-07-25T21:00:00.231Z",
+      "updatedAt": "2026-07-26T15:00:00.119Z",
       "source": "scan",
       "symbols": [
         {
@@ -4190,7 +4190,7 @@
       "hash": "a1d9d0fc1d08eb29",
       "size": 3710,
       "mtimeMs": 1784731907611.3936,
-      "updatedAt": "2026-07-25T21:00:00.232Z",
+      "updatedAt": "2026-07-26T15:00:00.120Z",
       "source": "scan",
       "symbols": [
         {
@@ -4208,7 +4208,7 @@
       "hash": "9c3d162090163628",
       "size": 5745,
       "mtimeMs": 1784737998035.3933,
-      "updatedAt": "2026-07-25T21:00:00.233Z",
+      "updatedAt": "2026-07-26T15:00:00.120Z",
       "source": "scan",
       "symbols": [
         {
@@ -4240,7 +4240,7 @@
       "hash": "242d36f406756874",
       "size": 12364,
       "mtimeMs": 1784296351544.3696,
-      "updatedAt": "2026-07-25T21:00:00.235Z",
+      "updatedAt": "2026-07-26T15:00:00.120Z",
       "source": "scan",
       "symbols": [
         {
@@ -4279,7 +4279,7 @@
       "hash": "6b81b99d9c62aa99",
       "size": 2669,
       "mtimeMs": 1783903813957.476,
-      "updatedAt": "2026-07-25T21:00:00.236Z",
+      "updatedAt": "2026-07-26T15:00:00.121Z",
       "source": "scan",
       "symbols": [
         {
@@ -4339,7 +4339,7 @@
       "hash": "b0bf534f83fda70c",
       "size": 2583,
       "mtimeMs": 1784496603029.764,
-      "updatedAt": "2026-07-25T21:00:00.238Z",
+      "updatedAt": "2026-07-26T15:00:00.121Z",
       "source": "scan"
     },
     "shared/src/rules.ts": {
@@ -4348,7 +4348,7 @@
       "hash": "4c10c77e4626554d",
       "size": 12161,
       "mtimeMs": 1784807316376.305,
-      "updatedAt": "2026-07-25T21:00:00.239Z",
+      "updatedAt": "2026-07-26T15:00:00.121Z",
       "source": "scan",
       "symbols": [
         {
@@ -4408,7 +4408,7 @@
       "hash": "05525b3e15050653",
       "size": 3624,
       "mtimeMs": 1784627896830.7642,
-      "updatedAt": "2026-07-25T21:00:00.240Z",
+      "updatedAt": "2026-07-26T15:00:00.121Z",
       "source": "scan",
       "symbols": [
         {
@@ -4426,7 +4426,7 @@
       "hash": "c42c0647f0aa07d8",
       "size": 5117,
       "mtimeMs": 1784211046370.2214,
-      "updatedAt": "2026-07-25T21:00:00.241Z",
+      "updatedAt": "2026-07-26T15:00:00.122Z",
       "source": "scan"
     },
     "shared/src/save.ts": {
@@ -4435,7 +4435,7 @@
       "hash": "5f373305332fd9fb",
       "size": 13407,
       "mtimeMs": 1784654486558.7646,
-      "updatedAt": "2026-07-25T21:00:00.242Z",
+      "updatedAt": "2026-07-26T15:00:00.122Z",
       "source": "scan",
       "symbols": [
         {
@@ -4509,7 +4509,7 @@
       "hash": "ccfee5c9091cac23",
       "size": 14472,
       "mtimeMs": 1784222581962.2236,
-      "updatedAt": "2026-07-25T21:00:00.243Z",
+      "updatedAt": "2026-07-26T15:00:00.123Z",
       "source": "scan",
       "symbols": [
         {
@@ -4548,7 +4548,7 @@
       "hash": "bf2e80b898f1669a",
       "size": 13017,
       "mtimeMs": 1784299192544.3682,
-      "updatedAt": "2026-07-25T21:00:00.245Z",
+      "updatedAt": "2026-07-26T15:00:00.123Z",
       "source": "scan",
       "symbols": [
         {
@@ -4664,7 +4664,7 @@
       "hash": "4d61f34391426209",
       "size": 46057,
       "mtimeMs": 1784764734383.3923,
-      "updatedAt": "2026-07-25T21:00:00.247Z",
+      "updatedAt": "2026-07-26T15:00:00.124Z",
       "source": "scan",
       "symbols": [
         {
@@ -4682,7 +4682,7 @@
       "hash": "6ee50a7beef5d24a",
       "size": 134526,
       "mtimeMs": 1784764183019.3923,
-      "updatedAt": "2026-07-25T21:00:00.253Z",
+      "updatedAt": "2026-07-26T15:00:00.128Z",
       "source": "scan",
       "symbols": [
         {
@@ -4728,7 +4728,7 @@
       "hash": "67586e3fc0ac15a3",
       "size": 11470,
       "mtimeMs": 1784628472226.764,
-      "updatedAt": "2026-07-25T21:00:00.254Z",
+      "updatedAt": "2026-07-26T15:00:00.129Z",
       "source": "scan",
       "symbols": [
         {
@@ -4753,7 +4753,7 @@
       "hash": "bda58c4b9b1c5c9b",
       "size": 5288,
       "mtimeMs": 1784570408024.357,
-      "updatedAt": "2026-07-25T21:00:00.255Z",
+      "updatedAt": "2026-07-26T15:00:00.129Z",
       "source": "scan",
       "symbols": [
         {
@@ -4771,7 +4771,7 @@
       "hash": "d56c16d4448cf3db",
       "size": 477,
       "mtimeMs": 1784590216096.3562,
-      "updatedAt": "2026-07-25T21:00:00.256Z",
+      "updatedAt": "2026-07-26T15:00:00.129Z",
       "source": "scan"
     },
     "shared/src/water.test.ts": {
@@ -4780,7 +4780,7 @@
       "hash": "bbeb0963b565385d",
       "size": 5931,
       "mtimeMs": 1784764307803.3923,
-      "updatedAt": "2026-07-25T21:00:00.257Z",
+      "updatedAt": "2026-07-26T15:00:00.129Z",
       "source": "scan",
       "symbols": [
         {
@@ -4805,7 +4805,7 @@
       "hash": "93ffe28bddf5ec41",
       "size": 3044,
       "mtimeMs": 1784653238530.7644,
-      "updatedAt": "2026-07-25T21:00:00.259Z",
+      "updatedAt": "2026-07-26T15:00:00.129Z",
       "source": "scan"
     },
     "shared/src/world.ts": {
@@ -4814,7 +4814,7 @@
       "hash": "4da42d7db38977a3",
       "size": 4208,
       "mtimeMs": 1784599423830.7646,
-      "updatedAt": "2026-07-25T21:00:00.260Z",
+      "updatedAt": "2026-07-26T15:00:00.130Z",
       "source": "scan",
       "symbols": [
         {
@@ -4902,7 +4902,7 @@
       "hash": "7c8240f4eafa5948",
       "size": 8573,
       "mtimeMs": 1784599645774.7634,
-      "updatedAt": "2026-07-25T21:00:00.262Z",
+      "updatedAt": "2026-07-26T15:00:00.130Z",
       "source": "scan"
     },
     "shared/src/worldgen.ts": {
@@ -4911,7 +4911,7 @@
       "hash": "fda87c0bdf69c68b",
       "size": 16654,
       "mtimeMs": 1784600393378.7651,
-      "updatedAt": "2026-07-25T21:00:00.264Z",
+      "updatedAt": "2026-07-26T15:00:00.131Z",
       "source": "scan",
       "symbols": [
         {
@@ -5055,7 +5055,7 @@
       "hash": "0baa7dd48e8a2672",
       "size": 63,
       "mtimeMs": 1783780454116.0908,
-      "updatedAt": "2026-07-25T21:00:00.264Z",
+      "updatedAt": "2026-07-26T15:00:00.131Z",
       "source": "scan"
     },
     "todo.md": {
@@ -5064,7 +5064,7 @@
       "hash": "0d8759f635ff2523",
       "size": 28773,
       "mtimeMs": 1784956266582.7344,
-      "updatedAt": "2026-07-25T21:00:00.266Z",
+      "updatedAt": "2026-07-26T15:00:00.131Z",
       "source": "scan"
     },
     "tsconfig.base.json": {
@@ -5073,7 +5073,7 @@
       "hash": "d0e4e177b21f3848",
       "size": 452,
       "mtimeMs": 1784590204344.3562,
-      "updatedAt": "2026-07-25T21:00:00.267Z",
+      "updatedAt": "2026-07-26T15:00:00.131Z",
       "source": "scan"
     }
   }
