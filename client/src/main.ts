@@ -1609,6 +1609,7 @@ function startGame(snap: Snapshot): void {
     count: chunkRenderer.remeshCount,
     totalMs: chunkRenderer.remeshMsTotal,
     workerMs: chunkRenderer.remeshWorkerMsTotal,
+    config: chunkRenderer.meshConfig,
     lastMs: chunkRenderer.lastRemeshMs,
     porCaminho: chunkRenderer.porCaminho,
   });
@@ -1992,6 +1993,7 @@ function startGame(snap: Snapshot): void {
       count: chunkRenderer.remeshCount,
       totalMs: chunkRenderer.remeshMsTotal,
       workerMs: chunkRenderer.remeshWorkerMsTotal,
+      config: chunkRenderer.meshConfig,
       lastMs: chunkRenderer.lastRemeshMs,
       porCaminho: chunkRenderer.porCaminho, // este é 1×/frame: sem isto some
     });

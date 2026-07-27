@@ -15,10 +15,19 @@
       50 → 36 por trabalho duplicado (+45%) e falta de freio. Diagnóstico na STATUS.
 - [x] **Coalescência (`chavesEmVoo`/`sujosEmVoo`) + freio por fase (`modoCarga`, 8 na carga
       / 2 no jogo) + knob `?meshdepth=N`** — codado, 334 testes verdes, headless fecha fila 0.
-- [ ] **FECHAR O KNOB NO LAB** (é do usuário, UMA sessão): `?bench`, `?bench&meshdepth=1`,
-      `?bench&meshdepth=4`. Critério: **maior `meshdepth` com `fila 0` e FPS ≥ 50**.
-      Alvo: carga ~5 s (contra 11,5 s do síncrono) sem perder o FPS do síncrono.
-      ⚠️ Nenhum knob passa do teto de GPU: p95 19,6 ms > 16,7 ms.
+- [x] **KNOB FECHADO NO LAB** (6 rodadas, bateria+tomada): `PROFUNDIDADE_JOGO = 1`. Empata o
+      FPS do síncrono (50) e bate a cauda dele (p95 26,7 × 28,1), com carga 4,5 s × 11,5 s.
+- [x] **Instrumentação: o perfil agora grava `mesher` (workers + profundidades)** — o A/B de
+      2026-07-27 saiu sem etiqueta e só deu pra atribuir porque o usuário lembrava a ordem.
+
+## ⏭️ Next — o mesher ACABOU; o que sobra é GPU
+
+- [ ] **Cauda de GPU no lab, SE ainda incomodar** (nada disparou gatilho ainda): GPU p95
+      16,8–19,6 ms contra 16,7 ms de orçamento de 60 FPS. Candidatos: teto de `raioRender`
+      em GPU fraca, overdraw da água, custo de fragment. ⚠️ Greedy meshing NÃO ajuda aqui —
+      draw calls e triângulos do lab são idênticos aos do PC de dev.
+- [ ] ⚠️ **Fato de implantação:** notebook em modo economia de bateria trava em **30 FPS**
+      (p50 33,3 ms cravado nas 3 rodadas). Nenhuma otimização atravessa política de energia.
 
 ## ⏭️ Next (queued, ready to pick up) — NESTA ORDEM
 

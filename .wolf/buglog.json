@@ -3322,6 +3322,27 @@
       "related_bugs": [],
       "occurrences": 1,
       "last_seen": "2026-07-27T02:50:00Z"
+    },
+    {
+      "id": "bug-529",
+      "timestamp": "2026-07-27T04:12:00Z",
+      "error_message": "6 perfis de A/B de `?meshdepth` voltaram do lab sem dizer qual profundidade cada um usou — a variavel do experimento nao estava no JSON",
+      "file": "client/src/hud.ts",
+      "root_cause": "Adicionei o knob `?meshdepth=N` e pedi ao usuario um A/B de 3 valores, mas o perfil so gravava `config` (raioRender/meshMsPorFrame/pixelRatioCap/fov) — settings do jogo, nao a config do pool. Sem etiqueta, atribuir rodada a profundidade dependeu do usuario lembrar a ordem em que rodou.",
+      "fix": "`MeshPool.config` (workers + profundidadeJogo + profundidadeCarga) -> `ChunkRenderer.meshConfig` -> `HudRemeshStats.config` -> campo `mesher` no JSON, e uma linha `mesher` no bench-headless. Regra geral: quando pedir um A/B, a VARIAVEL do experimento tem que sair no resultado, nao so a metrica.",
+      "tags": [
+        "instrumentacao",
+        "perfil",
+        "bench",
+        "ab-test",
+        "meshdepth",
+        "worker"
+      ],
+      "related_bugs": [
+        "bug-528"
+      ],
+      "occurrences": 1,
+      "last_seen": "2026-07-27T04:12:00Z"
     }
   ]
 }

@@ -1,12 +1,12 @@
 {
   "version": 1,
   "meta": {
-    "lastScanned": "2026-07-27T05:50:11.636Z",
+    "lastScanned": "2026-07-27T06:52:47.786Z",
     "fileCount": 223,
     "hits": 0,
     "misses": 0,
-    "renderedHash": "e8b120a3370d222a8af54fb575a041564a0a5d3accac6b521248ad9a81beb848",
-    "storeUpdatedAt": "2026-07-27T05:50:11.639Z"
+    "renderedHash": "a595e9efb65843443bde2d02c72c1ad87b65f4f9cc218aa4ae36028b60d21309",
+    "storeUpdatedAt": "2026-07-27T06:52:47.807Z"
   },
   "files": {
     ".claude/commands/reframe.md": {
@@ -1812,12 +1812,12 @@
     },
     "client/src/chunks.ts": {
       "description": "Teto duro de chunks por frame: rede de segurança se o relógio for grosseiro",
-      "tokens": 5384,
-      "hash": "b4624e6b87822353",
-      "size": 19011,
-      "mtimeMs": 1785131280812.795,
-      "updatedAt": "2026-07-27T05:50:11.539Z",
-      "source": "scan",
+      "tokens": 5471,
+      "hash": "d217fede22bd48d2",
+      "size": 19321,
+      "mtimeMs": 1785135138660.799,
+      "updatedAt": "2026-07-27T06:52:18.814Z",
+      "source": "hook",
       "symbols": [
         {
           "name": "JobMesh",
@@ -1830,8 +1830,8 @@
           "name": "ChunkRenderer",
           "kind": "class",
           "startLine": 47,
-          "endLine": 447,
-          "tokens": 4954
+          "endLine": 453,
+          "tokens": 5041
         }
       ]
     },
@@ -1949,68 +1949,68 @@
     },
     "client/src/hud.ts": {
       "description": "HUD de perfilação (F3): FPS, frametime méd+p95, remesh, draw calls e",
-      "tokens": 8262,
-      "hash": "671e5bd467cb8b58",
-      "size": 29224,
-      "mtimeMs": 1785118739234.5989,
-      "updatedAt": "2026-07-27T05:50:11.541Z",
-      "source": "scan",
+      "tokens": 8364,
+      "hash": "780df226633db92d",
+      "size": 29586,
+      "mtimeMs": 1785135149128.799,
+      "updatedAt": "2026-07-27T06:52:29.246Z",
+      "source": "hook",
       "symbols": [
         {
           "name": "HudRemeshStats",
           "kind": "section",
           "startLine": 35,
-          "endLine": 47,
-          "tokens": 178
+          "endLine": 51,
+          "tokens": 268
         },
         {
           "name": "Recording",
           "kind": "section",
-          "startLine": 48,
-          "endLine": 66,
+          "startLine": 52,
+          "endLine": 70,
           "tokens": 220
         },
         {
           "name": "Marcador",
           "kind": "section",
-          "startLine": 67,
-          "endLine": 76,
+          "startLine": 71,
+          "endLine": 80,
           "tokens": 93
         },
         {
           "name": "RegrasServidor",
           "kind": "section",
-          "startLine": 77,
-          "endLine": 89,
+          "startLine": 81,
+          "endLine": 93,
           "tokens": 134
         },
         {
           "name": "ContextoPerfil",
           "kind": "section",
-          "startLine": 90,
-          "endLine": 112,
+          "startLine": 94,
+          "endLine": 116,
           "tokens": 183
         },
         {
           "name": "ContadorFase",
           "kind": "section",
-          "startLine": 113,
-          "endLine": 125,
+          "startLine": 117,
+          "endLine": 129,
           "tokens": 92
         },
         {
           "name": "histograma",
           "kind": "fn",
-          "startLine": 126,
-          "endLine": 148,
+          "startLine": 130,
+          "endLine": 152,
           "tokens": 189
         },
         {
           "name": "Hud",
           "kind": "class",
-          "startLine": 149,
-          "endLine": 701,
-          "tokens": 6687
+          "startLine": 153,
+          "endLine": 706,
+          "tokens": 6699
         }
       ]
     },
@@ -2372,26 +2372,26 @@
     },
     "client/src/meshPool.ts": {
       "description": "Pool de Web Workers pro mesher (2026-07-26).",
-      "tokens": 1863,
-      "hash": "10ea2d23b590cf48",
-      "size": 6630,
-      "mtimeMs": 1785131256532.7966,
-      "updatedAt": "2026-07-27T05:50:11.549Z",
-      "source": "scan",
+      "tokens": 2157,
+      "hash": "512022e9d009b986",
+      "size": 7675,
+      "mtimeMs": 1785135135696.799,
+      "updatedAt": "2026-07-27T06:52:15.822Z",
+      "source": "hook",
       "symbols": [
         {
           "name": "ResultadoMesh",
           "kind": "section",
-          "startLine": 44,
-          "endLine": 57,
+          "startLine": 54,
+          "endLine": 67,
           "tokens": 109
         },
         {
           "name": "MeshPool",
           "kind": "class",
-          "startLine": 58,
-          "endLine": 172,
-          "tokens": 1138
+          "startLine": 68,
+          "endLine": 194,
+          "tokens": 1298
         }
       ]
     },
@@ -3241,12 +3241,12 @@
     },
     "scripts/bench-headless.mjs": {
       "description": "Roda o modo `?bench` do cliente num Chrome HEADLESS e imprime o resumo do",
-      "tokens": 1598,
-      "hash": "55d0cd70516ac8f8",
-      "size": 6051,
-      "mtimeMs": 1785119212490.5974,
-      "updatedAt": "2026-07-27T05:50:11.593Z",
-      "source": "scan",
+      "tokens": 1674,
+      "hash": "3e9d80a3b00efa6b",
+      "size": 6337,
+      "mtimeMs": 1785135167684.7988,
+      "updatedAt": "2026-07-27T06:52:47.786Z",
+      "source": "hook",
       "symbols": [
         {
           "name": "acharChrome",
@@ -3280,8 +3280,8 @@
           "name": "avaliar",
           "kind": "fn",
           "startLine": 104,
-          "endLine": 149,
-          "tokens": 616
+          "endLine": 151,
+          "tokens": 696
         }
       ]
     },

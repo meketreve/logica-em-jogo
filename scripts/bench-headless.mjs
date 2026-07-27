@@ -136,6 +136,8 @@ if (perfil) {
   // fila zera, e uma fila que zera sem produzir mesh não aparece no frametime)
   linha("geometria", `${perfil.drawCalls} draw calls · ${perfil.triangles} triângulos · ${perfil.video?.geometrias} geometrias`);
   linha("remesh", `${perfil.remeshCount}× · main ${perfil.remeshTotalMs}ms · worker ${perfil.remeshWorkerMs ?? 0}ms · fila no fim ${perfil.stream?.fila}`);
+  // etiqueta do experimento: sem ela um A/B de ?meshdepth sai sem dizer qual é qual
+  linha("mesher", perfil.mesher ? `${perfil.mesher.workers} workers · profundidade ${perfil.mesher.profundidadeJogo} (jogo) / ${perfil.mesher.profundidadeCarga} (carga)` : "síncrono (sem worker)");
   linha("regras", JSON.stringify(perfil.regrasServidor));
   linha("marcadores", (perfil.marcadores ?? []).map((m) => `${m.emS}s ${m.evento}`).join(" · "));
   linha("dispositivo", JSON.stringify(perfil.dispositivo));

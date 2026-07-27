@@ -1,6 +1,6 @@
 # anatomy.md
 
-> Auto-maintained by OpenWolf. Last scanned: 2026-07-27T05:50:11.636Z
+> Auto-maintained by OpenWolf. Last scanned: 2026-07-27T06:52:47.786Z
 > Files: 223 tracked | Anatomy hits: 0 | Misses: 0
 
 ## ./
@@ -271,9 +271,9 @@
   - fn `placeableFor` L151-155 (~56 tok)
 - `chat.ts` — UI de chat em HTML/CSS por cima do canvas (regra: sem GUI de engine). (~1525 tok)
   - class `ChatUi` L15-145 (~1349 tok)
-- `chunks.ts` — Teto duro de chunks por frame: rede de segurança se o relógio for grosseiro (~5384 tok)
+- `chunks.ts` — Teto duro de chunks por frame: rede de segurança se o relógio for grosseiro (~5471 tok)
   - section `JobMesh` L28-46 (~197 tok)
-  - class `ChunkRenderer` L47-447 (~4954 tok)
+  - class `ChunkRenderer` L47-453 (~5041 tok)
 - `commands.ts` — Autocompletar de comandos de chat (Tab). Puro, sem DOM — o chat.ts liga o (~862 tok)
   - fn `learnWorlds` L54-58 (~48 tok)
   - fn `learnPlayers` L59-62 (~25 tok)
@@ -288,15 +288,15 @@
   - section `Keyframe` L18-62 (~488 tok)
   - class `SkyCycle` L63-203 (~1564 tok)
 - `events.ts` — Gatilhos de som (checkpoint 6): pontos de evento do jogo onde o áudio vai (~182 tok)
-- `hud.ts` — HUD de perfilação (F3): FPS, frametime méd+p95, remesh, draw calls e (~8262 tok)
-  - section `HudRemeshStats` L35-47 (~178 tok)
-  - section `Recording` L48-66 (~220 tok)
-  - section `Marcador` L67-76 (~93 tok)
-  - section `RegrasServidor` L77-89 (~134 tok)
-  - section `ContextoPerfil` L90-112 (~183 tok)
-  - section `ContadorFase` L113-125 (~92 tok)
-  - fn `histograma` L126-148 (~189 tok)
-  - class `Hud` L149-701 (~6687 tok)
+- `hud.ts` — HUD de perfilação (F3): FPS, frametime méd+p95, remesh, draw calls e (~8364 tok)
+  - section `HudRemeshStats` L35-51 (~268 tok)
+  - section `Recording` L52-70 (~220 tok)
+  - section `Marcador` L71-80 (~93 tok)
+  - section `RegrasServidor` L81-93 (~134 tok)
+  - section `ContextoPerfil` L94-116 (~183 tok)
+  - section `ContadorFase` L117-129 (~92 tok)
+  - fn `histograma` L130-152 (~189 tok)
+  - class `Hud` L153-706 (~6699 tok)
 - `input.ts` — Teclado + mouse (pointer lock). SÓ coleta input — nenhuma decisão de (~1542 tok)
   - class `Input` L5-147 (~1496 tok)
 - `inventory.ts` — Inventário de blocos (cp16) — grade dos colocáveis + faixa da hotbar de 9 (~1449 tok)
@@ -345,9 +345,9 @@
   - fn `backButton` L284-300 (~153 tok)
   - fn `renderConfigRoot` L301-321 (~215 tok)
   - fn `renderConfigPanel` L322-464 (~1346 tok)
-- `meshPool.ts` — Pool de Web Workers pro mesher (2026-07-26). (~1863 tok)
-  - section `ResultadoMesh` L44-57 (~109 tok)
-  - class `MeshPool` L58-172 (~1138 tok)
+- `meshPool.ts` — Pool de Web Workers pro mesher (2026-07-26). (~2157 tok)
+  - section `ResultadoMesh` L54-67 (~109 tok)
+  - class `MeshPool` L68-194 (~1298 tok)
 - `meshWorker.ts` — Worker do mesher (2026-07-26). Recebe uma VIZINHANÇA (o cubo 18³ de (~442 tok)
 - `objectivesUi.ts` — Grupo do PRÓPRIO jogador (null = sem grupo). (~1244 tok)
   - section `ObjectivesCtx` L7-20 (~160 tok)
@@ -495,12 +495,12 @@
 
 ## scripts/
 
-- `bench-headless.mjs` — Roda o modo `?bench` do cliente num Chrome HEADLESS e imprime o resumo do (~1598 tok)
+- `bench-headless.mjs` — Roda o modo `?bench` do cliente num Chrome HEADLESS e imprime o resumo do (~1674 tok)
   - fn `acharChrome` L32-47 (~176 tok)
   - fn `espera` L48-68 (~171 tok)
   - fn `abrirAba` L69-97 (~261 tok)
   - fn `cdp` L98-103 (~50 tok)
-  - fn `avaliar` L104-149 (~616 tok)
+  - fn `avaliar` L104-151 (~696 tok)
 - `smoke.mjs` — Runner dos smokes de rede — sobe o servidor REAL, roda o cenário, mata tudo. (~2319 tok)
   - fn `espera` L143-145 (~42 tok)
   - fn `esperaPorta` L146-160 (~144 tok)

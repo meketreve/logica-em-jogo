@@ -41,6 +41,10 @@ export interface HudRemeshStats {
   /** Tempo de mesh dentro dos workers. Não disputa o frame — serve pra ver o
    *  trabalho TOTAL (comparável com o `remeshTotalMs` de antes do Worker). */
   workerMs?: number;
+  /** Config do pool de mesh (`null` = caminho síncrono). Vai pro JSON: é a
+   *  ETIQUETA do experimento de profundidade. Sem ela, um A/B de `?meshdepth`
+   *  sai sem dizer qual perfil é qual (acontecido em 2026-07-27). */
+  config?: { workers: number; profundidadeJogo: number; profundidadeCarga: number } | null;
   /** Custo separado por quem pediu (fila do streaming × bloco × área). */
   porCaminho?: { fila: { n: number; ms: number }; bloco: { n: number; ms: number }; area: { n: number; ms: number } };
 }
@@ -552,6 +556,7 @@ export class Hud {
       remeshPorCaminho: this.remesh.porCaminho ?? null,
       remeshTotalMs: +this.remesh.totalMs.toFixed(1),
       remeshWorkerMs: +(this.remesh.workerMs ?? 0).toFixed(1),
+      mesher: this.remesh.config ?? null,
       remeshLastMs: +this.remesh.lastMs.toFixed(2),
       longTasksTotal: this.longTasks,
       // POR FASE: onde o tempo foi gasto e onde travou (carregando × jogando).

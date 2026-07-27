@@ -477,3 +477,13 @@ NÃO commitado; playtest no browser pendente.
 | 02:52 | Session end: 43 writes across 7 files (mesher.ts, meshWorker.ts, meshPool.ts, chunks.ts, hud.ts) | 10 reads | ~52506 tok |
 | 03:28 | Session end: 43 writes across 7 files (mesher.ts, meshWorker.ts, meshPool.ts, chunks.ts, hud.ts) | 12 reads | ~52506 tok |
 | 06:35 | Push do projeto (9 commits) e PR upstream do bug do hook de summary | origin/main b3669ff · cytostack/openwolf#64 | PR +98 -1, 32/32 testes e typecheck limpos no fork | ~12k |
+| 03:35 | Session end: 43 writes across 7 files (mesher.ts, meshWorker.ts, meshPool.ts, chunks.ts, hud.ts) | 12 reads | ~52506 tok |
+| 03:39 | Session end: 43 writes across 7 files (mesher.ts, meshWorker.ts, meshPool.ts, chunks.ts, hud.ts) | 12 reads | ~52506 tok |
+| 03:52 | Edited client/src/meshPool.ts | modified total() | ~300 |
+| 03:52 | Edited client/src/meshPool.ts | modified disponivel() | ~180 |
+| 03:52 | Edited client/src/chunks.ts | modified remeshWorkerMsTotal() | ~110 |
+| 03:52 | Edited client/src/hud.ts | 3→7 lines | ~142 |
+| 03:52 | Edited client/src/hud.ts | 1→2 lines | ~30 |
+| 03:52 | Edited scripts/bench-headless.mjs | 1→3 lines | ~117 |
+| 04:05 | Lidas as 6 rodadas do lab (bateria eco + tomada) e fechado o knob em PROFUNDIDADE_JOGO=1 | client/src/meshPool.ts | depth 1 empata FPS do síncrono (50) e bate a cauda (p95 26,7 × 28,1); carga 4,5 s × 11,5 s | ~14k |
+| 04:12 | Perfil passa a gravar `mesher` (workers + profundidades) — o A/B saiu sem etiqueta | hud.ts, chunks.ts, meshPool.ts, main.ts, bench-headless.mjs | verificado com ?meshdepth=3 → "4 workers · profundidade 3 (jogo) / 8 (carga)" | ~8k |

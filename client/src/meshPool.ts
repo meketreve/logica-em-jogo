@@ -31,15 +31,25 @@ const MAX_WORKERS = 4;
  *   main thread e com a thread do driver D3D11 num i5 de 4 núcleos físicos:
  *   FPS 50 → 36, p95 28 → 44 ms, e até a GPU subiu (13,6 → 15,1 ms). O
  *   caminho síncrono tinha freio de graça (`meshMsPorFrame: 6` = 30% de UM
- *   núcleo); aqui o freio é a profundidade. Com 2 por worker num frame de 20 ms
- *   os workers ficam ~30% ocupados e a vazão dá ~400 chunks/s, contra ~100/s do
- *   síncrono (que já mantinha a fila em 0 no lab) — folga sem saturar núcleo.
- *   Com 1 por worker a fila não esvaziava quando o FPS caía (headless a 16 fps
- *   terminou com 91 chunks pendentes): a vazão escala com o FPS, igual ao
- *   orçamento por frame do caminho síncrono.
+ *   núcleo); aqui o freio é a profundidade.
+ *
+ * **1 é o valor MEDIDO no lab** (2026-07-27, notebook na tomada, `?meshdepth`
+ * 1 × 2 × 4). Ele empata o FPS do caminho síncrono (50) e ainda BATE a cauda
+ * dele — p95 26,7 contra 28,1 ms, p99 31,4 contra 34,6, frames >50 ms 1 contra
+ * 2 — com a carga em 4,5 s no lugar de 11,5 s. Contra o 4: FPS 50 × 47, p95
+ * 26,7 × 31,9, p99 31,4 × 39,3.
+ *
+ * Fila rasa também faz MENOS trabalho total (13 738 ms de worker contra 16 036
+ * do 4): o chunk espera mais na `fila`, então o `filaSet` funde mais
+ * re-entradas antes de virar job — a coalescência melhora sozinha.
+ *
+ * O medo do 1 era a fila não esvaziar quando o FPS cai (a vazão escala com o
+ * FPS, igual ao orçamento por frame do síncrono; em headless a 16 fps sobraram
+ * 91 chunks). O lote em modo economia de bateria testou isso de graça: 30 Hz
+ * cravados, `fila` fechou em 0 nas três profundidades.
  */
 const PROFUNDIDADE_CARGA = 8;
-const PROFUNDIDADE_JOGO = 2;
+const PROFUNDIDADE_JOGO = 1;
 
 export interface ResultadoMesh {
   id: number;
@@ -110,6 +120,18 @@ export class MeshPool {
 
   get disponivel(): boolean {
     return this.workers.length > 0;
+  }
+
+  /** Config efetiva do pool, pro PERFIL. Sem isto o `?meshdepth` não aparece no
+   *  JSON e um A/B de profundidade fica sem etiqueta — foi o que aconteceu em
+   *  2026-07-27: 6 rodadas no lab que só deu pra atribuir porque o usuário
+   *  lembrava a ordem. A variável do experimento tem que sair no resultado. */
+  get config(): { workers: number; profundidadeJogo: number; profundidadeCarga: number } {
+    return {
+      workers: this.workers.length,
+      profundidadeJogo: this.profundidadeJogo,
+      profundidadeCarga: PROFUNDIDADE_CARGA,
+    };
   }
 
   get emVoo(): number {

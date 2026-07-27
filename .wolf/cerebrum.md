@@ -714,3 +714,21 @@ a cada stop, sem jeito de satisfazer seguindo as instruções dele mesmo.
   detector inconsistente com a própria instrução. Ler o código do hook custou 3 comandos e
   poupou repetir a mesma ação em loop. Antes de "cumprir mais uma vez", conferir o que o
   detector realmente procura.
+
+### [2026-07-27] Fechando o knob do mesher — três lições que valem além deste caso
+
+- **A variável do experimento tem que sair no resultado.** Pedi um A/B de `?meshdepth` sem
+  gravar `meshdepth` no perfil (bug-529). As 6 rodadas do lab só foram atribuíveis porque o
+  usuário lembrava a ordem. Regra: antes de pedir uma medição com knob, conferir que o knob
+  aparece no artefato de saída.
+- **Modo economia de bateria trava o notebook em 30 FPS** (`p50 = 33,3 ms` cravado nas três
+  rodadas, GPU ~28% mais cara). É vsync por política de energia, não carga — e nenhum perfil
+  medido nesse estado serve pra comparar otimização. Ao ler um perfil, `p50` colado em 33,3 /
+  16,7 / 8,3 ms é REFRESH, não gargalo: procurar o estado da máquina antes de otimizar.
+- **Freio mais apertado pode fazer MENOS trabalho total, não mais.** Profundidade 1 gastou
+  13 738 ms de worker contra 16 036 do 4: com a fila drenando devagar, o `filaSet` funde mais
+  re-entradas do mesmo chunk antes de virarem job. Quando uma fila também COALESCE, acelerá-la
+  aumenta o trabalho — contra-intuitivo e foi o que custou 14 FPS na primeira versão.
+- **Primeira rodada de um lote é suspeita.** Nos dois lotes o primeiro perfil destoou (FPS 42
+  contra 47-50; worker 20 958 contra ~32 000): aquecimento, compilação de shader, saída de
+  throttle. Descartar ou repetir a primeira antes de comparar.

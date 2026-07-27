@@ -102,6 +102,12 @@ export class ChunkRenderer {
     return this.pool?.msTotal ?? 0;
   }
 
+  /** Config do pool pro perfil (`null` = caminho síncrono, `?semworker` ou
+   *  navegador sem Worker). É a etiqueta do experimento — ver `MeshPool.config`. */
+  get meshConfig(): { workers: number; profundidadeJogo: number; profundidadeCarga: number } | null {
+    return this.pool?.config ?? null;
+  }
+
   /**
    * Tela de carga na frente? Enquanto sim o pool corre solto (não há frame pra
    * proteger); no jogo ele freia. Medido no lab (2026-07-27): sem esse freio, 4

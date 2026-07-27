@@ -140,13 +140,51 @@
 > profundidade 2 a **fila fecha em 0** e a geometria volta pro nível certo (576 draw calls).
 > **VERDE:** typecheck 3/3, 334 testes, build ok.
 >
-> ➡️ **PENDENTE (é do usuário): UMA sessão no notebook do lab pra fechar o knob.** Rodar
-> `?bench`, `?bench&meshdepth=1` e `?bench&meshdepth=4`. Critério: **maior `meshdepth` que
-> ainda entregue `fila 0` e FPS ≥ 50** (o `?semworker` deu 50 com p50 19 / p95 28,1). Esperado
-> ficar com carga ~5 s (contra 11,5 do síncrono) E o FPS do síncrono de volta.
-> ⚠️ **Teto que não muda com knob nenhum: GPU p95 19,6 ms > 16,7 ms.** Se o p95 continuar em
-> ~28–30 ms com fila zerando, o mesher acabou e o alvo seguinte é GPU (raio de render em GPU
-> fraca, overdraw da água, custo de fragment) — ver TODO ⏭️ 2º.
+>
+> **KNOB FECHADO: `PROFUNDIDADE_JOGO = 1` (2026-07-27, 6 rodadas no notebook do lab).**
+> O usuário rodou a sequência `?bench` (=2) → `&meshdepth=1` → `&meshdepth=4` DUAS vezes:
+> primeiro **na bateria em modo economia com <30%**, depois **na tomada**.
+>
+> **O lote da bateria não serve pra escolher e o perfil diz por quê:** `p50 = 33,3 ms` nas
+> TRÊS rodadas — 30 Hz exato, vsync cravado pelo modo economia, não carga — com GPU ~28% mais
+> cara (méd 16,7–17,4 · p95 25,7–27,6). Frametime nesse regime não mede contenção de mesh.
+> Rodadas: `rmcb` (=2) · `t87u` (=1) · `l9yc` (=4).
+>
+> **Lote da tomada — o que decidiu** (`tkc7`=2 · `l9xf`=1 · `bjrv`=4, contra `t3xn`=síncrono):
+>
+> | | depth 2 | **depth 1** | depth 4 | síncrono |
+> |---|---|---|---|---|
+> | FPS | 42 | **50** | 47 | 50 |
+> | p50 / p95 ms | 22,7 / 34,3 | **20,0 / 26,7** | 20,1 / 31,9 | 19 / 28,1 |
+> | p99 ms | 44,3 | **31,4** | 39,3 | 34,6 |
+> | frames >50 ms | 8 | **1** | 3 | 2 |
+> | GPU méd / p95 | 14,6 / 18,8 | **13,0 / 16,8** | 13,1 / 16,6 | 13,6 / 18,5 |
+> | carga total ms | 5 056 | **4 508** | 4 927 | 11 535 |
+> | trabalho no worker | 18 090 | **13 738** | 16 036 | — |
+>
+> **Depth 1 empata o FPS do síncrono (50) e BATE a cauda dele** (p95 26,7 × 28,1 · p99 31,4 ×
+> 34,6 · frames >50 ms 1 × 2), com a carga em 4,5 s no lugar de 11,5 s. Contra o 4 ganha em
+> todas as métricas de frametime.
+>
+> **Três leituras que dão coerência:**
+> 1. **Fila rasa faz MENOS trabalho total** (13 738 × 16 036 ms de worker): o chunk espera
+>    mais na `fila`, então o `filaSet` funde mais re-entradas antes de virar job. A
+>    coalescência melhora sozinha quando o freio aperta.
+> 2. **A carga é igual nas três (4,5–5,1 s) porque o knob NÃO a afeta** — `PROFUNDIDADE_CARGA`
+>    é fixa em 8. Essa variação é ruído de rodada.
+> 3. **O `depth 2` da tomada está contaminado**: foi a primeira rodada depois do lote de
+>    bateria, com a máquina saindo do throttle (FPS 42 destoa de 47–50). A escolha real foi
+>    entre 1 e 4.
+> ✅ **O risco do depth 1 morreu de graça:** o medo era a fila não esvaziar em FPS baixo. O
+> lote em modo economia rodou a 30 Hz travado — exatamente esse regime — e **`fila` fechou em
+> 0 nas três profundidades**, com draw calls 630–633 e triângulos 186 716–188 048.
+>
+> ⚠️ **FATO DE IMPLANTAÇÃO (novo): notebook em modo economia de bateria trava em 30 FPS.**
+> Nenhuma otimização atravessa isso. Se algum PC da sala for notebook em bateria, o aluno vê
+> 30 FPS por política de energia do Windows, não por causa do jogo.
+> ⚠️ **Teto que knob nenhum passa: GPU p95 ~16,8–19,6 ms contra 16,7 ms de orçamento.** O
+> mesher ACABOU. O próximo alvo, se ainda incomodar, é GPU (raio de render em GPU fraca,
+> overdraw da água, custo de fragment) — ver TODO ⏭️.
 > **SESSÃO 26 (2026-07-26) — §📊 AS 7 DO PERFILADOR: TODAS ENTREGUES.** Usuário disse só
 > "continuar" → peguei a fila. **Item 7 já estava pronto** (`dispositivo()` do hud.ts já
 > trazia `nucleos`/`ramGB` desde antes — confirmado no perfil headless: 24 núcleos, 16 GB).
