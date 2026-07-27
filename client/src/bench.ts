@@ -77,18 +77,47 @@ export const BENCH_SETTINGS = {
   fov: 75,
   // §🌬️ (2026-07-27): vida ambiental LIGADA no bench. É custo de GPU novo em
   // cima de uma GPU que já fecha o p95 no limite — perfil que a desliga não
-  // mede o jogo que o aluno joga. Quem quiser o A/B desliga em Configurações e
-  // grava um segundo perfil (o par com/sem, mesma régua do `?semworker`).
+  // mede o jogo que o aluno joga. O A/B sai por `?bench&semvida` (abaixo).
   nuvens: true,
   balanco: true,
 } as const;
 
-/** Lê `?bench` / `?bench=45`. `null` = modo desligado. */
-export function benchDaUrl(params: URLSearchParams): { duracaoS: number } | null {
+export interface BenchOpts {
+  duracaoS: number;
+  /**
+   * `?semvida`: a MESMA corrida com nuvens e balanço desligados — o A/B do §🌬️,
+   * no molde do `?semworker`. Existe porque o par com/sem tem de rodar a config
+   * canônica nos dois lados: desligar em Configurações mexe no localStorage do
+   * PC do lab e deixa a rodada A e a B sem garantia de serem iguais no resto.
+   * Assim são duas URLs seguidas na mesma máquina, e o perfil DIZ qual é qual.
+   */
+  semVida: boolean;
+}
+
+/** Lê `?bench` / `?bench=45` / `?bench&semvida`. `null` = modo desligado. */
+export function benchDaUrl(params: URLSearchParams): BenchOpts | null {
   if (!params.has("bench")) return null;
   const bruto = Number(params.get("bench"));
   const duracaoS = Number.isFinite(bruto) && bruto >= 10 ? Math.min(bruto, 300) : BENCH_DURACAO_S;
-  return { duracaoS };
+  return { duracaoS, semVida: params.has("semvida") };
+}
+
+/**
+ * Config canônica EFETIVA da corrida. Única fonte: quem aplica a config e quem
+ * escreve o `meta` do perfil chamam esta função, senão um perfil de `?semvida`
+ * mentiria dizendo `nuvens: true` (foi o que quase aconteceu ao escrever isto).
+ */
+export function benchSettings(opts: { semVida: boolean }): {
+  raioRender: number;
+  meshMsPorFrame: number;
+  pixelRatioCap: number;
+  fov: number;
+  nuvens: boolean;
+  balanco: boolean;
+} {
+  return opts.semVida
+    ? { ...BENCH_SETTINGS, nuvens: false, balanco: false }
+    : { ...BENCH_SETTINGS };
 }
 
 export class Bench {
@@ -98,6 +127,7 @@ export class Bench {
   constructor(
     readonly duracaoS: number,
     readonly trajeto: BenchTrajeto,
+    readonly semVida = false,
   ) {}
 
   /**
@@ -106,7 +136,7 @@ export class Bench {
    * sairia dele). Determinístico: mesmo mundo = mesmo trajeto.
    */
   static paraMundo(
-    duracaoS: number,
+    opts: BenchOpts,
     spawn: { x: number; y: number; z: number },
     dims: { x: number; z: number },
   ): Bench {
@@ -116,12 +146,16 @@ export class Bench {
     // centro puxado pra dentro do mundo se o spawn estiver perto da borda
     const dentro = (v: number, max: number): number =>
       Math.min(Math.max(v, raio + 8), Math.max(raio + 8, max * 16 - raio - 8));
-    return new Bench(duracaoS, {
-      centroX: +dentro(spawn.x, dims.x).toFixed(2),
-      centroZ: +dentro(spawn.z, dims.z).toFixed(2),
-      y: +(spawn.y + ALTURA_ACIMA_DO_SPAWN).toFixed(2),
-      raio: +raio.toFixed(2),
-    });
+    return new Bench(
+      opts.duracaoS,
+      {
+        centroX: +dentro(spawn.x, dims.x).toFixed(2),
+        centroZ: +dentro(spawn.z, dims.z).toFixed(2),
+        y: +(spawn.y + ALTURA_ACIMA_DO_SPAWN).toFixed(2),
+        raio: +raio.toFixed(2),
+      },
+      opts.semVida,
+    );
   }
 
   get ativo(): boolean {
@@ -192,7 +226,10 @@ export class Bench {
         velocidadeBlocosS: VELOCIDADE,
         pitch: PITCH,
       },
-      config: { ...BENCH_SETTINGS },
+      config: benchSettings(this),
+      // etiqueta do experimento: sem isto o par A/B do §🌬️ vira dois JSON
+      // indistinguíveis (mesma lição do campo `mesher` do bug-529)
+      semVida: this.semVida,
       viewport: `${window.innerWidth}×${window.innerHeight}`,
       dpr: window.devicePixelRatio,
     };

@@ -58,7 +58,7 @@ import {
 import { AGUA_FRAMES, animarAguaAtlas, createAtlasTexture } from "./atlasTexture";
 import { AguaFx } from "./aguaFx";
 import { initUiAudio, playUi, setUiVolume } from "./audio";
-import { BENCH_SEED, BENCH_SETTINGS, Bench, benchDaUrl } from "./bench";
+import { BENCH_SEED, Bench, benchDaUrl, benchSettings } from "./bench";
 import { makeBlockIcons } from "./blockIcons";
 import { PLACEABLE, placeableFor } from "./blocksUi";
 import { InventoryPanel } from "./inventory";
@@ -190,7 +190,7 @@ const benchOpts = benchDaUrl(new URLSearchParams(location.search));
 function applySettings(): ReturnType<typeof loadSettings> {
   // bench: a config do localStorage do PC do lab é desconhecida — sobrescreve
   // com a canônica (em memória, sem salvar) pra dois perfis serem comparáveis
-  const s = benchOpts ? { ...loadSettings(), ...BENCH_SETTINGS } : loadSettings();
+  const s = benchOpts ? { ...loadSettings(), ...benchSettings(benchOpts) } : loadSettings();
   input.sensitivity = s.sensitivity;
   camera.fov = s.fov;
   camera.updateProjectionMatrix();
@@ -1632,6 +1632,8 @@ function startGame(snap: Snapshot): void {
     meshMsPorFrame: settings.meshMsPorFrame,
     pixelRatioCap: settings.pixelRatioCap,
     fov: settings.fov,
+    nuvens: settings.nuvens,
+    balanco: settings.balanco,
     distanciaTotal: distanciaPercorrida,
     colunasRecebidas,
     bytesRecebidos: activeConn.stats.bytesIn,
@@ -1672,16 +1674,22 @@ function startGame(snap: Snapshot): void {
         if (!r.ok || !corpo.arquivo) throw new Error(`resposta inesperada (${r.status})`);
         chat.addMessage("jogo", `benchmark concluído — perfil salvo no servidor: ${corpo.arquivo}`);
       } catch {
-        hud.baixar(report, "bench");
-        chat.addMessage("jogo", "benchmark concluído — o perfil foi baixado (perf-bench-*.json)");
+        // mesmo motivo do nome no servidor: o par A/B não pode virar dois
+        // `perf-bench-*.json` indistinguíveis na pasta de downloads
+        const prefixo = benchOpts.semVida ? "bench-semvida" : "bench";
+        hud.baixar(report, prefixo);
+        chat.addMessage("jogo", `benchmark concluído — o perfil foi baixado (perf-${prefixo}-*.json)`);
       }
     };
 
     iniciarBench = () => {
       if (bench) return; // uma corrida por sessão (troca de aula não reinicia)
-      bench = Bench.paraMundo(benchOpts.duracaoS, spawn, world.dims);
+      bench = Bench.paraMundo(benchOpts, spawn, world.dims);
       hud.setMeta({ bench: bench.meta() });
-      hud.marcar("bench: início", `${benchOpts.duracaoS}s · raio ${bench.trajeto.raio}`);
+      hud.marcar(
+        "bench: início",
+        `${benchOpts.duracaoS}s · raio ${bench.trajeto.raio}${benchOpts.semVida ? " · sem vida ambiental" : ""}`,
+      );
       benchRodando = true;
       flying = true; // o observador não cai: a posição vem do tempo, não da física
       updateOverlay(); // sem pointer lock o menu de pausa apareceria por cima

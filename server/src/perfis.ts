@@ -40,14 +40,21 @@ function permitido(): boolean {
 /**
  * Grava o perfil e devolve o nome do arquivo. Perfil de benchmark ganha o
  * prefixo `perf-bench-`: os dois convivem na mesma pasta e a origem se lê no
- * `ls` (foi trajeto fixo comparável, ou foi alguém jogando à mão?).
+ * `ls` (foi trajeto fixo comparável, ou foi alguém jogando à mão?). O lado B do
+ * A/B do §🌬️ (`?bench&semvida`) ganha `-semvida` no nome pela mesma razão: o par
+ * chega junto na pasta e não se pode confundir qual rodada é qual.
  */
 export function salvarPerfil(stats: Record<string, unknown>): string {
   const meta = stats["meta"];
-  const ehBench =
-    typeof meta === "object" && meta !== null && "bench" in (meta as Record<string, unknown>);
+  const bench =
+    typeof meta === "object" && meta !== null
+      ? (meta as Record<string, unknown>)["bench"]
+      : undefined;
+  const ehBench = bench !== undefined;
+  const semVida =
+    typeof bench === "object" && bench !== null && (bench as Record<string, unknown>)["semVida"] === true;
   const sufixo = Math.random().toString(36).slice(2, 6);
-  const nome = `perf-${ehBench ? "bench-" : ""}${Date.now()}-${sufixo}.json`;
+  const nome = `perf-${ehBench ? "bench-" : ""}${semVida ? "semvida-" : ""}${Date.now()}-${sufixo}.json`;
   mkdirSync(PASTA_PROFILES, { recursive: true });
   writeFileSync(resolve(PASTA_PROFILES, nome), JSON.stringify(stats, null, 2));
   return nome;

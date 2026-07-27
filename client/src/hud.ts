@@ -104,6 +104,10 @@ export interface ContextoPerfil {
   meshMsPorFrame: number;
   pixelRatioCap: number;
   fov: number;
+  /** §🌬️: vida ambiental custa GPU (fill rate das nuvens, vértices do balanço).
+   *  Sem isto no perfil, dois JSON da mesma máquina divergem sem explicação. */
+  nuvens: boolean;
+  balanco: boolean;
   /** Acumulados desde o boot (viram delta na gravação). */
   distanciaTotal: number;
   colunasRecebidas: number;
@@ -541,6 +545,8 @@ export class Hud {
                 meshMsPorFrame: c.meshMsPorFrame,
                 pixelRatioCap: c.pixelRatioCap,
                 fov: c.fov,
+                nuvens: c.nuvens,
+                balanco: c.balanco,
               },
             };
           })()

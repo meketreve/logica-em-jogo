@@ -138,6 +138,8 @@ if (perfil) {
   linha("remesh", `${perfil.remeshCount}× · main ${perfil.remeshTotalMs}ms · worker ${perfil.remeshWorkerMs ?? 0}ms · fila no fim ${perfil.stream?.fila}`);
   // etiqueta do experimento: sem ela um A/B de ?meshdepth sai sem dizer qual é qual
   linha("mesher", perfil.mesher ? `${perfil.mesher.workers} workers · profundidade ${perfil.mesher.profundidadeJogo} (jogo) / ${perfil.mesher.profundidadeCarga} (carga)` : "síncrono (sem worker)");
+  // §🌬️: mesma razão do `mesher` acima — o A/B de `?semvida` precisa dizer qual lado é
+  linha("vida", `nuvens ${perfil.config?.nuvens} · balanço ${perfil.config?.balanco}${perfil.meta?.bench?.semVida ? " · ?semvida" : ""}`);
   linha("regras", JSON.stringify(perfil.regrasServidor));
   linha("marcadores", (perfil.marcadores ?? []).map((m) => `${m.emS}s ${m.evento}`).join(" · "));
   linha("dispositivo", JSON.stringify(perfil.dispositivo));
