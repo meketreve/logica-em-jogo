@@ -637,3 +637,25 @@ Nenhum gatilho aceso; próxima sessão escolhe do backlog (som de água/vento é
 | 10:31 | Edited README.md | expanded (+13 lines) | ~351 |
 | 11:35 | LICENSE source-available (uso livre em escola · modificar/distribuir passa pelo autor · cenário do professor é dele) + resumo no README | LICENSE, README.md | f6d72af pushado | ~6k |
 | 11:45 | Decisões da sessão no cerebrum: repo público + licença source-available; histórico com apelidos fica (decisão do usuário, não reabrir) | .wolf/cerebrum.md, STATUS.md, TODO.md | Decision Log + handoff atualizados | ~4k |
+| 10:33 | Session end: 27 writes across 12 files (relatorio-aplicacao.md, bench.ts, main.ts, perfis.ts, hud.ts) | 18 reads | ~64058 tok |
+
+## Resumo da sessão 29 (2026-07-27)
+
+Pedido do usuário: pontos 2 e 4 do backlog + relatório sem data + um deck pra apresentar
+informalmente na CRE. Ordem do backlog fixada por ele: auto-update → mobile → v2 da geração →
+sobrevivência.
+
+Entregue: (1) relatório sem data; (2) `?bench&semvida` = lado B do A/B do §🌬️, com etiqueta
+em 3 lugares e `benchSettings()` como fonte única (o `meta` ia mentir `nuvens:true`);
+(3) deck da CRE em HTML autocontido, 20 slides, notas em N, handout no Ctrl+P; (4) auto-update
+no launcher (`git pull`, pergunta antes, `--ff-only`, 6 escapes) — `.sh` testado nos 8
+caminhos, `.bat` NÃO (sem cmd.exe aqui); (5) README público; (6) LICENSE source-available.
+
+Achado do caminho: varredura pré-abertura do repo pegou apelido de aluno em `.wolf/history.md`
+(rastreado), no HISTÓRICO (`profiles-escola/perf-<apelido>-*.json`) e `server/world.ljw`
+rastreado com PIN/código de teste. Árvore limpa em `e49aa15`; sobre o histórico o usuário
+decidiu deixar ("não tem problema") — encerrado no Decision Log.
+
+4 bugs logados (534 screenshot preto por data: URL · 535 flex stretch na tag · 536 print com
+FPS 8 no slide de desempenho · 537 etiqueta do A/B ia mentir). Verify verde: typecheck 3/3,
+358 testes, build. 7 commits pushados.

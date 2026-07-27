@@ -302,20 +302,29 @@ Documento é o ÚLTIMO entregável, não o primeiro. Construir, não documentar.
 
 ---
 
-## 🚀 Próxima fase — §🌬️ FECHADO E APROVADO. Escolher do backlog.
+## 🚀 Próxima fase — LAYOUTS MOBILE (2º da ordem que o usuário fixou)
 
-**O §🌬️ (vento + vida ambiental) foi entregue INTEIRO na sessão 28** — as 6 frentes — e o
-usuário **rodou o bench no PC dele e no notebook do lab e aprovou**: *"achei tudo muito top"*.
-As duas ressalvas que ele levantou já foram fechadas: a regra da correnteza (28b) e o sentido
-dela por face (28c). **Não há próximo passo obrigatório.**
+A ordem do backlog está **travada pelo usuário** (sessão 29):
+**auto-update ✅ → layouts mobile ← AQUI → v2 da geração → sobrevivência.**
 
-**⚠️ O que NÃO existe é o NÚMERO.** Ele aprovou por sensação; nenhum perfil JSON com o §🌬️
-ligado voltou pra análise. Isso só importa se alguém quiser o custo de nuvens/balanço **no
-relatório** — aí o passo é exportar o perfil e comparar com a régua do lab (`…-l9xf.json`:
-50 FPS · p95 26,7 · GPU méd 13,0 / p95 16,8 · carga 4 508 ms). O A/B já está pronto pra isso:
-`settings.nuvens` e `settings.balanco` desligam as duas em Configurações, e ambas estão
-fixadas em `BENCH_SETTINGS` pra o perfil medir o jogo que o aluno joga. **Não é gatilho aceso
-— é material opcional de relatório.**
+**Layouts mobile** é o próximo. O que já existe: `client/src/touch.ts` (joystick, botões de
+ação, varinha, agachar) e `settings.uiScale` (escala da UI de toque, criada por causa do AEE).
+O que falta é o **layout** — HUD, hotbar, inventário, painéis de autoria e de grupo em tela
+pequena e em paisagem. Não há entrevista de escopo feita: começar perguntando quais telas
+doem primeiro no tablet da escola (a escola usa Android + Kindle Fire, ver §7 do relatório).
+
+### Três pendências que não bloqueiam nada, e quem faz é o usuário
+
+1. **Rodar `iniciar-servidor.bat` no Windows uma vez.** O auto-update do `.sh` foi exercitado
+   nos 8 caminhos (clone local + npm falso); o `.bat` NÃO — não há cmd.exe no WSL. É duplo
+   clique; se o bloco de update falhar, o pior caso é ele avisar e subir a versão instalada.
+2. **A/B do §🌬️ no notebook do lab:** `?bench` e depois `?bench&semvida`, duas URLs seguidas
+   na MESMA máquina. O perfil se etiqueta sozinho (`meta.bench.semVida`, `config.nuvens/
+   balanco`) e o lado B nasce `perf-bench-semvida-*.json`. Comparar com a régua abaixo. Só
+   vale se o relatório quiser o custo de nuvens/balanço — **não é gatilho de desempenho.**
+3. **Deck da CRE** (`relatorio/apresentacao-cre.html`) pronto e não apresentado. Se ele voltar
+   com pedido de mudança, editar por Edit ancorado em texto de slide — o base64 dos prints
+   vive no mapa `IMGS` do `<script>`, não no `src`, justamente pra isso.
 
 Único detalhe visual nunca olhado ao vivo: **o sentido por face da 28c** (a tabela está no
 diário acima). Se um dia despejar um balde, conferir — e lembrar que as laterais
@@ -350,15 +359,20 @@ experimento, existe desde bug-529).
    mais cara). É política de energia do Windows. Perfil medido nesse estado NÃO serve pra
    comparar otimização — checar o estado da máquina antes de concluir qualquer coisa.
 
-### Backlog aberto — o usuário escolhe
+### Backlog — ORDEM TRAVADA pelo usuário (sessão 29)
 
+1. ~~**Auto-update do servidor**~~ **FEITO** (`fbbe3d0`): `git pull` no launcher, pergunta
+   antes, `--ff-only`, 6 escapes. Falta só o teste no Windows (pendência 1 acima).
+2. **Layouts mobile** ← próximo (ver acima).
+3. **v2 da geração de mundo.**
+4. **Sobrevivência** (fome/vida/craft).
+
+Fora da fila, sem ordem definida:
 - ~~`ROADMAP.md §🌬️` — vento + vida ambiental~~ **FEITO na sessão 28** (frentes 1 a 6).
   Sobrou só o que o §🌬️ NÃO pediu: som do vento; vento empurrando partículas/chuva;
   o vento entrar na física (decisão explícita: é SÓ visual até alguém decidir o contrário).
 - **Som de água** (splash/borbulha/balde, WebAudio em `audio.ts`) — 4ª opção do refino de
   água, nunca escolhida.
-- **Candidatos** (ver ROADMAP.md): layouts mobile · auto-update do servidor · sobrevivência
-  (fome/vida/craft) · v2 da geração.
 
 **Entregável final (relatório) está essencialmente PRONTO** — pendências só opcionais:
 embutir 2–4 prints no §3, refs em ABNT, diagrama no Anexo A. Se o usuário pedir entrega,
@@ -376,6 +390,11 @@ Sessões 20+21 (`26151f9`/`41211ff`/`5d18899`), 24 (`e3eaac4`) e 25 commitadas.
 **Sessão 28 COMMITADA E PUSHADA** (2026-07-27): `b9bc7a3` (§🌬️ frentes 1-6) + `3418cf4`
 (regra da correnteza, 28b) + `7db6890` (sentido por face, 28c). Diário completo da 28 está em
 `.wolf/history.md` (rotacionado pra fora do STATUS).
+**Sessão 29 COMMITADA E PUSHADA** (2026-07-27), 7 commits: `26b7650` (`?semvida` + etiqueta
+do A/B) · `fbbe3d0` (auto-update no launcher) · `f23d5a9` (README + deck da CRE + relatório
+sem data) · `e49aa15` (privacidade: apelido e save de teste fora da árvore) · `edec801`
+(wolf) · `f6d72af` (LICENSE source-available) · `26ee413` (decisões no cerebrum).
+**O repo é PÚBLICO agora:** `github.com/meketreve/logica-em-jogo`.
 
 ---
 
