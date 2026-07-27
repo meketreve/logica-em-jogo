@@ -5,7 +5,6 @@
 
 | id | tags | file | error (truncated) |
 |---|---|---|---|
-| bug-391 | auto-detected,refactor,ts | shared/src/worldgen.ts | Significant refactor of  |
 | bug-392 | auto-detected,type-fix,ts | shared/src/worldgen.ts | Type error |
 | bug-393 | auto-detected,type-fix,ts | shared/src/worldgen.test.ts | Type error |
 | bug-394 | auto-detected,guard-clause,ts | shared/src/worldgen.ts | Missing guard clause |
@@ -205,3 +204,4 @@
 | bug-530 | blockid,max-block-id,isplaceable,append,bloco-novo,grama-alta,vento | shared/src/blocks.ts | AssertionError: expected true to be false — blocks.test.ts 'isPlaceable(179) === |
 | bug-531 | teste,claims,worldgen,acoplamento,falso-positivo,grama-alta | shared/src/claims.test.ts | AssertionError: expected 180 to be +0 — claims.test.ts esperava BlockId.Air numa |
 | bug-532 | playtest,vento,agua,correnteza,atlas,mesher,regra-de-mundo,§🌬️ | shared/src/mesher.ts | usuario (playtest do §🌬️, bench no PC e no notebook): 'so a animacao do vento n |
+| bug-533 | playtest,agua,correnteza,uv,face,atlas,mesher,§🌬️ | shared/src/mesher.ts | usuario (playtest): 'as texturas estao rotacionadas para cada face'. Com corrent |

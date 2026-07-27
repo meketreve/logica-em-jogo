@@ -65,49 +65,6 @@
 > 40 ticks) mostrando os 8 setores radiais e o mar na água parada · `?atlas` no headless
 > confirmando a faixa dos 8 tiles pintada no lugar certo.
 
-> **SESSÃO 28 (2026-07-27) — §🌬️ VENTO + VIDA AMBIENTAL: as 6 frentes, de uma vez.**
-> O usuário escolheu o §🌬️ do ROADMAP, pediu as perguntas em LOTE antes de ficar AFK e
-> respondeu: **escopo TODO (frentes 1 a 6)** · vento com **rotação lenta + rajadas** ·
-> `/vento` **só liga/desliga** (recusou ajuste manual de direção/força) · **codar, testar e
-> commitar, sem push**.
->
-> **A base é o vento como ESTADO DO MUNDO** (`shared/src/vento.ts`): `ventoNoTick(tick, seed)`
-> é função PURA do tick, mesmo molde do `horaDoDia` — nada de relógio de parede, nada de
-> `Math.random`, dois hosts no mesmo tick veem o mesmo vento. Direção gira 360° em 300 s com
-> bamboleio; força soma maré de 97 s + rajada de 13,7 s (períodos primos entre si pra o padrão
-> não fechar ciclo curto). Vai pelo fio na msg `vento` (join + 1×/s, junto do `time`); o
-> cliente suaviza por frame. **Nasce LIGADO** (é ambiência, não regra de atividade) e **só o
-> DESLIGADO ocupa bytes no save**.
->
-> | Frente | Entregue |
-> |---|---|
-> | 1 textura da água | onda com vetor **INTEIRO** (fecha no tile de 16 px = sem costura), 2 senos cruzados, crista com brilho especular fake |
-> | 2 vento | estado autoritativo + `/vento ligar\|desligar` + persistência |
-> | 3 água segue o vento | 8 setores + **crossfade entre setores vizinhos** (mata o "pop" a cada ~37 s); velocidade da correnteza pela força |
-> | 4 nuvens | UM plano no skyGroup, FBM tileável no alpha, scroll pelo vento, cor seguindo o sol, **ancorado ao MUNDO** (desconta a câmera → tem paralaxe) |
-> | 5 folhas | atributo `sway` por vértice no mesher + `onBeforeCompile` no material do terreno |
-> | 6 grama alta | `GramaAlta/Seca/Fria` (179-181), cruz de 2 lâminas, 3 tiles, hotbar, worldgen por clima |
->
-> **Dois cuidados que o código guarda e não são óbvios.** (a) **O canvas do atlas anda ao
-> CONTRÁRIO do mundo nos dois eixos** — no topo do bloco o mesher mapeia `u = 1 − x`, `v = z`,
-> e o canvas 2D tem y pra baixo. Sem negar os dois, a água corre CONTRA o vento. Travado em
-> `ondaAguaDoVento` (shared) + teste de sinal. (b) **O balanço de folha usa frequência
-> espacial BAIXA** (0,16 rad/bloco): cubos de folha vizinhos são independentes, e se cada um
-> se deslocar diferente a copa abre fresta — a 0,16 o desencontro fica em ~0,2 px de tela.
->
-> **Custo de GPU: chaves prontas, número NÃO medido em máquina real.** Nuvens (fill rate) e
-> balanço (vértice) entram num orçamento de GPU que **já estava no teto** no notebook do lab
-> (p95 16,8–19,6 ms contra 16,7 ms). As duas viraram config em **Configurações → seção de
-> desempenho** (`settings.nuvens`, `settings.balanco`), ambas ON, e estão fixadas em
-> `BENCH_SETTINGS` — perfil tem de medir o jogo que o aluno joga. **Falta rodar `?bench` no
-> notebook do lab pra saber o preço.**
->
-> **Verificação:** typecheck (3 pacotes) · **350 testes verdes** · build · `npm run smoke` 6/6
-> · 3 screenshots headless (CDP + `?bench`, escondendo todo filho de `<body>` que não é
-> canvas) confirmando água, capim, nuvens de dia e ao entardecer. Bugs: **bug-530**
-> (`MAX_BLOCK_ID` não acompanhou o append do bloco novo → grama alta recusada no place) e
-> **bug-531** (teste de claim acoplado ao conteúdo do worldgen).
-
 ---
 
 ## 🎯 O que é o projeto
@@ -328,28 +285,28 @@ Documento é o ÚLTIMO entregável, não o primeiro. Construir, não documentar.
 
 ---
 
-## 🚀 Próxima fase — MEDIR O PREÇO DO §🌬️ NO LAB, depois escolher do backlog.
+## 🚀 Próxima fase — §🌬️ FECHADO E APROVADO. Escolher do backlog.
 
-**O §🌬️ (vento + vida ambiental) foi entregue INTEIRO na sessão 28** — as 6 frentes, verde em
-typecheck/testes/build/smoke e conferido em screenshot headless. **O usuário já fez o bench e
-aprovou** ("achei tudo muito top"); a única ressalva dele, a regra da correnteza, foi
-implementada na sessão 28b, e o sentido dela por face foi corrigido na 28c (ver o diário acima). **Há UM passo pendente e ele é de medição,
-não de código:**
+**O §🌬️ (vento + vida ambiental) foi entregue INTEIRO na sessão 28** — as 6 frentes — e o
+usuário **rodou o bench no PC dele e no notebook do lab e aprovou**: *"achei tudo muito top"*.
+As duas ressalvas que ele levantou já foram fechadas: a regra da correnteza (28b) e o sentido
+dela por face (28c). **Não há próximo passo obrigatório.**
 
-> **Rodar `?bench` no notebook do laboratório com o §🌬️ ligado** e comparar com a régua
-> `…-l9xf.json` (50 FPS · p95 26,7 · GPU méd 13,0 / p95 16,8 · carga 4 508 ms). Nuvens custam
-> **fill rate** e balanço custa **vértice**, e esse orçamento de GPU já estava no teto. Se o
-> p95 piorar acima do ruído de 1–2%, o A/B é imediato: desligar `nuvens` em Configurações e
-> gravar o segundo perfil (mesma régua do `?semworker`). As duas chaves existem justamente
-> pra isso — `settings.nuvens` e `settings.balanco`, ambas ON e fixadas em `BENCH_SETTINGS`.
+**⚠️ O que NÃO existe é o NÚMERO.** Ele aprovou por sensação; nenhum perfil JSON com o §🌬️
+ligado voltou pra análise. Isso só importa se alguém quiser o custo de nuvens/balanço **no
+relatório** — aí o passo é exportar o perfil e comparar com a régua do lab (`…-l9xf.json`:
+50 FPS · p95 26,7 · GPU méd 13,0 / p95 16,8 · carga 4 508 ms). O A/B já está pronto pra isso:
+`settings.nuvens` e `settings.balanco` desligam as duas em Configurações, e ambas estão
+fixadas em `BENCH_SETTINGS` pra o perfil medir o jogo que o aluno joga. **Não é gatilho aceso
+— é material opcional de relatório.**
 
-O que ainda não foi visto em jogo é **o sentido por face da 28c**: falta despejar um balde e
-conferir as 6 faces contra a tabela acima. Vale olhar especialmente as laterais PERPENDICULARES
-ao fluxo — elas mostram a onda descendo de propósito (não há horizontal a mostrar numa face
-que o fluxo atravessa), e é justo aí que a receita original do playtest pedia rotação. O mar
-segue o vento, também de propósito. Headless não resolve: o mar gerado não tem fluxo nenhum.
+Único detalhe visual nunca olhado ao vivo: **o sentido por face da 28c** (a tabela está no
+diário acima). Se um dia despejar um balde, conferir — e lembrar que as laterais
+PERPENDICULARES ao fluxo mostram a onda DESCENDO de propósito (não há horizontal a mostrar
+numa face que o fluxo atravessa) e que o mar segue o vento, também de propósito. Headless não
+resolve isso: o mar gerado não tem fluxo nenhum.
 
-Fora isso, **nenhum gatilho de desempenho está aceso** e quem retomar ESCOLHE do backlog.
+**Nenhum gatilho de desempenho está aceso.** Quem retomar ESCOLHE do backlog abaixo.
 
 **A régua, pra qualquer perfil futuro se ler contra:**
 - **PC de dev (RTX 2060):** `profiles/perf-bench-2026-07-27T01-24-08-311Z.json` — 60 FPS ·
@@ -399,8 +356,9 @@ sessão futura achar isso "inconsistente", é decisão validada em playtest — 
 Sessões 20+21 (`26151f9`/`41211ff`/`5d18899`), 24 (`e3eaac4`) e 25 commitadas.
 **Sessão 27 commitada e pushada:** `51bc5c8` (mesher em Worker) + `b3669ff` (wolf) +
 `0a3dd3f` (PR do openwolf) + `efaf6df` (profundidade 1 + etiqueta no perfil).
-**Sessão 28 COMMITADA, sem push** (o usuário pediu review antes de empurrar): `b9bc7a3`
-(§🌬️ frentes 1-6) + `3418cf4` (regra da correnteza, 28b) + o commit do sentido por face (28c).
+**Sessão 28 COMMITADA E PUSHADA** (2026-07-27): `b9bc7a3` (§🌬️ frentes 1-6) + `3418cf4`
+(regra da correnteza, 28b) + `7db6890` (sentido por face, 28c). Diário completo da 28 está em
+`.wolf/history.md` (rotacionado pra fora do STATUS).
 
 ---
 

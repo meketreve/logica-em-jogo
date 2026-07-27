@@ -6346,6 +6346,22 @@
       "related_bugs": [],
       "occurrences": 1,
       "last_seen": "2026-07-21T00:42:33.490Z"
+    },
+    {
+      "id": "bug-391",
+      "timestamp": "2026-07-21T00:51:57.988Z",
+      "error_message": "Significant refactor of ",
+      "file": "shared/src/worldgen.ts",
+      "root_cause": "2 lines replaced/restructured",
+      "fix": "Rewrote 5→8 lines (2 removed) | Also: /** Altura do terreno (y do bloco de topo) na colu; return Math.floor(16 + n1 * 12 + n2 * 4);",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 2,
+      "last_seen": "2026-07-21T00:52:04.079Z"
     }
   ]
 }

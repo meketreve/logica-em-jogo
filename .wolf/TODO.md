@@ -2,25 +2,22 @@
 
 > Working checklist. **STATUS.md** = handoff ("why & where we are"); **TODO.md** = "what's left to do".
 > Keep items actionable and short. Check off with `[x]`; sweep done items into STATUS.md ✅ when a phase closes.
-> Last updated: 2026-07-27 (sessão 28c — sentido da correnteza por face, commitado sem push)
+> Last updated: 2026-07-27 (sessão 28 fechada — §🌬️ aprovado no playtest, commitado e pushado)
 
 ---
 
 ## 🔥 Now (this session)
 
-- [ ] **Medir o preço do §🌬️ no notebook do lab**: `?bench` com nuvens+balanço ON, comparar
-      com a régua `…-l9xf.json` (50 FPS · p95 26,7 · GPU méd 13,0 / p95 16,8 · carga 4 508 ms).
-      Se piorar acima do ruído de 1–2%, gravar o par com `nuvens` OFF em Configurações.
-- [ ] **Playtest da correnteza (28b+28c), de balde na mão**: despejar água num declive e
-      conferir as 6 faces. Esperado: topo, baixo e as laterais PARALELAS ao fluxo acompanham a
-      água; as laterais PERPENDICULARES mostram a onda descendo (não há horizontal a mostrar
-      numa face que o fluxo atravessa) — não é bug. Mar segue o vento, também de propósito.
-      Headless não resolve: o mar gerado não tem fluxo.
+- (nada em andamento — **o §🌬️ fechou e foi aprovado no playtest**. Nenhum gatilho aceso:
+  o próximo passo é o usuário ESCOLHER do backlog abaixo.)
 
 ## ⏭️ Next (queued, ready to pick up)
 
 - [ ] Som de água (splash/borbulha/balde, WebAudio em `audio.ts`) — 4ª opção do refino de
-      água, nunca escolhida.
+      água, nunca escolhida. **Casa bem com o §🌬️ recém-fechado** (som de vento junto).
+- [ ] Perfil do §🌬️ no lab **só se o relatório quiser o número** (nuvens/balanço estão em
+      `settings` e em `BENCH_SETTINGS`; o A/B é desligar em Configurações e gravar o par).
+      Não é gatilho de desempenho — o usuário já aprovou rodando nas duas máquinas.
 - [ ] **Cauda de GPU no lab — SÓ SE VOLTAR A INCOMODAR** (nenhum gatilho aceso hoje): GPU p95
       16,8–19,6 ms contra 16,7 ms de orçamento de 60 FPS. Candidatos: teto de `raioRender` em
       GPU fraca, overdraw da água, custo de fragment.

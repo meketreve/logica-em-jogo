@@ -627,3 +627,9 @@ norte; norte/sul = baixo, que são as perpendiculares). Mar/lago segue parado no
 
 358 testes (3 novos, sobre o helper puro em vez de UV crua) · typecheck · build · smoke 6/6.
 Bug-533.
+| 08:59 | Session end: 109 writes across 24 files (vento.ts, index.ts, protocol.ts, session.ts, save.ts) | 29 reads | ~177538 tok |
+
+**Sessão 28 encerrada** (2026-07-27). §🌬️ aprovado no playtest do usuário ("achei tudo muito
+top") depois de bench no PC dele e no notebook do lab. Commitada e pushada em 3 commits:
+`b9bc7a3` (frentes 1-6) · `3418cf4` (regra da correnteza) · `7db6890` (sentido por face).
+Nenhum gatilho aceso; próxima sessão escolhe do backlog (som de água/vento é o vizinho natural).
