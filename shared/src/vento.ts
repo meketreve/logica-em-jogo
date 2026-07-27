@@ -110,6 +110,14 @@ export const ONDA_AGUA_POR_SETOR: readonly (readonly [number, number])[] = [
   [-2, 2],
 ];
 
+/** Setor de 0..7 de um vetor no plano XZ (0 = +x/leste, 2 = +z/sul). Fonte ÚNICA
+ *  da conta de setor: o vento usa via `ondaAguaDoVento`, e o mesher usa pra
+ *  escolher o tile da CORRENTEZA de uma célula de água fluida. */
+export function setorDaDirecao(dx: number, dz: number): number {
+  if (dx === 0 && dz === 0) return 0;
+  return (Math.round(Math.atan2(dz, dx) / (TAU / 8)) + 8) % 8;
+}
+
 /** Onda da água pra uma direção de vento: o par de setores vizinhos + a mistura
  *  entre eles. O PAR existe pra virada de setor não dar "pop" na correnteza —
  *  quem pinta interpola os dois (ver paintAgua no cliente). */

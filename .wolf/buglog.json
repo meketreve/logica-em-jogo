@@ -2,38 +2,6 @@
   "version": 1,
   "bugs": [
     {
-      "id": "bug-388",
-      "timestamp": "2026-07-21T00:18:07.224Z",
-      "error_message": "Significant refactor of ",
-      "file": "shared/src/world.test.ts",
-      "root_cause": "4 lines replaced/restructured",
-      "fix": "Rewrote 13→20 lines (4 removed)",
-      "tags": [
-        "auto-detected",
-        "refactor",
-        "ts"
-      ],
-      "related_bugs": [],
-      "occurrences": 1,
-      "last_seen": "2026-07-21T00:18:07.224Z"
-    },
-    {
-      "id": "bug-389",
-      "timestamp": "2026-07-21T00:42:28.634Z",
-      "error_message": "Significant refactor of ",
-      "file": "shared/src/worldgen.ts",
-      "root_cause": "2 lines replaced/restructured",
-      "fix": "Rewrote 6→7 lines (2 removed)",
-      "tags": [
-        "auto-detected",
-        "refactor",
-        "ts"
-      ],
-      "related_bugs": [],
-      "occurrences": 1,
-      "last_seen": "2026-07-21T00:42:28.634Z"
-    },
-    {
       "id": "bug-390",
       "timestamp": "2026-07-21T00:42:33.490Z",
       "error_message": "Significant refactor of ",
@@ -3368,6 +3336,27 @@
       ],
       "occurrences": 1,
       "last_seen": "2026-07-27T04:43:55.203087-03:00"
+    },
+    {
+      "id": "bug-532",
+      "timestamp": "2026-07-27T08:09:44.849208-03:00",
+      "error_message": "usuario (playtest do §🌬️, bench no PC e no notebook): 'so a animacao do vento na agua fluindo que achei contraditorio, pois a correnteza da agua fluindo deve ditar o movimento e direcao da textura'",
+      "file": "shared/src/mesher.ts",
+      "root_cause": "A frente 3 do §🌬️ amarrou a animacao de TODA a agua ao vento, porque a correnteza era UM tile do atlas repintado globalmente — direcao unica pro mundo inteiro. Funciona pra mar/lago (agua parada, onde o vento realmente e a unica forca) e e contraditorio pra agua que escorre, que tem forca propria e mais local.",
+      "fix": "Regra nova em `tileDaAgua` (mesher): o fluxo sai do GRADIENTE DE NIVEL da vizinhanca (so vizinho de agua conta; contar ar faria a borda de todo lago escorrer pra fora). Gradiente zero = parada = segue o vento; gradiente = corre pra jusante, com ritmo proprio (8 fps). 8 tiles de atlas (TILE.aguaFluxo 112-119, contiguos numa linha), um por setor de `setorDaDirecao`, escolhidos POR CELULA pelo mesher — mantem o mesher funcao pura de bytes, sem material nem atributo novo. Licao: antes de amarrar animacao ambiental a uma forca GLOBAL, checar se existe forca mais LOCAL que deveria ganhar dela.",
+      "tags": [
+        "playtest",
+        "vento",
+        "agua",
+        "correnteza",
+        "atlas",
+        "mesher",
+        "regra-de-mundo",
+        "§🌬️"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-27T08:09:44.849208-03:00"
     }
   ]
 }

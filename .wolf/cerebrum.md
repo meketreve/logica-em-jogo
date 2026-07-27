@@ -27,6 +27,13 @@
 - **Escolhe escopo GRANDE quando oferecido** (2026-07-27): diante de 4 opções de
   fatia do §🌬️, pegou "tudo (1 a 6)". Não subdimensionar a proposta por medo do
   tamanho; oferecer o escopo cheio como opção real.
+- **Aponta CONTRADIÇÃO de regra, não bug** (playtest 2026-07-27): aprovou o §🌬️
+  inteiro ("achei tudo muito top") e reprovou UMA regra — o vento mandando na
+  animação da água que ESCORRE: "a correnteza da agua fluindo deve ditar o
+  movimento e direção da textura". A crítica dele vem em forma de regra de
+  mundo ("quem corre dita a própria direção"), não de defeito visual. Ao propor
+  animação ambiental, checar antes se há uma força mais LOCAL que deveria ganhar
+  da global.
 - Quer ser desafiado no design: aceita bem quando aponto furos pedagógicos/técnicos.
 - **Convenções de Minecraft são o padrão esperado** (playtest 2026-07-13): pediu
   botão-do-meio = copiar bloco mirado; sprint que só engata com os pés no chão.
@@ -603,6 +610,23 @@
 
 ## Key Learnings — vento e vida ambiental (2026-07-27, sessão 28)
 
+- **Animação de tile do atlas: `putImageData`, não `fillRect` por pixel.** A
+  versão antiga montava uma string `rgb(r,g,b)` e trocava o `fillStyle` a cada
+  pixel — 256 strings alocadas e reparseadas por repintura. Com os 9 tiles de
+  água da regra de correnteza seriam 2 304. Escrever no buffer e mandar UM
+  `putImageData` por retângulo contíguo é ordens de grandeza mais barato — e por
+  isso os tiles de um mesmo grupo animado precisam ficar contíguos numa LINHA.
+- **Tiles animados irmãos precisam do MESMO salt de ruído.** Os 9 tiles de água
+  compartilham `AGUA_SALT`; se cada um usasse o próprio índice, o grão mudaria
+  junto com a direção e a água "piscaria" de padrão ao trocar de setor.
+- **`texture.needsUpdate` reenvia o atlas INTEIRO** (256² = 262 KB), não só o
+  tile mexido. Logo o que importa é a TAXA de repintura, não quantos tiles se
+  repintou. Dois relógios independentes somam taxas — daí o teto de 12/s.
+- **Teste que compara `.a` de um par interpolado é frágil.** `ondaAguaDoVento`
+  faz `floor` + mistura (precisa do par pro crossfade) e `setorDaDirecao` faz
+  `round`; na fronteira exata de setor o float cai em `mistura ≈ 1`, então a onda
+  EFETIVA é a certa e a `.a` não. Asserção tem de olhar o vizinho mais pesado.
+
 - **Bloco NOVO toca 9 lugares.** Checklist que a grama alta cobrou (bug-530):
   (1) `BlockId`, (2) **`MAX_BLOCK_ID`** ← o esquecido, (3) `TILE`, (4) `paint*` no
   atlas, (5) `BLOCK_TILES` (só pro ícone 2D da hotbar), (6) forma no `emitShape`,
@@ -642,6 +666,14 @@
 
 ## Decision Log
 
+- [2026-07-27] **Água CORRENTE segue o fluxo; água PARADA segue o vento** (playtest).
+  Uma regra só resolve os dois casos, sem flag nova: o mesher tira o fluxo do
+  GRADIENTE DE NÍVEL na vizinhança (só vizinho de água conta — contar ar faria a
+  borda de todo lago escorrer pra fora). Mar/lago é tudo FONTE (nível 8) →
+  gradiente zero → parada → vento. Riacho é 8→7→6→… → gradiente aponta pra
+  jusante → fluxo. Implementado como 8 TILES de atlas (um por setor) escolhidos
+  pelo mesher, não como atributo de vértice: mantém o mesher função pura de bytes
+  e não mexe em material. Os 8 têm de ficar contíguos numa linha do atlas.
 - [2026-07-27] **Vento é SÓ visual e server-autoritativo**, função pura de
   `tickCount` + seed (molde do `horaDoDia`, não do relógio de parede). Não empurra
   jogador, não entra na física. `/vento` só LIGA/DESLIGA — o usuário recusou

@@ -4,6 +4,64 @@
 
 ## Session Journal
 
+> **SESSÃO 26 (2026-07-26) — §📊 AS 7 DO PERFILADOR: TODAS ENTREGUES.** Usuário disse só
+> "continuar" → peguei a fila. **Item 7 já estava pronto** (`dispositivo()` do hud.ts já
+> trazia `nucleos`/`ramGB` desde antes — confirmado no perfil headless: 24 núcleos, 16 GB).
+> Os outros seis foram codados: **(1) `?bench`** — `client/src/bench.ts` novo. Abre sozinho um
+> mundo de seed FIXA (20260726, `?tamanho=` muda; **padrão E**, porque em mundo denso o mesher
+> já acabou antes do trajeto e a medida sairia sem a parte que mais varia entre PCs),
+> teleporta pra coordenada fixa, voa um círculo a **velocidade fixa de 18 b/s** (não "uma
+> volta no tempo dado" — senão `?bench=60` seria mais LEVE que `?bench=30` e os dois números
+> não comparariam), gira 360° parado nos últimos 25% (separa "carregar" de "desenhar") e
+> **baixa o JSON sozinho** no fim. Posição é `f(t)`, não física: PC de 20 e de 60 FPS
+> percorrem o MESMO caminho — se fosse `pos += v·dt` a máquina lenta veria menos terreno e
+> ganharia FPS de graça. Config canônica (`raioRender` 6, `meshMsPorFrame` 6, `pixelRatioCap`
+> 1, fov 75) sobrescreve o localStorage do PC do lab em memória, sem salvar. **(2)** histograma
+> de frametime (6 faixas, n + %) na gravação. **(3)** tempo de carga por FASE saindo da §🕐
+> (`conectando/mundo/malha/pronto` + total), uma entrada por carga — join e cada troca de aula.
+> **(4)** marcadores de evento com segundo e fase (join, carga concluída, troca de aula, raio
+> A→B, início/fim do bench) — o pico agora tem causa. **(5)** custo das REGRAS no servidor no
+> `debug_stats` (células/tick, pior tick, mudanças, água), campos OPCIONAIS no protocolo pra
+> host velho não derrubar a mensagem. **(6)** tempo de GPU por `EXT_disjoint_timer_query_webgl2`
+> (pool de 4 consultas, descarta leva em `GPU_DISJOINT`, só amostra com F3 aberto ou gravando).
+> VERDE: typecheck 3/3, **331 testes** (2 novos: contador de regras no tick + opcionais do
+> `debug_stats`), build ok. **Verificação headless via CDP** (script novo
+> `scripts/bench-headless.mjs`, `npm run bench:headless`): bench de 15 s em mundo E fechou com
+> trajeto exato (202,5 blocos = 18 b/s × 11,25 s), 251 colunas novas, 8,2 MB, carga medida
+> (conectando 175 ms · mundo 2 369 ms · malha 15 167 ms), 4 marcadores, histograma e
+> `regrasServidor` não-nulo (prova o campo novo atravessando o protocolo). **bug-525** achado
+> nessa verificação (dois teleportes entravam na distância). O caminho de GPU está embrulhado
+> em try/catch que desliga a medição em vez de derrubar o loop de render (headless cai no
+> SwiftShader, que nem expõe a extensão — conferido).
+> **PLAYTEST APROVADO ("que bench massa") e COMMITADO.** O usuário rodou nos dois modos, no
+> RTX 2060: **(a) perfil manual** (F3 → enviar pro servidor, host Node `:8080` após
+> `npm run build`) — GPU 7,38 ms méd / 10,37 p95 em raio 12 (**prova que o caminho de GPU
+> funciona em hardware real**), e a `carga` expôs o número que faltava: **troca de aula custa
+> 14,7 s** (mundo 7 970 ms + malha 6 317 ms, 625 colunas, 21,5 MB) contra 1,2 s no join.
+> **(b) `?bench` de 30 s = A RÉGUA** (`profiles/perf-bench-2026-07-27T01-24-08-311Z.json`):
+> 60 FPS travado, p50 16,7 · p95 **16,9** · p99 18,1 ms, 98,4% dos frames ≤33 ms, **0 long
+> tasks**, GPU **4,02 ms** méd (de 16,7 disponíveis), carga 4,76 s, 443 colunas novas em
+> 14,5 MB com **fila 0 no fim** (o streaming acompanha 18 b/s), trajeto exato (405 blocos =
+> 18 × 22,5 s). **O que a régua revela:** `remesh` 7 756× / **12,78 s de CPU em 34 s de
+> sessão** = 37% do tempo de parede, exatamente o teto do orçamento de 6 ms/frame — o mesher
+> SATURA o orçamento o tempo todo voando. Não custa FPS aqui (o orçamento segura), mas é a
+> prova quantitativa a favor do mesher em Web Worker; em PC fraco é a fila que não esvazia.
+> Nesta máquina o gargalo não é GPU nem render — é malha e rede.
+> **PARTE 2 — entrega do perfil do bench (pedido do usuário: "salvar na mesma pasta dos
+> manuais").** O `?bench` roda em SINGLEPLAYER (Web Worker): não existe socket com host, então
+> o caminho `profile_report` do F3 **não vale** ali — o JSON só podia cair no Downloads de cada
+> PC. Agora a página (que vem do próprio host em `http://<host>:8080/?bench`) faz **`POST
+> /perfil`** de mesma origem e o arquivo nasce em `profiles/`, junto dos manuais. `server/src/
+> perfis.ts` novo concentra os DOIS caminhos (WS e HTTP) na mesma pasta e na mesma regra de
+> nome: **`perf-bench-*` quando o payload tem `meta.bench`**, `perf-*` quando não tem — dá pra
+> separar no `ls` "trajeto fixo comparável" de "alguém jogando à mão". A rota vem ANTES do
+> servidor de arquivos (que só responde GET/HEAD) e é defensiva: teto de 64 KB, 20 gravações
+> por minuto, só objeto JSON, nome nunca vindo do usuário. Sem host (vite em dev), o bench
+> **cai no download** como antes. Smoke novo `_smoke-perfil-http.mjs` (8 checagens: prefixo de
+> bench · manual sem prefixo · conteúdo gravado · lixo/array 400 · 70 KB 413 · GET segue
+> servindo o jogo · só os 2 válidos gravados) e ele **limpa os próprios arquivos** — `profiles/`
+> é pasta de dado do usuário. Suíte: **6/6 smokes**, 331 testes, typecheck 3/3, build.
+
 > **SESSÃO 25b (2026-07-26) — §🧪 ENCANAMENTO DE VERIFICAÇÃO.** Papo sobre ferramental
 > virou trabalho. Duas verdades ficaram claras: (1) o valor do OpenWolf aqui é STATUS +
 > cerebrum (o handoff), não o resto; (2) **metade do Do-Not-Repeat deste projeto é sobre o
@@ -998,6 +1056,56 @@
 > segue ADIADO — sem gatilho.**
 
 ## Action Log
+
+## Session: 2026-07-25 01:44
+
+| Time | Action | File(s) | Outcome | ~Tokens |
+|------|--------|---------|---------|--------|
+| 01:47 | Edited todo.md | 2→4 lines | ~100 |
+| 01:47 | Edited todo.md | 1→6 lines | ~142 |
+| 01:58 | Edited shared/src/blocks.ts | modified colorido() | ~604 |
+| 01:58 | Edited shared/src/blocks.ts | 2→2 lines | ~37 |
+| 01:59 | Edited shared/src/blocks.ts | added 2 condition(s) | ~928 |
+| 01:59 | Edited shared/src/blocks.ts | modified isTransparentBlock() | ~76 |
+| 01:59 | Edited shared/src/blocks.ts | modified isFullCube() | ~133 |
+| 01:59 | Edited shared/src/mesher.ts | 3→8 lines | ~132 |
+| 01:59 | Edited shared/src/mesher.ts | modified fluida() | ~305 |
+| 02:00 | Edited shared/src/mesher.ts | 22→27 lines | ~108 |
+| 02:00 | Edited shared/src/mesher.ts | added 2 condition(s) | ~155 |
+| 02:00 | Edited shared/src/mesher.ts | added 1 condition(s) | ~213 |
+| 02:00 | Edited client/src/atlasTexture.ts | added 1 condition(s) | ~409 |
+| 02:01 | Edited client/src/atlasTexture.ts | modified gua() | ~152 |
+| 02:01 | Session end: 14 writes across 4 files (todo.md, blocks.ts, mesher.ts, atlasTexture.ts) | 9 reads | ~91601 tok |
+| 02:02 | Edited shared/src/physics.ts | 2→2 lines | ~38 |
+| 02:03 | Edited shared/src/physics.ts | modified temColisaoParcial() | ~183 |
+| 02:03 | Edited shared/src/physics.ts | added 8 condition(s) | ~1316 |
+| 02:03 | Edited shared/src/physics.ts | modified resolveVertical() | ~145 |
+| 02:03 | Edited shared/src/physics.ts | 4→1 lines | ~26 |
+| 02:04 | Edited shared/src/physics.ts | added 7 condition(s) | ~731 |
+| 02:04 | Edited shared/src/physics.ts | moveAxisGuarded() → moveHoriz() | ~147 |
+| 02:05 | Edited shared/src/blocks.test.ts | modified escada() | ~199 |
+| 02:06 | Edited shared/src/physics.test.ts | modified TORSO() | ~785 |
+| 02:06 | Edited shared/src/blocks.test.ts | modified it() | ~611 |
+| 02:07 | Edited shared/src/blocks.test.ts | expanded (+11 lines) | ~96 |
+| 02:07 | Edited shared/src/physics.test.ts | 9→10 lines | ~155 |
+| 02:09 | Edited client/src/blocksUi.ts | modified colorido() | ~383 |
+| 02:09 | Edited client/src/main.ts | expanded (+6 lines) | ~56 |
+| 02:09 | Edited client/src/main.ts | added 2 condition(s) | ~337 |
+| 02:10 | Edited client/src/main.ts | added 2 condition(s) | ~139 |
+| 02:10 | Edited todo.md | expanded (+6 lines) | ~227 |
+| 02:11 | Edited todo.md | 2→6 lines | ~133 |
+
+## Sessão 20 (2026-07-25) — vidro colorido + lajes + escadas
+Backlog revisado; usuário pediu vidros/slabs/escadas + perguntou OpenWolf vs Obsidian
+(resposta: não trocar, complementar; STATUS.md precisa poda — não feita, aguarda ok).
+Implementado (ids 137-178): vidro colorido (12, cutout dither), lajes (6), escadas (24).
+`collisionBoxes(id)` = fonte única forma(mesher)+colisão(física). Física: colisão parcial,
+resolveVertical (topo real), STEP-UP automático (moveHoriz), hasSupport parcial. Cliente:
+blocksUi + main.ts (metade pela face, direção pelo olhar). Server intacto. VERDE: typecheck
+0, 313 testes (+9), build ok. Marcados 2 itens stale do todo (água fluida, abas inventário).
+NÃO commitado; playtest no browser pendente.
+| 02:12 | Session end: 32 writes across 9 files (todo.md, blocks.ts, mesher.ts, atlasTexture.ts, physics.ts) | 11 reads | ~101950 tok |
+| 02:13 | Session end: 32 writes across 9 files (todo.md, blocks.ts, mesher.ts, atlasTexture.ts, physics.ts) | 11 reads | ~101950 tok |
 
 ## Session: 2026-07-25 00:59
 

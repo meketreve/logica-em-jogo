@@ -1,7 +1,7 @@
 # anatomy.md
 
-> Auto-maintained by OpenWolf. Last scanned: 2026-07-27T07:44:49.361Z
-> Files: 232 tracked | Anatomy hits: 0 | Misses: 0
+> Auto-maintained by OpenWolf. Last scanned: 2026-07-27T11:09:45.261Z
+> Files: 234 tracked | Anatomy hits: 0 | Misses: 0
 
 ## ./
 
@@ -221,7 +221,7 @@
 - `aguaFx.ts` — Efeitos de estar submerso (2026-07-26): névoa FogExp2 na cena + div de tint azul (z-index 1, abaixo da UI). Decide pelo OLHO (`olhoNaAgua`, respeita o nível da água). (~752 tok)
   - class `AguaFx` L14-48 (~421 tok)
   - fn `olhoNaAgua` L49-59 (~127 tok)
-- `atlasTexture.ts` — Texture atlas procedural pintado num canvas (sem assets externos — restrição (~7713 tok)
+- `atlasTexture.ts` — Texture atlas procedural pintado num canvas (sem assets externos — restrição (~8420 tok)
   - fn `pixelHash` L11-18 (~79 tok)
   - fn `paintNoise` L19-42 (~206 tok)
   - fn `paintCobbleCracks` L43-55 (~146 tok)
@@ -248,10 +248,10 @@
   - fn `paintMandacaru` L343-356 (~174 tok)
   - fn `paintMandacaruTopo` L357-370 (~164 tok)
   - fn `paintFlor` L371-399 (~332 tok)
-  - fn `paintGramaAlta` L400-436 (~574 tok)
-  - fn `paintAgua` L437-477 (~507 tok)
-  - section `OndaAgua` L478-496 (~242 tok)
-  - fn `animarAguaAtlas` L497-641 (~1854 tok)
+  - fn `paintGramaAlta` L400-425 (~361 tok)
+  - section `OndaAgua` L426-462 (~528 tok)
+  - fn `escreverAgua` L463-519 (~698 tok)
+  - fn `pintarAguas` L520-704 (~2292 tok)
 - `audio.ts` — Som de INTERFACE (menus, botões, notificações) — sintetizado com WebAudio, (~992 tok)
   - fn `ensureCtx` L15-29 (~103 tok)
   - fn `setUiVolume` L30-35 (~49 tok)
@@ -313,7 +313,7 @@
   - fn `fmtBytes` L139-144 (~48 tok)
   - fn `fmtSeg` L145-148 (~23 tok)
   - class `LoadingScreen` L149-449 (~3406 tok)
-- `main.ts` — O cliente não tem filesystem: aprende os nomes das aulas pela resposta de (~25167 tok)
+- `main.ts` — O cliente não tem filesystem: aprende os nomes das aulas pela resposta de (~25504 tok)
   - fn `cachearMundos` L98-189 (~1177 tok)
   - fn `applySettings` L190-245 (~844 tok)
   - fn `showOverlayMain` L246-250 (~35 tok)
@@ -335,7 +335,7 @@
   - fn `startMultiplayer` L702-719 (~224 tok)
   - fn `startSingleplayer` L720-741 (~249 tok)
   - fn `persistWorld` L742-789 (~520 tok)
-  - fn `startGame` L790-2066 (~15803 tok)
+  - fn `startGame` L790-2086 (~16140 tok)
 - `menu.ts` — Menu principal (cp8) — HTML/CSS por cima do canvas, sem GUI de engine. (~4695 tok)
   - section `PlayWorldChoice` L35-49 (~166 tok)
   - section `MultiAuth` L50-54 (~19 tok)
@@ -444,12 +444,12 @@
 
 ## mundos/mundo-livre/
 
-- `chat.log` (~2220 tok)
+- `chat.log` (~2418 tok)
 
 ## mundos/playtest-streaming/
 
 - `chat.log` (~604 tok)
-- `playtest-streaming.ljw` (~86 tok)
+- `playtest-streaming.ljw` (~1179 tok)
 
 ## mundos/smoke-coluna/
 
@@ -494,6 +494,8 @@
 - `perf-bench-1785134781360-tkc7.json` (~1509 tok)
 - `perf-bench-1785134829421-l9xf.json` (~1434 tok)
 - `perf-bench-1785134871734-bjrv.json` (~1510 tok)
+- `perf-bench-1785149563442-2zcg.json` (~1462 tok)
+- `perf-bench-1785149642860-j1lu.json` (~1540 tok)
 - `perf-bench-2026-07-27T01-24-08-311Z.json` (~1421 tok)
 
 ## registros/
@@ -698,22 +700,23 @@
   - fn `criarRegiao` L51-325 (~3268 tok)
 - `groups.ts` — Grupos de alunos (cp13) — membros por NOME (mesma identidade do roster: (~280 tok)
 - `index.ts` (~159 tok)
-- `mesher.test.ts` — Todos os vértices de topo, agrupados por canto (x,z) do mundo. (~3880 tok)
-- `mesher.ts` — Culled mesher: função PURA (bytes do mundo → geometria). Só emite faces que (~11932 tok)
-  - section `FaceTiles` L144-289 (~2044 tok)
-  - fn `blockIconTile` L290-298 (~136 tok)
-  - fn `blockSelectionBox` L299-335 (~490 tok)
-  - section `FaceCorner` L336-340 (~34 tok)
-  - section `Face` L341-405 (~470 tok)
-  - section `UvAxis` L406-410 (~17 tok)
-  - fn `uvAxisOf` L411-435 (~316 tok)
-  - fn `rotXZ` L436-455 (~199 tok)
-  - fn `swayDoBloco` L456-461 (~44 tok)
-  - section `ChunkGeometry` L462-500 (~590 tok)
-  - fn `vizIndex` L501-525 (~280 tok)
-  - fn `extrairVizinhanca` L526-562 (~374 tok)
-  - fn `meshChunk` L563-569 (~101 tok)
-  - fn `meshVizinhanca` L570-997 (~5686 tok)
+- `mesher.test.ts` — Quais TILES do atlas a geometria usa, deduzidos das UVs. Assim o teste checa (~4675 tok)
+  - fn `tilesUsados` L21-385 (~4550 tok)
+- `mesher.ts` — Culled mesher: função PURA (bytes do mundo → geometria). Só emite faces que (~12686 tok)
+  - section `FaceTiles` L156-301 (~2044 tok)
+  - fn `blockIconTile` L302-310 (~136 tok)
+  - fn `blockSelectionBox` L311-347 (~490 tok)
+  - section `FaceCorner` L348-352 (~34 tok)
+  - section `Face` L353-417 (~470 tok)
+  - section `UvAxis` L418-422 (~17 tok)
+  - fn `uvAxisOf` L423-455 (~367 tok)
+  - fn `rotXZ` L456-475 (~199 tok)
+  - fn `swayDoBloco` L476-481 (~44 tok)
+  - section `ChunkGeometry` L482-520 (~590 tok)
+  - fn `vizIndex` L521-545 (~280 tok)
+  - fn `extrairVizinhanca` L546-582 (~374 tok)
+  - fn `meshChunk` L583-589 (~101 tok)
+  - fn `meshVizinhanca` L590-1060 (~6210 tok)
 - `physics.test.ts` — Mundo 1 chunk com chão sólido em y ∈ [0,7]. (~4462 tok)
   - fn `flatWorld` L15-22 (~63 tok)
   - fn `simulate` L23-359 (~4315 tok)
@@ -828,14 +831,15 @@
   - fn `colunasDe` L47-354 (~4324 tok)
 - `tp.test.ts` — /tpr (pedir teleporte) + /tpa (aceitar) — todos os jogadores; e /tp nome / (~1496 tok)
   - fn `makeTp` L12-133 (~1389 tok)
-- `vento.test.ts` — §🌬️ (2026-07-27): o vento é a MESMA engrenagem do horaDoDia — função pura do (~1435 tok)
-- `vento.ts` — Vento como ESTADO DO MUNDO (§🌬️, 2026-07-27) — server-autoritativo e SÓ (~1558 tok)
+- `vento.test.ts` — §🌬️ (2026-07-27): o vento é a MESMA engrenagem do horaDoDia — função pura do (~1886 tok)
+- `vento.ts` — Vento como ESTADO DO MUNDO (§🌬️, 2026-07-27) — server-autoritativo e SÓ (~1670 tok)
   - section `Vento` L21-38 (~198 tok)
   - fn `faseDaSeed` L39-49 (~126 tok)
   - fn `ventoNoTick` L50-71 (~287 tok)
   - fn `ventoRumo` L72-78 (~87 tok)
   - fn `ventoIntensidade` L79-115 (~455 tok)
-  - fn `ondaAguaDoVento` L116-129 (~104 tok)
+  - fn `setorDaDirecao` L116-123 (~112 tok)
+  - fn `ondaAguaDoVento` L124-137 (~104 tok)
 - `version.ts` — Versão do jogo — FONTE ÚNICA = campo "version" do package.json da raiz (import JSON tree-shaken); bump via `npm version`. (~135 tok)
 - `water.test.ts` — Autômato celular síncrono: coleta as mudanças de TODA célula com regra (~1673 tok)
   - fn `simular` L12-32 (~231 tok)

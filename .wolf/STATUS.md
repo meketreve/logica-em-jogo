@@ -1,6 +1,41 @@
 # STATUS — Projeto "Lógica em Jogo" (jogo voxel educacional)
 
 > Single source of truth for resuming work. Read this FIRST when starting a session.
+> **SESSÃO 28b (2026-07-27) — PLAYTEST DO §🌬️: a regra da correnteza.**
+> O usuário rodou bench no PC dele e no notebook: **"achei tudo muito top"**, com UMA ressalva
+> — e ela é de REGRA, não de bug: *"só a animação do vento na agua fluindo que achei
+> contraditório, pois a correnteza da agua fluindo deve ditar o movimento e direção da
+> textura"*. Está certo: vento não manda em correnteza.
+>
+> **Uma regra resolve os dois casos, sem flag nova.** `tileDaAgua` (mesher) tira o fluxo do
+> **GRADIENTE DE NÍVEL** da vizinhança: cada vizinho horizontal de nível MENOR puxa a água pra
+> lá, com peso na diferença. Só vizinho de ÁGUA conta — contar ar faria a borda de todo lago
+> "escorrer pra fora". Daí:
+> - **mar/lago** do worldgen é 100% FONTE (nível 8) → gradiente zero → **água parada, segue o
+>   vento** (a frente 3 continua valendo onde ela faz sentido);
+> - **riacho/queda** é 8→7→6→… → gradiente aponta pra jusante → **segue o fluxo**, com ritmo
+>   próprio (8 fps fixos), alheio ao vento. A fonte no topo da queda tem vizinho mais baixo,
+>   então ela corre também.
+>
+> **Como foi feito:** 8 tiles de atlas (`TILE.aguaFluxo` 112-119), um por setor de
+> `setorDaDirecao`, e o MESHER escolhe o tile por célula. Não virou atributo de vértice nem
+> material novo de propósito — assim o mesher segue função pura de bytes, o contrato do Worker
+> não muda e o remesh que a água já dispara ao mudar de nível reaproveita tudo.
+>
+> **Dois cuidados de custo que entraram junto.** (1) A pintura da água virou `putImageData`: a
+> versão anterior montava uma string `rgb(r,g,b)` e trocava o `fillStyle` A CADA PIXEL, e com 9
+> tiles de água isso seriam 2 304 strings alocadas e reparseadas por repintura. (2) **Teto de
+> 12 repinturas/s**, porque `texture.needsUpdate` reenvia o atlas INTEIRO (256², 262 KB) — não
+> só o tile mexido — e dois relógios independentes somariam mais de 20/s na GPU do lab.
+> ⚠️ Por isso os 8 tiles de fluxo TÊM de ficar contíguos no começo de uma linha do atlas: um
+> `putImageData` de 128×16 exige retângulo (travado em teste).
+>
+> **Verificação:** typecheck · **355 testes** (5 novos: lago de fontes fica parado · riacho
+> 8→7→6 aponta pra jusante · rumo acompanha o eixo · contiguidade dos 8 tiles ·
+> `setorDaDirecao`) · build · **riacho SIMULADO com o `waterRule` de verdade** (fonte num platô,
+> 40 ticks) mostrando os 8 setores radiais e o mar na água parada · `?atlas` no headless
+> confirmando a faixa dos 8 tiles pintada no lugar certo.
+
 > **SESSÃO 28 (2026-07-27) — §🌬️ VENTO + VIDA AMBIENTAL: as 6 frentes, de uma vez.**
 > O usuário escolheu o §🌬️ do ROADMAP, pediu as perguntas em LOTE antes de ficar AFK e
 > respondeu: **escopo TODO (frentes 1 a 6)** · vento com **rotação lenta + rajadas** ·
@@ -228,63 +263,6 @@
 > ⚠️ **Teto que knob nenhum passa: GPU p95 ~16,8–19,6 ms contra 16,7 ms de orçamento.** O
 > mesher ACABOU. O próximo alvo, se ainda incomodar, é GPU (raio de render em GPU fraca,
 > overdraw da água, custo de fragment) — ver TODO ⏭️.
-> **SESSÃO 26 (2026-07-26) — §📊 AS 7 DO PERFILADOR: TODAS ENTREGUES.** Usuário disse só
-> "continuar" → peguei a fila. **Item 7 já estava pronto** (`dispositivo()` do hud.ts já
-> trazia `nucleos`/`ramGB` desde antes — confirmado no perfil headless: 24 núcleos, 16 GB).
-> Os outros seis foram codados: **(1) `?bench`** — `client/src/bench.ts` novo. Abre sozinho um
-> mundo de seed FIXA (20260726, `?tamanho=` muda; **padrão E**, porque em mundo denso o mesher
-> já acabou antes do trajeto e a medida sairia sem a parte que mais varia entre PCs),
-> teleporta pra coordenada fixa, voa um círculo a **velocidade fixa de 18 b/s** (não "uma
-> volta no tempo dado" — senão `?bench=60` seria mais LEVE que `?bench=30` e os dois números
-> não comparariam), gira 360° parado nos últimos 25% (separa "carregar" de "desenhar") e
-> **baixa o JSON sozinho** no fim. Posição é `f(t)`, não física: PC de 20 e de 60 FPS
-> percorrem o MESMO caminho — se fosse `pos += v·dt` a máquina lenta veria menos terreno e
-> ganharia FPS de graça. Config canônica (`raioRender` 6, `meshMsPorFrame` 6, `pixelRatioCap`
-> 1, fov 75) sobrescreve o localStorage do PC do lab em memória, sem salvar. **(2)** histograma
-> de frametime (6 faixas, n + %) na gravação. **(3)** tempo de carga por FASE saindo da §🕐
-> (`conectando/mundo/malha/pronto` + total), uma entrada por carga — join e cada troca de aula.
-> **(4)** marcadores de evento com segundo e fase (join, carga concluída, troca de aula, raio
-> A→B, início/fim do bench) — o pico agora tem causa. **(5)** custo das REGRAS no servidor no
-> `debug_stats` (células/tick, pior tick, mudanças, água), campos OPCIONAIS no protocolo pra
-> host velho não derrubar a mensagem. **(6)** tempo de GPU por `EXT_disjoint_timer_query_webgl2`
-> (pool de 4 consultas, descarta leva em `GPU_DISJOINT`, só amostra com F3 aberto ou gravando).
-> VERDE: typecheck 3/3, **331 testes** (2 novos: contador de regras no tick + opcionais do
-> `debug_stats`), build ok. **Verificação headless via CDP** (script novo
-> `scripts/bench-headless.mjs`, `npm run bench:headless`): bench de 15 s em mundo E fechou com
-> trajeto exato (202,5 blocos = 18 b/s × 11,25 s), 251 colunas novas, 8,2 MB, carga medida
-> (conectando 175 ms · mundo 2 369 ms · malha 15 167 ms), 4 marcadores, histograma e
-> `regrasServidor` não-nulo (prova o campo novo atravessando o protocolo). **bug-525** achado
-> nessa verificação (dois teleportes entravam na distância). O caminho de GPU está embrulhado
-> em try/catch que desliga a medição em vez de derrubar o loop de render (headless cai no
-> SwiftShader, que nem expõe a extensão — conferido).
-> **PLAYTEST APROVADO ("que bench massa") e COMMITADO.** O usuário rodou nos dois modos, no
-> RTX 2060: **(a) perfil manual** (F3 → enviar pro servidor, host Node `:8080` após
-> `npm run build`) — GPU 7,38 ms méd / 10,37 p95 em raio 12 (**prova que o caminho de GPU
-> funciona em hardware real**), e a `carga` expôs o número que faltava: **troca de aula custa
-> 14,7 s** (mundo 7 970 ms + malha 6 317 ms, 625 colunas, 21,5 MB) contra 1,2 s no join.
-> **(b) `?bench` de 30 s = A RÉGUA** (`profiles/perf-bench-2026-07-27T01-24-08-311Z.json`):
-> 60 FPS travado, p50 16,7 · p95 **16,9** · p99 18,1 ms, 98,4% dos frames ≤33 ms, **0 long
-> tasks**, GPU **4,02 ms** méd (de 16,7 disponíveis), carga 4,76 s, 443 colunas novas em
-> 14,5 MB com **fila 0 no fim** (o streaming acompanha 18 b/s), trajeto exato (405 blocos =
-> 18 × 22,5 s). **O que a régua revela:** `remesh` 7 756× / **12,78 s de CPU em 34 s de
-> sessão** = 37% do tempo de parede, exatamente o teto do orçamento de 6 ms/frame — o mesher
-> SATURA o orçamento o tempo todo voando. Não custa FPS aqui (o orçamento segura), mas é a
-> prova quantitativa a favor do mesher em Web Worker; em PC fraco é a fila que não esvazia.
-> Nesta máquina o gargalo não é GPU nem render — é malha e rede.
-> **PARTE 2 — entrega do perfil do bench (pedido do usuário: "salvar na mesma pasta dos
-> manuais").** O `?bench` roda em SINGLEPLAYER (Web Worker): não existe socket com host, então
-> o caminho `profile_report` do F3 **não vale** ali — o JSON só podia cair no Downloads de cada
-> PC. Agora a página (que vem do próprio host em `http://<host>:8080/?bench`) faz **`POST
-> /perfil`** de mesma origem e o arquivo nasce em `profiles/`, junto dos manuais. `server/src/
-> perfis.ts` novo concentra os DOIS caminhos (WS e HTTP) na mesma pasta e na mesma regra de
-> nome: **`perf-bench-*` quando o payload tem `meta.bench`**, `perf-*` quando não tem — dá pra
-> separar no `ls` "trajeto fixo comparável" de "alguém jogando à mão". A rota vem ANTES do
-> servidor de arquivos (que só responde GET/HEAD) e é defensiva: teto de 64 KB, 20 gravações
-> por minuto, só objeto JSON, nome nunca vindo do usuário. Sem host (vite em dev), o bench
-> **cai no download** como antes. Smoke novo `_smoke-perfil-http.mjs` (8 checagens: prefixo de
-> bench · manual sem prefixo · conteúdo gravado · lixo/array 400 · 70 KB 413 · GET segue
-> servindo o jogo · só os 2 válidos gravados) e ele **limpa os próprios arquivos** — `profiles/`
-> é pasta de dado do usuário. Suíte: **6/6 smokes**, 331 testes, typecheck 3/3, build.
 
 ---
 
@@ -509,8 +487,10 @@ Documento é o ÚLTIMO entregável, não o primeiro. Construir, não documentar.
 ## 🚀 Próxima fase — MEDIR O PREÇO DO §🌬️ NO LAB, depois escolher do backlog.
 
 **O §🌬️ (vento + vida ambiental) foi entregue INTEIRO na sessão 28** — as 6 frentes, verde em
-typecheck/testes/build/smoke e conferido em screenshot headless. **Há UM passo pendente e ele
-é de medição, não de código:**
+typecheck/testes/build/smoke e conferido em screenshot headless. **O usuário já fez o bench e
+aprovou** ("achei tudo muito top"); a única ressalva dele, a regra da correnteza, foi
+implementada na sessão 28b (ver o diário acima). **Há UM passo pendente e ele é de medição,
+não de código:**
 
 > **Rodar `?bench` no notebook do laboratório com o §🌬️ ligado** e comparar com a régua
 > `…-l9xf.json` (50 FPS · p95 26,7 · GPU méd 13,0 / p95 16,8 · carga 4 508 ms). Nuvens custam
@@ -519,10 +499,10 @@ typecheck/testes/build/smoke e conferido em screenshot headless. **Há UM passo 
 > gravar o segundo perfil (mesma régua do `?semworker`). As duas chaves existem justamente
 > pra isso — `settings.nuvens` e `settings.balanco`, ambas ON e fixadas em `BENCH_SETTINGS`.
 
-Além disso, o §🌬️ nunca foi visto EM JOGO por um humano: o headless roda em SwiftShader a
-16 FPS e a câmera do bench voa alto. Vale um playtest curto olhando (a) a correnteza da água
-mudando de rumo, (b) o capim vergando, (c) as nuvens passando — é o tipo de coisa que o
-usuário reprova por "sensação", não por bug (ver User Preferences do cerebrum).
+O que ainda não foi visto em jogo é **a regra da correnteza da 28b**: falta olhar um riacho ou
+uma queda de balde e conferir que a textura desce COM a água (o mar, que é tudo fonte, segue o
+vento de propósito). O headless não resolve isso — roda em SwiftShader a 16 FPS, a câmera do
+bench voa alto e o mar gerado não tem fluxo nenhum. É playtest de balde na mão.
 
 Fora isso, **nenhum gatilho de desempenho está aceso** e quem retomar ESCOLHE do backlog.
 
@@ -574,7 +554,8 @@ sessão futura achar isso "inconsistente", é decisão validada em playtest — 
 Sessões 20+21 (`26151f9`/`41211ff`/`5d18899`), 24 (`e3eaac4`) e 25 commitadas.
 **Sessão 27 commitada e pushada:** `51bc5c8` (mesher em Worker) + `b3669ff` (wolf) +
 `0a3dd3f` (PR do openwolf) + `efaf6df` (profundidade 1 + etiqueta no perfil).
-**Sessão 28 COMMITADA, sem push** (o usuário pediu review antes de empurrar).
+**Sessão 28 COMMITADA, sem push** (o usuário pediu review antes de empurrar): `b9bc7a3`
+(§🌬️ frentes 1-6) + o commit da regra da correnteza (28b).
 
 ---
 

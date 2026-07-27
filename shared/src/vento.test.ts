@@ -5,6 +5,7 @@ import {
   VENTO_GIRO_SEGUNDOS,
   VENTO_PARADO,
   ondaAguaDoVento,
+  setorDaDirecao,
   ventoIntensidade,
   ventoNoTick,
   ventoRumo,
@@ -109,6 +110,33 @@ describe("vento", () => {
     expect(meio.b).toEqual(ONDA_AGUA_POR_SETOR[1]);
     // volta inteira sem estourar índice
     for (let d = -10; d < 10; d += 0.1) expect(ondaAguaDoVento(d).a).toBeDefined();
+  });
+
+  it("setorDaDirecao: mesma conta pro vento e pra correnteza da água", () => {
+    // é a fonte ÚNICA de "que setor é esta direção": o vento chega por ângulo, o
+    // fluxo da água chega por VETOR (gradiente de nível), e os dois têm de cair
+    // no mesmo setor — senão a água corrente e a parada discordariam do rumo.
+    expect(setorDaDirecao(1, 0)).toBe(0); // leste (+x)
+    expect(setorDaDirecao(1, 1)).toBe(1);
+    expect(setorDaDirecao(0, 1)).toBe(2); // sul (+z)
+    expect(setorDaDirecao(-1, 0)).toBe(4); // oeste (−x)
+    expect(setorDaDirecao(0, -1)).toBe(6); // norte (−z)
+    expect(setorDaDirecao(0, 0)).toBe(0); // sem direção: setor neutro, nunca NaN
+    // magnitude não muda o setor (o gradiente da água tem peso na diferença)
+    expect(setorDaDirecao(3, 0)).toBe(setorDaDirecao(1, 0));
+    expect(setorDaDirecao(0, 7)).toBe(setorDaDirecao(0, 1));
+    // Concorda com a onda que o vento escolhe. Comparar `.a` cru NÃO serve: o
+    // `ondaAguaDoVento` faz floor + mistura (precisa do PAR pro crossfade) e o
+    // `setorDaDirecao` faz round, então na fronteira exata o float cai em
+    // `mistura ≈ 1` — a onda EFETIVA é a certa, só não é a `.a`. Por isso a
+    // asserção olha o setor efetivo (o vizinho mais pesado da mistura).
+    for (let s = 0; s < 8; s++) {
+      const ang = (s * Math.PI) / 4;
+      expect(setorDaDirecao(Math.cos(ang), Math.sin(ang))).toBe(s);
+      const onda = ondaAguaDoVento(ang);
+      const efetiva = onda.mistura < 0.5 ? onda.a : onda.b;
+      expect(efetiva).toEqual(ONDA_AGUA_POR_SETOR[s]);
+    }
   });
 
   it("rumo e intensidade traduzem pro professor", () => {

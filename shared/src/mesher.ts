@@ -30,6 +30,7 @@ import {
   stairsMaterial,
 } from "./blocks";
 import { CHUNK_SIZE } from "./constants";
+import { setorDaDirecao } from "./vento";
 import { type World, chunkIndex, getBlock } from "./world";
 
 /**
@@ -129,6 +130,17 @@ export const TILE = {
   gramaAlta: 107,
   gramaAltaSeca: 108,
   gramaAltaFria: 109,
+  /**
+   * Correnteza da água (2026-07-27, playtest do §🌬️): 8 tiles, um por SETOR de
+   * direção de fluxo (`setorDaDirecao`). `agua` (94) continua sendo a água
+   * PARADA, que segue o vento; estes 8 são a água que CORRE, e aí quem manda é o
+   * fluxo, não o vento — o usuário apontou que o contrário era contraditório.
+   *
+   * ⚠️ Os 8 têm de ficar CONTÍGUOS e alinhados no começo de uma linha do atlas
+   * (112 = coluna 0 da linha 7, com 16 tiles por linha): o cliente repinta os 8
+   * de uma vez com UM `putImageData` de 128×16, e isso exige retângulo.
+   */
+  aguaFluxo: 112,
 } as const;
 
 /** cp20: blocos-glifo. Letras A–Z e dígitos 0–9 ocupam tiles consecutivos a
@@ -423,6 +435,14 @@ const FACE_UVS: readonly { u: UvAxis; v: UvAxis }[] = FACES.map((f) => {
 
 /** 1/16 da célula — o "pixel" das formas não-cubo (16 texels por face). */
 const P = 1 / 16;
+
+/** Os 4 vizinhos no plano XZ (gradiente da correnteza da água). */
+const VIZINHOS_XZ: readonly (readonly [number, number])[] = [
+  [1, 0],
+  [-1, 0],
+  [0, 1],
+  [0, -1],
+];
 
 /** Altura do topo da água de nível MÁXIMO (fonte, 8/8). Fica abaixo do teto da
  *  célula pra a superfície ler como "lâmina d'água" e não como bloco cheio —
@@ -903,6 +923,41 @@ export function meshVizinhanca(viz: Uint8Array): ChunkGeometry {
     return n === 0 ? AGUA_TOPO : (soma / n / 8) * AGUA_TOPO;
   };
 
+  /**
+   * Tile de uma célula de ÁGUA (2026-07-27, playtest do §🌬️).
+   *
+   * A regra que o usuário pediu: **quem corre dita a própria direção.** Água que
+   * escorre tem correnteza, e a correnteza — não o vento — manda na textura.
+   *
+   * O fluxo sai do GRADIENTE DE NÍVEL na vizinhança: cada vizinho horizontal com
+   * nível MENOR puxa a água pra lá, com peso na diferença. Só água conta como
+   * vizinho (ar NÃO): o `waterRule` já espalhou o que dava, e contar ar faria a
+   * borda de todo lago "escorrer pra fora".
+   *
+   * Isso resolve lago/mar e riacho com UMA regra, sem flag nova: mar é tudo
+   * FONTE (nível 8), gradiente zero → água parada → segue o vento. Riacho é
+   * 8→7→6→… → gradiente aponta pra jusante → segue o fluxo. A fonte no topo de
+   * uma queda tem vizinho mais baixo, então ela corre também, como deve.
+   *
+   * Continua função pura da vizinhança (lê ±1 no plano), então `meshVizinhanca`
+   * segue idêntico a `meshChunk` e o Worker não precisa de nada novo.
+   */
+  const tileDaAgua = (lx: number, ly: number, lz: number, id: number): number => {
+    const meu = aguaNivel(id);
+    let fx = 0;
+    let fz = 0;
+    for (const [dx, dz] of VIZINHOS_XZ) {
+      const nb = bloco(lx + dx, ly, lz + dz);
+      if (!isAgua(nb)) continue;
+      const d = meu - aguaNivel(nb);
+      if (d <= 0) continue;
+      fx += dx * d;
+      fz += dz * d;
+    }
+    if (fx === 0 && fz === 0) return TILE.agua; // parada: o vento manda
+    return TILE.aguaFluxo + setorDaDirecao(fx, fz);
+  };
+
   for (let ly = 0; ly < CHUNK_SIZE; ly++) {
     for (let lz = 0; lz < CHUNK_SIZE; lz++) {
       for (let lx = 0; lx < CHUNK_SIZE; lx++) {
@@ -932,6 +987,9 @@ export function meshVizinhanca(viz: Uint8Array): ChunkGeometry {
               [alturaCantoAgua(lx, ly, lz, 1, 0), alturaCantoAgua(lx, ly, lz, 1, 1)],
             ]
           : null;
+        // §🌬️ (2026-07-27): água CORRENTE usa o tile do seu setor de fluxo; água
+        // parada usa o tile que o vento anima. Uma vez por célula, não por face.
+        const tileAgua = cantos ? tileDaAgua(lx, ly, lz, id) : 0;
 
         for (const face of FACES) {
           const neighbor = bloco(lx + face.dir[0], ly + face.dir[1], lz + face.dir[2]);
@@ -950,8 +1008,13 @@ export function meshVizinhanca(viz: Uint8Array): ChunkGeometry {
             }
           }
 
-          const tile =
-            face.dir[1] === 1 ? tiles.top : face.dir[1] === -1 ? tiles.bottom : tiles.side;
+          const tile = cantos
+            ? tileAgua
+            : face.dir[1] === 1
+              ? tiles.top
+              : face.dir[1] === -1
+                ? tiles.bottom
+                : tiles.side;
           const col = tile % n;
           const row = (tile / n) | 0;
           const u0 = col / n + inset;

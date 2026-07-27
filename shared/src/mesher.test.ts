@@ -1,7 +1,9 @@
 import { describe, expect, it } from "vitest";
 import {
   AGUA_TOPO,
+  ATLAS,
   BlockId,
+  TILE,
   createWorld,
   extrairVizinhanca,
   getBlock,
@@ -9,9 +11,24 @@ import {
   meshChunk,
   meshVizinhanca,
   setBlock,
+  setorDaDirecao,
 } from "./index";
 
 const DIMS = { x: 1, z: 1, y: 1 } as const;
+
+/** Quais TILES do atlas a geometria usa, deduzidos das UVs. Assim o teste checa
+ *  a escolha de tile do mesher sem precisar espiar variável interna. */
+function tilesUsados(g: { uvs: Float32Array }): Set<number> {
+  const n = ATLAS.tilesPerRow;
+  const usados = new Set<number>();
+  for (let i = 0; i < g.uvs.length; i += 2) {
+    const col = Math.floor(g.uvs[i]! * n);
+    // v cresce pra CIMA no atlas e a linha 0 é a de cima → inverte
+    const row = n - 1 - Math.floor(g.uvs[i + 1]! * n);
+    usados.add(row * n + col);
+  }
+  return usados;
+}
 
 describe("culled mesher (função pura: bytes → geometria)", () => {
   it("chunk vazio gera geometria vazia", () => {
@@ -311,6 +328,51 @@ describe("vizinhança padded (o que atravessa pro Web Worker)", () => {
     const daCruz = [...g.sway].filter((v) => v > 0).length;
     expect(daCruz).toBe(8); // só os topos das 4 faces (2 lâminas × frente/verso)
     expect(isPlaceable(BlockId.GramaAlta)).toBe(true);
+  });
+
+  it("correnteza: lago de FONTES fica parado (segue o vento)", () => {
+    // playtest 2026-07-27: o usuário apontou que amarrar água CORRENTE ao vento
+    // era contraditório. A regra separa os dois casos pelo gradiente de nível —
+    // mar/lago é tudo fonte (nível 8), gradiente zero, então é água parada.
+    const w = createWorld(DIMS);
+    for (let x = 4; x <= 9; x++) {
+      for (let z = 4; z <= 9; z++) setBlock(w, x, 5, z, BlockId.Agua);
+    }
+    const tiles = tilesUsados(meshChunk(w, 0, 0, 0));
+    expect(tiles.has(TILE.agua)).toBe(true);
+    for (let s = 0; s < 8; s++) expect(tiles.has(TILE.aguaFluxo + s)).toBe(false);
+  });
+
+  it("correnteza: riacho 8→7→6 aponta pra JUSANTE, não pro vento", () => {
+    // fonte em x=4 e níveis caindo pra +x: o fluxo tem de apontar pra +x (setor 0)
+    const w = createWorld(DIMS);
+    setBlock(w, 4, 5, 8, BlockId.Agua); // nível 8
+    setBlock(w, 5, 5, 8, BlockId.AguaFluida7);
+    setBlock(w, 6, 5, 8, BlockId.AguaFluida6);
+    setBlock(w, 7, 5, 8, BlockId.AguaFluida5);
+    const tiles = tilesUsados(meshChunk(w, 0, 0, 0));
+    // setor 0 = +x (leste): TODA célula do riacho corre pro mesmo lado
+    expect(tiles.has(TILE.aguaFluxo + setorDaDirecao(1, 0))).toBe(true);
+    expect(tiles.has(TILE.aguaFluxo + setorDaDirecao(-1, 0))).toBe(false);
+    // a ponta rasa (nível 5) não tem vizinho mais baixo → volta a ser parada
+    expect(tiles.has(TILE.agua)).toBe(true);
+  });
+
+  it("correnteza: o rumo acompanha o eixo do riacho (+z dá outro setor)", () => {
+    const w = createWorld(DIMS);
+    setBlock(w, 8, 5, 4, BlockId.Agua);
+    setBlock(w, 8, 5, 5, BlockId.AguaFluida7);
+    setBlock(w, 8, 5, 6, BlockId.AguaFluida6);
+    const tiles = tilesUsados(meshChunk(w, 0, 0, 0));
+    expect(tiles.has(TILE.aguaFluxo + setorDaDirecao(0, 1))).toBe(true);
+    expect(tiles.has(TILE.aguaFluxo + setorDaDirecao(1, 0))).toBe(false);
+  });
+
+  it("correnteza: os 8 tiles de fluxo são CONTÍGUOS numa linha do atlas", () => {
+    // o cliente repinta os 8 com UM putImageData de 128×16 — precisa de retângulo
+    const col = TILE.aguaFluxo % ATLAS.tilesPerRow;
+    expect(col).toBe(0);
+    expect(col + 8).toBeLessThanOrEqual(ATLAS.tilesPerRow);
   });
 
   it("chunk 100% ar (e chunk ausente) devolve null — fast path preservado", () => {

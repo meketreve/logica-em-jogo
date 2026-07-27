@@ -870,7 +870,12 @@ function startGame(snap: Snapshot): void {
   );
   // efeitos de água (2026-07-26): névoa+tint ao submergir, animação da textura
   const aguaFx = new AguaFx(scene);
-  let aguaQuadro = -1;
+  let aguaQuadroParada = -1;
+  /** Relógio da água CORRENTE — independente do vento (8 fps fixos). Serve
+   *  também de relógio do TETO de repintura (ver o loop de render). */
+  let aguaFluxoRelogio = 0;
+  let aguaQuadroFluxo = -1;
+  let aguaUltimaPintura = -1;
   // lazy: nada a meshar ainda — as colunas entram na fila conforme chegam
   if (!mundoLazy) chunkRenderer.buildAll();
 
@@ -2034,10 +2039,25 @@ function startGame(snap: Snapshot): void {
     // tile do atlas. O quadro vem da fase do VENTO (§🌬️), não de um relógio fixo:
     // vento forte = correnteza mais rápida, calmaria = água só respirando.
     aguaFx.update(world, camera.position.x, camera.position.y, camera.position.z);
-    const quadroAgua = Math.floor(vento.fase * AGUA_FRAMES) % AGUA_FRAMES;
-    if (quadroAgua !== aguaQuadro) {
-      aguaQuadro = quadroAgua;
-      animarAguaAtlas(atlas, quadroAgua, vento.ondaAgua);
+    // DOIS relógios (playtest 2026-07-27): a água PARADA anda no ritmo e no rumo
+    // do vento; a CORRENTE anda no ritmo dela (8 fps fixos), no rumo do próprio
+    // fluxo — vento não manda em correnteza. Quem decide qual tile cada bloco usa
+    // é o mesher; aqui só se toca os dois relógios.
+    const quadroParada = Math.floor(vento.fase * AGUA_FRAMES) % AGUA_FRAMES;
+    aguaFluxoRelogio += dt;
+    const quadroFluxo = Math.floor(aguaFluxoRelogio * 8) % AGUA_FRAMES;
+    // TETO de 12 repinturas/s: cada uma reenvia o atlas INTEIRO (256², 262 KB) à
+    // GPU, e com dois relógios independentes a UNIÃO dos dois passaria de 20/s
+    // sem o teto. 12/s já não se distingue a olho e devolve metade do upload na
+    // GPU do laboratório. Sem repintura nenhuma quando os dois quadros param.
+    if (
+      (quadroParada !== aguaQuadroParada || quadroFluxo !== aguaQuadroFluxo) &&
+      aguaFluxoRelogio - aguaUltimaPintura >= 1 / 12
+    ) {
+      aguaUltimaPintura = aguaFluxoRelogio;
+      aguaQuadroParada = quadroParada;
+      aguaQuadroFluxo = quadroFluxo;
+      animarAguaAtlas(atlas, quadroParada, vento.ondaAgua, quadroFluxo);
     }
     // mede só o render: o resto do frame é lógica nossa (mesh, física, streaming).
     // `renderer.render` é síncrono do lado da CPU — o que a GPU faz depois não

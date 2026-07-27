@@ -3,56 +3,6 @@
 > Chronological action log. Hooks and AI append to this file automatically.
 > Old sessions are consolidated by the daemon weekly.
 
-## Session: 2026-07-25 01:44
-
-| Time | Action | File(s) | Outcome | ~Tokens |
-|------|--------|---------|---------|--------|
-| 01:47 | Edited todo.md | 2→4 lines | ~100 |
-| 01:47 | Edited todo.md | 1→6 lines | ~142 |
-| 01:58 | Edited shared/src/blocks.ts | modified colorido() | ~604 |
-| 01:58 | Edited shared/src/blocks.ts | 2→2 lines | ~37 |
-| 01:59 | Edited shared/src/blocks.ts | added 2 condition(s) | ~928 |
-| 01:59 | Edited shared/src/blocks.ts | modified isTransparentBlock() | ~76 |
-| 01:59 | Edited shared/src/blocks.ts | modified isFullCube() | ~133 |
-| 01:59 | Edited shared/src/mesher.ts | 3→8 lines | ~132 |
-| 01:59 | Edited shared/src/mesher.ts | modified fluida() | ~305 |
-| 02:00 | Edited shared/src/mesher.ts | 22→27 lines | ~108 |
-| 02:00 | Edited shared/src/mesher.ts | added 2 condition(s) | ~155 |
-| 02:00 | Edited shared/src/mesher.ts | added 1 condition(s) | ~213 |
-| 02:00 | Edited client/src/atlasTexture.ts | added 1 condition(s) | ~409 |
-| 02:01 | Edited client/src/atlasTexture.ts | modified gua() | ~152 |
-| 02:01 | Session end: 14 writes across 4 files (todo.md, blocks.ts, mesher.ts, atlasTexture.ts) | 9 reads | ~91601 tok |
-| 02:02 | Edited shared/src/physics.ts | 2→2 lines | ~38 |
-| 02:03 | Edited shared/src/physics.ts | modified temColisaoParcial() | ~183 |
-| 02:03 | Edited shared/src/physics.ts | added 8 condition(s) | ~1316 |
-| 02:03 | Edited shared/src/physics.ts | modified resolveVertical() | ~145 |
-| 02:03 | Edited shared/src/physics.ts | 4→1 lines | ~26 |
-| 02:04 | Edited shared/src/physics.ts | added 7 condition(s) | ~731 |
-| 02:04 | Edited shared/src/physics.ts | moveAxisGuarded() → moveHoriz() | ~147 |
-| 02:05 | Edited shared/src/blocks.test.ts | modified escada() | ~199 |
-| 02:06 | Edited shared/src/physics.test.ts | modified TORSO() | ~785 |
-| 02:06 | Edited shared/src/blocks.test.ts | modified it() | ~611 |
-| 02:07 | Edited shared/src/blocks.test.ts | expanded (+11 lines) | ~96 |
-| 02:07 | Edited shared/src/physics.test.ts | 9→10 lines | ~155 |
-| 02:09 | Edited client/src/blocksUi.ts | modified colorido() | ~383 |
-| 02:09 | Edited client/src/main.ts | expanded (+6 lines) | ~56 |
-| 02:09 | Edited client/src/main.ts | added 2 condition(s) | ~337 |
-| 02:10 | Edited client/src/main.ts | added 2 condition(s) | ~139 |
-| 02:10 | Edited todo.md | expanded (+6 lines) | ~227 |
-| 02:11 | Edited todo.md | 2→6 lines | ~133 |
-
-## Sessão 20 (2026-07-25) — vidro colorido + lajes + escadas
-Backlog revisado; usuário pediu vidros/slabs/escadas + perguntou OpenWolf vs Obsidian
-(resposta: não trocar, complementar; STATUS.md precisa poda — não feita, aguarda ok).
-Implementado (ids 137-178): vidro colorido (12, cutout dither), lajes (6), escadas (24).
-`collisionBoxes(id)` = fonte única forma(mesher)+colisão(física). Física: colisão parcial,
-resolveVertical (topo real), STEP-UP automático (moveHoriz), hasSupport parcial. Cliente:
-blocksUi + main.ts (metade pela face, direção pelo olhar). Server intacto. VERDE: typecheck
-0, 313 testes (+9), build ok. Marcados 2 itens stale do todo (água fluida, abas inventário).
-NÃO commitado; playtest no browser pendente.
-| 02:12 | Session end: 32 writes across 9 files (todo.md, blocks.ts, mesher.ts, atlasTexture.ts, physics.ts) | 11 reads | ~101950 tok |
-| 02:13 | Session end: 32 writes across 9 files (todo.md, blocks.ts, mesher.ts, atlasTexture.ts, physics.ts) | 11 reads | ~101950 tok |
-
 ## Session: 2026-07-25 09:52
 
 | Time | Action | File(s) | Outcome | ~Tokens |
@@ -608,3 +558,45 @@ confirmando água, capim, nuvens de dia e ao entardecer.
 
 Bugs: bug-530 (MAX_BLOCK_ID não acompanhou o append de bloco novo) e bug-531 (teste de claim
 acoplado ao conteúdo do worldgen).
+| 04:47 | Session end: 88 writes across 24 files (vento.ts, index.ts, protocol.ts, session.ts, save.ts) | 26 reads | ~170159 tok |
+| 07:57 | Edited shared/src/vento.ts | added 1 condition(s) | ~177 |
+| 07:57 | Edited shared/src/mesher.ts | modified gua() | ~228 |
+| 07:58 | Edited shared/src/mesher.ts | added 3 condition(s) | ~451 |
+| 07:58 | Edited shared/src/mesher.ts | expanded (+8 lines) | ~77 |
+| 07:58 | Edited shared/src/mesher.ts | modified tileDaAgua() | ~138 |
+| 07:58 | Edited shared/src/mesher.ts | 2→7 lines | ~59 |
+| 07:58 | Edited shared/src/mesher.ts | added 1 import(s) | ~41 |
+| 08:00 | Edited client/src/main.ts | modified gios() | ~227 |
+| 08:00 | Edited client/src/main.ts | 2→5 lines | ~56 |
+| 08:01 | Edited shared/src/mesher.test.ts | modified for() | ~652 |
+| 08:01 | Edited shared/src/mesher.test.ts | modified tilesUsados() | ~170 |
+| 08:01 | Edited shared/src/mesher.test.ts | 11→14 lines | ~55 |
+| 08:02 | Edited shared/src/vento.test.ts | modified for() | ~347 |
+| 08:02 | Edited shared/src/vento.test.ts | modified for() | ~198 |
+| 08:06 | Edited client/src/main.ts | expanded (+8 lines) | ~242 |
+| 08:06 | Edited client/src/main.ts | 3→5 lines | ~67 |
+
+### Sessão 28b (2026-07-27) — playtest do §🌬️: regra da correnteza
+
+Usuário rodou bench no PC e no notebook. Veredito: "achei tudo muito top" — **uma** ressalva,
+e é de REGRA, não de bug: o vento mandando na animação da água que escorre é contraditório;
+"a correnteza da agua fluindo deve ditar o movimento e direção da textura".
+
+Regra nova, e ela resolve os dois casos sem flag: `tileDaAgua` no mesher tira o fluxo do
+**gradiente de nível** da vizinhança (só vizinho de ÁGUA conta — contar ar faria a borda de
+todo lago escorrer pra fora). Gradiente zero = água parada = segue o vento; gradiente = corre
+pra jusante. Mar/lago do worldgen é 100% fonte (nível 8) → parada. Riacho é 8→7→6→… → corre.
+
+Implementação: **8 tiles de atlas** (`TILE.aguaFluxo` 112-119, contíguos na linha 7), um por
+setor de `setorDaDirecao`. O mesher escolhe o tile por célula — segue função pura de bytes,
+sem material novo e sem atributo novo no Worker. Dois relógios no cliente: água parada anda no
+ritmo do vento, corrente a 8 fps fixos.
+
+De quebra: a pintura da água virou `putImageData` (era `fillRect` + string `rgb()` por pixel —
+9 tiles × 256 px seriam 2 304 strings por repintura) e ganhou **teto de 12 repinturas/s**,
+porque `needsUpdate` reenvia o atlas inteiro (262 KB) e dois relógios somariam >20/s.
+
+Verificação: typecheck · 355 testes (5 novos: lago parado · riacho pra jusante · rumo pelo
+eixo · contiguidade dos 8 tiles · `setorDaDirecao`) · build · riacho SIMULADO com `waterRule`
+de verdade mostrando os 8 setores radiais + mar na água parada · `?atlas` no headless
+confirmando a faixa dos 8 tiles pintada no lugar certo.

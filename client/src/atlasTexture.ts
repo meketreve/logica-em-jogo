@@ -1,5 +1,5 @@
 import * as THREE from "three";
-import { ATLAS, GLYPH, TILE } from "@logica/shared";
+import { ATLAS, GLYPH, ONDA_AGUA_POR_SETOR, TILE } from "@logica/shared";
 
 /**
  * Texture atlas procedural pintado num canvas (sem assets externos — restrição
@@ -421,33 +421,59 @@ function paintGramaAlta(ctx: CanvasRenderingContext2D, tile: number, base: Rgb):
   }
 }
 
-/** Água (2026-07-22; repintada em 2026-07-27 no §🌬️): azul CHEIO, sem furos — a
- *  translucidez vem do material próprio da água (blend), não de furos xadrez.
+/** Vetor de onda da água: dois setores inteiros + a mistura entre eles (ver
+ *  `ondaAguaDoVento` em shared/vento.ts, que explica por que é um PAR). */
+export interface OndaAgua {
+  readonly a: readonly [number, number];
+  readonly b: readonly [number, number];
+  readonly mistura: number;
+}
+
+/** Onda de quando ainda não chegou vento do servidor (correnteza pra leste). */
+const ONDA_PADRAO: OndaAgua = { a: [-3, 0], b: [-3, 0], mistura: 0 };
+
+/** Quantos quadros tem o ciclo da correnteza (fase 0..2π). Loop perfeito. */
+export const AGUA_FRAMES = 16;
+
+/** Salt do ruído de TODOS os tiles de água. Único de propósito: os 9 tiles
+ *  (parada + 8 setores de fluxo) precisam do MESMO grão, senão a água "pisca" de
+ *  padrão ao trocar de direção de correnteza. Deriva de TILE.agua pra a água
+ *  parada continuar com exatamente o mesmo grão de antes. */
+const AGUA_SALT = TILE.agua * 7919 + 1;
+
+/**
+ * Escreve um tile de água (16×16) dentro de um ImageData.
  *
- *  A onda agora é a soma de DUAS senoides cruzadas, e o vetor de onda `[kx,ky]`
- *  vem do VENTO (o tile inteiro é repintado a cada quadro, então a direção é de
- *  graça). Duas exigências desenharam esta função:
- *  - **kx/ky INTEIROS**: o período de cada seno divide os 16px do tile, então o
- *    padrão fecha na borda e a lâmina d'água não mostra costura de bloco pra
- *    bloco. Era o defeito do `sin((x+y)*0.9)` antigo (0,9 não fecha em 16).
- *  - **duas ondas, não uma**: uma senoide só lê como "listra andando". A segunda,
- *    perpendicular, com o dobro da frequência e mais lenta, quebra a listra.
- *  A crista ganha um brilho claro (especular fake) — é o que faz a superfície
- *  parecer molhada em vez de um azul liso. */
-function paintAgua(
-  ctx: CanvasRenderingContext2D,
-  tile: number,
-  fase = 0,
-  onda: OndaAgua = ONDA_PADRAO,
+ * `ImageData` e não `fillRect` por pixel (2026-07-27): a versão anterior montava
+ * uma string `rgb(r,g,b)` e trocava o `fillStyle` a cada pixel — 256 strings
+ * alocadas e reparseadas por repintura. Com os 9 tiles de água da regra de
+ * correnteza isso viraria 2 304 por repintura, ~10×/s, num PC de laboratório que
+ * já está no teto. Aqui é escrita direta no buffer.
+ *
+ * A água em si: azul CHEIO (a translucidez vem do material, não de furos) com a
+ * soma de DUAS senoides cruzadas. Duas exigências desenharam a conta:
+ * - **kx/ky INTEIROS**: o período de cada seno divide os 16 px do tile, então o
+ *   padrão fecha na borda e a lâmina d'água não mostra costura de bloco pra
+ *   bloco. Era o defeito do `sin((x+y)*0.9)` antigo (0,9 não fecha em 16).
+ * - **duas ondas, não uma**: uma senoide só lê como "listra andando". A segunda,
+ *   perpendicular, com o dobro da frequência e mais lenta, quebra a listra.
+ * A crista ganha brilho claro (especular fake) — é o que faz a superfície
+ * parecer molhada em vez de um azul liso.
+ */
+function escreverAgua(
+  data: Uint8ClampedArray,
+  larguraPx: number,
+  colunaPx: number,
+  fase: number,
+  onda: OndaAgua,
 ): void {
-  const [ox, oy] = tileOrigin(tile);
   const lado = ATLAS.tilePx;
   const w = (Math.PI * 2) / lado; // 1 ciclo por `lado` px → k inteiro fecha o tile
   const m = onda.mistura;
 
   /** Onda combinada (primária + cruzada) pro vetor `k`. Devolve [altura, crista]. */
   const ondular = (k: readonly [number, number], x: number, y: number): [number, number] => {
-    // primária ANDA no sentido do vento (fase negativa) …
+    // primária ANDA no sentido do vento/fluxo (fase negativa) …
     const a = Math.sin((k[0] * x + k[1] * y) * w - fase);
     // … secundária cruza a 90°, dobro da frequência e mais devagar
     const b = Math.sin((-k[1] * x + k[0] * y) * w * 2 - fase * 0.55);
@@ -463,42 +489,78 @@ function paintAgua(
       const ripple = ha + (hb - ha) * m;
       const crista = ca + (cb - ca) * m;
       // ruído FIXO por pixel (hash da posição): não pisca, só o ripple se move
-      const ruido = (pixelHash(x, y, tile * 7919 + 1) - 0.5) * 2 * 6;
-      const r = 46 + ripple + ruido + crista * 52;
-      const g = 108 + ripple + ruido + crista * 44;
-      const bl = 182 + ripple * 0.6 + ruido + crista * 28;
-      ctx.fillStyle = `rgb(${Math.round(r)},${Math.round(g)},${Math.round(bl)})`;
-      ctx.fillRect(ox + x, oy + y, 1, 1);
+      const ruido = (pixelHash(x, y, AGUA_SALT) - 0.5) * 2 * 6;
+      const i = (y * larguraPx + colunaPx + x) * 4;
+      data[i] = 46 + ripple + ruido + crista * 52;
+      data[i + 1] = 108 + ripple + ruido + crista * 44;
+      data[i + 2] = 182 + ripple * 0.6 + ruido + crista * 28;
+      data[i + 3] = 255;
     }
   }
 }
 
-/** Vetor de onda da água: dois setores inteiros + a mistura entre eles (ver
- *  `VentoCliente.ondaAgua`, que explica por que é um PAR e não um vetor só). */
-export interface OndaAgua {
-  readonly a: readonly [number, number];
-  readonly b: readonly [number, number];
-  readonly mistura: number;
+/** ImageData reaproveitados entre repinturas (uma alocação por sessão, não ~10/s). */
+let bufParada: ImageData | null = null;
+let bufFluxo: ImageData | null = null;
+
+/**
+ * Pinta os 9 tiles de água: o da água PARADA (segue o vento) e os 8 da água
+ * CORRENTE, um por setor de fluxo.
+ *
+ * **A regra dos dois relógios** (playtest de 2026-07-27): o usuário apontou que
+ * amarrar a água que escorre ao vento era contraditório — "a correnteza da água
+ * fluindo deve ditar o movimento e direção da textura". Então a água parada anda
+ * no ritmo E no rumo do vento, e a corrente anda no ritmo dela, no rumo do
+ * próprio fluxo. Quem escolhe qual tile cada bloco usa é o MESHER (`tileDaAgua`,
+ * pelo gradiente de nível da vizinhança); aqui só se pinta os dois conjuntos.
+ *
+ * Os 8 tiles de fluxo saem num `putImageData` só porque são contíguos numa linha
+ * do atlas (ver TILE.aguaFluxo).
+ */
+function pintarAguas(
+  ctx: CanvasRenderingContext2D,
+  quadroParada: number,
+  ondaVento: OndaAgua,
+  quadroFluxo: number,
+): void {
+  const lado = ATLAS.tilePx;
+  const passo = (Math.PI * 2) / AGUA_FRAMES;
+
+  bufParada ??= ctx.createImageData(lado, lado);
+  escreverAgua(bufParada.data, lado, 0, (quadroParada % AGUA_FRAMES) * passo, ondaVento);
+  const [px, py] = tileOrigin(TILE.agua);
+  ctx.putImageData(bufParada, px, py);
+
+  const n = ONDA_AGUA_POR_SETOR.length;
+  bufFluxo ??= ctx.createImageData(lado * n, lado);
+  const faseFluxo = (quadroFluxo % AGUA_FRAMES) * passo;
+  for (let s = 0; s < n; s++) {
+    const k = ONDA_AGUA_POR_SETOR[s]!;
+    // setor único (sem mistura): a direção do fluxo é discreta por célula, e o
+    // mesher troca o TILE quando ela muda — não há virada gradual a suavizar
+    escreverAgua(bufFluxo.data, lado * n, s * lado, faseFluxo, { a: k, b: k, mistura: 0 });
+  }
+  const [fx, fy] = tileOrigin(TILE.aguaFluxo);
+  ctx.putImageData(bufFluxo, fx, fy);
 }
 
-/** Onda de quando ainda não chegou vento do servidor (correnteza pra leste). */
-const ONDA_PADRAO: OndaAgua = { a: [-3, 0], b: [-3, 0], mistura: 0 };
-
-/** Quantos quadros tem o ciclo da correnteza (fase 0..2π). Loop perfeito. */
-export const AGUA_FRAMES = 16;
-
-/** Repinta SÓ o tile da água no canvas do atlas e reenvia a textura à GPU.
- *  Custo: 16×16 pixels + 1 upload do atlas (256², ~µs) — chamado a ~8 fps pelo
- *  render loop, não por frame. Não mexe em UV, geometria nem material: a
- *  correnteza é a mesma textura mudando de conteúdo.
+/** Repinta os tiles da água no canvas do atlas e reenvia a textura à GPU.
+ *  Custo: 9×16×16 px + 1 upload do atlas (256²) — chamado ~10×/s pelo render
+ *  loop, não por frame. Não mexe em UV, geometria nem material: a correnteza é a
+ *  mesma textura mudando de conteúdo.
  *
- *  `onda` (§🌬️ 2026-07-27) é o vetor de onda no canvas, vindo do vento —
- *  `VentoCliente.ondaAgua` já resolve o setor E a inversão de eixo do topo. */
-export function animarAguaAtlas(texture: THREE.Texture, frame: number, onda?: OndaAgua): void {
+ *  `quadroParada` anda com o VENTO e `quadroFluxo` no ritmo próprio da água
+ *  corrente (ver `pintarAguas`). */
+export function animarAguaAtlas(
+  texture: THREE.Texture,
+  quadroParada: number,
+  ondaVento: OndaAgua | undefined,
+  quadroFluxo: number,
+): void {
   const canvas = texture.image as HTMLCanvasElement;
   const ctx = canvas.getContext("2d");
   if (!ctx) return;
-  paintAgua(ctx, TILE.agua, (frame % AGUA_FRAMES) * ((Math.PI * 2) / AGUA_FRAMES), onda);
+  pintarAguas(ctx, quadroParada, ondaVento ?? ONDA_PADRAO, quadroFluxo);
   texture.needsUpdate = true;
 }
 
@@ -604,8 +666,9 @@ export function createAtlasTexture(): THREE.Texture {
   paintMandacaru(ctx, TILE.mandacaruSide);
   paintMandacaruTopo(ctx, TILE.mandacaruTop);
 
-  // água (2026-07-21): translúcida por furos (cutout)
-  paintAgua(ctx, TILE.agua);
+  // água: tile da PARADA (animado pelo vento) + os 8 da CORRENTE (um por setor
+  // de fluxo). Estado inicial; o render loop repinta em animarAguaAtlas.
+  pintarAguas(ctx, 0, ONDA_PADRAO, 0);
 
   // grama alta (§🌬️ 2026-07-27): 3 climas, mesma paleta das gramas do chão
   paintGramaAlta(ctx, TILE.gramaAlta, [92, 158, 60]);
