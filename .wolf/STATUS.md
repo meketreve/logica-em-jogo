@@ -44,6 +44,20 @@
 > SATURA o orçamento o tempo todo voando. Não custa FPS aqui (o orçamento segura), mas é a
 > prova quantitativa a favor do mesher em Web Worker; em PC fraco é a fila que não esvazia.
 > Nesta máquina o gargalo não é GPU nem render — é malha e rede.
+> **PARTE 2 — entrega do perfil do bench (pedido do usuário: "salvar na mesma pasta dos
+> manuais").** O `?bench` roda em SINGLEPLAYER (Web Worker): não existe socket com host, então
+> o caminho `profile_report` do F3 **não vale** ali — o JSON só podia cair no Downloads de cada
+> PC. Agora a página (que vem do próprio host em `http://<host>:8080/?bench`) faz **`POST
+> /perfil`** de mesma origem e o arquivo nasce em `profiles/`, junto dos manuais. `server/src/
+> perfis.ts` novo concentra os DOIS caminhos (WS e HTTP) na mesma pasta e na mesma regra de
+> nome: **`perf-bench-*` quando o payload tem `meta.bench`**, `perf-*` quando não tem — dá pra
+> separar no `ls` "trajeto fixo comparável" de "alguém jogando à mão". A rota vem ANTES do
+> servidor de arquivos (que só responde GET/HEAD) e é defensiva: teto de 64 KB, 20 gravações
+> por minuto, só objeto JSON, nome nunca vindo do usuário. Sem host (vite em dev), o bench
+> **cai no download** como antes. Smoke novo `_smoke-perfil-http.mjs` (8 checagens: prefixo de
+> bench · manual sem prefixo · conteúdo gravado · lixo/array 400 · 70 KB 413 · GET segue
+> servindo o jogo · só os 2 válidos gravados) e ele **limpa os próprios arquivos** — `profiles/`
+> é pasta de dado do usuário. Suíte: **6/6 smokes**, 331 testes, typecheck 3/3, build.
 > **SESSÃO 25b (2026-07-26) — §🧪 ENCANAMENTO DE VERIFICAÇÃO.** Papo sobre ferramental
 > virou trabalho. Duas verdades ficaram claras: (1) o valor do OpenWolf aqui é STATUS +
 > cerebrum (o handoff), não o resto; (2) **metade do Do-Not-Repeat deste projeto é sobre o

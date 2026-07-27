@@ -1,7 +1,7 @@
 # anatomy.md
 
-> Auto-maintained by OpenWolf. Last scanned: 2026-07-27T00:54:23.593Z
-> Files: 209 tracked | Anatomy hits: 0 | Misses: 0
+> Auto-maintained by OpenWolf. Last scanned: 2026-07-27T01:35:00.134Z
+> Files: 215 tracked | Anatomy hits: 0 | Misses: 0
 
 ## ./
 
@@ -308,7 +308,7 @@
   - fn `fmtBytes` L139-144 (~48 tok)
   - fn `fmtSeg` L145-148 (~23 tok)
   - class `LoadingScreen` L149-449 (~3406 tok)
-- `main.ts` — O cliente não tem filesystem: aprende os nomes das aulas pela resposta de (~23860 tok)
+- `main.ts` — O cliente não tem filesystem: aprende os nomes das aulas pela resposta de (~24200 tok)
   - fn `cachearMundos` L97-171 (~887 tok)
   - fn `applySettings` L172-226 (~821 tok)
   - fn `showOverlayMain` L227-231 (~35 tok)
@@ -330,7 +330,7 @@
   - fn `startMultiplayer` L680-697 (~224 tok)
   - fn `startSingleplayer` L698-719 (~249 tok)
   - fn `persistWorld` L720-767 (~520 tok)
-  - fn `startGame` L768-1986 (~14883 tok)
+  - fn `startGame` L768-2011 (~15224 tok)
 - `menu.ts` — Menu principal (cp8) — HTML/CSS por cima do canvas, sem GUI de engine. (~4452 tok)
   - section `PlayWorldChoice` L35-49 (~166 tok)
   - section `MultiAuth` L50-54 (~19 tok)
@@ -396,16 +396,16 @@
 ## mundos/_smoke-coluna/
 
 - `_smoke-coluna.ljw` (~62 tok)
-- `chat.log` (~54 tok)
+- `chat.log` (~107 tok)
 
 ## mundos/_smoke-kicar/
 
-- `chat.log` (~949 tok)
+- `chat.log` (~1186 tok)
 
 ## mundos/_smoke-trocaa/
 
 - `_smoke-trocaa.ljw` (~87 tok)
-- `chat.log` (~160 tok)
+- `chat.log` (~320 tok)
 
 ## mundos/_smoke-trocab/
 
@@ -413,11 +413,11 @@
 
 ## mundos/aula1-sequencia/
 
-- `chat.log` (~2293 tok)
+- `chat.log` (~3041 tok)
 
 ## mundos/aula2-binario/
 
-- `chat.log` (~128 tok)
+- `chat.log` (~160 tok)
 
 ## mundos/flor-world/
 
@@ -429,11 +429,11 @@
 
 ## mundos/mundo-livre/
 
-- `chat.log` (~1832 tok)
+- `chat.log` (~2220 tok)
 
 ## mundos/playtest-streaming/
 
-- `chat.log` (~531 tok)
+- `chat.log` (~604 tok)
 - `playtest-streaming.ljw` (~86 tok)
 
 ## mundos/smoke-coluna/
@@ -464,6 +464,10 @@
 - `perf-1785107989935-hxzk.json` (~498 tok)
 - `perf-1785109868954-fi1w.json` (~641 tok)
 - `perf-1785109881819-124a.json` (~642 tok)
+- `perf-1785114908092-eevb.json` (~1426 tok)
+- `perf-1785114918677-t1a5.json` (~1426 tok)
+- `perf-1785115154897-znkz.json` (~1423 tok)
+- `perf-bench-2026-07-27T01-24-08-311Z.json` (~1421 tok)
 
 ## registros/
 
@@ -486,12 +490,12 @@
   - fn `abrirAba` L69-97 (~261 tok)
   - fn `cdp` L98-103 (~50 tok)
   - fn `avaliar` L104-144 (~467 tok)
-- `smoke.mjs` — Runner dos smokes de rede — sobe o servidor REAL, roda o cenário, mata tudo. (~2192 tok)
-  - fn `espera` L130-132 (~42 tok)
-  - fn `esperaPorta` L133-147 (~144 tok)
-  - fn `sobeServidor` L148-160 (~112 tok)
-  - fn `mata` L161-169 (~52 tok)
-  - fn `rodaSmoke` L170-255 (~762 tok)
+- `smoke.mjs` — Runner dos smokes de rede — sobe o servidor REAL, roda o cenário, mata tudo. (~2319 tok)
+  - fn `espera` L143-145 (~42 tok)
+  - fn `esperaPorta` L146-160 (~144 tok)
+  - fn `sobeServidor` L161-173 (~112 tok)
+  - fn `mata` L174-182 (~52 tok)
+  - fn `rodaSmoke` L183-268 (~762 tok)
 
 ## server/
 
@@ -500,15 +504,15 @@
 
 ## server/src/
 
-- `index.ts` — Hospedeiro Node+ws do servidor (LAN): embrulha a MESMA GameSession do Web (~6281 tok)
-  - fn `gerarCodigo` L119-155 (~526 tok)
-  - fn `registrarChat` L156-218 (~720 tok)
-  - fn `saveNow` L219-275 (~620 tok)
-  - fn `interceptarMundo` L276-332 (~533 tok)
-  - fn `interceptarKicar` L333-401 (~633 tok)
-  - fn `interceptarBanimento` L402-487 (~832 tok)
-  - fn `interceptarProfile` L488-549 (~744 tok)
-  - fn `enderecoDaRede` L550-571 (~230 tok)
+- `index.ts` — Hospedeiro Node+ws do servidor (LAN): embrulha a MESMA GameSession do Web (~6266 tok)
+  - fn `gerarCodigo` L120-156 (~526 tok)
+  - fn `registrarChat` L157-219 (~720 tok)
+  - fn `saveNow` L220-276 (~620 tok)
+  - fn `interceptarMundo` L277-333 (~533 tok)
+  - fn `interceptarKicar` L334-402 (~633 tok)
+  - fn `interceptarBanimento` L403-486 (~787 tok)
+  - fn `interceptarProfile` L487-551 (~761 tok)
+  - fn `enderecoDaRede` L552-573 (~230 tok)
 - `mundos.ts` — `/mundo` (cp19) — trocar a aula SEM derrubar a turma. (~2060 tok)
   - fn `mundosDisponiveis` L29-49 (~214 tok)
   - fn `acharMundo` L50-57 (~81 tok)
@@ -518,6 +522,10 @@
 - `paths.ts` — `npm run <script> -w server` roda com o cwd dentro de server/, então caminho (~920 tok)
   - fn `mundoDeTrabalho` L46-66 (~227 tok)
   - fn `ehMundoDeAula` L67-70 (~30 tok)
+- `perfis.ts` — Onde os perfis de desempenho param: sempre `profiles/`, na máquina do host. (~1176 tok)
+  - fn `permitido` L32-44 (~138 tok)
+  - fn `salvarPerfil` L45-59 (~184 tok)
+  - fn `receberPerfilHttp` L60-102 (~421 tok)
 - `static.ts` — Serve o cliente já buildado (client/dist) NA MESMA PORTA do WebSocket. (~1055 tok)
   - fn `semBuild` L36-53 (~275 tok)
   - fn `arquivoDe` L54-60 (~84 tok)
@@ -545,6 +553,10 @@
   - fn `ok` L16-19 (~29 tok)
   - fn `espera` L20-25 (~66 tok)
   - fn `colunasDoLote` L26-133 (~1138 tok)
+- `_smoke-perfil-http.mjs` — Smoke do `POST /perfil` — a rota que faz o perfil do `?bench` cair na pasta (~966 tok)
+  - fn `ok` L21-27 (~71 tok)
+  - fn `novos` L28-29 (~28 tok)
+  - fn `postar` L30-73 (~668 tok)
 - `_smoke-troca-raio.mjs` — Smoke da TROCA DE AULA em mundo LAZY (cp19 + F2), contra o servidor REAL. (~1223 tok)
   - fn `ok` L19-22 (~29 tok)
   - fn `espera` L23-27 (~43 tok)

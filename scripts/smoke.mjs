@@ -95,6 +95,19 @@ const SMOKES = [
     ],
   },
   {
+    nome: "perfil-http",
+    arquivo: `${DIR}/_smoke-perfil-http.mjs`,
+    prova:
+      "POST /perfil — o perfil do ?bench (que roda em singleplayer, sem socket com o host) cai em profiles/ com prefixo perf-bench-; perfil manual vai sem prefixo; lixo, array e corpo gigante são recusados sem gravar.",
+    lento: false,
+    servidores: [
+      {
+        porta: 8097,
+        env: { LJ_SAVE: "mundos/_smoke-perfil.ljw", LJ_NOVO: "1", LJ_SEED: SEED },
+      },
+    ],
+  },
+  {
     nome: "troca-raio",
     arquivo: `${DIR}/_smoke-troca-raio.mjs`,
     args: ["_smoke-trocab"],

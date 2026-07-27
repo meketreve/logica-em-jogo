@@ -20,7 +20,8 @@ import {
   parseWorldTamanho,
 } from "@logica/shared";
 import { comandoMundo } from "./mundos";
-import { PASTA_PROFILES, daRaiz, mundoDeTrabalho } from "./paths";
+import { daRaiz, mundoDeTrabalho } from "./paths";
+import { receberPerfilHttp, salvarPerfil } from "./perfis";
 import { clienteFoiBuildado, servirCliente } from "./static";
 
 /**
@@ -478,12 +479,10 @@ function interceptarBanimento(clientId: number, texto: string): boolean {
 /**
  * `profile_report` (HUD F3 → "enviar pro servidor") mora no HOST porque
  * gravar arquivo é transporte, a GameSession não tem sistema de arquivos —
- * mesmo raciocínio de /mundo e /kicar. Exige join. O NOME do jogador NÃO entra
- * no arquivo (nem no conteúdo, nem no filename) — o perfil é anônimo de
- * propósito; identifica-se pela versão do jogo + dispositivo (userAgent/GPU).
- * Filename = timestamp + sufixo aleatório (evita colisão de 2 aparelhos no
- * mesmo ms; sem path traversal por não vir de dado do usuário). Devolve true
- * quando engoliu a mensagem.
+ * mesmo raciocínio de /mundo e /kicar. Exige join. Quem grava (e batiza) o
+ * arquivo é `perfis.ts` — o mesmo caminho do `POST /perfil` que o `?bench` usa,
+ * pra tudo cair na MESMA pasta com a MESMA regra de nome. Devolve true quando
+ * engoliu a mensagem.
  */
 function interceptarProfile(clientId: number, texto: string): boolean {
   const msg = parseClientMessage(texto);
@@ -495,10 +494,7 @@ function interceptarProfile(clientId: number, texto: string): boolean {
     return true;
   }
 
-  mkdirSync(PASTA_PROFILES, { recursive: true });
-  const sufixo = Math.random().toString(36).slice(2, 6);
-  const nomeArquivo = `perf-${Date.now()}-${sufixo}.json`;
-  writeFileSync(resolve(PASTA_PROFILES, nomeArquivo), JSON.stringify(msg.stats, null, 2));
+  const nomeArquivo = salvarPerfil(msg.stats);
   console.log(`[server] perfil recebido → profiles/${nomeArquivo}`);
   falarCom(clientId, `Perfil salvo no servidor: ${nomeArquivo}`);
   return true;
@@ -506,7 +502,13 @@ function interceptarProfile(clientId: number, texto: string): boolean {
 
 // HTTP e WebSocket na MESMA porta: o aluno abre http://ip-do-professor:8080 e
 // joga — sem servidor de página separado e sem digitar endereço de WebSocket.
-const http = createServer(servirCliente);
+// `POST /perfil` (modo ?bench) vem ANTES do servidor de arquivos, que só
+// responde GET/HEAD — sem isto o bench levaria 405 e o JSON ficaria na pasta de
+// downloads de cada PC do laboratório.
+const http = createServer((req, res) => {
+  if (receberPerfilHttp(req, res)) return;
+  servirCliente(req, res);
+});
 // perMessageDeflate (2026-07-19): o snapshot do mundo G tem 8 MB e comprime
 // pra ~40 KB (terreno é MUITO repetitivo) — turma inteira entrando junto na
 // LAN caía de 160 MB pra <1 MB. threshold poupa as mensagens pequenas (move/

@@ -398,3 +398,16 @@ NÃO commitado; playtest no browser pendente.
 | 21:57 | Session end: 65 writes across 10 files (hud.ts, loading.ts, session.ts, protocol.ts, bench.ts) | 9 reads | ~109155 tok |
 | 22:13 | Session end: 65 writes across 10 files (hud.ts, loading.ts, session.ts, protocol.ts, bench.ts) | 9 reads | ~109155 tok |
 | 22:20 | Session end: 65 writes across 10 files (hud.ts, loading.ts, session.ts, protocol.ts, bench.ts) | 9 reads | ~109155 tok |
+| 22:27 | Session end: 65 writes across 10 files (hud.ts, loading.ts, session.ts, protocol.ts, bench.ts) | 9 reads | ~109155 tok |
+| 22:29 | Created server/src/perfis.ts | — | ~1176 |
+| 22:29 | Edited server/src/index.ts | 7→4 lines | ~56 |
+| 22:29 | Edited server/src/index.ts | added 1 import(s) | ~50 |
+| 22:29 | Edited server/src/index.ts | 7→5 lines | ~75 |
+| 22:29 | Edited server/src/index.ts | added 1 condition(s) | ~89 |
+| 22:29 | Edited client/src/main.ts | 8→7 lines | ~90 |
+| 22:30 | Edited client/src/main.ts | added error handling | ~390 |
+| 22:32 | Created server/src/cenarios/_smoke-perfil-http.mjs | — | ~917 |
+| 22:32 | Edited scripts/smoke.mjs | expanded (+13 lines) | ~134 |
+| 22:32 | Edited server/src/cenarios/_smoke-perfil-http.mjs | inline fix | ~21 |
+| 22:32 | Edited server/src/cenarios/_smoke-perfil-http.mjs | 1→5 lines | ~72 |
+| 22:35 | ?bench passa a POSTAR o perfil pro host (POST /perfil → profiles/, prefixo perf-bench-), fallback pro download sem host; server/src/perfis.ts novo concentra WS+HTTP; smoke novo perfil-http (6/6 suíte) | server/src/perfis.ts, server/src/index.ts, client/src/main.ts, scripts/smoke.mjs, _smoke-perfil-http.mjs | ok | ~28k |

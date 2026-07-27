@@ -1602,6 +1602,32 @@ function startGame(snap: Snapshot): void {
   // --- ?bench: trajeto fixo, gravação do trajeto inteiro, export automático ---
   let bench: Bench | null = null;
   if (benchOpts) {
+    /**
+     * Onde o perfil do bench vai parar. O `?bench` roda em SINGLEPLAYER (Web
+     * Worker), então não existe socket com host nenhum — o botão "enviar pro
+     * servidor" do F3 não serve aqui. Mas a página costuma vir DO host
+     * (`http://<host>:8080/?bench`), e aí um POST de mesma origem cai no
+     * `perfis.ts` e o arquivo nasce em `profiles/`, ao lado dos perfis manuais.
+     * Assim o professor recolhe tudo numa pasta só, em vez de ir de PC em PC
+     * catando download. Se a página não veio do host (vite em dev, `file://`),
+     * cai no download de sempre.
+     */
+    const entregarPerfilDoBench = async (report: object): Promise<void> => {
+      try {
+        const r = await fetch("/perfil", {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify(report),
+        });
+        const corpo = (await r.json()) as { arquivo?: string };
+        if (!r.ok || !corpo.arquivo) throw new Error(`resposta inesperada (${r.status})`);
+        chat.addMessage("jogo", `benchmark concluído — perfil salvo no servidor: ${corpo.arquivo}`);
+      } catch {
+        hud.baixar(report, "bench");
+        chat.addMessage("jogo", "benchmark concluído — o perfil foi baixado (perf-bench-*.json)");
+      }
+    };
+
     iniciarBench = () => {
       if (bench) return; // uma corrida por sessão (troca de aula não reinicia)
       bench = Bench.paraMundo(benchOpts.duracaoS, spawn, world.dims);
@@ -1624,8 +1650,7 @@ function startGame(snap: Snapshot): void {
         updateOverlay();
         // headless/automação leem daqui sem depender de download
         (window as unknown as Record<string, unknown>)["__benchPerfil"] = report;
-        hud.baixar(report, "bench");
-        chat.addMessage("jogo", "benchmark concluído — o perfil foi baixado (perf-bench-*.json)");
+        void entregarPerfilDoBench(report);
       }, benchOpts.duracaoS * 1000);
     };
   }
