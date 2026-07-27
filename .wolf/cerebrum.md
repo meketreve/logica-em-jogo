@@ -631,3 +631,68 @@
 - **`LJ_SAVE=cenarios/<aula>.ljw` é SEGURO.** `paths.ts` trata `cenarios/` como
   MODELO somente-leitura e grava a cópia viva em `mundos/` (gitignored). Não
   confundir com rodar SEM `LJ_SAVE`, que aí sim escreve em `world.ljw` versionado.
+
+### [2026-07-26] Perfil do lab (Intel UHD 630) — o que a comparação com o dev ensinou
+
+- **Trabalho de render IDÊNTICO entre máquinas não significa custo idêntico.** O bench do lab
+  fechou com `drawCalls` 633 e `triangles` 188 048 exatamente iguais aos do PC de dev (mesma
+  seed, mesmo trajeto determinístico) e mesmo assim a GPU custou 14,6 ms contra 4,2 ms. Ou
+  seja: quando os contadores de geometria batem e o tempo não, o gargalo é a MÁQUINA, não a
+  cena — greedy meshing (que ataca triângulos/draw calls) não compra nada nesse caso.
+- **`carga.fasesMs` separa rede de CPU sem instrumentação nova.** `mundo` igual (2,3–2,5 s
+  nas duas máquinas) + `malha` 7× maior no lab = o problema é CPU de meshing, não rede nem
+  worldgen. Sempre ler essas duas fases juntas antes de culpar a rede.
+- **`carga.totalMs` sozinho engana.** Duas rodadas na mesma máquina deram 16,5 s e 12,9 s,
+  mas o `remeshTotalMs` foi o mesmo (−1,2%): o que mudou foi ONDE o "pronto" disparou, que
+  empurra meshing pra dentro do bench. Comparar sempre `remeshTotalMs`/`remeshCount` junto.
+- **`EXT_disjoint_timer_query_webgl2` existe no driver Intel/ANGLE D3D11** (240 amostras) e
+  NÃO existe no SwiftShader do headless. O caminho de GPU do perfilador só se valida em
+  hardware real — não tentar validá-lo por CDP headless de novo.
+- **Comparar GPU com o frametime é o teste de "é render?"**: 14,6 ms de GPU num frame de
+  20,4 ms = 72% → o teto de FPS é a GPU, e nenhum ganho de main thread atravessa esse teto.
+
+### [2026-07-26] Mesher em Web Worker — decisões e armadilhas
+
+- **A vizinhança padded é o que torna o Worker barato.** Copiar os 27 chunks vizinhos seriam
+  110 kB por job; a casca de 1 bloco cabe num cubo 18³ = 5,8 kB, porque TODO acesso do mesher
+  está em `[-1..CHUNK_SIZE]`. Antes de refatorar, o jeito de provar isso foi `grep getBlock`
+  no mesher e conferir offset por offset — e o typecheck fecha a prova, já que `world` deixa
+  de existir dentro do núcleo e qualquer acesso esquecido vira erro de compilação.
+- **Pool com 1 job por worker é PIOR que síncrono.** A main thread só alimenta 1×/frame
+  (~16 ms) e um chunk custa ~3,5 ms → o worker dormiria 80% do tempo. Profundidade 8.
+- **Assíncrono exige versão por chunk.** Resultado que volta depois de `descartarColuna`,
+  `trocarMundo` ou uma edição do jogador tem que ser DESCARTADO, senão recria mesh de coluna
+  já descartada. Versão monotônica + `versaoAtual.delete(key)` no descarte.
+- **Gate de tela de carga é um contrato escondido.** `main.ts` fecha a §🕐 em
+  `filaPendente === 0`; com pool isso PRECISA somar em-voo + prontos-não-aplicados. Antes de
+  tornar algo assíncrono, procurar quem lê o tamanho da fila como "acabou".
+- **Worker que morre trava a tela de carga pra sempre** (fila nunca zera). `onerror` →
+  colapsa o pool, devolve os jobs em voo pra fila, segue síncrono.
+- **Teste de perf precisa de testemunha de correção.** O A/B do headless só vale porque o
+  script passou a imprimir `draw calls`/`triângulos`/`fila no fim`: uma fila que zera sem
+  produzir geometria pareceria uma vitória enorme. Sempre medir "quanto trabalho SAIU" junto
+  com "quanto tempo levou".
+- **Headless SwiftShader distorce A/B de orçamento por frame.** A 8–10 fps, um orçamento de
+  6 ms/frame vira 60 ms/s de meshing (contra 300 ms/s a 50 fps) — o caminho síncrono nem
+  termina de carregar. Serve pra ENCANAMENTO e pra razões por chunk; não pra o ganho de FPS.
+
+### [2026-07-27] Mover trabalho pra Worker TIRA O FREIO junto — a lição da sessão
+
+- **Todo caminho síncrono com orçamento por frame tem DOIS papéis: fazer o trabalho e
+  LIMITAR o trabalho.** `meshMsPorFrame: 6` não era só "não estoure o frame", era também
+  "meshing nunca passa de ~30% de um núcleo" e "a fila lenta funde re-entradas do mesmo
+  chunk". Ao mover o mesher pro Worker eu levei o primeiro papel e deixei os dois outros pra
+  trás — carga caiu 55% e o FPS de jogo caiu de 50 pra 36. Antes de paralelizar algo que
+  tinha orçamento, listar o que o orçamento limitava ALÉM do tempo.
+- **Fila lenta é um coalescedor.** `enfileirarColuna` reenfileira as 4 colunas vizinhas; com
+  a fila lenta o `filaSet` fundia isso de graça. Fila rápida = +45% de jobs, e os extras são
+  jogados fora por versão vencida. Dedup precisa cobrir "em voo", não só "na fila".
+- **Oversubscription de núcleo aparece na GPU, não só na CPU.** 4 workers a plena carga num
+  i5 de 4 núcleos físicos empurraram a GPU de 13,6 → 15,1 ms: a thread do driver D3D11 também
+  disputa núcleo. Se o tempo de GPU sobe sem a cena mudar, suspeitar de contenção de CPU.
+- **Throttle por FASE, não global.** Durante a tela de carga não existe frame pra proteger →
+  pool solto. No jogo existe → pool raso. A mesma peça quer políticas opostas nas duas fases.
+- **Não calibrar knob de paralelismo em headless.** SwiftShader roda a 8–16 fps; como a vazão
+  do pool escala com o FPS, profundidade 1 deixou 91 chunks pendentes lá e seria ampla no lab
+  a 50 fps. Headless decide ENCANAMENTO e razões por chunk; número de tuning sai da máquina
+  que dói — daí `?meshdepth=N` em vez de eu escolher no escuro.

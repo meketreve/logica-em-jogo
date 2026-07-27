@@ -2,54 +2,6 @@
   "version": 1,
   "bugs": [
     {
-      "id": "bug-384",
-      "timestamp": "2026-07-21T00:13:55.889Z",
-      "error_message": "Significant refactor of ",
-      "file": "client/src/atlasTexture.ts",
-      "root_cause": "3 lines replaced/restructured",
-      "fix": "Rewrote 10→68 lines (3 removed)",
-      "tags": [
-        "auto-detected",
-        "refactor",
-        "ts"
-      ],
-      "related_bugs": [],
-      "occurrences": 1,
-      "last_seen": "2026-07-21T00:13:55.889Z"
-    },
-    {
-      "id": "bug-385",
-      "timestamp": "2026-07-21T00:16:29.227Z",
-      "error_message": "Significant refactor of ",
-      "file": "shared/src/worldgen.ts",
-      "root_cause": "2 lines replaced/restructured",
-      "fix": "Rewrote 16→134 lines (2 removed)",
-      "tags": [
-        "auto-detected",
-        "refactor",
-        "ts"
-      ],
-      "related_bugs": [],
-      "occurrences": 1,
-      "last_seen": "2026-07-21T00:16:29.227Z"
-    },
-    {
-      "id": "bug-386",
-      "timestamp": "2026-07-21T00:16:46.798Z",
-      "error_message": "Type error",
-      "file": "server/src/index.ts",
-      "root_cause": "Missing or incorrect type annotation",
-      "fix": "Added type assertion/annotation",
-      "tags": [
-        "auto-detected",
-        "type-fix",
-        "ts"
-      ],
-      "related_bugs": [],
-      "occurrences": 1,
-      "last_seen": "2026-07-21T00:16:46.798Z"
-    },
-    {
       "id": "bug-387",
       "timestamp": "2026-07-21T00:17:32.243Z",
       "error_message": "Missing guard clause",
@@ -3309,6 +3261,67 @@
       "related_bugs": [],
       "occurrences": 1,
       "last_seen": "2026-07-27T00:55:00Z"
+    },
+    {
+      "id": "bug-526",
+      "timestamp": "2026-07-26T23:30:00Z",
+      "error_message": "Test timed out in 5000ms — teste novo de equivalência do mesher (meshVizinhanca × meshChunk) estourou o timeout do vitest",
+      "file": "shared/src/mesher.test.ts",
+      "root_cause": "expect(typedArray).toEqual(typedArray) faz deep-equal item a item com formatação de diff; em geometria de mundo denso são centenas de milhares de floats por chunk × 8 chunks. Não era divergência — era custo do matcher.",
+      "fix": "Comparação manual num helper `difere()` que devolve a primeira divergência como string, e UM expect(erro).toBeNull() no fim. Roda em ms e a mensagem de erro fica melhor (diz o índice).",
+      "tags": [
+        "teste",
+        "vitest",
+        "timeout",
+        "mesher",
+        "typed-array",
+        "performance-de-teste"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-26T23:30:00Z"
+    },
+    {
+      "id": "bug-527",
+      "timestamp": "2026-07-26T23:30:00Z",
+      "error_message": "TS2339: Property 'Vidro' does not exist on type BlockId — mas `npm test` passou VERDE antes do typecheck pegar",
+      "file": "shared/src/mesher.test.ts",
+      "root_cause": "O bloco de vidro comum chama-se BlockId.Glass (só os coloridos são VidroX). vitest usa esbuild, que APAGA os tipos sem checá-los: `BlockId.Vidro` virou `undefined`, `setBlock(w,x,y,z,undefined)` não escreveu nada e o teste passou — cobrindo 3 tipos de bloco em vez de 4.",
+      "fix": "BlockId.Glass. Lição: teste verde NÃO prova que os identificadores existem — rodar `npm run typecheck` junto com `npm test` sempre que um teste novo usa enum/constante.",
+      "tags": [
+        "teste",
+        "vitest",
+        "typecheck",
+        "blockid",
+        "falso-positivo",
+        "esbuild"
+      ],
+      "related_bugs": [
+        "bug-526"
+      ],
+      "occurrences": 1,
+      "last_seen": "2026-07-26T23:30:00Z"
+    },
+    {
+      "id": "bug-528",
+      "timestamp": "2026-07-27T02:50:00Z",
+      "error_message": "usuario (bench no notebook do lab): mesher em Worker fez a carga cair 55% mas o FPS de jogo caiu de 50 para 36, p95 28,1 -> 44 ms, frames >50ms 2 -> 23",
+      "file": "client/src/meshPool.ts",
+      "root_cause": "Duas causas, a mesma raiz: mover o mesher pro Worker tirou junto o FREIO que o caminho sincrono tinha de graca. (1) `enfileirarColuna` enfileira a coluna nova + as 4 vizinhas; com a fila lenta o `filaSet` fundia essas re-entradas, com o pool esvaziando rapido cada uma virou job proprio e o anterior foi descartado por versao vencida (2 448 jobs desperdicados de 7 904, +45% de trabalho). (2) `meshMsPorFrame: 6` prendia o meshing a ~30% de UM nucleo; o pool rodava 4 workers a plena carga e num i5 de 4 nucleos fisicos isso disputa nucleo com a main thread e com a thread do driver D3D11 — ate a GPU subiu (13,6 -> 15,1 ms), o que meshing sozinho nao explicaria.",
+      "fix": "(a) `chavesEmVoo` + `sujosEmVoo` no ChunkRenderer: chunk com job no ar nao abre job duplicado, fica sujo e re-enfileira UMA vez quando o resultado chega. (b) `MeshPool.modoCarga` ligado a `loading.ativo`: profundidade 8 jobs/worker na CARGA (nao ha frame pra proteger) e 2 na JOGATINA. (c) knob `?meshdepth=N` porque o 2 saiu de conta de ocupacao de nucleo, nao de medida no lab.",
+      "tags": [
+        "perf",
+        "worker",
+        "mesher",
+        "throttle",
+        "coalescencia",
+        "lab",
+        "fps",
+        "contencao-de-nucleo"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-27T02:50:00Z"
     }
   ]
 }

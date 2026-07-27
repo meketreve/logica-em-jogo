@@ -4,6 +4,27 @@
 
 ## Session Journal
 
+> **SESSÃO 25b (2026-07-26) — §🧪 ENCANAMENTO DE VERIFICAÇÃO.** Papo sobre ferramental
+> virou trabalho. Duas verdades ficaram claras: (1) o valor do OpenWolf aqui é STATUS +
+> cerebrum (o handoff), não o resto; (2) **metade do Do-Not-Repeat deste projeto é sobre o
+> APARATO de teste, não sobre o código** — foi ali que o token foi embora. Entregue:
+> `npm run verify` (typecheck 3 pacotes + 329 testes + build) e **`scripts/smoke.mjs`**,
+> runner com manifesto que sobe o host com a env certa, roda o cenário e mata tudo. Antes,
+> cada `_smoke-*.mjs` só documentava sua env num comentário de cabeçalho e exigia montar a
+> linha à mão. Agora: `npm run smoke` (5/5 em 38 s) · `-- <nome>` · `-- --rapido` (pula
+> mundos E) · `-- --lista` (**diz o que cada cenário prova sem abrir arquivo nenhum** — use
+> antes de ler um smoke). Porta própria por cenário (8091–8096) mantém a 8080 livre pro dev
+> server; `LJ_SEED` fixa tira a loteria do terreno. Desbloqueia
+> `git bisect run npm run smoke -- <nome>` pra achar QUANDO quebrou sem ler diff.
+> Dois bugs no caminho: **bug-521** (asserção velha case-sensitive no `_smoke-mundo` —
+> `/Continue a regra/` casava com o TÍTULO, não com o texto do objetivo; nunca pegou porque
+> ninguém checava exit code) e **bug-522** (manifesto dava mundo novo vazio a um smoke que
+> pressupõe nascer na aula1). Convenção de log auditada: já é 100% consistente
+> (`[server]` no host, tag por subsistema no client), só nunca tinha sido escrita — foi pro
+> cerebrum. Config OpenWolf ajustada: `buglog.auto_detect: false` (falso positivo poluía o
+> índice) e `anatomy.rescan_interval_hours: 6 → 168` (stale falso todo boot).
+> **NÃO commitado ainda** — entra junto com a §🕐 quando o playtest aprovar.
+
 > **SESSÃO 25 (2026-07-26) — §🕐 TELA DE CARREGAMENTO CODADA E VERDE (playtest pendente).**
 > Usuário disse só "continuar" → peguei a quest 1ª da fila. Novo `client/src/loading.ts`
 > (self-contained, DOM+CSS injetados como o `touch.ts`), aberto no `connect()` e fechado
@@ -977,6 +998,11 @@
 > segue ADIADO — sem gatilho.**
 
 ## Action Log
+
+## Session: 2026-07-25 00:59
+
+| Time | Action | File(s) | Outcome | ~Tokens |
+|------|--------|---------|---------|--------|
 
 ## Session: 2026-07-24 17:26
 

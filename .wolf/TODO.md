@@ -8,19 +8,26 @@
 
 ## 🔥 Now (this session)
 
-- (nada em andamento — sessão 26 aprovada no playtest e COMMITADA)
+- [x] **MESHER EM WEB WORKER** — CODADO. Núcleo puro `meshVizinhanca(viz 18³)` + pool de
+      até 4 workers (8 jobs em voo cada) + versão por chunk contra resultado vencido.
+      Typecheck 3/3, 334 testes, build ok. A/B headless: main thread 0,933 → 0,158 ms/chunk.
+- [x] **Par A/B no lab** (`jkso` worker × `t3xn` semworker) — FEITO. Carga −55%, mas FPS
+      50 → 36 por trabalho duplicado (+45%) e falta de freio. Diagnóstico na STATUS.
+- [x] **Coalescência (`chavesEmVoo`/`sujosEmVoo`) + freio por fase (`modoCarga`, 8 na carga
+      / 2 no jogo) + knob `?meshdepth=N`** — codado, 334 testes verdes, headless fecha fila 0.
+- [ ] **FECHAR O KNOB NO LAB** (é do usuário, UMA sessão): `?bench`, `?bench&meshdepth=1`,
+      `?bench&meshdepth=4`. Critério: **maior `meshdepth` com `fila 0` e FPS ≥ 50**.
+      Alvo: carga ~5 s (contra 11,5 s do síncrono) sem perder o FPS do síncrono.
+      ⚠️ Nenhum knob passa do teto de GPU: p95 19,6 ms > 16,7 ms.
 
 ## ⏭️ Next (queued, ready to pick up) — NESTA ORDEM
 
-- [ ] **1º — RODAR O `?bench` NUM PC DO LAB e mandar o JSON** (é do usuário). Sem esse
-      arquivo não se decide otimização nenhuma — o gatilho da política é "FPS baixo em PC do
-      lab". Link: `http://<host>:8080/?bench` (exige `npm run build` se for o host Node).
-- [ ] **2º — custo de render: o que SOBROU** (o pico já morreu — MEDIÇÃO 5 do ROADMAP):
-      (a) mesher em Web Worker — compra os 16–19% de main thread (FPS 55–60 → travado em 60)
-          e fila que esvazia mais rápido; plano escopado no ROADMAP;
-      (b) greedy meshing — DESCEU (steady state já é 60 FPS com 500 k triângulos);
-      (c) `meshMsPorFrame` menor já é o knob de máquina fraca (existe na config).
-      ⚠️ **medir no PC do LAB antes** — em PC de dev o p95 voando a raio 12 já é ~19 ms.
+- [x] **1º — RODAR O `?bench` NUM PC DO LAB** — FEITO (2026-07-26, duas rodadas no notebook
+      de professor): `perf-bench-…-v1w4.json` e `…-nfhx.json`. Veredito na STATUS §sessão 27.
+- [ ] **2º — cauda de GPU no lab** (só DEPOIS do Worker, e só se ainda incomodar): GPU p95
+      19,6 ms num orçamento de 16,7. Candidatos: teto de `raioRender` em GPU fraca, overdraw
+      da água, custo do fragment. (b) greedy meshing segue DESCIDO (ataca triângulos/draw
+      calls, e ambos são idênticos aos do dev — não é aí que a máquina fraca perde).
 - [ ] Som de água (splash/borbulha/balde) — 4ª opção do refino, NÃO escolhida ainda
 - [ ] **§🌬️ vento + vida ambiental** (`ROADMAP.md`, pedido do usuário 2026-07-26): textura da
       água → vento autoritativo → animação da água seguindo o vento → nuvens → folhas → grama

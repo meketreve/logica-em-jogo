@@ -5,9 +5,6 @@
 
 | id | tags | file | error (truncated) |
 |---|---|---|---|
-| bug-384 | auto-detected,refactor,ts | client/src/atlasTexture.ts | Significant refactor of  |
-| bug-385 | auto-detected,refactor,ts | shared/src/worldgen.ts | Significant refactor of  |
-| bug-386 | auto-detected,type-fix,ts | server/src/index.ts | Type error |
 | bug-387 | auto-detected,guard-clause,ts | shared/src/worldgen.test.ts | Missing guard clause |
 | bug-388 | auto-detected,refactor,ts | shared/src/world.test.ts | Significant refactor of  |
 | bug-389 | auto-detected,refactor,ts | shared/src/worldgen.ts | Significant refactor of  |
@@ -205,3 +202,6 @@
 | bug-523 | perf,long-task,streaming,troca-de-aula,tocha,client | client/src/torchGlow.ts | usuário (playtest): 'só tem a questão da pagina dizer que não está respondendo'  |
 | bug-524 | hud,perfil,telemetria,client | client/src/main.ts | F3 mostrava 'remesh por caminho: n/d' apesar dos contadores existirem |
 | bug-525 | bench,perfilador,trajeto,telemetria,cliente | client/src/bench.ts | ?bench: gravacao.movimento.distanciaBlocos = 301 num trajeto de 202 blocos (velo |
+| bug-526 | teste,vitest,timeout,mesher,typed-array,performance-de-teste | shared/src/mesher.test.ts | Test timed out in 5000ms — teste novo de equivalência do mesher (meshVizinhanca  |
+| bug-527 | teste,vitest,typecheck,blockid,falso-positivo,esbuild | shared/src/mesher.test.ts | TS2339: Property 'Vidro' does not exist on type BlockId — mas `npm test` passou  |
+| bug-528 | perf,worker,mesher,throttle,coalescencia,lab,fps,contencao-de-nucleo | client/src/meshPool.ts | usuario (bench no notebook do lab): mesher em Worker fez a carga cair 55% mas o  |

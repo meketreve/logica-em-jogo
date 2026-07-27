@@ -3,11 +3,6 @@
 > Chronological action log. Hooks and AI append to this file automatically.
 > Old sessions are consolidated by the daemon weekly.
 
-## Session: 2026-07-25 00:59
-
-| Time | Action | File(s) | Outcome | ~Tokens |
-|------|--------|---------|---------|--------|
-
 ## Session: 2026-07-25 01:44
 
 | Time | Action | File(s) | Outcome | ~Tokens |
@@ -414,3 +409,69 @@ NÃO commitado; playtest no browser pendente.
 | 22:35 | Session end: 76 writes across 14 files (hud.ts, loading.ts, session.ts, protocol.ts, bench.ts) | 9 reads | ~112306 tok |
 | 22:39 | Session end: 76 writes across 14 files (hud.ts, loading.ts, session.ts, protocol.ts, bench.ts) | 9 reads | ~112306 tok |
 | 22:49 | Session end: 76 writes across 14 files (hud.ts, loading.ts, session.ts, protocol.ts, bench.ts) | 9 reads | ~112306 tok |
+| 22:50 | Session end: 76 writes across 14 files (hud.ts, loading.ts, session.ts, protocol.ts, bench.ts) | 9 reads | ~112306 tok |
+
+## Session: 2026-07-26 22:56
+
+| Time | Action | File(s) | Outcome | ~Tokens |
+|------|--------|---------|---------|--------|
+| 23:10 | Lidos os 2 perfis do lab (`v1w4`,`nfhx`, Intel UHD 630/8 núcleos) contra a régua RTX 2060 | profiles/*.json | 49-50 FPS, p95 30 ms, GPU 14,6 ms, carga 12,9-16,5 s (malha 9,7-13,4 s) — mesher em Worker CONFIRMADO | ~8k |
+| 23:12 | Veredito e tabela comparativa registrados no handoff | .wolf/STATUS.md | sessão 27 no topo | ~3k |
+| 23:12 | Edited shared/src/mesher.ts | added nullish coalescing | ~1048 |
+| 23:12 | Edited shared/src/mesher.ts | 5→1 lines | ~9 |
+| 23:12 | Edited shared/src/mesher.ts | getBlock() → bloco() | ~23 |
+| 23:12 | Edited shared/src/mesher.ts | getBlock() → bloco() | ~47 |
+| 23:12 | Edited shared/src/mesher.ts | 4→4 lines | ~84 |
+| 23:12 | Edited shared/src/mesher.ts | modified switch() | ~29 |
+| 23:12 | Edited shared/src/mesher.ts | inline fix | ~17 |
+| 23:12 | Edited shared/src/mesher.ts | getBlock() → bloco() | ~112 |
+| 23:12 | Edited shared/src/mesher.ts | inline fix | ~11 |
+| 23:13 | Edited shared/src/mesher.ts | reduced (-6 lines) | ~49 |
+| 23:13 | Edited shared/src/mesher.ts | getBlock() → bloco() | ~25 |
+| 23:13 | Edited shared/src/mesher.ts | getBlock() → bloco() | ~25 |
+| 23:15 | Created client/src/meshWorker.ts | — | ~442 |
+| 23:16 | Created client/src/meshPool.ts | — | ~1414 |
+| 23:16 | Edited client/src/chunks.ts | expanded (+23 lines) | ~269 |
+| 23:17 | Edited client/src/chunks.ts | added optional chaining | ~725 |
+| 23:17 | Edited client/src/chunks.ts | modified remesh() | ~632 |
+| 23:17 | Edited client/src/chunks.ts | modified enfileirar() | ~128 |
+| 23:18 | Edited client/src/chunks.ts | added 7 condition(s) | ~959 |
+| 23:18 | Edited client/src/chunks.ts | modified nenhuma() | ~120 |
+| 23:18 | Edited client/src/chunks.ts | added optional chaining | ~105 |
+| 23:18 | Edited client/src/chunks.ts | modified descartarColuna() | ~112 |
+| 23:18 | Edited client/src/chunks.ts | 3→8 lines | ~91 |
+| 23:18 | Edited client/src/hud.ts | modified THREAD() | ~122 |
+| 23:18 | Edited client/src/hud.ts | added nullish coalescing | ~48 |
+| 23:18 | Edited client/src/hud.ts | added nullish coalescing | ~36 |
+| 23:26 | Edited scripts/bench-headless.mjs | added optional chaining | ~151 |
+| 23:27 | Edited client/src/main.ts | expanded (+10 lines) | ~150 |
+| 23:15 | Mesher virou função pura: núcleo lê vizinhança padded 18³, `meshChunk` vira wrapper | shared/src/mesher.ts | typecheck ok, 331 testes verdes (comportamento idêntico) | ~14k |
+| 23:20 | Worker + pool (4 workers, 8 jobs em voo, transfer nos 2 sentidos) | client/src/meshWorker.ts, meshPool.ts (novos) | build emite meshWorker-*.js 18 kB | ~9k |
+| 23:24 | ChunkRenderer usa o pool no caminho `fila`; versão por chunk mata resultado vencido; filaPendente soma em-voo | client/src/chunks.ts | typecheck ok | ~11k |
+| 23:26 | 3 testes novos (casca × getBlock, equivalência byte a byte, fast path) + bug-526/527 | shared/src/mesher.test.ts, .wolf/buglog.json | 334 testes verdes | ~6k |
+| 23:32 | `?semworker` + `geometria`/`remesh` no bench headless; A/B rodado | client/src/main.ts, scripts/bench-headless.mjs | main thread 0,933 → 0,158 ms/chunk; fila 1057 → 0; 636 draw calls | ~7k |
+| 23:31 | Session end: 28 writes across 7 files (mesher.ts, meshWorker.ts, meshPool.ts, chunks.ts, hud.ts) | 9 reads | ~50104 tok |
+| 02:43 | Edited client/src/meshPool.ts | modified lab() | ~261 |
+| 02:43 | Edited client/src/meshPool.ts | modified temVaga() | ~123 |
+| 02:44 | Edited client/src/chunks.ts | expanded (+10 lines) | ~204 |
+| 02:44 | Edited client/src/chunks.ts | added 1 condition(s) | ~138 |
+| 02:44 | Edited client/src/chunks.ts | added 1 condition(s) | ~125 |
+| 02:44 | Edited client/src/chunks.ts | 4→5 lines | ~63 |
+| 02:44 | Edited client/src/chunks.ts | modified for() | ~78 |
+| 02:44 | Edited client/src/chunks.ts | 4→6 lines | ~59 |
+| 02:44 | Edited client/src/chunks.ts | 3→5 lines | ~86 |
+| 02:44 | Edited client/src/chunks.ts | added 1 condition(s) | ~133 |
+| 02:44 | Edited client/src/main.ts | 3→6 lines | ~97 |
+| 02:46 | Edited client/src/meshPool.ts | modified a() | ~166 |
+| 02:47 | Edited client/src/meshPool.ts | added nullish coalescing | ~131 |
+| 02:47 | Edited client/src/meshPool.ts | inline fix | ~24 |
+| 02:48 | Edited client/src/main.ts | expanded (+6 lines) | ~172 |
+| 02:35 | Lido o par A/B do lab (jkso=worker, t3xn=semworker) | profiles/*.json | carga −55% (malha 8481→2208) MAS FPS 50→36, p95 28→44, remesh +45% | ~7k |
+| 02:44 | Coalescência de job em voo (chavesEmVoo/sujosEmVoo) + freio por fase (modoCarga 8/2) | client/src/chunks.ts, meshPool.ts, main.ts | 334 testes verdes | ~10k |
+| 02:50 | Knob `?meshdepth=N` pro lab fechar a profundidade de jogo | client/src/main.ts, meshPool.ts, chunks.ts | headless: fila 0, remesh 4815→4322, malha 1229 ms | ~5k |
+| 02:50 | Session end: 43 writes across 7 files (mesher.ts, meshWorker.ts, meshPool.ts, chunks.ts, hud.ts) | 10 reads | ~52506 tok |
+| 02:55 | SESSÃO 27 fechada: perfil do lab lido → mesher em Web Worker codado → par A/B expôs regressão de FPS → coalescência + freio por fase + knob | shared/src/mesher.ts(+test), client/src/{meshWorker,meshPool}.ts (novos), chunks.ts, hud.ts, main.ts, scripts/bench-headless.mjs, .wolf/{STATUS,TODO,cerebrum,buglog} | typecheck 3/3, 334 testes, build ok. Carga 11,5→5,1 s no lab; FPS pendente de fechar com `?meshdepth` | ~180k |
+| 02:50 | Session end: 43 writes across 7 files (mesher.ts, meshWorker.ts, meshPool.ts, chunks.ts, hud.ts) | 10 reads | ~52506 tok |
+| 02:51 | Session end: 43 writes across 7 files (mesher.ts, meshWorker.ts, meshPool.ts, chunks.ts, hud.ts) | 10 reads | ~52506 tok |
+| 2026-07-27 | SESSÃO 27: perfil do lab → mesher em Web Worker → par A/B expôs regressão de FPS → coalescência de job em voo + freio por fase + knob ?meshdepth | shared/src/mesher.ts(+test), client/src/{meshWorker,meshPool}.ts (novos), chunks.ts, hud.ts, main.ts, scripts/bench-headless.mjs | typecheck 3/3, 334 testes, build ok. Carga no lab 11,5→5,1 s; FPS pendente de fechar com ?meshdepth | ~180k |
+| 02:52 | Session end: 43 writes across 7 files (mesher.ts, meshWorker.ts, meshPool.ts, chunks.ts, hud.ts) | 10 reads | ~52506 tok |
