@@ -13,6 +13,7 @@ export * from "./raycast";
 export * from "./quadros";
 export * from "./regions";
 export * from "./rules";
+export * from "./vento";
 export * from "./scenario";
 export * from "./protocol";
 export * from "./save";

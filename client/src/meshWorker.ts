@@ -34,11 +34,12 @@ self.onmessage = (e: MessageEvent<PedidoMesh>): void => {
         positions: g.positions,
         normals: g.normals,
         uvs: g.uvs,
+        sway: g.sway,
         indices: g.indices,
         opaqueIndexCount: g.opaqueIndexCount,
         aguaIndexCount: g.aguaIndexCount,
       },
-      [g.positions.buffer, g.normals.buffer, g.uvs.buffer, g.indices.buffer],
+      [g.positions.buffer, g.normals.buffer, g.uvs.buffer, g.sway.buffer, g.indices.buffer],
     );
   } catch (err) {
     emitir({ id, ms: performance.now() - t0, erro: String(err) });

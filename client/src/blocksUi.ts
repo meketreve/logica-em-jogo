@@ -104,6 +104,13 @@ export const PLACEABLE: readonly PlaceableEntry[] = [
     name: `flor ${cor}`,
     cat: "vegetacao" as const,
   })),
+  // Grama alta (§🌬️ 2026-07-27): tufo em cruz, 3 climas. Ordem = âncora
+  // GramaAlta + offset, igual às gramas do chão.
+  ...["", " seca", " fria"].map((clima, i) => ({
+    id: BlockId.GramaAlta + i,
+    name: `grama alta${clima}`,
+    cat: "vegetacao" as const,
+  })),
   // Minérios (2026-07-20): porta de entrada do survival — por ora só blocos
   { id: BlockId.MinerioCarvao, name: "minério de carvão", cat: "minerios" },
   { id: BlockId.MinerioFerro, name: "minério de ferro", cat: "minerios" },

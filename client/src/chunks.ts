@@ -19,6 +19,7 @@ const VAZIA: ChunkGeometry = {
   positions: new Float32Array(0),
   normals: new Float32Array(0),
   uvs: new Float32Array(0),
+  sway: new Uint8Array(0),
   indices: new Uint32Array(0),
   opaqueIndexCount: 0,
   aguaIndexCount: 0,
@@ -225,6 +226,9 @@ export class ChunkRenderer {
     geometry.setAttribute("position", new THREE.BufferAttribute(g.positions, 3));
     geometry.setAttribute("normal", new THREE.BufferAttribute(g.normals, 3));
     geometry.setAttribute("uv", new THREE.BufferAttribute(g.uvs, 2));
+    // §🌬️ balanço no vento: byte NORMALIZADO (o shader lê 0..1 direto). 1 byte
+    // por vértice em vez de 4 — o chunk já é o que mais pesa na banda de GPU.
+    geometry.setAttribute("sway", new THREE.BufferAttribute(g.sway, 1, true));
     geometry.setIndex(new THREE.BufferAttribute(g.indices, 1));
     // 3 grupos: opaco + água + vidro colorido, nessa ordem. Grupo com count 0
     // (chunk sem água / sem vidro) não gera draw call.
@@ -345,6 +349,7 @@ export class ChunkRenderer {
               positions: r.positions!,
               normals: r.normals!,
               uvs: r.uvs!,
+              sway: r.sway!,
               indices: r.indices!,
               opaqueIndexCount: r.opaqueIndexCount!,
               aguaIndexCount: r.aguaIndexCount!,

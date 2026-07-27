@@ -329,6 +329,19 @@ export function gerarColunaDeChunks(
             const cor = Math.floor(hash2(x, z, seed ^ 0xc0e5) * 4);
             setBlock(world, x, h + 1, z, BlockId.FlorVermelha + cor);
           }
+        } else if (bioma.gramaAlta > 0 && hash2(x, z, seed ^ 0x6a3a) < bioma.gramaAlta) {
+          // §🌬️ capim (2026-07-27): SÓ onde não caiu flor (o `else if` evita que
+          // um sorteie por cima do outro) e só em célula vazia. A variante segue
+          // o topo da coluna: capim verde em cima de grama seca ficaria colado.
+          if (getBlock(world, x, h + 1, z) === BlockId.Air) {
+            const variante =
+              topo === BlockId.GramaSeca
+                ? BlockId.GramaAltaSeca
+                : topo === BlockId.GramaFria
+                  ? BlockId.GramaAltaFria
+                  : BlockId.GramaAlta;
+            setBlock(world, x, h + 1, z, variante);
+          }
         }
         // gate do mandacaru = linha d'ÁGUA (2026-07-26), não mais SAND_HEIGHT:
         // com o mar, a faixa de areia desceu junto e a caatinga baixa perdia

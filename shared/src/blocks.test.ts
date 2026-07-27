@@ -89,7 +89,12 @@ describe("formato de bloco/chunk (contrato de save e snapshot)", () => {
     expect(isPlaceable(BlockId.VidroBranco)).toBe(true);
     expect(isPlaceable(BlockId.LajeTijoloCima)).toBe(true);
     expect(isPlaceable(BlockId.EscadaTijoloZNC)).toBe(true);
-    expect(isPlaceable(179)).toBe(false); // próximo byte NÃO é bloco
+    // grama alta (§🌬️ 2026-07-27): append 179-181, colocável
+    expect(BlockId.GramaAlta).toBe(179);
+    expect(BlockId.GramaAltaFria).toBe(181);
+    expect(isPlaceable(BlockId.GramaAlta)).toBe(true);
+    expect(isPlaceable(BlockId.GramaAltaFria)).toBe(true);
+    expect(isPlaceable(182)).toBe(false); // próximo byte NÃO é bloco
   });
 
   it("água: fonte + fluida atravessável (não-sólida) e translúcida no mesher", () => {

@@ -20,6 +20,13 @@
   vidro que "funcionava" (dither) por parecer mosquiteiro e pediu suavização do
   step-up ("movimento muito brusco"). Ao entregar mecânica nova, já prever o
   acabamento visual/de câmera — ele testa jogando, não lendo teste verde.
+- **Quando vai ficar AFK, pede as perguntas TODAS de uma vez** (2026-07-27):
+  "vamos no vento, me faça perguntas agora porque vou ficar afk logo". Nesse
+  modo, perguntar cedo, em lote, e incluir a pergunta de ATÉ ONDE ir sozinho
+  (codar/testar/commitar/push) — depois é execução sem interrupção.
+- **Escolhe escopo GRANDE quando oferecido** (2026-07-27): diante de 4 opções de
+  fatia do §🌬️, pegou "tudo (1 a 6)". Não subdimensionar a proposta por medo do
+  tamanho; oferecer o escopo cheio como opção real.
 - Quer ser desafiado no design: aceita bem quando aponto furos pedagógicos/técnicos.
 - **Convenções de Minecraft são o padrão esperado** (playtest 2026-07-13): pediu
   botão-do-meio = copiar bloco mirado; sprint que só engata com os pés no chão.
@@ -594,7 +601,57 @@
   `Runtime.evaluate` lendo uma variável que o cliente publica (`window.__benchPerfil`).
   Zero dependência nova. Screenshot só serve pra tela; número sai por aqui.
 
+## Key Learnings — vento e vida ambiental (2026-07-27, sessão 28)
+
+- **Bloco NOVO toca 9 lugares.** Checklist que a grama alta cobrou (bug-530):
+  (1) `BlockId`, (2) **`MAX_BLOCK_ID`** ← o esquecido, (3) `TILE`, (4) `paint*` no
+  atlas, (5) `BLOCK_TILES` (só pro ícone 2D da hotbar), (6) forma no `emitShape`,
+  (7) helpers de `blocks.ts` (`isFullCube`/`isSolidBlock`/`precisaApoio`/
+  `isReplaceable`), (8) `blocksUi`, (9) `worldgen`. Pular o (2) faz o bloco
+  aparecer no inventário e o servidor recusar o place.
+- **Convenção de UV do topo do bloco: `u = 1 − x`, `v = z`** (FACES/FACE_UVS do
+  mesher). Com o canvas 2D tendo y pra baixo, o canvas do atlas anda ao
+  CONTRÁRIO do mundo nos DOIS eixos. Qualquer animação de textura que precise
+  seguir uma direção de mundo (correnteza) tem de negar os dois. Travado em
+  `ondaAguaDoVento` + teste de sinal em `vento.test.ts`.
+- **Onda de textura tem de ter vetor INTEIRO** pra fechar no tile de 16 px. Um
+  `sin((x+y)*0.9)` não fecha e mostra costura de bloco pra bloco. Por isso a
+  direção da água vive em 8 setores, e a virada entre setores é apagada
+  interpolando os dois vizinhos (senão dá "pop" a cada ~37 s de giro).
+- **`onBeforeCompile` > ShaderMaterial** pra enxertar efeito no terreno: o
+  material continua MeshLambertMaterial de verdade (luz, névoa, cutout, sombra
+  do three seguem funcionando) e o enxerto é um `replace` em `#include
+  <begin_vertex>`. Uniforms compartilhados por objeto literal — atualizar o
+  `.value` 1×/frame não recompila nada.
+- **Balanço de folha precisa de frequência ESPACIAL baixa** (0,16 rad/bloco).
+  Blocos de folha vizinhos são cubos independentes: se cada um se deslocar
+  diferente, a copa abre fresta. A 0,16 o desencontro entre vizinhos fica em
+  ~0,2 px de tela.
+- **Atributo por vértice do mesher atravessa 5 arquivos**: `ChunkGeometry` →
+  `meshVizinhanca` (empurrar em PARALELO a `positions`) → `meshWorker` (incluir
+  na lista de transfer!) → `ResultadoMesh` → `chunks.aplicar` + a constante
+  `VAZIA`. Esquecer o transfer não quebra typecheck — copia em vez de mover.
+- **Teste de "não mudou" compara com o valor ANTERIOR, nunca com constante**
+  (bug-531): `expect(x).toBe(BlockId.Air)` quebrou sozinho quando o worldgen
+  passou a espalhar capim naquela célula. `const antes = get(); … toBe(antes)`.
+- **Verificação visual headless funciona com `?bench` + CDP.** `?bench` entra no
+  mundo SEM menu e sem servidor; o script CDP navega, espera em segundos reais e
+  chama `Page.captureScreenshot`. Pra ver o jogo e não o HUD: esconder todo filho
+  de `<body>` que não seja `CANVAS` (o HUD deste projeto mora no index.html, não
+  tem id/classe caçável). Molde em `scripts/bench-headless.mjs`.
+
 ## Decision Log
+
+- [2026-07-27] **Vento é SÓ visual e server-autoritativo**, função pura de
+  `tickCount` + seed (molde do `horaDoDia`, não do relógio de parede). Não empurra
+  jogador, não entra na física. `/vento` só LIGA/DESLIGA — o usuário recusou
+  ajuste manual de direção/força: "apenas comando para ativar e desativar". Nasce
+  LIGADO (é ambiência, não regra de atividade) e só o DESLIGADO vai pro save.
+- [2026-07-27] **Nuvens = UM plano com textura de alpha, não volumes.** O teto
+  desta fase é GPU (p95 16,8–19,6 ms contra 16,7 ms de orçamento no notebook do
+  lab), e volume seria overdraw transparente em cima disso. `alphaTest: 0.02`
+  corta os buracos entre nuvens antes do blend. Nuvens e balanço têm chave em
+  Configurações, na seção de DESEMPENHO — não de "gráficos bonitos".
 
 - [2026-07-26] **`buglog.auto_detect: false`** em `.wolf/config.json`. O detector
   automático gerava falso positivo (ex.: "pURO should be PURO" virou bug) e poluía

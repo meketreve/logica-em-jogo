@@ -3327,6 +3327,47 @@
       ],
       "occurrences": 1,
       "last_seen": "2026-07-27T04:12:00Z"
+    },
+    {
+      "id": "bug-530",
+      "timestamp": "2026-07-27T04:43:55.203087-03:00",
+      "error_message": "AssertionError: expected true to be false — blocks.test.ts 'isPlaceable(179) === false' quebrou ao adicionar GramaAlta (179)",
+      "file": "shared/src/blocks.ts",
+      "root_cause": "IDs novos foram anexados ao BlockId (GramaAlta 179..181) mas MAX_BLOCK_ID continuou apontando pra EscadaTijoloZNC (178). isPlaceable() usa esse teto, entao a grama alta era recusada no place_block — o bloco existia no enum, aparecia no inventario e o servidor rejeitava. O comentario do proprio MAX_BLOCK_ID ja avisava ('mantem isPlaceable sem numero magico ao crescer a lista') e mesmo assim passou batido.",
+      "fix": "MAX_BLOCK_ID = BlockId.GramaAltaFria. Checklist ao anexar bloco novo: (1) BlockId, (2) MAX_BLOCK_ID, (3) TILE, (4) paint no atlas, (5) BLOCK_TILES (icone 2D), (6) forma no mesher, (7) blocks.ts helpers (isFullCube/isSolidBlock/precisaApoio/isReplaceable), (8) blocksUi, (9) worldgen.",
+      "tags": [
+        "blockid",
+        "max-block-id",
+        "isplaceable",
+        "append",
+        "bloco-novo",
+        "grama-alta",
+        "vento"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-27T04:43:55.203087-03:00"
+    },
+    {
+      "id": "bug-531",
+      "timestamp": "2026-07-27T04:43:55.203087-03:00",
+      "error_message": "AssertionError: expected 180 to be +0 — claims.test.ts esperava BlockId.Air numa celula que passou a nascer com capim (GramaAltaSeca=180)",
+      "file": "shared/src/claims.test.ts",
+      "root_cause": "O teste do claim afirmava 'a celula continua AR' pra provar que o place foi barrado. Assim que o worldgen passou a espalhar grama alta, a celula do teste nasceu com capim e a asserção caiu — sem que houvesse bug nenhum no claim. Teste acoplado ao CONTEUDO do mundo gerado, nao ao comportamento medido.",
+      "fix": "Snapshot antes/depois: `const antes = getBlock(...)` e `expect(depois).toBe(antes)`. Licao: teste de 'nao mudou' deve comparar com o valor ANTERIOR, nunca com uma constante que so por acaso valia naquele worldgen.",
+      "tags": [
+        "teste",
+        "claims",
+        "worldgen",
+        "acoplamento",
+        "falso-positivo",
+        "grama-alta"
+      ],
+      "related_bugs": [
+        "bug-530"
+      ],
+      "occurrences": 1,
+      "last_seen": "2026-07-27T04:43:55.203087-03:00"
     }
   ]
 }

@@ -285,6 +285,19 @@ export type ServerMessage =
     }
   | {
       /**
+       * Vento (§🌬️, 2026-07-27) — estado do mundo SÓ visual e server-autoritativo,
+       * mesmo molde do `time`. `dir` em radianos [0,2π) = PRA ONDE sopra no plano
+       * XZ; `forca` em [0,1] (já vem 0 com o vento desligado, então o cliente usa
+       * o número direto). `ativo` é só leitura de professor/F3. No join e 1×/s;
+       * o cliente suaviza entre as sincronizações (o giro é lento — 1,2°/s).
+       */
+      type: "vento";
+      dir: number;
+      forca: number;
+      ativo: boolean;
+    }
+  | {
+      /**
        * Troca de aula COMEÇANDO (cp19 + §🕐). Sai ANTES do trabalho pesado do
        * host (salvar o mundo atual → construir a sessão nova), que pode levar
        * segundos: o snapshot do mundo novo é o FIM dessa fila, não o começo.
@@ -617,6 +630,14 @@ export function parseServerMessage(raw: string): ServerMessage | null {
       if (typeof m["hora"] !== "number" || !Number.isFinite(m["hora"])) return null;
       if (typeof m["ciclo"] !== "boolean") return null;
       return { type: "time", hora: m["hora"], ciclo: m["ciclo"] };
+    }
+    case "vento": {
+      const dir = m["dir"];
+      const forca = m["forca"];
+      if (typeof dir !== "number" || !Number.isFinite(dir)) return null;
+      if (typeof forca !== "number" || !Number.isFinite(forca)) return null;
+      if (typeof m["ativo"] !== "boolean") return null;
+      return { type: "vento", dir, forca, ativo: m["ativo"] };
     }
     case "mundo_trocando":
       if (typeof m["nome"] !== "string") return null;

@@ -159,8 +159,12 @@ describe("claims — proteção de áreas (cp24)", () => {
     // aluno estranho é barrado dentro da área do professor (célula longe do
     // spawn da ana pra não bater na guarda de "não emparedar jogador")
     const alvo = { x: sx + 1, y: h, z: sz + 1 };
+    // o que importa é NÃO TER MUDADO — a célula pode nascer com ar ou com capim
+    // (§🌬️ 2026-07-27: grama alta é substituível, então o place chegaria a valer
+    // aqui se o claim não barrasse)
+    const antes = getBlock(world, alvo.x, alvo.y, alvo.z);
     session.handleMessage(2, JSON.stringify({ type: "place_block", ...alvo, blockId: BlockId.Stone }));
-    expect(getBlock(world, alvo.x, alvo.y, alvo.z)).toBe(BlockId.Air);
+    expect(getBlock(world, alvo.x, alvo.y, alvo.z)).toBe(antes);
     expect(ultimaChat(sent, 2)).toContain("protegida por prof");
   });
 

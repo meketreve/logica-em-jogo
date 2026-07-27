@@ -180,12 +180,21 @@ export const BlockId = {
   EscadaTabuaXPC: 167, EscadaTabuaZPC: 168, EscadaTabuaXNC: 169, EscadaTabuaZNC: 170,
   EscadaTijoloXP: 171, EscadaTijoloZP: 172, EscadaTijoloXN: 173, EscadaTijoloZN: 174,
   EscadaTijoloXPC: 175, EscadaTijoloZPC: 176, EscadaTijoloXNC: 177, EscadaTijoloZNC: 178,
+  /** Grama ALTA (§🌬️, 2026-07-27): tufo de capim em cruz — mesma família das
+   *  flores (2 lâminas a 90°, cutout, atravessável, precisa de apoio). 3
+   *  variantes pra casar com as gramas climáticas do gen (verde/seca/fria):
+   *  capim verde em cima de grama seca ficaria colado. SUBSTITUÍVEL (colocar
+   *  bloco por cima sobrescreve, estilo Minecraft) — era o "talvez capim alto"
+   *  anotado em isReplaceable. Balança no vento junto com folhas e flores. */
+  GramaAlta: 179,
+  GramaAltaSeca: 180,
+  GramaAltaFria: 181,
 } as const;
 
 export type BlockId = (typeof BlockId)[keyof typeof BlockId];
 
 /** Maior ID válido (mantém isPlaceable sem número mágico ao crescer a lista). */
-const MAX_BLOCK_ID = BlockId.EscadaTijoloZNC;
+const MAX_BLOCK_ID = BlockId.GramaAltaFria;
 
 /** Água? Fonte (129) OU fluida (130-136) — atravessável e translúcida. */
 export function isAgua(id: number): boolean {
@@ -229,16 +238,33 @@ export function isBalde(id: number): boolean {
 }
 
 /** SUBSTITUÍVEL? Colocar um bloco por cima sobrescreve direto, sem quebrar
- *  antes (líquido é "vazio pra colocação"). Hoje só água; lava/outros
- *  líquidos — e talvez capim alto/neve — herdam ao serem adicionados. Usado no
- *  gate do place_block (session.ts): célula vazia OU substituível aceita bloco. */
+ *  antes (líquido é "vazio pra colocação"). Água e capim alto (§🌬️
+ *  2026-07-27 — o capim é decorativo e cobre muita superfície; obrigar a
+ *  quebrar antes atrapalharia construir no campo). Lava/neve herdam ao serem
+ *  adicionados. Usado no gate do place_block (session.ts): célula vazia OU
+ *  substituível aceita bloco. */
 export function isReplaceable(id: number): boolean {
-  return isAgua(id);
+  return isAgua(id) || isGramaAlta(id);
 }
 
 /** Flor decorativa (qualquer cor)? */
 export function isFlor(id: number): boolean {
   return id >= BlockId.FlorVermelha && id <= BlockId.FlorBranca;
+}
+
+/** Grama alta (verde/seca/fria)? Tufo em cruz, mesma família das flores. */
+export function isGramaAlta(id: number): boolean {
+  return id >= BlockId.GramaAlta && id <= BlockId.GramaAltaFria;
+}
+
+/** Folhagem de copa (qualquer espécie)? Balança no vento (§🌬️). */
+export function isFolhas(id: number): boolean {
+  return (
+    id === BlockId.Leaves ||
+    id === BlockId.FolhasIpe ||
+    id === BlockId.FolhasAraucaria ||
+    id === BlockId.FolhasPauBrasil
+  );
 }
 
 /** Vidro colorido (qualquer cor)? Cubo cheio transparente (cutout tingido). */
@@ -360,7 +386,7 @@ export function isTapete(id: number): boolean {
 /** Precisa de cubo CHEIO embaixo pra ser colocado E pra continuar existindo
  *  (regra no tick). Tocha e tapetes. */
 export function precisaApoio(id: number): boolean {
-  return id === BlockId.Tocha || isTapete(id) || isFlor(id);
+  return id === BlockId.Tocha || isTapete(id) || isFlor(id) || isGramaAlta(id);
 }
 
 /** Bloco transparente (vidro/folhas): NÃO oculta a face do vizinho no mesher.
@@ -497,6 +523,7 @@ export function isFullCube(id: number): boolean {
     !isMovel(id) &&
     !isQuadro(id) &&
     !isFlor(id) &&
+    !isGramaAlta(id) &&
     !isSlab(id) && // laje = meia altura (forma própria + colisão parcial)
     !isStairs(id) // escada = L (forma própria + colisão parcial)
   );
@@ -513,6 +540,7 @@ export function isSolidBlock(id: number): boolean {
     !isTapete(id) &&
     !isQuadro(id) &&
     !isFlor(id) &&
+    !isGramaAlta(id) && // capim atravessa (decorativo, como a flor)
     !isAgua(id) // água atravessa — o jogador entra e nada (physics.ts)
   );
 }

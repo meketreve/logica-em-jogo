@@ -489,3 +489,122 @@ NÃO commitado; playtest no browser pendente.
 | 04:12 | Perfil passa a gravar `mesher` (workers + profundidades) — o A/B saiu sem etiqueta | hud.ts, chunks.ts, meshPool.ts, main.ts, bench-headless.mjs | verificado com ?meshdepth=3 → "4 workers · profundidade 3 (jogo) / 8 (carga)" | ~8k |
 | 03:56 | Session end: 49 writes across 7 files (mesher.ts, meshWorker.ts, meshPool.ts, chunks.ts, hud.ts) | 13 reads | ~61656 tok |
 | 04:30 | Handoff pro /clear: §🚀 reescrita (perf ENCERRADA, nada disparado), ciclo varrido pro ✅, TODO limpo e desduplicado | .wolf/STATUS.md, .wolf/TODO.md | STATUS aponta backlog (§🌬️ vento) como próxima escolha do usuário | ~9k |
+| 04:03 | Session end: 49 writes across 7 files (mesher.ts, meshWorker.ts, meshPool.ts, chunks.ts, hud.ts) | 13 reads | ~61656 tok |
+
+## Session: 2026-07-27 04:04
+
+| Time | Action | File(s) | Outcome | ~Tokens |
+|------|--------|---------|---------|--------|
+| 04:13 | Created shared/src/vento.ts | — | ~1059 |
+| 04:13 | Edited shared/src/index.ts | 1→2 lines | ~14 |
+| 04:13 | Edited shared/src/protocol.ts | expanded (+13 lines) | ~171 |
+| 04:13 | Edited shared/src/protocol.ts | added 3 condition(s) | ~122 |
+| 04:13 | Edited shared/src/session.ts | 4→8 lines | ~146 |
+| 04:13 | Edited shared/src/session.ts | added 1 condition(s) | ~73 |
+| 04:13 | Edited shared/src/session.ts | 4→6 lines | ~62 |
+| 04:14 | Edited shared/src/session.ts | added optional chaining | ~480 |
+| 04:14 | Edited shared/src/session.ts | added 1 condition(s) | ~117 |
+| 04:14 | Edited shared/src/session.ts | "Comando desconhecido: ${t" → "Comando desconhecido: ${t" | ~60 |
+| 04:14 | Edited shared/src/session.ts | added 1 condition(s) | ~88 |
+| 04:14 | Edited shared/src/session.ts | 1→2 lines | ~46 |
+| 04:14 | Edited shared/src/session.ts | expanded (+7 lines) | ~56 |
+| 04:14 | Edited shared/src/save.ts | 2→5 lines | ~60 |
+| 04:14 | Edited shared/src/save.ts | 2→4 lines | ~58 |
+| 04:15 | Created shared/src/vento.test.ts | — | ~904 |
+| 04:15 | Edited shared/src/vento.test.ts | 1→2 lines | ~30 |
+| 04:15 | Edited shared/src/session.test.ts | added 1 condition(s) | ~289 |
+| 04:16 | Edited shared/src/session.test.ts | 2→2 lines | ~48 |
+| 04:17 | Edited shared/src/session.test.ts | added optional chaining | ~1025 |
+| 04:18 | Created client/src/vento.ts | — | ~1014 |
+| 04:19 | Edited client/src/atlasTexture.ts | added 1 condition(s) | ~895 |
+| 04:19 | Edited client/src/vento.ts | 5→7 lines | ~114 |
+| 04:19 | Edited client/src/vento.ts | modified setor() | ~256 |
+| 04:20 | Edited client/src/atlasTexture.ts | modified paintAgua() | ~591 |
+| 04:20 | Edited client/src/atlasTexture.ts | modified animarAguaAtlas() | ~28 |
+| 04:20 | Edited client/src/main.ts | added 3 condition(s) | ~252 |
+| 04:20 | Edited client/src/main.ts | added 2 condition(s) | ~83 |
+| 04:20 | Edited client/src/main.ts | added 1 import(s) | ~23 |
+| 04:20 | Edited client/src/main.ts | atlas() → VENTO() | ~199 |
+| 04:21 | Edited client/src/main.ts | 3→2 lines | ~17 |
+| 04:22 | Edited client/src/daynight.ts | added 1 condition(s) | ~1033 |
+| 04:22 | Edited client/src/daynight.ts | expanded (+8 lines) | ~307 |
+| 04:22 | Edited client/src/daynight.ts | modified nuvens() | ~418 |
+| 04:22 | Edited client/src/daynight.ts | added 1 condition(s) | ~227 |
+| 04:22 | Edited client/src/daynight.ts | added 1 condition(s) | ~240 |
+| 04:23 | Edited client/src/settings.ts | modified toque() | ~208 |
+| 04:23 | Edited client/src/settings.ts | 3→5 lines | ~22 |
+| 04:23 | Edited client/src/settings.ts | 3→5 lines | ~57 |
+| 04:23 | Edited client/src/settings.ts | modified num() | ~76 |
+| 04:23 | Edited client/src/menu.ts | modified streaming() | ~285 |
+| 04:24 | Edited client/src/bench.ts | expanded (+6 lines) | ~128 |
+| 04:25 | Edited shared/src/blocks.ts | modified ALTA() | ~205 |
+| 04:25 | Edited shared/src/blocks.ts | modified isReplaceable() | ~320 |
+| 04:25 | Edited shared/src/blocks.ts | 2→2 lines | ~24 |
+| 04:25 | Edited shared/src/blocks.ts | 5→6 lines | ~55 |
+| 04:25 | Edited shared/src/blocks.ts | 4→5 lines | ~48 |
+| 04:25 | Edited shared/src/mesher.ts | 4→9 lines | ~121 |
+| 04:26 | Edited shared/src/mesher.ts | inline fix | ~24 |
+| 04:26 | Edited shared/src/mesher.ts | added 1 condition(s) | ~170 |
+| 04:26 | Edited shared/src/mesher.ts | added 2 condition(s) | ~353 |
+| 04:26 | Edited shared/src/mesher.ts | 8→9 lines | ~71 |
+| 04:26 | Edited shared/src/mesher.ts | expanded (+9 lines) | ~161 |
+| 04:26 | Edited shared/src/mesher.ts | 5→6 lines | ~54 |
+| 04:26 | Edited shared/src/mesher.ts | 5→8 lines | ~105 |
+| 04:27 | Edited shared/src/mesher.ts | 4→5 lines | ~77 |
+| 04:27 | Edited shared/src/mesher.ts | 3→4 lines | ~73 |
+| 04:27 | Edited shared/src/mesher.ts | 2→3 lines | ~34 |
+| 04:27 | Edited shared/src/mesher.ts | 1→3 lines | ~11 |
+| 04:27 | Edited client/src/meshWorker.ts | 8→9 lines | ~92 |
+| 04:27 | Edited client/src/meshPool.ts | 4→6 lines | ~58 |
+| 04:27 | Edited client/src/chunks.ts | 4→5 lines | ~47 |
+| 04:28 | Edited client/src/chunks.ts | 2→5 lines | ~107 |
+| 04:28 | Edited client/src/vento.ts | added 1 import(s) | ~171 |
+| 04:29 | Edited client/src/main.ts | 4→9 lines | ~116 |
+| 04:29 | Edited client/src/main.ts | inline fix | ~22 |
+| 04:29 | Edited client/src/main.ts | 1→4 lines | ~76 |
+| 04:29 | Edited client/src/main.ts | 2→7 lines | ~148 |
+| 04:29 | Edited client/src/main.ts | 3→4 lines | ~56 |
+| 04:29 | Edited client/src/chunks.ts | 7→8 lines | ~57 |
+| 04:30 | Edited client/src/atlasTexture.ts | added 2 condition(s) | ~444 |
+| 04:30 | Edited client/src/atlasTexture.ts | modified gua() | ~96 |
+| 04:30 | Edited client/src/blocksUi.ts | modified Flores() | ~149 |
+| 04:31 | Edited shared/src/mesher.ts | modified flores() | ~136 |
+| 04:31 | Edited shared/src/biomas.ts | 5→9 lines | ~122 |
+| 04:31 | Edited shared/src/worldgen.ts | added 2 condition(s) | ~327 |
+| 04:32 | Edited shared/src/claims.test.ts | 3→7 lines | ~137 |
+| 04:32 | Edited shared/src/mesher.test.ts | 2→3 lines | ~58 |
+| 04:33 | Edited shared/src/mesher.test.ts | added 1 condition(s) | ~636 |
+| 04:33 | Edited shared/src/blocks.ts | inline fix | ~13 |
+| 04:34 | Edited shared/src/blocks.test.ts | modified alta() | ~113 |
+| 04:39 | Edited client/src/daynight.ts | 3→5 lines | ~98 |
+| 04:41 | Edited shared/src/vento.ts | modified ventoIntensidade() | ~574 |
+| 04:41 | Edited client/src/vento.ts | added 1 import(s) | ~24 |
+| 04:41 | Edited client/src/vento.ts | removed 22 lines | ~8 |
+| 04:41 | Edited client/src/vento.ts | modified ondaAgua() | ~86 |
+| 04:41 | Edited shared/src/vento.test.ts | modified for() | ~522 |
+| 04:41 | Edited shared/src/vento.test.ts | 7→9 lines | ~45 |
+
+## Sessão 28 (2026-07-27) — §🌬️ vento + vida ambiental, frentes 1 a 6
+
+Usuário escolheu o §🌬️ do ROADMAP e pediu as perguntas em lote antes de ficar AFK.
+Decisões: escopo TODO (frentes 1–6) · vento com rotação lenta + rajadas · `/vento` só
+liga/desliga · codar+testar+commitar sem push.
+
+| Frente | O que entrou | Arquivos |
+|---|---|---|
+| 2 vento (base) | `ventoNoTick(tick, seed)` puro; msg `vento` 1×/s + no join; `/vento`; persiste no save | `shared/src/vento.ts` (novo), `protocol.ts`, `session.ts`, `save.ts` |
+| 1 textura da água | onda seamless (vetor INTEIRO), 2 senos cruzados, crista com brilho | `client/src/atlasTexture.ts` |
+| 3 água segue o vento | 8 setores + crossfade entre vizinhos (mata o "pop"); velocidade pela força | `shared/src/vento.ts`, `client/src/vento.ts` (novo), `main.ts` |
+| 4 nuvens | plano único no skyGroup, FBM tileável em alpha, scroll pelo vento, tinge com o sol, ancorado ao MUNDO | `client/src/daynight.ts` |
+| 5 folhas | atributo `sway` por vértice + `onBeforeCompile` no material do terreno | `shared/src/mesher.ts`, `meshWorker.ts`, `meshPool.ts`, `chunks.ts`, `client/src/vento.ts` |
+| 6 grama alta | `GramaAlta/Seca/Fria` 179-181, cruz, 3 tiles, hotbar, worldgen por clima | `blocks.ts`, `mesher.ts`, `biomas.ts`, `worldgen.ts`, `atlasTexture.ts`, `blocksUi.ts` |
+
+Config nova: `settings.nuvens` e `settings.balanco` (seção DESEMPENHO do menu), ambas ON e
+fixadas em `BENCH_SETTINGS` pra perfil medir o jogo que o aluno joga.
+
+Verificação: `npm run typecheck` (3 pacotes) verde · 350 testes verdes · `npm run build` ok ·
+`npm run smoke` 6/6 · 3 screenshots headless via CDP (`?bench` + esconder DOM não-canvas)
+confirmando água, capim, nuvens de dia e ao entardecer.
+
+Bugs: bug-530 (MAX_BLOCK_ID não acompanhou o append de bloco novo) e bug-531 (teste de claim
+acoplado ao conteúdo do worldgen).

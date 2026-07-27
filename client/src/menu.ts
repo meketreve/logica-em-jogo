@@ -446,6 +446,26 @@ function renderConfigPanel(
     sharp.appendChild(check);
     body.appendChild(sharp);
 
+    // §🌬️ (2026-07-27): as duas chaves de vida ambiental. Ficam em DESEMPENHO,
+    // não em "gráficos bonitinhos", porque é isso que elas são — nuvem custa
+    // fill rate (o gargalo do PC de laboratório) e balanço custa vértice.
+    const toggle = (rotulo: string, valor: boolean, set: (v: boolean) => void): void => {
+      const row = document.createElement("label");
+      row.className = "config-row";
+      row.textContent = `${rotulo} `;
+      const cb = document.createElement("input");
+      cb.type = "checkbox";
+      cb.checked = valor;
+      cb.addEventListener("change", () => {
+        set(cb.checked);
+        apply();
+      });
+      row.appendChild(cb);
+      body.appendChild(row);
+    };
+    toggle("nuvens no céu", s.nuvens, (v) => (s.nuvens = v));
+    toggle("balanço de folhas e grama", s.balanco, (v) => (s.balanco = v));
+
     // streaming (mundo procedural): quanto mundo carrega em volta + custo por frame
     slider(
       "raio de render (mundo procedural)", 2, 12, 1, s.raioRender,

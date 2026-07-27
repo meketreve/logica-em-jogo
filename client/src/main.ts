@@ -66,6 +66,7 @@ import { ChatUi } from "./chat";
 import { ChunkRenderer } from "./chunks";
 import { learnPlayers, learnWorlds } from "./commands";
 import { SkyCycle } from "./daynight";
+import { VentoCliente, aplicarBalanco, criarBalancoUniforms } from "./vento";
 import { type Connection, WorkerConnection, WsConnection } from "./connection";
 import { emitGameEvent } from "./events";
 import { Hud } from "./hud";
@@ -147,6 +148,23 @@ const horaForcada = ((): number | null => {
   return Number.isFinite(v) ? v : null;
 })();
 if (horaForcada !== null) skyCycle.sync(horaForcada, false);
+// Vento (§🌬️): `dir`/`forca` vêm do servidor 1×/s (msg `vento`); o VentoCliente
+// suaviza por frame. Alimenta a correnteza da água, o scroll das nuvens e o
+// balanço de folhas/grama. SÓ visual — não entra na física.
+const vento = new VentoCliente();
+// ?vento=1.57,0.8 na URL: força direção,força (par do ?hora — screenshot
+// headless com o vento num rumo conhecido). Ignora o sync de rede enquanto ativo.
+const ventoForcado = ((): { dir: number; forca: number } | null => {
+  const raw = new URLSearchParams(location.search).get("vento");
+  if (raw === null) return null;
+  const [d, f] = raw.split(",").map(Number);
+  if (d === undefined || !Number.isFinite(d)) return null;
+  return { dir: d, forca: Number.isFinite(f) ? f! : 0.6 };
+})();
+if (ventoForcado) vento.sync(ventoForcado.dir, ventoForcado.forca, true);
+/** Uniforms do balanço de folhas/grama — compartilhados com o material do
+ *  terreno (criado lá embaixo, no startGame) e escritos 1×/frame. */
+const balancoUniforms = criarBalancoUniforms();
 
 const input = new Input(renderer.domElement);
 // ?yaw=-1.57 e ?pitch=-0.4 na URL: apontam a câmera (screenshot headless — par do
@@ -179,6 +197,7 @@ function applySettings(): ReturnType<typeof loadSettings> {
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, s.pixelRatioCap));
   setUiVolume(s.volume);
   touchControls?.setScale(s.uiScale); // escala da UI de toque (2026-07-21)
+  skyCycle.setNuvens(s.nuvens); // §🌬️ nuvens: config de DESEMPENHO (fill rate)
   return s;
 }
 /** Controles de toque (tablet) — criados no startGame só em dispositivo touch.
@@ -586,6 +605,9 @@ function handleServerData(data: string | ArrayBuffer): void {
     } else if (msg.type === "time") {
       // ?hora= na URL congela o céu local (inspeção visual — ver ?atlas)
       if (horaForcada === null) skyCycle.sync(msg.hora, msg.ciclo);
+    } else if (msg.type === "vento") {
+      // ?vento= na URL congela o vento local (mesma lógica do ?hora)
+      if (ventoForcado === null) vento.sync(msg.dir, msg.forca, msg.ativo);
     } else if (msg.type === "voo") {
       vooLiberado = msg.liberado;
       // aluno perdeu a liberação no meio do voo: cai (professor voa sempre)
@@ -795,6 +817,11 @@ function startGame(snap: Snapshot): void {
     map: atlas,
     alphaTest: 0.5,
   });
+  // §🌬️ balanço no vento: folhas, flores e grama alta vergam no vertex shader
+  // deste material (só ele — água e vidro não têm vegetação). Os uniforms são
+  // atualizados 1×/frame no loop; `settings.balanco` zera a força pra desligar
+  // sem recompilar shader.
+  aplicarBalanco(material, balancoUniforms);
   // água (2026-07-22): material SEPARADO, transparente DE VERDADE (blend) — sem
   // os furos xadrez. Mesma textura do atlas (as UVs do tile da água batem).
   // depthWrite:false = várias faces de água blendam sem brigar pelo z-buffer;
@@ -843,7 +870,6 @@ function startGame(snap: Snapshot): void {
   );
   // efeitos de água (2026-07-26): névoa+tint ao submergir, animação da textura
   const aguaFx = new AguaFx(scene);
-  let aguaRelogio = 0;
   let aguaQuadro = -1;
   // lazy: nada a meshar ainda — as colunas entram na fila conforme chegam
   if (!mundoLazy) chunkRenderer.buildAll();
@@ -1997,15 +2023,21 @@ function startGame(snap: Snapshot): void {
       lastMs: chunkRenderer.lastRemeshMs,
       porCaminho: chunkRenderer.porCaminho, // este é 1×/frame: sem isto some
     });
-    skyCycle.update(dt); // ciclo dia/noite (cp21): avança o céu e pinta a cena
+    vento.update(dt); // §🌬️: suaviza dir/forca e avança o relógio de animação
+    // balanço: `settings.balanco` desligado = força 0 (o `if` do shader sai fora
+    // sem recompilar nada). A fase vira radianos aqui, uma vez por frame.
+    balancoUniforms.ventoTempo.value = vento.fase * Math.PI * 2;
+    balancoUniforms.ventoDir.value.set(vento.x, vento.z);
+    balancoUniforms.ventoForca.value = settings.balanco ? vento.forca : 0;
+    skyCycle.update(dt, vento); // ciclo dia/noite (cp21) + nuvens andando no vento
     // água (2026-07-26): névoa/tint quando o OLHO está submerso + correnteza no
-    // tile do atlas (~8 fps, independente do FPS de render)
+    // tile do atlas. O quadro vem da fase do VENTO (§🌬️), não de um relógio fixo:
+    // vento forte = correnteza mais rápida, calmaria = água só respirando.
     aguaFx.update(world, camera.position.x, camera.position.y, camera.position.z);
-    aguaRelogio += dt;
-    const quadroAgua = Math.floor(aguaRelogio * 8) % AGUA_FRAMES;
+    const quadroAgua = Math.floor(vento.fase * AGUA_FRAMES) % AGUA_FRAMES;
     if (quadroAgua !== aguaQuadro) {
       aguaQuadro = quadroAgua;
-      animarAguaAtlas(atlas, quadroAgua);
+      animarAguaAtlas(atlas, quadroAgua, vento.ondaAgua);
     }
     // mede só o render: o resto do frame é lógica nossa (mesh, física, streaming).
     // `renderer.render` é síncrono do lado da CPU — o que a GPU faz depois não

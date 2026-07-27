@@ -75,6 +75,12 @@ export const BENCH_SETTINGS = {
   meshMsPorFrame: 6,
   pixelRatioCap: 1, // DPR do lab é 1; travar aqui iguala a contagem de pixels
   fov: 75,
+  // §🌬️ (2026-07-27): vida ambiental LIGADA no bench. É custo de GPU novo em
+  // cima de uma GPU que já fecha o p95 no limite — perfil que a desliga não
+  // mede o jogo que o aluno joga. Quem quiser o A/B desliga em Configurações e
+  // grava um segundo perfil (o par com/sem, mesma régua do `?semworker`).
+  nuvens: true,
+  balanco: true,
 } as const;
 
 /** Lê `?bench` / `?bench=45`. `null` = modo desligado. */

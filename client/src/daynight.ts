@@ -55,6 +55,91 @@ const RAIO_ASTRO = 420;
 const RAIO_ESTRELAS = 460;
 const N_ESTRELAS = 400;
 
+/** Nuvens (§🌬️, 2026-07-27): UM plano horizontal alto com textura procedural
+ *  de alpha, andando na direção do vento.
+ *
+ *  Por que um plano só e não volumes: o teto desta fase é GPU, não CPU — o
+ *  notebook do laboratório já fecha o p95 de GPU em 16,8–19,6 ms contra os
+ *  16,7 ms do orçamento de 60 FPS (perfil de 2026-07-27). Cada nuvem volumétrica
+ *  seria overdraw transparente em cima disso. O plano custa, no pior caso
+ *  (olhando pra cima), uma tela de fill — e o `alphaTest` abaixo corta os
+ *  buracos entre as nuvens ANTES do blend, que é a metade barata da conta.
+ *  Quem ainda achar caro desliga em Configurações (`settings.nuvens`). */
+const NUVEM_ALTURA = 100;
+const NUVEM_LADO = 1400;
+/** Unidades de mundo por repetição da textura — define o TAMANHO das nuvens. */
+const NUVEM_ESCALA = 260;
+/** Velocidade das nuvens (blocos/s) com o vento na força máxima. */
+const NUVEM_VELOCIDADE = 9;
+const NUVEM_TEX_PX = 128;
+
+/** Hash de lattice pro ruído das nuvens — determinístico (mesmo céu todo load) e
+ *  com WRAP no período: é isso que faz a textura ser tileável de verdade. */
+function latticeHash(ix: number, iy: number, periodo: number): number {
+  const x = ((ix % periodo) + periodo) % periodo;
+  const y = ((iy % periodo) + periodo) % periodo;
+  let h = Math.imul(x, 374761393) ^ Math.imul(y, 668265263);
+  h = Math.imul(h ^ (h >>> 13), 1274126177);
+  return ((h ^ (h >>> 16)) >>> 0) / 4294967296;
+}
+
+/** Value noise bilinear com smoothstep, num lattice de período `freq`. */
+function valueNoise(u: number, v: number, freq: number): number {
+  const x = u * freq;
+  const y = v * freq;
+  const ix = Math.floor(x);
+  const iy = Math.floor(y);
+  const fx = x - ix;
+  const fy = y - iy;
+  const sx = fx * fx * (3 - 2 * fx);
+  const sy = fy * fy * (3 - 2 * fy);
+  const a = latticeHash(ix, iy, freq);
+  const b = latticeHash(ix + 1, iy, freq);
+  const c = latticeHash(ix, iy + 1, freq);
+  const d = latticeHash(ix + 1, iy + 1, freq);
+  return (a + (b - a) * sx) * (1 - sy) + (c + (d - c) * sx) * sy;
+}
+
+/** Textura de nuvem: FBM de 4 oitavas no canal ALPHA (o RGB é branco puro — a
+ *  cor vem do material, que segue a luz do sol e escurece de noite). O corte
+ *  em `limiar` é o que separa nuvem de céu limpo em vez de dar uma névoa
+ *  uniforme sobre o mapa inteiro. */
+function criarTexturaNuvens(): THREE.CanvasTexture {
+  const n = NUVEM_TEX_PX;
+  const canvas = document.createElement("canvas");
+  canvas.width = canvas.height = n;
+  const ctx = canvas.getContext("2d");
+  if (!ctx) throw new Error("canvas 2d indisponível");
+  const img = ctx.createImageData(n, n);
+  for (let y = 0; y < n; y++) {
+    for (let x = 0; x < n; x++) {
+      const u = x / n;
+      const v = y / n;
+      const fbm =
+        valueNoise(u, v, 3) * 0.52 +
+        valueNoise(u, v, 6) * 0.26 +
+        valueNoise(u, v, 12) * 0.14 +
+        valueNoise(u, v, 24) * 0.08;
+      // limiar + rampa: abaixo do limiar é céu limpo; a rampa dá a borda fofa
+      // (sem ela a nuvem sai com recorte de tesoura). Calibrado no headless de
+      // 2026-07-27: com 0,52/0,22 as nuvens sumiam contra o azul — viravam
+      // fiapos de cirrus em vez de cúmulos.
+      const a = Math.min(1, Math.max(0, (fbm - 0.44) / 0.17));
+      const i = (y * n + x) * 4;
+      img.data[i] = 255;
+      img.data[i + 1] = 255;
+      img.data[i + 2] = 255;
+      img.data[i + 3] = Math.round(a * 235);
+    }
+  }
+  ctx.putImageData(img, 0, 0);
+  const tex = new THREE.CanvasTexture(canvas);
+  tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
+  const r = NUVEM_LADO / NUVEM_ESCALA;
+  tex.repeat.set(r, r);
+  return tex;
+}
+
 const scratchCeu = new THREE.Color();
 const scratchSol = new THREE.Color();
 
@@ -63,22 +148,30 @@ const clamp01 = (v: number): number => Math.min(Math.max(v, 0), 1);
 export class SkyCycle {
   private hora = 12;
   private ciclo = false;
+  /** Deslocamento acumulado das nuvens (em repetições de textura). */
+  private nuvemScrollU = 0;
+  private nuvemScrollV = 0;
 
   private readonly skyGroup = new THREE.Group();
   private readonly sunDisc: THREE.Mesh;
   private readonly sunGlow: THREE.Mesh;
   private readonly moonDisc: THREE.Mesh;
   private readonly stars: THREE.Points;
+  private readonly nuvens: THREE.Mesh;
   private readonly sunMat: THREE.MeshBasicMaterial;
   private readonly glowMat: THREE.MeshBasicMaterial;
   private readonly moonMat: THREE.MeshBasicMaterial;
   private readonly starsMat: THREE.PointsMaterial;
+  private readonly nuvemMat: THREE.MeshBasicMaterial;
+  private readonly nuvemTex: THREE.CanvasTexture;
 
   constructor(
     private readonly sun: THREE.DirectionalLight,
     private readonly ambient: THREE.AmbientLight,
     private readonly scene: THREE.Scene,
     private readonly camera: THREE.Camera,
+    /** Nuvens ligadas? (Configurações — protege a GPU do PC de laboratório.) */
+    nuvensLigadas = true,
   ) {
     // sol: disco quente + halo aditivo maior (sem textura, na regra do projeto)
     this.sunMat = new THREE.MeshBasicMaterial({ color: 0xffdf6b, transparent: true, depthWrite: false });
@@ -124,8 +217,42 @@ export class SkyCycle {
     });
     this.stars = new THREE.Points(starGeo, this.starsMat);
 
-    this.skyGroup.add(this.sunDisc, this.sunGlow, this.moonDisc, this.stars);
+    // nuvens (§🌬️): plano horizontal alto. `alphaTest` baixo descarta os buracos
+    // entre as nuvens antes do blend — é o que segura o custo de fill na GPU
+    // fraca. `depthWrite:false` pelo mesmo motivo dos astros: passe transparente,
+    // depthTest ainda esconde o que fica atrás de montanha.
+    this.nuvemTex = criarTexturaNuvens();
+    this.nuvemMat = new THREE.MeshBasicMaterial({
+      map: this.nuvemTex,
+      transparent: true,
+      alphaTest: 0.02,
+      depthWrite: false,
+      side: THREE.DoubleSide, // visível também de cima (voo criativo)
+      fog: false,
+    });
+    this.nuvens = new THREE.Mesh(
+      new THREE.PlaneGeometry(NUVEM_LADO, NUVEM_LADO),
+      this.nuvemMat,
+    );
+    this.nuvens.rotation.x = -Math.PI / 2; // deita o plano: local +x → +x, local +y → −z
+    this.nuvens.position.y = NUVEM_ALTURA;
+    this.nuvens.visible = nuvensLigadas;
+
+    this.skyGroup.add(this.sunDisc, this.sunGlow, this.moonDisc, this.stars, this.nuvens);
     scene.add(this.skyGroup);
+  }
+
+  /** Liga/desliga as nuvens em tempo real (Configurações). */
+  setNuvens(ligadas: boolean): void {
+    this.nuvens.visible = ligadas;
+  }
+
+  /** Libera a textura das nuvens (a cena vive o processo todo; existe pro par
+   *  com quem cria SkyCycle em teste/headless). */
+  dispose(): void {
+    this.nuvemTex.dispose();
+    this.nuvemMat.dispose();
+    this.nuvens.geometry.dispose();
   }
 
   /** Sincroniza com a hora autoritativa do servidor. */
@@ -134,9 +261,18 @@ export class SkyCycle {
     this.ciclo = ciclo;
   }
 
-  /** Um frame: avança o relógio local (se o ciclo roda) e pinta o céu. */
-  update(dt: number): void {
+  /** Um frame: avança o relógio local (se o ciclo roda) e pinta o céu.
+   *  `vento` (§🌬️) empurra as nuvens; sem ele, o céu fica parado. */
+  update(dt: number, vento?: { x: number; z: number; forca: number }): void {
     if (this.ciclo) this.hora = (this.hora + (dt * 24) / DIA_SEGUNDOS) % 24;
+    if (vento && this.nuvens.visible) {
+      // as nuvens andam PRO rumo do vento. Sinais: no plano deitado, u cresce com
+      // +x e v cresce com −z, e mexer o `offset` move o padrão pro lado CONTRÁRIO
+      // — daí o −u/+v (mesma inversão que a água tem no tile do atlas).
+      const passo = (dt * NUVEM_VELOCIDADE * vento.forca) / NUVEM_ESCALA;
+      this.nuvemScrollU -= vento.x * passo;
+      this.nuvemScrollV += vento.z * passo;
+    }
     this.apply();
   }
 
@@ -198,5 +334,18 @@ export class SkyCycle {
     this.starsMat.opacity = noite;
     this.stars.visible = noite > 0;
     this.stars.rotation.z = ang * 0.5;
+
+    // nuvens (§🌬️): a cor segue a luz do sol (brancas ao meio-dia, laranjas no
+    // pôr do sol, azul-escuras de noite) e a textura fica ANCORADA NO MUNDO —
+    // o skyGroup segue a câmera, então o offset desconta a posição dela, senão
+    // as nuvens andariam junto com o jogador e nunca haveria paralaxe.
+    if (this.nuvens.visible) {
+      this.nuvemMat.color.copy(scratchSol).multiplyScalar(0.92);
+      this.nuvemMat.opacity = 0.5 + 0.35 * clamp01(dy + 0.35); // some um pouco de noite
+      this.nuvemTex.offset.set(
+        this.camera.position.x / NUVEM_ESCALA + this.nuvemScrollU,
+        -this.camera.position.z / NUVEM_ESCALA + this.nuvemScrollV,
+      );
+    }
   }
 }

@@ -20,7 +20,8 @@ describe("GameSession (servidor autoritativo)", () => {
     const session = new GameSession(send, { dims: DIMS, seed: 99, singleplayer: true });
     session.handleMessage(1, JSON.stringify({ type: "join", name: "ana" }));
 
-    expect(sent).toHaveLength(4); // spawn + snapshot + time (cp21) + boas-vindas
+    // spawn + snapshot + time (cp21) + vento (§🌬️) + boas-vindas
+    expect(sent).toHaveLength(5);
     expect(sent[0]?.clientId).toBe(1);
     expect(parseServerMessage(sent[0]?.data as string)).toEqual({
       // singleplayer: todo join é professor (cp9); papel viaja no spawn (cp11)
@@ -30,7 +31,12 @@ describe("GameSession (servidor autoritativo)", () => {
     const hora = parseServerMessage(sent[2]?.data as string);
     if (hora?.type !== "time") throw new Error("esperava mensagem de hora");
     expect(hora).toEqual({ type: "time", hora: 12, ciclo: false });
-    const welcome = parseServerMessage(sent[3]?.data as string);
+    // sent[3] = vento (§🌬️) — nasce LIGADO, com a água já andando pro rumo certo
+    const vento = parseServerMessage(sent[3]?.data as string);
+    if (vento?.type !== "vento") throw new Error("esperava mensagem de vento");
+    expect(vento.ativo).toBe(true);
+    expect(vento.forca).toBeGreaterThan(0);
+    const welcome = parseServerMessage(sent[4]?.data as string);
     if (welcome?.type !== "chat") throw new Error("esperava chat de boas-vindas");
     expect(welcome.author).toBe("servidor");
     expect(welcome.text).toContain("ana#1");
@@ -582,6 +588,79 @@ describe("GameSession (servidor autoritativo)", () => {
     expect(hora).toEqual({ type: "time", hora: 18, ciclo: true });
   });
 
+  it("vento (§🌬️): nasce LIGADO e sopra 1×/s; /vento desliga e vira calmaria", () => {
+    const { sent, send } = collect();
+    const session = new GameSession(send, { dims: DIMS, seed: 5, singleplayer: true });
+    session.handleMessage(1, JSON.stringify({ type: "join", name: "prof" }));
+    sent.length = 0;
+
+    const ultimoVento = (): { dir: number; forca: number; ativo: boolean } => {
+      const vs = sent
+        .map((s) => (typeof s.data === "string" ? parseServerMessage(s.data) : null))
+        .filter(
+          (m): m is { type: "vento"; dir: number; forca: number; ativo: boolean } =>
+            m?.type === "vento",
+        );
+      const v = vs[vs.length - 1];
+      if (!v) throw new Error("nenhuma mensagem de vento foi enviada");
+      return { dir: v.dir, forca: v.forca, ativo: v.ativo };
+    };
+
+    // ligado por padrão: 1 s de ticks emite vento junto do debug_stats
+    for (let i = 0; i < SERVER_TICK_RATE; i++) session.tick();
+    const v1 = ultimoVento();
+    expect(v1.ativo).toBe(true);
+    expect(v1.forca).toBeGreaterThan(0);
+    sent.length = 0;
+
+    // o vento ANDA: passados 60 s de mundo, a direção não é a mesma
+    for (let i = 0; i < SERVER_TICK_RATE * 60; i++) session.tick();
+    expect(ultimoVento().dir).not.toBeCloseTo(v1.dir, 2);
+    sent.length = 0;
+
+    // /vento desligar → calmaria (forca 0) e para de broadcastar por tick
+    session.handleMessage(1, JSON.stringify({ type: "chat", text: "/vento desligar" }));
+    expect(ultimoVento()).toEqual({ dir: 0, forca: 0, ativo: false });
+    sent.length = 0;
+    for (let i = 0; i < SERVER_TICK_RATE * 2; i++) session.tick();
+    expect(sent.some((s) => parseServerMessage(s.data as string)?.type === "vento")).toBe(false);
+
+    // sem argumento alterna de volta (molde do /ciclo)
+    session.handleMessage(1, JSON.stringify({ type: "chat", text: "/vento" }));
+    expect(ultimoVento().ativo).toBe(true);
+  });
+
+  it("vento (§🌬️): só o DESLIGADO persiste no save (ausente = ligado)", () => {
+    const { send } = collect();
+    const s1 = new GameSession(send, { dims: DIMS, seed: 5, singleplayer: true });
+    s1.handleMessage(1, JSON.stringify({ type: "join", name: "prof" }));
+    expect(s1.toSave().vento).toBeUndefined(); // ligado não ocupa bytes
+
+    s1.handleMessage(1, JSON.stringify({ type: "chat", text: "/vento desligar" }));
+    const meta = s1.toSave();
+    expect(meta.vento).toBe(false);
+
+    const { sent: sent2, send: send2 } = collect();
+    const s2 = new GameSession(send2, { restore: { world: s1.world, ...meta }, singleplayer: true });
+    s2.handleMessage(7, JSON.stringify({ type: "join", name: "prof" }));
+    const v = sent2
+      .map((s) => (typeof s.data === "string" ? parseServerMessage(s.data) : null))
+      .find((m) => m?.type === "vento");
+    if (v?.type !== "vento") throw new Error("esperava vento no join");
+    expect(v).toEqual({ type: "vento", dir: 0, forca: 0, ativo: false });
+  });
+
+  it("vento (§🌬️): aluno não controla o vento", () => {
+    const { sent, send } = collect();
+    const session = new GameSession(send, { dims: DIMS, seed: 5, codigo: "sala" });
+    session.handleMessage(1, JSON.stringify({ type: "join", name: "ana", pin: "1111" }));
+    sent.length = 0;
+    session.handleMessage(1, JSON.stringify({ type: "chat", text: "/vento desligar" }));
+    const reply = parseServerMessage(sent[0]?.data as string);
+    if (reply?.type !== "chat") throw new Error("esperava resposta de chat");
+    expect(reply.text).toContain("Somente o professor");
+  });
+
   it("ciclo dia/noite: aluno não pode mudar a hora nem o ciclo", () => {
     const { sent, send } = collect();
     const session = new GameSession(send, { dims: DIMS, seed: 5, codigo: "sala" });
@@ -673,8 +752,8 @@ describe("GameSession (servidor autoritativo)", () => {
     const types = sent2.map((s) =>
       typeof s.data === "string" ? parseServerMessage(s.data)?.type : "snapshot",
     );
-    // time (cp21) entra depois do snapshot, antes do teleport
-    expect(types).toEqual(["spawn", "snapshot", "time", "teleport", "chat"]);
+    // time (cp21) e vento (§🌬️) entram depois do snapshot, antes do teleport
+    expect(types).toEqual(["spawn", "snapshot", "time", "vento", "teleport", "chat"]);
     const tp = sent2
       .map((s) => (typeof s.data === "string" ? parseServerMessage(s.data) : null))
       .find((m) => m?.type === "teleport");

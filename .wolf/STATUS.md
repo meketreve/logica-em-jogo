@@ -1,6 +1,49 @@
 # STATUS — Projeto "Lógica em Jogo" (jogo voxel educacional)
 
 > Single source of truth for resuming work. Read this FIRST when starting a session.
+> **SESSÃO 28 (2026-07-27) — §🌬️ VENTO + VIDA AMBIENTAL: as 6 frentes, de uma vez.**
+> O usuário escolheu o §🌬️ do ROADMAP, pediu as perguntas em LOTE antes de ficar AFK e
+> respondeu: **escopo TODO (frentes 1 a 6)** · vento com **rotação lenta + rajadas** ·
+> `/vento` **só liga/desliga** (recusou ajuste manual de direção/força) · **codar, testar e
+> commitar, sem push**.
+>
+> **A base é o vento como ESTADO DO MUNDO** (`shared/src/vento.ts`): `ventoNoTick(tick, seed)`
+> é função PURA do tick, mesmo molde do `horaDoDia` — nada de relógio de parede, nada de
+> `Math.random`, dois hosts no mesmo tick veem o mesmo vento. Direção gira 360° em 300 s com
+> bamboleio; força soma maré de 97 s + rajada de 13,7 s (períodos primos entre si pra o padrão
+> não fechar ciclo curto). Vai pelo fio na msg `vento` (join + 1×/s, junto do `time`); o
+> cliente suaviza por frame. **Nasce LIGADO** (é ambiência, não regra de atividade) e **só o
+> DESLIGADO ocupa bytes no save**.
+>
+> | Frente | Entregue |
+> |---|---|
+> | 1 textura da água | onda com vetor **INTEIRO** (fecha no tile de 16 px = sem costura), 2 senos cruzados, crista com brilho especular fake |
+> | 2 vento | estado autoritativo + `/vento ligar\|desligar` + persistência |
+> | 3 água segue o vento | 8 setores + **crossfade entre setores vizinhos** (mata o "pop" a cada ~37 s); velocidade da correnteza pela força |
+> | 4 nuvens | UM plano no skyGroup, FBM tileável no alpha, scroll pelo vento, cor seguindo o sol, **ancorado ao MUNDO** (desconta a câmera → tem paralaxe) |
+> | 5 folhas | atributo `sway` por vértice no mesher + `onBeforeCompile` no material do terreno |
+> | 6 grama alta | `GramaAlta/Seca/Fria` (179-181), cruz de 2 lâminas, 3 tiles, hotbar, worldgen por clima |
+>
+> **Dois cuidados que o código guarda e não são óbvios.** (a) **O canvas do atlas anda ao
+> CONTRÁRIO do mundo nos dois eixos** — no topo do bloco o mesher mapeia `u = 1 − x`, `v = z`,
+> e o canvas 2D tem y pra baixo. Sem negar os dois, a água corre CONTRA o vento. Travado em
+> `ondaAguaDoVento` (shared) + teste de sinal. (b) **O balanço de folha usa frequência
+> espacial BAIXA** (0,16 rad/bloco): cubos de folha vizinhos são independentes, e se cada um
+> se deslocar diferente a copa abre fresta — a 0,16 o desencontro fica em ~0,2 px de tela.
+>
+> **Custo de GPU: chaves prontas, número NÃO medido em máquina real.** Nuvens (fill rate) e
+> balanço (vértice) entram num orçamento de GPU que **já estava no teto** no notebook do lab
+> (p95 16,8–19,6 ms contra 16,7 ms). As duas viraram config em **Configurações → seção de
+> desempenho** (`settings.nuvens`, `settings.balanco`), ambas ON, e estão fixadas em
+> `BENCH_SETTINGS` — perfil tem de medir o jogo que o aluno joga. **Falta rodar `?bench` no
+> notebook do lab pra saber o preço.**
+>
+> **Verificação:** typecheck (3 pacotes) · **350 testes verdes** · build · `npm run smoke` 6/6
+> · 3 screenshots headless (CDP + `?bench`, escondendo todo filho de `<body>` que não é
+> canvas) confirmando água, capim, nuvens de dia e ao entardecer. Bugs: **bug-530**
+> (`MAX_BLOCK_ID` não acompanhou o append do bloco novo → grama alta recusada no place) e
+> **bug-531** (teste de claim acoplado ao conteúdo do worldgen).
+
 > **SESSÃO 27 (2026-07-26) — O NÚMERO DO LAB CHEGOU. Veredito: jogável; o custo é a ESPERA.**
 > O usuário rodou `?bench` DUAS vezes no notebook de professor (idêntico aos PCs da sala):
 > `profiles/perf-bench-1785117299927-v1w4.json` e `-1785117351891-nfhx.json`.
@@ -463,12 +506,25 @@ Documento é o ÚLTIMO entregável, não o primeiro. Construir, não documentar.
 
 ---
 
-## 🚀 Próxima fase — NADA DISPARADO. Perf ENCERRADA; escolher do backlog.
+## 🚀 Próxima fase — MEDIR O PREÇO DO §🌬️ NO LAB, depois escolher do backlog.
 
-**O ciclo de desempenho FECHOU em 2026-07-27.** Não há próximo passo obrigatório: nenhum
-gatilho da política está aceso. O jogo roda no PC do laboratório com **o FPS do caminho
-síncrono (50) e um terço do tempo de carga (4,5 s contra 11,5 s)**. Quem retomar deve
-ESCOLHER do backlog abaixo, não continuar otimizando.
+**O §🌬️ (vento + vida ambiental) foi entregue INTEIRO na sessão 28** — as 6 frentes, verde em
+typecheck/testes/build/smoke e conferido em screenshot headless. **Há UM passo pendente e ele
+é de medição, não de código:**
+
+> **Rodar `?bench` no notebook do laboratório com o §🌬️ ligado** e comparar com a régua
+> `…-l9xf.json` (50 FPS · p95 26,7 · GPU méd 13,0 / p95 16,8 · carga 4 508 ms). Nuvens custam
+> **fill rate** e balanço custa **vértice**, e esse orçamento de GPU já estava no teto. Se o
+> p95 piorar acima do ruído de 1–2%, o A/B é imediato: desligar `nuvens` em Configurações e
+> gravar o segundo perfil (mesma régua do `?semworker`). As duas chaves existem justamente
+> pra isso — `settings.nuvens` e `settings.balanco`, ambas ON e fixadas em `BENCH_SETTINGS`.
+
+Além disso, o §🌬️ nunca foi visto EM JOGO por um humano: o headless roda em SwiftShader a
+16 FPS e a câmera do bench voa alto. Vale um playtest curto olhando (a) a correnteza da água
+mudando de rumo, (b) o capim vergando, (c) as nuvens passando — é o tipo de coisa que o
+usuário reprova por "sensação", não por bug (ver User Preferences do cerebrum).
+
+Fora isso, **nenhum gatilho de desempenho está aceso** e quem retomar ESCOLHE do backlog.
 
 **A régua, pra qualquer perfil futuro se ler contra:**
 - **PC de dev (RTX 2060):** `profiles/perf-bench-2026-07-27T01-24-08-311Z.json` — 60 FPS ·
@@ -497,9 +553,9 @@ experimento, existe desde bug-529).
 
 ### Backlog aberto — o usuário escolhe
 
-- **`ROADMAP.md §🌬️` — vento + vida ambiental** (pedido no playtest da água): textura da água
-  → vento autoritativo (molde do `horaDoDia`) → animação da água seguindo o vento → nuvens →
-  folhas balançando → grama e flores. Nada codado.
+- ~~`ROADMAP.md §🌬️` — vento + vida ambiental~~ **FEITO na sessão 28** (frentes 1 a 6).
+  Sobrou só o que o §🌬️ NÃO pediu: som do vento; vento empurrando partículas/chuva;
+  o vento entrar na física (decisão explícita: é SÓ visual até alguém decidir o contrário).
 - **Som de água** (splash/borbulha/balde, WebAudio em `audio.ts`) — 4ª opção do refino de
   água, nunca escolhida.
 - **Candidatos** (ver ROADMAP.md): layouts mobile · auto-update do servidor · sobrevivência
@@ -518,6 +574,7 @@ sessão futura achar isso "inconsistente", é decisão validada em playtest — 
 Sessões 20+21 (`26151f9`/`41211ff`/`5d18899`), 24 (`e3eaac4`) e 25 commitadas.
 **Sessão 27 commitada e pushada:** `51bc5c8` (mesher em Worker) + `b3669ff` (wolf) +
 `0a3dd3f` (PR do openwolf) + `efaf6df` (profundidade 1 + etiqueta no perfil).
+**Sessão 28 COMMITADA, sem push** (o usuário pediu review antes de empurrar).
 
 ---
 

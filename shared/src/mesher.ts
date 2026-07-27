@@ -7,6 +7,8 @@ import {
   isCadeira,
   isCama,
   isFlor,
+  isFolhas,
+  isGramaAlta,
   isFullCube,
   isJanela,
   isJanelaAberta,
@@ -122,6 +124,11 @@ export const TILE = {
   vidroBranco: 95, vidroPreto: 96, vidroVermelho: 97, vidroLaranja: 98,
   vidroAmarelo: 99, vidroVerde: 100, vidroAzul: 101, vidroRoxo: 102,
   vidroRosa: 103, vidroCiano: 104, vidroCinza: 105, vidroMarrom: 106,
+  // §🌬️ 2026-07-27: grama alta (sprite em cruz). Ordem = âncora gramaAlta +
+  // (id − GramaAlta), casando com as 3 gramas climáticas.
+  gramaAlta: 107,
+  gramaAltaSeca: 108,
+  gramaAltaFria: 109,
 } as const;
 
 /** cp20: blocos-glifo. Letras A–Z e dígitos 0–9 ocupam tiles consecutivos a
@@ -253,6 +260,13 @@ for (let i = 0; i < 4; i++) {
   BLOCK_TILES[BlockId.FlorVermelha + i] = uniform(TILE.florVermelha + i);
 }
 
+// grama alta (§🌬️ 2026-07-27): mesma ideia — a entrada aqui serve o ícone 2D da
+// hotbar. Não passa pelo caminho de cubo (isFullCube é false), então nunca vira
+// face de cubo por engano.
+for (let i = 0; i < 3; i++) {
+  BLOCK_TILES[BlockId.GramaAlta + i] = uniform(TILE.gramaAlta + i);
+}
+
 // cp20: letras/dígitos = cubos uniformes com o tile do glifo (append A→Z, 0→9).
 for (let i = 0; i < GLYPH.letters.length; i++) {
   BLOCK_TILES[BlockId.LetterA + i] = uniform(GLYPH.base + i);
@@ -285,7 +299,7 @@ export function blockIconTile(id: number): number {
 export function blockSelectionBox(
   id: number,
 ): readonly [number, number, number, number, number, number] {
-  if (isFlor(id)) return [4 * P, 0, 4 * P, 12 * P, 1, 12 * P];
+  if (isFlor(id) || isGramaAlta(id)) return [4 * P, 0, 4 * P, 12 * P, 1, 12 * P];
   if (isTapete(id)) return [0, 0, 0, 1, P, 1];
   if (id === BlockId.Tocha) return [7 * P, 0, 7 * P, 9 * P, 10 * P, 9 * P];
   if (id === BlockId.Cerca) return [6 * P, 0, 6 * P, 10 * P, 1, 10 * P];
@@ -432,10 +446,34 @@ function rotXZ(
   return [xa, za, xb, zb];
 }
 
+/** Quanto cada família balança no vento (§🌬️, 2026-07-27), em [0,1]. Vira o
+ *  atributo `sway` por vértice; o shader do cliente multiplica o deslocamento
+ *  por ele. Folha balança POUCO (o galho segura); planta rasteira vai inteira. */
+export const SWAY_FOLHAS = 0.34;
+export const SWAY_PLANTA = 1;
+
+/** Balanço do bloco. 0 = rígido (a esmagadora maioria — pedra não venta). */
+function swayDoBloco(id: number): number {
+  if (isFolhas(id)) return SWAY_FOLHAS;
+  if (isFlor(id) || isGramaAlta(id)) return SWAY_PLANTA;
+  return 0;
+}
+
 export interface ChunkGeometry {
   positions: Float32Array;
   normals: Float32Array;
   uvs: Float32Array;
+  /**
+   * §🌬️ Balanço por VÉRTICE, 0..255 (byte normalizado no atributo da GPU).
+   *
+   * Por que atributo e não "o shader descobre pela UV": o cutout de folha e o de
+   * flor moram em tiles diferentes, mas o teste teria de rodar por FRAGMENTO e
+   * ainda assim não separaria o topo do pé do capim. Aqui a informação nasce no
+   * mesher, que já sabe qual bloco está emitindo, custa 1 byte por vértice e o
+   * vertex shader só multiplica. Na cruz da planta o PÉ vai 0 e o TOPO vai o
+   * valor cheio — é o que faz a grama vergar em vez de escorregar de lado.
+   */
+  sway: Uint8Array;
   /** Índices OPACOS primeiro, ÁGUA depois, VIDRO COLORIDO por último
    *  (concatenados). O cliente fatia em 3 grupos: [0, opaqueIndexCount) =
    *  material opaco (cutout); os `aguaIndexCount` seguintes = material da água;
@@ -468,6 +506,7 @@ const GEOMETRIA_VAZIA = (): ChunkGeometry => ({
   positions: new Float32Array(0),
   normals: new Float32Array(0),
   uvs: new Float32Array(0),
+  sway: new Uint8Array(0),
   indices: new Uint32Array(0),
   opaqueIndexCount: 0,
   aguaIndexCount: 0,
@@ -537,6 +576,15 @@ export function meshVizinhanca(viz: Uint8Array): ChunkGeometry {
   const normals: number[] = [];
   const uvs: number[] = [];
   const indices: number[] = [];
+  // §🌬️ balanço por vértice (0..255). Escrito em PARALELO a `positions`: todo
+  // caminho que empurra um vértice tem de empurrar um sway junto, senão os
+  // arrays desalinham e a folha errada balança.
+  const sway: number[] = [];
+  /** Balanço do bloco que está sendo emitido AGORA (o laço principal fixa). */
+  let swayAtual = 0;
+  const pushSway = (n: number): void => {
+    for (let i = 0; i < n; i++) sway.push(swayAtual);
+  };
   // Água (2026-07-22): faces vão pra ESTE array separado → 2º grupo/material
   // (transparente de verdade, blend). Concatenado depois de `indices`.
   const waterIndices: number[] = [];
@@ -593,6 +641,7 @@ export function meshVizinhanca(viz: Uint8Array): ChunkGeometry {
           1 - (row + 1) / n + inset + vf * (1 / n - 2 * inset),
         );
       }
+      pushSway(4);
       indices.push(base, base + 1, base + 2, base + 2, base + 1, base + 3);
     }
   };
@@ -634,6 +683,9 @@ export function meshVizinhanca(viz: Uint8Array): ChunkGeometry {
         positions.push(c[0], c[1], c[2]);
         normals.push(nx * sign, 0, nz * sign);
         uvs.push(cu[i]!, cv[i]!);
+        // §🌬️ cantos 0 e 1 são o PÉ da lâmina (y = ly), 2 e 3 o TOPO. Só o topo
+        // balança → a planta VERGA, presa no chão, em vez de deslizar inteira.
+        sway.push(i >= 2 ? swayAtual : 0);
       }
       if (sign > 0) indices.push(base, base + 1, base + 2, base, base + 2, base + 3);
       else indices.push(base, base + 2, base + 1, base, base + 3, base + 2);
@@ -753,6 +805,13 @@ export function meshVizinhanca(viz: Uint8Array): ChunkGeometry {
           emitCrossPlane(lx, ly, lz, tile, 0, 1, 1, 0); // anti-diagonal ↗
           return true;
         }
+        // grama alta (§🌬️ 2026-07-27): mesma cruz da flor, tile por clima
+        if (isGramaAlta(id)) {
+          const tile = TILE.gramaAlta + (id - BlockId.GramaAlta);
+          emitCrossPlane(lx, ly, lz, tile, 0, 0, 1, 1);
+          emitCrossPlane(lx, ly, lz, tile, 0, 1, 1, 0);
+          return true;
+        }
         // móveis direcionais (2026-07-19): forma definida DE FRENTE PRA +x,
         // girada k×90° pro sufixo do id (XP=0, ZP=1, XN=2, ZN=3)
         // cama (2026-07-20): 2 células horizontais. Cabeceira (com travesseiro)
@@ -849,6 +908,7 @@ export function meshVizinhanca(viz: Uint8Array): ChunkGeometry {
       for (let lx = 0; lx < CHUNK_SIZE; lx++) {
         const id = bloco(lx, ly, lz);
         if (id === BlockId.Air) continue;
+        swayAtual = swayDoBloco(id); // §🌬️ vale pra TODA emissão deste bloco
         // cp23: não-cubo tem forma própria e nunca passa pelo caminho de cubo
         if (!isFullCube(id)) {
           emitShape(id, lx, ly, lz);
@@ -912,6 +972,7 @@ export function meshVizinhanca(viz: Uint8Array): ChunkGeometry {
             normals.push(face.dir[0], face.dir[1], face.dir[2]);
             uvs.push(corner.uv[0] === 1 ? u1 : u0, corner.uv[1] === 1 ? v1 : v0);
           }
+          pushSway(4); // §🌬️ cubo balança inteiro (folhas) ou nada (o resto)
           idxTarget.push(base, base + 1, base + 2, base + 2, base + 1, base + 3);
         }
       }
@@ -924,6 +985,7 @@ export function meshVizinhanca(viz: Uint8Array): ChunkGeometry {
       ? indices.concat(waterIndices, vidroIndices)
       : indices;
   return {
+    sway: new Uint8Array(sway.map((v) => Math.round(v * 255))),
     positions: new Float32Array(positions),
     normals: new Float32Array(normals),
     uvs: new Float32Array(uvs),

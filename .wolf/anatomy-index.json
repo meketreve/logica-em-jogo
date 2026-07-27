@@ -1,12 +1,12 @@
 {
   "version": 1,
   "meta": {
-    "lastScanned": "2026-07-27T06:52:47.786Z",
-    "fileCount": 223,
+    "lastScanned": "2026-07-27T07:44:49.361Z",
+    "fileCount": 232,
     "hits": 0,
     "misses": 0,
-    "renderedHash": "a595e9efb65843443bde2d02c72c1ad87b65f4f9cc218aa4ae36028b60d21309",
-    "storeUpdatedAt": "2026-07-27T06:52:47.807Z"
+    "renderedHash": "4b8b9e1f7fa08fda889f49028c57bde12ffdee5dba5ccf820f917d933f61242a",
+    "storeUpdatedAt": "2026-07-27T07:44:49.363Z"
   },
   "files": {
     ".claude/commands/reframe.md": {
@@ -15,7 +15,7 @@
       "hash": "17a75695be5d4629",
       "size": 2221,
       "mtimeMs": 1784958617978.735,
-      "updatedAt": "2026-07-27T05:50:11.382Z",
+      "updatedAt": "2026-07-27T07:44:49.130Z",
       "source": "scan"
     },
     ".claude/commands/security-audit.md": {
@@ -24,7 +24,7 @@
       "hash": "e6f7e0b7337c9c86",
       "size": 2060,
       "mtimeMs": 1784958617978.735,
-      "updatedAt": "2026-07-27T05:50:11.383Z",
+      "updatedAt": "2026-07-27T07:44:49.131Z",
       "source": "scan"
     },
     ".claude/rules/openwolf.md": {
@@ -33,7 +33,7 @@
       "hash": "41db21e2a5a8e9be",
       "size": 1637,
       "mtimeMs": 1784982110066.7358,
-      "updatedAt": "2026-07-27T05:50:11.384Z",
+      "updatedAt": "2026-07-27T07:44:49.132Z",
       "source": "scan"
     },
     ".claude/settings.json": {
@@ -42,7 +42,7 @@
       "hash": "d8888b729911cfaf",
       "size": 1799,
       "mtimeMs": 1784958617774.735,
-      "updatedAt": "2026-07-27T05:50:11.385Z",
+      "updatedAt": "2026-07-27T07:44:49.132Z",
       "source": "scan"
     },
     ".claude/settings.local.json": {
@@ -51,7 +51,7 @@
       "hash": "dc7d39ac3038ca42",
       "size": 22122,
       "mtimeMs": 1784569171012.358,
-      "updatedAt": "2026-07-27T05:50:11.385Z",
+      "updatedAt": "2026-07-27T07:44:49.133Z",
       "source": "scan"
     },
     ".gitattributes": {
@@ -60,7 +60,7 @@
       "hash": "9f882e7b33fcaca1",
       "size": 114,
       "mtimeMs": 1783780660396.0913,
-      "updatedAt": "2026-07-27T05:50:11.386Z",
+      "updatedAt": "2026-07-27T07:44:49.133Z",
       "source": "scan"
     },
     ".gitignore": {
@@ -69,7 +69,7 @@
       "hash": "0033ea900c3584e0",
       "size": 852,
       "mtimeMs": 1785029736638.731,
-      "updatedAt": "2026-07-27T05:50:11.387Z",
+      "updatedAt": "2026-07-27T07:44:49.133Z",
       "source": "scan"
     },
     ".wolf.bak-pre-lean/anatomy-index.json": {
@@ -78,7 +78,7 @@
       "hash": "0589d553d78e88e5",
       "size": 35286,
       "mtimeMs": 1784982110010.7358,
-      "updatedAt": "2026-07-27T05:50:11.388Z",
+      "updatedAt": "2026-07-27T07:44:49.135Z",
       "source": "scan"
     },
     ".wolf.bak-pre-lean/anatomy.md": {
@@ -87,7 +87,7 @@
       "hash": "f926b9cb0350f5f4",
       "size": 16778,
       "mtimeMs": 1784982110006.7358,
-      "updatedAt": "2026-07-27T05:50:11.390Z",
+      "updatedAt": "2026-07-27T07:44:49.137Z",
       "source": "scan"
     },
     ".wolf.bak-pre-lean/buglog.json": {
@@ -96,7 +96,7 @@
       "hash": "b378a659bed058f6",
       "size": 272540,
       "mtimeMs": 1784982110010.7358,
-      "updatedAt": "2026-07-27T05:50:11.396Z",
+      "updatedAt": "2026-07-27T07:44:49.143Z",
       "source": "scan"
     },
     ".wolf.bak-pre-lean/cerebrum.md": {
@@ -105,7 +105,7 @@
       "hash": "79d3990b59ed2cff",
       "size": 116786,
       "mtimeMs": 1784982110010.7358,
-      "updatedAt": "2026-07-27T05:50:11.399Z",
+      "updatedAt": "2026-07-27T07:44:49.145Z",
       "source": "scan"
     },
     ".wolf.bak-pre-lean/config.json": {
@@ -114,7 +114,7 @@
       "hash": "b6bffcfc8c800824",
       "size": 1869,
       "mtimeMs": 1784982110018.7358,
-      "updatedAt": "2026-07-27T05:50:11.400Z",
+      "updatedAt": "2026-07-27T07:44:49.146Z",
       "source": "scan"
     },
     ".wolf.bak-pre-lean/cron-manifest.json": {
@@ -123,7 +123,7 @@
       "hash": "5c39ea43ee48cebf",
       "size": 3246,
       "mtimeMs": 1784982110018.7358,
-      "updatedAt": "2026-07-27T05:50:11.402Z",
+      "updatedAt": "2026-07-27T07:44:49.147Z",
       "source": "scan"
     },
     ".wolf.bak-pre-lean/cron-state.json": {
@@ -132,7 +132,7 @@
       "hash": "cb1702362c2bd56c",
       "size": 148,
       "mtimeMs": 1784982110022.7358,
-      "updatedAt": "2026-07-27T05:50:11.402Z",
+      "updatedAt": "2026-07-27T07:44:49.148Z",
       "source": "scan"
     },
     ".wolf.bak-pre-lean/daemon.log": {
@@ -141,7 +141,7 @@
       "hash": "4d3dc07b7d60fb5d",
       "size": 612,
       "mtimeMs": 1784982110022.7358,
-      "updatedAt": "2026-07-27T05:50:11.403Z",
+      "updatedAt": "2026-07-27T07:44:49.148Z",
       "source": "scan"
     },
     ".wolf.bak-pre-lean/dashboard-token": {
@@ -150,7 +150,7 @@
       "hash": "4d1ccf09835043d7",
       "size": 65,
       "mtimeMs": 1784982110022.7358,
-      "updatedAt": "2026-07-27T05:50:11.403Z",
+      "updatedAt": "2026-07-27T07:44:49.149Z",
       "source": "scan"
     },
     ".wolf.bak-pre-lean/designqc-report.json": {
@@ -159,7 +159,7 @@
       "hash": "747082a345652ffd",
       "size": 90,
       "mtimeMs": 1784982110010.7358,
-      "updatedAt": "2026-07-27T05:50:11.404Z",
+      "updatedAt": "2026-07-27T07:44:49.151Z",
       "source": "scan"
     },
     ".wolf.bak-pre-lean/hooks/_session.json": {
@@ -168,7 +168,7 @@
       "hash": "bc945a2809a77f5c",
       "size": 7571,
       "mtimeMs": 1784982110014.7358,
-      "updatedAt": "2026-07-27T05:50:11.405Z",
+      "updatedAt": "2026-07-27T07:44:49.151Z",
       "source": "scan"
     },
     ".wolf.bak-pre-lean/hooks/anatomy-lock.js": {
@@ -177,7 +177,7 @@
       "hash": "35a2eb1d1178f407",
       "size": 3645,
       "mtimeMs": 1784982110018.7358,
-      "updatedAt": "2026-07-27T05:50:11.407Z",
+      "updatedAt": "2026-07-27T07:44:49.154Z",
       "source": "scan",
       "symbols": [
         {
@@ -223,7 +223,7 @@
       "hash": "06beb5db24c469eb",
       "size": 10192,
       "mtimeMs": 1784982110018.7358,
-      "updatedAt": "2026-07-27T05:50:11.408Z",
+      "updatedAt": "2026-07-27T07:44:49.155Z",
       "source": "scan",
       "symbols": [
         {
@@ -318,7 +318,7 @@
       "hash": "3ca9d4afd2142508",
       "size": 23,
       "mtimeMs": 1784982110018.7358,
-      "updatedAt": "2026-07-27T05:50:11.409Z",
+      "updatedAt": "2026-07-27T07:44:49.155Z",
       "source": "scan"
     },
     ".wolf.bak-pre-lean/hooks/post-read.js": {
@@ -327,7 +327,7 @@
       "hash": "1e3f925aa8b6bcca",
       "size": 2304,
       "mtimeMs": 1784982110014.7358,
-      "updatedAt": "2026-07-27T05:50:11.410Z",
+      "updatedAt": "2026-07-27T07:44:49.156Z",
       "source": "scan",
       "symbols": [
         {
@@ -345,7 +345,7 @@
       "hash": "803605e70c86d482",
       "size": 24043,
       "mtimeMs": 1784982110014.7358,
-      "updatedAt": "2026-07-27T05:50:11.412Z",
+      "updatedAt": "2026-07-27T07:44:49.158Z",
       "source": "scan",
       "symbols": [
         {
@@ -426,7 +426,7 @@
       "hash": "26bb3edd10d30bf9",
       "size": 3720,
       "mtimeMs": 1784982110014.7358,
-      "updatedAt": "2026-07-27T05:50:11.413Z",
+      "updatedAt": "2026-07-27T07:44:49.159Z",
       "source": "scan",
       "symbols": [
         {
@@ -444,7 +444,7 @@
       "hash": "c3f16cb435b7896b",
       "size": 5457,
       "mtimeMs": 1784982110014.7358,
-      "updatedAt": "2026-07-27T05:50:11.414Z",
+      "updatedAt": "2026-07-27T07:44:49.160Z",
       "source": "scan",
       "symbols": [
         {
@@ -483,7 +483,7 @@
       "hash": "059511f905bbda75",
       "size": 1284,
       "mtimeMs": 1784982110018.7358,
-      "updatedAt": "2026-07-27T05:50:11.415Z",
+      "updatedAt": "2026-07-27T07:44:49.161Z",
       "source": "scan"
     },
     ".wolf.bak-pre-lean/hooks/session-start.js": {
@@ -492,7 +492,7 @@
       "hash": "3dcf824f97fb3771",
       "size": 9925,
       "mtimeMs": 1784982110014.7358,
-      "updatedAt": "2026-07-27T05:50:11.416Z",
+      "updatedAt": "2026-07-27T07:44:49.161Z",
       "source": "scan",
       "symbols": [
         {
@@ -538,7 +538,7 @@
       "hash": "53924dda9bca652d",
       "size": 33100,
       "mtimeMs": 1784982110018.7358,
-      "updatedAt": "2026-07-27T05:50:11.418Z",
+      "updatedAt": "2026-07-27T07:44:49.163Z",
       "source": "scan",
       "symbols": [
         {
@@ -668,7 +668,7 @@
       "hash": "ec33531d99273f71",
       "size": 15496,
       "mtimeMs": 1784982110014.7358,
-      "updatedAt": "2026-07-27T05:50:11.420Z",
+      "updatedAt": "2026-07-27T07:44:49.164Z",
       "source": "scan",
       "symbols": [
         {
@@ -728,7 +728,7 @@
       "hash": "25fa19c35fd46f2d",
       "size": 3869,
       "mtimeMs": 1784982110018.7358,
-      "updatedAt": "2026-07-27T05:50:11.421Z",
+      "updatedAt": "2026-07-27T07:44:49.166Z",
       "source": "scan",
       "symbols": [
         {
@@ -753,7 +753,7 @@
       "hash": "b707a5ffbd25f2f3",
       "size": 371,
       "mtimeMs": 1784982110018.7358,
-      "updatedAt": "2026-07-27T05:50:11.421Z",
+      "updatedAt": "2026-07-27T07:44:49.167Z",
       "source": "scan"
     },
     ".wolf.bak-pre-lean/memory.md": {
@@ -762,7 +762,7 @@
       "hash": "4fede9257f58a7ab",
       "size": 204493,
       "mtimeMs": 1784982110006.7358,
-      "updatedAt": "2026-07-27T05:50:11.425Z",
+      "updatedAt": "2026-07-27T07:44:49.171Z",
       "source": "scan"
     },
     ".wolf.bak-pre-lean/OPENWOLF.md": {
@@ -771,7 +771,7 @@
       "hash": "763dc6c1d2391954",
       "size": 9236,
       "mtimeMs": 1784982109998.7358,
-      "updatedAt": "2026-07-27T05:50:11.426Z",
+      "updatedAt": "2026-07-27T07:44:49.172Z",
       "source": "scan"
     },
     ".wolf.bak-pre-lean/reframe-frameworks.md": {
@@ -780,7 +780,7 @@
       "hash": "44acc3e2561ebba9",
       "size": 31141,
       "mtimeMs": 1784982110010.7358,
-      "updatedAt": "2026-07-27T05:50:11.427Z",
+      "updatedAt": "2026-07-27T07:44:49.173Z",
       "source": "scan"
     },
     ".wolf.bak-pre-lean/STATUS-archive.md": {
@@ -789,7 +789,7 @@
       "hash": "20afd6e3f9c2ef61",
       "size": 65658,
       "mtimeMs": 1784982110006.7358,
-      "updatedAt": "2026-07-27T05:50:11.429Z",
+      "updatedAt": "2026-07-27T07:44:49.175Z",
       "source": "scan"
     },
     ".wolf.bak-pre-lean/STATUS.md": {
@@ -798,7 +798,7 @@
       "hash": "a3ada206837ad535",
       "size": 73719,
       "mtimeMs": 1784982110010.7358,
-      "updatedAt": "2026-07-27T05:50:11.431Z",
+      "updatedAt": "2026-07-27T07:44:49.177Z",
       "source": "scan"
     },
     ".wolf.bak-pre-lean/STATUS.md.bak": {
@@ -807,7 +807,7 @@
       "hash": "7be44d2ace8a95ef",
       "size": 137152,
       "mtimeMs": 1784982110006.7358,
-      "updatedAt": "2026-07-27T05:50:11.435Z",
+      "updatedAt": "2026-07-27T07:44:49.180Z",
       "source": "scan"
     },
     ".wolf.bak-pre-lean/streaming-plan.md": {
@@ -816,7 +816,7 @@
       "hash": "63f86f00cb4c2c95",
       "size": 2843,
       "mtimeMs": 1784982110006.7358,
-      "updatedAt": "2026-07-27T05:50:11.435Z",
+      "updatedAt": "2026-07-27T07:44:49.181Z",
       "source": "scan"
     },
     ".wolf.bak-pre-lean/suggestions.json": {
@@ -825,7 +825,7 @@
       "hash": "77f9790b0404c49a",
       "size": 47,
       "mtimeMs": 1784982110010.7358,
-      "updatedAt": "2026-07-27T05:50:11.436Z",
+      "updatedAt": "2026-07-27T07:44:49.182Z",
       "source": "scan"
     },
     ".wolf.bak-pre-lean/TODO.md": {
@@ -834,7 +834,7 @@
       "hash": "f84db922aff22fec",
       "size": 665,
       "mtimeMs": 1784982110022.7358,
-      "updatedAt": "2026-07-27T05:50:11.436Z",
+      "updatedAt": "2026-07-27T07:44:49.182Z",
       "source": "scan"
     },
     ".wolf.bak-pre-v2/anatomy.md": {
@@ -843,7 +843,7 @@
       "hash": "f926b9cb0350f5f4",
       "size": 16778,
       "mtimeMs": 1784956656822.735,
-      "updatedAt": "2026-07-27T05:50:11.438Z",
+      "updatedAt": "2026-07-27T07:44:49.183Z",
       "source": "scan"
     },
     ".wolf.bak-pre-v2/buglog.json": {
@@ -852,7 +852,7 @@
       "hash": "b378a659bed058f6",
       "size": 272540,
       "mtimeMs": 1784956656822.735,
-      "updatedAt": "2026-07-27T05:50:11.444Z",
+      "updatedAt": "2026-07-27T07:44:49.188Z",
       "source": "scan"
     },
     ".wolf.bak-pre-v2/cerebrum.md": {
@@ -861,7 +861,7 @@
       "hash": "79d3990b59ed2cff",
       "size": 116786,
       "mtimeMs": 1784956656822.735,
-      "updatedAt": "2026-07-27T05:50:11.446Z",
+      "updatedAt": "2026-07-27T07:44:49.191Z",
       "source": "scan"
     },
     ".wolf.bak-pre-v2/config.json": {
@@ -870,7 +870,7 @@
       "hash": "14911b999f67f499",
       "size": 1714,
       "mtimeMs": 1784956656822.735,
-      "updatedAt": "2026-07-27T05:50:11.447Z",
+      "updatedAt": "2026-07-27T07:44:49.192Z",
       "source": "scan"
     },
     ".wolf.bak-pre-v2/cron-manifest.json": {
@@ -879,7 +879,7 @@
       "hash": "5c39ea43ee48cebf",
       "size": 3246,
       "mtimeMs": 1784956656826.735,
-      "updatedAt": "2026-07-27T05:50:11.447Z",
+      "updatedAt": "2026-07-27T07:44:49.192Z",
       "source": "scan"
     },
     ".wolf.bak-pre-v2/cron-state.json": {
@@ -888,7 +888,7 @@
       "hash": "c2f4cc3e739e1d13",
       "size": 148,
       "mtimeMs": 1784956656822.735,
-      "updatedAt": "2026-07-27T05:50:11.448Z",
+      "updatedAt": "2026-07-27T07:44:49.193Z",
       "source": "scan"
     },
     ".wolf.bak-pre-v2/designqc-report.json": {
@@ -897,7 +897,7 @@
       "hash": "747082a345652ffd",
       "size": 90,
       "mtimeMs": 1784956656826.735,
-      "updatedAt": "2026-07-27T05:50:11.449Z",
+      "updatedAt": "2026-07-27T07:44:49.194Z",
       "source": "scan"
     },
     ".wolf.bak-pre-v2/hooks/_session.json": {
@@ -906,7 +906,7 @@
       "hash": "bc945a2809a77f5c",
       "size": 7571,
       "mtimeMs": 1784956656826.735,
-      "updatedAt": "2026-07-27T05:50:11.449Z",
+      "updatedAt": "2026-07-27T07:44:49.194Z",
       "source": "scan"
     },
     ".wolf.bak-pre-v2/hooks/package.json": {
@@ -915,7 +915,7 @@
       "hash": "3ca9d4afd2142508",
       "size": 23,
       "mtimeMs": 1784956656826.735,
-      "updatedAt": "2026-07-27T05:50:11.450Z",
+      "updatedAt": "2026-07-27T07:44:49.195Z",
       "source": "scan"
     },
     ".wolf.bak-pre-v2/hooks/post-read.js": {
@@ -924,7 +924,7 @@
       "hash": "fb55dd5a846b1b84",
       "size": 2797,
       "mtimeMs": 1784956656826.735,
-      "updatedAt": "2026-07-27T05:50:11.450Z",
+      "updatedAt": "2026-07-27T07:44:49.196Z",
       "source": "scan",
       "symbols": [
         {
@@ -942,7 +942,7 @@
       "hash": "95919865e5583d4c",
       "size": 22629,
       "mtimeMs": 1784956656826.735,
-      "updatedAt": "2026-07-27T05:50:11.452Z",
+      "updatedAt": "2026-07-27T07:44:49.197Z",
       "source": "scan",
       "symbols": [
         {
@@ -1016,7 +1016,7 @@
       "hash": "6c7155a7da14fe26",
       "size": 3206,
       "mtimeMs": 1784956656826.735,
-      "updatedAt": "2026-07-27T05:50:11.453Z",
+      "updatedAt": "2026-07-27T07:44:49.198Z",
       "source": "scan",
       "symbols": [
         {
@@ -1034,7 +1034,7 @@
       "hash": "a3d931c71982a509",
       "size": 5494,
       "mtimeMs": 1784956656826.735,
-      "updatedAt": "2026-07-27T05:50:11.453Z",
+      "updatedAt": "2026-07-27T07:44:49.199Z",
       "source": "scan",
       "symbols": [
         {
@@ -1073,7 +1073,7 @@
       "hash": "d6d4bbda4a67b9c3",
       "size": 3530,
       "mtimeMs": 1784956656826.735,
-      "updatedAt": "2026-07-27T05:50:11.454Z",
+      "updatedAt": "2026-07-27T07:44:49.200Z",
       "source": "scan",
       "symbols": [
         {
@@ -1091,7 +1091,7 @@
       "hash": "f5777fcb2c16d15a",
       "size": 30797,
       "mtimeMs": 1784956656826.735,
-      "updatedAt": "2026-07-27T05:50:11.457Z",
+      "updatedAt": "2026-07-27T07:44:49.201Z",
       "source": "scan",
       "symbols": [
         {
@@ -1200,7 +1200,7 @@
       "hash": "3677906178eefa14",
       "size": 11538,
       "mtimeMs": 1784956656826.735,
-      "updatedAt": "2026-07-27T05:50:11.458Z",
+      "updatedAt": "2026-07-27T07:44:49.203Z",
       "source": "scan",
       "symbols": [
         {
@@ -1246,7 +1246,7 @@
       "hash": "b707a5ffbd25f2f3",
       "size": 371,
       "mtimeMs": 1784956656826.735,
-      "updatedAt": "2026-07-27T05:50:11.458Z",
+      "updatedAt": "2026-07-27T07:44:49.204Z",
       "source": "scan"
     },
     ".wolf.bak-pre-v2/memory.md": {
@@ -1255,7 +1255,7 @@
       "hash": "4fede9257f58a7ab",
       "size": 204493,
       "mtimeMs": 1784956656822.735,
-      "updatedAt": "2026-07-27T05:50:11.462Z",
+      "updatedAt": "2026-07-27T07:44:49.208Z",
       "source": "scan"
     },
     ".wolf.bak-pre-v2/OPENWOLF.md": {
@@ -1264,7 +1264,7 @@
       "hash": "2fa5051dfe938488",
       "size": 7891,
       "mtimeMs": 1784956656818.735,
-      "updatedAt": "2026-07-27T05:50:11.463Z",
+      "updatedAt": "2026-07-27T07:44:49.209Z",
       "source": "scan"
     },
     ".wolf.bak-pre-v2/reframe-frameworks.md": {
@@ -1273,7 +1273,7 @@
       "hash": "9a12be53c7910ed1",
       "size": 26494,
       "mtimeMs": 1784956656826.735,
-      "updatedAt": "2026-07-27T05:50:11.464Z",
+      "updatedAt": "2026-07-27T07:44:49.210Z",
       "source": "scan"
     },
     ".wolf.bak-pre-v2/STATUS-archive.md": {
@@ -1282,7 +1282,7 @@
       "hash": "20afd6e3f9c2ef61",
       "size": 65658,
       "mtimeMs": 1784956656822.735,
-      "updatedAt": "2026-07-27T05:50:11.465Z",
+      "updatedAt": "2026-07-27T07:44:49.212Z",
       "source": "scan"
     },
     ".wolf.bak-pre-v2/STATUS.md": {
@@ -1291,7 +1291,7 @@
       "hash": "a3ada206837ad535",
       "size": 73719,
       "mtimeMs": 1784956656822.735,
-      "updatedAt": "2026-07-27T05:50:11.467Z",
+      "updatedAt": "2026-07-27T07:44:49.214Z",
       "source": "scan"
     },
     ".wolf.bak-pre-v2/STATUS.md.bak": {
@@ -1300,7 +1300,7 @@
       "hash": "7be44d2ace8a95ef",
       "size": 137152,
       "mtimeMs": 1784956656822.735,
-      "updatedAt": "2026-07-27T05:50:11.470Z",
+      "updatedAt": "2026-07-27T07:44:49.217Z",
       "source": "scan"
     },
     ".wolf.bak-pre-v2/streaming-plan.md": {
@@ -1309,7 +1309,7 @@
       "hash": "63f86f00cb4c2c95",
       "size": 2843,
       "mtimeMs": 1784956656822.735,
-      "updatedAt": "2026-07-27T05:50:11.471Z",
+      "updatedAt": "2026-07-27T07:44:49.218Z",
       "source": "scan"
     },
     ".wolf.bak-pre-v2/suggestions.json": {
@@ -1318,7 +1318,7 @@
       "hash": "77f9790b0404c49a",
       "size": 47,
       "mtimeMs": 1784956656826.735,
-      "updatedAt": "2026-07-27T05:50:11.471Z",
+      "updatedAt": "2026-07-27T07:44:49.218Z",
       "source": "scan"
     },
     "cenarios/aula1-sequencia.ljw": {
@@ -1327,7 +1327,7 @@
       "hash": "ae391c58ccd024d5",
       "size": 593672,
       "mtimeMs": 1784517513420.3557,
-      "updatedAt": "2026-07-27T05:50:11.486Z",
+      "updatedAt": "2026-07-27T07:44:49.226Z",
       "source": "scan"
     },
     "cenarios/aula2-binario.ljw": {
@@ -1336,7 +1336,7 @@
       "hash": "cf18f51eae5af917",
       "size": 591251,
       "mtimeMs": 1784517513440.3557,
-      "updatedAt": "2026-07-27T05:50:11.495Z",
+      "updatedAt": "2026-07-27T07:44:49.235Z",
       "source": "scan"
     },
     "cenarios/aula3-depurar.ljw": {
@@ -1345,7 +1345,7 @@
       "hash": "3d712727b1476a2a",
       "size": 591352,
       "mtimeMs": 1784517513456.3557,
-      "updatedAt": "2026-07-27T05:50:11.505Z",
+      "updatedAt": "2026-07-27T07:44:49.243Z",
       "source": "scan"
     },
     "cenarios/aula4-decifrar.ljw": {
@@ -1354,7 +1354,7 @@
       "hash": "f851fc5c266df2ed",
       "size": 591241,
       "mtimeMs": 1784517513472.3557,
-      "updatedAt": "2026-07-27T05:50:11.514Z",
+      "updatedAt": "2026-07-27T07:44:49.251Z",
       "source": "scan"
     },
     "cenarios/aula5-simetria.ljw": {
@@ -1363,7 +1363,7 @@
       "hash": "759990dcb681e8ac",
       "size": 591918,
       "mtimeMs": 1784517513488.3557,
-      "updatedAt": "2026-07-27T05:50:11.524Z",
+      "updatedAt": "2026-07-27T07:44:49.261Z",
       "source": "scan"
     },
     "cenarios/aula6-manual.ljw": {
@@ -1372,7 +1372,7 @@
       "hash": "819ae4537a7a744c",
       "size": 592513,
       "mtimeMs": 1784517513508.3557,
-      "updatedAt": "2026-07-27T05:50:11.534Z",
+      "updatedAt": "2026-07-27T07:44:49.269Z",
       "source": "scan"
     },
     "cenarios/README.md": {
@@ -1381,7 +1381,7 @@
       "hash": "89eb9b389076a1ad",
       "size": 8134,
       "mtimeMs": 1784517371140.3584,
-      "updatedAt": "2026-07-27T05:50:11.534Z",
+      "updatedAt": "2026-07-27T07:44:49.270Z",
       "source": "scan"
     },
     "CLAUDE.md": {
@@ -1390,7 +1390,7 @@
       "hash": "b1ca356fa9d5f3a6",
       "size": 225,
       "mtimeMs": 1783780454096.0908,
-      "updatedAt": "2026-07-27T05:50:11.536Z",
+      "updatedAt": "2026-07-27T07:44:49.270Z",
       "source": "scan"
     },
     "client/index.html": {
@@ -1399,7 +1399,7 @@
       "hash": "f6914bb19a718e13",
       "size": 21582,
       "mtimeMs": 1784654746858.7646,
-      "updatedAt": "2026-07-27T05:50:11.536Z",
+      "updatedAt": "2026-07-27T07:44:49.271Z",
       "source": "scan"
     },
     "client/package.json": {
@@ -1408,7 +1408,7 @@
       "hash": "cb328a26968e8a66",
       "size": 356,
       "mtimeMs": 1783780454104.0908,
-      "updatedAt": "2026-07-27T05:50:11.536Z",
+      "updatedAt": "2026-07-27T07:44:49.271Z",
       "source": "scan"
     },
     "client/src/aguaFx.ts": {
@@ -1417,7 +1417,7 @@
       "hash": "f19b99bf8e9b3395",
       "size": 2680,
       "mtimeMs": 1785080416779.7651,
-      "updatedAt": "2026-07-27T05:50:11.537Z",
+      "updatedAt": "2026-07-27T07:44:49.271Z",
       "source": "scan",
       "symbols": [
         {
@@ -1438,11 +1438,11 @@
     },
     "client/src/atlasTexture.ts": {
       "description": "Texture atlas procedural pintado num canvas (sem assets externos — restrição",
-      "tokens": 6614,
-      "hash": "77b435d94d01c798",
-      "size": 23291,
-      "mtimeMs": 1785079735163.7654,
-      "updatedAt": "2026-07-27T05:50:11.537Z",
+      "tokens": 7713,
+      "hash": "37e421697839ceac",
+      "size": 27215,
+      "mtimeMs": 1785137442124.8005,
+      "updatedAt": "2026-07-27T07:44:49.272Z",
       "source": "scan",
       "symbols": [
         {
@@ -1624,29 +1624,36 @@
           "name": "paintFlor",
           "kind": "fn",
           "startLine": 371,
-          "endLine": 398,
-          "tokens": 318
+          "endLine": 399,
+          "tokens": 332
+        },
+        {
+          "name": "paintGramaAlta",
+          "kind": "fn",
+          "startLine": 400,
+          "endLine": 436,
+          "tokens": 574
         },
         {
           "name": "paintAgua",
           "kind": "fn",
-          "startLine": 399,
-          "endLine": 423,
-          "tokens": 316
+          "startLine": 437,
+          "endLine": 477,
+          "tokens": 507
+        },
+        {
+          "name": "OndaAgua",
+          "kind": "section",
+          "startLine": 478,
+          "endLine": 496,
+          "tokens": 242
         },
         {
           "name": "animarAguaAtlas",
           "kind": "fn",
-          "startLine": 424,
-          "endLine": 431,
-          "tokens": 88
-        },
-        {
-          "name": "createAtlasTexture",
-          "kind": "fn",
-          "startLine": 432,
-          "endLine": 563,
-          "tokens": 1688
+          "startLine": 497,
+          "endLine": 641,
+          "tokens": 1854
         }
       ]
     },
@@ -1656,7 +1663,7 @@
       "hash": "afbc574f47a18f11",
       "size": 3510,
       "mtimeMs": 1783904198285.4753,
-      "updatedAt": "2026-07-27T05:50:11.538Z",
+      "updatedAt": "2026-07-27T07:44:49.272Z",
       "source": "scan",
       "symbols": [
         {
@@ -1705,11 +1712,11 @@
     },
     "client/src/bench.ts": {
       "description": "Modo BENCHMARK (`?bench`) — §📊 item 1 do backlog do perfilador.",
-      "tokens": 2062,
-      "hash": "7bd06d9e91db3b82",
-      "size": 7325,
-      "mtimeMs": 1785113318543.7632,
-      "updatedAt": "2026-07-27T05:50:11.538Z",
+      "tokens": 2160,
+      "hash": "59df0f12a012d5eb",
+      "size": 7682,
+      "mtimeMs": 1785137052976.8008,
+      "updatedAt": "2026-07-27T07:44:49.273Z",
       "source": "scan",
       "symbols": [
         {
@@ -1723,21 +1730,21 @@
           "name": "BenchAmostra",
           "kind": "section",
           "startLine": 57,
-          "endLine": 80,
-          "tokens": 190
+          "endLine": 86,
+          "tokens": 288
         },
         {
           "name": "benchDaUrl",
           "kind": "fn",
-          "startLine": 81,
-          "endLine": 87,
+          "startLine": 87,
+          "endLine": 93,
           "tokens": 84
         },
         {
           "name": "Bench",
           "kind": "class",
-          "startLine": 88,
-          "endLine": 195,
+          "startLine": 94,
+          "endLine": 201,
           "tokens": 1016
         }
       ]
@@ -1748,7 +1755,7 @@
       "hash": "7570fc0ddfabaf43",
       "size": 2365,
       "mtimeMs": 1784738095783.393,
-      "updatedAt": "2026-07-27T05:50:11.538Z",
+      "updatedAt": "2026-07-27T07:44:49.273Z",
       "source": "scan",
       "symbols": [
         {
@@ -1769,25 +1776,25 @@
     },
     "client/src/blocksUi.ts": {
       "description": "Blocos colocáveis com nome em português — fonte única pra hotbar (main.ts)",
-      "tokens": 2207,
-      "hash": "bf2d6e90262c1ed0",
-      "size": 7816,
-      "mtimeMs": 1784956149378.733,
-      "updatedAt": "2026-07-27T05:50:11.539Z",
+      "tokens": 2286,
+      "hash": "ad7e6eaef56e1a7c",
+      "size": 8098,
+      "mtimeMs": 1785137448752.8005,
+      "updatedAt": "2026-07-27T07:44:49.273Z",
       "source": "scan",
       "symbols": [
         {
           "name": "PlaceableEntry",
           "kind": "section",
           "startLine": 31,
-          "endLine": 150,
-          "tokens": 1869
+          "endLine": 157,
+          "tokens": 1948
         },
         {
           "name": "placeableFor",
           "kind": "fn",
-          "startLine": 151,
-          "endLine": 155,
+          "startLine": 158,
+          "endLine": 162,
           "tokens": 56
         }
       ]
@@ -1798,7 +1805,7 @@
       "hash": "91cdc3c378b0e9e7",
       "size": 5376,
       "mtimeMs": 1784238080482.2207,
-      "updatedAt": "2026-07-27T05:50:11.539Z",
+      "updatedAt": "2026-07-27T07:44:49.274Z",
       "source": "scan",
       "symbols": [
         {
@@ -1812,26 +1819,26 @@
     },
     "client/src/chunks.ts": {
       "description": "Teto duro de chunks por frame: rede de segurança se o relógio for grosseiro",
-      "tokens": 5471,
-      "hash": "d217fede22bd48d2",
-      "size": 19321,
-      "mtimeMs": 1785135138660.799,
-      "updatedAt": "2026-07-27T06:52:18.814Z",
-      "source": "hook",
+      "tokens": 5555,
+      "hash": "a6463139e65e9412",
+      "size": 19628,
+      "mtimeMs": 1785137398728.8005,
+      "updatedAt": "2026-07-27T07:44:49.274Z",
+      "source": "scan",
       "symbols": [
         {
           "name": "JobMesh",
           "kind": "section",
-          "startLine": 28,
-          "endLine": 46,
+          "startLine": 29,
+          "endLine": 47,
           "tokens": 197
         },
         {
           "name": "ChunkRenderer",
           "kind": "class",
-          "startLine": 47,
-          "endLine": 453,
-          "tokens": 5041
+          "startLine": 48,
+          "endLine": 458,
+          "tokens": 5118
         }
       ]
     },
@@ -1841,7 +1848,7 @@
       "hash": "2da8a52c081fbba7",
       "size": 3034,
       "mtimeMs": 1784476824069.7625,
-      "updatedAt": "2026-07-27T05:50:11.540Z",
+      "updatedAt": "2026-07-27T07:44:49.275Z",
       "source": "scan",
       "symbols": [
         {
@@ -1880,7 +1887,7 @@
       "hash": "fe05e7324ae20bc3",
       "size": 4816,
       "mtimeMs": 1785088652315.764,
-      "updatedAt": "2026-07-27T05:50:11.540Z",
+      "updatedAt": "2026-07-27T07:44:49.275Z",
       "source": "scan",
       "symbols": [
         {
@@ -1915,26 +1922,47 @@
     },
     "client/src/daynight.ts": {
       "description": "Ciclo dia/noite (cp21; astros no backlog 2026-07-19) — SÓ visual. A hora é",
-      "tokens": 2281,
-      "hash": "4ad4d2d7482c448a",
-      "size": 8042,
-      "mtimeMs": 1784496161113.7634,
-      "updatedAt": "2026-07-27T05:50:11.540Z",
+      "tokens": 4140,
+      "hash": "a72d63279ecfeb15",
+      "size": 14658,
+      "mtimeMs": 1785137976620.7996,
+      "updatedAt": "2026-07-27T07:44:49.275Z",
       "source": "scan",
       "symbols": [
         {
           "name": "Keyframe",
           "kind": "section",
           "startLine": 18,
-          "endLine": 62,
-          "tokens": 488
+          "endLine": 77,
+          "tokens": 761
+        },
+        {
+          "name": "latticeHash",
+          "kind": "fn",
+          "startLine": 78,
+          "endLine": 86,
+          "tokens": 116
+        },
+        {
+          "name": "valueNoise",
+          "kind": "fn",
+          "startLine": 87,
+          "endLine": 106,
+          "tokens": 226
+        },
+        {
+          "name": "criarTexturaNuvens",
+          "kind": "fn",
+          "startLine": 107,
+          "endLine": 147,
+          "tokens": 413
         },
         {
           "name": "SkyCycle",
           "kind": "class",
-          "startLine": 63,
-          "endLine": 203,
-          "tokens": 1564
+          "startLine": 148,
+          "endLine": 352,
+          "tokens": 2396
         }
       ]
     },
@@ -1944,7 +1972,7 @@
       "hash": "fc6c4f92373594db",
       "size": 642,
       "mtimeMs": 1783904192477.4753,
-      "updatedAt": "2026-07-27T05:50:11.540Z",
+      "updatedAt": "2026-07-27T07:44:49.275Z",
       "source": "scan"
     },
     "client/src/hud.ts": {
@@ -1953,8 +1981,8 @@
       "hash": "780df226633db92d",
       "size": 29586,
       "mtimeMs": 1785135149128.799,
-      "updatedAt": "2026-07-27T06:52:29.246Z",
-      "source": "hook",
+      "updatedAt": "2026-07-27T07:44:49.276Z",
+      "source": "scan",
       "symbols": [
         {
           "name": "HudRemeshStats",
@@ -2020,7 +2048,7 @@
       "hash": "27699c56618b7afe",
       "size": 5431,
       "mtimeMs": 1784226590774.2207,
-      "updatedAt": "2026-07-27T05:50:11.542Z",
+      "updatedAt": "2026-07-27T07:44:49.277Z",
       "source": "scan",
       "symbols": [
         {
@@ -2038,7 +2066,7 @@
       "hash": "5e2b92450fae104c",
       "size": 5109,
       "mtimeMs": 1784597774572.6829,
-      "updatedAt": "2026-07-27T05:50:11.542Z",
+      "updatedAt": "2026-07-27T07:44:49.277Z",
       "source": "scan",
       "symbols": [
         {
@@ -2056,7 +2084,7 @@
       "hash": "aa2a774a1dff16c5",
       "size": 18303,
       "mtimeMs": 1785112623895.764,
-      "updatedAt": "2026-07-27T05:50:11.543Z",
+      "updatedAt": "2026-07-27T07:44:49.278Z",
       "source": "scan",
       "symbols": [
         {
@@ -2112,176 +2140,176 @@
     },
     "client/src/main.ts": {
       "description": "O cliente não tem filesystem: aprende os nomes das aulas pela resposta de",
-      "tokens": 24520,
-      "hash": "228fea9d554ca8f3",
-      "size": 86765,
-      "mtimeMs": 1785131288296.7961,
-      "updatedAt": "2026-07-27T05:50:11.546Z",
+      "tokens": 25167,
+      "hash": "4125d266914c70a5",
+      "size": 89097,
+      "mtimeMs": 1785137381100.8005,
+      "updatedAt": "2026-07-27T07:44:49.280Z",
       "source": "scan",
       "symbols": [
         {
           "name": "cachearMundos",
           "kind": "fn",
-          "startLine": 97,
-          "endLine": 171,
-          "tokens": 887
+          "startLine": 98,
+          "endLine": 189,
+          "tokens": 1177
         },
         {
           "name": "applySettings",
           "kind": "fn",
-          "startLine": 172,
-          "endLine": 226,
-          "tokens": 821
+          "startLine": 190,
+          "endLine": 245,
+          "tokens": 844
         },
         {
           "name": "showOverlayMain",
           "kind": "fn",
-          "startLine": 227,
-          "endLine": 231,
+          "startLine": 246,
+          "endLine": 250,
           "tokens": 35
         },
         {
           "name": "updateOverlay",
           "kind": "fn",
-          "startLine": 232,
-          "endLine": 251,
+          "startLine": 251,
+          "endLine": 270,
           "tokens": 317
         },
         {
           "name": "startPlay",
           "kind": "fn",
-          "startLine": 252,
-          "endLine": 262,
+          "startLine": 271,
+          "endLine": 281,
           "tokens": 83
         },
         {
           "name": "onSettingsChanged",
           "kind": "fn",
-          "startLine": 263,
-          "endLine": 284,
+          "startLine": 282,
+          "endLine": 303,
           "tokens": 291
         },
         {
           "name": "enviarRaio",
           "kind": "fn",
-          "startLine": 285,
-          "endLine": 320,
+          "startLine": 304,
+          "endLine": 339,
           "tokens": 486
         },
         {
           "name": "playerName",
           "kind": "fn",
-          "startLine": 321,
-          "endLine": 352,
+          "startLine": 340,
+          "endLine": 371,
           "tokens": 348
         },
         {
           "name": "registrarChegadaDeRede",
           "kind": "fn",
-          "startLine": 353,
-          "endLine": 360,
+          "startLine": 372,
+          "endLine": 379,
           "tokens": 60
         },
         {
           "name": "jitterDeRede",
           "kind": "fn",
-          "startLine": 361,
-          "endLine": 396,
+          "startLine": 380,
+          "endLine": 415,
           "tokens": 446
         },
         {
           "name": "podeVoar",
           "kind": "fn",
-          "startLine": 397,
-          "endLine": 432,
+          "startLine": 416,
+          "endLine": 451,
           "tokens": 582
         },
         {
           "name": "pushPanelData",
           "kind": "fn",
-          "startLine": 433,
-          "endLine": 443,
+          "startLine": 452,
+          "endLine": 462,
           "tokens": 94
         },
         {
           "name": "ownDone",
           "kind": "fn",
-          "startLine": 444,
-          "endLine": 452,
+          "startLine": 463,
+          "endLine": 471,
           "tokens": 90
         },
         {
           "name": "refreshObjectivesView",
           "kind": "fn",
-          "startLine": 453,
-          "endLine": 484,
+          "startLine": 472,
+          "endLine": 503,
           "tokens": 358
         },
         {
           "name": "drenarFilaTroca",
           "kind": "fn",
-          "startLine": 485,
-          "endLine": 492,
+          "startLine": 504,
+          "endLine": 511,
           "tokens": 79
         },
         {
           "name": "segurarAteATelaPintar",
           "kind": "fn",
-          "startLine": 493,
-          "endLine": 502,
+          "startLine": 512,
+          "endLine": 521,
           "tokens": 109
         },
         {
           "name": "handleServerData",
           "kind": "fn",
-          "startLine": 503,
-          "endLine": 643,
-          "tokens": 1754
+          "startLine": 522,
+          "endLine": 665,
+          "tokens": 1806
         },
         {
           "name": "connect",
           "kind": "fn",
-          "startLine": 644,
-          "endLine": 679,
+          "startLine": 666,
+          "endLine": 701,
           "tokens": 400
         },
         {
           "name": "startMultiplayer",
           "kind": "fn",
-          "startLine": 680,
-          "endLine": 697,
+          "startLine": 702,
+          "endLine": 719,
           "tokens": 224
         },
         {
           "name": "startSingleplayer",
           "kind": "fn",
-          "startLine": 698,
-          "endLine": 719,
+          "startLine": 720,
+          "endLine": 741,
           "tokens": 249
         },
         {
           "name": "persistWorld",
           "kind": "fn",
-          "startLine": 720,
-          "endLine": 767,
+          "startLine": 742,
+          "endLine": 789,
           "tokens": 520
         },
         {
           "name": "startGame",
           "kind": "fn",
-          "startLine": 768,
-          "endLine": 2032,
-          "tokens": 15544
+          "startLine": 790,
+          "endLine": 2066,
+          "tokens": 15803
         }
       ]
     },
     "client/src/menu.ts": {
       "description": "Menu principal (cp8) — HTML/CSS por cima do canvas, sem GUI de engine.",
-      "tokens": 4452,
-      "hash": "2d17dcca159fdd0e",
-      "size": 15680,
-      "mtimeMs": 1785109260239.7615,
-      "updatedAt": "2026-07-27T05:50:11.548Z",
+      "tokens": 4695,
+      "hash": "28eb74c3163198cb",
+      "size": 16547,
+      "mtimeMs": 1785137029788.8008,
+      "updatedAt": "2026-07-27T07:44:49.281Z",
       "source": "scan",
       "symbols": [
         {
@@ -2365,43 +2393,43 @@
           "name": "renderConfigPanel",
           "kind": "fn",
           "startLine": 322,
-          "endLine": 464,
-          "tokens": 1346
+          "endLine": 484,
+          "tokens": 1589
         }
       ]
     },
     "client/src/meshPool.ts": {
       "description": "Pool de Web Workers pro mesher (2026-07-26).",
-      "tokens": 2157,
-      "hash": "512022e9d009b986",
-      "size": 7675,
-      "mtimeMs": 1785135135696.799,
-      "updatedAt": "2026-07-27T06:52:15.822Z",
-      "source": "hook",
+      "tokens": 2186,
+      "hash": "3dcc9a3654e90b27",
+      "size": 7784,
+      "mtimeMs": 1785137270796.8003,
+      "updatedAt": "2026-07-27T07:44:49.281Z",
+      "source": "scan",
       "symbols": [
         {
           "name": "ResultadoMesh",
           "kind": "section",
           "startLine": 54,
-          "endLine": 67,
-          "tokens": 109
+          "endLine": 69,
+          "tokens": 138
         },
         {
           "name": "MeshPool",
           "kind": "class",
-          "startLine": 68,
-          "endLine": 194,
+          "startLine": 70,
+          "endLine": 196,
           "tokens": 1298
         }
       ]
     },
     "client/src/meshWorker.ts": {
       "description": "Worker do mesher (2026-07-26). Recebe uma VIZINHANÇA (o cubo 18³ de",
-      "tokens": 442,
-      "hash": "6efdba97229f4db3",
-      "size": 1567,
-      "mtimeMs": 1785118526594.5996,
-      "updatedAt": "2026-07-27T05:50:11.549Z",
+      "tokens": 453,
+      "hash": "963474e0036dc463",
+      "size": 1604,
+      "mtimeMs": 1785137265200.8003,
+      "updatedAt": "2026-07-27T07:44:49.282Z",
       "source": "scan"
     },
     "client/src/objectivesUi.ts": {
@@ -2410,7 +2438,7 @@
       "hash": "e4e4e002740da62b",
       "size": 4391,
       "mtimeMs": 1783911067353.4763,
-      "updatedAt": "2026-07-27T05:50:11.550Z",
+      "updatedAt": "2026-07-27T07:44:49.282Z",
       "source": "scan",
       "symbols": [
         {
@@ -2435,7 +2463,7 @@
       "hash": "03eb67bd211b8fd6",
       "size": 20951,
       "mtimeMs": 1784654762914.7644,
-      "updatedAt": "2026-07-27T05:50:11.551Z",
+      "updatedAt": "2026-07-27T07:44:49.283Z",
       "source": "scan",
       "symbols": [
         {
@@ -2481,7 +2509,7 @@
       "hash": "6e59d99c61a65ad6",
       "size": 5868,
       "mtimeMs": 1784654719646.7644,
-      "updatedAt": "2026-07-27T05:50:11.551Z",
+      "updatedAt": "2026-07-27T07:44:49.284Z",
       "source": "scan",
       "symbols": [
         {
@@ -2506,7 +2534,7 @@
       "hash": "f0753194956c8350",
       "size": 11097,
       "mtimeMs": 1784503965169.7603,
-      "updatedAt": "2026-07-27T05:50:11.552Z",
+      "updatedAt": "2026-07-27T07:44:49.285Z",
       "source": "scan",
       "symbols": [
         {
@@ -2545,7 +2573,7 @@
       "hash": "7c306ce28b388905",
       "size": 2427,
       "mtimeMs": 1783904202105.4753,
-      "updatedAt": "2026-07-27T05:50:11.552Z",
+      "updatedAt": "2026-07-27T07:44:49.285Z",
       "source": "scan",
       "symbols": [
         {
@@ -2559,46 +2587,53 @@
     },
     "client/src/settings.ts": {
       "description": "Configurações do jogador, persistidas em localStorage (por navegador).",
-      "tokens": 1290,
-      "hash": "4f7e3cfbda9a532b",
-      "size": 4560,
-      "mtimeMs": 1785109254883.7615,
-      "updatedAt": "2026-07-27T05:50:11.552Z",
+      "tokens": 1506,
+      "hash": "973108391b972627",
+      "size": 5342,
+      "mtimeMs": 1785137010364.8008,
+      "updatedAt": "2026-07-27T07:44:49.285Z",
       "source": "scan",
       "symbols": [
         {
           "name": "GameSettings",
           "kind": "section",
           "startLine": 12,
-          "endLine": 78,
-          "tokens": 608
+          "endLine": 88,
+          "tokens": 764
         },
         {
           "name": "num",
           "kind": "fn",
-          "startLine": 79,
-          "endLine": 82,
+          "startLine": 89,
+          "endLine": 92,
           "tokens": 49
+        },
+        {
+          "name": "bool",
+          "kind": "fn",
+          "startLine": 93,
+          "endLine": 96,
+          "tokens": 28
         },
         {
           "name": "loadSettings",
           "kind": "fn",
-          "startLine": 83,
-          "endLine": 110,
-          "tokens": 326
+          "startLine": 97,
+          "endLine": 126,
+          "tokens": 358
         },
         {
           "name": "saveSettings",
           "kind": "fn",
-          "startLine": 111,
-          "endLine": 115,
+          "startLine": 127,
+          "endLine": 131,
           "tokens": 52
         },
         {
           "name": "keyLabel",
           "kind": "fn",
-          "startLine": 116,
-          "endLine": 132,
+          "startLine": 132,
+          "endLine": 148,
           "tokens": 126
         }
       ]
@@ -2609,7 +2644,7 @@
       "hash": "175b2de972a44340",
       "size": 3523,
       "mtimeMs": 1784495699493.7593,
-      "updatedAt": "2026-07-27T05:50:11.552Z",
+      "updatedAt": "2026-07-27T07:44:49.286Z",
       "source": "scan",
       "symbols": [
         {
@@ -2662,7 +2697,7 @@
       "hash": "55cf9012e5ccbde9",
       "size": 5368,
       "mtimeMs": 1785107014479.7632,
-      "updatedAt": "2026-07-27T05:50:11.553Z",
+      "updatedAt": "2026-07-27T07:44:49.286Z",
       "source": "scan",
       "symbols": [
         {
@@ -2680,7 +2715,7 @@
       "hash": "b573cbbab6d5c146",
       "size": 10882,
       "mtimeMs": 1784655078922.764,
-      "updatedAt": "2026-07-27T05:50:11.553Z",
+      "updatedAt": "2026-07-27T07:44:49.286Z",
       "source": "scan",
       "symbols": [
         {
@@ -2713,13 +2748,52 @@
         }
       ]
     },
+    "client/src/vento.ts": {
+      "description": "Vento do lado do CLIENTE (§🌬️, 2026-07-27). O servidor manda `dir`/`forca`",
+      "tokens": 1552,
+      "hash": "c3a9fed4fd8010e8",
+      "size": 5530,
+      "mtimeMs": 1785138081868.8,
+      "updatedAt": "2026-07-27T07:44:49.286Z",
+      "source": "scan",
+      "symbols": [
+        {
+          "name": "VentoCliente",
+          "kind": "class",
+          "startLine": 21,
+          "endLine": 83,
+          "tokens": 669
+        },
+        {
+          "name": "BalancoUniforms",
+          "kind": "section",
+          "startLine": 84,
+          "endLine": 105,
+          "tokens": 290
+        },
+        {
+          "name": "aplicarBalanco",
+          "kind": "fn",
+          "startLine": 106,
+          "endLine": 138,
+          "tokens": 301
+        },
+        {
+          "name": "criarBalancoUniforms",
+          "kind": "fn",
+          "startLine": 139,
+          "endLine": 146,
+          "tokens": 54
+        }
+      ]
+    },
     "client/src/worldStore.ts": {
       "description": "Mundos do SINGLEPLAYER, guardados no navegador (IndexedDB) — decisão de",
       "tokens": 780,
       "hash": "e6025ab17cb2b065",
       "size": 2745,
       "mtimeMs": 1783822470725.4783,
-      "updatedAt": "2026-07-27T05:50:11.553Z",
+      "updatedAt": "2026-07-27T07:44:49.287Z",
       "source": "scan",
       "symbols": [
         {
@@ -2786,7 +2860,7 @@
       "hash": "bf2a471c0429f519",
       "size": 136,
       "mtimeMs": 1783780454104.0908,
-      "updatedAt": "2026-07-27T05:50:11.554Z",
+      "updatedAt": "2026-07-27T07:44:49.287Z",
       "source": "scan"
     },
     "client/vite.config.ts": {
@@ -2795,7 +2869,7 @@
       "hash": "16825100bb7507ec",
       "size": 331,
       "mtimeMs": 1784037564732.0417,
-      "updatedAt": "2026-07-27T05:50:11.554Z",
+      "updatedAt": "2026-07-27T07:44:49.287Z",
       "source": "scan"
     },
     "iniciar-servidor.bat": {
@@ -2804,7 +2878,7 @@
       "hash": "e3944995fc5b4bf1",
       "size": 5856,
       "mtimeMs": 1784807101244.303,
-      "updatedAt": "2026-07-27T05:50:11.555Z",
+      "updatedAt": "2026-07-27T07:44:49.288Z",
       "source": "scan"
     },
     "iniciar-servidor.sh": {
@@ -2813,7 +2887,7 @@
       "hash": "d33a3cdf0419fd0e",
       "size": 4711,
       "mtimeMs": 1784807123356.3027,
-      "updatedAt": "2026-07-27T05:50:11.556Z",
+      "updatedAt": "2026-07-27T07:44:49.288Z",
       "source": "scan"
     },
     "mundos/_smoke-coluna/_smoke-coluna.ljw": {
@@ -2821,26 +2895,26 @@
       "tokens": 62,
       "hash": "54ee50c452dfd676",
       "size": 229,
-      "mtimeMs": 1785116043883.763,
-      "updatedAt": "2026-07-27T05:50:11.557Z",
+      "mtimeMs": 1785137709040.8005,
+      "updatedAt": "2026-07-27T07:44:49.289Z",
       "source": "scan"
     },
     "mundos/_smoke-coluna/chat.log": {
       "description": "",
-      "tokens": 107,
-      "hash": "f8ee4e32f4154154",
-      "size": 404,
-      "mtimeMs": 1785116043271.763,
-      "updatedAt": "2026-07-27T05:50:11.557Z",
+      "tokens": 160,
+      "hash": "e01873e7b02ba3bf",
+      "size": 606,
+      "mtimeMs": 1785137708432.8005,
+      "updatedAt": "2026-07-27T07:44:49.289Z",
       "source": "scan"
     },
     "mundos/_smoke-kicar/chat.log": {
       "description": "",
-      "tokens": 1186,
-      "hash": "3b6cfa1b6e7f5959",
-      "size": 4545,
-      "mtimeMs": 1785116029195.7627,
-      "updatedAt": "2026-07-27T05:50:11.559Z",
+      "tokens": 1423,
+      "hash": "86350765c61f4afd",
+      "size": 5454,
+      "mtimeMs": 1785137694308.8005,
+      "updatedAt": "2026-07-27T07:44:49.290Z",
       "source": "scan"
     },
     "mundos/_smoke-trocaa/_smoke-trocaa.ljw": {
@@ -2848,17 +2922,17 @@
       "tokens": 87,
       "hash": "1c45f4a4fd8ea6a4",
       "size": 326,
-      "mtimeMs": 1785116054547.763,
-      "updatedAt": "2026-07-27T05:50:11.560Z",
+      "mtimeMs": 1785137719756.8005,
+      "updatedAt": "2026-07-27T07:44:49.290Z",
       "source": "scan"
     },
     "mundos/_smoke-trocaa/chat.log": {
       "description": "",
-      "tokens": 320,
-      "hash": "c8144f067d3b5d50",
-      "size": 1234,
-      "mtimeMs": 1785116054551.763,
-      "updatedAt": "2026-07-27T05:50:11.561Z",
+      "tokens": 480,
+      "hash": "b1b424a3a5be9e15",
+      "size": 1851,
+      "mtimeMs": 1785137719756.8005,
+      "updatedAt": "2026-07-27T07:44:49.290Z",
       "source": "scan"
     },
     "mundos/_smoke-trocab/_smoke-trocab.ljw": {
@@ -2866,26 +2940,26 @@
       "tokens": 80,
       "hash": "2db98bb25138d352",
       "size": 300,
-      "mtimeMs": 1785116064555.763,
-      "updatedAt": "2026-07-27T05:50:11.562Z",
+      "mtimeMs": 1785137729760.8005,
+      "updatedAt": "2026-07-27T07:44:49.290Z",
       "source": "scan"
     },
     "mundos/aula1-sequencia/chat.log": {
       "description": "",
-      "tokens": 3041,
-      "hash": "78f0d648bdd52bdd",
-      "size": 11686,
-      "mtimeMs": 1785116032731.7627,
-      "updatedAt": "2026-07-27T05:50:11.563Z",
+      "tokens": 3788,
+      "hash": "ad82d1446ab742d1",
+      "size": 14559,
+      "mtimeMs": 1785137697860.8005,
+      "updatedAt": "2026-07-27T07:44:49.291Z",
       "source": "scan"
     },
     "mundos/aula2-binario/chat.log": {
       "description": "",
-      "tokens": 160,
-      "hash": "49d607a4ce6ca813",
-      "size": 610,
-      "mtimeMs": 1785116025751.7627,
-      "updatedAt": "2026-07-27T05:50:11.564Z",
+      "tokens": 192,
+      "hash": "1a48707973705e60",
+      "size": 732,
+      "mtimeMs": 1785137690868.8005,
+      "updatedAt": "2026-07-27T07:44:49.292Z",
       "source": "scan"
     },
     "mundos/flor-world/chat.log": {
@@ -2894,7 +2968,7 @@
       "hash": "d3835fd3983ad094",
       "size": 1644,
       "mtimeMs": 1784936235584.8582,
-      "updatedAt": "2026-07-27T05:50:11.565Z",
+      "updatedAt": "2026-07-27T07:44:49.293Z",
       "source": "scan"
     },
     "mundos/jstage/chat.log": {
@@ -2903,7 +2977,7 @@
       "hash": "d999722ef31ab9c5",
       "size": 511,
       "mtimeMs": 1784576416364.3574,
-      "updatedAt": "2026-07-27T05:50:11.566Z",
+      "updatedAt": "2026-07-27T07:44:49.293Z",
       "source": "scan"
     },
     "mundos/mundo-livre/chat.log": {
@@ -2912,7 +2986,7 @@
       "hash": "0b955be4440e5d63",
       "size": 8694,
       "mtimeMs": 1785115114739.7615,
-      "updatedAt": "2026-07-27T05:50:11.567Z",
+      "updatedAt": "2026-07-27T07:44:49.294Z",
       "source": "scan"
     },
     "mundos/playtest-streaming/chat.log": {
@@ -2921,7 +2995,7 @@
       "hash": "70c8ee03effaadc6",
       "size": 2311,
       "mtimeMs": 1785115154891.7612,
-      "updatedAt": "2026-07-27T05:50:11.568Z",
+      "updatedAt": "2026-07-27T07:44:49.295Z",
       "source": "scan"
     },
     "mundos/playtest-streaming/playtest-streaming.ljw": {
@@ -2930,7 +3004,7 @@
       "hash": "0dbd45df07bfdc7d",
       "size": 320,
       "mtimeMs": 1785115767083.7625,
-      "updatedAt": "2026-07-27T05:50:11.569Z",
+      "updatedAt": "2026-07-27T07:44:49.295Z",
       "source": "scan"
     },
     "mundos/smoke-coluna/chat.log": {
@@ -2939,7 +3013,7 @@
       "hash": "33643b54c52b9a96",
       "size": 202,
       "mtimeMs": 1785084935423.764,
-      "updatedAt": "2026-07-27T05:50:11.569Z",
+      "updatedAt": "2026-07-27T07:44:49.296Z",
       "source": "scan"
     },
     "mundos/smoke-coluna/smoke-coluna.ljw": {
@@ -2948,7 +3022,7 @@
       "hash": "c64e2299287676a1",
       "size": 233,
       "mtimeMs": 1785084946291.764,
-      "updatedAt": "2026-07-27T05:50:11.570Z",
+      "updatedAt": "2026-07-27T07:44:49.296Z",
       "source": "scan"
     },
     "mundos/stage/chat.log": {
@@ -2957,7 +3031,7 @@
       "hash": "a3b9c881558668e6",
       "size": 1898,
       "mtimeMs": 1784585650092.3542,
-      "updatedAt": "2026-07-27T05:50:11.571Z",
+      "updatedAt": "2026-07-27T07:44:49.297Z",
       "source": "scan"
     },
     "mundos/teste-biomas/chat.log": {
@@ -2966,7 +3040,7 @@
       "hash": "55206f4a0abf64f7",
       "size": 1275,
       "mtimeMs": 1784598715358.7644,
-      "updatedAt": "2026-07-27T05:50:11.572Z",
+      "updatedAt": "2026-07-27T07:44:49.298Z",
       "source": "scan"
     },
     "package-lock.json": {
@@ -2975,7 +3049,7 @@
       "hash": "2b4b12182c883350",
       "size": 70418,
       "mtimeMs": 1784656608982.763,
-      "updatedAt": "2026-07-27T05:50:11.573Z",
+      "updatedAt": "2026-07-27T07:44:49.299Z",
       "source": "scan"
     },
     "package.json": {
@@ -2984,7 +3058,7 @@
       "hash": "e5745b3784f0792e",
       "size": 788,
       "mtimeMs": 1785113608439.7634,
-      "updatedAt": "2026-07-27T05:50:11.573Z",
+      "updatedAt": "2026-07-27T07:44:49.299Z",
       "source": "scan"
     },
     "profiles/perf-1784923796301-gius.json": {
@@ -2993,7 +3067,7 @@
       "hash": "6b1fd088047de085",
       "size": 1687,
       "mtimeMs": 1784923796296.8596,
-      "updatedAt": "2026-07-27T05:50:11.574Z",
+      "updatedAt": "2026-07-27T07:44:49.300Z",
       "source": "scan"
     },
     "profiles/perf-1784923813150-01rx.json": {
@@ -3002,7 +3076,7 @@
       "hash": "6c38b0a4d7ac297c",
       "size": 1689,
       "mtimeMs": 1784923813144.8596,
-      "updatedAt": "2026-07-27T05:50:11.575Z",
+      "updatedAt": "2026-07-27T07:44:49.300Z",
       "source": "scan"
     },
     "profiles/perf-1785086834711-wmi5.json": {
@@ -3011,7 +3085,7 @@
       "hash": "8157fc8c7eb274ee",
       "size": 1741,
       "mtimeMs": 1785086834707.763,
-      "updatedAt": "2026-07-27T05:50:11.575Z",
+      "updatedAt": "2026-07-27T07:44:49.301Z",
       "source": "scan"
     },
     "profiles/perf-1785089686334-7pm7.json": {
@@ -3020,7 +3094,7 @@
       "hash": "193235df99424caa",
       "size": 1748,
       "mtimeMs": 1785089686331.763,
-      "updatedAt": "2026-07-27T05:50:11.576Z",
+      "updatedAt": "2026-07-27T07:44:49.301Z",
       "source": "scan"
     },
     "profiles/perf-1785091204014-l9iv.json": {
@@ -3029,7 +3103,7 @@
       "hash": "46e0e3e0fbb45664",
       "size": 1747,
       "mtimeMs": 1785091204011.7634,
-      "updatedAt": "2026-07-27T05:50:11.577Z",
+      "updatedAt": "2026-07-27T07:44:49.302Z",
       "source": "scan"
     },
     "profiles/perf-1785094449096-atcq.json": {
@@ -3038,7 +3112,7 @@
       "hash": "34872b859c702627",
       "size": 1745,
       "mtimeMs": 1785094449091.7651,
-      "updatedAt": "2026-07-27T05:50:11.577Z",
+      "updatedAt": "2026-07-27T07:44:49.303Z",
       "source": "scan"
     },
     "profiles/perf-1785094461396-pze2.json": {
@@ -3047,7 +3121,7 @@
       "hash": "ea7cd09ebe2f2fd9",
       "size": 1753,
       "mtimeMs": 1785094461391.7646,
-      "updatedAt": "2026-07-27T05:50:11.577Z",
+      "updatedAt": "2026-07-27T07:44:49.303Z",
       "source": "scan"
     },
     "profiles/perf-1785107927563-pznv.json": {
@@ -3056,7 +3130,7 @@
       "hash": "f22b69df6263b85a",
       "size": 1746,
       "mtimeMs": 1785107927559.7625,
-      "updatedAt": "2026-07-27T05:50:11.578Z",
+      "updatedAt": "2026-07-27T07:44:49.304Z",
       "source": "scan"
     },
     "profiles/perf-1785107951364-0cqe.json": {
@@ -3065,7 +3139,7 @@
       "hash": "d84cd45a58ec3868",
       "size": 1741,
       "mtimeMs": 1785107951359.7622,
-      "updatedAt": "2026-07-27T05:50:11.578Z",
+      "updatedAt": "2026-07-27T07:44:49.305Z",
       "source": "scan"
     },
     "profiles/perf-1785107963182-4t6p.json": {
@@ -3074,7 +3148,7 @@
       "hash": "2a4383ee29acddef",
       "size": 1746,
       "mtimeMs": 1785107963179.762,
-      "updatedAt": "2026-07-27T05:50:11.579Z",
+      "updatedAt": "2026-07-27T07:44:49.305Z",
       "source": "scan"
     },
     "profiles/perf-1785107989935-hxzk.json": {
@@ -3083,7 +3157,7 @@
       "hash": "a23374422a957050",
       "size": 1741,
       "mtimeMs": 1785107989931.762,
-      "updatedAt": "2026-07-27T05:50:11.579Z",
+      "updatedAt": "2026-07-27T07:44:49.306Z",
       "source": "scan"
     },
     "profiles/perf-1785109868954-fi1w.json": {
@@ -3092,7 +3166,7 @@
       "hash": "0280e9c3e90f2414",
       "size": 2243,
       "mtimeMs": 1785109868951.7625,
-      "updatedAt": "2026-07-27T05:50:11.580Z",
+      "updatedAt": "2026-07-27T07:44:49.306Z",
       "source": "scan"
     },
     "profiles/perf-1785109881819-124a.json": {
@@ -3101,7 +3175,7 @@
       "hash": "5ac2b924e1bd4c29",
       "size": 2248,
       "mtimeMs": 1785109881815.7625,
-      "updatedAt": "2026-07-27T05:50:11.580Z",
+      "updatedAt": "2026-07-27T07:44:49.307Z",
       "source": "scan"
     },
     "profiles/perf-1785114908092-eevb.json": {
@@ -3110,7 +3184,7 @@
       "hash": "76d15cb25621d50f",
       "size": 5008,
       "mtimeMs": 1785114908087.763,
-      "updatedAt": "2026-07-27T05:50:11.581Z",
+      "updatedAt": "2026-07-27T07:44:49.307Z",
       "source": "scan"
     },
     "profiles/perf-1785114918677-t1a5.json": {
@@ -3119,7 +3193,7 @@
       "hash": "8d219e6e97ceab8e",
       "size": 5009,
       "mtimeMs": 1785114918671.763,
-      "updatedAt": "2026-07-27T05:50:11.581Z",
+      "updatedAt": "2026-07-27T07:44:49.308Z",
       "source": "scan"
     },
     "profiles/perf-1785115154897-znkz.json": {
@@ -3128,7 +3202,7 @@
       "hash": "41ae6c0d548b641a",
       "size": 4996,
       "mtimeMs": 1785115154891.7612,
-      "updatedAt": "2026-07-27T05:50:11.582Z",
+      "updatedAt": "2026-07-27T07:44:49.308Z",
       "source": "scan"
     },
     "profiles/perf-bench-1785116286940-r96x.json": {
@@ -3137,7 +3211,7 @@
       "hash": "3372ce1ac60b8dd7",
       "size": 4994,
       "mtimeMs": 1785116286935.7605,
-      "updatedAt": "2026-07-27T05:50:11.583Z",
+      "updatedAt": "2026-07-27T07:44:49.309Z",
       "source": "scan"
     },
     "profiles/perf-bench-1785116788267-48ab.json": {
@@ -3146,7 +3220,7 @@
       "hash": "a004cd64c21f5ef6",
       "size": 4917,
       "mtimeMs": 1785116788263.7625,
-      "updatedAt": "2026-07-27T05:50:11.583Z",
+      "updatedAt": "2026-07-27T07:44:49.310Z",
       "source": "scan"
     },
     "profiles/perf-bench-1785117299927-v1w4.json": {
@@ -3155,7 +3229,7 @@
       "hash": "f77391dd392b403d",
       "size": 5422,
       "mtimeMs": 1785117299922.5916,
-      "updatedAt": "2026-07-27T05:50:11.584Z",
+      "updatedAt": "2026-07-27T07:44:49.310Z",
       "source": "scan"
     },
     "profiles/perf-bench-1785117351891-nfhx.json": {
@@ -3164,7 +3238,7 @@
       "hash": "bdd45806fa641b51",
       "size": 5226,
       "mtimeMs": 1785117351886.5947,
-      "updatedAt": "2026-07-27T05:50:11.585Z",
+      "updatedAt": "2026-07-27T07:44:49.311Z",
       "source": "scan"
     },
     "profiles/perf-bench-1785120251535-jkso.json": {
@@ -3173,7 +3247,7 @@
       "hash": "93802af4147cbfd2",
       "size": 5254,
       "mtimeMs": 1785120251606.5981,
-      "updatedAt": "2026-07-27T05:50:11.586Z",
+      "updatedAt": "2026-07-27T07:44:49.312Z",
       "source": "scan"
     },
     "profiles/perf-bench-1785120314529-t3xn.json": {
@@ -3182,7 +3256,61 @@
       "hash": "8867e01b27e99e6f",
       "size": 5217,
       "mtimeMs": 1785120314526.5986,
-      "updatedAt": "2026-07-27T05:50:11.586Z",
+      "updatedAt": "2026-07-27T07:44:49.313Z",
+      "source": "scan"
+    },
+    "profiles/perf-bench-1785134477051-rmcb.json": {
+      "description": "",
+      "tokens": 1526,
+      "hash": "346af3d3ffc41846",
+      "size": 5357,
+      "mtimeMs": 1785134477048.7988,
+      "updatedAt": "2026-07-27T07:44:49.314Z",
+      "source": "scan"
+    },
+    "profiles/perf-bench-1785134537737-t87u.json": {
+      "description": "",
+      "tokens": 1505,
+      "hash": "8c37328bf53085b7",
+      "size": 5283,
+      "mtimeMs": 1785134537736.7988,
+      "updatedAt": "2026-07-27T07:44:49.314Z",
+      "source": "scan"
+    },
+    "profiles/perf-bench-1785134587621-l9yc.json": {
+      "description": "",
+      "tokens": 1471,
+      "hash": "c4b127d82418daad",
+      "size": 5166,
+      "mtimeMs": 1785134587620.798,
+      "updatedAt": "2026-07-27T07:44:49.315Z",
+      "source": "scan"
+    },
+    "profiles/perf-bench-1785134781360-tkc7.json": {
+      "description": "",
+      "tokens": 1509,
+      "hash": "da4432e3ed8c13dc",
+      "size": 5297,
+      "mtimeMs": 1785134781356.8005,
+      "updatedAt": "2026-07-27T07:44:49.316Z",
+      "source": "scan"
+    },
+    "profiles/perf-bench-1785134829421-l9xf.json": {
+      "description": "",
+      "tokens": 1434,
+      "hash": "609d1693cfd8471c",
+      "size": 5034,
+      "mtimeMs": 1785134829420.8005,
+      "updatedAt": "2026-07-27T07:44:49.316Z",
+      "source": "scan"
+    },
+    "profiles/perf-bench-1785134871734-bjrv.json": {
+      "description": "",
+      "tokens": 1510,
+      "hash": "a9d3ab2a2960ce3d",
+      "size": 5301,
+      "mtimeMs": 1785134871732.7983,
+      "updatedAt": "2026-07-27T07:44:49.317Z",
       "source": "scan"
     },
     "profiles/perf-bench-2026-07-27T01-24-08-311Z.json": {
@@ -3191,7 +3319,7 @@
       "hash": "16215188399d2b13",
       "size": 4991,
       "mtimeMs": 1785115448313.597,
-      "updatedAt": "2026-07-27T05:50:11.587Z",
+      "updatedAt": "2026-07-27T07:44:49.317Z",
       "source": "scan"
     },
     "projeto.txt": {
@@ -3200,7 +3328,7 @@
       "hash": "f19fe7802d1fba27",
       "size": 19459,
       "mtimeMs": 1783780454112.0908,
-      "updatedAt": "2026-07-27T05:50:11.588Z",
+      "updatedAt": "2026-07-27T07:44:49.319Z",
       "source": "scan"
     },
     "registros/perfilador-v0.8.0-escola.md": {
@@ -3209,7 +3337,7 @@
       "hash": "02f8ee6daeb3303b",
       "size": 4719,
       "mtimeMs": 1784846189756.3027,
-      "updatedAt": "2026-07-27T05:50:11.589Z",
+      "updatedAt": "2026-07-27T07:44:49.320Z",
       "source": "scan"
     },
     "registros/prints/README.md": {
@@ -3218,7 +3346,7 @@
       "hash": "9b3be794838de50d",
       "size": 2321,
       "mtimeMs": 1784850121824.3022,
-      "updatedAt": "2026-07-27T05:50:11.590Z",
+      "updatedAt": "2026-07-27T07:44:49.320Z",
       "source": "scan"
     },
     "registros/README.md": {
@@ -3227,7 +3355,7 @@
       "hash": "41bb69e1ba49d933",
       "size": 1217,
       "mtimeMs": 1784846149164.3032,
-      "updatedAt": "2026-07-27T05:50:11.590Z",
+      "updatedAt": "2026-07-27T07:44:49.321Z",
       "source": "scan"
     },
     "relatorio/relatorio-aplicacao.md": {
@@ -3236,7 +3364,7 @@
       "hash": "c580d79bd4755a72",
       "size": 21434,
       "mtimeMs": 1784948795262.7332,
-      "updatedAt": "2026-07-27T05:50:11.592Z",
+      "updatedAt": "2026-07-27T07:44:49.322Z",
       "source": "scan"
     },
     "scripts/bench-headless.mjs": {
@@ -3245,8 +3373,8 @@
       "hash": "3e9d80a3b00efa6b",
       "size": 6337,
       "mtimeMs": 1785135167684.7988,
-      "updatedAt": "2026-07-27T06:52:47.786Z",
-      "source": "hook",
+      "updatedAt": "2026-07-27T07:44:49.323Z",
+      "source": "scan",
       "symbols": [
         {
           "name": "acharChrome",
@@ -3291,7 +3419,7 @@
       "hash": "8b07fbfecad8438f",
       "size": 8769,
       "mtimeMs": 1785115934323.7622,
-      "updatedAt": "2026-07-27T05:50:11.594Z",
+      "updatedAt": "2026-07-27T07:44:49.323Z",
       "source": "scan",
       "symbols": [
         {
@@ -3337,7 +3465,7 @@
       "hash": "6327a023bd75a1a3",
       "size": 416,
       "mtimeMs": 1784035016068.0422,
-      "updatedAt": "2026-07-27T05:50:11.594Z",
+      "updatedAt": "2026-07-27T07:44:49.323Z",
       "source": "scan"
     },
     "server/src/cenarios/_smoke-atividade.mjs": {
@@ -3346,7 +3474,7 @@
       "hash": "edfb97d4cf6f9a29",
       "size": 3037,
       "mtimeMs": 1785093127307.7627,
-      "updatedAt": "2026-07-27T05:50:11.595Z",
+      "updatedAt": "2026-07-27T07:44:49.324Z",
       "source": "scan",
       "symbols": [
         {
@@ -3385,7 +3513,7 @@
       "hash": "e2bd568eb940903b",
       "size": 2863,
       "mtimeMs": 1785093125979.7627,
-      "updatedAt": "2026-07-27T05:50:11.595Z",
+      "updatedAt": "2026-07-27T07:44:49.324Z",
       "source": "scan",
       "symbols": [
         {
@@ -3424,7 +3552,7 @@
       "hash": "00165fde9cabbe5f",
       "size": 3297,
       "mtimeMs": 1785093326179.7627,
-      "updatedAt": "2026-07-27T05:50:11.596Z",
+      "updatedAt": "2026-07-27T07:44:49.324Z",
       "source": "scan",
       "symbols": [
         {
@@ -3456,7 +3584,7 @@
       "hash": "8738d2a5cf574819",
       "size": 5084,
       "mtimeMs": 1785084904959.764,
-      "updatedAt": "2026-07-27T05:50:11.596Z",
+      "updatedAt": "2026-07-27T07:44:49.324Z",
       "source": "scan",
       "symbols": [
         {
@@ -3488,7 +3616,7 @@
       "hash": "f6b3e445c8e0f738",
       "size": 3669,
       "mtimeMs": 1785115974415.7622,
-      "updatedAt": "2026-07-27T05:50:11.597Z",
+      "updatedAt": "2026-07-27T07:44:49.325Z",
       "source": "scan",
       "symbols": [
         {
@@ -3520,7 +3648,7 @@
       "hash": "76eb85d6625b3373",
       "size": 4614,
       "mtimeMs": 1785091561247.7642,
-      "updatedAt": "2026-07-27T05:50:11.598Z",
+      "updatedAt": "2026-07-27T07:44:49.325Z",
       "source": "scan",
       "symbols": [
         {
@@ -3566,7 +3694,7 @@
       "hash": "b3239db0c1e65b7a",
       "size": 19016,
       "mtimeMs": 1784517237060.3562,
-      "updatedAt": "2026-07-27T05:50:11.598Z",
+      "updatedAt": "2026-07-27T07:44:49.326Z",
       "source": "scan",
       "symbols": [
         {
@@ -3626,7 +3754,7 @@
       "hash": "b23cf401d35ded19",
       "size": 6663,
       "mtimeMs": 1784517263524.3567,
-      "updatedAt": "2026-07-27T05:50:11.599Z",
+      "updatedAt": "2026-07-27T07:44:49.326Z",
       "source": "scan",
       "symbols": [
         {
@@ -3679,7 +3807,7 @@
       "hash": "c77d5070db48c59c",
       "size": 22164,
       "mtimeMs": 1785115788947.7622,
-      "updatedAt": "2026-07-27T05:50:11.599Z",
+      "updatedAt": "2026-07-27T07:44:49.327Z",
       "source": "scan",
       "symbols": [
         {
@@ -3746,7 +3874,7 @@
       "hash": "c9668b01d4e0aafc",
       "size": 7296,
       "mtimeMs": 1785091443451.7627,
-      "updatedAt": "2026-07-27T05:50:11.600Z",
+      "updatedAt": "2026-07-27T07:44:49.327Z",
       "source": "scan",
       "symbols": [
         {
@@ -3792,7 +3920,7 @@
       "hash": "4e26cf36c38fc5a7",
       "size": 3252,
       "mtimeMs": 1784559009932.3584,
-      "updatedAt": "2026-07-27T05:50:11.600Z",
+      "updatedAt": "2026-07-27T07:44:49.327Z",
       "source": "scan",
       "symbols": [
         {
@@ -3817,7 +3945,7 @@
       "hash": "12ed0936be6e6080",
       "size": 4168,
       "mtimeMs": 1785115760979.7627,
-      "updatedAt": "2026-07-27T05:50:11.600Z",
+      "updatedAt": "2026-07-27T07:44:49.327Z",
       "source": "scan",
       "symbols": [
         {
@@ -3849,7 +3977,7 @@
       "hash": "95c3c4725f764a96",
       "size": 3730,
       "mtimeMs": 1784050273432.041,
-      "updatedAt": "2026-07-27T05:50:11.601Z",
+      "updatedAt": "2026-07-27T07:44:49.328Z",
       "source": "scan",
       "symbols": [
         {
@@ -3881,7 +4009,7 @@
       "hash": "eabf45132bc16012",
       "size": 2968,
       "mtimeMs": 1784627833542.764,
-      "updatedAt": "2026-07-27T05:50:11.601Z",
+      "updatedAt": "2026-07-27T07:44:49.328Z",
       "source": "scan",
       "symbols": [
         {
@@ -3899,7 +4027,7 @@
       "hash": "38f8c30a652950e8",
       "size": 149,
       "mtimeMs": 1783800698780.0908,
-      "updatedAt": "2026-07-27T05:50:11.601Z",
+      "updatedAt": "2026-07-27T07:44:49.328Z",
       "source": "scan"
     },
     "shared/package.json": {
@@ -3908,7 +4036,7 @@
       "hash": "b269352ac97149eb",
       "size": 194,
       "mtimeMs": 1783780454112.0908,
-      "updatedAt": "2026-07-27T05:50:11.602Z",
+      "updatedAt": "2026-07-27T07:44:49.328Z",
       "source": "scan"
     },
     "shared/src/arvores.test.ts": {
@@ -3917,7 +4045,7 @@
       "hash": "beb0e1537852027d",
       "size": 2325,
       "mtimeMs": 1784594589156.3552,
-      "updatedAt": "2026-07-27T05:50:11.602Z",
+      "updatedAt": "2026-07-27T07:44:49.329Z",
       "source": "scan"
     },
     "shared/src/arvores.ts": {
@@ -3926,7 +4054,7 @@
       "hash": "12bfe62e77def2a6",
       "size": 5819,
       "mtimeMs": 1784653234218.7644,
-      "updatedAt": "2026-07-27T05:50:11.602Z",
+      "updatedAt": "2026-07-27T07:44:49.329Z",
       "source": "scan",
       "symbols": [
         {
@@ -3986,7 +4114,7 @@
       "hash": "29e5d3d6a88b634f",
       "size": 1510,
       "mtimeMs": 1784393177754.9072,
-      "updatedAt": "2026-07-27T05:50:11.602Z",
+      "updatedAt": "2026-07-27T07:44:49.329Z",
       "source": "scan"
     },
     "shared/src/auth.ts": {
@@ -3995,16 +4123,16 @@
       "hash": "3f085ad28ebc2dee",
       "size": 1729,
       "mtimeMs": 1784393091074.9092,
-      "updatedAt": "2026-07-27T05:50:11.603Z",
+      "updatedAt": "2026-07-27T07:44:49.329Z",
       "source": "scan"
     },
     "shared/src/biomas.ts": {
       "description": "Biomas do gen procedural (2026-07-20) — a REGRA DE OURO aplicada ao terreno:",
-      "tokens": 932,
-      "hash": "3d83fa466632b8cd",
-      "size": 3301,
-      "mtimeMs": 1785080045583.7642,
-      "updatedAt": "2026-07-27T05:50:11.603Z",
+      "tokens": 1071,
+      "hash": "1c93c5f55b694c66",
+      "size": 3800,
+      "mtimeMs": 1785137475512.8008,
+      "updatedAt": "2026-07-27T07:44:49.330Z",
       "source": "scan",
       "symbols": [
         {
@@ -4018,262 +4146,262 @@
           "name": "Bioma",
           "kind": "section",
           "startLine": 23,
-          "endLine": 82,
-          "tokens": 484
+          "endLine": 90,
+          "tokens": 622
         },
         {
           "name": "biomaPorClima",
           "kind": "fn",
-          "startLine": 83,
-          "endLine": 92,
+          "startLine": 91,
+          "endLine": 100,
           "tokens": 136
         },
         {
           "name": "gramaPorClima",
           "kind": "fn",
-          "startLine": 93,
-          "endLine": 98,
+          "startLine": 101,
+          "endLine": 106,
           "tokens": 58
         }
       ]
     },
     "shared/src/blocks.test.ts": {
       "description": "Declares id",
-      "tokens": 2024,
-      "hash": "4966b879aff281dc",
-      "size": 7138,
-      "mtimeMs": 1784956021986.7349,
-      "updatedAt": "2026-07-27T05:50:11.603Z",
+      "tokens": 2100,
+      "hash": "3e3309a7f14a8fc9",
+      "size": 7407,
+      "mtimeMs": 1785137647124.8005,
+      "updatedAt": "2026-07-27T07:44:49.330Z",
       "source": "scan"
     },
     "shared/src/blocks.ts": {
       "description": "IDs de bloco. Gravados como bytes crus nos chunks (Uint8Array), no save e no",
-      "tokens": 6795,
-      "hash": "d35b9947262c8e7f",
-      "size": 24181,
-      "mtimeMs": 1784955566054.7349,
-      "updatedAt": "2026-07-27T05:50:11.604Z",
+      "tokens": 7144,
+      "hash": "2808ae8b41401a2c",
+      "size": 25428,
+      "mtimeMs": 1785137618292.8005,
+      "updatedAt": "2026-07-27T07:44:49.331Z",
       "source": "scan",
       "symbols": [
         {
           "name": "isAgua",
           "kind": "fn",
-          "startLine": 191,
-          "endLine": 196,
+          "startLine": 200,
+          "endLine": 205,
           "tokens": 75
         },
         {
           "name": "isAguaFonte",
           "kind": "fn",
-          "startLine": 197,
-          "endLine": 202,
+          "startLine": 206,
+          "endLine": 211,
           "tokens": 69
         },
         {
           "name": "aguaNivel",
           "kind": "fn",
-          "startLine": 203,
-          "endLine": 211,
+          "startLine": 212,
+          "endLine": 220,
           "tokens": 82
         },
         {
           "name": "aguaComNivel",
           "kind": "fn",
-          "startLine": 212,
-          "endLine": 226,
+          "startLine": 221,
+          "endLine": 235,
           "tokens": 191
         },
         {
           "name": "isBalde",
           "kind": "fn",
-          "startLine": 227,
-          "endLine": 234,
-          "tokens": 120
+          "startLine": 236,
+          "endLine": 245,
+          "tokens": 148
         },
         {
           "name": "isReplaceable",
           "kind": "fn",
-          "startLine": 235,
-          "endLine": 239,
-          "tokens": 33
+          "startLine": 246,
+          "endLine": 250,
+          "tokens": 39
         },
         {
           "name": "isFlor",
           "kind": "fn",
-          "startLine": 240,
-          "endLine": 244,
-          "tokens": 56
+          "startLine": 251,
+          "endLine": 255,
+          "tokens": 55
+        },
+        {
+          "name": "isGramaAlta",
+          "kind": "fn",
+          "startLine": 256,
+          "endLine": 260,
+          "tokens": 54
+        },
+        {
+          "name": "isFolhas",
+          "kind": "fn",
+          "startLine": 261,
+          "endLine": 270,
+          "tokens": 80
         },
         {
           "name": "isVidroColorido",
           "kind": "fn",
-          "startLine": 245,
-          "endLine": 249,
+          "startLine": 271,
+          "endLine": 275,
           "tokens": 50
         },
         {
           "name": "isSlab",
           "kind": "fn",
-          "startLine": 250,
-          "endLine": 254,
+          "startLine": 276,
+          "endLine": 280,
           "tokens": 57
         },
         {
           "name": "slabTop",
           "kind": "fn",
-          "startLine": 255,
-          "endLine": 259,
+          "startLine": 281,
+          "endLine": 285,
           "tokens": 47
         },
         {
           "name": "slabMaterial",
           "kind": "fn",
-          "startLine": 260,
-          "endLine": 264,
+          "startLine": 286,
+          "endLine": 290,
           "tokens": 46
         },
         {
           "name": "isStairs",
           "kind": "fn",
-          "startLine": 265,
-          "endLine": 269,
+          "startLine": 291,
+          "endLine": 295,
           "tokens": 58
         },
         {
           "name": "stairsFacing",
           "kind": "fn",
-          "startLine": 270,
-          "endLine": 274,
+          "startLine": 296,
+          "endLine": 300,
           "tokens": 47
         },
         {
           "name": "stairsTop",
           "kind": "fn",
-          "startLine": 275,
-          "endLine": 279,
+          "startLine": 301,
+          "endLine": 305,
           "tokens": 47
         },
         {
           "name": "stairsMaterial",
           "kind": "fn",
-          "startLine": 280,
-          "endLine": 285,
+          "startLine": 306,
+          "endLine": 311,
           "tokens": 72
         },
         {
           "name": "escadaId",
           "kind": "fn",
-          "startLine": 286,
-          "endLine": 294,
+          "startLine": 312,
+          "endLine": 320,
           "tokens": 131
         },
         {
           "name": "stepFootprint",
           "kind": "fn",
-          "startLine": 295,
-          "endLine": 307,
+          "startLine": 321,
+          "endLine": 333,
           "tokens": 167
         },
         {
           "name": "collisionBoxes",
           "kind": "fn",
-          "startLine": 308,
-          "endLine": 321,
+          "startLine": 334,
+          "endLine": 347,
           "tokens": 148
         },
         {
           "name": "isQuadro",
           "kind": "fn",
-          "startLine": 322,
-          "endLine": 326,
+          "startLine": 348,
+          "endLine": 352,
           "tokens": 42
         },
         {
           "name": "isCadeira",
           "kind": "fn",
-          "startLine": 327,
-          "endLine": 330,
+          "startLine": 353,
+          "endLine": 356,
           "tokens": 42
         },
         {
           "name": "isSofa",
           "kind": "fn",
-          "startLine": 331,
-          "endLine": 334,
+          "startLine": 357,
+          "endLine": 360,
           "tokens": 39
         },
         {
           "name": "isCama",
           "kind": "fn",
-          "startLine": 335,
-          "endLine": 340,
+          "startLine": 361,
+          "endLine": 366,
           "tokens": 78
         },
         {
           "name": "camaHeadDir",
           "kind": "fn",
-          "startLine": 341,
-          "endLine": 350,
+          "startLine": 367,
+          "endLine": 376,
           "tokens": 148
         },
         {
           "name": "isMovel",
           "kind": "fn",
-          "startLine": 351,
-          "endLine": 355,
+          "startLine": 377,
+          "endLine": 381,
           "tokens": 38
         },
         {
           "name": "isTapete",
           "kind": "fn",
-          "startLine": 356,
-          "endLine": 361,
+          "startLine": 382,
+          "endLine": 387,
           "tokens": 68
         },
         {
           "name": "precisaApoio",
           "kind": "fn",
-          "startLine": 362,
-          "endLine": 367,
-          "tokens": 76
+          "startLine": 388,
+          "endLine": 393,
+          "tokens": 82
         },
         {
           "name": "isTransparentBlock",
           "kind": "fn",
-          "startLine": 368,
-          "endLine": 376,
+          "startLine": 394,
+          "endLine": 402,
           "tokens": 102
         },
         {
           "name": "isPorta",
           "kind": "fn",
-          "startLine": 377,
-          "endLine": 384,
-          "tokens": 70
-        },
-        {
-          "name": "isPortaAberta",
-          "kind": "fn",
-          "startLine": 385,
-          "endLine": 392,
-          "tokens": 79
-        },
-        {
-          "name": "portaEixoX",
-          "kind": "fn",
-          "startLine": 393,
-          "endLine": 540,
-          "tokens": 1745
+          "startLine": 403,
+          "endLine": 568,
+          "tokens": 1920
         }
       ]
     },
     "shared/src/claims.test.ts": {
       "description": "Último texto de chat enviado a um cliente (rejeições/respostas de comando).",
-      "tokens": 3418,
-      "hash": "7665ac1dd79895f9",
-      "size": 12016,
-      "mtimeMs": 1784654888662.7651,
-      "updatedAt": "2026-07-27T05:50:11.605Z",
+      "tokens": 3491,
+      "hash": "80cf867c874a9bcd",
+      "size": 12284,
+      "mtimeMs": 1785137540356.8008,
+      "updatedAt": "2026-07-27T07:44:49.333Z",
       "source": "scan",
       "symbols": [
         {
@@ -4308,8 +4436,8 @@
           "name": "ultimaChat",
           "kind": "fn",
           "startLine": 29,
-          "endLine": 254,
-          "tokens": 3112
+          "endLine": 258,
+          "tokens": 3184
         }
       ]
     },
@@ -4319,7 +4447,7 @@
       "hash": "0ee5b1d0b1d04a22",
       "size": 3727,
       "mtimeMs": 1784654324730.7644,
-      "updatedAt": "2026-07-27T05:50:11.605Z",
+      "updatedAt": "2026-07-27T07:44:49.333Z",
       "source": "scan",
       "symbols": [
         {
@@ -4372,7 +4500,7 @@
       "hash": "6ab1809f9889e7ac",
       "size": 8798,
       "mtimeMs": 1784340400012.3667,
-      "updatedAt": "2026-07-27T05:50:11.606Z",
+      "updatedAt": "2026-07-27T07:44:49.333Z",
       "source": "scan",
       "symbols": [
         {
@@ -4439,7 +4567,7 @@
       "hash": "45412e368dc7cda5",
       "size": 1827,
       "mtimeMs": 1784764145511.3923,
-      "updatedAt": "2026-07-27T05:50:11.606Z",
+      "updatedAt": "2026-07-27T07:44:49.333Z",
       "source": "scan"
     },
     "shared/src/cp14.test.ts": {
@@ -4448,7 +4576,7 @@
       "hash": "2d381e5b77f2bf4b",
       "size": 7001,
       "mtimeMs": 1784220873934.2222,
-      "updatedAt": "2026-07-27T05:50:11.606Z",
+      "updatedAt": "2026-07-27T07:44:49.334Z",
       "source": "scan",
       "symbols": [
         {
@@ -4487,7 +4615,7 @@
       "hash": "b96c36079c90da61",
       "size": 28462,
       "mtimeMs": 1784583813676.356,
-      "updatedAt": "2026-07-27T05:50:11.607Z",
+      "updatedAt": "2026-07-27T07:44:49.335Z",
       "source": "scan",
       "symbols": [
         {
@@ -4505,7 +4633,7 @@
       "hash": "d9fa52f95bebb7d1",
       "size": 13548,
       "mtimeMs": 1784140932259.4033,
-      "updatedAt": "2026-07-27T05:50:11.610Z",
+      "updatedAt": "2026-07-27T07:44:49.335Z",
       "source": "scan",
       "symbols": [
         {
@@ -4544,126 +4672,133 @@
       "hash": "5256d9b9535d2376",
       "size": 987,
       "mtimeMs": 1783908749009.4753,
-      "updatedAt": "2026-07-27T05:50:11.610Z",
+      "updatedAt": "2026-07-27T07:44:49.335Z",
       "source": "scan"
     },
     "shared/src/index.ts": {
       "description": "",
-      "tokens": 152,
-      "hash": "74ae7c39c074b5d7",
-      "size": 530,
-      "mtimeMs": 1784592990196.3564,
-      "updatedAt": "2026-07-27T05:50:11.611Z",
+      "tokens": 159,
+      "hash": "4a3836ebcc19de13",
+      "size": 555,
+      "mtimeMs": 1785136392556.801,
+      "updatedAt": "2026-07-27T07:44:49.335Z",
       "source": "scan"
     },
     "shared/src/mesher.test.ts": {
       "description": "Todos os vértices de topo, agrupados por canto (x,z) do mundo.",
-      "tokens": 3249,
-      "hash": "d0cd1293c98b4d38",
-      "size": 11468,
-      "mtimeMs": 1785119258602.598,
-      "updatedAt": "2026-07-27T05:50:11.611Z",
+      "tokens": 3880,
+      "hash": "102ddb5b576ee44b",
+      "size": 13730,
+      "mtimeMs": 1785137592632.8008,
+      "updatedAt": "2026-07-27T07:44:49.336Z",
       "source": "scan"
     },
     "shared/src/mesher.ts": {
       "description": "Culled mesher: função PURA (bytes do mundo → geometria). Só emite faces que",
-      "tokens": 11106,
-      "hash": "a3ccf37206c3618d",
-      "size": 39289,
-      "mtimeMs": 1785118404006.5996,
-      "updatedAt": "2026-07-27T05:50:11.612Z",
+      "tokens": 11932,
+      "hash": "7a749e45830cfd4b",
+      "size": 42278,
+      "mtimeMs": 1785137461708.8005,
+      "updatedAt": "2026-07-27T07:44:49.337Z",
       "source": "scan",
       "symbols": [
         {
           "name": "FaceTiles",
           "kind": "section",
-          "startLine": 137,
-          "endLine": 275,
-          "tokens": 1960
+          "startLine": 144,
+          "endLine": 289,
+          "tokens": 2044
         },
         {
           "name": "blockIconTile",
           "kind": "fn",
-          "startLine": 276,
-          "endLine": 284,
+          "startLine": 290,
+          "endLine": 298,
           "tokens": 136
         },
         {
           "name": "blockSelectionBox",
           "kind": "fn",
-          "startLine": 285,
-          "endLine": 321,
-          "tokens": 485
+          "startLine": 299,
+          "endLine": 335,
+          "tokens": 490
         },
         {
           "name": "FaceCorner",
           "kind": "section",
-          "startLine": 322,
-          "endLine": 326,
+          "startLine": 336,
+          "endLine": 340,
           "tokens": 34
         },
         {
           "name": "Face",
           "kind": "section",
-          "startLine": 327,
-          "endLine": 391,
+          "startLine": 341,
+          "endLine": 405,
           "tokens": 470
         },
         {
           "name": "UvAxis",
           "kind": "section",
-          "startLine": 392,
-          "endLine": 396,
+          "startLine": 406,
+          "endLine": 410,
           "tokens": 17
         },
         {
           "name": "uvAxisOf",
           "kind": "fn",
-          "startLine": 397,
-          "endLine": 421,
+          "startLine": 411,
+          "endLine": 435,
           "tokens": 316
         },
         {
           "name": "rotXZ",
           "kind": "fn",
-          "startLine": 422,
-          "endLine": 434,
-          "tokens": 90
+          "startLine": 436,
+          "endLine": 455,
+          "tokens": 199
+        },
+        {
+          "name": "swayDoBloco",
+          "kind": "fn",
+          "startLine": 456,
+          "endLine": 461,
+          "tokens": 44
         },
         {
           "name": "ChunkGeometry",
           "kind": "section",
-          "startLine": 435,
-          "endLine": 462,
-          "tokens": 422
+          "startLine": 462,
+          "endLine": 500,
+          "tokens": 590
         },
         {
           "name": "vizIndex",
           "kind": "fn",
-          "startLine": 463,
-          "endLine": 486,
-          "tokens": 272
+          "startLine": 501,
+          "endLine": 525,
+          "tokens": 280
         },
         {
           "name": "extrairVizinhanca",
           "kind": "fn",
-          "startLine": 487,
-          "endLine": 523,
+          "startLine": 526,
+          "endLine": 562,
           "tokens": 374
         },
         {
           "name": "meshChunk",
           "kind": "fn",
-          "startLine": 524,
-          "endLine": 530,
+          "startLine": 563,
+          "endLine": 569,
           "tokens": 101
         },
         {
           "name": "meshVizinhanca",
           "kind": "fn",
-          "startLine": 531,
-          "endLine": 935,
-          "tokens": 5343
+          "startLine": 570,
+          "endLine": 997,
+          "tokens": 5686
         }
       ]
     },
@@ -4673,7 +4808,7 @@
       "hash": "722a94e3f885648d",
       "size": 15748,
       "mtimeMs": 1785028387002.7332,
-      "updatedAt": "2026-07-27T05:50:11.612Z",
+      "updatedAt": "2026-07-27T07:44:49.338Z",
       "source": "scan",
       "symbols": [
         {
@@ -4698,7 +4833,7 @@
       "hash": "bd70bc9248b8a24c",
       "size": 18386,
       "mtimeMs": 1785028382058.7332,
-      "updatedAt": "2026-07-27T05:50:11.613Z",
+      "updatedAt": "2026-07-27T07:44:49.338Z",
       "source": "scan",
       "symbols": [
         {
@@ -4814,93 +4949,93 @@
       "hash": "dd1fcf9e6d85264f",
       "size": 12811,
       "mtimeMs": 1785113025311.7625,
-      "updatedAt": "2026-07-27T05:50:11.613Z",
+      "updatedAt": "2026-07-27T07:44:49.339Z",
       "source": "scan"
     },
     "shared/src/protocol.ts": {
       "description": "Protocolo v0 (checkpoint 2). Mensagens JSON dos dois lados + world_snapshot",
-      "tokens": 9062,
-      "hash": "7a60c7f9a45d82c0",
-      "size": 31963,
-      "mtimeMs": 1785112678631.7615,
-      "updatedAt": "2026-07-27T05:50:11.614Z",
+      "tokens": 9314,
+      "hash": "8d9133aeee097d4d",
+      "size": 32864,
+      "mtimeMs": 1785136407708.801,
+      "updatedAt": "2026-07-27T07:44:49.339Z",
       "source": "scan",
       "symbols": [
         {
           "name": "parseClientMessage",
           "kind": "fn",
-          "startLine": 318,
-          "endLine": 435,
+          "startLine": 331,
+          "endLine": 448,
           "tokens": 1138
         },
         {
           "name": "parseServerMessage",
           "kind": "fn",
-          "startLine": 436,
-          "endLine": 646,
-          "tokens": 2437
+          "startLine": 449,
+          "endLine": 667,
+          "tokens": 2538
         },
         {
           "name": "Snapshot",
           "kind": "section",
-          "startLine": 647,
-          "endLine": 651,
+          "startLine": 668,
+          "endLine": 672,
           "tokens": 18
         },
         {
           "name": "encodeSnapshot",
           "kind": "fn",
-          "startLine": 652,
-          "endLine": 671,
+          "startLine": 673,
+          "endLine": 692,
           "tokens": 201
         },
         {
           "name": "decodeSnapshot",
           "kind": "fn",
-          "startLine": 672,
-          "endLine": 731,
+          "startLine": 693,
+          "endLine": 752,
           "tokens": 763
         },
         {
           "name": "peekMagic",
           "kind": "fn",
-          "startLine": 732,
-          "endLine": 736,
+          "startLine": 753,
+          "endLine": 757,
           "tokens": 40
         },
         {
           "name": "encodeLazyInfo",
           "kind": "fn",
-          "startLine": 737,
-          "endLine": 749,
+          "startLine": 758,
+          "endLine": 770,
           "tokens": 134
         },
         {
           "name": "decodeLazyInfo",
           "kind": "fn",
-          "startLine": 750,
-          "endLine": 774,
+          "startLine": 771,
+          "endLine": 795,
           "tokens": 245
         },
         {
           "name": "ColunaRef",
           "kind": "section",
-          "startLine": 775,
-          "endLine": 782,
+          "startLine": 796,
+          "endLine": 803,
           "tokens": 80
         },
         {
           "name": "encodeColunas",
           "kind": "fn",
-          "startLine": 783,
-          "endLine": 807,
+          "startLine": 804,
+          "endLine": 828,
           "tokens": 276
         },
         {
           "name": "decodeColunas",
           "kind": "fn",
-          "startLine": 808,
-          "endLine": 841,
+          "startLine": 829,
+          "endLine": 862,
           "tokens": 340
         }
       ]
@@ -4911,7 +5046,7 @@
       "hash": "56b3386e00f831e0",
       "size": 5640,
       "mtimeMs": 1784504065673.7603,
-      "updatedAt": "2026-07-27T05:50:11.615Z",
+      "updatedAt": "2026-07-27T07:44:49.340Z",
       "source": "scan",
       "symbols": [
         {
@@ -4929,7 +5064,7 @@
       "hash": "b67b9f1e807b2514",
       "size": 1903,
       "mtimeMs": 1784503766657.7568,
-      "updatedAt": "2026-07-27T05:50:11.615Z",
+      "updatedAt": "2026-07-27T07:44:49.340Z",
       "source": "scan",
       "symbols": [
         {
@@ -4961,7 +5096,7 @@
       "hash": "a1d9d0fc1d08eb29",
       "size": 3710,
       "mtimeMs": 1784731907611.3936,
-      "updatedAt": "2026-07-27T05:50:11.615Z",
+      "updatedAt": "2026-07-27T07:44:49.341Z",
       "source": "scan",
       "symbols": [
         {
@@ -4979,7 +5114,7 @@
       "hash": "9c3d162090163628",
       "size": 5745,
       "mtimeMs": 1784737998035.3933,
-      "updatedAt": "2026-07-27T05:50:11.615Z",
+      "updatedAt": "2026-07-27T07:44:49.341Z",
       "source": "scan",
       "symbols": [
         {
@@ -5011,7 +5146,7 @@
       "hash": "242d36f406756874",
       "size": 12364,
       "mtimeMs": 1784296351544.3696,
-      "updatedAt": "2026-07-27T05:50:11.616Z",
+      "updatedAt": "2026-07-27T07:44:49.341Z",
       "source": "scan",
       "symbols": [
         {
@@ -5050,7 +5185,7 @@
       "hash": "6b81b99d9c62aa99",
       "size": 2669,
       "mtimeMs": 1783903813957.476,
-      "updatedAt": "2026-07-27T05:50:11.616Z",
+      "updatedAt": "2026-07-27T07:44:49.341Z",
       "source": "scan",
       "symbols": [
         {
@@ -5110,7 +5245,7 @@
       "hash": "b0bf534f83fda70c",
       "size": 2583,
       "mtimeMs": 1784496603029.764,
-      "updatedAt": "2026-07-27T05:50:11.616Z",
+      "updatedAt": "2026-07-27T07:44:49.342Z",
       "source": "scan"
     },
     "shared/src/rules.ts": {
@@ -5119,7 +5254,7 @@
       "hash": "4c10c77e4626554d",
       "size": 12161,
       "mtimeMs": 1784807316376.305,
-      "updatedAt": "2026-07-27T05:50:11.617Z",
+      "updatedAt": "2026-07-27T07:44:49.342Z",
       "source": "scan",
       "symbols": [
         {
@@ -5179,7 +5314,7 @@
       "hash": "05525b3e15050653",
       "size": 3624,
       "mtimeMs": 1784627896830.7642,
-      "updatedAt": "2026-07-27T05:50:11.617Z",
+      "updatedAt": "2026-07-27T07:44:49.342Z",
       "source": "scan",
       "symbols": [
         {
@@ -5197,16 +5332,16 @@
       "hash": "c42c0647f0aa07d8",
       "size": 5117,
       "mtimeMs": 1784211046370.2214,
-      "updatedAt": "2026-07-27T05:50:11.618Z",
+      "updatedAt": "2026-07-27T07:44:49.343Z",
       "source": "scan"
     },
     "shared/src/save.ts": {
       "description": "Formato de save (.ljw) — MESMO arquivo em todos os hospedeiros: disco do",
-      "tokens": 3798,
-      "hash": "5f373305332fd9fb",
-      "size": 13407,
-      "mtimeMs": 1784654486558.7646,
-      "updatedAt": "2026-07-27T05:50:11.618Z",
+      "tokens": 3884,
+      "hash": "5b22aa6ffdc550ee",
+      "size": 13724,
+      "mtimeMs": 1785136486884.8,
+      "updatedAt": "2026-07-27T07:44:49.343Z",
       "source": "scan",
       "symbols": [
         {
@@ -5220,57 +5355,57 @@
           "name": "SaveMeta",
           "kind": "section",
           "startLine": 59,
-          "endLine": 97,
-          "tokens": 527
+          "endLine": 100,
+          "tokens": 576
         },
         {
           "name": "SaveData",
           "kind": "section",
-          "startLine": 98,
-          "endLine": 104,
+          "startLine": 101,
+          "endLine": 107,
           "tokens": 80
         },
         {
           "name": "encodeSave",
           "kind": "fn",
-          "startLine": 105,
-          "endLine": 118,
+          "startLine": 108,
+          "endLine": 121,
           "tokens": 198
         },
         {
           "name": "encodeLazySave",
           "kind": "fn",
-          "startLine": 119,
-          "endLine": 144,
+          "startLine": 122,
+          "endLine": 147,
           "tokens": 255
         },
         {
           "name": "isFinitePos",
           "kind": "fn",
-          "startLine": 145,
-          "endLine": 153,
+          "startLine": 148,
+          "endLine": 156,
           "tokens": 104
         },
         {
           "name": "decodeSave",
           "kind": "fn",
-          "startLine": 154,
-          "endLine": 171,
+          "startLine": 157,
+          "endLine": 174,
           "tokens": 234
         },
         {
           "name": "decodeLazySave",
           "kind": "fn",
-          "startLine": 172,
-          "endLine": 210,
+          "startLine": 175,
+          "endLine": 213,
           "tokens": 453
         },
         {
           "name": "readSaveMeta",
           "kind": "fn",
-          "startLine": 211,
-          "endLine": 320,
-          "tokens": 1259
+          "startLine": 214,
+          "endLine": 325,
+          "tokens": 1295
         }
       ]
     },
@@ -5280,7 +5415,7 @@
       "hash": "ccfee5c9091cac23",
       "size": 14472,
       "mtimeMs": 1784222581962.2236,
-      "updatedAt": "2026-07-27T05:50:11.619Z",
+      "updatedAt": "2026-07-27T07:44:49.343Z",
       "source": "scan",
       "symbols": [
         {
@@ -5319,7 +5454,7 @@
       "hash": "bf2e80b898f1669a",
       "size": 13017,
       "mtimeMs": 1784299192544.3682,
-      "updatedAt": "2026-07-27T05:50:11.619Z",
+      "updatedAt": "2026-07-27T07:44:49.344Z",
       "source": "scan",
       "symbols": [
         {
@@ -5431,65 +5566,65 @@
     },
     "shared/src/session.test.ts": {
       "description": "Testes de MECÂNICA rodam com singleplayer: true (join sem PIN) — a",
-      "tokens": 13569,
-      "hash": "f89e6a64a0a9a5fd",
-      "size": 47752,
-      "mtimeMs": 1785113055887.7627,
-      "updatedAt": "2026-07-27T05:50:11.620Z",
+      "tokens": 14673,
+      "hash": "edeccf8e2882c3e3",
+      "size": 51661,
+      "mtimeMs": 1785136620180.798,
+      "updatedAt": "2026-07-27T07:44:49.345Z",
       "source": "scan",
       "symbols": [
         {
           "name": "collect",
           "kind": "fn",
           "startLine": 12,
-          "endLine": 1004,
-          "tokens": 13425
+          "endLine": 1083,
+          "tokens": 14529
         }
       ]
     },
     "shared/src/session.ts": {
       "description": "GameSession: o SERVIDOR autoritativo, independente de hospedeiro.",
-      "tokens": 39016,
-      "hash": "0403a7ce1772b937",
-      "size": 137973,
-      "mtimeMs": 1785112665019.7617,
-      "updatedAt": "2026-07-27T05:50:11.624Z",
+      "tokens": 39795,
+      "hash": "a278919fcf83083b",
+      "size": 140780,
+      "mtimeMs": 1785136472440.8003,
+      "updatedAt": "2026-07-27T07:44:49.348Z",
       "source": "scan",
       "symbols": [
         {
           "name": "SessionOptions",
           "kind": "section",
-          "startLine": 116,
-          "endLine": 148,
+          "startLine": 123,
+          "endLine": 155,
           "tokens": 442
         },
         {
           "name": "SessionPlayer",
           "kind": "section",
-          "startLine": 149,
-          "endLine": 159,
+          "startLine": 156,
+          "endLine": 166,
           "tokens": 58
         },
         {
           "name": "Identity",
           "kind": "section",
-          "startLine": 160,
-          "endLine": 172,
+          "startLine": 167,
+          "endLine": 179,
           "tokens": 110
         },
         {
           "name": "parseCoordArg",
           "kind": "fn",
-          "startLine": 173,
-          "endLine": 184,
+          "startLine": 180,
+          "endLine": 191,
           "tokens": 106
         },
         {
           "name": "GameSession",
           "kind": "class",
-          "startLine": 185,
-          "endLine": 3180,
-          "tokens": 37632
+          "startLine": 192,
+          "endLine": 3244,
+          "tokens": 38381
         }
       ]
     },
@@ -5499,7 +5634,7 @@
       "hash": "eb36be1328804bd8",
       "size": 16618,
       "mtimeMs": 1785084838063.7642,
-      "updatedAt": "2026-07-27T05:50:11.624Z",
+      "updatedAt": "2026-07-27T07:44:49.348Z",
       "source": "scan",
       "symbols": [
         {
@@ -5531,7 +5666,7 @@
       "hash": "bda58c4b9b1c5c9b",
       "size": 5288,
       "mtimeMs": 1784570408024.357,
-      "updatedAt": "2026-07-27T05:50:11.624Z",
+      "updatedAt": "2026-07-27T07:44:49.349Z",
       "source": "scan",
       "symbols": [
         {
@@ -5543,13 +5678,75 @@
         }
       ]
     },
+    "shared/src/vento.test.ts": {
+      "description": "§🌬️ (2026-07-27): o vento é a MESMA engrenagem do horaDoDia — função pura do",
+      "tokens": 1435,
+      "hash": "bba2890a0b1252ef",
+      "size": 5096,
+      "mtimeMs": 1785138101244.8,
+      "updatedAt": "2026-07-27T07:44:49.349Z",
+      "source": "scan"
+    },
+    "shared/src/vento.ts": {
+      "description": "Vento como ESTADO DO MUNDO (§🌬️, 2026-07-27) — server-autoritativo e SÓ",
+      "tokens": 1558,
+      "hash": "0cea3cde729a316a",
+      "size": 5568,
+      "mtimeMs": 1785138060420.8,
+      "updatedAt": "2026-07-27T07:44:49.349Z",
+      "source": "scan",
+      "symbols": [
+        {
+          "name": "Vento",
+          "kind": "section",
+          "startLine": 21,
+          "endLine": 38,
+          "tokens": 198
+        },
+        {
+          "name": "faseDaSeed",
+          "kind": "fn",
+          "startLine": 39,
+          "endLine": 49,
+          "tokens": 126
+        },
+        {
+          "name": "ventoNoTick",
+          "kind": "fn",
+          "startLine": 50,
+          "endLine": 71,
+          "tokens": 287
+        },
+        {
+          "name": "ventoRumo",
+          "kind": "fn",
+          "startLine": 72,
+          "endLine": 78,
+          "tokens": 87
+        },
+        {
+          "name": "ventoIntensidade",
+          "kind": "fn",
+          "startLine": 79,
+          "endLine": 115,
+          "tokens": 455
+        },
+        {
+          "name": "ondaAguaDoVento",
+          "kind": "fn",
+          "startLine": 116,
+          "endLine": 129,
+          "tokens": 104
+        }
+      ]
+    },
     "shared/src/version.ts": {
       "description": "Versão do jogo — FONTE ÚNICA = campo \"version\" do package.json da raiz (import JSON tree-shaken); bump via `npm version`.",
       "tokens": 135,
       "hash": "d56c16d4448cf3db",
       "size": 477,
       "mtimeMs": 1784590216096.3562,
-      "updatedAt": "2026-07-27T05:50:11.625Z",
+      "updatedAt": "2026-07-27T07:44:49.349Z",
       "source": "scan"
     },
     "shared/src/water.test.ts": {
@@ -5558,7 +5755,7 @@
       "hash": "bbeb0963b565385d",
       "size": 5931,
       "mtimeMs": 1784764307803.3923,
-      "updatedAt": "2026-07-27T05:50:11.625Z",
+      "updatedAt": "2026-07-27T07:44:49.349Z",
       "source": "scan",
       "symbols": [
         {
@@ -5583,7 +5780,7 @@
       "hash": "93ffe28bddf5ec41",
       "size": 3044,
       "mtimeMs": 1784653238530.7644,
-      "updatedAt": "2026-07-27T05:50:11.625Z",
+      "updatedAt": "2026-07-27T07:44:49.350Z",
       "source": "scan"
     },
     "shared/src/world.ts": {
@@ -5592,7 +5789,7 @@
       "hash": "372ffd276bfa245d",
       "size": 5331,
       "mtimeMs": 1785079871027.7644,
-      "updatedAt": "2026-07-27T05:50:11.625Z",
+      "updatedAt": "2026-07-27T07:44:49.350Z",
       "source": "scan",
       "symbols": [
         {
@@ -5694,16 +5891,16 @@
       "hash": "3bb9e862a1715f59",
       "size": 11547,
       "mtimeMs": 1785080080355.7646,
-      "updatedAt": "2026-07-27T05:50:11.626Z",
+      "updatedAt": "2026-07-27T07:44:49.353Z",
       "source": "scan"
     },
     "shared/src/worldgen.ts": {
       "description": "Preset de criação de mundo (cp14): escolhido no menu/host, só vale pra",
-      "tokens": 5053,
-      "hash": "bf2b0fe13e86727d",
-      "size": 17908,
-      "mtimeMs": 1785080040827.7642,
-      "updatedAt": "2026-07-27T05:50:11.626Z",
+      "tokens": 5252,
+      "hash": "8a8978fa871b156c",
+      "size": 18615,
+      "mtimeMs": 1785137486192.8008,
+      "updatedAt": "2026-07-27T07:44:49.354Z",
       "source": "scan",
       "symbols": [
         {
@@ -5808,35 +6005,35 @@
           "name": "gerarColunaDeChunks",
           "kind": "fn",
           "startLine": 252,
-          "endLine": 348,
-          "tokens": 1211
+          "endLine": 361,
+          "tokens": 1410
         },
         {
           "name": "generateWorld",
           "kind": "fn",
-          "startLine": 349,
-          "endLine": 366,
+          "startLine": 362,
+          "endLine": 379,
           "tokens": 164
         },
         {
           "name": "generateFlatWorld",
           "kind": "fn",
-          "startLine": 367,
-          "endLine": 392,
+          "startLine": 380,
+          "endLine": 405,
           "tokens": 317
         },
         {
           "name": "generateCabinsWorld",
           "kind": "fn",
-          "startLine": 393,
-          "endLine": 414,
+          "startLine": 406,
+          "endLine": 427,
           "tokens": 275
         },
         {
           "name": "generateWorldForPreset",
           "kind": "fn",
-          "startLine": 415,
-          "endLine": 425,
+          "startLine": 428,
+          "endLine": 438,
           "tokens": 93
         }
       ]
@@ -5847,7 +6044,7 @@
       "hash": "0baa7dd48e8a2672",
       "size": 63,
       "mtimeMs": 1783780454116.0908,
-      "updatedAt": "2026-07-27T05:50:11.627Z",
+      "updatedAt": "2026-07-27T07:44:49.354Z",
       "source": "scan"
     },
     "todo.md": {
@@ -5856,7 +6053,7 @@
       "hash": "0d8759f635ff2523",
       "size": 28773,
       "mtimeMs": 1784956266582.7344,
-      "updatedAt": "2026-07-27T05:50:11.628Z",
+      "updatedAt": "2026-07-27T07:44:49.355Z",
       "source": "scan"
     },
     "tsconfig.base.json": {
@@ -5865,7 +6062,7 @@
       "hash": "d0e4e177b21f3848",
       "size": 452,
       "mtimeMs": 1784590204344.3562,
-      "updatedAt": "2026-07-27T05:50:11.628Z",
+      "updatedAt": "2026-07-27T07:44:49.355Z",
       "source": "scan"
     }
   }

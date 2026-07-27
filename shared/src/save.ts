@@ -90,6 +90,9 @@ export interface SaveMeta {
    *  corrente pra continuar de onde parou. */
   hora?: number;
   ciclo?: boolean;
+  /** Vento (§🌬️, 2026-07-27). Ausente = LIGADO (padrão do mundo novo) — só o
+   *  desligado é gravado, então save antigo continua com cenário vivo. */
+  vento?: boolean;
   /** Dimensões do mundo em chunks — GRAVADO só no save esparso (lazy), onde
    *  não há snapshot binário pra carregar as dims. Denso as tira do LJW0. */
   dims?: WorldDims;
@@ -314,6 +317,8 @@ function readSaveMeta(
     // cp21: hora/ciclo ausentes ou inválidos = padrão do mundo novo (na sessão)
     ...(typeof m["hora"] === "number" && Number.isFinite(m["hora"]) ? { hora: m["hora"] } : {}),
     ...(typeof m["ciclo"] === "boolean" ? { ciclo: m["ciclo"] } : {}),
+    // §🌬️: ausente = ligado; só o `false` viaja (ver SaveMeta.vento)
+    ...(m["vento"] === false ? { vento: false } : {}),
   };
   return { jsonLen, m, meta };
 }

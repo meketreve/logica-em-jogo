@@ -69,6 +69,13 @@ import {
   claimDentroDoLimite,
 } from "./claims";
 import { ruleFor } from "./rules";
+import {
+  VENTO_PARADO,
+  type Vento,
+  ventoIntensidade,
+  ventoNoTick,
+  ventoRumo,
+} from "./vento";
 import { type SaveData, type SaveMeta } from "./save";
 import { MAX_GRUPOS } from "./groups";
 import {
@@ -201,6 +208,10 @@ export class GameSession {
    *  flag decide se os alunos também podem (professor alterna com /voo).
    *  Transitório — NÃO persiste no save (nasce desligado a cada sessão). */
   private vooLiberado = false;
+  /** O vento sopra? (§🌬️) SÓ visual — água/nuvens/folhas seguem, física não.
+   *  Nasce LIGADO (é ambiência, não regra de atividade); o professor desliga
+   *  com /vento quando quer o cenário parado. Persiste no save. */
+  private ventoAtivo = true;
 
   private readonly players = new Map<number, SessionPlayer>();
   /** Última POSIÇÃO conhecida por nome: volta onde parou, olhando pra onde
@@ -393,6 +404,8 @@ export class GameSession {
         this.horaDoDia = ((opts.restore.hora % 24) + 24) % 24;
       }
       if (typeof opts.restore.ciclo === "boolean") this.cicloAtivo = opts.restore.ciclo;
+      // §🌬️: vento ausente em save antigo = padrão do mundo novo (ligado)
+      if (typeof opts.restore.vento === "boolean") this.ventoAtivo = opts.restore.vento;
     } else {
       this.seed = opts.seed ?? 1;
       const preset = opts.preset ?? (opts.flat ? "plano" : "normal");
@@ -499,6 +512,8 @@ export class GameSession {
       // sobrevivência guarda a hora corrente pra continuar de onde parou)
       hora: +this.horaDoDia.toFixed(3),
       ciclo: this.cicloAtivo,
+      // §🌬️: só grava DESLIGADO — ausente no save = ligado (padrão do mundo novo)
+      ...(this.ventoAtivo ? {} : { vento: false }),
     };
   }
 
@@ -961,6 +976,11 @@ export class GameSession {
         if (!professor) return "Somente o professor pode liberar o voo. Você pode voar quando o professor liberar.";
         return this.runVoo(parts);
       }
+      case "vento": {
+        // consultar (`/vento` sem argumento) ALTERNA, então é do professor inteiro
+        if (!professor) return "Somente o professor pode controlar o vento.";
+        return this.runVento(parts);
+      }
       case "claim":
         return this.runClaim(clientId, parts);
       case "amigos":
@@ -970,7 +990,7 @@ export class GameSession {
         return this.runConfinar(parts);
       }
       default:
-        return `Comando desconhecido: ${text}. Os comandos disponíveis são /bloco, /resetpin, /regiao, /objetivo, /grupo, /tp, /tpr, /tpa, /iniciar, /hora, /ciclo, /voo, /claim, /amigos e /confinar.`;
+        return `Comando desconhecido: ${text}. Os comandos disponíveis são /bloco, /resetpin, /regiao, /objetivo, /grupo, /tp, /tpr, /tpa, /iniciar, /hora, /ciclo, /vento, /voo, /claim, /amigos e /confinar.`;
     }
   }
 
@@ -1045,6 +1065,46 @@ export class GameSession {
 
   private broadcastTime(): void {
     this.broadcast({ type: "time", hora: +this.horaDoDia.toFixed(3), ciclo: this.cicloAtivo });
+  }
+
+  /** `/vento` (§🌬️): liga/desliga o vento. Sem argumento, alterna (molde do
+   *  /ciclo). NÃO há ajuste manual de direção/força — o vento é procedural
+   *  (decisão do usuário, 2026-07-27): o professor só escolhe entre cenário
+   *  vivo e cenário parado. */
+  private runVento(parts: string[]): string {
+    const arg = parts[1]?.toLowerCase();
+    if (arg === "ligar" || arg === "on") this.ventoAtivo = true;
+    else if (arg === "desligar" || arg === "off") this.ventoAtivo = false;
+    else if (arg === undefined) this.ventoAtivo = !this.ventoAtivo;
+    else return "Uso: /vento ligar ou /vento desligar (sem argumento, alterna).";
+    this.broadcastVento();
+    if (!this.ventoAtivo) return "Vento desligado — água, nuvens e folhas param.";
+    const v = this.ventoAgora();
+    return `Vento ligado: ${ventoIntensidade(v.forca)} soprando para ${ventoRumo(v.dir)}.`;
+  }
+
+  /** Vento AGORA: função pura do tick + seed quando ligado, calmaria quando não.
+   *  Fonte única — o comando, o join e o broadcast leem daqui. */
+  private ventoAgora(): Vento {
+    return this.ventoAtivo ? ventoNoTick(this.tickCount, this.seed) : VENTO_PARADO;
+  }
+
+  private ventoMsg(): ServerMessage {
+    const v = this.ventoAgora();
+    return {
+      type: "vento",
+      dir: +v.dir.toFixed(3),
+      forca: +v.forca.toFixed(3),
+      ativo: this.ventoAtivo,
+    };
+  }
+
+  private sendVento(clientId: number): void {
+    this.send(clientId, JSON.stringify(this.ventoMsg()));
+  }
+
+  private broadcastVento(): void {
+    this.broadcast(this.ventoMsg());
   }
 
   /** `/voo`: libera/tranca o voo criativo pra TURMA. Sem argumento, alterna.
@@ -1376,6 +1436,7 @@ export class GameSession {
       this.send(clientId, encodeSnapshot(this.world, this.seed));
     }
     this.sendTime(clientId); // céu certo desde o primeiro frame (cp21)
+    this.sendVento(clientId); // §🌬️ idem vento: água já entra andando pro lado certo
     // Na migração o teleporte é OBRIGATÓRIO mesmo sem roster: o jogador está
     // parado nas coordenadas do mundo ANTIGO, que no mundo novo podem ser
     // dentro da pedra ou no vazio.
@@ -3056,6 +3117,9 @@ export class GameSession {
       });
       // hora nova 1×/s: o cliente interpola o céu localmente entre estas (cp21)
       this.broadcastTime();
+      // §🌬️ vento 1×/s, na mesma cadência: o giro é lento (1,2°/s) e o cliente
+      // suaviza entre as sincronizações — nunca anda aos trancos
+      if (this.ventoAtivo) this.broadcastVento();
       // F5: libera 1×/s as colunas que ninguém quer (mundo lazy só) — segura a
       // RAM do host numa sessão longa de exploração
       if (this.lazy) this.evictColunas();

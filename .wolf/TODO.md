@@ -2,20 +2,20 @@
 
 > Working checklist. **STATUS.md** = handoff ("why & where we are"); **TODO.md** = "what's left to do".
 > Keep items actionable and short. Check off with `[x]`; sweep done items into STATUS.md ✅ when a phase closes.
-> Last updated: 2026-07-27 (sessão 27 fechada, commitada e pushada — desempenho encerrado)
+> Last updated: 2026-07-27 (sessão 28 — §🌬️ vento entregue inteiro, commitado sem push)
 
 ---
 
 ## 🔥 Now (this session)
 
-- (nada em andamento — **o ciclo de desempenho fechou** e foi varrido pro STATUS ✅.
-  Nenhum gatilho aceso: o próximo passo é o usuário ESCOLHER do backlog abaixo.)
+- [ ] **Medir o preço do §🌬️ no notebook do lab**: `?bench` com nuvens+balanço ON, comparar
+      com a régua `…-l9xf.json` (50 FPS · p95 26,7 · GPU méd 13,0 / p95 16,8 · carga 4 508 ms).
+      Se piorar acima do ruído de 1–2%, gravar o par com `nuvens` OFF em Configurações.
+- [ ] **Playtest do §🌬️ olhando** (headless não serve — SwiftShader a 16 FPS, câmera do bench
+      voa alto): correnteza da água mudando de rumo · capim vergando · nuvens passando.
 
 ## ⏭️ Next (queued, ready to pick up)
 
-- [ ] **§🌬️ vento + vida ambiental** (`ROADMAP.md`, pedido do usuário 2026-07-26): textura da
-      água → vento autoritativo (molde do `horaDoDia`) → animação da água seguindo o vento →
-      nuvens → folhas balançando → grama e flores. Nada codado. **É o maior item aberto.**
 - [ ] Som de água (splash/borbulha/balde, WebAudio em `audio.ts`) — 4ª opção do refino de
       água, nunca escolhida.
 - [ ] **Cauda de GPU no lab — SÓ SE VOLTAR A INCOMODAR** (nenhum gatilho aceso hoje): GPU p95
@@ -54,3 +54,7 @@
 - (limpo em 2026-07-27 — a sessão 27 inteira foi pro STATUS ✅ e pro git:
   `51bc5c8` mesher em Worker · `b3669ff` wolf · `0a3dd3f` PR do openwolf ·
   `efaf6df` profundidade 1 + etiqueta `mesher` no perfil)
+- [x] **§🌬️ vento + vida ambiental — 6 frentes (sessão 28)**: textura da água polida ·
+      vento autoritativo (`shared/src/vento.ts`, função pura do tick) · água seguindo o
+      vento · nuvens · folhas balançando (atributo `sway` + `onBeforeCompile`) · grama alta
+      (`GramaAlta/Seca/Fria` 179-181) + flores balançando. Config `nuvens`/`balanco` no menu.

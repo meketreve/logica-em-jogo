@@ -259,11 +259,58 @@ describe("vizinhança padded (o que atravessa pro Web Worker)", () => {
             difere(viaWorker.positions, direto.positions, onde + "positions") ??
             difere(viaWorker.normals, direto.normals, onde + "normals") ??
             difere(viaWorker.uvs, direto.uvs, onde + "uvs") ??
+            difere(viaWorker.sway, direto.sway, onde + "sway") ??
             difere(viaWorker.indices, direto.indices, onde + "indices") ??
             (viaWorker.opaqueIndexCount !== direto.opaqueIndexCount ? onde + "opaqueIndexCount" : null) ??
             (viaWorker.aguaIndexCount !== direto.aguaIndexCount ? onde + "aguaIndexCount" : null);
         }
     expect(erro).toBeNull();
+  });
+
+  it("§🌬️ sway: 1 valor por VÉRTICE, e pedra não balança", () => {
+    const w = createWorld(DIMS);
+    setBlock(w, 4, 4, 4, BlockId.Stone);
+    const g = meshChunk(w, 0, 0, 0);
+    // desalinhar sway de positions é o jeito mais fácil de fazer a folha errada
+    // balançar — este é o teste que segura isso
+    expect(g.sway.length).toBe(g.positions.length / 3);
+    expect([...g.sway].every((v) => v === 0)).toBe(true);
+  });
+
+  it("§🌬️ sway: folha balança pouco, capim verga só no TOPO", () => {
+    const w = createWorld(DIMS);
+    setBlock(w, 4, 4, 4, BlockId.Leaves);
+    const folha = meshChunk(w, 0, 0, 0);
+    const valoresFolha = new Set(folha.sway);
+    expect(valoresFolha.size).toBe(1); // cubo inteiro no MESMO valor
+    const swayFolha = [...valoresFolha][0]!;
+    expect(swayFolha).toBeGreaterThan(0);
+
+    // capim: cruz com o pé em 0 e o topo no máximo — é isso que faz vergar em
+    // vez de deslizar. Precisa de apoio, então põe grama embaixo.
+    const w2 = createWorld(DIMS);
+    setBlock(w2, 4, 3, 4, BlockId.Grass);
+    setBlock(w2, 4, 4, 4, BlockId.GramaAlta);
+    const capim = meshChunk(w2, 0, 0, 0);
+    const doCapim = new Set<number>();
+    for (let i = 0; i < capim.positions.length / 3; i++) {
+      // só os vértices da cruz (y > 4 é topo da célula, y === 4 é o pé)
+      if (capim.sway[i]! > 0 || capim.positions[i * 3 + 1] === 4) doCapim.add(capim.sway[i]!);
+    }
+    expect(doCapim.has(0)).toBe(true); // pé preso no chão
+    expect(doCapim.has(255)).toBe(true); // topo com balanço cheio
+    expect(swayFolha).toBeLessThan(255); // folha balança MENOS que planta rasteira
+  });
+
+  it("§🌬️ grama alta: cruz de 2 lâminas, atravessável e substituível", () => {
+    const w = createWorld(DIMS);
+    setBlock(w, 4, 3, 4, BlockId.Grass);
+    setBlock(w, 4, 4, 4, BlockId.GramaAlta);
+    const g = meshChunk(w, 0, 0, 0);
+    // 2 lâminas × 2 lados × 4 vértices = 16 vértices da cruz (+ o cubo de grama)
+    const daCruz = [...g.sway].filter((v) => v > 0).length;
+    expect(daCruz).toBe(8); // só os topos das 4 faces (2 lâminas × frente/verso)
+    expect(isPlaceable(BlockId.GramaAlta)).toBe(true);
   });
 
   it("chunk 100% ar (e chunk ausente) devolve null — fast path preservado", () => {

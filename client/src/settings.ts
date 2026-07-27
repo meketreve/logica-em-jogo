@@ -32,6 +32,14 @@ export interface GameSettings {
   /** Escala da UI de toque (2026-07-21): joystick e botões maiores/menores
    *  conforme o tamanho da tela do celular/tablet. 1 = padrão. Só afeta o toque. */
   uiScale: number;
+  /** Nuvens no céu (§🌬️, 2026-07-27). Config de DESEMPENHO, não de gosto: é um
+   *  plano transparente grande, e o custo dele é fill rate — justo o que já
+   *  está no teto no notebook do laboratório. Desligar devolve esse fill. */
+  nuvens: boolean;
+  /** Balanço de folhas, grama e flores no vento (§🌬️). Também desempenho: mexe
+   *  no vertex shader do material do terreno (o custo é por VÉRTICE, não por
+   *  pixel — bem mais barato que as nuvens, mas dá pra desligar junto). */
+  balanco: boolean;
   keys: Record<KeyAction, string>;
 }
 
@@ -43,6 +51,8 @@ export const DEFAULT_SETTINGS: GameSettings = {
   raioRender: 6,
   meshMsPorFrame: 6,
   uiScale: 1,
+  nuvens: true,
+  balanco: true,
   keys: {
     forward: "KeyW",
     back: "KeyS",
@@ -80,6 +90,10 @@ function num(v: unknown, def: number, min: number, max: number): number {
   return typeof v === "number" && Number.isFinite(v) ? Math.min(max, Math.max(min, v)) : def;
 }
 
+function bool(v: unknown, def: boolean): boolean {
+  return typeof v === "boolean" ? v : def;
+}
+
 export function loadSettings(): GameSettings {
   let raw: unknown = null;
   try {
@@ -104,6 +118,8 @@ export function loadSettings(): GameSettings {
     raioRender: num(s["raioRender"], DEFAULT_SETTINGS.raioRender, 2, 12),
     meshMsPorFrame: num(s["meshMsPorFrame"], DEFAULT_SETTINGS.meshMsPorFrame, 1, 16),
     uiScale: num(s["uiScale"], DEFAULT_SETTINGS.uiScale, 0.6, 1.8),
+    nuvens: bool(s["nuvens"], DEFAULT_SETTINGS.nuvens),
+    balanco: bool(s["balanco"], DEFAULT_SETTINGS.balanco),
     keys,
   };
 }

@@ -31,6 +31,10 @@ export interface Bioma {
   readonly arvores: readonly (readonly [ArvoreTipo, number])[];
   /** Chance de flor por coluna (0 = sem flor). */
   readonly flores: number;
+  /** Chance de GRAMA ALTA por coluna (§🌬️ 2026-07-27; 0 = campo pelado).
+   *  Bem maior que a de flor: capim é o preenchimento do campo, flor é o
+   *  detalhe. A variante (verde/seca/fria) sai do clima, como a grama do chão. */
+  readonly gramaAlta: number;
   /** Chance de mandacaru por coluna (só caatinga). */
   readonly mandacaru: number;
 }
@@ -43,6 +47,7 @@ export const BIOMAS = {
     profundidadeSubsolo: 3,
     arvores: [],
     flores: 0,
+    gramaAlta: 0, // caatinga é areia: nem grama nem capim
     // 1/16 (2026-07-26): com 1/96 o mundo M inteiro tinha ~2 cactos — caatinga
     // sem cacto nenhum. A densidade só vale nas colunas SECAS (h > NIVEL_MAR).
     mandacaru: 1 / 16,
@@ -54,6 +59,7 @@ export const BIOMAS = {
     profundidadeSubsolo: 3,
     arvores: [["ipe", 1 / 160]],
     flores: 1 / 64,
+    gramaAlta: 1 / 6, // cerrado é campo aberto: capim é a cara dele
     mandacaru: 0,
   },
   mata: {
@@ -66,6 +72,7 @@ export const BIOMAS = {
       ["paubrasil", 1 / 80],
     ],
     flores: 1 / 48,
+    gramaAlta: 1 / 10, // mata: o chão é mais sombreado, capim mais ralo
     mandacaru: 0,
   },
   araucarias: {
@@ -75,6 +82,7 @@ export const BIOMAS = {
     profundidadeSubsolo: 3,
     arvores: [["araucaria", 1 / 48]],
     flores: 1 / 128,
+    gramaAlta: 1 / 12,
     mandacaru: 0,
   },
 } as const satisfies Record<string, Bioma>;

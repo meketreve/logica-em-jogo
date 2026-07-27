@@ -392,27 +392,97 @@ function paintFlor(
   ctx.fillRect(cx - 1, oy + 4, 2, 2);
 }
 
-/** Água (2026-07-22): azul CHEIO, sem furos — a translucidez agora vem do
- *  material próprio da água (transparente/blend no cliente, `opacity`), não de
- *  furos xadrez. O tile é só a cor + uma ondulação sutil (ripple diagonal) pra
- *  não ficar chapado; a transparência de verdade é aplicada no material. */
-function paintAgua(ctx: CanvasRenderingContext2D, tile: number, fase = 0): void {
+/** Grama alta (§🌬️, 2026-07-27): tufo de lâminas subindo do PÉ do tile, fundo
+ *  transparente (cutout, mesma família da flor). As lâminas nascem embaixo e
+ *  afinam pra cima com uma curvatura leve — é o desenho que combina com o
+ *  balanço do shader, que verga só o topo. Paleta por clima (verde/seca/fria)
+ *  pra o capim não destoar da grama do chão. */
+function paintGramaAlta(ctx: CanvasRenderingContext2D, tile: number, base: Rgb): void {
   const [ox, oy] = tileOrigin(tile);
   const px = ATLAS.tilePx;
-  for (let y = 0; y < px; y++) {
-    for (let x = 0; x < px; x++) {
-      // ruído leve (FIXO, não pisca) + onda diagonal que ANDA com a fase =
-      // correnteza. O ruído usa hash da posição, então só o ripple se move.
-      const ripple = Math.sin((x + y) * 0.9 + fase) * 6;
-      const v = (pixelHash(x, y, tile * 7919 + 1) - 0.5) * 2 * 8 + ripple;
-      const r = Math.round(46 + v);
-      const g = Math.round(108 + v);
-      const b = Math.round(182 + v);
-      ctx.fillStyle = `rgb(${r},${g},${b})`;
+  ctx.clearRect(ox, oy, px, px);
+  const LAMINAS = 7;
+  for (let i = 0; i < LAMINAS; i++) {
+    const x0 = 1 + Math.floor(pixelHash(i, 0, tile * 17 + 3) * (px - 2));
+    const alt = 7 + Math.floor(pixelHash(i, 1, tile * 17 + 5) * 7); // 7..13 px
+    const lado = pixelHash(i, 2, tile * 17 + 7) < 0.5 ? -1 : 1;
+    // tom por lâmina: dá profundidade ao tufo sem precisar de sombra
+    const t = 0.72 + pixelHash(i, 3, tile * 17 + 9) * 0.5;
+    ctx.fillStyle = `rgb(${Math.round(base[0] * t)},${Math.round(base[1] * t)},${Math.round(base[2] * t)})`;
+    for (let k = 0; k < alt; k++) {
+      const y = px - 1 - k;
+      const f = k / alt;
+      const x = x0 + Math.round(f * f * 3) * lado; // curva: reta no pé, tomba no topo
+      if (x < 0 || x >= px) continue;
+      ctx.fillRect(ox + x, oy + y, 1, 1);
+      // o pé é mais grosso (2px) — sem isso o tufo some de longe
+      if (f < 0.45 && x + 1 < px) ctx.fillRect(ox + x + 1, oy + y, 1, 1);
+    }
+  }
+}
+
+/** Água (2026-07-22; repintada em 2026-07-27 no §🌬️): azul CHEIO, sem furos — a
+ *  translucidez vem do material próprio da água (blend), não de furos xadrez.
+ *
+ *  A onda agora é a soma de DUAS senoides cruzadas, e o vetor de onda `[kx,ky]`
+ *  vem do VENTO (o tile inteiro é repintado a cada quadro, então a direção é de
+ *  graça). Duas exigências desenharam esta função:
+ *  - **kx/ky INTEIROS**: o período de cada seno divide os 16px do tile, então o
+ *    padrão fecha na borda e a lâmina d'água não mostra costura de bloco pra
+ *    bloco. Era o defeito do `sin((x+y)*0.9)` antigo (0,9 não fecha em 16).
+ *  - **duas ondas, não uma**: uma senoide só lê como "listra andando". A segunda,
+ *    perpendicular, com o dobro da frequência e mais lenta, quebra a listra.
+ *  A crista ganha um brilho claro (especular fake) — é o que faz a superfície
+ *  parecer molhada em vez de um azul liso. */
+function paintAgua(
+  ctx: CanvasRenderingContext2D,
+  tile: number,
+  fase = 0,
+  onda: OndaAgua = ONDA_PADRAO,
+): void {
+  const [ox, oy] = tileOrigin(tile);
+  const lado = ATLAS.tilePx;
+  const w = (Math.PI * 2) / lado; // 1 ciclo por `lado` px → k inteiro fecha o tile
+  const m = onda.mistura;
+
+  /** Onda combinada (primária + cruzada) pro vetor `k`. Devolve [altura, crista]. */
+  const ondular = (k: readonly [number, number], x: number, y: number): [number, number] => {
+    // primária ANDA no sentido do vento (fase negativa) …
+    const a = Math.sin((k[0] * x + k[1] * y) * w - fase);
+    // … secundária cruza a 90°, dobro da frequência e mais devagar
+    const b = Math.sin((-k[1] * x + k[0] * y) * w * 2 - fase * 0.55);
+    // crista das duas: o corte duplo deixa o brilho em manchas curtas (parece
+    // luz batendo), não numa faixa contínua
+    return [a * 6 + b * 3, a > 0.82 && b > 0.1 ? 1 : 0];
+  };
+
+  for (let y = 0; y < lado; y++) {
+    for (let x = 0; x < lado; x++) {
+      const [ha, ca] = ondular(onda.a, x, y);
+      const [hb, cb] = ondular(onda.b, x, y);
+      const ripple = ha + (hb - ha) * m;
+      const crista = ca + (cb - ca) * m;
+      // ruído FIXO por pixel (hash da posição): não pisca, só o ripple se move
+      const ruido = (pixelHash(x, y, tile * 7919 + 1) - 0.5) * 2 * 6;
+      const r = 46 + ripple + ruido + crista * 52;
+      const g = 108 + ripple + ruido + crista * 44;
+      const bl = 182 + ripple * 0.6 + ruido + crista * 28;
+      ctx.fillStyle = `rgb(${Math.round(r)},${Math.round(g)},${Math.round(bl)})`;
       ctx.fillRect(ox + x, oy + y, 1, 1);
     }
   }
 }
+
+/** Vetor de onda da água: dois setores inteiros + a mistura entre eles (ver
+ *  `VentoCliente.ondaAgua`, que explica por que é um PAR e não um vetor só). */
+export interface OndaAgua {
+  readonly a: readonly [number, number];
+  readonly b: readonly [number, number];
+  readonly mistura: number;
+}
+
+/** Onda de quando ainda não chegou vento do servidor (correnteza pra leste). */
+const ONDA_PADRAO: OndaAgua = { a: [-3, 0], b: [-3, 0], mistura: 0 };
 
 /** Quantos quadros tem o ciclo da correnteza (fase 0..2π). Loop perfeito. */
 export const AGUA_FRAMES = 16;
@@ -420,12 +490,15 @@ export const AGUA_FRAMES = 16;
 /** Repinta SÓ o tile da água no canvas do atlas e reenvia a textura à GPU.
  *  Custo: 16×16 pixels + 1 upload do atlas (256², ~µs) — chamado a ~8 fps pelo
  *  render loop, não por frame. Não mexe em UV, geometria nem material: a
- *  correnteza é a mesma textura mudando de conteúdo. */
-export function animarAguaAtlas(texture: THREE.Texture, frame: number): void {
+ *  correnteza é a mesma textura mudando de conteúdo.
+ *
+ *  `onda` (§🌬️ 2026-07-27) é o vetor de onda no canvas, vindo do vento —
+ *  `VentoCliente.ondaAgua` já resolve o setor E a inversão de eixo do topo. */
+export function animarAguaAtlas(texture: THREE.Texture, frame: number, onda?: OndaAgua): void {
   const canvas = texture.image as HTMLCanvasElement;
   const ctx = canvas.getContext("2d");
   if (!ctx) return;
-  paintAgua(ctx, TILE.agua, (frame % AGUA_FRAMES) * ((Math.PI * 2) / AGUA_FRAMES));
+  paintAgua(ctx, TILE.agua, (frame % AGUA_FRAMES) * ((Math.PI * 2) / AGUA_FRAMES), onda);
   texture.needsUpdate = true;
 }
 
@@ -533,6 +606,11 @@ export function createAtlasTexture(): THREE.Texture {
 
   // água (2026-07-21): translúcida por furos (cutout)
   paintAgua(ctx, TILE.agua);
+
+  // grama alta (§🌬️ 2026-07-27): 3 climas, mesma paleta das gramas do chão
+  paintGramaAlta(ctx, TILE.gramaAlta, [92, 158, 60]);
+  paintGramaAlta(ctx, TILE.gramaAltaSeca, [178, 162, 66]);
+  paintGramaAlta(ctx, TILE.gramaAltaFria, [96, 138, 116]);
 
   // vidro colorido (2026-07-25): mesma paleta das lãs, na ordem VidroBranco..Marrom
   const CORES_VIDRO: readonly Rgb[] = [
