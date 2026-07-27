@@ -363,6 +363,28 @@ o passo é gerar PDF/HTML de `relatorio/relatorio-aplicacao.md`.
 
 ---
 
+## 🌐 Rede: WSL invisível na LAN (em curso 2026-07-27)
+
+O host roda no WSL2 → IP próprio (`172.28.17.24`) atrás de NAT. Windows entra por
+`localhost` (encaminhamento só vale pra conexão originada no Windows), **outro PC da rede
+não** — bate em `192.168.3.100:8080` e não há ninguém escutando.
+
+**Aplicado:** `C:\Users\Meketreve\.wslconfig` criado com `networkingMode=mirrored` +
+`hostAddressLoopback=true` (WSL 2.6.3, Windows 11 24H2 — suporta). Falta o usuário rodar
+`wsl --shutdown` e, em PowerShell ADMIN, as duas regras de firewall: `New-NetFirewallRule`
+(porta 8080, perfis Private/Domain — trocar por `Any` se a escola for rede Pública) e
+`New-NetFirewallHyperVRule` (VMCreatorId `{40E0AC32-46A5-438A-A0B2-2B479E8F2E90}`) — no modo
+espelhado o tráfego passa pelos DOIS firewalls.
+
+**Como conferir que pegou:** `hostname -I` dentro do WSL mostra `192.168.3.100` em vez de
+`172.28.x.x`. Aí o outro PC abre `http://192.168.3.100:8080`.
+**Desfazer:** apagar o `.wslconfig` + `wsl --shutdown`.
+**Plano B** (sem mexer em config, mas o IP do WSL muda a cada boot): `netsh interface
+portproxy add v4tov4 listenport=8080 listenaddress=0.0.0.0 connectport=8080
+connectaddress=<IP do WSL>`.
+**Saída definitiva:** host nativo no Windows (o .exe portátil do professor já está no plano) —
+sem camada de WSL no meio.
+
 ## ⚠️ Pendências externas (não bloqueia coding)
 
 - Testar cedo num PC REAL do lab (usuário tem admin em todas as máquinas/escolas).
