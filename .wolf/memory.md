@@ -631,3 +631,9 @@ Nenhum gatilho aceso; próxima sessão escolhe do backlog (som de água/vento é
 | 09:55 | Session end: 23 writes across 9 files (relatorio-aplicacao.md, bench.ts, main.ts, perfis.ts, hud.ts) | 17 reads | ~60223 tok |
 | 10:15 | Created README.md | — | ~1840 |
 | 10:16 | Edited .gitignore | 4→8 lines | ~110 |
+| 11:20 | README público + 5 commits + push (repo já estava PUBLIC) | README.md, git | 26b7650 bench · fbbe3d0 launcher · f23d5a9 docs · e49aa15 privacidade · edec801 wolf | ~10k |
+| 10:20 | Session end: 25 writes across 11 files (relatorio-aplicacao.md, bench.ts, main.ts, perfis.ts, hud.ts) | 18 reads | ~62535 tok |
+| 10:31 | Created LICENSE | — | ~1070 |
+| 10:31 | Edited README.md | expanded (+13 lines) | ~351 |
+| 11:35 | LICENSE source-available (uso livre em escola · modificar/distribuir passa pelo autor · cenário do professor é dele) + resumo no README | LICENSE, README.md | f6d72af pushado | ~6k |
+| 11:45 | Decisões da sessão no cerebrum: repo público + licença source-available; histórico com apelidos fica (decisão do usuário, não reabrir) | .wolf/cerebrum.md, STATUS.md, TODO.md | Decision Log + handoff atualizados | ~4k |

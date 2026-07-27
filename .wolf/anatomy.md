@@ -1,7 +1,7 @@
 # anatomy.md
 
-> Auto-maintained by OpenWolf. Last scanned: 2026-07-27T13:16:31.253Z
-> Files: 236 tracked | Anatomy hits: 0 | Misses: 0
+> Auto-maintained by OpenWolf. Last scanned: 2026-07-27T13:31:42.425Z
+> Files: 237 tracked | Anatomy hits: 0 | Misses: 0
 
 ## ./
 
@@ -10,10 +10,11 @@
 - `CLAUDE.md` — OpenWolf (~57 tok)
 - `iniciar-servidor.bat` (~2363 tok)
 - `iniciar-servidor.sh` — ============================================================ (~1952 tok)
+- `LICENSE` — Licença de Uso — Lógica em Jogo (~1070 tok)
 - `package-lock.json` — npm lock file (~20120 tok)
 - `package.json` — Node.js package manifest (~226 tok)
 - `projeto.txt` (~4707 tok)
-- `README.md` — Project documentation (~1725 tok)
+- `README.md` — Project documentation (~1948 tok)
 - `todo.md` — Ideias para fazer (~6972 tok)
 - `tsconfig.base.json` (~130 tok)
 

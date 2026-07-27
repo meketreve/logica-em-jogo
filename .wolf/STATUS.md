@@ -38,11 +38,20 @@
 >   um mundo de TESTE (`aluno1`/`aluno2` são fictícios) — sem dado de aluno real, mas não é
 >   coisa pra repositório público.
 >
-> Caminho recomendado: **repo público NOVO só com o que a escola precisa** (código +
-> `client/dist` + `cenarios/` + launchers), história começando do zero, sem `.wolf/`, sem
-> `relatorio/`, sem `registros/`, sem `server/world.ljw`. O launcher já é agnóstico: ele puxa
-> de `origin`, seja qual for. A alternativa é reescrever o histórico deste repo
-> (`git filter-repo`) — o que invalida o clone que já está na escola.
+> **DESFECHO (mesma sessão):** o usuário abriu ESTE repo mesmo —
+> `github.com/meketreve/logica-em-jogo` está **PÚBLICO**. Consertei o que dava na árvore
+> atual (`e49aa15`): apelido virou rótulo em `history.md`, `server/world.ljw` saiu do índice
+> e entrou no `.gitignore`. **Sobre o histórico o usuário decidiu: "não tem problema"** — os
+> `profiles-escola/perf-<apelido>-*.json` seguem recuperáveis por `git log` e NÃO serão
+> limpos. Não reabrir esse assunto.
+>
+> **Licença (`f6d72af`): source-available, decidida pelo usuário** — "uso livre nas escolas,
+> modificações passam por mim". `LICENSE` em português simples: escola usa/roda/redistribui
+> INALTERADO de graça; distribuir código modificado, republicar sem autoria ou uso comercial
+> exigem autorização escrita. Três pontos explícitos porque mudam o uso real: **cenário
+> criado por professor é do professor**, modificar a PRÓPRIA cópia é livre (o que trava é
+> distribuir), e escola privada como ferramenta de ensino NÃO é uso comercial. Não é OSI — o
+> GitHub marca "licença não reconhecida", e isso é esperado.
 
 > **SESSÃO 28c (2026-07-27) — SENTIDO DA CORRENTEZA, FACE POR FACE.**
 > Segundo retorno do playtest: *"as texturas estão rotacionadas para cada face"*, com receita

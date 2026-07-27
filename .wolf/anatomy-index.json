@@ -1,12 +1,12 @@
 {
   "version": 1,
   "meta": {
-    "lastScanned": "2026-07-27T13:16:31.253Z",
-    "fileCount": 236,
+    "lastScanned": "2026-07-27T13:31:42.425Z",
+    "fileCount": 237,
     "hits": 0,
     "misses": 0,
-    "renderedHash": "7dfb374fd7acc1feaa28e56abfe0534e7b2070521063275006e10232cb696af9",
-    "storeUpdatedAt": "2026-07-27T13:16:31.273Z"
+    "renderedHash": "ad7822942f8ae2e454e41422498ab3695297ecbe3786bab94a0a378f0d5a916c",
+    "storeUpdatedAt": "2026-07-27T13:31:42.443Z"
   },
   "files": {
     ".claude/commands/reframe.md": {
@@ -6145,11 +6145,20 @@
     },
     "README.md": {
       "description": "Project documentation",
-      "tokens": 1725,
-      "hash": "045b62e268f0111d",
-      "size": 7068,
-      "mtimeMs": 1785158120992.8008,
-      "updatedAt": "2026-07-27T13:15:21.145Z",
+      "tokens": 1948,
+      "hash": "c104e4882c8992e6",
+      "size": 7999,
+      "mtimeMs": 1785159102288.7983,
+      "updatedAt": "2026-07-27T13:31:42.425Z",
+      "source": "hook"
+    },
+    "LICENSE": {
+      "description": "Licença de Uso — Lógica em Jogo",
+      "tokens": 1070,
+      "hash": "4851e58b213543cd",
+      "size": 4128,
+      "mtimeMs": 1785159089632.7986,
+      "updatedAt": "2026-07-27T13:31:29.751Z",
       "source": "hook"
     }
   }

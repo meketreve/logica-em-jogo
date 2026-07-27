@@ -9,12 +9,13 @@
 
 ## 🔥 Now (this session)
 
-- [ ] **Auto-update do servidor** (1º da ordem que o usuário fixou: auto-update → mobile →
-      v2 da geração → sobrevivência). Só a máquina do PROFESSOR precisa atualizar — o aluno
-      só abre o navegador. **Aguardando 3 decisões:** fonte (git pull × ZIP de release ×
-      Drive), repo público ou seguir privado (privado exige credencial na máquina da
-      escola), e se atualiza sozinho ou pergunta. Base: launcher `iniciar-servidor.bat/.sh`
-      + `client/dist` JÁ versionado (não precisa buildar na escola).
+- [x] **Auto-update do servidor — FEITO** (`fbbe3d0`). `git pull` no launcher, pergunta
+      antes (Enter = sim), `--ff-only`, 6 escapes, `npm install` só depois de atualizar.
+      Repo agora é **PÚBLICO** (`f6d72af` tem a licença) → clone da escola atualiza sem
+      credencial. **`client/dist` versionado** = escola não compila.
+- [ ] **Rodar o `.bat` no Windows uma vez.** O bloco de auto-update do `.sh` foi exercitado
+      nos 8 caminhos aqui; o `.bat` NÃO — não há cmd.exe no WSL. Único jeito é duplo clique.
+- [ ] **Próximo do backlog: layouts mobile** (2º da ordem do usuário).
 
 ## ⏭️ Next (queued, ready to pick up)
 

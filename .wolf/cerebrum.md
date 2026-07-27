@@ -703,6 +703,19 @@
 
 ## Decision Log
 
+- [2026-07-27] **Repo PÚBLICO + licença source-available** (decisão do usuário, sessão 29).
+  `github.com/meketreve/logica-em-jogo` é público. Regra que ele pediu: *"livre uso nas
+  escolas, mas modificações devem passar por mim"* → `LICENSE` em pt-BR: usar/rodar/
+  redistribuir INALTERADO é livre pra qualquer instituição de ensino; distribuir código
+  modificado, republicar sem autoria e uso comercial exigem autorização escrita. **Cenário
+  feito por professor é DELE** (a licença não reivindica os `.ljw` de autoria) e modificar a
+  própria cópia é livre — o que trava é distribuir. Não é OSI: GitHub marca "licença não
+  reconhecida", e é esperado. Consequência prática pro auto-update: clone da escola puxa sem
+  credencial.
+- [2026-07-27] **Apelidos de aluno no HISTÓRICO do git: o usuário decidiu deixar** ("não tem
+  problema"). A árvore atual foi limpa (`e49aa15`), o histórico NÃO. Não reabrir; não propor
+  `filter-repo` de novo. Ao escrever qualquer coisa NOVA em arquivo versionado, seguir sem
+  nome de aluno — a régua é a do relatório, que afirma anonimização.
 - [2026-07-27] **Água CORRENTE segue o fluxo; água PARADA segue o vento** (playtest).
   Uma regra só resolve os dois casos, sem flag nova: o mesher tira o fluxo do
   GRADIENTE DE NÍVEL na vizinhança (só vizinho de água conta — contar ar faria a
