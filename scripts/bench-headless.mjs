@@ -131,6 +131,11 @@ if (perfil) {
   linha("histograma", (g.histogramaMs ?? []).map((f) => `${f.faixa} ${f.pct}%`).join(" · "));
   linha("gpu", JSON.stringify(g.gpu));
   linha("carga", JSON.stringify(perfil.carga));
+  // geometria REALMENTE montada: sem isto o teste passa com o mundo vazio
+  // (foi o risco de mover o mesher pro Worker — a tela de carga sai quando a
+  // fila zera, e uma fila que zera sem produzir mesh não aparece no frametime)
+  linha("geometria", `${perfil.drawCalls} draw calls · ${perfil.triangles} triângulos · ${perfil.video?.geometrias} geometrias`);
+  linha("remesh", `${perfil.remeshCount}× · main ${perfil.remeshTotalMs}ms · worker ${perfil.remeshWorkerMs ?? 0}ms · fila no fim ${perfil.stream?.fila}`);
   linha("regras", JSON.stringify(perfil.regrasServidor));
   linha("marcadores", (perfil.marcadores ?? []).map((m) => `${m.emS}s ${m.evento}`).join(" · "));
   linha("dispositivo", JSON.stringify(perfil.dispositivo));

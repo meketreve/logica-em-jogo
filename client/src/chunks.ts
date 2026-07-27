@@ -1,9 +1,43 @@
 import * as THREE from "three";
-import { CHUNK_SIZE, type World, chunkIndex, meshChunk } from "@logica/shared";
+import {
+  CHUNK_SIZE,
+  type ChunkGeometry,
+  type World,
+  chunkIndex,
+  extrairVizinhanca,
+  meshChunk,
+} from "@logica/shared";
+import { MeshPool } from "./meshPool";
 
 /** Teto duro de chunks por frame: rede de segurança se o relógio for grosseiro
  *  (ou se um lote inteiro custar quase nada e o `while` virar loop longo). */
 const TETO_CHUNKS_POR_FRAME = 64;
+
+/** Geometria sem face nenhuma (chunk que virou 100% ar): `aplicar` só derruba
+ *  a mesh antiga e sai. Compartilhada — nada a montar, nada a mutar. */
+const VAZIA: ChunkGeometry = {
+  positions: new Float32Array(0),
+  normals: new Float32Array(0),
+  uvs: new Float32Array(0),
+  indices: new Uint32Array(0),
+  opaqueIndexCount: 0,
+  aguaIndexCount: 0,
+};
+
+/** Job de mesh no ar (main thread → worker → main thread). */
+interface JobMesh {
+  key: number;
+  cx: number;
+  cy: number;
+  cz: number;
+  /** Versão do chunk quando o job saiu. Resultado com versão vencida é
+   *  DESCARTADO — o chunk mudou (edição, troca de aula, descarte de coluna)
+   *  entre o envio e a volta, e aplicar geometria velha deixaria buraco. */
+  versao: number;
+  /** Custo de `extrairVizinhanca` — main thread, entra no contador junto com
+   *  o custo de montar a `BufferGeometry` na volta. */
+  msExtracao: number;
+}
 
 /**
  * 1 mesh por chunk (BufferGeometry única, culled mesher do /shared).
@@ -35,14 +69,86 @@ export class ChunkRenderer {
    *  vários lugares; a tag acompanha a chamada em vez de virar parâmetro). */
   private caminho: "fila" | "bloco" | "area" = "bloco";
 
+  /**
+   * Meshing da FILA (streaming) sai da main thread (2026-07-26). Só a fila:
+   * `remeshBlock`/`remeshBox`/`buildAll` seguem síncronos porque são a resposta
+   * visual a uma ação do jogador (um frame de atraso se nota) e porque no perfil
+   * do lab eles foram 0% do custo — `remeshPorCaminho` acusou 5 267 remesh, TODOS
+   * pelo caminho `fila`.
+   */
+  private pool: MeshPool | null = null;
+  /** Versão corrente de cada chunk. Sobe a cada pedido de remesh; resultado do
+   *  worker com versão diferente da corrente é lixo e some. */
+  private versaoAtual = new Map<number, number>();
+  private seq = 0;
+  private emVoo = new Map<number, JobMesh>();
+  /** Chunks com job no worker AGORA. Sem isto, `enfileirarColuna` (que também
+   *  reenfileira as 4 colunas vizinhas) manda um job novo pro mesmo chunk antes
+   *  do anterior voltar, e o anterior é jogado fora por versão vencida. No
+   *  caminho síncrono a fila lenta fundia essas re-entradas de graça; com o pool
+   *  esvaziando rápido elas viraram **2 448 jobs desperdiçados** de 7 904
+   *  (perfil do lab, 2026-07-27). */
+  private chavesEmVoo = new Set<number>();
+  /** Chunk que pediu remesh enquanto tinha job no ar: re-enfileirado UMA vez
+   *  quando o resultado (vencido) chega. Coalescer N pedidos em 1 job. */
+  private sujosEmVoo = new Set<number>();
+  /** §🔁: quem repedir a coluna quando o mesh falha (fixado por frame no
+   *  `processarFila`, porque o resultado chega frames depois do pedido). */
+  private onFalha?: (cx: number, cz: number) => void;
+  /** Tempo de mesh gasto DENTRO dos workers. Não conta no orçamento do frame —
+   *  existe pra F3/perfil mostrarem o trabalho total, já que `remeshMsTotal`
+   *  agora mede só o que sobrou na main thread. */
+  get remeshWorkerMsTotal(): number {
+    return this.pool?.msTotal ?? 0;
+  }
+
+  /**
+   * Tela de carga na frente? Enquanto sim o pool corre solto (não há frame pra
+   * proteger); no jogo ele freia. Medido no lab (2026-07-27): sem esse freio, 4
+   * workers a plena carga custaram FPS 50 → 36 e p95 28 → 44 ms disputando
+   * núcleo com a main thread e com o driver D3D11.
+   */
+  set modoCarga(ativo: boolean) {
+    if (this.pool) this.pool.modoCarga = ativo;
+  }
+
   /** `materials[0]` = opaco (cutout), `materials[1]` = água (transparente/blend),
    *  `materials[2]` = vidro colorido (blend, 2026-07-25). O mesher fatia os
-   *  índices em 3 grupos por `opaqueIndexCount` + `aguaIndexCount`. */
+   *  índices em 3 grupos por `opaqueIndexCount` + `aguaIndexCount`.
+   *
+   *  `usarWorkers=false` força o caminho síncrono (testes, e o fallback quando
+   *  o pool colapsa). */
   constructor(
     private world: World,
     private materials: [THREE.Material, THREE.Material, THREE.Material],
     private scene: THREE.Scene,
-  ) {}
+    usarWorkers = true,
+    profundidadeJogo?: number,
+  ) {
+    if (usarWorkers && typeof Worker !== "undefined") {
+      const pool = new MeshPool((idsPerdidos) => {
+        // pool morreu: os chunks que estavam nele voltam pra fila e o resto da
+        // sessão roda síncrono. A tela de carga espera `filaPendente === 0`,
+        // então perder jobs em silêncio a travaria pra sempre.
+        this.chavesEmVoo.clear();
+        this.sujosEmVoo.clear();
+        for (const id of idsPerdidos) {
+          const job = this.emVoo.get(id);
+          if (job) this.enfileirar(job.cx, job.cy, job.cz);
+        }
+        this.emVoo.clear();
+        this.pool = null;
+      }, profundidadeJogo);
+      this.pool = pool.disponivel ? pool : null;
+    }
+  }
+
+  /** Versão nova pro chunk: invalida qualquer job dele que ainda esteja no ar. */
+  private novaVersao(key: number): number {
+    const v = ++this.seq;
+    this.versaoAtual.set(key, v);
+    return v;
+  }
 
   /**
    * Troca o mundo inteiro (cp19: o professor mudou a aula sem derrubar a turma).
@@ -63,6 +169,13 @@ export class ChunkRenderer {
       mesh.geometry.dispose();
     }
     this.meshes.clear();
+    // mundo novo pode ter até outro tamanho: TODA versão morre, e com ela todo
+    // job no ar (o `key` de um mundo não vale no outro). A fila também.
+    this.versaoAtual.clear();
+    this.fila.length = 0;
+    this.filaSet.clear();
+    this.sujosEmVoo.clear(); // `key` do mundo velho não vale no novo
+    this.chavesEmVoo.clear();
     this.world = novo;
     if (construir) this.buildAll();
   }
@@ -77,39 +190,58 @@ export class ChunkRenderer {
   remesh(cx: number, cy: number, cz: number): void {
     const t0 = performance.now();
     const key = chunkIndex(this.world, cx, cy, cz);
+    // pedido síncrono também invalida job no ar: sem isto, geometria antiga
+    // voltando do worker sobrescreveria o bloco que o jogador acabou de pôr
+    this.novaVersao(key);
+    const g = meshChunk(this.world, cx, cy, cz);
+    this.aplicar(key, cx, cy, cz, g);
+    this.contabilizar(performance.now() - t0);
+  }
 
+  /** Troca a mesh do chunk pela geometria dada (vinda do mesher síncrono OU do
+   *  worker). Sem contadores — quem chama decide o que medir. */
+  private aplicar(
+    key: number,
+    cx: number,
+    cy: number,
+    cz: number,
+    g: ChunkGeometry,
+  ): void {
     const old = this.meshes.get(key);
     if (old) {
       this.scene.remove(old);
       old.geometry.dispose();
       this.meshes.delete(key);
     }
+    if (g.indices.length === 0) return;
 
-    const g = meshChunk(this.world, cx, cy, cz);
-    if (g.indices.length > 0) {
-      const geometry = new THREE.BufferGeometry();
-      geometry.setAttribute("position", new THREE.BufferAttribute(g.positions, 3));
-      geometry.setAttribute("normal", new THREE.BufferAttribute(g.normals, 3));
-      geometry.setAttribute("uv", new THREE.BufferAttribute(g.uvs, 2));
-      geometry.setIndex(new THREE.BufferAttribute(g.indices, 1));
-      // 3 grupos: opaco + água + vidro colorido, nessa ordem. Grupo com count 0
-      // (chunk sem água / sem vidro) não gera draw call.
-      const vidroStart = g.opaqueIndexCount + g.aguaIndexCount;
-      geometry.addGroup(0, g.opaqueIndexCount, 0);
-      geometry.addGroup(g.opaqueIndexCount, g.aguaIndexCount, 1);
-      geometry.addGroup(vidroStart, g.indices.length - vidroStart, 2);
-      const mesh = new THREE.Mesh(geometry, this.materials);
-      mesh.position.set(cx * CHUNK_SIZE, cy * CHUNK_SIZE, cz * CHUNK_SIZE);
-      this.scene.add(mesh);
-      this.meshes.set(key, mesh);
-    }
+    const geometry = new THREE.BufferGeometry();
+    geometry.setAttribute("position", new THREE.BufferAttribute(g.positions, 3));
+    geometry.setAttribute("normal", new THREE.BufferAttribute(g.normals, 3));
+    geometry.setAttribute("uv", new THREE.BufferAttribute(g.uvs, 2));
+    geometry.setIndex(new THREE.BufferAttribute(g.indices, 1));
+    // 3 grupos: opaco + água + vidro colorido, nessa ordem. Grupo com count 0
+    // (chunk sem água / sem vidro) não gera draw call.
+    const vidroStart = g.opaqueIndexCount + g.aguaIndexCount;
+    geometry.addGroup(0, g.opaqueIndexCount, 0);
+    geometry.addGroup(g.opaqueIndexCount, g.aguaIndexCount, 1);
+    geometry.addGroup(vidroStart, g.indices.length - vidroStart, 2);
+    const mesh = new THREE.Mesh(geometry, this.materials);
+    mesh.position.set(cx * CHUNK_SIZE, cy * CHUNK_SIZE, cz * CHUNK_SIZE);
+    this.scene.add(mesh);
+    this.meshes.set(key, mesh);
+  }
 
-    this.lastRemeshMs = performance.now() - t0;
-    this.remeshMsTotal += this.lastRemeshMs;
+  /** Custo de MAIN THREAD de um chunk. No caminho do worker isso é só extrair a
+   *  vizinhança + montar a `BufferGeometry`; o mesh em si está em
+   *  `remeshWorkerMsTotal`. */
+  private contabilizar(ms: number): void {
+    this.lastRemeshMs = ms;
+    this.remeshMsTotal += ms;
     this.remeshCount++;
     const c = this.porCaminho[this.caminho];
     c.n++;
-    c.ms += this.lastRemeshMs;
+    c.ms += ms;
   }
 
   /**
@@ -138,13 +270,21 @@ export class ChunkRenderer {
 
   /** Enfileira os chunks da coluna (cx,cz) recém-chegada + os vizinhos JÁ
    *  carregados (a face culled na borda deles depende da coluna nova). */
+  private enfileirar(qx: number, qy: number, qz: number): void {
+    const key = chunkIndex(this.world, qx, qy, qz);
+    if (this.filaSet.has(key)) return;
+    // já está no worker: anota como sujo em vez de abrir job duplicado. O
+    // resultado que voltar vai ser descartado por versão e re-enfileira o chunk.
+    if (this.chavesEmVoo.has(key)) {
+      this.sujosEmVoo.add(key);
+      return;
+    }
+    this.filaSet.add(key);
+    this.fila.push({ cx: qx, cy: qy, cz: qz });
+  }
+
   enfileirarColuna(cx: number, cz: number): void {
-    const poe = (qx: number, qy: number, qz: number): void => {
-      const key = chunkIndex(this.world, qx, qy, qz);
-      if (this.filaSet.has(key)) return;
-      this.filaSet.add(key);
-      this.fila.push({ cx: qx, cy: qy, cz: qz });
-    };
+    const poe = (qx: number, qy: number, qz: number): void => this.enfileirar(qx, qy, qz);
     for (let cy = 0; cy < this.world.dims.y; cy++) poe(cx, cy, cz);
     for (const [dx, dz] of [[1, 0], [-1, 0], [0, 1], [0, -1]] as const) {
       const nx = cx + dx;
@@ -173,8 +313,75 @@ export class ChunkRenderer {
    */
   processarFila(orcamentoMs: number, onFalha?: (cx: number, cz: number) => void): void {
     this.caminho = "fila";
+    this.onFalha = onFalha;
     const fim = performance.now() + orcamentoMs;
     let n = 0;
+
+    if (this.pool) {
+      // (1) aplicar o que voltou dos workers. Vem PRIMEIRO: geometria pronta
+      // parada é mundo com buraco na tela, e é o único passo aqui que ainda
+      // custa caro na main thread (BufferGeometry + upload).
+      let r = this.pool.colher();
+      while (r && n < TETO_CHUNKS_POR_FRAME) {
+        const t0 = performance.now();
+        const job = this.emVoo.get(r.id);
+        this.emVoo.delete(r.id);
+        if (job) {
+          this.chavesEmVoo.delete(job.key);
+          // sujou enquanto estava no ar (coluna vizinha chegou): UM job novo
+          // agora, no lugar dos N que teriam sido abertos em paralelo
+          if (this.sujosEmVoo.delete(job.key)) this.enfileirar(job.cx, job.cy, job.cz);
+          if (r.erro) {
+            console.warn(`[mesh] chunk ${job.cx},${job.cy},${job.cz} falhou no worker: ${r.erro}`);
+            this.onFalha?.(job.cx, job.cz);
+          } else if (this.versaoAtual.get(job.key) === job.versao) {
+            this.aplicar(job.key, job.cx, job.cy, job.cz, {
+              positions: r.positions!,
+              normals: r.normals!,
+              uvs: r.uvs!,
+              indices: r.indices!,
+              opaqueIndexCount: r.opaqueIndexCount!,
+              aguaIndexCount: r.aguaIndexCount!,
+            });
+          } // versão vencida = chunk mudou desde o envio; geometria vai fora
+          this.contabilizar(job.msExtracao + (performance.now() - t0));
+        }
+        if (++n >= 1 && performance.now() >= fim) break;
+        r = this.pool.colher();
+      }
+
+      // (2) alimentar os workers. Extrair a vizinhança custa ~30 µs contra os
+      // ~3,5 ms do mesh, então enche fundo: com 1 job por worker eles ficariam
+      // ociosos entre frames e o pool renderia MENOS que o caminho síncrono.
+      while (this.fila.length > 0 && this.pool.temVaga && n < TETO_CHUNKS_POR_FRAME) {
+        const c = this.fila.shift()!;
+        const key = chunkIndex(this.world, c.cx, c.cy, c.cz);
+        this.filaSet.delete(key);
+        const t0 = performance.now();
+        const versao = this.novaVersao(key);
+        let viz: Uint8Array | null;
+        try {
+          viz = extrairVizinhanca(this.world, c.cx, c.cy, c.cz);
+        } catch (e) {
+          console.warn(`[mesh] vizinhança ${c.cx},${c.cy},${c.cz} falhou:`, e);
+          this.onFalha?.(c.cx, c.cz);
+          continue;
+        }
+        if (!viz) {
+          // chunk 100% ar: nada a montar, mas a mesh antiga tem que sair
+          this.aplicar(key, c.cx, c.cy, c.cz, VAZIA);
+          this.contabilizar(performance.now() - t0);
+        } else {
+          const id = this.pool.enviar(viz);
+          this.emVoo.set(id, { key, cx: c.cx, cy: c.cy, cz: c.cz, versao, msExtracao: performance.now() - t0 });
+          this.chavesEmVoo.add(key);
+        }
+        if (++n >= 1 && performance.now() >= fim) break;
+      }
+      this.ultimoLote = n;
+      return;
+    }
+
     while (this.fila.length > 0 && n < TETO_CHUNKS_POR_FRAME) {
       const c = this.fila.shift()!;
       this.filaSet.delete(chunkIndex(this.world, c.cx, c.cy, c.cz));
@@ -193,8 +400,11 @@ export class ChunkRenderer {
   /** Chunks montados no último frame (diagnóstico do orçamento). */
   ultimoLote = 0;
 
+  /** Chunks que ainda NÃO estão na tela: na fila, no worker, ou já meshados e
+   *  esperando virar `BufferGeometry`. A tela de carga sai em `=== 0` (main.ts
+   *  §🕐) — contar só `fila.length` a faria sair com o mundo cheio de buraco. */
   get filaPendente(): number {
-    return this.fila.length;
+    return this.fila.length + (this.pool?.emVoo ?? 0) + (this.pool?.prontosPendentes ?? 0);
   }
 
   /** Descarta a geometria da coluna (streaming: saiu do raio de render).
@@ -202,6 +412,11 @@ export class ChunkRenderer {
   descartarColuna(cx: number, cz: number): void {
     for (let cy = 0; cy < this.world.dims.y; cy++) {
       const key = chunkIndex(this.world, cx, cy, cz);
+      // some com a versão: job desta coluna que ainda esteja no worker volta
+      // "vencido" e é descartado, em vez de recriar a mesh que acabou de sair.
+      // E não re-enfileira: a coluna saiu do raio, não interessa mais.
+      this.versaoAtual.delete(key);
+      this.sujosEmVoo.delete(key);
       const mesh = this.meshes.get(key);
       if (mesh) {
         this.scene.remove(mesh);

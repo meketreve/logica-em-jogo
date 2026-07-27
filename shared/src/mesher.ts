@@ -448,23 +448,90 @@ export interface ChunkGeometry {
   aguaIndexCount: number;
 }
 
-export function meshChunk(world: World, cx: number, cy: number, cz: number): ChunkGeometry {
-  // Fast path (2026-07-19): chunk 100% AR não emite face nenhuma (culled
-  // mesher só olha células sólidas DESTE chunk). No mundo G, 75% dos chunks
-  // são céu — varrer 4096 células × 6 faces à toa dominava o mesh do join
-  // (bench: 1,1 s → ~0,3 s). Checar 4096 bytes custa ~µs.
-  // chunk ausente (mundo esparso, 2026-07-20) = ar puro → mesmo fast path
+/** Lado da VIZINHANÇA que o mesher lê: o chunk (16) + 1 bloco de casca em cada
+ *  direção. Todo acesso a bloco daqui pra baixo cai em `[-1 .. CHUNK_SIZE]` nos
+ *  três eixos — face culled, conexão de cerca, pé/cabeceira da cama e os cantos
+ *  inclinados da água olham no máximo ±1. É por isso que o mesher NÃO precisa do
+ *  `World`: dado esse cubo de bytes, ele é uma função pura, e função pura roda
+ *  em Web Worker (2026-07-26, perfil do lab: `malha` custava 9,7–13,4 s na main
+ *  thread num PC de sala de aula). */
+export const VIZ_LADO = CHUNK_SIZE + 2;
+export const VIZ_VOLUME = VIZ_LADO * VIZ_LADO * VIZ_LADO;
+
+/** Índice dentro da vizinhança, em coordenadas LOCAIS do chunk (−1 e
+ *  CHUNK_SIZE caem na casca). Mesma ordem do `blockIndex`: x contíguo. */
+function vizIndex(lx: number, ly: number, lz: number): number {
+  return ((ly + 1) * VIZ_LADO + (lz + 1)) * VIZ_LADO + (lx + 1);
+}
+
+const GEOMETRIA_VAZIA = (): ChunkGeometry => ({
+  positions: new Float32Array(0),
+  normals: new Float32Array(0),
+  uvs: new Float32Array(0),
+  indices: new Uint32Array(0),
+  opaqueIndexCount: 0,
+  aguaIndexCount: 0,
+});
+
+/**
+ * Copia o chunk (cx,cy,cz) + a casca de 1 bloco pra um buffer plano 18³.
+ * `null` = nada a montar — é o fast path de 2026-07-19 (chunk 100% ar não emite
+ * face nenhuma; no mundo G 75% dos chunks são céu, e varrer 4096 células × 6
+ * faces à toa dominava o mesh do join: 1,1 s → ~0,3 s). Chunk AUSENTE (mundo
+ * esparso, 2026-07-20) = ar puro → mesmo caminho.
+ *
+ * O interior sai por `set()` de linhas de 16 bytes (x é contíguo nos dois
+ * layouts); só a casca passa por `getBlock`. Custa ~30 µs contra os 1,6–3,6 ms
+ * do mesh — é essa razão que torna barato mandar o cubo pro Worker.
+ */
+export function extrairVizinhanca(
+  world: World,
+  cx: number,
+  cy: number,
+  cz: number,
+): Uint8Array | null {
   const bytes = world.chunks[chunkIndex(world, cx, cy, cz)];
-  if (!bytes || bytes.every((b) => b === 0)) {
-    return {
-      positions: new Float32Array(0),
-      normals: new Float32Array(0),
-      uvs: new Float32Array(0),
-      indices: new Uint32Array(0),
-      opaqueIndexCount: 0,
-      aguaIndexCount: 0,
-    };
+  if (!bytes || bytes.every((b) => b === 0)) return null;
+
+  const viz = new Uint8Array(VIZ_VOLUME);
+  for (let ly = 0; ly < CHUNK_SIZE; ly++) {
+    for (let lz = 0; lz < CHUNK_SIZE; lz++) {
+      const src = (ly * CHUNK_SIZE + lz) * CHUNK_SIZE;
+      viz.set(bytes.subarray(src, src + CHUNK_SIZE), vizIndex(0, ly, lz));
+    }
   }
+
+  const ox = cx * CHUNK_SIZE;
+  const oy = cy * CHUNK_SIZE;
+  const oz = cz * CHUNK_SIZE;
+  for (let ly = -1; ly <= CHUNK_SIZE; ly++) {
+    const yDentro = ly >= 0 && ly < CHUNK_SIZE;
+    for (let lz = -1; lz <= CHUNK_SIZE; lz++) {
+      const linhaDentro = yDentro && lz >= 0 && lz < CHUNK_SIZE;
+      for (let lx = -1; lx <= CHUNK_SIZE; lx++) {
+        // linha interior já veio inteira pelo set() acima: só as duas pontas
+        // faltam, então pula de lx=0 direto pra lx=CHUNK_SIZE.
+        if (linhaDentro && lx === 0) lx = CHUNK_SIZE;
+        viz[vizIndex(lx, ly, lz)] = getBlock(world, ox + lx, oy + ly, oz + lz);
+      }
+    }
+  }
+  return viz;
+}
+
+/** Conveniência síncrona (main thread, servidor, testes). O caminho do Worker
+ *  chama `extrairVizinhanca` aqui e `meshVizinhanca` lá. */
+export function meshChunk(world: World, cx: number, cy: number, cz: number): ChunkGeometry {
+  const viz = extrairVizinhanca(world, cx, cy, cz);
+  return viz ? meshVizinhanca(viz) : GEOMETRIA_VAZIA();
+}
+
+/** Núcleo do mesher: bytes → geometria, sem `World` e sem I/O. Roda igual na
+ *  main thread e no Worker. `viz` é o cubo de `extrairVizinhanca`. */
+export function meshVizinhanca(viz: Uint8Array): ChunkGeometry {
+  /** Bloco em coordenadas LOCAIS do chunk; −1 e CHUNK_SIZE leem a casca. */
+  const bloco = (lx: number, ly: number, lz: number): number =>
+    viz[vizIndex(lx, ly, lz)] ?? BlockId.Air;
 
   const positions: number[] = [];
   const normals: number[] = [];
@@ -476,10 +543,6 @@ export function meshChunk(world: World, cx: number, cy: number, cz: number): Chu
   // Vidro colorido (2026-07-25): 3º grupo/material — blend de verdade (~20% de
   // opacidade tingida), não mais o dither cutout do vidro comum.
   const vidroIndices: number[] = [];
-
-  const ox = cx * CHUNK_SIZE;
-  const oy = cy * CHUNK_SIZE;
-  const oz = cz * CHUNK_SIZE;
 
   const n = ATLAS.tilesPerRow;
   // Meia-texel de recuo nas UVs contra bleeding entre tiles vizinhos.
@@ -507,12 +570,7 @@ export function meshChunk(world: World, cx: number, cy: number, cz: number): Chu
         face.dir[1] === -1 ? y0 === 0 : face.dir[1] === 1 ? y1 === 1 :
         face.dir[2] === -1 ? z0 === 0 : z1 === 1;
       if (flush) {
-        const nb = getBlock(
-          world,
-          ox + lx + face.dir[0],
-          oy + ly + face.dir[1],
-          oz + lz + face.dir[2],
-        );
+        const nb = bloco(lx + face.dir[0], ly + face.dir[1], lz + face.dir[2]);
         if (nb === id) continue;
         if (isFullCube(nb) && !isTransparentBlock(nb)) continue;
       }
@@ -583,16 +641,13 @@ export function meshChunk(world: World, cx: number, cy: number, cz: number): Chu
   };
 
   /** Cerca conecta neste vizinho? Outra cerca ou qualquer cubo cheio. */
-  const cercaConecta = (wx: number, wy: number, wz: number): boolean => {
-    const nb = getBlock(world, wx, wy, wz);
+  const cercaConecta = (lx: number, ly: number, lz: number): boolean => {
+    const nb = bloco(lx, ly, lz);
     return nb === BlockId.Cerca || isFullCube(nb);
   };
 
   /** Geometria das formas não-cubo (cp23). true = era forma, célula emitida. */
   const emitShape = (id: number, lx: number, ly: number, lz: number): boolean => {
-    const wx = ox + lx;
-    const wy = oy + ly;
-    const wz = oz + lz;
     switch (id) {
       case BlockId.Cerca: {
         // poste central + travessas (2 alturas) até cada vizinho conectável
@@ -603,10 +658,10 @@ export function meshChunk(world: World, cx: number, cy: number, cz: number): Chu
           emitBox(lx, ly, lz, id, TILE.cerca, xa, 12 * P, za, xb, 15 * P, zb);
           emitBox(lx, ly, lz, id, TILE.cerca, xa, 6 * P, za, xb, 9 * P, zb);
         };
-        if (cercaConecta(wx - 1, wy, wz)) rails(0, 7 * P, 6 * P, 9 * P);
-        if (cercaConecta(wx + 1, wy, wz)) rails(10 * P, 7 * P, 1, 9 * P);
-        if (cercaConecta(wx, wy, wz - 1)) rails(7 * P, 0, 9 * P, 6 * P);
-        if (cercaConecta(wx, wy, wz + 1)) rails(7 * P, 10 * P, 9 * P, 1);
+        if (cercaConecta(lx - 1, ly, lz)) rails(0, 7 * P, 6 * P, 9 * P);
+        if (cercaConecta(lx + 1, ly, lz)) rails(10 * P, 7 * P, 1, 9 * P);
+        if (cercaConecta(lx, ly, lz - 1)) rails(7 * P, 0, 9 * P, 6 * P);
+        if (cercaConecta(lx, ly, lz + 1)) rails(7 * P, 10 * P, 9 * P, 1);
         return true;
       }
       case BlockId.PortaXFechada:
@@ -618,8 +673,7 @@ export function meshChunk(world: World, cx: number, cy: number, cz: number): Chu
       case BlockId.PortaZFechadaR:
       case BlockId.PortaZAbertaR: {
         // metade de cima se reconhece pelo vizinho de baixo com o MESMO id
-        const tile =
-          getBlock(world, wx, wy - 1, wz) === id ? TILE.portaCima : TILE.portaBaixo;
+        const tile = bloco(lx, ly - 1, lz) === id ? TILE.portaCima : TILE.portaBaixo;
         // Lâmina fina na BORDA da célula (não centrada), pivota 90° na aresta
         // vertical do canto = DOBRADIÇA (backlog 2026-07-17). FECHADA: varre o
         // vão todo, encostada na face do eixo que BLOQUEIA (idêntica nas 2
@@ -707,7 +761,7 @@ export function meshChunk(world: World, cx: number, cy: number, cz: number): Chu
           const k = id - BlockId.CamaXP;
           const { dx, dz } = camaHeadDir(id);
           // é o PÉ se a cabeceira (mesma cama) está no vizinho da direção dela
-          const ehPe = getBlock(world, ox + lx + dx, oy + ly, oz + lz + dz) === id;
+          const ehPe = bloco(lx + dx, ly, lz + dz) === id;
           const boxes: readonly (readonly [number, number, number, number, number, number, number])[] =
             ehPe
               ? [
@@ -778,11 +832,11 @@ export function meshChunk(world: World, cx: number, cy: number, cz: number): Chu
     let n = 0;
     for (let i = 0; i < 2; i++) {
       for (let j = 0; j < 2; j++) {
-        const wx = x + cx - 1 + i;
-        const wz = z + cz - 1 + j;
-        const b = getBlock(world, wx, y, wz);
+        const vx = x + cx - 1 + i;
+        const vz = z + cz - 1 + j;
+        const b = bloco(vx, y, vz);
         if (!isAgua(b)) continue;
-        if (isAgua(getBlock(world, wx, y + 1, wz))) return 1;
+        if (isAgua(bloco(vx, y + 1, vz))) return 1;
         soma += aguaNivel(b);
         n++;
       }
@@ -793,7 +847,7 @@ export function meshChunk(world: World, cx: number, cy: number, cz: number): Chu
   for (let ly = 0; ly < CHUNK_SIZE; ly++) {
     for (let lz = 0; lz < CHUNK_SIZE; lz++) {
       for (let lx = 0; lx < CHUNK_SIZE; lx++) {
-        const id = getBlock(world, ox + lx, oy + ly, oz + lz);
+        const id = bloco(lx, ly, lz);
         if (id === BlockId.Air) continue;
         // cp23: não-cubo tem forma própria e nunca passa pelo caminho de cubo
         if (!isFullCube(id)) {
@@ -814,24 +868,13 @@ export function meshChunk(world: World, cx: number, cy: number, cz: number): Chu
         // não é sólida e o raycast a ignora (blocks.ts / raycast.ts).
         const cantos = isAgua(id)
           ? [
-              [
-                alturaCantoAgua(ox + lx, oy + ly, oz + lz, 0, 0),
-                alturaCantoAgua(ox + lx, oy + ly, oz + lz, 0, 1),
-              ],
-              [
-                alturaCantoAgua(ox + lx, oy + ly, oz + lz, 1, 0),
-                alturaCantoAgua(ox + lx, oy + ly, oz + lz, 1, 1),
-              ],
+              [alturaCantoAgua(lx, ly, lz, 0, 0), alturaCantoAgua(lx, ly, lz, 0, 1)],
+              [alturaCantoAgua(lx, ly, lz, 1, 0), alturaCantoAgua(lx, ly, lz, 1, 1)],
             ]
           : null;
 
         for (const face of FACES) {
-          const neighbor = getBlock(
-            world,
-            ox + lx + face.dir[0],
-            oy + ly + face.dir[1],
-            oz + lz + face.dir[2],
-          );
+          const neighbor = bloco(lx + face.dir[0], ly + face.dir[1], lz + face.dir[2]);
           // cp18: face aparece se o vizinho é ar OU transparente de OUTRO tipo
           // (vidro encostado em folha: cada um mostra a sua face — a face oposta
           // do outro é backface e some por culling, sem z-fight). Vizinho opaco

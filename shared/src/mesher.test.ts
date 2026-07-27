@@ -1,5 +1,15 @@
 import { describe, expect, it } from "vitest";
-import { AGUA_TOPO, BlockId, createWorld, isPlaceable, meshChunk, setBlock } from "./index";
+import {
+  AGUA_TOPO,
+  BlockId,
+  createWorld,
+  extrairVizinhanca,
+  getBlock,
+  isPlaceable,
+  meshChunk,
+  meshVizinhanca,
+  setBlock,
+} from "./index";
 
 const DIMS = { x: 1, z: 1, y: 1 } as const;
 
@@ -182,5 +192,84 @@ describe("superfície da água por nível (2026-07-26)", () => {
     setBlock(w, 8, 9, 8, BlockId.Agua);
     const g = meshChunk(w, 0, 0, 0);
     for (const [, alturas] of cantos(g, 8)) expect([...alturas]).toEqual([9]);
+  });
+});
+
+describe("vizinhança padded (o que atravessa pro Web Worker)", () => {
+  /** Mundo 2×2×2 chunks com padrão determinístico e denso o bastante pra ter
+   *  bloco em toda borda — é a borda que o `set()` de linha NÃO cobre. */
+  function mundoRuidoso() {
+    const w = createWorld({ x: 2, z: 2, y: 2 });
+    for (let y = 0; y < 32; y++)
+      for (let z = 0; z < 32; z++)
+        for (let x = 0; x < 32; x++) {
+          const n = (x * 7 + y * 13 + z * 31) % 5;
+          if (n !== 0)
+            setBlock(
+              w, x, y, z,
+              n === 1 ? BlockId.Stone : n === 2 ? BlockId.Dirt : n === 3 ? BlockId.Agua : BlockId.Glass,
+            );
+        }
+    return w;
+  }
+
+  /** Comparação MANUAL: `toEqual` em typed array de centenas de milhares de
+   *  itens estoura o timeout de 5 s do vitest (visto em 2026-07-26). Devolve
+   *  a primeira divergência, que é o que a mensagem de erro precisa mostrar. */
+  function difere(a: ArrayLike<number>, b: ArrayLike<number>, nome: string): string | null {
+    if (a.length !== b.length) return `${nome}: ${a.length} itens != ${b.length}`;
+    for (let i = 0; i < a.length; i++) {
+      if (a[i] !== b[i]) return `${nome}[${i}]: ${a[i]} != ${b[i]}`;
+    }
+    return null;
+  }
+
+  it("reproduz getBlock em TODA a casca, inclusive quinas e fora do mundo", () => {
+    const w = mundoRuidoso();
+    let erro: string | null = null;
+    for (let cy = 0; cy < 2 && !erro; cy++)
+      for (let cz = 0; cz < 2 && !erro; cz++)
+        for (let cx = 0; cx < 2 && !erro; cx++) {
+          const viz = extrairVizinhanca(w, cx, cy, cz);
+          if (!viz) { erro = `chunk ${cx},${cy},${cz} veio null`; break; }
+          for (let ly = -1; ly <= 16 && !erro; ly++)
+            for (let lz = -1; lz <= 16 && !erro; lz++)
+              for (let lx = -1; lx <= 16; lx++) {
+                const esperado = getBlock(w, cx * 16 + lx, cy * 16 + ly, cz * 16 + lz);
+                const lido = viz[((ly + 1) * 18 + (lz + 1)) * 18 + (lx + 1)];
+                if (lido !== esperado) {
+                  erro = `chunk ${cx},${cy},${cz} celula ${lx},${ly},${lz}: ${lido} != ${esperado}`;
+                  break;
+                }
+              }
+        }
+    expect(erro).toBeNull();
+  });
+
+  it("meshVizinhanca(extrairVizinhanca(...)) === meshChunk(...) — é o mesmo mesh", () => {
+    const w = mundoRuidoso();
+    let erro: string | null = null;
+    for (let cy = 0; cy < 2 && !erro; cy++)
+      for (let cz = 0; cz < 2 && !erro; cz++)
+        for (let cx = 0; cx < 2 && !erro; cx++) {
+          const direto = meshChunk(w, cx, cy, cz);
+          const viaWorker = meshVizinhanca(extrairVizinhanca(w, cx, cy, cz)!);
+          const onde = `chunk ${cx},${cy},${cz} `;
+          erro =
+            difere(viaWorker.positions, direto.positions, onde + "positions") ??
+            difere(viaWorker.normals, direto.normals, onde + "normals") ??
+            difere(viaWorker.uvs, direto.uvs, onde + "uvs") ??
+            difere(viaWorker.indices, direto.indices, onde + "indices") ??
+            (viaWorker.opaqueIndexCount !== direto.opaqueIndexCount ? onde + "opaqueIndexCount" : null) ??
+            (viaWorker.aguaIndexCount !== direto.aguaIndexCount ? onde + "aguaIndexCount" : null);
+        }
+    expect(erro).toBeNull();
+  });
+
+  it("chunk 100% ar (e chunk ausente) devolve null — fast path preservado", () => {
+    const w = createWorld({ x: 1, z: 1, y: 1 });
+    expect(extrairVizinhanca(w, 0, 0, 0)).toBeNull();
+    const esparso = createWorld({ x: 1, z: 1, y: 1 }, false);
+    expect(extrairVizinhanca(esparso, 0, 0, 0)).toBeNull();
   });
 });

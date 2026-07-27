@@ -824,7 +824,23 @@ function startGame(snap: Snapshot): void {
       "position:fixed;right:8px;top:8px;width:256px;image-rendering:pixelated;z-index:20;border:1px solid #000";
     document.body.appendChild(img);
   }
-  const chunkRenderer = new ChunkRenderer(world, [material, materialAgua, materialVidro], scene);
+  // `?semworker` volta o meshing pra main thread — é o A/B do mesher em Worker
+  // (2026-07-26): a MESMA máquina roda `?bench` com e sem, e a diferença sai em
+  // `carga.fasesMs.malha` e no p95. Sem esse par não dá pra provar o ganho num
+  // PC de laboratório, e "medir na máquina que dói" é a régua deste projeto.
+  const urlMesh = new URLSearchParams(location.search);
+  const semWorker = urlMesh.has("semworker");
+  // `?meshdepth=N`: jobs em voo POR WORKER durante o JOGO (a carga corre solta
+  // de qualquer jeito). O 2 padrão saiu de conta de ocupação de núcleo, não de
+  // medida no lab — este knob existe pra uma sessão lá decidir entre 1, 2 e 4.
+  const meshDepth = Number(urlMesh.get("meshdepth"));
+  const chunkRenderer = new ChunkRenderer(
+    world,
+    [material, materialAgua, materialVidro],
+    scene,
+    !semWorker,
+    Number.isFinite(meshDepth) && meshDepth > 0 ? meshDepth : undefined,
+  );
   // efeitos de água (2026-07-26): névoa+tint ao submergir, animação da textura
   const aguaFx = new AguaFx(scene);
   let aguaRelogio = 0;
@@ -1592,6 +1608,7 @@ function startGame(snap: Snapshot): void {
   hud.setRemesh({
     count: chunkRenderer.remeshCount,
     totalMs: chunkRenderer.remeshMsTotal,
+    workerMs: chunkRenderer.remeshWorkerMsTotal,
     lastMs: chunkRenderer.lastRemeshMs,
     porCaminho: chunkRenderer.porCaminho,
   });
@@ -1852,6 +1869,9 @@ function startGame(snap: Snapshot): void {
     if (mundoLazy) {
       // mesh que falhou = coluna suspeita: sai de `colunasCarregadas` e a
       // varredura abaixo a repede (§🔁)
+      // pool de mesh solto só enquanto a tela de carga cobre a tela; depois
+      // freia (senão os workers roubam núcleo do render — lab 2026-07-27)
+      chunkRenderer.modoCarga = loading.ativo;
       chunkRenderer.processarFila(settings.meshMsPorFrame, (fx, fz) => {
         colunasCarregadas.delete(fz * world.dims.x + fx);
       });
@@ -1971,6 +1991,7 @@ function startGame(snap: Snapshot): void {
     hud.setRemesh({
       count: chunkRenderer.remeshCount,
       totalMs: chunkRenderer.remeshMsTotal,
+      workerMs: chunkRenderer.remeshWorkerMsTotal,
       lastMs: chunkRenderer.lastRemeshMs,
       porCaminho: chunkRenderer.porCaminho, // este é 1×/frame: sem isto some
     });

@@ -34,8 +34,13 @@ const GPU_WINDOW = 240;
 
 export interface HudRemeshStats {
   count: number;
+  /** MAIN THREAD (2026-07-26): desde o mesher em Worker isto é só extrair a
+   *  vizinhança + montar a `BufferGeometry`. O mesh em si está em `workerMs`. */
   totalMs: number;
   lastMs: number;
+  /** Tempo de mesh dentro dos workers. Não disputa o frame — serve pra ver o
+   *  trabalho TOTAL (comparável com o `remeshTotalMs` de antes do Worker). */
+  workerMs?: number;
   /** Custo separado por quem pediu (fila do streaming × bloco × área). */
   porCaminho?: { fila: { n: number; ms: number }; bloco: { n: number; ms: number }; area: { n: number; ms: number } };
 }
@@ -546,6 +551,7 @@ export class Hud {
       remeshCount: this.remesh.count,
       remeshPorCaminho: this.remesh.porCaminho ?? null,
       remeshTotalMs: +this.remesh.totalMs.toFixed(1),
+      remeshWorkerMs: +(this.remesh.workerMs ?? 0).toFixed(1),
       remeshLastMs: +this.remesh.lastMs.toFixed(2),
       longTasksTotal: this.longTasks,
       // POR FASE: onde o tempo foi gasto e onde travou (carregando × jogando).
@@ -656,7 +662,7 @@ export class Hud {
     const lines = [
       `FPS ${s.fps}  frame ${s.frametimeAvgMs}ms méd / ${s.frametimeP95Ms}ms p95`,
       `draw calls ${s.drawCalls}  triângulos ${s.triangles}  long tasks ${s.longTasksTotal}×`,
-      `remesh ${s.remeshCount}× / ${s.remeshTotalMs}ms total / ${s.remeshLastMs}ms último`,
+      `remesh ${s.remeshCount}× / ${s.remeshTotalMs}ms main / ${s.remeshWorkerMs ?? 0}ms worker / ${s.remeshLastMs}ms último`,
       `stream ${s.stream.colunas} colunas · fila ${s.stream.fila} · faltando ${s.stream.faltando} · repedidas ${s.stream.repedidas}`,
       `malha ${s.stream.ultimoLote} chunks no último frame (orçamento ${s.config?.meshMsPorFrame ?? "?"} ms)`,
       s.remeshPorCaminho
