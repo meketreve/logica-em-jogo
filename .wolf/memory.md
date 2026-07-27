@@ -600,3 +600,30 @@ Verificação: typecheck · 355 testes (5 novos: lago parado · riacho pra jusan
 eixo · contiguidade dos 8 tiles · `setorDaDirecao`) · build · riacho SIMULADO com `waterRule`
 de verdade mostrando os 8 setores radiais + mar na água parada · `?atlas` no headless
 confirmando a faixa dos 8 tiles pintada no lugar certo.
+| 08:10 | Session end: 104 writes across 24 files (vento.ts, index.ts, protocol.ts, session.ts, save.ts) | 29 reads | ~174443 tok |
+| 08:53 | Edited shared/src/mesher.ts | added nullish coalescing | ~380 |
+| 08:53 | Edited shared/src/mesher.ts | added 3 condition(s) | ~578 |
+| 08:53 | Edited shared/src/mesher.ts | modified for() | ~130 |
+| 08:54 | Edited shared/src/mesher.ts | modified fluxoDaAgua() | ~134 |
+| 08:54 | Edited shared/src/mesher.ts | added 1 condition(s) | ~96 |
+
+### Sessão 28c (2026-07-27) — sentido da correnteza face por face
+
+Usuário: "as texturas estão rotacionadas para cada face", com receita a partir de um caso
+(correnteza sul→norte): topo certo · baixo 180 · sul 90 CW · leste 180 · oeste certa · norte 90 CW.
+
+Derivei a tabela antes de aplicar e a receita NÃO generaliza. Com fluxo pro norte as 4
+laterais mostram a onda DESCENDO; com fluxo pro leste elas já mostram horizontal — nenhuma
+rotação constante acerta os dois. Causa real: a regra da 28b escolhia UM tile por CÉLULA e
+usava nas 6 faces, mas cada face amarra os 2 eixos do tile a direções de mundo diferentes
+(no topo u/v seguem x/z; embaixo x/z invertidos; nas laterais um eixo é o VERTICAL).
+
+Correção geral: `tileAguaDaFace` escolhe o tile POR FACE, projetando o vetor de fluxo em
+`FACE_BASES` (eixos de mundo de u e v por face, derivados de FACES, não escritos à mão).
+Lateral perpendicular ao fluxo — e água CAINDO — mostra a onda descendo (cachoeira).
+
+Resultado medido pro caso do usuário: as 6 faces acompanham o fluxo (topo/baixo/leste/oeste =
+norte; norte/sul = baixo, que são as perpendiculares). Mar/lago segue parado no vento.
+
+358 testes (3 novos, sobre o helper puro em vez de UV crua) · typecheck · build · smoke 6/6.
+Bug-533.

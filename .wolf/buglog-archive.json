@@ -6330,6 +6330,22 @@
       "related_bugs": [],
       "occurrences": 1,
       "last_seen": "2026-07-21T00:42:28.634Z"
+    },
+    {
+      "id": "bug-390",
+      "timestamp": "2026-07-21T00:42:33.490Z",
+      "error_message": "Significant refactor of ",
+      "file": "shared/src/arvores.ts",
+      "root_cause": "3 lines replaced/restructured",
+      "fix": "Rewrote 10→12 lines (3 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-21T00:42:33.490Z"
     }
   ]
 }

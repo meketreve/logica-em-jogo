@@ -4,6 +4,191 @@
 
 ## Session Journal
 
+> **SESSÃO 27 (2026-07-26) — O NÚMERO DO LAB CHEGOU. Veredito: jogável; o custo é a ESPERA.**
+> O usuário rodou `?bench` DUAS vezes no notebook de professor (idêntico aos PCs da sala):
+> `profiles/perf-bench-1785117299927-v1w4.json` e `-1785117351891-nfhx.json`.
+> Máquina: **Intel UHD 630** (ANGLE D3D11, `0x00009B41`, Comet Lake) · **8 núcleos** ·
+> 1920×1080 · dpr 1 — contra RTX 2060 / 24 núcleos da régua.
+> **As duas rodadas concordam** (p50 18,8/18,6 · p95 30,6/30,1 · GPU 14,64/14,16 · remesh
+> total −1,2%) → dentro do ruído de 1–2% medido na sessão anterior. **É sinal.**
+>
+> | | dev (régua) | lab v1w4 | lab nfhx |
+> |---|---|---|---|
+> | FPS médio | 60 | 49 | 50 |
+> | p50 / p95 / p99 ms | 16,7 / 16,9 / 18,1 | 18,8 / 30,6 / 42,2 | 18,6 / 30,1 / 40,3 |
+> | frames >50 ms | 1 | 7 | 4 |
+> | **GPU méd / p95 ms** | 4,22 / 7,21 | **14,64 / 19,56** | **14,16 / 18,87** |
+> | **carga total ms** | **4 760** | **16 519** | **12 938** |
+> | carga: mundo / **malha** | 2 406 / **1 856** | 2 328 / **13 401** | 2 507 / **9 732** |
+> | remesh ms por chunk | **1,65** | **3,58** | **3,54** |
+> | draw calls / triângulos | 633 / 188 048 | 633 / 188 048 | 630 / 186 716 |
+> | fila no fim | 0 | 0 | 0 |
+>
+> **Leitura, na ordem combinada.** (1) **`carga` é onde dói**: 12,9–16,5 s contra 4,76 s, e o
+> delta é INTEIRO em `malha` — `mundo` é idêntico (2,3–2,5 s), logo **não é rede nem
+> worldgen, é CPU de meshing** (2,2× mais lento por chunk). A tela de carga roda a 30–42 FPS
+> com 1,5–2,4 s de long task. A diferença 16,5 × 12,9 entre as duas rodadas **não é cache
+> quente**: o trabalho TOTAL de meshing é o mesmo (18 835 × 18 614 ms, −1,2%) — o que mudou
+> foi onde o "pronto" disparou, empurrando meshing pra dentro do bench. (2) **Histograma NÃO
+> é bimodal**: é a distribuição inteira deslocada com cauda fina (≤16 ms 15% · ≤33 ms 82% ·
+> >33 ms 3%; no dev era 98,4% num pico só). (3) **`pioresTravadas` prova que o orçamento por
+> tempo (MEDIÇÃO 5) aguentou na máquina fraca**: TODA travada grande (2 185, 799, 407 ms)
+> está em `carregando`; em `jogando` o pior é 76 ms, depois 56/54/51. (4) **`gpu` rodou DE
+> VERDADE pela primeira vez** — o driver Intel expõe `EXT_disjoint_timer_query_webgl2`, 240
+> amostras (headless nunca teve a extensão; ver STATUS anterior).
+>
+> **O que isso muda na decisão.** Mesmo trabalho de render (draw calls e triângulos
+> IDÊNTICOS aos do dev), GPU 3,5× mais lenta. **Mesher em Worker segue certo, agora com dois
+> motivos medidos em vez de um:** (a) tira 9,7–13,4 s de meshing da main thread → corta ~10 s
+> da espera do aluno e destrava a tela de carga; (b) no steady state o meshing come
+> **3,7–6,0 ms/frame** (18–30% do frame; a rodada `nfhx` bate no teto `meshMsPorFrame: 6`),
+> devolvidos levam p50 de 18,7 → ~15 ms. **MAS o teto mudou**: a previsão do dev era "60
+> travado" e aqui não vale — **GPU p95 19,6 ms > 16,7 ms de orçamento**, então depois do
+> Worker o p95 encosta em ~20 ms de qualquer jeito. Worker leva 50 → ~57–60 FPS, não 60
+> travado; a cauda só cai cortando trabalho de GPU (raio, overdraw da água, fragment).
+> ⚠️ **Ressalva do bench:** `serverHost: "web-worker (benchmark)"` — o servidor rodou local
+> na aba. **Este número NÃO mede o WiFi da sala.** Carga real na aula = estes 13 s + rede.
+>
+> **MESHER EM WEB WORKER — CODADO NA MESMA SESSÃO.** Arquivos: `shared/src/mesher.ts`
+> (refatorado), `client/src/meshWorker.ts` e `client/src/meshPool.ts` (novos),
+> `client/src/chunks.ts`, `client/src/hud.ts`, `client/src/main.ts`, `scripts/bench-headless.mjs`.
+> **Desenho.** O mesher virou função pura de verdade: `meshVizinhanca(viz)` recebe um cubo
+> **18³ (`CHUNK_SIZE+2`)** e não conhece mais `World`. Isso cabe porque TODO acesso a bloco do
+> mesher está em `[-1..16]` nos 3 eixos (face culled, cerca, pé/cabeceira da cama, porta de
+> cima, e os cantos inclinados da água que olham ±1 em x/z e +1 em y). `extrairVizinhanca`
+> monta o cubo: interior por `set()` de linhas de 16 bytes (x é contíguo nos dois layouts),
+> só a casca por `getBlock`. `meshChunk(world,…)` continua existindo como wrapper —
+> servidor e testes não mudaram. O MUNDO fica na main thread (física e raycast leem `world`);
+> `SharedArrayBuffer` exigiria COOP/COEP pra poupar uma cópia de 5,8 kB.
+> **Pool:** `min(4, núcleos−1)` workers, **8 jobs em voo por worker** — com 1 job cada eles
+> ficariam ociosos entre frames (a main só alimenta 1×/frame ≈16 ms e um chunk custa ~3,5 ms)
+> e o pool renderia MENOS que o caminho síncrono. Ida e volta por transfer, zero cópia.
+> **Correção (o que impede buraco na tela):** versão monotônica por chunk — resultado que
+> volta com versão vencida é DESCARTADO (o chunk mudou por edição, `descartarColuna` ou
+> `trocarMundo` entre o envio e a volta). `filaPendente` agora soma fila + em-voo +
+> prontos-não-aplicados, senão a tela de carga (§🕐, gate `=== 0` em main.ts) sairia com o
+> mundo cheio de furo. `onerror` do worker → pool colapsa, chunks em voo voltam pra fila e a
+> sessão segue síncrona (fila que nunca esvazia travaria a tela de carga pra sempre).
+> **ESCOPO:** só o caminho `fila` (streaming) foi pro Worker. `remeshBlock`/`remeshBox`/
+> `buildAll` seguem síncronos — são resposta a ação do jogador (1 frame de atraso se nota) e
+> no perfil do lab foram **0% do custo** (`remeshPorCaminho`: 5 267 na fila, 0 em bloco/área).
+> **VERDE:** typecheck 3/3, **334 testes** (3 novos: a casca reproduz `getBlock` célula a
+> célula inclusive quinas e fora do mundo; `meshVizinhanca(extrairVizinhanca(…))` é
+> **byte-idêntico** a `meshChunk(…)`; o fast path de chunk ar/ausente continua devolvendo
+> nada), build ok (`meshWorker-*.js`, 18 kB).
+> **A/B HEADLESS (`?semworker` novo, mesma máquina, mesmo minuto)** — `npm run bench:headless`
+> com `?bench=15&tamanho=E`. O script agora imprime `geometria` e `remesh`, porque uma fila
+> que zera SEM produzir mesh passaria despercebida (era o risco do refactor):
+>
+> | | com Worker | `?semworker` |
+> |---|---|---|
+> | carga total / `malha` | **4 696 / 1 527 ms** | 14 376 / **11 370 ms** |
+> | remesh (n) | 4 815 | 2 622 |
+> | remesh **main thread** | **761 ms** (0,158 ms/chunk) | 2 447 ms (0,933 ms/chunk) |
+> | remesh dentro do worker | 4 065 ms | 0 |
+> | fila no fim | **0** | **1 057** (nem terminou) |
+> | draw calls / triângulos | **636 / 196 012** | 318 / 113 578 |
+>
+> **O que este A/B prova e o que NÃO prova.** Prova: (a) a geometria é real e completa — 636
+> draw calls e 196 k triângulos, na mesma ordem do bench real (633/188 k); (b) **~6× menos
+> main thread por chunk** (0,158 × 0,933 ms), que é a razão estrutural extract+BufferGeometry
+> contra mesh inteiro; (c) o trabalho TOTAL se conserva — 761+4 065 = 4 826 ms para 4 815
+> chunks (1,00 ms/chunk) contra 0,93 ms/chunk síncrono, ou seja **a cópia padded custa ~7% de
+> CPU a mais**, e essa CPU está fora do frame. **NÃO prova o ganho de FPS:** headless roda em
+> SwiftShader a 8–10 fps, então o orçamento de 6 ms/frame vira 60 ms/s de meshing e o caminho
+> síncrono nem termina de carregar — o 3× de carga aqui está EXAGERADO pelo ambiente.
+>
+> **O PAR A/B DO LAB CHEGOU (2026-07-27, notebook de professor).**
+> `perf-bench-1785120251535-jkso.json` = COM Worker · `perf-bench-1785120314529-t3xn.json`
+> = `?semworker`. **Resultado DIVIDIDO — e é o dado que decidiu o desenho final.**
+>
+> | | `?semworker` (t3xn) | Worker sem freio (jkso) | |
+> |---|---|---|---|
+> | **carga total** | 11 535 ms | **5 147 ms** | ✅ −55% |
+> | **carga `malha`** | 8 481 ms | **2 208 ms** | ✅ −74% |
+> | remesh main ms/chunk | 3,064 | **0,375** | ✅ 8,2× menos |
+> | **FPS médio** | **50** | 36 | ❌ |
+> | p50 / p95 ms | 19 / 28,1 | **25,4 / 44** | ❌ |
+> | frames >50 ms | 2 | **23** | ❌ |
+> | frames ≤16 ms | 17,1% | **1,8%** | ❌ |
+> | remesh (n) | 5 456 | **7 904** | ⚠️ +45% |
+> | trabalho de mesh | 16,7 s (main) | **23,7 s** (worker) | ⚠️ +42% |
+> | GPU méd | 13,6 ms | 15,13 ms | ⚠️ |
+>
+> **Duas causas, ambas por eu ter TIRADO O FREIO junto com o mesher.**
+> (1) **Trabalho duplicado (+45%).** `enfileirarColuna` põe a coluna nova E as 4 vizinhas.
+> Com a fila lenta do caminho síncrono, `filaSet` fundia essas re-entradas — coalescência de
+> graça. Com o pool esvaziando rápido, cada re-entrada virou job próprio e o anterior foi
+> descartado por versão vencida: **2 448 jobs de puro desperdício em 7 904**.
+> (2) **Sem throttle no steady state.** O síncrono tinha `meshMsPorFrame: 6` = meshing preso
+> a ~30% de UM núcleo. O pool rodava 4 workers a plena carga; num i5 de 4 núcleos físicos
+> isso disputa núcleo com a main thread e com a thread do driver D3D11 — por isso até a GPU
+> subiu (13,6 → 15,1 ms), o que meshing por si só não explicaria.
+>
+> **CORREÇÃO APLICADA (mesma sessão).**
+> - **Coalescência de volta:** `chavesEmVoo` + `sujosEmVoo` no `ChunkRenderer`. Chunk que já
+>   tem job no worker não abre job duplicado — fica marcado sujo e é re-enfileirado UMA vez
+>   quando o resultado (vencido) chega.
+> - **Freio por FASE:** `MeshPool.modoCarga`, ligado a `loading.ativo` em main.ts.
+>   Profundidade **8 jobs/worker na CARGA** (não há frame pra proteger, a tela de carga está
+>   na frente) e **2 na JOGATINA** (~30% de ocupação de worker, vazão ~400 chunks/s contra
+>   ~100/s do síncrono, que já mantinha fila 0 no lab).
+> - **Knob `?meshdepth=N`** — profundidade de jogo por worker. Existe porque o **2 saiu de
+>   conta de ocupação de núcleo, NÃO de medida no lab**; headless roda a 8–16 fps e é o
+>   regime errado pra calibrar isso.
+>
+> **Verificação headless (mesma máquina, 3 rodadas):** dedup cortou remesh 4 815 → 3 803
+> (−21%) e worker 4 065 → 3 566 ms, com `carga.malha` 1 527 → 1 229 ms. Profundidade 1
+> terminou com **fila 91** (a vazão escala com o FPS, e a 16 fps não dava conta); com
+> profundidade 2 a **fila fecha em 0** e a geometria volta pro nível certo (576 draw calls).
+> **VERDE:** typecheck 3/3, 334 testes, build ok.
+>
+>
+> **KNOB FECHADO: `PROFUNDIDADE_JOGO = 1` (2026-07-27, 6 rodadas no notebook do lab).**
+> O usuário rodou a sequência `?bench` (=2) → `&meshdepth=1` → `&meshdepth=4` DUAS vezes:
+> primeiro **na bateria em modo economia com <30%**, depois **na tomada**.
+>
+> **O lote da bateria não serve pra escolher e o perfil diz por quê:** `p50 = 33,3 ms` nas
+> TRÊS rodadas — 30 Hz exato, vsync cravado pelo modo economia, não carga — com GPU ~28% mais
+> cara (méd 16,7–17,4 · p95 25,7–27,6). Frametime nesse regime não mede contenção de mesh.
+> Rodadas: `rmcb` (=2) · `t87u` (=1) · `l9yc` (=4).
+>
+> **Lote da tomada — o que decidiu** (`tkc7`=2 · `l9xf`=1 · `bjrv`=4, contra `t3xn`=síncrono):
+>
+> | | depth 2 | **depth 1** | depth 4 | síncrono |
+> |---|---|---|---|---|
+> | FPS | 42 | **50** | 47 | 50 |
+> | p50 / p95 ms | 22,7 / 34,3 | **20,0 / 26,7** | 20,1 / 31,9 | 19 / 28,1 |
+> | p99 ms | 44,3 | **31,4** | 39,3 | 34,6 |
+> | frames >50 ms | 8 | **1** | 3 | 2 |
+> | GPU méd / p95 | 14,6 / 18,8 | **13,0 / 16,8** | 13,1 / 16,6 | 13,6 / 18,5 |
+> | carga total ms | 5 056 | **4 508** | 4 927 | 11 535 |
+> | trabalho no worker | 18 090 | **13 738** | 16 036 | — |
+>
+> **Depth 1 empata o FPS do síncrono (50) e BATE a cauda dele** (p95 26,7 × 28,1 · p99 31,4 ×
+> 34,6 · frames >50 ms 1 × 2), com a carga em 4,5 s no lugar de 11,5 s. Contra o 4 ganha em
+> todas as métricas de frametime.
+>
+> **Três leituras que dão coerência:**
+> 1. **Fila rasa faz MENOS trabalho total** (13 738 × 16 036 ms de worker): o chunk espera
+>    mais na `fila`, então o `filaSet` funde mais re-entradas antes de virar job. A
+>    coalescência melhora sozinha quando o freio aperta.
+> 2. **A carga é igual nas três (4,5–5,1 s) porque o knob NÃO a afeta** — `PROFUNDIDADE_CARGA`
+>    é fixa em 8. Essa variação é ruído de rodada.
+> 3. **O `depth 2` da tomada está contaminado**: foi a primeira rodada depois do lote de
+>    bateria, com a máquina saindo do throttle (FPS 42 destoa de 47–50). A escolha real foi
+>    entre 1 e 4.
+> ✅ **O risco do depth 1 morreu de graça:** o medo era a fila não esvaziar em FPS baixo. O
+> lote em modo economia rodou a 30 Hz travado — exatamente esse regime — e **`fila` fechou em
+> 0 nas três profundidades**, com draw calls 630–633 e triângulos 186 716–188 048.
+>
+> ⚠️ **FATO DE IMPLANTAÇÃO (novo): notebook em modo economia de bateria trava em 30 FPS.**
+> Nenhuma otimização atravessa isso. Se algum PC da sala for notebook em bateria, o aluno vê
+> 30 FPS por política de energia do Windows, não por causa do jogo.
+> ⚠️ **Teto que knob nenhum passa: GPU p95 ~16,8–19,6 ms contra 16,7 ms de orçamento.** O
+> mesher ACABOU. O próximo alvo, se ainda incomodar, é GPU (raio de render em GPU fraca,
+> overdraw da água, custo de fragment) — ver TODO ⏭️.
+
 > **SESSÃO 26 (2026-07-26) — §📊 AS 7 DO PERFILADOR: TODAS ENTREGUES.** Usuário disse só
 > "continuar" → peguei a fila. **Item 7 já estava pronto** (`dispositivo()` do hud.ts já
 > trazia `nucleos`/`ramGB` desde antes — confirmado no perfil headless: 24 núcleos, 16 GB).

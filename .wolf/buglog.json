@@ -2,22 +2,6 @@
   "version": 1,
   "bugs": [
     {
-      "id": "bug-390",
-      "timestamp": "2026-07-21T00:42:33.490Z",
-      "error_message": "Significant refactor of ",
-      "file": "shared/src/arvores.ts",
-      "root_cause": "3 lines replaced/restructured",
-      "fix": "Rewrote 10→12 lines (3 removed)",
-      "tags": [
-        "auto-detected",
-        "refactor",
-        "ts"
-      ],
-      "related_bugs": [],
-      "occurrences": 1,
-      "last_seen": "2026-07-21T00:42:33.490Z"
-    },
-    {
       "id": "bug-391",
       "timestamp": "2026-07-21T00:51:57.988Z",
       "error_message": "Significant refactor of ",
@@ -3357,6 +3341,29 @@
       "related_bugs": [],
       "occurrences": 1,
       "last_seen": "2026-07-27T08:09:44.849208-03:00"
+    },
+    {
+      "id": "bug-533",
+      "timestamp": "2026-07-27T08:57:55.881795-03:00",
+      "error_message": "usuario (playtest): 'as texturas estao rotacionadas para cada face'. Com correnteza sul->norte: topo certo, face de baixo 180, face sul 90 horario, leste 180, oeste certa, norte 90 horario.",
+      "file": "shared/src/mesher.ts",
+      "root_cause": "A regra da correnteza (bug-532) escolhia UM tile por CELULA e usava nas 6 faces. Mas o tile e uma imagem de 2 eixos e cada face amarra esses 2 eixos a direcoes de mundo DIFERENTES: no topo u/v seguem x/z, na face de baixo seguem x/z INVERTIDOS, e nas laterais um dos eixos e o VERTICAL. Resultado medido: com fluxo pro norte o topo saia certo, a face de baixo corria pro sul e as 4 laterais mostravam a onda DESCENDO.",
+      "fix": "Tile escolhido por FACE (`tileAguaDaFace`), projetando o vetor de fluxo nos eixos daquela face (`FACE_BASES`, derivado de FACES, nao escrito a mao). Lateral perpendicular ao fluxo — e agua CAINDO — mostra a onda descendo (leitura de cachoeira). ATENCAO: rotacao fixa por face NAO resolve, apesar de parecer; foi verificado numericamente que com fluxo pro norte as laterais mostram BAIXO e com fluxo pro leste elas ja mostram horizontal, entao nenhuma rotacao constante acerta os dois. O usuario pediu a rotacao fixa; a projecao foi entregue no lugar, com a evidencia.",
+      "tags": [
+        "playtest",
+        "agua",
+        "correnteza",
+        "uv",
+        "face",
+        "atlas",
+        "mesher",
+        "§🌬️"
+      ],
+      "related_bugs": [
+        "bug-532"
+      ],
+      "occurrences": 1,
+      "last_seen": "2026-07-27T08:57:55.881795-03:00"
     }
   ]
 }

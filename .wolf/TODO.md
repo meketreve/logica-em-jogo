@@ -2,7 +2,7 @@
 
 > Working checklist. **STATUS.md** = handoff ("why & where we are"); **TODO.md** = "what's left to do".
 > Keep items actionable and short. Check off with `[x]`; sweep done items into STATUS.md ✅ when a phase closes.
-> Last updated: 2026-07-27 (sessão 28b — regra da correnteza do playtest, commitada sem push)
+> Last updated: 2026-07-27 (sessão 28c — sentido da correnteza por face, commitado sem push)
 
 ---
 
@@ -11,9 +11,11 @@
 - [ ] **Medir o preço do §🌬️ no notebook do lab**: `?bench` com nuvens+balanço ON, comparar
       com a régua `…-l9xf.json` (50 FPS · p95 26,7 · GPU méd 13,0 / p95 16,8 · carga 4 508 ms).
       Se piorar acima do ruído de 1–2%, gravar o par com `nuvens` OFF em Configurações.
-- [ ] **Playtest da REGRA DA CORRENTEZA (28b), de balde na mão**: despejar água num declive e
-      conferir que a textura desce COM a água. O mar segue o vento de propósito (é tudo fonte,
-      gradiente zero) — não é bug. Headless não resolve: o mar gerado não tem fluxo.
+- [ ] **Playtest da correnteza (28b+28c), de balde na mão**: despejar água num declive e
+      conferir as 6 faces. Esperado: topo, baixo e as laterais PARALELAS ao fluxo acompanham a
+      água; as laterais PERPENDICULARES mostram a onda descendo (não há horizontal a mostrar
+      numa face que o fluxo atravessa) — não é bug. Mar segue o vento, também de propósito.
+      Headless não resolve: o mar gerado não tem fluxo.
 
 ## ⏭️ Next (queued, ready to pick up)
 
@@ -63,3 +65,6 @@
       próprio fluxo (gradiente de nível na vizinhança → 8 tiles de atlas escolhidos pelo
       mesher); água PARADA segue o vento. Pintura da água em `putImageData` + teto de 12
       repinturas/s.
+- [x] **Sentido da correnteza por FACE (sessão 28c)**: `tileAguaDaFace` projeta o fluxo nos
+      eixos de cada face (`FACE_BASES`). Rotação fixa por face não resolvia — verificado
+      numericamente que erra em outra direção de fluxo.

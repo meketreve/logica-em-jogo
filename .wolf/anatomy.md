@@ -1,6 +1,6 @@
 # anatomy.md
 
-> Auto-maintained by OpenWolf. Last scanned: 2026-07-27T11:09:45.261Z
+> Auto-maintained by OpenWolf. Last scanned: 2026-07-27T11:58:37.687Z
 > Files: 234 tracked | Anatomy hits: 0 | Misses: 0
 
 ## ./
@@ -411,16 +411,16 @@
 ## mundos/_smoke-coluna/
 
 - `_smoke-coluna.ljw` (~62 tok)
-- `chat.log` (~160 tok)
+- `chat.log` (~214 tok)
 
 ## mundos/_smoke-kicar/
 
-- `chat.log` (~1423 tok)
+- `chat.log` (~1660 tok)
 
 ## mundos/_smoke-trocaa/
 
 - `_smoke-trocaa.ljw` (~87 tok)
-- `chat.log` (~480 tok)
+- `chat.log` (~639 tok)
 
 ## mundos/_smoke-trocab/
 
@@ -428,11 +428,11 @@
 
 ## mundos/aula1-sequencia/
 
-- `chat.log` (~3788 tok)
+- `chat.log` (~4536 tok)
 
 ## mundos/aula2-binario/
 
-- `chat.log` (~192 tok)
+- `chat.log` (~224 tok)
 
 ## mundos/flor-world/
 
@@ -444,7 +444,7 @@
 
 ## mundos/mundo-livre/
 
-- `chat.log` (~2418 tok)
+- `chat.log` (~2484 tok)
 
 ## mundos/playtest-streaming/
 
@@ -700,23 +700,26 @@
   - fn `criarRegiao` L51-325 (~3268 tok)
 - `groups.ts` — Grupos de alunos (cp13) — membros por NOME (mesma identidade do roster: (~280 tok)
 - `index.ts` (~159 tok)
-- `mesher.test.ts` — Quais TILES do atlas a geometria usa, deduzidos das UVs. Assim o teste checa (~4675 tok)
-  - fn `tilesUsados` L21-385 (~4550 tok)
-- `mesher.ts` — Culled mesher: função PURA (bytes do mundo → geometria). Só emite faces que (~12686 tok)
+- `mesher.test.ts` — Pra onde, NO MUNDO, a onda de `tile` anda quando pintada na face `f`. (~5494 tok)
+  - fn `direcaoDaOnda` L28-41 (~151 tok)
+  - fn `tilesUsados` L42-449 (~5130 tok)
+- `mesher.ts` — Culled mesher: função PURA (bytes do mundo → geometria). Só emite faces que (~13708 tok)
   - section `FaceTiles` L156-301 (~2044 tok)
   - fn `blockIconTile` L302-310 (~136 tok)
   - fn `blockSelectionBox` L311-347 (~490 tok)
   - section `FaceCorner` L348-352 (~34 tok)
   - section `Face` L353-417 (~470 tok)
   - section `UvAxis` L418-422 (~17 tok)
-  - fn `uvAxisOf` L423-455 (~367 tok)
-  - fn `rotXZ` L456-475 (~199 tok)
-  - fn `swayDoBloco` L476-481 (~44 tok)
-  - section `ChunkGeometry` L482-520 (~590 tok)
-  - fn `vizIndex` L521-545 (~280 tok)
-  - fn `extrairVizinhanca` L546-582 (~374 tok)
-  - fn `meshChunk` L583-589 (~101 tok)
-  - fn `meshVizinhanca` L590-1060 (~6210 tok)
+  - fn `uvAxisOf` L423-435 (~165 tok)
+  - section `FaceBase` L436-493 (~722 tok)
+  - fn `tileAguaDaFace` L494-523 (~424 tok)
+  - fn `rotXZ` L524-543 (~199 tok)
+  - fn `swayDoBloco` L544-549 (~44 tok)
+  - section `ChunkGeometry` L550-588 (~590 tok)
+  - fn `vizIndex` L589-613 (~280 tok)
+  - fn `extrairVizinhanca` L614-650 (~374 tok)
+  - fn `meshChunk` L651-657 (~101 tok)
+  - fn `meshVizinhanca` L658-1131 (~6288 tok)
 - `physics.test.ts` — Mundo 1 chunk com chão sólido em y ∈ [0,7]. (~4462 tok)
   - fn `flatWorld` L15-22 (~63 tok)
   - fn `simulate` L23-359 (~4315 tok)

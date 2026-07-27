@@ -34,6 +34,11 @@
   mundo ("quem corre dita a própria direção"), não de defeito visual. Ao propor
   animação ambiental, checar antes se há uma força mais LOCAL que deveria ganhar
   da global.
+- **Relata bug de orientação em forma de RECEITA** ("rotaciona 180 na face de
+  baixo, 90 horário na sul…"), a partir de UM caso observado (2026-07-27). A
+  observação é boa; a receita nem sempre generaliza. Conferir a receita contra o
+  modelo antes de aplicar, mostrar a evidência e entregar a correção geral —
+  ele aceita bem quando o furo é apontado com número.
 - Quer ser desafiado no design: aceita bem quando aponto furos pedagógicos/técnicos.
 - **Convenções de Minecraft são o padrão esperado** (playtest 2026-07-13): pediu
   botão-do-meio = copiar bloco mirado; sprint que só engata com os pés no chão.
@@ -610,6 +615,18 @@
 
 ## Key Learnings — vento e vida ambiental (2026-07-27, sessão 28)
 
+- **Tile direcional num cubo precisa de escolha POR FACE, não por célula.** O
+  tile é uma imagem de 2 eixos e cada face amarra esses eixos a direções de mundo
+  diferentes: no topo u/v seguem x/z; na face de baixo seguem x/z invertidos; nas
+  LATERAIS um dos eixos é o VERTICAL. Um tile só pra célula sai certo no topo e
+  torto no resto. `FACE_BASES` (derivado de FACES, não escrito à mão) dá o eixo
+  de mundo de u e de v por face; projetar a direção desejada nele resolve.
+- **Rotação fixa por face NÃO conserta tile direcional** — parece que sim quando
+  se testa uma direção só. Prova numérica: com fluxo pro NORTE as 4 laterais
+  mostram a onda descendo; com fluxo pro LESTE elas já mostram horizontal.
+  Nenhuma rotação constante acerta os dois. Quando um relato de playtest vier em
+  forma de "rotaciona 90 aqui, 180 ali", DERIVAR a tabela numericamente antes de
+  aplicar: pode ser sintoma de um mapeamento faltando, não de um offset.
 - **Animação de tile do atlas: `putImageData`, não `fillRect` por pixel.** A
   versão antiga montava uma string `rgb(r,g,b)` e trocava o `fillStyle` a cada
   pixel — 256 strings alocadas e reparseadas por repintura. Com os 9 tiles de

@@ -427,6 +427,33 @@ function uvAxisOf(a: FaceCorner, b: FaceCorner): UvAxis {
   return { axis: 0, flip: false };
 }
 
+/** Eixos de MUNDO que o u e o v de cada face seguem (índice = ordem de FACES).
+ *
+ *  Serve pra saber, numa face qualquer, em que direção do mundo a textura anda —
+ *  e é a peça que faltava pra corrigir o SENTIDO da correnteza face por face
+ *  (playtest de 2026-07-27). Derivado de FACES, não escrito à mão: se um canto
+ *  mudar lá, isto acompanha. */
+export interface FaceBase {
+  readonly dir: readonly [number, number, number];
+  /** Direção de mundo que o u da face segue (vetor unitário de eixo). */
+  readonly du: readonly [number, number, number];
+  /** Direção de mundo que o v da face segue. Nas faces LATERAIS é sempre +y. */
+  readonly dv: readonly [number, number, number];
+}
+
+export const FACE_BASES: readonly FaceBase[] = FACES.map((f) => {
+  const at = (u: 0 | 1, v: 0 | 1): FaceCorner =>
+    f.corners.find((c) => c.uv[0] === u && c.uv[1] === v) ?? f.corners[0];
+  const p00 = at(0, 0).pos;
+  const p10 = at(1, 0).pos;
+  const p01 = at(0, 1).pos;
+  const sub = (
+    a: readonly [number, number, number],
+    b: readonly [number, number, number],
+  ): readonly [number, number, number] => [a[0] - b[0], a[1] - b[1], a[2] - b[2]];
+  return { dir: f.dir as readonly [number, number, number], du: sub(p10, p00), dv: sub(p01, p00) };
+});
+
 const FACE_UVS: readonly { u: UvAxis; v: UvAxis }[] = FACES.map((f) => {
   const at = (u: 0 | 1, v: 0 | 1): FaceCorner =>
     f.corners.find((c) => c.uv[0] === u && c.uv[1] === v) ?? f.corners[0];
@@ -443,6 +470,47 @@ const VIZINHOS_XZ: readonly (readonly [number, number])[] = [
   [0, 1],
   [0, -1],
 ];
+
+/**
+ * Tile da correnteza pra UMA face de água, dado o fluxo da célula (§🌬️,
+ * correção de sentido do playtest de 2026-07-27).
+ *
+ * O problema que isto resolve: o tile é uma imagem de 2 eixos, e cada face do
+ * cubo amarra esses 2 eixos a direções de mundo DIFERENTES. Escolher um tile só
+ * pra célula inteira fazia a onda sair certa no topo e torta em todo o resto —
+ * a face de baixo corria ao contrário, e as laterais mostravam a onda DESCENDO
+ * em vez de correr na horizontal.
+ *
+ * ⚠️ Rotação fixa por face NÃO resolve isso, por mais que pareça: nas faces
+ * laterais um dos eixos do tile é o VERTICAL, então a mesma rotação que acerta
+ * um fluxo pro norte erra um fluxo pro leste (com fluxo leste as laterais já
+ * mostram a onda na horizontal). O que vale pra qualquer direção é PROJETAR o
+ * fluxo nos eixos daquela face, que é o que esta função faz.
+ *
+ * Faces laterais perpendiculares ao fluxo não têm componente horizontal pra
+ * mostrar (a água entra na parede); essas — e as de água CAINDO — mostram a onda
+ * descendo, que é a leitura de cachoeira.
+ */
+export function tileAguaDaFace(face: number, fx: number, fz: number, caindo: boolean): number {
+  const base = FACE_BASES[face];
+  if (!base) return TILE.agua;
+  // sem correnteza (mar/lago: tudo fonte) o vento é quem manda, em TODA face —
+  // tem de sair antes do ramo de "cachoeira" abaixo, senão o mar desceria
+  if (fx === 0 && fz === 0) return TILE.agua;
+  const lateral = base.dv[1] !== 0; // nas laterais o v segue o eixo Y
+  // direção desejada NO MUNDO, já projetada nos eixos da face
+  let u = fx * base.du[0] + fz * base.du[2];
+  let v = fx * base.dv[0] + fz * base.dv[2];
+  if (lateral && (caindo || u === 0)) {
+    // água caindo (ou face de costas pro fluxo): a onda desce
+    u = 0;
+    v = -1;
+  }
+  if (u === 0 && v === 0) return TILE.agua;
+  // ONDA_AGUA_POR_SETOR[s] é o vetor de CANVAS do setor s, e vale −dir(s); o
+  // canvas tem o y pra baixo (cy = −v). Juntando os dois sinais: s = setor(−u, v).
+  return TILE.aguaFluxo + setorDaDirecao(-u, v);
+}
 
 /** Altura do topo da água de nível MÁXIMO (fonte, 8/8). Fica abaixo do teto da
  *  célula pra a superfície ler como "lâmina d'água" e não como bloco cheio —
@@ -942,7 +1010,7 @@ export function meshVizinhanca(viz: Uint8Array): ChunkGeometry {
    * Continua função pura da vizinhança (lê ±1 no plano), então `meshVizinhanca`
    * segue idêntico a `meshChunk` e o Worker não precisa de nada novo.
    */
-  const tileDaAgua = (lx: number, ly: number, lz: number, id: number): number => {
+  const fluxoDaAgua = (lx: number, ly: number, lz: number, id: number): [number, number] => {
     const meu = aguaNivel(id);
     let fx = 0;
     let fz = 0;
@@ -954,8 +1022,7 @@ export function meshVizinhanca(viz: Uint8Array): ChunkGeometry {
       fx += dx * d;
       fz += dz * d;
     }
-    if (fx === 0 && fz === 0) return TILE.agua; // parada: o vento manda
-    return TILE.aguaFluxo + setorDaDirecao(fx, fz);
+    return [fx, fz]; // (0,0) = parada: quem manda é o vento
   };
 
   for (let ly = 0; ly < CHUNK_SIZE; ly++) {
@@ -987,11 +1054,15 @@ export function meshVizinhanca(viz: Uint8Array): ChunkGeometry {
               [alturaCantoAgua(lx, ly, lz, 1, 0), alturaCantoAgua(lx, ly, lz, 1, 1)],
             ]
           : null;
-        // §🌬️ (2026-07-27): água CORRENTE usa o tile do seu setor de fluxo; água
-        // parada usa o tile que o vento anima. Uma vez por célula, não por face.
-        const tileAgua = cantos ? tileDaAgua(lx, ly, lz, id) : 0;
+        // §🌬️ (2026-07-27): a correnteza sai do gradiente de nível, UMA vez por
+        // célula — mas o TILE é escolhido por FACE (tileAguaDaFace), porque cada
+        // face amarra os 2 eixos do tile a direções de mundo diferentes.
+        const fluxo = cantos ? fluxoDaAgua(lx, ly, lz, id) : null;
+        // caindo = sem chão embaixo: as laterais leem como cachoeira (onda desce)
+        const caindo = fluxo !== null && bloco(lx, ly - 1, lz) === BlockId.Air;
 
-        for (const face of FACES) {
+        for (let fi = 0; fi < FACES.length; fi++) {
+          const face = FACES[fi]!;
           const neighbor = bloco(lx + face.dir[0], ly + face.dir[1], lz + face.dir[2]);
           // cp18: face aparece se o vizinho é ar OU transparente de OUTRO tipo
           // (vidro encostado em folha: cada um mostra a sua face — a face oposta
@@ -1008,8 +1079,8 @@ export function meshVizinhanca(viz: Uint8Array): ChunkGeometry {
             }
           }
 
-          const tile = cantos
-            ? tileAgua
+          const tile = fluxo
+            ? tileAguaDaFace(fi, fluxo[0], fluxo[1], caindo)
             : face.dir[1] === 1
               ? tiles.top
               : face.dir[1] === -1
