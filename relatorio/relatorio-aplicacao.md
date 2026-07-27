@@ -19,7 +19,7 @@
 |Público|2º ao 9º ano do Ensino Fundamental (turmas multisseriadas — 2 anos por turma, incl. AEE)|
 |Nº de alunos|61; 15 alunos por turma|
 |Área / componente|Pensamento computacional / raciocínio lógico (BNCC)|
-|Versão do jogo|**v0.8.0** (2026-07-21)|
+|Versão do jogo|**v0.8.0**|
 
 \---
 
