@@ -475,3 +475,5 @@ NÃO commitado; playtest no browser pendente.
 | 02:51 | Session end: 43 writes across 7 files (mesher.ts, meshWorker.ts, meshPool.ts, chunks.ts, hud.ts) | 10 reads | ~52506 tok |
 | 2026-07-27 | SESSÃO 27: perfil do lab → mesher em Web Worker → par A/B expôs regressão de FPS → coalescência de job em voo + freio por fase + knob ?meshdepth | shared/src/mesher.ts(+test), client/src/{meshWorker,meshPool}.ts (novos), chunks.ts, hud.ts, main.ts, scripts/bench-headless.mjs | typecheck 3/3, 334 testes, build ok. Carga no lab 11,5→5,1 s; FPS pendente de fechar com ?meshdepth | ~180k |
 | 02:52 | Session end: 43 writes across 7 files (mesher.ts, meshWorker.ts, meshPool.ts, chunks.ts, hud.ts) | 10 reads | ~52506 tok |
+| 03:28 | Session end: 43 writes across 7 files (mesher.ts, meshWorker.ts, meshPool.ts, chunks.ts, hud.ts) | 12 reads | ~52506 tok |
+| 06:35 | Push do projeto (9 commits) e PR upstream do bug do hook de summary | origin/main b3669ff · cytostack/openwolf#64 | PR +98 -1, 32/32 testes e typecheck limpos no fork | ~12k |

@@ -696,3 +696,21 @@
   do pool escala com o FPS, profundidade 1 deixou 91 chunks pendentes lá e seria ampla no lab
   a 50 fps. Headless decide ENCANAMENTO e razões por chunk; número de tuning sai da máquina
   que dói — daí `?meshdepth=N` em vez de eu escolher no escuro.
+
+### [2026-07-27] O aviso "no semantic summary" do OpenWolf era bug, não descuido
+
+`countSemanticEntries` (`src/hooks/shared.ts`) contava só linha começando com
+`| YYYY-MM-DD`, mas NADA escreve nesse formato: o template `OPENWOLF.md`, o texto do próprio
+aviso e as linhas que o hook grava usam `| HH:MM |`, e a sessão é delimitada por
+`## Session: YYYY-MM-DD HH:MM`. Resultado: contagem sempre 0 e o "ACTION REQUIRED" repetindo
+a cada stop, sem jeito de satisfazer seguindo as instruções dele mesmo.
+
+- **Corrigido localmente** em `~/.local/share/pnpm/global/.../openwolf/dist/hooks/shared.js`
+  (a edição quebrou o hardlink, o store do pnpm ficou intacto). ⚠️ `pnpm update -g openwolf`
+  sobrescreve; backup do original ficou no scratchpad da sessão.
+- **PR upstream: [cytostack/openwolf#64](https://github.com/cytostack/openwolf/pull/64)**
+  (branch `fix/semantic-summary-detection` no fork `meketreve/openwolf`).
+- **Lição de método:** aviso de hook que repete mesmo depois de cumprido é suspeito de
+  detector inconsistente com a própria instrução. Ler o código do hook custou 3 comandos e
+  poupou repetir a mesma ação em loop. Antes de "cumprir mais uma vez", conferir o que o
+  detector realmente procura.
