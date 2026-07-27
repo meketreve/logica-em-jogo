@@ -487,3 +487,5 @@ NÃO commitado; playtest no browser pendente.
 | 03:52 | Edited scripts/bench-headless.mjs | 1→3 lines | ~117 |
 | 04:05 | Lidas as 6 rodadas do lab (bateria eco + tomada) e fechado o knob em PROFUNDIDADE_JOGO=1 | client/src/meshPool.ts | depth 1 empata FPS do síncrono (50) e bate a cauda (p95 26,7 × 28,1); carga 4,5 s × 11,5 s | ~14k |
 | 04:12 | Perfil passa a gravar `mesher` (workers + profundidades) — o A/B saiu sem etiqueta | hud.ts, chunks.ts, meshPool.ts, main.ts, bench-headless.mjs | verificado com ?meshdepth=3 → "4 workers · profundidade 3 (jogo) / 8 (carga)" | ~8k |
+| 03:56 | Session end: 49 writes across 7 files (mesher.ts, meshWorker.ts, meshPool.ts, chunks.ts, hud.ts) | 13 reads | ~61656 tok |
+| 04:30 | Handoff pro /clear: §🚀 reescrita (perf ENCERRADA, nada disparado), ciclo varrido pro ✅, TODO limpo e desduplicado | .wolf/STATUS.md, .wolf/TODO.md | STATUS aponta backlog (§🌬️ vento) como próxima escolha do usuário | ~9k |

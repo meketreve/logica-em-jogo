@@ -2,22 +2,6 @@
   "version": 1,
   "bugs": [
     {
-      "id": "bug-387",
-      "timestamp": "2026-07-21T00:17:32.243Z",
-      "error_message": "Missing guard clause",
-      "file": "shared/src/worldgen.test.ts",
-      "root_cause": "No early return/throw for edge case: getBlock(world, x, y, z",
-      "fix": "Added guard clause: if (getBlock(world, x, y, z)",
-      "tags": [
-        "auto-detected",
-        "guard-clause",
-        "ts"
-      ],
-      "related_bugs": [],
-      "occurrences": 1,
-      "last_seen": "2026-07-21T00:17:32.243Z"
-    },
-    {
       "id": "bug-388",
       "timestamp": "2026-07-21T00:18:07.224Z",
       "error_message": "Significant refactor of ",

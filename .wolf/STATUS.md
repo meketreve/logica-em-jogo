@@ -266,6 +266,15 @@ Documento é o ÚLTIMO entregável, não o primeiro. Construir, não documentar.
 
 ## ✅ Concluído
 
+- **§⚡ DESEMPENHO — CICLO FECHADO (sessão 27, 2026-07-27).** Perfilado o notebook do
+  laboratório (Intel UHD 630), diagnosticado que o custo era CPU de meshing na main thread
+  (`malha` 9,7–13,4 s contra 1,9 s no dev, com `mundo` idêntico → não era rede), movido o
+  mesher do streaming pra Web Worker (`meshVizinhanca` = função pura sobre um cubo 18³),
+  medido o A/B no lab, corrigida a regressão de FPS que o Worker sem freio causou
+  (coalescência de job em voo + profundidade por fase) e fechada a profundidade em 1 com 6
+  rodadas etiquetadas. **Resultado: FPS do caminho síncrono (50) com a carga em 4,5 s no
+  lugar de 11,5 s, e cauda melhor que a do síncrono (p95 26,7 × 28,1).** Nenhum gatilho de
+  otimização segue aceso.
 - Entrevista de requisitos (2026-07-10). Todas as decisões abaixo.
 - Revisão do projeto com Fable 5 (2026-07-10): render fechado em **three.js**;
   código vai morar em `~/projetos/logica-em-jogo` (WSL), fora do OneDrive.
@@ -454,63 +463,61 @@ Documento é o ÚLTIMO entregável, não o primeiro. Construir, não documentar.
 
 ---
 
-## 🚀 Próxima fase — RODAR O `?bench` NO PC DO LAB (e só então otimizar)
+## 🚀 Próxima fase — NADA DISPARADO. Perf ENCERRADA; escolher do backlog.
 
-**O que fazer primeiro (é do USUÁRIO, não meu):** abrir `?bench` num PC do laboratório e
-mandar o JSON. O link é `http://<ip-do-host>:8080/?bench` (30 s) — ou `?bench=60`,
-`?tamanho=P|M|G` pra medir só render. **Precisa de `npm run build`** se o cliente for servido
-pelo host Node (bug-516). Nada a decidir sobre otimização antes desse arquivo: o gatilho da
-política é "FPS baixo em PC do lab", e agora existe um número comparável pra checar isso.
+**O ciclo de desempenho FECHOU em 2026-07-27.** Não há próximo passo obrigatório: nenhum
+gatilho da política está aceso. O jogo roda no PC do laboratório com **o FPS do caminho
+síncrono (50) e um terço do tempo de carga (4,5 s contra 11,5 s)**. Quem retomar deve
+ESCOLHER do backlog abaixo, não continuar otimizando.
 
-**A RÉGUA (PC de dev, RTX 2060, 2026-07-27):** `profiles/perf-bench-2026-07-27T01-24-08-311Z.json`
-— 60 FPS · p95 16,9 ms · 98,4% dos frames ≤33 ms · 0 long tasks · GPU 4,02 ms · carga 4,76 s ·
-fila 0 no fim. **É contra estes números que o perfil do lab se lê.**
+**A régua, pra qualquer perfil futuro se ler contra:**
+- **PC de dev (RTX 2060):** `profiles/perf-bench-2026-07-27T01-24-08-311Z.json` — 60 FPS ·
+  p95 16,9 ms · GPU 4,02 ms · carga 4,76 s · fila 0.
+- **Notebook do lab (Intel UHD 630, 8 núcleos, NA TOMADA):** `…-l9xf.json` — 50 FPS ·
+  p50 20,0 · p95 26,7 · p99 31,4 ms · GPU méd 13,0 / p95 16,8 · carga 4 508 ms · fila 0.
+- **Ruído do instrumento ≈ 1–2%** (duas rodadas na mesma máquina): diferença acima disso é
+  SINAL. É esta linha que autoriza tratar um número novo como evidência.
 
-**Repetibilidade medida (duas rodadas na MESMA máquina, `-r96x` × `-311Z`):** p50/p95 idênticos
-(16,7/16,9), distância 405 = 405, colunas novas 443 = 443, **draw calls 633 e triângulos 188 048
-IDÊNTICOS** (as duas rodadas olharam o mesmo terreno nos mesmos instantes), remesh −0,6%, GPU
-−2,7%, carga +1,8%. **Ruído do instrumento ≈ 1–2%** → diferença acima disso entre máquinas é
-SINAL, não variação. É esta linha que autoriza tratar o número do lab como evidência. Se o lab vier com fila que
-não zera ou `carga` alta, o alvo é malha/rede (mesher em Worker); se vier com GPU perto do
-frametime, aí sim é render.
+**Como ler um perfil, na ordem que funcionou:** `carga.fasesMs` (`mundo` = rede/worldgen,
+`malha` = CPU de meshing — separa os dois sem instrumentação nova) → `gravacao.histogramaMs`
+(a FORMA) → `fases[]` + `pioresTravadas` com os `marcadores` do lado → `gpu` comparada com o
+frametime (é o teste de "é render?") → `mesher` (workers e profundidades: a etiqueta do
+experimento, existe desde bug-529).
 
-**Quando o perfil do lab chegar, olhar nesta ordem:** `carga` (quanto o aluno espera, por
-fase) → `gravacao.histogramaMs` (a FORMA: bimodal ou cauda longa?) → `fases[]` +
-`pioresTravadas` com os `marcadores` do lado (o pico tem causa agora) → `gpu` (se o driver do
-lab expuser a extensão, separa GPU cara de CPU cara — **este caminho nunca rodou de verdade**,
-headless não tem a extensão).
+### ⚠️ Dois tetos que NÃO se atravessa com código
 
-### Depois do número do lab — custo de render (o que sobrou)
+1. **GPU p95 16,8–19,6 ms contra 16,7 ms** de orçamento de 60 FPS no lab. **O mesher acabou.**
+   Se um dia o FPS incomodar de novo, o alvo é GPU — teto de `raioRender` em GPU fraca,
+   overdraw da água, custo de fragment. **Greedy meshing continua DESCARTADO:** draw calls
+   (633) e triângulos (188 048) do lab são IDÊNTICOS aos do PC de dev, então não é aí que a
+   máquina fraca perde.
+2. **Notebook em modo economia de bateria trava em 30 FPS** (`p50` 33,3 ms cravado, GPU 28%
+   mais cara). É política de energia do Windows. Perfil medido nesse estado NÃO serve pra
+   comparar otimização — checar o estado da máquina antes de concluir qualquer coisa.
 
-O pico morreu com o orçamento por tempo (MEDIÇÃO 5 do ROADMAP: p95 43–82 ms → 18,7/20,4 ms,
-frames >50 ms 9–50 → **0**). O que resta é modesto: **mesher em Web Worker** compra 16–19% de
-main thread (FPS 55–60 → 60 travado) e fila que esvazia mais rápido; plano escopado no
-ROADMAP. **Greedy meshing desceu** (steady state já é 60 FPS com 500 k triângulos).
-⚠️ Gatilho da política continua sendo "FPS baixo em PC do lab" — daí a prioridade do `?bench`.
+### Backlog aberto — o usuário escolhe
 
-### Backlog aberto (nasceu nas sessões 24–25)
-
-- **`ROADMAP.md §🌬️` — vento + vida ambiental** (pedido do usuário no playtest da água):
-  textura da água → vento autoritativo (molde do `horaDoDia`) → animação da água seguindo o
-  vento → nuvens → folhas balançando → grama e flores. Nada codado.
+- **`ROADMAP.md §🌬️` — vento + vida ambiental** (pedido no playtest da água): textura da água
+  → vento autoritativo (molde do `horaDoDia`) → animação da água seguindo o vento → nuvens →
+  folhas balançando → grama e flores. Nada codado.
 - **Som de água** (splash/borbulha/balde, WebAudio em `audio.ts`) — 4ª opção do refino de
   água, nunca escolhida.
-
-Sessões 20+21 commitadas e pushadas (`26151f9` blocos + `41211ff` wolf + `5d18899` handoff).
-Sessão 24 commitada: `e3eaac4` (água + streaming §🔁). Sessão 25 commitada nesta data.
-
-**Hitbox da laje: ENCERRADA (2026-07-26).** O usuário testou e confirmou — "hitbox já está
-correta", NADA a mudar. Ou seja: laje segue com mira na METADE (`blockSelectionBox`) e
-colisão de MEIA ALTURA (`temColisaoParcial`); NÃO copiar o modelo de célula cheia da
-cerca/porta. Se uma sessão futura achar isso "inconsistente", é decisão validada em
-playtest — deixar como está.
-
-**Candidatos de backlog** (ver ROADMAP.md pro resto): layouts mobile · auto-update do
-servidor · sobrevivência (fome/vida/craft) · v2 da geração.
+- **Candidatos** (ver ROADMAP.md): layouts mobile · auto-update do servidor · sobrevivência
+  (fome/vida/craft) · v2 da geração.
 
 **Entregável final (relatório) está essencialmente PRONTO** — pendências só opcionais:
 embutir 2–4 prints no §3, refs em ABNT, diagrama no Anexo A. Se o usuário pedir entrega,
-o passo é gerar PDF/HTML de `relatorio/relatorio-aplicacao.md`.
+o passo é gerar PDF/HTML de `relatorio/relatorio-aplicacao.md`. **O §desempenho do relatório
+agora tem material forte:** o par A/B com o caminho síncrono e a régua dev × lab.
+
+**Hitbox da laje: ENCERRADA (2026-07-26).** O usuário testou e confirmou — "hitbox já está
+correta", NADA a mudar. Laje segue com mira na METADE (`blockSelectionBox`) e colisão de MEIA
+ALTURA (`temColisaoParcial`); NÃO copiar o modelo de célula cheia da cerca/porta. Se uma
+sessão futura achar isso "inconsistente", é decisão validada em playtest — deixar como está.
+
+Sessões 20+21 (`26151f9`/`41211ff`/`5d18899`), 24 (`e3eaac4`) e 25 commitadas.
+**Sessão 27 commitada e pushada:** `51bc5c8` (mesher em Worker) + `b3669ff` (wolf) +
+`0a3dd3f` (PR do openwolf) + `efaf6df` (profundidade 1 + etiqueta no perfil).
 
 ---
 

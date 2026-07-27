@@ -5,7 +5,6 @@
 
 | id | tags | file | error (truncated) |
 |---|---|---|---|
-| bug-387 | auto-detected,guard-clause,ts | shared/src/worldgen.test.ts | Missing guard clause |
 | bug-388 | auto-detected,refactor,ts | shared/src/world.test.ts | Significant refactor of  |
 | bug-389 | auto-detected,refactor,ts | shared/src/worldgen.ts | Significant refactor of  |
 | bug-390 | auto-detected,refactor,ts | shared/src/arvores.ts | Significant refactor of  |
@@ -205,3 +204,4 @@
 | bug-526 | teste,vitest,timeout,mesher,typed-array,performance-de-teste | shared/src/mesher.test.ts | Test timed out in 5000ms — teste novo de equivalência do mesher (meshVizinhanca  |
 | bug-527 | teste,vitest,typecheck,blockid,falso-positivo,esbuild | shared/src/mesher.test.ts | TS2339: Property 'Vidro' does not exist on type BlockId — mas `npm test` passou  |
 | bug-528 | perf,worker,mesher,throttle,coalescencia,lab,fps,contencao-de-nucleo | client/src/meshPool.ts | usuario (bench no notebook do lab): mesher em Worker fez a carga cair 55% mas o  |
+| bug-529 | instrumentacao,perfil,bench,ab-test,meshdepth,worker | client/src/hud.ts | 6 perfis de A/B de `?meshdepth` voltaram do lab sem dizer qual profundidade cada |
