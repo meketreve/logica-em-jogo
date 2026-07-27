@@ -411,3 +411,4 @@ NÃO commitado; playtest no browser pendente.
 | 22:32 | Edited server/src/cenarios/_smoke-perfil-http.mjs | inline fix | ~21 |
 | 22:32 | Edited server/src/cenarios/_smoke-perfil-http.mjs | 1→5 lines | ~72 |
 | 22:35 | ?bench passa a POSTAR o perfil pro host (POST /perfil → profiles/, prefixo perf-bench-), fallback pro download sem host; server/src/perfis.ts novo concentra WS+HTTP; smoke novo perfil-http (6/6 suíte) | server/src/perfis.ts, server/src/index.ts, client/src/main.ts, scripts/smoke.mjs, _smoke-perfil-http.mjs | ok | ~28k |
+| 22:35 | Session end: 76 writes across 14 files (hud.ts, loading.ts, session.ts, protocol.ts, bench.ts) | 9 reads | ~112306 tok |

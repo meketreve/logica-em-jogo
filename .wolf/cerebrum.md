@@ -580,6 +580,15 @@
   SwiftShader nem expõe a extensão (conferido). Por isso o caminho inteiro vive em
   try/catch que DESLIGA a medição — perfilação não pode derrubar o loop de render.
   Uma consulta `TIME_ELAPSED_EXT` por vez; o resultado chega alguns frames depois.
+- **O `?bench` foi VALIDADO como instrumento (2026-07-27):** duas rodadas na mesma
+  máquina deram p50/p95 idênticos, distância e colunas novas iguais e **draw calls
+  e triângulos idênticos** (mesmo terreno nos mesmos instantes); remesh, GPU e carga
+  variaram 0,6–2,7%. **Ruído ≈ 1–2%** — diferença acima disso entre PCs é sinal.
+  Sem essa checagem de repetibilidade, o número do lab seria anedota.
+- **Perfil do bench entra pelo HOST por `POST /perfil`, não por WebSocket.** O bench
+  roda em singleplayer (Web Worker): não há socket. A página vem do host, então o
+  POST de mesma origem grava em `profiles/` (`server/src/perfis.ts`, prefixo
+  `perf-bench-` quando o payload tem `meta.bench`). Sem host, cai no download.
 - **Verificação headless que precisa LER dado (não olhar pixel) = CDP.** Chrome com
   `--remote-debugging-port`, `fetch /json/list`, WebSocket global do Node, e
   `Runtime.evaluate` lendo uma variável que o cliente publica (`window.__benchPerfil`).

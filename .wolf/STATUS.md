@@ -300,7 +300,13 @@ política é "FPS baixo em PC do lab", e agora existe um número comparável pra
 
 **A RÉGUA (PC de dev, RTX 2060, 2026-07-27):** `profiles/perf-bench-2026-07-27T01-24-08-311Z.json`
 — 60 FPS · p95 16,9 ms · 98,4% dos frames ≤33 ms · 0 long tasks · GPU 4,02 ms · carga 4,76 s ·
-fila 0 no fim. **É contra estes números que o perfil do lab se lê.** Se o lab vier com fila que
+fila 0 no fim. **É contra estes números que o perfil do lab se lê.**
+
+**Repetibilidade medida (duas rodadas na MESMA máquina, `-r96x` × `-311Z`):** p50/p95 idênticos
+(16,7/16,9), distância 405 = 405, colunas novas 443 = 443, **draw calls 633 e triângulos 188 048
+IDÊNTICOS** (as duas rodadas olharam o mesmo terreno nos mesmos instantes), remesh −0,6%, GPU
+−2,7%, carga +1,8%. **Ruído do instrumento ≈ 1–2%** → diferença acima disso entre máquinas é
+SINAL, não variação. É esta linha que autoriza tratar o número do lab como evidência. Se o lab vier com fila que
 não zera ou `carga` alta, o alvo é malha/rede (mesher em Worker); se vier com GPU perto do
 frametime, aí sim é render.
 
