@@ -11,6 +11,54 @@ echo "   LÓGICA EM JOGO — iniciar servidor"
 echo "============================================"
 echo
 
+# ============================================================
+#  Atualização (git) — só a máquina do PROFESSOR atualiza: o aluno abre o
+#  navegador e recebe o cliente DESTE servidor. `client/dist` é versionado,
+#  então não há nada pra compilar aqui.
+#  Pula sozinho, sem travar a aula, quando: LJ_SEM_UPDATE=1, a pasta não é
+#  clone do git, o git não está instalado, o branch não é main, há mudança
+#  local nesta máquina, ou a rede não responde.
+# ============================================================
+atualizar() {
+  [ -n "$LJ_SEM_UPDATE" ] && { echo "(LJ_SEM_UPDATE=1: não vou procurar atualização)"; return; }
+  [ -d .git ] || { echo "(esta pasta não veio de um clone do git: atualização automática desligada)"; return; }
+  command -v git >/dev/null 2>&1 || { echo "(git não encontrado — instale o git para atualizar daqui)"; return; }
+  local branch
+  branch="$(git rev-parse --abbrev-ref HEAD 2>/dev/null)"
+  [ "$branch" = "main" ] || { echo "(branch \"$branch\": atualização automática só vale no main)"; return; }
+  # arquivo RASTREADO modificado = alguém editou o código nesta máquina; atualizar
+  # poderia perder o trabalho. Arquivo novo/solto na pasta NÃO conta (`-uno`):
+  # senão qualquer .ljw exportado pra raiz travava a atualização pra sempre — e o
+  # próprio git se recusa a sobrescrever arquivo não rastreado, o que já é a rede
+  # de segurança (o merge falha e caímos no aviso lá embaixo).
+  [ -z "$(git status --porcelain --untracked-files=no)" ] || { echo "(há mudanças locais no código desta pasta — atualização pulada para não perder nada)"; return; }
+  echo "Procurando atualização..."
+  git fetch --quiet origin || { echo "(sem conexão com o servidor do código — seguindo com a versão instalada)"; return; }
+  local atras
+  atras="$(git rev-list --count HEAD..origin/main 2>/dev/null || echo 0)"
+  [ "$atras" != "0" ] || { echo "Já está na versão mais nova."; return; }
+  echo
+  echo "Existem $atras atualização(ões) nova(s):"
+  git --no-pager log --oneline --no-decorate -n 5 HEAD..origin/main
+  echo
+  read -r -p "Atualizar agora? [S/n] (Enter = sim): " UPD
+  case "$UPD" in
+    [nN]*) echo "(mantendo a versão atual)"; return ;;
+  esac
+  # --ff-only: nunca cria commit de merge na máquina da escola; se divergiu,
+  # avisa e segue jogando com o que já funciona
+  if ! git merge --ff-only origin/main; then
+    echo
+    echo "NÃO foi possível atualizar automaticamente (a cópia local divergiu)."
+    echo "Seguindo com a versão instalada."
+    return
+  fi
+  echo "Atualizado. Conferindo as dependências..."
+  npm install || echo "(aviso: npm install falhou — se o servidor não subir, rode 'npm install' à mão)"
+}
+atualizar
+echo
+
 # --- Dependências instaladas? (só na primeira vez) ---
 if [ ! -d node_modules ]; then
   echo "Primeira vez: instalando dependências (demora alguns minutos)..."

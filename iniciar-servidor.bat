@@ -13,6 +13,83 @@ echo    LOGICA EM JOGO - iniciar servidor
 echo ============================================
 echo.
 
+REM ============================================================
+REM  Atualizacao (git) - so a maquina do PROFESSOR atualiza:
+REM  o aluno abre o navegador e recebe o cliente deste servidor.
+REM  client\dist e VERSIONADO, entao nao precisa compilar nada aqui.
+REM  Pula sozinho, SEM travar a aula, quando: LJ_SEM_UPDATE=1, a pasta nao
+REM  e um clone do git, o git nao esta instalado, o branch nao e o main, ha
+REM  mudanca local nesta maquina, ou a rede nao responde.
+REM ============================================================
+if defined LJ_SEM_UPDATE (
+  echo ^(LJ_SEM_UPDATE=1: nao vou procurar atualizacao^)
+  goto :depois_update
+)
+if not exist ".git" (
+  echo ^(esta pasta nao veio de um clone do git: atualizacao automatica desligada^)
+  goto :depois_update
+)
+where git >nul 2>nul
+if errorlevel 1 (
+  echo ^(git nao encontrado - instale em https://git-scm.com para atualizar daqui^)
+  goto :depois_update
+)
+set "BRANCH="
+for /f "delims=" %%b in ('git rev-parse --abbrev-ref HEAD 2^>nul') do set "BRANCH=%%b"
+if not "%BRANCH%"=="main" (
+  echo ^(branch "%BRANCH%": atualizacao automatica so vale no main^)
+  goto :depois_update
+)
+REM Arquivo RASTREADO modificado = alguem editou o codigo NESTA maquina, e
+REM atualizar poderia perder o trabalho. Arquivo novo/solto na pasta nao conta
+REM (--untracked-files=no): senao um .ljw exportado pra raiz travava a
+REM atualizacao pra sempre. Se um arquivo solto atrapalhar, o proprio git se
+REM recusa a sobrescrever e caimos no aviso de "nao foi possivel atualizar".
+git status --porcelain --untracked-files=no > "%TEMP%\lj-git-status.txt" 2>nul
+set "SUJO=0"
+for %%s in ("%TEMP%\lj-git-status.txt") do set "SUJO=%%~zs"
+del "%TEMP%\lj-git-status.txt" >nul 2>nul
+if not "%SUJO%"=="0" (
+  echo ^(ha mudancas locais nesta pasta - atualizacao pulada para nao perder nada^)
+  goto :depois_update
+)
+echo Procurando atualizacao...
+git fetch --quiet origin
+if errorlevel 1 (
+  echo ^(sem conexao com o GitHub - seguindo com a versao instalada^)
+  goto :depois_update
+)
+set "ATRAS=0"
+for /f %%n in ('git rev-list --count HEAD..origin/main 2^>nul') do set "ATRAS=%%n"
+if "%ATRAS%"=="0" (
+  echo Ja esta na versao mais nova.
+  goto :depois_update
+)
+echo.
+echo Existem %ATRAS% atualizacao^(oes^) nova^(s^):
+git --no-pager log --oneline --no-decorate -n 5 HEAD..origin/main
+echo.
+set "UPD="
+set /p "UPD=Atualizar agora? [S/n] (Enter = sim): "
+if /i "%UPD%"=="n" (
+  echo ^(mantendo a versao atual^)
+  goto :depois_update
+)
+REM --ff-only: nunca cria commit de merge na maquina da escola. Se nao der
+REM fast-forward, algo divergiu - avisa e segue jogando com o que ja funciona.
+git merge --ff-only origin/main
+if errorlevel 1 (
+  echo.
+  echo NAO foi possivel atualizar automaticamente ^(a copia local divergiu^).
+  echo Seguindo com a versao instalada.
+  goto :depois_update
+)
+echo Atualizado. Conferindo as dependencias...
+call npm install
+if errorlevel 1 echo ^(aviso: npm install falhou - se o servidor nao subir, rode "npm install" a mao^)
+:depois_update
+echo.
+
 REM --- Dependencias instaladas? (so na primeira vez) ---
 if not exist "node_modules" (
   echo Primeira vez: instalando dependencias. Isso demora alguns minutos...
