@@ -613,6 +613,26 @@
   `Runtime.evaluate` lendo uma variável que o cliente publica (`window.__benchPerfil`).
   Zero dependência nova. Screenshot só serve pra tela; número sai por aqui.
 
+## Key Learnings — material de apresentação (2026-07-27, sessão 29)
+
+- **A máquina não tem PIL, imagemagick, ffmpeg nem pandoc/libreoffice.** Pra converter
+  imagem, o Chrome do puppeteer serve: página com o `<img>` em tamanho fixo +
+  `Page.captureScreenshot { format:"jpeg", quality }` devolve o base64 direto na
+  resposta CDP (sem arquivo intermediário). 2 MB de PNG → 473 KB de JPEG.
+  Receita em `scratchpad/png2jpg.mjs` da sessão 29.
+  ⚠️ Dois detalhes que custaram uma rodada cada: (1) a página tem de ser ARQUIVO
+  (`file://…html`) — de `data:` URL a origem é opaca e o `file://` da imagem não
+  carrega, o screenshot sai preto (todos com o mesmo tamanho, foi o sintoma);
+  (2) `overflow:hidden` no html/body, senão as barras de rolagem entram na captura.
+- **HTML autocontido com base64: guardar os data URI num mapa `IMGS` no `<script>`
+  e usar `<img data-img="chave">`.** Com 100 KB de base64 no meio do corpo, nenhuma
+  busca de texto casa em volta da imagem e o arquivo fica ineditável por Edit.
+  Continua autocontido — só muda de lugar.
+- **`registros/prints/06-hud-f3.png` NÃO vai em material de divulgação:** foi capturado
+  em render de software e mostra `FPS 8` na tela. Num slide que afirma que os aparelhos
+  da escola dão conta, a imagem contradiz o texto no projetor. (O README dos prints já
+  avisava; o aviso foi lido tarde.)
+
 ## Key Learnings — vento e vida ambiental (2026-07-27, sessão 28)
 
 - **Tile direcional num cubo precisa de escolha POR FACE, não por célula.** O

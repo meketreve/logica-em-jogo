@@ -5,10 +5,6 @@
 
 | id | tags | file | error (truncated) |
 |---|---|---|---|
-| bug-392 | auto-detected,type-fix,ts | shared/src/worldgen.ts | Type error |
-| bug-393 | auto-detected,type-fix,ts | shared/src/worldgen.test.ts | Type error |
-| bug-394 | auto-detected,guard-clause,ts | shared/src/worldgen.ts | Missing guard clause |
-| bug-395 | auto-detected,refactor,ts | client/src/inventory.ts | Significant refactor of  |
 | bug-396 | auto-detected,type-fix,ts | client/src/inventory.ts | Type error |
 | bug-397 | auto-detected,refactor,html | client/index.html | Significant refactor of  |
 | bug-398 | auto-detected,null-safety,ts | shared/src/world.ts | Null/undefined access in  |
@@ -205,3 +201,7 @@
 | bug-531 | teste,claims,worldgen,acoplamento,falso-positivo,grama-alta | shared/src/claims.test.ts | AssertionError: expected 180 to be +0 — claims.test.ts esperava BlockId.Air numa |
 | bug-532 | playtest,vento,agua,correnteza,atlas,mesher,regra-de-mundo,§🌬️ | shared/src/mesher.ts | usuario (playtest do §🌬️, bench no PC e no notebook): 'so a animacao do vento n |
 | bug-533 | playtest,agua,correnteza,uv,face,atlas,mesher,§🌬️ | shared/src/mesher.ts | usuario (playtest): 'as texturas estao rotacionadas para cada face'. Com corrent |
+| bug-534 | cdp,chrome-headless,conversao-de-imagem,data-url,file-url,deck,apresentacao | scratchpad/png2jpg.mjs (receita, ver cerebrum) | screenshots de conversão PNG→JPEG saíram todos com 11 KB idênticos (imagem preta |
+| bug-535 | css,flexbox,align-self,deck,apresentacao | relatorio/apresentacao-cre.html | no deck da CRE a etiqueta do slide de capa esticava de ponta a ponta da tela em  |
+| bug-536 | apresentacao,deck,prints,swiftshader,credibilidade | relatorio/apresentacao-cre.html | slide 'Funcionou nos aparelhos da escola' trazia o print 06-hud-f3.png, que most |
+| bug-537 | instrumentacao,perfil,bench,ab-test,semvida,§🌬️,fonte-unica | client/src/bench.ts | (pego antes de rodar) o perfil de `?bench&semvida` ia gravar `config.nuvens: tru |

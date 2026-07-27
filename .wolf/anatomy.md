@@ -1,18 +1,19 @@
 # anatomy.md
 
-> Auto-maintained by OpenWolf. Last scanned: 2026-07-27T11:58:37.687Z
-> Files: 234 tracked | Anatomy hits: 0 | Misses: 0
+> Auto-maintained by OpenWolf. Last scanned: 2026-07-27T13:16:31.253Z
+> Files: 236 tracked | Anatomy hits: 0 | Misses: 0
 
 ## ./
 
 - `.gitattributes` — LF em tudo (projeto vive no WSL/ext4; evita ruído CRLF de ferramentas Windows) (~31 tok)
-- `.gitignore` — Git ignore rules (~223 tok)
+- `.gitignore` — Git ignore rules (~289 tok)
 - `CLAUDE.md` — OpenWolf (~57 tok)
-- `iniciar-servidor.bat` (~1562 tok)
-- `iniciar-servidor.sh` — ============================================================ (~1329 tok)
+- `iniciar-servidor.bat` (~2363 tok)
+- `iniciar-servidor.sh` — ============================================================ (~1952 tok)
 - `package-lock.json` — npm lock file (~20120 tok)
 - `package.json` — Node.js package manifest (~226 tok)
 - `projeto.txt` (~4707 tok)
+- `README.md` — Project documentation (~1725 tok)
 - `todo.md` — Ideias para fazer (~6972 tok)
 - `tsconfig.base.json` (~130 tok)
 
@@ -259,11 +260,13 @@
   - fn `playUi` L62-86 (~256 tok)
   - fn `playUiPassive` L87-91 (~26 tok)
   - fn `initUiAudio` L92-109 (~204 tok)
-- `bench.ts` — Modo BENCHMARK (`?bench`) — §📊 item 1 do backlog do perfilador. (~2160 tok)
+- `bench.ts` — Modo BENCHMARK (`?bench`) — §📊 item 1 do backlog do perfilador. (~2518 tok)
   - section `BenchTrajeto` L50-56 (~29 tok)
-  - section `BenchAmostra` L57-86 (~288 tok)
-  - fn `benchDaUrl` L87-93 (~84 tok)
-  - class `Bench` L94-201 (~1016 tok)
+  - section `BenchAmostra` L57-84 (~249 tok)
+  - section `BenchOpts` L85-97 (~161 tok)
+  - fn `benchDaUrl` L98-109 (~161 tok)
+  - fn `benchSettings` L110-122 (~87 tok)
+  - class `Bench` L123-238 (~1088 tok)
 - `blockIcons.ts` — Ícone procedural do balde (item, não tem tile no atlas): balde cinza em (~672 tok)
   - fn `drawBalde` L5-47 (~382 tok)
   - fn `makeBlockIcons` L48-74 (~222 tok)
@@ -292,15 +295,15 @@
   - fn `criarTexturaNuvens` L107-147 (~413 tok)
   - class `SkyCycle` L148-352 (~2396 tok)
 - `events.ts` — Gatilhos de som (checkpoint 6): pontos de evento do jogo onde o áudio vai (~182 tok)
-- `hud.ts` — HUD de perfilação (F3): FPS, frametime méd+p95, remesh, draw calls e (~8364 tok)
+- `hud.ts` — HUD de perfilação (F3): FPS, frametime méd+p95, remesh, draw calls e (~8442 tok)
   - section `HudRemeshStats` L35-51 (~268 tok)
   - section `Recording` L52-70 (~220 tok)
   - section `Marcador` L71-80 (~93 tok)
   - section `RegrasServidor` L81-93 (~134 tok)
-  - section `ContextoPerfil` L94-116 (~183 tok)
-  - section `ContadorFase` L117-129 (~92 tok)
-  - fn `histograma` L130-152 (~189 tok)
-  - class `Hud` L153-706 (~6699 tok)
+  - section `ContextoPerfil` L94-120 (~240 tok)
+  - section `ContadorFase` L121-133 (~92 tok)
+  - fn `histograma` L134-156 (~189 tok)
+  - class `Hud` L157-712 (~6719 tok)
 - `input.ts` — Teclado + mouse (pointer lock). SÓ coleta input — nenhuma decisão de (~1542 tok)
   - class `Input` L5-147 (~1496 tok)
 - `inventory.ts` — Inventário de blocos (cp16) — grade dos colocáveis + faixa da hotbar de 9 (~1449 tok)
@@ -313,9 +316,9 @@
   - fn `fmtBytes` L139-144 (~48 tok)
   - fn `fmtSeg` L145-148 (~23 tok)
   - class `LoadingScreen` L149-449 (~3406 tok)
-- `main.ts` — O cliente não tem filesystem: aprende os nomes das aulas pela resposta de (~25504 tok)
+- `main.ts` — O cliente não tem filesystem: aprende os nomes das aulas pela resposta de (~25606 tok)
   - fn `cachearMundos` L98-189 (~1177 tok)
-  - fn `applySettings` L190-245 (~844 tok)
+  - fn `applySettings` L190-245 (~847 tok)
   - fn `showOverlayMain` L246-250 (~35 tok)
   - fn `updateOverlay` L251-270 (~317 tok)
   - fn `startPlay` L271-281 (~83 tok)
@@ -335,7 +338,7 @@
   - fn `startMultiplayer` L702-719 (~224 tok)
   - fn `startSingleplayer` L720-741 (~249 tok)
   - fn `persistWorld` L742-789 (~520 tok)
-  - fn `startGame` L790-2086 (~16140 tok)
+  - fn `startGame` L790-2094 (~16239 tok)
 - `menu.ts` — Menu principal (cp8) — HTML/CSS por cima do canvas, sem GUI de engine. (~4695 tok)
   - section `PlayWorldChoice` L35-49 (~166 tok)
   - section `MultiAuth` L50-54 (~19 tok)
@@ -444,7 +447,7 @@
 
 ## mundos/mundo-livre/
 
-- `chat.log` (~2484 tok)
+- `chat.log` (~2551 tok)
 
 ## mundos/playtest-streaming/
 
@@ -509,16 +512,17 @@
 
 ## relatorio/
 
-- `relatorio-aplicacao.md` — Esqueleto do RELATORIO de aplicacao (entregavel final): ficha, contexto BNCC/ISTE/Wing, 6 aulas+construcao livre, metodologia, resultados (incl AEE), perf/escalabilidade (dados escola), anexos tecnicos. Campos ✏️ PREENCHER = observacao de sala. (~5176 tok)
+- `apresentacao-cre.html` — Deck de 20 slides pra apresentar o projeto na CRE (pedagógico + demo + técnico). Um arquivo, offline, ← → navega e N mostra notas do apresentador; 3 prints em JPEG base64 no mapa `IMGS` do script. ⚠️ NÃO LER INTEIRO (base64) — editar por Edit ancorado em texto de slide (~78978 tok)
+- `relatorio-aplicacao.md` — Relatório de Aplicação — *Lógica em Jogo* (~5172 tok)
 
 ## scripts/
 
-- `bench-headless.mjs` — Roda o modo `?bench` do cliente num Chrome HEADLESS e imprime o resumo do (~1674 tok)
+- `bench-headless.mjs` — Roda o modo `?bench` do cliente num Chrome HEADLESS e imprime o resumo do (~1734 tok)
   - fn `acharChrome` L32-47 (~176 tok)
   - fn `espera` L48-68 (~171 tok)
   - fn `abrirAba` L69-97 (~261 tok)
   - fn `cdp` L98-103 (~50 tok)
-  - fn `avaliar` L104-151 (~696 tok)
+  - fn `avaliar` L104-153 (~762 tok)
 - `smoke.mjs` — Runner dos smokes de rede — sobe o servidor REAL, roda o cenário, mata tudo. (~2319 tok)
   - fn `espera` L143-145 (~42 tok)
   - fn `esperaPorta` L146-160 (~144 tok)
@@ -551,10 +555,10 @@
 - `paths.ts` — `npm run <script> -w server` roda com o cwd dentro de server/, então caminho (~920 tok)
   - fn `mundoDeTrabalho` L46-66 (~227 tok)
   - fn `ehMundoDeAula` L67-70 (~30 tok)
-- `perfis.ts` — Onde os perfis de desempenho param: sempre `profiles/`, na máquina do host. (~1176 tok)
-  - fn `permitido` L32-44 (~138 tok)
-  - fn `salvarPerfil` L45-59 (~184 tok)
-  - fn `receberPerfilHttp` L60-102 (~421 tok)
+- `perfis.ts` — Onde os perfis de desempenho param: sempre `profiles/`, na máquina do host. (~1282 tok)
+  - fn `permitido` L32-46 (~185 tok)
+  - fn `salvarPerfil` L47-66 (~244 tok)
+  - fn `receberPerfilHttp` L67-109 (~421 tok)
 - `static.ts` — Serve o cliente já buildado (client/dist) NA MESMA PORTA do WebSocket. (~1055 tok)
   - fn `semBuild` L36-53 (~275 tok)
   - fn `arquivoDe` L54-60 (~84 tok)

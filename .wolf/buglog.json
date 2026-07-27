@@ -2,70 +2,6 @@
   "version": 1,
   "bugs": [
     {
-      "id": "bug-392",
-      "timestamp": "2026-07-21T00:52:06.949Z",
-      "error_message": "Type error",
-      "file": "shared/src/worldgen.ts",
-      "root_cause": "Missing or incorrect type annotation",
-      "fix": "Added type assertion/annotation",
-      "tags": [
-        "auto-detected",
-        "type-fix",
-        "ts"
-      ],
-      "related_bugs": [],
-      "occurrences": 1,
-      "last_seen": "2026-07-21T00:52:06.949Z"
-    },
-    {
-      "id": "bug-393",
-      "timestamp": "2026-07-21T00:52:32.589Z",
-      "error_message": "Type error",
-      "file": "shared/src/worldgen.test.ts",
-      "root_cause": "Missing or incorrect type annotation",
-      "fix": "Added type assertion/annotation",
-      "tags": [
-        "auto-detected",
-        "type-fix",
-        "ts"
-      ],
-      "related_bugs": [],
-      "occurrences": 1,
-      "last_seen": "2026-07-21T00:52:32.589Z"
-    },
-    {
-      "id": "bug-394",
-      "timestamp": "2026-07-21T00:53:58.533Z",
-      "error_message": "Missing guard clause",
-      "file": "shared/src/worldgen.ts",
-      "root_cause": "No early return/throw for edge case: sizeY < 128",
-      "fix": "Added guard clause: if (sizeY < 128)",
-      "tags": [
-        "auto-detected",
-        "guard-clause",
-        "ts"
-      ],
-      "related_bugs": [],
-      "occurrences": 1,
-      "last_seen": "2026-07-21T00:53:58.533Z"
-    },
-    {
-      "id": "bug-395",
-      "timestamp": "2026-07-21T01:36:06.368Z",
-      "error_message": "Significant refactor of ",
-      "file": "client/src/inventory.ts",
-      "root_cause": "4 lines replaced/restructured",
-      "fix": "Rewrote 11→17 lines (4 removed)",
-      "tags": [
-        "auto-detected",
-        "refactor",
-        "ts"
-      ],
-      "related_bugs": [],
-      "occurrences": 1,
-      "last_seen": "2026-07-21T01:36:06.368Z"
-    },
-    {
       "id": "bug-396",
       "timestamp": "2026-07-21T01:36:13.517Z",
       "error_message": "Type error",
@@ -3348,6 +3284,84 @@
       ],
       "occurrences": 1,
       "last_seen": "2026-07-27T08:57:55.881795-03:00"
+    },
+    {
+      "id": "bug-534",
+      "timestamp": "2026-07-27T12:55:43.651Z",
+      "error_message": "screenshots de conversão PNG→JPEG saíram todos com 11 KB idênticos (imagem preta) em vez do print",
+      "file": "scratchpad/png2jpg.mjs (receita, ver cerebrum)",
+      "root_cause": "a página de conversão era um `data:text/html` — origem OPACA, que o Chrome não deixa carregar `file://`. O <img> nunca carregava e o captureScreenshot fotografava o fundo preto. Tamanho idêntico em todos os arquivos era o sintoma (conteúdo diferente jamais comprime igual).",
+      "fix": "escrever a página HTML num ARQUIVO ao lado dos PNG e navegar por `file://…html` (com --allow-file-access-from-files). Segundo achado da mesma rodada: `overflow:hidden` no html/body, senão as barras de rolagem entram na captura.",
+      "tags": [
+        "cdp",
+        "chrome-headless",
+        "conversao-de-imagem",
+        "data-url",
+        "file-url",
+        "deck",
+        "apresentacao"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-27T12:55:43.651Z"
+    },
+    {
+      "id": "bug-535",
+      "timestamp": "2026-07-27T12:55:43.651Z",
+      "error_message": "no deck da CRE a etiqueta do slide de capa esticava de ponta a ponta da tela em vez de envolver o texto",
+      "file": "relatorio/apresentacao-cre.html",
+      "root_cause": "`.tag` é filho DIRETO de `.slide`, que é `display:flex; flex-direction:column` — e o `align-items` padrão é `stretch`. `display:inline-block` no filho não vence o stretch do container.",
+      "fix": "`.slide > .tag { align-self: flex-start; }` (só o filho direto; a mesma classe dentro de `.selo`, que é flex-row, já se comportava).",
+      "tags": [
+        "css",
+        "flexbox",
+        "align-self",
+        "deck",
+        "apresentacao"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-27T12:55:43.651Z"
+    },
+    {
+      "id": "bug-536",
+      "timestamp": "2026-07-27T12:55:43.651Z",
+      "error_message": "slide 'Funcionou nos aparelhos da escola' trazia o print 06-hud-f3.png, que mostra `FPS 8` na tela — a imagem desmentia o texto no projetor",
+      "file": "relatorio/apresentacao-cre.html",
+      "root_cause": "o print foi capturado em render de SOFTWARE (SwiftShader), onde 8 FPS é esperado; `registros/prints/README.md` já avisava disso, mas o aviso foi lido depois de montar o slide.",
+      "fix": "print removido do deck; o slide passou a abrir com uma frase explicando que os números vêm dos 52 relatórios colhidos na escola. Regra nova no cerebrum: 06-hud-f3.png não vai em material de divulgação.",
+      "tags": [
+        "apresentacao",
+        "deck",
+        "prints",
+        "swiftshader",
+        "credibilidade"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-27T12:55:43.651Z"
+    },
+    {
+      "id": "bug-537",
+      "timestamp": "2026-07-27T12:55:43.651Z",
+      "error_message": "(pego antes de rodar) o perfil de `?bench&semvida` ia gravar `config.nuvens: true` — a etiqueta mentiria e o A/B viraria dois JSON indistinguíveis",
+      "file": "client/src/bench.ts",
+      "root_cause": "`meta()` serializava `{ ...BENCH_SETTINGS }`, a constante CRUA, enquanto quem aplicava a config já era o caminho novo com a flag. Duas fontes pra mesma verdade.",
+      "fix": "`benchSettings(opts)` virou fonte ÚNICA da config efetiva, chamada tanto pelo `applySettings` quanto pelo `meta()`; `Bench` passou a carregar `semVida` e `paraMundo` recebe o `BenchOpts` inteiro. Etiqueta redundante de propósito em 3 lugares (meta.bench.semVida, config.nuvens/balanco e o nome do arquivo `perf-bench-semvida-*`).",
+      "tags": [
+        "instrumentacao",
+        "perfil",
+        "bench",
+        "ab-test",
+        "semvida",
+        "§🌬️",
+        "fonte-unica"
+      ],
+      "related_bugs": [
+        "bug-529"
+      ],
+      "occurrences": 1,
+      "last_seen": "2026-07-27T12:55:43.651Z"
     }
   ]
 }

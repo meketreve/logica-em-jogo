@@ -3,47 +3,6 @@
 > Chronological action log. Hooks and AI append to this file automatically.
 > Old sessions are consolidated by the daemon weekly.
 
-## Session: 2026-07-25 09:52
-
-| Time | Action | File(s) | Outcome | ~Tokens |
-|------|--------|---------|---------|--------|
-| 22:08 | Edited shared/src/physics.ts | added 7 condition(s) | ~632 |
-| 22:08 | Edited shared/src/physics.ts | modified if() | ~153 |
-| 22:09 | Edited shared/src/physics.test.ts | modified 496() | ~466 |
-| 22:09 | Edited shared/src/physics.test.ts | 8→10 lines | ~166 |
-| 22:10 | Edited shared/src/mesher.ts | 7→11 lines | ~172 |
-| 22:10 | Edited shared/src/mesher.ts | 4→5 lines | ~28 |
-| 22:10 | Edited shared/src/mesher.ts | modified gua() | ~106 |
-| 22:10 | Edited shared/src/mesher.ts | gua() → isVidroColorido() | ~64 |
-| 22:10 | Edited shared/src/mesher.ts | modified concat() | ~133 |
-| 22:10 | Edited shared/src/mesher.ts | 2→3 lines | ~15 |
-| 22:10 | Edited client/src/chunks.ts | modified constructor() | ~110 |
-| 22:10 | Edited client/src/chunks.ts | 4→6 lines | ~112 |
-| 22:11 | Edited client/src/main.ts | modified colorido() | ~192 |
-| 22:11 | Edited client/src/main.ts | inline fix | ~28 |
-| 22:11 | Edited client/src/atlasTexture.ts | modified paintVidroCor() | ~213 |
-| 22:11 | Edited shared/src/physics.ts | inline fix | ~10 |
-| 22:11 | Edited client/src/main.ts | modified suave() | ~124 |
-| 22:11 | Edited client/src/main.ts | added 2 condition(s) | ~174 |
-| 22:11 | Edited client/src/main.ts | inline fix | ~26 |
-| 22:12 | Edited client/src/main.ts | 2→3 lines | ~12 |
-| 22:12 | Edited shared/src/mesher.test.ts | expanded (+12 lines) | ~219 |
-| 22:13 | Edited shared/src/physics.ts | inline fix | ~24 |
-| 22:13 | Edited shared/src/physics.test.ts | 496 → 512 | ~23 |
-| 22:20 | SESSÃO 21 — playtest v0.8.1: fix colisão horizontal parcial (resolveHoriz, escada não empurra mais pra trás), vidro colorido virou material blend 20%, step-up suave na câmera | physics.ts, mesher.ts, chunks.ts, main.ts, atlasTexture.ts | 316 testes ✅ typecheck 3/3 ✅ build ✅ | ~9k |
-| 22:15 | Session end: 23 writes across 7 files (physics.ts, physics.test.ts, mesher.ts, chunks.ts, main.ts) | 9 reads | ~56363 tok |
-| 22:35 | Consolidou cerebrum.md (~27k → ~8k tokens): narrativa por checkpoint arquivada em history.md, cerebrum ficou só regra/receita; budget do config 2000 → 10000 (realista) | .wolf/cerebrum.md, .wolf/history.md, .wolf/config.json | User Preferences e Do-Not-Repeat preservados 100% | ~40k |
-| 22:20 | Session end: 23 writes across 7 files (physics.ts, physics.test.ts, mesher.ts, chunks.ts, main.ts) | 9 reads | ~56363 tok |
-| 22:20 | Session end: 23 writes across 7 files (physics.ts, physics.test.ts, mesher.ts, chunks.ts, main.ts) | 9 reads | ~56363 tok |
-| 22:48 | Corrigiu 2 falsos positivos dos hooks OpenWolf: countSemanticEntries casava `| DATA` (formato real é `| HH:MM` sob header de sessão) e usava data UTC; checkForMissingBugLogs só olhava files_written (ignorava escrita via Bash) | .wolf/hooks/shared.js, .wolf/hooks/stop.js, .wolf/hooks/session-start.js | novo localDate() local; verificado: semanticEntries 0 → 2, buglog reconhecido | ~12k |
-| 22:23 | Session end: 23 writes across 7 files (physics.ts, physics.test.ts, mesher.ts, chunks.ts, main.ts) | 9 reads | ~56363 tok |
-| 22:31 | Edited client/src/main.ts | modified colorido() | ~156 |
-| 22:56 | Playtest aprovado (movimentação + vidros); opacidade do vidro colorido 0.2 → 0.4 a pedido do usuário | client/src/main.ts | build ok, dist regerado | ~2k |
-| 22:32 | Session end: 24 writes across 7 files (physics.ts, physics.test.ts, mesher.ts, chunks.ts, main.ts) | 9 reads | ~56519 tok |
-| 22:35 | Edited .gitignore | expanded (+6 lines) | ~87 |
-| 23:05 | Commit + push das sessões 20+21 (2 commits) e STATUS/TODO preparados pro /clear; quest velha do piloto movida pro ROADMAP | git, .wolf/STATUS.md, .wolf/TODO.md, .wolf/ROADMAP.md | main == origin/main, árvore limpa | ~6k |
-| 22:38 | Session end: 25 writes across 8 files (physics.ts, physics.test.ts, mesher.ts, chunks.ts, main.ts) | 10 reads | ~56787 tok |
-
 ## Session: 2026-07-26 03:00
 
 | Time | Action | File(s) | Outcome | ~Tokens |
@@ -633,3 +592,42 @@ Bug-533.
 top") depois de bench no PC dele e no notebook do lab. Commitada e pushada em 3 commits:
 `b9bc7a3` (frentes 1-6) · `3418cf4` (regra da correnteza) · `7db6890` (sentido por face).
 Nenhum gatilho aceso; próxima sessão escolhe do backlog (som de água/vento é o vizinho natural).
+| 09:04 | Session end: 109 writes across 24 files (vento.ts, index.ts, protocol.ts, session.ts, save.ts) | 29 reads | ~177538 tok |
+
+## Session: 2026-07-27 09:15
+
+| Time | Action | File(s) | Outcome | ~Tokens |
+|------|--------|---------|---------|--------|
+| 09:27 | Edited relatorio/relatorio-aplicacao.md | inline fix | ~8 |
+| 09:27 | Edited client/src/bench.ts | perfil() → benchSettings() | ~534 |
+| 09:28 | Edited client/src/bench.ts | modified constructor() | ~139 |
+| 09:28 | Edited client/src/bench.ts | 6→10 lines | ~82 |
+| 09:28 | Edited client/src/bench.ts | 2→5 lines | ~77 |
+| 09:28 | Edited client/src/main.ts | inline fix | ~21 |
+| 09:28 | Edited client/src/main.ts | inline fix | ~27 |
+| 09:28 | Edited client/src/main.ts | 3→6 lines | ~78 |
+| 09:29 | Edited server/src/perfis.ts | modified salvarPerfil() | ~272 |
+| 09:29 | Edited client/src/main.ts | 4→7 lines | ~109 |
+| 09:31 | Edited client/src/hud.ts | 5→9 lines | ~100 |
+| 09:31 | Edited client/src/hud.ts | 6→8 lines | ~80 |
+| 09:31 | Edited client/src/main.ts | 3→5 lines | ~48 |
+| 09:31 | Edited scripts/bench-headless.mjs | added optional chaining | ~114 |
+| 09:39 | Created relatorio/apresentacao-cre.html | — | ~8768 |
+| 09:40 | Edited relatorio/apresentacao-cre.html | 2→4 lines | ~40 |
+| 09:42 | Edited relatorio/apresentacao-cre.html | 10→5 lines | ~79 |
+| 09:42 | Edited relatorio/apresentacao-cre.html | inline fix | ~28 |
+| 09:42 | Edited relatorio/apresentacao-cre.html | added 1 condition(s) | ~66 |
+| 09:20 | Relatório sem data (só a data da versão saiu da ficha; período do piloto é DADO, fica) | relatorio/relatorio-aplicacao.md | 1 linha | ~1k |
+| 09:35 | Flag `?bench&semvida` = lado B do A/B do §🌬️ + etiqueta no perfil (`meta.bench.semVida`, `config.nuvens/balanco`) e nome de arquivo `perf-bench-semvida-*` | client/src/bench.ts, main.ts, hud.ts, server/src/perfis.ts, scripts/bench-headless.mjs | typecheck 3/3, 358 testes, build; headless A e B conferidos (true/true × false/false) | ~14k |
+| 10:10 | Deck da CRE: 20 slides, HTML autocontido, notas do apresentador (N / `?notas`), handout no Ctrl+P | relatorio/apresentacao-cre.html | 289 KB, 4 slides verificados por screenshot | ~22k |
+| 10:12 | PNG→JPEG por CDP (máquina sem PIL/imagemagick): 2 MB de print → 473 KB base64 | scratchpad/png2jpg.mjs | 6 prints convertidos | ~4k |
+| 09:49 | Edited iniciar-servidor.bat | expanded (+74 lines) | ~761 |
+| 09:50 | Edited iniciar-servidor.sh | modified atualizar() | ~663 |
+| 09:51 | Edited iniciar-servidor.sh | trabalho() → conta() | ~148 |
+| 09:51 | Edited iniciar-servidor.bat | tenta() → REM() | ~122 |
+| 10:40 | Auto-update no launcher (pergunta antes, --ff-only, 6 escapes, npm install só após atualizar) | iniciar-servidor.sh, iniciar-servidor.bat | .sh testado em 8 caminhos com clone local + npm falso; .bat NÃO testável em Linux | ~12k |
+| 10:55 | Varredura pró-repo-público: apelido de aluno em .wolf/history.md (tracked) + profiles-escola/perf-<apelido>-*.json no HISTÓRICO + server/world.ljw com PIN/código de teste | git history, .wolf/STATUS.md | ⛔ abrir o repo como está desmentiria o relatório; recomendado repo público novo | ~6k |
+| 09:54 | Session end: 23 writes across 9 files (relatorio-aplicacao.md, bench.ts, main.ts, perfis.ts, hud.ts) | 17 reads | ~60223 tok |
+| 09:55 | Session end: 23 writes across 9 files (relatorio-aplicacao.md, bench.ts, main.ts, perfis.ts, hud.ts) | 17 reads | ~60223 tok |
+| 10:15 | Created README.md | — | ~1840 |
+| 10:16 | Edited .gitignore | 4→8 lines | ~110 |

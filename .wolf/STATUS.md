@@ -1,6 +1,49 @@
 # STATUS — Projeto "Lógica em Jogo" (jogo voxel educacional)
 
 > Single source of truth for resuming work. Read this FIRST when starting a session.
+> **SESSÃO 29 (2026-07-27) — A/B FERRAMENTADO, DECK DA CRE, AUTO-UPDATE DO LAUNCHER.**
+> O usuário escolheu: relatório **sem data** (vai apresentar informalmente pra CRE antes da
+> apresentação formal), **ponto 2** (o número do §🌬️) e **ponto 4** com ordem fixada —
+> **auto-update → layouts mobile → v2 da geração → sobrevivência**. Pediu também um deck.
+>
+> **1. Relatório sem data:** saiu só o `(2026-07-21)` da linha de versão na ficha. O
+> *período de aplicação* (13–20/07) FICA — é dado do piloto, não data do documento.
+>
+> **2. A/B do §🌬️ ferramentado (não medido ainda):** `?bench&semvida` desliga nuvens+balanço
+> só no bench, no molde do `?semworker`. `benchSettings()` é a fonte única da config efetiva
+> (senão o perfil do lado B mentiria dizendo `nuvens: true` — quase aconteceu). O perfil se
+> etiqueta em 3 lugares: `meta.bench.semVida`, `config.nuvens/balanco` (agora no contexto do
+> HUD, então vale pra QUALQUER perfil, não só bench) e o nome do arquivo
+> (`perf-bench-semvida-*.json`). Headless confirmou os dois lados (true/true × false/false).
+> **Falta rodar as duas URLs no notebook do lab** — é o único passo que precisa da máquina.
+>
+> **3. Deck da CRE** — `relatorio/apresentacao-cre.html`, 20 slides, um arquivo, offline,
+> ← → navega, **N** mostra notas do apresentador (ou `?notas`), Ctrl+P sai handout com nota
+> por slide. Sem data. Cobre pedagógico + demo + técnico (o usuário pediu os três).
+>
+> **4. Auto-update do launcher** (`iniciar-servidor.sh` e `.bat`): pergunta antes
+> (Enter = sim), `--ff-only`, pula sozinho em 6 situações (LJ_SEM_UPDATE=1 · pasta sem
+> `.git` · git ausente · branch ≠ main · código rastreado modificado · rede muda) e roda
+> `npm install` só depois de atualizar de verdade. `client/dist` é versionado → escola não
+> compila. **O `.sh` foi testado nos 8 caminhos** (clone local + npm falso). **O `.bat` NÃO
+> pôde ser testado** — não há cmd.exe aqui; precisa de uma rodada no Windows.
+>
+> ### ⛔ O repo NÃO pode virar público como está (achado desta sessão)
+> O usuário autorizou abrir o repo, mas a varredura achou **dado de aluno**:
+> - `.wolf/history.md` (RASTREADO) tem apelidos de aluno numa linha de FPS;
+> - o **histórico** do git tem `profiles-escola/perf-<apelido>-*.json` (removidos no working
+>   tree em `1da93cd`, mas commit antigo guarda os nomes) — e o relatório afirma que os
+>   perfis crus foram apagados por privacidade. Abrir o repo desmentiria isso.
+> - `server/world.ljw` (RASTREADO, 1 MB) traz PIN `7410` e código de professor `K2AS7X` de
+>   um mundo de TESTE (`aluno1`/`aluno2` são fictícios) — sem dado de aluno real, mas não é
+>   coisa pra repositório público.
+>
+> Caminho recomendado: **repo público NOVO só com o que a escola precisa** (código +
+> `client/dist` + `cenarios/` + launchers), história começando do zero, sem `.wolf/`, sem
+> `relatorio/`, sem `registros/`, sem `server/world.ljw`. O launcher já é agnóstico: ele puxa
+> de `origin`, seja qual for. A alternativa é reescrever o histórico deste repo
+> (`git filter-repo`) — o que invalida o clone que já está na escola.
+
 > **SESSÃO 28c (2026-07-27) — SENTIDO DA CORRENTEZA, FACE POR FACE.**
 > Segundo retorno do playtest: *"as texturas estão rotacionadas para cada face"*, com receita
 > tirada de UM caso (correnteza sul→norte): topo certo · baixo 180° · sul 90° CW · leste 180° ·
@@ -29,41 +72,6 @@
 >
 > **358 testes** (3 novos, escritos sobre o helper PURO em vez de UV crua — muito mais legível
 > que reverter UV no teste) · typecheck · build · smoke 6/6. Bug-533.
-
-> **SESSÃO 28b (2026-07-27) — PLAYTEST DO §🌬️: a regra da correnteza.**
-> O usuário rodou bench no PC dele e no notebook: **"achei tudo muito top"**, com UMA ressalva
-> — e ela é de REGRA, não de bug: *"só a animação do vento na agua fluindo que achei
-> contraditório, pois a correnteza da agua fluindo deve ditar o movimento e direção da
-> textura"*. Está certo: vento não manda em correnteza.
->
-> **Uma regra resolve os dois casos, sem flag nova.** `tileDaAgua` (mesher) tira o fluxo do
-> **GRADIENTE DE NÍVEL** da vizinhança: cada vizinho horizontal de nível MENOR puxa a água pra
-> lá, com peso na diferença. Só vizinho de ÁGUA conta — contar ar faria a borda de todo lago
-> "escorrer pra fora". Daí:
-> - **mar/lago** do worldgen é 100% FONTE (nível 8) → gradiente zero → **água parada, segue o
->   vento** (a frente 3 continua valendo onde ela faz sentido);
-> - **riacho/queda** é 8→7→6→… → gradiente aponta pra jusante → **segue o fluxo**, com ritmo
->   próprio (8 fps fixos), alheio ao vento. A fonte no topo da queda tem vizinho mais baixo,
->   então ela corre também.
->
-> **Como foi feito:** 8 tiles de atlas (`TILE.aguaFluxo` 112-119), um por setor de
-> `setorDaDirecao`, e o MESHER escolhe o tile por célula. Não virou atributo de vértice nem
-> material novo de propósito — assim o mesher segue função pura de bytes, o contrato do Worker
-> não muda e o remesh que a água já dispara ao mudar de nível reaproveita tudo.
->
-> **Dois cuidados de custo que entraram junto.** (1) A pintura da água virou `putImageData`: a
-> versão anterior montava uma string `rgb(r,g,b)` e trocava o `fillStyle` A CADA PIXEL, e com 9
-> tiles de água isso seriam 2 304 strings alocadas e reparseadas por repintura. (2) **Teto de
-> 12 repinturas/s**, porque `texture.needsUpdate` reenvia o atlas INTEIRO (256², 262 KB) — não
-> só o tile mexido — e dois relógios independentes somariam mais de 20/s na GPU do lab.
-> ⚠️ Por isso os 8 tiles de fluxo TÊM de ficar contíguos no começo de uma linha do atlas: um
-> `putImageData` de 128×16 exige retângulo (travado em teste).
->
-> **Verificação:** typecheck · **355 testes** (5 novos: lago de fontes fica parado · riacho
-> 8→7→6 aponta pra jusante · rumo acompanha o eixo · contiguidade dos 8 tiles ·
-> `setorDaDirecao`) · build · **riacho SIMULADO com o `waterRule` de verdade** (fonte num platô,
-> 40 ticks) mostrando os 8 setores radiais e o mar na água parada · `?atlas` no headless
-> confirmando a faixa dos 8 tiles pintada no lugar certo.
 
 ---
 
@@ -388,8 +396,10 @@ não** — bate em `192.168.3.100:8080` e não há ninguém escutando.
 `New-NetFirewallHyperVRule` (VMCreatorId `{40E0AC32-46A5-438A-A0B2-2B479E8F2E90}`) — no modo
 espelhado o tráfego passa pelos DOIS firewalls.
 
-**Como conferir que pegou:** `hostname -I` dentro do WSL mostra `192.168.3.100` em vez de
-`172.28.x.x`. Aí o outro PC abre `http://192.168.3.100:8080`.
+**✅ PEGOU (conferido em 2026-07-27, sessão 29):** `hostname -I` dentro do WSL devolve
+`192.168.3.100` — modo espelhado ativo, o `wsl --shutdown` já aconteceu. O que NÃO foi
+verificado é o par de regras de firewall (nenhum outro PC da rede foi testado contra a
+porta 8080); se o outro PC não abrir, é ali que falta.
 **Desfazer:** apagar o `.wslconfig` + `wsl --shutdown`.
 **Plano B** (sem mexer em config, mas o IP do WSL muda a cada boot): `netsh interface
 portproxy add v4tov4 listenport=8080 listenaddress=0.0.0.0 connectport=8080
@@ -424,7 +434,13 @@ npm run bench:headless   # roda o ?bench num Chrome headless e imprime o perfil
 http://<host>:8080/?bench            # 30 s, mundo E (streaming), seed 20260726
 http://<host>:8080/?bench=60         # trajeto mais longo
 http://<host>:8080/?bench&tamanho=P  # mundo denso: mede só render
+http://<host>:8080/?bench&semvida    # lado B do A/B do §🌬️ (nuvens+balanço OFF)
 ```
+
+**A/B do §🌬️ (custo da vida ambiental), 2 URLs seguidas na MESMA máquina:**
+`?bench` depois `?bench&semvida`. O perfil se etiqueta sozinho (`meta.bench.semVida`,
+`config.nuvens/balanco`) e o arquivo nasce `perf-bench-semvida-*.json` no lado B, então o par
+não se confunde na pasta. Comparar com a régua do lab (`…-l9xf.json`).
 
 ---
 
