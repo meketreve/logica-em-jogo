@@ -5,40 +5,6 @@
 
 | id | tags | file | error (truncated) |
 |---|---|---|---|
-| bug-349 | auto-detected,refactor,bat | iniciar-servidor.bat | Significant refactor of  |
-| bug-350 | auto-detected,wrong-reference,bat | iniciar-servidor.bat | Wrong reference: ljw should be mundo |
-| bug-351 | auto-detected,refactor,md | todo.md | Significant refactor of  |
-| bug-352 | auto-detected,type-fix,ts | shared/src/claims.ts | Type error |
-| bug-353 | auto-detected,wrong-reference,ts | shared/src/session.ts | Wrong reference: MAX_CLAIM_DIM should be MAX_CLAIM_XZ |
-| bug-354 | auto-detected,wrong-value,ts | shared/src/session.ts | Incorrect value in code |
-| bug-355 | auto-detected,refactor,ts | shared/src/claims.test.ts | Significant refactor of  |
-| bug-356 | auto-detected,type-fix,ts | shared/src/rules.ts | Type error |
-| bug-357 | auto-detected,refactor,ts | shared/src/mesher.ts | Significant refactor of  |
-| bug-358 | auto-detected,type-fix,ts | shared/src/cp23.test.ts | Type error |
-| bug-359 | tp,teleport,coordenadas,til,professor,minecraft | shared/src/session.ts | /tp nome x y z com ~ usava a coordenada do jogador ALVO (teleportado) como refer |
-| bug-360 | auto-detected,type-fix,ts | shared/src/blocks.ts | Type error |
-| bug-361 | auto-detected,return-value,ts | shared/src/blocks.ts | Wrong return value |
-| bug-362 | auto-detected,refactor,ts | shared/src/blocks.test.ts | Significant refactor of  |
-| bug-363 | auto-detected,type-fix,ts | shared/src/cp23.test.ts | Type error |
-| bug-364 | auto-detected,refactor,ts | shared/src/blocks.ts | Significant refactor of  |
-| bug-365 | auto-detected,logic-fix,ts | shared/src/blocks.ts | Wrong condition in logic |
-| bug-366 | auto-detected,refactor,ts | shared/src/mesher.ts | Significant refactor of  |
-| bug-367 | auto-detected,type-fix,ts | shared/src/session.ts | Type error |
-| bug-368 | auto-detected,guard-clause,ts | shared/src/session.ts | Missing guard clause |
-| bug-369 | auto-detected,refactor,md | todo.md | Significant refactor of  |
-| bug-370 | blocos,sentinel,test,recorrente,janela,porta,MAX_BLOCK_ID,append-id | shared/src/blocks.test.ts | blocks.test.ts:39 expected isPlaceable(108) toBe false, got true |
-| bug-371 | auto-detected,refactor,ts | shared/src/blocks.ts | Significant refactor of  |
-| bug-372 | auto-detected,refactor,ts | shared/src/mesher.ts | Significant refactor of  |
-| bug-373 | auto-detected,type-fix,ts | shared/src/mesher.ts | Type error |
-| bug-374 | auto-detected,guard-clause,ts | shared/src/mesher.ts | Missing guard clause |
-| bug-375 | flor,mesher,textura,cross-plane,playtest,cutout | shared/src/mesher.ts | flor com textura bugada (playtest do usuario) — parecia duplicada/esticada |
-| bug-376 | auto-detected,refactor,md | todo.md | Significant refactor of  |
-| bug-377 | auto-detected,refactor,md | todo.md | Significant refactor of  |
-| bug-378 | auto-detected,refactor,ts | shared/src/claims.ts | Significant refactor of  |
-| bug-379 | auto-detected,wrong-reference,ts | shared/src/session.ts | Wrong reference: MAX_CLAIM_Y should be MAX_CLAIM_NAME |
-| bug-380 | auto-detected,return-value,ts | shared/src/session.ts | Wrong return value |
-| bug-381 | auto-detected,null-safety,ts | shared/src/claims.test.ts | Null/undefined access in  |
-| bug-382 | auto-detected,wrong-reference,ts | shared/src/blocks.ts | Wrong reference: JanelaZAbertaR should be Mandacaru |
 | bug-383 | auto-detected,return-value,ts | shared/src/blocks.ts | Wrong return value |
 | bug-384 | auto-detected,refactor,ts | client/src/atlasTexture.ts | Significant refactor of  |
 | bug-385 | auto-detected,refactor,ts | shared/src/worldgen.ts | Significant refactor of  |
@@ -205,3 +171,37 @@
 | bug-212 | auto-detected,wrong-value,ts | client/src/hud.ts | Incorrect value in code |
 | bug-213 | auto-detected,type-fix,ts | shared/src/streaming.test.ts | Type error |
 | bug-215 | streaming,f2,colunas,protocolo,rede-de-seguranca,corrigido | client/src/main.ts, client/src/chunks.ts, shared/src/session.ts, shared/src/protocol.ts | streaming F2 é fire-and-forget: lote perdido / decode LJC0 inválido / mesh que j |
+| bug-201 | auto-detected,wrong-reference,ts | client/src/loading.ts | Wrong reference: pURO should be PURO |
+| bug-202 | auto-detected,refactor,ts | client/src/main.ts | Significant refactor of  |
+| bug-203 | auto-detected,guard-clause,ts | client/src/main.ts | Missing guard clause |
+| bug-204 | auto-detected,logic-fix,ts | client/src/main.ts | Wrong condition in logic |
+| bug-205 | auto-detected,wrong-value,ts | client/src/loading.ts | Incorrect value in code |
+| bug-206 | auto-detected,type-fix,ts | client/src/loading.ts | Type error |
+| bug-207 | auto-detected,guard-clause,ts | client/src/loading.ts | Missing guard clause |
+| bug-208 | auto-detected,refactor,ts | client/src/loading.ts | Significant refactor of  |
+| bug-209 | auto-detected,null-safety,ts | client/src/loading.ts | Null/undefined access in  |
+| bug-210 | auto-detected,null-safety,ts | client/src/connection.ts | Null/undefined access in  |
+| bug-211 | auto-detected,guard-clause,ts | client/src/main.ts | Missing guard clause |
+| bug-515 | ui,overlay,carregamento,streaming,pointer-lock,client | client/src/main.ts | usuário (sessão 23): o menu de pausa (Esc) aparece durante o carregamento, por b |
+| bug-516 | build,dev-loop,static,host,stale-bundle | client/dist/assets/index-*.js | usuário: 'rodei npm run dev:server na raiz mas não vi a tela de loading nem no s |
+| bug-201 | auto-detected,refactor,ts | client/src/chunks.ts | Significant refactor of  |
+| bug-202 | auto-detected,type-fix,ts | client/src/hud.ts | Type error |
+| bug-203 | auto-detected,wrong-reference,ts | client/src/loading.ts | Wrong reference: carregando should be h1 |
+| bug-204 | auto-detected,null-safety,ts | client/src/loading.ts | Null/undefined access in  |
+| bug-205 | auto-detected,type-fix,ts | client/src/loading.ts | Type error |
+| bug-206 | auto-detected,refactor,ts | client/src/main.ts | Significant refactor of  |
+| bug-517 | perf,mesher,troca-de-aula,cp19,streaming,long-task | client/src/chunks.ts | perfil de 2026-07-26 18:14: remeshCount 475136 (24× o perfil anterior), remeshTo |
+| bug-518 | streaming,troca-de-aula,cp19,raio,protocolo | client/src/main.ts | perfil de 2026-07-26 18:14: stream.repedidas 252 em 700 colunas (16 no perfil an |
+| bug-519 | hud,perfil,troca-de-aula,telemetria | client/src/hud.ts | perfil de 2026-07-26 18:14 sai contraditório: meta.worldChunks 8×8×4 (64 colunas |
+| bug-201 | auto-detected,logic-fix,ts | shared/src/protocol.ts | Wrong condition in logic |
+| bug-202 | auto-detected,type-fix,ts | server/src/mundos.ts | Type error |
+| bug-203 | auto-detected,wrong-reference,ts | server/src/index.ts | Wrong reference: TAMANHO_CHUNKS should be type |
+| bug-204 | auto-detected,null-safety,ts | client/src/main.ts | Null/undefined access in  |
+| bug-205 | auto-detected,type-fix,ts | client/src/loading.ts | Type error |
+| bug-206 | auto-detected,logic-fix,ts | client/src/loading.ts | Wrong condition in logic |
+| bug-207 | auto-detected,guard-clause,ts | client/src/main.ts | Missing guard clause |
+| bug-520 | ui,carregamento,troca-de-aula,cp19,protocolo,paint | client/src/main.ts | usuário (playtest): 'a tela de carregamento com os status do load demora para ap |
+| bug-521 | smoke,teste,asserção,cp19,regex,falso-negativo | server/src/cenarios/_smoke-mundo.mjs | smoke _smoke-mundo: '✗ aluno vê o objetivo da aula 1' (1 FALHA(S), exit 1) ao ro |
+| bug-522 | smoke,runner,manifesto,mundo-inicial,cenarios | scripts/smoke.mjs | scripts/smoke.mjs: 'mundo' falhava em 2 checagens (objetivo da aula 1 + /mundo l |
+| bug-523 | perf,long-task,streaming,troca-de-aula,tocha,client | client/src/torchGlow.ts | usuário (playtest): 'só tem a questão da pagina dizer que não está respondendo'  |
+| bug-524 | hud,perfil,telemetria,client | client/src/main.ts | F3 mostrava 'remesh por caminho: n/d' apesar dos contadores existirem |

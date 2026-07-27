@@ -453,9 +453,9 @@ function renderConfigPanel(
       (v) => `${v} chunks`,
     );
     slider(
-      "chunks re-meshados por frame", 2, 32, 1, s.meshPorFrame,
-      (v) => (s.meshPorFrame = v),
-      (v) => `${v}`,
+      "tempo de montagem de malha por frame", 1, 16, 1, s.meshMsPorFrame,
+      (v) => (s.meshMsPorFrame = v),
+      (v) => `${v} ms`,
     );
   }
 

@@ -20,6 +20,8 @@ export interface HudRemeshStats {
   count: number;
   totalMs: number;
   lastMs: number;
+  /** Custo separado por quem pediu (fila do streaming × bloco × área). */
+  porCaminho?: { fila: { n: number; ms: number }; bloco: { n: number; ms: number }; area: { n: number; ms: number } };
 }
 
 interface Recording {
@@ -30,16 +32,67 @@ interface Recording {
   /** Contadores no INÍCIO da gravação (long tasks são acumulados globais). */
   longTasksStart: number;
   longTasksMsStart: number;
+  /** Contexto no INÍCIO (posição/distância/colunas) — o fim vira delta. */
+  contextoStart: ContextoPerfil | null;
 }
+
+/**
+ * Contexto do perfil (2026-07-26): sem isto, dois perfis do mesmo mundo não são
+ * comparáveis — o usuário perfilou VOANDO e eu li "parado" pela taxa de rede.
+ * Posição sozinha não resolve (um retrato não diz se estava se movendo), então
+ * o que entra é o ESTADO + os acumulados, pra virar DELTA na janela de gravação.
+ */
+export interface ContextoPerfil {
+  x: number;
+  y: number;
+  z: number;
+  yaw: number;
+  pitch: number;
+  voando: boolean;
+  noChao: boolean;
+  /** Config que muda o custo — comparar perfis sem ela é chute. */
+  raioRender: number;
+  meshMsPorFrame: number;
+  pixelRatioCap: number;
+  fov: number;
+  /** Acumulados desde o boot (viram delta na gravação). */
+  distanciaTotal: number;
+  colunasRecebidas: number;
+  bytesRecebidos: number;
+}
+
+/** Fase da sessão. Sem isto, "158 long tasks" não diz se travou CARREGANDO
+ *  (o aluno esperando, tolerável) ou JOGANDO (o aluno sentindo). */
+export type FaseSessao = "carregando" | "jogando";
+
+interface ContadorFase {
+  frames: number;
+  tempoMs: number;
+  renderMs: number;
+  longTasks: number;
+  longTasksMs: number;
+}
+
+const faseZerada = (): ContadorFase => ({
+  frames: 0,
+  tempoMs: 0,
+  renderMs: 0,
+  longTasks: 0,
+  longTasksMs: 0,
+});
 
 export class Hud {
   /** Preenchido pelo netcode (checkpoint 2+): taxas por segundo + tick + jitter. */
   net = { msgsPerSec: 0, bytesPerSec: 0, tickAvgMs: 0, tickMaxMs: 0, jitterMs: 0 };
+  /** Fase corrente — o main.ts alterna quando a tela de carregamento abre/fecha. */
+  fase: FaseSessao = "carregando";
+  /** Onde o jogador está e o que ele estava fazendo — alimentado pelo main.ts. */
+  contexto: (() => ContextoPerfil) | null = null;
   /** Streaming (mundo procedural): colunas carregadas + fila de remesh +
    *  (§🔁) colunas faltando no raio e total de re-pedidos. Alimentado pelo
    *  main.ts (1×/s). Sem `faltando`, o playtest não distingue "buraco" de
    *  "ainda chegando". */
-  stream = { colunas: 0, fila: 0, faltando: 0, repedidas: 0 };
+  stream = { colunas: 0, fila: 0, faltando: 0, repedidas: 0, ultimoLote: 0 };
 
   /** Linhas extras de diagnóstico (ex.: stats de input) — avaliadas a cada refresh. */
   extra: (() => string) | null = null;
@@ -52,6 +105,14 @@ export class Hud {
   private readonly sessionStartMs = performance.now();
   private longTasks = 0; // nº acumulado de long tasks (>50ms no main thread)
   private longTasksMs = 0; // tempo bloqueado acumulado
+  /** Mesmos contadores, separados por FASE — responde "de onde vem a travada". */
+  private porFase: Record<FaseSessao, ContadorFase> = {
+    carregando: faseZerada(),
+    jogando: faseZerada(),
+  };
+  /** As piores travadas da sessão (duração, fase, segundo em que aconteceram).
+   *  Um total de 38 s não diz nada; "450 ms aos 2 s, carregando" diz tudo. */
+  private pioresTravadas: { ms: number; fase: FaseSessao; emS: number }[] = [];
   private contextLost = 0; // nº de perdas de contexto WebGL (crash de GPU)
   private batteryMgr: { level: number; charging: boolean } | null = null;
   private el: HTMLElement;
@@ -76,6 +137,16 @@ export class Hud {
         for (const e of list.getEntries()) {
           this.longTasks++;
           this.longTasksMs += e.duration;
+          const f = this.porFase[this.fase];
+          f.longTasks++;
+          f.longTasksMs += e.duration;
+          this.pioresTravadas.push({
+            ms: +e.duration.toFixed(1),
+            fase: this.fase,
+            emS: +((performance.now() - this.sessionStartMs) / 1000).toFixed(1),
+          });
+          this.pioresTravadas.sort((a, b) => b.ms - a.ms);
+          this.pioresTravadas.length = Math.min(this.pioresTravadas.length, 5);
         }
       });
       obs.observe({ entryTypes: ["longtask"] });
@@ -109,14 +180,28 @@ export class Hud {
     this.el.classList.toggle("hidden");
   }
 
+  /** Troca a fase (o main.ts avisa quando a tela de carregamento abre/fecha).
+   *  Os contadores de cada fase seguem separados a sessão inteira. */
+  setFase(f: FaseSessao): void {
+    this.fase = f;
+  }
+
   setRemesh(stats: HudRemeshStats): void {
     this.remesh = { ...stats };
   }
 
-  /** Chamar 1×/frame com o frametime em ms. */
-  frame(dtMs: number): void {
+  /**
+   * Chamar 1×/frame com o frametime em ms. `renderMs` = quanto desse frame foi
+   * `renderer.render()` — separa custo de DESENHO do custo da nossa lógica
+   * (mesh, física, streaming), que antes vinham somados num número só.
+   */
+  frame(dtMs: number, renderMs = 0): void {
     this.frameTimes.push(dtMs);
     if (this.frameTimes.length > FRAME_WINDOW) this.frameTimes.shift();
+    const f = this.porFase[this.fase];
+    f.frames++;
+    f.tempoMs += dtMs;
+    f.renderMs += renderMs;
 
     const now = performance.now();
     // gravação de 10 s: coleta frame + amostra de memória; fecha ao expirar
@@ -150,6 +235,7 @@ export class Hud {
       onDone,
       longTasksStart: this.longTasks,
       longTasksMsStart: this.longTasksMs,
+      contextoStart: this.contexto?.() ?? null,
     };
     if (!this.visible) this.toggle();
     this.refresh();
@@ -219,6 +305,16 @@ export class Hud {
     return { tipo: c.effectiveType ?? null, downlinkMbps: c.downlink ?? null, rttMs: c.rtt ?? null };
   }
 
+  /**
+   * Troca de aula (cp19): dims/seed do mundo mudam com o jogo rodando. Sem
+   * isto o perfil exportado sai com o mundo do JOIN e os contadores do mundo
+   * ATUAL — leitura contraditória (perfil de 2026-07-26: meta 8×8×4 com 700
+   * colunas em streaming).
+   */
+  setMeta(meta: Record<string, unknown>): void {
+    this.meta = { ...this.meta, ...meta };
+  }
+
   /** Retrato instantâneo — base do relatório (device/memória/vídeo/rede). */
   stats() {
     const { fps, avgMs, p95Ms } = this.frameStats();
@@ -228,6 +324,30 @@ export class Hud {
       timestamp: new Date().toISOString(),
       userAgent: navigator.userAgent,
       meta: this.meta,
+      // retrato do jogador + config de desempenho no instante do relatório
+      ...(this.contexto
+        ? (() => {
+            const c = this.contexto();
+            return {
+              jogador: {
+                x: +c.x.toFixed(1),
+                y: +c.y.toFixed(1),
+                z: +c.z.toFixed(1),
+                yaw: +c.yaw.toFixed(2),
+                pitch: +c.pitch.toFixed(2),
+                voando: c.voando,
+                noChao: c.noChao,
+                chunk: { cx: Math.floor(c.x / 16), cz: Math.floor(c.z / 16) },
+              },
+              config: {
+                raioRender: c.raioRender,
+                meshMsPorFrame: c.meshMsPorFrame,
+                pixelRatioCap: c.pixelRatioCap,
+                fov: c.fov,
+              },
+            };
+          })()
+        : {}),
       fps: Math.round(fps),
       frametimeAvgMs: +avgMs.toFixed(2),
       frametimeP95Ms: +p95Ms.toFixed(2),
@@ -236,9 +356,26 @@ export class Hud {
       points: info.render.points,
       lines: info.render.lines,
       remeshCount: this.remesh.count,
+      remeshPorCaminho: this.remesh.porCaminho ?? null,
       remeshTotalMs: +this.remesh.totalMs.toFixed(1),
       remeshLastMs: +this.remesh.lastMs.toFixed(2),
       longTasksTotal: this.longTasks,
+      // POR FASE: onde o tempo foi gasto e onde travou (carregando × jogando).
+      // `renderPct` = quanto do frame é desenho; o resto é lógica nossa.
+      fases: (Object.keys(this.porFase) as FaseSessao[]).map((nome) => {
+        const f = this.porFase[nome];
+        return {
+          fase: nome,
+          segundos: +(f.tempoMs / 1000).toFixed(1),
+          frames: f.frames,
+          fpsMedio: f.tempoMs > 0 ? Math.round(f.frames / (f.tempoMs / 1000)) : 0,
+          renderMsMedio: f.frames > 0 ? +(f.renderMs / f.frames).toFixed(2) : 0,
+          renderPct: f.tempoMs > 0 ? Math.round((f.renderMs / f.tempoMs) * 100) : 0,
+          longTasks: f.longTasks,
+          longTasksMs: +f.longTasksMs.toFixed(1),
+        };
+      }),
+      pioresTravadas: this.pioresTravadas,
       longTasksMsTotal: +this.longTasksMs.toFixed(1),
       contextLost: this.contextLost,
       sessaoS: Math.round((performance.now() - this.sessionStartMs) / 1000),
@@ -260,11 +397,31 @@ export class Hud {
     const sorted = [...frames].sort((a, b) => a - b);
     const sum = frames.reduce((a, b) => a + b, 0);
     const pct = (p: number): number => sorted[Math.min(n - 1, Math.floor(n * p))] ?? 0;
+    const segundos = sum / 1000;
+    // o que MUDOU durante os 10 s: é isto que diz "voando" × "parado" e quanto
+    // terreno novo entrou (o custo de mesh acompanha essa coluna, não o relógio)
+    const ini = rec.contextoStart;
+    const fim = this.contexto?.() ?? null;
+    const movimento =
+      ini && fim
+        ? (() => {
+            const distancia = fim.distanciaTotal - ini.distanciaTotal;
+            const velocidade = segundos > 0 ? distancia / segundos : 0;
+            return {
+              estado: fim.voando ? "voando" : velocidade > 0.5 ? "andando" : "parado",
+              distanciaBlocos: +distancia.toFixed(1),
+              velocidadeBlocosS: +velocidade.toFixed(2),
+              colunasNovas: fim.colunasRecebidas - ini.colunasRecebidas,
+              bytesRecebidos: fim.bytesRecebidos - ini.bytesRecebidos,
+            };
+          })()
+        : null;
     return {
       ...base,
       gravacao: {
-        duracaoS: +(sum / 1000).toFixed(1),
+        duracaoS: +segundos.toFixed(1),
         frames: n,
+        movimento,
         fpsMedio: Math.round(n / (sum / 1000)),
         frametimeMs: {
           min: +(sorted[0] ?? 0).toFixed(2),
@@ -298,6 +455,11 @@ export class Hud {
       `draw calls ${s.drawCalls}  triângulos ${s.triangles}  long tasks ${s.longTasksTotal}×`,
       `remesh ${s.remeshCount}× / ${s.remeshTotalMs}ms total / ${s.remeshLastMs}ms último`,
       `stream ${s.stream.colunas} colunas · fila ${s.stream.fila} · faltando ${s.stream.faltando} · repedidas ${s.stream.repedidas}`,
+      `malha ${s.stream.ultimoLote} chunks no último frame (orçamento ${s.config?.meshMsPorFrame ?? "?"} ms)`,
+      s.remeshPorCaminho
+        ? `remesh por caminho: fila ${s.remeshPorCaminho.fila.n}× (${Math.round(s.remeshPorCaminho.fila.ms)}ms) · bloco ${s.remeshPorCaminho.bloco.n}× (${Math.round(s.remeshPorCaminho.bloco.ms)}ms) · área ${s.remeshPorCaminho.area.n}× (${Math.round(s.remeshPorCaminho.area.ms)}ms)`
+        : "remesh por caminho: n/d",
+      `fase ${this.fase} · ${s.fases.map((f) => `${f.fase} ${f.segundos}s ${f.fpsMedio}fps render ${f.renderPct}% travadas ${f.longTasks}×/${Math.round(f.longTasksMs)}ms`).join(" · ")}`,
       mem ? `RAM (JS) ${mem.usadaMB}/${mem.limiteMB} MB` : "RAM (JS): n/d (só no Chrome)",
       `vídeo ${s.video.geometrias} geometrias · ${s.video.texturas} texturas`,
       `rede ${s.net.msgsPerSec} msg/s  ${s.net.bytesPerSec} B/s  jitter ${s.net.jitterMs}ms  tick ${s.net.tickAvgMs}/${s.net.tickMaxMs}ms`,

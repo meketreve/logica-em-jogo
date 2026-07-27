@@ -68,6 +68,7 @@ import { type Connection, WorkerConnection, WsConnection } from "./connection";
 import { emitGameEvent } from "./events";
 import { Hud } from "./hud";
 import { Input } from "./input";
+import { LoadingScreen } from "./loading";
 import {
   type MultiAuth,
   type PlayWorldChoice,
@@ -188,6 +189,17 @@ let inventoryPanel: InventoryPanel | null = null;
 let playersPanel: PlayersPanel | null = null;
 // touchControls: declarado lá em cima (acima de applySettings, TDZ — bug-495).
 
+/** Tela de carregamento (§🕐) — cobre tudo do "jogar" até o mundo pronto.
+ *  Declarada ANTES do updateOverlay (a condição dele lê `loading.ativo`) e
+ *  fechada de dentro dela mesma, avisando aqui pra reavaliar o overlay. */
+const loading = new LoadingScreen(() => {
+  updateOverlay();
+  hudAtual?.setFase("jogando"); // perfil: daqui pra frente a travada é SENTIDA
+});
+/** Ponteiro pro HUD do jogo em andamento (o Hud nasce dentro do startGame, mas
+ *  o callback da tela de carregamento é criado antes). */
+let hudAtual: { setFase: (f: "carregando" | "jogando") => void } | null = null;
+
 // --- Menu de pausa (Esc = pointer lock solto) ---
 const overlay = document.getElementById("overlay");
 const overlayMain = document.getElementById("overlay-main");
@@ -204,12 +216,14 @@ function updateOverlay(): void {
   // está aberto OU um painel do cp14 está na tela (senão cobre o painel)
   const panelOpen =
     (activePanel?.open ?? false) || (inventoryPanel?.open ?? false) || (playersPanel?.open ?? false);
-  overlay?.classList.toggle("hidden", input.active || chat.open || panelOpen);
+  // §🕐 `loading.ativo`: durante o carregamento o ponteiro NÃO está travado —
+  // sem esta condição o menu de pausa aparecia junto com a tela de carga.
+  overlay?.classList.toggle("hidden", loading.ativo || input.active || chat.open || panelOpen);
   // mira só existe COM o jogo no controle (pedido do usuário: invisível no Esc)
   crosshairEl?.classList.toggle("hidden", !input.active);
   if (input.locked) showOverlayMain(); // próximo Esc abre no painel principal
-  // UI de toque acompanha: some sob menu de pausa, chat ou painel aberto
-  touchControls?.setShown(input.touch && !chat.open && !panelOpen);
+  // UI de toque acompanha: some sob menu de pausa, chat, painel ou carregamento
+  touchControls?.setShown(input.touch && !chat.open && !panelOpen && !loading.ativo);
 }
 document.addEventListener("pointerlockchange", updateOverlay);
 
@@ -333,6 +347,9 @@ let applyPlayerMoved:
   | ((msg: { id: number; x: number; y: number; z: number; yaw: number; name?: string }) => void)
   | null = null;
 let applyPlayerLeft: ((id: number) => void) | null = null;
+/** §🕐 troca de aula ANUNCIADA (antes do snapshot): sobe a tela de carregamento
+ *  na hora, com o anel indeterminado — o host ainda vai salvar e gerar. */
+let iniciarTroca: ((nome: string) => void) | null = null;
 let applyTeleport:
   | ((pos: { x: number; y: number; z: number; yaw: number; pitch: number }) => void)
   | null = null;
@@ -421,8 +438,44 @@ function refreshObjectivesView(beep: boolean): void {
   applyObjectiveBoxes?.(latestObjectives.objetivos);
 }
 
+/**
+ * §🕐 Fila curta durante a troca de aula. O `mundo_trocando` e o snapshot novo
+ * podem chegar no MESMO frame (medido: 1 ms de diferença quando o host tem
+ * pouco o que salvar). Se processarmos o snapshot na hora, o navegador nunca
+ * chega a PINTAR a tela de carregamento antes de travar no decode + troca de
+ * malha — e o aluno vê exatamente o que ele reclamou: nada, nada, e de repente
+ * "quase pronto". Segurando as mensagens por dois frames, a tela aparece
+ * primeiro. `null` = fila desligada (o caso normal).
+ */
+let filaTroca: (string | ArrayBuffer)[] | null = null;
+
+function drenarFilaTroca(): void {
+  const fila = filaTroca;
+  if (!fila) return;
+  filaTroca = null; // ANTES de reprocessar: senão cada mensagem voltaria pra fila
+  for (const d of fila) handleServerData(d);
+}
+
+/** Segura o que vier até a tela de troca ter sido pintada. */
+function segurarAteATelaPintar(): void {
+  if (filaTroca) return;
+  filaTroca = [];
+  // 2× rAF = o frame COM a tela já foi pintado. O setTimeout é rede de
+  // segurança: aba em segundo plano não roda rAF, e a turma não pode ficar
+  // presa numa fila que nunca drena.
+  requestAnimationFrame(() => requestAnimationFrame(drenarFilaTroca));
+  setTimeout(drenarFilaTroca, 500);
+}
+
 function handleServerData(data: string | ArrayBuffer): void {
+  if (filaTroca) {
+    filaTroca.push(data);
+    return;
+  }
   registrarChegadaDeRede(); // jitter: gap entre mensagens do servidor
+  // §🕐 primeira resposta do servidor = conectado e aceito no jogo; o que falta
+  // daqui pra frente é o MUNDO (o snapshot denso vem num blob só e demora)
+  if (!started) loading.setFase("mundo");
   if (typeof data === "string") {
     const msg = parseServerMessage(data);
     if (!msg) return;
@@ -479,6 +532,11 @@ function handleServerData(data: string | ArrayBuffer): void {
     } else if (msg.type === "players") {
       // 2026-07-21: painel de jogadores do professor (conectados + banidos)
       playersPanel?.update({ conectados: msg.conectados, banidos: msg.banidos });
+    } else if (msg.type === "mundo_trocando") {
+      // chega ANTES do snapshot: o host ainda vai salvar a aula atual e montar
+      // a nova (segundos). Sem isto a tela só aparecia no fim, "quase pronta".
+      iniciarTroca?.(msg.nome);
+      segurarAteATelaPintar(); // e o snapshot espera a tela pintar
     } else if (msg.type === "teleport") {
       applyTeleport?.(msg);
     } else if (msg.type === "time") {
@@ -542,6 +600,18 @@ function handleServerData(data: string | ArrayBuffer): void {
 function connect(c: Connection, auth?: MultiAuth): void {
   settings = applySettings(); // menu pode ter mudado config antes do play
   conn = c;
+  // §🕐 tela de carregamento entra ANTES do join: daqui até o snapshot só havia
+  // canvas preto. Já mostra taxa/recebido (os contadores da conexão existem
+  // desde o primeiro byte); colunas só depois que o mundo chega (startGame).
+  loading.abrir({ host: serverHostLabel, rede: !(c instanceof WorkerConnection) });
+  loading.observar(() => ({
+    bytes: c.stats.bytesIn + c.stats.bytesOut,
+    prontas: 0,
+    total: 0,
+    faltando: 0,
+    fila: 0,
+  }));
+  updateOverlay(); // esconde o menu de pausa por baixo da tela de carga
   c.onMessage(handleServerData);
   input.onKey(settings.keys.chat, () => {
     if (chat.open) return; // dentro do chat a tecla é do campo, não daqui
@@ -568,7 +638,17 @@ function startMultiplayer(url: string, auth: MultiAuth): void {
   // em rede quem salva é o host — o botão só volta pro menu
   const sair = document.getElementById("btn-sair");
   if (sair) sair.textContent = "voltar ao menu";
-  connect(new WsConnection(url), auth);
+  // §🕐 servidor fora do ar / IP errado: sem isto o aluno fica olhando o
+  // spinner pra sempre. Queda EM JOGO segue como era (o mundo já está na tela).
+  const aoFalhar = (motivo: string): void => {
+    if (started || !loading.ativo) return;
+    loading.erro(motivo, () => {
+      // mesmo caminho do join_denied: o motivo vira banner no menu depois do reload
+      sessionStorage.setItem("lj-erro", `${motivo} (${url})`);
+      location.href = location.pathname;
+    });
+  };
+  connect(new WsConnection(url, aoFalhar), auth);
 }
 
 function startSingleplayer(choice: PlayWorldChoice): void {
@@ -640,6 +720,10 @@ function startGame(snap: Snapshot): void {
    *  decode falhou, mesh falhou). `proximo` = quando pedir de novo (backoff). */
   const colunasFaltando = new Map<number, { tentativas: number; proximo: number }>();
   let repedidas = 0; // total de `pedir_coluna` mandados (F3)
+  /** Colunas APLICADAS desde o boot e distância andada — só o perfil usa: viram
+   *  delta na janela de 10 s e dizem se a gravação foi voando ou parado. */
+  let colunasRecebidas = 0;
+  let distanciaPercorrida = 0;
   // alphaTest = cutout dos transparentes (vidro/folhas): pixel opaco ou
   // descartado — sem blending, sem sorting, mesmo draw call por chunk (cp18)
   const atlas = createAtlasTexture();
@@ -702,7 +786,9 @@ function startGame(snap: Snapshot): void {
       colunasCarregadas.add(key);
       colunasFaltando.delete(key);
       chunkRenderer.enfileirarColuna(cx, cz);
+      torchGlow.varrerColuna(world, cx, cz); // tocha de coluna nova também brilha
     }
+    colunasRecebidas += cols.length; // acumulado do perfil (≠ do Set, que descarta)
   };
 
   // §🔁 rede de segurança do streaming (ver ROADMAP). O streaming F2 é
@@ -740,6 +826,7 @@ function startGame(snap: Snapshot): void {
         // meio pode ter deixado meia coluna, e remeshar por cima do lixo
         // esconderia o buraco em vez de consertar
         chunkRenderer.descartarColuna(cx, cz);
+        torchGlow.descartarColuna(cx, cz);
         for (let cy = 0; cy < dims.y; cy++) {
           world.chunks[(cy * dims.z + cz) * dims.x + cx] = undefined;
         }
@@ -871,6 +958,62 @@ function startGame(snap: Snapshot): void {
   };
   const player = createPlayer(spawn.x, spawn.y, spawn.z);
 
+  // §🕐 total esperado do raio inicial: o quadrado de `raioRender` em volta do
+  // chunk do spawn, recortado pelas bordas do mundo — é a MESMA conta que o
+  // servidor faz em `streamColunas` (anel por anel até `st.raio`). O jogador
+  // não anda enquanto carrega (sem pointer lock), então o centro não muda.
+  // Mundo denso (não-lazy) chega inteiro no snapshot: nada a contar, o custo é
+  // o `buildAll` que já rodou lá em cima.
+  const calcularTotalCarga = (): number => {
+    if (!mundoLazy) return 0;
+    const r = settings.raioRender;
+    const pcx = Math.max(0, Math.min(world.dims.x - 1, Math.floor(player.pos.x / 16)));
+    const pcz = Math.max(0, Math.min(world.dims.z - 1, Math.floor(player.pos.z / 16)));
+    const nx = Math.min(world.dims.x - 1, pcx + r) - Math.max(0, pcx - r) + 1;
+    const nz = Math.min(world.dims.z - 1, pcz + r) - Math.max(0, pcz - r) + 1;
+    return Math.max(1, nx * nz);
+  };
+  // `let`: a troca de aula (cp19) recalcula — mundo novo, spawn novo, e o mundo
+  // pode até deixar de ser lazy
+  let totalCarga = calcularTotalCarga();
+  // contadores REAIS do jogo — a tela só amostra (§🔁 já mede `faltando` na
+  // varredura 1×/s; antes do 1º tick dela o total-prontas dá a mesma resposta).
+  // Reassinado a cada reabertura: `fechar()` solta a fonte de propósito.
+  const observarCarga = (): void => {
+    loading.observar(() => ({
+      bytes: activeConn.stats.bytesIn + activeConn.stats.bytesOut,
+      prontas: colunasCarregadas.size,
+      total: totalCarga,
+      faltando:
+        colunasFaltando.size > 0
+          ? colunasFaltando.size
+          : Math.max(0, totalCarga - colunasCarregadas.size),
+      fila: chunkRenderer.filaPendente,
+    }));
+  };
+  observarCarga();
+  loading.setFase(mundoLazy ? "mundo" : "malha");
+
+  /**
+   * §🕐 O host avisou que a troca COMEÇOU (`mundo_trocando`), antes de salvar a
+   * aula atual e montar a nova. Sobe a tela já: `totalCarga = 0` deixa o anel
+   * indeterminado (não há o que medir enquanto o trabalho é todo do servidor) e
+   * o `reloadWorld` assume quando o snapshot chegar.
+   */
+  iniciarTroca = (nome) => {
+    totalCarga = 0;
+    loading.abrir({
+      host: serverHostLabel,
+      rede: !(activeConn instanceof WorkerConnection),
+      titulo: "trocando de aula",
+      alvo: nome,
+    });
+    observarCarga();
+    loading.setFase("preparando");
+    hud.setFase("carregando"); // perfil: o que travar daqui pra frente é carga
+    updateOverlay();
+  };
+
   function respawn(): void {
     player.pos.x = spawn.x;
     player.pos.y = spawn.y;
@@ -891,7 +1034,9 @@ function startGame(snap: Snapshot): void {
     mundoLazy = proximoLazy; // aula nova pode ser mundo ENORME (ou deixar de ser)
     colunasCarregadas = new Set();
     colunasFaltando.clear(); // §🔁 buracos do mundo VELHO não valem no novo
-    chunkRenderer.trocarMundo(world);
+    // mundo ENORME não tem o que montar aqui (as colunas chegam por streaming);
+    // `buildAll` num mundo E varria 460 800 slots vazios = ~19 s de trava
+    chunkRenderer.trocarMundo(world, !mundoLazy);
     torchGlow.setFromWorld(world);
 
     latestRegions = [];
@@ -917,6 +1062,29 @@ function startGame(snap: Snapshot): void {
     spawn = serverSpawn ?? spawn;
     respawn();
     chat.addMessage("jogo", "a aula mudou — mundo novo carregado");
+
+    // O servidor criou uma SESSÃO NOVA e o `admitir` zera o raio de interesse
+    // pra RAIO_PADRAO — sem reanunciar, tudo além de RAIO_PADRAO+FOLGA nunca
+    // chega (o `pedir_coluna` do §🔁 também é recusado lá fora). Mesmo motivo
+    // do bug-211, outro caminho.
+    raioEnviado = -1;
+    enviarRaio();
+    hud.setMeta({ worldChunks: world.dims, worldSeed: novo.seed }); // F3/perfil seguem a aula
+
+    // §🕐 a mesma tela cobre a troca de aula. O pointer lock CONTINUA travado
+    // (o aluno estava jogando), então quando ela fechar ele volta ao jogo sem
+    // clique nenhum. `respawn()` já rodou: o total sai do spawn NOVO.
+    totalCarga = calcularTotalCarga();
+    loading.abrir({
+      host: serverHostLabel,
+      rede: !(activeConn instanceof WorkerConnection),
+      titulo: "trocando de aula",
+    });
+    observarCarga();
+    loading.setFase(mundoLazy ? "mundo" : "malha");
+    hud.setFase("carregando");
+    updateOverlay(); // esconde o menu de pausa se ele estava aberto na troca
+    if (!mundoLazy) loading.concluir(); // denso: `trocarMundo` já montou tudo
   };
 
   // servidor manda posição E orientação (volta-onde-parou; futuro /tp)
@@ -1338,10 +1506,29 @@ function startGame(snap: Snapshot): void {
     worldSeed: snap.seed,
     serverHost: serverHostLabel,
   });
+  hudAtual = hud; // a tela de carregamento avisa a troca de fase por aqui
+  // contexto do perfil: onde/como o jogador estava + a config que muda o custo
+  hud.contexto = () => ({
+    x: player.pos.x,
+    y: player.pos.y,
+    z: player.pos.z,
+    yaw: input.yaw,
+    pitch: input.pitch,
+    voando: flying && podeVoar(),
+    noChao: player.onGround,
+    raioRender: settings.raioRender,
+    meshMsPorFrame: settings.meshMsPorFrame,
+    pixelRatioCap: settings.pixelRatioCap,
+    fov: settings.fov,
+    distanciaTotal: distanciaPercorrida,
+    colunasRecebidas,
+    bytesRecebidos: activeConn.stats.bytesIn,
+  });
   hud.setRemesh({
     count: chunkRenderer.remeshCount,
     totalMs: chunkRenderer.remeshMsTotal,
     lastMs: chunkRenderer.lastRemeshMs,
+    porCaminho: chunkRenderer.porCaminho,
   });
   input.onKey(settings.keys.hud, () => hud.toggle());
   // profiler (backlog "ferramentas de dev"): singleplayer roda em Web Worker
@@ -1473,11 +1660,15 @@ function startGame(snap: Snapshot): void {
       fila: chunkRenderer.filaPendente,
       faltando: colunasFaltando.size,
       repedidas,
+      ultimoLote: chunkRenderer.ultimoLote,
     };
     lastNet = { ...s };
   }, 1000);
 
   let last = performance.now();
+  let posAntX = player.pos.x;
+  let posAntY = player.pos.y;
+  let posAntZ = player.pos.z;
   // corrida por duplo-toque no andar: latch fica armado até soltar a tecla
   let sprintLatch = false;
   let forwardWasDown = false;
@@ -1533,7 +1724,7 @@ function startGame(snap: Snapshot): void {
     if (mundoLazy) {
       // mesh que falhou = coluna suspeita: sai de `colunasCarregadas` e a
       // varredura abaixo a repede (§🔁)
-      chunkRenderer.processarFila(settings.meshPorFrame, (fx, fz) => {
+      chunkRenderer.processarFila(settings.meshMsPorFrame, (fx, fz) => {
         colunasCarregadas.delete(fz * world.dims.x + fx);
       });
       const pcx = Math.max(0, Math.min(world.dims.x - 1, Math.floor(player.pos.x / 16)));
@@ -1547,6 +1738,7 @@ function startGame(snap: Snapshot): void {
           if (Math.max(Math.abs(cx - pcx), Math.abs(cz - pcz)) > settings.raioRender + 2) {
             colunasCarregadas.delete(key);
             chunkRenderer.descartarColuna(cx, cz);
+            torchGlow.descartarColuna(cx, cz); // sprites da coluna somem junto
             for (let cy = 0; cy < world.dims.y; cy++) {
               world.chunks[(cy * world.dims.z + cz) * world.dims.x + cx] = undefined;
             }
@@ -1554,6 +1746,11 @@ function startGame(snap: Snapshot): void {
         }
         // §🔁 MESMA passada: coluna que DEVERIA estar aqui e não está
         varrerFaltando(pcx, pcz, now);
+      }
+      // §🕐 a tela de carga só sai com o raio inicial INTEIRO aplicado E a fila
+      // do mesher vazia — entrar antes é cair num mundo cheio de buracos
+      if (loading.ativo && colunasCarregadas.size >= totalCarga && chunkRenderer.filaPendente === 0) {
+        loading.concluir();
       }
     }
     const yAntesDoPasso = player.pos.y;
@@ -1568,6 +1765,16 @@ function startGame(snap: Snapshot): void {
     }
     stepSuave *= Math.exp(-dt * 14);
     if (stepSuave < 0.002) stepSuave = 0;
+    // distância do frame (escalares, sem alocar): o perfil precisa saber se a
+    // gravação foi voando ou parado — a taxa de rede sozinha engana
+    distanciaPercorrida += Math.hypot(
+      player.pos.x - posAntX,
+      player.pos.y - posAntY,
+      player.pos.z - posAntZ,
+    );
+    posAntX = player.pos.x;
+    posAntY = player.pos.y;
+    posAntZ = player.pos.z;
     if (player.pos.y < -16) respawn(); // caiu da borda do mundo
 
     // jogadores remotos deslizam até o último update (suave mesmo a 10 Hz);
@@ -1621,6 +1828,7 @@ function startGame(snap: Snapshot): void {
       count: chunkRenderer.remeshCount,
       totalMs: chunkRenderer.remeshMsTotal,
       lastMs: chunkRenderer.lastRemeshMs,
+      porCaminho: chunkRenderer.porCaminho, // este é 1×/frame: sem isto some
     });
     skyCycle.update(dt); // ciclo dia/noite (cp21): avança o céu e pinta a cena
     // água (2026-07-26): névoa/tint quando o OLHO está submerso + correnteza no
@@ -1632,10 +1840,20 @@ function startGame(snap: Snapshot): void {
       aguaQuadro = quadroAgua;
       animarAguaAtlas(atlas, quadroAgua);
     }
-    hud.frame(dtMs);
+    // mede só o render: o resto do frame é lógica nossa (mesh, física, streaming).
+    // `renderer.render` é síncrono do lado da CPU — o que a GPU faz depois não
+    // entra aqui, mas é exatamente a fatia que nós controlamos.
+    const tRender = performance.now();
     renderer.render(scene, camera);
+    hud.frame(dtMs, performance.now() - tRender);
   });
 
+  // §🕐 mundo denso: veio inteiro no snapshot e o `buildAll` já rodou — não há
+  // streaming a esperar, a tela sai assim que o loop desenha o primeiro frame.
+  if (!mundoLazy) loading.concluir();
+
+  // ?hud na URL: abre o F3 no boot (verificação headless do painel de perfil)
+  if (bootParams.has("hud")) hud.toggle();
   // ?painel na URL: abre o painel já no boot (verificação headless do cp14)
   if (new URLSearchParams(location.search).has("painel")) activePanel?.toggle();
   if (new URLSearchParams(location.search).has("inv")) inventoryPanel?.toggle();

@@ -106,6 +106,123 @@ arquivo morto/backup dos docs. Backup do código: git (repo privado no GitHub) �
 >   otimização, atacar nessa ordem: (1) mesher em Web Worker (mata o hitch episódico, que
 >   é o que o aluno SENTE), (2) greedy meshing (ataca draw calls e triângulos juntos),
 >   (3) baixar o teto de `raioRender` em máquina fraca. Falta o número do PC do lab.
+>
+> **MEDIÇÃO 2 — 2026-07-26 18:14** (`perf-1785089686334-7pm7.json`, mesma máquina), sessão
+> com **`/mundo carregar`** no meio (mundo de aula pequeno → mundo E). Não é o mesmo
+> cenário da medição 1 — e foi ela que expôs DOIS bugs, não um custo de render:
+> | | medição 1 (voo, raio 12) | medição 2 (com troca de aula) |
+> |---|---|---|
+> | FPS | 47 | **36** |
+> | frametime p95 | 39,3 ms | **79,7 ms** |
+> | draw calls | 2895 | 2043 |
+> | triângulos | 755 k | 498 k |
+> | remesh (contagem) | 19 504 | **475 136** |
+> | long tasks NA GRAVAÇÃO de 10 s | 0 | **36 (2,4 s = 24% da janela)** |
+> | `stream.repedidas` | 16 / 719 | **252 / 700** |
+> - **Menos geometria e MAIS lentidão** = o custo não era desenhar. `remeshCount` 24× maior
+>   com 34% MENOS triângulos denuncia trabalho desperdiçado: `trocarMundo` fazia `buildAll()`
+>   em mundo lazy = **460 800 remesh de slot vazio** (240×240×8), ~19 s de trava (**bug-517**).
+> - As 252 repedidas eram o §🔁 tentando tapar um buraco que o servidor se recusava a
+>   preencher: sessão nova volta pro `RAIO_PADRAO` e o cliente não reanunciava o raio
+>   (**bug-518**). O `meta` do perfil ainda era do mundo do join (**bug-519**).
+> - **Lição de método:** perfil com número ESTRANHO (menos triângulo, mais lag) é bug antes
+>   de ser gargalo. Só depois de fechar os três é que a comparação de RENDER volta a valer —
+>   a medição 2 NÃO deve ser usada como argumento pró/contra greedy meshing.
+>
+> **MEDIÇÃO 3 — 2026-07-26 18:40** (`perf-1785091204014-l9iv.json`), MESMO cenário da 2
+> (troca de aula + mundo E) **com os três bugs corrigidos**. É a primeira medição limpa
+> desse caminho:
+> | | medição 2 (com os bugs) | medição 3 (corrigida) |
+> |---|---|---|
+> | remesh | 475 136 | **10 984** (−98%) |
+> | repedidas | 252 | **4** |
+> | `meta` do perfil | mundo do join (errado) | mundo em vigor ✅ |
+> | FPS | 36 | 41 |
+> | p95 | 79,7 ms | 69,3 ms |
+> - **O que sobrou é o mesher, e agora dá pra ver limpo:** 10 984 remesh custaram 15,0 s em
+>   96 s de sessão = **15,6% do tempo de parede**, a **1,37 ms por chunk** (na medição 2 o
+>   custo médio era 0,04 ms porque quase tudo era slot VAZIO). Com `meshPorFrame` 8, um frame
+>   que mesha até o teto gasta ~11 ms só nisso — é a explicação direta dos 46 frames >50 ms.
+> - long tasks 158 (38,9 s) em 96 s de sessão; na gravação de 10 s, 45 long tasks (2,8 s).
+>   Ou seja: com mundo E chegando, o hitch é REGIME, não episódio.
+> - **Conclusão pra política:** o item (1) "mesher em Web Worker" agora tem número próprio —
+>   15,6% do tempo de parede na main thread. Continua valendo medir no PC do lab antes de
+>   investir, mas a ordem (worker → greedy → teto de raio) está confirmada pelos dados.
+>
+> **MEDIÇÃO 4 — 2026-07-26 23:18–23:19**, quatro snapshots da MESMA sessão (35 s → 98 s),
+> mundo E, DEPOIS da varredura de tocha corrigida. Como os contadores são acumulados, o que
+> vale são os deltas:
+> | Δ | remesh | tempo em mesh | long task | custo/chunk |
+> |---|---|---|---|---|
+> | 24 s | +3 688 | +4,6 s (**19%**) | +3,3 s (14%) | 1,25 ms |
+> | 12 s | +2 048 | +3,5 s (**29%**) | +3,8 s (31%) | 1,71 ms |
+> | 27 s | +3 304 | +4,7 s (**18%**) | +4,0 s (15%) | 1,43 ms |
+> - **A trava fixa sumiu:** `longTasksMsTotal` agora ESCALA com a sessão (8,4 s @35 s →
+>   19,5 s @98 s) em vez de dar ~38 s sempre. `jitterMs` caiu de ~1 750 pra ~320 (a varredura
+>   também entupia a medição de rede, que roda na main thread). `repedidas 0` nos quatro.
+> - **O que sobrou é 100% mesh de terreno chegando.** Correlação limpa entre taxa de streaming
+>   e frame ruim, na mesma sessão:
+> | streaming | frames >50 ms em 10 s | p95 da gravação |
+> |---|---|---|
+> | 106 B/s (parado) | 7 | **16,8 ms** |
+> | 263 kB/s | 9 | 43 ms |
+> | 558 kB/s | 33–50 | 56–82 ms |
+> | 820 kB/s | 47 | 73 ms |
+> - **Parado, o jogo é 60 FPS travado** (p95 16,8 ms, 1 800 draw calls, 500 k triângulos).
+>   Ou seja: **não há problema de RENDER** — GPU e draw calls dão conta. O custo é montar
+>   malha na main thread enquanto o terreno chega.
+> - **Ordem revisada pelos dados:** (1) **mesher em Web Worker** — tira 18–29% do tempo de
+>   parede da main thread, é o item que existe; (1b) barato antes disso: trocar o orçamento do
+>   `processarFila` de CONTAGEM (`meshPorFrame` 8) pra TEMPO (~6 ms/frame) — o custo por chunk
+>   varia 0,1–3 ms, então 8 chunks tanto pode custar 1 ms quanto 24 ms, e é isso que produz os
+>   frames de 50–100 ms; (2) greedy meshing desceu de prioridade (o steady state já é 60 FPS);
+>   (3) teto de `raioRender` em máquina fraca. **Continua faltando o número do PC do lab.**
+> - ✅ **(1b) FEITO E MEDIDO em 2026-07-26**: `meshMsPorFrame` (1–16 ms, padrão 6) no lugar de
+>   `meshPorFrame`; teto duro de 64 chunks; garante ≥1 chunk por frame.
+>
+> **MEDIÇÃO 5 — 2026-07-26 23:51**, dois perfis, mundo E, **voando, raio 12** (agora o perfil
+> DIZ isso: `config.raioRender 12`, `movimento.estado "voando"`, 8–9,6 blocos/s, **125
+> colunas novas na janela de 10 s nos dois** = mesma carga de antes, agora comprovada e não
+> inferida):
+> | | contagem (8 chunks) | **orçamento (6 ms)** |
+> |---|---|---|
+> | p95 da gravação | 43–82 ms | **18,7 / 20,4 ms** |
+> | p99 | 55–96 ms | **20,1 / 21,8 ms** |
+> | pior frame | 63–107 ms | **22,3 / 33,8 ms** |
+> | frames >50 ms em 10 s | 9–50 | **0 / 0** |
+> | long tasks na gravação | 9–50 | **0 / 0** |
+> | FPS na gravação | 41–53 | **57 / 60** |
+> | long tasks na SESSÃO | 128–299 | **2 (896 ms)** |
+> | `fila` (preço combinado) | 0 | **84 / 189** |
+> - **O trabalho é o mesmo, a distribuição é que mudou:** remesh seguiu em 16–19% do tempo de
+>   parede (9,1 s/56 s e 13,5 s/69 s). O que sumiu foi o PICO. `ultimoLote` 2–3 chunks por
+>   frame mostra que, nessa região (montanha, y≈100–130), 6 ms compram 2–3 chunks — a
+>   contagem fixa de 8 pedia ~20 ms num frame de 16,7 ms.
+> - Efeito colateral bom: o FPS MÉDIO subiu (43–47 → 55–60). Estourar o deadline do vsync
+>   custava um frame inteiro a mais; espalhar o trabalho devolve isso.
+> - **Sobrou 2 long tasks (896 ms) na sessão** — provavelmente o burst do join. Vale olhar
+>   quando o `remeshCount` for separado por caminho.
+> - **Consequência pra fila do worker:** com p95 ~19 ms voando no pior mundo, o mesher em
+>   Worker deixa de ser urgente em PC de dev. O que ele ainda compraria: os 16–19% de main
+>   thread (FPS travado em 60 em vez de 55) e uma fila que esvazia mais rápido. **Decisão:
+>   medir no PC do LAB primeiro** — e lá o knob `meshMsPorFrame` já existe pra baixar.
+>
+> **PLANO DO MESHER EM WORKER (escopado 2026-07-26, NÃO iniciado).** O mesher é função pura
+> (bytes → geometria), então cabe direto: pool de `navigator.hardwareConcurrency` (teto ~4);
+> main thread manda CÓPIA do chunk + bordas dos 6 vizinhos (~10 kB contra ~1,4 ms de mesh) e
+> recebe os typed arrays por transfer (zero-copy); na main sobra só criar `BufferGeometry` e
+> subir pra GPU. O mundo CONTINUA na main thread (física e raycast leem `world`) —
+> `SharedArrayBuffer` evitaria a cópia mas exige COOP/COEP, e a cópia é barata demais pra
+> justificar isso na v1. **Fora de escopo:** render em `OffscreenCanvas` (reescrita grande e
+> a GPU não é o gargalo), WASM e servidor multithread (lista de proibidas).
+>
+> **ACHADO QUE VALE MAIS QUE OS TRÊS (2026-07-26, playtest "página não está respondendo"):**
+> os ~38 s de `longTasksMsTotal` que apareciam IGUAIS nos três perfis — sessões de 234 s,
+> 168 s e 96 s — não eram regime de render: eram **uma só** varredura de tocha bloco a bloco
+> (`TorchGlow.setFromWorld`, 1,887 bilhão de células num mundo E). **41,4 s → 2,9 ms** ao
+> varrer por chunk (bug-523). Lição pra próxima leitura de perfil: número de long task que
+> não escala com a duração da sessão é UMA trava fixa, não carga contínua — procure a
+> varredura, não o gargalo.
 - ✅ Lerp de jogadores remotos — GATILHO DISPAROU (2026-07-11, usuário reportou
   serrilhado): interpolação exponencial no render loop (bug-062). Taxa segue 10 Hz.
 - gzip no save ← save > alguns MB.
@@ -115,6 +232,19 @@ arquivo morto/backup dos docs. Backup do código: git (repo privado no GitHub) �
   por bloco. WebGPURenderer. protobuf/msgpack. LOD/streaming/occlusion culling.
   Servidor multithread. WASM.
 - Frustum culling: three.js já faz por objeto — nada a construir.
+
+> ⚠️ **LEITURA DA LISTA (anotado em 2026-07-26, depois de uma confusão).** Esta lista é de
+> 2026-07-10, escrita para o mundo P e 20 alunos em LAN. Duas ressalvas:
+> 1. **"Servidor multithread" é o SERVIDOR (Node), não o cliente.** Motivo medido: o tick
+>    com a turma toda custa `tickAvgMs` **0,08–3,3 ms** de um orçamento de 100 ms (10 tps).
+>    Paralelizar isso é complexidade e corrida de dados por zero ganho.
+>    **Web Worker no CLIENTE não está proibido** — está em "Adiadas" ("Meshing em Web
+>    Worker ← hitch de frame"), e a BASELINE já foi desenhada pra isso ("mesher = função
+>    pura → mover pra Worker depois fica barato"). O gatilho DISPAROU e depois recuou: com
+>    o orçamento por tempo (MEDIÇÃO 5) o hitch sumiu em PC de dev.
+> 2. **"streaming" na lista foi SUPERADO pela realidade:** o F2 (mundo E por colunas) foi
+>    construído em 2026-07-2x porque o mundo ENORME entrou no escopo. A proibição valia pro
+>    mundo P, onde o snapshot inteiro cabe numa mensagem. Item morto, mantido como registro.
 
 ### Plano de arquitetura (APROVADO 2026-07-10 — construir a partir daqui)
 
@@ -684,9 +814,40 @@ re-playtestados ✅:
 
 ---
 
-## 🕐 BACKLOG — TELA DE CARREGAMENTO (single + multiplayer)
+## 📊 BACKLOG — PERFILADOR: O QUE AINDA FALTA (escopado 2026-07-26)
 
-> Pedido do usuário em 2026-07-26. NÃO iniciado. Vale pros DOIS caminhos de
+> Entregue nesta sessão: **fases** (carregando × jogando: frames, fps, % de render, travadas),
+> **top 5 piores travadas** (ms + fase + segundo da sessão), **remesh por caminho**
+> (fila/bloco/área com n e ms), **render × lógica** (`renderMsMedio`/`renderPct`), **contexto**
+> (`jogador`, `config`, `gravacao.movimento`). O que ficou de fora, por valor/custo:
+>
+> 1. **Modo BENCHMARK (`?bench`)** — o mais valioso pro piloto. Teleporta pra coordenada fixa,
+>    voa um trajeto fixo por 30 s com seed fixa e exporta sozinho. Sem isso, comparar o PC do
+>    lab com o de dev depende de a pessoa voar igual — e não voa. **É o que falta pra ter o
+>    número do lab que a política exige.**
+> 2. **Histograma de frametime** (faixas 8/16/33/50/100+ ms) além dos percentis: mostra a FORMA
+>    (bimodal = dois regimes; cauda longa = hitch raro). Percentil esconde isso.
+> 3. **Tempo de carga por fase da tela** (conectando → mundo → malha → pronto): a §🕐 já mede
+>    tudo isso na tela; falta só exportar no JSON. Vira "quanto o aluno espera" por máquina.
+> 4. **Marcadores de evento na linha do tempo** (join, troca de aula, mudança de raio, morte):
+>    hoje um pico não tem causa registrada — com marcador, o perfil vira narrativa.
+> 5. **Células tocadas por tick pela regra** (água/areia) vindas do servidor no `debug_stats`:
+>    liga o custo de `remesh(bloco)` à causa real.
+> 6. **Tempo de GPU** via `EXT_disjoint_timer_query_webgl2` quando disponível — hoje todo o
+>    perfil é CPU-side. Chrome limita, mas quando existe é o único jeito de separar "GPU cara"
+>    de "CPU cara".
+> 7. **Caracterização da máquina**: `hardwareConcurrency` e `deviceMemory` (uma linha cada) —
+>    o perfil já traz GPU e RAM do JS heap, falta o resto pra comparar PCs do lab.
+
+## 🕐 ~~BACKLOG~~ **FEITO** — TELA DE CARREGAMENTO (single + multiplayer)
+
+> ✅ **IMPLEMENTADO na sessão 25 (2026-07-26)** em `client/src/loading.ts` — o que ficou de
+> fora do esboço abaixo: bytes recebidos ÷ total estimado (não há total conhecido antes do
+> mundo chegar), RTT/ping e nome do mundo/seed nas linhas (o hospedeiro já identifica), e a
+> tela na TROCA DE AULA (`reloadWorld`) — esta virou backlog no STATUS. O texto abaixo segue
+> como registro do escopo pedido; o que foi entregue está no ✅ do STATUS.
+>
+> Pedido do usuário em 2026-07-26. Vale pros DOIS caminhos de
 > entrada: singleplayer (worker) e rede (Node+ws) — mesma tela, mesmo componente.
 
 **Objetivo:** entre "apertei jogar" e "o mundo aparece", o jogador vê uma tela de

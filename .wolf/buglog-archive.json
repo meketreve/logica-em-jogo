@@ -5663,6 +5663,561 @@
       "related_bugs": [],
       "occurrences": 1,
       "last_seen": "2026-07-20T14:53:09.498Z"
+    },
+    {
+      "id": "bug-349",
+      "timestamp": "2026-07-20T14:53:47.250Z",
+      "error_message": "Significant refactor of ",
+      "file": "iniciar-servidor.bat",
+      "root_cause": "5 lines replaced/restructured",
+      "fix": "Rewrote 7→17 lines (5 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "bat"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-20T14:53:47.250Z"
+    },
+    {
+      "id": "bug-350",
+      "timestamp": "2026-07-20T14:53:51.924Z",
+      "error_message": "Wrong reference: ljw should be mundo",
+      "file": "iniciar-servidor.bat",
+      "root_cause": "Used \"ljw\" instead of \"mundo\"",
+      "fix": "Changed ljw → mundo",
+      "tags": [
+        "auto-detected",
+        "wrong-reference",
+        "bat"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-20T14:53:51.924Z"
+    },
+    {
+      "id": "bug-351",
+      "timestamp": "2026-07-20T16:19:17.964Z",
+      "error_message": "Significant refactor of ",
+      "file": "todo.md",
+      "root_cause": "3 lines replaced/restructured",
+      "fix": "Rewrote 3→4 lines (3 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "md"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-20T16:19:17.964Z"
+    },
+    {
+      "id": "bug-352",
+      "timestamp": "2026-07-20T17:27:01.592Z",
+      "error_message": "Type error",
+      "file": "shared/src/claims.ts",
+      "root_cause": "Missing or incorrect type annotation",
+      "fix": "Added type assertion/annotation",
+      "tags": [
+        "auto-detected",
+        "type-fix",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-20T17:27:01.592Z"
+    },
+    {
+      "id": "bug-353",
+      "timestamp": "2026-07-20T17:27:09.156Z",
+      "error_message": "Wrong reference: MAX_CLAIM_DIM should be MAX_CLAIM_XZ",
+      "file": "shared/src/session.ts",
+      "root_cause": "Used \"MAX_CLAIM_DIM\" instead of \"MAX_CLAIM_XZ\"",
+      "fix": "Changed MAX_CLAIM_DIM → MAX_CLAIM_XZ",
+      "tags": [
+        "auto-detected",
+        "wrong-reference",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-20T17:27:09.156Z"
+    },
+    {
+      "id": "bug-354",
+      "timestamp": "2026-07-20T17:27:11.821Z",
+      "error_message": "Incorrect value in code",
+      "file": "shared/src/session.ts",
+      "root_cause": "Had `A área é grande demais (máximo de ${MAX_CLAIM_DIM",
+      "fix": "Changed to `A área é grande demais (máximo de ${MAX_CLAIM_XZ}",
+      "tags": [
+        "auto-detected",
+        "wrong-value",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-20T17:27:11.821Z"
+    },
+    {
+      "id": "bug-355",
+      "timestamp": "2026-07-20T17:27:44.229Z",
+      "error_message": "Significant refactor of ",
+      "file": "shared/src/claims.test.ts",
+      "root_cause": "3 lines replaced/restructured",
+      "fix": "Rewrote 4→5 lines (3 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-20T17:27:44.229Z"
+    },
+    {
+      "id": "bug-356",
+      "timestamp": "2026-07-20T17:40:01.141Z",
+      "error_message": "Type error",
+      "file": "shared/src/rules.ts",
+      "root_cause": "Missing or incorrect type annotation",
+      "fix": "Added type assertion/annotation",
+      "tags": [
+        "auto-detected",
+        "type-fix",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-20T17:40:01.141Z"
+    },
+    {
+      "id": "bug-357",
+      "timestamp": "2026-07-20T17:41:27.112Z",
+      "error_message": "Significant refactor of ",
+      "file": "shared/src/mesher.ts",
+      "root_cause": "8 lines replaced/restructured",
+      "fix": "Rewrote 37→54 lines (8 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-20T17:41:27.112Z"
+    },
+    {
+      "id": "bug-358",
+      "timestamp": "2026-07-20T17:42:43.160Z",
+      "error_message": "Type error",
+      "file": "shared/src/cp23.test.ts",
+      "root_cause": "Missing or incorrect type annotation",
+      "fix": "Added type assertion/annotation",
+      "tags": [
+        "auto-detected",
+        "type-fix",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-20T17:42:43.160Z"
+    },
+    {
+      "id": "bug-359",
+      "timestamp": "2026-07-20T18:00:51.316984+00:00",
+      "error_message": "/tp nome x y z com ~ usava a coordenada do jogador ALVO (teleportado) como referencia, nao a de quem digita o comando",
+      "file": "shared/src/session.ts",
+      "root_cause": "runTp montava `base` a partir de `alvo` (o jogador teleportado). O ~ do Minecraft e relativo a QUEM EXECUTA o comando (o professor), nao ao alvo.",
+      "fix": "base agora vem de this.players.get(clientId) (autor/professor); comentarios e strings de uso atualizados; teste tp.test.ts ajustado (~ relativo ao professor em (4,4,4)).",
+      "tags": [
+        "tp",
+        "teleport",
+        "coordenadas",
+        "til",
+        "professor",
+        "minecraft"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-20T18:00:51.316984+00:00"
+    },
+    {
+      "id": "bug-360",
+      "timestamp": "2026-07-20T18:03:47.040Z",
+      "error_message": "Type error",
+      "file": "shared/src/blocks.ts",
+      "root_cause": "Missing or incorrect type annotation",
+      "fix": "Added type assertion/annotation",
+      "tags": [
+        "auto-detected",
+        "type-fix",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-20T18:03:47.040Z"
+    },
+    {
+      "id": "bug-361",
+      "timestamp": "2026-07-20T18:03:56.571Z",
+      "error_message": "Wrong return value",
+      "file": "shared/src/blocks.ts",
+      "root_cause": "Was returning: id === BlockId.Tocha || isTapete(id);",
+      "fix": "Now returns: id === BlockId.Tocha || isTapete(id) || isFlor(id)",
+      "tags": [
+        "auto-detected",
+        "return-value",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-20T18:03:56.571Z"
+    },
+    {
+      "id": "bug-362",
+      "timestamp": "2026-07-20T18:06:50.308Z",
+      "error_message": "Significant refactor of ",
+      "file": "shared/src/blocks.test.ts",
+      "root_cause": "2 lines replaced/restructured",
+      "fix": "Rewrote 8→11 lines (2 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-20T18:06:50.308Z"
+    },
+    {
+      "id": "bug-363",
+      "timestamp": "2026-07-20T18:07:18.552Z",
+      "error_message": "Type error",
+      "file": "shared/src/cp23.test.ts",
+      "root_cause": "Missing or incorrect type annotation",
+      "fix": "Added type assertion/annotation",
+      "tags": [
+        "auto-detected",
+        "type-fix",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-20T18:07:18.552Z"
+    },
+    {
+      "id": "bug-364",
+      "timestamp": "2026-07-20T19:01:39.906Z",
+      "error_message": "Significant refactor of ",
+      "file": "shared/src/blocks.ts",
+      "root_cause": "3 lines replaced/restructured",
+      "fix": "Rewrote 15→53 lines (3 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-20T19:01:39.906Z"
+    },
+    {
+      "id": "bug-365",
+      "timestamp": "2026-07-20T19:01:58.020Z",
+      "error_message": "Wrong condition in logic",
+      "file": "shared/src/blocks.ts",
+      "root_cause": "Condition was: if (id === BlockId.PortaXAberta || id === BlockId.Port)",
+      "fix": "Changed to: if (isPortaAberta(id)",
+      "tags": [
+        "auto-detected",
+        "logic-fix",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-20T19:01:58.020Z"
+    },
+    {
+      "id": "bug-366",
+      "timestamp": "2026-07-20T19:02:28.461Z",
+      "error_message": "Significant refactor of ",
+      "file": "shared/src/mesher.ts",
+      "root_cause": "7 lines replaced/restructured",
+      "fix": "Rewrote 16→28 lines (7 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-20T19:02:28.461Z"
+    },
+    {
+      "id": "bug-367",
+      "timestamp": "2026-07-20T19:03:07.724Z",
+      "error_message": "Type error",
+      "file": "shared/src/session.ts",
+      "root_cause": "Missing or incorrect type annotation",
+      "fix": "Added type assertion/annotation",
+      "tags": [
+        "auto-detected",
+        "type-fix",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-20T19:03:07.725Z"
+    },
+    {
+      "id": "bug-368",
+      "timestamp": "2026-07-20T19:04:00.825Z",
+      "error_message": "Missing guard clause",
+      "file": "shared/src/session.ts",
+      "root_cause": "No early return/throw for edge case: isPorta(nb",
+      "fix": "Added guard clause: if (isPorta(nb)",
+      "tags": [
+        "auto-detected",
+        "guard-clause",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-20T19:04:00.825Z"
+    },
+    {
+      "id": "bug-369",
+      "timestamp": "2026-07-20T19:11:23.139Z",
+      "error_message": "Significant refactor of ",
+      "file": "todo.md",
+      "root_cause": "3 lines replaced/restructured",
+      "fix": "Rewrote 4→7 lines (3 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "md"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-20T19:11:23.139Z"
+    },
+    {
+      "id": "bug-370",
+      "timestamp": "2026-07-20T19:15:00.000Z",
+      "error_message": "blocks.test.ts:39 expected isPlaceable(108) toBe false, got true",
+      "file": "shared/src/blocks.test.ts",
+      "root_cause": "Teste usava 108 como sentinel 'byte acima do MAX_BLOCK_ID'. A sessao 7 adicionou as portas R em 108-111 e subiu MAX_BLOCK_ID pra 111, entao 108 virou PortaXFechadaR (colocavel).",
+      "fix": "Sentinel movido pra 112, depois 116 (janela R subiu MAX de novo) + asserts das portas/janelas R. Ao subir MAX_BLOCK_ID, o sentinel 'byte acima do MAX' do blocks.test SEMPRE precisa subir junto. | 2026-07-20: recorreu ao subir MAX 116->129 (13 blocos: minerios+gramas climaticas+arvores brasileiras+mandacaru); sentinel isPlaceable(129)=false atualizado no mesmo commit.",
+      "tags": [
+        "blocos",
+        "sentinel",
+        "test",
+        "recorrente",
+        "janela",
+        "porta",
+        "MAX_BLOCK_ID",
+        "append-id"
+      ],
+      "related_bugs": [],
+      "occurrences": 3,
+      "last_seen": "2026-07-20"
+    },
+    {
+      "id": "bug-371",
+      "timestamp": "2026-07-20T19:35:51.326Z",
+      "error_message": "Significant refactor of ",
+      "file": "shared/src/blocks.ts",
+      "root_cause": "3 lines replaced/restructured",
+      "fix": "Rewrote 20→57 lines (3 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-20T19:35:51.326Z"
+    },
+    {
+      "id": "bug-372",
+      "timestamp": "2026-07-20T19:36:35.198Z",
+      "error_message": "Significant refactor of ",
+      "file": "shared/src/mesher.ts",
+      "root_cause": "4 lines replaced/restructured",
+      "fix": "Rewrote 10→22 lines (4 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-20T19:36:35.198Z"
+    },
+    {
+      "id": "bug-373",
+      "timestamp": "2026-07-20T21:42:05.711Z",
+      "error_message": "Type error",
+      "file": "shared/src/mesher.ts",
+      "root_cause": "Missing or incorrect type annotation",
+      "fix": "Added type assertion/annotation",
+      "tags": [
+        "auto-detected",
+        "type-fix",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-20T21:42:05.711Z"
+    },
+    {
+      "id": "bug-374",
+      "timestamp": "2026-07-20T21:42:34.028Z",
+      "error_message": "Missing guard clause",
+      "file": "shared/src/mesher.ts",
+      "root_cause": "No early return/throw for edge case: isFlor(id",
+      "fix": "Added guard clause: if (isFlor(id)",
+      "tags": [
+        "auto-detected",
+        "guard-clause",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-20T21:42:34.028Z"
+    },
+    {
+      "id": "bug-375",
+      "timestamp": "2026-07-20T22:20:00.000Z",
+      "error_message": "flor com textura bugada (playtest do usuario) — parecia duplicada/esticada",
+      "file": "shared/src/mesher.ts",
+      "root_cause": "flor era desenhada com 2 emitBox (caixas finas 2*P axis-aligned, centradas): cada caixa emite 6 faces com UV PROPORCIONAL, entao o sprite estica nas laterais da caixa e as 2 lajes sobrepostas z-fightam — nao vira uma cruz limpa. Alem disso a altura 12*P + UV proporcional cortava as petalas (pintadas no TOPO do tile).",
+      "fix": "novo helper emitCrossPlane no mesher: 2 laminas PLANAS na diagonal da celula (0,0)->(1,1) e (0,1)->(1,0), a 90°, altura 0..1, UV do tile INTEIRO (0..1), emitidas dos 2 lados (verso com winding invertido + normal negada) pra aparecerem com material FrontSide. Estilo Minecraft (cross model).",
+      "tags": [
+        "flor",
+        "mesher",
+        "textura",
+        "cross-plane",
+        "playtest",
+        "cutout"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-20T22:20:00.000Z"
+    },
+    {
+      "id": "bug-376",
+      "timestamp": "2026-07-20T23:10:25.647Z",
+      "error_message": "Significant refactor of ",
+      "file": "todo.md",
+      "root_cause": "7 lines replaced/restructured",
+      "fix": "Rewrote 10→11 lines (7 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "md"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-20T23:10:25.647Z"
+    },
+    {
+      "id": "bug-377",
+      "timestamp": "2026-07-20T23:16:52.524Z",
+      "error_message": "Significant refactor of ",
+      "file": "todo.md",
+      "root_cause": "7 lines replaced/restructured",
+      "fix": "Rewrote 11→11 lines (7 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "md"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-20T23:16:52.524Z"
+    },
+    {
+      "id": "bug-378",
+      "timestamp": "2026-07-20T23:22:08.269Z",
+      "error_message": "Significant refactor of ",
+      "file": "shared/src/claims.ts",
+      "root_cause": "2 lines replaced/restructured",
+      "fix": "Rewrote 3→5 lines (2 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-20T23:22:08.269Z"
+    },
+    {
+      "id": "bug-379",
+      "timestamp": "2026-07-20T23:22:18.711Z",
+      "error_message": "Wrong reference: MAX_CLAIM_Y should be MAX_CLAIM_NAME",
+      "file": "shared/src/session.ts",
+      "root_cause": "Used \"MAX_CLAIM_Y\" instead of \"MAX_CLAIM_NAME\"",
+      "fix": "Changed MAX_CLAIM_Y → MAX_CLAIM_NAME",
+      "tags": [
+        "auto-detected",
+        "wrong-reference",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-20T23:22:18.711Z"
+    },
+    {
+      "id": "bug-380",
+      "timestamp": "2026-07-20T23:22:25.578Z",
+      "error_message": "Wrong return value",
+      "file": "shared/src/session.ts",
+      "root_cause": "Was returning: `A área é grande demais (máximo de ${MAX_CLAIM_XZ}",
+      "fix": "Now returns: `A área é grande demais (máximo de ${MAX_CLAIM_XZ}",
+      "tags": [
+        "auto-detected",
+        "return-value",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 2,
+      "last_seen": "2026-07-20T23:22:31.053Z"
+    },
+    {
+      "id": "bug-381",
+      "timestamp": "2026-07-20T23:22:55.036Z",
+      "error_message": "Null/undefined access in ",
+      "file": "shared/src/claims.test.ts",
+      "root_cause": "Property access on potentially null/undefined value",
+      "fix": "Added null safety (optional chaining or null check)",
+      "tags": [
+        "auto-detected",
+        "null-safety",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-20T23:22:55.036Z"
+    },
+    {
+      "id": "bug-382",
+      "timestamp": "2026-07-21T00:13:07.115Z",
+      "error_message": "Wrong reference: JanelaZAbertaR should be Mandacaru",
+      "file": "shared/src/blocks.ts",
+      "root_cause": "Used \"JanelaZAbertaR\" instead of \"Mandacaru\"",
+      "fix": "Changed JanelaZAbertaR → Mandacaru",
+      "tags": [
+        "auto-detected",
+        "wrong-reference",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-21T00:13:07.115Z"
     }
   ]
 }

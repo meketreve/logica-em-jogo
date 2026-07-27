@@ -8,7 +8,8 @@
  *   LJ_SAVE=mundos/_smoke-kicar.ljw LJ_CODIGO=prof2026 LJ_NOVO=1 npm run start -w server
  *   node server/src/cenarios/_smoke-kicar.mjs
  */
-const URL = "ws://localhost:8080";
+const PORTA = process.argv[2] ?? "8080";
+const URL = `ws://localhost:${PORTA}`;
 let falhas = 0;
 const ok = (cond, msg) => {
   console.log(`  ${cond ? "✓" : "✗"} ${msg}`);

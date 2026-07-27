@@ -1,61 +1,86 @@
 # STATUS — Projeto "Lógica em Jogo" (jogo voxel educacional)
 
 > Single source of truth for resuming work. Read this FIRST when starting a session.
-> **SESSÃO 24 (2026-07-26) — ÁGUA APROVADA NO PLAYTEST + §🔁 CODADO E VERDE (playtest do
-> browser pendente).** Abertura: o usuário respondeu o ponto de decisão da sessão 23 —
-> **playtestou o refino de água e APROVOU** ("worldgen novo com água, animação de textura e o
-> render por nível com conexão de textura, ficou muito bom"). Pediu pra ANOTAR (não fazer) uma
-> frente nova: **melhorar a textura da água + a direção da animação seguir o VENTO** — e o que
-> o vento puxa junto (nuvens, folhas balançando, grama, flores). Virou `ROADMAP.md §🌬️` com 6
-> frentes ordenadas por custo. **§🔁 IMPLEMENTADO (as duas frentes):**
-> **(1) bug-211 FECHADO** — `enviarRaio()` novo (main.ts) guarda o último raio anunciado
-> (`raioEnviado`) e reenvia `{type:"radius"}` quando a config muda; chamado no `connect()`
-> (reset pra −1: conexão nova = servidor novo) e no `onSettingsChanged()` (que é o `onChanged`
-> do `buildConfigScreen` no menu principal E no Esc). O servidor não mudou.
-> **(2) Rede de segurança** — msg nova `pedir_coluna {cx,cz}`: o servidor só faz
-> `st.enviadas.delete(key)` e o `streamColunas` do tick seguinte reenvia pelo caminho normal
-> (ZERO envio paralelo, decisão de desenho). Guardas no SERVIDOR: exige join+stream, bounds,
-> dentro de raio+`FOLGA_DESCARTE`, e teto `PEDIDOS_COLUNA_POR_S=8` por cliente por segundo
-> (janela de 1 s no `this.now()`) — o comando chega pela rede da escola. No CLIENTE:
-> `varrerFaltando()` roda na MESMA passada 1×/s do descarte (o contador que a §🕐 vai
-> precisar já nasce aqui), com carência de 4 s antes do 1º pedido (streaming é gradual),
-> backoff exponencial 2 s→30 s, teto de 4 pedidos/varredura e descarte de bytes+geometria
-> ANTES de repedir (decode que morreu no meio deixa meia coluna). Detecção de CORROMPIDO caiu
-> de graça: `decodeColunas` agora em try/catch (antes a exceção subia pelo handler de
-> mensagem) e `processarFila(budget, onFalha)` reporta chunk cujo mesh jogou exceção → a
-> coluna sai de `colunasCarregadas` e a varredura repede. F3 ganhou `faltando` e `repedidas`.
-> **VERDE: typecheck 3/3, 329 testes (+5), build ok. Smoke ws REAL 10/10**
-> (`server/src/cenarios/_smoke-pedir-coluna.mjs`, mundo LJ_TAMANHO=E: raio 4→8 trouxe 200
-> colunas do anel novo ✅, `pedir_coluna` reenviou a coluna do spawn ✅, flood de 24 pedidos
-> virou 7 colunas ✅, pedidos inválidos não derrubam o host ✅). **bug-215 logado** (a rede de
-> segurança) e **bug-211 marcado corrigido**; de quebra, o `bug-211` DUPLICADO que um hook
-> criou (auto-detected, hud.ts) virou `bug-214`.
-> **PLAYTEST DO USUÁRIO ✅ (mesma sessão):** "mudar distância de render carrega corretamente,
-> F3 mostra informações corretamente". Perfilou o pior caso (mundo E, raio 12, VOANDO, 234 s,
-> RTX 2060) e enviou pelo botão do F3 → `profiles/perf-1785086834711-wmi5.json`. **§🔁 passou:
-> `faltando 0`, `repedidas 16` em 719 colunas (2%)** — carência de 4 s + backoff calibrados.
-> O mesmo perfil expôs o CUSTO DE RENDER (47 FPS, p95 39 ms, 2895 draw calls, 157 long
-> tasks) — tabela e leitura na política de otimização do ROADMAP. **TUDO COMMITADO em
-> `e3eaac4`** (água + §🔁, a pedido do usuário; árvore limpa). Sessão 23 abaixo ↓
-> **SESSÃO 23 (2026-07-26) — SESSÃO DE PLANEJAMENTO (zero código). Duas frentes novas no
-> ROADMAP + causa raiz de um bug achada de graça.** Usuário pediu pra anotar (não implementar):
-> **(A) §🕐 TELA DE CARREGAMENTO** (single + rede) — taxa em BITS/s (converter de `bytesIn/
-> bytesOut`, que `connection.ts` já conta), colunas carregadas × em transferência, fase/ETA/
-> ping/host; DUAS animações desacopladas de propósito: spinner decorativo no canto (sinal de
-> vida — gira mesmo se a rede parar) + progresso REAL no centro (colunas prontas ÷ total do
-> raio). Bloqueio que o próprio usuário apontou: `updateOverlay()` (`main.ts:206`) mostra o
-> menu Esc sempre que `!input.active` → suprimir enquanto `loading.ativo`.
-> **(B) §🔁 RECARREGAR COLUNA FALTANDO/CORROMPIDA** — varredura 1×/s (mesma passada que já faz
-> o descarte, `main.ts:1439`) lista coluna dentro do raio ausente de `colunasCarregadas` ou com
-> decode/mesh falho → msg nova `pedir_coluna {cx,cz}`; servidor só faz `st.enviadas.delete(key)`
-> e o `streamColunas` do tick seguinte reenvia sozinho (sem caminho de envio paralelo).
-> **CAUSA RAIZ DO bug-211 achada ao escrever a nota** (o usuário só sabia do sintoma "aumentar
-> a distância de render não traz chunk novo, só mantém mais renderizado"): `main.ts:542` manda
-> `{type:"radius"}` UMA vez, logo após o join. Mexer no raio na config ao vivo só muda a regra de
-> DESCARTE do cliente (`main.ts:1442`); o servidor nunca sabe, `st.raio` fica no valor velho
-> (`session.ts:603`) e o anel novo jamais entra no lote. Diminuir "funciona" por acidente (os dois
-> lados descartam pela mesma regra). bug-211 LOGADO como ABERTO. **ORDEM DECIDIDA: §🔁 antes de
-> §🕐** — motivo abaixo na Próxima fase. Sessão 22 abaixo ↓
+> **SESSÃO 25b (2026-07-26) — §🧪 ENCANAMENTO DE VERIFICAÇÃO.** Papo sobre ferramental
+> virou trabalho. Duas verdades ficaram claras: (1) o valor do OpenWolf aqui é STATUS +
+> cerebrum (o handoff), não o resto; (2) **metade do Do-Not-Repeat deste projeto é sobre o
+> APARATO de teste, não sobre o código** — foi ali que o token foi embora. Entregue:
+> `npm run verify` (typecheck 3 pacotes + 329 testes + build) e **`scripts/smoke.mjs`**,
+> runner com manifesto que sobe o host com a env certa, roda o cenário e mata tudo. Antes,
+> cada `_smoke-*.mjs` só documentava sua env num comentário de cabeçalho e exigia montar a
+> linha à mão. Agora: `npm run smoke` (5/5 em 38 s) · `-- <nome>` · `-- --rapido` (pula
+> mundos E) · `-- --lista` (**diz o que cada cenário prova sem abrir arquivo nenhum** — use
+> antes de ler um smoke). Porta própria por cenário (8091–8096) mantém a 8080 livre pro dev
+> server; `LJ_SEED` fixa tira a loteria do terreno. Desbloqueia
+> `git bisect run npm run smoke -- <nome>` pra achar QUANDO quebrou sem ler diff.
+> Dois bugs no caminho: **bug-521** (asserção velha case-sensitive no `_smoke-mundo` —
+> `/Continue a regra/` casava com o TÍTULO, não com o texto do objetivo; nunca pegou porque
+> ninguém checava exit code) e **bug-522** (manifesto dava mundo novo vazio a um smoke que
+> pressupõe nascer na aula1). Convenção de log auditada: já é 100% consistente
+> (`[server]` no host, tag por subsistema no client), só nunca tinha sido escrita — foi pro
+> cerebrum. Config OpenWolf ajustada: `buglog.auto_detect: false` (falso positivo poluía o
+> índice) e `anatomy.rescan_interval_hours: 6 → 168` (stale falso todo boot).
+> **NÃO commitado ainda** — entra junto com a §🕐 quando o playtest aprovar.
+> **SESSÃO 25 (2026-07-26) — §🕐 TELA DE CARREGAMENTO CODADA E VERDE (playtest pendente).**
+> Usuário disse só "continuar" → peguei a quest 1ª da fila. Novo `client/src/loading.ts`
+> (self-contained, DOM+CSS injetados como o `touch.ts`), aberto no `connect()` e fechado
+> quando o raio inicial INTEIRO está aplicado E `chunkRenderer.filaPendente === 0`. Progresso
+> real = colunas prontas ÷ total do raio (mesma conta do `streamColunas`, recortada pelas
+> bordas do mundo); spinner decorativo em CSS puro no canto, desacoplado de propósito. Taxa
+> em **bits/s** (`bytesIn+bytesOut` ×8, amostragem 1×/s; DOM repinta 4×/s pra ficar suave).
+> "Em transferência" reusa `colunasFaltando.size` da varredura §🔁 — zero segunda medição,
+> como o handoff mandava. **bug-515 fechado** (o bloqueio que o próprio usuário apontou na
+> sessão 23): `updateOverlay()` agora tem `loading.ativo` na condição, então o menu Esc não
+> aparece mais por baixo da carga; idem `touchControls.setShown`. Ao fechar, o menu de pausa
+> volta a ser a porta de entrada (o clique é o gesto que o pointer lock exige). Três decisões
+> que nasceram da verificação: (a) anel **indeterminado** ("…" girando) enquanto não há total
+> — mundo denso vem num blob só e 0% travado parece defeito; (b) fase troca sozinha pra
+> "montando a malha…" quando as colunas acabaram e a fila não; (c) `WsConnection` ganhou
+> `aoFalhar` → servidor fora do ar vira mensagem vermelha + "voltar ao menu", em vez de
+> spinner eterno (é o modo de falha mais provável na escola). VERDE: typecheck 3/3, 329
+> testes, headless conferido em mundo E (33% · 56/169 · 2.1 Mbps · ETA 4,7 s), mundo P
+> (denso, fecha em 100%) e servidor inexistente. **NÃO commitado — esperando o playtest.**
+> **PARTE 2 da sessão:** (a) o usuário não via a tela — rodou `npm run dev:server`, que serve
+> o cliente COMPILADO; era build velho (**bug-516**, `npm run build` resolveu). (b) Pediu a
+> mesma tela no `/mundo carregar` e mandou um perfil novo. **O perfil expôs 3 bugs, não um
+> gargalo:** `remeshCount` 475 136 (24× o perfil anterior) com 34% MENOS triângulos →
+> `trocarMundo` fazia `buildAll()` em mundo lazy = 460 800 remesh de slot vazio, ~19 s de
+> trava (**bug-517**); `repedidas` 252/700 → `/mundo carregar` cria SESSÃO nova e o `admitir`
+> zera o raio pra `RAIO_PADRAO`, com o cliente sem reanunciar (**bug-518**, provado pelo smoke
+> novo `_smoke-troca-raio.mjs`: anel 10 → 6 → 12); `meta` do perfil era do mundo do JOIN
+> (**bug-519**, `Hud.setMeta`). Os três corrigidos + a §🕐 agora reabre na troca de aula
+> (título "trocando de aula", pointer lock CONTINUA travado = volta ao jogo sem clique).
+> **PARTE 3:** perfil 3 (18:40) com os fixes = **remesh 475 136 → 10 984, repedidas 252 → 4,
+> meta correta** (tabela no ROADMAP). Playtest do usuário: "a tela demora a aparecer no
+> `/mundo carregar` e quando aparece já está quase pronta" (**bug-520**) — a tela abria no
+> snapshot, que é o FIM da fila do host. Agora o servidor ANUNCIA: msg nova
+> `mundo_trocando {nome}` (emitida após o decode do .ljw, antes de salvar/gerar), fase nova
+> `preparando` com anel indeterminado, e uma **fila de 2× rAF** segura as mensagens seguintes
+> pra garantir que o frame COM a tela pintou antes do trabalho pesado (o snapshot chega
+> 1-2 ms depois do aviso em mundo lazy — sem isso não adiantaria abrir mais cedo).
+> Smoke `_smoke-troca-raio.mjs` agora tem 6 checagens (inclui a ordem aviso→snapshot).
+> **PARTE 4 — o achado grande (bug-523).** Playtest: "a tela funciona, só que a página diz
+> que não está respondendo". Era `TorchGlow.setFromWorld` varrendo o mundo **bloco a bloco**:
+> mundo E = 1,887 bilhão de células = **41,4 s de main thread travada**, no join E na troca de
+> aula. É a explicação dos ~38 s de `longTasksMsTotal` iguais nos TRÊS perfis (sessões de
+> 234/168/96 s — trava fixa, não regime). Varredura por CHUNK (ausente sai em O(1)):
+> **41 361 ms → 2,9 ms**; P 77 → 11,5 ms. Equivalência conferida contra a varredura antiga
+> com tochas em borda de chunk (9/9 idênticas) e wall clock do headless: join em mundo E que
+> estourava 3 min agora fecha em 2,9 s. De quebra, tocha de coluna que chega por streaming
+> agora ganha halo (`varrerColuna`) e some no descarte (`descartarColuna`) — antes só
+> aparecia se alguém tocasse no bloco.
+> **PARTE 5 — perfil com CONTEXTO + orçamento por tempo.** Erro meu que o usuário pegou: li
+> "parado, 60 FPS" de perfis feitos VOANDO (inferi estado pela taxa de rede). Perfil agora
+> carrega `jogador` (pos/yaw/pitch/voando/noChao/chunk), `config` (raioRender,
+> `meshMsPorFrame`, pixelRatioCap, fov — eu vinha comparando perfis de raio 12 com raio 6 sem
+> saber) e `gravacao.movimento` (estado, distância, velocidade, colunasNovas, bytes) medido
+> como DELTA na janela. `?hud` abre o F3 no boot (headless). Depois, escolha dele: **orçamento
+> de mesh por TEMPO** — `meshMsPorFrame` (1–16 ms, padrão 6) no lugar de `meshPorFrame`
+> (contagem), com teto de 64 chunks e ≥1 garantido; a contagem fixa custava de 1 a 24 ms por
+> frame e era a origem dos frames de 50–100 ms. Headless em mundo E fechou com `fila 0`,
+> `faltando 0`, **0 long tasks**. Plano do mesher em Worker escopado no ROADMAP (pool, cópia
+> de chunk+bordas, transfer de volta; mundo fica na main por causa de física/raycast).
+> **Falta o perfil do usuário pra medir o ganho.** Sessão 24 abaixo ↓
 
 ---
 
@@ -193,52 +218,100 @@ Documento é o ÚLTIMO entregável, não o primeiro. Construir, não documentar.
   (inspeção visual de texturas). 60 testes (3 novos: queda genérica, bedrock,
   cobertura mesher de TODO id colocável), typecheck 3/3, build ok, screenshot
   com atlas confere. Playtest do usuário pendente (texturas = gosto).
+- **§🕐 TELA DE CARREGAMENTO (2026-07-26, sessão 25)** — `client/src/loading.ts` novo
+  (self-contained, DOM+CSS injetados, padrão do `touch.ts`). Cobre do "jogar" até o mundo
+  pronto, nos DOIS caminhos (worker e ws). **Progresso real** = `colunasCarregadas.size ÷
+  total do raio` (o total é a MESMA conta do `streamColunas`: quadrado de `raioRender` em
+  volta do chunk do spawn, recortado pelas bordas), monotônico e clampado; **spinner
+  decorativo** no canto em CSS puro (gira mesmo se a rede parar = sinal de vida). Linhas:
+  colunas prontas/total, em transferência (`colunasFaltando.size` da varredura §🔁 — sem
+  segunda medição), chunks na fila de malha, taxa em **bits/s** (`bytesIn+bytesOut` ×8,
+  amostrado 1×/s como o HUD F3), recebido, tempo + ETA pelo ritmo de colunas (EMA),
+  hospedeiro. Fase honesta: conectando → recebendo/gerando o mundo → montando a malha →
+  pronto (troca pra "malha" sozinha quando as colunas acabaram mas a fila não). Anel fica
+  **indeterminado** (arco girando, "…") enquanto não há total — mundo denso vem num blob só
+  e 0% parado parecia defeito. **Bloqueio do usuário resolvido (bug-515):** `updateOverlay()`
+  ganhou `loading.ativo` (menu Esc não aparece mais durante a carga) e o mesmo na UI de
+  toque. Fecha só com o raio inicial INTEIRO aplicado **E** `filaPendente === 0` (entrar
+  antes = mundo com buracos), com um respiro de 400 ms em 100%; devolve o menu de pausa como
+  porta de entrada (o clique é o gesto do pointer lock). **Extra:** `WsConnection` ganhou
+  `aoFalhar` (onerror/onclose, avisa uma vez) → servidor fora do ar/IP errado vira mensagem
+  vermelha + "voltar ao menu" (mesmo caminho do `join_denied`), em vez de spinner eterno;
+  botão "entrar mesmo assim" aparece após 20 s. VERDE: typecheck 3/3, 329 testes, verificação
+  headless em mundo E (33% · 56/169 colunas · 2.1 Mbps · ETA 4,7 s), mundo P (denso → 100% →
+  fecha) e servidor inexistente (estado de erro). **Playtest do usuário PENDENTE.**
+
+- **Sessão 25 — o resto (2026-07-26), tudo commitado:**
+  - **§🕐 na TROCA DE AULA** (`/mundo carregar`): msg nova `mundo_trocando {nome}` sai do host
+    logo APÓS o decode do .ljw e ANTES de salvar/gerar, a tela sobe na hora (fase `preparando`,
+    anel indeterminado) e uma **fila de 2× rAF** garante que o frame COM a tela pintou antes do
+    trabalho pesado. Pointer lock não é solto → ao fechar, volta a jogar sem clique.
+  - **Quatro bugs achados LENDO PERFIL** (não por teste): **bug-517** `trocarMundo` fazia
+    `buildAll()` em mundo lazy (460 800 remesh de slot vazio, ~19 s de trava); **bug-518** a
+    sessão nova do `/mundo carregar` zerava o raio pra `RAIO_PADRAO` e o cliente não
+    reanunciava (mundo cortado no anel 6, 252 repedidas); **bug-519** `meta` do perfil ficava
+    no mundo do join; **bug-523** `TorchGlow.setFromWorld` varria BLOCO A BLOCO — 1,887 bilhão
+    de células num mundo E = **41 s de aba travada** ("página não está respondendo"), e era a
+    explicação dos ~38 s de long task iguais em três perfis de durações diferentes. Varredura
+    por chunk: **41 361 ms → 2,9 ms**. Tocha de coluna do streaming agora ganha halo.
+  - **Orçamento de mesh por TEMPO** (`meshMsPorFrame`, 1–16 ms, padrão 6) no lugar da contagem
+    fixa: p95 da gravação **43–82 ms → 18,7/20,4 ms**, frames >50 ms **9–50 → 0**, FPS 41–53 →
+    **57/60**, long tasks da sessão 128–299 → **2**. Preço combinado: `fila` 0 → 84/189.
+  - **Perfilador com CONTEXTO e por FASE**: `jogador` (pos/yaw/pitch/voando/chunk), `config`
+    (raio, orçamento, pixelRatio, fov), `gravacao.movimento` (estado, distância, velocidade,
+    colunas novas), `fases[]` (carregando × jogando: fps, `renderPct`, travadas),
+    `pioresTravadas` (top 5 com fase e segundo), `remeshPorCaminho` (fila × bloco × área),
+    render × lógica. `?hud` abre o F3 no boot. **bug-524** (o `setRemesh` do loop apagava o
+    campo novo) pego na verificação headless.
+  - **§🧪 encanamento de verificação**: `npm run verify` e `npm run smoke` (manifesto em
+    `scripts/smoke.mjs`, porta por cenário, `--lista`/`--rapido`), + smoke novo
+    `_smoke-troca-raio.mjs` (6/6: anel 10 → 6 → 12 e a ordem aviso→snapshot).
+  - **bug-516**: `npm run dev:server` serve o cliente COMPILADO — feature de cliente em
+    `:8080` exige `npm run build` (loop rápido é `npm run dev`, vite 5173).
 
 ---
 
-## 🚀 Próxima fase — §🕐 TELA DE CARREGAMENTO, depois CUSTO DE RENDER
+## 🚀 Próxima fase — AS 7 MELHORIAS DO PERFILADOR (decidido pelo usuário)
 
-> Backlog e referência de escopo vivem em `.wolf/ROADMAP.md` (inclui o checklist de dia de
-> aula do piloto). Mantenha aqui só a quest ATIVA. §🕐 está detalhada lá — **ler a seção §🕐
-> do ROADMAP antes de codar.**
+> Backlog e escopo detalhado vivem em `.wolf/ROADMAP.md` → seção **`📊 BACKLOG —
+> PERFILADOR`**, que tem os sete itens escritos com justificativa. **Ler aquela seção antes
+> de codar.** Aqui fica só a ordem e o porquê.
 
-**ORDEM (decidida pelo usuário no fim da sessão 24): §🕐 primeiro, custo de render depois.**
-As duas quests da sessão 24 estão COMMITADAS (ver abaixo) — árvore limpa, nada empilhado.
+**A sessão 25 inteira está COMMITADA** (playtest aprovado pelo usuário nos dois caminhos:
+singleplayer e `/mundo carregar`). Árvore limpa ao fechar.
 
-### 1ª — §🕐 tela de carregamento (single + rede)
+O usuário fechou a sessão assim: *"vou atacar depois as 7 coisas que é bom ter no
+perfilador"*. Ordem sugerida (a 1ª vale mais que as outras seis somadas):
 
-Reusa os contadores que a sessão 24 acabou de validar em playtest:
-- `colunasFaltando.size` (main.ts, dentro de `startGame`) já é o "em transferência";
-  `colunasCarregadas.size` é o "pronto". A varredura 1×/s (`varrerFaltando`) é o lugar
-  natural pra amostrar — **não escrever uma segunda medição.**
-- Taxa em **BITS/s**: converter de `bytesIn/bytesOut` do `connection.ts` (×8), amostrando
-  1×/s como o HUD F3 já faz.
-- Total esperado do raio sai das dims do header do snapshot cruzadas com `settings.raioRender`.
-- **DUAS animações desacopladas de propósito:** spinner decorativo no canto (CSS puro, gira
-  mesmo se a rede parar = sinal de vida) + progresso REAL no centro (prontas ÷ total; nunca
-  volta atrás nem passa de 100%, só clampa).
-- ⚠️ **Bloqueio conhecido (o usuário apontou na sessão 23):** `updateOverlay()` em `main.ts`
-  mostra o menu Esc SEMPRE que `!input.active` — durante o load o ponteiro não está travado,
-  então o menu de pausa apareceria junto. Suprimir enquanto `loading.ativo`.
-- Novo `client/src/loading.ts`, self-contained (DOM+CSS injetados, padrão do `touch.ts`).
-  Fechar só quando o snapshot chegou **E** a primeira leva de chunks foi meshada.
-- Toque: `touchControls.setShown(false)` enquanto carrega (mesma regra de chat/painéis).
+1. **Modo `?bench`** — teleporta pra coordenada fixa, voa trajeto fixo por 30 s com seed
+   fixa, exporta sozinho. **É o que destrava o número do PC do LAB**, que a política de
+   otimização exige há três sessões: hoje comparar máquinas depende de a pessoa voar igual.
+2. **Histograma de frametime** (faixas 8/16/33/50/100+ ms) — percentil esconde a FORMA
+   (bimodal = dois regimes; cauda longa = hitch raro).
+3. **Tempo de carga por fase da tela** (conectando → mundo → malha): a §🕐 já calcula tudo,
+   falta exportar no JSON. Vira "quanto o aluno espera" por máquina.
+4. **Marcadores de evento** (join, troca de aula, mudança de raio) com timestamp — hoje um
+   pico não tem causa registrada.
+5. **Células tocadas por tick pela regra** (água/areia) no `debug_stats` do servidor — liga o
+   custo de `remesh(bloco)` à causa real.
+6. **Tempo de GPU** (`EXT_disjoint_timer_query_webgl2` quando existir) — todo o perfil hoje é
+   CPU-side.
+7. **`hardwareConcurrency` + `deviceMemory`** — uma linha cada, caracteriza o PC do lab.
 
-### 2ª — custo de render (perfil de 2026-07-26 já está na mão)
+**Base já pronta pra isso (sessão 25):** o perfil traz `jogador`, `config`,
+`gravacao.movimento` (estado voando/andando/parado, distância, colunas novas), `fases[]`
+(carregando × jogando com fps, `renderPct` e travadas), `pioresTravadas` (top 5 com fase e
+segundo) e `remeshPorCaminho` (fila × bloco × área). `?hud` na URL abre o F3 no boot.
 
-O usuário perfilou o pior caso (mundo E, raio 12, voando, RTX 2060): **47 FPS, p95 39 ms,
-2895 draw calls, 755 k triângulos, 157 long tasks**. Tabela completa e leitura honesta na
-**política de otimização do `ROADMAP.md`** (bloco "MEDIÇÃO DE 2026-07-26"). Resumo do que
-fazer: o custo está em **draw calls + mesh**, não na rede nem na GPU. Ordem sugerida:
-1. **Mesher em Web Worker** — mata o hitch episódico, que é o que o aluno SENTE
-   (a gravação de 10 s teve 0 long task; os 157 são picos de chegada de terreno).
-2. **Greedy meshing** — ataca draw calls e triângulos juntos (o caro de verdade).
-3. Baixar o teto de `raioRender` em máquina fraca.
-⚠️ **Ressalva registrada:** o gatilho ESCRITO na política é "FPS baixo em PC do lab", e
-esta medição é de PC de dev com o raio 2× o padrão. **Falta o número do PC do lab** —
-vale medir lá antes de investir muito.
+### Depois disso — custo de render (o que sobrou)
 
-### Backlog que nasceu nesta sessão
+O pico morreu com o orçamento por tempo (MEDIÇÃO 5 do ROADMAP: p95 43–82 ms → 18,7/20,4 ms,
+frames >50 ms 9–50 → **0**). O que resta é modesto: **mesher em Web Worker** compra 16–19% de
+main thread (FPS 55–60 → 60 travado) e fila que esvazia mais rápido; plano escopado no
+ROADMAP. **Greedy meshing desceu** (steady state já é 60 FPS com 500 k triângulos).
+⚠️ Gatilho da política continua sendo "FPS baixo em PC do lab" — daí a prioridade do `?bench`.
+
+### Backlog aberto (nasceu nas sessões 24–25)
 
 - **`ROADMAP.md §🌬️` — vento + vida ambiental** (pedido do usuário no playtest da água):
   textura da água → vento autoritativo (molde do `horaDoDia`) → animação da água seguindo o
@@ -247,7 +320,7 @@ vale medir lá antes de investir muito.
   água, nunca escolhida.
 
 Sessões 20+21 commitadas e pushadas (`26151f9` blocos + `41211ff` wolf + `5d18899` handoff).
-Sessão 24 commitada: `e3eaac4` (água + streaming §🔁).
+Sessão 24 commitada: `e3eaac4` (água + streaming §🔁). Sessão 25 commitada nesta data.
 
 **Hitbox da laje: ENCERRADA (2026-07-26).** O usuário testou e confirmou — "hitbox já está
 correta", NADA a mudar. Ou seja: laje segue com mira na METADE (`blockSelectionBox`) e

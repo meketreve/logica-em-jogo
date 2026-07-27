@@ -80,6 +80,9 @@ export interface ContextoMundo {
   responder: (texto: string) => void;
   /** Fala do servidor para a turma inteira. */
   anunciar: (texto: string) => void;
+  /** Avisa a turma que a troca COMEÇOU (§🕐 — a tela de carregamento sobe na
+   *  hora, sem esperar o snapshot, que só chega no fim do trabalho do host). */
+  avisarTroca: (nome: string) => void;
 }
 
 /**
@@ -167,6 +170,10 @@ export function comandoMundo(
     return undefined;
   }
 
+  // Daqui pra frente a troca ACONTECE (o arquivo já decodificou). Avisar ANTES
+  // de salvar/gerar: esse trecho leva segundos e é justamente onde o aluno
+  // ficava sem sinal nenhum de vida.
+  ctx.avisarTroca(semExt(vivo));
   ctx.salvarAgora("troca de aula");
   const jogadores = ctx.session.jogadoresConectados();
   const sessionNova = ctx.novaSessao(novo, somenteLeitura);

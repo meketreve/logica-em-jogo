@@ -2,7 +2,8 @@
  * Smoke do cp19 contra o servidor REAL: professor + aluno conectados, o
  * professor troca a aula, e ninguém pode cair nem perder o papel.
  */
-const URL = "ws://localhost:8080";
+const PORTA = process.argv[2] ?? "8080";
+const URL = `ws://localhost:${PORTA}`;
 let falhas = 0;
 const ok = (cond, msg) => {
   console.log(`  ${cond ? "✓" : "✗"} ${msg}`);
@@ -34,7 +35,10 @@ await espera(700);
 console.log("== estado inicial (aula1) ==");
 ok(prof.spawns[0] === "professor", "professor entrou como professor");
 ok(prof.snapshots === 1 && aluno.snapshots === 1, "cada um recebeu 1 mundo");
-ok(/Continue a regra/.test(aluno.objetivos.at(-1) ?? ""), `aluno vê o objetivo da aula 1`);
+ok(
+  /continue a regra/i.test(aluno.objetivos.at(-1) ?? ""),
+  `aluno vê o objetivo da aula 1 ("${aluno.objetivos.at(-1)}")`,
+);
 
 console.log("== aluno tenta trocar a aula ==");
 aluno.ws.send(JSON.stringify({ type: "chat", text: "/mundo carregar aula2-binario" }));

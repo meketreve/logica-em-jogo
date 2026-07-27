@@ -8,7 +8,8 @@
  *   LJ_SAVE=cenarios/aula1-sequencia.ljw LJ_CODIGO=prof2026 npm run start -w server
  *   node server/src/cenarios/_smoke-atividade.mjs
  */
-const URL = "ws://localhost:8080";
+const PORTA = process.argv[2] ?? "8080";
+const URL = `ws://localhost:${PORTA}`;
 let falhas = 0;
 const ok = (cond, msg) => {
   console.log(`  ${cond ? "✓" : "✗"} ${msg}`);

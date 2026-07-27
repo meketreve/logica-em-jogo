@@ -9,6 +9,7 @@ import {
   GameSession,
   SERVER_TICK_RATE,
   type SaveData,
+  type ServerMessage,
   TAMANHO_CHUNKS,
   VERSION,
   decodeSave,
@@ -308,6 +309,10 @@ function interceptarMundo(clientId: number, texto: string): boolean {
     responder: (t) => falarCom(clientId, t),
     anunciar: (t) => {
       for (const outroId of sockets.keys()) falarCom(outroId, t);
+    },
+    avisarTroca: (nome) => {
+      const aviso = JSON.stringify({ type: "mundo_trocando", nome } satisfies ServerMessage);
+      for (const outroId of sockets.keys()) entregar(outroId, aviso);
     },
   });
   if (troca) {

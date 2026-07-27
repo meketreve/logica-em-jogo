@@ -1,5 +1,5 @@
 import * as THREE from "three";
-import { BlockId, type World, getBlock } from "@logica/shared";
+import { BlockId, CHUNK_SIZE, type World, chunkIndex } from "@logica/shared";
 
 /**
  * Halo das tochas (cp23) — SÓ visual (decisão 2026-07-17: tocha decorativa,
@@ -32,13 +32,51 @@ export class TorchGlow {
     });
   }
 
-  /** Varre o mundo inteiro (snapshot inicial e troca de aula do cp19). */
+  /**
+   * Varre o mundo (snapshot inicial e troca de aula do cp19) por CHUNK, não por
+   * bloco. A versão bloco a bloco custava `sizeX*sizeY*sizeZ` chamadas de
+   * `getBlock` — 1,9 BILHÃO num mundo E — e travava a aba por ~41 s (medido),
+   * tanto no join quanto no `/mundo carregar`. Era o maior long task do jogo:
+   * os três perfis de 2026-07-26 marcavam ~38 s de long task independente da
+   * duração da sessão, sempre esta varredura.
+   * Chunk ausente (mundo lazy nasce com TODOS ausentes) sai em O(1).
+   */
   setFromWorld(world: World): void {
     this.clear();
-    for (let y = 0; y < world.sizeY; y++)
-      for (let z = 0; z < world.sizeZ; z++)
-        for (let x = 0; x < world.sizeX; x++)
-          if (getBlock(world, x, y, z) === BlockId.Tocha) this.add(x, y, z);
+    const { x: nx, y: ny, z: nz } = world.dims;
+    for (let cy = 0; cy < ny; cy++)
+      for (let cz = 0; cz < nz; cz++)
+        for (let cx = 0; cx < nx; cx++) this.varrerChunk(world, cx, cy, cz);
+  }
+
+  /** Coluna que acabou de chegar pelo streaming (F2): as tochas dela também
+   *  precisam de halo — antes só ganhavam ao serem tocadas (`block_changed`). */
+  varrerColuna(world: World, cx: number, cz: number): void {
+    for (let cy = 0; cy < world.dims.y; cy++) this.varrerChunk(world, cx, cy, cz);
+  }
+
+  /** Coluna saiu do raio: solta os sprites dela (senão vazam enquanto se anda).
+   *  Varre os SPRITES (poucos), nunca as células. */
+  descartarColuna(cx: number, cz: number): void {
+    for (const [key, sprite] of this.sprites) {
+      const [x = 0, , z = 0] = key.split(",").map(Number);
+      if (Math.floor(x / CHUNK_SIZE) === cx && Math.floor(z / CHUNK_SIZE) === cz) {
+        this.scene.remove(sprite);
+        this.sprites.delete(key);
+      }
+    }
+  }
+
+  private varrerChunk(world: World, cx: number, cy: number, cz: number): void {
+    const chunk = world.chunks[chunkIndex(world, cx, cy, cz)];
+    if (!chunk) return; // coluna ainda não chegou (ou já foi descartada)
+    // mesma fórmula de índice do resto do projeto — sem inversão de módulo
+    for (let ly = 0; ly < CHUNK_SIZE; ly++)
+      for (let lz = 0; lz < CHUNK_SIZE; lz++)
+        for (let lx = 0; lx < CHUNK_SIZE; lx++)
+          if (chunk[(ly * CHUNK_SIZE + lz) * CHUNK_SIZE + lx] === BlockId.Tocha) {
+            this.add(cx * CHUNK_SIZE + lx, cy * CHUNK_SIZE + ly, cz * CHUNK_SIZE + lz);
+          }
   }
 
   /** Acompanha block_changed (tocha posta/tirada — inclusive pela regra). */

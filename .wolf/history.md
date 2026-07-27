@@ -4,6 +4,63 @@
 
 ## Session Journal
 
+> **SESSÃO 24 (2026-07-26) — ÁGUA APROVADA NO PLAYTEST + §🔁 CODADO E VERDE (playtest do
+> browser pendente).** Abertura: o usuário respondeu o ponto de decisão da sessão 23 —
+> **playtestou o refino de água e APROVOU** ("worldgen novo com água, animação de textura e o
+> render por nível com conexão de textura, ficou muito bom"). Pediu pra ANOTAR (não fazer) uma
+> frente nova: **melhorar a textura da água + a direção da animação seguir o VENTO** — e o que
+> o vento puxa junto (nuvens, folhas balançando, grama, flores). Virou `ROADMAP.md §🌬️` com 6
+> frentes ordenadas por custo. **§🔁 IMPLEMENTADO (as duas frentes):**
+> **(1) bug-211 FECHADO** — `enviarRaio()` novo (main.ts) guarda o último raio anunciado
+> (`raioEnviado`) e reenvia `{type:"radius"}` quando a config muda; chamado no `connect()`
+> (reset pra −1: conexão nova = servidor novo) e no `onSettingsChanged()` (que é o `onChanged`
+> do `buildConfigScreen` no menu principal E no Esc). O servidor não mudou.
+> **(2) Rede de segurança** — msg nova `pedir_coluna {cx,cz}`: o servidor só faz
+> `st.enviadas.delete(key)` e o `streamColunas` do tick seguinte reenvia pelo caminho normal
+> (ZERO envio paralelo, decisão de desenho). Guardas no SERVIDOR: exige join+stream, bounds,
+> dentro de raio+`FOLGA_DESCARTE`, e teto `PEDIDOS_COLUNA_POR_S=8` por cliente por segundo
+> (janela de 1 s no `this.now()`) — o comando chega pela rede da escola. No CLIENTE:
+> `varrerFaltando()` roda na MESMA passada 1×/s do descarte (o contador que a §🕐 vai
+> precisar já nasce aqui), com carência de 4 s antes do 1º pedido (streaming é gradual),
+> backoff exponencial 2 s→30 s, teto de 4 pedidos/varredura e descarte de bytes+geometria
+> ANTES de repedir (decode que morreu no meio deixa meia coluna). Detecção de CORROMPIDO caiu
+> de graça: `decodeColunas` agora em try/catch (antes a exceção subia pelo handler de
+> mensagem) e `processarFila(budget, onFalha)` reporta chunk cujo mesh jogou exceção → a
+> coluna sai de `colunasCarregadas` e a varredura repede. F3 ganhou `faltando` e `repedidas`.
+> **VERDE: typecheck 3/3, 329 testes (+5), build ok. Smoke ws REAL 10/10**
+> (`server/src/cenarios/_smoke-pedir-coluna.mjs`, mundo LJ_TAMANHO=E: raio 4→8 trouxe 200
+> colunas do anel novo ✅, `pedir_coluna` reenviou a coluna do spawn ✅, flood de 24 pedidos
+> virou 7 colunas ✅, pedidos inválidos não derrubam o host ✅). **bug-215 logado** (a rede de
+> segurança) e **bug-211 marcado corrigido**; de quebra, o `bug-211` DUPLICADO que um hook
+> criou (auto-detected, hud.ts) virou `bug-214`.
+> **PLAYTEST DO USUÁRIO ✅ (mesma sessão):** "mudar distância de render carrega corretamente,
+> F3 mostra informações corretamente". Perfilou o pior caso (mundo E, raio 12, VOANDO, 234 s,
+> RTX 2060) e enviou pelo botão do F3 → `profiles/perf-1785086834711-wmi5.json`. **§🔁 passou:
+> `faltando 0`, `repedidas 16` em 719 colunas (2%)** — carência de 4 s + backoff calibrados.
+> O mesmo perfil expôs o CUSTO DE RENDER (47 FPS, p95 39 ms, 2895 draw calls, 157 long
+> tasks) — tabela e leitura na política de otimização do ROADMAP. **TUDO COMMITADO em
+> `e3eaac4`** (água + §🔁, a pedido do usuário; árvore limpa). Sessão 23 abaixo ↓
+
+> **SESSÃO 23 (2026-07-26) — SESSÃO DE PLANEJAMENTO (zero código). Duas frentes novas no
+> ROADMAP + causa raiz de um bug achada de graça.** Usuário pediu pra anotar (não implementar):
+> **(A) §🕐 TELA DE CARREGAMENTO** (single + rede) — taxa em BITS/s (converter de `bytesIn/
+> bytesOut`, que `connection.ts` já conta), colunas carregadas × em transferência, fase/ETA/
+> ping/host; DUAS animações desacopladas de propósito: spinner decorativo no canto (sinal de
+> vida — gira mesmo se a rede parar) + progresso REAL no centro (colunas prontas ÷ total do
+> raio). Bloqueio que o próprio usuário apontou: `updateOverlay()` (`main.ts:206`) mostra o
+> menu Esc sempre que `!input.active` → suprimir enquanto `loading.ativo`.
+> **(B) §🔁 RECARREGAR COLUNA FALTANDO/CORROMPIDA** — varredura 1×/s (mesma passada que já faz
+> o descarte, `main.ts:1439`) lista coluna dentro do raio ausente de `colunasCarregadas` ou com
+> decode/mesh falho → msg nova `pedir_coluna {cx,cz}`; servidor só faz `st.enviadas.delete(key)`
+> e o `streamColunas` do tick seguinte reenvia sozinho (sem caminho de envio paralelo).
+> **CAUSA RAIZ DO bug-211 achada ao escrever a nota** (o usuário só sabia do sintoma "aumentar
+> a distância de render não traz chunk novo, só mantém mais renderizado"): `main.ts:542` manda
+> `{type:"radius"}` UMA vez, logo após o join. Mexer no raio na config ao vivo só muda a regra de
+> DESCARTE do cliente (`main.ts:1442`); o servidor nunca sabe, `st.raio` fica no valor velho
+> (`session.ts:603`) e o anel novo jamais entra no lote. Diminuir "funciona" por acidente (os dois
+> lados descartam pela mesma regra). bug-211 LOGADO como ABERTO. **ORDEM DECIDIDA: §🔁 antes de
+> §🕐** — motivo abaixo na Próxima fase. Sessão 22 abaixo ↓
+
 > **SESSÃO 22 (2026-07-26) — REFINO DE ÁGUA (4 frentes). VERDE, PLAYTEST NO BROWSER PENDENTE.**
 > Usuário pediu "vamos para água fluida" — mas a MECÂNICA já existia (fonte + níveis 1-7 +
 > `waterRule` + balde + nado, sessões 15c/16/2026-07-21-22); o ROADMAP é que estava desatualizado.
@@ -859,6 +916,52 @@
 > segue ADIADO — sem gatilho.**
 
 ## Action Log
+
+## Session: 2026-07-23 20:00
+
+| Time | Action | File(s) | Outcome | ~Tokens |
+|------|--------|---------|---------|--------|
+| 20:08 | Created ../../../tmp/claude-1000/-home-meketreve-logica-em-jogo/01aa2da2-c249-4bb7-ae33-c0e68e3296c5/scratchpad/capture.mjs | — | ~1043 |
+| 20:08 | Edited ../../../tmp/claude-1000/-home-meketreve-logica-em-jogo/01aa2da2-c249-4bb7-ae33-c0e68e3296c5/scratchpad/capture.mjs | 2→4 lines | ~48 |
+| 20:10 | Created ../../../tmp/claude-1000/-home-meketreve-logica-em-jogo/01aa2da2-c249-4bb7-ae33-c0e68e3296c5/scratchpad/console.mjs | — | ~727 |
+| 20:12 | Edited client/src/main.ts | modified applySettings() | ~102 |
+| 20:12 | Edited client/src/main.ts | toque() → cima() | ~23 |
+| 20:17 | Edited ../../../tmp/claude-1000/-home-meketreve-logica-em-jogo/01aa2da2-c249-4bb7-ae33-c0e68e3296c5/scratchpad/capture.mjs | added 1 condition(s) | ~145 |
+| 20:26 | Edited client/src/main.ts | added 2 condition(s) | ~196 |
+| 20:26 | Edited client/src/main.ts | added nullish coalescing | ~66 |
+| 20:32 | Created ../../../tmp/claude-1000/-home-meketreve-logica-em-jogo/01aa2da2-c249-4bb7-ae33-c0e68e3296c5/scratchpad/build.mjs | — | ~1024 |
+| 20:36 | Edited ../../../tmp/claude-1000/-home-meketreve-logica-em-jogo/01aa2da2-c249-4bb7-ae33-c0e68e3296c5/scratchpad/build.mjs | modified for() | ~267 |
+| 20:38 | Edited ../../../tmp/claude-1000/-home-meketreve-logica-em-jogo/01aa2da2-c249-4bb7-ae33-c0e68e3296c5/scratchpad/build.mjs | modified for() | ~220 |
+| 20:42 | Created registros/prints/README.md | — | ~601 |
+| 20:43 | Session end: 12 writes across 5 files (capture.mjs, console.mjs, main.ts, build.mjs, README.md) | 24 reads | ~76026 tok |
+| 17:15 | Session end: 12 writes across 5 files (capture.mjs, console.mjs, main.ts, build.mjs, README.md) | 24 reads | ~76026 tok |
+| 17:24 | Session end: 12 writes across 5 files (capture.mjs, console.mjs, main.ts, build.mjs, README.md) | 24 reads | ~76026 tok |
+| 17:25 | Session end: 12 writes across 5 files (capture.mjs, console.mjs, main.ts, build.mjs, README.md) | 24 reads | ~76026 tok |
+
+## Session: 2026-07-23 08:43
+
+| Time | Action | File(s) | Outcome | ~Tokens |
+|------|--------|---------|---------|--------|
+| 08:45 | Edited iniciar-servidor.bat | 3→5 lines | ~84 |
+| 08:45 | Edited iniciar-servidor.bat | 2→2 lines | ~18 |
+| 08:45 | Edited iniciar-servidor.sh | 3→4 lines | ~25 |
+| 08:45 | Edited iniciar-servidor.sh | modified G() | ~103 |
+| 08:45 | opcao 8 (carregar salvo) nao pergunta mais tamanho: PULAR_TAMANHO pula o menu | iniciar-servidor.bat/.sh | verde (bug-489) | ~2k |
+| 08:45 | Session end: 4 writes across 2 files (iniciar-servidor.bat, iniciar-servidor.sh) | 2 reads | ~2966 tok |
+| 08:48 | Edited shared/src/rules.ts | added nullish coalescing | ~287 |
+| 19:34 | Edited client/src/hud.ts | added 1 import(s) | ~23 |
+| 19:34 | Edited client/src/hud.ts | 4→5 lines | ~57 |
+| 19:34 | Edited server/src/index.ts | modified interceptarProfile() | ~334 |
+| 19:35 | Created ../../../tmp/claude-1000/-home-meketreve-logica-em-jogo/cd337f12-f500-4265-b245-12e92188425a/scratchpad/resumo.mjs | — | ~527 |
+| 19:35 | Created registros/README.md | — | ~316 |
+| 19:36 | Created ../../../tmp/claude-1000/-home-meketreve-logica-em-jogo/cd337f12-f500-4265-b245-12e92188425a/scratchpad/genlog.mjs | — | ~776 |
+| 19:36 | Edited .gitignore | 2→5 lines | ~40 |
+| 19:38 | perfilador anonimo: +versao:VERSION no corpo, sem nome no filename | hud.ts, server/index.ts | verde | ~3k |
+| 19:38 | profiles-escola removido do tracking + gitignore; resumo agregado | .gitignore, registros/ | 52 perfis anonimos | ~4k |
+| 19:38 | fix typecheck rules.ts (noUncheckedIndexedAccess, bug-490) | shared/rules.ts | typecheck 0 | ~2k |
+| 19:38 | wrap-up sessao 17: STATUS/cerebrum/anatomy + commit+push acumulado | .wolf/* | pronto p/ push | ~3k |
+| 19:40 | Session end: 12 writes across 9 files (iniciar-servidor.bat, iniciar-servidor.sh, rules.ts, hud.ts, index.ts) | 6 reads | ~18464 tok |
+| 19:58 | Session end: 12 writes across 9 files (iniciar-servidor.bat, iniciar-servidor.sh, rules.ts, hud.ts, index.ts) | 6 reads | ~18464 tok |
 
 ## Session: 2026-07-22 20:30
 

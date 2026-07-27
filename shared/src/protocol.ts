@@ -278,6 +278,18 @@ export type ServerMessage =
     }
   | {
       /**
+       * Troca de aula COMEÇANDO (cp19 + §🕐). Sai ANTES do trabalho pesado do
+       * host (salvar o mundo atual → construir a sessão nova), que pode levar
+       * segundos: o snapshot do mundo novo é o FIM dessa fila, não o começo.
+       * Sem este aviso o aluno via o jogo normal e a tela de carregamento só
+       * aparecia no fim, "quase pronta" (relatado no playtest de 2026-07-26).
+       */
+      type: "mundo_trocando";
+      /** Nome da aula que está entrando (sem .ljw) — vai na tela. */
+      nome: string;
+    }
+  | {
+      /**
        * Voo liberado pra TURMA (modo criativo). O professor voa sempre; este
        * flag diz se os alunos também podem (professor alterna com /voo). No
        * join só é enviado quando `liberado` (default false = sem churn no join).
@@ -590,6 +602,9 @@ export function parseServerMessage(raw: string): ServerMessage | null {
       if (typeof m["ciclo"] !== "boolean") return null;
       return { type: "time", hora: m["hora"], ciclo: m["ciclo"] };
     }
+    case "mundo_trocando":
+      if (typeof m["nome"] !== "string") return null;
+      return { type: "mundo_trocando", nome: m["nome"] };
     case "voo":
       if (typeof m["liberado"] !== "boolean") return null;
       return { type: "voo", liberado: m["liberado"] };

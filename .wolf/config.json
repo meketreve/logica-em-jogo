@@ -4,7 +4,7 @@
     "enabled": true,
     "anatomy": {
       "auto_scan_on_init": true,
-      "rescan_interval_hours": 6,
+      "rescan_interval_hours": 168,
       "max_description_length": 100,
       "max_files": 500,
       "exclude_patterns": [
@@ -89,7 +89,7 @@
       "enabled": true
     },
     "buglog": {
-      "auto_detect": true,
+      "auto_detect": false,
       "max_entries": 200
     }
   }

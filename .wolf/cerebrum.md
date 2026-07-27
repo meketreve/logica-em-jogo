@@ -273,6 +273,16 @@
   `setShown(false)` solta as teclas seguradas. Fullscreen/orientation lock só em gesto.
 - Áudio (`audio.ts`): WebAudio sintetizado, zero assets; AudioContext só nasce em gesto —
   som disparado por REDE usa `playUiPassive`.
+- Tela de carregamento (`loading.ts`, §🕐): `chunkRenderer.filaPendente` conta **CHUNKS**, não
+  colunas (1 coluna = `dims.y` chunks + os vizinhos re-enfileirados) — rotular como "colunas"
+  mente por 8×. O ritmo de chegada (8 colunas/tick × 10 tps = 80 col/s = 640 chunks/s) passa a
+  capacidade do mesher (`meshPorFrame` 8 × 60 fps = 480/s), então a fila CRESCE durante o
+  streaming e drena depois: fechar a tela exige `filaPendente === 0` **além** de colunas
+  completas, senão o aluno entra num mundo com buracos.
+- Qualquer UI nova que cubra a tela sem pointer lock entra na condição do `updateOverlay()`
+  (menu Esc) E do `touchControls.setShown` — `!input.active` sozinho significa "sem lock",
+  não "sem jogo". Ao fechar, quem devolve o menu de pausa é o callback (o clique do "voltar
+  ao jogo" É o gesto que o pointer lock exige — não dá pra travar sozinho).
 
 ### Ambiente, build e campo
 
@@ -293,6 +303,11 @@
 - Notebook da escola (Windows 11): PowerShell bloqueia `npm` (shim + ExecutionPolicy) →
   `Set-ExecutionPolicy -Scope CurrentUser RemoteSigned` ou `npm.cmd`. Instrução pro usuário
   sempre com `$env:VAR="x";` em linha única.
+- **`npm run dev:server` NÃO mostra mudança de cliente** (bug-516): ele sobe só o host Node,
+  que serve o cliente COMPILADO (`static.ts` → `client/dist`, `readFileSync` por request).
+  Feature nova de UI em `:8080` exige `npm run build` (host não precisa reiniciar). Loop
+  rápido do cliente = `npm run dev` (vite 5173): single roda sozinho; multiplayer aponta o
+  menu pra `ws://localhost:8080`. Ao entregar feature de CLIENTE, dizer QUAL porta testar.
 - Dá pra DATAR a versão rodando no notebook pelas frases do boot ("escutando em ws://" =
   pré-2026-07-15). Erro estranho vindo de lá → primeiro conferir se a cópia é o main atual.
 - `anatomy.md` auto-update só ADICIONA: ao renomear/apagar arquivo, `grep` pelo nome velho e
@@ -340,6 +355,73 @@
 - De quebra: densidade da caatinga era 1/96 → ~2 cactos no mundo M INTEIRO (bioma sem sua
   planta). Teste `expect(n).toBeGreaterThan(0)` que passa por 2 unidades é falso-verde
   esperando acontecer — subiu pra 1/16 (~5 nas colunas secas).
+
+### Orçamento de trabalho por frame é em TEMPO, não em contagem (2026-07-26)
+- `processarFila(meshPorFrame=8)` meshava 8 chunks/frame. Custo por chunk varia 0,1–3 ms
+  (vazio × terreno cheio), então o mesmo "8" custava de 1 a 24 ms — origem direta dos 30-50
+  frames >50 ms por 10 s nos perfis. Virou `meshMsPorFrame` (ms de orçamento, default 6),
+  com teto duro de 64 chunks e garantia de PELO MENOS 1 chunk por frame (orçamento apertado
+  não pode significar fila parada). Vale pra qualquer fila de trabalho pesado no loop.
+- Setting renomeado de propósito (`meshPorFrame` → `meshMsPorFrame`): o valor salvo antigo
+  seria lido como ms e mentiria. Config nova = default, e o perfil agora registra qual foi.
+
+### Campo novo em struct alimentada POR FRAME tem que entrar em TODA chamada (2026-07-26)
+- `hud.setRemesh({...})` roda 1× no startGame e 1×/FRAME no loop; `setRemesh` substitui o
+  objeto inteiro. Adicionei `porCaminho` só na primeira → o frame seguinte apagava (bug-524).
+  Typecheck não pega (campo opcional). Ao estender um "setter de estado" chamado em loop,
+  `grep` por TODAS as chamadas antes de dar por feito — ou fazer o setter MESCLAR.
+
+### Perfil sem CONTEXTO leva a conclusão errada (2026-07-26)
+- Li "parado, 60 FPS travado" de um perfil que o usuário fez VOANDO — inferi o estado pela
+  taxa de rede (106 B/s), que só dizia "streaming zerado". O perfil agora carrega `jogador`
+  (pos/yaw/pitch/voando/noChao/chunk), `config` (raioRender, meshPorFrame, pixelRatioCap,
+  fov — sem isso dois perfis não são comparáveis) e `gravacao.movimento` (estado, distância,
+  velocidade, colunas novas, bytes) medido como DELTA na janela de 10 s.
+- Regra geral: retrato de posição não diz se havia movimento. Métrica de estado precisa de
+  acumulado + delta na janela, nunca de amostra instantânea.
+- `?hud` na URL abre o F3 no boot (headless consegue conferir o painel de perfil).
+
+### Varredura de mundo é POR CHUNK, nunca por bloco (2026-07-26)
+- `TorchGlow.setFromWorld` fazia `for y/z/x` com `getBlock` no mundo INTEIRO. Custo medido:
+  mundo P 77 ms, mundo **E 41,4 s de main thread travada** (1,887 bilhão de células) — no
+  join e na troca de aula (bug-523, virou "página não está respondendo"). Trocando pra
+  varredura por chunk (ausente sai em O(1), presente lê o `Uint8Array` direto): **2,9 ms**.
+- Sintoma que denuncia isso num perfil: `longTasksMsTotal` quase IGUAL (~38 s) em sessões de
+  duração bem diferente (234 s, 168 s, 96 s) = é sempre a MESMA trava, não regime.
+- Toda estrutura visual derivada do mundo (halo de tocha, quadro, o que vier) precisa de
+  três entradas em mundo lazy: varredura inicial (por chunk), **por COLUNA quando ela chega
+  pelo streaming**, e descarte quando a coluna sai do raio — senão ou some ou vaza.
+
+### Tela de espera tem que subir no COMANDO, não no resultado (2026-07-26)
+- A §🕐 abria no `reloadWorld` (chegada do snapshot) — o FIM da fila. Entre o `/mundo
+  carregar` e o snapshot o host salva, decodifica e monta a sessão nova; o aluno via jogo
+  normal e depois uma tela "quase pronta" (bug-520). Regra: quando o trabalho é do SERVIDOR,
+  ele avisa que começou (`mundo_trocando`) — não dá pra inferir isso no cliente.
+- E não basta abrir: se o resultado chega no mesmo frame (medido: 1-2 ms depois), o
+  navegador nunca PINTA a tela antes de travar no trabalho pesado. Segurar as mensagens por
+  **2× requestAnimationFrame** (com `setTimeout` de segurança, porque aba em segundo plano
+  não roda rAF) é o que faz a tela realmente aparecer primeiro.
+
+### Troca de aula (cp19) é SESSÃO NOVA: todo estado por-jogador do servidor volta ao padrão (2026-07-26)
+- `/mundo carregar` não muda a sessão: cria uma `GameSession` NOVA e `adotar`a os conectados.
+  Tudo que o cliente tinha ANUNCIADO (raio de interesse via `radius`) morre com a sessão velha
+  — `admitir` registra `raio: RAIO_PADRAO`. Cliente que não reanuncia fica com o mundo
+  cortado no anel 6, e o `pedir_coluna` do §🔁 é RECUSADO lá fora (bug-518, achado lendo
+  perfil do usuário; smoke `_smoke-troca-raio.mjs` prova). REGRA: estado por-jogador que o
+  CLIENTE anuncia tem que ser reenviado no `reloadWorld`, não só no `connect`.
+- Mesma família: qualquer trabalho caro guardado por `if (!mundoLazy)` no `startGame` precisa
+  do MESMO guarda no caminho de troca (`trocarMundo` fazia `buildAll` em mundo lazy = 460 800
+  remesh vazios, ~19 s de trava — bug-517).
+
+### `--virtual-time-budget` ACELERA os timers: não medir tempo real por ele (2026-07-26)
+- Screenshot com `--virtual-time-budget=3000` mostrou "tempo 58.0 s" na tela de carregamento
+  (e disparou o botão de escape dos 20 s). O relógio virtual do Chrome corre solto entre
+  frames — `performance.now()`/`setInterval` avançam MUITO mais que o orçamento. Serve pra
+  conferir LAYOUT e valores derivados de contadores; qualquer conclusão sobre duração real
+  (ETA, timeout, taxa por segundo) tem que sair de navegador de verdade.
+- O binário do Chrome aqui NÃO está no PATH: usar
+  `~/.cache/puppeteer/chrome/linux-<versão>/chrome-linux64/chrome` (`google-chrome` não existe;
+  a versão do diretório muda — listar antes).
 
 ### Verificação headless a 1280×720 dá TELA CINZA intermitente (2026-07-26)
 - Chrome headless + swiftshader: ~40% dos screenshots a 1280×720 saíram cinza (HTML estático
@@ -469,3 +551,41 @@
 - [2026-07-13] Smoke `.mts` no scratchpad: rodar `node --import tsx script.mts`
   com CWD no repo (tsx resolve de node_modules do projeto); do scratchpad dá
   ERR_MODULE_NOT_FOUND. Import de /shared por caminho absoluto continua valendo.
+
+## Decision Log
+
+- [2026-07-26] **`buglog.auto_detect: false`** em `.wolf/config.json`. O detector
+  automático gerava falso positivo (ex.: "pURO should be PURO" virou bug) e poluía
+  `buglog.md` — justamente o índice que serve pra achar bug de verdade. Log manual
+  pelo protocolo continua obrigatório; o sinal bom vem de lá.
+- [2026-07-26] **`anatomy.rescan_interval_hours: 6 → 168`**. O ritmo real de
+  criar/apagar arquivo é ~1× por sessão, não 4× por dia; o "stale" no boot virou
+  alarme falso ignorado. Rodar `openwolf scan` à mão quando arquivo nascer/morrer.
+- [2026-07-26] **`npm run verify` + `npm run smoke` são o caminho oficial de
+  verificação.** Antes: typecheck, teste, build e cada smoke eram 4+ invocações
+  lembradas de cabeça, e os smokes exigiam ler o comentário do cabeçalho pra
+  montar a env à mão. Agora `verify` = typecheck(3 pacotes) + testes(shared) +
+  build(client); `smoke` = runner com manifesto. Motivo: metade do Do-Not-Repeat
+  deste projeto é sobre o APARATO de teste, não sobre o código.
+
+## Key Learnings — verificação (2026-07-26)
+
+- **Runner dos smokes: `scripts/smoke.mjs`.** O manifesto no topo é a fonte da
+  verdade (mundo, env, porta, o que cada um prova). `npm run smoke -- --lista`
+  diz o que cada cenário prova SEM abrir os arquivos — use isso antes de ler
+  qualquer `_smoke-*.mjs`. `--rapido` pula os de mundo E. Suíte inteira: ~38 s.
+- **Porta própria por cenário (8091–8096).** A 8080 fica livre pro dev server do
+  usuário — já derrubei o servidor dele matando processo na porta compartilhada.
+- **`git bisect run npm run smoke -- <nome>`** funciona: cada cenário sobe o
+  próprio host, sai 0/1 e limpa tudo. É o jeito barato de achar QUANDO quebrou,
+  em vez de eu ler diff.
+- **Convenção de log (já 100% consistente no código, nunca estava escrita):**
+  server prefixa TUDO com `[server]`; client usa tag por subsistema —
+  `[mesh]`, `[conn]`, `[streaming]`, `[input]`. O gerador de cenários
+  (`gerar.ts`) é CLI de usuário e por isso NÃO leva tag. Ao adicionar log novo,
+  siga isso: é o que transforma investigação em `grep` em vez de leitura.
+- **`LJ_SEED` fixa o terreno**; sem ela cada mundo novo sorteia e smoke vira
+  loteria. O runner usa `LJ_SEED=20260726` em todo cenário de mundo novo.
+- **`LJ_SAVE=cenarios/<aula>.ljw` é SEGURO.** `paths.ts` trata `cenarios/` como
+  MODELO somente-leitura e grava a cópia viva em `mundos/` (gitignored). Não
+  confundir com rodar SEM `LJ_SAVE`, que aí sim escreve em `world.ljw` versionado.

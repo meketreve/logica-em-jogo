@@ -21,8 +21,14 @@ export interface GameSettings {
   /** Streaming (mundo ENORME): raio de render em COLUNAS de chunks — quanto
    *  do mundo fica carregado em volta do jogador. Config de desempenho. */
   raioRender: number;
-  /** Streaming: chunks re-meshados por FRAME (fila) — PC fraco usa menos. */
-  meshPorFrame: number;
+  /**
+   * Streaming: quanto TEMPO do frame pode ser gasto montando malha (ms).
+   * Era uma CONTAGEM de chunks (`meshPorFrame`), trocada em 2026-07-26: o custo
+   * por chunk varia de 0,1 a 3 ms, então "8 chunks" tanto custava 1 ms quanto
+   * 24 ms — era a origem direta dos frames de 50-100 ms nos perfis. Orçamento em
+   * tempo dá teto previsível; a fila só demora mais a esvaziar.
+   */
+  meshMsPorFrame: number;
   /** Escala da UI de toque (2026-07-21): joystick e botões maiores/menores
    *  conforme o tamanho da tela do celular/tablet. 1 = padrão. Só afeta o toque. */
   uiScale: number;
@@ -35,7 +41,7 @@ export const DEFAULT_SETTINGS: GameSettings = {
   pixelRatioCap: 2,
   volume: 0.8,
   raioRender: 6,
-  meshPorFrame: 8,
+  meshMsPorFrame: 6,
   uiScale: 1,
   keys: {
     forward: "KeyW",
@@ -96,7 +102,7 @@ export function loadSettings(): GameSettings {
     pixelRatioCap: num(s["pixelRatioCap"], DEFAULT_SETTINGS.pixelRatioCap, 1, 2),
     volume: num(s["volume"], DEFAULT_SETTINGS.volume, 0, 1),
     raioRender: num(s["raioRender"], DEFAULT_SETTINGS.raioRender, 2, 12),
-    meshPorFrame: num(s["meshPorFrame"], DEFAULT_SETTINGS.meshPorFrame, 2, 32),
+    meshMsPorFrame: num(s["meshMsPorFrame"], DEFAULT_SETTINGS.meshMsPorFrame, 1, 16),
     uiScale: num(s["uiScale"], DEFAULT_SETTINGS.uiScale, 0.6, 1.8),
     keys,
   };

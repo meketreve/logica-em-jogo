@@ -83,8 +83,12 @@ export class WsConnection implements Connection {
   private readonly socket: WebSocket;
   /** send() antes do open lançaria — fila segura o join até conectar. */
   private queue: string[] = [];
+  /** `onerror` e `onclose` disparam os dois no mesmo tombo — avisa UMA vez. */
+  private avisouFalha = false;
 
-  constructor(url: string) {
+  /** @param aoFalhar socket caiu/não abriu — quem chama decide o que fazer
+   *  (§🕐: antes do mundo chegar vira mensagem na tela de carregamento). */
+  constructor(url: string, private readonly aoFalhar?: (motivo: string) => void) {
     this.socket = new WebSocket(url);
     this.socket.binaryType = "arraybuffer"; // world_snapshot chega como ArrayBuffer
     this.socket.onopen = () => {
@@ -105,7 +109,17 @@ export class WsConnection implements Connection {
     };
     this.socket.onclose = () => {
       console.warn(`[conn] conexão com ${url} fechou`);
+      this.falhou("a conexão com o servidor caiu");
     };
+    this.socket.onerror = () => {
+      this.falhou("não deu pra falar com o servidor");
+    };
+  }
+
+  private falhou(motivo: string): void {
+    if (this.avisouFalha) return;
+    this.avisouFalha = true;
+    this.aoFalhar?.(motivo);
   }
 
   send(data: string): void {

@@ -1,7 +1,7 @@
 # anatomy.md
 
-> Auto-maintained by OpenWolf. Last scanned: 2026-07-26T16:58:51.699Z
-> Files: 184 tracked | Anatomy hits: 0 | Misses: 0
+> Auto-maintained by OpenWolf. Last scanned: 2026-07-27T00:29:06.091Z
+> Files: 207 tracked | Anatomy hits: 0 | Misses: 0
 
 ## ./
 
@@ -11,7 +11,7 @@
 - `iniciar-servidor.bat` (~1562 tok)
 - `iniciar-servidor.sh` — ============================================================ (~1329 tok)
 - `package-lock.json` — npm lock file (~20120 tok)
-- `package.json` — Node.js package manifest (~164 tok)
+- `package.json` — Node.js package manifest (~209 tok)
 - `projeto.txt` (~4707 tok)
 - `todo.md` — Ideias para fazer (~6972 tok)
 - `tsconfig.base.json` (~130 tok)
@@ -266,52 +266,63 @@
   - fn `placeableFor` L151-155 (~56 tok)
 - `chat.ts` — UI de chat em HTML/CSS por cima do canvas (regra: sem GUI de engine). (~1525 tok)
   - class `ChatUi` L15-145 (~1349 tok)
-- `chunks.ts` — 1 mesh por chunk (BufferGeometry única, culled mesher do /shared). (~2053 tok)
-  - class `ChunkRenderer` L9-180 (~1961 tok)
+- `chunks.ts` — Teto duro de chunks por frame: rede de segurança se o relógio for grosseiro (~2772 tok)
+  - class `ChunkRenderer` L13-232 (~2625 tok)
 - `commands.ts` — Autocompletar de comandos de chat (Tab). Puro, sem DOM — o chat.ts liga o (~862 tok)
   - fn `learnWorlds` L54-58 (~48 tok)
   - fn `learnPlayers` L59-62 (~25 tok)
   - fn `nivel3` L63-74 (~152 tok)
   - fn `candidatos` L75-86 (~132 tok)
-- `connection.ts` — Conexão do cliente com O SERVIDOR — interface única, hospedeiro invisível. (~1194 tok)
+- `connection.ts` — Conexão do cliente com O SERVIDOR — interface única, hospedeiro invisível. (~1366 tok)
   - section `NetStats` L7-13 (~31 tok)
   - section `Connection` L14-19 (~43 tok)
   - class `WorkerConnection` L20-79 (~616 tok)
-  - class `WsConnection` L80-123 (~436 tok)
+  - class `WsConnection` L80-137 (~609 tok)
 - `daynight.ts` — Ciclo dia/noite (cp21; astros no backlog 2026-07-19) — SÓ visual. A hora é (~2281 tok)
   - section `Keyframe` L18-62 (~488 tok)
   - class `SkyCycle` L63-203 (~1564 tok)
 - `events.ts` — Gatilhos de som (checkpoint 6): pontos de evento do jogo onde o áudio vai (~182 tok)
-- `hud.ts` — HUD de perfilação (F3): FPS, frametime méd+p95, remesh, draw calls e (~3461 tok)
-  - section `HudRemeshStats` L19-24 (~26 tok)
-  - section `Recording` L25-34 (~73 tok)
-  - class `Hud` L35-322 (~3159 tok)
+- `hud.ts` — HUD de perfilação (F3): FPS, frametime méd+p95, remesh, draw calls e (~5408 tok)
+  - section `HudRemeshStats` L19-26 (~82 tok)
+  - section `Recording` L27-44 (~200 tok)
+  - section `ContextoPerfil` L45-67 (~183 tok)
+  - section `ContadorFase` L68-83 (~72 tok)
+  - class `Hud` L84-484 (~4668 tok)
 - `input.ts` — Teclado + mouse (pointer lock). SÓ coleta input — nenhuma decisão de (~1542 tok)
   - class `Input` L5-147 (~1496 tok)
 - `inventory.ts` — Inventário de blocos (cp16) — grade dos colocáveis + faixa da hotbar de 9 (~1449 tok)
   - class `InventoryPanel` L13-154 (~1290 tok)
-- `main.ts` — O cliente não tem filesystem: aprende os nomes das aulas pela resposta de (~19247 tok)
-  - fn `cachearMundos` L94-164 (~824 tok)
-  - fn `applySettings` L165-196 (~438 tok)
-  - fn `showOverlayMain` L197-201 (~35 tok)
-  - fn `updateOverlay` L202-216 (~252 tok)
-  - fn `startPlay` L217-227 (~83 tok)
-  - fn `onSettingsChanged` L228-249 (~291 tok)
-  - fn `enviarRaio` L250-281 (~415 tok)
-  - fn `playerName` L282-305 (~263 tok)
-  - fn `registrarChegadaDeRede` L306-313 (~60 tok)
-  - fn `jitterDeRede` L314-346 (~384 tok)
-  - fn `podeVoar` L347-382 (~582 tok)
-  - fn `pushPanelData` L383-393 (~94 tok)
-  - fn `ownDone` L394-402 (~90 tok)
-  - fn `refreshObjectivesView` L403-423 (~191 tok)
-  - fn `handleServerData` L424-541 (~1450 tok)
-  - fn `connect` L542-565 (~247 tok)
-  - fn `startMultiplayer` L566-573 (~84 tok)
-  - fn `startSingleplayer` L574-594 (~218 tok)
-  - fn `persistWorld` L595-623 (~292 tok)
-  - fn `startGame` L624-1645 (~12246 tok)
-- `menu.ts` — Menu principal (cp8) — HTML/CSS por cima do canvas, sem GUI de engine. (~4448 tok)
+- `loading.ts` — Tela de carregamento (§🕐) — o que o jogador vê entre "apertei jogar" e "o (~4395 tok)
+  - section `CargaInfo` L29-41 (~153 tok)
+  - section `CargaStats` L42-111 (~877 tok)
+  - fn `fmtBits` L112-118 (~71 tok)
+  - fn `fmtBytes` L119-124 (~48 tok)
+  - fn `fmtSeg` L125-128 (~23 tok)
+  - class `LoadingScreen` L129-382 (~2851 tok)
+- `main.ts` — O cliente não tem filesystem: aprende os nomes das aulas pela resposta de (~22173 tok)
+  - fn `cachearMundos` L95-165 (~824 tok)
+  - fn `applySettings` L166-208 (~607 tok)
+  - fn `showOverlayMain` L209-213 (~35 tok)
+  - fn `updateOverlay` L214-230 (~308 tok)
+  - fn `startPlay` L231-241 (~83 tok)
+  - fn `onSettingsChanged` L242-263 (~291 tok)
+  - fn `enviarRaio` L264-295 (~415 tok)
+  - fn `playerName` L296-319 (~263 tok)
+  - fn `registrarChegadaDeRede` L320-327 (~60 tok)
+  - fn `jitterDeRede` L328-363 (~446 tok)
+  - fn `podeVoar` L364-399 (~582 tok)
+  - fn `pushPanelData` L400-410 (~94 tok)
+  - fn `ownDone` L411-419 (~90 tok)
+  - fn `refreshObjectivesView` L420-451 (~358 tok)
+  - fn `drenarFilaTroca` L452-459 (~79 tok)
+  - fn `segurarAteATelaPintar` L460-469 (~109 tok)
+  - fn `handleServerData` L470-599 (~1613 tok)
+  - fn `connect` L600-635 (~400 tok)
+  - fn `startMultiplayer` L636-653 (~224 tok)
+  - fn `startSingleplayer` L654-674 (~218 tok)
+  - fn `persistWorld` L675-703 (~292 tok)
+  - fn `startGame` L704-1863 (~14064 tok)
+- `menu.ts` — Menu principal (cp8) — HTML/CSS por cima do canvas, sem GUI de engine. (~4452 tok)
   - section `PlayWorldChoice` L35-49 (~166 tok)
   - section `MultiAuth` L50-54 (~19 tok)
   - section `MenuHandlers` L55-61 (~46 tok)
@@ -323,7 +334,7 @@
   - fn `buildConfigScreen` L276-283 (~47 tok)
   - fn `backButton` L284-300 (~153 tok)
   - fn `renderConfigRoot` L301-321 (~215 tok)
-  - fn `renderConfigPanel` L322-464 (~1342 tok)
+  - fn `renderConfigPanel` L322-464 (~1346 tok)
 - `objectivesUi.ts` — Grupo do PRÓPRIO jogador (null = sem grupo). (~1244 tok)
   - section `ObjectivesCtx` L7-20 (~160 tok)
   - class `ObjectivesUi` L21-118 (~1054 tok)
@@ -343,12 +354,12 @@
   - class `QuadroEditor` L205-316 (~1156 tok)
 - `regions.ts` — Wireframes das regiões nomeadas (cp11) — visão do PROFESSOR (o servidor só (~690 tok)
   - class `RegionRenderer` L10-70 (~592 tok)
-- `settings.ts` — Configurações do jogador, persistidas em localStorage (por navegador). (~1197 tok)
-  - section `GameSettings` L12-72 (~517 tok)
-  - fn `num` L73-76 (~49 tok)
-  - fn `loadSettings` L77-104 (~324 tok)
-  - fn `saveSettings` L105-109 (~52 tok)
-  - fn `keyLabel` L110-126 (~126 tok)
+- `settings.ts` — Configurações do jogador, persistidas em localStorage (por navegador). (~1290 tok)
+  - section `GameSettings` L12-78 (~608 tok)
+  - fn `num` L79-82 (~49 tok)
+  - fn `loadSettings` L83-110 (~326 tok)
+  - fn `saveSettings` L111-115 (~52 tok)
+  - fn `keyLabel` L116-132 (~126 tok)
 - `shortcutGuard.ts` — Guarda contra atalhos do navegador com o jogo no controle (backlog (~995 tok)
   - section `KeyboardLockApi` L21-28 (~65 tok)
   - fn `onBeforeUnload` L29-37 (~94 tok)
@@ -356,8 +367,8 @@
   - fn `onKeyupCapture` L47-52 (~74 tok)
   - fn `armarGuardaDeAtalhos` L53-66 (~212 tok)
   - fn `desarmarGuardaDeAtalhos` L67-74 (~94 tok)
-- `torchGlow.ts` — Halo das tochas (cp23) — SÓ visual (decisão 2026-07-17: tocha decorativa, (~996 tok)
-  - class `TorchGlow` L10-100 (~881 tok)
+- `torchGlow.ts` — Halo das tochas (cp23) — SÓ visual (decisão 2026-07-17: tocha decorativa, (~1522 tok)
+  - class `TorchGlow` L10-138 (~1403 tok)
 - `touch.ts` — Controles de toque (tablet) — joystick, arrasto de olhar e botões. SÓ (~3084 tok)
   - fn `isTouchDevice` L15-20 (~72 tok)
   - section `TouchActions` L21-40 (~212 tok)
@@ -373,9 +384,31 @@
   - fn `downloadWorld` L60-69 (~121 tok)
   - fn `importWorldFile` L70-82 (~109 tok)
 
+## mundos/_smoke-coluna/
+
+- `_smoke-coluna.ljw` (~62 tok)
+- `chat.log` (~54 tok)
+
+## mundos/_smoke-kicar/
+
+- `chat.log` (~949 tok)
+
+## mundos/_smoke-trocaa/
+
+- `_smoke-trocaa.ljw` (~87 tok)
+- `chat.log` (~160 tok)
+
+## mundos/_smoke-trocab/
+
+- `_smoke-trocab.ljw` (~80 tok)
+
 ## mundos/aula1-sequencia/
 
-- `chat.log` (~102 tok)
+- `chat.log` (~2293 tok)
+
+## mundos/aula2-binario/
+
+- `chat.log` (~128 tok)
 
 ## mundos/flor-world/
 
@@ -387,7 +420,12 @@
 
 ## mundos/mundo-livre/
 
-- `chat.log` (~1023 tok)
+- `chat.log` (~1832 tok)
+
+## mundos/playtest-streaming/
+
+- `chat.log` (~531 tok)
+- `playtest-streaming.ljw` (~86 tok)
 
 ## mundos/smoke-coluna/
 
@@ -406,6 +444,17 @@
 
 - `perf-1784923796301-gius.json` (~482 tok)
 - `perf-1784923813150-01rx.json` (~483 tok)
+- `perf-1785086834711-wmi5.json` (~498 tok)
+- `perf-1785089686334-7pm7.json` (~500 tok)
+- `perf-1785091204014-l9iv.json` (~499 tok)
+- `perf-1785094449096-atcq.json` (~499 tok)
+- `perf-1785094461396-pze2.json` (~501 tok)
+- `perf-1785107927563-pznv.json` (~499 tok)
+- `perf-1785107951364-0cqe.json` (~498 tok)
+- `perf-1785107963182-4t6p.json` (~499 tok)
+- `perf-1785107989935-hxzk.json` (~498 tok)
+- `perf-1785109868954-fi1w.json` (~641 tok)
+- `perf-1785109881819-124a.json` (~642 tok)
 
 ## registros/
 
@@ -420,6 +469,15 @@
 
 - `relatorio-aplicacao.md` — Esqueleto do RELATORIO de aplicacao (entregavel final): ficha, contexto BNCC/ISTE/Wing, 6 aulas+construcao livre, metodologia, resultados (incl AEE), perf/escalabilidade (dados escola), anexos tecnicos. Campos ✏️ PREENCHER = observacao de sala. (~5176 tok)
 
+## scripts/
+
+- `smoke.mjs` — Runner dos smokes de rede — sobe o servidor REAL, roda o cenário, mata tudo. (~2192 tok)
+  - fn `espera` L130-132 (~42 tok)
+  - fn `esperaPorta` L133-147 (~144 tok)
+  - fn `sobeServidor` L148-160 (~112 tok)
+  - fn `mata` L161-169 (~52 tok)
+  - fn `rodaSmoke` L170-255 (~762 tok)
+
 ## server/
 
 - `package.json` — Node.js package manifest (~119 tok)
@@ -427,21 +485,21 @@
 
 ## server/src/
 
-- `index.ts` — Hospedeiro Node+ws do servidor (LAN): embrulha a MESMA GameSession do Web (~6218 tok)
-  - fn `gerarCodigo` L118-154 (~526 tok)
-  - fn `registrarChat` L155-217 (~720 tok)
-  - fn `saveNow` L218-274 (~620 tok)
-  - fn `interceptarMundo` L275-327 (~476 tok)
-  - fn `interceptarKicar` L328-396 (~633 tok)
-  - fn `interceptarBanimento` L397-482 (~832 tok)
-  - fn `interceptarProfile` L483-544 (~744 tok)
-  - fn `enderecoDaRede` L545-566 (~230 tok)
-- `mundos.ts` — `/mundo` (cp19) — trocar a aula SEM derrubar a turma. (~1939 tok)
+- `index.ts` — Hospedeiro Node+ws do servidor (LAN): embrulha a MESMA GameSession do Web (~6281 tok)
+  - fn `gerarCodigo` L119-155 (~526 tok)
+  - fn `registrarChat` L156-218 (~720 tok)
+  - fn `saveNow` L219-275 (~620 tok)
+  - fn `interceptarMundo` L276-332 (~533 tok)
+  - fn `interceptarKicar` L333-401 (~633 tok)
+  - fn `interceptarBanimento` L402-487 (~832 tok)
+  - fn `interceptarProfile` L488-549 (~744 tok)
+  - fn `enderecoDaRede` L550-571 (~230 tok)
+- `mundos.ts` — `/mundo` (cp19) — trocar a aula SEM derrubar a turma. (~2060 tok)
   - fn `mundosDisponiveis` L29-49 (~214 tok)
   - fn `acharMundo` L50-57 (~81 tok)
   - section `TrocaDeMundo` L58-67 (~94 tok)
-  - section `ContextoMundo` L68-88 (~211 tok)
-  - fn `comandoMundo` L89-185 (~974 tok)
+  - section `ContextoMundo` L68-91 (~267 tok)
+  - fn `comandoMundo` L92-192 (~1038 tok)
 - `paths.ts` — `npm run <script> -w server` roda com o cwd dentro de server/, então caminho (~920 tok)
   - fn `mundoDeTrabalho` L46-66 (~227 tok)
   - fn `ehMundoDeAula` L67-70 (~30 tok)
@@ -454,24 +512,30 @@
 
 ## server/src/cenarios/
 
-- `_smoke-atividade.mjs` — Smoke de /tp grupos e /iniciar contra o servidor REAL (aula1 na 8080). (~794 tok)
-  - fn `ok` L13-17 (~29 tok)
-  - fn `cliente` L18-31 (~153 tok)
-  - fn `espera` L32-32 (~18 tok)
-  - fn `enviar` L33-83 (~506 tok)
-- `_smoke-kicar.mjs` — Smoke de /kicar (cp22) contra o servidor REAL. Prova o caminho de host de (~746 tok)
-  - fn `ok` L13-17 (~29 tok)
-  - fn `cliente` L18-33 (~145 tok)
-  - fn `espera` L34-34 (~18 tok)
-  - fn `enviar` L35-79 (~454 tok)
-- `_smoke-mundo.mjs` — Smoke do cp19 contra o servidor REAL: professor + aluno conectados, o (~853 tok)
-  - fn `ok` L7-11 (~29 tok)
-  - fn `cliente` L12-27 (~185 tok)
-  - fn `espera` L28-85 (~644 tok)
+- `_smoke-atividade.mjs` — Smoke de /tp grupos e /iniciar contra o servidor REAL (aula1 na 8080). (~806 tok)
+  - fn `ok` L14-18 (~29 tok)
+  - fn `cliente` L19-32 (~153 tok)
+  - fn `espera` L33-33 (~18 tok)
+  - fn `enviar` L34-84 (~506 tok)
+- `_smoke-kicar.mjs` — Smoke de /kicar (cp22) contra o servidor REAL. Prova o caminho de host de (~758 tok)
+  - fn `ok` L14-18 (~29 tok)
+  - fn `cliente` L19-34 (~145 tok)
+  - fn `espera` L35-35 (~18 tok)
+  - fn `enviar` L36-80 (~454 tok)
+- `_smoke-mundo.mjs` — Smoke do cp19 contra o servidor REAL: professor + aluno conectados, o (~875 tok)
+  - fn `ok` L8-12 (~29 tok)
+  - fn `cliente` L13-28 (~185 tok)
+  - fn `espera` L29-89 (~654 tok)
 - `_smoke-pedir-coluna.mjs` — Smoke do §🔁 (rede de segurança do streaming) contra o servidor REAL, num (~1344 tok)
   - fn `ok` L16-19 (~29 tok)
   - fn `espera` L20-25 (~66 tok)
   - fn `colunasDoLote` L26-133 (~1138 tok)
+- `_smoke-troca-raio.mjs` — Smoke da TROCA DE AULA em mundo LAZY (cp19 + F2), contra o servidor REAL. (~1223 tok)
+  - fn `ok` L19-22 (~29 tok)
+  - fn `espera` L23-27 (~43 tok)
+  - fn `colunasDoLote` L28-41 (~118 tok)
+  - fn `aluno` L42-71 (~329 tok)
+  - fn `anelMax` L72-125 (~513 tok)
 - `gerar.ts` — Gerador dos cenários pedagógicos (.ljw) — MVP v2 em uso real. (~5369 tok)
   - class `Autoria` L49-107 (~606 tok)
   - section `Vec` L108-114 (~34 tok)
@@ -612,18 +676,18 @@
   - fn `moveAxisGuarded` L349-364 (~96 tok)
   - fn `stepPlayer` L365-450 (~1096 tok)
 - `protocol.test.ts` — Declares DIMS (~3424 tok)
-- `protocol.ts` — Protocolo v0 (checkpoint 2). Mensagens JSON dos dois lados + world_snapshot (~8580 tok)
-  - fn `parseClientMessage` L299-416 (~1138 tok)
-  - fn `parseServerMessage` L417-615 (~2210 tok)
-  - section `Snapshot` L616-620 (~18 tok)
-  - fn `encodeSnapshot` L621-640 (~201 tok)
-  - fn `decodeSnapshot` L641-700 (~763 tok)
-  - fn `peekMagic` L701-705 (~40 tok)
-  - fn `encodeLazyInfo` L706-718 (~134 tok)
-  - fn `decodeLazyInfo` L719-743 (~245 tok)
-  - section `ColunaRef` L744-751 (~80 tok)
-  - fn `encodeColunas` L752-776 (~276 tok)
-  - fn `decodeColunas` L777-810 (~340 tok)
+- `protocol.ts` — Protocolo v0 (checkpoint 2). Mensagens JSON dos dois lados + world_snapshot (~8775 tok)
+  - fn `parseClientMessage` L311-428 (~1138 tok)
+  - fn `parseServerMessage` L429-630 (~2249 tok)
+  - section `Snapshot` L631-635 (~18 tok)
+  - fn `encodeSnapshot` L636-655 (~201 tok)
+  - fn `decodeSnapshot` L656-715 (~763 tok)
+  - fn `peekMagic` L716-720 (~40 tok)
+  - fn `encodeLazyInfo` L721-733 (~134 tok)
+  - fn `decodeLazyInfo` L734-758 (~245 tok)
+  - section `ColunaRef` L759-766 (~80 tok)
+  - fn `encodeColunas` L767-791 (~276 tok)
+  - fn `decodeColunas` L792-825 (~340 tok)
 - `quadros.test.ts` — DIMS: makeFlat (~1603 tok)
   - fn `makeFlat` L12-138 (~1471 tok)
 - `quadros.ts` — Quadro (backlog 2026-07-19): bloco de parede com CONTEÚDO autoral — texto (~540 tok)

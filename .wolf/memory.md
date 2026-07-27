@@ -3,52 +3,6 @@
 > Chronological action log. Hooks and AI append to this file automatically.
 > Old sessions are consolidated by the daemon weekly.
 
-## Session: 2026-07-23 08:43
-
-| Time | Action | File(s) | Outcome | ~Tokens |
-|------|--------|---------|---------|--------|
-| 08:45 | Edited iniciar-servidor.bat | 3→5 lines | ~84 |
-| 08:45 | Edited iniciar-servidor.bat | 2→2 lines | ~18 |
-| 08:45 | Edited iniciar-servidor.sh | 3→4 lines | ~25 |
-| 08:45 | Edited iniciar-servidor.sh | modified G() | ~103 |
-| 08:45 | opcao 8 (carregar salvo) nao pergunta mais tamanho: PULAR_TAMANHO pula o menu | iniciar-servidor.bat/.sh | verde (bug-489) | ~2k |
-| 08:45 | Session end: 4 writes across 2 files (iniciar-servidor.bat, iniciar-servidor.sh) | 2 reads | ~2966 tok |
-| 08:48 | Edited shared/src/rules.ts | added nullish coalescing | ~287 |
-| 19:34 | Edited client/src/hud.ts | added 1 import(s) | ~23 |
-| 19:34 | Edited client/src/hud.ts | 4→5 lines | ~57 |
-| 19:34 | Edited server/src/index.ts | modified interceptarProfile() | ~334 |
-| 19:35 | Created ../../../tmp/claude-1000/-home-meketreve-logica-em-jogo/cd337f12-f500-4265-b245-12e92188425a/scratchpad/resumo.mjs | — | ~527 |
-| 19:35 | Created registros/README.md | — | ~316 |
-| 19:36 | Created ../../../tmp/claude-1000/-home-meketreve-logica-em-jogo/cd337f12-f500-4265-b245-12e92188425a/scratchpad/genlog.mjs | — | ~776 |
-| 19:36 | Edited .gitignore | 2→5 lines | ~40 |
-| 19:38 | perfilador anonimo: +versao:VERSION no corpo, sem nome no filename | hud.ts, server/index.ts | verde | ~3k |
-| 19:38 | profiles-escola removido do tracking + gitignore; resumo agregado | .gitignore, registros/ | 52 perfis anonimos | ~4k |
-| 19:38 | fix typecheck rules.ts (noUncheckedIndexedAccess, bug-490) | shared/rules.ts | typecheck 0 | ~2k |
-| 19:38 | wrap-up sessao 17: STATUS/cerebrum/anatomy + commit+push acumulado | .wolf/* | pronto p/ push | ~3k |
-| 19:40 | Session end: 12 writes across 9 files (iniciar-servidor.bat, iniciar-servidor.sh, rules.ts, hud.ts, index.ts) | 6 reads | ~18464 tok |
-| 19:58 | Session end: 12 writes across 9 files (iniciar-servidor.bat, iniciar-servidor.sh, rules.ts, hud.ts, index.ts) | 6 reads | ~18464 tok |
-
-## Session: 2026-07-23 20:00
-
-| Time | Action | File(s) | Outcome | ~Tokens |
-|------|--------|---------|---------|--------|
-| 20:08 | Created ../../../tmp/claude-1000/-home-meketreve-logica-em-jogo/01aa2da2-c249-4bb7-ae33-c0e68e3296c5/scratchpad/capture.mjs | — | ~1043 |
-| 20:08 | Edited ../../../tmp/claude-1000/-home-meketreve-logica-em-jogo/01aa2da2-c249-4bb7-ae33-c0e68e3296c5/scratchpad/capture.mjs | 2→4 lines | ~48 |
-| 20:10 | Created ../../../tmp/claude-1000/-home-meketreve-logica-em-jogo/01aa2da2-c249-4bb7-ae33-c0e68e3296c5/scratchpad/console.mjs | — | ~727 |
-| 20:12 | Edited client/src/main.ts | modified applySettings() | ~102 |
-| 20:12 | Edited client/src/main.ts | toque() → cima() | ~23 |
-| 20:17 | Edited ../../../tmp/claude-1000/-home-meketreve-logica-em-jogo/01aa2da2-c249-4bb7-ae33-c0e68e3296c5/scratchpad/capture.mjs | added 1 condition(s) | ~145 |
-| 20:26 | Edited client/src/main.ts | added 2 condition(s) | ~196 |
-| 20:26 | Edited client/src/main.ts | added nullish coalescing | ~66 |
-| 20:32 | Created ../../../tmp/claude-1000/-home-meketreve-logica-em-jogo/01aa2da2-c249-4bb7-ae33-c0e68e3296c5/scratchpad/build.mjs | — | ~1024 |
-| 20:36 | Edited ../../../tmp/claude-1000/-home-meketreve-logica-em-jogo/01aa2da2-c249-4bb7-ae33-c0e68e3296c5/scratchpad/build.mjs | modified for() | ~267 |
-| 20:38 | Edited ../../../tmp/claude-1000/-home-meketreve-logica-em-jogo/01aa2da2-c249-4bb7-ae33-c0e68e3296c5/scratchpad/build.mjs | modified for() | ~220 |
-| 20:42 | Created registros/prints/README.md | — | ~601 |
-| 20:43 | Session end: 12 writes across 5 files (capture.mjs, console.mjs, main.ts, build.mjs, README.md) | 24 reads | ~76026 tok |
-| 17:15 | Session end: 12 writes across 5 files (capture.mjs, console.mjs, main.ts, build.mjs, README.md) | 24 reads | ~76026 tok |
-| 17:24 | Session end: 12 writes across 5 files (capture.mjs, console.mjs, main.ts, build.mjs, README.md) | 24 reads | ~76026 tok |
-| 17:25 | Session end: 12 writes across 5 files (capture.mjs, console.mjs, main.ts, build.mjs, README.md) | 24 reads | ~76026 tok |
-
 ## Session: 2026-07-24 17:26
 
 | Time | Action | File(s) | Outcome | ~Tokens |
@@ -290,3 +244,133 @@ NÃO commitado; playtest no browser pendente.
 | 14:40 | Medição registrada na política de otimização (gatilho de greedy meshing / mesher em Worker) | .wolf/ROADMAP.md | tabela + leitura honesta: falta número do PC do lab | ~700 |
 | 14:45 | COMMIT e3eaac4 — água + streaming §🔁 (20 arquivos, +839/-73) | git main | árvore de código limpa | ~400 |
 | 14:50 | Handoff pro /clear: próxima quest = §🕐 tela de carregamento, depois custo de render | STATUS.md, TODO.md, cerebrum.md | ordem decidida pelo usuário | ~900 |
+| 14:35 | Session end: 30 writes across 8 files (protocol.ts, session.ts, main.ts, chunks.ts, hud.ts) | 9 reads | ~89084 tok |
+
+## Session: 2026-07-26 14:38
+
+| Time | Action | File(s) | Outcome | ~Tokens |
+|------|--------|---------|---------|--------|
+| 14:43 | Created client/src/loading.ts | — | ~3295 |
+| 14:44 | Edited client/src/loading.ts | inline fix | ~21 |
+| 14:44 | Edited client/src/main.ts | added 1 import(s) | ~24 |
+| 14:44 | Edited client/src/main.ts | 2→7 lines | ~112 |
+| 14:44 | Edited client/src/main.ts | 8→10 lines | ~216 |
+| 14:44 | Edited client/src/main.ts | modified connect() | ~204 |
+| 14:44 | Edited client/src/main.ts | added 1 condition(s) | ~436 |
+| 14:44 | Edited client/src/main.ts | added 1 condition(s) | ~120 |
+| 14:44 | Edited client/src/main.ts | added 1 condition(s) | ~102 |
+| 14:52 | Edited client/src/loading.ts | mesher() → CHUNKS() | ~52 |
+| 14:52 | Edited client/src/loading.ts | inline fix | ~12 |
+| 14:52 | Edited client/src/loading.ts | added 1 condition(s) | ~166 |
+| 14:52 | Edited client/src/loading.ts | inline fix | ~14 |
+| 14:55 | Edited client/src/loading.ts | modified svg() | ~153 |
+| 14:55 | Edited client/src/loading.ts | 3→4 lines | ~26 |
+| 14:55 | Edited client/src/loading.ts | 3→4 lines | ~66 |
+| 14:55 | Edited client/src/loading.ts | added 1 condition(s) | ~260 |
+| 14:55 | Edited client/src/loading.ts | added 1 condition(s) | ~44 |
+| 14:55 | Edited client/src/main.ts | added 1 condition(s) | ~95 |
+| 14:56 | Edited client/src/loading.ts | modified if() | ~142 |
+| 14:57 | Edited client/src/loading.ts | 2→3 lines | ~53 |
+| 14:57 | Edited client/src/loading.ts | 2→5 lines | ~72 |
+| 14:57 | Edited client/src/loading.ts | added optional chaining | ~247 |
+| 14:57 | Edited client/src/connection.ts | 5→9 lines | ~141 |
+| 14:57 | Edited client/src/connection.ts | 3→7 lines | ~70 |
+| 14:57 | Edited client/src/connection.ts | added optional chaining | ~88 |
+| 14:57 | Edited client/src/main.ts | added 1 condition(s) | ~224 |
+| 14:58 | Edited client/src/loading.ts | 6→7 lines | ~76 |
+| 15:10 | SESSÃO 25 — §🕐 tela de carregamento: `loading.ts` novo (anel real + spinner decorativo, bits/s, colunas/fila, fases honestas, estado de erro do ws), `loading.ativo` no `updateOverlay`/toque (bug-515), `WsConnection.aoFalhar`. typecheck 3/3, 329 testes, headless conferido em mundo E/P/servidor-off. NÃO commitado — playtest pendente | client/src/loading.ts · main.ts · connection.ts · .wolf/{STATUS,TODO,ROADMAP,cerebrum,anatomy,buglog}.* | ✅ verde | ~46k |
+| 15:06 | Session end: 28 writes across 3 files (loading.ts, main.ts, connection.ts) | 12 reads | ~29660 tok |
+| 15:11 | Session end: 28 writes across 3 files (loading.ts, main.ts, connection.ts) | 12 reads | ~29660 tok |
+| 15:19 | Edited client/src/chunks.ts | added 1 condition(s) | ~204 |
+| 15:19 | Edited client/src/hud.ts | modified aula() | ~131 |
+| 15:19 | Edited client/src/loading.ts | 3→6 lines | ~74 |
+| 15:19 | Edited client/src/loading.ts | 2→2 lines | ~13 |
+| 15:19 | Edited client/src/loading.ts | added nullish coalescing | ~86 |
+| 15:19 | Edited client/src/loading.ts | modified reabertura() | ~91 |
+| 15:19 | Edited client/src/loading.ts | 2→3 lines | ~23 |
+| 15:19 | Edited client/src/loading.ts | added 1 condition(s) | ~176 |
+| 15:20 | Edited client/src/main.ts | expanded (+9 lines) | ~382 |
+| 15:20 | Edited client/src/main.ts | 3→5 lines | ~91 |
+| 15:20 | Edited client/src/main.ts | added 1 condition(s) | ~335 |
+| 15:22 | Created server/src/cenarios/_smoke-troca-raio.mjs | — | ~1121 |
+| 15:35 | Perfil 18:14 analisado → 3 bugs (517 buildAll em lazy no trocarMundo ~19s; 518 raio volta a RAIO_PADRAO na troca de aula; 519 meta do HUD congelado no join) + §🕐 reaberta no `/mundo carregar` | client/src/{chunks,hud,main,loading}.ts · server/src/cenarios/_smoke-troca-raio.mjs | ✅ typecheck 3/3, 329 testes, smoke troca-raio 5/5 (anel 10→6→12), build refeito | ~38k |
+| 15:30 | Session end: 40 writes across 6 files (loading.ts, main.ts, connection.ts, chunks.ts, hud.ts) | 17 reads | ~38063 tok |
+| 15:35 | Session end: 40 writes across 6 files (loading.ts, main.ts, connection.ts, chunks.ts, hud.ts) | 17 reads | ~38063 tok |
+| 15:43 | Edited shared/src/protocol.ts | expanded (+12 lines) | ~175 |
+| 15:43 | Edited shared/src/protocol.ts | added 1 condition(s) | ~77 |
+| 15:43 | Edited server/src/mundos.ts | 3→6 lines | ~82 |
+| 15:44 | Edited server/src/mundos.ts | 1→5 lines | ~75 |
+| 15:44 | Edited server/src/index.ts | 4→8 lines | ~86 |
+| 15:44 | Edited server/src/index.ts | 2→3 lines | ~16 |
+| 15:44 | Edited client/src/main.ts | modified ANUNCIADA() | ~78 |
+| 15:44 | Edited client/src/main.ts | added optional chaining | ~81 |
+| 15:45 | Edited client/src/loading.ts | 2→6 lines | ~89 |
+| 15:45 | Edited client/src/loading.ts | 4→6 lines | ~73 |
+| 15:45 | Edited client/src/loading.ts | added 1 condition(s) | ~68 |
+| 15:45 | Edited client/src/loading.ts | 2→3 lines | ~29 |
+| 15:45 | Edited client/src/loading.ts | 3→4 lines | ~32 |
+| 15:45 | Edited client/src/main.ts | expanded (+19 lines) | ~192 |
+| 15:45 | Edited server/src/cenarios/_smoke-troca-raio.mjs | added 2 condition(s) | ~228 |
+| 15:46 | Edited server/src/cenarios/_smoke-troca-raio.mjs | 2→6 lines | ~76 |
+| 15:47 | Edited client/src/main.ts | added 3 condition(s) | ~410 |
+| 15:48 | Edited client/src/main.ts | 3→4 lines | ~74 |
+
+## Session: 2026-07-26 15:50
+
+| Time | Action | File(s) | Outcome | ~Tokens |
+|------|--------|---------|---------|--------|
+| 15:52 | bug-520: tela de carga subia só no snapshot (fim da fila do host) → msg nova `mundo_trocando` + fase `preparando` + fila de 2× rAF (garante a PINTURA antes do trabalho pesado). Perfil 3 analisado: remesh −98%, repedidas 252→4 | shared/protocol.ts · server/{index,mundos}.ts · client/{main,loading}.ts · _smoke-troca-raio.mjs | ✅ typecheck 3/3, 329 testes, smoke 6/6, build refeito | ~30k |
+| 15:58 | Ajuste OpenWolf: buglog.auto_detect→false (falso positivo poluía índice) + anatomy.rescan 6h→168h (stale falso no boot) | .wolf/config.json · .wolf/cerebrum.md | ✅ aplicado | ~2k |
+| 16:12 | Edited server/src/cenarios/_smoke-mundo.mjs | added nullish coalescing | ~22 |
+| 16:12 | Edited server/src/cenarios/_smoke-kicar.mjs | added nullish coalescing | ~22 |
+| 16:12 | Edited server/src/cenarios/_smoke-atividade.mjs | added nullish coalescing | ~22 |
+| 16:14 | Created scripts/smoke.mjs | — | ~2158 |
+| 16:14 | Edited package.json | 2→5 lines | ~91 |
+| 16:14 | Edited scripts/smoke.mjs | 8→10 lines | ~85 |
+| 16:15 | Edited server/src/cenarios/_smoke-mundo.mjs | 1→4 lines | ~35 |
+| 16:17 | §🧪 encanamento de verificação: runner de smokes com manifesto + npm run verify/smoke/verify:all; 3 smokes ganharam porta por argv | scripts/smoke.mjs (novo) · package.json · server/src/cenarios/_smoke-{mundo,kicar,atividade}.mjs | ✅ smoke 5/5 (38s) · verify verde (329 testes, build ok) | ~35k |
+| 16:18 | Session end: 7 writes across 5 files (_smoke-mundo.mjs, _smoke-kicar.mjs, _smoke-atividade.mjs, smoke.mjs, package.json) | 5 reads | ~11450 tok |
+| 16:31 | Session end: 7 writes across 5 files (_smoke-mundo.mjs, _smoke-kicar.mjs, _smoke-atividade.mjs, smoke.mjs, package.json) | 5 reads | ~11450 tok |
+| 20:03 | Edited client/src/torchGlow.ts | 2→2 lines | ~32 |
+| 20:03 | Edited client/src/torchGlow.ts | added 2 condition(s) | ~620 |
+| 20:03 | Edited client/src/main.ts | modified for() | ~81 |
+| 20:03 | Edited client/src/main.ts | modified for() | ~83 |
+| 20:04 | Edited client/src/main.ts | modified for() | ~66 |
+| 20:12 | bug-523 (o achado da sessão): TorchGlow.setFromWorld varria bloco a bloco → 41,4 s de trava em mundo E ("página não está respondendo"); varredura por chunk = 2,9 ms. Explica os ~38 s de long task iguais nos 3 perfis. + halo de tocha em coluna do streaming | client/src/torchGlow.ts · client/src/main.ts | ✅ typecheck 3/3, 329 testes, equivalência 9/9, headless 3min→2,9s, build refeito | ~25k |
+| 20:10 | Session end: 12 writes across 7 files (_smoke-mundo.mjs, _smoke-kicar.mjs, _smoke-atividade.mjs, smoke.mjs, package.json) | 7 reads | ~13328 tok |
+| 20:30 | Perfis 4-9 analisados (2 pré-tocha às 19:34, 4 snapshots da mesma sessão às 23:18). Confirmado: trava fixa sumiu (longTask agora escala), jitter 1750→320, repedidas 0. Sobrou mesh de terreno: 18-29% do tempo de parede, 1,25-1,71 ms/chunk; PARADO = 60 FPS travado. Medição 4 + ordem revisada no ROADMAP | .wolf/ROADMAP.md | ✅ análise registrada | ~18k |
+| 20:23 | Session end: 12 writes across 7 files (_smoke-mundo.mjs, _smoke-kicar.mjs, _smoke-atividade.mjs, smoke.mjs, package.json) | 7 reads | ~13328 tok |
+| 20:29 | Edited client/src/hud.ts | modified perfil() | ~312 |
+| 20:29 | Edited client/src/hud.ts | 4→6 lines | ~72 |
+| 20:29 | Edited client/src/hud.ts | added optional chaining | ~43 |
+| 20:29 | Edited client/src/hud.ts | expanded (+24 lines) | ~261 |
+| 20:30 | Edited client/src/hud.ts | added optional chaining | ~343 |
+| 20:30 | Edited client/src/hud.ts | 4→4 lines | ~17 |
+| 20:30 | Edited client/src/main.ts | 3→4 lines | ~63 |
+| 20:30 | Edited client/src/main.ts | 1→5 lines | ~80 |
+| 20:30 | Edited client/src/main.ts | modified frame() | ~146 |
+| 20:30 | Edited client/src/main.ts | 3→6 lines | ~64 |
+| 20:30 | Edited client/src/main.ts | expanded (+17 lines) | ~194 |
+| 20:31 | Edited client/src/main.ts | added 1 condition(s) | ~80 |
+| 20:55 | Contexto no perfil (pedido do usuário): `Hud.contexto` provider → bloco `jogador` (pos/yaw/pitch/voando/noChao/chunk) + `config` (raioRender/meshPorFrame/pixelRatioCap/fov) + `gravacao.movimento` (estado voando/andando/parado, distância, velocidade, colunasNovas, bytesRecebidos na janela). `?hud` na URL abre o F3 (verificação headless) | client/src/hud.ts · client/src/main.ts | ✅ typecheck 3/3, 329 testes, F3 conferido em headless, build refeito | ~22k |
+| 20:40 | Edited client/src/settings.ts | expanded (+6 lines) | ~120 |
+| 20:41 | Edited client/src/menu.ts | 5→5 lines | ~44 |
+| 20:41 | Edited client/src/chunks.ts | added 1 condition(s) | ~452 |
+| 20:41 | Edited client/src/chunks.ts | 5→9 lines | ~115 |
+| 20:42 | Edited client/src/hud.ts | added optional chaining | ~70 |
+| 21:00 | Orçamento de mesh por TEMPO (escolha do usuário): `meshMsPorFrame` (1-16 ms, padrão 6) substitui `meshPorFrame`; teto 64 chunks + garantia de ≥1; F3 mostra "malha N chunks (orçamento X ms)"; slider novo na config. Plano do worker escopado no ROADMAP | client/src/{chunks,settings,menu,hud,main}.ts | ✅ typecheck 3/3, 329 testes, headless E: fila 0, long tasks 0, build refeito | ~20k |
+| 20:49 | Session end: 29 writes across 11 files (_smoke-mundo.mjs, _smoke-kicar.mjs, _smoke-atividade.mjs, smoke.mjs, package.json) | 14 reads | ~24611 tok |
+| 21:10 | Perfis 23:51 (2, voando raio 12, 125 colunas novas na janela) analisados: orçamento por tempo VALIDADO — p95 43-82→18,7/20,4 ms, frames>50ms 9-50→0, FPS 41-53→57/60, longTasks sessão 128-299→2, fila 0→84/189 (preço previsto). MEDIÇÃO 5 no ROADMAP; worker do mesher rebaixado até medir no lab | .wolf/ROADMAP.md · .wolf/TODO.md | ✅ análise registrada | ~16k |
+| 20:53 | Session end: 29 writes across 11 files (_smoke-mundo.mjs, _smoke-kicar.mjs, _smoke-atividade.mjs, smoke.mjs, package.json) | 14 reads | ~24611 tok |
+| 21:02 | Edited client/src/hud.ts | modified netcode() | ~216 |
+| 21:02 | Edited client/src/hud.ts | expanded (+8 lines) | ~164 |
+| 21:02 | Edited client/src/hud.ts | expanded (+10 lines) | ~182 |
+| 21:03 | Edited client/src/hud.ts | modified frame() | ~141 |
+| 21:03 | Edited client/src/hud.ts | modified toFixed() | ~234 |
+| 21:03 | Edited client/src/chunks.ts | modified pediu() | ~214 |
+| 21:03 | Edited client/src/chunks.ts | 4→7 lines | ~60 |
+| 21:04 | Edited client/src/main.ts | 2→6 lines | ~101 |
+| 21:15 | Edited client/src/main.ts | 5→6 lines | ~66 |
+| 21:40 | Playtest da §🕐 APROVADO (single + /mundo carregar). Perfilador por FASE (carregando×jogando: frames/fps/render%/travadas), top 5 piores travadas (ms+fase+segundo), remesh por caminho (fila/bloco/área), render×lógica (renderMs). bug-524 (setRemesh do loop apagava porCaminho) pego no headless. Backlog do perfilador escopado no ROADMAP (modo ?bench é o item 1) | client/src/{hud,chunks,main}.ts · .wolf/{ROADMAP,TODO,cerebrum,buglog} | ✅ typecheck 3/3, 329 testes, F3 conferido, build refeito | ~24k |
+| 21:23 | Session end: 38 writes across 11 files (_smoke-mundo.mjs, _smoke-kicar.mjs, _smoke-atividade.mjs, smoke.mjs, package.json) | 17 reads | ~25989 tok |
+| 21:55 | Handoff da sessão 25: STATUS ✅ consolidado + 🚀 Próxima fase = as 7 do perfilador (ordem: ?bench primeiro), TODO zerado, anatomy rescan. Commit da leva inteira | .wolf/{STATUS,TODO,memory}.md | ✅ pronto pro /clear | ~12k |
