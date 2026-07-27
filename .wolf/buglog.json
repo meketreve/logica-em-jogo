@@ -2,22 +2,6 @@
   "version": 1,
   "bugs": [
     {
-      "id": "bug-383",
-      "timestamp": "2026-07-21T00:13:09.071Z",
-      "error_message": "Wrong return value",
-      "file": "shared/src/blocks.ts",
-      "root_cause": "Was returning: id === BlockId.Glass || id === BlockId.Leaves;",
-      "fix": "Now returns: (",
-      "tags": [
-        "auto-detected",
-        "return-value",
-        "ts"
-      ],
-      "related_bugs": [],
-      "occurrences": 1,
-      "last_seen": "2026-07-21T00:13:09.071Z"
-    },
-    {
       "id": "bug-384",
       "timestamp": "2026-07-21T00:13:55.889Z",
       "error_message": "Significant refactor of ",
@@ -3307,6 +3291,24 @@
       "related_bugs": [],
       "occurrences": 1,
       "last_seen": "2026-07-27T00:15:53.451733Z"
+    },
+    {
+      "id": "bug-525",
+      "timestamp": "2026-07-27T00:55:00Z",
+      "error_message": "?bench: gravacao.movimento.distanciaBlocos = 301 num trajeto de 202 blocos (velocidade 30,7 b/s onde o trajeto anda a 18)",
+      "file": "client/src/bench.ts",
+      "root_cause": "Dois TELEPORTES entravam na distância acumulada do perfil: (1) o salto spawn → início do círculo, contado no primeiro frame do trajeto porque `posAnt*` do loop ainda era do spawn; (2) a virada voo→giro voltava pro ponto de PARTIDA do círculo (~150 blocos de salto), o que ainda por cima disparava uma rajada de streaming bem na troca de fase, sujando as duas medidas.",
+      "fix": "A fase `giro` passou a girar ONDE O VOO PAROU (`pontoDoVoo(tVoo)`), sem volta ao início; e o `iniciarBench` teleporta o jogador e sincroniza `posAntX/Y/Z` ANTES de `hud.record()`, então o salto inicial não entra no delta. Verificado headless: distância = 202,5 = 18 b/s × 11,25 s de voo, exato.",
+      "tags": [
+        "bench",
+        "perfilador",
+        "trajeto",
+        "telemetria",
+        "cliente"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-27T00:55:00Z"
     }
   ]
 }

@@ -8,15 +8,13 @@
 
 ## 🔥 Now (this session)
 
-- (nada em andamento — sessão 25 fechada e COMMITADA; árvore limpa)
+- (nada em andamento — sessão 26 aprovada no playtest e COMMITADA)
 
 ## ⏭️ Next (queued, ready to pick up) — NESTA ORDEM
 
-- [ ] **1º — AS 7 DO PERFILADOR** (escolha do usuário ao fechar a sessão 25; escopo escrito
-      em `ROADMAP.md` → `📊 BACKLOG — PERFILADOR`). Ordem: (1) modo `?bench` — trajeto e seed
-      fixos, exporta sozinho: **destrava o número do PC do lab**; (2) histograma de frametime;
-      (3) tempo de carga por fase; (4) marcadores de evento; (5) células/tick da regra no
-      `debug_stats`; (6) tempo de GPU; (7) `hardwareConcurrency`/`deviceMemory`.
+- [ ] **1º — RODAR O `?bench` NUM PC DO LAB e mandar o JSON** (é do usuário). Sem esse
+      arquivo não se decide otimização nenhuma — o gatilho da política é "FPS baixo em PC do
+      lab". Link: `http://<host>:8080/?bench` (exige `npm run build` se for o host Node).
 - [ ] **2º — custo de render: o que SOBROU** (o pico já morreu — MEDIÇÃO 5 do ROADMAP):
       (a) mesher em Web Worker — compra os 16–19% de main thread (FPS 55–60 → travado em 60)
           e fila que esvazia mais rápido; plano escopado no ROADMAP;
@@ -46,3 +44,8 @@
 <!-- Checked items land here. Sweep them into STATUS.md "✅ Done" when a phase closes, then clear this list. -->
 
 - (limpo em 2026-07-26 — a sessão 25 inteira foi pro STATUS ✅ e pro git)
+- [x] **As 7 do perfilador** (sessão 26): `?bench` · histograma · carga por fase · marcadores
+      · regras do servidor no `debug_stats` · tempo de GPU · `nucleos`/`ramGB` (este já
+      existia). Mais `npm run bench:headless`. Verde em typecheck/331 testes/build + bench
+      headless de ponta a ponta. **Playtest aprovado** nos dois modos (perfil manual pelo host
+      Node e `?bench`); régua do PC de dev guardada em `profiles/`.

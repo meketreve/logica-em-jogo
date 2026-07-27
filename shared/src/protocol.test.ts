@@ -179,6 +179,24 @@ describe("parse de mensagens JSON", () => {
     expect(parseServerMessage('{"type":"block_changed","x":1.5,"y":2,"z":3,"blockId":0}')).toBeNull();
     expect(parseServerMessage('{"type":"outra"}')).toBeNull();
   });
+
+  it("debug_stats: campos de REGRAS são opcionais (host antigo não manda)", () => {
+    expect(
+      parseServerMessage(
+        '{"type":"debug_stats","tickAvgMs":1,"tickMaxMs":2,"tps":10,' +
+          '"regrasCelulasAvg":12.5,"regrasCelulasMax":40,"regrasMudancasAvg":3,"regrasAguaAvg":9}',
+      ),
+    ).toEqual({
+      type: "debug_stats", tickAvgMs: 1, tickMaxMs: 2, tps: 10,
+      regrasCelulasAvg: 12.5, regrasCelulasMax: 40, regrasMudancasAvg: 3, regrasAguaAvg: 9,
+    });
+    // lixo no campo opcional NÃO derruba a mensagem (o tick continua chegando)
+    expect(
+      parseServerMessage(
+        '{"type":"debug_stats","tickAvgMs":1,"tickMaxMs":2,"tps":10,"regrasCelulasAvg":"muitas"}',
+      ),
+    ).toEqual({ type: "debug_stats", tickAvgMs: 1, tickMaxMs: 2, tps: 10 });
+  });
 });
 
 describe("identidade cp9 no protocolo", () => {

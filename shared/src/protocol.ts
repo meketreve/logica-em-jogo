@@ -97,6 +97,13 @@ export type ServerMessage =
       tickMaxMs: number;
       /** Ticks executados na janela (alvo = SERVER_TICK_RATE). */
       tps: number;
+      /** Custo das REGRAS (água/areia) na janela — média por tick e pior tick.
+       *  OPCIONAIS: host de versão antiga não manda, e o cliente não pode
+       *  descartar o `debug_stats` inteiro por causa disso. */
+      regrasCelulasAvg?: number;
+      regrasCelulasMax?: number;
+      regrasMudancasAvg?: number;
+      regrasAguaAvg?: number;
     }
   | {
       /** Bloco mudou no mundo autoritativo (ação de jogador OU regra do tick — o cliente não distingue). */
@@ -439,11 +446,20 @@ export function parseServerMessage(raw: string): ServerMessage | null {
     case "debug_stats": {
       const nums = [m["tickAvgMs"], m["tickMaxMs"], m["tps"]];
       if (!nums.every((n) => typeof n === "number" && Number.isFinite(n))) return null;
+      // opcionais das regras: número finito entra, qualquer outra coisa some
+      const opc = (k: string): number | undefined => {
+        const v = m[k];
+        return typeof v === "number" && Number.isFinite(v) ? v : undefined;
+      };
       return {
         type: "debug_stats",
         tickAvgMs: m["tickAvgMs"] as number,
         tickMaxMs: m["tickMaxMs"] as number,
         tps: m["tps"] as number,
+        ...(opc("regrasCelulasAvg") !== undefined ? { regrasCelulasAvg: opc("regrasCelulasAvg") } : {}),
+        ...(opc("regrasCelulasMax") !== undefined ? { regrasCelulasMax: opc("regrasCelulasMax") } : {}),
+        ...(opc("regrasMudancasAvg") !== undefined ? { regrasMudancasAvg: opc("regrasMudancasAvg") } : {}),
+        ...(opc("regrasAguaAvg") !== undefined ? { regrasAguaAvg: opc("regrasAguaAvg") } : {}),
       };
     }
     case "block_changed": {

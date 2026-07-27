@@ -3,57 +3,6 @@
 > Chronological action log. Hooks and AI append to this file automatically.
 > Old sessions are consolidated by the daemon weekly.
 
-## Session: 2026-07-24 17:26
-
-| Time | Action | File(s) | Outcome | ~Tokens |
-|------|--------|---------|---------|--------|
-| 17:29 | Edited relatorio/relatorio-aplicacao.md | 283 → 304 | ~22 |
-| 17:29 | Edited relatorio/relatorio-aplicacao.md | 3→5 lines | ~106 |
-| 17:29 | Edited relatorio/relatorio-aplicacao.md | 11→14 lines | ~295 |
-| 17:29 | Edited relatorio/relatorio-aplicacao.md | 1→4 lines | ~91 |
-| 17:30 | relatório: corrigidos fatos técnicos defasados (283→304 testes; profiles-escola apagada→agregado registros/; 25→52 perfis; screenshots reais em registros/prints) | relatorio/relatorio-aplicacao.md | pronto p/ usuário preencher campos de sala | ~5k |
-| 17:30 | Session end: 4 writes across 1 files (relatorio-aplicacao.md) | 2 reads | ~5151 tok |
-| 17:56 | Edited todo.md | 5→5 lines | ~120 |
-| 17:56 | Session end: 5 writes across 2 files (relatorio-aplicacao.md, todo.md) | 3 reads | ~11611 tok |
-| 20:22 | Edited relatorio/relatorio-aplicacao.md | 3→8 lines | ~137 |
-| 20:23 | Edited relatorio/relatorio-aplicacao.md | escolha() → pago() | ~114 |
-| 20:25 | Edited relatorio/relatorio-aplicacao.md | 1→2 lines | ~47 |
-| 20:25 | Edited relatorio/relatorio-aplicacao.md | inline fix | ~14 |
-| 20:26 | Edited relatorio/relatorio-aplicacao.md | expanded (+6 lines) | ~180 |
-| 20:40 | Edited relatorio/relatorio-aplicacao.md | 12→16 lines | ~318 |
-| 20:40 | Edited relatorio/relatorio-aplicacao.md | 4→8 lines | ~154 |
-| 20:40 | Edited relatorio/relatorio-aplicacao.md | expanded (+9 lines) | ~178 |
-| 20:40 | Edited relatorio/relatorio-aplicacao.md | modified AEE() | ~62 |
-| 20:49 | Edited relatorio/relatorio-aplicacao.md | inline fix | ~25 |
-| 20:50 | Edited relatorio/relatorio-aplicacao.md | expanded (+8 lines) | ~259 |
-| 20:50 | Edited relatorio/relatorio-aplicacao.md | passos() → funcionou() | ~354 |
-| 20:50 | Edited relatorio/relatorio-aplicacao.md | 9→13 lines | ~287 |
-| 20:51 | Edited relatorio/relatorio-aplicacao.md | expanded (+6 lines) | ~192 |
-| 20:51 | Edited relatorio/relatorio-aplicacao.md | 3→4 lines | ~76 |
-| 20:51 | Edited relatorio/relatorio-aplicacao.md | inline fix | ~18 |
-| 20:51 | relatório redigido tema-a-tema c/ dados de sala do usuário (§1 resumo, §2 justificativa, §5 metodologia, §6 resultados+AEE, §8, §9 conclusão, refs) — só refinos opcionais restam | relatorio/relatorio-aplicacao.md | RASCUNHO COMPLETO, pronto p/ revisão | ~9k |
-| 20:52 | Session end: 21 writes across 2 files (relatorio-aplicacao.md, todo.md) | 3 reads | ~15776 tok |
-| 22:11 | Edited relatorio/relatorio-aplicacao.md | 16→21 lines | ~476 |
-| 22:11 | Edited relatorio/relatorio-aplicacao.md | 4→8 lines | ~142 |
-| 22:11 | Edited relatorio/relatorio-aplicacao.md | 6→11 lines | ~236 |
-| 22:11 | Edited relatorio/relatorio-aplicacao.md | 2→3 lines | ~74 |
-| 22:12 | §6/§8/§1 corrigidos: só aulas 1/3/5/6 aplicadas (2 bin e 4 césar fora=sem pré-requisito); falas de aluno no §6.3 (contentamento sequência + grito de alegria na livre) | relatorio/relatorio-aplicacao.md | consistente | ~3k |
-| 22:12 | Edited relatorio/relatorio-aplicacao.md | 3→2 lines | ~44 |
-| 22:12 | Session end: 26 writes across 2 files (relatorio-aplicacao.md, todo.md) | 3 reads | ~17030 tok |
-| 00:04 | Edited relatorio/relatorio-aplicacao.md | inline fix | ~19 |
-| 00:04 | Edited relatorio/relatorio-aplicacao.md | inline fix | ~19 |
-| 00:04 | Edited relatorio/relatorio-aplicacao.md | 5→4 lines | ~76 |
-| 00:05 | Edited relatorio/relatorio-aplicacao.md | inline fix | ~23 |
-| 00:05 | Edited relatorio/relatorio-aplicacao.md | inline fix | ~50 |
-| 00:05 | Edited relatorio/relatorio-aplicacao.md | 2→6 lines | ~86 |
-| 00:06 | Edited relatorio/relatorio-aplicacao.md | inline fix | ~27 |
-| 00:06 | Edited relatorio/relatorio-aplicacao.md | 2→3 lines | ~53 |
-| 00:06 | revisão ponta-a-ponta do relatório: 5 fixes mecânicos (espaço ficha, ref quebrada seção14, bullet dup §6.2, período crescente, nota §4) + turmas=multisseriadas (ficha+§5.1) | relatorio/relatorio-aplicacao.md | consistente e completo | ~4k |
-| 00:06 | Session end: 34 writes across 2 files (relatorio-aplicacao.md, todo.md) | 3 reads | ~17531 tok |
-| 00:11 | Session end: 34 writes across 2 files (relatorio-aplicacao.md, todo.md) | 3 reads | ~17531 tok |
-| 00:12 | FIM SESSÃO 19 — relatório de aplicação preenchido (dados de sala via AskUserQuestion) + revisado ponta-a-ponta + fatos técnicos defasados corrigidos; só código NÃO tocado; entregável final essencialmente pronto | relatorio/relatorio-aplicacao.md, .wolf/STATUS.md, todo.md | pronto p/ /clear | ~1k |
-| 00:13 | Session end: 34 writes across 2 files (relatorio-aplicacao.md, todo.md) | 3 reads | ~17531 tok |
-
 ## Session: 2026-07-25 00:59
 
 | Time | Action | File(s) | Outcome | ~Tokens |
@@ -374,3 +323,78 @@ NÃO commitado; playtest no browser pendente.
 | 21:40 | Playtest da §🕐 APROVADO (single + /mundo carregar). Perfilador por FASE (carregando×jogando: frames/fps/render%/travadas), top 5 piores travadas (ms+fase+segundo), remesh por caminho (fila/bloco/área), render×lógica (renderMs). bug-524 (setRemesh do loop apagava porCaminho) pego no headless. Backlog do perfilador escopado no ROADMAP (modo ?bench é o item 1) | client/src/{hud,chunks,main}.ts · .wolf/{ROADMAP,TODO,cerebrum,buglog} | ✅ typecheck 3/3, 329 testes, F3 conferido, build refeito | ~24k |
 | 21:23 | Session end: 38 writes across 11 files (_smoke-mundo.mjs, _smoke-kicar.mjs, _smoke-atividade.mjs, smoke.mjs, package.json) | 17 reads | ~25989 tok |
 | 21:55 | Handoff da sessão 25: STATUS ✅ consolidado + 🚀 Próxima fase = as 7 do perfilador (ordem: ?bench primeiro), TODO zerado, anatomy rescan. Commit da leva inteira | .wolf/{STATUS,TODO,memory}.md | ✅ pronto pro /clear | ~12k |
+| 21:29 | Session end: 38 writes across 11 files (_smoke-mundo.mjs, _smoke-kicar.mjs, _smoke-atividade.mjs, smoke.mjs, package.json) | 17 reads | ~25989 tok |
+
+## Session: 2026-07-26 21:31
+
+| Time | Action | File(s) | Outcome | ~Tokens |
+|------|--------|---------|---------|--------|
+| 21:34 | Edited client/src/hud.ts | expanded (+8 lines) | ~151 |
+| 21:34 | Edited client/src/hud.ts | expanded (+24 lines) | ~352 |
+| 21:34 | Edited client/src/hud.ts | 4→9 lines | ~154 |
+| 21:34 | Edited client/src/hud.ts | modified GPU() | ~225 |
+| 21:35 | Edited client/src/hud.ts | added optional chaining | ~1045 |
+| 21:35 | Edited client/src/hud.ts | modified if() | ~64 |
+| 21:35 | Edited client/src/hud.ts | 15→18 lines | ~192 |
+| 21:35 | Edited client/src/hud.ts | added optional chaining | ~125 |
+| 21:35 | Edited client/src/hud.ts | 2→4 lines | ~50 |
+| 21:35 | Edited client/src/hud.ts | expanded (+7 lines) | ~171 |
+| 21:35 | Edited client/src/hud.ts | added 1 condition(s) | ~220 |
+| 21:35 | Edited client/src/hud.ts | modified regras() | ~147 |
+| 21:36 | Edited client/src/loading.ts | expanded (+20 lines) | ~251 |
+| 21:36 | Edited client/src/loading.ts | expanded (+8 lines) | ~159 |
+| 21:36 | Edited client/src/loading.ts | added nullish coalescing | ~74 |
+| 21:36 | Edited client/src/loading.ts | added nullish coalescing | ~224 |
+| 21:36 | Edited client/src/loading.ts | modified concluir() | ~34 |
+| 21:36 | Edited client/src/loading.ts | added optional chaining | ~190 |
+| 21:37 | Edited client/src/loading.ts | modified faseEfetiva() | ~70 |
+| 21:37 | Edited client/src/loading.ts | added 1 condition(s) | ~46 |
+| 21:37 | Edited shared/src/session.ts | modified s() | ~156 |
+| 21:37 | Edited shared/src/session.ts | modified for() | ~69 |
+| 21:37 | Edited shared/src/session.ts | added 2 condition(s) | ~174 |
+| 21:37 | Edited shared/src/session.ts | 3→8 lines | ~133 |
+| 21:37 | Edited shared/src/session.ts | 1→3 lines | ~50 |
+| 21:37 | Edited shared/src/protocol.ts | expanded (+7 lines) | ~126 |
+| 21:37 | Edited shared/src/protocol.ts | expanded (+9 lines) | ~238 |
+| 21:39 | Created client/src/bench.ts | — | ~1824 |
+| 21:39 | Edited client/src/bench.ts | 1→3 lines | ~44 |
+| 21:39 | Edited client/src/main.ts | added 1 import(s) | ~34 |
+| 21:39 | Edited client/src/main.ts | modified applySettings() | ~150 |
+| 21:39 | Edited client/src/main.ts | modified applySettings() | ~108 |
+| 21:39 | Edited client/src/main.ts | modified startSingleplayer() | ~61 |
+| 21:39 | Edited client/src/main.ts | 2→3 lines | ~65 |
+| 21:40 | Edited client/src/main.ts | added 1 condition(s) | ~217 |
+| 21:40 | Edited client/src/main.ts | 2→3 lines | ~16 |
+| 21:40 | Edited client/src/main.ts | expanded (+6 lines) | ~153 |
+| 21:40 | Edited client/src/main.ts | 1→4 lines | ~36 |
+| 21:41 | Edited client/src/main.ts | added 2 condition(s) | ~413 |
+| 21:41 | Edited client/src/main.ts | added optional chaining | ~190 |
+| 21:41 | Edited client/src/main.ts | added optional chaining | ~127 |
+| 21:41 | Edited client/src/main.ts | 1→4 lines | ~39 |
+| 21:41 | Edited client/src/main.ts | 2→3 lines | ~53 |
+| 21:41 | Edited client/src/main.ts | 2→3 lines | ~56 |
+| 21:41 | Edited client/src/main.ts | expanded (+8 lines) | ~99 |
+| 21:42 | Edited client/src/main.ts | added nullish coalescing | ~162 |
+| 21:42 | Edited client/src/main.ts | 2→3 lines | ~35 |
+| 21:42 | Edited client/src/hud.ts | download() → baixar() | ~138 |
+| 21:42 | Edited client/src/hud.ts | inline fix | ~24 |
+| 21:42 | Edited client/src/main.ts | modified if() | ~81 |
+| 21:42 | Edited client/src/main.ts | 3→7 lines | ~93 |
+| 21:43 | Edited shared/src/session.test.ts | added optional chaining | ~494 |
+| 21:43 | Edited shared/src/protocol.test.ts | expanded (+18 lines) | ~276 |
+| 21:44 | Edited shared/src/session.test.ts | inline fix | ~25 |
+| 21:47 | Edited client/src/bench.ts | expanded (+9 lines) | ~160 |
+| 21:47 | Edited client/src/bench.ts | modified if() | ~63 |
+| 21:47 | Edited client/src/bench.ts | 4→9 lines | ~82 |
+| 21:47 | Edited client/src/main.ts | 1→5 lines | ~104 |
+| 21:48 | Edited client/src/bench.ts | modified pontoDoVoo() | ~410 |
+| 21:49 | Edited client/src/main.ts | expanded (+7 lines) | ~141 |
+| 21:51 | Edited client/src/hud.ts | added error handling | ~427 |
+| 21:51 | Edited client/src/hud.ts | added error handling | ~267 |
+| 21:51 | Edited client/src/hud.ts | modified O() | ~246 |
+| 21:53 | Created scripts/bench-headless.mjs | — | ~1460 |
+| 21:53 | Edited package.json | 1→2 lines | ~28 |
+| 22:05 | SESSÃO 26 — as 7 do perfilador entregues: ?bench (bench.ts novo), histograma, carga por fase (§🕐), marcadores, regras do servidor no debug_stats, tempo de GPU; item 7 já existia. + scripts/bench-headless.mjs (CDP). VERDE: typecheck 3/3, 331 testes, build, bench headless E de ponta a ponta. bug-525 logado. NÃO commitado (playtest pendente) | bench.ts, hud.ts, loading.ts, main.ts, session.ts, protocol.ts, scripts/bench-headless.mjs | ok | ~95k |
+| 21:57 | Session end: 65 writes across 10 files (hud.ts, loading.ts, session.ts, protocol.ts, bench.ts) | 9 reads | ~109155 tok |
+| 22:13 | Session end: 65 writes across 10 files (hud.ts, loading.ts, session.ts, protocol.ts, bench.ts) | 9 reads | ~109155 tok |
+| 22:20 | Session end: 65 writes across 10 files (hud.ts, loading.ts, session.ts, protocol.ts, bench.ts) | 9 reads | ~109155 tok |

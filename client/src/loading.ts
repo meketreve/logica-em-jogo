@@ -52,6 +52,26 @@ export interface CargaStats {
   fila: number;
 }
 
+/**
+ * Quanto o jogador ESPEROU, quebrado por fase (§📊 item 3 do backlog do
+ * perfilador). A tela já mede tudo isso pra pintar; aqui vira número exportável:
+ * "quanto o aluno espera" em cada máquina do laboratório. Uma entrada por carga
+ * — o join e cada troca de aula geram a sua.
+ */
+export interface CargaRelatorio {
+  titulo: string;
+  /** Do `abrir()` ao `fechar()`. */
+  totalMs: number;
+  /** Tempo em cada fase (só as que aconteceram). "malha" entra quando as
+   *  colunas acabaram e o mesher ainda tinha fila. */
+  fasesMs: Partial<Record<FaseCarga, number>>;
+  /** Estado no fim: colunas aplicadas e bytes da conexão (0 = sem streaming). */
+  colunas: number;
+  bytes: number;
+  /** true = a carga terminou sozinha; false = erro ou "entrar mesmo assim". */
+  concluida: boolean;
+}
+
 /** Segundos sem terminar até oferecer a saída manual (nunca prender o aluno). */
 const ESPERA_BOTAO_MS = 20_000;
 /** Raio do anel de progresso (o `viewBox` do SVG acompanha). */
@@ -149,6 +169,14 @@ export class LoadingScreen {
   /** O que o botão da caixa faz — "entrar mesmo assim" por padrão, "voltar ao
    *  menu" depois de `erro()`. */
   private acaoBotao: () => void = () => this.fechar();
+  // --- medição de tempo por fase (vai pro perfil; ver CargaRelatorio) ---
+  private tempos: Partial<Record<FaseCarga, number>> = {};
+  private faseMedida: FaseCarga = "conectando";
+  private faseT0 = 0;
+  private titulo = "carregando o mundo";
+  private concluiu = false;
+  /** Uma entrada por carga (join + cada troca de aula) desta sessão. */
+  private cargas: CargaRelatorio[] = [];
   private els: {
     fase: HTMLElement;
     anel: HTMLElement;
@@ -173,9 +201,13 @@ export class LoadingScreen {
     this.pctMax = 0;
     this.bps = 0;
     this.colsPorSeg = 0;
-    this.t0 = this.amostraT = performance.now();
+    this.t0 = this.amostraT = this.faseT0 = performance.now();
     this.amostraBytes = 0;
     this.amostraProntas = 0;
+    this.tempos = {};
+    this.faseMedida = "conectando";
+    this.concluiu = false;
+    this.titulo = info.titulo ?? "carregando o mundo";
     // reabertura (troca de aula): `bytes` já vem grande da sessão inteira — a
     // 1ª amostra só CALIBRA, senão a taxa sairia como se tudo tivesse chegado
     // naquele segundo
@@ -255,13 +287,28 @@ export class LoadingScreen {
   setFase(f: FaseCarga): void {
     if (!this.raiz || this.fase === f) return; // chamada por MENSAGEM: barata
     this.fase = f;
-    this.pintar();
+    this.pintar(); // o `pintar` é quem contabiliza (a fase efetiva pode ser outra)
+  }
+
+  /** Fecha o tempo da fase medida e começa a contar a próxima. A fase MEDIDA é
+   *  a efetiva (a que o rótulo mostra), não o campo cru: quando as colunas
+   *  acabam e o mesher tem fila, quem está segurando é a malha. */
+  private medir(f: FaseCarga, agora: number): void {
+    this.tempos[this.faseMedida] = (this.tempos[this.faseMedida] ?? 0) + (agora - this.faseT0);
+    this.faseT0 = agora;
+    this.faseMedida = f;
+  }
+
+  /** Relatório das cargas desta sessão (o perfil do F3 exporta isto). */
+  relatorio(): CargaRelatorio[] {
+    return this.cargas;
   }
 
   /** Mundo pronto: crava 100% e fecha depois de um respiro (o anel fechando é
    *  o feedback de que terminou — sumir em 99% parece falha). */
   concluir(): void {
     if (!this.raiz || this.fimTimer) return;
+    this.concluiu = true;
     this.setFase("pronto");
     this.fimTimer = window.setTimeout(() => this.fechar(), 400);
   }
@@ -290,6 +337,22 @@ export class LoadingScreen {
 
   fechar(): void {
     if (!this.raiz) return;
+    // fecha a medição ANTES de perder a fonte dos contadores (`this.ler`)
+    const agora = performance.now();
+    this.medir(this.faseMedida, agora); // só descarrega o tempo pendente
+    const s = this.ler?.() ?? null;
+    this.cargas.push({
+      titulo: this.titulo,
+      totalMs: +(agora - this.t0).toFixed(0),
+      fasesMs: Object.fromEntries(
+        Object.entries(this.tempos)
+          .filter(([, ms]) => ms >= 1)
+          .map(([f, ms]) => [f, +ms.toFixed(0)]),
+      ),
+      colunas: s?.prontas ?? 0,
+      bytes: s?.bytes ?? 0,
+      concluida: this.concluiu,
+    });
     clearInterval(this.timer);
     clearTimeout(this.fimTimer);
     this.timer = this.fimTimer = 0;
@@ -304,9 +367,11 @@ export class LoadingScreen {
 
   /** Rótulo honesto do gargalo do MOMENTO: chegaram todas as colunas mas o
    *  mesher ainda tem fila = o que segura agora é a malha, não a rede. */
-  private rotuloFase(s: CargaStats | null): string {
-    let fase = this.fase;
-    if (fase === "mundo" && s && s.total > 0 && s.prontas >= s.total) fase = "malha";
+  private faseEfetiva(s: CargaStats | null): FaseCarga {
+    return this.fase === "mundo" && s && s.total > 0 && s.prontas >= s.total ? "malha" : this.fase;
+  }
+
+  private rotuloFase(fase: FaseCarga): string {
     if (fase === "preparando") {
       return this.alvo ? `o servidor está preparando "${this.alvo}"…` : "preparando a aula nova…";
     }
@@ -355,7 +420,9 @@ export class LoadingScreen {
       els.arco.setAttribute("stroke-dashoffset", (CIRC * (1 - pct)).toFixed(1));
       els.pct.textContent = `${Math.round(pct * 100)}%`;
     }
-    els.fase.textContent = this.rotuloFase(s);
+    const efetiva = this.faseEfetiva(s);
+    if (efetiva !== this.faseMedida) this.medir(efetiva, agora);
+    els.fase.textContent = this.rotuloFase(efetiva);
 
     const decorrido = agora - this.t0;
     let tempo = fmtSeg(decorrido);

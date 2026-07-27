@@ -49,6 +49,7 @@ import {
   gramaPorClima,
   heightAt,
   parseServerMessage,
+  parseWorldTamanho,
   peekMagic,
   raycastBlock,
   setBlock,
@@ -57,6 +58,7 @@ import {
 import { AGUA_FRAMES, animarAguaAtlas, createAtlasTexture } from "./atlasTexture";
 import { AguaFx } from "./aguaFx";
 import { initUiAudio, playUi, setUiVolume } from "./audio";
+import { BENCH_SEED, BENCH_SETTINGS, Bench, benchDaUrl } from "./bench";
 import { makeBlockIcons } from "./blockIcons";
 import { PLACEABLE, placeableFor } from "./blocksUi";
 import { InventoryPanel } from "./inventory";
@@ -161,10 +163,16 @@ const pitchForcado = numParam("pitch");
 if (yawForcado !== null) input.yaw = yawForcado;
 if (pitchForcado !== null) input.pitch = pitchForcado;
 
+/** Modo benchmark (`?bench`): trajeto fixo, config canônica, exporta sozinho.
+ *  Lido aqui em cima porque o `applySettings` do boot já precisa dele. */
+const benchOpts = benchDaUrl(new URLSearchParams(location.search));
+
 /** (Re)aplica as configurações do jogador — chamada no boot e ao iniciar jogo
  *  (o menu pode ter mudado tudo antes do play). */
 function applySettings(): ReturnType<typeof loadSettings> {
-  const s = loadSettings();
+  // bench: a config do localStorage do PC do lab é desconhecida — sobrescreve
+  // com a canônica (em memória, sem salvar) pra dois perfis serem comparáveis
+  const s = benchOpts ? { ...loadSettings(), ...BENCH_SETTINGS } : loadSettings();
   input.sensitivity = s.sensitivity;
   camera.fov = s.fov;
   camera.updateProjectionMatrix();
@@ -195,10 +203,20 @@ let playersPanel: PlayersPanel | null = null;
 const loading = new LoadingScreen(() => {
   updateOverlay();
   hudAtual?.setFase("jogando"); // perfil: daqui pra frente a travada é SENTIDA
+  hudAtual?.marcar("carga concluída"); // §📊 fim da espera do aluno na linha do tempo
+  iniciarBench?.(); // ?bench: o trajeto só começa com o mundo na tela
 });
+/** ?bench: começa o trajeto (definido no startGame, disparado ao fim da carga). */
+let iniciarBench: (() => void) | null = null;
+/** ?bench em andamento — o menu de pausa não pode aparecer por cima do trajeto
+ *  (sem pointer lock, `updateOverlay` mostraria o menu assim que a carga sai). */
+let benchRodando = false;
 /** Ponteiro pro HUD do jogo em andamento (o Hud nasce dentro do startGame, mas
  *  o callback da tela de carregamento é criado antes). */
-let hudAtual: { setFase: (f: "carregando" | "jogando") => void } | null = null;
+let hudAtual: {
+  setFase: (f: "carregando" | "jogando") => void;
+  marcar: (evento: string, detalhe?: string) => void;
+} | null = null;
 
 // --- Menu de pausa (Esc = pointer lock solto) ---
 const overlay = document.getElementById("overlay");
@@ -218,7 +236,10 @@ function updateOverlay(): void {
     (activePanel?.open ?? false) || (inventoryPanel?.open ?? false) || (playersPanel?.open ?? false);
   // §🕐 `loading.ativo`: durante o carregamento o ponteiro NÃO está travado —
   // sem esta condição o menu de pausa aparecia junto com a tela de carga.
-  overlay?.classList.toggle("hidden", loading.ativo || input.active || chat.open || panelOpen);
+  overlay?.classList.toggle(
+    "hidden",
+    benchRodando || loading.ativo || input.active || chat.open || panelOpen,
+  );
   // mira só existe COM o jogo no controle (pedido do usuário: invisível no Esc)
   crosshairEl?.classList.toggle("hidden", !input.active);
   if (input.locked) showOverlayMain(); // próximo Esc abre no painel principal
@@ -263,8 +284,12 @@ let raioEnviado = -1;
  */
 function enviarRaio(): void {
   if (!conn || settings.raioRender === raioEnviado) return;
+  const anterior = raioEnviado;
   raioEnviado = settings.raioRender;
   conn.send(JSON.stringify({ type: "radius", chunks: raioEnviado }));
+  // §📊 marcador: mexer no raio muda o custo de tudo — um pico logo depois disto
+  // tem causa, e o perfil precisa mostrar isso
+  hudAtual?.marcar("raio", `${anterior < 0 ? "join" : anterior} → ${raioEnviado}`);
 }
 
 document.getElementById("overlay-voltar")?.addEventListener("click", () => startPlay());
@@ -313,6 +338,14 @@ renderer.domElement.addEventListener("pointerdown", () => {
 });
 
 let debugStats = { tickAvgMs: 0, tickMaxMs: 0 };
+/** §📊 custo das REGRAS no servidor (última janela de 1 s) — só existe se o host
+ *  for desta versão; host antigo não manda os campos e isto fica null. */
+let regrasServidor: {
+  celulasPorTick: number;
+  celulasMaxTick: number;
+  mudancasPorTick: number;
+  aguaPorTick: number;
+} | null = null;
 // jitter de rede (2026-07-21): desvio-padrão do intervalo entre mensagens do
 // servidor (janela deslizante) — mede a evenness da entrega/sincronia.
 let ultimaMsgTs = 0;
@@ -481,6 +514,17 @@ function handleServerData(data: string | ArrayBuffer): void {
     if (!msg) return;
     if (msg.type === "debug_stats") {
       debugStats = { tickAvgMs: msg.tickAvgMs, tickMaxMs: msg.tickMaxMs };
+      // §📊 regras (água/areia) do outro lado: liga o remesh caro daqui à causa
+      // de lá. Campos opcionais — host de versão antiga simplesmente não manda.
+      regrasServidor =
+        msg.regrasCelulasAvg === undefined
+          ? null
+          : {
+              celulasPorTick: msg.regrasCelulasAvg,
+              celulasMaxTick: msg.regrasCelulasMax ?? 0,
+              mudancasPorTick: msg.regrasMudancasAvg ?? 0,
+              aguaPorTick: msg.regrasAguaAvg ?? 0,
+            };
     } else if (msg.type === "block_changed") {
       applyBlockChanged?.(msg);
     } else if (msg.type === "blocks_filled") {
@@ -651,7 +695,7 @@ function startMultiplayer(url: string, auth: MultiAuth): void {
   connect(new WsConnection(url, aoFalhar), auth);
 }
 
-function startSingleplayer(choice: PlayWorldChoice): void {
+function startSingleplayer(choice: PlayWorldChoice, seedFixa?: number): void {
   currentWorld = { id: choice.id, name: choice.name, createdAt: choice.createdAt };
   serverHostLabel = `web-worker (${choice.name})`;
   const wc = new WorkerConnection(
@@ -659,8 +703,9 @@ function startSingleplayer(choice: PlayWorldChoice): void {
       type: "module",
     }),
   );
-  // mundo novo = seed aleatória; mundo existente = bytes do IndexedDB
-  const seed = crypto.getRandomValues(new Uint32Array(1))[0] ?? 1;
+  // mundo novo = seed aleatória; mundo existente = bytes do IndexedDB.
+  // `seedFixa` só vem do `?bench` (mundo idêntico em toda máquina do lab).
+  const seed = seedFixa ?? crypto.getRandomValues(new Uint32Array(1))[0] ?? 1;
   wc.init({
     save: choice.data ?? undefined,
     seed,
@@ -693,6 +738,25 @@ if (bootServer) {
     pin: bootParams.get("pin") ?? "",
     ...(codigo ? { codigo } : {}),
   });
+} else if (benchOpts) {
+  // ?bench sem ?server: mundo NOVO de seed fixa, sem passar pelo menu — o PC do
+  // lab abre o link e pronto. O mundo não vai pro IndexedDB (id fora do padrão
+  // do menu e sem `putWorld` até o autosave, que o bench não deixa chegar).
+  startSingleplayer(
+    {
+      id: `bench-${BENCH_SEED}`,
+      name: "benchmark",
+      createdAt: 0,
+      data: null,
+      preset: "normal",
+      // E (ENORME, lazy) por padrão: é o mundo que exercita o caminho inteiro —
+      // streaming + mesher + render. Num mundo denso o mesher já terminou antes
+      // do trajeto começar, e a medida sairia sem a parte que mais varia entre
+      // máquinas. `?tamanho=P|M|G` mede só render.
+      tamanho: parseWorldTamanho(bootParams.get("tamanho") ?? "E"),
+    },
+    BENCH_SEED,
+  );
 } else {
   showMenu({
     onPlayWorld: startSingleplayer,
@@ -1011,6 +1075,7 @@ function startGame(snap: Snapshot): void {
     observarCarga();
     loading.setFase("preparando");
     hud.setFase("carregando"); // perfil: o que travar daqui pra frente é carga
+    hud.marcar("troca de aula", nome); // §📊 causa registrada pro pico que vem
     updateOverlay();
   };
 
@@ -1530,6 +1595,41 @@ function startGame(snap: Snapshot): void {
     lastMs: chunkRenderer.lastRemeshMs,
     porCaminho: chunkRenderer.porCaminho,
   });
+  // §📊 tempo de carga por fase (a tela §🕐 já mede; aqui só entra no JSON)
+  hud.carga = () => loading.relatorio();
+  hud.marcar("join", `${world.dims.x}×${world.dims.z}×${world.dims.y} chunks · seed ${snap.seed}`);
+
+  // --- ?bench: trajeto fixo, gravação do trajeto inteiro, export automático ---
+  let bench: Bench | null = null;
+  if (benchOpts) {
+    iniciarBench = () => {
+      if (bench) return; // uma corrida por sessão (troca de aula não reinicia)
+      bench = Bench.paraMundo(benchOpts.duracaoS, spawn, world.dims);
+      hud.setMeta({ bench: bench.meta() });
+      hud.marcar("bench: início", `${benchOpts.duracaoS}s · raio ${bench.trajeto.raio}`);
+      benchRodando = true;
+      flying = true; // o observador não cai: a posição vem do tempo, não da física
+      updateOverlay(); // sem pointer lock o menu de pausa apareceria por cima
+      bench.iniciar(performance.now());
+      // teleporta pro início do trajeto AQUI, não no primeiro frame: assim o
+      // salto (spawn → borda do círculo) não entra na distância percorrida da
+      // gravação, que deve medir só o voo
+      const inicio = bench.amostra(performance.now());
+      player.pos.x = posAntX = inicio.x;
+      player.pos.y = posAntY = inicio.y;
+      player.pos.z = posAntZ = inicio.z;
+      // grava o trajeto INTEIRO (o botão do F3 grava 10 s; aqui são os 30)
+      hud.record((report) => {
+        benchRodando = false;
+        updateOverlay();
+        // headless/automação leem daqui sem depender de download
+        (window as unknown as Record<string, unknown>)["__benchPerfil"] = report;
+        hud.baixar(report, "bench");
+        chat.addMessage("jogo", "benchmark concluído — o perfil foi baixado (perf-bench-*.json)");
+      }, benchOpts.duracaoS * 1000);
+    };
+  }
+
   input.onKey(settings.keys.hud, () => hud.toggle());
   // profiler (backlog "ferramentas de dev"): singleplayer roda em Web Worker
   // sem filesystem — o host ignora a mensagem em silêncio, sem erro no cliente.
@@ -1638,7 +1738,9 @@ function startGame(snap: Snapshot): void {
 
   // singleplayer: mundo NASCE salvo (fechar a aba logo depois não perde nada)
   // e autossalva no IndexedDB no mesmo ritmo do host Node (30 s)
-  if (activeConn instanceof WorkerConnection && currentWorld) {
+  // (o mundo do ?bench é descartável: gravar encheria a lista de mundos do
+  //  professor de "benchmark" a cada medição)
+  if (activeConn instanceof WorkerConnection && currentWorld && !benchOpts) {
     void persistWorld();
     setInterval(() => void persistWorld(), 30_000);
   }
@@ -1654,6 +1756,7 @@ function startGame(snap: Snapshot): void {
       tickMaxMs: debugStats.tickMaxMs,
       jitterMs: jitterDeRede(),
     };
+    hud.regras = regrasServidor; // §📊 custo das regras no servidor (F3 + perfil)
     // streaming (mundo procedural): colunas carregadas + fila de remesh
     hud.stream = {
       colunas: colunasCarregadas.size,
@@ -1753,8 +1856,24 @@ function startGame(snap: Snapshot): void {
         loading.concluir();
       }
     }
+    // ?bench: a posição é FUNÇÃO DO TEMPO (não integração por frame) — PC lento
+    // e PC rápido percorrem o mesmo trajeto, que é o ponto do modo. A física
+    // fica de fora: o observador atravessa o mundo sem colidir nem cair.
+    if (bench?.ativo) {
+      const a = bench.amostra(now);
+      player.pos.x = a.x;
+      player.pos.y = a.y;
+      player.pos.z = a.z;
+      player.vel.x = player.vel.y = player.vel.z = 0;
+      input.yaw = a.yaw;
+      input.pitch = a.pitch;
+      if (bench.terminou(now)) {
+        bench.parar();
+        hud.marcar("bench: fim");
+      }
+    }
     const yAntesDoPasso = player.pos.y;
-    if (chaoCarregado) {
+    if (chaoCarregado && !bench?.ativo) {
       stepPlayer(world, player, { forward, strafe, jump, yaw: input.yaw, sprint, sneak, fly }, dt);
     }
     // subiu um degrau andando (só step-up: no chão, sem pular/voar) → a câmera
@@ -1843,8 +1962,12 @@ function startGame(snap: Snapshot): void {
     // mede só o render: o resto do frame é lógica nossa (mesh, física, streaming).
     // `renderer.render` é síncrono do lado da CPU — o que a GPU faz depois não
     // entra aqui, mas é exatamente a fatia que nós controlamos.
+    // §📊 tempo de GPU: a consulta abraça o render (só amostra com o F3 aberto
+    // ou gravando; o resultado chega alguns frames depois, colhido em `frame`)
     const tRender = performance.now();
+    hud.gpuInicio();
     renderer.render(scene, camera);
+    hud.gpuFim();
     hud.frame(dtMs, performance.now() - tRender);
   });
 

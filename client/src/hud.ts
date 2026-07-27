@@ -10,11 +10,27 @@ import { VERSION } from "@logica/shared";
  * RECORD_MS (10 s) de frames e devolvem um relatório AGREGADO — distribuição de
  * frametime (p50/p95/p99/pior frame), frames lentos (hitch) e faixa de memória.
  * Só o resumo vai no relatório (poucos KB — nunca o array de frames cru).
+ *
+ * §📊 (2026-07-26) o relatório ganhou o que faltava pra comparar MÁQUINAS, não
+ * só sessões: **histograma** de frametime (a forma que o percentil esconde),
+ * **marcadores** de evento (o pico passa a ter causa), **tempo de carga por
+ * fase** da tela §🕐 (quanto o aluno espera), **tempo de GPU** onde o driver
+ * deixa medir (o resto é tudo CPU-side) e o **custo das regras** do servidor
+ * (água/areia por tick). Quem dirige a coleta comparável é o `?bench`
+ * (`bench.ts`): trajeto fixo, config canônica, `record()` do trajeto inteiro.
  */
 
 const FRAME_WINDOW = 120;
 const REFRESH_MS = 250;
 const RECORD_MS = 10000;
+/** Faixas do histograma de frametime (ms). Percentil diz o VALOR, o histograma
+ *  diz a FORMA: distribuição bimodal (dois regimes) e cauda longa (hitch raro)
+ *  saem iguais no p95 e são problemas diferentes. */
+const FAIXAS_MS = [8, 16, 33, 50, 100];
+/** Teto de marcadores no perfil — é resumo, não log de sessão. */
+const MAX_MARCADORES = 60;
+/** Amostras de GPU guardadas pro F3 (a gravação junta as suas em separado). */
+const GPU_WINDOW = 240;
 
 export interface HudRemeshStats {
   count: number;
@@ -27,6 +43,8 @@ export interface HudRemeshStats {
 interface Recording {
   frames: number[];
   memSamples: number[];
+  /** Tempo de GPU (ms) medido dentro da janela — vazio onde a extensão não existe. */
+  gpuSamples: number[];
   endAt: number;
   onDone: (report: object) => void;
   /** Contadores no INÍCIO da gravação (long tasks são acumulados globais). */
@@ -34,6 +52,28 @@ interface Recording {
   longTasksMsStart: number;
   /** Contexto no INÍCIO (posição/distância/colunas) — o fim vira delta. */
   contextoStart: ContextoPerfil | null;
+  /** Marcadores já registrados quando a gravação começou (o corte vira "os
+   *  eventos DESTA janela"). */
+  marcadoresStart: number;
+}
+
+/** Um evento com hora — sem isto um pico no perfil não tem causa registrada.
+ *  O main.ts marca join, troca de aula, mudança de raio, fim da carga… */
+export interface Marcador {
+  /** Segundo da sessão (mesma régua do `emS` das piores travadas). */
+  emS: number;
+  fase: FaseSessao;
+  evento: string;
+  detalhe?: string;
+}
+
+/** Custo das REGRAS no servidor (água/areia), vindo do `debug_stats`. Liga o
+ *  custo de `remesh(bloco)` no cliente à causa real do outro lado. */
+export interface RegrasServidor {
+  celulasPorTick: number;
+  celulasMaxTick: number;
+  mudancasPorTick: number;
+  aguaPorTick: number;
 }
 
 /**
@@ -73,6 +113,26 @@ interface ContadorFase {
   longTasksMs: number;
 }
 
+/**
+ * Frames por faixa de frametime. Devolve array (a ORDEM importa na leitura) com
+ * a contagem e a fração de cada faixa — 60 FPS mora em "≤16", tudo acima de 33
+ * é travada visível.
+ */
+function histograma(frames: number[]): { faixa: string; frames: number; pct: number }[] {
+  const contagem = new Array<number>(FAIXAS_MS.length + 1).fill(0);
+  for (const f of frames) {
+    let i = FAIXAS_MS.findIndex((teto) => f <= teto);
+    if (i < 0) i = FAIXAS_MS.length;
+    contagem[i]!++;
+  }
+  const total = frames.length || 1;
+  return contagem.map((n, i) => ({
+    faixa: i < FAIXAS_MS.length ? `≤${FAIXAS_MS[i]}ms` : `>${FAIXAS_MS[FAIXAS_MS.length - 1]}ms`,
+    frames: n,
+    pct: +((n / total) * 100).toFixed(1),
+  }));
+}
+
 const faseZerada = (): ContadorFase => ({
   frames: 0,
   tempoMs: 0,
@@ -93,6 +153,11 @@ export class Hud {
    *  main.ts (1×/s). Sem `faltando`, o playtest não distingue "buraco" de
    *  "ainda chegando". */
   stream = { colunas: 0, fila: 0, faltando: 0, repedidas: 0, ultimoLote: 0 };
+  /** Custo das regras no servidor (último `debug_stats`) — alimentado pelo main.ts. */
+  regras: RegrasServidor | null = null;
+  /** Tempo de carga da tela §🕐 por fase — alimentado pelo main.ts (a tela já
+   *  mede tudo; aqui só entra no JSON). Vira "quanto o aluno espera" por PC. */
+  carga: (() => object | null) | null = null;
 
   /** Linhas extras de diagnóstico (ex.: stats de input) — avaliadas a cada refresh. */
   extra: (() => string) | null = null;
@@ -113,6 +178,15 @@ export class Hud {
   /** As piores travadas da sessão (duração, fase, segundo em que aconteceram).
    *  Um total de 38 s não diz nada; "450 ms aos 2 s, carregando" diz tudo. */
   private pioresTravadas: { ms: number; fase: FaseSessao; emS: number }[] = [];
+  /** Linha do tempo de eventos (join, troca de aula, raio…) — ver `marcar()`. */
+  private marcadores: Marcador[] = [];
+  /** Tempo de GPU (`EXT_disjoint_timer_query_webgl2`): `undefined` = ainda não
+   *  procurei, `null` = não existe neste navegador/driver. Todo o resto do
+   *  perfil é CPU-side; sem isto "está lento" não separa GPU de CPU. */
+  private gpuExt: { TIME_ELAPSED_EXT: number; GPU_DISJOINT_EXT: number } | null | undefined;
+  private gpuQueries: WebGLQuery[] = []; // consultas em voo (aguardando resultado)
+  private gpuAtiva: WebGLQuery | null = null;
+  private gpuSamples: number[] = []; // janela pro F3 (ms)
   private contextLost = 0; // nº de perdas de contexto WebGL (crash de GPU)
   private batteryMgr: { level: number; charging: boolean } | null = null;
   private el: HTMLElement;
@@ -129,7 +203,7 @@ export class Hud {
     this.el = el;
     this.textEl = textEl;
     // exportar = gravar 10 s e baixar o relatório agregado
-    exportBtn.addEventListener("click", () => this.record((r) => this.download(r)));
+    exportBtn.addEventListener("click", () => this.record((r) => this.baixar(r)));
 
     // long tasks (jank do main thread >50ms) — Chrome; ignora onde não existe
     try {
@@ -191,6 +265,116 @@ export class Hud {
   }
 
   /**
+   * Registra um evento na linha do tempo (join, troca de aula, mudança de raio,
+   * fim da carga, respawn). Hoje um pico de 400 ms no perfil não tem causa
+   * anotada — com marcador, o perfil vira narrativa: "travou aos 12 s, e aos
+   * 11,8 s o professor trocou a aula".
+   */
+  marcar(evento: string, detalhe?: string): void {
+    if (this.marcadores.length >= MAX_MARCADORES) return; // resumo, não log
+    this.marcadores.push({
+      emS: +((performance.now() - this.sessionStartMs) / 1000).toFixed(1),
+      fase: this.fase,
+      evento,
+      ...(detalhe ? { detalhe } : {}),
+    });
+  }
+
+  /**
+   * Abre a consulta de tempo de GPU do frame (chamar ANTES de
+   * `renderer.render`). Só uma consulta `TIME_ELAPSED_EXT` pode estar aberta
+   * por vez — o resultado chega alguns frames depois e é colhido em `frame()`.
+   * Amostra só quando alguém está olhando (F3 aberto) ou gravando: consulta em
+   * todo frame custa e não serve pra ninguém com o painel fechado.
+   */
+  gpuInicio(): void {
+    if (!this.recording && !this.visible) return;
+    try {
+      const gl = this.renderer.getContext();
+      if (!(gl instanceof WebGL2RenderingContext)) return;
+      if (this.gpuExt === undefined) {
+        const ext = gl.getExtension("EXT_disjoint_timer_query_webgl2") as {
+          TIME_ELAPSED_EXT: number;
+          GPU_DISJOINT_EXT: number;
+        } | null;
+        this.gpuExt = ext ?? null;
+      }
+      if (!this.gpuExt || this.gpuAtiva || this.gpuQueries.length >= 4) return;
+      const q = gl.createQuery();
+      if (!q) return;
+      gl.beginQuery(this.gpuExt.TIME_ELAPSED_EXT, q);
+      this.gpuAtiva = q;
+    } catch {
+      this.desligarGpu(); // perfilação nunca pode derrubar o loop de render
+    }
+  }
+
+  /** Fecha a consulta aberta em `gpuInicio` (chamar DEPOIS de `render`). */
+  gpuFim(): void {
+    if (!this.gpuAtiva || !this.gpuExt) return;
+    try {
+      const gl = this.renderer.getContext() as WebGL2RenderingContext;
+      gl.endQuery(this.gpuExt.TIME_ELAPSED_EXT);
+      this.gpuQueries.push(this.gpuAtiva);
+      this.gpuAtiva = null;
+    } catch {
+      this.desligarGpu();
+    }
+  }
+
+  /** Desiste do tempo de GPU pelo resto da sessão (driver reclamou ou o contexto
+   *  se foi). Medir é opcional; renderizar não — este caminho só roda em GPU de
+   *  verdade (headless com swiftshader nem expõe a extensão). */
+  private desligarGpu(): void {
+    this.gpuExt = null;
+    this.gpuQueries.length = 0;
+    this.gpuAtiva = null;
+  }
+
+  /** Colhe as consultas que já ficaram prontas (ns → ms). Descarta a leva
+   *  inteira se a GPU sinalizou `DISJOINT` (mudou de clock/contexto: o número
+   *  vira lixo, e um lixo no p95 estraga a comparação entre máquinas). */
+  private gpuColher(): void {
+    if (!this.gpuExt || this.gpuQueries.length === 0) return;
+    try {
+      const gl = this.renderer.getContext() as WebGL2RenderingContext;
+      if (gl.getParameter(this.gpuExt.GPU_DISJOINT_EXT)) {
+        for (const q of this.gpuQueries) gl.deleteQuery(q);
+        this.gpuQueries.length = 0;
+        return;
+      }
+      const restantes: WebGLQuery[] = [];
+      for (const q of this.gpuQueries) {
+        if (!gl.getQueryParameter(q, gl.QUERY_RESULT_AVAILABLE)) {
+          restantes.push(q);
+          continue;
+        }
+        const ns = gl.getQueryParameter(q, gl.QUERY_RESULT) as number;
+        gl.deleteQuery(q);
+        const ms = ns / 1e6;
+        this.gpuSamples.push(ms);
+        if (this.gpuSamples.length > GPU_WINDOW) this.gpuSamples.shift();
+        this.recording?.gpuSamples.push(ms);
+      }
+      this.gpuQueries = restantes;
+    } catch {
+      this.desligarGpu();
+    }
+  }
+
+  /** Média/p95 do tempo de GPU na janela (null onde a extensão não existe). */
+  private gpuStats(amostras: number[]): { medioMs: number; p95Ms: number; amostras: number } | null {
+    if (this.gpuExt === null || amostras.length === 0) return null;
+    const sorted = [...amostras].sort((a, b) => a - b);
+    const soma = amostras.reduce((a, b) => a + b, 0);
+    return {
+      medioMs: +(soma / amostras.length).toFixed(2),
+      p95Ms: +(sorted[Math.min(sorted.length - 1, Math.floor(sorted.length * 0.95))] ?? 0).toFixed(2),
+      amostras: amostras.length,
+    };
+  }
+
+  /**
    * Chamar 1×/frame com o frametime em ms. `renderMs` = quanto desse frame foi
    * `renderer.render()` — separa custo de DESENHO do custo da nossa lógica
    * (mesh, física, streaming), que antes vinham somados num número só.
@@ -204,6 +388,7 @@ export class Hud {
     f.renderMs += renderMs;
 
     const now = performance.now();
+    this.gpuColher(); // consultas de GPU dos frames anteriores que já ficaram prontas
     // gravação de 10 s: coleta frame + amostra de memória; fecha ao expirar
     if (this.recording) {
       this.recording.frames.push(dtMs);
@@ -223,19 +408,22 @@ export class Hud {
   }
 
   /**
-   * Grava RECORD_MS de frames e chama `onDone` com o relatório agregado.
-   * Ignora se já está gravando. Garante o HUD visível pra mostrar a contagem.
+   * Grava `duracaoMs` (padrão RECORD_MS) de frames e chama `onDone` com o
+   * relatório agregado. Ignora se já está gravando. Garante o HUD visível pra
+   * mostrar a contagem. O modo `?bench` grava o trajeto inteiro (30 s).
    */
-  record(onDone: (report: object) => void): void {
+  record(onDone: (report: object) => void, duracaoMs = RECORD_MS): void {
     if (this.recording) return;
     this.recording = {
       frames: [],
       memSamples: [],
-      endAt: performance.now() + RECORD_MS,
+      gpuSamples: [],
+      endAt: performance.now() + duracaoMs,
       onDone,
       longTasksStart: this.longTasks,
       longTasksMsStart: this.longTasksMs,
       contextoStart: this.contexto?.() ?? null,
+      marcadoresStart: this.marcadores.length,
     };
     if (!this.visible) this.toggle();
     this.refresh();
@@ -376,12 +564,20 @@ export class Hud {
         };
       }),
       pioresTravadas: this.pioresTravadas,
+      // linha do tempo: o que ACONTECEU, pra dar causa aos picos acima
+      marcadores: this.marcadores,
+      // tempo de carga por fase da tela §🕐 (join e cada troca de aula)
+      carga: this.carga?.() ?? null,
+      // tempo de GPU quando o driver deixa medir (o resto do perfil é CPU-side)
+      gpu: this.gpuStats(this.gpuSamples),
       longTasksMsTotal: +this.longTasksMs.toFixed(1),
       contextLost: this.contextLost,
       sessaoS: Math.round((performance.now() - this.sessionStartMs) / 1000),
       memoriaJsMB: this.memoriaJs(),
       video: { geometrias: info.memory.geometries, texturas: info.memory.textures },
       stream: { ...this.stream },
+      // custo das regras do outro lado (água/areia por tick) — ver `regras`
+      regrasServidor: this.regras,
       rede: this.conexao(),
       dispositivo: this.dispositivo(),
       net: { ...this.net },
@@ -433,6 +629,13 @@ export class Hud {
         },
         framesLentos50ms: frames.filter((f) => f > 50).length,
         framesLentos100ms: frames.filter((f) => f > 100).length,
+        // FORMA da distribuição: o p95 sozinho não distingue "sempre 20 ms" de
+        // "metade a 10 e metade a 40" (bimodal), nem cauda longa de piso alto
+        histogramaMs: histograma(frames),
+        // tempo de GPU da janela (null onde a extensão não existe)
+        gpu: this.gpuStats(rec.gpuSamples),
+        // o que aconteceu DENTRO da janela (o resto da linha do tempo fica em `marcadores`)
+        marcadores: this.marcadores.slice(rec.marcadoresStart),
         // long tasks DENTRO da janela dos 10 s (delta dos acumulados)
         longTasks: this.longTasks - rec.longTasksStart,
         longTasksMs: +(this.longTasksMs - rec.longTasksMsStart).toFixed(1),
@@ -460,6 +663,12 @@ export class Hud {
         ? `remesh por caminho: fila ${s.remeshPorCaminho.fila.n}× (${Math.round(s.remeshPorCaminho.fila.ms)}ms) · bloco ${s.remeshPorCaminho.bloco.n}× (${Math.round(s.remeshPorCaminho.bloco.ms)}ms) · área ${s.remeshPorCaminho.area.n}× (${Math.round(s.remeshPorCaminho.area.ms)}ms)`
         : "remesh por caminho: n/d",
       `fase ${this.fase} · ${s.fases.map((f) => `${f.fase} ${f.segundos}s ${f.fpsMedio}fps render ${f.renderPct}% travadas ${f.longTasks}×/${Math.round(f.longTasksMs)}ms`).join(" · ")}`,
+      s.gpu
+        ? `GPU ${s.gpu.medioMs}ms méd / ${s.gpu.p95Ms}ms p95 (${s.gpu.amostras} amostras)`
+        : "GPU: n/d (sem EXT_disjoint_timer_query_webgl2)",
+      s.regrasServidor
+        ? `regras (servidor) ${s.regrasServidor.celulasPorTick} cél/tick (máx ${s.regrasServidor.celulasMaxTick}) · ${s.regrasServidor.mudancasPorTick} mudanças · água ${s.regrasServidor.aguaPorTick}`
+        : "regras (servidor): n/d",
       mem ? `RAM (JS) ${mem.usadaMB}/${mem.limiteMB} MB` : "RAM (JS): n/d (só no Chrome)",
       `vídeo ${s.video.geometrias} geometrias · ${s.video.texturas} texturas`,
       `rede ${s.net.msgsPerSec} msg/s  ${s.net.bytesPerSec} B/s  jitter ${s.net.jitterMs}ms  tick ${s.net.tickAvgMs}/${s.net.tickMaxMs}ms`,
@@ -472,11 +681,13 @@ export class Hud {
     this.textEl.textContent = lines.join("\n");
   }
 
-  private download(report: object): void {
+  /** Baixa o relatório como JSON. Público porque o `?bench` também exporta —
+   *  lá o gatilho é o fim do trajeto, não o botão. */
+  baixar(report: object, prefixo = "perf"): void {
     const blob = new Blob([JSON.stringify(report, null, 2)], { type: "application/json" });
     const a = document.createElement("a");
     a.href = URL.createObjectURL(blob);
-    a.download = `perf-${new Date().toISOString().replace(/[:.]/g, "-")}.json`;
+    a.download = `perf-${prefixo === "perf" ? "" : `${prefixo}-`}${new Date().toISOString().replace(/[:.]/g, "-")}.json`;
     a.click();
     URL.revokeObjectURL(a.href);
   }

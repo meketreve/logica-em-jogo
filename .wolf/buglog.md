@@ -5,7 +5,6 @@
 
 | id | tags | file | error (truncated) |
 |---|---|---|---|
-| bug-383 | auto-detected,return-value,ts | shared/src/blocks.ts | Wrong return value |
 | bug-384 | auto-detected,refactor,ts | client/src/atlasTexture.ts | Significant refactor of  |
 | bug-385 | auto-detected,refactor,ts | shared/src/worldgen.ts | Significant refactor of  |
 | bug-386 | auto-detected,type-fix,ts | server/src/index.ts | Type error |
@@ -205,3 +204,4 @@
 | bug-522 | smoke,runner,manifesto,mundo-inicial,cenarios | scripts/smoke.mjs | scripts/smoke.mjs: 'mundo' falhava em 2 checagens (objetivo da aula 1 + /mundo l |
 | bug-523 | perf,long-task,streaming,troca-de-aula,tocha,client | client/src/torchGlow.ts | usuário (playtest): 'só tem a questão da pagina dizer que não está respondendo'  |
 | bug-524 | hud,perfil,telemetria,client | client/src/main.ts | F3 mostrava 'remesh por caminho: n/d' apesar dos contadores existirem |
+| bug-525 | bench,perfilador,trajeto,telemetria,cliente | client/src/bench.ts | ?bench: gravacao.movimento.distanciaBlocos = 301 num trajeto de 202 blocos (velo |

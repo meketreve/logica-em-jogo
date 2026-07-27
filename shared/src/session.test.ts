@@ -86,6 +86,39 @@ describe("GameSession (servidor autoritativo)", () => {
     expect(sent).toHaveLength(0);
   });
 
+  it("debug_stats conta as células que as REGRAS tocaram no tick (§📊 perfilador)", () => {
+    const { sent, send } = collect();
+    const session = new GameSession(send, { dims: DIMS, singleplayer: true });
+    session.handleMessage(7, JSON.stringify({ type: "join", name: "ana" }));
+    // areia flutuando: cai 1 célula por tick, então a regra roda todo tick
+    const bx = Math.floor(session.spawn.x);
+    const bz = Math.floor(session.spawn.z);
+    const by = session.world.sizeY - 1; // teto do mundo: cai vários ticks até o chão
+    session.handleMessage(7, JSON.stringify({ type: "chat", text: `/bloco ${bx} ${by} ${bz} 4` }));
+    sent.length = 0;
+
+    for (let i = 0; i < SERVER_TICK_RATE; i++) session.tick();
+    const stats = sent
+      .map((s) => parseServerMessage(s.data as string))
+      .find((m) => m?.type === "debug_stats");
+    if (stats?.type !== "debug_stats") throw new Error("esperava debug_stats");
+    expect(stats.regrasCelulasAvg ?? 0).toBeGreaterThan(0);
+    expect(stats.regrasCelulasMax ?? 0).toBeGreaterThanOrEqual(1);
+    expect(stats.regrasMudancasAvg ?? 0).toBeGreaterThan(0);
+    expect(stats.regrasAguaAvg).toBe(0); // areia não gasta orçamento de água
+
+    // mundo parado: a janela seguinte zera (senão o número seria acumulado)
+    sent.length = 0;
+    for (let i = 0; i < SERVER_TICK_RATE * 3; i++) session.tick();
+    const parado = sent
+      .map((s) => parseServerMessage(s.data as string))
+      .filter((m) => m?.type === "debug_stats")
+      .at(-1);
+    if (parado?.type !== "debug_stats") throw new Error("esperava debug_stats");
+    expect(parado.regrasCelulasAvg).toBe(0);
+    expect(parado.regrasMudancasAvg).toBe(0);
+  });
+
   it("place/break: aplica, vira block_changed pra TODOS; inválido é ignorado", () => {
     const { sent, send } = collect();
     const session = new GameSession(send, { dims: DIMS, seed: 5, singleplayer: true });

@@ -4,6 +4,67 @@
 
 ## Session Journal
 
+> **SESSÃO 25 (2026-07-26) — §🕐 TELA DE CARREGAMENTO CODADA E VERDE (playtest pendente).**
+> Usuário disse só "continuar" → peguei a quest 1ª da fila. Novo `client/src/loading.ts`
+> (self-contained, DOM+CSS injetados como o `touch.ts`), aberto no `connect()` e fechado
+> quando o raio inicial INTEIRO está aplicado E `chunkRenderer.filaPendente === 0`. Progresso
+> real = colunas prontas ÷ total do raio (mesma conta do `streamColunas`, recortada pelas
+> bordas do mundo); spinner decorativo em CSS puro no canto, desacoplado de propósito. Taxa
+> em **bits/s** (`bytesIn+bytesOut` ×8, amostragem 1×/s; DOM repinta 4×/s pra ficar suave).
+> "Em transferência" reusa `colunasFaltando.size` da varredura §🔁 — zero segunda medição,
+> como o handoff mandava. **bug-515 fechado** (o bloqueio que o próprio usuário apontou na
+> sessão 23): `updateOverlay()` agora tem `loading.ativo` na condição, então o menu Esc não
+> aparece mais por baixo da carga; idem `touchControls.setShown`. Ao fechar, o menu de pausa
+> volta a ser a porta de entrada (o clique é o gesto que o pointer lock exige). Três decisões
+> que nasceram da verificação: (a) anel **indeterminado** ("…" girando) enquanto não há total
+> — mundo denso vem num blob só e 0% travado parece defeito; (b) fase troca sozinha pra
+> "montando a malha…" quando as colunas acabaram e a fila não; (c) `WsConnection` ganhou
+> `aoFalhar` → servidor fora do ar vira mensagem vermelha + "voltar ao menu", em vez de
+> spinner eterno (é o modo de falha mais provável na escola). VERDE: typecheck 3/3, 329
+> testes, headless conferido em mundo E (33% · 56/169 · 2.1 Mbps · ETA 4,7 s), mundo P
+> (denso, fecha em 100%) e servidor inexistente. **NÃO commitado — esperando o playtest.**
+> **PARTE 2 da sessão:** (a) o usuário não via a tela — rodou `npm run dev:server`, que serve
+> o cliente COMPILADO; era build velho (**bug-516**, `npm run build` resolveu). (b) Pediu a
+> mesma tela no `/mundo carregar` e mandou um perfil novo. **O perfil expôs 3 bugs, não um
+> gargalo:** `remeshCount` 475 136 (24× o perfil anterior) com 34% MENOS triângulos →
+> `trocarMundo` fazia `buildAll()` em mundo lazy = 460 800 remesh de slot vazio, ~19 s de
+> trava (**bug-517**); `repedidas` 252/700 → `/mundo carregar` cria SESSÃO nova e o `admitir`
+> zera o raio pra `RAIO_PADRAO`, com o cliente sem reanunciar (**bug-518**, provado pelo smoke
+> novo `_smoke-troca-raio.mjs`: anel 10 → 6 → 12); `meta` do perfil era do mundo do JOIN
+> (**bug-519**, `Hud.setMeta`). Os três corrigidos + a §🕐 agora reabre na troca de aula
+> (título "trocando de aula", pointer lock CONTINUA travado = volta ao jogo sem clique).
+> **PARTE 3:** perfil 3 (18:40) com os fixes = **remesh 475 136 → 10 984, repedidas 252 → 4,
+> meta correta** (tabela no ROADMAP). Playtest do usuário: "a tela demora a aparecer no
+> `/mundo carregar` e quando aparece já está quase pronta" (**bug-520**) — a tela abria no
+> snapshot, que é o FIM da fila do host. Agora o servidor ANUNCIA: msg nova
+> `mundo_trocando {nome}` (emitida após o decode do .ljw, antes de salvar/gerar), fase nova
+> `preparando` com anel indeterminado, e uma **fila de 2× rAF** segura as mensagens seguintes
+> pra garantir que o frame COM a tela pintou antes do trabalho pesado (o snapshot chega
+> 1-2 ms depois do aviso em mundo lazy — sem isso não adiantaria abrir mais cedo).
+> Smoke `_smoke-troca-raio.mjs` agora tem 6 checagens (inclui a ordem aviso→snapshot).
+> **PARTE 4 — o achado grande (bug-523).** Playtest: "a tela funciona, só que a página diz
+> que não está respondendo". Era `TorchGlow.setFromWorld` varrendo o mundo **bloco a bloco**:
+> mundo E = 1,887 bilhão de células = **41,4 s de main thread travada**, no join E na troca de
+> aula. É a explicação dos ~38 s de `longTasksMsTotal` iguais nos TRÊS perfis (sessões de
+> 234/168/96 s — trava fixa, não regime). Varredura por CHUNK (ausente sai em O(1)):
+> **41 361 ms → 2,9 ms**; P 77 → 11,5 ms. Equivalência conferida contra a varredura antiga
+> com tochas em borda de chunk (9/9 idênticas) e wall clock do headless: join em mundo E que
+> estourava 3 min agora fecha em 2,9 s. De quebra, tocha de coluna que chega por streaming
+> agora ganha halo (`varrerColuna`) e some no descarte (`descartarColuna`) — antes só
+> aparecia se alguém tocasse no bloco.
+> **PARTE 5 — perfil com CONTEXTO + orçamento por tempo.** Erro meu que o usuário pegou: li
+> "parado, 60 FPS" de perfis feitos VOANDO (inferi estado pela taxa de rede). Perfil agora
+> carrega `jogador` (pos/yaw/pitch/voando/noChao/chunk), `config` (raioRender,
+> `meshMsPorFrame`, pixelRatioCap, fov — eu vinha comparando perfis de raio 12 com raio 6 sem
+> saber) e `gravacao.movimento` (estado, distância, velocidade, colunasNovas, bytes) medido
+> como DELTA na janela. `?hud` abre o F3 no boot (headless). Depois, escolha dele: **orçamento
+> de mesh por TEMPO** — `meshMsPorFrame` (1–16 ms, padrão 6) no lugar de `meshPorFrame`
+> (contagem), com teto de 64 chunks e ≥1 garantido; a contagem fixa custava de 1 a 24 ms por
+> frame e era a origem dos frames de 50–100 ms. Headless em mundo E fechou com `fila 0`,
+> `faltando 0`, **0 long tasks**. Plano do mesher em Worker escopado no ROADMAP (pool, cópia
+> de chunk+bordas, transfer de volta; mundo fica na main por causa de física/raycast).
+> **Falta o perfil do usuário pra medir o ganho.** Sessão 24 abaixo ↓
+
 > **SESSÃO 24 (2026-07-26) — ÁGUA APROVADA NO PLAYTEST + §🔁 CODADO E VERDE (playtest do
 > browser pendente).** Abertura: o usuário respondeu o ponto de decisão da sessão 23 —
 > **playtestou o refino de água e APROVOU** ("worldgen novo com água, animação de textura e o
@@ -916,6 +977,57 @@
 > segue ADIADO — sem gatilho.**
 
 ## Action Log
+
+## Session: 2026-07-24 17:26
+
+| Time | Action | File(s) | Outcome | ~Tokens |
+|------|--------|---------|---------|--------|
+| 17:29 | Edited relatorio/relatorio-aplicacao.md | 283 → 304 | ~22 |
+| 17:29 | Edited relatorio/relatorio-aplicacao.md | 3→5 lines | ~106 |
+| 17:29 | Edited relatorio/relatorio-aplicacao.md | 11→14 lines | ~295 |
+| 17:29 | Edited relatorio/relatorio-aplicacao.md | 1→4 lines | ~91 |
+| 17:30 | relatório: corrigidos fatos técnicos defasados (283→304 testes; profiles-escola apagada→agregado registros/; 25→52 perfis; screenshots reais em registros/prints) | relatorio/relatorio-aplicacao.md | pronto p/ usuário preencher campos de sala | ~5k |
+| 17:30 | Session end: 4 writes across 1 files (relatorio-aplicacao.md) | 2 reads | ~5151 tok |
+| 17:56 | Edited todo.md | 5→5 lines | ~120 |
+| 17:56 | Session end: 5 writes across 2 files (relatorio-aplicacao.md, todo.md) | 3 reads | ~11611 tok |
+| 20:22 | Edited relatorio/relatorio-aplicacao.md | 3→8 lines | ~137 |
+| 20:23 | Edited relatorio/relatorio-aplicacao.md | escolha() → pago() | ~114 |
+| 20:25 | Edited relatorio/relatorio-aplicacao.md | 1→2 lines | ~47 |
+| 20:25 | Edited relatorio/relatorio-aplicacao.md | inline fix | ~14 |
+| 20:26 | Edited relatorio/relatorio-aplicacao.md | expanded (+6 lines) | ~180 |
+| 20:40 | Edited relatorio/relatorio-aplicacao.md | 12→16 lines | ~318 |
+| 20:40 | Edited relatorio/relatorio-aplicacao.md | 4→8 lines | ~154 |
+| 20:40 | Edited relatorio/relatorio-aplicacao.md | expanded (+9 lines) | ~178 |
+| 20:40 | Edited relatorio/relatorio-aplicacao.md | modified AEE() | ~62 |
+| 20:49 | Edited relatorio/relatorio-aplicacao.md | inline fix | ~25 |
+| 20:50 | Edited relatorio/relatorio-aplicacao.md | expanded (+8 lines) | ~259 |
+| 20:50 | Edited relatorio/relatorio-aplicacao.md | passos() → funcionou() | ~354 |
+| 20:50 | Edited relatorio/relatorio-aplicacao.md | 9→13 lines | ~287 |
+| 20:51 | Edited relatorio/relatorio-aplicacao.md | expanded (+6 lines) | ~192 |
+| 20:51 | Edited relatorio/relatorio-aplicacao.md | 3→4 lines | ~76 |
+| 20:51 | Edited relatorio/relatorio-aplicacao.md | inline fix | ~18 |
+| 20:51 | relatório redigido tema-a-tema c/ dados de sala do usuário (§1 resumo, §2 justificativa, §5 metodologia, §6 resultados+AEE, §8, §9 conclusão, refs) — só refinos opcionais restam | relatorio/relatorio-aplicacao.md | RASCUNHO COMPLETO, pronto p/ revisão | ~9k |
+| 20:52 | Session end: 21 writes across 2 files (relatorio-aplicacao.md, todo.md) | 3 reads | ~15776 tok |
+| 22:11 | Edited relatorio/relatorio-aplicacao.md | 16→21 lines | ~476 |
+| 22:11 | Edited relatorio/relatorio-aplicacao.md | 4→8 lines | ~142 |
+| 22:11 | Edited relatorio/relatorio-aplicacao.md | 6→11 lines | ~236 |
+| 22:11 | Edited relatorio/relatorio-aplicacao.md | 2→3 lines | ~74 |
+| 22:12 | §6/§8/§1 corrigidos: só aulas 1/3/5/6 aplicadas (2 bin e 4 césar fora=sem pré-requisito); falas de aluno no §6.3 (contentamento sequência + grito de alegria na livre) | relatorio/relatorio-aplicacao.md | consistente | ~3k |
+| 22:12 | Edited relatorio/relatorio-aplicacao.md | 3→2 lines | ~44 |
+| 22:12 | Session end: 26 writes across 2 files (relatorio-aplicacao.md, todo.md) | 3 reads | ~17030 tok |
+| 00:04 | Edited relatorio/relatorio-aplicacao.md | inline fix | ~19 |
+| 00:04 | Edited relatorio/relatorio-aplicacao.md | inline fix | ~19 |
+| 00:04 | Edited relatorio/relatorio-aplicacao.md | 5→4 lines | ~76 |
+| 00:05 | Edited relatorio/relatorio-aplicacao.md | inline fix | ~23 |
+| 00:05 | Edited relatorio/relatorio-aplicacao.md | inline fix | ~50 |
+| 00:05 | Edited relatorio/relatorio-aplicacao.md | 2→6 lines | ~86 |
+| 00:06 | Edited relatorio/relatorio-aplicacao.md | inline fix | ~27 |
+| 00:06 | Edited relatorio/relatorio-aplicacao.md | 2→3 lines | ~53 |
+| 00:06 | revisão ponta-a-ponta do relatório: 5 fixes mecânicos (espaço ficha, ref quebrada seção14, bullet dup §6.2, período crescente, nota §4) + turmas=multisseriadas (ficha+§5.1) | relatorio/relatorio-aplicacao.md | consistente e completo | ~4k |
+| 00:06 | Session end: 34 writes across 2 files (relatorio-aplicacao.md, todo.md) | 3 reads | ~17531 tok |
+| 00:11 | Session end: 34 writes across 2 files (relatorio-aplicacao.md, todo.md) | 3 reads | ~17531 tok |
+| 00:12 | FIM SESSÃO 19 — relatório de aplicação preenchido (dados de sala via AskUserQuestion) + revisado ponta-a-ponta + fatos técnicos defasados corrigidos; só código NÃO tocado; entregável final essencialmente pronto | relatorio/relatorio-aplicacao.md, .wolf/STATUS.md, todo.md | pronto p/ /clear | ~1k |
+| 00:13 | Session end: 34 writes across 2 files (relatorio-aplicacao.md, todo.md) | 3 reads | ~17531 tok |
 
 ## Session: 2026-07-23 20:00
 

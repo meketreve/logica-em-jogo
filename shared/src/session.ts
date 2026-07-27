@@ -270,6 +270,15 @@ export class GameSession {
   private tickMsSum = 0;
   private tickMsMax = 0;
   private ticksInWindow = 0;
+  /** Custo das REGRAS na janela de 1 s (§📊 item 5 do perfilador): quantas
+   *  células a regra examinou, quantas mudanças saíram dali e quanto disso era
+   *  água. É o que liga o `remesh(bloco)` caro do cliente à causa do servidor —
+   *  antes, um pico de remesh não dizia se veio de água escorrendo ou de gente
+   *  construindo. */
+  private regrasCelulasSum = 0;
+  private regrasCelulasMax = 0;
+  private regrasMudancasSum = 0;
+  private regrasAguaSum = 0;
   /** Células a examinar no próximo tick (fila de vizinhança — regra de ouro). */
   private dirty = new Set<number>();
   /** Células já alteradas neste tick (máx. 1 mudança por célula por tick). */
@@ -2965,6 +2974,9 @@ export class GameSession {
     // REALMENTE mudam; ao esgotar, as demais células de água voltam pra fila e
     // escorrem no tick seguinte. Areia/portas/etc não gastam orçamento.
     let aguaOrcamento = this.aguaMaxPorTick;
+    let celulas = 0; // células que a regra REALMENTE examinou neste tick
+    let mudancas = 0; // blocos que as regras mudaram neste tick
+    let aguaCelulas = 0;
     for (const key of batch) {
       if (this.changedThisTick.has(key)) continue; // célula já mudou neste tick
       const x = key % this.world.sizeX;
@@ -2979,14 +2991,21 @@ export class GameSession {
         this.dirty.add(key); // teto atingido → escorre no próximo tick
         continue;
       }
+      celulas++;
+      if (ehAgua) aguaCelulas++;
       const changes = rule(this.world, x, y, z);
       if (!changes) continue;
       if (ehAgua) aguaOrcamento--; // gastou orçamento só quando houve trabalho
       for (const c of changes) {
         if (!inBounds(this.world, c.x, c.y, c.z)) continue; // regra defeituosa não vaza
         this.applyBlock(c.x, c.y, c.z, c.blockId);
+        mudancas++;
       }
     }
+    this.regrasCelulasSum += celulas;
+    this.regrasMudancasSum += mudancas;
+    this.regrasAguaSum += aguaCelulas;
+    if (celulas > this.regrasCelulasMax) this.regrasCelulasMax = celulas;
 
     // cp12/13: recheca objetivos tocados por mudanças (dos jogadores E das
     // regras acima — areia caindo dentro do alvo também conta/desconta)
@@ -3029,6 +3048,11 @@ export class GameSession {
         tickAvgMs: +(this.tickMsSum / this.ticksInWindow).toFixed(3),
         tickMaxMs: +this.tickMsMax.toFixed(3),
         tps: this.ticksInWindow,
+        // §📊 custo das regras: média por tick na janela + o pior tick dela
+        regrasCelulasAvg: +(this.regrasCelulasSum / this.ticksInWindow).toFixed(1),
+        regrasCelulasMax: this.regrasCelulasMax,
+        regrasMudancasAvg: +(this.regrasMudancasSum / this.ticksInWindow).toFixed(1),
+        regrasAguaAvg: +(this.regrasAguaSum / this.ticksInWindow).toFixed(1),
       });
       // hora nova 1×/s: o cliente interpola o céu localmente entre estas (cp21)
       this.broadcastTime();
@@ -3036,6 +3060,8 @@ export class GameSession {
       // RAM do host numa sessão longa de exploração
       if (this.lazy) this.evictColunas();
       this.tickMsSum = this.tickMsMax = this.ticksInWindow = 0;
+      this.regrasCelulasSum = this.regrasCelulasMax = 0;
+      this.regrasMudancasSum = this.regrasAguaSum = 0;
     }
   }
 

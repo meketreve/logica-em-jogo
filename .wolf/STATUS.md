@@ -1,6 +1,49 @@
 # STATUS — Projeto "Lógica em Jogo" (jogo voxel educacional)
 
 > Single source of truth for resuming work. Read this FIRST when starting a session.
+> **SESSÃO 26 (2026-07-26) — §📊 AS 7 DO PERFILADOR: TODAS ENTREGUES.** Usuário disse só
+> "continuar" → peguei a fila. **Item 7 já estava pronto** (`dispositivo()` do hud.ts já
+> trazia `nucleos`/`ramGB` desde antes — confirmado no perfil headless: 24 núcleos, 16 GB).
+> Os outros seis foram codados: **(1) `?bench`** — `client/src/bench.ts` novo. Abre sozinho um
+> mundo de seed FIXA (20260726, `?tamanho=` muda; **padrão E**, porque em mundo denso o mesher
+> já acabou antes do trajeto e a medida sairia sem a parte que mais varia entre PCs),
+> teleporta pra coordenada fixa, voa um círculo a **velocidade fixa de 18 b/s** (não "uma
+> volta no tempo dado" — senão `?bench=60` seria mais LEVE que `?bench=30` e os dois números
+> não comparariam), gira 360° parado nos últimos 25% (separa "carregar" de "desenhar") e
+> **baixa o JSON sozinho** no fim. Posição é `f(t)`, não física: PC de 20 e de 60 FPS
+> percorrem o MESMO caminho — se fosse `pos += v·dt` a máquina lenta veria menos terreno e
+> ganharia FPS de graça. Config canônica (`raioRender` 6, `meshMsPorFrame` 6, `pixelRatioCap`
+> 1, fov 75) sobrescreve o localStorage do PC do lab em memória, sem salvar. **(2)** histograma
+> de frametime (6 faixas, n + %) na gravação. **(3)** tempo de carga por FASE saindo da §🕐
+> (`conectando/mundo/malha/pronto` + total), uma entrada por carga — join e cada troca de aula.
+> **(4)** marcadores de evento com segundo e fase (join, carga concluída, troca de aula, raio
+> A→B, início/fim do bench) — o pico agora tem causa. **(5)** custo das REGRAS no servidor no
+> `debug_stats` (células/tick, pior tick, mudanças, água), campos OPCIONAIS no protocolo pra
+> host velho não derrubar a mensagem. **(6)** tempo de GPU por `EXT_disjoint_timer_query_webgl2`
+> (pool de 4 consultas, descarta leva em `GPU_DISJOINT`, só amostra com F3 aberto ou gravando).
+> VERDE: typecheck 3/3, **331 testes** (2 novos: contador de regras no tick + opcionais do
+> `debug_stats`), build ok. **Verificação headless via CDP** (script novo
+> `scripts/bench-headless.mjs`, `npm run bench:headless`): bench de 15 s em mundo E fechou com
+> trajeto exato (202,5 blocos = 18 b/s × 11,25 s), 251 colunas novas, 8,2 MB, carga medida
+> (conectando 175 ms · mundo 2 369 ms · malha 15 167 ms), 4 marcadores, histograma e
+> `regrasServidor` não-nulo (prova o campo novo atravessando o protocolo). **bug-525** achado
+> nessa verificação (dois teleportes entravam na distância). O caminho de GPU está embrulhado
+> em try/catch que desliga a medição em vez de derrubar o loop de render (headless cai no
+> SwiftShader, que nem expõe a extensão — conferido).
+> **PLAYTEST APROVADO ("que bench massa") e COMMITADO.** O usuário rodou nos dois modos, no
+> RTX 2060: **(a) perfil manual** (F3 → enviar pro servidor, host Node `:8080` após
+> `npm run build`) — GPU 7,38 ms méd / 10,37 p95 em raio 12 (**prova que o caminho de GPU
+> funciona em hardware real**), e a `carga` expôs o número que faltava: **troca de aula custa
+> 14,7 s** (mundo 7 970 ms + malha 6 317 ms, 625 colunas, 21,5 MB) contra 1,2 s no join.
+> **(b) `?bench` de 30 s = A RÉGUA** (`profiles/perf-bench-2026-07-27T01-24-08-311Z.json`):
+> 60 FPS travado, p50 16,7 · p95 **16,9** · p99 18,1 ms, 98,4% dos frames ≤33 ms, **0 long
+> tasks**, GPU **4,02 ms** méd (de 16,7 disponíveis), carga 4,76 s, 443 colunas novas em
+> 14,5 MB com **fila 0 no fim** (o streaming acompanha 18 b/s), trajeto exato (405 blocos =
+> 18 × 22,5 s). **O que a régua revela:** `remesh` 7 756× / **12,78 s de CPU em 34 s de
+> sessão** = 37% do tempo de parede, exatamente o teto do orçamento de 6 ms/frame — o mesher
+> SATURA o orçamento o tempo todo voando. Não custa FPS aqui (o orçamento segura), mas é a
+> prova quantitativa a favor do mesher em Web Worker; em PC fraco é a fila que não esvazia.
+> Nesta máquina o gargalo não é GPU nem render — é malha e rede.
 > **SESSÃO 25b (2026-07-26) — §🧪 ENCANAMENTO DE VERIFICAÇÃO.** Papo sobre ferramental
 > virou trabalho. Duas verdades ficaram claras: (1) o valor do OpenWolf aqui é STATUS +
 > cerebrum (o handoff), não o resto; (2) **metade do Do-Not-Repeat deste projeto é sobre o
@@ -21,66 +64,6 @@
 > cerebrum. Config OpenWolf ajustada: `buglog.auto_detect: false` (falso positivo poluía o
 > índice) e `anatomy.rescan_interval_hours: 6 → 168` (stale falso todo boot).
 > **NÃO commitado ainda** — entra junto com a §🕐 quando o playtest aprovar.
-> **SESSÃO 25 (2026-07-26) — §🕐 TELA DE CARREGAMENTO CODADA E VERDE (playtest pendente).**
-> Usuário disse só "continuar" → peguei a quest 1ª da fila. Novo `client/src/loading.ts`
-> (self-contained, DOM+CSS injetados como o `touch.ts`), aberto no `connect()` e fechado
-> quando o raio inicial INTEIRO está aplicado E `chunkRenderer.filaPendente === 0`. Progresso
-> real = colunas prontas ÷ total do raio (mesma conta do `streamColunas`, recortada pelas
-> bordas do mundo); spinner decorativo em CSS puro no canto, desacoplado de propósito. Taxa
-> em **bits/s** (`bytesIn+bytesOut` ×8, amostragem 1×/s; DOM repinta 4×/s pra ficar suave).
-> "Em transferência" reusa `colunasFaltando.size` da varredura §🔁 — zero segunda medição,
-> como o handoff mandava. **bug-515 fechado** (o bloqueio que o próprio usuário apontou na
-> sessão 23): `updateOverlay()` agora tem `loading.ativo` na condição, então o menu Esc não
-> aparece mais por baixo da carga; idem `touchControls.setShown`. Ao fechar, o menu de pausa
-> volta a ser a porta de entrada (o clique é o gesto que o pointer lock exige). Três decisões
-> que nasceram da verificação: (a) anel **indeterminado** ("…" girando) enquanto não há total
-> — mundo denso vem num blob só e 0% travado parece defeito; (b) fase troca sozinha pra
-> "montando a malha…" quando as colunas acabaram e a fila não; (c) `WsConnection` ganhou
-> `aoFalhar` → servidor fora do ar vira mensagem vermelha + "voltar ao menu", em vez de
-> spinner eterno (é o modo de falha mais provável na escola). VERDE: typecheck 3/3, 329
-> testes, headless conferido em mundo E (33% · 56/169 · 2.1 Mbps · ETA 4,7 s), mundo P
-> (denso, fecha em 100%) e servidor inexistente. **NÃO commitado — esperando o playtest.**
-> **PARTE 2 da sessão:** (a) o usuário não via a tela — rodou `npm run dev:server`, que serve
-> o cliente COMPILADO; era build velho (**bug-516**, `npm run build` resolveu). (b) Pediu a
-> mesma tela no `/mundo carregar` e mandou um perfil novo. **O perfil expôs 3 bugs, não um
-> gargalo:** `remeshCount` 475 136 (24× o perfil anterior) com 34% MENOS triângulos →
-> `trocarMundo` fazia `buildAll()` em mundo lazy = 460 800 remesh de slot vazio, ~19 s de
-> trava (**bug-517**); `repedidas` 252/700 → `/mundo carregar` cria SESSÃO nova e o `admitir`
-> zera o raio pra `RAIO_PADRAO`, com o cliente sem reanunciar (**bug-518**, provado pelo smoke
-> novo `_smoke-troca-raio.mjs`: anel 10 → 6 → 12); `meta` do perfil era do mundo do JOIN
-> (**bug-519**, `Hud.setMeta`). Os três corrigidos + a §🕐 agora reabre na troca de aula
-> (título "trocando de aula", pointer lock CONTINUA travado = volta ao jogo sem clique).
-> **PARTE 3:** perfil 3 (18:40) com os fixes = **remesh 475 136 → 10 984, repedidas 252 → 4,
-> meta correta** (tabela no ROADMAP). Playtest do usuário: "a tela demora a aparecer no
-> `/mundo carregar` e quando aparece já está quase pronta" (**bug-520**) — a tela abria no
-> snapshot, que é o FIM da fila do host. Agora o servidor ANUNCIA: msg nova
-> `mundo_trocando {nome}` (emitida após o decode do .ljw, antes de salvar/gerar), fase nova
-> `preparando` com anel indeterminado, e uma **fila de 2× rAF** segura as mensagens seguintes
-> pra garantir que o frame COM a tela pintou antes do trabalho pesado (o snapshot chega
-> 1-2 ms depois do aviso em mundo lazy — sem isso não adiantaria abrir mais cedo).
-> Smoke `_smoke-troca-raio.mjs` agora tem 6 checagens (inclui a ordem aviso→snapshot).
-> **PARTE 4 — o achado grande (bug-523).** Playtest: "a tela funciona, só que a página diz
-> que não está respondendo". Era `TorchGlow.setFromWorld` varrendo o mundo **bloco a bloco**:
-> mundo E = 1,887 bilhão de células = **41,4 s de main thread travada**, no join E na troca de
-> aula. É a explicação dos ~38 s de `longTasksMsTotal` iguais nos TRÊS perfis (sessões de
-> 234/168/96 s — trava fixa, não regime). Varredura por CHUNK (ausente sai em O(1)):
-> **41 361 ms → 2,9 ms**; P 77 → 11,5 ms. Equivalência conferida contra a varredura antiga
-> com tochas em borda de chunk (9/9 idênticas) e wall clock do headless: join em mundo E que
-> estourava 3 min agora fecha em 2,9 s. De quebra, tocha de coluna que chega por streaming
-> agora ganha halo (`varrerColuna`) e some no descarte (`descartarColuna`) — antes só
-> aparecia se alguém tocasse no bloco.
-> **PARTE 5 — perfil com CONTEXTO + orçamento por tempo.** Erro meu que o usuário pegou: li
-> "parado, 60 FPS" de perfis feitos VOANDO (inferi estado pela taxa de rede). Perfil agora
-> carrega `jogador` (pos/yaw/pitch/voando/noChao/chunk), `config` (raioRender,
-> `meshMsPorFrame`, pixelRatioCap, fov — eu vinha comparando perfis de raio 12 com raio 6 sem
-> saber) e `gravacao.movimento` (estado, distância, velocidade, colunasNovas, bytes) medido
-> como DELTA na janela. `?hud` abre o F3 no boot (headless). Depois, escolha dele: **orçamento
-> de mesh por TEMPO** — `meshMsPorFrame` (1–16 ms, padrão 6) no lugar de `meshPorFrame`
-> (contagem), com teto de 64 chunks e ≥1 garantido; a contagem fixa custava de 1 a 24 ms por
-> frame e era a origem dos frames de 50–100 ms. Headless em mundo E fechou com `fila 0`,
-> `faltando 0`, **0 long tasks**. Plano do mesher em Worker escopado no ROADMAP (pool, cópia
-> de chunk+bordas, transfer de volta; mundo fica na main por causa de física/raycast).
-> **Falta o perfil do usuário pra medir o ganho.** Sessão 24 abaixo ↓
 
 ---
 
@@ -269,41 +252,51 @@ Documento é o ÚLTIMO entregável, não o primeiro. Construir, não documentar.
   - **bug-516**: `npm run dev:server` serve o cliente COMPILADO — feature de cliente em
     `:8080` exige `npm run build` (loop rápido é `npm run dev`, vite 5173).
 
+- **§📊 AS 7 DO PERFILADOR (2026-07-26, sessão 26) — playtest APROVADO, commitado:**
+  - **`?bench` (`client/src/bench.ts` novo)** — mundo de seed fixa sem passar pelo menu,
+    trajeto `pos = f(t)` (círculo a 18 b/s + giro 360° no fim), config canônica em memória,
+    `hud.record()` do trajeto INTEIRO e download automático (`perf-bench-*.json`). Também
+    publica em `window.__benchPerfil` (automação lê sem depender de download). O mundo do
+    bench NÃO vai pro IndexedDB (encheria a lista do professor).
+  - **Histograma** de frametime (≤8/≤16/≤33/≤50/≤100/>100 ms, n e %) na gravação.
+  - **Carga por fase** exportada da §🕐 (`LoadingScreen.relatorio()`): uma entrada por carga,
+    com `fasesMs` e `totalMs`. A fase MEDIDA é a efetiva (quando as colunas acabam e o mesher
+    tem fila, quem segura é "malha").
+  - **Marcadores** (`hud.marcar`): join, carga concluída, troca de aula, raio A→B, bench
+    início/fim — cada um com segundo da sessão e fase; teto de 60.
+  - **Regras do servidor no `debug_stats`**: células/tick, pior tick, mudanças e água por
+    tick, agregadas na janela de 1 s. Campos **opcionais** no protocolo (host antigo não
+    manda e o cliente não pode descartar a mensagem inteira).
+  - **Tempo de GPU** (`EXT_disjoint_timer_query_webgl2`): pool de 4 consultas, leva inteira
+    descartada em `GPU_DISJOINT`, amostra só com F3 aberto ou gravando, tudo em try/catch
+    que DESLIGA a medição em vez de derrubar o render.
+  - **`npm run bench:headless`** (`scripts/bench-headless.mjs`): roda o `?bench` num Chrome
+    headless por CDP puro (sem puppeteer como dependência) e imprime o perfil. Os NÚMEROS
+    dele não valem (SwiftShader) — é teste de encanamento.
+
 ---
 
-## 🚀 Próxima fase — AS 7 MELHORIAS DO PERFILADOR (decidido pelo usuário)
+## 🚀 Próxima fase — RODAR O `?bench` NO PC DO LAB (e só então otimizar)
 
-> Backlog e escopo detalhado vivem em `.wolf/ROADMAP.md` → seção **`📊 BACKLOG —
-> PERFILADOR`**, que tem os sete itens escritos com justificativa. **Ler aquela seção antes
-> de codar.** Aqui fica só a ordem e o porquê.
+**O que fazer primeiro (é do USUÁRIO, não meu):** abrir `?bench` num PC do laboratório e
+mandar o JSON. O link é `http://<ip-do-host>:8080/?bench` (30 s) — ou `?bench=60`,
+`?tamanho=P|M|G` pra medir só render. **Precisa de `npm run build`** se o cliente for servido
+pelo host Node (bug-516). Nada a decidir sobre otimização antes desse arquivo: o gatilho da
+política é "FPS baixo em PC do lab", e agora existe um número comparável pra checar isso.
 
-**A sessão 25 inteira está COMMITADA** (playtest aprovado pelo usuário nos dois caminhos:
-singleplayer e `/mundo carregar`). Árvore limpa ao fechar.
+**A RÉGUA (PC de dev, RTX 2060, 2026-07-27):** `profiles/perf-bench-2026-07-27T01-24-08-311Z.json`
+— 60 FPS · p95 16,9 ms · 98,4% dos frames ≤33 ms · 0 long tasks · GPU 4,02 ms · carga 4,76 s ·
+fila 0 no fim. **É contra estes números que o perfil do lab se lê.** Se o lab vier com fila que
+não zera ou `carga` alta, o alvo é malha/rede (mesher em Worker); se vier com GPU perto do
+frametime, aí sim é render.
 
-O usuário fechou a sessão assim: *"vou atacar depois as 7 coisas que é bom ter no
-perfilador"*. Ordem sugerida (a 1ª vale mais que as outras seis somadas):
+**Quando o perfil do lab chegar, olhar nesta ordem:** `carga` (quanto o aluno espera, por
+fase) → `gravacao.histogramaMs` (a FORMA: bimodal ou cauda longa?) → `fases[]` +
+`pioresTravadas` com os `marcadores` do lado (o pico tem causa agora) → `gpu` (se o driver do
+lab expuser a extensão, separa GPU cara de CPU cara — **este caminho nunca rodou de verdade**,
+headless não tem a extensão).
 
-1. **Modo `?bench`** — teleporta pra coordenada fixa, voa trajeto fixo por 30 s com seed
-   fixa, exporta sozinho. **É o que destrava o número do PC do LAB**, que a política de
-   otimização exige há três sessões: hoje comparar máquinas depende de a pessoa voar igual.
-2. **Histograma de frametime** (faixas 8/16/33/50/100+ ms) — percentil esconde a FORMA
-   (bimodal = dois regimes; cauda longa = hitch raro).
-3. **Tempo de carga por fase da tela** (conectando → mundo → malha): a §🕐 já calcula tudo,
-   falta exportar no JSON. Vira "quanto o aluno espera" por máquina.
-4. **Marcadores de evento** (join, troca de aula, mudança de raio) com timestamp — hoje um
-   pico não tem causa registrada.
-5. **Células tocadas por tick pela regra** (água/areia) no `debug_stats` do servidor — liga o
-   custo de `remesh(bloco)` à causa real.
-6. **Tempo de GPU** (`EXT_disjoint_timer_query_webgl2` quando existir) — todo o perfil hoje é
-   CPU-side.
-7. **`hardwareConcurrency` + `deviceMemory`** — uma linha cada, caracteriza o PC do lab.
-
-**Base já pronta pra isso (sessão 25):** o perfil traz `jogador`, `config`,
-`gravacao.movimento` (estado voando/andando/parado, distância, colunas novas), `fases[]`
-(carregando × jogando com fps, `renderPct` e travadas), `pioresTravadas` (top 5 com fase e
-segundo) e `remeshPorCaminho` (fila × bloco × área). `?hud` na URL abre o F3 no boot.
-
-### Depois disso — custo de render (o que sobrou)
+### Depois do número do lab — custo de render (o que sobrou)
 
 O pico morreu com o orçamento por tempo (MEDIÇÃO 5 do ROADMAP: p95 43–82 ms → 18,7/20,4 ms,
 frames >50 ms 9–50 → **0**). O que resta é modesto: **mesher em Web Worker** compra 16–19% de
@@ -366,6 +359,17 @@ npm run dev:server  # servidor Node+ws em watch (placeholder até checkpoint 5)
 npm test            # testes do /shared (vitest)
 npm run typecheck   # tsc --noEmit nos 3 workspaces
 npm run build       # build de produção do cliente
+npm run verify      # typecheck + testes + build (o portão antes de commitar)
+npm run smoke       # cenários de rede reais (--lista diz o que cada um prova)
+npm run bench:headless   # roda o ?bench num Chrome headless e imprime o perfil
+```
+
+**Modo benchmark (o que mandar pro PC do lab):**
+
+```
+http://<host>:8080/?bench            # 30 s, mundo E (streaming), seed 20260726
+http://<host>:8080/?bench=60         # trajeto mais longo
+http://<host>:8080/?bench&tamanho=P  # mundo denso: mede só render
 ```
 
 ---

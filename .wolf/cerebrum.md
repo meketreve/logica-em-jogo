@@ -552,6 +552,39 @@
   com CWD no repo (tsx resolve de node_modules do projeto); do scratchpad dá
   ERR_MODULE_NOT_FOUND. Import de /shared por caminho absoluto continua valendo.
 
+## Key Learnings — perfilação comparável (2026-07-26, sessão 26)
+
+- **Modo `?bench` (`client/src/bench.ts`) é como se compara MÁQUINA com máquina.**
+  Abre mundo de seed fixa sem menu, teleporta, voa trajeto fixo, exporta sozinho.
+  Antes disso todo perfil dependia de a pessoa voar igual nos dois PCs — e não voa.
+  `npm run bench:headless` roda o mesmo caminho num Chrome headless por CDP.
+- **Trajeto de benchmark é `pos = f(t)`, NUNCA integração por frame.** Com
+  `pos += v·dt` a máquina lenta percorre menos terreno e ganha FPS de graça: o
+  teste premiaria justamente o PC ruim. E a velocidade é constante FIXA (18 b/s),
+  não "uma volta no tempo disponível" — senão `?bench=60` seria mais leve que
+  `?bench=30` e os dois números não comparariam.
+- **Benchmark tem que sobrescrever a config do navegador (em memória, sem salvar).**
+  `raioRender`/`meshMsPorFrame`/`pixelRatioCap`/`fov` moram no localStorage de cada
+  PC; sem travar isso o "PC do lab está lento" pode ser só raio 12 contra raio 6.
+- **Teleporte contamina telemetria acumulada.** Todo salto (ir pro início do
+  trajeto, voltar pro ponto de partida na troca de fase) entra em
+  `distanciaPercorrida` e dispara rajada de streaming. Ao teleportar de propósito,
+  sincronizar `posAnt*` na hora e nunca voltar pro início no meio da medição
+  (bug-525).
+- **Percentil esconde a FORMA — exportar histograma junto.** p95 igual pode ser
+  "tudo em 20 ms" ou "metade em 10 e metade em 40" (bimodal): problemas diferentes.
+- **Campo novo em mensagem do servidor entra OPCIONAL no `parseServerMessage`.**
+  Host de versão antiga não manda; se o parse exigir, o cliente descarta a mensagem
+  INTEIRA (perderia `tickAvgMs` por causa de um número de diagnóstico).
+- **Tempo de GPU (`EXT_disjoint_timer_query_webgl2`) não é verificável headless:**
+  SwiftShader nem expõe a extensão (conferido). Por isso o caminho inteiro vive em
+  try/catch que DESLIGA a medição — perfilação não pode derrubar o loop de render.
+  Uma consulta `TIME_ELAPSED_EXT` por vez; o resultado chega alguns frames depois.
+- **Verificação headless que precisa LER dado (não olhar pixel) = CDP.** Chrome com
+  `--remote-debugging-port`, `fetch /json/list`, WebSocket global do Node, e
+  `Runtime.evaluate` lendo uma variável que o cliente publica (`window.__benchPerfil`).
+  Zero dependência nova. Screenshot só serve pra tela; número sai por aqui.
+
 ## Decision Log
 
 - [2026-07-26] **`buglog.auto_detect: false`** em `.wolf/config.json`. O detector

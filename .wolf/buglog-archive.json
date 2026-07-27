@@ -6218,6 +6218,22 @@
       "related_bugs": [],
       "occurrences": 1,
       "last_seen": "2026-07-21T00:13:07.115Z"
+    },
+    {
+      "id": "bug-383",
+      "timestamp": "2026-07-21T00:13:09.071Z",
+      "error_message": "Wrong return value",
+      "file": "shared/src/blocks.ts",
+      "root_cause": "Was returning: id === BlockId.Glass || id === BlockId.Leaves;",
+      "fix": "Now returns: (",
+      "tags": [
+        "auto-detected",
+        "return-value",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-21T00:13:09.071Z"
     }
   ]
 }
