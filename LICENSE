@@ -1,0 +1,87 @@
+# Licença de Uso — Lógica em Jogo
+
+Copyright (c) 2026 Leonardo De Jesus Silvano. Todos os direitos reservados.
+
+Esta licença vale para o **código, as texturas e os cenários** deste repositório — a
+obra autoral do projeto. As bibliotecas de terceiros usadas na construção (three.js, ws,
+TypeScript, Vite e as demais listadas em `package.json`) seguem cada uma a sua própria
+licença.
+
+Escrevi esta licença em linguagem simples de propósito: ela precisa ser entendida por
+professor e por direção de escola, não só por advogado.
+
+---
+
+## 1. O que você pode fazer, sem pedir nada a ninguém
+
+a) **Usar e executar o jogo em qualquer instituição de ensino** — pública ou privada, de
+   qualquer rede, com quantos alunos e em quantas máquinas quiser, gratuitamente.
+
+b) **Copiar e redistribuir o projeto inalterado**, de graça, para outras escolas,
+   professores ou redes de ensino, mantendo junto esta licença e a autoria.
+
+c) **Usar para estudo pessoal, pesquisa, formação de professores e apresentação**
+   (aulas, oficinas, palestras, artigos, relatórios — citando a autoria).
+
+d) **Criar seus próprios cenários, mundos e atividades** com as ferramentas de autoria do
+   jogo, e distribuí-los como quiser. **O cenário que você cria é seu** — esta licença não
+   reivindica nada sobre ele. É exatamente para isso que a plataforma existe.
+
+e) **Modificar a sua própria cópia** para testar, adaptar à realidade da sua escola,
+   estudar o funcionamento ou corrigir algo localmente.
+
+## 2. O que exige autorização escrita do autor
+
+a) **Distribuir versão modificada do código** ou obra derivada dele — inclusive publicar
+   um *fork* alterado como se fosse o projeto.
+
+b) **Republicar sob outro nome**, remover ou substituir a autoria, ou apresentar o
+   trabalho como sendo de outra pessoa ou instituição.
+
+c) **Uso comercial:** vender o software, cobrar licença por ele, embutir em produto pago
+   ou oferecer como serviço pago. Uso dentro de uma escola privada como ferramenta de
+   ensino **não** conta como uso comercial — está liberado pelo item 1(a).
+
+Autorização é simples de obter: peça. O objetivo do item 2 não é impedir melhoria, é
+manter uma versão de referência confiável para as escolas que dependem dela.
+
+## 3. Contribuições
+
+Melhorias são bem-vindas por *issue* ou *pull request*. Ao enviar uma contribuição, você
+concede ao autor permissão permanente e gratuita para incluí-la no projeto e distribuí-la
+sob esta mesma licença. Você continua sendo o autor do que escreveu e é creditado por isso.
+
+## 4. Autoria
+
+Ao redistribuir ou apresentar o projeto, mantenha o crédito:
+
+> **Lógica em Jogo** — Leonardo De Jesus Silvano, E.E.B. Prof. Otília da Silva Berti
+> (rede estadual de ensino de Santa Catarina).
+
+## 5. Sem garantia
+
+O software é fornecido **como está**, sem garantia de qualquer tipo, expressa ou
+implícita, incluindo — mas não se limitando a — garantias de adequação a uma finalidade
+específica e de ausência de defeitos. O autor não responde por qualquer dano decorrente do
+uso ou da impossibilidade de uso do software.
+
+## 6. Autorizações e contato
+
+Pedidos do item 2 (versão modificada, republicação, uso comercial) devem ser feitos por
+escrito ao autor — abra uma *issue* neste repositório ou procure o autor diretamente.
+
+---
+
+## Summary in English (unofficial)
+
+**Lógica em Jogo** is *source-available*, not open source. You may **use and run it freely
+in any educational institution**, redistribute **unmodified** copies for free, study it,
+modify **your own copy** locally, and **freely create and share your own lessons/worlds**
+made with the game's authoring tools (those are yours).
+
+**Written permission from the author is required** to distribute modified versions or
+derivative works of the code, to republish it under another name or without attribution,
+or for commercial use (selling it, paid licensing, paid service). Using it as a teaching
+tool inside a private school is *not* commercial use — that is already allowed.
+
+Provided **as is**, without warranty of any kind.

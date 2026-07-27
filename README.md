@@ -143,12 +143,25 @@ Os dados de desempenho coletados durante o piloto foram **anonimizados**; os arq
 
 ---
 
-## Autoria
+## Autoria e licença
 
 Desenvolvido por **Leonardo De Jesus Silvano** — E.E.B. Prof. Otília da Silva Berti, rede
 estadual de ensino de Santa Catarina.
 
-⚖️ **Licença ainda não definida.** Sem um arquivo `LICENSE`, valem os direitos autorais
-padrão (todos os direitos reservados): outra escola pode ler o código, mas ainda não há
-permissão formal de uso ou redistribuição. Quer liberar para a rede? Abra uma issue ou fale
-com o autor.
+**Uso livre em escola; modificação do código passa pelo autor.** Em resumo
+([licença completa](LICENSE)):
+
+| Pode, sem pedir | Precisa de autorização escrita |
+|-|-|
+| Usar e rodar em **qualquer instituição de ensino**, quantos alunos quiser | **Distribuir versão modificada** do código ou obra derivada |
+| **Redistribuir o projeto inalterado**, de graça, para outras escolas e redes | Republicar **sob outro nome** ou sem a autoria |
+| Estudar, pesquisar, apresentar em oficina/formação (citando a autoria) | **Uso comercial** (vender, licenciar, serviço pago) |
+| **Criar e distribuir seus cenários e mundos** — o cenário é seu | |
+| **Modificar a sua própria cópia** para testar ou adaptar na sua escola | |
+
+Escola privada usando como ferramenta de ensino **não** é uso comercial — está liberado.
+Melhoria é bem-vinda por *issue* ou *pull request*; a licença existe para manter uma versão
+de referência confiável para as escolas que dependem dela, não para travar contribuição.
+
+> ℹ️ Esta é uma licença **source-available**, não open source aprovada pela OSI — o GitHub
+> vai mostrar "licença não reconhecida". É consequência esperada da regra de modificação.
