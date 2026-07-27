@@ -18,6 +18,10 @@ chrome/
 # Os MODELOS distribuídos ficam em cenarios/ (esses sim versionados).
 /mundos/
 /world.ljw
+# save que o host Node cria quando sobe SEM LJ_SAVE. Já esteve versionado por
+# acidente, carregando roster com PIN e código de professor de teste — e o repo
+# é público. Nada lê este arquivo; ele só existe como resíduo de smoke.
+/server/world.ljw
 
 # OpenWolf runtime (estado local por máquina — não versionar; solta a árvore pro `npm version`)
 .wolf/hooks/_session.json

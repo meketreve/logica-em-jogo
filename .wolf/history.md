@@ -4,6 +4,41 @@
 
 ## Session Journal
 
+> **SESSÃO 28b (2026-07-27) — PLAYTEST DO §🌬️: a regra da correnteza.**
+> O usuário rodou bench no PC dele e no notebook: **"achei tudo muito top"**, com UMA ressalva
+> — e ela é de REGRA, não de bug: *"só a animação do vento na agua fluindo que achei
+> contraditório, pois a correnteza da agua fluindo deve ditar o movimento e direção da
+> textura"*. Está certo: vento não manda em correnteza.
+>
+> **Uma regra resolve os dois casos, sem flag nova.** `tileDaAgua` (mesher) tira o fluxo do
+> **GRADIENTE DE NÍVEL** da vizinhança: cada vizinho horizontal de nível MENOR puxa a água pra
+> lá, com peso na diferença. Só vizinho de ÁGUA conta — contar ar faria a borda de todo lago
+> "escorrer pra fora". Daí:
+> - **mar/lago** do worldgen é 100% FONTE (nível 8) → gradiente zero → **água parada, segue o
+>   vento** (a frente 3 continua valendo onde ela faz sentido);
+> - **riacho/queda** é 8→7→6→… → gradiente aponta pra jusante → **segue o fluxo**, com ritmo
+>   próprio (8 fps fixos), alheio ao vento. A fonte no topo da queda tem vizinho mais baixo,
+>   então ela corre também.
+>
+> **Como foi feito:** 8 tiles de atlas (`TILE.aguaFluxo` 112-119), um por setor de
+> `setorDaDirecao`, e o MESHER escolhe o tile por célula. Não virou atributo de vértice nem
+> material novo de propósito — assim o mesher segue função pura de bytes, o contrato do Worker
+> não muda e o remesh que a água já dispara ao mudar de nível reaproveita tudo.
+>
+> **Dois cuidados de custo que entraram junto.** (1) A pintura da água virou `putImageData`: a
+> versão anterior montava uma string `rgb(r,g,b)` e trocava o `fillStyle` A CADA PIXEL, e com 9
+> tiles de água isso seriam 2 304 strings alocadas e reparseadas por repintura. (2) **Teto de
+> 12 repinturas/s**, porque `texture.needsUpdate` reenvia o atlas INTEIRO (256², 262 KB) — não
+> só o tile mexido — e dois relógios independentes somariam mais de 20/s na GPU do lab.
+> ⚠️ Por isso os 8 tiles de fluxo TÊM de ficar contíguos no começo de uma linha do atlas: um
+> `putImageData` de 128×16 exige retângulo (travado em teste).
+>
+> **Verificação:** typecheck · **355 testes** (5 novos: lago de fontes fica parado · riacho
+> 8→7→6 aponta pra jusante · rumo acompanha o eixo · contiguidade dos 8 tiles ·
+> `setorDaDirecao`) · build · **riacho SIMULADO com o `waterRule` de verdade** (fonte num platô,
+> 40 ticks) mostrando os 8 setores radiais e o mar na água parada · `?atlas` no headless
+> confirmando a faixa dos 8 tiles pintada no lugar certo.
+
 > **SESSÃO 28 (2026-07-27) — §🌬️ VENTO + VIDA AMBIENTAL: as 6 frentes, de uma vez.**
 > O usuário escolheu o §🌬️ do ROADMAP, pediu as perguntas em LOTE antes de ficar AFK e
 > respondeu: **escopo TODO (frentes 1 a 6)** · vento com **rotação lenta + rajadas** ·
@@ -783,7 +818,7 @@
 > exibidos (raio de render), NÃO bug do streaming. Reports de performance de todos os
 > dispositivos salvos em `profiles-escola/` (25 arquivos JSON, `checkpoint:14`).
 > NÚMEROS: tablets Android da escola (Kindle Fire Silk / Chrome Android) rodaram o
-> mundo GIGANTE a **60-90 FPS** (Adriamff 89 / Tilapia 90 / Teste-Kindle 60 fps,
+> mundo GIGANTE a **60-90 FPS** (tablet-A 89 / tablet-B 90 / Kindle de teste 60 fps,
 > frametime ~11-17ms); servidor FOLGADO em TODOS (tickAvgMs < 1ms, tickMax < 1.7ms →
 > confirma sem gargalo de sync); rede 22-101 msg/s, 3-16 KB/s por cliente. Notebook do
 > usuário (host = servidor+cliente+ele mexendo em chunks, Windows Chrome, ws://
@@ -1284,6 +1319,47 @@
 > segue ADIADO — sem gatilho.**
 
 ## Action Log
+
+## Session: 2026-07-25 09:52
+
+| Time | Action | File(s) | Outcome | ~Tokens |
+|------|--------|---------|---------|--------|
+| 22:08 | Edited shared/src/physics.ts | added 7 condition(s) | ~632 |
+| 22:08 | Edited shared/src/physics.ts | modified if() | ~153 |
+| 22:09 | Edited shared/src/physics.test.ts | modified 496() | ~466 |
+| 22:09 | Edited shared/src/physics.test.ts | 8→10 lines | ~166 |
+| 22:10 | Edited shared/src/mesher.ts | 7→11 lines | ~172 |
+| 22:10 | Edited shared/src/mesher.ts | 4→5 lines | ~28 |
+| 22:10 | Edited shared/src/mesher.ts | modified gua() | ~106 |
+| 22:10 | Edited shared/src/mesher.ts | gua() → isVidroColorido() | ~64 |
+| 22:10 | Edited shared/src/mesher.ts | modified concat() | ~133 |
+| 22:10 | Edited shared/src/mesher.ts | 2→3 lines | ~15 |
+| 22:10 | Edited client/src/chunks.ts | modified constructor() | ~110 |
+| 22:10 | Edited client/src/chunks.ts | 4→6 lines | ~112 |
+| 22:11 | Edited client/src/main.ts | modified colorido() | ~192 |
+| 22:11 | Edited client/src/main.ts | inline fix | ~28 |
+| 22:11 | Edited client/src/atlasTexture.ts | modified paintVidroCor() | ~213 |
+| 22:11 | Edited shared/src/physics.ts | inline fix | ~10 |
+| 22:11 | Edited client/src/main.ts | modified suave() | ~124 |
+| 22:11 | Edited client/src/main.ts | added 2 condition(s) | ~174 |
+| 22:11 | Edited client/src/main.ts | inline fix | ~26 |
+| 22:12 | Edited client/src/main.ts | 2→3 lines | ~12 |
+| 22:12 | Edited shared/src/mesher.test.ts | expanded (+12 lines) | ~219 |
+| 22:13 | Edited shared/src/physics.ts | inline fix | ~24 |
+| 22:13 | Edited shared/src/physics.test.ts | 496 → 512 | ~23 |
+| 22:20 | SESSÃO 21 — playtest v0.8.1: fix colisão horizontal parcial (resolveHoriz, escada não empurra mais pra trás), vidro colorido virou material blend 20%, step-up suave na câmera | physics.ts, mesher.ts, chunks.ts, main.ts, atlasTexture.ts | 316 testes ✅ typecheck 3/3 ✅ build ✅ | ~9k |
+| 22:15 | Session end: 23 writes across 7 files (physics.ts, physics.test.ts, mesher.ts, chunks.ts, main.ts) | 9 reads | ~56363 tok |
+| 22:35 | Consolidou cerebrum.md (~27k → ~8k tokens): narrativa por checkpoint arquivada em history.md, cerebrum ficou só regra/receita; budget do config 2000 → 10000 (realista) | .wolf/cerebrum.md, .wolf/history.md, .wolf/config.json | User Preferences e Do-Not-Repeat preservados 100% | ~40k |
+| 22:20 | Session end: 23 writes across 7 files (physics.ts, physics.test.ts, mesher.ts, chunks.ts, main.ts) | 9 reads | ~56363 tok |
+| 22:20 | Session end: 23 writes across 7 files (physics.ts, physics.test.ts, mesher.ts, chunks.ts, main.ts) | 9 reads | ~56363 tok |
+| 22:48 | Corrigiu 2 falsos positivos dos hooks OpenWolf: countSemanticEntries casava `| DATA` (formato real é `| HH:MM` sob header de sessão) e usava data UTC; checkForMissingBugLogs só olhava files_written (ignorava escrita via Bash) | .wolf/hooks/shared.js, .wolf/hooks/stop.js, .wolf/hooks/session-start.js | novo localDate() local; verificado: semanticEntries 0 → 2, buglog reconhecido | ~12k |
+| 22:23 | Session end: 23 writes across 7 files (physics.ts, physics.test.ts, mesher.ts, chunks.ts, main.ts) | 9 reads | ~56363 tok |
+| 22:31 | Edited client/src/main.ts | modified colorido() | ~156 |
+| 22:56 | Playtest aprovado (movimentação + vidros); opacidade do vidro colorido 0.2 → 0.4 a pedido do usuário | client/src/main.ts | build ok, dist regerado | ~2k |
+| 22:32 | Session end: 24 writes across 7 files (physics.ts, physics.test.ts, mesher.ts, chunks.ts, main.ts) | 9 reads | ~56519 tok |
+| 22:35 | Edited .gitignore | expanded (+6 lines) | ~87 |
+| 23:05 | Commit + push das sessões 20+21 (2 commits) e STATUS/TODO preparados pro /clear; quest velha do piloto movida pro ROADMAP | git, .wolf/STATUS.md, .wolf/TODO.md, .wolf/ROADMAP.md | main == origin/main, árvore limpa | ~6k |
+| 22:38 | Session end: 25 writes across 8 files (physics.ts, physics.test.ts, mesher.ts, chunks.ts, main.ts) | 10 reads | ~56787 tok |
 
 ## Session: 2026-07-25 01:44
 
