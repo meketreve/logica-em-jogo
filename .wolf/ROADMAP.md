@@ -984,6 +984,213 @@ que são geometria e material novos. Nada disso bloqueia o piloto.
 
 ---
 
+## 🍖 BACKLOG — MODO SOBREVIVÊNCIA (escopo ABERTO 2026-07-27, sessão 30)
+
+> Entrevista de escopo feita com o usuário nesta data. **Nenhuma linha codada.** Segue 4º na
+> ordem travada: auto-update ✅ → layouts mobile → v2 da geração → **sobrevivência**.
+> Este bloco existe pra que a sessão que pegar a frente não precise reabrir nenhuma decisão.
+
+### Decisões travadas pelo usuário (2026-07-27)
+
+1. **Lite agora, arquitetura pronta pra completa.** Vida + fome + dano + recursos finitos +
+   craft. Ferramentas com durabilidade, minérios por profundidade e mobs ficam pra depois —
+   mas cada peça do lite nasce com a porta aberta pra eles (ver "como o lite não fecha portas").
+2. **Mobs hostis: SIM no plano, e FORA da aula.** A aplicação que o usuário quer é um **mundo
+   de sobrevivência pra turma explorar**, não uma aula de matéria específica. Isso amplia o uso
+   do jogo (pedagogia por exploração/colaboração em vez de objetivo dirigido). Mundo-aula e
+   mundo de atividade seguem criativos e sem bicho.
+3. **Craft por LISTA de receitas.** Grade 3×3 DESCARTADA: arrastar dói no tablet/Kindle Fire da
+   escola e trava aluno de 2º ano. A lista mostra o que dá pra fazer, o que falta e quanto.
+4. **`/modo` = padrão do mundo (salvo no `.ljw`) + override por aluno + `all`.**
+5. **`/pvp ligar|desligar` já entra no lite** (padrão DESLIGADO).
+6. **Inventário na morte vira REGRA DE MUNDO, não constante de código** (decisão de
+   2026-07-27, no molde do `/gamerule keepInventory` do Minecraft): `manter-inventario`
+   **nasce LIGADO** (não perde nada ao morrer — é o padrão de escola), e o professor
+   desliga se quiser a partida com peso. Ver "regras de mundo" abaixo.
+
+### Semântica exata do `/modo` (fixada com o usuário)
+
+| comando | efeito |
+|---|---|
+| `/modo` | mostra o modo do mundo e o teu (qualquer um pode consultar) |
+| `/modo criativo\|sobrevivencia` | muda o **padrão do mundo**, gravado no `.ljw`. Vale pra quem entrar e pra quem está dentro **sem** override pessoal |
+| `/modo <modo> @aluno` | **override pessoal** de um jogador. Vence o padrão do mundo |
+| `/modo <modo> all` | padrão do mundo **+ apaga todos os overrides**: pega todos que estão dentro e todos que entrarem |
+| `/modo <modo> eu` | muda só quem digitou (o professor demonstrar sobrevivência sem mexer na turma) |
+
+`all` **não pega o professor** — ele fica como está e se muda com `eu`. Todos os quatro são
+professor-only, no molde de `/voo`, `/ciclo`, `/vento` (`if (!professor) return "..."`).
+
+### Regras de mundo (`/regra`) — o registro, decidido em 2026-07-27
+
+O usuário pediu o modelo do `/gamerule` do Minecraft: **o que a sobrevivência decide fica como
+regra ajustável por mundo, não como constante no código.** Então nasce um registro em
+`/shared` (nome, tipo, padrão, texto de ajuda) e UM comando genérico:
+
+| comando | efeito |
+|---|---|
+| `/regra` | lista todas as regras com o valor atual do mundo |
+| `/regra <nome>` | mostra uma (valor + o que ela faz, em português de professor) |
+| `/regra <nome> ligar\|desligar` | muda e **grava no `.ljw`** |
+
+**Regras do lite:** `manter-inventario` (padrão **LIGADO**) · `pvp` (padrão desligado) ·
+`fome` (padrão ligado — permite sobrevivência sem fome pro fundamental 1) · e, quando o F8
+existir, `mobs`.
+
+**`/pvp ligar|desligar` continua existindo como ATALHO da regra `pvp`** — um estado só, duas
+portas. Verbo curto pro professor que já decorou `/voo` e `/ciclo`; `/regra` pra quem quer ver
+tudo num lugar.
+
+**Não retrofitar** `/ciclo`, `/voo`, `/vento`, `/confinar`, `/claim` pra dentro do `/regra`:
+são comandos que o professor já usou em piloto, e reescrever a UX deles não é escopo da
+sobrevivência. O registro nasce só com o que é novo; unificar depois é possível e barato
+(cada um vira mais um alias), reaprender comando no meio da aula não é.
+
+**Save:** as regras entram como UM campo opcional `regras?: Record<string, boolean>` no
+`SaveMeta` — ausente = todos os padrões. Uma regra nova depois não mexe no formato nem
+re-versiona nada, que é a razão de ser um mapa e não cinco campos soltos.
+
+### O que existe hoje — o ponto de partida real
+
+| peça | estado |
+|---|---|
+| vida / fome / dano / morte | **nada.** Zero em `physics.ts`, `protocol.ts`, `session.ts` |
+| inventário | `client/src/inventory.ts` = paleta INFINITA. UI pura, "nunca decide estado de jogo" |
+| drop ao quebrar | não existe — bloco quebrado vira ar |
+| craft | não existe |
+| itens (não-blocos) | **existe a banda de ids ≥ 900** (`ITEM_BALDE_VAZIO=900`, `ITEM_BALDE_AGUA=901` em `blocks.ts`) — acima do último bloco, então `isPlaceable` os recusa. **É a costura pronta pra comida/ferramenta.** |
+| voo criativo | `/voo` do professor libera pra turma; `physics.ts` já tem o ramo sem gravidade |
+| ciclo dia/noite | `/hora`, `/ciclo` — **só visual, a hora não decide nada de jogo**. `SaveMeta` já persiste hora+ciclo e o cp21 anotou: "sobrevivência (futuro) grava a hora corrente pra continuar de onde parou" |
+| árvores | `shared/src/arvores.ts` — fonte de comida do lite sai daqui (fruta da folha) |
+| regra de vizinhança | `shared/src/rules.ts` — `BlockRule` genérica (areia, cascalho, água). **Plantação cresce por aqui, sem engrenagem nova** |
+| criação de mundo | por env no boot do host: `LJ_PRESET=plano\|cabines`, `LJ_TAMANHO`, `LJ_NOVO` |
+
+### Onde cada peça mora (regra de ouro — vibecode vai errar isto)
+
+`shared/src/session.ts` já tem **137 KB**. Nada de sobrevivência mora dentro dele como lógica:
+a session **orquestra**, os módulos novos de `/shared` **decidem**, e todos são funções puras
+testáveis sem rede — o mesmo desenho de `rules.ts`, `claims.ts`, `physics.ts`.
+
+- `shared/src/sobrevivencia.ts` — vida/fome puras: `aplicarDano(estado, n, causa)`,
+  `drenarFome(estado, atividade)`, `regenerar(estado)`. Sem I/O, sem `Date.now()`.
+- `shared/src/inventario.ts` — stacks puros: `adicionar`, `remover`, `contar`, `cabe`.
+- `shared/src/drops.ts` — tabela `id do bloco → item(ns) que caem`.
+- `shared/src/receitas.ts` — `Receita { saida, custo[] }` + `podeFabricar(inv, receita)`.
+- `client/src/` — só HUD (corações/coxas), painel de craft e o botão de comer. **A UI nunca
+  decide**: mesma disciplina do `inventory.ts` de hoje.
+
+**Uma porta só pro dano.** Toda perda de vida passa por `aplicarDano(alvo, n, causa)`. Queda,
+afogamento, fome, PvP e (depois) mob entram pela MESMA função. É o que faz o F8 ser plugue e
+não cirurgia — é a lição do `fallingRule` genérico (areia e cascalho dividem uma regra).
+
+### Frentes, na ordem de entrega (cada uma fecha sozinha)
+
+**F1 — `/modo` (o interruptor, sem nenhuma mecânica).** ~1 sessão.
+Estado do modo por mundo + mapa de overrides, `SaveMeta.modo?`/`modosPorJogador?`, msg nova
+`modo {efetivo}` no join e a cada troca. Sobrevivência ainda joga IGUAL a criativo — o que muda
+é só o rótulo e o voo (sobrevivência não voa, nem com `/voo` liberado). Entrega testável e
+reversível: se parar aqui, nada quebrou.
+
+**F2 — Vida, dano, morte, respawn.** ~1 sessão.
+Vida 0–20 (10 corações). Causas do lite: **queda** e **afogamento**. Regeneração passiva com
+fome alta. Morte → respawn no spawn autoritativo do mundo (a msg `spawn` já existe desde o
+bug-010). **Inventário na morte = regra `manter-inventario`, LIGADA por padrão** (decidido
+2026-07-27): perder tudo é frustração de aula e vira vetor de griefing assim que o PvP ligar,
+mas o professor pode desligar num mundo de exploração onde a morte deva pesar.
+
+> **O ramo "desligado" da regra é BARATO de propósito: os itens SOMEM.** Não existe baú nem
+> item no chão no jogo (conferido em 2026-07-27 — nenhum bloco contêiner em `blocks.ts`), e
+> ambos custam entidade/UI nova, que é orçamento do F8. Perda total já é penalidade suficiente
+> pra quem escolheu desligar a regra. **Túmulo** (baú no lugar da morte, guardando o
+> inventário) fica anotado como o upgrade natural do dia em que existir um bloco contêiner —
+> a regra não precisa mudar de nome nem de assinatura pra ganhar esse comportamento.
+
+> **Quem calcula a queda:** o SERVIDOR, derivando do fluxo de `move` (10 Hz) que já recebe —
+> ele tem o mundo e sabe o que há embaixo do jogador. O cliente NÃO reporta dano (seria
+> autoridade no lugar errado). Custo conhecido: a 10 Hz, com a velocidade de queda já limitada
+> em `physics.ts`, a resolução da altura é de alguns blocos — o dano nasce com tolerância em
+> vez de fingir precisão.
+
+**F3 — Fome.** ~0,5 sessão.
+Barra 0–20, dreno por atividade real (a session já vê distância andada, blocos quebrados e
+colocados). Fome no zero → dano lento por `aplicarDano`. Tick de 10 Hz que já existe; nenhum
+relógio de parede (mesma regra do ciclo dia/noite).
+
+**F4 — Recursos finitos (inventário AUTORITATIVO).** ~2–3 sessões. **A frente cara.**
+O inventário vira estado do servidor (9 hotbar + 18 mochila, stack 64). `place_block` em
+sobrevivência **gasta**; `break_block` **dá** o que a tabela `drops.ts` disser. Criativo segue
+com a paleta infinita de hoje, intocado.
+**Simplificação deliberada: NÃO existe item no chão.** Quebrar com a mochila cheia é RECUSADO
+("mochila cheia") em vez de largar item no mundo — item no chão é entidade nova na rede, e
+entidade é o orçamento do F8. Assim o lite não paga o preço do completo.
+
+**F5 — Craft por lista.** ~1 sessão.
+`receitas.ts` puro + painel-lista com filtro e "falta 3 tábua". Servidor valida e aplica
+(cliente só pede). **Sem bancada no lite** — fabrica em qualquer lugar; a bancada entra depois,
+se e quando servir pra *escalonar* receitas avançadas.
+
+**F6 — Comida.** ~1 sessão.
+Duas fontes: **fruta caindo da folha** (`arvores.ts` já planta as folhas) e **uma plantação**,
+que cresce como `BlockRule` em `rules.ts` — mesma engrenagem da areia e da água, zero motor
+novo. Colher → comer, ou colher → 1 receita simples (pão).
+
+**F7 — `/pvp ligar|desligar`.** ~0,5 sessão.
+Atalho da regra `pvp` do registro (o F1 já trouxe o `/regra` e o campo no save), **padrão
+desligado**. Ataque = clique esquerdo em jogador dentro
+de `PLAYER_REACH`, dano fixo, cooldown; sem arma no lite. Reusa `aplicarDano` do F2 inteirinho.
+Professor-only pra alternar, como todo o resto.
+
+**F8 — MOBS (fora do lite; o que o usuário quer no mundo de exploração).** ~3+ sessões.
+Entidades na rede (o relay de `player_moved` é o molde), IA de andar/perseguir, spawn por luz e
+por noite, `/mobs ligar|desligar`. **Aviso de desempenho registrado:** no notebook do lab a GPU
+p95 já bate em 16,8–19,6 ms contra o orçamento de 16,7 ms de 60 FPS — mob tem de nascer
+instanciado e com teto de população, senão come exatamente a margem que não existe.
+
+**F9 — Preset de mundo de sobrevivência.** ~0,5 sessão.
+`LJ_PRESET=sobrevivencia` ao lado de `plano|cabines`: nasce com ciclo LIGADO, modo sobrevivência
+`all`, pvp off, confinamento off, mobs on (quando o F8 existir). É o que materializa "mundo pra
+turma explorar" como coisa de um clique, não de seis comandos.
+
+### Como o lite NÃO fecha portas pro completo
+
+| porta do completo | o que o lite já deixa pronto |
+|---|---|
+| mobs, item no chão | `aplicarDano` genérico + o relay de posição do `player_moved` |
+| ferramenta com durabilidade | banda de itens ≥ 900 (`blocks.ts`) e o inventário por stack |
+| minério por profundidade | `drops.ts` é tabela; profundidade é filtro na geração, não no inventário |
+| bancada gatilhando receita | `receitas.ts` puro — a bancada vira só um campo `exige` na receita |
+| noite perigosa | ciclo dia/noite já é autoritativo e já persiste no save |
+
+### Colisões com o que já existe (checar ANTES de codar)
+
+- **Mundo-aula / atividade (cp19, cp25):** read-only + confinamento por grupo. **Sobrevivência
+  fica forçada OFF ali** — não é escolha do modo, é o host que impõe, como já faz com o
+  confinamento no boot.
+- **Claims e confinamento (cp24/cp25):** quebrar bloco pra colher em área alheia já é barrado.
+  Sobrevivência não pode virar rota de contorno do anti-griefing.
+- **Autoria do professor:** `/bloco`, varinha, `/regiao`, `/objetivo` são teleoperação e
+  seguem valendo em qualquer modo — o professor não fica sem ferramenta porque a turma está
+  sobrevivendo.
+- **`?bench`:** o mundo do bench é criativo, ponto. Nenhuma mecânica de sobrevivência pode
+  entrar no trajeto medido, senão a régua dev × lab perde a comparabilidade com tudo que já
+  foi medido.
+- **Save:** `SaveMeta` cresce só com campos **opcionais** (`modo?`, `modosPorJogador?`,
+  `regras?` como MAPA, vida/fome/inventário no roster). Ausente = padrão. **Não re-versionar**
+  — é o padrão que hora/ciclo/vento/claims já seguem.
+- **Protocolo:** campos novos **opcionais**, dos dois lados com parse defensivo. Host antigo
+  não manda e o cliente **não pode descartar a mensagem inteira** por isso (lição do
+  `debug_stats` das regras do servidor, sessão 26).
+
+### O que prova cada frente (o portão antes de commitar)
+
+Testes puros em `/shared` para vida/fome/inventário/receitas/drops (nenhum precisa de rede) +
+um smoke real por frente em `scripts/smoke.mjs`, no molde do `_smoke-troca-raio.mjs`: dois
+clientes ws, um em cada modo, provando que criativo continua infinito enquanto sobrevivência
+gasta; que `all` pega quem está dentro E quem entra depois; que o modo sobrevive ao
+salvar/recarregar o `.ljw`. `npm run verify` fecha os três (typecheck + testes + build).
+
+---
+
 ## 🗒️ Referência — playtest dos cenários (quando o touch estiver pronto)
 
 **Estado:** motor + autoria + 3 cenários prontos. Falta a única coisa que o

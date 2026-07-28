@@ -39,7 +39,14 @@
       LSP/Serena só se o projeto passar de ~300 arquivos (hoje 223, grep ganha).
 - [ ] Layouts mobile (2º da ordem do usuário)
 - [ ] v2 da geração de mundo (3º da ordem do usuário)
-- [ ] Sobrevivência (fome/vida/craft) (4º da ordem do usuário)
+- [ ] Sobrevivência (fome/vida/craft) (4º da ordem do usuário) — **escopo ABERTO em
+      2026-07-27** (sessão 30): decisões travadas, 9 frentes (F1 `/modo` → F9 preset) e as
+      colisões mapeadas em `.wolf/ROADMAP.md §🍖`. Quem pegar a frente NÃO reabre decisão:
+      lite agora com porta pro completo · mobs só em mundo de exploração · craft por lista ·
+      `/modo` mundo+aluno+`all`+`eu` · `/pvp` no lite · **regras de mundo por `/regra`**
+      (molde do `/gamerule`), com `manter-inventario` LIGADO por padrão. Começar pelo **F1**
+      (`/modo` + registro de regras + campo `regras?` no save — o interruptor sem mecânica).
+      **Nenhuma decisão pendente.**
 - [x] **Deck da CRE** (sessão 29): `relatorio/apresentacao-cre.html` — 20 slides, um arquivo
       autocontido, offline, notas do apresentador em N (ou `?notas`), handout no Ctrl+P.
       **Sem data** de propósito: a apresentação informal vem antes da formal.

@@ -703,6 +703,25 @@
 
 ## Decision Log
 
+- [2026-07-27] **Escopo da SOBREVIVÊNCIA aberto (sessão 30) — 6 decisões do usuário, não
+  reabrir.** (1) **Lite agora** (vida/fome/dano/recursos finitos/craft) com a arquitetura já
+  pronta pro completo — toda perda de vida por uma função só, `aplicarDano(alvo, n, causa)`,
+  pra mob/PvP/queda entrarem pela mesma porta. (2) **Mobs hostis SIM, mas fora da aula:** o
+  uso que ele quer é *mundo de sobrevivência pra turma explorar*, não aula de matéria — é
+  ampliar a aplicação do jogo, não trocar a pedagogia dirigida. (3) **Craft por LISTA**, grade
+  3×3 descartada: arrastar dói no tablet/Kindle Fire da escola e trava aluno de 2º ano.
+  (4) **`/modo`** = padrão do mundo (salvo no `.ljw`) + override `@aluno` + `all` (pega quem
+  está dentro E quem entra) + `eu` (professor demonstra sem mexer na turma); `all` NÃO pega o
+  professor. (5) **`/pvp ligar|desligar` já no lite**, padrão OFF. (6) **O que a sobrevivência
+  decide vira REGRA DE MUNDO ajustável, não constante de código** — pedido explícito no molde
+  do `/gamerule keepInventory`: registro em `/shared` + comando `/regra <nome> ligar|desligar`,
+  gravado no `.ljw` como MAPA (`regras?: Record<string, boolean>` — regra nova depois não
+  re-versiona nada). `manter-inventario` nasce LIGADO (padrão de escola); `/pvp` fica como
+  ATALHO da regra `pvp` (um estado, duas portas). **Não retrofitar** `/ciclo`, `/voo`,
+  `/vento`, `/confinar`, `/claim` pro `/regra`: o professor já usou esses verbos no piloto, e
+  reaprender comando no meio da aula custa mais do que a unificação vale. Escopo completo com as 9
+  frentes e as colisões em `.wolf/ROADMAP.md §🍖`. Ordem da fila não mudou (sobrevivência
+  segue 4ª, depois de mobile e v2 da geração).
 - [2026-07-27] **Repo PÚBLICO + licença source-available** (decisão do usuário, sessão 29).
   `github.com/meketreve/logica-em-jogo` é público. Regra que ele pediu: *"livre uso nas
   escolas, mas modificações devem passar por mim"* → `LICENSE` em pt-BR: usar/rodar/
@@ -871,3 +890,16 @@ a cada stop, sem jeito de satisfazer seguindo as instruções dele mesmo.
 - **Primeira rodada de um lote é suspeita.** Nos dois lotes o primeiro perfil destoou (FPS 42
   contra 47-50; worker 20 958 contra ~32 000): aquecimento, compilação de shader, saída de
   throttle. Descartar ou repetir a primeira antes de comparar.
+
+## Key Learnings — A/B da vida ambiental (2026-07-27, sessão 30)
+
+- **O A/B do §🌬️ rodou no PC de dev (RTX 2060) e o resultado é legível SÓ na GPU.** `?bench`
+  × `?bench&semvida`: FPS 60 × 60, p50/p95 16,7/16,9 idênticos (**vsync**, 11 ms de folga) —
+  **GPU méd 5,16 → 4,62 ms e p95 8,81 → 8,19**. Custo de nuvens+balanço ≈ **0,54 ms de GPU
+  (−10% méd, −7% p95)**, bem acima do ruído de 1–2%. Perfis em `profiles/`:
+  `perf-bench-1785192177031-52k0.json` (A) e `perf-bench-semvida-1785192221358-y9ew.json` (B).
+- **Regra que isso confirma:** em máquina com folga de vsync, FPS e frametime NÃO medem custo
+  de render — só `gpu.medioMs`/`gpu.p95Ms` respondem. Quem quiser o efeito em FPS tem de rodar
+  na máquina apertada (o lab, com GPU p95 já em 16,8–19,6 ms contra 16,7 de orçamento).
+- **A etiquetagem em 3 lugares funcionou** (`meta.bench.semVida`, `config.nuvens/balanco`,
+  nome do arquivo): deu pra parear os dois perfis meses depois sem depender de memória.

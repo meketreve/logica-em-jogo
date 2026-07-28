@@ -1,6 +1,34 @@
 # STATUS — Projeto "Lógica em Jogo" (jogo voxel educacional)
 
 > Single source of truth for resuming work. Read this FIRST when starting a session.
+> **SESSÃO 30 (2026-07-27) — A/B DO §🌬️ MEDIDO (no PC de dev) E ESCOPO DA SOBREVIVÊNCIA ABERTO.**
+> **Zero linha de código.** Sessão de leitura de perfil + entrevista de escopo.
+>
+> **1. O A/B do §🌬️ rodou** — o usuário executou `?bench` e `?bench&semvida` no PC de dev. Os
+> dois perfis estão em `profiles/` (`…52k0.json` = A, `perf-bench-semvida-…y9ew.json` = B) e as
+> 3 etiquetas conferem. **FPS 60 × 60 e p50/p95 16,7/16,9 idênticos — vsync, 11 ms de folga.**
+> O sinal está na GPU: **méd 5,16 → 4,62 ms, p95 8,81 → 8,19** ⇒ nuvens+balanço custam
+> **≈0,54 ms de GPU (−10% méd)**, acima do ruído de 1–2%. Draws/tris iguais nos dois = A/B
+> limpo. **A rodada que decide FPS ainda é a do lab** (GPU p95 lá já bate 16,8–19,6 ms contra
+> 16,7 de orçamento) — a pendência 2 abaixo continua de pé.
+>
+> **2. Escopo da SOBREVIVÊNCIA aberto** (o usuário pediu; a ordem da fila **não mudou**, ela
+> segue 4ª). Tudo em `.wolf/ROADMAP.md §🍖`: 6 decisões travadas, 9 frentes (F1 `/modo` +
+> registro de regras → F9 preset de mundo), onde cada peça mora, as colisões com o que já
+> existe e o que prova cada frente. Resumo do que ficou decidido: **lite agora** com toda perda
+> de vida por uma função só (`aplicarDano`, pra mob/PvP entrarem pela mesma porta) · **mobs
+> hostis só em mundo de exploração**, nunca em aula de matéria · **craft por LISTA** (grade 3×3
+> descartada: tablet/Kindle Fire) · **`/modo`** mundo + `@aluno` + `all` + `eu` · **`/regra`**
+> no molde do `/gamerule`, com `manter-inventario` **LIGADO** por padrão e `/pvp` como atalho
+> da regra `pvp`. **Nenhuma decisão pendente** — quem pegar a frente não reabre nada.
+>
+> **Achados do levantamento que mudaram o desenho:** a banda de itens ≥ 900 já existe
+> (`ITEM_BALDE_VAZIO=900`) e `isPlaceable` já a recusa → comida/ferramenta não precisam de
+> sistema novo · `rules.ts` serve pra plantação sem motor novo · `session.ts` tem 137 KB, então
+> a lógica nova mora em módulos PUROS de `/shared` e a session só orquestra · **não existe
+> nenhum bloco contêiner** em `blocks.ts`, por isso o ramo "morte sem manter-inventario" é
+> "os itens somem" (baú/item no chão são orçamento do F8).
+
 > **SESSÃO 29 (2026-07-27) — A/B FERRAMENTADO, DECK DA CRE, AUTO-UPDATE DO LAUNCHER.**
 > O usuário escolheu: relatório **sem data** (vai apresentar informalmente pra CRE antes da
 > apresentação formal), **ponto 2** (o número do §🌬️) e **ponto 4** com ordem fixada —
@@ -52,35 +80,6 @@
 > criado por professor é do professor**, modificar a PRÓPRIA cópia é livre (o que trava é
 > distribuir), e escola privada como ferramenta de ensino NÃO é uso comercial. Não é OSI — o
 > GitHub marca "licença não reconhecida", e isso é esperado.
-
-> **SESSÃO 28c (2026-07-27) — SENTIDO DA CORRENTEZA, FACE POR FACE.**
-> Segundo retorno do playtest: *"as texturas estão rotacionadas para cada face"*, com receita
-> tirada de UM caso (correnteza sul→norte): topo certo · baixo 180° · sul 90° CW · leste 180° ·
-> oeste certa · norte 90° CW.
->
-> **A receita não generaliza — e isso foi verificado antes de aplicar.** Medindo o sentido da
-> onda em cada face: com fluxo pro NORTE as 4 laterais mostram a onda **descendo**; com fluxo
-> pro LESTE elas já mostram **horizontal**. Nenhuma rotação constante acerta os dois casos.
->
-> **A causa real** é que a regra da 28b escolhia UM tile por CÉLULA e usava nas 6 faces. O tile
-> é uma imagem de 2 eixos, e cada face amarra esses eixos a direções de mundo diferentes: no
-> topo u/v seguem x/z; na face de baixo seguem x/z INVERTIDOS; nas laterais **um dos eixos é o
-> VERTICAL**. Daí o topo sair certo e o resto torto.
->
-> **Correção:** `tileAguaDaFace` escolhe o tile **por face**, projetando o vetor de fluxo nos
-> eixos daquela face (`FACE_BASES`, derivado de FACES e não escrito à mão — se um canto mudar
-> lá, isto acompanha). Lateral perpendicular ao fluxo, e água CAINDO, mostram a onda descendo:
-> é a leitura de cachoeira, e é o que provavelmente o usuário viu como "oeste tá certa".
->
-> | fluxo | topo | baixo | leste | oeste | norte | sul |
-> |---|---|---|---|---|---|---|
-> | sul→**norte** (referência) | norte | norte | norte | norte | baixo | baixo |
-> | oeste→**leste** | leste | leste | baixo | baixo | leste | leste |
-> | **sudeste** (diagonal) | leste+sul | leste+sul | sul | sul | leste | leste |
-> | **parada** (mar/lago) | — segue o vento nas 6 — ||||||
->
-> **358 testes** (3 novos, escritos sobre o helper PURO em vez de UV crua — muito mais legível
-> que reverter UV no teste) · typecheck · build · smoke 6/6. Bug-533.
 
 ---
 
@@ -322,6 +321,8 @@ doem primeiro no tablet da escola (a escola usa Android + Kindle Fire, ver §7 d
    na MESMA máquina. O perfil se etiqueta sozinho (`meta.bench.semVida`, `config.nuvens/
    balanco`) e o lado B nasce `perf-bench-semvida-*.json`. Comparar com a régua abaixo. Só
    vale se o relatório quiser o custo de nuvens/balanço — **não é gatilho de desempenho.**
+   **O lado do PC de dev JÁ FOI FEITO (sessão 30):** custo ≈0,54 ms de GPU (méd 5,16 → 4,62;
+   p95 8,81 → 8,19), **invisível em FPS por causa do vsync**. Só falta a máquina apertada.
 3. **Deck da CRE** (`relatorio/apresentacao-cre.html`) pronto e não apresentado. Se ele voltar
    com pedido de mudança, editar por Edit ancorado em texto de slide — o base64 dos prints
    vive no mapa `IMGS` do `<script>`, não no `src`, justamente pra isso.
@@ -365,7 +366,10 @@ experimento, existe desde bug-529).
    antes, `--ff-only`, 6 escapes. Falta só o teste no Windows (pendência 1 acima).
 2. **Layouts mobile** ← próximo (ver acima).
 3. **v2 da geração de mundo.**
-4. **Sobrevivência** (fome/vida/craft).
+4. **Sobrevivência** (fome/vida/craft) — **escopo ABERTO na sessão 30 (2026-07-27)**, nada
+   codado. Entrevista feita, decisões travadas, 9 frentes e as colisões (mundo-aula, claims,
+   bench, save, protocolo) escritas em `.wolf/ROADMAP.md §🍖`. Ler de lá e começar pelo F1
+   (`/modo`, o interruptor sem mecânica). Ordem da fila **não mudou** — segue 4º.
 
 Fora da fila, sem ordem definida:
 - ~~`ROADMAP.md §🌬️` — vento + vida ambiental~~ **FEITO na sessão 28** (frentes 1 a 6).

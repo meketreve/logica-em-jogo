@@ -4,6 +4,35 @@
 
 ## Session Journal
 
+> **SESSÃO 28c (2026-07-27) — SENTIDO DA CORRENTEZA, FACE POR FACE.**
+> Segundo retorno do playtest: *"as texturas estão rotacionadas para cada face"*, com receita
+> tirada de UM caso (correnteza sul→norte): topo certo · baixo 180° · sul 90° CW · leste 180° ·
+> oeste certa · norte 90° CW.
+>
+> **A receita não generaliza — e isso foi verificado antes de aplicar.** Medindo o sentido da
+> onda em cada face: com fluxo pro NORTE as 4 laterais mostram a onda **descendo**; com fluxo
+> pro LESTE elas já mostram **horizontal**. Nenhuma rotação constante acerta os dois casos.
+>
+> **A causa real** é que a regra da 28b escolhia UM tile por CÉLULA e usava nas 6 faces. O tile
+> é uma imagem de 2 eixos, e cada face amarra esses eixos a direções de mundo diferentes: no
+> topo u/v seguem x/z; na face de baixo seguem x/z INVERTIDOS; nas laterais **um dos eixos é o
+> VERTICAL**. Daí o topo sair certo e o resto torto.
+>
+> **Correção:** `tileAguaDaFace` escolhe o tile **por face**, projetando o vetor de fluxo nos
+> eixos daquela face (`FACE_BASES`, derivado de FACES e não escrito à mão — se um canto mudar
+> lá, isto acompanha). Lateral perpendicular ao fluxo, e água CAINDO, mostram a onda descendo:
+> é a leitura de cachoeira, e é o que provavelmente o usuário viu como "oeste tá certa".
+>
+> | fluxo | topo | baixo | leste | oeste | norte | sul |
+> |---|---|---|---|---|---|---|
+> | sul→**norte** (referência) | norte | norte | norte | norte | baixo | baixo |
+> | oeste→**leste** | leste | leste | baixo | baixo | leste | leste |
+> | **sudeste** (diagonal) | leste+sul | leste+sul | sul | sul | leste | leste |
+> | **parada** (mar/lago) | — segue o vento nas 6 — ||||||
+>
+> **358 testes** (3 novos, escritos sobre o helper PURO em vez de UV crua — muito mais legível
+> que reverter UV no teste) · typecheck · build · smoke 6/6. Bug-533.
+
 > **SESSÃO 28b (2026-07-27) — PLAYTEST DO §🌬️: a regra da correnteza.**
 > O usuário rodou bench no PC dele e no notebook: **"achei tudo muito top"**, com UMA ressalva
 > — e ela é de REGRA, não de bug: *"só a animação do vento na agua fluindo que achei
@@ -1319,6 +1348,12 @@
 > segue ADIADO — sem gatilho.**
 
 ## Action Log
+
+## Session: 2026-07-26 03:00
+
+| Time | Action | File(s) | Outcome | ~Tokens |
+|------|--------|---------|---------|--------|
+| 23:20 | Hitbox da laje ENCERRADA: usuário confirmou que já está correta (mira na metade + colisão meia altura ficam como estão); STATUS/TODO/cerebrum fechados pro /clear | .wolf/STATUS.md, .wolf/TODO.md, .wolf/cerebrum.md | sem mudança de código; nenhuma quest ativa | ~3k |
 
 ## Session: 2026-07-25 09:52
 

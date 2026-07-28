@@ -3,12 +3,6 @@
 > Chronological action log. Hooks and AI append to this file automatically.
 > Old sessions are consolidated by the daemon weekly.
 
-## Session: 2026-07-26 03:00
-
-| Time | Action | File(s) | Outcome | ~Tokens |
-|------|--------|---------|---------|--------|
-| 23:20 | Hitbox da laje ENCERRADA: usuário confirmou que já está correta (mira na metade + colisão meia altura ficam como estão); STATUS/TODO/cerebrum fechados pro /clear | .wolf/STATUS.md, .wolf/TODO.md, .wolf/cerebrum.md | sem mudança de código; nenhuma quest ativa | ~3k |
-
 ## Session: 2026-07-26 12:12
 
 | Time | Action | File(s) | Outcome | ~Tokens |
@@ -659,3 +653,21 @@ decidiu deixar ("não tem problema") — encerrado no Decision Log.
 4 bugs logados (534 screenshot preto por data: URL · 535 flex stretch na tag · 536 print com
 FPS 8 no slide de desempenho · 537 etiqueta do A/B ia mentir). Verify verde: typecheck 3/3,
 358 testes, build. 7 commits pushados.
+| 11:48 | Session end: 27 writes across 12 files (relatorio-aplicacao.md, bench.ts, main.ts, perfis.ts, hud.ts) | 18 reads | ~64058 tok |
+
+## Session: 2026-07-27 19:43
+
+| Time | Action | File(s) | Outcome | ~Tokens |
+|------|--------|---------|---------|--------|
+| 20:10 | leitura do A/B do §🌬️ rodado pelo usuário (PC dev): GPU 5,16→4,62 ms, FPS igual por vsync | profiles/*52k0.json, *y9ew.json | custo da vida ambiental ≈0,54 ms GPU (sinal, ruído é 1-2%) | ~4k |
+| 20:25 | entrevista de escopo da SOBREVIVÊNCIA (4 perguntas) + escrita do escopo | .wolf/ROADMAP.md §🍖 | 5 decisões travadas, 9 frentes (F1 /modo → F9 preset), colisões mapeadas | ~12k |
+| 20:30 | escopo referenciado no handoff e nas decisões | .wolf/STATUS.md, TODO.md, cerebrum.md | ordem da fila inalterada (sobrevivência segue 4ª) | ~3k |
+| 20:45 | decisão do usuário: inventário na morte vira REGRA DE MUNDO (/regra, molde do /gamerule), manter-inventario ON por padrão | .wolf/ROADMAP.md §🍖, TODO.md, cerebrum.md | registro de regras entra no F1; /pvp vira atalho da regra; ramo "off" = itens somem (não há baú no jogo) | ~6k |
+| 20:55 | preparo pro /clear: diário da sessão 30 no topo do STATUS + pendência 2 atualizada | .wolf/STATUS.md | handoff fechado; sessão sem código, só perfil lido e escopo aberto | ~5k |
+
+**Resumo da sessão 30 (2026-07-27):** zero código. (1) Lidos os dois perfis do A/B do §🌬️ que
+o usuário rodou no PC de dev — custo de nuvens+balanço ≈0,54 ms de GPU, invisível em FPS por
+vsync; falta a rodada do lab. (2) Entrevista de escopo da SOBREVIVÊNCIA (4 perguntas) → 6
+decisões travadas e 9 frentes escritas em `.wolf/ROADMAP.md §🍖`, incluindo o registro de
+regras de mundo (`/regra`, molde do `/gamerule`) pedido pelo usuário. Ordem da fila inalterada:
+layouts mobile segue sendo o próximo.
