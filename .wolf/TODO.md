@@ -9,21 +9,30 @@
 
 ## 🔥 Now (this session)
 
-- [x] **Layouts mobile, 1ª rodada — FEITA** (sessão 31): menu, inventário/hotbar e chat/HUD
-      em 1024×600 paisagem. Três media queries (`pointer:coarse`, `max-height:700px`,
-      paisagem baixa), hotbar tocável, chat acima do teclado virtual (`--kb` via
-      `visualViewport`), alvos de dedo com piso de 40px. Verificação nova
-      `npm run shots:tablet`. VERDE: typecheck 3/3, 358 testes, build, 15/15 medições.
-- [x] **Escopo da v2 da geração ABERTO** (sessão 31): 4 decisões travadas, ponto de partida
-      conferido no código, 7 colisões e o portão de cada frente em `.wolf/ROADMAP.md §🏔️`.
-- [ ] **Começar a v2 da geração pelas CAVERNAS.** Ler `ROADMAP.md §🏔️` primeiro — não reabrir
-      decisão. Escavar em `gerarColunaDeChunks` (`shared/src/worldgen.ts` L252-361) como
-      função PURA de `(x,y,z,seed)` (mundo E é lazy). **Antes de escavar, perguntar ao usuário
-      a única pendência de produto: não existe luz voxel** (tocha é halo decorativo) — caverna
-      nasceria clara como a superfície.
+- [x] **§💡 LUZ VOXEL COMPLETA** (sessão 32, commit `1be4ab0`): motor puro em
+      `shared/src/luz.ts` (céu + tocha em 2 nibbles, BFS com descida reta, incremental),
+      atributo `luz` por vértice no mesher, shader encadeado no `onBeforeCompile` do §🌬️,
+      fila com orçamento por frame antes do mesher. **100% no cliente** — zero protocolo.
+      Verificação nova `npm run shots:luz` (5/5, noite/dia = 0,48).
+- [x] **§🏔️ CAVERNAS** (sessão 32, commit `f1dd05f`): interseção de 2 ruídos 3D, função pura
+      de `(x,y,z,h,seed)`, todo mundo procedural, secas sob o mar com casca fina, spawn com
+      veto de boca de caverna. VERDE: typecheck 3/3, 388 testes, build, 6/6 smokes.
+- [ ] **Relevo "montanha de verdade" por bioma** — a outra metade da v2. `ROADMAP.md §🏔️`.
+      `Bioma` não tem campo de relevo e `heightAt` é heightmap único global; dar relevo por
+      bioma **reabre o penhasco de fronteira**. Portão: fronteira sem degrau > N blocos,
+      `topoPrevisto` segue fonte única, determinismo continua passando. Lembrar que serra mais
+      alta = mais coluna materializada = mais malha, mais luz E mais caverna.
 
 ## 🏫 Na escola (o usuário faz lá)
 
+- [ ] **PLAYTEST da LUZ e das CAVERNAS** (sessão 32) — headless não diz se é *jogável*.
+      Dá pra andar em caverna sem tocha (piso `luzMin` = 0,05)? A tocha ilumina o bastante
+      (emite 14, com o halo decorativo por cima)? A noite ficou escura demais pra construir
+      (`PISO_LUAR` = 0,22)? Achar caverna é fácil demais ou raro demais (`LIMIAR_CAVERNA`)?
+- [ ] **FPS do lab com cavernas** — elas somaram **+66% de triângulos** (153 852 → 255 234) e
+      a GPU de lá já fecha o p95 em 16,8–19,6 ms contra 16,7 de orçamento. Rodar `?bench` no
+      notebook e comparar com a régua (`…-l9xf.json`). Se doer, o botão é `LIMIAR_CAVERNA`.
+      ⚠️ A seed do `?bench` é das mais vazias — o +66% é o melhor caso.
 - [ ] **PLAYTEST mobile no tablet** — headless não tem dedo, teclado do Android nem DPI real.
       Conferir nessa ordem: tapa no slot da hotbar troca de bloco · chat com teclado aberto ·
       "Meus mundos" com vários mundos (chegar no "voltar") · abas do inventário numa linha ·

@@ -3372,6 +3372,90 @@
       ],
       "occurrences": 1,
       "last_seen": "2026-07-27T23:55:00Z"
+    },
+    {
+      "id": "bug-540",
+      "timestamp": "2026-07-28T09:20:00Z",
+      "error_message": "a verificacao da luz (scripts/luz-shots.mjs) mediu luminancia 0.0 ao meio-dia E a meia-noite, e ainda assim marcou verde o teste 'a noite escurece' — enquanto o print salvo ao lado mostrava o mundo iluminado",
+      "file": "scripts/luz-shots.mjs",
+      "root_cause": "a medicao lia o canvas pela pagina com `drawImage(canvasWebGL, ...)` num canvas 2D. O three usa `preserveDrawingBuffer: false`, entao o buffer de desenho e invalidado depois de compor: qualquer leitura fora do frame devolve PRETO. Pior que o falso negativo foi o falso POSITIVO — 0/0 satisfez a razao noite/dia < 0.75 e a verificacao 'passou' num numero sem sentido.",
+      "fix": "medir o print do proprio CDP (`Page.captureScreenshot` em PNG, que e composto pelo navegador) e decodificar o PNG em Node com `zlib.inflateSync` + desfiltragem (decodificador minimo de 8 bits RGB/RGBA no proprio script). De quebra, a razao passou a ser calculada sobre uma JANELA de terreno, fora das linhas do F3, que sao identicas nas duas horas e so diluiam a diferenca.",
+      "tags": [
+        "verificacao",
+        "headless",
+        "cdp",
+        "webgl",
+        "preservedrawingbuffer",
+        "screenshot",
+        "luz",
+        "falso-positivo"
+      ],
+      "related_bugs": [
+        "bug-534"
+      ],
+      "occurrences": 1,
+      "last_seen": "2026-07-28T09:20:00Z"
+    },
+    {
+      "id": "bug-541",
+      "timestamp": "2026-07-28T09:20:00Z",
+      "error_message": "smoke `pedir-coluna` falhou: 'streaming passou do RAIO_PADRAO: anel 4 (esperado > 6)' e `troca-raio` junto — 4/6 smokes OK, logo depois de as cavernas entrarem",
+      "file": "shared/src/worldgen.ts",
+      "root_cause": "`cavernaEm` avaliava DOIS value noises 3D por celula, 8 hashes cada = 16 hashes por celula de subsolo. Isso levou `gerarColunaDeChunks` de 2,63 para 28,61 ms por coluna (10,9x). O servidor gera coluna sob demanda no mundo E, entao a vazao do streaming caiu e o smoke, que mede ate onde o anel chegou no tempo dado, parou no anel 4.",
+      "fix": "amortizar o ruido por FATIA horizontal (`cavFatia`): descendo uma coluna os indices/pesos de x e z nao mudam nunca e `iy` so vira a cada 13 blocos, entao sao 4 hashes a cada 13 celulas em vez de 8 por celula. Mais early-out: o segundo campo so e avaliado se o primeiro passou (~88% das celulas morrem no primeiro). 28,61 -> 3,49 ms/coluna. Ha teste comparando `cavernasDaColuna` com `cavernaEm` celula a celula — o mundo gerado sai byte a byte identico.",
+      "tags": [
+        "desempenho",
+        "worldgen",
+        "cavernas",
+        "ruido",
+        "streaming",
+        "smoke",
+        "mundo-lazy"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-28T09:20:00Z"
+    },
+    {
+      "id": "bug-542",
+      "timestamp": "2026-07-28T09:20:00Z",
+      "error_message": "(pego na medicao, antes de ir pro cliente) acender uma coluna de luz custava 18,36 ms — mais que o mesh da coluna inteira, e na main thread",
+      "file": "shared/src/luz.ts",
+      "root_cause": "a BFS de luz do ceu enfileirava TODA celula iluminada da coluna (~32 mil num mundo de 128 de altura). A esmagadora maioria esta em ceu aberto cercada de ceu aberto: a BFS visita, olha 6 vizinhos e nao muda nada. Alem disso escrevia celula a celula (com checagem de borda de chunk) os ~100 blocos de ceu vazio acima do relevo, em chunks que o mesher nem visita.",
+      "fix": "enfileirar so a BANDA util — altura do `piso` mais alto entre os 4 vizinhos laterais + 1, que e de onde sai a sombra do penhasco e a luz da boca de caverna; `fill` de um byte so no chunk 100% ar sob ceu cheio; leitura direta dos bytes do chunk em vez de `getBlock`. 18,36 -> 2,48 ms/coluna (1,87 medido no navegador). A fila de luz ainda entra num orcamento por frame, antes do mesher.",
+      "tags": [
+        "desempenho",
+        "luz",
+        "bfs",
+        "main-thread",
+        "streaming",
+        "orcamento-por-frame"
+      ],
+      "related_bugs": [
+        "bug-541"
+      ],
+      "occurrences": 1,
+      "last_seen": "2026-07-28T09:20:00Z"
+    },
+    {
+      "id": "bug-543",
+      "timestamp": "2026-07-28T09:20:00Z",
+      "error_message": "(latente, introduzido pelas cavernas e corrigido na mesma sessao) uma boca de caverna no centro do mundo faria o jogador nascer no fundo de um poco — em TODO join daquele mundo",
+      "file": "shared/src/world.ts",
+      "root_cause": "`findSpawnY` desce do topo do mundo e para no primeiro bloco nao-ar. Com uma boca de caverna na coluna do spawn, ele atravessa o buraco e para no CHAO DA CAVERNA. Como a geracao e deterministica por seed, nao seria intermitente: aquele mundo nasceria assim sempre.",
+      "fix": "`findSpawnSeco` ganhou um parametro `rejeitar(x,z)` — veto extra de quem chama. A `session.ts` passa, so no preset 'normal', um veto que testa `cavernaEm(x,h,z,h,seed)`; o teste e a funcao PURA, nao `getBlock`, porque o que importa e o que a GERACAO fez ali (a coluna pode ter sido editada depois). Presets plano/cabines nao passam veto: `cavernaEm` e ruido puro e nao sabe de preset.",
+      "tags": [
+        "spawn",
+        "cavernas",
+        "worldgen",
+        "determinismo",
+        "preset"
+      ],
+      "related_bugs": [
+        "bug-010"
+      ],
+      "occurrences": 1,
+      "last_seen": "2026-07-28T09:20:00Z"
     }
   ]
 }

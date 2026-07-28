@@ -985,3 +985,82 @@ a cada stop, sem jeito de satisfazer seguindo as instruções dele mesmo.
   um cabeçalho `## Session: <hoje>` gerado pelo próprio OpenWolf — e depois da virada do dia
   esse cabeçalho ainda é o de ontem. Cabeçalho MEU (`## Sessão 31 (…)`) não casa com o regex
   `^##\s+Session:\s*(\d{4}-\d{2}-\d{2})` e não serve.
+
+## Key Learnings — luz voxel e cavernas (2026-07-28, sessão 32)
+
+- **Luz é função pura dos BYTES do mundo, então mora no CLIENTE.** O cliente já
+  recebe os bytes (snapshot + `block_changed`), logo derivar a luz lá custa zero
+  de banda e zero de tick, e dois clientes com os mesmos bytes chegam na mesma
+  luz sozinhos. A entrevista tinha estimado "mexe no tick do servidor e no
+  protocolo" — não mexeu em nenhum dos dois. **Antes de aceitar que uma feature
+  precisa de protocolo, perguntar se o cliente já tem os dados de entrada.**
+- **Dois canais de 4 bits num byte só** (`(ceu << 4) | bloco`): o céu escala com
+  a hora no shader, o bloco (tocha) não. É isso que faz caverna com tocha
+  continuar acesa às 3 da manhã, sem remesh nenhum ao anoitecer — a hora é um
+  uniform, não geometria.
+- **A regra que faz caverna existir** é a DESCIDA RETA: luz de céu no máximo
+  descendo por bloco transparente não perde nível. Sem essa exceção o mundo vira
+  um gradiente vertical e nada é sombra de teto.
+- **`onBeforeCompile` é UM só por material.** O three guarda uma referência; um
+  segundo `aplicarX` que atribua por cima apaga o primeiro **sem erro nenhum** —
+  a folha só para de balançar. `aplicarLuz` ENCADEIA (guarda o anterior e chama
+  antes). Qualquer enxerto novo de shader tem de fazer o mesmo.
+- **Luz roda na MAIN THREAD** (o mundo mora lá; mandar pro Worker exigiria mandar
+  o mundo junto). Por isso ela entrou na mesma disciplina do mesher: fila +
+  orçamento por frame, e SEMPRE pelo menos uma coluna por frame. E `filaLuz`
+  entra no portão da tela de carga, senão ela fecha com o mundo cheio de buraco.
+- **A ordem é luz → mesh, nunca o contrário.** Geometria montada antes da luz
+  nasce clara e escurece num segundo remesh — pisca na cara da turma.
+- **Conjunto sujo de luz > vizinhança do bloco.** `remeshBlock` cobre ±1 chunk;
+  luz alcança 15 blocos. O motor devolve o conjunto de chunks que mudou e é ESSE
+  que se remesha (`remeshSujos`), senão fica um quadrado de sombra velha parado.
+- **Folha atenua 1 de propósito**, então a célula logo acima do terreno (`h+1`)
+  NÃO é 15 quando há copa por cima. Teste que assumir 15 na superfície tem de
+  olhar o topo do mundo, não `h+1`. (Custou uma falha de teste.)
+- **Calibrar densidade de ruído em UMA seed é armadilha.** A caverna varia de
+  2,9% a 7,3% de subsolo escavado conforme a seed, num mundo 6×6, porque a célula
+  do ruído tem 26 blocos e um mundo pequeno mal cobre duas. A seed do `?bench`
+  (20260726) é das mais VAZIAS da amostra — calibrar por ela teria entregado o
+  dobro da densidade pretendida. O teste mede a MÉDIA de 5 seeds.
+- **Custo de GPU de ter caverna:** 153 852 → 255 234 triângulos e 518 → 665 draw
+  calls no `?bench`. O salto grande é ter caverna QUALQUER (o chunk de subsolo
+  deixa de ser sólido sem faces); aumentar densidade depois é comparativamente
+  barato. Medido no PC de dev — **falta a rodada no lab**, onde a GPU já está no
+  teto.
+- **Interpolação trilinear é separável**, então dá pra amortizar value noise 3D
+  por FATIA horizontal quando se desce uma coluna: os índices/pesos de x e z não
+  mudam nunca e `iy` só vira a cada `CAV_Y` blocos. Foi a diferença entre 28,6 e
+  3,5 ms por coluna. Quando houver caminho rápido e caminho de referência,
+  **escrever o teste que compara os dois célula a célula** — é ele que autoriza
+  otimizar sem medo de mudar o mundo gerado.
+
+## Do-Not-Repeat — medir pixel de canvas WebGL (2026-07-28)
+
+- **NÃO medir cor lendo o canvas do three pela página.** `drawImage(canvasWebGL,
+  …)` (e `getImageData` depois) devolve **PRETO** fora do frame de render, porque
+  o three usa `preserveDrawingBuffer: false`. Isso não dá erro: dá 0,0. E 0,0 nos
+  dois lados de um A/B ainda "passa" numa razão < limiar — falso POSITIVO
+  (bug-540). **Medir o print do CDP** (`Page.captureScreenshot`, que é composto
+  pelo navegador) e decodificar em Node. Já existe decodificador PNG mínimo em
+  `scripts/luz-shots.mjs` (zlib + desfiltragem, 8 bits RGB/RGBA) — reusar de lá.
+- **Toda verificação comparativa precisa de uma âncora ABSOLUTA junto da razão.**
+  "noite/dia < 0,75" sozinho aprova tela preta. Os testes de `luz-shots.mjs`
+  checam também "meio-dia tem imagem" e "meia-noite não é preto absoluto".
+
+## Do-Not-Repeat — ruído 3D célula a célula no worldgen (2026-07-28)
+
+- Avaliar value noise 3D por célula no `gerarColunaDeChunks` custou **10,9× o
+  tempo de geração** (2,63 → 28,61 ms/coluna) e **derrubou o streaming** — o
+  smoke `pedir-coluna` parou no anel 4 em vez de passar de 6 (bug-541). O
+  worldgen roda no servidor, por coluna, sob demanda no mundo E: **qualquer coisa
+  nova que varra o subsolo inteiro tem de ser amortizada antes de commitar, e
+  `npm run smoke` é quem pega.**
+
+## Key Learnings — rtk comprime saída de grep (2026-07-28)
+
+- O hook reescreve `grep`/`cat` para `rtk`, e a saída volta COMPRIMIDA: nomes de
+  função somem de `grep -n 'export function'`, e às vezes só vem
+  "N matches in M files". Quando o conteúdo exato importa, usar
+  **`rtk proxy "<comando entre aspas>"`** — executa cru, sem filtro. (Este
+  projeto não tem ferramenta Grep dedicada exposta ao agente; `rtk proxy` é o
+  caminho.)

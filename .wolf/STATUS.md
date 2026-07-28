@@ -1,6 +1,45 @@
 # STATUS — Projeto "Lógica em Jogo" (jogo voxel educacional)
 
 > Single source of truth for resuming work. Read this FIRST when starting a session.
+> **SESSÃO 32 (2026-07-28) — §💡 LUZ VOXEL COMPLETA E §🏔️ CAVERNAS. Dois commits,
+> tudo verde.** A fase da fila era "v2 da geração"; o portão de produto que o escopo tinha
+> deixado aberto era a luz, e **o usuário escolheu luz COMPLETA (céu + tocha) ANTES de
+> escavar** — mais a decisão da água: **caverna seca mesmo abaixo do mar**, com casca fina
+> de pedra separando (quem furar o teto depois deixa o mar entrar).
+>
+> **A escolha de arquitetura que mudou o tamanho da obra:** o cardápio dizia que luz completa
+> "mexe no tick do servidor e no protocolo". **Não mexeu em nenhum dos dois.** Luz é função
+> pura dos BYTES do mundo e o cliente já tem os bytes — então a grade de luz mora 100% no
+> cliente, e dois clientes chegam na mesma luz sozinhos. Zero mensagem nova, zero cirurgia no
+> `session.ts` (137 KB).
+>
+> **O que foi construído:** `shared/src/luz.ts` (motor PURO, 1 byte/célula, céu e tocha em
+> dois nibbles, BFS com a regra da descida reta, incremental no `atualizarBloco`) ·
+> atributo `luz` por vértice no mesher · shader encadeado no `onBeforeCompile` do §🌬️ ·
+> fila de luz com orçamento por frame ANTES do mesher · cavernas por interseção de dois
+> ruídos 3D, função pura de `(x,y,z,h,seed)`.
+>
+> **Três medições que mudaram decisão** (nenhuma delas óbvia lendo o código):
+> 1. **Acender coluna custava 18,4 ms** — mais que meshar a coluna inteira, e na main
+>    thread. A BFS enfileirava as ~32 mil células de céu, quase todas em céu aberto cercadas
+>    de céu aberto. Enfileirando só a BANDA rente ao relevo: **2,48 ms** (1,87 no navegador).
+> 2. **Ruído de caverna célula a célula levou o worldgen de 2,63 a 28,61 ms/coluna** (10,9×)
+>    e **derrubou o smoke `pedir-coluna`**. Amortizando o ruído por FATIA: **3,49 ms**, com
+>    mundo gerado byte a byte idêntico (há teste comparando os dois caminhos).
+> 3. **A densidade de caverna varia 2,9%–7,3% conforme a SEED** — e a seed do `?bench` é das
+>    mais vazias. Calibrar por ela teria entregado o dobro do pretendido. O teste mede a
+>    média de 5 seeds.
+>
+> **Verificação nova: `npm run shots:luz`.** Compara a MESMA cena do `?bench` ao meio-dia e
+> à meia-noite e mede luminância. Pega os DOIS jeitos de a luz falhar calada: shader que não
+> compila (tudo preto) e shader que compila sem fazer nada (as duas horas iguais). 5/5,
+> noite/dia = 0,48. ⚠️ A 1ª versão dela mediu 0,0 nas duas horas e **passou mesmo assim**
+> (bug-540): `drawImage` de canvas WebGL fora do frame devolve preto, e 0/0 satisfaz a razão.
+> Agora decodifica o PNG do CDP e checa âncoras absolutas junto da razão.
+>
+> **VERDE:** typecheck 3/3 · **388 testes** (30 novos) · build · 6/6 smokes · 5/5 na luz.
+> **Playtest do usuário PENDENTE** — headless não diz se caverna escura é *divertida*, nem se
+> o piso de 0,05 de brilho deixa andar lá dentro sem tocha.
 > **SESSÃO 31 (2026-07-27) — LAYOUTS MOBILE, 1ª RODADA: MENU + INVENTÁRIO/HOTBAR + CHAT/HUD.**
 > Escopo escolhido pelo usuário na entrevista: essas três telas (painéis de AUTORIA ficaram de
 > fora) e régua **"os dois, Fire manda"** — 1024×600 paisagem manda, tablet maior herda.
@@ -292,33 +331,52 @@ Documento é o ÚLTIMO entregável, não o primeiro. Construir, não documentar.
 
 ---
 
-## 🚀 Próxima fase — V2 DA GERAÇÃO (cavernas, depois relevo por bioma)
+## 🚀 Próxima fase — RELEVO POR BIOMA (a 2ª metade da v2 da geração)
 
 A ordem do backlog está **travada pelo usuário** (sessão 29):
-**auto-update ✅ → layouts mobile ✅ (1ª rodada) → v2 da geração ← AQUI → sobrevivência.**
+**auto-update ✅ → layouts mobile ✅ (1ª rodada) → v2 da geração ← AQUI (metade feita) →
+sobrevivência.**
 
-**Escopo ABERTO e travado na sessão 31 (2026-07-28). Tudo em `.wolf/ROADMAP.md §🏔️`:** as 4
-decisões, o ponto de partida real conferido no código, 7 colisões e o portão de cada frente.
-**Nenhuma decisão pendente sobre O QUE fazer** — quem pegar a frente não reabre.
+**Cavernas: FEITAS (sessão 32).** Falta a outra metade decidida no escopo: **relevo "montanha
+de verdade" por bioma** — araucária vira serra alta com neve, não só um multiplicador de
+amplitude. Tudo em `.wolf/ROADMAP.md §🏔️`.
 
-Resumo do que ficou decidido: **os dois, cavernas antes** · **cavernas em TODO mundo
-procedural** (P/M/G/E; `plano` e `cabines` intocados) · **relevo "montanha de verdade"**
-(araucária vira serra alta com neve, o que reabre de propósito o penhasco de fronteira que o
-heightmap global evitou em 2026-07-20).
+**O que torna essa metade diferente (e o motivo de ela ser a parte difícil):** hoje `heightAt`
+é um heightmap **único e global** e a interface `Bioma` (`shared/src/biomas.ts`) **não tem
+campo nenhum de relevo** — bioma só PINTA e DECORA. Dar relevo por bioma **reabre de
+propósito** o penhasco de fronteira que o heightmap global evitou em 2026-07-20: a suavização
+entre biomas passa a ser o trabalho da fase, não um detalhe. O portão: teste de fronteira sem
+degrau maior que N blocos entre colunas adjacentes, `topoPrevisto` continua a fonte ÚNICA do
+bloco de topo, e o determinismo (mesma seed = mesmos bytes) tem de continuar passando.
+
+**Duas coisas novas que a fase de relevo herda e não pode ignorar:**
+1. **Serra alta = mais coluna materializada = mais malha E mais luz.** O custo por coluna hoje
+   é worldgen 3,49 ms + luz 2,48 ms, e os dois escalam com a altura do terreno. Medir com
+   `?bench` antes de levantar os picos.
+2. **A caverna acompanha o terreno** (`cavernaEm` recebe `h` e escava de y=2 até o topo).
+   Montanha mais alta = mais subsolo = mais caverna e mais triângulo. A conta de GPU abaixo
+   já está no limite.
 
 > ⚠️ **ARMADILHA DE NOME:** a sessão 10 já chamou de "worldgen v2" o que ELA entregou (biomas
 > por clima + minério em veia + árvores brasileiras). **Não é essa a v2 da fila.** E
 > **"madeira por espécie" saiu do escopo: já está feita** — `LogIpe`/`LogAraucaria`/
 > `LogPauBrasil` existem e cada espécie só nasce no bioma dono.
 
-**A única pergunta que sobrou pro usuário, e ela é de PRODUTO, não de código:** **não existe
-luz voxel neste projeto** (a tocha é halo decorativo — `client/src/torchGlow.ts`, decisão de
-2026-07-17). Caverna hoje nasceria **clara como a superfície**. Perguntar antes de escavar se
-a fase entrega escuridão/luz junto ou se aceita buraco iluminado por ora.
+### §💡 Luz voxel — o que ficou aberto
 
-**Ponto de partida em uma linha:** `gerarColunaDeChunks` (`shared/src/worldgen.ts` L252-361) é
-onde a caverna escava; `heightAt` é um heightmap **único e global** e a interface `Bioma`
-(`shared/src/biomas.ts`) **não tem campo nenhum de relevo**; **cavernas = 0 ocorrências** hoje.
+- **Iluminação é POR FACE, não suavizada por vértice.** Os 4 vértices de uma face levam o
+  mesmo byte. Suavizar (média das células em volta de cada vértice, estilo AO) é refino
+  conhecido e **não muda o pipeline** — o atributo já existe. Só fazer se alguém reclamar do
+  degrau entre faces.
+- **`torchGlow.ts` continua existindo** como halo decorativo, agora POR CIMA da luz de bloco
+  real. Ninguém olhou se os dois juntos ficam exagerados — é pergunta de playtest.
+- **Piso de brilho = 0,05** (`luzMin` em `client/src/luzShader.ts`). Escolhido pra caverna dar
+  silhueta sem dar leitura, num jogo de sala de aula. Se o playtest disser "não dá pra andar",
+  é UMA linha.
+- **Nada de luz no SAVE.** A luz é derivada dos bytes, então mundo antigo abre e acende igual
+  — nenhuma migração de formato. Mundo salvo ANTES da sessão 32 continua sem caverna (a
+  caverna fica assada no `.ljw`), e isso está certo: mundo de aula não muda debaixo do
+  professor.
 
 ### Layouts mobile — o que ficou aberto da 1ª rodada
 
@@ -332,8 +390,21 @@ onde a caverna escava; `heightAt` é um heightmap **único e global** e a interf
   resolve com UMA linha (`.menu-screen { width: min(680px, 92vw) }` sem media query), mas é
   mudança visual não pedida numa tela de uso diário — **só com o aval do usuário.**
 
-### Quatro pendências que não bloqueiam nada, e quem faz é o usuário
+### Cinco pendências que não bloqueiam nada, e quem faz é o usuário
 
+-1. **PLAYTEST DA LUZ E DAS CAVERNAS (sessão 32) — o mais novo, e o único que headless não
+   substitui.** O que olhar:
+   1. **Dá pra andar numa caverna sem tocha?** O piso de brilho é 0,05 — se ficar cego, é uma
+      linha (`luzMin`, `client/src/luzShader.ts`).
+   2. **A tocha ilumina o suficiente?** Ela emite 14 e o halo decorativo continua por cima;
+      ninguém viu os dois juntos.
+   3. **A noite ficou escura demais pra construir?** O piso de luar é 0,22 (`PISO_LUAR`,
+      `client/src/daynight.ts`).
+   4. **Achar uma caverna é fácil ou raro demais?** Densidade em `LIMIAR_CAVERNA = 0,06`
+      (`shared/src/worldgen.ts`) — ~5% do subsolo, ~1 boca a cada 400 colunas.
+   5. **FPS no notebook do lab.** Cavernas somaram **+66% de triângulos** (153 852 → 255 234)
+      e a GPU de lá já fecha o p95 em 16,8–19,6 ms contra 16,7 de orçamento. É a medição que
+      mais falta — ver ⚠️ abaixo.
 0. **PLAYTEST MOBILE — o usuário faz NA ESCOLA** (declarado em 2026-07-28). A 1ª rodada de
    layouts está verde no headless, mas headless não tem dedo, teclado do Android nem o DPI do
    aparelho. O que olhar, na ordem em que foi mexido:
@@ -382,6 +453,15 @@ experimento, existe desde bug-529).
 
 ### ⚠️ Dois tetos que NÃO se atravessa com código
 
+0. **§🏔️ AS CAVERNAS COBRARAM +66% DE TRIÂNGULOS** (153 852 → 255 234; draw calls 518 → 665),
+   medido no `?bench` do PC de dev em 2026-07-28. O salto grande é ter caverna QUALQUER — o
+   chunk de subsolo deixa de ser sólido-sem-faces; aumentar densidade depois é barato
+   (0,075 daria 294 256, só +15% sobre o 0,06 escolhido). **Isso ainda NÃO foi medido no
+   lab**, e é lá que a GPU já está no teto (item 1 abaixo). Se o FPS cair na escola, o botão
+   é `LIMIAR_CAVERNA` (`shared/src/worldgen.ts`) — e a régua de densidade está no teste
+   `escava na densidade calibrada`, que mede a média de 5 seeds.
+   ⚠️ **A seed do `?bench` (20260726) é das mais VAZIAS** (2,9% contra 7,3% da pior): o número
+   acima é o melhor caso, não o típico.
 1. **GPU p95 16,8–19,6 ms contra 16,7 ms** de orçamento de 60 FPS no lab. **O mesher acabou.**
    Se um dia o FPS incomodar de novo, o alvo é GPU — teto de `raioRender` em GPU fraca,
    overdraw da água, custo de fragment. **Greedy meshing continua DESCARTADO:** draw calls
@@ -398,8 +478,13 @@ experimento, existe desde bug-529).
 2. ~~**Layouts mobile**~~ **1ª RODADA FEITA (sessão 31)**: menu, inventário/hotbar e chat/HUD
    em 1024×600. Falta o **playtest no tablet** (pendência 0) e os **painéis de autoria**, que
    o usuário deixou de fora desta rodada.
-3. **v2 da geração de mundo** ← AQUI. **Escopo travado na sessão 31**, em `ROADMAP.md §🏔️`:
-   cavernas primeiro (todo mundo procedural), depois relevo "montanha de verdade" por bioma.
+3. **v2 da geração de mundo** ← AQUI, **METADE FEITA**. `ROADMAP.md §🏔️`.
+   - ~~**Luz voxel** (pré-requisito que o usuário mandou entregar antes)~~ **FEITA (sessão
+     32)**: céu + tocha, repropagação incremental, 100% no cliente.
+   - ~~**Cavernas**~~ **FEITAS (sessão 32)**: interseção de 2 ruídos 3D, todo mundo
+     procedural, secas sob o mar com casca.
+   - **Relevo "montanha de verdade" por bioma** ← o que falta. É a parte difícil: reabre o
+     penhasco de fronteira que o heightmap global evitou.
 4. **Sobrevivência** (fome/vida/craft) — **escopo ABERTO na sessão 30 (2026-07-27)**, nada
    codado. Entrevista feita, decisões travadas, 9 frentes e as colisões (mundo-aula, claims,
    bench, save, protocolo) escritas em `.wolf/ROADMAP.md §🍖`. Ler de lá e começar pelo F1
@@ -493,7 +578,15 @@ npm run verify      # typecheck + testes + build (o portão antes de commitar)
 npm run smoke       # cenários de rede reais (--lista diz o que cada um prova)
 npm run bench:headless   # roda o ?bench num Chrome headless e imprime o perfil
 npm run shots:tablet     # mede+fotografa a UI em 1024×600 com pointer:coarse
+npm run shots:luz        # §💡 compara o MESMO bench ao meio-dia e à meia-noite
 ```
+
+**Verificação da luz** (precisa do `npm run dev` rodando em outro terminal): mede a
+luminância de uma janela de terreno nas duas horas e falha se o meio-dia estiver escuro, se a
+meia-noite estiver em preto absoluto, se a razão noite/dia não cair, ou se o console cuspir
+erro de shader. Prints em `.wolf/designqc-captures/luz/`. ⚠️ **Nunca medir cor lendo o canvas
+pela página** — `drawImage` de canvas WebGL fora do frame devolve preto e o A/B "passa" com
+0/0 (bug-540); o script decodifica o PNG do CDP justamente por isso.
 
 **Verificação de layout mobile** (precisa do `npm run dev` rodando em outro terminal):
 

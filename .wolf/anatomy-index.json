@@ -1,12 +1,12 @@
 {
   "version": 1,
   "meta": {
-    "lastScanned": "2026-07-28T12:14:50.327Z",
+    "lastScanned": "2026-07-28T12:21:46.699Z",
     "fileCount": 244,
     "hits": 0,
     "misses": 0,
-    "renderedHash": "b03f4aec5445b24a9486023b0d728474105b3eb3f52cb8bf877652374aea4a33",
-    "storeUpdatedAt": "2026-07-28T12:14:50.344Z"
+    "renderedHash": "e8995b8afe00b513caa0380cfecf4ee85c611bd59a5c89169a4c829e32ae091b",
+    "storeUpdatedAt": "2026-07-28T12:21:46.702Z"
   },
   "files": {
     ".claude/commands/reframe.md": {
@@ -15,7 +15,7 @@
       "hash": "17a75695be5d4629",
       "size": 2221,
       "mtimeMs": 1784958617978.735,
-      "updatedAt": "2026-07-28T02:53:57.474Z",
+      "updatedAt": "2026-07-28T12:21:46.446Z",
       "source": "scan"
     },
     ".claude/commands/security-audit.md": {
@@ -24,7 +24,7 @@
       "hash": "e6f7e0b7337c9c86",
       "size": 2060,
       "mtimeMs": 1784958617978.735,
-      "updatedAt": "2026-07-28T02:53:57.474Z",
+      "updatedAt": "2026-07-28T12:21:46.446Z",
       "source": "scan"
     },
     ".claude/rules/openwolf.md": {
@@ -33,7 +33,7 @@
       "hash": "41db21e2a5a8e9be",
       "size": 1637,
       "mtimeMs": 1784982110066.7358,
-      "updatedAt": "2026-07-28T02:53:57.475Z",
+      "updatedAt": "2026-07-28T12:21:46.447Z",
       "source": "scan"
     },
     ".claude/settings.json": {
@@ -42,7 +42,7 @@
       "hash": "d8888b729911cfaf",
       "size": 1799,
       "mtimeMs": 1784958617774.735,
-      "updatedAt": "2026-07-28T02:53:57.476Z",
+      "updatedAt": "2026-07-28T12:21:46.448Z",
       "source": "scan"
     },
     ".claude/settings.local.json": {
@@ -51,7 +51,7 @@
       "hash": "dc7d39ac3038ca42",
       "size": 22122,
       "mtimeMs": 1784569171012.358,
-      "updatedAt": "2026-07-28T02:53:57.477Z",
+      "updatedAt": "2026-07-28T12:21:46.449Z",
       "source": "scan"
     },
     ".gitattributes": {
@@ -60,7 +60,7 @@
       "hash": "9f882e7b33fcaca1",
       "size": 114,
       "mtimeMs": 1783780660396.0913,
-      "updatedAt": "2026-07-28T02:53:57.477Z",
+      "updatedAt": "2026-07-28T12:21:46.449Z",
       "source": "scan"
     },
     ".gitignore": {
@@ -69,7 +69,7 @@
       "hash": "04a09a6641e998a4",
       "size": 1109,
       "mtimeMs": 1785158191164.7988,
-      "updatedAt": "2026-07-28T02:53:57.477Z",
+      "updatedAt": "2026-07-28T12:21:46.449Z",
       "source": "scan"
     },
     ".wolf.bak-pre-lean/anatomy-index.json": {
@@ -78,7 +78,7 @@
       "hash": "0589d553d78e88e5",
       "size": 35286,
       "mtimeMs": 1784982110010.7358,
-      "updatedAt": "2026-07-28T02:53:57.479Z",
+      "updatedAt": "2026-07-28T12:21:46.451Z",
       "source": "scan"
     },
     ".wolf.bak-pre-lean/anatomy.md": {
@@ -87,7 +87,7 @@
       "hash": "f926b9cb0350f5f4",
       "size": 16778,
       "mtimeMs": 1784982110006.7358,
-      "updatedAt": "2026-07-28T02:53:57.481Z",
+      "updatedAt": "2026-07-28T12:21:46.452Z",
       "source": "scan"
     },
     ".wolf.bak-pre-lean/buglog.json": {
@@ -96,7 +96,7 @@
       "hash": "b378a659bed058f6",
       "size": 272540,
       "mtimeMs": 1784982110010.7358,
-      "updatedAt": "2026-07-28T02:53:57.487Z",
+      "updatedAt": "2026-07-28T12:21:46.458Z",
       "source": "scan"
     },
     ".wolf.bak-pre-lean/cerebrum.md": {
@@ -105,7 +105,7 @@
       "hash": "79d3990b59ed2cff",
       "size": 116786,
       "mtimeMs": 1784982110010.7358,
-      "updatedAt": "2026-07-28T02:53:57.490Z",
+      "updatedAt": "2026-07-28T12:21:46.461Z",
       "source": "scan"
     },
     ".wolf.bak-pre-lean/config.json": {
@@ -114,7 +114,7 @@
       "hash": "b6bffcfc8c800824",
       "size": 1869,
       "mtimeMs": 1784982110018.7358,
-      "updatedAt": "2026-07-28T02:53:57.491Z",
+      "updatedAt": "2026-07-28T12:21:46.462Z",
       "source": "scan"
     },
     ".wolf.bak-pre-lean/cron-manifest.json": {
@@ -123,7 +123,7 @@
       "hash": "5c39ea43ee48cebf",
       "size": 3246,
       "mtimeMs": 1784982110018.7358,
-      "updatedAt": "2026-07-28T02:53:57.492Z",
+      "updatedAt": "2026-07-28T12:21:46.464Z",
       "source": "scan"
     },
     ".wolf.bak-pre-lean/cron-state.json": {
@@ -132,7 +132,7 @@
       "hash": "cb1702362c2bd56c",
       "size": 148,
       "mtimeMs": 1784982110022.7358,
-      "updatedAt": "2026-07-28T02:53:57.492Z",
+      "updatedAt": "2026-07-28T12:21:46.464Z",
       "source": "scan"
     },
     ".wolf.bak-pre-lean/daemon.log": {
@@ -141,7 +141,7 @@
       "hash": "4d3dc07b7d60fb5d",
       "size": 612,
       "mtimeMs": 1784982110022.7358,
-      "updatedAt": "2026-07-28T02:53:57.493Z",
+      "updatedAt": "2026-07-28T12:21:46.465Z",
       "source": "scan"
     },
     ".wolf.bak-pre-lean/dashboard-token": {
@@ -150,7 +150,7 @@
       "hash": "4d1ccf09835043d7",
       "size": 65,
       "mtimeMs": 1784982110022.7358,
-      "updatedAt": "2026-07-28T02:53:57.494Z",
+      "updatedAt": "2026-07-28T12:21:46.465Z",
       "source": "scan"
     },
     ".wolf.bak-pre-lean/designqc-report.json": {
@@ -159,7 +159,7 @@
       "hash": "747082a345652ffd",
       "size": 90,
       "mtimeMs": 1784982110010.7358,
-      "updatedAt": "2026-07-28T02:53:57.495Z",
+      "updatedAt": "2026-07-28T12:21:46.466Z",
       "source": "scan"
     },
     ".wolf.bak-pre-lean/hooks/_session.json": {
@@ -168,7 +168,7 @@
       "hash": "bc945a2809a77f5c",
       "size": 7571,
       "mtimeMs": 1784982110014.7358,
-      "updatedAt": "2026-07-28T02:53:57.496Z",
+      "updatedAt": "2026-07-28T12:21:46.466Z",
       "source": "scan"
     },
     ".wolf.bak-pre-lean/hooks/anatomy-lock.js": {
@@ -177,7 +177,7 @@
       "hash": "35a2eb1d1178f407",
       "size": 3645,
       "mtimeMs": 1784982110018.7358,
-      "updatedAt": "2026-07-28T02:53:57.498Z",
+      "updatedAt": "2026-07-28T12:21:46.468Z",
       "source": "scan",
       "symbols": [
         {
@@ -223,7 +223,7 @@
       "hash": "06beb5db24c469eb",
       "size": 10192,
       "mtimeMs": 1784982110018.7358,
-      "updatedAt": "2026-07-28T02:53:57.499Z",
+      "updatedAt": "2026-07-28T12:21:46.469Z",
       "source": "scan",
       "symbols": [
         {
@@ -318,7 +318,7 @@
       "hash": "3ca9d4afd2142508",
       "size": 23,
       "mtimeMs": 1784982110018.7358,
-      "updatedAt": "2026-07-28T02:53:57.500Z",
+      "updatedAt": "2026-07-28T12:21:46.470Z",
       "source": "scan"
     },
     ".wolf.bak-pre-lean/hooks/post-read.js": {
@@ -327,7 +327,7 @@
       "hash": "1e3f925aa8b6bcca",
       "size": 2304,
       "mtimeMs": 1784982110014.7358,
-      "updatedAt": "2026-07-28T02:53:57.501Z",
+      "updatedAt": "2026-07-28T12:21:46.471Z",
       "source": "scan",
       "symbols": [
         {
@@ -345,7 +345,7 @@
       "hash": "803605e70c86d482",
       "size": 24043,
       "mtimeMs": 1784982110014.7358,
-      "updatedAt": "2026-07-28T02:53:57.503Z",
+      "updatedAt": "2026-07-28T12:21:46.473Z",
       "source": "scan",
       "symbols": [
         {
@@ -426,7 +426,7 @@
       "hash": "26bb3edd10d30bf9",
       "size": 3720,
       "mtimeMs": 1784982110014.7358,
-      "updatedAt": "2026-07-28T02:53:57.504Z",
+      "updatedAt": "2026-07-28T12:21:46.474Z",
       "source": "scan",
       "symbols": [
         {
@@ -444,7 +444,7 @@
       "hash": "c3f16cb435b7896b",
       "size": 5457,
       "mtimeMs": 1784982110014.7358,
-      "updatedAt": "2026-07-28T02:53:57.505Z",
+      "updatedAt": "2026-07-28T12:21:46.475Z",
       "source": "scan",
       "symbols": [
         {
@@ -483,7 +483,7 @@
       "hash": "059511f905bbda75",
       "size": 1284,
       "mtimeMs": 1784982110018.7358,
-      "updatedAt": "2026-07-28T02:53:57.505Z",
+      "updatedAt": "2026-07-28T12:21:46.475Z",
       "source": "scan"
     },
     ".wolf.bak-pre-lean/hooks/session-start.js": {
@@ -492,7 +492,7 @@
       "hash": "3dcf824f97fb3771",
       "size": 9925,
       "mtimeMs": 1784982110014.7358,
-      "updatedAt": "2026-07-28T02:53:57.506Z",
+      "updatedAt": "2026-07-28T12:21:46.476Z",
       "source": "scan",
       "symbols": [
         {
@@ -538,7 +538,7 @@
       "hash": "53924dda9bca652d",
       "size": 33100,
       "mtimeMs": 1784982110018.7358,
-      "updatedAt": "2026-07-28T02:53:57.508Z",
+      "updatedAt": "2026-07-28T12:21:46.478Z",
       "source": "scan",
       "symbols": [
         {
@@ -668,7 +668,7 @@
       "hash": "ec33531d99273f71",
       "size": 15496,
       "mtimeMs": 1784982110014.7358,
-      "updatedAt": "2026-07-28T02:53:57.509Z",
+      "updatedAt": "2026-07-28T12:21:46.480Z",
       "source": "scan",
       "symbols": [
         {
@@ -728,7 +728,7 @@
       "hash": "25fa19c35fd46f2d",
       "size": 3869,
       "mtimeMs": 1784982110018.7358,
-      "updatedAt": "2026-07-28T02:53:57.510Z",
+      "updatedAt": "2026-07-28T12:21:46.480Z",
       "source": "scan",
       "symbols": [
         {
@@ -753,7 +753,7 @@
       "hash": "b707a5ffbd25f2f3",
       "size": 371,
       "mtimeMs": 1784982110018.7358,
-      "updatedAt": "2026-07-28T02:53:57.511Z",
+      "updatedAt": "2026-07-28T12:21:46.481Z",
       "source": "scan"
     },
     ".wolf.bak-pre-lean/memory.md": {
@@ -762,7 +762,7 @@
       "hash": "4fede9257f58a7ab",
       "size": 204493,
       "mtimeMs": 1784982110006.7358,
-      "updatedAt": "2026-07-28T02:53:57.515Z",
+      "updatedAt": "2026-07-28T12:21:46.485Z",
       "source": "scan"
     },
     ".wolf.bak-pre-lean/OPENWOLF.md": {
@@ -771,7 +771,7 @@
       "hash": "763dc6c1d2391954",
       "size": 9236,
       "mtimeMs": 1784982109998.7358,
-      "updatedAt": "2026-07-28T02:53:57.516Z",
+      "updatedAt": "2026-07-28T12:21:46.486Z",
       "source": "scan"
     },
     ".wolf.bak-pre-lean/reframe-frameworks.md": {
@@ -780,7 +780,7 @@
       "hash": "44acc3e2561ebba9",
       "size": 31141,
       "mtimeMs": 1784982110010.7358,
-      "updatedAt": "2026-07-28T02:53:57.517Z",
+      "updatedAt": "2026-07-28T12:21:46.487Z",
       "source": "scan"
     },
     ".wolf.bak-pre-lean/STATUS-archive.md": {
@@ -789,7 +789,7 @@
       "hash": "20afd6e3f9c2ef61",
       "size": 65658,
       "mtimeMs": 1784982110006.7358,
-      "updatedAt": "2026-07-28T02:53:57.519Z",
+      "updatedAt": "2026-07-28T12:21:46.489Z",
       "source": "scan"
     },
     ".wolf.bak-pre-lean/STATUS.md": {
@@ -798,7 +798,7 @@
       "hash": "a3ada206837ad535",
       "size": 73719,
       "mtimeMs": 1784982110010.7358,
-      "updatedAt": "2026-07-28T02:53:57.522Z",
+      "updatedAt": "2026-07-28T12:21:46.492Z",
       "source": "scan"
     },
     ".wolf.bak-pre-lean/STATUS.md.bak": {
@@ -807,7 +807,7 @@
       "hash": "7be44d2ace8a95ef",
       "size": 137152,
       "mtimeMs": 1784982110006.7358,
-      "updatedAt": "2026-07-28T02:53:57.525Z",
+      "updatedAt": "2026-07-28T12:21:46.495Z",
       "source": "scan"
     },
     ".wolf.bak-pre-lean/streaming-plan.md": {
@@ -816,7 +816,7 @@
       "hash": "63f86f00cb4c2c95",
       "size": 2843,
       "mtimeMs": 1784982110006.7358,
-      "updatedAt": "2026-07-28T02:53:57.526Z",
+      "updatedAt": "2026-07-28T12:21:46.495Z",
       "source": "scan"
     },
     ".wolf.bak-pre-lean/suggestions.json": {
@@ -825,7 +825,7 @@
       "hash": "77f9790b0404c49a",
       "size": 47,
       "mtimeMs": 1784982110010.7358,
-      "updatedAt": "2026-07-28T02:53:57.527Z",
+      "updatedAt": "2026-07-28T12:21:46.496Z",
       "source": "scan"
     },
     ".wolf.bak-pre-lean/TODO.md": {
@@ -834,7 +834,7 @@
       "hash": "f84db922aff22fec",
       "size": 665,
       "mtimeMs": 1784982110022.7358,
-      "updatedAt": "2026-07-28T02:53:57.527Z",
+      "updatedAt": "2026-07-28T12:21:46.496Z",
       "source": "scan"
     },
     ".wolf.bak-pre-v2/anatomy.md": {
@@ -843,7 +843,7 @@
       "hash": "f926b9cb0350f5f4",
       "size": 16778,
       "mtimeMs": 1784956656822.735,
-      "updatedAt": "2026-07-28T02:53:57.529Z",
+      "updatedAt": "2026-07-28T12:21:46.497Z",
       "source": "scan"
     },
     ".wolf.bak-pre-v2/buglog.json": {
@@ -852,7 +852,7 @@
       "hash": "b378a659bed058f6",
       "size": 272540,
       "mtimeMs": 1784956656822.735,
-      "updatedAt": "2026-07-28T02:53:57.534Z",
+      "updatedAt": "2026-07-28T12:21:46.502Z",
       "source": "scan"
     },
     ".wolf.bak-pre-v2/cerebrum.md": {
@@ -861,7 +861,7 @@
       "hash": "79d3990b59ed2cff",
       "size": 116786,
       "mtimeMs": 1784956656822.735,
-      "updatedAt": "2026-07-28T02:53:57.537Z",
+      "updatedAt": "2026-07-28T12:21:46.505Z",
       "source": "scan"
     },
     ".wolf.bak-pre-v2/config.json": {
@@ -870,7 +870,7 @@
       "hash": "14911b999f67f499",
       "size": 1714,
       "mtimeMs": 1784956656822.735,
-      "updatedAt": "2026-07-28T02:53:57.538Z",
+      "updatedAt": "2026-07-28T12:21:46.506Z",
       "source": "scan"
     },
     ".wolf.bak-pre-v2/cron-manifest.json": {
@@ -879,7 +879,7 @@
       "hash": "5c39ea43ee48cebf",
       "size": 3246,
       "mtimeMs": 1784956656826.735,
-      "updatedAt": "2026-07-28T02:53:57.539Z",
+      "updatedAt": "2026-07-28T12:21:46.506Z",
       "source": "scan"
     },
     ".wolf.bak-pre-v2/cron-state.json": {
@@ -888,7 +888,7 @@
       "hash": "c2f4cc3e739e1d13",
       "size": 148,
       "mtimeMs": 1784956656822.735,
-      "updatedAt": "2026-07-28T02:53:57.539Z",
+      "updatedAt": "2026-07-28T12:21:46.507Z",
       "source": "scan"
     },
     ".wolf.bak-pre-v2/designqc-report.json": {
@@ -897,7 +897,7 @@
       "hash": "747082a345652ffd",
       "size": 90,
       "mtimeMs": 1784956656826.735,
-      "updatedAt": "2026-07-28T02:53:57.540Z",
+      "updatedAt": "2026-07-28T12:21:46.508Z",
       "source": "scan"
     },
     ".wolf.bak-pre-v2/hooks/_session.json": {
@@ -906,7 +906,7 @@
       "hash": "bc945a2809a77f5c",
       "size": 7571,
       "mtimeMs": 1784956656826.735,
-      "updatedAt": "2026-07-28T02:53:57.542Z",
+      "updatedAt": "2026-07-28T12:21:46.509Z",
       "source": "scan"
     },
     ".wolf.bak-pre-v2/hooks/package.json": {
@@ -915,7 +915,7 @@
       "hash": "3ca9d4afd2142508",
       "size": 23,
       "mtimeMs": 1784956656826.735,
-      "updatedAt": "2026-07-28T02:53:57.542Z",
+      "updatedAt": "2026-07-28T12:21:46.509Z",
       "source": "scan"
     },
     ".wolf.bak-pre-v2/hooks/post-read.js": {
@@ -924,7 +924,7 @@
       "hash": "fb55dd5a846b1b84",
       "size": 2797,
       "mtimeMs": 1784956656826.735,
-      "updatedAt": "2026-07-28T02:53:57.543Z",
+      "updatedAt": "2026-07-28T12:21:46.510Z",
       "source": "scan",
       "symbols": [
         {
@@ -942,7 +942,7 @@
       "hash": "95919865e5583d4c",
       "size": 22629,
       "mtimeMs": 1784956656826.735,
-      "updatedAt": "2026-07-28T02:53:57.545Z",
+      "updatedAt": "2026-07-28T12:21:46.512Z",
       "source": "scan",
       "symbols": [
         {
@@ -1016,7 +1016,7 @@
       "hash": "6c7155a7da14fe26",
       "size": 3206,
       "mtimeMs": 1784956656826.735,
-      "updatedAt": "2026-07-28T02:53:57.546Z",
+      "updatedAt": "2026-07-28T12:21:46.512Z",
       "source": "scan",
       "symbols": [
         {
@@ -1034,7 +1034,7 @@
       "hash": "a3d931c71982a509",
       "size": 5494,
       "mtimeMs": 1784956656826.735,
-      "updatedAt": "2026-07-28T02:53:57.547Z",
+      "updatedAt": "2026-07-28T12:21:46.513Z",
       "source": "scan",
       "symbols": [
         {
@@ -1073,7 +1073,7 @@
       "hash": "d6d4bbda4a67b9c3",
       "size": 3530,
       "mtimeMs": 1784956656826.735,
-      "updatedAt": "2026-07-28T02:53:57.547Z",
+      "updatedAt": "2026-07-28T12:21:46.514Z",
       "source": "scan",
       "symbols": [
         {
@@ -1091,7 +1091,7 @@
       "hash": "f5777fcb2c16d15a",
       "size": 30797,
       "mtimeMs": 1784956656826.735,
-      "updatedAt": "2026-07-28T02:53:57.549Z",
+      "updatedAt": "2026-07-28T12:21:46.517Z",
       "source": "scan",
       "symbols": [
         {
@@ -1200,7 +1200,7 @@
       "hash": "3677906178eefa14",
       "size": 11538,
       "mtimeMs": 1784956656826.735,
-      "updatedAt": "2026-07-28T02:53:57.551Z",
+      "updatedAt": "2026-07-28T12:21:46.518Z",
       "source": "scan",
       "symbols": [
         {
@@ -1246,7 +1246,7 @@
       "hash": "b707a5ffbd25f2f3",
       "size": 371,
       "mtimeMs": 1784956656826.735,
-      "updatedAt": "2026-07-28T02:53:57.552Z",
+      "updatedAt": "2026-07-28T12:21:46.519Z",
       "source": "scan"
     },
     ".wolf.bak-pre-v2/memory.md": {
@@ -1255,7 +1255,7 @@
       "hash": "4fede9257f58a7ab",
       "size": 204493,
       "mtimeMs": 1784956656822.735,
-      "updatedAt": "2026-07-28T02:53:57.556Z",
+      "updatedAt": "2026-07-28T12:21:46.523Z",
       "source": "scan"
     },
     ".wolf.bak-pre-v2/OPENWOLF.md": {
@@ -1264,7 +1264,7 @@
       "hash": "2fa5051dfe938488",
       "size": 7891,
       "mtimeMs": 1784956656818.735,
-      "updatedAt": "2026-07-28T02:53:57.556Z",
+      "updatedAt": "2026-07-28T12:21:46.523Z",
       "source": "scan"
     },
     ".wolf.bak-pre-v2/reframe-frameworks.md": {
@@ -1273,7 +1273,7 @@
       "hash": "9a12be53c7910ed1",
       "size": 26494,
       "mtimeMs": 1784956656826.735,
-      "updatedAt": "2026-07-28T02:53:57.558Z",
+      "updatedAt": "2026-07-28T12:21:46.525Z",
       "source": "scan"
     },
     ".wolf.bak-pre-v2/STATUS-archive.md": {
@@ -1282,7 +1282,7 @@
       "hash": "20afd6e3f9c2ef61",
       "size": 65658,
       "mtimeMs": 1784956656822.735,
-      "updatedAt": "2026-07-28T02:53:57.559Z",
+      "updatedAt": "2026-07-28T12:21:46.527Z",
       "source": "scan"
     },
     ".wolf.bak-pre-v2/STATUS.md": {
@@ -1291,7 +1291,7 @@
       "hash": "a3ada206837ad535",
       "size": 73719,
       "mtimeMs": 1784956656822.735,
-      "updatedAt": "2026-07-28T02:53:57.561Z",
+      "updatedAt": "2026-07-28T12:21:46.528Z",
       "source": "scan"
     },
     ".wolf.bak-pre-v2/STATUS.md.bak": {
@@ -1300,7 +1300,7 @@
       "hash": "7be44d2ace8a95ef",
       "size": 137152,
       "mtimeMs": 1784956656822.735,
-      "updatedAt": "2026-07-28T02:53:57.565Z",
+      "updatedAt": "2026-07-28T12:21:46.531Z",
       "source": "scan"
     },
     ".wolf.bak-pre-v2/streaming-plan.md": {
@@ -1309,7 +1309,7 @@
       "hash": "63f86f00cb4c2c95",
       "size": 2843,
       "mtimeMs": 1784956656822.735,
-      "updatedAt": "2026-07-28T02:53:57.565Z",
+      "updatedAt": "2026-07-28T12:21:46.532Z",
       "source": "scan"
     },
     ".wolf.bak-pre-v2/suggestions.json": {
@@ -1318,7 +1318,7 @@
       "hash": "77f9790b0404c49a",
       "size": 47,
       "mtimeMs": 1784956656826.735,
-      "updatedAt": "2026-07-28T02:53:57.566Z",
+      "updatedAt": "2026-07-28T12:21:46.533Z",
       "source": "scan"
     },
     "cenarios/aula1-sequencia.ljw": {
@@ -1327,7 +1327,7 @@
       "hash": "ae391c58ccd024d5",
       "size": 593672,
       "mtimeMs": 1784517513420.3557,
-      "updatedAt": "2026-07-28T02:53:57.576Z",
+      "updatedAt": "2026-07-28T12:21:46.541Z",
       "source": "scan"
     },
     "cenarios/aula2-binario.ljw": {
@@ -1336,7 +1336,7 @@
       "hash": "cf18f51eae5af917",
       "size": 591251,
       "mtimeMs": 1784517513440.3557,
-      "updatedAt": "2026-07-28T02:53:57.585Z",
+      "updatedAt": "2026-07-28T12:21:46.547Z",
       "source": "scan"
     },
     "cenarios/aula3-depurar.ljw": {
@@ -1345,7 +1345,7 @@
       "hash": "3d712727b1476a2a",
       "size": 591352,
       "mtimeMs": 1784517513456.3557,
-      "updatedAt": "2026-07-28T02:53:57.596Z",
+      "updatedAt": "2026-07-28T12:21:46.557Z",
       "source": "scan"
     },
     "cenarios/aula4-decifrar.ljw": {
@@ -1354,7 +1354,7 @@
       "hash": "f851fc5c266df2ed",
       "size": 591241,
       "mtimeMs": 1784517513472.3557,
-      "updatedAt": "2026-07-28T02:53:57.604Z",
+      "updatedAt": "2026-07-28T12:21:46.565Z",
       "source": "scan"
     },
     "cenarios/aula5-simetria.ljw": {
@@ -1363,7 +1363,7 @@
       "hash": "759990dcb681e8ac",
       "size": 591918,
       "mtimeMs": 1784517513488.3557,
-      "updatedAt": "2026-07-28T02:53:57.613Z",
+      "updatedAt": "2026-07-28T12:21:46.573Z",
       "source": "scan"
     },
     "cenarios/aula6-manual.ljw": {
@@ -1372,7 +1372,7 @@
       "hash": "819ae4537a7a744c",
       "size": 592513,
       "mtimeMs": 1784517513508.3557,
-      "updatedAt": "2026-07-28T02:53:57.622Z",
+      "updatedAt": "2026-07-28T12:21:46.583Z",
       "source": "scan"
     },
     "cenarios/README.md": {
@@ -1381,7 +1381,7 @@
       "hash": "89eb9b389076a1ad",
       "size": 8134,
       "mtimeMs": 1784517371140.3584,
-      "updatedAt": "2026-07-28T02:53:57.623Z",
+      "updatedAt": "2026-07-28T12:21:46.584Z",
       "source": "scan"
     },
     "CLAUDE.md": {
@@ -1390,7 +1390,7 @@
       "hash": "b1ca356fa9d5f3a6",
       "size": 225,
       "mtimeMs": 1783780454096.0908,
-      "updatedAt": "2026-07-28T02:53:57.625Z",
+      "updatedAt": "2026-07-28T12:21:46.584Z",
       "source": "scan"
     },
     "client/index.html": {
@@ -1399,7 +1399,7 @@
       "hash": "a75d5a0842a00bb1",
       "size": 28009,
       "mtimeMs": 1785206799260.7998,
-      "updatedAt": "2026-07-28T02:53:57.626Z",
+      "updatedAt": "2026-07-28T12:21:46.585Z",
       "source": "scan"
     },
     "client/package.json": {
@@ -1408,7 +1408,7 @@
       "hash": "cb328a26968e8a66",
       "size": 356,
       "mtimeMs": 1783780454104.0908,
-      "updatedAt": "2026-07-28T02:53:57.626Z",
+      "updatedAt": "2026-07-28T12:21:46.585Z",
       "source": "scan"
     },
     "client/src/aguaFx.ts": {
@@ -1417,7 +1417,7 @@
       "hash": "f19b99bf8e9b3395",
       "size": 2680,
       "mtimeMs": 1785080416779.7651,
-      "updatedAt": "2026-07-28T02:53:57.626Z",
+      "updatedAt": "2026-07-28T12:21:46.585Z",
       "source": "scan",
       "symbols": [
         {
@@ -1442,7 +1442,7 @@
       "hash": "0a3bdc3e7b05f70e",
       "size": 29721,
       "mtimeMs": 1785150000840.801,
-      "updatedAt": "2026-07-28T02:53:57.627Z",
+      "updatedAt": "2026-07-28T12:21:46.586Z",
       "source": "scan",
       "symbols": [
         {
@@ -1663,7 +1663,7 @@
       "hash": "afbc574f47a18f11",
       "size": 3510,
       "mtimeMs": 1783904198285.4753,
-      "updatedAt": "2026-07-28T02:53:57.627Z",
+      "updatedAt": "2026-07-28T12:21:46.586Z",
       "source": "scan",
       "symbols": [
         {
@@ -1716,7 +1716,7 @@
       "hash": "bbf0c70b4caf449e",
       "size": 8961,
       "mtimeMs": 1785155310820.7986,
-      "updatedAt": "2026-07-28T02:53:57.628Z",
+      "updatedAt": "2026-07-28T12:21:46.587Z",
       "source": "scan",
       "symbols": [
         {
@@ -1769,7 +1769,7 @@
       "hash": "7570fc0ddfabaf43",
       "size": 2365,
       "mtimeMs": 1784738095783.393,
-      "updatedAt": "2026-07-28T02:53:57.628Z",
+      "updatedAt": "2026-07-28T12:21:46.587Z",
       "source": "scan",
       "symbols": [
         {
@@ -1794,7 +1794,7 @@
       "hash": "ad7e6eaef56e1a7c",
       "size": 8098,
       "mtimeMs": 1785137448752.8005,
-      "updatedAt": "2026-07-28T02:53:57.628Z",
+      "updatedAt": "2026-07-28T12:21:46.587Z",
       "source": "scan",
       "symbols": [
         {
@@ -1819,7 +1819,7 @@
       "hash": "c7aa8147b99ec6fd",
       "size": 7042,
       "mtimeMs": 1785206365860.7996,
-      "updatedAt": "2026-07-28T02:53:57.629Z",
+      "updatedAt": "2026-07-28T12:21:46.587Z",
       "source": "scan",
       "symbols": [
         {
@@ -1844,8 +1844,8 @@
       "hash": "118decec6311c4d4",
       "size": 21176,
       "mtimeMs": 1785239166809.0806,
-      "updatedAt": "2026-07-28T11:46:06.960Z",
-      "source": "hook",
+      "updatedAt": "2026-07-28T12:21:46.588Z",
+      "source": "scan",
       "symbols": [
         {
           "name": "JobMesh",
@@ -1869,7 +1869,7 @@
       "hash": "2da8a52c081fbba7",
       "size": 3034,
       "mtimeMs": 1784476824069.7625,
-      "updatedAt": "2026-07-28T02:53:57.630Z",
+      "updatedAt": "2026-07-28T12:21:46.588Z",
       "source": "scan",
       "symbols": [
         {
@@ -1908,7 +1908,7 @@
       "hash": "fe05e7324ae20bc3",
       "size": 4816,
       "mtimeMs": 1785088652315.764,
-      "updatedAt": "2026-07-28T02:53:57.630Z",
+      "updatedAt": "2026-07-28T12:21:46.589Z",
       "source": "scan",
       "symbols": [
         {
@@ -1947,8 +1947,8 @@
       "hash": "0174e9fdbb9e15a0",
       "size": 15697,
       "mtimeMs": 1785239279469.0793,
-      "updatedAt": "2026-07-28T11:47:59.593Z",
-      "source": "hook",
+      "updatedAt": "2026-07-28T12:21:46.589Z",
+      "source": "scan",
       "symbols": [
         {
           "name": "Keyframe",
@@ -1993,7 +1993,7 @@
       "hash": "fc6c4f92373594db",
       "size": 642,
       "mtimeMs": 1783904192477.4753,
-      "updatedAt": "2026-07-28T02:53:57.630Z",
+      "updatedAt": "2026-07-28T12:21:46.589Z",
       "source": "scan"
     },
     "client/src/hud.ts": {
@@ -2002,8 +2002,8 @@
       "hash": "4520cd62132fcbd7",
       "size": 30454,
       "mtimeMs": 1785239845461.0728,
-      "updatedAt": "2026-07-28T11:57:25.583Z",
-      "source": "hook",
+      "updatedAt": "2026-07-28T12:21:46.590Z",
+      "source": "scan",
       "symbols": [
         {
           "name": "HudRemeshStats",
@@ -2069,7 +2069,7 @@
       "hash": "27699c56618b7afe",
       "size": 5431,
       "mtimeMs": 1784226590774.2207,
-      "updatedAt": "2026-07-28T02:53:57.631Z",
+      "updatedAt": "2026-07-28T12:21:46.591Z",
       "source": "scan",
       "symbols": [
         {
@@ -2087,7 +2087,7 @@
       "hash": "5e2b92450fae104c",
       "size": 5109,
       "mtimeMs": 1784597774572.6829,
-      "updatedAt": "2026-07-28T02:53:57.632Z",
+      "updatedAt": "2026-07-28T12:21:46.591Z",
       "source": "scan",
       "symbols": [
         {
@@ -2105,7 +2105,7 @@
       "hash": "aa2a774a1dff16c5",
       "size": 18303,
       "mtimeMs": 1785112623895.764,
-      "updatedAt": "2026-07-28T02:53:57.632Z",
+      "updatedAt": "2026-07-28T12:21:46.592Z",
       "source": "scan",
       "symbols": [
         {
@@ -2159,14 +2159,46 @@
         }
       ]
     },
+    "client/src/luzShader.ts": {
+      "description": "§💡 O lado GPU da luz voxel (2026-07-28).",
+      "tokens": 896,
+      "hash": "bf7d6a2a5ffd0268",
+      "size": 3192,
+      "mtimeMs": 1785239259961.079,
+      "updatedAt": "2026-07-28T12:21:46.592Z",
+      "source": "scan",
+      "symbols": [
+        {
+          "name": "LuzUniforms",
+          "kind": "section",
+          "startLine": 22,
+          "endLine": 32,
+          "tokens": 120
+        },
+        {
+          "name": "criarLuzUniforms",
+          "kind": "fn",
+          "startLine": 33,
+          "endLine": 43,
+          "tokens": 116
+        },
+        {
+          "name": "aplicarLuz",
+          "kind": "fn",
+          "startLine": 44,
+          "endLine": 90,
+          "tokens": 411
+        }
+      ]
+    },
     "client/src/main.ts": {
       "description": "O cliente não tem filesystem: aprende os nomes das aulas pela resposta de",
       "tokens": 27625,
       "hash": "1927efb46b3d14c6",
       "size": 97886,
       "mtimeMs": 1785239849565.0735,
-      "updatedAt": "2026-07-28T11:57:29.675Z",
-      "source": "hook",
+      "updatedAt": "2026-07-28T12:21:46.595Z",
+      "source": "scan",
       "symbols": [
         {
           "name": "cachearMundos",
@@ -2330,7 +2362,7 @@
       "hash": "28eb74c3163198cb",
       "size": 16547,
       "mtimeMs": 1785137029788.8008,
-      "updatedAt": "2026-07-28T02:53:57.636Z",
+      "updatedAt": "2026-07-28T12:21:46.596Z",
       "source": "scan",
       "symbols": [
         {
@@ -2425,8 +2457,8 @@
       "hash": "acd6bea923584b63",
       "size": 8197,
       "mtimeMs": 1785239088169.0806,
-      "updatedAt": "2026-07-28T11:44:48.283Z",
-      "source": "hook",
+      "updatedAt": "2026-07-28T12:21:46.597Z",
+      "source": "scan",
       "symbols": [
         {
           "name": "ResultadoMesh",
@@ -2450,8 +2482,8 @@
       "hash": "b85762c157eee05c",
       "size": 1852,
       "mtimeMs": 1785239112009.0806,
-      "updatedAt": "2026-07-28T11:45:12.138Z",
-      "source": "hook",
+      "updatedAt": "2026-07-28T12:21:46.597Z",
+      "source": "scan",
       "symbols": [
         {
           "name": "PedidoMesh",
@@ -2468,7 +2500,7 @@
       "hash": "e4e4e002740da62b",
       "size": 4391,
       "mtimeMs": 1783911067353.4763,
-      "updatedAt": "2026-07-28T02:53:57.637Z",
+      "updatedAt": "2026-07-28T12:21:46.597Z",
       "source": "scan",
       "symbols": [
         {
@@ -2493,7 +2525,7 @@
       "hash": "03eb67bd211b8fd6",
       "size": 20951,
       "mtimeMs": 1784654762914.7644,
-      "updatedAt": "2026-07-28T02:53:57.639Z",
+      "updatedAt": "2026-07-28T12:21:46.598Z",
       "source": "scan",
       "symbols": [
         {
@@ -2539,7 +2571,7 @@
       "hash": "6e59d99c61a65ad6",
       "size": 5868,
       "mtimeMs": 1784654719646.7644,
-      "updatedAt": "2026-07-28T02:53:57.639Z",
+      "updatedAt": "2026-07-28T12:21:46.600Z",
       "source": "scan",
       "symbols": [
         {
@@ -2564,7 +2596,7 @@
       "hash": "f0753194956c8350",
       "size": 11097,
       "mtimeMs": 1784503965169.7603,
-      "updatedAt": "2026-07-28T02:53:57.640Z",
+      "updatedAt": "2026-07-28T12:21:46.600Z",
       "source": "scan",
       "symbols": [
         {
@@ -2603,7 +2635,7 @@
       "hash": "7c306ce28b388905",
       "size": 2427,
       "mtimeMs": 1783904202105.4753,
-      "updatedAt": "2026-07-28T02:53:57.640Z",
+      "updatedAt": "2026-07-28T12:21:46.600Z",
       "source": "scan",
       "symbols": [
         {
@@ -2621,7 +2653,7 @@
       "hash": "973108391b972627",
       "size": 5342,
       "mtimeMs": 1785137010364.8008,
-      "updatedAt": "2026-07-28T02:53:57.640Z",
+      "updatedAt": "2026-07-28T12:21:46.601Z",
       "source": "scan",
       "symbols": [
         {
@@ -2674,7 +2706,7 @@
       "hash": "175b2de972a44340",
       "size": 3523,
       "mtimeMs": 1784495699493.7593,
-      "updatedAt": "2026-07-28T02:53:57.641Z",
+      "updatedAt": "2026-07-28T12:21:46.601Z",
       "source": "scan",
       "symbols": [
         {
@@ -2727,7 +2759,7 @@
       "hash": "55cf9012e5ccbde9",
       "size": 5368,
       "mtimeMs": 1785107014479.7632,
-      "updatedAt": "2026-07-28T02:53:57.641Z",
+      "updatedAt": "2026-07-28T12:21:46.601Z",
       "source": "scan",
       "symbols": [
         {
@@ -2745,7 +2777,7 @@
       "hash": "834498f7cfc2b8ec",
       "size": 11200,
       "mtimeMs": 1785206339108.7993,
-      "updatedAt": "2026-07-28T02:53:57.641Z",
+      "updatedAt": "2026-07-28T12:21:46.602Z",
       "source": "scan",
       "symbols": [
         {
@@ -2784,7 +2816,7 @@
       "hash": "c3a9fed4fd8010e8",
       "size": 5530,
       "mtimeMs": 1785138081868.8,
-      "updatedAt": "2026-07-28T02:53:57.641Z",
+      "updatedAt": "2026-07-28T12:21:46.602Z",
       "source": "scan",
       "symbols": [
         {
@@ -2823,7 +2855,7 @@
       "hash": "e6025ab17cb2b065",
       "size": 2745,
       "mtimeMs": 1783822470725.4783,
-      "updatedAt": "2026-07-28T02:53:57.642Z",
+      "updatedAt": "2026-07-28T12:21:46.602Z",
       "source": "scan",
       "symbols": [
         {
@@ -2890,7 +2922,7 @@
       "hash": "bf2a471c0429f519",
       "size": 136,
       "mtimeMs": 1783780454104.0908,
-      "updatedAt": "2026-07-28T02:53:57.642Z",
+      "updatedAt": "2026-07-28T12:21:46.602Z",
       "source": "scan"
     },
     "client/vite.config.ts": {
@@ -2899,7 +2931,7 @@
       "hash": "16825100bb7507ec",
       "size": 331,
       "mtimeMs": 1784037564732.0417,
-      "updatedAt": "2026-07-28T02:53:57.642Z",
+      "updatedAt": "2026-07-28T12:21:46.602Z",
       "source": "scan"
     },
     "iniciar-servidor.bat": {
@@ -2908,7 +2940,7 @@
       "hash": "cf8c93de4c5ca20f",
       "size": 8861,
       "mtimeMs": 1785156702600.8005,
-      "updatedAt": "2026-07-28T02:53:57.642Z",
+      "updatedAt": "2026-07-28T12:21:46.603Z",
       "source": "scan"
     },
     "iniciar-servidor.sh": {
@@ -2917,7 +2949,7 @@
       "hash": "9f1b2f616a8f2487",
       "size": 7464,
       "mtimeMs": 1785156698728.8005,
-      "updatedAt": "2026-07-28T02:53:57.643Z",
+      "updatedAt": "2026-07-28T12:21:46.604Z",
       "source": "scan"
     },
     "LICENSE": {
@@ -2926,7 +2958,7 @@
       "hash": "4851e58b213543cd",
       "size": 4128,
       "mtimeMs": 1785159089632.7986,
-      "updatedAt": "2026-07-28T02:53:57.644Z",
+      "updatedAt": "2026-07-28T12:21:46.605Z",
       "source": "scan"
     },
     "mundos/_smoke-coluna/_smoke-coluna.ljw": {
@@ -2934,26 +2966,26 @@
       "tokens": 62,
       "hash": "54ee50c452dfd676",
       "size": 229,
-      "mtimeMs": 1785153418340.7988,
-      "updatedAt": "2026-07-28T02:53:57.645Z",
+      "mtimeMs": 1785240952325.0796,
+      "updatedAt": "2026-07-28T12:21:46.605Z",
       "source": "scan"
     },
     "mundos/_smoke-coluna/chat.log": {
       "description": "",
-      "tokens": 214,
-      "hash": "74b98446c17bc0e8",
-      "size": 808,
-      "mtimeMs": 1785153417728.7986,
-      "updatedAt": "2026-07-28T02:53:57.646Z",
+      "tokens": 374,
+      "hash": "2bdbb39f09be9f70",
+      "size": 1414,
+      "mtimeMs": 1785240951717.0793,
+      "updatedAt": "2026-07-28T12:21:46.605Z",
       "source": "scan"
     },
     "mundos/_smoke-kicar/chat.log": {
       "description": "",
-      "tokens": 1660,
-      "hash": "695faca4f5b1f4d6",
-      "size": 6363,
-      "mtimeMs": 1785153403632.7979,
-      "updatedAt": "2026-07-28T02:53:57.647Z",
+      "tokens": 2371,
+      "hash": "22d8e98c4099b1e2",
+      "size": 9090,
+      "mtimeMs": 1785240937613.0762,
+      "updatedAt": "2026-07-28T12:21:46.606Z",
       "source": "scan"
     },
     "mundos/_smoke-trocaa/_smoke-trocaa.ljw": {
@@ -2961,17 +2993,17 @@
       "tokens": 87,
       "hash": "1c45f4a4fd8ea6a4",
       "size": 326,
-      "mtimeMs": 1785153429056.8003,
-      "updatedAt": "2026-07-28T02:53:57.648Z",
+      "mtimeMs": 1785240963065.081,
+      "updatedAt": "2026-07-28T12:21:46.606Z",
       "source": "scan"
     },
     "mundos/_smoke-trocaa/chat.log": {
       "description": "",
-      "tokens": 639,
-      "hash": "8201a34d6c729d8f",
-      "size": 2468,
-      "mtimeMs": 1785153429056.8003,
-      "updatedAt": "2026-07-28T02:53:57.649Z",
+      "tokens": 1119,
+      "hash": "799c3b14a3db3b53",
+      "size": 4319,
+      "mtimeMs": 1785240963069.081,
+      "updatedAt": "2026-07-28T12:21:46.607Z",
       "source": "scan"
     },
     "mundos/_smoke-trocab/_smoke-trocab.ljw": {
@@ -2979,26 +3011,26 @@
       "tokens": 80,
       "hash": "2db98bb25138d352",
       "size": 300,
-      "mtimeMs": 1785153439060.8005,
-      "updatedAt": "2026-07-28T02:53:57.649Z",
+      "mtimeMs": 1785240973069.0825,
+      "updatedAt": "2026-07-28T12:21:46.607Z",
       "source": "scan"
     },
     "mundos/aula1-sequencia/chat.log": {
       "description": "",
-      "tokens": 4536,
-      "hash": "e80ffc8b90c5ad5b",
-      "size": 17432,
-      "mtimeMs": 1785153407184.7979,
-      "updatedAt": "2026-07-28T02:53:57.651Z",
+      "tokens": 6778,
+      "hash": "b1f108a7ada4c900",
+      "size": 26051,
+      "mtimeMs": 1785240941153.076,
+      "updatedAt": "2026-07-28T12:21:46.608Z",
       "source": "scan"
     },
     "mundos/aula2-binario/chat.log": {
       "description": "",
-      "tokens": 224,
-      "hash": "ab1689ec52207b74",
-      "size": 854,
-      "mtimeMs": 1785153400160.7986,
-      "updatedAt": "2026-07-28T02:53:57.652Z",
+      "tokens": 320,
+      "hash": "2a982c293d287a4f",
+      "size": 1220,
+      "mtimeMs": 1785240934165.0764,
+      "updatedAt": "2026-07-28T12:21:46.608Z",
       "source": "scan"
     },
     "mundos/flor-world/chat.log": {
@@ -3007,7 +3039,7 @@
       "hash": "d3835fd3983ad094",
       "size": 1644,
       "mtimeMs": 1784936235584.8582,
-      "updatedAt": "2026-07-28T02:53:57.653Z",
+      "updatedAt": "2026-07-28T12:21:46.609Z",
       "source": "scan"
     },
     "mundos/jstage/chat.log": {
@@ -3016,7 +3048,7 @@
       "hash": "d999722ef31ab9c5",
       "size": 511,
       "mtimeMs": 1784576416364.3574,
-      "updatedAt": "2026-07-28T02:53:57.654Z",
+      "updatedAt": "2026-07-28T12:21:46.609Z",
       "source": "scan"
     },
     "mundos/mundo-livre/chat.log": {
@@ -3025,7 +3057,7 @@
       "hash": "2448045bf11f2afd",
       "size": 10774,
       "mtimeMs": 1785192102652.7976,
-      "updatedAt": "2026-07-28T02:53:57.655Z",
+      "updatedAt": "2026-07-28T12:21:46.610Z",
       "source": "scan"
     },
     "mundos/playtest-streaming/chat.log": {
@@ -3034,7 +3066,7 @@
       "hash": "70c8ee03effaadc6",
       "size": 2311,
       "mtimeMs": 1785115154891.7612,
-      "updatedAt": "2026-07-28T02:53:57.656Z",
+      "updatedAt": "2026-07-28T12:21:46.611Z",
       "source": "scan"
     },
     "mundos/playtest-streaming/playtest-streaming.ljw": {
@@ -3043,7 +3075,7 @@
       "hash": "cb8c83932b8a5f50",
       "size": 4420,
       "mtimeMs": 1785149855020.8003,
-      "updatedAt": "2026-07-28T02:53:57.656Z",
+      "updatedAt": "2026-07-28T12:21:46.612Z",
       "source": "scan"
     },
     "mundos/smoke-coluna/chat.log": {
@@ -3052,7 +3084,7 @@
       "hash": "33643b54c52b9a96",
       "size": 202,
       "mtimeMs": 1785084935423.764,
-      "updatedAt": "2026-07-28T02:53:57.657Z",
+      "updatedAt": "2026-07-28T12:21:46.613Z",
       "source": "scan"
     },
     "mundos/smoke-coluna/smoke-coluna.ljw": {
@@ -3061,7 +3093,7 @@
       "hash": "c64e2299287676a1",
       "size": 233,
       "mtimeMs": 1785084946291.764,
-      "updatedAt": "2026-07-28T02:53:57.658Z",
+      "updatedAt": "2026-07-28T12:21:46.613Z",
       "source": "scan"
     },
     "mundos/stage/chat.log": {
@@ -3070,7 +3102,7 @@
       "hash": "a3b9c881558668e6",
       "size": 1898,
       "mtimeMs": 1784585650092.3542,
-      "updatedAt": "2026-07-28T02:53:57.659Z",
+      "updatedAt": "2026-07-28T12:21:46.614Z",
       "source": "scan"
     },
     "mundos/teste-biomas/chat.log": {
@@ -3079,7 +3111,7 @@
       "hash": "55206f4a0abf64f7",
       "size": 1275,
       "mtimeMs": 1784598715358.7644,
-      "updatedAt": "2026-07-28T02:53:57.660Z",
+      "updatedAt": "2026-07-28T12:21:46.615Z",
       "source": "scan"
     },
     "package-lock.json": {
@@ -3088,7 +3120,7 @@
       "hash": "2b4b12182c883350",
       "size": 70418,
       "mtimeMs": 1784656608982.763,
-      "updatedAt": "2026-07-28T02:53:57.661Z",
+      "updatedAt": "2026-07-28T12:21:46.616Z",
       "source": "scan"
     },
     "package.json": {
@@ -3097,8 +3129,8 @@
       "hash": "71ad117a6af4b2e8",
       "size": 888,
       "mtimeMs": 1785239555425.0803,
-      "updatedAt": "2026-07-28T11:52:35.527Z",
-      "source": "hook"
+      "updatedAt": "2026-07-28T12:21:46.616Z",
+      "source": "scan"
     },
     "profiles/perf-1784923796301-gius.json": {
       "description": "",
@@ -3106,7 +3138,7 @@
       "hash": "6b1fd088047de085",
       "size": 1687,
       "mtimeMs": 1784923796296.8596,
-      "updatedAt": "2026-07-28T02:53:57.663Z",
+      "updatedAt": "2026-07-28T12:21:46.617Z",
       "source": "scan"
     },
     "profiles/perf-1784923813150-01rx.json": {
@@ -3115,7 +3147,7 @@
       "hash": "6c38b0a4d7ac297c",
       "size": 1689,
       "mtimeMs": 1784923813144.8596,
-      "updatedAt": "2026-07-28T02:53:57.664Z",
+      "updatedAt": "2026-07-28T12:21:46.618Z",
       "source": "scan"
     },
     "profiles/perf-1785086834711-wmi5.json": {
@@ -3124,7 +3156,7 @@
       "hash": "8157fc8c7eb274ee",
       "size": 1741,
       "mtimeMs": 1785086834707.763,
-      "updatedAt": "2026-07-28T02:53:57.664Z",
+      "updatedAt": "2026-07-28T12:21:46.618Z",
       "source": "scan"
     },
     "profiles/perf-1785089686334-7pm7.json": {
@@ -3133,7 +3165,7 @@
       "hash": "193235df99424caa",
       "size": 1748,
       "mtimeMs": 1785089686331.763,
-      "updatedAt": "2026-07-28T02:53:57.665Z",
+      "updatedAt": "2026-07-28T12:21:46.619Z",
       "source": "scan"
     },
     "profiles/perf-1785091204014-l9iv.json": {
@@ -3142,7 +3174,7 @@
       "hash": "46e0e3e0fbb45664",
       "size": 1747,
       "mtimeMs": 1785091204011.7634,
-      "updatedAt": "2026-07-28T02:53:57.666Z",
+      "updatedAt": "2026-07-28T12:21:46.620Z",
       "source": "scan"
     },
     "profiles/perf-1785094449096-atcq.json": {
@@ -3151,7 +3183,7 @@
       "hash": "34872b859c702627",
       "size": 1745,
       "mtimeMs": 1785094449091.7651,
-      "updatedAt": "2026-07-28T02:53:57.666Z",
+      "updatedAt": "2026-07-28T12:21:46.620Z",
       "source": "scan"
     },
     "profiles/perf-1785094461396-pze2.json": {
@@ -3160,7 +3192,7 @@
       "hash": "ea7cd09ebe2f2fd9",
       "size": 1753,
       "mtimeMs": 1785094461391.7646,
-      "updatedAt": "2026-07-28T02:53:57.667Z",
+      "updatedAt": "2026-07-28T12:21:46.621Z",
       "source": "scan"
     },
     "profiles/perf-1785107927563-pznv.json": {
@@ -3169,7 +3201,7 @@
       "hash": "f22b69df6263b85a",
       "size": 1746,
       "mtimeMs": 1785107927559.7625,
-      "updatedAt": "2026-07-28T02:53:57.667Z",
+      "updatedAt": "2026-07-28T12:21:46.621Z",
       "source": "scan"
     },
     "profiles/perf-1785107951364-0cqe.json": {
@@ -3178,7 +3210,7 @@
       "hash": "d84cd45a58ec3868",
       "size": 1741,
       "mtimeMs": 1785107951359.7622,
-      "updatedAt": "2026-07-28T02:53:57.668Z",
+      "updatedAt": "2026-07-28T12:21:46.622Z",
       "source": "scan"
     },
     "profiles/perf-1785107963182-4t6p.json": {
@@ -3187,7 +3219,7 @@
       "hash": "2a4383ee29acddef",
       "size": 1746,
       "mtimeMs": 1785107963179.762,
-      "updatedAt": "2026-07-28T02:53:57.668Z",
+      "updatedAt": "2026-07-28T12:21:46.623Z",
       "source": "scan"
     },
     "profiles/perf-1785107989935-hxzk.json": {
@@ -3196,7 +3228,7 @@
       "hash": "a23374422a957050",
       "size": 1741,
       "mtimeMs": 1785107989931.762,
-      "updatedAt": "2026-07-28T02:53:57.668Z",
+      "updatedAt": "2026-07-28T12:21:46.623Z",
       "source": "scan"
     },
     "profiles/perf-1785109868954-fi1w.json": {
@@ -3205,7 +3237,7 @@
       "hash": "0280e9c3e90f2414",
       "size": 2243,
       "mtimeMs": 1785109868951.7625,
-      "updatedAt": "2026-07-28T02:53:57.669Z",
+      "updatedAt": "2026-07-28T12:21:46.624Z",
       "source": "scan"
     },
     "profiles/perf-1785109881819-124a.json": {
@@ -3214,7 +3246,7 @@
       "hash": "5ac2b924e1bd4c29",
       "size": 2248,
       "mtimeMs": 1785109881815.7625,
-      "updatedAt": "2026-07-28T02:53:57.669Z",
+      "updatedAt": "2026-07-28T12:21:46.624Z",
       "source": "scan"
     },
     "profiles/perf-1785114908092-eevb.json": {
@@ -3223,7 +3255,7 @@
       "hash": "76d15cb25621d50f",
       "size": 5008,
       "mtimeMs": 1785114908087.763,
-      "updatedAt": "2026-07-28T02:53:57.670Z",
+      "updatedAt": "2026-07-28T12:21:46.625Z",
       "source": "scan"
     },
     "profiles/perf-1785114918677-t1a5.json": {
@@ -3232,7 +3264,7 @@
       "hash": "8d219e6e97ceab8e",
       "size": 5009,
       "mtimeMs": 1785114918671.763,
-      "updatedAt": "2026-07-28T02:53:57.670Z",
+      "updatedAt": "2026-07-28T12:21:46.625Z",
       "source": "scan"
     },
     "profiles/perf-1785115154897-znkz.json": {
@@ -3241,7 +3273,7 @@
       "hash": "41ae6c0d548b641a",
       "size": 4996,
       "mtimeMs": 1785115154891.7612,
-      "updatedAt": "2026-07-28T02:53:57.671Z",
+      "updatedAt": "2026-07-28T12:21:46.626Z",
       "source": "scan"
     },
     "profiles/perf-bench-1785116286940-r96x.json": {
@@ -3250,7 +3282,7 @@
       "hash": "3372ce1ac60b8dd7",
       "size": 4994,
       "mtimeMs": 1785116286935.7605,
-      "updatedAt": "2026-07-28T02:53:57.672Z",
+      "updatedAt": "2026-07-28T12:21:46.627Z",
       "source": "scan"
     },
     "profiles/perf-bench-1785116788267-48ab.json": {
@@ -3259,7 +3291,7 @@
       "hash": "a004cd64c21f5ef6",
       "size": 4917,
       "mtimeMs": 1785116788263.7625,
-      "updatedAt": "2026-07-28T02:53:57.673Z",
+      "updatedAt": "2026-07-28T12:21:46.628Z",
       "source": "scan"
     },
     "profiles/perf-bench-1785117299927-v1w4.json": {
@@ -3268,7 +3300,7 @@
       "hash": "f77391dd392b403d",
       "size": 5422,
       "mtimeMs": 1785117299922.5916,
-      "updatedAt": "2026-07-28T02:53:57.674Z",
+      "updatedAt": "2026-07-28T12:21:46.629Z",
       "source": "scan"
     },
     "profiles/perf-bench-1785117351891-nfhx.json": {
@@ -3277,7 +3309,7 @@
       "hash": "bdd45806fa641b51",
       "size": 5226,
       "mtimeMs": 1785117351886.5947,
-      "updatedAt": "2026-07-28T02:53:57.674Z",
+      "updatedAt": "2026-07-28T12:21:46.630Z",
       "source": "scan"
     },
     "profiles/perf-bench-1785120251535-jkso.json": {
@@ -3286,7 +3318,7 @@
       "hash": "93802af4147cbfd2",
       "size": 5254,
       "mtimeMs": 1785120251606.5981,
-      "updatedAt": "2026-07-28T02:53:57.675Z",
+      "updatedAt": "2026-07-28T12:21:46.631Z",
       "source": "scan"
     },
     "profiles/perf-bench-1785120314529-t3xn.json": {
@@ -3295,7 +3327,7 @@
       "hash": "8867e01b27e99e6f",
       "size": 5217,
       "mtimeMs": 1785120314526.5986,
-      "updatedAt": "2026-07-28T02:53:57.676Z",
+      "updatedAt": "2026-07-28T12:21:46.631Z",
       "source": "scan"
     },
     "profiles/perf-bench-1785134477051-rmcb.json": {
@@ -3304,7 +3336,7 @@
       "hash": "346af3d3ffc41846",
       "size": 5357,
       "mtimeMs": 1785134477048.7988,
-      "updatedAt": "2026-07-28T02:53:57.677Z",
+      "updatedAt": "2026-07-28T12:21:46.632Z",
       "source": "scan"
     },
     "profiles/perf-bench-1785134537737-t87u.json": {
@@ -3313,7 +3345,7 @@
       "hash": "8c37328bf53085b7",
       "size": 5283,
       "mtimeMs": 1785134537736.7988,
-      "updatedAt": "2026-07-28T02:53:57.678Z",
+      "updatedAt": "2026-07-28T12:21:46.633Z",
       "source": "scan"
     },
     "profiles/perf-bench-1785134587621-l9yc.json": {
@@ -3322,7 +3354,7 @@
       "hash": "c4b127d82418daad",
       "size": 5166,
       "mtimeMs": 1785134587620.798,
-      "updatedAt": "2026-07-28T02:53:57.678Z",
+      "updatedAt": "2026-07-28T12:21:46.634Z",
       "source": "scan"
     },
     "profiles/perf-bench-1785134781360-tkc7.json": {
@@ -3331,7 +3363,7 @@
       "hash": "da4432e3ed8c13dc",
       "size": 5297,
       "mtimeMs": 1785134781356.8005,
-      "updatedAt": "2026-07-28T02:53:57.679Z",
+      "updatedAt": "2026-07-28T12:21:46.634Z",
       "source": "scan"
     },
     "profiles/perf-bench-1785134829421-l9xf.json": {
@@ -3340,7 +3372,7 @@
       "hash": "609d1693cfd8471c",
       "size": 5034,
       "mtimeMs": 1785134829420.8005,
-      "updatedAt": "2026-07-28T02:53:57.680Z",
+      "updatedAt": "2026-07-28T12:21:46.635Z",
       "source": "scan"
     },
     "profiles/perf-bench-1785134871734-bjrv.json": {
@@ -3349,7 +3381,7 @@
       "hash": "a9d3ab2a2960ce3d",
       "size": 5301,
       "mtimeMs": 1785134871732.7983,
-      "updatedAt": "2026-07-28T02:53:57.680Z",
+      "updatedAt": "2026-07-28T12:21:46.635Z",
       "source": "scan"
     },
     "profiles/perf-bench-1785149563442-2zcg.json": {
@@ -3358,7 +3390,7 @@
       "hash": "3c03628ae444a164",
       "size": 5134,
       "mtimeMs": 1785149563440.7983,
-      "updatedAt": "2026-07-28T02:53:57.681Z",
+      "updatedAt": "2026-07-28T12:21:46.636Z",
       "source": "scan"
     },
     "profiles/perf-bench-1785149642860-j1lu.json": {
@@ -3367,7 +3399,7 @@
       "hash": "2398a516ddd2d388",
       "size": 5405,
       "mtimeMs": 1785149642860.8008,
-      "updatedAt": "2026-07-28T02:53:57.682Z",
+      "updatedAt": "2026-07-28T12:21:46.637Z",
       "source": "scan"
     },
     "profiles/perf-bench-1785192177031-52k0.json": {
@@ -3376,7 +3408,7 @@
       "hash": "81942a2f1ae0102f",
       "size": 5126,
       "mtimeMs": 1785192177028.7961,
-      "updatedAt": "2026-07-28T02:53:57.682Z",
+      "updatedAt": "2026-07-28T12:21:46.638Z",
       "source": "scan"
     },
     "profiles/perf-bench-2026-07-27T01-24-08-311Z.json": {
@@ -3385,7 +3417,7 @@
       "hash": "16215188399d2b13",
       "size": 4991,
       "mtimeMs": 1785115448313.597,
-      "updatedAt": "2026-07-28T02:53:57.683Z",
+      "updatedAt": "2026-07-28T12:21:46.638Z",
       "source": "scan"
     },
     "profiles/perf-bench-semvida-1785192221358-y9ew.json": {
@@ -3394,7 +3426,7 @@
       "hash": "f7f8121e02a2847d",
       "size": 5149,
       "mtimeMs": 1785192221356.7961,
-      "updatedAt": "2026-07-28T02:53:57.684Z",
+      "updatedAt": "2026-07-28T12:21:46.639Z",
       "source": "scan"
     },
     "projeto.txt": {
@@ -3403,7 +3435,7 @@
       "hash": "f19fe7802d1fba27",
       "size": 19459,
       "mtimeMs": 1783780454112.0908,
-      "updatedAt": "2026-07-28T02:53:57.685Z",
+      "updatedAt": "2026-07-28T12:21:46.642Z",
       "source": "scan"
     },
     "README.md": {
@@ -3412,7 +3444,7 @@
       "hash": "c104e4882c8992e6",
       "size": 7999,
       "mtimeMs": 1785159102288.7983,
-      "updatedAt": "2026-07-28T02:53:57.686Z",
+      "updatedAt": "2026-07-28T12:21:46.643Z",
       "source": "scan"
     },
     "registros/perfilador-v0.8.0-escola.md": {
@@ -3421,7 +3453,7 @@
       "hash": "02f8ee6daeb3303b",
       "size": 4719,
       "mtimeMs": 1784846189756.3027,
-      "updatedAt": "2026-07-28T02:53:57.686Z",
+      "updatedAt": "2026-07-28T12:21:46.643Z",
       "source": "scan"
     },
     "registros/prints/README.md": {
@@ -3430,7 +3462,7 @@
       "hash": "9b3be794838de50d",
       "size": 2321,
       "mtimeMs": 1784850121824.3022,
-      "updatedAt": "2026-07-28T02:53:57.687Z",
+      "updatedAt": "2026-07-28T12:21:46.645Z",
       "source": "scan"
     },
     "registros/README.md": {
@@ -3439,7 +3471,7 @@
       "hash": "41bb69e1ba49d933",
       "size": 1217,
       "mtimeMs": 1784846149164.3032,
-      "updatedAt": "2026-07-28T02:53:57.688Z",
+      "updatedAt": "2026-07-28T12:21:46.646Z",
       "source": "scan"
     },
     "relatorio/apresentacao-cre.html": {
@@ -3448,7 +3480,7 @@
       "hash": "ede8ce82e783e509",
       "size": 296715,
       "mtimeMs": 1785156159372.7979,
-      "updatedAt": "2026-07-28T02:53:57.692Z",
+      "updatedAt": "2026-07-28T12:21:46.653Z",
       "source": "scan"
     },
     "relatorio/relatorio-aplicacao.md": {
@@ -3457,7 +3489,7 @@
       "hash": "f80de7e607c9250b",
       "size": 21421,
       "mtimeMs": 1785155223212.7979,
-      "updatedAt": "2026-07-28T02:53:57.693Z",
+      "updatedAt": "2026-07-28T12:21:46.655Z",
       "source": "scan"
     },
     "scripts/bench-headless.mjs": {
@@ -3466,7 +3498,7 @@
       "hash": "99a9f47381501cb9",
       "size": 6577,
       "mtimeMs": 1785155492800.7988,
-      "updatedAt": "2026-07-28T02:53:57.694Z",
+      "updatedAt": "2026-07-28T12:21:46.655Z",
       "source": "scan",
       "symbols": [
         {
@@ -3506,13 +3538,80 @@
         }
       ]
     },
+    "scripts/luz-shots.mjs": {
+      "description": "§💡 Verificação da LUZ VOXEL num Chrome headless (2026-07-28).",
+      "tokens": 2866,
+      "hash": "6cda56b17457de32",
+      "size": 10879,
+      "mtimeMs": 1785239682245.0793,
+      "updatedAt": "2026-07-28T12:21:46.656Z",
+      "source": "scan",
+      "symbols": [
+        {
+          "name": "decodificarPng",
+          "kind": "fn",
+          "startLine": 45,
+          "endLine": 108,
+          "tokens": 650
+        },
+        {
+          "name": "medir",
+          "kind": "fn",
+          "startLine": 109,
+          "endLine": 134,
+          "tokens": 245
+        },
+        {
+          "name": "acharChrome",
+          "kind": "fn",
+          "startLine": 135,
+          "endLine": 149,
+          "tokens": 157
+        },
+        {
+          "name": "espera",
+          "kind": "fn",
+          "startLine": 150,
+          "endLine": 169,
+          "tokens": 148
+        },
+        {
+          "name": "abrirAba",
+          "kind": "fn",
+          "startLine": 170,
+          "endLine": 205,
+          "tokens": 362
+        },
+        {
+          "name": "cdp",
+          "kind": "fn",
+          "startLine": 206,
+          "endLine": 211,
+          "tokens": 50
+        },
+        {
+          "name": "avaliar",
+          "kind": "fn",
+          "startLine": 212,
+          "endLine": 255,
+          "tokens": 491
+        },
+        {
+          "name": "checar",
+          "kind": "fn",
+          "startLine": 256,
+          "endLine": 282,
+          "tokens": 344
+        }
+      ]
+    },
     "scripts/smoke.mjs": {
       "description": "Runner dos smokes de rede — sobe o servidor REAL, roda o cenário, mata tudo.",
       "tokens": 2319,
       "hash": "8b07fbfecad8438f",
       "size": 8769,
       "mtimeMs": 1785115934323.7622,
-      "updatedAt": "2026-07-28T02:53:57.694Z",
+      "updatedAt": "2026-07-28T12:21:46.657Z",
       "source": "scan",
       "symbols": [
         {
@@ -3558,7 +3657,7 @@
       "hash": "61f0cf13740e7bea",
       "size": 12989,
       "mtimeMs": 1785207016040.7974,
-      "updatedAt": "2026-07-28T02:53:57.695Z",
+      "updatedAt": "2026-07-28T12:21:46.658Z",
       "source": "scan",
       "symbols": [
         {
@@ -3632,7 +3731,7 @@
       "hash": "6327a023bd75a1a3",
       "size": 416,
       "mtimeMs": 1784035016068.0422,
-      "updatedAt": "2026-07-28T02:53:57.695Z",
+      "updatedAt": "2026-07-28T12:21:46.658Z",
       "source": "scan"
     },
     "server/src/cenarios/_smoke-atividade.mjs": {
@@ -3641,7 +3740,7 @@
       "hash": "edfb97d4cf6f9a29",
       "size": 3037,
       "mtimeMs": 1785093127307.7627,
-      "updatedAt": "2026-07-28T02:53:57.696Z",
+      "updatedAt": "2026-07-28T12:21:46.659Z",
       "source": "scan",
       "symbols": [
         {
@@ -3680,7 +3779,7 @@
       "hash": "e2bd568eb940903b",
       "size": 2863,
       "mtimeMs": 1785093125979.7627,
-      "updatedAt": "2026-07-28T02:53:57.697Z",
+      "updatedAt": "2026-07-28T12:21:46.659Z",
       "source": "scan",
       "symbols": [
         {
@@ -3719,7 +3818,7 @@
       "hash": "00165fde9cabbe5f",
       "size": 3297,
       "mtimeMs": 1785093326179.7627,
-      "updatedAt": "2026-07-28T02:53:57.698Z",
+      "updatedAt": "2026-07-28T12:21:46.660Z",
       "source": "scan",
       "symbols": [
         {
@@ -3751,7 +3850,7 @@
       "hash": "8738d2a5cf574819",
       "size": 5084,
       "mtimeMs": 1785084904959.764,
-      "updatedAt": "2026-07-28T02:53:57.698Z",
+      "updatedAt": "2026-07-28T12:21:46.660Z",
       "source": "scan",
       "symbols": [
         {
@@ -3783,7 +3882,7 @@
       "hash": "f6b3e445c8e0f738",
       "size": 3669,
       "mtimeMs": 1785115974415.7622,
-      "updatedAt": "2026-07-28T02:53:57.699Z",
+      "updatedAt": "2026-07-28T12:21:46.660Z",
       "source": "scan",
       "symbols": [
         {
@@ -3815,7 +3914,7 @@
       "hash": "76eb85d6625b3373",
       "size": 4614,
       "mtimeMs": 1785091561247.7642,
-      "updatedAt": "2026-07-28T02:53:57.700Z",
+      "updatedAt": "2026-07-28T12:21:46.660Z",
       "source": "scan",
       "symbols": [
         {
@@ -3861,7 +3960,7 @@
       "hash": "b3239db0c1e65b7a",
       "size": 19016,
       "mtimeMs": 1784517237060.3562,
-      "updatedAt": "2026-07-28T02:53:57.700Z",
+      "updatedAt": "2026-07-28T12:21:46.661Z",
       "source": "scan",
       "symbols": [
         {
@@ -3921,7 +4020,7 @@
       "hash": "b23cf401d35ded19",
       "size": 6663,
       "mtimeMs": 1784517263524.3567,
-      "updatedAt": "2026-07-28T02:53:57.701Z",
+      "updatedAt": "2026-07-28T12:21:46.661Z",
       "source": "scan",
       "symbols": [
         {
@@ -3974,7 +4073,7 @@
       "hash": "c77d5070db48c59c",
       "size": 22164,
       "mtimeMs": 1785115788947.7622,
-      "updatedAt": "2026-07-28T02:53:57.703Z",
+      "updatedAt": "2026-07-28T12:21:46.662Z",
       "source": "scan",
       "symbols": [
         {
@@ -4041,7 +4140,7 @@
       "hash": "c9668b01d4e0aafc",
       "size": 7296,
       "mtimeMs": 1785091443451.7627,
-      "updatedAt": "2026-07-28T02:53:57.704Z",
+      "updatedAt": "2026-07-28T12:21:46.665Z",
       "source": "scan",
       "symbols": [
         {
@@ -4087,7 +4186,7 @@
       "hash": "4e26cf36c38fc5a7",
       "size": 3252,
       "mtimeMs": 1784559009932.3584,
-      "updatedAt": "2026-07-28T02:53:57.704Z",
+      "updatedAt": "2026-07-28T12:21:46.665Z",
       "source": "scan",
       "symbols": [
         {
@@ -4112,7 +4211,7 @@
       "hash": "f45d06b0c323dccb",
       "size": 4550,
       "mtimeMs": 1785155345404.7988,
-      "updatedAt": "2026-07-28T02:53:57.704Z",
+      "updatedAt": "2026-07-28T12:21:46.665Z",
       "source": "scan",
       "symbols": [
         {
@@ -4144,7 +4243,7 @@
       "hash": "95c3c4725f764a96",
       "size": 3730,
       "mtimeMs": 1784050273432.041,
-      "updatedAt": "2026-07-28T02:53:57.704Z",
+      "updatedAt": "2026-07-28T12:21:46.665Z",
       "source": "scan",
       "symbols": [
         {
@@ -4176,7 +4275,7 @@
       "hash": "eabf45132bc16012",
       "size": 2968,
       "mtimeMs": 1784627833542.764,
-      "updatedAt": "2026-07-28T02:53:57.705Z",
+      "updatedAt": "2026-07-28T12:21:46.666Z",
       "source": "scan",
       "symbols": [
         {
@@ -4194,7 +4293,7 @@
       "hash": "38f8c30a652950e8",
       "size": 149,
       "mtimeMs": 1783800698780.0908,
-      "updatedAt": "2026-07-28T02:53:57.705Z",
+      "updatedAt": "2026-07-28T12:21:46.666Z",
       "source": "scan"
     },
     "shared/package.json": {
@@ -4203,7 +4302,7 @@
       "hash": "b269352ac97149eb",
       "size": 194,
       "mtimeMs": 1783780454112.0908,
-      "updatedAt": "2026-07-28T02:53:57.705Z",
+      "updatedAt": "2026-07-28T12:21:46.666Z",
       "source": "scan"
     },
     "shared/src/arvores.test.ts": {
@@ -4212,7 +4311,7 @@
       "hash": "beb0e1537852027d",
       "size": 2325,
       "mtimeMs": 1784594589156.3552,
-      "updatedAt": "2026-07-28T02:53:57.706Z",
+      "updatedAt": "2026-07-28T12:21:46.666Z",
       "source": "scan"
     },
     "shared/src/arvores.ts": {
@@ -4221,7 +4320,7 @@
       "hash": "12bfe62e77def2a6",
       "size": 5819,
       "mtimeMs": 1784653234218.7644,
-      "updatedAt": "2026-07-28T02:53:57.706Z",
+      "updatedAt": "2026-07-28T12:21:46.667Z",
       "source": "scan",
       "symbols": [
         {
@@ -4281,7 +4380,7 @@
       "hash": "29e5d3d6a88b634f",
       "size": 1510,
       "mtimeMs": 1784393177754.9072,
-      "updatedAt": "2026-07-28T02:53:57.706Z",
+      "updatedAt": "2026-07-28T12:21:46.667Z",
       "source": "scan"
     },
     "shared/src/auth.ts": {
@@ -4290,7 +4389,7 @@
       "hash": "3f085ad28ebc2dee",
       "size": 1729,
       "mtimeMs": 1784393091074.9092,
-      "updatedAt": "2026-07-28T02:53:57.706Z",
+      "updatedAt": "2026-07-28T12:21:46.667Z",
       "source": "scan"
     },
     "shared/src/biomas.ts": {
@@ -4299,7 +4398,7 @@
       "hash": "1c93c5f55b694c66",
       "size": 3800,
       "mtimeMs": 1785137475512.8008,
-      "updatedAt": "2026-07-28T02:53:57.706Z",
+      "updatedAt": "2026-07-28T12:21:46.667Z",
       "source": "scan",
       "symbols": [
         {
@@ -4338,7 +4437,7 @@
       "hash": "3e3309a7f14a8fc9",
       "size": 7407,
       "mtimeMs": 1785137647124.8005,
-      "updatedAt": "2026-07-28T02:53:57.707Z",
+      "updatedAt": "2026-07-28T12:21:46.668Z",
       "source": "scan"
     },
     "shared/src/blocks.ts": {
@@ -4347,7 +4446,7 @@
       "hash": "2808ae8b41401a2c",
       "size": 25428,
       "mtimeMs": 1785137618292.8005,
-      "updatedAt": "2026-07-28T02:53:57.707Z",
+      "updatedAt": "2026-07-28T12:21:46.669Z",
       "source": "scan",
       "symbols": [
         {
@@ -4568,7 +4667,7 @@
       "hash": "80cf867c874a9bcd",
       "size": 12284,
       "mtimeMs": 1785137540356.8008,
-      "updatedAt": "2026-07-28T02:53:57.708Z",
+      "updatedAt": "2026-07-28T12:21:46.669Z",
       "source": "scan",
       "symbols": [
         {
@@ -4614,7 +4713,7 @@
       "hash": "0ee5b1d0b1d04a22",
       "size": 3727,
       "mtimeMs": 1784654324730.7644,
-      "updatedAt": "2026-07-28T02:53:57.708Z",
+      "updatedAt": "2026-07-28T12:21:46.669Z",
       "source": "scan",
       "symbols": [
         {
@@ -4667,7 +4766,7 @@
       "hash": "6ab1809f9889e7ac",
       "size": 8798,
       "mtimeMs": 1784340400012.3667,
-      "updatedAt": "2026-07-28T02:53:57.709Z",
+      "updatedAt": "2026-07-28T12:21:46.669Z",
       "source": "scan",
       "symbols": [
         {
@@ -4734,7 +4833,7 @@
       "hash": "45412e368dc7cda5",
       "size": 1827,
       "mtimeMs": 1784764145511.3923,
-      "updatedAt": "2026-07-28T02:53:57.709Z",
+      "updatedAt": "2026-07-28T12:21:46.670Z",
       "source": "scan"
     },
     "shared/src/cp14.test.ts": {
@@ -4743,7 +4842,7 @@
       "hash": "2d381e5b77f2bf4b",
       "size": 7001,
       "mtimeMs": 1784220873934.2222,
-      "updatedAt": "2026-07-28T02:53:57.709Z",
+      "updatedAt": "2026-07-28T12:21:46.670Z",
       "source": "scan",
       "symbols": [
         {
@@ -4782,7 +4881,7 @@
       "hash": "b96c36079c90da61",
       "size": 28462,
       "mtimeMs": 1784583813676.356,
-      "updatedAt": "2026-07-28T02:53:57.710Z",
+      "updatedAt": "2026-07-28T12:21:46.671Z",
       "source": "scan",
       "symbols": [
         {
@@ -4800,7 +4899,7 @@
       "hash": "d9fa52f95bebb7d1",
       "size": 13548,
       "mtimeMs": 1784140932259.4033,
-      "updatedAt": "2026-07-28T02:53:57.710Z",
+      "updatedAt": "2026-07-28T12:21:46.671Z",
       "source": "scan",
       "symbols": [
         {
@@ -4839,7 +4938,7 @@
       "hash": "5256d9b9535d2376",
       "size": 987,
       "mtimeMs": 1783908749009.4753,
-      "updatedAt": "2026-07-28T02:53:57.711Z",
+      "updatedAt": "2026-07-28T12:21:46.671Z",
       "source": "scan"
     },
     "shared/src/index.ts": {
@@ -4848,1468 +4947,33 @@
       "hash": "82e1736b0932c1a9",
       "size": 578,
       "mtimeMs": 1785238475241.08,
-      "updatedAt": "2026-07-28T11:34:35.338Z",
-      "source": "hook"
-    },
-    "shared/src/mesher.test.ts": {
-      "description": "Pra onde, NO MUNDO, a onda de `tile` anda quando pintada na face `f`.",
-      "tokens": 5494,
-      "hash": "42bb100fda1c7cba",
-      "size": 19446,
-      "mtimeMs": 1785153337740.7979,
-      "updatedAt": "2026-07-28T02:53:57.712Z",
-      "source": "scan",
-      "symbols": [
-        {
-          "name": "direcaoDaOnda",
-          "kind": "fn",
-          "startLine": 28,
-          "endLine": 41,
-          "tokens": 151
-        },
-        {
-          "name": "tilesUsados",
-          "kind": "fn",
-          "startLine": 42,
-          "endLine": 449,
-          "tokens": 5130
-        }
-      ]
-    },
-    "shared/src/mesher.ts": {
-      "description": "Culled mesher: função PURA (bytes do mundo → geometria). Só emite faces que",
-      "tokens": 14638,
-      "hash": "36d0c39836f65deb",
-      "size": 52014,
-      "mtimeMs": 1785239062297.0808,
-      "updatedAt": "2026-07-28T11:44:22.428Z",
-      "source": "hook",
-      "symbols": [
-        {
-          "name": "FaceTiles",
-          "kind": "section",
-          "startLine": 157,
-          "endLine": 302,
-          "tokens": 2044
-        },
-        {
-          "name": "blockIconTile",
-          "kind": "fn",
-          "startLine": 303,
-          "endLine": 311,
-          "tokens": 136
-        },
-        {
-          "name": "blockSelectionBox",
-          "kind": "fn",
-          "startLine": 312,
-          "endLine": 348,
-          "tokens": 490
-        },
-        {
-          "name": "FaceCorner",
-          "kind": "section",
-          "startLine": 349,
-          "endLine": 353,
-          "tokens": 34
-        },
-        {
-          "name": "Face",
-          "kind": "section",
-          "startLine": 354,
-          "endLine": 418,
-          "tokens": 470
-        },
-        {
-          "name": "UvAxis",
-          "kind": "section",
-          "startLine": 419,
-          "endLine": 423,
-          "tokens": 17
-        },
-        {
-          "name": "uvAxisOf",
-          "kind": "fn",
-          "startLine": 424,
-          "endLine": 436,
-          "tokens": 165
-        },
-        {
-          "name": "FaceBase",
-          "kind": "section",
-          "startLine": 437,
-          "endLine": 494,
-          "tokens": 722
-        },
-        {
-          "name": "tileAguaDaFace",
-          "kind": "fn",
-          "startLine": 495,
-          "endLine": 524,
-          "tokens": 424
-        },
-        {
-          "name": "rotXZ",
-          "kind": "fn",
-          "startLine": 525,
-          "endLine": 544,
-          "tokens": 199
-        },
-        {
-          "name": "swayDoBloco",
-          "kind": "fn",
-          "startLine": 545,
-          "endLine": 550,
-          "tokens": 44
-        },
-        {
-          "name": "ChunkGeometry",
-          "kind": "section",
-          "startLine": 551,
-          "endLine": 601,
-          "tokens": 769
-        },
-        {
-          "name": "vizIndex",
-          "kind": "fn",
-          "startLine": 602,
-          "endLine": 627,
-          "tokens": 287
-        },
-        {
-          "name": "extrairVizinhanca",
-          "kind": "fn",
-          "startLine": 628,
-          "endLine": 671,
-          "tokens": 467
-        },
-        {
-          "name": "extrairVizinhancaLuz",
-          "kind": "fn",
-          "startLine": 672,
-          "endLine": 691,
-          "tokens": 196
-        },
-        {
-          "name": "meshChunk",
-          "kind": "fn",
-          "startLine": 692,
-          "endLine": 711,
-          "tokens": 183
-        },
-        {
-          "name": "meshVizinhanca",
-          "kind": "fn",
-          "startLine": 712,
-          "endLine": 1207,
-          "tokens": 6649
-        }
-      ]
-    },
-    "shared/src/physics.test.ts": {
-      "description": "Mundo 1 chunk com chão sólido em y ∈ [0,7].",
-      "tokens": 4462,
-      "hash": "722a94e3f885648d",
-      "size": 15748,
-      "mtimeMs": 1785028387002.7332,
-      "updatedAt": "2026-07-28T02:53:57.713Z",
-      "source": "scan",
-      "symbols": [
-        {
-          "name": "flatWorld",
-          "kind": "fn",
-          "startLine": 15,
-          "endLine": 22,
-          "tokens": 63
-        },
-        {
-          "name": "simulate",
-          "kind": "fn",
-          "startLine": 23,
-          "endLine": 359,
-          "tokens": 4315
-        }
-      ]
-    },
-    "shared/src/physics.ts": {
-      "description": "Física do jogador (andar, gravidade, colisão AABB com o grid de voxels).",
-      "tokens": 5196,
-      "hash": "bd70bc9248b8a24c",
-      "size": 18386,
-      "mtimeMs": 1785028382058.7332,
-      "updatedAt": "2026-07-28T02:53:57.714Z",
-      "source": "scan",
-      "symbols": [
-        {
-          "name": "Vec3",
-          "kind": "section",
-          "startLine": 11,
-          "endLine": 58,
-          "tokens": 527
-        },
-        {
-          "name": "temColisaoParcial",
-          "kind": "fn",
-          "startLine": 59,
-          "endLine": 62,
-          "tokens": 26
-        },
-        {
-          "name": "PlayerState",
-          "kind": "section",
-          "startLine": 63,
-          "endLine": 72,
-          "tokens": 97
-        },
-        {
-          "name": "MoveInput",
-          "kind": "section",
-          "startLine": 73,
-          "endLine": 85,
-          "tokens": 108
-        },
-        {
-          "name": "createPlayer",
-          "kind": "fn",
-          "startLine": 86,
-          "endLine": 92,
-          "tokens": 117
-        },
-        {
-          "name": "collides",
-          "kind": "fn",
-          "startLine": 93,
-          "endLine": 130,
-          "tokens": 467
-        },
-        {
-          "name": "resolveVertical",
-          "kind": "fn",
-          "startLine": 131,
-          "endLine": 173,
-          "tokens": 563
-        },
-        {
-          "name": "resolveHoriz",
-          "kind": "fn",
-          "startLine": 174,
-          "endLine": 213,
-          "tokens": 497
-        },
-        {
-          "name": "moveAxis",
-          "kind": "fn",
-          "startLine": 214,
-          "endLine": 247,
-          "tokens": 398
-        },
-        {
-          "name": "inWater",
-          "kind": "fn",
-          "startLine": 248,
-          "endLine": 261,
-          "tokens": 114
-        },
-        {
-          "name": "hasSupport",
-          "kind": "fn",
-          "startLine": 262,
-          "endLine": 291,
-          "tokens": 364
-        },
-        {
-          "name": "moveHoriz",
-          "kind": "fn",
-          "startLine": 292,
-          "endLine": 325,
-          "tokens": 353
-        },
-        {
-          "name": "paredeAdjacente",
-          "kind": "fn",
-          "startLine": 326,
-          "endLine": 348,
-          "tokens": 261
-        },
-        {
-          "name": "moveAxisGuarded",
-          "kind": "fn",
-          "startLine": 349,
-          "endLine": 364,
-          "tokens": 96
-        },
-        {
-          "name": "stepPlayer",
-          "kind": "fn",
-          "startLine": 365,
-          "endLine": 450,
-          "tokens": 1096
-        }
-      ]
-    },
-    "shared/src/protocol.test.ts": {
-      "description": "Declares DIMS",
-      "tokens": 3650,
-      "hash": "dd1fcf9e6d85264f",
-      "size": 12811,
-      "mtimeMs": 1785113025311.7625,
-      "updatedAt": "2026-07-28T02:53:57.714Z",
+      "updatedAt": "2026-07-28T12:21:46.672Z",
       "source": "scan"
     },
-    "shared/src/protocol.ts": {
-      "description": "Protocolo v0 (checkpoint 2). Mensagens JSON dos dois lados + world_snapshot",
-      "tokens": 9314,
-      "hash": "8d9133aeee097d4d",
-      "size": 32864,
-      "mtimeMs": 1785136407708.801,
-      "updatedAt": "2026-07-28T02:53:57.715Z",
+    "shared/src/luz.test.ts": {
+      "description": "3×3 colunas de chunk, 2 chunks de altura (32 blocos) — dá pra enterrar uma",
+      "tokens": 3721,
+      "hash": "ac7aa5de804d5172",
+      "size": 13093,
+      "mtimeMs": 1785238923681.0793,
+      "updatedAt": "2026-07-28T12:21:46.672Z",
       "source": "scan",
       "symbols": [
         {
-          "name": "parseClientMessage",
+          "name": "mundoComChao",
           "kind": "fn",
-          "startLine": 331,
-          "endLine": 448,
-          "tokens": 1138
-        },
-        {
-          "name": "parseServerMessage",
-          "kind": "fn",
-          "startLine": 449,
-          "endLine": 667,
-          "tokens": 2538
-        },
-        {
-          "name": "Snapshot",
-          "kind": "section",
-          "startLine": 668,
-          "endLine": 672,
-          "tokens": 18
-        },
-        {
-          "name": "encodeSnapshot",
-          "kind": "fn",
-          "startLine": 673,
-          "endLine": 692,
-          "tokens": 201
-        },
-        {
-          "name": "decodeSnapshot",
-          "kind": "fn",
-          "startLine": 693,
-          "endLine": 752,
-          "tokens": 763
-        },
-        {
-          "name": "peekMagic",
-          "kind": "fn",
-          "startLine": 753,
-          "endLine": 757,
-          "tokens": 40
-        },
-        {
-          "name": "encodeLazyInfo",
-          "kind": "fn",
-          "startLine": 758,
-          "endLine": 770,
-          "tokens": 134
-        },
-        {
-          "name": "decodeLazyInfo",
-          "kind": "fn",
-          "startLine": 771,
-          "endLine": 795,
-          "tokens": 245
-        },
-        {
-          "name": "ColunaRef",
-          "kind": "section",
-          "startLine": 796,
-          "endLine": 803,
-          "tokens": 80
-        },
-        {
-          "name": "encodeColunas",
-          "kind": "fn",
-          "startLine": 804,
-          "endLine": 828,
-          "tokens": 276
-        },
-        {
-          "name": "decodeColunas",
-          "kind": "fn",
-          "startLine": 829,
-          "endLine": 862,
-          "tokens": 340
-        }
-      ]
-    },
-    "shared/src/quadros.test.ts": {
-      "description": "DIMS: makeFlat",
-      "tokens": 1603,
-      "hash": "56b3386e00f831e0",
-      "size": 5640,
-      "mtimeMs": 1784504065673.7603,
-      "updatedAt": "2026-07-28T02:53:57.716Z",
-      "source": "scan",
-      "symbols": [
-        {
-          "name": "makeFlat",
-          "kind": "fn",
-          "startLine": 12,
-          "endLine": 138,
-          "tokens": 1471
-        }
-      ]
-    },
-    "shared/src/quadros.ts": {
-      "description": "Quadro (backlog 2026-07-19): bloco de parede com CONTEÚDO autoral — texto",
-      "tokens": 540,
-      "hash": "b67b9f1e807b2514",
-      "size": 1903,
-      "mtimeMs": 1784503766657.7568,
-      "updatedAt": "2026-07-28T02:53:57.716Z",
-      "source": "scan",
-      "symbols": [
-        {
-          "name": "QuadroConteudo",
-          "kind": "section",
-          "startLine": 10,
-          "endLine": 24,
-          "tokens": 132
-        },
-        {
-          "name": "quadroKey",
-          "kind": "fn",
-          "startLine": 25,
-          "endLine": 29,
-          "tokens": 50
-        },
-        {
-          "name": "parseQuadroConteudo",
-          "kind": "fn",
-          "startLine": 30,
-          "endLine": 52,
-          "tokens": 229
-        }
-      ]
-    },
-    "shared/src/raycast.test.ts": {
-      "description": "Mundo 16³ com chão sólido em y ∈ [0,7].",
-      "tokens": 1050,
-      "hash": "a1d9d0fc1d08eb29",
-      "size": 3710,
-      "mtimeMs": 1784731907611.3936,
-      "updatedAt": "2026-07-28T02:53:57.716Z",
-      "source": "scan",
-      "symbols": [
-        {
-          "name": "floorWorld",
-          "kind": "fn",
-          "startLine": 9,
-          "endLine": 90,
-          "tokens": 976
-        }
-      ]
-    },
-    "shared/src/raycast.ts": {
-      "description": "Raycast de voxel (DDA de Amanatides-Woo): anda célula a célula do grid até",
-      "tokens": 1624,
-      "hash": "9c3d162090163628",
-      "size": 5745,
-      "mtimeMs": 1784737998035.3933,
-      "updatedAt": "2026-07-28T02:53:57.716Z",
-      "source": "scan",
-      "symbols": [
-        {
-          "name": "RayHit",
-          "kind": "section",
-          "startLine": 16,
-          "endLine": 36,
-          "tokens": 199
-        },
-        {
-          "name": "subBoxNormal",
-          "kind": "fn",
-          "startLine": 37,
-          "endLine": 88,
-          "tokens": 525
-        },
-        {
-          "name": "raycastBlock",
-          "kind": "fn",
-          "startLine": 89,
-          "endLine": 163,
-          "tokens": 700
-        }
-      ]
-    },
-    "shared/src/regions.test.ts": {
-      "description": "Marca os 2 cantos e cria a região \"casa\" (0,0,0)→(3,4,5).",
-      "tokens": 3510,
-      "hash": "242d36f406756874",
-      "size": 12364,
-      "mtimeMs": 1784296351544.3696,
-      "updatedAt": "2026-07-28T02:53:57.717Z",
-      "source": "scan",
-      "symbols": [
-        {
-          "name": "makeSession",
-          "kind": "fn",
-          "startLine": 17,
-          "endLine": 33,
-          "tokens": 175
-        },
-        {
-          "name": "joinProf",
-          "kind": "fn",
-          "startLine": 34,
-          "endLine": 36,
-          "tokens": 44
-        },
-        {
-          "name": "joinAluno",
-          "kind": "fn",
-          "startLine": 37,
-          "endLine": 40,
-          "tokens": 58
-        },
-        {
-          "name": "criarCasa",
-          "kind": "fn",
-          "startLine": 41,
-          "endLine": 306,
-          "tokens": 3083
-        }
-      ]
-    },
-    "shared/src/regions.ts": {
-      "description": "Regiões nomeadas (cp11) — caixas de blocos com nome, marcadas pelo professor",
-      "tokens": 756,
-      "hash": "6b81b99d9c62aa99",
-      "size": 2669,
-      "mtimeMs": 1783903813957.476,
-      "updatedAt": "2026-07-28T02:53:57.717Z",
-      "source": "scan",
-      "symbols": [
-        {
-          "name": "Vec3i",
-          "kind": "section",
-          "startLine": 9,
-          "endLine": 15,
-          "tokens": 38
-        },
-        {
-          "name": "NamedRegion",
-          "kind": "section",
-          "startLine": 16,
-          "endLine": 25,
-          "tokens": 67
-        },
-        {
-          "name": "regionFromCorners",
-          "kind": "fn",
-          "startLine": 26,
-          "endLine": 33,
-          "tokens": 99
-        },
-        {
-          "name": "regionContains",
-          "kind": "fn",
-          "startLine": 34,
-          "endLine": 47,
+          "startLine": 24,
+          "endLine": 32,
           "tokens": 88
         },
         {
-          "name": "regionDims",
-          "kind": "fn",
-          "startLine": 48,
-          "endLine": 56,
-          "tokens": 67
-        },
-        {
-          "name": "parseVec3i",
-          "kind": "fn",
-          "startLine": 57,
-          "endLine": 69,
-          "tokens": 145
-        },
-        {
-          "name": "parseNamedRegion",
-          "kind": "fn",
-          "startLine": 70,
-          "endLine": 81,
-          "tokens": 138
-        }
-      ]
-    },
-    "shared/src/rules.test.ts": {
-      "description": "Declares DIMS",
-      "tokens": 736,
-      "hash": "b0bf534f83fda70c",
-      "size": 2583,
-      "mtimeMs": 1784496603029.764,
-      "updatedAt": "2026-07-28T02:53:57.717Z",
-      "source": "scan"
-    },
-    "shared/src/rules.ts": {
-      "description": "Sistema GENÉRICO de atualização de bloco por vizinhança — a REGRA DE OURO",
-      "tokens": 3405,
-      "hash": "4c10c77e4626554d",
-      "size": 12161,
-      "mtimeMs": 1784807316376.305,
-      "updatedAt": "2026-07-28T02:53:57.718Z",
-      "source": "scan",
-      "symbols": [
-        {
-          "name": "BlockChange",
-          "kind": "section",
-          "startLine": 20,
-          "endLine": 87,
-          "tokens": 758
-        },
-        {
-          "name": "fontesLaterais",
-          "kind": "fn",
-          "startLine": 88,
-          "endLine": 99,
-          "tokens": 146
-        },
-        {
-          "name": "nivelSuportado",
-          "kind": "fn",
-          "startLine": 100,
-          "endLine": 119,
-          "tokens": 290
-        },
-        {
-          "name": "temQueda",
-          "kind": "fn",
-          "startLine": 120,
-          "endLine": 128,
-          "tokens": 137
-        },
-        {
-          "name": "aguaAtravessa",
-          "kind": "fn",
-          "startLine": 129,
-          "endLine": 137,
-          "tokens": 136
-        },
-        {
-          "name": "passosAteQueda",
-          "kind": "fn",
-          "startLine": 138,
-          "endLine": 274,
-          "tokens": 1746
-        },
-        {
-          "name": "ruleFor",
-          "kind": "fn",
-          "startLine": 275,
-          "endLine": 278,
-          "tokens": 28
-        }
-      ]
-    },
-    "shared/src/save-lazy.test.ts": {
-      "description": "Dims lazy de teste (33k chunks > teto denso) — mesmo caminho do tamanho E.",
-      "tokens": 1031,
-      "hash": "05525b3e15050653",
-      "size": 3624,
-      "mtimeMs": 1784627896830.7642,
-      "updatedAt": "2026-07-28T02:53:57.718Z",
-      "source": "scan",
-      "symbols": [
-        {
-          "name": "novaLazy",
-          "kind": "fn",
-          "startLine": 13,
-          "endLine": 77,
-          "tokens": 890
-        }
-      ]
-    },
-    "shared/src/save.test.ts": {
-      "description": "Declares DIMS",
-      "tokens": 1454,
-      "hash": "c42c0647f0aa07d8",
-      "size": 5117,
-      "mtimeMs": 1784211046370.2214,
-      "updatedAt": "2026-07-28T02:53:57.718Z",
-      "source": "scan"
-    },
-    "shared/src/save.ts": {
-      "description": "Formato de save (.ljw) — MESMO arquivo em todos os hospedeiros: disco do",
-      "tokens": 3884,
-      "hash": "5b22aa6ffdc550ee",
-      "size": 13724,
-      "mtimeMs": 1785136486884.8,
-      "updatedAt": "2026-07-28T02:53:57.719Z",
-      "source": "scan",
-      "symbols": [
-        {
-          "name": "SavedPlayer",
-          "kind": "section",
-          "startLine": 44,
-          "endLine": 58,
-          "tokens": 116
-        },
-        {
-          "name": "SaveMeta",
-          "kind": "section",
-          "startLine": 59,
-          "endLine": 100,
-          "tokens": 576
-        },
-        {
-          "name": "SaveData",
-          "kind": "section",
-          "startLine": 101,
-          "endLine": 107,
-          "tokens": 80
-        },
-        {
-          "name": "encodeSave",
-          "kind": "fn",
-          "startLine": 108,
-          "endLine": 121,
-          "tokens": 198
-        },
-        {
-          "name": "encodeLazySave",
-          "kind": "fn",
-          "startLine": 122,
-          "endLine": 147,
-          "tokens": 255
-        },
-        {
-          "name": "isFinitePos",
-          "kind": "fn",
-          "startLine": 148,
-          "endLine": 156,
-          "tokens": 104
-        },
-        {
-          "name": "decodeSave",
-          "kind": "fn",
-          "startLine": 157,
-          "endLine": 174,
-          "tokens": 234
-        },
-        {
-          "name": "decodeLazySave",
-          "kind": "fn",
-          "startLine": 175,
-          "endLine": 213,
-          "tokens": 453
-        },
-        {
-          "name": "readSaveMeta",
-          "kind": "fn",
-          "startLine": 214,
-          "endLine": 325,
-          "tokens": 1295
-        }
-      ]
-    },
-    "shared/src/scenario.test.ts": {
-      "description": "Marca cantos e cria região nomeada via varinha + /regiao (professor id).",
-      "tokens": 4106,
-      "hash": "ccfee5c9091cac23",
-      "size": 14472,
-      "mtimeMs": 1784222581962.2236,
-      "updatedAt": "2026-07-28T02:53:57.719Z",
-      "source": "scan",
-      "symbols": [
-        {
-          "name": "makeSession",
-          "kind": "fn",
-          "startLine": 18,
-          "endLine": 44,
-          "tokens": 316
-        },
-        {
-          "name": "joinProf",
-          "kind": "fn",
-          "startLine": 45,
-          "endLine": 47,
-          "tokens": 36
-        },
-        {
-          "name": "joinAluno",
-          "kind": "fn",
-          "startLine": 48,
-          "endLine": 51,
-          "tokens": 54
-        },
-        {
-          "name": "criarRegiao",
-          "kind": "fn",
-          "startLine": 52,
-          "endLine": 338,
-          "tokens": 3545
-        }
-      ]
-    },
-    "shared/src/scenario.ts": {
-      "description": "Cenário (cp12) — o coração pedagógico: objetivos que checam o ESTADO DO",
-      "tokens": 3680,
-      "hash": "bf2e80b898f1669a",
-      "size": 13017,
-      "mtimeMs": 1784299192544.3682,
-      "updatedAt": "2026-07-28T02:53:57.719Z",
-      "source": "scan",
-      "symbols": [
-        {
-          "name": "Box",
-          "kind": "section",
-          "startLine": 24,
-          "endLine": 28,
-          "tokens": 16
-        },
-        {
-          "name": "Objective",
-          "kind": "section",
-          "startLine": 29,
-          "endLine": 60,
-          "tokens": 375
-        },
-        {
-          "name": "ScenarioMeta",
-          "kind": "section",
-          "startLine": 61,
-          "endLine": 71,
-          "tokens": 126
-        },
-        {
-          "name": "GroupObjectiveState",
-          "kind": "section",
-          "startLine": 72,
-          "endLine": 84,
-          "tokens": 94
-        },
-        {
-          "name": "ObjectiveState",
-          "kind": "section",
-          "startLine": 85,
-          "endLine": 115,
-          "tokens": 334
-        },
-        {
-          "name": "boxVolume",
-          "kind": "fn",
-          "startLine": 116,
-          "endLine": 125,
-          "tokens": 87
-        },
-        {
-          "name": "snapshotRegion",
-          "kind": "fn",
-          "startLine": 126,
-          "endLine": 137,
-          "tokens": 90
-        },
-        {
-          "name": "MatchResult",
-          "kind": "section",
-          "startLine": 138,
-          "endLine": 147,
-          "tokens": 95
-        },
-        {
-          "name": "matchRegion",
-          "kind": "fn",
-          "startLine": 148,
-          "endLine": 170,
-          "tokens": 198
-        },
-        {
-          "name": "countSolid",
-          "kind": "fn",
-          "startLine": 171,
-          "endLine": 182,
-          "tokens": 87
-        },
-        {
-          "name": "isKind",
-          "kind": "fn",
-          "startLine": 183,
-          "endLine": 187,
-          "tokens": 50
-        },
-        {
-          "name": "parseBox",
-          "kind": "fn",
-          "startLine": 188,
-          "endLine": 196,
-          "tokens": 93
-        },
-        {
-          "name": "parseObjective",
-          "kind": "fn",
-          "startLine": 197,
-          "endLine": 265,
-          "tokens": 766
-        },
-        {
-          "name": "parseScenarioMeta",
-          "kind": "fn",
-          "startLine": 266,
-          "endLine": 303,
-          "tokens": 416
-        },
-        {
-          "name": "parseObjectiveState",
-          "kind": "fn",
-          "startLine": 304,
-          "endLine": 361,
-          "tokens": 576
-        }
-      ]
-    },
-    "shared/src/session.test.ts": {
-      "description": "Testes de MECÂNICA rodam com singleplayer: true (join sem PIN) — a",
-      "tokens": 14673,
-      "hash": "edeccf8e2882c3e3",
-      "size": 51661,
-      "mtimeMs": 1785136620180.798,
-      "updatedAt": "2026-07-28T02:53:57.723Z",
-      "source": "scan",
-      "symbols": [
-        {
-          "name": "collect",
-          "kind": "fn",
-          "startLine": 12,
-          "endLine": 1083,
-          "tokens": 14529
-        }
-      ]
-    },
-    "shared/src/session.ts": {
-      "description": "GameSession: o SERVIDOR autoritativo, independente de hospedeiro.",
-      "tokens": 40022,
-      "hash": "5917566decd54d09",
-      "size": 141596,
-      "mtimeMs": 1785240439185.0796,
-      "updatedAt": "2026-07-28T12:07:19.309Z",
-      "source": "hook",
-      "symbols": [
-        {
-          "name": "SessionOptions",
-          "kind": "section",
-          "startLine": 125,
-          "endLine": 157,
-          "tokens": 442
-        },
-        {
-          "name": "SessionPlayer",
-          "kind": "section",
-          "startLine": 158,
-          "endLine": 168,
-          "tokens": 58
-        },
-        {
-          "name": "Identity",
-          "kind": "section",
-          "startLine": 169,
-          "endLine": 181,
-          "tokens": 110
-        },
-        {
-          "name": "parseCoordArg",
-          "kind": "fn",
-          "startLine": 182,
-          "endLine": 193,
-          "tokens": 106
-        },
-        {
-          "name": "GameSession",
-          "kind": "class",
-          "startLine": 194,
-          "endLine": 3263,
-          "tokens": 38601
-        }
-      ]
-    },
-    "shared/src/streaming.test.ts": {
-      "description": "Dims LAZY de teste: 64×64×8 chunks (33k chunks > teto denso de 2048) —",
-      "tokens": 4725,
-      "hash": "eb36be1328804bd8",
-      "size": 16618,
-      "mtimeMs": 1785084838063.7642,
-      "updatedAt": "2026-07-28T02:53:57.727Z",
-      "source": "scan",
-      "symbols": [
-        {
-          "name": "Sent",
-          "kind": "section",
-          "startLine": 24,
-          "endLine": 31,
-          "tokens": 52
-        },
-        {
-          "name": "novaSessaoLazy",
-          "kind": "fn",
-          "startLine": 32,
-          "endLine": 46,
-          "tokens": 153
-        },
-        {
-          "name": "colunasDe",
-          "kind": "fn",
-          "startLine": 47,
-          "endLine": 354,
-          "tokens": 4324
-        }
-      ]
-    },
-    "shared/src/tp.test.ts": {
-      "description": "/tpr (pedir teleporte) + /tpa (aceitar) — todos os jogadores; e /tp nome /",
-      "tokens": 1496,
-      "hash": "bda58c4b9b1c5c9b",
-      "size": 5288,
-      "mtimeMs": 1784570408024.357,
-      "updatedAt": "2026-07-28T02:53:57.727Z",
-      "source": "scan",
-      "symbols": [
-        {
-          "name": "makeTp",
-          "kind": "fn",
-          "startLine": 12,
-          "endLine": 133,
-          "tokens": 1389
-        }
-      ]
-    },
-    "shared/src/vento.test.ts": {
-      "description": "§🌬️ (2026-07-27): o vento é a MESMA engrenagem do horaDoDia — função pura do",
-      "tokens": 1886,
-      "hash": "135ad744120d66ac",
-      "size": 6710,
-      "mtimeMs": 1785150164660.7988,
-      "updatedAt": "2026-07-28T02:53:57.727Z",
-      "source": "scan"
-    },
-    "shared/src/vento.ts": {
-      "description": "Vento como ESTADO DO MUNDO (§🌬️, 2026-07-27) — server-autoritativo e SÓ",
-      "tokens": 1670,
-      "hash": "fba726ded72cbc1f",
-      "size": 5966,
-      "mtimeMs": 1785149854896.8003,
-      "updatedAt": "2026-07-28T02:53:57.727Z",
-      "source": "scan",
-      "symbols": [
-        {
-          "name": "Vento",
-          "kind": "section",
-          "startLine": 21,
-          "endLine": 38,
-          "tokens": 198
-        },
-        {
-          "name": "faseDaSeed",
-          "kind": "fn",
-          "startLine": 39,
-          "endLine": 49,
-          "tokens": 126
-        },
-        {
-          "name": "ventoNoTick",
-          "kind": "fn",
-          "startLine": 50,
-          "endLine": 71,
-          "tokens": 287
-        },
-        {
-          "name": "ventoRumo",
-          "kind": "fn",
-          "startLine": 72,
-          "endLine": 78,
-          "tokens": 87
-        },
-        {
-          "name": "ventoIntensidade",
-          "kind": "fn",
-          "startLine": 79,
-          "endLine": 115,
-          "tokens": 455
-        },
-        {
-          "name": "setorDaDirecao",
-          "kind": "fn",
-          "startLine": 116,
-          "endLine": 123,
-          "tokens": 112
-        },
-        {
-          "name": "ondaAguaDoVento",
-          "kind": "fn",
-          "startLine": 124,
-          "endLine": 137,
-          "tokens": 104
-        }
-      ]
-    },
-    "shared/src/version.ts": {
-      "description": "Versão do jogo — FONTE ÚNICA = campo \"version\" do package.json da raiz (import JSON tree-shaken); bump via `npm version`.",
-      "tokens": 135,
-      "hash": "d56c16d4448cf3db",
-      "size": 477,
-      "mtimeMs": 1784590216096.3562,
-      "updatedAt": "2026-07-28T02:53:57.727Z",
-      "source": "scan"
-    },
-    "shared/src/water.test.ts": {
-      "description": "Autômato celular síncrono: coleta as mudanças de TODA célula com regra",
-      "tokens": 1673,
-      "hash": "bbeb0963b565385d",
-      "size": 5931,
-      "mtimeMs": 1784764307803.3923,
-      "updatedAt": "2026-07-28T02:53:57.728Z",
-      "source": "scan",
-      "symbols": [
-        {
-          "name": "simular",
-          "kind": "fn",
-          "startLine": 12,
-          "endLine": 32,
-          "tokens": 231
-        },
-        {
-          "name": "pisoPlano",
+          "name": "acenderTudo",
           "kind": "fn",
           "startLine": 33,
-          "endLine": 131,
-          "tokens": 1278
+          "endLine": 324,
+          "tokens": 3487
         }
       ]
-    },
-    "shared/src/world.test.ts": {
-      "description": "Declares DIMS",
-      "tokens": 866,
-      "hash": "93ffe28bddf5ec41",
-      "size": 3044,
-      "mtimeMs": 1784653238530.7644,
-      "updatedAt": "2026-07-28T02:53:57.728Z",
-      "source": "scan"
-    },
-    "shared/src/world.ts": {
-      "description": "Dimensões do mundo em chunks. Parâmetro de criação, gravado no header do save/snapshot.",
-      "tokens": 1654,
-      "hash": "5fd56c77437aada4",
-      "size": 5850,
-      "mtimeMs": 1785240421889.0796,
-      "updatedAt": "2026-07-28T12:07:02.013Z",
-      "source": "hook",
-      "symbols": [
-        {
-          "name": "WorldDims",
-          "kind": "section",
-          "startLine": 5,
-          "endLine": 21,
-          "tokens": 184
-        },
-        {
-          "name": "World",
-          "kind": "section",
-          "startLine": 22,
-          "endLine": 33,
-          "tokens": 128
-        },
-        {
-          "name": "createWorld",
-          "kind": "fn",
-          "startLine": 34,
-          "endLine": 48,
-          "tokens": 156
-        },
-        {
-          "name": "colunaGerada",
-          "kind": "fn",
-          "startLine": 49,
-          "endLine": 53,
-          "tokens": 63
-        },
-        {
-          "name": "alocarColuna",
-          "kind": "fn",
-          "startLine": 54,
-          "endLine": 61,
-          "tokens": 87
-        },
-        {
-          "name": "chunkIndex",
-          "kind": "fn",
-          "startLine": 62,
-          "endLine": 66,
-          "tokens": 68
-        },
-        {
-          "name": "blockIndex",
-          "kind": "fn",
-          "startLine": 67,
-          "endLine": 70,
-          "tokens": 36
-        },
-        {
-          "name": "inBounds",
-          "kind": "fn",
-          "startLine": 71,
-          "endLine": 77,
-          "tokens": 72
-        },
-        {
-          "name": "getBlock",
-          "kind": "fn",
-          "startLine": 78,
-          "endLine": 88,
-          "tokens": 148
-        },
-        {
-          "name": "setBlock",
-          "kind": "fn",
-          "startLine": 89,
-          "endLine": 99,
-          "tokens": 141
-        },
-        {
-          "name": "findSpawnY",
-          "kind": "fn",
-          "startLine": 100,
-          "endLine": 107,
-          "tokens": 79
-        },
-        {
-          "name": "colunaMolhada",
-          "kind": "fn",
-          "startLine": 108,
-          "endLine": 123,
-          "tokens": 234
-        },
-        {
-          "name": "findSpawnSeco",
-          "kind": "fn",
-          "startLine": 124,
-          "endLine": 149,
-          "tokens": 204
-        }
-      ]
-    },
-    "shared/src/worldgen.test.ts": {
-      "description": "Mundo denso de 4×4 colunas com altura cheia — as cavernas moram em y≥2 e",
-      "tokens": 5270,
-      "hash": "b3a3b65e6f13f89a",
-      "size": 18586,
-      "mtimeMs": 1785240890225.082,
-      "updatedAt": "2026-07-28T12:14:50.326Z",
-      "source": "hook"
-    },
-    "shared/src/worldgen.ts": {
-      "description": "Preset de criação de mundo (cp14): escolhido no menu/host, só vale pra",
-      "tokens": 7371,
-      "hash": "7abe16b30c21c3a3",
-      "size": 26183,
-      "mtimeMs": 1785240880201.0815,
-      "updatedAt": "2026-07-28T12:14:40.326Z",
-      "source": "hook",
-      "symbols": [
-        {
-          "name": "parseWorldPreset",
-          "kind": "fn",
-          "startLine": 24,
-          "endLine": 45,
-          "tokens": 303
-        },
-        {
-          "name": "parseWorldTamanho",
-          "kind": "fn",
-          "startLine": 46,
-          "endLine": 51,
-          "tokens": 78
-        },
-        {
-          "name": "ehMundoLazy",
-          "kind": "fn",
-          "startLine": 52,
-          "endLine": 61,
-          "tokens": 103
-        },
-        {
-          "name": "hash2",
-          "kind": "fn",
-          "startLine": 62,
-          "endLine": 67,
-          "tokens": 66
-        },
-        {
-          "name": "smooth",
-          "kind": "fn",
-          "startLine": 68,
-          "endLine": 72,
-          "tokens": 29
-        },
-        {
-          "name": "valueNoise2",
-          "kind": "fn",
-          "startLine": 73,
-          "endLine": 86,
-          "tokens": 126
-        },
-        {
-          "name": "hash3",
-          "kind": "fn",
-          "startLine": 87,
-          "endLine": 110,
-          "tokens": 305
-        },
-        {
-          "name": "cavFatia",
-          "kind": "fn",
-          "startLine": 111,
-          "endLine": 129,
-          "tokens": 151
-        },
-        {
-          "name": "cavLimiar",
-          "kind": "fn",
-          "startLine": 130,
-          "endLine": 153,
-          "tokens": 332
-        },
-        {
-          "name": "cavernaEm",
-          "kind": "fn",
-          "startLine": 154,
-          "endLine": 189,
-          "tokens": 503
-        },
-        {
-          "name": "cavernasDaColuna",
-          "kind": "fn",
-          "startLine": 190,
-          "endLine": 243,
-          "tokens": 531
-        },
-        {
-          "name": "heightAt",
-          "kind": "fn",
-          "startLine": 244,
-          "endLine": 277,
-          "tokens": 506
-        },
-        {
-          "name": "climaAt",
-          "kind": "fn",
-          "startLine": 278,
-          "endLine": 286,
-          "tokens": 103
-        },
-        {
-          "name": "mulberry32",
-          "kind": "fn",
-          "startLine": 287,
-          "endLine": 320,
-          "tokens": 427
-        },
-        {
-          "name": "topoPrevisto",
-          "kind": "fn",
-          "startLine": 321,
-          "endLine": 332,
-          "tokens": 147
-        },
-        {
-          "name": "hashInt",
-          "kind": "fn",
-          "startLine": 333,
-          "endLine": 338,
-          "tokens": 60
-        },
-        {
-          "name": "Veia",
-          "kind": "section",
-          "startLine": 339,
-          "endLine": 347,
-          "tokens": 120
-        },
-        {
-          "name": "veiasDaColuna",
-          "kind": "fn",
-          "startLine": 348,
-          "endLine": 376,
-          "tokens": 353
-        },
-        {
-          "name": "arvoreDaColuna",
-          "kind": "fn",
-          "startLine": 377,
-          "endLine": 402,
-          "tokens": 263
-        },
-        {
-          "name": "gerarColunaDeChunks",
-          "kind": "fn",
-          "startLine": 403,
-          "endLine": 540,
-          "tokens": 1835
-        },
-        {
-          "name": "generateWorld",
-          "kind": "fn",
-          "startLine": 541,
-          "endLine": 558,
-          "tokens": 164
-        },
-        {
-          "name": "generateFlatWorld",
-          "kind": "fn",
-          "startLine": 559,
-          "endLine": 584,
-          "tokens": 317
-        },
-        {
-          "name": "generateCabinsWorld",
-          "kind": "fn",
-          "startLine": 585,
-          "endLine": 606,
-          "tokens": 275
-        },
-        {
-          "name": "generateWorldForPreset",
-          "kind": "fn",
-          "startLine": 607,
-          "endLine": 617,
-          "tokens": 93
-        }
-      ]
-    },
-    "shared/tsconfig.json": {
-      "description": "TypeScript configuration",
-      "tokens": 18,
-      "hash": "0baa7dd48e8a2672",
-      "size": 63,
-      "mtimeMs": 1783780454116.0908,
-      "updatedAt": "2026-07-28T02:53:57.729Z",
-      "source": "scan"
-    },
-    "todo.md": {
-      "description": "Ideias para fazer",
-      "tokens": 6972,
-      "hash": "0d8759f635ff2523",
-      "size": 28773,
-      "mtimeMs": 1784956266582.7344,
-      "updatedAt": "2026-07-28T02:53:57.731Z",
-      "source": "scan"
-    },
-    "tsconfig.base.json": {
-      "description": "",
-      "tokens": 130,
-      "hash": "d0e4e177b21f3848",
-      "size": 452,
-      "mtimeMs": 1784590204344.3562,
-      "updatedAt": "2026-07-28T02:53:57.731Z",
-      "source": "scan"
     },
     "shared/src/luz.ts": {
       "description": "§💡 LUZ VOXEL (2026-07-28) — o pré-requisito das cavernas.",
@@ -6317,8 +4981,8 @@
       "hash": "b4064dbbac74d9ce",
       "size": 25265,
       "mtimeMs": 1785238866765.0798,
-      "updatedAt": "2026-07-28T11:41:06.877Z",
-      "source": "hook",
+      "updatedAt": "2026-07-28T12:21:46.673Z",
+      "source": "scan",
       "symbols": [
         {
           "name": "opacidadeLuz",
@@ -6504,129 +5168,1465 @@
         }
       ]
     },
-    "shared/src/luz.test.ts": {
-      "description": "3×3 colunas de chunk, 2 chunks de altura (32 blocos) — dá pra enterrar uma",
-      "tokens": 3721,
-      "hash": "ac7aa5de804d5172",
-      "size": 13093,
-      "mtimeMs": 1785238923681.0793,
-      "updatedAt": "2026-07-28T11:42:03.768Z",
-      "source": "hook",
+    "shared/src/mesher.test.ts": {
+      "description": "Pra onde, NO MUNDO, a onda de `tile` anda quando pintada na face `f`.",
+      "tokens": 5494,
+      "hash": "42bb100fda1c7cba",
+      "size": 19446,
+      "mtimeMs": 1785153337740.7979,
+      "updatedAt": "2026-07-28T12:21:46.674Z",
+      "source": "scan",
       "symbols": [
         {
-          "name": "mundoComChao",
+          "name": "direcaoDaOnda",
           "kind": "fn",
-          "startLine": 24,
-          "endLine": 32,
-          "tokens": 88
+          "startLine": 28,
+          "endLine": 41,
+          "tokens": 151
         },
         {
-          "name": "acenderTudo",
+          "name": "tilesUsados",
           "kind": "fn",
-          "startLine": 33,
-          "endLine": 324,
-          "tokens": 3487
+          "startLine": 42,
+          "endLine": 449,
+          "tokens": 5130
         }
       ]
     },
-    "client/src/luzShader.ts": {
-      "description": "§💡 O lado GPU da luz voxel (2026-07-28).",
-      "tokens": 896,
-      "hash": "bf7d6a2a5ffd0268",
-      "size": 3192,
-      "mtimeMs": 1785239259961.079,
-      "updatedAt": "2026-07-28T11:47:40.050Z",
-      "source": "hook",
+    "shared/src/mesher.ts": {
+      "description": "Culled mesher: função PURA (bytes do mundo → geometria). Só emite faces que",
+      "tokens": 14638,
+      "hash": "36d0c39836f65deb",
+      "size": 52014,
+      "mtimeMs": 1785239062297.0808,
+      "updatedAt": "2026-07-28T12:21:46.675Z",
+      "source": "scan",
       "symbols": [
         {
-          "name": "LuzUniforms",
+          "name": "FaceTiles",
           "kind": "section",
-          "startLine": 22,
-          "endLine": 32,
-          "tokens": 120
+          "startLine": 157,
+          "endLine": 302,
+          "tokens": 2044
         },
         {
-          "name": "criarLuzUniforms",
+          "name": "blockIconTile",
           "kind": "fn",
-          "startLine": 33,
-          "endLine": 43,
-          "tokens": 116
+          "startLine": 303,
+          "endLine": 311,
+          "tokens": 136
         },
         {
-          "name": "aplicarLuz",
+          "name": "blockSelectionBox",
           "kind": "fn",
-          "startLine": 44,
-          "endLine": 90,
-          "tokens": 411
+          "startLine": 312,
+          "endLine": 348,
+          "tokens": 490
+        },
+        {
+          "name": "FaceCorner",
+          "kind": "section",
+          "startLine": 349,
+          "endLine": 353,
+          "tokens": 34
+        },
+        {
+          "name": "Face",
+          "kind": "section",
+          "startLine": 354,
+          "endLine": 418,
+          "tokens": 470
+        },
+        {
+          "name": "UvAxis",
+          "kind": "section",
+          "startLine": 419,
+          "endLine": 423,
+          "tokens": 17
+        },
+        {
+          "name": "uvAxisOf",
+          "kind": "fn",
+          "startLine": 424,
+          "endLine": 436,
+          "tokens": 165
+        },
+        {
+          "name": "FaceBase",
+          "kind": "section",
+          "startLine": 437,
+          "endLine": 494,
+          "tokens": 722
+        },
+        {
+          "name": "tileAguaDaFace",
+          "kind": "fn",
+          "startLine": 495,
+          "endLine": 524,
+          "tokens": 424
+        },
+        {
+          "name": "rotXZ",
+          "kind": "fn",
+          "startLine": 525,
+          "endLine": 544,
+          "tokens": 199
+        },
+        {
+          "name": "swayDoBloco",
+          "kind": "fn",
+          "startLine": 545,
+          "endLine": 550,
+          "tokens": 44
+        },
+        {
+          "name": "ChunkGeometry",
+          "kind": "section",
+          "startLine": 551,
+          "endLine": 601,
+          "tokens": 769
+        },
+        {
+          "name": "vizIndex",
+          "kind": "fn",
+          "startLine": 602,
+          "endLine": 627,
+          "tokens": 287
+        },
+        {
+          "name": "extrairVizinhanca",
+          "kind": "fn",
+          "startLine": 628,
+          "endLine": 671,
+          "tokens": 467
+        },
+        {
+          "name": "extrairVizinhancaLuz",
+          "kind": "fn",
+          "startLine": 672,
+          "endLine": 691,
+          "tokens": 196
+        },
+        {
+          "name": "meshChunk",
+          "kind": "fn",
+          "startLine": 692,
+          "endLine": 711,
+          "tokens": 183
+        },
+        {
+          "name": "meshVizinhanca",
+          "kind": "fn",
+          "startLine": 712,
+          "endLine": 1207,
+          "tokens": 6649
         }
       ]
     },
-    "scripts/luz-shots.mjs": {
-      "description": "§💡 Verificação da LUZ VOXEL num Chrome headless (2026-07-28).",
-      "tokens": 2866,
-      "hash": "6cda56b17457de32",
-      "size": 10879,
-      "mtimeMs": 1785239682245.0793,
-      "updatedAt": "2026-07-28T11:54:42.365Z",
-      "source": "hook",
+    "shared/src/physics.test.ts": {
+      "description": "Mundo 1 chunk com chão sólido em y ∈ [0,7].",
+      "tokens": 4462,
+      "hash": "722a94e3f885648d",
+      "size": 15748,
+      "mtimeMs": 1785028387002.7332,
+      "updatedAt": "2026-07-28T12:21:46.675Z",
+      "source": "scan",
       "symbols": [
         {
-          "name": "decodificarPng",
+          "name": "flatWorld",
           "kind": "fn",
-          "startLine": 45,
-          "endLine": 108,
-          "tokens": 650
+          "startLine": 15,
+          "endLine": 22,
+          "tokens": 63
         },
         {
-          "name": "medir",
+          "name": "simulate",
           "kind": "fn",
-          "startLine": 109,
-          "endLine": 134,
+          "startLine": 23,
+          "endLine": 359,
+          "tokens": 4315
+        }
+      ]
+    },
+    "shared/src/physics.ts": {
+      "description": "Física do jogador (andar, gravidade, colisão AABB com o grid de voxels).",
+      "tokens": 5196,
+      "hash": "bd70bc9248b8a24c",
+      "size": 18386,
+      "mtimeMs": 1785028382058.7332,
+      "updatedAt": "2026-07-28T12:21:46.676Z",
+      "source": "scan",
+      "symbols": [
+        {
+          "name": "Vec3",
+          "kind": "section",
+          "startLine": 11,
+          "endLine": 58,
+          "tokens": 527
+        },
+        {
+          "name": "temColisaoParcial",
+          "kind": "fn",
+          "startLine": 59,
+          "endLine": 62,
+          "tokens": 26
+        },
+        {
+          "name": "PlayerState",
+          "kind": "section",
+          "startLine": 63,
+          "endLine": 72,
+          "tokens": 97
+        },
+        {
+          "name": "MoveInput",
+          "kind": "section",
+          "startLine": 73,
+          "endLine": 85,
+          "tokens": 108
+        },
+        {
+          "name": "createPlayer",
+          "kind": "fn",
+          "startLine": 86,
+          "endLine": 92,
+          "tokens": 117
+        },
+        {
+          "name": "collides",
+          "kind": "fn",
+          "startLine": 93,
+          "endLine": 130,
+          "tokens": 467
+        },
+        {
+          "name": "resolveVertical",
+          "kind": "fn",
+          "startLine": 131,
+          "endLine": 173,
+          "tokens": 563
+        },
+        {
+          "name": "resolveHoriz",
+          "kind": "fn",
+          "startLine": 174,
+          "endLine": 213,
+          "tokens": 497
+        },
+        {
+          "name": "moveAxis",
+          "kind": "fn",
+          "startLine": 214,
+          "endLine": 247,
+          "tokens": 398
+        },
+        {
+          "name": "inWater",
+          "kind": "fn",
+          "startLine": 248,
+          "endLine": 261,
+          "tokens": 114
+        },
+        {
+          "name": "hasSupport",
+          "kind": "fn",
+          "startLine": 262,
+          "endLine": 291,
+          "tokens": 364
+        },
+        {
+          "name": "moveHoriz",
+          "kind": "fn",
+          "startLine": 292,
+          "endLine": 325,
+          "tokens": 353
+        },
+        {
+          "name": "paredeAdjacente",
+          "kind": "fn",
+          "startLine": 326,
+          "endLine": 348,
+          "tokens": 261
+        },
+        {
+          "name": "moveAxisGuarded",
+          "kind": "fn",
+          "startLine": 349,
+          "endLine": 364,
+          "tokens": 96
+        },
+        {
+          "name": "stepPlayer",
+          "kind": "fn",
+          "startLine": 365,
+          "endLine": 450,
+          "tokens": 1096
+        }
+      ]
+    },
+    "shared/src/protocol.test.ts": {
+      "description": "Declares DIMS",
+      "tokens": 3650,
+      "hash": "dd1fcf9e6d85264f",
+      "size": 12811,
+      "mtimeMs": 1785113025311.7625,
+      "updatedAt": "2026-07-28T12:21:46.676Z",
+      "source": "scan"
+    },
+    "shared/src/protocol.ts": {
+      "description": "Protocolo v0 (checkpoint 2). Mensagens JSON dos dois lados + world_snapshot",
+      "tokens": 9314,
+      "hash": "8d9133aeee097d4d",
+      "size": 32864,
+      "mtimeMs": 1785136407708.801,
+      "updatedAt": "2026-07-28T12:21:46.677Z",
+      "source": "scan",
+      "symbols": [
+        {
+          "name": "parseClientMessage",
+          "kind": "fn",
+          "startLine": 331,
+          "endLine": 448,
+          "tokens": 1138
+        },
+        {
+          "name": "parseServerMessage",
+          "kind": "fn",
+          "startLine": 449,
+          "endLine": 667,
+          "tokens": 2538
+        },
+        {
+          "name": "Snapshot",
+          "kind": "section",
+          "startLine": 668,
+          "endLine": 672,
+          "tokens": 18
+        },
+        {
+          "name": "encodeSnapshot",
+          "kind": "fn",
+          "startLine": 673,
+          "endLine": 692,
+          "tokens": 201
+        },
+        {
+          "name": "decodeSnapshot",
+          "kind": "fn",
+          "startLine": 693,
+          "endLine": 752,
+          "tokens": 763
+        },
+        {
+          "name": "peekMagic",
+          "kind": "fn",
+          "startLine": 753,
+          "endLine": 757,
+          "tokens": 40
+        },
+        {
+          "name": "encodeLazyInfo",
+          "kind": "fn",
+          "startLine": 758,
+          "endLine": 770,
+          "tokens": 134
+        },
+        {
+          "name": "decodeLazyInfo",
+          "kind": "fn",
+          "startLine": 771,
+          "endLine": 795,
           "tokens": 245
         },
         {
-          "name": "acharChrome",
-          "kind": "fn",
-          "startLine": 135,
-          "endLine": 149,
-          "tokens": 157
+          "name": "ColunaRef",
+          "kind": "section",
+          "startLine": 796,
+          "endLine": 803,
+          "tokens": 80
         },
         {
-          "name": "espera",
+          "name": "encodeColunas",
           "kind": "fn",
-          "startLine": 150,
-          "endLine": 169,
-          "tokens": 148
+          "startLine": 804,
+          "endLine": 828,
+          "tokens": 276
         },
         {
-          "name": "abrirAba",
+          "name": "decodeColunas",
           "kind": "fn",
-          "startLine": 170,
-          "endLine": 205,
-          "tokens": 362
+          "startLine": 829,
+          "endLine": 862,
+          "tokens": 340
+        }
+      ]
+    },
+    "shared/src/quadros.test.ts": {
+      "description": "DIMS: makeFlat",
+      "tokens": 1603,
+      "hash": "56b3386e00f831e0",
+      "size": 5640,
+      "mtimeMs": 1784504065673.7603,
+      "updatedAt": "2026-07-28T12:21:46.677Z",
+      "source": "scan",
+      "symbols": [
+        {
+          "name": "makeFlat",
+          "kind": "fn",
+          "startLine": 12,
+          "endLine": 138,
+          "tokens": 1471
+        }
+      ]
+    },
+    "shared/src/quadros.ts": {
+      "description": "Quadro (backlog 2026-07-19): bloco de parede com CONTEÚDO autoral — texto",
+      "tokens": 540,
+      "hash": "b67b9f1e807b2514",
+      "size": 1903,
+      "mtimeMs": 1784503766657.7568,
+      "updatedAt": "2026-07-28T12:21:46.678Z",
+      "source": "scan",
+      "symbols": [
+        {
+          "name": "QuadroConteudo",
+          "kind": "section",
+          "startLine": 10,
+          "endLine": 24,
+          "tokens": 132
         },
         {
-          "name": "cdp",
+          "name": "quadroKey",
           "kind": "fn",
-          "startLine": 206,
-          "endLine": 211,
+          "startLine": 25,
+          "endLine": 29,
           "tokens": 50
         },
         {
-          "name": "avaliar",
+          "name": "parseQuadroConteudo",
           "kind": "fn",
-          "startLine": 212,
-          "endLine": 255,
-          "tokens": 491
-        },
-        {
-          "name": "checar",
-          "kind": "fn",
-          "startLine": 256,
-          "endLine": 282,
-          "tokens": 344
+          "startLine": 30,
+          "endLine": 52,
+          "tokens": 229
         }
       ]
+    },
+    "shared/src/raycast.test.ts": {
+      "description": "Mundo 16³ com chão sólido em y ∈ [0,7].",
+      "tokens": 1050,
+      "hash": "a1d9d0fc1d08eb29",
+      "size": 3710,
+      "mtimeMs": 1784731907611.3936,
+      "updatedAt": "2026-07-28T12:21:46.678Z",
+      "source": "scan",
+      "symbols": [
+        {
+          "name": "floorWorld",
+          "kind": "fn",
+          "startLine": 9,
+          "endLine": 90,
+          "tokens": 976
+        }
+      ]
+    },
+    "shared/src/raycast.ts": {
+      "description": "Raycast de voxel (DDA de Amanatides-Woo): anda célula a célula do grid até",
+      "tokens": 1624,
+      "hash": "9c3d162090163628",
+      "size": 5745,
+      "mtimeMs": 1784737998035.3933,
+      "updatedAt": "2026-07-28T12:21:46.678Z",
+      "source": "scan",
+      "symbols": [
+        {
+          "name": "RayHit",
+          "kind": "section",
+          "startLine": 16,
+          "endLine": 36,
+          "tokens": 199
+        },
+        {
+          "name": "subBoxNormal",
+          "kind": "fn",
+          "startLine": 37,
+          "endLine": 88,
+          "tokens": 525
+        },
+        {
+          "name": "raycastBlock",
+          "kind": "fn",
+          "startLine": 89,
+          "endLine": 163,
+          "tokens": 700
+        }
+      ]
+    },
+    "shared/src/regions.test.ts": {
+      "description": "Marca os 2 cantos e cria a região \"casa\" (0,0,0)→(3,4,5).",
+      "tokens": 3510,
+      "hash": "242d36f406756874",
+      "size": 12364,
+      "mtimeMs": 1784296351544.3696,
+      "updatedAt": "2026-07-28T12:21:46.678Z",
+      "source": "scan",
+      "symbols": [
+        {
+          "name": "makeSession",
+          "kind": "fn",
+          "startLine": 17,
+          "endLine": 33,
+          "tokens": 175
+        },
+        {
+          "name": "joinProf",
+          "kind": "fn",
+          "startLine": 34,
+          "endLine": 36,
+          "tokens": 44
+        },
+        {
+          "name": "joinAluno",
+          "kind": "fn",
+          "startLine": 37,
+          "endLine": 40,
+          "tokens": 58
+        },
+        {
+          "name": "criarCasa",
+          "kind": "fn",
+          "startLine": 41,
+          "endLine": 306,
+          "tokens": 3083
+        }
+      ]
+    },
+    "shared/src/regions.ts": {
+      "description": "Regiões nomeadas (cp11) — caixas de blocos com nome, marcadas pelo professor",
+      "tokens": 756,
+      "hash": "6b81b99d9c62aa99",
+      "size": 2669,
+      "mtimeMs": 1783903813957.476,
+      "updatedAt": "2026-07-28T12:21:46.678Z",
+      "source": "scan",
+      "symbols": [
+        {
+          "name": "Vec3i",
+          "kind": "section",
+          "startLine": 9,
+          "endLine": 15,
+          "tokens": 38
+        },
+        {
+          "name": "NamedRegion",
+          "kind": "section",
+          "startLine": 16,
+          "endLine": 25,
+          "tokens": 67
+        },
+        {
+          "name": "regionFromCorners",
+          "kind": "fn",
+          "startLine": 26,
+          "endLine": 33,
+          "tokens": 99
+        },
+        {
+          "name": "regionContains",
+          "kind": "fn",
+          "startLine": 34,
+          "endLine": 47,
+          "tokens": 88
+        },
+        {
+          "name": "regionDims",
+          "kind": "fn",
+          "startLine": 48,
+          "endLine": 56,
+          "tokens": 67
+        },
+        {
+          "name": "parseVec3i",
+          "kind": "fn",
+          "startLine": 57,
+          "endLine": 69,
+          "tokens": 145
+        },
+        {
+          "name": "parseNamedRegion",
+          "kind": "fn",
+          "startLine": 70,
+          "endLine": 81,
+          "tokens": 138
+        }
+      ]
+    },
+    "shared/src/rules.test.ts": {
+      "description": "Declares DIMS",
+      "tokens": 736,
+      "hash": "b0bf534f83fda70c",
+      "size": 2583,
+      "mtimeMs": 1784496603029.764,
+      "updatedAt": "2026-07-28T12:21:46.679Z",
+      "source": "scan"
+    },
+    "shared/src/rules.ts": {
+      "description": "Sistema GENÉRICO de atualização de bloco por vizinhança — a REGRA DE OURO",
+      "tokens": 3405,
+      "hash": "4c10c77e4626554d",
+      "size": 12161,
+      "mtimeMs": 1784807316376.305,
+      "updatedAt": "2026-07-28T12:21:46.679Z",
+      "source": "scan",
+      "symbols": [
+        {
+          "name": "BlockChange",
+          "kind": "section",
+          "startLine": 20,
+          "endLine": 87,
+          "tokens": 758
+        },
+        {
+          "name": "fontesLaterais",
+          "kind": "fn",
+          "startLine": 88,
+          "endLine": 99,
+          "tokens": 146
+        },
+        {
+          "name": "nivelSuportado",
+          "kind": "fn",
+          "startLine": 100,
+          "endLine": 119,
+          "tokens": 290
+        },
+        {
+          "name": "temQueda",
+          "kind": "fn",
+          "startLine": 120,
+          "endLine": 128,
+          "tokens": 137
+        },
+        {
+          "name": "aguaAtravessa",
+          "kind": "fn",
+          "startLine": 129,
+          "endLine": 137,
+          "tokens": 136
+        },
+        {
+          "name": "passosAteQueda",
+          "kind": "fn",
+          "startLine": 138,
+          "endLine": 274,
+          "tokens": 1746
+        },
+        {
+          "name": "ruleFor",
+          "kind": "fn",
+          "startLine": 275,
+          "endLine": 278,
+          "tokens": 28
+        }
+      ]
+    },
+    "shared/src/save-lazy.test.ts": {
+      "description": "Dims lazy de teste (33k chunks > teto denso) — mesmo caminho do tamanho E.",
+      "tokens": 1031,
+      "hash": "05525b3e15050653",
+      "size": 3624,
+      "mtimeMs": 1784627896830.7642,
+      "updatedAt": "2026-07-28T12:21:46.680Z",
+      "source": "scan",
+      "symbols": [
+        {
+          "name": "novaLazy",
+          "kind": "fn",
+          "startLine": 13,
+          "endLine": 77,
+          "tokens": 890
+        }
+      ]
+    },
+    "shared/src/save.test.ts": {
+      "description": "Declares DIMS",
+      "tokens": 1454,
+      "hash": "c42c0647f0aa07d8",
+      "size": 5117,
+      "mtimeMs": 1784211046370.2214,
+      "updatedAt": "2026-07-28T12:21:46.680Z",
+      "source": "scan"
+    },
+    "shared/src/save.ts": {
+      "description": "Formato de save (.ljw) — MESMO arquivo em todos os hospedeiros: disco do",
+      "tokens": 3884,
+      "hash": "5b22aa6ffdc550ee",
+      "size": 13724,
+      "mtimeMs": 1785136486884.8,
+      "updatedAt": "2026-07-28T12:21:46.680Z",
+      "source": "scan",
+      "symbols": [
+        {
+          "name": "SavedPlayer",
+          "kind": "section",
+          "startLine": 44,
+          "endLine": 58,
+          "tokens": 116
+        },
+        {
+          "name": "SaveMeta",
+          "kind": "section",
+          "startLine": 59,
+          "endLine": 100,
+          "tokens": 576
+        },
+        {
+          "name": "SaveData",
+          "kind": "section",
+          "startLine": 101,
+          "endLine": 107,
+          "tokens": 80
+        },
+        {
+          "name": "encodeSave",
+          "kind": "fn",
+          "startLine": 108,
+          "endLine": 121,
+          "tokens": 198
+        },
+        {
+          "name": "encodeLazySave",
+          "kind": "fn",
+          "startLine": 122,
+          "endLine": 147,
+          "tokens": 255
+        },
+        {
+          "name": "isFinitePos",
+          "kind": "fn",
+          "startLine": 148,
+          "endLine": 156,
+          "tokens": 104
+        },
+        {
+          "name": "decodeSave",
+          "kind": "fn",
+          "startLine": 157,
+          "endLine": 174,
+          "tokens": 234
+        },
+        {
+          "name": "decodeLazySave",
+          "kind": "fn",
+          "startLine": 175,
+          "endLine": 213,
+          "tokens": 453
+        },
+        {
+          "name": "readSaveMeta",
+          "kind": "fn",
+          "startLine": 214,
+          "endLine": 325,
+          "tokens": 1295
+        }
+      ]
+    },
+    "shared/src/scenario.test.ts": {
+      "description": "Marca cantos e cria região nomeada via varinha + /regiao (professor id).",
+      "tokens": 4106,
+      "hash": "ccfee5c9091cac23",
+      "size": 14472,
+      "mtimeMs": 1784222581962.2236,
+      "updatedAt": "2026-07-28T12:21:46.681Z",
+      "source": "scan",
+      "symbols": [
+        {
+          "name": "makeSession",
+          "kind": "fn",
+          "startLine": 18,
+          "endLine": 44,
+          "tokens": 316
+        },
+        {
+          "name": "joinProf",
+          "kind": "fn",
+          "startLine": 45,
+          "endLine": 47,
+          "tokens": 36
+        },
+        {
+          "name": "joinAluno",
+          "kind": "fn",
+          "startLine": 48,
+          "endLine": 51,
+          "tokens": 54
+        },
+        {
+          "name": "criarRegiao",
+          "kind": "fn",
+          "startLine": 52,
+          "endLine": 338,
+          "tokens": 3545
+        }
+      ]
+    },
+    "shared/src/scenario.ts": {
+      "description": "Cenário (cp12) — o coração pedagógico: objetivos que checam o ESTADO DO",
+      "tokens": 3680,
+      "hash": "bf2e80b898f1669a",
+      "size": 13017,
+      "mtimeMs": 1784299192544.3682,
+      "updatedAt": "2026-07-28T12:21:46.681Z",
+      "source": "scan",
+      "symbols": [
+        {
+          "name": "Box",
+          "kind": "section",
+          "startLine": 24,
+          "endLine": 28,
+          "tokens": 16
+        },
+        {
+          "name": "Objective",
+          "kind": "section",
+          "startLine": 29,
+          "endLine": 60,
+          "tokens": 375
+        },
+        {
+          "name": "ScenarioMeta",
+          "kind": "section",
+          "startLine": 61,
+          "endLine": 71,
+          "tokens": 126
+        },
+        {
+          "name": "GroupObjectiveState",
+          "kind": "section",
+          "startLine": 72,
+          "endLine": 84,
+          "tokens": 94
+        },
+        {
+          "name": "ObjectiveState",
+          "kind": "section",
+          "startLine": 85,
+          "endLine": 115,
+          "tokens": 334
+        },
+        {
+          "name": "boxVolume",
+          "kind": "fn",
+          "startLine": 116,
+          "endLine": 125,
+          "tokens": 87
+        },
+        {
+          "name": "snapshotRegion",
+          "kind": "fn",
+          "startLine": 126,
+          "endLine": 137,
+          "tokens": 90
+        },
+        {
+          "name": "MatchResult",
+          "kind": "section",
+          "startLine": 138,
+          "endLine": 147,
+          "tokens": 95
+        },
+        {
+          "name": "matchRegion",
+          "kind": "fn",
+          "startLine": 148,
+          "endLine": 170,
+          "tokens": 198
+        },
+        {
+          "name": "countSolid",
+          "kind": "fn",
+          "startLine": 171,
+          "endLine": 182,
+          "tokens": 87
+        },
+        {
+          "name": "isKind",
+          "kind": "fn",
+          "startLine": 183,
+          "endLine": 187,
+          "tokens": 50
+        },
+        {
+          "name": "parseBox",
+          "kind": "fn",
+          "startLine": 188,
+          "endLine": 196,
+          "tokens": 93
+        },
+        {
+          "name": "parseObjective",
+          "kind": "fn",
+          "startLine": 197,
+          "endLine": 265,
+          "tokens": 766
+        },
+        {
+          "name": "parseScenarioMeta",
+          "kind": "fn",
+          "startLine": 266,
+          "endLine": 303,
+          "tokens": 416
+        },
+        {
+          "name": "parseObjectiveState",
+          "kind": "fn",
+          "startLine": 304,
+          "endLine": 361,
+          "tokens": 576
+        }
+      ]
+    },
+    "shared/src/session.test.ts": {
+      "description": "Testes de MECÂNICA rodam com singleplayer: true (join sem PIN) — a",
+      "tokens": 14673,
+      "hash": "edeccf8e2882c3e3",
+      "size": 51661,
+      "mtimeMs": 1785136620180.798,
+      "updatedAt": "2026-07-28T12:21:46.685Z",
+      "source": "scan",
+      "symbols": [
+        {
+          "name": "collect",
+          "kind": "fn",
+          "startLine": 12,
+          "endLine": 1083,
+          "tokens": 14529
+        }
+      ]
+    },
+    "shared/src/session.ts": {
+      "description": "GameSession: o SERVIDOR autoritativo, independente de hospedeiro.",
+      "tokens": 40022,
+      "hash": "5917566decd54d09",
+      "size": 141596,
+      "mtimeMs": 1785240439185.0796,
+      "updatedAt": "2026-07-28T12:21:46.688Z",
+      "source": "scan",
+      "symbols": [
+        {
+          "name": "SessionOptions",
+          "kind": "section",
+          "startLine": 125,
+          "endLine": 157,
+          "tokens": 442
+        },
+        {
+          "name": "SessionPlayer",
+          "kind": "section",
+          "startLine": 158,
+          "endLine": 168,
+          "tokens": 58
+        },
+        {
+          "name": "Identity",
+          "kind": "section",
+          "startLine": 169,
+          "endLine": 181,
+          "tokens": 110
+        },
+        {
+          "name": "parseCoordArg",
+          "kind": "fn",
+          "startLine": 182,
+          "endLine": 193,
+          "tokens": 106
+        },
+        {
+          "name": "GameSession",
+          "kind": "class",
+          "startLine": 194,
+          "endLine": 3263,
+          "tokens": 38601
+        }
+      ]
+    },
+    "shared/src/streaming.test.ts": {
+      "description": "Dims LAZY de teste: 64×64×8 chunks (33k chunks > teto denso de 2048) —",
+      "tokens": 4725,
+      "hash": "eb36be1328804bd8",
+      "size": 16618,
+      "mtimeMs": 1785084838063.7642,
+      "updatedAt": "2026-07-28T12:21:46.689Z",
+      "source": "scan",
+      "symbols": [
+        {
+          "name": "Sent",
+          "kind": "section",
+          "startLine": 24,
+          "endLine": 31,
+          "tokens": 52
+        },
+        {
+          "name": "novaSessaoLazy",
+          "kind": "fn",
+          "startLine": 32,
+          "endLine": 46,
+          "tokens": 153
+        },
+        {
+          "name": "colunasDe",
+          "kind": "fn",
+          "startLine": 47,
+          "endLine": 354,
+          "tokens": 4324
+        }
+      ]
+    },
+    "shared/src/tp.test.ts": {
+      "description": "/tpr (pedir teleporte) + /tpa (aceitar) — todos os jogadores; e /tp nome /",
+      "tokens": 1496,
+      "hash": "bda58c4b9b1c5c9b",
+      "size": 5288,
+      "mtimeMs": 1784570408024.357,
+      "updatedAt": "2026-07-28T12:21:46.689Z",
+      "source": "scan",
+      "symbols": [
+        {
+          "name": "makeTp",
+          "kind": "fn",
+          "startLine": 12,
+          "endLine": 133,
+          "tokens": 1389
+        }
+      ]
+    },
+    "shared/src/vento.test.ts": {
+      "description": "§🌬️ (2026-07-27): o vento é a MESMA engrenagem do horaDoDia — função pura do",
+      "tokens": 1886,
+      "hash": "135ad744120d66ac",
+      "size": 6710,
+      "mtimeMs": 1785150164660.7988,
+      "updatedAt": "2026-07-28T12:21:46.689Z",
+      "source": "scan"
+    },
+    "shared/src/vento.ts": {
+      "description": "Vento como ESTADO DO MUNDO (§🌬️, 2026-07-27) — server-autoritativo e SÓ",
+      "tokens": 1670,
+      "hash": "fba726ded72cbc1f",
+      "size": 5966,
+      "mtimeMs": 1785149854896.8003,
+      "updatedAt": "2026-07-28T12:21:46.690Z",
+      "source": "scan",
+      "symbols": [
+        {
+          "name": "Vento",
+          "kind": "section",
+          "startLine": 21,
+          "endLine": 38,
+          "tokens": 198
+        },
+        {
+          "name": "faseDaSeed",
+          "kind": "fn",
+          "startLine": 39,
+          "endLine": 49,
+          "tokens": 126
+        },
+        {
+          "name": "ventoNoTick",
+          "kind": "fn",
+          "startLine": 50,
+          "endLine": 71,
+          "tokens": 287
+        },
+        {
+          "name": "ventoRumo",
+          "kind": "fn",
+          "startLine": 72,
+          "endLine": 78,
+          "tokens": 87
+        },
+        {
+          "name": "ventoIntensidade",
+          "kind": "fn",
+          "startLine": 79,
+          "endLine": 115,
+          "tokens": 455
+        },
+        {
+          "name": "setorDaDirecao",
+          "kind": "fn",
+          "startLine": 116,
+          "endLine": 123,
+          "tokens": 112
+        },
+        {
+          "name": "ondaAguaDoVento",
+          "kind": "fn",
+          "startLine": 124,
+          "endLine": 137,
+          "tokens": 104
+        }
+      ]
+    },
+    "shared/src/version.ts": {
+      "description": "Versão do jogo — FONTE ÚNICA = campo \"version\" do package.json da raiz (import JSON tree-shaken); bump via `npm version`.",
+      "tokens": 135,
+      "hash": "d56c16d4448cf3db",
+      "size": 477,
+      "mtimeMs": 1784590216096.3562,
+      "updatedAt": "2026-07-28T12:21:46.690Z",
+      "source": "scan"
+    },
+    "shared/src/water.test.ts": {
+      "description": "Autômato celular síncrono: coleta as mudanças de TODA célula com regra",
+      "tokens": 1673,
+      "hash": "bbeb0963b565385d",
+      "size": 5931,
+      "mtimeMs": 1784764307803.3923,
+      "updatedAt": "2026-07-28T12:21:46.690Z",
+      "source": "scan",
+      "symbols": [
+        {
+          "name": "simular",
+          "kind": "fn",
+          "startLine": 12,
+          "endLine": 32,
+          "tokens": 231
+        },
+        {
+          "name": "pisoPlano",
+          "kind": "fn",
+          "startLine": 33,
+          "endLine": 131,
+          "tokens": 1278
+        }
+      ]
+    },
+    "shared/src/world.test.ts": {
+      "description": "Declares DIMS",
+      "tokens": 866,
+      "hash": "93ffe28bddf5ec41",
+      "size": 3044,
+      "mtimeMs": 1784653238530.7644,
+      "updatedAt": "2026-07-28T12:21:46.690Z",
+      "source": "scan"
+    },
+    "shared/src/world.ts": {
+      "description": "Dimensões do mundo em chunks. Parâmetro de criação, gravado no header do save/snapshot.",
+      "tokens": 1654,
+      "hash": "5fd56c77437aada4",
+      "size": 5850,
+      "mtimeMs": 1785240421889.0796,
+      "updatedAt": "2026-07-28T12:21:46.690Z",
+      "source": "scan",
+      "symbols": [
+        {
+          "name": "WorldDims",
+          "kind": "section",
+          "startLine": 5,
+          "endLine": 21,
+          "tokens": 184
+        },
+        {
+          "name": "World",
+          "kind": "section",
+          "startLine": 22,
+          "endLine": 33,
+          "tokens": 128
+        },
+        {
+          "name": "createWorld",
+          "kind": "fn",
+          "startLine": 34,
+          "endLine": 48,
+          "tokens": 156
+        },
+        {
+          "name": "colunaGerada",
+          "kind": "fn",
+          "startLine": 49,
+          "endLine": 53,
+          "tokens": 63
+        },
+        {
+          "name": "alocarColuna",
+          "kind": "fn",
+          "startLine": 54,
+          "endLine": 61,
+          "tokens": 87
+        },
+        {
+          "name": "chunkIndex",
+          "kind": "fn",
+          "startLine": 62,
+          "endLine": 66,
+          "tokens": 68
+        },
+        {
+          "name": "blockIndex",
+          "kind": "fn",
+          "startLine": 67,
+          "endLine": 70,
+          "tokens": 36
+        },
+        {
+          "name": "inBounds",
+          "kind": "fn",
+          "startLine": 71,
+          "endLine": 77,
+          "tokens": 72
+        },
+        {
+          "name": "getBlock",
+          "kind": "fn",
+          "startLine": 78,
+          "endLine": 88,
+          "tokens": 148
+        },
+        {
+          "name": "setBlock",
+          "kind": "fn",
+          "startLine": 89,
+          "endLine": 99,
+          "tokens": 141
+        },
+        {
+          "name": "findSpawnY",
+          "kind": "fn",
+          "startLine": 100,
+          "endLine": 107,
+          "tokens": 79
+        },
+        {
+          "name": "colunaMolhada",
+          "kind": "fn",
+          "startLine": 108,
+          "endLine": 123,
+          "tokens": 234
+        },
+        {
+          "name": "findSpawnSeco",
+          "kind": "fn",
+          "startLine": 124,
+          "endLine": 149,
+          "tokens": 204
+        }
+      ]
+    },
+    "shared/src/worldgen.test.ts": {
+      "description": "Mundo denso de 4×4 colunas com altura cheia — as cavernas moram em y≥2 e",
+      "tokens": 5276,
+      "hash": "e86ef0b249a5e87c",
+      "size": 18606,
+      "mtimeMs": 1785240895985.0806,
+      "updatedAt": "2026-07-28T12:21:46.691Z",
+      "source": "scan"
+    },
+    "shared/src/worldgen.ts": {
+      "description": "Preset de criação de mundo (cp14): escolhido no menu/host, só vale pra",
+      "tokens": 7371,
+      "hash": "7abe16b30c21c3a3",
+      "size": 26183,
+      "mtimeMs": 1785240880201.0815,
+      "updatedAt": "2026-07-28T12:21:46.691Z",
+      "source": "scan",
+      "symbols": [
+        {
+          "name": "parseWorldPreset",
+          "kind": "fn",
+          "startLine": 24,
+          "endLine": 45,
+          "tokens": 303
+        },
+        {
+          "name": "parseWorldTamanho",
+          "kind": "fn",
+          "startLine": 46,
+          "endLine": 51,
+          "tokens": 78
+        },
+        {
+          "name": "ehMundoLazy",
+          "kind": "fn",
+          "startLine": 52,
+          "endLine": 61,
+          "tokens": 103
+        },
+        {
+          "name": "hash2",
+          "kind": "fn",
+          "startLine": 62,
+          "endLine": 67,
+          "tokens": 66
+        },
+        {
+          "name": "smooth",
+          "kind": "fn",
+          "startLine": 68,
+          "endLine": 72,
+          "tokens": 29
+        },
+        {
+          "name": "valueNoise2",
+          "kind": "fn",
+          "startLine": 73,
+          "endLine": 86,
+          "tokens": 126
+        },
+        {
+          "name": "hash3",
+          "kind": "fn",
+          "startLine": 87,
+          "endLine": 110,
+          "tokens": 305
+        },
+        {
+          "name": "cavFatia",
+          "kind": "fn",
+          "startLine": 111,
+          "endLine": 129,
+          "tokens": 151
+        },
+        {
+          "name": "cavLimiar",
+          "kind": "fn",
+          "startLine": 130,
+          "endLine": 153,
+          "tokens": 332
+        },
+        {
+          "name": "cavernaEm",
+          "kind": "fn",
+          "startLine": 154,
+          "endLine": 189,
+          "tokens": 503
+        },
+        {
+          "name": "cavernasDaColuna",
+          "kind": "fn",
+          "startLine": 190,
+          "endLine": 243,
+          "tokens": 531
+        },
+        {
+          "name": "heightAt",
+          "kind": "fn",
+          "startLine": 244,
+          "endLine": 277,
+          "tokens": 506
+        },
+        {
+          "name": "climaAt",
+          "kind": "fn",
+          "startLine": 278,
+          "endLine": 286,
+          "tokens": 103
+        },
+        {
+          "name": "mulberry32",
+          "kind": "fn",
+          "startLine": 287,
+          "endLine": 320,
+          "tokens": 427
+        },
+        {
+          "name": "topoPrevisto",
+          "kind": "fn",
+          "startLine": 321,
+          "endLine": 332,
+          "tokens": 147
+        },
+        {
+          "name": "hashInt",
+          "kind": "fn",
+          "startLine": 333,
+          "endLine": 338,
+          "tokens": 60
+        },
+        {
+          "name": "Veia",
+          "kind": "section",
+          "startLine": 339,
+          "endLine": 347,
+          "tokens": 120
+        },
+        {
+          "name": "veiasDaColuna",
+          "kind": "fn",
+          "startLine": 348,
+          "endLine": 376,
+          "tokens": 353
+        },
+        {
+          "name": "arvoreDaColuna",
+          "kind": "fn",
+          "startLine": 377,
+          "endLine": 402,
+          "tokens": 263
+        },
+        {
+          "name": "gerarColunaDeChunks",
+          "kind": "fn",
+          "startLine": 403,
+          "endLine": 540,
+          "tokens": 1835
+        },
+        {
+          "name": "generateWorld",
+          "kind": "fn",
+          "startLine": 541,
+          "endLine": 558,
+          "tokens": 164
+        },
+        {
+          "name": "generateFlatWorld",
+          "kind": "fn",
+          "startLine": 559,
+          "endLine": 584,
+          "tokens": 317
+        },
+        {
+          "name": "generateCabinsWorld",
+          "kind": "fn",
+          "startLine": 585,
+          "endLine": 606,
+          "tokens": 275
+        },
+        {
+          "name": "generateWorldForPreset",
+          "kind": "fn",
+          "startLine": 607,
+          "endLine": 617,
+          "tokens": 93
+        }
+      ]
+    },
+    "shared/tsconfig.json": {
+      "description": "TypeScript configuration",
+      "tokens": 18,
+      "hash": "0baa7dd48e8a2672",
+      "size": 63,
+      "mtimeMs": 1783780454116.0908,
+      "updatedAt": "2026-07-28T12:21:46.691Z",
+      "source": "scan"
+    },
+    "todo.md": {
+      "description": "Ideias para fazer",
+      "tokens": 6972,
+      "hash": "0d8759f635ff2523",
+      "size": 28773,
+      "mtimeMs": 1784956266582.7344,
+      "updatedAt": "2026-07-28T12:21:46.693Z",
+      "source": "scan"
+    },
+    "tsconfig.base.json": {
+      "description": "",
+      "tokens": 130,
+      "hash": "d0e4e177b21f3848",
+      "size": 452,
+      "mtimeMs": 1784590204344.3562,
+      "updatedAt": "2026-07-28T12:21:46.693Z",
+      "source": "scan"
     }
   }
 }

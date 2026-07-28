@@ -774,3 +774,4 @@ layouts mobile segue sendo o próximo.
 | 09:14 | Edited shared/src/worldgen.ts | added 8 condition(s) | ~853 |
 | 09:14 | Edited shared/src/worldgen.ts | modified for() | ~238 |
 | 09:14 | Edited shared/src/worldgen.test.ts | modified for() | ~273 |
+| 09:25 | SESSÃO 32 fechada: §💡 luz voxel completa (céu+tocha, 100% cliente, zero protocolo) + §🏔️ cavernas (2 ruídos 3D, secas sob o mar). 3 medições mudaram decisão: luz 18,4→2,48 ms/coluna, worldgen 2,63→28,6→3,49 ms/coluna, densidade varia 2,9-7,3% por seed. Verificação nova `npm run shots:luz`. 4 bugs logados (540-543). | luz.ts, mesher.ts, luzShader.ts, worldgen.ts, main.ts, chunks.ts, luz-shots.mjs | verde: typecheck 3/3, 388 testes, build, 6/6 smokes, 5/5 luz | ~2 commits |

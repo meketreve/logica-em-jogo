@@ -1,6 +1,6 @@
 # anatomy.md
 
-> Auto-maintained by OpenWolf. Last scanned: 2026-07-28T12:14:50.327Z
+> Auto-maintained by OpenWolf. Last scanned: 2026-07-28T12:21:46.699Z
 > Files: 244 tracked | Anatomy hits: 0 | Misses: 0
 
 ## ./
@@ -421,16 +421,16 @@
 ## mundos/_smoke-coluna/
 
 - `_smoke-coluna.ljw` (~62 tok)
-- `chat.log` (~214 tok)
+- `chat.log` (~374 tok)
 
 ## mundos/_smoke-kicar/
 
-- `chat.log` (~1660 tok)
+- `chat.log` (~2371 tok)
 
 ## mundos/_smoke-trocaa/
 
 - `_smoke-trocaa.ljw` (~87 tok)
-- `chat.log` (~639 tok)
+- `chat.log` (~1119 tok)
 
 ## mundos/_smoke-trocab/
 
@@ -438,11 +438,11 @@
 
 ## mundos/aula1-sequencia/
 
-- `chat.log` (~4536 tok)
+- `chat.log` (~6778 tok)
 
 ## mundos/aula2-binario/
 
-- `chat.log` (~224 tok)
+- `chat.log` (~320 tok)
 
 ## mundos/flor-world/
 
@@ -925,7 +925,7 @@
   - fn `findSpawnY` L100-107 (~79 tok)
   - fn `colunaMolhada` L108-123 (~234 tok)
   - fn `findSpawnSeco` L124-149 (~204 tok)
-- `worldgen.test.ts` — Mundo denso de 4×4 colunas com altura cheia — as cavernas moram em y≥2 e (~5270 tok)
+- `worldgen.test.ts` — Mundo denso de 4×4 colunas com altura cheia — as cavernas moram em y≥2 e (~5276 tok)
 - `worldgen.ts` — Preset de criação de mundo (cp14): escolhido no menu/host, só vale pra (~7371 tok)
   - fn `parseWorldPreset` L24-45 (~303 tok)
   - fn `parseWorldTamanho` L46-51 (~78 tok)
