@@ -761,3 +761,16 @@ layouts mobile segue sendo o próximo.
 | 08:57 | Edited client/src/hud.ts | modified toFixed() | ~82 |
 | 08:57 | Edited client/src/hud.ts | 1→2 lines | ~18 |
 | 08:57 | Edited client/src/main.ts | 3→4 lines | ~45 |
+| 09:01 | Edited shared/src/worldgen.ts | added 1 condition(s) | ~894 |
+| 09:02 | Edited shared/src/worldgen.ts | added 3 condition(s) | ~499 |
+| 09:02 | Edited shared/src/worldgen.ts | added 1 condition(s) | ~86 |
+| 09:07 | Edited shared/src/world.ts | added optional chaining | ~397 |
+| 09:07 | Edited shared/src/session.ts | modified cavernas() | ~265 |
+| 09:07 | Edited shared/src/session.ts | 1→3 lines | ~15 |
+| 09:08 | Edited shared/src/worldgen.test.ts | added 1 import(s) | ~81 |
+| 09:09 | Edited shared/src/worldgen.test.ts | 3→4 lines | ~85 |
+| 09:10 | Edited shared/src/worldgen.test.ts | modified for() | ~448 |
+| 09:14 | Edited shared/src/worldgen.ts | modified cavFatia() | ~437 |
+| 09:14 | Edited shared/src/worldgen.ts | added 8 condition(s) | ~853 |
+| 09:14 | Edited shared/src/worldgen.ts | modified for() | ~238 |
+| 09:14 | Edited shared/src/worldgen.test.ts | modified for() | ~273 |

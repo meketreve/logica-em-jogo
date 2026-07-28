@@ -107,7 +107,9 @@ import {
 import {
   type WorldPreset,
   ehMundoLazy,
+  cavernaEm,
   generateWorldForPreset,
+  heightAt,
   gerarColunaDeChunks,
 } from "./worldgen";
 
@@ -428,10 +430,27 @@ export class GameSession {
       // mar/lago (2026-07-26): se o centro do mundo caiu na água, anda até a
       // coluna SECA mais próxima — ninguém nasce nadando. Mundo sem água
       // (plano/cabines/aulas) devolve o próprio centro, sem mudar nada.
+      // §🏔️ cavernas (2026-07-28): boca de caverna também desqualifica a coluna.
+      // Só no preset "normal" — `cavernaEm` é ruído puro e não sabe de preset;
+      // chamá-la em mundo plano/cabines vetaria colunas que não têm caverna
+      // nenhuma. O teste é a função PURA, não `getBlock`: a coluna pode ter sido
+      // editada, e o que interessa é o que a GERAÇÃO fez ali.
+      const vetoCaverna =
+        preset === "normal"
+          ? (cx: number, cz: number): boolean => {
+              const h = Math.min(
+                heightAt(cx, cz, this.seed, this.world.sizeY),
+                this.world.sizeY - 2,
+              );
+              return cavernaEm(cx, h, cz, h, this.seed);
+            }
+          : undefined;
       const seco = findSpawnSeco(
         this.world,
         Math.floor(this.world.sizeX / 2 + off),
         Math.floor(this.world.sizeZ / 2 + off),
+        24,
+        vetoCaverna,
       );
       const sx = seco.x + 0.5;
       const sz = seco.z + 0.5;

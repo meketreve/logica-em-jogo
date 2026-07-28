@@ -1,12 +1,12 @@
 {
   "version": 1,
   "meta": {
-    "lastScanned": "2026-07-28T11:57:29.675Z",
+    "lastScanned": "2026-07-28T12:14:50.327Z",
     "fileCount": 244,
     "hits": 0,
     "misses": 0,
-    "renderedHash": "0d7d8f603252771aecc1bd2e61f42c9d032f0c3fcd6dc84f17bf963f434e4dce",
-    "storeUpdatedAt": "2026-07-28T11:57:29.694Z"
+    "renderedHash": "b03f4aec5445b24a9486023b0d728474105b3eb3f52cb8bf877652374aea4a33",
+    "storeUpdatedAt": "2026-07-28T12:14:50.344Z"
   },
   "files": {
     ".claude/commands/reframe.md": {
@@ -5788,47 +5788,47 @@
     },
     "shared/src/session.ts": {
       "description": "GameSession: o SERVIDOR autoritativo, independente de hospedeiro.",
-      "tokens": 39795,
-      "hash": "a278919fcf83083b",
-      "size": 140780,
-      "mtimeMs": 1785136472440.8003,
-      "updatedAt": "2026-07-28T02:53:57.726Z",
-      "source": "scan",
+      "tokens": 40022,
+      "hash": "5917566decd54d09",
+      "size": 141596,
+      "mtimeMs": 1785240439185.0796,
+      "updatedAt": "2026-07-28T12:07:19.309Z",
+      "source": "hook",
       "symbols": [
         {
           "name": "SessionOptions",
           "kind": "section",
-          "startLine": 123,
-          "endLine": 155,
+          "startLine": 125,
+          "endLine": 157,
           "tokens": 442
         },
         {
           "name": "SessionPlayer",
           "kind": "section",
-          "startLine": 156,
-          "endLine": 166,
+          "startLine": 158,
+          "endLine": 168,
           "tokens": 58
         },
         {
           "name": "Identity",
           "kind": "section",
-          "startLine": 167,
-          "endLine": 179,
+          "startLine": 169,
+          "endLine": 181,
           "tokens": 110
         },
         {
           "name": "parseCoordArg",
           "kind": "fn",
-          "startLine": 180,
-          "endLine": 191,
+          "startLine": 182,
+          "endLine": 193,
           "tokens": 106
         },
         {
           "name": "GameSession",
           "kind": "class",
-          "startLine": 192,
-          "endLine": 3244,
-          "tokens": 38381
+          "startLine": 194,
+          "endLine": 3263,
+          "tokens": 38601
         }
       ]
     },
@@ -5996,12 +5996,12 @@
     },
     "shared/src/world.ts": {
       "description": "Dimensões do mundo em chunks. Parâmetro de criação, gravado no header do save/snapshot.",
-      "tokens": 1511,
-      "hash": "372ffd276bfa245d",
-      "size": 5331,
-      "mtimeMs": 1785079871027.7644,
-      "updatedAt": "2026-07-28T02:53:57.728Z",
-      "source": "scan",
+      "tokens": 1654,
+      "hash": "5fd56c77437aada4",
+      "size": 5850,
+      "mtimeMs": 1785240421889.0796,
+      "updatedAt": "2026-07-28T12:07:02.013Z",
+      "source": "hook",
       "symbols": [
         {
           "name": "WorldDims",
@@ -6084,35 +6084,35 @@
           "name": "colunaMolhada",
           "kind": "fn",
           "startLine": 108,
-          "endLine": 115,
-          "tokens": 130
+          "endLine": 123,
+          "tokens": 234
         },
         {
           "name": "findSpawnSeco",
           "kind": "fn",
-          "startLine": 116,
-          "endLine": 138,
-          "tokens": 165
+          "startLine": 124,
+          "endLine": 149,
+          "tokens": 204
         }
       ]
     },
     "shared/src/worldgen.test.ts": {
-      "description": "Declares World",
-      "tokens": 3282,
-      "hash": "3bb9e862a1715f59",
-      "size": 11547,
-      "mtimeMs": 1785080080355.7646,
-      "updatedAt": "2026-07-28T02:53:57.729Z",
-      "source": "scan"
+      "description": "Mundo denso de 4×4 colunas com altura cheia — as cavernas moram em y≥2 e",
+      "tokens": 5270,
+      "hash": "b3a3b65e6f13f89a",
+      "size": 18586,
+      "mtimeMs": 1785240890225.082,
+      "updatedAt": "2026-07-28T12:14:50.326Z",
+      "source": "hook"
     },
     "shared/src/worldgen.ts": {
       "description": "Preset de criação de mundo (cp14): escolhido no menu/host, só vale pra",
-      "tokens": 5252,
-      "hash": "8a8978fa871b156c",
-      "size": 18615,
-      "mtimeMs": 1785137486192.8008,
-      "updatedAt": "2026-07-28T02:53:57.729Z",
-      "source": "scan",
+      "tokens": 7371,
+      "hash": "7abe16b30c21c3a3",
+      "size": 26183,
+      "mtimeMs": 1785240880201.0815,
+      "updatedAt": "2026-07-28T12:14:40.326Z",
+      "source": "hook",
       "symbols": [
         {
           "name": "parseWorldPreset",
@@ -6153,98 +6153,133 @@
           "name": "valueNoise2",
           "kind": "fn",
           "startLine": 73,
-          "endLine": 92,
-          "tokens": 253
+          "endLine": 86,
+          "tokens": 126
+        },
+        {
+          "name": "hash3",
+          "kind": "fn",
+          "startLine": 87,
+          "endLine": 110,
+          "tokens": 305
+        },
+        {
+          "name": "cavFatia",
+          "kind": "fn",
+          "startLine": 111,
+          "endLine": 129,
+          "tokens": 151
+        },
+        {
+          "name": "cavLimiar",
+          "kind": "fn",
+          "startLine": 130,
+          "endLine": 153,
+          "tokens": 332
+        },
+        {
+          "name": "cavernaEm",
+          "kind": "fn",
+          "startLine": 154,
+          "endLine": 189,
+          "tokens": 503
+        },
+        {
+          "name": "cavernasDaColuna",
+          "kind": "fn",
+          "startLine": 190,
+          "endLine": 243,
+          "tokens": 531
         },
         {
           "name": "heightAt",
           "kind": "fn",
-          "startLine": 93,
-          "endLine": 126,
+          "startLine": 244,
+          "endLine": 277,
           "tokens": 506
         },
         {
           "name": "climaAt",
           "kind": "fn",
-          "startLine": 127,
-          "endLine": 135,
+          "startLine": 278,
+          "endLine": 286,
           "tokens": 103
         },
         {
           "name": "mulberry32",
           "kind": "fn",
-          "startLine": 136,
-          "endLine": 169,
+          "startLine": 287,
+          "endLine": 320,
           "tokens": 427
         },
         {
           "name": "topoPrevisto",
           "kind": "fn",
-          "startLine": 170,
-          "endLine": 181,
+          "startLine": 321,
+          "endLine": 332,
           "tokens": 147
         },
         {
           "name": "hashInt",
           "kind": "fn",
-          "startLine": 182,
-          "endLine": 187,
+          "startLine": 333,
+          "endLine": 338,
           "tokens": 60
         },
         {
           "name": "Veia",
           "kind": "section",
-          "startLine": 188,
-          "endLine": 196,
+          "startLine": 339,
+          "endLine": 347,
           "tokens": 120
         },
         {
           "name": "veiasDaColuna",
           "kind": "fn",
-          "startLine": 197,
-          "endLine": 225,
+          "startLine": 348,
+          "endLine": 376,
           "tokens": 353
         },
         {
           "name": "arvoreDaColuna",
           "kind": "fn",
-          "startLine": 226,
-          "endLine": 251,
+          "startLine": 377,
+          "endLine": 402,
           "tokens": 263
         },
         {
           "name": "gerarColunaDeChunks",
           "kind": "fn",
-          "startLine": 252,
-          "endLine": 361,
-          "tokens": 1410
+          "startLine": 403,
+          "endLine": 540,
+          "tokens": 1835
         },
         {
           "name": "generateWorld",
           "kind": "fn",
-          "startLine": 362,
-          "endLine": 379,
+          "startLine": 541,
+          "endLine": 558,
           "tokens": 164
         },
         {
           "name": "generateFlatWorld",
           "kind": "fn",
-          "startLine": 380,
-          "endLine": 405,
+          "startLine": 559,
+          "endLine": 584,
           "tokens": 317
         },
         {
           "name": "generateCabinsWorld",
           "kind": "fn",
-          "startLine": 406,
-          "endLine": 427,
+          "startLine": 585,
+          "endLine": 606,
           "tokens": 275
         },
         {
           "name": "generateWorldForPreset",
           "kind": "fn",
-          "startLine": 428,
-          "endLine": 438,
+          "startLine": 607,
+          "endLine": 617,
           "tokens": 93
         }
       ]

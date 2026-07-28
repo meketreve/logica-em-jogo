@@ -84,6 +84,157 @@ function valueNoise2(x: number, z: number, seed: number): number {
   return a + (b - a) * sz;
 }
 
+function hash3(ix: number, iy: number, iz: number, seed: number): number {
+  let h =
+    seed ^ Math.imul(ix, 374761393) ^ Math.imul(iy, 1013904223) ^ Math.imul(iz, 668265263);
+  h = Math.imul(h ^ (h >>> 13), 1274126177);
+  return ((h ^ (h >>> 16)) >>> 0) / 4294967296;
+}
+
+/** Escalas do ruído das cavernas. Y comprimido = túnel horizontal (caminhável). */
+const CAV_XZ = 26;
+const CAV_Y = 13;
+const CAV_SEED_A = 0x0ca7e01;
+const CAV_SEED_B = 0x5eca70f;
+
+/**
+ * Uma FATIA horizontal do value noise 3D: a bilinear em (x,z) no plano de
+ * retículo `iy`. O ruído 3D completo é a interpolação de duas fatias vizinhas.
+ *
+ * A separação existe por DESEMPENHO, não por elegância: descendo uma coluna, os
+ * índices e pesos de x e z não mudam NUNCA, e `iy` só muda a cada `CAV_Y`
+ * blocos. Avaliar o ruído célula a célula custava 8 hashes por célula (16 com os
+ * dois campos) e levou o worldgen de 2,6 para 28,6 ms por coluna — 10,9×, o
+ * bastante pra derrubar o streaming (smoke `pedir-coluna`, 2026-07-28).
+ * Amortizando por fatia, são 4 hashes a cada 13 células.
+ */
+function cavFatia(
+  ix: number,
+  iz: number,
+  sx: number,
+  sz: number,
+  iy: number,
+  seed: number,
+): number {
+  const v00 = hash3(ix, iy, iz, seed);
+  const v10 = hash3(ix + 1, iy, iz, seed);
+  const v01 = hash3(ix, iy, iz + 1, seed);
+  const v11 = hash3(ix + 1, iy, iz + 1, seed);
+  const a = v00 + (v10 - v00) * sx;
+  const b = v01 + (v11 - v01) * sx;
+  return a + (b - a) * sz;
+}
+
+/** Meia-largura da faixa de ruído que vira vazio, na altura y de uma coluna de
+ *  topo h. Afina nas duas pontas — ver `cavernaEm`. */
+function cavLimiar(y: number, h: number): number {
+  const doFundo = Math.min(1, (y - 2) / 4);
+  const daSuperficie = 0.4 + 0.6 * Math.min(1, (h - y) / 6);
+  return LIMIAR_CAVERNA * doFundo * daSuperficie;
+}
+
+/**
+ * §🏔️ CAVERNAS (2026-07-28) — a célula (x,y,z) é vazio de caverna?
+ *
+ * FUNÇÃO PURA de (x,y,z,h,seed), e tem de continuar sendo: o mundo E é lazy,
+ * cada coluna nasce sozinha, e duas colunas vizinhas só fecham a mesma galeria
+ * se as duas calcularem a MESMA resposta sem consultar o mundo nem estado algum.
+ * É por isso que não há passe de pós-processamento (nem "alargar a caverna
+ * depois", nem autômato celular): qualquer coisa que precise ver o vizinho já
+ * gerado quebraria a borda.
+ *
+ * COMO A GALERIA NASCE: dois campos de ruído 3D independentes, e escava-se onde
+ * os DOIS estão perto de 0,5. Cada condição sozinha é uma "fatia" do espaço;
+ * a INTERSEÇÃO de duas fatias é um tubo — que é justamente o que se quer. Ruído
+ * único com limiar daria bolha de queijo suíço, sem passagem ligando nada.
+ *
+ * O eixo Y é comprimido (÷13 contra ÷26 no plano): túnel mais horizontal que
+ * vertical, ou seja, caminhável, em vez de poço.
+ */
+export function cavernaEm(x: number, y: number, z: number, h: number, seed: number): boolean {
+  // y=0 é rocha-matriz e y=1 é o piso que sobra dela: nem um nem outro se abre
+  // (chão furado até o fundo do mundo é buraco de cair fora, não caverna).
+  if (y < 2 || y > h) return false;
+  // afina nas duas pontas: perto do fundo (senão a rocha-matriz fica exposta em
+  // toda parte) e perto da SUPERFÍCIE — ali o limiar cai a 40%, o que deixa a
+  // boca de caverna rara o bastante pra ser um achado, e não um campo minado.
+  const limiar = cavLimiar(y, h);
+  if (limiar <= 0) return false;
+  const fx = x / CAV_XZ;
+  const fz = z / CAV_XZ;
+  const fy = y / CAV_Y;
+  const ix = Math.floor(fx);
+  const iz = Math.floor(fz);
+  const iy = Math.floor(fy);
+  const sx = smooth(fx - ix);
+  const sz = smooth(fz - iz);
+  const sy = smooth(fy - iy);
+  const a0 = cavFatia(ix, iz, sx, sz, iy, seed ^ CAV_SEED_A);
+  const a1 = cavFatia(ix, iz, sx, sz, iy + 1, seed ^ CAV_SEED_A);
+  // o campo B só é avaliado se o A já passou: ~88% das células morrem aqui, e
+  // não vale calcular o segundo ruído pra elas.
+  if (Math.abs(a0 + (a1 - a0) * sy - 0.5) >= limiar) return false;
+  const b0 = cavFatia(ix, iz, sx, sz, iy, seed ^ CAV_SEED_B);
+  const b1 = cavFatia(ix, iz, sx, sz, iy + 1, seed ^ CAV_SEED_B);
+  return Math.abs(b0 + (b1 - b0) * sy - 0.5) < limiar;
+}
+
+/**
+ * A coluna (x,z) inteira de uma vez: `saida[y] = 1` onde há vazio de caverna.
+ *
+ * Mesma resposta de `cavernaEm` célula a célula (há teste que compara as duas,
+ * e ele é o que garante que otimizar aqui não muda mundo nenhum) — o que muda é
+ * o custo: os índices/pesos de x e z saem UMA vez, e as fatias de ruído são
+ * reaproveitadas enquanto `iy` não vira. É este o caminho que a geração usa.
+ */
+export function cavernasDaColuna(
+  x: number,
+  z: number,
+  h: number,
+  seed: number,
+  saida: Uint8Array,
+): void {
+  saida.fill(0);
+  if (h < 2) return;
+  const fx = x / CAV_XZ;
+  const fz = z / CAV_XZ;
+  const ix = Math.floor(fx);
+  const iz = Math.floor(fz);
+  const sx = smooth(fx - ix);
+  const sz = smooth(fz - iz);
+  let iyAtual = -1;
+  let a0 = 0;
+  let a1 = 0;
+  let b0 = 0;
+  let b1 = 0;
+  let temB = false;
+  const limiteY = Math.min(h, saida.length - 1);
+  for (let y = 2; y <= limiteY; y++) {
+    const limiar = cavLimiar(y, h);
+    if (limiar <= 0) continue;
+    const fy = y / CAV_Y;
+    const iy = Math.floor(fy);
+    if (iy !== iyAtual) {
+      a0 = cavFatia(ix, iz, sx, sz, iy, seed ^ CAV_SEED_A);
+      a1 = cavFatia(ix, iz, sx, sz, iy + 1, seed ^ CAV_SEED_A);
+      temB = false; // o campo B desta faixa só se calcula se alguém precisar
+      iyAtual = iy;
+    }
+    const sy = smooth(fy - iy);
+    if (Math.abs(a0 + (a1 - a0) * sy - 0.5) >= limiar) continue;
+    if (!temB) {
+      b0 = cavFatia(ix, iz, sx, sz, iy, seed ^ CAV_SEED_B);
+      b1 = cavFatia(ix, iz, sx, sz, iy + 1, seed ^ CAV_SEED_B);
+      temB = true;
+    }
+    if (Math.abs(b0 + (b1 - b0) * sy - 0.5) < limiar) saida[y] = 1;
+  }
+}
+
+/** Meia-largura da faixa de cada campo de ruído que vira vazio. Calibrado em
+ *  2026-07-28 contra a fração de subsolo escavado (ver worldgen.test.ts). */
+const LIMIAR_CAVERNA = 0.06;
+
 /** Altura do terreno (y do bloco de topo) na coluna (x,z).
  *  Colinas [16,32) como sempre + SERRAS (2026-07-20): máscara de cordilheira
  *  de frequência baixa levanta picos até ~120. A máscara é smoothstep — fora
@@ -297,6 +448,29 @@ export function gerarColunaDeChunks(
     }
   }
 
+  // 2.5) §🏔️ CAVERNAS: escava DEPOIS do minério, de propósito — assim a veia
+  //      aparece cortada na parede da galeria (é o que faz explorar valer a
+  //      pena) em vez de a caverna nascer sempre em pedra limpa.
+  //      Só mexe em sólido: água nunca é escavada.
+  const vazios = new Uint8Array(sizeY);
+  for (let x = x0; x <= x1; x++) {
+    for (let z = z0; z <= z1; z++) {
+      const h = Math.min(heightAt(x, z, seed, sizeY), sizeY - 2);
+      // Coluna SUBMERSA guarda o topo como casca (decisão do usuário,
+      // 2026-07-28): a caverna sob o mar nasce SECA, separada da água por essa
+      // casca fina. Quem furar o teto depois deixa o mar entrar — e aí é a
+      // regra da água que resolve, não a geração.
+      const yMax = h <= Math.min(NIVEL_MAR, sizeY - 2) ? h - 1 : h;
+      cavernasDaColuna(x, z, h, seed, vazios);
+      for (let y = 2; y <= yMax; y++) {
+        if (!vazios[y]) continue;
+        const atual = getBlock(world, x, y, z);
+        if (atual === BlockId.Air || atual === BlockId.Bedrock) continue;
+        setBlock(world, x, y, z, BlockId.Air);
+      }
+    }
+  }
+
   // 3) árvores: re-deriva troncos até ARVORE_RAIO_MAX além da borda; só a
   //    fatia local é escrita (filtro evita tocar coluna vizinha já gerada)
   const M = ARVORE_RAIO_MAX;
@@ -305,6 +479,10 @@ export function gerarColunaDeChunks(
       const arv = arvoreDaColuna(x, z, seed, sizeY);
       if (!arv) continue;
       const h = Math.min(heightAt(x, z, seed, sizeY), sizeY - 2);
+      // §🏔️ o chão do tronco pode ter virado boca de caverna. O teste é a função
+      // PURA (não `getBlock`): o tronco pode estar numa coluna vizinha ainda não
+      // gerada, e ler o mundo aqui faria a árvore depender da ORDEM de geração.
+      if (cavernaEm(x, h, z, h, seed)) continue;
       for (const c of celulasDaArvore(x, h + 1, z, arv.tipo, arv.varia)) {
         if (c.x < x0 || c.x > x1 || c.z < z0 || c.z > z1) continue;
         aplicarCelula(world, c);
@@ -320,6 +498,7 @@ export function gerarColunaDeChunks(
       const bioma = biomaPorClima(climaAt(x, z, seed));
       const ehGrama =
         topo === BlockId.Grass || topo === BlockId.GramaSeca || topo === BlockId.GramaFria;
+      if (cavernaEm(x, h, z, h, seed)) continue; // §🏔️ boca de caverna não tem chão
       if (ehGrama) {
         if (arvoreDaColuna(x, z, seed, sizeY)) continue; // coluna já tem árvore
         if (bioma.flores > 0 && hash2(x, z, seed ^ 0xf10e) < bioma.flores) {

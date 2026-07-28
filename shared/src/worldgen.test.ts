@@ -14,6 +14,8 @@ import {
   NIVEL_MAR,
   SAND_HEIGHT,
   TAMANHO_CHUNKS,
+  cavernaEm,
+  cavernasDaColuna,
   climaAt,
   generateCabinsWorld,
   generateFlatWorld,
@@ -22,6 +24,7 @@ import {
   heightAt,
   parseWorldTamanho,
 } from "./worldgen";
+import { LUZ_MAX, acenderColuna, criarLuz, luzCeu } from "./luz";
 
 const DIMS = { x: 2, z: 2, y: 2 };
 
@@ -296,5 +299,165 @@ describe("mar e lagos (2026-07-26)", () => {
     const seco = findSpawnSeco(mundoMar, molhada!.x, molhada!.z);
     const y = findSpawnY(mundoMar, seco.x, seco.z);
     expect(isAgua(getBlock(mundoMar, seco.x, y - 1, seco.z))).toBe(false);
+  });
+});
+
+describe("§🏔️ cavernas (2026-07-28)", () => {
+  /** Mundo denso de 4×4 colunas com altura cheia — as cavernas moram em y≥2 e
+   *  o relevo alto só existe com sizeY 128. */
+  const DIMS_CAV = { x: 4, z: 4, y: 8 };
+  const SEED_CAV = 20260728;
+
+  const mundoComCaverna = (): World => generateWorld(DIMS_CAV, SEED_CAV);
+
+  /** Fração do subsolo (y de 2 até o topo) que virou vazio. */
+  const fracaoEscavada = (w: World, seed: number): number => {
+    let subsolo = 0;
+    let vazio = 0;
+    for (let x = 0; x < w.sizeX; x++)
+      for (let z = 0; z < w.sizeZ; z++) {
+        const h = Math.min(heightAt(x, z, seed, w.sizeY), w.sizeY - 2);
+        for (let y = 2; y <= h; y++) {
+          subsolo++;
+          if (getBlock(w, x, y, z) === BlockId.Air) vazio++;
+        }
+      }
+    return vazio / subsolo;
+  };
+
+  it("escava na densidade calibrada — medida em VÁRIAS seeds, não em uma", () => {
+    // Medido em 2026-07-28: a densidade varia MUITO de seed pra seed (1,2% a
+    // 7,7% num mundo 4×4), porque a célula do ruído tem 26 blocos e um mundo
+    // pequeno mal cobre duas delas. Uma seed só, portanto, não calibra nada — a
+    // do `?bench` (20260726) é justamente das mais vazias. A média de um punhado
+    // de seeds é o que segura o LIMIAR_CAVERNA.
+    const seeds = [1, 42, 13, 20260726, SEED_CAV];
+    const fracs = seeds.map((s) => fracaoEscavada(generateWorld(DIMS_CAV, s), s));
+    const media = fracs.reduce((a, b) => a + b, 0) / fracs.length;
+    // toda seed tem ALGUMA caverna (mundo sem nenhuma seria bug de gate)
+    for (const f of fracs) expect(f).toBeGreaterThan(0.005);
+    // e a média fica na faixa: abaixo, a caverna não se acha; acima, o subsolo
+    // vira queijo suíço e a conta de triângulos explode (sem caverna eram
+    // 153 852 tris no bench; com elas, 255 234).
+    expect(media).toBeGreaterThan(0.02);
+    expect(media).toBeLessThan(0.07);
+  });
+
+  it("a rocha-matriz e o piso sobre ela NUNCA se abrem", () => {
+    const w = mundoComCaverna();
+    for (let x = 0; x < w.sizeX; x++)
+      for (let z = 0; z < w.sizeZ; z++) {
+        expect(getBlock(w, x, 0, z)).toBe(BlockId.Bedrock);
+        expect(getBlock(w, x, 1, z)).not.toBe(BlockId.Air);
+      }
+  });
+
+  it("a galeria FECHA na fronteira de coluna, gere-se na ordem que for", () => {
+    // o portão do mundo LAZY: cada coluna nasce sozinha, e se as duas não
+    // concordarem sobra uma parede de pedra no meio do túnel.
+    const a = createWorld(DIMS_CAV, false);
+    for (let cx = 0; cx < DIMS_CAV.x; cx++)
+      for (let cz = 0; cz < DIMS_CAV.z; cz++) gerarColunaDeChunks(a, cx, cz, SEED_CAV);
+    const b = createWorld(DIMS_CAV, false);
+    for (let cx = DIMS_CAV.x - 1; cx >= 0; cx--)
+      for (let cz = DIMS_CAV.z - 1; cz >= 0; cz--) gerarColunaDeChunks(b, cx, cz, SEED_CAV);
+    for (let i = 0; i < a.chunks.length; i++) {
+      expect(Array.from(b.chunks[i] ?? [])).toEqual(Array.from(a.chunks[i] ?? []));
+    }
+
+    // e a fronteira x=16 de fato tem vazio ATRAVESSANDO (não só bytes iguais):
+    // sem isto o teste passaria num mundo onde a caverna simplesmente para na
+    // borda dos dois lados.
+    let atravessa = 0;
+    for (let z = 0; z < a.sizeZ; z++)
+      for (let y = 2; y < 40; y++) {
+        if (
+          getBlock(a, 15, y, z) === BlockId.Air &&
+          getBlock(a, 16, y, z) === BlockId.Air &&
+          getBlock(a, 17, y, z) === BlockId.Air
+        ) atravessa++;
+      }
+    expect(atravessa).toBeGreaterThan(0);
+  });
+
+  it("a caverna não escava água, e sob o mar sobra casca (fica SECA)", () => {
+    const w = mundoComCaverna();
+    for (let x = 0; x < w.sizeX; x++)
+      for (let z = 0; z < w.sizeZ; z++) {
+        const h = Math.min(heightAt(x, z, SEED_CAV, w.sizeY), w.sizeY - 2);
+        if (h > NIVEL_MAR) continue; // coluna seca: boca de caverna é permitida
+        // coluna SUBMERSA: o topo é a casca que separa o mar da galeria
+        expect(getBlock(w, x, h, z)).not.toBe(BlockId.Air);
+      }
+  });
+
+  it("plano e cabines seguem INTOCADOS (não passam pelo gerador procedural)", () => {
+    const plano = generateFlatWorld(DIMS_CAV);
+    const cabines = generateCabinsWorld(DIMS_CAV);
+    for (const w of [plano, cabines]) {
+      for (let x = 0; x < w.sizeX; x++)
+        for (let z = 0; z < w.sizeZ; z++)
+          for (let y = 1; y <= 2; y++) expect(getBlock(w, x, y, z)).not.toBe(BlockId.Air);
+    }
+  });
+
+  it("`cavernaEm` é pura: mesma entrada, mesma resposta, e nunca acima do topo", () => {
+    for (let i = 0; i < 200; i++) {
+      const x = i * 7919;
+      const z = i * 104729;
+      const h = 40;
+      const y = 2 + (i % 38);
+      expect(cavernaEm(x, y, z, h, SEED_CAV)).toBe(cavernaEm(x, y, z, h, SEED_CAV));
+      expect(cavernaEm(x, h + 1, z, h, SEED_CAV)).toBe(false);
+      expect(cavernaEm(x, 1, z, h, SEED_CAV)).toBe(false);
+    }
+  });
+
+  it("o caminho RÁPIDO da coluna concorda com `cavernaEm` célula a célula", () => {
+    // `cavernasDaColuna` amortiza o ruído por fatia (é ela que a geração usa) e
+    // `cavernaEm` é a referência por célula (guardas de árvore e de spawn). Se as
+    // duas divergirem, a árvore flutua sobre um buraco e o spawn cai num poço —
+    // sem erro nenhum aparecendo. Este teste é a costura entre elas.
+    const saida = new Uint8Array(128);
+    for (const seed of [1, SEED_CAV]) {
+      for (let i = 0; i < 60; i++) {
+        const x = i * 37 - 500;
+        const z = i * 91 - 300;
+        const h = 12 + ((i * 7) % 90);
+        cavernasDaColuna(x, z, h, seed, saida);
+        for (let y = 0; y < 128; y++) {
+          expect(saida[y] === 1, `x=${x} y=${y} z=${z} h=${h} seed=${seed}`).toBe(
+            cavernaEm(x, y, z, h, seed),
+          );
+        }
+      }
+    }
+  });
+
+  it("§💡 a caverna nasce ESCURA e a superfície não (é o ponto da fase)", () => {
+    const w = mundoComCaverna();
+    const luz = criarLuz(w.dims);
+    for (let cx = 0; cx < w.dims.x; cx++)
+      for (let cz = 0; cz < w.dims.z; cz++) acenderColuna(w, luz, cx, cz);
+
+    let escuras = 0;
+    let fundas = 0;
+    for (let x = 0; x < w.sizeX; x++)
+      for (let z = 0; z < w.sizeZ; z++) {
+        const h = Math.min(heightAt(x, z, SEED_CAV, w.sizeY), w.sizeY - 2);
+        // céu aberto acima de TUDO: 15 em toda coluna. (Em h+1 não vale — ali
+        // pode haver copa de árvore por cima, e folha atenua 1 de propósito.)
+        expect(luzCeu(luz, x, w.sizeY - 1, z)).toBe(LUZ_MAX);
+        // célula de caverna 8+ blocos abaixo do topo: sem poço, é breu
+        for (let y = 2; y <= h - 8; y++) {
+          if (getBlock(w, x, y, z) !== BlockId.Air) continue;
+          fundas++;
+          if (luzCeu(luz, x, y, z) === 0) escuras++;
+        }
+      }
+    expect(fundas).toBeGreaterThan(100);
+    // a esmagadora maioria é breu; o resto é o que fica embaixo de um poço que
+    // atravessa até a superfície — e esse É pra ser claro.
+    expect(escuras / fundas).toBeGreaterThan(0.9);
   });
 });

@@ -109,17 +109,28 @@ function colunaMolhada(world: World, x: number, z: number): boolean {
   return isAgua(getBlock(world, x, findSpawnY(world, x, z) - 1, z));
 }
 
-/** Coluna SECA mais próxima de (x,z) — anel por anel até `raio` (2026-07-26,
- *  mar/lago no worldgen). Mundo sem água devolve (x,z) na primeira checagem, e
- *  o mundo LAZY só olha o que já foi materializado; sem coluna seca no alcance,
- *  devolve a original (nascer na água é feio, travar o join é pior). */
+/**
+ * Coluna BOA PRA NASCER mais próxima de (x,z) — anel por anel até `raio`
+ * (2026-07-26, mar/lago no worldgen). Mundo sem água devolve (x,z) na primeira
+ * checagem, e o mundo LAZY só olha o que já foi materializado; sem coluna boa no
+ * alcance, devolve a original (nascer na água é feio, travar o join é pior).
+ *
+ * `rejeitar` é um veto EXTRA, do chamador (2026-07-28, §🏔️ cavernas): quem tem a
+ * seed sabe se a coluna é boca de caverna, e este módulo não. Sem ele, uma boca
+ * no centro do mundo faz `findSpawnY` descer o poço e o jogador nascer lá no
+ * fundo — e como a geração é determinística, seria assim em TODO join daquele
+ * mundo, não de vez em quando.
+ */
 export function findSpawnSeco(
   world: World,
   x: number,
   z: number,
   raio = 24,
+  rejeitar?: (x: number, z: number) => boolean,
 ): { x: number; z: number } {
-  if (!colunaMolhada(world, x, z)) return { x, z };
+  const ruim = (cx: number, cz: number): boolean =>
+    colunaMolhada(world, cx, cz) || (rejeitar?.(cx, cz) ?? false);
+  if (!ruim(x, z)) return { x, z };
   for (let r = 1; r <= raio; r++) {
     for (let d = -r; d <= r; d++) {
       for (const [cx, cz] of [
@@ -129,7 +140,7 @@ export function findSpawnSeco(
         [x + r, z + d],
       ] as const) {
         if (cx < 0 || cz < 0 || cx >= world.sizeX || cz >= world.sizeZ) continue;
-        if (!colunaMolhada(world, cx, cz)) return { x: cx, z: cz };
+        if (!ruim(cx, cz)) return { x: cx, z: cz };
       }
     }
   }
