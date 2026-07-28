@@ -1,7 +1,7 @@
 # anatomy.md
 
-> Auto-maintained by OpenWolf. Last scanned: 2026-07-27T13:31:42.425Z
-> Files: 237 tracked | Anatomy hits: 0 | Misses: 0
+> Auto-maintained by OpenWolf. Last scanned: 2026-07-28T02:53:57.737Z
+> Files: 240 tracked | Anatomy hits: 0 | Misses: 0
 
 ## ./
 
@@ -9,10 +9,10 @@
 - `.gitignore` — Git ignore rules (~289 tok)
 - `CLAUDE.md` — OpenWolf (~57 tok)
 - `iniciar-servidor.bat` (~2363 tok)
-- `iniciar-servidor.sh` — ============================================================ (~1952 tok)
+- `iniciar-servidor.sh` — ============================================================ (~2091 tok)
 - `LICENSE` — Licença de Uso — Lógica em Jogo (~1070 tok)
 - `package-lock.json` — npm lock file (~20120 tok)
-- `package.json` — Node.js package manifest (~226 tok)
+- `package.json` — Node.js package manifest (~241 tok)
 - `projeto.txt` (~4707 tok)
 - `README.md` — Project documentation (~1948 tok)
 - `todo.md` — Ideias para fazer (~6972 tok)
@@ -213,7 +213,7 @@
 
 ## client/
 
-- `index.html` — Lógica em Jogo (~5722 tok)
+- `index.html` — Lógica em Jogo (~7398 tok)
 - `package.json` — Node.js package manifest (~102 tok)
 - `tsconfig.json` — TypeScript configuration (~39 tok)
 - `vite.config.ts` — Vite build configuration (~94 tok)
@@ -274,8 +274,9 @@
 - `blocksUi.ts` — Blocos colocáveis com nome em português — fonte única pra hotbar (main.ts) (~2286 tok)
   - section `PlaceableEntry` L31-157 (~1948 tok)
   - fn `placeableFor` L158-162 (~56 tok)
-- `chat.ts` — UI de chat em HTML/CSS por cima do canvas (regra: sem GUI de engine). (~1525 tok)
-  - class `ChatUi` L15-145 (~1349 tok)
+- `chat.ts` — UI de chat em HTML/CSS por cima do canvas (regra: sem GUI de engine). (~1995 tok)
+  - fn `acompanharTecladoVirtual` L28-40 (~138 tok)
+  - class `ChatUi` L41-184 (~1495 tok)
 - `chunks.ts` — Teto duro de chunks por frame: rede de segurança se o relógio for grosseiro (~5555 tok)
   - section `JobMesh` L29-47 (~197 tok)
   - class `ChunkRenderer` L48-458 (~5118 tok)
@@ -317,7 +318,7 @@
   - fn `fmtBytes` L139-144 (~48 tok)
   - fn `fmtSeg` L145-148 (~23 tok)
   - class `LoadingScreen` L149-449 (~3406 tok)
-- `main.ts` — O cliente não tem filesystem: aprende os nomes das aulas pela resposta de (~25606 tok)
+- `main.ts` — O cliente não tem filesystem: aprende os nomes das aulas pela resposta de (~25820 tok)
   - fn `cachearMundos` L98-189 (~1177 tok)
   - fn `applySettings` L190-245 (~847 tok)
   - fn `showOverlayMain` L246-250 (~35 tok)
@@ -339,7 +340,7 @@
   - fn `startMultiplayer` L702-719 (~224 tok)
   - fn `startSingleplayer` L720-741 (~249 tok)
   - fn `persistWorld` L742-789 (~520 tok)
-  - fn `startGame` L790-2094 (~16239 tok)
+  - fn `startGame` L790-2108 (~16453 tok)
 - `menu.ts` — Menu principal (cp8) — HTML/CSS por cima do canvas, sem GUI de engine. (~4695 tok)
   - section `PlayWorldChoice` L35-49 (~166 tok)
   - section `MultiAuth` L50-54 (~19 tok)
@@ -392,11 +393,11 @@
   - fn `desarmarGuardaDeAtalhos` L67-74 (~94 tok)
 - `torchGlow.ts` — Halo das tochas (cp23) — SÓ visual (decisão 2026-07-17: tocha decorativa, (~1522 tok)
   - class `TorchGlow` L10-138 (~1403 tok)
-- `touch.ts` — Controles de toque (tablet) — joystick, arrasto de olhar e botões. SÓ (~3084 tok)
+- `touch.ts` — Controles de toque (tablet) — joystick, arrasto de olhar e botões. SÓ (~3173 tok)
   - fn `isTouchDevice` L15-20 (~72 tok)
   - section `TouchActions` L21-40 (~212 tok)
-  - fn `solicitarTelaCheia` L41-90 (~623 tok)
-  - class `TouchControls` L91-274 (~2018 tok)
+  - fn `solicitarTelaCheia` L41-93 (~684 tok)
+  - class `TouchControls` L94-278 (~2045 tok)
 - `vento.ts` — Vento do lado do CLIENTE (§🌬️, 2026-07-27). O servidor manda `dir`/`forca` (~1552 tok)
   - class `VentoCliente` L21-83 (~669 tok)
   - section `BalancoUniforms` L84-105 (~290 tok)
@@ -448,7 +449,7 @@
 
 ## mundos/mundo-livre/
 
-- `chat.log` (~2551 tok)
+- `chat.log` (~2749 tok)
 
 ## mundos/playtest-streaming/
 
@@ -500,7 +501,9 @@
 - `perf-bench-1785134871734-bjrv.json` (~1510 tok)
 - `perf-bench-1785149563442-2zcg.json` (~1462 tok)
 - `perf-bench-1785149642860-j1lu.json` (~1540 tok)
+- `perf-bench-1785192177031-52k0.json` (~1460 tok)
 - `perf-bench-2026-07-27T01-24-08-311Z.json` (~1421 tok)
+- `perf-bench-semvida-1785192221358-y9ew.json` (~1466 tok)
 
 ## registros/
 
@@ -530,6 +533,16 @@
   - fn `sobeServidor` L161-173 (~112 tok)
   - fn `mata` L174-182 (~52 tok)
   - fn `rodaSmoke` L183-268 (~762 tok)
+- `tablet-shots.mjs` — MEDE e fotografa as telas de UI num viewport de TABLET — 1024×600 paisagem (~3404 tok)
+  - fn `acharChrome` L40-54 (~154 tok)
+  - fn `espera` L55-74 (~149 tok)
+  - fn `abrirAba` L75-102 (~254 tok)
+  - fn `cdp` L103-108 (~50 tok)
+  - fn `avaliar` L109-129 (~206 tok)
+  - fn `tirar` L130-139 (~123 tok)
+  - fn `medir` L140-157 (~225 tok)
+  - fn `alvos` L158-274 (~1398 tok)
+  - fn `tecla` L275-331 (~561 tok)
 
 ## server/
 

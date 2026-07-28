@@ -3362,6 +3362,48 @@
       ],
       "occurrences": 1,
       "last_seen": "2026-07-27T12:55:43.651Z"
+    },
+    {
+      "id": "bug-538",
+      "timestamp": "2026-07-27T23:55:00Z",
+      "error_message": "painel do menu 'Meus mundos' media 614px numa janela de 600px mesmo com `max-height: calc(100dvh - 20px)` — a verificacao headless acusou 'ESTOURA (top -7, bottom 607, janela 600)'",
+      "file": "client/index.html",
+      "root_cause": "o projeto nao tem `box-sizing: border-box` global — o padrao content-box faz `max-height` valer so pra CAIXA DE CONTEUDO, e o padding de 16px+16px e a borda de 1px+1px do `.menu-screen` sao SOMADOS depois. 580 + 32 + 2 = 614, batendo exato com o estouro medido.",
+      "fix": "`box-sizing: border-box` no `.menu-screen` e no `#hud` — as duas regras onde entrou `max-height` nesta sessao. Os paineis de altura FIXA (#painel/#inventario/#jogadores) ficaram em content-box de proposito: la o valor 560px foi ajustado a olho em playtest (2026-07-20) e mudar o box-sizing encolheria o painel em 34px sem ninguem ter pedido.",
+      "tags": [
+        "css",
+        "box-sizing",
+        "max-height",
+        "mobile",
+        "menu",
+        "layout",
+        "tablet"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-27T23:55:00Z"
+    },
+    {
+      "id": "bug-539",
+      "timestamp": "2026-07-27T23:55:00Z",
+      "error_message": "no tablet o log do chat caia por cima da hotbar (chat 339..552, hotbar 495..588 numa janela de 600) — mensagem ilegivel sobre os slots",
+      "file": "client/index.html",
+      "root_cause": "`#chat { bottom: 48px }` foi calculado pra hotbar antiga, de ~75px de altura. Os slots de alvo de dedo (52px de largura, padding maior) levaram a barra pra ~93px, e a folga de 48px virou sobreposicao de 57px. Pre-existia menor no desktop; os slots grandes so escancararam.",
+      "fix": "em `(pointer: coarse)`, `#chat { bottom: calc(112px + var(--kb, 0px)) }` — acima da barra inteira. O `--kb` (teclado virtual) continua somando por cima. Verificacao nova no `scripts/tablet-shots.mjs` mede a interseccao dos dois retangulos e falha se houver.",
+      "tags": [
+        "css",
+        "mobile",
+        "chat",
+        "hotbar",
+        "sobreposicao",
+        "toque",
+        "tablet"
+      ],
+      "related_bugs": [
+        "bug-538"
+      ],
+      "occurrences": 1,
+      "last_seen": "2026-07-27T23:55:00Z"
     }
   ]
 }

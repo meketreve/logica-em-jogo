@@ -20,6 +20,10 @@
   vidro que "funcionava" (dither) por parecer mosquiteiro e pediu suavização do
   step-up ("movimento muito brusco"). Ao entregar mecânica nova, já prever o
   acabamento visual/de câmera — ele testa jogando, não lendo teste verde.
+- **Escopo de mobile, escolhido por ele (2026-07-27, sessão 31):** telas que doem primeiro no
+  tablet = **menu, inventário+hotbar, chat+HUD**; painéis de AUTORIA ficaram de fora. Régua =
+  **"os dois, Fire manda"** (1024×600 manda, tablet maior herda). **Celular foi RECUSADO** —
+  não desenhar pra ~640×360 sem ele pedir.
 - **Quando vai ficar AFK, pede as perguntas TODAS de uma vez** (2026-07-27):
   "vamos no vento, me faça perguntas agora porque vou ficar afk logo". Nesse
   modo, perguntar cedo, em lote, e incluir a pergunta de ATÉ ONDE ir sozinho
@@ -903,3 +907,42 @@ a cada stop, sem jeito de satisfazer seguindo as instruções dele mesmo.
   na máquina apertada (o lab, com GPU p95 já em 16,8–19,6 ms contra 16,7 de orçamento).
 - **A etiquetagem em 3 lugares funcionou** (`meta.bench.semVida`, `config.nuvens/balanco`,
   nome do arquivo): deu pra parear os dois perfis meses depois sem depender de memória.
+
+## Key Learnings — layouts mobile (2026-07-27, sessão 31)
+
+- **A régua de tela pequena é 1024×600 em PAISAGEM (Kindle Fire), fixada pelo usuário:**
+  "os dois, Fire manda" — desenhar pro Fire e deixar o tablet Android maior herdar com mais
+  respiro. Celular ficou **fora** de propósito (o usuário recusou a opção).
+- **Duas media queries INDEPENDENTES, nunca um breakpoint só:** `(pointer: coarse)` = alvo de
+  dedo, vale em qualquer tamanho; `(max-height: 700px)` = altura curta, vale mesmo com mouse.
+  Tablet grande é coarse e não é baixo; janela de desktop espremida é baixa e não é coarse.
+  Um breakpoint combinado daria a UI errada nos dois casos.
+- **Terceira query, a que rende mais:** `(min-width: 700px) and (max-height: 700px)` =
+  PAISAGEM baixa. Ali sobra largura e falta altura, então o caminho é **alargar** o painel
+  (menu 460 → 680, inventário 580 → 760), não quebrar linha em duas. Alargar devolveu as 6
+  abas do inventário numa linha só e tirou o nome do mundo do truncamento "seq…".
+- **`pointer: coarse` NÃO vem de `mobile: true` no CDP.** Quem liga é
+  `Emulation.setEmulatedMedia({features:[{name:"pointer",value:"coarse"}]})`. Sem essa chamada
+  a verificação headless roda com as media queries de toque DESLIGADAS e aprova tudo mentindo.
+- **O projeto não tem `box-sizing: border-box` global** — o padrão content-box faz `max-height`
+  ignorar padding e borda. Toda regra nova de `max-height` num elemento com padding precisa de
+  `box-sizing: border-box` junto, senão ela erra pela soma exata do padding+borda (ver bug-538).
+- **`dvh` sempre com o par `vh` na linha de cima.** Navegador sem `dvh` (Silk velho do Fire)
+  descarta a declaração inválida e fica com a anterior — é o fallback mais barato que existe.
+- **`--ts` (escala da UI de toque) mora no `:root`, não em `#touch-ui`.** Custom property
+  declarada num elemento só é visível na subárvore dele; o `#chat` do index.html precisa do
+  MESMO valor pra desviar do joystick (`left: calc(40px + 128px * var(--ts, 1))`). O fallback
+  `1` importa porque o CSS do `touch.ts` só é injetado em aparelho de toque.
+- **Teclado virtual só é mensurável pelo `visualViewport`:** `window.innerHeight` NÃO muda
+  quando o teclado abre (é o viewport de LAYOUT). `innerHeight − visualViewport.height −
+  visualViewport.offsetTop` é a altura escondida; o `chat.ts` publica em `--kb` e o CSS soma.
+  O `offsetTop` entra porque o iOS ROLA a página em vez de encolher a janela.
+- **No toque não havia como trocar de bloco sem abrir o inventário** — `#hotbar` era
+  `pointer-events: none` e o tablet não tem 1–9 nem scroll. A barra virou tocável, mas só a
+  faixa `.slots` recebe `pointer-events: auto`: o resto tem de deixar o arrasto de olhar
+  chegar no `#touch-look` (z-index 4, por baixo da hotbar em 5).
+- **Layout de tela pequena não tem teste unitário, mas tem verificação binária:**
+  `npm run shots:tablet` (`scripts/tablet-shots.mjs`) mede `getBoundingClientRect` contra a
+  altura da janela ("cabe / ESTOURA"), o menor alvo tocável (piso 40px) e a intersecção
+  chat × hotbar — e salva o print do lado pra conferir o resto a olho. Foi ele que pegou o
+  bug-538 e o bug-539, nenhum dos dois visível na leitura do CSS.

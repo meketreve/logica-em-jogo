@@ -1421,6 +1421,20 @@ function startGame(snap: Snapshot): void {
     selected = (selected + dir + hotbar.length) % hotbar.length;
     refreshHotbar();
   });
+  // Toque (2026-07-27, layouts mobile): tocar num slot escolhe o bloco. No
+  // tablet não existe 1–9 nem scroll do mouse, então sem isto trocar de bloco
+  // exigia abrir o inventário TODA vez. Delegação no #hotbar porque o
+  // refreshHotbar troca o innerHTML inteiro. O CSS só dá pointer-events à
+  // faixa .slots — no resto da barra o arrasto tem que chegar no #touch-look.
+  hotbarEl?.addEventListener("pointerdown", (e) => {
+    const slot = (e.target as HTMLElement | null)?.closest?.(".slot");
+    if (!slot) return;
+    const i = [...hotbarEl.querySelectorAll(".slot")].indexOf(slot);
+    if (i < 0) return;
+    e.preventDefault(); // sem clique sintetizado depois (mesmo motivo do touch.ts)
+    selected = i;
+    refreshHotbar();
+  });
 
   // inventário (cp16): grade de todos os colocáveis → slot selecionado
   inventoryPanel = new InventoryPanel(

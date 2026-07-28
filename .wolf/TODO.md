@@ -2,23 +2,36 @@
 
 > Working checklist. **STATUS.md** = handoff ("why & where we are"); **TODO.md** = "what's left to do".
 > Keep items actionable and short. Check off with `[x]`; sweep done items into STATUS.md ✅ when a phase closes.
-> Last updated: 2026-07-27 (sessão 29 — A/B do §🌬️ ferramentado, deck da CRE pronto,
-> auto-update do servidor em escopo)
+> Last updated: 2026-07-27 (sessão 31 — layouts mobile, 1ª rodada: menu, inventário/hotbar,
+> chat/HUD em 1024×600; verificação `npm run shots:tablet`)
 
 ---
 
 ## 🔥 Now (this session)
 
-- [x] **Auto-update do servidor — FEITO** (`fbbe3d0`). `git pull` no launcher, pergunta
-      antes (Enter = sim), `--ff-only`, 6 escapes, `npm install` só depois de atualizar.
-      Repo agora é **PÚBLICO** (`f6d72af` tem a licença) → clone da escola atualiza sem
-      credencial. **`client/dist` versionado** = escola não compila.
+- [x] **Layouts mobile, 1ª rodada — FEITA** (sessão 31): menu, inventário/hotbar e chat/HUD
+      em 1024×600 paisagem. Três media queries (`pointer:coarse`, `max-height:700px`,
+      paisagem baixa), hotbar tocável, chat acima do teclado virtual (`--kb` via
+      `visualViewport`), alvos de dedo com piso de 40px. Verificação nova
+      `npm run shots:tablet`. VERDE: typecheck 3/3, 358 testes, build, 15/15 medições.
+- [ ] **PLAYTEST no tablet** — o passo que headless não faz. Conferir, nessa ordem: tapa no
+      slot da hotbar troca de bloco · chat com teclado aberto · "Meus mundos" com vários
+      mundos (chegar no "voltar") · abas do inventário numa linha · F3/objetivos sem colidir
+      com a barra de botões do topo.
 - [ ] **Rodar o `.bat` no Windows uma vez.** O bloco de auto-update do `.sh` foi exercitado
       nos 8 caminhos aqui; o `.bat` NÃO — não há cmd.exe no WSL. Único jeito é duplo clique.
-- [ ] **Próximo do backlog: layouts mobile** (2º da ordem do usuário).
 
 ## ⏭️ Next (queued, ready to pick up)
 
+- [ ] **Mobile, 2ª rodada — painéis de AUTORIA** (`#painel`: quadros, objetivos, regiões) e o
+      de grupo/jogadores. O usuário deixou de fora da 1ª rodada. Seguem em
+      `width: min(580px, 94vw)` / `height: min(560px, 84vh)`; os botões internos já têm alvo
+      de 40px, mas o layout não foi revisto. O caminho que funcionou no inventário foi
+      ALARGAR em paisagem baixa, não quebrar linha.
+- [ ] **Nome do mundo truncado no DESKTOP** ("seque…", "labirin…") — a coluna do nome fica com
+      ~84px depois dos 3 botões. Em paisagem baixa já resolveu (painel de 680px). No desktop
+      resolve com UMA linha (`.menu-screen { width: min(680px, 92vw) }` sem media query), mas
+      é mudança visual não pedida numa tela de uso diário: **só com o aval do usuário.**
 - [ ] **Rodar o A/B do §🌬️ no notebook do lab** — a ferramenta ficou pronta na sessão 29:
       `?bench` e depois `?bench&semvida`, duas URLs seguidas na mesma máquina. O perfil se
       etiqueta sozinho e o lado B nasce `perf-bench-semvida-*.json`. Só vale se o relatório
@@ -37,7 +50,8 @@
       `ast-grep`/`sg` para busca ESTRUTURAL (achar call site por forma, não por texto) —
       vale instalar quando grep começar a devolver 30+ hits por consulta;
       LSP/Serena só se o projeto passar de ~300 arquivos (hoje 223, grep ganha).
-- [ ] Layouts mobile (2º da ordem do usuário)
+- [x] Layouts mobile (2º da ordem do usuário) — 1ª rodada feita na sessão 31; falta playtest
+      no tablet e os painéis de autoria (ver ⏭️ Next)
 - [ ] v2 da geração de mundo (3º da ordem do usuário)
 - [ ] Sobrevivência (fome/vida/craft) (4º da ordem do usuário) — **escopo ABERTO em
       2026-07-27** (sessão 30): decisões travadas, 9 frentes (F1 `/modo` → F9 preset) e as

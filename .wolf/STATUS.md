@@ -1,6 +1,49 @@
 # STATUS — Projeto "Lógica em Jogo" (jogo voxel educacional)
 
 > Single source of truth for resuming work. Read this FIRST when starting a session.
+> **SESSÃO 31 (2026-07-27) — LAYOUTS MOBILE, 1ª RODADA: MENU + INVENTÁRIO/HOTBAR + CHAT/HUD.**
+> Escopo escolhido pelo usuário na entrevista: essas três telas (painéis de AUTORIA ficaram de
+> fora) e régua **"os dois, Fire manda"** — 1024×600 paisagem manda, tablet maior herda.
+> **Celular foi RECUSADO** por ele; não desenhar pra ~640×360 sem pedido.
+>
+> **O ponto de partida era pior do que parecia:** `client/index.html` (que guarda TODO o CSS da
+> UI) tinha **`@media` = 0**. Nenhum breakpoint existia. O que já funcionava em tela pequena era
+> acidente de `min(920px, 92vw)`, e o `settings.uiScale` escalava **só** joystick/botões do
+> `touch.ts` — HUD, hotbar, inventário e chat eram px fixo.
+>
+> **Os 5 defeitos reais consertados** (nenhum deles óbvio na leitura do CSS):
+> 1. **Painel mais alto que a janela sumia pra CIMA** — `#menu`/`#overlay` são flex
+>    `align-items:center`, e item que estoura não rola até o topo. Em 600px isso pegava "Meus
+>    mundos" e configurações. Agora o painel se cabe sozinho (`max-height` + `overflow-y`).
+> 2. **`box-sizing` é content-box neste projeto** (bug-538): o `max-height` novo errava pela
+>    soma exata de padding+borda (580+32+2 = 614 numa janela de 600). `border-box` nas duas
+>    regras novas — os painéis de altura FIXA ficaram como estavam de propósito (o 560px foi
+>    ajustado a olho em playtest de 2026-07-20).
+> 3. **No toque não havia como trocar de bloco sem abrir o inventário** — `#hotbar` era
+>    `pointer-events:none` e tablet não tem 1–9 nem scroll. Agora tapa no slot escolhe; só a
+>    faixa `.slots` recebe o dedo (o resto deixa o arrasto de olhar chegar no `#touch-look`).
+> 4. **Teclado virtual cobria o campo do chat** — `visualViewport` é a única fonte que sabe
+>    disso (`window.innerHeight` NÃO muda quando o teclado abre). `chat.ts` publica a altura
+>    escondida em `--kb` e o CSS soma no `bottom`.
+> 5. **Log do chat caía sobre a hotbar** (bug-539) e `#hud`/`#objetivos` colidiam com o
+>    `#touch-topo`. Ambos reposicionados em `(pointer: coarse)`.
+>
+> **A jogada que mais rendeu:** a 3ª media query, `(min-width:700px) and (max-height:700px)` =
+> paisagem baixa. Ali **sobra largura e falta altura**, então o certo é **alargar** (menu
+> 460→680, inventário 580→760), não quebrar linha em duas. Isso devolveu as 6 abas do
+> inventário numa linha só, 9 colunas de bloco e tirou o nome do mundo do truncamento "seq…".
+>
+> **Verificação nova: `npm run shots:tablet`** (`scripts/tablet-shots.mjs`). Layout de tela
+> pequena não tem teste unitário, mas tem pergunta binária: mede `getBoundingClientRect` contra
+> a janela ("cabe / ESTOURA"), o menor alvo tocável (piso 40px) e a intersecção chat × hotbar —
+> e salva o print do lado. **15/15 verde em 1024×600 e em 1280×800; desktop 1920×1080 sem
+> regressão.** Foi ele que pegou os bugs 538 e 539. ⚠️ `pointer: coarse` NÃO vem de
+> `mobile:true` no CDP — quem liga é `Emulation.setEmulatedMedia`; sem isso a verificação
+> aprova tudo mentindo.
+>
+> **VERDE:** typecheck 3/3 · 358 testes · build ok. **Playtest do usuário no tablet PENDENTE** —
+> é o próximo passo, e headless não substitui (dedo real, teclado real do Android, DPI real).
+
 > **SESSÃO 30 (2026-07-27) — A/B DO §🌬️ MEDIDO (no PC de dev) E ESCOPO DA SOBREVIVÊNCIA ABERTO.**
 > **Zero linha de código.** Sessão de leitura de perfil + entrevista de escopo.
 >
@@ -301,16 +344,30 @@ Documento é o ÚLTIMO entregável, não o primeiro. Construir, não documentar.
 
 ---
 
-## 🚀 Próxima fase — LAYOUTS MOBILE (2º da ordem que o usuário fixou)
+## 🚀 Próxima fase — PLAYTEST MOBILE, e depois v2 DA GERAÇÃO
 
 A ordem do backlog está **travada pelo usuário** (sessão 29):
-**auto-update ✅ → layouts mobile ← AQUI → v2 da geração → sobrevivência.**
+**auto-update ✅ → layouts mobile (1ª rodada ✅) → v2 da geração ← AQUI → sobrevivência.**
 
-**Layouts mobile** é o próximo. O que já existe: `client/src/touch.ts` (joystick, botões de
-ação, varinha, agachar) e `settings.uiScale` (escala da UI de toque, criada por causa do AEE).
-O que falta é o **layout** — HUD, hotbar, inventário, painéis de autoria e de grupo em tela
-pequena e em paisagem. Não há entrevista de escopo feita: começar perguntando quais telas
-doem primeiro no tablet da escola (a escola usa Android + Kindle Fire, ver §7 do relatório).
+**O passo imediato é o usuário abrir o jogo num tablet.** A rodada de layouts está verde no
+headless, mas headless não tem dedo, nem teclado do Android, nem o DPI do aparelho. O que
+olhar, na ordem em que foi mexido:
+1. **Hotbar:** tocar num slot troca de bloco? (é o caminho NOVO — antes só o inventário trocava)
+2. **Chat:** com o teclado aberto, o campo continua visível? O histórico rola?
+3. **Menu → Meus mundos:** com vários mundos, dá pra chegar no "voltar" lá embaixo?
+4. **Inventário:** as 6 abas cabem numa linha? Dá pra acertar aba e slot com o dedo?
+5. **F3 (📊) e objetivos:** ainda passam por baixo da barra de botões do topo?
+
+**Achado que ficou de FORA de propósito:** o nome do mundo é truncado ("seque…", "labirin…")
+também no **desktop** — a coluna do nome fica com ~84px depois dos 3 botões. Em paisagem baixa
+já resolveu (painel de 680px); no desktop, não. Fica assim porque alargar o menu no desktop é
+mudança visual que o usuário não pediu numa tela que ele vê todo dia. **Uma linha resolve se
+ele quiser:** `.menu-screen { width: min(680px, 92vw) }` sem media query.
+
+**Ainda não tocado do escopo mobile** (o usuário não escolheu nesta rodada): os **painéis de
+autoria** (`#painel` — quadros, objetivos, regiões) e o de **grupo/jogadores**. Eles seguem em
+`width: min(580px, 94vw)` e `height: min(560px, 84vh)` com box-sizing content-box; os botões
+internos já ganharam alvo de 40px, mas o LAYOUT deles não foi revisto.
 
 ### Três pendências que não bloqueiam nada, e quem faz é o usuário
 
@@ -364,8 +421,10 @@ experimento, existe desde bug-529).
 
 1. ~~**Auto-update do servidor**~~ **FEITO** (`fbbe3d0`): `git pull` no launcher, pergunta
    antes, `--ff-only`, 6 escapes. Falta só o teste no Windows (pendência 1 acima).
-2. **Layouts mobile** ← próximo (ver acima).
-3. **v2 da geração de mundo.**
+2. ~~**Layouts mobile**~~ **1ª RODADA FEITA (sessão 31)**: menu, inventário/hotbar e chat/HUD
+   em 1024×600. Falta o **playtest no tablet** (acima) e os **painéis de autoria**, que o
+   usuário deixou de fora desta rodada.
+3. **v2 da geração de mundo** ← próximo.
 4. **Sobrevivência** (fome/vida/craft) — **escopo ABERTO na sessão 30 (2026-07-27)**, nada
    codado. Entrevista feita, decisões travadas, 9 frentes e as colisões (mundo-aula, claims,
    bench, save, protocolo) escritas em `.wolf/ROADMAP.md §🍖`. Ler de lá e começar pelo F1
@@ -458,7 +517,22 @@ npm run build       # build de produção do cliente
 npm run verify      # typecheck + testes + build (o portão antes de commitar)
 npm run smoke       # cenários de rede reais (--lista diz o que cada um prova)
 npm run bench:headless   # roda o ?bench num Chrome headless e imprime o perfil
+npm run shots:tablet     # mede+fotografa a UI em 1024×600 com pointer:coarse
 ```
+
+**Verificação de layout mobile** (precisa do `npm run dev` rodando em outro terminal):
+
+```bash
+npm run shots:tablet                       # 1024×600, Kindle Fire — a RÉGUA
+npm run shots:tablet 1280 800              # tablet Android comum
+COARSE=0 npm run shots:tablet 1920 1080    # regressão do desktop
+```
+
+Cada linha do relatório é uma medição, não uma impressão: "cabe / ESTOURA" compara
+`getBoundingClientRect` com a altura da janela, "menor alvo" tem piso de 40px, e
+"chat × hotbar" mede a intersecção dos dois retângulos. Prints em
+`.wolf/designqc-captures/tablet-<L>x<A>/` (ignorada pelo git). Numa rodada `COARSE=0` as
+linhas ✗ de joystick e alvo de dedo são ESPERADAS — só valem em aparelho de toque.
 
 **Modo benchmark (o que mandar pro PC do lab):**
 

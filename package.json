@@ -17,6 +17,7 @@
     "typecheck": "npm run typecheck -w shared && npm run typecheck -w server && npm run typecheck -w client",
     "smoke": "node scripts/smoke.mjs",
     "bench:headless": "node scripts/bench-headless.mjs",
+    "shots:tablet": "node scripts/tablet-shots.mjs",
     "verify": "npm run typecheck && npm run test && npm run build",
     "verify:all": "npm run verify && npm run smoke"
   },

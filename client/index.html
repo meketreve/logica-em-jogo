@@ -573,7 +573,9 @@
       #chat {
         position: fixed;
         left: 12px;
-        bottom: 48px;
+        /* --kb = altura que o teclado VIRTUAL escondeu da janela (chat.ts lê do
+           visualViewport). Sem teclado — e no desktop — o fallback 0px vale. */
+        bottom: calc(48px + var(--kb, 0px));
         width: min(440px, 70vw);
         font-family: ui-monospace, monospace;
         font-size: 13px;
@@ -626,6 +628,173 @@
         border-radius: 3px;
         outline: none;
         pointer-events: auto;
+      }
+
+      /* ═══ Tela pequena e toque (2026-07-27) ═══════════════════════════════
+         Régua fixada pelo usuário: Kindle Fire 1024×600 em PAISAGEM manda,
+         tablet maior herda com mais respiro. Dois eixos INDEPENDENTES:
+           (pointer: coarse)  → alvo de dedo; vale em QUALQUER tamanho de tela
+           (max-height: 700px)→ altura curta; vale mesmo com mouse
+         Separados de propósito: tablet grande é coarse e não é baixo; janela
+         de desktop espremida é baixa e não é coarse. Misturar os dois num
+         breakpoint só daria a UI errada nos dois casos.
+         `dvh` vem sempre com o par em `vh` antes — navegador sem dvh (Silk
+         velho do Fire) descarta a linha e fica com a de cima. */
+
+      /* O painel NUNCA passa da altura da tela: ele mesmo vira o scroller.
+         Sem isto, painel mais alto que a janela some pra CIMA — flex com
+         align-items:center empurra o excesso pra fora da área rolável, e não
+         há como chegar no topo (a tela "Meus mundos" e a de configurações
+         estouram 600px de altura). */
+      .menu-screen {
+        /* border-box porque o padding (28px) e a borda entram no max-height —
+           com content-box o painel estourava a tela em 30px mesmo capado */
+        box-sizing: border-box;
+        max-height: calc(100vh - 20px);
+        max-height: calc(100dvh - 20px);
+        overflow-y: auto;
+        overscroll-behavior: contain;
+      }
+      /* o F3 é longo: em 600px de altura ele passava do rodapé sem rolagem */
+      #hud {
+        box-sizing: border-box;
+        max-height: calc(100vh - 16px);
+        max-height: calc(100dvh - 16px);
+        overflow-y: auto;
+        overscroll-behavior: contain;
+      }
+
+      @media (max-height: 700px) {
+        /* UM scroller só: rolagem aninhada no dedo é loteria — o painel já
+           rola inteiro (regra acima), então os miolos param de rolar sozinhos */
+        #menu-world-list,
+        #overlay-config-body {
+          max-height: none;
+        }
+        .menu-screen {
+          padding: 16px 18px;
+          gap: 0.55rem;
+        }
+        .menu-screen h1 {
+          font-size: 1.5rem;
+        }
+        #overlay h1 {
+          font-size: 1.25rem;
+        }
+        .menu-screen h2 {
+          font-size: 1.15rem;
+        }
+        .menu-screen button {
+          font-size: 0.98rem;
+          padding: 9px 12px;
+        }
+        /* o chat ABERTO reexibe o histórico inteiro (regra .msg.old) — em
+           600px isso subia até o topo da tela. Vira caixa rolável. */
+        #chat.open #chat-log {
+          max-height: 30vh;
+          max-height: 30dvh;
+          overflow-y: auto;
+          overscroll-behavior: contain;
+          pointer-events: auto;
+        }
+      }
+
+      /* PAISAGEM baixa (1024×600 é o caso): sobra largura e falta altura. Com
+         os 460px de retrato o nome do mundo era truncado pra "seq…" — os
+         botões de alvo de dedo comem a linha. Alargar resolve sem quebrar a
+         linha em duas (que gastaria a altura que justamente falta). */
+      @media (min-width: 700px) and (max-height: 700px) {
+        .menu-screen {
+          width: min(680px, 92vw);
+        }
+        /* mesma troca no inventário: mais largura = as 6 abas numa linha só e
+           mais colunas de bloco, devolvendo altura que em 600px é escassa.
+           Os painéis de autoria (#painel) ficam de fora desta rodada. */
+        #inventario {
+          width: min(760px, 94vw);
+        }
+      }
+
+      @media (pointer: coarse) {
+        /* alvo de dedo: piso de 40px. Os botões de .menu-screen já passavam
+           disso; os pequenos (linha de mundo, aba do inventário, F3) não. */
+        .world-row button,
+        #painel button,
+        #jogadores button,
+        #hud button {
+          min-height: 40px;
+          padding: 8px 12px;
+        }
+        .inv-aba {
+          min-height: 40px;
+          padding: 8px 12px !important;
+        }
+        .menu-screen button {
+          min-height: 46px;
+        }
+        .menu-screen input[type="text"],
+        .menu-screen input[type="password"],
+        .menu-screen select {
+          min-height: 42px;
+        }
+
+        /* #touch-topo (touch.ts) mora no topo-CENTRO e mede ~460px: o F3
+           (esquerda) e os objetivos (direita) passavam por baixo dele. */
+        #hud,
+        #objetivos {
+          top: calc(58px + env(safe-area-inset-top, 0px));
+        }
+        #hud {
+          max-height: calc(100vh - 66px);
+          max-height: calc(100dvh - 66px);
+        }
+        #objetivos {
+          max-height: 42vh;
+          max-height: 42dvh;
+          overflow: hidden;
+        }
+
+        /* Hotbar TOCÁVEL (o pointerdown é ouvido no main.ts). No tablet não
+           existe 1–9 nem scroll do mouse: sem isto, trocar de bloco exigia
+           abrir o inventário toda vez. Só a faixa .slots recebe o dedo — o
+           resto da barra tem que deixar o arrasto de olhar passar pro
+           #touch-look, que fica ABAIXO dela no z-index. */
+        #hotbar {
+          bottom: calc(12px + env(safe-area-inset-bottom, 0px));
+        }
+        #hotbar .slots {
+          pointer-events: auto;
+        }
+        #hotbar .slot {
+          width: 52px;
+          padding: 6px 0 7px;
+        }
+        #hotbar .slot img {
+          width: 30px;
+          height: 30px;
+        }
+        #hotbar .slot small {
+          font-size: 11px;
+        }
+        /* a faixa de hotbar do inventário é o MESMO gesto: mesmos tamanhos */
+        .inv-slot {
+          width: 54px;
+          min-height: 46px;
+        }
+        .inv-slot img {
+          width: 30px;
+          height: 30px;
+        }
+
+        /* o chat saía por cima do joystick (left:20px, 128px × --ts, em
+           touch.ts) e do topo da hotbar, que aqui é ~93px de altura com os
+           slots de dedo. Começa depois do joystick e acima da barra; --ts tem
+           fallback 1 porque o CSS do toque só é injetado em aparelho de toque. */
+        #chat {
+          left: calc(40px + 128px * var(--ts, 1));
+          bottom: calc(112px + var(--kb, 0px));
+          width: min(440px, 52vw);
+        }
       }
     </style>
   </head>

@@ -52,8 +52,11 @@ export function solicitarTelaCheia(): void {
 // --ts = escala da UI de toque (settings.uiScale, aplicada por setScale). Os
 // TAMANHOS escalam por calc() — evito transform:scale() porque o joystick lê
 // getBoundingClientRect e o polegar se posiciona por px reais.
+// Mora no :root (2026-07-27, layouts mobile) e não mais em #touch-ui: o #chat
+// do index.html precisa da MESMA escala pra desviar do joystick, e uma var
+// declarada em #touch-ui não é visível fora daquela subárvore.
 const CSS = `
-#touch-ui { --ts: 1; }
+:root { --ts: 1; }
 #touch-ui, #touch-ui * { touch-action: none; user-select: none; -webkit-user-select: none; }
 #touch-look { position: fixed; inset: 0; z-index: 4; }
 #touch-joy {
@@ -211,7 +214,8 @@ export class TouchControls {
   /** Escala da UI de toque (settings.uiScale) — muda o tamanho de joystick e
    *  botões via a var CSS `--ts`. Aplicada no boot e quando a config muda. */
   setScale(scale: number): void {
-    this.root.style.setProperty("--ts", String(scale));
+    // no :root, não no #touch-ui — ver a nota do CSS acima (o #chat lê daqui)
+    document.documentElement.style.setProperty("--ts", String(scale));
   }
 
   /** Mostra/esconde a UI de toque (main.ts decide junto com o overlay). */

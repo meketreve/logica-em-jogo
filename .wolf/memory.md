@@ -671,3 +671,36 @@ vsync; falta a rodada do lab. (2) Entrevista de escopo da SOBREVIVÊNCIA (4 perg
 decisões travadas e 9 frentes escritas em `.wolf/ROADMAP.md §🍖`, incluindo o registro de
 regras de mundo (`/regra`, molde do `/gamerule`) pedido pelo usuário. Ordem da fila inalterada:
 layouts mobile segue sendo o próximo.
+
+## Session: 2026-07-27 23:31
+
+| Time | Action | File(s) | Outcome | ~Tokens |
+|------|--------|---------|---------|--------|
+| 23:38 | Edited client/index.html | 5→7 lines | ~80 |
+| 23:38 | Edited client/index.html | modified media() | ~1428 |
+| 23:38 | Edited client/src/touch.ts | 5→8 lines | ~135 |
+| 23:38 | Edited client/src/touch.ts | modified setScale() | ~54 |
+| 23:39 | Edited client/src/chat.ts | added 1 condition(s) | ~342 |
+| 23:39 | Edited client/src/chat.ts | 2→3 lines | ~30 |
+| 23:39 | Edited client/src/chat.ts | 4→5 lines | ~73 |
+| 23:39 | Edited client/src/chat.ts | added 1 condition(s) | ~170 |
+| 23:39 | Edited client/src/main.ts | added optional chaining | ~248 |
+| 23:42 | Edited client/index.html | 13→17 lines | ~171 |
+| 23:43 | Edited client/index.html | modified baixa() | ~217 |
+| 23:43 | Edited client/index.html | reduced (-7 lines) | ~20 |
+| 23:45 | Edited client/index.html | 7→9 lines | ~126 |
+| 23:46 | Edited client/index.html | modified and() | ~115 |
+| 23:49 | Edited package.json | 1→2 lines | ~32 |
+| 23:50 | Edited scripts/tablet-shots.mjs | expanded (+16 lines) | ~332 |
+| 23:50 | Edited scripts/tablet-shots.mjs | modified designqc() | ~50 |
+
+## Sessão 31 (2026-07-27) — layouts mobile, 1ª rodada
+
+| 23:0x | entrevista de escopo mobile (2 perguntas) | — | usuário: menu + inventário/hotbar + chat/HUD; régua "os dois, Fire manda"; celular RECUSADO | ~2k |
+| 23:1x | levantamento: `@media` = 0 no index.html, uiScale só escala touch.ts | client/index.html, touch.ts | 5 defeitos reais mapeados | ~8k |
+| 23:2x | 3 media queries + box-sizing + alvos de dedo | client/index.html | menu/inventário/chat/HUD/hotbar em 1024×600 | ~6k |
+| 23:2x | `--ts` de #touch-ui → :root (o #chat precisa do valor) | client/src/touch.ts | chat desvia do joystick | ~1k |
+| 23:3x | `--kb` via visualViewport + scroll do log pro fim | client/src/chat.ts | campo do chat sobrevive ao teclado virtual | ~2k |
+| 23:3x | hotbar tocável (delegação de pointerdown na faixa .slots) | client/src/main.ts | tablet troca de bloco sem abrir inventário | ~1k |
+| 23:4x | verificação headless nova (CDP + setEmulatedMedia coarse) | scripts/tablet-shots.mjs, package.json | 15/15 medições verdes; pegou bug-538 e bug-539 | ~9k |
+| 23:5x | verify + regressão desktop 1920×1080 e tablet 1280×800 | — | typecheck 3/3, 358 testes, build ok | ~3k |

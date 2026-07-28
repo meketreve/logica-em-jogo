@@ -12,6 +12,32 @@ import { candidatos } from "./commands";
 const MESSAGE_VISIBLE_MS = 10_000;
 const MAX_MESSAGES = 50;
 
+/**
+ * Teclado VIRTUAL do tablet (2026-07-27, layouts mobile): o campo do chat mora
+ * em `bottom: 48px`, e em paisagem o teclado do Android come metade dos 600px
+ * de altura — o campo ficava DEBAIXO dele, digitando às cegas.
+ *
+ * `visualViewport` é a única fonte que sabe disso: `window.innerHeight` não
+ * muda quando o teclado abre (é o viewport de LAYOUT), mas `visualViewport
+ * .height` encolhe. A diferença é o que o teclado escondeu; publicamos em
+ * `--kb` no :root e o `#chat` do index.html soma isso no `bottom`.
+ *
+ * Sem `visualViewport` (desktop antigo) a var nunca é escrita e o fallback
+ * `var(--kb, 0px)` do CSS vale — nada muda.
+ */
+function acompanharTecladoVirtual(): void {
+  const vv = window.visualViewport;
+  if (!vv) return;
+  const aplicar = (): void => {
+    // offsetTop entra porque o iOS ROLA a página em vez de encolher a janela
+    const escondido = Math.max(0, window.innerHeight - vv.height - vv.offsetTop);
+    document.documentElement.style.setProperty("--kb", `${Math.round(escondido)}px`);
+  };
+  vv.addEventListener("resize", aplicar);
+  vv.addEventListener("scroll", aplicar);
+  aplicar();
+}
+
 export class ChatUi {
   private readonly root = document.getElementById("chat");
   private readonly log = document.getElementById("chat-log");
@@ -29,6 +55,7 @@ export class ChatUi {
   ) {
     if (!this.field) return;
     this.field.maxLength = MAX_CHAT_LENGTH;
+    acompanharTecladoVirtual();
     this.field.addEventListener("keydown", (e) => {
       e.stopPropagation(); // digitar no chat NUNCA vira input do jogo (WASD, hotbar…)
       if (e.code === "Tab") {
@@ -60,6 +87,7 @@ export class ChatUi {
     this.field.classList.remove("hidden");
     this.root?.classList.add("open"); // histórico inteiro visível enquanto digita
     this.field.focus();
+    this.scrollarFim(); // em tela baixa o log vira caixa rolável: abre no fim
     this.onToggle(true);
   }
 
@@ -139,6 +167,17 @@ export class ChatUi {
     el.textContent = `<${author}> ${text}`;
     this.log.appendChild(el);
     while (this.log.childElementCount > MAX_MESSAGES) this.log.firstElementChild?.remove();
+    this.scrollarFim();
     setTimeout(() => el.classList.add("old"), MESSAGE_VISIBLE_MS);
+  }
+
+  /**
+   * Mantém a mensagem NOVA à vista. Em tela alta o log não rola (a caixa
+   * cresce pra cima e `scrollHeight === clientHeight`), então isto é no-op;
+   * em tela baixa a regra `#chat.open #chat-log` do index.html limita a
+   * altura e a rolagem passa a existir.
+   */
+  private scrollarFim(): void {
+    if (this.log) this.log.scrollTop = this.log.scrollHeight;
   }
 }
