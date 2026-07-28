@@ -3,14 +3,6 @@
 > Chronological action log. Hooks and AI append to this file automatically.
 > Old sessions are consolidated by the daemon weekly.
 
-## Session: 2026-07-26 13:10
-
-| Time | Action | File(s) | Outcome | ~Tokens |
-|------|--------|---------|---------|--------|
-| 14:05 | backlog: tela de carregamento (bits/s, chunks, spinner idle + progresso real, suprimir menu Esc) | .wolf/ROADMAP.md, .wolf/TODO.md | anotado, não iniciado | ~4k |
-| 14:20 | backlog: recarregar coluna faltando/corrompida + causa raiz do bug-211 (radius só no join) | .wolf/ROADMAP.md, .wolf/TODO.md, .wolf/buglog.json | anotado, não corrigido | ~6k |
-| 14:35 | handoff da sessão 23: STATUS (bloco sessão 23 + próxima fase = §🔁 antes de §🕐), TODO reordenado, cerebrum ganhou "Streaming F2 — quem sabe o quê" | .wolf/STATUS.md, .wolf/TODO.md, .wolf/cerebrum.md | pronto pro /clear | ~8k |
-
 ## Session: 2026-07-26 13:36
 
 | Time | Action | File(s) | Outcome | ~Tokens |
@@ -775,3 +767,5 @@ layouts mobile segue sendo o próximo.
 | 09:14 | Edited shared/src/worldgen.ts | modified for() | ~238 |
 | 09:14 | Edited shared/src/worldgen.test.ts | modified for() | ~273 |
 | 09:25 | SESSÃO 32 fechada: §💡 luz voxel completa (céu+tocha, 100% cliente, zero protocolo) + §🏔️ cavernas (2 ruídos 3D, secas sob o mar). 3 medições mudaram decisão: luz 18,4→2,48 ms/coluna, worldgen 2,63→28,6→3,49 ms/coluna, densidade varia 2,9-7,3% por seed. Verificação nova `npm run shots:luz`. 4 bugs logados (540-543). | luz.ts, mesher.ts, luzShader.ts, worldgen.ts, main.ts, chunks.ts, luz-shots.mjs | verde: typecheck 3/3, 388 testes, build, 6/6 smokes, 5/5 luz | ~2 commits |
+| 09:22 | Session end: 89 writes across 17 files (luz.ts, index.ts, luz.test.ts, mesher.ts, meshPool.ts) | 18 reads | ~158770 tok |
+| 09:45 | Consolidou cerebrum.md 20 269 → 9 964 tokens (hook acusou estouro do orçamento de 10k): blocos por sessão condensados em seções temáticas, Decision Log virou índice, texto integral preservado em history.md. User Preferences e Do-Not-Repeat mantidos (só reescritos mais densos). | .wolf/cerebrum.md, .wolf/history.md | dentro do orçamento, nenhuma regra perdida | ~9k tok economizados/sessão |

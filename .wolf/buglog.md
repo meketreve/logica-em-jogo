@@ -5,10 +5,6 @@
 
 | id | tags | file | error (truncated) |
 |---|---|---|---|
-| bug-398 | auto-detected,null-safety,ts | shared/src/world.ts | Null/undefined access in  |
-| bug-399 | auto-detected,wrong-reference,ts | shared/src/worldgen.ts | Wrong reference: Bioma should be ArvoreTipo |
-| bug-400 | auto-detected,logic-fix,ts | shared/src/mesher.ts | Wrong condition in logic |
-| bug-401 | auto-detected,type-fix,ts | shared/src/worldgen.test.ts | Type error |
 | bug-402 | auto-detected,guard-clause,ts | shared/src/protocol.ts | Missing guard clause |
 | bug-403 | auto-detected,type-fix,ts | shared/src/worldgen.ts | Type error |
 | bug-404 | auto-detected,guard-clause,ts | shared/src/session.ts | Missing guard clause |
@@ -205,3 +201,7 @@
 | bug-537 | instrumentacao,perfil,bench,ab-test,semvida,§🌬️,fonte-unica | client/src/bench.ts | (pego antes de rodar) o perfil de `?bench&semvida` ia gravar `config.nuvens: tru |
 | bug-538 | css,box-sizing,max-height,mobile,menu,layout,tablet | client/index.html | painel do menu 'Meus mundos' media 614px numa janela de 600px mesmo com `max-hei |
 | bug-539 | css,mobile,chat,hotbar,sobreposicao,toque,tablet | client/index.html | no tablet o log do chat caia por cima da hotbar (chat 339..552, hotbar 495..588  |
+| bug-540 | verificacao,headless,cdp,webgl,preservedrawingbuffer,screenshot,luz,falso-positivo | scripts/luz-shots.mjs | a verificacao da luz (scripts/luz-shots.mjs) mediu luminancia 0.0 ao meio-dia E  |
+| bug-541 | desempenho,worldgen,cavernas,ruido,streaming,smoke,mundo-lazy | shared/src/worldgen.ts | smoke `pedir-coluna` falhou: 'streaming passou do RAIO_PADRAO: anel 4 (esperado  |
+| bug-542 | desempenho,luz,bfs,main-thread,streaming,orcamento-por-frame | shared/src/luz.ts | (pego na medicao, antes de ir pro cliente) acender uma coluna de luz custava 18, |
+| bug-543 | spawn,cavernas,worldgen,determinismo,preset | shared/src/world.ts | (latente, introduzido pelas cavernas e corrigido na mesma sessao) uma boca de ca |

@@ -83,34 +83,6 @@
 > **VERDE:** typecheck 3/3 · 358 testes · build ok. **Playtest do usuário no tablet PENDENTE** —
 > é o próximo passo, e headless não substitui (dedo real, teclado real do Android, DPI real).
 
-> **SESSÃO 30 (2026-07-27) — A/B DO §🌬️ MEDIDO (no PC de dev) E ESCOPO DA SOBREVIVÊNCIA ABERTO.**
-> **Zero linha de código.** Sessão de leitura de perfil + entrevista de escopo.
->
-> **1. O A/B do §🌬️ rodou** — o usuário executou `?bench` e `?bench&semvida` no PC de dev. Os
-> dois perfis estão em `profiles/` (`…52k0.json` = A, `perf-bench-semvida-…y9ew.json` = B) e as
-> 3 etiquetas conferem. **FPS 60 × 60 e p50/p95 16,7/16,9 idênticos — vsync, 11 ms de folga.**
-> O sinal está na GPU: **méd 5,16 → 4,62 ms, p95 8,81 → 8,19** ⇒ nuvens+balanço custam
-> **≈0,54 ms de GPU (−10% méd)**, acima do ruído de 1–2%. Draws/tris iguais nos dois = A/B
-> limpo. **A rodada que decide FPS ainda é a do lab** (GPU p95 lá já bate 16,8–19,6 ms contra
-> 16,7 de orçamento) — a pendência 2 abaixo continua de pé.
->
-> **2. Escopo da SOBREVIVÊNCIA aberto** (o usuário pediu; a ordem da fila **não mudou**, ela
-> segue 4ª). Tudo em `.wolf/ROADMAP.md §🍖`: 6 decisões travadas, 9 frentes (F1 `/modo` +
-> registro de regras → F9 preset de mundo), onde cada peça mora, as colisões com o que já
-> existe e o que prova cada frente. Resumo do que ficou decidido: **lite agora** com toda perda
-> de vida por uma função só (`aplicarDano`, pra mob/PvP entrarem pela mesma porta) · **mobs
-> hostis só em mundo de exploração**, nunca em aula de matéria · **craft por LISTA** (grade 3×3
-> descartada: tablet/Kindle Fire) · **`/modo`** mundo + `@aluno` + `all` + `eu` · **`/regra`**
-> no molde do `/gamerule`, com `manter-inventario` **LIGADO** por padrão e `/pvp` como atalho
-> da regra `pvp`. **Nenhuma decisão pendente** — quem pegar a frente não reabre nada.
->
-> **Achados do levantamento que mudaram o desenho:** a banda de itens ≥ 900 já existe
-> (`ITEM_BALDE_VAZIO=900`) e `isPlaceable` já a recusa → comida/ferramenta não precisam de
-> sistema novo · `rules.ts` serve pra plantação sem motor novo · `session.ts` tem 137 KB, então
-> a lógica nova mora em módulos PUROS de `/shared` e a session só orquestra · **não existe
-> nenhum bloco contêiner** em `blocks.ts`, por isso o ramo "morte sem manter-inventario" é
-> "os itens somem" (baú/item no chão são orçamento do F8).
-
 ---
 
 ## 🎯 O que é o projeto

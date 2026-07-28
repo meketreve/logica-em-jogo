@@ -4,6 +4,34 @@
 
 ## Session Journal
 
+> **SESSÃO 30 (2026-07-27) — A/B DO §🌬️ MEDIDO (no PC de dev) E ESCOPO DA SOBREVIVÊNCIA ABERTO.**
+> **Zero linha de código.** Sessão de leitura de perfil + entrevista de escopo.
+>
+> **1. O A/B do §🌬️ rodou** — o usuário executou `?bench` e `?bench&semvida` no PC de dev. Os
+> dois perfis estão em `profiles/` (`…52k0.json` = A, `perf-bench-semvida-…y9ew.json` = B) e as
+> 3 etiquetas conferem. **FPS 60 × 60 e p50/p95 16,7/16,9 idênticos — vsync, 11 ms de folga.**
+> O sinal está na GPU: **méd 5,16 → 4,62 ms, p95 8,81 → 8,19** ⇒ nuvens+balanço custam
+> **≈0,54 ms de GPU (−10% méd)**, acima do ruído de 1–2%. Draws/tris iguais nos dois = A/B
+> limpo. **A rodada que decide FPS ainda é a do lab** (GPU p95 lá já bate 16,8–19,6 ms contra
+> 16,7 de orçamento) — a pendência 2 abaixo continua de pé.
+>
+> **2. Escopo da SOBREVIVÊNCIA aberto** (o usuário pediu; a ordem da fila **não mudou**, ela
+> segue 4ª). Tudo em `.wolf/ROADMAP.md §🍖`: 6 decisões travadas, 9 frentes (F1 `/modo` +
+> registro de regras → F9 preset de mundo), onde cada peça mora, as colisões com o que já
+> existe e o que prova cada frente. Resumo do que ficou decidido: **lite agora** com toda perda
+> de vida por uma função só (`aplicarDano`, pra mob/PvP entrarem pela mesma porta) · **mobs
+> hostis só em mundo de exploração**, nunca em aula de matéria · **craft por LISTA** (grade 3×3
+> descartada: tablet/Kindle Fire) · **`/modo`** mundo + `@aluno` + `all` + `eu` · **`/regra`**
+> no molde do `/gamerule`, com `manter-inventario` **LIGADO** por padrão e `/pvp` como atalho
+> da regra `pvp`. **Nenhuma decisão pendente** — quem pegar a frente não reabre nada.
+>
+> **Achados do levantamento que mudaram o desenho:** a banda de itens ≥ 900 já existe
+> (`ITEM_BALDE_VAZIO=900`) e `isPlaceable` já a recusa → comida/ferramenta não precisam de
+> sistema novo · `rules.ts` serve pra plantação sem motor novo · `session.ts` tem 137 KB, então
+> a lógica nova mora em módulos PUROS de `/shared` e a session só orquestra · **não existe
+> nenhum bloco contêiner** em `blocks.ts`, por isso o ramo "morte sem manter-inventario" é
+> "os itens somem" (baú/item no chão são orçamento do F8).
+
 > **SESSÃO 29 (2026-07-27) — A/B FERRAMENTADO, DECK DA CRE, AUTO-UPDATE DO LAUNCHER.**
 > O usuário escolheu: relatório **sem data** (vai apresentar informalmente pra CRE antes da
 > apresentação formal), **ponto 2** (o número do §🌬️) e **ponto 4** com ordem fixada —
@@ -1400,6 +1428,14 @@
 > segue ADIADO — sem gatilho.**
 
 ## Action Log
+
+## Session: 2026-07-26 13:10
+
+| Time | Action | File(s) | Outcome | ~Tokens |
+|------|--------|---------|---------|--------|
+| 14:05 | backlog: tela de carregamento (bits/s, chunks, spinner idle + progresso real, suprimir menu Esc) | .wolf/ROADMAP.md, .wolf/TODO.md | anotado, não iniciado | ~4k |
+| 14:20 | backlog: recarregar coluna faltando/corrompida + causa raiz do bug-211 (radius só no join) | .wolf/ROADMAP.md, .wolf/TODO.md, .wolf/buglog.json | anotado, não corrigido | ~6k |
+| 14:35 | handoff da sessão 23: STATUS (bloco sessão 23 + próxima fase = §🔁 antes de §🕐), TODO reordenado, cerebrum ganhou "Streaming F2 — quem sabe o quê" | .wolf/STATUS.md, .wolf/TODO.md, .wolf/cerebrum.md | pronto pro /clear | ~8k |
 
 ## Session: 2026-07-26 12:12
 
@@ -5265,3 +5301,453 @@ regra automática (areia caindo não é grief). NÚMEROS a confirmar: MAX_CLAIM_
   overflow próprio (menu, painéis): o gesto consulta touch-action só do alvo
   até o elemento que ROLA — body fica fora da cadeia. Mata pull-to-refresh e
   scroll da página sem quebrar os menus.
+
+## Cerebrum arquivado (2026-07-28, sessão 32) — blocos por sessão, texto integral
+
+> Consolidação do cerebrum de 20,3k → alvo 10k tokens. Estes blocos foram CONDENSADOS
+> nas seções temáticas do `cerebrum.md`; o texto completo (narrativa, números, contexto
+> de cada sessão) fica aqui. Regra acionável continua lá — isto é a memória longa.
+
+## Key Learnings — perfilação comparável (2026-07-26, sessão 26)
+
+- **Modo `?bench` (`client/src/bench.ts`) é como se compara MÁQUINA com máquina.**
+  Abre mundo de seed fixa sem menu, teleporta, voa trajeto fixo, exporta sozinho.
+  Antes disso todo perfil dependia de a pessoa voar igual nos dois PCs — e não voa.
+  `npm run bench:headless` roda o mesmo caminho num Chrome headless por CDP.
+- **Trajeto de benchmark é `pos = f(t)`, NUNCA integração por frame.** Com
+  `pos += v·dt` a máquina lenta percorre menos terreno e ganha FPS de graça: o
+  teste premiaria justamente o PC ruim. E a velocidade é constante FIXA (18 b/s),
+  não "uma volta no tempo disponível" — senão `?bench=60` seria mais leve que
+  `?bench=30` e os dois números não comparariam.
+- **Benchmark tem que sobrescrever a config do navegador (em memória, sem salvar).**
+  `raioRender`/`meshMsPorFrame`/`pixelRatioCap`/`fov` moram no localStorage de cada
+  PC; sem travar isso o "PC do lab está lento" pode ser só raio 12 contra raio 6.
+- **Teleporte contamina telemetria acumulada.** Todo salto (ir pro início do
+  trajeto, voltar pro ponto de partida na troca de fase) entra em
+  `distanciaPercorrida` e dispara rajada de streaming. Ao teleportar de propósito,
+  sincronizar `posAnt*` na hora e nunca voltar pro início no meio da medição
+  (bug-525).
+- **Percentil esconde a FORMA — exportar histograma junto.** p95 igual pode ser
+  "tudo em 20 ms" ou "metade em 10 e metade em 40" (bimodal): problemas diferentes.
+- **Campo novo em mensagem do servidor entra OPCIONAL no `parseServerMessage`.**
+  Host de versão antiga não manda; se o parse exigir, o cliente descarta a mensagem
+  INTEIRA (perderia `tickAvgMs` por causa de um número de diagnóstico).
+- **Tempo de GPU (`EXT_disjoint_timer_query_webgl2`) não é verificável headless:**
+  SwiftShader nem expõe a extensão (conferido). Por isso o caminho inteiro vive em
+  try/catch que DESLIGA a medição — perfilação não pode derrubar o loop de render.
+  Uma consulta `TIME_ELAPSED_EXT` por vez; o resultado chega alguns frames depois.
+- **O `?bench` foi VALIDADO como instrumento (2026-07-27):** duas rodadas na mesma
+  máquina deram p50/p95 idênticos, distância e colunas novas iguais e **draw calls
+  e triângulos idênticos** (mesmo terreno nos mesmos instantes); remesh, GPU e carga
+  variaram 0,6–2,7%. **Ruído ≈ 1–2%** — diferença acima disso entre PCs é sinal.
+  Sem essa checagem de repetibilidade, o número do lab seria anedota.
+- **Perfil do bench entra pelo HOST por `POST /perfil`, não por WebSocket.** O bench
+  roda em singleplayer (Web Worker): não há socket. A página vem do host, então o
+  POST de mesma origem grava em `profiles/` (`server/src/perfis.ts`, prefixo
+  `perf-bench-` quando o payload tem `meta.bench`). Sem host, cai no download.
+- **Verificação headless que precisa LER dado (não olhar pixel) = CDP.** Chrome com
+  `--remote-debugging-port`, `fetch /json/list`, WebSocket global do Node, e
+  `Runtime.evaluate` lendo uma variável que o cliente publica (`window.__benchPerfil`).
+  Zero dependência nova. Screenshot só serve pra tela; número sai por aqui.
+
+## Key Learnings — material de apresentação (2026-07-27, sessão 29)
+
+- **A máquina não tem PIL, imagemagick, ffmpeg nem pandoc/libreoffice.** Pra converter
+  imagem, o Chrome do puppeteer serve: página com o `<img>` em tamanho fixo +
+  `Page.captureScreenshot { format:"jpeg", quality }` devolve o base64 direto na
+  resposta CDP (sem arquivo intermediário). 2 MB de PNG → 473 KB de JPEG.
+  Receita em `scratchpad/png2jpg.mjs` da sessão 29.
+  ⚠️ Dois detalhes que custaram uma rodada cada: (1) a página tem de ser ARQUIVO
+  (`file://…html`) — de `data:` URL a origem é opaca e o `file://` da imagem não
+  carrega, o screenshot sai preto (todos com o mesmo tamanho, foi o sintoma);
+  (2) `overflow:hidden` no html/body, senão as barras de rolagem entram na captura.
+- **HTML autocontido com base64: guardar os data URI num mapa `IMGS` no `<script>`
+  e usar `<img data-img="chave">`.** Com 100 KB de base64 no meio do corpo, nenhuma
+  busca de texto casa em volta da imagem e o arquivo fica ineditável por Edit.
+  Continua autocontido — só muda de lugar.
+- **`registros/prints/06-hud-f3.png` NÃO vai em material de divulgação:** foi capturado
+  em render de software e mostra `FPS 8` na tela. Num slide que afirma que os aparelhos
+  da escola dão conta, a imagem contradiz o texto no projetor. (O README dos prints já
+  avisava; o aviso foi lido tarde.)
+
+## Key Learnings — vento e vida ambiental (2026-07-27, sessão 28)
+
+- **Tile direcional num cubo precisa de escolha POR FACE, não por célula.** O
+  tile é uma imagem de 2 eixos e cada face amarra esses eixos a direções de mundo
+  diferentes: no topo u/v seguem x/z; na face de baixo seguem x/z invertidos; nas
+  LATERAIS um dos eixos é o VERTICAL. Um tile só pra célula sai certo no topo e
+  torto no resto. `FACE_BASES` (derivado de FACES, não escrito à mão) dá o eixo
+  de mundo de u e de v por face; projetar a direção desejada nele resolve.
+- **Rotação fixa por face NÃO conserta tile direcional** — parece que sim quando
+  se testa uma direção só. Prova numérica: com fluxo pro NORTE as 4 laterais
+  mostram a onda descendo; com fluxo pro LESTE elas já mostram horizontal.
+  Nenhuma rotação constante acerta os dois. Quando um relato de playtest vier em
+  forma de "rotaciona 90 aqui, 180 ali", DERIVAR a tabela numericamente antes de
+  aplicar: pode ser sintoma de um mapeamento faltando, não de um offset.
+- **Animação de tile do atlas: `putImageData`, não `fillRect` por pixel.** A
+  versão antiga montava uma string `rgb(r,g,b)` e trocava o `fillStyle` a cada
+  pixel — 256 strings alocadas e reparseadas por repintura. Com os 9 tiles de
+  água da regra de correnteza seriam 2 304. Escrever no buffer e mandar UM
+  `putImageData` por retângulo contíguo é ordens de grandeza mais barato — e por
+  isso os tiles de um mesmo grupo animado precisam ficar contíguos numa LINHA.
+- **Tiles animados irmãos precisam do MESMO salt de ruído.** Os 9 tiles de água
+  compartilham `AGUA_SALT`; se cada um usasse o próprio índice, o grão mudaria
+  junto com a direção e a água "piscaria" de padrão ao trocar de setor.
+- **`texture.needsUpdate` reenvia o atlas INTEIRO** (256² = 262 KB), não só o
+  tile mexido. Logo o que importa é a TAXA de repintura, não quantos tiles se
+  repintou. Dois relógios independentes somam taxas — daí o teto de 12/s.
+- **Teste que compara `.a` de um par interpolado é frágil.** `ondaAguaDoVento`
+  faz `floor` + mistura (precisa do par pro crossfade) e `setorDaDirecao` faz
+  `round`; na fronteira exata de setor o float cai em `mistura ≈ 1`, então a onda
+  EFETIVA é a certa e a `.a` não. Asserção tem de olhar o vizinho mais pesado.
+
+- **Bloco NOVO toca 9 lugares.** Checklist que a grama alta cobrou (bug-530):
+  (1) `BlockId`, (2) **`MAX_BLOCK_ID`** ← o esquecido, (3) `TILE`, (4) `paint*` no
+  atlas, (5) `BLOCK_TILES` (só pro ícone 2D da hotbar), (6) forma no `emitShape`,
+  (7) helpers de `blocks.ts` (`isFullCube`/`isSolidBlock`/`precisaApoio`/
+  `isReplaceable`), (8) `blocksUi`, (9) `worldgen`. Pular o (2) faz o bloco
+  aparecer no inventário e o servidor recusar o place.
+- **Convenção de UV do topo do bloco: `u = 1 − x`, `v = z`** (FACES/FACE_UVS do
+  mesher). Com o canvas 2D tendo y pra baixo, o canvas do atlas anda ao
+  CONTRÁRIO do mundo nos DOIS eixos. Qualquer animação de textura que precise
+  seguir uma direção de mundo (correnteza) tem de negar os dois. Travado em
+  `ondaAguaDoVento` + teste de sinal em `vento.test.ts`.
+- **Onda de textura tem de ter vetor INTEIRO** pra fechar no tile de 16 px. Um
+  `sin((x+y)*0.9)` não fecha e mostra costura de bloco pra bloco. Por isso a
+  direção da água vive em 8 setores, e a virada entre setores é apagada
+  interpolando os dois vizinhos (senão dá "pop" a cada ~37 s de giro).
+- **`onBeforeCompile` > ShaderMaterial** pra enxertar efeito no terreno: o
+  material continua MeshLambertMaterial de verdade (luz, névoa, cutout, sombra
+  do three seguem funcionando) e o enxerto é um `replace` em `#include
+  <begin_vertex>`. Uniforms compartilhados por objeto literal — atualizar o
+  `.value` 1×/frame não recompila nada.
+- **Balanço de folha precisa de frequência ESPACIAL baixa** (0,16 rad/bloco).
+  Blocos de folha vizinhos são cubos independentes: se cada um se deslocar
+  diferente, a copa abre fresta. A 0,16 o desencontro entre vizinhos fica em
+  ~0,2 px de tela.
+- **Atributo por vértice do mesher atravessa 5 arquivos**: `ChunkGeometry` →
+  `meshVizinhanca` (empurrar em PARALELO a `positions`) → `meshWorker` (incluir
+  na lista de transfer!) → `ResultadoMesh` → `chunks.aplicar` + a constante
+  `VAZIA`. Esquecer o transfer não quebra typecheck — copia em vez de mover.
+- **Teste de "não mudou" compara com o valor ANTERIOR, nunca com constante**
+  (bug-531): `expect(x).toBe(BlockId.Air)` quebrou sozinho quando o worldgen
+  passou a espalhar capim naquela célula. `const antes = get(); … toBe(antes)`.
+- **Verificação visual headless funciona com `?bench` + CDP.** `?bench` entra no
+  mundo SEM menu e sem servidor; o script CDP navega, espera em segundos reais e
+  chama `Page.captureScreenshot`. Pra ver o jogo e não o HUD: esconder todo filho
+  de `<body>` que não seja `CANVAS` (o HUD deste projeto mora no index.html, não
+  tem id/classe caçável). Molde em `scripts/bench-headless.mjs`.
+
+## Decision Log
+
+- [2026-07-27] **Escopo da SOBREVIVÊNCIA aberto (sessão 30) — 6 decisões do usuário, não
+  reabrir.** (1) **Lite agora** (vida/fome/dano/recursos finitos/craft) com a arquitetura já
+  pronta pro completo — toda perda de vida por uma função só, `aplicarDano(alvo, n, causa)`,
+  pra mob/PvP/queda entrarem pela mesma porta. (2) **Mobs hostis SIM, mas fora da aula:** o
+  uso que ele quer é *mundo de sobrevivência pra turma explorar*, não aula de matéria — é
+  ampliar a aplicação do jogo, não trocar a pedagogia dirigida. (3) **Craft por LISTA**, grade
+  3×3 descartada: arrastar dói no tablet/Kindle Fire da escola e trava aluno de 2º ano.
+  (4) **`/modo`** = padrão do mundo (salvo no `.ljw`) + override `@aluno` + `all` (pega quem
+  está dentro E quem entra) + `eu` (professor demonstra sem mexer na turma); `all` NÃO pega o
+  professor. (5) **`/pvp ligar|desligar` já no lite**, padrão OFF. (6) **O que a sobrevivência
+  decide vira REGRA DE MUNDO ajustável, não constante de código** — pedido explícito no molde
+  do `/gamerule keepInventory`: registro em `/shared` + comando `/regra <nome> ligar|desligar`,
+  gravado no `.ljw` como MAPA (`regras?: Record<string, boolean>` — regra nova depois não
+  re-versiona nada). `manter-inventario` nasce LIGADO (padrão de escola); `/pvp` fica como
+  ATALHO da regra `pvp` (um estado, duas portas). **Não retrofitar** `/ciclo`, `/voo`,
+  `/vento`, `/confinar`, `/claim` pro `/regra`: o professor já usou esses verbos no piloto, e
+  reaprender comando no meio da aula custa mais do que a unificação vale. Escopo completo com as 9
+  frentes e as colisões em `.wolf/ROADMAP.md §🍖`. Ordem da fila não mudou (sobrevivência
+  segue 4ª, depois de mobile e v2 da geração).
+- [2026-07-27] **Repo PÚBLICO + licença source-available** (decisão do usuário, sessão 29).
+  `github.com/meketreve/logica-em-jogo` é público. Regra que ele pediu: *"livre uso nas
+  escolas, mas modificações devem passar por mim"* → `LICENSE` em pt-BR: usar/rodar/
+  redistribuir INALTERADO é livre pra qualquer instituição de ensino; distribuir código
+  modificado, republicar sem autoria e uso comercial exigem autorização escrita. **Cenário
+  feito por professor é DELE** (a licença não reivindica os `.ljw` de autoria) e modificar a
+  própria cópia é livre — o que trava é distribuir. Não é OSI: GitHub marca "licença não
+  reconhecida", e é esperado. Consequência prática pro auto-update: clone da escola puxa sem
+  credencial.
+- [2026-07-27] **Apelidos de aluno no HISTÓRICO do git: o usuário decidiu deixar** ("não tem
+  problema"). A árvore atual foi limpa (`e49aa15`), o histórico NÃO. Não reabrir; não propor
+  `filter-repo` de novo. Ao escrever qualquer coisa NOVA em arquivo versionado, seguir sem
+  nome de aluno — a régua é a do relatório, que afirma anonimização.
+- [2026-07-27] **Água CORRENTE segue o fluxo; água PARADA segue o vento** (playtest).
+  Uma regra só resolve os dois casos, sem flag nova: o mesher tira o fluxo do
+  GRADIENTE DE NÍVEL na vizinhança (só vizinho de água conta — contar ar faria a
+  borda de todo lago escorrer pra fora). Mar/lago é tudo FONTE (nível 8) →
+  gradiente zero → parada → vento. Riacho é 8→7→6→… → gradiente aponta pra
+  jusante → fluxo. Implementado como 8 TILES de atlas (um por setor) escolhidos
+  pelo mesher, não como atributo de vértice: mantém o mesher função pura de bytes
+  e não mexe em material. Os 8 têm de ficar contíguos numa linha do atlas.
+- [2026-07-27] **Vento é SÓ visual e server-autoritativo**, função pura de
+  `tickCount` + seed (molde do `horaDoDia`, não do relógio de parede). Não empurra
+  jogador, não entra na física. `/vento` só LIGA/DESLIGA — o usuário recusou
+  ajuste manual de direção/força: "apenas comando para ativar e desativar". Nasce
+  LIGADO (é ambiência, não regra de atividade) e só o DESLIGADO vai pro save.
+- [2026-07-27] **Nuvens = UM plano com textura de alpha, não volumes.** O teto
+  desta fase é GPU (p95 16,8–19,6 ms contra 16,7 ms de orçamento no notebook do
+  lab), e volume seria overdraw transparente em cima disso. `alphaTest: 0.02`
+  corta os buracos entre nuvens antes do blend. Nuvens e balanço têm chave em
+  Configurações, na seção de DESEMPENHO — não de "gráficos bonitos".
+
+- [2026-07-26] **`buglog.auto_detect: false`** em `.wolf/config.json`. O detector
+  automático gerava falso positivo (ex.: "pURO should be PURO" virou bug) e poluía
+  `buglog.md` — justamente o índice que serve pra achar bug de verdade. Log manual
+  pelo protocolo continua obrigatório; o sinal bom vem de lá.
+- [2026-07-26] **`anatomy.rescan_interval_hours: 6 → 168`**. O ritmo real de
+  criar/apagar arquivo é ~1× por sessão, não 4× por dia; o "stale" no boot virou
+  alarme falso ignorado. Rodar `openwolf scan` à mão quando arquivo nascer/morrer.
+- [2026-07-26] **`npm run verify` + `npm run smoke` são o caminho oficial de
+  verificação.** Antes: typecheck, teste, build e cada smoke eram 4+ invocações
+  lembradas de cabeça, e os smokes exigiam ler o comentário do cabeçalho pra
+  montar a env à mão. Agora `verify` = typecheck(3 pacotes) + testes(shared) +
+  build(client); `smoke` = runner com manifesto. Motivo: metade do Do-Not-Repeat
+  deste projeto é sobre o APARATO de teste, não sobre o código.
+
+## Key Learnings — verificação (2026-07-26)
+
+- **Runner dos smokes: `scripts/smoke.mjs`.** O manifesto no topo é a fonte da
+  verdade (mundo, env, porta, o que cada um prova). `npm run smoke -- --lista`
+  diz o que cada cenário prova SEM abrir os arquivos — use isso antes de ler
+  qualquer `_smoke-*.mjs`. `--rapido` pula os de mundo E. Suíte inteira: ~38 s.
+- **Porta própria por cenário (8091–8096).** A 8080 fica livre pro dev server do
+  usuário — já derrubei o servidor dele matando processo na porta compartilhada.
+- **`git bisect run npm run smoke -- <nome>`** funciona: cada cenário sobe o
+  próprio host, sai 0/1 e limpa tudo. É o jeito barato de achar QUANDO quebrou,
+  em vez de eu ler diff.
+- **Convenção de log (já 100% consistente no código, nunca estava escrita):**
+  server prefixa TUDO com `[server]`; client usa tag por subsistema —
+  `[mesh]`, `[conn]`, `[streaming]`, `[input]`. O gerador de cenários
+  (`gerar.ts`) é CLI de usuário e por isso NÃO leva tag. Ao adicionar log novo,
+  siga isso: é o que transforma investigação em `grep` em vez de leitura.
+- **`LJ_SEED` fixa o terreno**; sem ela cada mundo novo sorteia e smoke vira
+  loteria. O runner usa `LJ_SEED=20260726` em todo cenário de mundo novo.
+- **`LJ_SAVE=cenarios/<aula>.ljw` é SEGURO.** `paths.ts` trata `cenarios/` como
+  MODELO somente-leitura e grava a cópia viva em `mundos/` (gitignored). Não
+  confundir com rodar SEM `LJ_SAVE`, que aí sim escreve em `world.ljw` versionado.
+
+### [2026-07-26] Perfil do lab (Intel UHD 630) — o que a comparação com o dev ensinou
+
+- **Trabalho de render IDÊNTICO entre máquinas não significa custo idêntico.** O bench do lab
+  fechou com `drawCalls` 633 e `triangles` 188 048 exatamente iguais aos do PC de dev (mesma
+  seed, mesmo trajeto determinístico) e mesmo assim a GPU custou 14,6 ms contra 4,2 ms. Ou
+  seja: quando os contadores de geometria batem e o tempo não, o gargalo é a MÁQUINA, não a
+  cena — greedy meshing (que ataca triângulos/draw calls) não compra nada nesse caso.
+- **`carga.fasesMs` separa rede de CPU sem instrumentação nova.** `mundo` igual (2,3–2,5 s
+  nas duas máquinas) + `malha` 7× maior no lab = o problema é CPU de meshing, não rede nem
+  worldgen. Sempre ler essas duas fases juntas antes de culpar a rede.
+- **`carga.totalMs` sozinho engana.** Duas rodadas na mesma máquina deram 16,5 s e 12,9 s,
+  mas o `remeshTotalMs` foi o mesmo (−1,2%): o que mudou foi ONDE o "pronto" disparou, que
+  empurra meshing pra dentro do bench. Comparar sempre `remeshTotalMs`/`remeshCount` junto.
+- **`EXT_disjoint_timer_query_webgl2` existe no driver Intel/ANGLE D3D11** (240 amostras) e
+  NÃO existe no SwiftShader do headless. O caminho de GPU do perfilador só se valida em
+  hardware real — não tentar validá-lo por CDP headless de novo.
+- **Comparar GPU com o frametime é o teste de "é render?"**: 14,6 ms de GPU num frame de
+  20,4 ms = 72% → o teto de FPS é a GPU, e nenhum ganho de main thread atravessa esse teto.
+
+### [2026-07-26] Mesher em Web Worker — decisões e armadilhas
+
+- **A vizinhança padded é o que torna o Worker barato.** Copiar os 27 chunks vizinhos seriam
+  110 kB por job; a casca de 1 bloco cabe num cubo 18³ = 5,8 kB, porque TODO acesso do mesher
+  está em `[-1..CHUNK_SIZE]`. Antes de refatorar, o jeito de provar isso foi `grep getBlock`
+  no mesher e conferir offset por offset — e o typecheck fecha a prova, já que `world` deixa
+  de existir dentro do núcleo e qualquer acesso esquecido vira erro de compilação.
+- **Pool com 1 job por worker é PIOR que síncrono.** A main thread só alimenta 1×/frame
+  (~16 ms) e um chunk custa ~3,5 ms → o worker dormiria 80% do tempo. Profundidade 8.
+- **Assíncrono exige versão por chunk.** Resultado que volta depois de `descartarColuna`,
+  `trocarMundo` ou uma edição do jogador tem que ser DESCARTADO, senão recria mesh de coluna
+  já descartada. Versão monotônica + `versaoAtual.delete(key)` no descarte.
+- **Gate de tela de carga é um contrato escondido.** `main.ts` fecha a §🕐 em
+  `filaPendente === 0`; com pool isso PRECISA somar em-voo + prontos-não-aplicados. Antes de
+  tornar algo assíncrono, procurar quem lê o tamanho da fila como "acabou".
+- **Worker que morre trava a tela de carga pra sempre** (fila nunca zera). `onerror` →
+  colapsa o pool, devolve os jobs em voo pra fila, segue síncrono.
+- **Teste de perf precisa de testemunha de correção.** O A/B do headless só vale porque o
+  script passou a imprimir `draw calls`/`triângulos`/`fila no fim`: uma fila que zera sem
+  produzir geometria pareceria uma vitória enorme. Sempre medir "quanto trabalho SAIU" junto
+  com "quanto tempo levou".
+- **Headless SwiftShader distorce A/B de orçamento por frame.** A 8–10 fps, um orçamento de
+  6 ms/frame vira 60 ms/s de meshing (contra 300 ms/s a 50 fps) — o caminho síncrono nem
+  termina de carregar. Serve pra ENCANAMENTO e pra razões por chunk; não pra o ganho de FPS.
+
+### [2026-07-27] Mover trabalho pra Worker TIRA O FREIO junto — a lição da sessão
+
+- **Todo caminho síncrono com orçamento por frame tem DOIS papéis: fazer o trabalho e
+  LIMITAR o trabalho.** `meshMsPorFrame: 6` não era só "não estoure o frame", era também
+  "meshing nunca passa de ~30% de um núcleo" e "a fila lenta funde re-entradas do mesmo
+  chunk". Ao mover o mesher pro Worker eu levei o primeiro papel e deixei os dois outros pra
+  trás — carga caiu 55% e o FPS de jogo caiu de 50 pra 36. Antes de paralelizar algo que
+  tinha orçamento, listar o que o orçamento limitava ALÉM do tempo.
+- **Fila lenta é um coalescedor.** `enfileirarColuna` reenfileira as 4 colunas vizinhas; com
+  a fila lenta o `filaSet` fundia isso de graça. Fila rápida = +45% de jobs, e os extras são
+  jogados fora por versão vencida. Dedup precisa cobrir "em voo", não só "na fila".
+- **Oversubscription de núcleo aparece na GPU, não só na CPU.** 4 workers a plena carga num
+  i5 de 4 núcleos físicos empurraram a GPU de 13,6 → 15,1 ms: a thread do driver D3D11 também
+  disputa núcleo. Se o tempo de GPU sobe sem a cena mudar, suspeitar de contenção de CPU.
+- **Throttle por FASE, não global.** Durante a tela de carga não existe frame pra proteger →
+  pool solto. No jogo existe → pool raso. A mesma peça quer políticas opostas nas duas fases.
+- **Não calibrar knob de paralelismo em headless.** SwiftShader roda a 8–16 fps; como a vazão
+  do pool escala com o FPS, profundidade 1 deixou 91 chunks pendentes lá e seria ampla no lab
+  a 50 fps. Headless decide ENCANAMENTO e razões por chunk; número de tuning sai da máquina
+  que dói — daí `?meshdepth=N` em vez de eu escolher no escuro.
+
+### [2026-07-27] O aviso "no semantic summary" do OpenWolf era bug, não descuido
+
+`countSemanticEntries` (`src/hooks/shared.ts`) contava só linha começando com
+`| YYYY-MM-DD`, mas NADA escreve nesse formato: o template `OPENWOLF.md`, o texto do próprio
+aviso e as linhas que o hook grava usam `| HH:MM |`, e a sessão é delimitada por
+`## Session: YYYY-MM-DD HH:MM`. Resultado: contagem sempre 0 e o "ACTION REQUIRED" repetindo
+a cada stop, sem jeito de satisfazer seguindo as instruções dele mesmo.
+
+- **Corrigido localmente** em `~/.local/share/pnpm/global/.../openwolf/dist/hooks/shared.js`
+  (a edição quebrou o hardlink, o store do pnpm ficou intacto). ⚠️ `pnpm update -g openwolf`
+  sobrescreve; backup do original ficou no scratchpad da sessão.
+- **PR upstream: [cytostack/openwolf#64](https://github.com/cytostack/openwolf/pull/64)**
+  (branch `fix/semantic-summary-detection` no fork `meketreve/openwolf`).
+- **Lição de método:** aviso de hook que repete mesmo depois de cumprido é suspeito de
+  detector inconsistente com a própria instrução. Ler o código do hook custou 3 comandos e
+  poupou repetir a mesma ação em loop. Antes de "cumprir mais uma vez", conferir o que o
+  detector realmente procura.
+
+### [2026-07-27] Fechando o knob do mesher — três lições que valem além deste caso
+
+- **A variável do experimento tem que sair no resultado.** Pedi um A/B de `?meshdepth` sem
+  gravar `meshdepth` no perfil (bug-529). As 6 rodadas do lab só foram atribuíveis porque o
+  usuário lembrava a ordem. Regra: antes de pedir uma medição com knob, conferir que o knob
+  aparece no artefato de saída.
+- **Modo economia de bateria trava o notebook em 30 FPS** (`p50 = 33,3 ms` cravado nas três
+  rodadas, GPU ~28% mais cara). É vsync por política de energia, não carga — e nenhum perfil
+  medido nesse estado serve pra comparar otimização. Ao ler um perfil, `p50` colado em 33,3 /
+  16,7 / 8,3 ms é REFRESH, não gargalo: procurar o estado da máquina antes de otimizar.
+- **Freio mais apertado pode fazer MENOS trabalho total, não mais.** Profundidade 1 gastou
+  13 738 ms de worker contra 16 036 do 4: com a fila drenando devagar, o `filaSet` funde mais
+  re-entradas do mesmo chunk antes de virarem job. Quando uma fila também COALESCE, acelerá-la
+  aumenta o trabalho — contra-intuitivo e foi o que custou 14 FPS na primeira versão.
+- **Primeira rodada de um lote é suspeita.** Nos dois lotes o primeiro perfil destoou (FPS 42
+  contra 47-50; worker 20 958 contra ~32 000): aquecimento, compilação de shader, saída de
+  throttle. Descartar ou repetir a primeira antes de comparar.
+
+## Key Learnings — A/B da vida ambiental (2026-07-27, sessão 30)
+
+- **O A/B do §🌬️ rodou no PC de dev (RTX 2060) e o resultado é legível SÓ na GPU.** `?bench`
+  × `?bench&semvida`: FPS 60 × 60, p50/p95 16,7/16,9 idênticos (**vsync**, 11 ms de folga) —
+  **GPU méd 5,16 → 4,62 ms e p95 8,81 → 8,19**. Custo de nuvens+balanço ≈ **0,54 ms de GPU
+  (−10% méd, −7% p95)**, bem acima do ruído de 1–2%. Perfis em `profiles/`:
+  `perf-bench-1785192177031-52k0.json` (A) e `perf-bench-semvida-1785192221358-y9ew.json` (B).
+- **Regra que isso confirma:** em máquina com folga de vsync, FPS e frametime NÃO medem custo
+  de render — só `gpu.medioMs`/`gpu.p95Ms` respondem. Quem quiser o efeito em FPS tem de rodar
+  na máquina apertada (o lab, com GPU p95 já em 16,8–19,6 ms contra 16,7 de orçamento).
+- **A etiquetagem em 3 lugares funcionou** (`meta.bench.semVida`, `config.nuvens/balanco`,
+  nome do arquivo): deu pra parear os dois perfis meses depois sem depender de memória.
+
+## Key Learnings — layouts mobile (2026-07-27, sessão 31)
+
+- **A régua de tela pequena é 1024×600 em PAISAGEM (Kindle Fire), fixada pelo usuário:**
+  "os dois, Fire manda" — desenhar pro Fire e deixar o tablet Android maior herdar com mais
+  respiro. Celular ficou **fora** de propósito (o usuário recusou a opção).
+- **Duas media queries INDEPENDENTES, nunca um breakpoint só:** `(pointer: coarse)` = alvo de
+  dedo, vale em qualquer tamanho; `(max-height: 700px)` = altura curta, vale mesmo com mouse.
+  Tablet grande é coarse e não é baixo; janela de desktop espremida é baixa e não é coarse.
+  Um breakpoint combinado daria a UI errada nos dois casos.
+- **Terceira query, a que rende mais:** `(min-width: 700px) and (max-height: 700px)` =
+  PAISAGEM baixa. Ali sobra largura e falta altura, então o caminho é **alargar** o painel
+  (menu 460 → 680, inventário 580 → 760), não quebrar linha em duas. Alargar devolveu as 6
+  abas do inventário numa linha só e tirou o nome do mundo do truncamento "seq…".
+- **`pointer: coarse` NÃO vem de `mobile: true` no CDP.** Quem liga é
+  `Emulation.setEmulatedMedia({features:[{name:"pointer",value:"coarse"}]})`. Sem essa chamada
+  a verificação headless roda com as media queries de toque DESLIGADAS e aprova tudo mentindo.
+- **O projeto não tem `box-sizing: border-box` global** — o padrão content-box faz `max-height`
+  ignorar padding e borda. Toda regra nova de `max-height` num elemento com padding precisa de
+  `box-sizing: border-box` junto, senão ela erra pela soma exata do padding+borda (ver bug-538).
+- **`dvh` sempre com o par `vh` na linha de cima.** Navegador sem `dvh` (Silk velho do Fire)
+  descarta a declaração inválida e fica com a anterior — é o fallback mais barato que existe.
+- **`--ts` (escala da UI de toque) mora no `:root`, não em `#touch-ui`.** Custom property
+  declarada num elemento só é visível na subárvore dele; o `#chat` do index.html precisa do
+  MESMO valor pra desviar do joystick (`left: calc(40px + 128px * var(--ts, 1))`). O fallback
+  `1` importa porque o CSS do `touch.ts` só é injetado em aparelho de toque.
+- **Teclado virtual só é mensurável pelo `visualViewport`:** `window.innerHeight` NÃO muda
+  quando o teclado abre (é o viewport de LAYOUT). `innerHeight − visualViewport.height −
+  visualViewport.offsetTop` é a altura escondida; o `chat.ts` publica em `--kb` e o CSS soma.
+  O `offsetTop` entra porque o iOS ROLA a página em vez de encolher a janela.
+- **No toque não havia como trocar de bloco sem abrir o inventário** — `#hotbar` era
+  `pointer-events: none` e o tablet não tem 1–9 nem scroll. A barra virou tocável, mas só a
+  faixa `.slots` recebe `pointer-events: auto`: o resto tem de deixar o arrasto de olhar
+  chegar no `#touch-look` (z-index 4, por baixo da hotbar em 5).
+- **Layout de tela pequena não tem teste unitário, mas tem verificação binária:**
+  `npm run shots:tablet` (`scripts/tablet-shots.mjs`) mede `getBoundingClientRect` contra a
+  altura da janela ("cabe / ESTOURA"), o menor alvo tocável (piso 40px) e a intersecção
+  chat × hotbar — e salva o print do lado pra conferir o resto a olho. Foi ele que pegou o
+  bug-538 e o bug-539, nenhum dos dois visível na leitura do CSS.
+
+## Decision Log — v2 da geração (2026-07-28, sessão 31)
+
+- **v2 da geração = cavernas + relevo por bioma, cavernas antes.** Escolha do usuário
+  ("os dois, cavernas antes"). Cavernas primeiro porque casam com o minério que já existe em
+  veia e são a porta de entrada do §🍖 sobrevivência.
+- **Cavernas em TODO mundo procedural** (P/M/G/E — tudo que nasce de ruído). `plano` e
+  `cabines` seguem intocados: são presets de AUTORIA, não de exploração. Isto contrasta com a
+  decisão dos mobs hostis (§🍖), que ficam **só** em mundo de exploração — o usuário tratou
+  buraco no chão como menos disruptivo pra aula do que bicho que ataca.
+- **Relevo = "montanha de verdade"**, não multiplicador de amplitude. Araucária vira serra
+  alta com neve. **Isso reabre de propósito** o problema que o heightmap GLOBAL ÚNICO evitou
+  em 2026-07-20 (penhasco na fronteira de bioma): a suavização vira trabalho desta fase.
+  Registrar porque a decisão de 2026-07-20 continua válida no que ela resolveu — quem ler só
+  ela vai achar que relevo por bioma foi descartado, e não foi: foi ADIADO.
+- **"Madeira por espécie" saiu do backlog: já estava FEITA** desde a sessão 10
+  (`LogIpe`/`LogAraucaria`/`LogPauBrasil`, espécie só nasce no bioma dono). Item obsoleto que
+  sobreviveu 8 sessões numa lista — conferir no código antes de escopar item de backlog velho.
+- **Armadilha de nome registrada:** a sessão 10 chamou de "worldgen v2" o que ela entregou
+  (biomas + minério + árvores). A "v2 da geração" da FILA é outra coisa. Nomear fase por
+  número é o que causou isso; preferir nome descritivo (§🏔️ cavernas e relevo).
+- **Pendência de PRODUTO que a fase abre, não de código:** **não existe luz voxel** neste
+  projeto — a tocha é halo decorativo (`client/src/torchGlow.ts`, decisão de 2026-07-17).
+  Caverna nasceria clara como a superfície. Perguntar ao usuário ANTES de escavar.
+
+## Key Learnings — luz voxel e cavernas (2026-07-28, sessão 32)
+
+- **Luz é função pura dos BYTES do mundo, então mora no CLIENTE.** O cliente já
+  recebe os bytes (snapshot + `block_changed`), logo derivar a luz lá custa zero
+  de banda e zero de tick, e dois clientes com os mesmos bytes chegam na mesma
+  luz sozinhos. A entrevista tinha estimado "mexe no tick do servidor e no
+  protocolo" — não mexeu em nenhum dos dois. **Antes de aceitar que uma feature
+  precisa de protocolo, perguntar se o cliente já tem os dados de entrada.**
+- **Dois canais de 4 bits num byte só** (`(ceu << 4) | bloco`): o céu escala com
+  a hora no shader, o bloco (tocha) não. É isso que faz caverna com tocha
+  continuar acesa às 3 da manhã, sem remesh nenhum ao anoitecer — a hora é um
+  uniform, não geometria.
+- **A regra que faz caverna existir** é a DESCIDA RETA: luz de céu no máximo
+  descendo por bloco transparente não perde nível. Sem essa exceção o mundo vira
+  um gradiente vertical e nada é sombra de teto.
+- **`onBeforeCompile` é UM só por material.** O three guarda uma referência; um
+  segundo `aplicarX` que atribua por cima apaga o primeiro **sem erro nenhum** —
+  a folha só para de balançar. `aplicarLuz` ENCADEIA (guarda o anterior e chama
+  antes). Qualquer enxerto novo de shader tem de fazer o mesmo.
+- **Luz roda na MAIN THREAD** (o mundo mora lá; mandar pro Worker exigiria mandar
+  o mundo junto). Por isso ela entrou na mesma disciplina do mesher: fila +
+  orçamento por frame, e SEMPRE pelo menos uma coluna por frame. E `filaLuz`
+  entra no portão da tela de carga, senão ela fecha com o mundo cheio de buraco.
+- **A ordem é luz → mesh, nunca o contrário.** Geometria montada antes da luz
+  nasce clara e escurece num segundo remesh — pisca na cara da turma.
+- **Conjunto sujo de luz > vizinhança do bloco.** `remeshBlock` cobre ±1 chunk;
+  luz alcança 15 blocos. O motor devolve o conjunto de chunks que mudou e é ESSE
+  que se remesha (`remeshSujos`), senão fica um quadrado de sombra velha parado.
+- **Folha atenua 1 de propósito**, então a célula logo acima do terreno (`h+1`)
+  NÃO é 15 quando há copa por cima. Teste que assumir 15 na superfície tem de
+  olhar o topo do mundo, não `h+1`. (Custou uma falha de teste.)
+- **Calibrar densidade de ruído em UMA seed é armadilha.** A caverna varia de
+  2,9% a 7,3% de subsolo escavado conforme a seed, num mundo 6×6, porque a célula
+  do ruído tem 26 blocos e um mundo pequeno mal cobre duas. A seed do `?bench`
+  (20260726) é das mais VAZIAS da amostra — calibrar por ela teria entregado o
+  dobro da densidade pretendida. O teste mede a MÉDIA de 5 seeds.
+- **Custo de GPU de ter caverna:** 153 852 → 255 234 triângulos e 518 → 665 draw
+  calls no `?bench`. O salto grande é ter caverna QUALQUER (o chunk de subsolo
+  deixa de ser sólido sem faces); aumentar densidade depois é comparativamente
+  barato. Medido no PC de dev — **falta a rodada no lab**, onde a GPU já está no
+  teto.
+- **Interpolação trilinear é separável**, então dá pra amortizar value noise 3D
+  por FATIA horizontal quando se desce uma coluna: os índices/pesos de x e z não
+  mudam nunca e `iy` só vira a cada `CAV_Y` blocos. Foi a diferença entre 28,6 e
+  3,5 ms por coluna. Quando houver caminho rápido e caminho de referência,
+  **escrever o teste que compara os dois célula a célula** — é ele que autoriza
+  otimizar sem medo de mudar o mundo gerado.

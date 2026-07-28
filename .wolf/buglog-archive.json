@@ -6458,6 +6458,70 @@
       "related_bugs": [],
       "occurrences": 1,
       "last_seen": "2026-07-21T01:42:42.106Z"
+    },
+    {
+      "id": "bug-398",
+      "timestamp": "2026-07-21T02:03:43.944Z",
+      "error_message": "Null/undefined access in ",
+      "file": "shared/src/world.ts",
+      "root_cause": "Property access on potentially null/undefined value",
+      "fix": "Added null safety (optional chaining or null check)",
+      "tags": [
+        "auto-detected",
+        "null-safety",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-21T02:03:43.944Z"
+    },
+    {
+      "id": "bug-399",
+      "timestamp": "2026-07-21T02:06:47.192Z",
+      "error_message": "Wrong reference: Bioma should be ArvoreTipo",
+      "file": "shared/src/worldgen.ts",
+      "root_cause": "Used \"Bioma\" instead of \"ArvoreTipo\"",
+      "fix": "Changed Bioma → ArvoreTipo",
+      "tags": [
+        "auto-detected",
+        "wrong-reference",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-21T02:06:47.192Z"
+    },
+    {
+      "id": "bug-400",
+      "timestamp": "2026-07-21T02:06:57.945Z",
+      "error_message": "Wrong condition in logic",
+      "file": "shared/src/mesher.ts",
+      "root_cause": "Condition was: if (bytes && bytes.every((b)",
+      "fix": "Changed to: if (!bytes || bytes.every((b)",
+      "tags": [
+        "auto-detected",
+        "logic-fix",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-21T02:06:57.945Z"
+    },
+    {
+      "id": "bug-401",
+      "timestamp": "2026-07-21T02:07:18.068Z",
+      "error_message": "Type error",
+      "file": "shared/src/worldgen.test.ts",
+      "root_cause": "Missing or incorrect type annotation",
+      "fix": "Added type assertion/annotation",
+      "tags": [
+        "auto-detected",
+        "type-fix",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-21T02:07:18.068Z"
     }
   ]
 }
