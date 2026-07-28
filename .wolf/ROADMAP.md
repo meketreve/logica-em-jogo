@@ -1362,3 +1362,62 @@ export) = tarefa à parte, NÃO hoje.
 ### Deferido / não precisa amanhã
 Empacotar em binário único (tem admin, Node roda); trocar stack (decidido: manter
 web + empacotar host depois — ver Decision Log); água/outros blocos.
+
+## 🏔️ BACKLOG — V2 DA GERAÇÃO (escopo ABERTO 2026-07-28, sessão 31)
+
+> 3º da ordem travada: auto-update ✅ → layouts mobile ✅ (1ª rodada) → **v2 da geração** →
+> sobrevivência (§🍖).
+>
+> ⚠️ **ARMADILHA DE NOME:** a sessão 10 (2026-07-20) chamou de "worldgen v2" o que entregou
+> (biomas por clima + minério em veia + árvores brasileiras). **Não é essa a v2 da fila.**
+> A v2 da FILA é o que ficou de fora naquele dia e nunca foi feito.
+
+### Decisões travadas pelo usuário (2026-07-28)
+
+1. **Entrega = os DOIS, cavernas antes.** Cavernas e relevo por bioma são independentes;
+   cavernas abrem primeiro porque casam com o minério que já existe em veia e são a porta
+   de entrada do §🍖.
+2. **Cavernas em TODO mundo procedural** — P/M/G/E, tudo que nasce de ruído. `plano` e
+   `cabines` seguem **intocados** (são presets de autoria, não de exploração).
+3. **Relevo = "montanha de verdade":** araucária vira serra alta com neve, não só um
+   multiplicador de amplitude. Isso **reabre de propósito** o problema que o heightmap global
+   único evitou em 2026-07-20 (penhasco de fronteira entre biomas) — a suavização de
+   fronteira passa a ser trabalho desta fase, não um detalhe.
+4. **"Madeira por espécie" saiu do escopo: JÁ ESTÁ FEITA.** `LogIpe`/`LogAraucaria`/
+   `LogPauBrasil` existem como blocos e cada espécie só nasce no bioma dono. O item no
+   backlog antigo estava obsoleto.
+
+### O que existe hoje — o ponto de partida real (conferido 2026-07-28)
+
+- **`shared/src/worldgen.ts`** — `heightAt` (value noise, heightmap **ÚNICO e GLOBAL**),
+  `climaAt` (2 campos de ruído temp+umid), `veiasDaColuna` (minério por banda de
+  profundidade, `mulberry32` seedado), `arvoreDaColuna`, `gerarColunaDeChunks` (L252-361, o
+  construtor de coluna — **é aqui que a caverna escava**), `generateWorldForPreset`.
+- **`shared/src/biomas.ts`** — a interface `Bioma` tem topo/subsolo/árvores/flores/gramaAlta/
+  mandacaru. **Nenhum campo de relevo.** Bioma hoje só PINTA e DECORA.
+- **Constantes globais por ALTITUDE**, não por bioma: `SAND_HEIGHT`, `SNOW_HEIGHT = 58`,
+  `ROCHA_HEIGHT`, `NIVEL_MAR`. Serra alta com neve mexe nessa família.
+- **`topoPrevisto`** é chamado em 3 pontos do próprio `worldgen.ts` — é a fonte única do
+  bloco de topo. Relevo novo tem de passar por ela, não por cópia.
+- **Cavernas: ZERO ocorrências** no worldgen. Nada a migrar, tudo a escrever.
+
+### Colisões a checar ANTES de codar (é onde o vibecode vai errar)
+
+| Colisão | Por quê |
+|---|---|
+| **Não existe luz voxel** | Tocha é halo decorativo (`client/src/torchGlow.ts`, decisão de 2026-07-17). Caverna nasceria **clara como a superfície** — chata e sem leitura. Ou a fase entrega escuridão/luz, ou entrega buraco iluminado. **Decidir com o usuário antes de escavar.** |
+| **Mundo E é LAZY** | Coluna é materializada sob demanda. A caverna precisa ser função PURA de `(x, y, z, seed)` — nada de estado global nem de passo de pós-processamento sobre o mundo inteiro, senão a borda da coluna não fecha com a vizinha. |
+| **Orçamento de GPU** | Cavidade = faces internas novas. O lab já está com **GPU p95 16,8–19,6 ms contra 16,7 ms** de orçamento (STATUS §⚠️). Medir triângulos/draw calls com `npm run bench:headless` e um `?bench` no lab ANTES de aumentar densidade. |
+| **Água** | Caverna que abre abaixo do `NIVEL_MAR` alaga? `rules.ts` só roda na vizinhança SUJA, então a geração não dispara fluxo sozinha — mas o primeiro bloco quebrado ali sim. Decidir se a geração sela ou se inunda de propósito. |
+| **Spawn** | `findSpawnY` desce do teto até achar sólido → pode pousar no TETO de uma caverna. `findSpawnSeco` só resolve água. Regressão a testar: nascer nunca dentro de caverna. |
+| **Save** | `.ljw` guarda os chunks CRUS: a caverna fica assada no arquivo, sem mudança de formato. **Mundo salvo antes da v2 NÃO ganha caverna** — e isso está certo (mundo de aula não muda debaixo do professor). |
+| **Fronteira de bioma** | Com relevo por bioma, `heightAt` deixa de ser um campo só. A suavização tem de valer nos DOIS sentidos e ser determinística — teste de determinismo (mesma seed = mesmos bytes) já existe em `worldgen.test.ts` e precisa continuar passando. |
+
+### O que prova cada frente (o portão antes de commitar)
+
+- **Caverna:** teste de determinismo (mesma seed = mesmos bytes) · teste de que coluna vizinha
+  fecha (sem parede no meio da galeria) · screenshot headless com corte vertical ·
+  `plano`/`cabines` inalterados (teste de regressão) · spawn nunca dentro de caverna.
+- **Relevo:** teste de fronteira sem degrau maior que N blocos entre colunas adjacentes ·
+  `topoPrevisto` continua a fonte única · perfil do lab comparado com a régua
+  (`…-l9xf.json`) — relevo mais alto = mais coluna materializada = mais malha.

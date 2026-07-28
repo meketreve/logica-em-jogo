@@ -3,39 +3,6 @@
 > Chronological action log. Hooks and AI append to this file automatically.
 > Old sessions are consolidated by the daemon weekly.
 
-## Session: 2026-07-26 12:12
-
-| Time | Action | File(s) | Outcome | ~Tokens |
-|------|--------|---------|---------|--------|
-| 12:26 | Edited shared/src/mesher.ts | added 2 condition(s) | ~378 |
-| 12:26 | Edited shared/src/mesher.ts | modified for() | ~257 |
-| 12:26 | Edited shared/src/mesher.ts | added optional chaining | ~158 |
-| 12:26 | Edited shared/src/mesher.ts | 5→6 lines | ~22 |
-| 12:27 | Edited shared/src/mesher.ts | expanded (+6 lines) | ~115 |
-| 12:28 | Created client/src/aguaFx.ts | — | ~690 |
-| 12:28 | Edited client/src/atlasTexture.ts | diagonal() → leve() | ~143 |
-| 12:28 | Edited client/src/atlasTexture.ts | added 1 condition(s) | ~217 |
-| 12:29 | Edited client/src/main.ts | added 1 import(s) | ~34 |
-| 12:29 | Edited client/src/main.ts | added 1 condition(s) | ~146 |
-| 12:29 | Edited client/src/main.ts | modified gua() | ~74 |
-| 12:30 | Edited shared/src/worldgen.ts | modified mar() | ~214 |
-| 12:30 | Edited shared/src/worldgen.ts | 4→9 lines | ~150 |
-| 12:31 | Edited shared/src/world.ts | added 3 condition(s) | ~373 |
-| 12:31 | Edited shared/src/world.ts | inline fix | ~13 |
-| 12:31 | Edited shared/src/session.ts | modified lago() | ~181 |
-| 12:33 | Edited shared/src/worldgen.ts | 20 → 22 | ~8 |
-| 12:34 | Edited shared/src/worldgen.ts | modified if() | ~89 |
-| 12:34 | Edited shared/src/biomas.ts | modified 16() | ~52 |
-| 12:34 | Edited shared/src/worldgen.test.ts | 7→7 lines | ~83 |
-| 12:40 | Edited client/src/aguaFx.ts | modified UI() | ~112 |
-| 12:20 | backlog revisto: água fluida JÁ existia (ROADMAP desatualizado); usuário escolheu 3 refinos + perguntou como casar as pontas dos níveis | .wolf/ROADMAP.md, TODO.md | procedural (altura por vértice), não modelo por vizinho | ~12k |
-| 12:28 | superfície de água por nível: alturaCantoAgua (média das 4 células do canto) + AGUA_TOPO=0.875 | shared/src/mesher.ts, mesher.test.ts | 3 testes novos, pontas casam | ~6k |
-| 12:33 | tint+névoa submerso e correnteza no atlas | client/src/aguaFx.ts (novo), atlasTexture.ts, main.ts | z-index 1 (UI limpa), 8 fps | ~5k |
-| 12:40 | mar/lagos: NIVEL_MAR=22, praia = mar+1, água FONTE estática, findSpawnSeco | shared/src/worldgen.ts, world.ts, session.ts, biomas.ts | 5 testes novos; bug-210 (mandacaru zerado) | ~9k |
-| 12:45 | verificação headless contra servidor real (seed 66) | scratchpad/*.png | lago+praia ✅, submerso ✅, 324 testes, build | ~7k |
-| 12:47 | Session end: 21 writes across 9 files (mesher.ts, aguaFx.ts, atlasTexture.ts, main.ts, worldgen.ts) | 16 reads | ~85316 tok |
-| 12:48 | Session end: 21 writes across 9 files (mesher.ts, aguaFx.ts, atlasTexture.ts, main.ts, worldgen.ts) | 16 reads | ~85316 tok |
-
 ## Session: 2026-07-26 13:10
 
 | Time | Action | File(s) | Outcome | ~Tokens |
@@ -704,3 +671,7 @@ layouts mobile segue sendo o próximo.
 | 23:3x | hotbar tocável (delegação de pointerdown na faixa .slots) | client/src/main.ts | tablet troca de bloco sem abrir inventário | ~1k |
 | 23:4x | verificação headless nova (CDP + setEmulatedMedia coarse) | scripts/tablet-shots.mjs, package.json | 15/15 medições verdes; pegou bug-538 e bug-539 | ~9k |
 | 23:5x | verify + regressão desktop 1920×1080 e tablet 1280×800 | — | typecheck 3/3, 358 testes, build ok | ~3k |
+| 23:54 | Session end: 17 writes across 6 files (index.html, touch.ts, chat.ts, main.ts, package.json) | 12 reads | ~45406 tok |
+| 00:1x | entrevista de escopo da v2 da geração (3 perguntas) | .wolf/ROADMAP.md §🏔️ | os dois/cavernas antes · todo mundo procedural · relevo "montanha de verdade" | ~3k |
+| 00:2x | levantamento do ponto de partida: cavernas=0, Bioma sem campo de relevo, SEM luz voxel | shared/{worldgen,biomas}.ts, client/torchGlow.ts | 7 colisões escritas; "madeira por espécie" descoberta OBSOLETA (já feita na sessão 10) | ~5k |
+| 00:3x | handoff pro /clear | .wolf/{STATUS,TODO,cerebrum,ROADMAP}.md | playtest mobile virou pendência de escola; v2 vira quest ativa | ~4k |

@@ -946,3 +946,27 @@ a cada stop, sem jeito de satisfazer seguindo as instruções dele mesmo.
   altura da janela ("cabe / ESTOURA"), o menor alvo tocável (piso 40px) e a intersecção
   chat × hotbar — e salva o print do lado pra conferir o resto a olho. Foi ele que pegou o
   bug-538 e o bug-539, nenhum dos dois visível na leitura do CSS.
+
+## Decision Log — v2 da geração (2026-07-28, sessão 31)
+
+- **v2 da geração = cavernas + relevo por bioma, cavernas antes.** Escolha do usuário
+  ("os dois, cavernas antes"). Cavernas primeiro porque casam com o minério que já existe em
+  veia e são a porta de entrada do §🍖 sobrevivência.
+- **Cavernas em TODO mundo procedural** (P/M/G/E — tudo que nasce de ruído). `plano` e
+  `cabines` seguem intocados: são presets de AUTORIA, não de exploração. Isto contrasta com a
+  decisão dos mobs hostis (§🍖), que ficam **só** em mundo de exploração — o usuário tratou
+  buraco no chão como menos disruptivo pra aula do que bicho que ataca.
+- **Relevo = "montanha de verdade"**, não multiplicador de amplitude. Araucária vira serra
+  alta com neve. **Isso reabre de propósito** o problema que o heightmap GLOBAL ÚNICO evitou
+  em 2026-07-20 (penhasco na fronteira de bioma): a suavização vira trabalho desta fase.
+  Registrar porque a decisão de 2026-07-20 continua válida no que ela resolveu — quem ler só
+  ela vai achar que relevo por bioma foi descartado, e não foi: foi ADIADO.
+- **"Madeira por espécie" saiu do backlog: já estava FEITA** desde a sessão 10
+  (`LogIpe`/`LogAraucaria`/`LogPauBrasil`, espécie só nasce no bioma dono). Item obsoleto que
+  sobreviveu 8 sessões numa lista — conferir no código antes de escopar item de backlog velho.
+- **Armadilha de nome registrada:** a sessão 10 chamou de "worldgen v2" o que ela entregou
+  (biomas + minério + árvores). A "v2 da geração" da FILA é outra coisa. Nomear fase por
+  número é o que causou isso; preferir nome descritivo (§🏔️ cavernas e relevo).
+- **Pendência de PRODUTO que a fase abre, não de código:** **não existe luz voxel** neste
+  projeto — a tocha é halo decorativo (`client/src/torchGlow.ts`, decisão de 2026-07-17).
+  Caverna nasceria clara como a superfície. Perguntar ao usuário ANTES de escavar.

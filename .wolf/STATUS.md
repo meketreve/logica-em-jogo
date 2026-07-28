@@ -72,58 +72,6 @@
 > nenhum bloco contêiner** em `blocks.ts`, por isso o ramo "morte sem manter-inventario" é
 > "os itens somem" (baú/item no chão são orçamento do F8).
 
-> **SESSÃO 29 (2026-07-27) — A/B FERRAMENTADO, DECK DA CRE, AUTO-UPDATE DO LAUNCHER.**
-> O usuário escolheu: relatório **sem data** (vai apresentar informalmente pra CRE antes da
-> apresentação formal), **ponto 2** (o número do §🌬️) e **ponto 4** com ordem fixada —
-> **auto-update → layouts mobile → v2 da geração → sobrevivência**. Pediu também um deck.
->
-> **1. Relatório sem data:** saiu só o `(2026-07-21)` da linha de versão na ficha. O
-> *período de aplicação* (13–20/07) FICA — é dado do piloto, não data do documento.
->
-> **2. A/B do §🌬️ ferramentado (não medido ainda):** `?bench&semvida` desliga nuvens+balanço
-> só no bench, no molde do `?semworker`. `benchSettings()` é a fonte única da config efetiva
-> (senão o perfil do lado B mentiria dizendo `nuvens: true` — quase aconteceu). O perfil se
-> etiqueta em 3 lugares: `meta.bench.semVida`, `config.nuvens/balanco` (agora no contexto do
-> HUD, então vale pra QUALQUER perfil, não só bench) e o nome do arquivo
-> (`perf-bench-semvida-*.json`). Headless confirmou os dois lados (true/true × false/false).
-> **Falta rodar as duas URLs no notebook do lab** — é o único passo que precisa da máquina.
->
-> **3. Deck da CRE** — `relatorio/apresentacao-cre.html`, 20 slides, um arquivo, offline,
-> ← → navega, **N** mostra notas do apresentador (ou `?notas`), Ctrl+P sai handout com nota
-> por slide. Sem data. Cobre pedagógico + demo + técnico (o usuário pediu os três).
->
-> **4. Auto-update do launcher** (`iniciar-servidor.sh` e `.bat`): pergunta antes
-> (Enter = sim), `--ff-only`, pula sozinho em 6 situações (LJ_SEM_UPDATE=1 · pasta sem
-> `.git` · git ausente · branch ≠ main · código rastreado modificado · rede muda) e roda
-> `npm install` só depois de atualizar de verdade. `client/dist` é versionado → escola não
-> compila. **O `.sh` foi testado nos 8 caminhos** (clone local + npm falso). **O `.bat` NÃO
-> pôde ser testado** — não há cmd.exe aqui; precisa de uma rodada no Windows.
->
-> ### ⛔ O repo NÃO pode virar público como está (achado desta sessão)
-> O usuário autorizou abrir o repo, mas a varredura achou **dado de aluno**:
-> - `.wolf/history.md` (RASTREADO) tem apelidos de aluno numa linha de FPS;
-> - o **histórico** do git tem `profiles-escola/perf-<apelido>-*.json` (removidos no working
->   tree em `1da93cd`, mas commit antigo guarda os nomes) — e o relatório afirma que os
->   perfis crus foram apagados por privacidade. Abrir o repo desmentiria isso.
-> - `server/world.ljw` (RASTREADO, 1 MB) traz PIN `7410` e código de professor `K2AS7X` de
->   um mundo de TESTE (`aluno1`/`aluno2` são fictícios) — sem dado de aluno real, mas não é
->   coisa pra repositório público.
->
-> **DESFECHO (mesma sessão):** o usuário abriu ESTE repo mesmo —
-> `github.com/meketreve/logica-em-jogo` está **PÚBLICO**. Consertei o que dava na árvore
-> atual (`e49aa15`): apelido virou rótulo em `history.md`, `server/world.ljw` saiu do índice
-> e entrou no `.gitignore`. **Sobre o histórico o usuário decidiu: "não tem problema"** — os
-> `profiles-escola/perf-<apelido>-*.json` seguem recuperáveis por `git log` e NÃO serão
-> limpos. Não reabrir esse assunto.
->
-> **Licença (`f6d72af`): source-available, decidida pelo usuário** — "uso livre nas escolas,
-> modificações passam por mim". `LICENSE` em português simples: escola usa/roda/redistribui
-> INALTERADO de graça; distribuir código modificado, republicar sem autoria ou uso comercial
-> exigem autorização escrita. Três pontos explícitos porque mudam o uso real: **cenário
-> criado por professor é do professor**, modificar a PRÓPRIA cópia é livre (o que trava é
-> distribuir), e escola privada como ferramenta de ensino NÃO é uso comercial. Não é OSI — o
-> GitHub marca "licença não reconhecida", e isso é esperado.
-
 ---
 
 ## 🎯 O que é o projeto
@@ -344,33 +292,59 @@ Documento é o ÚLTIMO entregável, não o primeiro. Construir, não documentar.
 
 ---
 
-## 🚀 Próxima fase — PLAYTEST MOBILE, e depois v2 DA GERAÇÃO
+## 🚀 Próxima fase — V2 DA GERAÇÃO (cavernas, depois relevo por bioma)
 
 A ordem do backlog está **travada pelo usuário** (sessão 29):
-**auto-update ✅ → layouts mobile (1ª rodada ✅) → v2 da geração ← AQUI → sobrevivência.**
+**auto-update ✅ → layouts mobile ✅ (1ª rodada) → v2 da geração ← AQUI → sobrevivência.**
 
-**O passo imediato é o usuário abrir o jogo num tablet.** A rodada de layouts está verde no
-headless, mas headless não tem dedo, nem teclado do Android, nem o DPI do aparelho. O que
-olhar, na ordem em que foi mexido:
-1. **Hotbar:** tocar num slot troca de bloco? (é o caminho NOVO — antes só o inventário trocava)
-2. **Chat:** com o teclado aberto, o campo continua visível? O histórico rola?
-3. **Menu → Meus mundos:** com vários mundos, dá pra chegar no "voltar" lá embaixo?
-4. **Inventário:** as 6 abas cabem numa linha? Dá pra acertar aba e slot com o dedo?
-5. **F3 (📊) e objetivos:** ainda passam por baixo da barra de botões do topo?
+**Escopo ABERTO e travado na sessão 31 (2026-07-28). Tudo em `.wolf/ROADMAP.md §🏔️`:** as 4
+decisões, o ponto de partida real conferido no código, 7 colisões e o portão de cada frente.
+**Nenhuma decisão pendente sobre O QUE fazer** — quem pegar a frente não reabre.
 
-**Achado que ficou de FORA de propósito:** o nome do mundo é truncado ("seque…", "labirin…")
-também no **desktop** — a coluna do nome fica com ~84px depois dos 3 botões. Em paisagem baixa
-já resolveu (painel de 680px); no desktop, não. Fica assim porque alargar o menu no desktop é
-mudança visual que o usuário não pediu numa tela que ele vê todo dia. **Uma linha resolve se
-ele quiser:** `.menu-screen { width: min(680px, 92vw) }` sem media query.
+Resumo do que ficou decidido: **os dois, cavernas antes** · **cavernas em TODO mundo
+procedural** (P/M/G/E; `plano` e `cabines` intocados) · **relevo "montanha de verdade"**
+(araucária vira serra alta com neve, o que reabre de propósito o penhasco de fronteira que o
+heightmap global evitou em 2026-07-20).
 
-**Ainda não tocado do escopo mobile** (o usuário não escolheu nesta rodada): os **painéis de
-autoria** (`#painel` — quadros, objetivos, regiões) e o de **grupo/jogadores**. Eles seguem em
-`width: min(580px, 94vw)` e `height: min(560px, 84vh)` com box-sizing content-box; os botões
-internos já ganharam alvo de 40px, mas o LAYOUT deles não foi revisto.
+> ⚠️ **ARMADILHA DE NOME:** a sessão 10 já chamou de "worldgen v2" o que ELA entregou (biomas
+> por clima + minério em veia + árvores brasileiras). **Não é essa a v2 da fila.** E
+> **"madeira por espécie" saiu do escopo: já está feita** — `LogIpe`/`LogAraucaria`/
+> `LogPauBrasil` existem e cada espécie só nasce no bioma dono.
 
-### Três pendências que não bloqueiam nada, e quem faz é o usuário
+**A única pergunta que sobrou pro usuário, e ela é de PRODUTO, não de código:** **não existe
+luz voxel neste projeto** (a tocha é halo decorativo — `client/src/torchGlow.ts`, decisão de
+2026-07-17). Caverna hoje nasceria **clara como a superfície**. Perguntar antes de escavar se
+a fase entrega escuridão/luz junto ou se aceita buraco iluminado por ora.
 
+**Ponto de partida em uma linha:** `gerarColunaDeChunks` (`shared/src/worldgen.ts` L252-361) é
+onde a caverna escava; `heightAt` é um heightmap **único e global** e a interface `Bioma`
+(`shared/src/biomas.ts`) **não tem campo nenhum de relevo**; **cavernas = 0 ocorrências** hoje.
+
+### Layouts mobile — o que ficou aberto da 1ª rodada
+
+- **Playtest no tablet** virou pendência externa (o usuário faz na escola — ver ⚠️ abaixo).
+- **Painéis de AUTORIA** (`#painel`: quadros, objetivos, regiões) e o de **grupo/jogadores**
+  não foram revistos — o usuário os deixou fora do escopo. Seguem em `min(580px, 94vw)` /
+  `min(560px, 84vh)` com box-sizing content-box; os botões internos já têm alvo de 40px.
+  O caminho que funcionou no inventário foi **ALARGAR em paisagem baixa**, não quebrar linha.
+- **Nome do mundo truncado no DESKTOP** ("seque…", "labirin…"): a coluna do nome fica com
+  ~84px depois dos 3 botões. Em paisagem baixa já resolveu (painel de 680px). No desktop
+  resolve com UMA linha (`.menu-screen { width: min(680px, 92vw) }` sem media query), mas é
+  mudança visual não pedida numa tela de uso diário — **só com o aval do usuário.**
+
+### Quatro pendências que não bloqueiam nada, e quem faz é o usuário
+
+0. **PLAYTEST MOBILE — o usuário faz NA ESCOLA** (declarado em 2026-07-28). A 1ª rodada de
+   layouts está verde no headless, mas headless não tem dedo, teclado do Android nem o DPI do
+   aparelho. O que olhar, na ordem em que foi mexido:
+   1. **Hotbar:** tocar num slot troca de bloco? (caminho NOVO — antes só o inventário trocava)
+   2. **Chat:** com o teclado aberto, o campo continua visível? O histórico rola?
+   3. **Menu → Meus mundos:** com vários mundos, dá pra chegar no "voltar" lá embaixo?
+   4. **Inventário:** as 6 abas cabem numa linha? Dá pra acertar aba e slot com o dedo?
+   5. **F3 (📊) e objetivos:** ainda passam por baixo da barra de botões do topo?
+
+   **Não bloqueia a v2 da geração** — são arquivos disjuntos (CSS/UI × `shared/src/worldgen`).
+   Se voltar com ressalva, é edição pontual no `client/index.html` + `npm run shots:tablet`.
 1. **Rodar `iniciar-servidor.bat` no Windows uma vez.** O auto-update do `.sh` foi exercitado
    nos 8 caminhos (clone local + npm falso); o `.bat` NÃO — não há cmd.exe no WSL. É duplo
    clique; se o bloco de update falhar, o pior caso é ele avisar e subir a versão instalada.
@@ -422,9 +396,10 @@ experimento, existe desde bug-529).
 1. ~~**Auto-update do servidor**~~ **FEITO** (`fbbe3d0`): `git pull` no launcher, pergunta
    antes, `--ff-only`, 6 escapes. Falta só o teste no Windows (pendência 1 acima).
 2. ~~**Layouts mobile**~~ **1ª RODADA FEITA (sessão 31)**: menu, inventário/hotbar e chat/HUD
-   em 1024×600. Falta o **playtest no tablet** (acima) e os **painéis de autoria**, que o
-   usuário deixou de fora desta rodada.
-3. **v2 da geração de mundo** ← próximo.
+   em 1024×600. Falta o **playtest no tablet** (pendência 0) e os **painéis de autoria**, que
+   o usuário deixou de fora desta rodada.
+3. **v2 da geração de mundo** ← AQUI. **Escopo travado na sessão 31**, em `ROADMAP.md §🏔️`:
+   cavernas primeiro (todo mundo procedural), depois relevo "montanha de verdade" por bioma.
 4. **Sobrevivência** (fome/vida/craft) — **escopo ABERTO na sessão 30 (2026-07-27)**, nada
    codado. Entrevista feita, decisões travadas, 9 frentes e as colisões (mundo-aula, claims,
    bench, save, protocolo) escritas em `.wolf/ROADMAP.md §🍖`. Ler de lá e começar pelo F1

@@ -5,8 +5,6 @@
 
 | id | tags | file | error (truncated) |
 |---|---|---|---|
-| bug-396 | auto-detected,type-fix,ts | client/src/inventory.ts | Type error |
-| bug-397 | auto-detected,refactor,html | client/index.html | Significant refactor of  |
 | bug-398 | auto-detected,null-safety,ts | shared/src/world.ts | Null/undefined access in  |
 | bug-399 | auto-detected,wrong-reference,ts | shared/src/worldgen.ts | Wrong reference: Bioma should be ArvoreTipo |
 | bug-400 | auto-detected,logic-fix,ts | shared/src/mesher.ts | Wrong condition in logic |
@@ -205,3 +203,5 @@
 | bug-535 | css,flexbox,align-self,deck,apresentacao | relatorio/apresentacao-cre.html | no deck da CRE a etiqueta do slide de capa esticava de ponta a ponta da tela em  |
 | bug-536 | apresentacao,deck,prints,swiftshader,credibilidade | relatorio/apresentacao-cre.html | slide 'Funcionou nos aparelhos da escola' trazia o print 06-hud-f3.png, que most |
 | bug-537 | instrumentacao,perfil,bench,ab-test,semvida,§🌬️,fonte-unica | client/src/bench.ts | (pego antes de rodar) o perfil de `?bench&semvida` ia gravar `config.nuvens: tru |
+| bug-538 | css,box-sizing,max-height,mobile,menu,layout,tablet | client/index.html | painel do menu 'Meus mundos' media 614px numa janela de 600px mesmo com `max-hei |
+| bug-539 | css,mobile,chat,hotbar,sobreposicao,toque,tablet | client/index.html | no tablet o log do chat caia por cima da hotbar (chat 339..552, hotbar 495..588  |

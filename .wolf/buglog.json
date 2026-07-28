@@ -2,38 +2,6 @@
   "version": 1,
   "bugs": [
     {
-      "id": "bug-396",
-      "timestamp": "2026-07-21T01:36:13.517Z",
-      "error_message": "Type error",
-      "file": "client/src/inventory.ts",
-      "root_cause": "Missing or incorrect type annotation",
-      "fix": "Added type assertion/annotation",
-      "tags": [
-        "auto-detected",
-        "type-fix",
-        "ts"
-      ],
-      "related_bugs": [],
-      "occurrences": 1,
-      "last_seen": "2026-07-21T01:36:13.517Z"
-    },
-    {
-      "id": "bug-397",
-      "timestamp": "2026-07-21T01:42:42.106Z",
-      "error_message": "Significant refactor of ",
-      "file": "client/index.html",
-      "root_cause": "2 lines replaced/restructured",
-      "fix": "Rewrote 16→20 lines (2 removed)",
-      "tags": [
-        "auto-detected",
-        "refactor",
-        "html"
-      ],
-      "related_bugs": [],
-      "occurrences": 1,
-      "last_seen": "2026-07-21T01:42:42.106Z"
-    },
-    {
       "id": "bug-398",
       "timestamp": "2026-07-21T02:03:43.944Z",
       "error_message": "Null/undefined access in ",

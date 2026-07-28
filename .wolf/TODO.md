@@ -2,8 +2,8 @@
 
 > Working checklist. **STATUS.md** = handoff ("why & where we are"); **TODO.md** = "what's left to do".
 > Keep items actionable and short. Check off with `[x]`; sweep done items into STATUS.md ✅ when a phase closes.
-> Last updated: 2026-07-27 (sessão 31 — layouts mobile, 1ª rodada: menu, inventário/hotbar,
-> chat/HUD em 1024×600; verificação `npm run shots:tablet`)
+> Last updated: 2026-07-28 (sessão 31 — layouts mobile, 1ª rodada: menu, inventário/hotbar,
+> chat/HUD em 1024×600 + escopo da v2 da geração aberto)
 
 ---
 
@@ -14,10 +14,23 @@
       paisagem baixa), hotbar tocável, chat acima do teclado virtual (`--kb` via
       `visualViewport`), alvos de dedo com piso de 40px. Verificação nova
       `npm run shots:tablet`. VERDE: typecheck 3/3, 358 testes, build, 15/15 medições.
-- [ ] **PLAYTEST no tablet** — o passo que headless não faz. Conferir, nessa ordem: tapa no
-      slot da hotbar troca de bloco · chat com teclado aberto · "Meus mundos" com vários
-      mundos (chegar no "voltar") · abas do inventário numa linha · F3/objetivos sem colidir
-      com a barra de botões do topo.
+- [x] **Escopo da v2 da geração ABERTO** (sessão 31): 4 decisões travadas, ponto de partida
+      conferido no código, 7 colisões e o portão de cada frente em `.wolf/ROADMAP.md §🏔️`.
+- [ ] **Começar a v2 da geração pelas CAVERNAS.** Ler `ROADMAP.md §🏔️` primeiro — não reabrir
+      decisão. Escavar em `gerarColunaDeChunks` (`shared/src/worldgen.ts` L252-361) como
+      função PURA de `(x,y,z,seed)` (mundo E é lazy). **Antes de escavar, perguntar ao usuário
+      a única pendência de produto: não existe luz voxel** (tocha é halo decorativo) — caverna
+      nasceria clara como a superfície.
+
+## 🏫 Na escola (o usuário faz lá)
+
+- [ ] **PLAYTEST mobile no tablet** — headless não tem dedo, teclado do Android nem DPI real.
+      Conferir nessa ordem: tapa no slot da hotbar troca de bloco · chat com teclado aberto ·
+      "Meus mundos" com vários mundos (chegar no "voltar") · abas do inventário numa linha ·
+      F3/objetivos sem colidir com a barra de botões do topo. **Não bloqueia a v2** (arquivos
+      disjuntos: CSS/UI × `shared/src/worldgen`).
+- [ ] **A/B do §🌬️ no notebook do lab:** `?bench` e depois `?bench&semvida`, duas URLs
+      seguidas na MESMA máquina. Só o lado do PC de dev foi feito (sessão 30).
 - [ ] **Rodar o `.bat` no Windows uma vez.** O bloco de auto-update do `.sh` foi exercitado
       nos 8 caminhos aqui; o `.bat` NÃO — não há cmd.exe no WSL. Único jeito é duplo clique.
 
@@ -32,10 +45,6 @@
       ~84px depois dos 3 botões. Em paisagem baixa já resolveu (painel de 680px). No desktop
       resolve com UMA linha (`.menu-screen { width: min(680px, 92vw) }` sem media query), mas
       é mudança visual não pedida numa tela de uso diário: **só com o aval do usuário.**
-- [ ] **Rodar o A/B do §🌬️ no notebook do lab** — a ferramenta ficou pronta na sessão 29:
-      `?bench` e depois `?bench&semvida`, duas URLs seguidas na mesma máquina. O perfil se
-      etiqueta sozinho e o lado B nasce `perf-bench-semvida-*.json`. Só vale se o relatório
-      quiser o custo de nuvens/balanço — não é gatilho de desempenho.
 - [ ] Som de água (splash/borbulha/balde, WebAudio em `audio.ts`) — 4ª opção do refino de
       água, nunca escolhida. **Casa bem com o §🌬️ recém-fechado** (som de vento junto).
 - [ ] **Cauda de GPU no lab — SÓ SE VOLTAR A INCOMODAR** (nenhum gatilho aceso hoje): GPU p95
@@ -52,7 +61,9 @@
       LSP/Serena só se o projeto passar de ~300 arquivos (hoje 223, grep ganha).
 - [x] Layouts mobile (2º da ordem do usuário) — 1ª rodada feita na sessão 31; falta playtest
       no tablet e os painéis de autoria (ver ⏭️ Next)
-- [ ] v2 da geração de mundo (3º da ordem do usuário)
+- [ ] v2 da geração de mundo (3º da ordem do usuário) — **escopo ABERTO em 2026-07-28**
+      (sessão 31): cavernas primeiro em todo mundo procedural, depois relevo "montanha de
+      verdade" por bioma. Decisões, colisões e portões em `.wolf/ROADMAP.md §🏔️`. Ver 🔥 Now.
 - [ ] Sobrevivência (fome/vida/craft) (4º da ordem do usuário) — **escopo ABERTO em
       2026-07-27** (sessão 30): decisões travadas, 9 frentes (F1 `/modo` → F9 preset) e as
       colisões mapeadas em `.wolf/ROADMAP.md §🍖`. Quem pegar a frente NÃO reabre decisão:

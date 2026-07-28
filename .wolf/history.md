@@ -4,6 +4,58 @@
 
 ## Session Journal
 
+> **SESSÃO 29 (2026-07-27) — A/B FERRAMENTADO, DECK DA CRE, AUTO-UPDATE DO LAUNCHER.**
+> O usuário escolheu: relatório **sem data** (vai apresentar informalmente pra CRE antes da
+> apresentação formal), **ponto 2** (o número do §🌬️) e **ponto 4** com ordem fixada —
+> **auto-update → layouts mobile → v2 da geração → sobrevivência**. Pediu também um deck.
+>
+> **1. Relatório sem data:** saiu só o `(2026-07-21)` da linha de versão na ficha. O
+> *período de aplicação* (13–20/07) FICA — é dado do piloto, não data do documento.
+>
+> **2. A/B do §🌬️ ferramentado (não medido ainda):** `?bench&semvida` desliga nuvens+balanço
+> só no bench, no molde do `?semworker`. `benchSettings()` é a fonte única da config efetiva
+> (senão o perfil do lado B mentiria dizendo `nuvens: true` — quase aconteceu). O perfil se
+> etiqueta em 3 lugares: `meta.bench.semVida`, `config.nuvens/balanco` (agora no contexto do
+> HUD, então vale pra QUALQUER perfil, não só bench) e o nome do arquivo
+> (`perf-bench-semvida-*.json`). Headless confirmou os dois lados (true/true × false/false).
+> **Falta rodar as duas URLs no notebook do lab** — é o único passo que precisa da máquina.
+>
+> **3. Deck da CRE** — `relatorio/apresentacao-cre.html`, 20 slides, um arquivo, offline,
+> ← → navega, **N** mostra notas do apresentador (ou `?notas`), Ctrl+P sai handout com nota
+> por slide. Sem data. Cobre pedagógico + demo + técnico (o usuário pediu os três).
+>
+> **4. Auto-update do launcher** (`iniciar-servidor.sh` e `.bat`): pergunta antes
+> (Enter = sim), `--ff-only`, pula sozinho em 6 situações (LJ_SEM_UPDATE=1 · pasta sem
+> `.git` · git ausente · branch ≠ main · código rastreado modificado · rede muda) e roda
+> `npm install` só depois de atualizar de verdade. `client/dist` é versionado → escola não
+> compila. **O `.sh` foi testado nos 8 caminhos** (clone local + npm falso). **O `.bat` NÃO
+> pôde ser testado** — não há cmd.exe aqui; precisa de uma rodada no Windows.
+>
+> ### ⛔ O repo NÃO pode virar público como está (achado desta sessão)
+> O usuário autorizou abrir o repo, mas a varredura achou **dado de aluno**:
+> - `.wolf/history.md` (RASTREADO) tem apelidos de aluno numa linha de FPS;
+> - o **histórico** do git tem `profiles-escola/perf-<apelido>-*.json` (removidos no working
+>   tree em `1da93cd`, mas commit antigo guarda os nomes) — e o relatório afirma que os
+>   perfis crus foram apagados por privacidade. Abrir o repo desmentiria isso.
+> - `server/world.ljw` (RASTREADO, 1 MB) traz PIN `7410` e código de professor `K2AS7X` de
+>   um mundo de TESTE (`aluno1`/`aluno2` são fictícios) — sem dado de aluno real, mas não é
+>   coisa pra repositório público.
+>
+> **DESFECHO (mesma sessão):** o usuário abriu ESTE repo mesmo —
+> `github.com/meketreve/logica-em-jogo` está **PÚBLICO**. Consertei o que dava na árvore
+> atual (`e49aa15`): apelido virou rótulo em `history.md`, `server/world.ljw` saiu do índice
+> e entrou no `.gitignore`. **Sobre o histórico o usuário decidiu: "não tem problema"** — os
+> `profiles-escola/perf-<apelido>-*.json` seguem recuperáveis por `git log` e NÃO serão
+> limpos. Não reabrir esse assunto.
+>
+> **Licença (`f6d72af`): source-available, decidida pelo usuário** — "uso livre nas escolas,
+> modificações passam por mim". `LICENSE` em português simples: escola usa/roda/redistribui
+> INALTERADO de graça; distribuir código modificado, republicar sem autoria ou uso comercial
+> exigem autorização escrita. Três pontos explícitos porque mudam o uso real: **cenário
+> criado por professor é do professor**, modificar a PRÓPRIA cópia é livre (o que trava é
+> distribuir), e escola privada como ferramenta de ensino NÃO é uso comercial. Não é OSI — o
+> GitHub marca "licença não reconhecida", e isso é esperado.
+
 > **SESSÃO 28c (2026-07-27) — SENTIDO DA CORRENTEZA, FACE POR FACE.**
 > Segundo retorno do playtest: *"as texturas estão rotacionadas para cada face"*, com receita
 > tirada de UM caso (correnteza sul→norte): topo certo · baixo 180° · sul 90° CW · leste 180° ·
@@ -1348,6 +1400,39 @@
 > segue ADIADO — sem gatilho.**
 
 ## Action Log
+
+## Session: 2026-07-26 12:12
+
+| Time | Action | File(s) | Outcome | ~Tokens |
+|------|--------|---------|---------|--------|
+| 12:26 | Edited shared/src/mesher.ts | added 2 condition(s) | ~378 |
+| 12:26 | Edited shared/src/mesher.ts | modified for() | ~257 |
+| 12:26 | Edited shared/src/mesher.ts | added optional chaining | ~158 |
+| 12:26 | Edited shared/src/mesher.ts | 5→6 lines | ~22 |
+| 12:27 | Edited shared/src/mesher.ts | expanded (+6 lines) | ~115 |
+| 12:28 | Created client/src/aguaFx.ts | — | ~690 |
+| 12:28 | Edited client/src/atlasTexture.ts | diagonal() → leve() | ~143 |
+| 12:28 | Edited client/src/atlasTexture.ts | added 1 condition(s) | ~217 |
+| 12:29 | Edited client/src/main.ts | added 1 import(s) | ~34 |
+| 12:29 | Edited client/src/main.ts | added 1 condition(s) | ~146 |
+| 12:29 | Edited client/src/main.ts | modified gua() | ~74 |
+| 12:30 | Edited shared/src/worldgen.ts | modified mar() | ~214 |
+| 12:30 | Edited shared/src/worldgen.ts | 4→9 lines | ~150 |
+| 12:31 | Edited shared/src/world.ts | added 3 condition(s) | ~373 |
+| 12:31 | Edited shared/src/world.ts | inline fix | ~13 |
+| 12:31 | Edited shared/src/session.ts | modified lago() | ~181 |
+| 12:33 | Edited shared/src/worldgen.ts | 20 → 22 | ~8 |
+| 12:34 | Edited shared/src/worldgen.ts | modified if() | ~89 |
+| 12:34 | Edited shared/src/biomas.ts | modified 16() | ~52 |
+| 12:34 | Edited shared/src/worldgen.test.ts | 7→7 lines | ~83 |
+| 12:40 | Edited client/src/aguaFx.ts | modified UI() | ~112 |
+| 12:20 | backlog revisto: água fluida JÁ existia (ROADMAP desatualizado); usuário escolheu 3 refinos + perguntou como casar as pontas dos níveis | .wolf/ROADMAP.md, TODO.md | procedural (altura por vértice), não modelo por vizinho | ~12k |
+| 12:28 | superfície de água por nível: alturaCantoAgua (média das 4 células do canto) + AGUA_TOPO=0.875 | shared/src/mesher.ts, mesher.test.ts | 3 testes novos, pontas casam | ~6k |
+| 12:33 | tint+névoa submerso e correnteza no atlas | client/src/aguaFx.ts (novo), atlasTexture.ts, main.ts | z-index 1 (UI limpa), 8 fps | ~5k |
+| 12:40 | mar/lagos: NIVEL_MAR=22, praia = mar+1, água FONTE estática, findSpawnSeco | shared/src/worldgen.ts, world.ts, session.ts, biomas.ts | 5 testes novos; bug-210 (mandacaru zerado) | ~9k |
+| 12:45 | verificação headless contra servidor real (seed 66) | scratchpad/*.png | lago+praia ✅, submerso ✅, 324 testes, build | ~7k |
+| 12:47 | Session end: 21 writes across 9 files (mesher.ts, aguaFx.ts, atlasTexture.ts, main.ts, worldgen.ts) | 16 reads | ~85316 tok |
+| 12:48 | Session end: 21 writes across 9 files (mesher.ts, aguaFx.ts, atlasTexture.ts, main.ts, worldgen.ts) | 16 reads | ~85316 tok |
 
 ## Session: 2026-07-26 03:00
 
