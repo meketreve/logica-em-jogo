@@ -970,3 +970,18 @@ a cada stop, sem jeito de satisfazer seguindo as instruções dele mesmo.
 - **Pendência de PRODUTO que a fase abre, não de código:** **não existe luz voxel** neste
   projeto — a tocha é halo decorativo (`client/src/torchGlow.ts`, decisão de 2026-07-17).
   Caverna nasceria clara como a superfície. Perguntar ao usuário ANTES de escavar.
+
+## Do-Not-Repeat — formato do memory.md (2026-07-28)
+
+- [2026-07-28] **NÃO escrever hora com placeholder** no `memory.md` (`| 23:0x |`, `| 00:1x |`).
+  O stop hook do OpenWolf conta entradas semânticas com `^\|\s*\d{1,2}:\d{2}\s*\|` — `0x` não
+  é dígito, a linha não conta, e o aviso "no semantic summary" repete a cada turno. Escrevi 11
+  entradas assim e depois afirmei ao usuário que o aviso era falso positivo do
+  [PR #64](https://github.com/cytostack/openwolf/pull/64) — **era erro meu**. Conferir antes de
+  culpar a ferramenta: reproduzir `countSemanticEntries` (em
+  `~/.local/share/pnpm/store/.../openwolf/dist/hooks/shared.js`) num `node -e` custa 30 s.
+- [2026-07-28] **Sessão que atravessa a MEIA-NOITE precisa do prefixo de DATA:**
+  `| 2026-07-28 00:12 | … |`. O contador só aceita `HH:MM` solto se a linha estiver abaixo de
+  um cabeçalho `## Session: <hoje>` gerado pelo próprio OpenWolf — e depois da virada do dia
+  esse cabeçalho ainda é o de ontem. Cabeçalho MEU (`## Sessão 31 (…)`) não casa com o regex
+  `^##\s+Session:\s*(\d{4}-\d{2}-\d{2})` e não serve.

@@ -663,15 +663,18 @@ layouts mobile segue sendo o próximo.
 
 ## Sessão 31 (2026-07-27) — layouts mobile, 1ª rodada
 
-| 23:0x | entrevista de escopo mobile (2 perguntas) | — | usuário: menu + inventário/hotbar + chat/HUD; régua "os dois, Fire manda"; celular RECUSADO | ~2k |
-| 23:1x | levantamento: `@media` = 0 no index.html, uiScale só escala touch.ts | client/index.html, touch.ts | 5 defeitos reais mapeados | ~8k |
-| 23:2x | 3 media queries + box-sizing + alvos de dedo | client/index.html | menu/inventário/chat/HUD/hotbar em 1024×600 | ~6k |
-| 23:2x | `--ts` de #touch-ui → :root (o #chat precisa do valor) | client/src/touch.ts | chat desvia do joystick | ~1k |
-| 23:3x | `--kb` via visualViewport + scroll do log pro fim | client/src/chat.ts | campo do chat sobrevive ao teclado virtual | ~2k |
-| 23:3x | hotbar tocável (delegação de pointerdown na faixa .slots) | client/src/main.ts | tablet troca de bloco sem abrir inventário | ~1k |
-| 23:4x | verificação headless nova (CDP + setEmulatedMedia coarse) | scripts/tablet-shots.mjs, package.json | 15/15 medições verdes; pegou bug-538 e bug-539 | ~9k |
-| 23:5x | verify + regressão desktop 1920×1080 e tablet 1280×800 | — | typecheck 3/3, 358 testes, build ok | ~3k |
+| 23:05 | entrevista de escopo mobile (2 perguntas) | — | usuário: menu + inventário/hotbar + chat/HUD; régua "os dois, Fire manda"; celular RECUSADO | ~2k |
+| 23:12 | levantamento: `@media` = 0 no index.html, uiScale só escala touch.ts | client/index.html, touch.ts | 5 defeitos reais mapeados | ~8k |
+| 23:20 | 3 media queries + box-sizing + alvos de dedo | client/index.html | menu/inventário/chat/HUD/hotbar em 1024×600 | ~6k |
+| 23:26 | `--ts` de #touch-ui → :root (o #chat precisa do valor) | client/src/touch.ts | chat desvia do joystick | ~1k |
+| 23:32 | `--kb` via visualViewport + scroll do log pro fim | client/src/chat.ts | campo do chat sobrevive ao teclado virtual | ~2k |
+| 23:38 | hotbar tocável (delegação de pointerdown na faixa .slots) | client/src/main.ts | tablet troca de bloco sem abrir inventário | ~1k |
+| 23:45 | verificação headless nova (CDP + setEmulatedMedia coarse) | scripts/tablet-shots.mjs, package.json | 15/15 medições verdes; pegou bug-538 e bug-539 | ~9k |
+| 23:52 | verify + regressão desktop 1920×1080 e tablet 1280×800 | — | typecheck 3/3, 358 testes, build ok | ~3k |
 | 23:54 | Session end: 17 writes across 6 files (index.html, touch.ts, chat.ts, main.ts, package.json) | 12 reads | ~45406 tok |
-| 00:1x | entrevista de escopo da v2 da geração (3 perguntas) | .wolf/ROADMAP.md §🏔️ | os dois/cavernas antes · todo mundo procedural · relevo "montanha de verdade" | ~3k |
-| 00:2x | levantamento do ponto de partida: cavernas=0, Bioma sem campo de relevo, SEM luz voxel | shared/{worldgen,biomas}.ts, client/torchGlow.ts | 7 colisões escritas; "madeira por espécie" descoberta OBSOLETA (já feita na sessão 10) | ~5k |
-| 00:3x | handoff pro /clear | .wolf/{STATUS,TODO,cerebrum,ROADMAP}.md | playtest mobile virou pendência de escola; v2 vira quest ativa | ~4k |
+| 2026-07-28 00:12 | entrevista de escopo da v2 da geração (3 perguntas) | .wolf/ROADMAP.md §🏔️ | os dois/cavernas antes · todo mundo procedural · relevo "montanha de verdade" | ~3k |
+| 2026-07-28 00:25 | levantamento do ponto de partida: cavernas=0, Bioma sem campo de relevo, SEM luz voxel | shared/{worldgen,biomas}.ts, client/torchGlow.ts | 7 colisões escritas; "madeira por espécie" descoberta OBSOLETA (já feita na sessão 10) | ~5k |
+| 2026-07-28 00:38 | handoff pro /clear | .wolf/{STATUS,TODO,cerebrum,ROADMAP}.md | playtest mobile virou pendência de escola; v2 vira quest ativa | ~4k |
+| 08:21 | Session end: 17 writes across 6 files (index.html, touch.ts, chat.ts, main.ts, package.json) | 12 reads | ~45406 tok |
+| 08:21 | Session end: 17 writes across 6 files (index.html, touch.ts, chat.ts, main.ts, package.json) | 12 reads | ~45406 tok |
+| 08:21 | Session end: 17 writes across 6 files (index.html, touch.ts, chat.ts, main.ts, package.json) | 12 reads | ~45406 tok |
