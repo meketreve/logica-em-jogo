@@ -3392,6 +3392,29 @@
       ],
       "occurrences": 1,
       "last_seen": "2026-07-28T09:20:00Z"
+    },
+    {
+      "id": "bug-544",
+      "timestamp": "2026-07-28T10:30:00Z",
+      "error_message": "usuario no playtest: 'luz ta dando z fight nos blocos' — superficie chapada aparecia chuviscada entre dois brilhos, e o padrao acompanhava a camera como z-fighting de verdade",
+      "file": "client/src/luzShader.ts",
+      "root_cause": "o desempacotamento dos dois nibbles (`floor(vLuz / 16.0)`) rodava no FRAGMENT shader, ou seja, aplicava `floor` a um valor INTERPOLADO. Os 4 vertices da face carregam o MESMO byte, mas a interpolacao perspectiva devolve 239,9999 em parte dos pixels — e o `floor` derruba um NIVEL INTEIRO de luz (~14% de brilho). O resultado e um xadrez de dois brilhos na mesma face, que na tela e indistinguivel de z-fighting. Nao era profundidade nenhuma: nao havia face coplanar envolvida.",
+      "fix": "desempacotar no VERTEX shader, onde `luz` e o byte exato do atributo, e mandar pro fragmento o BRILHO ja calculado (`vBrilho`). Interpolar um valor constante entre 4 vertices iguais so pode errar na 7a casa decimal, o que e invisivel. De quebra ficou mais barato (por vertice em vez de por fragmento). Medido com detector de padrao ABAB num quadro do ?bench: 1,69% dos pixels antes, 0,09% no controle `?semluz`, 0,02% depois do fix.",
+      "tags": [
+        "shader",
+        "luz",
+        "glsl",
+        "interpolacao",
+        "varying",
+        "z-fighting",
+        "playtest",
+        "precisao"
+      ],
+      "related_bugs": [
+        "bug-540"
+      ],
+      "occurrences": 1,
+      "last_seen": "2026-07-28T10:30:00Z"
     }
   ]
 }

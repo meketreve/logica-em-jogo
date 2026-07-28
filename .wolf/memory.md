@@ -772,3 +772,6 @@ layouts mobile segue sendo o próximo.
 | 09:35 | Session end: 89 writes across 17 files (luz.ts, index.ts, luz.test.ts, mesher.ts, meshPool.ts) | 19 reads | ~158770 tok |
 | 09:52 | Preparou /clear: sessão 32 registrada em STATUS ✅ Concluído (o bloco do diário rotaciona fora em 2 sessões), nota de que o dev:server do usuário em :8080 já serve o build com luz+cavernas, conferido que nada meu ficou no ar (vite/chrome mortos; a 8080 é dele, sem LJ_*). | .wolf/STATUS.md, .wolf/memory.md | handoff fechado, árvore limpa | ~1 commit |
 | 09:58 | Push dos 9 commits pro GitHub (as sessões 30 e 31 tinham ficado só locais) e registro disso no STATUS — é de lá que o launcher da escola puxa. | .wolf/STATUS.md | main sincronizada com origin | ~1 commit |
+| 10:42 | Session end: 89 writes across 17 files (luz.ts, index.ts, luz.test.ts, mesher.ts, meshPool.ts) | 19 reads | ~158770 tok |
+| 10:51 | Edited client/src/main.ts | 1→6 lines | ~113 |
+| 10:52 | Edited client/src/luzShader.ts | modified replace() | ~535 |

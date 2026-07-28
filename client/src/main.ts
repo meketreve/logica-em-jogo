@@ -806,6 +806,11 @@ function startGame(snap: Snapshot): void {
    * pra mandar o que os dois lados derivam igual. Acende por COLUNA, no mesmo
    * ritmo do streaming (`acenderColuna` logo abaixo de `enfileirarColuna`).
    */
+  /** `?semluz` desliga a luz voxel INTEIRA (o mesher volta a pintar tudo aceso,
+   *  que é como o jogo era antes do §💡). É o lado B do A/B — mesmo papel do
+   *  `?semvida` e do `?semworker`: sem um par medido na MESMA máquina, "a luz
+   *  custa X" ou "a luz causa Y" é anedota. */
+  const semLuz = new URLSearchParams(location.search).has("semluz");
   let luzWorld = criarLuz(world.dims);
   /**
    * §💡 Colunas esperando a luz. Mesma disciplina da fila de mesh: o handler da
@@ -897,7 +902,7 @@ function startGame(snap: Snapshot): void {
     scene,
     !semWorker,
     Number.isFinite(meshDepth) && meshDepth > 0 ? meshDepth : undefined,
-    luzWorld,
+    semLuz ? undefined : luzWorld,
   );
   // efeitos de água (2026-07-26): névoa+tint ao submergir, animação da textura
   const aguaFx = new AguaFx(scene);
@@ -918,7 +923,7 @@ function startGame(snap: Snapshot): void {
   // A luz vem ANTES do mesh: geometria montada sem luz nasceria clara e
   // escureceria num segundo remesh, piscando na cara da turma.
   if (!mundoLazy) {
-    acenderMundoTodo(world, luzWorld);
+    if (!semLuz) acenderMundoTodo(world, luzWorld);
     chunkRenderer.buildAll();
   }
 
@@ -1210,8 +1215,8 @@ function startGame(snap: Snapshot): void {
     luzWorld = criarLuz(world.dims);
     filaLuz.length = 0; // coluna do mundo VELHO não se acende no novo
     filaLuzSet.clear();
-    if (!mundoLazy) acenderMundoTodo(world, luzWorld);
-    chunkRenderer.trocarMundo(world, !mundoLazy, luzWorld);
+    if (!mundoLazy && !semLuz) acenderMundoTodo(world, luzWorld);
+    chunkRenderer.trocarMundo(world, !mundoLazy, semLuz ? undefined : luzWorld);
     torchGlow.setFromWorld(world);
 
     latestRegions = [];
@@ -1281,7 +1286,7 @@ function startGame(snap: Snapshot): void {
     // §💡 a luz mudou onde ela ALCANÇA (até 15 blocos), não só no ±1 do bloco:
     // por isso o remesh extra sai do conjunto que o motor devolve. Quebrar o
     // teto de uma sala acende o cômodo inteiro — e são vários chunks.
-    chunkRenderer.remeshSujos(atualizarBloco(world, luzWorld, msg.x, msg.y, msg.z));
+    if (!semLuz) chunkRenderer.remeshSujos(atualizarBloco(world, luzWorld, msg.x, msg.y, msg.z));
     torchGlow.onBlockChanged(msg.x, msg.y, msg.z, msg.blockId);
     quadroRenderer.onBlockChanged(msg.x, msg.y, msg.z, msg.blockId, world);
     // gatilho de som (áudio pluga depois); areia caindo dispara os dois por tick
@@ -1306,7 +1311,7 @@ function startGame(snap: Snapshot): void {
     // pela casca. Custa ~2,5 ms por coluna, e encher em lote é ação de professor.
     for (let cx = Math.max(0, (msg.x0 / 16) | 0); cx <= Math.min(world.dims.x - 1, (msg.x1 / 16) | 0); cx++)
       for (let cz = Math.max(0, (msg.z0 / 16) | 0); cz <= Math.min(world.dims.z - 1, (msg.z1 / 16) | 0); cz++)
-        chunkRenderer.remeshSujos(acenderColuna(world, luzWorld, cx, cz));
+        if (!semLuz) chunkRenderer.remeshSujos(acenderColuna(world, luzWorld, cx, cz));
     chunkRenderer.remeshBox(min, max);
     torchGlow.onRegionFilled(min, max, msg.blockId);
     quadroRenderer.validarTodos(world); // encher pode ter engolido quadros
@@ -2021,10 +2026,12 @@ function startGame(snap: Snapshot): void {
           // a coluna pode ter saído do raio enquanto esperava: acender (e
           // meshar) o que já foi descartado desperdiça o frame inteiro
           if (!colunasCarregadas.has(key)) continue;
-          const t0 = performance.now();
-          acenderColuna(world, luzWorld, c.cx, c.cz);
-          luzMsTotal += performance.now() - t0;
-          luzColunas++;
+          if (!semLuz) {
+            const t0 = performance.now();
+            acenderColuna(world, luzWorld, c.cx, c.cz);
+            luzMsTotal += performance.now() - t0;
+            luzColunas++;
+          }
           // o conjunto sujo é ignorado: `enfileirarColuna` já cobre esta coluna
           // e as 4 vizinhas, que é o mesmo alcance.
           chunkRenderer.enfileirarColuna(c.cx, c.cz);

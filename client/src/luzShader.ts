@@ -48,41 +48,50 @@ export function aplicarLuz(material: THREE.Material, uniforms: LuzUniforms): voi
     shader.uniforms["nivelCeu"] = uniforms.nivelCeu;
     shader.uniforms["luzMin"] = uniforms.luzMin;
 
+    // ⚠️ O desempacotamento dos dois nibbles roda no VERTEX shader, e isso NÃO é
+    // otimização — é correção (bug-544). Fazer `floor(vLuz / 16.0)` no FRAGMENT
+    // significa aplicar `floor` a um valor INTERPOLADO: os 4 vértices da face
+    // carregam o mesmo byte, mas a interpolação perspectiva devolve 239,9999 em
+    // parte dos pixels, o `floor` derruba um nível inteiro de luz e a superfície
+    // fica chuviscada entre dois brilhos — o que na tela lê como z-fighting.
+    // Medido: 1,69% dos pixels em padrão ABAB contra 0,09% com `?semluz`.
+    // Aqui em cima `luz` é o byte exato do atributo, então o `floor` é exato; o
+    // que atravessa pro fragmento já é o brilho final, e interpolar um valor
+    // constante entre 4 vértices iguais só pode errar na 7ª casa.
     shader.vertexShader = shader.vertexShader
       .replace(
         "#include <common>",
         `#include <common>
 attribute float luz;
-varying float vLuz;`,
+varying float vBrilho;
+uniform float nivelCeu;
+uniform float luzMin;`,
       )
       .replace(
         "#include <begin_vertex>",
         `#include <begin_vertex>
-vLuz = luz;`,
+{
+  // byte cru 0..255 (atributo NÃO normalizado): céu no nibble alto, bloco no baixo
+  float nCeu = floor(luz / 16.0);
+  float nBloco = luz - nCeu * 16.0;
+  float efetivo = max(nCeu * nivelCeu, nBloco);
+  // curva geométrica (0,86 por nível), não linear: é ela que faz os 3 ou 4
+  // últimos blocos antes do breu caírem depressa e a boca da caverna ler como
+  // boca de caverna. Linear dava um cinza chapado sem profundidade.
+  vBrilho = mix(luzMin, 1.0, pow(0.86, 15.0 - efetivo));
+}`,
       );
 
     shader.fragmentShader = shader.fragmentShader
       .replace(
         "#include <common>",
         `#include <common>
-varying float vLuz;
-uniform float nivelCeu;
-uniform float luzMin;`,
+varying float vBrilho;`,
       )
       .replace(
         "#include <color_fragment>",
         `#include <color_fragment>
-{
-  // o byte chega como float 0..255 (atributo NÃO normalizado)
-  float nCeu = floor(vLuz / 16.0);
-  float nBloco = vLuz - nCeu * 16.0;
-  float efetivo = max(nCeu * nivelCeu, nBloco);
-  // curva geométrica (0,86 por nível), não linear: é ela que faz os 3 ou 4
-  // últimos blocos antes do breu caírem depressa e a boca da caverna ler como
-  // boca de caverna. Linear dava um cinza chapado sem profundidade.
-  float f = pow(0.86, 15.0 - efetivo);
-  diffuseColor.rgb *= mix(luzMin, 1.0, f);
-}`,
+diffuseColor.rgb *= vBrilho;`,
       );
   };
   material.needsUpdate = true;

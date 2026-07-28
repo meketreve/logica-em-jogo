@@ -1,12 +1,12 @@
 {
   "version": 1,
   "meta": {
-    "lastScanned": "2026-07-28T12:21:46.699Z",
+    "lastScanned": "2026-07-28T13:52:19.778Z",
     "fileCount": 244,
     "hits": 0,
     "misses": 0,
-    "renderedHash": "e8995b8afe00b513caa0380cfecf4ee85c611bd59a5c89169a4c829e32ae091b",
-    "storeUpdatedAt": "2026-07-28T12:21:46.702Z"
+    "renderedHash": "2ee6756e3dc502c05fcd33febb7dec9178d32981f3abe7d2f09f6546056108b3",
+    "storeUpdatedAt": "2026-07-28T13:52:19.798Z"
   },
   "files": {
     ".claude/commands/reframe.md": {
@@ -2161,12 +2161,12 @@
     },
     "client/src/luzShader.ts": {
       "description": "§💡 O lado GPU da luz voxel (2026-07-28).",
-      "tokens": 896,
-      "hash": "bf7d6a2a5ffd0268",
-      "size": 3192,
-      "mtimeMs": 1785239259961.079,
-      "updatedAt": "2026-07-28T12:21:46.592Z",
-      "source": "scan",
+      "tokens": 1124,
+      "hash": "6e328084e984012f",
+      "size": 4024,
+      "mtimeMs": 1785246739613.0776,
+      "updatedAt": "2026-07-28T13:52:19.778Z",
+      "source": "hook",
       "symbols": [
         {
           "name": "LuzUniforms",
@@ -2186,19 +2186,19 @@
           "name": "aplicarLuz",
           "kind": "fn",
           "startLine": 44,
-          "endLine": 90,
-          "tokens": 411
+          "endLine": 99,
+          "tokens": 640
         }
       ]
     },
     "client/src/main.ts": {
       "description": "O cliente não tem filesystem: aprende os nomes das aulas pela resposta de",
-      "tokens": 27625,
-      "hash": "1927efb46b3d14c6",
-      "size": 97886,
-      "mtimeMs": 1785239849565.0735,
-      "updatedAt": "2026-07-28T12:21:46.595Z",
-      "source": "scan",
+      "tokens": 27727,
+      "hash": "a1607a30347fb1a3",
+      "size": 98250,
+      "mtimeMs": 1785246670041.074,
+      "updatedAt": "2026-07-28T13:51:10.248Z",
+      "source": "hook",
       "symbols": [
         {
           "name": "cachearMundos",
@@ -2351,8 +2351,8 @@
           "name": "startGame",
           "kind": "fn",
           "startLine": 795,
-          "endLine": 2225,
-          "tokens": 18221
+          "endLine": 2230,
+          "tokens": 18323
         }
       ]
     },

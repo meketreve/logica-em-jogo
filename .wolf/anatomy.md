@@ -1,6 +1,6 @@
 # anatomy.md
 
-> Auto-maintained by OpenWolf. Last scanned: 2026-07-28T12:21:46.699Z
+> Auto-maintained by OpenWolf. Last scanned: 2026-07-28T13:52:19.778Z
 > Files: 244 tracked | Anatomy hits: 0 | Misses: 0
 
 ## ./
@@ -318,11 +318,11 @@
   - fn `fmtBytes` L139-144 (~48 tok)
   - fn `fmtSeg` L145-148 (~23 tok)
   - class `LoadingScreen` L149-449 (~3406 tok)
-- `luzShader.ts` — §💡 O lado GPU da luz voxel (2026-07-28). (~896 tok)
+- `luzShader.ts` — §💡 O lado GPU da luz voxel (2026-07-28). (~1124 tok)
   - section `LuzUniforms` L22-32 (~120 tok)
   - fn `criarLuzUniforms` L33-43 (~116 tok)
-  - fn `aplicarLuz` L44-90 (~411 tok)
-- `main.ts` — O cliente não tem filesystem: aprende os nomes das aulas pela resposta de (~27625 tok)
+  - fn `aplicarLuz` L44-99 (~640 tok)
+- `main.ts` — O cliente não tem filesystem: aprende os nomes das aulas pela resposta de (~27727 tok)
   - fn `cachearMundos` L103-194 (~1177 tok)
   - fn `applySettings` L195-250 (~847 tok)
   - fn `showOverlayMain` L251-255 (~35 tok)
@@ -344,7 +344,7 @@
   - fn `startMultiplayer` L707-724 (~224 tok)
   - fn `startSingleplayer` L725-746 (~249 tok)
   - fn `persistWorld` L747-794 (~520 tok)
-  - fn `startGame` L795-2225 (~18221 tok)
+  - fn `startGame` L795-2230 (~18323 tok)
 - `menu.ts` — Menu principal (cp8) — HTML/CSS por cima do canvas, sem GUI de engine. (~4695 tok)
   - section `PlayWorldChoice` L35-49 (~166 tok)
   - section `MultiAuth` L50-54 (~19 tok)
