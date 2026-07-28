@@ -14,9 +14,13 @@ import {
   type Snapshot,
   ITEM_BALDE_AGUA,
   ITEM_BALDE_VAZIO,
+  acenderColuna,
+  atualizarBloco,
   blockSelectionBox,
   createPlayer,
+  criarLuz,
   decodeSnapshot,
+  descartarColunaLuz,
   findSpawnY,
   getBlock,
   isBalde,
@@ -67,6 +71,7 @@ import { ChunkRenderer } from "./chunks";
 import { learnPlayers, learnWorlds } from "./commands";
 import { SkyCycle } from "./daynight";
 import { VentoCliente, aplicarBalanco, criarBalancoUniforms } from "./vento";
+import { aplicarLuz, criarLuzUniforms } from "./luzShader";
 import { type Connection, WorkerConnection, WsConnection } from "./connection";
 import { emitGameEvent } from "./events";
 import { Hud } from "./hud";
@@ -795,6 +800,24 @@ function startGame(snap: Snapshot): void {
   // `let`: a troca de aula (cp19) substitui o mundo debaixo dos closures abaixo
   let world = snap.world;
   let worldSeed = snap.seed; // clima/bioma do F3 derivam da seed (funções puras)
+  /**
+   * §💡 Grade de luz voxel — paralela ao mundo, do MESMO tamanho, e 100% do
+   * cliente: é função pura dos bytes, então o servidor não gasta banda nem tick
+   * pra mandar o que os dois lados derivam igual. Acende por COLUNA, no mesmo
+   * ritmo do streaming (`acenderColuna` logo abaixo de `enfileirarColuna`).
+   */
+  let luzWorld = criarLuz(world.dims);
+  /**
+   * §💡 Colunas esperando a luz. Mesma disciplina da fila de mesh: o handler da
+   * rede só ENFILEIRA, o loop de render drena sob orçamento de tempo. A ordem
+   * importa — a coluna só vai pra fila de mesh DEPOIS de acesa, senão a
+   * geometria nasce clara e escurece num segundo remesh (pisca).
+   */
+  const filaLuz: { cx: number; cz: number }[] = [];
+  const filaLuzSet = new Set<number>();
+  /** Custo acumulado da luz, pro F3/perfil (main thread — é onde ela roda). */
+  let luzMsTotal = 0;
+  let luzColunas = 0;
   // F2 streaming: mundo ENORME chega vazio (LJE0) e as colunas viajam depois
   let mundoLazy = proximoLazy;
   /** Colunas carregadas (chave cz*dims.x+cx) — espelha a regra do servidor:
@@ -822,6 +845,11 @@ function startGame(snap: Snapshot): void {
   // atualizados 1×/frame no loop; `settings.balanco` zera a força pra desligar
   // sem recompilar shader.
   aplicarBalanco(material, balancoUniforms);
+  // §💡 luz voxel nos TRÊS materiais do chunk. Precisa vir DEPOIS do balanço:
+  // `aplicarLuz` encadeia o `onBeforeCompile` que já estiver lá (three guarda
+  // um só, e sobrescrever mataria o vento em silêncio).
+  const luzUniforms = criarLuzUniforms();
+  aplicarLuz(material, luzUniforms);
   // água (2026-07-22): material SEPARADO, transparente DE VERDADE (blend) — sem
   // os furos xadrez. Mesma textura do atlas (as UVs do tile da água batem).
   // depthWrite:false = várias faces de água blendam sem brigar pelo z-buffer;
@@ -843,6 +871,8 @@ function startGame(snap: Snapshot): void {
     opacity: 0.4,
     depthWrite: false,
   });
+  aplicarLuz(materialAgua, luzUniforms);
+  aplicarLuz(materialVidro, luzUniforms);
 
   // ?atlas na URL: pendura o canvas do texture atlas no canto (inspeção visual)
   if (new URLSearchParams(location.search).has("atlas")) {
@@ -867,6 +897,7 @@ function startGame(snap: Snapshot): void {
     scene,
     !semWorker,
     Number.isFinite(meshDepth) && meshDepth > 0 ? meshDepth : undefined,
+    luzWorld,
   );
   // efeitos de água (2026-07-26): névoa+tint ao submergir, animação da textura
   const aguaFx = new AguaFx(scene);
@@ -876,8 +907,20 @@ function startGame(snap: Snapshot): void {
   let aguaFluxoRelogio = 0;
   let aguaQuadroFluxo = -1;
   let aguaUltimaPintura = -1;
-  // lazy: nada a meshar ainda — as colunas entram na fila conforme chegam
-  if (!mundoLazy) chunkRenderer.buildAll();
+  /** §💡 Acende TODAS as colunas de um mundo denso (o que chegou inteiro no
+   *  snapshot). Mundo lazy não passa por aqui: cada coluna acende quando chega. */
+  const acenderMundoTodo = (w: typeof world, l: typeof luzWorld): void => {
+    for (let cx = 0; cx < w.dims.x; cx++)
+      for (let cz = 0; cz < w.dims.z; cz++) acenderColuna(w, l, cx, cz);
+  };
+
+  // lazy: nada a meshar ainda — as colunas entram na fila conforme chegam.
+  // A luz vem ANTES do mesh: geometria montada sem luz nasceria clara e
+  // escureceria num segundo remesh, piscando na cara da turma.
+  if (!mundoLazy) {
+    acenderMundoTodo(world, luzWorld);
+    chunkRenderer.buildAll();
+  }
 
   aplicarColunas = (buf) => {
     // §🔁 lote CORROMPIDO (tamanho/magic errado) joga exceção no meio da
@@ -896,7 +939,15 @@ function startGame(snap: Snapshot): void {
       const key = cz * world.dims.x + cx;
       colunasCarregadas.add(key);
       colunasFaltando.delete(key);
-      chunkRenderer.enfileirarColuna(cx, cz);
+      // §💡 a coluna entra na FILA DE LUZ; quem acende (e só então enfileira pro
+      // mesh) é o loop de render, sob orçamento de tempo. Acender aqui, no
+      // handler da rede, colocaria as 8 colunas de um lote no MESMO frame — o
+      // erro que o mesher já cometeu e custou a sessão 27 (9,7-13,4 s de trava
+      // no PC do laboratório). Cada coluna custa ~2,5 ms no PC de dev.
+      if (!filaLuzSet.has(key)) {
+        filaLuzSet.add(key);
+        filaLuz.push({ cx, cz });
+      }
       torchGlow.varrerColuna(world, cx, cz); // tocha de coluna nova também brilha
     }
     colunasRecebidas += cols.length; // acumulado do perfil (≠ do Set, que descarta)
@@ -907,6 +958,11 @@ function startGame(snap: Snapshot): void {
   // PERMANENTE (só sair do raio e voltar consertava).
   /** Carência antes do 1º pedido: o lote pode estar a caminho (o servidor manda
    *  `colunasPorTick` por vez, o mundo inteiro não chega num tick). */
+  /** §💡 Orçamento de luz por frame DURANTE O JOGO. Uma coluna é atômica (não dá
+   *  pra parar a propagação no meio), então isto não limita o custo de UMA — ele
+   *  limita quantas cabem no mesmo frame, que é o caso que trava: o lote do
+   *  streaming traz várias de uma vez. */
+  const ORCAMENTO_LUZ_MS = 3;
   const ESPERA_INICIAL_MS = 4000;
   const BACKOFF_BASE_MS = 2000; // dobra a cada tentativa…
   const BACKOFF_MAX_MS = 30_000; // …até este teto (servidor lento ≠ flood)
@@ -938,6 +994,7 @@ function startGame(snap: Snapshot): void {
         // esconderia o buraco em vez de consertar
         chunkRenderer.descartarColuna(cx, cz);
         torchGlow.descartarColuna(cx, cz);
+        descartarColunaLuz(luzWorld, cx, cz); // §💡 a luz vai junto com os bytes
         for (let cy = 0; cy < dims.y; cy++) {
           world.chunks[(cy * dims.z + cz) * dims.x + cx] = undefined;
         }
@@ -1148,7 +1205,13 @@ function startGame(snap: Snapshot): void {
     colunasFaltando.clear(); // §🔁 buracos do mundo VELHO não valem no novo
     // mundo ENORME não tem o que montar aqui (as colunas chegam por streaming);
     // `buildAll` num mundo E varria 460 800 slots vazios = ~19 s de trava
-    chunkRenderer.trocarMundo(world, !mundoLazy);
+    // §💡 grade de luz NOVA: o mundo pode ter até outro tamanho, e luz do mundo
+    // velho num mundo novo seria sombra de parede que não existe mais.
+    luzWorld = criarLuz(world.dims);
+    filaLuz.length = 0; // coluna do mundo VELHO não se acende no novo
+    filaLuzSet.clear();
+    if (!mundoLazy) acenderMundoTodo(world, luzWorld);
+    chunkRenderer.trocarMundo(world, !mundoLazy, luzWorld);
     torchGlow.setFromWorld(world);
 
     latestRegions = [];
@@ -1215,6 +1278,10 @@ function startGame(snap: Snapshot): void {
   applyBlockChanged = (msg) => {
     setBlock(world, msg.x, msg.y, msg.z, msg.blockId);
     chunkRenderer.remeshBlock(msg.x, msg.y, msg.z);
+    // §💡 a luz mudou onde ela ALCANÇA (até 15 blocos), não só no ±1 do bloco:
+    // por isso o remesh extra sai do conjunto que o motor devolve. Quebrar o
+    // teto de uma sala acende o cômodo inteiro — e são vários chunks.
+    chunkRenderer.remeshSujos(atualizarBloco(world, luzWorld, msg.x, msg.y, msg.z));
     torchGlow.onBlockChanged(msg.x, msg.y, msg.z, msg.blockId);
     quadroRenderer.onBlockChanged(msg.x, msg.y, msg.z, msg.blockId, world);
     // gatilho de som (áudio pluga depois); areia caindo dispara os dois por tick
@@ -1233,6 +1300,13 @@ function startGame(snap: Snapshot): void {
         for (let x = msg.x0; x <= msg.x1; x++) setBlock(world, x, y, z, msg.blockId);
     const min = { x: msg.x0, y: msg.y0, z: msg.z0 };
     const max = { x: msg.x1, y: msg.y1, z: msg.z1 };
+    // §💡 lote é grande demais pra `atualizarBloco` célula a célula (uma caixa de
+    // 32³ seriam 32 768 repropagações). Reacender as COLUNAS tocadas dá o mesmo
+    // resultado — `acenderColuna` zera e recalcula, e o que vem de fora volta
+    // pela casca. Custa ~2,5 ms por coluna, e encher em lote é ação de professor.
+    for (let cx = Math.max(0, (msg.x0 / 16) | 0); cx <= Math.min(world.dims.x - 1, (msg.x1 / 16) | 0); cx++)
+      for (let cz = Math.max(0, (msg.z0 / 16) | 0); cz <= Math.min(world.dims.z - 1, (msg.z1 / 16) | 0); cz++)
+        chunkRenderer.remeshSujos(acenderColuna(world, luzWorld, cx, cz));
     chunkRenderer.remeshBox(min, max);
     torchGlow.onRegionFilled(min, max, msg.blockId);
     quadroRenderer.validarTodos(world); // encher pode ter engolido quadros
@@ -1705,6 +1779,10 @@ function startGame(snap: Snapshot): void {
         `${benchOpts.duracaoS}s · raio ${bench.trajeto.raio}${benchOpts.semVida ? " · sem vida ambiental" : ""}`,
       );
       benchRodando = true;
+      // mesma razão do `__benchPerfil` abaixo: automação headless precisa saber
+      // que o trajeto COMEÇOU (a verificação da luz fotografa em pleno voo, não
+      // no fim, então não pode esperar o perfil).
+      (window as unknown as Record<string, unknown>)["__benchRodando"] = true;
       flying = true; // o observador não cai: a posição vem do tempo, não da física
       updateOverlay(); // sem pointer lock o menu de pausa apareceria por cima
       bench.iniciar(performance.now());
@@ -1718,6 +1796,7 @@ function startGame(snap: Snapshot): void {
       // grava o trajeto INTEIRO (o botão do F3 grava 10 s; aqui são os 30)
       hud.record((report) => {
         benchRodando = false;
+        (window as unknown as Record<string, unknown>)["__benchRodando"] = false;
         updateOverlay();
         // headless/automação leem daqui sem depender de download
         (window as unknown as Record<string, unknown>)["__benchPerfil"] = report;
@@ -1861,6 +1940,7 @@ function startGame(snap: Snapshot): void {
       repedidas,
       ultimoLote: chunkRenderer.ultimoLote,
     };
+    hud.luz = { colunas: luzColunas, totalMs: luzMsTotal, fila: filaLuz.length }; // §💡
     lastNet = { ...s };
   }, 1000);
 
@@ -1926,6 +2006,31 @@ function startGame(snap: Snapshot): void {
       // pool de mesh solto só enquanto a tela de carga cobre a tela; depois
       // freia (senão os workers roubam núcleo do render — lab 2026-07-27)
       chunkRenderer.modoCarga = loading.ativo;
+      // §💡 luz ANTES do mesh, sob orçamento próprio. Na tela de carga não há
+      // frame a proteger (mesma regra do `modoCarga` do pool), no jogo há.
+      // SEMPRE acende pelo menos uma: orçamento apertado não pode significar
+      // fila parada — a coluna nunca chegaria a virar mesh.
+      {
+        const orcamento = loading.ativo ? 16 : ORCAMENTO_LUZ_MS;
+        const fim = performance.now() + orcamento;
+        let acesas = 0;
+        while (filaLuz.length > 0) {
+          const c = filaLuz.shift()!;
+          const key = c.cz * world.dims.x + c.cx;
+          filaLuzSet.delete(key);
+          // a coluna pode ter saído do raio enquanto esperava: acender (e
+          // meshar) o que já foi descartado desperdiça o frame inteiro
+          if (!colunasCarregadas.has(key)) continue;
+          const t0 = performance.now();
+          acenderColuna(world, luzWorld, c.cx, c.cz);
+          luzMsTotal += performance.now() - t0;
+          luzColunas++;
+          // o conjunto sujo é ignorado: `enfileirarColuna` já cobre esta coluna
+          // e as 4 vizinhas, que é o mesmo alcance.
+          chunkRenderer.enfileirarColuna(c.cx, c.cz);
+          if (++acesas >= 1 && performance.now() >= fim) break;
+        }
+      }
       chunkRenderer.processarFila(settings.meshMsPorFrame, (fx, fz) => {
         colunasCarregadas.delete(fz * world.dims.x + fx);
       });
@@ -1941,6 +2046,7 @@ function startGame(snap: Snapshot): void {
             colunasCarregadas.delete(key);
             chunkRenderer.descartarColuna(cx, cz);
             torchGlow.descartarColuna(cx, cz); // sprites da coluna somem junto
+            descartarColunaLuz(luzWorld, cx, cz); // §💡 e a luz também
             for (let cy = 0; cy < world.dims.y; cy++) {
               world.chunks[(cy * world.dims.z + cz) * world.dims.x + cx] = undefined;
             }
@@ -1951,7 +2057,14 @@ function startGame(snap: Snapshot): void {
       }
       // §🕐 a tela de carga só sai com o raio inicial INTEIRO aplicado E a fila
       // do mesher vazia — entrar antes é cair num mundo cheio de buracos
-      if (loading.ativo && colunasCarregadas.size >= totalCarga && chunkRenderer.filaPendente === 0) {
+      // §💡 `filaLuz` entra no portão: coluna esperando luz ainda NÃO virou mesh,
+      // então `filaPendente` estaria em 0 com o mundo cheio de buraco.
+      if (
+        loading.ativo &&
+        colunasCarregadas.size >= totalCarga &&
+        filaLuz.length === 0 &&
+        chunkRenderer.filaPendente === 0
+      ) {
         loading.concluir();
       }
     }
@@ -2057,6 +2170,10 @@ function startGame(snap: Snapshot): void {
     balancoUniforms.ventoDir.value.set(vento.x, vento.z);
     balancoUniforms.ventoForca.value = settings.balanco ? vento.forca : 0;
     skyCycle.update(dt, vento); // ciclo dia/noite (cp21) + nuvens andando no vento
+    // §💡 a hora manda no canal CÉU da luz voxel (a tocha não obedece a ela).
+    // Um uniform por frame — nada de remesh: escurecer o mundo à noite não pode
+    // custar geometria nova.
+    luzUniforms.nivelCeu.value = skyCycle.nivelCeu;
     // água (2026-07-26): névoa/tint quando o OLHO está submerso + correnteza no
     // tile do atlas. O quadro vem da fase do VENTO (§🌬️), não de um relógio fixo:
     // vento forte = correnteza mais rápida, calmaria = água só respirando.

@@ -50,6 +50,15 @@ const KEYFRAMES: readonly Keyframe[] = [
   kf(24, 0x04060f, 0x3a4780, 0.14, 0.3), // volta à meia-noite
 ];
 
+/** §💡 Extremos de `solInt` na tabela acima — a régua que normaliza a hora em
+ *  0..1 pro canal CÉU da luz voxel. Se um keyframe novo sair desta faixa, é aqui
+ *  que se ajusta (o `clamp01` já protege de estourar). */
+const SOL_MIN = 0.14;
+const SOL_MAX = 2.4;
+/** Céu de MEIA-NOITE não vai a zero: a superfície continua legível ao luar, e é
+ *  a diferença entre ela e a caverna (que fica em 0 sempre) que dá a leitura. */
+const PISO_LUAR = 0.22;
+
 /** Distância dos discos (câmera tem far=512; terreno na frente ainda oclui). */
 const RAIO_ASTRO = 420;
 const RAIO_ESTRELAS = 460;
@@ -148,6 +157,13 @@ const clamp01 = (v: number): number => Math.min(Math.max(v, 0), 1);
 export class SkyCycle {
   private hora = 12;
   private ciclo = false;
+  private nivelCeuAtual = 1;
+
+  /** §💡 Peso do canal CÉU da luz voxel agora (0..1). O loop de render copia
+   *  isto pro uniform dos materiais do chunk 1×/frame. */
+  get nivelCeu(): number {
+    return this.nivelCeuAtual;
+  }
   /** Deslocamento acumulado das nuvens (em repetições de textura). */
   private nuvemScrollU = 0;
   private nuvemScrollV = 0;
@@ -299,6 +315,11 @@ export class SkyCycle {
     this.sun.color.copy(scratchSol);
     this.sun.intensity = a.solInt + (b.solInt - a.solInt) * t;
     this.ambient.intensity = a.ambInt + (b.ambInt - a.ambInt) * t;
+    // §💡 quanto vale o canal CÉU da luz voxel agora. Sai da MESMA curva que já
+    // acende o sol — céu e terreno escurecem juntos, sem uma segunda tabela de
+    // horas pra sair de sincronia com esta.
+    this.nivelCeuAtual =
+      PISO_LUAR + (1 - PISO_LUAR) * clamp01((this.sun.intensity - SOL_MIN) / (SOL_MAX - SOL_MIN));
 
     // arco do sol: 6h nasce no leste, 12h no zênite, 18h se põe no oeste.
     // De noite fica abaixo do horizonte (luz fraca vinda de baixo/lado = "luar").

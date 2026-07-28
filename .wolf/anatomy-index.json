@@ -1,12 +1,12 @@
 {
   "version": 1,
   "meta": {
-    "lastScanned": "2026-07-28T02:53:57.737Z",
-    "fileCount": 240,
+    "lastScanned": "2026-07-28T11:57:29.675Z",
+    "fileCount": 244,
     "hits": 0,
     "misses": 0,
-    "renderedHash": "f89f8217e3ecf5067fe9244980a3d248d9da7a194d790dbe2d51b5ed636a8580",
-    "storeUpdatedAt": "2026-07-28T02:53:57.739Z"
+    "renderedHash": "0d7d8f603252771aecc1bd2e61f42c9d032f0c3fcd6dc84f17bf963f434e4dce",
+    "storeUpdatedAt": "2026-07-28T11:57:29.694Z"
   },
   "files": {
     ".claude/commands/reframe.md": {
@@ -1840,26 +1840,26 @@
     },
     "client/src/chunks.ts": {
       "description": "Teto duro de chunks por frame: rede de segurança se o relógio for grosseiro",
-      "tokens": 5555,
-      "hash": "a6463139e65e9412",
-      "size": 19628,
-      "mtimeMs": 1785137398728.8005,
-      "updatedAt": "2026-07-28T02:53:57.629Z",
-      "source": "scan",
+      "tokens": 5987,
+      "hash": "118decec6311c4d4",
+      "size": 21176,
+      "mtimeMs": 1785239166809.0806,
+      "updatedAt": "2026-07-28T11:46:06.960Z",
+      "source": "hook",
       "symbols": [
         {
           "name": "JobMesh",
           "kind": "section",
-          "startLine": 29,
-          "endLine": 47,
+          "startLine": 33,
+          "endLine": 51,
           "tokens": 197
         },
         {
           "name": "ChunkRenderer",
           "kind": "class",
-          "startLine": 48,
-          "endLine": 458,
-          "tokens": 5118
+          "startLine": 52,
+          "endLine": 494,
+          "tokens": 5525
         }
       ]
     },
@@ -1943,47 +1943,47 @@
     },
     "client/src/daynight.ts": {
       "description": "Ciclo dia/noite (cp21; astros no backlog 2026-07-19) — SÓ visual. A hora é",
-      "tokens": 4140,
-      "hash": "a72d63279ecfeb15",
-      "size": 14658,
-      "mtimeMs": 1785137976620.7996,
-      "updatedAt": "2026-07-28T02:53:57.630Z",
-      "source": "scan",
+      "tokens": 4429,
+      "hash": "0174e9fdbb9e15a0",
+      "size": 15697,
+      "mtimeMs": 1785239279469.0793,
+      "updatedAt": "2026-07-28T11:47:59.593Z",
+      "source": "hook",
       "symbols": [
         {
           "name": "Keyframe",
           "kind": "section",
           "startLine": 18,
-          "endLine": 77,
-          "tokens": 761
+          "endLine": 86,
+          "tokens": 890
         },
         {
           "name": "latticeHash",
           "kind": "fn",
-          "startLine": 78,
-          "endLine": 86,
+          "startLine": 87,
+          "endLine": 95,
           "tokens": 116
         },
         {
           "name": "valueNoise",
           "kind": "fn",
-          "startLine": 87,
-          "endLine": 106,
+          "startLine": 96,
+          "endLine": 115,
           "tokens": 226
         },
         {
           "name": "criarTexturaNuvens",
           "kind": "fn",
-          "startLine": 107,
-          "endLine": 147,
+          "startLine": 116,
+          "endLine": 156,
           "tokens": 413
         },
         {
           "name": "SkyCycle",
           "kind": "class",
-          "startLine": 148,
-          "endLine": 352,
-          "tokens": 2396
+          "startLine": 157,
+          "endLine": 373,
+          "tokens": 2555
         }
       ]
     },
@@ -1998,12 +1998,12 @@
     },
     "client/src/hud.ts": {
       "description": "HUD de perfilação (F3): FPS, frametime méd+p95, remesh, draw calls e",
-      "tokens": 8442,
-      "hash": "07899e1eb08a74e0",
-      "size": 29868,
-      "mtimeMs": 1785155481944.799,
-      "updatedAt": "2026-07-28T02:53:57.631Z",
-      "source": "scan",
+      "tokens": 8605,
+      "hash": "4520cd62132fcbd7",
+      "size": 30454,
+      "mtimeMs": 1785239845461.0728,
+      "updatedAt": "2026-07-28T11:57:25.583Z",
+      "source": "hook",
       "symbols": [
         {
           "name": "HudRemeshStats",
@@ -2058,8 +2058,8 @@
           "name": "Hud",
           "kind": "class",
           "startLine": 157,
-          "endLine": 712,
-          "tokens": 6719
+          "endLine": 719,
+          "tokens": 6882
         }
       ]
     },
@@ -2161,166 +2161,166 @@
     },
     "client/src/main.ts": {
       "description": "O cliente não tem filesystem: aprende os nomes das aulas pela resposta de",
-      "tokens": 25820,
-      "hash": "4b699cedcc825801",
-      "size": 91418,
-      "mtimeMs": 1785206374060.7996,
-      "updatedAt": "2026-07-28T02:53:57.635Z",
-      "source": "scan",
+      "tokens": 27625,
+      "hash": "1927efb46b3d14c6",
+      "size": 97886,
+      "mtimeMs": 1785239849565.0735,
+      "updatedAt": "2026-07-28T11:57:29.675Z",
+      "source": "hook",
       "symbols": [
         {
           "name": "cachearMundos",
           "kind": "fn",
-          "startLine": 98,
-          "endLine": 189,
+          "startLine": 103,
+          "endLine": 194,
           "tokens": 1177
         },
         {
           "name": "applySettings",
           "kind": "fn",
-          "startLine": 190,
-          "endLine": 245,
+          "startLine": 195,
+          "endLine": 250,
           "tokens": 847
         },
         {
           "name": "showOverlayMain",
           "kind": "fn",
-          "startLine": 246,
-          "endLine": 250,
+          "startLine": 251,
+          "endLine": 255,
           "tokens": 35
         },
         {
           "name": "updateOverlay",
           "kind": "fn",
-          "startLine": 251,
-          "endLine": 270,
+          "startLine": 256,
+          "endLine": 275,
           "tokens": 317
         },
         {
           "name": "startPlay",
           "kind": "fn",
-          "startLine": 271,
-          "endLine": 281,
+          "startLine": 276,
+          "endLine": 286,
           "tokens": 83
         },
         {
           "name": "onSettingsChanged",
           "kind": "fn",
-          "startLine": 282,
-          "endLine": 303,
+          "startLine": 287,
+          "endLine": 308,
           "tokens": 291
         },
         {
           "name": "enviarRaio",
           "kind": "fn",
-          "startLine": 304,
-          "endLine": 339,
+          "startLine": 309,
+          "endLine": 344,
           "tokens": 486
         },
         {
           "name": "playerName",
           "kind": "fn",
-          "startLine": 340,
-          "endLine": 371,
+          "startLine": 345,
+          "endLine": 376,
           "tokens": 348
         },
         {
           "name": "registrarChegadaDeRede",
           "kind": "fn",
-          "startLine": 372,
-          "endLine": 379,
+          "startLine": 377,
+          "endLine": 384,
           "tokens": 60
         },
         {
           "name": "jitterDeRede",
           "kind": "fn",
-          "startLine": 380,
-          "endLine": 415,
+          "startLine": 385,
+          "endLine": 420,
           "tokens": 446
         },
         {
           "name": "podeVoar",
           "kind": "fn",
-          "startLine": 416,
-          "endLine": 451,
+          "startLine": 421,
+          "endLine": 456,
           "tokens": 582
         },
         {
           "name": "pushPanelData",
           "kind": "fn",
-          "startLine": 452,
-          "endLine": 462,
+          "startLine": 457,
+          "endLine": 467,
           "tokens": 94
         },
         {
           "name": "ownDone",
           "kind": "fn",
-          "startLine": 463,
-          "endLine": 471,
+          "startLine": 468,
+          "endLine": 476,
           "tokens": 90
         },
         {
           "name": "refreshObjectivesView",
           "kind": "fn",
-          "startLine": 472,
-          "endLine": 503,
+          "startLine": 477,
+          "endLine": 508,
           "tokens": 358
         },
         {
           "name": "drenarFilaTroca",
           "kind": "fn",
-          "startLine": 504,
-          "endLine": 511,
+          "startLine": 509,
+          "endLine": 516,
           "tokens": 79
         },
         {
           "name": "segurarAteATelaPintar",
           "kind": "fn",
-          "startLine": 512,
-          "endLine": 521,
+          "startLine": 517,
+          "endLine": 526,
           "tokens": 109
         },
         {
           "name": "handleServerData",
           "kind": "fn",
-          "startLine": 522,
-          "endLine": 665,
+          "startLine": 527,
+          "endLine": 670,
           "tokens": 1806
         },
         {
           "name": "connect",
           "kind": "fn",
-          "startLine": 666,
-          "endLine": 701,
+          "startLine": 671,
+          "endLine": 706,
           "tokens": 400
         },
         {
           "name": "startMultiplayer",
           "kind": "fn",
-          "startLine": 702,
-          "endLine": 719,
+          "startLine": 707,
+          "endLine": 724,
           "tokens": 224
         },
         {
           "name": "startSingleplayer",
           "kind": "fn",
-          "startLine": 720,
-          "endLine": 741,
+          "startLine": 725,
+          "endLine": 746,
           "tokens": 249
         },
         {
           "name": "persistWorld",
           "kind": "fn",
-          "startLine": 742,
-          "endLine": 789,
+          "startLine": 747,
+          "endLine": 794,
           "tokens": 520
         },
         {
           "name": "startGame",
           "kind": "fn",
-          "startLine": 790,
-          "endLine": 2108,
-          "tokens": 16453
+          "startLine": 795,
+          "endLine": 2225,
+          "tokens": 18221
         }
       ]
     },
@@ -2421,37 +2421,46 @@
     },
     "client/src/meshPool.ts": {
       "description": "Pool de Web Workers pro mesher (2026-07-26).",
-      "tokens": 2186,
-      "hash": "3dcc9a3654e90b27",
-      "size": 7784,
-      "mtimeMs": 1785137270796.8003,
-      "updatedAt": "2026-07-28T02:53:57.636Z",
-      "source": "scan",
+      "tokens": 2301,
+      "hash": "acd6bea923584b63",
+      "size": 8197,
+      "mtimeMs": 1785239088169.0806,
+      "updatedAt": "2026-07-28T11:44:48.283Z",
+      "source": "hook",
       "symbols": [
         {
           "name": "ResultadoMesh",
           "kind": "section",
           "startLine": 54,
-          "endLine": 69,
-          "tokens": 138
+          "endLine": 71,
+          "tokens": 168
         },
         {
           "name": "MeshPool",
           "kind": "class",
-          "startLine": 70,
-          "endLine": 196,
-          "tokens": 1298
+          "startLine": 72,
+          "endLine": 203,
+          "tokens": 1383
         }
       ]
     },
     "client/src/meshWorker.ts": {
       "description": "Worker do mesher (2026-07-26). Recebe uma VIZINHANÇA (o cubo 18³ de",
-      "tokens": 453,
-      "hash": "963474e0036dc463",
-      "size": 1604,
-      "mtimeMs": 1785137265200.8003,
-      "updatedAt": "2026-07-28T02:53:57.637Z",
-      "source": "scan"
+      "tokens": 521,
+      "hash": "b85762c157eee05c",
+      "size": 1852,
+      "mtimeMs": 1785239112009.0806,
+      "updatedAt": "2026-07-28T11:45:12.138Z",
+      "source": "hook",
+      "symbols": [
+        {
+          "name": "PedidoMesh",
+          "kind": "section",
+          "startLine": 13,
+          "endLine": 55,
+          "tokens": 376
+        }
+      ]
     },
     "client/src/objectivesUi.ts": {
       "description": "Grupo do PRÓPRIO jogador (null = sem grupo).",
@@ -3084,12 +3093,12 @@
     },
     "package.json": {
       "description": "Node.js package manifest",
-      "tokens": 241,
-      "hash": "48ea54a64a5e7acf",
-      "size": 841,
-      "mtimeMs": 1785206989572.7976,
-      "updatedAt": "2026-07-28T02:53:57.661Z",
-      "source": "scan"
+      "tokens": 254,
+      "hash": "71ad117a6af4b2e8",
+      "size": 888,
+      "mtimeMs": 1785239555425.0803,
+      "updatedAt": "2026-07-28T11:52:35.527Z",
+      "source": "hook"
     },
     "profiles/perf-1784923796301-gius.json": {
       "description": "",
@@ -4835,12 +4844,12 @@
     },
     "shared/src/index.ts": {
       "description": "",
-      "tokens": 159,
-      "hash": "4a3836ebcc19de13",
-      "size": 555,
-      "mtimeMs": 1785136392556.801,
-      "updatedAt": "2026-07-28T02:53:57.711Z",
-      "source": "scan"
+      "tokens": 166,
+      "hash": "82e1736b0932c1a9",
+      "size": 578,
+      "mtimeMs": 1785238475241.08,
+      "updatedAt": "2026-07-28T11:34:35.338Z",
+      "source": "hook"
     },
     "shared/src/mesher.test.ts": {
       "description": "Pra onde, NO MUNDO, a onda de `tile` anda quando pintada na face `f`.",
@@ -4869,124 +4878,131 @@
     },
     "shared/src/mesher.ts": {
       "description": "Culled mesher: função PURA (bytes do mundo → geometria). Só emite faces que",
-      "tokens": 13708,
-      "hash": "a694ac9886ae6937",
-      "size": 48670,
-      "mtimeMs": 1785153287604.7986,
-      "updatedAt": "2026-07-28T02:53:57.713Z",
-      "source": "scan",
+      "tokens": 14638,
+      "hash": "36d0c39836f65deb",
+      "size": 52014,
+      "mtimeMs": 1785239062297.0808,
+      "updatedAt": "2026-07-28T11:44:22.428Z",
+      "source": "hook",
       "symbols": [
         {
           "name": "FaceTiles",
           "kind": "section",
-          "startLine": 156,
-          "endLine": 301,
+          "startLine": 157,
+          "endLine": 302,
           "tokens": 2044
         },
         {
           "name": "blockIconTile",
           "kind": "fn",
-          "startLine": 302,
-          "endLine": 310,
+          "startLine": 303,
+          "endLine": 311,
           "tokens": 136
         },
         {
           "name": "blockSelectionBox",
           "kind": "fn",
-          "startLine": 311,
-          "endLine": 347,
+          "startLine": 312,
+          "endLine": 348,
           "tokens": 490
         },
         {
           "name": "FaceCorner",
           "kind": "section",
-          "startLine": 348,
-          "endLine": 352,
+          "startLine": 349,
+          "endLine": 353,
           "tokens": 34
         },
         {
           "name": "Face",
           "kind": "section",
-          "startLine": 353,
-          "endLine": 417,
+          "startLine": 354,
+          "endLine": 418,
           "tokens": 470
         },
         {
           "name": "UvAxis",
           "kind": "section",
-          "startLine": 418,
-          "endLine": 422,
+          "startLine": 419,
+          "endLine": 423,
           "tokens": 17
         },
         {
           "name": "uvAxisOf",
           "kind": "fn",
-          "startLine": 423,
-          "endLine": 435,
+          "startLine": 424,
+          "endLine": 436,
           "tokens": 165
         },
         {
           "name": "FaceBase",
           "kind": "section",
-          "startLine": 436,
-          "endLine": 493,
+          "startLine": 437,
+          "endLine": 494,
           "tokens": 722
         },
         {
           "name": "tileAguaDaFace",
           "kind": "fn",
-          "startLine": 494,
-          "endLine": 523,
+          "startLine": 495,
+          "endLine": 524,
           "tokens": 424
         },
         {
           "name": "rotXZ",
           "kind": "fn",
-          "startLine": 524,
-          "endLine": 543,
+          "startLine": 525,
+          "endLine": 544,
           "tokens": 199
         },
         {
           "name": "swayDoBloco",
           "kind": "fn",
-          "startLine": 544,
-          "endLine": 549,
+          "startLine": 545,
+          "endLine": 550,
           "tokens": 44
         },
         {
           "name": "ChunkGeometry",
           "kind": "section",
-          "startLine": 550,
-          "endLine": 588,
-          "tokens": 590
+          "startLine": 551,
+          "endLine": 601,
+          "tokens": 769
         },
         {
           "name": "vizIndex",
           "kind": "fn",
-          "startLine": 589,
-          "endLine": 613,
-          "tokens": 280
+          "startLine": 602,
+          "endLine": 627,
+          "tokens": 287
         },
         {
           "name": "extrairVizinhanca",
           "kind": "fn",
-          "startLine": 614,
-          "endLine": 650,
-          "tokens": 374
+          "startLine": 628,
+          "endLine": 671,
+          "tokens": 467
+        },
+        {
+          "name": "extrairVizinhancaLuz",
+          "kind": "fn",
+          "startLine": 672,
+          "endLine": 691,
+          "tokens": 196
         },
         {
           "name": "meshChunk",
           "kind": "fn",
-          "startLine": 651,
-          "endLine": 657,
-          "tokens": 101
+          "startLine": 692,
+          "endLine": 711,
+          "tokens": 183
         },
         {
           "name": "meshVizinhanca",
           "kind": "fn",
-          "startLine": 658,
-          "endLine": 1131,
-          "tokens": 6288
+          "startLine": 712,
+          "endLine": 1207,
+          "tokens": 6649
         }
       ]
     },
@@ -6259,6 +6275,323 @@
       "mtimeMs": 1784590204344.3562,
       "updatedAt": "2026-07-28T02:53:57.731Z",
       "source": "scan"
+    },
+    "shared/src/luz.ts": {
+      "description": "§💡 LUZ VOXEL (2026-07-28) — o pré-requisito das cavernas.",
+      "tokens": 7140,
+      "hash": "b4064dbbac74d9ce",
+      "size": 25265,
+      "mtimeMs": 1785238866765.0798,
+      "updatedAt": "2026-07-28T11:41:06.877Z",
+      "source": "hook",
+      "symbols": [
+        {
+          "name": "opacidadeLuz",
+          "kind": "fn",
+          "startLine": 62,
+          "endLine": 72,
+          "tokens": 142
+        },
+        {
+          "name": "luzEmitida",
+          "kind": "fn",
+          "startLine": 73,
+          "endLine": 77,
+          "tokens": 48
+        },
+        {
+          "name": "LuzWorld",
+          "kind": "section",
+          "startLine": 78,
+          "endLine": 86,
+          "tokens": 76
+        },
+        {
+          "name": "criarLuz",
+          "kind": "fn",
+          "startLine": 87,
+          "endLine": 99,
+          "tokens": 133
+        },
+        {
+          "name": "luzChunkIndex",
+          "kind": "fn",
+          "startLine": 100,
+          "endLine": 105,
+          "tokens": 74
+        },
+        {
+          "name": "luzChunkCoords",
+          "kind": "fn",
+          "startLine": 106,
+          "endLine": 113,
+          "tokens": 85
+        },
+        {
+          "name": "alocarColunaLuz",
+          "kind": "fn",
+          "startLine": 114,
+          "endLine": 121,
+          "tokens": 92
+        },
+        {
+          "name": "descartarColunaLuz",
+          "kind": "fn",
+          "startLine": 122,
+          "endLine": 127,
+          "tokens": 57
+        },
+        {
+          "name": "dentro",
+          "kind": "fn",
+          "startLine": 128,
+          "endLine": 133,
+          "tokens": 92
+        },
+        {
+          "name": "luzByte",
+          "kind": "fn",
+          "startLine": 134,
+          "endLine": 143,
+          "tokens": 118
+        },
+        {
+          "name": "luzCeu",
+          "kind": "fn",
+          "startLine": 144,
+          "endLine": 147,
+          "tokens": 35
+        },
+        {
+          "name": "luzBloco",
+          "kind": "fn",
+          "startLine": 148,
+          "endLine": 152,
+          "tokens": 58
+        },
+        {
+          "name": "temCelula",
+          "kind": "fn",
+          "startLine": 153,
+          "endLine": 160,
+          "tokens": 86
+        },
+        {
+          "name": "getCanal",
+          "kind": "fn",
+          "startLine": 161,
+          "endLine": 166,
+          "tokens": 73
+        },
+        {
+          "name": "setCanal",
+          "kind": "fn",
+          "startLine": 167,
+          "endLine": 204,
+          "tokens": 473
+        },
+        {
+          "name": "empacotar",
+          "kind": "fn",
+          "startLine": 205,
+          "endLine": 221,
+          "tokens": 197
+        },
+        {
+          "name": "propagar",
+          "kind": "fn",
+          "startLine": 222,
+          "endLine": 262,
+          "tokens": 405
+        },
+        {
+          "name": "apagar",
+          "kind": "fn",
+          "startLine": 263,
+          "endLine": 314,
+          "tokens": 492
+        },
+        {
+          "name": "escreverCeu",
+          "kind": "fn",
+          "startLine": 315,
+          "endLine": 323,
+          "tokens": 116
+        },
+        {
+          "name": "chunkVazio",
+          "kind": "fn",
+          "startLine": 324,
+          "endLine": 331,
+          "tokens": 95
+        },
+        {
+          "name": "pisoDoCeu",
+          "kind": "fn",
+          "startLine": 332,
+          "endLine": 359,
+          "tokens": 366
+        },
+        {
+          "name": "semearCeuDaColuna",
+          "kind": "fn",
+          "startLine": 360,
+          "endLine": 482,
+          "tokens": 1295
+        },
+        {
+          "name": "semearEmissoresDaColuna",
+          "kind": "fn",
+          "startLine": 483,
+          "endLine": 518,
+          "tokens": 351
+        },
+        {
+          "name": "semearVizinhanca",
+          "kind": "fn",
+          "startLine": 519,
+          "endLine": 557,
+          "tokens": 410
+        },
+        {
+          "name": "acenderColuna",
+          "kind": "fn",
+          "startLine": 558,
+          "endLine": 604,
+          "tokens": 658
+        },
+        {
+          "name": "atualizarBloco",
+          "kind": "fn",
+          "startLine": 605,
+          "endLine": 642,
+          "tokens": 369
+        }
+      ]
+    },
+    "shared/src/luz.test.ts": {
+      "description": "3×3 colunas de chunk, 2 chunks de altura (32 blocos) — dá pra enterrar uma",
+      "tokens": 3721,
+      "hash": "ac7aa5de804d5172",
+      "size": 13093,
+      "mtimeMs": 1785238923681.0793,
+      "updatedAt": "2026-07-28T11:42:03.768Z",
+      "source": "hook",
+      "symbols": [
+        {
+          "name": "mundoComChao",
+          "kind": "fn",
+          "startLine": 24,
+          "endLine": 32,
+          "tokens": 88
+        },
+        {
+          "name": "acenderTudo",
+          "kind": "fn",
+          "startLine": 33,
+          "endLine": 324,
+          "tokens": 3487
+        }
+      ]
+    },
+    "client/src/luzShader.ts": {
+      "description": "§💡 O lado GPU da luz voxel (2026-07-28).",
+      "tokens": 896,
+      "hash": "bf7d6a2a5ffd0268",
+      "size": 3192,
+      "mtimeMs": 1785239259961.079,
+      "updatedAt": "2026-07-28T11:47:40.050Z",
+      "source": "hook",
+      "symbols": [
+        {
+          "name": "LuzUniforms",
+          "kind": "section",
+          "startLine": 22,
+          "endLine": 32,
+          "tokens": 120
+        },
+        {
+          "name": "criarLuzUniforms",
+          "kind": "fn",
+          "startLine": 33,
+          "endLine": 43,
+          "tokens": 116
+        },
+        {
+          "name": "aplicarLuz",
+          "kind": "fn",
+          "startLine": 44,
+          "endLine": 90,
+          "tokens": 411
+        }
+      ]
+    },
+    "scripts/luz-shots.mjs": {
+      "description": "§💡 Verificação da LUZ VOXEL num Chrome headless (2026-07-28).",
+      "tokens": 2866,
+      "hash": "6cda56b17457de32",
+      "size": 10879,
+      "mtimeMs": 1785239682245.0793,
+      "updatedAt": "2026-07-28T11:54:42.365Z",
+      "source": "hook",
+      "symbols": [
+        {
+          "name": "decodificarPng",
+          "kind": "fn",
+          "startLine": 45,
+          "endLine": 108,
+          "tokens": 650
+        },
+        {
+          "name": "medir",
+          "kind": "fn",
+          "startLine": 109,
+          "endLine": 134,
+          "tokens": 245
+        },
+        {
+          "name": "acharChrome",
+          "kind": "fn",
+          "startLine": 135,
+          "endLine": 149,
+          "tokens": 157
+        },
+        {
+          "name": "espera",
+          "kind": "fn",
+          "startLine": 150,
+          "endLine": 169,
+          "tokens": 148
+        },
+        {
+          "name": "abrirAba",
+          "kind": "fn",
+          "startLine": 170,
+          "endLine": 205,
+          "tokens": 362
+        },
+        {
+          "name": "cdp",
+          "kind": "fn",
+          "startLine": 206,
+          "endLine": 211,
+          "tokens": 50
+        },
+        {
+          "name": "avaliar",
+          "kind": "fn",
+          "startLine": 212,
+          "endLine": 255,
+          "tokens": 491
+        },
+        {
+          "name": "checar",
+          "kind": "fn",
+          "startLine": 256,
+          "endLine": 282,
+          "tokens": 344
+        }
+      ]
     }
   }
 }

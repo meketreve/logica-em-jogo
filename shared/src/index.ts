@@ -7,6 +7,7 @@ export * from "./constants";
 export * from "./groups";
 export * from "./world";
 export * from "./worldgen";
+export * from "./luz";
 export * from "./mesher";
 export * from "./physics";
 export * from "./raycast";

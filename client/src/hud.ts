@@ -166,6 +166,11 @@ export class Hud {
    *  main.ts (1×/s). Sem `faltando`, o playtest não distingue "buraco" de
    *  "ainda chegando". */
   stream = { colunas: 0, fila: 0, faltando: 0, repedidas: 0, ultimoLote: 0 };
+  /** §💡 Custo da luz voxel: ela roda na MAIN THREAD (o mundo mora lá), então é
+   *  candidata a travada e precisa aparecer no perfil junto com o remesh. Sem
+   *  isto, um pico de luz no PC do laboratório sairia como "long task" anônima —
+   *  que foi exatamente como o custo do mesher se escondeu até a sessão 27. */
+  luz = { colunas: 0, totalMs: 0, fila: 0 };
   /** Custo das regras no servidor (último `debug_stats`) — alimentado pelo main.ts. */
   regras: RegrasServidor | null = null;
   /** Tempo de carga da tela §🕐 por fase — alimentado pelo main.ts (a tela já
@@ -593,6 +598,7 @@ export class Hud {
       memoriaJsMB: this.memoriaJs(),
       video: { geometrias: info.memory.geometries, texturas: info.memory.textures },
       stream: { ...this.stream },
+      luz: { ...this.luz },
       // custo das regras do outro lado (água/areia por tick) — ver `regras`
       regrasServidor: this.regras,
       rede: this.conexao(),
@@ -676,6 +682,7 @@ export class Hud {
       `remesh ${s.remeshCount}× / ${s.remeshTotalMs}ms main / ${s.remeshWorkerMs ?? 0}ms worker / ${s.remeshLastMs}ms último`,
       `stream ${s.stream.colunas} colunas · fila ${s.stream.fila} · faltando ${s.stream.faltando} · repedidas ${s.stream.repedidas}`,
       `malha ${s.stream.ultimoLote} chunks no último frame (orçamento ${s.config?.meshMsPorFrame ?? "?"} ms)`,
+      `luz ${s.luz.colunas} colunas · ${Math.round(s.luz.totalMs)}ms main · ${s.luz.colunas ? (s.luz.totalMs / s.luz.colunas).toFixed(2) : "0"}ms/coluna · fila ${s.luz.fila}`,
       s.remeshPorCaminho
         ? `remesh por caminho: fila ${s.remeshPorCaminho.fila.n}× (${Math.round(s.remeshPorCaminho.fila.ms)}ms) · bloco ${s.remeshPorCaminho.bloco.n}× (${Math.round(s.remeshPorCaminho.bloco.ms)}ms) · área ${s.remeshPorCaminho.area.n}× (${Math.round(s.remeshPorCaminho.area.ms)}ms)`
         : "remesh por caminho: n/d",

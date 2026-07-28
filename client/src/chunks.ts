@@ -2,9 +2,12 @@ import * as THREE from "three";
 import {
   CHUNK_SIZE,
   type ChunkGeometry,
+  type LuzWorld,
   type World,
   chunkIndex,
   extrairVizinhanca,
+  extrairVizinhancaLuz,
+  luzChunkCoords,
   meshChunk,
 } from "@logica/shared";
 import { MeshPool } from "./meshPool";
@@ -20,6 +23,7 @@ const VAZIA: ChunkGeometry = {
   normals: new Float32Array(0),
   uvs: new Float32Array(0),
   sway: new Uint8Array(0),
+  luz: new Uint8Array(0),
   indices: new Uint32Array(0),
   opaqueIndexCount: 0,
   aguaIndexCount: 0,
@@ -69,6 +73,14 @@ export class ChunkRenderer {
   /** Quem está pedindo o remesh corrente (o `remesh` público é chamado de
    *  vários lugares; a tag acompanha a chamada em vez de virar parâmetro). */
   private caminho: "fila" | "bloco" | "area" = "bloco";
+
+  /**
+   * §💡 Grade de luz do mundo corrente. `undefined` = sem luz voxel (o mesher
+   * monta tudo aceso, exatamente como antes desta fase) — é o que mantém o
+   * caminho de teste e qualquer hospedeiro que não acenda nada funcionando.
+   * Trocada junto com o mundo em `trocarMundo`.
+   */
+  private luz: LuzWorld | undefined;
 
   /**
    * Meshing da FILA (streaming) sai da main thread (2026-07-26). Só a fila:
@@ -131,7 +143,9 @@ export class ChunkRenderer {
     private scene: THREE.Scene,
     usarWorkers = true,
     profundidadeJogo?: number,
+    luz?: LuzWorld,
   ) {
+    this.luz = luz;
     if (usarWorkers && typeof Worker !== "undefined") {
       const pool = new MeshPool((idsPerdidos) => {
         // pool morreu: os chunks que estavam nele voltam pra fila e o resto da
@@ -170,7 +184,7 @@ export class ChunkRenderer {
    * mundo E, ~19 s de trava na cara da turma (visto no perfil de 2026-07-26).
    * O `startGame` sempre teve esse mesmo guarda; aqui faltava.
    */
-  trocarMundo(novo: World, construir = true): void {
+  trocarMundo(novo: World, construir = true, luz?: LuzWorld): void {
     for (const mesh of this.meshes.values()) {
       this.scene.remove(mesh);
       mesh.geometry.dispose();
@@ -184,7 +198,25 @@ export class ChunkRenderer {
     this.sujosEmVoo.clear(); // `key` do mundo velho não vale no novo
     this.chavesEmVoo.clear();
     this.world = novo;
+    this.luz = luz; // grade de luz do mundo VELHO não vale no novo
     if (construir) this.buildAll();
+  }
+
+  /**
+   * §💡 Remesha exatamente os chunks que o motor de luz marcou como sujos.
+   *
+   * ⚠️ Este conjunto é MAIOR que o do `remeshBlock`: luz alcança 15 blocos, então
+   * apagar uma tocha perto da borda muda a aparência de chunks a um chunk de
+   * distância — e o `remeshBlock` só cobre ±1 quando o bloco está encostado na
+   * face. Passar o conjunto do motor é o que impede o quadrado de sombra velha
+   * ficar parado na tela.
+   */
+  remeshSujos(sujos: Iterable<number>): void {
+    this.caminho = "bloco";
+    for (const i of sujos) {
+      const { cx, cy, cz } = luzChunkCoords(this.world.dims, i);
+      this.remesh(cx, cy, cz);
+    }
   }
 
   buildAll(): void {
@@ -200,7 +232,7 @@ export class ChunkRenderer {
     // pedido síncrono também invalida job no ar: sem isto, geometria antiga
     // voltando do worker sobrescreveria o bloco que o jogador acabou de pôr
     this.novaVersao(key);
-    const g = meshChunk(this.world, cx, cy, cz);
+    const g = meshChunk(this.world, cx, cy, cz, this.luz);
     this.aplicar(key, cx, cy, cz, g);
     this.contabilizar(performance.now() - t0);
   }
@@ -229,6 +261,9 @@ export class ChunkRenderer {
     // §🌬️ balanço no vento: byte NORMALIZADO (o shader lê 0..1 direto). 1 byte
     // por vértice em vez de 4 — o chunk já é o que mais pesa na banda de GPU.
     geometry.setAttribute("sway", new THREE.BufferAttribute(g.sway, 1, true));
+    // §💡 luz: byte CRU (não normalizado). O shader precisa dos dois nibbles
+    // separados — céu e bloco — e normalizar jogaria os dois num float só.
+    geometry.setAttribute("luz", new THREE.BufferAttribute(g.luz, 1, false));
     geometry.setIndex(new THREE.BufferAttribute(g.indices, 1));
     // 3 grupos: opaco + água + vidro colorido, nessa ordem. Grupo com count 0
     // (chunk sem água / sem vidro) não gera draw call.
@@ -350,6 +385,7 @@ export class ChunkRenderer {
               normals: r.normals!,
               uvs: r.uvs!,
               sway: r.sway!,
+              luz: r.luz!,
               indices: r.indices!,
               opaqueIndexCount: r.opaqueIndexCount!,
               aguaIndexCount: r.aguaIndexCount!,
@@ -383,7 +419,7 @@ export class ChunkRenderer {
           this.aplicar(key, c.cx, c.cy, c.cz, VAZIA);
           this.contabilizar(performance.now() - t0);
         } else {
-          const id = this.pool.enviar(viz);
+          const id = this.pool.enviar(viz, extrairVizinhancaLuz(this.luz, c.cx, c.cy, c.cz));
           this.emVoo.set(id, { key, cx: c.cx, cy: c.cy, cz: c.cz, versao, msExtracao: performance.now() - t0 });
           this.chavesEmVoo.add(key);
         }

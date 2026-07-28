@@ -14,6 +14,9 @@ interface PedidoMesh {
   /** Id do job (o pool casa a resposta com o chunk; o worker não interpreta). */
   id: number;
   viz: Uint8Array;
+  /** §💡 cubo 18³ de bytes de luz. Ausente = mundo sem grade de luz → o mesher
+   *  monta tudo aceso (é como o jogo era antes do §💡). */
+  luzViz?: Uint8Array;
 }
 
 const emitir = (msg: unknown, transfer?: Transferable[]): void => {
@@ -21,10 +24,10 @@ const emitir = (msg: unknown, transfer?: Transferable[]): void => {
 };
 
 self.onmessage = (e: MessageEvent<PedidoMesh>): void => {
-  const { id, viz } = e.data;
+  const { id, viz, luzViz } = e.data;
   const t0 = performance.now();
   try {
-    const g = meshVizinhanca(viz);
+    const g = meshVizinhanca(viz, luzViz);
     // §🔁: erro aqui NÃO pode derrubar o worker — o pool marca a coluna como
     // suspeita e o cliente a repede, igual fazia no caminho síncrono.
     emitir(
@@ -35,11 +38,15 @@ self.onmessage = (e: MessageEvent<PedidoMesh>): void => {
         normals: g.normals,
         uvs: g.uvs,
         sway: g.sway,
+        luz: g.luz,
         indices: g.indices,
         opaqueIndexCount: g.opaqueIndexCount,
         aguaIndexCount: g.aguaIndexCount,
       },
-      [g.positions.buffer, g.normals.buffer, g.uvs.buffer, g.sway.buffer, g.indices.buffer],
+      [
+        g.positions.buffer, g.normals.buffer, g.uvs.buffer,
+        g.sway.buffer, g.luz.buffer, g.indices.buffer,
+      ],
     );
   } catch (err) {
     emitir({ id, ms: performance.now() - t0, erro: String(err) });

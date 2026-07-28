@@ -30,6 +30,7 @@ import {
   stairsMaterial,
 } from "./blocks";
 import { CHUNK_SIZE } from "./constants";
+import { type LuzWorld, luzByte } from "./luz";
 import { setorDaDirecao } from "./vento";
 import { type World, chunkIndex, getBlock } from "./world";
 
@@ -562,6 +563,18 @@ export interface ChunkGeometry {
    * valor cheio — é o que faz a grama vergar em vez de escorregar de lado.
    */
   sway: Uint8Array;
+  /**
+   * §💡 Luz por VÉRTICE, byte cru `(ceu << 4) | bloco` (ver `luz.ts`). NÃO é
+   * normalizado: o shader separa os dois canais e aplica a hora do dia só no
+   * canal do céu — 1 byte normalizado não daria pra desempacotar.
+   *
+   * O valor é o da célula que a face ENCARA (o vizinho na direção da normal),
+   * não o da célula que emite a face: o bloco opaco tem luz 0 por definição, e
+   * a face dele mostra a luz do ar que ela vê. Faces internas de forma (a
+   * lateral de uma laje, a cruz da flor) usam a luz da PRÓPRIA célula, que
+   * nesses casos é transparente e portanto iluminada.
+   */
+  luz: Uint8Array;
   /** Índices OPACOS primeiro, ÁGUA depois, VIDRO COLORIDO por último
    *  (concatenados). O cliente fatia em 3 grupos: [0, opaqueIndexCount) =
    *  material opaco (cutout); os `aguaIndexCount` seguintes = material da água;
@@ -595,6 +608,7 @@ const GEOMETRIA_VAZIA = (): ChunkGeometry => ({
   normals: new Float32Array(0),
   uvs: new Float32Array(0),
   sway: new Uint8Array(0),
+  luz: new Uint8Array(0),
   indices: new Uint32Array(0),
   opaqueIndexCount: 0,
   aguaIndexCount: 0,
@@ -646,16 +660,59 @@ export function extrairVizinhanca(
   return viz;
 }
 
-/** Conveniência síncrona (main thread, servidor, testes). O caminho do Worker
- *  chama `extrairVizinhanca` aqui e `meshVizinhanca` lá. */
-export function meshChunk(world: World, cx: number, cy: number, cz: number): ChunkGeometry {
-  const viz = extrairVizinhanca(world, cx, cy, cz);
-  return viz ? meshVizinhanca(viz) : GEOMETRIA_VAZIA();
+/**
+ * §💡 O mesmo cubo 18³, mas dos BYTES DE LUZ (`luz.ts`). Vai junto pro Worker
+ * pra ele continuar função pura: a face precisa da luz da célula VIZINHA, e
+ * essa célula pode estar na casca, isto é, no chunk do lado.
+ *
+ * Coluna de luz ainda não acesa devolve 0 (escuro) em vez de mentir claro —
+ * mesma escolha do `luzByte`. Sem grade de luz (`undefined`), devolve `null` e
+ * o mesher cai no caminho "tudo aceso", que é como o jogo era antes desta fase.
+ */
+export function extrairVizinhancaLuz(
+  luz: LuzWorld | undefined,
+  cx: number,
+  cy: number,
+  cz: number,
+): Uint8Array | null {
+  if (!luz) return null;
+  const out = new Uint8Array(VIZ_VOLUME);
+  const ox = cx * CHUNK_SIZE;
+  const oy = cy * CHUNK_SIZE;
+  const oz = cz * CHUNK_SIZE;
+  for (let ly = -1; ly <= CHUNK_SIZE; ly++)
+    for (let lz = -1; lz <= CHUNK_SIZE; lz++)
+      for (let lx = -1; lx <= CHUNK_SIZE; lx++)
+        out[vizIndex(lx, ly, lz)] = luzByte(luz, ox + lx, oy + ly, oz + lz);
+  return out;
 }
 
-/** Núcleo do mesher: bytes → geometria, sem `World` e sem I/O. Roda igual na
- *  main thread e no Worker. `viz` é o cubo de `extrairVizinhanca`. */
-export function meshVizinhanca(viz: Uint8Array): ChunkGeometry {
+/** Conveniência síncrona (main thread, servidor, testes). O caminho do Worker
+ *  chama `extrairVizinhanca`/`extrairVizinhancaLuz` aqui e `meshVizinhanca` lá. */
+export function meshChunk(
+  world: World,
+  cx: number,
+  cy: number,
+  cz: number,
+  luz?: LuzWorld,
+): ChunkGeometry {
+  const viz = extrairVizinhanca(world, cx, cy, cz);
+  if (!viz) return GEOMETRIA_VAZIA();
+  return meshVizinhanca(viz, extrairVizinhancaLuz(luz, cx, cy, cz));
+}
+
+/**
+ * Núcleo do mesher: bytes → geometria, sem `World` e sem I/O. Roda igual na
+ * main thread e no Worker. `viz` é o cubo de `extrairVizinhanca`.
+ *
+ * `luzViz` ausente = **tudo aceso** (0xff = céu 15 + bloco 15). É o que mantém
+ * verdes os testes e os caminhos que não têm grade de luz, e é exatamente a
+ * aparência que o jogo tinha antes do §💡.
+ */
+export function meshVizinhanca(viz: Uint8Array, luzViz?: Uint8Array | null): ChunkGeometry {
+  /** Luz da célula em coordenadas LOCAIS (−1 e CHUNK_SIZE leem a casca). */
+  const luzDe = (lx: number, ly: number, lz: number): number =>
+    luzViz ? (luzViz[vizIndex(lx, ly, lz)] ?? 0) : 0xff;
   /** Bloco em coordenadas LOCAIS do chunk; −1 e CHUNK_SIZE leem a casca. */
   const bloco = (lx: number, ly: number, lz: number): number =>
     viz[vizIndex(lx, ly, lz)] ?? BlockId.Air;
@@ -672,6 +729,13 @@ export function meshVizinhanca(viz: Uint8Array): ChunkGeometry {
   let swayAtual = 0;
   const pushSway = (n: number): void => {
     for (let i = 0; i < n; i++) sway.push(swayAtual);
+  };
+  // §💡 luz por vértice (byte cru). Também escrita em PARALELO a `positions`:
+  // é sempre a MESMA para os 4 vértices de uma face (iluminação por face, não
+  // interpolada — suavizar por vértice é refino futuro, não muda o pipeline).
+  const luzVert: number[] = [];
+  const pushLuz = (n: number, valor: number): void => {
+    for (let i = 0; i < n; i++) luzVert.push(valor);
   };
   // Água (2026-07-22): faces vão pra ESTE array separado → 2º grupo/material
   // (transparente de verdade, blend). Concatenado depois de `indices`.
@@ -710,6 +774,11 @@ export function meshVizinhanca(viz: Uint8Array): ChunkGeometry {
         if (nb === id) continue;
         if (isFullCube(nb) && !isTransparentBlock(nb)) continue;
       }
+      // §💡 face rente à borda vê o VIZINHO; face interna (topo de laje, tampo
+      // de mesa) vê a própria célula, que nesses casos não é opaca.
+      const luzFace = flush
+        ? luzDe(lx + face.dir[0], ly + face.dir[1], lz + face.dir[2])
+        : luzDe(lx, ly, lz);
       const base = positions.length / 3;
       for (const corner of face.corners) {
         const px = corner.pos[0] === 0 ? x0 : x1;
@@ -730,6 +799,7 @@ export function meshVizinhanca(viz: Uint8Array): ChunkGeometry {
         );
       }
       pushSway(4);
+      pushLuz(4, luzFace);
       indices.push(base, base + 1, base + 2, base + 2, base + 1, base + 3);
     }
   };
@@ -775,6 +845,8 @@ export function meshVizinhanca(viz: Uint8Array): ChunkGeometry {
         // balança → a planta VERGA, presa no chão, em vez de deslizar inteira.
         sway.push(i >= 2 ? swayAtual : 0);
       }
+      // §💡 a cruz vive DENTRO da célula (flor, capim): a luz é a de casa.
+      pushLuz(4, luzDe(lx, ly, lz));
       if (sign > 0) indices.push(base, base + 1, base + 2, base, base + 2, base + 3);
       else indices.push(base, base + 2, base + 1, base, base + 3, base + 2);
     }
@@ -1107,6 +1179,9 @@ export function meshVizinhanca(viz: Uint8Array): ChunkGeometry {
             uvs.push(corner.uv[0] === 1 ? u1 : u0, corner.uv[1] === 1 ? v1 : v0);
           }
           pushSway(4); // §🌬️ cubo balança inteiro (folhas) ou nada (o resto)
+          // §💡 cubo cheio: a face mostra a luz do que ela ENCARA (a própria
+          // célula é opaca e está em 0).
+          pushLuz(4, luzDe(lx + face.dir[0], ly + face.dir[1], lz + face.dir[2]));
           idxTarget.push(base, base + 1, base + 2, base + 2, base + 1, base + 3);
         }
       }
@@ -1120,6 +1195,7 @@ export function meshVizinhanca(viz: Uint8Array): ChunkGeometry {
       : indices;
   return {
     sway: new Uint8Array(sway.map((v) => Math.round(v * 255))),
+    luz: new Uint8Array(luzVert),
     positions: new Float32Array(positions),
     normals: new Float32Array(normals),
     uvs: new Float32Array(uvs),

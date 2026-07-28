@@ -60,6 +60,8 @@ export interface ResultadoMesh {
   uvs?: Float32Array;
   /** §🌬️ balanço por vértice (byte normalizado) — ver ChunkGeometry.sway. */
   sway?: Uint8Array;
+  /** §💡 luz por vértice (byte cru `(ceu << 4) | bloco`) — ver ChunkGeometry.luz. */
+  luz?: Uint8Array;
   indices?: Uint32Array;
   opaqueIndexCount?: number;
   aguaIndexCount?: number;
@@ -154,10 +156,13 @@ export class MeshPool {
     return this.disponivel && this.emVoo < this.workers.length * porWorker;
   }
 
-  /** Manda a vizinhança pro worker MENOS carregado. `viz` é TRANSFERIDA —
-   *  quem chama não pode mais usá-la depois desta linha. */
-  enviar(viz: Uint8Array): number {
+  /** Manda a vizinhança pro worker MENOS carregado. `viz` e `luzViz` são
+   *  TRANSFERIDAS — quem chama não pode mais usá-las depois desta linha. */
+  enviar(viz: Uint8Array, luzViz?: Uint8Array | null): number {
     if (viz.length !== VIZ_VOLUME) throw new Error(`vizinhança ${viz.length} ≠ ${VIZ_VOLUME}`);
+    if (luzViz && luzViz.length !== VIZ_VOLUME) {
+      throw new Error(`vizinhança de luz ${luzViz.length} ≠ ${VIZ_VOLUME}`);
+    }
     let alvo = 0;
     for (let i = 1; i < this.workers.length; i++) {
       if ((this.carga[i] ?? 0) < (this.carga[alvo] ?? 0)) alvo = i;
@@ -165,7 +170,9 @@ export class MeshPool {
     const id = this.proximoId++;
     this.dono.set(id, alvo);
     this.carga[alvo] = (this.carga[alvo] ?? 0) + 1;
-    this.workers[alvo]!.postMessage({ id, viz }, [viz.buffer]);
+    const transfer: Transferable[] = [viz.buffer];
+    if (luzViz) transfer.push(luzViz.buffer);
+    this.workers[alvo]!.postMessage({ id, viz, luzViz: luzViz ?? undefined }, transfer);
     return id;
   }
 
