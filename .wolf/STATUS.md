@@ -301,6 +301,31 @@ Documento é o ÚLTIMO entregável, não o primeiro. Construir, não documentar.
     headless por CDP puro (sem puppeteer como dependência) e imprime o perfil. Os NÚMEROS
     dele não valem (SwiftShader) — é teste de encanamento.
 
+- **§💡 LUZ VOXEL + §🏔️ CAVERNAS (sessão 32, 2026-07-28)** — commits `1be4ab0` e `f1dd05f`.
+  A fase da fila era a v2 da geração; o portão de produto aberto era a luz, e o usuário
+  escolheu **luz COMPLETA antes de escavar** (mais: **caverna seca sob o mar**, com casca).
+  - **Luz mora 100% no CLIENTE** — é função pura dos bytes do mundo e o cliente já os tem, então
+    não há mensagem nova nem custo de tick, e dois clientes convergem sozinhos. `shared/src/
+    luz.ts`: 1 byte/célula com céu e tocha em dois nibbles, BFS com a regra da **descida reta**
+    (céu no máximo descendo não perde nível — é o que faz existir sombra sob teto),
+    `atualizarBloco` incremental devolvendo o conjunto de chunks sujos.
+  - **Mesher** ganhou o atributo `luz` por vértice (a face mostra a luz da célula que ela
+    ENCARA); **shader** enxertado ENCADEANDO o `onBeforeCompile` do §🌬️ — o canal do céu escala
+    com a hora, o da tocha não. Anoitecer não custa remesh: é uniform.
+  - **Cavernas** por interseção de dois ruídos 3D, função pura de `(x,y,z,h,seed)` (mundo E é
+    lazy: coluna vizinha só fecha a galeria respondendo igual sem consultar o mundo). Escava
+    depois do minério (veia cortada na parede) e `findSpawnSeco` ganhou veto de boca de caverna.
+  - **Três medições mudaram decisão:** acender coluna 18,4 → **2,48 ms** (a BFS enfileirava as
+    ~32 mil células de céu; só a banda rente ao relevo tem trabalho) · worldgen 2,63 → 28,6 →
+    **3,49 ms/coluna** (ruído célula a célula derrubou o smoke `pedir-coluna`; amortizado por
+    fatia, mundo byte a byte idêntico) · densidade de caverna **varia 2,9%–7,3% por seed**, e a
+    do `?bench` é das mais vazias — calibrar por ela teria dado o dobro.
+  - **Verificação nova `npm run shots:luz`**: compara a mesma cena do `?bench` ao meio-dia e à
+    meia-noite. Pega os dois modos de a luz falhar calada (shader que não compila; shader que
+    compila sem fazer nada). 5/5, noite/dia = 0,48.
+  - **Custo:** +66% de triângulos (153 852 → 255 234), +28% de draw calls. **Não medido no lab.**
+  - VERDE: typecheck 3/3 · 388 testes (30 novos) · build · 6/6 smokes. **Playtest PENDENTE.**
+
 ---
 
 ## 🚀 Próxima fase — RELEVO POR BIOMA (a 2ª metade da v2 da geração)
@@ -365,7 +390,10 @@ bloco de topo, e o determinismo (mesma seed = mesmos bytes) tem de continuar pas
 ### Cinco pendências que não bloqueiam nada, e quem faz é o usuário
 
 -1. **PLAYTEST DA LUZ E DAS CAVERNAS (sessão 32) — o mais novo, e o único que headless não
-   substitui.** O que olhar:
+   substitui.** ✅ **Já dá pra jogar agora:** o `npm run dev:server` que ficou de pé em `:8080`
+   serve o cliente COMPILADO, e o `dist` foi construído depois de tudo — luz e cavernas já
+   estão lá. Mundo NOVO é obrigatório (o `.ljw` velho tem a caverna assada de antes = nenhuma).
+   O que olhar:
    1. **Dá pra andar numa caverna sem tocha?** O piso de brilho é 0,05 — se ficar cego, é uma
       linha (`luzMin`, `client/src/luzShader.ts`).
    2. **A tocha ilumina o suficiente?** Ela emite 14 e o halo decorativo continua por cima;
