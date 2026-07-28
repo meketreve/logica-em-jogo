@@ -517,7 +517,11 @@ Sessões 20+21 (`26151f9`/`41211ff`/`5d18899`), 24 (`e3eaac4`) e 25 commitadas.
 do A/B) · `fbbe3d0` (auto-update no launcher) · `f23d5a9` (README + deck da CRE + relatório
 sem data) · `e49aa15` (privacidade: apelido e save de teste fora da árvore) · `edec801`
 (wolf) · `f6d72af` (LICENSE source-available) · `26ee413` (decisões no cerebrum).
-**O repo é PÚBLICO agora:** `github.com/meketreve/logica-em-jogo`.
+**Sessões 30, 31 e 32 COMMITADAS E PUSHADAS** (2026-07-28, 9 commits de uma vez — as sessões
+30 e 31 tinham ficado só locais). Da 32: `1be4ab0` (§💡 luz voxel) · `f1dd05f` (§🏔️ cavernas) ·
+`dd80426` (wolf) · `3064aae` (cerebrum consolidado 20,3k → 9,9k) · `581fbcd` (handoff).
+**O repo é PÚBLICO agora:** `github.com/meketreve/logica-em-jogo` — e é daí que o launcher da
+escola puxa, então push atrasado = notebook do lab desatualizado.
 
 ---
 
