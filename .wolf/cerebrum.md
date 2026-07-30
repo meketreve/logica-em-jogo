@@ -286,6 +286,17 @@
   `LJ_SAVE=cenarios/<aula>.ljw` é seguro (grava a cópia viva em `mundos/`).
 - **Teste de perf precisa de TESTEMUNHA DE CORREÇÃO:** uma fila que zera sem produzir geometria
   pareceria vitória enorme. Medir "quanto trabalho SAIU" junto com "quanto tempo levou".
+- **Número 100× melhor que o esperado é defeito de MEDIÇÃO, não vitória** (bug-546): worldgen a
+  0,02 ms/coluna e cena do bench com 0 triângulo tinham a mesma causa — `createWorld(dims)`
+  **aloca tudo por default**, então `colunaGerada` é true e `gerarColunaDeChunks` sai na 1ª
+  linha. Mundo lazy de verdade = **`createWorld(dims, false)`**.
+- **A/B de dois módulos no MESMO processo mede JIT, não código:** rodando o MESMO código HEAD
+  duas vezes seguidas, a varredura levou 591 ms e depois 1512 ms (2,6×). Sempre incluir o
+  controle "A × A" antes de acreditar num "A × B" — ou medir em processos separados.
+- **Gate que muda de cor com a carga da máquina não é gate** (bug-545): o vitest sem config abre
+  1 fork por núcleo (24 aqui) e este projeto GERA MUNDO em quase todo teste. Daí
+  `shared/vitest.config.ts` com `maxWorkers: 8` + `testTimeout: 20000` — e a suíte ficou
+  verde E mais rápida (92 s → 37 s). Tempo se mede no `?bench`, não no vitest.
 - **Verificação headless que precisa LER dado (não olhar pixel) = CDP puro:**
   `--remote-debugging-port` + `fetch /json/list` + WebSocket global do Node + `Runtime.evaluate`
   lendo algo que o cliente publica (`window.__benchPerfil`, `__benchRodando`). Zero dependência.
@@ -385,6 +396,12 @@
   trabalho é do SERVIDOR, ele avisa que começou — não dá pra inferir no cliente. E não basta
   abrir: segurar as mensagens por **2× rAF** (com `setTimeout` de segurança, porque aba em
   segundo plano não roda rAF) é o que faz a tela PINTAR antes do trabalho pesado.
+- **[2026-07-30] Multiplicador de terreno com rampa ESTREITA = penhasco** (bug-544): o gradiente
+  do fator × a amplitude da serra (88 blocos) é o degrau. Regra de bolso: pra degrau ≤ 6 com
+  amplitude 88, o fator não pode variar mais de ~0,07 por bloco — e o campo de clima
+  (célula ~80) já entrega 0,019/bloco, então rampa de meia-largura < 0,2 estoura sozinha.
+  **Suavidade de fronteira se MEDE (degrau máx entre colunas vizinhas), não se estima** — e a
+  régua certa é PARIDADE com o que existia antes (o heightmap global mede 4–6).
 - **[2026-07-28] Ruído 3D célula a célula no worldgen custou 10,9×** (2,63 → 28,61 ms/coluna) e
   **derrubou o streaming** — o smoke `pedir-coluna` parou no anel 4 (bug-541). O worldgen roda
   no servidor, por coluna, sob demanda: qualquer coisa nova que varra o subsolo inteiro tem de

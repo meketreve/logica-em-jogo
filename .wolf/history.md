@@ -4,6 +4,49 @@
 
 ## Session Journal
 
+> **SESSÃO 31 (2026-07-27) — LAYOUTS MOBILE, 1ª RODADA: MENU + INVENTÁRIO/HOTBAR + CHAT/HUD.**
+> Escopo escolhido pelo usuário na entrevista: essas três telas (painéis de AUTORIA ficaram de
+> fora) e régua **"os dois, Fire manda"** — 1024×600 paisagem manda, tablet maior herda.
+> **Celular foi RECUSADO** por ele; não desenhar pra ~640×360 sem pedido.
+>
+> **O ponto de partida era pior do que parecia:** `client/index.html` (que guarda TODO o CSS da
+> UI) tinha **`@media` = 0**. Nenhum breakpoint existia. O que já funcionava em tela pequena era
+> acidente de `min(920px, 92vw)`, e o `settings.uiScale` escalava **só** joystick/botões do
+> `touch.ts` — HUD, hotbar, inventário e chat eram px fixo.
+>
+> **Os 5 defeitos reais consertados** (nenhum deles óbvio na leitura do CSS):
+> 1. **Painel mais alto que a janela sumia pra CIMA** — `#menu`/`#overlay` são flex
+>    `align-items:center`, e item que estoura não rola até o topo. Em 600px isso pegava "Meus
+>    mundos" e configurações. Agora o painel se cabe sozinho (`max-height` + `overflow-y`).
+> 2. **`box-sizing` é content-box neste projeto** (bug-538): o `max-height` novo errava pela
+>    soma exata de padding+borda (580+32+2 = 614 numa janela de 600). `border-box` nas duas
+>    regras novas — os painéis de altura FIXA ficaram como estavam de propósito (o 560px foi
+>    ajustado a olho em playtest de 2026-07-20).
+> 3. **No toque não havia como trocar de bloco sem abrir o inventário** — `#hotbar` era
+>    `pointer-events:none` e tablet não tem 1–9 nem scroll. Agora tapa no slot escolhe; só a
+>    faixa `.slots` recebe o dedo (o resto deixa o arrasto de olhar chegar no `#touch-look`).
+> 4. **Teclado virtual cobria o campo do chat** — `visualViewport` é a única fonte que sabe
+>    disso (`window.innerHeight` NÃO muda quando o teclado abre). `chat.ts` publica a altura
+>    escondida em `--kb` e o CSS soma no `bottom`.
+> 5. **Log do chat caía sobre a hotbar** (bug-539) e `#hud`/`#objetivos` colidiam com o
+>    `#touch-topo`. Ambos reposicionados em `(pointer: coarse)`.
+>
+> **A jogada que mais rendeu:** a 3ª media query, `(min-width:700px) and (max-height:700px)` =
+> paisagem baixa. Ali **sobra largura e falta altura**, então o certo é **alargar** (menu
+> 460→680, inventário 580→760), não quebrar linha em duas. Isso devolveu as 6 abas do
+> inventário numa linha só, 9 colunas de bloco e tirou o nome do mundo do truncamento "seq…".
+>
+> **Verificação nova: `npm run shots:tablet`** (`scripts/tablet-shots.mjs`). Layout de tela
+> pequena não tem teste unitário, mas tem pergunta binária: mede `getBoundingClientRect` contra
+> a janela ("cabe / ESTOURA"), o menor alvo tocável (piso 40px) e a intersecção chat × hotbar —
+> e salva o print do lado. **15/15 verde em 1024×600 e em 1280×800; desktop 1920×1080 sem
+> regressão.** Foi ele que pegou os bugs 538 e 539. ⚠️ `pointer: coarse` NÃO vem de
+> `mobile:true` no CDP — quem liga é `Emulation.setEmulatedMedia`; sem isso a verificação
+> aprova tudo mentindo.
+>
+> **VERDE:** typecheck 3/3 · 358 testes · build ok. **Playtest do usuário no tablet PENDENTE** —
+> é o próximo passo, e headless não substitui (dedo real, teclado real do Android, DPI real).
+
 > **SESSÃO 30 (2026-07-27) — A/B DO §🌬️ MEDIDO (no PC de dev) E ESCOPO DA SOBREVIVÊNCIA ABERTO.**
 > **Zero linha de código.** Sessão de leitura de perfil + entrevista de escopo.
 >
@@ -1428,6 +1471,55 @@
 > segue ADIADO — sem gatilho.**
 
 ## Action Log
+
+## Session: 2026-07-26 13:36
+
+| Time | Action | File(s) | Outcome | ~Tokens |
+|------|--------|---------|---------|--------|
+| 13:47 | Edited shared/src/protocol.ts | modified Streaming() | ~180 |
+| 13:47 | Edited shared/src/protocol.ts | added 1 condition(s) | ~100 |
+| 13:47 | Edited shared/src/protocol.ts | 4→5 lines | ~70 |
+| 13:47 | Edited shared/src/protocol.ts | 2→7 lines | ~123 |
+| 13:47 | Edited shared/src/session.ts | expanded (+9 lines) | ~70 |
+| 13:48 | Edited shared/src/session.ts | 1→6 lines | ~44 |
+| 13:48 | Edited shared/src/session.ts | added 5 condition(s) | ~430 |
+| 13:48 | Edited shared/src/session.ts | 2→3 lines | ~16 |
+| 13:48 | Edited client/src/main.ts | added 1 condition(s) | ~369 |
+| 13:48 | Edited client/src/main.ts | 4→5 lines | ~70 |
+| 13:48 | Edited client/src/main.ts | 2→6 lines | ~124 |
+| 13:49 | Edited client/src/main.ts | added error handling | ~219 |
+| 13:49 | Edited client/src/main.ts | 2→3 lines | ~17 |
+| 13:49 | Edited client/src/main.ts | modified for() | ~214 |
+| 13:50 | Edited client/src/main.ts | added 5 condition(s) | ~793 |
+| 13:50 | Edited client/src/chunks.ts | added error handling | ~195 |
+| 13:50 | Edited client/src/main.ts | 1→5 lines | ~73 |
+| 13:50 | Edited client/src/hud.ts | modified Streaming() | ~90 |
+| 13:50 | Edited client/src/hud.ts | "stream ${s.stream.colunas" → "stream ${s.stream.colunas" | ~38 |
+| 13:50 | Edited client/src/main.ts | 1→6 lines | ~46 |
+| 13:50 | Edited client/src/main.ts | 2→3 lines | ~43 |
+| 13:51 | Edited client/src/main.ts | inline fix | ~22 |
+| 13:51 | Edited client/src/main.ts | modified tochas() | ~36 |
+| 13:52 | Edited shared/src/streaming.test.ts | modified jogador() | ~1008 |
+| 13:52 | Edited shared/src/streaming.test.ts | added 1 condition(s) | ~278 |
+| 13:52 | Edited shared/src/streaming.test.ts | 3→4 lines | ~19 |
+| 13:52 | Edited shared/src/streaming.test.ts | 3→2 lines | ~37 |
+| 13:53 | Edited shared/src/protocol.test.ts | expanded (+19 lines) | ~320 |
+| 13:53 | Edited shared/src/streaming.test.ts | expanded (+22 lines) | ~366 |
+| 13:55 | Created server/src/cenarios/_smoke-pedir-coluna.mjs | — | ~1344 |
+| 14:05 | SESSÃO 24 — usuário APROVOU o playtest da água (sessão 22) e pediu backlog de vento/vida ambiental | .wolf/ROADMAP.md §🌬️ | anotado: textura da água, vento autoritativo, animação seguindo o vento, nuvens, folhas, grama, flores | ~900 |
+| 14:05 | §🔁 frente 1 — bug-211 FECHADO: `enviarRaio()` reanuncia `{type:"radius"}` quando a config muda (connect + onSettingsChanged) | client/src/main.ts | horizonte volta a crescer ao aumentar o raio; regressão no streaming.test.ts | ~700 |
+| 14:05 | §🔁 frente 2 — rede de segurança: msg `pedir_coluna`, teto de 8/s no servidor, varredura 1×/s no cliente com carência 4s + backoff 2→30s, try/catch no decode e no mesh, F3 faltando/repedidas | shared/{protocol,session}.ts, client/{main,chunks,hud}.ts | typecheck 3/3, 329 testes (+5), build ok | ~3200 |
+| 14:05 | Smoke ws REAL contra host LJ_TAMANHO=E na 8099 | server/src/cenarios/_smoke-pedir-coluna.mjs | 10/10 ✅ (raio 4→8 = 200 colunas novas; reenvio ok; flood 24→7; inválidos não derrubam) | ~800 |
+| 14:05 | bug-215 logado (rede de segurança); bug-211 marcado corrigido; duplicata de id criada por hook virou bug-214 | .wolf/buglog.json | índice consistente de novo | ~400 |
+| 13:59 | Session end: 30 writes across 8 files (protocol.ts, session.ts, main.ts, chunks.ts, hud.ts) | 8 reads | ~89084 tok |
+| 14:22 | Session end: 30 writes across 8 files (protocol.ts, session.ts, main.ts, chunks.ts, hud.ts) | 8 reads | ~89084 tok |
+| 14:28 | Session end: 30 writes across 8 files (protocol.ts, session.ts, main.ts, chunks.ts, hud.ts) | 9 reads | ~89084 tok |
+| 14:35 | PLAYTEST do §🔁 aprovado pelo usuário (raio de render carrega, F3 correto) | — | bug-211 confirmado fechado em jogo | ~200 |
+| 14:35 | Analisado perfil do pior caso (mundo E, raio 12, voando, RTX 2060) | profiles/perf-1785086834711-wmi5.json | §🔁 saudável (faltando 0, repedidas 16/719); custo real = draw calls + mesh | ~600 |
+| 14:40 | Medição registrada na política de otimização (gatilho de greedy meshing / mesher em Worker) | .wolf/ROADMAP.md | tabela + leitura honesta: falta número do PC do lab | ~700 |
+| 14:45 | COMMIT e3eaac4 — água + streaming §🔁 (20 arquivos, +839/-73) | git main | árvore de código limpa | ~400 |
+| 14:50 | Handoff pro /clear: próxima quest = §🕐 tela de carregamento, depois custo de render | STATUS.md, TODO.md, cerebrum.md | ordem decidida pelo usuário | ~900 |
+| 14:35 | Session end: 30 writes across 8 files (protocol.ts, session.ts, main.ts, chunks.ts, hud.ts) | 9 reads | ~89084 tok |
 
 ## Session: 2026-07-26 13:10
 

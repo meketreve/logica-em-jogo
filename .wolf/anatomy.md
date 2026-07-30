@@ -1,7 +1,7 @@
 # anatomy.md
 
-> Auto-maintained by OpenWolf. Last scanned: 2026-07-28T13:52:19.778Z
-> Files: 244 tracked | Anatomy hits: 0 | Misses: 0
+> Auto-maintained by OpenWolf. Last scanned: 2026-07-30T13:13:07.523Z
+> Files: 245 tracked | Anatomy hits: 0 | Misses: 0
 
 ## ./
 
@@ -322,29 +322,29 @@
   - section `LuzUniforms` L22-32 (~120 tok)
   - fn `criarLuzUniforms` L33-43 (~116 tok)
   - fn `aplicarLuz` L44-99 (~640 tok)
-- `main.ts` — O cliente não tem filesystem: aprende os nomes das aulas pela resposta de (~27727 tok)
-  - fn `cachearMundos` L103-194 (~1177 tok)
-  - fn `applySettings` L195-250 (~847 tok)
-  - fn `showOverlayMain` L251-255 (~35 tok)
-  - fn `updateOverlay` L256-275 (~317 tok)
-  - fn `startPlay` L276-286 (~83 tok)
-  - fn `onSettingsChanged` L287-308 (~291 tok)
-  - fn `enviarRaio` L309-344 (~486 tok)
-  - fn `playerName` L345-376 (~348 tok)
-  - fn `registrarChegadaDeRede` L377-384 (~60 tok)
-  - fn `jitterDeRede` L385-420 (~446 tok)
-  - fn `podeVoar` L421-456 (~582 tok)
-  - fn `pushPanelData` L457-467 (~94 tok)
-  - fn `ownDone` L468-476 (~90 tok)
-  - fn `refreshObjectivesView` L477-508 (~358 tok)
-  - fn `drenarFilaTroca` L509-516 (~79 tok)
-  - fn `segurarAteATelaPintar` L517-526 (~109 tok)
-  - fn `handleServerData` L527-670 (~1806 tok)
-  - fn `connect` L671-706 (~400 tok)
-  - fn `startMultiplayer` L707-724 (~224 tok)
-  - fn `startSingleplayer` L725-746 (~249 tok)
-  - fn `persistWorld` L747-794 (~520 tok)
-  - fn `startGame` L795-2230 (~18323 tok)
+- `main.ts` — O cliente não tem filesystem: aprende os nomes das aulas pela resposta de (~27795 tok)
+  - fn `cachearMundos` L104-195 (~1177 tok)
+  - fn `applySettings` L196-251 (~847 tok)
+  - fn `showOverlayMain` L252-256 (~35 tok)
+  - fn `updateOverlay` L257-276 (~317 tok)
+  - fn `startPlay` L277-287 (~83 tok)
+  - fn `onSettingsChanged` L288-309 (~291 tok)
+  - fn `enviarRaio` L310-345 (~486 tok)
+  - fn `playerName` L346-377 (~348 tok)
+  - fn `registrarChegadaDeRede` L378-385 (~60 tok)
+  - fn `jitterDeRede` L386-421 (~446 tok)
+  - fn `podeVoar` L422-457 (~582 tok)
+  - fn `pushPanelData` L458-468 (~94 tok)
+  - fn `ownDone` L469-477 (~90 tok)
+  - fn `refreshObjectivesView` L478-509 (~358 tok)
+  - fn `drenarFilaTroca` L510-517 (~79 tok)
+  - fn `segurarAteATelaPintar` L518-527 (~109 tok)
+  - fn `handleServerData` L528-671 (~1806 tok)
+  - fn `connect` L672-707 (~400 tok)
+  - fn `startMultiplayer` L708-725 (~224 tok)
+  - fn `startSingleplayer` L726-747 (~249 tok)
+  - fn `persistWorld` L748-795 (~520 tok)
+  - fn `startGame` L796-2234 (~18386 tok)
 - `menu.ts` — Menu principal (cp8) — HTML/CSS por cima do canvas, sem GUI de engine. (~4695 tok)
   - section `PlayWorldChoice` L35-49 (~166 tok)
   - section `MultiAuth` L50-54 (~19 tok)
@@ -421,16 +421,16 @@
 ## mundos/_smoke-coluna/
 
 - `_smoke-coluna.ljw` (~62 tok)
-- `chat.log` (~374 tok)
+- `chat.log` (~427 tok)
 
 ## mundos/_smoke-kicar/
 
-- `chat.log` (~2371 tok)
+- `chat.log` (~2608 tok)
 
 ## mundos/_smoke-trocaa/
 
 - `_smoke-trocaa.ljw` (~87 tok)
-- `chat.log` (~1119 tok)
+- `chat.log` (~1278 tok)
 
 ## mundos/_smoke-trocab/
 
@@ -438,11 +438,11 @@
 
 ## mundos/aula1-sequencia/
 
-- `chat.log` (~6778 tok)
+- `chat.log` (~7526 tok)
 
 ## mundos/aula2-binario/
 
-- `chat.log` (~320 tok)
+- `chat.log` (~352 tok)
 
 ## mundos/flor-world/
 
@@ -644,6 +644,7 @@
 
 - `package.json` — Node.js package manifest (~56 tok)
 - `tsconfig.json` — TypeScript configuration (~18 tok)
+- `vitest.config.ts` — Config do vitest do /shared (2026-07-30). (~341 tok)
 
 ## shared/src/
 
@@ -658,11 +659,13 @@
   - fn `plantarMandacaru` L170-182 (~84 tok)
 - `auth.test.ts` (~428 tok)
 - `auth.ts` — Identidade por mundo (cp9): nome + PIN de 4 dígitos, papel professor/aluno. (~483 tok)
-- `biomas.ts` — Biomas do gen procedural (2026-07-20) — a REGRA DE OURO aplicada ao terreno: (~1071 tok)
+- `biomas.ts` — Biomas do gen procedural (2026-07-20) — a REGRA DE OURO aplicada ao terreno: (~2313 tok)
   - section `Clima` L16-22 (~43 tok)
-  - section `Bioma` L23-90 (~622 tok)
-  - fn `biomaPorClima` L91-100 (~136 tok)
-  - fn `gramaPorClima` L101-106 (~58 tok)
+  - section `Bioma` L23-109 (~861 tok)
+  - fn `biomaPorClima` L110-119 (~136 tok)
+  - fn `gramaPorClima` L120-126 (~76 tok)
+  - fn `rampa` L127-168 (~633 tok)
+  - fn `relevoPorClima` L169-196 (~353 tok)
 - `blocks.test.ts` — Declares id (~2100 tok)
 - `blocks.ts` — IDs de bloco. Gravados como bytes crus nos chunks (Uint8Array), no save e no (~7144 tok)
   - fn `isAgua` L200-205 (~75 tok)
@@ -925,29 +928,29 @@
   - fn `findSpawnY` L100-107 (~79 tok)
   - fn `colunaMolhada` L108-123 (~234 tok)
   - fn `findSpawnSeco` L124-149 (~204 tok)
-- `worldgen.test.ts` — Mundo denso de 4×4 colunas com altura cheia — as cavernas moram em y≥2 e (~5276 tok)
-- `worldgen.ts` — Preset de criação de mundo (cp14): escolhido no menu/host, só vale pra (~7371 tok)
-  - fn `parseWorldPreset` L24-45 (~303 tok)
-  - fn `parseWorldTamanho` L46-51 (~78 tok)
-  - fn `ehMundoLazy` L52-61 (~103 tok)
-  - fn `hash2` L62-67 (~66 tok)
-  - fn `smooth` L68-72 (~29 tok)
-  - fn `valueNoise2` L73-86 (~126 tok)
-  - fn `hash3` L87-110 (~305 tok)
-  - fn `cavFatia` L111-129 (~151 tok)
-  - fn `cavLimiar` L130-153 (~332 tok)
-  - fn `cavernaEm` L154-189 (~503 tok)
-  - fn `cavernasDaColuna` L190-243 (~531 tok)
-  - fn `heightAt` L244-277 (~506 tok)
-  - fn `climaAt` L278-286 (~103 tok)
-  - fn `mulberry32` L287-320 (~427 tok)
-  - fn `topoPrevisto` L321-332 (~147 tok)
-  - fn `hashInt` L333-338 (~60 tok)
-  - section `Veia` L339-347 (~120 tok)
-  - fn `veiasDaColuna` L348-376 (~353 tok)
-  - fn `arvoreDaColuna` L377-402 (~263 tok)
-  - fn `gerarColunaDeChunks` L403-540 (~1835 tok)
-  - fn `generateWorld` L541-558 (~164 tok)
-  - fn `generateFlatWorld` L559-584 (~317 tok)
-  - fn `generateCabinsWorld` L585-606 (~275 tok)
-  - fn `generateWorldForPreset` L607-617 (~93 tok)
+- `worldgen.test.ts` — Meia-janela de amostragem em blocos (o campo de clima tem célula ~80, então (~6908 tok)
+- `worldgen.ts` — Preset de criação de mundo (cp14): escolhido no menu/host, só vale pra (~7853 tok)
+  - fn `parseWorldPreset` L30-51 (~303 tok)
+  - fn `parseWorldTamanho` L52-57 (~78 tok)
+  - fn `ehMundoLazy` L58-67 (~103 tok)
+  - fn `hash2` L68-73 (~66 tok)
+  - fn `smooth` L74-78 (~29 tok)
+  - fn `valueNoise2` L79-92 (~126 tok)
+  - fn `hash3` L93-116 (~305 tok)
+  - fn `cavFatia` L117-135 (~151 tok)
+  - fn `cavLimiar` L136-159 (~332 tok)
+  - fn `cavernaEm` L160-195 (~503 tok)
+  - fn `cavernasDaColuna` L196-259 (~698 tok)
+  - fn `heightAt` L260-311 (~736 tok)
+  - fn `climaAt` L312-320 (~103 tok)
+  - fn `mulberry32` L321-356 (~464 tok)
+  - fn `topoPrevisto` L357-368 (~147 tok)
+  - fn `hashInt` L369-374 (~60 tok)
+  - section `Veia` L375-383 (~120 tok)
+  - fn `veiasDaColuna` L384-412 (~353 tok)
+  - fn `arvoreDaColuna` L413-438 (~263 tok)
+  - fn `gerarColunaDeChunks` L439-579 (~1876 tok)
+  - fn `generateWorld` L580-597 (~164 tok)
+  - fn `generateFlatWorld` L598-623 (~317 tok)
+  - fn `generateCabinsWorld` L624-645 (~275 tok)
+  - fn `generateWorldForPreset` L646-656 (~93 tok)

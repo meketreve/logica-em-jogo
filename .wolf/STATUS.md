@@ -1,6 +1,45 @@
 # STATUS — Projeto "Lógica em Jogo" (jogo voxel educacional)
 
 > Single source of truth for resuming work. Read this FIRST when starting a session.
+> **SESSÃO 33 (2026-07-30) — §🏔️ RELEVO POR BIOMA: a v2 da geração FECHOU.** A sessão 32
+> tinha deixado `shared/src/biomas.ts` com os campos `relevo`/`neve` escritos e **ninguém
+> consumindo** — `heightAt` seguia heightmap global. Esta sessão ligou os dois, e o trabalho
+> de verdade foi o que o escopo avisou que seria: **a fronteira.**
+>
+> **O que o playtest do usuário tinha reclamado** (registrado só em comentário de código até
+> hoje): duna de caatinga chegando a **106 blocos**, "areia, pedra, terra e neve junto", e
+> pico atravessando 2–3 biomas. As duas causas: a serra não sabia de bioma, e a neve era
+> global por altitude + `temp < 0.6` (pegava morro de cerrado).
+>
+> **O PENHASCO, que apareceu na medição e não no código (bug-544):** a 1ª ligação passou
+> typecheck e teste, e produziu **degrau de 14 a 23 blocos entre colunas VIZINHAS** — contra
+> 4–6 do heightmap global nas mesmas seeds. Culpa do fator de NÚCLEO: ele multiplica o
+> gradiente do clima pela amplitude da serra (88 blocos), e rampa estreita ali vira parede.
+> **Sweep medido** (10 formulações × 5 seeds × 400×400 colunas) escolheu `RAMPA 0,25` +
+> `NÚCLEO (0,4→1,0)`: **degrau máx 4–6 = paridade exata com o heightmap global**, ZERO pares
+> acima de 6, cauda >3 mais LEVE que a dele (0,10% × 0,01–0,62%) — e os tetos de pé:
+> **araucárias 106 · mata 68 · cerrado 53 · caatinga 36.** As variantes rejeitadas têm número
+> do lado: sem núcleo suaviza mas vaza o teto (cerrado 73); clima 3× mais largo dá degrau 3 mas
+> mata a montanha (araucárias 66).
+>
+> **Três medições que mudaram decisão:**
+> 1. **Custo NÃO subiu: caiu.** Geração 4,53 → **4,00 ms/coluna** e a cena do `?bench` perdeu
+>    **7,5% de triângulos** (700 230 → 647 858, chunks com malha 586 → 549). Terreno mais baixo
+>    fora das araucárias escreve menos bloco e mesha menos — o teto de GPU do lab **alivia**.
+> 2. **`npm test` era um sorteio** (bug-545): 5 falhas numa rodada, 18 na seguinte, todas
+>    `timed out` e em arquivos que não tocam terreno. O vitest sem config abre 1 fork por núcleo
+>    (24 aqui) e quase todo teste daqui GERA MUNDO. `shared/vitest.config.ts` novo
+>    (`maxWorkers: 8`, `testTimeout: 20000`): **392/392 verde e a suíte caiu de 92 s pra 37 s.**
+> 3. **Chapada morreu de propósito** — `ROCHA_HEIGHT = 85` ficou INALCANÇÁVEL (0% dos topos em
+>    5 seeds): só araucárias passam de 85 e elas nevam. Documentado no código como rede de
+>    segurança: subir o `relevo` do cerrado devolve pedra nua sem código novo.
+>
+> **VERDE:** typecheck 3/3 · **392 testes** (4 novos, incl. o portão de fronteira) · build ·
+> 6/6 smokes · 5/5 na luz. **Playtest do usuário PENDENTE** (ver §pendências).
+>
+> **COMMITADA** em 3: `cb987ed` (config do vitest) · `2aaf0e9` (§🏔️ relevo por bioma, com o
+> `client/dist` reconstruído) · o wolf logo abaixo. ⚠️ **FALTA O PUSH** — é do GitHub que o
+> launcher da escola puxa, então main local à frente = notebook do lab desatualizado.
 > **SESSÃO 32 (2026-07-28) — §💡 LUZ VOXEL COMPLETA E §🏔️ CAVERNAS. Dois commits,
 > tudo verde.** A fase da fila era "v2 da geração"; o portão de produto que o escopo tinha
 > deixado aberto era a luz, e **o usuário escolheu luz COMPLETA (céu + tocha) ANTES de
@@ -40,48 +79,6 @@
 > **VERDE:** typecheck 3/3 · **388 testes** (30 novos) · build · 6/6 smokes · 5/5 na luz.
 > **Playtest do usuário PENDENTE** — headless não diz se caverna escura é *divertida*, nem se
 > o piso de 0,05 de brilho deixa andar lá dentro sem tocha.
-> **SESSÃO 31 (2026-07-27) — LAYOUTS MOBILE, 1ª RODADA: MENU + INVENTÁRIO/HOTBAR + CHAT/HUD.**
-> Escopo escolhido pelo usuário na entrevista: essas três telas (painéis de AUTORIA ficaram de
-> fora) e régua **"os dois, Fire manda"** — 1024×600 paisagem manda, tablet maior herda.
-> **Celular foi RECUSADO** por ele; não desenhar pra ~640×360 sem pedido.
->
-> **O ponto de partida era pior do que parecia:** `client/index.html` (que guarda TODO o CSS da
-> UI) tinha **`@media` = 0**. Nenhum breakpoint existia. O que já funcionava em tela pequena era
-> acidente de `min(920px, 92vw)`, e o `settings.uiScale` escalava **só** joystick/botões do
-> `touch.ts` — HUD, hotbar, inventário e chat eram px fixo.
->
-> **Os 5 defeitos reais consertados** (nenhum deles óbvio na leitura do CSS):
-> 1. **Painel mais alto que a janela sumia pra CIMA** — `#menu`/`#overlay` são flex
->    `align-items:center`, e item que estoura não rola até o topo. Em 600px isso pegava "Meus
->    mundos" e configurações. Agora o painel se cabe sozinho (`max-height` + `overflow-y`).
-> 2. **`box-sizing` é content-box neste projeto** (bug-538): o `max-height` novo errava pela
->    soma exata de padding+borda (580+32+2 = 614 numa janela de 600). `border-box` nas duas
->    regras novas — os painéis de altura FIXA ficaram como estavam de propósito (o 560px foi
->    ajustado a olho em playtest de 2026-07-20).
-> 3. **No toque não havia como trocar de bloco sem abrir o inventário** — `#hotbar` era
->    `pointer-events:none` e tablet não tem 1–9 nem scroll. Agora tapa no slot escolhe; só a
->    faixa `.slots` recebe o dedo (o resto deixa o arrasto de olhar chegar no `#touch-look`).
-> 4. **Teclado virtual cobria o campo do chat** — `visualViewport` é a única fonte que sabe
->    disso (`window.innerHeight` NÃO muda quando o teclado abre). `chat.ts` publica a altura
->    escondida em `--kb` e o CSS soma no `bottom`.
-> 5. **Log do chat caía sobre a hotbar** (bug-539) e `#hud`/`#objetivos` colidiam com o
->    `#touch-topo`. Ambos reposicionados em `(pointer: coarse)`.
->
-> **A jogada que mais rendeu:** a 3ª media query, `(min-width:700px) and (max-height:700px)` =
-> paisagem baixa. Ali **sobra largura e falta altura**, então o certo é **alargar** (menu
-> 460→680, inventário 580→760), não quebrar linha em duas. Isso devolveu as 6 abas do
-> inventário numa linha só, 9 colunas de bloco e tirou o nome do mundo do truncamento "seq…".
->
-> **Verificação nova: `npm run shots:tablet`** (`scripts/tablet-shots.mjs`). Layout de tela
-> pequena não tem teste unitário, mas tem pergunta binária: mede `getBoundingClientRect` contra
-> a janela ("cabe / ESTOURA"), o menor alvo tocável (piso 40px) e a intersecção chat × hotbar —
-> e salva o print do lado. **15/15 verde em 1024×600 e em 1280×800; desktop 1920×1080 sem
-> regressão.** Foi ele que pegou os bugs 538 e 539. ⚠️ `pointer: coarse` NÃO vem de
-> `mobile:true` no CDP — quem liga é `Emulation.setEmulatedMedia`; sem isso a verificação
-> aprova tudo mentindo.
->
-> **VERDE:** typecheck 3/3 · 358 testes · build ok. **Playtest do usuário no tablet PENDENTE** —
-> é o próximo passo, e headless não substitui (dedo real, teclado real do Android, DPI real).
 
 ---
 
@@ -301,6 +298,28 @@ Documento é o ÚLTIMO entregável, não o primeiro. Construir, não documentar.
     headless por CDP puro (sem puppeteer como dependência) e imprime o perfil. Os NÚMEROS
     dele não valem (SwiftShader) — é teste de encanamento.
 
+- **§🏔️ RELEVO POR BIOMA — a v2 DA GERAÇÃO FECHADA (sessão 33, 2026-07-30).**
+  - **`Bioma` ganhou relevo e neve:** `relevo` (teto de amplitude da serra, [0,1]) e `neve`
+    (flag). `relevoPorClima(clima)` mistura os tetos pela pertinência de cada bioma e
+    multiplica pelo fator de NÚCLEO — que zera na divisa, e é isso que mantém a montanha
+    dentro de um bioma só em vez de montada na fronteira.
+  - **`heightAt` multiplica a amplitude da serra por esse fator** (5º parâmetro `clima` opcional,
+    só pra quem já calculou não pagar 2 ruídos de novo). Colinas seguem GLOBAIS de propósito:
+    é o que dá continuidade onde o relevo é zerado. Mundo baixo (aula, sizeY 64) sai antes da
+    serra e **não mudou um byte** — tem teste.
+  - **Neve virou `Bioma.neve`** no lugar de `temp < 0.6`: `topoPrevisto` continua a fonte única
+    do bloco de topo, e o HUD F3 mostra o relevo da coluna (`relevo 0.42 (teto do bioma 1)`).
+  - **O portão de fronteira (bug-544):** a 1ª ligação passou typecheck e testes e abriu penhasco
+    de **14–23 blocos**. Sweep medido escolheu `RAMPA 0,25` + `NÚCLEO (0,4→1,0)` → **degrau máx
+    4–6, paridade exata com o heightmap global, zero pares acima de 6.** Tetos medidos:
+    araucárias 106 · mata 68 · cerrado 53 · caatinga 36 (era 106 — a duna do playtest).
+  - **Custo negativo:** geração 4,53 → 4,00 ms/coluna, triângulos da cena do `?bench`
+    700 230 → **647 858 (−7,5%)**, chunks com malha 586 → 549. Terreno mais baixo alivia a GPU.
+  - **`shared/vitest.config.ts` novo (bug-545):** `maxWorkers: 8` + `testTimeout: 20000` porque
+    o default (1 fork por núcleo × mundos de 128³) fazia a suíte falhar por contenção, não por
+    código. **392/392 e 92 s → 37 s.**
+  - VERDE: typecheck 3/3 · 392 testes (4 novos) · build · 6/6 smokes · 5/5 luz.
+    **Playtest PENDENTE.**
 - **§💡 LUZ VOXEL + §🏔️ CAVERNAS (sessão 32, 2026-07-28)** — commits `1be4ab0` e `f1dd05f`.
   A fase da fila era a v2 da geração; o portão de produto aberto era a luz, e o usuário
   escolheu **luz COMPLETA antes de escavar** (mais: **caverna seca sob o mar**, com casca).
@@ -328,36 +347,39 @@ Documento é o ÚLTIMO entregável, não o primeiro. Construir, não documentar.
 
 ---
 
-## 🚀 Próxima fase — RELEVO POR BIOMA (a 2ª metade da v2 da geração)
+## 🚀 Próxima fase — SOBREVIVÊNCIA (§🍖), o 4º da ordem travada
 
 A ordem do backlog está **travada pelo usuário** (sessão 29):
-**auto-update ✅ → layouts mobile ✅ (1ª rodada) → v2 da geração ← AQUI (metade feita) →
-sobrevivência.**
+**auto-update ✅ → layouts mobile ✅ (1ª rodada) → v2 da geração ✅ (sessão 32+33) →
+sobrevivência ← AQUI.**
 
-**Cavernas: FEITAS (sessão 32).** Falta a outra metade decidida no escopo: **relevo "montanha
-de verdade" por bioma** — araucária vira serra alta com neve, não só um multiplicador de
-amplitude. Tudo em `.wolf/ROADMAP.md §🏔️`.
+**A v2 da geração FECHOU:** cavernas (sessão 32) + relevo por bioma (sessão 33). O portão do
+ROADMAP foi atendido item por item — degrau de fronteira ≤ 6 (paridade com o heightmap global),
+`topoPrevisto` segue a fonte ÚNICA do bloco de topo, determinismo passando.
 
-**O que torna essa metade diferente (e o motivo de ela ser a parte difícil):** hoje `heightAt`
-é um heightmap **único e global** e a interface `Bioma` (`shared/src/biomas.ts`) **não tem
-campo nenhum de relevo** — bioma só PINTA e DECORA. Dar relevo por bioma **reabre de
-propósito** o penhasco de fronteira que o heightmap global evitou em 2026-07-20: a suavização
-entre biomas passa a ser o trabalho da fase, não um detalhe. O portão: teste de fronteira sem
-degrau maior que N blocos entre colunas adjacentes, `topoPrevisto` continua a fonte ÚNICA do
-bloco de topo, e o determinismo (mesma seed = mesmos bytes) tem de continuar passando.
-
-**Duas coisas novas que a fase de relevo herda e não pode ignorar:**
-1. **Serra alta = mais coluna materializada = mais malha E mais luz.** O custo por coluna hoje
-   é worldgen 3,49 ms + luz 2,48 ms, e os dois escalam com a altura do terreno. Medir com
-   `?bench` antes de levantar os picos.
-2. **A caverna acompanha o terreno** (`cavernaEm` recebe `h` e escava de y=2 até o topo).
-   Montanha mais alta = mais subsolo = mais caverna e mais triângulo. A conta de GPU abaixo
-   já está no limite.
+**Sobrevivência: escopo ABERTO desde a sessão 30, nada codado.** Entrevista feita, decisões
+travadas, 9 frentes e as colisões (mundo-aula, claims, bench, save, protocolo) escritas em
+`.wolf/ROADMAP.md §🍖`. **Ler de lá e começar pelo F1** (`/modo`, o interruptor sem mecânica).
 
 > ⚠️ **ARMADILHA DE NOME:** a sessão 10 já chamou de "worldgen v2" o que ELA entregou (biomas
 > por clima + minério em veia + árvores brasileiras). **Não é essa a v2 da fila.** E
 > **"madeira por espécie" saiu do escopo: já está feita** — `LogIpe`/`LogAraucaria`/
 > `LogPauBrasil` existem e cada espécie só nasce no bioma dono.
+
+### §🏔️ Relevo por bioma — o que ficou aberto
+
+- **Os 4 tetos são o botão de ajuste** (`Bioma.relevo` em `shared/src/biomas.ts`): caatinga 0,1 ·
+  cerrado 0,35 · mata 0,5 · araucárias 1. Mexer neles é UMA linha cada, e o teste do portão
+  (`O PORTÃO: nenhum degrau maior que 6 blocos`) diz na hora se a mudança criou penhasco.
+- **`RAMPA = 0,25` e `NUCLEO = (0,4 → 1,0)` são MEDIDOS** — não afinar a olho. O sweep está no
+  comentário do próprio arquivo, com as variantes rejeitadas e o número de cada uma.
+- **Chapada (`ROCHA_HEIGHT = 85`) está inalcançável de propósito** e documentada assim no
+  `worldgen.ts`. Se o usuário pedir mesa de pedra no cerrado, o caminho é BAIXAR o número (ou
+  subir o `relevo` do cerrado), não escrever gen novo.
+- **Mata chega a 68 e não neva** — grama em pico de 68 é decisão da flag `Bioma.neve`, não
+  esquecimento. Se ficar estranho no playtest, `neve: true` na mata é uma linha.
+- **Neve só nas araucárias** derrubou a área nevada 5× (4 925 → 935 blocos de neve num mundo M).
+  Era exatamente o pedido do playtest ("neve em cima de morro de cerrado não combina").
 
 ### §💡 Luz voxel — o que ficou aberto
 
@@ -389,7 +411,21 @@ bloco de topo, e o determinismo (mesma seed = mesmos bytes) tem de continuar pas
 
 ### Cinco pendências que não bloqueiam nada, e quem faz é o usuário
 
--1. **PLAYTEST DA LUZ E DAS CAVERNAS (sessão 32) — o mais novo, e o único que headless não
+-2. **PLAYTEST DO RELEVO POR BIOMA (sessão 33) — o mais novo.** Precisa de **mundo NOVO**
+   (o `.ljw` velho tem o terreno assado). Exige `npm run build` antes se for pelo `:8080`.
+   O que olhar:
+   1. **A serra das araucárias ainda impressiona?** Teto medido 106 (era ~120 global). Se ficou
+      baixa, `BIOMAS.araucarias.relevo` já está em 1 — o botão passa a ser a amplitude da serra
+      no `heightAt` (`28 + pico * 60`), e aí o portão precisa ser re-medido.
+   2. **A caatinga virou duna de novo?** Teto 36. Se ficar chapada demais, subir `relevo: 0.1`.
+   3. **Cerrado (53) e mata (68) ficaram parecidos entre si?** É a queixa mais provável — os
+      dois são "morro médio". Separar = mexer nos dois tetos, não no motor.
+   4. **A divisa entre biomas tem parede visível em algum lugar?** O portão garante ≤ 6 blocos
+      entre colunas VIZINHAS, mas 6 empilhado ao longo de uma encosta longa ainda pode ler como
+      barranco. É a única coisa que o teste mede e o olho pode discordar.
+   5. **Neve só nas araucárias ficou pouca?** A área nevada caiu 5×. Se ficou escassa, baixar
+      `SNOW_HEIGHT` (58) ou dar `neve: true` pra mata.
+-1. **PLAYTEST DA LUZ E DAS CAVERNAS (sessão 32) — o único que headless não
    substitui.** ✅ **Já dá pra jogar agora:** o `npm run dev:server` que ficou de pé em `:8080`
    serve o cliente COMPILADO, e o `dist` foi construído depois de tudo — luz e cavernas já
    estão lá. Mundo NOVO é obrigatório (o `.ljw` velho tem a caverna assada de antes = nenhuma).
@@ -453,6 +489,11 @@ experimento, existe desde bug-529).
 
 ### ⚠️ Dois tetos que NÃO se atravessa com código
 
+-1. **O RELEVO POR BIOMA DEVOLVEU 7,5% DE TRIÂNGULOS** (cena do `?bench`: 700 230 → 647 858;
+   chunks com malha 586 → 549), medido pelo mesher em Node (função pura — não depende de a fila
+   de malha drenar, que no SwiftShader não drena). Alívio parcial no item 0 abaixo: terreno mais
+   baixo fora das araucárias mesha menos. **Ainda NÃO foi medido no lab** — segue valendo o teto
+   do item 1.
 0. **§🏔️ AS CAVERNAS COBRARAM +66% DE TRIÂNGULOS** (153 852 → 255 234; draw calls 518 → 665),
    medido no `?bench` do PC de dev em 2026-07-28. O salto grande é ter caverna QUALQUER — o
    chunk de subsolo deixa de ser sólido-sem-faces; aumentar densidade depois é barato
@@ -478,17 +519,18 @@ experimento, existe desde bug-529).
 2. ~~**Layouts mobile**~~ **1ª RODADA FEITA (sessão 31)**: menu, inventário/hotbar e chat/HUD
    em 1024×600. Falta o **playtest no tablet** (pendência 0) e os **painéis de autoria**, que
    o usuário deixou de fora desta rodada.
-3. **v2 da geração de mundo** ← AQUI, **METADE FEITA**. `ROADMAP.md §🏔️`.
+3. ~~**v2 da geração de mundo**~~ **FEITA (sessões 32 e 33)**. `ROADMAP.md §🏔️`.
    - ~~**Luz voxel** (pré-requisito que o usuário mandou entregar antes)~~ **FEITA (sessão
      32)**: céu + tocha, repropagação incremental, 100% no cliente.
    - ~~**Cavernas**~~ **FEITAS (sessão 32)**: interseção de 2 ruídos 3D, todo mundo
      procedural, secas sob o mar com casca.
-   - **Relevo "montanha de verdade" por bioma** ← o que falta. É a parte difícil: reabre o
-     penhasco de fronteira que o heightmap global evitou.
-4. **Sobrevivência** (fome/vida/craft) — **escopo ABERTO na sessão 30 (2026-07-27)**, nada
-   codado. Entrevista feita, decisões travadas, 9 frentes e as colisões (mundo-aula, claims,
+   - ~~**Relevo "montanha de verdade" por bioma**~~ **FEITO (sessão 33)**: teto por bioma +
+     fator de núcleo, degrau de fronteira em paridade com o heightmap global (≤ 6), neve por
+     flag de bioma, custo NEGATIVO (−7,5% de triângulos).
+4. **Sobrevivência** (fome/vida/craft) ← **AQUI**. **Escopo ABERTO na sessão 30 (2026-07-27)**,
+   nada codado. Entrevista feita, decisões travadas, 9 frentes e as colisões (mundo-aula, claims,
    bench, save, protocolo) escritas em `.wolf/ROADMAP.md §🍖`. Ler de lá e começar pelo F1
-   (`/modo`, o interruptor sem mecânica). Ordem da fila **não mudou** — segue 4º.
+   (`/modo`, o interruptor sem mecânica).
 
 Fora da fila, sem ordem definida:
 - ~~`ROADMAP.md §🌬️` — vento + vida ambiental~~ **FEITO na sessão 28** (frentes 1 a 6).
@@ -507,6 +549,8 @@ correta", NADA a mudar. Laje segue com mira na METADE (`blockSelectionBox`) e co
 ALTURA (`temColisaoParcial`); NÃO copiar o modelo de célula cheia da cerca/porta. Se uma
 sessão futura achar isso "inconsistente", é decisão validada em playtest — deixar como está.
 
+**Sessão 33 COMMITADA (2026-07-30), 3 commits, PUSH PENDENTE:** `cb987ed` (config do vitest —
+o gate era sorteio) · `2aaf0e9` (§🏔️ relevo por bioma + dist) · `docs(wolf)` do handoff.
 Sessões 20+21 (`26151f9`/`41211ff`/`5d18899`), 24 (`e3eaac4`) e 25 commitadas.
 **Sessão 27 commitada e pushada:** `51bc5c8` (mesher em Worker) + `b3669ff` (wolf) +
 `0a3dd3f` (PR do openwolf) + `efaf6df` (profundidade 1 + etiqueta no perfil).

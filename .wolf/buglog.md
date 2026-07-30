@@ -5,10 +5,6 @@
 
 | id | tags | file | error (truncated) |
 |---|---|---|---|
-| bug-402 | auto-detected,guard-clause,ts | shared/src/protocol.ts | Missing guard clause |
-| bug-403 | auto-detected,type-fix,ts | shared/src/worldgen.ts | Type error |
-| bug-404 | auto-detected,guard-clause,ts | shared/src/session.ts | Missing guard clause |
-| bug-405 | auto-detected,logic-fix,ts | shared/src/session.ts | Wrong condition in logic |
 | bug-406 | auto-detected,type-fix,ts | client/src/menu.ts | Type error |
 | bug-407 | auto-detected,wrong-reference,html | client/index.html | Wrong reference: select should be option |
 | bug-408 | auto-detected,guard-clause,ts | client/src/chunks.ts | Missing guard clause |
@@ -205,3 +201,7 @@
 | bug-541 | desempenho,worldgen,cavernas,ruido,streaming,smoke,mundo-lazy | shared/src/worldgen.ts | smoke `pedir-coluna` falhou: 'streaming passou do RAIO_PADRAO: anel 4 (esperado  |
 | bug-542 | desempenho,luz,bfs,main-thread,streaming,orcamento-por-frame | shared/src/luz.ts | (pego na medicao, antes de ir pro cliente) acender uma coluna de luz custava 18, |
 | bug-543 | spawn,cavernas,worldgen,determinismo,preset | shared/src/world.ts | (latente, introduzido pelas cavernas e corrigido na mesma sessao) uma boca de ca |
+| bug-544 | shader,luz,glsl,interpolacao,varying,z-fighting,playtest,precisao | client/src/luzShader.ts | usuario no playtest: 'luz ta dando z fight nos blocos' — superficie chapada apar |
+| bug-544 | worldgen,relevo,bioma,fronteira,penhasco,heightmap,medicao,sweep,§🏔️ | shared/src/biomas.ts | (pego na medicao, antes de ir pro cliente) o relevo por bioma reabriu o penhasco |
+| bug-545 | vitest,flaky,timeout,testes,wsl,paralelismo,gate | shared/vitest.config.ts | `npm test` virou sorteio: uma rodada 5 falhas, a seguinte 18, todas 'Test timed  |
+| bug-546 | medicao,falso-negativo,mundo-lazy,createWorld,instrumentacao,worldgen | scratchpad/relevo-medir.mts (receita, ver cerebrum) | (falso NEGATIVO na minha propria instrumentacao) script de medicao acusou worldg |

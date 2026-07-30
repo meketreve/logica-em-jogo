@@ -2,37 +2,45 @@
 
 > Working checklist. **STATUS.md** = handoff ("why & where we are"); **TODO.md** = "what's left to do".
 > Keep items actionable and short. Check off with `[x]`; sweep done items into STATUS.md ✅ when a phase closes.
-> Last updated: 2026-07-28 (sessão 31 — layouts mobile, 1ª rodada: menu, inventário/hotbar,
-> chat/HUD em 1024×600 + escopo da v2 da geração aberto)
+> Last updated: 2026-07-30 (sessão 33 — §🏔️ relevo por bioma: a v2 da geração FECHOU;
+> próxima fase é sobrevivência §🍖)
 
 ---
 
 ## 🔥 Now (this session)
 
-- [x] **§💡 LUZ VOXEL COMPLETA** (sessão 32, commit `1be4ab0`): motor puro em
-      `shared/src/luz.ts` (céu + tocha em 2 nibbles, BFS com descida reta, incremental),
-      atributo `luz` por vértice no mesher, shader encadeado no `onBeforeCompile` do §🌬️,
-      fila com orçamento por frame antes do mesher. **100% no cliente** — zero protocolo.
-      Verificação nova `npm run shots:luz` (5/5, noite/dia = 0,48).
-- [x] **§🏔️ CAVERNAS** (sessão 32, commit `f1dd05f`): interseção de 2 ruídos 3D, função pura
-      de `(x,y,z,h,seed)`, todo mundo procedural, secas sob o mar com casca fina, spawn com
-      veto de boca de caverna. VERDE: typecheck 3/3, 388 testes, build, 6/6 smokes.
-- [ ] **Relevo "montanha de verdade" por bioma** — a outra metade da v2. `ROADMAP.md §🏔️`.
-      `Bioma` não tem campo de relevo e `heightAt` é heightmap único global; dar relevo por
-      bioma **reabre o penhasco de fronteira**. Portão: fronteira sem degrau > N blocos,
-      `topoPrevisto` segue fonte única, determinismo continua passando. Lembrar que serra mais
-      alta = mais coluna materializada = mais malha, mais luz E mais caverna.
+- [x] **§🏔️ RELEVO POR BIOMA** (sessão 33): `Bioma.relevo`/`Bioma.neve` + `relevoPorClima`
+      ligados no `heightAt` e no `topoPrevisto`. **Portão de fronteira em paridade com o
+      heightmap global** (degrau máx 4–6, zero pares > 6) depois do sweep que consertou o
+      penhasco de 14–23 blocos (bug-544). Tetos: araucárias 106 · mata 68 · cerrado 53 ·
+      caatinga 36. Custo NEGATIVO: −7,5% de triângulos, geração 4,53 → 4,00 ms/coluna.
+      VERDE: typecheck 3/3, 392 testes, build, 6/6 smokes, 5/5 luz.
+- [x] **`shared/vitest.config.ts`** (bug-545): `maxWorkers: 8` + `testTimeout: 20000` — o gate
+      `npm test` era sorteio (5 falhas numa rodada, 18 na outra, por contenção de CPU).
+      392/392 e a suíte caiu de 92 s pra 37 s.
+
+## ⏭️ Next
+
+- [ ] **§🍖 SOBREVIVÊNCIA — F1 primeiro** (`/modo`, o interruptor sem mecânica). Escopo travado
+      na sessão 30, 9 frentes e as colisões escritas em `.wolf/ROADMAP.md §🍖`. Ler de lá.
 
 ## 🏫 Na escola (o usuário faz lá)
 
+- [ ] **PLAYTEST do RELEVO POR BIOMA** (sessão 33) — precisa de **mundo NOVO**. A serra das
+      araucárias (teto 106) ainda impressiona? A caatinga (36) virou duna? Cerrado (53) e mata
+      (68) ficaram parecidos demais entre si? Alguma divisa lê como parede (o portão garante ≤ 6
+      blocos entre vizinhas, mas 6 ao longo de uma encosta pode virar barranco)? Neve só nas
+      araucárias ficou escassa (área nevada caiu 5×)? Cada resposta = 1 linha em
+      `BIOMAS.*.relevo` / `SNOW_HEIGHT` / `Bioma.neve`.
 - [ ] **PLAYTEST da LUZ e das CAVERNAS** (sessão 32) — headless não diz se é *jogável*.
       Dá pra andar em caverna sem tocha (piso `luzMin` = 0,05)? A tocha ilumina o bastante
       (emite 14, com o halo decorativo por cima)? A noite ficou escura demais pra construir
       (`PISO_LUAR` = 0,22)? Achar caverna é fácil demais ou raro demais (`LIMIAR_CAVERNA`)?
-- [ ] **FPS do lab com cavernas** — elas somaram **+66% de triângulos** (153 852 → 255 234) e
-      a GPU de lá já fecha o p95 em 16,8–19,6 ms contra 16,7 de orçamento. Rodar `?bench` no
-      notebook e comparar com a régua (`…-l9xf.json`). Se doer, o botão é `LIMIAR_CAVERNA`.
-      ⚠️ A seed do `?bench` é das mais vazias — o +66% é o melhor caso.
+- [ ] **FPS do lab com cavernas + relevo** — cavernas somaram **+66% de triângulos**
+      (153 852 → 255 234) e o relevo por bioma devolveu **−7,5%** (700 230 → 647 858 na medição
+      pelo mesher). A GPU de lá já fecha o p95 em 16,8–19,6 ms contra 16,7 de orçamento. Rodar
+      `?bench` no notebook e comparar com a régua (`…-l9xf.json`). Se doer, o botão é
+      `LIMIAR_CAVERNA`. ⚠️ A seed do `?bench` é das mais vazias — o +66% é o melhor caso.
 - [ ] **PLAYTEST mobile no tablet** — headless não tem dedo, teclado do Android nem DPI real.
       Conferir nessa ordem: tapa no slot da hotbar troca de bloco · chat com teclado aberto ·
       "Meus mundos" com vários mundos (chegar no "voltar") · abas do inventário numa linha ·

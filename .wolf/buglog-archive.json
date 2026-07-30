@@ -6522,6 +6522,70 @@
       "related_bugs": [],
       "occurrences": 1,
       "last_seen": "2026-07-21T02:07:18.068Z"
+    },
+    {
+      "id": "bug-402",
+      "timestamp": "2026-07-21T02:17:17.728Z",
+      "error_message": "Missing guard clause",
+      "file": "shared/src/protocol.ts",
+      "root_cause": "No early return/throw for edge case: buf.byteLength < 4",
+      "fix": "Added guard clause: if (buf.byteLength < 4)",
+      "tags": [
+        "auto-detected",
+        "guard-clause",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-21T02:17:17.729Z"
+    },
+    {
+      "id": "bug-403",
+      "timestamp": "2026-07-21T02:19:32.986Z",
+      "error_message": "Type error",
+      "file": "shared/src/worldgen.ts",
+      "root_cause": "Missing or incorrect type annotation",
+      "fix": "Added type assertion/annotation",
+      "tags": [
+        "auto-detected",
+        "type-fix",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-21T02:19:32.986Z"
+    },
+    {
+      "id": "bug-404",
+      "timestamp": "2026-07-21T02:21:00.497Z",
+      "error_message": "Missing guard clause",
+      "file": "shared/src/session.ts",
+      "root_cause": "No early return/throw for edge case: !st",
+      "fix": "Added guard clause: if (!st)",
+      "tags": [
+        "auto-detected",
+        "guard-clause",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 2,
+      "last_seen": "2026-07-21T02:21:30.387Z"
+    },
+    {
+      "id": "bug-405",
+      "timestamp": "2026-07-21T02:21:06.265Z",
+      "error_message": "Wrong condition in logic",
+      "file": "shared/src/session.ts",
+      "root_cause": "Condition was: if (!isQuadro(blockId)",
+      "fix": "Changed to: if (this.lazy)",
+      "tags": [
+        "auto-detected",
+        "logic-fix",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-21T02:21:06.265Z"
     }
   ]
 }

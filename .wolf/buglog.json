@@ -2,70 +2,6 @@
   "version": 1,
   "bugs": [
     {
-      "id": "bug-402",
-      "timestamp": "2026-07-21T02:17:17.728Z",
-      "error_message": "Missing guard clause",
-      "file": "shared/src/protocol.ts",
-      "root_cause": "No early return/throw for edge case: buf.byteLength < 4",
-      "fix": "Added guard clause: if (buf.byteLength < 4)",
-      "tags": [
-        "auto-detected",
-        "guard-clause",
-        "ts"
-      ],
-      "related_bugs": [],
-      "occurrences": 1,
-      "last_seen": "2026-07-21T02:17:17.729Z"
-    },
-    {
-      "id": "bug-403",
-      "timestamp": "2026-07-21T02:19:32.986Z",
-      "error_message": "Type error",
-      "file": "shared/src/worldgen.ts",
-      "root_cause": "Missing or incorrect type annotation",
-      "fix": "Added type assertion/annotation",
-      "tags": [
-        "auto-detected",
-        "type-fix",
-        "ts"
-      ],
-      "related_bugs": [],
-      "occurrences": 1,
-      "last_seen": "2026-07-21T02:19:32.986Z"
-    },
-    {
-      "id": "bug-404",
-      "timestamp": "2026-07-21T02:21:00.497Z",
-      "error_message": "Missing guard clause",
-      "file": "shared/src/session.ts",
-      "root_cause": "No early return/throw for edge case: !st",
-      "fix": "Added guard clause: if (!st)",
-      "tags": [
-        "auto-detected",
-        "guard-clause",
-        "ts"
-      ],
-      "related_bugs": [],
-      "occurrences": 2,
-      "last_seen": "2026-07-21T02:21:30.387Z"
-    },
-    {
-      "id": "bug-405",
-      "timestamp": "2026-07-21T02:21:06.265Z",
-      "error_message": "Wrong condition in logic",
-      "file": "shared/src/session.ts",
-      "root_cause": "Condition was: if (!isQuadro(blockId)",
-      "fix": "Changed to: if (this.lazy)",
-      "tags": [
-        "auto-detected",
-        "logic-fix",
-        "ts"
-      ],
-      "related_bugs": [],
-      "occurrences": 1,
-      "last_seen": "2026-07-21T02:21:06.265Z"
-    },
-    {
       "id": "bug-406",
       "timestamp": "2026-07-21T02:24:43.405Z",
       "error_message": "Type error",
@@ -3415,6 +3351,69 @@
       ],
       "occurrences": 1,
       "last_seen": "2026-07-28T10:30:00Z"
+    },
+    {
+      "id": "bug-544",
+      "timestamp": "2026-07-30T09:40:00Z",
+      "error_message": "(pego na medicao, antes de ir pro cliente) o relevo por bioma reabriu o penhasco de fronteira que o heightmap global evitava: degrau de 14 a 23 blocos entre colunas VIZINHAS, contra 4 a 6 do heightmap global nas mesmas seeds",
+      "file": "shared/src/biomas.ts",
+      "root_cause": "o fator de NUCLEO (`rampa(dominante, 0.55, 0.92)`) multiplica o gradiente do campo de clima pela amplitude da serra (ate 88 blocos). A rampa de 0,37 de largura em unidades de dominancia, sobre um clima cuja celula e ~80 blocos, da d(relevo)/dx ~0,57 por bloco — vezes 88 = penhasco. A rampa de pertinencia (RAMPA=0,1) somava mais gradiente pelo mesmo mecanismo. Nenhum teste pegava porque o portao de fronteira nao existia ainda.",
+      "fix": "RAMPA 0,1 -> 0,25 e NUCLEO (0,55;0,92) -> (0,4;1,0), os dois escolhidos por SWEEP medido (10 formulacoes x 5 seeds x 400x400 colunas), nao a olho. Resultado: degrau maximo 4-6 = paridade exata com o heightmap global, ZERO pares acima de 6, cauda >3 mais leve que a do global (0,10% contra 0,01-0,62%) e os tetos por bioma de pe (araucarias 106 / mata 68 / cerrado 53 / caatinga 36; era 106 na caatinga). Variantes rejeitadas com o numero do lado: sem nucleo suaviza (degrau 5) mas vaza o teto (cerrado 73, caatinga 43); clima 3x mais largo da degrau 3 mas mata a montanha (araucarias 66). Portao virou teste: `O PORTAO: nenhum degrau maior que 6 blocos entre colunas vizinhas`.",
+      "tags": [
+        "worldgen",
+        "relevo",
+        "bioma",
+        "fronteira",
+        "penhasco",
+        "heightmap",
+        "medicao",
+        "sweep",
+        "§🏔️"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-30T09:40:00Z"
+    },
+    {
+      "id": "bug-545",
+      "timestamp": "2026-07-30T09:45:00Z",
+      "error_message": "`npm test` virou sorteio: uma rodada 5 falhas, a seguinte 18, todas 'Test timed out in 5000ms' e espalhadas por arquivos que nao tocam terreno (protocol.test, save.test, mesher.test, water.test, scenario.test)",
+      "file": "shared/vitest.config.ts",
+      "root_cause": "o /shared nunca teve vitest.config. No default o vitest abre um fork por nucleo (24 nesta maquina) e a maioria destes testes GERA MUNDO (128^3 = 2 a 4,5 MB de Uint8Array + worldgen por coluna). 24 forks fazendo isso ao mesmo tempo numa VM de WSL estouram o testTimeout de 5 s sem nenhum defeito de codigo. Provado com controle: a MESMA varredura do MESMO codigo HEAD, medida duas vezes no mesmo processo, levou 591 ms e depois 1512 ms (2,6x).",
+      "fix": "criado `shared/vitest.config.ts` com `maxWorkers: 8` e `testTimeout: 20000`, com o porque no comentario. 392/392 verde E a rodada caiu de 92 s para 37 s de parede — menos forks e mais rapido. Gate de desempenho continua sendo o ?bench, nao o vitest.",
+      "tags": [
+        "vitest",
+        "flaky",
+        "timeout",
+        "testes",
+        "wsl",
+        "paralelismo",
+        "gate"
+      ],
+      "related_bugs": [],
+      "occurrences": 2,
+      "last_seen": "2026-07-30T09:52:00Z"
+    },
+    {
+      "id": "bug-546",
+      "timestamp": "2026-07-30T10:05:00Z",
+      "error_message": "(falso NEGATIVO na minha propria instrumentacao) script de medicao acusou worldgen a 0,02 ms/coluna e a cena do ?bench com 0 triangulos — os dois impossiveis",
+      "file": "scratchpad/relevo-medir.mts (receita, ver cerebrum)",
+      "root_cause": "`createWorld(dims)` ALOCA todos os chunks por default (`alocar = true`). Com tudo alocado, `colunaGerada` responde true e `gerarColunaDeChunks` sai na primeira linha — o mundo fica vazio e o cronometro mede o early return. Mundo lazy de verdade exige `createWorld(dims, false)`.",
+      "fix": "`createWorld(DIMS_E, false)` nos scripts de medicao. Depois disso a medicao ficou coerente: 549 chunks com malha e 647 858 triangulos na cena do ?bench. Regra geral: numero de medicao 100x melhor que o esperado e defeito de medicao, nao vitoria.",
+      "tags": [
+        "medicao",
+        "falso-negativo",
+        "mundo-lazy",
+        "createWorld",
+        "instrumentacao",
+        "worldgen"
+      ],
+      "related_bugs": [
+        "bug-540"
+      ],
+      "occurrences": 1,
+      "last_seen": "2026-07-30T10:05:00Z"
     }
   ]
 }

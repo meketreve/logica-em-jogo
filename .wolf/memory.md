@@ -3,55 +3,6 @@
 > Chronological action log. Hooks and AI append to this file automatically.
 > Old sessions are consolidated by the daemon weekly.
 
-## Session: 2026-07-26 13:36
-
-| Time | Action | File(s) | Outcome | ~Tokens |
-|------|--------|---------|---------|--------|
-| 13:47 | Edited shared/src/protocol.ts | modified Streaming() | ~180 |
-| 13:47 | Edited shared/src/protocol.ts | added 1 condition(s) | ~100 |
-| 13:47 | Edited shared/src/protocol.ts | 4→5 lines | ~70 |
-| 13:47 | Edited shared/src/protocol.ts | 2→7 lines | ~123 |
-| 13:47 | Edited shared/src/session.ts | expanded (+9 lines) | ~70 |
-| 13:48 | Edited shared/src/session.ts | 1→6 lines | ~44 |
-| 13:48 | Edited shared/src/session.ts | added 5 condition(s) | ~430 |
-| 13:48 | Edited shared/src/session.ts | 2→3 lines | ~16 |
-| 13:48 | Edited client/src/main.ts | added 1 condition(s) | ~369 |
-| 13:48 | Edited client/src/main.ts | 4→5 lines | ~70 |
-| 13:48 | Edited client/src/main.ts | 2→6 lines | ~124 |
-| 13:49 | Edited client/src/main.ts | added error handling | ~219 |
-| 13:49 | Edited client/src/main.ts | 2→3 lines | ~17 |
-| 13:49 | Edited client/src/main.ts | modified for() | ~214 |
-| 13:50 | Edited client/src/main.ts | added 5 condition(s) | ~793 |
-| 13:50 | Edited client/src/chunks.ts | added error handling | ~195 |
-| 13:50 | Edited client/src/main.ts | 1→5 lines | ~73 |
-| 13:50 | Edited client/src/hud.ts | modified Streaming() | ~90 |
-| 13:50 | Edited client/src/hud.ts | "stream ${s.stream.colunas" → "stream ${s.stream.colunas" | ~38 |
-| 13:50 | Edited client/src/main.ts | 1→6 lines | ~46 |
-| 13:50 | Edited client/src/main.ts | 2→3 lines | ~43 |
-| 13:51 | Edited client/src/main.ts | inline fix | ~22 |
-| 13:51 | Edited client/src/main.ts | modified tochas() | ~36 |
-| 13:52 | Edited shared/src/streaming.test.ts | modified jogador() | ~1008 |
-| 13:52 | Edited shared/src/streaming.test.ts | added 1 condition(s) | ~278 |
-| 13:52 | Edited shared/src/streaming.test.ts | 3→4 lines | ~19 |
-| 13:52 | Edited shared/src/streaming.test.ts | 3→2 lines | ~37 |
-| 13:53 | Edited shared/src/protocol.test.ts | expanded (+19 lines) | ~320 |
-| 13:53 | Edited shared/src/streaming.test.ts | expanded (+22 lines) | ~366 |
-| 13:55 | Created server/src/cenarios/_smoke-pedir-coluna.mjs | — | ~1344 |
-| 14:05 | SESSÃO 24 — usuário APROVOU o playtest da água (sessão 22) e pediu backlog de vento/vida ambiental | .wolf/ROADMAP.md §🌬️ | anotado: textura da água, vento autoritativo, animação seguindo o vento, nuvens, folhas, grama, flores | ~900 |
-| 14:05 | §🔁 frente 1 — bug-211 FECHADO: `enviarRaio()` reanuncia `{type:"radius"}` quando a config muda (connect + onSettingsChanged) | client/src/main.ts | horizonte volta a crescer ao aumentar o raio; regressão no streaming.test.ts | ~700 |
-| 14:05 | §🔁 frente 2 — rede de segurança: msg `pedir_coluna`, teto de 8/s no servidor, varredura 1×/s no cliente com carência 4s + backoff 2→30s, try/catch no decode e no mesh, F3 faltando/repedidas | shared/{protocol,session}.ts, client/{main,chunks,hud}.ts | typecheck 3/3, 329 testes (+5), build ok | ~3200 |
-| 14:05 | Smoke ws REAL contra host LJ_TAMANHO=E na 8099 | server/src/cenarios/_smoke-pedir-coluna.mjs | 10/10 ✅ (raio 4→8 = 200 colunas novas; reenvio ok; flood 24→7; inválidos não derrubam) | ~800 |
-| 14:05 | bug-215 logado (rede de segurança); bug-211 marcado corrigido; duplicata de id criada por hook virou bug-214 | .wolf/buglog.json | índice consistente de novo | ~400 |
-| 13:59 | Session end: 30 writes across 8 files (protocol.ts, session.ts, main.ts, chunks.ts, hud.ts) | 8 reads | ~89084 tok |
-| 14:22 | Session end: 30 writes across 8 files (protocol.ts, session.ts, main.ts, chunks.ts, hud.ts) | 8 reads | ~89084 tok |
-| 14:28 | Session end: 30 writes across 8 files (protocol.ts, session.ts, main.ts, chunks.ts, hud.ts) | 9 reads | ~89084 tok |
-| 14:35 | PLAYTEST do §🔁 aprovado pelo usuário (raio de render carrega, F3 correto) | — | bug-211 confirmado fechado em jogo | ~200 |
-| 14:35 | Analisado perfil do pior caso (mundo E, raio 12, voando, RTX 2060) | profiles/perf-1785086834711-wmi5.json | §🔁 saudável (faltando 0, repedidas 16/719); custo real = draw calls + mesh | ~600 |
-| 14:40 | Medição registrada na política de otimização (gatilho de greedy meshing / mesher em Worker) | .wolf/ROADMAP.md | tabela + leitura honesta: falta número do PC do lab | ~700 |
-| 14:45 | COMMIT e3eaac4 — água + streaming §🔁 (20 arquivos, +839/-73) | git main | árvore de código limpa | ~400 |
-| 14:50 | Handoff pro /clear: próxima quest = §🕐 tela de carregamento, depois custo de render | STATUS.md, TODO.md, cerebrum.md | ordem decidida pelo usuário | ~900 |
-| 14:35 | Session end: 30 writes across 8 files (protocol.ts, session.ts, main.ts, chunks.ts, hud.ts) | 9 reads | ~89084 tok |
-
 ## Session: 2026-07-26 14:38
 
 | Time | Action | File(s) | Outcome | ~Tokens |
@@ -775,3 +726,35 @@ layouts mobile segue sendo o próximo.
 | 10:42 | Session end: 89 writes across 17 files (luz.ts, index.ts, luz.test.ts, mesher.ts, meshPool.ts) | 19 reads | ~158770 tok |
 | 10:51 | Edited client/src/main.ts | 1→6 lines | ~113 |
 | 10:52 | Edited client/src/luzShader.ts | modified replace() | ~535 |
+| 12:10 | Edited shared/src/biomas.ts | expanded (+10 lines) | ~168 |
+
+## Session: 2026-07-30 09:15
+
+| Time | Action | File(s) | Outcome | ~Tokens |
+|------|--------|---------|---------|--------|
+| 09:21 | Edited shared/src/worldgen.ts | added nullish coalescing | ~516 |
+| 09:22 | Edited shared/src/worldgen.ts | expanded (+6 lines) | ~32 |
+| 09:22 | Edited shared/src/worldgen.ts | frio() → pedra() | ~268 |
+| 09:22 | Edited shared/src/worldgen.ts | 3→5 lines | ~88 |
+| 09:22 | Edited shared/src/worldgen.ts | 3→4 lines | ~60 |
+| 09:23 | Edited client/src/main.ts | 3→3 lines | ~30 |
+| 09:23 | Edited client/src/main.ts | 1→2 lines | ~54 |
+| 09:23 | Edited client/src/main.ts | 2→3 lines | ~14 |
+| 09:34 | Edited shared/src/biomas.ts | modified olho() | ~298 |
+| 09:34 | Edited shared/src/biomas.ts | 5→7 lines | ~142 |
+| 09:36 | Edited shared/src/biomas.ts | modified olho() | ~143 |
+| 09:38 | Edited shared/src/worldgen.test.ts | inline fix | ~23 |
+| 09:38 | Edited shared/src/worldgen.test.ts | 8→12 lines | ~166 |
+| 09:39 | Edited shared/src/worldgen.test.ts | expanded (+6 lines) | ~256 |
+| 09:39 | Edited shared/src/worldgen.test.ts | added nullish coalescing | ~1220 |
+| 09:46 | Edited shared/src/worldgen.test.ts | expanded (+8 lines) | ~337 |
+| 09:50 | Edited shared/src/worldgen.test.ts | modified cerrado() | ~143 |
+| 09:52 | Created shared/vitest.config.ts | — | ~341 |
+| 10:06 | Edited shared/src/worldgen.ts | expanded (+8 lines) | ~188 |
+| 10:20 | SESSÃO 33: §🏔️ relevo por bioma LIGADO (a sessão 32 tinha escrito `Bioma.relevo`/`neve` e ninguém consumia). `heightAt` multiplica a amplitude da serra por `relevoPorClima` (5º param `clima` opcional pra não pagar 2 ruídos 2×); neve virou flag de bioma no `topoPrevisto`; HUD F3 mostra o relevo da coluna. O trabalho real foi o PORTÃO: a 1ª ligação passou typecheck+testes e abriu penhasco de 14–23 blocos (bug-544) — sweep de 10 formulações × 5 seeds × 400×400 escolheu RAMPA 0,25 + NÚCLEO (0,4→1,0), degrau máx 4–6 = paridade com o heightmap global. Custo NEGATIVO: −7,5% de triângulos, gen 4,53→4,00 ms/coluna. | shared/src/biomas.ts, shared/src/worldgen.ts, shared/src/worldgen.test.ts, client/src/main.ts, shared/vitest.config.ts | verde: typecheck 3/3, 392 testes (4 novos), build, 6/6 smokes, 5/5 luz | ~1 commit |
+| 10:22 | `shared/vitest.config.ts` novo (bug-545): `npm test` era sorteio — 5 falhas numa rodada, 18 na seguinte, todas `timed out` em arquivos que não tocam terreno. Causa: default do vitest = 1 fork por núcleo (24) e quase todo teste daqui gera mundo de 128³. `maxWorkers: 8` + `testTimeout: 20000` → 392/392 e 92 s → 37 s. | shared/vitest.config.ts | gate confiável | ~800 tok |
+| 10:24 | 3 bugs logados: 544 (penhasco de fronteira, achado na medição), 545 (suíte flaky por contenção), 546 (falso negativo da minha instrumentação — `createWorld(dims)` aloca tudo por default, então `gerarColunaDeChunks` saía na 1ª linha: media 0,02 ms/coluna e 0 triângulo). | .wolf/buglog.json, .wolf/cerebrum.md | 3 aprendizados novos no cerebrum | ~2k tok |
+| 10:14 | Session end: 19 writes across 5 files (worldgen.ts, main.ts, biomas.ts, worldgen.test.ts, vitest.config.ts) | 4 reads | ~46518 tok |
+| 10:35 | Preparou /clear da sessão 33: STATUS com o diário da sessão + §🏔️ em ✅ Concluído + próxima fase trocada pra sobrevivência (§🍖 F1), TODO varrido, cerebrum com 5 aprendizados novos (rampa estreita = penhasco; A/B no mesmo processo mede JIT; createWorld aloca por default; gate que muda com a carga não é gate), anatomy rescaneada (245 arquivos), 3 bugs logados. Registrado no STATUS que a ÁRVORE ESTÁ SUJA (nada commitado) com os 3 commits sugeridos. Conferido: nenhum processo meu no ar (vite morto por PID, 8080 do usuário já estava fora antes). | .wolf/STATUS.md, .wolf/TODO.md, .wolf/memory.md | handoff fechado, árvore suja e documentada | ~1,5k tok |
+| 12:44 | Session end: 19 writes across 5 files (worldgen.ts, main.ts, biomas.ts, worldgen.test.ts, vitest.config.ts) | 4 reads | ~46518 tok |
+| 10:48 | Commitou a sessão 33 em 3: `cb987ed` (config do vitest), `2aaf0e9` (§🏔️ relevo por bioma + client/dist reconstruído) e o docs(wolf) do handoff. Push NÃO feito (não pedido) — registrado no STATUS que main local está à frente do GitHub, de onde o launcher da escola puxa. | .wolf/STATUS.md, .wolf/memory.md | 3 commits na main, árvore limpa | ~1 commit |
