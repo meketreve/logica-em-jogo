@@ -4,7 +4,13 @@ import {
   celulasDaArvore,
   celulasDoMandacaru,
 } from "./arvores";
-import { type ArvoreTipo, type Clima, biomaPorClima, gramaPorClima } from "./biomas";
+import {
+  type ArvoreTipo,
+  type Clima,
+  biomaPorClima,
+  gramaPorClima,
+  relevoPorClima,
+} from "./biomas";
 import { BlockId } from "./blocks";
 import { CHUNK_SIZE, DEFAULT_WORLD_CHUNKS, MAX_WORLD_CHUNKS } from "./constants";
 import {
@@ -240,16 +246,36 @@ const LIMIAR_CAVERNA = 0.06;
  *  de frequência baixa levanta picos até ~120. A máscara é smoothstep — fora
  *  da serra o fator é 0 e o terreno é idêntico ao de antes (praias e vales
  *  preservados). Serra SÓ em mundo alto (sizeY ≥ 128): mundo baixo (64 —
- *  aulas/testes) manteria só uma mesa clampada; nele o relevo segue colinas. */
-export function heightAt(x: number, z: number, seed: number, sizeY = 128): number {
+ *  aulas/testes) manteria só uma mesa clampada; nele o relevo segue colinas.
+ *
+ *  §🏔️ RELEVO POR BIOMA (2026-07-30): a amplitude da serra é multiplicada por
+ *  `relevoPorClima`. Duas consequências, as duas pedidas no playtest: cada
+ *  bioma tem seu teto (duna de caatinga não vira pico de 106) e o fator cai a
+ *  ZERO na divisa, então a serra nasce inteira dentro de um bioma só. As
+ *  colinas (`base`) seguem GLOBAIS de propósito — é o que dá continuidade de
+ *  terreno onde o relevo é zerado.
+ *
+ *  `clima` é opcional só por economia: quem já calculou o `climaAt` da coluna
+ *  passa e evita 2 lookups de ruído por coluna no caminho quente do gen. */
+export function heightAt(
+  x: number,
+  z: number,
+  seed: number,
+  sizeY = 128,
+  clima?: Clima,
+): number {
   const n1 = valueNoise2(x / 24, z / 24, seed);
   const n2 = valueNoise2(x / 7, z / 7, seed ^ 0x9e3779b9);
   const base = 16 + n1 * 12 + n2 * 4;
   if (sizeY < 128) return Math.floor(base);
+  const rel = relevoPorClima(clima ?? climaAt(x, z, seed));
+  // divisa de bioma (núcleo 0) e tabuleiro: o terreno é só colina, e sai daqui
+  // sem pagar os 2 ruídos da serra
+  if (rel <= 0) return Math.floor(base);
   const serra = valueNoise2(x / 90, z / 90, seed ^ 0x5e77a1);
   const fator = smooth(Math.min(1, Math.max(0, (serra - 0.52) / 0.3)));
   const pico = valueNoise2(x / 28, z / 28, seed ^ 0x91377b);
-  return Math.floor(base + fator * (28 + pico * 60));
+  return Math.floor(base + rel * fator * (28 + pico * 60));
 }
 
 /** Nível do mar (2026-07-26): toda coluna cujo terreno termina ABAIXO disto é
@@ -269,7 +295,15 @@ export const SAND_HEIGHT = NIVEL_MAR + 1;
  *  58 fica ACIMA das colinas (máx ~31): neve agora é coisa de serra. */
 export const SNOW_HEIGHT = 58;
 
-/** Acima disto, montanha SEM neve (quente) expõe pedra nua — chapada. */
+/** Acima disto, montanha SEM neve (quente) expõe pedra nua — chapada.
+ *
+ *  ⚠️ INALCANÇÁVEL desde o §🏔️ relevo por bioma (2026-07-30) e isso é de
+ *  propósito: só as araucárias passam de 85 (teto medido 106) e elas NEVAM, e o
+ *  ramo da neve vem antes. Cerrado para em ~53 e mata em ~68. Medido: 0% das
+ *  colunas de topo saem `Stone` em 5 seeds × 400×400. Fica de pé como rede de
+ *  segurança — se um dia alguém subir o `relevo` do cerrado (0,35) buscando
+ *  chapada de verdade, a pedra nua volta sozinha sem código novo. Se a chapada
+ *  for pedida COMO FEATURE, o caminho é baixar este número, não mexer no gen. */
 export const ROCHA_HEIGHT = 85;
 
 /** Clima da coluna (2026-07-20): 2 campos de value noise de frequência BAIXA
@@ -314,16 +348,18 @@ const MINERIOS: readonly {
 ];
 
 /** Bloco do TOPO da coluna (x,z) — função PURA da fórmula, sem ler mundo.
- *  Praia é global por altura; neve exige altura E frio (playtest 2026-07-20:
- *  neve na caatinga não combina); serra quente muito alta expõe pedra
- *  (chapada). A geração por chunk depende disto ser puro: decisão de feature
- *  nunca lê o mundo (a ordem de geração não pode mudar bytes). */
+ *  Praia é global por altura; neve exige altura E um bioma que NEVA
+ *  (`Bioma.neve`, §🏔️ 2026-07-30 — antes era `temp < 0.6`, que pegava morro de
+ *  cerrado e produziu o "areia, pedra, terra e neve junto" do playtest); serra
+ *  muito alta em bioma que não neva expõe pedra (chapada). A geração por chunk
+ *  depende disto ser puro: decisão de feature nunca lê o mundo (a ordem de
+ *  geração não pode mudar bytes). */
 export function topoPrevisto(x: number, z: number, seed: number, sizeY: number): number {
-  const h = Math.min(heightAt(x, z, seed, sizeY), sizeY - 2);
   const clima = climaAt(x, z, seed);
   const bioma = biomaPorClima(clima);
+  const h = Math.min(heightAt(x, z, seed, sizeY, clima), sizeY - 2);
   return h <= SAND_HEIGHT ? BlockId.Sand
-    : h >= SNOW_HEIGHT && clima.temp < 0.6 ? BlockId.Snow
+    : h >= SNOW_HEIGHT && bioma.neve ? BlockId.Snow
     : h >= ROCHA_HEIGHT ? BlockId.Stone
     : bioma.topo === "grama" ? gramaPorClima(clima)
     : bioma.topo;
@@ -417,8 +453,10 @@ export function gerarColunaDeChunks(
   // 1) terreno das colunas locais
   for (let x = x0; x <= x1; x++) {
     for (let z = z0; z <= z1; z++) {
-      const h = Math.min(heightAt(x, z, seed, sizeY), sizeY - 2);
-      const bioma = biomaPorClima(climaAt(x, z, seed));
+      // um climaAt por coluna, reusado pelo relevo (heightAt) e pelo bioma
+      const clima = climaAt(x, z, seed);
+      const h = Math.min(heightAt(x, z, seed, sizeY, clima), sizeY - 2);
+      const bioma = biomaPorClima(clima);
       // camada 0 = rocha-matriz (aluno não fura o fundo); igual ao plano
       setBlock(world, x, 0, z, BlockId.Bedrock);
       const iniSubsolo = Math.max(1, h - bioma.profundidadeSubsolo);
@@ -493,9 +531,10 @@ export function gerarColunaDeChunks(
   // 4) flores e mandacaru (margem zero — só colunas locais)
   for (let x = x0; x <= x1; x++) {
     for (let z = z0; z <= z1; z++) {
-      const h = Math.min(heightAt(x, z, seed, sizeY), sizeY - 2);
+      const clima = climaAt(x, z, seed);
+      const h = Math.min(heightAt(x, z, seed, sizeY, clima), sizeY - 2);
       const topo = topoPrevisto(x, z, seed, sizeY);
-      const bioma = biomaPorClima(climaAt(x, z, seed));
+      const bioma = biomaPorClima(clima);
       const ehGrama =
         topo === BlockId.Grass || topo === BlockId.GramaSeca || topo === BlockId.GramaFria;
       if (cavernaEm(x, h, z, h, seed)) continue; // §🏔️ boca de caverna não tem chão

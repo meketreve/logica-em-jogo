@@ -56,6 +56,7 @@ import {
   parseWorldTamanho,
   peekMagic,
   raycastBlock,
+  relevoPorClima,
   setBlock,
   stepPlayer,
 } from "@logica/shared";
@@ -1873,7 +1874,7 @@ function startGame(snap: Snapshot): void {
     const h = Math.min(heightAt(bx, bz, worldSeed, world.sizeY), world.sizeY - 2);
     const topo =
       h <= SAND_HEIGHT ? "areia (praia)"
-      : h >= SNOW_HEIGHT && clima.temp < 0.6 ? "neve"
+      : h >= SNOW_HEIGHT && bioma.neve ? "neve"
       : h >= ROCHA_HEIGHT ? "pedra (chapada)"
       : bioma.topo !== "grama" ? "areia (caatinga)"
       : grama === BlockId.GramaSeca ? "grama seca"
@@ -1884,7 +1885,8 @@ function startGame(snap: Snapshot): void {
       `bloco ${Math.floor(p.x)} ${Math.floor(p.y)} ${Math.floor(p.z)}\n` +
       `bioma ${bioma.nome}  temp ${clima.temp.toFixed(2)}  umid ${clima.umid.toFixed(2)}  seed ${worldSeed}\n` +
       `terreno h ${h}  topo ${topo}  ` +
-      `[praia ≤${SAND_HEIGHT} · neve ≥${SNOW_HEIGHT} se temp<0.60 · chapada ≥${ROCHA_HEIGHT}]\n` +
+      `[praia ≤${SAND_HEIGHT} · neve ≥${SNOW_HEIGHT} se o bioma neva · chapada ≥${ROCHA_HEIGHT}]\n` +
+      `relevo ${relevoPorClima(clima).toFixed(2)} (teto do bioma ${bioma.relevo})\n` +
       `mouse Δmáx ${m.maxDelta}px  descartados ${m.dropped} (último ${m.lastDropped}px)`
     );
   };

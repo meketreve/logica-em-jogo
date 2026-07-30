@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { BIOMAS, biomaPorClima, gramaPorClima } from "./biomas";
+import { BIOMAS, biomaPorClima, gramaPorClima, relevoPorClima } from "./biomas";
 import { BlockId, isAgua } from "./blocks";
 import { MAX_WORLD_CHUNKS } from "./constants";
 import {
@@ -190,11 +190,15 @@ describe("gen procedural com biomas (2026-07-20)", () => {
     expect(maxH).toBeLessThan(127); // cabe no mundo de 128 sem clamp
   });
 
-  it("neve só onde é FRIO — nunca em cima da caatinga (playtest 2026-07-20)", () => {
+  it("neve só em bioma que NEVA — nunca em morro de cerrado (playtest 2026-07-28)", () => {
     let n = 0;
     varre(mundo, BlockId.Snow, (x, _y, z) => {
       n++;
-      expect(climaAt(x, z, seed).temp).toBeLessThan(0.6);
+      // §🏔️ a regra virou a flag `Bioma.neve` (só araucárias). Antes era
+      // `temp < 0.6`, que pegava morro de cerrado e produziu o "areia, pedra,
+      // terra e neve junto" do playtest.
+      expect(biomaPorClima(climaAt(x, z, seed)).neve).toBe(true);
+      expect(biomaPorClima(climaAt(x, z, seed))).toBe(BIOMAS.araucarias);
     });
     expect(n).toBeGreaterThan(0); // a seed tem pico frio nevado
   });
@@ -299,6 +303,112 @@ describe("mar e lagos (2026-07-26)", () => {
     const seco = findSpawnSeco(mundoMar, molhada!.x, molhada!.z);
     const y = findSpawnY(mundoMar, seco.x, seco.z);
     expect(isAgua(getBlock(mundoMar, seco.x, y - 1, seco.z))).toBe(false);
+  });
+});
+
+describe("§🏔️ relevo por bioma (2026-07-30)", () => {
+  const SEEDS = [20260720, 20260726, 7];
+  const SIZE_Y = 128;
+  /** Meia-janela de amostragem em blocos (o campo de clima tem célula ~80, então
+   *  240×240 pega vários biomas e várias divisas por seed). */
+  const R = 120;
+
+  it("O PORTÃO: nenhum degrau maior que 6 blocos entre colunas vizinhas", () => {
+    // Relevo por bioma reabre de propósito o penhasco de fronteira que o
+    // heightmap global evitava. A régua não é um número inventado: o heightmap
+    // global mede 4–6 de degrau máximo nas mesmas seeds, então o portão é
+    // PARIDADE com ele. Medido em 2026-07-30 sobre 400×400 × 5 seeds: máx 6,
+    // zero pares acima de 6, e a cauda >3 mais leve que a do global.
+    let maxDegrau = 0;
+    let pior = "";
+    for (const seed of SEEDS) {
+      for (let x = -R; x < R; x++) {
+        for (let z = -R; z < R; z++) {
+          const h = heightAt(x, z, seed, SIZE_Y);
+          for (const [dx, dz] of [
+            [1, 0],
+            [0, 1],
+          ] as const) {
+            const d = Math.abs(heightAt(x + dx, z + dz, seed, SIZE_Y) - h);
+            if (d > maxDegrau) {
+              maxDegrau = d;
+              pior = `seed ${seed} x=${x} z=${z} h=${h} relevo=${relevoPorClima(
+                climaAt(x, z, seed),
+              ).toFixed(2)}`;
+            }
+          }
+        }
+      }
+    }
+    expect(maxDegrau, pior).toBeLessThanOrEqual(6);
+  });
+
+  it("cada bioma respeita o próprio teto: duna na caatinga, serra nas araucárias", () => {
+    // O defeito que abriu a fase (playtest 2026-07-28): o heightmap global
+    // levantava duna de areia a 106 blocos porque a serra não sabia de bioma.
+    const maxPorBioma = new Map<string, number>();
+    for (const seed of SEEDS) {
+      for (let x = -R; x < R; x++) {
+        for (let z = -R; z < R; z++) {
+          const clima = climaAt(x, z, seed);
+          const nome = biomaPorClima(clima).nome;
+          const h = heightAt(x, z, seed, SIZE_Y, clima);
+          maxPorBioma.set(nome, Math.max(maxPorBioma.get(nome) ?? 0, h));
+        }
+      }
+    }
+    const teto = (b: (typeof BIOMAS)[keyof typeof BIOMAS]) => maxPorBioma.get(b.nome) ?? 0;
+    // araucárias é o bioma da serra: montanha DE VERDADE continua existindo
+    expect(teto(BIOMAS.araucarias)).toBeGreaterThan(64);
+    // e os outros ficam cada um na sua faixa, em ordem dos tetos declarados
+    expect(teto(BIOMAS.caatinga)).toBeLessThan(50);
+    expect(teto(BIOMAS.cerrado)).toBeLessThan(64);
+    expect(teto(BIOMAS.mata)).toBeLessThan(80);
+    expect(teto(BIOMAS.caatinga)).toBeLessThan(teto(BIOMAS.cerrado));
+    expect(teto(BIOMAS.cerrado)).toBeLessThan(teto(BIOMAS.mata));
+    expect(teto(BIOMAS.mata)).toBeLessThan(teto(BIOMAS.araucarias));
+  });
+
+  it("relevoPorClima: teto do bioma no MIOLO, ~zero na divisa", () => {
+    // Os EXTREMOS do clima são miolo puro e entregam o teto declarado.
+    expect(relevoPorClima({ temp: 0.02, umid: 0.5 })).toBeCloseTo(BIOMAS.araucarias.relevo, 2);
+    expect(relevoPorClima({ temp: 0.98, umid: 0.02 })).toBeCloseTo(BIOMAS.caatinga.relevo, 2);
+    // Mata e cerrado NÃO têm miolo puro de propósito: eles moram no meio da
+    // faixa de temperatura, e a rampa de 0,25 (a que segura o penhasco) sempre
+    // mistura um pouco do vizinho. O que se garante é a ORDEM dos tetos — é
+    // dela que sai "cada bioma tem o seu relevo".
+    const mata = relevoPorClima({ temp: 0.5, umid: 0.98 });
+    const cerrado = relevoPorClima({ temp: 0.5, umid: 0.02 });
+    const caatinga = relevoPorClima({ temp: 0.98, umid: 0.02 });
+    expect(cerrado).toBeGreaterThan(caatinga);
+    expect(mata).toBeGreaterThan(cerrado);
+    expect(mata).toBeLessThan(BIOMAS.araucarias.relevo);
+    // Divisa araucárias × cerrado (o limiar de temp do biomaPorClima): o fator
+    // de núcleo esmaga o relevo a ~5% do teto do bioma frio. É isto que impede
+    // a montanha de nascer montada na divisa — 0,05 × 88 = 4 blocos de serra,
+    // dentro do degrau que o portão permite.
+    expect(relevoPorClima({ temp: 0.35, umid: 0.5 })).toBeLessThan(0.1);
+    // e no meio da rampa (não na divisa exata) ainda é fração pequena
+    expect(relevoPorClima({ temp: 0.3, umid: 0.5 })).toBeLessThan(0.5);
+    // e sempre dentro de [0, teto mais alto]
+    for (let t = 0; t <= 1; t += 0.05)
+      for (let u = 0; u <= 1; u += 0.05) {
+        const r = relevoPorClima({ temp: t, umid: u });
+        expect(r).toBeGreaterThanOrEqual(0);
+        expect(r).toBeLessThanOrEqual(1);
+      }
+  });
+
+  it("mundo BAIXO (aula) ignora o relevo por bioma — segue só colina", () => {
+    // sizeY 64 sai antes da serra (mundo de aula não precisa de céu), então
+    // relevo por bioma não pode mudar byte nenhum ali.
+    for (const seed of SEEDS) {
+      for (let i = 0; i < 200; i++) {
+        const x = i * 37 - 500;
+        const z = i * 91 - 300;
+        expect(heightAt(x, z, seed, 64)).toBeLessThan(32);
+      }
+    }
   });
 });
 
@@ -448,8 +558,14 @@ describe("§🏔️ cavernas (2026-07-28)", () => {
         // céu aberto acima de TUDO: 15 em toda coluna. (Em h+1 não vale — ali
         // pode haver copa de árvore por cima, e folha atenua 1 de propósito.)
         expect(luzCeu(luz, x, w.sizeY - 1, z)).toBe(LUZ_MAX);
-        // célula de caverna 8+ blocos abaixo do topo: sem poço, é breu
-        for (let y = 2; y <= h - 8; y++) {
+        // célula de caverna LUZ_MAX+1 blocos abaixo do topo: nessa profundidade
+        // nenhuma luz de céu chega por decaimento (o céu vale 15 e perde 1 por
+        // bloco), só por POÇO. A margem era 8 até o §🏔️ relevo por bioma
+        // (2026-07-30) baixar o terreno fora das araucárias: a 8 blocos do topo
+        // a célula agora costuma estar ao alcance de uma boca, e a medição caiu
+        // de 91% pra 73% sem nada ter quebrado. 16 volta a medir o que a frase
+        // quer dizer — e passa por construção, não por calibragem.
+        for (let y = 2; y <= h - (LUZ_MAX + 1); y++) {
           if (getBlock(w, x, y, z) !== BlockId.Air) continue;
           fundas++;
           if (luzCeu(luz, x, y, z) === 0) escuras++;
