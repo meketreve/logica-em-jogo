@@ -3,7 +3,10 @@ import { type Claim, type GrupoAmigos, parseClaim, parseGrupoAmigos } from "./cl
 import { CHUNK_VOLUME } from "./constants";
 import { type QuadroConteudo, parseQuadroConteudo } from "./quadros";
 import { type GroupDef, parseGroups } from "./groups";
+import { type Modo, parseModo } from "./modo";
 import { MAX_LAZY_CHUNKS, decodeSnapshot, encodeSnapshot } from "./protocol";
+import { regrasParaSave, parseRegras } from "./regras";
+import { VIDA_MAX } from "./sobrevivencia";
 import { type NamedRegion, parseNamedRegion } from "./regions";
 import { type ScenarioMeta, parseScenarioMeta } from "./scenario";
 import { type World, type WorldDims, createWorld } from "./world";
@@ -53,6 +56,9 @@ export interface SavedPlayer {
   pin?: string;
   /** Ausente = "aluno" (só "professor" é gravado). */
   papel?: Papel;
+  /** Vida em pontos (§🍖 F2). Ausente = cheia — só machucado é gravado, então
+   *  mundo antigo (e mundo criativo) sai enxuto e todo mundo nasce inteiro. */
+  vida?: number;
 }
 
 /** Metadados do save (a parte JSON — o mundo vai como snapshot binário). */
@@ -93,6 +99,16 @@ export interface SaveMeta {
   /** Vento (§🌬️, 2026-07-27). Ausente = LIGADO (padrão do mundo novo) — só o
    *  desligado é gravado, então save antigo continua com cenário vivo. */
   vento?: boolean;
+  /** Modo de jogo do MUNDO (§🍖 F1). Ausente = MODO_PADRAO (criativo) — só o
+   *  que difere é gravado, então save antigo abre criativo como sempre foi. */
+  modo?: Modo;
+  /** Override pessoal de modo, por NOME de jogador (§🍖 F1). Ausente = ninguém
+   *  com override. Por nome, não por id de cliente: o modo sobrevive ao rejoin. */
+  modosPorJogador?: Record<string, Modo>;
+  /** Regras de mundo (§🍖 F1, `/regra`) — MAPA, não campos soltos: regra nova
+   *  no registro não mexe no formato nem re-versiona nada. Ausente (e nome
+   *  ausente dentro dele) = padrão do registro. */
+  regras?: Record<string, boolean>;
   /** Dimensões do mundo em chunks — GRAVADO só no save esparso (lazy), onde
    *  não há snapshot binário pra carregar as dims. Denso as tira do LJW0. */
   dims?: WorldDims;
@@ -253,6 +269,14 @@ function readSaveMeta(
           // cp9: campos ausentes/errados = sem PIN, aluno (save antigo válido)
           ...(typeof e["pin"] === "string" ? { pin: e["pin"] } : {}),
           ...(e["papel"] === "professor" ? { papel: "professor" as const } : {}),
+          // §🍖 F2: vida só entra se for número são e MENOR que a vida cheia
+          // (fora disso o jogador nasce inteiro, que é o padrão)
+          ...(typeof e["vida"] === "number" &&
+          Number.isFinite(e["vida"]) &&
+          e["vida"] > 0 &&
+          e["vida"] < VIDA_MAX
+            ? { vida: Math.floor(e["vida"]) }
+            : {}),
         });
       }
     }
@@ -298,6 +322,21 @@ function readSaveMeta(
       if (q) quadros.push(q);
     }
   }
+  // §🍖 F1: override de modo por nome — entrada com nome vazio ou modo
+  // desconhecido é PULADA (mesma tolerância dos claims/quadros)
+  let modosPorJogador: Record<string, Modo> | undefined;
+  const mpj = m["modosPorJogador"];
+  if (typeof mpj === "object" && mpj !== null && !Array.isArray(mpj)) {
+    for (const [nome, valor] of Object.entries(mpj as Record<string, unknown>)) {
+      const modo = parseModo(valor);
+      if (!nome || !modo) continue;
+      modosPorJogador ??= {};
+      modosPorJogador[nome] = modo;
+    }
+  }
+  // regras de mundo: o registro é quem valida (nome desconhecido é pulado) e
+  // só o que difere do padrão sobrevive ao round-trip
+  const regras = regrasParaSave(parseRegras(m["regras"]));
   const meta: SaveMeta = {
     seed: m["seed"],
     spawn: { x: m["spawn"].x, y: m["spawn"].y, z: m["spawn"].z },
@@ -319,6 +358,11 @@ function readSaveMeta(
     ...(typeof m["ciclo"] === "boolean" ? { ciclo: m["ciclo"] } : {}),
     // §🌬️: ausente = ligado; só o `false` viaja (ver SaveMeta.vento)
     ...(m["vento"] === false ? { vento: false } : {}),
+    // §🍖 F1: modo do mundo + overrides por nome. Token inválido = ausente =
+    // criativo (mesma tolerância do resto: save editado não derruba o mundo).
+    ...(parseModo(m["modo"]) ? { modo: parseModo(m["modo"]) as Modo } : {}),
+    ...(modosPorJogador ? { modosPorJogador } : {}),
+    ...(regras ? { regras } : {}),
   };
   return { jsonLen, m, meta };
 }

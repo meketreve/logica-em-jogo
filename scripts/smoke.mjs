@@ -18,10 +18,16 @@
  *  - LJ_SAVE SEMPRE apontado pra mundos/ (gitignored). Sem LJ_SAVE o host
  *    grava em world.ljw, que é versionado.
  *  - LJ_SEED fixa: terreno igual em toda rodada, senão o smoke vira sorteio.
+ *  - **LJ_NOVO=1 NÃO recria mundo que já existe** — ele só AUTORIZA criar onde
+ *    não há arquivo. Smoke que muda estado PERSISTENTE (modo, regras, blocos)
+ *    tem de pedir `limpar` abaixo, senão a 2ª rodada começa com o estado da 1ª
+ *    e falha sozinha. Mundos E ficam de FORA disso de propósito: regenerar cada
+ *    um custa dezenas de segundos e eles não guardam estado que o smoke leia.
  *  - Modelo em cenarios/ é seguro como LJ_SAVE: paths.ts faz cópia de trabalho
  *    em mundos/ e nunca escreve no arquivo distribuído.
  */
 import { spawn } from "node:child_process";
+import { rmSync } from "node:fs";
 import { connect } from "node:net";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -33,6 +39,8 @@ const SEED = "20260726";
 /**
  * Um cenário por entrada. `servidores` sobe na ordem; `efemero` significa
  * "sobe só pra materializar o .ljw no disco e morre antes do smoke rodar".
+ * `limpar` = pastas de mundo apagadas ANTES de subir (mundo do zero em toda
+ * rodada — obrigatório pra smoke que lê estado persistente; ver o cabeçalho).
  */
 const SMOKES = [
   {
@@ -104,6 +112,61 @@ const SMOKES = [
       {
         porta: 8097,
         env: { LJ_SAVE: "mundos/_smoke-perfil.ljw", LJ_NOVO: "1", LJ_SEED: SEED },
+      },
+    ],
+  },
+  {
+    nome: "modo",
+    arquivo: `${DIR}/_smoke-modo.mjs`,
+    args: ["_smoke-modob"],
+    prova:
+      "§🍖 F1 — /modo chega resolvido em cada cliente (ajuste pessoal × padrão do mundo), `all` pega quem está dentro E quem entra depois, aluno não muda nada, e modo + /regra atravessam o DISCO na ida e volta de /mundo carregar.",
+    lento: false,
+    // o smoke ESCREVE modo e regra no .ljw: sem apagar, a 2ª rodada nasceria em
+    // sobrevivência com pvp ligada e falharia na primeira asserção
+    limpar: ["mundos/_smoke-modoa", "mundos/_smoke-modob"],
+    servidores: [
+      {
+        // só existe pra ser o destino da ida e volta; morre antes do smoke
+        efemero: true,
+        porta: 8099,
+        env: {
+          LJ_SAVE: "mundos/_smoke-modob.ljw",
+          LJ_NOVO: "1",
+          LJ_TAMANHO: "P",
+          LJ_SEED: SEED,
+        },
+      },
+      {
+        porta: 8098,
+        env: {
+          LJ_SAVE: "mundos/_smoke-modoa.ljw",
+          LJ_NOVO: "1",
+          LJ_TAMANHO: "P",
+          LJ_CODIGO: "prof2026",
+          LJ_SEED: SEED,
+        },
+      },
+    ],
+  },
+  {
+    nome: "vida",
+    arquivo: `${DIR}/_smoke-vida.mjs`,
+    prova:
+      "§🍖 F2 — o SERVIDOR fecha a queda pelo fluxo de `move` (o cliente nunca reporta dano), criativo é imune no mesmo mundo, a morte devolve ao spawn avisando a turma e a regeneração anda no tick de 10 Hz.",
+    lento: false,
+    // o smoke deixa a ana machucada no .ljw (§🍖 F2 grava vida no roster)
+    limpar: ["mundos/_smoke-vida"],
+    servidores: [
+      {
+        porta: 8100,
+        env: {
+          LJ_SAVE: "mundos/_smoke-vida.ljw",
+          LJ_NOVO: "1",
+          LJ_TAMANHO: "P",
+          LJ_CODIGO: "prof2026",
+          LJ_SEED: SEED,
+        },
       },
     ],
   },
@@ -184,6 +247,9 @@ async function rodaSmoke(smoke) {
   const vivos = [];
   const t0 = Date.now();
   try {
+    for (const alvo of smoke.limpar ?? []) {
+      rmSync(resolve(RAIZ, alvo), { recursive: true, force: true });
+    }
     for (const cfg of smoke.servidores) {
       const s = sobeServidor(cfg.env, cfg.porta);
       vivos.push(s);

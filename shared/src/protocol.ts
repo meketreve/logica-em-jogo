@@ -3,8 +3,10 @@ import { type Claim, parseClaim } from "./claims";
 import { type QuadroConteudo, parseQuadroConteudo } from "./quadros";
 import { CHUNK_VOLUME, MAX_WORLD_CHUNKS } from "./constants";
 import { type GroupDef, parseGroups } from "./groups";
+import { type Modo, parseModo } from "./modo";
 import { type NamedRegion, parseNamedRegion } from "./regions";
 import { type ObjectiveState, type ScenarioModo, parseObjectiveState } from "./scenario";
+import { type CausaDano, parseCausaDano } from "./sobrevivencia";
 import { type World, type WorldDims, alocarColuna, chunkIndex, createWorld } from "./world";
 
 /**
@@ -316,6 +318,32 @@ export type ServerMessage =
        */
       type: "voo";
       liberado: boolean;
+    }
+  | {
+      /**
+       * Modo de jogo EFETIVO deste jogador (§🍖 F1) — já resolvido no servidor
+       * (override pessoal vence o padrão do mundo), porque quem decide o modo é
+       * o servidor e o cliente não tem o mapa de overrides. Vai no join e a cada
+       * troca que ALCANCE este jogador. Por enquanto ele só decide o rótulo e o
+       * voo; vida/fome/inventário (F2..F4) leem daqui.
+       */
+      type: "modo";
+      efetivo: Modo;
+    }
+  | {
+      /**
+       * Vida do PRÓPRIO jogador (§🍖 F2) — o servidor é quem machuca, cura e
+       * mata; o cliente só desenha. Vai no join (em sobrevivência), a cada
+       * mudança e no respawn. `causa` e `morreu` existem pro cliente dar o
+       * feedback certo (vinheta vermelha, aviso de morte) sem adivinhar pela
+       * diferença de vida; `folego` alimenta as bolhas e é OPCIONAL — host
+       * antigo não manda e o cliente não pode descartar a mensagem por isso.
+       */
+      type: "vida";
+      vida: number;
+      causa?: CausaDano;
+      morreu?: boolean;
+      folego?: number;
     }
   | {
       /**
@@ -645,6 +673,28 @@ export function parseServerMessage(raw: string): ServerMessage | null {
     case "voo":
       if (typeof m["liberado"] !== "boolean") return null;
       return { type: "voo", liberado: m["liberado"] };
+    case "modo": {
+      // §🍖 F1: modo desconhecido = mensagem descartada (é o campo INTEIRO da
+      // mensagem, não um diagnóstico opcional — sem ele não há o que aplicar)
+      const modo = parseModo(m["efetivo"]);
+      if (!modo) return null;
+      return { type: "modo", efetivo: modo };
+    }
+    case "vida": {
+      // §🍖 F2: a VIDA é obrigatória; causa/morreu/folego são diagnóstico e
+      // entram só se vierem válidos (host antigo não manda)
+      const vida = m["vida"];
+      if (typeof vida !== "number" || !Number.isFinite(vida)) return null;
+      const causa = parseCausaDano(m["causa"]);
+      const folego = m["folego"];
+      return {
+        type: "vida",
+        vida,
+        ...(causa ? { causa } : {}),
+        ...(m["morreu"] === true ? { morreu: true } : {}),
+        ...(typeof folego === "number" && Number.isFinite(folego) ? { folego } : {}),
+      };
+    }
     case "kicked":
       if (typeof m["reason"] !== "string") return null;
       return { type: "kicked", reason: m["reason"] };

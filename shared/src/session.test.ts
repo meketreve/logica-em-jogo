@@ -20,8 +20,8 @@ describe("GameSession (servidor autoritativo)", () => {
     const session = new GameSession(send, { dims: DIMS, seed: 99, singleplayer: true });
     session.handleMessage(1, JSON.stringify({ type: "join", name: "ana" }));
 
-    // spawn + snapshot + time (cp21) + vento (§🌬️) + boas-vindas
-    expect(sent).toHaveLength(5);
+    // spawn + snapshot + time (cp21) + vento (§🌬️) + modo (§🍖) + boas-vindas
+    expect(sent).toHaveLength(6);
     expect(sent[0]?.clientId).toBe(1);
     expect(parseServerMessage(sent[0]?.data as string)).toEqual({
       // singleplayer: todo join é professor (cp9); papel viaja no spawn (cp11)
@@ -36,7 +36,12 @@ describe("GameSession (servidor autoritativo)", () => {
     if (vento?.type !== "vento") throw new Error("esperava mensagem de vento");
     expect(vento.ativo).toBe(true);
     expect(vento.forca).toBeGreaterThan(0);
-    const welcome = parseServerMessage(sent[4]?.data as string);
+    // sent[4] = modo (§🍖 F1) — vai SEMPRE, mesmo criativo (ver sendModo)
+    expect(parseServerMessage(sent[4]?.data as string)).toEqual({
+      type: "modo",
+      efetivo: "criativo",
+    });
+    const welcome = parseServerMessage(sent[5]?.data as string);
     if (welcome?.type !== "chat") throw new Error("esperava chat de boas-vindas");
     expect(welcome.author).toBe("servidor");
     expect(welcome.text).toContain("ana#1");
@@ -752,8 +757,8 @@ describe("GameSession (servidor autoritativo)", () => {
     const types = sent2.map((s) =>
       typeof s.data === "string" ? parseServerMessage(s.data)?.type : "snapshot",
     );
-    // time (cp21) e vento (§🌬️) entram depois do snapshot, antes do teleport
-    expect(types).toEqual(["spawn", "snapshot", "time", "vento", "teleport", "chat"]);
+    // time (cp21), vento (§🌬️) e modo (§🍖) entram depois do snapshot, antes do teleport
+    expect(types).toEqual(["spawn", "snapshot", "time", "vento", "modo", "teleport", "chat"]);
     const tp = sent2
       .map((s) => (typeof s.data === "string" ? parseServerMessage(s.data) : null))
       .find((m) => m?.type === "teleport");

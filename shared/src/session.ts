@@ -35,7 +35,27 @@ import {
   PLAYER_REACH,
   SERVER_TICK_RATE,
 } from "./constants";
-import { PLAYER } from "./physics";
+import {
+  MODO_PADRAO,
+  type Modo,
+  modoEfetivo,
+  nomeModo,
+  parseModo,
+} from "./modo";
+import { PLAYER, apoiadoNoChao } from "./physics";
+import { REGRAS, parseRegras, regraDef, regrasParaSave, valorRegra } from "./regras";
+import {
+  type CausaDano,
+  type EstadoVital,
+  FOLEGO_TICKS,
+  VIDA_MAX,
+  aplicarDano,
+  danoDeQueda,
+  novoEstadoVital,
+  textoDaMorte,
+  tickFolego,
+  tickRegen,
+} from "./sobrevivencia";
 import {
   COLUNAS_POR_TICK_PADRAO,
   type ColunaRef,
@@ -214,6 +234,24 @@ export class GameSession {
    *  Nasce LIGADO (é ambiência, não regra de atividade); o professor desliga
    *  com /vento quando quer o cenário parado. Persiste no save. */
   private ventoAtivo = true;
+  /** Modo de jogo PADRÃO do mundo (§🍖 F1). Persiste no save; mundo-aula força
+   *  criativo (não é escolha do professor: o host impõe, como o confinamento). */
+  private modoMundo: Modo = MODO_PADRAO;
+  /** Override pessoal de modo, por NOME (não por id de cliente — o modo tem de
+   *  sobreviver ao rejoin, igual ao roster). Vence o padrão do mundo. Persiste. */
+  private readonly modosPorJogador = new Map<string, Modo>();
+  /** Regras de mundo (`/regra`, §🍖 F1) — guarda SÓ o que difere do padrão do
+   *  registro (`regras.ts`). Persiste no save como MAPA. */
+  private readonly regras = new Map<string, boolean>();
+  /** Mundo de aula/atividade (read-only): trava o modo em criativo. */
+  private readonly somenteLeitura: boolean;
+  /** §🍖 F2: vida/fome/fôlego por NOME (como o modo — sobrevive ao rejoin).
+   *  Só quem está machucado vai pro save. */
+  private readonly vitais = new Map<string, EstadoVital>();
+  /** §🍖 F2: ponto MAIS ALTO desde a última vez que o jogador estava apoiado,
+   *  por cliente. A queda é fechada quando ele pousa. Rascunho de sessão: some
+   *  no disconnect (quem volta não paga a queda de ontem). */
+  private readonly picoQueda = new Map<number, number>();
 
   private readonly players = new Map<number, SessionPlayer>();
   /** Última POSIÇÃO conhecida por nome: volta onde parou, olhando pra onde
@@ -337,6 +375,7 @@ export class GameSession {
     this.colunasPorTick = Math.max(1, opts.colunasPorTick ?? COLUNAS_POR_TICK_PADRAO);
     this.aguaMaxPorTick = Math.max(1, opts.aguaPorTick ?? AGUA_POR_TICK_PADRAO);
     this.codigo = opts.codigo ?? opts.restore?.codigo;
+    this.somenteLeitura = opts.somenteLeitura ?? false;
     if (opts.restore) {
       // mundo vem do save: NADA é recalculado (spawn é do terreno pristino —
       // recalcular sobre mundo escavado repetiria o bug-010)
@@ -361,6 +400,8 @@ export class GameSession {
       }
       for (const p of opts.restore.roster) {
         this.roster.set(p.name, { x: p.x, y: p.y, z: p.z, yaw: p.yaw, pitch: p.pitch });
+        // §🍖 F2: vida ausente no save = cheia (o parse já barrou valor doente)
+        if (p.vida !== undefined) this.vitais.set(p.name, { ...novoEstadoVital(), vida: p.vida });
         // identidade restaurada MESMO no singleplayer: mundo de LAN importado
         // e re-exportado não perde os PINs da turma (aqui ela só não é usada)
         if (p.pin || p.papel === "professor") {
@@ -408,6 +449,14 @@ export class GameSession {
       if (typeof opts.restore.ciclo === "boolean") this.cicloAtivo = opts.restore.ciclo;
       // §🌬️: vento ausente em save antigo = padrão do mundo novo (ligado)
       if (typeof opts.restore.vento === "boolean") this.ventoAtivo = opts.restore.vento;
+      // §🍖 F1: modo do mundo + overrides pessoais + regras (ausentes = padrão)
+      this.modoMundo = opts.restore.modo ?? MODO_PADRAO;
+      for (const [nome, modo] of Object.entries(opts.restore.modosPorJogador ?? {})) {
+        this.modosPorJogador.set(nome, modo);
+      }
+      for (const [nome, valor] of parseRegras(opts.restore.regras)) {
+        this.regras.set(nome, valor);
+      }
     } else {
       this.seed = opts.seed ?? 1;
       const preset = opts.preset ?? (opts.flat ? "plano" : "normal");
@@ -464,6 +513,13 @@ export class GameSession {
     // grupo). Vence o que veio do save (aula é read-only e distribui o modelo);
     // em mundo livre o padrão continua desligado até o professor usar /confinar.
     if (opts.somenteLeitura) this.confinamentoAtivo = true;
+    // §🍖 F1: mundo de aula/atividade é CRIATIVO, ponto — não é escolha do modo,
+    // é o host que impõe (a aula distribui um modelo, não uma partida). Vence o
+    // que veio do save, inclusive overrides pessoais gravados noutro mundo.
+    if (this.somenteLeitura) {
+      this.modoMundo = "criativo";
+      this.modosPorJogador.clear();
+    }
   }
 
   /**
@@ -476,17 +532,21 @@ export class GameSession {
     for (const p of this.players.values()) {
       merged.set(p.name, { x: p.x, y: p.y, z: p.z, yaw: p.yaw, pitch: p.pitch });
     }
+    const regrasSalvas = regrasParaSave(this.regras);
     return {
       seed: this.seed,
       spawn: { ...this.spawn },
       roster: [...merged.entries()].map(([name, pos]) => {
         const id = this.identity.get(name);
+        const vital = this.vitais.get(name);
         return {
           name,
           ...pos,
           // JSON.stringify descarta undefined — aluno sem PIN sai enxuto
           pin: id?.pin,
           papel: id?.papel === "professor" ? ("professor" as const) : undefined,
+          // §🍖 F2: só o MACHUCADO viaja (cheio = ausente = padrão)
+          vida: vital && vital.vida < VIDA_MAX ? vital.vida : undefined,
         };
       }),
       ...(this.codigo ? { codigo: this.codigo } : {}),
@@ -533,6 +593,13 @@ export class GameSession {
       ciclo: this.cicloAtivo,
       // §🌬️: só grava DESLIGADO — ausente no save = ligado (padrão do mundo novo)
       ...(this.ventoAtivo ? {} : { vento: false }),
+      // §🍖 F1: modo e regras só gravam o que DIFERE do padrão (save enxuto;
+      // mundo que nunca viu sobrevivência sai byte a byte como antes)
+      ...(this.modoMundo !== MODO_PADRAO ? { modo: this.modoMundo } : {}),
+      ...(this.modosPorJogador.size
+        ? { modosPorJogador: Object.fromEntries(this.modosPorJogador) }
+        : {}),
+      ...(regrasSalvas ? { regras: regrasSalvas } : {}),
     };
   }
 
@@ -635,6 +702,9 @@ export class GameSession {
         if (!p) return;
         p.x = msg.x; p.y = msg.y; p.z = msg.z;
         p.yaw = msg.yaw; p.pitch = msg.pitch;
+        // §🍖 F2: a queda se fecha AQUI — o servidor tem o mundo e não pergunta
+        // ao cliente se pousou. Em criativo `machucar` é no-op.
+        this.acompanharQueda(clientId, p);
         // Relay pros OUTROS (nunca ecoa pro autor — cliente não precisa saber
         // o próprio id). Validação de física vem depois do MVP.
         this.broadcastExcept(clientId, {
@@ -1000,6 +1070,20 @@ export class GameSession {
         if (!professor) return "Somente o professor pode controlar o vento.";
         return this.runVento(parts);
       }
+      case "modo": {
+        // consultar (`/modo` sem argumento) é de TODOS — o aluno precisa saber
+        // em que modo está; MUDAR é do professor
+        if (parts.length > 1 && !professor) {
+          return "Somente o professor pode mudar o modo de jogo. Use /modo para ver em qual você está.";
+        }
+        return this.runModo(clientId, parts);
+      }
+      case "regra": {
+        if (parts.length > 2 && !professor) {
+          return "Somente o professor pode mudar as regras do mundo. Use /regra para ver quais estão valendo.";
+        }
+        return this.runRegra(parts);
+      }
       case "claim":
         return this.runClaim(clientId, parts);
       case "amigos":
@@ -1009,7 +1093,7 @@ export class GameSession {
         return this.runConfinar(parts);
       }
       default:
-        return `Comando desconhecido: ${text}. Os comandos disponíveis são /bloco, /resetpin, /regiao, /objetivo, /grupo, /tp, /tpr, /tpa, /iniciar, /hora, /ciclo, /vento, /voo, /claim, /amigos e /confinar.`;
+        return `Comando desconhecido: ${text}. Os comandos disponíveis são /bloco, /resetpin, /regiao, /objetivo, /grupo, /tp, /tpr, /tpa, /iniciar, /hora, /ciclo, /vento, /voo, /modo, /regra, /claim, /amigos e /confinar.`;
     }
   }
 
@@ -1146,6 +1230,317 @@ export class GameSession {
 
   private broadcastVoo(): void {
     this.broadcast({ type: "voo", liberado: this.vooLiberado });
+  }
+
+  // --- §🍖 F1: modo de jogo -------------------------------------------------
+
+  /** Modo EFETIVO de um jogador pelo NOME: o override pessoal vence o mundo. */
+  private modoDe(nome: string): Modo {
+    return modoEfetivo(this.modoMundo, this.modosPorJogador.get(nome));
+  }
+
+  /** Modo efetivo de cada jogador ONLINE agora — fotografia pra comparar depois
+   *  da mudança e avisar SÓ quem realmente mudou (mesma disciplina do dedup dos
+   *  broadcasts de estado: nada de churn pra quem ficou igual). */
+  private modosAgora(): Map<number, Modo> {
+    const m = new Map<number, Modo>();
+    for (const [clientId, p] of this.players) m.set(clientId, this.modoDe(p.name));
+    return m;
+  }
+
+  private sendModo(clientId: number): void {
+    const p = this.players.get(clientId);
+    if (!p) return;
+    this.send(
+      clientId,
+      JSON.stringify({ type: "modo", efetivo: this.modoDe(p.name) } satisfies ServerMessage),
+    );
+  }
+
+  /** Avisa quem MUDOU de modo (msg `modo` + uma linha no chat). O autor do
+   *  comando recebe só a mensagem de protocolo — a confirmação em texto dele é
+   *  o retorno do próprio comando, e duas linhas iguais confundem. */
+  private avisarModos(antes: ReadonlyMap<number, Modo>, autorId: number): void {
+    for (const [clientId, p] of this.players) {
+      const agora = this.modoDe(p.name);
+      if (antes.get(clientId) === agora) continue;
+      this.sendModo(clientId);
+      // §🍖 F2: quem estava VOANDO em criativo tem um pico de queda antigo
+      // guardado; entrar em sobrevivência não pode cobrar essa altura
+      this.picoQueda.set(clientId, p.y);
+      if (agora === "sobrevivencia") this.sendVida(clientId);
+      if (clientId === autorId) continue;
+      this.sendServerChat(
+        clientId,
+        agora === "sobrevivencia"
+          ? "Você entrou no modo sobrevivência — nele não dá para voar."
+          : "Você voltou para o modo criativo.",
+      );
+    }
+  }
+
+  /**
+   * `/modo` (§🍖 F1). Consultar é de todos; mudar é do professor (o dispatcher
+   * já barrou o aluno). Semântica fixada com o usuário em 2026-07-27:
+   *   /modo                  → mostra o do mundo e o seu
+   *   /modo <modo>           → padrão do MUNDO (quem tem ajuste pessoal segue nele)
+   *   /modo <modo> eu        → só quem digitou (demonstrar sem mexer na turma)
+   *   /modo <modo> nome      → ajuste pessoal de um jogador (vence o do mundo)
+   *   /modo <modo> all       → padrão do mundo + APAGA todos os ajustes pessoais
+   * O `all` não pega o professor que digitou: ele fica como está (e se muda com
+   * `eu`) — é ele que precisa continuar voando pra supervisionar a turma.
+   */
+  private runModo(clientId: number, parts: string[]): string {
+    const p = this.players.get(clientId);
+    if (!p) return "Entre no mundo antes de usar /modo.";
+    const professor = p.papel === "professor";
+    if (parts.length === 1) {
+      const meu = this.modoDe(p.name);
+      const linha =
+        `O mundo está em modo ${nomeModo(this.modoMundo)} e você está em ${nomeModo(meu)}` +
+        (this.modosPorJogador.has(p.name) ? " (ajuste pessoal)." : ".");
+      return professor
+        ? `${linha} Mude com /modo criativo|sobrevivencia (o mundo), /modo <modo> eu, /modo <modo> nome ou /modo <modo> all.`
+        : linha;
+    }
+    if (this.somenteLeitura) {
+      return "Este é um mundo de aula: ele é sempre criativo, e o modo não se troca aqui.";
+    }
+    const novo = parseModo(parts[1]);
+    if (!novo || parts.length > 3) {
+      return "Uso: /modo criativo|sobrevivencia [eu | all | nome do aluno]. Sem o terceiro termo, muda o padrão do mundo.";
+    }
+    const alvo = parts[2];
+    const antes = this.modosAgora();
+
+    if (alvo === undefined) {
+      this.modoMundo = novo;
+      this.avisarModos(antes, clientId);
+      const presos = this.modosPorJogador.size;
+      return (
+        `Modo do mundo agora é ${nomeModo(novo)}.` +
+        (presos
+          ? ` ${presos} jogador(es) seguem com ajuste pessoal — use /modo ${parts[1]} all para apagar os ajustes.`
+          : "")
+      );
+    }
+
+    if (alvo === "all" || alvo === "todos") {
+      // o autor não é arrastado junto: guarda o modo dele como ajuste pessoal
+      // (só se for diferente do novo padrão — senão o save ganharia ruído)
+      const meuAtual = this.modoDe(p.name);
+      this.modosPorJogador.clear();
+      this.modoMundo = novo;
+      if (meuAtual !== novo) this.modosPorJogador.set(p.name, meuAtual);
+      this.avisarModos(antes, clientId);
+      return (
+        `Modo ${nomeModo(novo)} aplicado a TODA a turma (agora e para quem entrar). ` +
+        `Você continua em ${nomeModo(meuAtual)} — use /modo ${parts[1]} eu para acompanhar a turma.`
+      );
+    }
+
+    const alvoNome = alvo === "eu" ? p.name : this.acharNomeConhecido(alvo);
+    if (alvoNome === null) {
+      return `Ninguém chamado "${alvo.replace(/^@/, "")}" neste mundo. Use /modo ${parts[1]} eu, /modo ${parts[1]} all ou o nome exato do aluno.`;
+    }
+    // ajuste pessoal só existe pra quem está DIFERENTE do mundo: igual ao padrão
+    // = volta a seguir o mundo (mesmo efeito hoje, e o save fica enxuto)
+    if (novo === this.modoMundo) this.modosPorJogador.delete(alvoNome);
+    else this.modosPorJogador.set(alvoNome, novo);
+    this.avisarModos(antes, clientId);
+    const online = this.jogadoresConectados().some((j) => j.name === alvoNome);
+    return (
+      `${alvoNome === p.name ? "Você está" : `${alvoNome} está`} em modo ${nomeModo(novo)}.` +
+      (online ? "" : " (ele não está conectado agora — vale quando entrar.)")
+    );
+  }
+
+  /** Nome de jogador que o MUNDO conhece (online ou lembrado no roster), sem
+   *  diferenciar maiúsculas e aceitando o `@nome` da tabela do comando. Devolve
+   *  o nome como o mundo o guarda — é ele que vai pro save. */
+  private acharNomeConhecido(digitado: string): string | null {
+    const alvo = digitado.replace(/^@/, "").toLowerCase();
+    if (!alvo) return null;
+    for (const p of this.players.values()) {
+      if (p.name.toLowerCase() === alvo) return p.name;
+    }
+    for (const nome of this.roster.keys()) {
+      if (nome.toLowerCase() === alvo) return nome;
+    }
+    return null;
+  }
+
+  /**
+   * `/regra` (§🍖 F1) — registro genérico de regras de mundo, no molde do
+   * `/gamerule`. Listar/consultar é de todos; mudar é do professor (o
+   * dispatcher já barrou o aluno). Regra nova = uma entrada em `regras.ts`,
+   * sem comando novo e sem campo novo no save.
+   */
+  private runRegra(parts: string[]): string {
+    if (parts.length === 1) {
+      const lista = REGRAS.map(
+        (r) => `${r.nome}: ${valorRegra(this.regras, r.nome) ? "ligada" : "desligada"}`,
+      ).join(" · ");
+      return `Regras deste mundo — ${lista}. Veja o que cada uma faz com /regra nome; mude com /regra nome ligar|desligar.`;
+    }
+    const nome = (parts[1] ?? "").toLowerCase();
+    const def = regraDef(nome);
+    if (!def) {
+      return `Não existe a regra "${parts[1]}". As regras são: ${REGRAS.map((r) => r.nome).join(", ")}.`;
+    }
+    const atual = valorRegra(this.regras, nome);
+    if (parts.length === 2) {
+      return `${nome} está ${atual ? "ligada" : "desligada"} (padrão: ${def.padrao ? "ligada" : "desligada"}). ${def.ajuda}`;
+    }
+    const arg = (parts[2] ?? "").toLowerCase();
+    let valor: boolean;
+    if (arg === "ligar" || arg === "on") valor = true;
+    else if (arg === "desligar" || arg === "off") valor = false;
+    else return `Uso: /regra ${nome} ligar|desligar.`;
+    if (parts.length > 3) return `Uso: /regra ${nome} ligar|desligar.`;
+    // guarda SÓ o que difere do padrão do registro (ver regras.ts)
+    if (valor === def.padrao) this.regras.delete(nome);
+    else this.regras.set(nome, valor);
+    if (valor === atual) return `A regra ${nome} já estava ${valor ? "ligada" : "desligada"}.`;
+    // as regras do lite ainda não têm mecânica (F2/F3/F7 as ligam) — o professor
+    // precisa saber disso, senão testa e conclui que o comando está quebrado
+    return `Regra ${nome} ${valor ? "ligada" : "desligada"} e gravada neste mundo. (Ela só passa a valer quando a mecânica correspondente existir.)`;
+  }
+
+  // --- §🍖 F2: vida, dano, morte -------------------------------------------
+
+  /** Estado vital de um NOME (nasce cheio na primeira vez que alguém pergunta). */
+  private vitalDe(nome: string): EstadoVital {
+    let e = this.vitais.get(nome);
+    if (!e) {
+      e = novoEstadoVital();
+      this.vitais.set(nome, e);
+    }
+    return e;
+  }
+
+  /** A vida vale pra este cliente? SÓ em sobrevivência — criativo não machuca
+   *  (é o mesmo mundo, a mesma física: o que muda é o modo do jogador). */
+  private vidaVale(clientId: number): boolean {
+    const p = this.players.get(clientId);
+    return !!p && this.modoDe(p.name) === "sobrevivencia";
+  }
+
+  /** Bolhas de ar que o HUD desenha (0..10) — é a granularidade que decide se
+   *  vale mandar mensagem, senão o fôlego geraria 10 msg/s por jogador. */
+  private static bolhas(folego: number): number {
+    return Math.max(0, Math.ceil(folego / (FOLEGO_TICKS / 10)));
+  }
+
+  private sendVida(
+    clientId: number,
+    extra: { causa?: CausaDano; morreu?: boolean } = {},
+  ): void {
+    const p = this.players.get(clientId);
+    if (!p) return;
+    const e = this.vitalDe(p.name);
+    this.send(
+      clientId,
+      JSON.stringify({
+        type: "vida",
+        vida: e.vida,
+        folego: Math.max(0, e.folego),
+        ...extra,
+      } satisfies ServerMessage),
+    );
+  }
+
+  /**
+   * A ÚNICA porta de perda de vida do servidor. Queda e afogamento (lite), fome
+   * (F3), PvP (F7) e mob (F8) entram todos por aqui — quem chama só diz quanto e
+   * por quê. Fora da sobrevivência é no-op.
+   */
+  private machucar(clientId: number, pontos: number, causa: CausaDano): void {
+    if (!this.vidaVale(clientId)) return;
+    const p = this.players.get(clientId);
+    if (!p) return;
+    const r = aplicarDano(this.vitalDe(p.name), pontos, causa);
+    if (r.aplicado === 0) return;
+    this.vitais.set(p.name, r.estado);
+    this.sendVida(clientId, { causa, ...(r.morreu ? { morreu: true } : {}) });
+    if (r.morreu) this.matar(clientId, causa);
+  }
+
+  /**
+   * Morte: avisa a TURMA (o professor precisa ver o que aconteceu), devolve o
+   * jogador inteiro ao spawn autoritativo do mundo e reabre o fôlego.
+   *
+   * O inventário na morte é a regra `manter-inventario` do F1 — ela nasce
+   * LIGADA e, sem inventário autoritativo (F4), não há o que perder ainda. É
+   * aqui que o F4 vai ler `valorRegra(this.regras, "manter-inventario")`.
+   */
+  private matar(clientId: number, causa: CausaDano): void {
+    const p = this.players.get(clientId);
+    if (!p) return;
+    this.broadcast({ type: "chat", author: "servidor", text: textoDaMorte(p.name, causa) });
+    this.vitais.set(p.name, novoEstadoVital());
+    this.teleportar(clientId, this.spawn.x, this.spawn.y, this.spawn.z);
+    this.sendVida(clientId); // vida cheia de novo, agora sem causa
+  }
+
+  /**
+   * Fecha (ou continua) a queda a partir do fluxo de `move` — 10 Hz, que é o que
+   * o servidor já recebe. **O cliente NÃO reporta dano**: seria autoridade no
+   * lugar errado.
+   *
+   * ⚠️ Tolerância assumida: a 10 Hz, com a queda limitada em `terminalVelocity`
+   * (40 b/s), cada amostra pode pular ~4 blocos. O pico e o pouso são AMOSTRAS,
+   * então a altura medida erra PRA MENOS — o jogador sempre leva menos dano do
+   * que a queda real, nunca mais. Num jogo de sala de aula, esse é o lado certo
+   * do erro; fingir precisão exigiria física do jogador no servidor.
+   */
+  private acompanharQueda(clientId: number, p: SessionPlayer): void {
+    const pico = this.picoQueda.get(clientId) ?? p.y;
+    // água amortece: entrar nela ZERA a queda (mesma regra do Minecraft)
+    const naAgua = isAgua(getBlock(this.world, Math.floor(p.x), Math.floor(p.y), Math.floor(p.z)));
+    const apoiado = apoiadoNoChao(this.world, { x: p.x, y: p.y, z: p.z });
+    if (!naAgua && !apoiado) {
+      if (p.y > pico) this.picoQueda.set(clientId, p.y);
+      return;
+    }
+    this.picoQueda.set(clientId, p.y);
+    if (naAgua) return;
+    const dano = danoDeQueda(pico - p.y);
+    if (dano > 0) this.machucar(clientId, dano, "queda");
+  }
+
+  /**
+   * Um tick de vida por jogador em sobrevivência: fôlego debaixo d'água e
+   * regeneração passiva. Roda no tick de 10 Hz que já existe — nenhum relógio
+   * de parede, mesma regra do ciclo dia/noite e do vento.
+   *
+   * Só manda `vida` quando muda o que o HUD DESENHA (coração ou bolha), senão
+   * seriam 10 mensagens por segundo por aluno.
+   */
+  private tickVitais(): void {
+    for (const [clientId, p] of this.players) {
+      if (this.modoDe(p.name) !== "sobrevivencia") continue;
+      const antes = this.vitalDe(p.name);
+      const cabeca = getBlock(
+        this.world,
+        Math.floor(p.x),
+        Math.floor(p.y + PLAYER.eyeHeight),
+        Math.floor(p.z),
+      );
+      const folego = tickFolego(antes, isAgua(cabeca));
+      const depois = tickRegen(folego.estado);
+      this.vitais.set(p.name, depois);
+      if (folego.dano > 0) {
+        this.machucar(clientId, folego.dano, "afogamento"); // já manda a `vida`
+        continue;
+      }
+      if (
+        depois.vida !== antes.vida ||
+        GameSession.bolhas(depois.folego) !== GameSession.bolhas(antes.folego)
+      ) {
+        this.sendVida(clientId);
+      }
+    }
   }
 
   /** `/confinar` (cp25): liga/desliga o confinamento por área de grupo. Só
@@ -1456,6 +1851,14 @@ export class GameSession {
     }
     this.sendTime(clientId); // céu certo desde o primeiro frame (cp21)
     this.sendVento(clientId); // §🌬️ idem vento: água já entra andando pro lado certo
+    // §🍖 F1: modo SEMPRE, mesmo criativo (ao contrário do /voo, que só manda
+    // quando liberado). Troca de aula é sessão NOVA e reusa este caminho: sem o
+    // envio incondicional, quem estava em sobrevivência no mundo anterior
+    // continuaria "em sobrevivência" num mundo criativo (família do bug-518).
+    this.sendModo(clientId);
+    // §🍖 F2: entrar não é cair, e quem volta machucado precisa ver os corações
+    this.picoQueda.set(clientId, start.y);
+    if (this.modoDe(name) === "sobrevivencia") this.sendVida(clientId);
     // Na migração o teleporte é OBRIGATÓRIO mesmo sem roster: o jogador está
     // parado nas coordenadas do mundo ANTIGO, que no mundo novo podem ser
     // dentro da pedra ou no vazio.
@@ -1473,7 +1876,7 @@ export class GameSession {
         ? `A aula mudou: você está em um mundo novo${papel === "professor" ? "" : ". Confira o objetivo no canto da tela"}.`
         : `Bem-vindo, ${this.authorTag(clientId)}! Pressione Enter para abrir o chat.` +
             (papel === "professor"
-              ? " Comandos: /bloco · /resetpin · /regiao (varinha: R) · /objetivo · /grupo · /tp grupos · /tp nome · /iniciar · /hora · /ciclo · /voo · /claim · /confinar"
+              ? " Comandos: /bloco · /resetpin · /regiao (varinha: R) · /objetivo · /grupo · /tp grupos · /tp nome · /iniciar · /hora · /ciclo · /voo · /modo · /regra · /claim · /confinar"
               : " Comandos: /tpr nome (pedir teleporte até um colega) · /tpa (aceitar)" +
                 (this.claimsAtivo
                   ? " · /claim criar (proteja sua área: marque com a varinha R) · /amigos convidar nome"
@@ -2404,6 +2807,9 @@ export class GameSession {
     p.z = z;
     p.yaw = 0;
     p.pitch = 0;
+    // §🍖 F2: teleporte NÃO é queda — quem cai 40 blocos por comando (ou por
+    // respawn) não pode pousar machucado
+    this.picoQueda.set(clientId, y);
     this.send(
       clientId,
       JSON.stringify({ type: "teleport", x, y, z, yaw: 0, pitch: 0 } satisfies ServerMessage),
@@ -3020,6 +3426,7 @@ export class GameSession {
     this.stream.delete(clientId); // interesse de streaming morre com a conexão
     this.wandMarks.delete(clientId); // rascunho de canto morre com a conexão
     this.tpPedidos.delete(clientId); // pedidos ENDEREÇADOS a quem saiu morrem
+    this.picoQueda.delete(clientId); // §🍖 quem volta não paga a queda de ontem
     // (pedidos FEITOS por quem saiu são podados no /tpa — players.has(deId))
     const p = this.players.get(clientId);
     if (!p) return;
@@ -3112,6 +3519,9 @@ export class GameSession {
       }
       this.broadcastObjectives(); // contadores mudaram mesmo sem conclusão
     }
+
+    // §🍖 F2: fôlego e regeneração de quem está em sobrevivência
+    this.tickVitais();
 
     // F2 streaming: mundo lazy manda colunas por raio de interesse
     if (this.lazy) this.streamColunas();

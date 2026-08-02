@@ -8,6 +8,8 @@
  * mundo entram ao vivo, pelo que o professor viu por último em "/mundo lista".
  */
 
+import { nomesDeRegra } from "@logica/shared";
+
 const COMANDOS = [
   "bloco",
   "resetpin",
@@ -21,7 +23,10 @@ const COMANDOS = [
   "iniciar",
   "hora",
   "ciclo",
+  "vento",
   "voo",
+  "modo",
+  "regra",
   "confinar",
   "kicar",
   "claim",
@@ -36,7 +41,10 @@ const SUBCOMANDOS: Record<string, string[]> = {
   tp: ["grupos"],
   hora: ["dia", "noite", "amanhecer", "entardecer", "meio-dia", "meia-noite"],
   ciclo: ["ligar", "desligar"],
+  vento: ["ligar", "desligar"],
   voo: ["ligar", "desligar"],
+  modo: ["criativo", "sobrevivencia"],
+  regra: nomesDeRegra(),
   confinar: ["ligar", "desligar", "status"],
   claim: ["ligar", "desligar", "criar", "remover", "lista"],
   amigos: ["convidar", "aceitar", "recusar", "sair", "expulsar", "lista"],
@@ -65,6 +73,9 @@ function nivel3(cmd: string, sub: string): string[] {
   if (cmd === "objetivo" && sub === "modo") return ["sequencial", "livre"];
   if (cmd === "mundo" && sub === "carregar") return mundosConhecidos;
   if (cmd === "amigos" && AMIGOS_COM_NOME.has(sub)) return jogadoresConhecidos;
+  // §🍖 F1: /modo <modo> [eu|all|nome] — os alvos fixos primeiro, depois a turma
+  if (cmd === "modo") return ["eu", "all", ...jogadoresConhecidos];
+  if (cmd === "regra") return ["ligar", "desligar"];
   return [];
 }
 

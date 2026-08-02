@@ -124,6 +124,18 @@ function collides(world: World, pos: Vec3): boolean {
 const FULL_BOX: readonly (readonly [number, number, number, number, number, number])[] =
   [[0, 0, 0, 1, 1, 1]];
 
+/**
+ * O jogador está APOIADO nesta posição? (§🍖 F2) Testa o AABB uma folga abaixo
+ * dos pés — mesma lógica de laje/escada do `collides`, então não há uma segunda
+ * definição de "chão" pra sair de acordo com a física.
+ *
+ * O SERVIDOR usa isto pra fechar a queda a partir do fluxo de `move` (10 Hz):
+ * ele tem o mundo e não confia no cliente pra dizer que pousou.
+ */
+export function apoiadoNoChao(world: World, pos: Vec3): boolean {
+  return collides(world, { x: pos.x, y: pos.y - 0.05, z: pos.z });
+}
+
 /** Superfície de apoio (topo/base) de colisão sob/sobre o jogador ao longo de Y,
  *  respeitando sub-caixas parciais. `dir<0` = descendo (topo mais alto sob os
  *  pés → onde os pés pousam); `dir>0` = subindo (base mais baixa sobre a cabeça).

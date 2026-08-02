@@ -7,7 +7,10 @@ export type GameEvent =
   | { kind: "block_placed"; blockId: number }
   | { kind: "block_broken" }
   | { kind: "chat_message" }
-  | { kind: "objective_complete" };
+  | { kind: "objective_complete" }
+  /** §🍖 F2: levou dano / morreu. O som pluga aqui junto com os outros. */
+  | { kind: "dano" }
+  | { kind: "morte" };
 
 type Listener = (e: GameEvent) => void;
 

@@ -4,6 +4,7 @@ import {
   type Claim,
   type GroupDef,
   type NamedRegion,
+  type Modo,
   type ObjectiveState,
   PLAYER,
   PLAYER_REACH,
@@ -55,6 +56,7 @@ import {
   parseServerMessage,
   parseWorldTamanho,
   peekMagic,
+  podeVoarNoModo,
   raycastBlock,
   relevoPorClima,
   setBlock,
@@ -86,6 +88,7 @@ import {
   showMenu,
 } from "./menu";
 import { ObjectivesUi } from "./objectivesUi";
+import { VitalsUi } from "./vitals";
 import { PlayersPanel } from "./players";
 import { AuthorPanel, type GamePanel, GroupPanel, type PanelData } from "./panels";
 import { RegionRenderer } from "./regions";
@@ -418,9 +421,36 @@ let papel: "professor" | "aluno" = "aluno";
 let vooLiberado = false;
 /** Estou voando agora? Alterna com duplo-toque no espaço (se podeVoar). */
 let flying = false;
-/** Posso voar? Professor sempre; aluno só com o voo liberado pra turma. */
+/** Modo de jogo EFETIVO deste jogador (§🍖 F1) — quem decide é o servidor
+ *  (msg `modo`, mandada em todo join e a cada troca). Criativo até ele falar. */
+let modoAtual: Modo = "criativo";
+/** Posso voar? Sobrevivência NÃO voa (nem professor); em criativo, o professor
+ *  sempre e o aluno só com o voo liberado pra turma. */
 function podeVoar(): boolean {
-  return papel === "professor" || vooLiberado;
+  return podeVoarNoModo(modoAtual) && (papel === "professor" || vooLiberado);
+}
+/** §🍖 F2: corações e bolhas. Criado sob demanda (a 1ª mensagem `vida` chega
+ *  só em sobrevivência) — mundo criativo não paga DOM nem CSS por isto. */
+let vitalsUi: VitalsUi | null = null;
+function vitals(): VitalsUi {
+  vitalsUi ??= new VitalsUi();
+  return vitalsUi;
+}
+// ?vida=7 (ou ?vida=7,45 com fôlego) na URL: mostra o HUD de vida com um valor
+// FIXO, sem servidor — é o par do ?hora/?vento/?atlas, pra inspeção visual e
+// screenshot headless dos corações e das bolhas. NÃO manda nada pro servidor e
+// NÃO muda o modo: é só desenho local.
+// CUIDADO: Number(null) === 0 — sem o param tem que dar null (bug-302).
+const vidaForcada = ((): { vida: number; folego?: number } | null => {
+  const raw = new URLSearchParams(location.search).get("vida");
+  if (raw === null) return null;
+  const [v, f] = raw.split(",").map(Number);
+  if (v === undefined || !Number.isFinite(v)) return null;
+  return { vida: v, ...(Number.isFinite(f) ? { folego: f! } : {}) };
+})();
+if (vidaForcada) {
+  vitals().setVisivel(true);
+  vitals().aplicar(vidaForcada);
 }
 /** Última lista de regiões do servidor (chega só pra professor). */
 let latestRegions: NamedRegion[] = [];
@@ -624,6 +654,42 @@ function handleServerData(data: string | ArrayBuffer): void {
           ? "voo liberado — dois toques no espaço para voar (espaço sobe, agachar desce)"
           : "voo trancado pela turma",
       );
+    } else if (msg.type === "modo") {
+      // §🍖 F1: por enquanto o modo só decide rótulo e VOO — vida/fome/craft
+      // entram nas frentes seguintes lendo daqui.
+      const mudou = modoAtual !== msg.efetivo;
+      modoAtual = msg.efetivo;
+      if (!podeVoar()) flying = false; // entrou em sobrevivência voando: cai
+      // §🍖 F2: corações só existem em sobrevivência (o ?vida força e vence,
+      // como o ?hora vence o sync do céu)
+      if (vidaForcada === null) {
+        if (msg.efetivo === "sobrevivencia") vitals().setVisivel(true);
+        else vitalsUi?.setVisivel(false);
+      }
+      if (mudou) {
+        chat.addMessage(
+          "jogo",
+          msg.efetivo === "sobrevivencia"
+            ? "modo sobrevivência — não dá para voar"
+            : "modo criativo",
+        );
+      }
+    } else if (msg.type === "vida") {
+      // §🍖 F2: a UI nunca decide — quem machuca, cura e mata é o servidor
+      if (vidaForcada !== null) return; // ?vida= congela o HUD (inspeção)
+      vitals().aplicar(msg);
+      if (msg.causa) emitGameEvent({ kind: "dano" });
+      if (msg.morreu) {
+        emitGameEvent({ kind: "morte" });
+        chat.addMessage(
+          "jogo",
+          msg.causa === "queda"
+            ? "você caiu de muito alto — voltou ao ponto de partida"
+            : msg.causa === "afogamento"
+              ? "você ficou sem ar — voltou ao ponto de partida"
+              : "você não sobreviveu — voltou ao ponto de partida",
+        );
+      }
     } else if (msg.type === "kicked") {
       // professor removeu (cp22): mesmo caminho do join_denied — motivo vira
       // banner no menu (sem alert nativo), o socket cai logo depois.
@@ -1887,6 +1953,8 @@ function startGame(snap: Snapshot): void {
       `terreno h ${h}  topo ${topo}  ` +
       `[praia ≤${SAND_HEIGHT} · neve ≥${SNOW_HEIGHT} se o bioma neva · chapada ≥${ROCHA_HEIGHT}]\n` +
       `relevo ${relevoPorClima(clima).toFixed(2)} (teto do bioma ${bioma.relevo})\n` +
+      `modo ${modoAtual === "sobrevivencia" ? "sobrevivência" : "criativo"}  ` +
+      `voo ${podeVoar() ? (flying ? "voando" : "liberado") : "trancado"}\n` +
       `mouse Δmáx ${m.maxDelta}px  descartados ${m.dropped} (último ${m.lastDropped}px)`
     );
   };
