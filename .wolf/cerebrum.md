@@ -187,6 +187,47 @@
   escrever o teste que compara os dois célula a célula** — é ele que autoriza otimizar.
 - Escavar DEPOIS do minério deixa a veia cortada na parede (o que faz explorar valer a pena).
 
+### §🍖 Sobrevivência (2026-08-02, F1)
+
+- **Modo de jogo tem DUAS camadas:** padrão do MUNDO (no `.ljw`) + override pessoal por NOME
+  (não por id de cliente — tem de sobreviver ao rejoin, igual ao roster). Quem resolve o
+  efetivo é o SERVIDOR; o protocolo carrega só `modo {efetivo}`, porque o cliente não tem (nem
+  precisa ter) o mapa de overrides.
+- **Estado por-jogador novo vai SEMPRE no join, mesmo no valor padrão** — o `/voo` só manda
+  quando liberado e isso é seguro porque o cliente nasce com o mesmo default; qualquer estado
+  que possa vir DIFERENTE do mundo anterior tem de ser reafirmado, senão a troca de aula
+  (sessão nova) deixa o cliente com o valor velho (família do bug-518).
+- **Regra de mundo é REGISTRO, não campo:** `regras.ts` (nome, padrão, ajuda) + um comando
+  genérico `/regra` + UM campo `regras?: Record<string, boolean>` no `SaveMeta`. Regra nova =
+  uma entrada na lista: sem comando novo, sem campo novo, sem re-versionar o save.
+- **Save guarda só o DIFF do padrão** (`regrasParaSave`, `modo !== MODO_PADRAO`): mundo que
+  nunca viu a feature sai byte a byte como antes, e o padrão novo passa a valer nos mundos
+  antigos sem migração.
+- **Mundo-aula (`somenteLeitura`) impõe criativo**, vencendo o save e recusando o comando —
+  a aula distribui um MODELO, não uma partida (mesma lógica do confinamento forçado no cp25).
+- Comando que a turma inteira precisa CONSULTAR mas só o professor pode MUDAR: o gate vai no
+  dispatcher por `parts.length` (`/modo` livre, `/modo x` professor-only), como o `/hora`.
+- **UMA PORTA SÓ PRO DANO** (`aplicarDano(estado, n, causa)`): queda, afogamento, fome, PvP e
+  mob entram pela MESMA função — causa nova é um valor a mais no union, não um caminho novo.
+  Mesmo desenho do `fallingRule` genérico (areia e cascalho dividem uma regra).
+- **Estado derivado do MOVIMENTO se fecha no servidor, do fluxo de `move` (10 Hz)** — ele tem
+  o mundo; o cliente não reporta dano (seria autoridade no lugar errado). O preço é resolução:
+  a ~4 blocos por amostra, a altura de queda erra PRA MENOS. **Escolher o lado do erro e
+  ESCREVER isso no código** vale mais que fingir precisão.
+- **Testar "chão" tem UMA definição só:** `apoiadoNoChao` (physics.ts) reusa o `collides`, que
+  já sabe de laje/escada. Uma segunda definição sai de acordo com a física no primeiro bloco
+  de forma parcial que aparecer.
+- **Estado de tick que vira PIXEL só viaja quando o pixel muda:** o fôlego anda 10×/s, mas a
+  mensagem `vida` só sai quando muda coração ou BOLHA (`GameSession.bolhas`) — a granularidade
+  do desenho é que decide a cadência da rede.
+- **Estado por-jogador que sobrevive ao rejoin mora por NOME** (vitais, modo), como o roster e
+  o PIN; o que é rascunho de sessão mora por clientId e morre no disconnect (`picoQueda`).
+- Teleporte (respawn, `/tp`) e troca de modo têm de ZERAR estado acumulado de movimento —
+  senão quem voava em criativo pousa machucado ao entrar em sobrevivência.
+- **`?param` na URL pra congelar estado de UI** (`?hora`, `?vento`, `?atlas`, `?vida`) é o
+  idioma do projeto pra inspeção visual: o headless vê o que o servidor levaria uma partida
+  inteira pra produzir. O forçado tem de VENCER o sync de rede, senão a 1ª mensagem apaga.
+
 ### Streaming de colunas (F2)
 
 - **Config de cliente que o SERVIDOR espelha tem de ser RE-ENVIADA quando muda** (e no
@@ -431,6 +472,13 @@
 
 ### Medição e verificação
 
+- **[2026-08-02] `LJ_NOVO=1` NÃO recria mundo que já existe** — ele só AUTORIZA criar onde não
+  há arquivo. Smoke que ESCREVE estado persistente (modo, regra, blocos) passa na 1ª rodada e
+  falha na 2ª com o estado da 1ª (bug-547). O manifesto do `scripts/smoke.mjs` ganhou `limpar:
+  [pastas]` pra isso — usar em smoke de mundo P/M; mundo E fica de fora (regenerar custa
+  dezenas de segundos). **Rodar o smoke novo DUAS vezes seguidas** é o que prova idempotência.
+  ⚠️ Assimetria entre dois clientes quase iguais (um passa, o outro falha) é pista de estado
+  herdado, não de corrida.
 - **[2026-07-28] NÃO medir cor lendo o canvas do three pela página.** `drawImage(canvasWebGL,…)`
   devolve **PRETO** fora do frame (o three usa `preserveDrawingBuffer: false`). Não dá erro: dá
   0,0 — e 0,0 nos dois lados de um A/B ainda "passa" numa razão < limiar, falso POSITIVO

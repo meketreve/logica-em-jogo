@@ -2,22 +2,6 @@
   "version": 1,
   "bugs": [
     {
-      "id": "bug-406",
-      "timestamp": "2026-07-21T02:24:43.405Z",
-      "error_message": "Type error",
-      "file": "client/src/menu.ts",
-      "root_cause": "Missing or incorrect type annotation",
-      "fix": "Added type assertion/annotation",
-      "tags": [
-        "auto-detected",
-        "type-fix",
-        "ts"
-      ],
-      "related_bugs": [],
-      "occurrences": 1,
-      "last_seen": "2026-07-21T02:24:43.405Z"
-    },
-    {
       "id": "bug-407",
       "timestamp": "2026-07-21T02:24:45.127Z",
       "error_message": "Wrong reference: select should be option",
@@ -3414,6 +3398,28 @@
       ],
       "occurrences": 1,
       "last_seen": "2026-07-30T10:05:00Z"
+    },
+    {
+      "id": "bug-547",
+      "timestamp": "2026-08-02T18:20:00Z",
+      "error_message": "smoke `modo` passou na 1a rodada e FALHOU na 2a, sem nenhuma mudanca de codigo entre as duas: '✗ bia entrou em criativo' e '✗ professor liga a regra pvp'",
+      "file": "scripts/smoke.mjs",
+      "root_cause": "LJ_NOVO=1 nao RECRIA mundo existente — ele so AUTORIZA criar onde nao ha arquivo (server/src/index.ts so consulta a env quando o LJ_SAVE aponta pra caminho inexistente). O smoke do §🍖 F1 ESCREVE estado persistente no .ljw (modo sobrevivencia + ajuste pessoal da ana + regra pvp ligada), entao a 2a rodada nascia com o mundo da 1a: bia ja entrava em sobrevivencia e o /regra pvp ligar respondia 'ja estava ligada'. Diagnostico pela ASSIMETRIA: ana passava e bia falhava, que e exatamente o estado final da rodada anterior.",
+      "fix": "campo `limpar: [pastas]` novo no manifesto do scripts/smoke.mjs — apaga as pastas de mundo (rmSync recursive) ANTES de subir os servidores. Aplicado so ao smoke `modo` (mundos P, barato); mundos E ficam de fora de proposito, porque regenerar cada um custa dezenas de segundos e eles nao guardam estado que o smoke leia. Rodado 2x seguidas pra provar a idempotencia.",
+      "tags": [
+        "smoke",
+        "flaky",
+        "estado-persistente",
+        "LJ_NOVO",
+        "save",
+        "sobrevivencia",
+        "§🍖"
+      ],
+      "related_bugs": [
+        "bug-545"
+      ],
+      "occurrences": 1,
+      "last_seen": "2026-08-02T18:20:00Z"
     }
   ]
 }

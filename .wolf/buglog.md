@@ -5,7 +5,6 @@
 
 | id | tags | file | error (truncated) |
 |---|---|---|---|
-| bug-406 | auto-detected,type-fix,ts | client/src/menu.ts | Type error |
 | bug-407 | auto-detected,wrong-reference,html | client/index.html | Wrong reference: select should be option |
 | bug-408 | auto-detected,guard-clause,ts | client/src/chunks.ts | Missing guard clause |
 | bug-409 | auto-detected,refactor,ts | client/src/main.ts | Significant refactor of  |
@@ -205,3 +204,4 @@
 | bug-544 | worldgen,relevo,bioma,fronteira,penhasco,heightmap,medicao,sweep,§🏔️ | shared/src/biomas.ts | (pego na medicao, antes de ir pro cliente) o relevo por bioma reabriu o penhasco |
 | bug-545 | vitest,flaky,timeout,testes,wsl,paralelismo,gate | shared/vitest.config.ts | `npm test` virou sorteio: uma rodada 5 falhas, a seguinte 18, todas 'Test timed  |
 | bug-546 | medicao,falso-negativo,mundo-lazy,createWorld,instrumentacao,worldgen | scratchpad/relevo-medir.mts (receita, ver cerebrum) | (falso NEGATIVO na minha propria instrumentacao) script de medicao acusou worldg |
+| bug-547 | smoke,flaky,estado-persistente,LJ_NOVO,save,sobrevivencia,§🍖 | scripts/smoke.mjs | smoke `modo` passou na 1a rodada e FALHOU na 2a, sem nenhuma mudanca de codigo e |

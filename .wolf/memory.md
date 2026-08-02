@@ -3,75 +3,6 @@
 > Chronological action log. Hooks and AI append to this file automatically.
 > Old sessions are consolidated by the daemon weekly.
 
-## Session: 2026-07-26 14:38
-
-| Time | Action | File(s) | Outcome | ~Tokens |
-|------|--------|---------|---------|--------|
-| 14:43 | Created client/src/loading.ts | — | ~3295 |
-| 14:44 | Edited client/src/loading.ts | inline fix | ~21 |
-| 14:44 | Edited client/src/main.ts | added 1 import(s) | ~24 |
-| 14:44 | Edited client/src/main.ts | 2→7 lines | ~112 |
-| 14:44 | Edited client/src/main.ts | 8→10 lines | ~216 |
-| 14:44 | Edited client/src/main.ts | modified connect() | ~204 |
-| 14:44 | Edited client/src/main.ts | added 1 condition(s) | ~436 |
-| 14:44 | Edited client/src/main.ts | added 1 condition(s) | ~120 |
-| 14:44 | Edited client/src/main.ts | added 1 condition(s) | ~102 |
-| 14:52 | Edited client/src/loading.ts | mesher() → CHUNKS() | ~52 |
-| 14:52 | Edited client/src/loading.ts | inline fix | ~12 |
-| 14:52 | Edited client/src/loading.ts | added 1 condition(s) | ~166 |
-| 14:52 | Edited client/src/loading.ts | inline fix | ~14 |
-| 14:55 | Edited client/src/loading.ts | modified svg() | ~153 |
-| 14:55 | Edited client/src/loading.ts | 3→4 lines | ~26 |
-| 14:55 | Edited client/src/loading.ts | 3→4 lines | ~66 |
-| 14:55 | Edited client/src/loading.ts | added 1 condition(s) | ~260 |
-| 14:55 | Edited client/src/loading.ts | added 1 condition(s) | ~44 |
-| 14:55 | Edited client/src/main.ts | added 1 condition(s) | ~95 |
-| 14:56 | Edited client/src/loading.ts | modified if() | ~142 |
-| 14:57 | Edited client/src/loading.ts | 2→3 lines | ~53 |
-| 14:57 | Edited client/src/loading.ts | 2→5 lines | ~72 |
-| 14:57 | Edited client/src/loading.ts | added optional chaining | ~247 |
-| 14:57 | Edited client/src/connection.ts | 5→9 lines | ~141 |
-| 14:57 | Edited client/src/connection.ts | 3→7 lines | ~70 |
-| 14:57 | Edited client/src/connection.ts | added optional chaining | ~88 |
-| 14:57 | Edited client/src/main.ts | added 1 condition(s) | ~224 |
-| 14:58 | Edited client/src/loading.ts | 6→7 lines | ~76 |
-| 15:10 | SESSÃO 25 — §🕐 tela de carregamento: `loading.ts` novo (anel real + spinner decorativo, bits/s, colunas/fila, fases honestas, estado de erro do ws), `loading.ativo` no `updateOverlay`/toque (bug-515), `WsConnection.aoFalhar`. typecheck 3/3, 329 testes, headless conferido em mundo E/P/servidor-off. NÃO commitado — playtest pendente | client/src/loading.ts · main.ts · connection.ts · .wolf/{STATUS,TODO,ROADMAP,cerebrum,anatomy,buglog}.* | ✅ verde | ~46k |
-| 15:06 | Session end: 28 writes across 3 files (loading.ts, main.ts, connection.ts) | 12 reads | ~29660 tok |
-| 15:11 | Session end: 28 writes across 3 files (loading.ts, main.ts, connection.ts) | 12 reads | ~29660 tok |
-| 15:19 | Edited client/src/chunks.ts | added 1 condition(s) | ~204 |
-| 15:19 | Edited client/src/hud.ts | modified aula() | ~131 |
-| 15:19 | Edited client/src/loading.ts | 3→6 lines | ~74 |
-| 15:19 | Edited client/src/loading.ts | 2→2 lines | ~13 |
-| 15:19 | Edited client/src/loading.ts | added nullish coalescing | ~86 |
-| 15:19 | Edited client/src/loading.ts | modified reabertura() | ~91 |
-| 15:19 | Edited client/src/loading.ts | 2→3 lines | ~23 |
-| 15:19 | Edited client/src/loading.ts | added 1 condition(s) | ~176 |
-| 15:20 | Edited client/src/main.ts | expanded (+9 lines) | ~382 |
-| 15:20 | Edited client/src/main.ts | 3→5 lines | ~91 |
-| 15:20 | Edited client/src/main.ts | added 1 condition(s) | ~335 |
-| 15:22 | Created server/src/cenarios/_smoke-troca-raio.mjs | — | ~1121 |
-| 15:35 | Perfil 18:14 analisado → 3 bugs (517 buildAll em lazy no trocarMundo ~19s; 518 raio volta a RAIO_PADRAO na troca de aula; 519 meta do HUD congelado no join) + §🕐 reaberta no `/mundo carregar` | client/src/{chunks,hud,main,loading}.ts · server/src/cenarios/_smoke-troca-raio.mjs | ✅ typecheck 3/3, 329 testes, smoke troca-raio 5/5 (anel 10→6→12), build refeito | ~38k |
-| 15:30 | Session end: 40 writes across 6 files (loading.ts, main.ts, connection.ts, chunks.ts, hud.ts) | 17 reads | ~38063 tok |
-| 15:35 | Session end: 40 writes across 6 files (loading.ts, main.ts, connection.ts, chunks.ts, hud.ts) | 17 reads | ~38063 tok |
-| 15:43 | Edited shared/src/protocol.ts | expanded (+12 lines) | ~175 |
-| 15:43 | Edited shared/src/protocol.ts | added 1 condition(s) | ~77 |
-| 15:43 | Edited server/src/mundos.ts | 3→6 lines | ~82 |
-| 15:44 | Edited server/src/mundos.ts | 1→5 lines | ~75 |
-| 15:44 | Edited server/src/index.ts | 4→8 lines | ~86 |
-| 15:44 | Edited server/src/index.ts | 2→3 lines | ~16 |
-| 15:44 | Edited client/src/main.ts | modified ANUNCIADA() | ~78 |
-| 15:44 | Edited client/src/main.ts | added optional chaining | ~81 |
-| 15:45 | Edited client/src/loading.ts | 2→6 lines | ~89 |
-| 15:45 | Edited client/src/loading.ts | 4→6 lines | ~73 |
-| 15:45 | Edited client/src/loading.ts | added 1 condition(s) | ~68 |
-| 15:45 | Edited client/src/loading.ts | 2→3 lines | ~29 |
-| 15:45 | Edited client/src/loading.ts | 3→4 lines | ~32 |
-| 15:45 | Edited client/src/main.ts | expanded (+19 lines) | ~192 |
-| 15:45 | Edited server/src/cenarios/_smoke-troca-raio.mjs | added 2 condition(s) | ~228 |
-| 15:46 | Edited server/src/cenarios/_smoke-troca-raio.mjs | 2→6 lines | ~76 |
-| 15:47 | Edited client/src/main.ts | added 3 condition(s) | ~410 |
-| 15:48 | Edited client/src/main.ts | 3→4 lines | ~74 |
-
 ## Session: 2026-07-26 15:50
 
 | Time | Action | File(s) | Outcome | ~Tokens |
@@ -758,3 +689,124 @@ layouts mobile segue sendo o próximo.
 | 10:35 | Preparou /clear da sessão 33: STATUS com o diário da sessão + §🏔️ em ✅ Concluído + próxima fase trocada pra sobrevivência (§🍖 F1), TODO varrido, cerebrum com 5 aprendizados novos (rampa estreita = penhasco; A/B no mesmo processo mede JIT; createWorld aloca por default; gate que muda com a carga não é gate), anatomy rescaneada (245 arquivos), 3 bugs logados. Registrado no STATUS que a ÁRVORE ESTÁ SUJA (nada commitado) com os 3 commits sugeridos. Conferido: nenhum processo meu no ar (vite morto por PID, 8080 do usuário já estava fora antes). | .wolf/STATUS.md, .wolf/TODO.md, .wolf/memory.md | handoff fechado, árvore suja e documentada | ~1,5k tok |
 | 12:44 | Session end: 19 writes across 5 files (worldgen.ts, main.ts, biomas.ts, worldgen.test.ts, vitest.config.ts) | 4 reads | ~46518 tok |
 | 10:48 | Commitou a sessão 33 em 3: `cb987ed` (config do vitest), `2aaf0e9` (§🏔️ relevo por bioma + client/dist reconstruído) e o docs(wolf) do handoff. Push NÃO feito (não pedido) — registrado no STATUS que main local está à frente do GitHub, de onde o launcher da escola puxa. | .wolf/STATUS.md, .wolf/memory.md | 3 commits na main, árvore limpa | ~1 commit |
+| 12:48 | Session end: 19 writes across 5 files (worldgen.ts, main.ts, biomas.ts, worldgen.test.ts, vitest.config.ts) | 4 reads | ~46518 tok |
+| 12:49 | Session end: 19 writes across 5 files (worldgen.ts, main.ts, biomas.ts, worldgen.test.ts, vitest.config.ts) | 4 reads | ~46518 tok |
+
+## Session: 2026-08-02 17:48
+
+| Time | Action | File(s) | Outcome | ~Tokens |
+|------|--------|---------|---------|--------|
+| 17:59 | Created shared/src/modo.ts | — | ~718 |
+| 17:59 | Created shared/src/regras.ts | — | ~996 |
+| 17:59 | Edited shared/src/save.ts | expanded (+10 lines) | ~227 |
+| 17:59 | Edited shared/src/save.ts | added 2 import(s) | ~52 |
+| 18:00 | Edited shared/src/save.ts | 3→8 lines | ~130 |
+| 18:00 | Edited shared/src/save.ts | added 2 condition(s) | ~221 |
+| 18:00 | Edited shared/src/protocol.ts | expanded (+11 lines) | ~213 |
+| 18:00 | Edited shared/src/protocol.ts | added 1 condition(s) | ~124 |
+| 18:00 | Edited shared/src/protocol.ts | added 1 import(s) | ~48 |
+| 18:00 | Edited shared/src/index.ts | 2→4 lines | ~28 |
+| 18:01 | Edited shared/src/session.ts | expanded (+8 lines) | ~62 |
+| 18:01 | Edited shared/src/session.ts | modified atividade() | ~239 |
+| 18:01 | Edited shared/src/session.ts | modified if() | ~39 |
+| 18:01 | Edited shared/src/session.ts | added nullish coalescing | ~164 |
+| 18:01 | Edited shared/src/session.ts | added 1 condition(s) | ~118 |
+| 18:01 | Edited shared/src/session.ts | expanded (+7 lines) | ~165 |
+| 18:01 | Edited shared/src/session.ts | 2→2 lines | ~18 |
+| 18:01 | Edited shared/src/session.ts | 4→5 lines | ~65 |
+| 18:01 | Edited shared/src/session.ts | added 2 condition(s) | ~191 |
+| 18:02 | Edited shared/src/session.ts | 2→2 lines | ~68 |
+| 18:03 | Edited shared/src/session.ts | added nullish coalescing | ~2272 |
+| 18:03 | Edited shared/src/session.ts | 2→7 lines | ~144 |
+| 18:03 | Edited shared/src/session.ts | " Comandos: /bloco · /rese" → " Comandos: /bloco · /rese" | ~54 |
+| 18:04 | Edited client/src/main.ts | 2→3 lines | ~13 |
+| 18:04 | Edited client/src/main.ts | 2→3 lines | ~14 |
+| 18:04 | Edited client/src/main.ts | modified podeVoar() | ~153 |
+| 18:04 | Edited client/src/main.ts | added 3 condition(s) | ~163 |
+| 18:05 | Edited client/src/main.ts | 2→4 lines | ~96 |
+| 18:05 | Edited client/src/commands.ts | 19→22 lines | ~70 |
+| 18:05 | Edited client/src/commands.ts | 2→5 lines | ~45 |
+| 18:05 | Edited client/src/commands.ts | added 2 condition(s) | ~167 |
+| 18:05 | Edited client/src/commands.ts | added 1 import(s) | ~38 |
+| 18:06 | Created shared/src/modo.test.ts | — | ~2868 |
+| 18:07 | Created shared/src/regras.test.ts | — | ~1822 |
+| 18:07 | Edited shared/src/session.test.ts | 2→2 lines | ~33 |
+| 18:08 | Edited shared/src/session.test.ts | 3→8 lines | ~98 |
+| 18:08 | Edited shared/src/session.test.ts | 2→2 lines | ~53 |
+| 18:09 | Created server/src/cenarios/_smoke-modo.mjs | — | ~1252 |
+| 18:09 | Edited scripts/smoke.mjs | expanded (+31 lines) | ~243 |
+| 18:13 | Edited scripts/smoke.mjs | 1→6 lines | ~127 |
+| 18:13 | Edited scripts/smoke.mjs | added 1 import(s) | ~31 |
+| 18:13 | Edited scripts/smoke.mjs | 4→6 lines | ~84 |
+| 18:13 | Edited scripts/smoke.mjs | 3→6 lines | ~126 |
+| 18:13 | Edited scripts/smoke.mjs | added nullish coalescing | ~58 |
+
+## Sessão 34 — 2026-08-02 — §🍖 F1: `/modo` e `/regra`
+
+| hora | o quê | arquivos | resultado |
+|---|---|---|---|
+| 17:50 | usuário fechou a 33: playtests de relevo e luz+cavernas FEITOS sem ajuste, push adiado, seguir pra próxima fase | — | fila andou pro §🍖 |
+| 18:00 | módulos puros do modo e do registro de regras | `shared/src/modo.ts`, `shared/src/regras.ts` | modo em 2 camadas (mundo + override por NOME); regra nova = 1 entrada |
+| 18:02 | save e protocolo | `shared/src/save.ts`, `protocol.ts` | campos OPCIONAIS gravando só o DIFF do padrão; msg `modo {efetivo}` nova |
+| 18:04 | session: estado, `/modo` (5 formas), `/regra`, envio no join | `shared/src/session.ts` | `all` não arrasta o professor; mundo-aula força criativo |
+| 18:05 | cliente: voo pelo modo, F3, autocomplete (+ `/vento`, que faltava) | `client/src/main.ts`, `commands.ts` | sobrevivência não voa nem com `/voo` |
+| 18:08 | testes | `modo.test.ts`, `regras.test.ts`, `session.test.ts` | 425/425 (33 novos) |
+| 18:13 | smoke novo + `limpar` no manifesto (bug-547) | `_smoke-modo.mjs`, `scripts/smoke.mjs` | 7/7, rodado 2× pra provar idempotência |
+| 18:20 | verificação final | — | typecheck 3/3 · build · bench headless boota e mesha |
+| 20:06 | Created shared/src/sobrevivencia.ts | — | ~1589 |
+| 20:06 | Edited shared/src/sobrevivencia.ts | added 1 condition(s) | ~138 |
+| 20:07 | Edited shared/src/physics.ts | modified apoiadoNoChao() | ~178 |
+| 20:07 | Edited shared/src/sobrevivencia.ts | modified parseCausaDano() | ~146 |
+| 20:07 | Edited shared/src/protocol.ts | expanded (+15 lines) | ~187 |
+| 20:07 | Edited shared/src/protocol.ts | added 1 condition(s) | ~256 |
+| 20:07 | Edited shared/src/protocol.ts | added 1 import(s) | ~45 |
+| 20:07 | Edited shared/src/index.ts | 2→3 lines | ~24 |
+| 20:07 | Edited shared/src/save.ts | 3→6 lines | ~72 |
+| 20:08 | Edited shared/src/save.ts | expanded (+8 lines) | ~168 |
+| 20:08 | Edited shared/src/save.ts | added 1 import(s) | ~29 |
+| 20:08 | Edited shared/src/session.ts | expanded (+11 lines) | ~90 |
+| 20:08 | Edited shared/src/session.ts | modified atividade() | ~166 |
+| 20:08 | Edited shared/src/session.ts | added 1 condition(s) | ~90 |
+| 20:08 | Edited shared/src/session.ts | 7→10 lines | ~122 |
+| 20:11 | Edited shared/src/session.ts | added nullish coalescing | ~1534 |
+| 20:12 | Edited shared/src/session.ts | 2→5 lines | ~81 |
+| 20:12 | Edited shared/src/session.ts | 5→8 lines | ~65 |
+| 20:12 | Edited shared/src/session.ts | added 1 condition(s) | ~154 |
+| 20:12 | Edited shared/src/session.ts | 2→5 lines | ~57 |
+| 20:12 | Edited shared/src/session.ts | added 1 condition(s) | ~107 |
+| 20:12 | Edited shared/src/session.ts | 1→2 lines | ~46 |
+| 20:13 | Edited shared/src/session.ts | 4→5 lines | ~22 |
+| 20:14 | Created client/src/vitals.ts | — | ~2298 |
+| 20:14 | Edited client/src/vitals.ts | 3→7 lines | ~83 |
+| 20:14 | Edited client/src/vitals.ts | 4→4 lines | ~60 |
+| 20:14 | Edited client/src/main.ts | added 1 import(s) | ~24 |
+| 20:14 | Edited client/src/main.ts | modified vitals() | ~109 |
+| 20:14 | Edited client/src/main.ts | added optional chaining | ~97 |
+| 20:14 | Edited client/src/main.ts | added 2 condition(s) | ~165 |
+| 20:15 | Edited client/src/events.ts | 5→8 lines | ~81 |
+| 20:15 | Edited client/src/main.ts | added 1 condition(s) | ~43 |
+| 20:16 | Created shared/src/sobrevivencia.test.ts | — | ~3596 |
+| 20:17 | Created server/src/cenarios/_smoke-vida.mjs | — | ~1211 |
+| 20:17 | Edited scripts/smoke.mjs | expanded (+21 lines) | ~183 |
+| 20:20 | Edited client/src/main.ts | added 3 condition(s) | ~302 |
+| 20:20 | Edited client/src/main.ts | added 1 condition(s) | ~79 |
+| 20:20 | Edited client/src/main.ts | added 1 condition(s) | ~62 |
+
+### Sessão 34 (continuação) — §🍖 F2: vida, dano, morte, respawn
+
+| hora | o quê | arquivos | resultado |
+|---|---|---|---|
+| 20:05 | módulo puro da vida (uma porta só pro dano) | `shared/src/sobrevivencia.ts` | queda/afogamento/regen com os números do Minecraft |
+| 20:08 | `apoiadoNoChao` + fiação da queda pelo fluxo de `move` | `physics.ts`, `session.ts` | servidor fecha a queda; cliente nunca reporta dano |
+| 20:10 | protocolo `vida` + `SavedPlayer.vida?` | `protocol.ts`, `save.ts` | campos opcionais, parse defensivo, só o machucado no save |
+| 20:14 | HUD de vida self-contained | `client/src/vitals.ts`, `main.ts`, `events.ts` | corações/bolhas/vinheta; criado sob demanda |
+| 20:16 | testes | `sobrevivencia.test.ts` | 445/445 (20 novos) |
+| 20:20 | smoke novo | `_smoke-vida.mjs`, `scripts/smoke.mjs` | 8/8 |
+| 20:30 | `?vida=N[,folego]` + print headless do HUD | `main.ts` | corações e bolhas VISTOS sobre a cena do ?bench, sem erro de console |
+| 20:40 | handoff pra /clear | `.wolf/*` | STATUS/TODO/cerebrum atualizados; próxima frente = F3 (fome) |
+| 20:26 | Session end: 82 writes across 19 files (modo.ts, regras.ts, save.ts, protocol.ts, index.ts) | 19 reads | ~161856 tok |
+
+## Session: 2026-08-02 20:26
+
+| Time | Action | File(s) | Outcome | ~Tokens |
+|------|--------|---------|---------|--------|

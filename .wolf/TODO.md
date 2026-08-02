@@ -2,40 +2,56 @@
 
 > Working checklist. **STATUS.md** = handoff ("why & where we are"); **TODO.md** = "what's left to do".
 > Keep items actionable and short. Check off with `[x]`; sweep done items into STATUS.md ✅ when a phase closes.
-> Last updated: 2026-07-30 (sessão 33 — §🏔️ relevo por bioma: a v2 da geração FECHOU;
-> próxima fase é sobrevivência §🍖)
+> Last updated: 2026-08-02 (sessão 34 — §🍖 F1 e F2: o interruptor e a primeira mecânica;
+> próxima frente é o F3, fome)
 
 ---
 
 ## 🔥 Now (this session)
 
-- [x] **§🏔️ RELEVO POR BIOMA** (sessão 33): `Bioma.relevo`/`Bioma.neve` + `relevoPorClima`
-      ligados no `heightAt` e no `topoPrevisto`. **Portão de fronteira em paridade com o
-      heightmap global** (degrau máx 4–6, zero pares > 6) depois do sweep que consertou o
-      penhasco de 14–23 blocos (bug-544). Tetos: araucárias 106 · mata 68 · cerrado 53 ·
-      caatinga 36. Custo NEGATIVO: −7,5% de triângulos, geração 4,53 → 4,00 ms/coluna.
-      VERDE: typecheck 3/3, 392 testes, build, 6/6 smokes, 5/5 luz.
-- [x] **`shared/vitest.config.ts`** (bug-545): `maxWorkers: 8` + `testTimeout: 20000` — o gate
-      `npm test` era sorteio (5 falhas numa rodada, 18 na outra, por contenção de CPU).
-      392/392 e a suíte caiu de 92 s pra 37 s.
+- [x] **§🍖 F2 — vida, dano, morte, respawn** (sessão 34): `shared/src/sobrevivencia.ts` puro
+      com **uma porta só pro dano** (`aplicarDano`), queda fechada pelo SERVIDOR a partir do
+      fluxo de `move` (`apoiadoNoChao` novo em `physics.ts`), afogamento e regeneração no tick
+      de 10 Hz, morte → respawn no spawn autoritativo avisando a turma. Msg `vida` nova (só a
+      vida é obrigatória), `SavedPlayer.vida?` no save, HUD `client/src/vitals.ts` (corações,
+      bolhas, vinheta de dano) e `?vida=N[,folego]` pra inspeção. VERDE: typecheck 3/3,
+      **445 testes**, build, **8/8 smokes**, print do HUD conferido.
+
+- [x] **§🍖 F1 — `/modo` e `/regra`** (sessão 34): `shared/src/modo.ts` (padrão do mundo +
+      override pessoal por NOME) e `shared/src/regras.ts` (registro `manter-inventario`/`pvp`/
+      `fome` no molde do `/gamerule`). Msg `modo {efetivo}` nova, mandada em TODO join (troca
+      de aula é sessão nova). Save cresce só com campos opcionais e só com o DIFF do padrão.
+      **Sobrevivência ainda joga igual a criativo — muda o rótulo e o VOO** (não voa, nem com
+      `/voo` liberado). Mundo-aula fica criativo à força. VERDE: typecheck 3/3, **425 testes**
+      (33 novos), build, **7/7 smokes** (o `modo` é novo), bench headless boota e renderiza.
+- [x] **`limpar` no manifesto do `scripts/smoke.mjs`** (bug-547): `LJ_NOVO=1` não recria mundo
+      existente, então smoke que escreve estado persistente passava na 1ª rodada e falhava na
+      2ª. Rodado 2× seguidas pra provar idempotência.
 
 ## ⏭️ Next
 
-- [ ] **§🍖 SOBREVIVÊNCIA — F1 primeiro** (`/modo`, o interruptor sem mecânica). Escopo travado
-      na sessão 30, 9 frentes e as colisões escritas em `.wolf/ROADMAP.md §🍖`. Ler de lá.
+- [ ] **§🍖 F3 — fome** (~0,5 sessão). Metade já existe: `EstadoVital.fome`, `tickRegen(e,
+      fome)` e a regra de mundo `fome` (ligada) vieram no F2. Falta o DRENO por atividade real
+      (a session já vê distância andada, blocos quebrados e colocados), o dano por fome zerada
+      (`aplicarDano(…, "fome")` — a causa e o texto de morte já existem), as coxas no
+      `vitals.ts` (o molde `.casa`/`.icone` das bolhas serve), `SavedPlayer.fome?` no save e o
+      campo `fome?` OPCIONAL na msg `vida` que já existe (não criar mensagem nova).
+      Gate: `valorRegra(this.regras, "fome")`.
 
 ## 🏫 Na escola (o usuário faz lá)
 
-- [ ] **PLAYTEST do RELEVO POR BIOMA** (sessão 33) — precisa de **mundo NOVO**. A serra das
-      araucárias (teto 106) ainda impressiona? A caatinga (36) virou duna? Cerrado (53) e mata
-      (68) ficaram parecidos demais entre si? Alguma divisa lê como parede (o portão garante ≤ 6
-      blocos entre vizinhas, mas 6 ao longo de uma encosta pode virar barranco)? Neve só nas
-      araucárias ficou escassa (área nevada caiu 5×)? Cada resposta = 1 linha em
-      `BIOMAS.*.relevo` / `SNOW_HEIGHT` / `Bioma.neve`.
-- [ ] **PLAYTEST da LUZ e das CAVERNAS** (sessão 32) — headless não diz se é *jogável*.
-      Dá pra andar em caverna sem tocha (piso `luzMin` = 0,05)? A tocha ilumina o bastante
-      (emite 14, com o halo decorativo por cima)? A noite ficou escura demais pra construir
-      (`PISO_LUAR` = 0,22)? Achar caverna é fácil demais ou raro demais (`LIMIAR_CAVERNA`)?
+- [ ] **PLAYTEST DA SOBREVIVÊNCIA (F1+F2)** — entrar com `/modo sobrevivencia all` (ou `eu`).
+      Morrer de queda é justo (dói a partir de 4 blocos, mata em 23)? 15 s de ar é pouco?
+      **Os corações/bolhas no TABLET** — estão 96px acima do rodapé e podem brigar com a hotbar
+      de toque, que ninguém olhou. A vinheta vermelha de dano incomoda? Voltar ao spawn ao
+      morrer atrapalha em mundo grande (aí "cama = ponto de renascer" é feature nova)?
+      ⚠️ A altura da queda vem de amostras a 10 Hz e erra PRA MENOS — "caí de 10 e não doeu" é
+      a tolerância documentada, não bug.
+
+- [x] **PLAYTEST do RELEVO POR BIOMA** (sessão 33) e **PLAYTEST da LUZ e das CAVERNAS**
+      (sessão 32) — o usuário declarou os dois FEITOS em 2026-08-02 e **não pediu ajuste
+      nenhum**. Os botões seguem documentados caso mude de ideia: `BIOMAS.*.relevo`,
+      `SNOW_HEIGHT`, `Bioma.neve`, `luzMin`, `PISO_LUAR`, `LIMIAR_CAVERNA`.
 - [ ] **FPS do lab com cavernas + relevo** — cavernas somaram **+66% de triângulos**
       (153 852 → 255 234) e o relevo por bioma devolveu **−7,5%** (700 230 → 647 858 na medição
       pelo mesher). A GPU de lá já fecha o p95 em 16,8–19,6 ms contra 16,7 de orçamento. Rodar
@@ -81,14 +97,13 @@
 - [ ] v2 da geração de mundo (3º da ordem do usuário) — **escopo ABERTO em 2026-07-28**
       (sessão 31): cavernas primeiro em todo mundo procedural, depois relevo "montanha de
       verdade" por bioma. Decisões, colisões e portões em `.wolf/ROADMAP.md §🏔️`. Ver 🔥 Now.
-- [ ] Sobrevivência (fome/vida/craft) (4º da ordem do usuário) — **escopo ABERTO em
-      2026-07-27** (sessão 30): decisões travadas, 9 frentes (F1 `/modo` → F9 preset) e as
-      colisões mapeadas em `.wolf/ROADMAP.md §🍖`. Quem pegar a frente NÃO reabre decisão:
-      lite agora com porta pro completo · mobs só em mundo de exploração · craft por lista ·
-      `/modo` mundo+aluno+`all`+`eu` · `/pvp` no lite · **regras de mundo por `/regra`**
-      (molde do `/gamerule`), com `manter-inventario` LIGADO por padrão. Começar pelo **F1**
-      (`/modo` + registro de regras + campo `regras?` no save — o interruptor sem mecânica).
-      **Nenhuma decisão pendente.**
+- [ ] Sobrevivência (fome/vida/craft) (4º da ordem do usuário) — **EM CURSO desde a sessão
+      34**: F1 (`/modo` + `/regra` + save) FEITO; faltam F2..F9. Decisões travadas e colisões
+      em `.wolf/ROADMAP.md §🍖` — quem pegar a frente NÃO reabre decisão: lite agora com porta
+      pro completo · mobs só em mundo de exploração · craft por lista · `/pvp` no lite (F7,
+      atalho da regra `pvp` que já existe). Ordem: **F2 vida/dano/morte** → F3 fome →
+      F4 inventário autoritativo (a frente cara) → F5 craft → F6 comida → F7 pvp →
+      F8 mobs (fora do lite) → F9 preset.
 - [x] **Deck da CRE** (sessão 29): `relatorio/apresentacao-cre.html` — 20 slides, um arquivo
       autocontido, offline, notas do apresentador em N (ou `?notas`), handout no Ctrl+P.
       **Sem data** de propósito: a apresentação informal vem antes da formal.

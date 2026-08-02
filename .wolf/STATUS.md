@@ -1,6 +1,77 @@
 # STATUS — Projeto "Lógica em Jogo" (jogo voxel educacional)
 
 > Single source of truth for resuming work. Read this FIRST when starting a session.
+> **SESSÃO 34 (2026-08-02) — A SOBREVIVÊNCIA COMEÇOU: §🍖 F1 E F2 NUMA SESSÃO.** O usuário
+> fechou as pendências da 33 num turno ("deixa o push, playtest de relevo, luz+cavernas feitas,
+> pode seguir") — **os dois playtests estão FEITOS e ele não pediu ajuste nenhum**, e o push
+> segue adiado por escolha dele. Então a fila andou duas casas: F1 (o interruptor) e F2 (a
+> primeira mecânica).
+>
+> **F2 — VIDA, DANO, MORTE, RESPAWN.** `shared/src/sobrevivencia.ts` puro (sem I/O, sem relógio
+> de parede: o tempo entra como CONTAGEM DE TICKS, igual ao ciclo e ao vento) com **uma porta só
+> pro dano** — `aplicarDano(estado, n, causa)`. Queda e afogamento são as causas do lite; fome
+> (F3), PvP (F7) e mob (F8) entram pela MESMA função, só somando um valor em `CausaDano`.
+> Escala do Minecraft: 20 pontos = 10 corações, queda de 3 blocos de graça e meio coração por
+> bloco acima disso, 15 s de ar e 1 coração/s afogando, regeneração de 1 ponto a cada 4 s.
+>
+> **Quem fecha a queda é o SERVIDOR, do fluxo de `move` que ele já recebe** (10 Hz): guarda o
+> pico de altura por cliente e cobra quando o jogador pousa, testando o apoio com
+> `apoiadoNoChao` (novo em `physics.ts`, reusando a MESMA lógica de laje/escada do `collides` —
+> nada de uma segunda definição de "chão"). **O cliente nunca reporta dano.** ⚠️ A tolerância
+> está escrita no código: a 10 Hz cada amostra pode pular ~4 blocos, então a altura medida erra
+> PRA MENOS — o aluno leva menos dano do que a queda real, nunca mais. Num jogo de sala de aula
+> esse é o lado certo do erro. Teleporte (respawn, `/tp`) e troca de modo ZERAM o pico: quem
+> voava em criativo não pode pousar machucado ao entrar em sobrevivência.
+>
+> **HUD novo (`client/src/vitals.ts`)**, self-contained como o `loading.ts`: corações (meio
+> coração via `clip-path`), bolhas de ar, vinheta vermelha ao levar dano e aviso de morte —
+> ícones em SVG embutido, zero asset externo. Criado SOB DEMANDA: mundo criativo não paga DOM
+> nem CSS. **A UI nunca decide** (mesma disciplina do `inventory.ts`).
+>
+> **`?vida=7,45` na URL** (par do `?hora`/`?vento`/`?atlas`) congela o HUD pra inspeção. Foi
+> assim que os corações foram VISTOS: print sobre a cena do `?bench` com 3 bolhas, 3 corações
+> cheios e um pela metade, dentro da tela e sem erro de console.
+>
+> **O que o F1 entrega, e o que ele deliberadamente NÃO entrega:** sobrevivência ainda joga
+> IGUAL a criativo. O que muda é o rótulo e o **voo** — quem está em sobrevivência não voa, nem
+> com `/voo` liberado, nem sendo professor (é justamente ele que digita `/modo sobrevivencia eu`
+> pra demonstrar). Vida, fome, inventário finito e craft são F2..F6 e vão LER daqui.
+>
+> **Duas camadas, e a de baixo é por NOME:** padrão do MUNDO (gravado no `.ljw`) + override
+> pessoal por nome de jogador — não por id de cliente, porque o modo tem de sobreviver ao
+> rejoin, igual ao roster e ao PIN. Quem resolve o efetivo é o SERVIDOR; a mensagem nova carrega
+> só `modo {efetivo}`, porque o cliente não tem (nem precisa ter) o mapa de overrides.
+>
+> **`/regra` nasceu junto, e é o que faz as frentes seguintes serem baratas:** registro em
+> `shared/src/regras.ts` (nome, padrão, ajuda) + UM comando genérico + UM campo
+> `regras?: Record<string, boolean>` no `SaveMeta`. `manter-inventario` (LIGADA), `pvp` e `fome`
+> já existem sem mecânica — o F2 vai só ler `valorRegra(...)`. Regra nova = uma entrada na
+> lista: sem comando novo, sem campo novo, sem re-versionar save.
+>
+> **Três decisões que o código carrega e o teste prova:**
+> 1. **`all` não arrasta o professor que digitou** — ele fica como está (e volta pra turma com
+>    `eu`). É ele que precisa continuar voando pra supervisionar.
+> 2. **Mundo-aula é criativo à força**, vencendo o save e recusando o comando: a aula distribui
+>    um MODELO, não uma partida (mesma lógica do confinamento forçado do cp25).
+> 3. **O save só grava o DIFF do padrão** — mundo que nunca viu sobrevivência sai byte a byte
+>    como antes, e padrão novo passa a valer em mundo antigo sem migração.
+>
+> **A armadilha que só o smoke pegou (bug-547):** o smoke novo passou na 1ª rodada e FALHOU na
+> 2ª, sem uma linha de código mudar. `LJ_NOVO=1` **não recria mundo que já existe** — ele só
+> AUTORIZA criar onde não há arquivo. Como o smoke ESCREVE estado persistente (modo, ajuste
+> pessoal, regra), a 2ª rodada nascia com o estado da 1ª. A pista foi a assimetria: ana passava
+> e bia falhava, que era exatamente o estado final da rodada anterior. O manifesto do
+> `scripts/smoke.mjs` ganhou `limpar: [pastas]`, e o smoke rodou 2× seguidas pra provar.
+>
+> **VERDE:** typecheck 3/3 · **445 testes** (53 novos) · build · **8/8 smokes** (dois novos: o
+> `modo` prova o `all`, quem entra depois, o aluno barrado e a ida-e-volta pelo DISCO; o `vida`
+> prova que o servidor fecha a queda, que criativo é imune no MESMO mundo, que a morte devolve
+> ao spawn avisando a turma e que a regeneração anda no tick) · bench headless boota, streama e
+> mesha · print do HUD de vida conferido. **NÃO COMMITADA** — a 33 também segue sem push.
+>
+> **PLAYTEST PENDENTE, e é o que mais importa agora:** headless não diz se morrer de queda é
+> justo, se 15 s de ar é pouco, nem se os corações ficam legíveis no tablet. Ver §pendências.
+>
 > **SESSÃO 33 (2026-07-30) — §🏔️ RELEVO POR BIOMA: a v2 da geração FECHOU.** A sessão 32
 > tinha deixado `shared/src/biomas.ts` com os campos `relevo`/`neve` escritos e **ninguém
 > consumindo** — `heightAt` seguia heightmap global. Esta sessão ligou os dois, e o trabalho
@@ -40,45 +111,6 @@
 > **COMMITADA** em 3: `cb987ed` (config do vitest) · `2aaf0e9` (§🏔️ relevo por bioma, com o
 > `client/dist` reconstruído) · o wolf logo abaixo. ⚠️ **FALTA O PUSH** — é do GitHub que o
 > launcher da escola puxa, então main local à frente = notebook do lab desatualizado.
-> **SESSÃO 32 (2026-07-28) — §💡 LUZ VOXEL COMPLETA E §🏔️ CAVERNAS. Dois commits,
-> tudo verde.** A fase da fila era "v2 da geração"; o portão de produto que o escopo tinha
-> deixado aberto era a luz, e **o usuário escolheu luz COMPLETA (céu + tocha) ANTES de
-> escavar** — mais a decisão da água: **caverna seca mesmo abaixo do mar**, com casca fina
-> de pedra separando (quem furar o teto depois deixa o mar entrar).
->
-> **A escolha de arquitetura que mudou o tamanho da obra:** o cardápio dizia que luz completa
-> "mexe no tick do servidor e no protocolo". **Não mexeu em nenhum dos dois.** Luz é função
-> pura dos BYTES do mundo e o cliente já tem os bytes — então a grade de luz mora 100% no
-> cliente, e dois clientes chegam na mesma luz sozinhos. Zero mensagem nova, zero cirurgia no
-> `session.ts` (137 KB).
->
-> **O que foi construído:** `shared/src/luz.ts` (motor PURO, 1 byte/célula, céu e tocha em
-> dois nibbles, BFS com a regra da descida reta, incremental no `atualizarBloco`) ·
-> atributo `luz` por vértice no mesher · shader encadeado no `onBeforeCompile` do §🌬️ ·
-> fila de luz com orçamento por frame ANTES do mesher · cavernas por interseção de dois
-> ruídos 3D, função pura de `(x,y,z,h,seed)`.
->
-> **Três medições que mudaram decisão** (nenhuma delas óbvia lendo o código):
-> 1. **Acender coluna custava 18,4 ms** — mais que meshar a coluna inteira, e na main
->    thread. A BFS enfileirava as ~32 mil células de céu, quase todas em céu aberto cercadas
->    de céu aberto. Enfileirando só a BANDA rente ao relevo: **2,48 ms** (1,87 no navegador).
-> 2. **Ruído de caverna célula a célula levou o worldgen de 2,63 a 28,61 ms/coluna** (10,9×)
->    e **derrubou o smoke `pedir-coluna`**. Amortizando o ruído por FATIA: **3,49 ms**, com
->    mundo gerado byte a byte idêntico (há teste comparando os dois caminhos).
-> 3. **A densidade de caverna varia 2,9%–7,3% conforme a SEED** — e a seed do `?bench` é das
->    mais vazias. Calibrar por ela teria entregado o dobro do pretendido. O teste mede a
->    média de 5 seeds.
->
-> **Verificação nova: `npm run shots:luz`.** Compara a MESMA cena do `?bench` ao meio-dia e
-> à meia-noite e mede luminância. Pega os DOIS jeitos de a luz falhar calada: shader que não
-> compila (tudo preto) e shader que compila sem fazer nada (as duas horas iguais). 5/5,
-> noite/dia = 0,48. ⚠️ A 1ª versão dela mediu 0,0 nas duas horas e **passou mesmo assim**
-> (bug-540): `drawImage` de canvas WebGL fora do frame devolve preto, e 0/0 satisfaz a razão.
-> Agora decodifica o PNG do CDP e checa âncoras absolutas junto da razão.
->
-> **VERDE:** typecheck 3/3 · **388 testes** (30 novos) · build · 6/6 smokes · 5/5 na luz.
-> **Playtest do usuário PENDENTE** — headless não diz se caverna escura é *divertida*, nem se
-> o piso de 0,05 de brilho deixa andar lá dentro sem tocha.
 
 ---
 
@@ -298,6 +330,51 @@ Documento é o ÚLTIMO entregável, não o primeiro. Construir, não documentar.
     headless por CDP puro (sem puppeteer como dependência) e imprime o perfil. Os NÚMEROS
     dele não valem (SwiftShader) — é teste de encanamento.
 
+- **§🍖 F2 — VIDA, DANO, MORTE, RESPAWN (sessão 34, 2026-08-02).** A primeira MECÂNICA da
+  sobrevivência. Só vale em modo sobrevivência: criativo é imune no MESMO mundo.
+  - **`shared/src/sobrevivencia.ts`** (puro): `aplicarDano(estado, n, causa)` é a **ÚNICA porta
+    de perda de vida** — queda e afogamento hoje, fome (F3), PvP (F7) e mob (F8) entram por ela.
+    Mais `curar`, `danoDeQueda`, `tickFolego`, `tickRegen`, `textoDaMorte`, `parseCausaDano`.
+    Números do Minecraft: 20 pontos, 3 blocos de queda de graça, 15 s de ar, 1 coração/s
+    afogando, 1 ponto de regeneração a cada 4 s (com fome alta — a fome é do F3, e até lá a
+    session passa `FOME_MAX`).
+  - **`apoiadoNoChao(world, pos)` novo em `physics.ts`** — o servidor fecha a queda pelo fluxo
+    de `move` (10 Hz) reusando a lógica de laje/escada do `collides`. **O cliente NÃO reporta
+    dano.** A tolerância (~4 blocos por amostra, errando PRA MENOS) está comentada no código.
+  - **Session:** `vitais` por NOME (como o modo — sobrevive ao rejoin), `picoQueda` por cliente
+    (rascunho, morre no disconnect), `machucar`/`matar`/`acompanharQueda`/`tickVitais`. Morte =
+    aviso no chat pra TURMA + respawn no spawn autoritativo, cheio. Teleporte e troca de modo
+    zeram o pico. Água amortece a queda.
+  - **Protocolo:** `vida { vida, causa?, morreu?, folego? }` — só a vida é obrigatória; causa
+    desconhecida NÃO derruba a mensagem. Vai no join (em sobrevivência) e quando muda o que o
+    HUD desenha (coração ou bolha), nunca 10×/s.
+  - **Save:** `SavedPlayer.vida?` — só o MACHUCADO viaja; valor doente (0, negativo, gigante,
+    texto) degrada pra vida cheia.
+  - **Cliente:** `client/src/vitals.ts` novo (corações com meio coração por `clip-path`, bolhas,
+    vinheta de dano, aviso de morte; SVG embutido, criado sob demanda), eventos `dano`/`morte`
+    em `events.ts` (som pluga depois) e `?vida=N[,folego]` pra inspeção visual.
+  - VERDE: typecheck 3/3 · 445 testes (20 novos) · build · 8/8 smokes (`vida` é novo) · print
+    do HUD conferido no headless. **Playtest PENDENTE.**
+- **§🍖 F1 — `/modo` E `/regra`, O INTERRUPTOR (sessão 34, 2026-08-02).** Primeira frente da
+  SOBREVIVÊNCIA. Nada de mecânica: o que muda é o rótulo e o voo.
+  - **`shared/src/modo.ts`** (puro): `Modo = criativo|sobrevivencia`, `MODO_PADRAO`,
+    `parseModo` (tolera acento e caixa), `modoEfetivo(mundo, pessoal)`, `podeVoarNoModo`.
+    **Sobrevivência não voa — nem professor**, de propósito.
+  - **`shared/src/regras.ts`** (puro): registro `manter-inventario` (LIGADA) · `pvp` · `fome`,
+    com `valorRegra`/`parseRegras`/`regrasParaSave`. Comando genérico `/regra [nome [ligar|
+    desligar]]`. **Sem mecânica ainda** — a resposta do comando avisa isso ao professor.
+  - **Session:** `modoMundo` + `modosPorJogador` (por NOME) + `regras`; `/modo` com as 5
+    formas fixadas com o usuário (consulta · mundo · `eu` · `nome`/`@nome` · `all`), consulta
+    liberada pra turma e mudança professor-only pelo `parts.length` (molde do `/hora`).
+  - **Protocolo:** `modo {efetivo}` novo, resolvido no servidor e mandado em TODO join —
+    inclusive criativo, porque troca de aula é sessão NOVA (família do bug-518).
+  - **Save:** `modo?`, `modosPorJogador?`, `regras?` (MAPA) — opcionais e gravando só o DIFF
+    do padrão; parse defensivo pula nome/valor inválido. Mundo-aula força criativo.
+  - **Cliente:** `podeVoar()` passa por `podeVoarNoModo`, F3 mostra `modo`/`voo`, autocomplete
+    conhece `/modo` e `/regra` (e o `/vento`, que faltava desde a sessão 28).
+  - **bug-547:** `LJ_NOVO=1` não recria mundo existente → smoke com estado persistente virava
+    sorteio. `limpar: [pastas]` novo no manifesto do `scripts/smoke.mjs`.
+  - VERDE: typecheck 3/3 · 425 testes (33 novos) · build · 7/7 smokes · bench headless ok.
 - **§🏔️ RELEVO POR BIOMA — a v2 DA GERAÇÃO FECHADA (sessão 33, 2026-07-30).**
   - **`Bioma` ganhou relevo e neve:** `relevo` (teto de amplitude da serra, [0,1]) e `neve`
     (flag). `relevoPorClima(clima)` mistura os tetos pela pertinência de cada bioma e
@@ -347,24 +424,33 @@ Documento é o ÚLTIMO entregável, não o primeiro. Construir, não documentar.
 
 ---
 
-## 🚀 Próxima fase — SOBREVIVÊNCIA (§🍖), o 4º da ordem travada
+## 🚀 Próxima fase — §🍖 F3: FOME (~0,5 sessão)
 
 A ordem do backlog está **travada pelo usuário** (sessão 29):
-**auto-update ✅ → layouts mobile ✅ (1ª rodada) → v2 da geração ✅ (sessão 32+33) →
-sobrevivência ← AQUI.**
+**auto-update ✅ → layouts mobile ✅ (1ª rodada) → v2 da geração ✅ (sessões 32+33) →
+sobrevivência ← EM CURSO (F1 e F2 feitos na 34).**
 
-**A v2 da geração FECHOU:** cavernas (sessão 32) + relevo por bioma (sessão 33). O portão do
-ROADMAP foi atendido item por item — degrau de fronteira ≤ 6 (paridade com o heightmap global),
-`topoPrevisto` segue a fonte ÚNICA do bloco de topo, determinismo passando.
+**Metade do trabalho do F3 já está no lugar:** `EstadoVital.fome` existe desde o F2 (nasce em
+`FOME_MAX`), `tickRegen(estado, fome)` já recebe a fome como parâmetro e a regra de mundo
+`fome` (ligada por padrão) já grava no `.ljw`. Falta:
 
-**Sobrevivência: escopo ABERTO desde a sessão 30, nada codado.** Entrevista feita, decisões
-travadas, 9 frentes e as colisões (mundo-aula, claims, bench, save, protocolo) escritas em
-`.wolf/ROADMAP.md §🍖`. **Ler de lá e começar pelo F1** (`/modo`, o interruptor sem mecânica).
+- **Barra 0–20 e o DRENO por atividade real.** A session já vê o que gasta: distância andada
+  (fluxo de `move`), blocos quebrados e colocados (`applyBlock`). Nada de relógio de parede —
+  o tick de 10 Hz que já existe é o relógio (mesma regra do ciclo e do vento).
+- **Fome no zero → dano lento por `aplicarDano(…, "fome")`** — a causa JÁ existe no
+  `CausaDano`, o `textoDaMorte` já tem a frase, e o cliente já sabe pintar a vinheta. É só
+  chamar a porta.
+- **A regra `fome` desligada = sobrevivência sem fome** (pro fundamental 1). O gate é
+  `valorRegra(this.regras, "fome")`.
+- **HUD:** coxas ao lado dos corações em `client/src/vitals.ts` — a linha e o CSS já estão
+  montados (bolhas usam o mesmo molde `.casa`/`.icone`), e o `?vida=` vira `?vida=7,45,12`.
+- **Save:** `SavedPlayer.fome?` no mesmo molde da vida — só o que difere do cheio.
+- **Protocolo:** campo `fome?` OPCIONAL na mensagem `vida` que já existe. Não criar mensagem
+  nova (host antigo não manda e o cliente não pode descartar a mensagem inteira).
 
-> ⚠️ **ARMADILHA DE NOME:** a sessão 10 já chamou de "worldgen v2" o que ELA entregou (biomas
-> por clima + minério em veia + árvores brasileiras). **Não é essa a v2 da fila.** E
-> **"madeira por espécie" saiu do escopo: já está feita** — `LogIpe`/`LogAraucaria`/
-> `LogPauBrasil` existem e cada espécie só nasce no bioma dono.
+**Depois do F3:** F4 inventário autoritativo (a frente CARA, 2–3 sessões) → F5 craft por lista →
+F6 comida → F7 `/pvp` (atalho da regra que já existe) → F8 mobs (fora do lite) → F9 preset
+`sobrevivencia`. Escopo item a item em `.wolf/ROADMAP.md §🍖`.
 
 ### §🏔️ Relevo por bioma — o que ficou aberto
 
@@ -409,38 +495,32 @@ travadas, 9 frentes e as colisões (mundo-aula, claims, bench, save, protocolo) 
   resolve com UMA linha (`.menu-screen { width: min(680px, 92vw) }` sem media query), mas é
   mudança visual não pedida numa tela de uso diário — **só com o aval do usuário.**
 
-### Cinco pendências que não bloqueiam nada, e quem faz é o usuário
+### Pendências que não bloqueiam nada, e quem faz é o usuário
 
--2. **PLAYTEST DO RELEVO POR BIOMA (sessão 33) — o mais novo.** Precisa de **mundo NOVO**
-   (o `.ljw` velho tem o terreno assado). Exige `npm run build` antes se for pelo `:8080`.
-   O que olhar:
-   1. **A serra das araucárias ainda impressiona?** Teto medido 106 (era ~120 global). Se ficou
-      baixa, `BIOMAS.araucarias.relevo` já está em 1 — o botão passa a ser a amplitude da serra
-      no `heightAt` (`28 + pico * 60`), e aí o portão precisa ser re-medido.
-   2. **A caatinga virou duna de novo?** Teto 36. Se ficar chapada demais, subir `relevo: 0.1`.
-   3. **Cerrado (53) e mata (68) ficaram parecidos entre si?** É a queixa mais provável — os
-      dois são "morro médio". Separar = mexer nos dois tetos, não no motor.
-   4. **A divisa entre biomas tem parede visível em algum lugar?** O portão garante ≤ 6 blocos
-      entre colunas VIZINHAS, mas 6 empilhado ao longo de uma encosta longa ainda pode ler como
-      barranco. É a única coisa que o teste mede e o olho pode discordar.
-   5. **Neve só nas araucárias ficou pouca?** A área nevada caiu 5×. Se ficou escassa, baixar
-      `SNOW_HEIGHT` (58) ou dar `neve: true` pra mata.
--1. **PLAYTEST DA LUZ E DAS CAVERNAS (sessão 32) — o único que headless não
-   substitui.** ✅ **Já dá pra jogar agora:** o `npm run dev:server` que ficou de pé em `:8080`
-   serve o cliente COMPILADO, e o `dist` foi construído depois de tudo — luz e cavernas já
-   estão lá. Mundo NOVO é obrigatório (o `.ljw` velho tem a caverna assada de antes = nenhuma).
-   O que olhar:
-   1. **Dá pra andar numa caverna sem tocha?** O piso de brilho é 0,05 — se ficar cego, é uma
-      linha (`luzMin`, `client/src/luzShader.ts`).
-   2. **A tocha ilumina o suficiente?** Ela emite 14 e o halo decorativo continua por cima;
-      ninguém viu os dois juntos.
-   3. **A noite ficou escura demais pra construir?** O piso de luar é 0,22 (`PISO_LUAR`,
-      `client/src/daynight.ts`).
-   4. **Achar uma caverna é fácil ou raro demais?** Densidade em `LIMIAR_CAVERNA = 0,06`
-      (`shared/src/worldgen.ts`) — ~5% do subsolo, ~1 boca a cada 400 colunas.
-   5. **FPS no notebook do lab.** Cavernas somaram **+66% de triângulos** (153 852 → 255 234)
-      e a GPU de lá já fecha o p95 em 16,8–19,6 ms contra 16,7 de orçamento. É a medição que
-      mais falta — ver ⚠️ abaixo.
+-3. **PLAYTEST DA SOBREVIVÊNCIA (F1+F2, sessão 34) — o mais novo, e o único que headless não
+   substitui.** Exige `npm run build` se for pelo `:8080`. Como entrar: professor digita
+   `/modo sobrevivencia all` (a turma vai junto, ele fica em criativo pra supervisionar) ou
+   `/modo sobrevivencia eu` pra sentir na pele. O que olhar:
+   1. **Morrer de queda é JUSTO?** O dano começa em 4 blocos e mata em 23 (contas do
+      Minecraft). ⚠️ A altura vem de amostras a 10 Hz e erra PRA MENOS — se ele achar que
+      "caiu de 10 e não doeu", é a tolerância, não bug. O botão é `danoDeQueda`.
+   2. **15 s de ar é pouco ou muito?** `FOLEGO_TICKS` (150 ticks). Afogar tira 1 coração/s.
+   3. **Os corações e as bolhas são legíveis?** Estão 96px acima do rodapé, 18px cada. **No
+      tablet ninguém olhou** — pode brigar com a hotbar de toque (é a mesma faixa).
+   4. **A vinheta vermelha de dano incomoda?** Ela é curta (~90 ms) e só nas bordas.
+   5. **Voltar ao spawn ao morrer funciona pra aula?** Em mundo grande o spawn pode ficar
+      longe do que o aluno estava construindo. Se incomodar, "cama = ponto de renascer" é
+      feature nova (a cama já existe como bloco), não ajuste.
+   6. **Regenerar 1 ponto a cada 4 s é rápido demais?** Sem fome (F3) ninguém morre de estar
+      parado, então hoje a sobrevivência é generosa de propósito.
+-2. ✅ **PLAYTEST DO RELEVO POR BIOMA (sessão 33) — FEITO** (declarado em 2026-08-02), **sem
+   pedido de ajuste**. Os botões seguem documentados caso ele mude de ideia: `BIOMAS.*.relevo`
+   (caatinga 0,1 · cerrado 0,35 · mata 0,5 · araucárias 1), `SNOW_HEIGHT`, `Bioma.neve` — e o
+   teste `O PORTÃO: nenhum degrau maior que 6 blocos` diz na hora se a mudança criou penhasco.
+-1. ✅ **PLAYTEST DA LUZ E DAS CAVERNAS (sessão 32) — FEITO** (declarado em 2026-08-02), **sem
+   pedido de ajuste**. Botões, se voltar o assunto: `luzMin` = 0,05 (`client/src/luzShader.ts`),
+   `PISO_LUAR` = 0,22 (`client/src/daynight.ts`), `LIMIAR_CAVERNA` = 0,06
+   (`shared/src/worldgen.ts`). **O que continua NÃO medido é o FPS do lab** — ver ⚠️ abaixo.
 0. **PLAYTEST MOBILE — o usuário faz NA ESCOLA** (declarado em 2026-07-28). A 1ª rodada de
    layouts está verde no headless, mas headless não tem dedo, teclado do Android nem o DPI do
    aparelho. O que olhar, na ordem em que foi mexido:
@@ -549,6 +629,11 @@ correta", NADA a mudar. Laje segue com mira na METADE (`blockSelectionBox`) e co
 ALTURA (`temColisaoParcial`); NÃO copiar o modelo de célula cheia da cerca/porta. Se uma
 sessão futura achar isso "inconsistente", é decisão validada em playtest — deixar como está.
 
+**Sessão 34 (2026-08-02) NÃO COMMITADA** — §🍖 F1 e F2 estão só na árvore de trabalho (mais o
+`client/dist` reconstruído pelo `npm run verify`). O usuário mandou **deixar o push** e seguir
+pra próxima fase; quando ele pedir, vão os 3 commits da 33 + os desta. Sugestão de recorte:
+`feat(sobrevivencia): /modo e /regra (F1)` · `feat(sobrevivencia): vida, dano, morte (F2)` ·
+`fix(smoke): limpar mundo antes do smoke (bug-547)` · `docs(wolf)`.
 **Sessão 33 COMMITADA (2026-07-30), 3 commits, PUSH PENDENTE:** `cb987ed` (config do vitest —
 o gate era sorteio) · `2aaf0e9` (§🏔️ relevo por bioma + dist) · `docs(wolf)` do handoff.
 Sessões 20+21 (`26151f9`/`41211ff`/`5d18899`), 24 (`e3eaac4`) e 25 commitadas.

@@ -4,6 +4,46 @@
 
 ## Session Journal
 
+> **SESSÃO 32 (2026-07-28) — §💡 LUZ VOXEL COMPLETA E §🏔️ CAVERNAS. Dois commits,
+> tudo verde.** A fase da fila era "v2 da geração"; o portão de produto que o escopo tinha
+> deixado aberto era a luz, e **o usuário escolheu luz COMPLETA (céu + tocha) ANTES de
+> escavar** — mais a decisão da água: **caverna seca mesmo abaixo do mar**, com casca fina
+> de pedra separando (quem furar o teto depois deixa o mar entrar).
+>
+> **A escolha de arquitetura que mudou o tamanho da obra:** o cardápio dizia que luz completa
+> "mexe no tick do servidor e no protocolo". **Não mexeu em nenhum dos dois.** Luz é função
+> pura dos BYTES do mundo e o cliente já tem os bytes — então a grade de luz mora 100% no
+> cliente, e dois clientes chegam na mesma luz sozinhos. Zero mensagem nova, zero cirurgia no
+> `session.ts` (137 KB).
+>
+> **O que foi construído:** `shared/src/luz.ts` (motor PURO, 1 byte/célula, céu e tocha em
+> dois nibbles, BFS com a regra da descida reta, incremental no `atualizarBloco`) ·
+> atributo `luz` por vértice no mesher · shader encadeado no `onBeforeCompile` do §🌬️ ·
+> fila de luz com orçamento por frame ANTES do mesher · cavernas por interseção de dois
+> ruídos 3D, função pura de `(x,y,z,h,seed)`.
+>
+> **Três medições que mudaram decisão** (nenhuma delas óbvia lendo o código):
+> 1. **Acender coluna custava 18,4 ms** — mais que meshar a coluna inteira, e na main
+>    thread. A BFS enfileirava as ~32 mil células de céu, quase todas em céu aberto cercadas
+>    de céu aberto. Enfileirando só a BANDA rente ao relevo: **2,48 ms** (1,87 no navegador).
+> 2. **Ruído de caverna célula a célula levou o worldgen de 2,63 a 28,61 ms/coluna** (10,9×)
+>    e **derrubou o smoke `pedir-coluna`**. Amortizando o ruído por FATIA: **3,49 ms**, com
+>    mundo gerado byte a byte idêntico (há teste comparando os dois caminhos).
+> 3. **A densidade de caverna varia 2,9%–7,3% conforme a SEED** — e a seed do `?bench` é das
+>    mais vazias. Calibrar por ela teria entregado o dobro do pretendido. O teste mede a
+>    média de 5 seeds.
+>
+> **Verificação nova: `npm run shots:luz`.** Compara a MESMA cena do `?bench` ao meio-dia e
+> à meia-noite e mede luminância. Pega os DOIS jeitos de a luz falhar calada: shader que não
+> compila (tudo preto) e shader que compila sem fazer nada (as duas horas iguais). 5/5,
+> noite/dia = 0,48. ⚠️ A 1ª versão dela mediu 0,0 nas duas horas e **passou mesmo assim**
+> (bug-540): `drawImage` de canvas WebGL fora do frame devolve preto, e 0/0 satisfaz a razão.
+> Agora decodifica o PNG do CDP e checa âncoras absolutas junto da razão.
+>
+> **VERDE:** typecheck 3/3 · **388 testes** (30 novos) · build · 6/6 smokes · 5/5 na luz.
+> **Playtest do usuário PENDENTE** — headless não diz se caverna escura é *divertida*, nem se
+> o piso de 0,05 de brilho deixa andar lá dentro sem tocha.
+
 > **SESSÃO 31 (2026-07-27) — LAYOUTS MOBILE, 1ª RODADA: MENU + INVENTÁRIO/HOTBAR + CHAT/HUD.**
 > Escopo escolhido pelo usuário na entrevista: essas três telas (painéis de AUTORIA ficaram de
 > fora) e régua **"os dois, Fire manda"** — 1024×600 paisagem manda, tablet maior herda.
@@ -1471,6 +1511,75 @@
 > segue ADIADO — sem gatilho.**
 
 ## Action Log
+
+## Session: 2026-07-26 14:38
+
+| Time | Action | File(s) | Outcome | ~Tokens |
+|------|--------|---------|---------|--------|
+| 14:43 | Created client/src/loading.ts | — | ~3295 |
+| 14:44 | Edited client/src/loading.ts | inline fix | ~21 |
+| 14:44 | Edited client/src/main.ts | added 1 import(s) | ~24 |
+| 14:44 | Edited client/src/main.ts | 2→7 lines | ~112 |
+| 14:44 | Edited client/src/main.ts | 8→10 lines | ~216 |
+| 14:44 | Edited client/src/main.ts | modified connect() | ~204 |
+| 14:44 | Edited client/src/main.ts | added 1 condition(s) | ~436 |
+| 14:44 | Edited client/src/main.ts | added 1 condition(s) | ~120 |
+| 14:44 | Edited client/src/main.ts | added 1 condition(s) | ~102 |
+| 14:52 | Edited client/src/loading.ts | mesher() → CHUNKS() | ~52 |
+| 14:52 | Edited client/src/loading.ts | inline fix | ~12 |
+| 14:52 | Edited client/src/loading.ts | added 1 condition(s) | ~166 |
+| 14:52 | Edited client/src/loading.ts | inline fix | ~14 |
+| 14:55 | Edited client/src/loading.ts | modified svg() | ~153 |
+| 14:55 | Edited client/src/loading.ts | 3→4 lines | ~26 |
+| 14:55 | Edited client/src/loading.ts | 3→4 lines | ~66 |
+| 14:55 | Edited client/src/loading.ts | added 1 condition(s) | ~260 |
+| 14:55 | Edited client/src/loading.ts | added 1 condition(s) | ~44 |
+| 14:55 | Edited client/src/main.ts | added 1 condition(s) | ~95 |
+| 14:56 | Edited client/src/loading.ts | modified if() | ~142 |
+| 14:57 | Edited client/src/loading.ts | 2→3 lines | ~53 |
+| 14:57 | Edited client/src/loading.ts | 2→5 lines | ~72 |
+| 14:57 | Edited client/src/loading.ts | added optional chaining | ~247 |
+| 14:57 | Edited client/src/connection.ts | 5→9 lines | ~141 |
+| 14:57 | Edited client/src/connection.ts | 3→7 lines | ~70 |
+| 14:57 | Edited client/src/connection.ts | added optional chaining | ~88 |
+| 14:57 | Edited client/src/main.ts | added 1 condition(s) | ~224 |
+| 14:58 | Edited client/src/loading.ts | 6→7 lines | ~76 |
+| 15:10 | SESSÃO 25 — §🕐 tela de carregamento: `loading.ts` novo (anel real + spinner decorativo, bits/s, colunas/fila, fases honestas, estado de erro do ws), `loading.ativo` no `updateOverlay`/toque (bug-515), `WsConnection.aoFalhar`. typecheck 3/3, 329 testes, headless conferido em mundo E/P/servidor-off. NÃO commitado — playtest pendente | client/src/loading.ts · main.ts · connection.ts · .wolf/{STATUS,TODO,ROADMAP,cerebrum,anatomy,buglog}.* | ✅ verde | ~46k |
+| 15:06 | Session end: 28 writes across 3 files (loading.ts, main.ts, connection.ts) | 12 reads | ~29660 tok |
+| 15:11 | Session end: 28 writes across 3 files (loading.ts, main.ts, connection.ts) | 12 reads | ~29660 tok |
+| 15:19 | Edited client/src/chunks.ts | added 1 condition(s) | ~204 |
+| 15:19 | Edited client/src/hud.ts | modified aula() | ~131 |
+| 15:19 | Edited client/src/loading.ts | 3→6 lines | ~74 |
+| 15:19 | Edited client/src/loading.ts | 2→2 lines | ~13 |
+| 15:19 | Edited client/src/loading.ts | added nullish coalescing | ~86 |
+| 15:19 | Edited client/src/loading.ts | modified reabertura() | ~91 |
+| 15:19 | Edited client/src/loading.ts | 2→3 lines | ~23 |
+| 15:19 | Edited client/src/loading.ts | added 1 condition(s) | ~176 |
+| 15:20 | Edited client/src/main.ts | expanded (+9 lines) | ~382 |
+| 15:20 | Edited client/src/main.ts | 3→5 lines | ~91 |
+| 15:20 | Edited client/src/main.ts | added 1 condition(s) | ~335 |
+| 15:22 | Created server/src/cenarios/_smoke-troca-raio.mjs | — | ~1121 |
+| 15:35 | Perfil 18:14 analisado → 3 bugs (517 buildAll em lazy no trocarMundo ~19s; 518 raio volta a RAIO_PADRAO na troca de aula; 519 meta do HUD congelado no join) + §🕐 reaberta no `/mundo carregar` | client/src/{chunks,hud,main,loading}.ts · server/src/cenarios/_smoke-troca-raio.mjs | ✅ typecheck 3/3, 329 testes, smoke troca-raio 5/5 (anel 10→6→12), build refeito | ~38k |
+| 15:30 | Session end: 40 writes across 6 files (loading.ts, main.ts, connection.ts, chunks.ts, hud.ts) | 17 reads | ~38063 tok |
+| 15:35 | Session end: 40 writes across 6 files (loading.ts, main.ts, connection.ts, chunks.ts, hud.ts) | 17 reads | ~38063 tok |
+| 15:43 | Edited shared/src/protocol.ts | expanded (+12 lines) | ~175 |
+| 15:43 | Edited shared/src/protocol.ts | added 1 condition(s) | ~77 |
+| 15:43 | Edited server/src/mundos.ts | 3→6 lines | ~82 |
+| 15:44 | Edited server/src/mundos.ts | 1→5 lines | ~75 |
+| 15:44 | Edited server/src/index.ts | 4→8 lines | ~86 |
+| 15:44 | Edited server/src/index.ts | 2→3 lines | ~16 |
+| 15:44 | Edited client/src/main.ts | modified ANUNCIADA() | ~78 |
+| 15:44 | Edited client/src/main.ts | added optional chaining | ~81 |
+| 15:45 | Edited client/src/loading.ts | 2→6 lines | ~89 |
+| 15:45 | Edited client/src/loading.ts | 4→6 lines | ~73 |
+| 15:45 | Edited client/src/loading.ts | added 1 condition(s) | ~68 |
+| 15:45 | Edited client/src/loading.ts | 2→3 lines | ~29 |
+| 15:45 | Edited client/src/loading.ts | 3→4 lines | ~32 |
+| 15:45 | Edited client/src/main.ts | expanded (+19 lines) | ~192 |
+| 15:45 | Edited server/src/cenarios/_smoke-troca-raio.mjs | added 2 condition(s) | ~228 |
+| 15:46 | Edited server/src/cenarios/_smoke-troca-raio.mjs | 2→6 lines | ~76 |
+| 15:47 | Edited client/src/main.ts | added 3 condition(s) | ~410 |
+| 15:48 | Edited client/src/main.ts | 3→4 lines | ~74 |
 
 ## Session: 2026-07-26 13:36
 
