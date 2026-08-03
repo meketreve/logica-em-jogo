@@ -9,49 +9,9 @@
 
 ## 🔥 Now (this session)
 
-- [x] **§🍖 F4 — inventário autoritativo** (sessão 36, a "frente cara" fechou em UMA sessão):
-      `shared/src/inventario.ts` (27 slots imutáveis, stack 64, `tamanhoStack` já com a porta
-      pra ferramenta) + `shared/src/drops.ts` (forma canônica + tabela de exceções) puros;
-      `place_block` GASTA e `break_block` DÁ, com o débito no MESMO ponto pós-`switch` do
-      esforço do F3; **mochila cheia RECUSA a quebra** (não existe item no chão); a regra
-      `manter-inventario` ganhou mecânica em `matar()` e saiu do `pendente`; msg `inventario` +
-      `mover_item` novas; `SavedPlayer.inventario?` esparso; `/dar` novo (contraparte do
-      `/bloco`); cliente com hotbar de contagem, painel "mochila" de tocar-origem-tocar-destino
-      e `?mochila=` pra inspeção. **bug-549** (bloco infinito por quebrar+recolocar a mesma
-      célula no mesmo tick) e **bug-550** (grade colapsada). VERDE: typecheck 3/3,
-      **522 testes** (63 novos), build, **10/10 smokes** (`inventario` é novo, rodado 2×),
-      prints da hotbar e da mochila conferidos.
-
-- [x] **§🍖 F3 — fome** (sessão 35): dreno por ESFORÇO (0,01/bloco andado · 0,02/bloco editado ·
-      3,0/ponto regenerado, convertidos a cada 4,0 de exaustão), dano de meio coração a cada 4 s
-      com a barra no zero **parando em 3 corações** (`VIDA_MINIMA_POR_FOME` — a fome enfraquece,
-      não mata, enquanto o F6 não existir), regra `fome` virando gate de verdade (desligada, o
-      campo some da mensagem e a barra some do HUD), `fome?` no protocolo e no save (zero é
-      válido), coxas no `vitals.ts` com a carne à esquerda por causa do `clip-path`, e
-      `?vida=13,45,7`. VERDE: typecheck 3/3, **459 testes** (14 novos), build, **9/9 smokes**
-      (o `fome` é novo), print do HUD conferido.
-- [x] **Commit da sessão 34 inteira** (pedido do usuário antes de continuar): `ef29ee8` (F1+F2,
-      código + `client/dist`) e `6b7f63a` (wolf). Verificado antes: typecheck, 445 testes, build,
-      8/8 smokes.
-
-- [x] **§🍖 F2 — vida, dano, morte, respawn** (sessão 34): `shared/src/sobrevivencia.ts` puro
-      com **uma porta só pro dano** (`aplicarDano`), queda fechada pelo SERVIDOR a partir do
-      fluxo de `move` (`apoiadoNoChao` novo em `physics.ts`), afogamento e regeneração no tick
-      de 10 Hz, morte → respawn no spawn autoritativo avisando a turma. Msg `vida` nova (só a
-      vida é obrigatória), `SavedPlayer.vida?` no save, HUD `client/src/vitals.ts` (corações,
-      bolhas, vinheta de dano) e `?vida=N[,folego]` pra inspeção. VERDE: typecheck 3/3,
-      **445 testes**, build, **8/8 smokes**, print do HUD conferido.
-
-- [x] **§🍖 F1 — `/modo` e `/regra`** (sessão 34): `shared/src/modo.ts` (padrão do mundo +
-      override pessoal por NOME) e `shared/src/regras.ts` (registro `manter-inventario`/`pvp`/
-      `fome` no molde do `/gamerule`). Msg `modo {efetivo}` nova, mandada em TODO join (troca
-      de aula é sessão nova). Save cresce só com campos opcionais e só com o DIFF do padrão.
-      **Sobrevivência ainda joga igual a criativo — muda o rótulo e o VOO** (não voa, nem com
-      `/voo` liberado). Mundo-aula fica criativo à força. VERDE: typecheck 3/3, **425 testes**
-      (33 novos), build, **7/7 smokes** (o `modo` é novo), bench headless boota e renderiza.
-- [x] **`limpar` no manifesto do `scripts/smoke.mjs`** (bug-547): `LJ_NOVO=1` não recria mundo
-      existente, então smoke que escreve estado persistente passava na 1ª rodada e falhava na
-      2ª. Rodado 2× seguidas pra provar idempotência.
+<!-- Vazio: a sessão 36 fechou o §🍖 F4 e tudo foi varrido pro STATUS ✅ e pro git
+     (cf9e9ae código · 192acff scaffolding · f23c3d3 wolf, empurrados). Próxima
+     sessão: puxar o primeiro item de ⏭️ Next pra cá. -->
 
 ## ⏭️ Next
 
