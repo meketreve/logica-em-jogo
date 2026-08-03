@@ -1,6 +1,42 @@
 # STATUS — Projeto "Lógica em Jogo" (jogo voxel educacional)
 
 > Single source of truth for resuming work. Read this FIRST when starting a session.
+> **SESSÃO 39 (2026-08-03) — §🍖 F5: CRAFT POR LISTA + O BALDE VIROU ITEM. Fecha numa sessão.**
+> O usuário mandou "sigo pro F5" e escolheu o escopo GRANDE nas duas perguntas: **incluir o
+> balde** (fecha o pendente do F4) e **receitas de madeira + pedra**. Antes de codar, uma
+> interrupção do usuário virou anotação no TODO (não renderizar borda de área reservada além do
+> raio de render) — backlog é pra ANOTAR.
+>
+> **`shared/src/receitas.ts` (puro):** `Receita { saida, custo[] }`, a lista `RECEITAS` é
+> **APPEND-only** porque o índice é a identidade da receita no protocolo (`fabricar {receita}`).
+> `podeFabricar`/`fabricar` são **tudo-ou-nada numa cópia** (consome os custos e só credita a
+> saída se tudo saiu E ela cabe — senão o clique sumiria com os ingredientes), e `ingredientesDe`
+> devolve have/need/falta por id pro "falta 3 tábua" do painel. Onze receitas: 4 troncos→tábuas,
+> tábuas→laje/escada/mesa/cerca, pedregulho→laje/escada, e **3 minério de ferro → 1 balde vazio**
+> (não é o número do Minecraft, mas não há forno no lite pra virar lingote).
+>
+> **O balde fechou o pendente do F4:** o `case balde` da session agora tem dois mundos. Em
+> criativo o servidor NÃO exige item na mão (paleta infinita — e foi assim que o smoke criou uma
+> fonte). Em sobrevivência ele **confere o balde no slot ANTES de mexer na água** (recusa não
+> deixa rastro no mundo) e troca vazio↔cheio **NO MESMO slot** (`definirSlot` novo — trocar por
+> remover+adicionar jogaria o balde pra outro slot e o aluno perderia o que segura). O slot viaja
+> no `slot?` novo da mensagem `balde`. O ramo do balde no `main.ts` saiu do guarda `mochila.ativa`
+> — em survival ele lê o item do slot do servidor e não escreve o próprio inventário.
+>
+> **Cliente:** o painel do E ganhou **abas mochila/criar**; a lista de craft é **tocar-pra-
+> fabricar** (a linha inteira é o botão, o gesto do tablet), com "falta N" em vermelho, filtro de
+> texto que re-renderiza SÓ as linhas (o foco do campo não pisca) e a hotbar do pé só mostra o
+> que a mão segura. `fabricar {receita}` é a única mensagem nova client→server.
+>
+> **VERDE:** typecheck 3/3 · **537 testes** (+15 novos em `receitas.test.ts`) · build · **11/11
+> smokes** (`craft` é novo: prova pelo fio que fabricar é do servidor, consome/credita, recusa
+> por falta calado, criativo não fabrica, e o balde troca vazio↔cheio no mesmo slot — rodado 2×
+> pra idempotência). **bug-557:** o smoke tentou criar a fonte com `/bloco <id da água>`, que é
+> RECUSADO (água não é colocável, só entra por balde) — corrigido com o balde do professor.
+> **PRINT DO PAINEL PENDENTE:** o chrome do puppeteer não está instalado nesta máquina (cache
+> vazio) e não instalou no orçamento; o painel é DOM puro espelhando a mochila do F4, que já
+> funciona. **PLAYTEST do usuário pendente** (headless não tem dedo pra tocar a receita).
+>
 > **SESSÃO 38 (2026-08-03) — SYNC COM O REMOTE + BALDE QUEBRA NO CRIATIVO (sessão curta).**
 > O usuário pediu para clonar o repo por cima de uma cópia local desatualizada SEM `.git`:
 > `git init` + `remote add` + `fetch` + `reset --hard origin/main` (renomeando `master`→`main`),
@@ -435,6 +471,23 @@ Documento é o ÚLTIMO entregável, não o primeiro. Construir, não documentar.
     headless por CDP puro (sem puppeteer como dependência) e imprime o perfil. Os NÚMEROS
     dele não valem (SwiftShader) — é teste de encanamento.
 
+- **§🍖 F5 — CRAFT POR LISTA + BALDE-ITEM (sessão 39, 2026-08-03).** Fabricar virou estado do
+  SERVIDOR; o balde fechou o pendente do F4 (era só de criativo).
+  - **`shared/src/receitas.ts`** (puro): `Receita { saida, custo[] }`, `RECEITAS` **APPEND-only**
+    (índice = identidade no protocolo), `podeFabricar`/`fabricar` **tudo-ou-nada numa cópia**,
+    `ingredientesDe` (have/need/falta) pro "falta 3 tábua". 11 receitas: madeira
+    (tronco→tábuas→laje/escada/mesa/cerca) + pedra (pedregulho→laje/escada) + **3 ferro→balde**.
+  - **Protocolo:** `fabricar {receita}` client→server (reusa `inventario` na volta) e `slot?`
+    novo na mensagem `balde`. Parse defensivo dos dois.
+  - **Session:** `case fabricar` (só survival, índice válido, `fabricar`≠null); `case balde`
+    integrou survival — confere o balde no slot ANTES de mexer na água e troca vazio↔cheio
+    in-place (`definirSlot` novo em `inventario.ts`). Criativo não exige item na mão.
+  - **Cliente:** painel do E com abas mochila/criar, lista tocar-pra-fabricar com "falta N" em
+    vermelho e filtro que re-renderiza só as linhas; ramo do balde no `main.ts` funciona em
+    survival (lê o slot do servidor). CSS `.craft-*` novo.
+  - **bug-557** (smoke: `/bloco` recusa o id da água — água só entra por balde).
+  - VERDE: typecheck 3/3 · 537 testes (+15) · build · 11/11 smokes (`craft` novo, 2×). **Print
+    do painel PENDENTE (chrome ausente na máquina). Playtest PENDENTE.**
 - **🪝 HOOKS DO OPENWOLF — OS 3 FALSO-POSITIVOS CONSERTADOS (sessão 37, 2026-08-03).**
   bug-554 (contador semântico comparava data que não existe / furava na meia-noite) · bug-555
   (buglog só via escrita de Write/Edit, cego ao Bash) · bug-556 (linha `Session end:` empilhada
@@ -586,32 +639,55 @@ Documento é o ÚLTIMO entregável, não o primeiro. Construir, não documentar.
 
 ---
 
-## 🚀 Próxima fase — §🍖 F5: CRAFT POR LISTA (~1 sessão)
+## 🚀 Próxima fase — §🍖 F6: COMIDA (~1 sessão)
 
 A ordem do backlog está **travada pelo usuário** (sessão 29):
 **auto-update ✅ → layouts mobile ✅ (1ª rodada) → v2 da geração ✅ (sessões 32+33) →
-sobrevivência ← EM CURSO (F1..F4 feitos nas sessões 34, 35 e 36).**
+sobrevivência ← EM CURSO (F1..F5 feitos nas sessões 34, 35, 36 e 39).**
 
-⚠️ **Decidir com o usuário se o F6 (comida) vem antes, depois ou JUNTO.** O F3 nasceu com a
-inanição LIMITADA a 3 corações (`VIDA_MINIMA_POR_FOME`) porque não havia o que comer; agora que
-existe inventário, o laço da fome dá pra fechar. As duas frentes se cruzam (pão = uma receita),
-e cada uma é ~1 sessão. A ordem travada é F5 → F6.
+**F6 fecha o laço da fome** — o F3 nasceu com a inanição LIMITADA a 3 corações
+(`VIDA_MINIMA_POR_FOME = 6`) porque não havia o que comer. Agora existe inventário E craft, então
+dá pra fechar: comer restaura fome, e baixar `VIDA_MINIMA_POR_FOME` pra 0 devolve a inanição
+letal em uma linha (o caminho de volta já está escrito no comentário do `sobrevivencia.ts`).
 
-**F5 = `shared/src/receitas.ts` puro** (`Receita { saida, custo[] }` + `podeFabricar(inv,
-receita)`) + painel-lista com filtro e "falta 3 tábua". O servidor valida e aplica; o cliente só
-pede. Decisões travadas no `.wolf/ROADMAP.md §🍖` — quem pegar NÃO reabre:
+**F6 = duas fontes de comida + a ação de comer** (ROADMAP §🍖, decisões travadas — não reabrir):
+- **Fruta caindo da folha** — o `drops.ts` já tem o lugar (folha→nada hoje, vira "folha → 1
+  fruta às vezes"); a assinatura de `dropsDe` já devolve LISTA justamente pra isso.
+- **Uma plantação que cresce como `BlockRule`** em `rules.ts` — mesma engrenagem da areia/água,
+  zero motor novo. Colher → comer, ou colher → 1 receita simples (pão, que é UMA linha em
+  `receitas.ts` agora que o F5 existe).
+- **Comer** = item consumível na mão + ação (clique direito? tecla?) que chama
+  `curarFome`/`aplicarDano` inverso. Item de comida entra na banda ≥ 900 (como o balde) ou como
+  bloco colhível — decidir no início do F6.
+- **A régua de saciedade** e se comer também cura VIDA (Minecraft: regen vem da fome cheia, que
+  o F3 já modela) — ver ROADMAP §🍖 F6.
 
-- **Grade 3×3 DESCARTADA** — arrastar dói no tablet/Kindle Fire e trava aluno de 2º ano. O
-  gesto que o F4 estreou no painel da mochila (tocar na origem, tocar no destino) é o molde.
-- **Sem bancada no lite** — fabrica em qualquer lugar. A bancada, se um dia servir pra
-  *escalonar* receitas avançadas, vira um campo `exige` na receita.
-- **O F4 já entregou tudo de que o F5 precisa:** `contar`/`remover`/`cabe`/`adicionar` puros,
-  a mensagem `inventario` que já redesenha a tela sozinha, e o `/dar` pra semear a aula.
-- **O balde entra aqui** (ver TODO): hoje ele não é item de mochila, e o ramo dele no
-  `main.ts` está guardado por `mochila.ativa` justamente por isso.
+⚠️ O ROADMAP dizia "decidir F5 vs F6 antes/depois/junto" — **resolvido: o usuário mandou F5
+sozinho, a ordem travada F5 → F6 vale.** F6 é a próxima.
 
-**Depois do F5:** F6 comida → F7 `/pvp` (atalho da regra que já existe) → F8 mobs (fora do
-lite) → F9 preset `sobrevivencia`. Escopo item a item em `.wolf/ROADMAP.md §🍖`.
+**Depois do F6:** F7 `/pvp` (atalho da regra que já existe) → F8 mobs (fora do lite) → F9 preset
+`sobrevivencia`. Escopo item a item em `.wolf/ROADMAP.md §🍖`.
+
+### §🍖 F5 — o que ficou aberto
+
+- **PRINT do painel de craft PENDENTE:** o chrome do puppeteer não está instalado nesta máquina
+  (`~/.cache/puppeteer/chrome` vazio) e o `@puppeteer/browsers install chrome` não fechou no
+  orçamento. **O script virou permanente: `npm run shots:craft`** (`scripts/craft-shot.mjs` —
+  `?mochila=` + tecla E + clique na aba "criar"). **Handoff de instalação do chrome no
+  `.wolf/TODO.md` (item 🖼️ HANDOFF)** — com chrome no cache, é `npm run dev` + `npm run
+  shots:craft`. O painel é DOM puro espelhando a mochila do F4, que já foi conferida a olho —
+  risco baixo, mas o **usuário playtesta** de qualquer jeito.
+- **As 11 receitas são o botão de ajuste** (`RECEITAS` em `receitas.ts`): mudar quantidade/saída
+  é uma linha cada, mas **só APPEND** — o índice é contrato do protocolo (`_smoke-craft.mjs` fixa
+  os índices em constantes; reordenar quebra o smoke, que é o portão).
+- **Craft não custa esforço/fome** (não é edição de bloco). Se o playtest achar que devia cansar,
+  é uma chamada a `esforcar` no `case fabricar`.
+- **Sem bancada no lite** — fabrica em qualquer lugar. A bancada, se servir pra *escalonar*
+  receitas avançadas, vira um campo `exige?` na `Receita` (o comentário do arquivo já diz isso).
+- **Balde: a receita é `3 minério de ferro → 1 balde vazio`** (não o número do Minecraft; sem
+  forno no lite não há lingote). Quando o F-fundição existir, muda pra lingote numa linha.
+- **Filtro do craft é por NOME** (saída ou ingrediente). A lista é curta hoje; o filtro já deixa
+  a porta aberta pra ela crescer sem virar rolagem infinita.
 
 ### §🍖 F4 — o que ficou aberto
 

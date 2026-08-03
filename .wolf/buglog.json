@@ -3592,6 +3592,25 @@
       ],
       "occurrences": 1,
       "last_seen": "2026-08-03T04:10:00Z"
+    },
+    {
+      "id": "bug-557",
+      "timestamp": "2026-08-03T16:35:00-03:00",
+      "error_message": "_smoke-craft.mjs: '✗ o balde encheu (0 cheio)' — a ana não conseguia RECOLHER água numa fonte que o smoke tentou criar com /bloco",
+      "file": "server/src/cenarios/_smoke-craft.mjs",
+      "root_cause": "O smoke criava a fonte com `/bloco x y z 129` (id da água), mas a água NÃO é isPlaceable (saiu da hotbar de propósito — só entra por balde), então o /bloco foi recusado calado e não havia fonte pra recolher; as asserções do balde caíram em cascata. Bug de AUTORIA do smoke, não do código de produção do F5.",
+      "fix": "Criar a fonte com o balde do PROFESSOR em criativo: `{type:'balde', ...cel, encher:false}` — o servidor não exige item na mão em criativo. Asserção nova conferindo a fonte antes de recolher.",
+      "tags": [
+        "smoke",
+        "balde",
+        "agua",
+        "craft",
+        "F5",
+        "autoria-de-teste"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-08-03T16:35:00-03:00"
     }
   ]
 }

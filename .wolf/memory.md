@@ -894,3 +894,36 @@ layouts mobile segue sendo o próximo.
 | 15:05 | Edited client/src/main.ts | 1→3 lines | ~66 |
 | 15:06 | balde (vazio/cheio) quebra bloco no modo criativo | client/src/main.ts:1683 | feito, typecheck 3/3 | ~4k |
 | 15:06 | Session end: 1 writes across 1 files (main.ts) | 2 reads | ~79624 tok |
+
+## Session: 2026-08-03 16:06
+
+| Time | Action | File(s) | Outcome | ~Tokens |
+|------|--------|---------|---------|--------|
+| 16:14 | Created shared/src/receitas.ts | — | ~1424 |
+| 16:14 | Edited shared/src/index.ts | 2→3 lines | ~25 |
+| 16:15 | Edited shared/src/protocol.ts | modified Balde() | ~243 |
+| 16:15 | Edited shared/src/protocol.ts | 9→12 lines | ~122 |
+| 16:15 | Edited shared/src/protocol.ts | added 1 condition(s) | ~121 |
+| 16:15 | Edited shared/src/inventario.ts | added 1 condition(s) | ~200 |
+| 16:16 | Edited shared/src/session.ts | 6→8 lines | ~32 |
+| 16:16 | Edited shared/src/session.ts | added 1 import(s) | ~88 |
+| 16:16 | Edited shared/src/session.ts | added optional chaining | ~450 |
+| 16:16 | Edited shared/src/session.ts | added 2 condition(s) | ~255 |
+| 16:17 | Edited client/src/main.ts | added 3 condition(s) | ~435 |
+| 16:18 | Edited client/src/mochila.ts | modified hotbar() | ~109 |
+| 16:18 | Edited client/src/inventory.ts | expanded (+6 lines) | ~75 |
+| 16:18 | Edited client/src/inventory.ts | 4→9 lines | ~149 |
+| 16:18 | Edited client/src/inventory.ts | 5→9 lines | ~151 |
+| 16:19 | Edited client/src/inventory.ts | added 1 condition(s) | ~402 |
+| 16:19 | Edited client/src/inventory.ts | added nullish coalescing | ~1367 |
+| 16:20 | Edited client/src/main.ts | 3→5 lines | ~57 |
+| 16:20 | Edited client/index.html | expanded (+66 lines) | ~488 |
+| 16:21 | Created shared/src/receitas.test.ts | — | ~2017 |
+| 16:24 | Created server/src/cenarios/_smoke-craft.mjs | — | ~1806 |
+| 16:24 | Edited scripts/smoke.mjs | expanded (+21 lines) | ~194 |
+| 16:25 | Edited server/src/cenarios/_smoke-craft.mjs | 4→7 lines | ~131 |
+| 16:34 | §🍖 F5 — CRAFT POR LISTA + balde-item. `receitas.ts` puro (`Receita {saida,custo[]}`, `RECEITAS` APPEND-only, `podeFabricar`/`fabricar` tudo-ou-nada, `ingredientesDe` pro "falta 3 tábua"). Madeira (tronco→tábuas→laje/escada/mesa/cerca) + pedra (pedregulho→laje/escada) + balde (3 ferro→balde vazio). Protocolo `fabricar {receita}` + `slot?` no balde. Session: `case fabricar` (só survival), e `case balde` agora integra survival — confere o item no slot ANTES de mexer na água e troca vazio↔cheio in-place (`definirSlot` novo). Cliente: painel E ganhou abas mochila/criar, lista de receitas tocar-pra-fabricar com "falta N" em vermelho; balde volta a funcionar em survival (item do slot do servidor). Anotado no TODO: não renderizar borda de área reservada além do raio (pedido do usuário) | shared/src/{receitas,inventario,protocol,session,index}.ts, client/src/{main,inventory,mochila}.ts, client/index.html, +receitas.test.ts, +_smoke-craft.mjs, scripts/smoke.mjs | VERDE: typecheck 3/3 · 537 testes (+15) · build · 11/11 smokes (craft novo, rodado 2× p/ idempotência) · PRINT do painel PENDENTE (chrome não instalado nesta máquina) · playtest do usuário pendente | ~14k |
+| 16:42 | Session end: 23 writes across 12 files (receitas.ts, index.ts, protocol.ts, inventario.ts, session.ts) | 14 reads | ~133634 tok |
+| 16:56 | Created scripts/craft-shot.mjs | — | ~1536 |
+| 16:57 | Edited package.json | 2→3 lines | ~43 |
+| 16:59 | Session end: 25 writes across 14 files (receitas.ts, index.ts, protocol.ts, inventario.ts, session.ts) | 15 reads | ~135576 tok |

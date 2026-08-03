@@ -254,6 +254,29 @@
   coxa teve de nascer com a carne à esquerda, senão meia coxa mostraria só osso. Vale pra
   qualquer ícone assimétrico que use o truque do meio-coração.
 
+### §🍖 Sobrevivência (2026-08-03, F5 craft)
+
+- **Craft é uma LISTA de receitas puras, o índice é o contrato do protocolo** (`receitas.ts`):
+  `Receita { saida, custo[] }` + `podeFabricar`/`fabricar`. A mensagem `fabricar {receita}`
+  manda o ÍNDICE na lista `RECEITAS`, então a lista é **APPEND-only como o `BlockId`** —
+  inserir no meio desloca o que o cliente já conhece. O servidor confere e aplica; o cliente só
+  pede (mesma disciplina do `mover_item`).
+- **`fabricar` é TUDO-OU-NADA numa cópia:** consome cada custo e só credita a saída se tudo saiu
+  E a saída CABE; qualquer furo devolve `null` e nada é gasto (senão o clique sumiria com os
+  ingredientes numa mochila cheia). `podeFabricar` = `fabricar(...) !== null` — uma verdade só.
+- **O balde virou item de mochila (fechou o pendente do F4):** o `case balde` agora tem dois
+  mundos. Em criativo o servidor NÃO exige item na mão (paleta infinita — foi assim que o smoke
+  criou uma fonte: `balde despeja` do professor). Em sobrevivência ele **confere o balde no
+  slot ANTES de mexer na água** (recusa não deixa rastro no mundo, disciplina da mochila cheia)
+  e troca vazio↔cheio **NO MESMO slot** com `definirSlot` — trocar por `remover`+`adicionar`
+  jogaria o balde pra outro slot e o jogador perderia o que segura. O slot viaja no `slot?` da
+  mensagem (opcional: criativo não manda).
+- **Painel com sub-abas re-renderiza a lista, não o painel, ao filtrar:** o campo de filtro do
+  craft atualiza `this.filtroCraft` e chama `montarReceitas(lista)` (só as linhas), pra o foco
+  do input não piscar — o mesmo cuidado de "adiar enquanto um input tem foco". O gesto é
+  **tocar-pra-fabricar** (a linha inteira é o botão), pelo mesmo motivo que a grade 3×3 foi
+  descartada. "Falta N" sai em vermelho por `ingredientesDe` (have/need/falta por id).
+
 ### Streaming de colunas (F2)
 
 - **Config de cliente que o SERVIDOR espelha tem de ser RE-ENVIADA quando muda** (e no
@@ -433,6 +456,10 @@
   existe em sobrevivência, e é a AUSÊNCIA dela que diz ao cliente "aqui a paleta é infinita" —
   mesmo desenho do campo `fome` ausente do F3 ("este mundo não tem fome"). Isso evita um campo
   de modo em cada mensagem e faz o cliente antigo degradar pro comportamento certo.
+- **[2026-08-03, §🍖 F5] Receita nova é APPEND em `RECEITAS`, nunca no meio.** O índice é a
+  identidade da receita no protocolo (`fabricar {receita}`); inserir no meio remapeia o que o
+  cliente já conhece, como renumerar `BlockId`. O smoke `_smoke-craft.mjs` fixa os índices em
+  constantes — mudar a ordem quebra o smoke, que é o portão certo.
 
 ## Do-Not-Repeat
 
@@ -601,6 +628,11 @@
 - [2026-07-17] **Smoke do HOST sem `LJ_SAVE` sobrescreve o `server/world.ljw` RASTREADO.**
   Sempre passar `LJ_SAVE=<scratchpad>/teste.ljw` e `LJ_PORT` próprio. Se poluiu:
   `git checkout -- server/world.ljw`.
+- [2026-08-03] **Água só entra no mundo por BALDE — `/bloco <id da água>` é RECUSADO** (a água
+  não é `isPlaceable`, saiu da hotbar de propósito). Smoke que precisa de uma FONTE cria com o
+  balde do PROFESSOR (criativo não exige item na mão): `{type:"balde", ...cel, encher:false}`.
+  Custou uma rodada do `_smoke-craft.mjs` (o `/bloco AGUA` saiu calado e a asserção seguinte
+  caiu).
 - [2026-07-19] `/bloco` RECUSA porta (criaria metade órfã) — script de stage usa `place_block`
   de verdade (e precisa de um `move` pro spawn antes, por causa do alcance).
 - [2026-07-11] Saída de git via rtk é comprimida/cacheada — `git status` pode mentir. Verdade:
@@ -622,6 +654,12 @@
 <!-- Uma linha por decisão. TEXTO COMPLETO (motivo, alternativas, contexto) em
      .wolf/history.md → "## Cerebrum — Decision Log" e "## Cerebrum arquivado (2026-07-28)". -->
 
+- [2026-08-03] **§🍖 F5 = receitas de MADEIRA + PEDRA, e o balde entrou junto** (escopo GRANDE
+  escolhido pelo usuário). Sem forno no lite, o universo real é madeira (tronco→tábuas→
+  laje/escada/mesa/cerca) e pedra (pedregulho→laje/escada). **O balde é `3 minério de ferro →
+  1 balde vazio`** — NÃO é o número do Minecraft (lá são 3 lingotes), mas não há fundição pra
+  virar lingote no lite, e o balde é o que destrava a água em sobrevivência. Reversível: mexer
+  em `RECEITAS` é uma linha por receita (append).
 - [2026-08-03] **`/dar <eu|all|nome> <id> [qtd]` criado FORA do escopo travado do §🍖 F4** —
   decisão minha, sinalizada ao usuário e reversível. Com inventário autoritativo o mundo de
   sobrevivência começa com todo mundo de mãos vazias e não há craft até o F5; sem o comando o

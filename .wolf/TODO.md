@@ -2,8 +2,8 @@
 
 > Working checklist. **STATUS.md** = handoff ("why & where we are"); **TODO.md** = "what's left to do".
 > Keep items actionable and short. Check off with `[x]`; sweep done items into STATUS.md ✅ when a phase closes.
-> Last updated: 2026-08-03 (sessão 37 — os 3 falso-positivos dos hooks consertados, bug-554/555/
-> 556; nada de código de jogo. Próxima frente segue o F5 craft — mas ver a ressalva do F6 abaixo)
+> Last updated: 2026-08-03 (sessão 39 — §🍖 F5 craft por lista + balde-item FEITO; verde e no
+> disco, não commitado. Próxima frente: F6 comida — fecha o laço da fome. Ver STATUS 🚀)
 
 ---
 
@@ -24,31 +24,57 @@
       com `precisaApoio(id) === true` fora do `rulesMap` (varredura, não olho).
       **Quando o F4 existir, o que some vira DROP** (entrada em `drops.ts`), em vez de evaporar.
 
-- [ ] **§🍖 F5 — craft por LISTA** (~1 sessão). `shared/src/receitas.ts` puro
-      (`Receita { saida, custo[] }` + `podeFabricar`) e painel-lista com filtro e "falta 3
-      tábua". **Grade 3×3 está DESCARTADA** (arrastar dói no tablet) — o gesto do painel da
-      mochila do F4 (tocar origem, tocar destino) é o molde. Servidor valida e aplica; o
-      cliente só pede. **Sem bancada no lite.**
-      ⚠️ **Considerar o F6 (comida, ~1 sessão) ANTES ou JUNTO**: o F3 nasceu com a fome
-      limitada a 3 corações (`VIDA_MINIMA_POR_FOME`) por não haver o que comer, e agora que
-      existe inventário o laço da fome dá pra fechar. F5 e F6 se cruzam (pão = 1 receita).
-      Decidir com o usuário — a ordem travada é F5 → F6.
+- [x] **§🍖 F5 — craft por LISTA** (sessão 39) — `shared/src/receitas.ts` puro, `fabricar`
+      tudo-ou-nada, painel do E com abas mochila/criar e "falta N" em vermelho. 11 receitas
+      (madeira + pedra + balde). Servidor valida/aplica; cliente pede por índice. Detalhe no
+      STATUS ✅. **Print do painel pendente (chrome ausente na máquina), playtest pendente.**
 
-- [ ] **O balde ainda NÃO é item de mochila** (anotado no F4). Em sobrevivência ninguém tem
-      um, porque não há craft até o F5; o ramo do balde no `main.ts` está explicitamente
-      guardado por `mochila.ativa` e só roda em criativo. Quando o F5 existir: receita do
-      balde + `ITEM_BALDE_VAZIO`/`ITEM_BALDE_AGUA` viram pilhas de 1 (o `tamanhoStack` já
-      trata) e o `case "balde"` da session passa a trocar o item no slot.
+- [x] **O balde virou item de mochila** (sessão 39, escopo escolhido pelo usuário) — receita
+      `3 ferro → balde vazio`, o `case balde` da session integrou survival (confere o item no
+      slot ANTES de mexer na água, troca vazio↔cheio in-place por `definirSlot`), e o ramo do
+      `main.ts` saiu do guarda `mochila.ativa`. Fechou o pendente do F4.
+
+- [ ] **🖼️ HANDOFF — instalar o Chrome do puppeteer pro teste visual automatizado** (pedido do
+      usuário, sessão 39). Os scripts de print/design-QC (`shots:tablet`, `shots:luz`,
+      **`shots:craft`** novo, `openwolf designqc`) dirigem um Chrome headless por CDP e procuram
+      o binário em `~/.cache/puppeteer/chrome`. **Nesta máquina o cache está VAZIO** — todos saem
+      com "Chrome não encontrado" (o print do painel de craft do F5 ficou pendente por isso).
+      - **Instalar o binário (one-off, ~150 MB, precisa de rede):**
+        `npx -y @puppeteer/browsers install chrome@stable`
+        → cai em `~/.cache/puppeteer/chrome/<versão>/chrome-linux64/chrome`.
+      - **Ou reproduzível:** pinar `puppeteer` (ou `@puppeteer/browsers`) em `devDependencies` do
+        `package.json` raiz — o postinstall baixa o chrome no `npm install`. Escolha do usuário
+        (adiciona download a todo `npm install`); os scripts NÃO importam o pacote, só usam o
+        binário do cache, então basta o binário.
+      - **Conferir:** `ls ~/.cache/puppeteer/chrome/*/chrome-linux64/chrome` e então
+        `npm run dev` (vite 5173, noutro terminal) + `npm run shots:craft` → grava
+        `.wolf/designqc-captures/craft/craft-panel.png` e imprime "linhas=11 · habilitadas=3 ·
+        marcas 'falta'=…".
+      - **Atrás de proxy (escola/WSL):** se o download falhar, apontar `CHROME=/caminho/chrome`
+        pra um Chrome/Chromium do sistema (`acharChrome()` já tenta `/usr/bin/google-chrome` etc).
+      - **Depois disso:** tirar o print do painel de craft do F5 (o pendente do §🍖 F5) e conferir
+        a olho — abas mochila/criar, "falta N" em vermelho, alvo de dedo das linhas.
+
+- [ ] **§🍖 F6 — comida** (~1 sessão, PRÓXIMA frente). Fecha o laço da fome (baixar
+      `VIDA_MINIMA_POR_FOME` pra 0 devolve inanição letal). Duas fontes: fruta caindo da folha
+      (`drops.ts` já devolve LISTA) + plantação que cresce como `BlockRule` (`rules.ts`, motor
+      da areia/água). Comer = item consumível + ação. Pão = 1 linha em `receitas.ts` agora.
+      Decisões travadas no ROADMAP §🍖 F6.
 
 ## 🏫 Na escola (o usuário faz lá)
 
-- [ ] **PLAYTEST DA SOBREVIVÊNCIA (F1+F2+F3+F4)** — entrar com `/modo sobrevivencia all` (ou `eu`).
-      **Do F4, o que só o dedo responde:** o painel "mochila" abre no E e o gesto é **tocar no
-      item, tocar no destino** (não arrastar) — funciona no tablet? A contagem no canto do slot
-      é legível no DPI do aparelho? Os 9 slots da mochila por linha cabem na tela do tablet em
+- [ ] **PLAYTEST DA SOBREVIVÊNCIA (F1+F2+F3+F4+F5)** — entrar com `/modo sobrevivencia all` (ou `eu`).
+      **Do F5 (craft), o que só o dedo responde:** o painel do E tem abas **mochila/criar** — a
+      troca de aba é óbvia? Na aba "criar", **tocar na linha da receita fabrica** (a linha inteira
+      é o botão) — o alvo dá pro dedo no tablet? O "falta N" em vermelho comunica o que falta sem
+      texto? A receita desabilitada (cinza) lê como "não dá agora"? O filtro de texto vale a pena
+      numa lista de 11, ou atrapalha? **O balde agora funciona em survival** (craftar `3 ferro →
+      balde`, encher numa fonte, despejar) — a troca vazio↔cheio no MESMO slot parece natural?
+      **Do F4:** o painel "mochila" com o gesto **tocar no item, tocar no destino** (não arrastar)
+      — funciona no tablet? A contagem no canto do slot é legível? Os 9 slots por linha cabem em
       RETRATO? Começar de mãos vazias frustra, ou o `/dar all <id> <qtd>` resolve a aula?
-      **Mochila cheia RECUSA a quebra** — isso lê como cuidado ou como bug? (o aviso vai no
-      chat, no máximo 1 a cada 5 s).
+      **Mochila cheia RECUSA a quebra** — isso lê como cuidado ou como bug? (aviso no chat, no
+      máximo 1 a cada 5 s).
       Morrer de queda é justo (dói a partir de 4 blocos, mata em 23)? 15 s de ar é pouco?
       **A fome desce rápido demais?** (400 blocos andados OU 200 construídos = 1 ponto; a mira é
       a barra inteira em ~50 min de aula ativa — é o número mais provável de mudar). A fome
@@ -92,6 +118,11 @@
       é mudança visual não pedida numa tela de uso diário: **só com o aval do usuário.**
 - [ ] Som de água (splash/borbulha/balde, WebAudio em `audio.ts`) — 4ª opção do refino de
       água, nunca escolhida. **Casa bem com o §🌬️ recém-fechado** (som de vento junto).
+- [ ] **Não renderizar as bordas de área reservada (claim/região) além da distância de render**
+      (pedido do usuário, 2026-08-03). Hoje o `regionRenderer` desenha os wireframes das áreas
+      reservadas dos jogadores independentemente da distância; cular por `raioRender` (a área
+      cujo centro/caixa está além do raio não gera vértice) alivia GPU/overdraw em mundo com
+      muitos claims. Barato: filtro por distância antes de montar as linhas.
 - [ ] **Cauda de GPU no lab — SÓ SE VOLTAR A INCOMODAR** (nenhum gatilho aceso hoje): GPU p95
       16,8–19,6 ms contra 16,7 ms de orçamento de 60 FPS. Candidatos: teto de `raioRender` em
       GPU fraca, overdraw da água, custo de fragment.
@@ -113,8 +144,8 @@
       `rulesMap` sem `GramaAlta`/`Seca`/`Fria`). Agora que o F4 existe, o que some pode virar
       DROP: é uma entrada em `drops.ts`, não engrenagem nova.
 - [ ] Sobrevivência (fome/vida/craft) (4º da ordem do usuário) — **EM CURSO desde a sessão
-      34**: F1 (`/modo` + `/regra` + save), F2 (vida/dano/morte), F3 (fome) e F4 (inventário
-      autoritativo) FEITOS; faltam F5..F9. Decisões travadas e colisões
+      34**: F1 (`/modo` + `/regra` + save), F2 (vida/dano/morte), F3 (fome), F4 (inventário
+      autoritativo) e F5 (craft por lista + balde-item) FEITOS; faltam F6..F9. Decisões travadas e colisões
       em `.wolf/ROADMAP.md §🍖` — quem pegar a frente NÃO reabre decisão: lite agora com porta
       pro completo · mobs só em mundo de exploração · craft por lista · `/pvp` no lite (F7,
       atalho da regra `pvp` que já existe). Ordem: **F2 vida/dano/morte** → F3 fome →
