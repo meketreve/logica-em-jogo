@@ -2,12 +2,24 @@
 
 > Working checklist. **STATUS.md** = handoff ("why & where we are"); **TODO.md** = "what's left to do".
 > Keep items actionable and short. Check off with `[x]`; sweep done items into STATUS.md ✅ when a phase closes.
-> Last updated: 2026-08-02 (sessão 34 — §🍖 F1 e F2: o interruptor e a primeira mecânica;
-> próxima frente é o F3, fome)
+> Last updated: 2026-08-02 (sessão 35 — §🍖 F3, a fome; a 34 foi commitada antes de começar.
+> Próxima frente é o F4, inventário autoritativo — mas ver a ressalva do F6 no STATUS)
 
 ---
 
 ## 🔥 Now (this session)
+
+- [x] **§🍖 F3 — fome** (sessão 35): dreno por ESFORÇO (0,01/bloco andado · 0,02/bloco editado ·
+      3,0/ponto regenerado, convertidos a cada 4,0 de exaustão), dano de meio coração a cada 4 s
+      com a barra no zero **parando em 3 corações** (`VIDA_MINIMA_POR_FOME` — a fome enfraquece,
+      não mata, enquanto o F6 não existir), regra `fome` virando gate de verdade (desligada, o
+      campo some da mensagem e a barra some do HUD), `fome?` no protocolo e no save (zero é
+      válido), coxas no `vitals.ts` com a carne à esquerda por causa do `clip-path`, e
+      `?vida=13,45,7`. VERDE: typecheck 3/3, **459 testes** (14 novos), build, **9/9 smokes**
+      (o `fome` é novo), print do HUD conferido.
+- [x] **Commit da sessão 34 inteira** (pedido do usuário antes de continuar): `ef29ee8` (F1+F2,
+      código + `client/dist`) e `6b7f63a` (wolf). Verificado antes: typecheck, 445 testes, build,
+      8/8 smokes.
 
 - [x] **§🍖 F2 — vida, dano, morte, respawn** (sessão 34): `shared/src/sobrevivencia.ts` puro
       com **uma porta só pro dano** (`aplicarDano`), queda fechada pelo SERVIDOR a partir do
@@ -30,20 +42,25 @@
 
 ## ⏭️ Next
 
-- [ ] **§🍖 F3 — fome** (~0,5 sessão). Metade já existe: `EstadoVital.fome`, `tickRegen(e,
-      fome)` e a regra de mundo `fome` (ligada) vieram no F2. Falta o DRENO por atividade real
-      (a session já vê distância andada, blocos quebrados e colocados), o dano por fome zerada
-      (`aplicarDano(…, "fome")` — a causa e o texto de morte já existem), as coxas no
-      `vitals.ts` (o molde `.casa`/`.icone` das bolhas serve), `SavedPlayer.fome?` no save e o
-      campo `fome?` OPCIONAL na msg `vida` que já existe (não criar mensagem nova).
-      Gate: `valorRegra(this.regras, "fome")`.
+- [ ] **§🍖 F4 — inventário autoritativo** (~2–3 sessões, a frente cara). 9 hotbar + 18 mochila,
+      stack 64, estado do SERVIDOR; `place_block` gasta e `break_block` dá pela tabela
+      `drops.ts`; criativo intocado. **Sem item no chão** (mochila cheia RECUSA a quebra) — é
+      decisão travada no ROADMAP. Aqui a regra `manter-inventario` finalmente ganha mecânica
+      (ler em `matar()`) e sai do `RegraDef.pendente`.
+      ⚠️ **Considerar o F6 (comida, ~1 sessão) ANTES**: o F3 nasceu com a fome limitada a 3
+      corações por não haver o que comer. A ordem travada manda F4, mas o playtest do F3 pode
+      inverter — decidir com o usuário.
 
 ## 🏫 Na escola (o usuário faz lá)
 
-- [ ] **PLAYTEST DA SOBREVIVÊNCIA (F1+F2)** — entrar com `/modo sobrevivencia all` (ou `eu`).
+- [ ] **PLAYTEST DA SOBREVIVÊNCIA (F1+F2+F3)** — entrar com `/modo sobrevivencia all` (ou `eu`).
       Morrer de queda é justo (dói a partir de 4 blocos, mata em 23)? 15 s de ar é pouco?
-      **Os corações/bolhas no TABLET** — estão 96px acima do rodapé e podem brigar com a hotbar
-      de toque, que ninguém olhou. A vinheta vermelha de dano incomoda? Voltar ao spawn ao
+      **A fome desce rápido demais?** (400 blocos andados OU 200 construídos = 1 ponto; a mira é
+      a barra inteira em ~50 min de aula ativa — é o número mais provável de mudar). A fome
+      parar em 3 corações parece cuidado ou parece bug (`VIDA_MINIMA_POR_FOME`, deliberado até
+      o F6)? **Corações/coxas/bolhas no TABLET** — 96px acima do rodapé, agora com uma barra a
+      mais, e podem brigar com a hotbar de toque, que ninguém olhou. A vinheta vermelha de dano
+      incomoda? Voltar ao spawn ao
       morrer atrapalha em mundo grande (aí "cama = ponto de renascer" é feature nova)?
       ⚠️ A altura da queda vem de amostras a 10 Hz e erra PRA MENOS — "caí de 10 e não doeu" é
       a tolerância documentada, não bug.
@@ -98,7 +115,8 @@
       (sessão 31): cavernas primeiro em todo mundo procedural, depois relevo "montanha de
       verdade" por bioma. Decisões, colisões e portões em `.wolf/ROADMAP.md §🏔️`. Ver 🔥 Now.
 - [ ] Sobrevivência (fome/vida/craft) (4º da ordem do usuário) — **EM CURSO desde a sessão
-      34**: F1 (`/modo` + `/regra` + save) FEITO; faltam F2..F9. Decisões travadas e colisões
+      34**: F1 (`/modo` + `/regra` + save), F2 (vida/dano/morte) e F3 (fome) FEITOS; faltam
+      F4..F9. Decisões travadas e colisões
       em `.wolf/ROADMAP.md §🍖` — quem pegar a frente NÃO reabre decisão: lite agora com porta
       pro completo · mobs só em mundo de exploração · craft por lista · `/pvp` no lite (F7,
       atalho da regra `pvp` que já existe). Ordem: **F2 vida/dano/morte** → F3 fome →

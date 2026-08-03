@@ -1,6 +1,54 @@
 # STATUS — Projeto "Lógica em Jogo" (jogo voxel educacional)
 
 > Single source of truth for resuming work. Read this FIRST when starting a session.
+> **SESSÃO 35 (2026-08-02) — §🍖 F3: A FOME. E a 33/34 finalmente FORAM PRO GIT.** O usuário
+> pediu "continue, mas faça commit de tudo antes": a sessão 34 inteira (F1+F2) estava só no
+> disco. Ela saiu em 2 commits (`ef29ee8` código, `6b7f63a` wolf) depois de verificar — e só
+> então a fila andou.
+>
+> **A barra NÃO desce por relógio: desce por ESFORÇO.** É a mesma disciplina do ciclo, do vento
+> e do fôlego (nada de `Date.now()`), mas com um segundo motivo: o dreno tem de acompanhar o que
+> o aluno FEZ, não quanto a aula durou — quem passou vinte minutos lendo o quadro não pode
+> chegar faminto. Cada atividade soma exaustão fracionária num acumulador e, a cada **4,0**
+> acumulado, um ponto de fome vai embora (número do Minecraft). A régua escolhida: **0,01 por
+> bloco andado (400 blocos = 1 ponto), 0,02 por bloco colocado ou quebrado (200 = 1 ponto) e
+> 3,0 por ponto de vida regenerado.** A edição vale o DOBRO do passo de propósito — neste jogo
+> a atividade principal da aula é construir, não correr, então é a construção que tem de mover
+> a barra. Ordem de grandeza: uma turma construindo gasta a barra inteira em ~50 min.
+>
+> **`VIDA_MINIMA_POR_FOME = 6`: a fome ENFRAQUECE, não mata.** A decisão do dia. O roadmap dizia
+> "fome no zero → dano lento", e o dano existe (meio coração a cada 4 s, pela porta única
+> `aplicarDano(…, "fome")`), mas ele **para em 3 corações** enquanto a comida (F6) não existir —
+> matar de fome num jogo onde não há o que comer é frustração de aula, não desafio. É o análogo
+> do nível "fácil" do Minecraft. Baixar a constante pra 0 devolve a inanição letal em UMA linha;
+> o `textoDaMorte("fome")` já está escrito e o cliente já sabe pintar a tela.
+>
+> **O dreno sai do fluxo que o servidor JÁ recebe** — o `move` a 10 Hz que fecha a queda do F2 —
+> e a edição é cobrada **num lugar só, depois do `switch` do `handleMessage`**: cada caso já
+> devolveu cedo quando recusou, então "o mundo mudou" é o mesmo que "a edição valeu". Porta e
+> cama (2 células) custam UMA edição; abrir porta e teleoperação de professor (`/bloco`) não
+> custam nada. Passo maior que 4 blocos numa amostra é teleporte, não passo (respawn e `/tp`
+> não cobram fome).
+>
+> **A regra `fome` virou o gate de verdade** (era decorativa desde o F1): desligada, a barra
+> some do HUD na hora — o campo `fome` simplesmente não vai na mensagem `vida`, e **ausente
+> significa "este mundo não tem fome"**. Quem já estava faminto quando o professor desligou
+> volta a se regenerar (senão ficaria travado sem regeneração num mundo sem fome). O `/regra`
+> parou de avisar "só passa a valer quando a mecânica existir" para a `fome` — agora só as
+> pendentes de verdade (`manter-inventario`/F4 e `pvp`/F7) levam o aviso, por um campo
+> `pendente` novo no registro.
+>
+> **HUD:** coxas ao lado dos corações, mesma escala (20 pontos = 10 ícones, meia coxa no ímpar).
+> As duas barras vivem num flex `wrap` — em tela estreita a linha QUEBRA sozinha, sem media
+> query. Detalhe que só o print pegou: a carne da coxa teve de ir pro lado ESQUERDO do ícone,
+> porque o `clip-path` da metade recorta a esquerda e meia coxa tem de mostrar carne, não osso.
+> O `?vida=` virou `?vida=13,45,7` e o F3 (tecla) agora mostra `vida 13/20  fome 7/20`.
+>
+> **VERDE:** typecheck 3/3 · **459 testes** (14 novos) · build · **9/9 smokes** (o `fome` é novo:
+> prova o dreno pelo fio, criativo imune no mesmo mundo, a regra ligando/desligando a barra na
+> hora e o piso de 3 corações) · print do HUD conferido (3 bolhas · 6½ corações · 3½ coxas, sem
+> erro de console). **PLAYTEST PENDENTE** — headless não diz se a barra desce rápido demais.
+>
 > **SESSÃO 34 (2026-08-02) — A SOBREVIVÊNCIA COMEÇOU: §🍖 F1 E F2 NUMA SESSÃO.** O usuário
 > fechou as pendências da 33 num turno ("deixa o push, playtest de relevo, luz+cavernas feitas,
 > pode seguir") — **os dois playtests estão FEITOS e ele não pediu ajuste nenhum**, e o push
@@ -330,6 +378,30 @@ Documento é o ÚLTIMO entregável, não o primeiro. Construir, não documentar.
     headless por CDP puro (sem puppeteer como dependência) e imprime o perfil. Os NÚMEROS
     dele não valem (SwiftShader) — é teste de encanamento.
 
+- **§🍖 F3 — FOME (sessão 35, 2026-08-02).** A barra desce por ESFORÇO, não por relógio.
+  - **`shared/src/sobrevivencia.ts`:** `gastarEsforco(estado, esforco)` acumula exaustão
+    fracionária e converte a cada `EXAUSTAO_POR_PONTO` (4,0, número do Minecraft);
+    `tickFome(estado)` cobra o dano da barra zerada. Régua: **0,01 por bloco andado · 0,02 por
+    bloco editado · 3,0 por ponto regenerado** (construir cansa o DOBRO de andar, porque a
+    atividade da aula é construir).
+  - **`VIDA_MINIMA_POR_FOME = 6` — a fome enfraquece, não mata.** Sem regeneração abaixo de 18
+    de fome e meio coração a cada 4 s no zero, mas o dano PARA em 3 corações enquanto não houver
+    comida (F6). Baixar pra 0 devolve a inanição letal em uma linha.
+  - **Session:** passo tirado do fluxo de `move` (o mesmo do F2, com teto de 4 blocos por
+    amostra pra teleporte não virar caminhada) e edição cobrada **num ponto só, depois do
+    `switch` do `handleMessage`** — porta/cama custam UMA edição, `use_block` e `/bloco` não
+    custam. Curar cobra `EXAUSTAO_POR_REGEN` no tick.
+  - **A regra `fome` virou gate real:** desligada, o campo `fome` não vai na mensagem e o HUD
+    não desenha coxa nenhuma; quem já estava faminto volta a se regenerar. `RegraDef.pendente`
+    novo faz o `/regra` avisar só o que ainda não tem mecânica (`manter-inventario`, `pvp`).
+  - **Protocolo/save:** `fome?` OPCIONAL na mensagem `vida` que já existia e `SavedPlayer.fome?`
+    no molde da vida — mas **fome ZERO é válida no save** (barra vazia é estado de jogo; vida
+    zero seria um morto).
+  - **Cliente:** coxas ao lado dos corações num flex `wrap` (tela estreita quebra a linha sem
+    media query), meia coxa pelo mesmo `clip-path` — com a carne à ESQUERDA, senão a metade
+    mostraria só osso. `?vida=13,45,7` e `vida/fome` na linha do F3.
+  - VERDE: typecheck 3/3 · 459 testes (14 novos) · build · 9/9 smokes (`fome` é novo) · print
+    do HUD conferido. **Playtest PENDENTE.**
 - **§🍖 F2 — VIDA, DANO, MORTE, RESPAWN (sessão 34, 2026-08-02).** A primeira MECÂNICA da
   sobrevivência. Só vale em modo sobrevivência: criativo é imune no MESMO mundo.
   - **`shared/src/sobrevivencia.ts`** (puro): `aplicarDano(estado, n, causa)` é a **ÚNICA porta
@@ -424,33 +496,32 @@ Documento é o ÚLTIMO entregável, não o primeiro. Construir, não documentar.
 
 ---
 
-## 🚀 Próxima fase — §🍖 F3: FOME (~0,5 sessão)
+## 🚀 Próxima fase — §🍖 F4: INVENTÁRIO AUTORITATIVO (~2–3 sessões, a frente CARA)
 
 A ordem do backlog está **travada pelo usuário** (sessão 29):
 **auto-update ✅ → layouts mobile ✅ (1ª rodada) → v2 da geração ✅ (sessões 32+33) →
-sobrevivência ← EM CURSO (F1 e F2 feitos na 34).**
+sobrevivência ← EM CURSO (F1, F2 e F3 feitos nas sessões 34 e 35).**
 
-**Metade do trabalho do F3 já está no lugar:** `EstadoVital.fome` existe desde o F2 (nasce em
-`FOME_MAX`), `tickRegen(estado, fome)` já recebe a fome como parâmetro e a regra de mundo
-`fome` (ligada por padrão) já grava no `.ljw`. Falta:
+⚠️ **Antes de abrir o F4, vale considerar o F6 (comida) fora de ordem.** O F3 nasceu com a
+inanição LIMITADA a 3 corações (`VIDA_MINIMA_POR_FOME`) justamente porque não há o que comer —
+o F6 é o que fecha o laço da fome, e ele é ~1 sessão contra 2–3 do F4. **Quem retomar decide
+com o usuário**: o escopo travado manda F4 primeiro, mas o playtest do F3 pode mudar isso.
 
-- **Barra 0–20 e o DRENO por atividade real.** A session já vê o que gasta: distância andada
-  (fluxo de `move`), blocos quebrados e colocados (`applyBlock`). Nada de relógio de parede —
-  o tick de 10 Hz que já existe é o relógio (mesma regra do ciclo e do vento).
-- **Fome no zero → dano lento por `aplicarDano(…, "fome")`** — a causa JÁ existe no
-  `CausaDano`, o `textoDaMorte` já tem a frase, e o cliente já sabe pintar a vinheta. É só
-  chamar a porta.
-- **A regra `fome` desligada = sobrevivência sem fome** (pro fundamental 1). O gate é
-  `valorRegra(this.regras, "fome")`.
-- **HUD:** coxas ao lado dos corações em `client/src/vitals.ts` — a linha e o CSS já estão
-  montados (bolhas usam o mesmo molde `.casa`/`.icone`), e o `?vida=` vira `?vida=7,45,12`.
-- **Save:** `SavedPlayer.fome?` no mesmo molde da vida — só o que difere do cheio.
-- **Protocolo:** campo `fome?` OPCIONAL na mensagem `vida` que já existe. Não criar mensagem
-  nova (host antigo não manda e o cliente não pode descartar a mensagem inteira).
+**O F4 é a frente cara porque o inventário vira ESTADO DO SERVIDOR** (9 hotbar + 18 mochila,
+stack 64): `place_block` em sobrevivência **gasta**, `break_block` **dá** o que a tabela
+`drops.ts` disser, e criativo segue com a paleta infinita de hoje, intocado. Decisões já
+travadas no `.wolf/ROADMAP.md §🍖` — quem pegar NÃO reabre:
 
-**Depois do F3:** F4 inventário autoritativo (a frente CARA, 2–3 sessões) → F5 craft por lista →
-F6 comida → F7 `/pvp` (atalho da regra que já existe) → F8 mobs (fora do lite) → F9 preset
-`sobrevivencia`. Escopo item a item em `.wolf/ROADMAP.md §🍖`.
+- **NÃO existe item no chão.** Quebrar com a mochila cheia é RECUSADO ("mochila cheia"), não
+  larga item no mundo: item no chão é entidade nova na rede, e entidade é orçamento do F8.
+- **`manter-inventario` (regra do F1, LIGADA) finalmente ganha mecânica** — é em `matar()` que
+  ela vai ser lida, e o `RegraDef.pendente` dela sai do registro no mesmo commit.
+- **A porta de dano e a de fome já existem**: o F4 não mexe em `sobrevivencia.ts`, só passa a
+  cobrar/creditar em `applyBlock`. O ponto de cobrança de esforço do F3 (depois do `switch` do
+  `handleMessage`) é o mesmo lugar onde o gasto de item cabe.
+
+**Depois do F4:** F5 craft por lista → F6 comida → F7 `/pvp` (atalho da regra que já existe) →
+F8 mobs (fora do lite) → F9 preset `sobrevivencia`. Escopo item a item em `.wolf/ROADMAP.md §🍖`.
 
 ### §🏔️ Relevo por bioma — o que ficou aberto
 
@@ -497,8 +568,8 @@ F6 comida → F7 `/pvp` (atalho da regra que já existe) → F8 mobs (fora do li
 
 ### Pendências que não bloqueiam nada, e quem faz é o usuário
 
--3. **PLAYTEST DA SOBREVIVÊNCIA (F1+F2, sessão 34) — o mais novo, e o único que headless não
-   substitui.** Exige `npm run build` se for pelo `:8080`. Como entrar: professor digita
+-3. **PLAYTEST DA SOBREVIVÊNCIA (F1+F2+F3, sessões 34 e 35) — o mais novo, e o único que
+   headless não substitui.** Exige `npm run build` se for pelo `:8080`. Como entrar: professor digita
    `/modo sobrevivencia all` (a turma vai junto, ele fica em criativo pra supervisionar) ou
    `/modo sobrevivencia eu` pra sentir na pele. O que olhar:
    1. **Morrer de queda é JUSTO?** O dano começa em 4 blocos e mata em 23 (contas do
@@ -511,8 +582,20 @@ F6 comida → F7 `/pvp` (atalho da regra que já existe) → F8 mobs (fora do li
    5. **Voltar ao spawn ao morrer funciona pra aula?** Em mundo grande o spawn pode ficar
       longe do que o aluno estava construindo. Se incomodar, "cama = ponto de renascer" é
       feature nova (a cama já existe como bloco), não ajuste.
-   6. **Regenerar 1 ponto a cada 4 s é rápido demais?** Sem fome (F3) ninguém morre de estar
-      parado, então hoje a sobrevivência é generosa de propósito.
+   6. **Regenerar 1 ponto a cada 4 s é rápido demais?** Curar agora CUSTA comida
+      (`EXAUSTAO_POR_REGEN = 3`), então quem se machuca muito passa a sentir a barra.
+   7. **A fome desce rápido demais? (§🍖 F3, o número mais provável de mudar)** A régua está em
+      `shared/src/sobrevivencia.ts`: **400 blocos andados = 1 ponto** (`EXAUSTAO_POR_BLOCO_ANDADO`)
+      e **200 blocos construídos = 1 ponto** (`EXAUSTAO_POR_EDICAO`). A ordem de grandeza mirada
+      é a barra inteira em ~50 min de aula ativa. Se descer rápido demais, o botão é UM número.
+   8. **As coxas ficam legíveis ao lado dos corações?** Em tela estreita a linha quebra sozinha
+      (flex `wrap`) e as duas barras empilham. **No tablet ninguém olhou** — mesma faixa da
+      hotbar de toque, e agora com uma barra a mais.
+   9. **A fome parar em 3 corações parece bug ou parece cuidado?** É deliberado
+      (`VIDA_MINIMA_POR_FOME = 6`): não há comida no jogo até o F6. Se ele quiser que mate,
+      é uma linha — mas aí o F6 vira a próxima frente, não o F4.
+   10. **Vale a `/regra fome desligar` pro fundamental 1?** Ela já funciona: a barra some da
+       tela na hora e ninguém cansa mais. É a resposta pronta se a turma menor se atrapalhar.
 -2. ✅ **PLAYTEST DO RELEVO POR BIOMA (sessão 33) — FEITO** (declarado em 2026-08-02), **sem
    pedido de ajuste**. Os botões seguem documentados caso ele mude de ideia: `BIOMAS.*.relevo`
    (caatinga 0,1 · cerrado 0,35 · mata 0,5 · araucárias 1), `SNOW_HEIGHT`, `Bioma.neve` — e o

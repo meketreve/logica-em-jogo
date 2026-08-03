@@ -3420,6 +3420,25 @@
       ],
       "occurrences": 1,
       "last_seen": "2026-08-02T18:20:00Z"
+    },
+    {
+      "id": "bug-548",
+      "timestamp": "2026-08-02T21:05:00Z",
+      "error_message": "AssertionError: expected undefined to be 19 — teste do §🍖 F3 'a fome FAMINTA vai pro save' apos andar EXATAMENTE 400 blocos (a regua diz 400 blocos = 1 ponto de fome)",
+      "file": "shared/src/sobrevivencia.test.ts",
+      "root_cause": "acumulacao de ponto flutuante: o dreno soma EXAUSTAO_POR_BLOCO_ANDADO (0.01) uma vez por amostra de `move`, e 400 somas de 0.01 dao 3.9999999999999587 — um fio ABAIXO do limiar de 4.0, entao nenhum ponto de fome era gasto. A regua '400 blocos = 1 ponto' e exata na aritmetica real e inexata em double. O teste vizinho passava por acidente: ele chamava andar() duas vezes, e a 1a amostra da 2a chamada e um passo a mais.",
+      "fix": "teste passou a andar 410 blocos (com folga, comentando o porque). O CODIGO nao mudou: errar pra menos no limiar e inofensivo (o proximo passo fecha a conta) e consertar com epsilon ou inteiros custaria mais que vale. Licao: teste de limiar acumulado por soma de fracao NAO deve sentar na fronteira exata.",
+      "tags": [
+        "float",
+        "teste",
+        "fome",
+        "sobrevivencia",
+        "limiar",
+        "F3"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-08-02T21:05:00Z"
     }
   ]
 }

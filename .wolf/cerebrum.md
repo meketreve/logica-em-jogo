@@ -187,7 +187,7 @@
   escrever o teste que compara os dois célula a célula** — é ele que autoriza otimizar.
 - Escavar DEPOIS do minério deixa a veia cortada na parede (o que faz explorar valer a pena).
 
-### §🍖 Sobrevivência (2026-08-02, F1)
+### §🍖 Sobrevivência (2026-08-02, F1 · F2 · F3)
 
 - **Modo de jogo tem DUAS camadas:** padrão do MUNDO (no `.ljw`) + override pessoal por NOME
   (não por id de cliente — tem de sobreviver ao rejoin, igual ao roster). Quem resolve o
@@ -227,6 +227,32 @@
 - **`?param` na URL pra congelar estado de UI** (`?hora`, `?vento`, `?atlas`, `?vida`) é o
   idioma do projeto pra inspeção visual: o headless vê o que o servidor levaria uma partida
   inteira pra produzir. O forçado tem de VENCER o sync de rede, senão a 1ª mensagem apaga.
+- **Recurso que desce com o USO desce por ESFORÇO, não por relógio** (§🍖 F3): acumulador
+  fracionário de exaustão + conversão a cada limiar. Além de dispensar `Date.now()` (como o
+  ciclo e o vento), é o que faz o gasto acompanhar o que o aluno FEZ — quem passou a aula lendo
+  o quadro não pode chegar faminto. A régua fica em constantes exportadas, uma por atividade.
+- **Cobrança de "o jogador editou o mundo" mora DEPOIS do `switch` do `handleMessage`, num
+  ponto só** — cada caso já retornou cedo quando recusou (bounds, alcance, claim, confinamento),
+  então "o mundo mudou" (`changedThisTick.size` cresceu) é o mesmo que "a ação valeu". Porta e
+  cama, que materializam 2 células, custam UMA ação — e ramo de bloco novo entra cobrando sem
+  ninguém lembrar de plugar nada.
+- **Campo OPCIONAL no protocolo pode significar duas coisas ao mesmo tempo, e isso é útil:**
+  `fome` ausente = host antigo **ou** mundo com a regra desligada; nos dois casos o cliente
+  desenha nada, que é a resposta certa. Mas então mudar a REGRA tem de reenviar a mensagem
+  (senão o HUD só reage no próximo dano) — regra que decide o que existe na tela avisa na hora.
+- **Regra desligada tem de neutralizar o estado JÁ acumulado, não só parar de acumular:** com a
+  fome desligada, o corpo se comporta como bem alimentado mesmo com a barra em 0 gravada —
+  senão o aluno fica sem regeneração num mundo que não tem mais fome.
+- **`RegraDef.pendente`**: regra sem mecânica avisa no `/regra`; quando a frente chega, some o
+  flag. Sem isso, ou o comando mente ("ligada") ou avisa pra sempre.
+- **Punição que depende de uma frente que ainda não existe ganha um PISO, não um adiamento**
+  (`VIDA_MINIMA_POR_FOME = 6`): a fome já enfraquece de verdade (sem regeneração, perde vida),
+  mas não mata enquanto não houver comida. A alternativa — não implementar o dano — deixaria a
+  mecânica sem consequência; a outra — matar — é frustração de aula. Constante, com o caminho
+  de volta escrito no comentário.
+- **Ícone com metade recortada (`clip-path: inset(0 50% 0 0)`) decide o LADO do desenho:** a
+  coxa teve de nascer com a carne à esquerda, senão meia coxa mostraria só osso. Vale pra
+  qualquer ícone assimétrico que use o truque do meio-coração.
 
 ### Streaming de colunas (F2)
 

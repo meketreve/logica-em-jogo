@@ -810,3 +810,64 @@ layouts mobile segue sendo o próximo.
 
 | Time | Action | File(s) | Outcome | ~Tokens |
 |------|--------|---------|---------|--------|
+| 20:37 | Edited shared/src/sobrevivencia.ts | expanded (+48 lines) | ~664 |
+| 20:37 | Edited shared/src/sobrevivencia.ts | modified novoEstadoVital() | ~231 |
+| 20:37 | Edited shared/src/sobrevivencia.ts | added 5 condition(s) | ~546 |
+| 20:38 | Edited shared/src/sobrevivencia.ts | removed 9 lines | ~6 |
+| 20:38 | Edited shared/src/sobrevivencia.ts | 4→9 lines | ~126 |
+| 20:38 | Edited shared/src/protocol.ts | 10→15 lines | ~169 |
+| 20:39 | Edited shared/src/protocol.ts | 9→11 lines | ~124 |
+| 20:39 | Edited shared/src/save.ts | expanded (+8 lines) | ~166 |
+| 20:39 | Edited shared/src/save.ts | 3→6 lines | ~98 |
+| 20:40 | Edited shared/src/save.ts | inline fix | ~16 |
+| 20:40 | Edited shared/src/session.ts | expanded (+7 lines) | ~95 |
+| 20:40 | Edited shared/src/session.ts | cheia() → cheias() | ~123 |
+| 20:40 | Edited shared/src/session.ts | viaja() → viajam() | ~66 |
+| 20:40 | Edited shared/src/session.ts | added 1 condition(s) | ~222 |
+| 20:41 | Edited shared/src/session.ts | modified handleMessage() | ~170 |
+| 20:41 | Edited shared/src/session.ts | added 1 condition(s) | ~173 |
+| 20:41 | Edited shared/src/session.ts | added 4 condition(s) | ~466 |
+| 20:41 | Edited shared/src/session.ts | added 3 condition(s) | ~405 |
+| 20:42 | Edited shared/src/regras.ts | 27→32 lines | ~343 |
+| 20:42 | Edited shared/src/session.ts | 4→7 lines | ~129 |
+| 20:42 | Edited shared/src/session.ts | 2→5 lines | ~106 |
+| 20:42 | Edited shared/src/session.ts | inline fix | ~23 |
+| 20:42 | Edited shared/src/session.ts | added 2 condition(s) | ~132 |
+| 20:42 | Edited client/src/vitals.ts | 3→4 lines | ~32 |
+| 20:42 | Edited client/src/vitals.ts | modified pontos() | ~145 |
+| 20:43 | Edited client/src/vitals.ts | expanded (+8 lines) | ~110 |
+| 20:43 | Edited client/src/vitals.ts | modified frango() | ~280 |
+| 20:43 | Edited client/src/vitals.ts | added 2 condition(s) | ~522 |
+| 20:43 | Edited client/src/vitals.ts | 7→9 lines | ~123 |
+| 20:44 | Edited client/src/vitals.ts | reduced (-11 lines) | ~244 |
+| 20:44 | Edited client/src/vitals.ts | modified aplicar() | ~62 |
+| 20:44 | Edited client/src/vitals.ts | modified desenharFome() | ~296 |
+| 20:44 | Edited client/src/vitals.ts | 6→8 lines | ~74 |
+| 20:44 | Edited client/src/main.ts | modified if() | ~247 |
+| 20:44 | Edited client/src/main.ts | expanded (+6 lines) | ~254 |
+| 20:44 | Edited client/src/main.ts | inline fix | ~15 |
+| 20:45 | Edited client/src/main.ts | expanded (+7 lines) | ~141 |
+| 20:46 | Edited shared/src/sobrevivencia.test.ts | expanded (+10 lines) | ~149 |
+| 20:46 | Edited shared/src/sobrevivencia.test.ts | modified andar() | ~118 |
+| 20:48 | Edited shared/src/sobrevivencia.test.ts | 3→3 lines | ~48 |
+| 20:48 | Created server/src/cenarios/_smoke-fome.mjs | — | ~1213 |
+| 20:48 | Edited scripts/smoke.mjs | expanded (+21 lines) | ~192 |
+| 20:51 | Edited client/src/vitals.ts | modified frango() | ~213 |
+
+## Sessão 35 (2026-08-02) — §🍖 F3: a fome (e o commit da 34)
+
+| hora | ação | arquivos | resultado | ~tokens |
+|---|---|---|---|---|
+| 20:25 | commit pedido pelo usuário: verificar ANTES | — | typecheck 3/3 · 445 testes · build · 8/8 smokes | ~2k |
+| 20:29 | sessão 34 (F1+F2) em 2 commits | 23 arquivos + `.wolf/` | `ef29ee8` código · `6b7f63a` wolf | ~3k |
+| 20:33 | §🍖 F3 puro: `gastarEsforco`, `tickFome`, régua e o piso da inanição | `sobrevivencia.ts` | 0,01/passo · 0,02/edição · 3,0/regen · piso 6 | ~4k |
+| 20:38 | protocolo `fome?` + `SavedPlayer.fome?` (zero é válido) | `protocol.ts`, `save.ts` | opcional dos dois lados | ~2k |
+| 20:41 | dreno na session: passo no `move`, edição depois do `switch`, tick | `session.ts` | teleporte não cobra; porta custa 1 | ~6k |
+| 20:43 | regra `fome` virou gate real + `RegraDef.pendente` | `regras.ts`, `session.ts` | desligar tira a barra na hora | ~3k |
+| 20:46 | coxas no HUD (flex wrap, meia coxa por clip-path) | `vitals.ts`, `main.ts` | `?vida=13,45,7` + F3 com vida/fome | ~5k |
+| 20:47 | 14 testes novos (puros + sessão + save) | `sobrevivencia.test.ts` | bug-548 no caminho (float no limiar) | ~4k |
+| 20:49 | smoke `fome` novo + manifesto | `_smoke-fome.mjs`, `smoke.mjs` | 9/9 smokes, 2 rodadas | ~3k |
+| 20:52 | print do HUD no headless (CDP, recorte do painel) | scratchpad | 3 bolhas · 6½ corações · 3½ coxas · 0 erro | ~3k |
+| 20:53 | espelhei a coxa (carne à esquerda) | `vitals.ts` | meia coxa mostrava só osso | ~1k |
+| 20:58 | verificação final | — | typecheck 3/3 · **459 testes** · build · **9/9 smokes** | ~2k |
+| 21:05 | wolf: STATUS/TODO/cerebrum/buglog + anatomy (259 arquivos) | `.wolf/*` | sessão 35 fechada | ~5k |
