@@ -1,6 +1,8 @@
 import { MAX_PIN_ATTEMPTS, PIN_LOCKOUT_MS, type Papel, isValidPin, sanitizeName } from "./auth";
 import {
   BlockId,
+  ITEM_BALDE_AGUA,
+  ITEM_BALDE_VAZIO,
   camaHeadDir,
   isAgua,
   isAguaFonte,
@@ -34,6 +36,7 @@ import {
   adicionar,
   cabe,
   contar,
+  definirSlot,
   estaVazio,
   inventarioParaSave,
   inventarioVazio,
@@ -42,6 +45,7 @@ import {
   remover,
 } from "./inventario";
 import { MAX_QUADRO_TEXTO, type QuadroConteudo, quadroKey } from "./quadros";
+import { RECEITAS, fabricar, receitaValida } from "./receitas";
 import {
   AGUA_POR_TICK_PADRAO,
   CHUNK_SIZE,
@@ -1033,6 +1037,15 @@ export class GameSession {
           }
         }
         const alvo = getBlock(this.world, msg.x, msg.y, msg.z);
+        // §🍖 F5: em sobrevivência o balde é ITEM da mochila. Confere ANTES de
+        // mexer na água (senão a recusa deixaria rastro no mundo — a disciplina
+        // da mochila cheia recusando a quebra): o slot informado tem de segurar
+        // o balde do estado certo (vazio pra recolher, cheio pra despejar).
+        const survival = this.inventarioVale(clientId);
+        if (survival) {
+          const precisa = msg.encher ? ITEM_BALDE_VAZIO : ITEM_BALDE_AGUA;
+          if (msg.slot === undefined || this.inventarioDe(p.name)[msg.slot]?.id !== precisa) return;
+        }
         if (msg.encher) {
           // balde VAZIO: só recolhe uma FONTE (o fluxo derivado seca sozinho)
           if (!isAguaFonte(alvo)) return;
@@ -1041,6 +1054,16 @@ export class GameSession {
           // balde CHEIO: célula vazia OU água substituível vira FONTE
           if (alvo !== BlockId.Air && !isReplaceable(alvo)) return;
           this.applyBlock(msg.x, msg.y, msg.z, BlockId.Agua);
+        }
+        // §🍖 F5: troca vazio↔cheio NO MESMO slot e reenvia a mochila (o cliente
+        // não escreve o próprio inventário em sobrevivência).
+        if (survival && msg.slot !== undefined) {
+          const novo = msg.encher ? ITEM_BALDE_AGUA : ITEM_BALDE_VAZIO;
+          this.inventarios.set(
+            p.name,
+            definirSlot(this.inventarioDe(p.name), msg.slot, { id: novo, qtd: 1 }),
+          );
+          this.sendInventario(clientId);
         }
         break;
       }
@@ -1054,6 +1077,20 @@ export class GameSession {
         const antes = this.inventarioDe(p.name);
         const depois = moverSlot(antes, msg.de, msg.para);
         if (depois === antes) return;
+        this.inventarios.set(p.name, depois);
+        this.sendInventario(clientId);
+        break;
+      }
+      case "fabricar": {
+        // §🍖 F5: o aluno pediu uma receita pelo índice. O cliente NÃO decide —
+        // o servidor confere ingredientes e espaço e responde com a mochila
+        // inteira. Fora da sobrevivência (criativo tem paleta infinita) e
+        // índice inválido são no-op silencioso, como o resto das ações.
+        const p = this.players.get(clientId);
+        if (!p || !this.inventarioVale(clientId) || !receitaValida(msg.receita)) return;
+        const antes = this.inventarioDe(p.name);
+        const depois = fabricar(antes, RECEITAS[msg.receita]!);
+        if (depois === null) return; // faltou ingrediente ou mochila cheia
         this.inventarios.set(p.name, depois);
         this.sendInventario(clientId);
         break;

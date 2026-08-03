@@ -1,4 +1,10 @@
-import { HOTBAR_SLOTS, INV_SLOTS } from "@logica/shared";
+import {
+  HOTBAR_SLOTS,
+  INV_SLOTS,
+  RECEITAS,
+  ingredientesDe,
+  podeFabricar,
+} from "@logica/shared";
 import { playUi } from "./audio";
 import { CATEGORIAS, type Categoria, type PlaceableEntry } from "./blocksUi";
 import type { Mochila } from "./mochila";
@@ -26,6 +32,11 @@ export class InventoryPanel {
   private cat: Categoria = "blocos";
   /** §🍖 F4: slot "pego" esperando o destino (null = nenhum). */
   private pegando: number | null = null;
+  /** §🍖 F5: em sobrevivência o painel tem duas visões — arrumar a mochila e
+   *  fabricar. Sobrevive a abrir/fechar dentro da sessão, como `cat`. */
+  private subaba: "mochila" | "criar" = "mochila";
+  /** §🍖 F5: texto do filtro da lista de receitas (persiste entre re-renders). */
+  private filtroCraft = "";
 
   private readonly onEsc = (e: KeyboardEvent): void => {
     if (e.code !== "Escape") return;
@@ -46,6 +57,10 @@ export class InventoryPanel {
     private readonly mochila: Mochila,
     /** §🍖 F4: pede ao servidor pra mover uma pilha de slot. */
     private readonly mover: (de: number, para: number) => void,
+    /** §🍖 F5: nome PT de um id (bloco ou item, ex. "tábuas", "balde vazio"). */
+    private readonly nameOf: (id: number) => string,
+    /** §🍖 F5: pede ao servidor pra fabricar a receita de índice `indice`. */
+    private readonly fabricar: (indice: number) => void,
   ) {
     // som de UI por delegação, igual aos painéis do cp14
     this.root?.addEventListener("click", (e) => {
@@ -194,12 +209,40 @@ export class InventoryPanel {
     fechar.addEventListener("click", () => this.hide());
     head.append(h, fechar);
 
+    // §🍖 F5: duas visões — arrumar a mochila e fabricar (craft por LISTA).
+    // Molde das abas de categoria; a aba ativa sobrevive dentro da sessão.
+    const abas = document.createElement("div");
+    abas.className = "inv-abas";
+    for (const s of [
+      { id: "mochila" as const, label: "mochila" },
+      { id: "criar" as const, label: "criar" },
+    ]) {
+      const tab = document.createElement("button");
+      tab.type = "button";
+      tab.className = "inv-aba" + (s.id === this.subaba ? " sel" : "");
+      tab.textContent = s.label;
+      tab.addEventListener("click", () => {
+        this.subaba = s.id;
+        this.pegando = null; // trocar de aba solta o item pego
+        this.render();
+      });
+      abas.appendChild(tab);
+    }
+
     const dica = document.createElement("p");
     dica.className = "inv-dica";
     dica.textContent =
-      this.pegando === null
-        ? "toque num item para pegar, depois toque onde ele deve ficar · 1–9 escolhem o slot da mão"
-        : "agora toque no slot de destino (ou no mesmo item para soltar)";
+      this.subaba === "criar"
+        ? "toque numa receita pra fabricar · o vermelho é o que falta · fabrica em qualquer lugar"
+        : this.pegando === null
+          ? "toque num item para pegar, depois toque onde ele deve ficar · 1–9 escolhem o slot da mão"
+          : "agora toque no slot de destino (ou no mesmo item para soltar)";
+
+    if (this.subaba === "criar") {
+      const bar = this.hotbarBar();
+      root.append(head, abas, dica, this.renderCraft(), bar);
+      return;
+    }
 
     const slotBtn = (i: number): HTMLButtonElement => {
       const id = this.mochila.idDoSlot(i);
@@ -256,6 +299,143 @@ export class InventoryPanel {
       bar.appendChild(b);
     }
 
-    root.append(head, dica, grade, bar);
+    root.append(head, abas, dica, grade, bar);
+  }
+
+  /**
+   * §🍖 F5 — a hotbar do pé do painel na visão "criar": só MOSTRA o que o
+   * jogador segura (com a contagem), sem o gesto de mover — não há grade pra
+   * onde arrastar aqui. Tocar num slot escolhe a mão, como sempre.
+   */
+  private hotbarBar(): HTMLElement {
+    const bar = document.createElement("div");
+    bar.className = "inv-hotbar";
+    const { selected } = this.state();
+    for (let i = 0; i < HOTBAR_SLOTS; i++) {
+      const id = this.mochila.idDoSlot(i);
+      const qtd = this.mochila.qtdDoSlot(i);
+      const b = document.createElement("button");
+      b.type = "button";
+      b.className = "inv-slot" + (i === selected ? " sel" : "");
+      const num = document.createElement("small");
+      num.textContent = String(i + 1);
+      b.appendChild(num);
+      if (id !== null) {
+        const img = document.createElement("img");
+        img.src = this.icons.get(id) ?? "";
+        img.alt = "";
+        b.appendChild(img);
+        if (qtd > 1) {
+          const n = document.createElement("b");
+          n.className = "qtd";
+          n.textContent = String(qtd);
+          b.appendChild(n);
+        }
+      }
+      b.addEventListener("click", () => {
+        this.select(i);
+        this.render();
+      });
+      bar.appendChild(b);
+    }
+    return bar;
+  }
+
+  /**
+   * §🍖 F5 — o CRAFT POR LISTA. Cada receita é uma linha: a saída (ícone +
+   * "N× nome") e os ingredientes com quanto o jogador tem de cada um; o que
+   * falta sai em vermelho. A linha inteira é o botão — **tocar fabrica**, o
+   * gesto do tablet (nada de arrastar). Desabilitada quando falta ingrediente
+   * OU a mochila não tem lugar pra saída. A UI não decide: o toque vira a
+   * mensagem `fabricar` e o servidor confere de novo antes de aplicar.
+   *
+   * Um filtro de texto no topo (o "falta 3 tábua" do ROADMAP fica legível numa
+   * lista curta, mas o filtro já deixa a porta aberta pra ela crescer). Digitar
+   * no filtro só reconstrói as LINHAS, pra o foco do campo não piscar.
+   */
+  private renderCraft(): HTMLElement {
+    const wrap = document.createElement("div");
+    wrap.className = "craft-wrap";
+
+    const filtro = document.createElement("input");
+    filtro.type = "text";
+    filtro.className = "craft-filtro";
+    filtro.placeholder = "filtrar receita…";
+    filtro.value = this.filtroCraft;
+
+    const lista = document.createElement("div");
+    lista.className = "craft-lista";
+
+    filtro.addEventListener("input", () => {
+      this.filtroCraft = filtro.value;
+      this.montarReceitas(lista);
+    });
+    this.montarReceitas(lista);
+
+    wrap.append(filtro, lista);
+    return wrap;
+  }
+
+  /** (Re)preenche a lista de receitas aplicando o filtro atual. Separado do
+   *  `renderCraft` pra o campo de filtro poder chamá-lo sem perder o foco. */
+  private montarReceitas(lista: HTMLElement): void {
+    lista.replaceChildren();
+    const inv = this.mochila.estado();
+    const q = this.filtroCraft.trim().toLowerCase();
+
+    const casa = (indice: number): boolean => {
+      if (!q) return true;
+      const r = RECEITAS[indice]!;
+      const nomes = [this.nameOf(r.saida.id), ...r.custo.map((c) => this.nameOf(c.id))];
+      return nomes.some((n) => n.toLowerCase().includes(q));
+    };
+
+    let visiveis = 0;
+    RECEITAS.forEach((r, indice) => {
+      if (!casa(indice)) return;
+      visiveis++;
+      const pode = podeFabricar(inv, r);
+
+      const row = document.createElement("button");
+      row.type = "button";
+      row.className = "craft-row";
+      row.disabled = !pode;
+
+      const img = document.createElement("img");
+      img.src = this.icons.get(r.saida.id) ?? "";
+      img.alt = "";
+
+      const texto = document.createElement("div");
+      texto.className = "craft-texto";
+
+      const nome = document.createElement("div");
+      nome.className = "craft-nome";
+      nome.textContent = `${r.saida.qtd}× ${this.nameOf(r.saida.id)}`;
+
+      const custo = document.createElement("div");
+      custo.className = "craft-custo";
+      ingredientesDe(inv, r).forEach((ing, k) => {
+        if (k > 0) custo.append(" · ");
+        const span = document.createElement("span");
+        span.className = ing.falta > 0 ? "falta" : "ok";
+        span.textContent = `${ing.have}/${ing.need} ${this.nameOf(ing.id)}`;
+        custo.appendChild(span);
+      });
+
+      texto.append(nome, custo);
+      row.append(img, texto);
+      row.addEventListener("click", () => {
+        if (row.disabled) return;
+        this.fabricar(indice);
+      });
+      lista.appendChild(row);
+    });
+
+    if (visiveis === 0) {
+      const vazio = document.createElement("p");
+      vazio.className = "inv-dica";
+      vazio.textContent = "nenhuma receita com esse nome.";
+      lista.appendChild(vazio);
+    }
   }
 }

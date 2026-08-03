@@ -1660,6 +1660,8 @@ function startGame(snap: Snapshot): void {
     },
     mochila,
     (de, para) => activeConn.send(JSON.stringify({ type: "mover_item", de, para })),
+    blockName,
+    (receita) => activeConn.send(JSON.stringify({ type: "fabricar", receita })),
   );
   input.onKey(settings.keys.inventario, () => {
     if (chat.open) return;
@@ -1698,11 +1700,13 @@ function startGame(snap: Snapshot): void {
     // mirada (target+normal). Vazio → RECOLHE a fonte mirada (o raycast parou
     // na água). Estado cheio/vazio troca no slot da hotbar.
     {
-      // §🍖 F4: o balde ainda NÃO é item de mochila (não há craft até o F5), então
-      // em sobrevivência ninguém tem um — este ramo só roda em criativo, e por
-      // isso segue escrevendo no slot local da hotbar.
-      const held = mochila.ativa ? null : hotbar[selected];
+      // §🍖 F5: o balde virou item de mochila. Em sobrevivência o item vem do
+      // slot do SERVIDOR e o slot vai no `slot:` da mensagem — quem troca
+      // vazio↔cheio (e responde com a mochila) é o servidor. Em criativo segue
+      // escrevendo o slot local da hotbar, como sempre.
+      const held = idNaMao();
       if (isBalde(held ?? -1)) {
+        const slot = mochila.ativa ? { slot: selected } : {};
         if (held === ITEM_BALDE_AGUA) {
           activeConn.send(
             JSON.stringify({
@@ -1711,19 +1715,29 @@ function startGame(snap: Snapshot): void {
               y: target.y + target.ny,
               z: target.z + target.nz,
               encher: false,
+              ...slot,
             }),
           );
-          hotbar[selected] = ITEM_BALDE_VAZIO; // esvaziou
+          if (!mochila.ativa) hotbar[selected] = ITEM_BALDE_VAZIO; // esvaziou (local)
         } else {
           // só recolhe se mirou numa FONTE (id Agua); fluxo derivado não coleta
           if (getBlock(world, target.x, target.y, target.z) !== BlockId.Agua) return;
           activeConn.send(
-            JSON.stringify({ type: "balde", x: target.x, y: target.y, z: target.z, encher: true }),
+            JSON.stringify({
+              type: "balde",
+              x: target.x,
+              y: target.y,
+              z: target.z,
+              encher: true,
+              ...slot,
+            }),
           );
-          hotbar[selected] = ITEM_BALDE_AGUA; // encheu
+          if (!mochila.ativa) hotbar[selected] = ITEM_BALDE_AGUA; // encheu (local)
         }
-        localStorage.setItem(HOTBAR_KEY, JSON.stringify(hotbar));
-        refreshHotbar();
+        if (!mochila.ativa) {
+          localStorage.setItem(HOTBAR_KEY, JSON.stringify(hotbar));
+          refreshHotbar();
+        }
         return;
       }
     }

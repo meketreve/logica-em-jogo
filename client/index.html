@@ -467,6 +467,72 @@
         border-color: #7fd4ff !important;
         box-shadow: 0 0 0 2px #7fd4ff;
       }
+      /* §🍖 F5: craft por lista. A lista rola por dentro (painel de altura
+         fixa); cada receita é uma linha-botão (tocar fabrica). */
+      .craft-wrap {
+        display: flex;
+        flex-direction: column;
+        flex: 1;
+        min-height: 0; /* deixa a lista rolar dentro do flex */
+      }
+      .craft-filtro {
+        font: inherit;
+        font-size: 0.82rem;
+        padding: 6px 9px;
+        margin-bottom: 8px;
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        border-radius: 6px;
+        background: rgba(0, 0, 0, 0.3);
+        color: #fff;
+      }
+      .craft-lista {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        flex: 1;
+        overflow-y: auto;
+        align-content: start;
+      }
+      .craft-row {
+        display: flex !important;
+        align-items: center;
+        gap: 10px;
+        width: 100%;
+        text-align: left;
+        padding: 8px 10px !important;
+        min-height: 44px; /* alvo de dedo (Fire) */
+      }
+      .craft-row img {
+        width: 30px;
+        height: 30px;
+        image-rendering: pixelated;
+        flex-shrink: 0;
+      }
+      .craft-row:disabled {
+        opacity: 0.5;
+        cursor: default;
+      }
+      .craft-texto {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+        min-width: 0;
+      }
+      .craft-nome {
+        font-size: 0.86rem;
+        color: #ffd75e;
+      }
+      .craft-custo {
+        font-size: 0.74rem;
+        opacity: 0.9;
+      }
+      .craft-custo .falta {
+        color: #ff8a8a;
+        font-weight: 600;
+      }
+      .craft-custo .ok {
+        color: #9ee89e;
+      }
       /* --- Menu principal (cp8) --- */
       #menu {
         position: fixed;

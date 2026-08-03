@@ -40,8 +40,15 @@ export type ClientMessage =
   | { type: "use_block"; x: number; y: number; z: number }
   /** Balde (2026-07-22): `encher=false` (balde cheio) DESPEJA fonte de água na
    *  célula; `encher=true` (balde vazio) RECOLHE a fonte de volta. Servidor
-   *  valida célula/alcance/gates de claim/confinamento e aplica via applyBlock. */
-  | { type: "balde"; x: number; y: number; z: number; encher: boolean }
+   *  valida célula/alcance/gates de claim/confinamento e aplica via applyBlock.
+   *  §🍖 F5: `slot?` é o slot do balde na mochila (sobrevivência) — o servidor
+   *  confere que o item está lá e troca vazio↔cheio NAQUELE slot, pra o balde
+   *  não pular de lugar. Ausente (criativo) = o cliente cuida do slot local. */
+  | { type: "balde"; x: number; y: number; z: number; encher: boolean; slot?: number }
+  /** Craft (§🍖 F5): fabrica a receita de índice `receita` na lista `RECEITAS`.
+   *  Só vale em sobrevivência; o servidor consome os ingredientes e responde
+   *  com o `inventario` inteiro. Índice inválido é ignorado (parse defensivo). */
+  | { type: "fabricar"; receita: number }
   /** Quadro (2026-07-19): define o CONTEÚDO do quadro naquela célula (texto
    *  e/ou imagem data URL pequena). Servidor valida célula/alcance/gates e
    *  responde com quadro_changed broadcast. Texto vazio sem imagem = limpa. */
@@ -450,12 +457,15 @@ export function parseClientMessage(raw: string): ClientMessage | null {
       const ints = [m["x"], m["y"], m["z"]];
       if (!ints.every((n) => typeof n === "number" && Number.isInteger(n))) return null;
       if (typeof m["encher"] !== "boolean") return null;
+      const slot = m["slot"];
       return {
         type: "balde",
         x: m["x"] as number,
         y: m["y"] as number,
         z: m["z"] as number,
         encher: m["encher"] as boolean,
+        // §🍖 F5: slot opcional (sobrevivência); número não-inteiro é ignorado
+        ...(typeof slot === "number" && Number.isInteger(slot) ? { slot } : {}),
       };
     }
     case "quadro_set": {
@@ -467,6 +477,11 @@ export function parseClientMessage(raw: string): ClientMessage | null {
       const ints = [m["de"], m["para"]];
       if (!ints.every((n) => typeof n === "number" && Number.isInteger(n))) return null;
       return { type: "mover_item", de: m["de"] as number, para: m["para"] as number };
+    }
+    case "fabricar": {
+      const r = m["receita"];
+      if (typeof r !== "number" || !Number.isInteger(r)) return null;
+      return { type: "fabricar", receita: r };
     }
     case "chat":
       if (typeof m["text"] !== "string") return null;

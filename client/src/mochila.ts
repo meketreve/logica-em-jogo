@@ -61,6 +61,12 @@ export class Mochila {
     return Array.from({ length: HOTBAR_SLOTS }, (_, i) => this.idDoSlot(i));
   }
 
+  /** O inventário inteiro (imutável) — o painel de craft (§🍖 F5) alimenta as
+   *  funções puras `ingredientesDe`/`podeFabricar` do shared com ele. */
+  estado(): Inventario {
+    return this.inv;
+  }
+
   /** Quantas unidades deste id existem na mochila inteira. */
   contar(id: number): number {
     let n = 0;

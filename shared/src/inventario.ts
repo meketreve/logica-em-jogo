@@ -177,6 +177,19 @@ export function moverSlot(inv: Inventario, de: number, para: number): Inventario
   return slots;
 }
 
+/**
+ * Substitui o conteúdo de UM slot (pilha nova ou vazio), sem mexer no resto.
+ * É a troca in-place do balde vazio↔cheio no §🍖 F5: o item fica no mesmo slot
+ * (senão pularia de lugar e o aluno perderia o que segura). Índice inválido
+ * devolve o inventário como está. Não valida teto — quem chama é dono da pilha.
+ */
+export function definirSlot(inv: Inventario, slot: number, pilha: Slot): Inventario {
+  if (!slotValido(slot)) return inv;
+  const slots = inv.slice();
+  slots[slot] = pilha;
+  return slots;
+}
+
 /** Índice de slot válido? (o fio manda número; aqui é onde ele para) */
 export function slotValido(i: number): boolean {
   return Number.isInteger(i) && i >= 0 && i < INV_SLOTS;

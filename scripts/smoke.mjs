@@ -213,6 +213,27 @@ const SMOKES = [
     ],
   },
   {
+    nome: "craft",
+    arquivo: `${DIR}/_smoke-craft.mjs`,
+    prova:
+      "§🍖 F5 — fabricar é estado do SERVIDOR (cliente pede por índice, recebe a mochila), a receita consome e credita, faltar ingrediente é recusado calado, criativo não fabrica, e o balde virou item: 3 ferro → balde, e usar troca vazio↔cheio no mesmo slot.",
+    lento: false,
+    // o smoke deixa mochila e modo pessoal gravados no .ljw
+    limpar: ["mundos/_smoke-craft"],
+    servidores: [
+      {
+        porta: 8103,
+        env: {
+          LJ_SAVE: "mundos/_smoke-craft.ljw",
+          LJ_NOVO: "1",
+          LJ_TAMANHO: "P",
+          LJ_CODIGO: "prof2026",
+          LJ_SEED: SEED,
+        },
+      },
+    ],
+  },
+  {
     nome: "troca-raio",
     arquivo: `${DIR}/_smoke-troca-raio.mjs`,
     args: ["_smoke-trocab"],
