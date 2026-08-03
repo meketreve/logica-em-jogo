@@ -157,6 +157,13 @@
          hook pela ferramenta, nunca por heredoc. **Consertar upstream:** olhar o mtime/hash do
          `buglog.json`, não a lista de escritas da sessão.
 
+      3. **`| HH:MM | Session end: … |` repetida no `memory.md` a cada `stop`.** Como os avisos
+         1 e 2 fazem o turno terminar sem trabalho novo, o hook grava a MESMA linha de
+         encerramento outra vez — a sessão 36 acumulou 9 cópias idênticas de
+         `Session end: 73 writes across 18 files`. Ruído puro no diário. **Consertar:** só
+         gravar se a contagem mudou desde a última linha, ou sobrescrever a última em vez de
+         acrescentar.
+
 ## ✅ Recently done
 
 <!-- Checked items land here. Sweep them into STATUS.md "✅ Done" when a phase closes, then clear this list. -->
