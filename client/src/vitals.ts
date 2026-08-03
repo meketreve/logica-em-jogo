@@ -1,5 +1,6 @@
 /**
- * HUD de vida (§🍖 F2) — corações, bolhas de ar e o feedback de levar dano.
+ * HUD de vida (§🍖 F2) e fome (§🍖 F3) — corações, coxas, bolhas de ar e o
+ * feedback de levar dano.
  *
  * DOM e CSS próprios, injetados aqui (self-contained, padrão do `loading.ts` e
  * do `touch.ts`): o `index.html` não sabe que este HUD existe.
@@ -10,11 +11,16 @@
  *
  * Coração = 2 pontos (escala do Minecraft, o modelo mental que aluno e
  * professor já têm): 20 pontos = 10 corações, e vida ímpar mostra meio coração.
+ * A coxa segue a MESMA escala: 20 pontos de fome = 10 coxas.
+ *
+ * A barra de fome só existe quando o servidor manda o campo `fome` — mundo com
+ * a regra `fome` desligada não desenha coxa nenhuma (nem cheia, nem vazia).
  */
 
-import { FOLEGO_TICKS, VIDA_MAX } from "@logica/shared";
+import { FOLEGO_TICKS, FOME_MAX, VIDA_MAX } from "@logica/shared";
 
 const CORACOES = 10;
+const COXAS = 10;
 const BOLHAS = 10;
 /** Ticks de ar por bolha desenhada (a mesma conta que o servidor usa pra
  *  decidir quando vale mandar `vida` — ver `GameSession.bolhas`). */
@@ -38,6 +44,14 @@ const CSS = `
 #lj-vitals.ativo { display: flex; }
 #lj-vitals .linha { display: flex; gap: 2px; height: 18px; }
 #lj-vitals .linha.vazia { display: none; }
+/* corações e coxas lado a lado (como no Minecraft); em tela estreita a linha
+   QUEBRA sozinha em vez de escapar da tela — sem media query */
+#lj-vitals .barras {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 4px 16px;
+}
 #lj-vitals .icone {
   width: 18px;
   height: 18px;
@@ -95,23 +109,86 @@ const CORACAO_VAZIO = svgUrl(
 const BOLHA = svgUrl(
   `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><circle cx="8" cy="8" r="6" fill="#7fd4ff" stroke="#0a3550" stroke-width="1.2"/><circle cx="5.8" cy="5.8" r="1.6" fill="#fff" opacity="0.9"/></svg>`,
 );
+/**
+ * Coxa de frango (§🍖 F3): carne em cima à ESQUERDA, osso descendo pra direita.
+ * Desenhada cheia e vazia como o coração — meia coxa é o mesmo recorte por
+ * `clip-path`, e é por isso que a carne fica do lado esquerdo: o recorte pega a
+ * metade da esquerda, e meia coxa tem de mostrar CARNE, não osso.
+ */
+const coxaSvg = (carne: string, osso: string, traco: string): string =>
+  `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16">` +
+  `<path d="M12.8 12.8 8.6 8.6" stroke="${osso}" stroke-width="3" stroke-linecap="round"/>` +
+  `<circle cx="12.9" cy="12.9" r="2.1" fill="${osso}" stroke="${traco}" stroke-width="0.9"/>` +
+  `<circle cx="6" cy="6" r="4.7" fill="${carne}" stroke="${traco}" stroke-width="1.1"/>` +
+  `</svg>`;
+const COXA = svgUrl(coxaSvg("#b2601f", "#f3e7cf", "#4d2a10"));
+const COXA_VAZIA = svgUrl(coxaSvg("#1a1a1a", "#1a1a1a", "#000"));
 
 /** O que o servidor mandou na última mensagem `vida`. */
 export interface VidaInfo {
   vida: number;
   folego?: number;
+  /** Ausente = este mundo não tem fome (regra desligada) — nem desenha a barra. */
+  fome?: number;
   causa?: string;
   morreu?: boolean;
+}
+
+/**
+ * Uma linha de `n` ícones. `vazio` (quando existe) fica de FUNDO e `cheio` por
+ * cima — é esse par que faz o meio-ícone do `clip-path` aparecer sobre a casa
+ * apagada. O ícone da frente é sempre o ÚLTIMO filho da casa.
+ */
+function criarLinha(
+  n: number,
+  cheio: string,
+  vazio?: string,
+): { linha: HTMLDivElement; casas: HTMLDivElement[] } {
+  const linha = document.createElement("div");
+  linha.className = "linha";
+  const casas: HTMLDivElement[] = [];
+  for (let i = 0; i < n; i++) {
+    const casa = document.createElement("div");
+    casa.className = "casa";
+    if (vazio !== undefined) {
+      const fundo = document.createElement("div");
+      fundo.className = "icone fundo";
+      fundo.style.backgroundImage = vazio;
+      casa.appendChild(fundo);
+    }
+    const frente = document.createElement("div");
+    frente.className = "icone";
+    frente.style.backgroundImage = cheio;
+    casa.appendChild(frente);
+    linha.appendChild(casa);
+    casas.push(casa);
+  }
+  return { linha, casas };
+}
+
+/** Barra de 0..20 pontos em 10 ícones, com meio ícone no ímpar (corações e
+ *  coxas usam a MESMA conta — só muda o desenho). */
+function desenharBarra(casas: readonly HTMLDivElement[], pontos: number): void {
+  for (const [i, casa] of casas.entries()) {
+    const frente = casa.lastElementChild as HTMLElement | null;
+    if (!frente) continue;
+    const cheio = pontos >= (i + 1) * 2;
+    const meio = !cheio && pontos === i * 2 + 1;
+    frente.style.display = cheio || meio ? "block" : "none";
+    frente.classList.toggle("meio", meio);
+  }
 }
 
 export class VitalsUi {
   private readonly raiz: HTMLDivElement;
   private readonly linhaVida: HTMLDivElement;
+  private readonly linhaFome: HTMLDivElement;
   private readonly linhaAr: HTMLDivElement;
   private readonly dano: HTMLDivElement;
   private readonly morte: HTMLDivElement;
-  private readonly casasVida: HTMLDivElement[] = [];
-  private readonly casasAr: HTMLDivElement[] = [];
+  private readonly casasVida: readonly HTMLDivElement[];
+  private readonly casasFome: readonly HTMLDivElement[];
+  private readonly casasAr: readonly HTMLDivElement[];
   private morteTimer: number | null = null;
   private danoTimer: number | null = null;
   /** Última vida desenhada — o "levou dano" sai da DIFERENÇA, não de adivinhar. */
@@ -125,34 +202,23 @@ export class VitalsUi {
 
     this.raiz = document.createElement("div");
     this.raiz.id = "lj-vitals";
-    this.linhaVida = document.createElement("div");
-    this.linhaVida.className = "linha";
-    this.linhaAr = document.createElement("div");
-    this.linhaAr.className = "linha vazia";
-    for (let i = 0; i < CORACOES; i++) {
-      const casa = document.createElement("div");
-      casa.className = "casa";
-      const fundo = document.createElement("div");
-      fundo.className = "icone fundo";
-      fundo.style.backgroundImage = CORACAO_VAZIO;
-      const frente = document.createElement("div");
-      frente.className = "icone";
-      frente.style.backgroundImage = CORACAO;
-      casa.append(fundo, frente);
-      this.linhaVida.appendChild(casa);
-      this.casasVida.push(casa);
-    }
-    for (let i = 0; i < BOLHAS; i++) {
-      const casa = document.createElement("div");
-      casa.className = "casa";
-      const frente = document.createElement("div");
-      frente.className = "icone";
-      frente.style.backgroundImage = BOLHA;
-      casa.appendChild(frente);
-      this.linhaAr.appendChild(casa);
-      this.casasAr.push(casa);
-    }
-    this.raiz.append(this.linhaAr, this.linhaVida);
+    const vida = criarLinha(CORACOES, CORACAO, CORACAO_VAZIO);
+    const fome = criarLinha(COXAS, COXA, COXA_VAZIA);
+    const ar = criarLinha(BOLHAS, BOLHA);
+    this.linhaVida = vida.linha;
+    this.casasVida = vida.casas;
+    this.linhaFome = fome.linha;
+    this.casasFome = fome.casas;
+    this.linhaAr = ar.linha;
+    this.casasAr = ar.casas;
+    // ar e fome nascem escondidos: pulmão cheio não mostra bolha, e mundo sem a
+    // regra `fome` nunca manda o campo
+    this.linhaAr.classList.add("vazia");
+    this.linhaFome.classList.add("vazia");
+    const barras = document.createElement("div");
+    barras.className = "barras";
+    barras.append(this.linhaVida, this.linhaFome);
+    this.raiz.append(this.linhaAr, barras);
     document.body.appendChild(this.raiz);
 
     this.dano = document.createElement("div");
@@ -172,7 +238,8 @@ export class VitalsUi {
   /** Aplica a mensagem `vida` do servidor. */
   aplicar(info: VidaInfo): void {
     const vida = Math.max(0, Math.min(VIDA_MAX, Math.round(info.vida)));
-    this.desenharVida(vida);
+    desenharBarra(this.casasVida, vida);
+    this.desenharFome(info.fome);
     this.desenharAr(info.folego);
     // levou dano = vida caiu (o `causa` confirma, mas a queda de vida basta e
     // funciona mesmo com host antigo que não mande a causa)
@@ -181,15 +248,15 @@ export class VitalsUi {
     this.ultimaVida = vida;
   }
 
-  private desenharVida(vida: number): void {
-    for (const [i, casa] of this.casasVida.entries()) {
-      const frente = casa.children[1] as HTMLElement | undefined;
-      if (!frente) continue;
-      const cheio = vida >= (i + 1) * 2;
-      const meio = !cheio && vida === i * 2 + 1;
-      frente.style.display = cheio || meio ? "block" : "none";
-      frente.classList.toggle("meio", meio);
-    }
+  /**
+   * Coxas (§🍖 F3). Diferente das bolhas, a barra CHEIA continua na tela: é um
+   * medidor permanente, como os corações. O que a faz sumir é o campo `fome`
+   * ausente — mundo com a regra desligada não tem barra nenhuma.
+   */
+  private desenharFome(fome: number | undefined): void {
+    this.linhaFome.classList.toggle("vazia", fome === undefined);
+    if (fome === undefined) return;
+    desenharBarra(this.casasFome, Math.max(0, Math.min(FOME_MAX, Math.round(fome))));
   }
 
   /** Bolhas só aparecem com o fôlego INCOMPLETO — fora d'água a linha some. */
@@ -199,7 +266,7 @@ export class VitalsUi {
     if (cheio) return;
     const bolhas = Math.max(0, Math.ceil(folego / TICKS_POR_BOLHA));
     for (const [i, casa] of this.casasAr.entries()) {
-      const frente = casa.children[0] as HTMLElement | undefined;
+      const frente = casa.lastElementChild as HTMLElement | null;
       if (frente) frente.style.display = i < bolhas ? "block" : "none";
     }
   }
@@ -216,7 +283,9 @@ export class VitalsUi {
         ? "Você caiu de muito alto"
         : causa === "afogamento"
           ? "Você ficou sem ar"
-          : "Você não sobreviveu";
+          : causa === "fome"
+            ? "Você passou fome demais"
+            : "Você não sobreviveu";
     this.morte.classList.add("ativo");
     if (this.morteTimer !== null) clearTimeout(this.morteTimer);
     this.morteTimer = setTimeout(() => this.esconderMorte(), 2600);

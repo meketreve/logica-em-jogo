@@ -6,7 +6,7 @@ import { type GroupDef, parseGroups } from "./groups";
 import { type Modo, parseModo } from "./modo";
 import { MAX_LAZY_CHUNKS, decodeSnapshot, encodeSnapshot } from "./protocol";
 import { regrasParaSave, parseRegras } from "./regras";
-import { VIDA_MAX } from "./sobrevivencia";
+import { FOME_MAX, VIDA_MAX } from "./sobrevivencia";
 import { type NamedRegion, parseNamedRegion } from "./regions";
 import { type ScenarioMeta, parseScenarioMeta } from "./scenario";
 import { type World, type WorldDims, createWorld } from "./world";
@@ -59,6 +59,9 @@ export interface SavedPlayer {
   /** Vida em pontos (§🍖 F2). Ausente = cheia — só machucado é gravado, então
    *  mundo antigo (e mundo criativo) sai enxuto e todo mundo nasce inteiro. */
   vida?: number;
+  /** Fome em pontos (§🍖 F3). Ausente = cheia, mesma disciplina da vida. A
+   *  exaustão fracionária NÃO é gravada (ver `EstadoVital.exaustao`). */
+  fome?: number;
 }
 
 /** Metadados do save (a parte JSON — o mundo vai como snapshot binário). */
@@ -276,6 +279,14 @@ function readSaveMeta(
           e["vida"] > 0 &&
           e["vida"] < VIDA_MAX
             ? { vida: Math.floor(e["vida"]) }
+            : {}),
+          // §🍖 F3: fome idem, mas ZERO é válido (barra vazia é estado de jogo;
+          // vida zero seria um morto, que não existe no roster)
+          ...(typeof e["fome"] === "number" &&
+          Number.isFinite(e["fome"]) &&
+          e["fome"] >= 0 &&
+          e["fome"] < FOME_MAX
+            ? { fome: Math.floor(e["fome"]) }
             : {}),
         });
       }

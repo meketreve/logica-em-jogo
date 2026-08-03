@@ -24,6 +24,9 @@ export interface RegraDef {
   padrao: boolean;
   /** O que ela faz, como o professor lê no chat. */
   ajuda: string;
+  /** Ainda SEM mecânica (a frente que a lê não existe). O `/regra` avisa isso ao
+   *  professor — senão ele liga, testa, não vê nada e conclui que quebrou. */
+  pendente?: boolean;
 }
 
 export const REGRAS: readonly RegraDef[] = [
@@ -32,17 +35,19 @@ export const REGRAS: readonly RegraDef[] = [
     padrao: true,
     ajuda:
       "Ao morrer, o jogador MANTÉM o que estava carregando. Ligada é o padrão de escola; desligue se quiser que a morte pese (aí os itens somem).",
+    pendente: true, // F4: sem inventário autoritativo, não há o que perder
   },
   {
     nome: "pvp",
     padrao: false,
     ajuda: "Alunos podem se atacar. Desligada por padrão.",
+    pendente: true, // F7
   },
   {
     nome: "fome",
     padrao: true,
     ajuda:
-      "A barra de fome baixa com o esforço e obriga a comer. Desligue para uma sobrevivência sem fome (turmas menores).",
+      "A barra de fome (as coxas) baixa com o esforço: andar, construir e se curar gastam. No zero, o jogador para de se regenerar e perde vida devagar — mas a fome NÃO mata enquanto não houver comida no jogo. Desligue para uma sobrevivência sem fome (fundamental 1).",
   },
 ];
 

@@ -5,22 +5,32 @@ import { type SaveData, decodeSave, encodeSave } from "./save";
 import { GameSession } from "./session";
 import {
   DANO_AFOGAMENTO,
+  DANO_FOME,
+  EXAUSTAO_POR_BLOCO_ANDADO,
+  EXAUSTAO_POR_EDICAO,
+  EXAUSTAO_POR_PONTO,
+  EXAUSTAO_POR_REGEN,
   FOLEGO_TICKS,
+  FOME_MAX,
   FOME_PARA_REGENERAR,
   TICKS_POR_AFOGAMENTO,
+  TICKS_POR_DANO_FOME,
   TICKS_POR_REGEN,
   VIDA_MAX,
+  VIDA_MINIMA_POR_FOME,
   aplicarDano,
   curar,
   danoDeQueda,
   estaVivo,
+  gastarEsforco,
   novoEstadoVital,
   parseCausaDano,
   textoDaMorte,
   tickFolego,
+  tickFome,
   tickRegen,
 } from "./sobrevivencia";
-import { setBlock } from "./world";
+import { getBlock, setBlock } from "./world";
 
 const DIMS = { x: 2, z: 2, y: 2 };
 
@@ -67,6 +77,15 @@ function turma(modo: "criativo" | "sobrevivencia" = "sobrevivencia", save = base
   session.handleMessage(1, join("prof", "4321", "sala"));
   session.handleMessage(2, join("ana", "1111"));
   return { session, sent };
+}
+
+/** Anda `blocos` no plano, um bloco por amostra (como o cliente a 10 Hz). */
+function andar(session: GameSession, clientId: number, blocos: number): void {
+  const s = session.spawn;
+  session.handleMessage(clientId, move(s.x, s.y, s.z));
+  for (let i = 1; i <= blocos; i++) {
+    session.handleMessage(clientId, move(s.x + (i % 2), s.y, s.z));
+  }
 }
 
 /** Cai de `altura` blocos acima do spawn e pousa nele. */
@@ -309,5 +328,171 @@ describe("§🍖 F2 — vida na sessão", () => {
     session.handleMessage(1, cmd("/modo sobrevivencia all"));
     session.handleMessage(2, move(s.x, s.y, s.z)); // e pousa
     expect(ultimaVida(sent, 2)?.vida).toBe(VIDA_MAX);
+  });
+});
+
+describe("§🍖 F3 — fome (módulo puro)", () => {
+  it("esforço vira ponto de fome só quando FECHA a conta, e o resto fica guardado", () => {
+    const e = novoEstadoVital();
+    // metade do necessário: a barra não mexe, mas o esforço não se perde
+    const meio = gastarEsforco(e, EXAUSTAO_POR_PONTO / 2);
+    expect(meio.fome).toBe(FOME_MAX);
+    expect(meio.exaustao).toBe(EXAUSTAO_POR_PONTO / 2);
+    const fecha = gastarEsforco(meio, EXAUSTAO_POR_PONTO / 2);
+    expect(fecha.fome).toBe(FOME_MAX - 1);
+    expect(fecha.exaustao).toBe(0);
+    // um esforço gigante gasta VÁRIOS pontos de uma vez (e nunca passa do zero)
+    expect(gastarEsforco(e, EXAUSTAO_POR_PONTO * 3).fome).toBe(FOME_MAX - 3);
+    expect(gastarEsforco(e, EXAUSTAO_POR_PONTO * 999).fome).toBe(0);
+    // esforço nulo/doente não mexe em nada
+    expect(gastarEsforco(e, 0)).toBe(e);
+    expect(gastarEsforco(e, -1)).toBe(e);
+    expect(gastarEsforco(e, NaN)).toBe(e);
+  });
+
+  it("a régua do dreno: 400 blocos andados ou 200 blocos editados = 1 ponto", () => {
+    expect(EXAUSTAO_POR_PONTO / EXAUSTAO_POR_BLOCO_ANDADO).toBe(400);
+    expect(EXAUSTAO_POR_PONTO / EXAUSTAO_POR_EDICAO).toBe(200);
+  });
+
+  it("a barra cheia não dói; no zero dói a cada 4 s", () => {
+    let e = novoEstadoVital();
+    for (let i = 0; i < TICKS_POR_DANO_FOME * 2; i++) {
+      const r = tickFome(e);
+      expect(r.dano).toBe(0); // barra cheia: inanição nem começa
+      e = r.estado;
+    }
+    e = { ...e, fome: 0 };
+    let danos = 0;
+    for (let i = 0; i < TICKS_POR_DANO_FOME * 3; i++) {
+      const r = tickFome(e);
+      danos += r.dano;
+      e = r.estado;
+    }
+    expect(danos).toBe(DANO_FOME * 3);
+  });
+
+  it("a fome ENFRAQUECE, não mata: o dano para em 3 corações", () => {
+    let e: ReturnType<typeof novoEstadoVital> = { ...novoEstadoVital(), fome: 0 };
+    for (let i = 0; i < TICKS_POR_DANO_FOME * 40; i++) {
+      const r = tickFome(e);
+      e = r.estado;
+      if (r.dano > 0) e = aplicarDano(e, r.dano, "fome").estado;
+    }
+    expect(e.vida).toBe(VIDA_MINIMA_POR_FOME);
+    expect(estaVivo(e)).toBe(true);
+  });
+
+  it("comer volta a existir no F6 — por ora o zero da barra é estado normal", () => {
+    // o contador de inanição zera assim que a barra deixa de estar vazia (senão
+    // o primeiro bocado ainda levaria um dano atrasado)
+    const faminto = tickFome({ ...novoEstadoVital(), fome: 0 }).estado;
+    expect(faminto.fomeTicks).toBe(1);
+    expect(tickFome({ ...faminto, fome: 3 }).estado.fomeTicks).toBe(0);
+  });
+});
+
+describe("§🍖 F3 — fome na sessão", () => {
+  it("andar 400 blocos custa 1 ponto, e o cliente recebe a fome na mensagem `vida`", () => {
+    const { session, sent } = turma("sobrevivencia");
+    expect(ultimaVida(sent, 2)?.fome).toBe(FOME_MAX); // veio no join
+    andar(session, 2, 399);
+    expect(ultimaVida(sent, 2)?.fome).toBe(FOME_MAX); // 3,99 de esforço: nada ainda
+    andar(session, 2, 1);
+    expect(ultimaVida(sent, 2)?.fome).toBe(FOME_MAX - 1);
+  });
+
+  it("editar bloco também cansa (e a porta de 2 células custa UMA edição)", () => {
+    const { session, sent } = turma("sobrevivencia");
+    andar(session, 2, 399); // 3,99 acumulados: falta um fio de esforço
+    expect(ultimaVida(sent, 2)?.fome).toBe(FOME_MAX);
+    const alvo = { x: Math.floor(session.spawn.x), y: Math.floor(session.spawn.y) + 3, z: Math.floor(session.spawn.z) };
+    session.handleMessage(2, JSON.stringify({ type: "place_block", ...alvo, blockId: BlockId.Stone }));
+    expect(getBlock(session.world, alvo.x, alvo.y, alvo.z)).toBe(BlockId.Stone);
+    expect(ultimaVida(sent, 2)?.fome).toBe(FOME_MAX - 1);
+  });
+
+  it("teleporte não é passo: o pico de queda zera e a fome não é cobrada", () => {
+    const { session, sent } = turma("sobrevivencia");
+    const s = session.spawn;
+    // 3,99 acumulados e um salto gigante logo depois (o molde do respawn/`/tp`)
+    andar(session, 2, 399);
+    session.handleMessage(2, move(s.x + 500, s.y, s.z + 500));
+    expect(ultimaVida(sent, 2)?.fome).toBe(FOME_MAX);
+  });
+
+  it("criativo não tem fome nenhuma — nem mensagem", () => {
+    const { session, sent } = turma("criativo");
+    andar(session, 2, 900);
+    expect(ultimaVida(sent, 2)).toBeNull();
+  });
+
+  it("`/regra fome desligar`: a barra some do HUD e o esforço deixa de contar", () => {
+    const { session, sent } = turma("sobrevivencia");
+    session.handleMessage(1, cmd("/regra fome desligar"));
+    // a turma recebe uma `vida` NOVA na hora, agora sem o campo fome
+    expect(ultimaVida(sent, 2)?.fome).toBeUndefined();
+    andar(session, 2, 900);
+    expect(ultimaVida(sent, 2)?.fome).toBeUndefined();
+    // e ligar de volta devolve a barra sem ninguém precisar reentrar
+    session.handleMessage(1, cmd("/regra fome ligar"));
+    expect(ultimaVida(sent, 2)?.fome).toBe(FOME_MAX);
+  });
+
+  it("com a regra desligada, quem já estava faminto volta a se regenerar", () => {
+    const save = baseSave();
+    save.modo = "sobrevivencia";
+    save.roster = [{ name: "ana", x: 1, y: 20, z: 1, yaw: 0, pitch: 0, vida: 10, fome: 0 }];
+    const { session, sent } = turma("sobrevivencia", decodeSave(encodeSave(save.world, save)));
+    session.handleMessage(1, cmd("/regra fome desligar"));
+    for (let i = 0; i < TICKS_POR_REGEN + 1; i++) session.tick();
+    expect(ultimaVida(sent, 2)?.vida).toBe(11); // sararia? sara.
+  });
+
+  it("barra no zero: dói no tick, avisa a causa e PARA em 3 corações", () => {
+    const save = baseSave();
+    save.modo = "sobrevivencia";
+    save.roster = [{ name: "ana", x: 1, y: 20, z: 1, yaw: 0, pitch: 0, fome: 0 }];
+    const { session, sent } = turma("sobrevivencia", decodeSave(encodeSave(save.world, save)));
+    for (let i = 0; i < TICKS_POR_DANO_FOME + 1; i++) session.tick();
+    expect(ultimaVida(sent, 2)?.causa).toBe("fome");
+    expect(ultimaVida(sent, 2)?.vida).toBe(VIDA_MAX - DANO_FOME);
+    // e por mais que a aula demore, ninguém morre de fome enquanto não há comida
+    for (let i = 0; i < TICKS_POR_DANO_FOME * 40; i++) session.tick();
+    expect(ultimaVida(sent, 2)?.vida).toBe(VIDA_MINIMA_POR_FOME);
+    expect(ultimaVida(sent, 2)?.morreu).toBeUndefined();
+  });
+
+  it("curar custa comida, e a fome baixa TRAVA a regeneração", () => {
+    const save = baseSave();
+    save.modo = "sobrevivencia";
+    save.roster = [{ name: "ana", x: 1, y: 20, z: 1, yaw: 0, pitch: 0, vida: 10, fome: 19 }];
+    const { session, sent } = turma("sobrevivencia", decodeSave(encodeSave(save.world, save)));
+    for (let i = 0; i < TICKS_POR_REGEN * 6; i++) session.tick();
+    // 3 pontos curados a EXAUSTAO_POR_REGEN cada = 9 de esforço = 2 pontos de
+    // fome; com 17 a barra cai abaixo de FOME_PARA_REGENERAR e o corpo para
+    expect(EXAUSTAO_POR_REGEN * 3).toBeGreaterThanOrEqual(EXAUSTAO_POR_PONTO * 2);
+    expect(ultimaVida(sent, 2)?.vida).toBe(13);
+    expect(ultimaVida(sent, 2)?.fome).toBe(FOME_PARA_REGENERAR - 1);
+  });
+
+  it("a fome FAMINTA vai pro save (inclusive zerada); a cheia não polui o roster", () => {
+    const { session } = turma("sobrevivencia");
+    andar(session, 2, 410); // com folga: 400 passos de 0,01 somam 3,99999… (float)
+    const meta = session.toSave();
+    expect(meta.roster.find((p) => p.name === "ana")?.fome).toBe(FOME_MAX - 1);
+    expect(meta.roster.find((p) => p.name === "prof")?.fome).toBeUndefined();
+
+    // fome ZERO é estado válido de jogo (diferente da vida zero, que seria morte)
+    const save = baseSave();
+    save.roster = [
+      { name: "ana", x: 1, y: 20, z: 1, yaw: 0, pitch: 0, fome: 0 },
+      { name: "bia", x: 1, y: 20, z: 1, yaw: 0, pitch: 0, fome: -2 },
+      { name: "caio", x: 1, y: 20, z: 1, yaw: 0, pitch: 0, fome: 999 },
+    ];
+    const lido = decodeSave(encodeSave(save.world, save));
+    expect(lido.roster.find((p) => p.name === "ana")?.fome).toBe(0);
+    expect(lido.roster.find((p) => p.name === "bia")?.fome).toBeUndefined();
+    expect(lido.roster.find((p) => p.name === "caio")?.fome).toBeUndefined();
   });
 });

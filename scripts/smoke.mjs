@@ -171,6 +171,27 @@ const SMOKES = [
     ],
   },
   {
+    nome: "fome",
+    arquivo: `${DIR}/_smoke-fome.mjs`,
+    prova:
+      "§🍖 F3 — a fome desce pelo fluxo de `move` que o servidor já recebe (o cliente nunca reporta esforço), criativo não tem barra no mesmo mundo, /regra fome liga e desliga a barra na hora, e o zero cobra dano no tick sem matar.",
+    lento: false,
+    // o smoke deixa a ana faminta e machucada no .ljw (§🍖 F3 grava fome no roster)
+    limpar: ["mundos/_smoke-fome"],
+    servidores: [
+      {
+        porta: 8101,
+        env: {
+          LJ_SAVE: "mundos/_smoke-fome.ljw",
+          LJ_NOVO: "1",
+          LJ_TAMANHO: "P",
+          LJ_CODIGO: "prof2026",
+          LJ_SEED: SEED,
+        },
+      },
+    ],
+  },
+  {
     nome: "troca-raio",
     arquivo: `${DIR}/_smoke-troca-raio.mjs`,
     args: ["_smoke-trocab"],

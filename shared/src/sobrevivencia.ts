@@ -15,12 +15,60 @@
 
 export const VIDA_MAX = 20;
 
-/** Fome cheia. A barra é do F3; até lá a session passa este valor, e a
- *  regeneração se comporta como "bem alimentado". */
+/** Fome cheia (§🍖 F3: a barra de coxas do HUD). */
 export const FOME_MAX = 20;
 
 /** De quanta fome pra cima o corpo se regenera sozinho (regra do Minecraft). */
 export const FOME_PARA_REGENERAR = 18;
+
+// --- §🍖 F3: fome ----------------------------------------------------------
+//
+// A barra NÃO desce por relógio: desce por ESFORÇO, como no Minecraft. Cada
+// atividade soma "exaustão" num acumulador fracionário e, a cada
+// EXAUSTAO_POR_PONTO acumulado, um ponto de fome vai embora. É o que faz o
+// aluno que constrói a tarde inteira sentir a barra e o aluno que ficou parado
+// lendo o quadro não sentir nada — o gasto acompanha o que ele fez, e não
+// quanto tempo a aula durou.
+
+/** Esforço acumulado que gasta UM ponto de fome (mesmo número do Minecraft). */
+export const EXAUSTAO_POR_PONTO = 4;
+
+/** Esforço de andar (ou nadar) UM bloco. */
+export const EXAUSTAO_POR_BLOCO_ANDADO = 0.01;
+
+/**
+ * Esforço de colocar ou quebrar UM bloco. Acima do Minecraft (0,005) de
+ * propósito: aqui a atividade principal da aula é CONSTRUIR, não correr, então
+ * é a construção que tem de mover a barra.
+ */
+export const EXAUSTAO_POR_EDICAO = 0.02;
+
+/** Curar 1 ponto de vida custa comida (Minecraft: 6,0). É o que amarra a fome
+ *  ao dano: quem se machuca muito passa a comer mais. */
+export const EXAUSTAO_POR_REGEN = 3;
+
+/**
+ * Passo maior que isto NÃO é passo: é teleporte (respawn, `/tp`), rejoin ou
+ * desync. A 10 Hz o jogador andando cobre menos de 1 bloco por amostra e o
+ * bloco de queda mais rápido cobre ~4 — acima disso não se cobra fome.
+ */
+export const PASSO_MAX_POR_AMOSTRA = 4;
+
+/** Com a barra no zero, um dano a cada 4 s… */
+export const TICKS_POR_DANO_FOME = 40;
+/** …deste tamanho (meio coração). */
+export const DANO_FOME = 1;
+
+/**
+ * **A fome não mata enquanto não houver o que comer.** O dano por inanição
+ * para em 3 corações — é o análogo do nível "fácil" do Minecraft e a decisão de
+ * sala de aula: o aluno faminto fica fraco (sem regeneração, ver
+ * `FOME_PARA_REGENERAR`) mas não perde a construção por causa de uma frente que
+ * ainda não existe. **No dia em que a comida existir (F6), baixar este número
+ * pra 0 devolve a inanição letal** — o `textoDaMorte("fome")` já está escrito e
+ * o resto do caminho é o mesmo.
+ */
+export const VIDA_MINIMA_POR_FOME = 6;
 
 /** Ticks entre dois pontos de regeneração (10 Hz → 4 s por meio coração). */
 export const TICKS_POR_REGEN = 40;
@@ -48,7 +96,7 @@ export function parseCausaDano(raw: unknown): CausaDano | null {
     : null;
 }
 
-/** Estado vital de UM jogador. `fome` já mora aqui pro F3 não mexer no formato. */
+/** Estado vital de UM jogador. */
 export interface EstadoVital {
   vida: number;
   fome: number;
@@ -56,10 +104,23 @@ export interface EstadoVital {
   folego: number;
   /** Ticks acumulados desde a última regeneração (zera ao curar). */
   regenTicks: number;
+  /** Esforço fracionário desde o último ponto de fome gasto (§🍖 F3). NÃO vai
+   *  pro save: perder no máximo 4 de exaustão no rejoin não muda partida
+   *  nenhuma, e o save fica com número inteiro de professor. */
+  exaustao: number;
+  /** Ticks com a barra no zero desde o último dano de fome (§🍖 F3). */
+  fomeTicks: number;
 }
 
 export function novoEstadoVital(): EstadoVital {
-  return { vida: VIDA_MAX, fome: FOME_MAX, folego: FOLEGO_TICKS, regenTicks: 0 };
+  return {
+    vida: VIDA_MAX,
+    fome: FOME_MAX,
+    folego: FOLEGO_TICKS,
+    regenTicks: 0,
+    exaustao: 0,
+    fomeTicks: 0,
+  };
 }
 
 /** Está vivo? (a morte é vida ZERADA, não um flag — assim não há dois estados
@@ -132,7 +193,12 @@ export function tickFolego(
 
 /**
  * Um tick de regeneração passiva. Só com fome alta (regra do Minecraft) e vida
- * incompleta. A fome é do F3: até lá a session passa FOME_MAX e o corpo sara.
+ * incompleta — com a barra abaixo de `FOME_PARA_REGENERAR` o corpo para de
+ * sarar, e é isso que faz a fome doer antes mesmo de chegar ao zero.
+ *
+ * **Curar CUSTA comida**, mas quem cobra é a session (`EXAUSTAO_POR_REGEN`),
+ * não esta função: assim existe um gate só pra regra `fome` desligada, em vez
+ * de duas funções puras precisarem saber dela.
  */
 export function tickRegen(e: EstadoVital, fome = e.fome): EstadoVital {
   if (!estaVivo(e) || e.vida >= VIDA_MAX || fome < FOME_PARA_REGENERAR) {
@@ -141,6 +207,39 @@ export function tickRegen(e: EstadoVital, fome = e.fome): EstadoVital {
   const regenTicks = e.regenTicks + 1;
   if (regenTicks < TICKS_POR_REGEN) return { ...e, regenTicks };
   return { ...e, vida: Math.min(VIDA_MAX, e.vida + 1), regenTicks: 0 };
+}
+
+/**
+ * Gasta esforço (§🍖 F3): acumula exaustão e, a cada `EXAUSTAO_POR_PONTO`
+ * inteiro, tira UM ponto de fome. Quem chama só diz QUANTO esforço houve —
+ * andar, editar bloco ou curar — e não precisa saber da conversão.
+ *
+ * Morto não tem fome (o respawn devolve a barra cheia).
+ */
+export function gastarEsforco(e: EstadoVital, esforco: number): EstadoVital {
+  if (!Number.isFinite(esforco) || esforco <= 0 || !estaVivo(e)) return e;
+  const acumulado = e.exaustao + esforco;
+  const pontos = Math.floor(acumulado / EXAUSTAO_POR_PONTO);
+  const exaustao = acumulado - pontos * EXAUSTAO_POR_PONTO;
+  if (pontos === 0) return { ...e, exaustao };
+  return { ...e, exaustao, fome: Math.max(0, e.fome - pontos) };
+}
+
+/**
+ * Um tick com a barra de fome no zero. Devolve o estado novo e o dano a aplicar
+ * (a session é quem chama `aplicarDano`, pra existir UMA porta só).
+ *
+ * O dano PARA em `VIDA_MINIMA_POR_FOME` — ver a nota lá: enquanto não houver
+ * comida, a fome enfraquece, não mata.
+ */
+export function tickFome(e: EstadoVital): { estado: EstadoVital; dano: number } {
+  if (e.fome > 0 || !estaVivo(e)) {
+    return { estado: e.fomeTicks === 0 ? e : { ...e, fomeTicks: 0 }, dano: 0 };
+  }
+  const fomeTicks = e.fomeTicks + 1;
+  if (fomeTicks < TICKS_POR_DANO_FOME) return { estado: { ...e, fomeTicks }, dano: 0 };
+  const espaco = e.vida - VIDA_MINIMA_POR_FOME;
+  return { estado: { ...e, fomeTicks: 0 }, dano: Math.max(0, Math.min(DANO_FOME, espaco)) };
 }
 
 /** Texto da morte pro chat da turma (o professor precisa ver o que aconteceu). */

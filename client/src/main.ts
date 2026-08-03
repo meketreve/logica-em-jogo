@@ -88,7 +88,7 @@ import {
   showMenu,
 } from "./menu";
 import { ObjectivesUi } from "./objectivesUi";
-import { VitalsUi } from "./vitals";
+import { type VidaInfo, VitalsUi } from "./vitals";
 import { PlayersPanel } from "./players";
 import { AuthorPanel, type GamePanel, GroupPanel, type PanelData } from "./panels";
 import { RegionRenderer } from "./regions";
@@ -436,17 +436,23 @@ function vitals(): VitalsUi {
   vitalsUi ??= new VitalsUi();
   return vitalsUi;
 }
-// ?vida=7 (ou ?vida=7,45 com fôlego) na URL: mostra o HUD de vida com um valor
-// FIXO, sem servidor — é o par do ?hora/?vento/?atlas, pra inspeção visual e
-// screenshot headless dos corações e das bolhas. NÃO manda nada pro servidor e
-// NÃO muda o modo: é só desenho local.
+/** Última mensagem `vida` do servidor — o HUD F3 lê daqui (§🍖 F3). */
+let ultimaVida: VidaInfo | null = null;
+// ?vida=7 (ou ?vida=7,45 com fôlego, ou ?vida=7,45,12 com fome) na URL: mostra o
+// HUD de vida com valores FIXOS, sem servidor — é o par do ?hora/?vento/?atlas,
+// pra inspeção visual e screenshot headless dos corações, bolhas e coxas. NÃO
+// manda nada pro servidor e NÃO muda o modo: é só desenho local.
 // CUIDADO: Number(null) === 0 — sem o param tem que dar null (bug-302).
-const vidaForcada = ((): { vida: number; folego?: number } | null => {
+const vidaForcada = ((): VidaInfo | null => {
   const raw = new URLSearchParams(location.search).get("vida");
   if (raw === null) return null;
-  const [v, f] = raw.split(",").map(Number);
+  const [v, f, fome] = raw.split(",").map(Number);
   if (v === undefined || !Number.isFinite(v)) return null;
-  return { vida: v, ...(Number.isFinite(f) ? { folego: f! } : {}) };
+  return {
+    vida: v,
+    ...(Number.isFinite(f) ? { folego: f! } : {}),
+    ...(Number.isFinite(fome) ? { fome: fome! } : {}),
+  };
 })();
 if (vidaForcada) {
   vitals().setVisivel(true);
@@ -677,6 +683,7 @@ function handleServerData(data: string | ArrayBuffer): void {
     } else if (msg.type === "vida") {
       // §🍖 F2: a UI nunca decide — quem machuca, cura e mata é o servidor
       if (vidaForcada !== null) return; // ?vida= congela o HUD (inspeção)
+      ultimaVida = msg; // §🍖 F3: o F3 (tecla) mostra vida/fome do servidor
       vitals().aplicar(msg);
       if (msg.causa) emitGameEvent({ kind: "dano" });
       if (msg.morreu) {
@@ -687,7 +694,9 @@ function handleServerData(data: string | ArrayBuffer): void {
             ? "você caiu de muito alto — voltou ao ponto de partida"
             : msg.causa === "afogamento"
               ? "você ficou sem ar — voltou ao ponto de partida"
-              : "você não sobreviveu — voltou ao ponto de partida",
+              : msg.causa === "fome"
+                ? "você passou fome demais — voltou ao ponto de partida"
+                : "você não sobreviveu — voltou ao ponto de partida",
         );
       }
     } else if (msg.type === "kicked") {
@@ -1954,7 +1963,14 @@ function startGame(snap: Snapshot): void {
       `[praia ≤${SAND_HEIGHT} · neve ≥${SNOW_HEIGHT} se o bioma neva · chapada ≥${ROCHA_HEIGHT}]\n` +
       `relevo ${relevoPorClima(clima).toFixed(2)} (teto do bioma ${bioma.relevo})\n` +
       `modo ${modoAtual === "sobrevivencia" ? "sobrevivência" : "criativo"}  ` +
-      `voo ${podeVoar() ? (flying ? "voando" : "liberado") : "trancado"}\n` +
+      `voo ${podeVoar() ? (flying ? "voando" : "liberado") : "trancado"}` +
+      // §🍖 F2/F3: os números que o servidor mandou por último (o HUD desenha
+      // ícone; aqui o professor lê o valor exato pra calibrar dano e fome)
+      (ultimaVida
+        ? `  vida ${ultimaVida.vida}/20` +
+          (ultimaVida.fome !== undefined ? `  fome ${ultimaVida.fome}/20` : "  sem fome")
+        : "") +
+      "\n" +
       `mouse Δmáx ${m.maxDelta}px  descartados ${m.dropped} (último ${m.lastDropped}px)`
     );
   };

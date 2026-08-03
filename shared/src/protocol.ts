@@ -338,12 +338,17 @@ export type ServerMessage =
        * feedback certo (vinheta vermelha, aviso de morte) sem adivinhar pela
        * diferença de vida; `folego` alimenta as bolhas e é OPCIONAL — host
        * antigo não manda e o cliente não pode descartar a mensagem por isso.
+       *
+       * `fome` (§🍖 F3) é opcional pelo mesmo motivo E por um segundo: ausente
+       * significa "este mundo não tem fome" (regra `fome` desligada), e aí o
+       * cliente não desenha coxa nenhuma.
        */
       type: "vida";
       vida: number;
       causa?: CausaDano;
       morreu?: boolean;
       folego?: number;
+      fome?: number;
     }
   | {
       /**
@@ -687,12 +692,14 @@ export function parseServerMessage(raw: string): ServerMessage | null {
       if (typeof vida !== "number" || !Number.isFinite(vida)) return null;
       const causa = parseCausaDano(m["causa"]);
       const folego = m["folego"];
+      const fome = m["fome"];
       return {
         type: "vida",
         vida,
         ...(causa ? { causa } : {}),
         ...(m["morreu"] === true ? { morreu: true } : {}),
         ...(typeof folego === "number" && Number.isFinite(folego) ? { folego } : {}),
+        ...(typeof fome === "number" && Number.isFinite(fome) ? { fome } : {}),
       };
     }
     case "kicked":

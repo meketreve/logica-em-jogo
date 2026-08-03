@@ -46,14 +46,21 @@ import { PLAYER, apoiadoNoChao } from "./physics";
 import { REGRAS, parseRegras, regraDef, regrasParaSave, valorRegra } from "./regras";
 import {
   type CausaDano,
+  EXAUSTAO_POR_BLOCO_ANDADO,
+  EXAUSTAO_POR_EDICAO,
+  EXAUSTAO_POR_REGEN,
   type EstadoVital,
   FOLEGO_TICKS,
+  FOME_MAX,
+  PASSO_MAX_POR_AMOSTRA,
   VIDA_MAX,
   aplicarDano,
   danoDeQueda,
+  gastarEsforco,
   novoEstadoVital,
   textoDaMorte,
   tickFolego,
+  tickFome,
   tickRegen,
 } from "./sobrevivencia";
 import {
@@ -400,8 +407,15 @@ export class GameSession {
       }
       for (const p of opts.restore.roster) {
         this.roster.set(p.name, { x: p.x, y: p.y, z: p.z, yaw: p.yaw, pitch: p.pitch });
-        // §🍖 F2: vida ausente no save = cheia (o parse já barrou valor doente)
-        if (p.vida !== undefined) this.vitais.set(p.name, { ...novoEstadoVital(), vida: p.vida });
+        // §🍖 F2/F3: vida e fome ausentes no save = cheias (o parse já barrou
+        // valor doente). Uma só entra no mapa se ALGUMA das duas veio.
+        if (p.vida !== undefined || p.fome !== undefined) {
+          this.vitais.set(p.name, {
+            ...novoEstadoVital(),
+            ...(p.vida !== undefined ? { vida: p.vida } : {}),
+            ...(p.fome !== undefined ? { fome: p.fome } : {}),
+          });
+        }
         // identidade restaurada MESMO no singleplayer: mundo de LAN importado
         // e re-exportado não perde os PINs da turma (aqui ela só não é usada)
         if (p.pin || p.papel === "professor") {
@@ -545,8 +559,9 @@ export class GameSession {
           // JSON.stringify descarta undefined — aluno sem PIN sai enxuto
           pin: id?.pin,
           papel: id?.papel === "professor" ? ("professor" as const) : undefined,
-          // §🍖 F2: só o MACHUCADO viaja (cheio = ausente = padrão)
+          // §🍖 F2/F3: só o MACHUCADO e o FAMINTO viajam (cheio = ausente = padrão)
           vida: vital && vital.vida < VIDA_MAX ? vital.vida : undefined,
+          fome: vital && vital.fome < FOME_MAX ? vital.fome : undefined,
         };
       }),
       ...(this.codigo ? { codigo: this.codigo } : {}),
@@ -677,6 +692,11 @@ export class GameSession {
   handleMessage(clientId: number, raw: string): void {
     const msg = parseClientMessage(raw);
     if (!msg) return;
+    // §🍖 F3: editar o mundo dá fome, e a cobrança mora NUM lugar só — depois do
+    // switch. Cada caso já devolveu cedo quando recusou (bounds, alcance, claim,
+    // confinamento), então "o mundo mudou" é o mesmo que "a edição valeu", e
+    // ramo novo de bloco no futuro entra cobrando sem ninguém lembrar disso.
+    const mudancasAntes = this.changedThisTick.size;
     switch (msg.type) {
       case "join": {
         const name = sanitizeName(msg.name);
@@ -700,11 +720,18 @@ export class GameSession {
       case "move": {
         const p = this.players.get(clientId);
         if (!p) return;
+        // §🍖 F3: o passo sai da MESMA amostra que fecha a queda (10 Hz), antes
+        // de a posição nova sobrescrever a antiga. Só o plano horizontal conta:
+        // cair não é esforço (e já se paga em dano).
+        const passo = Math.hypot(msg.x - p.x, msg.z - p.z);
         p.x = msg.x; p.y = msg.y; p.z = msg.z;
         p.yaw = msg.yaw; p.pitch = msg.pitch;
         // §🍖 F2: a queda se fecha AQUI — o servidor tem o mundo e não pergunta
         // ao cliente se pousou. Em criativo `machucar` é no-op.
         this.acompanharQueda(clientId, p);
+        if (passo <= PASSO_MAX_POR_AMOSTRA) {
+          this.esforcar(clientId, passo * EXAUSTAO_POR_BLOCO_ANDADO);
+        }
         // Relay pros OUTROS (nunca ecoa pro autor — cliente não precisa saber
         // o próprio id). Validação de física vem depois do MVP.
         this.broadcastExcept(clientId, {
@@ -983,6 +1010,16 @@ export class GameSession {
         );
         break;
       }
+    }
+    // §🍖 F3: UMA edição do jogador = um custo, mesmo quando ela materializa 2
+    // células (porta, cama). Abrir porta (`use_block`) e teleoperação de
+    // professor (`/bloco`, `/regiao encher`) NÃO cobram: não é o esforço do
+    // aluno construindo.
+    if (
+      (msg.type === "place_block" || msg.type === "break_block" || msg.type === "balde") &&
+      this.changedThisTick.size > mudancasAntes
+    ) {
+      this.esforcar(clientId, EXAUSTAO_POR_EDICAO);
     }
   }
 
@@ -1402,12 +1439,22 @@ export class GameSession {
     if (valor === def.padrao) this.regras.delete(nome);
     else this.regras.set(nome, valor);
     if (valor === atual) return `A regra ${nome} já estava ${valor ? "ligada" : "desligada"}.`;
-    // as regras do lite ainda não têm mecânica (F2/F3/F7 as ligam) — o professor
-    // precisa saber disso, senão testa e conclui que o comando está quebrado
-    return `Regra ${nome} ${valor ? "ligada" : "desligada"} e gravada neste mundo. (Ela só passa a valer quando a mecânica correspondente existir.)`;
+    // §🍖 F3: as coxas aparecem (ou somem) na hora — o HUD só conhece a fome
+    // pelo campo da mensagem `vida`, então quem está em sobrevivência recebe uma
+    if (nome === "fome") {
+      for (const [id, j] of this.players) {
+        if (this.modoDe(j.name) === "sobrevivencia") this.sendVida(id);
+      }
+    }
+    // regra ainda sem mecânica (F4 e F7) avisa; a `fome` parou de avisar no F3,
+    // senão o professor liga, vê a barra andar e desconfia do que o jogo diz
+    return (
+      `Regra ${nome} ${valor ? "ligada" : "desligada"} e gravada neste mundo.` +
+      (def.pendente ? " (Ela só passa a valer quando a mecânica correspondente existir.)" : "")
+    );
   }
 
-  // --- §🍖 F2: vida, dano, morte -------------------------------------------
+  // --- §🍖 F2/F3: vida, dano, morte, fome -----------------------------------
 
   /** Estado vital de um NOME (nasce cheio na primeira vez que alguém pergunta). */
   private vitalDe(nome: string): EstadoVital {
@@ -1445,9 +1492,36 @@ export class GameSession {
         type: "vida",
         vida: e.vida,
         folego: Math.max(0, e.folego),
+        // §🍖 F3: com a regra `fome` desligada o campo NÃO vai, e é assim que o
+        // cliente sabe não desenhar coxa nenhuma (mundo sem fome não mostra
+        // barra vazia nem barra cheia — mostra nada)
+        ...(this.temFome() ? { fome: e.fome } : {}),
         ...extra,
       } satisfies ServerMessage),
     );
+  }
+
+  /** A fome vale neste mundo? (§🍖 F3 — regra de mundo, ligada por padrão; o
+   *  professor desliga pro fundamental 1 com `/regra fome desligar`.) */
+  private temFome(): boolean {
+    return valorRegra(this.regras, "fome");
+  }
+
+  /**
+   * §🍖 F3: gasta esforço de UM jogador — andar, editar bloco, regenerar. A
+   * conversão de esforço em ponto de fome é do módulo puro; aqui só ficam os
+   * dois portões (sobrevivência e a regra `fome`) e a decisão de avisar o
+   * cliente, que só acontece quando a barra DESENHADA muda de número.
+   */
+  private esforcar(clientId: number, esforco: number): void {
+    if (!this.vidaVale(clientId) || !this.temFome()) return;
+    const p = this.players.get(clientId);
+    if (!p) return;
+    const antes = this.vitalDe(p.name);
+    const depois = gastarEsforco(antes, esforco);
+    if (depois === antes) return;
+    this.vitais.set(p.name, depois);
+    if (depois.fome !== antes.fome) this.sendVida(clientId);
   }
 
   /**
@@ -1518,6 +1592,7 @@ export class GameSession {
    * seriam 10 mensagens por segundo por aluno.
    */
   private tickVitais(): void {
+    const comFome = this.temFome();
     for (const [clientId, p] of this.players) {
       if (this.modoDe(p.name) !== "sobrevivencia") continue;
       const antes = this.vitalDe(p.name);
@@ -1528,14 +1603,33 @@ export class GameSession {
         Math.floor(p.z),
       );
       const folego = tickFolego(antes, isAgua(cabeca));
-      const depois = tickRegen(folego.estado);
+      // regra `fome` desligada = o corpo se comporta como bem alimentado, MESMO
+      // que a barra tenha ficado baixa antes de ela ser desligada (senão o aluno
+      // ficaria sem regeneração num mundo que não tem mais fome)
+      let depois = tickRegen(folego.estado, comFome ? folego.estado.fome : FOME_MAX);
+      // §🍖 F3: curar CUSTA comida (é o que amarra a fome ao dano). Cobrado aqui,
+      // e não dentro do `tickRegen`, pra existir UM portão só da regra `fome`.
+      if (comFome && depois.vida > folego.estado.vida) {
+        depois = gastarEsforco(depois, EXAUSTAO_POR_REGEN);
+      }
+      let danoFome = 0;
+      if (comFome) {
+        const f = tickFome(depois);
+        depois = f.estado;
+        danoFome = f.dano;
+      }
       this.vitais.set(p.name, depois);
       if (folego.dano > 0) {
         this.machucar(clientId, folego.dano, "afogamento"); // já manda a `vida`
         continue;
       }
+      if (danoFome > 0) {
+        this.machucar(clientId, danoFome, "fome"); // idem
+        continue;
+      }
       if (
         depois.vida !== antes.vida ||
+        depois.fome !== antes.fome ||
         GameSession.bolhas(depois.folego) !== GameSession.bolhas(antes.folego)
       ) {
         this.sendVida(clientId);
