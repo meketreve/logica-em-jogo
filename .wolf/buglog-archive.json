@@ -6602,6 +6602,22 @@
       "related_bugs": [],
       "occurrences": 1,
       "last_seen": "2026-07-21T02:24:43.405Z"
+    },
+    {
+      "id": "bug-407",
+      "timestamp": "2026-07-21T02:24:45.127Z",
+      "error_message": "Wrong reference: select should be option",
+      "file": "client/index.html",
+      "root_cause": "Used \"select\" instead of \"option\"",
+      "fix": "Changed select → option",
+      "tags": [
+        "auto-detected",
+        "wrong-reference",
+        "html"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-21T02:24:45.127Z"
     }
   ]
 }

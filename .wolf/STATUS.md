@@ -120,45 +120,6 @@
 > **PLAYTEST PENDENTE, e é o que mais importa agora:** headless não diz se morrer de queda é
 > justo, se 15 s de ar é pouco, nem se os corações ficam legíveis no tablet. Ver §pendências.
 >
-> **SESSÃO 33 (2026-07-30) — §🏔️ RELEVO POR BIOMA: a v2 da geração FECHOU.** A sessão 32
-> tinha deixado `shared/src/biomas.ts` com os campos `relevo`/`neve` escritos e **ninguém
-> consumindo** — `heightAt` seguia heightmap global. Esta sessão ligou os dois, e o trabalho
-> de verdade foi o que o escopo avisou que seria: **a fronteira.**
->
-> **O que o playtest do usuário tinha reclamado** (registrado só em comentário de código até
-> hoje): duna de caatinga chegando a **106 blocos**, "areia, pedra, terra e neve junto", e
-> pico atravessando 2–3 biomas. As duas causas: a serra não sabia de bioma, e a neve era
-> global por altitude + `temp < 0.6` (pegava morro de cerrado).
->
-> **O PENHASCO, que apareceu na medição e não no código (bug-544):** a 1ª ligação passou
-> typecheck e teste, e produziu **degrau de 14 a 23 blocos entre colunas VIZINHAS** — contra
-> 4–6 do heightmap global nas mesmas seeds. Culpa do fator de NÚCLEO: ele multiplica o
-> gradiente do clima pela amplitude da serra (88 blocos), e rampa estreita ali vira parede.
-> **Sweep medido** (10 formulações × 5 seeds × 400×400 colunas) escolheu `RAMPA 0,25` +
-> `NÚCLEO (0,4→1,0)`: **degrau máx 4–6 = paridade exata com o heightmap global**, ZERO pares
-> acima de 6, cauda >3 mais LEVE que a dele (0,10% × 0,01–0,62%) — e os tetos de pé:
-> **araucárias 106 · mata 68 · cerrado 53 · caatinga 36.** As variantes rejeitadas têm número
-> do lado: sem núcleo suaviza mas vaza o teto (cerrado 73); clima 3× mais largo dá degrau 3 mas
-> mata a montanha (araucárias 66).
->
-> **Três medições que mudaram decisão:**
-> 1. **Custo NÃO subiu: caiu.** Geração 4,53 → **4,00 ms/coluna** e a cena do `?bench` perdeu
->    **7,5% de triângulos** (700 230 → 647 858, chunks com malha 586 → 549). Terreno mais baixo
->    fora das araucárias escreve menos bloco e mesha menos — o teto de GPU do lab **alivia**.
-> 2. **`npm test` era um sorteio** (bug-545): 5 falhas numa rodada, 18 na seguinte, todas
->    `timed out` e em arquivos que não tocam terreno. O vitest sem config abre 1 fork por núcleo
->    (24 aqui) e quase todo teste daqui GERA MUNDO. `shared/vitest.config.ts` novo
->    (`maxWorkers: 8`, `testTimeout: 20000`): **392/392 verde e a suíte caiu de 92 s pra 37 s.**
-> 3. **Chapada morreu de propósito** — `ROCHA_HEIGHT = 85` ficou INALCANÇÁVEL (0% dos topos em
->    5 seeds): só araucárias passam de 85 e elas nevam. Documentado no código como rede de
->    segurança: subir o `relevo` do cerrado devolve pedra nua sem código novo.
->
-> **VERDE:** typecheck 3/3 · **392 testes** (4 novos, incl. o portão de fronteira) · build ·
-> 6/6 smokes · 5/5 na luz. **Playtest do usuário PENDENTE** (ver §pendências).
->
-> **COMMITADA** em 3: `cb987ed` (config do vitest) · `2aaf0e9` (§🏔️ relevo por bioma, com o
-> `client/dist` reconstruído) · o wolf logo abaixo. ⚠️ **FALTA O PUSH** — é do GitHub que o
-> launcher da escola puxa, então main local à frente = notebook do lab desatualizado.
 
 ---
 

@@ -4,6 +4,46 @@
 
 ## Session Journal
 
+> **SESSÃO 33 (2026-07-30) — §🏔️ RELEVO POR BIOMA: a v2 da geração FECHOU.** A sessão 32
+> tinha deixado `shared/src/biomas.ts` com os campos `relevo`/`neve` escritos e **ninguém
+> consumindo** — `heightAt` seguia heightmap global. Esta sessão ligou os dois, e o trabalho
+> de verdade foi o que o escopo avisou que seria: **a fronteira.**
+>
+> **O que o playtest do usuário tinha reclamado** (registrado só em comentário de código até
+> hoje): duna de caatinga chegando a **106 blocos**, "areia, pedra, terra e neve junto", e
+> pico atravessando 2–3 biomas. As duas causas: a serra não sabia de bioma, e a neve era
+> global por altitude + `temp < 0.6` (pegava morro de cerrado).
+>
+> **O PENHASCO, que apareceu na medição e não no código (bug-544):** a 1ª ligação passou
+> typecheck e teste, e produziu **degrau de 14 a 23 blocos entre colunas VIZINHAS** — contra
+> 4–6 do heightmap global nas mesmas seeds. Culpa do fator de NÚCLEO: ele multiplica o
+> gradiente do clima pela amplitude da serra (88 blocos), e rampa estreita ali vira parede.
+> **Sweep medido** (10 formulações × 5 seeds × 400×400 colunas) escolheu `RAMPA 0,25` +
+> `NÚCLEO (0,4→1,0)`: **degrau máx 4–6 = paridade exata com o heightmap global**, ZERO pares
+> acima de 6, cauda >3 mais LEVE que a dele (0,10% × 0,01–0,62%) — e os tetos de pé:
+> **araucárias 106 · mata 68 · cerrado 53 · caatinga 36.** As variantes rejeitadas têm número
+> do lado: sem núcleo suaviza mas vaza o teto (cerrado 73); clima 3× mais largo dá degrau 3 mas
+> mata a montanha (araucárias 66).
+>
+> **Três medições que mudaram decisão:**
+> 1. **Custo NÃO subiu: caiu.** Geração 4,53 → **4,00 ms/coluna** e a cena do `?bench` perdeu
+>    **7,5% de triângulos** (700 230 → 647 858, chunks com malha 586 → 549). Terreno mais baixo
+>    fora das araucárias escreve menos bloco e mesha menos — o teto de GPU do lab **alivia**.
+> 2. **`npm test` era um sorteio** (bug-545): 5 falhas numa rodada, 18 na seguinte, todas
+>    `timed out` e em arquivos que não tocam terreno. O vitest sem config abre 1 fork por núcleo
+>    (24 aqui) e quase todo teste daqui GERA MUNDO. `shared/vitest.config.ts` novo
+>    (`maxWorkers: 8`, `testTimeout: 20000`): **392/392 verde e a suíte caiu de 92 s pra 37 s.**
+> 3. **Chapada morreu de propósito** — `ROCHA_HEIGHT = 85` ficou INALCANÇÁVEL (0% dos topos em
+>    5 seeds): só araucárias passam de 85 e elas nevam. Documentado no código como rede de
+>    segurança: subir o `relevo` do cerrado devolve pedra nua sem código novo.
+>
+> **VERDE:** typecheck 3/3 · **392 testes** (4 novos, incl. o portão de fronteira) · build ·
+> 6/6 smokes · 5/5 na luz. **Playtest do usuário PENDENTE** (ver §pendências).
+>
+> **COMMITADA** em 3: `cb987ed` (config do vitest) · `2aaf0e9` (§🏔️ relevo por bioma, com o
+> `client/dist` reconstruído) · o wolf logo abaixo. ⚠️ **FALTA O PUSH** — é do GitHub que o
+> launcher da escola puxa, então main local à frente = notebook do lab desatualizado.
+
 > **SESSÃO 32 (2026-07-28) — §💡 LUZ VOXEL COMPLETA E §🏔️ CAVERNAS. Dois commits,
 > tudo verde.** A fase da fila era "v2 da geração"; o portão de produto que o escopo tinha
 > deixado aberto era a luz, e **o usuário escolheu luz COMPLETA (céu + tocha) ANTES de
@@ -1511,6 +1551,67 @@
 > segue ADIADO — sem gatilho.**
 
 ## Action Log
+
+## Session: 2026-07-26 15:50
+
+| Time | Action | File(s) | Outcome | ~Tokens |
+|------|--------|---------|---------|--------|
+| 15:52 | bug-520: tela de carga subia só no snapshot (fim da fila do host) → msg nova `mundo_trocando` + fase `preparando` + fila de 2× rAF (garante a PINTURA antes do trabalho pesado). Perfil 3 analisado: remesh −98%, repedidas 252→4 | shared/protocol.ts · server/{index,mundos}.ts · client/{main,loading}.ts · _smoke-troca-raio.mjs | ✅ typecheck 3/3, 329 testes, smoke 6/6, build refeito | ~30k |
+| 15:58 | Ajuste OpenWolf: buglog.auto_detect→false (falso positivo poluía índice) + anatomy.rescan 6h→168h (stale falso no boot) | .wolf/config.json · .wolf/cerebrum.md | ✅ aplicado | ~2k |
+| 16:12 | Edited server/src/cenarios/_smoke-mundo.mjs | added nullish coalescing | ~22 |
+| 16:12 | Edited server/src/cenarios/_smoke-kicar.mjs | added nullish coalescing | ~22 |
+| 16:12 | Edited server/src/cenarios/_smoke-atividade.mjs | added nullish coalescing | ~22 |
+| 16:14 | Created scripts/smoke.mjs | — | ~2158 |
+| 16:14 | Edited package.json | 2→5 lines | ~91 |
+| 16:14 | Edited scripts/smoke.mjs | 8→10 lines | ~85 |
+| 16:15 | Edited server/src/cenarios/_smoke-mundo.mjs | 1→4 lines | ~35 |
+| 16:17 | §🧪 encanamento de verificação: runner de smokes com manifesto + npm run verify/smoke/verify:all; 3 smokes ganharam porta por argv | scripts/smoke.mjs (novo) · package.json · server/src/cenarios/_smoke-{mundo,kicar,atividade}.mjs | ✅ smoke 5/5 (38s) · verify verde (329 testes, build ok) | ~35k |
+| 16:18 | Session end: 7 writes across 5 files (_smoke-mundo.mjs, _smoke-kicar.mjs, _smoke-atividade.mjs, smoke.mjs, package.json) | 5 reads | ~11450 tok |
+| 16:31 | Session end: 7 writes across 5 files (_smoke-mundo.mjs, _smoke-kicar.mjs, _smoke-atividade.mjs, smoke.mjs, package.json) | 5 reads | ~11450 tok |
+| 20:03 | Edited client/src/torchGlow.ts | 2→2 lines | ~32 |
+| 20:03 | Edited client/src/torchGlow.ts | added 2 condition(s) | ~620 |
+| 20:03 | Edited client/src/main.ts | modified for() | ~81 |
+| 20:03 | Edited client/src/main.ts | modified for() | ~83 |
+| 20:04 | Edited client/src/main.ts | modified for() | ~66 |
+| 20:12 | bug-523 (o achado da sessão): TorchGlow.setFromWorld varria bloco a bloco → 41,4 s de trava em mundo E ("página não está respondendo"); varredura por chunk = 2,9 ms. Explica os ~38 s de long task iguais nos 3 perfis. + halo de tocha em coluna do streaming | client/src/torchGlow.ts · client/src/main.ts | ✅ typecheck 3/3, 329 testes, equivalência 9/9, headless 3min→2,9s, build refeito | ~25k |
+| 20:10 | Session end: 12 writes across 7 files (_smoke-mundo.mjs, _smoke-kicar.mjs, _smoke-atividade.mjs, smoke.mjs, package.json) | 7 reads | ~13328 tok |
+| 20:30 | Perfis 4-9 analisados (2 pré-tocha às 19:34, 4 snapshots da mesma sessão às 23:18). Confirmado: trava fixa sumiu (longTask agora escala), jitter 1750→320, repedidas 0. Sobrou mesh de terreno: 18-29% do tempo de parede, 1,25-1,71 ms/chunk; PARADO = 60 FPS travado. Medição 4 + ordem revisada no ROADMAP | .wolf/ROADMAP.md | ✅ análise registrada | ~18k |
+| 20:23 | Session end: 12 writes across 7 files (_smoke-mundo.mjs, _smoke-kicar.mjs, _smoke-atividade.mjs, smoke.mjs, package.json) | 7 reads | ~13328 tok |
+| 20:29 | Edited client/src/hud.ts | modified perfil() | ~312 |
+| 20:29 | Edited client/src/hud.ts | 4→6 lines | ~72 |
+| 20:29 | Edited client/src/hud.ts | added optional chaining | ~43 |
+| 20:29 | Edited client/src/hud.ts | expanded (+24 lines) | ~261 |
+| 20:30 | Edited client/src/hud.ts | added optional chaining | ~343 |
+| 20:30 | Edited client/src/hud.ts | 4→4 lines | ~17 |
+| 20:30 | Edited client/src/main.ts | 3→4 lines | ~63 |
+| 20:30 | Edited client/src/main.ts | 1→5 lines | ~80 |
+| 20:30 | Edited client/src/main.ts | modified frame() | ~146 |
+| 20:30 | Edited client/src/main.ts | 3→6 lines | ~64 |
+| 20:30 | Edited client/src/main.ts | expanded (+17 lines) | ~194 |
+| 20:31 | Edited client/src/main.ts | added 1 condition(s) | ~80 |
+| 20:55 | Contexto no perfil (pedido do usuário): `Hud.contexto` provider → bloco `jogador` (pos/yaw/pitch/voando/noChao/chunk) + `config` (raioRender/meshPorFrame/pixelRatioCap/fov) + `gravacao.movimento` (estado voando/andando/parado, distância, velocidade, colunasNovas, bytesRecebidos na janela). `?hud` na URL abre o F3 (verificação headless) | client/src/hud.ts · client/src/main.ts | ✅ typecheck 3/3, 329 testes, F3 conferido em headless, build refeito | ~22k |
+| 20:40 | Edited client/src/settings.ts | expanded (+6 lines) | ~120 |
+| 20:41 | Edited client/src/menu.ts | 5→5 lines | ~44 |
+| 20:41 | Edited client/src/chunks.ts | added 1 condition(s) | ~452 |
+| 20:41 | Edited client/src/chunks.ts | 5→9 lines | ~115 |
+| 20:42 | Edited client/src/hud.ts | added optional chaining | ~70 |
+| 21:00 | Orçamento de mesh por TEMPO (escolha do usuário): `meshMsPorFrame` (1-16 ms, padrão 6) substitui `meshPorFrame`; teto 64 chunks + garantia de ≥1; F3 mostra "malha N chunks (orçamento X ms)"; slider novo na config. Plano do worker escopado no ROADMAP | client/src/{chunks,settings,menu,hud,main}.ts | ✅ typecheck 3/3, 329 testes, headless E: fila 0, long tasks 0, build refeito | ~20k |
+| 20:49 | Session end: 29 writes across 11 files (_smoke-mundo.mjs, _smoke-kicar.mjs, _smoke-atividade.mjs, smoke.mjs, package.json) | 14 reads | ~24611 tok |
+| 21:10 | Perfis 23:51 (2, voando raio 12, 125 colunas novas na janela) analisados: orçamento por tempo VALIDADO — p95 43-82→18,7/20,4 ms, frames>50ms 9-50→0, FPS 41-53→57/60, longTasks sessão 128-299→2, fila 0→84/189 (preço previsto). MEDIÇÃO 5 no ROADMAP; worker do mesher rebaixado até medir no lab | .wolf/ROADMAP.md · .wolf/TODO.md | ✅ análise registrada | ~16k |
+| 20:53 | Session end: 29 writes across 11 files (_smoke-mundo.mjs, _smoke-kicar.mjs, _smoke-atividade.mjs, smoke.mjs, package.json) | 14 reads | ~24611 tok |
+| 21:02 | Edited client/src/hud.ts | modified netcode() | ~216 |
+| 21:02 | Edited client/src/hud.ts | expanded (+8 lines) | ~164 |
+| 21:02 | Edited client/src/hud.ts | expanded (+10 lines) | ~182 |
+| 21:03 | Edited client/src/hud.ts | modified frame() | ~141 |
+| 21:03 | Edited client/src/hud.ts | modified toFixed() | ~234 |
+| 21:03 | Edited client/src/chunks.ts | modified pediu() | ~214 |
+| 21:03 | Edited client/src/chunks.ts | 4→7 lines | ~60 |
+| 21:04 | Edited client/src/main.ts | 2→6 lines | ~101 |
+| 21:15 | Edited client/src/main.ts | 5→6 lines | ~66 |
+| 21:40 | Playtest da §🕐 APROVADO (single + /mundo carregar). Perfilador por FASE (carregando×jogando: frames/fps/render%/travadas), top 5 piores travadas (ms+fase+segundo), remesh por caminho (fila/bloco/área), render×lógica (renderMs). bug-524 (setRemesh do loop apagava porCaminho) pego no headless. Backlog do perfilador escopado no ROADMAP (modo ?bench é o item 1) | client/src/{hud,chunks,main}.ts · .wolf/{ROADMAP,TODO,cerebrum,buglog} | ✅ typecheck 3/3, 329 testes, F3 conferido, build refeito | ~24k |
+| 21:23 | Session end: 38 writes across 11 files (_smoke-mundo.mjs, _smoke-kicar.mjs, _smoke-atividade.mjs, smoke.mjs, package.json) | 17 reads | ~25989 tok |
+| 21:55 | Handoff da sessão 25: STATUS ✅ consolidado + 🚀 Próxima fase = as 7 do perfilador (ordem: ?bench primeiro), TODO zerado, anatomy rescan. Commit da leva inteira | .wolf/{STATUS,TODO,memory}.md | ✅ pronto pro /clear | ~12k |
+| 21:29 | Session end: 38 writes across 11 files (_smoke-mundo.mjs, _smoke-kicar.mjs, _smoke-atividade.mjs, smoke.mjs, package.json) | 17 reads | ~25989 tok |
 
 ## Session: 2026-07-26 14:38
 
