@@ -445,12 +445,15 @@
   `session.files_written`, que só registra escrita feita pelas ferramentas de arquivo — append
   via heredoc no Bash é invisível pro hook, e o aviso "buglog.json was not updated" repete a
   cada stop mesmo com os bugs já logados. Vale pra qualquer arquivo que um hook vigie.
-- **[2026-08-03] O aviso "no semantic summary was written to memory.md" é INSATISFAZÍVEL —
-  ignore-o.** `countSemanticEntries` (`.wolf/hooks/shared.js:614`) conta linhas que começam com
-  `| YYYY-MM-DD`, mas o formato que o próprio aviso pede é `| HH:MM | … |`. Nenhuma linha de
-  `memory.md` tem data, então a contagem é sempre 0 e o aviso dispara sempre. Escrever mais
-  entradas só duplica o diário. É o que o PR upstream cytostack/openwolf#64 corrige (ver
-  TODO §🧭).
+- **[2026-08-03] O aviso "no semantic summary" fura quando a sessão ATRAVESSA A MEIA-NOITE
+  (UTC) — não adianta escrever mais nada.** O OpenWolf 2.0.1 já traz o fix do PR #64: o
+  `countSemanticEntries` aceita linhas `| HH:MM |` desde que estejam num bloco
+  `## Session: <data de hoje>`. Mas o header do bloco é gravado quando a sessão COMEÇA; numa
+  sessão que vira o dia, ele fica com a data de ontem, `inTodaySession` nunca é true e o
+  `todayPrefix` (`| YYYY-MM-DD`) não casa com linha nenhuma, porque o formato pedido é `| HH:MM`.
+  Contagem 0 ⇒ aviso a cada stop. **Reconhecer pelo sintoma:** aviso repete mesmo com o diário
+  escrito, e `grep '^## Session:' .wolf/memory.md | tail -1` mostra data anterior a `date -u
+  +%F`. Ver §🧭 do TODO — é bug upstream NOVO, não o #64.
 
 ### Código e arquitetura
 

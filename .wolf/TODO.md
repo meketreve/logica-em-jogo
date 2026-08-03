@@ -131,14 +131,31 @@
 ## 🧭 Fora deste repo (aberto)
 
 - [ ] **PR upstream do OpenWolf: [cytostack/openwolf#64](https://github.com/cytostack/openwolf/pull/64)**
-      — aguardando review. Corrige `countSemanticEntries`, que fazia o aviso "no semantic
-      summary" repetir a cada stop. **Mecanismo exato (diagnosticado em 2026-08-03,
-      `.wolf/hooks/shared.js:614`):** a função conta linhas de `memory.md` que começam com
-      `| YYYY-MM-DD`, mas o formato que o próprio aviso pede é `| HH:MM | … |`. Nenhuma linha
-      tem data ⇒ contagem sempre 0 ⇒ aviso sempre. **Enquanto não entrar, ignore o aviso** —
-      escrever mais entradas não o silencia, só polui o diário. ⚠️ O patch local em
-      `~/.local/share/pnpm/global/.../openwolf/dist/hooks/shared.js` **é sobrescrito por
-      `pnpm update -g openwolf`**; se o PR entrar, o update passa a trazer o fix.
+      — **JÁ ENTROU e já está na 2.0.1 instalada** (o comentário dele está no
+      `countSemanticEntries` do pacote). Fechar/arquivar o PR se ainda estiver aberto — e não
+      há mais patch local a proteger de `pnpm update -g openwolf`.
+
+- [ ] 🔥 **DOIS AVISOS DE HOOK FALSO-POSITIVOS — diagnosticados na sessão 36, nenhum corrigido.**
+      Os dois dispararam a cada `stop` da sessão inteira, com o trabalho JÁ feito. São bugs
+      upstream distintos, os dois em `openwolf/dist/hooks/` do pacote 2.0.1:
+
+      1. **"no semantic summary written to memory.md" — fura na virada da MEIA-NOITE (UTC).**
+         `countSemanticEntries` (`shared.js`, ~linha 614) aceita linhas `| HH:MM |` só dentro de
+         um bloco `## Session: <data de hoje>`. O header é gravado quando a sessão COMEÇA, então
+         sessão que vira o dia fica com a data de ontem: `inTodaySession` nunca é true, e o outro
+         ramo (`| YYYY-MM-DD`) não casa porque o formato pedido é `| HH:MM`. Contagem 0 ⇒ aviso
+         eterno. **Foi exatamente o nosso caso** (`## Session: 2026-08-02 23:34`, hoje 08-03).
+         **Reconhecer:** `grep '^## Session:' .wolf/memory.md | tail -1` anterior a `date -u +%F`.
+         **Consertar:** comparar o header também com o dia ANTERIOR, ou (melhor) contar
+         `| HH:MM |` abaixo do ÚLTIMO header, sem olhar a data.
+
+      2. **"buglog.json was not updated" — cego a escrita fora das ferramentas.**
+         `checkForMissingBugLogs` (`stop.js`, ~linha 145) exige `count >= 3` edições num arquivo
+         e checa `session.files_written` por `buglog.json`. Esse registro só recebe escrita das
+         ferramentas Write/Edit — append via `python3`/`cat` no Bash é invisível. Logamos 5 bugs
+         (549–553) e o aviso continuou. **Contorno já no cerebrum:** escrever arquivo vigiado por
+         hook pela ferramenta, nunca por heredoc. **Consertar upstream:** olhar o mtime/hash do
+         `buglog.json`, não a lista de escritas da sessão.
 
 ## ✅ Recently done
 

@@ -624,6 +624,30 @@ lite) → F9 preset `sobrevivencia`. Escopo item a item em `.wolf/ROADMAP.md §�
   resolve com UMA linha (`.menu-screen { width: min(680px, 92vw) }` sem media query), mas é
   mudança visual não pedida numa tela de uso diário — **só com o aval do usuário.**
 
+### ⚠️ HOOKS DO OPENWOLF — LER ANTES DE ACREDITAR NOS AVISOS (sessão 36)
+
+**Dois avisos de `stop` são FALSO-POSITIVO hoje.** Eles dispararam a cada turno da sessão 36
+com o trabalho já feito, e o usuário pediu para cuidar disto na próxima sessão. **Não obedeça
+a nenhum dos dois cegamente** — escrever de novo só duplica diário e buglog.
+
+1. **"no semantic summary written to memory.md"** — o pacote 2.0.1 JÁ tem o fix do PR #64,
+   mas ele **fura na virada da meia-noite UTC**: só conta linhas `| HH:MM |` dentro de um bloco
+   `## Session: <hoje>`, e o header é gravado no INÍCIO da sessão. Sessão que vira o dia fica
+   com a data de ontem e a contagem dá 0 para sempre. Foi o nosso caso
+   (`## Session: 2026-08-02 23:34`, e o dia virou para 08-03).
+2. **"buglog.json was not updated"** — `checkForMissingBugLogs` olha `session.files_written`,
+   que só registra escrita feita pelas ferramentas Write/Edit. Os 5 bugs desta sessão
+   (549–553) foram gravados por `python3` no Bash, invisível para o hook.
+
+**Como confirmar em 10 s, antes de gastar tempo:**
+```bash
+grep '^## Session:' .wolf/memory.md | tail -1   # data anterior a `date -u +%F` = bug 1
+python3 -c "import json;d=json.load(open('.wolf/buglog.json'));print(d['bugs'][-1]['id'])"
+```
+Escopo, causa e o conserto sugerido de cada um estão em `.wolf/TODO.md §🧭`; o contorno do
+lado de cá (gravar arquivo vigiado pela FERRAMENTA, não por heredoc) está no
+`cerebrum.md → Ferramentas e ambiente`.
+
 ### Pendências que não bloqueiam nada, e quem faz é o usuário
 
 -3. **PLAYTEST DA SOBREVIVÊNCIA (F1..F4, sessões 34, 35 e 36) — o mais novo, e o único que
