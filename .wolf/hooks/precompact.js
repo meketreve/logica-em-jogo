@@ -30,3 +30,4 @@ async function main() {
     process.exit(0);
 }
 main().catch(() => process.exit(0));
+//# sourceMappingURL=precompact.js.map

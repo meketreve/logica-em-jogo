@@ -593,15 +593,6 @@ export function timeShort() {
     const d = new Date();
     return `${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
 }
-/**
- * Today's date in the LOCAL timezone (YYYY-MM-DD). `toISOString()` is UTC, so
- * west of Greenwich it rolls over hours before midnight local and the session
- * header stops matching the day Claude and the user are actually working in.
- * Pair with timeShort(), which is already local.
- */
-export function localDate(d = new Date()) {
-    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
-}
 export function readStdin() {
     return new Promise((resolve) => {
         const chunks = [];
@@ -625,30 +616,11 @@ export function countSemanticEntries(wolfDir) {
     try {
         const content = fs.readFileSync(memoryPath, "utf-8");
         const mechanical = /^\|\s*[\d:]+\s*\|\s*(Created|Edited|Multi-edited|Session end:|designqc:)/;
-        const today = localDate();
-        // memory.md rows are `| HH:MM | ... ` (the format OPENWOLF.md documents and
-        // that this hook itself writes) — the date lives in the `## Session: DATE`
-        // header above them. Matching `| DATE` alone counted ZERO forever and the
-        // stop hook nagged every turn even right after a summary was appended.
-        // So: track the date of the most recent header and attribute rows to it.
-        const headerDate = /^#+\s.*?(\d{4}-\d{2}-\d{2})/;
-        const timeRow = /^\|\s*\d{1,2}:\d{2}\s*\|/;
-        let current = null;
+        const today = new Date().toISOString().slice(0, 10);
+        const todayPrefix = `| ${today}`;
         let count = 0;
         for (const line of content.split("\n")) {
-            const h = headerDate.exec(line);
-            if (h) {
-                current = h[1];
-                continue;
-            }
-            if (mechanical.test(line))
-                continue;
-            // legacy rows that carry the full date themselves
-            if (line.startsWith(`| ${today}`)) {
-                count++;
-                continue;
-            }
-            if (current === today && timeRow.test(line))
+            if (line.startsWith(todayPrefix) && !mechanical.test(line))
                 count++;
         }
         return count;
@@ -692,3 +664,4 @@ export function readTranscriptUsage(transcriptPath) {
     }
     return total;
 }
+//# sourceMappingURL=shared.js.map

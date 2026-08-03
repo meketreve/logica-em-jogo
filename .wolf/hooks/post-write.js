@@ -521,3 +521,4 @@ function extractCSSProps(code) {
     return props;
 }
 main().catch(() => process.exit(0));
+//# sourceMappingURL=post-write.js.map

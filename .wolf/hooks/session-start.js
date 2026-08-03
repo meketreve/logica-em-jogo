@@ -1,7 +1,7 @@
 import * as fs from "node:fs";
 import * as path from "node:path";
 import { execFileSync } from "node:child_process";
-import { getWolfDir, ensureWolfDir, writeJSON, appendMarkdown, readJSON, timestamp, timeShort, localDate, estimateTokens, readStdin, detectAgent } from "./shared.js";
+import { getWolfDir, ensureWolfDir, writeJSON, appendMarkdown, readJSON, timestamp, timeShort, estimateTokens, readStdin, detectAgent } from "./shared.js";
 import { loadStore } from "./anatomy-store.js";
 function digestBudget(wolfDir) {
     const cfg = readJSON(path.join(wolfDir, "config.json"), {});
@@ -102,7 +102,7 @@ async function main() {
     const hooksDir = path.join(wolfDir, "hooks");
     const sessionFile = path.join(hooksDir, "_session.json");
     const now = new Date();
-    const sessionId = `session-${localDate(now)}-${String(now.getHours()).padStart(2, "0")}${String(now.getMinutes()).padStart(2, "0")}`;
+    const sessionId = `session-${now.toISOString().slice(0, 10)}-${String(now.getHours()).padStart(2, "0")}${String(now.getMinutes()).padStart(2, "0")}`;
     // SessionStart fires for startup/resume/clear/compact. Only startup and
     // clear begin a genuinely new session — on resume/compact the session is
     // still live, and resetting _session.json would wipe read/write tracking
@@ -130,7 +130,7 @@ async function main() {
         });
         // Append session header to memory.md
         const memoryPath = path.join(wolfDir, "memory.md");
-        const header = `\n## Session: ${localDate(now)} ${timeShort()}\n\n| Time | Action | File(s) | Outcome | ~Tokens |\n|------|--------|---------|---------|--------|\n`;
+        const header = `\n## Session: ${now.toISOString().slice(0, 10)} ${timeShort()}\n\n| Time | Action | File(s) | Outcome | ~Tokens |\n|------|--------|---------|---------|--------|\n`;
         appendMarkdown(memoryPath, header);
     }
     // Check cerebrum freshness — remind Claude to learn
@@ -220,3 +220,4 @@ function anatomyStaleReason(wolfDir) {
     return null;
 }
 main().catch(() => process.exit(0));
+//# sourceMappingURL=session-start.js.map

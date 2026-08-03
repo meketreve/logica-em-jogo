@@ -279,3 +279,4 @@ export function loadStoreReconciled(wolfDir, projectRoot) {
     }
     return store;
 }
+//# sourceMappingURL=anatomy-store.js.map

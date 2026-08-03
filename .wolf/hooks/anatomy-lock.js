@@ -103,3 +103,4 @@ export function withAnatomyLock(wolfDir, budgetMs, fn) {
         catch { }
     }
 }
+//# sourceMappingURL=anatomy-lock.js.map
