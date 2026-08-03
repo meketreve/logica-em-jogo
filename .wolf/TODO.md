@@ -130,39 +130,43 @@
 
 ## 🧭 Fora deste repo (aberto)
 
-- [ ] **PR upstream do OpenWolf: [cytostack/openwolf#64](https://github.com/cytostack/openwolf/pull/64)**
-      — **JÁ ENTROU e já está na 2.0.1 instalada** (o comentário dele está no
-      `countSemanticEntries` do pacote). Fechar/arquivar o PR se ainda estiver aberto — e não
-      há mais patch local a proteger de `pnpm update -g openwolf`.
+- [x] **PR upstream do OpenWolf: [cytostack/openwolf#64](https://github.com/cytostack/openwolf/pull/64)**
+      — **JÁ ENTROU e está na 2.0.1 instalada**, mas **só no `dist/hooks/`**, e não é essa a
+      cópia que chega no projeto (ver o item dos hooks abaixo). Fechar/arquivar o PR se ainda
+      estiver aberto.
 
-- [ ] 🔥 **DOIS AVISOS DE HOOK FALSO-POSITIVOS — diagnosticados na sessão 36, nenhum corrigido.**
-      Os dois dispararam a cada `stop` da sessão inteira, com o trabalho JÁ feito. São bugs
-      upstream distintos, os dois em `openwolf/dist/hooks/` do pacote 2.0.1:
+- [x] 🔥 **OS TRÊS AVISOS DE HOOK FALSO-POSITIVOS — CONSERTADOS (sessão 37, 2026-08-03).**
+      bug-554/555/556. Os três consertos estão em `.wolf/hooks/shared.js` e `.wolf/hooks/stop.js`
+      (rastreados no git), com regressão em `.wolf/hooks/_test-hooks.mjs` (10/10 —
+      `node .wolf/hooks/_test-hooks.mjs`, roda o `stop.js` de verdade numa fixture de `/tmp`).
 
-      1. **"no semantic summary written to memory.md" — fura na virada da MEIA-NOITE (UTC).**
-         `countSemanticEntries` (`shared.js`, ~linha 614) aceita linhas `| HH:MM |` só dentro de
-         um bloco `## Session: <data de hoje>`. O header é gravado quando a sessão COMEÇA, então
-         sessão que vira o dia fica com a data de ontem: `inTodaySession` nunca é true, e o outro
-         ramo (`| YYYY-MM-DD`) não casa porque o formato pedido é `| HH:MM`. Contagem 0 ⇒ aviso
-         eterno. **Foi exatamente o nosso caso** (`## Session: 2026-08-02 23:34`, hoje 08-03).
-         **Reconhecer:** `grep '^## Session:' .wolf/memory.md | tail -1` anterior a `date -u +%F`.
-         **Consertar:** comparar o header também com o dia ANTERIOR, ou (melhor) contar
-         `| HH:MM |` abaixo do ÚLTIMO header, sem olhar a data.
+      **A causa raiz de o fix upstream não ter chegado: o pacote 2.0.1 traz DUAS cópias dos
+      hooks** — `dist/hooks/` (build do `tsconfig.hooks.json`, tem o PR #64) e `dist/src/hooks/`
+      (build principal do tsc, NÃO tem). O `copyHookScripts` do `dist/src/cli/init.js` procura
+      nessa ordem e **`dist/src/hooks` vence**, então `openwolf init/update` sempre instalou a
+      versão velha. Foi o que aconteceu no commit `192acff` ("sincroniza com o 2.0.1").
 
-      2. **"buglog.json was not updated" — cego a escrita fora das ferramentas.**
-         `checkForMissingBugLogs` (`stop.js`, ~linha 145) exige `count >= 3` edições num arquivo
-         e checa `session.files_written` por `buglog.json`. Esse registro só recebe escrita das
-         ferramentas Write/Edit — append via `python3`/`cat` no Bash é invisível. Logamos 5 bugs
-         (549–553) e o aviso continuou. **Contorno já no cerebrum:** escrever arquivo vigiado por
-         hook pela ferramenta, nunca por heredoc. **Consertar upstream:** olhar o mtime/hash do
-         `buglog.json`, não a lista de escritas da sessão.
+      1. **"no semantic summary written to memory.md"** — `countSemanticEntries` comparava data:
+         ou o prefixo `| YYYY-MM-DD` (que NENHUMA linha tem — o formato pedido é `| HH:MM |`),
+         ou, na versão do PR #64, o header `## Session: <hoje>` — que é gravado no INÍCIO da
+         sessão e carrega data UTC com hora LOCAL, então sessão que atravessa a meia-noite fica
+         com a data de ontem. Contagem 0 ⇒ aviso eterno. **Agora conta as linhas abaixo do
+         ÚLTIMO `## Session:`, sem olhar data nenhuma.**
+      2. **"buglog.json was not updated"** — `checkForMissingBugLogs` só olhava
+         `session.files_written`, que registra apenas Write/Edit/MultiEdit; append por
+         `python3`/`cat` no Bash era invisível. **Agora também aceita o mtime do `buglog.json`
+         posterior ao início da sessão** (`buglogTouchedSince`), qualquer que seja a ferramenta.
+      3. **`| HH:MM | Session end: … |` repetida a cada `stop`** — os contadores são CUMULATIVOS
+         e o hook dava append em todo turno. **Agora só grava quando o resumo muda, e sobrescreve
+         a linha de encerramento que estiver no fim do arquivo** em vez de empilhar outra. Se o
+         modelo escreveu algo depois dela, a linha nova é acrescentada (histórico preservado).
+         As 41 cópias que já estavam no `memory.md` foram colapsadas.
 
-      3. **`| HH:MM | Session end: … |` repetida no `memory.md` a cada `stop`.** Como os avisos
-         1 e 2 fazem o turno terminar sem trabalho novo, o hook grava a MESMA linha de
-         encerramento outra vez — a sessão 36 acumulou 9 cópias idênticas de
-         `Session end: 73 writes across 18 files`. Ruído puro no diário. **Consertar:** só
-         gravar se a contagem mudou desde a última linha, ou sobrescrever a última em vez de
-         acrescentar.
+      ⚠️ **O conserto foi copiado à mão para as DUAS cópias do pacote global**
+      (`~/.local/share/pnpm/global/v11/.../openwolf/dist/hooks/` e `.../dist/src/hooks/`, com
+      `.bak-pre-fix` ao lado), para que um `openwolf init/update` não reverta. **`pnpm update -g
+      openwolf` apaga esse patch** — depois de atualizar, recopiar de `.wolf/hooks/` (que é a
+      fonte rastreada) ou mandar o PR upstream.
 
 ## ✅ Recently done
 

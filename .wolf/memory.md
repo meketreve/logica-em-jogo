@@ -74,9 +74,6 @@
 | 21:53 | Edited package.json | 1→2 lines | ~28 |
 | 22:05 | SESSÃO 26 — as 7 do perfilador entregues: ?bench (bench.ts novo), histograma, carga por fase (§🕐), marcadores, regras do servidor no debug_stats, tempo de GPU; item 7 já existia. + scripts/bench-headless.mjs (CDP). VERDE: typecheck 3/3, 331 testes, build, bench headless E de ponta a ponta. bug-525 logado. NÃO commitado (playtest pendente) | bench.ts, hud.ts, loading.ts, main.ts, session.ts, protocol.ts, scripts/bench-headless.mjs | ok | ~95k |
 | 21:57 | Session end: 65 writes across 10 files (hud.ts, loading.ts, session.ts, protocol.ts, bench.ts) | 9 reads | ~109155 tok |
-| 22:13 | Session end: 65 writes across 10 files (hud.ts, loading.ts, session.ts, protocol.ts, bench.ts) | 9 reads | ~109155 tok |
-| 22:20 | Session end: 65 writes across 10 files (hud.ts, loading.ts, session.ts, protocol.ts, bench.ts) | 9 reads | ~109155 tok |
-| 22:27 | Session end: 65 writes across 10 files (hud.ts, loading.ts, session.ts, protocol.ts, bench.ts) | 9 reads | ~109155 tok |
 | 22:29 | Created server/src/perfis.ts | — | ~1176 |
 | 22:29 | Edited server/src/index.ts | 7→4 lines | ~56 |
 | 22:29 | Edited server/src/index.ts | added 1 import(s) | ~50 |
@@ -90,9 +87,6 @@
 | 22:32 | Edited server/src/cenarios/_smoke-perfil-http.mjs | 1→5 lines | ~72 |
 | 22:35 | ?bench passa a POSTAR o perfil pro host (POST /perfil → profiles/, prefixo perf-bench-), fallback pro download sem host; server/src/perfis.ts novo concentra WS+HTTP; smoke novo perfil-http (6/6 suíte) | server/src/perfis.ts, server/src/index.ts, client/src/main.ts, scripts/smoke.mjs, _smoke-perfil-http.mjs | ok | ~28k |
 | 22:35 | Session end: 76 writes across 14 files (hud.ts, loading.ts, session.ts, protocol.ts, bench.ts) | 9 reads | ~112306 tok |
-| 22:39 | Session end: 76 writes across 14 files (hud.ts, loading.ts, session.ts, protocol.ts, bench.ts) | 9 reads | ~112306 tok |
-| 22:49 | Session end: 76 writes across 14 files (hud.ts, loading.ts, session.ts, protocol.ts, bench.ts) | 9 reads | ~112306 tok |
-| 22:50 | Session end: 76 writes across 14 files (hud.ts, loading.ts, session.ts, protocol.ts, bench.ts) | 9 reads | ~112306 tok |
 
 ## Session: 2026-07-26 22:56
 
@@ -155,13 +149,11 @@
 | 02:50 | Session end: 43 writes across 7 files (mesher.ts, meshWorker.ts, meshPool.ts, chunks.ts, hud.ts) | 10 reads | ~52506 tok |
 | 02:55 | SESSÃO 27 fechada: perfil do lab lido → mesher em Web Worker codado → par A/B expôs regressão de FPS → coalescência + freio por fase + knob | shared/src/mesher.ts(+test), client/src/{meshWorker,meshPool}.ts (novos), chunks.ts, hud.ts, main.ts, scripts/bench-headless.mjs, .wolf/{STATUS,TODO,cerebrum,buglog} | typecheck 3/3, 334 testes, build ok. Carga 11,5→5,1 s no lab; FPS pendente de fechar com `?meshdepth` | ~180k |
 | 02:50 | Session end: 43 writes across 7 files (mesher.ts, meshWorker.ts, meshPool.ts, chunks.ts, hud.ts) | 10 reads | ~52506 tok |
-| 02:51 | Session end: 43 writes across 7 files (mesher.ts, meshWorker.ts, meshPool.ts, chunks.ts, hud.ts) | 10 reads | ~52506 tok |
 | 2026-07-27 | SESSÃO 27: perfil do lab → mesher em Web Worker → par A/B expôs regressão de FPS → coalescência de job em voo + freio por fase + knob ?meshdepth | shared/src/mesher.ts(+test), client/src/{meshWorker,meshPool}.ts (novos), chunks.ts, hud.ts, main.ts, scripts/bench-headless.mjs | typecheck 3/3, 334 testes, build ok. Carga no lab 11,5→5,1 s; FPS pendente de fechar com ?meshdepth | ~180k |
 | 02:52 | Session end: 43 writes across 7 files (mesher.ts, meshWorker.ts, meshPool.ts, chunks.ts, hud.ts) | 10 reads | ~52506 tok |
 | 03:28 | Session end: 43 writes across 7 files (mesher.ts, meshWorker.ts, meshPool.ts, chunks.ts, hud.ts) | 12 reads | ~52506 tok |
 | 06:35 | Push do projeto (9 commits) e PR upstream do bug do hook de summary | origin/main b3669ff · cytostack/openwolf#64 | PR +98 -1, 32/32 testes e typecheck limpos no fork | ~12k |
 | 03:35 | Session end: 43 writes across 7 files (mesher.ts, meshWorker.ts, meshPool.ts, chunks.ts, hud.ts) | 12 reads | ~52506 tok |
-| 03:39 | Session end: 43 writes across 7 files (mesher.ts, meshWorker.ts, meshPool.ts, chunks.ts, hud.ts) | 12 reads | ~52506 tok |
 | 03:52 | Edited client/src/meshPool.ts | modified total() | ~300 |
 | 03:52 | Edited client/src/meshPool.ts | modified disponivel() | ~180 |
 | 03:52 | Edited client/src/chunks.ts | modified remeshWorkerMsTotal() | ~110 |
@@ -402,7 +394,6 @@ Nenhum gatilho aceso; próxima sessão escolhe do backlog (som de água/vento é
 | 10:40 | Auto-update no launcher (pergunta antes, --ff-only, 6 escapes, npm install só após atualizar) | iniciar-servidor.sh, iniciar-servidor.bat | .sh testado em 8 caminhos com clone local + npm falso; .bat NÃO testável em Linux | ~12k |
 | 10:55 | Varredura pró-repo-público: apelido de aluno em .wolf/history.md (tracked) + profiles-escola/perf-<apelido>-*.json no HISTÓRICO + server/world.ljw com PIN/código de teste | git history, .wolf/STATUS.md | ⛔ abrir o repo como está desmentiria o relatório; recomendado repo público novo | ~6k |
 | 09:54 | Session end: 23 writes across 9 files (relatorio-aplicacao.md, bench.ts, main.ts, perfis.ts, hud.ts) | 17 reads | ~60223 tok |
-| 09:55 | Session end: 23 writes across 9 files (relatorio-aplicacao.md, bench.ts, main.ts, perfis.ts, hud.ts) | 17 reads | ~60223 tok |
 | 10:15 | Created README.md | — | ~1840 |
 | 10:16 | Edited .gitignore | 4→8 lines | ~110 |
 | 11:20 | README público + 5 commits + push (repo já estava PUBLIC) | README.md, git | 26b7650 bench · fbbe3d0 launcher · f23d5a9 docs · e49aa15 privacidade · edec801 wolf | ~10k |
@@ -489,10 +480,6 @@ layouts mobile segue sendo o próximo.
 | 2026-07-28 00:25 | levantamento do ponto de partida: cavernas=0, Bioma sem campo de relevo, SEM luz voxel | shared/{worldgen,biomas}.ts, client/torchGlow.ts | 7 colisões escritas; "madeira por espécie" descoberta OBSOLETA (já feita na sessão 10) | ~5k |
 | 2026-07-28 00:38 | handoff pro /clear | .wolf/{STATUS,TODO,cerebrum,ROADMAP}.md | playtest mobile virou pendência de escola; v2 vira quest ativa | ~4k |
 | 08:21 | Session end: 17 writes across 6 files (index.html, touch.ts, chat.ts, main.ts, package.json) | 12 reads | ~45406 tok |
-| 08:21 | Session end: 17 writes across 6 files (index.html, touch.ts, chat.ts, main.ts, package.json) | 12 reads | ~45406 tok |
-| 08:21 | Session end: 17 writes across 6 files (index.html, touch.ts, chat.ts, main.ts, package.json) | 12 reads | ~45406 tok |
-| 08:23 | Session end: 17 writes across 6 files (index.html, touch.ts, chat.ts, main.ts, package.json) | 12 reads | ~45406 tok |
-| 08:25 | Session end: 17 writes across 6 files (index.html, touch.ts, chat.ts, main.ts, package.json) | 12 reads | ~45406 tok |
 
 ## Session: 2026-07-28 08:25
 
@@ -629,7 +616,6 @@ layouts mobile segue sendo o próximo.
 | 12:44 | Session end: 19 writes across 5 files (worldgen.ts, main.ts, biomas.ts, worldgen.test.ts, vitest.config.ts) | 4 reads | ~46518 tok |
 | 10:48 | Commitou a sessão 33 em 3: `cb987ed` (config do vitest), `2aaf0e9` (§🏔️ relevo por bioma + client/dist reconstruído) e o docs(wolf) do handoff. Push NÃO feito (não pedido) — registrado no STATUS que main local está à frente do GitHub, de onde o launcher da escola puxa. | .wolf/STATUS.md, .wolf/memory.md | 3 commits na main, árvore limpa | ~1 commit |
 | 12:48 | Session end: 19 writes across 5 files (worldgen.ts, main.ts, biomas.ts, worldgen.test.ts, vitest.config.ts) | 4 reads | ~46518 tok |
-| 12:49 | Session end: 19 writes across 5 files (worldgen.ts, main.ts, biomas.ts, worldgen.test.ts, vitest.config.ts) | 4 reads | ~46518 tok |
 
 ## Session: 2026-08-02 17:48
 
@@ -811,8 +797,6 @@ layouts mobile segue sendo o próximo.
 | 20:58 | verificação final | — | typecheck 3/3 · **459 testes** · build · **9/9 smokes** | ~2k |
 | 21:05 | wolf: STATUS/TODO/cerebrum/buglog + anatomy (259 arquivos) | `.wolf/*` | sessão 35 fechada | ~5k |
 | 21:00 | Session end: 43 writes across 10 files (sobrevivencia.ts, protocol.ts, save.ts, session.ts, regras.ts) | 13 reads | ~109596 tok |
-| 21:30 | Session end: 43 writes across 10 files (sobrevivencia.ts, protocol.ts, save.ts, session.ts, regras.ts) | 13 reads | ~109596 tok |
-| 23:33 | Session end: 43 writes across 10 files (sobrevivencia.ts, protocol.ts, save.ts, session.ts, regras.ts) | 13 reads | ~109596 tok |
 
 ## Session: 2026-08-02 23:34
 
@@ -898,21 +882,11 @@ layouts mobile segue sendo o próximo.
 | 00:20 | Session end: 72 writes across 17 files (inventario.ts, drops.ts, inventario.test.ts, drops.test.ts, protocol.ts) | 12 reads | ~128453 tok |
 | 00:32 | Sessao 36 fechada: §🍖 F4 inventario autoritativo completo (puro + session + protocolo + save + cliente + /dar + smoke) e regra de vegetacao registrada no TODO | shared/src/inventario.ts, shared/src/drops.ts, shared/src/session.ts, shared/src/protocol.ts, shared/src/save.ts, shared/src/regras.ts, client/src/mochila.ts, client/src/inventory.ts, client/src/main.ts, client/index.html, server/src/cenarios/_smoke-inventario.mjs, scripts/smoke.mjs | VERDE: typecheck 3/3, 522 testes (63 novos), build, 10/10 smokes, prints da hotbar e da mochila conferidos; 5 bugs logados (549-553); NAO commitado | 68000 |
 | 00:21 | Session end: 72 writes across 17 files (inventario.ts, drops.ts, inventario.test.ts, drops.test.ts, protocol.ts) | 12 reads | ~128453 tok |
-| 00:23 | Session end: 72 writes across 17 files (inventario.ts, drops.ts, inventario.test.ts, drops.test.ts, protocol.ts) | 12 reads | ~128453 tok |
-| 00:23 | Session end: 72 writes across 17 files (inventario.ts, drops.ts, inventario.test.ts, drops.test.ts, protocol.ts) | 12 reads | ~128453 tok |
-| 00:23 | Session end: 72 writes across 17 files (inventario.ts, drops.ts, inventario.test.ts, drops.test.ts, protocol.ts) | 12 reads | ~128453 tok |
-| 00:23 | Session end: 72 writes across 17 files (inventario.ts, drops.ts, inventario.test.ts, drops.test.ts, protocol.ts) | 12 reads | ~128453 tok |
-| 00:24 | Session end: 72 writes across 17 files (inventario.ts, drops.ts, inventario.test.ts, drops.test.ts, protocol.ts) | 12 reads | ~128453 tok |
-| 00:24 | Session end: 72 writes across 17 files (inventario.ts, drops.ts, inventario.test.ts, drops.test.ts, protocol.ts) | 12 reads | ~128453 tok |
-| 00:24 | Session end: 72 writes across 17 files (inventario.ts, drops.ts, inventario.test.ts, drops.test.ts, protocol.ts) | 12 reads | ~128453 tok |
-| 00:25 | Session end: 72 writes across 17 files (inventario.ts, drops.ts, inventario.test.ts, drops.test.ts, protocol.ts) | 12 reads | ~128453 tok |
 | 00:31 | Edited .gitignore | 3→6 lines | ~64 |
 | 00:34 | Session end: 73 writes across 18 files (inventario.ts, drops.ts, inventario.test.ts, drops.test.ts, protocol.ts) | 12 reads | ~128521 tok |
-| 00:34 | Session end: 73 writes across 18 files (inventario.ts, drops.ts, inventario.test.ts, drops.test.ts, protocol.ts) | 12 reads | ~128521 tok |
-| 00:34 | Session end: 73 writes across 18 files (inventario.ts, drops.ts, inventario.test.ts, drops.test.ts, protocol.ts) | 12 reads | ~128521 tok |
-| 00:34 | Session end: 73 writes across 18 files (inventario.ts, drops.ts, inventario.test.ts, drops.test.ts, protocol.ts) | 12 reads | ~128521 tok |
-| 00:35 | Session end: 73 writes across 18 files (inventario.ts, drops.ts, inventario.test.ts, drops.test.ts, protocol.ts) | 12 reads | ~128521 tok |
-| 00:35 | Session end: 73 writes across 18 files (inventario.ts, drops.ts, inventario.test.ts, drops.test.ts, protocol.ts) | 12 reads | ~128521 tok |
-| 00:35 | Session end: 73 writes across 18 files (inventario.ts, drops.ts, inventario.test.ts, drops.test.ts, protocol.ts) | 12 reads | ~128521 tok |
-| 00:35 | Session end: 73 writes across 18 files (inventario.ts, drops.ts, inventario.test.ts, drops.test.ts, protocol.ts) | 12 reads | ~128521 tok |
-| 00:35 | Session end: 73 writes across 18 files (inventario.ts, drops.ts, inventario.test.ts, drops.test.ts, protocol.ts) | 12 reads | ~128521 tok |
+
+## Session: 2026-08-03 00:52
+
+| Time | Action | File(s) | Outcome | ~Tokens |
+|------|--------|---------|---------|--------|
+| 01:12 | conserta os 3 falso-positivos dos hooks: contador semântico sem data (abaixo do último `## Session:`), buglog por mtime, "Session end" idempotente | .wolf/hooks/shared.js, .wolf/hooks/stop.js, .wolf/hooks/_test-hooks.mjs | 10/10 no teste novo; 41 duplicatas colapsadas no diário; patch copiado pras 2 cópias do pacote global | ~9k |

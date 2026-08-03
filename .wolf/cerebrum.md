@@ -440,20 +440,23 @@
 
 ### Ferramentas e ambiente
 
-- **[2026-08-03] Escrever `.wolf/buglog.json` pela ferramenta Write/Edit, NÃO por `python3`/
-  `cat` no Bash.** O `checkForMissingBugLogs` (`.wolf/hooks/stop.js:153`) olha
-  `session.files_written`, que só registra escrita feita pelas ferramentas de arquivo — append
-  via heredoc no Bash é invisível pro hook, e o aviso "buglog.json was not updated" repete a
-  cada stop mesmo com os bugs já logados. Vale pra qualquer arquivo que um hook vigie.
-- **[2026-08-03] O aviso "no semantic summary" fura quando a sessão ATRAVESSA A MEIA-NOITE
-  (UTC) — não adianta escrever mais nada.** O OpenWolf 2.0.1 já traz o fix do PR #64: o
-  `countSemanticEntries` aceita linhas `| HH:MM |` desde que estejam num bloco
-  `## Session: <data de hoje>`. Mas o header do bloco é gravado quando a sessão COMEÇA; numa
-  sessão que vira o dia, ele fica com a data de ontem, `inTodaySession` nunca é true e o
-  `todayPrefix` (`| YYYY-MM-DD`) não casa com linha nenhuma, porque o formato pedido é `| HH:MM`.
-  Contagem 0 ⇒ aviso a cada stop. **Reconhecer pelo sintoma:** aviso repete mesmo com o diário
-  escrito, e `grep '^## Session:' .wolf/memory.md | tail -1` mostra data anterior a `date -u
-  +%F`. Ver §🧭 do TODO — é bug upstream NOVO, não o #64.
+- **[2026-08-03, sessão 37] Os hooks do OpenWolf são CÓDIGO DO REPO (`.wolf/hooks/*.js`,
+  rastreados) — conserte-os em vez de contornar.** Os três falso-positivos que a sessão 36
+  documentou (aviso de resumo semântico, de buglog e a linha "Session end" repetida) viraram
+  bug-554/555/556 e estão corrigidos ali, com regressão em `.wolf/hooks/_test-hooks.mjs`
+  (`node .wolf/hooks/_test-hooks.mjs`, 10/10 — roda o `stop.js` de verdade numa fixture de
+  `/tmp`). **Os contornos que valiam antes estão MORTOS:** já dá pra escrever o `buglog.json`
+  por `python3`/`cat` no Bash (o hook agora olha o mtime), e não é mais preciso pôr prefixo de
+  data na linha do diário quando a sessão atravessa a meia-noite (o contador não compara data
+  nenhuma — conta abaixo do último `## Session:`).
+- **[2026-08-03] O pacote `openwolf` traz DUAS cópias dos hooks e a scaffolding instala a
+  ERRADA.** `dist/hooks/` é o build do `tsconfig.hooks.json` (onde o PR #64 entrou) e
+  `dist/src/hooks/` é o do tsc principal (sem o fix); o `copyHookScripts` do
+  `dist/src/cli/init.js` procura nessa ordem e a segunda vence. **Consequência prática: um fix
+  upstream pode estar no pacote e nunca chegar ao projeto** — depois de `openwolf init/update`,
+  conferir com `diff .wolf/hooks/shared.js <pacote>/dist/src/hooks/shared.js`. O patch local
+  vive nas duas cópias do pacote global (com `.bak-pre-fix`) e **`pnpm update -g openwolf` o
+  apaga**; a fonte de verdade é `.wolf/hooks/` do repo.
 
 ### Código e arquitetura
 
@@ -579,9 +582,9 @@
 - **[2026-07-28] NÃO escrever hora com placeholder no `memory.md`** (`| 23:0x |`): o stop hook
   conta com `^\|\s*\d{1,2}:\d{2}\s*\|`, a linha não conta e o aviso "no semantic summary" repete
   a cada turno. Escrevi 11 assim e ainda culpei a ferramenta — **era erro meu**. Reproduzir
-  `countSemanticEntries` num `node -e` custa 30 s. **Sessão que atravessa a MEIA-NOITE precisa
-  do prefixo de DATA** (`| 2026-07-28 00:12 |`): o cabeçalho `## Session:` ainda é o de ontem, e
-  cabeçalho escrito por mim não casa com o regex do contador.
+  `countSemanticEntries` num `node -e` custa 30 s. ~~Sessão que atravessa a meia-noite precisa
+  do prefixo de DATA~~ — **isso caiu na sessão 37** (bug-554): o contador não olha mais data,
+  conta abaixo do último `## Session:`. A hora de verdade continua obrigatória.
 - [2026-07-19/20] **Matar processo de fundo:** `pkill/pgrep -f '<padrão>'` casa o PRÓPRIO shell
   quando o padrão está no cmdline dele (exit 130/144) e o servidor SOBREVIVE segurando a porta —
   o restage seguinte fala com o servidor VELHO (screenshot idêntico byte a byte é a pista).

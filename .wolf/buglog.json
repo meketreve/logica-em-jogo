@@ -3525,6 +3525,73 @@
       "related_bugs": [],
       "occurrences": 1,
       "last_seen": "2026-08-03T03:20:53.425170Z"
+    },
+    {
+      "id": "bug-554",
+      "timestamp": "2026-08-03T04:10:00Z",
+      "error_message": "⚠️ OpenWolf end-of-turn reminders: • ACTION REQUIRED: N files were modified this session but no semantic summary was written to memory.md",
+      "file": ".wolf/hooks/shared.js",
+      "root_cause": "countSemanticEntries comparava DATA. A versao instalada exigia o prefixo '| YYYY-MM-DD' em linhas do memory.md, mas o formato que o proprio aviso pede e '| HH:MM |' — nenhuma linha casava, contagem sempre 0. A versao do PR #64 (que existe em dist/hooks/ do pacote mas nao chega ao projeto) troca isso por 'linha dentro do bloco ## Session: <hoje>', e fura na virada da meia-noite UTC: o header e gravado no INICIO da sessao e mistura data UTC com hora LOCAL, entao sessao que atravessa o dia fica com a data de ontem e a contagem volta a 0.",
+      "fix": "Contar as linhas semanticas abaixo do ULTIMO header '## Session:', sem comparar data nenhuma (session-start.js grava exatamente um header por sessao nova, e nenhum em compact/resume). Linhas mecanicas (Created/Edited/Session end:/designqc:) continuam nao contando. Fallback para o prefixo de data so quando o diario nao tem header algum.",
+      "tags": [
+        "openwolf",
+        "hooks",
+        "stop",
+        "memory.md",
+        "falso-positivo",
+        "timezone",
+        "meia-noite"
+      ],
+      "related_bugs": [
+        "bug-555",
+        "bug-556"
+      ],
+      "occurrences": 1,
+      "last_seen": "2026-08-03T04:10:00Z"
+    },
+    {
+      "id": "bug-555",
+      "timestamp": "2026-08-03T04:10:00Z",
+      "error_message": "ACTION REQUIRED: Files edited 3+ times this session (x.ts) but buglog.json was not updated — com os bugs JA logados",
+      "file": ".wolf/hooks/stop.js",
+      "root_cause": "checkForMissingBugLogs procurava 'buglog.json' em session.files_written, lista alimentada so pelo hook PostToolUse de Write/Edit/MultiEdit. Os 5 bugs da sessao 36 (549-553) foram gravados por python3 via Bash — invisivel para o hook, entao o aviso repetia a cada stop.",
+      "fix": "Nova buglogTouchedSince(wolfDir, session.started): aceita tambem o mtime de .wolf/buglog.json posterior ao inicio da sessao, qualquer que seja a ferramenta que escreveu. A lista de files_written continua valendo como primeiro teste.",
+      "tags": [
+        "openwolf",
+        "hooks",
+        "stop",
+        "buglog",
+        "falso-positivo",
+        "mtime"
+      ],
+      "related_bugs": [
+        "bug-554",
+        "bug-556"
+      ],
+      "occurrences": 1,
+      "last_seen": "2026-08-03T04:10:00Z"
+    },
+    {
+      "id": "bug-556",
+      "timestamp": "2026-08-03T04:10:00Z",
+      "error_message": "9 copias identicas de '| 00:35 | Session end: 73 writes across 18 files (...) | 12 reads | ~128521 tok |' no .wolf/memory.md",
+      "file": ".wolf/hooks/stop.js",
+      "root_cause": "O hook de stop roda a cada fim de turno e da appendMarkdown da linha de encerramento com contadores CUMULATIVOS da sessao. Turno que termina sem trabalho novo (o que os bugs 554/555 provocavam, ao fazer o turno acabar em conserto de aviso) grava a MESMA linha outra vez.",
+      "fix": "Guardar o resumo na _session.json (session_end_summary) e so gravar quando ele muda; e upsertSessionEndLine() sobrescreve a linha de encerramento quando ela e a ultima linha nao-vazia do arquivo, em vez de empilhar outra. Se o modelo escreveu algo depois dela, a nova e acrescentada — historico preservado. As 41 copias ja gravadas foram colapsadas.",
+      "tags": [
+        "openwolf",
+        "hooks",
+        "stop",
+        "memory.md",
+        "ruido",
+        "idempotencia"
+      ],
+      "related_bugs": [
+        "bug-554",
+        "bug-555"
+      ],
+      "occurrences": 1,
+      "last_seen": "2026-08-03T04:10:00Z"
     }
   ]
 }

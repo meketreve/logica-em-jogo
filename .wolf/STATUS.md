@@ -624,29 +624,32 @@ lite) → F9 preset `sobrevivencia`. Escopo item a item em `.wolf/ROADMAP.md §�
   resolve com UMA linha (`.menu-screen { width: min(680px, 92vw) }` sem media query), mas é
   mudança visual não pedida numa tela de uso diário — **só com o aval do usuário.**
 
-### ⚠️ HOOKS DO OPENWOLF — LER ANTES DE ACREDITAR NOS AVISOS (sessão 36)
+### ✅ HOOKS DO OPENWOLF — OS TRÊS FALSO-POSITIVOS ESTÃO CONSERTADOS (sessão 37)
 
-**Dois avisos de `stop` são FALSO-POSITIVO hoje.** Eles dispararam a cada turno da sessão 36
-com o trabalho já feito, e o usuário pediu para cuidar disto na próxima sessão. **Não obedeça
-a nenhum dos dois cegamente** — escrever de novo só duplica diário e buglog.
+Os avisos de `stop` que dispararam a cada turno da sessão 36 **com o trabalho já feito** foram
+corrigidos em `.wolf/hooks/shared.js` e `.wolf/hooks/stop.js` (bug-554/555/556). Agora eles são
+confiáveis: se um deles aparecer, é real — obedeça.
 
-1. **"no semantic summary written to memory.md"** — o pacote 2.0.1 JÁ tem o fix do PR #64,
-   mas ele **fura na virada da meia-noite UTC**: só conta linhas `| HH:MM |` dentro de um bloco
-   `## Session: <hoje>`, e o header é gravado no INÍCIO da sessão. Sessão que vira o dia fica
-   com a data de ontem e a contagem dá 0 para sempre. Foi o nosso caso
-   (`## Session: 2026-08-02 23:34`, e o dia virou para 08-03).
-2. **"buglog.json was not updated"** — `checkForMissingBugLogs` olha `session.files_written`,
-   que só registra escrita feita pelas ferramentas Write/Edit. Os 5 bugs desta sessão
-   (549–553) foram gravados por `python3` no Bash, invisível para o hook.
+**A causa raiz de o fix upstream nunca ter chegado:** o pacote 2.0.1 traz **duas cópias** dos
+hooks, `dist/hooks/` (com o PR #64) e `dist/src/hooks/` (sem), e o `copyHookScripts` do
+`init.js` procura primeiro na SEGUNDA. Todo `openwolf init/update` reinstalava a versão velha.
 
-**Como confirmar em 10 s, antes de gastar tempo:**
-```bash
-grep '^## Session:' .wolf/memory.md | tail -1   # data anterior a `date -u +%F` = bug 1
-python3 -c "import json;d=json.load(open('.wolf/buglog.json'));print(d['bugs'][-1]['id'])"
-```
-Escopo, causa e o conserto sugerido de cada um estão em `.wolf/TODO.md §🧭`; o contorno do
-lado de cá (gravar arquivo vigiado pela FERRAMENTA, não por heredoc) está no
-`cerebrum.md → Ferramentas e ambiente`.
+1. **"no semantic summary"** — a contagem comparava DATA (prefixo `| YYYY-MM-DD`, que nenhuma
+   linha tem; ou o header `## Session:`, que mistura data UTC com hora local e fura na virada
+   da meia-noite). Agora conta as linhas abaixo do **último** `## Session:`, sem olhar data.
+2. **"buglog.json was not updated"** — via só `session.files_written` (Write/Edit). Agora
+   aceita também o **mtime** do `buglog.json` posterior ao início da sessão: escrita por
+   `python3`/`cat` no Bash conta.
+3. **`| HH:MM | Session end: … |` repetida** — os contadores são cumulativos e o hook dava
+   append todo turno. Agora só grava quando o resumo muda e **sobrescreve** a linha do fim do
+   arquivo. As 41 cópias já gravadas no `memory.md` foram colapsadas.
+
+**Regressão:** `node .wolf/hooks/_test-hooks.mjs` (10/10; roda o `stop.js` de verdade numa
+fixture de `/tmp` e prova que cada aviso ainda dispara quando é legítimo).
+
+⚠️ **O patch foi copiado à mão para as duas cópias do pacote global** (`.bak-pre-fix` ao lado),
+para `openwolf init/update` não reverter. **`pnpm update -g openwolf` apaga isso** — depois de
+atualizar, recopiar de `.wolf/hooks/`, que é a fonte rastreada. Detalhe em `.wolf/TODO.md §🧭`.
 
 ### Pendências que não bloqueiam nada, e quem faz é o usuário
 

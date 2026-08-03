@@ -118,13 +118,21 @@ async function main() {
         .reduce((sum, r) => sum + r.tokens * (r.count - 1), 0);
     ledger.lifetime.estimated_savings_vs_bare_cli += savedFromAnatomy + savedFromRepeats;
     writeJSON(ledgerPath, ledger);
-    // Write a session summary line to memory.md if there was meaningful activity
+    // Write a session summary line to memory.md if there was meaningful activity.
+    // The counters are CUMULATIVE and every stop recomputes them, so a plain
+    // append stacked one identical row per turn (session 36 collected 9 copies of
+    // the same line). Two guards: skip when nothing changed, and overwrite the
+    // trailing session-end row instead of adding a second one.
     if (writeCount > 0) {
         try {
             const uniqueFiles = new Set(session.files_written.map(w => path.basename(w.file)));
             const fileList = [...uniqueFiles].slice(0, 5).join(", ");
-            const memoryPath = path.join(wolfDir, "memory.md");
-            appendMarkdown(memoryPath, `| ${timeShort()} | Session end: ${writeCount} writes across ${uniqueFiles.size} files (${fileList}) | ${readCount} reads | ~${inputTokens + outputTokens} tok |\n`);
+            const summary = `Session end: ${writeCount} writes across ${uniqueFiles.size} files (${fileList}) | ${readCount} reads | ~${inputTokens + outputTokens} tok`;
+            if (session.session_end_summary !== summary) {
+                const memoryPath = path.join(wolfDir, "memory.md");
+                upsertSessionEndLine(memoryPath, `| ${timeShort()} | ${summary} |`);
+                session.session_end_summary = summary;
+            }
         }
         catch { }
     }
@@ -139,6 +147,31 @@ async function main() {
     process.exit(0);
 }
 /**
+ * Rewrite the trailing `| HH:MM | Session end: … |` row when there is one, else
+ * append. Anything the model wrote after it (a real diary entry, a new session
+ * header) pushes the row out of the tail, so history is never clobbered.
+ */
+function upsertSessionEndLine(memoryPath, line) {
+    let content;
+    try {
+        content = fs.readFileSync(memoryPath, "utf-8");
+    }
+    catch {
+        appendMarkdown(memoryPath, line + "\n");
+        return;
+    }
+    const lines = content.split("\n");
+    let last = lines.length - 1;
+    while (last >= 0 && lines[last].trim() === "")
+        last--;
+    if (last >= 0 && /^\|\s*\d{1,2}:\d{2}\s*\|\s*Session end:/.test(lines[last])) {
+        lines[last] = line;
+        fs.writeFileSync(memoryPath, lines.join("\n"), "utf-8");
+        return;
+    }
+    appendMarkdown(memoryPath, line + "\n");
+}
+/**
  * Check if files were edited multiple times but buglog.json wasn't updated.
  * Returns a reminder string if action is needed, otherwise null.
  */
@@ -150,11 +183,30 @@ function checkForMissingBugLogs(wolfDir, session) {
         .map(([file]) => path.basename(file));
     if (multiEditFiles.length === 0)
         return null;
-    const buglogWritten = session.files_written.some(w => w.file.includes("buglog.json"));
+    // files_written only sees Write/Edit/MultiEdit — a buglog appended from Bash
+    // (python3, jq, a heredoc) is invisible there, and the reminder then fired
+    // every stop with the bug already logged. The mtime is the ground truth.
+    const buglogWritten = session.files_written.some(w => w.file.includes("buglog.json"))
+        || buglogTouchedSince(wolfDir, session.started);
     if (!buglogWritten) {
         return `ACTION REQUIRED: Files edited 3+ times this session (${multiEditFiles.join(", ")}) but buglog.json was not updated. Log the bug fixes to .wolf/buglog.json now.`;
     }
     return null;
+}
+/**
+ * True when .wolf/buglog.json was modified after the session started, no matter
+ * which tool wrote it.
+ */
+function buglogTouchedSince(wolfDir, started) {
+    const startedMs = started ? Date.parse(started) : NaN;
+    if (!Number.isFinite(startedMs))
+        return false;
+    try {
+        return fs.statSync(path.join(wolfDir, "buglog.json")).mtimeMs >= startedMs;
+    }
+    catch {
+        return false;
+    }
 }
 /**
  * Check if STATUS.md is older than the session start AND there was meaningful

@@ -607,20 +607,48 @@ export function normalizePath(p) {
     return p.replace(/\\/g, "/");
 }
 /**
- * Count non-mechanical semantic entries written to memory.md today.
+ * Count non-mechanical semantic entries written to memory.md THIS SESSION.
  * Mechanical entries (auto-generated file ops, session-end lines) don't count.
  * Used by the stop hook to detect whether Claude wrote a meaningful summary.
+ *
+ * The session boundary is the LAST `## Session:` header — session-start.js
+ * appends exactly one per new session (and none on compact/resume, which is
+ * what we want: the block keeps growing). No date is ever compared, on
+ * purpose: rows carry `| HH:MM |` (the format the reminder itself asks for)
+ * and the header mixes a UTC date with a LOCAL time, so every date test here
+ * was either always false (no row starts with a date) or wrong across
+ * midnight UTC. The reminder then fired on every stop, forever.
  */
 export function countSemanticEntries(wolfDir) {
     const memoryPath = path.join(wolfDir, "memory.md");
     try {
         const content = fs.readFileSync(memoryPath, "utf-8");
         const mechanical = /^\|\s*[\d:]+\s*\|\s*(Created|Edited|Multi-edited|Session end:|designqc:)/;
-        const today = new Date().toISOString().slice(0, 10);
-        const todayPrefix = `| ${today}`;
+        const sessionHeader = /^##\s+Session:/;
+        // A semantic row starts with a time (`| 14:32 |`) or an explicit date
+        // (`| 2026-08-03 |`); the table header and its `|---|` rule never match.
+        const semanticRow = /^\|\s*(\d{1,2}:\d{2}|\d{4}-\d{2}-\d{2})[^|]*\|/;
+        const lines = content.split("\n");
+        let start = -1;
+        for (let i = lines.length - 1; i >= 0; i--) {
+            if (sessionHeader.test(lines[i])) {
+                start = i + 1;
+                break;
+            }
+        }
+        // No session header at all (legacy diary): fall back to today's date
+        // prefix rather than counting the whole file, which would mute the
+        // reminder permanently.
+        if (start === -1) {
+            const todayPrefix = `| ${new Date().toISOString().slice(0, 10)}`;
+            return lines.filter((l) => l.startsWith(todayPrefix) && !mechanical.test(l)).length;
+        }
         let count = 0;
-        for (const line of content.split("\n")) {
-            if (line.startsWith(todayPrefix) && !mechanical.test(line))
+        for (let i = start; i < lines.length; i++) {
+            const line = lines[i];
+            if (mechanical.test(line))
+                continue;
+            if (semanticRow.test(line))
                 count++;
         }
         return count;
