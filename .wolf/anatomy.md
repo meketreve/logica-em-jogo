@@ -1,6 +1,6 @@
 # anatomy.md
 
-> Auto-maintained by OpenWolf. Last scanned: 2026-08-03T03:31:32.307Z
+> Auto-maintained by OpenWolf. Last scanned: 2026-08-03T18:05:13.643Z
 > Files: 266 tracked | Anatomy hits: 0 | Misses: 0
 
 ## ./
@@ -322,7 +322,7 @@
   - section `LuzUniforms` L22-32 (~120 tok)
   - fn `criarLuzUniforms` L33-43 (~116 tok)
   - fn `aplicarLuz` L44-99 (~640 tok)
-- `main.ts` — O cliente não tem filesystem: aprende os nomes das aulas pela resposta de (~29770 tok)
+- `main.ts` — O cliente não tem filesystem: aprende os nomes das aulas pela resposta de (~29817 tok)
   - fn `cachearMundos` L108-199 (~1177 tok)
   - fn `applySettings` L200-255 (~847 tok)
   - fn `showOverlayMain` L256-260 (~35 tok)
@@ -345,7 +345,7 @@
   - fn `startMultiplayer` L816-833 (~224 tok)
   - fn `startSingleplayer` L834-855 (~249 tok)
   - fn `persistWorld` L856-903 (~520 tok)
-  - fn `startGame` L904-2373 (~18954 tok)
+  - fn `startGame` L904-2375 (~19000 tok)
 - `menu.ts` — Menu principal (cp8) — HTML/CSS por cima do canvas, sem GUI de engine. (~4695 tok)
   - section `PlayWorldChoice` L35-49 (~166 tok)
   - section `MultiAuth` L50-54 (~19 tok)

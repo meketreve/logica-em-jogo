@@ -1680,7 +1680,9 @@ function startGame(snap: Snapshot): void {
       wandMark(1, target);
       return;
     }
-    if (isBalde(idNaMao() ?? -1)) return; // balde não quebra bloco
+    // balde não quebra bloco em sobrevivência; em criativo o professor pode
+    // quebrar com o balde na mão (clique direito segue despejando/recolhendo água).
+    if (isBalde(idNaMao() ?? -1) && modoAtual !== "criativo") return;
     activeConn.send(
       JSON.stringify({ type: "break_block", x: target.x, y: target.y, z: target.z }),
     );

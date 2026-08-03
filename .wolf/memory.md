@@ -891,3 +891,6 @@ layouts mobile segue sendo o próximo.
 |------|--------|---------|---------|--------|
 | 01:12 | conserta os 3 falso-positivos dos hooks: contador semântico sem data (abaixo do último `## Session:`), buglog por mtime, "Session end" idempotente | .wolf/hooks/shared.js, .wolf/hooks/stop.js, .wolf/hooks/_test-hooks.mjs | 10/10 no teste novo; 41 duplicatas colapsadas no diário; patch copiado pras 2 cópias do pacote global | ~9k |
 | 01:26 | fecha a sessão 37 no handoff: bloco da sessão no topo do STATUS, item em ✅ Concluído, 🔥 Now e "Last updated" do TODO | .wolf/STATUS.md, .wolf/TODO.md | pronto pro /clear | ~2k |
+| 15:05 | Edited client/src/main.ts | 1→3 lines | ~66 |
+| 15:06 | balde (vazio/cheio) quebra bloco no modo criativo | client/src/main.ts:1683 | feito, typecheck 3/3 | ~4k |
+| 15:06 | Session end: 1 writes across 1 files (main.ts) | 2 reads | ~79624 tok |

@@ -1,6 +1,17 @@
 # STATUS — Projeto "Lógica em Jogo" (jogo voxel educacional)
 
 > Single source of truth for resuming work. Read this FIRST when starting a session.
+> **SESSÃO 38 (2026-08-03) — SYNC COM O REMOTE + BALDE QUEBRA NO CRIATIVO (sessão curta).**
+> O usuário pediu para clonar o repo por cima de uma cópia local desatualizada SEM `.git`:
+> `git init` + `remote add` + `fetch` + `reset --hard origin/main` (renomeando `master`→`main`),
+> preservando os untracked locais (`.wolf/`, `.claude/`, `node_modules/`). 91 arquivos-lixo
+> `:Zone.Identifier` (artefato de download do WSL/Windows) apagados. **A mudança de jogo:** o
+> balde (vazio OU cheio) agora QUEBRA bloco no modo criativo — antes `client/src/main.ts` (clique
+> esquerdo) travava a quebra sempre que a mão segurava balde (`isBalde(...) → return`); agora só
+> trava em sobrevivência (`&& modoAtual !== "criativo"`). O clique DIREITO do balde segue igual
+> (despeja/recolhe fonte de água). O SERVIDOR não mudou: `break_block` (session.ts:984) nunca
+> olhou o item na mão e em criativo `inventarioVale` é false → sem drop, quebra direto. **VERDE:**
+> typecheck 3/3. **PLAYTEST PENDENTE** (headless não clica). A fila do jogo segue no §🍖 F5 (craft).
 > **SESSÃO 37 (2026-08-03) — OS HOOKS PARARAM DE MENTIR (sessão curta, fora do jogo).** O
 > pedido foi "corrigir erros com os hooks": os três falso-positivos que a sessão 36 documentou
 > e não consertou. Os três são bug agora (554/555/556) e estão corrigidos em `.wolf/hooks/`,

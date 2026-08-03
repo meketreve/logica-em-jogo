@@ -1,12 +1,12 @@
 {
   "version": 1,
   "meta": {
-    "lastScanned": "2026-08-03T03:31:32.307Z",
+    "lastScanned": "2026-08-03T18:05:13.643Z",
     "fileCount": 266,
     "hits": 0,
     "misses": 0,
-    "renderedHash": "50f8ee4f2ec6aba98f29ab4d4e34c7d8fd1e2cca09e1115d2bcad8cacab06ad8",
-    "storeUpdatedAt": "2026-08-03T03:31:32.327Z"
+    "renderedHash": "800506dc75e3d672ee3e56d6a3d802b466e8fdab764e8b3b49341856ccaedddf",
+    "storeUpdatedAt": "2026-08-03T18:05:13.829Z"
   },
   "files": {
     ".claude/commands/reframe.md": {
@@ -2193,12 +2193,12 @@
     },
     "client/src/main.ts": {
       "description": "O cliente não tem filesystem: aprende os nomes das aulas pela resposta de",
-      "tokens": 29770,
-      "hash": "c7acc4af49b051f0",
-      "size": 105574,
-      "mtimeMs": 1785726442105.4749,
-      "updatedAt": "2026-08-03T03:13:00.561Z",
-      "source": "scan",
+      "tokens": 29817,
+      "hash": "a1f5849b055c72d0",
+      "size": 105741,
+      "mtimeMs": 1785780310419.8835,
+      "updatedAt": "2026-08-03T18:05:13.633Z",
+      "source": "hook",
       "symbols": [
         {
           "name": "cachearMundos",
@@ -2358,8 +2358,8 @@
           "name": "startGame",
           "kind": "fn",
           "startLine": 904,
-          "endLine": 2373,
-          "tokens": 18954
+          "endLine": 2375,
+          "tokens": 19000
         }
       ]
     },
