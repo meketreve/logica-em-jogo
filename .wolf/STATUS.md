@@ -1,6 +1,35 @@
 # STATUS — Projeto "Lógica em Jogo" (jogo voxel educacional)
 
 > Single source of truth for resuming work. Read this FIRST when starting a session.
+> **SESSÃO 37 (2026-08-03) — OS HOOKS PARARAM DE MENTIR (sessão curta, fora do jogo).** O
+> pedido foi "corrigir erros com os hooks": os três falso-positivos que a sessão 36 documentou
+> e não consertou. Os três são bug agora (554/555/556) e estão corrigidos em `.wolf/hooks/`,
+> **que é código rastreado deste repo** — a lição de fundo é essa: hook do OpenWolf se
+> conserta, não se contorna.
+>
+> **A descoberta que explica por que o fix upstream nunca chegou:** o pacote 2.0.1 traz DUAS
+> cópias dos hooks — `dist/hooks/` (build do `tsconfig.hooks.json`, tem o PR #64) e
+> `dist/src/hooks/` (build principal do tsc, não tem). O `copyHookScripts` do `init.js` procura
+> nessa ordem e **a segunda vence**. Todo `openwolf init/update` instalou a versão velha,
+> inclusive o commit `192acff`, que dizia sincronizar com o 2.0.1.
+>
+> **(1) "no semantic summary"** comparava DATA, e não havia data nenhuma para casar: o prefixo
+> `| YYYY-MM-DD` não existe no diário (o formato que o próprio aviso pede é `| HH:MM |`), e o
+> header `## Session:` é gravado no INÍCIO da sessão misturando data UTC com hora local — sessão
+> que atravessa a meia-noite fica com a data de ontem. Agora conta abaixo do ÚLTIMO
+> `## Session:`, **sem olhar data**. **(2) "buglog.json was not updated"** via só
+> `session.files_written`, que só recebe Write/Edit — append por `python3` no Bash era invisível.
+> Agora o **mtime** do arquivo também vale. **(3) A linha `Session end:` repetida** era append de
+> contador CUMULATIVO a cada `stop`; agora só grava quando o resumo muda e **sobrescreve** a
+> linha do fim do arquivo. As 41 cópias já gravadas foram colapsadas (só elas mudaram no diário).
+>
+> **VERDE:** `node .wolf/hooks/_test-hooks.mjs` **10/10** — roda o `stop.js` DE VERDADE numa
+> fixture de `/tmp` e prova também o lado negativo (sessão sem resumo ainda avisa, buglog
+> intocado ainda avisa, linha mecânica não passa por resumo semântico). No `memory.md` real o
+> contador foi 0 → 1 ao escrever a entrada. ⚠️ O patch foi copiado à mão para as duas cópias do
+> pacote global (`.bak-pre-fix` ao lado): **`pnpm update -g openwolf` apaga**, e aí a fonte é
+> `.wolf/hooks/`. **O código do jogo não foi tocado** — a fila continua no §🍖 F5.
+>
 > **SESSÃO 36 (2026-08-03) — §🍖 F4: O INVENTÁRIO AUTORITATIVO. A "frente cara" (2–3 sessões
 > no orçamento) fechou INTEIRA numa sessão.** O usuário pediu "continuar" e, antes, registrar
 > no TODO a regra de vegetação precisar de apoio. Registrando, achei o buraco de verdade:
@@ -395,6 +424,13 @@ Documento é o ÚLTIMO entregável, não o primeiro. Construir, não documentar.
     headless por CDP puro (sem puppeteer como dependência) e imprime o perfil. Os NÚMEROS
     dele não valem (SwiftShader) — é teste de encanamento.
 
+- **🪝 HOOKS DO OPENWOLF — OS 3 FALSO-POSITIVOS CONSERTADOS (sessão 37, 2026-08-03).**
+  bug-554 (contador semântico comparava data que não existe / furava na meia-noite) · bug-555
+  (buglog só via escrita de Write/Edit, cego ao Bash) · bug-556 (linha `Session end:` empilhada
+  a cada `stop`). Fix em `.wolf/hooks/shared.js` e `.wolf/hooks/stop.js`, regressão nova em
+  `.wolf/hooks/_test-hooks.mjs` (10/10, roda o `stop.js` real numa fixture de `/tmp`). Causa de
+  o PR #64 nunca ter chegado: o pacote tem duas cópias dos hooks e a scaffolding copia a velha.
+  Detalhe e a pegadinha do `pnpm update -g` na seção ✅ HOOKS abaixo e no `TODO.md §🧭`.
 - **§🍖 F4 — INVENTÁRIO AUTORITATIVO (sessão 36, 2026-08-03).** A mochila virou estado do
   SERVIDOR. Criativo segue com a paleta infinita, intocado, no MESMO mundo.
   - **`shared/src/inventario.ts`** (puro, imutável): 27 slots (`HOTBAR_SLOTS` 9 +

@@ -2,16 +2,16 @@
 
 > Working checklist. **STATUS.md** = handoff ("why & where we are"); **TODO.md** = "what's left to do".
 > Keep items actionable and short. Check off with `[x]`; sweep done items into STATUS.md ✅ when a phase closes.
-> Last updated: 2026-08-03 (sessão 36 — §🍖 F4, o inventário autoritativo, fechou inteiro numa
-> sessão. Próxima frente é o F5 craft — mas ver a ressalva do F6 abaixo)
+> Last updated: 2026-08-03 (sessão 37 — os 3 falso-positivos dos hooks consertados, bug-554/555/
+> 556; nada de código de jogo. Próxima frente segue o F5 craft — mas ver a ressalva do F6 abaixo)
 
 ---
 
 ## 🔥 Now (this session)
 
-<!-- Vazio: a sessão 36 fechou o §🍖 F4 e tudo foi varrido pro STATUS ✅ e pro git
-     (cf9e9ae código · 192acff scaffolding · f23c3d3 wolf, empurrados). Próxima
-     sessão: puxar o primeiro item de ⏭️ Next pra cá. -->
+<!-- Vazio: a sessão 37 consertou os 3 hooks falso-positivos (18f676b, pushado) e a 36
+     fechou o §🍖 F4 — tudo varrido pro STATUS ✅ e pro git. Próxima sessão: puxar o
+     primeiro item de ⏭️ Next pra cá (vegetação sem apoio é barato; o F5 é a frente). -->
 
 ## ⏭️ Next
 
