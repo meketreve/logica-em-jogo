@@ -3423,6 +3423,108 @@
       "related_bugs": [],
       "occurrences": 1,
       "last_seen": "2026-08-02T21:05:00Z"
+    },
+    {
+      "id": "bug-549",
+      "timestamp": "2026-08-03T03:12:35.096252Z",
+      "error_message": "(pego escrevendo o teste do §🍖 F4) o detector 'o mundo mudou por causa desta mensagem?' era `changedThisTick.size > antes` — um CONJUNTO de coordenadas. Quebrar e recolocar a MESMA célula no mesmo tick de 100 ms não aumentava o tamanho, então a colocação saía DE GRAÇA: bloco infinito por clique rápido, e o esforço do F3 também deixava de ser cobrado.",
+      "file": "shared/src/session.ts",
+      "root_cause": "O F3 reusou `changedThisTick` (que existe pra impedir a célula mudar 2x no mesmo tick) como se fosse contador de edições. Set dedupe por coordenada: 2 escritas na mesma célula = 1 elemento. O F4 herdou o mesmo detector pro DÉBITO do inventário, e aí virou duplicação de item.",
+      "fix": "Contador monotônico novo `edicoesAplicadas`, incrementado dentro do `applyBlockQuieto` (o ponto único onde o mundo é escrito). `mudancasAntes`/`mundoMudou` no `handleMessage` passaram a comparar o contador, não o tamanho do Set. Teste de regressão: 'quebrar e recolocar a MESMA célula no mesmo tick não duplica bloco'.",
+      "tags": [
+        "inventario",
+        "duplicacao",
+        "session",
+        "tick",
+        "changedThisTick",
+        "F4",
+        "F3",
+        "exploit"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-08-03T03:12:35.096252Z"
+    },
+    {
+      "id": "bug-550",
+      "timestamp": "2026-08-03T03:12:35.096252Z",
+      "error_message": "(no print headless) a grade de 18 slots da mochila virou tiras verticais de ~5 px em vez de 9 colunas de ~48 px.",
+      "file": "client/index.html",
+      "root_cause": "`grid-template-columns: repeat(9, minmax(0, 1fr))` com `max-width` + `margin: 0 auto` dentro do painel flex-column: sem largura explícita o contêiner foi dimensionado pelo CONTEÚDO, e faixa `1fr` de conteúdo vazio mede zero. A versão anterior escapava por acaso porque usava `minmax(48px, 1fr)`, que tem piso.",
+      "fix": "`width: 100%` junto do `max-width: 470px`. Comentário no CSS explicando por que a largura explícita é obrigatória aqui.",
+      "tags": [
+        "css",
+        "grid",
+        "mochila",
+        "inventario",
+        "layout",
+        "F4",
+        "headless"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-08-03T03:12:35.096252Z"
+    },
+    {
+      "id": "bug-551",
+      "timestamp": "2026-08-03T03:20:53.425170Z",
+      "error_message": "AssertionError: expected +0 to be 2 — o teste do §🍖 F3 'editar bloco tambem cansa' quebrou sem ninguem tocar no F3: ele COLOCAVA uma pedra em sobrevivencia pra provar o esforco, e o F4 passou a exigir a pedra na mochila.",
+      "file": "shared/src/sobrevivencia.test.ts",
+      "root_cause": "Nao e defeito de codigo: e o teste do F3 encostado numa regra que so nasceu no F4 (colocar GASTA). Um teste de esforco nao deveria depender de ter item — qualquer edicao serve.",
+      "fix": "O teste passou a QUEBRAR em vez de colocar (a cobranca de esforco e a mesma pros dois), com o alvo materializado antes pelo `/bloco` do professor, que e teleoperacao e nao cansa ninguem. ⚠️ 1a tentativa ainda falhou: o `/bloco` e a quebra caiam no MESMO tick e na MESMA celula, o que expos o bug-549.",
+      "tags": [
+        "teste",
+        "fome",
+        "inventario",
+        "F3",
+        "F4",
+        "acoplamento",
+        "sobrevivencia"
+      ],
+      "related_bugs": [
+        "bug-549"
+      ],
+      "occurrences": 1,
+      "last_seen": "2026-08-03T03:20:53.425170Z"
+    },
+    {
+      "id": "bug-552",
+      "timestamp": "2026-08-03T03:20:53.425170Z",
+      "error_message": "(no proprio smoke novo) '✗ a mochila da ana encheu de areia' e '✗ o bloco FICOU no mundo (a quebra foi recusada)' — o cenario de mochila cheia nao enchia a mochila.",
+      "file": "server/src/cenarios/_smoke-inventario.mjs",
+      "root_cause": "O smoke dava 27x64 de AREIA numa mochila que ja tinha duas pilhas PARCIAIS (pedregulho 3, terra 1). Areia so entra em slot vazio ou em pilha de areia, entao coube 25x64 e as duas parciais seguiram com espaco — e o drop da pedra era justamente PEDREGULHO, que ainda cabia. A quebra foi aceita, corretamente.",
+      "fix": "Encher os 25 slots vazios de areia MAIS completar as duas pilhas parciais ate o teto, e conferir a soma total == INV_SLOTS*STACK_MAX antes de tentar quebrar. Licao: 'mochila cheia' e por PILHA e por ID, nao por slot.",
+      "tags": [
+        "smoke",
+        "inventario",
+        "teste",
+        "mochila-cheia",
+        "F4",
+        "stack"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-08-03T03:20:53.425170Z"
+    },
+    {
+      "id": "bug-553",
+      "timestamp": "2026-08-03T03:20:53.425170Z",
+      "error_message": "`?mochila=3x64,...` nao aparecia: o print headless saiu com a hotbar de CRIATIVO ('grama123456789') em vez da mochila forcada.",
+      "file": "client/src/mochila.ts",
+      "root_cause": "O `?mochila=` enchia a mochila no boot, mas TODO join recebe uma mensagem `modo` (o envio incondicional do F1, familia do bug-518) e, sendo o mundo do ?bench criativo, o handler chamava `mochila.desligar()` e apagava tudo antes do print.",
+      "fix": "Metodo `travar(slots)` novo: o `?mochila=` tranca o conteudo e `aplicar`/`desligar` viram no-op — mesma disciplina do `?vida=` (que vence o sync da vida) e do `?hora=` (que vence o do ceu). Parametro de inspecao tem de VENCER a rede, senao ele so funciona no mundo em que ja funcionaria.",
+      "tags": [
+        "cliente",
+        "inspecao",
+        "url",
+        "mochila",
+        "F4",
+        "headless",
+        "print"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-08-03T03:20:53.425170Z"
     }
   ]
 }

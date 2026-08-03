@@ -2,12 +2,25 @@
 
 > Working checklist. **STATUS.md** = handoff ("why & where we are"); **TODO.md** = "what's left to do".
 > Keep items actionable and short. Check off with `[x]`; sweep done items into STATUS.md ✅ when a phase closes.
-> Last updated: 2026-08-02 (sessão 35 — §🍖 F3, a fome; a 34 foi commitada antes de começar.
-> Próxima frente é o F4, inventário autoritativo — mas ver a ressalva do F6 no STATUS)
+> Last updated: 2026-08-03 (sessão 36 — §🍖 F4, o inventário autoritativo, fechou inteiro numa
+> sessão. Próxima frente é o F5 craft — mas ver a ressalva do F6 abaixo)
 
 ---
 
 ## 🔥 Now (this session)
+
+- [x] **§🍖 F4 — inventário autoritativo** (sessão 36, a "frente cara" fechou em UMA sessão):
+      `shared/src/inventario.ts` (27 slots imutáveis, stack 64, `tamanhoStack` já com a porta
+      pra ferramenta) + `shared/src/drops.ts` (forma canônica + tabela de exceções) puros;
+      `place_block` GASTA e `break_block` DÁ, com o débito no MESMO ponto pós-`switch` do
+      esforço do F3; **mochila cheia RECUSA a quebra** (não existe item no chão); a regra
+      `manter-inventario` ganhou mecânica em `matar()` e saiu do `pendente`; msg `inventario` +
+      `mover_item` novas; `SavedPlayer.inventario?` esparso; `/dar` novo (contraparte do
+      `/bloco`); cliente com hotbar de contagem, painel "mochila" de tocar-origem-tocar-destino
+      e `?mochila=` pra inspeção. **bug-549** (bloco infinito por quebrar+recolocar a mesma
+      célula no mesmo tick) e **bug-550** (grade colapsada). VERDE: typecheck 3/3,
+      **522 testes** (63 novos), build, **10/10 smokes** (`inventario` é novo, rodado 2×),
+      prints da hotbar e da mochila conferidos.
 
 - [x] **§🍖 F3 — fome** (sessão 35): dreno por ESFORÇO (0,01/bloco andado · 0,02/bloco editado ·
       3,0/ponto regenerado, convertidos a cada 4,0 de exaustão), dano de meio coração a cada 4 s
@@ -42,18 +55,40 @@
 
 ## ⏭️ Next
 
-- [ ] **§🍖 F4 — inventário autoritativo** (~2–3 sessões, a frente cara). 9 hotbar + 18 mochila,
-      stack 64, estado do SERVIDOR; `place_block` gasta e `break_block` dá pela tabela
-      `drops.ts`; criativo intocado. **Sem item no chão** (mochila cheia RECUSA a quebra) — é
-      decisão travada no ROADMAP. Aqui a regra `manter-inventario` finalmente ganha mecânica
-      (ler em `matar()`) e sai do `RegraDef.pendente`.
-      ⚠️ **Considerar o F6 (comida, ~1 sessão) ANTES**: o F3 nasceu com a fome limitada a 3
-      corações por não haver o que comer. A ordem travada manda F4, mas o playtest do F3 pode
-      inverter — decidir com o usuário.
+- [ ] **Vegetação precisa de bloco de apoio** — sem cubo cheio embaixo, a planta SOME (quebra).
+      Já existe a engrenagem: `torchRule` em `shared/src/rules.ts` (tocha, tapetes e flores
+      104–107 já registrados) e `precisaApoio()` em `blocks.ts` já lista grama alta. **O buraco
+      é o registro: `GramaAlta`/`GramaAltaSeca`/`GramaAltaFria` (179–181) NÃO estão no
+      `rulesMap`** — hoje o capim fica flutuando quando se quebra o chão embaixo. Fix = um `for`
+      de 3 ids apontando pro `torchRule` + teste. ⚠️ Conferir também se falta algum outro id
+      com `precisaApoio(id) === true` fora do `rulesMap` (varredura, não olho).
+      **Quando o F4 existir, o que some vira DROP** (entrada em `drops.ts`), em vez de evaporar.
+
+- [ ] **§🍖 F5 — craft por LISTA** (~1 sessão). `shared/src/receitas.ts` puro
+      (`Receita { saida, custo[] }` + `podeFabricar`) e painel-lista com filtro e "falta 3
+      tábua". **Grade 3×3 está DESCARTADA** (arrastar dói no tablet) — o gesto do painel da
+      mochila do F4 (tocar origem, tocar destino) é o molde. Servidor valida e aplica; o
+      cliente só pede. **Sem bancada no lite.**
+      ⚠️ **Considerar o F6 (comida, ~1 sessão) ANTES ou JUNTO**: o F3 nasceu com a fome
+      limitada a 3 corações (`VIDA_MINIMA_POR_FOME`) por não haver o que comer, e agora que
+      existe inventário o laço da fome dá pra fechar. F5 e F6 se cruzam (pão = 1 receita).
+      Decidir com o usuário — a ordem travada é F5 → F6.
+
+- [ ] **O balde ainda NÃO é item de mochila** (anotado no F4). Em sobrevivência ninguém tem
+      um, porque não há craft até o F5; o ramo do balde no `main.ts` está explicitamente
+      guardado por `mochila.ativa` e só roda em criativo. Quando o F5 existir: receita do
+      balde + `ITEM_BALDE_VAZIO`/`ITEM_BALDE_AGUA` viram pilhas de 1 (o `tamanhoStack` já
+      trata) e o `case "balde"` da session passa a trocar o item no slot.
 
 ## 🏫 Na escola (o usuário faz lá)
 
-- [ ] **PLAYTEST DA SOBREVIVÊNCIA (F1+F2+F3)** — entrar com `/modo sobrevivencia all` (ou `eu`).
+- [ ] **PLAYTEST DA SOBREVIVÊNCIA (F1+F2+F3+F4)** — entrar com `/modo sobrevivencia all` (ou `eu`).
+      **Do F4, o que só o dedo responde:** o painel "mochila" abre no E e o gesto é **tocar no
+      item, tocar no destino** (não arrastar) — funciona no tablet? A contagem no canto do slot
+      é legível no DPI do aparelho? Os 9 slots da mochila por linha cabem na tela do tablet em
+      RETRATO? Começar de mãos vazias frustra, ou o `/dar all <id> <qtd>` resolve a aula?
+      **Mochila cheia RECUSA a quebra** — isso lê como cuidado ou como bug? (o aviso vai no
+      chat, no máximo 1 a cada 5 s).
       Morrer de queda é justo (dói a partir de 4 blocos, mata em 23)? 15 s de ar é pouco?
       **A fome desce rápido demais?** (400 blocos andados OU 200 construídos = 1 ponto; a mira é
       a barra inteira em ~50 min de aula ativa — é o número mais provável de mudar). A fome
@@ -114,9 +149,12 @@
 - [ ] v2 da geração de mundo (3º da ordem do usuário) — **escopo ABERTO em 2026-07-28**
       (sessão 31): cavernas primeiro em todo mundo procedural, depois relevo "montanha de
       verdade" por bioma. Decisões, colisões e portões em `.wolf/ROADMAP.md §🏔️`. Ver 🔥 Now.
+- [ ] **Vegetação precisa de bloco de apoio** — ver o item completo em ⏭️ Next (o buraco é o
+      `rulesMap` sem `GramaAlta`/`Seca`/`Fria`). Agora que o F4 existe, o que some pode virar
+      DROP: é uma entrada em `drops.ts`, não engrenagem nova.
 - [ ] Sobrevivência (fome/vida/craft) (4º da ordem do usuário) — **EM CURSO desde a sessão
-      34**: F1 (`/modo` + `/regra` + save), F2 (vida/dano/morte) e F3 (fome) FEITOS; faltam
-      F4..F9. Decisões travadas e colisões
+      34**: F1 (`/modo` + `/regra` + save), F2 (vida/dano/morte), F3 (fome) e F4 (inventário
+      autoritativo) FEITOS; faltam F5..F9. Decisões travadas e colisões
       em `.wolf/ROADMAP.md §🍖` — quem pegar a frente NÃO reabre decisão: lite agora com porta
       pro completo · mobs só em mundo de exploração · craft por lista · `/pvp` no lite (F7,
       atalho da regra `pvp` que já existe). Ordem: **F2 vida/dano/morte** → F3 fome →
@@ -134,7 +172,11 @@
 
 - [ ] **PR upstream do OpenWolf: [cytostack/openwolf#64](https://github.com/cytostack/openwolf/pull/64)**
       — aguardando review. Corrige `countSemanticEntries`, que fazia o aviso "no semantic
-      summary" repetir a cada stop. ⚠️ O patch local em
+      summary" repetir a cada stop. **Mecanismo exato (diagnosticado em 2026-08-03,
+      `.wolf/hooks/shared.js:614`):** a função conta linhas de `memory.md` que começam com
+      `| YYYY-MM-DD`, mas o formato que o próprio aviso pede é `| HH:MM | … |`. Nenhuma linha
+      tem data ⇒ contagem sempre 0 ⇒ aviso sempre. **Enquanto não entrar, ignore o aviso** —
+      escrever mais entradas não o silencia, só polui o diário. ⚠️ O patch local em
       `~/.local/share/pnpm/global/.../openwolf/dist/hooks/shared.js` **é sobrescrito por
       `pnpm update -g openwolf`**; se o PR entrar, o update passa a trazer o fix.
 

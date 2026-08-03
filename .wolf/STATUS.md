@@ -1,6 +1,62 @@
 # STATUS — Projeto "Lógica em Jogo" (jogo voxel educacional)
 
 > Single source of truth for resuming work. Read this FIRST when starting a session.
+> **SESSÃO 36 (2026-08-03) — §🍖 F4: O INVENTÁRIO AUTORITATIVO. A "frente cara" (2–3 sessões
+> no orçamento) fechou INTEIRA numa sessão.** O usuário pediu "continuar" e, antes, registrar
+> no TODO a regra de vegetação precisar de apoio. Registrando, achei o buraco de verdade:
+> `precisaApoio()` JÁ lista grama alta, mas `GramaAlta/Seca/Fria` (179–181) **não estão no
+> `rulesMap`** — o capim flutua hoje. Ficou anotado com o fix (um `for` de 3 ids apontando pro
+> `torchRule`), não implementado, porque o pedido foi registrar.
+>
+> **A mochila é ESTADO DO SERVIDOR, por NOME** (como o modo e os vitais — sobrevive ao rejoin e
+> à troca de aula). 27 slots: 9 hotbar + 18 mochila, pilha de 64. `shared/src/inventario.ts` é
+> puro e IMUTÁVEL (toda função devolve inventário novo, disciplina do `sobrevivencia.ts`), e
+> `tamanhoStack(id)` já nasce com a porta pra ferramenta: hoje só o balde é 1 por slot.
+>
+> **`shared/src/drops.ts` tem duas regras e uma tabela curta.** (1) **Forma canônica**: porta
+> aberta, cama virada pro sul e escada de cabeça pra baixo voltam como a entrada da HOTBAR —
+> senão o aluno ganharia item que não sabe recolocar, e a direção sai do olhar dele no
+> `place_block`, não do byte guardado. (2) **Por padrão o bloco cai ele mesmo** (desfazer tem de
+> ser reversível numa aula); só grama→terra, pedra→pedregulho, folha/água/bedrock→nada fogem
+> disso. Um teste-portão varre TODOS os ids e prova que nada cai em algo não-colocável ou
+> só-de-professor.
+>
+> **Onde o débito mora: no MESMO ponto pós-`switch` que o esforço do F3.** "O mundo mudou" =
+> "a colocação valeu", então porta e cama (2 células) custam UM item e os 4 ramos de
+> materialização cobram sozinhos. **bug-549 saiu daí:** o detector era
+> `changedThisTick.size > antes`, e aquilo é um CONJUNTO de coordenadas — quebrar e recolocar a
+> MESMA célula no mesmo tick de 100 ms não mexia no tamanho, então a colocação saía DE GRAÇA
+> (bloco infinito por clique rápido; o esforço do F3 também escapava). Virou contador
+> monotônico `edicoesAplicadas`, incrementado dentro do `applyBlockQuieto`, com teste de
+> regressão.
+>
+> **Mochila cheia RECUSA a quebra** (não existe item no chão — decisão travada no ROADMAP): a
+> conferência vem ANTES do `applyBlock`, pra que a recusa não deixe rastro no mundo, e o aviso
+> no chat tem freio de 5 s porque quebrar é clique repetido. O crédito vem DEPOIS de o mundo
+> mudar, e a segunda metade da porta/cama — que o `doorRule`/`camaRule` apaga no tick seguinte —
+> não passa por lá: uma porta não vira duas.
+>
+> **`manter-inventario` finalmente decide alguma coisa** (`matar()` lê a regra; desligada, a
+> mochila some inteira) e saiu do `RegraDef.pendente`. Só o `pvp`/F7 ainda avisa "falta a
+> mecânica".
+>
+> **`/dar <eu|all|nome> <id> [qtd]` é NOVO e está FORA do escopo travado** — decisão minha, e o
+> usuário pode reverter. Razão: com inventário autoritativo o mundo de sobrevivência começa com
+> todo mundo de mãos vazias e não há craft até o F5, então sem ele o professor não prepara
+> atividade nem conserta acidente. É a contraparte do `/bloco` (teleoperação: não custa esforço,
+> não exige alcance), professor-only, e foi o que destravou os testes também.
+>
+> **Cliente:** `mochila.ts` novo (espelho puro, sem DOM — **a UI nunca decide**), hotbar com
+> contagem por slot e slot vazio que mantém a altura (senão a barra pula quando o aluno gasta o
+> último bloco), e o painel do E vira "mochila" em sobrevivência: 9 colunas alinhadas com a
+> hotbar e o gesto de **tocar na origem, tocar no destino** — arrastar dói no tablet, é a mesma
+> razão que descartou a grade 3×3 do craft. `?mochila=3x64,-,4x7` pra inspeção (o par do
+> `?vida=`), e ele TRANCA contra a rede, senão o `modo criativo` de todo join apagaria o print.
+>
+> **VERDE:** typecheck 3/3 · **522 testes** (63 novos) · build · **10/10 smokes** (o
+> `inventario` é novo e rodou 2× pra provar idempotência) · prints da hotbar e da mochila
+> conferidos, sem erro de console. **PLAYTEST PENDENTE** — headless não tem dedo.
+>
 > **SESSÃO 35 (2026-08-02) — §🍖 F3: A FOME. E a 33/34 finalmente FORAM PRO GIT.** O usuário
 > pediu "continue, mas faça commit de tudo antes": a sessão 34 inteira (F1+F2) estava só no
 > disco. Ela saiu em 2 commits (`ef29ee8` código, `6b7f63a` wolf) depois de verificar — e só
@@ -339,6 +395,32 @@ Documento é o ÚLTIMO entregável, não o primeiro. Construir, não documentar.
     headless por CDP puro (sem puppeteer como dependência) e imprime o perfil. Os NÚMEROS
     dele não valem (SwiftShader) — é teste de encanamento.
 
+- **§🍖 F4 — INVENTÁRIO AUTORITATIVO (sessão 36, 2026-08-03).** A mochila virou estado do
+  SERVIDOR. Criativo segue com a paleta infinita, intocado, no MESMO mundo.
+  - **`shared/src/inventario.ts`** (puro, imutável): 27 slots (`HOTBAR_SLOTS` 9 +
+    `MOCHILA_SLOTS` 18), `STACK_MAX` 64, `tamanhoStack(id)` (balde = 1, porta pra ferramenta),
+    `adicionar` (completa parcial antes de ocupar vazio, hotbar→mochila), `remover` (tudo ou
+    nada, consome a pilha MENOR primeiro pra juntar restos), `espacoPara`/`cabe`, `moverSlot`
+    (mesmo id junta, diferente troca) e a forma ESPARSA `SlotSalvo` com `parseInventario`
+    defensivo — **uma porta de entrada só** pro save e pro protocolo.
+  - **`shared/src/drops.ts`**: `formaCanonica` (a família volta como entrada da hotbar) +
+    tabela de exceções (grama→terra, pedra→pedregulho, folha/água/bedrock→nada). Devolve
+    LISTA porque o F6 vai querer "folha → fruta às vezes". Teste-portão varre todos os ids.
+  - **Session:** `inventarios` por NOME; débito no MESMO ponto pós-`switch` do esforço do F3
+    (porta/cama = 1 item); **mochila cheia RECUSA a quebra**, conferida ANTES do `applyBlock`,
+    com aviso freado em 5 s; crédito depois, e a metade apagada pela regra não dropa.
+    `manter-inventario` ganhou mecânica em `matar()` e saiu do `pendente`.
+  - **`/dar <eu|all|nome> <id> [qtd]` NOVO** (fora do escopo travado, ver o diário): contraparte
+    do `/bloco` — sem ele o professor não prepara atividade num mundo onde ninguém tem nada.
+  - **Protocolo/save:** `inventario { slots }` server→client (só em sobrevivência: a AUSÊNCIA é
+    o que diz "paleta infinita") e `mover_item { de, para }` client→server;
+    `SavedPlayer.inventario?` esparso, ausente = vazia (mundo criativo não engorda o `.ljw`).
+  - **Cliente:** `mochila.ts` novo (espelho puro), hotbar com contagem e slot vazio de altura
+    fixa, painel "mochila" com 9 colunas e gesto tocar-origem→tocar-destino, `?mochila=`.
+  - **bug-549** (bloco infinito: `changedThisTick` é Set, virou contador `edicoesAplicadas`) e
+    **bug-550** (grade de 9 colunas colapsada sem `width: 100%`).
+  - VERDE: typecheck 3/3 · 522 testes (63 novos) · build · 10/10 smokes (`inventario` é novo) ·
+    prints da hotbar e da mochila conferidos. **Playtest PENDENTE.**
 - **§🍖 F3 — FOME (sessão 35, 2026-08-02).** A barra desce por ESFORÇO, não por relógio.
   - **`shared/src/sobrevivencia.ts`:** `gastarEsforco(estado, esforco)` acumula exaustão
     fracionária e converte a cada `EXAUSTAO_POR_PONTO` (4,0, número do Minecraft);
@@ -457,32 +539,47 @@ Documento é o ÚLTIMO entregável, não o primeiro. Construir, não documentar.
 
 ---
 
-## 🚀 Próxima fase — §🍖 F4: INVENTÁRIO AUTORITATIVO (~2–3 sessões, a frente CARA)
+## 🚀 Próxima fase — §🍖 F5: CRAFT POR LISTA (~1 sessão)
 
 A ordem do backlog está **travada pelo usuário** (sessão 29):
 **auto-update ✅ → layouts mobile ✅ (1ª rodada) → v2 da geração ✅ (sessões 32+33) →
-sobrevivência ← EM CURSO (F1, F2 e F3 feitos nas sessões 34 e 35).**
+sobrevivência ← EM CURSO (F1..F4 feitos nas sessões 34, 35 e 36).**
 
-⚠️ **Antes de abrir o F4, vale considerar o F6 (comida) fora de ordem.** O F3 nasceu com a
-inanição LIMITADA a 3 corações (`VIDA_MINIMA_POR_FOME`) justamente porque não há o que comer —
-o F6 é o que fecha o laço da fome, e ele é ~1 sessão contra 2–3 do F4. **Quem retomar decide
-com o usuário**: o escopo travado manda F4 primeiro, mas o playtest do F3 pode mudar isso.
+⚠️ **Decidir com o usuário se o F6 (comida) vem antes, depois ou JUNTO.** O F3 nasceu com a
+inanição LIMITADA a 3 corações (`VIDA_MINIMA_POR_FOME`) porque não havia o que comer; agora que
+existe inventário, o laço da fome dá pra fechar. As duas frentes se cruzam (pão = uma receita),
+e cada uma é ~1 sessão. A ordem travada é F5 → F6.
 
-**O F4 é a frente cara porque o inventário vira ESTADO DO SERVIDOR** (9 hotbar + 18 mochila,
-stack 64): `place_block` em sobrevivência **gasta**, `break_block` **dá** o que a tabela
-`drops.ts` disser, e criativo segue com a paleta infinita de hoje, intocado. Decisões já
-travadas no `.wolf/ROADMAP.md §🍖` — quem pegar NÃO reabre:
+**F5 = `shared/src/receitas.ts` puro** (`Receita { saida, custo[] }` + `podeFabricar(inv,
+receita)`) + painel-lista com filtro e "falta 3 tábua". O servidor valida e aplica; o cliente só
+pede. Decisões travadas no `.wolf/ROADMAP.md §🍖` — quem pegar NÃO reabre:
 
-- **NÃO existe item no chão.** Quebrar com a mochila cheia é RECUSADO ("mochila cheia"), não
-  larga item no mundo: item no chão é entidade nova na rede, e entidade é orçamento do F8.
-- **`manter-inventario` (regra do F1, LIGADA) finalmente ganha mecânica** — é em `matar()` que
-  ela vai ser lida, e o `RegraDef.pendente` dela sai do registro no mesmo commit.
-- **A porta de dano e a de fome já existem**: o F4 não mexe em `sobrevivencia.ts`, só passa a
-  cobrar/creditar em `applyBlock`. O ponto de cobrança de esforço do F3 (depois do `switch` do
-  `handleMessage`) é o mesmo lugar onde o gasto de item cabe.
+- **Grade 3×3 DESCARTADA** — arrastar dói no tablet/Kindle Fire e trava aluno de 2º ano. O
+  gesto que o F4 estreou no painel da mochila (tocar na origem, tocar no destino) é o molde.
+- **Sem bancada no lite** — fabrica em qualquer lugar. A bancada, se um dia servir pra
+  *escalonar* receitas avançadas, vira um campo `exige` na receita.
+- **O F4 já entregou tudo de que o F5 precisa:** `contar`/`remover`/`cabe`/`adicionar` puros,
+  a mensagem `inventario` que já redesenha a tela sozinha, e o `/dar` pra semear a aula.
+- **O balde entra aqui** (ver TODO): hoje ele não é item de mochila, e o ramo dele no
+  `main.ts` está guardado por `mochila.ativa` justamente por isso.
 
-**Depois do F4:** F5 craft por lista → F6 comida → F7 `/pvp` (atalho da regra que já existe) →
-F8 mobs (fora do lite) → F9 preset `sobrevivencia`. Escopo item a item em `.wolf/ROADMAP.md §🍖`.
+**Depois do F5:** F6 comida → F7 `/pvp` (atalho da regra que já existe) → F8 mobs (fora do
+lite) → F9 preset `sobrevivencia`. Escopo item a item em `.wolf/ROADMAP.md §🍖`.
+
+### §🍖 F4 — o que ficou aberto
+
+- **`/dar` está FORA do escopo travado** (decisão minha na sessão 36, ver o diário). Se o
+  usuário não quiser, some com um `case` — mas aí a aula de sobrevivência começa com todo
+  mundo de mãos vazias e sem craft até o F5.
+- **Não existe DESCARTAR item.** Mochila cheia só destrava quebrando menos ou usando o que
+  tem. "Soltar no chão" é entidade (orçamento do F8); "jogar fora" (item some) seria uma
+  mensagem nova de 5 linhas, se o playtest pedir.
+- **A hotbar de criativo continua em `localStorage`** e a de sobrevivência é a do servidor. Não
+  há sincronia entre as duas de propósito: são coisas diferentes (paleta × mochila).
+- **Nenhuma tecla move item.** Só o painel (tocar/clicar). Se alguém pedir "shift-clique manda
+  pra mochila", é uma chamada a `moverSlot` com o primeiro slot livre — barato.
+- **Minério cai como ele mesmo** (não há item bruto até existir fundição). É uma linha em
+  `EXCECOES` no dia em que houver.
 
 ### §🏔️ Relevo por bioma — o que ficou aberto
 
@@ -529,8 +626,12 @@ F8 mobs (fora do lite) → F9 preset `sobrevivencia`. Escopo item a item em `.wo
 
 ### Pendências que não bloqueiam nada, e quem faz é o usuário
 
--3. **PLAYTEST DA SOBREVIVÊNCIA (F1+F2+F3, sessões 34 e 35) — o mais novo, e o único que
-   headless não substitui.** Exige `npm run build` se for pelo `:8080`. Como entrar: professor digita
+-3. **PLAYTEST DA SOBREVIVÊNCIA (F1..F4, sessões 34, 35 e 36) — o mais novo, e o único que
+   headless não substitui.** Do **F4**, o que só o dedo responde: o painel "mochila" (tecla E)
+   usa **tocar no item → tocar no destino**, não arrastar — funciona no tablet? A contagem no
+   canto do slot é legível no DPI do aparelho? Os 9 slots por linha cabem em RETRATO? Começar
+   de mãos vazias frustra, ou `/dar all <id> <qtd>` resolve a aula? E **mochila cheia recusando
+   a quebra** lê como cuidado ou como bug? Exige `npm run build` se for pelo `:8080`. Como entrar: professor digita
    `/modo sobrevivencia all` (a turma vai junto, ele fica em criativo pra supervisionar) ou
    `/modo sobrevivencia eu` pra sentir na pele. O que olhar:
    1. **Morrer de queda é JUSTO?** O dano começa em 4 blocos e mata em 23 (contas do

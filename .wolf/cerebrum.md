@@ -418,13 +418,51 @@
   `this.send`/`this.broadcast`. **Mas PREFIRA reusar chat/comando** quando é ação de professor.
 - **Comando novo:** atualizar a árvore de autocomplete em `client/commands.ts`, senão o Tab não
   oferece.
+- **[2026-08-03, §🍖 F4] "O mundo mudou por causa desta mensagem?" é um CONTADOR, não o tamanho
+  de `changedThisTick`.** Aquele Set existe pra impedir a MESMA célula mudar duas vezes no
+  mesmo tick, então ele dedupe por coordenada: quebrar e recolocar no mesmo tick não move o
+  tamanho. O contador certo é `edicoesAplicadas`, monotônico, incrementado dentro do
+  `applyBlockQuieto` (o ponto ÚNICO onde o mundo é escrito). Quem cobrar qualquer coisa por
+  edição (esforço, item, futuro XP) compara o contador. Ver bug-549.
+- **[2026-08-03, §🍖 F4] Um bloco tem BYTE e tem ITEM, e não são o mesmo número.** Porta aberta,
+  cama virada, escada de cabeça pra baixo e laje de cima são bytes de mundo; o que o jogador
+  guarda é a entrada da HOTBAR (`formaCanonica` em `drops.ts`). Direção e metade saem do olhar
+  no `place_block`. Quem for cobrar/creditar item tem de converter — cobrar o byte cru cobraria
+  um item que a mochila nunca teve.
+- **[2026-08-03] O que o servidor NÃO manda também é informação.** A mensagem `inventario` só
+  existe em sobrevivência, e é a AUSÊNCIA dela que diz ao cliente "aqui a paleta é infinita" —
+  mesmo desenho do campo `fome` ausente do F3 ("este mundo não tem fome"). Isso evita um campo
+  de modo em cada mensagem e faz o cliente antigo degradar pro comportamento certo.
 
 ## Do-Not-Repeat
 
 <!-- Cada entrada impede o mesmo erro de voltar. Narrativa completa: .wolf/history.md -->
 
+### Ferramentas e ambiente
+
+- **[2026-08-03] Escrever `.wolf/buglog.json` pela ferramenta Write/Edit, NÃO por `python3`/
+  `cat` no Bash.** O `checkForMissingBugLogs` (`.wolf/hooks/stop.js:153`) olha
+  `session.files_written`, que só registra escrita feita pelas ferramentas de arquivo — append
+  via heredoc no Bash é invisível pro hook, e o aviso "buglog.json was not updated" repete a
+  cada stop mesmo com os bugs já logados. Vale pra qualquer arquivo que um hook vigie.
+- **[2026-08-03] O aviso "no semantic summary was written to memory.md" é INSATISFAZÍVEL —
+  ignore-o.** `countSemanticEntries` (`.wolf/hooks/shared.js:614`) conta linhas que começam com
+  `| YYYY-MM-DD`, mas o formato que o próprio aviso pede é `| HH:MM | … |`. Nenhuma linha de
+  `memory.md` tem data, então a contagem é sempre 0 e o aviso dispara sempre. Escrever mais
+  entradas só duplica o diário. É o que o PR upstream cytostack/openwolf#64 corrige (ver
+  TODO §🧭).
+
 ### Código e arquitetura
 
+- **[2026-08-03] Parâmetro de inspeção (`?vida=`, `?hora=`, `?mochila=`) tem de VENCER a rede,
+  não só preencher no boot.** O `?mochila=` nasceu só preenchendo, e o `modo criativo` que TODO
+  join manda (envio incondicional do F1) apagava tudo antes do print — o parâmetro só teria
+  funcionado no mundo em que já não era preciso. Todo `?param` novo precisa de uma trava que
+  transforme o handler da mensagem correspondente em no-op (bug-553).
+- **[2026-08-03] "Mochila cheia" é por PILHA e por ID, não por slot.** Encher 27 slots de areia
+  não impede um pedregulho de entrar se existir pilha PARCIAL de pedregulho. Cenário de
+  inventário cheio tem de completar as parciais até o teto e conferir a soma
+  (`INV_SLOTS * STACK_MAX`) — o smoke do F4 passou a fazer isso (bug-552).
 - **[2026-07-25] Forma PARCIAL exige resolução por SUB-CAIXA nos 3 eixos.** `collisionBoxes`
   passou a alimentar a física, mas o `moveAxis` horizontal continuou encostando na fronteira da
   CÉLULA — o degrau de meia pegada jogava o jogador ~0,65 bloco PRA TRÁS (bug-512, achado em
@@ -577,6 +615,19 @@
 
 <!-- Uma linha por decisão. TEXTO COMPLETO (motivo, alternativas, contexto) em
      .wolf/history.md → "## Cerebrum — Decision Log" e "## Cerebrum arquivado (2026-07-28)". -->
+
+- [2026-08-03] **`/dar <eu|all|nome> <id> [qtd]` criado FORA do escopo travado do §🍖 F4** —
+  decisão minha, sinalizada ao usuário e reversível. Com inventário autoritativo o mundo de
+  sobrevivência começa com todo mundo de mãos vazias e não há craft até o F5; sem o comando o
+  professor perde a ferramenta que o ROADMAP §🍖 promete preservar ("o professor não fica sem
+  ferramenta porque a turma está sobrevivendo"). É a contraparte do `/bloco`: teleoperação,
+  sem custo de esforço e sem alcance.
+- [2026-08-03] **Mexer na mochila é TOCAR NA ORIGEM e TOCAR NO DESTINO, não arrastar** — mesma
+  razão que descartou a grade 3×3 do craft em 2026-07-27 (arrastar dói no tablet/Kindle Fire da
+  escola e trava aluno de 2º ano). Vale como molde pro painel do F5.
+- [2026-08-03] **Por padrão o bloco cai ELE MESMO** (`drops.ts`), com exceções curtas
+  (grama→terra, pedra→pedregulho, folha/água/bedrock→nada). Numa aula, desfazer tem de ser
+  reversível; a fidelidade ao Minecraft entra só onde ela cria o par que o craft usa.
 
 - [2026-07-28] **§💡 Luz COMPLETA (céu + tocha) antes de escavar** — escolha do usuário no
   portão de produto da v2. E **caverna SECA mesmo abaixo do mar**, com casca fina de pedra

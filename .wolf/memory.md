@@ -811,3 +811,99 @@ layouts mobile segue sendo o próximo.
 | 20:58 | verificação final | — | typecheck 3/3 · **459 testes** · build · **9/9 smokes** | ~2k |
 | 21:05 | wolf: STATUS/TODO/cerebrum/buglog + anatomy (259 arquivos) | `.wolf/*` | sessão 35 fechada | ~5k |
 | 21:00 | Session end: 43 writes across 10 files (sobrevivencia.ts, protocol.ts, save.ts, session.ts, regras.ts) | 13 reads | ~109596 tok |
+| 21:30 | Session end: 43 writes across 10 files (sobrevivencia.ts, protocol.ts, save.ts, session.ts, regras.ts) | 13 reads | ~109596 tok |
+| 23:33 | Session end: 43 writes across 10 files (sobrevivencia.ts, protocol.ts, save.ts, session.ts, regras.ts) | 13 reads | ~109596 tok |
+
+## Session: 2026-08-02 23:34
+
+| Time | Action | File(s) | Outcome | ~Tokens |
+|------|--------|---------|---------|--------|
+| 23:39 | Created shared/src/inventario.ts | — | ~2323 |
+| 23:40 | Created shared/src/drops.ts | — | ~946 |
+| 23:41 | Created shared/src/inventario.test.ts | — | ~2425 |
+| 23:41 | Created shared/src/drops.test.ts | — | ~1099 |
+| 23:41 | Edited shared/src/drops.test.ts | inline fix | ~24 |
+| 23:42 | Edited shared/src/protocol.ts | modified rio() | ~118 |
+| 23:42 | Edited shared/src/protocol.ts | added 1 condition(s) | ~105 |
+| 23:42 | Edited shared/src/protocol.ts | modified ESPARSA() | ~216 |
+| 23:43 | Edited shared/src/protocol.ts | added 1 condition(s) | ~164 |
+| 23:43 | Edited shared/src/protocol.ts | added 1 import(s) | ~40 |
+| 23:43 | Edited shared/src/save.ts | 4→8 lines | ~120 |
+| 23:43 | Edited shared/src/save.ts | 4→7 lines | ~89 |
+| 23:43 | Edited shared/src/save.ts | added 1 import(s) | ~53 |
+| 23:43 | Edited shared/src/save.ts | added 1 condition(s) | ~147 |
+| 23:44 | Edited shared/src/session.ts | 4→6 lines | ~109 |
+| 23:44 | Edited shared/src/session.ts | added optional chaining | ~120 |
+| 23:44 | Edited shared/src/session.ts | 1→5 lines | ~100 |
+| 23:44 | Edited shared/src/session.ts | expanded (+14 lines) | ~89 |
+| 23:45 | Edited shared/src/session.ts | inline fix | ~14 |
+| 23:46 | Edited shared/src/session.ts | added nullish coalescing | ~1250 |
+| 23:46 | Edited shared/src/session.ts | 2→5 lines | ~57 |
+| 23:46 | Edited shared/src/session.ts | 1→4 lines | ~78 |
+| 23:46 | Edited shared/src/session.ts | added 1 condition(s) | ~199 |
+| 23:47 | Edited shared/src/session.ts | added 1 condition(s) | ~267 |
+| 23:47 | Edited shared/src/session.ts | added 1 condition(s) | ~167 |
+| 23:47 | Edited shared/src/session.ts | added 2 condition(s) | ~216 |
+| 23:47 | Edited shared/src/session.ts | modified if() | ~111 |
+| 23:47 | Edited shared/src/session.ts | expanded (+6 lines) | ~91 |
+| 23:48 | Edited shared/src/regras.ts | 3→4 lines | ~89 |
+| 23:48 | Edited shared/src/regras.ts | 4→4 lines | ~89 |
+| 23:49 | Edited shared/src/sobrevivencia.test.ts | cansa() → cmd() | ~277 |
+| 23:50 | Edited shared/src/session.ts | 2→3 lines | ~37 |
+| 23:50 | Edited shared/src/session.ts | expanded (+8 lines) | ~134 |
+| 23:50 | Edited shared/src/session.ts | inline fix | ~14 |
+| 23:50 | Edited shared/src/session.ts | inline fix | ~18 |
+| 23:51 | Edited shared/src/session.ts | added 1 condition(s) | ~108 |
+| 23:51 | Edited shared/src/session.ts | added optional chaining | ~813 |
+| 23:52 | Edited shared/src/session.ts | 2→5 lines | ~66 |
+| 23:52 | Edited shared/src/session.ts | 13→15 lines | ~64 |
+| 23:52 | Edited shared/src/session.ts | 3→4 lines | ~15 |
+| 23:52 | Edited client/src/commands.ts | 2→3 lines | ~9 |
+| 23:53 | Edited client/src/commands.ts | 2→3 lines | ~60 |
+| 23:53 | Edited client/src/commands.ts | added 1 condition(s) | ~38 |
+| 23:55 | Edited shared/src/inventario.test.ts | modified alvoLivre() | ~163 |
+| 23:55 | Edited shared/src/inventario.test.ts | setBlock() → camaHeadDir() | ~114 |
+| 23:55 | Edited shared/src/inventario.test.ts | 4→2 lines | ~29 |
+| 23:55 | Edited shared/src/inventario.test.ts | added 1 import(s) | ~26 |
+| 23:56 | Created client/src/mochila.ts | — | ~548 |
+| 23:57 | Edited shared/src/index.ts | 1→3 lines | ~23 |
+| 23:57 | Edited client/src/main.ts | 1→6 lines | ~102 |
+| 23:57 | Edited client/src/main.ts | added 1 import(s) | ~26 |
+| 23:57 | Edited client/src/main.ts | added 1 condition(s) | ~143 |
+| 23:57 | Edited client/src/main.ts | added optional chaining | ~64 |
+| 23:58 | Edited client/src/main.ts | added 1 condition(s) | ~363 |
+| 23:58 | Edited client/src/main.ts | 2→4 lines | ~63 |
+| 23:58 | Edited client/src/main.ts | inline fix | ~20 |
+| 23:58 | Edited client/src/main.ts | 3→6 lines | ~91 |
+| 23:58 | Edited client/src/main.ts | added 1 condition(s) | ~73 |
+| 23:59 | Edited client/src/inventory.ts | modified categoria() | ~399 |
+| 23:59 | Edited client/src/inventory.ts | 3→7 lines | ~104 |
+| 23:59 | Edited client/src/inventory.ts | added 1 condition(s) | ~102 |
+| 23:59 | Edited client/src/inventory.ts | added nullish coalescing | ~871 |
+| 23:59 | Edited client/src/main.ts | modified if() | ~91 |
+| 00:00 | Edited client/index.html | expanded (+47 lines) | ~425 |
+| 00:01 | Created server/src/cenarios/_smoke-inventario.mjs | — | ~1892 |
+| 00:01 | Edited scripts/smoke.mjs | expanded (+21 lines) | ~194 |
+| 00:02 | Edited server/src/cenarios/_smoke-inventario.mjs | added nullish coalescing | ~162 |
+| 00:05 | Edited client/src/main.ts | added 2 condition(s) | ~241 |
+| 00:07 | Edited client/src/mochila.ts | added 2 condition(s) | ~313 |
+| 00:07 | Edited client/src/main.ts | aplicar() → travar() | ~10 |
+| 00:09 | Edited client/index.html | 11→14 lines | ~150 |
+| 00:10 | Edited client/index.html | 4→7 lines | ~83 |
+| 00:20 | SESSÃO 36 — §🍖 F4 INVENTÁRIO AUTORITATIVO fechado inteiro (o orçamento era 2–3 sessões) | inventario.ts + drops.ts + session/protocol/save + mochila.ts + inventory.ts + /dar + smoke | VERDE: typecheck 3/3, 522 testes (63 novos), build, 10/10 smokes (`inventario` novo, 2 rodadas), prints da hotbar e da mochila conferidos | ~— |
+| 00:20 | Regra de vegetação com apoio REGISTRADA no TODO (pedido do usuário) — e o buraco real achado: `precisaApoio()` já lista grama alta, mas 179–181 NÃO estão no `rulesMap` (capim flutua hoje) | .wolf/TODO.md | anotado com o fix, não implementado (o pedido era registrar) | ~— |
+| 00:20 | bug-549: `changedThisTick.size` como detector de "o mundo mudou" era Set → quebrar+recolocar a mesma célula no mesmo tick dava bloco de graça | shared/src/session.ts | contador monotônico `edicoesAplicadas` no `applyBlockQuieto` + teste de regressão | ~— |
+| 00:20 | bug-550: grade de 9 colunas da mochila colapsou pra tiras de 5px | client/index.html | `width: 100%` junto do `max-width` (1fr de conteúdo vazio mede zero em contêiner content-sized) | ~— |
+| 00:20 | `/dar` criado FORA do escopo travado (decisão minha, reversível) | shared/src/session.ts | contraparte do `/bloco`: sem ele a aula de sobrevivência começa sem nada e sem craft até o F5 | ~— |
+| 00:20 | Session end: 72 writes across 17 files (inventario.ts, drops.ts, inventario.test.ts, drops.test.ts, protocol.ts) | 12 reads | ~128453 tok |
+| 00:32 | Sessao 36 fechada: §🍖 F4 inventario autoritativo completo (puro + session + protocolo + save + cliente + /dar + smoke) e regra de vegetacao registrada no TODO | shared/src/inventario.ts, shared/src/drops.ts, shared/src/session.ts, shared/src/protocol.ts, shared/src/save.ts, shared/src/regras.ts, client/src/mochila.ts, client/src/inventory.ts, client/src/main.ts, client/index.html, server/src/cenarios/_smoke-inventario.mjs, scripts/smoke.mjs | VERDE: typecheck 3/3, 522 testes (63 novos), build, 10/10 smokes, prints da hotbar e da mochila conferidos; 5 bugs logados (549-553); NAO commitado | 68000 |
+| 00:21 | Session end: 72 writes across 17 files (inventario.ts, drops.ts, inventario.test.ts, drops.test.ts, protocol.ts) | 12 reads | ~128453 tok |
+| 00:23 | Session end: 72 writes across 17 files (inventario.ts, drops.ts, inventario.test.ts, drops.test.ts, protocol.ts) | 12 reads | ~128453 tok |
+| 00:23 | Session end: 72 writes across 17 files (inventario.ts, drops.ts, inventario.test.ts, drops.test.ts, protocol.ts) | 12 reads | ~128453 tok |
+| 00:23 | Session end: 72 writes across 17 files (inventario.ts, drops.ts, inventario.test.ts, drops.test.ts, protocol.ts) | 12 reads | ~128453 tok |
+| 00:23 | Session end: 72 writes across 17 files (inventario.ts, drops.ts, inventario.test.ts, drops.test.ts, protocol.ts) | 12 reads | ~128453 tok |
+| 00:24 | Session end: 72 writes across 17 files (inventario.ts, drops.ts, inventario.test.ts, drops.test.ts, protocol.ts) | 12 reads | ~128453 tok |
+| 00:24 | Session end: 72 writes across 17 files (inventario.ts, drops.ts, inventario.test.ts, drops.test.ts, protocol.ts) | 12 reads | ~128453 tok |
+| 00:24 | Session end: 72 writes across 17 files (inventario.ts, drops.ts, inventario.test.ts, drops.test.ts, protocol.ts) | 12 reads | ~128453 tok |
+| 00:25 | Session end: 72 writes across 17 files (inventario.ts, drops.ts, inventario.test.ts, drops.test.ts, protocol.ts) | 12 reads | ~128453 tok |
+| 00:31 | Edited .gitignore | 3→6 lines | ~64 |
