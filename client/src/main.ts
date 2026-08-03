@@ -88,6 +88,7 @@ import {
   showMenu,
 } from "./menu";
 import { ObjectivesUi } from "./objectivesUi";
+import { Mochila } from "./mochila";
 import { type VidaInfo, VitalsUi } from "./vitals";
 import { PlayersPanel } from "./players";
 import { AuthorPanel, type GamePanel, GroupPanel, type PanelData } from "./panels";
@@ -431,6 +432,11 @@ function podeVoar(): boolean {
 }
 /** §🍖 F2: corações e bolhas. Criado sob demanda (a 1ª mensagem `vida` chega
  *  só em sobrevivência) — mundo criativo não paga DOM nem CSS por isto. */
+/** §🍖 F4: espelho do inventário autoritativo. Fica FORA do startGame porque
+ *  a mensagem `inventario` chega pelo mesmo despacho da `vida`, que é de módulo;
+ *  o `aoMudarMochila` é o gancho que o jogo pendura pra redesenhar a hotbar. */
+const mochila = new Mochila();
+let aoMudarMochila: (() => void) | null = null;
 let vitalsUi: VitalsUi | null = null;
 function vitals(): VitalsUi {
   vitalsUi ??= new VitalsUi();
@@ -457,6 +463,22 @@ const vidaForcada = ((): VidaInfo | null => {
 if (vidaForcada) {
   vitals().setVisivel(true);
   vitals().aplicar(vidaForcada);
+}
+// §🍖 F4: `?mochila=3x64,4x12,1x5` enche a mochila LOCAL pra inspeção visual da
+// hotbar de sobrevivência e da grade do inventário — o par do `?vida=`. Não
+// manda nada pro servidor e não muda o modo: preenche a partir do slot 0, e um
+// `-` pula o slot (`?mochila=3x64,-,1x5` deixa o segundo vazio).
+{
+  const raw = new URLSearchParams(location.search).get("mochila");
+  if (raw !== null) {
+    const slots: { slot: number; id: number; qtd: number }[] = [];
+    raw.split(",").forEach((parte, i) => {
+      const [id, qtd] = parte.split("x").map(Number);
+      if (id === undefined || !Number.isInteger(id) || id <= 0) return;
+      slots.push({ slot: i, id, qtd: Number.isInteger(qtd) && qtd! > 0 ? qtd! : 1 });
+    });
+    mochila.travar(slots);
+  }
 }
 /** Última lista de regiões do servidor (chega só pra professor). */
 let latestRegions: NamedRegion[] = [];
@@ -672,6 +694,13 @@ function handleServerData(data: string | ArrayBuffer): void {
         if (msg.efetivo === "sobrevivencia") vitals().setVisivel(true);
         else vitalsUi?.setVisivel(false);
       }
+      // §🍖 F4: voltar pra criativo devolve a paleta infinita na hora. O
+      // caminho de ida NÃO é aqui — é a mensagem `inventario`, que o servidor
+      // manda logo em seguida (ele é quem sabe o que tem na mochila).
+      if (msg.efetivo === "criativo" && mochila.ativa) {
+        mochila.desligar();
+        aoMudarMochila?.();
+      }
       if (mudou) {
         chat.addMessage(
           "jogo",
@@ -680,6 +709,10 @@ function handleServerData(data: string | ArrayBuffer): void {
             : "modo criativo",
         );
       }
+    } else if (msg.type === "inventario") {
+      // §🍖 F4: o servidor é dono da mochila; o cliente só espelha e redesenha.
+      mochila.aplicar(msg.slots);
+      aoMudarMochila?.();
     } else if (msg.type === "vida") {
       // §🍖 F2: a UI nunca decide — quem machuca, cura e mata é o servidor
       if (vidaForcada !== null) return; // ?vida= congela o HUD (inspeção)
@@ -1544,17 +1577,29 @@ function startGame(snap: Snapshot): void {
         `<b>[varinha]</b> esq = canto 1 · dir = canto 2 · ${criar} · R/🪄 volta`;
       return;
     }
-    const slots = hotbar
+    // §🍖 F4: em sobrevivência os 9 slots são os do SERVIDOR (com quantidade);
+    // em criativo, a paleta escolhida no inventário, como sempre.
+    const ids = mochila.ativa ? mochila.hotbar() : hotbar;
+    const slots = ids
       .map((id, i) => {
         const sel = i === selected ? " sel" : "";
-        return `<span class="slot${sel}"><small>${i + 1}</small><img src="${icons.get(id) ?? ""}" alt=""></span>`;
+        if (id === null || id === undefined) return `<span class="slot${sel} vazio"><small>${i + 1}</small></span>`;
+        const qtd = mochila.ativa ? mochila.qtdDoSlot(i) : 0;
+        const conta = qtd > 1 ? `<b class="qtd">${qtd}</b>` : "";
+        return `<span class="slot${sel}"><small>${i + 1}</small><img src="${icons.get(id) ?? ""}" alt="">${conta}</span>`;
       })
       .join("");
+    const naMao = ids[selected];
     hotbarEl.innerHTML =
-      `<span class="bar-nome">${blockName(hotbar[selected] ?? BlockId.Grass)}</span>` +
+      `<span class="bar-nome">${naMao === null || naMao === undefined ? "mão vazia" : blockName(naMao)}</span>` +
       `<span class="slots">${slots}</span>`;
     inventoryPanel?.refresh();
   };
+  /** Id na mão AGORA (null = mão vazia em sobrevivência). Fonte única pra quem
+   *  precisa saber o que o jogador segura: colocar, quebrar com balde, hotbar. */
+  const idNaMao = (): number | null =>
+    mochila.ativa ? mochila.idDoSlot(selected) : (hotbar[selected] ?? null);
+  aoMudarMochila = () => refreshHotbar();
   refreshHotbar();
   // professor: varinha p/ regiões (sempre). aluno: só com a proteção de áreas
   // ligada (cp24), pra marcar o próprio claim. Extraído pra ser chamado tanto
@@ -1613,6 +1658,8 @@ function startGame(snap: Snapshot): void {
       } else input.lock();
       updateOverlay();
     },
+    mochila,
+    (de, para) => activeConn.send(JSON.stringify({ type: "mover_item", de, para })),
   );
   input.onKey(settings.keys.inventario, () => {
     if (chat.open) return;
@@ -1633,7 +1680,7 @@ function startGame(snap: Snapshot): void {
       wandMark(1, target);
       return;
     }
-    if (isBalde(hotbar[selected] ?? -1)) return; // balde não quebra bloco
+    if (isBalde(idNaMao() ?? -1)) return; // balde não quebra bloco
     activeConn.send(
       JSON.stringify({ type: "break_block", x: target.x, y: target.y, z: target.z }),
     );
@@ -1649,7 +1696,10 @@ function startGame(snap: Snapshot): void {
     // mirada (target+normal). Vazio → RECOLHE a fonte mirada (o raycast parou
     // na água). Estado cheio/vazio troca no slot da hotbar.
     {
-      const held = hotbar[selected];
+      // §🍖 F4: o balde ainda NÃO é item de mochila (não há craft até o F5), então
+      // em sobrevivência ninguém tem um — este ramo só roda em criativo, e por
+      // isso segue escrevendo no slot local da hotbar.
+      const held = mochila.ativa ? null : hotbar[selected];
       if (isBalde(held ?? -1)) {
         if (held === ITEM_BALDE_AGUA) {
           activeConn.send(
@@ -1702,8 +1752,10 @@ function startGame(snap: Snapshot): void {
       );
       return;
     }
-    let blockId = hotbar[selected];
-    if (blockId === undefined) return;
+    // §🍖 F4: em sobrevivência o bloco vem do slot do SERVIDOR — mão vazia não
+    // manda pedido nenhum (o servidor recusaria calado de qualquer jeito).
+    let blockId = idNaMao();
+    if (blockId === null) return;
     // porta/janela na mão: o EIXO sai da direção do olhar (a lâmina fecha a
     // passagem que o jogador está encarando)
     if (blockId === BlockId.PortaXFechada || blockId === BlockId.PortaZFechada) {
@@ -1762,6 +1814,9 @@ function startGame(snap: Snapshot): void {
   // botão do meio = copiar o bloco mirado pro slot atual (pedido do usuário)
   input.onMouseButton(1, () => {
     if (!target || varinhaAtiva) return;
+    // §🍖 F4: em sobrevivência o slot é do servidor — copiar o bloco mirado pra
+    // mão daria bloco de graça. O gesto simplesmente não existe lá.
+    if (mochila.ativa) return;
     let id = getBlock(world, target.x, target.y, target.z);
     // qualquer porta/janela/móvel copiado vira a entrada única da hotbar
     // (o eixo/direção é re-escolhido pelo olhar na hora de colocar)

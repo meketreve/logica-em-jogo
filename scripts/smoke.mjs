@@ -192,6 +192,27 @@ const SMOKES = [
     ],
   },
   {
+    nome: "inventario",
+    arquivo: `${DIR}/_smoke-inventario.mjs`,
+    prova:
+      "§🍖 F4 — a mochila é estado do SERVIDOR (criativo nem recebe a mensagem), colocar gasta e quebrar dá pela tabela de drops, mochila cheia RECUSA a quebra (não existe item no chão), manter-inventario decide a morte e tudo atravessa o .ljw.",
+    lento: false,
+    // o smoke deixa mochila, modo pessoal e regra gravados no .ljw
+    limpar: ["mundos/_smoke-inv"],
+    servidores: [
+      {
+        porta: 8102,
+        env: {
+          LJ_SAVE: "mundos/_smoke-inv.ljw",
+          LJ_NOVO: "1",
+          LJ_TAMANHO: "P",
+          LJ_CODIGO: "prof2026",
+          LJ_SEED: SEED,
+        },
+      },
+    ],
+  },
+  {
     nome: "troca-raio",
     arquivo: `${DIR}/_smoke-troca-raio.mjs`,
     args: ["_smoke-trocab"],

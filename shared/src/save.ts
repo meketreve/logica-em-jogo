@@ -3,6 +3,7 @@ import { type Claim, type GrupoAmigos, parseClaim, parseGrupoAmigos } from "./cl
 import { CHUNK_VOLUME } from "./constants";
 import { type QuadroConteudo, parseQuadroConteudo } from "./quadros";
 import { type GroupDef, parseGroups } from "./groups";
+import { type SlotSalvo, inventarioParaSave, parseInventario } from "./inventario";
 import { type Modo, parseModo } from "./modo";
 import { MAX_LAZY_CHUNKS, decodeSnapshot, encodeSnapshot } from "./protocol";
 import { regrasParaSave, parseRegras } from "./regras";
@@ -62,6 +63,10 @@ export interface SavedPlayer {
   /** Fome em pontos (§🍖 F3). Ausente = cheia, mesma disciplina da vida. A
    *  exaustão fracionária NÃO é gravada (ver `EstadoVital.exaustao`). */
   fome?: number;
+  /** Inventário (§🍖 F4) na forma ESPARSA — só os slots ocupados. Ausente =
+   *  mochila vazia, que é o padrão de quem nunca jogou sobrevivência, então
+   *  mundo criativo e save antigo saem byte a byte como antes. */
+  inventario?: SlotSalvo[];
 }
 
 /** Metadados do save (a parte JSON — o mundo vai como snapshot binário). */
@@ -170,6 +175,15 @@ function isFinitePos(p: unknown): p is { x: number; y: number; z: number } {
   return ["x", "y", "z"].every(
     (k) => typeof o[k] === "number" && Number.isFinite(o[k]),
   );
+}
+
+/** §🍖 F4: `{ inventario }` se sobrar algum slot depois do parse defensivo,
+ *  `{}` se não — assim o spread no roster não grava lista vazia em save de
+ *  mundo criativo (que é a maioria dos mundos). */
+function inventarioComItem(raw: unknown): { inventario?: SlotSalvo[] } {
+  if (raw === undefined) return {};
+  const slots = inventarioParaSave(parseInventario(raw));
+  return slots.length ? { inventario: slots } : {};
 }
 
 /** Decodifica e VALIDA um save (arquivo vem de fora — Drive, disco). Lança Error. */
@@ -288,6 +302,9 @@ function readSaveMeta(
           e["fome"] < FOME_MAX
             ? { fome: Math.floor(e["fome"]) }
             : {}),
+          // §🍖 F4: mochila só entra se sobrar algum slot depois do parse
+          // defensivo (que pula slot doente um a um, sem derrubar os sadios)
+          ...(inventarioComItem(e["inventario"])),
         });
       }
     }

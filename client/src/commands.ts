@@ -27,6 +27,7 @@ const COMANDOS = [
   "voo",
   "modo",
   "regra",
+  "dar",
   "confinar",
   "kicar",
   "claim",
@@ -50,7 +51,8 @@ const SUBCOMANDOS: Record<string, string[]> = {
   amigos: ["convidar", "aceitar", "recusar", "sair", "expulsar", "lista"],
 };
 
-/** Comandos cujo 2º token é um NOME de jogador. /tp também aceita "grupos". */
+/** Comandos cujo 2º token é um NOME de jogador. /tp também aceita "grupos".
+ *  §🍖 F4: /dar também aceita "eu" e "all" (ver `candidatos`). */
 const CMD_COM_NOME = new Set(["kicar", "resetpin", "tpr", "tpa"]);
 /** Subcomandos de /amigos cujo 3º token é um nome de jogador. */
 const AMIGOS_COM_NOME = new Set(["convidar", "aceitar", "recusar", "expulsar"]);
@@ -89,6 +91,7 @@ export function candidatos(completos: string[]): string[] {
   if (completos.length === 1) {
     if (CMD_COM_NOME.has(cmd)) return jogadoresConhecidos;
     if (cmd === "tp") return ["grupos", ...jogadoresConhecidos];
+    if (cmd === "dar") return ["eu", "all", ...jogadoresConhecidos];
     return SUBCOMANDOS[cmd] ?? [];
   }
   if (completos.length === 2) return nivel3(cmd, completos[1] ?? "");

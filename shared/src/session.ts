@@ -4,6 +4,7 @@ import {
   camaHeadDir,
   isAgua,
   isAguaFonte,
+  isBalde,
   isBreakable,
   isCama,
   isFullCube,
@@ -24,6 +25,22 @@ import {
   portaHingeAlta,
   precisaApoio,
 } from "./blocks";
+import { dropsDe, formaCanonica } from "./drops";
+import {
+  INV_SLOTS,
+  type Inventario,
+  STACK_MAX,
+  type SlotSalvo,
+  adicionar,
+  cabe,
+  contar,
+  estaVazio,
+  inventarioParaSave,
+  inventarioVazio,
+  moverSlot,
+  parseInventario,
+  remover,
+} from "./inventario";
 import { MAX_QUADRO_TEXTO, type QuadroConteudo, quadroKey } from "./quadros";
 import {
   AGUA_POR_TICK_PADRAO,
@@ -206,6 +223,12 @@ interface Identity {
 /** Validade de um pedido de /tpr (aceite com /tpa) — 30 s. */
 const TP_PEDIDO_MS = 30_000;
 
+/** §🍖 F4: freio do aviso "mochila cheia" (quebrar é clique repetido). */
+const AVISO_MOCHILA_MS = 5_000;
+
+/** §🍖 F4: teto de um `/dar` (27 slots × 64 = a mochila inteira de uma vez). */
+const MAX_DAR_QTD = INV_SLOTS * STACK_MAX;
+
 function parseCoordArg(token: string | undefined, base: number): number | null {
   if (token === undefined) return null;
   if (token.startsWith("~")) {
@@ -259,6 +282,13 @@ export class GameSession {
    *  por cliente. A queda é fechada quando ele pousa. Rascunho de sessão: some
    *  no disconnect (quem volta não paga a queda de ontem). */
   private readonly picoQueda = new Map<number, number>();
+  /** §🍖 F4: inventário AUTORITATIVO por NOME (mesma disciplina do modo e dos
+   *  vitais — a mochila sobrevive ao rejoin e à troca de aula). Só existe
+   *  entrada pra quem já pegou alguma coisa; criativo nunca cria uma. */
+  private readonly inventarios = new Map<string, Inventario>();
+  /** §🍖 F4: quando cada cliente ouviu "mochila cheia" pela última vez.
+   *  Rascunho de sessão (some no disconnect) — é só o freio do aviso. */
+  private readonly avisoMochila = new Map<number, number>();
 
   private readonly players = new Map<number, SessionPlayer>();
   /** Última POSIÇÃO conhecida por nome: volta onde parou, olhando pra onde
@@ -341,6 +371,14 @@ export class GameSession {
   private dirty = new Set<number>();
   /** Células já alteradas neste tick (máx. 1 mudança por célula por tick). */
   private changedThisTick = new Set<number>();
+  /**
+   * Contador MONOTÔNICO de células escritas (§🍖 F3/F4). É o que responde "o
+   * mundo mudou por causa desta mensagem?" — e tem de ser um contador, não o
+   * tamanho do `changedThisTick`: aquele é um CONJUNTO de coordenadas, então
+   * quebrar e recolocar a MESMA célula no mesmo tick não mexia no tamanho e a
+   * colocação saía de graça (bloco infinito por clique rápido).
+   */
+  private edicoesAplicadas = 0;
   /** F2 streaming: mundo LAZY (gigante) — colunas materializam sob demanda e
    *  viajam por raio de interesse; o join manda só o header LJE0. */
   private lazy = false;
@@ -415,6 +453,11 @@ export class GameSession {
             ...(p.vida !== undefined ? { vida: p.vida } : {}),
             ...(p.fome !== undefined ? { fome: p.fome } : {}),
           });
+        }
+        // §🍖 F4: mochila do save (ausente = vazia). O parse defensivo mora no
+        // `parseInventario`, então o que chega aqui já está são.
+        if (p.inventario?.length) {
+          this.inventarios.set(p.name, parseInventario(p.inventario));
         }
         // identidade restaurada MESMO no singleplayer: mundo de LAN importado
         // e re-exportado não perde os PINs da turma (aqui ela só não é usada)
@@ -562,6 +605,8 @@ export class GameSession {
           // §🍖 F2/F3: só o MACHUCADO e o FAMINTO viajam (cheio = ausente = padrão)
           vida: vital && vital.vida < VIDA_MAX ? vital.vida : undefined,
           fome: vital && vital.fome < FOME_MAX ? vital.fome : undefined,
+          // §🍖 F4: mochila vazia sai ausente — mundo criativo não engorda o save
+          inventario: this.inventarioParaRoster(name),
         };
       }),
       ...(this.codigo ? { codigo: this.codigo } : {}),
@@ -696,7 +741,7 @@ export class GameSession {
     // switch. Cada caso já devolveu cedo quando recusou (bounds, alcance, claim,
     // confinamento), então "o mundo mudou" é o mesmo que "a edição valeu", e
     // ramo novo de bloco no futuro entra cobrando sem ninguém lembrar disso.
-    const mudancasAntes = this.changedThisTick.size;
+    const mudancasAntes = this.edicoesAplicadas;
     switch (msg.type) {
       case "join": {
         const name = sanitizeName(msg.name);
@@ -788,6 +833,18 @@ export class GameSession {
         // rocha-matriz é ferramenta de professor: aluno nem coloca (o cliente
         // já esconde, mas o servidor é a barreira real contra fio adulterado)
         if (isProfessorOnly(msg.blockId) && p.papel !== "professor") return;
+        // §🍖 F4: em sobrevivência, colocar GASTA — e sem o bloco na mochila
+        // não coloca. Aqui só o portão; o débito é depois do switch, junto com
+        // o esforço, pra que os 4 ramos de materialização (porta, janela, cama,
+        // comum) cobrem sozinhos. SILENCIOSO de propósito: o cliente tem o
+        // inventário e apaga o slot vazio, então "não tenho" não é surpresa —
+        // avisar no chat a cada clique viraria spam.
+        if (
+          this.inventarioVale(clientId) &&
+          contar(this.inventarioDe(p.name), formaCanonica(msg.blockId)) < 1
+        ) {
+          return;
+        }
         // célula precisa estar VAZIA ou com líquido substituível (água): colocar
         // por cima da água a troca direto, sem quebrar antes (decisão 2026-07-22).
         {
@@ -943,7 +1000,20 @@ export class GameSession {
             return;
           }
         }
+        // §🍖 F4: quebrar DÁ o que a tabela diz — e, se não couber, NÃO QUEBRA.
+        // Não existe item no chão (decisão travada no ROADMAP §🍖): recusar é
+        // mais honesto que fazer o bloco evaporar. A conferência vem ANTES do
+        // applyBlock justamente pra que a recusa não deixe rastro no mundo.
+        const drops = this.inventarioVale(clientId) ? dropsDe(current) : [];
+        if (drops.length && !GameSession.cabemTodos(this.inventarioDe(p.name), drops)) {
+          this.avisarMochilaCheia(clientId);
+          return;
+        }
         this.applyBlock(msg.x, msg.y, msg.z, BlockId.Air);
+        // Crédito DEPOIS do mundo mudar: a mochila e a célula andam juntas, e a
+        // segunda metade da porta/cama, que o `doorRule`/`camaRule` apaga no
+        // tick seguinte, NÃO passa por aqui (uma porta não vira duas).
+        this.guardarDrops(clientId, drops);
         break;
       }
       case "balde": {
@@ -972,6 +1042,20 @@ export class GameSession {
           if (alvo !== BlockId.Air && !isReplaceable(alvo)) return;
           this.applyBlock(msg.x, msg.y, msg.z, BlockId.Agua);
         }
+        break;
+      }
+      case "mover_item": {
+        // §🍖 F4: o aluno arruma a mochila. O cliente NÃO decide — manda os dois
+        // índices e recebe o inventário inteiro de volta. `moverSlot` devolve o
+        // mesmo objeto quando o movimento é impossível (índice do fio, origem
+        // vazia, destino cheio), e aí nem mensagem sai.
+        const p = this.players.get(clientId);
+        if (!p || !this.inventarioVale(clientId)) return;
+        const antes = this.inventarioDe(p.name);
+        const depois = moverSlot(antes, msg.de, msg.para);
+        if (depois === antes) return;
+        this.inventarios.set(p.name, depois);
+        this.sendInventario(clientId);
         break;
       }
       case "chat": {
@@ -1015,11 +1099,18 @@ export class GameSession {
     // células (porta, cama). Abrir porta (`use_block`) e teleoperação de
     // professor (`/bloco`, `/regiao encher`) NÃO cobram: não é o esforço do
     // aluno construindo.
+    const mundoMudou = this.edicoesAplicadas > mudancasAntes;
     if (
       (msg.type === "place_block" || msg.type === "break_block" || msg.type === "balde") &&
-      this.changedThisTick.size > mudancasAntes
+      mundoMudou
     ) {
       this.esforcar(clientId, EXAUSTAO_POR_EDICAO);
+    }
+    // §🍖 F4: o DÉBITO mora no mesmo lugar e pelo mesmo motivo — "o mundo
+    // mudou" é o mesmo que "a colocação valeu", e uma colocação que materializa
+    // 2 células (porta, cama) custa UM item, não dois.
+    if (msg.type === "place_block" && mundoMudou) {
+      this.gastarItem(clientId, formaCanonica(msg.blockId));
     }
   }
 
@@ -1120,6 +1211,10 @@ export class GameSession {
           return "Somente o professor pode mudar as regras do mundo. Use /regra para ver quais estão valendo.";
         }
         return this.runRegra(parts);
+      }
+      case "dar": {
+        if (!professor) return "Somente o professor pode usar /dar.";
+        return this.runDar(clientId, parts);
       }
       case "claim":
         return this.runClaim(clientId, parts);
@@ -1305,7 +1400,13 @@ export class GameSession {
       // §🍖 F2: quem estava VOANDO em criativo tem um pico de queda antigo
       // guardado; entrar em sobrevivência não pode cobrar essa altura
       this.picoQueda.set(clientId, p.y);
-      if (agora === "sobrevivencia") this.sendVida(clientId);
+      if (agora === "sobrevivencia") {
+        this.sendVida(clientId);
+        // §🍖 F4: a mochila aparece na hora que ele entra em sobrevivência —
+        // o cliente troca a paleta infinita pelo inventário de verdade e
+        // precisa saber COM O QUE está entrando (rejoin traz a de ontem).
+        this.sendInventario(clientId);
+      }
       if (clientId === autorId) continue;
       this.sendServerChat(
         clientId,
@@ -1553,8 +1654,170 @@ export class GameSession {
     if (!p) return;
     this.broadcast({ type: "chat", author: "servidor", text: textoDaMorte(p.name, causa) });
     this.vitais.set(p.name, novoEstadoVital());
+    // §🍖 F4: aqui a regra `manter-inventario` finalmente decide alguma coisa.
+    // LIGADA (o padrão de escola) = não se perde nada. DESLIGADA = a mochila
+    // some, e some MESMO: não existe baú nem item no chão pra virar túmulo (o
+    // ramo barato de propósito, anotado no ROADMAP §🍖 desde 2026-07-27).
+    if (!valorRegra(this.regras, "manter-inventario")) {
+      this.inventarios.delete(p.name);
+      this.sendInventario(clientId);
+    }
     this.teleportar(clientId, this.spawn.x, this.spawn.y, this.spawn.z);
     this.sendVida(clientId); // vida cheia de novo, agora sem causa
+  }
+
+  // --- §🍖 F4: inventário autoritativo ---------------------------------------
+
+  /** Mochila de um NOME (nasce vazia na primeira vez que alguém pergunta). */
+  private inventarioDe(nome: string): Inventario {
+    let i = this.inventarios.get(nome);
+    if (!i) {
+      i = inventarioVazio();
+      this.inventarios.set(nome, i);
+    }
+    return i;
+  }
+
+  /** O inventário FINITO vale pra este cliente? Mesmo portão da vida: só
+   *  sobrevivência. Criativo segue com a paleta infinita do cliente, intocado —
+   *  é o mesmo mundo, o que muda é o modo do jogador. */
+  private inventarioVale(clientId: number): boolean {
+    return this.vidaVale(clientId);
+  }
+
+  private sendInventario(clientId: number): void {
+    const p = this.players.get(clientId);
+    if (!p) return;
+    this.send(
+      clientId,
+      JSON.stringify({
+        type: "inventario",
+        slots: inventarioParaSave(this.inventarioDe(p.name)),
+      } satisfies ServerMessage),
+    );
+  }
+
+  /** Forma esparsa pro roster do save — `undefined` se a mochila está vazia
+   *  (mundo criativo não engorda o `.ljw` com 27 nulos por aluno). */
+  private inventarioParaRoster(nome: string): SlotSalvo[] | undefined {
+    const i = this.inventarios.get(nome);
+    if (!i || estaVazio(i)) return undefined;
+    return inventarioParaSave(i);
+  }
+
+  /**
+   * Gasta UMA unidade do id ao colocar bloco. Fora da sobrevivência é no-op —
+   * é o que mantém criativo intocado sem um `if` em cada ramo do `place_block`.
+   * O id que sai da mochila é a FORMA CANÔNICA: o aluno guarda "porta", não
+   * "porta do eixo Z aberta com dobradiça alta".
+   */
+  private gastarItem(clientId: number, id: number): void {
+    if (!this.inventarioVale(clientId)) return;
+    const p = this.players.get(clientId);
+    if (!p) return;
+    const { inv, removido } = remover(this.inventarioDe(p.name), id, 1);
+    if (!removido) return;
+    this.inventarios.set(p.name, inv);
+    this.sendInventario(clientId);
+  }
+
+  /**
+   * As pilhas cabem TODAS na mochila? Simula guardar uma a uma, porque duas
+   * pilhas do mesmo id disputam o mesmo espaço — somar `espacoPara` de cada uma
+   * contaria o slot vazio duas vezes.
+   */
+  private static cabemTodos(inv: Inventario, pilhas: readonly { id: number; qtd: number }[]): boolean {
+    let atual = inv;
+    for (const d of pilhas) {
+      if (!cabe(atual, d.id, d.qtd)) return false;
+      atual = adicionar(atual, d.id, d.qtd).inv;
+    }
+    return true;
+  }
+
+  /** Guarda o que caiu (já conferido por `cabemTodos`) e avisa o cliente. */
+  private guardarDrops(clientId: number, pilhas: readonly { id: number; qtd: number }[]): void {
+    const p = this.players.get(clientId);
+    if (!p || !pilhas.length) return;
+    let inv = this.inventarioDe(p.name);
+    for (const d of pilhas) inv = adicionar(inv, d.id, d.qtd).inv;
+    this.inventarios.set(p.name, inv);
+    this.sendInventario(clientId);
+  }
+
+  /**
+   * `/dar <quem> <id> [qtd]` — o professor enche a mochila de um aluno (ou da
+   * turma). É a contraparte do `/bloco`: com o inventário AUTORITATIVO, o mundo
+   * de sobrevivência começa com todo mundo de mãos vazias, e sem este comando o
+   * professor não tem como preparar uma atividade nem consertar um acidente.
+   * Teleoperação, como o `/bloco`: não custa esforço, não exige alcance.
+   *
+   * `<quem>` = `eu` · `all` · nome do aluno (o mesmo casamento do `/modo`).
+   * `<id>` = número, igual ao `/bloco` (o cliente mostra o id no inventário).
+   */
+  private runDar(clientId: number, parts: string[]): string {
+    const p = this.players.get(clientId);
+    if (!p) return "Entre no mundo antes de usar /dar.";
+    const alvo = parts[1]?.toLowerCase();
+    const id = Number(parts[2]);
+    const qtd = parts.length === 4 ? Number(parts[3]) : 1;
+    if (parts.length < 3 || parts.length > 4 || !alvo || !Number.isInteger(id)) {
+      return "Uso: /dar eu|all|nome id [quantidade] — o id segue a ordem do inventário, igual ao /bloco.";
+    }
+    if (!isPlaceable(id) && !isBalde(id)) return `Não existe item com o id ${id}.`;
+    if (!Number.isInteger(qtd) || qtd < 1 || qtd > MAX_DAR_QTD) {
+      return `Quantidade inválida: use de 1 a ${MAX_DAR_QTD}.`;
+    }
+
+    const nomes =
+      alvo === "all" || alvo === "todos"
+        ? this.jogadoresConectados().map((j) => j.name)
+        : [alvo === "eu" ? p.name : this.acharNomeConhecido(alvo)].filter(
+            (n): n is string => n !== null,
+          );
+    if (!nomes.length) {
+      return `Ninguém chamado "${parts[1]?.replace(/^@/, "")}" neste mundo. Use /dar eu, /dar all ou o nome exato do aluno.`;
+    }
+
+    const cheias: string[] = [];
+    let entregues = 0;
+    for (const nome of nomes) {
+      const { inv, sobra } = adicionar(this.inventarioDe(nome), id, qtd);
+      if (sobra === qtd) {
+        cheias.push(nome);
+        continue;
+      }
+      this.inventarios.set(nome, inv);
+      entregues++;
+      // quem está online E em sobrevivência vê a mochila mudar na hora; quem
+      // está em criativo recebe calado (o item fica guardado pra quando trocar)
+      for (const [cid, j] of this.players) {
+        if (j.name === nome && this.modoDe(nome) === "sobrevivencia") this.sendInventario(cid);
+      }
+      if (sobra) cheias.push(`${nome} (só ${qtd - sobra})`);
+    }
+    if (!entregues) return `Mochila cheia: ${cheias.join(", ")} não coube nada.`;
+    return (
+      `Entregue ${qtd}× do item ${id} para ${nomes.length === 1 ? nomes[0] : `${entregues} jogador(es)`}.` +
+      (cheias.length ? ` Mochila cheia: ${cheias.join(", ")}.` : "") +
+      (this.modoMundo === "criativo" ? " (O mundo está em criativo — a mochila só aparece em sobrevivência.)" : "")
+    );
+  }
+
+  /**
+   * Aviso de "mochila cheia" com FREIO: quebrar é gesto de clique repetido, e
+   * sem teto o chat da aula viraria uma parede de texto igual. Um por
+   * `AVISO_MOCHILA_MS` por aluno é o bastante pra ele entender e ir esvaziar.
+   */
+  private avisarMochilaCheia(clientId: number): void {
+    const agora = this.now();
+    const ultimo = this.avisoMochila.get(clientId) ?? -Infinity;
+    if (agora - ultimo < AVISO_MOCHILA_MS) return;
+    this.avisoMochila.set(clientId, agora);
+    this.sendServerChat(
+      clientId,
+      "Mochila cheia — guarde ou solte alguma coisa antes de continuar cavando.",
+    );
   }
 
   /**
@@ -1952,7 +2215,13 @@ export class GameSession {
     this.sendModo(clientId);
     // §🍖 F2: entrar não é cair, e quem volta machucado precisa ver os corações
     this.picoQueda.set(clientId, start.y);
-    if (this.modoDe(name) === "sobrevivencia") this.sendVida(clientId);
+    if (this.modoDe(name) === "sobrevivencia") {
+      this.sendVida(clientId);
+      // §🍖 F4: a mochila é por NOME, então quem volta encontra o que cavou
+      // ontem. Em criativo a mensagem NÃO vai — ausência é o que diz ao cliente
+      // "aqui a paleta é infinita".
+      this.sendInventario(clientId);
+    }
     // Na migração o teleporte é OBRIGATÓRIO mesmo sem roster: o jogador está
     // parado nas coordenadas do mundo ANTIGO, que no mundo novo podem ser
     // dentro da pedra ou no vazio.
@@ -3442,6 +3711,7 @@ export class GameSession {
     // (o cliente limpa pelo próprio block_changed/blocks_filled; sem msg extra)
     if (!isQuadro(blockId)) this.quadros.delete(quadroKey(x, y, z));
     setBlock(this.world, x, y, z, blockId);
+    this.edicoesAplicadas++;
     this.changedThisTick.add(this.packCoord(x, y, z));
     this.markDirtyAround(x, y, z);
     // cp12/13: mudança dentro de objetivo construir/limpar → rechecar no tick

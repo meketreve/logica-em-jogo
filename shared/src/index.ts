@@ -5,6 +5,8 @@ export * from "./blocks";
 export * from "./claims";
 export * from "./constants";
 export * from "./groups";
+export * from "./drops";
+export * from "./inventario";
 export * from "./world";
 export * from "./worldgen";
 export * from "./luz";

@@ -3,6 +3,7 @@ import { type Claim, parseClaim } from "./claims";
 import { type QuadroConteudo, parseQuadroConteudo } from "./quadros";
 import { CHUNK_VOLUME, MAX_WORLD_CHUNKS } from "./constants";
 import { type GroupDef, parseGroups } from "./groups";
+import { type SlotSalvo, inventarioParaSave, parseInventario } from "./inventario";
 import { type Modo, parseModo } from "./modo";
 import { type NamedRegion, parseNamedRegion } from "./regions";
 import { type ObjectiveState, type ScenarioModo, parseObjectiveState } from "./scenario";
@@ -45,6 +46,10 @@ export type ClientMessage =
    *  e/ou imagem data URL pequena). Servidor valida célula/alcance/gates e
    *  responde com quadro_changed broadcast. Texto vazio sem imagem = limpa. */
   | { type: "quadro_set"; x: number; y: number; z: number; texto: string; imagem?: string }
+  /** Inventário (§🍖 F4): o aluno arrastou/tocou pra reorganizar a mochila.
+   *  O cliente NÃO decide — manda os dois índices e o servidor aplica (ou não)
+   *  e responde com o `inventario` inteiro. Índice inválido é ignorado. */
+  | { type: "mover_item"; de: number; para: number }
   | { type: "chat"; text: string }
   | {
       /**
@@ -352,6 +357,21 @@ export type ServerMessage =
     }
   | {
       /**
+       * Inventário do PRÓPRIO jogador (§🍖 F4) — estado do SERVIDOR, mandado
+       * inteiro (27 slots são ~poucas centenas de bytes na forma esparsa, e um
+       * delta por slot custaria mais em bug do que economiza em byte). Vai no
+       * join em sobrevivência e a cada mudança: colocar gasta, quebrar dá,
+       * morrer pode zerar (regra `manter-inventario`).
+       *
+       * Forma ESPARSA (`slots`): só o que está ocupado, cada um com o índice.
+       * Lista vazia = mochila vazia, que é diferente de "não tem inventário" —
+       * em criativo a mensagem simplesmente NÃO é mandada (paleta infinita).
+       */
+      type: "inventario";
+      slots: SlotSalvo[];
+    }
+  | {
+      /**
        * Aluno REMOVIDO da aula pelo professor (cp22, /kicar). Cliente mostra o
        * motivo e volta pro menu — mesmo caminho do join_denied. O socket cai
        * logo depois; ele pode entrar de novo com o PIN.
@@ -442,6 +462,11 @@ export function parseClientMessage(raw: string): ClientMessage | null {
       const c = parseQuadroConteudo(m);
       if (!c) return null;
       return { type: "quadro_set", ...c };
+    }
+    case "mover_item": {
+      const ints = [m["de"], m["para"]];
+      if (!ints.every((n) => typeof n === "number" && Number.isInteger(n))) return null;
+      return { type: "mover_item", de: m["de"] as number, para: m["para"] as number };
     }
     case "chat":
       if (typeof m["text"] !== "string") return null;
@@ -701,6 +726,14 @@ export function parseServerMessage(raw: string): ServerMessage | null {
         ...(typeof folego === "number" && Number.isFinite(folego) ? { folego } : {}),
         ...(typeof fome === "number" && Number.isFinite(fome) ? { fome } : {}),
       };
+    }
+    case "inventario": {
+      // §🍖 F4: `slots` tem de ser LISTA (mochila vazia é lista vazia, e isso é
+      // informação: significa "gastou tudo"). Slot doente é pulado pelo
+      // `parseInventario`, que é a MESMA porta de entrada do save — uma
+      // validação só pros dois caminhos.
+      if (!Array.isArray(m["slots"])) return null;
+      return { type: "inventario", slots: inventarioParaSave(parseInventario(m["slots"])) };
     }
     case "kicked":
       if (typeof m["reason"] !== "string") return null;

@@ -402,13 +402,18 @@ describe("§🍖 F3 — fome na sessão", () => {
     expect(ultimaVida(sent, 2)?.fome).toBe(FOME_MAX - 1);
   });
 
-  it("editar bloco também cansa (e a porta de 2 células custa UMA edição)", () => {
+  it("editar bloco também cansa", () => {
     const { session, sent } = turma("sobrevivencia");
     andar(session, 2, 399); // 3,99 acumulados: falta um fio de esforço
     expect(ultimaVida(sent, 2)?.fome).toBe(FOME_MAX);
+    // §🍖 F4: QUEBRAR, não colocar — colocar em sobrevivência exige ter o bloco
+    // na mochila, e a cobrança de esforço é a mesma pros dois. O professor
+    // materializa o alvo por teleoperação (`/bloco` não cansa ninguém).
     const alvo = { x: Math.floor(session.spawn.x), y: Math.floor(session.spawn.y) + 3, z: Math.floor(session.spawn.z) };
-    session.handleMessage(2, JSON.stringify({ type: "place_block", ...alvo, blockId: BlockId.Stone }));
+    session.handleMessage(1, cmd(`/bloco ${alvo.x} ${alvo.y} ${alvo.z} ${BlockId.Stone}`));
     expect(getBlock(session.world, alvo.x, alvo.y, alvo.z)).toBe(BlockId.Stone);
+    session.handleMessage(2, JSON.stringify({ type: "break_block", ...alvo }));
+    expect(getBlock(session.world, alvo.x, alvo.y, alvo.z)).toBe(BlockId.Air);
     expect(ultimaVida(sent, 2)?.fome).toBe(FOME_MAX - 1);
   });
 

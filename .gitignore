@@ -32,3 +32,6 @@ chrome/
 # backups locais de upgrades/consolidações do OpenWolf
 .wolf.bak-*/
 .wolf/*.bak
+# snapshots por sessão que a rotação do OpenWolf cria (cópia do que já é
+# versionado — 3 MB por rodada, cresce sem fim). Local, nunca no repo.
+.wolf/backups/

@@ -414,6 +414,59 @@
         border-color: #ffd75e;
         box-shadow: 0 0 0 1px #ffd75e;
       }
+      /* §🍖 F4: sobrevivência — slot vazio e a contagem da pilha. O slot vazio
+         mantém a MESMA altura do cheio (o ícone reserva 26px), senão a barra
+         pula de altura toda vez que o aluno gasta o último bloco. */
+      #hotbar .slot.vazio::after {
+        content: "";
+        display: block;
+        width: 26px;
+        height: 26px;
+      }
+      #hotbar .slot.vazio {
+        opacity: 0.45;
+      }
+      #hotbar .slot .qtd,
+      .inv-slot .qtd {
+        position: absolute;
+        right: 2px;
+        bottom: 1px;
+        font-size: 10px;
+        font-weight: 700;
+        color: #fff;
+        text-shadow: 0 0 3px #000, 0 1px 2px #000;
+        pointer-events: none;
+      }
+      #hotbar .slot,
+      .inv-slot {
+        position: relative;
+      }
+      /* §🍖 F4: a grade da mochila (18 slots) — NOVE colunas, alinhadas com a
+         faixa da hotbar logo abaixo: é o que faz "guardar na coluna de cima do
+         slot 3" ser um gesto óbvio. Nove é o número certo sem media query,
+         porque a hotbar de 9 já cabe em qualquer tela onde o jogo cabe. */
+      .inv-mochila {
+        display: grid;
+        grid-template-columns: repeat(9, minmax(0, 1fr));
+        gap: 5px;
+        /* `width: 100%` é obrigatório: sem ele o contêiner vira content-box e as
+           9 faixas `minmax(0, 1fr)` colapsam pra zero (viraram tiras de 5px). */
+        width: 100%;
+        max-width: 470px;
+        margin: 0 auto;
+        flex: 1;
+        overflow-y: auto;
+        align-content: start;
+      }
+      .inv-mochila .inv-slot {
+        width: auto;
+        min-height: 44px;
+      }
+      /* slot "pego" esperando o destino: contorno claro, não só cor */
+      .inv-slot.pego {
+        border-color: #7fd4ff !important;
+        box-shadow: 0 0 0 2px #7fd4ff;
+      }
       /* --- Menu principal (cp8) --- */
       #menu {
         position: fixed;

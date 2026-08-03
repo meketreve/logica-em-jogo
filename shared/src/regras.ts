@@ -12,10 +12,10 @@
  * escopo da sobrevivência. Unificar depois é barato (cada um vira um alias);
  * reaprender comando no meio da aula, não.
  *
- * As regras do lite ainda não têm MECÂNICA: `manter-inventario` e `fome` só
- * começam a decidir alguma coisa no F2/F3, e `pvp` no F7. O registro nasce
- * antes de propósito — é o que faz cada frente seguinte ser uma leitura de
- * `valorRegra(...)` em vez de mais um campo no save.
+ * O registro nasceu ANTES das mecânicas de propósito — é o que faz cada frente
+ * seguinte ser uma leitura de `valorRegra(...)` em vez de mais um campo no
+ * save. `fome` ganhou mecânica no F3 e `manter-inventario` no F4; só `pvp`
+ * ainda espera a frente dele (F7), e é isso que o campo `pendente` sinaliza.
  */
 
 export interface RegraDef {
@@ -35,7 +35,8 @@ export const REGRAS: readonly RegraDef[] = [
     padrao: true,
     ajuda:
       "Ao morrer, o jogador MANTÉM o que estava carregando. Ligada é o padrão de escola; desligue se quiser que a morte pese (aí os itens somem).",
-    pendente: true, // F4: sem inventário autoritativo, não há o que perder
+    // F4 (2026-08-02) deu MECÂNICA a ela: `matar()` lê esta regra. Desligada,
+    // a mochila some inteira — não há baú nem item no chão pra virar túmulo.
   },
   {
     nome: "pvp",
