@@ -1041,3 +1041,4 @@ errado). O teste negativo — quebrar de propósito e ver reprovar — foi o que
 
 **VERDE:** typecheck 3/3 · 565 testes · build · 12/12 smokes · 7 cenários gerados (a corrida
 passa pelo próprio portão) · 5 prints da pista. **PLAYTEST PENDENTE.**
+| 23:07 | Session end: 58 writes across 23 files (blocks.ts, mesher.ts, comida.ts, sobrevivencia.ts, drops.ts) | 11 reads | ~115618 tok |
