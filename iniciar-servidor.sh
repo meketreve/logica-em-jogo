@@ -16,9 +16,36 @@ echo
 #  navegador e recebe o cliente DESTE servidor. `client/dist` é versionado,
 #  então não há nada pra compilar aqui.
 #  Pula sozinho, sem travar a aula, quando: LJ_SEM_UPDATE=1, a pasta não é
-#  clone do git, o git não está instalado, o branch não é main, há mudança
-#  local nesta máquina, ou a rede não responde.
+#  clone do git, o git não está instalado, o branch não é main, ou a rede não
+#  responde.
+#  MUDANÇA LOCAL NÃO PULA MAIS A BUSCA (era o bug-567): o `git fetch` acontece
+#  de qualquer jeito, e quem sujou os arquivos decide na hora — as mudanças vão
+#  pro `git stash` (guardadas, nunca apagadas) e a atualização segue.
 # ============================================================
+
+# Depois de um merge bem-sucedido: dependência nova só chega por aqui.
+concluir_atualizacao() {
+  echo "Conferindo as dependências..."
+  npm install || echo "(aviso: npm install falhou — se o servidor não subir, rode 'npm install' à mão)"
+}
+
+# Lista de arquivos RASTREADOS modificados nesta máquina, um por linha.
+# Arquivo novo/solto NÃO conta (`-uno`): senão qualquer .ljw exportado pra raiz
+# entraria na conversa — e o git nunca sobrescreve arquivo não rastreado.
+sujeira_local() {
+  git status --porcelain --untracked-files=no
+}
+
+# Imprime a lista indentada, com teto de 10 linhas (no Windows o suspeito comum
+# é fim-de-linha CRLF sujando o repo inteiro; aqui, o diário do OpenWolf).
+listar_ate_10() {
+  local lista="$1" n
+  echo "$lista" | head -n 10 | while IFS= read -r linha; do echo "    $linha"; done
+  n="$(echo "$lista" | wc -l | tr -d ' ')"
+  [ "$n" -gt 10 ] && echo "    ... e mais $((n - 10)) (são $n no total)"
+  return 0
+}
+
 atualizar() {
   [ -n "$LJ_SEM_UPDATE" ] && { echo "(LJ_SEM_UPDATE=1: não vou procurar atualização)"; return; }
   [ -d .git ] || { echo "(esta pasta não veio de um clone do git: atualização automática desligada)"; return; }
@@ -26,25 +53,6 @@ atualizar() {
   local branch
   branch="$(git rev-parse --abbrev-ref HEAD 2>/dev/null)"
   [ "$branch" = "main" ] || { echo "(branch \"$branch\": atualização automática só vale no main)"; return; }
-  # arquivo RASTREADO modificado = alguém editou o código nesta máquina; atualizar
-  # poderia perder o trabalho. Arquivo novo/solto na pasta NÃO conta (`-uno`):
-  # senão qualquer .ljw exportado pra raiz travava a atualização pra sempre — e o
-  # próprio git se recusa a sobrescrever arquivo não rastreado, o que já é a rede
-  # de segurança (o merge falha e caímos no aviso lá embaixo).
-  # A lista vai PRA TELA: "há mudanças locais" sem dizer QUAIS é indiagnosticável —
-  # nesta pasta o diário do OpenWolf (.wolf/memory.md) é rastreado e muda sozinho,
-  # e a atualização ficava pulada em silêncio (bug-567).
-  local sujo n
-  sujo="$(git status --porcelain --untracked-files=no)"
-  if [ -n "$sujo" ]; then
-    echo "(há mudanças locais no código desta pasta — atualização pulada para não perder nada)"
-    echo "  arquivos alterados nesta máquina:"
-    echo "$sujo" | head -n 10 | while IFS= read -r linha; do echo "    $linha"; done
-    n="$(echo "$sujo" | wc -l | tr -d ' ')"
-    [ "$n" -gt 10 ] && echo "    ... e mais $((n - 10)) (são $n no total)"
-    echo "  (para voltar a atualizar: guarde ou desfaça essas mudanças no git)"
-    return
-  fi
   echo "Procurando atualização..."
   git fetch --quiet origin || { echo "(sem conexão com o servidor do código — seguindo com a versão instalada)"; return; }
   local atras
@@ -54,20 +62,89 @@ atualizar() {
   echo "Existem $atras atualização(ões) nova(s):"
   git --no-pager log --oneline --no-decorate -n 5 HEAD..origin/main
   echo
+
+  # --- A pasta dos mundos salvos é intocável, e isso é CONFERIDO ---
+  # `mundos/` está no .gitignore e nenhum arquivo dela é rastreado, então a
+  # atualização não a alcança — os mundos que viajam no repo são os MODELOS de
+  # aula, em `cenarios/`. A conferência existe porque o dia em que alguém
+  # versionar um .ljw de turma por engano, o professor tem de ser avisado ANTES
+  # de a turma perder o que construiu, e não depois. Padrão = NÃO sobrescrever.
+  local mundos_tocados
+  mundos_tocados="$(git diff --name-only HEAD...origin/main -- mundos/ 2>/dev/null)"
+  if [ -n "$mundos_tocados" ]; then
+    echo "ATENÇÃO: esta atualização MEXE na pasta dos mundos salvos (mundos/):"
+    listar_ate_10 "$mundos_tocados"
+    echo "  Os mundos que a sua turma construiu podem ser SOBRESCRITOS."
+    read -r -p "  Sobrescrever os mundos salvos? [s/N] (Enter = não): " SOBR
+    case "$SOBR" in
+      [sS]*) echo "  (ok — a atualização vai sobrescrever mundos/)" ;;
+      *) echo "  (mantendo os mundos salvos — atualização cancelada)"; return ;;
+    esac
+  else
+    echo "(seus mundos salvos em mundos/ não são tocados pela atualização)"
+  fi
+
+  echo
   read -r -p "Atualizar agora? [S/n] (Enter = sim): " UPD
   case "$UPD" in
     [nN]*) echo "(mantendo a versão atual)"; return ;;
   esac
+
   # --ff-only: nunca cria commit de merge na máquina da escola; se divergiu,
-  # avisa e segue jogando com o que já funciona
-  if ! git merge --ff-only origin/main; then
+  # avisa e segue jogando com o que já funciona.
+  local saida
+  if saida="$(git merge --ff-only origin/main 2>&1)"; then
+    echo "$saida"
+    echo "Atualizado."
+    concluir_atualizacao
+    return
+  fi
+
+  # O merge recusou. A causa comum NÃO é divergência: é arquivo rastreado
+  # modificado aqui que a atualização também mexe (nesta pasta o
+  # `.wolf/memory.md` do OpenWolf muda sozinho a cada sessão, e os commits
+  # `docs(wolf)` mexem justamente nele).
+  local sujo
+  sujo="$(sujeira_local)"
+  if [ -z "$sujo" ]; then
+    # `$saida` NÃO vai pra tela: o git manda rodar `git rebase`/`git merge --no-ff`,
+    # e essa não é conversa pra ter com o professor no começo da aula.
     echo
     echo "NÃO foi possível atualizar automaticamente (a cópia local divergiu)."
     echo "Seguindo com a versão instalada."
     return
   fi
-  echo "Atualizado. Conferindo as dependências..."
-  npm install || echo "(aviso: npm install falhou — se o servidor não subir, rode 'npm install' à mão)"
+  echo
+  echo "NÃO foi possível atualizar: há arquivo(s) alterado(s) nesta máquina"
+  echo "que a atualização também mexe:"
+  listar_ate_10 "$sujo"
+  echo
+  read -r -p "  Guardar essas mudanças e atualizar mesmo assim? [S/n] (Enter = sim): " GUARDAR
+  case "$GUARDAR" in
+    [nN]*) echo "  (mantendo a versão atual — nada foi mexido)"; return ;;
+  esac
+  # `git stash push` GUARDA, não apaga. Sem `--include-untracked` de propósito:
+  # arquivo solto na pasta (um .ljw exportado, por exemplo) fica onde está.
+  if ! git stash push --quiet -m "lj-auto"; then
+    echo "  (não deu para guardar as mudanças — seguindo com a versão instalada)"
+    return
+  fi
+  echo "  Guardado no git (stash \"lj-auto\")."
+  if ! git merge --ff-only origin/main 2>/dev/null; then
+    echo
+    echo "Mesmo assim NÃO deu para atualizar (a cópia local divergiu)."
+    echo "Devolvendo as suas mudanças..."
+    git stash pop || echo "  (as mudanças seguem guardadas — recupere com: git stash pop)"
+    echo "Seguindo com a versão instalada."
+    return
+  fi
+  echo "Atualizado."
+  # Sem `stash pop` automático: se o pop conflitar, a pasta fica em conflito no
+  # meio da aula. Guardado é reversível; conflito na hora da aula, não.
+  echo "  As suas mudanças NÃO foram perdidas: ficaram guardadas no git."
+  echo "  Para trazer de volta:            git stash pop"
+  echo "  Para só ver o que foi guardado:  git stash list"
+  concluir_atualizacao
 }
 atualizar
 echo

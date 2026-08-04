@@ -18,8 +18,12 @@ REM  Atualizacao (git) - so a maquina do PROFESSOR atualiza:
 REM  o aluno abre o navegador e recebe o cliente deste servidor.
 REM  client\dist e VERSIONADO, entao nao precisa compilar nada aqui.
 REM  Pula sozinho, SEM travar a aula, quando: LJ_SEM_UPDATE=1, a pasta nao
-REM  e um clone do git, o git nao esta instalado, o branch nao e o main, ha
-REM  mudanca local nesta maquina, ou a rede nao responde.
+REM  e um clone do git, o git nao esta instalado, o branch nao e o main, ou
+REM  a rede nao responde.
+REM  MUDANCA LOCAL NAO PULA MAIS A BUSCA (era o bug-567): o "git fetch"
+REM  acontece de qualquer jeito, e quem sujou os arquivos decide na hora - as
+REM  mudancas vao pro "git stash" (guardadas, nunca apagadas) e a atualizacao
+REM  segue.
 REM ============================================================
 if defined LJ_SEM_UPDATE (
   echo ^(LJ_SEM_UPDATE=1: nao vou procurar atualizacao^)
@@ -40,33 +44,6 @@ if not "%BRANCH%"=="main" (
   echo ^(branch "%BRANCH%": atualizacao automatica so vale no main^)
   goto :depois_update
 )
-REM Arquivo RASTREADO modificado = alguem editou o codigo NESTA maquina, e
-REM atualizar poderia perder o trabalho. Arquivo novo/solto na pasta nao conta
-REM (--untracked-files=no): senao um .ljw exportado pra raiz travava a
-REM atualizacao pra sempre. Se um arquivo solto atrapalhar, o proprio git se
-REM recusa a sobrescrever e caimos no aviso de "nao foi possivel atualizar".
-REM A lista vai PRA TELA: "ha mudancas locais" sem dizer QUAIS e indiagnosticavel
-REM (bug-567). No Windows o suspeito comum e fim-de-linha CRLF sujando o repo
-REM inteiro, entao a lista para em 10 e diz o total.
-git status --porcelain --untracked-files=no > "%TEMP%\lj-git-status.txt" 2>nul
-set "SUJO=0"
-for %%s in ("%TEMP%\lj-git-status.txt") do set "SUJO=%%~zs"
-if not "%SUJO%"=="0" (
-  echo ^(ha mudancas locais nesta pasta - atualizacao pulada para nao perder nada^)
-  echo   arquivos alterados nesta maquina:
-  setlocal enabledelayedexpansion
-  set /a LJN=0
-  for /f "usebackq delims=" %%l in ("%TEMP%\lj-git-status.txt") do (
-    set /a LJN+=1
-    if !LJN! leq 10 echo     %%l
-  )
-  if !LJN! gtr 10 echo     ... e mais arquivos ^(sao !LJN! no total^)
-  endlocal
-  echo   ^(para voltar a atualizar: guarde ou desfaca essas mudancas no git^)
-  del "%TEMP%\lj-git-status.txt" >nul 2>nul
-  goto :depois_update
-)
-del "%TEMP%\lj-git-status.txt" >nul 2>nul
 echo Procurando atualizacao...
 git fetch --quiet origin
 if errorlevel 1 (
@@ -83,22 +60,122 @@ echo.
 echo Existem %ATRAS% atualizacao^(oes^) nova^(s^):
 git --no-pager log --oneline --no-decorate -n 5 HEAD..origin/main
 echo.
+
+REM --- A pasta dos mundos salvos e intocavel, e isso e CONFERIDO ---
+REM "mundos\" esta no .gitignore e nenhum arquivo dela e rastreado, entao a
+REM atualizacao nao a alcanca - os mundos que viajam no repo sao os MODELOS de
+REM aula, em "cenarios\". A conferencia existe porque o dia em que alguem
+REM versionar um .ljw de turma por engano, o professor tem de ser avisado ANTES
+REM de a turma perder o que construiu. Padrao = NAO sobrescrever.
+git diff --name-only HEAD...origin/main -- mundos/ > "%TEMP%\lj-mundos.txt" 2>nul
+set "MUNDOSZ=0"
+for %%s in ("%TEMP%\lj-mundos.txt") do set "MUNDOSZ=%%~zs"
+if "%MUNDOSZ%"=="0" goto :mundos_intactos
+echo ATENCAO: esta atualizacao MEXE na pasta dos mundos salvos ^(mundos\^):
+setlocal enabledelayedexpansion
+set /a LJM=0
+for /f "usebackq delims=" %%l in ("%TEMP%\lj-mundos.txt") do (
+  set /a LJM+=1
+  if !LJM! leq 10 echo     %%l
+)
+if !LJM! gtr 10 echo     ... e mais arquivos ^(sao !LJM! no total^)
+endlocal
+del "%TEMP%\lj-mundos.txt" >nul 2>nul
+echo   Os mundos que a sua turma construiu podem ser SOBRESCRITOS.
+set "SOBR="
+set /p "SOBR=  Sobrescrever os mundos salvos? [s/N] (Enter = nao): "
+if /i "%SOBR%"=="s" goto :mundos_sobrescrever
+if /i "%SOBR%"=="sim" goto :mundos_sobrescrever
+echo   ^(mantendo os mundos salvos - atualizacao cancelada^)
+goto :depois_update
+:mundos_sobrescrever
+echo   ^(ok - a atualizacao vai sobrescrever mundos\^)
+goto :perguntar_update
+:mundos_intactos
+del "%TEMP%\lj-mundos.txt" >nul 2>nul
+echo ^(seus mundos salvos em mundos\ nao sao tocados pela atualizacao^)
+:perguntar_update
+echo.
 set "UPD="
 set /p "UPD=Atualizar agora? [S/n] (Enter = sim): "
 if /i "%UPD%"=="n" (
   echo ^(mantendo a versao atual^)
   goto :depois_update
 )
+
 REM --ff-only: nunca cria commit de merge na maquina da escola. Se nao der
-REM fast-forward, algo divergiu - avisa e segue jogando com o que ja funciona.
-git merge --ff-only origin/main
-if errorlevel 1 (
-  echo.
-  echo NAO foi possivel atualizar automaticamente ^(a copia local divergiu^).
-  echo Seguindo com a versao instalada.
+REM fast-forward, avisa e segue jogando com o que ja funciona.
+git merge --ff-only origin/main >nul 2>nul
+if not errorlevel 1 goto :update_ok
+
+REM O merge recusou. A causa comum NAO e divergencia: e arquivo rastreado
+REM modificado aqui que a atualizacao tambem mexe (no Windows o suspeito comum
+REM e fim-de-linha CRLF sujando o repo inteiro, entao a lista para em 10).
+REM O "del" do arquivo temporario vem DEPOIS do uso: ele ja foi apagado antes
+REM de dar pra ler uma vez (bug-567).
+git status --porcelain --untracked-files=no > "%TEMP%\lj-git-status.txt" 2>nul
+set "SUJO=0"
+for %%s in ("%TEMP%\lj-git-status.txt") do set "SUJO=%%~zs"
+if "%SUJO%"=="0" goto :update_divergiu
+echo.
+echo NAO foi possivel atualizar: ha arquivo^(s^) alterado^(s^) nesta maquina
+echo que a atualizacao tambem mexe:
+setlocal enabledelayedexpansion
+set /a LJN=0
+for /f "usebackq delims=" %%l in ("%TEMP%\lj-git-status.txt") do (
+  set /a LJN+=1
+  if !LJN! leq 10 echo     %%l
+)
+if !LJN! gtr 10 echo     ... e mais arquivos ^(sao !LJN! no total^)
+endlocal
+del "%TEMP%\lj-git-status.txt" >nul 2>nul
+echo.
+set "GUARDAR="
+set /p "GUARDAR=  Guardar essas mudancas e atualizar mesmo assim? [S/n] (Enter = sim): "
+if /i "%GUARDAR%"=="n" (
+  echo   ^(mantendo a versao atual - nada foi mexido^)
   goto :depois_update
 )
-echo Atualizado. Conferindo as dependencias...
+REM "git stash push" GUARDA, nao apaga. Sem --include-untracked de proposito:
+REM arquivo solto na pasta (um .ljw exportado, por exemplo) fica onde esta.
+git stash push --quiet -m "lj-auto"
+if errorlevel 1 (
+  echo   ^(nao deu para guardar as mudancas - seguindo com a versao instalada^)
+  goto :depois_update
+)
+echo   Guardado no git ^(stash "lj-auto"^).
+REM 2^>nul: no fracasso o git manda rodar "git rebase"/"git merge --no-ff", e
+REM essa nao e conversa pra ter com o professor no comeco da aula.
+git merge --ff-only origin/main 2>nul
+if errorlevel 1 goto :update_stash_falhou
+echo Atualizado.
+REM Sem "stash pop" automatico: se o pop conflitar, a pasta fica em conflito no
+REM meio da aula. Guardado e reversivel; conflito na hora da aula, nao.
+echo   As suas mudancas NAO foram perdidas: ficaram guardadas no git.
+echo   Para trazer de volta:            git stash pop
+echo   Para so ver o que foi guardado:  git stash list
+goto :update_deps
+
+:update_stash_falhou
+echo.
+echo Mesmo assim NAO deu para atualizar ^(a copia local divergiu^).
+echo Devolvendo as suas mudancas...
+git stash pop
+if errorlevel 1 echo   ^(as mudancas seguem guardadas - recupere com: git stash pop^)
+echo Seguindo com a versao instalada.
+goto :depois_update
+
+:update_divergiu
+del "%TEMP%\lj-git-status.txt" >nul 2>nul
+echo.
+echo NAO foi possivel atualizar automaticamente ^(a copia local divergiu^).
+echo Seguindo com a versao instalada.
+goto :depois_update
+
+:update_ok
+echo Atualizado.
+:update_deps
+echo Conferindo as dependencias...
 call npm install
 if errorlevel 1 echo ^(aviso: npm install falhou - se o servidor nao subir, rode "npm install" a mao^)
 :depois_update
