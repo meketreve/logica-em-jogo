@@ -11,6 +11,12 @@ export class RegionRenderer {
   private readonly group = new THREE.Group();
   private readonly cornerMarks: THREE.LineSegments[] = [];
   private boxes: THREE.LineSegments[] = [];
+  /** Caixas na MESMA ordem de `boxes` — a culagem por distância precisa dos
+   *  limites, e a `LineSegments` só guarda o centro. */
+  private bounds: NamedRegion[] = [];
+  /** Último pedido de culagem, reaplicado quando a lista troca (senão uma área
+   *  criada longe nasceria visível e só sumiria na próxima varredura). */
+  private culling: { px: number; pz: number; raio: number } | null = null;
 
   constructor(
     scene: THREE.Scene,
@@ -65,5 +71,34 @@ export class RegionRenderer {
       this.group.add(box);
       return box;
     });
+    this.bounds = regions;
+    if (this.culling) {
+      const { px, pz, raio } = this.culling;
+      this.cularPorDistancia(px, pz, raio);
+    }
+  }
+
+  /**
+   * Esconde as caixas cujo bloco mais próximo está a mais de `raio` blocos do
+   * jogador em x/z. Mundo com muitos claims desenhava TODOS os wireframes,
+   * inclusive os que ficam sobre coluna descarregada — linha flutuando no vazio
+   * e overdraw de graça. A régua é a MESMA do descarte de coluna: chebyshev em
+   * x/z (o raio de render é um QUADRADO de chunks, não um círculo), e a altura
+   * fica de fora porque o streaming também não corta por y.
+   *
+   * Quem NÃO chama isto continua desenhando tudo — é o caso das caixas de
+   * objetivo, que são alvo de navegação e precisam ser vistas de longe.
+   */
+  cularPorDistancia(px: number, pz: number, raio: number): void {
+    this.culling = { px, pz, raio };
+    for (let i = 0; i < this.boxes.length; i++) {
+      const box = this.boxes[i];
+      const r = this.bounds[i];
+      if (!box || !r) continue;
+      // `max` é bloco INCLUSIVO: a caixa vai até max+1 em coordenada de mundo
+      const dx = Math.max(r.min.x - px, 0, px - (r.max.x + 1));
+      const dz = Math.max(r.min.z - pz, 0, pz - (r.max.z + 1));
+      box.visible = Math.max(dx, dz) <= raio;
+    }
   }
 }

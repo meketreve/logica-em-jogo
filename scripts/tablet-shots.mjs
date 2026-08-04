@@ -323,6 +323,92 @@ await alvos("abas do inventário", ".inv-aba");
 await alvos("slots do inventário", ".inv-slot");
 await tirar("08-jogo-inventario");
 
+// ─── 2ª rodada mobile (2026-08-04): os painéis de AUTORIA ────────────────
+// A 1ª rodada (sessão 31) mediu menu, hotbar, chat e inventário e deixou o
+// `#painel` de fora — é o painel mais denso do jogo (selects de região, de
+// modelo, de bloco, formulários de objetivo) e o que o professor usa DURANTE
+// a aula, de pé, no tablet. Sem medida não há conserto.
+console.log("— painel de autoria (professor) —");
+await tecla("KeyE"); // fecha o inventário (um painel por vez)
+await espera(400);
+
+// O painel de mundo NOVO é quase vazio — sem região não há select de área, sem
+// objetivo não há linha de ↑/↓/✎/✕, e a medição diria "cabe" sobre nada. Semeia
+// pelo CHAT (mesmo caminho do professor de verdade) antes de abrir.
+const cmdChat = async (texto) => {
+  await tecla("Enter");
+  await espera(120);
+  await avaliar(`(() => {
+    const f = document.getElementById('chat-input');
+    f.value = ${JSON.stringify(texto)};
+    f.dispatchEvent(new KeyboardEvent('keydown', { code: 'Enter', key: 'Enter', bubbles: true }));
+  })()`);
+  await espera(250);
+};
+for (const c of [
+  "/regiao criar modelo ~ ~ ~ 40 40 40",
+  "/regiao criar area-da-turma ~ ~ ~ 48 48 48",
+  "/grupo criar 4",
+  "/objetivo add chegar area-da-turma Va ate a area marcada com a sua equipe",
+  "/objetivo add limpar modelo Deixe a area do modelo vazia",
+]) {
+  await cmdChat(c);
+}
+await avaliar(`document.getElementById('chat-input')
+  .dispatchEvent(new KeyboardEvent('keydown', { code: 'Escape', bubbles: true }))`);
+await espera(500);
+await tecla("KeyP");
+await espera(800);
+await medir("painel", "#painel");
+await alvos("botões do painel", "#painel button");
+await alvos("selects do painel", "#painel select");
+await alvos("campos do painel", "#painel input");
+// linha que ESTOURA a largura é o sintoma que a 1ª rodada corrigiu alargando:
+// `.painel-row` tem flex-wrap, então falta de largura vira altura — e altura
+// é o que falta em 600px.
+// ⚠️ NÃO comparar o `top` dos filhos: `.painel-row` centraliza verticalmente,
+// então um select de 40px ao lado de um rótulo de 24px já nasce com topos
+// diferentes SEM ter quebrado. A medida honesta é a ALTURA: linha que coube
+// numa faixa só tem a altura do seu filho mais alto.
+const linhasQuebradas = await avaliar(`(() => {
+  const rows = [...document.querySelectorAll('#painel .painel-row')].filter(e => e.offsetParent);
+  let quebradas = 0;
+  for (const r of rows) {
+    const filhos = [...r.children].filter(c => c.offsetParent);
+    if (filhos.length < 2) continue;
+    const maior = Math.max(...filhos.map(c => c.getBoundingClientRect().height));
+    if (r.getBoundingClientRect().height > maior + 6) quebradas++;
+  }
+  return { total: rows.length, quebradas };
+})()`);
+console.log(
+  `  ${"linhas que quebram".padEnd(22)} ${
+    linhasQuebradas.quebradas === 0
+      ? `✓ nenhuma de ${linhasQuebradas.total}`
+      : `${linhasQuebradas.quebradas} de ${linhasQuebradas.total} (cada uma come altura)`
+  }`,
+);
+await tirar("09-jogo-painel-autoria");
+
+console.log("— painel de jogadores (professor) —");
+const abriuJogadores = await avaliar(
+  `(() => {
+    const b = [...document.querySelectorAll('#painel button')]
+      .find(e => /jogador/i.test(e.textContent ?? ''));
+    if (!b) return false;
+    b.click();
+    return true;
+  })()`,
+);
+await espera(700);
+if (!abriuJogadores) {
+  console.log(`  ${"abrir".padEnd(22)} ✗ botão de jogadores não encontrado no painel`);
+} else {
+  await medir("jogadores", "#jogadores");
+  await alvos("botões de jogadores", "#jogadores button");
+  await tirar("10-jogo-painel-jogadores");
+}
+
 console.log("\n=== fim ===");
 console.log(`imagens em ${SAIDA}`);
 ws.close();

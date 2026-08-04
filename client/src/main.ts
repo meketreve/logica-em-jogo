@@ -2235,6 +2235,18 @@ function startGame(snap: Snapshot): void {
         }
         // §🔁 MESMA passada: coluna que DEVERIA estar aqui e não está
         varrerFaltando(pcx, pcz, now);
+        // 2026-08-04: wireframe de área reservada além do raio não é desenhado
+        // (ele ficaria sobre coluna descarregada). Custo O(nº de áreas), na
+        // MESMA varredura de 1×/s — a área só entra/sai no limite do render, e
+        // um segundo de atraso lá na ponta ninguém vê.
+        // Fica DENTRO do `if (mundoLazy)` de propósito: só o mundo procedural
+        // descarta coluna. Em mundo denso (P/M/G) o `trocarMundo` monta tudo e
+        // não existe "além do raio" — cular lá esconderia a borda de uma área
+        // cujo terreno está na tela. O que sai do campo de visão em qualquer
+        // mundo já é cortado pelo frustum do three.js, de graça.
+        const raioBlocos = settings.raioRender * 16;
+        claimRenderer.cularPorDistancia(player.pos.x, player.pos.z, raioBlocos);
+        regionRenderer.cularPorDistancia(player.pos.x, player.pos.z, raioBlocos);
       }
       // §🕐 a tela de carga só sai com o raio inicial INTEIRO aplicado E a fila
       // do mesher vazia — entrar antes é cair num mundo cheio de buracos

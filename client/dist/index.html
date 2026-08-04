@@ -827,9 +827,14 @@
           width: min(680px, 92vw);
         }
         /* mesma troca no inventário: mais largura = as 6 abas numa linha só e
-           mais colunas de bloco, devolvendo altura que em 600px é escassa.
-           Os painéis de autoria (#painel) ficam de fora desta rodada. */
-        #inventario {
+           mais colunas de bloco, devolvendo altura que em 600px é escassa. */
+        #inventario,
+        /* 2ª rodada (2026-08-04): os painéis de autoria entraram. O #painel é o
+           mais denso do jogo — cada `.painel-row` é rótulo + select largo (ou
+           campo + botão), e com flex-wrap a falta de largura vira ALTURA, que é
+           exatamente o que falta em 600px. Alargar devolve linha por linha. */
+        #painel,
+        #jogadores {
           width: min(760px, 94vw);
         }
       }
@@ -847,6 +852,18 @@
         .inv-aba {
           min-height: 40px;
           padding: 8px 12px !important;
+        }
+        /* 2ª rodada (2026-08-04): a regra acima cobria só os BOTÕES do painel.
+           Medido em 1024×600 com o painel populado: 7 selects de 28px e 5
+           campos de 26px — o professor erra o alvo justamente nos selects de
+           região, que é onde ele monta o objetivo. Os de `.menu-screen` já
+           tinham 42px; estes ficaram de fora desde a 1ª rodada. */
+        #painel input,
+        #painel select,
+        #jogadores input,
+        #jogadores select {
+          min-height: 40px;
+          padding: 6px 10px;
         }
         .menu-screen button {
           min-height: 46px;
@@ -916,7 +933,7 @@
         }
       }
     </style>
-    <script type="module" crossorigin src="/assets/index-ZRIhDu8b.js"></script>
+    <script type="module" crossorigin src="/assets/index-B6iYNEVy.js"></script>
   </head>
   <body>
     <div id="menu" class="hidden">
