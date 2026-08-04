@@ -6,7 +6,7 @@
 > (2026-07-25)` e `## Cerebrum arquivado (2026-07-28, sessão 32)`. Aqui fica só a REGRA
 > acionável; o Decision Log completo também está no history.md (aqui vai só o índice).
 > **Ao aprender algo novo, escrever a REGRA, não a história** — é isto que segura o orçamento.
-> Last updated: 2026-07-28
+> Last updated: 2026-08-04 (sessão 43)
 
 ## User Preferences
 
@@ -320,6 +320,47 @@
   **tocar-pra-fabricar** (a linha inteira é o botão), pelo mesmo motivo que a grade 3×3 foi
   descartada. "Falta N" sai em vermelho por `ingredientesDe` (have/need/falta por id).
 
+### §🍖 Sobrevivência (2026-08-04, F9 preset) e o painel de amigos
+
+- **"Preset de mundo" tem DOIS eixos, e misturá-los é o erro barato de cometer.** O
+  `WorldPreset` (normal/plano/cabines) decide BYTES; o §🍖 F9 decide como o mundo NASCE
+  JOGADO (modo + ciclo) e virou `SessionOptions.sobrevivencia`, não um quarto preset. Se
+  fosse membro do union, todo `preset === "normal"` espalhado pela geração (água, veto de
+  caverna no spawn) passaria a excluir a sobrevivência EM SILÊNCIO — e ainda fecharia a
+  porta pra sobrevivência em mundo plano. O token de fora ("sobrevivencia" no `LJ_PRESET`,
+  no select do menu) é traduzido num lugar só (`ehPresetSobrevivencia`, reusando o
+  `parseModo` pra aceitar acento). **Teste do eixo: os bytes do mundo têm de sair idênticos
+  com e sem o flag.**
+- **Preset de nascimento grava só o que DIFERE do padrão.** O F9 escreve `modoMundo` e
+  `cicloAtivo` e NÃO escreve `pvp: false` / confinamento, que já são o padrão: o save guarda
+  o diff, então gravá-los prenderia o mundo ao padrão de hoje em vez de segui-lo.
+- **Painel sobre comando revela o buraco do FEED, não do comando.** O `/amigos convidar`
+  funcionava havia sessões porque a resposta de chat bastava; com painel, o botão parecia
+  morto — o servidor mandava o `friends` novo pro CONVIDADO e não pra quem convidou, e é
+  ali que o time nasce (bug-568). **Ao promover um comando a painel, listar TODO MUNDO cujo
+  estado aquela ação muda e conferir se o feed chega em cada um** (aqui: quem convida, quem
+  é convidado, quem teve o convite descartado por um aceite alheio).
+- **O que a UI mostra pode precisar de estado que o comando nunca precisou:** o `friends` só
+  carregava os convites RECEBIDOS (é o que o `/amigos lista` imprime). O painel precisa dos
+  ENVIADOS pra dizer "aguardando", senão convidar não muda pixel nenhum. Campo novo entra
+  OPCIONAL e tolerante (host antigo → lista vazia).
+- **Painel novo = 8 grupos de seletor no `index.html`.** O CSS dos painéis é por ID
+  (`#painel, #inventario, #jogadores`), então um painel novo tem de entrar em CADA grupo
+  (moldura, h2, h3, button, hover, paisagem baixa, alvo coarse de button e de input) — o que
+  se esquece é o `@media (pointer: coarse)`, e aí o alvo de 40px não vale no tablet.
+- **Verificação de painel: medir os RÓTULOS DOS BOTÕES, nunca o `innerText` do painel** — o
+  rodapé de todo painel deste projeto cita os comandos equivalentes ("pelo chat também dá:
+  … /amigos expulsar nome"), então `includes("expulsar")` passa com a tela vazia (bug-569).
+  E clique de verificação vai por LINHA (`.jog-row` do fulano), não por rótulo: lista
+  ordenada por nome faz o primeiro botão ser de outra pessoa.
+- **Chrome sem sudo nesta máquina:** o binário está em `~/.cache/puppeteer/chrome/...` mas
+  as libs não; `apt-get download libnspr4 libnss3 libasound2t64` + `dpkg-deb -x` num prefixo
+  (`~/.local/chrome-libs`) + `LD_LIBRARY_PATH` no spawn resolve (receita do bug-564). O
+  `amigos-shot.mjs` já injeta esse prefixo sozinho quando ele existe.
+- **`npx openwolf scan` REGENERA o anatomy.md por baixo e ele ENCOLHE** (281 → 182 arquivos
+  aqui, −1204 linhas): o scan não vê tudo que o índice acumulou. Ao criar arquivo, editar
+  `anatomy.md` + `anatomy-index.json` À MÃO, e nunca aceitar um scan que apaga.
+
 ### Streaming de colunas (F2)
 
 - **Config de cliente que o SERVIDOR espelha tem de ser RE-ENVIADA quando muda** (e no
@@ -510,6 +551,10 @@
 
 ### Ferramentas e ambiente
 
+- **[2026-08-04, sessão 43] NÃO rodar `npx openwolf scan` pra "atualizar o anatomy".** Ele
+  reescreve o arquivo com o que ELE enxerga (182 arquivos contra os 281 indexados) e apaga
+  1204 linhas de descrição acumulada. `git checkout .wolf/anatomy.md .wolf/anatomy-index.json`
+  desfaz. Arquivo novo entra à mão nos dois (a entrada JSON aceita `symbols` opcional).
 - **[2026-08-04, sessão 42] A linha do diário TEM de começar com `| HH:MM |` de verdade.**
   Escrevi `| --:-- |` por não saber a hora e o hook do `stop` avisou "no semantic summary"
   mesmo com a linha lá: `countSemanticEntries` (`.wolf/hooks/shared.js:630`) casa

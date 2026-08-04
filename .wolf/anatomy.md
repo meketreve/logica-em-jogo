@@ -1,7 +1,7 @@
 # anatomy.md
 
 > Auto-maintained by OpenWolf. Last scanned: 2026-08-04T12:44:31.646Z
-> Files: 281 tracked | Anatomy hits: 0 | Misses: 0
+> Files: 284 tracked | Anatomy hits: 0 | Misses: 0
 
 ## ./
 
@@ -378,6 +378,9 @@
   - class `Panel` L41-226 (~1476 tok)
   - class `AuthorPanel` L227-610 (~3822 tok)
   - class `GroupPanel` L611-642 (~292 tok)
+- `friends.ts` — Painel de amigos (2026-08-04) — a interface do `/amigos`, para TODO jogador: convites recebidos, o grupo (N/6, expulsar, sair) e a lista de quem convidar. Puro consumo do feed `friends`; cada botão compõe um `/amigos ...` (~2104 tok)
+  - section `FriendsData` L18-31
+  - class `FriendsPanel` L33-240
 - `players.ts` — Painel de jogadores (2026-07-21) — SÓ para o professor. Mesma estrutura do (~1668 tok)
   - section `PlayersData` L10-16 (~45 tok)
   - class `PlayersPanel` L17-187 (~1507 tok)
@@ -593,6 +596,7 @@
   - fn `fotografar` L78-85 (~108 tok)
   - fn `dizer` L86-120 (~406 tok)
   - fn `clicarNoBotao` L121-172 (~611 tok)
+- `amigos-shot.mjs` — Print + medição do PAINEL DE AMIGOS (2026-08-04): sobe um host Node de verdade, põe duas alunas ws na sala e fotografa os dois estados do painel (convite recebido / dona de um grupo), medindo o alvo de toque. `npm run shots:amigos` (~2800 tok)
 - `craft-shot.mjs` — Print do painel de CRAFT (§🍖 F5) — inspeção visual do gesto tocar-pra-fabricar (~1536 tok)
   - fn `acharChrome` L30-45 (~171 tok)
   - fn `espera` L46-52 (~107 tok)
@@ -670,6 +674,7 @@
   - fn `cliente` L19-32 (~153 tok)
   - fn `espera` L33-33 (~18 tok)
   - fn `enviar` L34-84 (~506 tok)
+- `_smoke-preset.mjs` — Smoke do §🍖 F9 (preset de mundo de sobrevivência) contra o servidor REAL: `LJ_PRESET=sobrevivencia` faz o mundo nascer jogado (modo + mochila + ciclo andando) sem ninguém digitar comando (~833 tok)
 - `_smoke-comida.mjs` — Smoke do §🍖 F6 (comida) contra o servidor REAL. Prova pelo fio o que o teste (~2081 tok)
   - fn `ok` L18-21 (~29 tok)
   - fn `espera` L22-36 (~136 tok)

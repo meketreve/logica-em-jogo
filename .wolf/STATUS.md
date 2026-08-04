@@ -1,6 +1,52 @@
 # STATUS — Projeto "Lógica em Jogo" (jogo voxel educacional)
 
 > Single source of truth for resuming work. Read this FIRST when starting a session.
+> **SESSÃO 43 (2026-08-04) — AS DUAS FRENTES QUE O USUÁRIO ESCOLHEU: §🍖 F9 (PRESET DE
+> SOBREVIVÊNCIA) E O PAINEL DE AMIGOS.** Perguntado onde parávamos, ele respondeu "f9 e
+> interface do /amigos" — e as duas fecharam nesta sessão.
+>
+> **§🍖 F9 — o preset NÃO virou um quarto `WorldPreset`, e essa é a decisão do dia.** O
+> ROADMAP dizia `LJ_PRESET=sobrevivencia` ao lado de `plano|cabines`, mas terreno e partida
+> são eixos DIFERENTES: se "sobrevivencia" entrasse no union, todo `preset === "normal"`
+> espalhado pela geração (a água, o veto de boca de caverna no spawn) passaria a excluir a
+> sobrevivência **em silêncio**, e ainda ficaria impossível querer sobrevivência em mundo
+> plano. Virou `SessionOptions.sobrevivencia`, ortogonal, com um teste que prova que **os
+> bytes do mundo saem idênticos com e sem o flag**. O token de fora é traduzido num lugar só
+> (`ehPresetSobrevivencia`, reusando o `parseModo` — aceita "sobrevivência" com acento).
+>
+> **O que ele faz é o que o professor teria de digitar na frente da turma:** `modo
+> sobrevivencia` no mundo + **ciclo dia/noite ligado** (sem noite, sobreviver não significa
+> nada). **O que ele deliberadamente NÃO grava: pvp e confinamento** — já nascem no valor
+> certo pelos próprios padrões, e o save guarda só o DIFF; escrevê-los prenderia o mundo ao
+> padrão de hoje. Mundo de AULA continua vencendo o preset (criativo, ponto), e `restore`
+> ignora (o .ljw traz o que gravou). Três hospedeiros: `LJ_PRESET=sobrevivencia` (atalho de
+> uma variável) **ou** `LJ_SOBREVIVENCIA=1`, que COMPÕE com terreno plano · `sobrevivencia`
+> no init do worker · e um select **"como jogar"** no formulário de mundo novo do menu.
+>
+> **§👥 PAINEL DE AMIGOS — e o buraco que só o painel revelou.** `client/src/friends.ts`
+> (`FriendsPanel`, molde do `players.ts`, root `#amigos`), tecla **G** nova, e uma dica no
+> chat quando a proteção de áreas LIGA (a única hora em que "quem pode construir na minha
+> área" vira pergunta). Nenhuma função nova, como pedido: convites recebidos com
+> aceitar/recusar · o grupo com **N/6**, expulsar (só dono) e "sair e DESFAZER o grupo"
+> armado em 2 cliques · a lista de quem convidar, montada de quem está online.
+> **bug-568:** `/amigos convidar` mandava o feed `friends` só pro CONVIDADO — e é ali que o
+> time NASCE, com quem convidou dentro. Com comando de chat ninguém notava (a resposta
+> textual bastava); com painel, o botão parecia morto. Agora o feed volta pros dois, o
+> `recusar` avisa quem convidou, o `aceitar` avisa quem teve o convite descartado, e a
+> mensagem ganhou **`enviados`** (opcional, tolerante) pro "aguardando" existir na tela.
+>
+> **A verificação é a lição de sempre, de novo (bug-569):** a 1ª rodada do
+> `npm run shots:amigos` deu ✓ em "a dona pode expulsar" **com o grupo vazio** — o
+> `innerText` do painel contém a DICA do rodapé, que cita `/amigos expulsar nome`; e o
+> clique por rótulo pegou a linha da bia em vez da do caio, porque a lista é ordenada por
+> nome. Asserção passou a ler os RÓTULOS DOS BOTÕES e o clique vai por LINHA.
+>
+> **VERDE:** typecheck 3/3 · **578 testes** (+13) · build · **13/13 smokes** (o `preset` é
+> novo, rodado 2× pra idempotência) · `npm run shots:amigos` com 13 asserções e **2 prints
+> conferidos** (convite recebido / dona de grupo 2/6), menor alvo de toque do painel = 40px.
+> ⚠️ **No TOQUE o painel de amigos não tem como abrir** (não há tecla no tablet) — entra
+> junto com a revisão da barra de 6 botões, que segue no TODO. **PLAYTEST PENDENTE.**
+>
 > **SESSÃO 42 (2026-08-04) — SESSÃO CURTA, FORA DO JOGO: O LAUNCHER PARAVA DE PROCURAR
 > ATUALIZAÇÃO EM SILÊNCIO.** O pedido foi conferir se `iniciar-servidor.sh/.bat` busca versão
 > nova antes de subir o servidor — "está aparecendo uma mensagem que a atualização não está
@@ -846,27 +892,22 @@ Documento é o ÚLTIMO entregável, não o primeiro. Construir, não documentar.
 
 ---
 
-## 🚀 Próxima fase — a escolher (o usuário PULOU o F7)
+## 🚀 Próxima fase — a escolher (F9 e o painel de amigos saíram na 43)
 
-⚠️ **Sessão 41: perguntado "qual o próximo?", o usuário respondeu "vamos pular o pvp".** O F7
-NÃO foi cancelado — saiu da frente da fila. As opções apresentadas e o que sobrou:
+⚠️ **A sessão 43 consumiu as duas frentes que o usuário escolheu** ("f9 e interface do
+/amigos"). O que sobra na fila:
 
 | frente | custo | estado |
 |---|---|---|
-| **§🍖 F9 preset `sobrevivencia`** | ~0,5 sessão | Não depende do F8 (mobs entram numa linha). Era a minha recomendação |
+| **PLAYTEST** | do usuário, na escola | F1..F6 + a corrida + F9 + o painel de amigos, acumulados. **É o mais valioso agora** |
+| **📱 barra de toque (6 botões)** | ~0,5 sessão | Já anotada no TODO — e agora ela carrega TAMBÉM o acesso ao painel de amigos no tablet |
+| **§🍖 F7 `/pvp`** | ~0,5 sessão | Pulado pelo usuário na 41, detalhe preservado logo abaixo |
 | **§🍖 F8 mobs** | 3+ sessões | Fora do lite, com o aviso de GPU do lab |
-| **Dívida de UI** | — | ✅ FEITA nesta sessão (borda de claim + 2ª rodada mobile) |
-| **PLAYTEST** | do usuário, na escola | F1..F6 + a corrida, acumulados |
-| **§🍖 F7 `/pvp`** | ~0,5 sessão | Pulado, detalhe preservado logo abaixo |
+| **§🍖 F9 preset** | — | ✅ FEITO na sessão 43 |
+| **👥 painel de amigos** | — | ✅ FEITO na sessão 43 |
 
-**A sessão 42 não consumiu nenhuma dessas frentes** (foi o launcher, fora do jogo): a escolha
-segue aberta, com o F9 preset como recomendação e o PLAYTEST acumulado como o mais valioso.
-
-**As 3 anotações que o usuário pediu nesta sessão estão no `TODO.md ⏭️ Next`**, prontas pra
-virar quest: **interface do `/amigos`** (a mensagem `friends` já chega e é DESCARTADA no
-`main.ts:661` — o painel é puro consumo, sem função nova) e **a barra de toque com 6 botões**
-(varinha/tela cheia/hud pro menu, com o cuidado de a varinha precisar de sinal VISÍVEL porque
-ela troca o significado de ⛏/▣).
+**A recomendação é o PLAYTEST** — são 7 frentes de jogo entregues sem um dedo humano nelas.
+Se for pra codar, a barra de toque é a mais barata E destrava o painel de amigos no tablet.
 
 ### §🍖 F7 — `/pvp` (pulado na sessão 41, detalhe preservado)
 
@@ -892,6 +933,25 @@ registro desde o F1 (padrão DESLIGADA, já grava no `.ljw`, já aparece no `/re
 
 **Depois do F7:** F8 mobs (fora do lite, ~3+ sessões, com o aviso de desempenho do lab) → F9
 preset `sobrevivencia`. Escopo item a item em `.wolf/ROADMAP.md §🍖`.
+
+### §🍖 F9 e o painel de amigos — o que ficou aberto (sessão 43)
+
+- **O painel de amigos não abre no TOQUE.** Ele nasceu com tecla (G) e sem botão; o tablet
+  não tem teclado. O lugar certo é a revisão da barra de 6 botões (TODO), que já vai mexer
+  ali — não adianta empilhar um 7º botão numa barra que já está cheia demais.
+- **A lista de "convidar" mostra quem está ONLINE, sem saber quem já tem grupo** — o feed
+  `friends` só carrega o MEU grupo, e quem sabe dos outros é o servidor, que recusa com
+  mensagem no chat. Mudar isso pediria um broadcast de "quem está em grupo", que é estado de
+  todo mundo por causa de um rótulo. Deixado assim de propósito.
+- **Não há como CANCELAR um convite enviado** — o comando não tem esse subcomando, e o
+  escopo era "nenhuma função nova". Se o playtest pedir, é um `case cancelar` no `runAmigos`
+  + um botão na linha do "aguardando".
+- **Presença vem do `player_moved`**, então quem entrou e ficou parado só aparece na lista de
+  convidar quando o cliente dele mandar o primeiro `move` (décimos de segundo na prática).
+- **F9: mobs on ficou de fora** porque o F8 não existe. Quando existir, é uma linha no mesmo
+  `if (opts.sobrevivencia)`.
+- **F9 não tem botão no jogo:** trocar um mundo já criado continua sendo `/modo` + `/ciclo`.
+  O preset é escolha de NASCIMENTO, e é isso que o mantém barato (zero migração de save).
 
 ### §🍖 F6 — o que ficou aberto
 

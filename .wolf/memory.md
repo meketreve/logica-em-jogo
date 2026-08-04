@@ -1078,3 +1078,47 @@ passa pelo próprio portão) · 5 prints da pista. **PLAYTEST PENDENTE.**
 | 09:46 | bug-567: launcher pulava o `git fetch` em silêncio — o guarda de sujeira dispara sempre nesta máquina (o hook do OpenWolf suja `.wolf/memory.md`, que é rastreado). A mensagem passou a LISTAR os arquivos sujos (teto de 10 + total) nos dois scripts | iniciar-servidor.sh, iniciar-servidor.bat, .wolf/buglog.json | verificado: `bash -n` + run real com stub de npm; bloco do .bat rodado no cmd.exe nos 2 ramos (3 e 13 arquivos) | ~9k |
 | 09:46 | Session end: 2 writes across 2 files (iniciar-servidor.sh, iniciar-servidor.bat) | 2 reads | ~4946 tok |
 | 09:52 | sessão 42 fechada: STATUS.md com o bloco da sessão (launcher/bug-567) + nota de que a fila do §🍖 não andou; cerebrum com a armadilha do `| --:-- |` no diário | .wolf/STATUS.md, .wolf/cerebrum.md | pronto pro /clear | ~3k |
+
+## Session: 2026-08-04 09:57
+
+| Time | Action | File(s) | Outcome | ~Tokens |
+|------|--------|---------|---------|--------|
+| 10:05 | Edited shared/src/modo.ts | modified nomeModo() | ~283 |
+| 10:05 | Edited shared/src/session.ts | modified NOVO() | ~127 |
+| 10:05 | Edited shared/src/session.ts | added 1 condition(s) | ~254 |
+| 10:05 | Edited server/src/worker.ts | modified startSession() | ~45 |
+| 10:05 | Edited server/src/worker.ts | 7→9 lines | ~67 |
+| 10:06 | Edited server/src/worker.ts | modified if() | ~161 |
+| 10:06 | Edited server/src/index.ts | modified NOVO() | ~200 |
+| 10:06 | Edited server/src/index.ts | 4→5 lines | ~27 |
+| 10:06 | Edited client/src/connection.ts | modified init() | ~159 |
+| 10:07 | Edited client/index.html | expanded (+6 lines) | ~133 |
+| 10:07 | Edited client/src/menu.ts | modified NOVO() | ~111 |
+| 10:07 | Edited client/src/menu.ts | 3→4 lines | ~65 |
+| 10:08 | Edited client/src/menu.ts | 4→5 lines | ~28 |
+| 10:08 | Edited client/src/main.ts | 3→5 lines | ~52 |
+| 10:09 | Edited shared/src/modo.test.ts | expanded (+8 lines) | ~39 |
+| 10:09 | Edited shared/src/modo.test.ts | 1→2 lines | ~24 |
+| 10:09 | Edited shared/src/modo.test.ts | 2→1 lines | ~23 |
+| 10:10 | Created server/src/cenarios/_smoke-preset.mjs | — | ~890 |
+| 10:11 | Edited server/src/cenarios/_smoke-preset.mjs | espera() → FALHOU() | ~44 |
+| 10:11 | Edited scripts/smoke.mjs | expanded (+23 lines) | ~244 |
+| 10:11 | Edited shared/src/modo.test.ts | modified for() | ~219 |
+| 10:11 | Edited shared/src/modo.test.ts | modified for() | ~16 |
+| 10:18 | Created client/src/friends.ts | — | ~2377 |
+| 10:18 | Edited shared/src/protocol.ts | modified respondeu() | ~189 |
+| 10:18 | Edited shared/src/protocol.ts | 1→6 lines | ~45 |
+| 10:18 | Edited shared/src/session.ts | added 1 condition(s) | ~295 |
+| 10:18 | Edited shared/src/session.ts | modified if() | ~139 |
+| 10:19 | Edited shared/src/session.ts | added 1 condition(s) | ~169 |
+| 10:19 | Edited shared/src/session.ts | added 1 condition(s) | ~154 |
+| 10:19 | Edited client/src/main.ts | added optional chaining | ~159 |
+| 10:20 | Edited client/src/main.ts | modified amigos() | ~143 |
+| 10:20 | Edited client/src/main.ts | added 1 condition(s) | ~102 |
+| 10:21 | Edited client/src/main.ts | 2→4 lines | ~47 |
+| 10:21 | Edited client/src/main.ts | added 1 condition(s) | ~68 |
+| 10:24 | Created scripts/amigos-shot.mjs | — | ~2528 |
+| 10:12 | §🍖 F9: preset de mundo de sobrevivência — `SessionOptions.sobrevivencia` (eixo à PARTE do WorldPreset), `LJ_PRESET=sobrevivencia`/`LJ_SOBREVIVENCIA=1`, init do worker e select "como jogar" no menu; mundo novo nasce em sobrevivência com o ciclo andando | shared/src/modo.ts, session.ts, server/src/index.ts, worker.ts, client/src/{connection,menu,main}.ts, client/index.html | typecheck 3/3 · 7 testes novos em modo.test.ts (inclusive: os bytes do mundo saem idênticos com e sem o flag) | ~14k |
+| 10:14 | smoke `preset` novo (13º): prova pelo fio que o mundo nasce jogado — modo sobrevivência sem comando, mochila autoritativa chegando, hora andando com ciclo ligado, pvp no padrão | scripts/smoke.mjs, server/src/cenarios/_smoke-preset.mjs | OK, rodado 2× pra idempotência | ~5k |
+| 10:22 | painel de amigos: `FriendsPanel` novo (root `#amigos`, tecla G), feed `friends` ganhou `enviados`, e o servidor passou a avisar QUEM CONVIDOU (bug-568 — o botão parecia morto) | client/src/friends.ts, main.ts, settings.ts, index.html, shared/src/{protocol,session}.ts | typecheck 3/3 · 578 testes (+13 na sessão) · 6 testes novos do feed em claims.test.ts | ~18k |
+| 10:30 | verificação do painel: `npm run shots:amigos` sobe host Node + 2 alunas ws e fotografa os 2 estados; bug-569 (asserção casava com a DICA do rodapé e o clique pegava a linha errada) | scripts/amigos-shot.mjs, package.json | 13 asserções verdes · 2 prints · menor alvo de toque 40px · 13/13 smokes | ~12k |

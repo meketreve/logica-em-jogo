@@ -2,18 +2,24 @@
 
 > Working checklist. **STATUS.md** = handoff ("why & where we are"); **TODO.md** = "what's left to do".
 > Keep items actionable and short. Check off with `[x]`; sweep done items into STATUS.md ✅ when a phase closes.
-> Last updated: 2026-08-04 (sessão 40 — §🍖 F6 comida + §🏁 mapa de corrida FEITOS: fruta da folha, plantação de 4
-> estágios, pão, e a fome voltou a MATAR. Próxima frente: F7 /pvp. Ver STATUS 🚀)
+> Last updated: 2026-08-04 (sessão 43 — §🍖 F9 preset de sobrevivência + PAINEL DE AMIGOS feitos.
+> Sobra na fila: F7 /pvp, F8 mobs, a barra de toque de 6 botões e o PLAYTEST acumulado. Ver STATUS 🚀)
 
 ---
 
 ## 🔥 Now (this session)
 
-<!-- Vazio: a sessão 40 fechou o §🍖 F6 (comida), o §🏁 mapa de corrida (aula7) e, de
-     tabela, os dois pendentes que sobravam — o capim flutuante (bug-558) e o print do
-     painel de craft do F5. Tudo varrido pro STATUS ✅ e commitado.
-     Próxima sessão: §🍖 F7 /pvp (~0,5 sessão) ou o PLAYTEST (que já acumula F1..F6 + a
-     corrida — ver 🏫). -->
+<!-- A sessão 43 fechou as DUAS frentes que o usuário escolheu: o §🍖 F9 (preset de mundo
+     de sobrevivência) e o painel de amigos. Sobra na fila: §🍖 F7 /pvp (~0,5 sessão),
+     §🍖 F8 mobs (3+ sessões), a barra de toque de 6 botões e o PLAYTEST acumulado (ver 🏫). -->
+
+- [x] **§🍖 F9 — PRESET DE MUNDO DE SOBREVIVÊNCIA** (sessão 43). `SessionOptions.sobrevivencia`
+      (eixo à PARTE do `WorldPreset`, que segue sendo só terreno): mundo NOVO nasce com
+      `modo sobrevivencia` e o ciclo dia/noite andando; pvp e confinamento ficam no padrão
+      de propósito (o save guarda só o diff). Três hospedeiros: `LJ_PRESET=sobrevivencia`
+      (atalho) ou `LJ_SOBREVIVENCIA=1` (compõe com terreno plano), `sobrevivencia` no init
+      do worker, e o select **"como jogar"** no formulário de mundo novo do menu.
+      Smoke `preset` novo (13/13).
 
 - [x] **§🏁 MAPA DE CORRIDA** (sessão 40, pedido do usuário) — `aula7-corrida.ljw`: 4 postos
       `chegar` em modo sequencial, pista em U com escada, vão com ponte, ziguezague e
@@ -104,28 +110,17 @@
       `width: min(580px, 94vw)` / `height: min(560px, 84vh)`; os botões internos já têm alvo
       de 40px, mas o layout não foi revisto. O caminho que funcionou no inventário foi
       ALARGAR em paisagem baixa, não quebrar linha.
-- [ ] **👥 PAINEL DE AMIGOS — a interface do `/amigos`** (pedido do usuário, 2026-08-04).
-      **Escopo: NENHUMA função nova — as mesmas do comando, apresentadas melhor.** É a "fase 2"
-      que o `main.ts:661` já anota em comentário desde o cp24: a mensagem `friends`
-      (`protocol.ts:228`, `equipe {dono, membros} | null` + `convites[]`) **já chega ao cliente
-      no join e a cada mudança, e hoje é DESCARTADA** — o ramo do `else if` está vazio, com o
-      feedback saindo só por chat do servidor. O painel é puro consumo desse estado.
-      **Os 6 subcomandos que a UI tem de cobrir** (`runAmigos` em `session.ts`, o `default`
-      lista todos): `convidar nome` · `aceitar [nome]` · `recusar [nome]` · `sair` ·
-      `expulsar nome` (só dono) · `lista`. Mapeamento natural: `lista` vira o corpo do painel
-      (nunca um comando), cada convite pendente vira uma linha com **aceitar/recusar**, cada
-      membro vira uma linha com **expulsar** quando eu sou o dono, e "sair" é um botão só, com
-      o aviso de que **dono saindo DISSOLVE o grupo** (o comando já faz isso, mas em texto
-      ninguém lê). `convidar` precisa de escolha de nome — o autocomplete de
-      `commands.ts:77` já sabe quem está na aula (`jogadoresConhecidos`), então é uma lista de
-      quem está online e ainda não tem grupo, não um campo de digitar.
-      **Molde:** `GroupPanel`/`AuthorPanel` em `panels.ts` (a `Panel` base já dá arraste, Esc,
-      alvo de 40px); o `PlayersPanel` do professor é o precedente mais próximo — recebe estado
-      do servidor e manda comando de volta. **Disciplina de sempre: a UI não decide** — cada
-      botão emite o `/amigos ...` correspondente e espera o `friends` novo voltar (nada de
-      mutar a lista local no clique). Limite `MAX_AMIGOS = 6` (dono + 5) tem de aparecer na
-      tela ("3/6"), senão o aluno só descobre o teto pela recusa. Nasce em `min(580px, 94vw)`
-      e entra junto na 2ª rodada mobile acima.
+- [x] **👥 PAINEL DE AMIGOS — a interface do `/amigos`** (sessão 43). `client/src/friends.ts`
+      (`FriendsPanel`, molde do `players.ts`, root `#amigos`), aberto pela tecla **G**
+      (`KeyAction` nova `amigos`) e por dica no chat quando a proteção de áreas LIGA.
+      Convites recebidos com aceitar/recusar · grupo com N/6, expulsar (só dono) e
+      "sair e DESFAZER o grupo" armado · lista de quem convidar, montada de quem está
+      online. **Sem função nova**, como pedido — mas apareceu o bug-568: quem CONVIDA não
+      recebia o feed `friends` de volta (e é nesse instante que o time nasce), então o
+      botão parecia não funcionar. Campo `enviados` novo na mensagem, pro "aguardando".
+      Verificado por `npm run shots:amigos` (2 prints + alvo de toque de 40px).
+      ⚠️ **O que ficou aberto:** no TOQUE não há como abrir (não há tecla) — entra junto
+      com a revisão da barra de 6 botões, logo abaixo.
 - [ ] **📱 A BARRA DE CIMA DO TOQUE TEM 6 BOTÕES E SÓ 3 SÃO DE JOGO** (pedido do usuário,
       2026-08-04, junto do painel de amigos). Hoje `#touch-topo` (`touch.ts:196`) enfileira
       **☰ menu · 🧱 blocos · 💬 chat · 🪄 varinha · ⛶ tela cheia · 📊 hud**. Os 3 últimos não

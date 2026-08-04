@@ -3801,6 +3801,46 @@
       "related_bugs": [],
       "occurrences": 1,
       "last_seen": "2026-08-04T00:00:00-03:00"
+    },
+    {
+      "id": "bug-568",
+      "timestamp": "2026-08-04T13:31:27.330668Z",
+      "error_message": "clicar em 'convidar' no painel de amigos não mudava nada na tela (o grupo nasce nesse instante, mas o feed `friends` não voltava pra quem convidou)",
+      "file": "shared/src/session.ts",
+      "root_cause": "`runAmigos case convidar` só chamava `sendFriends(idAlvo)` — o CONVIDADO recebia o feed novo, quem convidou não. Só que é ali que `this.amigos.set(me, membros)` CRIA o time (com o autor dentro), então o estado de quem convidou muda e ele nunca ficava sabendo. Mesma lacuna em `recusar` (o autor do convite continuava esperando) e em `aceitar` (os OUTROS que tinham convidado a mesma pessoa não eram avisados do descarte). Com o comando de chat ninguém notava, porque a resposta textual bastava; com PAINEL, o botão parecia não funcionar.",
+      "fix": "`sendFriends(clientId)` no fim do `convidar`; em `recusar`, chat + `sendFriends` pro dono do convite; em `aceitar`, `sendFriends` pra cada convite descartado. E campo novo `enviados: string[]` na mensagem `friends` (convites que EU mandei, varrendo `convitesAmigo`), parseado com tolerância — host antigo não manda e vira lista vazia.",
+      "tags": [
+        "amigos",
+        "protocolo",
+        "painel",
+        "cp24",
+        "friends",
+        "ui"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-08-04T13:31:27.330668Z"
+    },
+    {
+      "id": "bug-569",
+      "timestamp": "2026-08-04T13:31:27.330668Z",
+      "error_message": "amigos-shot: '✓ a dona pode expulsar quem entrou' passou com o grupo VAZIO (1/6) — asserção verde sobre estado errado",
+      "file": "scripts/amigos-shot.mjs",
+      "root_cause": "Duas medições mentiram ao mesmo tempo. (1) `innerText.includes('expulsar')` casava com a DICA do rodapé do painel ('pelo chat também dá: … /amigos expulsar nome'), que cita todos os subcomandos — a asserção passaria com o painel inteiro vazio. (2) o clique era por RÓTULO ('convidar'), e como a lista é ordenada por nome o primeiro botão era o da bia, não o do caio: o script convidou a pessoa errada e depois o `aceitar` do caio foi recusado.",
+      "fix": "Asserção sobre os RÓTULOS DOS BOTÕES (`[...querySelectorAll('#amigos button')].map(b => b.textContent)`), nunca sobre o texto do painel, que contém a dica; e clique por LINHA (`.jog-row` cujo `.jog-nome` começa com o nome) em vez de por rótulo. De quebra: a bia convidava a ana ANTES de a ana entrar, e o servidor recusa convite a quem nunca esteve na aula (`nomeConhecido`) — o convite tem de sair depois do join.",
+      "tags": [
+        "verificacao",
+        "headless",
+        "falso-positivo",
+        "amigos",
+        "cdp"
+      ],
+      "related_bugs": [
+        "bug-565",
+        "bug-566"
+      ],
+      "occurrences": 1,
+      "last_seen": "2026-08-04T13:31:27.330668Z"
     }
   ]
 }

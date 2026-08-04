@@ -2,7 +2,7 @@
   "version": 1,
   "meta": {
     "lastScanned": "2026-08-04T12:44:31.646Z",
-    "fileCount": 281,
+    "fileCount": 284,
     "hits": 0,
     "misses": 0,
     "renderedHash": "335f3e41d999f1c99710331aedb0d1862d139032d9d3095ab55e0e66a42831d9",
@@ -8360,6 +8360,49 @@
       "size": 452,
       "mtimeMs": 1784590204344.3562,
       "updatedAt": "2026-08-04T02:05:42.096Z",
+      "source": "scan"
+    },
+    "client/src/friends.ts": {
+      "description": "Painel de amigos (2026-08-04) — a interface do `/amigos`, para TODO jogador.",
+      "tokens": 2104,
+      "hash": "eb28710509eda48e",
+      "size": 8416,
+      "mtimeMs": 1785849501518.5542,
+      "updatedAt": "2026-08-04T13:30:04.881252Z",
+      "source": "scan",
+      "symbols": [
+        {
+          "name": "FriendsData",
+          "kind": "section",
+          "startLine": 18,
+          "endLine": 31,
+          "tokens": 150
+        },
+        {
+          "name": "FriendsPanel",
+          "kind": "class",
+          "startLine": 33,
+          "endLine": 240,
+          "tokens": 1900
+        }
+      ]
+    },
+    "scripts/amigos-shot.mjs": {
+      "description": "Print + medição do PAINEL DE AMIGOS (2026-08-04) — a interface do `/amigos`.",
+      "tokens": 2800,
+      "hash": "70ab0d65562a3e16",
+      "size": 11203,
+      "mtimeMs": 1785850078854.5544,
+      "updatedAt": "2026-08-04T13:30:04.881252Z",
+      "source": "scan"
+    },
+    "server/src/cenarios/_smoke-preset.mjs": {
+      "description": "Smoke do §🍖 F9 (preset de mundo de sobrevivência) contra o servidor REAL.",
+      "tokens": 833,
+      "hash": "fd0f39b354d97c95",
+      "size": 3333,
+      "mtimeMs": 1785849062806.5134,
+      "updatedAt": "2026-08-04T13:30:04.881252Z",
       "source": "scan"
     }
   }
