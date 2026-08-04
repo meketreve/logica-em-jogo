@@ -1,12 +1,12 @@
 {
   "version": 1,
   "meta": {
-    "lastScanned": "2026-08-04T18:23:53.768Z",
-    "fileCount": 284,
+    "lastScanned": "2026-08-04T20:56:03.178Z",
+    "fileCount": 285,
     "hits": 0,
     "misses": 0,
-    "renderedHash": "900fa8ca79400db1976e6619d37b08639d5f15fb971e2daff00cd819cc0e4f28",
-    "storeUpdatedAt": "2026-08-04T18:23:53.818Z"
+    "renderedHash": "a54b7f5348b958ce957bc671838a7377116d1f693c8efd0641a75d2bae51e98e",
+    "storeUpdatedAt": "2026-08-04T20:56:03.200Z"
   },
   "files": {
     ".claude/commands/reframe.md": {
@@ -2088,37 +2088,37 @@
     },
     "client/src/input.ts": {
       "description": "Teclado + mouse (pointer lock). SÓ coleta input — nenhuma decisão de",
-      "tokens": 1542,
-      "hash": "27699c56618b7afe",
-      "size": 5431,
-      "mtimeMs": 1784226590774.2207,
-      "updatedAt": "2026-08-04T02:05:41.973Z",
-      "source": "scan",
+      "tokens": 1777,
+      "hash": "1f715014fbbad016",
+      "size": 6270,
+      "mtimeMs": 1785872474258.5042,
+      "updatedAt": "2026-08-04T19:41:15.449Z",
+      "source": "hook",
       "symbols": [
         {
           "name": "Input",
           "kind": "class",
           "startLine": 5,
-          "endLine": 147,
-          "tokens": 1496
+          "endLine": 162,
+          "tokens": 1731
         }
       ]
     },
     "client/src/inventory.ts": {
       "description": "Inventário de blocos (cp16) — grade dos colocáveis + faixa da hotbar de 9",
-      "tokens": 4408,
-      "hash": "351e57e8e1ec598f",
-      "size": 15580,
-      "mtimeMs": 1785804687130.392,
-      "updatedAt": "2026-08-04T02:05:41.973Z",
-      "source": "scan",
+      "tokens": 4743,
+      "hash": "89cdee0ef5c9301f",
+      "size": 16776,
+      "mtimeMs": 1785873806478.5032,
+      "updatedAt": "2026-08-04T20:03:28.068Z",
+      "source": "hook",
       "symbols": [
         {
           "name": "InventoryPanel",
           "kind": "class",
           "startLine": 28,
-          "endLine": 442,
-          "tokens": 4089
+          "endLine": 464,
+          "tokens": 4423
         }
       ]
     },
@@ -2216,173 +2216,187 @@
     },
     "client/src/main.ts": {
       "description": "O cliente não tem filesystem: aprende os nomes das aulas pela resposta de",
-      "tokens": 30424,
-      "hash": "f137fdd4d8f2b6e5",
-      "size": 107908,
-      "mtimeMs": 1785846758042.5537,
-      "updatedAt": "2026-08-04T12:32:38.520Z",
+      "tokens": 31870,
+      "hash": "e05c2c26a42d16a4",
+      "size": 113048,
+      "mtimeMs": 1785873886526.5042,
+      "updatedAt": "2026-08-04T20:04:48.082Z",
       "source": "hook",
       "symbols": [
         {
           "name": "cachearMundos",
           "kind": "fn",
-          "startLine": 112,
-          "endLine": 203,
-          "tokens": 1177
+          "startLine": 113,
+          "endLine": 208,
+          "tokens": 1256
         },
         {
           "name": "applySettings",
           "kind": "fn",
-          "startLine": 204,
-          "endLine": 259,
-          "tokens": 847
+          "startLine": 209,
+          "endLine": 273,
+          "tokens": 960
         },
         {
           "name": "showOverlayMain",
           "kind": "fn",
-          "startLine": 260,
-          "endLine": 264,
+          "startLine": 274,
+          "endLine": 278,
           "tokens": 35
         },
         {
           "name": "updateOverlay",
           "kind": "fn",
-          "startLine": 265,
-          "endLine": 284,
-          "tokens": 317
+          "startLine": 279,
+          "endLine": 301,
+          "tokens": 330
         },
         {
           "name": "startPlay",
           "kind": "fn",
-          "startLine": 285,
-          "endLine": 295,
+          "startLine": 302,
+          "endLine": 312,
           "tokens": 83
         },
         {
           "name": "onSettingsChanged",
           "kind": "fn",
-          "startLine": 296,
-          "endLine": 317,
-          "tokens": 291
+          "startLine": 313,
+          "endLine": 334,
+          "tokens": 294
         },
         {
           "name": "enviarRaio",
           "kind": "fn",
-          "startLine": 318,
-          "endLine": 353,
-          "tokens": 486
+          "startLine": 335,
+          "endLine": 378,
+          "tokens": 589
         },
         {
           "name": "playerName",
           "kind": "fn",
-          "startLine": 354,
-          "endLine": 385,
-          "tokens": 348
+          "startLine": 379,
+          "endLine": 389,
+          "tokens": 187
+        },
+        {
+          "name": "abrirAmigosPorComando",
+          "kind": "fn",
+          "startLine": 390,
+          "endLine": 430,
+          "tokens": 425
         },
         {
           "name": "registrarChegadaDeRede",
           "kind": "fn",
-          "startLine": 386,
-          "endLine": 393,
+          "startLine": 431,
+          "endLine": 438,
           "tokens": 60
         },
         {
           "name": "jitterDeRede",
           "kind": "fn",
-          "startLine": 394,
-          "endLine": 433,
+          "startLine": 439,
+          "endLine": 478,
           "tokens": 518
         },
         {
           "name": "podeVoar",
           "kind": "fn",
-          "startLine": 434,
-          "endLine": 444,
+          "startLine": 479,
+          "endLine": 489,
           "tokens": 178
         },
         {
           "name": "vitals",
           "kind": "fn",
-          "startLine": 445,
-          "endLine": 519,
-          "tokens": 1076
+          "startLine": 490,
+          "endLine": 566,
+          "tokens": 1106
         },
         {
           "name": "pushPanelData",
           "kind": "fn",
-          "startLine": 520,
-          "endLine": 530,
-          "tokens": 94
+          "startLine": 567,
+          "endLine": 579,
+          "tokens": 139
+        },
+        {
+          "name": "pushFriendsData",
+          "kind": "fn",
+          "startLine": 580,
+          "endLine": 590,
+          "tokens": 95
         },
         {
           "name": "ownDone",
           "kind": "fn",
-          "startLine": 531,
-          "endLine": 539,
+          "startLine": 591,
+          "endLine": 599,
           "tokens": 90
         },
         {
           "name": "refreshObjectivesView",
           "kind": "fn",
-          "startLine": 540,
-          "endLine": 571,
+          "startLine": 600,
+          "endLine": 631,
           "tokens": 358
         },
         {
           "name": "drenarFilaTroca",
           "kind": "fn",
-          "startLine": 572,
-          "endLine": 579,
+          "startLine": 632,
+          "endLine": 639,
           "tokens": 79
         },
         {
           "name": "segurarAteATelaPintar",
           "kind": "fn",
-          "startLine": 580,
-          "endLine": 589,
+          "startLine": 640,
+          "endLine": 649,
           "tokens": 109
         },
         {
           "name": "handleServerData",
           "kind": "fn",
-          "startLine": 590,
-          "endLine": 783,
-          "tokens": 2436
+          "startLine": 650,
+          "endLine": 858,
+          "tokens": 2669
         },
         {
           "name": "connect",
           "kind": "fn",
-          "startLine": 784,
-          "endLine": 819,
+          "startLine": 859,
+          "endLine": 894,
           "tokens": 400
         },
         {
           "name": "startMultiplayer",
           "kind": "fn",
-          "startLine": 820,
-          "endLine": 837,
+          "startLine": 895,
+          "endLine": 912,
           "tokens": 224
         },
         {
           "name": "startSingleplayer",
           "kind": "fn",
-          "startLine": 838,
-          "endLine": 859,
-          "tokens": 249
+          "startLine": 913,
+          "endLine": 936,
+          "tokens": 284
         },
         {
           "name": "persistWorld",
           "kind": "fn",
-          "startLine": 860,
-          "endLine": 907,
+          "startLine": 937,
+          "endLine": 984,
           "tokens": 520
         },
         {
           "name": "startGame",
           "kind": "fn",
-          "startLine": 908,
-          "endLine": 2418,
-          "tokens": 19592
+          "startLine": 985,
+          "endLine": 2528,
+          "tokens": 20014
         }
       ]
     },
@@ -3291,12 +3305,12 @@
     },
     "package.json": {
       "description": "Node.js package manifest",
-      "tokens": 299,
-      "hash": "43ae789efcabc68c",
-      "size": 1044,
-      "mtimeMs": 1785808048074.3928,
-      "updatedAt": "2026-08-04T02:05:42.007Z",
-      "source": "scan"
+      "tokens": 328,
+      "hash": "40286da49cf20c5c",
+      "size": 1146,
+      "mtimeMs": 1785872974834.4998,
+      "updatedAt": "2026-08-04T19:49:35.667Z",
+      "source": "hook"
     },
     "profiles/perf-1784923796301-gius.json": {
       "description": "",
@@ -8404,6 +8418,122 @@
       "mtimeMs": 1785849062806.5134,
       "updatedAt": "2026-08-04T18:11:56.284Z",
       "source": "md-import"
+    },
+    "scripts/toque-shot.mjs": {
+      "description": "Os GESTOS da barra de toque, contra o servidor REAL (2026-08-04).",
+      "tokens": 4120,
+      "hash": "a0df9d2c745d18af",
+      "size": 15607,
+      "mtimeMs": 1785876962874.5151,
+      "updatedAt": "2026-08-04T20:56:03.178Z",
+      "source": "hook",
+      "symbols": [
+        {
+          "name": "espera",
+          "kind": "fn",
+          "startLine": 40,
+          "endLine": 42,
+          "tokens": 60
+        },
+        {
+          "name": "diga",
+          "kind": "fn",
+          "startLine": 43,
+          "endLine": 44,
+          "tokens": 15
+        },
+        {
+          "name": "acharChrome",
+          "kind": "fn",
+          "startLine": 45,
+          "endLine": 79,
+          "tokens": 332
+        },
+        {
+          "name": "esperaPorta",
+          "kind": "fn",
+          "startLine": 80,
+          "endLine": 92,
+          "tokens": 110
+        },
+        {
+          "name": "encerrar",
+          "kind": "fn",
+          "startLine": 93,
+          "endLine": 140,
+          "tokens": 422
+        },
+        {
+          "name": "abrirAba",
+          "kind": "fn",
+          "startLine": 141,
+          "endLine": 172,
+          "tokens": 339
+        },
+        {
+          "name": "cdp",
+          "kind": "fn",
+          "startLine": 173,
+          "endLine": 182,
+          "tokens": 113
+        },
+        {
+          "name": "avaliar",
+          "kind": "fn",
+          "startLine": 183,
+          "endLine": 184,
+          "tokens": 38
+        },
+        {
+          "name": "tecla",
+          "kind": "fn",
+          "startLine": 185,
+          "endLine": 189,
+          "tokens": 82
+        },
+        {
+          "name": "dizer",
+          "kind": "fn",
+          "startLine": 190,
+          "endLine": 202,
+          "tokens": 129
+        },
+        {
+          "name": "tocar",
+          "kind": "fn",
+          "startLine": 203,
+          "endLine": 209,
+          "tokens": 90
+        },
+        {
+          "name": "botaoDaBarra",
+          "kind": "fn",
+          "startLine": 210,
+          "endLine": 220,
+          "tokens": 174
+        },
+        {
+          "name": "estado",
+          "kind": "fn",
+          "startLine": 221,
+          "endLine": 229,
+          "tokens": 89
+        },
+        {
+          "name": "foto",
+          "kind": "fn",
+          "startLine": 230,
+          "endLine": 276,
+          "tokens": 424
+        },
+        {
+          "name": "ok",
+          "kind": "fn",
+          "startLine": 277,
+          "endLine": 404,
+          "tokens": 1468
+        }
+      ]
     }
   }
 }

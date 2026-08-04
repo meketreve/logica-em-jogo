@@ -1137,3 +1137,18 @@ passa pelo próprio portão) · 5 prints da pista. **PLAYTEST PENDENTE.**
 | 15:23 | Edited iniciar-servidor.bat | 3→5 lines | ~72 |
 | 15:35 | Launcher: fetch deixou de ser bloqueado por sujeira; sujeira vira `git stash push -m lj-auto` + merge (sem pop automático), e a pasta `mundos/` ganhou guarda CONDICIONAL (só pergunta se o update tocar nela, padrão NÃO sobrescrever) | iniciar-servidor.sh, iniciar-servidor.bat | 6 cenários com fixture git no `.sh` (A stash · B sujeira em outro arquivo atualiza direto · C/D guarda dos mundos nos dois ramos · E divergência · F recusa) + os 4 primeiros no cmd.exe real; controle negativo no repo (guarda não dispara). bug-571: os cenários do `.bat` davam verde só nas respostas vazias porque `chcp 65001` quebra `set /p` de stdin redirecionado | ~11000 |
 | 15:27 | Session end: 5 writes across 2 files (iniciar-servidor.sh, iniciar-servidor.bat) | 2 reads | ~8379 tok |
+| 16:38 | Edited client/src/main.ts | added 3 condition(s) | ~348 |
+| 16:41 | Edited client/src/input.ts | modified toque() | ~223 |
+| 16:41 | Edited client/src/input.ts | modified lock() | ~68 |
+| 16:49 | Created scripts/toque-shot.mjs | — | ~3225 |
+| 16:49 | Edited package.json | 1→2 lines | ~29 |
+| 17:03 | Edited client/src/inventory.ts | expanded (+12 lines) | ~217 |
+| 17:03 | Edited client/src/inventory.ts | expanded (+7 lines) | ~144 |
+| 17:03 | Edited client/src/inventory.ts | added 1 condition(s) | ~110 |
+| 17:04 | Edited client/src/main.ts | 2→6 lines | ~116 |
+| 17:52 | Edited scripts/toque-shot.mjs | expanded (+8 lines) | ~188 |
+| 17:54 | Edited scripts/toque-shot.mjs | 3→6 lines | ~92 |
+| 17:54 | Edited scripts/toque-shot.mjs | 1→5 lines | ~71 |
+| 17:55 | Edited scripts/toque-shot.mjs | added optional chaining | ~615 |
+| 17:56 | Edited scripts/toque-shot.mjs | 4→5 lines | ~70 |
+| 18:02 | Três defeitos de tablet: bug-572 (o ☰ zerava `input.touch` e o CLICK do mesmo toque atravessava o `#overlay` `pointer-events:none` até o canvas, que pedia pointer lock e fechava o menu com a barra junto) → campo `Input.touchDevice` (aparelho) separado do `touch` (modo); `/amigos` sem subcomando passou a ABRIR o painel pelo callback do ChatUi (única porta que serve no PC e no tablet); bug-573 (fabricar re-renderiza o painel e a `.craft-lista` nasce de novo, perdendo o `scrollTop`) → `scrollCraft` restaurado DEPOIS do append | client/src/input.ts, client/src/main.ts, client/src/inventory.ts, scripts/toque-shot.mjs, package.json | typecheck 3/3 · 578 testes · build · 13/13 smokes · `shots:toque` NOVO 15/15, com A/B honesto (sem os fixes: 5 asserções falham, rolagem 324→0; com eles: 15/15, 324→324) | ~46000 |

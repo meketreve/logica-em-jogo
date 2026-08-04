@@ -397,6 +397,19 @@
 
 ### Cliente: UI, input, câmera
 
+- **`input.touchDevice` (APARELHO) × `input.touch` (MODO).** O modo liga e desliga durante a
+  partida — o ☰ da barra o zera pra o menu de pausa aparecer, porque `updateOverlay` decide por
+  `input.active = locked || touch`. O aparelho é decidido uma vez no boot e **é ele que barra o
+  pointer lock**: sem essa separação, o click que sobra de um toque no ☰ atravessa o `#overlay`
+  (`pointer-events: none`, de propósito — "só o painel captura clique") e chega no canvas, que
+  pede lock e fecha o menu recém-aberto (bug-572). Qualquer botão novo que zere `input.touch`
+  cai na mesma armadilha.
+- **Painel que RE-RENDERIZA inteiro perde a rolagem e o foco.** `refresh()` → `render()` →
+  `replaceChildren()` recria os filhos, então `scrollTop` (e foco de campo) morrem com o
+  elemento velho. O `filtroCraft` já guardava o texto pelo mesmo motivo; o `scrollCraft` guarda
+  a rolagem (bug-573). **Restaurar `scrollTop` só funciona DEPOIS do append** — em elemento
+  fora do DOM não tem efeito.
+
 - **Painéis são AÇÚCAR sobre comandos de chat:** o botão COMPÕE um `/comando`. Validação 100%
   no servidor, zero protocolo novo. Painel nunca decide estado; re-renderiza por broadcast e
   adia enquanto um input DELE tem foco.
@@ -578,6 +591,25 @@
 
 ### Ferramentas e ambiente
 
+- **[2026-08-04, sessão 44] Gesto de TOQUE só se testa com `Input.dispatchTouchEvent` do CDP.**
+  O `dispatchEvent(new PointerEvent(...))` do `tablet-shots.mjs` dispara o handler e NÃO gera o
+  `click` de compatibilidade — e era o click que carregava o bug-572 (atravessa o `#overlay`
+  `pointer-events: none` e chega no canvas). Quem gera a sequência inteira é o Chrome.
+  Três armadilhas do harness, todas pagas nesta sessão: (1) **`cdp()` sem TETO trava mudo** —
+  a página trava sob swiftshader de vez em quando, a Promise fica pendente pra sempre e o
+  script parece estar trabalhando; (2) **stdout do node BUFFERIZA fora de TTY** — script morto
+  no meio não deixa rastro do que já mediu, use `process.stdout.write`; (3) **host `detached`
+  sobrevive ao `timeout`** e segura a porta na próxima rodada (`EADDRINUSE`). E o
+  `tablet-shots.mjs` **não roda nesta máquina**: falta o `LD_LIBRARY_PATH` do bug-564 que só o
+  `amigos-shot.mjs` tem.
+- **[2026-08-04, sessão 44] Pointer lock em headless é FLAKY — conte o PEDIDO, não a
+  concessão.** O mesmo build passou numa rodada e falhou na outra olhando
+  `document.pointerLockElement`. Monkey-patch em `HTMLCanvasElement.prototype.requestPointerLock`
+  contando chamadas é determinístico, e é exatamente o que o fix promete (o tablet nem pede).
+- **[2026-08-04, sessão 44] Visibilidade de elemento `position: fixed`: `checkVisibility()`.**
+  `#touch-topo` é fixed e quem o esconde é o PAI (`#touch-ui.hidden`); o computed style do
+  filho segue dizendo `flex` e `offsetParent` é null mesmo visível. As duas medidas ingênuas
+  mentem em direções opostas.
 - **[2026-08-04, sessão 44] Testar o `.bat` no cmd.exe: resposta vai por PIPE de um `.cmd`,
   NUNCA por `< arquivo`.** O `chcp 65001` da 1ª linha do `iniciar-servidor.bat` faz o `set /p`
   ler **VAZIO** de stdin redirecionado (provado com mini-repro A/B: sem `chcp` lê `s`, com

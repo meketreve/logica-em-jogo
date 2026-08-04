@@ -1,6 +1,60 @@
 # STATUS — Projeto "Lógica em Jogo" (jogo voxel educacional)
 
 > Single source of truth for resuming work. Read this FIRST when starting a session.
+> **SESSÃO 44 (cont.) — TRÊS DEFEITOS DE TABLET QUE SÓ O DEDO ACHARIA.** Depois do launcher, o
+> usuário reportou três coisas do jogo, todas de toque: o ☰ abria o menu e ele **fechava
+> sozinho levando a barra junto**; `/amigos` devia **abrir o painel** no PC e no tablet; e a
+> tela de craft **voltava ao topo** a cada peça fabricada.
+>
+> **bug-572 — o ☰, e a armadilha mora numa linha de CSS antiga.** O botão faz
+> `input.touch = false` pra o menu aparecer (`updateOverlay` decide por
+> `input.active = locked || touch`). Só que o CLICK do mesmo toque ainda está a caminho: quando
+> chega, o `#touch-ui` já sumiu, o hit-test cai no `#overlay` — que é **`pointer-events: none`
+> de propósito** ("só o painel captura clique") — e o evento ATRAVESSA até o canvas, cujo
+> handler `canvas.addEventListener("click", () => this.lock())` pede pointer lock. Com `touch`
+> recém-zerado, o guarda `if (this.touch || this.locked) return` **não barra mais**: o lock é
+> concedido, `input.active` volta a true e o menu recém-aberto some — com a barra escondida
+> junto. **Nem menu, nem barra: o aluno fica preso.** O `preventDefault()` do `tapButton` não
+> salva porque o alvo original saiu do hit-test antes do click. **Fix: `Input.touchDevice`
+> (APARELHO, decidido uma vez no boot) separado do `Input.touch` (MODO, que liga e desliga na
+> partida)** — em aparelho de dedo não existe pointer lock, nunca. Qualquer botão futuro que
+> zere `input.touch` cairia na mesma armadilha.
+>
+> **§👥 `/amigos` abre o painel, e é a ÚNICA porta que serve nos dois aparelhos.** A tecla G não
+> existe no tablet e o botão 👥 só aparece com a proteção de áreas ligada — em mundo livre não
+> havia caminho nenhum. Intercepta no cliente, no callback do `ChatUi`: `/amigos` **sem
+> subcomando** vira gesto (e o chat não recebe mais o texto de uso); **com** subcomando
+> (`/amigos convidar bia`) segue pro servidor como sempre. Antes do join também segue, e aí o
+> servidor responde "Entre no mundo primeiro".
+>
+> **bug-573 — a rolagem do craft.** Fabricar muda a mochila → `refresh()` → `render()` →
+> `replaceChildren()`, e a `.craft-lista` (quem tem o `overflow-y`) nasce de novo: o `scrollTop`
+> morre com o elemento velho. Doía **por clique**, porque quem fabrica repete a receita. O
+> `filtroCraft` já sobrevivia aos re-renders pelo mesmo motivo; agora o `scrollCraft` também.
+> **Restaurar `scrollTop` só funciona DEPOIS do append** — em elemento fora do DOM não tem
+> efeito. Filtrar zera de propósito (lista nova se lê do começo).
+>
+> **§🔬 `scripts/toque-shot.mjs` é NOVO (`npm run shots:toque`), e ele existe porque o
+> tablet-shots não conseguia ver este bug.** O tablet-shots MEDE geometria e sintetiza toque com
+> `dispatchEvent(new PointerEvent(...))`, que **não gera o `click` de compatibilidade** — e era
+> justamente o click que carregava o defeito. Aqui o toque vai por `Input.dispatchTouchEvent` do
+> CDP: quem monta a sequência inteira é o Chrome. O pedido de pointer lock é **CONTADO**
+> (monkey-patch no protótipo) porque a CONCESSÃO é flaky em headless — o mesmo build passou numa
+> rodada e falhou na outra.
+>
+> **VERDE:** typecheck 3/3 · **578 testes** · build · **13/13 smokes** · **`shots:toque` 15/15**,
+> com **A/B honesto**: com os três fixes fora, **5 asserções falham** (menu fechado,
+> `pedidos=2`, painel não abre, texto de uso no chat, rolagem **324 → 0**); com eles, 15/15 e
+> rolagem **324 → 324**. O print do "antes" mostra o sintoma inteiro: tela de jogo **sem menu e
+> sem barra**. **PLAYTEST PENDENTE — os três nasceram de dedo, e é o dedo que confirma.**
+>
+> ⚠️ **Três armadilhas de harness pagas nesta rodada, todas no cerebrum:** `cdp()` sem teto
+> trava MUDO (a página trava sob swiftshader e a Promise fica pendente pra sempre); o stdout do
+> node BUFFERIZA fora de TTY (script morto no meio não deixa rastro); e host `detached`
+> sobrevive ao `timeout` e segura a porta na rodada seguinte (`EADDRINUSE`). ⚠️ O
+> **`tablet-shots.mjs` não roda nesta máquina** — falta o `LD_LIBRARY_PATH` do bug-564, que só o
+> `amigos-shot.mjs` tinha (o `toque-shot.mjs` já nasceu com ele).
+>
 > **SESSÃO 44 (2026-08-04) — O LAUNCHER PAROU DE PULAR A ATUALIZAÇÃO (sessão curta, fora do
 > jogo).** A 42 tinha só melhorado a MENSAGEM do skip; o usuário voltou pedindo o
 > comportamento: *"permitir o fetch mesmo com mudanças nos arquivos, apenas deixe uma regra

@@ -3884,6 +3884,46 @@
       ],
       "occurrences": 1,
       "last_seen": "2026-08-04T18:24:00.000000Z"
+    },
+    {
+      "id": "bug-572",
+      "timestamp": "2026-08-04T20:58:00.000000Z",
+      "error_message": "usuário: 'o botão de menu no tablet abre o menu mas fecha sozinho e os comandos do tablet somem'",
+      "file": "client/src/input.ts",
+      "root_cause": "O ☰ da barra faz `input.touch = false` pra o menu de pausa aparecer (o `updateOverlay` decide por `input.active = locked || touch`). Só que o CLICK do mesmo toque ainda está a caminho: quando ele chega, o `#touch-ui` já está escondido, o hit-test cai no `#overlay` — que é `pointer-events: none` de propósito — e o evento ATRAVESSA até o canvas, cujo handler `canvas.addEventListener('click', () => this.lock())` pede pointer lock. Com `touch` recém-zerado, o guarda `if (this.touch || this.locked) return` não barra mais: o lock é concedido, `input.active` volta a ser true e o `updateOverlay` esconde o menu recém-aberto — deixando a barra escondida junto (`touch` continua false). Resultado: nem menu, nem barra. O `e.preventDefault()` do `tapButton` não salva porque o alvo original saiu do hit-test antes do click.",
+      "fix": "Campo `Input.touchDevice` (APARELHO, decidido uma vez no boot com `isTouchDevice()`) separado do `Input.touch` (MODO, que liga e desliga na partida). O `lock()` retorna cedo em `touchDevice`: em tablet não existe pointer lock, nunca. Coberto pelo `scripts/toque-shot.mjs` novo, que CONTA os pedidos de `requestPointerLock` (a concessão é flaky em headless) — A/B: antes pedidos=2 e menu fechado, depois pedidos=0 e menu aberto.",
+      "tags": [
+        "tablet",
+        "toque",
+        "menu-de-pausa",
+        "pointer-lock",
+        "click-through",
+        "pointer-events"
+      ],
+      "related_bugs": [
+        "bug-570"
+      ],
+      "occurrences": 1,
+      "last_seen": "2026-08-04T20:58:00.000000Z"
+    },
+    {
+      "id": "bug-573",
+      "timestamp": "2026-08-04T20:58:00.000000Z",
+      "error_message": "usuário: 'a tela de crafting no tablet reseta a rolagem depois de clicar em um item para craftar'",
+      "file": "client/src/inventory.ts",
+      "root_cause": "Fabricar muda a mochila; a mochila nova dispara `refresh()` → `render()` → `renderMochila()`, que faz `root.replaceChildren()` e chama `renderCraft()`. A `.craft-lista` (quem tem `overflow-y: auto`) é um elemento NOVO a cada vez, então o `scrollTop` morre com o antigo e a lista volta ao topo. Doía por clique, porque quem fabrica costuma repetir a mesma receita.",
+      "fix": "`scrollCraft` guarda a rolagem (como `filtroCraft` e `subaba` já sobreviviam aos re-renders), alimentado por um listener de `scroll` na lista; `listaCraft` guarda a lista da vez e a restauração acontece DEPOIS do `root.append` — `scrollTop` em elemento fora do DOM não tem efeito. Filtrar zera de propósito (lista nova se lê do começo). A/B no `shots:toque`: antes 324 → 0, depois 324 → 324.",
+      "tags": [
+        "tablet",
+        "craft",
+        "rolagem",
+        "re-render",
+        "scrolltop",
+        "inventario"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-08-04T20:58:00.000000Z"
     }
   ]
 }
