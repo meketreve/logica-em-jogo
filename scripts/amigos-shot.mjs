@@ -81,8 +81,12 @@ function encerrar(codigo) {
   } catch {
     /* já morreu */
   }
-  rmSync(join(process.cwd(), MUNDO), { recursive: true, force: true });
-  process.exit(codigo);
+  // o host GRAVA o mundo ao receber o SIGTERM: apagar na hora deixa a pasta
+  // renascer atrás do rm. Dá 1 s pro autosave fechar e só então limpa.
+  setTimeout(() => {
+    rmSync(join(process.cwd(), MUNDO), { recursive: true, force: true });
+    process.exit(codigo);
+  }, 1000);
 }
 // qualquer erro daqui pra frente mata o host junto — servidor de teste
 // esquecido no ar é o que a sessão 32 aprendeu a não deixar
