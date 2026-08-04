@@ -258,6 +258,7 @@ let benchRodando = false;
 let hudAtual: {
   setFase: (f: "carregando" | "jogando") => void;
   marcar: (evento: string, detalhe?: string) => void;
+  toggle: () => void;
 } | null = null;
 
 // --- Menu de pausa (Esc = pointer lock solto) ---
@@ -344,6 +345,14 @@ document.getElementById("overlay-config-btn")?.addEventListener("click", () => {
   if (body) buildConfigScreen(body, onSettingsChanged, showOverlayMain);
   overlayMain?.classList.add("hidden");
   overlayConfig?.classList.remove("hidden");
+});
+// 2026-08-04: os dois desceram da barra de toque (que ficou só com o que é de
+// jogo). Tela cheia exige gesto do usuário — o clique no botão É o gesto.
+document.getElementById("overlay-telacheia")?.addEventListener("click", () => {
+  solicitarTelaCheia();
+});
+document.getElementById("overlay-hud")?.addEventListener("click", () => {
+  hudAtual?.toggle();
 });
 overlay?.addEventListener("click", (e) => {
   const btn = e.target instanceof HTMLElement ? e.target.closest("button") : null;
@@ -1202,7 +1211,13 @@ function startGame(snap: Snapshot): void {
     regionRenderer.clearCorners(); // claim criado: os cantos-rascunho da varinha já eram
     // proteção desligada no meio do jogo: tira o aluno do modo varinha (senão a
     // tecla R fica travada — o guard não deixa reentrar sem proteção ligada)
-    if (!claimsAtivo && papel !== "professor" && varinhaAtiva) varinhaAtiva = false;
+    if (!claimsAtivo && papel !== "professor" && varinhaAtiva) {
+      varinhaAtiva = false;
+      touchControls?.setVarinha(false);
+    }
+    // barra de toque: varinha e amigos só aparecem quando servem
+    touchControls?.setVarinhaDisponivel(papel === "professor" || claimsAtivo);
+    touchControls?.setAmigosDisponivel(claimsAtivo);
     refreshHotbar(); // a dica da varinha muda conforme a proteção liga/desliga
   };
 
@@ -1674,6 +1689,7 @@ function startGame(snap: Snapshot): void {
   const toggleVarinha = (): void => {
     if (papel !== "professor" && !claimsAtivo) return;
     varinhaAtiva = !varinhaAtiva;
+    touchControls?.setVarinha(varinhaAtiva); // ⛏/▣ viram canto 1 / canto 2
     refreshHotbar();
   };
   input.onKey(settings.keys.varinha, toggleVarinha);
@@ -2077,7 +2093,16 @@ function startGame(snap: Snapshot): void {
       },
       hud: () => hud.toggle(),
       varinha: () => toggleVarinha(),
+      amigos: () => {
+        activePanel?.hide(); // um painel por vez na tela
+        inventoryPanel?.hide();
+        playersPanel?.hide();
+        friendsPanel?.toggle();
+      },
     });
+    // os dois botões condicionais nascem escondidos: aqui é o 1º estado real
+    touchControls.setVarinhaDisponivel(papel === "professor" || claimsAtivo);
+    touchControls.setAmigosDisponivel(claimsAtivo);
     touchControls.setScale(settings.uiScale); // aplica a escala salva de cara
     updateOverlay();
   }

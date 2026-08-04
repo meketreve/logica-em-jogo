@@ -30,6 +30,8 @@ export interface TouchActions {
   hud(): void;
   /** Liga/desliga a varinha (marcar cantos de região/claim sem a tecla R). */
   varinha(): void;
+  /** Abre/fecha o painel de amigos (sem a tecla G no tablet). */
+  amigos(): void;
 }
 
 /**
@@ -87,14 +89,35 @@ const CSS = `
 }
 .touch-btn small { font-size: calc(10px * var(--ts)); opacity: 0.85; }
 .touch-btn:active { background: rgba(255,255,255,0.25); }
-#touch-topo .touch-btn { width: auto; height: auto; padding: 6px 12px; font-size: 16px; flex-direction: row; gap: 6px; }
+/* botão LIGADO (a varinha): o estado tem de ser visível na barra, porque com
+   ela ligada o ⛏/▣ marcam CANTO 1/CANTO 2 em vez de quebrar e colocar */
+.touch-btn.ativo { background: rgba(255,215,94,0.35); border-color: #ffd75e; }
+/* alvo de dedo: a barra do topo abre mão do quadrado de 64px (ela é uma linha
+   de ícone + texto), mas NÃO do piso de 40px — medido em 1024×600, ela estava
+   em 30px, abaixo do mínimo que o resto da UI já respeita (2026-08-04) */
+#touch-topo .touch-btn { width: auto; height: auto; min-height: 40px; padding: 6px 12px; font-size: 16px; flex-direction: row; gap: 6px; }
 #touch-topo .touch-btn small { font-size: 12px; }
 `;
+
+/** Troca ícone e legenda de um botão já criado (mesma estrutura do makeButton:
+ *  um `<span>` com o ícone e um `<small>` com o nome). */
+function rotular(btn: HTMLButtonElement, icone: string, nome: string): void {
+  const ico = btn.querySelector("span");
+  const label = btn.querySelector("small");
+  if (ico) ico.textContent = icone;
+  if (label) label.textContent = nome;
+}
 
 export class TouchControls {
   private readonly root: HTMLDivElement;
   /** Teclas que o joystick/pular ligaram — pra soltar TODAS ao esconder. */
   private readonly heldKeys = new Set<string>();
+  /** Botões que mudam de estado depois de criados (varinha ligada, proteção de
+   *  áreas ligada) — guardados pra não varrer o DOM a cada mudança. */
+  private btnVarinha: HTMLButtonElement | null = null;
+  private btnAmigos: HTMLButtonElement | null = null;
+  private btnQuebrar: HTMLButtonElement | null = null;
+  private btnColocar: HTMLButtonElement | null = null;
   private joyPointer: number | null = null;
   private lookPointer: number | null = null;
   private lookX = 0;
@@ -189,11 +212,15 @@ export class TouchControls {
       // agachar (2026-07-21): segura = mesma tecla do Shift (andando não cai da
       // borda; voando DESCE). Segurar, como o pular.
       this.holdButton("⤓", "agachar", () => this.actions.keys().agachar),
-      this.tapButton("⛏", "quebrar", () => this.actions.quebrar()),
-      this.tapButton("▣", "colocar", () => this.actions.colocar()),
+      (this.btnQuebrar = this.tapButton("⛏", "quebrar", () => this.actions.quebrar())),
+      (this.btnColocar = this.tapButton("▣", "colocar", () => this.actions.colocar())),
     );
 
-    // topo: menu (pausa), inventário, chat e tela cheia
+    // Topo: SÓ o que é de jogo (2026-08-04, revisão pedida pelo usuário). Eram
+    // 6 botões fixos em 1024×600, e 3 deles não são de jogo: tela cheia é 1× por
+    // sessão e HUD é diagnóstico — os dois desceram pro menu de pausa (☰), que
+    // já é a porta do "resto". Sobraram os 3 de sempre + 2 que só aparecem
+    // QUANDO SERVEM: a varinha e os amigos, ambos da proteção de áreas.
     const topo = document.createElement("div");
     topo.id = "touch-topo";
     topo.append(
@@ -202,10 +229,15 @@ export class TouchControls {
       this.tapButton("💬", "chat", () => this.actions.chat()),
       // varinha: sem tecla R no celular — o toggle liga o modo; aí os botões
       // ⛏/▣ marcam canto 1/canto 2 (mesmo caminho do clique esq/dir)
-      this.tapButton("🪄", "varinha", () => this.actions.varinha()),
-      this.tapButton("⛶", "tela cheia", () => solicitarTelaCheia()),
-      this.tapButton("📊", "hud", () => this.actions.hud()),
+      (this.btnVarinha = this.tapButton("🪄", "varinha", () => this.actions.varinha())),
+      // amigos: sem tecla G no tablet. Só existe com a proteção ligada, que é
+      // quando "quem constrói na minha área" vira pergunta.
+      (this.btnAmigos = this.tapButton("👥", "amigos", () => this.actions.amigos())),
     );
+    // os dois nascem escondidos: quem os mostra é o main, pelo papel e pelo
+    // estado da proteção de áreas
+    this.btnVarinha.classList.add("hidden");
+    this.btnAmigos.classList.add("hidden");
 
     this.root.append(look, joy, acoes, topo);
     document.body.appendChild(this.root);
@@ -216,6 +248,28 @@ export class TouchControls {
   setScale(scale: number): void {
     // no :root, não no #touch-ui — ver a nota do CSS acima (o #chat lê daqui)
     document.documentElement.style.setProperty("--ts", String(scale));
+  }
+
+  /** A varinha serve a este jogador? (professor sempre; aluno só com a
+   *  proteção de áreas ligada — a mesma regra do `toggleVarinha`). */
+  setVarinhaDisponivel(disponivel: boolean): void {
+    this.btnVarinha?.classList.toggle("hidden", !disponivel);
+  }
+
+  /** Amigos só existe com a proteção de áreas ligada (é ela que dá sentido a
+   *  "quem está no meu grupo constrói na minha área"). */
+  setAmigosDisponivel(disponivel: boolean): void {
+    this.btnAmigos?.classList.toggle("hidden", !disponivel);
+  }
+
+  /** A varinha ligou/desligou: destaca o botão E TROCA o rótulo de ⛏/▣, que
+   *  passam a marcar os cantos. Sem isto o aluno fica com dois botões fazendo
+   *  outra coisa e nenhum sinal na barra (a linha da hotbar já avisa, mas ela
+   *  fica do outro lado da tela). */
+  setVarinha(ativa: boolean): void {
+    this.btnVarinha?.classList.toggle("ativo", ativa);
+    if (this.btnQuebrar) rotular(this.btnQuebrar, ativa ? "①" : "⛏", ativa ? "canto 1" : "quebrar");
+    if (this.btnColocar) rotular(this.btnColocar, ativa ? "②" : "▣", ativa ? "canto 2" : "colocar");
   }
 
   /** Mostra/esconde a UI de toque (main.ts decide junto com o overlay). */

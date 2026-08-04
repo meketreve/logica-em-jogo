@@ -1016,11 +1016,17 @@
         <div id="overlay-main">
           <button id="overlay-voltar" type="button">▶ voltar ao jogo</button>
           <button id="overlay-config-btn" type="button">⚙️ configurações</button>
+          <!-- 2026-08-04: desceram da barra de toque, que só guarda o que é de
+               JOGO. Tela cheia precisa de gesto do usuário, e um clique de botão
+               É gesto — só não pode ser chamada do load. -->
+          <button id="overlay-telacheia" type="button">⛶ tela cheia</button>
+          <button id="overlay-hud" type="button">📊 desempenho (F3)</button>
           <button id="btn-sair" type="button">💾 salvar e voltar ao menu</button>
           <p class="menu-hint">
             WASD move · espaço pula · Ctrl (ou 2× W) corre · Shift agacha ·
             botão esquerdo quebra · direito coloca · botão do meio copia o bloco mirado ·
-            1–9 e scroll escolhem bloco · E inventário · Enter abre o chat · P painel · F3 desempenho
+            1–9 e scroll escolhem bloco · E inventário · Enter abre o chat · P painel ·
+            G amigos · F3 desempenho
           </p>
         </div>
         <div id="overlay-config" class="hidden">

@@ -409,6 +409,92 @@ if (!abriuJogadores) {
   await tirar("10-jogo-painel-jogadores");
 }
 
+// --- barra de toque: revisão de 2026-08-04 (6 botões → só o que é de jogo) ---
+console.log("— barra de toque (topo) —");
+/** Rótulos VISÍVEIS da barra do topo (o `<small>` de cada botão). */
+const barra = () =>
+  avaliar(`[...document.querySelectorAll('#touch-topo .touch-btn')]
+    .filter(b => b.offsetParent !== null)
+    .map(b => b.querySelector('small')?.textContent ?? '')`);
+/** Rótulos dos botões de AÇÃO (direita) — a varinha troca dois deles. */
+const acoes = () =>
+  avaliar(`[...document.querySelectorAll('#touch-acoes .touch-btn')]
+    .map(b => b.querySelector('small')?.textContent ?? '')`);
+/** Toca o botão da barra pelo rótulo (`<small>`). */
+const tocarNaBarra = (rotulo) =>
+  avaliar(`(() => {
+    const b = [...document.querySelectorAll('#touch-topo .touch-btn')]
+      .find(e => (e.querySelector('small')?.textContent ?? '') === ${JSON.stringify(rotulo)});
+    if (!b) return false;
+    b.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true }));
+    return true;
+  })()`);
+
+// a seção anterior deixou o painel de jogadores aberto, e painel aberto ESCONDE
+// a UI de toque (updateOverlay) — sem fechar, a barra mediria "vazia"
+await tecla("Escape");
+await espera(500);
+
+const semClaim = (await barra()) ?? [];
+console.log(`  ${"proteção DESLIGADA".padEnd(22)} ${semClaim.join(" · ")}`);
+console.log(
+  `  ${"sem 'amigos'".padEnd(22)} ${!semClaim.includes("amigos") ? "✓" : "✗ apareceu sem proteção de áreas"}`,
+);
+console.log(
+  `  ${"sem tela cheia/hud".padEnd(22)} ${
+    !semClaim.includes("tela cheia") && !semClaim.includes("hud")
+      ? "✓ desceram pro menu de pausa"
+      : "✗ ainda na barra"
+  }`,
+);
+// singleplayer: todo jogador é professor, então dá pra ligar a proteção pelo chat
+await tecla("Enter");
+await espera(150);
+await avaliar(`(() => {
+  const f = document.getElementById('chat-input');
+  f.value = '/claim ligar';
+  f.dispatchEvent(new KeyboardEvent('keydown', { code: 'Enter', key: 'Enter', bubbles: true }));
+})()`);
+await espera(800);
+const comClaim = (await barra()) ?? [];
+console.log(`  ${"proteção LIGADA".padEnd(22)} ${comClaim.join(" · ")}`);
+console.log(
+  `  ${"'amigos' aparece".padEnd(22)} ${comClaim.includes("amigos") ? "✓ só quando serve" : "✗ não apareceu"}`,
+);
+await alvos("botões da barra", "#touch-topo .touch-btn");
+const larguraBarra = await avaliar(`(() => {
+  const b = document.getElementById('touch-topo');
+  if (!b) return null;
+  const r = b.getBoundingClientRect();
+  return { largura: Math.round(r.width), janela: window.innerWidth };
+})()`);
+console.log(
+  `  ${"barra cabe na largura".padEnd(22)} ${
+    larguraBarra && larguraBarra.largura <= larguraBarra.janela
+      ? `✓ ${larguraBarra.largura}px de ${larguraBarra.janela}`
+      : `✗ ${larguraBarra?.largura}px de ${larguraBarra?.janela}`
+  }`,
+);
+
+const acoesAntes = (await acoes()) ?? [];
+const tocouVarinha = await tocarNaBarra("varinha");
+await espera(400);
+const acoesDepois = (await acoes()) ?? [];
+const destacada = await avaliar(`!!document.querySelector('#touch-topo .touch-btn.ativo')`);
+console.log(
+  `  ${"varinha LIGADA".padEnd(22)} ${
+    tocouVarinha && destacada ? "✓ botão destacado" : "✗ sem destaque na barra"
+  }`,
+);
+console.log(
+  `  ${"⛏/▣ viram cantos".padEnd(22)} ${
+    acoesDepois.includes("canto 1") && acoesDepois.includes("canto 2")
+      ? `✓ ${acoesAntes.slice(-2).join("/")} → canto 1/canto 2`
+      : `✗ seguem ${acoesDepois.slice(-2).join("/")}`
+  }`,
+);
+await tirar("11-jogo-barra-varinha");
+
 console.log("\n=== fim ===");
 console.log(`imagens em ${SAIDA}`);
 ws.close();
