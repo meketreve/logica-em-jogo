@@ -353,6 +353,22 @@
   … /amigos expulsar nome"), então `includes("expulsar")` passa com a tela vazia (bug-569).
   E clique de verificação vai por LINHA (`.jog-row` do fulano), não por rótulo: lista
   ordenada por nome faz o primeiro botão ser de outra pessoa.
+- **Barra de UI de toque: botão que não é DE JOGO desce pro menu de pausa, e botão que só
+  serve às vezes SÓ APARECE às vezes.** A barra do topo tinha 6 botões fixos em 1024×600 e 3
+  não eram de jogo (tela cheia é 1× por sessão, HUD é diagnóstico, varinha só serve a quem
+  marca área). Ficou com ☰ 🧱 💬 + 🪄 e 👥 condicionados à proteção de áreas / ao papel. O
+  critério que vale pra qualquer botão novo: **é de jogo? aparece. É de sessão ou de
+  diagnóstico? menu de pausa. Serve só num modo? nasce escondido.**
+- **Toggle que muda o significado de OUTROS botões precisa de sinal nos dois lugares:** a
+  varinha destaca o próprio botão (`.ativo`) E renomeia ⛏/▣ pra ① canto 1 / ② canto 2. A
+  linha da hotbar já avisava, mas ela fica do outro lado da tela do polegar.
+- **Painel aberto ESCONDE a UI de toque** (`updateOverlay` → `touchControls.setShown`), então
+  verificação headless que mede a barra depois de abrir um painel mede uma barra VAZIA
+  (`offsetParent === null`). Fechar o painel antes é parte da medição.
+- **Alvo de dedo que ninguém mediu está errado:** a barra do topo passou a 1ª e a 2ª rodada
+  mobile inteiras com 30px porque as medições cobriam hotbar, chat, inventário e painéis — e
+  não ela (bug-570). Ao revisar layout de toque, **listar os grupos de elementos tocáveis e
+  conferir que TODOS têm uma linha no `tablet-shots.mjs`.**
 - **Chrome sem sudo nesta máquina:** o binário está em `~/.cache/puppeteer/chrome/...` mas
   as libs não; `apt-get download libnspr4 libnss3 libasound2t64` + `dpkg-deb -x` num prefixo
   (`~/.local/chrome-libs`) + `LD_LIBRARY_PATH` no spawn resolve (receita do bug-564). O

@@ -3841,6 +3841,26 @@
       ],
       "occurrences": 1,
       "last_seen": "2026-08-04T13:31:27.330668Z"
+    },
+    {
+      "id": "bug-570",
+      "timestamp": "2026-08-04T14:14:10.698671Z",
+      "error_message": "tablet-shots: 'botões da barra ✗ menor alvo 30px (5 elementos)' — a barra do topo do toque está abaixo do piso de 40px",
+      "file": "client/src/touch.ts",
+      "root_cause": "`#touch-topo .touch-btn` sobrescreve o quadrado de 64px do `.touch-btn` por `width: auto; height: auto; padding: 6px 12px`, e o resultado em 1024×600 são 30px de altura. Ninguém tinha medido: a barra do topo nunca entrou no `tablet-shots.mjs` (as medições cobriam hotbar, chat, inventário e painéis), então o alvo pequeno atravessou a 1ª e a 2ª rodada mobile inteiras.",
+      "fix": "`min-height: 40px` na regra do `#touch-topo .touch-btn` (a barra segue sendo linha de ícone + texto, só não desce do piso), e a barra ENTROU no tablet-shots: rótulos visíveis, alvo mínimo, largura contra a janela e o relabel de ⛏/▣ quando a varinha liga.",
+      "tags": [
+        "mobile",
+        "toque",
+        "alvo-de-dedo",
+        "css",
+        "1024x600"
+      ],
+      "related_bugs": [
+        "bug-565"
+      ],
+      "occurrences": 1,
+      "last_seen": "2026-08-04T14:14:10.698671Z"
     }
   ]
 }

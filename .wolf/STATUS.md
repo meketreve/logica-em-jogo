@@ -41,11 +41,28 @@
 > clique por rótulo pegou a linha da bia em vez da do caio, porque a lista é ordenada por
 > nome. Asserção passou a ler os RÓTULOS DOS BOTÕES e o clique vai por LINHA.
 >
+> **§📱 A BARRA DE TOQUE — 3ª frente da sessão, e ela FECHOU o pendente das outras duas.**
+> Eram 6 botões fixos em 1024×600 e só 3 de jogo. O critério que ficou (vale pro próximo
+> botão que alguém quiser pôr lá): **é de jogo? fica. É de sessão ou diagnóstico? menu de
+> pausa. Serve só num modo? nasce escondido.** Então: ☰ 🧱 💬 sempre · **🪄 varinha** só pra
+> quem pode usá-la (professor, ou aluno com a proteção de áreas ligada) · **👥 amigos** só
+> com a proteção ligada — que é exatamente quando "quem constrói na minha área" vira
+> pergunta, e é o que **destrava o painel de amigos no tablet**. ⛶ tela cheia e 📊 desempenho
+> desceram pro menu de pausa (o clique de botão É o gesto que o navegador exige).
+> **A varinha deixou de ser toggle invisível:** ligada, o botão fica destacado e **⛏/▣ viram
+> ① canto 1 / ② canto 2**.
+>
+> **bug-570, que só apareceu porque a barra passou a ser MEDIDA:** os botões dela tinham
+> **30px** de alvo — abaixo do piso de 40 que o resto da UI respeita desde a 1ª rodada
+> mobile. Atravessou as duas rodadas inteiras porque as medições do `tablet-shots.mjs`
+> cobriam hotbar, chat, inventário e painéis, e não a barra. Agora ela tem 5 linhas lá
+> (rótulos visíveis, alvo mínimo, largura contra a janela, relabel da varinha).
+>
 > **VERDE:** typecheck 3/3 · **578 testes** (+13) · build · **13/13 smokes** (o `preset` é
 > novo, rodado 2× pra idempotência) · `npm run shots:amigos` com 13 asserções e **2 prints
-> conferidos** (convite recebido / dona de grupo 2/6), menor alvo de toque do painel = 40px.
-> ⚠️ **No TOQUE o painel de amigos não tem como abrir** (não há tecla no tablet) — entra
-> junto com a revisão da barra de 6 botões, que segue no TODO. **PLAYTEST PENDENTE.**
+> conferidos** (convite recebido / dona de grupo 2/6) · `npm run shots:tablet` verde, com o
+> A/B do alvo da barra (30 → 40px, 433px de 1024) e o print `11-jogo-barra-varinha`.
+> **PLAYTEST PENDENTE — e agora é ele que manda.**
 >
 > **SESSÃO 42 (2026-08-04) — SESSÃO CURTA, FORA DO JOGO: O LAUNCHER PARAVA DE PROCURAR
 > ATUALIZAÇÃO EM SILÊNCIO.** O pedido foi conferir se `iniciar-servidor.sh/.bat` busca versão
@@ -899,15 +916,17 @@ Documento é o ÚLTIMO entregável, não o primeiro. Construir, não documentar.
 
 | frente | custo | estado |
 |---|---|---|
-| **PLAYTEST** | do usuário, na escola | F1..F6 + a corrida + F9 + o painel de amigos, acumulados. **É o mais valioso agora** |
-| **📱 barra de toque (6 botões)** | ~0,5 sessão | Já anotada no TODO — e agora ela carrega TAMBÉM o acesso ao painel de amigos no tablet |
+| **PLAYTEST** | do usuário, na escola | F1..F6 + a corrida + F9 + amigos + a barra nova. **É o mais valioso agora, e não há nada barato na frente dele** |
 | **§🍖 F7 `/pvp`** | ~0,5 sessão | Pulado pelo usuário na 41, detalhe preservado logo abaixo |
 | **§🍖 F8 mobs** | 3+ sessões | Fora do lite, com o aviso de GPU do lab |
 | **§🍖 F9 preset** | — | ✅ FEITO na sessão 43 |
 | **👥 painel de amigos** | — | ✅ FEITO na sessão 43 |
+| **📱 barra de toque** | — | ✅ FEITA na sessão 43 (e ela destravou o painel de amigos no tablet) |
 
-**A recomendação é o PLAYTEST** — são 7 frentes de jogo entregues sem um dedo humano nelas.
-Se for pra codar, a barra de toque é a mais barata E destrava o painel de amigos no tablet.
+**A recomendação é o PLAYTEST**, sem concorrente: são 8 frentes de jogo entregues sem um dedo
+humano nelas, e a sessão 43 mexeu justamente na tela que a turma toca. O que o headless não
+diz: se a barra de 4-5 botões ainda é demais no Fire, se o ① / ② é entendido sem explicação,
+e se o preset de sobrevivência é jogável numa aula de 50 min.
 
 ### §🍖 F7 — `/pvp` (pulado na sessão 41, detalhe preservado)
 
@@ -936,9 +955,10 @@ preset `sobrevivencia`. Escopo item a item em `.wolf/ROADMAP.md §🍖`.
 
 ### §🍖 F9 e o painel de amigos — o que ficou aberto (sessão 43)
 
-- **O painel de amigos não abre no TOQUE.** Ele nasceu com tecla (G) e sem botão; o tablet
-  não tem teclado. O lugar certo é a revisão da barra de 6 botões (TODO), que já vai mexer
-  ali — não adianta empilhar um 7º botão numa barra que já está cheia demais.
+- ✅ **O painel de amigos JÁ abre no toque** (botão 👥 na barra, visível com a proteção de
+  áreas ligada) — resolvido na mesma sessão, junto da revisão da barra.
+- **A barra some quando um painel está aberto** (`updateOverlay` → `setShown`), então no
+  tablet fechar o painel é o caminho de volta — não há "trocar de painel" direto.
 - **A lista de "convidar" mostra quem está ONLINE, sem saber quem já tem grupo** — o feed
   `friends` só carrega o MEU grupo, e quem sabe dos outros é o servidor, que recusa com
   mensagem no chat. Mudar isso pediria um broadcast de "quem está em grupo", que é estado de

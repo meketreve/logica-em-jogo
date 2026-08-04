@@ -2,16 +2,17 @@
 
 > Working checklist. **STATUS.md** = handoff ("why & where we are"); **TODO.md** = "what's left to do".
 > Keep items actionable and short. Check off with `[x]`; sweep done items into STATUS.md ✅ when a phase closes.
-> Last updated: 2026-08-04 (sessão 43 — §🍖 F9 preset de sobrevivência + PAINEL DE AMIGOS feitos.
-> Sobra na fila: F7 /pvp, F8 mobs, a barra de toque de 6 botões e o PLAYTEST acumulado. Ver STATUS 🚀)
+> Last updated: 2026-08-04 (sessão 43 — §🍖 F9 preset de sobrevivência + PAINEL DE AMIGOS + barra de
+> toque revisada. Sobra na fila: F7 /pvp, F8 mobs e o PLAYTEST acumulado. Ver STATUS 🚀)
 
 ---
 
 ## 🔥 Now (this session)
 
 <!-- A sessão 43 fechou as DUAS frentes que o usuário escolheu: o §🍖 F9 (preset de mundo
-     de sobrevivência) e o painel de amigos. Sobra na fila: §🍖 F7 /pvp (~0,5 sessão),
-     §🍖 F8 mobs (3+ sessões), a barra de toque de 6 botões e o PLAYTEST acumulado (ver 🏫). -->
+     de sobrevivência) e o painel de amigos, e ainda a revisão da barra de toque (que
+     destravou o painel de amigos no tablet). Sobra na fila: §🍖 F7 /pvp (~0,5 sessão),
+     §🍖 F8 mobs (3+ sessões) e o PLAYTEST acumulado (ver 🏫). -->
 
 - [x] **§🍖 F9 — PRESET DE MUNDO DE SOBREVIVÊNCIA** (sessão 43). `SessionOptions.sobrevivencia`
       (eixo à PARTE do `WorldPreset`, que segue sendo só terreno): mundo NOVO nasce com
@@ -121,35 +122,21 @@
       Verificado por `npm run shots:amigos` (2 prints + alvo de toque de 40px).
       ⚠️ **O que ficou aberto:** no TOQUE não há como abrir (não há tecla) — entra junto
       com a revisão da barra de 6 botões, logo abaixo.
-- [ ] **📱 A BARRA DE CIMA DO TOQUE TEM 6 BOTÕES E SÓ 3 SÃO DE JOGO** (pedido do usuário,
-      2026-08-04, junto do painel de amigos). Hoje `#touch-topo` (`touch.ts:196`) enfileira
-      **☰ menu · 🧱 blocos · 💬 chat · 🪄 varinha · ⛶ tela cheia · 📊 hud**. Os 3 últimos não
-      são de jogo: **tela cheia** é 1× por sessão, **hud** é diagnóstico (o F3 do desktop) e
-      **varinha** só serve a quem está marcando região/claim. Em 1024×600 eles comem a barra e
-      viram toque acidental no meio da aula.
-      **Sugestão (a minha, o usuário decide):**
-      1. **A barra fica com os 3 de jogo** (☰ 🧱 💬). Tela cheia e hud descem pro menu de pausa
-         (`#overlay-main`, `index.html:989`), que já é a porta do "resto" e já tem
-         ⚙️ configurações e 💾 sair. **Tela cheia continua funcionando de lá**: o navegador
-         exige gesto do usuário e um clique de botão É gesto — só não pode ser chamada do
-         `load`. A dica de teclas do `.menu-hint` logo abaixo já é o lugar de explicar.
-      2. **A varinha é o caso especial: ela não pode virar item de menu escondido.** Ligada,
-         ela TROCA o significado de ⛏/▣ (marcam canto 1/canto 2) — um toggle invisível deixa o
-         aluno com dois botões que fazem outra coisa e nenhum sinal na tela. Duas saídas, e eu
-         prefiro a segunda: (a) manter 🪄 na barra só quando a proteção está ligada
-         (`claimsAtivo`, que o `main.ts` já acompanha e já usa pra habilitar a tecla R); ou
-         (b) **tirar da barra e mostrar um distintivo enquanto ATIVA** — os botões ⛏/▣ trocam
-         de rótulo pra "canto 1"/"canto 2" e um chip "🪄 varinha" aparece no topo, tocável pra
-         desligar. Assim o estado é visível **porque está ligado**, não porque ocupa espaço o
-         tempo todo.
-      3. **Comandos de chat (`/hud`, `/varinha`, `/telacheia`) — dá, mas custa um conceito
-         novo:** hoje TODO `/` vai pro servidor (`chat.ts:69` → `onSend`) e essas três coisas
-         são 100% do cliente; o servidor teria de devolver comando desconhecido. Precisaria de
-         uma tabela de **comandos locais** interceptada antes do `send`, e o autocomplete do
-         `commands.ts` teria de conhecê-la. Vale se o usuário quiser o caminho digitado no
-         desktop; **pro tablet o menu resolve com menos peça nova** — e, se entrar, `/hud` é o
-         candidato natural (é o F3, que já é diagnóstico e já tem tecla).
-      Combina com a 2ª rodada mobile logo acima: é a mesma tela e o mesmo playtest.
+- [x] **📱 A BARRA DE CIMA DO TOQUE** (sessão 43, pedido do usuário). Eram 6 botões fixos
+      (☰ 🧱 💬 🪄 ⛶ 📊) em 1024×600. Ficou: **☰ 🧱 💬 sempre** · **🪄 varinha** só pra quem
+      pode usá-la (professor, ou aluno com a proteção de áreas ligada) · **👥 amigos** só com
+      a proteção ligada — que é quando "quem constrói na minha área" vira pergunta, e é o que
+      **destrava o painel de amigos no tablet** (o pendente que a sessão deixou). **⛶ tela
+      cheia e 📊 desempenho desceram pro menu de pausa** (o clique de botão É o gesto que o
+      navegador exige pra tela cheia). Varinha ligada agora **destaca o botão** e troca
+      **⛏/▣ por ① canto 1 / ② canto 2** — o toggle deixou de ser invisível.
+      De quebra, **bug-570**: os botões da barra tinham **30px** de alvo (piso do projeto é
+      40) e nunca tinham sido medidos; a barra ENTROU no `tablet-shots.mjs` (rótulos visíveis,
+      alvo mínimo, largura contra a janela e o relabel da varinha). A/B: 30 → 40px, barra com
+      433px de 1024. Print `11-jogo-barra-varinha.png`.
+      **Não feito de propósito:** os comandos locais (`/hud`, `/varinha`, `/telacheia`) da
+      3ª sugestão — pro tablet o menu resolve com menos peça nova. Se o usuário quiser o
+      caminho digitado no desktop, `/hud` é o candidato natural.
 - [ ] **Nome do mundo truncado no DESKTOP** ("seque…", "labirin…") — a coluna do nome fica com
       ~84px depois dos 3 botões. Em paisagem baixa já resolveu (painel de 680px). No desktop
       resolve com UMA linha (`.menu-screen { width: min(680px, 92vw) }` sem media query), mas
