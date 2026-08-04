@@ -62,3 +62,20 @@ export function podeVoarNoModo(modo: Modo): boolean {
 export function nomeModo(modo: Modo): string {
   return modo === "sobrevivencia" ? "sobrevivência" : "criativo";
 }
+
+/**
+ * §🍖 F9 (2026-08-04) — "sobrevivência" como escolha de NASCIMENTO do mundo.
+ *
+ * Terreno e regras são eixos SEPARADOS: `WorldPreset` (normal/plano/cabines)
+ * decide os bytes, e isto aqui decide como o mundo NASCE jogado. Por isso não
+ * virou um quarto `WorldPreset` — todo `preset === "normal"` espalhado pela
+ * geração (água, veto de caverna) passaria a excluir a sobrevivência em
+ * silêncio, e ainda fecharia a porta pra sobrevivência num mundo plano.
+ *
+ * Os três hospedeiros (menu do navegador, worker singleplayer e host Node)
+ * recebem o token de fora, então a tradução mora AQUI, num lugar só. Reusa o
+ * `parseModo` de propósito: "sobrevivência" com acento é a mesma palavra.
+ */
+export function ehPresetSobrevivencia(raw: unknown): boolean {
+  return parseModo(raw) === "sobrevivencia";
+}

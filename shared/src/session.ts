@@ -197,6 +197,13 @@ export interface SessionOptions {
   flat?: boolean;
   /** Preset do mundo NOVO (cp14): normal | plano | cabines. Vence o `flat`. */
   preset?: WorldPreset;
+  /**
+   * §🍖 F9: o mundo NOVO já nasce em sobrevivência (modo do mundo +
+   * ciclo dia/noite andando). Eixo à PARTE do `preset` — o terreno é escolha
+   * de bytes, isto é escolha de partida. Ignorado com `restore` (o save traz o
+   * que gravou) e vencido pelo `somenteLeitura` (aula é criativo, ponto).
+   */
+  sobrevivencia?: boolean;
   /** Mundo de aula/atividade (read-only, cp19): o host passa true. Aqui liga
    *  o CONFINAMENTO (cp25) por padrão — cada aluno só edita na área do grupo. */
   somenteLeitura?: boolean;
@@ -603,6 +610,19 @@ export class GameSession {
         y: findSpawnY(this.world, Math.floor(sx), Math.floor(sz)),
         z: sz,
       };
+      // §🍖 F9 (2026-08-04): preset de mundo de sobrevivência — faz de UM
+      // clique o que hoje é uma sequência de comandos na frente da turma
+      // (`/modo sobrevivencia all` + `/ciclo ligar`).
+      // O que ele deliberadamente NÃO escreve: `pvp` e `manter-inventario`
+      // (regras) e o confinamento já nascem no valor certo pelos próprios
+      // padrões — e o save guarda só o DIFF do padrão, então gravá-los aqui
+      // prenderia o mundo ao padrão de hoje em vez de segui-lo.
+      if (opts.sobrevivencia) {
+        this.modoMundo = "sobrevivencia";
+        // sem ciclo, sobrevivência é meio-dia eterno: não há noite pra que a
+        // cama, a tocha e (no F8) o mob signifiquem alguma coisa.
+        this.cicloAtivo = true;
+      }
     }
     // cp25: mundo de aula/atividade nasce CONFINADO (cada aluno na área do seu
     // grupo). Vence o que veio do save (aula é read-only e distribui o modelo);
@@ -2640,7 +2660,19 @@ export class GameSession {
     this.send(clientId, this.claimsJson());
   }
 
-  /** Manda ao cliente o PRÓPRIO grupo de amigos + convites pendentes. */
+  /** Convites que ESTE jogador mandou e que ninguém respondeu ainda. O mapa é
+   *  indexado pelo CONVIDADO (alvo → quem convidou), então a volta é uma
+   *  varredura — numa turma de 20 é barato, e evita um segundo índice pra
+   *  manter em sincronia. */
+  private convitesEnviadosPor(name: string): string[] {
+    const alvos: string[] = [];
+    for (const [alvo, quem] of this.convitesAmigo) {
+      if (quem.has(name)) alvos.push(alvo);
+    }
+    return alvos;
+  }
+
+  /** Manda ao cliente o PRÓPRIO grupo de amigos + convites (recebidos e feitos). */
   private sendFriends(clientId: number): void {
     const p = this.players.get(clientId);
     if (!p) return;
@@ -2651,6 +2683,7 @@ export class GameSession {
         type: "friends",
         equipe: dono !== null ? { dono, membros: this.membrosDaEquipe(dono) } : null,
         convites: [...(this.convitesAmigo.get(p.name) ?? [])],
+        enviados: this.convitesEnviadosPor(p.name),
       } satisfies ServerMessage),
     );
   }
@@ -2792,6 +2825,9 @@ export class GameSession {
           this.sendServerChat(idAlvo, `${me} convidou você para o grupo de amigos. Aceite com /amigos aceitar ${me}.`);
           this.sendFriends(idAlvo);
         }
+        // e pra quem convidou também: o time acabou de nascer (com ele dentro)
+        // e o convite entrou nos `enviados` — sem isto o painel dele não muda
+        this.sendFriends(clientId);
         return `Convite enviado para ${alvo}.`;
       }
       case "aceitar": {
@@ -2811,7 +2847,14 @@ export class GameSession {
         }
         if (1 + membros.size >= MAX_AMIGOS) return `O grupo de ${dono} está cheio.`;
         membros.add(me);
+        const descartados = [...conv].filter((n) => n !== dono);
         this.convitesAmigo.delete(me); // aceitou um: descarta os outros convites
+        // os outros que convidaram param de esperar: o "aguardando" some do
+        // painel deles junto com o convite que acabou de ser descartado
+        for (const outro of descartados) {
+          const id = this.clientIdDe(outro);
+          if (id !== null) this.sendFriends(id);
+        }
         this.avisarEquipe(dono, `${me} entrou no grupo de amigos.`);
         this.atualizarEquipe(dono);
         return `Você entrou no grupo de ${dono}.`;
@@ -2827,6 +2870,13 @@ export class GameSession {
         if (!conv.delete(dono)) return `${dono || "Esse jogador"} não te convidou.`;
         if (conv.size === 0) this.convitesAmigo.delete(me);
         this.sendFriends(clientId);
+        // quem convidou tira o "aguardando" da tela na hora (e fica sabendo
+        // pelo chat: recusa em silêncio deixaria o convite pendente pra sempre)
+        const idDono = this.clientIdDe(dono);
+        if (idDono !== null) {
+          this.sendServerChat(idDono, `${me} recusou o seu convite de amigos.`);
+          this.sendFriends(idDono);
+        }
         return `Convite de ${dono} recusado.`;
       }
       case "sair": {

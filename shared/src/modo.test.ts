@@ -1,5 +1,13 @@
 import { describe, expect, it } from "vitest";
-import { MODO_PADRAO, type Modo, modoEfetivo, nomeModo, parseModo, podeVoarNoModo } from "./modo";
+import {
+  MODO_PADRAO,
+  type Modo,
+  ehPresetSobrevivencia,
+  modoEfetivo,
+  nomeModo,
+  parseModo,
+  podeVoarNoModo,
+} from "./modo";
 import { parseServerMessage } from "./protocol";
 import { type SaveData, decodeSave, encodeSave } from "./save";
 import { GameSession } from "./session";
@@ -229,6 +237,76 @@ describe("/modo — o interruptor (§🍖 F1)", () => {
     expect(ultimoModo(sent, 2)).toBe("criativo");
     session.handleMessage(1, cmd("/modo sobrevivencia"));
     expect(ultimaChat(sent, 1) ?? "").toContain("mundo de aula");
+    expect(ultimoModo(sent, 2)).toBe("criativo");
+  });
+});
+
+/** Mundo NOVO (sem restore) com o preset do §🍖 F9 ligado ou não. */
+function mundoNovo(sobrevivencia: boolean, somenteLeitura = false) {
+  const { sent, send } = collect();
+  const session = new GameSession(send, {
+    dims: DIMS,
+    seed: 5,
+    codigo: "sala",
+    ...(sobrevivencia ? { sobrevivencia: true } : {}),
+    ...(somenteLeitura ? { somenteLeitura: true } : {}),
+  });
+  session.handleMessage(2, join("ana", "1111"));
+  return { session, sent };
+}
+
+describe("§🍖 F9 — preset de mundo de sobrevivência", () => {
+  it("ehPresetSobrevivencia lê o token com e sem acento, e só ele", () => {
+    expect(ehPresetSobrevivencia("sobrevivencia")).toBe(true);
+    expect(ehPresetSobrevivencia("Sobrevivência")).toBe(true);
+    expect(ehPresetSobrevivencia("criativo")).toBe(false);
+    expect(ehPresetSobrevivencia("plano")).toBe(false);
+    expect(ehPresetSobrevivencia(undefined)).toBe(false);
+  });
+
+  it("quem entra num mundo nascido com o preset já entra em sobrevivência", () => {
+    const { sent } = mundoNovo(true);
+    expect(ultimoModo(sent, 2)).toBe("sobrevivencia");
+  });
+
+  it("o preset também liga o ciclo dia/noite (sem noite, sobreviver não significa nada)", () => {
+    expect(mundoNovo(true).session.toSave().ciclo).toBe(true);
+    expect(mundoNovo(false).session.toSave().ciclo).toBe(false);
+  });
+
+  it("pvp e confinamento continuam no PADRÃO — o preset não grava diff que não precisa", () => {
+    const meta = mundoNovo(true).session.toSave();
+    expect(meta.regras).toBeUndefined();
+    expect(meta.confinamento).toBeUndefined();
+    expect(meta.modo).toBe("sobrevivencia"); // o que ele grava é só isto
+  });
+
+  it("não toca no TERRENO: os bytes do mundo saem idênticos com e sem o preset", () => {
+    // é o que justifica ele NÃO ser um quarto WorldPreset — terreno e partida
+    // são eixos separados, e `LJ_PRESET=plano LJ_SOBREVIVENCIA=1` tem de valer
+    const { send } = collect();
+    const a = new GameSession(send, { dims: DIMS, seed: 5 });
+    const b = new GameSession(send, { dims: DIMS, seed: 5, sobrevivencia: true });
+    for (let i = 0; i < a.world.chunks.length; i++) {
+      expect(b.world.chunks[i]).toEqual(a.world.chunks[i]);
+    }
+    expect(b.spawn).toEqual(a.spawn);
+  });
+
+  it("é escolha de NASCIMENTO: mundo restaurado ignora o preset e mantém o que gravou", () => {
+    const { sent, send } = collect();
+    const session = new GameSession(send, {
+      restore: baseSave(), // save de mundo criativo
+      codigo: "sala",
+      sobrevivencia: true,
+    });
+    session.handleMessage(2, join("ana", "1111"));
+    expect(ultimoModo(sent, 2)).toBe("criativo");
+    expect(session.toSave().modo).toBeUndefined();
+  });
+
+  it("mundo de AULA vence o preset (a aula distribui um modelo, não uma partida)", () => {
+    const { sent } = mundoNovo(true, true);
     expect(ultimoModo(sent, 2)).toBe("criativo");
   });
 });

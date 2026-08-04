@@ -94,6 +94,7 @@ import {
 import { ObjectivesUi } from "./objectivesUi";
 import { Mochila } from "./mochila";
 import { type VidaInfo, VitalsUi } from "./vitals";
+import { FriendsPanel } from "./friends";
 import { PlayersPanel } from "./players";
 import { AuthorPanel, type GamePanel, GroupPanel, type PanelData } from "./panels";
 import { RegionRenderer } from "./regions";
@@ -228,6 +229,14 @@ let activePanel: GamePanel | null = null;
 let inventoryPanel: InventoryPanel | null = null;
 /** Painel de jogadores (2026-07-21) — só professor (expulsar/banir/desbanir). */
 let playersPanel: PlayersPanel | null = null;
+/** Painel de amigos (2026-08-04) — de todo jogador; a interface do /amigos. */
+let friendsPanel: FriendsPanel | null = null;
+/** Último `friends` que o servidor mandou (o painel é puro consumo dele). */
+let latestFriends: { equipe: { dono: string; membros: string[] } | null; convites: string[]; enviados: string[] } = {
+  equipe: null,
+  convites: [],
+  enviados: [],
+};
 // touchControls: declarado lá em cima (acima de applySettings, TDZ — bug-495).
 
 /** Tela de carregamento (§🕐) — cobre tudo do "jogar" até o mundo pronto.
@@ -266,7 +275,10 @@ function updateOverlay(): void {
   // some quando o jogo tem o controle (mouse travado OU modo toque), o chat
   // está aberto OU um painel do cp14 está na tela (senão cobre o painel)
   const panelOpen =
-    (activePanel?.open ?? false) || (inventoryPanel?.open ?? false) || (playersPanel?.open ?? false);
+    (activePanel?.open ?? false) ||
+    (inventoryPanel?.open ?? false) ||
+    (playersPanel?.open ?? false) ||
+    (friendsPanel?.open ?? false);
   // §🕐 `loading.ativo`: durante o carregamento o ponteiro NÃO está travado —
   // sem esta condição o menu de pausa aparecia junto com a tela de carga.
   overlay?.classList.toggle(
@@ -297,7 +309,7 @@ function onSettingsChanged(): void {
   const oldKeys = settings.keys;
   settings = applySettings();
   // atalhos registrados por handler (chat/HUD/varinha/painel/inventário) seguem o rebind na hora
-  for (const a of ["chat", "hud", "varinha", "painel", "inventario"] as const) {
+  for (const a of ["chat", "hud", "varinha", "painel", "inventario", "amigos"] as const) {
     input.rebind(oldKeys[a], settings.keys[a]);
   }
   enviarRaio(); // bug-211: mudar o raio na config precisa chegar no servidor
@@ -490,6 +502,8 @@ let applyRegions: ((regions: NamedRegion[]) => void) | null = null;
 /** Anti-griefing (cp24): proteção de áreas ligada? + claims (TODOS recebem).
  *  Com a proteção ligada o aluno também usa a varinha (pra /claim criar). */
 let claimsAtivo = false;
+/** A dica da tecla do painel de amigos já saiu nesta sessão? (uma vez só) */
+let dicaAmigosDada = false;
 let latestClaims: Claim[] = [];
 let applyClaims: ((claims: Claim[]) => void) | null = null;
 /** Quadros (2026-07-19): conteúdo por posição — closures setados no startGame. */
@@ -525,6 +539,19 @@ function pushPanelData(): void {
     grupos: latestGroups,
     myGrupo,
   } satisfies PanelData);
+}
+
+/** Painel de amigos: o `friends` do servidor + quem está online agora (que o
+ *  main aprende do relay). Chamado dos DOIS lados — o feed muda quando o grupo
+ *  muda, e a lista de online muda quando alguém entra ou sai da aula. */
+function pushFriendsData(): void {
+  friendsPanel?.update({
+    eu: playerName(),
+    equipe: latestFriends.equipe,
+    convites: latestFriends.convites,
+    enviados: latestFriends.enviados,
+    online: [...new Set(nomesOnline.values())].sort(),
+  });
 }
 
 /** Concluído NO MEU escopo (meu grupo; professor/sem grupos = agregado). */
@@ -621,11 +648,13 @@ function handleServerData(data: string | ArrayBuffer): void {
       if (msg.name && nomesOnline.get(msg.id) !== msg.name) {
         nomesOnline.set(msg.id, msg.name);
         learnPlayers([...new Set(nomesOnline.values())]);
+        pushFriendsData(); // quem entrou vira candidato a convite
       }
       applyPlayerMoved?.(msg);
     } else if (msg.type === "player_left") {
       nomesOnline.delete(msg.id);
       learnPlayers([...new Set(nomesOnline.values())]);
+      pushFriendsData(); // quem saiu some da lista de convidar
       applyPlayerLeft?.(msg.id);
     } else if (msg.type === "spawn") {
       serverSpawn = { x: msg.x, y: msg.y, z: msg.z };
@@ -655,11 +684,24 @@ function handleServerData(data: string | ArrayBuffer): void {
       // cp24: proteção de áreas — wireframes pra todo mundo + habilita a varinha
       // do aluno quando ligada. O servidor é quem barra a edição de fato.
       claimsAtivo = msg.ativo;
+      // a proteção acabou de ligar: é a única hora em que "quem pode construir
+      // na minha área" vira pergunta — e é aqui que o painel de amigos existe
+      // pra responder. Uma vez por sessão (a lista de claims re-emite a cada
+      // área criada, e repetir a dica viraria ruído no meio da aula).
+      if (msg.ativo && !dicaAmigosDada) {
+        dicaAmigosDada = true;
+        chat.addMessage(
+          "jogo",
+          `tecla ${keyLabel(settings.keys.amigos)} abre o painel de amigos — quem está no seu grupo constrói na sua área`,
+        );
+      }
       latestClaims = msg.claims;
       applyClaims?.(msg.claims); // o closure lê claimsAtivo (já atualizado acima)
     } else if (msg.type === "friends") {
-      // cp24: grupo de amigos + convites. O feedback textual já chega por chat
-      // do servidor; o painel de amigos é fase 2 (comandos primeiro, cp14).
+      // cp24: grupo de amigos + convites. O feedback textual segue chegando por
+      // chat do servidor; o PAINEL (2026-08-04) é puro consumo deste estado.
+      latestFriends = { equipe: msg.equipe, convites: msg.convites, enviados: msg.enviados };
+      pushFriendsData();
     } else if (msg.type === "players") {
       // 2026-07-21: painel de jogadores do professor (conectados + banidos)
       playersPanel?.update({ conectados: msg.conectados, banidos: msg.banidos });
@@ -851,6 +893,8 @@ function startSingleplayer(choice: PlayWorldChoice, seedFixa?: number): void {
     seed,
     preset: choice.preset,
     tamanho: choice.tamanho,
+    // §🍖 F9: só o mundo NOVO usa; save carregado traz o modo do próprio .ljw
+    sobrevivencia: choice.sobrevivencia,
   });
   connect(wc);
 }
@@ -1212,8 +1256,14 @@ function startGame(snap: Snapshot): void {
   const openPlayers = (): void => {
     activePanel?.hide(); // troca do painel de autoria pro de jogadores
     inventoryPanel?.hide();
+    friendsPanel?.hide();
     playersPanel?.show();
   };
+  // painel de amigos (2026-08-04): de TODO jogador — é o dono de área quem
+  // convide quem pode construir junto. Sem gate de grupos (o de aluno tem),
+  // porque amigos existe justamente em mundo livre, sem grupos de aula.
+  friendsPanel = new FriendsPanel(sendCmd, onPanelToggle);
+  pushFriendsData();
   activePanel =
     papel === "professor"
       ? new AuthorPanel(sendCmd, onPanelToggle, openPlayers)
@@ -1228,7 +1278,15 @@ function startGame(snap: Snapshot): void {
     }
     inventoryPanel?.hide(); // um painel por vez na tela
     playersPanel?.hide();
+    friendsPanel?.hide();
     activePanel?.toggle();
+  });
+  input.onKey(settings.keys.amigos, () => {
+    if (chat.open) return;
+    activePanel?.hide(); // um painel por vez na tela
+    inventoryPanel?.hide();
+    playersPanel?.hide();
+    friendsPanel?.toggle();
   });
   if (papel === "professor") {
     chat.addMessage("jogo", `tecla ${keyLabel(settings.keys.painel)} abre o painel de autoria`);
@@ -1663,6 +1721,7 @@ function startGame(snap: Snapshot): void {
       if (open) {
         activePanel?.hide(); // um painel por vez na tela
         playersPanel?.hide();
+        friendsPanel?.hide();
         document.exitPointerLock();
       } else input.lock();
       updateOverlay();
@@ -2412,6 +2471,8 @@ function startGame(snap: Snapshot): void {
   // ?painel na URL: abre o painel já no boot (verificação headless do cp14)
   if (new URLSearchParams(location.search).has("painel")) activePanel?.toggle();
   if (new URLSearchParams(location.search).has("inv")) inventoryPanel?.toggle();
+  // ?amigos na URL: abre o painel de amigos no boot (verificação headless)
+  if (new URLSearchParams(location.search).has("amigos")) friendsPanel?.toggle();
   // ?touch (teste no desktop/headless): entra direto no modo toque, sem tap
   if (bootParams.has("touch")) startPlay();
 }

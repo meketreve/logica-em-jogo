@@ -230,7 +230,13 @@ export type ServerMessage =
        */
       type: "friends";
       equipe: { dono: string; membros: string[] } | null;
+      /** Quem convidou ESTE jogador e espera resposta. */
       convites: string[];
+      /** Quem ESTE jogador convidou e ainda não respondeu (2026-08-04, painel
+       *  de amigos): sem isto, convidar pelo painel não muda nada na tela e o
+       *  clique parece não ter funcionado. Host antigo não manda → lista vazia,
+       *  que é o comportamento de antes. */
+      enviados: string[];
     }
   | {
       /**
@@ -660,7 +666,12 @@ export function parseServerMessage(raw: string): ServerMessage | null {
           equipe = { dono: o["dono"], membros: onlyStrings(o["membros"]) };
         }
       }
-      return { type: "friends", equipe, convites: onlyStrings(m["convites"]) };
+      return {
+        type: "friends",
+        equipe,
+        convites: onlyStrings(m["convites"]),
+        enviados: onlyStrings(m["enviados"]),
+      };
     }
     case "players": {
       if (!Array.isArray(m["conectados"]) || !Array.isArray(m["banidos"])) return null;

@@ -158,7 +158,8 @@
          + jogadores (2026-07-21) — todos com a mesma moldura de altura fixa */
       #painel,
       #inventario,
-      #jogadores {
+      #jogadores,
+      #amigos {
         position: fixed;
         left: 50%;
         top: 50%;
@@ -180,11 +181,13 @@
       }
       #painel h2,
       #inventario h2,
-      #jogadores h2 {
+      #jogadores h2,
+      #amigos h2 {
         margin: 0;
         font-size: 1.25rem;
       }
-      #painel h3 {
+      #painel h3,
+      #amigos h3 {
         margin: 12px 0 2px;
         padding-top: 10px;
         font-size: 1rem;
@@ -208,7 +211,8 @@
       }
       #painel button,
       #inventario button,
-      #jogadores button {
+      #jogadores button,
+      #amigos button {
         font: inherit;
         font-size: 0.82rem;
         padding: 4px 9px;
@@ -220,7 +224,8 @@
       }
       #painel button:hover:not(:disabled),
       #inventario button:hover:not(:disabled),
-      #jogadores button:hover:not(:disabled) {
+      #jogadores button:hover:not(:disabled),
+      #amigos button:hover:not(:disabled) {
         background: rgba(255, 255, 255, 0.22);
       }
       /* --- Painel de jogadores (2026-07-21) --- */
@@ -834,7 +839,8 @@
            campo + botão), e com flex-wrap a falta de largura vira ALTURA, que é
            exatamente o que falta em 600px. Alargar devolve linha por linha. */
         #painel,
-        #jogadores {
+        #jogadores,
+        #amigos {
           width: min(760px, 94vw);
         }
       }
@@ -845,6 +851,7 @@
         .world-row button,
         #painel button,
         #jogadores button,
+        #amigos button,
         #hud button {
           min-height: 40px;
           padding: 8px 12px;
@@ -861,7 +868,9 @@
         #painel input,
         #painel select,
         #jogadores input,
-        #jogadores select {
+        #jogadores select,
+        #amigos input,
+        #amigos select {
           min-height: 40px;
           padding: 6px 10px;
         }
@@ -933,7 +942,7 @@
         }
       }
     </style>
-    <script type="module" crossorigin src="/assets/index-B6iYNEVy.js"></script>
+    <script type="module" crossorigin src="/assets/index-IVNGpnuI.js"></script>
   </head>
   <body>
     <div id="menu" class="hidden">
@@ -967,6 +976,12 @@
             <option value="M">médio 192×192</option>
             <option value="G">grande 256×256 — exige PC melhor</option>
             <option value="E">procedural — gigante, gera conforme você explora</option>
+          </select>
+        </label>
+        <label class="menu-check">como jogar
+          <select id="menu-new-jogo">
+            <option value="criativo">criativo — construir à vontade (padrão)</option>
+            <option value="sobrevivencia">sobrevivência — vida, fome, craft e ciclo dia/noite</option>
           </select>
         </label>
         <p id="menu-worlds-erro" class="menu-erro hidden"></p>
@@ -1031,6 +1046,8 @@
     <div id="painel" class="hidden"></div>
     <div id="inventario" class="hidden"></div>
     <div id="jogadores" class="hidden"></div>
+    <!-- painel de amigos (2026-08-04): grupo de amigos do PRÓPRIO jogador -->
+    <div id="amigos" class="hidden"></div>
     <div id="hud" class="hidden">
       <pre id="hud-text"></pre>
       <button id="hud-export" type="button">exportar JSON</button>

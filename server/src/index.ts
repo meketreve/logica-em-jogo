@@ -13,6 +13,7 @@ import {
   TAMANHO_CHUNKS,
   VERSION,
   decodeSave,
+  ehPresetSobrevivencia,
   encodeLazySave,
   encodeSave,
   parseClientMessage,
@@ -195,6 +196,13 @@ let session = new GameSession(
       process.env["LJ_PLANO"] === "1"
         ? "plano"
         : parseWorldPreset(process.env["LJ_PRESET"]),
+    // §🍖 F9: mundo NOVO que já nasce em sobrevivência (modo do mundo + ciclo).
+    // `LJ_PRESET=sobrevivencia` é o atalho de uma variável só (o terreno fica
+    // no padrão, colinas); `LJ_SOBREVIVENCIA=1` COMPÕE com qualquer terreno —
+    // `LJ_PRESET=plano LJ_SOBREVIVENCIA=1` é sobrevivência em mundo plano.
+    sobrevivencia:
+      process.env["LJ_SOBREVIVENCIA"] === "1" ||
+      ehPresetSobrevivencia(process.env["LJ_PRESET"]),
     // tamanho do mundo NOVO (2026-07-19): LJ_TAMANHO=P|M|G|E (restaurado ignora)
     dims: TAMANHO_CHUNKS[parseWorldTamanho(process.env["LJ_TAMANHO"])],
     // streaming (F2): colunas por tick por jogador — config de desempenho

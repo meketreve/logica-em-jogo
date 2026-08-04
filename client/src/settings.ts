@@ -7,7 +7,7 @@
 
 export type KeyAction =
   | "forward" | "back" | "left" | "right" | "jump" | "correr" | "agachar"
-  | "chat" | "hud" | "varinha" | "painel" | "inventario";
+  | "chat" | "hud" | "varinha" | "painel" | "inventario" | "amigos";
 
 export interface GameSettings {
   /** Multiplicador da sensibilidade do mouse (1 = padrão). */
@@ -66,6 +66,7 @@ export const DEFAULT_SETTINGS: GameSettings = {
     varinha: "KeyR",
     painel: "KeyP",
     inventario: "KeyE",
+    amigos: "KeyG",
   },
 };
 
@@ -82,6 +83,7 @@ export const KEY_ACTION_LABEL: Record<KeyAction, string> = {
   varinha: "varinha de região (professor)",
   painel: "painel (professor: autoria · aluno: grupo)",
   inventario: "inventário de blocos",
+  amigos: "painel de amigos (áreas compartilhadas)",
 };
 
 const STORAGE_KEY = "lj-config";

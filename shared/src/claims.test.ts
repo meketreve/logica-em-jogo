@@ -255,3 +255,85 @@ describe("banimento (2026-07-21)", () => {
     expect(s2.estaBanido("Grifador")).toBe(true);
   });
 });
+
+describe("feed `friends` — o que o painel de amigos consome (2026-08-04)", () => {
+  /** Último `friends` que o servidor mandou pra este cliente. */
+  function ultimoFriends(sent: Sent, clientId: number) {
+    for (let i = sent.length - 1; i >= 0; i--) {
+      if (sent[i]?.clientId !== clientId) continue;
+      const m = parseServerMessage(sent[i]?.data as string);
+      if (m?.type === "friends") return m;
+    }
+    return null;
+  }
+
+  function turma() {
+    const { sent, send } = collect();
+    const session = new GameSession(send, { dims: DIMS, seed: 5, codigo: "sala" });
+    session.handleMessage(1, join("prof", "4321", "sala"));
+    session.handleMessage(2, join("ana", "1111"));
+    session.handleMessage(3, join("bia", "2222"));
+    session.handleMessage(4, join("caio", "3333"));
+    return { sent, session };
+  }
+
+  it("parse tolera host ANTIGO, que não manda `enviados`", () => {
+    const m = parseServerMessage(
+      JSON.stringify({ type: "friends", equipe: null, convites: ["ana"] }),
+    );
+    expect(m).toEqual({ type: "friends", equipe: null, convites: ["ana"], enviados: [] });
+  });
+
+  it("convidar já atualiza QUEM CONVIDOU: o grupo nasce e o convite fica pendente", () => {
+    const { sent, session } = turma();
+    session.handleMessage(2, cmd("/amigos convidar bia"));
+    const anaVe = ultimoFriends(sent, 2);
+    // sem isto, clicar em "convidar" no painel não mudaria nada na tela
+    expect(anaVe?.equipe).toEqual({ dono: "ana", membros: ["ana"] });
+    expect(anaVe?.enviados).toEqual(["bia"]);
+    expect(ultimoFriends(sent, 3)?.convites).toEqual(["ana"]);
+  });
+
+  it("aceitar fecha o convite dos DOIS lados", () => {
+    const { sent, session } = turma();
+    session.handleMessage(2, cmd("/amigos convidar bia"));
+    session.handleMessage(3, cmd("/amigos aceitar ana"));
+    expect(ultimoFriends(sent, 2)?.enviados).toEqual([]);
+    expect(ultimoFriends(sent, 2)?.equipe?.membros).toEqual(["ana", "bia"]);
+    expect(ultimoFriends(sent, 3)?.equipe?.membros).toEqual(["ana", "bia"]);
+    expect(ultimoFriends(sent, 3)?.convites).toEqual([]);
+  });
+
+  it("recusar tira o `aguardando` da tela de quem convidou, e ele fica sabendo", () => {
+    const { sent, session } = turma();
+    session.handleMessage(2, cmd("/amigos convidar bia"));
+    session.handleMessage(3, cmd("/amigos recusar ana"));
+    expect(ultimoFriends(sent, 2)?.enviados).toEqual([]);
+    expect(ultimaChat(sent, 2)).toContain("recusou");
+  });
+
+  it("aceitar um convite descarta os outros — e avisa quem tinha convidado", () => {
+    const { sent, session } = turma();
+    session.handleMessage(2, cmd("/amigos convidar caio")); // ana convida caio
+    session.handleMessage(3, cmd("/amigos convidar caio")); // bia também
+    expect(ultimoFriends(sent, 4)?.convites).toEqual(["ana", "bia"]);
+    session.handleMessage(4, cmd("/amigos aceitar ana"));
+    expect(ultimoFriends(sent, 2)?.equipe?.membros).toEqual(["ana", "caio"]);
+    expect(ultimoFriends(sent, 3)?.enviados).toEqual([]); // bia parou de esperar
+  });
+
+  it("expulsar e sair chegam nos dois painéis", () => {
+    const { sent, session } = turma();
+    session.handleMessage(2, cmd("/amigos convidar bia"));
+    session.handleMessage(3, cmd("/amigos aceitar ana"));
+    session.handleMessage(2, cmd("/amigos expulsar bia"));
+    expect(ultimoFriends(sent, 3)?.equipe).toBeNull();
+    expect(ultimoFriends(sent, 2)?.equipe?.membros).toEqual(["ana"]);
+
+    session.handleMessage(2, cmd("/amigos convidar bia"));
+    session.handleMessage(3, cmd("/amigos aceitar ana"));
+    session.handleMessage(2, cmd("/amigos sair")); // o DONO saindo dissolve
+    expect(ultimoFriends(sent, 2)?.equipe).toBeNull();
+    expect(ultimoFriends(sent, 3)?.equipe).toBeNull();
+  });
+});

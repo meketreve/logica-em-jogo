@@ -257,6 +257,29 @@ const SMOKES = [
     ],
   },
   {
+    nome: "preset",
+    arquivo: `${DIR}/_smoke-preset.mjs`,
+    prova:
+      "§🍖 F9 — LJ_PRESET=sobrevivencia faz o mundo NASCER jogado: quem entra já vem em sobrevivência (com a mochila autoritativa, que só existe nela), o ciclo dia/noite já anda, pvp segue no padrão desligada e o professor continua podendo voltar tudo pra criativo.",
+    lento: false,
+    // o mundo nasce em sobrevivência e o smoke o devolve pra criativo no fim:
+    // sem apagar, a 2ª rodada leria o .ljw da 1ª e a 1ª asserção falharia
+    limpar: ["mundos/_smoke-preset"],
+    servidores: [
+      {
+        porta: 8105,
+        env: {
+          LJ_SAVE: "mundos/_smoke-preset.ljw",
+          LJ_NOVO: "1",
+          LJ_TAMANHO: "P",
+          LJ_CODIGO: "prof2026",
+          LJ_SEED: SEED,
+          LJ_PRESET: "sobrevivencia",
+        },
+      },
+    ],
+  },
+  {
     nome: "troca-raio",
     arquivo: `${DIR}/_smoke-troca-raio.mjs`,
     args: ["_smoke-trocab"],

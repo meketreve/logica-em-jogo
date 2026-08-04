@@ -34,6 +34,7 @@ function startSession(
   seed: number,
   preset: WorldPreset,
   tamanho: WorldTamanho,
+  sobrevivencia: boolean,
 ): void {
   let restore: SaveData | undefined;
   if (save) restore = decodeSave(save); // inválido = lança; cliente validou antes
@@ -48,6 +49,8 @@ function startSession(
       seed,
       restore,
       preset,
+      // §🍖 F9: só vale pra mundo NOVO, como o preset e as dims
+      sobrevivencia,
       dims: TAMANHO_CHUNKS[tamanho],
       singleplayer: true,
       now: () => performance.now(),
@@ -70,6 +73,7 @@ self.onmessage = (e: MessageEvent) => {
     flat?: unknown;
     preset?: unknown;
     tamanho?: unknown;
+    sobrevivencia?: unknown;
   };
   if (msg.hostType === "init" && !session) {
     startSession(
@@ -78,6 +82,8 @@ self.onmessage = (e: MessageEvent) => {
       // preset (cp14) só vale pra mundo NOVO; flat=true = alias antigo de plano
       msg.flat === true ? "plano" : parseWorldPreset(msg.preset),
       parseWorldTamanho(msg.tamanho),
+      // §🍖 F9: o menu manda o flag à parte do terreno
+      msg.sobrevivencia === true,
     );
   } else if (msg.hostType === "save_request" && session) {
     // mundo ENORME (lazy): save ESPARSO (F3) — só os chunks editados (o mundo

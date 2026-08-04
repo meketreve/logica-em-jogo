@@ -2,6 +2,7 @@ import {
   VERSION,
   type WorldPreset,
   type WorldTamanho,
+  ehPresetSobrevivencia,
   parseWorldPreset,
   parseWorldTamanho,
   sanitizeName,
@@ -42,6 +43,9 @@ export interface PlayWorldChoice {
   preset?: WorldPreset;
   /** Tamanho do mundo NOVO (2026-07-19): P/M/G — save carrega as próprias dims. */
   tamanho?: WorldTamanho;
+  /** §🍖 F9: o mundo NOVO nasce em sobrevivência (o "como jogar" do formulário).
+   *  Não vai pro IndexedDB — o modo é estado do MUNDO e passa a viver no .ljw. */
+  sobrevivencia?: boolean;
 }
 
 /** Credenciais do join em rede (cp9). PIN NUNCA persiste em localStorage —
@@ -216,6 +220,7 @@ export function showMenu(handlers: MenuHandlers): void {
       data: null,
       preset: parseWorldPreset(newTipo.value),
       tamanho: parseWorldTamanho(el<HTMLSelectElement>("menu-new-tamanho").value),
+      sobrevivencia: ehPresetSobrevivencia(el<HTMLSelectElement>("menu-new-jogo").value),
     });
   });
 
