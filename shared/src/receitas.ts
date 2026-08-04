@@ -1,4 +1,4 @@
-import { BlockId, ITEM_BALDE_VAZIO } from "./blocks";
+import { BlockId, ITEM_BALDE_VAZIO, ITEM_PAO, ITEM_TRIGO } from "./blocks";
 import {
   type Inventario,
   type Stack,
@@ -44,6 +44,11 @@ export interface Receita {
  * viram 1 balde vazio. Não é o número do Minecraft (lá são 3 lingotes), mas no
  * lite não há fundição pra transformar minério em lingote — o minério cru é o
  * material mais próximo, e o balde é o que destrava a água em sobrevivência.
+ *
+ * O **pão** (§🍖 F6) é a única receita de COMIDA, e é ela que dá sentido à
+ * plantação: o trigo colhido não se come, então plantar → esperar → colher →
+ * fabricar é uma cadeia de 4 passos com dependência de tempo no meio. É a mesma
+ * pedagogia do tronco → tábua → escada, só que a recompensa é sobreviver.
  */
 export const RECEITAS: readonly Receita[] = [
   // --- madeira ---
@@ -60,6 +65,8 @@ export const RECEITAS: readonly Receita[] = [
   { saida: { id: BlockId.EscadaPedraXP, qtd: 4 }, custo: [{ id: BlockId.Cobblestone, qtd: 6 }] },
   // --- ferramenta ---
   { saida: { id: ITEM_BALDE_VAZIO, qtd: 1 }, custo: [{ id: BlockId.MinerioFerro, qtd: 3 }] },
+  // --- comida (§🍖 F6) — APPEND no fim, como manda a regra do índice ---
+  { saida: { id: ITEM_PAO, qtd: 1 }, custo: [{ id: ITEM_TRIGO, qtd: 3 }] },
 ];
 
 /** A receita EXISTE? (o índice veio pelo fio — aqui é onde ele para) */

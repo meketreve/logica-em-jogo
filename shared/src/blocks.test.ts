@@ -94,7 +94,15 @@ describe("formato de bloco/chunk (contrato de save e snapshot)", () => {
     expect(BlockId.GramaAltaFria).toBe(181);
     expect(isPlaceable(BlockId.GramaAlta)).toBe(true);
     expect(isPlaceable(BlockId.GramaAltaFria)).toBe(true);
-    expect(isPlaceable(182)).toBe(false); // próximo byte NÃO é bloco
+    // plantação (§🍖 F6 2026-08-04): append 182-185. Só a MUDA se coloca — os
+    // estágios crescidos nascem do tick, e aceitá-los pelo fio daria trigo
+    // maduro de graça a quem forjasse a mensagem.
+    expect(BlockId.Plantacao0).toBe(182);
+    expect(BlockId.Plantacao3).toBe(185);
+    expect(isPlaceable(BlockId.Plantacao0)).toBe(true);
+    expect(isPlaceable(BlockId.Plantacao1)).toBe(false);
+    expect(isPlaceable(BlockId.Plantacao3)).toBe(false);
+    expect(isPlaceable(186)).toBe(false); // próximo byte NÃO é bloco
   });
 
   it("água: fonte + fluida atravessável (não-sólida) e translúcida no mesher", () => {

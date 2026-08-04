@@ -10,7 +10,9 @@ import {
   isBreakable,
   isCama,
   isFullCube,
+  isItem,
   isPlaceable,
+  isPlantacao,
   isPorta,
   isInterativo,
   isJanela,
@@ -26,7 +28,9 @@ import {
   portaEixoX,
   portaHingeAlta,
   precisaApoio,
+  apoioValido,
 } from "./blocks";
+import { isComida, saciedadeDe } from "./comida";
 import { dropsDe, formaCanonica } from "./drops";
 import {
   INV_SLOTS,
@@ -79,6 +83,7 @@ import {
   danoDeQueda,
   gastarEsforco,
   novoEstadoVital,
+  saciar,
   textoDaMorte,
   tickFolego,
   tickFome,
@@ -116,7 +121,7 @@ import {
   caixasSeCruzam,
   claimDentroDoLimite,
 } from "./claims";
-import { ruleFor } from "./rules";
+import { TICKS_POR_CRESCIMENTO, crescerPlantacao, ruleFor } from "./rules";
 import {
   VENTO_PARADO,
   type Vento,
@@ -201,6 +206,13 @@ export interface SessionOptions {
   /** Teto de células de água que MUDAM por tick (proteção de FPS na cascata
    *  gigante). Config de desempenho do host (LJ_AGUA_TICK). */
   aguaPorTick?: number;
+  /**
+   * §🍖 F6: ticks entre dois estágios da plantação (LJ_CRESCIMENTO). O padrão
+   * é `TICKS_POR_CRESCIMENTO` (20 s por estágio); abaixar é o que deixa o smoke
+   * ver a horta inteira amadurecer em segundos em vez de em um minuto, e é o
+   * botão pra o professor experimentar o ritmo num playtest sem esperar a aula.
+   */
+  crescimentoPorEstagio?: number;
 }
 
 interface SessionPlayer {
@@ -414,6 +426,18 @@ export class GameSession {
    *  a eviction consultar rápido. Coluna editada NUNCA é liberada (os bytes
    *  editados só vivem na RAM até o save). */
   private readonly editedCols = new Set<number>();
+  /**
+   * §🍖 F6: células com plantação (packCoord). É um ÍNDICE, não estado: a
+   * verdade continua sendo o byte no chunk, e este conjunto só existe pra o
+   * pulso de crescimento não ter de varrer o mundo atrás de horta. Nasce e
+   * morre dentro do `applyBlockQuieto` (plantou entra, colheu sai), e o
+   * `restore` o reconstrói varrendo os chunks que o save trouxe.
+   */
+  private readonly plantacoes = new Set<number>();
+  /** §🍖 F6: ticks desde o último pulso de crescimento. */
+  private crescimentoTicks = 0;
+  /** §🍖 F6: de quantos em quantos ticks a horta anda um estágio. */
+  private readonly crescimentoPorEstagio: number;
 
   constructor(
     private readonly send: SendFn,
@@ -423,6 +447,10 @@ export class GameSession {
     this.singleplayer = opts.singleplayer ?? false;
     this.colunasPorTick = Math.max(1, opts.colunasPorTick ?? COLUNAS_POR_TICK_PADRAO);
     this.aguaMaxPorTick = Math.max(1, opts.aguaPorTick ?? AGUA_POR_TICK_PADRAO);
+    this.crescimentoPorEstagio = Math.max(
+      1,
+      opts.crescimentoPorEstagio ?? TICKS_POR_CRESCIMENTO,
+    );
     this.codigo = opts.codigo ?? opts.restore?.codigo;
     this.somenteLeitura = opts.somenteLeitura ?? false;
     if (opts.restore) {
@@ -447,6 +475,12 @@ export class GameSession {
           this.editedCols.add(cz * dims.x + cx); // coluna editada nunca é liberada
         }
       }
+      // §🍖 F6: a horta do mundo salvo tem de voltar a crescer. O índice se
+      // reconstrói dos BYTES (não há campo novo no `.ljw` — a verdade já está
+      // no chunk), varrendo só o que o save materializou: no mundo lazy são os
+      // chunks EDITADOS, e worldgen nunca planta nada, então nenhuma plantação
+      // escapa. Mundo antigo (sem plantação) sai da varredura com o índice vazio.
+      this.indexarPlantacoes();
       for (const p of opts.restore.roster) {
         this.roster.set(p.name, { x: p.x, y: p.y, z: p.z, yaw: p.yaw, pitch: p.pitch });
         // §🍖 F2/F3: vida e fome ausentes no save = cheias (o parse já barrou
@@ -915,9 +949,12 @@ export class GameSession {
         }
         if (
           precisaApoio(msg.blockId) &&
-          !isFullCube(getBlock(this.world, msg.x, msg.y - 1, msg.z))
+          !apoioValido(msg.blockId, getBlock(this.world, msg.x, msg.y - 1, msg.z))
         ) {
-          return; // tocha/tapete exigem apoio: sem cubo cheio embaixo, nem coloca
+          // tocha/tapete/flor exigem cubo cheio embaixo; a muda exige SOLO
+          // (§🍖 F6) — mesma pergunta que a regra de vizinhança faz no tick,
+          // pra não existir colocação que evapora no tick seguinte
+          return;
         }
         this.applyBlock(msg.x, msg.y, msg.z, msg.blockId);
         break;
@@ -1065,6 +1102,30 @@ export class GameSession {
           );
           this.sendInventario(clientId);
         }
+        break;
+      }
+      case "comer": {
+        // §🍖 F6: comer é a única ação que consome item SEM tocar no mundo — não
+        // tem célula, não tem alcance, não tem claim. Só a mochila e a barra.
+        const p = this.players.get(clientId);
+        if (!p || !this.inventarioVale(clientId)) return;
+        const item = this.inventarioDe(p.name)[msg.slot];
+        if (!item || !isComida(item.id)) return;
+        // barriga cheia RECUSA a mordida (senão o clique jogaria comida fora).
+        // Com a regra `fome` desligada nunca há fome pra encher, então comer
+        // vira no-op — e é o certo: mundo sem fome não gasta comida.
+        if (!this.temFome()) return;
+        const antes = this.vitalDe(p.name);
+        const depois = saciar(antes, saciedadeDe(item.id));
+        if (depois === antes) return; // barriga cheia (ou morto): não gasta
+        const { inv, removido } = remover(this.inventarioDe(p.name), item.id, 1);
+        if (!removido) return;
+        // os dois lados mudam JUNTOS ou nenhum muda: a barra só sobe depois de
+        // a comida sair da mochila de verdade
+        this.inventarios.set(p.name, inv);
+        this.vitais.set(p.name, depois);
+        this.sendInventario(clientId);
+        this.sendVida(clientId);
         break;
       }
       case "mover_item": {
@@ -1801,7 +1862,10 @@ export class GameSession {
     if (parts.length < 3 || parts.length > 4 || !alvo || !Number.isInteger(id)) {
       return "Uso: /dar eu|all|nome id [quantidade] — o id segue a ordem do inventário, igual ao /bloco.";
     }
-    if (!isPlaceable(id) && !isBalde(id)) return `Não existe item com o id ${id}.`;
+    // §🍖 F6: bloco OU item conhecido. Sem isto o professor não consegue dar
+    // comida — e dar comida é a versão de sala de aula do "consertar acidente"
+    // que justificou o /dar no F4.
+    if (!isPlaceable(id) && !isItem(id)) return `Não existe item com o id ${id}.`;
     if (!Number.isInteger(qtd) || qtd < 1 || qtd > MAX_DAR_QTD) {
       return `Quantidade inválida: use de 1 a ${MAX_DAR_QTD}.`;
     }
@@ -3747,6 +3811,14 @@ export class GameSession {
     // quadro (2026-07-19): a célula deixou de ser quadro → conteúdo morre junto
     // (o cliente limpa pelo próprio block_changed/blocks_filled; sem msg extra)
     if (!isQuadro(blockId)) this.quadros.delete(quadroKey(x, y, z));
+    // §🍖 F6: o índice das plantações segue o byte — plantar entra, crescer
+    // reescreve a mesma chave, colher/derrubar sai. Como TODA mudança de mundo
+    // passa por aqui, não existe horta fora do índice.
+    {
+      const key = this.packCoord(x, y, z);
+      if (isPlantacao(blockId)) this.plantacoes.add(key);
+      else this.plantacoes.delete(key);
+    }
     setBlock(this.world, x, y, z, blockId);
     this.edicoesAplicadas++;
     this.changedThisTick.add(this.packCoord(x, y, z));
@@ -3772,6 +3844,48 @@ export class GameSession {
   /** Chave inteira única da célula (mundo ≤ 256×256×128 cabe em int32). */
   private packCoord(x: number, y: number, z: number): number {
     return (y * this.world.sizeZ + z) * this.world.sizeX + x;
+  }
+
+  /**
+   * §🍖 F6: varre os chunks JÁ MATERIALIZADOS atrás de plantação e reconstrói o
+   * índice. Chamado uma vez, no `restore`. Custo = os chunks que existem naquele
+   * instante (num mundo lazy, só os editados que o save trouxe); chunk ausente
+   * é pulado, e o streaming que vier depois traz terreno gerado, onde não há
+   * horta nenhuma pra indexar.
+   */
+  private indexarPlantacoes(): void {
+    const { dims } = this.world;
+    for (let cy = 0; cy < dims.y; cy++) {
+      for (let cz = 0; cz < dims.z; cz++) {
+        for (let cx = 0; cx < dims.x; cx++) {
+          const chunk = this.world.chunks[chunkIndex(this.world, cx, cy, cz)];
+          if (!chunk) continue;
+          for (let i = 0; i < chunk.length; i++) {
+            if (!isPlantacao(chunk[i]!)) continue;
+            const lx = i % CHUNK_SIZE;
+            const resto = (i - lx) / CHUNK_SIZE;
+            const lz = resto % CHUNK_SIZE;
+            const ly = (resto - lz) / CHUNK_SIZE;
+            this.plantacoes.add(
+              this.packCoord(
+                cx * CHUNK_SIZE + lx,
+                cy * CHUNK_SIZE + ly,
+                cz * CHUNK_SIZE + lz,
+              ),
+            );
+          }
+        }
+      }
+    }
+  }
+
+  /** Inverso do `packCoord`. (O laço de regras do tick desempacota inline —
+   *  é caminho quente e roda por célula suja.) */
+  private unpackCoord(key: number): { x: number; y: number; z: number } {
+    const x = key % this.world.sizeX;
+    const rest = (key - x) / this.world.sizeX;
+    const z = rest % this.world.sizeZ;
+    return { x, y: (rest - z) / this.world.sizeZ, z };
   }
 
   private markDirty(x: number, y: number, z: number): void {
@@ -3894,6 +4008,23 @@ export class GameSession {
     this.regrasMudancasSum += mudancas;
     this.regrasAguaSum += aguaCelulas;
     if (celulas > this.regrasCelulasMax) this.regrasCelulasMax = celulas;
+
+    // §🍖 F6: PULSO DE CRESCIMENTO. Fora da fila de vizinhança de propósito —
+    // crescer não é reação a vizinho, é tempo passando (ver `crescerPlantacao`).
+    // O custo é o TAMANHO DO ÍNDICE, uma vez a cada 20 s: uma horta de turma
+    // inteira tem centenas de células, não milhões, então não há teto aqui como
+    // o da água. A horta anda em bloco, e ver o canteiro inteiro amadurecer
+    // junto é melhor de aula do que cada pé no seu tempo.
+    if (this.plantacoes.size > 0 && ++this.crescimentoTicks >= this.crescimentoPorEstagio) {
+      this.crescimentoTicks = 0;
+      // cópia: o applyBlock de cada mudança mexe no próprio índice
+      for (const key of [...this.plantacoes]) {
+        const { x, y, z } = this.unpackCoord(key);
+        const changes = crescerPlantacao(this.world, x, y, z);
+        if (!changes) continue;
+        for (const c of changes) this.applyBlock(c.x, c.y, c.z, c.blockId);
+      }
+    }
 
     // cp12/13: recheca objetivos tocados por mudanças (dos jogadores E das
     // regras acima — areia caindo dentro do alvo também conta/desconta)

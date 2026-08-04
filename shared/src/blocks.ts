@@ -189,12 +189,24 @@ export const BlockId = {
   GramaAlta: 179,
   GramaAltaSeca: 180,
   GramaAltaFria: 181,
+  /** Plantação (§🍖 F6, 2026-08-04): a segunda fonte de comida, e a única que o
+   *  aluno CONSTRÓI — plantar, esperar, colher é a sequência com dependência
+   *  temporal que a pedagogia quer. 4 estágios em ids consecutivos (0 = muda
+   *  recém-plantada … 3 = madura); só o ESTÁGIO 0 é colocável (é ele que vem na
+   *  mochila, como semente), os outros três só nascem crescendo — mesma
+   *  disciplina de `isPlaceable` com a porta aberta. Cruz de sprite como a flor,
+   *  atravessável, e precisa de SOLO embaixo (`isSolo`), não de cubo cheio
+   *  qualquer: planta não nasce em pedra. */
+  Plantacao0: 182,
+  Plantacao1: 183,
+  Plantacao2: 184,
+  Plantacao3: 185,
 } as const;
 
 export type BlockId = (typeof BlockId)[keyof typeof BlockId];
 
 /** Maior ID válido (mantém isPlaceable sem número mágico ao crescer a lista). */
-const MAX_BLOCK_ID = BlockId.GramaAltaFria;
+const MAX_BLOCK_ID = BlockId.Plantacao3;
 
 /** Água? Fonte (129) OU fluida (130-136) — atravessável e translúcida. */
 export function isAgua(id: number): boolean {
@@ -232,9 +244,68 @@ export function aguaComNivel(n: number): number {
 export const ITEM_BALDE_VAZIO = 900;
 export const ITEM_BALDE_AGUA = 901;
 
+/**
+ * COMIDA (§🍖 F6, 2026-08-04): itens na mesma banda ≥ 900 do balde — não são
+ * blocos, então `isPlaceable` os recusa e eles nunca entram no mundo. A escolha
+ * (item, e não bloco colhível) é a do ROADMAP: o que se come sai da mochila e
+ * some, e nada que some do mundo precisa de byte novo no chunk.
+ *
+ * `fruta` cai da folha (fonte PASSIVA — quem só explora não passa fome);
+ * `trigo` é o que a plantação madura devolve e NÃO se come: é ingrediente do
+ * `pao`, e é essa dependência (plantar → esperar → colher → fabricar) que faz a
+ * comida ensinar sequência em vez de ser um botão.
+ */
+export const ITEM_FRUTA = 902;
+export const ITEM_TRIGO = 903;
+export const ITEM_PAO = 904;
+
 /** É o item balde (cheio ou vazio)? */
 export function isBalde(id: number): boolean {
   return id === ITEM_BALDE_VAZIO || id === ITEM_BALDE_AGUA;
+}
+
+/** Todo item que EXISTE (a banda ≥ 900 não é um intervalo aberto: id fora desta
+ *  lista é byte inventado). Fonte única pra quem precisa aceitar "bloco OU
+ *  item" — o `/dar` do professor e o portão da tabela de drops. */
+const ITENS: ReadonlySet<number> = new Set([
+  ITEM_BALDE_VAZIO,
+  ITEM_BALDE_AGUA,
+  ITEM_FRUTA,
+  ITEM_TRIGO,
+  ITEM_PAO,
+]);
+
+/** É um item conhecido (não-bloco)? */
+export function isItem(id: number): boolean {
+  return ITENS.has(id);
+}
+
+/** Plantação em qualquer estágio (0 = muda … 3 = madura)? */
+export function isPlantacao(id: number): boolean {
+  return id >= BlockId.Plantacao0 && id <= BlockId.Plantacao3;
+}
+
+/** Estágio 0..3 da plantação (−1 se não for plantação). */
+export function estagioPlantacao(id: number): number {
+  return isPlantacao(id) ? id - BlockId.Plantacao0 : -1;
+}
+
+/** Plantação MADURA (pronta pra colher)? */
+export function isPlantacaoMadura(id: number): boolean {
+  return id === BlockId.Plantacao3;
+}
+
+/** SOLO onde uma plantação pega: terra e as três gramas climáticas. Pedra,
+ *  areia e tábua não servem — "planta precisa de terra" é a regra que o aluno
+ *  descobre na primeira tentativa, e ela vale no PLACE e no tick (a muda posta
+ *  em cima de outra coisa evapora, como a flor sem apoio). */
+export function isSolo(id: number): boolean {
+  return (
+    id === BlockId.Dirt ||
+    id === BlockId.Grass ||
+    id === BlockId.GramaSeca ||
+    id === BlockId.GramaFria
+  );
 }
 
 /** SUBSTITUÍVEL? Colocar um bloco por cima sobrescreve direto, sem quebrar
@@ -383,10 +454,24 @@ export function isTapete(id: number): boolean {
   return id >= BlockId.TapeteBranco && id <= BlockId.TapeteMarrom;
 }
 
-/** Precisa de cubo CHEIO embaixo pra ser colocado E pra continuar existindo
- *  (regra no tick). Tocha e tapetes. */
+/** Precisa de apoio embaixo pra ser colocado E pra continuar existindo (regra
+ *  no tick). Tocha, tapetes, flores, capim — e a plantação, que é a única a
+ *  querer um apoio ESPECÍFICO (ver `apoioValido`). */
 export function precisaApoio(id: number): boolean {
-  return id === BlockId.Tocha || isTapete(id) || isFlor(id) || isGramaAlta(id);
+  return (
+    id === BlockId.Tocha || isTapete(id) || isFlor(id) || isGramaAlta(id) || isPlantacao(id)
+  );
+}
+
+/**
+ * O bloco `idAbaixo` serve de apoio pra `id`? Fonte ÚNICA da resposta: o gate
+ * do `place_block` e a regra de vizinhança que derruba o que perdeu o apoio
+ * consultam esta função, senão dava pra colocar uma muda onde ela evaporaria no
+ * tick seguinte. Cubo cheio serve pra todo mundo; a plantação exige SOLO.
+ */
+export function apoioValido(id: number, idAbaixo: number): boolean {
+  if (isPlantacao(id)) return isSolo(idAbaixo);
+  return isFullCube(idAbaixo);
 }
 
 /** Bloco transparente (vidro/folhas): NÃO oculta a face do vizinho no mesher.
@@ -524,6 +609,7 @@ export function isFullCube(id: number): boolean {
     !isQuadro(id) &&
     !isFlor(id) &&
     !isGramaAlta(id) &&
+    !isPlantacao(id) && // cruz de sprite, como a flor
     !isSlab(id) && // laje = meia altura (forma própria + colisão parcial)
     !isStairs(id) // escada = L (forma própria + colisão parcial)
   );
@@ -541,6 +627,7 @@ export function isSolidBlock(id: number): boolean {
     !isQuadro(id) &&
     !isFlor(id) &&
     !isGramaAlta(id) && // capim atravessa (decorativo, como a flor)
+    !isPlantacao(id) && // a plantação também: pisar na horta não empurra o aluno
     !isAgua(id) // água atravessa — o jogador entra e nada (physics.ts)
   );
 }
@@ -551,6 +638,10 @@ export function isPlaceable(id: number): boolean {
   if (isPortaAberta(id)) return false; // porta aberta (base OU R) só nasce alternando uma fechada
   if (isJanelaAberta(id)) return false; // idem janela aberta
   if (isAgua(id)) return false; // água só via balde/fluxo — nunca por place_block cru
+  // §🍖 F6: só a MUDA se planta. Os estágios crescidos nascem do tick e nunca
+  // voltam pra mochila (o drop devolve muda), então aceitar o byte pelo fio só
+  // daria ao cliente um jeito de plantar trigo maduro de graça.
+  if (isPlantacao(id) && id !== BlockId.Plantacao0) return false;
   return Number.isInteger(id) && id >= BlockId.Grass && id <= MAX_BLOCK_ID;
 }
 

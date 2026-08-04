@@ -372,15 +372,16 @@ describe("§🍖 F3 — fome (módulo puro)", () => {
     expect(danos).toBe(DANO_FOME * 3);
   });
 
-  it("a fome ENFRAQUECE, não mata: o dano para em 3 corações", () => {
+  it("§🍖 F6: agora que existe comida, a inanição MATA (piso zerado)", () => {
     let e: ReturnType<typeof novoEstadoVital> = { ...novoEstadoVital(), fome: 0 };
     for (let i = 0; i < TICKS_POR_DANO_FOME * 40; i++) {
       const r = tickFome(e);
       e = r.estado;
       if (r.dano > 0) e = aplicarDano(e, r.dano, "fome").estado;
     }
-    expect(e.vida).toBe(VIDA_MINIMA_POR_FOME);
-    expect(estaVivo(e)).toBe(true);
+    expect(VIDA_MINIMA_POR_FOME).toBe(0); // o botão de UMA linha do F3
+    expect(e.vida).toBe(0);
+    expect(estaVivo(e)).toBe(false);
   });
 
   it("comer volta a existir no F6 — por ora o zero da barra é estado normal", () => {
@@ -454,7 +455,7 @@ describe("§🍖 F3 — fome na sessão", () => {
     expect(ultimaVida(sent, 2)?.vida).toBe(11); // sararia? sara.
   });
 
-  it("barra no zero: dói no tick, avisa a causa e PARA em 3 corações", () => {
+  it("barra no zero: dói no tick, avisa a causa e (§🍖 F6) chega a MATAR", () => {
     const save = baseSave();
     save.modo = "sobrevivencia";
     save.roster = [{ name: "ana", x: 1, y: 20, z: 1, yaw: 0, pitch: 0, fome: 0 }];
@@ -462,10 +463,12 @@ describe("§🍖 F3 — fome na sessão", () => {
     for (let i = 0; i < TICKS_POR_DANO_FOME + 1; i++) session.tick();
     expect(ultimaVida(sent, 2)?.causa).toBe("fome");
     expect(ultimaVida(sent, 2)?.vida).toBe(VIDA_MAX - DANO_FOME);
-    // e por mais que a aula demore, ninguém morre de fome enquanto não há comida
+    // insistindo, a inanição leva até o fim — e a morte avisa a turma pelo
+    // mesmo caminho da queda (o respawn devolve vida e fome cheias)
     for (let i = 0; i < TICKS_POR_DANO_FOME * 40; i++) session.tick();
-    expect(ultimaVida(sent, 2)?.vida).toBe(VIDA_MINIMA_POR_FOME);
-    expect(ultimaVida(sent, 2)?.morreu).toBeUndefined();
+    expect(chats(sent, 2).some((t) => t.includes("ana") && t.includes("fome"))).toBe(true);
+    // e o respawn devolve a barra cheia (a última `vida` é a de depois da morte)
+    expect(ultimaVida(sent, 2)?.vida).toBe(VIDA_MAX);
   });
 
   it("curar custa comida, e a fome baixa TRAVA a regeneração", () => {

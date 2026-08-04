@@ -15,6 +15,9 @@ import {
   type Snapshot,
   ITEM_BALDE_AGUA,
   ITEM_BALDE_VAZIO,
+  ITEM_FRUTA,
+  ITEM_PAO,
+  ITEM_TRIGO,
   acenderColuna,
   atualizarBloco,
   blockSelectionBox,
@@ -26,6 +29,7 @@ import {
   getBlock,
   isBalde,
   isCadeira,
+  isComida,
   isCama,
   isInterativo,
   isJanela,
@@ -1561,11 +1565,16 @@ function startGame(snap: Snapshot): void {
   const icons = makeBlockIcons(
     material.map?.image as HTMLCanvasElement,
     // balde VAZIO não está em PLACEABLE (só o cheio); precisa do ícone dele
-    [...PLACEABLE.map((b) => b.id), ITEM_BALDE_VAZIO],
+    // §🍖 F6: a comida também é item (não está em PLACEABLE) e precisa de ícone
+    // — o painel de craft mostra "falta 3 trigo" com ele.
+    [...PLACEABLE.map((b) => b.id), ITEM_BALDE_VAZIO, ITEM_FRUTA, ITEM_TRIGO, ITEM_PAO],
   );
   const blockName = (id: number): string => {
     if (id === ITEM_BALDE_VAZIO) return "balde vazio";
     if (id === ITEM_BALDE_AGUA) return "balde de água";
+    if (id === ITEM_FRUTA) return "fruta";
+    if (id === ITEM_TRIGO) return "trigo";
+    if (id === ITEM_PAO) return "pão";
     return PLACEABLE.find((b) => b.id === id)?.name ?? "?";
   };
   const refreshHotbar = (): void => {
@@ -1690,6 +1699,14 @@ function startGame(snap: Snapshot): void {
     );
   });
   input.onMouseButton(2, () => {
+    // §🍖 F6: comer vem ANTES do `if (!target)` — comer não precisa de bloco
+    // mirado (olhar pro céu e morder tem de funcionar), e é o único uso do
+    // clique direito que não tem célula. O servidor decide se a mordida vale
+    // (barriga cheia recusa); o cliente só pede, como em todo o resto.
+    if (mochila.ativa && isComida(idNaMao() ?? -1)) {
+      activeConn.send(JSON.stringify({ type: "comer", slot: selected }));
+      return;
+    }
     if (!target) return;
     if (varinhaAtiva) {
       wandMark(2, target);

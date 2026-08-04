@@ -1,11 +1,16 @@
 import {
   BlockId,
+  ITEM_FRUTA,
+  ITEM_TRIGO,
   escadaId,
   isAgua,
   isCadeira,
   isCama,
   isFolhas,
+  isGramaAlta,
   isJanela,
+  isPlantacao,
+  isPlantacaoMadura,
   isPorta,
   isQuadro,
   isSlab,
@@ -46,6 +51,9 @@ export function formaCanonica(id: number): number {
   if (isQuadro(id)) return BlockId.QuadroXP;
   if (isSlab(id)) return BlockId.LajePedraBaixo + slabMaterial(id) * 2;
   if (isStairs(id)) return escadaId(stairsMaterial(id), 0, false);
+  // §🍖 F6: os 4 estágios da plantação têm UMA entrada na mochila — a muda. É a
+  // mesma razão da porta: o aluno guarda o que sabe replantar.
+  if (isPlantacao(id)) return BlockId.Plantacao0;
   return id;
 }
 
@@ -55,8 +63,6 @@ export function formaCanonica(id: number): number {
  * - **grama → terra** (as três variantes climáticas): o número do Minecraft, e
  *   o que impede o aluno de fabricar tapete de grama no meio da pedra.
  * - **pedra → pedregulho**: idem. É o par que dá sentido ao craft do F5.
- * - **folha → nada**: a folha é copa de árvore gerada, não material. É daqui
- *   que a FRUTA vai cair quando o F6 existir — a entrada já tem lugar.
  * - **água → nada**: só o balde recolhe fonte (a mecânica é do `case "balde"`).
  * - **rocha-matriz → nada**: `isBreakable` já barra o jogador; a tabela é o
  *   cinto além do suspensório, porque `/bloco` do professor remove.
@@ -70,14 +76,53 @@ const EXCECOES = new Map<number, number | null>([
 ]);
 
 /**
- * O que o jogador ganha ao quebrar esta célula. Lista (e não pilha única)
- * porque o F6 vai querer "folha → 1 fruta às vezes" e o minério, um dia, "1
- * bruto + carvão": a assinatura já aguenta, sem tocar em quem chama.
+ * §🍖 F6 — as duas exceções SORTEADAS, e as únicas do jogo.
+ *
+ * A folha é a fonte PASSIVA de comida: quem só explora o mundo não passa fome,
+ * e nenhuma aula trava porque a turma não entendeu a horta. A grama alta é a
+ * porta de entrada da fonte ATIVA — sem semente não há plantação, e é caçando
+ * capim que o aluno começa a cadeia.
+ *
+ * As chances são MUITO mais generosas que as do Minecraft (maçã de folha lá é
+ * 1/200) porque aqui a unidade de tempo é a aula, não a temporada: 1 em 8 dá
+ * fruta em meia dúzia de folhas, e 1 em 4 dá a primeira semente no primeiro
+ * tufo de capim que o aluno derruba.
  */
-export function dropsDe(blockId: number): readonly Stack[] {
+export const CHANCE_FRUTA_DA_FOLHA = 1 / 8;
+export const CHANCE_SEMENTE_DO_CAPIM = 1 / 4;
+
+/**
+ * O que o jogador ganha ao quebrar esta célula. Lista (e não pilha única)
+ * porque a plantação madura devolve DUAS coisas (o trigo e a muda de replantar)
+ * e o minério, um dia, vai querer "1 bruto + carvão".
+ *
+ * `sorteio` é injetável só por causa do teste: é a única parte não determinística
+ * da tabela, e um drop aleatório que não dá pra fixar não se prova.
+ */
+export function dropsDe(
+  blockId: number,
+  sorteio: () => number = Math.random,
+): readonly Stack[] {
   if (blockId === BlockId.Air) return [];
   if (isAgua(blockId)) return [];
-  if (isFolhas(blockId)) return [];
+  // folha → fruta ÀS VEZES (a folha em si continua não sendo material)
+  if (isFolhas(blockId)) {
+    return sorteio() < CHANCE_FRUTA_DA_FOLHA ? [{ id: ITEM_FRUTA, qtd: 1 }] : [];
+  }
+  // capim → semente às vezes (e nunca o próprio capim: é decoração do gen, e
+  // devolvê-lo daria ao aluno um tapete de mato infinito)
+  if (isGramaAlta(blockId)) {
+    return sorteio() < CHANCE_SEMENTE_DO_CAPIM ? [{ id: BlockId.Plantacao0, qtd: 1 }] : [];
+  }
+  // plantação MADURA: colhe o trigo E devolve a muda — replantar é o passo que
+  // fecha o ciclo, e cobrar uma semente nova a cada colheita transformaria a
+  // horta num gargalo de sorte em vez de uma sequência.
+  if (isPlantacaoMadura(blockId)) {
+    return [
+      { id: ITEM_TRIGO, qtd: 1 },
+      { id: BlockId.Plantacao0, qtd: 1 },
+    ];
+  }
   if (EXCECOES.has(blockId)) {
     const alvo = EXCECOES.get(blockId) ?? null;
     return alvo === null ? [] : [{ id: alvo, qtd: 1 }];

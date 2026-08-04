@@ -49,6 +49,11 @@ export type ClientMessage =
    *  Só vale em sobrevivência; o servidor consome os ingredientes e responde
    *  com o `inventario` inteiro. Índice inválido é ignorado (parse defensivo). */
   | { type: "fabricar"; receita: number }
+  /** Comer (§🍖 F6): morde o item do slot `slot` da mochila. Só vale em
+   *  sobrevivência; o servidor confere que o slot segura comida e que a barra
+   *  não está cheia (barriga cheia RECUSA, pra a mordida não jogar comida
+   *  fora), consome UMA unidade e responde com `vida` + `inventario`. */
+  | { type: "comer"; slot: number }
   /** Quadro (2026-07-19): define o CONTEÚDO do quadro naquela célula (texto
    *  e/ou imagem data URL pequena). Servidor valida célula/alcance/gates e
    *  responde com quadro_changed broadcast. Texto vazio sem imagem = limpa. */
@@ -482,6 +487,11 @@ export function parseClientMessage(raw: string): ClientMessage | null {
       const r = m["receita"];
       if (typeof r !== "number" || !Number.isInteger(r)) return null;
       return { type: "fabricar", receita: r };
+    }
+    case "comer": {
+      const s = m["slot"];
+      if (typeof s !== "number" || !Number.isInteger(s)) return null;
+      return { type: "comer", slot: s };
     }
     case "chat":
       if (typeof m["text"] !== "string") return null;

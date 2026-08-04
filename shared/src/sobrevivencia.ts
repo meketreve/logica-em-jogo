@@ -60,15 +60,18 @@ export const TICKS_POR_DANO_FOME = 40;
 export const DANO_FOME = 1;
 
 /**
- * **A fome não mata enquanto não houver o que comer.** O dano por inanição
- * para em 3 corações — é o análogo do nível "fácil" do Minecraft e a decisão de
- * sala de aula: o aluno faminto fica fraco (sem regeneração, ver
- * `FOME_PARA_REGENERAR`) mas não perde a construção por causa de uma frente que
- * ainda não existe. **No dia em que a comida existir (F6), baixar este número
- * pra 0 devolve a inanição letal** — o `textoDaMorte("fome")` já está escrito e
- * o resto do caminho é o mesmo.
+ * Piso da vida por inanição. **ZERO desde o §🍖 F6 (2026-08-04): a fome MATA
+ * de novo** — o F3 tinha travado o dano em 3 corações porque não havia o que
+ * comer, e agora há duas fontes (fruta da folha e plantação) mais o pão. Foi
+ * decisão do usuário fechar o laço: quem não come, morre, e o
+ * `textoDaMorte("fome")` que já estava escrito passa a acontecer.
+ *
+ * Continua sendo o botão de UMA linha no outro sentido: subir pra 6 devolve a
+ * fome que só enfraquece (o análogo do nível "fácil"), e a saída mais radical
+ * pro fundamental 1 segue sendo `/regra fome desligar`, que tira a barra da
+ * tela inteira.
  */
-export const VIDA_MINIMA_POR_FOME = 6;
+export const VIDA_MINIMA_POR_FOME = 0;
 
 /** Ticks entre dois pontos de regeneração (10 Hz → 4 s por meio coração). */
 export const TICKS_POR_REGEN = 40;
@@ -150,11 +153,25 @@ export function aplicarDano(
   };
 }
 
-/** Cura direta (respawn, comida do F6). Nunca passa de VIDA_MAX. */
+/** Cura direta (respawn). Nunca passa de VIDA_MAX. */
 export function curar(e: EstadoVital, pontos: number): EstadoVital {
   const n = Math.max(0, Math.floor(pontos));
   if (n === 0) return e;
   return { ...e, vida: Math.min(VIDA_MAX, e.vida + n), regenTicks: 0 };
+}
+
+/**
+ * §🍖 F6: comer. Devolve pontos de fome (a tabela de quanto cada item vale é do
+ * `comida.ts` — aqui só entra o número). Barriga cheia ou morto devolve o MESMO
+ * objeto, e é assim que a session sabe recusar a mordida sem gastar o item:
+ * comer de barriga cheia jogaria comida fora, que numa aula é frustração.
+ *
+ * Não mexe na vida de propósito — ver a nota no `comida.ts`.
+ */
+export function saciar(e: EstadoVital, pontos: number): EstadoVital {
+  const n = Math.max(0, Math.floor(pontos));
+  if (n === 0 || !estaVivo(e) || e.fome >= FOME_MAX) return e;
+  return { ...e, fome: Math.min(FOME_MAX, e.fome + n) };
 }
 
 /**

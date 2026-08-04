@@ -206,6 +206,11 @@ let session = new GameSession(
     ...(Number.isFinite(Number(process.env["LJ_AGUA_TICK"])) && process.env["LJ_AGUA_TICK"]
       ? { aguaPorTick: Number(process.env["LJ_AGUA_TICK"]) }
       : {}),
+    // §🍖 F6 (2026-08-04): ticks por estágio da plantação. Padrão = 20 s; o
+    // smoke abaixa pra não esperar um minuto, e serve de botão de playtest.
+    ...(Number.isFinite(Number(process.env["LJ_CRESCIMENTO"])) && process.env["LJ_CRESCIMENTO"]
+      ? { crescimentoPorEstagio: Number(process.env["LJ_CRESCIMENTO"]) }
+      : {}),
   },
 );
 if (session.isLazy) {

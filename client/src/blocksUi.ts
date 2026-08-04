@@ -111,6 +111,12 @@ export const PLACEABLE: readonly PlaceableEntry[] = [
     name: `grama alta${clima}`,
     cat: "vegetacao" as const,
   })),
+  // Semente (§🍖 F6 2026-08-04): UMA entrada — os outros 3 estágios não se
+  // colocam (crescem sozinhos). Em sobrevivência ela vem do capim; em criativo
+  // está na paleta porque o professor precisa desenhar uma horta pronta na aula.
+  // O nome é "semente" e não "muda" porque é o que se CARREGA; o que aparece no
+  // mundo ao plantar é um broto, e o ícone da bolsa mostra grãos (blockIcons).
+  { id: BlockId.Plantacao0, name: "semente", cat: "vegetacao" },
   // Minérios (2026-07-20): porta de entrada do survival — por ora só blocos
   { id: BlockId.MinerioCarvao, name: "minério de carvão", cat: "minerios" },
   { id: BlockId.MinerioFerro, name: "minério de ferro", cat: "minerios" },

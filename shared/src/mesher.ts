@@ -3,6 +3,7 @@ import {
   aguaNivel,
   camaHeadDir,
   collisionBoxes,
+  estagioPlantacao,
   isAgua,
   isCadeira,
   isCama,
@@ -13,6 +14,7 @@ import {
   isJanela,
   isJanelaAberta,
   isMovel,
+  isPlantacao,
   isPorta,
   isPortaAberta,
   isQuadro,
@@ -142,6 +144,13 @@ export const TILE = {
    * de uma vez com UM `putImageData` de 128×16, e isso exige retângulo.
    */
   aguaFluxo: 112,
+  /** §🍖 F6 (2026-08-04): os 4 estágios da plantação, contíguos e na ordem dos
+   *  ids (`TILE.plantacao0 + estagio`). Começam em 120 porque `aguaFluxo` ocupa
+   *  8 tiles (112..119). Cruz de sprite como a flor: fundo transparente. */
+  plantacao0: 120,
+  plantacao1: 121,
+  plantacao2: 122,
+  plantacao3: 123,
 } as const;
 
 /** cp20: blocos-glifo. Letras A–Z e dígitos 0–9 ocupam tiles consecutivos a
@@ -280,6 +289,12 @@ for (let i = 0; i < 3; i++) {
   BLOCK_TILES[BlockId.GramaAlta + i] = uniform(TILE.gramaAlta + i);
 }
 
+// plantação (§🍖 F6 2026-08-04): um tile por estágio, na ordem dos ids. O ícone
+// 2D da hotbar sai daqui — e é o do estágio 0, que é o único que vai à mochila.
+for (let i = 0; i < 4; i++) {
+  BLOCK_TILES[BlockId.Plantacao0 + i] = uniform(TILE.plantacao0 + i);
+}
+
 // cp20: letras/dígitos = cubos uniformes com o tile do glifo (append A→Z, 0→9).
 for (let i = 0; i < GLYPH.letters.length; i++) {
   BLOCK_TILES[BlockId.LetterA + i] = uniform(GLYPH.base + i);
@@ -312,7 +327,9 @@ export function blockIconTile(id: number): number {
 export function blockSelectionBox(
   id: number,
 ): readonly [number, number, number, number, number, number] {
-  if (isFlor(id) || isGramaAlta(id)) return [4 * P, 0, 4 * P, 12 * P, 1, 12 * P];
+  if (isFlor(id) || isGramaAlta(id) || isPlantacao(id)) {
+    return [4 * P, 0, 4 * P, 12 * P, 1, 12 * P];
+  }
   if (isTapete(id)) return [0, 0, 0, 1, P, 1];
   if (id === BlockId.Tocha) return [7 * P, 0, 7 * P, 9 * P, 10 * P, 9 * P];
   if (id === BlockId.Cerca) return [6 * P, 0, 6 * P, 10 * P, 1, 10 * P];
@@ -544,7 +561,7 @@ export const SWAY_PLANTA = 1;
 /** Balanço do bloco. 0 = rígido (a esmagadora maioria — pedra não venta). */
 function swayDoBloco(id: number): number {
   if (isFolhas(id)) return SWAY_FOLHAS;
-  if (isFlor(id) || isGramaAlta(id)) return SWAY_PLANTA;
+  if (isFlor(id) || isGramaAlta(id) || isPlantacao(id)) return SWAY_PLANTA;
   return 0;
 }
 
@@ -968,6 +985,15 @@ export function meshVizinhanca(viz: Uint8Array, luzViz?: Uint8Array | null): Chu
         // grama alta (§🌬️ 2026-07-27): mesma cruz da flor, tile por clima
         if (isGramaAlta(id)) {
           const tile = TILE.gramaAlta + (id - BlockId.GramaAlta);
+          emitCrossPlane(lx, ly, lz, tile, 0, 0, 1, 1);
+          emitCrossPlane(lx, ly, lz, tile, 0, 1, 1, 0);
+          return true;
+        }
+        // plantação (§🍖 F6 2026-08-04): mesma cruz, tile por ESTÁGIO — é a
+        // altura desenhada no tile que conta a idade da planta pro aluno, sem
+        // forma nova no mesher nem mensagem extra na rede.
+        if (isPlantacao(id)) {
+          const tile = TILE.plantacao0 + estagioPlantacao(id);
           emitCrossPlane(lx, ly, lz, tile, 0, 0, 1, 1);
           emitCrossPlane(lx, ly, lz, tile, 0, 1, 1, 0);
           return true;

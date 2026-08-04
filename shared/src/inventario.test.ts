@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { BlockId, ITEM_BALDE_VAZIO } from "./blocks";
+import { BlockId, ITEM_BALDE_VAZIO, ITEM_FRUTA } from "./blocks";
 import {
   HOTBAR_SLOTS,
   INV_SLOTS,
@@ -365,13 +365,17 @@ describe("§🍖 F4 — quebrar DÁ (pela tabela de drops)", () => {
     expect(contar(ultimoInv(sent, 2) ?? inventarioVazio(), BlockId.Cobblestone)).toBe(1);
   });
 
-  it("folha não dá nada (e nem por isso deixa de quebrar)", () => {
+  it("folha quebra sempre — o que ela dá virou SORTEIO no §🍖 F6", () => {
     const { session, sent } = turma("sobrevivencia");
     const a = alvoLivre(session);
     setBlock(session.world, a.x, a.y, a.z, BlockId.Leaves);
     session.handleMessage(2, quebrar(a.x, a.y, a.z));
     expect(getBlock(session.world, a.x, a.y, a.z)).toBe(BlockId.Air);
-    expect(estaVazio(ultimoInv(sent, 2) ?? inventarioVazio())).toBe(true);
+    // a chance mora em `drops.ts` (e o teste dela injeta o sorteio); aqui o que
+    // importa é que a folha NUNCA vira folha na mochila
+    const inv = ultimoInv(sent, 2) ?? inventarioVazio();
+    expect(contar(inv, BlockId.Leaves)).toBe(0);
+    expect(estaVazio(inv) || contar(inv, ITEM_FRUTA) === 1).toBe(true);
   });
 
   it("em CRIATIVO quebrar não dá nada (paleta infinita, mochila intocada)", () => {

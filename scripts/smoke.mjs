@@ -234,6 +234,29 @@ const SMOKES = [
     ],
   },
   {
+    nome: "comida",
+    arquivo: `${DIR}/_smoke-comida.mjs`,
+    prova:
+      "§🍖 F6 — a plantação CRESCE no tick do servidor e chega como block_changed normal, só pega em solo, colher a madura dá trigo + a muda de volta, 3 trigo viram pão, comer enche a barra e gasta uma unidade, e de barriga cheia a mordida é recusada.",
+    lento: false,
+    // o smoke deixa horta, mochila e modo pessoal gravados no .ljw
+    limpar: ["mundos/_smoke-comida"],
+    servidores: [
+      {
+        porta: 8104,
+        env: {
+          LJ_SAVE: "mundos/_smoke-comida.ljw",
+          LJ_NOVO: "1",
+          LJ_TAMANHO: "P",
+          LJ_CODIGO: "prof2026",
+          LJ_SEED: SEED,
+          // 0,5 s por estágio: sem isto o smoke esperaria um minuto pela horta
+          LJ_CRESCIMENTO: "5",
+        },
+      },
+    ],
+  },
+  {
     nome: "troca-raio",
     arquivo: `${DIR}/_smoke-troca-raio.mjs`,
     args: ["_smoke-trocab"],

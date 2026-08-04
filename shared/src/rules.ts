@@ -2,10 +2,13 @@ import {
   BlockId,
   aguaComNivel,
   aguaNivel,
+  apoioValido,
   camaHeadDir,
   isAgua,
   isAguaFonte,
   isFullCube,
+  isPlantacao,
+  isPlantacaoMadura,
 } from "./blocks";
 import { type World, getBlock, inBounds } from "./world";
 
@@ -70,10 +73,45 @@ export const camaRule: BlockRule = (world, x, y, z) => {
   return [{ x, y, z, blockId: BlockId.Air }];
 };
 
-/** Tocha (cp23): precisa de cubo CHEIO embaixo; perdeu o suporte, some. */
+/**
+ * Apoio (cp23): perdeu o que segurava embaixo, some. Vale pra tocha, tapete,
+ * flor, capim e plantação — quem responde "este apoio serve?" é `apoioValido`,
+ * a MESMA função que o `place_block` consulta, senão dava pra colocar uma coisa
+ * que evapora no tick seguinte.
+ */
 export const torchRule: BlockRule = (world, x, y, z) => {
-  if (isFullCube(getBlock(world, x, y - 1, z))) return null;
+  const id = getBlock(world, x, y, z);
+  if (apoioValido(id, getBlock(world, x, y - 1, z))) return null;
   return [{ x, y, z, blockId: BlockId.Air }];
+};
+
+/** §🍖 F6: ticks entre dois estágios da plantação (10 Hz → 20 s por estágio,
+ *  ~1 min da muda ao trigo maduro). É O botão de ajuste do playtest: uma aula
+ *  tem 50 min e a barra de fome leva a aula inteira pra esvaziar, então a horta
+ *  tem de responder em minutos, não em temporadas. */
+export const TICKS_POR_CRESCIMENTO = 200;
+
+/**
+ * §🍖 F6 — a plantação avança UM estágio.
+ *
+ * NÃO está no registro `RULES`, e isso é a decisão do desenho: a fila de células
+ * sujas acorda por VIZINHANÇA ("alguém mexeu aqui do lado"), e crescer não é
+ * reação a vizinho nenhum — é tempo passando. Se fosse regra registrada, colocar
+ * um bloco ao lado da horta a faria amadurecer na hora. Então a session guarda
+ * as células plantadas e chama esta função de `TICKS_POR_CRESCIMENTO` em
+ * `TICKS_POR_CRESCIMENTO`; o resto (broadcast, sujar vizinho) é o `applyBlock`
+ * de sempre. Pura e testável como qualquer `BlockRule`.
+ *
+ * **Não olha luz**: a luz do jogo mora 100% no cliente (§💡) e o servidor não
+ * tem esse byte. Plantação cresce no escuro, e numa aula isso é uma dor a menos.
+ */
+export const crescerPlantacao: BlockRule = (world, x, y, z) => {
+  const id = getBlock(world, x, y, z);
+  if (!isPlantacao(id) || isPlantacaoMadura(id)) return null;
+  // sem solo embaixo a planta está de saída (o torchRule a apaga no tick da
+  // vizinhança) — não faz sentido ela crescer no caminho
+  if (!apoioValido(id, getBlock(world, x, y - 1, z))) return null;
+  return [{ x, y, z, blockId: id + 1 }];
 };
 
 /** 4 vizinhos horizontais (a água só espalha na MESMA camada + cai). */
@@ -262,6 +300,18 @@ for (const id of [BlockId.CamaXP, BlockId.CamaZP, BlockId.CamaXN, BlockId.CamaZN
 }
 // Flores (2026-07-20): mesma regra de apoio da tocha — sem chão embaixo, some.
 for (let id = BlockId.FlorVermelha; id <= BlockId.FlorBranca; id++) {
+  rulesMap.set(id, torchRule);
+}
+// Grama alta (§🌬️ 2026-07-27): `precisaApoio` já a listava, mas ela nunca foi
+// REGISTRADA aqui — então o capim ficava flutuando quando o chão sumia debaixo
+// dele (achado na sessão 36, corrigido no §🍖 F6).
+for (let id = BlockId.GramaAlta; id <= BlockId.GramaAltaFria; id++) {
+  rulesMap.set(id, torchRule);
+}
+// Plantação (§🍖 F6 2026-08-04): a regra de vizinhança só cuida do APOIO (cavar
+// a terra debaixo da horta derruba a horta). Crescer é `crescerPlantacao`, que
+// a session chama por TEMPO — ver a nota lá.
+for (let id = BlockId.Plantacao0; id <= BlockId.Plantacao3; id++) {
   rulesMap.set(id, torchRule);
 }
 // Água FLUIDA (2026-07-22): fonte (129) + os 7 níveis fluidos ticam pelo

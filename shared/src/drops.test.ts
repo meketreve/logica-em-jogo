@@ -1,6 +1,18 @@
 import { describe, expect, it } from "vitest";
-import { BlockId, isPlaceable, isProfessorOnly } from "./blocks";
-import { dropsDe, formaCanonica } from "./drops";
+import {
+  BlockId,
+  ITEM_FRUTA,
+  ITEM_TRIGO,
+  isItem,
+  isPlaceable,
+  isProfessorOnly,
+} from "./blocks";
+import {
+  CHANCE_FRUTA_DA_FOLHA,
+  CHANCE_SEMENTE_DO_CAPIM,
+  dropsDe,
+  formaCanonica,
+} from "./drops";
 
 describe("drops — forma canônica (o byte volta como entrada da hotbar)", () => {
   it("porta aberta, fechada e variante R viram UMA porta", () => {
@@ -63,11 +75,8 @@ describe("drops — a tabela", () => {
     expect(dropsDe(BlockId.Stone)).toEqual([{ id: BlockId.Cobblestone, qtd: 1 }]);
   });
 
-  it("folha, água e ar não caem em nada", () => {
-    for (const id of [
-      BlockId.Leaves, BlockId.FolhasIpe, BlockId.FolhasAraucaria, BlockId.FolhasPauBrasil,
-      BlockId.Agua, BlockId.AguaFluida3, BlockId.Air,
-    ]) {
+  it("água e ar não caem em nada", () => {
+    for (const id of [BlockId.Agua, BlockId.AguaFluida3, BlockId.Air]) {
       expect(dropsDe(id)).toEqual([]);
     }
   });
@@ -80,13 +89,67 @@ describe("drops — a tabela", () => {
     expect(dropsDe(BlockId.PortaXAbertaR)).toEqual([{ id: BlockId.PortaXFechada, qtd: 1 }]);
   });
 
-  it("O PORTÃO: tudo que cai é COLOCÁVEL e não é só-de-professor", () => {
-    for (let id = 1; id <= BlockId.GramaAltaFria; id++) {
-      for (const d of dropsDe(id)) {
-        expect(isPlaceable(d.id), `bloco ${id} caiu em ${d.id}, que não é colocável`).toBe(true);
-        expect(isProfessorOnly(d.id), `bloco ${id} caiu em ${d.id}, que é só de professor`).toBe(false);
-        expect(d.qtd).toBeGreaterThan(0);
+  it("O PORTÃO: tudo que cai é COLOCÁVEL (ou item conhecido) e nunca de professor", () => {
+    // §🍖 F6: o portão passou a aceitar ITEM, porque comida não é bloco. O que
+    // ele continua provando é o que importa: nada cai em byte que o aluno não
+    // consiga usar, e nada cai em ferramenta de autoria.
+    // sempre (1) e nunca (0) — as duas pontas do sorteio, pra o portão ver os
+    // dois ramos das exceções sorteadas em vez de depender da sorte
+    for (const sorteio of [() => 0, () => 0.999]) {
+      for (let id = 1; id <= BlockId.Plantacao3; id++) {
+        for (const d of dropsDe(id, sorteio)) {
+          expect(
+            isPlaceable(d.id) || isItem(d.id),
+            `bloco ${id} caiu em ${d.id}, que não é colocável nem item conhecido`,
+          ).toBe(true);
+          expect(isProfessorOnly(d.id), `bloco ${id} caiu em ${d.id}, que é só de professor`).toBe(false);
+          expect(d.qtd).toBeGreaterThan(0);
+        }
       }
+    }
+  });
+});
+
+describe("§🍖 F6 — as duas fontes de comida", () => {
+  it("folha dá fruta ÀS VEZES, e nada no resto das vezes", () => {
+    for (const folha of [
+      BlockId.Leaves, BlockId.FolhasIpe, BlockId.FolhasAraucaria, BlockId.FolhasPauBrasil,
+    ]) {
+      expect(dropsDe(folha, () => 0)).toEqual([{ id: ITEM_FRUTA, qtd: 1 }]);
+      expect(dropsDe(folha, () => 0.999)).toEqual([]);
+    }
+  });
+
+  it("capim dá SEMENTE às vezes — e nunca o próprio capim", () => {
+    for (const capim of [BlockId.GramaAlta, BlockId.GramaAltaSeca, BlockId.GramaAltaFria]) {
+      expect(dropsDe(capim, () => 0)).toEqual([{ id: BlockId.Plantacao0, qtd: 1 }]);
+      expect(dropsDe(capim, () => 0.999)).toEqual([]);
+    }
+  });
+
+  it("a chance da folha é MAIS generosa que a do Minecraft (aula, não temporada)", () => {
+    expect(CHANCE_FRUTA_DA_FOLHA).toBeGreaterThan(1 / 200);
+    expect(CHANCE_SEMENTE_DO_CAPIM).toBeGreaterThan(CHANCE_FRUTA_DA_FOLHA);
+  });
+
+  it("plantação MADURA dá o trigo E devolve a muda (replantar fecha o ciclo)", () => {
+    expect(dropsDe(BlockId.Plantacao3)).toEqual([
+      { id: ITEM_TRIGO, qtd: 1 },
+      { id: BlockId.Plantacao0, qtd: 1 },
+    ]);
+  });
+
+  it("plantação VERDE devolve só a muda — arrancar cedo não premia", () => {
+    for (const id of [BlockId.Plantacao0, BlockId.Plantacao1, BlockId.Plantacao2]) {
+      expect(dropsDe(id)).toEqual([{ id: BlockId.Plantacao0, qtd: 1 }]);
+    }
+  });
+
+  it("os 4 estágios têm UMA entrada na mochila: a muda", () => {
+    for (const id of [
+      BlockId.Plantacao0, BlockId.Plantacao1, BlockId.Plantacao2, BlockId.Plantacao3,
+    ]) {
+      expect(formaCanonica(id)).toBe(BlockId.Plantacao0);
     }
   });
 });

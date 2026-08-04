@@ -421,6 +421,44 @@ function paintGramaAlta(ctx: CanvasRenderingContext2D, tile: number, base: Rgb):
   }
 }
 
+/**
+ * Plantação (§🍖 F6, 2026-08-04): 4 tiles em cutout, um por estágio. O estágio
+ * é lido pela ALTURA e pela COR — verde e rasteiro na muda, alto e dourado com
+ * espigas na madura. É a única informação que o aluno precisa ler de longe pra
+ * saber se já dá pra colher, e ela não custa mensagem nenhuma: está no byte.
+ *
+ * Mesmo desenho de lâminas do capim (`paintGramaAlta`), com a semente fixa por
+ * tile — assim a horta não fica com todos os pés idênticos, mas o mesmo pé
+ * desenha igual em todo cliente.
+ */
+function paintPlantacao(ctx: CanvasRenderingContext2D, tile: number, estagio: number): void {
+  const [ox, oy] = tileOrigin(tile);
+  const px = ATLAS.tilePx;
+  ctx.clearRect(ox, oy, px, px);
+  // verde-novo → verde-maduro → dourado (o amarelo só chega no fim)
+  const CORES: readonly Rgb[] = [
+    [96, 176, 74],
+    [104, 172, 62],
+    [156, 176, 56],
+    [206, 176, 60],
+  ];
+  const base = CORES[estagio] ?? CORES[0]!;
+  const alturaMax = 4 + estagio * 4; // 4 → 16 px: a planta SOBE com a idade
+  const HASTES = 5;
+  for (let i = 0; i < HASTES; i++) {
+    const x0 = 2 + Math.floor(pixelHash(i, 0, 91) * (px - 4));
+    const alt = Math.max(2, alturaMax - Math.floor(pixelHash(i, 1, 93) * 3));
+    const t = 0.78 + pixelHash(i, 2, 95) * 0.42;
+    ctx.fillStyle = `rgb(${Math.round(base[0] * t)},${Math.round(base[1] * t)},${Math.round(base[2] * t)})`;
+    for (let k = 0; k < alt; k++) ctx.fillRect(ox + x0, oy + px - 1 - k, 1, 1);
+    // espiga: só na MADURA, e é ela que diz "pode colher" à distância
+    if (estagio === 3) {
+      ctx.fillStyle = "rgb(226,196,88)";
+      ctx.fillRect(ox + x0 - 1, oy + px - alt, 3, 3);
+    }
+  }
+}
+
 /** Vetor de onda da água: dois setores inteiros + a mistura entre eles (ver
  *  `ondaAguaDoVento` em shared/vento.ts, que explica por que é um PAR). */
 export interface OndaAgua {
@@ -674,6 +712,9 @@ export function createAtlasTexture(): THREE.Texture {
   paintGramaAlta(ctx, TILE.gramaAlta, [92, 158, 60]);
   paintGramaAlta(ctx, TILE.gramaAltaSeca, [178, 162, 66]);
   paintGramaAlta(ctx, TILE.gramaAltaFria, [96, 138, 116]);
+
+  // plantação (§🍖 F6 2026-08-04): 4 estágios, do broto ao trigo maduro
+  for (let i = 0; i < 4; i++) paintPlantacao(ctx, TILE.plantacao0 + i, i);
 
   // vidro colorido (2026-07-25): mesma paleta das lãs, na ordem VidroBranco..Marrom
   const CORES_VIDRO: readonly Rgb[] = [
