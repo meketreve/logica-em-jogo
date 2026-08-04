@@ -3726,6 +3726,61 @@
       ],
       "occurrences": 1,
       "last_seen": "2026-08-04T23:55:00-03:00"
+    },
+    {
+      "id": "bug-564",
+      "timestamp": "2026-08-04T09:40:00-03:00",
+      "error_message": "npx -y @puppeteer/browsers install chrome@stable: 'DefaultProvider: Extraction failed: no zip archiver is available. Install `unzip`' — e o npx ainda SAI COM CÓDIGO 0",
+      "file": "scripts/tablet-shots.mjs (acharChrome)",
+      "root_cause": "O notebook não tem `unzip`. O instalador BAIXA os ~190 MB e falha só na extração, então o cache `~/.cache/puppeteer/chrome` fica vazio e o erro some atrás do exit 0 do npx. Foi por isso que as sessões 39 e 40 concluíram 'o chrome não instala nesta máquina' — a receita do TODO estava certa e mesmo assim não funcionava.",
+      "fix": "Sem sudo: baixar o zip do chrome-for-testing pela URL do last-known-good-versions-with-downloads.json e extrair com `python3 -m zipfile -e`. Duas pegadinhas: (1) o zipfile do python NÃO preserva o bit de execução — precisa `chmod +x` em TODOS os binários da pasta, não só no `chrome` (sem o `chrome_crashpad_handler` executável o processo aborta com 'posix_spawn ... Permission denied'); (2) as libs de sistema (libnss3, libnspr4, libasound2t64) saem com `apt-get download` (não exige root) + `dpkg-deb -x` num prefixo local + LD_LIBRARY_PATH.",
+      "tags": [
+        "chrome",
+        "puppeteer",
+        "headless",
+        "wsl",
+        "tooling",
+        "shots"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-08-04T09:40:00-03:00"
+    },
+    {
+      "id": "bug-565",
+      "timestamp": "2026-08-04T09:40:00-03:00",
+      "error_message": "tablet-shots: 'linhas que quebram 4 de 19' APÓS o fix que deveria reduzir a quebra (era 2 de 20)",
+      "file": "scripts/tablet-shots.mjs",
+      "root_cause": "O detector comparava o `top` dos filhos da `.painel-row` com tolerância de 4px. A `.painel-row` tem `align-items: center`: assim que o fix subiu os selects de 28px para 40px ao lado de rótulos de 24px, os topos passaram a divergir SEM ter havido quebra de linha. O número piorou por causa da medida, não do layout.",
+      "fix": "Medir ALTURA, não topo: linha que coube numa faixa só tem a altura do seu filho mais alto (`row.height > maiorFilho + 6` = quebrou). Com o detector correto o A/B honesto deu 4 → 3.",
+      "tags": [
+        "mobile",
+        "css",
+        "medicao",
+        "falso-positivo",
+        "tablet-shots"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-08-04T09:40:00-03:00"
+    },
+    {
+      "id": "bug-566",
+      "timestamp": "2026-08-04T09:40:00-03:00",
+      "error_message": "Verificação da culagem de wireframe passava IGUAL com e sem o patch (controle negativo vazio) — duas vezes, por duas causas diferentes",
+      "file": "client/src/regions.ts",
+      "root_cause": "(1) A região 'longe' foi criada em (200,40,200) num mundo P, que é 128×128 — o comando falhou e a região nunca existiu. (2) Corrigido para dentro dos limites, ainda empatava: mundo P é DENSO, e a chamada de culagem mora dentro do `if (mundoLazy)` do loop (de propósito — só o procedural descarta coluna). De quebra: o three.js já corta por frustum, então área longe fora do campo de visão nunca custou draw call, e o teste precisa de área nas 4 direções pra garantir uma na tela.",
+      "fix": "Testar em mundo E (lazy) com `raioRender` baixado pra 2 no localStorage `lj-config` ANTES de entrar, e 4 áreas a 60 blocos nas 4 direções. A/B então mostrou o que devia: sem o patch as 4 somam +1 draw call, com o patch somam 0, e a área perto continua desenhando.",
+      "tags": [
+        "render",
+        "culling",
+        "verificacao",
+        "controle-negativo",
+        "three.js"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-08-04T09:40:00-03:00"
     }
   ]
 }

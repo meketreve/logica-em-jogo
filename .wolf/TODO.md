@@ -104,6 +104,57 @@
       `width: min(580px, 94vw)` / `height: min(560px, 84vh)`; os botões internos já têm alvo
       de 40px, mas o layout não foi revisto. O caminho que funcionou no inventário foi
       ALARGAR em paisagem baixa, não quebrar linha.
+- [ ] **👥 PAINEL DE AMIGOS — a interface do `/amigos`** (pedido do usuário, 2026-08-04).
+      **Escopo: NENHUMA função nova — as mesmas do comando, apresentadas melhor.** É a "fase 2"
+      que o `main.ts:661` já anota em comentário desde o cp24: a mensagem `friends`
+      (`protocol.ts:228`, `equipe {dono, membros} | null` + `convites[]`) **já chega ao cliente
+      no join e a cada mudança, e hoje é DESCARTADA** — o ramo do `else if` está vazio, com o
+      feedback saindo só por chat do servidor. O painel é puro consumo desse estado.
+      **Os 6 subcomandos que a UI tem de cobrir** (`runAmigos` em `session.ts`, o `default`
+      lista todos): `convidar nome` · `aceitar [nome]` · `recusar [nome]` · `sair` ·
+      `expulsar nome` (só dono) · `lista`. Mapeamento natural: `lista` vira o corpo do painel
+      (nunca um comando), cada convite pendente vira uma linha com **aceitar/recusar**, cada
+      membro vira uma linha com **expulsar** quando eu sou o dono, e "sair" é um botão só, com
+      o aviso de que **dono saindo DISSOLVE o grupo** (o comando já faz isso, mas em texto
+      ninguém lê). `convidar` precisa de escolha de nome — o autocomplete de
+      `commands.ts:77` já sabe quem está na aula (`jogadoresConhecidos`), então é uma lista de
+      quem está online e ainda não tem grupo, não um campo de digitar.
+      **Molde:** `GroupPanel`/`AuthorPanel` em `panels.ts` (a `Panel` base já dá arraste, Esc,
+      alvo de 40px); o `PlayersPanel` do professor é o precedente mais próximo — recebe estado
+      do servidor e manda comando de volta. **Disciplina de sempre: a UI não decide** — cada
+      botão emite o `/amigos ...` correspondente e espera o `friends` novo voltar (nada de
+      mutar a lista local no clique). Limite `MAX_AMIGOS = 6` (dono + 5) tem de aparecer na
+      tela ("3/6"), senão o aluno só descobre o teto pela recusa. Nasce em `min(580px, 94vw)`
+      e entra junto na 2ª rodada mobile acima.
+- [ ] **📱 A BARRA DE CIMA DO TOQUE TEM 6 BOTÕES E SÓ 3 SÃO DE JOGO** (pedido do usuário,
+      2026-08-04, junto do painel de amigos). Hoje `#touch-topo` (`touch.ts:196`) enfileira
+      **☰ menu · 🧱 blocos · 💬 chat · 🪄 varinha · ⛶ tela cheia · 📊 hud**. Os 3 últimos não
+      são de jogo: **tela cheia** é 1× por sessão, **hud** é diagnóstico (o F3 do desktop) e
+      **varinha** só serve a quem está marcando região/claim. Em 1024×600 eles comem a barra e
+      viram toque acidental no meio da aula.
+      **Sugestão (a minha, o usuário decide):**
+      1. **A barra fica com os 3 de jogo** (☰ 🧱 💬). Tela cheia e hud descem pro menu de pausa
+         (`#overlay-main`, `index.html:989`), que já é a porta do "resto" e já tem
+         ⚙️ configurações e 💾 sair. **Tela cheia continua funcionando de lá**: o navegador
+         exige gesto do usuário e um clique de botão É gesto — só não pode ser chamada do
+         `load`. A dica de teclas do `.menu-hint` logo abaixo já é o lugar de explicar.
+      2. **A varinha é o caso especial: ela não pode virar item de menu escondido.** Ligada,
+         ela TROCA o significado de ⛏/▣ (marcam canto 1/canto 2) — um toggle invisível deixa o
+         aluno com dois botões que fazem outra coisa e nenhum sinal na tela. Duas saídas, e eu
+         prefiro a segunda: (a) manter 🪄 na barra só quando a proteção está ligada
+         (`claimsAtivo`, que o `main.ts` já acompanha e já usa pra habilitar a tecla R); ou
+         (b) **tirar da barra e mostrar um distintivo enquanto ATIVA** — os botões ⛏/▣ trocam
+         de rótulo pra "canto 1"/"canto 2" e um chip "🪄 varinha" aparece no topo, tocável pra
+         desligar. Assim o estado é visível **porque está ligado**, não porque ocupa espaço o
+         tempo todo.
+      3. **Comandos de chat (`/hud`, `/varinha`, `/telacheia`) — dá, mas custa um conceito
+         novo:** hoje TODO `/` vai pro servidor (`chat.ts:69` → `onSend`) e essas três coisas
+         são 100% do cliente; o servidor teria de devolver comando desconhecido. Precisaria de
+         uma tabela de **comandos locais** interceptada antes do `send`, e o autocomplete do
+         `commands.ts` teria de conhecê-la. Vale se o usuário quiser o caminho digitado no
+         desktop; **pro tablet o menu resolve com menos peça nova** — e, se entrar, `/hud` é o
+         candidato natural (é o F3, que já é diagnóstico e já tem tecla).
+      Combina com a 2ª rodada mobile logo acima: é a mesma tela e o mesmo playtest.
 - [ ] **Nome do mundo truncado no DESKTOP** ("seque…", "labirin…") — a coluna do nome fica com
       ~84px depois dos 3 botões. Em paisagem baixa já resolveu (painel de 680px). No desktop
       resolve com UMA linha (`.menu-screen { width: min(680px, 92vw) }` sem media query), mas

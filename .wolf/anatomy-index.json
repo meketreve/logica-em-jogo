@@ -1,12 +1,12 @@
 {
   "version": 1,
   "meta": {
-    "lastScanned": "2026-08-04T02:05:42.103Z",
+    "lastScanned": "2026-08-04T12:32:38.534Z",
     "fileCount": 281,
     "hits": 0,
     "misses": 0,
-    "renderedHash": "3bf4a0ac89110ef199155d3a238dc9bcd5c7687bd04d24ffb6a6c7060f761ff3",
-    "storeUpdatedAt": "2026-08-04T02:05:42.106Z"
+    "renderedHash": "9f97ed784c0fdeada2beb8b444592640fe8b4d49b3c1a01d0afa0fade2d2ddb9",
+    "storeUpdatedAt": "2026-08-04T12:32:38.577Z"
   },
   "files": {
     ".claude/commands/reframe.md": {
@@ -1404,12 +1404,12 @@
     },
     "client/index.html": {
       "description": "Lógica em Jogo",
-      "tokens": 8314,
-      "hash": "1205c33918005f0b",
-      "size": 31475,
-      "mtimeMs": 1785804687130.392,
-      "updatedAt": "2026-08-04T02:05:41.966Z",
-      "source": "scan"
+      "tokens": 8536,
+      "hash": "0f724aa1199d1505",
+      "size": 32325,
+      "mtimeMs": 1785844906694.5522,
+      "updatedAt": "2026-08-04T12:01:46.910Z",
+      "source": "hook"
     },
     "client/package.json": {
       "description": "Node.js package manifest",
@@ -2216,12 +2216,12 @@
     },
     "client/src/main.ts": {
       "description": "O cliente não tem filesystem: aprende os nomes das aulas pela resposta de",
-      "tokens": 30169,
-      "hash": "f41102aba029e25e",
-      "size": 106990,
-      "mtimeMs": 1785806084210.3892,
-      "updatedAt": "2026-08-04T02:05:41.980Z",
-      "source": "scan",
+      "tokens": 30424,
+      "hash": "f137fdd4d8f2b6e5",
+      "size": 107908,
+      "mtimeMs": 1785846758042.5537,
+      "updatedAt": "2026-08-04T12:32:38.520Z",
+      "source": "hook",
       "symbols": [
         {
           "name": "cachearMundos",
@@ -2381,8 +2381,8 @@
           "name": "startGame",
           "kind": "fn",
           "startLine": 908,
-          "endLine": 2406,
-          "tokens": 19337
+          "endLine": 2418,
+          "tokens": 19592
         }
       ]
     },
@@ -2679,19 +2679,19 @@
     },
     "client/src/regions.ts": {
       "description": "Wireframes das regiões nomeadas (cp11) — visão do PROFESSOR (o servidor só",
-      "tokens": 690,
-      "hash": "7c306ce28b388905",
-      "size": 2427,
-      "mtimeMs": 1783904202105.4753,
-      "updatedAt": "2026-08-04T02:05:41.983Z",
-      "source": "scan",
+      "tokens": 1171,
+      "hash": "63374e46c6617dce",
+      "size": 4142,
+      "mtimeMs": 1785844376250.5532,
+      "updatedAt": "2026-08-04T11:52:56.464Z",
+      "source": "hook",
       "symbols": [
         {
           "name": "RegionRenderer",
           "kind": "class",
           "startLine": 10,
-          "endLine": 70,
-          "tokens": 592
+          "endLine": 105,
+          "tokens": 1073
         }
       ]
     },
@@ -3999,12 +3999,12 @@
     },
     "scripts/tablet-shots.mjs": {
       "description": "MEDE e fotografa as telas de UI num viewport de TABLET — 1024×600 paisagem",
-      "tokens": 3404,
-      "hash": "61f0cf13740e7bea",
-      "size": 12989,
-      "mtimeMs": 1785207016040.7974,
-      "updatedAt": "2026-08-04T02:05:42.050Z",
-      "source": "scan",
+      "tokens": 4354,
+      "hash": "ee33b32fdd666bf8",
+      "size": 16654,
+      "mtimeMs": 1785844967070.5535,
+      "updatedAt": "2026-08-04T12:02:47.291Z",
+      "source": "hook",
       "symbols": [
         {
           "name": "acharChrome",
@@ -4066,8 +4066,15 @@
           "name": "tecla",
           "kind": "fn",
           "startLine": 275,
-          "endLine": 331,
-          "tokens": 561
+          "endLine": 337,
+          "tokens": 735
+        },
+        {
+          "name": "cmdChat",
+          "kind": "fn",
+          "startLine": 338,
+          "endLine": 417,
+          "tokens": 844
         }
       ]
     },

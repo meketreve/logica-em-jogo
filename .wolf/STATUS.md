@@ -1,6 +1,53 @@
 # STATUS — Projeto "Lógica em Jogo" (jogo voxel educacional)
 
 > Single source of truth for resuming work. Read this FIRST when starting a session.
+> **SESSÃO 41 (2026-08-04) — O USUÁRIO PULOU O F7. DÍVIDA DE UI, E O CHROME DO NOTEBOOK
+> RESOLVIDO.** Sessão aberta com `git fetch`: o local estava 4 commits atrás (a sessão 40 foi
+> na máquina de casa), `pull --ff-only` limpo depois de descartar o cabeçalho de sessão VAZIO
+> que o hook escreve no diário — **é a 2ª sessão seguida em que isso acontece; virou rotina de
+> abertura.** Perguntado o que vinha depois, o usuário respondeu **"vamos pular o pvp"** e
+> escolheu o lote de UI: borda de claim + 2ª rodada mobile.
+>
+> **A descoberta que destrava tudo nesta máquina: o chrome NÃO "não instala" no notebook.** O
+> `npx @puppeteer/browsers install` **baixa os 190 MB, falha na extração por falta de `unzip`
+> e mesmo assim sai com código 0** — foi esse exit 0 que fez as sessões 39 e 40 concluírem que
+> a máquina não dava. Sem sudo: zip do chrome-for-testing + `python3 -m zipfile -e` +
+> **`chmod +x` em TODOS os binários** (o zipfile do python perde o bit de execução, e sem o
+> `chrome_crashpad_handler` executável o processo aborta) + libs por `apt-get download` /
+> `dpkg-deb -x` / `LD_LIBRARY_PATH`. **Os scripts de print agora rodam nas DUAS máquinas.**
+>
+> **§🖼️ BORDA DE ÁREA RESERVADA ALÉM DO RAIO (pedido do usuário de 2026-08-03).**
+> `RegionRenderer.cularPorDistancia(px, pz, raio)` novo: guarda os limites ao lado das caixas,
+> esconde a que está além do raio pela MESMA régua chebyshev em x/z do descarte de coluna, e
+> reaplica sozinha quando a lista troca. Chamado na varredura de 1×/s que já existia — **e
+> DENTRO do `if (mundoLazy)` de propósito**: só o procedural descarta coluna; em mundo denso o
+> mundo inteiro está montado e cular esconderia borda sobre terreno visível. As caixas de
+> OBJETIVO ficam de fora (são alvo de navegação, têm de ser vistas de longe) — quem não chama
+> o método continua desenhando tudo.
+> **A verificação foi mais cara que o patch, e é a lição da sessão:** o teste passou DUAS vezes
+> com o patch removido — 1º porque a área de teste caiu fora dos limites do mundo P (128×128) e
+> nunca foi criada, 2º porque o three.js já corta por frustum e mundo P é denso. Só em mundo
+> **E** (lazy), com `raioRender` baixado pra 2 no `localStorage` antes de entrar e 4 áreas a 60
+> blocos nas 4 direções, o A/B falou a verdade: **sem o patch as 4 somam +1 draw call, com o
+> patch somam 0, e a área perto continua desenhando** (bug-566).
+>
+> **§📱 2ª RODADA MOBILE — os painéis de AUTORIA.** O `scripts/tablet-shots.mjs` parava no
+> inventário; agora abre o `#painel` e o `#jogadores`, e **semeia o painel pelo chat** (2
+> regiões, 4 grupos, 2 objetivos) antes de medir — painel de mundo novo é quase vazio e a
+> medição diria "cabe" sobre nada. **O baseline desmentiu a hipótese que estava no TODO:** a
+> aposta era que as linhas quebravam por falta de largura; com o painel populado quebram só
+> 4 de 19. **O defeito real que apareceu foi outro: 7 selects de 28px e 5 campos de 26px** — o
+> bloco `@media (pointer: coarse)` cobria `#painel button` desde a 1ª rodada, mas nunca cobriu
+> campo nem select, justamente onde o professor monta o objetivo. Fix: 40px de piso neles, e o
+> `#painel`/`#jogadores` entraram no alargamento de paisagem baixa que o inventário já tinha.
+> **A/B: selects 28→40, campos 26→54, linhas quebradas 4→3.** No caminho, bug-565: o detector
+> de quebra comparava `top` dos filhos e virou falso-positivo assim que os alvos cresceram
+> (`.painel-row` centraliza) — passou a medir ALTURA.
+>
+> **VERDE:** typecheck 3/3 · 565 testes · build · print do painel a 1024×600 conferido.
+> **3 anotações novas no TODO a pedido do usuário** (interface do `/amigos`; a barra de toque
+> com 6 botões; e o `/pvp` que ele pulou continua na fila). **PLAYTEST PENDENTE.**
+>
 > **SESSÃO 40 (2026-08-04) — §🍖 F6: A COMIDA, E A FOME QUE VOLTOU A MATAR.** Sessão aberta
 > com `git fetch`: o local estava **3 commits atrás** (as sessões 38 e 39 foram feitas em
 > outra máquina). Um `checkout` descartou o cabeçalho de sessão VAZIO que o hook tinha
@@ -769,7 +816,26 @@ Documento é o ÚLTIMO entregável, não o primeiro. Construir, não documentar.
 
 ---
 
-## 🚀 Próxima fase — §🍖 F7: `/pvp` (~0,5 sessão)
+## 🚀 Próxima fase — a escolher (o usuário PULOU o F7)
+
+⚠️ **Sessão 41: perguntado "qual o próximo?", o usuário respondeu "vamos pular o pvp".** O F7
+NÃO foi cancelado — saiu da frente da fila. As opções apresentadas e o que sobrou:
+
+| frente | custo | estado |
+|---|---|---|
+| **§🍖 F9 preset `sobrevivencia`** | ~0,5 sessão | Não depende do F8 (mobs entram numa linha). Era a minha recomendação |
+| **§🍖 F8 mobs** | 3+ sessões | Fora do lite, com o aviso de GPU do lab |
+| **Dívida de UI** | — | ✅ FEITA nesta sessão (borda de claim + 2ª rodada mobile) |
+| **PLAYTEST** | do usuário, na escola | F1..F6 + a corrida, acumulados |
+| **§🍖 F7 `/pvp`** | ~0,5 sessão | Pulado, detalhe preservado logo abaixo |
+
+**As 3 anotações que o usuário pediu nesta sessão estão no `TODO.md ⏭️ Next`**, prontas pra
+virar quest: **interface do `/amigos`** (a mensagem `friends` já chega e é DESCARTADA no
+`main.ts:661` — o painel é puro consumo, sem função nova) e **a barra de toque com 6 botões**
+(varinha/tela cheia/hud pro menu, com o cuidado de a varinha precisar de sinal VISÍVEL porque
+ela troca o significado de ⛏/▣).
+
+### §🍖 F7 — `/pvp` (pulado na sessão 41, detalhe preservado)
 
 A ordem do backlog está **travada pelo usuário** (sessão 29):
 **auto-update ✅ → layouts mobile ✅ (1ª rodada) → v2 da geração ✅ (sessões 32+33) →

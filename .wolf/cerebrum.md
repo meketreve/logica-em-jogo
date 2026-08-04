@@ -59,6 +59,26 @@
 <!-- Só a REGRA acionável. Narrativa, números e contexto de cada sessão: .wolf/history.md
      (`## Key Learnings arquivados (2026-07-25)` e `## Cerebrum arquivado (2026-07-28)`). -->
 
+### Verificação headless e mundos de teste
+
+- **Mundo DENSO (P/M/G) × mundo LAZY (E).** `mundoLazy` só é verdadeiro no procedural ("E"):
+  ele é o único que streama e DESCARTA coluna, então é o único onde existe "além do raio de
+  render". Nos densos o `trocarMundo` monta o mundo inteiro. Consequência prática pra qualquer
+  teste de streaming/culagem: **em mundo P nada fica além do raio** (128×128, e o raio padrão
+  de 6 chunks já são 96 blocos) — o teste passa vazio. Use "E" e baixe `raioRender` no
+  `localStorage['lj-config']` **antes** de entrar no mundo.
+- **O three.js já corta por FRUSTUM.** Objeto fora do campo de visão não custa draw call, com
+  ou sem culagem própria. Teste de culagem por distância que põe o alvo "longe" sem garantir
+  que ele está NA TELA mede o frustum, não o patch — a saída é semear o alvo nas 4 direções.
+- **Chrome headless nesta máquina:** flag é `--enable-unsafe-swiftshader` (o
+  `--use-gl=swiftshader` NÃO serve — sem WebGL o jogo fica no menu pra sempre e o sintoma é
+  `#hotbar .slot` nunca aparecer). E `?hud` já abre o F3 no boot: apertar F3 depois FECHA.
+- **Instalar o chrome no notebook (sem sudo)** — ver bug-564 pro passo a passo. Resumo: o
+  `npx @puppeteer/browsers install` **falha na extração e mesmo assim sai com código 0**
+  porque falta `unzip`; extrair com `python3 -m zipfile -e` **e dar `chmod +x` em todos os
+  binários** (o zipfile do python perde o bit de execução); libs de sistema por
+  `apt-get download` + `dpkg-deb -x` + `LD_LIBRARY_PATH`.
+
 ### Invariantes e contratos
 
 - **Arquivo de mundo que começa com `aula` é MUNDO DE AULA** (`ehMundoDeAula`, server/src/
@@ -490,6 +510,17 @@
 
 ### Ferramentas e ambiente
 
+- **[2026-08-04, sessão 41] NÃO aceitar "passou" de um teste sem rodar o CONTROLE NEGATIVO.**
+  A verificação da culagem de wireframe passou duas vezes com o patch REMOVIDO — na 1ª porque
+  a região de teste estava fora dos limites do mundo (nunca foi criada), na 2ª porque o mundo
+  era denso e o frustum do three.js já cortava. Um "✓" que aparece igual com e sem a mudança
+  não prova nada. Sempre que a asserção for "o número não sobe", rodar o par
+  `git stash push <arquivos do patch>` / rodar / `git stash pop` — e **de dentro do repo ou
+  com `git -C`**: um `cd` no subshell fez o stash falhar em silêncio e as duas metades do A/B
+  saíram idênticas.
+- **[2026-08-04, sessão 41] Medida de layout: comparar ALTURA, não `top`.** `.painel-row` usa
+  `align-items: center`, então subir o alvo de toque de um filho já desalinha os topos sem
+  quebrar linha nenhuma (bug-565). Linha que não quebrou tem a altura do filho mais alto.
 - **[2026-08-03, sessão 37] Os hooks do OpenWolf são CÓDIGO DO REPO (`.wolf/hooks/*.js`,
   rastreados) — conserte-os em vez de contornar.** Os três falso-positivos que a sessão 36
   documentou (aviso de resumo semântico, de buglog e a linha "Session end" repetida) viraram

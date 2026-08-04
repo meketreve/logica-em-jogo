@@ -1042,3 +1042,29 @@ errado). O teste negativo — quebrar de propósito e ver reprovar — foi o que
 **VERDE:** typecheck 3/3 · 565 testes · build · 12/12 smokes · 7 cenários gerados (a corrida
 passa pelo próprio portão) · 5 prints da pista. **PLAYTEST PENDENTE.**
 | 23:07 | Session end: 58 writes across 23 files (blocks.ts, mesher.ts, comida.ts, sobrevivencia.ts, drops.ts) | 11 reads | ~115618 tok |
+| 08:52 | Edited client/src/regions.ts | expanded (+6 lines) | ~166 |
+| 08:52 | Edited client/src/regions.ts | added 2 condition(s) | ~405 |
+| 08:53 | Edited client/src/main.ts | expanded (+7 lines) | ~179 |
+| 08:55 | Edited scripts/tablet-shots.mjs | added nullish coalescing | ~624 |
+| 08:57 | Edited client/index.html | modified rodada() | ~158 |
+| 09:00 | Edited scripts/tablet-shots.mjs | modified for() | ~312 |
+| 09:01 | Edited client/index.html | modified rodada() | ~171 |
+| 09:02 | Edited scripts/tablet-shots.mjs | modified for() | ~209 |
+| 09:32 | Edited client/src/main.ts | added 1 condition(s) | ~193 |
+
+## Session: 2026-08-04 (sessão 41)
+
+| Time | Action | File(s) | Outcome | ~Tokens |
+|------|--------|---------|---------|--------|
+| 08:40 | `git fetch` + `pull --ff-only` (local 4 commits atrás; descartado o cabeçalho VAZIO do hook no diário) | .wolf/memory.md | sessão 40 (F6 + corrida) chegou | ~4k |
+| 08:45 | Usuário: "vamos pular o pvp, qual o próximo?" → apresentadas 5 frentes; ele escolheu o lote de UI | — | F7 sai da frente da fila | ~3k |
+| 08:50 | Anotado no TODO: interface do `/amigos` (a pedido) | .wolf/TODO.md | mensagem `friends` já chega e é descartada — painel é puro consumo | ~2k |
+| 08:55 | `cularPorDistancia` novo + chamada na varredura de 1×/s | client/src/regions.ts, client/src/main.ts | typecheck 3/3 | ~3k |
+| 09:00 | Anotado no TODO: barra de toque com 6 botões (a pedido, com sugestão) | .wolf/TODO.md | varinha precisa de sinal visível; comandos locais custam conceito novo | ~2k |
+| 09:10 | Chrome do notebook RESOLVIDO sem sudo (unzip ausente → python zipfile + chmod +x + libs por apt-get download) | ~/.cache | bug-564; scripts de print rodam nas 2 máquinas | ~6k |
+| 09:20 | `tablet-shots.mjs` estendido: abre `#painel`/`#jogadores` e semeia o painel pelo chat | scripts/tablet-shots.mjs | baseline denso: 7 selects 28px, 5 campos 26px, 4/19 linhas quebradas | ~5k |
+| 09:25 | Fix de alvo de toque em campo/select do painel + alargamento em paisagem baixa | client/index.html | A/B: 28→40, 26→54, quebradas 4→3 | ~3k |
+| 09:30 | bug-565: detector de quebra comparava `top` e virou falso-positivo com alvo maior | scripts/tablet-shots.mjs | passou a medir ALTURA | ~2k |
+| 09:35 | bug-566: controle negativo da culagem passou 2× com o patch REMOVIDO (mundo P fora de limites; depois denso + frustum) | — | provado só em mundo E lazy: sem patch +1 draw call, com patch 0 | ~8k |
+| 09:40 | `npm run verify` | — | typecheck 3/3 · 565 testes · build | ~1k |
+| 09:37 | Session end: 9 writes across 4 files (regions.ts, main.ts, tablet-shots.mjs, index.html) | 4 reads | ~45100 tok |

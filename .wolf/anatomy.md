@@ -1,6 +1,6 @@
 # anatomy.md
 
-> Auto-maintained by OpenWolf. Last scanned: 2026-08-04T02:05:42.103Z
+> Auto-maintained by OpenWolf. Last scanned: 2026-08-04T12:32:38.534Z
 > Files: 281 tracked | Anatomy hits: 0 | Misses: 0
 
 ## ./
@@ -214,7 +214,7 @@
 
 ## client/
 
-- `index.html` — Lógica em Jogo (~8314 tok)
+- `index.html` — Lógica em Jogo (~8536 tok)
 - `package.json` — Node.js package manifest (~102 tok)
 - `tsconfig.json` — TypeScript configuration (~39 tok)
 - `vite.config.ts` — Vite build configuration (~94 tok)
@@ -325,7 +325,7 @@
   - section `LuzUniforms` L22-32 (~120 tok)
   - fn `criarLuzUniforms` L33-43 (~116 tok)
   - fn `aplicarLuz` L44-99 (~640 tok)
-- `main.ts` — O cliente não tem filesystem: aprende os nomes das aulas pela resposta de (~30169 tok)
+- `main.ts` — O cliente não tem filesystem: aprende os nomes das aulas pela resposta de (~30424 tok)
   - fn `cachearMundos` L112-203 (~1177 tok)
   - fn `applySettings` L204-259 (~847 tok)
   - fn `showOverlayMain` L260-264 (~35 tok)
@@ -348,7 +348,7 @@
   - fn `startMultiplayer` L820-837 (~224 tok)
   - fn `startSingleplayer` L838-859 (~249 tok)
   - fn `persistWorld` L860-907 (~520 tok)
-  - fn `startGame` L908-2406 (~19337 tok)
+  - fn `startGame` L908-2418 (~19592 tok)
 - `menu.ts` — Menu principal (cp8) — HTML/CSS por cima do canvas, sem GUI de engine. (~4695 tok)
   - section `PlayWorldChoice` L35-49 (~166 tok)
   - section `MultiAuth` L50-54 (~19 tok)
@@ -386,8 +386,11 @@
   - class `QuadroRenderer` L83-177 (~923 tok)
   - fn `comprimirImagem` L178-204 (~308 tok)
   - class `QuadroEditor` L205-316 (~1156 tok)
-- `regions.ts` — Wireframes das regiões nomeadas (cp11) — visão do PROFESSOR (o servidor só (~690 tok)
-  - class `RegionRenderer` L10-70 (~592 tok)
+- `regions.ts` — Wireframes das regiões nomeadas (cp11) — visão do PROFESSOR (o servidor só (~1171 tok)
+  manda pra ele) + os 2 cantos da varinha. Também desenha os claims e as caixas de objetivo
+  (mesma classe, cor fixa). `cularPorDistancia` (2026-08-04) esconde a caixa além do raio de
+  render — só o mundo lazy chama; objetivo NÃO chama (alvo de navegação, visto de longe).
+  - class `RegionRenderer` L10-105 (~1073 tok)
 - `settings.ts` — Configurações do jogador, persistidas em localStorage (por navegador). (~1506 tok)
   - section `GameSettings` L12-88 (~764 tok)
   - fn `num` L89-92 (~49 tok)
@@ -615,7 +618,7 @@
   - fn `sobeServidor` L310-322 (~112 tok)
   - fn `mata` L323-331 (~52 tok)
   - fn `rodaSmoke` L332-420 (~797 tok)
-- `tablet-shots.mjs` — MEDE e fotografa as telas de UI num viewport de TABLET — 1024×600 paisagem (~3404 tok)
+- `tablet-shots.mjs` — MEDE e fotografa as telas de UI num viewport de TABLET — 1024×600 paisagem (~4354 tok)
   - fn `acharChrome` L40-54 (~154 tok)
   - fn `espera` L55-74 (~149 tok)
   - fn `abrirAba` L75-102 (~254 tok)
@@ -624,7 +627,8 @@
   - fn `tirar` L130-139 (~123 tok)
   - fn `medir` L140-157 (~225 tok)
   - fn `alvos` L158-274 (~1398 tok)
-  - fn `tecla` L275-331 (~561 tok)
+  - fn `tecla` L275-337 (~735 tok)
+  - fn `cmdChat` L338-417 (~844 tok)
 
 ## server/
 
