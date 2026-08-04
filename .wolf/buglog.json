@@ -3861,6 +3861,29 @@
       ],
       "occurrences": 1,
       "last_seen": "2026-08-04T14:14:10.698671Z"
+    },
+    {
+      "id": "bug-571",
+      "timestamp": "2026-08-04T18:24:00.000000Z",
+      "error_message": "teste do iniciar-servidor.bat: o cenário 'sobrescrever os mundos? -> s' passou CANCELANDO a atualização — a resposta 's' nunca chegou no `set /p`",
+      "file": "scratchpad/testar-update-bat.sh (harness de teste, não o produto)",
+      "root_cause": "`chcp 65001` (1ª linha do .bat) quebra o `set /p` do cmd.exe quando o stdin é ARQUIVO REDIRECIONADO (`bat < resp.txt`): a variável fica VAZIA. Como vazio é o padrão de toda pergunta do script, os 4 cenários pareciam verdes — mas só exercitavam os padrões, e o único cenário com resposta não-vazia falhou em silêncio. Depois, `(echo s&echo.)` por pipe entregou \"s \" COM ESPAÇO e nenhum `if /i \"%VAR%\"==\"s\"` casou.",
+      "fix": "Respostas por PIPE de um .cmd (`call resp.cmd | iniciar-servidor.bat`), com um `echo` por linha — lê certo mesmo com chcp 65001 e sem espaço parasita. Provado com mini-repro A/B/C isolando o chcp.",
+      "tags": [
+        "windows",
+        "cmd",
+        "chcp",
+        "set-p",
+        "teste",
+        "falso-positivo",
+        "iniciar-servidor"
+      ],
+      "related_bugs": [
+        "bug-567",
+        "bug-569"
+      ],
+      "occurrences": 1,
+      "last_seen": "2026-08-04T18:24:00.000000Z"
     }
   ]
 }

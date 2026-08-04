@@ -1,6 +1,51 @@
 # STATUS — Projeto "Lógica em Jogo" (jogo voxel educacional)
 
 > Single source of truth for resuming work. Read this FIRST when starting a session.
+> **SESSÃO 44 (2026-08-04) — O LAUNCHER PAROU DE PULAR A ATUALIZAÇÃO (sessão curta, fora do
+> jogo).** A 42 tinha só melhorado a MENSAGEM do skip; o usuário voltou pedindo o
+> comportamento: *"permitir o fetch mesmo com mudanças nos arquivos, apenas deixe uma regra
+> para o usuário decidir se a pasta dos mundos salvos vai ser sobrescrita"*.
+>
+> **O guarda de sujeira saiu da frente do `git fetch` e virou tratamento DEPOIS do merge.** A
+> ordem antiga (conferir sujeira → pular tudo) trocava um problema por outro: nesta máquina o
+> `.wolf/memory.md` é rastreado e muda toda sessão, então a atualização nunca acontecia. Agora
+> o fetch é incondicional e o `merge --ff-only` é quem decide — e ele só reclama do arquivo que
+> a atualização REALMENTE toca. **O caso que mais aparece já fica resolvido sozinho:** sujeira
+> em arquivo que o update não mexe atualiza direto, sem uma pergunta (cenário B do teste).
+> Quando o merge recusa, a escolha é do usuário (opção dele entre 3): **`git stash push -m
+> "lj-auto"` + merge + como recuperar**. **Sem `stash pop` automático, de propósito** — pop que
+> conflita deixa a pasta em conflito no meio da aula; guardado é reversível, conflito não.
+>
+> **§🗺️ A REGRA DOS MUNDOS, e por que ela quase não existe.** `mundos/` está no
+> `.gitignore:19` e **nenhum arquivo dela é rastreado** — os únicos mundos que viajam no repo
+> são os MODELOS de aula, em `cenarios/`. Ou seja: o merge nunca alcança a pasta da turma, e a
+> pergunta seria um clique a mais toda aula com resposta sempre igual. Então ela é
+> **CONDICIONAL**: o script confere `git diff --name-only HEAD...origin/main -- mundos/` e só
+> pergunta se der match, com padrão **NÃO sobrescrever** (e aí cancela a atualização inteira).
+> Quando não dá match — sempre, hoje — sai a linha *"seus mundos salvos em mundos/ não são
+> tocados pela atualização"*, que é informação, não pergunta. A conferência existe pro dia em
+> que alguém versionar um `.ljw` de turma por engano: o professor tem de ser avisado ANTES de a
+> turma perder o que construiu.
+>
+> **Os hints do git foram calados** (`2>/dev/null` / `2>nul`): no ramo de divergência ele
+> mandava o professor rodar `git rebase` / `git merge --no-ff` em inglês, 10 linhas antes da
+> mensagem em português. A mensagem honesta em português basta.
+>
+> **VERDE:** `bash -n` · **6 cenários rodados no `.sh` com fixture git de verdade** (upstream
+> bare + clone "escola" + stub de `npm`): **A** sujeira NO arquivo do update → stash+merge, HEAD
+> avança, trabalho no stash · **B** sujeira em OUTRO arquivo → merge direto, mudança local
+> intacta (era o caso pulado) · **C** mundos tocados + Enter → cancela, HEAD parado · **D**
+> mundos tocados + "s" → sobrescreve · **E** divergência real → mensagem limpa, nada mexido ·
+> **F** recusar o stash → nada mexido. **Os 4 primeiros rodados TAMBÉM no `cmd.exe` DE VERDADE**
+> (via `/mnt/c`, com `git.exe` do Windows). Controle negativo no repo real: o guarda dos mundos
+> não dispara (`git diff -- mundos/` vazio). **Código do jogo não foi tocado.**
+>
+> **bug-571, e é o bug-569 outra vez:** os 4 cenários do `.bat` deram verde **exercitando só as
+> respostas VAZIAS**. `chcp 65001` (1ª linha do `.bat`) faz o `set /p` ler **vazio** de arquivo
+> redirecionado, então o único cenário com resposta não-vazia ("s" pra sobrescrever mundos)
+> falhou em silêncio. Mini-repro A/B isolou o `chcp`; `(echo s&echo.)` também não serve
+> (entrega `"s "` com espaço). O que funciona: `call resp.cmd | iniciar-servidor.bat`.
+>
 > **SESSÃO 43 (2026-08-04) — AS DUAS FRENTES QUE O USUÁRIO ESCOLHEU: §🍖 F9 (PRESET DE
 > SOBREVIVÊNCIA) E O PAINEL DE AMIGOS.** Perguntado onde parávamos, ele respondeu "f9 e
 > interface do /amigos" — e as duas fecharam nesta sessão.
@@ -909,10 +954,11 @@ Documento é o ÚLTIMO entregável, não o primeiro. Construir, não documentar.
 
 ---
 
-## 🚀 Próxima fase — a escolher (F9 e o painel de amigos saíram na 43)
+## 🚀 Próxima fase — a escolher (a 44 foi fora do jogo: launcher)
 
 ⚠️ **A sessão 43 consumiu as duas frentes que o usuário escolheu** ("f9 e interface do
-/amigos"). O que sobra na fila:
+/amigos") e a **44 não tocou no código do jogo** (só `iniciar-servidor.sh/.bat`). O que sobra
+na fila:
 
 | frente | custo | estado |
 |---|---|---|

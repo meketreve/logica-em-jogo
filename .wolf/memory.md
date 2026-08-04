@@ -1125,3 +1125,15 @@ passa pelo próprio portão) · 5 prints da pista. **PLAYTEST PENDENTE.**
 | 10:38 | Session end: 35 writes across 14 files (modo.ts, session.ts, worker.ts, index.ts, connection.ts) | 4 reads | ~21264 tok |
 | 11:05 | barra de toque revisada: 6 botões fixos → 3 de jogo + varinha/amigos CONDICIONAIS (proteção de áreas); tela cheia e hud desceram pro menu de pausa; varinha ligada destaca o botão e troca ⛏/▣ por ① canto 1 / ② canto 2 | client/src/touch.ts, main.ts, client/index.html | typecheck 3/3 · 578 testes · build | ~11k |
 | 11:12 | bug-570: a barra do topo tinha alvo de 30px (abaixo do piso de 40) e NUNCA tinha sido medida — `min-height: 40px` + a barra entrou no tablet-shots (rótulos, alvo, largura, relabel da varinha) | client/src/touch.ts, scripts/tablet-shots.mjs | A/B: 30px → 40px · barra 433px de 1024 · print 11-jogo-barra-varinha conferido | ~6k |
+
+## Session: 2026-08-04 11:44
+
+| Time | Action | File(s) | Outcome | ~Tokens |
+|------|--------|---------|---------|--------|
+| 15:11 | Edited iniciar-servidor.sh | modified BUSCA() | ~1608 |
+| 15:12 | Edited iniciar-servidor.bat | modified BUSCA() | ~1706 |
+| 15:23 | Edited iniciar-servidor.sh | 4→5 lines | ~72 |
+| 15:23 | Edited iniciar-servidor.sh | 2→2 lines | ~28 |
+| 15:23 | Edited iniciar-servidor.bat | 3→5 lines | ~72 |
+| 15:35 | Launcher: fetch deixou de ser bloqueado por sujeira; sujeira vira `git stash push -m lj-auto` + merge (sem pop automático), e a pasta `mundos/` ganhou guarda CONDICIONAL (só pergunta se o update tocar nela, padrão NÃO sobrescrever) | iniciar-servidor.sh, iniciar-servidor.bat | 6 cenários com fixture git no `.sh` (A stash · B sujeira em outro arquivo atualiza direto · C/D guarda dos mundos nos dois ramos · E divergência · F recusa) + os 4 primeiros no cmd.exe real; controle negativo no repo (guarda não dispara). bug-571: os cenários do `.bat` davam verde só nas respostas vazias porque `chcp 65001` quebra `set /p` de stdin redirecionado | ~11000 |
+| 15:27 | Session end: 5 writes across 2 files (iniciar-servidor.sh, iniciar-servidor.bat) | 2 reads | ~8379 tok |

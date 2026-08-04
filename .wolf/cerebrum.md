@@ -523,6 +523,17 @@
 - Notebook da escola (Windows 11): PowerShell bloqueia `npm` → `npm.cmd` ou
   `Set-ExecutionPolicy -Scope CurrentUser RemoteSigned`; instrução com `$env:VAR="x";` numa
   linha só.
+- **Launcher (`iniciar-servidor.sh/.bat`) — o `git fetch` NÃO é mais bloqueado por sujeira**
+  (sessão 44). Arquivo rastreado modificado passou a ser tratado DEPOIS do merge falhar, com
+  `git stash push -m "lj-auto"` + merge + aviso de como recuperar (**sem `stash pop`
+  automático**: pop que conflita deixa a pasta em conflito no meio da aula; guardado é
+  reversível, conflito na hora não). Consequência prática: sujeira em arquivo que a
+  atualização **não** toca agora atualiza direto, sem perguntar nada — era esse o caso que o
+  guarda antigo pulava em silêncio. **`mundos/` está no `.gitignore` e nada dela é rastreado**
+  (só `cenarios/aula*.ljw` viaja no repo), então o merge nunca a alcança; mesmo assim o
+  script confere `git diff --name-only HEAD...origin/main -- mundos/` e, se um dia der
+  match, pergunta com padrão **NÃO sobrescrever**. Os hints do git ("rode `git rebase`") vão
+  pra `2>/dev/null` — não é conversa pra ter com o professor no começo da aula.
 - `anatomy.md` auto-update só ADICIONA: ao renomear/apagar, `grep` pelo nome velho e limpar.
 - Restrição de assets é de LICENCIAMENTO (§9), não "zero PNG": asset PRÓPRIO ou CC0 é
   permitido. "Tudo procedural no canvas" é ESCOLHA nossa, revisável.
@@ -567,6 +578,16 @@
 
 ### Ferramentas e ambiente
 
+- **[2026-08-04, sessão 44] Testar o `.bat` no cmd.exe: resposta vai por PIPE de um `.cmd`,
+  NUNCA por `< arquivo`.** O `chcp 65001` da 1ª linha do `iniciar-servidor.bat` faz o `set /p`
+  ler **VAZIO** de stdin redirecionado (provado com mini-repro A/B: sem `chcp` lê `s`, com
+  `chcp` lê nada). Como vazio é o padrão de toda pergunta do script, os 4 cenários pareciam
+  verdes exercitando **só os padrões**, e o único com resposta não-vazia falhou em silêncio
+  (bug-571 — é o bug-569 de novo: verde sobre estado errado). `(echo s&echo.)` também não
+  serve: entrega `"s "` **com espaço** e nenhum `if /i "%VAR%"=="s"` casa. O que funciona:
+  um `resp.cmd` com um `echo` por linha, `call resp.cmd | iniciar-servidor.bat`. O PATH do
+  WSL também não serve pro cmd — montar um explícito no wrapper (`System32` + `Program
+  Files\Git\cmd` + o stub).
 - **[2026-08-04, sessão 43] NÃO rodar `npx openwolf scan` pra "atualizar o anatomy".** Ele
   reescreve o arquivo com o que ELE enxerga (182 arquivos contra os 281 indexados) e apaga
   1204 linhas de descrição acumulada. `git checkout .wolf/anatomy.md .wolf/anatomy-index.json`
