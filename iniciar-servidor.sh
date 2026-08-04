@@ -31,7 +31,20 @@ atualizar() {
   # senão qualquer .ljw exportado pra raiz travava a atualização pra sempre — e o
   # próprio git se recusa a sobrescrever arquivo não rastreado, o que já é a rede
   # de segurança (o merge falha e caímos no aviso lá embaixo).
-  [ -z "$(git status --porcelain --untracked-files=no)" ] || { echo "(há mudanças locais no código desta pasta — atualização pulada para não perder nada)"; return; }
+  # A lista vai PRA TELA: "há mudanças locais" sem dizer QUAIS é indiagnosticável —
+  # nesta pasta o diário do OpenWolf (.wolf/memory.md) é rastreado e muda sozinho,
+  # e a atualização ficava pulada em silêncio (bug-567).
+  local sujo n
+  sujo="$(git status --porcelain --untracked-files=no)"
+  if [ -n "$sujo" ]; then
+    echo "(há mudanças locais no código desta pasta — atualização pulada para não perder nada)"
+    echo "  arquivos alterados nesta máquina:"
+    echo "$sujo" | head -n 10 | while IFS= read -r linha; do echo "    $linha"; done
+    n="$(echo "$sujo" | wc -l | tr -d ' ')"
+    [ "$n" -gt 10 ] && echo "    ... e mais $((n - 10)) (são $n no total)"
+    echo "  (para voltar a atualizar: guarde ou desfaça essas mudanças no git)"
+    return
+  fi
   echo "Procurando atualização..."
   git fetch --quiet origin || { echo "(sem conexão com o servidor do código — seguindo com a versão instalada)"; return; }
   local atras

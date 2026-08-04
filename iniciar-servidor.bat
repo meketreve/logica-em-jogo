@@ -45,14 +45,28 @@ REM atualizar poderia perder o trabalho. Arquivo novo/solto na pasta nao conta
 REM (--untracked-files=no): senao um .ljw exportado pra raiz travava a
 REM atualizacao pra sempre. Se um arquivo solto atrapalhar, o proprio git se
 REM recusa a sobrescrever e caimos no aviso de "nao foi possivel atualizar".
+REM A lista vai PRA TELA: "ha mudancas locais" sem dizer QUAIS e indiagnosticavel
+REM (bug-567). No Windows o suspeito comum e fim-de-linha CRLF sujando o repo
+REM inteiro, entao a lista para em 10 e diz o total.
 git status --porcelain --untracked-files=no > "%TEMP%\lj-git-status.txt" 2>nul
 set "SUJO=0"
 for %%s in ("%TEMP%\lj-git-status.txt") do set "SUJO=%%~zs"
-del "%TEMP%\lj-git-status.txt" >nul 2>nul
 if not "%SUJO%"=="0" (
   echo ^(ha mudancas locais nesta pasta - atualizacao pulada para nao perder nada^)
+  echo   arquivos alterados nesta maquina:
+  setlocal enabledelayedexpansion
+  set /a LJN=0
+  for /f "usebackq delims=" %%l in ("%TEMP%\lj-git-status.txt") do (
+    set /a LJN+=1
+    if !LJN! leq 10 echo     %%l
+  )
+  if !LJN! gtr 10 echo     ... e mais arquivos ^(sao !LJN! no total^)
+  endlocal
+  echo   ^(para voltar a atualizar: guarde ou desfaca essas mudancas no git^)
+  del "%TEMP%\lj-git-status.txt" >nul 2>nul
   goto :depois_update
 )
+del "%TEMP%\lj-git-status.txt" >nul 2>nul
 echo Procurando atualizacao...
 git fetch --quiet origin
 if errorlevel 1 (
