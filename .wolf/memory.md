@@ -1068,3 +1068,13 @@ passa pelo próprio portão) · 5 prints da pista. **PLAYTEST PENDENTE.**
 | 09:35 | bug-566: controle negativo da culagem passou 2× com o patch REMOVIDO (mundo P fora de limites; depois denso + frustum) | — | provado só em mundo E lazy: sem patch +1 draw call, com patch 0 | ~8k |
 | 09:40 | `npm run verify` | — | typecheck 3/3 · 565 testes · build | ~1k |
 | 09:37 | Session end: 9 writes across 4 files (regions.ts, main.ts, tablet-shots.mjs, index.html) | 4 reads | ~45100 tok |
+
+## Session: 2026-08-04 09:40
+
+| Time | Action | File(s) | Outcome | ~Tokens |
+|------|--------|---------|---------|--------|
+| 09:44 | Edited iniciar-servidor.sh | expanded (+13 lines) | ~204 |
+| 09:44 | Edited iniciar-servidor.bat | expanded (+14 lines) | ~255 |
+| 09:46 | bug-567: launcher pulava o `git fetch` em silêncio — o guarda de sujeira dispara sempre nesta máquina (o hook do OpenWolf suja `.wolf/memory.md`, que é rastreado). A mensagem passou a LISTAR os arquivos sujos (teto de 10 + total) nos dois scripts | iniciar-servidor.sh, iniciar-servidor.bat, .wolf/buglog.json | verificado: `bash -n` + run real com stub de npm; bloco do .bat rodado no cmd.exe nos 2 ramos (3 e 13 arquivos) | ~9k |
+| 09:46 | Session end: 2 writes across 2 files (iniciar-servidor.sh, iniciar-servidor.bat) | 2 reads | ~4946 tok |
+| 09:52 | sessão 42 fechada: STATUS.md com o bloco da sessão (launcher/bug-567) + nota de que a fila do §🍖 não andou; cerebrum com a armadilha do `| --:-- |` no diário | .wolf/STATUS.md, .wolf/cerebrum.md | pronto pro /clear | ~3k |

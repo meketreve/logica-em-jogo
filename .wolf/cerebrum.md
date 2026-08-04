@@ -510,6 +510,11 @@
 
 ### Ferramentas e ambiente
 
+- **[2026-08-04, sessão 42] A linha do diário TEM de começar com `| HH:MM |` de verdade.**
+  Escrevi `| --:-- |` por não saber a hora e o hook do `stop` avisou "no semantic summary"
+  mesmo com a linha lá: `countSemanticEntries` (`.wolf/hooks/shared.js:630`) casa
+  `^\|\s*(\d{1,2}:\d{2}|\d{4}-\d{2}-\d{2})[^|]*\|` — sem dígito na hora, a linha conta como
+  mecânica. `date +%H:%M` antes de escrever.
 - **[2026-08-04, sessão 41] NÃO aceitar "passou" de um teste sem rodar o CONTROLE NEGATIVO.**
   A verificação da culagem de wireframe passou duas vezes com o patch REMOVIDO — na 1ª porque
   a região de teste estava fora dos limites do mundo (nunca foi criada), na 2ª porque o mundo

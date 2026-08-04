@@ -3781,6 +3781,26 @@
       "related_bugs": [],
       "occurrences": 1,
       "last_seen": "2026-08-04T09:40:00-03:00"
+    },
+    {
+      "id": "bug-567",
+      "timestamp": "2026-08-04T00:00:00-03:00",
+      "error_message": "usuário: 'está aparecendo uma mensagem que a atualização não está sendo buscada' ao iniciar o servidor — (há mudanças locais no código desta pasta — atualização pulada para não perder nada)",
+      "file": "iniciar-servidor.sh, iniciar-servidor.bat",
+      "root_cause": "O guarda de sujeira (git status --porcelain --untracked-files=no) roda ANTES do git fetch e pula a atualização inteira quando qualquer arquivo RASTREADO está modificado. Nesta máquina o diário do OpenWolf (.wolf/memory.md) é rastreado e o hook escreve nele em toda sessão, então o guarda dispara sempre. O guarda está correto (protege o código); o defeito era a mensagem não dizer QUAIS arquivos sujaram, o que tornava o skip indiagnosticável.",
+      "fix": "A mensagem passou a listar os arquivos sujos (até 10, depois '... e mais (são N no total)') + linha dizendo como voltar a atualizar. Nos dois scripts. NÃO excluí .wolf/ do teste: commits docs(wolf) tocam memory.md quase toda sessão, então o merge --ff-only recusaria depois e o aviso sairia com a razão errada. Verificado: bash -n + execução real com stub de npm (5 arquivos listados); bloco do .bat rodado no cmd.exe de verdade nos dois ramos (3 e 13 arquivos).",
+      "tags": [
+        "iniciar-servidor",
+        "git",
+        "update",
+        "ux",
+        "openwolf",
+        "bat",
+        "bash"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-08-04T00:00:00-03:00"
     }
   ]
 }

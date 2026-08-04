@@ -1,6 +1,6 @@
 # anatomy.md
 
-> Auto-maintained by OpenWolf. Last scanned: 2026-08-04T12:32:38.534Z
+> Auto-maintained by OpenWolf. Last scanned: 2026-08-04T12:44:31.646Z
 > Files: 281 tracked | Anatomy hits: 0 | Misses: 0
 
 ## ./
@@ -8,8 +8,8 @@
 - `.gitattributes` — LF em tudo (projeto vive no WSL/ext4; evita ruído CRLF de ferramentas Windows) (~31 tok)
 - `.gitignore` — Git ignore rules (~331 tok)
 - `CLAUDE.md` — OpenWolf (~57 tok)
-- `iniciar-servidor.bat` (~2363 tok)
-- `iniciar-servidor.sh` — ============================================================ (~2091 tok)
+- `iniciar-servidor.bat` (~2532 tok)
+- `iniciar-servidor.sh` — ============================================================ (~2111 tok)
 - `LICENSE` — Licença de Uso — Lógica em Jogo (~1070 tok)
 - `package-lock.json` — npm lock file (~20120 tok)
 - `package.json` — Node.js package manifest (~299 tok)
@@ -387,9 +387,6 @@
   - fn `comprimirImagem` L178-204 (~308 tok)
   - class `QuadroEditor` L205-316 (~1156 tok)
 - `regions.ts` — Wireframes das regiões nomeadas (cp11) — visão do PROFESSOR (o servidor só (~1171 tok)
-  manda pra ele) + os 2 cantos da varinha. Também desenha os claims e as caixas de objetivo
-  (mesma classe, cor fixa). `cularPorDistancia` (2026-08-04) esconde a caixa além do raio de
-  render — só o mundo lazy chama; objetivo NÃO chama (alvo de navegação, visto de longe).
   - class `RegionRenderer` L10-105 (~1073 tok)
 - `settings.ts` — Configurações do jogador, persistidas em localStorage (por navegador). (~1506 tok)
   - section `GameSettings` L12-88 (~764 tok)

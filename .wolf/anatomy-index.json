@@ -1,12 +1,12 @@
 {
   "version": 1,
   "meta": {
-    "lastScanned": "2026-08-04T12:32:38.534Z",
+    "lastScanned": "2026-08-04T12:44:31.646Z",
     "fileCount": 281,
     "hits": 0,
     "misses": 0,
-    "renderedHash": "9f97ed784c0fdeada2beb8b444592640fe8b4d49b3c1a01d0afa0fade2d2ddb9",
-    "storeUpdatedAt": "2026-08-04T12:32:38.577Z"
+    "renderedHash": "335f3e41d999f1c99710331aedb0d1862d139032d9d3095ab55e0e66a42831d9",
+    "storeUpdatedAt": "2026-08-04T12:44:31.670Z"
   },
   "files": {
     ".claude/commands/reframe.md": {
@@ -3030,21 +3030,21 @@
     },
     "iniciar-servidor.bat": {
       "description": "",
-      "tokens": 2363,
-      "hash": "cf8c93de4c5ca20f",
-      "size": 8861,
-      "mtimeMs": 1785156702600.8005,
-      "updatedAt": "2026-08-04T02:05:41.986Z",
-      "source": "scan"
+      "tokens": 2532,
+      "hash": "505cc32542fa898d",
+      "size": 9493,
+      "mtimeMs": 1785847471414.5542,
+      "updatedAt": "2026-08-04T12:44:31.646Z",
+      "source": "hook"
     },
     "iniciar-servidor.sh": {
       "description": "============================================================",
-      "tokens": 2091,
-      "hash": "9f1b2f616a8f2487",
-      "size": 7464,
-      "mtimeMs": 1785156698728.8005,
-      "updatedAt": "2026-08-04T02:05:41.987Z",
-      "source": "scan"
+      "tokens": 2111,
+      "hash": "081904403e0e8e33",
+      "size": 8077,
+      "mtimeMs": 1785847458694.554,
+      "updatedAt": "2026-08-04T12:44:18.934Z",
+      "source": "hook"
     },
     "LICENSE": {
       "description": "Licença de Uso — Lógica em Jogo",

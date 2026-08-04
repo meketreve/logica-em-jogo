@@ -1,6 +1,36 @@
 # STATUS — Projeto "Lógica em Jogo" (jogo voxel educacional)
 
 > Single source of truth for resuming work. Read this FIRST when starting a session.
+> **SESSÃO 42 (2026-08-04) — SESSÃO CURTA, FORA DO JOGO: O LAUNCHER PARAVA DE PROCURAR
+> ATUALIZAÇÃO EM SILÊNCIO.** O pedido foi conferir se `iniciar-servidor.sh/.bat` busca versão
+> nova antes de subir o servidor — "está aparecendo uma mensagem que a atualização não está
+> sendo buscada". **Busca sim; ele nunca chegava no `git fetch`** (bug-567).
+>
+> **A causa é a mordida da própria cauda:** o guarda de sujeira
+> (`git status --porcelain --untracked-files=no`) roda ANTES do fetch e pula a atualização
+> inteira se qualquer arquivo RASTREADO estiver modificado — e nesta máquina o hook do OpenWolf
+> escreve em `.wolf/memory.md`, que é rastreado, em TODA sessão. Numa máquina de escola (sem
+> Claude Code) o `.wolf` nunca suja e o script funciona como projetado; o defeito real era de
+> UX: a mensagem não dizia QUAIS arquivos sujaram, então o skip era indiagnosticável.
+>
+> **Fix aplicado (opção do usuário entre 3): a mensagem passou a LISTAR os arquivos sujos**,
+> teto de 10 + "(são N no total)" + a linha dizendo como voltar a atualizar. Nos dois scripts.
+> No `.bat`, o `del` do arquivo temporário do `git status` teve de mover pra DEPOIS do uso —
+> ele era apagado antes de dar pra ler.
+> **O que eu NÃO fiz, de propósito: excluir `.wolf/` do teste de sujeira.** Commits `docs(wolf)`
+> tocam `memory.md` quase toda sessão, então o `merge --ff-only` recusaria logo adiante e o
+> aviso sairia com a razão ERRADA — a mensagem honesta é melhor que o skip movido de lugar.
+>
+> **VERDE:** `bash -n` + execução real do `.sh` com stub de `npm` (listou os 5 sujos de
+> verdade) · ramo do >10 conferido · **bloco do `.bat` rodado no `cmd.exe` DE VERDADE**
+> (via `/mnt/c`), nos dois ramos (3 e 13 arquivos), com o fixture apagado no fim.
+> **Código do jogo não foi tocado — a fila do §🍖 continua onde a 41 deixou.**
+>
+> ⚠️ **Armadilha de diário anotada no cerebrum:** escrevi `| --:-- |` no `memory.md` por não
+> saber a hora e o hook do `stop` avisou "no semantic summary" com a linha lá — a regex de
+> `countSemanticEntries` (`.wolf/hooks/shared.js:630`) exige dígitos na hora. `date +%H:%M`
+> antes de escrever.
+>
 > **SESSÃO 41 (2026-08-04) — O USUÁRIO PULOU O F7. DÍVIDA DE UI, E O CHROME DO NOTEBOOK
 > RESOLVIDO.** Sessão aberta com `git fetch`: o local estava 4 commits atrás (a sessão 40 foi
 > na máquina de casa), `pull --ff-only` limpo depois de descartar o cabeçalho de sessão VAZIO
@@ -828,6 +858,9 @@ NÃO foi cancelado — saiu da frente da fila. As opções apresentadas e o que 
 | **Dívida de UI** | — | ✅ FEITA nesta sessão (borda de claim + 2ª rodada mobile) |
 | **PLAYTEST** | do usuário, na escola | F1..F6 + a corrida, acumulados |
 | **§🍖 F7 `/pvp`** | ~0,5 sessão | Pulado, detalhe preservado logo abaixo |
+
+**A sessão 42 não consumiu nenhuma dessas frentes** (foi o launcher, fora do jogo): a escolha
+segue aberta, com o F9 preset como recomendação e o PLAYTEST acumulado como o mais valioso.
 
 **As 3 anotações que o usuário pediu nesta sessão estão no `TODO.md ⏭️ Next`**, prontas pra
 virar quest: **interface do `/amigos`** (a mensagem `friends` já chega e é DESCARTADA no
