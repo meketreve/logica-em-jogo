@@ -2,27 +2,31 @@
 
 > Working checklist. **STATUS.md** = handoff ("why & where we are"); **TODO.md** = "what's left to do".
 > Keep items actionable and short. Check off with `[x]`; sweep done items into STATUS.md ✅ when a phase closes.
-> Last updated: 2026-08-03 (sessão 39 — §🍖 F5 craft por lista + balde-item FEITO; verde e no
-> disco, não commitado. Próxima frente: F6 comida — fecha o laço da fome. Ver STATUS 🚀)
+> Last updated: 2026-08-04 (sessão 40 — §🍖 F6 comida + §🏁 mapa de corrida FEITOS: fruta da folha, plantação de 4
+> estágios, pão, e a fome voltou a MATAR. Próxima frente: F7 /pvp. Ver STATUS 🚀)
 
 ---
 
 ## 🔥 Now (this session)
 
-<!-- Vazio: a sessão 37 consertou os 3 hooks falso-positivos (18f676b, pushado) e a 36
-     fechou o §🍖 F4 — tudo varrido pro STATUS ✅ e pro git. Próxima sessão: puxar o
-     primeiro item de ⏭️ Next pra cá (vegetação sem apoio é barato; o F5 é a frente). -->
+<!-- Vazio: a sessão 40 fechou o §🍖 F6 (comida), o §🏁 mapa de corrida (aula7) e, de
+     tabela, os dois pendentes que sobravam — o capim flutuante (bug-558) e o print do
+     painel de craft do F5. Tudo varrido pro STATUS ✅ e commitado.
+     Próxima sessão: §🍖 F7 /pvp (~0,5 sessão) ou o PLAYTEST (que já acumula F1..F6 + a
+     corrida — ver 🏫). -->
+
+- [x] **§🏁 MAPA DE CORRIDA** (sessão 40, pedido do usuário) — `aula7-corrida.ljw`: 4 postos
+      `chegar` em modo sequencial, pista em U com escada, vão com ponte, ziguezague e
+      serpentina. `um` nos 3 primeiros, **`todos` na chegada**. Verificador próprio (BFS +
+      aluna que corre) é o portão. Detalhe no STATUS ✅.
 
 ## ⏭️ Next
 
-- [ ] **Vegetação precisa de bloco de apoio** — sem cubo cheio embaixo, a planta SOME (quebra).
-      Já existe a engrenagem: `torchRule` em `shared/src/rules.ts` (tocha, tapetes e flores
-      104–107 já registrados) e `precisaApoio()` em `blocks.ts` já lista grama alta. **O buraco
-      é o registro: `GramaAlta`/`GramaAltaSeca`/`GramaAltaFria` (179–181) NÃO estão no
-      `rulesMap`** — hoje o capim fica flutuando quando se quebra o chão embaixo. Fix = um `for`
-      de 3 ids apontando pro `torchRule` + teste. ⚠️ Conferir também se falta algum outro id
-      com `precisaApoio(id) === true` fora do `rulesMap` (varredura, não olho).
-      **Quando o F4 existir, o que some vira DROP** (entrada em `drops.ts`), em vez de evaporar.
+- [x] **Vegetação precisa de bloco de apoio** (sessão 40, bug-558) — `GramaAlta`/`Seca`/`Fria`
+      (179–181) entraram no `rulesMap` apontando pro `torchRule`, e a plantação do F6 junto.
+      A varredura pedida foi feita: **`precisaApoio()` e o `rulesMap` batem** agora. De quebra,
+      o `torchRule` deixou de chamar `isFullCube` direto e passou por `apoioValido(id, abaixo)`
+      — a MESMA função do gate do `place_block`, pra não existir colocação que evapora no tick.
 
 - [x] **§🍖 F5 — craft por LISTA** (sessão 39) — `shared/src/receitas.ts` puro, `fabricar`
       tudo-ou-nada, painel do E com abas mochila/criar e "falta N" em vermelho. 11 receitas
@@ -34,32 +38,20 @@
       slot ANTES de mexer na água, troca vazio↔cheio in-place por `definirSlot`), e o ramo do
       `main.ts` saiu do guarda `mochila.ativa`. Fechou o pendente do F4.
 
-- [ ] **🖼️ HANDOFF — instalar o Chrome do puppeteer pro teste visual automatizado** (pedido do
-      usuário, sessão 39). Os scripts de print/design-QC (`shots:tablet`, `shots:luz`,
-      **`shots:craft`** novo, `openwolf designqc`) dirigem um Chrome headless por CDP e procuram
-      o binário em `~/.cache/puppeteer/chrome`. **Nesta máquina o cache está VAZIO** — todos saem
-      com "Chrome não encontrado" (o print do painel de craft do F5 ficou pendente por isso).
-      - **Instalar o binário (one-off, ~150 MB, precisa de rede):**
-        `npx -y @puppeteer/browsers install chrome@stable`
-        → cai em `~/.cache/puppeteer/chrome/<versão>/chrome-linux64/chrome`.
-      - **Ou reproduzível:** pinar `puppeteer` (ou `@puppeteer/browsers`) em `devDependencies` do
-        `package.json` raiz — o postinstall baixa o chrome no `npm install`. Escolha do usuário
-        (adiciona download a todo `npm install`); os scripts NÃO importam o pacote, só usam o
-        binário do cache, então basta o binário.
-      - **Conferir:** `ls ~/.cache/puppeteer/chrome/*/chrome-linux64/chrome` e então
-        `npm run dev` (vite 5173, noutro terminal) + `npm run shots:craft` → grava
-        `.wolf/designqc-captures/craft/craft-panel.png` e imprime "linhas=11 · habilitadas=3 ·
-        marcas 'falta'=…".
-      - **Atrás de proxy (escola/WSL):** se o download falhar, apontar `CHROME=/caminho/chrome`
-        pra um Chrome/Chromium do sistema (`acharChrome()` já tenta `/usr/bin/google-chrome` etc).
-      - **Depois disso:** tirar o print do painel de craft do F5 (o pendente do §🍖 F5) e conferir
-        a olho — abas mochila/criar, "falta N" em vermelho, alvo de dedo das linhas.
+- [x] **🖼️ HANDOFF do Chrome — RESOLVIDO na máquina de casa** (sessão 40). O usuário
+      confirmou: *"não tem o chrome no not, aqui tem"* — o cache
+      `~/.cache/puppeteer/chrome` tem duas versões nesta máquina, e `shots:craft` rodou
+      (`linhas=12 · habilitadas=3 · marcas 'falta'=9`). **O print do painel de craft, pendente
+      do F5, está tirado e conferido.** ⚠️ **No NOTEBOOK o cache continua vazio** — lá os
+      scripts de print seguem saindo com "Chrome não encontrado", e a receita de instalação é
+      a de sempre: `npx -y @puppeteer/browsers install chrome@stable`, ou `CHROME=/caminho`
+      apontando pra um Chrome do sistema.
 
-- [ ] **§🍖 F6 — comida** (~1 sessão, PRÓXIMA frente). Fecha o laço da fome (baixar
-      `VIDA_MINIMA_POR_FOME` pra 0 devolve inanição letal). Duas fontes: fruta caindo da folha
-      (`drops.ts` já devolve LISTA) + plantação que cresce como `BlockRule` (`rules.ts`, motor
-      da areia/água). Comer = item consumível + ação. Pão = 1 linha em `receitas.ts` agora.
-      Decisões travadas no ROADMAP §🍖 F6.
+- [x] **§🍖 F6 — comida** (sessão 40, escopo GRANDE escolhido pelo usuário). `comida.ts` puro,
+      plantação de 4 estágios que cresce por PULSO (fora do `rulesMap` de propósito), fruta
+      caindo da folha, `comer {slot}` no clique direito, pão (receita 11) e
+      **`VIDA_MINIMA_POR_FOME` 6 → 0: a fome voltou a matar.** Detalhe no STATUS ✅.
+      **Playtest pendente** — ver 🏫.
 
 ## 🏫 Na escola (o usuário faz lá)
 

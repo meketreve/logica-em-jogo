@@ -61,6 +61,29 @@
 
 ### Invariantes e contratos
 
+- **Arquivo de mundo que começa com `aula` é MUNDO DE AULA** (`ehMundoDeAula`, server/src/
+  paths.ts): read-only e reutilizável (sempre carrega do MODELO em `cenarios/`, nunca salva a
+  turma) e o **confinamento nasce ligado**. Pra pista de corrida isso é a proteção de graça
+  (ninguém cava atalho); pra qualquer mundo que PRECISE persistir, o nome não pode começar
+  com "aula".
+- **`server/src/cenarios/gerar.ts` roda uma CLI no corpo do módulo** — importar dele gera os 6
+  cenários como efeito colateral. O que outros geradores reusam mora em `autoria.ts`.
+- **Cenário só vira arquivo se o verificador aprovar**, e o verificador JOGA o cenário
+  (monta o gabarito / corre a pista) num servidor novo. Ao escrever conferência nova, teste o
+  lado NEGATIVO: quebre o cenário de propósito e veja se ela reprova. A do vão da corrida
+  passou verde com a rampa REMOVIDA até o buraco ser cavado de verdade (bug-563).
+
+- **A banda de ITENS (≥ 900) não é um intervalo aberto:** `isItem(id)` é um Set explícito
+  (baldes, fruta, trigo, pão). Quem precisa aceitar "bloco OU item" (o `/dar`, o portão da
+  tabela de drops) chama essa função — testar `id >= 900` deixaria byte inventado passar.
+- **`apoioValido(id, idAbaixo)` é a fonte ÚNICA de "este apoio serve?"**, consultada pelo gate
+  do `place_block` E pela regra de vizinhança do tick. Cubo cheio serve pra tocha/tapete/flor;
+  a plantação exige SOLO (`isSolo`: terra + as 3 gramas). Se as duas pontas discordarem,
+  aparece colocação que evapora no tick seguinte.
+- **`precisaApoio()` não derruba nada sozinho.** Ele só barra o PLACE; quem apaga o que perdeu
+  o apoio é a entrada no `rulesMap` (`torchRule`). Bloco novo que precisa de apoio tem de
+  entrar nos DOIS lugares — foi a falta do segundo que fez o capim flutuar (bug-558).
+
 - Índices: chunk = `(cy*dims.z+cz)*dims.x+cx`; bloco = `(ly*CHUNK_SIZE+lz)*CHUNK_SIZE+lx`.
   `getBlock` fora dos limites (ou chunk ausente) = Air.
 - **Id de bloco é BYTE DE SAVE:** nunca renumerar/reordenar id antigo — só append no fim do
@@ -654,6 +677,29 @@
 <!-- Uma linha por decisão. TEXTO COMPLETO (motivo, alternativas, contexto) em
      .wolf/history.md → "## Cerebrum — Decision Log" e "## Cerebrum arquivado (2026-07-28)". -->
 
+- [2026-08-04] **§🏁 A corrida (`aula7-corrida.ljw`) é a 1ª aula que NÃO é de construir** —
+  4 objetivos `chegar` em modo sequencial, mundo plano próprio, sem cabines. Os 3 primeiros
+  postos são `um` (basta um da equipe) e a **CHEGADA é `todos`**: quem corre na frente volta a
+  buscar quem ficou. Uma corrida que premia só o mais rápido não deixa o que discutir no fim.
+- [2026-08-04] **Pista em mundo plano tem de ser CIRCUITO FECHADO.** O mundo em volta é caminho:
+  corredor aberto na ponta vira atalho pela grama (bug-561). E **posto tem de atravessar a pista
+  de parede a parede** — na curva, uma faixa vertical se dribla (bug-562).
+- [2026-08-04] **§🍖 F6: A FOME VOLTOU A MATAR** — `VIDA_MINIMA_POR_FOME` 6 → **0**, decisão
+  do usuário. O F3 tinha travado a inanição em 3 corações só porque não havia o que comer;
+  agora há fruta, plantação e pão. Reversível numa linha (subir pra 6 devolve a fome que só
+  enfraquece), e a saída pro fundamental 1 continua sendo `/regra fome desligar`.
+- [2026-08-04] **§🍖 F6 = as DUAS fontes do ROADMAP** (escopo GRANDE de novo): fruta caindo da
+  folha (fonte PASSIVA — quem só explora não passa fome) **e** plantação de 4 estágios (fonte
+  ATIVA: semente do capim → plantar em solo → esperar → colher trigo → 3 trigo = 1 pão). O
+  trigo NÃO se come de propósito: é a dependência que faz a horta ensinar sequência.
+- [2026-08-04] **Crescer NÃO é regra de vizinhança.** A fila de células sujas acorda por
+  "alguém mexeu do lado", e planta cresce por TEMPO — se `crescerPlantacao` estivesse no
+  `rulesMap`, colocar um bloco ao lado da horta a amadureceria na hora. Ela fica FORA do
+  registro e a session a chama num pulso, sobre um índice de células plantadas
+  (`plantacoes`), que se reconstrói dos BYTES no `restore` — **nenhum campo novo no `.ljw`**.
+- [2026-08-04] **Comer não cura vida.** A vida já volta pela regeneração passiva do F2, que
+  exige fome alta: ter as duas coisas faria a comida virar curativo instantâneo e apagaria a
+  única razão de a fome doer.
 - [2026-08-03] **§🍖 F5 = receitas de MADEIRA + PEDRA, e o balde entrou junto** (escopo GRANDE
   escolhido pelo usuário). Sem forno no lite, o universo real é madeira (tronco→tábuas→
   laje/escada/mesa/cerca) e pedra (pedregulho→laje/escada). **O balde é `3 minério de ferro →

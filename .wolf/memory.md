@@ -927,3 +927,117 @@ layouts mobile segue sendo o próximo.
 | 16:56 | Created scripts/craft-shot.mjs | — | ~1536 |
 | 16:57 | Edited package.json | 2→3 lines | ~43 |
 | 16:59 | Session end: 25 writes across 14 files (receitas.ts, index.ts, protocol.ts, inventario.ts, session.ts) | 15 reads | ~135576 tok |
+| 21:59 | Edited shared/src/blocks.ts | modified o() | ~266 |
+| 21:59 | Edited shared/src/blocks.ts | modified isBalde() | ~540 |
+| 21:59 | Edited shared/src/blocks.ts | added 1 condition(s) | ~242 |
+| 22:00 | Edited shared/src/blocks.ts | 6→7 lines | ~70 |
+| 22:00 | Edited shared/src/blocks.ts | 4→5 lines | ~66 |
+| 22:00 | Edited shared/src/blocks.ts | added 1 condition(s) | ~154 |
+| 22:00 | Edited shared/src/mesher.ts | modified F6() | ~98 |
+| 22:00 | Edited shared/src/mesher.ts | modified o() | ~99 |
+| 22:00 | Edited shared/src/mesher.ts | 2→4 lines | ~45 |
+| 22:00 | Edited shared/src/mesher.ts | 2→2 lines | ~25 |
+| 22:00 | Edited shared/src/mesher.ts | added 1 condition(s) | ~221 |
+| 22:01 | Edited shared/src/mesher.ts | 5→6 lines | ~23 |
+| 22:01 | Edited shared/src/mesher.ts | 3→4 lines | ~16 |
+| 22:01 | Created shared/src/comida.ts | — | ~384 |
+| 22:01 | Edited shared/src/sobrevivencia.ts | modified F6() | ~190 |
+| 22:01 | Edited shared/src/sobrevivencia.ts | added 1 condition(s) | ~255 |
+| 22:01 | Edited shared/src/drops.ts | 16→21 lines | ~79 |
+| 22:02 | Edited shared/src/drops.ts | added 1 condition(s) | ~100 |
+| 22:02 | Edited shared/src/drops.ts | 3→1 lines | ~23 |
+| 22:02 | Edited shared/src/drops.ts | added 2 condition(s) | ~646 |
+| 22:03 | Edited shared/src/rules.ts | added 2 condition(s) | ~569 |
+| 22:03 | Edited shared/src/rules.ts | 9→12 lines | ~50 |
+| 22:03 | Edited shared/src/rules.ts | modified Flores() | ~230 |
+| 22:03 | Edited shared/src/receitas.ts | 3→5 lines | ~78 |
+| 22:03 | Edited shared/src/receitas.ts | inline fix | ~22 |
+| 22:03 | Edited shared/src/receitas.ts | modified F4() | ~182 |
+| 22:04 | Edited shared/src/protocol.ts | modified Comer() | ~108 |
+| 22:04 | Edited shared/src/protocol.ts | added 1 condition(s) | ~97 |
+| 22:04 | Edited shared/src/index.ts | 2→3 lines | ~23 |
+| 22:04 | Edited shared/src/session.ts | isFullCube() → apoioValido() | ~114 |
+| 22:04 | Edited shared/src/session.ts | added 5 condition(s) | ~320 |
+| 22:04 | Edited shared/src/session.ts | modified cheia() | ~169 |
+| 22:04 | Edited shared/src/session.ts | expanded (+10 lines) | ~222 |
+| 22:04 | Edited shared/src/session.ts | added 1 condition(s) | ~145 |
+| 22:05 | Edited shared/src/session.ts | added 2 condition(s) | ~320 |
+| 22:05 | Edited shared/src/session.ts | modified packCoord() | ~169 |
+| 22:05 | Edited shared/src/session.ts | modified for() | ~162 |
+| 22:05 | Edited shared/src/session.ts | added 2 condition(s) | ~383 |
+| 22:06 | Edited shared/src/blocks.test.ts | modified o() | ~186 |
+| 22:07 | Edited shared/src/sobrevivencia.test.ts | modified for() | ~138 |
+| 22:07 | Edited shared/src/sobrevivencia.test.ts | added 1 condition(s) | ~322 |
+| 22:07 | Edited shared/src/sobrevivencia.test.ts | added optional chaining | ~86 |
+| 22:07 | Edited shared/src/drops.test.ts | modified for() | ~48 |
+| 22:08 | Edited shared/src/drops.test.ts | modified for() | ~780 |
+| 22:08 | Edited shared/src/drops.test.ts | 2→7 lines | ~59 |
+| 22:09 | Created shared/src/comida.test.ts | — | ~4011 |
+| 22:10 | Edited shared/src/blocks.ts | modified isBalde() | ~176 |
+| 22:12 | Edited shared/src/inventario.test.ts | nada() → contar() | ~191 |
+| 22:13 | Edited client/src/blocksUi.ts | modified Muda() | ~130 |
+| 22:13 | Edited client/src/atlasTexture.ts | modified o() | ~67 |
+| 22:13 | Edited client/src/atlasTexture.ts | added nullish coalescing | ~496 |
+| 22:13 | Edited client/src/blockIcons.ts | added 2 condition(s) | ~574 |
+| 22:14 | Edited client/src/main.ts | added nullish coalescing | ~166 |
+| 22:16 | Edited server/src/index.ts | modified F6() | ~146 |
+| 22:17 | Created server/src/cenarios/_smoke-comida.mjs | — | ~2020 |
+| 22:17 | Edited scripts/smoke.mjs | expanded (+23 lines) | ~225 |
+| 22:22 | Created scripts/comida-shot.mjs | — | ~1671 |
+
+### Sessão 40 (2026-08-04) — §🍖 F6: A COMIDA, E A FOME QUE VOLTOU A MATAR
+
+Sessão aberta com `git fetch`: o local estava **3 commits atrás** (sessões 38 e 39 foram
+feitas em outra máquina). `git checkout -- .wolf/memory.md` descartou um cabeçalho de sessão
+VAZIO que o hook tinha escrito, e `pull --ff-only` trouxe o F5 (craft) inteiro.
+
+**Duas perguntas de escopo antes de codar (o padrão das sessões 36 e 39), e o usuário
+escolheu GRANDE nas duas:** a fome volta a MATAR (`VIDA_MINIMA_POR_FOME` 6 → 0) e as DUAS
+fontes do ROADMAP (fruta da folha + plantação de 4 estágios + pão).
+
+**O desenho que decidiu a frente:** crescer NÃO é regra de vizinhança. A fila de células
+sujas acorda por "mexeram do lado", e planta cresce por TEMPO — no `rulesMap`, colocar um
+bloco ao lado da horta a amadureceria na hora. Então `crescerPlantacao` ficou FORA do
+registro e a session a chama num PULSO sobre um índice `plantacoes` (packCoord), mantido no
+`applyBlockQuieto` e **reconstruído dos bytes no `restore`** — nenhum campo novo no `.ljw`.
+
+**Novo:** `shared/src/comida.ts` (tabela pura), `saciar()` no sobrevivencia, 4 blocos
+(Plantacao0..3, 182-185) + 3 itens (fruta 902, trigo 903, pão 904), `isItem`/`isSolo`/
+`apoioValido`, mensagem `comer {slot}`, receita do pão (índice 11, append), 4 tiles no atlas,
+ícones procedurais dos 4 itens novos, comer no clique direito ANTES do `if (!target)`.
+
+**3 bugs:** bug-558 (o capim flutuava — `precisaApoio` listava a grama alta mas ela nunca
+entrou no `rulesMap`; achado da sessão 36, corrigido agora), bug-559 (`/dar` recusava comida:
+a exceção era o balde escrito à mão), bug-560 (asserção do smoke estreita demais pro relógio
+que ele mesmo acelera com `LJ_CRESCIMENTO`).
+
+**VERDE:** typecheck 3/3 · **565 testes** (+28) · build · **12/12 smokes** (`comida` é novo) ·
+3 prints do F6 conferidos + **o print do craft que estava pendente da sessão 39** (o chrome
+existe nesta máquina). **PLAYTEST PENDENTE.**
+| 22:31 | Session end: 57 writes across 22 files (blocks.ts, mesher.ts, comida.ts, sobrevivencia.ts, drops.ts) | 11 reads | ~110218 tok |
+| 22:43 | Created server/src/cenarios/corrida.ts | — | ~5400 |
+
+### Sessão 40 (cont.) — §🏁 MAPA DE CORRIDA (`aula7-corrida.ljw`)
+
+O usuário pediu "um mapa de corrida para aula". Corrida não é objetivo de CONSTRUIR: é
+`chegar`, que o motor já tinha desde o cp12 e nunca tinha sido usado num cenário.
+
+**Extração primeiro:** o `Autoria` (o "professor de mentira" que digita os comandos) estava
+dentro do `gerar.ts`, que roda uma CLI no corpo do módulo — importar dele geraria os 6 cenários
+como efeito colateral. Saiu pra `autoria.ts`, e os 6 `.ljw` regeneraram **byte a byte
+idênticos** (git limpo) antes de eu escrever uma linha da corrida.
+
+**A pista:** largada → escada → posto1 → vão com ponte de 1 bloco → posto2 → ziguezague →
+posto3 (na curva) → serpentina → chegada com pódio. Modo sequencial: um posto por vez no HUD.
+**Os 3 primeiros são `um`, a chegada é `todos`** — a equipe só vence com todo mundo dentro.
+
+**O verificador foi o que fez a frente valer.** Ele (1) acha caminho ANDÁVEL por BFS com o passo
+do jogador (±1 de altura), (2) faz uma aluna CORRER e exige os 4 postos NA ORDEM, (3) exige que
+toda célula do fundo do vão volte à pista. Os três pegaram erro real: bug-561 (corredor aberto na
+ponta → rota pela grama por fora, 0 postos), bug-562 (posto 3 em faixa vertical numa curva que
+vira em z → dava pra driblar), bug-563 (vão com 1 de fundura fazia a conferência da rampa passar
+sem rampa; cavado de verdade, a PONTE partia o fundo em duas metades e prendia quem caía do lado
+errado). O teste negativo — quebrar de propósito e ver reprovar — foi o que expôs o bug-563.
+
+**VERDE:** typecheck 3/3 · 565 testes · build · 12/12 smokes · 7 cenários gerados (a corrida
+passa pelo próprio portão) · 5 prints da pista. **PLAYTEST PENDENTE.**

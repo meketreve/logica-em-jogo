@@ -1,6 +1,95 @@
 # STATUS — Projeto "Lógica em Jogo" (jogo voxel educacional)
 
 > Single source of truth for resuming work. Read this FIRST when starting a session.
+> **SESSÃO 40 (2026-08-04) — §🍖 F6: A COMIDA, E A FOME QUE VOLTOU A MATAR.** Sessão aberta
+> com `git fetch`: o local estava **3 commits atrás** (as sessões 38 e 39 foram feitas em
+> outra máquina). Um `checkout` descartou o cabeçalho de sessão VAZIO que o hook tinha
+> escrito no diário e o `pull --ff-only` trouxe o F5 inteiro. Depois, duas perguntas de
+> escopo — o padrão das sessões 36 e 39 — e **o usuário escolheu GRANDE nas duas.**
+>
+> **A decisão do dia: `VIDA_MINIMA_POR_FOME` 6 → 0. A fome MATA de novo.** O F3 tinha travado
+> a inanição em 3 corações porque não havia o que comer; agora há três coisas. O
+> `textoDaMorte("fome")`, escrito na sessão 35 e nunca disparado, passa a acontecer — e o
+> teste da session prova a morte pelo chat da turma. Continua reversível numa linha, e a saída
+> pro fundamental 1 segue sendo `/regra fome desligar`, que tira a barra da tela.
+>
+> **O desenho que decidiu a frente inteira: CRESCER NÃO É REGRA DE VIZINHANÇA.** A fila de
+> células sujas acorda por "alguém mexeu aqui do lado" — e planta não cresce por vizinho, ela
+> cresce por TEMPO. Se `crescerPlantacao` estivesse no `rulesMap`, colocar um bloco ao lado da
+> horta a amadureceria na hora. Então ela ficou **fora** do registro (é um `BlockRule` puro,
+> testável igual aos outros) e a session a chama num PULSO, a cada `TICKS_POR_CRESCIMENTO`
+> (200 ticks = 20 s por estágio, ~1 min da semente ao trigo), varrendo um índice
+> `plantacoes` de células plantadas. O índice nasce e morre dentro do `applyBlockQuieto` — a
+> mesma porta por onde TODA mudança de mundo passa, então não existe horta fora dele — e no
+> `restore` ele **se reconstrói dos BYTES**: nenhum campo novo no `.ljw`, e mundo antigo abre
+> sem migração. No `rulesMap` a plantação entra só pelo APOIO: cavar a terra derruba a horta.
+>
+> **As duas fontes, e por que duas.** A **fruta da folha** (1 em 8) é PASSIVA: quem só explora
+> não passa fome, e nenhuma aula trava porque a turma não entendeu a horta. A **plantação** é
+> ATIVA e é onde mora a pedagogia — semente do capim (1 em 4) → plantar em SOLO → esperar →
+> colher **trigo + a semente de volta** → 3 trigo = 1 pão. **O trigo não se come de
+> propósito:** é a dependência que transforma comida em sequência de 4 passos, em vez de um
+> botão. As chances são muito mais generosas que as do Minecraft (maçã de folha lá é 1/200)
+> porque aqui a unidade de tempo é a AULA, não a temporada.
+>
+> **`isSolo` e `apoioValido`:** planta não nasce em pedra, e essa é a regra que o aluno
+> descobre na primeira tentativa. O detalhe que importa é que a pergunta é UMA — o gate do
+> `place_block` e a regra do tick chamam a mesma função, senão dava pra colocar uma muda onde
+> ela evaporaria no tick seguinte. **Comer não cura vida** (a vida já volta pela regeneração,
+> que exige fome alta) e **de barriga cheia a mordida é RECUSADA**, senão o clique jogaria
+> comida fora.
+>
+> **Três bugs, e um deles estava anotado desde a sessão 36:** **bug-558** o capim FLUTUAVA —
+> `precisaApoio()` listava a grama alta, mas os 3 ids nunca entraram no `rulesMap`, e quem
+> derruba o que perdeu apoio é a regra do tick, não o place. **bug-559** `/dar` recusava
+> comida: a lista de exceções era "o balde", escrita à mão quando ele era o único item do
+> jogo → virou `isItem()`, um Set explícito (a banda ≥900 não é intervalo aberto). **bug-560**
+> era autoria de smoke: a asserção esperava o byte 182 e achava 183, porque o próprio smoke
+> acelera o relógio com `LJ_CRESCIMENTO=5`.
+>
+> **VERDE:** typecheck 3/3 · **565 testes** (+28) · build · **12/12 smokes** (o `comida` é
+> novo: prova pelo fio que a horta cresce no tick e chega como `block_changed` normal, que só
+> pega em solo, que colher dá trigo + semente, que 3 trigo viram pão, e que comer gasta uma
+> unidade) · **3 prints do F6 conferidos** (hotbar com os 4 ícones novos, atlas com os 4
+> estágios, receita do pão filtrada) — **e o print do painel de craft que estava pendente da
+> sessão 39, porque o chrome existe NESTA máquina.** **PLAYTEST PENDENTE.**
+>
+> **SESSÃO 40 (cont.) — §🏁 MAPA DE CORRIDA (`aula7-corrida.ljw`).** O usuário pediu "um mapa
+> de corrida para aula". Corrida não é objetivo de CONSTRUIR: é `chegar`, que o motor tinha
+> desde o cp12 e nunca tinha sido usado num cenário — a 1ª aula em que ninguém constrói nada.
+>
+> **Antes de codar, uma extração:** o `Autoria` (o "professor de mentira" que digita os comandos
+> do cenário) morava dentro do `gerar.ts`, que roda uma CLI no corpo do módulo — importar dele
+> geraria os 6 cenários como efeito colateral. Saiu pra `autoria.ts`, e os 6 `.ljw` regeneraram
+> **byte a byte idênticos** antes de eu escrever uma linha da corrida.
+>
+> **A pista:** largada → escada → posto1 → vão com ponte de 1 bloco → posto2 → ziguezague →
+> posto3 (na curva) → serpentina → chegada com pódio. Modo SEQUENCIAL: o HUD mostra um posto por
+> vez, e o próximo só aparece quando a equipe fecha o atual — o aluno não escolhe a ordem, ele
+> descobre que existe uma. **Os 3 primeiros postos são `um`** (basta um da equipe) **e a CHEGADA
+> é `todos`**: quem correu na frente volta a buscar quem ficou. Corrida que premia só o mais
+> rápido não deixa o que discutir no fim.
+>
+> **O verificador é o que fez a frente valer, e ele é o portão:** (1) acha caminho ANDÁVEL por
+> BFS com o passo do jogador (sobe/desce no máximo 1), (2) faz uma aluna CORRER esse caminho e
+> exige os 4 postos NA ORDEM, (3) exige que TODA célula do fundo do vão volte à pista. Os três
+> pegaram erro real, e nenhum deles eu tinha visto lendo o próprio código: **bug-561** os
+> corredores eram abertos na ponta -x e, em mundo plano, dava pra sair e contornar a pista pela
+> grama (0 postos fechados); **bug-562** o posto 3 era faixa vertical numa curva que vira em z —
+> dava pra driblar por fora; **bug-563** o vão tinha 1 de fundura (cavei só a camada do piso, e
+> o plano é maciço abaixo), então a conferência da rampa passava **com a rampa removida** — e,
+> cavado de verdade, apareceu o problema sério: a PONTE por cima parte o fundo em duas metades
+> incomunicáveis e prende quem cai do lado sem rampa. Rampa espelhada + a conferência passou a
+> exigir o fundo INTEIRO.
+>
+> **Mundo de aula de graça:** arquivo que começa com `aula` é read-only e reutilizável
+> (`ehMundoDeAula`) — cada turma recebe a pista intacta e o confinamento nasce ligado, que aqui
+> é a proteção da pista (ninguém cava atalho; o professor conserta).
+>
+> **VERDE:** typecheck 3/3 · 565 testes · build · 12/12 smokes · **7 cenários gerados** (a
+> corrida passa pelo próprio portão) · 5 prints da pista (`npm run shots:corrida`).
+> **PLAYTEST PENDENTE** — headless corre em linha reta; só o dedo diz se a pista é divertida.
+>
 > **SESSÃO 39 (2026-08-03) — §🍖 F5: CRAFT POR LISTA + O BALDE VIROU ITEM. Fecha numa sessão.**
 > O usuário mandou "sigo pro F5" e escolheu o escopo GRANDE nas duas perguntas: **incluir o
 > balde** (fecha o pendente do F4) e **receitas de madeira + pedra**. Antes de codar, uma
@@ -471,6 +560,47 @@ Documento é o ÚLTIMO entregável, não o primeiro. Construir, não documentar.
     headless por CDP puro (sem puppeteer como dependência) e imprime o perfil. Os NÚMEROS
     dele não valem (SwiftShader) — é teste de encanamento.
 
+- **§🏁 MAPA DE CORRIDA — `aula7-corrida.ljw` (sessão 40, 2026-08-04).** A 7ª aula, e a
+  primeira que não é de construir: 4 objetivos `chegar` em modo sequencial numa pista fechada.
+  - **`server/src/cenarios/autoria.ts` novo** — o `Autoria` saiu do `gerar.ts` (que roda CLI no
+    import). Os 6 cenários antigos regeneram byte a byte idênticos.
+  - **`server/src/cenarios/corrida.ts` novo** — pista construída com os MESMOS comandos do
+    professor (`/regiao criar`+`encher`, `/bloco`, `quadro_set`), 5 placas de instrução, e o
+    verificador próprio: BFS com o passo do jogador + uma aluna que CORRE e fecha os 4 postos na
+    ordem + o fundo do vão inteiro tem de ter saída. **Reprovar = o arquivo não é gravado.**
+  - **`um` nos 3 primeiros postos, `todos` na CHEGADA** — a equipe só vence junta.
+  - Sai do MESMO `npm run cenarios` (agora 7 arquivos). `npm run shots:corrida` novo.
+  - **bug-561/562/563**, todos achados pelo verificador (rota por fora, posto driblável, fundo
+    do vão partido pela ponte).
+- **§🍖 F6 — COMIDA (sessão 40, 2026-08-04).** O laço da fome fechou: existe o que comer, e
+  por isso a fome voltou a matar (`VIDA_MINIMA_POR_FOME` 6 → **0**).
+  - **`shared/src/comida.ts`** (puro): tabela `id → pontos de fome` (fruta 4, pão 5, números
+    do Minecraft), `isComida`/`saciedadeDe`. O **trigo NÃO se come** — é ingrediente.
+    `saciar(e, pontos)` novo no `sobrevivencia.ts`, par do `curar`; devolve o MESMO objeto de
+    barriga cheia, e é assim que a session recusa a mordida sem gastar o item.
+  - **Plantação: 4 blocos novos** (`Plantacao0..3`, ids 182-185, append). Só o estágio 0 é
+    colocável; os outros nascem crescendo. Cruz de sprite como a flor, atravessável, balança
+    no vento, e **exige SOLO** (`isSolo` = terra + as 3 gramas) pelo `apoioValido(id, abaixo)`
+    — a mesma função no gate do place e na regra do tick.
+  - **`crescerPlantacao` fica FORA do `rulesMap`** e a session a chama num pulso de
+    `TICKS_POR_CRESCIMENTO` (200 ticks = 20 s/estágio) sobre o índice `plantacoes`, mantido no
+    `applyBlockQuieto` e **reconstruído dos bytes no `restore`** (nenhum campo novo no `.ljw`).
+    `LJ_CRESCIMENTO` / `crescimentoPorEstagio` é o botão (o smoke usa 5).
+  - **3 itens novos** na banda ≥900: fruta 902, trigo 903, pão 904, mais `isItem()` — a banda
+    virou um Set explícito, e `/dar` passou a aceitar bloco OU item.
+  - **`drops.ts`:** folha → fruta 1 em 8 · capim → semente 1 em 4 (e nunca o próprio capim) ·
+    plantação madura → trigo + a semente de volta (replantar não depende de sorte). `dropsDe`
+    ganhou `sorteio` injetável — é a única parte não determinística da tabela.
+  - **Receita do pão** (3 trigo → 1 pão), índice 11, APPEND. **`comer {slot}`** novo no
+    protocolo: clique direito com comida na mão, ANTES do `if (!target)` (comer olhando pro
+    céu tem de funcionar).
+  - **Cliente:** 4 tiles de plantação no atlas (a altura e a cor contam a idade), ícones
+    procedurais de semente/fruta/trigo/pão em `blockIcons.ts` — o do estágio 0 é um punhado de
+    GRÃOS, porque o broto de 4 px sumia no slot. `npm run shots:comida` novo.
+  - **bug-558** (o capim flutuava desde o §🌬️), **bug-559** (`/dar` recusava comida),
+    **bug-560** (asserção do smoke × relógio acelerado).
+  - VERDE: typecheck 3/3 · 565 testes (+28) · build · 12/12 smokes (`comida` é novo) · 3
+    prints conferidos + o do craft, pendente da sessão 39. **Playtest PENDENTE.**
 - **§🍖 F5 — CRAFT POR LISTA + BALDE-ITEM (sessão 39, 2026-08-03).** Fabricar virou estado do
   SERVIDOR; o balde fechou o pendente do F4 (era só de criativo).
   - **`shared/src/receitas.ts`** (puro): `Receita { saida, custo[] }`, `RECEITAS` **APPEND-only**
@@ -639,45 +769,64 @@ Documento é o ÚLTIMO entregável, não o primeiro. Construir, não documentar.
 
 ---
 
-## 🚀 Próxima fase — §🍖 F6: COMIDA (~1 sessão)
+## 🚀 Próxima fase — §🍖 F7: `/pvp` (~0,5 sessão)
 
 A ordem do backlog está **travada pelo usuário** (sessão 29):
 **auto-update ✅ → layouts mobile ✅ (1ª rodada) → v2 da geração ✅ (sessões 32+33) →
-sobrevivência ← EM CURSO (F1..F5 feitos nas sessões 34, 35, 36 e 39).**
+sobrevivência ← EM CURSO (F1..F6 feitos nas sessões 34, 35, 36, 39 e 40).**
 
-**F6 fecha o laço da fome** — o F3 nasceu com a inanição LIMITADA a 3 corações
-(`VIDA_MINIMA_POR_FOME = 6`) porque não havia o que comer. Agora existe inventário E craft, então
-dá pra fechar: comer restaura fome, e baixar `VIDA_MINIMA_POR_FOME` pra 0 devolve a inanição
-letal em uma linha (o caminho de volta já está escrito no comentário do `sobrevivencia.ts`).
+**F7 é a frente mais barata que sobrou**, porque quase tudo já existe: a regra `pvp` está no
+registro desde o F1 (padrão DESLIGADA, já grava no `.ljw`, já aparece no `/regra`) e
+`aplicarDano(estado, n, "pvp")` é uma causa que o F2 já reservou — inclusive o
+`textoDaMorte("pvp")`, escrito e nunca disparado. O que falta é o ataque:
 
-**F6 = duas fontes de comida + a ação de comer** (ROADMAP §🍖, decisões travadas — não reabrir):
-- **Fruta caindo da folha** — o `drops.ts` já tem o lugar (folha→nada hoje, vira "folha → 1
-  fruta às vezes"); a assinatura de `dropsDe` já devolve LISTA justamente pra isso.
-- **Uma plantação que cresce como `BlockRule`** em `rules.ts` — mesma engrenagem da areia/água,
-  zero motor novo. Colher → comer, ou colher → 1 receita simples (pão, que é UMA linha em
-  `receitas.ts` agora que o F5 existe).
-- **Comer** = item consumível na mão + ação (clique direito? tecla?) que chama
-  `curarFome`/`aplicarDano` inverso. Item de comida entra na banda ≥ 900 (como o balde) ou como
-  bloco colhível — decidir no início do F6.
-- **A régua de saciedade** e se comer também cura VIDA (Minecraft: regen vem da fome cheia, que
-  o F3 já modela) — ver ROADMAP §🍖 F6.
+- **`/pvp ligar|desligar`** = atalho professor-only pro `/regra pvp` que já funciona (molde do
+  `/hora`), e o `RegraDef.pendente` da `pvp` sai — ela é a ÚLTIMA regra sem mecânica.
+- **Ataque = clique esquerdo em JOGADOR dentro de `PLAYER_REACH`**, dano fixo, cooldown. Sem
+  arma no lite. O servidor decide: o cliente manda a intenção (mensagem nova `atacar {alvo}`,
+  no molde do `comer {slot}` do F6), e quem confere alcance e cooldown é a session — nunca o
+  cliente, que é a disciplina de toda ação desde o F2.
+- **Colisões a checar ANTES de codar** (ROADMAP §🍖): mundo-aula força pvp OFF, como já força
+  criativo; claim/confinamento NÃO barram dano (a área protege BLOCO, não pessoa — decidir com
+  o usuário se isso vale); e a morte por pvp usa o mesmo `matar()`, então a regra
+  `manter-inventario` decide o espólio sem código novo.
 
-⚠️ O ROADMAP dizia "decidir F5 vs F6 antes/depois/junto" — **resolvido: o usuário mandou F5
-sozinho, a ordem travada F5 → F6 vale.** F6 é a próxima.
+**Depois do F7:** F8 mobs (fora do lite, ~3+ sessões, com o aviso de desempenho do lab) → F9
+preset `sobrevivencia`. Escopo item a item em `.wolf/ROADMAP.md §🍖`.
 
-**Depois do F6:** F7 `/pvp` (atalho da regra que já existe) → F8 mobs (fora do lite) → F9 preset
-`sobrevivencia`. Escopo item a item em `.wolf/ROADMAP.md §🍖`.
+### §🍖 F6 — o que ficou aberto
+
+- **Os NÚMEROS são todos de uma linha, e o playtest é quem os move:**
+  `TICKS_POR_CRESCIMENTO` = 200 (20 s por estágio, ~1 min da semente ao trigo) em `rules.ts` ·
+  `CHANCE_FRUTA_DA_FOLHA` = 1/8 e `CHANCE_SEMENTE_DO_CAPIM` = 1/4 em `drops.ts` · saciedade
+  (fruta 4, pão 5) em `comida.ts` · `VIDA_MINIMA_POR_FOME` = 0 em `sobrevivencia.ts`.
+  `LJ_CRESCIMENTO=<ticks>` acelera a horta sem recompilar — é o que o smoke usa, e serve pra
+  ver o ciclo inteiro num playtest de 1 minuto.
+- **A horta cresce no ESCURO.** A luz mora 100% no cliente (§💡) e o servidor não tem esse
+  byte. Exigir luz obrigaria a mandar luz pela rede — caro, e numa aula é uma dor a menos.
+- **Não há terra ARADA nem enxada.** Planta direto na terra/grama. Farmland seria um bloco
+  novo + uma ferramenta; se o playtest pedir "a horta tem de parecer horta", o caminho é um id
+  a mais em `isSolo`, não motor novo.
+- **Não há regador nem morte por seca.** A planta só morre se o SOLO sumir debaixo dela.
+- **A fruta não tem árvore própria:** ela cai de qualquer folha, de qualquer das 4 espécies.
+  "Só o ipê dá fruta" seria uma entrada por espécie no `drops.ts`.
+- **Comer não tem animação nem som.** O evento existe pra plugar (`events.ts` é o lugar, como
+  o `dano`/`morte` do F2), mas hoje a única resposta é a barra subir.
+- **O pulso de crescimento não tem TETO** (a água tem). Uma horta de turma são centenas de
+  células, não milhões; se alguém plantar 27×64 mudas e o tick doer, o teto é o mesmo padrão
+  do `aguaMaxPorTick`.
 
 ### §🍖 F5 — o que ficou aberto
 
-- **PRINT do painel de craft PENDENTE:** o chrome do puppeteer não está instalado nesta máquina
-  (`~/.cache/puppeteer/chrome` vazio) e o `@puppeteer/browsers install chrome` não fechou no
-  orçamento. **O script virou permanente: `npm run shots:craft`** (`scripts/craft-shot.mjs` —
-  `?mochila=` + tecla E + clique na aba "criar"). **Handoff de instalação do chrome no
-  `.wolf/TODO.md` (item 🖼️ HANDOFF)** — com chrome no cache, é `npm run dev` + `npm run
-  shots:craft`. O painel é DOM puro espelhando a mochila do F4, que já foi conferida a olho —
-  risco baixo, mas o **usuário playtesta** de qualquer jeito.
-- **As 11 receitas são o botão de ajuste** (`RECEITAS` em `receitas.ts`): mudar quantidade/saída
+- ✅ **PRINT do painel de craft — TIRADO (sessão 40).** O chrome existe na máquina de casa
+  (o usuário: *"não tem o chrome no not, aqui tem"*), e `npm run shots:craft` rodou:
+  `linhas=12 · habilitadas=3 · marcas 'falta'=9`, sem exceção no console. O painel está em
+  `.wolf/designqc-captures/craft/craft-panel.png`. ⚠️ **No notebook o cache do puppeteer
+  continua vazio** — lá os scripts de print seguem pedindo
+  `npx -y @puppeteer/browsers install chrome@stable` (ou `CHROME=`). O **playtest** do craft
+  segue pendente: headless não toca na receita.
+- **As 12 receitas** (11 + o pão do F6) **são o botão de ajuste** (`RECEITAS` em
+  `receitas.ts`): mudar quantidade/saída
   é uma linha cada, mas **só APPEND** — o índice é contrato do protocolo (`_smoke-craft.mjs` fixa
   os índices em constantes; reordenar quebra o smoke, que é o portão).
 - **Craft não custa esforço/fome** (não é edição de bloco). Se o playtest achar que devia cansar,
@@ -776,7 +925,7 @@ atualizar, recopiar de `.wolf/hooks/`, que é a fonte rastreada. Detalhe em `.wo
 
 ### Pendências que não bloqueiam nada, e quem faz é o usuário
 
--3. **PLAYTEST DA SOBREVIVÊNCIA (F1..F4, sessões 34, 35 e 36) — o mais novo, e o único que
+-3. **PLAYTEST DA SOBREVIVÊNCIA (F1..F6, sessões 34, 35, 36, 39 e 40) — o único que
    headless não substitui.** Do **F4**, o que só o dedo responde: o painel "mochila" (tecla E)
    usa **tocar no item → tocar no destino**, não arrastar — funciona no tablet? A contagem no
    canto do slot é legível no DPI do aparelho? Os 9 slots por linha cabem em RETRATO? Começar
@@ -803,10 +952,25 @@ atualizar, recopiar de `.wolf/hooks/`, que é a fonte rastreada. Detalhe em `.wo
    8. **As coxas ficam legíveis ao lado dos corações?** Em tela estreita a linha quebra sozinha
       (flex `wrap`) e as duas barras empilham. **No tablet ninguém olhou** — mesma faixa da
       hotbar de toque, e agora com uma barra a mais.
-   9. **A fome parar em 3 corações parece bug ou parece cuidado?** É deliberado
-      (`VIDA_MINIMA_POR_FOME = 6`): não há comida no jogo até o F6. Se ele quiser que mate,
-      é uma linha — mas aí o F6 vira a próxima frente, não o F4.
-   10. **Vale a `/regra fome desligar` pro fundamental 1?** Ela já funciona: a barra some da
+   9. **MORRER DE FOME é justo agora que dá pra comer? (§🍖 F6, a decisão mais nova.)**
+      `VIDA_MINIMA_POR_FOME` foi a 0 e a inanição voltou a matar. As perguntas de aula: um
+      aluno de 2º ano acha comida a tempo? A fruta (1 folha em 8) é generosa o bastante pra
+      quem só explora? Se doer, o botão é UM número — subir pra 6 devolve a fome que só
+      enfraquece, e `/regra fome desligar` continua tirando a barra da tela.
+   10. **§🍖 F6 — a HORTA responde no tempo da aula?** `TICKS_POR_CRESCIMENTO = 200` = 20 s
+       por estágio, ~1 min da semente ao trigo maduro. Dá pra plantar, sair construindo e
+       voltar? Ou o aluno fica parado olhando? (`LJ_CRESCIMENTO=<ticks>` acelera sem
+       recompilar, se ele quiser sentir os dois ritmos no mesmo playtest.)
+   11. **§🍖 F6 — dá pra LER que a plantação está madura?** Os 4 estágios se distinguem por
+       ALTURA e COR (verde rasteiro → dourado com espigas). No tablet, de pé, à distância de
+       construção — dá? É a única informação da horta que não tem texto nenhum.
+   12. **§🍖 F6 — o gesto de comer se descobre sozinho?** É o clique direito com comida na
+       mão, sem animação e sem som: a única resposta é a barra subir. Um aluno acha isso sem
+       alguém contar? (O `events.ts` já tem o lugar do som, se a resposta for não.)
+   13. **§🍖 F6 — a cadeia semente → plantar → colher → pão é clara?** É a pedagogia da
+       frente inteira (sequência com dependência de tempo). O trigo NÃO se come de propósito
+       — isso frustra ou ensina?
+   14. **Vale a `/regra fome desligar` pro fundamental 1?** Ela já funciona: a barra some da
        tela na hora e ninguém cansa mais. É a resposta pronta se a turma menor se atrapalhar.
 -2. ✅ **PLAYTEST DO RELEVO POR BIOMA (sessão 33) — FEITO** (declarado em 2026-08-02), **sem
    pedido de ajuste**. Os botões seguem documentados caso ele mude de ideia: `BIOMAS.*.relevo`

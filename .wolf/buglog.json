@@ -3611,6 +3611,121 @@
       "related_bugs": [],
       "occurrences": 1,
       "last_seen": "2026-08-03T16:35:00-03:00"
+    },
+    {
+      "id": "bug-558",
+      "timestamp": "2026-08-04T22:30:00-03:00",
+      "error_message": "o capim alto FLUTUA quando o chão some debaixo dele (anotado na sessão 36 sem correção; achado lendo rules.ts pro §🍖 F6)",
+      "file": "shared/src/rules.ts",
+      "root_cause": "`precisaApoio()` já listava GramaAlta/Seca/Fria (179-181) desde o §🌬️, e o gate do place_block obedecia — mas os 3 ids NUNCA foram registrados no `rulesMap`. Quem derruba o que perdeu apoio é a regra de vizinhança do tick, não o place: sem entrada no mapa, `ruleFor()` devolve undefined e a célula suja é simplesmente ignorada. Colocar era barrado, continuar existindo não.",
+      "fix": "Um `for` de GramaAlta a GramaAltaFria apontando pro `torchRule` no rulesMap (e o mesmo padrão pros 4 ids de plantação do F6). De quebra, o `torchRule` deixou de perguntar `isFullCube` direto e passou a chamar `apoioValido(id, idAbaixo)` — a MESMA função que o place_block usa, pra não existir colocação que evapora no tick seguinte.",
+      "tags": [
+        "regras",
+        "apoio",
+        "grama-alta",
+        "F6",
+        "rulesMap",
+        "tick"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-08-04T22:30:00-03:00"
+    },
+    {
+      "id": "bug-559",
+      "timestamp": "2026-08-04T22:30:00-03:00",
+      "error_message": "`/dar ana 904 2` respondia \"Não existe item com o id 904\" — o professor não conseguia dar comida nenhuma",
+      "file": "shared/src/session.ts",
+      "root_cause": "O `runDar` validava `isPlaceable(id) && !isBalde(id)`: a lista de exceções era o BALDE, escrito à mão quando ele era o único item do jogo. Comida entrou na mesma banda ≥900 e caiu fora da exceção — e sem /dar o professor não prepara aula nenhuma de sobrevivência, que era justamente a razão de o comando existir (F4).",
+      "fix": "`isItem(id)` novo em blocks.ts: um Set com TODOS os itens que existem (baldes + fruta + trigo + pão), porque a banda ≥900 não é intervalo aberto — id fora da lista é byte inventado. O /dar passou a aceitar `isPlaceable(id) || isItem(id)`, e o portão da tabela de drops usa a mesma função.",
+      "tags": [
+        "/dar",
+        "itens",
+        "comida",
+        "F6",
+        "validacao"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-08-04T22:30:00-03:00"
+    },
+    {
+      "id": "bug-560",
+      "timestamp": "2026-08-04T22:30:00-03:00",
+      "error_message": "_smoke-comida.mjs: '✗ plantou de novo antes de salvar' — a asserção esperava o byte 182 e a célula tinha 183",
+      "file": "server/src/cenarios/_smoke-comida.mjs",
+      "root_cause": "O smoke roda com LJ_CRESCIMENTO=5 (0,5 s por estágio, pra não esperar um minuto pela horta). Entre o `place_block` e a conferência 300 ms depois a muda JÁ tinha crescido pro estágio 1. Bug de autoria do smoke: a asserção era estreita demais pro relógio que o próprio smoke acelerou.",
+      "fix": "Conferir a FAIXA (`>= PLANTACAO0 && <= PLANTACAO3`) em vez do byte exato — o que se prova ali é que há horta na célula, não qual a idade dela.",
+      "tags": [
+        "smoke",
+        "F6",
+        "plantacao",
+        "timing",
+        "autoria-de-teste"
+      ],
+      "related_bugs": [
+        "bug-557"
+      ],
+      "occurrences": 1,
+      "last_seen": "2026-08-04T22:30:00-03:00"
+    },
+    {
+      "id": "bug-561",
+      "timestamp": "2026-08-04T23:55:00-03:00",
+      "error_message": "_smoke/conferirCorrida: 'a aluna correu a pista inteira e fechou 0 de 4 postos'",
+      "file": "server/src/cenarios/corrida.ts",
+      "root_cause": "Os dois corredores da pista eram ABERTOS na ponta -x: o piso começava em x0-4 e não havia parede atrás da largada nem atrás da chegada. Como o mundo é PLANO, dava pra sair do corredor pela ponta, andar pela grama por fora e entrar na chegada — a corrida fechava sem passar por posto nenhum. A BFS do verificador achou exatamente essa rota (por ser a mais curta) e nenhum posto fechou.",
+      "fix": "Parede fechando as duas pontas -x (x0-5), altura cheia. Lição do desenho: pista em mundo plano tem de ser um CIRCUITO FECHADO — o mundo em volta é caminho.",
+      "tags": [
+        "corrida",
+        "cenario",
+        "verificador",
+        "bfs",
+        "mundo-plano"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-08-04T23:55:00-03:00"
+    },
+    {
+      "id": "bug-562",
+      "timestamp": "2026-08-04T23:55:00-03:00",
+      "error_message": "posto 3 dava pra driblar: a corrida fechava sem passar por ele",
+      "file": "server/src/cenarios/corrida.ts",
+      "root_cause": "O posto 3 fica na CURVA, onde o corredor vira de +x pra +z. Ele foi desenhado como faixa vertical (x fixo, z variando), igual aos postos 1 e 2 do trecho reto — mas na curva o movimento é em z, então dava pra passar por fora do x dele. Posto que não atravessa a pista de parede a parede não é posto: é decoração.",
+      "fix": "Posto 3 virou BANDA de z constante cobrindo a curva inteira em x (xFim-6..xFim). A regra ficou escrita no comentário do `posto()`: um posto tem de atravessar a pista de parede a parede.",
+      "tags": [
+        "corrida",
+        "cenario",
+        "objetivo-chegar",
+        "curva"
+      ],
+      "related_bugs": [
+        "bug-561"
+      ],
+      "occurrences": 1,
+      "last_seen": "2026-08-04T23:55:00-03:00"
+    },
+    {
+      "id": "bug-563",
+      "timestamp": "2026-08-04T23:55:00-03:00",
+      "error_message": "conferirCorrida: 'quem cai no vão fica PRESO em 33 célula(s) — a primeira é (97, 2, 45)'",
+      "file": "server/src/cenarios/corrida.ts",
+      "root_cause": "Dois erros somados. (1) O vão foi 'cavado' tirando só a camada do PISO, mas o mundo plano é maciço logo abaixo — o buraco tinha 1 de fundura e se subia andando, então a rampa não tinha função e o teste negativo (tirar a rampa) NÃO reprovava: a conferência não provava nada. (2) Cavado de verdade (2 de fundura), apareceu o problema real: a PONTE passa por cima do meio do buraco, e a célula do fundo debaixo dela não tem 2 de ar — o fundo fica partido em duas metades incomunicáveis, e quem caísse do lado sem rampa ficava preso até o professor teleportar.",
+      "fix": "Cavar as DUAS camadas (PISO e PISO-1) + rampa espelhada nos dois lados. E a conferência deixou de testar UMA célula do fundo: agora faz uma BFS a partir do posto e exige que TODA célula do fundo esteja no alcance (o passo é simétrico, então uma busca resolve).",
+      "tags": [
+        "corrida",
+        "cenario",
+        "verificador",
+        "teste-negativo",
+        "armadilha"
+      ],
+      "related_bugs": [
+        "bug-561",
+        "bug-562"
+      ],
+      "occurrences": 1,
+      "last_seen": "2026-08-04T23:55:00-03:00"
     }
   ]
 }
