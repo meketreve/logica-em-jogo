@@ -37,6 +37,18 @@ export class InventoryPanel {
   private subaba: "mochila" | "criar" = "mochila";
   /** §🍖 F5: texto do filtro da lista de receitas (persiste entre re-renders). */
   private filtroCraft = "";
+  /**
+   * Rolagem da lista de receitas, pelo mesmo motivo do filtro: FABRICAR muda a
+   * mochila, a mochila re-renderiza o painel inteiro (`refresh` → `render`) e a
+   * `.craft-lista` é criada de novo — o `scrollTop` morria com o elemento
+   * velho e a lista pulava pro topo a cada peça criada (bug-573). Quem rola no
+   * tablet costuma fabricar VÁRIAS da mesma receita, então o pulo era por
+   * clique.
+   */
+  private scrollCraft = 0;
+  /** A lista de receitas que está na tela — `scrollTop` só "pega" depois de o
+   *  elemento estar no DOM, então a restauração acontece após o append. */
+  private listaCraft: HTMLElement | null = null;
 
   private readonly onEsc = (e: KeyboardEvent): void => {
     if (e.code !== "Escape") return;
@@ -241,8 +253,11 @@ export class InventoryPanel {
     if (this.subaba === "criar") {
       const bar = this.hotbarBar();
       root.append(head, abas, dica, this.renderCraft(), bar);
+      // depois do append: `scrollTop` em elemento fora do DOM não tem efeito
+      if (this.listaCraft) this.listaCraft.scrollTop = this.scrollCraft;
       return;
     }
+    this.listaCraft = null; // saiu da aba "criar": a lista não está mais na tela
 
     const slotBtn = (i: number): HTMLButtonElement => {
       const id = this.mochila.idDoSlot(i);
@@ -368,8 +383,15 @@ export class InventoryPanel {
 
     filtro.addEventListener("input", () => {
       this.filtroCraft = filtro.value;
+      // filtrar mostra a lista NOVA desde o começo — e o `replaceChildren` já
+      // zera o scroll do container, então é só acompanhar
+      this.scrollCraft = 0;
       this.montarReceitas(lista);
     });
+    lista.addEventListener("scroll", () => {
+      this.scrollCraft = lista.scrollTop;
+    });
+    this.listaCraft = lista;
     this.montarReceitas(lista);
 
     wrap.append(filtro, lista);

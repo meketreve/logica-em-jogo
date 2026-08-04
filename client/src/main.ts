@@ -182,6 +182,10 @@ if (ventoForcado) vento.sync(ventoForcado.dir, ventoForcado.forca, true);
 const balancoUniforms = criarBalancoUniforms();
 
 const input = new Input(renderer.domElement);
+// APARELHO de dedo, decidido uma vez no boot (o `input.touch` é o MODO e vai
+// ligar/desligar durante a partida). É o que impede o clique no canvas de pedir
+// pointer lock no tablet — ver a nota do `touchDevice` no input.ts (bug-572).
+input.touchDevice = isTouchDevice();
 // ?yaw=-1.57 e ?pitch=-0.4 na URL: apontam a câmera (screenshot headless — par do
 // ?hora). Guardados em const pra VENCER o applyTeleport do spawn: o join reorienta
 // pelo pos do servidor e, sem isso, a mira forçada se perdia (yaw não aplicava).
@@ -376,9 +380,29 @@ function playerName(): string {
   return new URLSearchParams(location.search).get("nome") ?? getPlayerName();
 }
 
+/** `/amigos` SEM subcomando abre o painel, no PC e no tablet (pedido do usuário
+ *  em 2026-08-04). É a única porta que serve nos dois: a tecla G não existe no
+ *  tablet e o botão 👥 só aparece com a proteção de áreas ligada — quem estava
+ *  em mundo livre não tinha como chegar no painel. Digitar o comando é o gesto
+ *  que o aluno já conhece, e ele passa a valer como "abrir".
+ *  Com subcomando (`/amigos convidar bia`) segue pro servidor como sempre; sem
+ *  painel ainda (antes do join) também, e aí o servidor responde no chat. */
+function abrirAmigosPorComando(text: string): boolean {
+  if (text.trim().toLowerCase() !== "/amigos") return false;
+  if (!friendsPanel) return false;
+  activePanel?.hide(); // um painel por vez na tela (mesma regra da tecla e do 👥)
+  inventoryPanel?.hide();
+  playersPanel?.hide();
+  friendsPanel.toggle();
+  return true;
+}
+
 // --- Chat (checkpoint 6): UI em HTML por cima do canvas; comando roda no servidor ---
 const chat = new ChatUi(
-  (text) => conn?.send(JSON.stringify({ type: "chat", text })),
+  (text) => {
+    if (abrirAmigosPorComando(text)) return;
+    conn?.send(JSON.stringify({ type: "chat", text }));
+  },
   (open) => {
     updateOverlay();
     if (!open) input.lock(); // fechou o chat → devolve o mouse pro jogo

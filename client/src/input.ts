@@ -9,6 +9,19 @@ export class Input {
   sensitivity = 1;
   /** Modo toque (tablet): controles de toque sintetizam teclas/olhar/cliques. */
   touch = false;
+  /**
+   * APARELHO de toque — diferente do `touch` acima, que é o MODO e liga/desliga
+   * durante a partida (o ☰ da barra o desliga pra fazer o menu de pausa
+   * aparecer). Aqui não existe pointer lock NUNCA, e é isso que o `lock()` lê.
+   *
+   * Sem esta distinção, o ☰ virava uma armadilha: ele zera `touch`, o menu
+   * aparece, e o `click` do mesmo toque atravessa o `#overlay`
+   * (`pointer-events: none`) até o canvas, cujo handler chama `lock()` — que
+   * sem o modo toque no caminho travava o ponteiro de verdade, escondia o menu
+   * recém-aberto e deixava a barra de toque escondida (bug-572).
+   * Setado uma vez no boot pelo main.ts.
+   */
+  touchDevice = false;
 
   private keys = new Set<string>();
   private keyHandlers = new Map<string, () => void>();
@@ -88,7 +101,9 @@ export class Input {
 
   /** Pede pointer lock (clique no canvas ou ao fechar o chat). Pode falhar sem gesto do usuário — aí o overlay "clique para jogar" cobre. */
   lock(): void {
-    if (this.touch || this.locked) return; // no toque não existe pointer lock
+    // `touchDevice` antes de `touch`: no tablet o modo desliga (menu de pausa),
+    // mas o aparelho continua sendo de dedo — pointer lock ali nunca serve.
+    if (this.touchDevice || this.touch || this.locked) return;
     // unadjustedMovement: movimento cru, sem aceleração do SO (menos spikes no Chrome/Windows)
     const req = this.canvas.requestPointerLock({ unadjustedMovement: true }) as
       | Promise<void>
