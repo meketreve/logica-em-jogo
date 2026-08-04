@@ -30,10 +30,16 @@ import {
   decodeSave,
   encodeSave,
 } from "@logica/shared";
+import { Autoria, type Vec } from "./autoria";
+import {
+  ARQUIVO_CORRIDA,
+  TITULO_CORRIDA,
+  conferirCorrida,
+  gerarCorrida,
+  resumoCorrida,
+} from "./corrida";
 import { conferir } from "./verificar";
 
-const AUTOR_ID = 1;
-const AUTOR_NOME = "autor";
 const SEED = 20260714;
 
 /** Canto da área do grupo: à frente da cabine (lado aberto = +x). */
@@ -45,71 +51,6 @@ const FAIXA_MAX = CHUNK_SIZE - FAIXA_DZ - 1;
 /** Largura máxima (x) somada das fases — extras (parede de quadros) podem ir além. */
 const LARGURA_MAX = CHUNK_SIZE - FAIXA_DX;
 
-/** Um "professor" de mentira: digita comando e EXIGE a resposta certa do servidor. */
-class Autoria {
-  readonly session: GameSession;
-  /** Um comando pode gerar VÁRIAS falas do servidor (ex.: /grupo criar avisa e depois lista). */
-  private respostas: string[] = [];
-
-  constructor(opts: SessionOptions) {
-    this.session = new GameSession((id, data) => {
-      if (id !== AUTOR_ID || typeof data !== "string") return;
-      const m = JSON.parse(data) as { type?: string; author?: string; text?: string };
-      if (m.type === "chat" && m.author === "servidor" && typeof m.text === "string") {
-        this.respostas.push(m.text);
-      }
-    }, opts);
-  }
-
-  private send(msg: unknown): void {
-    this.session.handleMessage(AUTOR_ID, JSON.stringify(msg));
-  }
-
-  entrar(codigo: string): void {
-    this.send({ type: "join", name: AUTOR_NOME, pin: "0000", codigo });
-  }
-
-  /** Tira o autor do caminho: célula com jogador dentro é PULADA ao colocar bloco. */
-  afastar(x: number, y: number, z: number): void {
-    this.send({ type: "move", x, y, z, yaw: 0, pitch: 0 });
-  }
-
-  cmd(texto: string, esperado: string): void {
-    this.respostas = [];
-    this.send({ type: "chat", text: texto });
-    if (!this.respostas.some((r) => r.includes(esperado))) {
-      throw new Error(
-        `comando "${texto}" não fez o esperado\n` +
-          `  esperava conter: "${esperado}"\n` +
-          `  servidor disse:  ${this.respostas.map((r) => `"${r}"`).join(" | ") || "(nada)"}`,
-      );
-    }
-  }
-
-  bloco(x: number, y: number, z: number, id: number): void {
-    this.cmd(`/bloco ${x} ${y} ${z} ${id}`, `definido como ${id}.`);
-  }
-
-  regiao(nome: string, a: Vec, b: Vec): void {
-    this.send({ type: "wand_mark", corner: 1, ...a });
-    this.send({ type: "wand_mark", corner: 2, ...b });
-    this.cmd(`/regiao criar ${nome}`, `Região "${nome}" criada`);
-  }
-
-  /** Quadro com conteúdo (aula 6): coloca o bloco e escreve o texto —
-   *  `quadro_set` exige ALCANCE, então o autor chega perto antes. */
-  quadro(x: number, y: number, z: number, id: number, texto: string): void {
-    this.bloco(x, y, z, id);
-    this.afastar(x - 2, y, z + 0.5);
-    this.send({ type: "quadro_set", x, y, z, texto });
-  }
-}
-
-interface Vec {
-  x: number;
-  y: number;
-  z: number;
-}
 
 /** Uma FASE = um objetivo "construir" com modelo próprio. */
 interface Fase {
@@ -467,7 +408,7 @@ function parseArgs(argv: string[]): Opcoes {
 const o = parseArgs(process.argv.slice(2));
 mkdirSync(o.saida, { recursive: true });
 console.log(
-  `gerando ${CENARIOS.length} cenário(s) — ${o.grupos} grupos, código de professor "${o.codigo}"` +
+  `gerando ${CENARIOS.length + 1} cenário(s) — ${o.grupos} grupos, código de professor "${o.codigo}"` +
     (o.revelar ? ", gabarito À VISTA" : ""),
 );
 let falhou = false;
@@ -487,6 +428,25 @@ for (const c of CENARIOS) {
   writeFileSync(caminho, new Uint8Array(buf));
   const fases = c.fases.length > 1 ? `, ${c.fases.length} fases` : "";
   console.log(`  ✓ ${caminho} — "${c.titulo}" (${(buf.byteLength / 1024).toFixed(0)} kB${fases})`);
+}
+
+// §🏁 a CORRIDA (2026-08-04): não é aula de construir, então tem gerador e
+// conferência próprios (`corrida.ts`) — mas sai do MESMO comando, porque pro
+// professor "gerar as aulas" é uma coisa só.
+{
+  const buf = gerarCorrida({ grupos: o.grupos, codigo: o.codigo });
+  const problemas = conferirCorrida(buf, { grupos: o.grupos, codigo: o.codigo });
+  if (problemas.length) {
+    falhou = true;
+    console.error(`  ✗ ${ARQUIVO_CORRIDA} — pista NÃO é jogável, arquivo não foi gravado:`);
+    for (const p of problemas) console.error(`      · ${p}`);
+  } else {
+    const caminho = join(o.saida, ARQUIVO_CORRIDA);
+    writeFileSync(caminho, new Uint8Array(buf));
+    console.log(
+      `  ✓ ${caminho} — "${TITULO_CORRIDA}" (${(buf.byteLength / 1024).toFixed(0)} kB, ${resumoCorrida(buf)})`,
+    );
+  }
 }
 if (falhou) process.exit(1);
 console.log(`pronto. hospede com: LJ_SAVE=${join(o.saida, CENARIOS[0]!.arquivo)} npm run start -w server`);

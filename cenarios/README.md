@@ -1,15 +1,15 @@
 # Cenários pedagógicos — 6º ao 9º ano
 
-Seis aulas prontas, uma por arquivo `.ljw`. Cada aula é o **mesmo mundo de cabines**:
-uma cabine para o professor (no centro, onde todo mundo nasce) e uma cabine por grupo,
-na fileira logo à frente.
+Sete aulas prontas, uma por arquivo `.ljw`. Seis são de CONSTRUIR (aulas 1–6); a sétima é uma
+CORRIDA e tem mundo próprio. As de construir são o **mesmo mundo de cabines**: uma cabine para o
+professor (no centro, onde todo mundo nasce) e uma cabine por grupo, na fileira logo à frente.
 
 Os `.ljw` **são versionados no git** (decisão 2026-07-16: o git é o canal de sync
 casa↔escola). A fonte da verdade continua sendo o gerador: `server/src/cenarios/gerar.ts`
 — mudou algo nele, rode `npm run cenarios` e commite os arquivos novos.
 
 ```bash
-npm run cenarios                      # gera os 6 .ljw em cenarios/ (5 grupos)
+npm run cenarios                      # gera os 7 .ljw em cenarios/ (5 grupos)
 npm run cenarios -- --grupos 6        # outra quantidade de grupos (1 a 8)
 npm run cenarios -- --codigo suaSenha # código de professor gravado no mundo
 npm run cenarios -- --revelar         # deixa o gabarito À VISTA (vira cópia — turma mais nova)
@@ -150,9 +150,59 @@ para outro grupo executar. Instrução ambígua = bug de especificação.
 
 ---
 
+## Aula 7 — `aula7-corrida.ljw` · "A corrida dos 4 postos"
+
+**Pilar:** sequência — a ordem não é sugestão. É a única aula em que ninguém constrói nada.
+
+Uma pista fechada, em U, com **4 postos**. O canto da tela mostra **um posto por vez**: o
+próximo só aparece quando a equipe fecha o atual (modo sequencial). O aluno não escolhe por onde
+começar; ele descobre que existe uma ordem — e que ela é do jogo, não do professor.
+
+| trecho | o que exige |
+|---|---|
+| **Escada** | subir 3 degraus e descer — não dá pra contornar |
+| **O vão** (posto 1 → 2) | ponte de **1 bloco** sobre um buraco de 2 de fundura. Cair não machuca: custa tempo, e a rampa dos dois lados devolve pra pista |
+| **Ziguezague** (posto 2 → 3) | 4 muros vermelhos alternando de lado |
+| **Serpentina** (posto 3 → chegada) | 6 paredes, uma passagem em cada, alternando |
+
+**A regra que muda a aula: os 3 primeiros postos são `um`** (basta um da equipe chegar) **e a
+CHEGADA é `todos`** — a equipe só vence com **todo mundo** dentro do pódio. Quem correu na frente
+tem de voltar a buscar quem ficou. É de propósito: uma corrida que premia só o mais rápido não
+tem o que discutir no fim; esta tem.
+
+**Diferenças em relação às outras 6:**
+- **Mundo plano próprio** (8×6 chunks), sem cabines e sem áreas de grupo.
+- **Ninguém edita.** Como todo arquivo que começa com `aula`, é mundo read-only: nada da turma é
+  salvo (a próxima turma recebe a pista intacta) e o confinamento nasce ligado — aqui isso é a
+  proteção da pista, porque ninguém cava atalho. O professor continua podendo consertar.
+- **Voo desligado** para os alunos (padrão do `/voo`); o professor voa para supervisionar.
+
+**Antes de começar:** monte as equipes (`/grupo`), e só então `/iniciar`. Aluno sem equipe não
+participa — o HUD avisa.
+
+**Fechamento:** "por que os postos têm ordem?" e "o que mudou quando a chegada passou a exigir a
+equipe inteira?". Para cronometrar, o chat anuncia cada posto fechado, com a equipe.
+
+### Como mudar a pista
+
+A pista é código: `server/src/cenarios/corrida.ts`. Trechos, placas e postos são funções
+(`corredor`, `faixa`, `placa`, `posto`) — mexeu, rode `npm run cenarios`.
+
+⚠️ **O verificador é o portão, e ele é exigente.** Antes de gravar o arquivo ele (1) acha um
+caminho ANDÁVEL da largada até a chegada com o passo do jogador de verdade (sobe/desce no máximo
+1 por passo), (2) faz uma aluna CORRER esse caminho e exige que os 4 postos fechem **na ordem**,
+e (3) exige que **toda** célula do fundo do vão consiga voltar à pista. Pista que não passa não
+vira arquivo. Os três já pegaram erro real: rota que contornava a pista pela grama, posto na
+diagonal da curva que dava pra driblar, e um fundo de buraco partido em dois pela ponte.
+
+`npm run shots:corrida` fotografa 5 trechos (precisa do servidor no ar e do Chrome do puppeteer).
+
+---
+
 ## O que observar (indicadores da seção 14 do projeto)
 
 - O grupo enuncia a regra antes de construir, ou vai por tentativa e erro?
 - Quando o contador não sobe, o grupo revisa a hipótese ou continua chutando?
 - Divisão de trabalho dentro do grupo (quem constrói, quem confere).
 - Aula 3: procuram sistematicamente (varrendo a faixa) ou aleatoriamente?
+- Aula 7: quando a chegada passa a exigir a equipe inteira, quem volta a buscar quem ficou?
