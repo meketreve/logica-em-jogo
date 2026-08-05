@@ -69,9 +69,15 @@ export function opacidadeLuz(id: number): number {
 
 /** Luz que o bloco EMITE (canal bloco). Tocha = 14: acende o quarto inteiro mas
  *  não empata com o céu aberto, então dá pra ver a diferença entre sair da
- *  caverna e ficar. Lava/minério luminoso entram aqui quando existirem. */
+ *  caverna e ficar. Lava/minério luminoso entram aqui quando existirem.
+ *
+ *  §🍖 F10b: a fornalha ACESA emite 13 — um degrau abaixo da tocha, porque a
+ *  boca do fogo ilumina menos que uma chama pendurada, e porque a fornalha não
+ *  deve virar a tocha barata de quem não quer fabricar tocha. Sai de graça: a
+ *  luz é função PURA dos bytes, e o tick já troca o byte quando o fogo pega. */
 export function luzEmitida(id: number): number {
-  return id === BlockId.Tocha ? 14 : 0;
+  if (id === BlockId.Tocha) return 14;
+  return id === BlockId.FornalhaAcesa ? 13 : 0;
 }
 
 /** Grade de luz paralela à do mundo — mesmas dimensões, mesmos índices. */

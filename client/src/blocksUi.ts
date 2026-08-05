@@ -91,6 +91,10 @@ export const PLACEABLE: readonly PlaceableEntry[] = [
   { id: BlockId.SofaXP, name: "sofá", cat: "mobilia" },
   { id: BlockId.CamaXP, name: "cama", cat: "mobilia" },
   { id: BlockId.QuadroXP, name: "quadro", cat: "mobilia" },
+  // Fornalha (§🍖 F10b 2026-08-05): UMA entrada — a acesa não se coloca (o fogo
+  // é que troca o byte). Na "mobília" porque é ali que o aluno procura o que se
+  // usa com o clique direito, junto de porta, janela e quadro.
+  { id: BlockId.Fornalha, name: "fornalha", cat: "mobilia" },
   // Tapetes (2026-07-19): ordem = TapeteBranco..TapeteMarrom (âncora + offset)
   ...["branco", "preto", "vermelho", "laranja", "amarelo", "verde", "azul", "roxo",
       "rosa", "ciano", "cinza", "marrom"].map((cor, i) => ({

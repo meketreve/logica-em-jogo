@@ -201,12 +201,22 @@ export const BlockId = {
   Plantacao1: 183,
   Plantacao2: 184,
   Plantacao3: 185,
+  /** Fornalha (§🍖 F10b, 2026-08-05): o primeiro bloco com INVENTÁRIO PRÓPRIO.
+   *  O conteúdo não cabe no byte — mora num mapa por posição na GameSession e
+   *  persiste no meta do save, exatamente como o quadro. O que cabe no byte é o
+   *  ESTADO: apagada / acesa, dois ids que trocam sozinhos no tick. **Só a
+   *  apagada é colocável** (a acesa nasce do fogo, como a porta aberta nasce
+   *  alternando uma fechada), e a acesa EMITE LUZ de graça — a luz é função
+   *  pura dos bytes, então acender é uma linha no `luzEmitida`. Sem direção de
+   *  frente na v1: 4 ids a mais só pela textura não pagam. */
+  Fornalha: 186,
+  FornalhaAcesa: 187,
 } as const;
 
 export type BlockId = (typeof BlockId)[keyof typeof BlockId];
 
 /** Maior ID válido (mantém isPlaceable sem número mágico ao crescer a lista). */
-const MAX_BLOCK_ID = BlockId.Plantacao3;
+const MAX_BLOCK_ID = BlockId.FornalhaAcesa;
 
 /** Água? Fonte (129) OU fluida (130-136) — atravessável e translúcida. */
 export function isAgua(id: number): boolean {
@@ -280,6 +290,31 @@ export const ITEM_CARVAO = 905;
 export const ITEM_DIAMANTE = 906;
 export const ITEM_GRAVETO = 907;
 
+/**
+ * §🍖 F10b: o que sai da FORNALHA. O `carvao vegetal` é tronco cozido — a
+ * saída de quem não achou caverna nenhuma, e é ela que faz a fornalha valer a
+ * pena mesmo pra quem só tem árvore. Ele serve de brasa na tocha e de
+ * combustível na própria fornalha, igualzinho ao carvão mineral: são a mesma
+ * brasa por dois caminhos, e é isso que o aluno tem de descobrir.
+ *
+ * Os dois lingotes são o topo da cadeia do lite: minério cru não vira mais
+ * balde nem ferramenta — quem quer ferro tem de acender fogo.
+ */
+export const ITEM_CARVAO_VEGETAL = 908;
+export const ITEM_LINGOTE_FERRO = 909;
+export const ITEM_LINGOTE_OURO = 910;
+
+/** É brasa (mineral ou vegetal)? As duas acendem tocha e alimentam fornalha —
+ *  a pergunta é UMA, senão a receita e o combustível divergiriam. */
+export function isCarvao(id: number): boolean {
+  return id === ITEM_CARVAO || id === ITEM_CARVAO_VEGETAL;
+}
+
+/** Fornalha (apagada ou acesa)? O conteúdo mora fora do byte (containers.ts). */
+export function isFornalha(id: number): boolean {
+  return id === BlockId.Fornalha || id === BlockId.FornalhaAcesa;
+}
+
 /** É o item balde (cheio ou vazio)? */
 export function isBalde(id: number): boolean {
   return id === ITEM_BALDE_VAZIO || id === ITEM_BALDE_AGUA;
@@ -297,6 +332,9 @@ const ITENS: ReadonlySet<number> = new Set([
   ITEM_CARVAO,
   ITEM_DIAMANTE,
   ITEM_GRAVETO,
+  ITEM_CARVAO_VEGETAL,
+  ITEM_LINGOTE_FERRO,
+  ITEM_LINGOTE_OURO,
 ]);
 
 /** É um item conhecido (não-bloco)? */
@@ -666,6 +704,10 @@ export function isPlaceable(id: number): boolean {
   // voltam pra mochila (o drop devolve muda), então aceitar o byte pelo fio só
   // daria ao cliente um jeito de plantar trigo maduro de graça.
   if (isPlantacao(id) && id !== BlockId.Plantacao0) return false;
+  // §🍖 F10b: a fornalha ACESA é estado, não item — nasce do tick quando o fogo
+  // pega e volta a apagada sozinha. Aceitá-la pelo fio daria ao cliente uma
+  // fornalha eternamente acesa (e uma luminária de graça).
+  if (id === BlockId.FornalhaAcesa) return false;
   return Number.isInteger(id) && id >= BlockId.Grass && id <= MAX_BLOCK_ID;
 }
 

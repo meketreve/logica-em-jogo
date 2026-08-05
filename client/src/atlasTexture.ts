@@ -459,6 +459,49 @@ function paintPlantacao(ctx: CanvasRenderingContext2D, tile: number, estagio: nu
   }
 }
 
+/**
+ * §🍖 F10b: a fornalha. Pedregulho com uma BOCA quadrada escura no meio da
+ * face — e é a boca que faz o bloco ser reconhecível de longe num tablet: sem
+ * ela seria mais um cubo cinza no meio da parede de pedregulho que o aluno
+ * acabou de construir. Acesa, a boca vira brasa com duas línguas de fogo.
+ */
+function paintFornalhaLado(
+  ctx: CanvasRenderingContext2D,
+  tile: number,
+  acesa: boolean,
+): void {
+  paintNoise(ctx, tile, [128, 128, 130], 16);
+  paintCobbleCracks(ctx, tile);
+  const [ox, oy] = tileOrigin(tile);
+  const px = ATLAS.tilePx;
+  const bx = ox + 3;
+  const by = oy + 6;
+  const bw = px - 6;
+  const bh = px - 9;
+  // moldura clara: separa a boca da pedra, senão ela some no ruído
+  ctx.fillStyle = "rgb(168,168,170)";
+  ctx.fillRect(bx - 1, by - 1, bw + 2, bh + 2);
+  ctx.fillStyle = acesa ? "rgb(58,20,8)" : "rgb(38,36,38)";
+  ctx.fillRect(bx, by, bw, bh);
+  if (!acesa) return;
+  // brasa: base laranja + duas línguas amarelas (o amarelo é o que "acende")
+  ctx.fillStyle = "rgb(220,96,26)";
+  ctx.fillRect(bx, by + bh - 3, bw, 3);
+  ctx.fillStyle = "rgb(248,190,60)";
+  ctx.fillRect(bx + 2, by + bh - 5, 2, 3);
+  ctx.fillRect(bx + bw - 4, by + bh - 6, 2, 4);
+}
+
+/** Chapa de cima/baixo da fornalha: pedra lisa com um anel de fuligem. */
+function paintFornalhaTopo(ctx: CanvasRenderingContext2D, tile: number): void {
+  paintNoise(ctx, tile, [140, 140, 142], 12);
+  const [ox, oy] = tileOrigin(tile);
+  const px = ATLAS.tilePx;
+  ctx.strokeStyle = "rgb(74,70,68)";
+  ctx.lineWidth = 1;
+  ctx.strokeRect(ox + 2.5, oy + 2.5, px - 5, px - 5);
+}
+
 /** Vetor de onda da água: dois setores inteiros + a mistura entre eles (ver
  *  `ondaAguaDoVento` em shared/vento.ts, que explica por que é um PAR). */
 export interface OndaAgua {
@@ -715,6 +758,11 @@ export function createAtlasTexture(): THREE.Texture {
 
   // plantação (§🍖 F6 2026-08-04): 4 estágios, do broto ao trigo maduro
   for (let i = 0; i < 4; i++) paintPlantacao(ctx, TILE.plantacao0 + i, i);
+
+  // fornalha (§🍖 F10b 2026-08-05): chapa + boca apagada + boca em brasa
+  paintFornalhaTopo(ctx, TILE.fornalhaTopo);
+  paintFornalhaLado(ctx, TILE.fornalhaLado, false);
+  paintFornalhaLado(ctx, TILE.fornalhaLadoAcesa, true);
 
   // vidro colorido (2026-07-25): mesma paleta das lãs, na ordem VidroBranco..Marrom
   const CORES_VIDRO: readonly Rgb[] = [

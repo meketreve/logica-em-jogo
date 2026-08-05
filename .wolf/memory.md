@@ -1249,3 +1249,74 @@ passa pelo próprio portão) · 5 prints da pista. **PLAYTEST PENDENTE.**
 | 13:33 | Edited shared/src/receitas.test.ts | modified for() | ~229 |
 | 13:33 | Edited shared/src/receitas.test.ts | 8→10 lines | ~42 |
 | 13:34 | §🍖 F10a: itens carvão/diamante/graveto, minério larga item, tocha = graveto + carvão, receita do graveto | blocks.ts, drops.ts, receitas.ts, blockIcons.ts, main.ts + 2 testes | verde: typecheck 3/3, 609 testes, build | ~28k |
+| 13:36 | Edited shared/src/inventario.ts | added 3 condition(s) | ~475 |
+| 13:36 | Edited shared/src/blocks.ts | modified Fornalha() | ~266 |
+| 13:36 | Edited shared/src/blocks.ts | modified isCarvao() | ~342 |
+| 13:36 | Edited shared/src/blocks.ts | 4→7 lines | ~34 |
+| 13:36 | Edited shared/src/blocks.ts | added 1 condition(s) | ~117 |
+| 13:37 | Created shared/src/containers.ts | — | ~2613 |
+| 13:37 | Edited shared/src/containers.ts | inline fix | ~11 |
+| 13:37 | Edited shared/src/containers.ts | modified containerTipoDe() | ~103 |
+| 13:38 | Created shared/src/fornalha.ts | — | ~2087 |
+| 13:38 | Edited shared/src/receitas.ts | modified receitaAtiva() | ~242 |
+| 13:39 | Edited shared/src/receitas.ts | added 1 condition(s) | ~114 |
+| 13:39 | Edited shared/src/receitas.ts | expanded (+7 lines) | ~125 |
+| 13:39 | Edited shared/src/receitas.ts | 2→6 lines | ~107 |
+| 13:39 | Edited shared/src/receitas.ts | Minecraft() → fornalha() | ~80 |
+| 13:39 | Edited shared/src/receitas.ts | modified pedregulho() | ~206 |
+| 13:39 | Edited shared/src/receitas.ts | 8→10 lines | ~46 |
+| 13:39 | Edited shared/src/receitas.ts | added 1 condition(s) | ~51 |
+| 13:39 | Edited shared/src/luz.ts | added 1 condition(s) | ~197 |
+| 13:40 | Edited shared/src/mesher.ts | modified F10b() | ~127 |
+| 13:40 | Edited shared/src/mesher.ts | 2→7 lines | ~132 |
+| 13:40 | Edited client/src/atlasTexture.ts | added 1 condition(s) | ~473 |
+| 13:41 | Edited client/src/atlasTexture.ts | modified o() | ~108 |
+| 13:41 | Edited client/src/blocksUi.ts | modified Fornalha() | ~100 |
+| 13:41 | Edited shared/src/drops.ts | added 1 condition(s) | ~55 |
+| 13:41 | Edited shared/src/drops.ts | 3→4 lines | ~14 |
+| 13:42 | Edited shared/src/protocol.ts | modified rio() | ~312 |
+| 13:42 | Edited shared/src/protocol.ts | modified Container() | ~368 |
+| 13:42 | Edited shared/src/protocol.ts | added 1 condition(s) | ~272 |
+| 13:42 | Edited shared/src/protocol.ts | added 1 condition(s) | ~214 |
+| 13:42 | Edited shared/src/protocol.ts | added 1 import(s) | ~41 |
+| 13:42 | Edited shared/src/save.ts | modified Quadros() | ~119 |
+| 13:42 | Edited shared/src/save.ts | added 2 condition(s) | ~120 |
+| 13:43 | Edited shared/src/save.ts | 2→3 lines | ~50 |
+| 13:43 | Edited shared/src/save.ts | added 1 import(s) | ~41 |
+| 13:43 | Edited shared/src/session.ts | added 1 condition(s) | ~204 |
+| 13:43 | Edited shared/src/session.ts | modified quadros() | ~136 |
+| 13:43 | Edited shared/src/session.ts | 2→3 lines | ~35 |
+| 13:43 | Edited shared/src/session.ts | 3→1 lines | ~22 |
+| 13:44 | Edited shared/src/session.ts | expanded (+16 lines) | ~275 |
+| 13:44 | Edited shared/src/session.ts | expanded (+12 lines) | ~116 |
+| 13:44 | Edited shared/src/session.ts | 2→3 lines | ~11 |
+| 13:44 | Edited shared/src/session.ts | added 2 condition(s) | ~335 |
+| 13:44 | Edited shared/src/session.ts | added 1 condition(s) | ~181 |
+| 13:44 | Edited shared/src/session.ts | 4→7 lines | ~64 |
+| 13:45 | Edited shared/src/session.ts | added 7 condition(s) | ~568 |
+| 13:45 | Edited shared/src/session.ts | added nullish coalescing | ~1405 |
+| 13:45 | Edited shared/src/session.ts | added 1 condition(s) | ~165 |
+| 13:45 | Edited shared/src/session.ts | 2→6 lines | ~94 |
+| 13:46 | Edited shared/src/session.ts | 2→3 lines | ~56 |
+| 13:46 | Edited shared/src/session.ts | 10→13 lines | ~119 |
+| 13:46 | Edited shared/src/session.ts | inline fix | ~28 |
+| 13:47 | Edited shared/src/blocks.test.ts | modified fornalha() | ~146 |
+| 13:48 | Edited shared/src/receitas.test.ts | added optional chaining | ~498 |
+| 13:49 | Created shared/src/fornalha.test.ts | — | ~2277 |
+| 13:50 | Created shared/src/containers.test.ts | — | ~2024 |
+| 13:50 | Edited client/src/main.ts | added 1 condition(s) | ~228 |
+| 13:51 | Created client/src/container.ts | — | ~2696 |
+| 13:51 | Edited client/index.html | modified amigos() | ~67 |
+| 13:52 | Edited client/index.html | expanded (+71 lines) | ~494 |
+| 13:52 | Edited client/src/main.ts | added 1 condition(s) | ~254 |
+| 13:52 | Edited client/src/main.ts | 2→5 lines | ~94 |
+| 13:52 | Edited client/src/main.ts | 2→3 lines | ~32 |
+| 13:53 | Edited client/src/main.ts | added 2 condition(s) | ~140 |
+| 13:53 | Edited client/src/main.ts | 2→3 lines | ~34 |
+| 13:53 | Edited shared/src/index.ts | 2→4 lines | ~32 |
+| 13:55 | Created shared/src/fornalha.session.test.ts | — | ~3314 |
+| 13:55 | Edited shared/src/fornalha.session.test.ts | 4→8 lines | ~140 |
+| 13:56 | Edited shared/src/fornalha.session.test.ts | expanded (+9 lines) | ~219 |
+| 13:57 | Created server/src/cenarios/_smoke-fornalha.mjs | — | ~2090 |
+| 13:59 | Edited scripts/smoke.mjs | expanded (+21 lines) | ~231 |
+| 14:04 | §🍖 F10b: a FORNALHA — containers.ts + fornalha.ts puros, mapa por posição no meta do save, tick, protocolo (use_block abre / mover_container / container / fechar_container), painel de transferência no cliente | containers.ts, fornalha.ts, session.ts, protocol.ts, save.ts, blocks.ts, luz.ts, mesher.ts, receitas.ts, container.ts, main.ts, index.html + 3 arquivos de teste + smoke | verde: typecheck 3/3, 655 testes, build, 15/15 smokes (fornalha novo, rodado 2x), A/B honesto do tick (4 falham sem ele) | ~85k |

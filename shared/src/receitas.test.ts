@@ -4,6 +4,7 @@ import {
   ITEM_BALDE_VAZIO,
   ITEM_CARVAO,
   ITEM_GRAVETO,
+  ITEM_LINGOTE_FERRO,
   ITEM_TRIGO,
   isItem,
   isPlaceable,
@@ -24,9 +25,11 @@ import {
   fabricar,
   ingredientesDe,
   podeFabricar,
+  receitaAtiva,
   receitaValida,
   temIngredientes,
 } from "./receitas";
+import { COZIMENTO } from "./fornalha";
 
 /** Inventário com pilhas em slots escolhidos (o resto vazio). */
 function inv(...pares: [slot: number, id: number, qtd: number][]): Inventario {
@@ -90,9 +93,15 @@ describe("receitas — tabela", () => {
     // já adicionados". Ele varre TODOS os ids e prova que nenhum bloco existe
     // sem caminho — quem inventar um bloco novo sem receita derruba a suíte e
     // decide na hora: cria a receita, ou escreve por que ele não tem uma.
-    const fabricaveis = new Set(RECEITAS.map((r) => r.saida.id));
+    // §🍖 F10: a receita APOSENTADA não conta como caminho (ela ocupa o índice
+    // e não fabrica nada), e a FORNALHA passou a ser um segundo caminho — o
+    // vidro sai dela, não mais da mão.
+    const fabricaveis = new Set(
+      RECEITAS.filter(receitaAtiva).map((r) => r.saida.id),
+    );
+    for (const saida of COZIMENTO.values()) fabricaveis.add(saida.id);
     const orfaos: number[] = [];
-    for (let id = 1; id <= BlockId.Plantacao3; id++) {
+    for (let id = 1; id <= BlockId.FornalhaAcesa; id++) {
       if (!isPlaceable(id)) continue; // porta aberta, água, estágio crescido…
       if (formaCanonica(id) !== id) continue; // variante: a canônica responde por ela
       if (isProfessorOnly(id)) continue;
@@ -103,11 +112,24 @@ describe("receitas — tabela", () => {
   });
 
   it("a lista de exceções não mente: nada nela tem receita, e toda razão está escrita", () => {
-    const fabricaveis = new Set(RECEITAS.map((r) => r.saida.id));
+    const fabricaveis = new Set(
+      RECEITAS.filter(receitaAtiva).map((r) => r.saida.id),
+    );
     for (const [id, razao] of SEM_RECEITA) {
       expect(fabricaveis.has(id)).toBe(false);
       expect(razao.length).toBeGreaterThan(10);
     }
+  });
+
+  it("§🍖 F10b: a receita do vidro está APOSENTADA — o índice fica, o craft não", () => {
+    // apagá-la deslocaria as 97 receitas seguintes, e o aluno com o painel
+    // aberto clicaria numa receita e receberia outra.
+    const i = RECEITAS.findIndex((r) => r.saida.id === BlockId.Glass && !receitaAtiva(r));
+    expect(i).toBeGreaterThanOrEqual(0);
+    expect(receitaValida(i)).toBe(false);
+    expect(fabricar(inv([0, BlockId.Sand, 64]), RECEITAS[i]!)).toBeNull();
+    // e o vidro continua alcançável — pela fornalha
+    expect(COZIMENTO.get(BlockId.Sand)?.id).toBe(BlockId.Glass);
   });
 
   it("as 12 receitas antigas continuam nos MESMOS índices (o protocolo manda o índice)", () => {
@@ -201,14 +223,14 @@ describe("receitas — podeFabricar / temIngredientes", () => {
   });
 
   it("saída de TIPO NOVO não cabe numa mochila que o consumo não libera", () => {
-    // 3 minérios de ferro num slot, os outros 26 cheios de areia. Fabricar
-    // balde consome os 3 ferros (libera o slot) e o balde ocupa ele → cabe.
+    // 3 lingotes de ferro num slot, os outros 26 cheios de areia. Fabricar
+    // balde consome os 3 lingotes (libera o slot) e o balde ocupa ele → cabe.
     // Mas se o ferro estivesse dividido em slots que NÃO esvaziam de vez, o
     // balde (id novo, pilha 1) não teria onde entrar. Testa o caso que cabe:
     const balde = receitaDe(ITEM_BALDE_VAZIO);
     const s = inventarioVazio().slice();
     for (let k = 0; k < INV_SLOTS - 1; k++) s[k] = { id: BlockId.Sand, qtd: STACK_MAX };
-    s[INV_SLOTS - 1] = { id: BlockId.MinerioFerro, qtd: 3 };
+    s[INV_SLOTS - 1] = { id: ITEM_LINGOTE_FERRO, qtd: 3 };
     expect(podeFabricar(s, balde)).toBe(true);
   });
 
@@ -216,11 +238,11 @@ describe("receitas — podeFabricar / temIngredientes", () => {
     // 26 slots de areia CHEIOS + 1 slot com 2 ferros (a receita quer 3): sem
     // ingrediente suficiente. Já cobre a recusa por falta; agora o caso de
     // caber-não: ferro basta mas some só PARTE de um slot.
-    const balde = receitaDe(ITEM_BALDE_VAZIO); // 3 ferro → 1 balde
+    const balde = receitaDe(ITEM_BALDE_VAZIO); // 3 lingotes → 1 balde
     const s = inventarioVazio().slice();
     for (let k = 0; k < INV_SLOTS; k++) s[k] = { id: BlockId.Sand, qtd: STACK_MAX };
-    // troca 1 slot por 4 ferros: consumir 3 deixa 1 ferro no slot (não esvazia)
-    s[0] = { id: BlockId.MinerioFerro, qtd: 4 };
+    // troca 1 slot por 4 lingotes: consumir 3 deixa 1 no slot (não esvazia)
+    s[0] = { id: ITEM_LINGOTE_FERRO, qtd: 4 };
     expect(temIngredientes(s, balde)).toBe(true);
     // o balde (id novo) não tem slot livre → recusa
     expect(podeFabricar(s, balde)).toBe(false);

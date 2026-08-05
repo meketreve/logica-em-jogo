@@ -102,7 +102,14 @@ describe("formato de bloco/chunk (contrato de save e snapshot)", () => {
     expect(isPlaceable(BlockId.Plantacao0)).toBe(true);
     expect(isPlaceable(BlockId.Plantacao1)).toBe(false);
     expect(isPlaceable(BlockId.Plantacao3)).toBe(false);
-    expect(isPlaceable(186)).toBe(false); // próximo byte NÃO é bloco
+    // fornalha (§🍖 F10b 2026-08-05): append 186-187. Só a APAGADA se coloca —
+    // a acesa é estado que o tick liga, e aceitá-la pelo fio daria luminária
+    // eterna de graça a quem forjasse a mensagem (a mesma regra da porta).
+    expect(BlockId.Fornalha).toBe(186);
+    expect(BlockId.FornalhaAcesa).toBe(187);
+    expect(isPlaceable(BlockId.Fornalha)).toBe(true);
+    expect(isPlaceable(BlockId.FornalhaAcesa)).toBe(false);
+    expect(isPlaceable(188)).toBe(false); // próximo byte NÃO é bloco
   });
 
   it("água: fonte + fluida atravessável (não-sólida) e translúcida no mesher", () => {

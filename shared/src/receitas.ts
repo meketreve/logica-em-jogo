@@ -2,7 +2,9 @@ import {
   BlockId,
   ITEM_BALDE_VAZIO,
   ITEM_CARVAO,
+  ITEM_CARVAO_VEGETAL,
   ITEM_GRAVETO,
+  ITEM_LINGOTE_FERRO,
   ITEM_PAO,
   ITEM_TRIGO,
 } from "./blocks";
@@ -38,6 +40,22 @@ import {
 export interface Receita {
   readonly saida: Stack;
   readonly custo: readonly Stack[];
+  /**
+   * §🍖 F10: receita APOSENTADA — o texto é a razão.
+   *
+   * O índice é a identidade no protocolo, então uma receita não se APAGA: a
+   * linha fica onde está e passa a ser recusada. `receitaValida` responde
+   * `false` (o servidor não fabrica) e o painel não a lista. Apagar de verdade
+   * deslocaria todas as receitas seguintes, e o aluno que estivesse com o
+   * painel aberto clicaria numa e receberia outra.
+   */
+  readonly aposentada?: string;
+}
+
+/** A receita ainda vale? (aposentada continua ocupando o índice, mas não
+ *  fabrica nada — ver `Receita.aposentada`) */
+export function receitaAtiva(r: Receita): boolean {
+  return r.aposentada === undefined;
 }
 
 /**
@@ -47,10 +65,10 @@ export interface Receita {
  * diferente vira tábuas: são entradas separadas de propósito, pra a lista
  * mostrar ao aluno QUAL madeira ele pode usar.
  *
- * O balde fecha o pendente do F4 (era só item de criativo): 3 minérios de ferro
- * viram 1 balde vazio. Não é o número do Minecraft (lá são 3 lingotes), mas no
- * lite não há fundição pra transformar minério em lingote — o minério cru é o
- * material mais próximo, e o balde é o que destrava a água em sobrevivência.
+ * O balde fecha o pendente do F4 (era só item de criativo). Ele nasceu cobrando
+ * 3 minérios CRUS porque não havia fundição no lite; com a fornalha (§🍖 F10b)
+ * o custo virou o do Minecraft — 3 lingotes de ferro —, e o balde deixou de ser
+ * a exceção que denunciava o buraco.
  *
  * O **pão** (§🍖 F6) é a única receita de COMIDA, e é ela que dá sentido à
  * plantação: o trigo colhido não se come, então plantar → esperar → colher →
@@ -71,7 +89,11 @@ const BASE: readonly Receita[] = [
   { saida: { id: BlockId.LajePedraBaixo, qtd: 6 }, custo: [{ id: BlockId.Cobblestone, qtd: 3 }] },
   { saida: { id: BlockId.EscadaPedraXP, qtd: 4 }, custo: [{ id: BlockId.Cobblestone, qtd: 6 }] },
   // --- ferramenta ---
-  { saida: { id: ITEM_BALDE_VAZIO, qtd: 1 }, custo: [{ id: BlockId.MinerioFerro, qtd: 3 }] },
+  // §🍖 F10b: o custo virou LINGOTE (o número do Minecraft, e o que o
+  // comentário abaixo já previa). Minério cru não vira balde: quem quer ferro
+  // acende fogo. Mudar o custo é permitido — a identidade é o índice, e o 10
+  // continua sendo o balde.
+  { saida: { id: ITEM_BALDE_VAZIO, qtd: 1 }, custo: [{ id: ITEM_LINGOTE_FERRO, qtd: 3 }] },
   // --- comida (§🍖 F6) — APPEND no fim, como manda a regra do índice ---
   { saida: { id: ITEM_PAO, qtd: 1 }, custo: [{ id: ITEM_TRIGO, qtd: 3 }] },
 ];
@@ -145,7 +167,14 @@ const CORES: readonly Cor[] = [
 
 /** Materiais de construção — as pontes que substituem o forno. */
 const MATERIAIS: readonly Receita[] = [
-  { saida: { id: BlockId.Glass, qtd: 1 }, custo: [{ id: BlockId.Sand, qtd: 2 }] },
+  // §🍖 F10b: APOSENTADA a pedido do usuário. Areia virando vidro na mão era a
+  // ponte inventada porque não havia forno; agora há, e vidro se faz com fogo.
+  // A linha fica aqui pra não deslocar as 97 receitas seguintes.
+  {
+    saida: { id: BlockId.Glass, qtd: 1 },
+    custo: [{ id: BlockId.Sand, qtd: 2 }],
+    aposentada: "agora o vidro sai da FORNALHA (areia derretida) — §🍖 F10b",
+  },
   { saida: { id: BlockId.Stone, qtd: 1 }, custo: [{ id: BlockId.Cobblestone, qtd: 2 }] },
   { saida: { id: BlockId.StoneBricks, qtd: 4 }, custo: [{ id: BlockId.Stone, qtd: 4 }] },
   { saida: { id: BlockId.Sandstone, qtd: 1 }, custo: [{ id: BlockId.Sand, qtd: 4 }] },
@@ -251,6 +280,13 @@ const GLIFOS: readonly Receita[] = Array.from({ length: 36 }, (_, i) => ({
  */
 const FUNDICAO: readonly Receita[] = [
   { saida: { id: ITEM_GRAVETO, qtd: 4 }, custo: [{ id: BlockId.Planks, qtd: 2 }] },
+  // a fornalha custa 8 pedregulho (o número do Minecraft): cara o bastante pra
+  // ser uma conquista da aula, barata o bastante pra caber numa aula só
+  { saida: { id: BlockId.Fornalha, qtd: 1 }, custo: [{ id: BlockId.Cobblestone, qtd: 8 }] },
+  // a tocha GÊMEA: carvão vegetal acende igual ao mineral. São duas receitas
+  // porque `Receita.custo` não tem "ou" — e ter duas linhas na lista é melhor
+  // pro aluno do que uma linha que aceita duas coisas sem dizer quais.
+  { saida: { id: BlockId.Tocha, qtd: 4 }, custo: [{ id: ITEM_GRAVETO, qtd: 1 }, { id: ITEM_CARVAO_VEGETAL, qtd: 1 }] },
 ];
 
 export const RECEITAS: readonly Receita[] = [
@@ -295,9 +331,12 @@ export const SEM_RECEITA: ReadonlyMap<number, string> = new Map([
   [BlockId.Bedrock, "só do professor (`isProfessorOnly`) — nunca vai pra mochila"],
 ]);
 
-/** A receita EXISTE? (o índice veio pelo fio — aqui é onde ele para) */
+/** A receita existe E ainda vale? (o índice veio pelo fio — aqui é onde ele
+ *  para). Receita aposentada (§🍖 F10) reprova aqui: o índice continua
+ *  existindo, mas quem pedir por ele não fabrica nada. */
 export function receitaValida(indice: number): boolean {
-  return Number.isInteger(indice) && indice >= 0 && indice < RECEITAS.length;
+  if (!Number.isInteger(indice) || indice < 0 || indice >= RECEITAS.length) return false;
+  return receitaAtiva(RECEITAS[indice]!);
 }
 
 /** O jogador tem TODOS os ingredientes? (ainda não olha se a saída cabe) */
@@ -322,6 +361,7 @@ export function podeFabricar(inv: Inventario, receita: Receita): boolean {
  * `remover` (gasto parcial não existe).
  */
 export function fabricar(inv: Inventario, receita: Receita): Inventario | null {
+  if (!receitaAtiva(receita)) return null; // §🍖 F10: aposentada não fabrica
   let atual = inv;
   for (const c of receita.custo) {
     const { inv: depois, removido } = remover(atual, c.id, c.qtd);

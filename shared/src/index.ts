@@ -5,6 +5,8 @@ export * from "./blocks";
 export * from "./claims";
 export * from "./comida";
 export * from "./constants";
+export * from "./containers";
+export * from "./fornalha";
 export * from "./groups";
 export * from "./drops";
 export * from "./inventario";

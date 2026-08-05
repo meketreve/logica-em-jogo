@@ -9,6 +9,7 @@ import {
   isCadeira,
   isCama,
   isFolhas,
+  isFornalha,
   isGramaAlta,
   isJanela,
   isPlantacao,
@@ -56,6 +57,8 @@ export function formaCanonica(id: number): number {
   // §🍖 F6: os 4 estágios da plantação têm UMA entrada na mochila — a muda. É a
   // mesma razão da porta: o aluno guarda o que sabe replantar.
   if (isPlantacao(id)) return BlockId.Plantacao0;
+  // §🍖 F10b: fornalha acesa volta como fornalha — o fogo é estado, não item.
+  if (isFornalha(id)) return BlockId.Fornalha;
   return id;
 }
 

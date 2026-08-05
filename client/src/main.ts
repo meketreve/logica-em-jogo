@@ -34,6 +34,7 @@ import {
   isCadeira,
   isComida,
   isCama,
+  containerTipoDe,
   isInterativo,
   isJanela,
   isPlaceable,
@@ -76,6 +77,7 @@ import { initUiAudio, playUi, setUiVolume } from "./audio";
 import { BENCH_SEED, Bench, benchDaUrl, benchSettings } from "./bench";
 import { makeBlockIcons } from "./blockIcons";
 import { PLACEABLE, placeableFor } from "./blocksUi";
+import { ContainerPanel } from "./container";
 import { InventoryPanel } from "./inventory";
 import { ChatUi } from "./chat";
 import { ChunkRenderer } from "./chunks";
@@ -239,6 +241,9 @@ let inventoryPanel: InventoryPanel | null = null;
 let playersPanel: PlayersPanel | null = null;
 /** Painel de amigos (2026-08-04) — de todo jogador; a interface do /amigos. */
 let friendsPanel: FriendsPanel | null = null;
+/** §🍖 F10: painel de transferência (fornalha, baú). Quem o abre é a resposta
+ *  do servidor ao `use_block`, não uma tecla — ver `ContainerPanel`. */
+let containerPanel: ContainerPanel | null = null;
 /** Último `friends` que o servidor mandou (o painel é puro consumo dele). */
 let latestFriends: { equipe: { dono: string; membros: string[] } | null; convites: string[]; enviados: string[] } = {
   equipe: null,
@@ -287,7 +292,8 @@ function updateOverlay(): void {
     (activePanel?.open ?? false) ||
     (inventoryPanel?.open ?? false) ||
     (playersPanel?.open ?? false) ||
-    (friendsPanel?.open ?? false);
+    (friendsPanel?.open ?? false) ||
+    (containerPanel?.open ?? false);
   // §🕐 `loading.ativo`: durante o carregamento o ponteiro NÃO está travado —
   // sem esta condição o menu de pausa aparecia junto com a tela de carga.
   overlay?.classList.toggle(
@@ -721,6 +727,13 @@ function handleServerData(data: string | ArrayBuffer): void {
       applyQuadros?.(msg.lista);
     } else if (msg.type === "quadro_changed") {
       applyQuadroChanged?.(msg);
+    } else if (msg.type === "container") {
+      // §🍖 F10: o conteúdo do bloco que este jogador tem aberto. É ESTA
+      // mensagem que abre o painel (o clique direito só pede) — e ela continua
+      // chegando enquanto a fornalha cozinha, que é o que faz a barrinha andar.
+      containerPanel?.atualizar(msg);
+    } else if (msg.type === "container_fechado") {
+      containerPanel?.fecharSemAvisar();
     } else if (msg.type === "claims") {
       // cp24: proteção de áreas — wireframes pra todo mundo + habilita a varinha
       // do aluno quando ligada. O servidor é quem barra a edição de fato.
@@ -1724,6 +1737,7 @@ function startGame(snap: Snapshot): void {
       `<span class="bar-nome">${naMao === null || naMao === undefined ? "mão vazia" : blockName(naMao)}</span>` +
       `<span class="slots">${slots}</span>`;
     inventoryPanel?.refresh();
+    containerPanel?.refresh(); // §🍖 F10: o lado de baixo do painel é a mochila
   };
   /** Id na mão AGORA (null = mão vazia em sobrevivência). Fonte única pra quem
    *  precisa saber o que o jogador segura: colocar, quebrar com balde, hotbar. */
@@ -1799,6 +1813,28 @@ function startGame(snap: Snapshot): void {
     if (chat.open) return;
     inventoryPanel?.toggle();
   });
+
+  // §🍖 F10: o painel de container. Ele NÃO tem tecla própria: quem o abre é o
+  // clique direito no bloco — ou melhor, é a RESPOSTA do servidor a ele, porque
+  // quem decide se o aluno pode ler aquele baú é o gate de claim.
+  containerPanel = new ContainerPanel(
+    icons,
+    mochila,
+    blockName,
+    (x, y, z, de, para) =>
+      activeConn.send(JSON.stringify({ type: "mover_container", x, y, z, de, para })),
+    () => activeConn.send(JSON.stringify({ type: "fechar_container" })),
+    (open) => {
+      if (open) {
+        activePanel?.hide(); // um painel por vez na tela
+        playersPanel?.hide();
+        friendsPanel?.hide();
+        inventoryPanel?.hide();
+        document.exitPointerLock();
+      } else input.lock();
+      updateOverlay();
+    },
+  );
 
   // varinha: marca o canto na célula MIRADA (o bloco existente, não o ar
   // vizinho) e mostra a marca local — o servidor confirma via chat
@@ -1906,6 +1942,17 @@ function startGame(snap: Snapshot): void {
         });
         return;
       }
+    }
+    // §🍖 F10: clique direito num CONTAINER (fornalha, baú) ABRE — mesma
+    // mensagem `use_block`, e é o servidor que decide o efeito. Ele responde
+    // com `container`, e é a resposta que abre o painel: o cliente não abre
+    // nada por conta própria, senão o aluno veria a caixa de um baú que o claim
+    // do colega nem deixaria ele ler.
+    if (containerTipoDe(getBlock(world, target.x, target.y, target.z)) !== null) {
+      activeConn.send(
+        JSON.stringify({ type: "use_block", x: target.x, y: target.y, z: target.z }),
+      );
+      return;
     }
     // cp23: clique direito em bloco INTERATIVO (porta/janela) interage, não
     // coloca — convenção Minecraft; o servidor alterna (porta: as 2 metades)

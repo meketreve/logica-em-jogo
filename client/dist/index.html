@@ -167,7 +167,8 @@
       #painel,
       #inventario,
       #jogadores,
-      #amigos {
+      #amigos,
+      #container {
         position: fixed;
         left: 50%;
         top: 50%;
@@ -190,7 +191,8 @@
       #painel h2,
       #inventario h2,
       #jogadores h2,
-      #amigos h2 {
+      #amigos h2,
+      #container h2 {
         margin: 0;
         font-size: 1.25rem;
       }
@@ -220,7 +222,8 @@
       #painel button,
       #inventario button,
       #jogadores button,
-      #amigos button {
+      #amigos button,
+      #container button {
         font: inherit;
         font-size: 0.82rem;
         padding: 4px 9px;
@@ -233,7 +236,8 @@
       #painel button:hover:not(:disabled),
       #inventario button:hover:not(:disabled),
       #jogadores button:hover:not(:disabled),
-      #amigos button:hover:not(:disabled) {
+      #amigos button:hover:not(:disabled),
+      #container button:hover:not(:disabled) {
         background: rgba(255, 255, 255, 0.22);
       }
       /* --- Painel de jogadores (2026-07-21) --- */
@@ -482,6 +486,77 @@
       }
       /* §🍖 F5: craft por lista. A lista rola por dentro (painel de altura
          fixa); cada receita é uma linha-botão (tocar fabrica). */
+      /* §🍖 F10: painel de transferência (fornalha e baú). O container fica em
+         CIMA e a mochila embaixo, com a mesma grade de 9 colunas — o aluno lê
+         de cima pra baixo, e o gesto de "tirar de lá e pôr aqui" acompanha. */
+      .cont-fechar {
+        position: absolute;
+        top: 14px;
+        right: 18px;
+      }
+      .cont-fornalha,
+      .cont-bau {
+        display: grid;
+        gap: 6px;
+        width: 100%;
+        max-width: 470px;
+        margin: 6px auto 10px;
+        justify-content: center;
+      }
+      /* a fornalha tem 3 slots com RÓTULO: sem os rótulos os três quadrados
+         são um enigma, e o aluno põe carvão onde vai o minério */
+      .cont-fornalha {
+        grid-template-columns: repeat(3, 64px);
+      }
+      .cont-bau {
+        grid-template-columns: repeat(9, minmax(0, 1fr));
+        max-height: 42%;
+        overflow-y: auto;
+      }
+      .cont-cel {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 2px;
+      }
+      .cont-cel .inv-slot {
+        width: 100%;
+        min-height: 44px;
+      }
+      .cont-cel small {
+        font-size: 10px;
+        opacity: 0.7;
+      }
+      .cont-barra {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        width: 100%;
+        max-width: 470px;
+        margin: 0 auto 4px;
+        font-size: 11px;
+      }
+      .cont-barra small {
+        width: 74px;
+        opacity: 0.7;
+      }
+      .cont-trilho {
+        flex: 1;
+        height: 8px;
+        background: rgba(255, 255, 255, 0.12);
+        border-radius: 4px;
+        overflow: hidden;
+      }
+      .cont-trilho i {
+        display: block;
+        height: 100%;
+      }
+      .cont-trilho i.fogo {
+        background: #f08a2a;
+      }
+      .cont-trilho i.coz {
+        background: #4aa3e8;
+      }
       .craft-wrap {
         display: flex;
         flex-direction: column;
@@ -969,7 +1044,7 @@
         }
       }
     </style>
-    <script type="module" crossorigin src="/assets/index-B-SnJ9RC.js"></script>
+    <script type="module" crossorigin src="/assets/index-C4nPm6K0.js"></script>
   </head>
   <body>
     <div id="menu" class="hidden">
@@ -1081,6 +1156,8 @@
     <div id="jogadores" class="hidden"></div>
     <!-- painel de amigos (2026-08-04): grupo de amigos do PRÓPRIO jogador -->
     <div id="amigos" class="hidden"></div>
+    <!-- §🍖 F10 (2026-08-05): transferência mochila↔container (fornalha, baú) -->
+    <div id="container" class="hidden"></div>
     <div id="hud" class="hidden">
       <pre id="hud-text"></pre>
       <button id="hud-export" type="button">exportar JSON</button>

@@ -158,23 +158,45 @@ export function remover(
  * como está — o servidor não pode confiar no índice que veio pelo fio.
  */
 export function moverSlot(inv: Inventario, de: number, para: number): Inventario {
-  if (!slotValido(de) || !slotValido(para) || de === para) return inv;
-  const origem = inv[de] ?? null;
-  const destino = inv[para] ?? null;
-  if (origem === null) return inv;
+  if (!slotValido(de) || !slotValido(para)) return inv;
+  return moverEmArray(inv, de, para);
+}
 
-  const slots = inv.slice();
+/**
+ * O NÚCLEO do movimento (junta ou troca), sobre um array de slots QUALQUER —
+ * sem a régua de 27 do inventário do jogador. Índice fora do array, origem
+ * vazia ou `de === para` devolvem o MESMO array (é essa identidade que quem
+ * chama usa pra saber que nada mudou e nem mandar mensagem).
+ *
+ * §🍖 F10: existe separado porque a transferência mochila↔container (fornalha,
+ * baú) trabalha num array CONCATENADO dos dois — a regra de juntar pilha e
+ * trocar slot é a mesma dos dois lados, e escrevê-la duas vezes seria a receita
+ * pra elas divergirem no dia em que uma mudasse.
+ */
+export function moverEmArray(
+  slots: readonly Slot[],
+  de: number,
+  para: number,
+): readonly Slot[] {
+  if (!Number.isInteger(de) || !Number.isInteger(para)) return slots;
+  if (de < 0 || para < 0 || de >= slots.length || para >= slots.length) return slots;
+  if (de === para) return slots;
+  const origem = slots[de] ?? null;
+  const destino = slots[para] ?? null;
+  if (origem === null) return slots;
+
+  const out = slots.slice();
   if (destino !== null && destino.id === origem.id) {
     const teto = tamanhoStack(origem.id);
     const leva = Math.min(teto - destino.qtd, origem.qtd);
-    if (leva <= 0) return inv; // destino cheio: nem junta nem troca
-    slots[para] = { id: destino.id, qtd: destino.qtd + leva };
-    slots[de] = origem.qtd === leva ? null : { id: origem.id, qtd: origem.qtd - leva };
-    return slots;
+    if (leva <= 0) return slots; // destino cheio: nem junta nem troca
+    out[para] = { id: destino.id, qtd: destino.qtd + leva };
+    out[de] = origem.qtd === leva ? null : { id: origem.id, qtd: origem.qtd - leva };
+    return out;
   }
-  slots[para] = origem;
-  slots[de] = destino;
-  return slots;
+  out[para] = origem;
+  out[de] = destino;
+  return out;
 }
 
 /**

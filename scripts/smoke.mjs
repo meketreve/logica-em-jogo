@@ -302,6 +302,27 @@ const SMOKES = [
     ],
   },
   {
+    nome: "fornalha",
+    arquivo: `${DIR}/_smoke-fornalha.mjs`,
+    prova:
+      "§🍖 F10b — o clique direito ABRE o container (é a resposta do servidor que abre o painel), a transferência mochila↔fornalha é do SERVIDOR pelo índice unificado, o tick cozinha e troca o BYTE do bloco (apagada↔acesa, e com ele a luz), a saída é de mão única, dois jogadores no mesmo bloco veem o mesmo conteúdo, e quebrar com coisa dentro é RECUSADO com aviso.",
+    lento: false,
+    // o smoke deixa a fornalha, a mochila e o modo pessoal gravados no .ljw
+    limpar: ["mundos/_smoke-fornalha"],
+    servidores: [
+      {
+        porta: 8109,
+        env: {
+          LJ_SAVE: "mundos/_smoke-fornalha.ljw",
+          LJ_NOVO: "1",
+          LJ_TAMANHO: "P",
+          LJ_CODIGO: "prof2026",
+          LJ_SEED: SEED,
+        },
+      },
+    ],
+  },
+  {
     nome: "troca-raio",
     arquivo: `${DIR}/_smoke-troca-raio.mjs`,
     args: ["_smoke-trocab"],

@@ -1,6 +1,7 @@
 import { type Papel } from "./auth";
 import { type Claim, parseClaim } from "./claims";
 import { type QuadroConteudo, parseQuadroConteudo } from "./quadros";
+import { type ContainerTipo, parseContainerSalvo } from "./containers";
 import { CHUNK_VOLUME, MAX_WORLD_CHUNKS } from "./constants";
 import { type GroupDef, parseGroups } from "./groups";
 import { type SlotSalvo, inventarioParaSave, parseInventario } from "./inventario";
@@ -67,6 +68,20 @@ export type ClientMessage =
    *  O cliente NÃO decide — manda os dois índices e o servidor aplica (ou não)
    *  e responde com o `inventario` inteiro. Índice inválido é ignorado. */
   | { type: "mover_item"; de: number; para: number }
+  /**
+   * Container (§🍖 F10): move item entre a MOCHILA e o bloco com inventário
+   * (fornalha, baú) daquela célula. O índice é UNIFICADO — `0..26` é a
+   * mochila, `27 + i` é o slot `i` do container (ver `containers.ts`): um
+   * número por ponta, como o `mover_item` já faz dentro da mochila.
+   *
+   * O cliente precisa estar com aquele container ABERTO (o `use_block` é que
+   * abre), e o servidor reconfere alcance e claim a cada movimento — quem
+   * abriu o baú e saiu andando não continua mexendo nele de longe.
+   */
+  | { type: "mover_container"; x: number; y: number; z: number; de: number; para: number }
+  /** Container (§🍖 F10): o aluno fechou o painel. Sem isto o servidor
+   *  continuaria mandando o conteúdo daquele bloco a cada tick pra sempre. */
+  | { type: "fechar_container" }
   | { type: "chat"; text: string }
   | {
       /**
@@ -274,6 +289,38 @@ export type ServerMessage =
        */
       type: "quadros";
       lista: QuadroConteudo[];
+    }
+  | {
+      /**
+       * Container (§🍖 F10): o conteúdo do bloco que ESTE cliente tem aberto.
+       * Vai só pra quem está com ele aberto (não é broadcast de mundo): sai
+       * quando o `use_block` abre, a cada movimento aceito, e a cada tick em
+       * que a fornalha muda sozinha (o fogo anda, a peça fica pronta).
+       *
+       * Dois alunos no mesmo baú recebem os dois — é o que impede um item de
+       * sumir na cara do colega, e é a razão de a mensagem ser por POSIÇÃO e
+       * não por jogador.
+       */
+      type: "container";
+      x: number;
+      y: number;
+      z: number;
+      tipo: ContainerTipo;
+      slots: SlotSalvo[];
+      /** Fornalha: ticks de fogo que restam, a régua deles e o cozimento em
+       *  curso. Ausentes (ou zero) = fogo apagado / nada cozinhando. */
+      queimando?: number;
+      queimaTotal?: number;
+      progresso?: number;
+    }
+  | {
+      /**
+       * Container (§🍖 F10): o servidor está FECHANDO o painel deste cliente —
+       * o bloco foi quebrado, o aluno se afastou, ou o claim mudou de dono. O
+       * cliente fecha sem perguntar; sem isto, o painel ficaria aberto sobre
+       * um bloco que não existe mais.
+       */
+      type: "container_fechado";
     }
   | {
       /** Chat: mensagem de jogador (autor "nome#id") ou do servidor (autor "servidor"). */
@@ -499,6 +546,23 @@ export function parseClientMessage(raw: string): ClientMessage | null {
       if (!ints.every((n) => typeof n === "number" && Number.isInteger(n))) return null;
       return { type: "mover_item", de: m["de"] as number, para: m["para"] as number };
     }
+    case "mover_container": {
+      // §🍖 F10: os 5 inteiros são a célula + o par de índices unificados. A
+      // FAIXA dos índices não é conferida aqui: quem sabe quantos slots aquele
+      // container tem é o `moverEntre`, que já recusa o que sai da faixa.
+      const ints = [m["x"], m["y"], m["z"], m["de"], m["para"]];
+      if (!ints.every((n) => typeof n === "number" && Number.isInteger(n))) return null;
+      return {
+        type: "mover_container",
+        x: m["x"] as number,
+        y: m["y"] as number,
+        z: m["z"] as number,
+        de: m["de"] as number,
+        para: m["para"] as number,
+      };
+    }
+    case "fechar_container":
+      return { type: "fechar_container" };
     case "fabricar": {
       const r = m["receita"];
       if (typeof r !== "number" || !Number.isInteger(r)) return null;
@@ -717,6 +781,24 @@ export function parseServerMessage(raw: string): ServerMessage | null {
       }
       return { type: "quadros", lista };
     }
+    case "container": {
+      // §🍖 F10: reusa o parse do save (`parseContainerSalvo`) — o conteúdo de
+      // um container tem a MESMA forma nos dois lugares, e duas validações
+      // seriam duas chances de divergir.
+      const c = parseContainerSalvo(m);
+      if (!c) return null;
+      return {
+        type: "container",
+        x: c.x, y: c.y, z: c.z,
+        tipo: c.tipo,
+        slots: c.slots,
+        ...(c.queimando ? { queimando: c.queimando } : {}),
+        ...(c.queimaTotal ? { queimaTotal: c.queimaTotal } : {}),
+        ...(c.progresso ? { progresso: c.progresso } : {}),
+      };
+    }
+    case "container_fechado":
+      return { type: "container_fechado" };
     case "chat":
       if (typeof m["author"] !== "string" || typeof m["text"] !== "string") return null;
       return { type: "chat", author: m["author"], text: m["text"] };

@@ -9,6 +9,7 @@ import {
   isBalde,
   isBreakable,
   isCama,
+  isFornalha,
   isFullCube,
   isItem,
   isPlaceable,
@@ -49,6 +50,18 @@ import {
   remover,
 } from "./inventario";
 import { MAX_QUADRO_TEXTO, type QuadroConteudo, quadroKey } from "./quadros";
+import {
+  type Container,
+  type ContainerSalvo,
+  containerDeSave,
+  containerKey,
+  containerParaSave,
+  containerTemConteudo,
+  containerTipoDe,
+  containerVazio,
+  moverEntre,
+} from "./containers";
+import { fornalhaAcesa, tickFornalha } from "./fornalha";
 import { RECEITAS, fabricar, receitaValida } from "./receitas";
 import {
   AGUA_POR_TICK_PADRAO,
@@ -380,6 +393,22 @@ export class GameSession {
   /** Quadros (2026-07-19): conteúdo (texto/imagem) por posição — primeiro
    *  estado FORA do id de bloco. Chave = quadroKey(x,y,z). Persiste. */
   private readonly quadros = new Map<string, QuadroConteudo>();
+  /**
+   * §🍖 F10: o que está DENTRO de cada fornalha/baú, por posição. Mesmo desenho
+   * do mapa de quadros — o servidor é a verdade e o byte do chunk só guarda o
+   * ESTADO (apagada/acesa).
+   *
+   * **Não há índice separado de fornalhas acesas**, ao contrário do índice de
+   * plantações do §🍖 F6, e a razão é o tamanho: uma horta se esconde entre
+   * milhões de células de mundo, e por isso precisava de índice; container é
+   * uma entrada neste mapa, que tem dezenas — o tick varre o mapa inteiro e
+   * pula quem não é fornalha.
+   */
+  private readonly containers = new Map<string, Container>();
+  /** §🍖 F10: qual container cada cliente está com ABERTO (id → célula). É por
+   *  ele que o servidor sabe pra quem mandar `container` quando o conteúdo muda
+   *  — inclusive quando muda sozinho, no tick da fornalha. */
+  private readonly containerAberto = new Map<number, Vec3i>();
   /** Tentativas erradas de PIN por nome — rate-limit da ameaça real (colega
    *  na LAN chutando 10 mil combinações). Não persiste no save. */
   private readonly pinFails = new Map<string, { fails: number; lockedUntil: number }>();
@@ -553,6 +582,13 @@ export class GameSession {
           this.quadros.set(quadroKey(q.x, q.y, q.z), q);
         }
       }
+      // §🍖 F10: containers — mesma regra do quadro (o conteúdo só volta se a
+      // célula AINDA é aquele tipo de container), e o mesmo motivo: um save
+      // editado à mão não pode fazer nascer baú dentro de pedra.
+      for (const c of opts.restore.containers ?? []) {
+        if (containerTipoDe(getBlock(this.world, c.x, c.y, c.z)) !== c.tipo) continue;
+        this.containers.set(containerKey(c.x, c.y, c.z), containerDeSave(c));
+      }
       // cp21: hora/ciclo do save vencem o padrão (mundo de atividade guarda
       // ciclo OFF; sobrevivência guarda a hora corrente). Ausentes = padrão.
       if (typeof opts.restore.hora === "number" && Number.isFinite(opts.restore.hora)) {
@@ -658,6 +694,7 @@ export class GameSession {
       merged.set(p.name, { x: p.x, y: p.y, z: p.z, yaw: p.yaw, pitch: p.pitch });
     }
     const regrasSalvas = regrasParaSave(this.regras);
+    const containersSalvos = this.containersParaSave();
     return {
       seed: this.seed,
       spawn: { ...this.spawn },
@@ -715,6 +752,10 @@ export class GameSession {
       ...(this.confinamentoAtivo ? { confinamento: true } : {}),
       // quadros (2026-07-19): conteúdo autoral por posição (só grava se há)
       ...(this.quadros.size ? { quadros: [...this.quadros.values()] } : {}),
+      // §🍖 F10: containers — só os que têm ALGUMA coisa dentro. Fornalha e baú
+      // vazios se refazem do byte do chunk no restore, e um mundo de aula cheio
+      // de baú vazio não paga por eles no save.
+      ...(containersSalvos.length ? { containers: containersSalvos } : {}),
       // cp21: hora + ciclo SEMPRE gravados (mundo de atividade guarda ciclo OFF;
       // sobrevivência guarda a hora corrente pra continuar de onde parou)
       hora: +this.horaDoDia.toFixed(3),
@@ -995,9 +1036,26 @@ export class GameSession {
         if (!inBounds(this.world, msg.x, msg.y, msg.z)) return;
         if (!this.withinReach(p, msg.x, msg.y, msg.z)) return;
         const id = getBlock(this.world, msg.x, msg.y, msg.z);
+        // §🍖 F10: container (fornalha, baú) — o clique direito ABRE, não
+        // alterna. O gate de claim/confinamento vem ANTES de responder o
+        // conteúdo (§🍖 F10f): ler o baú alheio é pior que mexer nele.
+        if (containerTipoDe(id) !== null) {
+          const bloqueio =
+            this.claimBloqueia(clientId, msg.x, msg.y, msg.z) ??
+            this.confinaBloqueia(clientId, msg.x, msg.y, msg.z);
+          if (bloqueio) {
+            this.sendServerChat(clientId, bloqueio);
+            return;
+          }
+          this.containerAberto.set(clientId, { x: msg.x, y: msg.y, z: msg.z });
+          this.sendContainer(clientId, msg.x, msg.y, msg.z);
+          return;
+        }
         if (!isInterativo(id)) return; // porta (cp23) e janela (2026-07-19)
         {
-          const bloqueio = this.claimBloqueia(clientId, msg.x, msg.y, msg.z);
+          const bloqueio =
+            this.claimBloqueia(clientId, msg.x, msg.y, msg.z) ??
+            this.confinaBloqueia(clientId, msg.x, msg.y, msg.z);
           if (bloqueio) {
             this.sendServerChat(clientId, bloqueio);
             return;
@@ -1068,6 +1126,18 @@ export class GameSession {
             this.confinaBloqueia(clientId, msg.x, msg.y, msg.z);
           if (bloqueio) {
             this.sendServerChat(clientId, bloqueio);
+            return;
+          }
+        }
+        // §🍖 F10: container com coisa dentro NÃO QUEBRA (decisão do usuário
+        // pro baú, estendida à fornalha porque a regra é a mesma e a frase é a
+        // mesma). Sem isto, um clique perdia a mochila inteira que o colega
+        // guardou — e não existe item no chão pra devolver. Vale inclusive em
+        // criativo: o professor que quebra um baú cheio também não quer isso.
+        {
+          const cont = this.containerDe(msg.x, msg.y, msg.z, current);
+          if (cont && containerTemConteudo(cont)) {
+            this.avisarContainerCheio(clientId);
             return;
           }
         }
@@ -1176,6 +1246,44 @@ export class GameSession {
         if (depois === antes) return;
         this.inventarios.set(p.name, depois);
         this.sendInventario(clientId);
+        break;
+      }
+      case "mover_container": {
+        // §🍖 F10: transferência mochila↔container. O cliente manda dois
+        // índices no espaço UNIFICADO e recebe os dois inventários de volta —
+        // ele nunca escreve nem a mochila nem o baú.
+        const p = this.players.get(clientId);
+        if (!p || !this.inventarioVale(clientId)) return;
+        // o aluno tem de estar com ESTE container aberto: sem isto, o fio podia
+        // mexer em qualquer baú do mapa sem nunca ter chegado perto dele
+        const aberto = this.containerAberto.get(clientId);
+        if (!aberto || aberto.x !== msg.x || aberto.y !== msg.y || aberto.z !== msg.z) return;
+        if (!inBounds(this.world, msg.x, msg.y, msg.z)) return;
+        // alcance e claim RECONFERIDOS a cada movimento: quem abriu o baú e
+        // saiu andando (ou perdeu o direito no meio) para aqui
+        if (!this.withinReach(p, msg.x, msg.y, msg.z)) return;
+        if (
+          this.claimBloqueia(clientId, msg.x, msg.y, msg.z) ??
+          this.confinaBloqueia(clientId, msg.x, msg.y, msg.z)
+        ) {
+          this.fecharContainer(clientId);
+          return;
+        }
+        const atual = getBlock(this.world, msg.x, msg.y, msg.z);
+        const cont = this.containerDe(msg.x, msg.y, msg.z, atual);
+        if (!cont) return;
+        const r = moverEntre(this.inventarioDe(p.name), cont, msg.de, msg.para);
+        if (!r) return; // índice inválido, origem vazia, destino cheio/proibido
+        this.inventarios.set(p.name, r.mochila);
+        this.containers.set(containerKey(msg.x, msg.y, msg.z), r.container);
+        this.sendInventario(clientId);
+        // TODOS os que estão com este container aberto recebem o conteúdo novo
+        // — senão um item some na cara do colega (o caso que a mochila não tem)
+        this.avisarContainer(msg.x, msg.y, msg.z);
+        break;
+      }
+      case "fechar_container": {
+        this.containerAberto.delete(clientId);
         break;
       }
       case "fabricar": {
@@ -2091,6 +2199,120 @@ export class GameSession {
       clientId,
       "Mochila cheia — guarde ou solte alguma coisa antes de continuar cavando.",
     );
+  }
+
+  // --- §🍖 F10: containers (fornalha, baú) --------------------------------
+
+  /**
+   * O container daquela célula, ou `null` se a célula não é um. Container
+   * ainda sem entrada no mapa nasce VAZIO aqui e **não é guardado**: o mapa só
+   * ganha entrada quando alguém põe alguma coisa dentro, e é isso que faz um
+   * mundo de aula cheio de baú vazio não pesar no save nem na memória.
+   */
+  private containerDe(x: number, y: number, z: number, blockId: number): Container | null {
+    const tipo = containerTipoDe(blockId);
+    if (!tipo) return null;
+    return this.containers.get(containerKey(x, y, z)) ?? containerVazio(tipo);
+  }
+
+  /** Os containers que têm ALGUMA coisa dentro, na forma do save. */
+  private containersParaSave(): ContainerSalvo[] {
+    const out: ContainerSalvo[] = [];
+    for (const [key, c] of this.containers) {
+      if (!containerTemConteudo(c)) continue;
+      const [x, y, z] = key.split(",").map(Number) as [number, number, number];
+      out.push(containerParaSave(x, y, z, c));
+    }
+    return out;
+  }
+
+  /** Manda o conteúdo daquela célula pra UM cliente (quem acabou de abrir). */
+  private sendContainer(clientId: number, x: number, y: number, z: number): void {
+    const c = this.containerDe(x, y, z, getBlock(this.world, x, y, z));
+    if (!c) {
+      this.fecharContainer(clientId);
+      return;
+    }
+    const s = containerParaSave(x, y, z, c);
+    this.send(
+      clientId,
+      JSON.stringify({
+        type: "container",
+        x, y, z,
+        tipo: s.tipo,
+        slots: s.slots,
+        ...(s.queimando ? { queimando: s.queimando } : {}),
+        ...(s.queimaTotal ? { queimaTotal: s.queimaTotal } : {}),
+        ...(s.progresso ? { progresso: s.progresso } : {}),
+      } satisfies ServerMessage),
+    );
+  }
+
+  /** Manda o conteúdo pra TODOS que estão com aquela célula aberta. É por aqui
+   *  que dois alunos no mesmo baú (e o dono que vê a fornalha cozinhando) veem
+   *  a mesma coisa. */
+  private avisarContainer(x: number, y: number, z: number): void {
+    for (const [clientId, pos] of this.containerAberto) {
+      if (pos.x === x && pos.y === y && pos.z === z) this.sendContainer(clientId, x, y, z);
+    }
+  }
+
+  /** Fecha o painel deste cliente (bloco quebrou, direito mudou, célula sumiu). */
+  private fecharContainer(clientId: number): void {
+    if (!this.containerAberto.delete(clientId)) return;
+    this.send(clientId, JSON.stringify({ type: "container_fechado" } satisfies ServerMessage));
+  }
+
+  /** Fecha o painel de TODOS que estão com aquela célula aberta. */
+  private fecharContainerEm(x: number, y: number, z: number): void {
+    for (const [clientId, pos] of [...this.containerAberto]) {
+      if (pos.x === x && pos.y === y && pos.z === z) this.fecharContainer(clientId);
+    }
+  }
+
+  /**
+   * Aviso de "tem coisa dentro" com o MESMO freio do "mochila cheia", e pela
+   * mesma razão: quebrar é clique repetido, e o aluno que insiste no baú cheio
+   * encheria o chat da turma.
+   */
+  private avisarContainerCheio(clientId: number): void {
+    const agora = this.now();
+    const ultimo = this.avisoMochila.get(clientId) ?? -Infinity;
+    if (agora - ultimo < AVISO_MOCHILA_MS) return;
+    this.avisoMochila.set(clientId, agora);
+    this.sendServerChat(
+      clientId,
+      "Tem coisa aí dentro — esvazie antes de quebrar (o que está guardado não cai no chão).",
+    );
+  }
+
+  /**
+   * §🍖 F10b: um tick de TODAS as fornalhas. Varre o mapa de containers (que
+   * tem dezenas de entradas, não milhões — ver o comentário do campo), pula o
+   * que não é fornalha e deixa o `tickFornalha` decidir. Ele devolve o MESMO
+   * objeto quando nada muda, e é essa identidade que evita mensagem à toa.
+   *
+   * Duas coisas saem daqui quando o estado muda: o BYTE do bloco (apagada ↔
+   * acesa, que é o que acende a luz e a boca de fogo pra turma inteira) e a
+   * mensagem `container` pra quem está com o painel aberto.
+   */
+  private tickFornalhas(): void {
+    if (this.containers.size === 0) return;
+    for (const [key, antes] of [...this.containers]) {
+      if (antes.tipo !== "fornalha") continue;
+      const depois = tickFornalha(antes);
+      if (depois === antes) continue;
+      const [x, y, z] = key.split(",").map(Number) as [number, number, number];
+      if (containerTemConteudo(depois)) this.containers.set(key, depois);
+      else this.containers.delete(key); // fornalha que esvaziou volta a não custar nada
+      if (fornalhaAcesa(depois) !== fornalhaAcesa(antes)) {
+        const alvo = fornalhaAcesa(depois) ? BlockId.FornalhaAcesa : BlockId.Fornalha;
+        // só troca o byte se a célula AINDA é fornalha (o bloco pode ter sido
+        // quebrado neste mesmo tick por outro caminho)
+        if (isFornalha(getBlock(this.world, x, y, z))) this.applyBlock(x, y, z, alvo);
+      }
+      this.avisarContainer(x, y, z);
+    }
   }
 
   /**
@@ -4013,6 +4235,15 @@ export class GameSession {
     // quadro (2026-07-19): a célula deixou de ser quadro → conteúdo morre junto
     // (o cliente limpa pelo próprio block_changed/blocks_filled; sem msg extra)
     if (!isQuadro(blockId)) this.quadros.delete(quadroKey(x, y, z));
+    // §🍖 F10: idem pro container. A célula que deixa de ser fornalha/baú perde
+    // o conteúdo — e como quebrar container com coisa dentro é RECUSADO no
+    // `break_block`, o que morre aqui é sempre um vazio (ou uma teleoperação de
+    // professor, que é escolha dele). A fornalha apagada↔acesa NÃO cai neste
+    // ramo: os dois bytes são o mesmo container.
+    if (containerTipoDe(blockId) === null) {
+      this.containers.delete(containerKey(x, y, z));
+      this.fecharContainerEm(x, y, z);
+    }
     // §🍖 F6: o índice das plantações segue o byte — plantar entra, crescer
     // reescreve a mesma chave, colher/derrubar sai. Como TODA mudança de mundo
     // passa por aqui, não existe horta fora do índice.
@@ -4146,6 +4377,7 @@ export class GameSession {
     this.picoQueda.delete(clientId); // §🍖 quem volta não paga a queda de ontem
     this.ultimoAtaque.delete(clientId); // §🍖 F7: cooldown de soco é de sessão
     this.avisoPvp.delete(clientId);
+    this.containerAberto.delete(clientId); // §🍖 F10: painel aberto é de sessão
     // (pedidos FEITOS por quem saiu são podados no /tpa — players.has(deId))
     const p = this.players.get(clientId);
     if (!p) return;
@@ -4229,6 +4461,10 @@ export class GameSession {
         for (const c of changes) this.applyBlock(c.x, c.y, c.z, c.blockId);
       }
     }
+
+    // §🍖 F10b: as fornalhas. Fora da fila de vizinhança pela MESMA razão da
+    // plantação — o fogo anda por TEMPO, não porque alguém mexeu do lado.
+    this.tickFornalhas();
 
     // cp12/13: recheca objetivos tocados por mudanças (dos jogadores E das
     // regras acima — areia caindo dentro do alvo também conta/desconta)

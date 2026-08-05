@@ -4,7 +4,7 @@
  * cliente pede por índice e recebe a mochila inteira), que a receita consome os
  * ingredientes e credita a saída, que faltar ingrediente é recusado calado, que
  * criativo não fabrica (paleta infinita), e que o balde virou item de mochila —
- * a receita 3 ferro → balde, e usar o balde em sobrevivência troca vazio↔cheio
+ * a receita 3 lingotes → balde, e usar o balde em sobrevivência troca vazio↔cheio
  * NO MESMO slot pelo servidor.
  *
  *   LJ_TAMANHO=P LJ_NOVO=1 LJ_SAVE=mundos/_smoke-craft.ljw LJ_CODIGO=prof2026 \
@@ -24,7 +24,7 @@ const espera = (ms) => new Promise((r) => setTimeout(r, ms));
 const AR = 0;
 const LOG = 6;
 const PLANKS = 7;
-const FERRO = 117;
+const LINGOTE_FERRO = 909; // §🍖 F10b: o balde passou a cobrar LINGOTE, não minério cru
 const ESCADA_TABUA = 163;
 const AGUA = 129;
 const BALDE_VAZIO = 900;
@@ -32,7 +32,7 @@ const BALDE_AGUA = 901;
 // índices na lista RECEITAS (APPEND-only — ver receitas.ts)
 const REC_TABUAS = 0; // 1 tronco → 4 tábuas
 const REC_ESCADA = 5; // 6 tábuas → 4 escada de tábuas
-const REC_BALDE = 10; // 3 ferro → 1 balde vazio
+const REC_BALDE = 10; // 3 lingotes de ferro → 1 balde vazio
 
 function cliente(join) {
   const ws = new WebSocket(URL);
@@ -106,13 +106,13 @@ fabricar(ana, 999);
 await espera(250);
 ok((ultimoInv(ana) ?? []).length === invAntes, "mochila intacta com índice fora da lista");
 
-console.log("== o balde: 3 ferro → 1 balde vazio ==");
-enviar(prof, `/dar ana ${FERRO} 3`);
+console.log("== o balde: 3 lingotes de ferro → 1 balde vazio ==");
+enviar(prof, `/dar ana ${LINGOTE_FERRO} 3`);
 await espera(400);
-ok(contar(ana, FERRO) === 3, `a ana tem 3 minérios de ferro (${contar(ana, FERRO)})`);
+ok(contar(ana, LINGOTE_FERRO) === 3, `a ana tem 3 lingotes de ferro (${contar(ana, LINGOTE_FERRO)})`);
 fabricar(ana, REC_BALDE);
 await espera(400);
-ok(contar(ana, FERRO) === 0, "os 3 ferros foram consumidos");
+ok(contar(ana, LINGOTE_FERRO) === 0, "os 3 lingotes foram consumidos");
 ok(contar(ana, BALDE_VAZIO) === 1, `e nasceu 1 balde vazio (${contar(ana, BALDE_VAZIO)})`);
 
 console.log("== usar o balde em sobrevivência: despeja e troca vazio→cheio no MESMO slot ==");

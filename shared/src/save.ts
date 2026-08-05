@@ -2,6 +2,7 @@ import { type Papel } from "./auth";
 import { type Claim, type GrupoAmigos, parseClaim, parseGrupoAmigos } from "./claims";
 import { CHUNK_VOLUME } from "./constants";
 import { type QuadroConteudo, parseQuadroConteudo } from "./quadros";
+import { type ContainerSalvo, parseContainerSalvo } from "./containers";
 import { type GroupDef, parseGroups } from "./groups";
 import { type SlotSalvo, inventarioParaSave, parseInventario } from "./inventario";
 import { type Modo, parseModo } from "./modo";
@@ -98,6 +99,10 @@ export interface SaveMeta {
   /** Quadros (2026-07-19): conteúdo (texto/imagem) por posição. Ausente =
    *  nenhum quadro com conteúdo. */
   quadros?: QuadroConteudo[];
+  /** Containers (§🍖 F10): o que está DENTRO de cada fornalha/baú, por posição.
+   *  Mesmo desenho do quadro — o conteúdo não cabe no byte do chunk, então mora
+   *  aqui. Ausente = nenhum container com conteúdo (o vazio não se grava). */
+  containers?: ContainerSalvo[];
   /** Ciclo dia/noite (cp21). `hora` em [0,24); `ciclo` = o tempo passa.
    *  Ausente em save antigo = padrão do mundo novo (meio-dia, ciclo parado).
    *  Mundo de atividade grava ciclo OFF; sobrevivência (futuro) grava a hora
@@ -350,6 +355,14 @@ function readSaveMeta(
       if (q) quadros.push(q);
     }
   }
+  // §🍖 F10: containers (fornalha, baú) — mesma tolerância do quadro
+  const containers: ContainerSalvo[] = [];
+  if (Array.isArray(m["containers"])) {
+    for (const entry of m["containers"]) {
+      const c = parseContainerSalvo(entry);
+      if (c) containers.push(c);
+    }
+  }
   // §🍖 F1: override de modo por nome — entrada com nome vazio ou modo
   // desconhecido é PULADA (mesma tolerância dos claims/quadros)
   let modosPorJogador: Record<string, Modo> | undefined;
@@ -381,6 +394,7 @@ function readSaveMeta(
     // cp25: confinamento por área de grupo (ausente = desligado)
     ...(m["confinamento"] === true ? { confinamento: true } : {}),
     ...(quadros.length ? { quadros } : {}),
+    ...(containers.length ? { containers } : {}),
     // cp21: hora/ciclo ausentes ou inválidos = padrão do mundo novo (na sessão)
     ...(typeof m["hora"] === "number" && Number.isFinite(m["hora"]) ? { hora: m["hora"] } : {}),
     ...(typeof m["ciclo"] === "boolean" ? { ciclo: m["ciclo"] } : {}),

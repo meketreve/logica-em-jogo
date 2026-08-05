@@ -151,6 +151,13 @@ export const TILE = {
   plantacao1: 121,
   plantacao2: 122,
   plantacao3: 123,
+  /** §🍖 F10b (2026-08-05): fornalha. `fornalhaTopo` é a chapa de pedra de cima
+   *  e de baixo; os lados mostram a BOCA — nas quatro faces, porque a v1 não
+   *  tem direção de frente (4 ids a mais só pela textura não pagariam). A
+   *  acesa é o mesmo tijolo com a boca em brasa. */
+  fornalhaTopo: 124,
+  fornalhaLado: 125,
+  fornalhaLadoAcesa: 126,
 } as const;
 
 /** cp20: blocos-glifo. Letras A–Z e dígitos 0–9 ocupam tiles consecutivos a
@@ -245,6 +252,11 @@ const BLOCK_TILES: Record<number, FaceTiles> = {
   // água (2026-07-21): cubo cheio p/ o mesher (transparente → funde com água
   // vizinha, mostra só a casca); não-sólido só pra física (blocks.ts).
   [BlockId.Agua]: uniform(TILE.agua),
+  // §🍖 F10b: fornalha — cubo cheio normal (o inventário dela mora fora do
+  // byte). Chapa de pedra em cima e embaixo, boca nos 4 lados; a acesa troca só
+  // o lado, e é o próprio tick que troca o byte.
+  [BlockId.Fornalha]: { top: TILE.fornalhaTopo, bottom: TILE.fornalhaTopo, side: TILE.fornalhaLado },
+  [BlockId.FornalhaAcesa]: { top: TILE.fornalhaTopo, bottom: TILE.fornalhaTopo, side: TILE.fornalhaLadoAcesa },
 };
 // água fluida (2026-07-22): os 7 níveis usam o MESMO tile da fonte (v1 cubo
 // cheio; a altura-por-nível é refino futuro).
