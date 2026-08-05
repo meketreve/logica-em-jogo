@@ -1,6 +1,68 @@
 # STATUS — Projeto "Lógica em Jogo" (jogo voxel educacional)
 
 > Single source of truth for resuming work. Read this FIRST when starting a session.
+> **SESSÃO 47 (2026-08-05) — OS PRINTS DO F10, OS DOIS REFINOS DE FORMA, E O PUSH DOS 11
+> COMMITS.** Aberta com "onde paramos?" e `git fetch` (a rotina desde a 40) — desta vez o local
+> estava **9 commits À FRENTE**: a sessão 46 inteira nunca tinha sido empurrada. O pedido foi
+> *"roda os prints, faz os refinos e depois o push"*, e as três coisas fecharam.
+>
+> **§🔬 `npm run shots:f10` É NOVO, e ele achou um bug na primeira rodada.** O F10 inteiro
+> nasceu com teste puro, teste de sessão e smoke pelo fio — e nenhum deles tem olho. O script
+> sobe host + chrome próprios (nada de terminal ao lado), entra como professora e fotografa 8
+> telas: o atlas, os 9 ícones da hotbar (7 nasceram no F10), o painel da fornalha com o fogo
+> andando, a fornalha acesa no mundo, o painel do baú com os 27 slots, a vitrine de formas e o
+> canteiro de algodão. **O painel abre pelo MESMO gesto do aluno** (toque REAL no ▣ →
+> `input.press(2)` → `use_block` → e é a RESPOSTA do servidor que abre), não por chamada
+> interna. **O canteiro é a parte que fez o script valer:** os 4 estágios saem de 4 pés
+> plantados em TEMPOS diferentes, com `LJ_CRESCIMENTO` acelerado no host — nenhum byte é
+> forjado. O mundo de estúdio se monta por `/bloco ~` e `/regiao encher` do professor, então o
+> script nunca precisa saber onde o spawn caiu.
+>
+> **bug-580, e ele é do tipo que só o print acha.** Trocar fornalha por baú na mesma célula
+> abria o painel como **FORNALHA em cima de um baú** — 3 slots com barra de fogo sobre um bloco
+> que não queima nada. O `applyBlockQuieto` só limpava o mapa por posição quando a célula
+> deixava de ser container (`containerTipoDe(blockId) === null`); de fornalha pra baú o
+> conteúdo SOBREVIVIA. A pergunta passou a ser pelo TIPO, comparando o byte VELHO com o novo —
+> apagada↔acesa segue fora do ramo (mesmo tipo) e container novo nasce sempre limpo.
+>
+> **§🍖 OS DOIS REFINOS DE FORMA, e os dois existem pela mesma razão: bloco encostado em bloco
+> lia como PAREDE.** Dois baús viravam um bloco só de madeira — e "onde acaba um e começa o
+> outro" é a primeira pergunta de quem organiza o depósito da turma; quatro fornalhas viravam
+> uma parede de bocas, sem dizer pra onde nenhuma estava virada.
+>
+> **O BAÚ virou CAIXA** (14/16 de lado e de altura, o número do Minecraft). Saiu do
+> `isFullCube` e ganhou um `case` no `emitShape`; o `emitBox` aprendeu um tile de Y separado (a
+> tampa) — **uma caixa com dois tiles é mais barata, e mais fácil de ler, que duas coladas com
+> z-fight na junta**. A MIRA segue a madeira (`blockSelectionBox`), que é o que diz qual dos
+> dois baús o clique vai abrir; **a COLISÃO continua sendo a célula inteira**, como a do móvel e
+> a da cerca — vão de 1/16 onde o aluno "quase" entra é bug de travamento na aula, não
+> realismo. De brinde, a luz atravessa (como no Minecraft) e a cerca não se conecta a ele.
+>
+> **A FORNALHA ganhou FRENTE**, e a decisão do dia mora nos ids. A boca sai numa face só e a
+> face vem do ID — a convenção da cadeira, da cama, do quadro e da escada. **Os seis ids novos
+> NÃO são contíguos com os dois velhos, de propósito:** 186/187 nasceram sem direção e já estão
+> gravados nos mundos que a 46 salvou, e renumerar trocaria a fornalha de quem já jogou por
+> outro bloco (o mesmo raciocínio que APOSENTOU a receita de vidro em vez de apagá-la). Então
+> eles viraram a direção **−Z** e as outras três entram em **194-199**, com a tradução numa
+> **TABELA** (`FORNALHA_POR_FRENTE`) em vez de aritmética de id. **Mundo antigo abre sem
+> migração nenhuma.** É a tabela que garante o que mais importa: **acender preserva a direção**
+> — antes havia UM id aceso, e escrevê-lo teria virado toda fornalha pro norte no instante em
+> que o fogo pegasse, na frente da turma. Três lados de trás ganharam um tijolo liso novo
+> (`fornalhaCostas`), **um degrau mais escuro que o pedregulho comum**: sem isso a fornalha
+> vista de trás some dentro da parede que o aluno acabou de levantar.
+>
+> **VERDE:** typecheck 3/3 · **704 testes** (+7) · build · **15/15 smokes** ·
+> `npm run shots:f10` **22/22 com 8 prints conferidos** · **A/B honesto em três frentes**:
+> com o baú de volta a cubo cheio dois vizinhos caem de **72 pra 60 índices** (a face do meio
+> some); com a boca de volta ao `side` o teste da frente acha **4 bocas onde tem de achar 1**;
+> com o guarda velho do container o painel volta a dizer **'fornalha' onde tem baú**.
+> **Os 11 commits foram EMPURRADOS** (os 9 da 46 + os 2 desta).
+>
+> ⚠️ **UMA COISA PRO OLHO DO USUÁRIO, achada nos prints e NÃO consertada:** o tile do algodão
+> maduro lê como um **martelo cinza** num cabo verde, e não como um capulho de algodão — o
+> branco saiu acinzentado e a forma, retangular. Está no print `08-canteiro-algodao.png`. É
+> escolha de arte, não bug, e por isso ficou pra ele decidir.
+>
 > **SESSÃO 46 (2026-08-05) — O §🍖 F10 INTEIRO, NUMA SESSÃO.** O usuário respondeu as cinco
 > perguntas que travavam a fila e mandou o escopo grande: *"pode fazer tudo da f10 na ordem que
 > achar melhor"*. Ordem executada, uma frente por commit: **F10a → F10b → F10e → F10f → F10c →
@@ -102,18 +164,21 @@
 
 ## 🚀 Próxima fase
 
-**A fila do §🍖 está VAZIA de pendências decididas.** O que sobra é escolha do usuário:
+**A fila do §🍖 está VAZIA — os refinos que sobravam fecharam na 47.** O que resta é escolha do
+usuário:
 
-1. **PLAYTEST do F10** — é o que manda. A cadeia inteira (árvore → picareta → fornalha →
-   lingote) nunca passou por uma turma, e a mudança de abertura da aula (derrubar árvore antes
-   de qualquer coisa) é a que mais pode surpreender.
+1. **PLAYTEST do F10** — é o que manda, e é a única coisa da lista que nenhuma máquina faz. A
+   cadeia inteira (árvore → picareta → fornalha → lingote) nunca passou por uma turma, e a
+   mudança de abertura da aula (derrubar árvore antes de qualquer coisa) é a que mais pode
+   surpreender. **A pergunta específica: a turma aguenta ter de fazer a picareta antes de
+   cavar?** Depois da 47 há uma segunda: a fornalha virada pro lado certo ajuda ou confunde?
 2. **§🍖 F8 — MOBS**: a única frente do roadmap de sobrevivência ainda fora. 3+ sessões, e tem
    o aviso de GPU do laboratório pendurado nela.
-3. **Prints do F10** — nenhuma tela nova foi fotografada: o painel de transferência (fornalha e
-   baú), os ícones novos na hotbar e o canteiro de algodão. `npm run shots:*` roda nesta
-   máquina desde a 41.
-4. **Refinos que ficaram anotados**: forma de CAIXA pro baú no mesher (hoje é cubo cheio) e
-   direção de frente pra fornalha (hoje a boca aparece nos 4 lados).
+3. **O tile do algodão maduro** (ver o ⚠️ da sessão 47): o capulho lê como martelo cinza.
+   Meia hora de `paintAlgodao` em `client/src/atlasTexture.ts` **se** ele achar que incomoda —
+   o print `08-canteiro-algodao.png` é a evidência.
+4. **Refinos de forma que NÃO foram feitos** (nenhum pedido, ficam anotados): a mesa e a cadeira
+   ainda colidem como célula cheia; a água fluida ainda é cubo cheio (altura por nível).
 
 > **SESSÃO 45 (2026-08-05) — O PLAYTEST COM 17 ALUNOS ACONTECEU, E ELE PEDIU O QUE FALTAVA:
 > COBERTURA TOTAL DE RECEITAS + O §🍖 F7 QUE ELE MESMO TINHA PULADO.** A sessão abriu com uma

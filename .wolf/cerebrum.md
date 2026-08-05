@@ -58,6 +58,14 @@
   `git fetch` ANTES de responder — na 45 ele teve de mandar *"faz o fetch primeiro, tem coisa
   que não tá no repo local"* depois de eu responder pelo STATUS velho. O `.wolf/memory.md`
   sujo com cabeçalho de sessão VAZIO (hook) é descartável: `git checkout --` e `pull --ff-only`.
+  ⚠️ **E o fetch tem de olhar os DOIS lados** (2026-08-05, sessão 47: o local estava 9 commits
+  **À FRENTE** — a sessão 46 inteira nunca tinha sido empurrada). "Onde paramos?" quer saber
+  também o que ainda não saiu daqui; **o `git push` entra na lista de opções da abertura.**
+- **Ele pede o LOTE inteiro numa frase e espera a ordem certa** (2026-08-05: *"roda os prints,
+  faz os refinos e depois o push, quando terminar faz o handoff e preparar para /clear"*). A
+  ordem literal nem sempre é a melhor: prints ANTES e DEPOIS dos refinos custam uma rodada a
+  mais e entregam o A/B visual de graça. Fazer as duas passadas e dizer por quê — ele não
+  reclama de escopo maior quando a razão está escrita.
 - **Playtest com turma REAL vira pedido de escopo, não de ajuste** (2026-08-04, 17 alunos:
   *"conseguiram fazer craft, plantar e comer"*). Ele não pediu número nenhum diferente — pediu
   o que FALTAVA (todas as receitas). Quando o playtest passa, a pergunta certa é "o que a turma
@@ -107,6 +115,23 @@
   porque falta `unzip`; extrair com `python3 -m zipfile -e` **e dar `chmod +x` em todos os
   binários** (o zipfile do python perde o bit de execução); libs de sistema por
   `apt-get download` + `dpkg-deb -x` + `LD_LIBRARY_PATH`.
+- **[2026-08-05, sessão 47] Script de print monta o cenário com coordenadas `~` do professor**,
+  e aí ele nunca precisa saber onde o spawn caiu: `/regiao criar palco ~-5 ~ ~-6 ~5 ~3 ~-1` +
+  `/regiao encher palco 0` limpa um terraço em DUAS mensagens (dezenas de `/bloco` a 500 ms
+  cada não cabem no orçamento). **A prateleira na altura do OLHO é o que faz o bloco aparecer
+  de LADO** — bloco bem à frente mostra só a face de trás, e é justamente de lado que forma e
+  direção existem. Fechar com `/regiao apagar`: a borda vermelha é andaime, não cena. E
+  `limparChat()` antes de todo print de mundo (o `/bloco` deixa uma dúzia de linhas na tela).
+- **[2026-08-05, sessão 47] Print de estado que depende do TEMPO se faz com o relógio do host
+  acelerado, não com byte forjado.** Os 4 estágios do algodão num quadro só saíram de 4
+  plantios em tempos diferentes com `LJ_CRESCIMENTO=30` (3 s por estágio em vez de 20): cada
+  pulso sobe UM estágio, então quem entrou antes está mais maduro. Escrever os bytes 190/191/192
+  à mão daria a mesma foto e não provaria nada.
+- **[2026-08-05, sessão 47] Slot de painel se aciona por `.click()` do DOM, botão de UI de toque
+  por CDP.** Os `button.inv-slot` do `ContainerPanel` escutam `click` de verdade, então
+  `.click()` percorre o MESMO caminho do dedo; já o `tapButton` da barra escuta `pointerdown`
+  e exige `Input.dispatchTouchEvent`. Misturar os dois é o jeito barato de dirigir o cliente
+  inteiro sem pointer lock.
 
 ### Invariantes e contratos
 
@@ -138,6 +163,18 @@
 - **Id de bloco é BYTE DE SAVE:** nunca renumerar/reordenar id antigo — só append no fim do
   `BlockId` + bump do `MAX_BLOCK_ID`. Família nova fica FORA da faixa antiga (`isFullCube` usa
   faixas; ver a pegadinha da porta R em Do-Not-Repeat).
+- **[2026-08-05, sessão 47] Dar DIREÇÃO a um bloco que já existe: a família fica NÃO-CONTÍGUA,
+  e tudo bem.** O idioma da casa é `âncora + k` (cadeira, cama, quadro, escada), mas ele só
+  serve pra família que nasce inteira. A fornalha já tinha 186/187 gravados em mundo salvo:
+  renumerar pra abrir espaço trocaria a fornalha de quem já jogou por outro bloco. **Solução:
+  os ids velhos viram UMA das direções (a −Z) e as outras entram no fim, com uma TABELA
+  (`FORNALHA_POR_FRENTE`) no lugar da aritmética.** Custa 4 funções pequenas
+  (`isFornalha`/`fornalhaFrente`/`fornalhaComFrente`/`fornalhaComEstado`), zera migração, e é o
+  mesmo raciocínio que APOSENTOU a receita de vidro em vez de apagá-la (o índice é o contrato).
+- **[2026-08-05, sessão 47] Bloco com direção E estado: o par se troca pelo id VELHO, nunca por
+  constante.** `alvo = aceso ? BlockId.FornalhaAcesa : BlockId.Fornalha` estava certo enquanto
+  havia uma direção só; com quatro, acender giraria a fornalha pro norte na frente da turma.
+  A regra geral: **toda transição de estado de bloco direcional lê o byte atual primeiro.**
 - `world_snapshot` (LE): magic "LJW0" | dims x/z/y | reservado | u32 seed | chunks na ordem de
   `chunkIndex()`. Decode SEMPRE valida magic/dims/tamanho.
 - `block_changed` é GENÉRICO por contrato: mesma msg pra jogador, outro jogador e regra do
@@ -223,6 +260,27 @@
   independentes e, se cada um se deslocar diferente, a copa abre fresta.
 - `ATLAS.tilesPerRow` é dinâmico (grade cresce sem tocar UV/save). Tile não pintado = bloco
   invisível: o teste "todo colocável tem tile" pega o mesher, não o atlas.
+- **[2026-08-05, sessão 47] O sintoma que pede forma parcial é "dois vizinhos viram UM bloco".**
+  Baú de cubo cheio: dois lado a lado liam como parede de madeira contínua, porque a face do
+  meio é ocluída por `nb === id`. **A régua do teste é essa mesma:** dois blocos encostados
+  somam 72 índices se cada um tem forma própria e 60 se são cubo cheio — o A/B cabe numa linha
+  e denuncia qualquer reversão.
+- **[2026-08-05, sessão 47] Caixa com tampa diferente = UM `emitBox` com tile de Y separado**,
+  não duas caixas coladas. Duas caixas na mesma altura z-fightam na junta e dobram as faces;
+  um parâmetro `tileY` (padrão = o tile dos lados) resolve, e o `col`/`row` só precisa descer
+  pra dentro do laço de faces.
+- **[2026-08-05, sessão 47] Face FRONTAL num cubo: `FaceTiles.frente` + a direção vinda do ID.**
+  A presença do campo é o que liga a pergunta (`tiles.frente === undefined ? null : …`), e ela
+  se faz UMA vez por célula, não por face — o bloco sem frente não paga nada. E
+  **`blockIconTile` tem de preferir a frente ao `side`**: com o tijolo liso no `side`, a
+  fornalha viraria um cinza sem nome justamente no slot da hotbar, que é onde ela precisa ser
+  reconhecível.
+- **[2026-08-05, sessão 47] Sair do `isFullCube` tem QUATRO consequências além do desenho**, e
+  vale conferir as quatro antes: a luz passa a atravessar (`opacidadeLuz`), a cerca deixa de se
+  conectar, o bloco deixa de servir de apoio (`apoioValido`) e o raycast passa a testar a
+  hitbox real (`blockSelectionBox` + `subBoxNormal`) em vez da célula. Pro baú as quatro são o
+  comportamento do Minecraft, então saiu de graça — mas nenhuma delas está no arquivo que se
+  edita.
 
 ### §💡 Luz voxel (2026-07-28)
 
@@ -722,6 +780,17 @@
 
 ### Código e arquitetura
 
+- **[2026-08-05, sessão 47] Meta POR POSIÇÃO tem de ser limpo quando o TIPO muda, não só quando
+  o bloco deixa de ter meta.** O `applyBlockQuieto` apagava o container da célula com
+  `if (containerTipoDe(blockId) === null)` — trocar fornalha por baú passa nesse teste e o
+  conteúdo da fornalha SOBREVIVIA, então o `use_block` seguinte respondia "fornalha, 3 slots,
+  com barra de fogo" em cima de um baú (bug-580). O guarda certo compara o tipo do byte VELHO
+  (lido ANTES do `setBlock`) com o do novo: apagada↔acesa é o mesmo tipo e fica de fora,
+  container novo nasce sempre limpo. **Vale pro quadro e pra qualquer meta futura por posição.**
+- **[2026-08-05, sessão 47] O teste que denuncia isso é `/bloco` do professor**, e não o
+  caminho do aluno: quebrar container com coisa dentro é RECUSADO, então pelo fio normal o meta
+  órfão nunca aparece. **Toda invariante mantida por um gate merece um teste pelo caminho que
+  NÃO passa pelo gate.**
 - **[2026-08-03] Parâmetro de inspeção (`?vida=`, `?hora=`, `?mochila=`) tem de VENCER a rede,
   não só preencher no boot.** O `?mochila=` nasceu só preenchendo, e o `modo criativo` que TODO
   join manda (envio incondicional do F1) apagava tudo antes do print — o parâmetro só teria
@@ -889,6 +958,16 @@
 <!-- Uma linha por decisão. TEXTO COMPLETO (motivo, alternativas, contexto) em
      .wolf/history.md → "## Cerebrum — Decision Log" e "## Cerebrum arquivado (2026-07-28)". -->
 
+- [2026-08-05, sessão 47] **Os ids de direção da fornalha NÃO são contíguos, e é escolha.**
+  186/187 já estão gravados nos mundos da sessão 46; renumerar pra abrir um bloco de 8 trocaria
+  a fornalha de quem já jogou por outro bloco. Eles viraram a direção −Z, as outras três foram
+  pro fim (194-199), e a tradução mora numa TABELA (`FORNALHA_POR_FRENTE`), não em `âncora + k`.
+  **Custo: 4 funções pequenas. Ganho: zero migração.** É o mesmo raciocínio da receita aposentada
+  — id gravado é contrato, e contrato não se reescreve pra ficar bonito.
+- [2026-08-05, sessão 47] **O baú desenha como CAIXA e colide como CÉLULA CHEIA** (a regra do
+  móvel e da cerca, agora escrita). Vão de 1/16 onde o jogador "quase" entra é bug de travamento
+  no meio da aula, não realismo. Quem segue a forma é a MIRA (`blockSelectionBox`) — é lá que a
+  diferença serve pra alguma coisa: dizer qual dos dois baús encostados o clique vai abrir.
 - [2026-08-05, sessão 46] **Receita não se APAGA: ela se APOSENTA.** O índice é a identidade
   no protocolo (`fabricar {receita}`), então tirar uma linha deslocaria todas as seguintes e o
   aluno com o painel aberto clicaria numa receita e receberia outra. `Receita.aposentada` é um

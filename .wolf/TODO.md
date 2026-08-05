@@ -2,12 +2,36 @@
 
 > Working checklist. **STATUS.md** = handoff ("why & where we are"); **TODO.md** = "what's left to do".
 > Keep items actionable and short. Check off with `[x]`; sweep done items into STATUS.md ✅ when a phase closes.
-> Last updated: 2026-08-05 (sessão 46 — **§🍖 F10 INTEIRO**: fundição, fornalha, baú, claim na
-> interação, algodão e ferramentas. Ver 🔥 abaixo e STATUS 🚀)
+> Last updated: 2026-08-05 (sessão 47 — os **PRINTS do F10** (`shots:f10`, novo), os dois
+> **REFINOS de forma** (caixa do baú, frente da fornalha), o **bug-580** e o **push dos 11
+> commits**. Ver 🔥 abaixo e STATUS 🚀)
 
 ---
 
 ## 🔥 Now (this session)
+
+<!-- Sessão 47 (2026-08-05). "roda os prints, faz os refinos e depois o push". Abriu com
+     `git fetch`: o local estava 9 commits À FRENTE (a 46 inteira nunca foi empurrada). -->
+
+- [x] **§🔬 `npm run shots:f10` (`scripts/f10-shot.mjs`, NOVO).** 8 prints do F10 contra o host
+      REAL, com 22 asserções medidas no DOM. O painel abre pelo gesto do aluno (toque no ▣) e
+      os 4 estágios do algodão saem de 4 plantios em tempos diferentes com `LJ_CRESCIMENTO`
+      acelerado — nenhum byte forjado.
+- [x] **bug-580 (achado pelo próprio print):** trocar fornalha por baú na mesma célula abria o
+      painel como fornalha em cima de um baú. `applyBlockQuieto` passou a comparar o TIPO do
+      byte VELHO com o novo.
+- [x] **§🍖 Refino — o BAÚ virou CAIXA de 14/16.** Saiu do `isFullCube`, ganhou `case` no
+      `emitShape` e um tile de Y no `emitBox` (a tampa). Mira segue a forma; colisão continua
+      célula cheia (regra do móvel).
+- [x] **§🍖 Refino — a FORNALHA ganhou FRENTE.** Boca numa face só, direção no id.
+      **186/187 viraram o −Z e as outras três entram em 194-199** (não contíguos de propósito:
+      renumerar quebraria mundo salvo). Tradução por TABELA (`FORNALHA_POR_FRENTE`); acender
+      preserva a direção. Tile novo `fornalhaCostas`.
+- [x] **PUSH:** os 9 commits da sessão 46 + os 2 desta.
+- [ ] **⚠️ PRO OLHO DO USUÁRIO (não consertado, é escolha de arte):** o tile do algodão maduro
+      lê como um **martelo cinza** num cabo verde. Evidência:
+      `.wolf/designqc-captures/f10/08-canteiro-algodao.png`. Fix seria em `paintAlgodao`
+      (`client/src/atlasTexture.ts`): capulho mais BRANCO e mais redondo/irregular.
 
 <!-- Sessão 45 (2026-08-05). O usuário abriu com o PLAYTEST FEITO (17 alunos, 2026-08-04) e
      três pedidos: (1) todas as receitas que faltam, (2) o bug da lista de craft — que ele

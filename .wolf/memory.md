@@ -1355,3 +1355,74 @@ passa pelo próprio portão) · 5 prints da pista. **PLAYTEST PENDENTE.**
 | 14:46 | §🍖 F10d: FERRAMENTAS — 4 picaretas sem durabilidade, gate no break_block (NÃO QUEBRA + aviso com freio), tabela tipo x família x nível; machado e pá ficaram de FORA com razão escrita | ferramentas.ts (novo), blocks.ts, inventario.ts, receitas.ts, session.ts, blockIcons.ts, main.ts + ferramentas.test.ts + 3 smokes ajustados | verde: typecheck 3/3, 697 testes, build, 15/15 smokes; A/B do gate | ~40k |
 | 14:52 | Session end: 119 writes across 32 files (blocks.ts, drops.ts, receitas.ts, blockIcons.ts, main.ts) | 19 reads | ~228930 tok |
 | 18:58 | RESUMO DA SESSÃO 46 — §🍖 F10 INTEIRO em 6 frentes/6 commits (F10a fundição, F10b fornalha, F10e baú, F10f portão de claim, F10c algodão, F10d picaretas). A cadeia ficou honesta ponta a ponta: árvore -> picareta -> pedra -> minério -> fornalha -> lingote. As 5 decisões do usuário aplicadas; 2 estendidas por mim e declaradas (container cheio não quebra vale pra fornalha; machado e pá fora). 3 bugs de autoria de teste (577/578/579), e a lição do estado que COINCIDE. | 8 commits: 903e72d 931d974 32927e1 08ffd52 0e3a94a a953c32 cdf14f9 + anatomy | VERDE: typecheck 3/3, 697 testes (+42), build, 15/15 smokes, A/B honesto em 3 frentes. PLAYTEST PENDENTE — a pergunta é se a turma aguenta fazer a picareta antes de cavar. | ~230k |
+
+## Session: 2026-08-05 19:00
+
+| Time | Action | File(s) | Outcome | ~Tokens |
+|------|--------|---------|---------|--------|
+| 19:16 | Created scripts/f10-shot.mjs | — | ~4779 |
+| 19:16 | Edited scripts/f10-shot.mjs | removed 10 lines | ~8 |
+| 19:16 | Edited scripts/f10-shot.mjs | 3→2 lines | ~11 |
+| 19:16 | Edited package.json | 1→2 lines | ~29 |
+| 19:18 | Edited shared/src/session.ts | expanded (+10 lines) | ~304 |
+| 19:20 | Edited scripts/f10-shot.mjs | 5→6 lines | ~77 |
+| 19:20 | Edited scripts/f10-shot.mjs | added optional chaining | ~96 |
+| 19:20 | Edited scripts/f10-shot.mjs | modified for() | ~367 |
+| 19:20 | Edited scripts/f10-shot.mjs | expanded (+14 lines) | ~138 |
+| 19:24 | Edited shared/src/blocks.ts | 4→7 lines | ~99 |
+| 19:24 | Edited shared/src/blocks.ts | expanded (+6 lines) | ~194 |
+| 19:24 | Edited shared/src/blocks.ts | modified F10() | ~289 |
+| 19:24 | Edited shared/src/blocks.ts | inline fix | ~15 |
+| 19:24 | Edited shared/src/blocks.ts | added nullish coalescing | ~617 |
+| 19:25 | Edited shared/src/blocks.ts | modified F10() | ~143 |
+| 19:25 | Edited shared/src/blocks.ts | 4→6 lines | ~111 |
+| 19:25 | Edited shared/src/blocks.ts | 4→9 lines | ~194 |
+| 19:25 | Edited shared/src/mesher.ts | 7→9 lines | ~132 |
+| 19:26 | Edited shared/src/mesher.ts | modified luzDe() | ~129 |
+| 19:26 | Edited shared/src/mesher.ts | modified F10b() | ~224 |
+| 19:26 | Edited shared/src/mesher.ts | modified F10() | ~46 |
+| 19:26 | Edited shared/src/mesher.ts | 5→10 lines | ~125 |
+| 19:26 | Edited shared/src/mesher.ts | modified for() | ~275 |
+| 19:26 | Edited shared/src/mesher.ts | 6→8 lines | ~34 |
+| 19:27 | Edited shared/src/mesher.ts | added nullish coalescing | ~200 |
+| 19:27 | Edited shared/src/mesher.ts | modified blockIconTile() | ~77 |
+| 19:27 | Edited shared/src/mesher.ts | added nullish coalescing | ~108 |
+| 19:27 | Edited shared/src/mesher.ts | modified F10() | ~125 |
+| 19:27 | Edited shared/src/mesher.ts | modified F10e() | ~166 |
+| 19:27 | Edited shared/src/mesher.ts | added 1 condition(s) | ~80 |
+| 19:27 | Edited shared/src/luz.ts | modified luzEmitida() | ~60 |
+| 19:28 | Edited shared/src/luz.ts | 5→6 lines | ~22 |
+| 19:28 | Edited shared/src/session.ts | 6→11 lines | ~172 |
+| 19:28 | Edited shared/src/session.ts | 4→5 lines | ~21 |
+| 19:28 | Edited client/src/main.ts | added 1 condition(s) | ~171 |
+| 19:28 | Edited client/src/main.ts | added 1 condition(s) | ~75 |
+| 19:28 | Edited client/src/main.ts | 4→6 lines | ~24 |
+| 19:29 | Edited client/src/atlasTexture.ts | modified fornalha() | ~96 |
+| 19:29 | Edited client/src/atlasTexture.ts | modified paintFornalhaCostas() | ~204 |
+| 19:29 | Edited shared/src/algodao.test.ts | 3→6 lines | ~107 |
+| 19:30 | Edited shared/src/blocks.test.ts | modified F10() | ~284 |
+| 19:30 | Edited shared/src/blocks.test.ts | 3→3 lines | ~43 |
+| 19:30 | Edited shared/src/blocks.test.ts | 9→12 lines | ~50 |
+| 19:31 | Edited shared/src/fornalha.session.test.ts | modified for() | ~730 |
+| 19:31 | Edited shared/src/fornalha.session.test.ts | expanded (+8 lines) | ~46 |
+| 19:32 | Edited shared/src/mesher.test.ts | added 3 condition(s) | ~1432 |
+| 19:32 | Edited shared/src/mesher.test.ts | 7→12 lines | ~58 |
+| 19:33 | Edited shared/src/blocks.ts | 2→1 lines | ~22 |
+| 19:33 | Edited shared/src/blocks.ts | 1→2 lines | ~29 |
+| 19:33 | Edited shared/src/mesher.ts | 4→4 lines | ~33 |
+| 19:33 | Edited shared/src/mesher.ts | 4→4 lines | ~42 |
+| 19:33 | Edited shared/src/session.ts | 2→2 lines | ~42 |
+| 19:34 | Edited shared/src/session.ts | inline fix | ~15 |
+| 19:34 | Edited scripts/f10-shot.mjs | expanded (+6 lines) | ~183 |
+| 19:34 | Edited scripts/f10-shot.mjs | 2→6 lines | ~71 |
+| 19:34 | Edited scripts/f10-shot.mjs | ESQUERDA() → diga() | ~256 |
+| 19:41 | Edited shared/src/fornalha.session.test.ts | reduced (-8 lines) | ~26 |
+| 19:41 | Edited shared/src/fornalha.session.test.ts | removed 22 lines | ~26 |
+
+| 19:46 | **SESSÃO 47 — prints do F10, os 2 refinos de forma, bug-580 e o push.** Abertura com `git fetch`: local **9 commits À FRENTE** (a 46 nunca foi empurrada). Pedido: *"roda os prints, faz os refinos e depois o push"*. | — | — | — |
+| 19:46 | §🔬 `scripts/f10-shot.mjs` + `npm run shots:f10` (NOVO): host+chrome próprios, 8 prints, 22 asserções no DOM. Painel abre pelo gesto do aluno (toque no ▣ → use_block); 4 estágios do algodão de 4 plantios com `LJ_CRESCIMENTO=30`; cena montada por `/regiao encher` com coords `~`. | scripts/f10-shot.mjs, package.json | 22/22 verde | ~9k |
+| 19:46 | **bug-580** achado pelo próprio print: fornalha→baú na mesma célula abria painel de FORNALHA em cima de baú. `applyBlockQuieto` passou a comparar o TIPO do byte velho com o novo. | shared/src/session.ts | A/B: guarda velho → 'expected fornalha to be bau' | ~1k |
+| 19:46 | §🍖 Refino 1 — **o baú virou CAIXA de 14/16**: fora do `isFullCube`, `case` no `emitShape`, `emitBox` com tile de Y (a tampa), mira segue a forma, colisão continua célula cheia. | shared/src/blocks.ts, mesher.ts | A/B: cubo cheio → 72→60 índices | ~3k |
+| 19:46 | §🍖 Refino 2 — **a fornalha ganhou FRENTE**: boca numa face só, direção no id. 186/187 viraram o −Z, 194-199 são as outras três (não contíguos: mundo salvo é contrato), tradução por `FORNALHA_POR_FRENTE`, acender preserva a direção, tile novo `fornalhaCostas`. | blocks.ts, mesher.ts, luz.ts, session.ts, main.ts, atlasTexture.ts | A/B: boca no `side` → 4 bocas onde tem de ter 1 | ~5k |
+| 19:46 | VERDE: typecheck 3/3 · **704 testes** (+7) · build · **15/15 smokes** · shots:f10 22/22. | — | tudo verde | ~2k |
+| 19:46 | Handoff: STATUS 🚀, TODO 🔥, cerebrum (2 preferências, 8 aprendizados, 2 do-not-repeat, 2 decisões), buglog bug-580. | .wolf/* | pronto pro /clear | ~4k |
