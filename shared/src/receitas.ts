@@ -4,9 +4,14 @@ import {
   ITEM_BALDE_VAZIO,
   ITEM_CARVAO,
   ITEM_CARVAO_VEGETAL,
+  ITEM_DIAMANTE,
   ITEM_GRAVETO,
   ITEM_LINGOTE_FERRO,
   ITEM_PAO,
+  ITEM_PICARETA_DIAMANTE,
+  ITEM_PICARETA_FERRO,
+  ITEM_PICARETA_MADEIRA,
+  ITEM_PICARETA_PEDRA,
   ITEM_TRIGO,
 } from "./blocks";
 import {
@@ -295,6 +300,13 @@ const FUNDICAO: readonly Receita[] = [
   // ele que resolve a mochila de 27 slots que enche no meio da aula, e uma
   // solução cara pro problema mais comum da turma seria a decisão errada.
   { saida: { id: BlockId.Bau, qtd: 1 }, custo: [{ id: BlockId.Planks, qtd: 8 }] },
+  // §🍖 F10d: as PICARETAS. O formato é o do Minecraft (3 do material + 2
+  // gravetos de cabo), e a ORDEM delas é a progressão da aula: cada uma só é
+  // fabricável depois que a anterior abriu o material que ela cobra.
+  { saida: { id: ITEM_PICARETA_MADEIRA, qtd: 1 }, custo: [{ id: BlockId.Planks, qtd: 3 }, { id: ITEM_GRAVETO, qtd: 2 }] },
+  { saida: { id: ITEM_PICARETA_PEDRA, qtd: 1 }, custo: [{ id: BlockId.Cobblestone, qtd: 3 }, { id: ITEM_GRAVETO, qtd: 2 }] },
+  { saida: { id: ITEM_PICARETA_FERRO, qtd: 1 }, custo: [{ id: ITEM_LINGOTE_FERRO, qtd: 3 }, { id: ITEM_GRAVETO, qtd: 2 }] },
+  { saida: { id: ITEM_PICARETA_DIAMANTE, qtd: 1 }, custo: [{ id: ITEM_DIAMANTE, qtd: 3 }, { id: ITEM_GRAVETO, qtd: 2 }] },
 ];
 
 export const RECEITAS: readonly Receita[] = [

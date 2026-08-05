@@ -10,6 +10,10 @@ import {
   ITEM_GRAVETO,
   ITEM_LINGOTE_FERRO,
   ITEM_LINGOTE_OURO,
+  ITEM_PICARETA_DIAMANTE,
+  ITEM_PICARETA_FERRO,
+  ITEM_PICARETA_MADEIRA,
+  ITEM_PICARETA_PEDRA,
   ITEM_TRIGO,
   blockIconTile,
   isBalde,
@@ -192,6 +196,25 @@ function drawItemF10(ctx: CanvasRenderingContext2D, px: number, id: number): voi
     ctx.fill();
     return;
   }
+  const corPicareta = COR_DA_PICARETA.get(id);
+  if (corPicareta) {
+    // cabo de madeira na diagonal + cabeça em arco. A FORMA é a mesma nas 4;
+    // o que muda é a cor da cabeça, que é a informação que importa.
+    ctx.strokeStyle = "#7a5426";
+    ctx.lineWidth = Math.max(1, px * 0.12);
+    ctx.lineCap = "round";
+    ctx.beginPath();
+    ctx.moveTo(px * 0.3, px * 0.86);
+    ctx.lineTo(px * 0.66, px * 0.34);
+    ctx.stroke();
+    ctx.strokeStyle = corPicareta;
+    ctx.lineWidth = Math.max(1, px * 0.14);
+    ctx.beginPath();
+    ctx.moveTo(px * 0.3, px * 0.32);
+    ctx.quadraticCurveTo(px * 0.62, px * 0.1, px * 0.9, px * 0.34);
+    ctx.stroke();
+    return;
+  }
   if (id === ITEM_ALGODAO) {
     // capulho: três bolotas brancas com sombra e um cabinho seco
     ctx.strokeStyle = "#8a7d52";
@@ -237,6 +260,16 @@ function drawItemF10(ctx: CanvasRenderingContext2D, px: number, id: number): voi
 const ITENS_F10: ReadonlySet<number> = new Set([
   ITEM_CARVAO, ITEM_CARVAO_VEGETAL, ITEM_DIAMANTE, ITEM_GRAVETO,
   ITEM_LINGOTE_FERRO, ITEM_LINGOTE_OURO, ITEM_ALGODAO,
+  ITEM_PICARETA_MADEIRA, ITEM_PICARETA_PEDRA, ITEM_PICARETA_FERRO, ITEM_PICARETA_DIAMANTE,
+]);
+
+/** Cor da CABEÇA de cada picareta — o cabo é sempre madeira, e é a cabeça que
+ *  o aluno compara pra saber qual delas tem na mão. */
+const COR_DA_PICARETA: ReadonlyMap<number, string> = new Map([
+  [ITEM_PICARETA_MADEIRA, "#a8763a"],
+  [ITEM_PICARETA_PEDRA, "#8e8e94"],
+  [ITEM_PICARETA_FERRO, "#d8dae2"],
+  [ITEM_PICARETA_DIAMANTE, "#4fd6e0"],
 ]);
 
 /**

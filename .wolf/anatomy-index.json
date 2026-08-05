@@ -1,12 +1,12 @@
 {
   "version": 1,
   "meta": {
-    "lastScanned": "2026-08-05T17:21:11.953Z",
-    "fileCount": 299,
+    "lastScanned": "2026-08-05T17:33:02.028Z",
+    "fileCount": 301,
     "hits": 0,
     "misses": 0,
-    "renderedHash": "2a14d487492474acab92a470fff91915d890cf2ea03d2a9ab010944b38c649e9",
-    "storeUpdatedAt": "2026-08-05T17:21:11.982Z"
+    "renderedHash": "f29696ed2054761ed702d93d04db64741f3ac440159bd6e7222f40b817550506",
+    "storeUpdatedAt": "2026-08-05T17:33:02.046Z"
   },
   "files": {
     ".claude/commands/reframe.md": {
@@ -8228,11 +8228,11 @@
     },
     "shared/src/session.ts": {
       "description": "GameSession: o SERVIDOR autoritativo, independente de hospedeiro.",
-      "tokens": 57983,
-      "hash": "770e0341bff828a9",
-      "size": 205654,
-      "mtimeMs": 1785948395583.3232,
-      "updatedAt": "2026-08-05T16:46:35.693Z",
+      "tokens": 58183,
+      "hash": "17655bbd91352350",
+      "size": 206372,
+      "mtimeMs": 1785950882447.3237,
+      "updatedAt": "2026-08-05T17:28:02.571Z",
       "source": "hook",
       "symbols": [
         {
@@ -8267,8 +8267,8 @@
           "name": "GameSession",
           "kind": "class",
           "startLine": 283,
-          "endLine": 4645,
-          "tokens": 55895
+          "endLine": 4658,
+          "tokens": 56095
         }
       ]
     },
@@ -9440,6 +9440,119 @@
           "startLine": 31,
           "endLine": 180,
           "tokens": 1770
+        }
+      ]
+    },
+    "shared/src/ferramentas.ts": {
+      "description": "§🍖 F10d (2026-08-05) — FERRAMENTAS. As duas decisões vieram do usuário:",
+      "tokens": 2029,
+      "hash": "ce99608d467d7733",
+      "size": 7264,
+      "mtimeMs": 1785950838627.324,
+      "updatedAt": "2026-08-05T17:27:18.772Z",
+      "source": "hook",
+      "symbols": [
+        {
+          "name": "Ferramenta",
+          "kind": "section",
+          "startLine": 56,
+          "endLine": 71,
+          "tokens": 244
+        },
+        {
+          "name": "isFerramenta",
+          "kind": "fn",
+          "startLine": 72,
+          "endLine": 76,
+          "tokens": 47
+        },
+        {
+          "name": "Exigencia",
+          "kind": "section",
+          "startLine": 77,
+          "endLine": 115,
+          "tokens": 449
+        },
+        {
+          "name": "exigenciaDe",
+          "kind": "fn",
+          "startLine": 116,
+          "endLine": 141,
+          "tokens": 342
+        },
+        {
+          "name": "melhorNivel",
+          "kind": "fn",
+          "startLine": 142,
+          "endLine": 160,
+          "tokens": 194
+        },
+        {
+          "name": "faltaFerramenta",
+          "kind": "fn",
+          "startLine": 161,
+          "endLine": 170,
+          "tokens": 116
+        }
+      ]
+    },
+    "shared/src/ferramentas.test.ts": {
+      "description": "Mochila com uma picareta (ou vazia).",
+      "tokens": 2750,
+      "hash": "236e22814c966d74",
+      "size": 9703,
+      "mtimeMs": 1785951181831.3245,
+      "updatedAt": "2026-08-05T17:33:02.028Z",
+      "source": "hook",
+      "symbols": [
+        {
+          "name": "comPicareta",
+          "kind": "fn",
+          "startLine": 36,
+          "endLine": 151,
+          "tokens": 1516
+        },
+        {
+          "name": "collect",
+          "kind": "fn",
+          "startLine": 152,
+          "endLine": 155,
+          "tokens": 55
+        },
+        {
+          "name": "join",
+          "kind": "fn",
+          "startLine": 156,
+          "endLine": 157,
+          "tokens": 34
+        },
+        {
+          "name": "cmd",
+          "kind": "fn",
+          "startLine": 158,
+          "endLine": 159,
+          "tokens": 20
+        },
+        {
+          "name": "turma",
+          "kind": "fn",
+          "startLine": 160,
+          "endLine": 172,
+          "tokens": 162
+        },
+        {
+          "name": "pedra",
+          "kind": "fn",
+          "startLine": 173,
+          "endLine": 179,
+          "tokens": 62
+        },
+        {
+          "name": "chats",
+          "kind": "fn",
+          "startLine": 180,
+          "endLine": 231,
+          "tokens": 674
         }
       ]
     }

@@ -1,7 +1,7 @@
 # anatomy.md
 
-> Auto-maintained by OpenWolf. Last scanned: 2026-08-05T17:21:11.953Z
-> Files: 299 tracked | Anatomy hits: 0 | Misses: 0
+> Auto-maintained by OpenWolf. Last scanned: 2026-08-05T17:33:02.028Z
+> Files: 301 tracked | Anatomy hits: 0 | Misses: 0
 
 ## ./
 
@@ -985,6 +985,21 @@
 - `drops.ts` — §🍖 F4 — o que CAI ao quebrar um bloco. Tabela pura: entra o byte que estava (~1899 tok)
   - fn `formaCanonica` L48-118 (~935 tok)
   - fn `dropsDe` L119-164 (~548 tok)
+- `ferramentas.test.ts` — Mochila com uma picareta (ou vazia). (~2750 tok)
+  - fn `comPicareta` L36-151 (~1516 tok)
+  - fn `collect` L152-155 (~55 tok)
+  - fn `join` L156-157 (~34 tok)
+  - fn `cmd` L158-159 (~20 tok)
+  - fn `turma` L160-172 (~162 tok)
+  - fn `pedra` L173-179 (~62 tok)
+  - fn `chats` L180-231 (~674 tok)
+- `ferramentas.ts` — §🍖 F10d (2026-08-05) — FERRAMENTAS. As duas decisões vieram do usuário: (~2029 tok)
+  - section `Ferramenta` L56-71 (~244 tok)
+  - fn `isFerramenta` L72-76 (~47 tok)
+  - section `Exigencia` L77-115 (~449 tok)
+  - fn `exigenciaDe` L116-141 (~342 tok)
+  - fn `melhorNivel` L142-160 (~194 tok)
+  - fn `faltaFerramenta` L161-170 (~116 tok)
 - `fornalha.session.test.ts` — §🍖 F10b — a fornalha PELO FIO. O `fornalha.test.ts` prova a simulação pura; (~4054 tok)
   - fn `collect` L26-29 (~55 tok)
   - fn `join` L30-31 (~34 tok)
@@ -1265,12 +1280,12 @@
   - fn `parseObjectiveState` L304-361 (~576 tok)
 - `session.test.ts` — Testes de MECÂNICA rodam com singleplayer: true (join sem PIN) — a (~14784 tok)
   - fn `collect` L12-1091 (~14641 tok)
-- `session.ts` — GameSession: o SERVIDOR autoritativo, independente de hospedeiro. (~57983 tok)
+- `session.ts` — GameSession: o SERVIDOR autoritativo, independente de hospedeiro. (~58183 tok)
   - section `SessionOptions` L194-240 (~644 tok)
   - section `SessionPlayer` L241-251 (~58 tok)
   - section `Identity` L252-270 (~176 tok)
   - fn `parseCoordArg` L271-282 (~106 tok)
-  - class `GameSession` L283-4645 (~55895 tok)
+  - class `GameSession` L283-4658 (~56095 tok)
 - `sobrevivencia.test.ts` — Professor (1) + ana (2). `modo` decide o padrão do mundo. (~6184 tok)
   - fn `collect` L38-41 (~55 tok)
   - fn `join` L42-43 (~34 tok)

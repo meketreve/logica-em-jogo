@@ -342,6 +342,32 @@ export const ITEM_LINGOTE_OURO = 910;
  *  lã branca, e é ele que devolve o trigo ao papel de comida. */
 export const ITEM_ALGODAO = 911;
 
+/**
+ * §🍖 F10d: as PICARETAS. Quatro níveis, e a ordem deles É a progressão da
+ * aula — cada uma só existe depois que a anterior abriu o material dela.
+ * Machado e pá ficaram de fora por decisão escrita em `ferramentas.ts`.
+ */
+export const ITEM_PICARETA_MADEIRA = 912;
+export const ITEM_PICARETA_PEDRA = 913;
+export const ITEM_PICARETA_FERRO = 914;
+export const ITEM_PICARETA_DIAMANTE = 915;
+
+/** Um dos itens de FERRAMENTA (§🍖 F10d)? Mora aqui, junto de `isBalde`, e não
+ *  em `ferramentas.ts`, porque quem pergunta primeiro é o `tamanhoStack` do
+ *  inventário — e `inventario.ts` importando `ferramentas.ts`, que importa
+ *  `inventario.ts` de volta, seria um ciclo por nada. */
+const PICARETAS: ReadonlySet<number> = new Set([
+  ITEM_PICARETA_MADEIRA,
+  ITEM_PICARETA_PEDRA,
+  ITEM_PICARETA_FERRO,
+  ITEM_PICARETA_DIAMANTE,
+]);
+
+/** É ferramenta? (1 por slot, como o balde — ver `tamanhoStack`) */
+export function isFerramenta(id: number): boolean {
+  return PICARETAS.has(id);
+}
+
 /** É brasa (mineral ou vegetal)? As duas acendem tocha e alimentam fornalha —
  *  a pergunta é UMA, senão a receita e o combustível divergiriam. */
 export function isCarvao(id: number): boolean {
@@ -374,6 +400,10 @@ const ITENS: ReadonlySet<number> = new Set([
   ITEM_LINGOTE_FERRO,
   ITEM_LINGOTE_OURO,
   ITEM_ALGODAO,
+  ITEM_PICARETA_MADEIRA,
+  ITEM_PICARETA_PEDRA,
+  ITEM_PICARETA_FERRO,
+  ITEM_PICARETA_DIAMANTE,
 ]);
 
 /** É um item conhecido (não-bloco)? */

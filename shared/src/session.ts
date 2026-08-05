@@ -62,6 +62,7 @@ import {
   moverEntre,
 } from "./containers";
 import { fornalhaAcesa, tickFornalha } from "./fornalha";
+import { faltaFerramenta } from "./ferramentas";
 import { RECEITAS, fabricar, receitaValida } from "./receitas";
 import {
   AGUA_POR_TICK_PADRAO,
@@ -1129,6 +1130,19 @@ export class GameSession {
             return;
           }
         }
+        // §🍖 F10d: sem a ferramenta certa o bloco NÃO QUEBRA (decisão do
+        // usuário; o Minecraft quebra sem drop, mas lá existe tempo de quebra
+        // pra avisar antes — aqui é 1 clique, e "sumiu e não ganhei nada" é
+        // frustração de aula). ANTES do applyBlock, como a recusa por mochila
+        // cheia: recusa não pode deixar rastro no mundo. Criativo e mundo de
+        // aula ficam de fora pelo portão que já existe (`inventarioVale`).
+        if (this.inventarioVale(clientId)) {
+          const falta = faltaFerramenta(this.inventarioDe(p.name), current);
+          if (falta) {
+            this.avisarComFreio(clientId, falta);
+            return;
+          }
+        }
         // §🍖 F10: container com coisa dentro NÃO QUEBRA (decisão do usuário
         // pro baú, estendida à fornalha porque a regra é a mesma e a frase é a
         // mesma). Sem isto, um clique perdia a mochila inteira que o colega
@@ -2186,16 +2200,23 @@ export class GameSession {
   }
 
   /**
-   * Aviso de "mochila cheia" com FREIO: quebrar é gesto de clique repetido, e
-   * sem teto o chat da aula viraria uma parede de texto igual. Um por
-   * `AVISO_MOCHILA_MS` por aluno é o bastante pra ele entender e ir esvaziar.
+   * Aviso da QUEBRA com FREIO. Quebrar é gesto de clique repetido, e sem teto o
+   * chat da aula viraria uma parede de texto igual — um por `AVISO_MOCHILA_MS`
+   * por aluno basta pra ele entender e resolver.
+   *
+   * O freio é UM por jogador, e não um por motivo: quem está com a mochila
+   * cheia E sem picareta não precisa levar dois avisos no mesmo instante.
    */
-  private avisarMochilaCheia(clientId: number): void {
+  private avisarComFreio(clientId: number, texto: string): void {
     const agora = this.now();
     const ultimo = this.avisoMochila.get(clientId) ?? -Infinity;
     if (agora - ultimo < AVISO_MOCHILA_MS) return;
     this.avisoMochila.set(clientId, agora);
-    this.sendServerChat(
+    this.sendServerChat(clientId, texto);
+  }
+
+  private avisarMochilaCheia(clientId: number): void {
+    this.avisarComFreio(
       clientId,
       "Mochila cheia — guarde ou solte alguma coisa antes de continuar cavando.",
     );
@@ -2276,11 +2297,7 @@ export class GameSession {
    * encheria o chat da turma.
    */
   private avisarContainerCheio(clientId: number): void {
-    const agora = this.now();
-    const ultimo = this.avisoMochila.get(clientId) ?? -Infinity;
-    if (agora - ultimo < AVISO_MOCHILA_MS) return;
-    this.avisoMochila.set(clientId, agora);
-    this.sendServerChat(
+    this.avisarComFreio(
       clientId,
       "Tem coisa aí dentro — esvazie antes de quebrar (o que está guardado não cai no chão).",
     );

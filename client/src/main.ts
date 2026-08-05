@@ -24,6 +24,10 @@ import {
   ITEM_LINGOTE_FERRO,
   ITEM_LINGOTE_OURO,
   ITEM_PAO,
+  ITEM_PICARETA_DIAMANTE,
+  ITEM_PICARETA_FERRO,
+  ITEM_PICARETA_MADEIRA,
+  ITEM_PICARETA_PEDRA,
   ITEM_TRIGO,
   acenderColuna,
   atualizarBloco,
@@ -1703,6 +1707,7 @@ function startGame(snap: Snapshot): void {
       ITEM_BALDE_VAZIO, ITEM_FRUTA, ITEM_TRIGO, ITEM_PAO,
       ITEM_CARVAO, ITEM_DIAMANTE, ITEM_GRAVETO,
       ITEM_CARVAO_VEGETAL, ITEM_LINGOTE_FERRO, ITEM_LINGOTE_OURO, ITEM_ALGODAO,
+      ITEM_PICARETA_MADEIRA, ITEM_PICARETA_PEDRA, ITEM_PICARETA_FERRO, ITEM_PICARETA_DIAMANTE,
     ],
   );
   const blockName = (id: number): string => {
@@ -1718,6 +1723,10 @@ function startGame(snap: Snapshot): void {
     if (id === ITEM_LINGOTE_FERRO) return "lingote de ferro";
     if (id === ITEM_LINGOTE_OURO) return "lingote de ouro";
     if (id === ITEM_ALGODAO) return "algodão";
+    if (id === ITEM_PICARETA_MADEIRA) return "picareta de madeira";
+    if (id === ITEM_PICARETA_PEDRA) return "picareta de pedra";
+    if (id === ITEM_PICARETA_FERRO) return "picareta de ferro";
+    if (id === ITEM_PICARETA_DIAMANTE) return "picareta de diamante";
     return PLACEABLE.find((b) => b.id === id)?.name ?? "?";
   };
   const refreshHotbar = (): void => {

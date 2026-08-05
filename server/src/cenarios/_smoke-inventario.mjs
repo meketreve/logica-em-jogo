@@ -23,6 +23,7 @@ const espera = (ms) => new Promise((r) => setTimeout(r, ms));
 const AR = 0;
 const GRAMA = 1;
 const PEDRA = 2;
+const PICARETA_MADEIRA = 912; // §🍖 F10d: pedra e pedregulho exigem picareta
 const PEDREGULHO = 3;
 const AREIA = 4;
 const TERRA = 5;
@@ -93,6 +94,9 @@ ok(blocoEm(ana, alvo) === PEDREGULHO, "o bloco entrou no mundo");
 ok(contar(ana, PEDREGULHO) === 2, `e saiu um da mochila (${contar(ana, PEDREGULHO)})`);
 
 console.log("== quebrar DÁ o que a tabela diz (pedra → pedregulho) ==");
+// §🍖 F10d: sem picareta a pedra nem quebra — e o teste do DROP mediria a recusa
+enviar(prof, `/dar ana ${PICARETA_MADEIRA} 1`);
+await espera(400);
 enviar(prof, `/bloco ${alvo.x} ${alvo.y} ${alvo.z} ${PEDRA}`);
 await espera(300);
 ana.ws.send(JSON.stringify({ type: "break_block", ...alvo }));
@@ -116,14 +120,17 @@ ok(blocoEm(prof, alvoProf) === PEDRA, "o professor colocou sem ter nada na mochi
 ok(prof.invs.length === 0, "e segue sem mensagem de inventário");
 
 console.log("== MOCHILA CHEIA recusa a quebra (não existe item no chão) ==");
-// encher de verdade: os 25 slots vazios de areia MAIS as duas pilhas parciais
-// (pedregulho 3 e terra 1) até o teto — senão o pedregulho da pedra ainda caberia
-enviar(prof, `/dar ana ${AREIA} ${(INV_SLOTS - 2) * STACK_MAX}`);
+// encher de verdade: os slots vazios de areia MAIS as duas pilhas parciais
+// (pedregulho 3 e terra 1) até o teto — senão o pedregulho da pedra ainda
+// caberia. §🍖 F10d: a PICARETA ocupa 1 slot sozinha (1 por pilha), então são
+// 24 slots de areia, não 25.
+enviar(prof, `/dar ana ${AREIA} ${(INV_SLOTS - 3) * STACK_MAX}`);
 enviar(prof, `/dar ana ${PEDREGULHO} ${STACK_MAX - 3}`);
 enviar(prof, `/dar ana ${TERRA} ${STACK_MAX - 1}`);
 await espera(700);
 const cheia = (ultimoInv(ana) ?? []).reduce((n, s) => n + s.qtd, 0);
-ok(cheia === INV_SLOTS * STACK_MAX, `a mochila da ana ficou cheia (${cheia}/${INV_SLOTS * STACK_MAX})`);
+const teto = (INV_SLOTS - 1) * STACK_MAX + 1; // 26 pilhas cheias + a picareta
+ok(cheia === teto, `a mochila da ana ficou cheia (${cheia}/${teto})`);
 enviar(prof, `/bloco ${alvo.x} ${alvo.y} ${alvo.z} ${PEDRA}`);
 await espera(300);
 const antesDoAviso = ana.chats.length;

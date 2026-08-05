@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { BlockId, ITEM_CARVAO, ITEM_LINGOTE_FERRO } from "./blocks";
+import { BlockId, ITEM_CARVAO, ITEM_LINGOTE_FERRO, ITEM_PICARETA_MADEIRA } from "./blocks";
 import {
   FORNALHA_COMBUSTIVEL,
   FORNALHA_ENTRADA,
@@ -174,6 +174,8 @@ describe("§🍖 F10b — a fornalha pelo fio", () => {
     session.handleMessage(1, cmd(`/dar ana ${BlockId.MinerioFerro} 1`));
     session.handleMessage(2, abrir(f.x, f.y, f.z));
     session.handleMessage(2, mover(f.x, f.y, f.z, 0, INV_SLOTS + FORNALHA_ENTRADA));
+    // §🍖 F10d: a fornalha é pedregulho — sem picareta a recusa seria a OUTRA
+    session.handleMessage(1, cmd(`/dar ana ${ITEM_PICARETA_MADEIRA} 1`));
     const antes = sent.length;
     session.handleMessage(2, JSON.stringify({ type: "break_block", ...f }));
     expect(getBlock(session.world, f.x, f.y, f.z)).toBe(BlockId.Fornalha);
@@ -188,6 +190,7 @@ describe("§🍖 F10b — a fornalha pelo fio", () => {
   it("fornalha VAZIA quebra normal, e volta pra mochila como fornalha", () => {
     const { session, sent } = turma();
     const f = poeFornalha(session);
+    session.handleMessage(1, cmd(`/dar ana ${ITEM_PICARETA_MADEIRA} 1`)); // §🍖 F10d
     session.handleMessage(2, abrir(f.x, f.y, f.z));
     session.handleMessage(2, JSON.stringify({ type: "break_block", ...f }));
     expect(getBlock(session.world, f.x, f.y, f.z)).toBe(BlockId.Air);

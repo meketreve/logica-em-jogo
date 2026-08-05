@@ -1,4 +1,4 @@
-import { isBalde } from "./blocks";
+import { isBalde, isFerramenta } from "./blocks";
 
 /**
  * §🍖 F4 — INVENTÁRIO AUTORITATIVO (stacks puros).
@@ -39,13 +39,13 @@ export const INV_SLOTS = HOTBAR_SLOTS + MOCHILA_SLOTS;
 export const STACK_MAX = 64;
 
 /**
- * Teto de pilha DESTE id. Hoje só o balde é diferente (1 por slot, como no
- * Minecraft: ele carrega conteúdo, então duas unidades não são intercambiáveis).
- * É por aqui que ferramenta com durabilidade entra no dia em que existir —
- * sem mexer em `adicionar`/`remover`.
+ * Teto de pilha DESTE id. Duas exceções, e as duas por 1 por slot: o balde
+ * (carrega conteúdo, então duas unidades não são intercambiáveis) e a
+ * ferramenta (§🍖 F10d — o número do Minecraft; e no dia em que durabilidade
+ * existir, é aqui que ela entra, sem mexer em `adicionar`/`remover`).
  */
 export function tamanhoStack(id: number): number {
-  return isBalde(id) ? 1 : STACK_MAX;
+  return isBalde(id) || isFerramenta(id) ? 1 : STACK_MAX;
 }
 
 /** Inventário vazio (27 slots nulos). */

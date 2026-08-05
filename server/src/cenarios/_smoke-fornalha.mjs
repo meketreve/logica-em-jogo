@@ -28,6 +28,7 @@ const FORNALHA_ACESA = 187;
 const BAU = 188;
 const PLANKS = 7;
 const LINGOTE_FERRO = 909;
+const PICARETA_MADEIRA = 912; // §🍖 F10d: a fornalha é pedregulho — exige picareta
 // slots: 0..26 = mochila, 27+i = container (o índice UNIFICADO do protocolo)
 const INV_SLOTS = 27;
 const C_ENTRADA = INV_SLOTS + 0;
@@ -155,6 +156,10 @@ await espera(450);
 ok(noSlot(cont(prof, cel), 0)?.id === COBBLE, "o professor viu o pedregulho entrar");
 
 console.log("== fornalha COM COISA DENTRO não quebra, e o aviso sai no chat ==");
+// §🍖 F10d: sem a picareta a recusa seria a OUTRA (falta ferramenta), e o
+// teste diria que o gate de conteúdo funciona quando não é ele que falou
+enviar(prof, `/dar ana ${PICARETA_MADEIRA} 1`);
+await espera(400);
 const chatsAntes = ana.chats.length;
 ana.ws.send(JSON.stringify({ type: "break_block", ...cel }));
 await espera(450);
@@ -165,8 +170,11 @@ ok(
 );
 
 console.log("== esvaziada, ela quebra e volta pra mochila ==");
-transferir(ana, cel, C_ENTRADA, 1);
+// slot 26 (o último da mochila) porque ele está com certeza VAZIO: mandar pra
+// um slot ocupado TROCA as duas pilhas, e a fornalha continuaria com coisa
+transferir(ana, cel, C_ENTRADA, 26);
 await espera(400);
+ok((cont(ana, cel)?.slots ?? []).length === 0, "a fornalha ficou vazia");
 const antesQuebra = contar(ana, FORNALHA);
 ana.ws.send(JSON.stringify({ type: "break_block", ...cel }));
 await espera(500);

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { BlockId } from "./blocks";
+import { BlockId, ITEM_PICARETA_MADEIRA } from "./blocks";
 import { parseServerMessage } from "./protocol";
 import { type SaveData, decodeSave, encodeSave } from "./save";
 import { GameSession } from "./session";
@@ -411,6 +411,9 @@ describe("§🍖 F3 — fome na sessão", () => {
     // na mochila, e a cobrança de esforço é a mesma pros dois. O professor
     // materializa o alvo por teleoperação (`/bloco` não cansa ninguém).
     const alvo = { x: Math.floor(session.spawn.x), y: Math.floor(session.spawn.y) + 3, z: Math.floor(session.spawn.z) };
+    // §🍖 F10d: pedra exige picareta — sem ela a quebra nem acontece, e o
+    // teste do ESFORÇO passaria a medir a recusa
+    session.handleMessage(1, cmd(`/dar ana ${ITEM_PICARETA_MADEIRA} 1`));
     session.handleMessage(1, cmd(`/bloco ${alvo.x} ${alvo.y} ${alvo.z} ${BlockId.Stone}`));
     expect(getBlock(session.world, alvo.x, alvo.y, alvo.z)).toBe(BlockId.Stone);
     session.handleMessage(2, JSON.stringify({ type: "break_block", ...alvo }));

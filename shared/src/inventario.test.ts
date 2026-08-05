@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { BlockId, ITEM_BALDE_VAZIO, ITEM_FRUTA } from "./blocks";
+import { BlockId, ITEM_BALDE_VAZIO, ITEM_FRUTA, ITEM_PICARETA_MADEIRA } from "./blocks";
 import {
   HOTBAR_SLOTS,
   INV_SLOTS,
@@ -239,6 +239,11 @@ const join = (name: string, pin?: string, codigo?: string) =>
 const cmd = (text: string) => JSON.stringify({ type: "chat", text });
 const colocar = (x: number, y: number, z: number, blockId: number) =>
   JSON.stringify({ type: "place_block", x, y, z, blockId });
+/** §🍖 F10d: a ana ganha a picareta mais barata. Pedra, pedregulho, minério e
+ *  companhia deixaram de sair com a mão — sem isto, todo teste de quebra de
+ *  pedra passaria a medir a RECUSA por falta de ferramenta. */
+const darPicareta = (session: GameSession) =>
+  session.handleMessage(1, cmd(`/dar ana ${ITEM_PICARETA_MADEIRA} 1`));
 const quebrar = (x: number, y: number, z: number) =>
   JSON.stringify({ type: "break_block", x, y, z });
 
@@ -344,6 +349,7 @@ describe("§🍖 F4 — colocar GASTA (e criativo segue infinito)", () => {
   it("quebrar e recolocar a MESMA célula no mesmo tick não duplica bloco", () => {
     const { session, sent } = turma("sobrevivencia");
     const a = alvoLivre(session);
+    darPicareta(session); // §🍖 F10d: pedregulho exige picareta
     setBlock(session.world, a.x, a.y, a.z, BlockId.Cobblestone);
     session.handleMessage(2, quebrar(a.x, a.y, a.z)); // ganha 1 pedregulho
     expect(contar(ultimoInv(sent, 2) ?? inventarioVazio(), BlockId.Cobblestone)).toBe(1);
@@ -357,6 +363,7 @@ describe("§🍖 F4 — quebrar DÁ (pela tabela de drops)", () => {
   it("grama cai como terra, pedra como pedregulho", () => {
     const { session, sent } = turma("sobrevivencia");
     const a = alvoLivre(session);
+    darPicareta(session); // §🍖 F10d: a grama sai com a mão, a PEDRA não
     setBlock(session.world, a.x, a.y, a.z, BlockId.Grass);
     session.handleMessage(2, quebrar(a.x, a.y, a.z));
     expect(contar(ultimoInv(sent, 2) ?? inventarioVazio(), BlockId.Dirt)).toBe(1);
@@ -390,8 +397,9 @@ describe("§🍖 F4 — quebrar DÁ (pela tabela de drops)", () => {
   it("MOCHILA CHEIA recusa a quebra — o bloco fica no mundo e o aviso vai uma vez", () => {
     const { session, sent } = turma("sobrevivencia");
     const a = alvoLivre(session);
-    // enche os 27 slots com coisa que não é pedregulho
-    session.handleMessage(1, cmd(`/dar ana ${BlockId.Sand} ${INV_SLOTS * STACK_MAX}`));
+    // a picareta ocupa 1 slot (§🍖 F10d), então o resto enche os outros 26
+    darPicareta(session);
+    session.handleMessage(1, cmd(`/dar ana ${BlockId.Sand} ${(INV_SLOTS - 1) * STACK_MAX}`));
     setBlock(session.world, a.x, a.y, a.z, BlockId.Stone);
     session.handleMessage(2, quebrar(a.x, a.y, a.z));
     expect(getBlock(session.world, a.x, a.y, a.z)).toBe(BlockId.Stone); // NÃO quebrou
@@ -404,12 +412,13 @@ describe("§🍖 F4 — quebrar DÁ (pela tabela de drops)", () => {
   it("mochila cheia de PEDREGULHO com uma pilha parcial ainda aceita", () => {
     const { session, sent } = turma("sobrevivencia");
     const a = alvoLivre(session);
-    session.handleMessage(1, cmd(`/dar ana ${BlockId.Cobblestone} ${INV_SLOTS * STACK_MAX - 1}`));
+    darPicareta(session); // §🍖 F10d: 1 slot pra ela, 26 pro pedregulho
+    session.handleMessage(1, cmd(`/dar ana ${BlockId.Cobblestone} ${(INV_SLOTS - 1) * STACK_MAX - 1}`));
     setBlock(session.world, a.x, a.y, a.z, BlockId.Stone);
     session.handleMessage(2, quebrar(a.x, a.y, a.z));
     expect(getBlock(session.world, a.x, a.y, a.z)).toBe(BlockId.Air);
     expect(contar(ultimoInv(sent, 2) ?? inventarioVazio(), BlockId.Cobblestone)).toBe(
-      INV_SLOTS * STACK_MAX,
+      (INV_SLOTS - 1) * STACK_MAX,
     );
   });
 });

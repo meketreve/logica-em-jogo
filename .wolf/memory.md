@@ -1349,3 +1349,7 @@ passa pelo próprio portão) · 5 prints da pista. **PLAYTEST PENDENTE.**
 | 14:17 | Edited client/src/atlasTexture.ts | modified o() | ~99 |
 | 14:21 | Created shared/src/algodao.test.ts | — | ~2035 |
 | 14:25 | §🍖 F10c: ALGODÃO — plantação virou TABELA (base + estágios), pé selvagem no cerrado, drop com quantidade sorteada, lã branca <- 3 algodão (trigo volta a ser só comida) | blocks.ts, drops.ts, receitas.ts, mesher.ts, biomas.ts, worldgen.ts, atlasTexture.ts, blocksUi.ts, blockIcons.ts, main.ts + algodao.test.ts | verde: typecheck 3/3, 682 testes, build, 15/15 smokes; A/B do worldgen (sem ele, 0 pés) | ~45k |
+| 14:27 | Created shared/src/ferramentas.ts | — | ~2029 |
+| 14:28 | Edited shared/src/session.ts | added 2 condition(s) | ~223 |
+| 14:33 | Created shared/src/ferramentas.test.ts | — | ~2750 |
+| 14:46 | §🍖 F10d: FERRAMENTAS — 4 picaretas sem durabilidade, gate no break_block (NÃO QUEBRA + aviso com freio), tabela tipo x família x nível; machado e pá ficaram de FORA com razão escrita | ferramentas.ts (novo), blocks.ts, inventario.ts, receitas.ts, session.ts, blockIcons.ts, main.ts + ferramentas.test.ts + 3 smokes ajustados | verde: typecheck 3/3, 697 testes, build, 15/15 smokes; A/B do gate | ~40k |
