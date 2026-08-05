@@ -1072,18 +1072,28 @@ Documento é o ÚLTIMO entregável, não o primeiro. Construir, não documentar.
 ## 🚀 Próxima fase — PLAYTEST das receitas e do pvp (e depois, só o F8 sobra)
 
 A sessão 45 fechou o **§🍖 F7** e a **cobertura total de receitas** — F1..F7 + F9 estão feitos.
-No fim dela o usuário **escolheu a próxima frente e mandou ANOTAR**: o **§🍖 F10 — fundição,
-ferramentas e algodão** (fornalha com tempo de queima, item carvão e carvão vegetal, lingotes,
-ferramentas, e o **algodão substituindo a ponte "lã ← trigo"** que a 45 inventou). Escopo item
-a item, com as duas perguntas que travam o desenho das ferramentas, em `.wolf/TODO.md §🍖 F10`.
+No fim dela o usuário **escolheu a próxima frente e mandou ANOTAR** (nada começado): o **§🍖 F10
+— fundição, ferramentas, algodão e baú**. Escopo item a item em `.wolf/TODO.md §🍖 F10`, e as
+decisões dele estão no `cerebrum.md → Decision Log`.
+
+**As decisões já TOMADAS (não perguntar de novo):**
+1. **Ferramenta SEM durabilidade e OBRIGATÓRIA pra minerar.** Sem pedra até a picareta de
+   madeira — é isso que dá sentido à cadeia inteira.
+2. **Claim protege QUALQUER interação de não autorizado** (porta e inventário). Metade já é
+   verdade hoje; o que a decisão fixa é que fornalha e baú nasçam dentro da regra.
+3. **Baú com receita e painel de transferência** (mochila de um lado, baú do outro), com o
+   gesto tocar-origem-tocar-destino do F4.
+4. **Algodão substitui a ponte "lã ← trigo"** da sessão 45, e o trigo volta a ser só comida.
 
 | frente | custo | estado |
 |---|---|---|
 | **PLAYTEST das 110 receitas + do pvp** | do usuário, na escola | **É o mais valioso agora.** Ver o bloco de perguntas no `.wolf/TODO.md §🏫` |
 | **§🍖 F10a** item carvão + drops de minério | ~0,5 sessão | Anotado. **Não depende da fornalha** — é o começo barato |
 | **§🍖 F10b** FORNALHA | ~1,5–2 sessões | Anotado. **Primeiro bloco com INVENTÁRIO** (molde: `quadros.ts`) |
+| **§🍖 F10e** BAÚ + painel de transferência | ~1 sessão | Anotado. **Depois da fornalha**: reusa o mesmo encanamento |
+| **§🍖 F10f** claim protege interação | barato | Anotado. Metade pronta; falta o gate nos containers + o teste-portão |
 | **§🍖 F10c** algodão | ~1 sessão | Anotado. Molde exato da plantação do F6 + selvagem no gen |
-| **§🍖 F10d** ferramentas | ~1–1,5 sessão | Anotado. **Bloqueado por 2 decisões do usuário** (durabilidade? obrigatória?) |
+| **§🍖 F10d** ferramentas | ~1–1,5 sessão | Anotado, **decisões tomadas**. Resta 1 detalhe: sem picareta o bloco não quebra, ou quebra sem cair nada? |
 | **§🍖 F8 mobs** | 3+ sessões | Fora do lite, com o aviso de GPU do lab |
 | **§🍖 F1..F7, F9** | — | ✅ FEITOS (sessões 34, 35, 36, 39, 40, 43 e 45) |
 

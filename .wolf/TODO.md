@@ -69,11 +69,15 @@
 ## 🔜 §🍖 F10 — FUNDIÇÃO, FERRAMENTAS E ALGODÃO (pedido do usuário, 2026-08-05)
 
 <!-- ANOTADO, não implementado (é o padrão dele: "joga tudo isso no todo.md").
-     Pedido literal: bloco de ALGODÃO no lugar da lã-de-trigo (planta selvagem dropa
+     1º pedido: bloco de ALGODÃO no lugar da lã-de-trigo (planta selvagem dropa
      semente por sorte, cultivada dropa 1–2 por colheita), FORNALHA, FERRAMENTAS,
      LINGOTES, item CARVÃO (do minério) e CARVÃO VEGETAL (de cozinhar tronco), com
-     TEMPO DE QUEIMA por combustível. A ordem abaixo é por custo; F10a não depende de
-     nada e já paga sozinho. -->
+     TEMPO DE QUEIMA por combustível.
+     2º pedido (mesma sessão, respondendo às perguntas): ferramentas SEM durabilidade
+     e OBRIGATÓRIAS pra minerar · claim protege QUALQUER interação de não autorizado
+     (porta e inventário) · BAÚ com receita e painel de transferência (mochila de um
+     lado, baú do outro). Viraram F10d (decidido), F10e e F10f.
+     A ordem no fim da seção é por custo e por dependência. -->
 
 **A ideia que amarra tudo:** o lite não tem mob, e foi por isso que a sessão 45 inventou
 "lã ← trigo". **Algodão é a ponte HONESTA** — vira planta de verdade, com a mesma cadeia que o
@@ -137,29 +141,82 @@ fornalha é o que transforma "minério é bloco decorativo" em cadeia de produç
       O trigo volta a ser SÓ comida — some a competição pão × lã que a 45 criou, e a cadeia da
       cor fica: algodão → lã branca → tingir com flor. As 11 lãs coloridas não mudam.
 
-### F10d — FERRAMENTAS (~1–1,5 sessão, e **duas decisões do usuário travam o desenho**)
+### F10d — FERRAMENTAS (~1–1,5 sessão) — **as duas decisões estão TOMADAS (2026-08-05)**
 
-- [ ] ❓ **DURABILIDADE: tem ou não?** `Stack` é `{id, qtd}` hoje; durabilidade exige um campo
-      novo que TODO código de pilha (empilhar, mover, salvar, comparar) passa a conhecer.
-      **Recomendação: v1 SEM durabilidade** (ferramenta não quebra) — numa aula de 50 min
-      ninguém gasta uma picareta, e o custo do campo é permanente. `tamanhoStack(id) = 1` já
-      existe (é o do balde) e serve pra ferramenta no dia 1.
-- [ ] ❓ **A ferramenta é OBRIGATÓRIA pra minerar?** Hoje quebrar é 1 clique, instantâneo, e
-      sempre dropa — então "ferramenta acelera" não muda nada (não existe tempo de quebra). As
-      opções reais: **(i)** requisito por família (pedra e minério exigem picareta; sem ela não
-      cai nada, ou nem quebra) — é o que dá SENTIDO à cadeia e o que o Minecraft faz;
-      **(ii)** só drop melhor. ⚠️ (i) muda a progressão da aula inteira: quem entra em
-      sobrevivência não pega pedra até fabricar a picareta de madeira.
-- [ ] **Se for (i):** picareta/machado/pá × madeira/pedra/ferro (ouro e diamante entram se
-      houver razão), receitas no molde do Minecraft, e o gate mora no `break_block` da session
-      **ANTES do `applyBlock`** — igual à recusa por mochila cheia (recusa não pode deixar
-      rastro no mundo). Criativo e mundo de aula ficam de fora pelo portão que já existe
-      (`inventarioVale`).
+> **O usuário decidiu: SEM durabilidade, e OBRIGATÓRIA pra minerar.**
+
+- [ ] **SEM durabilidade na v1** — ferramenta não quebra. `Stack` continua `{id, qtd}` e
+      **nenhum campo novo entra no save**; `tamanhoStack(id) = 1` (o mesmo do balde) basta.
+      Se um dia a durabilidade entrar, ela contamina todo código de pilha (empilhar, mover,
+      salvar, comparar) — é justamente por isso que ficou fora enquanto ninguém pediu.
+- [ ] **OBRIGATÓRIA pra minerar — e isso muda a progressão da aula, de propósito.** Quem entra
+      em sobrevivência **não pega pedra até fabricar a picareta de madeira**, e é isso que dá
+      sentido à cadeia inteira (madeira → picareta → pedra → picareta de pedra → minério →
+      fornalha → lingote). ⚠️ Consequência a explicar pro professor no dia do playtest: a
+      primeira coisa que a turma faz numa aula de sobrevivência passa a ser derrubar árvore.
+- [ ] **Onde mora o gate: no `break_block`, ANTES do `applyBlock`** — mesma disciplina da
+      recusa por mochila cheia (recusa não pode deixar rastro no mundo), com o mesmo **freio de
+      5 s** no aviso ao chat, porque quebrar é clique repetido. Criativo e mundo de aula ficam
+      de fora pelo portão que já existe (`inventarioVale`).
+- [ ] ❓ **Sem a ferramenta certa: o bloco NÃO QUEBRA, ou quebra e não cai nada?** O Minecraft
+      faz o segundo, mas lá existe tempo de quebra pra avisar antes; aqui é 1 clique
+      instantâneo, e "sumiu e não ganhei nada" é frustração de aula. **Recomendação: NÃO
+      QUEBRA, com aviso** ("precisa de uma picareta") — reversível numa linha.
+- [ ] **`shared/src/ferramentas.ts` (puro):** tipo de ferramenta × família de bloco (picareta =
+      pedra/minério/tijolo/laje-escada de pedra · machado = madeira · pá = terra/areia/cascalho/
+      neve) e o NÍVEL (madeira < pedra < ferro < diamante) pra minério exigir picareta melhor.
+      Tabela pura, testável, no molde de `drops.ts`.
+- [ ] **Receitas** no molde do Minecraft (a convenção que a turma já tem), com um detalhe: não
+      há GRAVETO no jogo — ou ele entra como item novo, ou a receita usa tábua direto.
+      ❓ Decidir na hora de implementar (graveto é mais fiel; tábua direto é uma cadeia a menos).
 - [ ] **Enxada só faz sentido se houver terra ARADA** — hoje se planta direto na terra/grama
       (decisão do F6). Ou a enxada fica fora, ou o farmland nasce junto.
 
-**Ordem sugerida:** F10a (barato e independente) → F10b (a cara, destrava lingote e carvão
-vegetal) → F10c (algodão) → F10d (ferramentas, depois das duas respostas). **Nada começado.**
+### F10e — BAÚ e o painel de transferência (~1 sessão, **pedido do usuário 2026-08-05**)
+
+- [ ] **Baú = bloco com inventário próprio, mesmo desenho da fornalha (F10b).** Se as duas
+      frentes andarem juntas, o mapa "posição → inventário" no meta do save nasce UMA vez e
+      serve pras duas — fazer o baú DEPOIS da fornalha é o barato; fazer antes obrigaria a
+      escrever o mesmo encanamento duas vezes.
+- [ ] **Painel de transferência: mochila de um lado, baú do outro** (pedido literal), com o
+      **gesto de tocar-na-origem-tocar-no-destino** que o F4 já usa na mochila — arrastar dói
+      no tablet, e essa decisão já foi tomada duas vezes (mochila e craft).
+- [ ] **Receita:** 8 tábuas (o número do Minecraft). Tamanho: **27 slots** (uma mochila
+      inteira) é o mais simples de desenhar com a grade de 9 que já existe.
+- [ ] **O servidor é dono do conteúdo**, como em tudo desde o F4: o cliente manda "mover do
+      slot X da mochila pro slot Y do baú" e recebe os dois inventários de volta. Nada de o
+      cliente escrever baú.
+- [ ] ⚠️ **Dois alunos no mesmo baú ao mesmo tempo** é o caso que não existe na mochila: ou o
+      servidor manda o conteúdo novo pra todo mundo que está com ele ABERTO (como o
+      `quadro_changed` faz), ou some item na cara do colega.
+- [ ] **Quebrar baú cheio:** ou devolve tudo pra mochila (e recusa se não couber, no molde do
+      "mochila cheia recusa a quebra" do F4), ou é proibido quebrar com conteúdo. ❓ Decidir.
+
+### F10f — CLAIM protege INTERAÇÃO, não só edição (barato, e metade já está pronto)
+
+> **Pedido do usuário (2026-08-05):** *"área com claim não permite qualquer interação de não
+> autorizados, seja abrir porta ou inventário"*.
+
+- [ ] ✅ **A porta JÁ está protegida hoje** — conferido no código: `use_block` (porta e janela)
+      passa por `claimBloqueia`, e o mesmo vale pro `quadro_set`, pro balde e pro
+      colocar/quebrar. Autorizado = **dono, amigos do grupo dele e o professor** (que ignora
+      todo claim). Ou seja: o pedido já é o comportamento atual pra tudo que EXISTE.
+- [ ] **O que falta é garantir que os containers NOVOS nasçam dentro dessa regra:** abrir
+      fornalha (F10b) e abrir baú (F10e) são **acesso a INVENTÁRIO**, e têm de passar por
+      `claimBloqueia` **antes de responder o conteúdo** — senão dá pra LER o baú alheio, que é
+      pior que mexer nele.
+- [ ] **Portão de teste (o que impede a regra de furar de novo):** um teste que varre TODA
+      mensagem de cliente que aponta pra uma célula e exige que ela passe pelo gate de claim/
+      confinamento. Hoje seriam `place_block`, `break_block`, `use_block`, `balde`,
+      `quadro_set` — e amanhã as duas de container, sem ninguém precisar lembrar.
+- [ ] ❓ **Confinamento (mundo de aula) segue a mesma regra?** Ele é o INVERSO do claim (prende
+      o aluno na área do grupo dele). Hoje ele barra edição; provavelmente deve barrar
+      interação também, mas isso é decisão de aula — perguntar antes de mexer.
+
+**Ordem sugerida:** F10a (barato e independente) → F10b (a cara: fornalha, e é ela que cria o
+encanamento de bloco-com-inventário) → **F10e (baú, que reusa esse encanamento)** → F10f (o
+gate de claim nos containers, junto de cada um) → F10c (algodão) → F10d (ferramentas).
+**Nada começado.**
 
 ## ⏭️ Next
 

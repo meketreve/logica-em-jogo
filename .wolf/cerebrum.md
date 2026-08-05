@@ -851,6 +851,26 @@
 <!-- Uma linha por decisão. TEXTO COMPLETO (motivo, alternativas, contexto) em
      .wolf/history.md → "## Cerebrum — Decision Log" e "## Cerebrum arquivado (2026-07-28)". -->
 
+- [2026-08-05] **§🍖 F10d — ferramenta SEM durabilidade e OBRIGATÓRIA pra minerar** (decisão do
+  usuário, respondendo às duas perguntas). Sem durabilidade = `Stack` continua `{id, qtd}` e
+  nenhum campo novo entra no save (`tamanhoStack = 1`, o mesmo do balde, basta). Obrigatória =
+  **quem entra em sobrevivência não pega pedra até fabricar a picareta de madeira**, e é isso
+  que dá sentido à cadeia madeira → picareta → pedra → minério → fornalha → lingote. O gate
+  mora no `break_block` ANTES do `applyBlock` (recusa não deixa rastro no mundo).
+- [2026-08-05] **Claim protege INTERAÇÃO, não só edição** (pedido do usuário: *"área com claim
+  não permite qualquer interação de não autorizados, seja abrir porta ou inventário"*). Metade
+  já era verdade — `use_block` (porta/janela), `quadro_set` e o balde já passam por
+  `claimBloqueia`. O que a decisão fixa é o FUTURO: **abrir fornalha ou baú é acesso a
+  inventário e passa pelo mesmo gate ANTES de responder o conteúdo** — senão dá pra LER o baú
+  alheio, que é pior que mexer nele. Autorizado = dono + amigos do grupo dele + professor.
+- [2026-08-05] **Bloco com INVENTÁRIO (fornalha, baú) segue o molde do QUADRO**: estado por
+  POSIÇÃO num mapa da GameSession, persistido no META do save, sem byte novo no chunk. Fazer o
+  BAÚ depois da fornalha é o barato — o encanamento nasce uma vez e serve pros dois.
+- [2026-08-05] **§🍖 F10 — algodão substitui a ponte "lã ← trigo"** (que a 45 inventou por não
+  haver mob). Vira planta de verdade: selvagem no gen dropa semente por sorte, cultivada dropa
+  1–2 + a semente, `3 algodão → 1 lã branca`. O trigo volta a ser SÓ comida, e some a
+  competição pão × lã.
+
 - [2026-08-04] **§🏁 A corrida (`aula7-corrida.ljw`) é a 1ª aula que NÃO é de construir** —
   4 objetivos `chegar` em modo sequencial, mundo plano próprio, sem cabines. Os 3 primeiros
   postos são `um` (basta um da equipe) e a **CHEGADA é `todos`**: quem corre na frente volta a

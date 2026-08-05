@@ -1,12 +1,12 @@
 {
   "version": 1,
   "meta": {
-    "lastScanned": "2026-08-05T16:08:23.041Z",
+    "lastScanned": "2026-08-05T16:14:09.271Z",
     "fileCount": 289,
     "hits": 0,
     "misses": 0,
-    "renderedHash": "901ddccc4d4981471d9078a91ff3c902b946279ce87c2549e24d64766bacbc30",
-    "storeUpdatedAt": "2026-08-05T16:08:23.073Z"
+    "renderedHash": "0c14f8b6a7d370070948707c9e25939d7c4d210b52c35739cd90fb84ca8e38c1",
+    "storeUpdatedAt": "2026-08-05T16:14:09.295Z"
   },
   "files": {
     ".claude/commands/reframe.md": {
@@ -8906,11 +8906,11 @@
     },
     "todo.md": {
       "description": "Ideias para fazer",
-      "tokens": 7243,
-      "hash": "a847c778bfa66b38",
-      "size": 29934,
-      "mtimeMs": 1785946102927.324,
-      "updatedAt": "2026-08-05T16:08:23.040Z",
+      "tokens": 7381,
+      "hash": "fd3e8fd27184e3ef",
+      "size": 30514,
+      "mtimeMs": 1785946449099.3235,
+      "updatedAt": "2026-08-05T16:14:09.271Z",
       "source": "hook"
     },
     "tsconfig.base.json": {
