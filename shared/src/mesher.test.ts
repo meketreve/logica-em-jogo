@@ -6,9 +6,14 @@ import {
   FACE_BASES,
   ONDA_AGUA_POR_SETOR,
   TILE,
+  blockIconTile,
+  blockSelectionBox,
   createWorld,
   extrairVizinhanca,
+  fornalhaComEstado,
+  fornalhaComFrente,
   getBlock,
+  isFullCube,
   isPlaceable,
   meshChunk,
   meshVizinhanca,
@@ -444,5 +449,117 @@ describe("vizinhança padded (o que atravessa pro Web Worker)", () => {
     expect(extrairVizinhanca(w, 0, 0, 0)).toBeNull();
     const esparso = createWorld({ x: 1, z: 1, y: 1 }, false);
     expect(extrairVizinhanca(esparso, 0, 0, 0)).toBeNull();
+  });
+});
+
+/**
+ * §🍖 F10 — os dois refinos de forma de 2026-08-05. Os dois existem porque
+ * blocos encostados liam como uma parede: dois baús viravam um bloco só de
+ * madeira, e quatro fornalhas, uma parede de bocas. Os testes daqui olham
+ * exatamente isso — o VÃO entre as caixas e QUAL face recebeu a boca.
+ */
+describe("§🍖 F10 (refino): a caixa do baú e a frente da fornalha", () => {
+  const P = 1 / 16;
+
+  /** Extremos de cada eixo da geometria, em frações da CÉLULA (8,8,8). */
+  function extremos(g: { positions: Float32Array }) {
+    const min = [Infinity, Infinity, Infinity];
+    const max = [-Infinity, -Infinity, -Infinity];
+    for (let i = 0; i < g.positions.length; i += 3) {
+      for (let e = 0; e < 3; e++) {
+        const v = g.positions[i + e]! - 8;
+        if (v < min[e]!) min[e] = v;
+        if (v > max[e]!) max[e] = v;
+      }
+    }
+    return { min, max };
+  }
+
+  /** As NORMAIS das faces que usam este tile. Cada face são 4 vértices
+   *  consecutivos, então basta ler o 1º de cada grupo. */
+  function normaisComTile(
+    g: { uvs: Float32Array; normals: Float32Array },
+    tile: number,
+  ): number[][] {
+    const n = ATLAS.tilesPerRow;
+    const achadas: number[][] = [];
+    for (let v = 0; v + 3 < g.uvs.length / 2; v += 4) {
+      const col = Math.floor(g.uvs[v * 2]! * n);
+      const row = n - 1 - Math.floor(g.uvs[v * 2 + 1]! * n);
+      if (row * n + col !== tile) continue;
+      achadas.push([g.normals[v * 3]!, g.normals[v * 3 + 1]!, g.normals[v * 3 + 2]!]);
+    }
+    return achadas;
+  }
+
+  it("o baú é uma CAIXA de 14/16 apoiada no chão, e não a célula inteira", () => {
+    expect(isFullCube(BlockId.Bau)).toBe(false);
+    const w = createWorld(DIMS);
+    setBlock(w, 8, 8, 8, BlockId.Bau);
+    const g = meshChunk(w, 0, 0, 0);
+    expect(g.indices.length).toBe(36); // caixa FECHADA: as 6 faces continuam lá
+    const { min, max } = extremos(g);
+    expect(min[0]).toBeCloseTo(P); // recuado 1/16 nos quatro lados
+    expect(max[0]).toBeCloseTo(15 * P);
+    expect(min[2]).toBeCloseTo(P);
+    expect(max[2]).toBeCloseTo(15 * P);
+    expect(min[1]).toBeCloseTo(0); // apoiado no chão da célula
+    expect(max[1]).toBeCloseTo(14 * P); // e mais baixo que ela
+    // a MIRA segue a madeira: é o contorno que diz qual dos dois baús abre
+    expect(blockSelectionBox(BlockId.Bau)).toEqual([P, 0, P, 15 * P, 14 * P, 15 * P]);
+    // a tampa usa o tile de cima, os lados o da fechadura
+    expect(normaisComTile(g, TILE.bauTopo).length).toBe(2); // topo e fundo
+    expect(normaisComTile(g, TILE.bauLado).length).toBe(4);
+  });
+
+  it("dois baús encostados NÃO fundem — é o vão de 2/16 que os separa", () => {
+    // este é o A/B do refino: com o baú de volta a cubo cheio, a face entre os
+    // dois some (`nb === id` culla) e o teste cai de 72 pra 60 índices.
+    const w = createWorld(DIMS);
+    setBlock(w, 8, 8, 8, BlockId.Bau);
+    setBlock(w, 9, 8, 8, BlockId.Bau);
+    const g = meshChunk(w, 0, 0, 0);
+    expect(g.indices.length).toBe(72);
+  });
+
+  it("a boca da fornalha sai numa face SÓ, e é o id que diz em qual", () => {
+    const DIR = [
+      [1, 0, 0],
+      [0, 0, 1],
+      [-1, 0, 0],
+      [0, 0, -1],
+    ];
+    for (let k = 0; k < 4; k++) {
+      const w = createWorld(DIMS);
+      setBlock(w, 8, 8, 8, fornalhaComFrente(k));
+      const g = meshChunk(w, 0, 0, 0);
+      const bocas = normaisComTile(g, TILE.fornalhaLado);
+      expect(bocas.length).toBe(1);
+      expect(bocas[0]).toEqual(DIR[k]);
+      // as outras três laterais são o tijolo liso; cima e baixo, a chapa
+      expect(normaisComTile(g, TILE.fornalhaCostas).length).toBe(3);
+      expect(normaisComTile(g, TILE.fornalhaTopo).length).toBe(2);
+    }
+  });
+
+  it("a fornalha ACESA troca só o tile da boca — a frente é a mesma", () => {
+    for (let k = 0; k < 4; k++) {
+      const w = createWorld(DIMS);
+      const acesa = fornalhaComEstado(fornalhaComFrente(k), true);
+      setBlock(w, 8, 8, 8, acesa);
+      const g = meshChunk(w, 0, 0, 0);
+      expect(normaisComTile(g, TILE.fornalhaLadoAcesa).length).toBe(1);
+      expect(normaisComTile(g, TILE.fornalhaLado).length).toBe(0);
+      expect(normaisComTile(g, TILE.fornalhaCostas).length).toBe(3);
+    }
+  });
+
+  it("o ÍCONE da hotbar é a face da boca, não o tijolo das costas", () => {
+    // `blockIconTile` lê `side` por padrão, e o refino pôs o tijolo liso lá:
+    // sem a preferência pela frente, a fornalha viraria um cinza sem nome no
+    // slot — que é justamente onde ela precisa ser reconhecível.
+    expect(blockIconTile(BlockId.Fornalha)).toBe(TILE.fornalhaLado);
+    expect(blockIconTile(BlockId.FornalhaXP)).toBe(TILE.fornalhaLado);
+    expect(blockIconTile(BlockId.Bau)).toBe(TILE.bauLado);
   });
 });

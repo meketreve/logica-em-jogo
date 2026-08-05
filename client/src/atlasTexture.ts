@@ -492,6 +492,19 @@ function paintFornalhaLado(
   ctx.fillRect(bx + bw - 4, by + bh - 6, 2, 4);
 }
 
+/**
+ * §🍖 F10 (refino): as COSTAS da fornalha — o mesmo pedregulho da boca, sem
+ * boca. É o tile dos três lados que não são a frente, e é ele que faz duas
+ * fornalhas encostadas pararem de ler como uma parede de bocas. Um degrau mais
+ * ESCURO que o pedregulho comum de propósito: sem isso a fornalha vista de trás
+ * desaparece dentro da parede de pedregulho que o aluno acabou de levantar, e
+ * "onde foi parar a minha fornalha" é uma pergunta cara no meio da aula.
+ */
+function paintFornalhaCostas(ctx: CanvasRenderingContext2D, tile: number): void {
+  paintNoise(ctx, tile, [112, 112, 116], 14);
+  paintCobbleCracks(ctx, tile);
+}
+
 /** Chapa de cima/baixo da fornalha: pedra lisa com um anel de fuligem. */
 function paintFornalhaTopo(ctx: CanvasRenderingContext2D, tile: number): void {
   paintNoise(ctx, tile, [140, 140, 142], 12);
@@ -829,10 +842,12 @@ export function createAtlasTexture(): THREE.Texture {
   // plantação (§🍖 F6 2026-08-04): 4 estágios, do broto ao trigo maduro
   for (let i = 0; i < 4; i++) paintPlantacao(ctx, TILE.plantacao0 + i, i);
 
-  // fornalha (§🍖 F10b 2026-08-05): chapa + boca apagada + boca em brasa
+  // fornalha (§🍖 F10b 2026-08-05): chapa + boca apagada + boca em brasa, e as
+  // COSTAS lisas do refino (a boca virou uma face só)
   paintFornalhaTopo(ctx, TILE.fornalhaTopo);
   paintFornalhaLado(ctx, TILE.fornalhaLado, false);
   paintFornalhaLado(ctx, TILE.fornalhaLadoAcesa, true);
+  paintFornalhaCostas(ctx, TILE.fornalhaCostas);
 
   // baú (§🍖 F10e 2026-08-05): tampa em cima, ripas + ferrolho nos lados
   paintBau(ctx, TILE.bauTopo, true);

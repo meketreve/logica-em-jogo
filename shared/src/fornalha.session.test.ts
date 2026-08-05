@@ -1,5 +1,13 @@
 import { describe, expect, it } from "vitest";
-import { BlockId, ITEM_CARVAO, ITEM_LINGOTE_FERRO, ITEM_PICARETA_MADEIRA } from "./blocks";
+import {
+  BlockId,
+  ITEM_CARVAO,
+  ITEM_LINGOTE_FERRO,
+  ITEM_PICARETA_MADEIRA,
+  fornalhaComEstado,
+  fornalhaComFrente,
+  fornalhaFrente,
+} from "./blocks";
 import {
   FORNALHA_COMBUSTIVEL,
   FORNALHA_ENTRADA,
@@ -307,6 +315,27 @@ describe("§🍖 F10b — a fornalha pelo fio", () => {
       .map((s) => parseServerMessage(s.data as string))
       .filter((m) => m?.type === "container");
     expect(novos).toEqual([]);
+  });
+
+  it("§🍖 F10 refino: acender NÃO gira a fornalha — o tick preserva a frente", () => {
+    // as quatro direções, e o par apagada/acesa das quatro. Antes do refino
+    // havia UM id aceso, e escrevê-lo teria virado toda fornalha pro −Z no
+    // instante em que o fogo pegasse — na frente da turma.
+    for (let k = 0; k < 4; k++) {
+      const { session, sent } = turma();
+      const f = poeFornalha(session);
+      const apagada = fornalhaComFrente(k);
+      setBlock(session.world, f.x, f.y, f.z, apagada);
+      session.handleMessage(1, cmd(`/dar ana ${BlockId.MinerioFerro} 1`));
+      session.handleMessage(1, cmd(`/dar ana ${ITEM_CARVAO} 1`));
+      session.handleMessage(2, abrir(f.x, f.y, f.z));
+      session.handleMessage(2, mover(f.x, f.y, f.z, 0, INV_SLOTS + FORNALHA_ENTRADA));
+      session.handleMessage(2, mover(f.x, f.y, f.z, 1, INV_SLOTS + FORNALHA_COMBUSTIVEL));
+      expect(ultimoContainer(sent, 2)!.tipo).toBe("fornalha"); // o painel achou a nova
+      session.tick(); // acende
+      expect(getBlock(session.world, f.x, f.y, f.z)).toBe(fornalhaComEstado(apagada, true));
+      expect(fornalhaFrente(getBlock(session.world, f.x, f.y, f.z))).toBe(k);
+    }
   });
 
   it("bug-580: trocar fornalha por BAÚ na mesma célula não herda o conteúdo dela", () => {

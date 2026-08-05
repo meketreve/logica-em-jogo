@@ -207,15 +207,24 @@ export const BlockId = {
    *  ESTADO: apagada / acesa, dois ids que trocam sozinhos no tick. **Só a
    *  apagada é colocável** (a acesa nasce do fogo, como a porta aberta nasce
    *  alternando uma fechada), e a acesa EMITE LUZ de graça — a luz é função
-   *  pura dos bytes, então acender é uma linha no `luzEmitida`. Sem direção de
-   *  frente na v1: 4 ids a mais só pela textura não pagam. */
+   *  pura dos bytes, então acender é uma linha no `luzEmitida`.
+   *
+   *  **Refino de 2026-08-05: ganhou FRENTE.** Estes dois viraram a direção −Z e
+   *  as outras três moram em `FornalhaXP..FornalhaAcesaXN`, lá embaixo — ver a
+   *  nota de lá pra saber por que os seis não são contíguos com estes. */
   Fornalha: 186,
   FornalhaAcesa: 187,
   /** Baú (§🍖 F10e, 2026-08-05, pedido do usuário): o segundo bloco com
    *  inventário — e o barato, porque reusa inteiro o encanamento que a fornalha
    *  criou (`containers.ts`). 27 slots, uma mochila inteira. UM id só: ao
    *  contrário da fornalha, não há estado nenhum pra guardar no byte (aberto é
-   *  coisa de painel, não de mundo). */
+   *  coisa de painel, não de mundo).
+   *
+   *  **Refino de 2026-08-05: deixou de ser cubo cheio.** Tem forma de CAIXA
+   *  (14/16 de lado e de altura, o número do Minecraft) — dois baús lado a lado
+   *  liam como uma parede de madeira contínua, e "onde acaba um e começa o
+   *  outro" é a primeira pergunta de quem organiza o depósito da turma. A
+   *  colisão continua sendo a célula inteira, como a do móvel e a da cerca. */
   Bau: 188,
   /**
    * Algodão (§🍖 F10c, 2026-08-05, pedido do usuário): a **ponte honesta** que
@@ -238,6 +247,26 @@ export const BlockId = {
    *  cultivado de propósito — ele larga SEMENTE por sorte (o molde do capim),
    *  não a colheita cheia; quem quer algodão de verdade tem de plantar. */
   AlgodaoSelvagem: 193,
+  /**
+   * §🍖 F10 (refino, 2026-08-05): as outras TRÊS direções da fornalha. A boca
+   * passou a aparecer numa face só, e direção de bloco neste jogo é ID — a
+   * cadeira, a cama, o quadro e a escada fazem igual, porque o byte do chunk é
+   * a única coisa que o mesher lê.
+   *
+   * **Por que não são quatro contíguos, como os móveis:** `Fornalha` (186) e
+   * `FornalhaAcesa` (187) nasceram sem direção e já estão gravados nos mundos
+   * que a sessão 46 salvou. Renumerar trocaria a fornalha de quem já jogou por
+   * outro bloco — o mesmo raciocínio que APOSENTOU a receita de vidro em vez de
+   * apagá-la. Então os dois viraram a direção −Z e as outras três entram aqui,
+   * com a tradução numa TABELA (`FORNALHA_POR_FRENTE`) em vez de aritmética de
+   * id. Mundo antigo abre sem migração: byte 186 é uma fornalha virada pro −Z.
+   */
+  FornalhaXP: 194,
+  FornalhaZP: 195,
+  FornalhaXN: 196,
+  FornalhaAcesaXP: 197,
+  FornalhaAcesaZP: 198,
+  FornalhaAcesaXN: 199,
 } as const;
 
 export type BlockId = (typeof BlockId)[keyof typeof BlockId];
@@ -250,7 +279,7 @@ export type BlockId = (typeof BlockId)[keyof typeof BlockId];
  * dois arquivos, e esquecer significava um portão que deixava de olhar
  * justamente o bloco recém-criado — o oposto do que ele existe pra fazer.
  */
-export const MAX_BLOCK_ID = BlockId.AlgodaoSelvagem;
+export const MAX_BLOCK_ID = BlockId.FornalhaAcesaXN;
 
 /** Água? Fonte (129) OU fluida (130-136) — atravessável e translúcida. */
 export function isAgua(id: number): boolean {
@@ -374,9 +403,51 @@ export function isCarvao(id: number): boolean {
   return id === ITEM_CARVAO || id === ITEM_CARVAO_VEGETAL;
 }
 
-/** Fornalha (apagada ou acesa)? O conteúdo mora fora do byte (containers.ts). */
+/**
+ * As 4 direções da fornalha, na ordem dos móveis (0 = +x, 1 = +z, 2 = −x,
+ * 3 = −z), cada uma com o par apagada/acesa. É a fonte ÚNICA da tradução
+ * id ↔ direção ↔ estado: quem precisa de qualquer uma das três perguntas
+ * chama uma das funções abaixo, e nenhuma delas faz conta com o id.
+ *
+ * TABELA, e não `Fornalha + k`, porque os ids não são contíguos de propósito —
+ * ver a nota do `FornalhaXP` no `BlockId`. A direção −Z é a dos ids originais.
+ */
+export const FORNALHA_POR_FRENTE: readonly { apagada: number; acesa: number }[] = [
+  { apagada: BlockId.FornalhaXP, acesa: BlockId.FornalhaAcesaXP },
+  { apagada: BlockId.FornalhaZP, acesa: BlockId.FornalhaAcesaZP },
+  { apagada: BlockId.FornalhaXN, acesa: BlockId.FornalhaAcesaXN },
+  { apagada: BlockId.Fornalha, acesa: BlockId.FornalhaAcesa },
+];
+
+/** Fornalha (apagada ou acesa, em qualquer direção)? O conteúdo mora fora do
+ *  byte (containers.ts). */
 export function isFornalha(id: number): boolean {
-  return id === BlockId.Fornalha || id === BlockId.FornalhaAcesa;
+  return FORNALHA_POR_FRENTE.some((f) => f.apagada === id || f.acesa === id);
+}
+
+/** Esta fornalha está ACESA? (o byte é o estado — e é ele que emite luz) */
+export function fornalhaEstaAcesa(id: number): boolean {
+  return FORNALHA_POR_FRENTE.some((f) => f.acesa === id);
+}
+
+/** Pra onde a boca desta fornalha aponta: 0 = +x, 1 = +z, 2 = −x, 3 = −z.
+ *  `-1` se o id não é fornalha nenhuma. */
+export function fornalhaFrente(id: number): number {
+  return FORNALHA_POR_FRENTE.findIndex((f) => f.apagada === id || f.acesa === id);
+}
+
+/** O id da fornalha apagada virada pra `k` (0 = +x … 3 = −z). Fora da faixa
+ *  volta pro −Z, que é a forma canônica da mochila. */
+export function fornalhaComFrente(k: number): number {
+  return (FORNALHA_POR_FRENTE[k] ?? FORNALHA_POR_FRENTE[3]!).apagada;
+}
+
+/** O par deste mesmo bloco no outro estado — é ele que o tick escreve quando o
+ *  fogo pega ou acaba. **A direção é PRESERVADA**: acender não pode virar a
+ *  fornalha de lado na frente da turma. */
+export function fornalhaComEstado(id: number, acesa: boolean): number {
+  const f = FORNALHA_POR_FRENTE[fornalhaFrente(id)] ?? FORNALHA_POR_FRENTE[3]!;
+  return acesa ? f.acesa : f.apagada;
 }
 
 /** É o item balde (cheio ou vazio)? */
@@ -564,7 +635,12 @@ function stepFootprint(k: number): readonly [number, number, number, number] {
 /** Caixas de COLISÃO de um bloco, em frações da célula. Cubo cheio = a célula
  *  inteira; laje = uma metade; escada = base/teto de meia-altura + degrau de
  *  meia-pegada (L). Fonte única da colisão parcial (physics.ts) — a física trata
- *  cada caixa como AABB. Blocos comuns caem no fallback de cubo cheio. */
+ *  cada caixa como AABB. Blocos comuns caem no fallback de cubo cheio.
+ *  ⚠️ **Forma no mesher ≠ colisão.** O baú (14/16) e os móveis desenham menores
+ *  que a célula e colidem como a célula inteira, de propósito: a barreira é o
+ *  papel deles, e um vão de 1/16 onde o jogador "quase" entra é bug de
+ *  travamento na aula, não realismo. Quem segue a forma é a MIRA
+ *  (`blockSelectionBox`), que é onde o aluno percebe a diferença. */
 export function collisionBoxes(id: number): readonly Aabb[] {
   if (isSlab(id)) {
     return slabTop(id) ? [[0, 0.5, 0, 1, 1, 1]] : [[0, 0, 0, 1, 0.5, 1]];
@@ -777,6 +853,10 @@ export function isFullCube(id: number): boolean {
     !isGramaAlta(id) &&
     !isPlantacao(id) && // cruz de sprite, como a flor
     id !== BlockId.AlgodaoSelvagem && // idem
+    // §🍖 F10 (refino): o baú é uma CAIXA de 14/16 dentro da célula. Sair daqui
+    // é o que faz o vão entre dois baús existir — e, de brinde, a luz passa por
+    // ele (como no Minecraft) e a cerca não se conecta a ele.
+    id !== BlockId.Bau &&
     !isSlab(id) && // laje = meia altura (forma própria + colisão parcial)
     !isStairs(id) // escada = L (forma própria + colisão parcial)
   );
@@ -812,8 +892,10 @@ export function isPlaceable(id: number): boolean {
   if (isPlantacao(id) && !isMudaDePlantacao(id)) return false;
   // §🍖 F10b: a fornalha ACESA é estado, não item — nasce do tick quando o fogo
   // pega e volta a apagada sozinha. Aceitá-la pelo fio daria ao cliente uma
-  // fornalha eternamente acesa (e uma luminária de graça).
-  if (id === BlockId.FornalhaAcesa) return false;
+  // fornalha eternamente acesa (e uma luminária de graça). As QUATRO direções
+  // acesas caem aqui: o refino que deu frente à fornalha não podia abrir quatro
+  // buracos onde havia um.
+  if (fornalhaEstaAcesa(id)) return false;
   return Number.isInteger(id) && id >= BlockId.Grass && id <= MAX_BLOCK_ID;
 }
 

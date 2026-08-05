@@ -3,10 +3,13 @@ import {
   BlockId,
   CHUNK_SIZE,
   CHUNK_VOLUME,
+  FORNALHA_POR_FRENTE,
+  MAX_BLOCK_ID,
   aguaComNivel,
   aguaNivel,
   collisionBoxes,
   escadaId,
+  formaCanonica,
   isAgua,
   isAguaFonte,
   isFullCube,
@@ -109,6 +112,22 @@ describe("formato de bloco/chunk (contrato de save e snapshot)", () => {
     expect(BlockId.FornalhaAcesa).toBe(187);
     expect(isPlaceable(BlockId.Fornalha)).toBe(true);
     expect(isPlaceable(BlockId.FornalhaAcesa)).toBe(false);
+    // §🍖 F10 (refino 2026-08-05): as outras 3 direções entraram em 194-199, e
+    // NÃO no lugar destes dois — 186/187 já estão gravados em mundo salvo, e
+    // renumerar trocaria a fornalha de quem já jogou por outro bloco. Os dois
+    // originais viraram a direção −Z.
+    expect(BlockId.FornalhaXP).toBe(194);
+    expect(BlockId.FornalhaAcesaXN).toBe(199);
+    expect(FORNALHA_POR_FRENTE[3]).toEqual({
+      apagada: BlockId.Fornalha,
+      acesa: BlockId.FornalhaAcesa,
+    });
+    for (const { apagada, acesa } of FORNALHA_POR_FRENTE) {
+      expect(isPlaceable(apagada)).toBe(true);
+      expect(isPlaceable(acesa)).toBe(false); // acesa é ESTADO, nunca item
+      expect(formaCanonica(apagada)).toBe(BlockId.Fornalha);
+      expect(formaCanonica(acesa)).toBe(BlockId.Fornalha);
+    }
     // baú (§🍖 F10e 2026-08-05): append 188, e UM id só — ao contrário da
     // fornalha, não há estado nenhum pra guardar no byte.
     expect(BlockId.Bau).toBe(188);
@@ -121,7 +140,7 @@ describe("formato de bloco/chunk (contrato de save e snapshot)", () => {
     expect(isPlaceable(BlockId.Algodao1)).toBe(false);
     expect(isPlaceable(BlockId.Algodao3)).toBe(false);
     expect(isPlaceable(BlockId.AlgodaoSelvagem)).toBe(true);
-    expect(isPlaceable(194)).toBe(false); // próximo byte NÃO é bloco
+    expect(isPlaceable(MAX_BLOCK_ID + 1)).toBe(false); // próximo byte NÃO é bloco
   });
 
   it("água: fonte + fluida atravessável (não-sólida) e translúcida no mesher", () => {

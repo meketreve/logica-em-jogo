@@ -1,8 +1,10 @@
 import {
   BlockId,
+  FORNALHA_POR_FRENTE,
   aguaNivel,
   camaHeadDir,
   collisionBoxes,
+  fornalhaFrente,
   isAgua,
   isCadeira,
   isCama,
@@ -151,14 +153,19 @@ export const TILE = {
   plantacao2: 122,
   plantacao3: 123,
   /** §🍖 F10b (2026-08-05): fornalha. `fornalhaTopo` é a chapa de pedra de cima
-   *  e de baixo; os lados mostram a BOCA — nas quatro faces, porque a v1 não
-   *  tem direção de frente (4 ids a mais só pela textura não pagariam). A
-   *  acesa é o mesmo tijolo com a boca em brasa. */
+   *  e de baixo; `fornalhaLado` é a face da BOCA (apagada) e
+   *  `fornalhaLadoAcesa` a mesma boca em brasa.
+   *
+   *  **Refino do mesmo dia: `fornalhaCostas`.** A boca aparecia nas QUATRO
+   *  faces — quatro fornalhas encostadas liam como uma parede de bocas, e não
+   *  havia como dizer pra onde ela estava virada. Agora a boca sai na FRENTE
+   *  (que o id carrega, ver `FORNALHA_POR_FRENTE`) e os outros três lados usam
+   *  este tijolo liso. */
   fornalhaTopo: 124,
   fornalhaLado: 125,
   fornalhaLadoAcesa: 126,
   /** §🍖 F10e: baú — tampa com ferrolho em cima, ripas com a fechadura nos
-   *  lados. Cubo cheio (a forma de caixa do Minecraft é refino futuro). */
+   *  lados. Forma de CAIXA (14/16) desde o refino de 2026-08-05. */
   bauTopo: 127,
   bauLado: 128,
   /** §🍖 F10c: os 4 estágios do algodão CULTIVADO, contíguos e na ordem dos
@@ -169,6 +176,8 @@ export const TILE = {
   algodao2: 131,
   algodao3: 132,
   algodaoSelvagem: 133,
+  /** §🍖 F10 (refino): os três lados SEM boca da fornalha. Ver `fornalhaLado`. */
+  fornalhaCostas: 134,
 } as const;
 
 /** cp20: blocos-glifo. Letras A–Z e dígitos 0–9 ocupam tiles consecutivos a
@@ -185,10 +194,26 @@ interface FaceTiles {
   readonly top: number;
   readonly bottom: number;
   readonly side: number;
+  /** Tile da face da FRENTE, quando o bloco tem uma (§🍖 F10 refino: a boca da
+   *  fornalha). Quem responde PARA ONDE é a frente é `frenteDoBloco`, no
+   *  próprio id — este campo só diz que o bloco tem uma face diferente das
+   *  outras três, e é a presença dele que liga a pergunta no laço de faces. */
+  readonly frente?: number;
 }
 
 /** Bloco com o mesmo tile nas 6 faces. */
 const uniform = (tile: number): FaceTiles => ({ top: tile, bottom: tile, side: tile });
+
+/** Vetor XZ de cada direção `k` da convenção dos móveis: 0 +x, 1 +z, 2 −x, 3 −z. */
+const DIR_XZ: readonly (readonly [number, number])[] = [[1, 0], [0, 1], [-1, 0], [0, -1]];
+
+/** Pra onde a face da FRENTE deste bloco aponta, ou `null` se ele não tem uma.
+ *  Hoje só a fornalha responde — mas a pergunta é do MESHER (que face recebe o
+ *  tile diferente?) e não da fornalha, então quem entrar depois entra aqui. */
+function frenteDoBloco(id: number): readonly [number, number] | null {
+  const k = fornalhaFrente(id);
+  return k < 0 ? null : (DIR_XZ[k] ?? null);
+}
 
 const BLOCK_TILES: Record<number, FaceTiles> = {
   [BlockId.Grass]: { top: TILE.grassTop, bottom: TILE.dirt, side: TILE.grassSide },
@@ -263,13 +288,25 @@ const BLOCK_TILES: Record<number, FaceTiles> = {
   // água (2026-07-21): cubo cheio p/ o mesher (transparente → funde com água
   // vizinha, mostra só a casca); não-sólido só pra física (blocks.ts).
   [BlockId.Agua]: uniform(TILE.agua),
-  // §🍖 F10b: fornalha — cubo cheio normal (o inventário dela mora fora do
-  // byte). Chapa de pedra em cima e embaixo, boca nos 4 lados; a acesa troca só
-  // o lado, e é o próprio tick que troca o byte.
-  [BlockId.Fornalha]: { top: TILE.fornalhaTopo, bottom: TILE.fornalhaTopo, side: TILE.fornalhaLado },
-  [BlockId.FornalhaAcesa]: { top: TILE.fornalhaTopo, bottom: TILE.fornalhaTopo, side: TILE.fornalhaLadoAcesa },
+  // §🍖 F10e: o baú NÃO é cubo cheio desde o refino — esta entrada alimenta só o
+  // ícone 2D da hotbar; a forma de caixa (e o tile por face) vive no emitShape.
   [BlockId.Bau]: { top: TILE.bauTopo, bottom: TILE.bauTopo, side: TILE.bauLado },
 };
+// §🍖 F10b + refino: fornalha — cubo cheio (o inventário dela mora fora do
+// byte). Chapa de pedra em cima e embaixo, tijolo liso nos três lados de trás e
+// a BOCA só na frente, que o próprio id carrega. As quatro direções × dois
+// estados saem de uma tabela: escrever oito entradas à mão seria oito chances
+// de trocar um tile e ninguém perceber até a aula.
+for (const { apagada, acesa } of FORNALHA_POR_FRENTE) {
+  BLOCK_TILES[apagada] = {
+    top: TILE.fornalhaTopo, bottom: TILE.fornalhaTopo,
+    side: TILE.fornalhaCostas, frente: TILE.fornalhaLado,
+  };
+  BLOCK_TILES[acesa] = {
+    top: TILE.fornalhaTopo, bottom: TILE.fornalhaTopo,
+    side: TILE.fornalhaCostas, frente: TILE.fornalhaLadoAcesa,
+  };
+}
 // água fluida (2026-07-22): os 7 níveis usam o MESMO tile da fonte (v1 cubo
 // cheio; a altura-por-nível é refino futuro).
 for (let id = BlockId.AguaFluida1; id <= BlockId.AguaFluida7; id++) {
@@ -346,7 +383,10 @@ for (let i = 0; i < TAPETE_TILES.length; i++) {
 
 /** Tile usado como ÍCONE 2D do bloco (hotbar/inventário do cliente) — a face lateral. */
 export function blockIconTile(id: number): number {
-  return BLOCK_TILES[id]?.side ?? TILE.stone;
+  // a FRENTE ganha do lado quando existe: o ícone da fornalha na hotbar tem de
+  // ser o que mostra a boca, e não o tijolo liso das costas.
+  const t = BLOCK_TILES[id];
+  return t?.frente ?? t?.side ?? TILE.stone;
 }
 
 /** Bloco desenhado como CRUZ DE SPRITE (duas lâminas a 90°): flor, capim,
@@ -393,6 +433,9 @@ export function blockSelectionBox(
     ];
   }
   if (id === BlockId.Mesa) return [0, 0, 0, 1, 14 * P, 1];
+  // §🍖 F10e (refino): a mira segue a CAIXA — o contorno preto rente à madeira
+  // é o que diz ao aluno qual dos dois baús encostados ele vai abrir.
+  if (id === BlockId.Bau) return [P, 0, P, 15 * P, 14 * P, 15 * P];
   if (isCadeira(id)) return [3 * P, 0, 3 * P, 13 * P, 1, 13 * P];
   if (isSofa(id)) return [0, 0, 0, 1, 15 * P, 1];
   if (isCama(id)) return [0, 0, 0, 1, 9 * P, 1];
@@ -813,9 +856,11 @@ export function meshVizinhanca(viz: Uint8Array, luzViz?: Uint8Array | null): Chu
   const emitBox = (
     lx: number, ly: number, lz: number, id: number, tile: number,
     x0: number, y0: number, z0: number, x1: number, y1: number, z1: number,
+    /** Tile das faces de CIMA e de BAIXO, quando ele difere do dos lados (a
+     *  tampa do baú). Uma caixa com dois tiles é mais barata — e mais fácil de
+     *  ler — que duas caixas coladas com z-fight na junta. */
+    tileY: number = tile,
   ): void => {
-    const col = tile % n;
-    const row = (tile / n) | 0;
     const lo = [x0, y0, z0] as const;
     const hi = [x1, y1, z1] as const;
     for (let i = 0; i < FACES.length; i++) {
@@ -836,6 +881,9 @@ export function meshVizinhanca(viz: Uint8Array, luzViz?: Uint8Array | null): Chu
       const luzFace = flush
         ? luzDe(lx + face.dir[0], ly + face.dir[1], lz + face.dir[2])
         : luzDe(lx, ly, lz);
+      const tileDaFace = face.dir[1] !== 0 ? tileY : tile;
+      const col = tileDaFace % n;
+      const row = (tileDaFace / n) | 0;
       const base = positions.length / 3;
       for (const corner of face.corners) {
         const px = corner.pos[0] === 0 ? x0 : x1;
@@ -984,6 +1032,19 @@ export function meshVizinhanca(viz: Uint8Array, luzViz?: Uint8Array | null): Chu
           if (eixoX) emitBox(lx, ly, lz, id, TILE.janela, 0, 0, c, 1, 1, c + 2 * P);
           else emitBox(lx, ly, lz, id, TILE.janela, c, 0, 0, c + 2 * P, 1, 1);
         }
+        return true;
+      }
+      case BlockId.Bau: {
+        // §🍖 F10e (refino): CAIXA de 14/16 de lado e 14/16 de altura, apoiada
+        // no chão da célula — o número do Minecraft, e o que faz dois baús
+        // vizinhos terem um VÃO entre eles em vez de virarem uma parede de
+        // madeira contínua. A tampa (`bauTopo`) entra pelo tile de Y do
+        // emitBox; os quatro lados mostram a fechadura.
+        emitBox(
+          lx, ly, lz, id, TILE.bauLado,
+          P, 0, P, 15 * P, 14 * P, 15 * P,
+          TILE.bauTopo,
+        );
         return true;
       }
       case BlockId.Mesa: {
@@ -1201,6 +1262,10 @@ export function meshVizinhanca(viz: Uint8Array, luzViz?: Uint8Array | null): Chu
         const fluxo = cantos ? fluxoDaAgua(lx, ly, lz, id) : null;
         // caindo = sem chão embaixo: as laterais leem como cachoeira (onda desce)
         const caindo = fluxo !== null && bloco(lx, ly - 1, lz) === BlockId.Air;
+        // §🍖 F10 (refino): a face que leva o tile da BOCA. `null` no bloco sem
+        // frente, que é a esmagadora maioria — a pergunta se faz UMA vez por
+        // célula, não uma por face.
+        const frente = tiles.frente === undefined ? null : frenteDoBloco(id);
 
         for (let fi = 0; fi < FACES.length; fi++) {
           const face = FACES[fi]!;
@@ -1226,7 +1291,9 @@ export function meshVizinhanca(viz: Uint8Array, luzViz?: Uint8Array | null): Chu
               ? tiles.top
               : face.dir[1] === -1
                 ? tiles.bottom
-                : tiles.side;
+                : frente && face.dir[0] === frente[0] && face.dir[2] === frente[1]
+                  ? (tiles.frente ?? tiles.side)
+                  : tiles.side;
           const col = tile % n;
           const row = (tile / n) | 0;
           const u0 = col / n + inset;

@@ -37,9 +37,11 @@ import {
   decodeSnapshot,
   descartarColunaLuz,
   findSpawnY,
+  fornalhaComFrente,
   getBlock,
   isBalde,
   isCadeira,
+  isFornalha,
   isComida,
   isCama,
   containerTipoDe,
@@ -2014,6 +2016,16 @@ function startGame(snap: Snapshot): void {
             : BlockId.QuadroXP;
       blockId = anchor + frente;
     }
+    // §🍖 F10 (refino): a fornalha segue a MESMA convenção — a boca encara quem
+    // colocou. Não entra no `if` de cima porque a família dela não é `âncora +
+    // k`: os dois ids originais nasceram sem direção e viraram o −Z, então quem
+    // traduz é a tabela do shared (ver `FORNALHA_POR_FRENTE`).
+    if (isFornalha(blockId)) {
+      const dx = -Math.sin(input.yaw);
+      const dz = -Math.cos(input.yaw);
+      const olhar = Math.abs(dx) > Math.abs(dz) ? (dx > 0 ? 0 : 2) : (dz > 0 ? 1 : 3);
+      blockId = fornalhaComFrente((olhar + 2) % 4);
+    }
     // laje (2026-07-25): mirou por BAIXO (face de baixo do bloco) → laje de
     // CIMA; senão laje de baixo (piso). A hotbar guarda a âncora "baixo".
     if (isSlab(blockId)) {
@@ -2054,6 +2066,8 @@ function startGame(snap: Snapshot): void {
     if (isSofa(id)) id = BlockId.SofaXP;
     if (isCama(id)) id = BlockId.CamaXP;
     if (isQuadro(id)) id = BlockId.QuadroXP;
+    // fornalha (acesa OU em qualquer direção) copia pra entrada única da hotbar
+    if (isFornalha(id)) id = BlockId.Fornalha;
     // laje/escada: copia pra âncora do material (metade/direção re-escolhidas no place)
     if (isSlab(id)) id = BlockId.LajePedraBaixo + slabMaterial(id) * 2;
     if (isStairs(id)) id = BlockId.EscadaPedraXP + stairsMaterial(id) * 8;

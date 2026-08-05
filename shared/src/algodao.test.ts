@@ -177,8 +177,11 @@ describe("§🍖 F10c — onde o aluno ACHA a cadeia", () => {
     }
   });
 
-  it("o teto de ids acompanhou o algodão (o portão de drops varre até ele)", () => {
-    expect(MAX_BLOCK_ID).toBe(BlockId.AlgodaoSelvagem);
+  // o teto deixou de ser o algodão quando o refino da frente da fornalha
+  // apendou 194-199; o que importa (e o que este teste guarda) é que ele
+  // ALCANCE o algodão, que é o portão de drops varrendo até lá
+  it("o teto de ids alcança o algodão (o portão de drops varre até ele)", () => {
+    expect(MAX_BLOCK_ID).toBeGreaterThanOrEqual(BlockId.AlgodaoSelvagem);
   });
 });
 

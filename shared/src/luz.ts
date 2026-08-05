@@ -25,6 +25,7 @@
  */
 import {
   BlockId,
+  fornalhaEstaAcesa,
   isAgua,
   isFolhas,
   isFullCube,
@@ -77,7 +78,8 @@ export function opacidadeLuz(id: number): number {
  *  luz é função PURA dos bytes, e o tick já troca o byte quando o fogo pega. */
 export function luzEmitida(id: number): number {
   if (id === BlockId.Tocha) return 14;
-  return id === BlockId.FornalhaAcesa ? 13 : 0;
+  // as QUATRO direções acesas iluminam igual: a frente é textura, não física
+  return fornalhaEstaAcesa(id) ? 13 : 0;
 }
 
 /** Grade de luz paralela à do mundo — mesmas dimensões, mesmos índices. */

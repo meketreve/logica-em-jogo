@@ -4,6 +4,7 @@ import {
   ITEM_BALDE_AGUA,
   ITEM_BALDE_VAZIO,
   camaHeadDir,
+  fornalhaComEstado,
   isAgua,
   isAguaFonte,
   isBalde,
@@ -2323,10 +2324,15 @@ export class GameSession {
       if (containerTemConteudo(depois)) this.containers.set(key, depois);
       else this.containers.delete(key); // fornalha que esvaziou volta a não custar nada
       if (fornalhaAcesa(depois) !== fornalhaAcesa(antes)) {
-        const alvo = fornalhaAcesa(depois) ? BlockId.FornalhaAcesa : BlockId.Fornalha;
         // só troca o byte se a célula AINDA é fornalha (o bloco pode ter sido
-        // quebrado neste mesmo tick por outro caminho)
-        if (isFornalha(getBlock(this.world, x, y, z))) this.applyBlock(x, y, z, alvo);
+        // quebrado neste mesmo tick por outro caminho). O id novo sai do id
+        // VELHO, e não de uma constante: desde o refino da frente, acender uma
+        // fornalha virada pro leste com `BlockId.FornalhaAcesa` a giraria pro
+        // norte na frente da turma.
+        const atual = getBlock(this.world, x, y, z);
+        if (isFornalha(atual)) {
+          this.applyBlock(x, y, z, fornalhaComEstado(atual, fornalhaAcesa(depois)));
+        }
       }
       this.avisarContainer(x, y, z);
     }
