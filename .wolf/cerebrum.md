@@ -53,6 +53,15 @@
 - **Ele decide a ordem das frentes** e costuma pedir "commita tudo, segue para X e Y, mas
   antes prepara para /clear" — ou seja: fechar handoff (STATUS/TODO/cerebrum) ANTES de
   encostar na próxima quest, e derrubar servidores de teste que ficaram no ar.
+- **Ele trabalha em DUAS máquinas, e a de casa costuma estar na frente** (sessões 40 e 45: o
+  local abriu 3 e depois 14 commits atrás). Sessão que começa com "onde paramos?" merece
+  `git fetch` ANTES de responder — na 45 ele teve de mandar *"faz o fetch primeiro, tem coisa
+  que não tá no repo local"* depois de eu responder pelo STATUS velho. O `.wolf/memory.md`
+  sujo com cabeçalho de sessão VAZIO (hook) é descartável: `git checkout --` e `pull --ff-only`.
+- **Playtest com turma REAL vira pedido de escopo, não de ajuste** (2026-08-04, 17 alunos:
+  *"conseguiram fazer craft, plantar e comer"*). Ele não pediu número nenhum diferente — pediu
+  o que FALTAVA (todas as receitas). Quando o playtest passa, a pergunta certa é "o que a turma
+  não conseguiu alcançar?", não "que constante eu mexo?".
 
 ## Key Learnings
 
@@ -584,6 +593,21 @@
   identidade da receita no protocolo (`fabricar {receita}`); inserir no meio remapeia o que o
   cliente já conhece, como renumerar `BlockId`. O smoke `_smoke-craft.mjs` fixa os índices em
   constantes — mudar a ordem quebra o smoke, que é o portão certo.
+- **[2026-08-05, sessão 45] Bloco novo nasce com RECEITA ou com RAZÃO — o portão é um teste.**
+  `receitas.test.ts` varre todo id `isPlaceable`, pula variante (`formaCanonica`) e
+  professor-only, e exige que o resto esteja em `RECEITAS` ou em `SEM_RECEITA` (id → razão
+  escrita). Foi o pedido do usuário depois do playtest ("faltam os crafts dos itens já
+  adicionados") virado em invariante: a cobertura não se mantém sozinha.
+- **[2026-08-05, sessão 45] Onde não há forno nem mob, a ponte se INVENTA com material do
+  mundo.** Copiar a receita do Minecraft deixaria metade dos blocos inalcançáveis (vidro,
+  tijolo, lã e todos os corantes passam por forno ou ovelha lá). Cada ponte usa o que o aluno
+  tira com a mão e cabe numa frase de professor: vidro ← areia, lã ← trigo, tijolo ← terra +
+  areia, pedra ← 2 pedregulho. E onde dá, a ponte VIRA conteúdo: as 4 cores sem flor própria
+  saem de MISTURA (laranja = amarelo + vermelho).
+- **[2026-08-05, §🍖 F7] Alcance de PvP se mede entre POSIÇÕES, não pela linha do olhar.** A
+  direção do olhar chega a 10 Hz e a caixa do alvo desliza no cliente (lerp), então validar
+  mira no servidor recusaria soco legítimo. Quem mira é o cliente (`raycastJogador`, puro); o
+  servidor garante que ninguém soca do outro lado do mapa (mesma folga `+2` do `withinReach`).
 
 ## Do-Not-Repeat
 

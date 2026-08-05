@@ -3924,6 +3924,65 @@
       "related_bugs": [],
       "occurrences": 1,
       "last_seen": "2026-08-04T20:58:00.000000Z"
+    },
+    {
+      "id": "bug-574",
+      "timestamp": "2026-08-05T12:14:00.000000Z",
+      "error_message": "_smoke-pvp: '✗ 5 socos no mesmo instante tiraram 1 coração só (vida 18)' — a vida NÃO caiu nada, e a asserção passaria pelo motivo errado se o número batesse",
+      "file": "server/src/cenarios/_smoke-pvp.mjs",
+      "root_cause": "A asserção do cooldown vinha logo depois do bloco anterior, que já tinha dado um soco há menos de 0,5 s. A rajada inteira caiu DENTRO do cooldown daquele primeiro soco, então zero dano — e o teste mediria 'recusa tudo' em vez de 'aceita um e recusa o resto'.",
+      "fix": "`await espera(600)` antes de amostrar `antesRajada`, deixando o cooldown anterior vencer. A asserção passou a exigir exatamente 1 DANO_PVP na rajada de 5.",
+      "tags": [
+        "smoke",
+        "pvp",
+        "cooldown",
+        "autoria-de-teste",
+        "f7"
+      ],
+      "related_bugs": [
+        "bug-560"
+      ],
+      "occurrences": 1,
+      "last_seen": "2026-08-05T12:14:00.000000Z"
+    },
+    {
+      "id": "bug-575",
+      "timestamp": "2026-08-05T12:14:30.000000Z",
+      "error_message": "_smoke-pvp: '✗ e a bia voltou com a vida cheia' depois da morte por soco",
+      "file": "server/src/cenarios/_smoke-pvp.mjs",
+      "root_cause": "O laço dava 12 socos com folga de cooldown, mas a morte acontece no 10º. O respawn devolve a vítima AO SPAWN — que no smoke é onde a atacante está —, então os socos 11 e 12 acertavam de novo e a vida medida no fim era 16, não 20.",
+      "fix": "O laço PARA assim que aparece uma mensagem de vida com `morreu: true`. Ficou anotado no próprio smoke por que ele para (quem renasce nasce ao alcance).",
+      "tags": [
+        "smoke",
+        "pvp",
+        "respawn",
+        "autoria-de-teste",
+        "f7"
+      ],
+      "related_bugs": [
+        "bug-574"
+      ],
+      "occurrences": 1,
+      "last_seen": "2026-08-05T12:14:30.000000Z"
+    },
+    {
+      "id": "bug-576",
+      "timestamp": "2026-08-05T12:17:00.000000Z",
+      "error_message": "comida.test.ts: 'expected 3 to be +0' em 3 asserções depois de a cobertura total de receitas entrar",
+      "file": "shared/src/comida.test.ts",
+      "root_cause": "Os testes do pão pegavam a receita por `RECEITAS[RECEITAS.length - 1]` ('o pão é o último, append-only'). Isso confundiu duas coisas: o índice do pão é ESTÁVEL (11), mas ser o ÚLTIMO era acidente da lista de 12. As 97 receitas novas empurraram o pão pro meio e o teste passou a mandar `fabricar` de um GLIFO.",
+      "fix": "`RECEITA_PAO = RECEITAS.findIndex(r => r.saida.id === ITEM_PAO)` no topo do arquivo, com uma asserção nova de que ele vale 11 — o contrato do protocolo é o índice fixo, não a posição relativa. Regra: teste NUNCA acha receita por `length - 1`.",
+      "tags": [
+        "receitas",
+        "append-only",
+        "indice-de-protocolo",
+        "teste",
+        "f5",
+        "f6"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-08-05T12:17:00.000000Z"
     }
   ]
 }

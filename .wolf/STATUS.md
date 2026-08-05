@@ -1,6 +1,67 @@
 # STATUS — Projeto "Lógica em Jogo" (jogo voxel educacional)
 
 > Single source of truth for resuming work. Read this FIRST when starting a session.
+> **SESSÃO 45 (2026-08-05) — O PLAYTEST COM 17 ALUNOS ACONTECEU, E ELE PEDIU O QUE FALTAVA:
+> COBERTURA TOTAL DE RECEITAS + O §🍖 F7 QUE ELE MESMO TINHA PULADO.** A sessão abriu com uma
+> lição de processo: respondi "onde paramos?" pelo STATUS local e ele corrigiu — *"faz o fetch
+> primeiro, tem coisa que não tá no repo local"*. **O local estava 14 commits atrás** (as
+> sessões 41–44 foram na outra máquina). Isso já aconteceu na 40, com 3 commits: **sessão que
+> começa com "onde paramos?" faz `git fetch` ANTES de responder.**
+>
+> **O playtest: 17 alunos, e o veredito é que o laço FECHA.** *"conseguiram fazer craft, plantar
+> e comer"*. **Nenhum número foi contestado** — crescimento, chances de fruta/semente, saciedade
+> e o dreno de fome ficam como estão. O que ele pediu foi o BURACO que a turma esbarrou: quase
+> tudo que dá pra colocar era inalcançável em sobrevivência.
+>
+> **🧱 12 → 110 RECEITAS, e a decisão do dia é POR QUE inventar os elos.** Metade das cadeias do
+> Minecraft passa por FORNO (vidro, tijolo, lingote) ou por MOB (lã de ovelha), e o lite não tem
+> nem um nem outro — copiar a receita de lá deixaria o bloco inalcançável do mesmo jeito. Então
+> cada ponte usa material que o aluno JÁ tira com a mão e cabe numa frase de professor: **vidro
+> ← areia · tijolo ← terra + areia (barro seco ao sol) · lã ← trigo (a horta passa a alimentar a
+> construção, e é uma ESCOLHA: o mesmo trigo faz pão) · pedra ← 2 pedregulho · tocha ← tábua +
+> carvão · folhagem ← tronco da MESMA espécie · grama ← terra + o que define o clima (semente,
+> areia ou neve)**.
+>
+> **E onde deu, a ponte virou CONTEÚDO: as 12 cores saem de FLOR, e as quatro sem flor própria
+> saem de MISTURA** — laranja = amarelo + vermelho, roxo = vermelho + azul, rosa = vermelho +
+> branco, ciano = azul + verde (mandacaru, que é o verde da caatinga). Misturar cor é currículo
+> de sala de aula, e aqui virou receita de verdade. Uma tabela `CORES` de 12 linhas gera as 36
+> receitas de lã, vidro colorido e tapete — as três famílias têm a MESMA ordem no `BlockId`.
+>
+> **O portão que mantém isso vivo:** um teste varre TODO id `isPlaceable`, pula variante
+> (`formaCanonica` responde pela família) e professor-only, e exige que o resto esteja em
+> `RECEITAS` **ou** em `SEM_RECEITA` — um mapa id → razão escrita (terreno, minério, tronco,
+> flor, muda, bedrock). Bloco novo sem receita e sem razão derruba a suíte. Os **12 índices
+> antigos não se mexeram**: o índice é o contrato do protocolo (`fabricar {receita}`).
+>
+> **§🍖 F7 — PVP, a última regra sem mecânica.** `atacar {alvo}` novo (o id é o mesmo do
+> `player_moved`), **2 pontos por soco** (1 coração, 10 socos pra derrubar) e **cooldown de 5
+> ticks** — sem ele quem clica mais rápido ganha, e isso não é jogo. O servidor confere regra +
+> **modo dos DOIS** (quem está em criativo não bate nem apanha: é o professor supervisionando) +
+> alcance + cooldown. **O alcance se mede entre POSIÇÕES, não pela linha do olhar:** a direção
+> chega a 10 Hz e a caixa do alvo desliza no cliente (lerp), então validar mira no servidor
+> recusaria soco legítimo. Quem mira é o cliente (`raycastJogador`, puro e testado). Mundo de
+> aula força OFF, como já força criativo. `/pvp ligar|desligar` escreve na MESMA regra do
+> `/regra pvp` (os dois não podem discordar) e avisa a turma inteira — quem apanha sem saber
+> que ligou acha que é bug. A mensagem `modo` ganhou `pvp?` (opcional, tolerante a host antigo)
+> e é ela que deixa **a mira vermelha** em cima de quem se pode socar.
+>
+> **Três bugs, e os dois primeiros são autoria de smoke** (a mesma família do bug-560):
+> **bug-574** a rajada do cooldown caía dentro do cooldown do soco anterior e media "recusa
+> tudo"; **bug-575** o laço da morte continuava socando depois do respawn — e quem renasce
+> nasce NO SPAWN, ao alcance de quem bateu. **bug-576** é do meu próprio design de teste: o
+> `comida.test.ts` pegava o pão por `RECEITAS[length - 1]`, e as 97 receitas novas o empurraram
+> pro meio — o teste passou a fabricar um GLIFO. **Índice de receita se acha pela SAÍDA; o que
+> o protocolo promete é que o 11 continua sendo o pão, não que o pão continue sendo o fim.**
+>
+> **Extra de UI que a lista de 110 linhas exigiu:** o painel ganhou o interruptor **"só o que dá
+> pra fazer agora"** (padrão desmarcado, alvo de 40px). Com a mochila vazia, 110 linhas cinzas
+> não são uma lista — são uma parede.
+>
+> **O bug da lista de craft que ele mandou corrigir é o bug-573** (a rolagem voltava ao topo a
+> cada peça), **e ele já estava corrigido no código que o fetch trouxe** (sessão 44). Confirmado
+> com ele e conferido no fonte.
+>
 > **SESSÃO 44 (cont.) — TRÊS DEFEITOS DE TABLET QUE SÓ O DEDO ACHARIA.** Depois do launcher, o
 > usuário reportou três coisas do jogo, todas de toque: o ☰ abria o menu e ele **fechava
 > sozinho levando a barra junto**; `/amigos` devia **abrir o painel** no PC e no tablet; e a
@@ -1008,50 +1069,60 @@ Documento é o ÚLTIMO entregável, não o primeiro. Construir, não documentar.
 
 ---
 
-## 🚀 Próxima fase — a escolher (a 44 foi fora do jogo: launcher)
+## 🚀 Próxima fase — PLAYTEST das receitas e do pvp (e depois, só o F8 sobra)
 
-⚠️ **A sessão 43 consumiu as duas frentes que o usuário escolheu** ("f9 e interface do
-/amigos") e a **44 não tocou no código do jogo** (só `iniciar-servidor.sh/.bat`). O que sobra
-na fila:
+A sessão 45 fechou o **§🍖 F7** e a **cobertura total de receitas**. Com isso, **a sobrevivência
+do lite está inteira**: F1..F7 + F9 feitos, e a única frente de jogo que resta no §🍖 é o **F8
+(mobs)**, que é grande e está fora do lite.
 
 | frente | custo | estado |
 |---|---|---|
-| **PLAYTEST** | do usuário, na escola | F1..F6 + a corrida + F9 + amigos + a barra nova. **É o mais valioso agora, e não há nada barato na frente dele** |
-| **§🍖 F7 `/pvp`** | ~0,5 sessão | Pulado pelo usuário na 41, detalhe preservado logo abaixo |
+| **PLAYTEST das 110 receitas + do pvp** | do usuário, na escola | **É o mais valioso agora.** Ver o bloco de perguntas no `.wolf/TODO.md §🏫` |
 | **§🍖 F8 mobs** | 3+ sessões | Fora do lite, com o aviso de GPU do lab |
-| **§🍖 F9 preset** | — | ✅ FEITO na sessão 43 |
-| **👥 painel de amigos** | — | ✅ FEITO na sessão 43 |
-| **📱 barra de toque** | — | ✅ FEITA na sessão 43 (e ela destravou o painel de amigos no tablet) |
+| **§🍖 F1..F7, F9** | — | ✅ FEITOS (sessões 34, 35, 36, 39, 40, 43 e 45) |
 
-**A recomendação é o PLAYTEST**, sem concorrente: são 8 frentes de jogo entregues sem um dedo
-humano nelas, e a sessão 43 mexeu justamente na tela que a turma toca. O que o headless não
-diz: se a barra de 4-5 botões ainda é demais no Fire, se o ① / ② é entendido sem explicação,
-e se o preset de sobrevivência é jogável numa aula de 50 min.
+**O que só o dedo responde agora:**
+1. **110 linhas na aba "criar" cabem numa aula?** O interruptor "só o que dá pra fazer agora"
+   resolve, ou a turma não acha o interruptor? O filtro de texto ficou essencial (era opcional
+   com 12 receitas)?
+2. **As pontes inventadas fazem sentido pra um aluno de 2º–9º ano?** "Vidro de areia" e "lã de
+   trigo" se explicam sozinhos, ou precisam do professor? A **mistura de cor** (laranja =
+   amarelo + vermelho) é entendida como descoberta, ou como truque escondido?
+3. **O soco:** 2 pontos e 0,5 s de cooldown dão perseguição divertida ou execução? A **mira
+   vermelha** é notada antes de o aluno bater sem querer? O aviso "o professor LIGOU o ataque"
+   chega a tempo?
+4. **Os 36 blocos-glifo no fim da lista atrapalham** quem procura material de construção?
 
-### §🍖 F7 — `/pvp` (pulado na sessão 41, detalhe preservado)
+**Botões de ajuste, todos de uma linha:** `DANO_PVP` e `TICKS_ENTRE_ATAQUES` em
+`sobrevivencia.ts` · qualquer quantidade em `RECEITAS` (mas **só APPEND**, o índice é contrato
+do protocolo) · o padrão do interruptor em `inventory.ts` (`soPossiveis`).
 
-A ordem do backlog está **travada pelo usuário** (sessão 29):
-**auto-update ✅ → layouts mobile ✅ (1ª rodada) → v2 da geração ✅ (sessões 32+33) →
-sobrevivência ← EM CURSO (F1..F6 feitos nas sessões 34, 35, 36, 39 e 40).**
+### §🍖 F7 — o que ficou aberto
 
-**F7 é a frente mais barata que sobrou**, porque quase tudo já existe: a regra `pvp` está no
-registro desde o F1 (padrão DESLIGADA, já grava no `.ljw`, já aparece no `/regra`) e
-`aplicarDano(estado, n, "pvp")` é uma causa que o F2 já reservou — inclusive o
-`textoDaMorte("pvp")`, escrito e nunca disparado. O que falta é o ataque:
+- **Claim e confinamento NÃO barram o soco.** A área protege BLOCO, não pessoa — foi o que o
+  ROADMAP previa e ficou assim, sem consultar o usuário (ele não estava na sessão). Se o
+  playtest pedir "dentro da minha área ninguém me bate", é um gate a mais no `atacar`, no molde
+  do `claimBloqueia`.
+- **Não há arma, armadura, knockback nem animação de soco.** O único retorno é a vinheta
+  vermelha do F2 e a barra descendo. Knockback exigiria o servidor empurrar o jogador (hoje a
+  física do próprio jogador é local) — é a mesma dívida que o F8 vai encontrar.
+- **O atacante não recebe retorno nenhum quando ACERTA** (só quando o pvp está desligado). Se o
+  playtest achar que "não sei se bati", o lugar é o `events.ts`, como o `dano`/`morte`.
+- **A morte por pvp devolve ao spawn do mundo**, como toda morte. Em mundo grande isso é uma
+  caminhada — a mesma pendência do F2 ("cama = ponto de renascer" seria feature nova).
 
-- **`/pvp ligar|desligar`** = atalho professor-only pro `/regra pvp` que já funciona (molde do
-  `/hora`), e o `RegraDef.pendente` da `pvp` sai — ela é a ÚLTIMA regra sem mecânica.
-- **Ataque = clique esquerdo em JOGADOR dentro de `PLAYER_REACH`**, dano fixo, cooldown. Sem
-  arma no lite. O servidor decide: o cliente manda a intenção (mensagem nova `atacar {alvo}`,
-  no molde do `comer {slot}` do F6), e quem confere alcance e cooldown é a session — nunca o
-  cliente, que é a disciplina de toda ação desde o F2.
-- **Colisões a checar ANTES de codar** (ROADMAP §🍖): mundo-aula força pvp OFF, como já força
-  criativo; claim/confinamento NÃO barram dano (a área protege BLOCO, não pessoa — decidir com
-  o usuário se isso vale); e a morte por pvp usa o mesmo `matar()`, então a regra
-  `manter-inventario` decide o espólio sem código novo.
+### 🧱 Receitas — o que ficou aberto
 
-**Depois do F7:** F8 mobs (fora do lite, ~3+ sessões, com o aviso de desempenho do lab) → F9
-preset `sobrevivencia`. Escopo item a item em `.wolf/ROADMAP.md §🍖`.
+- **Nenhuma receita EXIGE bancada** (não há bancada no lite): fabrica em qualquer lugar. O dia
+  em que a bancada servir pra escalonar receita avançada, ela vira um campo `exige?` na
+  `Receita`, sem tocar em quem chama.
+- **Craft continua não custando fome** (não é edição de bloco).
+- **A lista não tem categoria nem ordenação por "perto de conseguir"** — tem filtro de texto e
+  o interruptor novo. Agrupar por família seria a próxima coisa, se o playtest pedir.
+- **Tronco não tem receita de propósito:** só a árvore do gen faz. Plantar árvore (muda de
+  árvore, não de trigo) é frente futura, e é ela que fecharia a madeira como recurso renovável.
+- **Ouro e diamante seguem sem uso** — saem da caverna e não entram em receita nenhuma. É a
+  reserva pro dia em que houver ferramenta.
 
 ### §🍖 F9 e o painel de amigos — o que ficou aberto (sessão 43)
 

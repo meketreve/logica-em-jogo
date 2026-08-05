@@ -1159,3 +1159,60 @@ passa pelo próprio portão) · 5 prints da pista. **PLAYTEST PENDENTE.**
 | Time | Action | File(s) | Outcome | ~Tokens |
 |------|--------|---------|---------|--------|
 | 11:53 | Commit + push do fechamento da sessão 44 (única pendência era o log do OpenWolf; árvore limpa fora dele) | .wolf/memory.md | push para origin/main | ~2000 |
+| 12:00 | Edited shared/src/sobrevivencia.ts | expanded (+18 lines) | ~248 |
+| 12:00 | Edited shared/src/sobrevivencia.ts | modified textoDaMorte() | ~263 |
+| 12:00 | Edited shared/src/raycast.ts | added 1 import(s) | ~53 |
+| 12:00 | Edited shared/src/raycast.ts | added 9 condition(s) | ~690 |
+| 12:00 | Edited shared/src/protocol.ts | modified Atacar() | ~105 |
+| 12:01 | Edited shared/src/protocol.ts | added 1 condition(s) | ~94 |
+| 12:01 | Edited shared/src/regras.ts | 6→8 lines | ~121 |
+| 12:01 | Edited shared/src/regras.ts | 5→8 lines | ~141 |
+| 12:01 | Edited shared/src/session.ts | expanded (+6 lines) | ~100 |
+| 12:01 | Edited shared/src/session.ts | added nullish coalescing | ~1064 |
+| 12:02 | Edited shared/src/session.ts | modified matar() | ~76 |
+| 12:02 | Edited shared/src/session.ts | expanded (+7 lines) | ~192 |
+| 12:02 | Edited shared/src/session.ts | 1→3 lines | ~56 |
+| 12:02 | Edited shared/src/session.ts | added 1 condition(s) | ~201 |
+| 12:02 | Edited shared/src/session.ts | 2→2 lines | ~70 |
+| 12:02 | Edited shared/src/session.ts | added nullish coalescing | ~551 |
+| 12:02 | Edited shared/src/session.ts | added 1 condition(s) | ~186 |
+| 12:03 | Edited shared/src/session.ts | 20→23 lines | ~112 |
+| 12:03 | Edited client/index.html | expanded (+8 lines) | ~181 |
+| 12:03 | Edited shared/src/protocol.ts | 3→8 lines | ~104 |
+| 12:04 | Edited shared/src/protocol.ts | 3→6 lines | ~92 |
+| 12:04 | Edited shared/src/session.ts | expanded (+6 lines) | ~97 |
+| 12:04 | Edited shared/src/session.ts | reduced (-8 lines) | ~76 |
+| 12:04 | Edited shared/src/session.ts | modified anunciarPvp() | ~225 |
+| 12:04 | Edited client/src/main.ts | 2→6 lines | ~108 |
+| 12:04 | Edited client/src/main.ts | 2→3 lines | ~46 |
+| 12:05 | Edited client/src/main.ts | 7→9 lines | ~147 |
+| 12:05 | Edited client/src/main.ts | added optional chaining | ~401 |
+| 12:05 | Edited client/src/main.ts | 2→6 lines | ~97 |
+| 12:05 | Edited client/src/main.ts | added 1 condition(s) | ~142 |
+| 12:05 | Edited client/src/main.ts | 2→3 lines | ~15 |
+| 12:06 | Edited shared/src/regras.test.ts | nica() → toBeUndefined() | ~162 |
+| 12:07 | Created shared/src/pvp.test.ts | — | ~3732 |
+| 12:08 | Created server/src/cenarios/_smoke-pvp.mjs | — | ~1672 |
+| 12:08 | Edited scripts/smoke.mjs | expanded (+22 lines) | ~241 |
+| 12:09 | Edited server/src/cenarios/_smoke-pvp.mjs | 2→4 lines | ~65 |
+| 12:09 | Edited server/src/cenarios/_smoke-pvp.mjs | added 1 condition(s) | ~88 |
+| 12:10 | Edited shared/src/session.test.ts | 5→8 lines | ~102 |
+| 12:13 | Edited shared/src/receitas.ts | added 1 import(s) | ~35 |
+| 12:13 | Edited shared/src/receitas.ts | 2→1 lines | ~22 |
+| 12:15 | Edited shared/src/receitas.ts | modified mundo() | ~3666 |
+| 12:15 | Edited shared/src/receitas.test.ts | expanded (+8 lines) | ~59 |
+| 12:15 | Edited shared/src/receitas.test.ts | 9→10 lines | ~44 |
+| 12:16 | Edited shared/src/receitas.test.ts | added optional chaining | ~1054 |
+| 12:16 | Edited shared/src/receitas.ts | 13→13 lines | ~288 |
+| 12:17 | Edited shared/src/comida.test.ts | expanded (+8 lines) | ~244 |
+| 12:17 | Edited shared/src/comida.test.ts | inline fix | ~26 |
+| 12:18 | Edited client/src/inventory.ts | expanded (+8 lines) | ~155 |
+| 12:19 | Edited client/src/inventory.ts | expanded (+14 lines) | ~255 |
+| 12:19 | Edited client/src/inventory.ts | 3→3 lines | ~18 |
+| 12:19 | Edited client/src/inventory.ts | added 1 condition(s) | ~57 |
+| 12:19 | Edited client/src/inventory.ts | modified if() | ~94 |
+| 12:19 | Edited client/index.html | expanded (+19 lines) | ~185 |
+| 12:27 | §🍖 F7 — PVP. `atacar {alvo}` novo no protocolo (o id vem do `player_moved`); a session confere regra + modo dos DOIS + alcance entre posições + cooldown de 5 ticks e chama `aplicarDano(…,"pvp")`. `DANO_PVP=2` e `TICKS_ENTRE_ATAQUES=5` no módulo puro; `textoDaMorte` ganhou `porQuem` (redação sem gênero). `/pvp ligar\|desligar` = atalho pro `/regra pvp` (MESMO mapa), com broadcast pra turma + reenvio do `modo`. `temPvp()` = regra E não-mundo-de-aula. `RegraDef.pendente` da pvp SAIU — nenhuma regra é pendente hoje. Mensagem `modo` ganhou `pvp?` (opcional, tolerante) e é ela que deixa a mira vermelha; `raycastJogador` novo (puro) mira a caixa do jogador e o clique esquerdo vira soco quando ele está na frente do bloco | shared/src/{sobrevivencia,raycast,protocol,regras,session}.ts, client/src/main.ts, client/index.html, +pvp.test.ts, +_smoke-pvp.mjs, scripts/smoke.mjs | VERDE: typecheck 3/3 · 598 testes · smoke pvp 2× | ~28k |
+| 12:27 | COBERTURA TOTAL DE RECEITAS (pedido do usuário pós-playtest): 12 → 110. Pontes inventadas no lugar do forno/ovelha (vidro←areia, tijolo←terra+areia, lã←trigo, pedra←2 pedregulho, tocha←tábua+carvão, folha←tronco da espécie, grama←terra+clima), 12 cores por FLOR com 4 por MISTURA, 12 lãs + 12 vidros + 12 tapetes por tabela única, móveis/porta/janela/quadro, lajes+escadas de tijolo, obsidiana, capim e 36 blocos-glifo. Índices 0..11 intactos (contrato do protocolo). `SEM_RECEITA` novo (id → razão) + teste-PORTÃO que varre todo colocável | shared/src/receitas.ts, shared/src/receitas.test.ts, shared/src/comida.test.ts | VERDE: 605 testes · smoke craft OK | ~12k |
+| 12:27 | Painel de craft ganhou "só o que dá pra fazer agora" (checkbox, padrão OFF): com 110 receitas e mochila vazia a lista virava parede cinza | client/src/inventory.ts, client/index.html | build ok | ~2k |
+| 12:35 | Edited scripts/craft-shot.mjs | added 1 condition(s) | ~430 |

@@ -2,17 +2,56 @@
 
 > Working checklist. **STATUS.md** = handoff ("why & where we are"); **TODO.md** = "what's left to do".
 > Keep items actionable and short. Check off with `[x]`; sweep done items into STATUS.md ✅ when a phase closes.
-> Last updated: 2026-08-04 (sessão 43 — §🍖 F9 preset de sobrevivência + PAINEL DE AMIGOS + barra de
-> toque revisada. Sobra na fila: F7 /pvp, F8 mobs e o PLAYTEST acumulado. Ver STATUS 🚀)
+> Last updated: 2026-08-05 (sessão 45 — **O PLAYTEST COM 17 ALUNOS ACONTECEU**. Pedido do
+> usuário: cobertura TOTAL de receitas + §🍖 F7 /pvp. Ver 🔥 abaixo e STATUS 🚀)
 
 ---
 
 ## 🔥 Now (this session)
 
-<!-- A sessão 43 fechou as DUAS frentes que o usuário escolheu: o §🍖 F9 (preset de mundo
-     de sobrevivência) e o painel de amigos, e ainda a revisão da barra de toque (que
-     destravou o painel de amigos no tablet). Sobra na fila: §🍖 F7 /pvp (~0,5 sessão),
-     §🍖 F8 mobs (3+ sessões) e o PLAYTEST acumulado (ver 🏫). -->
+<!-- Sessão 45 (2026-08-05). O usuário abriu com o PLAYTEST FEITO (17 alunos, 2026-08-04) e
+     três pedidos: (1) todas as receitas que faltam, (2) o bug da lista de craft — que ele
+     confirmou ser o bug-573 já corrigido na 44, (3) o §🍖 F7 /pvp que ele havia pulado na 41.
+     A sessão começou com `git fetch`: o local estava 14 commits atrás (41..44 vieram de outra
+     máquina). -->
+
+- [x] **🏫 PLAYTEST DA SOBREVIVÊNCIA — FEITO (2026-08-04, turma de 17 alunos).** O usuário:
+      *"conseguiram fazer craft, plantar e comer"*. **Nenhum ajuste de número foi pedido** —
+      `TICKS_POR_CRESCIMENTO`, as chances de fruta/semente, a saciedade e o dreno de fome ficam
+      como estão até alguém reclamar. O que o playtest gerou de trabalho está nos dois itens
+      abaixo (receitas que faltam + o bug da lista de craft).
+
+- [x] **bug-573 — a lista de craft voltava ao topo a cada peça fabricada.** É ESTE o "bug da
+      lista de craft" do pedido (confirmado pelo usuário nesta sessão), e ele **já está
+      corrigido no código da sessão 44** (`scrollCraft` sobrevive ao `replaceChildren`, restaurado
+      DEPOIS do append; filtrar zera de propósito). Coberto por `npm run shots:toque`
+      (rolagem 324 → 324; com o fix fora, 324 → 0). **Nada a fazer além de conferir no próximo
+      playtest.**
+
+- [x] **🧱 RECEITA PRA TODO COLOCÁVEL** (sessão 45, escopo GRANDE escolhido pelo usuário:
+      *"cobrir tudo, inventando as pontes"*). **12 → 110 receitas.** Os elos que o lite não tem
+      (forno, ovelha, corante de mob) viraram pontes com material do próprio mundo: **vidro ←
+      areia · tijolo ← terra + areia · lã ← trigo · pedra ← 2 pedregulho · tocha ← tábua +
+      carvão · folhagem ← tronco da MESMA espécie · grama ← terra + (semente | areia | neve)**.
+      As 12 cores saem de FLOR, e as quatro sem flor própria saem de **mistura** (laranja =
+      amarelo + vermelho, roxo = vermelho + azul, rosa = vermelho + branco, ciano = azul +
+      verde/mandacaru) — misturar cor é conteúdo de sala. Cobre lã, vidro colorido, tapete,
+      porta, janela, cadeira, sofá, cama, quadro, laje/escada de tijolo, arenito, tijolo de
+      pedra, obsidiana, capim e os **36 blocos-glifo** (pedregulho escrito com carvão).
+      Os 12 índices antigos **não se mexeram** (o índice é contrato do protocolo).
+      **Portão novo em `receitas.test.ts`:** varre TODOS os ids e reprova bloco colocável sem
+      receita — quem criar bloco novo decide na hora entre escrever a receita ou entrar em
+      `SEM_RECEITA` com a razão (terreno, minério, tronco, flor, muda, bedrock).
+      **Extra de UI:** a lista ganhou o interruptor **"só o que dá pra fazer agora"** (padrão
+      desmarcado) — com 110 linhas e mochila vazia, o painel era uma parede cinza.
+
+- [x] **§🍖 F7 — `/pvp`** (sessão 45; pulado na 41, retomado a pedido do usuário).
+      `/pvp ligar|desligar` professor-only (molde do `/hora`, escreve na MESMA regra do
+      `/regra pvp`), ataque = clique esquerdo em jogador com a mensagem nova `atacar {alvo}`,
+      **2 pontos por soco e 0,5 s de cooldown**, e quem confere regra/modo/alcance/cooldown é a
+      session. Mundo de aula força OFF. A regra `pvp` perdeu o `RegraDef.pendente` — **nenhuma
+      regra do registro é pendente hoje**. O `modo` passou a carregar `pvp?` (opcional), que é o
+      que deixa a mira ficar vermelha em cima de quem se pode socar. Smoke `pvp` novo.
 
 - [x] **§🍖 F9 — PRESET DE MUNDO DE SOBREVIVÊNCIA** (sessão 43). `SessionOptions.sobrevivencia`
       (eixo à PARTE do `WorldPreset`, que segue sendo só terreno): mundo NOVO nasce com
@@ -62,7 +101,29 @@
 
 ## 🏫 Na escola (o usuário faz lá)
 
-- [ ] **PLAYTEST DA SOBREVIVÊNCIA (F1+F2+F3+F4+F5)** — entrar com `/modo sobrevivencia all` (ou `eu`).
+- [ ] **PLAYTEST DAS 110 RECEITAS E DO PVP (sessão 45)** — é o que sobrou de mais valioso.
+      **Das receitas:** 110 linhas na aba "criar" cabem numa aula, ou a turma se perde? O
+      interruptor **"só o que dá pra fazer agora"** (novo, padrão desmarcado) é achado sozinho —
+      e devia nascer MARCADO? O filtro de texto virou essencial (com 12 receitas era opcional)?
+      **As pontes inventadas se explicam sem o professor?** ("vidro de areia", "lã de trigo",
+      "tijolo de terra + areia", "pedra de 2 pedregulhos"). A **mistura de cor** (laranja =
+      amarelo + vermelho, roxo = vermelho + azul) é descoberta divertida ou truque escondido —
+      alguém acha sem ser avisado? Os **36 blocos-glifo** no fim da lista atrapalham quem
+      procura material de construção? Alguma quantidade parece cara/barata demais? (mudar é uma
+      linha em `RECEITAS`, **mas só APPEND**: o índice é contrato do protocolo.)
+      **Do pvp:** `/pvp ligar`, depois clique esquerdo em cima de alguém. **2 pontos por soco
+      (1 coração) e 0,5 s de cooldown** dão perseguição divertida ou execução? A **mira fica
+      VERMELHA** em cima de quem se pode socar — é notada ANTES de o aluno bater sem querer? O
+      aviso no chat ("o professor LIGOU o ataque entre jogadores") chega a tempo? A morte
+      nomeia quem bateu no chat da turma — isso ajuda a mediar ou vira competição de placar?
+      Faz falta o atacante SENTIR que acertou (hoje só a vítima tem retorno)? **Quem está em
+      criativo não bate nem apanha** — o professor supervisiona em paz, ou isso confunde?
+      ⚠️ Claim/confinamento **não** barram o soco (a área protege bloco, não pessoa): se a turma
+      esperar o contrário, é um gate a mais no `atacar`.
+
+- [ ] **PLAYTEST DA SOBREVIVÊNCIA (F1+F2+F3+F4+F5)** — ⚠️ **A PARTE DE CRAFT/PLANTAR/COMER JÁ
+      FOI FEITA** (2026-08-04, 17 alunos, sem ajuste pedido). O que segue aberto aqui é o resto:
+      queda, ar, fome, mochila e os layouts de tablet. Entrar com `/modo sobrevivencia all`.
       **Do F5 (craft), o que só o dedo responde:** o painel do E tem abas **mochila/criar** — a
       troca de aba é óbvia? Na aba "criar", **tocar na linha da receita fabrica** (a linha inteira
       é o botão) — o alvo dá pro dedo no tablet? O "falta N" em vermelho comunica o que falta sem
