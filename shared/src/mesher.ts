@@ -158,6 +158,10 @@ export const TILE = {
   fornalhaTopo: 124,
   fornalhaLado: 125,
   fornalhaLadoAcesa: 126,
+  /** §🍖 F10e: baú — tampa com ferrolho em cima, ripas com a fechadura nos
+   *  lados. Cubo cheio (a forma de caixa do Minecraft é refino futuro). */
+  bauTopo: 127,
+  bauLado: 128,
 } as const;
 
 /** cp20: blocos-glifo. Letras A–Z e dígitos 0–9 ocupam tiles consecutivos a
@@ -257,6 +261,7 @@ const BLOCK_TILES: Record<number, FaceTiles> = {
   // o lado, e é o próprio tick que troca o byte.
   [BlockId.Fornalha]: { top: TILE.fornalhaTopo, bottom: TILE.fornalhaTopo, side: TILE.fornalhaLado },
   [BlockId.FornalhaAcesa]: { top: TILE.fornalhaTopo, bottom: TILE.fornalhaTopo, side: TILE.fornalhaLadoAcesa },
+  [BlockId.Bau]: { top: TILE.bauTopo, bottom: TILE.bauTopo, side: TILE.bauLado },
 };
 // água fluida (2026-07-22): os 7 níveis usam o MESMO tile da fonte (v1 cubo
 // cheio; a altura-por-nível é refino futuro).

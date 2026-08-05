@@ -1,4 +1,4 @@
-import { isFornalha } from "./blocks";
+import { BlockId, isFornalha } from "./blocks";
 import {
   INV_SLOTS,
   type Inventario,
@@ -43,7 +43,8 @@ export const FORNALHA_SAIDA = 2;
  *  ÚNICA da pergunta "esta célula guarda coisa?" — o `use_block`, o gate de
  *  quebra e o save consultam esta função, e não uma lista própria cada um. */
 export function containerTipoDe(blockId: number): ContainerTipo | null {
-  return isFornalha(blockId) ? "fornalha" : null;
+  if (isFornalha(blockId)) return "fornalha";
+  return blockId === BlockId.Bau ? "bau" : null;
 }
 
 /**

@@ -211,12 +211,25 @@ export const BlockId = {
    *  frente na v1: 4 ids a mais só pela textura não pagam. */
   Fornalha: 186,
   FornalhaAcesa: 187,
+  /** Baú (§🍖 F10e, 2026-08-05, pedido do usuário): o segundo bloco com
+   *  inventário — e o barato, porque reusa inteiro o encanamento que a fornalha
+   *  criou (`containers.ts`). 27 slots, uma mochila inteira. UM id só: ao
+   *  contrário da fornalha, não há estado nenhum pra guardar no byte (aberto é
+   *  coisa de painel, não de mundo). */
+  Bau: 188,
 } as const;
 
 export type BlockId = (typeof BlockId)[keyof typeof BlockId];
 
-/** Maior ID válido (mantém isPlaceable sem número mágico ao crescer a lista). */
-const MAX_BLOCK_ID = BlockId.FornalhaAcesa;
+/**
+ * Maior ID válido (mantém isPlaceable sem número mágico ao crescer a lista).
+ *
+ * EXPORTADO desde o §🍖 F10 porque os testes-portão varrem "todos os ids" e
+ * fixavam o teto à mão: cada bloco novo exigia lembrar de subir o número em
+ * dois arquivos, e esquecer significava um portão que deixava de olhar
+ * justamente o bloco recém-criado — o oposto do que ele existe pra fazer.
+ */
+export const MAX_BLOCK_ID = BlockId.Bau;
 
 /** Água? Fonte (129) OU fluida (130-136) — atravessável e translúcida. */
 export function isAgua(id: number): boolean {

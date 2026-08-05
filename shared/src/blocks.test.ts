@@ -109,7 +109,11 @@ describe("formato de bloco/chunk (contrato de save e snapshot)", () => {
     expect(BlockId.FornalhaAcesa).toBe(187);
     expect(isPlaceable(BlockId.Fornalha)).toBe(true);
     expect(isPlaceable(BlockId.FornalhaAcesa)).toBe(false);
-    expect(isPlaceable(188)).toBe(false); // próximo byte NÃO é bloco
+    // baú (§🍖 F10e 2026-08-05): append 188, e UM id só — ao contrário da
+    // fornalha, não há estado nenhum pra guardar no byte.
+    expect(BlockId.Bau).toBe(188);
+    expect(isPlaceable(BlockId.Bau)).toBe(true);
+    expect(isPlaceable(189)).toBe(false); // próximo byte NÃO é bloco
   });
 
   it("água: fonte + fluida atravessável (não-sólida) e translúcida no mesher", () => {

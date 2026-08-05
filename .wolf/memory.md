@@ -1320,3 +1320,19 @@ passa pelo próprio portão) · 5 prints da pista. **PLAYTEST PENDENTE.**
 | 13:57 | Created server/src/cenarios/_smoke-fornalha.mjs | — | ~2090 |
 | 13:59 | Edited scripts/smoke.mjs | expanded (+21 lines) | ~231 |
 | 14:04 | §🍖 F10b: a FORNALHA — containers.ts + fornalha.ts puros, mapa por posição no meta do save, tick, protocolo (use_block abre / mover_container / container / fechar_container), painel de transferência no cliente | containers.ts, fornalha.ts, session.ts, protocol.ts, save.ts, blocks.ts, luz.ts, mesher.ts, receitas.ts, container.ts, main.ts, index.html + 3 arquivos de teste + smoke | verde: typecheck 3/3, 655 testes, build, 15/15 smokes (fornalha novo, rodado 2x), A/B honesto do tick (4 falham sem ele) | ~85k |
+| 14:04 | Edited shared/src/blocks.ts | expanded (+6 lines) | ~170 |
+| 14:04 | Edited shared/src/containers.ts | inline fix | ~14 |
+| 14:05 | Edited shared/src/containers.ts | added 1 condition(s) | ~49 |
+| 14:05 | Edited shared/src/receitas.ts | 2→6 lines | ~125 |
+| 14:05 | Edited shared/src/mesher.ts | 4→8 lines | ~76 |
+| 14:05 | Edited shared/src/mesher.ts | 2→3 lines | ~56 |
+| 14:05 | Edited client/src/atlasTexture.ts | added 1 condition(s) | ~396 |
+| 14:05 | Edited client/src/atlasTexture.ts | 1→5 lines | ~59 |
+| 14:05 | Edited client/src/blocksUi.ts | 1→4 lines | ~69 |
+| 14:06 | Edited shared/src/blocks.test.ts | 2→6 lines | ~84 |
+| 14:06 | Edited shared/src/blocks.ts | expanded (+7 lines) | ~123 |
+| 14:07 | Edited shared/src/containers.test.ts | modified for() | ~129 |
+| 14:07 | Edited shared/src/containers.test.ts | modified for() | ~176 |
+| 14:07 | Edited shared/src/fornalha.session.test.ts | expanded (+37 lines) | ~597 |
+| 14:08 | Edited scripts/smoke.mjs | "§🍖 F10b — o clique direi" → "§🍖 F10b/F10e — o clique " | ~120 |
+| 14:09 | §🍖 F10e: o BAÚ (id 188) — reusa o encanamento inteiro do F10b; receita 8 tábuas, 27 slots, com item NÃO quebra; MAX_BLOCK_ID exportado pros testes-portão | blocks.ts, containers.ts, receitas.ts, mesher.ts, atlasTexture.ts, blocksUi.ts + testes + smoke | verde: typecheck 3/3, 659 testes, build, smoke fornalha 2x | ~22k |

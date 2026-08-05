@@ -5,6 +5,7 @@ import {
   ITEM_DIAMANTE,
   ITEM_FRUTA,
   ITEM_TRIGO,
+  MAX_BLOCK_ID,
   isItem,
   isPlaceable,
   isProfessorOnly,
@@ -110,7 +111,7 @@ describe("drops — a tabela", () => {
     // sempre (1) e nunca (0) — as duas pontas do sorteio, pra o portão ver os
     // dois ramos das exceções sorteadas em vez de depender da sorte
     for (const sorteio of [() => 0, () => 0.999]) {
-      for (let id = 1; id <= BlockId.Plantacao3; id++) {
+      for (let id = 1; id <= MAX_BLOCK_ID; id++) {
         for (const d of dropsDe(id, sorteio)) {
           expect(
             isPlaceable(d.id) || isItem(d.id),

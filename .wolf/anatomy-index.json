@@ -1,12 +1,12 @@
 {
   "version": 1,
   "meta": {
-    "lastScanned": "2026-08-05T16:59:21.221Z",
+    "lastScanned": "2026-08-05T17:08:50.939Z",
     "fileCount": 296,
     "hits": 0,
     "misses": 0,
-    "renderedHash": "f65cb2da720cb75784d4885d920c3b2fe4f99881f16749a0b9d754ae56a2806e",
-    "storeUpdatedAt": "2026-08-05T16:59:21.240Z"
+    "renderedHash": "f902d3c59408944d8a11827398ad69679a101cfbd791cf13d63d6ab6ae8bfc03",
+    "storeUpdatedAt": "2026-08-05T17:08:50.957Z"
   },
   "files": {
     ".claude/commands/reframe.md": {
@@ -1447,11 +1447,11 @@
     },
     "client/src/atlasTexture.ts": {
       "description": "Texture atlas procedural pintado num canvas (sem assets externos — restrição",
-      "tokens": 9452,
-      "hash": "17ccc5566330350d",
-      "size": 33391,
-      "mtimeMs": 1785948068999.3228,
-      "updatedAt": "2026-08-05T16:41:09.120Z",
+      "tokens": 9869,
+      "hash": "d5274a8d2221fed2",
+      "size": 34863,
+      "mtimeMs": 1785949544547.3237,
+      "updatedAt": "2026-08-05T17:05:44.674Z",
       "source": "hook",
       "symbols": [
         {
@@ -1661,8 +1661,8 @@
           "name": "paintFornalhaTopo",
           "kind": "fn",
           "startLine": 496,
-          "endLine": 793,
-          "tokens": 3757
+          "endLine": 830,
+          "tokens": 4173
         }
       ]
     },
@@ -1820,25 +1820,25 @@
     },
     "client/src/blocksUi.ts": {
       "description": "Blocos colocáveis com nome em português — fonte única pra hotbar (main.ts)",
-      "tokens": 2500,
-      "hash": "f8d20548715a543f",
-      "size": 8874,
-      "mtimeMs": 1785948087983.3228,
-      "updatedAt": "2026-08-05T16:41:28.096Z",
+      "tokens": 2551,
+      "hash": "99f394fc4934fd66",
+      "size": 9061,
+      "mtimeMs": 1785949550199.3235,
+      "updatedAt": "2026-08-05T17:05:50.322Z",
       "source": "hook",
       "symbols": [
         {
           "name": "PlaceableEntry",
           "kind": "section",
           "startLine": 31,
-          "endLine": 167,
-          "tokens": 2162
+          "endLine": 170,
+          "tokens": 2213
         },
         {
           "name": "placeableFor",
           "kind": "fn",
-          "startLine": 168,
-          "endLine": 172,
+          "startLine": 171,
+          "endLine": 175,
           "tokens": 56
         }
       ]
@@ -4133,11 +4133,11 @@
     },
     "scripts/smoke.mjs": {
       "description": "Runner dos smokes de rede — sobe o servidor REAL, roda o cenário, mata tudo.",
-      "tokens": 4419,
-      "hash": "7eb031f89daf67d2",
-      "size": 16784,
-      "mtimeMs": 1785949161099.3237,
-      "updatedAt": "2026-08-05T16:59:21.221Z",
+      "tokens": 4441,
+      "hash": "cc4f20e69410bcbd",
+      "size": 16868,
+      "mtimeMs": 1785949730815.3235,
+      "updatedAt": "2026-08-05T17:08:50.938Z",
       "source": "hook",
       "symbols": [
         {
@@ -5787,230 +5787,230 @@
     },
     "shared/src/blocks.test.ts": {
       "description": "Declares id",
-      "tokens": 2355,
-      "hash": "beb26a6797d1acd9",
-      "size": 8321,
-      "mtimeMs": 1785948457991.3215,
-      "updatedAt": "2026-08-05T16:47:38.097Z",
+      "tokens": 2417,
+      "hash": "a73660f399cd62b1",
+      "size": 8549,
+      "mtimeMs": 1785949580027.3237,
+      "updatedAt": "2026-08-05T17:06:20.125Z",
       "source": "hook"
     },
     "shared/src/blocks.ts": {
       "description": "IDs de bloco. Gravados como bytes crus nos chunks (Uint8Array), no save e no",
-      "tokens": 9133,
-      "hash": "e89b282cf7880439",
-      "size": 32616,
-      "mtimeMs": 1785947814187.3235,
-      "updatedAt": "2026-08-05T16:36:54.286Z",
+      "tokens": 9324,
+      "hash": "82b035641e8655b1",
+      "size": 33308,
+      "mtimeMs": 1785949595491.3237,
+      "updatedAt": "2026-08-05T17:06:35.601Z",
       "source": "hook",
       "symbols": [
         {
           "name": "isAgua",
           "kind": "fn",
-          "startLine": 222,
-          "endLine": 227,
+          "startLine": 235,
+          "endLine": 240,
           "tokens": 75
         },
         {
           "name": "isAguaFonte",
           "kind": "fn",
-          "startLine": 228,
-          "endLine": 233,
+          "startLine": 241,
+          "endLine": 246,
           "tokens": 69
         },
         {
           "name": "aguaNivel",
           "kind": "fn",
-          "startLine": 234,
-          "endLine": 242,
+          "startLine": 247,
+          "endLine": 255,
           "tokens": 82
         },
         {
           "name": "aguaComNivel",
           "kind": "fn",
-          "startLine": 243,
-          "endLine": 308,
+          "startLine": 256,
+          "endLine": 321,
           "tokens": 889
         },
         {
           "name": "isCarvao",
           "kind": "fn",
-          "startLine": 309,
-          "endLine": 313,
+          "startLine": 322,
+          "endLine": 326,
           "tokens": 55
         },
         {
           "name": "isFornalha",
           "kind": "fn",
-          "startLine": 314,
-          "endLine": 318,
+          "startLine": 327,
+          "endLine": 331,
           "tokens": 46
         },
         {
           "name": "isBalde",
           "kind": "fn",
-          "startLine": 319,
-          "endLine": 340,
+          "startLine": 332,
+          "endLine": 353,
           "tokens": 177
         },
         {
           "name": "isItem",
           "kind": "fn",
-          "startLine": 341,
-          "endLine": 345,
+          "startLine": 354,
+          "endLine": 358,
           "tokens": 39
         },
         {
           "name": "isPlantacao",
           "kind": "fn",
-          "startLine": 346,
-          "endLine": 350,
+          "startLine": 359,
+          "endLine": 363,
           "tokens": 51
         },
         {
           "name": "estagioPlantacao",
           "kind": "fn",
-          "startLine": 351,
-          "endLine": 355,
+          "startLine": 364,
+          "endLine": 368,
           "tokens": 46
         },
         {
           "name": "isPlantacaoMadura",
           "kind": "fn",
-          "startLine": 356,
-          "endLine": 363,
+          "startLine": 369,
+          "endLine": 376,
           "tokens": 113
         },
         {
           "name": "isSolo",
           "kind": "fn",
-          "startLine": 364,
-          "endLine": 378,
+          "startLine": 377,
+          "endLine": 391,
           "tokens": 168
         },
         {
           "name": "isReplaceable",
           "kind": "fn",
-          "startLine": 379,
-          "endLine": 383,
+          "startLine": 392,
+          "endLine": 396,
           "tokens": 39
         },
         {
           "name": "isFlor",
           "kind": "fn",
-          "startLine": 384,
-          "endLine": 388,
+          "startLine": 397,
+          "endLine": 401,
           "tokens": 55
         },
         {
           "name": "isGramaAlta",
           "kind": "fn",
-          "startLine": 389,
-          "endLine": 393,
+          "startLine": 402,
+          "endLine": 406,
           "tokens": 54
         },
         {
           "name": "isFolhas",
           "kind": "fn",
-          "startLine": 394,
-          "endLine": 403,
+          "startLine": 407,
+          "endLine": 416,
           "tokens": 80
         },
         {
           "name": "isVidroColorido",
           "kind": "fn",
-          "startLine": 404,
-          "endLine": 408,
+          "startLine": 417,
+          "endLine": 421,
           "tokens": 50
         },
         {
           "name": "isSlab",
           "kind": "fn",
-          "startLine": 409,
-          "endLine": 413,
+          "startLine": 422,
+          "endLine": 426,
           "tokens": 57
         },
         {
           "name": "slabTop",
           "kind": "fn",
-          "startLine": 414,
-          "endLine": 418,
+          "startLine": 427,
+          "endLine": 431,
           "tokens": 47
         },
         {
           "name": "slabMaterial",
           "kind": "fn",
-          "startLine": 419,
-          "endLine": 423,
+          "startLine": 432,
+          "endLine": 436,
           "tokens": 46
         },
         {
           "name": "isStairs",
           "kind": "fn",
-          "startLine": 424,
-          "endLine": 428,
+          "startLine": 437,
+          "endLine": 441,
           "tokens": 58
         },
         {
           "name": "stairsFacing",
           "kind": "fn",
-          "startLine": 429,
-          "endLine": 433,
+          "startLine": 442,
+          "endLine": 446,
           "tokens": 47
         },
         {
           "name": "stairsTop",
           "kind": "fn",
-          "startLine": 434,
-          "endLine": 438,
+          "startLine": 447,
+          "endLine": 451,
           "tokens": 47
         },
         {
           "name": "stairsMaterial",
           "kind": "fn",
-          "startLine": 439,
-          "endLine": 444,
+          "startLine": 452,
+          "endLine": 457,
           "tokens": 72
         },
         {
           "name": "escadaId",
           "kind": "fn",
-          "startLine": 445,
-          "endLine": 453,
+          "startLine": 458,
+          "endLine": 466,
           "tokens": 131
         },
         {
           "name": "stepFootprint",
           "kind": "fn",
-          "startLine": 454,
-          "endLine": 466,
+          "startLine": 467,
+          "endLine": 479,
           "tokens": 167
         },
         {
           "name": "collisionBoxes",
           "kind": "fn",
-          "startLine": 467,
-          "endLine": 480,
+          "startLine": 480,
+          "endLine": 493,
           "tokens": 148
         },
         {
           "name": "isQuadro",
           "kind": "fn",
-          "startLine": 481,
-          "endLine": 485,
+          "startLine": 494,
+          "endLine": 498,
           "tokens": 42
         },
         {
           "name": "isCadeira",
           "kind": "fn",
-          "startLine": 486,
-          "endLine": 489,
+          "startLine": 499,
+          "endLine": 502,
           "tokens": 42
         },
         {
           "name": "isSofa",
           "kind": "fn",
-          "startLine": 490,
-          "endLine": 725,
+          "startLine": 503,
+          "endLine": 738,
           "tokens": 2842
         }
       ]
@@ -6877,130 +6877,130 @@
     },
     "shared/src/mesher.ts": {
       "description": "Culled mesher: função PURA (bytes do mundo → geometria). Só emite faces que",
-      "tokens": 15179,
-      "hash": "46cafe84b4877ee2",
-      "size": 53959,
-      "mtimeMs": 1785948025603.323,
-      "updatedAt": "2026-08-05T16:40:25.722Z",
+      "tokens": 15255,
+      "hash": "7e92392c9959aa7c",
+      "size": 54232,
+      "mtimeMs": 1785949524023.3237,
+      "updatedAt": "2026-08-05T17:05:24.176Z",
       "source": "hook",
       "symbols": [
         {
           "name": "FaceTiles",
           "kind": "section",
-          "startLine": 173,
-          "endLine": 329,
-          "tokens": 2240
+          "startLine": 177,
+          "endLine": 334,
+          "tokens": 2263
         },
         {
           "name": "blockIconTile",
           "kind": "fn",
-          "startLine": 330,
-          "endLine": 338,
+          "startLine": 335,
+          "endLine": 343,
           "tokens": 136
         },
         {
           "name": "blockSelectionBox",
           "kind": "fn",
-          "startLine": 339,
-          "endLine": 377,
+          "startLine": 344,
+          "endLine": 382,
           "tokens": 499
         },
         {
           "name": "FaceCorner",
           "kind": "section",
-          "startLine": 378,
-          "endLine": 382,
+          "startLine": 383,
+          "endLine": 387,
           "tokens": 34
         },
         {
           "name": "Face",
           "kind": "section",
-          "startLine": 383,
-          "endLine": 447,
+          "startLine": 388,
+          "endLine": 452,
           "tokens": 470
         },
         {
           "name": "UvAxis",
           "kind": "section",
-          "startLine": 448,
-          "endLine": 452,
+          "startLine": 453,
+          "endLine": 457,
           "tokens": 17
         },
         {
           "name": "uvAxisOf",
           "kind": "fn",
-          "startLine": 453,
-          "endLine": 465,
+          "startLine": 458,
+          "endLine": 470,
           "tokens": 165
         },
         {
           "name": "FaceBase",
           "kind": "section",
-          "startLine": 466,
-          "endLine": 523,
+          "startLine": 471,
+          "endLine": 528,
           "tokens": 722
         },
         {
           "name": "tileAguaDaFace",
           "kind": "fn",
-          "startLine": 524,
-          "endLine": 553,
+          "startLine": 529,
+          "endLine": 558,
           "tokens": 424
         },
         {
           "name": "rotXZ",
           "kind": "fn",
-          "startLine": 554,
-          "endLine": 573,
+          "startLine": 559,
+          "endLine": 578,
           "tokens": 199
         },
         {
           "name": "swayDoBloco",
           "kind": "fn",
-          "startLine": 574,
-          "endLine": 579,
+          "startLine": 579,
+          "endLine": 584,
           "tokens": 50
         },
         {
           "name": "ChunkGeometry",
           "kind": "section",
-          "startLine": 580,
-          "endLine": 630,
+          "startLine": 585,
+          "endLine": 635,
           "tokens": 769
         },
         {
           "name": "vizIndex",
           "kind": "fn",
-          "startLine": 631,
-          "endLine": 656,
+          "startLine": 636,
+          "endLine": 661,
           "tokens": 287
         },
         {
           "name": "extrairVizinhanca",
           "kind": "fn",
-          "startLine": 657,
-          "endLine": 700,
+          "startLine": 662,
+          "endLine": 705,
           "tokens": 467
         },
         {
           "name": "extrairVizinhancaLuz",
           "kind": "fn",
-          "startLine": 701,
-          "endLine": 720,
+          "startLine": 706,
+          "endLine": 725,
           "tokens": 196
         },
         {
           "name": "meshChunk",
           "kind": "fn",
-          "startLine": 721,
-          "endLine": 740,
+          "startLine": 726,
+          "endLine": 745,
           "tokens": 183
         },
         {
           "name": "meshVizinhanca",
           "kind": "fn",
-          "startLine": 741,
-          "endLine": 1245,
+          "startLine": 746,
+          "endLine": 1250,
           "tokens": 6779
         }
       ]
@@ -7606,11 +7606,11 @@
     },
     "shared/src/receitas.ts": {
       "description": "§🍖 F5 — CRAFT POR LISTA (receitas puras).",
-      "tokens": 5908,
-      "hash": "3e0cf5c5c60f439f",
-      "size": 21113,
-      "mtimeMs": 1785947989603.323,
-      "updatedAt": "2026-08-05T16:39:49.729Z",
+      "tokens": 5997,
+      "hash": "abe576c39b9ba1e6",
+      "size": 21439,
+      "mtimeMs": 1785949511159.3237,
+      "updatedAt": "2026-08-05T17:05:11.303Z",
       "source": "hook",
       "symbols": [
         {
@@ -7631,42 +7631,42 @@
           "name": "Cor",
           "kind": "section",
           "startLine": 136,
-          "endLine": 336,
-          "tokens": 3493
+          "endLine": 340,
+          "tokens": 3583
         },
         {
           "name": "receitaValida",
           "kind": "fn",
-          "startLine": 337,
-          "endLine": 342,
+          "startLine": 341,
+          "endLine": 346,
           "tokens": 77
         },
         {
           "name": "temIngredientes",
           "kind": "fn",
-          "startLine": 343,
-          "endLine": 352,
+          "startLine": 347,
+          "endLine": 356,
           "tokens": 131
         },
         {
           "name": "podeFabricar",
           "kind": "fn",
-          "startLine": 353,
-          "endLine": 362,
+          "startLine": 357,
+          "endLine": 366,
           "tokens": 115
         },
         {
           "name": "fabricar",
           "kind": "fn",
-          "startLine": 363,
-          "endLine": 376,
+          "startLine": 367,
+          "endLine": 380,
           "tokens": 182
         },
         {
           "name": "ingredientesDe",
           "kind": "fn",
-          "startLine": 377,
-          "endLine": 386,
+          "startLine": 381,
+          "endLine": 390,
           "tokens": 87
         }
       ]
@@ -8945,102 +8945,102 @@
     },
     "shared/src/containers.ts": {
       "description": "§🍖 F10 (2026-08-05) — BLOCO COM INVENTÁRIO PRÓPRIO.",
-      "tokens": 2641,
-      "hash": "dbf84eddaf250500",
-      "size": 9413,
-      "mtimeMs": 1785947877215.3223,
-      "updatedAt": "2026-08-05T16:37:57.311Z",
+      "tokens": 2656,
+      "hash": "e425c55d5c1174b5",
+      "size": 9467,
+      "mtimeMs": 1785949503663.3237,
+      "updatedAt": "2026-08-05T17:05:03.799Z",
       "source": "hook",
       "symbols": [
         {
           "name": "containerTipoDe",
           "kind": "fn",
           "startLine": 45,
-          "endLine": 54,
-          "tokens": 110
+          "endLine": 55,
+          "tokens": 123
         },
         {
           "name": "Container",
           "kind": "section",
-          "startLine": 55,
-          "endLine": 68,
+          "startLine": 56,
+          "endLine": 69,
           "tokens": 169
         },
         {
           "name": "containerVazio",
           "kind": "fn",
-          "startLine": 69,
-          "endLine": 82,
+          "startLine": 70,
+          "endLine": 83,
           "tokens": 134
         },
         {
           "name": "containerTemConteudo",
           "kind": "fn",
-          "startLine": 83,
-          "endLine": 87,
+          "startLine": 84,
+          "endLine": 88,
           "tokens": 57
         },
         {
           "name": "containerKey",
           "kind": "fn",
-          "startLine": 88,
-          "endLine": 100,
+          "startLine": 89,
+          "endLine": 101,
           "tokens": 160
         },
         {
           "name": "totalDeSlots",
           "kind": "fn",
-          "startLine": 101,
-          "endLine": 105,
+          "startLine": 102,
+          "endLine": 106,
           "tokens": 50
         },
         {
           "name": "ehSlotDeContainer",
           "kind": "fn",
-          "startLine": 106,
-          "endLine": 120,
+          "startLine": 107,
+          "endLine": 121,
           "tokens": 192
         },
         {
           "name": "moverEntre",
           "kind": "fn",
-          "startLine": 121,
-          "endLine": 145,
+          "startLine": 122,
+          "endLine": 146,
           "tokens": 297
         },
         {
           "name": "ContainerSalvo",
           "kind": "section",
-          "startLine": 146,
-          "endLine": 157,
+          "startLine": 147,
+          "endLine": 158,
           "tokens": 64
         },
         {
           "name": "containerParaSave",
           "kind": "fn",
-          "startLine": 158,
-          "endLine": 178,
+          "startLine": 159,
+          "endLine": 179,
           "tokens": 159
         },
         {
           "name": "inteiroNaoNegativo",
           "kind": "fn",
-          "startLine": 179,
-          "endLine": 188,
+          "startLine": 180,
+          "endLine": 189,
           "tokens": 120
         },
         {
           "name": "parseContainerSalvo",
           "kind": "fn",
-          "startLine": 189,
-          "endLine": 228,
+          "startLine": 190,
+          "endLine": 229,
           "tokens": 514
         },
         {
           "name": "containerDeSave",
           "kind": "fn",
-          "startLine": 229,
-          "endLine": 241,
+          "startLine": 230,
+          "endLine": 242,
           "tokens": 103
         }
       ]
@@ -9118,11 +9118,11 @@
     },
     "shared/src/containers.test.ts": {
       "description": "Inventário com pilhas em slots escolhidos (o resto vazio).",
-      "tokens": 2024,
-      "hash": "0efd71112bb8f752",
-      "size": 7133,
-      "mtimeMs": 1785948601799.323,
-      "updatedAt": "2026-08-05T16:50:01.945Z",
+      "tokens": 2249,
+      "hash": "5b52fc69f16a3834",
+      "size": 7938,
+      "mtimeMs": 1785949636967.3235,
+      "updatedAt": "2026-08-05T17:07:17.079Z",
       "source": "hook",
       "symbols": [
         {
@@ -9136,8 +9136,8 @@
           "name": "forno",
           "kind": "fn",
           "startLine": 35,
-          "endLine": 195,
-          "tokens": 1792
+          "endLine": 212,
+          "tokens": 2017
         }
       ]
     },
@@ -9161,11 +9161,11 @@
     },
     "shared/src/fornalha.session.test.ts": {
       "description": "§🍖 F10b — a fornalha PELO FIO. O `fornalha.test.ts` prova a simulação pura;",
-      "tokens": 3482,
-      "hash": "0694e4dda4ea60dd",
-      "size": 12240,
-      "mtimeMs": 1785948967315.3232,
-      "updatedAt": "2026-08-05T16:56:07.486Z",
+      "tokens": 4054,
+      "hash": "dadc567f4400ddc6",
+      "size": 14263,
+      "mtimeMs": 1785949652763.3235,
+      "updatedAt": "2026-08-05T17:07:32.919Z",
       "source": "hook",
       "symbols": [
         {
@@ -9235,8 +9235,8 @@
           "name": "mover",
           "kind": "fn",
           "startLine": 83,
-          "endLine": 272,
-          "tokens": 2590
+          "endLine": 309,
+          "tokens": 3162
         }
       ]
     },

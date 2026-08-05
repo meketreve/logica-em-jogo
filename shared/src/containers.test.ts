@@ -45,6 +45,12 @@ describe("containers — o tipo vem do BYTE, e é uma pergunta só", () => {
     expect(containerTipoDe(BlockId.FornalhaAcesa)).toBe("fornalha");
   });
 
+  it("o baú é o segundo container, e tem uma MOCHILA INTEIRA de slots", () => {
+    expect(containerTipoDe(BlockId.Bau)).toBe("bau");
+    expect(CONTAINER_SLOTS.bau).toBe(INV_SLOTS);
+    expect(containerVazio("bau").slots.length).toBe(INV_SLOTS);
+  });
+
   it("bloco comum não é container", () => {
     for (const id of [BlockId.Air, BlockId.Stone, BlockId.QuadroXP, BlockId.PortaXFechada]) {
       expect(containerTipoDe(id)).toBeNull();
@@ -134,6 +140,17 @@ describe("containers — o índice unificado (mochila + container)", () => {
     expect(moverEntre(m, c, 1.5, 0)).toBeNull();
     expect(moverEntre(m, c, 5, 6)).toBeNull(); // origem vazia
     expect(moverEntre(m, c, 0, 0)).toBeNull();
+  });
+
+  it("no BAÚ não há slot proibido: os 27 recebem qualquer coisa", () => {
+    // a regra de mão única é da SAÍDA da fornalha, e só dela — no baú, um slot
+    // proibido não teria explicação nenhuma pra dar à criança
+    const bau = containerVazio("bau");
+    for (const alvo of [0, 13, CONTAINER_SLOTS.bau - 1]) {
+      const r = moverEntre(inv([0, BlockId.Cobblestone, 3]), bau, 0, INV_SLOTS + alvo);
+      expect(r).not.toBeNull();
+      expect(r!.container.slots[alvo]).toEqual({ id: BlockId.Cobblestone, qtd: 3 });
+    }
   });
 
   it("não muta nem a mochila nem o container de entrada (funções puras)", () => {

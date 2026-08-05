@@ -6,6 +6,7 @@ import {
   ITEM_GRAVETO,
   ITEM_LINGOTE_FERRO,
   ITEM_TRIGO,
+  MAX_BLOCK_ID,
   isItem,
   isPlaceable,
   isProfessorOnly,
@@ -101,7 +102,7 @@ describe("receitas — tabela", () => {
     );
     for (const saida of COZIMENTO.values()) fabricaveis.add(saida.id);
     const orfaos: number[] = [];
-    for (let id = 1; id <= BlockId.FornalhaAcesa; id++) {
+    for (let id = 1; id <= MAX_BLOCK_ID; id++) {
       if (!isPlaceable(id)) continue; // porta aberta, água, estágio crescido…
       if (formaCanonica(id) !== id) continue; // variante: a canônica responde por ela
       if (isProfessorOnly(id)) continue;

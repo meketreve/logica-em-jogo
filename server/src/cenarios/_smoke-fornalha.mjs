@@ -25,6 +25,7 @@ const COBBLE = 3;
 const MINERIO_FERRO = 117;
 const FORNALHA = 186;
 const FORNALHA_ACESA = 187;
+const BAU = 188;
 const PLANKS = 7;
 const LINGOTE_FERRO = 909;
 // slots: 0..26 = mochila, 27+i = container (o índice UNIFICADO do protocolo)
@@ -172,6 +173,34 @@ await espera(500);
 ok(blocoEm(ana, cel) === AR, "a célula ficou vazia");
 ok(contar(ana, FORNALHA) === antesQuebra + 1, "e a fornalha voltou pra mochila");
 ok(ana.fechados > 0, "o painel de quem estava com ela aberta foi FECHADO pelo servidor");
+
+console.log("== §🍖 F10e: o BAÚ reusa o MESMO encanamento (27 slots, sem fogo) ==");
+// a fornalha saiu da célula no passo anterior; o baú entra no lugar dela
+enviar(prof, `/dar ana ${BAU} 1`);
+await espera(400);
+ana.ws.send(JSON.stringify({ type: "place_block", ...cel, blockId: BAU }));
+await espera(400);
+ok(blocoEm(ana, cel) === BAU, `o baú está no mundo (${blocoEm(ana, cel)})`);
+abrir(ana, cel);
+await espera(400);
+ok(cont(ana, cel)?.tipo === "bau", "o clique direito abriu o baú");
+ok(cont(ana, cel)?.queimando === undefined, "e ele não tem fogo nenhum");
+const guardar = slotDe(ana, LINGOTE_FERRO);
+transferir(ana, cel, guardar, INV_SLOTS + 26); // o ÚLTIMO slot: os 27 valem
+await espera(400);
+ok(contar(ana, LINGOTE_FERRO) === 0, "o lingote foi guardado no baú");
+ok(noSlot(cont(ana, cel), 26)?.id === LINGOTE_FERRO, "e está no slot 26 dele");
+
+console.log("== baú COM COISA DENTRO não quebra (a decisão do usuário) ==");
+ana.ws.send(JSON.stringify({ type: "break_block", ...cel }));
+await espera(450);
+ok(blocoEm(ana, cel) === BAU, "o baú continua de pé");
+transferir(ana, cel, INV_SLOTS + 26, guardar);
+await espera(400);
+ok(contar(ana, LINGOTE_FERRO) === 1, "o lingote voltou pra mochila");
+ana.ws.send(JSON.stringify({ type: "break_block", ...cel }));
+await espera(450);
+ok(blocoEm(ana, cel) === AR, "e aí o baú vazio quebrou");
 
 for (const c of [prof, ana]) c.ws.close();
 console.log(falhas === 0 ? "\nSMOKE /fornalha OK" : `\nSMOKE /fornalha FALHOU (${falhas})`);

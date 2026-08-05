@@ -242,6 +242,43 @@ describe("§🍖 F10b — a fornalha pelo fio", () => {
     ]);
   });
 
+  it("§🍖 F10e — o BAÚ reusa o encanamento inteiro: abre, guarda e devolve", () => {
+    const { session, sent } = turma();
+    const s = session.spawn;
+    const b = { x: Math.floor(s.x) + 2, y: Math.floor(s.y), z: Math.floor(s.z) };
+    setBlock(session.world, b.x, b.y, b.z, BlockId.Bau);
+    session.handleMessage(1, cmd(`/dar ana ${BlockId.Cobblestone} 40`));
+    session.handleMessage(2, abrir(b.x, b.y, b.z));
+    expect(ultimoContainer(sent, 2)).toMatchObject({ tipo: "bau" });
+    // guarda no ÚLTIMO slot do baú (os 27 valem: não há slot proibido aqui)
+    session.handleMessage(2, mover(b.x, b.y, b.z, 0, INV_SLOTS + 26));
+    expect(naMochila(sent, 2, BlockId.Cobblestone)).toBe(0);
+    expect(ultimoContainer(sent, 2)!.slots).toEqual([
+      { slot: 26, id: BlockId.Cobblestone, qtd: 40 },
+    ]);
+    // e volta
+    session.handleMessage(2, mover(b.x, b.y, b.z, INV_SLOTS + 26, 3));
+    expect(naMochila(sent, 2, BlockId.Cobblestone)).toBe(40);
+  });
+
+  it("§🍖 F10e — baú COM COISA DENTRO não quebra (a decisão do usuário)", () => {
+    const { session, sent } = turma();
+    const s = session.spawn;
+    const b = { x: Math.floor(s.x) + 2, y: Math.floor(s.y), z: Math.floor(s.z) };
+    setBlock(session.world, b.x, b.y, b.z, BlockId.Bau);
+    session.handleMessage(1, cmd(`/dar ana ${BlockId.Cobblestone} 5`));
+    session.handleMessage(2, abrir(b.x, b.y, b.z));
+    session.handleMessage(2, mover(b.x, b.y, b.z, 0, INV_SLOTS + 0));
+    session.handleMessage(2, JSON.stringify({ type: "break_block", ...b }));
+    expect(getBlock(session.world, b.x, b.y, b.z)).toBe(BlockId.Bau);
+    // esvaziado, quebra — e o pedregulho não se perdeu no caminho
+    session.handleMessage(2, mover(b.x, b.y, b.z, INV_SLOTS + 0, 0));
+    session.handleMessage(2, JSON.stringify({ type: "break_block", ...b }));
+    expect(getBlock(session.world, b.x, b.y, b.z)).toBe(BlockId.Air);
+    expect(naMochila(sent, 2, BlockId.Cobblestone)).toBe(5);
+    expect(naMochila(sent, 2, BlockId.Bau)).toBe(1);
+  });
+
   it("fechar o painel para o fluxo: o tick não manda mais nada pra quem saiu", () => {
     const { session, sent } = turma();
     const f = poeFornalha(session);

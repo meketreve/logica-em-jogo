@@ -502,6 +502,39 @@ function paintFornalhaTopo(ctx: CanvasRenderingContext2D, tile: number): void {
   ctx.strokeRect(ox + 2.5, oy + 2.5, px - 5, px - 5);
 }
 
+/**
+ * §🍖 F10e: o baú. Madeira escura com ripas, uma faixa clara na horizontal (a
+ * tampa) e o ferrolho de metal no meio — a fechadura é o que faz o aluno
+ * reconhecer "isso guarda coisa" antes de qualquer texto. O topo mostra a tampa
+ * fechada com a mesma dobradiça.
+ */
+function paintBau(ctx: CanvasRenderingContext2D, tile: number, topo: boolean): void {
+  paintNoise(ctx, tile, [116, 78, 40], 14);
+  const [ox, oy] = tileOrigin(tile);
+  const px = ATLAS.tilePx;
+  // ripas verticais: 3 linhas escuras, senão a madeira vira uma mancha
+  ctx.fillStyle = "rgb(84, 54, 26)";
+  for (const dx of [4, 8, 12]) ctx.fillRect(ox + dx, oy, 1, px);
+  if (topo) {
+    // tampa: moldura + dobradiça atravessando
+    ctx.strokeStyle = "rgb(70, 46, 22)";
+    ctx.lineWidth = 1;
+    ctx.strokeRect(ox + 1.5, oy + 1.5, px - 3, px - 3);
+    ctx.fillStyle = "rgb(150, 150, 158)";
+    ctx.fillRect(ox + 2, oy + 7, px - 4, 2);
+    return;
+  }
+  // lado: a linha da tampa em cima + o ferrolho no meio
+  ctx.fillStyle = "rgb(146, 100, 52)";
+  ctx.fillRect(ox, oy + 4, px, 1);
+  ctx.fillStyle = "rgb(64, 40, 18)";
+  ctx.fillRect(ox, oy + 5, px, 1);
+  ctx.fillStyle = "rgb(158, 158, 166)";
+  ctx.fillRect(ox + 6, oy + 3, 4, 5);
+  ctx.fillStyle = "rgb(52, 52, 58)";
+  ctx.fillRect(ox + 7, oy + 5, 2, 2); // o buraco da chave
+}
+
 /** Vetor de onda da água: dois setores inteiros + a mistura entre eles (ver
  *  `ondaAguaDoVento` em shared/vento.ts, que explica por que é um PAR). */
 export interface OndaAgua {
@@ -763,6 +796,10 @@ export function createAtlasTexture(): THREE.Texture {
   paintFornalhaTopo(ctx, TILE.fornalhaTopo);
   paintFornalhaLado(ctx, TILE.fornalhaLado, false);
   paintFornalhaLado(ctx, TILE.fornalhaLadoAcesa, true);
+
+  // baú (§🍖 F10e 2026-08-05): tampa em cima, ripas + ferrolho nos lados
+  paintBau(ctx, TILE.bauTopo, true);
+  paintBau(ctx, TILE.bauLado, false);
 
   // vidro colorido (2026-07-25): mesma paleta das lãs, na ordem VidroBranco..Marrom
   const CORES_VIDRO: readonly Rgb[] = [

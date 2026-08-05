@@ -287,6 +287,10 @@ const FUNDICAO: readonly Receita[] = [
   // porque `Receita.custo` não tem "ou" — e ter duas linhas na lista é melhor
   // pro aluno do que uma linha que aceita duas coisas sem dizer quais.
   { saida: { id: BlockId.Tocha, qtd: 4 }, custo: [{ id: ITEM_GRAVETO, qtd: 1 }, { id: ITEM_CARVAO_VEGETAL, qtd: 1 }] },
+  // §🍖 F10e: o baú — 8 tábuas, o número do Minecraft. Barato de propósito: é
+  // ele que resolve a mochila de 27 slots que enche no meio da aula, e uma
+  // solução cara pro problema mais comum da turma seria a decisão errada.
+  { saida: { id: BlockId.Bau, qtd: 1 }, custo: [{ id: BlockId.Planks, qtd: 8 }] },
 ];
 
 export const RECEITAS: readonly Receita[] = [
