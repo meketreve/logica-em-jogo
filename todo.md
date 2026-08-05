@@ -276,11 +276,21 @@ Singleplayer (Web Worker) não tem fs — chat não vira arquivo lá, como plane
 
 ## Sistema de sobrevivência (feature grande)
 
-* \[ ] fome
-* \[ ] vida
-* \[ ] ferramentas
-* \[ ] craft
-* \[ ] minérios
+* \[x] fome — **FEITO** (§🍖 F3, sessão 35; F6 fechou o laço e ela voltou a matar)
+* \[x] vida — **FEITO** (§🍖 F2, sessão 34: queda, afogamento, morte, respawn)
+* \[x] craft — **FEITO** (§🍖 F5, sessão 39; sessão 45 levou de 12 pra 110 receitas, cobrindo
+  todo bloco colocável)
+* \[ ] **ferramentas** — escopo escrito em `.wolf/TODO.md` §🍖 **F10d**. Duas decisões travam:
+  durabilidade sim/não e ferramenta obrigatória pra minerar sim/não.
+* \[ ] **minérios: fornalha + lingotes + carvão** — escopo em `.wolf/TODO.md` §🍖 **F10a/F10b**.
+  Item carvão (do minério de carvão), carvão vegetal (tronco cozido), lingote de ferro/ouro, e
+  **tempo de queima por combustível**. A fornalha é o primeiro bloco com INVENTÁRIO do jogo (o
+  molde é o quadro: estado por posição no meta do save).
+* \[ ] **algodão no lugar da lã-de-trigo** — escopo em `.wolf/TODO.md` §🍖 **F10c**. Planta
+  selvagem no gen dropa semente por sorte; cultivada madura dropa 1–2 algodão + a semente.
+  `3 algodão → 1 lã branca`, e o trigo volta a ser só comida.
+* \[x] pvp — **FEITO** (§🍖 F7, sessão 45)
+* \[ ] mobs (§🍖 F8) — fora do lite, 3+ sessões, com o aviso de GPU do laboratório
 
 ## Geração de mundo / performance
 

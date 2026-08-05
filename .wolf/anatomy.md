@@ -1,6 +1,6 @@
 # anatomy.md
 
-> Auto-maintained by OpenWolf. Last scanned: 2026-08-05T15:36:57.432Z
+> Auto-maintained by OpenWolf. Last scanned: 2026-08-05T16:08:23.041Z
 > Files: 289 tracked | Anatomy hits: 0 | Misses: 0
 
 ## ./
@@ -15,7 +15,7 @@
 - `package.json` — Node.js package manifest (~328 tok)
 - `projeto.txt` (~4707 tok)
 - `README.md` — Project documentation (~1948 tok)
-- `todo.md` — Ideias para fazer (~6972 tok)
+- `todo.md` — Ideias para fazer (~7243 tok)
 - `tsconfig.base.json` (~130 tok)
 
 ## .claude/

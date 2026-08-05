@@ -1071,13 +1071,19 @@ Documento é o ÚLTIMO entregável, não o primeiro. Construir, não documentar.
 
 ## 🚀 Próxima fase — PLAYTEST das receitas e do pvp (e depois, só o F8 sobra)
 
-A sessão 45 fechou o **§🍖 F7** e a **cobertura total de receitas**. Com isso, **a sobrevivência
-do lite está inteira**: F1..F7 + F9 feitos, e a única frente de jogo que resta no §🍖 é o **F8
-(mobs)**, que é grande e está fora do lite.
+A sessão 45 fechou o **§🍖 F7** e a **cobertura total de receitas** — F1..F7 + F9 estão feitos.
+No fim dela o usuário **escolheu a próxima frente e mandou ANOTAR**: o **§🍖 F10 — fundição,
+ferramentas e algodão** (fornalha com tempo de queima, item carvão e carvão vegetal, lingotes,
+ferramentas, e o **algodão substituindo a ponte "lã ← trigo"** que a 45 inventou). Escopo item
+a item, com as duas perguntas que travam o desenho das ferramentas, em `.wolf/TODO.md §🍖 F10`.
 
 | frente | custo | estado |
 |---|---|---|
 | **PLAYTEST das 110 receitas + do pvp** | do usuário, na escola | **É o mais valioso agora.** Ver o bloco de perguntas no `.wolf/TODO.md §🏫` |
+| **§🍖 F10a** item carvão + drops de minério | ~0,5 sessão | Anotado. **Não depende da fornalha** — é o começo barato |
+| **§🍖 F10b** FORNALHA | ~1,5–2 sessões | Anotado. **Primeiro bloco com INVENTÁRIO** (molde: `quadros.ts`) |
+| **§🍖 F10c** algodão | ~1 sessão | Anotado. Molde exato da plantação do F6 + selvagem no gen |
+| **§🍖 F10d** ferramentas | ~1–1,5 sessão | Anotado. **Bloqueado por 2 decisões do usuário** (durabilidade? obrigatória?) |
 | **§🍖 F8 mobs** | 3+ sessões | Fora do lite, com o aviso de GPU do lab |
 | **§🍖 F1..F7, F9** | — | ✅ FEITOS (sessões 34, 35, 36, 39, 40, 43 e 45) |
 

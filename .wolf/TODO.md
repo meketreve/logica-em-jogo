@@ -66,6 +66,101 @@
       serpentina. `um` nos 3 primeiros, **`todos` na chegada**. Verificador próprio (BFS +
       aluna que corre) é o portão. Detalhe no STATUS ✅.
 
+## 🔜 §🍖 F10 — FUNDIÇÃO, FERRAMENTAS E ALGODÃO (pedido do usuário, 2026-08-05)
+
+<!-- ANOTADO, não implementado (é o padrão dele: "joga tudo isso no todo.md").
+     Pedido literal: bloco de ALGODÃO no lugar da lã-de-trigo (planta selvagem dropa
+     semente por sorte, cultivada dropa 1–2 por colheita), FORNALHA, FERRAMENTAS,
+     LINGOTES, item CARVÃO (do minério) e CARVÃO VEGETAL (de cozinhar tronco), com
+     TEMPO DE QUEIMA por combustível. A ordem abaixo é por custo; F10a não depende de
+     nada e já paga sozinho. -->
+
+**A ideia que amarra tudo:** o lite não tem mob, e foi por isso que a sessão 45 inventou
+"lã ← trigo". **Algodão é a ponte HONESTA** — vira planta de verdade, com a mesma cadeia que o
+trigo já ensina (achar → plantar → esperar → colher), e devolve o trigo ao papel de comida. E a
+fornalha é o que transforma "minério é bloco decorativo" em cadeia de produção de verdade.
+
+### F10a — o item CARVÃO e os drops de minério (~0,5 sessão, NÃO depende da fornalha)
+
+- [ ] **`ITEM_CARVAO` na banda ≥900** e `drops.ts`: **minério de carvão → 1 item carvão**
+      (hoje o bloco cai ele mesmo). Idem **minério de diamante → 1 item diamante**: no
+      Minecraft esses dois não fundem, o minério já entrega o item.
+      **Ferro e ouro continuam caindo como BLOCO de minério** — é ele que vai pra fornalha.
+- [ ] **As receitas que hoje usam `MinerioCarvao` passam a usar o item**: tocha, corante preto
+      (lã/vidro/tapete pretos), obsidiana e os **36 glifos**. ⚠️ Mudar o CUSTO de uma receita
+      existente é permitido (a identidade é o ÍNDICE, e ele não se mexe) — o que não pode é
+      reordenar. O portão de `receitas.test.ts` segue valendo sem mudança.
+- [ ] **Ícone de item vem do ATLAS** (`makeBlockIcons` recorta dele), então **todo item novo
+      precisa de tile pintado** em `atlasTexture.ts` — é o custo escondido de cada id novo.
+
+### F10b — a FORNALHA (a frente cara, ~1,5–2 sessões — é ela que destrava o resto)
+
+- [ ] **É o primeiro bloco com INVENTÁRIO do jogo, e o molde já existe: o QUADRO.**
+      `quadros.ts` é o precedente exato — conteúdo por POSIÇÃO num mapa da GameSession
+      (servidor = verdade), mensagens próprias e persistência no **meta do save**, sem tocar
+      nos bytes do chunk. A fornalha segue esse desenho: `fornalha.ts` puro + mapa por posição.
+- [ ] **`shared/src/fornalha.ts` (puro):** 3 slots (entrada · combustível · saída),
+      `COZIMENTO` (id de entrada → id de saída) e **`COMBUSTIVEIS` (id → ticks de queima)**,
+      que é o pedido explícito do usuário. Régua sugerida, com o tick de 10 Hz:
+      **1 cozimento = 100 ticks (10 s)** · tábua/tronco/cerca/laje de madeira = 1 cozimento ·
+      **carvão e carvão vegetal = 8 cozimentos** (os números do Minecraft, que é a convenção
+      que a turma já tem). Tudo em TICKS, nunca em relógio de parede.
+- [ ] **O que ela cozinha na v1:** minério de ferro → **lingote de ferro** · minério de ouro →
+      **lingote de ouro** · **tronco (as 4 espécies) → carvão vegetal** · areia → vidro
+      (❓ **decidir: manter também a receita direta da 45, ou tirá-la quando a fornalha
+      existir?**). Comida assada é escopo à parte e não entra.
+- [ ] **Dois ids de bloco** (apagada/acesa), estado no ID como a porta — e **acesa EMITE LUZ
+      de graça**, porque a luz (§💡) é função pura dos bytes e mora 100% no cliente.
+      Sem direção de frente na v1 (4 ids a mais só pela textura).
+- [ ] **Tick:** índice de fornalhas ACESAS varrido no tick, no molde do pulso da plantação
+      (§🍖 F6) — fornalha apagada custa zero. Receita da própria: **8 pedregulho**.
+- [ ] **Protocolo:** `use_block` já existe e vira "abrir" (responde com o estado da fornalha);
+      falta a mensagem de mover item mochila↔fornalha e o `fornalha_changed` pra quem está com
+      ela aberta. **A UI nunca decide** — mesma disciplina do craft.
+- [ ] ⚠️ **Colisões:** o balde vira **3 lingotes de ferro** (o comentário em `receitas.ts` já
+      previa) · `SEM_RECEITA` perde os minérios de ferro/ouro como "sem uso" · claim e
+      confinamento têm de valer pra abrir fornalha alheia (é acesso a INVENTÁRIO, não a bloco).
+
+### F10c — ALGODÃO (~1 sessão)
+
+- [ ] **`Algodao0..3` no molde EXATO da plantação do F6** (4 estágios em ids consecutivos, só
+      o 0 colocável, cruz de sprite, exige `isSolo`). O `crescerPlantacao` deixa de ser
+      específico do trigo — **uma planta = (id base, nº de estágios)** —, e o índice
+      `plantacoes` da session passa a guardar as duas.
+- [ ] **Algodão SELVAGEM no worldgen** (bioma a escolher — caatinga/cerrado combina), com
+      **chance de dropar 1 semente**, no molde exato do `CHANCE_SEMENTE_DO_CAPIM` (1/4).
+      É assim que o aluno ACHA a cadeia sem o professor entregar.
+- [ ] **Cultivado maduro dropa 1–2 algodão + a semente de volta.** É o **primeiro drop com
+      QUANTIDADE sorteada** — `dropsDe` já recebe o `sorteio` injetável de propósito, então
+      cabe sem motor novo (e o teste não vira sorteio: ele injeta o sorteio).
+- [ ] **`3 algodão → 1 lã branca`** substitui o CUSTO da receita de lã branca (o índice fica).
+      O trigo volta a ser SÓ comida — some a competição pão × lã que a 45 criou, e a cadeia da
+      cor fica: algodão → lã branca → tingir com flor. As 11 lãs coloridas não mudam.
+
+### F10d — FERRAMENTAS (~1–1,5 sessão, e **duas decisões do usuário travam o desenho**)
+
+- [ ] ❓ **DURABILIDADE: tem ou não?** `Stack` é `{id, qtd}` hoje; durabilidade exige um campo
+      novo que TODO código de pilha (empilhar, mover, salvar, comparar) passa a conhecer.
+      **Recomendação: v1 SEM durabilidade** (ferramenta não quebra) — numa aula de 50 min
+      ninguém gasta uma picareta, e o custo do campo é permanente. `tamanhoStack(id) = 1` já
+      existe (é o do balde) e serve pra ferramenta no dia 1.
+- [ ] ❓ **A ferramenta é OBRIGATÓRIA pra minerar?** Hoje quebrar é 1 clique, instantâneo, e
+      sempre dropa — então "ferramenta acelera" não muda nada (não existe tempo de quebra). As
+      opções reais: **(i)** requisito por família (pedra e minério exigem picareta; sem ela não
+      cai nada, ou nem quebra) — é o que dá SENTIDO à cadeia e o que o Minecraft faz;
+      **(ii)** só drop melhor. ⚠️ (i) muda a progressão da aula inteira: quem entra em
+      sobrevivência não pega pedra até fabricar a picareta de madeira.
+- [ ] **Se for (i):** picareta/machado/pá × madeira/pedra/ferro (ouro e diamante entram se
+      houver razão), receitas no molde do Minecraft, e o gate mora no `break_block` da session
+      **ANTES do `applyBlock`** — igual à recusa por mochila cheia (recusa não pode deixar
+      rastro no mundo). Criativo e mundo de aula ficam de fora pelo portão que já existe
+      (`inventarioVale`).
+- [ ] **Enxada só faz sentido se houver terra ARADA** — hoje se planta direto na terra/grama
+      (decisão do F6). Ou a enxada fica fora, ou o farmland nasce junto.
+
+**Ordem sugerida:** F10a (barato e independente) → F10b (a cara, destrava lingote e carvão
+vegetal) → F10c (algodão) → F10d (ferramentas, depois das duas respostas). **Nada começado.**
+
 ## ⏭️ Next
 
 - [x] **Vegetação precisa de bloco de apoio** (sessão 40, bug-558) — `GramaAlta`/`Seca`/`Fria`
