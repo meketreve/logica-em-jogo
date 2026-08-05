@@ -2,8 +2,8 @@
 
 > Working checklist. **STATUS.md** = handoff ("why & where we are"); **TODO.md** = "what's left to do".
 > Keep items actionable and short. Check off with `[x]`; sweep done items into STATUS.md ✅ when a phase closes.
-> Last updated: 2026-08-05 (sessão 45 — **O PLAYTEST COM 17 ALUNOS ACONTECEU**. Pedido do
-> usuário: cobertura TOTAL de receitas + §🍖 F7 /pvp. Ver 🔥 abaixo e STATUS 🚀)
+> Last updated: 2026-08-05 (sessão 46 — **§🍖 F10 INTEIRO**: fundição, fornalha, baú, claim na
+> interação, algodão e ferramentas. Ver 🔥 abaixo e STATUS 🚀)
 
 ---
 
@@ -66,7 +66,17 @@
       serpentina. `um` nos 3 primeiros, **`todos` na chegada**. Verificador próprio (BFS +
       aluna que corre) é o portão. Detalhe no STATUS ✅.
 
-## 🔜 §🍖 F10 — FUNDIÇÃO, FERRAMENTAS E ALGODÃO (pedido do usuário, 2026-08-05)
+## ✅ §🍖 F10 — FUNDIÇÃO, FERRAMENTAS E ALGODÃO — **FEITO INTEIRO (sessão 46, 2026-08-05)**
+
+<!-- O usuário respondeu as 5 perguntas em aberto e mandou: "pode fazer tudo da f10 na ordem
+     que achar melhor". Ordem executada: F10a → F10b → F10e → F10f → F10c → F10d, cada uma no
+     seu commit. As decisões dele: fornalha SUBSTITUI a receita de vidro · graveto é ITEM e a
+     tocha é 1 graveto + 1 carvão (mineral OU vegetal) · sem picareta o bloco NÃO QUEBRA e
+     mostra aviso · baú com item não quebra · confinamento barra interação.
+     Detalhe de cada frente no STATUS ✅. Os ❓ que sobraram viraram decisão e estão no
+     cerebrum (Decision Log). -->
+
+## 🔜 §🍖 F10 — o escopo, pra referência (tudo abaixo está FEITO)
 
 <!-- ANOTADO, não implementado (é o padrão dele: "joga tudo isso no todo.md").
      1º pedido: bloco de ALGODÃO no lugar da lã-de-trigo (planta selvagem dropa
@@ -86,58 +96,58 @@ fornalha é o que transforma "minério é bloco decorativo" em cadeia de produç
 
 ### F10a — o item CARVÃO e os drops de minério (~0,5 sessão, NÃO depende da fornalha)
 
-- [ ] **`ITEM_CARVAO` na banda ≥900** e `drops.ts`: **minério de carvão → 1 item carvão**
+- [x] **`ITEM_CARVAO` na banda ≥900** e `drops.ts`: **minério de carvão → 1 item carvão**
       (hoje o bloco cai ele mesmo). Idem **minério de diamante → 1 item diamante**: no
       Minecraft esses dois não fundem, o minério já entrega o item.
       **Ferro e ouro continuam caindo como BLOCO de minério** — é ele que vai pra fornalha.
-- [ ] **As receitas que hoje usam `MinerioCarvao` passam a usar o item**: tocha, corante preto
+- [x] **As receitas que hoje usam `MinerioCarvao` passam a usar o item**: tocha, corante preto
       (lã/vidro/tapete pretos), obsidiana e os **36 glifos**. ⚠️ Mudar o CUSTO de uma receita
       existente é permitido (a identidade é o ÍNDICE, e ele não se mexe) — o que não pode é
       reordenar. O portão de `receitas.test.ts` segue valendo sem mudança.
-- [ ] **Ícone de item vem do ATLAS** (`makeBlockIcons` recorta dele), então **todo item novo
+- [x] **Ícone de item vem do ATLAS** (`makeBlockIcons` recorta dele), então **todo item novo
       precisa de tile pintado** em `atlasTexture.ts` — é o custo escondido de cada id novo.
 
 ### F10b — a FORNALHA (a frente cara, ~1,5–2 sessões — é ela que destrava o resto)
 
-- [ ] **É o primeiro bloco com INVENTÁRIO do jogo, e o molde já existe: o QUADRO.**
+- [x] **É o primeiro bloco com INVENTÁRIO do jogo, e o molde já existe: o QUADRO.**
       `quadros.ts` é o precedente exato — conteúdo por POSIÇÃO num mapa da GameSession
       (servidor = verdade), mensagens próprias e persistência no **meta do save**, sem tocar
       nos bytes do chunk. A fornalha segue esse desenho: `fornalha.ts` puro + mapa por posição.
-- [ ] **`shared/src/fornalha.ts` (puro):** 3 slots (entrada · combustível · saída),
+- [x] **`shared/src/fornalha.ts` (puro):** 3 slots (entrada · combustível · saída),
       `COZIMENTO` (id de entrada → id de saída) e **`COMBUSTIVEIS` (id → ticks de queima)**,
       que é o pedido explícito do usuário. Régua sugerida, com o tick de 10 Hz:
       **1 cozimento = 100 ticks (10 s)** · tábua/tronco/cerca/laje de madeira = 1 cozimento ·
       **carvão e carvão vegetal = 8 cozimentos** (os números do Minecraft, que é a convenção
       que a turma já tem). Tudo em TICKS, nunca em relógio de parede.
-- [ ] **O que ela cozinha na v1:** minério de ferro → **lingote de ferro** · minério de ouro →
+- [x] **O que ela cozinha na v1:** minério de ferro → **lingote de ferro** · minério de ouro →
       **lingote de ouro** · **tronco (as 4 espécies) → carvão vegetal** · areia → vidro
       (❓ **decidir: manter também a receita direta da 45, ou tirá-la quando a fornalha
       existir?**). Comida assada é escopo à parte e não entra.
-- [ ] **Dois ids de bloco** (apagada/acesa), estado no ID como a porta — e **acesa EMITE LUZ
+- [x] **Dois ids de bloco** (apagada/acesa), estado no ID como a porta — e **acesa EMITE LUZ
       de graça**, porque a luz (§💡) é função pura dos bytes e mora 100% no cliente.
       Sem direção de frente na v1 (4 ids a mais só pela textura).
-- [ ] **Tick:** índice de fornalhas ACESAS varrido no tick, no molde do pulso da plantação
+- [x] **Tick:** índice de fornalhas ACESAS varrido no tick, no molde do pulso da plantação
       (§🍖 F6) — fornalha apagada custa zero. Receita da própria: **8 pedregulho**.
-- [ ] **Protocolo:** `use_block` já existe e vira "abrir" (responde com o estado da fornalha);
+- [x] **Protocolo:** `use_block` já existe e vira "abrir" (responde com o estado da fornalha);
       falta a mensagem de mover item mochila↔fornalha e o `fornalha_changed` pra quem está com
       ela aberta. **A UI nunca decide** — mesma disciplina do craft.
-- [ ] ⚠️ **Colisões:** o balde vira **3 lingotes de ferro** (o comentário em `receitas.ts` já
+- [x] ⚠️ **Colisões:** o balde vira **3 lingotes de ferro** (o comentário em `receitas.ts` já
       previa) · `SEM_RECEITA` perde os minérios de ferro/ouro como "sem uso" · claim e
       confinamento têm de valer pra abrir fornalha alheia (é acesso a INVENTÁRIO, não a bloco).
 
 ### F10c — ALGODÃO (~1 sessão)
 
-- [ ] **`Algodao0..3` no molde EXATO da plantação do F6** (4 estágios em ids consecutivos, só
+- [x] **`Algodao0..3` no molde EXATO da plantação do F6** (4 estágios em ids consecutivos, só
       o 0 colocável, cruz de sprite, exige `isSolo`). O `crescerPlantacao` deixa de ser
       específico do trigo — **uma planta = (id base, nº de estágios)** —, e o índice
       `plantacoes` da session passa a guardar as duas.
-- [ ] **Algodão SELVAGEM no worldgen** (bioma a escolher — caatinga/cerrado combina), com
+- [x] **Algodão SELVAGEM no worldgen** (bioma a escolher — caatinga/cerrado combina), com
       **chance de dropar 1 semente**, no molde exato do `CHANCE_SEMENTE_DO_CAPIM` (1/4).
       É assim que o aluno ACHA a cadeia sem o professor entregar.
-- [ ] **Cultivado maduro dropa 1–2 algodão + a semente de volta.** É o **primeiro drop com
+- [x] **Cultivado maduro dropa 1–2 algodão + a semente de volta.** É o **primeiro drop com
       QUANTIDADE sorteada** — `dropsDe` já recebe o `sorteio` injetável de propósito, então
       cabe sem motor novo (e o teste não vira sorteio: ele injeta o sorteio).
-- [ ] **`3 algodão → 1 lã branca`** substitui o CUSTO da receita de lã branca (o índice fica).
+- [x] **`3 algodão → 1 lã branca`** substitui o CUSTO da receita de lã branca (o índice fica).
       O trigo volta a ser SÓ comida — some a competição pão × lã que a 45 criou, e a cadeia da
       cor fica: algodão → lã branca → tingir com flor. As 11 lãs coloridas não mudam.
 
@@ -145,51 +155,51 @@ fornalha é o que transforma "minério é bloco decorativo" em cadeia de produç
 
 > **O usuário decidiu: SEM durabilidade, e OBRIGATÓRIA pra minerar.**
 
-- [ ] **SEM durabilidade na v1** — ferramenta não quebra. `Stack` continua `{id, qtd}` e
+- [x] **SEM durabilidade na v1** — ferramenta não quebra. `Stack` continua `{id, qtd}` e
       **nenhum campo novo entra no save**; `tamanhoStack(id) = 1` (o mesmo do balde) basta.
       Se um dia a durabilidade entrar, ela contamina todo código de pilha (empilhar, mover,
       salvar, comparar) — é justamente por isso que ficou fora enquanto ninguém pediu.
-- [ ] **OBRIGATÓRIA pra minerar — e isso muda a progressão da aula, de propósito.** Quem entra
+- [x] **OBRIGATÓRIA pra minerar — e isso muda a progressão da aula, de propósito.** Quem entra
       em sobrevivência **não pega pedra até fabricar a picareta de madeira**, e é isso que dá
       sentido à cadeia inteira (madeira → picareta → pedra → picareta de pedra → minério →
       fornalha → lingote). ⚠️ Consequência a explicar pro professor no dia do playtest: a
       primeira coisa que a turma faz numa aula de sobrevivência passa a ser derrubar árvore.
-- [ ] **Onde mora o gate: no `break_block`, ANTES do `applyBlock`** — mesma disciplina da
+- [x] **Onde mora o gate: no `break_block`, ANTES do `applyBlock`** — mesma disciplina da
       recusa por mochila cheia (recusa não pode deixar rastro no mundo), com o mesmo **freio de
       5 s** no aviso ao chat, porque quebrar é clique repetido. Criativo e mundo de aula ficam
       de fora pelo portão que já existe (`inventarioVale`).
-- [ ] ❓ **Sem a ferramenta certa: o bloco NÃO QUEBRA, ou quebra e não cai nada?** O Minecraft
+- [x] ❓ **Sem a ferramenta certa: o bloco NÃO QUEBRA, ou quebra e não cai nada?** O Minecraft
       faz o segundo, mas lá existe tempo de quebra pra avisar antes; aqui é 1 clique
       instantâneo, e "sumiu e não ganhei nada" é frustração de aula. **Recomendação: NÃO
       QUEBRA, com aviso** ("precisa de uma picareta") — reversível numa linha.
-- [ ] **`shared/src/ferramentas.ts` (puro):** tipo de ferramenta × família de bloco (picareta =
+- [x] **`shared/src/ferramentas.ts` (puro):** tipo de ferramenta × família de bloco (picareta =
       pedra/minério/tijolo/laje-escada de pedra · machado = madeira · pá = terra/areia/cascalho/
       neve) e o NÍVEL (madeira < pedra < ferro < diamante) pra minério exigir picareta melhor.
       Tabela pura, testável, no molde de `drops.ts`.
-- [ ] **Receitas** no molde do Minecraft (a convenção que a turma já tem), com um detalhe: não
+- [x] **Receitas** no molde do Minecraft (a convenção que a turma já tem), com um detalhe: não
       há GRAVETO no jogo — ou ele entra como item novo, ou a receita usa tábua direto.
       ❓ Decidir na hora de implementar (graveto é mais fiel; tábua direto é uma cadeia a menos).
-- [ ] **Enxada só faz sentido se houver terra ARADA** — hoje se planta direto na terra/grama
+- [x] **Enxada só faz sentido se houver terra ARADA** — hoje se planta direto na terra/grama
       (decisão do F6). Ou a enxada fica fora, ou o farmland nasce junto.
 
 ### F10e — BAÚ e o painel de transferência (~1 sessão, **pedido do usuário 2026-08-05**)
 
-- [ ] **Baú = bloco com inventário próprio, mesmo desenho da fornalha (F10b).** Se as duas
+- [x] **Baú = bloco com inventário próprio, mesmo desenho da fornalha (F10b).** Se as duas
       frentes andarem juntas, o mapa "posição → inventário" no meta do save nasce UMA vez e
       serve pras duas — fazer o baú DEPOIS da fornalha é o barato; fazer antes obrigaria a
       escrever o mesmo encanamento duas vezes.
-- [ ] **Painel de transferência: mochila de um lado, baú do outro** (pedido literal), com o
+- [x] **Painel de transferência: mochila de um lado, baú do outro** (pedido literal), com o
       **gesto de tocar-na-origem-tocar-no-destino** que o F4 já usa na mochila — arrastar dói
       no tablet, e essa decisão já foi tomada duas vezes (mochila e craft).
-- [ ] **Receita:** 8 tábuas (o número do Minecraft). Tamanho: **27 slots** (uma mochila
+- [x] **Receita:** 8 tábuas (o número do Minecraft). Tamanho: **27 slots** (uma mochila
       inteira) é o mais simples de desenhar com a grade de 9 que já existe.
-- [ ] **O servidor é dono do conteúdo**, como em tudo desde o F4: o cliente manda "mover do
+- [x] **O servidor é dono do conteúdo**, como em tudo desde o F4: o cliente manda "mover do
       slot X da mochila pro slot Y do baú" e recebe os dois inventários de volta. Nada de o
       cliente escrever baú.
-- [ ] ⚠️ **Dois alunos no mesmo baú ao mesmo tempo** é o caso que não existe na mochila: ou o
+- [x] ⚠️ **Dois alunos no mesmo baú ao mesmo tempo** é o caso que não existe na mochila: ou o
       servidor manda o conteúdo novo pra todo mundo que está com ele ABERTO (como o
       `quadro_changed` faz), ou some item na cara do colega.
-- [ ] **Quebrar baú cheio:** ou devolve tudo pra mochila (e recusa se não couber, no molde do
+- [x] **Quebrar baú cheio:** ou devolve tudo pra mochila (e recusa se não couber, no molde do
       "mochila cheia recusa a quebra" do F4), ou é proibido quebrar com conteúdo. ❓ Decidir.
 
 ### F10f — CLAIM protege INTERAÇÃO, não só edição (barato, e metade já está pronto)
@@ -197,26 +207,26 @@ fornalha é o que transforma "minério é bloco decorativo" em cadeia de produç
 > **Pedido do usuário (2026-08-05):** *"área com claim não permite qualquer interação de não
 > autorizados, seja abrir porta ou inventário"*.
 
-- [ ] ✅ **A porta JÁ está protegida hoje** — conferido no código: `use_block` (porta e janela)
+- [x] ✅ **A porta JÁ está protegida hoje** — conferido no código: `use_block` (porta e janela)
       passa por `claimBloqueia`, e o mesmo vale pro `quadro_set`, pro balde e pro
       colocar/quebrar. Autorizado = **dono, amigos do grupo dele e o professor** (que ignora
       todo claim). Ou seja: o pedido já é o comportamento atual pra tudo que EXISTE.
-- [ ] **O que falta é garantir que os containers NOVOS nasçam dentro dessa regra:** abrir
+- [x] **O que falta é garantir que os containers NOVOS nasçam dentro dessa regra:** abrir
       fornalha (F10b) e abrir baú (F10e) são **acesso a INVENTÁRIO**, e têm de passar por
       `claimBloqueia` **antes de responder o conteúdo** — senão dá pra LER o baú alheio, que é
       pior que mexer nele.
-- [ ] **Portão de teste (o que impede a regra de furar de novo):** um teste que varre TODA
+- [x] **Portão de teste (o que impede a regra de furar de novo):** um teste que varre TODA
       mensagem de cliente que aponta pra uma célula e exige que ela passe pelo gate de claim/
       confinamento. Hoje seriam `place_block`, `break_block`, `use_block`, `balde`,
       `quadro_set` — e amanhã as duas de container, sem ninguém precisar lembrar.
-- [ ] ❓ **Confinamento (mundo de aula) segue a mesma regra?** Ele é o INVERSO do claim (prende
+- [x] ❓ **Confinamento (mundo de aula) segue a mesma regra?** Ele é o INVERSO do claim (prende
       o aluno na área do grupo dele). Hoje ele barra edição; provavelmente deve barrar
       interação também, mas isso é decisão de aula — perguntar antes de mexer.
 
 **Ordem sugerida:** F10a (barato e independente) → F10b (a cara: fornalha, e é ela que cria o
 encanamento de bloco-com-inventário) → **F10e (baú, que reusa esse encanamento)** → F10f (o
 gate de claim nos containers, junto de cada um) → F10c (algodão) → F10d (ferramentas).
-**Nada começado.**
+**Tudo feito na sessão 46.**
 
 ## ⏭️ Next
 

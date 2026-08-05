@@ -280,21 +280,22 @@ Singleplayer (Web Worker) não tem fs — chat não vira arquivo lá, como plane
 * \[x] vida — **FEITO** (§🍖 F2, sessão 34: queda, afogamento, morte, respawn)
 * \[x] craft — **FEITO** (§🍖 F5, sessão 39; sessão 45 levou de 12 pra 110 receitas, cobrindo
   todo bloco colocável)
-* \[ ] **ferramentas** — escopo escrito em `.wolf/TODO.md` §🍖 **F10d**. **Decidido pelo usuário
-  (2026-08-05): SEM durabilidade e OBRIGATÓRIA pra minerar** — quem entra em sobrevivência não
-  pega pedra até fabricar a picareta de madeira.
-* \[ ] **baú + painel de transferência** (mochila de um lado, baú do outro) — `.wolf/TODO.md`
-  §🍖 **F10e**. Vem depois da fornalha: reusa o mesmo encanamento de bloco-com-inventário.
-* \[ ] **claim protege INTERAÇÃO, não só edição** — `.wolf/TODO.md` §🍖 **F10f**. Porta, janela,
-  quadro e balde já passam pelo gate hoje; falta garantir que fornalha e baú nasçam dentro dele
-  (abrir inventário alheio é pior que mexer no bloco) + um teste-portão que varra as mensagens.
-* \[ ] **minérios: fornalha + lingotes + carvão** — escopo em `.wolf/TODO.md` §🍖 **F10a/F10b**.
-  Item carvão (do minério de carvão), carvão vegetal (tronco cozido), lingote de ferro/ouro, e
-  **tempo de queima por combustível**. A fornalha é o primeiro bloco com INVENTÁRIO do jogo (o
-  molde é o quadro: estado por posição no meta do save).
-* \[ ] **algodão no lugar da lã-de-trigo** — escopo em `.wolf/TODO.md` §🍖 **F10c**. Planta
-  selvagem no gen dropa semente por sorte; cultivada madura dropa 1–2 algodão + a semente.
-  `3 algodão → 1 lã branca`, e o trigo volta a ser só comida.
+* \[x] **ferramentas** — **FEITO** (§🍖 F10d, sessão 46). 4 picaretas, sem durabilidade e
+  OBRIGATÓRIAS pra minerar: sem picareta o bloco **não quebra** e o aluno é avisado (decisão do
+  usuário). Machado e pá ficaram de fora com razão escrita em `ferramentas.ts`.
+* \[x] **baú + painel de transferência** — **FEITO** (§🍖 F10e, sessão 46). 27 slots, 8 tábuas,
+  gesto de tocar-origem/tocar-destino, e **com item dentro não quebra**.
+* \[x] **claim protege INTERAÇÃO, não só edição** — **FEITO** (§🍖 F10f, sessão 46). Fornalha e
+  baú passam pelo gate ANTES de responder o conteúdo, o confinamento passou a barrar interação
+  também, e um teste-portão lê a união `ClientMessage` do fonte pra não deixar mensagem nova
+  escapar.
+* \[x] **minérios: fornalha + lingotes + carvão** — **FEITO** (§🍖 F10a/F10b, sessão 46).
+  Carvão e diamante saem do minério como ITEM; ferro e ouro continuam bloco e vão à fornalha.
+  Tempo de queima por combustível (carvão rende 8× a madeira), e a fornalha é o primeiro bloco
+  com inventário — o encanamento (`containers.ts`) nasceu uma vez e serve ao baú.
+* \[x] **algodão no lugar da lã-de-trigo** — **FEITO** (§🍖 F10c, sessão 46). Pé selvagem no
+  cerrado larga semente por sorte; cultivado maduro dá 1–2 capulhos + a semente. `3 algodão →
+  1 lã branca`, e o trigo voltou a ser só comida.
 * \[x] pvp — **FEITO** (§🍖 F7, sessão 45)
 * \[ ] mobs (§🍖 F8) — fora do lite, 3+ sessões, com o aviso de GPU do laboratório
 

@@ -68,8 +68,28 @@
 <!-- Só a REGRA acionável. Narrativa, números e contexto de cada sessão: .wolf/history.md
      (`## Key Learnings arquivados (2026-07-25)` e `## Cerebrum arquivado (2026-07-28)`). -->
 
+### Portões que se mantêm sozinhos
+
+- **Portão que lê o FONTE não envelhece.** O `gate-claim.test.ts` (§🍖 F10f) importa
+  `./protocol.ts?raw`, extrai a união `ClientMessage` e exige que toda mensagem com `x: number`
+  esteja coberta — por um teste de bloqueio ou por uma isenção com razão escrita. Uma lista à
+  mão envelheceria em silêncio na primeira mensagem nova, que é o buraco que o portão existe
+  pra fechar. O `?raw` (declarado em `shared/src/raw.d.ts`) entra no lugar de `node:fs` porque
+  `shared` é ISOMÓRFICO de propósito e não carrega `@types/node`.
+- **Teto de id se EXPORTA, não se digita.** `MAX_BLOCK_ID` virou export porque os portões que
+  varrem "todos os ids" fixavam o número à mão em dois arquivos — e esquecer de subi-lo
+  significava um portão que deixava de olhar justamente o bloco recém-criado.
+- **Família nova = TABELA, não segunda faixa de ids.** Quando o algodão entrou, a plantação
+  virou `PLANTAS = [{base, estagios}]` e `plantaDe(id)` passou a responder por estágio, muda,
+  madura, forma canônica e colocável. Escrever a 2ª faixa à mão nas 5 funções seriam 5 chances
+  de esquecer uma — e o mesher, que derivava o tile de `plantacao0 + estagio`, teria dado o
+  tile do trigo pro algodão.
+
 ### Verificação headless e mundos de teste
 
+- **`createWorld(dims, alocar)` — o 2º argumento NÃO é "lazy".** Com `false` os chunks nem
+  existem: `setBlock` não grava e `getBlock` devolve 0, então um teste que monta cenário à mão
+  prova o nada (bug-578). Teste que constrói mundo próprio usa o padrão.
 - **Mundo DENSO (P/M/G) × mundo LAZY (E).** `mundoLazy` só é verdadeiro no procedural ("E"):
   ele é o único que streama e DESCARTA coluna, então é o único onde existe "além do raio de
   render". Nos densos o `trocarMundo` monta o mundo inteiro. Consequência prática pra qualquer
@@ -613,6 +633,24 @@
 
 <!-- Cada entrada impede o mesmo erro de voltar. Narrativa completa: .wolf/history.md -->
 
+### Autoria de teste e de smoke
+
+- **[2026-08-05, sessão 46] Asserção de smoke não pode correr contra o TICK.** O
+  `_smoke-fornalha` conferia a tábua NO SLOT de combustível 350 ms depois de a pôr lá — e a
+  fornalha acende no 1º tick com entrada + combustível, consumindo a única unidade (bug-577,
+  a família do 560/574/575). Confira FATO ESTÁVEL (a tábua saiu da mochila), e deixe o efeito
+  do tick pra asserção seguinte.
+- **[2026-08-05, sessão 46] Transferência pra slot OCUPADO é TROCA, não empurrão.** O smoke
+  esvaziava a fornalha mandando pro slot 1 da mochila, que tinha a picareta — o pedregulho saía
+  e a picareta ENTRAVA na fornalha, que continuava cheia e (com razão) recusava a quebra
+  (bug-579). Destino de transferência em smoke tem de ser slot comprovadamente vazio, e vale
+  assertar que a origem ficou vazia antes de seguir.
+- **[2026-08-05, sessão 46] Teste que passa com o patch REMOVIDO não prova nada — e o caso mais
+  traiçoeiro é o estado que coincide.** "A fornalha apagou" e "a fornalha nunca acendeu" dão o
+  MESMO byte; "o painel fechado não recebe mensagem" e "o tick não manda nada" dão a MESMA
+  lista vazia. Os dois testes passavam com `tickFornalhas()` comentado. O conserto é o
+  CONTROLE POSITIVO no meio do teste: prove que aconteceu antes de provar que parou.
+
 ### Ferramentas e ambiente
 
 - **[2026-08-04, sessão 44] Gesto de TOQUE só se testa com `Input.dispatchTouchEvent` do CDP.**
@@ -851,6 +889,28 @@
 <!-- Uma linha por decisão. TEXTO COMPLETO (motivo, alternativas, contexto) em
      .wolf/history.md → "## Cerebrum — Decision Log" e "## Cerebrum arquivado (2026-07-28)". -->
 
+- [2026-08-05, sessão 46] **Receita não se APAGA: ela se APOSENTA.** O índice é a identidade
+  no protocolo (`fabricar {receita}`), então tirar uma linha deslocaria todas as seguintes e o
+  aluno com o painel aberto clicaria numa receita e receberia outra. `Receita.aposentada` é um
+  texto com a razão; `receitaValida` e `fabricar` recusam, e o painel não lista. Foi assim que
+  a receita direta de vidro saiu quando a fornalha entrou (pedido do usuário).
+- [2026-08-05, sessão 46] **Container com coisa dentro NÃO QUEBRA** (decisão do usuário pro
+  baú, ESTENDIDA por mim à fornalha — mesma regra, mesma frase, mesmo gate). Não existe item no
+  chão, então quebrar cheio perderia a mochila que o colega guardou. Vale inclusive em criativo.
+- [2026-08-05, sessão 46] **Machado e pá ficaram FORA do §🍖 F10d, e é decisão, não
+  esquecimento.** (1) Travariam a aula: exigir machado pra tirar madeira, quando o machado é
+  feito de madeira, é um mundo onde ninguém começa. (2) Não fariam nada: a quebra aqui é um
+  clique instantâneo, então ferramenta que só ACELERA não tem onde aparecer. A tabela de
+  `ferramentas.ts` já é (tipo × família), então eles entram sem redesenho no dia em que houver
+  tempo de quebra.
+- [2026-08-05, sessão 46] **A picareta vale onde ESTIVER na mochila, não só na mão.** "Você
+  precisa de uma picareta" é uma frase que a criança resolve; "precisa dela na MÃO, não na
+  mochila" é um 2º enigma em cima do 1º, e o clique não tem como dizer qual dos dois falhou.
+  De quebra, o `break_block` continua sendo três coordenadas (o servidor não precisa do slot).
+- [2026-08-05, sessão 46] **Algodão SELVAGEM é bloco SEPARADO do cultivado.** O selvagem larga
+  SEMENTE por sorte (molde do capim) e nunca ele mesmo; o cultivado maduro larga 1–2 capulhos +
+  a semente. Um id só faria "achar" e "colher" darem a mesma coisa, e o pé do gen viraria fonte
+  infinita de algodão sem plantar nada.
 - [2026-08-05] **§🍖 F10d — ferramenta SEM durabilidade e OBRIGATÓRIA pra minerar** (decisão do
   usuário, respondendo às duas perguntas). Sem durabilidade = `Stack` continua `{id, qtd}` e
   nenhum campo novo entra no save (`tamanhoStack = 1`, o mesmo do balde, basta). Obrigatória =

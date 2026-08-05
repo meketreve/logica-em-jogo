@@ -3983,6 +3983,64 @@
       "related_bugs": [],
       "occurrences": 1,
       "last_seen": "2026-08-05T12:17:00.000000Z"
+    },
+    {
+      "id": "bug-577",
+      "timestamp": "2026-08-05T14:30:00.000000Z",
+      "error_message": "_smoke-fornalha: '✗ a tábua está no slot de queimar' — o slot de combustível vinha VAZIO logo depois da transferência",
+      "file": "server/src/cenarios/_smoke-fornalha.mjs",
+      "root_cause": "Autoria de smoke, a mesma família do bug-560/574/575: a asserção corria contra o TICK. A fornalha acende no primeiro tick em que há entrada E combustível, e a tábua é 1 cozimento exato — 350 ms depois (3 ticks) a única unidade já tinha sido consumida pelo fogo. O comportamento estava certo; a asserção é que media o instante errado.",
+      "fix": "A asserção passou a conferir que a tábua SAIU DA MOCHILA (fato estável) em vez de estar no slot; que o fogo pegou é o bloco seguinte que prova. Comentário no lugar explicando por que o slot não é conferido.",
+      "tags": [
+        "smoke",
+        "fornalha",
+        "tick",
+        "corrida",
+        "autoria-de-teste"
+      ],
+      "related_bugs": [
+        "bug-560",
+        "bug-574",
+        "bug-575"
+      ],
+      "occurrences": 1,
+      "last_seen": "2026-08-05T14:30:00.000000Z"
+    },
+    {
+      "id": "bug-578",
+      "timestamp": "2026-08-05T14:31:00.000000Z",
+      "error_message": "algodao.test.ts: 'expected null not to be null' — crescerPlantacao devolvia null num canteiro montado à mão",
+      "file": "shared/src/algodao.test.ts",
+      "root_cause": "`createWorld(dims, false)` no teste. O 2º parâmetro NÃO é 'lazy': é `alocar`, e com `false` os chunks não existem — o `setBlock` não grava nada e o `getBlock` devolve 0. O teste montava um canteiro que nunca existiu.",
+      "fix": "`createWorld({x:1,z:1,y:1})` (alocar = true, o padrão), com comentário no lugar dizendo que o 2º argumento não é lazy. Vale pra qualquer teste futuro que monte mundo à mão.",
+      "tags": [
+        "teste",
+        "world",
+        "createWorld",
+        "api-confusa"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-08-05T14:31:00.000000Z"
+    },
+    {
+      "id": "bug-579",
+      "timestamp": "2026-08-05T14:40:00.000000Z",
+      "error_message": "_smoke-fornalha: '✗ a célula ficou vazia' — a fornalha esvaziada continuava sem quebrar",
+      "file": "server/src/cenarios/_smoke-fornalha.mjs",
+      "root_cause": "O smoke tirava o conteúdo da fornalha mandando pro slot 1 da mochila, que estava OCUPADO. `moverEmArray` com ids diferentes TROCA as duas pilhas — então o pedregulho saía e a picareta entrava na fornalha. Ela continuava com conteúdo e o gate do §🍖 F10 recusava a quebra, com razão.",
+      "fix": "Transferir pro slot 26 (o último da mochila, com certeza vazio) e ASSERTAR que a fornalha ficou vazia antes de tentar quebrar. Regra pra smokes futuros: destino de transferência tem de ser slot comprovadamente livre, porque mover pra slot ocupado é troca, não empurrão.",
+      "tags": [
+        "smoke",
+        "containers",
+        "inventario",
+        "troca-de-slot"
+      ],
+      "related_bugs": [
+        "bug-577"
+      ],
+      "occurrences": 1,
+      "last_seen": "2026-08-05T14:40:00.000000Z"
     }
   ]
 }

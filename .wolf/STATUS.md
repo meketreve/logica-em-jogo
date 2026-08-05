@@ -1,6 +1,120 @@
 # STATUS — Projeto "Lógica em Jogo" (jogo voxel educacional)
 
 > Single source of truth for resuming work. Read this FIRST when starting a session.
+> **SESSÃO 46 (2026-08-05) — O §🍖 F10 INTEIRO, NUMA SESSÃO.** O usuário respondeu as cinco
+> perguntas que travavam a fila e mandou o escopo grande: *"pode fazer tudo da f10 na ordem que
+> achar melhor"*. Ordem executada, uma frente por commit: **F10a → F10b → F10e → F10f → F10c →
+> F10d**. A abertura foi `git fetch` (a rotina desde a 40): local em dia com o remote.
+>
+> **As cinco decisões dele, e o que cada uma custou:** a fornalha SUBSTITUI a receita de vidro ·
+> o graveto entra como ITEM e a tocha vira 1 graveto + 1 carvão (mineral OU vegetal) · sem
+> picareta o bloco **não quebra** e mostra aviso · baú com item não quebra · confinamento barra
+> interação.
+>
+> **🔥 A CADEIA FICOU HONESTA PONTA A PONTA.** Era isto que o F10 existia pra fazer:
+> **derrubar árvore → picareta de madeira → pedra → picareta de pedra → minério → fornalha →
+> lingote → picareta de ferro → diamante**. Antes, o minério de ferro era um cubo bonito que
+> virava balde por decreto, e metade das pontes da sessão 45 (vidro ← areia, lã ← trigo) tinha
+> sido INVENTADA porque não havia forno nem ovelha. As duas foram aposentadas: o vidro sai da
+> fornalha, a lã sai do algodão.
+>
+> **§🍖 F10a — o minério larga ITEM, e a tocha ganhou um cabo.** Carvão e diamante são os dois
+> minérios que no Minecraft não vão ao forno: a rocha entrega o material. Ferro e ouro
+> continuam caindo como BLOCO de propósito — é o bloco que a fornalha funde, e **é essa
+> diferença entre os quatro que ensina pra que serve fundir**. O graveto era o elo que faltava:
+> a tocha saía de tábua + minério, errado dos dois lados (gastava uma tábua inteira e pedia um
+> cubo de minério que agora nem cai). Virou o par do Minecraft, e o mesmo graveto é o cabo de
+> toda picareta.
+>
+> **§🍖 F10b — A FORNALHA, e a decisão que fez o baú custar um dia.** O encanamento
+> (`containers.ts`) nasceu UMA vez e serve aos dois blocos com inventário: conteúdo por POSIÇÃO
+> no meta do save (o desenho do QUADRO, primeiro estado a não caber no byte), transferência num
+> array CONCATENADO mochila+container reusando o núcleo de pilha do `inventario.ts`, e índice
+> UNIFICADO no fio (`0..26` mochila, `27+i` container). Fazer o baú antes teria escrito isso
+> duas vezes. `fornalha.ts` é simulação pura, sem relógio de parede: 100 ticks por peça, carvão
+> rende **8×** a madeira. A ordem do tick está escrita e importa — **acender só se há o que
+> cozinhar** (fornalha com carvão e nada dentro não gasta o carvão, que é o que qualquer criança
+> espera), queimar, cozinhar. `tickFornalha` devolve o MESMO objeto quando nada muda, e é essa
+> identidade que evita mensagem à toa a 10 Hz. Dois ids (apagada/acesa): a acesa não é colocável
+> e **emite luz de graça**, porque a luz é função pura dos bytes.
+>
+> **A receita não se APAGA: ela se APOSENTA.** O índice é a identidade no protocolo, então tirar
+> a linha do vidro deslocaria as 97 seguintes e o aluno com o painel aberto clicaria numa receita
+> e receberia outra. `Receita.aposentada` guarda a razão; `receitaValida` e `fabricar` recusam.
+>
+> **§🍖 F10e — o BAÚ, e a prova de que o encanamento valeu.** Um id, uma receita (8 tábuas), dois
+> tiles e uma linha no `containerTipoDe`. 27 slots. **Com coisa dentro não quebra** (decisão do
+> usuário, que estendi à fornalha: mesma regra, mesma frase, mesmo gate — não existe item no
+> chão, e um clique perderia a mochila que o colega guardou).
+>
+> **§🍖 F10f — o portão que impede a regra de furar de novo.** O teste LÊ a união
+> `ClientMessage` do próprio `protocol.ts` (via `import "./protocol.ts?raw"`, e não `node:fs`,
+> pra não custar `@types/node` num workspace isomórfico), acha toda mensagem com coordenada e
+> exige que ela esteja coberta — por um teste de bloqueio ou por uma isenção com razão escrita
+> (hoje `move` e `wand_mark`). **A/B honesto:** com um `abrir_cofre` de mentira na união, o
+> portão o denuncia; com o gate do container removido, a estranha lê o baú da colega e o teste
+> cai. O confinamento passou a barrar interação junto do claim, como o usuário pediu.
+>
+> **§🍖 F10c — a lã ganhou planta.** A plantação deixou de ser "o trigo" e virou TABELA
+> (`PLANTAS = [{base, estagios}]`): `plantaDe` responde por estágio, muda, madura, forma
+> canônica e colocável. Sem isso, a 2ª faixa de ids estaria escrita à mão em cinco funções — e o
+> mesher, que derivava o tile de `plantacao0 + estagio`, teria dado o tile do trigo pro algodão.
+> **Dois blocos, e a diferença é a pedagogia:** o cultivado (4 estágios, cresce no pulso que já
+> existia, maduro dá **1–2 capulhos sorteados** + a semente — o 1º drop com quantidade aleatória
+> do jogo) e o SELVAGEM do gen, que larga só semente por sorte e nunca ele mesmo. Cerrado, campo
+> aberto; a caatinga fica fora porque lá o topo é areia e algodão não pega em areia.
+>
+> **A verificação que valeu a frente (a lição da 41, de novo):** um teste GERA um mundo de
+> verdade e CONTA os pés — com o worldgen removido ele acusa zero — e confere que nenhum nasceu
+> fora de solo. E um controle NEGATIVO prova que o capim continua nascendo: o algodão entrou
+> ANTES dele na cadeia de `else if`, e um erro ali teria trocado a vegetação do cerrado inteiro.
+>
+> **§🍖 F10d — a picareta virou o portão da progressão.** 4 níveis, **sem durabilidade** (a
+> pilha continua `{id, qtd}`, nenhum campo novo em lugar nenhum) e **obrigatória**: quem entra
+> em sobrevivência não pega pedra até fabricar a de madeira. Sem a ferramenta certa o bloco
+> **NÃO QUEBRA**, com aviso — o Minecraft quebra sem drop, mas lá existe tempo de quebra pra
+> avisar antes; aqui é 1 clique, e "sumiu e não ganhei nada" é frustração de aula. Gate no
+> `break_block` ANTES do `applyBlock`, e o freio de aviso virou UM por jogador.
+> ⚠️ **Consequência a contar pro professor no playtest: a primeira coisa que a turma faz numa
+> aula de sobrevivência passa a ser derrubar árvore.**
+>
+> **DESVIO DE ESCOPO, declarado:** machado e pá ficaram de fora. Exigir machado pra tirar
+> madeira, quando o machado é feito de madeira, é um mundo onde ninguém começa; e como a quebra
+> é instantânea, ferramenta que só ACELERA não tem onde aparecer. A tabela já é (tipo × família)
+> e eles entram sem redesenho no dia em que houver tempo de quebra. **A picareta vale onde
+> ESTIVER na mochila, não só na mão** — "precisa de picareta" a criança resolve; "precisa dela
+> na MÃO" é um 2º enigma, e o clique não diz qual dos dois falhou.
+>
+> **Três bugs, os três de AUTORIA DE TESTE (a família do 560/574/575):** **bug-577** a asserção
+> do smoke corria contra o tick (a tábua já tinha virado fogo quando ela foi conferir o slot);
+> **bug-578** `createWorld(dims, false)` — o 2º argumento não é "lazy", é `alocar`, e sem chunks
+> o teste montava um canteiro que nunca existiu; **bug-579** transferir pra slot OCUPADO é
+> TROCA, não empurrão — a picareta entrava na fornalha no lugar do pedregulho e ela continuava
+> cheia. A lição maior está no cerebrum: **o estado que COINCIDE é o teste traiçoeiro** —
+> "apagou" e "nunca acendeu" dão o mesmo byte, e os dois testes passavam com o tick comentado.
+> O conserto é o controle POSITIVO no meio: prove que aconteceu antes de provar que parou.
+>
+> **VERDE:** typecheck 3/3 · **697 testes** (+42) · build · **15/15 smokes** (o `fornalha` é
+> novo e cobre também o baú, rodado 2× pra idempotência) · **A/B honesto em três frentes**
+> (tick da fornalha, gate do claim, worldgen do algodão).
+> **PLAYTEST PENDENTE — e desta vez ele tem uma pergunta específica: a turma aguenta ter de
+> fazer a picareta antes de cavar?**
+
+## 🚀 Próxima fase
+
+**A fila do §🍖 está VAZIA de pendências decididas.** O que sobra é escolha do usuário:
+
+1. **PLAYTEST do F10** — é o que manda. A cadeia inteira (árvore → picareta → fornalha →
+   lingote) nunca passou por uma turma, e a mudança de abertura da aula (derrubar árvore antes
+   de qualquer coisa) é a que mais pode surpreender.
+2. **§🍖 F8 — MOBS**: a única frente do roadmap de sobrevivência ainda fora. 3+ sessões, e tem
+   o aviso de GPU do laboratório pendurado nela.
+3. **Prints do F10** — nenhuma tela nova foi fotografada: o painel de transferência (fornalha e
+   baú), os ícones novos na hotbar e o canteiro de algodão. `npm run shots:*` roda nesta
+   máquina desde a 41.
+4. **Refinos que ficaram anotados**: forma de CAIXA pro baú no mesher (hoje é cubo cheio) e
+   direção de frente pra fornalha (hoje a boca aparece nos 4 lados).
+
 > **SESSÃO 45 (2026-08-05) — O PLAYTEST COM 17 ALUNOS ACONTECEU, E ELE PEDIU O QUE FALTAVA:
 > COBERTURA TOTAL DE RECEITAS + O §🍖 F7 QUE ELE MESMO TINHA PULADO.** A sessão abriu com uma
 > lição de processo: respondi "onde paramos?" pelo STATUS local e ele corrigiu — *"faz o fetch
@@ -1069,415 +1183,26 @@ Documento é o ÚLTIMO entregável, não o primeiro. Construir, não documentar.
 
 ---
 
-## 🚀 Próxima fase — PLAYTEST das receitas e do pvp (e depois, só o F8 sobra)
+## ✅ §🍖 F10 — FEITO INTEIRO (sessão 46, 2026-08-05)
 
-A sessão 45 fechou o **§🍖 F7** e a **cobertura total de receitas** — F1..F7 + F9 estão feitos.
-No fim dela o usuário **escolheu a próxima frente e mandou ANOTAR** (nada começado): o **§🍖 F10
-— fundição, ferramentas, algodão e baú**. Escopo item a item em `.wolf/TODO.md §🍖 F10`, e as
-decisões dele estão no `cerebrum.md → Decision Log`.
+A sessão 45 anotou o F10 e o usuário respondeu as cinco perguntas em aberto; a 46 executou as
+seis frentes, uma por commit. **Com ela, o roadmap de sobrevivência tem F1..F7, F9 e F10 —
+só o §🍖 F8 (mobs) segue fora.** Detalhe de cada frente no bloco da sessão 46, no topo.
 
-**As decisões já TOMADAS (não perguntar de novo):**
-1. **Ferramenta SEM durabilidade e OBRIGATÓRIA pra minerar.** Sem pedra até a picareta de
-   madeira — é isso que dá sentido à cadeia inteira.
-2. **Claim protege QUALQUER interação de não autorizado** (porta e inventário). Metade já é
-   verdade hoje; o que a decisão fixa é que fornalha e baú nasçam dentro da regra.
-3. **Baú com receita e painel de transferência** (mochila de um lado, baú do outro), com o
-   gesto tocar-origem-tocar-destino do F4.
-4. **Algodão substitui a ponte "lã ← trigo"** da sessão 45, e o trigo volta a ser só comida.
-
-| frente | custo | estado |
+| frente | o que entrou | commit |
 |---|---|---|
-| **PLAYTEST das 110 receitas + do pvp** | do usuário, na escola | **É o mais valioso agora.** Ver o bloco de perguntas no `.wolf/TODO.md §🏫` |
-| **§🍖 F10a** item carvão + drops de minério | ~0,5 sessão | Anotado. **Não depende da fornalha** — é o começo barato |
-| **§🍖 F10b** FORNALHA | ~1,5–2 sessões | Anotado. **Primeiro bloco com INVENTÁRIO** (molde: `quadros.ts`) |
-| **§🍖 F10e** BAÚ + painel de transferência | ~1 sessão | Anotado. **Depois da fornalha**: reusa o mesmo encanamento |
-| **§🍖 F10f** claim protege interação | barato | Anotado. Metade pronta; falta o gate nos containers + o teste-portão |
-| **§🍖 F10c** algodão | ~1 sessão | Anotado. Molde exato da plantação do F6 + selvagem no gen |
-| **§🍖 F10d** ferramentas | ~1–1,5 sessão | Anotado, **decisões tomadas**. Resta 1 detalhe: sem picareta o bloco não quebra, ou quebra sem cair nada? |
-| **§🍖 F8 mobs** | 3+ sessões | Fora do lite, com o aviso de GPU do lab |
-| **§🍖 F1..F7, F9** | — | ✅ FEITOS (sessões 34, 35, 36, 39, 40, 43 e 45) |
+| **F10a** | itens carvão/diamante/graveto; minério larga item; tocha = graveto + carvão | `903e72d` |
+| **F10b** | FORNALHA: `containers.ts` + `fornalha.ts`, mapa por posição no save, tick, protocolo, painel | `931d974` |
+| **F10e** | BAÚ (27 slots, 8 tábuas), reusando o encanamento inteiro | `32927e1` |
+| **F10f** | claim/confinamento na INTERAÇÃO + o portão que lê o `protocol.ts` | `08ffd52` |
+| **F10c** | ALGODÃO (cultivado + selvagem), plantação virou tabela, lã ← 3 algodão | `0e3a94a` |
+| **F10d** | 4 PICARETAS, sem durabilidade, obrigatórias; gate no `break_block` | `a953c32` |
 
-**O que só o dedo responde agora:**
-1. **110 linhas na aba "criar" cabem numa aula?** O interruptor "só o que dá pra fazer agora"
-   resolve, ou a turma não acha o interruptor? O filtro de texto ficou essencial (era opcional
-   com 12 receitas)?
-2. **As pontes inventadas fazem sentido pra um aluno de 2º–9º ano?** "Vidro de areia" e "lã de
-   trigo" se explicam sozinhos, ou precisam do professor? A **mistura de cor** (laranja =
-   amarelo + vermelho) é entendida como descoberta, ou como truque escondido?
-3. **O soco:** 2 pontos e 0,5 s de cooldown dão perseguição divertida ou execução? A **mira
-   vermelha** é notada antes de o aluno bater sem querer? O aviso "o professor LIGOU o ataque"
-   chega a tempo?
-4. **Os 36 blocos-glifo no fim da lista atrapalham** quem procura material de construção?
-
-**Botões de ajuste, todos de uma linha:** `DANO_PVP` e `TICKS_ENTRE_ATAQUES` em
-`sobrevivencia.ts` · qualquer quantidade em `RECEITAS` (mas **só APPEND**, o índice é contrato
-do protocolo) · o padrão do interruptor em `inventory.ts` (`soPossiveis`).
-
-### §🍖 F7 — o que ficou aberto
-
-- **Claim e confinamento NÃO barram o soco.** A área protege BLOCO, não pessoa — foi o que o
-  ROADMAP previa e ficou assim, sem consultar o usuário (ele não estava na sessão). Se o
-  playtest pedir "dentro da minha área ninguém me bate", é um gate a mais no `atacar`, no molde
-  do `claimBloqueia`.
-- **Não há arma, armadura, knockback nem animação de soco.** O único retorno é a vinheta
-  vermelha do F2 e a barra descendo. Knockback exigiria o servidor empurrar o jogador (hoje a
-  física do próprio jogador é local) — é a mesma dívida que o F8 vai encontrar.
-- **O atacante não recebe retorno nenhum quando ACERTA** (só quando o pvp está desligado). Se o
-  playtest achar que "não sei se bati", o lugar é o `events.ts`, como o `dano`/`morte`.
-- **A morte por pvp devolve ao spawn do mundo**, como toda morte. Em mundo grande isso é uma
-  caminhada — a mesma pendência do F2 ("cama = ponto de renascer" seria feature nova).
-
-### 🧱 Receitas — o que ficou aberto
-
-- **Nenhuma receita EXIGE bancada** (não há bancada no lite): fabrica em qualquer lugar. O dia
-  em que a bancada servir pra escalonar receita avançada, ela vira um campo `exige?` na
-  `Receita`, sem tocar em quem chama.
-- **Craft continua não custando fome** (não é edição de bloco).
-- **A lista não tem categoria nem ordenação por "perto de conseguir"** — tem filtro de texto e
-  o interruptor novo. Agrupar por família seria a próxima coisa, se o playtest pedir.
-- **Tronco não tem receita de propósito:** só a árvore do gen faz. Plantar árvore (muda de
-  árvore, não de trigo) é frente futura, e é ela que fecharia a madeira como recurso renovável.
-- **Ouro e diamante seguem sem uso** — saem da caverna e não entram em receita nenhuma. É a
-  reserva pro dia em que houver ferramenta.
-
-### §🍖 F9 e o painel de amigos — o que ficou aberto (sessão 43)
-
-- ✅ **O painel de amigos JÁ abre no toque** (botão 👥 na barra, visível com a proteção de
-  áreas ligada) — resolvido na mesma sessão, junto da revisão da barra.
-- **A barra some quando um painel está aberto** (`updateOverlay` → `setShown`), então no
-  tablet fechar o painel é o caminho de volta — não há "trocar de painel" direto.
-- **A lista de "convidar" mostra quem está ONLINE, sem saber quem já tem grupo** — o feed
-  `friends` só carrega o MEU grupo, e quem sabe dos outros é o servidor, que recusa com
-  mensagem no chat. Mudar isso pediria um broadcast de "quem está em grupo", que é estado de
-  todo mundo por causa de um rótulo. Deixado assim de propósito.
-- **Não há como CANCELAR um convite enviado** — o comando não tem esse subcomando, e o
-  escopo era "nenhuma função nova". Se o playtest pedir, é um `case cancelar` no `runAmigos`
-  + um botão na linha do "aguardando".
-- **Presença vem do `player_moved`**, então quem entrou e ficou parado só aparece na lista de
-  convidar quando o cliente dele mandar o primeiro `move` (décimos de segundo na prática).
-- **F9: mobs on ficou de fora** porque o F8 não existe. Quando existir, é uma linha no mesmo
-  `if (opts.sobrevivencia)`.
-- **F9 não tem botão no jogo:** trocar um mundo já criado continua sendo `/modo` + `/ciclo`.
-  O preset é escolha de NASCIMENTO, e é isso que o mantém barato (zero migração de save).
-
-### §🍖 F6 — o que ficou aberto
-
-- **Os NÚMEROS são todos de uma linha, e o playtest é quem os move:**
-  `TICKS_POR_CRESCIMENTO` = 200 (20 s por estágio, ~1 min da semente ao trigo) em `rules.ts` ·
-  `CHANCE_FRUTA_DA_FOLHA` = 1/8 e `CHANCE_SEMENTE_DO_CAPIM` = 1/4 em `drops.ts` · saciedade
-  (fruta 4, pão 5) em `comida.ts` · `VIDA_MINIMA_POR_FOME` = 0 em `sobrevivencia.ts`.
-  `LJ_CRESCIMENTO=<ticks>` acelera a horta sem recompilar — é o que o smoke usa, e serve pra
-  ver o ciclo inteiro num playtest de 1 minuto.
-- **A horta cresce no ESCURO.** A luz mora 100% no cliente (§💡) e o servidor não tem esse
-  byte. Exigir luz obrigaria a mandar luz pela rede — caro, e numa aula é uma dor a menos.
-- **Não há terra ARADA nem enxada.** Planta direto na terra/grama. Farmland seria um bloco
-  novo + uma ferramenta; se o playtest pedir "a horta tem de parecer horta", o caminho é um id
-  a mais em `isSolo`, não motor novo.
-- **Não há regador nem morte por seca.** A planta só morre se o SOLO sumir debaixo dela.
-- **A fruta não tem árvore própria:** ela cai de qualquer folha, de qualquer das 4 espécies.
-  "Só o ipê dá fruta" seria uma entrada por espécie no `drops.ts`.
-- **Comer não tem animação nem som.** O evento existe pra plugar (`events.ts` é o lugar, como
-  o `dano`/`morte` do F2), mas hoje a única resposta é a barra subir.
-- **O pulso de crescimento não tem TETO** (a água tem). Uma horta de turma são centenas de
-  células, não milhões; se alguém plantar 27×64 mudas e o tick doer, o teto é o mesmo padrão
-  do `aguaMaxPorTick`.
-
-### §🍖 F5 — o que ficou aberto
-
-- ✅ **PRINT do painel de craft — TIRADO (sessão 40).** O chrome existe na máquina de casa
-  (o usuário: *"não tem o chrome no not, aqui tem"*), e `npm run shots:craft` rodou:
-  `linhas=12 · habilitadas=3 · marcas 'falta'=9`, sem exceção no console. O painel está em
-  `.wolf/designqc-captures/craft/craft-panel.png`. ⚠️ **No notebook o cache do puppeteer
-  continua vazio** — lá os scripts de print seguem pedindo
-  `npx -y @puppeteer/browsers install chrome@stable` (ou `CHROME=`). O **playtest** do craft
-  segue pendente: headless não toca na receita.
-- **As 12 receitas** (11 + o pão do F6) **são o botão de ajuste** (`RECEITAS` em
-  `receitas.ts`): mudar quantidade/saída
-  é uma linha cada, mas **só APPEND** — o índice é contrato do protocolo (`_smoke-craft.mjs` fixa
-  os índices em constantes; reordenar quebra o smoke, que é o portão).
-- **Craft não custa esforço/fome** (não é edição de bloco). Se o playtest achar que devia cansar,
-  é uma chamada a `esforcar` no `case fabricar`.
-- **Sem bancada no lite** — fabrica em qualquer lugar. A bancada, se servir pra *escalonar*
-  receitas avançadas, vira um campo `exige?` na `Receita` (o comentário do arquivo já diz isso).
-- **Balde: a receita é `3 minério de ferro → 1 balde vazio`** (não o número do Minecraft; sem
-  forno no lite não há lingote). Quando o F-fundição existir, muda pra lingote numa linha.
-- **Filtro do craft é por NOME** (saída ou ingrediente). A lista é curta hoje; o filtro já deixa
-  a porta aberta pra ela crescer sem virar rolagem infinita.
-
-### §🍖 F4 — o que ficou aberto
-
-- **`/dar` está FORA do escopo travado** (decisão minha na sessão 36, ver o diário). Se o
-  usuário não quiser, some com um `case` — mas aí a aula de sobrevivência começa com todo
-  mundo de mãos vazias e sem craft até o F5.
-- **Não existe DESCARTAR item.** Mochila cheia só destrava quebrando menos ou usando o que
-  tem. "Soltar no chão" é entidade (orçamento do F8); "jogar fora" (item some) seria uma
-  mensagem nova de 5 linhas, se o playtest pedir.
-- **A hotbar de criativo continua em `localStorage`** e a de sobrevivência é a do servidor. Não
-  há sincronia entre as duas de propósito: são coisas diferentes (paleta × mochila).
-- **Nenhuma tecla move item.** Só o painel (tocar/clicar). Se alguém pedir "shift-clique manda
-  pra mochila", é uma chamada a `moverSlot` com o primeiro slot livre — barato.
-- **Minério cai como ele mesmo** (não há item bruto até existir fundição). É uma linha em
-  `EXCECOES` no dia em que houver.
-
-### §🏔️ Relevo por bioma — o que ficou aberto
-
-- **Os 4 tetos são o botão de ajuste** (`Bioma.relevo` em `shared/src/biomas.ts`): caatinga 0,1 ·
-  cerrado 0,35 · mata 0,5 · araucárias 1. Mexer neles é UMA linha cada, e o teste do portão
-  (`O PORTÃO: nenhum degrau maior que 6 blocos`) diz na hora se a mudança criou penhasco.
-- **`RAMPA = 0,25` e `NUCLEO = (0,4 → 1,0)` são MEDIDOS** — não afinar a olho. O sweep está no
-  comentário do próprio arquivo, com as variantes rejeitadas e o número de cada uma.
-- **Chapada (`ROCHA_HEIGHT = 85`) está inalcançável de propósito** e documentada assim no
-  `worldgen.ts`. Se o usuário pedir mesa de pedra no cerrado, o caminho é BAIXAR o número (ou
-  subir o `relevo` do cerrado), não escrever gen novo.
-- **Mata chega a 68 e não neva** — grama em pico de 68 é decisão da flag `Bioma.neve`, não
-  esquecimento. Se ficar estranho no playtest, `neve: true` na mata é uma linha.
-- **Neve só nas araucárias** derrubou a área nevada 5× (4 925 → 935 blocos de neve num mundo M).
-  Era exatamente o pedido do playtest ("neve em cima de morro de cerrado não combina").
-
-### §💡 Luz voxel — o que ficou aberto
-
-- **Iluminação é POR FACE, não suavizada por vértice.** Os 4 vértices de uma face levam o
-  mesmo byte. Suavizar (média das células em volta de cada vértice, estilo AO) é refino
-  conhecido e **não muda o pipeline** — o atributo já existe. Só fazer se alguém reclamar do
-  degrau entre faces.
-- **`torchGlow.ts` continua existindo** como halo decorativo, agora POR CIMA da luz de bloco
-  real. Ninguém olhou se os dois juntos ficam exagerados — é pergunta de playtest.
-- **Piso de brilho = 0,05** (`luzMin` em `client/src/luzShader.ts`). Escolhido pra caverna dar
-  silhueta sem dar leitura, num jogo de sala de aula. Se o playtest disser "não dá pra andar",
-  é UMA linha.
-- **Nada de luz no SAVE.** A luz é derivada dos bytes, então mundo antigo abre e acende igual
-  — nenhuma migração de formato. Mundo salvo ANTES da sessão 32 continua sem caverna (a
-  caverna fica assada no `.ljw`), e isso está certo: mundo de aula não muda debaixo do
-  professor.
-
-### Layouts mobile — o que ficou aberto da 1ª rodada
-
-- **Playtest no tablet** virou pendência externa (o usuário faz na escola — ver ⚠️ abaixo).
-- **Painéis de AUTORIA** (`#painel`: quadros, objetivos, regiões) e o de **grupo/jogadores**
-  não foram revistos — o usuário os deixou fora do escopo. Seguem em `min(580px, 94vw)` /
-  `min(560px, 84vh)` com box-sizing content-box; os botões internos já têm alvo de 40px.
-  O caminho que funcionou no inventário foi **ALARGAR em paisagem baixa**, não quebrar linha.
-- **Nome do mundo truncado no DESKTOP** ("seque…", "labirin…"): a coluna do nome fica com
-  ~84px depois dos 3 botões. Em paisagem baixa já resolveu (painel de 680px). No desktop
-  resolve com UMA linha (`.menu-screen { width: min(680px, 92vw) }` sem media query), mas é
-  mudança visual não pedida numa tela de uso diário — **só com o aval do usuário.**
-
-### ✅ HOOKS DO OPENWOLF — OS TRÊS FALSO-POSITIVOS ESTÃO CONSERTADOS (sessão 37)
-
-Os avisos de `stop` que dispararam a cada turno da sessão 36 **com o trabalho já feito** foram
-corrigidos em `.wolf/hooks/shared.js` e `.wolf/hooks/stop.js` (bug-554/555/556). Agora eles são
-confiáveis: se um deles aparecer, é real — obedeça.
-
-**A causa raiz de o fix upstream nunca ter chegado:** o pacote 2.0.1 traz **duas cópias** dos
-hooks, `dist/hooks/` (com o PR #64) e `dist/src/hooks/` (sem), e o `copyHookScripts` do
-`init.js` procura primeiro na SEGUNDA. Todo `openwolf init/update` reinstalava a versão velha.
-
-1. **"no semantic summary"** — a contagem comparava DATA (prefixo `| YYYY-MM-DD`, que nenhuma
-   linha tem; ou o header `## Session:`, que mistura data UTC com hora local e fura na virada
-   da meia-noite). Agora conta as linhas abaixo do **último** `## Session:`, sem olhar data.
-2. **"buglog.json was not updated"** — via só `session.files_written` (Write/Edit). Agora
-   aceita também o **mtime** do `buglog.json` posterior ao início da sessão: escrita por
-   `python3`/`cat` no Bash conta.
-3. **`| HH:MM | Session end: … |` repetida** — os contadores são cumulativos e o hook dava
-   append todo turno. Agora só grava quando o resumo muda e **sobrescreve** a linha do fim do
-   arquivo. As 41 cópias já gravadas no `memory.md` foram colapsadas.
-
-**Regressão:** `node .wolf/hooks/_test-hooks.mjs` (10/10; roda o `stop.js` de verdade numa
-fixture de `/tmp` e prova que cada aviso ainda dispara quando é legítimo).
-
-⚠️ **O patch foi copiado à mão para as duas cópias do pacote global** (`.bak-pre-fix` ao lado),
-para `openwolf init/update` não reverter. **`pnpm update -g openwolf` apaga isso** — depois de
-atualizar, recopiar de `.wolf/hooks/`, que é a fonte rastreada. Detalhe em `.wolf/TODO.md §🧭`.
-
-### Pendências que não bloqueiam nada, e quem faz é o usuário
-
--3. **PLAYTEST DA SOBREVIVÊNCIA (F1..F6, sessões 34, 35, 36, 39 e 40) — o único que
-   headless não substitui.** Do **F4**, o que só o dedo responde: o painel "mochila" (tecla E)
-   usa **tocar no item → tocar no destino**, não arrastar — funciona no tablet? A contagem no
-   canto do slot é legível no DPI do aparelho? Os 9 slots por linha cabem em RETRATO? Começar
-   de mãos vazias frustra, ou `/dar all <id> <qtd>` resolve a aula? E **mochila cheia recusando
-   a quebra** lê como cuidado ou como bug? Exige `npm run build` se for pelo `:8080`. Como entrar: professor digita
-   `/modo sobrevivencia all` (a turma vai junto, ele fica em criativo pra supervisionar) ou
-   `/modo sobrevivencia eu` pra sentir na pele. O que olhar:
-   1. **Morrer de queda é JUSTO?** O dano começa em 4 blocos e mata em 23 (contas do
-      Minecraft). ⚠️ A altura vem de amostras a 10 Hz e erra PRA MENOS — se ele achar que
-      "caiu de 10 e não doeu", é a tolerância, não bug. O botão é `danoDeQueda`.
-   2. **15 s de ar é pouco ou muito?** `FOLEGO_TICKS` (150 ticks). Afogar tira 1 coração/s.
-   3. **Os corações e as bolhas são legíveis?** Estão 96px acima do rodapé, 18px cada. **No
-      tablet ninguém olhou** — pode brigar com a hotbar de toque (é a mesma faixa).
-   4. **A vinheta vermelha de dano incomoda?** Ela é curta (~90 ms) e só nas bordas.
-   5. **Voltar ao spawn ao morrer funciona pra aula?** Em mundo grande o spawn pode ficar
-      longe do que o aluno estava construindo. Se incomodar, "cama = ponto de renascer" é
-      feature nova (a cama já existe como bloco), não ajuste.
-   6. **Regenerar 1 ponto a cada 4 s é rápido demais?** Curar agora CUSTA comida
-      (`EXAUSTAO_POR_REGEN = 3`), então quem se machuca muito passa a sentir a barra.
-   7. **A fome desce rápido demais? (§🍖 F3, o número mais provável de mudar)** A régua está em
-      `shared/src/sobrevivencia.ts`: **400 blocos andados = 1 ponto** (`EXAUSTAO_POR_BLOCO_ANDADO`)
-      e **200 blocos construídos = 1 ponto** (`EXAUSTAO_POR_EDICAO`). A ordem de grandeza mirada
-      é a barra inteira em ~50 min de aula ativa. Se descer rápido demais, o botão é UM número.
-   8. **As coxas ficam legíveis ao lado dos corações?** Em tela estreita a linha quebra sozinha
-      (flex `wrap`) e as duas barras empilham. **No tablet ninguém olhou** — mesma faixa da
-      hotbar de toque, e agora com uma barra a mais.
-   9. **MORRER DE FOME é justo agora que dá pra comer? (§🍖 F6, a decisão mais nova.)**
-      `VIDA_MINIMA_POR_FOME` foi a 0 e a inanição voltou a matar. As perguntas de aula: um
-      aluno de 2º ano acha comida a tempo? A fruta (1 folha em 8) é generosa o bastante pra
-      quem só explora? Se doer, o botão é UM número — subir pra 6 devolve a fome que só
-      enfraquece, e `/regra fome desligar` continua tirando a barra da tela.
-   10. **§🍖 F6 — a HORTA responde no tempo da aula?** `TICKS_POR_CRESCIMENTO = 200` = 20 s
-       por estágio, ~1 min da semente ao trigo maduro. Dá pra plantar, sair construindo e
-       voltar? Ou o aluno fica parado olhando? (`LJ_CRESCIMENTO=<ticks>` acelera sem
-       recompilar, se ele quiser sentir os dois ritmos no mesmo playtest.)
-   11. **§🍖 F6 — dá pra LER que a plantação está madura?** Os 4 estágios se distinguem por
-       ALTURA e COR (verde rasteiro → dourado com espigas). No tablet, de pé, à distância de
-       construção — dá? É a única informação da horta que não tem texto nenhum.
-   12. **§🍖 F6 — o gesto de comer se descobre sozinho?** É o clique direito com comida na
-       mão, sem animação e sem som: a única resposta é a barra subir. Um aluno acha isso sem
-       alguém contar? (O `events.ts` já tem o lugar do som, se a resposta for não.)
-   13. **§🍖 F6 — a cadeia semente → plantar → colher → pão é clara?** É a pedagogia da
-       frente inteira (sequência com dependência de tempo). O trigo NÃO se come de propósito
-       — isso frustra ou ensina?
-   14. **Vale a `/regra fome desligar` pro fundamental 1?** Ela já funciona: a barra some da
-       tela na hora e ninguém cansa mais. É a resposta pronta se a turma menor se atrapalhar.
--2. ✅ **PLAYTEST DO RELEVO POR BIOMA (sessão 33) — FEITO** (declarado em 2026-08-02), **sem
-   pedido de ajuste**. Os botões seguem documentados caso ele mude de ideia: `BIOMAS.*.relevo`
-   (caatinga 0,1 · cerrado 0,35 · mata 0,5 · araucárias 1), `SNOW_HEIGHT`, `Bioma.neve` — e o
-   teste `O PORTÃO: nenhum degrau maior que 6 blocos` diz na hora se a mudança criou penhasco.
--1. ✅ **PLAYTEST DA LUZ E DAS CAVERNAS (sessão 32) — FEITO** (declarado em 2026-08-02), **sem
-   pedido de ajuste**. Botões, se voltar o assunto: `luzMin` = 0,05 (`client/src/luzShader.ts`),
-   `PISO_LUAR` = 0,22 (`client/src/daynight.ts`), `LIMIAR_CAVERNA` = 0,06
-   (`shared/src/worldgen.ts`). **O que continua NÃO medido é o FPS do lab** — ver ⚠️ abaixo.
-0. **PLAYTEST MOBILE — o usuário faz NA ESCOLA** (declarado em 2026-07-28). A 1ª rodada de
-   layouts está verde no headless, mas headless não tem dedo, teclado do Android nem o DPI do
-   aparelho. O que olhar, na ordem em que foi mexido:
-   1. **Hotbar:** tocar num slot troca de bloco? (caminho NOVO — antes só o inventário trocava)
-   2. **Chat:** com o teclado aberto, o campo continua visível? O histórico rola?
-   3. **Menu → Meus mundos:** com vários mundos, dá pra chegar no "voltar" lá embaixo?
-   4. **Inventário:** as 6 abas cabem numa linha? Dá pra acertar aba e slot com o dedo?
-   5. **F3 (📊) e objetivos:** ainda passam por baixo da barra de botões do topo?
-
-   **Não bloqueia a v2 da geração** — são arquivos disjuntos (CSS/UI × `shared/src/worldgen`).
-   Se voltar com ressalva, é edição pontual no `client/index.html` + `npm run shots:tablet`.
-1. **Rodar `iniciar-servidor.bat` no Windows uma vez.** O auto-update do `.sh` foi exercitado
-   nos 8 caminhos (clone local + npm falso); o `.bat` NÃO — não há cmd.exe no WSL. É duplo
-   clique; se o bloco de update falhar, o pior caso é ele avisar e subir a versão instalada.
-2. **A/B do §🌬️ no notebook do lab:** `?bench` e depois `?bench&semvida`, duas URLs seguidas
-   na MESMA máquina. O perfil se etiqueta sozinho (`meta.bench.semVida`, `config.nuvens/
-   balanco`) e o lado B nasce `perf-bench-semvida-*.json`. Comparar com a régua abaixo. Só
-   vale se o relatório quiser o custo de nuvens/balanço — **não é gatilho de desempenho.**
-   **O lado do PC de dev JÁ FOI FEITO (sessão 30):** custo ≈0,54 ms de GPU (méd 5,16 → 4,62;
-   p95 8,81 → 8,19), **invisível em FPS por causa do vsync**. Só falta a máquina apertada.
-3. **Deck da CRE** (`relatorio/apresentacao-cre.html`) pronto e não apresentado. Se ele voltar
-   com pedido de mudança, editar por Edit ancorado em texto de slide — o base64 dos prints
-   vive no mapa `IMGS` do `<script>`, não no `src`, justamente pra isso.
-
-Único detalhe visual nunca olhado ao vivo: **o sentido por face da 28c** (a tabela está no
-diário acima). Se um dia despejar um balde, conferir — e lembrar que as laterais
-PERPENDICULARES ao fluxo mostram a onda DESCENDO de propósito (não há horizontal a mostrar
-numa face que o fluxo atravessa) e que o mar segue o vento, também de propósito. Headless não
-resolve isso: o mar gerado não tem fluxo nenhum.
-
-**Nenhum gatilho de desempenho está aceso.** Quem retomar ESCOLHE do backlog abaixo.
-
-**A régua, pra qualquer perfil futuro se ler contra:**
-- **PC de dev (RTX 2060):** `profiles/perf-bench-2026-07-27T01-24-08-311Z.json` — 60 FPS ·
-  p95 16,9 ms · GPU 4,02 ms · carga 4,76 s · fila 0.
-- **Notebook do lab (Intel UHD 630, 8 núcleos, NA TOMADA):** `…-l9xf.json` — 50 FPS ·
-  p50 20,0 · p95 26,7 · p99 31,4 ms · GPU méd 13,0 / p95 16,8 · carga 4 508 ms · fila 0.
-- **Ruído do instrumento ≈ 1–2%** (duas rodadas na mesma máquina): diferença acima disso é
-  SINAL. É esta linha que autoriza tratar um número novo como evidência.
-
-**Como ler um perfil, na ordem que funcionou:** `carga.fasesMs` (`mundo` = rede/worldgen,
-`malha` = CPU de meshing — separa os dois sem instrumentação nova) → `gravacao.histogramaMs`
-(a FORMA) → `fases[]` + `pioresTravadas` com os `marcadores` do lado → `gpu` comparada com o
-frametime (é o teste de "é render?") → `mesher` (workers e profundidades: a etiqueta do
-experimento, existe desde bug-529).
-
-### ⚠️ Dois tetos que NÃO se atravessa com código
-
--1. **O RELEVO POR BIOMA DEVOLVEU 7,5% DE TRIÂNGULOS** (cena do `?bench`: 700 230 → 647 858;
-   chunks com malha 586 → 549), medido pelo mesher em Node (função pura — não depende de a fila
-   de malha drenar, que no SwiftShader não drena). Alívio parcial no item 0 abaixo: terreno mais
-   baixo fora das araucárias mesha menos. **Ainda NÃO foi medido no lab** — segue valendo o teto
-   do item 1.
-0. **§🏔️ AS CAVERNAS COBRARAM +66% DE TRIÂNGULOS** (153 852 → 255 234; draw calls 518 → 665),
-   medido no `?bench` do PC de dev em 2026-07-28. O salto grande é ter caverna QUALQUER — o
-   chunk de subsolo deixa de ser sólido-sem-faces; aumentar densidade depois é barato
-   (0,075 daria 294 256, só +15% sobre o 0,06 escolhido). **Isso ainda NÃO foi medido no
-   lab**, e é lá que a GPU já está no teto (item 1 abaixo). Se o FPS cair na escola, o botão
-   é `LIMIAR_CAVERNA` (`shared/src/worldgen.ts`) — e a régua de densidade está no teste
-   `escava na densidade calibrada`, que mede a média de 5 seeds.
-   ⚠️ **A seed do `?bench` (20260726) é das mais VAZIAS** (2,9% contra 7,3% da pior): o número
-   acima é o melhor caso, não o típico.
-1. **GPU p95 16,8–19,6 ms contra 16,7 ms** de orçamento de 60 FPS no lab. **O mesher acabou.**
-   Se um dia o FPS incomodar de novo, o alvo é GPU — teto de `raioRender` em GPU fraca,
-   overdraw da água, custo de fragment. **Greedy meshing continua DESCARTADO:** draw calls
-   (633) e triângulos (188 048) do lab são IDÊNTICOS aos do PC de dev, então não é aí que a
-   máquina fraca perde.
-2. **Notebook em modo economia de bateria trava em 30 FPS** (`p50` 33,3 ms cravado, GPU 28%
-   mais cara). É política de energia do Windows. Perfil medido nesse estado NÃO serve pra
-   comparar otimização — checar o estado da máquina antes de concluir qualquer coisa.
-
-### Backlog — ORDEM TRAVADA pelo usuário (sessão 29)
-
-1. ~~**Auto-update do servidor**~~ **FEITO** (`fbbe3d0`): `git pull` no launcher, pergunta
-   antes, `--ff-only`, 6 escapes. Falta só o teste no Windows (pendência 1 acima).
-2. ~~**Layouts mobile**~~ **1ª RODADA FEITA (sessão 31)**: menu, inventário/hotbar e chat/HUD
-   em 1024×600. Falta o **playtest no tablet** (pendência 0) e os **painéis de autoria**, que
-   o usuário deixou de fora desta rodada.
-3. ~~**v2 da geração de mundo**~~ **FEITA (sessões 32 e 33)**. `ROADMAP.md §🏔️`.
-   - ~~**Luz voxel** (pré-requisito que o usuário mandou entregar antes)~~ **FEITA (sessão
-     32)**: céu + tocha, repropagação incremental, 100% no cliente.
-   - ~~**Cavernas**~~ **FEITAS (sessão 32)**: interseção de 2 ruídos 3D, todo mundo
-     procedural, secas sob o mar com casca.
-   - ~~**Relevo "montanha de verdade" por bioma**~~ **FEITO (sessão 33)**: teto por bioma +
-     fator de núcleo, degrau de fronteira em paridade com o heightmap global (≤ 6), neve por
-     flag de bioma, custo NEGATIVO (−7,5% de triângulos).
-4. **Sobrevivência** (fome/vida/craft) ← **AQUI**. **Escopo ABERTO na sessão 30 (2026-07-27)**,
-   nada codado. Entrevista feita, decisões travadas, 9 frentes e as colisões (mundo-aula, claims,
-   bench, save, protocolo) escritas em `.wolf/ROADMAP.md §🍖`. Ler de lá e começar pelo F1
-   (`/modo`, o interruptor sem mecânica).
-
-Fora da fila, sem ordem definida:
-- ~~`ROADMAP.md §🌬️` — vento + vida ambiental~~ **FEITO na sessão 28** (frentes 1 a 6).
-  Sobrou só o que o §🌬️ NÃO pediu: som do vento; vento empurrando partículas/chuva;
-  o vento entrar na física (decisão explícita: é SÓ visual até alguém decidir o contrário).
-- **Som de água** (splash/borbulha/balde, WebAudio em `audio.ts`) — 4ª opção do refino de
-  água, nunca escolhida.
-
-**Entregável final (relatório) está essencialmente PRONTO** — pendências só opcionais:
-embutir 2–4 prints no §3, refs em ABNT, diagrama no Anexo A. Se o usuário pedir entrega,
-o passo é gerar PDF/HTML de `relatorio/relatorio-aplicacao.md`. **O §desempenho do relatório
-agora tem material forte:** o par A/B com o caminho síncrono e a régua dev × lab.
-
-**Hitbox da laje: ENCERRADA (2026-07-26).** O usuário testou e confirmou — "hitbox já está
-correta", NADA a mudar. Laje segue com mira na METADE (`blockSelectionBox`) e colisão de MEIA
-ALTURA (`temColisaoParcial`); NÃO copiar o modelo de célula cheia da cerca/porta. Se uma
-sessão futura achar isso "inconsistente", é decisão validada em playtest — deixar como está.
-
-**Sessão 34 (2026-08-02) NÃO COMMITADA** — §🍖 F1 e F2 estão só na árvore de trabalho (mais o
-`client/dist` reconstruído pelo `npm run verify`). O usuário mandou **deixar o push** e seguir
-pra próxima fase; quando ele pedir, vão os 3 commits da 33 + os desta. Sugestão de recorte:
-`feat(sobrevivencia): /modo e /regra (F1)` · `feat(sobrevivencia): vida, dano, morte (F2)` ·
-`fix(smoke): limpar mundo antes do smoke (bug-547)` · `docs(wolf)`.
-**Sessão 33 COMMITADA (2026-07-30), 3 commits, PUSH PENDENTE:** `cb987ed` (config do vitest —
-o gate era sorteio) · `2aaf0e9` (§🏔️ relevo por bioma + dist) · `docs(wolf)` do handoff.
-Sessões 20+21 (`26151f9`/`41211ff`/`5d18899`), 24 (`e3eaac4`) e 25 commitadas.
-**Sessão 27 commitada e pushada:** `51bc5c8` (mesher em Worker) + `b3669ff` (wolf) +
-`0a3dd3f` (PR do openwolf) + `efaf6df` (profundidade 1 + etiqueta no perfil).
-**Sessão 28 COMMITADA E PUSHADA** (2026-07-27): `b9bc7a3` (§🌬️ frentes 1-6) + `3418cf4`
-(regra da correnteza, 28b) + `7db6890` (sentido por face, 28c). Diário completo da 28 está em
-`.wolf/history.md` (rotacionado pra fora do STATUS).
-**Sessão 29 COMMITADA E PUSHADA** (2026-07-27), 7 commits: `26b7650` (`?semvida` + etiqueta
-do A/B) · `fbbe3d0` (auto-update no launcher) · `f23d5a9` (README + deck da CRE + relatório
-sem data) · `e49aa15` (privacidade: apelido e save de teste fora da árvore) · `edec801`
-(wolf) · `f6d72af` (LICENSE source-available) · `26ee413` (decisões no cerebrum).
-**Sessões 30, 31 e 32 COMMITADAS E PUSHADAS** (2026-07-28, 9 commits de uma vez — as sessões
-30 e 31 tinham ficado só locais). Da 32: `1be4ab0` (§💡 luz voxel) · `f1dd05f` (§🏔️ cavernas) ·
-`dd80426` (wolf) · `3064aae` (cerebrum consolidado 20,3k → 9,9k) · `581fbcd` (handoff).
-**O repo é PÚBLICO agora:** `github.com/meketreve/logica-em-jogo` — e é daí que o launcher da
-escola puxa, então push atrasado = notebook do lab desatualizado.
-
----
+**As decisões do usuário, aplicadas (não perguntar de novo):** fornalha SUBSTITUI a receita de
+vidro · graveto é ITEM e a tocha é 1 graveto + 1 carvão (mineral ou vegetal) · sem picareta o
+bloco **não quebra** e mostra aviso · baú com item **não quebra** · confinamento barra
+interação. **Uma decisão minha, declarada:** machado e pá ficaram fora (travariam a aula e não
+fariam nada sem tempo de quebra) — razão escrita em `ferramentas.ts`.
 
 ## 📁 Arquitetura ativa
 
@@ -1489,6 +1214,15 @@ escola puxa, então push atrasado = notebook do lab desatualizado.
 - **Restrição dura do navegador:** aba NÃO abre socket de escuta e NÃO executa binário.
   Por isso "abrir pra LAN" é papel do HOST (professor roda .exe/servidor), não do aluno.
   WebAssembly NÃO contorna isso (roda dentro do sandbox). Confirmado nesta entrevista.
+- **§🍖 F10: BLOCO COM INVENTÁRIO (`shared/src/containers.ts`).** Conteúdo por POSIÇÃO num mapa
+  da `GameSession` + no meta do save — o desenho do QUADRO, que foi o primeiro estado a não
+  caber no byte do chunk. Serve fornalha e baú, e serve o próximo. Transferência num array
+  CONCATENADO mochila+container (reusa `moverEmArray` do `inventario.ts`), índice UNIFICADO no
+  fio (`0..26` mochila, `27+i` container), e o `use_block` é quem ABRE — a resposta do servidor
+  é que abre o painel, porque quem decide se o aluno pode LER aquele baú é o gate de claim.
+- **§🍖 F10: os módulos PUROS novos** — `fornalha.ts` (cozimento em TICKS, nunca relógio de
+  parede) e `ferramentas.ts` (tipo × família × nível). Mesma disciplina de `inventario.ts`,
+  `drops.ts`, `receitas.ts` e `sobrevivencia.ts`: sem I/O, sem rede, testáveis sozinhos.
 
 ---
 
