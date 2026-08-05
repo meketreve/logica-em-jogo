@@ -1152,3 +1152,10 @@ passa pelo próprio portão) · 5 prints da pista. **PLAYTEST PENDENTE.**
 | 17:55 | Edited scripts/toque-shot.mjs | added optional chaining | ~615 |
 | 17:56 | Edited scripts/toque-shot.mjs | 4→5 lines | ~70 |
 | 18:02 | Três defeitos de tablet: bug-572 (o ☰ zerava `input.touch` e o CLICK do mesmo toque atravessava o `#overlay` `pointer-events:none` até o canvas, que pedia pointer lock e fechava o menu com a barra junto) → campo `Input.touchDevice` (aparelho) separado do `touch` (modo); `/amigos` sem subcomando passou a ABRIR o painel pelo callback do ChatUi (única porta que serve no PC e no tablet); bug-573 (fabricar re-renderiza o painel e a `.craft-lista` nasce de novo, perdendo o `scrollTop`) → `scrollCraft` restaurado DEPOIS do append | client/src/input.ts, client/src/main.ts, client/src/inventory.ts, scripts/toque-shot.mjs, package.json | typecheck 3/3 · 578 testes · build · 13/13 smokes · `shots:toque` NOVO 15/15, com A/B honesto (sem os fixes: 5 asserções falham, rolagem 324→0; com eles: 15/15, 324→324) | ~46000 |
+| 18:04 | Session end: 19 writes across 7 files (iniciar-servidor.sh, iniciar-servidor.bat, main.ts, input.ts, toque-shot.mjs) | 35 reads | ~75552 tok |
+
+## Session: 2026-08-05 11:53
+
+| Time | Action | File(s) | Outcome | ~Tokens |
+|------|--------|---------|---------|--------|
+| 11:53 | Commit + push do fechamento da sessão 44 (única pendência era o log do OpenWolf; árvore limpa fora dele) | .wolf/memory.md | push para origin/main | ~2000 |
