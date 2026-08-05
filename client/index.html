@@ -96,6 +96,14 @@
         z-index: 5;
         user-select: none;
       }
+      /* §🍖 F7: a mira fica VERMELHA e um pouco maior quando há um jogador na
+         frente — é o único aviso de que o clique vai bater em gente, e não
+         quebrar bloco. Só aparece onde o soco valeria (sobrevivência, pvp
+         ligado); o servidor decide, o cliente só pinta o que ele mandou. */
+      #crosshair.alvo {
+        color: #ff5a5a;
+        font-size: 26px;
+      }
       #hotbar {
         position: fixed;
         bottom: 12px;
@@ -489,6 +497,25 @@
         border-radius: 6px;
         background: rgba(0, 0, 0, 0.3);
         color: #fff;
+      }
+      /* "só o que dá pra fazer agora" — a lista passou de 12 pra 100+ receitas
+         quando a cobertura total entrou (2026-08-05); com a mochila vazia isso
+         é uma parede cinza. Alvo de 40px de altura, o piso de toque da UI. */
+      .craft-so {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        min-height: 40px;
+        margin-bottom: 6px;
+        font-size: 0.82rem;
+        color: rgba(255, 255, 255, 0.85);
+        cursor: pointer;
+        user-select: none;
+      }
+      .craft-so input {
+        width: 18px;
+        height: 18px;
+        accent-color: #6ea8fe;
       }
       .craft-lista {
         display: flex;

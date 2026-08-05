@@ -38,6 +38,14 @@ export class InventoryPanel {
   /** §🍖 F5: texto do filtro da lista de receitas (persiste entre re-renders). */
   private filtroCraft = "";
   /**
+   * "Só o que dá pra fazer agora" (2026-08-05). A lista passou de 12 pra mais
+   * de cem receitas quando toda a cobertura entrou; com a mochila vazia, isso é
+   * uma parede de linhas cinzas. Marcado, mostra só o que o aluno consegue
+   * fabricar NESTE instante — a resposta pra "e agora, o que eu faço?".
+   * Desmarcado por padrão: a lista inteira é o mapa do que existe pra buscar.
+   */
+  private soPossiveis = false;
+  /**
    * Rolagem da lista de receitas, pelo mesmo motivo do filtro: FABRICAR muda a
    * mochila, a mochila re-renderiza o painel inteiro (`refresh` → `render`) e a
    * `.craft-lista` é criada de novo — o `scrollTop` morria com o elemento
@@ -388,13 +396,27 @@ export class InventoryPanel {
       this.scrollCraft = 0;
       this.montarReceitas(lista);
     });
+
+    // o interruptor do "só o que dá agora" — mesma disciplina do filtro: muda
+    // só as LINHAS, sem re-renderizar o painel (o dedo não perde o lugar)
+    const soLabel = document.createElement("label");
+    soLabel.className = "craft-so";
+    const soBox = document.createElement("input");
+    soBox.type = "checkbox";
+    soBox.checked = this.soPossiveis;
+    soBox.addEventListener("change", () => {
+      this.soPossiveis = soBox.checked;
+      this.scrollCraft = 0;
+      this.montarReceitas(lista);
+    });
+    soLabel.append(soBox, document.createTextNode(" só o que dá pra fazer agora"));
     lista.addEventListener("scroll", () => {
       this.scrollCraft = lista.scrollTop;
     });
     this.listaCraft = lista;
     this.montarReceitas(lista);
 
-    wrap.append(filtro, lista);
+    wrap.append(filtro, soLabel, lista);
     return wrap;
   }
 
@@ -415,8 +437,9 @@ export class InventoryPanel {
     let visiveis = 0;
     RECEITAS.forEach((r, indice) => {
       if (!casa(indice)) return;
-      visiveis++;
       const pode = podeFabricar(inv, r);
+      if (this.soPossiveis && !pode) return;
+      visiveis++;
 
       const row = document.createElement("button");
       row.type = "button";
@@ -456,7 +479,9 @@ export class InventoryPanel {
     if (visiveis === 0) {
       const vazio = document.createElement("p");
       vazio.className = "inv-dica";
-      vazio.textContent = "nenhuma receita com esse nome.";
+      vazio.textContent = this.soPossiveis
+        ? "nada dá pra fazer com o que você tem agora — desmarque para ver a lista inteira."
+        : "nenhuma receita com esse nome.";
       lista.appendChild(vazio);
     }
   }

@@ -164,15 +164,23 @@ describe("§🍖 F6 — a plantação (módulo puro)", () => {
   });
 });
 
+/** Índice do pão na `RECEITAS`. Era o ÚLTIMO até a cobertura total de receitas
+ *  (2026-08-05) empurrar quase cem receitas pra trás dele — e é justamente por
+ *  isso que o índice se acha pela SAÍDA e nunca mais pelo tamanho da lista: o
+ *  que o protocolo promete é que o índice 11 continua sendo o pão, não que o
+ *  pão continue sendo o fim. */
+const RECEITA_PAO = RECEITAS.findIndex((r) => r.saida.id === ITEM_PAO);
+
 describe("§🍖 F6 — a receita do pão", () => {
-  it("3 trigo viram 1 pão, e o índice é o ÚLTIMO (append-only)", () => {
-    const receita = RECEITAS[RECEITAS.length - 1]!;
+  it("3 trigo viram 1 pão, e o índice dela não se mexe (append-only)", () => {
+    expect(RECEITA_PAO).toBe(11);
+    const receita = RECEITAS[RECEITA_PAO]!;
     expect(receita.saida).toEqual({ id: ITEM_PAO, qtd: 1 });
     expect(receita.custo).toEqual([{ id: ITEM_TRIGO, qtd: 3 }]);
   });
 
   it("com 2 trigo não sai pão; com 3, sai", () => {
-    const receita = RECEITAS[RECEITAS.length - 1]!;
+    const receita = RECEITAS[RECEITA_PAO]!;
     const dois = [...inventarioVazio()];
     dois[0] = { id: ITEM_TRIGO, qtd: 2 };
     expect(fabricar(dois, receita)).toBeNull();
@@ -249,7 +257,7 @@ describe("§🍖 F6 — pelo fio: plantar, crescer, colher, comer", () => {
     expect(naMochila(sent, 2, ITEM_TRIGO)).toBe(3);
     // a muda voltou toda vez: plantou 3, colheu 3, continua com as 4 do /dar
     expect(naMochila(sent, 2, BlockId.Plantacao0)).toBe(4);
-    session.handleMessage(2, JSON.stringify({ type: "fabricar", receita: RECEITAS.length - 1 }));
+    session.handleMessage(2, JSON.stringify({ type: "fabricar", receita: RECEITA_PAO }));
     expect(naMochila(sent, 2, ITEM_TRIGO)).toBe(0);
     expect(naMochila(sent, 2, ITEM_PAO)).toBe(1);
   });

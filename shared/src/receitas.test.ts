@@ -1,5 +1,13 @@
 import { describe, expect, it } from "vitest";
-import { BlockId, ITEM_BALDE_VAZIO } from "./blocks";
+import {
+  BlockId,
+  ITEM_BALDE_VAZIO,
+  ITEM_TRIGO,
+  isItem,
+  isPlaceable,
+  isProfessorOnly,
+} from "./blocks";
+import { formaCanonica } from "./drops";
 import {
   INV_SLOTS,
   type Inventario,
@@ -10,6 +18,7 @@ import {
 import {
   RECEITAS,
   type Receita,
+  SEM_RECEITA,
   fabricar,
   ingredientesDe,
   podeFabricar,
@@ -52,6 +61,80 @@ describe("receitas — tabela", () => {
       const teto = r.saida.id === ITEM_BALDE_VAZIO ? 1 : STACK_MAX;
       expect(r.saida.qtd).toBeLessThanOrEqual(teto);
     }
+  });
+
+  it("toda receita produz a FORMA CANÔNICA (o que a mochila guarda)", () => {
+    // porta, cama, escada e afins têm vários bytes e UMA entrada na mochila.
+    // Uma receita que saísse na variante errada daria ao aluno um item que ele
+    // não sabe recolocar — a mesma razão do `formaCanonica` no drop.
+    for (const r of RECEITAS) {
+      if (isItem(r.saida.id)) continue;
+      expect(formaCanonica(r.saida.id)).toBe(r.saida.id);
+    }
+  });
+
+  it("nenhum ingrediente é inalcançável (todo custo é bloco colocável ou item)", () => {
+    for (const r of RECEITAS) {
+      for (const c of r.custo) {
+        expect(isPlaceable(c.id) || isItem(c.id)).toBe(true);
+        // e nada que só o professor pode ter entra numa receita de aluno
+        expect(isProfessorOnly(c.id)).toBe(false);
+      }
+    }
+  });
+
+  it("PORTÃO: todo bloco colocável é alcançável em sobrevivência (ou está na lista de exceções)", () => {
+    // Este é o teste que o pedido do usuário criou: "faltam os crafts dos itens
+    // já adicionados". Ele varre TODOS os ids e prova que nenhum bloco existe
+    // sem caminho — quem inventar um bloco novo sem receita derruba a suíte e
+    // decide na hora: cria a receita, ou escreve por que ele não tem uma.
+    const fabricaveis = new Set(RECEITAS.map((r) => r.saida.id));
+    const orfaos: number[] = [];
+    for (let id = 1; id <= BlockId.Plantacao3; id++) {
+      if (!isPlaceable(id)) continue; // porta aberta, água, estágio crescido…
+      if (formaCanonica(id) !== id) continue; // variante: a canônica responde por ela
+      if (isProfessorOnly(id)) continue;
+      if (fabricaveis.has(id) || SEM_RECEITA.has(id)) continue;
+      orfaos.push(id);
+    }
+    expect(orfaos).toEqual([]);
+  });
+
+  it("a lista de exceções não mente: nada nela tem receita, e toda razão está escrita", () => {
+    const fabricaveis = new Set(RECEITAS.map((r) => r.saida.id));
+    for (const [id, razao] of SEM_RECEITA) {
+      expect(fabricaveis.has(id)).toBe(false);
+      expect(razao.length).toBeGreaterThan(10);
+    }
+  });
+
+  it("as 12 receitas antigas continuam nos MESMOS índices (o protocolo manda o índice)", () => {
+    // `fabricar {receita}` viaja como índice, e o `_smoke-craft.mjs` fixa os
+    // dele em constantes: inserir no meio trocaria a receita debaixo do dedo do
+    // aluno que já está com o painel aberto.
+    expect(RECEITAS[0]?.saida.id).toBe(BlockId.Planks);
+    expect(RECEITAS[10]?.saida.id).toBe(ITEM_BALDE_VAZIO);
+    expect(RECEITAS[11]?.custo[0]?.id).toBe(ITEM_TRIGO); // o pão do F6
+    expect(RECEITAS.length).toBeGreaterThan(12);
+  });
+
+  it("as cores: 12 lãs, 12 vidros e 12 tapetes, e cada cor sai de UMA receita só", () => {
+    const saidas = RECEITAS.map((r) => r.saida.id);
+    const umaSo = (id: number) => saidas.filter((s) => s === id).length === 1;
+    for (const id of [BlockId.WoolWhite, BlockId.WoolBrown, BlockId.VidroCiano, BlockId.TapeteRosa]) {
+      expect(umaSo(id)).toBe(true);
+    }
+    // as 12 de cada família estão todas lá
+    for (let i = 0; i < 8; i++) expect(saidas).toContain(BlockId.WoolWhite + i);
+    for (let i = 0; i < 4; i++) expect(saidas).toContain(BlockId.WoolPink + i);
+    for (let i = 0; i < 12; i++) expect(saidas).toContain(BlockId.VidroBranco + i);
+    for (let i = 0; i < 12; i++) expect(saidas).toContain(BlockId.TapeteBranco + i);
+  });
+
+  it("os 36 blocos-glifo (A–Z, 0–9) têm receita", () => {
+    const saidas = new Set(RECEITAS.map((r) => r.saida.id));
+    for (let i = 0; i < 26; i++) expect(saidas.has(BlockId.LetterA + i)).toBe(true);
+    for (let i = 0; i < 10; i++) expect(saidas.has(BlockId.Digit0 + i)).toBe(true);
   });
 
   it("receitaValida barra o índice que veio pelo fio", () => {

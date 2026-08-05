@@ -118,6 +118,28 @@ if (r.result?.data) {
   writeFileSync(join(SAIDA, "craft-panel.png"), buf);
   console.log(`  ✓ craft-panel.png (${(buf.length / 1024).toFixed(0)} KB) em ${SAIDA}`);
 }
+
+// 2026-08-05: com a cobertura total de receitas a lista passou de 12 pra 110
+// linhas, e o interruptor "só o que dá pra fazer agora" é o que a torna
+// utilizável de mochila vazia. A conferência é A/B no MESMO estado: marcar tem
+// de deixar só as habilitadas, e desmarcar tem de devolver a lista inteira.
+await avaliar(`document.querySelector('.craft-so input').click(), 1`);
+await espera(400);
+const soLinhas = await avaliar(`document.querySelectorAll('.craft-row').length`);
+const soDesab = await avaliar(`[...document.querySelectorAll('.craft-row')].filter(b => b.disabled).length`);
+console.log(
+  `  ${soLinhas === habil && soDesab === 0 ? "✓" : "✗"} "só o que dá agora": ${linhas} → ${soLinhas} linhas (habilitadas=${habil}, cinzas na lista=${soDesab})`,
+);
+const r2 = await cdp("Page.captureScreenshot", { format: "png" });
+if (r2.result?.data) {
+  const buf = Buffer.from(r2.result.data, "base64");
+  writeFileSync(join(SAIDA, "craft-so-possiveis.png"), buf);
+  console.log(`  ✓ craft-so-possiveis.png (${(buf.length / 1024).toFixed(0)} KB)`);
+}
+await avaliar(`document.querySelector('.craft-so input').click(), 1`);
+await espera(400);
+const voltou = await avaliar(`document.querySelectorAll('.craft-row').length`);
+console.log(`  ${voltou === linhas ? "✓" : "✗"} desmarcar devolve a lista inteira (${voltou})`);
 console.log(excecoes.length ? `✗ exceções: ${excecoes.join(" | ")}` : "✓ sem exceção no console");
 ws.close();
 chrome.kill("SIGKILL");
