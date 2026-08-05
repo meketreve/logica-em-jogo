@@ -1,12 +1,12 @@
 {
   "version": 1,
   "meta": {
-    "lastScanned": "2026-08-05T17:08:50.939Z",
-    "fileCount": 296,
+    "lastScanned": "2026-08-05T17:13:00.085Z",
+    "fileCount": 298,
     "hits": 0,
     "misses": 0,
-    "renderedHash": "f902d3c59408944d8a11827398ad69679a101cfbd791cf13d63d6ab6ae8bfc03",
-    "storeUpdatedAt": "2026-08-05T17:08:50.957Z"
+    "renderedHash": "b48dfa4d38193cfb1e3f09be945e4737f654e73274b78d23957f433e7ebe64d4",
+    "storeUpdatedAt": "2026-08-05T17:13:00.103Z"
   },
   "files": {
     ".claude/commands/reframe.md": {
@@ -9341,6 +9341,89 @@
           "tokens": 1350
         }
       ]
+    },
+    "shared/src/gate-claim.test.ts": {
+      "description": "§🍖 F10f — O PORTÃO DO CLAIM (pedido do usuário, 2026-08-05):",
+      "tokens": 2868,
+      "hash": "69b4d2fe36a9179b",
+      "size": 10168,
+      "mtimeMs": 1785949897775.3232,
+      "updatedAt": "2026-08-05T17:11:37.917Z",
+      "source": "hook",
+      "symbols": [
+        {
+          "name": "tiposComCelula",
+          "kind": "fn",
+          "startLine": 54,
+          "endLine": 72,
+          "tokens": 231
+        },
+        {
+          "name": "collect",
+          "kind": "fn",
+          "startLine": 73,
+          "endLine": 76,
+          "tokens": 55
+        },
+        {
+          "name": "join",
+          "kind": "fn",
+          "startLine": 77,
+          "endLine": 78,
+          "tokens": 34
+        },
+        {
+          "name": "cmd",
+          "kind": "fn",
+          "startLine": 79,
+          "endLine": 79,
+          "tokens": 20
+        },
+        {
+          "name": "mark",
+          "kind": "fn",
+          "startLine": 80,
+          "endLine": 81,
+          "tokens": 35
+        },
+        {
+          "name": "move",
+          "kind": "fn",
+          "startLine": 82,
+          "endLine": 85,
+          "tokens": 54
+        },
+        {
+          "name": "retrato",
+          "kind": "fn",
+          "startLine": 86,
+          "endLine": 93,
+          "tokens": 83
+        },
+        {
+          "name": "turmaComClaimDaAna",
+          "kind": "fn",
+          "startLine": 94,
+          "endLine": 114,
+          "tokens": 293
+        },
+        {
+          "name": "mensagemPara",
+          "kind": "fn",
+          "startLine": 115,
+          "endLine": 221,
+          "tokens": 1454
+        }
+      ]
+    },
+    "shared/src/raw.d.ts": {
+      "description": "`import x from \"./arquivo?raw\"` — o fonte do arquivo como string.",
+      "tokens": 173,
+      "hash": "161c7308210ab32c",
+      "size": 621,
+      "mtimeMs": 1785949979891.3232,
+      "updatedAt": "2026-08-05T17:13:00.084Z",
+      "source": "hook"
     }
   }
 }

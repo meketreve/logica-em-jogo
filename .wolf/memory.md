@@ -1336,3 +1336,6 @@ passa pelo próprio portão) · 5 prints da pista. **PLAYTEST PENDENTE.**
 | 14:07 | Edited shared/src/fornalha.session.test.ts | expanded (+37 lines) | ~597 |
 | 14:08 | Edited scripts/smoke.mjs | "§🍖 F10b — o clique direi" → "§🍖 F10b/F10e — o clique " | ~120 |
 | 14:09 | §🍖 F10e: o BAÚ (id 188) — reusa o encanamento inteiro do F10b; receita 8 tábuas, 27 slots, com item NÃO quebra; MAX_BLOCK_ID exportado pros testes-portão | blocks.ts, containers.ts, receitas.ts, mesher.ts, atlasTexture.ts, blocksUi.ts + testes + smoke | verde: typecheck 3/3, 659 testes, build, smoke fornalha 2x | ~22k |
+| 14:11 | Created shared/src/gate-claim.test.ts | — | ~2868 |
+| 14:13 | Created shared/src/raw.d.ts | — | ~173 |
+| 14:14 | §🍖 F10f: portão do claim — teste que LÊ a união ClientMessage do protocol.ts (via ?raw) e exige gate ou razão escrita pra toda mensagem com célula; confinamento passou a barrar use_block | gate-claim.test.ts (novo), raw.d.ts (novo), session.ts (use_block ganhou confinaBloqueia no F10b) | verde: typecheck 3/3, 664 testes, build; A/B honesto (mensagem nova sem gate e gate removido derrubam o portão) | ~18k |

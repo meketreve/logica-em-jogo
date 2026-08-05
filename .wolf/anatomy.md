@@ -1,7 +1,7 @@
 # anatomy.md
 
-> Auto-maintained by OpenWolf. Last scanned: 2026-08-05T17:08:50.939Z
-> Files: 296 tracked | Anatomy hits: 0 | Misses: 0
+> Auto-maintained by OpenWolf. Last scanned: 2026-08-05T17:13:00.085Z
+> Files: 298 tracked | Anatomy hits: 0 | Misses: 0
 
 ## ./
 
@@ -1003,6 +1003,16 @@
   - fn `saidaDe` L95-104 (~126 tok)
   - fn `podeCozinhar` L105-128 (~308 tok)
   - fn `tickFornalha` L129-186 (~524 tok)
+- `gate-claim.test.ts` — §🍖 F10f — O PORTÃO DO CLAIM (pedido do usuário, 2026-08-05): (~2868 tok)
+  - fn `tiposComCelula` L54-72 (~231 tok)
+  - fn `collect` L73-76 (~55 tok)
+  - fn `join` L77-78 (~34 tok)
+  - fn `cmd` L79-79 (~20 tok)
+  - fn `mark` L80-81 (~35 tok)
+  - fn `move` L82-85 (~54 tok)
+  - fn `retrato` L86-93 (~83 tok)
+  - fn `turmaComClaimDaAna` L94-114 (~293 tok)
+  - fn `mensagemPara` L115-221 (~1454 tok)
 - `groups.test.ts` — prof + 2 alunos em 2 grupos; modelo 2×1×1 com lã vermelha+azul. (~3848 tok)
   - fn `makeSession` L11-44 (~406 tok)
   - fn `joinProf` L45-47 (~36 tok)
@@ -1158,6 +1168,7 @@
   - section `QuadroConteudo` L10-24 (~132 tok)
   - fn `quadroKey` L25-29 (~50 tok)
   - fn `parseQuadroConteudo` L30-52 (~229 tok)
+- `raw.d.ts` — `import x from "./arquivo?raw"` — o fonte do arquivo como string. (~173 tok)
 - `raycast.test.ts` — Mundo 16³ com chão sólido em y ∈ [0,7]. (~1050 tok)
   - fn `floorWorld` L9-90 (~976 tok)
 - `raycast.ts` — Raycast de voxel (DDA de Amanatides-Woo): anda célula a célula do grid até (~2315 tok)
