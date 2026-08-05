@@ -14,8 +14,11 @@
  *
  * O registro nasceu ANTES das mecânicas de propósito — é o que faz cada frente
  * seguinte ser uma leitura de `valorRegra(...)` em vez de mais um campo no
- * save. `fome` ganhou mecânica no F3 e `manter-inventario` no F4; só `pvp`
- * ainda espera a frente dele (F7), e é isso que o campo `pendente` sinaliza.
+ * save. `fome` ganhou mecânica no F3, `manter-inventario` no F4 e `pvp` no F7
+ * (2026-08-05): **hoje NENHUMA regra é `pendente`**. O campo fica no tipo de
+ * propósito — a próxima regra que nascer antes da frente dela vai precisar
+ * dele, e é ele que evita o professor ligar, testar, não ver nada e concluir
+ * que o jogo quebrou.
  */
 
 export interface RegraDef {
@@ -41,8 +44,10 @@ export const REGRAS: readonly RegraDef[] = [
   {
     nome: "pvp",
     padrao: false,
-    ajuda: "Alunos podem se atacar. Desligada por padrão.",
-    pendente: true, // F7
+    ajuda:
+      "Alunos podem se atacar: clique esquerdo em outro jogador, ao alcance, tira um coração. Só vale entre quem está em sobrevivência, e mundo de aula ignora a regra. Desligada por padrão — ligue com /pvp ligar.",
+    // F7 (2026-08-05) deu MECÂNICA a ela: o `case atacar` da session lê esta
+    // regra. Era a última entrada do registro sem frente correspondente.
   },
   {
     nome: "fome",

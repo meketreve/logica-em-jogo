@@ -54,6 +54,11 @@ export type ClientMessage =
    *  não está cheia (barriga cheia RECUSA, pra a mordida não jogar comida
    *  fora), consome UMA unidade e responde com `vida` + `inventario`. */
   | { type: "comer"; slot: number }
+  /** Atacar (§🍖 F7): soco no jogador de id `alvo` (o mesmo id que chega no
+   *  `player_moved`). O cliente só manda a INTENÇÃO — quem confere a regra
+   *  `pvp`, o modo dos dois, o alcance e o intervalo entre socos é o servidor,
+   *  como em toda ação desde o F2. Recusa é silenciosa. */
+  | { type: "atacar"; alvo: number }
   /** Quadro (2026-07-19): define o CONTEÚDO do quadro naquela célula (texto
    *  e/ou imagem data URL pequena). Servidor valida célula/alcance/gates e
    *  responde com quadro_changed broadcast. Texto vazio sem imagem = limpa. */
@@ -352,6 +357,11 @@ export type ServerMessage =
        */
       type: "modo";
       efetivo: Modo;
+      /** §🍖 F7: o ataque entre jogadores vale neste mundo? OPCIONAL e
+       *  tolerante (host antigo não manda → o cliente assume que não), como os
+       *  campos novos do `debug_stats`. É só o que decide pintar a mira de
+       *  vermelho: quem recusa o soco continua sendo o servidor. */
+      pvp?: boolean;
     }
   | {
       /**
@@ -498,6 +508,11 @@ export function parseClientMessage(raw: string): ClientMessage | null {
       const s = m["slot"];
       if (typeof s !== "number" || !Number.isInteger(s)) return null;
       return { type: "comer", slot: s };
+    }
+    case "atacar": {
+      const a = m["alvo"];
+      if (typeof a !== "number" || !Number.isInteger(a)) return null;
+      return { type: "atacar", alvo: a };
     }
     case "chat":
       if (typeof m["text"] !== "string") return null;
@@ -744,7 +759,10 @@ export function parseServerMessage(raw: string): ServerMessage | null {
       // mensagem, não um diagnóstico opcional — sem ele não há o que aplicar)
       const modo = parseModo(m["efetivo"]);
       if (!modo) return null;
-      return { type: "modo", efetivo: modo };
+      // §🍖 F7: `pvp` é diagnóstico opcional — host antigo não manda, e a
+      // mensagem não pode se perder por causa dele
+      const pvp = m["pvp"];
+      return { type: "modo", efetivo: modo, ...(typeof pvp === "boolean" ? { pvp } : {}) };
     }
     case "vida": {
       // §🍖 F2: a VIDA é obrigatória; causa/morreu/folego são diagnóstico e

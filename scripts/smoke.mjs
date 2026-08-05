@@ -280,6 +280,28 @@ const SMOKES = [
     ],
   },
   {
+    nome: "pvp",
+    arquivo: `${DIR}/_smoke-pvp.mjs`,
+    prova:
+      "§🍖 F7 — o soco é `atacar {alvo}` com o id que veio do player_moved e quem resolve é o SERVIDOR: desligado recusa com aviso, ligado tira 1 coração etiquetado `pvp`, o cooldown come a rajada de cliques, de longe não alcança, criativo não bate nem apanha, e a morte NOMEIA quem derrubou no chat da turma.",
+    lento: false,
+    // o smoke deixa o pvp e o modo pessoal gravados no .ljw: sem apagar, a 2ª
+    // rodada nasceria com o pvp já ligado e a 1ª asserção falharia
+    limpar: ["mundos/_smoke-pvp"],
+    servidores: [
+      {
+        porta: 8107,
+        env: {
+          LJ_SAVE: "mundos/_smoke-pvp.ljw",
+          LJ_NOVO: "1",
+          LJ_TAMANHO: "P",
+          LJ_CODIGO: "prof2026",
+          LJ_SEED: SEED,
+        },
+      },
+    ],
+  },
+  {
     nome: "troca-raio",
     arquivo: `${DIR}/_smoke-troca-raio.mjs`,
     args: ["_smoke-trocab"],

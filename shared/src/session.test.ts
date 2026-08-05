@@ -36,10 +36,13 @@ describe("GameSession (servidor autoritativo)", () => {
     if (vento?.type !== "vento") throw new Error("esperava mensagem de vento");
     expect(vento.ativo).toBe(true);
     expect(vento.forca).toBeGreaterThan(0);
-    // sent[4] = modo (§🍖 F1) — vai SEMPRE, mesmo criativo (ver sendModo)
+    // sent[4] = modo (§🍖 F1) — vai SEMPRE, mesmo criativo (ver sendModo).
+    // §🍖 F7: ele carrega junto o `pvp` do mundo (padrão desligado), que é o
+    // que a mira do cliente lê pra saber se o clique vira soco.
     expect(parseServerMessage(sent[4]?.data as string)).toEqual({
       type: "modo",
       efetivo: "criativo",
+      pvp: false,
     });
     const welcome = parseServerMessage(sent[5]?.data as string);
     if (welcome?.type !== "chat") throw new Error("esperava chat de boas-vindas");

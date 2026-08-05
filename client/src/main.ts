@@ -62,6 +62,7 @@ import {
   peekMagic,
   podeVoarNoModo,
   raycastBlock,
+  raycastJogador,
   relevoPorClima,
   setBlock,
   stepPlayer,
@@ -474,6 +475,10 @@ let flying = false;
 /** Modo de jogo EFETIVO deste jogador (§🍖 F1) — quem decide é o servidor
  *  (msg `modo`, mandada em todo join e a cada troca). Criativo até ele falar. */
 let modoAtual: Modo = "criativo";
+/** §🍖 F7: o ataque entre jogadores vale neste mundo? Chega junto do `modo`
+ *  (campo opcional — host antigo não manda e fica false). Só decide se a mira
+ *  fica vermelha e se o clique vira soco: a recusa continua sendo do servidor. */
+let pvpLigado = false;
 /** Posso voar? Sobrevivência NÃO voa (nem professor); em criativo, o professor
  *  sempre e o aluno só com o voo liberado pra turma. */
 function podeVoar(): boolean {
@@ -766,6 +771,7 @@ function handleServerData(data: string | ArrayBuffer): void {
       // entram nas frentes seguintes lendo daqui.
       const mudou = modoAtual !== msg.efetivo;
       modoAtual = msg.efetivo;
+      pvpLigado = msg.pvp === true; // §🍖 F7: ausente (host antigo) = desligado
       if (!podeVoar()) flying = false; // entrou em sobrevivência voando: cai
       // §🍖 F2: corações só existem em sobrevivência (o ?vida força e vence,
       // como o ?hora vence o sync do céu)
@@ -808,7 +814,9 @@ function handleServerData(data: string | ArrayBuffer): void {
               ? "você ficou sem ar — voltou ao ponto de partida"
               : msg.causa === "fome"
                 ? "você passou fome demais — voltou ao ponto de partida"
-                : "você não sobreviveu — voltou ao ponto de partida",
+                : msg.causa === "pvp"
+                  ? "você foi derrubado por outro jogador — voltou ao ponto de partida"
+                  : "você não sobreviveu — voltou ao ponto de partida",
         );
       }
     } else if (msg.type === "kicked") {
@@ -1627,6 +1635,10 @@ function startGame(snap: Snapshot): void {
   highlight.visible = false;
   scene.add(highlight);
   let target: RayHit | null = null;
+  /** §🍖 F7: jogador mirado neste frame (id + distância), ou null. Calculado no
+   *  mesmo lugar que o `target` do bloco, e é ele que decide se o clique
+   *  esquerdo vira soco em vez de quebra. */
+  let alvoJogador: { id: number; dist: number } | null = null;
   const lookDir = new THREE.Vector3();
 
   // cp16: hotbar virou 9 SLOTS configuráveis (persistem no navegador via
@@ -1785,6 +1797,13 @@ function startGame(snap: Snapshot): void {
     regionRenderer.setCorner(corner, t.x, t.y, t.z);
   };
   input.onMouseButton(0, () => {
+    // §🍖 F7: soco vem ANTES do bloco — quem está mirado é gente, e o bloco
+    // atrás dela não pode quebrar no mesmo clique. O cliente só manda a
+    // intenção: regra, modo, alcance e cooldown são conferidos no servidor.
+    if (alvoJogador && !varinhaAtiva) {
+      activeConn.send(JSON.stringify({ type: "atacar", alvo: alvoJogador.id }));
+      return;
+    }
     if (!target) return;
     if (varinhaAtiva) {
       wandMark(1, target);
@@ -2442,7 +2461,37 @@ function startGame(snap: Snapshot): void {
           hotbar[selected] === ITEM_BALDE_VAZIO, // balde vazio mira a água (recolher)
         )
       : null;
-    highlight.visible = target !== null;
+    // §🍖 F7: jogador na frente? Só onde o soco valeria (sobrevivência + pvp
+    // ligado), e só se ele estiver MAIS PERTO que o bloco mirado — senão dava
+    // pra bater em quem está atrás da parede. Quem está mirado ganha o clique
+    // esquerdo inteiro: o bloco atrás não quebra.
+    alvoJogador =
+      input.active && modoAtual === "sobrevivencia" && pvpLigado
+        ? raycastJogador(
+            camera.position.x, camera.position.y, camera.position.z,
+            lookDir.x, lookDir.y, lookDir.z,
+            // a posição do LERP é a que o aluno vê; o `target` do servidor
+            // pularia 10×/s e a mira ficaria intermitente
+            [...remotePlayers].map(([id, rp]) => ({
+              id,
+              x: rp.mesh.position.x,
+              y: rp.mesh.position.y - PLAYER.height / 2, // mesh é centrada; a caixa quer os PÉS
+              z: rp.mesh.position.z,
+            })),
+            PLAYER_REACH,
+          )
+        : null;
+    if (alvoJogador && target) {
+      const dBloco = Math.hypot(
+        target.x + 0.5 - camera.position.x,
+        target.y + 0.5 - camera.position.y,
+        target.z + 0.5 - camera.position.z,
+      );
+      if (alvoJogador.dist > dBloco) alvoJogador = null; // o bloco está na frente
+    }
+    crosshairEl?.classList.toggle("alvo", alvoJogador !== null);
+
+    highlight.visible = target !== null && alvoJogador === null;
     if (target) {
       const [bx0, by0, bz0, bx1, by1, bz1] = blockSelectionBox(
         getBlock(world, target.x, target.y, target.z),

@@ -1,5 +1,6 @@
 import { BlockId, isAgua, isFullCube } from "./blocks";
 import { blockSelectionBox } from "./mesher";
+import { PLAYER } from "./physics";
 import { type World, getBlock } from "./world";
 
 /**
@@ -84,6 +85,82 @@ function subBoxNormal(
   if (axis === 1) return [0, dy > 0 ? -1 : 1, 0];
   if (axis === 2) return [0, 0, dz > 0 ? -1 : 1];
   return [0, 0, 0]; // origem dentro do sub-box
+}
+
+/** Um jogador mirável: id de cliente + a posição dos PÉS (a mesma que viaja no
+ *  `player_moved`). A caixa é a AABB da física — a mesma que colide. */
+export interface AlvoJogador {
+  id: number;
+  x: number;
+  y: number;
+  z: number;
+}
+
+/**
+ * §🍖 F7: mira em JOGADOR. Ray-vs-AABB contra a caixa de cada um, devolvendo o
+ * MAIS PRÓXIMO dentro do alcance (a distância volta junto pra quem chama poder
+ * comparar com o bloco mirado — quem estiver na frente ganha o clique).
+ *
+ * Função pura como o resto do módulo: o cliente usa pra saber que o soco tem
+ * alvo, e o SERVIDOR não depende dela — lá a conferência é de distância entre
+ * jogadores, porque a direção do olhar chega a 10 Hz e mentiria.
+ */
+export function raycastJogador(
+  ox: number, oy: number, oz: number,
+  dx: number, dy: number, dz: number,
+  alvos: Iterable<AlvoJogador>,
+  maxDist: number,
+): { id: number; dist: number } | null {
+  const len = Math.hypot(dx, dy, dz);
+  if (len === 0 || !Number.isFinite(len)) return null;
+  dx /= len;
+  dy /= len;
+  dz /= len;
+  const half = PLAYER.width / 2;
+  let melhor: { id: number; dist: number } | null = null;
+  for (const a of alvos) {
+    const t = rayAabb(
+      ox, oy, oz, dx, dy, dz,
+      a.x - half, a.y, a.z - half,
+      a.x + half, a.y + PLAYER.height, a.z + half,
+      maxDist,
+    );
+    if (t === null) continue;
+    if (!melhor || t < melhor.dist) melhor = { id: a.id, dist: t };
+  }
+  return melhor;
+}
+
+/** Slab test contra uma AABB de MUNDO. Devolve a distância de entrada (0 se a
+ *  origem está dentro), ou null se erra / passa do alcance. */
+function rayAabb(
+  ox: number, oy: number, oz: number,
+  dx: number, dy: number, dz: number,
+  x0: number, y0: number, z0: number,
+  x1: number, y1: number, z1: number,
+  maxDist: number,
+): number | null {
+  let tmin = 0;
+  let tmax = maxDist;
+  const eixos: readonly [number, number, number, number][] = [
+    [ox, dx, x0, x1],
+    [oy, dy, y0, y1],
+    [oz, dz, z0, z1],
+  ];
+  for (const [o, d, lo, hi] of eixos) {
+    if (d === 0) {
+      if (o < lo || o > hi) return null; // paralelo e fora do slab
+      continue;
+    }
+    const inv = 1 / d;
+    let tN = (lo - o) * inv;
+    let tF = (hi - o) * inv;
+    if (tN > tF) { const s = tN; tN = tF; tF = s; }
+    if (tN > tmin) tmin = tN;
+    if (tF < tmax) tmax = tF;
+    if (tmin > tmax) return null;
+  }
+  return tmin > maxDist ? null : tmin;
 }
 
 export function raycastBlock(

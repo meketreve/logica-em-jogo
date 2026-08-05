@@ -123,10 +123,14 @@ describe("/regra — o comando genérico (§🍖 F1)", () => {
     expect(session.toSave().regras).toBeUndefined();
   });
 
-  it("avisa que a regra ainda não tem mecânica (senão parece comando quebrado)", () => {
+  it("§🍖 F7: NENHUMA regra é pendente hoje — a `pvp` foi a última a ganhar mecânica", () => {
+    // o aviso "só passa a valer quando a mecânica existir" existe pra o
+    // professor não achar que ligou e o jogo ignorou. Com o F7, nenhuma regra
+    // do registro precisa dele — e ligar a pvp não pode mais avisar isso.
+    for (const r of REGRAS) expect(r.pendente).toBeUndefined();
     const { session, sent } = turma();
     session.handleMessage(1, cmd("/regra pvp ligar"));
-    expect(ultimaChat(sent, 1) ?? "").toContain("mecânica correspondente");
+    expect(ultimaChat(sent, 1) ?? "").not.toContain("mecânica correspondente");
   });
 
   it("as regras sobrevivem ao salvar e recarregar o .ljw", () => {

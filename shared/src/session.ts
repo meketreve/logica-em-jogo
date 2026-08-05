@@ -71,6 +71,7 @@ import { PLAYER, apoiadoNoChao } from "./physics";
 import { REGRAS, parseRegras, regraDef, regrasParaSave, valorRegra } from "./regras";
 import {
   type CausaDano,
+  DANO_PVP,
   EXAUSTAO_POR_BLOCO_ANDADO,
   EXAUSTAO_POR_EDICAO,
   EXAUSTAO_POR_REGEN,
@@ -78,9 +79,11 @@ import {
   FOLEGO_TICKS,
   FOME_MAX,
   PASSO_MAX_POR_AMOSTRA,
+  TICKS_ENTRE_ATAQUES,
   VIDA_MAX,
   aplicarDano,
   danoDeQueda,
+  estaVivo,
   gastarEsforco,
   novoEstadoVital,
   saciar,
@@ -312,6 +315,13 @@ export class GameSession {
   /** §🍖 F4: quando cada cliente ouviu "mochila cheia" pela última vez.
    *  Rascunho de sessão (some no disconnect) — é só o freio do aviso. */
   private readonly avisoMochila = new Map<number, number>();
+  /** §🍖 F7: tick do último soco de cada cliente (o cooldown do ataque). Em
+   *  TICKS, não em relógio de parede — mesma disciplina do ciclo e do vento.
+   *  Rascunho de sessão: some no disconnect (quem volta bate na hora). */
+  private readonly ultimoAtaque = new Map<number, number>();
+  /** §🍖 F7: quando cada cliente ouviu "o pvp está desligado". Freio do aviso,
+   *  igual ao da mochila cheia. */
+  private readonly avisoPvp = new Map<number, number>();
 
   private readonly players = new Map<number, SessionPlayer>();
   /** Última POSIÇÃO conhecida por nome: volta onde parou, olhando pra onde
@@ -1148,6 +1158,12 @@ export class GameSession {
         this.sendVida(clientId);
         break;
       }
+      case "atacar": {
+        // §🍖 F7: soco em outro jogador. O cliente manda só a INTENÇÃO (o id do
+        // alvo); quem confere regra, modo, alcance e cooldown é aqui.
+        this.atacar(clientId, msg.alvo);
+        break;
+      }
       case "mover_item": {
         // §🍖 F4: o aluno arruma a mochila. O cliente NÃO decide — manda os dois
         // índices e recebe o inventário inteiro de volta. `moverSlot` devolve o
@@ -1330,6 +1346,15 @@ export class GameSession {
         }
         return this.runRegra(parts);
       }
+      case "pvp": {
+        // §🍖 F7: atalho pra `/regra pvp`, no molde do `/hora` — consultar é de
+        // todos (o aluno precisa saber se pode apanhar), ligar/desligar é do
+        // professor. Não é regra nova: é a MESMA entrada do registro.
+        if (parts.length > 1 && !professor) {
+          return "Somente o professor pode ligar ou desligar o ataque entre jogadores. Use /pvp para ver como está.";
+        }
+        return this.runPvp(parts);
+      }
       case "dar": {
         if (!professor) return "Somente o professor pode usar /dar.";
         return this.runDar(clientId, parts);
@@ -1343,7 +1368,7 @@ export class GameSession {
         return this.runConfinar(parts);
       }
       default:
-        return `Comando desconhecido: ${text}. Os comandos disponíveis são /bloco, /resetpin, /regiao, /objetivo, /grupo, /tp, /tpr, /tpa, /iniciar, /hora, /ciclo, /vento, /voo, /modo, /regra, /claim, /amigos e /confinar.`;
+        return `Comando desconhecido: ${text}. Os comandos disponíveis são /bloco, /resetpin, /regiao, /objetivo, /grupo, /tp, /tpr, /tpa, /iniciar, /hora, /ciclo, /vento, /voo, /modo, /regra, /pvp, /claim, /amigos e /confinar.`;
     }
   }
 
@@ -1503,7 +1528,13 @@ export class GameSession {
     if (!p) return;
     this.send(
       clientId,
-      JSON.stringify({ type: "modo", efetivo: this.modoDe(p.name) } satisfies ServerMessage),
+      JSON.stringify({
+        type: "modo",
+        efetivo: this.modoDe(p.name),
+        // §🍖 F7: viaja junto porque é a MESMA pergunta ("como se joga aqui") e
+        // porque a mira precisa saber, sem mensagem nova no protocolo
+        pvp: this.temPvp(),
+      } satisfies ServerMessage),
     );
   }
 
@@ -1665,12 +1696,63 @@ export class GameSession {
         if (this.modoDe(j.name) === "sobrevivencia") this.sendVida(id);
       }
     }
+    // §🍖 F7: pelo `/regra pvp` o aviso à turma é o MESMO do `/pvp` — quem
+    // apanha sem saber que ligou acha que é bug. Os dois comandos escrevem no
+    // mesmo mapa; só o texto da resposta ao professor difere.
+    if (nome === "pvp") this.anunciarPvp(valor);
     // regra ainda sem mecânica (F4 e F7) avisa; a `fome` parou de avisar no F3,
     // senão o professor liga, vê a barra andar e desconfia do que o jogo diz
     return (
       `Regra ${nome} ${valor ? "ligada" : "desligada"} e gravada neste mundo.` +
       (def.pendente ? " (Ela só passa a valer quando a mecânica correspondente existir.)" : "")
     );
+  }
+
+  /**
+   * `/pvp` (§🍖 F7) — atalho de professor pra a regra `pvp`, no molde do
+   * `/hora`. Escreve na MESMA `this.regras`, então `/regra pvp` e `/pvp` não
+   * podem discordar, e o valor viaja no save pelo caminho que já existia.
+   *
+   * Mundo de aula responde a verdade e não muda nada: lá o pvp é desligado pelo
+   * host, como o modo criativo (recusar calado faria o professor achar que
+   * ligou).
+   */
+  private runPvp(parts: string[]): string {
+    const def = regraDef("pvp")!;
+    const atual = this.temPvp();
+    if (parts.length === 1) {
+      return this.somenteLeitura
+        ? "Este é um mundo de aula: ninguém se ataca aqui, e isso não se troca."
+        : `O ataque entre jogadores está ${atual ? "LIGADO" : "desligado"}. ${def.ajuda} Mude com /pvp ligar ou /pvp desligar.`;
+    }
+    if (parts.length > 2) return "Uso: /pvp ligar ou /pvp desligar.";
+    const arg = (parts[1] ?? "").toLowerCase();
+    let valor: boolean;
+    if (arg === "ligar" || arg === "on") valor = true;
+    else if (arg === "desligar" || arg === "off") valor = false;
+    else return "Uso: /pvp ligar ou /pvp desligar.";
+    if (this.somenteLeitura) {
+      return "Este é um mundo de aula: ninguém se ataca aqui, e isso não se troca.";
+    }
+    if (valor === def.padrao) this.regras.delete("pvp");
+    else this.regras.set("pvp", valor);
+    if (valor === atual) return `O ataque entre jogadores já estava ${valor ? "ligado" : "desligado"}.`;
+    this.anunciarPvp(valor);
+    return `Ataque entre jogadores ${valor ? "ligado" : "desligado"} e gravado neste mundo.`;
+  }
+
+  /** A turma inteira precisa saber que o pvp mudou — quem apanha sem aviso acha
+   *  que é bug —, e cada cliente recebe o `modo` de novo porque é ele que
+   *  carrega o `pvp` da mira (§🍖 F7). */
+  private anunciarPvp(valor: boolean): void {
+    this.broadcast({
+      type: "chat",
+      author: "servidor",
+      text: valor
+        ? "O professor LIGOU o ataque entre jogadores (só em sobrevivência)."
+        : "O professor desligou o ataque entre jogadores.",
+    });
+    for (const clientId of this.players.keys()) this.sendModo(clientId);
   }
 
   // --- §🍖 F2/F3: vida, dano, morte, fome -----------------------------------
@@ -1747,8 +1829,10 @@ export class GameSession {
    * A ÚNICA porta de perda de vida do servidor. Queda e afogamento (lite), fome
    * (F3), PvP (F7) e mob (F8) entram todos por aqui — quem chama só diz quanto e
    * por quê. Fora da sobrevivência é no-op.
+   *
+   * `porQuem` (§🍖 F7) só existe pro texto da morte: é o NOME de quem bateu.
    */
-  private machucar(clientId: number, pontos: number, causa: CausaDano): void {
+  private machucar(clientId: number, pontos: number, causa: CausaDano, porQuem?: string): void {
     if (!this.vidaVale(clientId)) return;
     const p = this.players.get(clientId);
     if (!p) return;
@@ -1756,7 +1840,71 @@ export class GameSession {
     if (r.aplicado === 0) return;
     this.vitais.set(p.name, r.estado);
     this.sendVida(clientId, { causa, ...(r.morreu ? { morreu: true } : {}) });
-    if (r.morreu) this.matar(clientId, causa);
+    if (r.morreu) this.matar(clientId, causa, porQuem);
+  }
+
+  // --- §🍖 F7: pvp ----------------------------------------------------------
+
+  /**
+   * O pvp vale neste mundo? Regra de mundo (padrão DESLIGADA), **e mundo de
+   * aula/atividade força DESLIGADO**, do mesmo jeito que força criativo: a aula
+   * distribui um modelo pra turma construir, e uma pancadaria no meio dela é
+   * problema de sala, não jogo. Como a aula é read-only, a regra nem chega a
+   * ser gravada — ela só não vale enquanto o mundo for de aula.
+   */
+  private temPvp(): boolean {
+    return !this.somenteLeitura && valorRegra(this.regras, "pvp");
+  }
+
+  /**
+   * Um soco (§🍖 F7). Recusa CALADA em quase tudo — a única exceção é o pvp
+   * desligado, que ganha aviso com freio: sem ele o aluno bate, não acontece
+   * nada e conclui que o jogo travou.
+   *
+   * O que é conferido, nesta ordem: os dois existem e não são a mesma pessoa ·
+   * o pvp vale · **os DOIS estão em sobrevivência** (o professor supervisionando
+   * em criativo não bate nem apanha — é o mesmo portão da vida e da mochila) ·
+   * o alvo está vivo · alcance · cooldown.
+   *
+   * ⚠️ O alcance é medido entre as POSIÇÕES dos dois, não pela linha do olhar:
+   * a direção chega a 10 Hz e a caixa do alvo desliza no cliente (lerp), então
+   * validar mira aqui recusaria soco legítimo. Quem mira é o cliente; o
+   * servidor garante que ninguém soca do outro lado do mapa.
+   */
+  private atacar(clientId: number, alvoId: number): void {
+    const p = this.players.get(clientId);
+    const alvo = this.players.get(alvoId);
+    if (!p || !alvo || clientId === alvoId) return;
+    if (!this.temPvp()) {
+      this.avisarPvpDesligado(clientId);
+      return;
+    }
+    // os dois têm de estar em sobrevivência: quem está em criativo não machuca
+    // (não tem vida pra perder) nem é machucado
+    if (!this.vidaVale(clientId) || !this.vidaVale(alvoId)) return;
+    if (!estaVivo(this.vitalDe(alvo.name))) return;
+    const dist = Math.hypot(alvo.x - p.x, alvo.y - p.y, alvo.z - p.z);
+    if (dist > PLAYER_REACH + 2) return; // mesma folga do withinReach (10 Hz)
+    const ultimo = this.ultimoAtaque.get(clientId) ?? -Infinity;
+    if (this.tickCount - ultimo < TICKS_ENTRE_ATAQUES) return;
+    this.ultimoAtaque.set(clientId, this.tickCount);
+    this.machucar(alvoId, DANO_PVP, "pvp", p.name);
+  }
+
+  /** Aviso de "o pvp está desligado" com FREIO — bater é clique repetido, e sem
+   *  teto o chat da aula viraria parede de texto (mesma disciplina do aviso de
+   *  mochila cheia). */
+  private avisarPvpDesligado(clientId: number): void {
+    const agora = this.now();
+    const ultimo = this.avisoPvp.get(clientId) ?? -Infinity;
+    if (agora - ultimo < AVISO_MOCHILA_MS) return;
+    this.avisoPvp.set(clientId, agora);
+    this.sendServerChat(
+      clientId,
+      this.somenteLeitura
+        ? "Mundo de aula: aqui ninguém se ataca."
+        : "O ataque entre jogadores está desligado neste mundo (o professor liga com /pvp ligar).",
+    );
   }
 
   /**
@@ -1767,10 +1915,14 @@ export class GameSession {
    * LIGADA e, sem inventário autoritativo (F4), não há o que perder ainda. É
    * aqui que o F4 vai ler `valorRegra(this.regras, "manter-inventario")`.
    */
-  private matar(clientId: number, causa: CausaDano): void {
+  private matar(clientId: number, causa: CausaDano, porQuem?: string): void {
     const p = this.players.get(clientId);
     if (!p) return;
-    this.broadcast({ type: "chat", author: "servidor", text: textoDaMorte(p.name, causa) });
+    this.broadcast({
+      type: "chat",
+      author: "servidor",
+      text: textoDaMorte(p.name, causa, porQuem),
+    });
     this.vitais.set(p.name, novoEstadoVital());
     // §🍖 F4: aqui a regra `manter-inventario` finalmente decide alguma coisa.
     // LIGADA (o padrão de escola) = não se perde nada. DESLIGADA = a mochila
@@ -3992,6 +4144,8 @@ export class GameSession {
     this.wandMarks.delete(clientId); // rascunho de canto morre com a conexão
     this.tpPedidos.delete(clientId); // pedidos ENDEREÇADOS a quem saiu morrem
     this.picoQueda.delete(clientId); // §🍖 quem volta não paga a queda de ontem
+    this.ultimoAtaque.delete(clientId); // §🍖 F7: cooldown de soco é de sessão
+    this.avisoPvp.delete(clientId);
     // (pedidos FEITOS por quem saiu são podados no /tpa — players.has(deId))
     const p = this.players.get(clientId);
     if (!p) return;

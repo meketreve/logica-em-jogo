@@ -87,6 +87,24 @@ export const TICKS_POR_AFOGAMENTO = 10;
 /** …deste tamanho (1 coração por segundo). */
 export const DANO_AFOGAMENTO = 2;
 
+// --- §🍖 F7: pvp ------------------------------------------------------------
+//
+// Sem arma no lite: o soco é o único ataque, e o número é o do punho do
+// Minecraft dobrado — 1 ponto lá, 2 aqui (um coração). São 10 socos pra derrubar
+// alguém de vida cheia, e com o cooldown abaixo isso dá ~5 s de perseguição:
+// tempo bastante pra a vítima fugir, chamar o professor ou revidar, que é o que
+// faz o pvp virar brincadeira em vez de execução.
+
+/** Dano de UM soco (2 pontos = 1 coração). */
+export const DANO_PVP = 2;
+
+/**
+ * Ticks entre dois socos do MESMO atacante (10 Hz → 0,5 s). É o freio que
+ * impede o clique automático (ou o dedo rápido no tablet) de virar dano
+ * instantâneo: sem ele, quem clica mais rápido ganha, e isso não é jogo.
+ */
+export const TICKS_ENTRE_ATAQUES = 5;
+
 export type CausaDano = "queda" | "afogamento" | "fome" | "pvp" | "outro";
 
 const CAUSAS: readonly CausaDano[] = ["queda", "afogamento", "fome", "pvp", "outro"];
@@ -259,8 +277,15 @@ export function tickFome(e: EstadoVital): { estado: EstadoVital; dano: number } 
   return { estado: { ...e, fomeTicks: 0 }, dano: Math.max(0, Math.min(DANO_FOME, espaco)) };
 }
 
-/** Texto da morte pro chat da turma (o professor precisa ver o que aconteceu). */
-export function textoDaMorte(nome: string, causa: CausaDano): string {
+/**
+ * Texto da morte pro chat da turma (o professor precisa ver o que aconteceu).
+ *
+ * §🍖 F7: no pvp o NOME de quem bateu entra na frase — numa aula, "alguém
+ * derrubou a ana" é justamente a informação que o professor precisa pra
+ * intervir. A redação evita concordância de gênero ("não resistiu aos golpes"
+ * em vez de "foi derrotado/a"), porque o jogo não sabe o gênero de ninguém.
+ */
+export function textoDaMorte(nome: string, causa: CausaDano, porQuem?: string): string {
   switch (causa) {
     case "queda":
       return `${nome} caiu de muito alto.`;
@@ -269,7 +294,9 @@ export function textoDaMorte(nome: string, causa: CausaDano): string {
     case "fome":
       return `${nome} passou fome demais.`;
     case "pvp":
-      return `${nome} foi derrotado por outro jogador.`;
+      return porQuem
+        ? `${nome} não resistiu aos golpes de ${porQuem}.`
+        : `${nome} não resistiu aos golpes de outro jogador.`;
     default:
       return `${nome} não sobreviveu.`;
   }
