@@ -1,12 +1,12 @@
 {
   "version": 1,
   "meta": {
-    "lastScanned": "2026-08-05T17:33:02.028Z",
-    "fileCount": 301,
+    "lastScanned": "2026-08-05T17:51:21.040Z",
+    "fileCount": 302,
     "hits": 0,
     "misses": 0,
-    "renderedHash": "f29696ed2054761ed702d93d04db64741f3ac440159bd6e7222f40b817550506",
-    "storeUpdatedAt": "2026-08-05T17:33:02.046Z"
+    "renderedHash": "c35be3e684bbf3485b073af3b60347921a0be04d57718753c6b80cb613917895",
+    "storeUpdatedAt": "2026-08-05T17:51:21.043Z"
   },
   "files": {
     ".claude/commands/reframe.md": {
@@ -15,7 +15,7 @@
       "hash": "17a75695be5d4629",
       "size": 2221,
       "mtimeMs": 1785725496089.4773,
-      "updatedAt": "2026-08-05T15:36:57.122Z",
+      "updatedAt": "2026-08-05T17:51:20.744Z",
       "source": "scan"
     },
     ".claude/commands/security-audit.md": {
@@ -24,7 +24,7 @@
       "hash": "e6f7e0b7337c9c86",
       "size": 2060,
       "mtimeMs": 1785725496089.4773,
-      "updatedAt": "2026-08-05T15:36:57.122Z",
+      "updatedAt": "2026-08-05T17:51:20.744Z",
       "source": "scan"
     },
     ".claude/rules/openwolf.md": {
@@ -33,7 +33,7 @@
       "hash": "6d735b2c1c54a916",
       "size": 1323,
       "mtimeMs": 1785725496069.4773,
-      "updatedAt": "2026-08-05T15:36:57.124Z",
+      "updatedAt": "2026-08-05T17:51:20.746Z",
       "source": "scan"
     },
     ".claude/settings.json": {
@@ -42,7 +42,7 @@
       "hash": "d8888b729911cfaf",
       "size": 1799,
       "mtimeMs": 1785725496069.4773,
-      "updatedAt": "2026-08-05T15:36:57.124Z",
+      "updatedAt": "2026-08-05T17:51:20.746Z",
       "source": "scan"
     },
     ".claude/settings.local.json": {
@@ -51,7 +51,7 @@
       "hash": "dc7d39ac3038ca42",
       "size": 22122,
       "mtimeMs": 1784569171012.358,
-      "updatedAt": "2026-08-05T15:36:57.125Z",
+      "updatedAt": "2026-08-05T17:51:20.747Z",
       "source": "scan"
     },
     ".gitattributes": {
@@ -60,7 +60,7 @@
       "hash": "9f882e7b33fcaca1",
       "size": 114,
       "mtimeMs": 1783780660396.0913,
-      "updatedAt": "2026-08-05T15:36:57.125Z",
+      "updatedAt": "2026-08-05T17:51:20.747Z",
       "source": "scan"
     },
     ".gitignore": {
@@ -69,7 +69,7 @@
       "hash": "496320ad0db32ac9",
       "size": 1276,
       "mtimeMs": 1785727892213.4766,
-      "updatedAt": "2026-08-05T15:36:57.125Z",
+      "updatedAt": "2026-08-05T17:51:20.747Z",
       "source": "scan"
     },
     ".wolf.bak-pre-lean/anatomy-index.json": {
@@ -78,7 +78,7 @@
       "hash": "0589d553d78e88e5",
       "size": 35286,
       "mtimeMs": 1784982110010.7358,
-      "updatedAt": "2026-08-05T15:36:57.127Z",
+      "updatedAt": "2026-08-05T17:51:20.749Z",
       "source": "scan"
     },
     ".wolf.bak-pre-lean/anatomy.md": {
@@ -87,7 +87,7 @@
       "hash": "f926b9cb0350f5f4",
       "size": 16778,
       "mtimeMs": 1784982110006.7358,
-      "updatedAt": "2026-08-05T15:36:57.129Z",
+      "updatedAt": "2026-08-05T17:51:20.750Z",
       "source": "scan"
     },
     ".wolf.bak-pre-lean/buglog.json": {
@@ -96,7 +96,7 @@
       "hash": "b378a659bed058f6",
       "size": 272540,
       "mtimeMs": 1784982110010.7358,
-      "updatedAt": "2026-08-05T15:36:57.136Z",
+      "updatedAt": "2026-08-05T17:51:20.756Z",
       "source": "scan"
     },
     ".wolf.bak-pre-lean/cerebrum.md": {
@@ -105,7 +105,7 @@
       "hash": "79d3990b59ed2cff",
       "size": 116786,
       "mtimeMs": 1784982110010.7358,
-      "updatedAt": "2026-08-05T15:36:57.139Z",
+      "updatedAt": "2026-08-05T17:51:20.759Z",
       "source": "scan"
     },
     ".wolf.bak-pre-lean/config.json": {
@@ -114,7 +114,7 @@
       "hash": "b6bffcfc8c800824",
       "size": 1869,
       "mtimeMs": 1784982110018.7358,
-      "updatedAt": "2026-08-05T15:36:57.140Z",
+      "updatedAt": "2026-08-05T17:51:20.759Z",
       "source": "scan"
     },
     ".wolf.bak-pre-lean/cron-manifest.json": {
@@ -123,7 +123,7 @@
       "hash": "5c39ea43ee48cebf",
       "size": 3246,
       "mtimeMs": 1784982110018.7358,
-      "updatedAt": "2026-08-05T15:36:57.140Z",
+      "updatedAt": "2026-08-05T17:51:20.761Z",
       "source": "scan"
     },
     ".wolf.bak-pre-lean/cron-state.json": {
@@ -132,7 +132,7 @@
       "hash": "cb1702362c2bd56c",
       "size": 148,
       "mtimeMs": 1784982110022.7358,
-      "updatedAt": "2026-08-05T15:36:57.141Z",
+      "updatedAt": "2026-08-05T17:51:20.761Z",
       "source": "scan"
     },
     ".wolf.bak-pre-lean/daemon.log": {
@@ -141,7 +141,7 @@
       "hash": "4d3dc07b7d60fb5d",
       "size": 612,
       "mtimeMs": 1784982110022.7358,
-      "updatedAt": "2026-08-05T15:36:57.142Z",
+      "updatedAt": "2026-08-05T17:51:20.762Z",
       "source": "scan"
     },
     ".wolf.bak-pre-lean/dashboard-token": {
@@ -150,7 +150,7 @@
       "hash": "4d1ccf09835043d7",
       "size": 65,
       "mtimeMs": 1784982110022.7358,
-      "updatedAt": "2026-08-05T15:36:57.142Z",
+      "updatedAt": "2026-08-05T17:51:20.762Z",
       "source": "scan"
     },
     ".wolf.bak-pre-lean/designqc-report.json": {
@@ -159,7 +159,7 @@
       "hash": "747082a345652ffd",
       "size": 90,
       "mtimeMs": 1784982110010.7358,
-      "updatedAt": "2026-08-05T15:36:57.143Z",
+      "updatedAt": "2026-08-05T17:51:20.763Z",
       "source": "scan"
     },
     ".wolf.bak-pre-lean/hooks/_session.json": {
@@ -168,7 +168,7 @@
       "hash": "bc945a2809a77f5c",
       "size": 7571,
       "mtimeMs": 1784982110014.7358,
-      "updatedAt": "2026-08-05T15:36:57.144Z",
+      "updatedAt": "2026-08-05T17:51:20.764Z",
       "source": "scan"
     },
     ".wolf.bak-pre-lean/hooks/anatomy-lock.js": {
@@ -177,7 +177,7 @@
       "hash": "35a2eb1d1178f407",
       "size": 3645,
       "mtimeMs": 1784982110018.7358,
-      "updatedAt": "2026-08-05T15:36:57.146Z",
+      "updatedAt": "2026-08-05T17:51:20.766Z",
       "source": "scan",
       "symbols": [
         {
@@ -223,7 +223,7 @@
       "hash": "06beb5db24c469eb",
       "size": 10192,
       "mtimeMs": 1784982110018.7358,
-      "updatedAt": "2026-08-05T15:36:57.148Z",
+      "updatedAt": "2026-08-05T17:51:20.767Z",
       "source": "scan",
       "symbols": [
         {
@@ -318,7 +318,7 @@
       "hash": "3ca9d4afd2142508",
       "size": 23,
       "mtimeMs": 1784982110018.7358,
-      "updatedAt": "2026-08-05T15:36:57.149Z",
+      "updatedAt": "2026-08-05T17:51:20.767Z",
       "source": "scan"
     },
     ".wolf.bak-pre-lean/hooks/post-read.js": {
@@ -327,7 +327,7 @@
       "hash": "1e3f925aa8b6bcca",
       "size": 2304,
       "mtimeMs": 1784982110014.7358,
-      "updatedAt": "2026-08-05T15:36:57.150Z",
+      "updatedAt": "2026-08-05T17:51:20.769Z",
       "source": "scan",
       "symbols": [
         {
@@ -345,7 +345,7 @@
       "hash": "803605e70c86d482",
       "size": 24043,
       "mtimeMs": 1784982110014.7358,
-      "updatedAt": "2026-08-05T15:36:57.152Z",
+      "updatedAt": "2026-08-05T17:51:20.771Z",
       "source": "scan",
       "symbols": [
         {
@@ -426,7 +426,7 @@
       "hash": "26bb3edd10d30bf9",
       "size": 3720,
       "mtimeMs": 1784982110014.7358,
-      "updatedAt": "2026-08-05T15:36:57.153Z",
+      "updatedAt": "2026-08-05T17:51:20.772Z",
       "source": "scan",
       "symbols": [
         {
@@ -444,7 +444,7 @@
       "hash": "c3f16cb435b7896b",
       "size": 5457,
       "mtimeMs": 1784982110014.7358,
-      "updatedAt": "2026-08-05T15:36:57.154Z",
+      "updatedAt": "2026-08-05T17:51:20.772Z",
       "source": "scan",
       "symbols": [
         {
@@ -483,7 +483,7 @@
       "hash": "059511f905bbda75",
       "size": 1284,
       "mtimeMs": 1784982110018.7358,
-      "updatedAt": "2026-08-05T15:36:57.154Z",
+      "updatedAt": "2026-08-05T17:51:20.773Z",
       "source": "scan"
     },
     ".wolf.bak-pre-lean/hooks/session-start.js": {
@@ -492,7 +492,7 @@
       "hash": "3dcf824f97fb3771",
       "size": 9925,
       "mtimeMs": 1784982110014.7358,
-      "updatedAt": "2026-08-05T15:36:57.155Z",
+      "updatedAt": "2026-08-05T17:51:20.774Z",
       "source": "scan",
       "symbols": [
         {
@@ -538,7 +538,7 @@
       "hash": "53924dda9bca652d",
       "size": 33100,
       "mtimeMs": 1784982110018.7358,
-      "updatedAt": "2026-08-05T15:36:57.157Z",
+      "updatedAt": "2026-08-05T17:51:20.776Z",
       "source": "scan",
       "symbols": [
         {
@@ -668,7 +668,7 @@
       "hash": "ec33531d99273f71",
       "size": 15496,
       "mtimeMs": 1784982110014.7358,
-      "updatedAt": "2026-08-05T15:36:57.158Z",
+      "updatedAt": "2026-08-05T17:51:20.778Z",
       "source": "scan",
       "symbols": [
         {
@@ -728,7 +728,7 @@
       "hash": "25fa19c35fd46f2d",
       "size": 3869,
       "mtimeMs": 1784982110018.7358,
-      "updatedAt": "2026-08-05T15:36:57.159Z",
+      "updatedAt": "2026-08-05T17:51:20.778Z",
       "source": "scan",
       "symbols": [
         {
@@ -753,7 +753,7 @@
       "hash": "b707a5ffbd25f2f3",
       "size": 371,
       "mtimeMs": 1784982110018.7358,
-      "updatedAt": "2026-08-05T15:36:57.159Z",
+      "updatedAt": "2026-08-05T17:51:20.779Z",
       "source": "scan"
     },
     ".wolf.bak-pre-lean/memory.md": {
@@ -762,7 +762,7 @@
       "hash": "4fede9257f58a7ab",
       "size": 204493,
       "mtimeMs": 1784982110006.7358,
-      "updatedAt": "2026-08-05T15:36:57.163Z",
+      "updatedAt": "2026-08-05T17:51:20.783Z",
       "source": "scan"
     },
     ".wolf.bak-pre-lean/OPENWOLF.md": {
@@ -771,7 +771,7 @@
       "hash": "763dc6c1d2391954",
       "size": 9236,
       "mtimeMs": 1784982109998.7358,
-      "updatedAt": "2026-08-05T15:36:57.164Z",
+      "updatedAt": "2026-08-05T17:51:20.784Z",
       "source": "scan"
     },
     ".wolf.bak-pre-lean/reframe-frameworks.md": {
@@ -780,7 +780,7 @@
       "hash": "44acc3e2561ebba9",
       "size": 31141,
       "mtimeMs": 1784982110010.7358,
-      "updatedAt": "2026-08-05T15:36:57.166Z",
+      "updatedAt": "2026-08-05T17:51:20.785Z",
       "source": "scan"
     },
     ".wolf.bak-pre-lean/STATUS-archive.md": {
@@ -789,7 +789,7 @@
       "hash": "20afd6e3f9c2ef61",
       "size": 65658,
       "mtimeMs": 1784982110006.7358,
-      "updatedAt": "2026-08-05T15:36:57.168Z",
+      "updatedAt": "2026-08-05T17:51:20.786Z",
       "source": "scan"
     },
     ".wolf.bak-pre-lean/STATUS.md": {
@@ -798,7 +798,7 @@
       "hash": "a3ada206837ad535",
       "size": 73719,
       "mtimeMs": 1784982110010.7358,
-      "updatedAt": "2026-08-05T15:36:57.170Z",
+      "updatedAt": "2026-08-05T17:51:20.788Z",
       "source": "scan"
     },
     ".wolf.bak-pre-lean/STATUS.md.bak": {
@@ -807,7 +807,7 @@
       "hash": "7be44d2ace8a95ef",
       "size": 137152,
       "mtimeMs": 1784982110006.7358,
-      "updatedAt": "2026-08-05T15:36:57.173Z",
+      "updatedAt": "2026-08-05T17:51:20.791Z",
       "source": "scan"
     },
     ".wolf.bak-pre-lean/streaming-plan.md": {
@@ -816,7 +816,7 @@
       "hash": "63f86f00cb4c2c95",
       "size": 2843,
       "mtimeMs": 1784982110006.7358,
-      "updatedAt": "2026-08-05T15:36:57.174Z",
+      "updatedAt": "2026-08-05T17:51:20.792Z",
       "source": "scan"
     },
     ".wolf.bak-pre-lean/suggestions.json": {
@@ -825,7 +825,7 @@
       "hash": "77f9790b0404c49a",
       "size": 47,
       "mtimeMs": 1784982110010.7358,
-      "updatedAt": "2026-08-05T15:36:57.174Z",
+      "updatedAt": "2026-08-05T17:51:20.792Z",
       "source": "scan"
     },
     ".wolf.bak-pre-lean/TODO.md": {
@@ -834,7 +834,7 @@
       "hash": "f84db922aff22fec",
       "size": 665,
       "mtimeMs": 1784982110022.7358,
-      "updatedAt": "2026-08-05T15:36:57.175Z",
+      "updatedAt": "2026-08-05T17:51:20.793Z",
       "source": "scan"
     },
     ".wolf.bak-pre-v2/anatomy.md": {
@@ -843,7 +843,7 @@
       "hash": "f926b9cb0350f5f4",
       "size": 16778,
       "mtimeMs": 1784956656822.735,
-      "updatedAt": "2026-08-05T15:36:57.176Z",
+      "updatedAt": "2026-08-05T17:51:20.794Z",
       "source": "scan"
     },
     ".wolf.bak-pre-v2/buglog.json": {
@@ -852,7 +852,7 @@
       "hash": "b378a659bed058f6",
       "size": 272540,
       "mtimeMs": 1784956656822.735,
-      "updatedAt": "2026-08-05T15:36:57.181Z",
+      "updatedAt": "2026-08-05T17:51:20.798Z",
       "source": "scan"
     },
     ".wolf.bak-pre-v2/cerebrum.md": {
@@ -861,7 +861,7 @@
       "hash": "79d3990b59ed2cff",
       "size": 116786,
       "mtimeMs": 1784956656822.735,
-      "updatedAt": "2026-08-05T15:36:57.184Z",
+      "updatedAt": "2026-08-05T17:51:20.801Z",
       "source": "scan"
     },
     ".wolf.bak-pre-v2/config.json": {
@@ -870,7 +870,7 @@
       "hash": "14911b999f67f499",
       "size": 1714,
       "mtimeMs": 1784956656822.735,
-      "updatedAt": "2026-08-05T15:36:57.185Z",
+      "updatedAt": "2026-08-05T17:51:20.802Z",
       "source": "scan"
     },
     ".wolf.bak-pre-v2/cron-manifest.json": {
@@ -879,7 +879,7 @@
       "hash": "5c39ea43ee48cebf",
       "size": 3246,
       "mtimeMs": 1784956656826.735,
-      "updatedAt": "2026-08-05T15:36:57.186Z",
+      "updatedAt": "2026-08-05T17:51:20.802Z",
       "source": "scan"
     },
     ".wolf.bak-pre-v2/cron-state.json": {
@@ -888,7 +888,7 @@
       "hash": "c2f4cc3e739e1d13",
       "size": 148,
       "mtimeMs": 1784956656822.735,
-      "updatedAt": "2026-08-05T15:36:57.186Z",
+      "updatedAt": "2026-08-05T17:51:20.802Z",
       "source": "scan"
     },
     ".wolf.bak-pre-v2/designqc-report.json": {
@@ -897,7 +897,7 @@
       "hash": "747082a345652ffd",
       "size": 90,
       "mtimeMs": 1784956656826.735,
-      "updatedAt": "2026-08-05T15:36:57.187Z",
+      "updatedAt": "2026-08-05T17:51:20.803Z",
       "source": "scan"
     },
     ".wolf.bak-pre-v2/hooks/_session.json": {
@@ -906,7 +906,7 @@
       "hash": "bc945a2809a77f5c",
       "size": 7571,
       "mtimeMs": 1784956656826.735,
-      "updatedAt": "2026-08-05T15:36:57.188Z",
+      "updatedAt": "2026-08-05T17:51:20.804Z",
       "source": "scan"
     },
     ".wolf.bak-pre-v2/hooks/package.json": {
@@ -915,7 +915,7 @@
       "hash": "3ca9d4afd2142508",
       "size": 23,
       "mtimeMs": 1784956656826.735,
-      "updatedAt": "2026-08-05T15:36:57.188Z",
+      "updatedAt": "2026-08-05T17:51:20.804Z",
       "source": "scan"
     },
     ".wolf.bak-pre-v2/hooks/post-read.js": {
@@ -924,7 +924,7 @@
       "hash": "fb55dd5a846b1b84",
       "size": 2797,
       "mtimeMs": 1784956656826.735,
-      "updatedAt": "2026-08-05T15:36:57.188Z",
+      "updatedAt": "2026-08-05T17:51:20.805Z",
       "source": "scan",
       "symbols": [
         {
@@ -942,7 +942,7 @@
       "hash": "95919865e5583d4c",
       "size": 22629,
       "mtimeMs": 1784956656826.735,
-      "updatedAt": "2026-08-05T15:36:57.190Z",
+      "updatedAt": "2026-08-05T17:51:20.806Z",
       "source": "scan",
       "symbols": [
         {
@@ -1016,7 +1016,7 @@
       "hash": "6c7155a7da14fe26",
       "size": 3206,
       "mtimeMs": 1784956656826.735,
-      "updatedAt": "2026-08-05T15:36:57.190Z",
+      "updatedAt": "2026-08-05T17:51:20.807Z",
       "source": "scan",
       "symbols": [
         {
@@ -1034,7 +1034,7 @@
       "hash": "a3d931c71982a509",
       "size": 5494,
       "mtimeMs": 1784956656826.735,
-      "updatedAt": "2026-08-05T15:36:57.191Z",
+      "updatedAt": "2026-08-05T17:51:20.807Z",
       "source": "scan",
       "symbols": [
         {
@@ -1073,7 +1073,7 @@
       "hash": "d6d4bbda4a67b9c3",
       "size": 3530,
       "mtimeMs": 1784956656826.735,
-      "updatedAt": "2026-08-05T15:36:57.192Z",
+      "updatedAt": "2026-08-05T17:51:20.808Z",
       "source": "scan",
       "symbols": [
         {
@@ -1091,7 +1091,7 @@
       "hash": "f5777fcb2c16d15a",
       "size": 30797,
       "mtimeMs": 1784956656826.735,
-      "updatedAt": "2026-08-05T15:36:57.193Z",
+      "updatedAt": "2026-08-05T17:51:20.811Z",
       "source": "scan",
       "symbols": [
         {
@@ -1200,7 +1200,7 @@
       "hash": "3677906178eefa14",
       "size": 11538,
       "mtimeMs": 1784956656826.735,
-      "updatedAt": "2026-08-05T15:36:57.194Z",
+      "updatedAt": "2026-08-05T17:51:20.812Z",
       "source": "scan",
       "symbols": [
         {
@@ -1246,7 +1246,7 @@
       "hash": "b707a5ffbd25f2f3",
       "size": 371,
       "mtimeMs": 1784956656826.735,
-      "updatedAt": "2026-08-05T15:36:57.196Z",
+      "updatedAt": "2026-08-05T17:51:20.812Z",
       "source": "scan"
     },
     ".wolf.bak-pre-v2/memory.md": {
@@ -1255,7 +1255,7 @@
       "hash": "4fede9257f58a7ab",
       "size": 204493,
       "mtimeMs": 1784956656822.735,
-      "updatedAt": "2026-08-05T15:36:57.200Z",
+      "updatedAt": "2026-08-05T17:51:20.816Z",
       "source": "scan"
     },
     ".wolf.bak-pre-v2/OPENWOLF.md": {
@@ -1264,7 +1264,7 @@
       "hash": "2fa5051dfe938488",
       "size": 7891,
       "mtimeMs": 1784956656818.735,
-      "updatedAt": "2026-08-05T15:36:57.200Z",
+      "updatedAt": "2026-08-05T17:51:20.816Z",
       "source": "scan"
     },
     ".wolf.bak-pre-v2/reframe-frameworks.md": {
@@ -1273,7 +1273,7 @@
       "hash": "9a12be53c7910ed1",
       "size": 26494,
       "mtimeMs": 1784956656826.735,
-      "updatedAt": "2026-08-05T15:36:57.201Z",
+      "updatedAt": "2026-08-05T17:51:20.818Z",
       "source": "scan"
     },
     ".wolf.bak-pre-v2/STATUS-archive.md": {
@@ -1282,7 +1282,7 @@
       "hash": "20afd6e3f9c2ef61",
       "size": 65658,
       "mtimeMs": 1784956656822.735,
-      "updatedAt": "2026-08-05T15:36:57.203Z",
+      "updatedAt": "2026-08-05T17:51:20.819Z",
       "source": "scan"
     },
     ".wolf.bak-pre-v2/STATUS.md": {
@@ -1291,7 +1291,7 @@
       "hash": "a3ada206837ad535",
       "size": 73719,
       "mtimeMs": 1784956656822.735,
-      "updatedAt": "2026-08-05T15:36:57.205Z",
+      "updatedAt": "2026-08-05T17:51:20.821Z",
       "source": "scan"
     },
     ".wolf.bak-pre-v2/STATUS.md.bak": {
@@ -1300,7 +1300,7 @@
       "hash": "7be44d2ace8a95ef",
       "size": 137152,
       "mtimeMs": 1784956656822.735,
-      "updatedAt": "2026-08-05T15:36:57.208Z",
+      "updatedAt": "2026-08-05T17:51:20.824Z",
       "source": "scan"
     },
     ".wolf.bak-pre-v2/streaming-plan.md": {
@@ -1309,7 +1309,7 @@
       "hash": "63f86f00cb4c2c95",
       "size": 2843,
       "mtimeMs": 1784956656822.735,
-      "updatedAt": "2026-08-05T15:36:57.209Z",
+      "updatedAt": "2026-08-05T17:51:20.825Z",
       "source": "scan"
     },
     ".wolf.bak-pre-v2/suggestions.json": {
@@ -1318,7 +1318,7 @@
       "hash": "77f9790b0404c49a",
       "size": 47,
       "mtimeMs": 1784956656826.735,
-      "updatedAt": "2026-08-05T15:36:57.209Z",
+      "updatedAt": "2026-08-05T17:51:20.825Z",
       "source": "scan"
     },
     "cenarios/aula1-sequencia.ljw": {
@@ -1327,7 +1327,7 @@
       "hash": "ae391c58ccd024d5",
       "size": 593672,
       "mtimeMs": 1785808598330.3933,
-      "updatedAt": "2026-08-05T15:36:57.219Z",
+      "updatedAt": "2026-08-05T17:51:20.833Z",
       "source": "scan"
     },
     "cenarios/aula2-binario.ljw": {
@@ -1336,7 +1336,7 @@
       "hash": "cf18f51eae5af917",
       "size": 591251,
       "mtimeMs": 1785808598362.3933,
-      "updatedAt": "2026-08-05T15:36:57.228Z",
+      "updatedAt": "2026-08-05T17:51:20.840Z",
       "source": "scan"
     },
     "cenarios/aula3-depurar.ljw": {
@@ -1345,7 +1345,7 @@
       "hash": "3d712727b1476a2a",
       "size": 591352,
       "mtimeMs": 1785808598374.3933,
-      "updatedAt": "2026-08-05T15:36:57.237Z",
+      "updatedAt": "2026-08-05T17:51:20.850Z",
       "source": "scan"
     },
     "cenarios/aula4-decifrar.ljw": {
@@ -1354,7 +1354,7 @@
       "hash": "f851fc5c266df2ed",
       "size": 591241,
       "mtimeMs": 1785808598390.3933,
-      "updatedAt": "2026-08-05T15:36:57.250Z",
+      "updatedAt": "2026-08-05T17:51:20.858Z",
       "source": "scan"
     },
     "cenarios/aula5-simetria.ljw": {
@@ -1363,7 +1363,7 @@
       "hash": "759990dcb681e8ac",
       "size": 591918,
       "mtimeMs": 1785808598406.3933,
-      "updatedAt": "2026-08-05T15:36:57.261Z",
+      "updatedAt": "2026-08-05T17:51:20.866Z",
       "source": "scan"
     },
     "cenarios/aula6-manual.ljw": {
@@ -1372,7 +1372,7 @@
       "hash": "819ae4537a7a744c",
       "size": 592513,
       "mtimeMs": 1785808598426.3933,
-      "updatedAt": "2026-08-05T15:36:57.270Z",
+      "updatedAt": "2026-08-05T17:51:20.876Z",
       "source": "scan"
     },
     "cenarios/aula7-corrida.ljw": {
@@ -1381,7 +1381,7 @@
       "hash": "bb693a0b12e1b2f1",
       "size": 788555,
       "mtimeMs": 1785808598514.3933,
-      "updatedAt": "2026-08-05T15:36:57.288Z",
+      "updatedAt": "2026-08-05T17:51:20.887Z",
       "source": "scan"
     },
     "cenarios/README.md": {
@@ -1390,7 +1390,7 @@
       "hash": "611020bc803f2fa5",
       "size": 11227,
       "mtimeMs": 1785808862562.3943,
-      "updatedAt": "2026-08-05T15:36:57.289Z",
+      "updatedAt": "2026-08-05T17:51:20.888Z",
       "source": "scan"
     },
     "CLAUDE.md": {
@@ -1399,7 +1399,7 @@
       "hash": "b1ca356fa9d5f3a6",
       "size": 225,
       "mtimeMs": 1783780454096.0908,
-      "updatedAt": "2026-08-05T15:36:57.290Z",
+      "updatedAt": "2026-08-05T17:51:20.888Z",
       "source": "scan"
     },
     "client/index.html": {
@@ -1408,8 +1408,8 @@
       "hash": "12b97431756aa0d7",
       "size": 36501,
       "mtimeMs": 1785948736091.3228,
-      "updatedAt": "2026-08-05T16:52:16.214Z",
-      "source": "hook"
+      "updatedAt": "2026-08-05T17:51:20.889Z",
+      "source": "scan"
     },
     "client/package.json": {
       "description": "Node.js package manifest",
@@ -1417,7 +1417,7 @@
       "hash": "cb328a26968e8a66",
       "size": 356,
       "mtimeMs": 1783780454104.0908,
-      "updatedAt": "2026-08-05T15:36:57.290Z",
+      "updatedAt": "2026-08-05T17:51:20.889Z",
       "source": "scan"
     },
     "client/src/aguaFx.ts": {
@@ -1426,7 +1426,7 @@
       "hash": "f19b99bf8e9b3395",
       "size": 2680,
       "mtimeMs": 1785080416779.7651,
-      "updatedAt": "2026-08-05T15:36:57.291Z",
+      "updatedAt": "2026-08-05T17:51:20.889Z",
       "source": "scan",
       "symbols": [
         {
@@ -1451,8 +1451,8 @@
       "hash": "a935297ffbfdf08f",
       "size": 36646,
       "mtimeMs": 1785950265891.3245,
-      "updatedAt": "2026-08-05T17:17:46.014Z",
-      "source": "hook",
+      "updatedAt": "2026-08-05T17:51:20.890Z",
+      "source": "scan",
       "symbols": [
         {
           "name": "pixelHash",
@@ -1672,7 +1672,7 @@
       "hash": "afbc574f47a18f11",
       "size": 3510,
       "mtimeMs": 1783904198285.4753,
-      "updatedAt": "2026-08-05T15:36:57.292Z",
+      "updatedAt": "2026-08-05T17:51:20.890Z",
       "source": "scan",
       "symbols": [
         {
@@ -1725,7 +1725,7 @@
       "hash": "bbf0c70b4caf449e",
       "size": 8961,
       "mtimeMs": 1785155310820.7986,
-      "updatedAt": "2026-08-05T15:36:57.292Z",
+      "updatedAt": "2026-08-05T17:51:20.891Z",
       "source": "scan",
       "symbols": [
         {
@@ -1774,71 +1774,71 @@
     },
     "client/src/blockIcons.ts": {
       "description": "Ícone procedural do balde (item, não tem tile no atlas): balde cinza em",
-      "tokens": 2313,
-      "hash": "fc82f56473dab99c",
-      "size": 8179,
-      "mtimeMs": 1785947514695.3228,
-      "updatedAt": "2026-08-05T16:31:54.808Z",
-      "source": "hook",
+      "tokens": 3218,
+      "hash": "98a4bd64c80ce4d6",
+      "size": 11374,
+      "mtimeMs": 1785951769955.3247,
+      "updatedAt": "2026-08-05T17:51:20.891Z",
+      "source": "scan",
       "symbols": [
         {
           "name": "drawBalde",
           "kind": "fn",
-          "startLine": 17,
-          "endLine": 59,
+          "startLine": 25,
+          "endLine": 67,
           "tokens": 389
         },
         {
           "name": "drawComida",
           "kind": "fn",
-          "startLine": 60,
-          "endLine": 110,
+          "startLine": 68,
+          "endLine": 118,
           "tokens": 528
         },
         {
           "name": "drawSemente",
           "kind": "fn",
-          "startLine": 111,
-          "endLine": 131,
-          "tokens": 258
+          "startLine": 119,
+          "endLine": 141,
+          "tokens": 318
         },
         {
           "name": "drawItemF10",
           "kind": "fn",
-          "startLine": 132,
-          "endLine": 198,
-          "tokens": 697
+          "startLine": 142,
+          "endLine": 280,
+          "tokens": 1476
         },
         {
           "name": "makeBlockIcons",
           "kind": "fn",
-          "startLine": 199,
-          "endLine": 240,
-          "tokens": 342
+          "startLine": 281,
+          "endLine": 322,
+          "tokens": 357
         }
       ]
     },
     "client/src/blocksUi.ts": {
       "description": "Blocos colocáveis com nome em português — fonte única pra hotbar (main.ts)",
-      "tokens": 2551,
-      "hash": "99f394fc4934fd66",
-      "size": 9061,
-      "mtimeMs": 1785949550199.3235,
-      "updatedAt": "2026-08-05T17:05:50.322Z",
-      "source": "hook",
+      "tokens": 2673,
+      "hash": "713f5f924391728e",
+      "size": 9501,
+      "mtimeMs": 1785950372635.3232,
+      "updatedAt": "2026-08-05T17:51:20.892Z",
+      "source": "scan",
       "symbols": [
         {
           "name": "PlaceableEntry",
           "kind": "section",
           "startLine": 31,
-          "endLine": 170,
-          "tokens": 2213
+          "endLine": 176,
+          "tokens": 2335
         },
         {
           "name": "placeableFor",
           "kind": "fn",
-          "startLine": 171,
-          "endLine": 175,
+          "startLine": 177,
+          "endLine": 181,
           "tokens": 56
         }
       ]
@@ -1849,7 +1849,7 @@
       "hash": "c7aa8147b99ec6fd",
       "size": 7042,
       "mtimeMs": 1785206365860.7996,
-      "updatedAt": "2026-08-05T15:36:57.293Z",
+      "updatedAt": "2026-08-05T17:51:20.892Z",
       "source": "scan",
       "symbols": [
         {
@@ -1874,7 +1874,7 @@
       "hash": "118decec6311c4d4",
       "size": 21176,
       "mtimeMs": 1785239166809.0806,
-      "updatedAt": "2026-08-05T15:36:57.294Z",
+      "updatedAt": "2026-08-05T17:51:20.893Z",
       "source": "scan",
       "symbols": [
         {
@@ -1899,7 +1899,7 @@
       "hash": "cda73032bfe6a5c1",
       "size": 3564,
       "mtimeMs": 1785725586817.4775,
-      "updatedAt": "2026-08-05T15:36:57.294Z",
+      "updatedAt": "2026-08-05T17:51:20.893Z",
       "source": "scan",
       "symbols": [
         {
@@ -1938,7 +1938,7 @@
       "hash": "19937a7f07894c3b",
       "size": 4946,
       "mtimeMs": 1785941724015.3196,
-      "updatedAt": "2026-08-05T15:36:57.294Z",
+      "updatedAt": "2026-08-05T17:51:20.893Z",
       "source": "scan",
       "symbols": [
         {
@@ -1971,13 +1971,31 @@
         }
       ]
     },
+    "client/src/container.ts": {
+      "description": "§🍖 F10 — O PAINEL DE TRANSFERÊNCIA (fornalha e baú).",
+      "tokens": 2696,
+      "hash": "fc511fa218fcbc49",
+      "size": 9503,
+      "mtimeMs": 1785948702075.3228,
+      "updatedAt": "2026-08-05T17:51:20.893Z",
+      "source": "scan",
+      "symbols": [
+        {
+          "name": "ContainerPanel",
+          "kind": "class",
+          "startLine": 33,
+          "endLine": 267,
+          "tokens": 2365
+        }
+      ]
+    },
     "client/src/daynight.ts": {
       "description": "Ciclo dia/noite (cp21; astros no backlog 2026-07-19) — SÓ visual. A hora é",
       "tokens": 4429,
       "hash": "0174e9fdbb9e15a0",
       "size": 15697,
       "mtimeMs": 1785239279469.0793,
-      "updatedAt": "2026-08-05T15:36:57.295Z",
+      "updatedAt": "2026-08-05T17:51:20.894Z",
       "source": "scan",
       "symbols": [
         {
@@ -2023,7 +2041,7 @@
       "hash": "4cd45301d903821d",
       "size": 764,
       "mtimeMs": 1785712501773.5942,
-      "updatedAt": "2026-08-05T15:36:57.295Z",
+      "updatedAt": "2026-08-05T17:51:20.894Z",
       "source": "scan"
     },
     "client/src/friends.ts": {
@@ -2032,7 +2050,7 @@
       "hash": "eb28710509eda48e",
       "size": 8416,
       "mtimeMs": 1785941724015.3196,
-      "updatedAt": "2026-08-05T15:36:57.295Z",
+      "updatedAt": "2026-08-05T17:51:20.894Z",
       "source": "scan",
       "symbols": [
         {
@@ -2057,7 +2075,7 @@
       "hash": "4520cd62132fcbd7",
       "size": 30454,
       "mtimeMs": 1785239845461.0728,
-      "updatedAt": "2026-08-05T15:36:57.296Z",
+      "updatedAt": "2026-08-05T17:51:20.896Z",
       "source": "scan",
       "symbols": [
         {
@@ -2124,7 +2142,7 @@
       "hash": "1f715014fbbad016",
       "size": 6270,
       "mtimeMs": 1785941724015.3196,
-      "updatedAt": "2026-08-05T15:36:57.297Z",
+      "updatedAt": "2026-08-05T17:51:20.896Z",
       "source": "scan",
       "symbols": [
         {
@@ -2142,7 +2160,7 @@
       "hash": "cfa1a5ea34cc9df0",
       "size": 18003,
       "mtimeMs": 1785943164115.3215,
-      "updatedAt": "2026-08-05T15:36:57.298Z",
+      "updatedAt": "2026-08-05T17:51:20.897Z",
       "source": "scan",
       "symbols": [
         {
@@ -2160,7 +2178,7 @@
       "hash": "aa2a774a1dff16c5",
       "size": 18303,
       "mtimeMs": 1785112623895.764,
-      "updatedAt": "2026-08-05T15:36:57.299Z",
+      "updatedAt": "2026-08-05T17:51:20.897Z",
       "source": "scan",
       "symbols": [
         {
@@ -2220,7 +2238,7 @@
       "hash": "6e328084e984012f",
       "size": 4024,
       "mtimeMs": 1785246739613.0776,
-      "updatedAt": "2026-08-05T15:36:57.299Z",
+      "updatedAt": "2026-08-05T17:51:20.898Z",
       "source": "scan",
       "symbols": [
         {
@@ -2248,187 +2266,187 @@
     },
     "client/src/main.ts": {
       "description": "O cliente não tem filesystem: aprende os nomes das aulas pela resposta de",
-      "tokens": 33277,
-      "hash": "6555192973ab60eb",
-      "size": 118078,
-      "mtimeMs": 1785948789331.3225,
-      "updatedAt": "2026-08-05T16:53:09.450Z",
-      "source": "hook",
+      "tokens": 33538,
+      "hash": "0967eabf92b71bb8",
+      "size": 118995,
+      "mtimeMs": 1785951769955.3247,
+      "updatedAt": "2026-08-05T17:51:20.902Z",
+      "source": "scan",
       "symbols": [
         {
           "name": "cachearMundos",
           "kind": "fn",
-          "startLine": 117,
-          "endLine": 212,
+          "startLine": 127,
+          "endLine": 222,
           "tokens": 1256
         },
         {
           "name": "applySettings",
           "kind": "fn",
-          "startLine": 213,
-          "endLine": 280,
+          "startLine": 223,
+          "endLine": 290,
           "tokens": 1017
         },
         {
           "name": "showOverlayMain",
           "kind": "fn",
-          "startLine": 281,
-          "endLine": 285,
+          "startLine": 291,
+          "endLine": 295,
           "tokens": 35
         },
         {
           "name": "updateOverlay",
           "kind": "fn",
-          "startLine": 286,
-          "endLine": 309,
+          "startLine": 296,
+          "endLine": 319,
           "tokens": 341
         },
         {
           "name": "startPlay",
           "kind": "fn",
-          "startLine": 310,
-          "endLine": 320,
+          "startLine": 320,
+          "endLine": 330,
           "tokens": 83
         },
         {
           "name": "onSettingsChanged",
           "kind": "fn",
-          "startLine": 321,
-          "endLine": 342,
+          "startLine": 331,
+          "endLine": 352,
           "tokens": 294
         },
         {
           "name": "enviarRaio",
           "kind": "fn",
-          "startLine": 343,
-          "endLine": 386,
+          "startLine": 353,
+          "endLine": 396,
           "tokens": 589
         },
         {
           "name": "playerName",
           "kind": "fn",
-          "startLine": 387,
-          "endLine": 397,
+          "startLine": 397,
+          "endLine": 407,
           "tokens": 187
         },
         {
           "name": "abrirAmigosPorComando",
           "kind": "fn",
-          "startLine": 398,
-          "endLine": 438,
+          "startLine": 408,
+          "endLine": 448,
           "tokens": 425
         },
         {
           "name": "registrarChegadaDeRede",
           "kind": "fn",
-          "startLine": 439,
-          "endLine": 446,
+          "startLine": 449,
+          "endLine": 456,
           "tokens": 60
         },
         {
           "name": "jitterDeRede",
           "kind": "fn",
-          "startLine": 447,
-          "endLine": 490,
+          "startLine": 457,
+          "endLine": 500,
           "tokens": 592
         },
         {
           "name": "podeVoar",
           "kind": "fn",
-          "startLine": 491,
-          "endLine": 501,
+          "startLine": 501,
+          "endLine": 511,
           "tokens": 178
         },
         {
           "name": "vitals",
           "kind": "fn",
-          "startLine": 502,
-          "endLine": 578,
+          "startLine": 512,
+          "endLine": 588,
           "tokens": 1106
         },
         {
           "name": "pushPanelData",
           "kind": "fn",
-          "startLine": 579,
-          "endLine": 591,
+          "startLine": 589,
+          "endLine": 601,
           "tokens": 139
         },
         {
           "name": "pushFriendsData",
           "kind": "fn",
-          "startLine": 592,
-          "endLine": 602,
+          "startLine": 602,
+          "endLine": 612,
           "tokens": 95
         },
         {
           "name": "ownDone",
           "kind": "fn",
-          "startLine": 603,
-          "endLine": 611,
+          "startLine": 613,
+          "endLine": 621,
           "tokens": 90
         },
         {
           "name": "refreshObjectivesView",
           "kind": "fn",
-          "startLine": 612,
-          "endLine": 643,
+          "startLine": 622,
+          "endLine": 653,
           "tokens": 358
         },
         {
           "name": "drenarFilaTroca",
           "kind": "fn",
-          "startLine": 644,
-          "endLine": 651,
+          "startLine": 654,
+          "endLine": 661,
           "tokens": 79
         },
         {
           "name": "segurarAteATelaPintar",
           "kind": "fn",
-          "startLine": 652,
-          "endLine": 661,
+          "startLine": 662,
+          "endLine": 671,
           "tokens": 109
         },
         {
           "name": "handleServerData",
           "kind": "fn",
-          "startLine": 662,
-          "endLine": 880,
+          "startLine": 672,
+          "endLine": 890,
           "tokens": 2846
         },
         {
           "name": "connect",
           "kind": "fn",
-          "startLine": 881,
-          "endLine": 916,
+          "startLine": 891,
+          "endLine": 926,
           "tokens": 400
         },
         {
           "name": "startMultiplayer",
           "kind": "fn",
-          "startLine": 917,
-          "endLine": 934,
+          "startLine": 927,
+          "endLine": 944,
           "tokens": 224
         },
         {
           "name": "startSingleplayer",
           "kind": "fn",
-          "startLine": 935,
-          "endLine": 958,
+          "startLine": 945,
+          "endLine": 968,
           "tokens": 284
         },
         {
           "name": "persistWorld",
           "kind": "fn",
-          "startLine": 959,
-          "endLine": 1006,
+          "startLine": 969,
+          "endLine": 1016,
           "tokens": 520
         },
         {
           "name": "startGame",
           "kind": "fn",
-          "startLine": 1007,
-          "endLine": 2634,
-          "tokens": 21082
+          "startLine": 1017,
+          "endLine": 2654,
+          "tokens": 21273
         }
       ]
     },
@@ -2438,7 +2456,7 @@
       "hash": "c9f5f007f954dbf8",
       "size": 16863,
       "mtimeMs": 1785941724015.3196,
-      "updatedAt": "2026-08-05T15:36:57.305Z",
+      "updatedAt": "2026-08-05T17:51:20.903Z",
       "source": "scan",
       "symbols": [
         {
@@ -2533,7 +2551,7 @@
       "hash": "acd6bea923584b63",
       "size": 8197,
       "mtimeMs": 1785239088169.0806,
-      "updatedAt": "2026-08-05T15:36:57.306Z",
+      "updatedAt": "2026-08-05T17:51:20.903Z",
       "source": "scan",
       "symbols": [
         {
@@ -2558,7 +2576,7 @@
       "hash": "b85762c157eee05c",
       "size": 1852,
       "mtimeMs": 1785239112009.0806,
-      "updatedAt": "2026-08-05T15:36:57.306Z",
+      "updatedAt": "2026-08-05T17:51:20.904Z",
       "source": "scan",
       "symbols": [
         {
@@ -2576,7 +2594,7 @@
       "hash": "844f74176a842aa3",
       "size": 2686,
       "mtimeMs": 1785804687130.392,
-      "updatedAt": "2026-08-05T15:36:57.306Z",
+      "updatedAt": "2026-08-05T17:51:20.904Z",
       "source": "scan",
       "symbols": [
         {
@@ -2594,7 +2612,7 @@
       "hash": "e4e4e002740da62b",
       "size": 4391,
       "mtimeMs": 1783911067353.4763,
-      "updatedAt": "2026-08-05T15:36:57.306Z",
+      "updatedAt": "2026-08-05T17:51:20.904Z",
       "source": "scan",
       "symbols": [
         {
@@ -2619,7 +2637,7 @@
       "hash": "03eb67bd211b8fd6",
       "size": 20951,
       "mtimeMs": 1784654762914.7644,
-      "updatedAt": "2026-08-05T15:36:57.307Z",
+      "updatedAt": "2026-08-05T17:51:20.905Z",
       "source": "scan",
       "symbols": [
         {
@@ -2665,7 +2683,7 @@
       "hash": "6e59d99c61a65ad6",
       "size": 5868,
       "mtimeMs": 1784654719646.7644,
-      "updatedAt": "2026-08-05T15:36:57.308Z",
+      "updatedAt": "2026-08-05T17:51:20.905Z",
       "source": "scan",
       "symbols": [
         {
@@ -2690,7 +2708,7 @@
       "hash": "f0753194956c8350",
       "size": 11097,
       "mtimeMs": 1784503965169.7603,
-      "updatedAt": "2026-08-05T15:36:57.308Z",
+      "updatedAt": "2026-08-05T17:51:20.906Z",
       "source": "scan",
       "symbols": [
         {
@@ -2729,7 +2747,7 @@
       "hash": "63374e46c6617dce",
       "size": 4142,
       "mtimeMs": 1785941724019.3196,
-      "updatedAt": "2026-08-05T15:36:57.308Z",
+      "updatedAt": "2026-08-05T17:51:20.906Z",
       "source": "scan",
       "symbols": [
         {
@@ -2747,7 +2765,7 @@
       "hash": "a1873adff06f20cd",
       "size": 5427,
       "mtimeMs": 1785941724019.3196,
-      "updatedAt": "2026-08-05T15:36:57.308Z",
+      "updatedAt": "2026-08-05T17:51:20.906Z",
       "source": "scan",
       "symbols": [
         {
@@ -2800,7 +2818,7 @@
       "hash": "175b2de972a44340",
       "size": 3523,
       "mtimeMs": 1784495699493.7593,
-      "updatedAt": "2026-08-05T15:36:57.309Z",
+      "updatedAt": "2026-08-05T17:51:20.906Z",
       "source": "scan",
       "symbols": [
         {
@@ -2853,7 +2871,7 @@
       "hash": "55cf9012e5ccbde9",
       "size": 5368,
       "mtimeMs": 1785107014479.7632,
-      "updatedAt": "2026-08-05T15:36:57.309Z",
+      "updatedAt": "2026-08-05T17:51:20.907Z",
       "source": "scan",
       "symbols": [
         {
@@ -2871,7 +2889,7 @@
       "hash": "9a5a79d3bcf76107",
       "size": 14384,
       "mtimeMs": 1785941724019.3196,
-      "updatedAt": "2026-08-05T15:36:57.309Z",
+      "updatedAt": "2026-08-05T17:51:20.907Z",
       "source": "scan",
       "symbols": [
         {
@@ -2917,7 +2935,7 @@
       "hash": "c3a9fed4fd8010e8",
       "size": 5530,
       "mtimeMs": 1785138081868.8,
-      "updatedAt": "2026-08-05T15:36:57.310Z",
+      "updatedAt": "2026-08-05T17:51:20.908Z",
       "source": "scan",
       "symbols": [
         {
@@ -2956,7 +2974,7 @@
       "hash": "c69387d0e311809a",
       "size": 11405,
       "mtimeMs": 1785714698481.5942,
-      "updatedAt": "2026-08-05T15:36:57.310Z",
+      "updatedAt": "2026-08-05T17:51:20.908Z",
       "source": "scan",
       "symbols": [
         {
@@ -3002,7 +3020,7 @@
       "hash": "e6025ab17cb2b065",
       "size": 2745,
       "mtimeMs": 1783822470725.4783,
-      "updatedAt": "2026-08-05T15:36:57.310Z",
+      "updatedAt": "2026-08-05T17:51:20.908Z",
       "source": "scan",
       "symbols": [
         {
@@ -3069,7 +3087,7 @@
       "hash": "bf2a471c0429f519",
       "size": 136,
       "mtimeMs": 1783780454104.0908,
-      "updatedAt": "2026-08-05T15:36:57.310Z",
+      "updatedAt": "2026-08-05T17:51:20.908Z",
       "source": "scan"
     },
     "client/vite.config.ts": {
@@ -3078,7 +3096,7 @@
       "hash": "16825100bb7507ec",
       "size": 331,
       "mtimeMs": 1784037564732.0417,
-      "updatedAt": "2026-08-05T15:36:57.310Z",
+      "updatedAt": "2026-08-05T17:51:20.909Z",
       "source": "scan"
     },
     "iniciar-servidor.bat": {
@@ -3087,7 +3105,7 @@
       "hash": "c1592341e162a3df",
       "size": 12411,
       "mtimeMs": 1785941724019.3196,
-      "updatedAt": "2026-08-05T15:36:57.311Z",
+      "updatedAt": "2026-08-05T17:51:20.910Z",
       "source": "scan"
     },
     "iniciar-servidor.sh": {
@@ -3096,7 +3114,7 @@
       "hash": "26ca894a98f5fce0",
       "size": 11125,
       "mtimeMs": 1785941724019.3196,
-      "updatedAt": "2026-08-05T15:36:57.311Z",
+      "updatedAt": "2026-08-05T17:51:20.911Z",
       "source": "scan"
     },
     "LICENSE": {
@@ -3105,7 +3123,7 @@
       "hash": "4851e58b213543cd",
       "size": 4128,
       "mtimeMs": 1785159089632.7986,
-      "updatedAt": "2026-08-05T15:36:57.312Z",
+      "updatedAt": "2026-08-05T17:51:20.911Z",
       "source": "scan"
     },
     "mundos/_smoke-coluna/_smoke-coluna.ljw": {
@@ -3113,98 +3131,107 @@
       "tokens": 62,
       "hash": "54ee50c452dfd676",
       "size": 229,
-      "mtimeMs": 1785943867699.3242,
-      "updatedAt": "2026-08-05T15:36:57.312Z",
+      "mtimeMs": 1785951834239.3228,
+      "updatedAt": "2026-08-05T17:51:20.912Z",
       "source": "scan"
     },
     "mundos/_smoke-coluna/chat.log": {
       "description": "",
-      "tokens": 960,
-      "hash": "135756c33ab81e71",
-      "size": 3636,
-      "mtimeMs": 1785943867091.3242,
-      "updatedAt": "2026-08-05T15:36:57.313Z",
+      "tokens": 1227,
+      "hash": "eeece47120d0a1bd",
+      "size": 4646,
+      "mtimeMs": 1785951833627.3228,
+      "updatedAt": "2026-08-05T17:51:20.912Z",
       "source": "scan"
     },
     "mundos/_smoke-comida/chat.log": {
       "description": "",
       "tokens": 390,
-      "hash": "c5cc52917de06535",
+      "hash": "ed850362138bbd12",
       "size": 1490,
-      "mtimeMs": 1785943944099.3245,
-      "updatedAt": "2026-08-05T15:36:57.313Z",
+      "mtimeMs": 1785951910967.3225,
+      "updatedAt": "2026-08-05T17:51:20.912Z",
       "source": "scan"
     },
     "mundos/_smoke-craft/chat.log": {
       "description": "",
       "tokens": 244,
-      "hash": "2e0e288e8755a8fa",
+      "hash": "230e4057e344dd07",
       "size": 943,
-      "mtimeMs": 1785943929131.3245,
-      "updatedAt": "2026-08-05T15:36:57.313Z",
+      "mtimeMs": 1785951896023.3215,
+      "updatedAt": "2026-08-05T17:51:20.913Z",
       "source": "scan"
     },
     "mundos/_smoke-fome/chat.log": {
       "description": "",
       "tokens": 231,
-      "hash": "3ff96a6d32469cd9",
+      "hash": "e36bfb19b3bf5837",
       "size": 890,
-      "mtimeMs": 1785943905855.3242,
-      "updatedAt": "2026-08-05T15:36:57.314Z",
+      "mtimeMs": 1785951872343.3242,
+      "updatedAt": "2026-08-05T17:51:20.913Z",
+      "source": "scan"
+    },
+    "mundos/_smoke-fornalha/chat.log": {
+      "description": "",
+      "tokens": 353,
+      "hash": "b45ed30c2d76ed2a",
+      "size": 1359,
+      "mtimeMs": 1785951954023.3237,
+      "updatedAt": "2026-08-05T17:51:20.913Z",
       "source": "scan"
     },
     "mundos/_smoke-inv/chat.log": {
       "description": "",
-      "tokens": 547,
-      "hash": "629491665101f6d2",
-      "size": 2102,
-      "mtimeMs": 1785943922459.3245,
-      "updatedAt": "2026-08-05T15:36:57.314Z",
+      "tokens": 566,
+      "hash": "1e87f260742801a1",
+      "size": 2174,
+      "mtimeMs": 1785951889331.3215,
+      "updatedAt": "2026-08-05T17:51:20.914Z",
       "source": "scan"
     },
     "mundos/_smoke-kicar/chat.log": {
       "description": "",
-      "tokens": 5024,
-      "hash": "aa7a12fd5acd25f7",
-      "size": 19279,
-      "mtimeMs": 1785943852983.3242,
-      "updatedAt": "2026-08-05T15:36:57.315Z",
+      "tokens": 6232,
+      "hash": "3bf28914f665d900",
+      "size": 23919,
+      "mtimeMs": 1785951819515.321,
+      "updatedAt": "2026-08-05T17:51:20.915Z",
       "source": "scan"
     },
     "mundos/_smoke-modoa/chat.log": {
       "description": "",
       "tokens": 606,
-      "hash": "2bd32854dd8c4b69",
+      "hash": "cc1c137bedd04d70",
       "size": 2325,
-      "mtimeMs": 1785943889579.3245,
-      "updatedAt": "2026-08-05T15:36:57.316Z",
+      "mtimeMs": 1785951856051.3235,
+      "updatedAt": "2026-08-05T17:51:20.915Z",
       "source": "scan"
     },
     "mundos/_smoke-modob/chat.log": {
       "description": "",
       "tokens": 52,
-      "hash": "d8b993acef53a4de",
+      "hash": "6117ccbc60cfdb3e",
       "size": 199,
-      "mtimeMs": 1785943883619.3242,
-      "updatedAt": "2026-08-05T15:36:57.316Z",
+      "mtimeMs": 1785951850091.323,
+      "updatedAt": "2026-08-05T17:51:20.916Z",
       "source": "scan"
     },
     "mundos/_smoke-preset/chat.log": {
       "description": "",
       "tokens": 256,
-      "hash": "098fc66f8ccede07",
+      "hash": "3728d1d177f88734",
       "size": 989,
-      "mtimeMs": 1785943950655.3242,
-      "updatedAt": "2026-08-05T15:36:57.316Z",
+      "mtimeMs": 1785951917543.3247,
+      "updatedAt": "2026-08-05T17:51:20.916Z",
       "source": "scan"
     },
     "mundos/_smoke-pvp/chat.log": {
       "description": "",
       "tokens": 462,
-      "hash": "67358c97d6f881d6",
+      "hash": "c089eb79d53428d4",
       "size": 1773,
-      "mtimeMs": 1785943965731.3242,
-      "updatedAt": "2026-08-05T15:36:57.317Z",
+      "mtimeMs": 1785951931595.3242,
+      "updatedAt": "2026-08-05T17:51:20.916Z",
       "source": "scan"
     },
     "mundos/_smoke-trocaa/_smoke-trocaa.ljw": {
@@ -3212,17 +3239,17 @@
       "tokens": 87,
       "hash": "1c45f4a4fd8ea6a4",
       "size": 326,
-      "mtimeMs": 1785943975091.3242,
-      "updatedAt": "2026-08-05T15:36:57.317Z",
+      "mtimeMs": 1785951965919.324,
+      "updatedAt": "2026-08-05T17:51:20.916Z",
       "source": "scan"
     },
     "mundos/_smoke-trocaa/chat.log": {
       "description": "",
-      "tokens": 2921,
-      "hash": "75ddd42c69079c83",
-      "size": 11296,
-      "mtimeMs": 1785943975099.3242,
-      "updatedAt": "2026-08-05T15:36:57.318Z",
+      "tokens": 3742,
+      "hash": "65201c72aa18caab",
+      "size": 14476,
+      "mtimeMs": 1785951965927.324,
+      "updatedAt": "2026-08-05T17:51:20.917Z",
       "source": "scan"
     },
     "mundos/_smoke-trocab/_smoke-trocab.ljw": {
@@ -3230,35 +3257,35 @@
       "tokens": 80,
       "hash": "2db98bb25138d352",
       "size": 300,
-      "mtimeMs": 1785943985095.3245,
-      "updatedAt": "2026-08-05T15:36:57.319Z",
+      "mtimeMs": 1785951975923.3245,
+      "updatedAt": "2026-08-05T17:51:20.917Z",
       "source": "scan"
     },
     "mundos/_smoke-vida/chat.log": {
       "description": "",
       "tokens": 205,
-      "hash": "01f9e935732aaa13",
+      "hash": "690686a54d458120",
       "size": 792,
-      "mtimeMs": 1785943900019.3242,
-      "updatedAt": "2026-08-05T15:36:57.319Z",
+      "mtimeMs": 1785951866515.324,
+      "updatedAt": "2026-08-05T17:51:20.918Z",
       "source": "scan"
     },
     "mundos/aula1-sequencia/chat.log": {
       "description": "",
-      "tokens": 15683,
-      "hash": "72f6f2621c8871b2",
-      "size": 60330,
-      "mtimeMs": 1785943856555.3242,
-      "updatedAt": "2026-08-05T15:36:57.321Z",
+      "tokens": 20504,
+      "hash": "03b5a0ba752461cc",
+      "size": 78895,
+      "mtimeMs": 1785951823063.322,
+      "updatedAt": "2026-08-05T17:51:20.920Z",
       "source": "scan"
     },
     "mundos/aula2-binario/chat.log": {
       "description": "",
-      "tokens": 672,
-      "hash": "0b2a49bd09777c6b",
-      "size": 2562,
-      "mtimeMs": 1785943849539.3242,
-      "updatedAt": "2026-08-05T15:36:57.321Z",
+      "tokens": 832,
+      "hash": "1e0d0f95ae4cc90c",
+      "size": 3172,
+      "mtimeMs": 1785951816047.321,
+      "updatedAt": "2026-08-05T17:51:20.920Z",
       "source": "scan"
     },
     "mundos/aula7-corrida/chat.log": {
@@ -3267,7 +3294,7 @@
       "hash": "1f28b0cef667b2bf",
       "size": 1412,
       "mtimeMs": 1785808725642.3938,
-      "updatedAt": "2026-08-05T15:36:57.323Z",
+      "updatedAt": "2026-08-05T17:51:20.921Z",
       "source": "scan"
     },
     "mundos/flor-world/chat.log": {
@@ -3276,7 +3303,7 @@
       "hash": "d3835fd3983ad094",
       "size": 1644,
       "mtimeMs": 1784936235584.8582,
-      "updatedAt": "2026-08-05T15:36:57.324Z",
+      "updatedAt": "2026-08-05T17:51:20.922Z",
       "source": "scan"
     },
     "mundos/jstage/chat.log": {
@@ -3285,7 +3312,7 @@
       "hash": "d999722ef31ab9c5",
       "size": 511,
       "mtimeMs": 1784576416364.3574,
-      "updatedAt": "2026-08-05T15:36:57.325Z",
+      "updatedAt": "2026-08-05T17:51:20.922Z",
       "source": "scan"
     },
     "mundos/mundo-livre/chat.log": {
@@ -3294,7 +3321,7 @@
       "hash": "6127caa5fea3694a",
       "size": 11034,
       "mtimeMs": 1785703804333.5938,
-      "updatedAt": "2026-08-05T15:36:57.326Z",
+      "updatedAt": "2026-08-05T17:51:20.923Z",
       "source": "scan"
     },
     "mundos/playtest-streaming/chat.log": {
@@ -3303,7 +3330,7 @@
       "hash": "70c8ee03effaadc6",
       "size": 2311,
       "mtimeMs": 1785115154891.7612,
-      "updatedAt": "2026-08-05T15:36:57.327Z",
+      "updatedAt": "2026-08-05T17:51:20.924Z",
       "source": "scan"
     },
     "mundos/playtest-streaming/playtest-streaming.ljw": {
@@ -3312,7 +3339,7 @@
       "hash": "cb8c83932b8a5f50",
       "size": 4420,
       "mtimeMs": 1785149855020.8003,
-      "updatedAt": "2026-08-05T15:36:57.328Z",
+      "updatedAt": "2026-08-05T17:51:20.925Z",
       "source": "scan"
     },
     "mundos/smoke-coluna/chat.log": {
@@ -3321,7 +3348,7 @@
       "hash": "33643b54c52b9a96",
       "size": 202,
       "mtimeMs": 1785084935423.764,
-      "updatedAt": "2026-08-05T15:36:57.329Z",
+      "updatedAt": "2026-08-05T17:51:20.925Z",
       "source": "scan"
     },
     "mundos/smoke-coluna/smoke-coluna.ljw": {
@@ -3330,7 +3357,7 @@
       "hash": "c64e2299287676a1",
       "size": 233,
       "mtimeMs": 1785084946291.764,
-      "updatedAt": "2026-08-05T15:36:57.329Z",
+      "updatedAt": "2026-08-05T17:51:20.926Z",
       "source": "scan"
     },
     "mundos/stage/chat.log": {
@@ -3339,7 +3366,7 @@
       "hash": "a3b9c881558668e6",
       "size": 1898,
       "mtimeMs": 1784585650092.3542,
-      "updatedAt": "2026-08-05T15:36:57.330Z",
+      "updatedAt": "2026-08-05T17:51:20.926Z",
       "source": "scan"
     },
     "mundos/teste-biomas/chat.log": {
@@ -3348,7 +3375,7 @@
       "hash": "55206f4a0abf64f7",
       "size": 1275,
       "mtimeMs": 1784598715358.7644,
-      "updatedAt": "2026-08-05T15:36:57.331Z",
+      "updatedAt": "2026-08-05T17:51:20.927Z",
       "source": "scan"
     },
     "package-lock.json": {
@@ -3357,7 +3384,7 @@
       "hash": "2b4b12182c883350",
       "size": 70418,
       "mtimeMs": 1784656608982.763,
-      "updatedAt": "2026-08-05T15:36:57.332Z",
+      "updatedAt": "2026-08-05T17:51:20.928Z",
       "source": "scan"
     },
     "package.json": {
@@ -3366,7 +3393,7 @@
       "hash": "40286da49cf20c5c",
       "size": 1146,
       "mtimeMs": 1785941724019.3196,
-      "updatedAt": "2026-08-05T15:36:57.332Z",
+      "updatedAt": "2026-08-05T17:51:20.929Z",
       "source": "scan"
     },
     "profiles/perf-1784923796301-gius.json": {
@@ -3375,7 +3402,7 @@
       "hash": "6b1fd088047de085",
       "size": 1687,
       "mtimeMs": 1784923796296.8596,
-      "updatedAt": "2026-08-05T15:36:57.333Z",
+      "updatedAt": "2026-08-05T17:51:20.929Z",
       "source": "scan"
     },
     "profiles/perf-1784923813150-01rx.json": {
@@ -3384,7 +3411,7 @@
       "hash": "6c38b0a4d7ac297c",
       "size": 1689,
       "mtimeMs": 1784923813144.8596,
-      "updatedAt": "2026-08-05T15:36:57.334Z",
+      "updatedAt": "2026-08-05T17:51:20.930Z",
       "source": "scan"
     },
     "profiles/perf-1785086834711-wmi5.json": {
@@ -3393,7 +3420,7 @@
       "hash": "8157fc8c7eb274ee",
       "size": 1741,
       "mtimeMs": 1785086834707.763,
-      "updatedAt": "2026-08-05T15:36:57.335Z",
+      "updatedAt": "2026-08-05T17:51:20.930Z",
       "source": "scan"
     },
     "profiles/perf-1785089686334-7pm7.json": {
@@ -3402,7 +3429,7 @@
       "hash": "193235df99424caa",
       "size": 1748,
       "mtimeMs": 1785089686331.763,
-      "updatedAt": "2026-08-05T15:36:57.335Z",
+      "updatedAt": "2026-08-05T17:51:20.931Z",
       "source": "scan"
     },
     "profiles/perf-1785091204014-l9iv.json": {
@@ -3411,7 +3438,7 @@
       "hash": "46e0e3e0fbb45664",
       "size": 1747,
       "mtimeMs": 1785091204011.7634,
-      "updatedAt": "2026-08-05T15:36:57.336Z",
+      "updatedAt": "2026-08-05T17:51:20.931Z",
       "source": "scan"
     },
     "profiles/perf-1785094449096-atcq.json": {
@@ -3420,7 +3447,7 @@
       "hash": "34872b859c702627",
       "size": 1745,
       "mtimeMs": 1785094449091.7651,
-      "updatedAt": "2026-08-05T15:36:57.337Z",
+      "updatedAt": "2026-08-05T17:51:20.932Z",
       "source": "scan"
     },
     "profiles/perf-1785094461396-pze2.json": {
@@ -3429,7 +3456,7 @@
       "hash": "ea7cd09ebe2f2fd9",
       "size": 1753,
       "mtimeMs": 1785094461391.7646,
-      "updatedAt": "2026-08-05T15:36:57.338Z",
+      "updatedAt": "2026-08-05T17:51:20.932Z",
       "source": "scan"
     },
     "profiles/perf-1785107927563-pznv.json": {
@@ -3438,7 +3465,7 @@
       "hash": "f22b69df6263b85a",
       "size": 1746,
       "mtimeMs": 1785107927559.7625,
-      "updatedAt": "2026-08-05T15:36:57.339Z",
+      "updatedAt": "2026-08-05T17:51:20.932Z",
       "source": "scan"
     },
     "profiles/perf-1785107951364-0cqe.json": {
@@ -3447,7 +3474,7 @@
       "hash": "d84cd45a58ec3868",
       "size": 1741,
       "mtimeMs": 1785107951359.7622,
-      "updatedAt": "2026-08-05T15:36:57.340Z",
+      "updatedAt": "2026-08-05T17:51:20.933Z",
       "source": "scan"
     },
     "profiles/perf-1785107963182-4t6p.json": {
@@ -3456,7 +3483,7 @@
       "hash": "2a4383ee29acddef",
       "size": 1746,
       "mtimeMs": 1785107963179.762,
-      "updatedAt": "2026-08-05T15:36:57.340Z",
+      "updatedAt": "2026-08-05T17:51:20.933Z",
       "source": "scan"
     },
     "profiles/perf-1785107989935-hxzk.json": {
@@ -3465,7 +3492,7 @@
       "hash": "a23374422a957050",
       "size": 1741,
       "mtimeMs": 1785107989931.762,
-      "updatedAt": "2026-08-05T15:36:57.341Z",
+      "updatedAt": "2026-08-05T17:51:20.934Z",
       "source": "scan"
     },
     "profiles/perf-1785109868954-fi1w.json": {
@@ -3474,7 +3501,7 @@
       "hash": "0280e9c3e90f2414",
       "size": 2243,
       "mtimeMs": 1785109868951.7625,
-      "updatedAt": "2026-08-05T15:36:57.342Z",
+      "updatedAt": "2026-08-05T17:51:20.934Z",
       "source": "scan"
     },
     "profiles/perf-1785109881819-124a.json": {
@@ -3483,7 +3510,7 @@
       "hash": "5ac2b924e1bd4c29",
       "size": 2248,
       "mtimeMs": 1785109881815.7625,
-      "updatedAt": "2026-08-05T15:36:57.344Z",
+      "updatedAt": "2026-08-05T17:51:20.935Z",
       "source": "scan"
     },
     "profiles/perf-1785114908092-eevb.json": {
@@ -3492,7 +3519,7 @@
       "hash": "76d15cb25621d50f",
       "size": 5008,
       "mtimeMs": 1785114908087.763,
-      "updatedAt": "2026-08-05T15:36:57.345Z",
+      "updatedAt": "2026-08-05T17:51:20.936Z",
       "source": "scan"
     },
     "profiles/perf-1785114918677-t1a5.json": {
@@ -3501,7 +3528,7 @@
       "hash": "8d219e6e97ceab8e",
       "size": 5009,
       "mtimeMs": 1785114918671.763,
-      "updatedAt": "2026-08-05T15:36:57.345Z",
+      "updatedAt": "2026-08-05T17:51:20.936Z",
       "source": "scan"
     },
     "profiles/perf-1785115154897-znkz.json": {
@@ -3510,7 +3537,7 @@
       "hash": "41ae6c0d548b641a",
       "size": 4996,
       "mtimeMs": 1785115154891.7612,
-      "updatedAt": "2026-08-05T15:36:57.346Z",
+      "updatedAt": "2026-08-05T17:51:20.937Z",
       "source": "scan"
     },
     "profiles/perf-bench-1785116286940-r96x.json": {
@@ -3519,7 +3546,7 @@
       "hash": "3372ce1ac60b8dd7",
       "size": 4994,
       "mtimeMs": 1785116286935.7605,
-      "updatedAt": "2026-08-05T15:36:57.348Z",
+      "updatedAt": "2026-08-05T17:51:20.938Z",
       "source": "scan"
     },
     "profiles/perf-bench-1785116788267-48ab.json": {
@@ -3528,7 +3555,7 @@
       "hash": "a004cd64c21f5ef6",
       "size": 4917,
       "mtimeMs": 1785116788263.7625,
-      "updatedAt": "2026-08-05T15:36:57.349Z",
+      "updatedAt": "2026-08-05T17:51:20.939Z",
       "source": "scan"
     },
     "profiles/perf-bench-1785117299927-v1w4.json": {
@@ -3537,7 +3564,7 @@
       "hash": "f77391dd392b403d",
       "size": 5422,
       "mtimeMs": 1785117299922.5916,
-      "updatedAt": "2026-08-05T15:36:57.350Z",
+      "updatedAt": "2026-08-05T17:51:20.940Z",
       "source": "scan"
     },
     "profiles/perf-bench-1785117351891-nfhx.json": {
@@ -3546,7 +3573,7 @@
       "hash": "bdd45806fa641b51",
       "size": 5226,
       "mtimeMs": 1785117351886.5947,
-      "updatedAt": "2026-08-05T15:36:57.351Z",
+      "updatedAt": "2026-08-05T17:51:20.942Z",
       "source": "scan"
     },
     "profiles/perf-bench-1785120251535-jkso.json": {
@@ -3555,7 +3582,7 @@
       "hash": "93802af4147cbfd2",
       "size": 5254,
       "mtimeMs": 1785120251606.5981,
-      "updatedAt": "2026-08-05T15:36:57.351Z",
+      "updatedAt": "2026-08-05T17:51:20.943Z",
       "source": "scan"
     },
     "profiles/perf-bench-1785120314529-t3xn.json": {
@@ -3564,7 +3591,7 @@
       "hash": "8867e01b27e99e6f",
       "size": 5217,
       "mtimeMs": 1785120314526.5986,
-      "updatedAt": "2026-08-05T15:36:57.352Z",
+      "updatedAt": "2026-08-05T17:51:20.944Z",
       "source": "scan"
     },
     "profiles/perf-bench-1785134477051-rmcb.json": {
@@ -3573,7 +3600,7 @@
       "hash": "346af3d3ffc41846",
       "size": 5357,
       "mtimeMs": 1785134477048.7988,
-      "updatedAt": "2026-08-05T15:36:57.353Z",
+      "updatedAt": "2026-08-05T17:51:20.944Z",
       "source": "scan"
     },
     "profiles/perf-bench-1785134537737-t87u.json": {
@@ -3582,7 +3609,7 @@
       "hash": "8c37328bf53085b7",
       "size": 5283,
       "mtimeMs": 1785134537736.7988,
-      "updatedAt": "2026-08-05T15:36:57.355Z",
+      "updatedAt": "2026-08-05T17:51:20.946Z",
       "source": "scan"
     },
     "profiles/perf-bench-1785134587621-l9yc.json": {
@@ -3591,7 +3618,7 @@
       "hash": "c4b127d82418daad",
       "size": 5166,
       "mtimeMs": 1785134587620.798,
-      "updatedAt": "2026-08-05T15:36:57.356Z",
+      "updatedAt": "2026-08-05T17:51:20.948Z",
       "source": "scan"
     },
     "profiles/perf-bench-1785134781360-tkc7.json": {
@@ -3600,7 +3627,7 @@
       "hash": "da4432e3ed8c13dc",
       "size": 5297,
       "mtimeMs": 1785134781356.8005,
-      "updatedAt": "2026-08-05T15:36:57.357Z",
+      "updatedAt": "2026-08-05T17:51:20.949Z",
       "source": "scan"
     },
     "profiles/perf-bench-1785134829421-l9xf.json": {
@@ -3609,7 +3636,7 @@
       "hash": "609d1693cfd8471c",
       "size": 5034,
       "mtimeMs": 1785134829420.8005,
-      "updatedAt": "2026-08-05T15:36:57.357Z",
+      "updatedAt": "2026-08-05T17:51:20.950Z",
       "source": "scan"
     },
     "profiles/perf-bench-1785134871734-bjrv.json": {
@@ -3618,7 +3645,7 @@
       "hash": "a9d3ab2a2960ce3d",
       "size": 5301,
       "mtimeMs": 1785134871732.7983,
-      "updatedAt": "2026-08-05T15:36:57.358Z",
+      "updatedAt": "2026-08-05T17:51:20.951Z",
       "source": "scan"
     },
     "profiles/perf-bench-1785149563442-2zcg.json": {
@@ -3627,7 +3654,7 @@
       "hash": "3c03628ae444a164",
       "size": 5134,
       "mtimeMs": 1785149563440.7983,
-      "updatedAt": "2026-08-05T15:36:57.359Z",
+      "updatedAt": "2026-08-05T17:51:20.953Z",
       "source": "scan"
     },
     "profiles/perf-bench-1785149642860-j1lu.json": {
@@ -3636,7 +3663,7 @@
       "hash": "2398a516ddd2d388",
       "size": 5405,
       "mtimeMs": 1785149642860.8008,
-      "updatedAt": "2026-08-05T15:36:57.359Z",
+      "updatedAt": "2026-08-05T17:51:20.953Z",
       "source": "scan"
     },
     "profiles/perf-bench-1785192177031-52k0.json": {
@@ -3645,7 +3672,7 @@
       "hash": "81942a2f1ae0102f",
       "size": 5126,
       "mtimeMs": 1785192177028.7961,
-      "updatedAt": "2026-08-05T15:36:57.360Z",
+      "updatedAt": "2026-08-05T17:51:20.955Z",
       "source": "scan"
     },
     "profiles/perf-bench-2026-07-27T01-24-08-311Z.json": {
@@ -3654,7 +3681,7 @@
       "hash": "16215188399d2b13",
       "size": 4991,
       "mtimeMs": 1785115448313.597,
-      "updatedAt": "2026-08-05T15:36:57.361Z",
+      "updatedAt": "2026-08-05T17:51:20.957Z",
       "source": "scan"
     },
     "profiles/perf-bench-semvida-1785192221358-y9ew.json": {
@@ -3663,7 +3690,7 @@
       "hash": "f7f8121e02a2847d",
       "size": 5149,
       "mtimeMs": 1785192221356.7961,
-      "updatedAt": "2026-08-05T15:36:57.361Z",
+      "updatedAt": "2026-08-05T17:51:20.957Z",
       "source": "scan"
     },
     "projeto.txt": {
@@ -3672,7 +3699,7 @@
       "hash": "f19fe7802d1fba27",
       "size": 19459,
       "mtimeMs": 1783780454112.0908,
-      "updatedAt": "2026-08-05T15:36:57.363Z",
+      "updatedAt": "2026-08-05T17:51:20.961Z",
       "source": "scan"
     },
     "README.md": {
@@ -3681,7 +3708,7 @@
       "hash": "c104e4882c8992e6",
       "size": 7999,
       "mtimeMs": 1785159102288.7983,
-      "updatedAt": "2026-08-05T15:36:57.363Z",
+      "updatedAt": "2026-08-05T17:51:20.961Z",
       "source": "scan"
     },
     "registros/perfilador-v0.8.0-escola.md": {
@@ -3690,7 +3717,7 @@
       "hash": "02f8ee6daeb3303b",
       "size": 4719,
       "mtimeMs": 1784846189756.3027,
-      "updatedAt": "2026-08-05T15:36:57.364Z",
+      "updatedAt": "2026-08-05T17:51:20.963Z",
       "source": "scan"
     },
     "registros/prints/README.md": {
@@ -3699,7 +3726,7 @@
       "hash": "9b3be794838de50d",
       "size": 2321,
       "mtimeMs": 1784850121824.3022,
-      "updatedAt": "2026-08-05T15:36:57.364Z",
+      "updatedAt": "2026-08-05T17:51:20.964Z",
       "source": "scan"
     },
     "registros/README.md": {
@@ -3708,7 +3735,7 @@
       "hash": "41bb69e1ba49d933",
       "size": 1217,
       "mtimeMs": 1784846149164.3032,
-      "updatedAt": "2026-08-05T15:36:57.365Z",
+      "updatedAt": "2026-08-05T17:51:20.964Z",
       "source": "scan"
     },
     "relatorio/apresentacao-cre.html": {
@@ -3717,7 +3744,7 @@
       "hash": "ede8ce82e783e509",
       "size": 296715,
       "mtimeMs": 1785156159372.7979,
-      "updatedAt": "2026-08-05T15:36:57.371Z",
+      "updatedAt": "2026-08-05T17:51:20.972Z",
       "source": "scan"
     },
     "relatorio/relatorio-aplicacao.md": {
@@ -3726,7 +3753,7 @@
       "hash": "f80de7e607c9250b",
       "size": 21421,
       "mtimeMs": 1785155223212.7979,
-      "updatedAt": "2026-08-05T15:36:57.372Z",
+      "updatedAt": "2026-08-05T17:51:20.973Z",
       "source": "scan"
     },
     "scripts/amigos-shot.mjs": {
@@ -3735,7 +3762,7 @@
       "hash": "f074b5d232dc5626",
       "size": 11393,
       "mtimeMs": 1785941724019.3196,
-      "updatedAt": "2026-08-05T15:36:57.373Z",
+      "updatedAt": "2026-08-05T17:51:20.974Z",
       "source": "scan",
       "symbols": [
         {
@@ -3844,7 +3871,7 @@
       "hash": "99a9f47381501cb9",
       "size": 6577,
       "mtimeMs": 1785155492800.7988,
-      "updatedAt": "2026-08-05T15:36:57.374Z",
+      "updatedAt": "2026-08-05T17:51:20.976Z",
       "source": "scan",
       "symbols": [
         {
@@ -3890,7 +3917,7 @@
       "hash": "5519195b5b96dccc",
       "size": 6325,
       "mtimeMs": 1785806570410.3916,
-      "updatedAt": "2026-08-05T15:36:57.374Z",
+      "updatedAt": "2026-08-05T17:51:20.976Z",
       "source": "scan",
       "symbols": [
         {
@@ -3950,7 +3977,7 @@
       "hash": "0c1961b2f54b99b5",
       "size": 7277,
       "mtimeMs": 1785808707550.3955,
-      "updatedAt": "2026-08-05T15:36:57.375Z",
+      "updatedAt": "2026-08-05T17:51:20.977Z",
       "source": "scan",
       "symbols": [
         {
@@ -4017,7 +4044,7 @@
       "hash": "9041edbe88917ad4",
       "size": 7149,
       "mtimeMs": 1785944137539.3232,
-      "updatedAt": "2026-08-05T15:36:57.375Z",
+      "updatedAt": "2026-08-05T17:51:20.978Z",
       "source": "scan",
       "symbols": [
         {
@@ -4070,7 +4097,7 @@
       "hash": "6cda56b17457de32",
       "size": 10879,
       "mtimeMs": 1785239682245.0793,
-      "updatedAt": "2026-08-05T15:36:57.376Z",
+      "updatedAt": "2026-08-05T17:51:20.979Z",
       "source": "scan",
       "symbols": [
         {
@@ -4137,8 +4164,8 @@
       "hash": "cc4f20e69410bcbd",
       "size": 16868,
       "mtimeMs": 1785949730815.3235,
-      "updatedAt": "2026-08-05T17:08:50.938Z",
-      "source": "hook",
+      "updatedAt": "2026-08-05T17:51:20.980Z",
+      "source": "scan",
       "symbols": [
         {
           "name": "espera",
@@ -4183,7 +4210,7 @@
       "hash": "d36440a17566038e",
       "size": 20204,
       "mtimeMs": 1785941724023.3196,
-      "updatedAt": "2026-08-05T15:36:57.377Z",
+      "updatedAt": "2026-08-05T17:51:20.983Z",
       "source": "scan",
       "symbols": [
         {
@@ -4285,7 +4312,7 @@
       "hash": "a0df9d2c745d18af",
       "size": 15607,
       "mtimeMs": 1785941724023.3196,
-      "updatedAt": "2026-08-05T15:36:57.377Z",
+      "updatedAt": "2026-08-05T17:51:20.984Z",
       "source": "scan",
       "symbols": [
         {
@@ -4401,7 +4428,7 @@
       "hash": "6327a023bd75a1a3",
       "size": 416,
       "mtimeMs": 1784035016068.0422,
-      "updatedAt": "2026-08-05T15:36:57.377Z",
+      "updatedAt": "2026-08-05T17:51:20.984Z",
       "source": "scan"
     },
     "server/src/cenarios/_smoke-atividade.mjs": {
@@ -4410,7 +4437,7 @@
       "hash": "edfb97d4cf6f9a29",
       "size": 3037,
       "mtimeMs": 1785093127307.7627,
-      "updatedAt": "2026-08-05T15:36:57.378Z",
+      "updatedAt": "2026-08-05T17:51:20.985Z",
       "source": "scan",
       "symbols": [
         {
@@ -4449,7 +4476,7 @@
       "hash": "80187bc98a2a7435",
       "size": 7868,
       "mtimeMs": 1785806337938.3909,
-      "updatedAt": "2026-08-05T15:36:57.378Z",
+      "updatedAt": "2026-08-05T17:51:20.985Z",
       "source": "scan",
       "symbols": [
         {
@@ -4547,11 +4574,11 @@
     },
     "server/src/cenarios/_smoke-craft.mjs": {
       "description": "Smoke do §🍖 F5 (craft por lista + balde-item) contra o servidor REAL. Prova",
-      "tokens": 1872,
-      "hash": "ce54f7f2ab8c1acf",
-      "size": 7106,
-      "mtimeMs": 1785804687134.392,
-      "updatedAt": "2026-08-05T15:36:57.378Z",
+      "tokens": 1907,
+      "hash": "3545840a5101dceb",
+      "size": 7241,
+      "mtimeMs": 1785949025627.3242,
+      "updatedAt": "2026-08-05T17:51:20.985Z",
       "source": "scan",
       "symbols": [
         {
@@ -4566,7 +4593,7 @@
           "kind": "fn",
           "startLine": 21,
           "endLine": 36,
-          "tokens": 145
+          "tokens": 168
         },
         {
           "name": "cliente",
@@ -4622,7 +4649,7 @@
           "kind": "fn",
           "startLine": 59,
           "endLine": 151,
-          "tokens": 1283
+          "tokens": 1296
         }
       ]
     },
@@ -4632,7 +4659,7 @@
       "hash": "d616e270f727bb56",
       "size": 4578,
       "mtimeMs": 1785714526641.593,
-      "updatedAt": "2026-08-05T15:36:57.378Z",
+      "updatedAt": "2026-08-05T17:51:20.985Z",
       "source": "scan",
       "symbols": [
         {
@@ -4679,13 +4706,13 @@
         }
       ]
     },
-    "server/src/cenarios/_smoke-inventario.mjs": {
-      "description": "Smoke do §🍖 F4 (inventário autoritativo) contra o servidor REAL. Prova pelo",
-      "tokens": 1989,
-      "hash": "0f761f55b03d4916",
-      "size": 7501,
-      "mtimeMs": 1785726148777.4775,
-      "updatedAt": "2026-08-05T15:36:57.379Z",
+    "server/src/cenarios/_smoke-fornalha.mjs": {
+      "description": "Smoke do §🍖 F10b (a FORNALHA) contra o servidor REAL. Prova pelo fio o que o",
+      "tokens": 2730,
+      "hash": "370d909e7b66b848",
+      "size": 10351,
+      "mtimeMs": 1785951769955.3247,
+      "updatedAt": "2026-08-05T17:51:20.986Z",
       "source": "scan",
       "symbols": [
         {
@@ -4699,50 +4726,152 @@
           "name": "espera",
           "kind": "fn",
           "startLine": 20,
-          "endLine": 31,
-          "tokens": 82
+          "endLine": 43,
+          "tokens": 282
         },
         {
           "name": "cliente",
           "kind": "fn",
-          "startLine": 32,
-          "endLine": 46,
-          "tokens": 180
+          "startLine": 44,
+          "endLine": 60,
+          "tokens": 217
         },
         {
           "name": "enviar",
           "kind": "fn",
-          "startLine": 47,
-          "endLine": 47,
+          "startLine": 61,
+          "endLine": 61,
           "tokens": 24
         },
         {
           "name": "ultimoInv",
           "kind": "fn",
-          "startLine": 48,
-          "endLine": 48,
+          "startLine": 62,
+          "endLine": 62,
           "tokens": 15
         },
         {
           "name": "contar",
           "kind": "fn",
+          "startLine": 63,
+          "endLine": 64,
+          "tokens": 30
+        },
+        {
+          "name": "slotDe",
+          "kind": "fn",
+          "startLine": 65,
+          "endLine": 65,
+          "tokens": 26
+        },
+        {
+          "name": "blocoEm",
+          "kind": "fn",
+          "startLine": 66,
+          "endLine": 66,
+          "tokens": 20
+        },
+        {
+          "name": "mover",
+          "kind": "fn",
+          "startLine": 67,
+          "endLine": 68,
+          "tokens": 34
+        },
+        {
+          "name": "abrir",
+          "kind": "fn",
+          "startLine": 69,
+          "endLine": 69,
+          "tokens": 24
+        },
+        {
+          "name": "transferir",
+          "kind": "fn",
+          "startLine": 70,
+          "endLine": 72,
+          "tokens": 54
+        },
+        {
+          "name": "cont",
+          "kind": "fn",
+          "startLine": 73,
+          "endLine": 74,
+          "tokens": 33
+        },
+        {
+          "name": "noSlot",
+          "kind": "fn",
+          "startLine": 75,
+          "endLine": 216,
+          "tokens": 1922
+        }
+      ]
+    },
+    "server/src/cenarios/_smoke-inventario.mjs": {
+      "description": "Smoke do §🍖 F4 (inventário autoritativo) contra o servidor REAL. Prova pelo",
+      "tokens": 2088,
+      "hash": "1d6624509900ca78",
+      "size": 7885,
+      "mtimeMs": 1785951769955.3247,
+      "updatedAt": "2026-08-05T17:51:20.986Z",
+      "source": "scan",
+      "symbols": [
+        {
+          "name": "ok",
+          "kind": "fn",
+          "startLine": 16,
+          "endLine": 19,
+          "tokens": 29
+        },
+        {
+          "name": "espera",
+          "kind": "fn",
+          "startLine": 20,
+          "endLine": 32,
+          "tokens": 104
+        },
+        {
+          "name": "cliente",
+          "kind": "fn",
+          "startLine": 33,
+          "endLine": 47,
+          "tokens": 180
+        },
+        {
+          "name": "enviar",
+          "kind": "fn",
+          "startLine": 48,
+          "endLine": 48,
+          "tokens": 24
+        },
+        {
+          "name": "ultimoInv",
+          "kind": "fn",
           "startLine": 49,
-          "endLine": 50,
+          "endLine": 49,
+          "tokens": 15
+        },
+        {
+          "name": "contar",
+          "kind": "fn",
+          "startLine": 50,
+          "endLine": 51,
           "tokens": 30
         },
         {
           "name": "blocoEm",
           "kind": "fn",
-          "startLine": 51,
-          "endLine": 63,
+          "startLine": 52,
+          "endLine": 64,
           "tokens": 129
         },
         {
           "name": "mover",
           "kind": "fn",
-          "startLine": 64,
-          "endLine": 172,
-          "tokens": 1431
+          "startLine": 65,
+          "endLine": 179,
+          "tokens": 1514
         }
       ]
     },
@@ -4752,7 +4881,7 @@
       "hash": "e2bd568eb940903b",
       "size": 2863,
       "mtimeMs": 1785093125979.7627,
-      "updatedAt": "2026-08-05T15:36:57.379Z",
+      "updatedAt": "2026-08-05T17:51:20.986Z",
       "source": "scan",
       "symbols": [
         {
@@ -4791,7 +4920,7 @@
       "hash": "46f59bcd3be3a74a",
       "size": 4731,
       "mtimeMs": 1785704976313.5957,
-      "updatedAt": "2026-08-05T15:36:57.379Z",
+      "updatedAt": "2026-08-05T17:51:20.987Z",
       "source": "scan",
       "symbols": [
         {
@@ -4837,7 +4966,7 @@
       "hash": "00165fde9cabbe5f",
       "size": 3297,
       "mtimeMs": 1785093326179.7627,
-      "updatedAt": "2026-08-05T15:36:57.379Z",
+      "updatedAt": "2026-08-05T17:51:20.987Z",
       "source": "scan",
       "symbols": [
         {
@@ -4869,7 +4998,7 @@
       "hash": "8738d2a5cf574819",
       "size": 5084,
       "mtimeMs": 1785084904959.764,
-      "updatedAt": "2026-08-05T15:36:57.379Z",
+      "updatedAt": "2026-08-05T17:51:20.987Z",
       "source": "scan",
       "symbols": [
         {
@@ -4901,7 +5030,7 @@
       "hash": "f6b3e445c8e0f738",
       "size": 3669,
       "mtimeMs": 1785115974415.7622,
-      "updatedAt": "2026-08-05T15:36:57.380Z",
+      "updatedAt": "2026-08-05T17:51:20.987Z",
       "source": "scan",
       "symbols": [
         {
@@ -4933,7 +5062,7 @@
       "hash": "fd0f39b354d97c95",
       "size": 3333,
       "mtimeMs": 1785941724023.3196,
-      "updatedAt": "2026-08-05T15:36:57.380Z",
+      "updatedAt": "2026-08-05T17:51:20.988Z",
       "source": "scan",
       "symbols": [
         {
@@ -4979,7 +5108,7 @@
       "hash": "1ea5cf0cafe0e25a",
       "size": 6670,
       "mtimeMs": 1785942568571.3218,
-      "updatedAt": "2026-08-05T15:36:57.380Z",
+      "updatedAt": "2026-08-05T17:51:20.988Z",
       "source": "scan",
       "symbols": [
         {
@@ -5046,7 +5175,7 @@
       "hash": "76eb85d6625b3373",
       "size": 4614,
       "mtimeMs": 1785091561247.7642,
-      "updatedAt": "2026-08-05T15:36:57.381Z",
+      "updatedAt": "2026-08-05T17:51:20.988Z",
       "source": "scan",
       "symbols": [
         {
@@ -5092,7 +5221,7 @@
       "hash": "15b3f3610ce3ef9a",
       "size": 4570,
       "mtimeMs": 1785712659397.5945,
-      "updatedAt": "2026-08-05T15:36:57.381Z",
+      "updatedAt": "2026-08-05T17:51:20.988Z",
       "source": "scan",
       "symbols": [
         {
@@ -5159,7 +5288,7 @@
       "hash": "578ae9b2c40d152f",
       "size": 3096,
       "mtimeMs": 1785807673198.3909,
-      "updatedAt": "2026-08-05T15:36:57.381Z",
+      "updatedAt": "2026-08-05T17:51:20.988Z",
       "source": "scan",
       "symbols": [
         {
@@ -5184,7 +5313,7 @@
       "hash": "218405b6fa70a5c2",
       "size": 23305,
       "mtimeMs": 1785808597558.3933,
-      "updatedAt": "2026-08-05T15:36:57.382Z",
+      "updatedAt": "2026-08-05T17:51:20.989Z",
       "source": "scan",
       "symbols": [
         {
@@ -5314,7 +5443,7 @@
       "hash": "c4fb51c4970822ae",
       "size": 17696,
       "mtimeMs": 1785807843674.3896,
-      "updatedAt": "2026-08-05T15:36:57.382Z",
+      "updatedAt": "2026-08-05T17:51:20.990Z",
       "source": "scan",
       "symbols": [
         {
@@ -5360,7 +5489,7 @@
       "hash": "b23cf401d35ded19",
       "size": 6663,
       "mtimeMs": 1784517263524.3567,
-      "updatedAt": "2026-08-05T15:36:57.383Z",
+      "updatedAt": "2026-08-05T17:51:20.990Z",
       "source": "scan",
       "symbols": [
         {
@@ -5413,7 +5542,7 @@
       "hash": "0d4442c6fe381938",
       "size": 22986,
       "mtimeMs": 1785941724023.3196,
-      "updatedAt": "2026-08-05T15:36:57.383Z",
+      "updatedAt": "2026-08-05T17:51:20.990Z",
       "source": "scan",
       "symbols": [
         {
@@ -5480,7 +5609,7 @@
       "hash": "c9668b01d4e0aafc",
       "size": 7296,
       "mtimeMs": 1785091443451.7627,
-      "updatedAt": "2026-08-05T15:36:57.383Z",
+      "updatedAt": "2026-08-05T17:51:20.991Z",
       "source": "scan",
       "symbols": [
         {
@@ -5526,7 +5655,7 @@
       "hash": "4e26cf36c38fc5a7",
       "size": 3252,
       "mtimeMs": 1784559009932.3584,
-      "updatedAt": "2026-08-05T15:36:57.383Z",
+      "updatedAt": "2026-08-05T17:51:20.991Z",
       "source": "scan",
       "symbols": [
         {
@@ -5551,7 +5680,7 @@
       "hash": "f45d06b0c323dccb",
       "size": 4550,
       "mtimeMs": 1785155345404.7988,
-      "updatedAt": "2026-08-05T15:36:57.384Z",
+      "updatedAt": "2026-08-05T17:51:20.991Z",
       "source": "scan",
       "symbols": [
         {
@@ -5583,7 +5712,7 @@
       "hash": "95c3c4725f764a96",
       "size": 3730,
       "mtimeMs": 1784050273432.041,
-      "updatedAt": "2026-08-05T15:36:57.384Z",
+      "updatedAt": "2026-08-05T17:51:20.991Z",
       "source": "scan",
       "symbols": [
         {
@@ -5615,7 +5744,7 @@
       "hash": "c8bedfa9c0571b31",
       "size": 3207,
       "mtimeMs": 1785941724023.3196,
-      "updatedAt": "2026-08-05T15:36:57.384Z",
+      "updatedAt": "2026-08-05T17:51:20.991Z",
       "source": "scan",
       "symbols": [
         {
@@ -5633,7 +5762,7 @@
       "hash": "38f8c30a652950e8",
       "size": 149,
       "mtimeMs": 1783800698780.0908,
-      "updatedAt": "2026-08-05T15:36:57.384Z",
+      "updatedAt": "2026-08-05T17:51:20.992Z",
       "source": "scan"
     },
     "shared/package.json": {
@@ -5642,8 +5771,26 @@
       "hash": "b269352ac97149eb",
       "size": 194,
       "mtimeMs": 1783780454112.0908,
-      "updatedAt": "2026-08-05T15:36:57.384Z",
+      "updatedAt": "2026-08-05T17:51:20.992Z",
       "source": "scan"
+    },
+    "shared/src/algodao.test.ts": {
+      "description": "§🍖 F10c — ALGODÃO. A ponte HONESTA que aposenta a lã-de-trigo: o lite não",
+      "tokens": 2518,
+      "hash": "04ab2c2515492259",
+      "size": 8925,
+      "mtimeMs": 1785950514415.3235,
+      "updatedAt": "2026-08-05T17:51:20.992Z",
+      "source": "scan",
+      "symbols": [
+        {
+          "name": "canteiro",
+          "kind": "fn",
+          "startLine": 33,
+          "endLine": 221,
+          "tokens": 2236
+        }
+      ]
     },
     "shared/src/arvores.test.ts": {
       "description": "Declares DIMS",
@@ -5651,7 +5798,7 @@
       "hash": "beb0e1537852027d",
       "size": 2325,
       "mtimeMs": 1784594589156.3552,
-      "updatedAt": "2026-08-05T15:36:57.385Z",
+      "updatedAt": "2026-08-05T17:51:20.992Z",
       "source": "scan"
     },
     "shared/src/arvores.ts": {
@@ -5660,7 +5807,7 @@
       "hash": "12bfe62e77def2a6",
       "size": 5819,
       "mtimeMs": 1784653234218.7644,
-      "updatedAt": "2026-08-05T15:36:57.385Z",
+      "updatedAt": "2026-08-05T17:51:20.993Z",
       "source": "scan",
       "symbols": [
         {
@@ -5720,7 +5867,7 @@
       "hash": "29e5d3d6a88b634f",
       "size": 1510,
       "mtimeMs": 1784393177754.9072,
-      "updatedAt": "2026-08-05T15:36:57.385Z",
+      "updatedAt": "2026-08-05T17:51:20.993Z",
       "source": "scan"
     },
     "shared/src/auth.ts": {
@@ -5729,16 +5876,16 @@
       "hash": "3f085ad28ebc2dee",
       "size": 1729,
       "mtimeMs": 1784393091074.9092,
-      "updatedAt": "2026-08-05T15:36:57.385Z",
+      "updatedAt": "2026-08-05T17:51:20.993Z",
       "source": "scan"
     },
     "shared/src/biomas.ts": {
       "description": "Biomas do gen procedural (2026-07-20) — a REGRA DE OURO aplicada ao terreno:",
-      "tokens": 2313,
-      "hash": "7af67751537e925a",
-      "size": 8241,
-      "mtimeMs": 1785414959560.3025,
-      "updatedAt": "2026-08-05T15:36:57.386Z",
+      "tokens": 2482,
+      "hash": "ff4f76e18c070fd8",
+      "size": 8854,
+      "mtimeMs": 1785950236027.3235,
+      "updatedAt": "2026-08-05T17:51:20.994Z",
       "source": "scan",
       "symbols": [
         {
@@ -5752,56 +5899,56 @@
           "name": "Bioma",
           "kind": "section",
           "startLine": 23,
-          "endLine": 109,
-          "tokens": 861
+          "endLine": 124,
+          "tokens": 1030
         },
         {
           "name": "biomaPorClima",
           "kind": "fn",
-          "startLine": 110,
-          "endLine": 119,
+          "startLine": 125,
+          "endLine": 134,
           "tokens": 136
         },
         {
           "name": "gramaPorClima",
           "kind": "fn",
-          "startLine": 120,
-          "endLine": 126,
+          "startLine": 135,
+          "endLine": 141,
           "tokens": 76
         },
         {
           "name": "rampa",
           "kind": "fn",
-          "startLine": 127,
-          "endLine": 168,
+          "startLine": 142,
+          "endLine": 183,
           "tokens": 633
         },
         {
           "name": "relevoPorClima",
           "kind": "fn",
-          "startLine": 169,
-          "endLine": 196,
+          "startLine": 184,
+          "endLine": 211,
           "tokens": 353
         }
       ]
     },
     "shared/src/blocks.test.ts": {
       "description": "Declares id",
-      "tokens": 2417,
-      "hash": "a73660f399cd62b1",
-      "size": 8549,
-      "mtimeMs": 1785949580027.3237,
-      "updatedAt": "2026-08-05T17:06:20.125Z",
-      "source": "hook"
+      "tokens": 2550,
+      "hash": "ad96940f4af48e20",
+      "size": 9024,
+      "mtimeMs": 1785950335171.3232,
+      "updatedAt": "2026-08-05T17:51:20.994Z",
+      "source": "scan"
     },
     "shared/src/blocks.ts": {
       "description": "IDs de bloco. Gravados como bytes crus nos chunks (Uint8Array), no save e no",
-      "tokens": 9923,
-      "hash": "072c00b59cf7f0e0",
-      "size": 35476,
-      "mtimeMs": 1785950148503.3247,
-      "updatedAt": "2026-08-05T17:15:48.664Z",
-      "source": "hook",
+      "tokens": 10378,
+      "hash": "1f23c697efaf1a17",
+      "size": 37108,
+      "mtimeMs": 1785951769959.3247,
+      "updatedAt": "2026-08-05T17:51:20.995Z",
+      "source": "scan",
       "symbols": [
         {
           "name": "isAgua",
@@ -5828,190 +5975,190 @@
           "name": "aguaComNivel",
           "kind": "fn",
           "startLine": 277,
-          "endLine": 342,
-          "tokens": 889
+          "endLine": 366,
+          "tokens": 1158
+        },
+        {
+          "name": "isFerramenta",
+          "kind": "fn",
+          "startLine": 367,
+          "endLine": 372,
+          "tokens": 66
         },
         {
           "name": "isCarvao",
           "kind": "fn",
-          "startLine": 343,
-          "endLine": 347,
+          "startLine": 373,
+          "endLine": 377,
           "tokens": 55
         },
         {
           "name": "isFornalha",
           "kind": "fn",
-          "startLine": 348,
-          "endLine": 352,
+          "startLine": 378,
+          "endLine": 382,
           "tokens": 46
         },
         {
           "name": "isBalde",
           "kind": "fn",
-          "startLine": 353,
-          "endLine": 374,
-          "tokens": 177
+          "startLine": 383,
+          "endLine": 409,
+          "tokens": 209
         },
         {
           "name": "isItem",
           "kind": "fn",
-          "startLine": 375,
-          "endLine": 385,
+          "startLine": 410,
+          "endLine": 420,
           "tokens": 131
         },
         {
           "name": "Planta",
           "kind": "section",
-          "startLine": 386,
-          "endLine": 396,
+          "startLine": 421,
+          "endLine": 431,
           "tokens": 84
         },
         {
           "name": "plantaDe",
           "kind": "fn",
-          "startLine": 397,
-          "endLine": 404,
+          "startLine": 432,
+          "endLine": 439,
           "tokens": 66
         },
         {
           "name": "isPlantacao",
           "kind": "fn",
-          "startLine": 405,
-          "endLine": 409,
+          "startLine": 440,
+          "endLine": 444,
           "tokens": 44
         },
         {
           "name": "estagioPlantacao",
           "kind": "fn",
-          "startLine": 410,
-          "endLine": 415,
+          "startLine": 445,
+          "endLine": 450,
           "tokens": 46
         },
         {
           "name": "isPlantacaoMadura",
           "kind": "fn",
-          "startLine": 416,
-          "endLine": 421,
+          "startLine": 451,
+          "endLine": 456,
           "tokens": 59
         },
         {
           "name": "isMudaDePlantacao",
           "kind": "fn",
-          "startLine": 422,
-          "endLine": 429,
+          "startLine": 457,
+          "endLine": 464,
           "tokens": 113
         },
         {
           "name": "isSolo",
           "kind": "fn",
-          "startLine": 430,
-          "endLine": 444,
+          "startLine": 465,
+          "endLine": 479,
           "tokens": 168
         },
         {
           "name": "isReplaceable",
           "kind": "fn",
-          "startLine": 445,
-          "endLine": 449,
+          "startLine": 480,
+          "endLine": 484,
           "tokens": 39
         },
         {
           "name": "isFlor",
           "kind": "fn",
-          "startLine": 450,
-          "endLine": 454,
+          "startLine": 485,
+          "endLine": 489,
           "tokens": 55
         },
         {
           "name": "isGramaAlta",
           "kind": "fn",
-          "startLine": 455,
-          "endLine": 459,
+          "startLine": 490,
+          "endLine": 494,
           "tokens": 54
         },
         {
           "name": "isFolhas",
           "kind": "fn",
-          "startLine": 460,
-          "endLine": 469,
+          "startLine": 495,
+          "endLine": 504,
           "tokens": 80
         },
         {
           "name": "isVidroColorido",
           "kind": "fn",
-          "startLine": 470,
-          "endLine": 474,
+          "startLine": 505,
+          "endLine": 509,
           "tokens": 50
         },
         {
           "name": "isSlab",
           "kind": "fn",
-          "startLine": 475,
-          "endLine": 479,
+          "startLine": 510,
+          "endLine": 514,
           "tokens": 57
         },
         {
           "name": "slabTop",
           "kind": "fn",
-          "startLine": 480,
-          "endLine": 484,
+          "startLine": 515,
+          "endLine": 519,
           "tokens": 47
         },
         {
           "name": "slabMaterial",
           "kind": "fn",
-          "startLine": 485,
-          "endLine": 489,
+          "startLine": 520,
+          "endLine": 524,
           "tokens": 46
         },
         {
           "name": "isStairs",
           "kind": "fn",
-          "startLine": 490,
-          "endLine": 494,
+          "startLine": 525,
+          "endLine": 529,
           "tokens": 58
         },
         {
           "name": "stairsFacing",
           "kind": "fn",
-          "startLine": 495,
-          "endLine": 499,
+          "startLine": 530,
+          "endLine": 534,
           "tokens": 47
         },
         {
           "name": "stairsTop",
           "kind": "fn",
-          "startLine": 500,
-          "endLine": 504,
+          "startLine": 535,
+          "endLine": 539,
           "tokens": 47
         },
         {
           "name": "stairsMaterial",
           "kind": "fn",
-          "startLine": 505,
-          "endLine": 510,
+          "startLine": 540,
+          "endLine": 545,
           "tokens": 72
         },
         {
           "name": "escadaId",
           "kind": "fn",
-          "startLine": 511,
-          "endLine": 519,
+          "startLine": 546,
+          "endLine": 554,
           "tokens": 131
         },
         {
           "name": "stepFootprint",
           "kind": "fn",
-          "startLine": 520,
-          "endLine": 532,
-          "tokens": 167
-        },
-        {
-          "name": "collisionBoxes",
-          "kind": "fn",
-          "startLine": 533,
-          "endLine": 791,
-          "tokens": 3073
+          "startLine": 555,
+          "endLine": 831,
+          "tokens": 3328
         }
       ]
     },
@@ -6021,7 +6168,7 @@
       "hash": "58eadc67a1fe3267",
       "size": 16035,
       "mtimeMs": 1785941724023.3196,
-      "updatedAt": "2026-08-05T15:36:57.387Z",
+      "updatedAt": "2026-08-05T17:51:20.995Z",
       "source": "scan",
       "symbols": [
         {
@@ -6067,7 +6214,7 @@
       "hash": "0ee5b1d0b1d04a22",
       "size": 3727,
       "mtimeMs": 1784654324730.7644,
-      "updatedAt": "2026-08-05T15:36:57.387Z",
+      "updatedAt": "2026-08-05T17:51:20.995Z",
       "source": "scan",
       "symbols": [
         {
@@ -6120,7 +6267,7 @@
       "hash": "6b00cc31cd539bb3",
       "size": 14312,
       "mtimeMs": 1785943057219.3225,
-      "updatedAt": "2026-08-05T15:36:57.388Z",
+      "updatedAt": "2026-08-05T17:51:20.996Z",
       "source": "scan",
       "symbols": [
         {
@@ -6187,7 +6334,7 @@
       "hash": "717ad29d021a4433",
       "size": 1385,
       "mtimeMs": 1785805278934.39,
-      "updatedAt": "2026-08-05T15:36:57.388Z",
+      "updatedAt": "2026-08-05T17:51:20.996Z",
       "source": "scan"
     },
     "shared/src/confinamento.test.ts": {
@@ -6196,7 +6343,7 @@
       "hash": "6ab1809f9889e7ac",
       "size": 8798,
       "mtimeMs": 1784340400012.3667,
-      "updatedAt": "2026-08-05T15:36:57.388Z",
+      "updatedAt": "2026-08-05T17:51:20.996Z",
       "source": "scan",
       "symbols": [
         {
@@ -6263,8 +6410,135 @@
       "hash": "45412e368dc7cda5",
       "size": 1827,
       "mtimeMs": 1784764145511.3923,
-      "updatedAt": "2026-08-05T15:36:57.389Z",
+      "updatedAt": "2026-08-05T17:51:20.996Z",
       "source": "scan"
+    },
+    "shared/src/containers.test.ts": {
+      "description": "Inventário com pilhas em slots escolhidos (o resto vazio).",
+      "tokens": 2249,
+      "hash": "5b52fc69f16a3834",
+      "size": 7938,
+      "mtimeMs": 1785949636967.3235,
+      "updatedAt": "2026-08-05T17:51:20.999Z",
+      "source": "scan",
+      "symbols": [
+        {
+          "name": "inv",
+          "kind": "fn",
+          "startLine": 28,
+          "endLine": 34,
+          "tokens": 66
+        },
+        {
+          "name": "forno",
+          "kind": "fn",
+          "startLine": 35,
+          "endLine": 212,
+          "tokens": 2017
+        }
+      ]
+    },
+    "shared/src/containers.ts": {
+      "description": "§🍖 F10 (2026-08-05) — BLOCO COM INVENTÁRIO PRÓPRIO.",
+      "tokens": 2656,
+      "hash": "e425c55d5c1174b5",
+      "size": 9467,
+      "mtimeMs": 1785949503663.3237,
+      "updatedAt": "2026-08-05T17:51:20.999Z",
+      "source": "scan",
+      "symbols": [
+        {
+          "name": "containerTipoDe",
+          "kind": "fn",
+          "startLine": 45,
+          "endLine": 55,
+          "tokens": 123
+        },
+        {
+          "name": "Container",
+          "kind": "section",
+          "startLine": 56,
+          "endLine": 69,
+          "tokens": 169
+        },
+        {
+          "name": "containerVazio",
+          "kind": "fn",
+          "startLine": 70,
+          "endLine": 83,
+          "tokens": 134
+        },
+        {
+          "name": "containerTemConteudo",
+          "kind": "fn",
+          "startLine": 84,
+          "endLine": 88,
+          "tokens": 57
+        },
+        {
+          "name": "containerKey",
+          "kind": "fn",
+          "startLine": 89,
+          "endLine": 101,
+          "tokens": 160
+        },
+        {
+          "name": "totalDeSlots",
+          "kind": "fn",
+          "startLine": 102,
+          "endLine": 106,
+          "tokens": 50
+        },
+        {
+          "name": "ehSlotDeContainer",
+          "kind": "fn",
+          "startLine": 107,
+          "endLine": 121,
+          "tokens": 192
+        },
+        {
+          "name": "moverEntre",
+          "kind": "fn",
+          "startLine": 122,
+          "endLine": 146,
+          "tokens": 297
+        },
+        {
+          "name": "ContainerSalvo",
+          "kind": "section",
+          "startLine": 147,
+          "endLine": 158,
+          "tokens": 64
+        },
+        {
+          "name": "containerParaSave",
+          "kind": "fn",
+          "startLine": 159,
+          "endLine": 179,
+          "tokens": 159
+        },
+        {
+          "name": "inteiroNaoNegativo",
+          "kind": "fn",
+          "startLine": 180,
+          "endLine": 189,
+          "tokens": 120
+        },
+        {
+          "name": "parseContainerSalvo",
+          "kind": "fn",
+          "startLine": 190,
+          "endLine": 229,
+          "tokens": 514
+        },
+        {
+          "name": "containerDeSave",
+          "kind": "fn",
+          "startLine": 230,
+          "endLine": 242,
+          "tokens": 103
+        }
+      ]
     },
     "shared/src/cp14.test.ts": {
       "description": "mundo plano 2×2×2 chunks (32³) — superfície em y=3",
@@ -6272,7 +6546,7 @@
       "hash": "2d381e5b77f2bf4b",
       "size": 7001,
       "mtimeMs": 1784220873934.2222,
-      "updatedAt": "2026-08-05T15:36:57.389Z",
+      "updatedAt": "2026-08-05T17:51:21.000Z",
       "source": "scan",
       "symbols": [
         {
@@ -6311,7 +6585,7 @@
       "hash": "b96c36079c90da61",
       "size": 28462,
       "mtimeMs": 1784583813676.356,
-      "updatedAt": "2026-08-05T15:36:57.390Z",
+      "updatedAt": "2026-08-05T17:51:21.000Z",
       "source": "scan",
       "symbols": [
         {
@@ -6325,35 +6599,367 @@
     },
     "shared/src/drops.test.ts": {
       "description": "Declares id",
-      "tokens": 1926,
-      "hash": "8b3509dc21be55bb",
-      "size": 6832,
-      "mtimeMs": 1785947586759.3223,
-      "updatedAt": "2026-08-05T16:33:06.870Z",
-      "source": "hook"
+      "tokens": 1929,
+      "hash": "b89d125b9197ddd6",
+      "size": 6842,
+      "mtimeMs": 1785949603235.3235,
+      "updatedAt": "2026-08-05T17:51:21.001Z",
+      "source": "scan"
     },
     "shared/src/drops.ts": {
       "description": "§🍖 F4 — o que CAI ao quebrar um bloco. Tabela pura: entra o byte que estava",
-      "tokens": 1899,
-      "hash": "7cdd56f151f20960",
-      "size": 6856,
-      "mtimeMs": 1785950188415.322,
-      "updatedAt": "2026-08-05T17:16:28.526Z",
-      "source": "hook",
+      "tokens": 1963,
+      "hash": "b1aeb940e58d162e",
+      "size": 7092,
+      "mtimeMs": 1785950199631.3225,
+      "updatedAt": "2026-08-05T17:51:21.001Z",
+      "source": "scan",
       "symbols": [
         {
           "name": "formaCanonica",
           "kind": "fn",
-          "startLine": 48,
-          "endLine": 118,
-          "tokens": 935
+          "startLine": 49,
+          "endLine": 122,
+          "tokens": 995
         },
         {
           "name": "dropsDe",
           "kind": "fn",
-          "startLine": 119,
-          "endLine": 164,
+          "startLine": 123,
+          "endLine": 168,
           "tokens": 548
+        }
+      ]
+    },
+    "shared/src/ferramentas.test.ts": {
+      "description": "Mochila com uma picareta (ou vazia).",
+      "tokens": 2750,
+      "hash": "236e22814c966d74",
+      "size": 9703,
+      "mtimeMs": 1785951181831.3245,
+      "updatedAt": "2026-08-05T17:51:21.001Z",
+      "source": "scan",
+      "symbols": [
+        {
+          "name": "comPicareta",
+          "kind": "fn",
+          "startLine": 36,
+          "endLine": 151,
+          "tokens": 1516
+        },
+        {
+          "name": "collect",
+          "kind": "fn",
+          "startLine": 152,
+          "endLine": 155,
+          "tokens": 55
+        },
+        {
+          "name": "join",
+          "kind": "fn",
+          "startLine": 156,
+          "endLine": 157,
+          "tokens": 34
+        },
+        {
+          "name": "cmd",
+          "kind": "fn",
+          "startLine": 158,
+          "endLine": 159,
+          "tokens": 20
+        },
+        {
+          "name": "turma",
+          "kind": "fn",
+          "startLine": 160,
+          "endLine": 172,
+          "tokens": 162
+        },
+        {
+          "name": "pedra",
+          "kind": "fn",
+          "startLine": 173,
+          "endLine": 179,
+          "tokens": 62
+        },
+        {
+          "name": "chats",
+          "kind": "fn",
+          "startLine": 180,
+          "endLine": 231,
+          "tokens": 674
+        }
+      ]
+    },
+    "shared/src/ferramentas.ts": {
+      "description": "§🍖 F10d (2026-08-05) — FERRAMENTAS. As duas decisões vieram do usuário:",
+      "tokens": 1982,
+      "hash": "a63ecad04da73976",
+      "size": 7101,
+      "mtimeMs": 1785950872611.3237,
+      "updatedAt": "2026-08-05T17:51:21.002Z",
+      "source": "scan",
+      "symbols": [
+        {
+          "name": "Ferramenta",
+          "kind": "section",
+          "startLine": 56,
+          "endLine": 71,
+          "tokens": 245
+        },
+        {
+          "name": "Exigencia",
+          "kind": "section",
+          "startLine": 72,
+          "endLine": 110,
+          "tokens": 449
+        },
+        {
+          "name": "exigenciaDe",
+          "kind": "fn",
+          "startLine": 111,
+          "endLine": 136,
+          "tokens": 342
+        },
+        {
+          "name": "melhorNivel",
+          "kind": "fn",
+          "startLine": 137,
+          "endLine": 155,
+          "tokens": 194
+        },
+        {
+          "name": "faltaFerramenta",
+          "kind": "fn",
+          "startLine": 156,
+          "endLine": 165,
+          "tokens": 116
+        }
+      ]
+    },
+    "shared/src/fornalha.session.test.ts": {
+      "description": "§🍖 F10b — a fornalha PELO FIO. O `fornalha.test.ts` prova a simulação pura;",
+      "tokens": 4129,
+      "hash": "7092cdb6a56fa833",
+      "size": 14534,
+      "mtimeMs": 1785951769959.3247,
+      "updatedAt": "2026-08-05T17:51:21.002Z",
+      "source": "scan",
+      "symbols": [
+        {
+          "name": "collect",
+          "kind": "fn",
+          "startLine": 26,
+          "endLine": 29,
+          "tokens": 55
+        },
+        {
+          "name": "join",
+          "kind": "fn",
+          "startLine": 30,
+          "endLine": 31,
+          "tokens": 34
+        },
+        {
+          "name": "cmd",
+          "kind": "fn",
+          "startLine": 32,
+          "endLine": 33,
+          "tokens": 20
+        },
+        {
+          "name": "baseSave",
+          "kind": "fn",
+          "startLine": 34,
+          "endLine": 40,
+          "tokens": 73
+        },
+        {
+          "name": "turma",
+          "kind": "fn",
+          "startLine": 41,
+          "endLine": 50,
+          "tokens": 114
+        },
+        {
+          "name": "poeFornalha",
+          "kind": "fn",
+          "startLine": 51,
+          "endLine": 60,
+          "tokens": 99
+        },
+        {
+          "name": "ultimoContainer",
+          "kind": "fn",
+          "startLine": 61,
+          "endLine": 70,
+          "tokens": 98
+        },
+        {
+          "name": "naMochila",
+          "kind": "fn",
+          "startLine": 71,
+          "endLine": 80,
+          "tokens": 103
+        },
+        {
+          "name": "abrir",
+          "kind": "fn",
+          "startLine": 81,
+          "endLine": 82,
+          "tokens": 29
+        },
+        {
+          "name": "mover",
+          "kind": "fn",
+          "startLine": 83,
+          "endLine": 312,
+          "tokens": 3230
+        }
+      ]
+    },
+    "shared/src/fornalha.test.ts": {
+      "description": "Fornalha com os 3 slots escolhidos (o que não vier é vazio).",
+      "tokens": 2277,
+      "hash": "209359731a29805f",
+      "size": 8048,
+      "mtimeMs": 1785948559611.323,
+      "updatedAt": "2026-08-05T17:51:21.002Z",
+      "source": "scan",
+      "symbols": [
+        {
+          "name": "forno",
+          "kind": "fn",
+          "startLine": 31,
+          "endLine": 44,
+          "tokens": 119
+        },
+        {
+          "name": "ticks",
+          "kind": "fn",
+          "startLine": 45,
+          "endLine": 204,
+          "tokens": 1984
+        }
+      ]
+    },
+    "shared/src/fornalha.ts": {
+      "description": "§🍖 F10b (2026-08-05) — A FORNALHA.",
+      "tokens": 2087,
+      "hash": "2bc960d291a231ce",
+      "size": 7448,
+      "mtimeMs": 1785947923303.3237,
+      "updatedAt": "2026-08-05T17:51:21.003Z",
+      "source": "scan",
+      "symbols": [
+        {
+          "name": "ehCombustivel",
+          "kind": "fn",
+          "startLine": 85,
+          "endLine": 89,
+          "tokens": 48
+        },
+        {
+          "name": "fornalhaAcesa",
+          "kind": "fn",
+          "startLine": 90,
+          "endLine": 94,
+          "tokens": 46
+        },
+        {
+          "name": "saidaDe",
+          "kind": "fn",
+          "startLine": 95,
+          "endLine": 104,
+          "tokens": 126
+        },
+        {
+          "name": "podeCozinhar",
+          "kind": "fn",
+          "startLine": 105,
+          "endLine": 128,
+          "tokens": 308
+        },
+        {
+          "name": "tickFornalha",
+          "kind": "fn",
+          "startLine": 129,
+          "endLine": 186,
+          "tokens": 524
+        }
+      ]
+    },
+    "shared/src/gate-claim.test.ts": {
+      "description": "§🍖 F10f — O PORTÃO DO CLAIM (pedido do usuário, 2026-08-05):",
+      "tokens": 2891,
+      "hash": "85597594a7812b0c",
+      "size": 10253,
+      "mtimeMs": 1785950004267.323,
+      "updatedAt": "2026-08-05T17:51:21.003Z",
+      "source": "scan",
+      "symbols": [
+        {
+          "name": "tiposComCelula",
+          "kind": "fn",
+          "startLine": 56,
+          "endLine": 74,
+          "tokens": 216
+        },
+        {
+          "name": "collect",
+          "kind": "fn",
+          "startLine": 75,
+          "endLine": 78,
+          "tokens": 55
+        },
+        {
+          "name": "join",
+          "kind": "fn",
+          "startLine": 79,
+          "endLine": 80,
+          "tokens": 34
+        },
+        {
+          "name": "cmd",
+          "kind": "fn",
+          "startLine": 81,
+          "endLine": 81,
+          "tokens": 20
+        },
+        {
+          "name": "mark",
+          "kind": "fn",
+          "startLine": 82,
+          "endLine": 83,
+          "tokens": 35
+        },
+        {
+          "name": "move",
+          "kind": "fn",
+          "startLine": 84,
+          "endLine": 87,
+          "tokens": 54
+        },
+        {
+          "name": "retrato",
+          "kind": "fn",
+          "startLine": 88,
+          "endLine": 95,
+          "tokens": 83
+        },
+        {
+          "name": "turmaComClaimDaAna",
+          "kind": "fn",
+          "startLine": 96,
+          "endLine": 116,
+          "tokens": 293
+        },
+        {
+          "name": "mensagemPara",
+          "kind": "fn",
+          "startLine": 117,
+          "endLine": 223,
+          "tokens": 1454
         }
       ]
     },
@@ -6363,7 +6969,7 @@
       "hash": "d9fa52f95bebb7d1",
       "size": 13548,
       "mtimeMs": 1784140932259.4033,
-      "updatedAt": "2026-08-05T15:36:57.394Z",
+      "updatedAt": "2026-08-05T17:51:21.003Z",
       "source": "scan",
       "symbols": [
         {
@@ -6402,25 +7008,25 @@
       "hash": "5256d9b9535d2376",
       "size": 987,
       "mtimeMs": 1783908749009.4753,
-      "updatedAt": "2026-08-05T15:36:57.394Z",
+      "updatedAt": "2026-08-05T17:51:21.003Z",
       "source": "scan"
     },
     "shared/src/index.ts": {
       "description": "",
-      "tokens": 237,
-      "hash": "b8ac62d2739a9e1a",
-      "size": 828,
-      "mtimeMs": 1785948814051.3237,
-      "updatedAt": "2026-08-05T16:53:34.211Z",
-      "source": "hook"
+      "tokens": 246,
+      "hash": "08aa79be22dad1f9",
+      "size": 859,
+      "mtimeMs": 1785951769959.3247,
+      "updatedAt": "2026-08-05T17:51:21.004Z",
+      "source": "scan"
     },
     "shared/src/inventario.test.ts": {
       "description": "Inventário com pilhas em slots escolhidos (o resto vazio).",
-      "tokens": 6664,
-      "hash": "80ab0c576348705a",
-      "size": 23486,
-      "mtimeMs": 1785805938658.39,
-      "updatedAt": "2026-08-05T15:36:57.395Z",
+      "tokens": 6846,
+      "hash": "6da0d1e22aa898a7",
+      "size": 24143,
+      "mtimeMs": 1785951769959.3247,
+      "updatedAt": "2026-08-05T17:51:21.004Z",
       "source": "scan",
       "symbols": [
         {
@@ -6455,82 +7061,89 @@
           "name": "colocar",
           "kind": "fn",
           "startLine": 240,
-          "endLine": 241,
-          "tokens": 38
+          "endLine": 244,
+          "tokens": 100
+        },
+        {
+          "name": "darPicareta",
+          "kind": "fn",
+          "startLine": 245,
+          "endLine": 246,
+          "tokens": 34
         },
         {
           "name": "quebrar",
           "kind": "fn",
-          "startLine": 242,
-          "endLine": 245,
+          "startLine": 247,
+          "endLine": 250,
           "tokens": 52
         },
         {
           "name": "ultimoInv",
           "kind": "fn",
-          "startLine": 246,
-          "endLine": 253,
+          "startLine": 251,
+          "endLine": 258,
           "tokens": 90
         },
         {
           "name": "chats",
           "kind": "fn",
-          "startLine": 254,
-          "endLine": 263,
+          "startLine": 259,
+          "endLine": 268,
           "tokens": 78
         },
         {
           "name": "baseSave",
           "kind": "fn",
-          "startLine": 264,
-          "endLine": 270,
+          "startLine": 269,
+          "endLine": 275,
           "tokens": 74
         },
         {
           "name": "turma",
           "kind": "fn",
-          "startLine": 271,
-          "endLine": 281,
+          "startLine": 276,
+          "endLine": 286,
           "tokens": 148
         },
         {
           "name": "alvoLivre",
           "kind": "fn",
-          "startLine": 282,
-          "endLine": 442,
-          "tokens": 2257
+          "startLine": 287,
+          "endLine": 451,
+          "tokens": 2336
         },
         {
           "name": "matarAna",
           "kind": "fn",
-          "startLine": 443,
-          "endLine": 543,
+          "startLine": 452,
+          "endLine": 552,
           "tokens": 1271
         }
       ]
     },
     "shared/src/inventario.ts": {
       "description": "§🍖 F4 — INVENTÁRIO AUTORITATIVO (stacks puros).",
-      "tokens": 2731,
-      "hash": "8ca0147b76b5c8a2",
-      "size": 9712,
-      "mtimeMs": 1785947780587.3237,
-      "updatedAt": "2026-08-05T16:36:20.703Z",
-      "source": "hook",
+      "tokens": 2747,
+      "hash": "9a53d48ca270cbe3",
+      "size": 9773,
+      "mtimeMs": 1785951769959.3247,
+      "updatedAt": "2026-08-05T17:51:21.005Z",
+      "source": "scan",
       "symbols": [
         {
           "name": "Stack",
           "kind": "section",
           "startLine": 23,
           "endLine": 46,
-          "tokens": 217
+          "tokens": 223
         },
         {
           "name": "tamanhoStack",
           "kind": "fn",
           "startLine": 47,
           "endLine": 51,
-          "tokens": 38
+          "tokens": 44
         },
         {
           "name": "inventarioVazio",
@@ -6638,7 +7251,7 @@
       "hash": "ac7aa5de804d5172",
       "size": 13093,
       "mtimeMs": 1785238923681.0793,
-      "updatedAt": "2026-08-05T15:36:57.395Z",
+      "updatedAt": "2026-08-05T17:51:21.005Z",
       "source": "scan",
       "symbols": [
         {
@@ -6663,8 +7276,8 @@
       "hash": "c954f21e6e4819fb",
       "size": 25642,
       "mtimeMs": 1785947999547.323,
-      "updatedAt": "2026-08-05T16:39:59.654Z",
-      "source": "hook",
+      "updatedAt": "2026-08-05T17:51:21.006Z",
+      "source": "scan",
       "symbols": [
         {
           "name": "opacidadeLuz",
@@ -6856,7 +7469,7 @@
       "hash": "42bb100fda1c7cba",
       "size": 19446,
       "mtimeMs": 1785153337740.7979,
-      "updatedAt": "2026-08-05T15:36:57.396Z",
+      "updatedAt": "2026-08-05T17:51:21.006Z",
       "source": "scan",
       "symbols": [
         {
@@ -6877,131 +7490,138 @@
     },
     "shared/src/mesher.ts": {
       "description": "Culled mesher: função PURA (bytes do mundo → geometria). Só emite faces que",
-      "tokens": 15255,
-      "hash": "7e92392c9959aa7c",
-      "size": 54232,
-      "mtimeMs": 1785949524023.3237,
-      "updatedAt": "2026-08-05T17:05:24.176Z",
-      "source": "hook",
+      "tokens": 15573,
+      "hash": "dc79e5b38bbb1e60",
+      "size": 55388,
+      "mtimeMs": 1785950335171.3232,
+      "updatedAt": "2026-08-05T17:51:21.008Z",
+      "source": "scan",
       "symbols": [
         {
           "name": "FaceTiles",
           "kind": "section",
-          "startLine": 177,
-          "endLine": 334,
-          "tokens": 2263
+          "startLine": 184,
+          "endLine": 347,
+          "tokens": 2333
         },
         {
           "name": "blockIconTile",
           "kind": "fn",
-          "startLine": 335,
-          "endLine": 343,
-          "tokens": 136
+          "startLine": 348,
+          "endLine": 355,
+          "tokens": 108
+        },
+        {
+          "name": "ehCruzDeSprite",
+          "kind": "fn",
+          "startLine": 356,
+          "endLine": 366,
+          "tokens": 151
         },
         {
           "name": "blockSelectionBox",
           "kind": "fn",
-          "startLine": 344,
-          "endLine": 382,
-          "tokens": 499
+          "startLine": 367,
+          "endLine": 405,
+          "tokens": 490
         },
         {
           "name": "FaceCorner",
           "kind": "section",
-          "startLine": 383,
-          "endLine": 387,
+          "startLine": 406,
+          "endLine": 410,
           "tokens": 34
         },
         {
           "name": "Face",
           "kind": "section",
-          "startLine": 388,
-          "endLine": 452,
+          "startLine": 411,
+          "endLine": 475,
           "tokens": 470
         },
         {
           "name": "UvAxis",
           "kind": "section",
-          "startLine": 453,
-          "endLine": 457,
+          "startLine": 476,
+          "endLine": 480,
           "tokens": 17
         },
         {
           "name": "uvAxisOf",
           "kind": "fn",
-          "startLine": 458,
-          "endLine": 470,
+          "startLine": 481,
+          "endLine": 493,
           "tokens": 165
         },
         {
           "name": "FaceBase",
           "kind": "section",
-          "startLine": 471,
-          "endLine": 528,
+          "startLine": 494,
+          "endLine": 551,
           "tokens": 722
         },
         {
           "name": "tileAguaDaFace",
           "kind": "fn",
-          "startLine": 529,
-          "endLine": 558,
+          "startLine": 552,
+          "endLine": 581,
           "tokens": 424
         },
         {
           "name": "rotXZ",
           "kind": "fn",
-          "startLine": 559,
-          "endLine": 578,
+          "startLine": 582,
+          "endLine": 601,
           "tokens": 199
         },
         {
           "name": "swayDoBloco",
           "kind": "fn",
-          "startLine": 579,
-          "endLine": 584,
-          "tokens": 50
+          "startLine": 602,
+          "endLine": 607,
+          "tokens": 41
         },
         {
           "name": "ChunkGeometry",
           "kind": "section",
-          "startLine": 585,
-          "endLine": 635,
+          "startLine": 608,
+          "endLine": 658,
           "tokens": 769
         },
         {
           "name": "vizIndex",
           "kind": "fn",
-          "startLine": 636,
-          "endLine": 661,
+          "startLine": 659,
+          "endLine": 684,
           "tokens": 287
         },
         {
           "name": "extrairVizinhanca",
           "kind": "fn",
-          "startLine": 662,
-          "endLine": 705,
+          "startLine": 685,
+          "endLine": 728,
           "tokens": 467
         },
         {
           "name": "extrairVizinhancaLuz",
           "kind": "fn",
-          "startLine": 706,
-          "endLine": 725,
+          "startLine": 729,
+          "endLine": 748,
           "tokens": 196
         },
         {
           "name": "meshChunk",
           "kind": "fn",
-          "startLine": 726,
-          "endLine": 745,
+          "startLine": 749,
+          "endLine": 768,
           "tokens": 183
         },
         {
           "name": "meshVizinhanca",
           "kind": "fn",
-          "startLine": 746,
-          "endLine": 1250,
-          "tokens": 6779
+          "startLine": 769,
+          "endLine": 1276,
+          "tokens": 6843
         }
       ]
     },
@@ -7011,7 +7631,7 @@
       "hash": "11b943c5fb782059",
       "size": 13033,
       "mtimeMs": 1785941724023.3196,
-      "updatedAt": "2026-08-05T15:36:57.398Z",
+      "updatedAt": "2026-08-05T17:51:21.008Z",
       "source": "scan",
       "symbols": [
         {
@@ -7078,7 +7698,7 @@
       "hash": "72043c4f95f3ad0a",
       "size": 3418,
       "mtimeMs": 1785941724023.3196,
-      "updatedAt": "2026-08-05T15:36:57.398Z",
+      "updatedAt": "2026-08-05T17:51:21.008Z",
       "source": "scan",
       "symbols": [
         {
@@ -7124,7 +7744,7 @@
       "hash": "722a94e3f885648d",
       "size": 15748,
       "mtimeMs": 1785028387002.7332,
-      "updatedAt": "2026-08-05T15:36:57.399Z",
+      "updatedAt": "2026-08-05T17:51:21.009Z",
       "source": "scan",
       "symbols": [
         {
@@ -7149,7 +7769,7 @@
       "hash": "d43de20dd7aa54b4",
       "size": 18912,
       "mtimeMs": 1785712030713.5933,
-      "updatedAt": "2026-08-05T15:36:57.399Z",
+      "updatedAt": "2026-08-05T17:51:21.009Z",
       "source": "scan",
       "symbols": [
         {
@@ -7272,7 +7892,7 @@
       "hash": "dd1fcf9e6d85264f",
       "size": 12811,
       "mtimeMs": 1785113025311.7625,
-      "updatedAt": "2026-08-05T15:36:57.400Z",
+      "updatedAt": "2026-08-05T17:51:21.010Z",
       "source": "scan"
     },
     "shared/src/protocol.ts": {
@@ -7280,9 +7900,9 @@
       "tokens": 12322,
       "hash": "349b70eed8fb2714",
       "size": 43637,
-      "mtimeMs": 1785948160387.324,
-      "updatedAt": "2026-08-05T16:42:40.482Z",
-      "source": "hook",
+      "mtimeMs": 1785949926907.323,
+      "updatedAt": "2026-08-05T17:51:21.011Z",
+      "source": "scan",
       "symbols": [
         {
           "name": "parseClientMessage",
@@ -7369,7 +7989,7 @@
       "hash": "8e35013534eed888",
       "size": 13155,
       "mtimeMs": 1785942448235.324,
-      "updatedAt": "2026-08-05T15:36:57.401Z",
+      "updatedAt": "2026-08-05T17:51:21.011Z",
       "source": "scan",
       "symbols": [
         {
@@ -7464,7 +8084,7 @@
       "hash": "56b3386e00f831e0",
       "size": 5640,
       "mtimeMs": 1784504065673.7603,
-      "updatedAt": "2026-08-05T15:36:57.401Z",
+      "updatedAt": "2026-08-05T17:51:21.012Z",
       "source": "scan",
       "symbols": [
         {
@@ -7482,7 +8102,7 @@
       "hash": "b67b9f1e807b2514",
       "size": 1903,
       "mtimeMs": 1784503766657.7568,
-      "updatedAt": "2026-08-05T15:36:57.401Z",
+      "updatedAt": "2026-08-05T17:51:21.012Z",
       "source": "scan",
       "symbols": [
         {
@@ -7508,13 +8128,22 @@
         }
       ]
     },
+    "shared/src/raw.d.ts": {
+      "description": "`import x from \"./arquivo?raw\"` — o fonte do arquivo como string.",
+      "tokens": 173,
+      "hash": "161c7308210ab32c",
+      "size": 621,
+      "mtimeMs": 1785949979891.3232,
+      "updatedAt": "2026-08-05T17:51:21.012Z",
+      "source": "scan"
+    },
     "shared/src/raycast.test.ts": {
       "description": "Mundo 16³ com chão sólido em y ∈ [0,7].",
       "tokens": 1050,
       "hash": "a1d9d0fc1d08eb29",
       "size": 3710,
       "mtimeMs": 1784731907611.3936,
-      "updatedAt": "2026-08-05T15:36:57.401Z",
+      "updatedAt": "2026-08-05T17:51:21.012Z",
       "source": "scan",
       "symbols": [
         {
@@ -7532,7 +8161,7 @@
       "hash": "401c812b62c6d42b",
       "size": 8195,
       "mtimeMs": 1785942052967.3232,
-      "updatedAt": "2026-08-05T15:36:57.402Z",
+      "updatedAt": "2026-08-05T17:51:21.012Z",
       "source": "scan",
       "symbols": [
         {
@@ -7581,92 +8210,92 @@
     },
     "shared/src/receitas.test.ts": {
       "description": "Inventário com pilhas em slots escolhidos (o resto vazio).",
-      "tokens": 3579,
-      "hash": "87a24a4a5ba921ef",
-      "size": 12708,
-      "mtimeMs": 1785948492303.322,
-      "updatedAt": "2026-08-05T16:48:12.429Z",
-      "source": "hook",
+      "tokens": 3597,
+      "hash": "3cbc0874796cf221",
+      "size": 12771,
+      "mtimeMs": 1785949603235.3235,
+      "updatedAt": "2026-08-05T17:51:21.013Z",
+      "source": "scan",
       "symbols": [
         {
           "name": "inv",
           "kind": "fn",
-          "startLine": 33,
-          "endLine": 39,
+          "startLine": 36,
+          "endLine": 42,
           "tokens": 77
         },
         {
           "name": "receitaDe",
           "kind": "fn",
-          "startLine": 40,
-          "endLine": 300,
-          "tokens": 3335
+          "startLine": 43,
+          "endLine": 303,
+          "tokens": 3332
         }
       ]
     },
     "shared/src/receitas.ts": {
       "description": "§🍖 F5 — CRAFT POR LISTA (receitas puras).",
-      "tokens": 5997,
-      "hash": "abe576c39b9ba1e6",
-      "size": 21439,
-      "mtimeMs": 1785949511159.3237,
-      "updatedAt": "2026-08-05T17:05:11.303Z",
-      "source": "hook",
+      "tokens": 6363,
+      "hash": "89464eb874be6787",
+      "size": 22747,
+      "mtimeMs": 1785951769959.3247,
+      "updatedAt": "2026-08-05T17:51:21.014Z",
+      "source": "scan",
       "symbols": [
         {
           "name": "Receita",
           "kind": "section",
-          "startLine": 40,
-          "endLine": 56,
+          "startLine": 46,
+          "endLine": 62,
           "tokens": 193
         },
         {
           "name": "receitaAtiva",
           "kind": "fn",
-          "startLine": 57,
-          "endLine": 135,
-          "tokens": 1288
+          "startLine": 63,
+          "endLine": 141,
+          "tokens": 1296
         },
         {
           "name": "Cor",
           "kind": "section",
-          "startLine": 136,
-          "endLine": 340,
-          "tokens": 3583
+          "startLine": 142,
+          "endLine": 358,
+          "tokens": 3904
         },
         {
           "name": "receitaValida",
           "kind": "fn",
-          "startLine": 341,
-          "endLine": 346,
+          "startLine": 359,
+          "endLine": 364,
           "tokens": 77
         },
         {
           "name": "temIngredientes",
           "kind": "fn",
-          "startLine": 347,
-          "endLine": 356,
+          "startLine": 365,
+          "endLine": 374,
           "tokens": 131
         },
         {
           "name": "podeFabricar",
           "kind": "fn",
-          "startLine": 357,
-          "endLine": 366,
+          "startLine": 375,
+          "endLine": 384,
           "tokens": 115
         },
         {
           "name": "fabricar",
           "kind": "fn",
-          "startLine": 367,
-          "endLine": 380,
+          "startLine": 385,
+          "endLine": 398,
           "tokens": 182
         },
         {
           "name": "ingredientesDe",
           "kind": "fn",
-          "startLine": 381,
-          "endLine": 390,
+          "startLine": 399,
+          "endLine": 408,
           "tokens": 87
         }
       ]
@@ -7677,7 +8306,7 @@
       "hash": "242d36f406756874",
       "size": 12364,
       "mtimeMs": 1784296351544.3696,
-      "updatedAt": "2026-08-05T15:36:57.403Z",
+      "updatedAt": "2026-08-05T17:51:21.014Z",
       "source": "scan",
       "symbols": [
         {
@@ -7716,7 +8345,7 @@
       "hash": "6b81b99d9c62aa99",
       "size": 2669,
       "mtimeMs": 1783903813957.476,
-      "updatedAt": "2026-08-05T15:36:57.403Z",
+      "updatedAt": "2026-08-05T17:51:21.014Z",
       "source": "scan",
       "symbols": [
         {
@@ -7776,7 +8405,7 @@
       "hash": "665d855a60d0ab19",
       "size": 6724,
       "mtimeMs": 1785942383227.3237,
-      "updatedAt": "2026-08-05T15:36:57.404Z",
+      "updatedAt": "2026-08-05T17:51:21.015Z",
       "source": "scan",
       "symbols": [
         {
@@ -7829,7 +8458,7 @@
       "hash": "a5f3f8d4e64d3763",
       "size": 4594,
       "mtimeMs": 1785942078983.3237,
-      "updatedAt": "2026-08-05T15:36:57.404Z",
+      "updatedAt": "2026-08-05T17:51:21.015Z",
       "source": "scan",
       "symbols": [
         {
@@ -7882,7 +8511,7 @@
       "hash": "b0bf534f83fda70c",
       "size": 2583,
       "mtimeMs": 1784496603029.764,
-      "updatedAt": "2026-08-05T15:36:57.404Z",
+      "updatedAt": "2026-08-05T17:51:21.015Z",
       "source": "scan"
     },
     "shared/src/rules.ts": {
@@ -7891,7 +8520,7 @@
       "hash": "9d39ac96a8786563",
       "size": 14672,
       "mtimeMs": 1785805407142.3901,
-      "updatedAt": "2026-08-05T15:36:57.405Z",
+      "updatedAt": "2026-08-05T17:51:21.016Z",
       "source": "scan",
       "symbols": [
         {
@@ -7951,7 +8580,7 @@
       "hash": "05525b3e15050653",
       "size": 3624,
       "mtimeMs": 1784627896830.7642,
-      "updatedAt": "2026-08-05T15:36:57.405Z",
+      "updatedAt": "2026-08-05T17:51:21.016Z",
       "source": "scan",
       "symbols": [
         {
@@ -7969,7 +8598,7 @@
       "hash": "c42c0647f0aa07d8",
       "size": 5117,
       "mtimeMs": 1784211046370.2214,
-      "updatedAt": "2026-08-05T15:36:57.405Z",
+      "updatedAt": "2026-08-05T17:51:21.016Z",
       "source": "scan"
     },
     "shared/src/save.ts": {
@@ -7978,8 +8607,8 @@
       "hash": "3912e1805192bb43",
       "size": 18360,
       "mtimeMs": 1785948185439.324,
-      "updatedAt": "2026-08-05T16:43:05.538Z",
-      "source": "hook",
+      "updatedAt": "2026-08-05T17:51:21.017Z",
+      "source": "scan",
       "symbols": [
         {
           "name": "SavedPlayer",
@@ -8059,7 +8688,7 @@
       "hash": "ccfee5c9091cac23",
       "size": 14472,
       "mtimeMs": 1784222581962.2236,
-      "updatedAt": "2026-08-05T15:36:57.406Z",
+      "updatedAt": "2026-08-05T17:51:21.018Z",
       "source": "scan",
       "symbols": [
         {
@@ -8098,7 +8727,7 @@
       "hash": "bf2e80b898f1669a",
       "size": 13017,
       "mtimeMs": 1784299192544.3682,
-      "updatedAt": "2026-08-05T15:36:57.407Z",
+      "updatedAt": "2026-08-05T17:51:21.018Z",
       "source": "scan",
       "symbols": [
         {
@@ -8214,7 +8843,7 @@
       "hash": "423a85a79380e205",
       "size": 52069,
       "mtimeMs": 1785942647919.3203,
-      "updatedAt": "2026-08-05T15:36:57.409Z",
+      "updatedAt": "2026-08-05T17:51:21.019Z",
       "source": "scan",
       "symbols": [
         {
@@ -8228,57 +8857,57 @@
     },
     "shared/src/session.ts": {
       "description": "GameSession: o SERVIDOR autoritativo, independente de hospedeiro.",
-      "tokens": 58183,
-      "hash": "17655bbd91352350",
-      "size": 206372,
-      "mtimeMs": 1785950882447.3237,
-      "updatedAt": "2026-08-05T17:28:02.571Z",
-      "source": "hook",
+      "tokens": 58214,
+      "hash": "be3686790c203e5f",
+      "size": 206487,
+      "mtimeMs": 1785951769959.3247,
+      "updatedAt": "2026-08-05T17:51:21.024Z",
+      "source": "scan",
       "symbols": [
         {
           "name": "SessionOptions",
           "kind": "section",
-          "startLine": 194,
-          "endLine": 240,
+          "startLine": 195,
+          "endLine": 241,
           "tokens": 644
         },
         {
           "name": "SessionPlayer",
           "kind": "section",
-          "startLine": 241,
-          "endLine": 251,
+          "startLine": 242,
+          "endLine": 252,
           "tokens": 58
         },
         {
           "name": "Identity",
           "kind": "section",
-          "startLine": 252,
-          "endLine": 270,
+          "startLine": 253,
+          "endLine": 271,
           "tokens": 176
         },
         {
           "name": "parseCoordArg",
           "kind": "fn",
-          "startLine": 271,
-          "endLine": 282,
+          "startLine": 272,
+          "endLine": 283,
           "tokens": 106
         },
         {
           "name": "GameSession",
           "kind": "class",
-          "startLine": 283,
-          "endLine": 4658,
-          "tokens": 56095
+          "startLine": 284,
+          "endLine": 4662,
+          "tokens": 56112
         }
       ]
     },
     "shared/src/sobrevivencia.test.ts": {
       "description": "Professor (1) + ana (2). `modo` decide o padrão do mundo.",
-      "tokens": 6184,
-      "hash": "5e057092646c20e6",
-      "size": 21807,
-      "mtimeMs": 1785805660066.3918,
-      "updatedAt": "2026-08-05T15:36:57.415Z",
+      "tokens": 6248,
+      "hash": "08b559e9d612f52a",
+      "size": 22035,
+      "mtimeMs": 1785951769959.3247,
+      "updatedAt": "2026-08-05T17:51:21.025Z",
       "source": "scan",
       "symbols": [
         {
@@ -8348,8 +8977,8 @@
           "name": "cair",
           "kind": "fn",
           "startLine": 92,
-          "endLine": 507,
-          "tokens": 5348
+          "endLine": 510,
+          "tokens": 5405
         }
       ]
     },
@@ -8359,7 +8988,7 @@
       "hash": "4c2c1142296f6582",
       "size": 12496,
       "mtimeMs": 1785942026635.3232,
-      "updatedAt": "2026-08-05T15:36:57.416Z",
+      "updatedAt": "2026-08-05T17:51:21.025Z",
       "source": "scan",
       "symbols": [
         {
@@ -8461,7 +9090,7 @@
       "hash": "eb36be1328804bd8",
       "size": 16618,
       "mtimeMs": 1785084838063.7642,
-      "updatedAt": "2026-08-05T15:36:57.417Z",
+      "updatedAt": "2026-08-05T17:51:21.026Z",
       "source": "scan",
       "symbols": [
         {
@@ -8493,7 +9122,7 @@
       "hash": "bda58c4b9b1c5c9b",
       "size": 5288,
       "mtimeMs": 1784570408024.357,
-      "updatedAt": "2026-08-05T15:36:57.417Z",
+      "updatedAt": "2026-08-05T17:51:21.026Z",
       "source": "scan",
       "symbols": [
         {
@@ -8511,7 +9140,7 @@
       "hash": "135ad744120d66ac",
       "size": 6710,
       "mtimeMs": 1785150164660.7988,
-      "updatedAt": "2026-08-05T15:36:57.418Z",
+      "updatedAt": "2026-08-05T17:51:21.026Z",
       "source": "scan"
     },
     "shared/src/vento.ts": {
@@ -8520,7 +9149,7 @@
       "hash": "fba726ded72cbc1f",
       "size": 5966,
       "mtimeMs": 1785149854896.8003,
-      "updatedAt": "2026-08-05T15:36:57.418Z",
+      "updatedAt": "2026-08-05T17:51:21.027Z",
       "source": "scan",
       "symbols": [
         {
@@ -8580,7 +9209,7 @@
       "hash": "d56c16d4448cf3db",
       "size": 477,
       "mtimeMs": 1784590216096.3562,
-      "updatedAt": "2026-08-05T15:36:57.418Z",
+      "updatedAt": "2026-08-05T17:51:21.027Z",
       "source": "scan"
     },
     "shared/src/water.test.ts": {
@@ -8589,7 +9218,7 @@
       "hash": "bbeb0963b565385d",
       "size": 5931,
       "mtimeMs": 1784764307803.3923,
-      "updatedAt": "2026-08-05T15:36:57.418Z",
+      "updatedAt": "2026-08-05T17:51:21.027Z",
       "source": "scan",
       "symbols": [
         {
@@ -8614,7 +9243,7 @@
       "hash": "93ffe28bddf5ec41",
       "size": 3044,
       "mtimeMs": 1784653238530.7644,
-      "updatedAt": "2026-08-05T15:36:57.419Z",
+      "updatedAt": "2026-08-05T17:51:21.027Z",
       "source": "scan"
     },
     "shared/src/world.ts": {
@@ -8623,7 +9252,7 @@
       "hash": "5fd56c77437aada4",
       "size": 5850,
       "mtimeMs": 1785240421889.0796,
-      "updatedAt": "2026-08-05T15:36:57.419Z",
+      "updatedAt": "2026-08-05T17:51:21.028Z",
       "source": "scan",
       "symbols": [
         {
@@ -8725,7 +9354,7 @@
       "hash": "d2239a72517afc52",
       "size": 24400,
       "mtimeMs": 1785415838628.3066,
-      "updatedAt": "2026-08-05T15:36:57.420Z",
+      "updatedAt": "2026-08-05T17:51:21.028Z",
       "source": "scan"
     },
     "shared/src/worldgen.ts": {
@@ -8733,9 +9362,9 @@
       "tokens": 8029,
       "hash": "94c5f83272c74c5a",
       "size": 28560,
-      "mtimeMs": 1785950244875.3237,
-      "updatedAt": "2026-08-05T17:17:24.989Z",
-      "source": "hook",
+      "mtimeMs": 1785950529975.3235,
+      "updatedAt": "2026-08-05T17:51:21.029Z",
+      "source": "scan",
       "symbols": [
         {
           "name": "parseWorldPreset",
@@ -8913,7 +9542,7 @@
       "hash": "0baa7dd48e8a2672",
       "size": 63,
       "mtimeMs": 1783780454116.0908,
-      "updatedAt": "2026-08-05T15:36:57.421Z",
+      "updatedAt": "2026-08-05T17:51:21.029Z",
       "source": "scan"
     },
     "shared/vitest.config.ts": {
@@ -8922,17 +9551,17 @@
       "hash": "7062d51e4372b6b0",
       "size": 1217,
       "mtimeMs": 1785415954444.307,
-      "updatedAt": "2026-08-05T15:36:57.422Z",
+      "updatedAt": "2026-08-05T17:51:21.029Z",
       "source": "scan"
     },
     "todo.md": {
       "description": "Ideias para fazer",
-      "tokens": 7381,
-      "hash": "fd3e8fd27184e3ef",
-      "size": 30514,
-      "mtimeMs": 1785946449099.3235,
-      "updatedAt": "2026-08-05T16:14:09.271Z",
-      "source": "hook"
+      "tokens": 7387,
+      "hash": "944794c145685eac",
+      "size": 30549,
+      "mtimeMs": 1785952137647.324,
+      "updatedAt": "2026-08-05T17:51:21.030Z",
+      "source": "scan"
     },
     "tsconfig.base.json": {
       "description": "",
@@ -8940,621 +9569,8 @@
       "hash": "d0e4e177b21f3848",
       "size": 452,
       "mtimeMs": 1784590204344.3562,
-      "updatedAt": "2026-08-05T15:36:57.423Z",
+      "updatedAt": "2026-08-05T17:51:21.030Z",
       "source": "scan"
-    },
-    "shared/src/containers.ts": {
-      "description": "§🍖 F10 (2026-08-05) — BLOCO COM INVENTÁRIO PRÓPRIO.",
-      "tokens": 2656,
-      "hash": "e425c55d5c1174b5",
-      "size": 9467,
-      "mtimeMs": 1785949503663.3237,
-      "updatedAt": "2026-08-05T17:05:03.799Z",
-      "source": "hook",
-      "symbols": [
-        {
-          "name": "containerTipoDe",
-          "kind": "fn",
-          "startLine": 45,
-          "endLine": 55,
-          "tokens": 123
-        },
-        {
-          "name": "Container",
-          "kind": "section",
-          "startLine": 56,
-          "endLine": 69,
-          "tokens": 169
-        },
-        {
-          "name": "containerVazio",
-          "kind": "fn",
-          "startLine": 70,
-          "endLine": 83,
-          "tokens": 134
-        },
-        {
-          "name": "containerTemConteudo",
-          "kind": "fn",
-          "startLine": 84,
-          "endLine": 88,
-          "tokens": 57
-        },
-        {
-          "name": "containerKey",
-          "kind": "fn",
-          "startLine": 89,
-          "endLine": 101,
-          "tokens": 160
-        },
-        {
-          "name": "totalDeSlots",
-          "kind": "fn",
-          "startLine": 102,
-          "endLine": 106,
-          "tokens": 50
-        },
-        {
-          "name": "ehSlotDeContainer",
-          "kind": "fn",
-          "startLine": 107,
-          "endLine": 121,
-          "tokens": 192
-        },
-        {
-          "name": "moverEntre",
-          "kind": "fn",
-          "startLine": 122,
-          "endLine": 146,
-          "tokens": 297
-        },
-        {
-          "name": "ContainerSalvo",
-          "kind": "section",
-          "startLine": 147,
-          "endLine": 158,
-          "tokens": 64
-        },
-        {
-          "name": "containerParaSave",
-          "kind": "fn",
-          "startLine": 159,
-          "endLine": 179,
-          "tokens": 159
-        },
-        {
-          "name": "inteiroNaoNegativo",
-          "kind": "fn",
-          "startLine": 180,
-          "endLine": 189,
-          "tokens": 120
-        },
-        {
-          "name": "parseContainerSalvo",
-          "kind": "fn",
-          "startLine": 190,
-          "endLine": 229,
-          "tokens": 514
-        },
-        {
-          "name": "containerDeSave",
-          "kind": "fn",
-          "startLine": 230,
-          "endLine": 242,
-          "tokens": 103
-        }
-      ]
-    },
-    "shared/src/fornalha.ts": {
-      "description": "§🍖 F10b (2026-08-05) — A FORNALHA.",
-      "tokens": 2087,
-      "hash": "2bc960d291a231ce",
-      "size": 7448,
-      "mtimeMs": 1785947923303.3237,
-      "updatedAt": "2026-08-05T16:38:43.437Z",
-      "source": "hook",
-      "symbols": [
-        {
-          "name": "ehCombustivel",
-          "kind": "fn",
-          "startLine": 85,
-          "endLine": 89,
-          "tokens": 48
-        },
-        {
-          "name": "fornalhaAcesa",
-          "kind": "fn",
-          "startLine": 90,
-          "endLine": 94,
-          "tokens": 46
-        },
-        {
-          "name": "saidaDe",
-          "kind": "fn",
-          "startLine": 95,
-          "endLine": 104,
-          "tokens": 126
-        },
-        {
-          "name": "podeCozinhar",
-          "kind": "fn",
-          "startLine": 105,
-          "endLine": 128,
-          "tokens": 308
-        },
-        {
-          "name": "tickFornalha",
-          "kind": "fn",
-          "startLine": 129,
-          "endLine": 186,
-          "tokens": 524
-        }
-      ]
-    },
-    "shared/src/fornalha.test.ts": {
-      "description": "Fornalha com os 3 slots escolhidos (o que não vier é vazio).",
-      "tokens": 2277,
-      "hash": "209359731a29805f",
-      "size": 8048,
-      "mtimeMs": 1785948559611.323,
-      "updatedAt": "2026-08-05T16:49:19.751Z",
-      "source": "hook",
-      "symbols": [
-        {
-          "name": "forno",
-          "kind": "fn",
-          "startLine": 31,
-          "endLine": 44,
-          "tokens": 119
-        },
-        {
-          "name": "ticks",
-          "kind": "fn",
-          "startLine": 45,
-          "endLine": 204,
-          "tokens": 1984
-        }
-      ]
-    },
-    "shared/src/containers.test.ts": {
-      "description": "Inventário com pilhas em slots escolhidos (o resto vazio).",
-      "tokens": 2249,
-      "hash": "5b52fc69f16a3834",
-      "size": 7938,
-      "mtimeMs": 1785949636967.3235,
-      "updatedAt": "2026-08-05T17:07:17.079Z",
-      "source": "hook",
-      "symbols": [
-        {
-          "name": "inv",
-          "kind": "fn",
-          "startLine": 28,
-          "endLine": 34,
-          "tokens": 66
-        },
-        {
-          "name": "forno",
-          "kind": "fn",
-          "startLine": 35,
-          "endLine": 212,
-          "tokens": 2017
-        }
-      ]
-    },
-    "client/src/container.ts": {
-      "description": "§🍖 F10 — O PAINEL DE TRANSFERÊNCIA (fornalha e baú).",
-      "tokens": 2696,
-      "hash": "fc511fa218fcbc49",
-      "size": 9503,
-      "mtimeMs": 1785948702075.3228,
-      "updatedAt": "2026-08-05T16:51:42.204Z",
-      "source": "hook",
-      "symbols": [
-        {
-          "name": "ContainerPanel",
-          "kind": "class",
-          "startLine": 33,
-          "endLine": 267,
-          "tokens": 2365
-        }
-      ]
-    },
-    "shared/src/fornalha.session.test.ts": {
-      "description": "§🍖 F10b — a fornalha PELO FIO. O `fornalha.test.ts` prova a simulação pura;",
-      "tokens": 4054,
-      "hash": "dadc567f4400ddc6",
-      "size": 14263,
-      "mtimeMs": 1785949652763.3235,
-      "updatedAt": "2026-08-05T17:07:32.919Z",
-      "source": "hook",
-      "symbols": [
-        {
-          "name": "collect",
-          "kind": "fn",
-          "startLine": 26,
-          "endLine": 29,
-          "tokens": 55
-        },
-        {
-          "name": "join",
-          "kind": "fn",
-          "startLine": 30,
-          "endLine": 31,
-          "tokens": 34
-        },
-        {
-          "name": "cmd",
-          "kind": "fn",
-          "startLine": 32,
-          "endLine": 33,
-          "tokens": 20
-        },
-        {
-          "name": "baseSave",
-          "kind": "fn",
-          "startLine": 34,
-          "endLine": 40,
-          "tokens": 73
-        },
-        {
-          "name": "turma",
-          "kind": "fn",
-          "startLine": 41,
-          "endLine": 50,
-          "tokens": 114
-        },
-        {
-          "name": "poeFornalha",
-          "kind": "fn",
-          "startLine": 51,
-          "endLine": 60,
-          "tokens": 99
-        },
-        {
-          "name": "ultimoContainer",
-          "kind": "fn",
-          "startLine": 61,
-          "endLine": 70,
-          "tokens": 98
-        },
-        {
-          "name": "naMochila",
-          "kind": "fn",
-          "startLine": 71,
-          "endLine": 80,
-          "tokens": 103
-        },
-        {
-          "name": "abrir",
-          "kind": "fn",
-          "startLine": 81,
-          "endLine": 82,
-          "tokens": 29
-        },
-        {
-          "name": "mover",
-          "kind": "fn",
-          "startLine": 83,
-          "endLine": 309,
-          "tokens": 3162
-        }
-      ]
-    },
-    "server/src/cenarios/_smoke-fornalha.mjs": {
-      "description": "Smoke do §🍖 F10b (a FORNALHA) contra o servidor REAL. Prova pelo fio o que o",
-      "tokens": 2090,
-      "hash": "ef7ac43e078c871a",
-      "size": 7896,
-      "mtimeMs": 1785949069991.3232,
-      "updatedAt": "2026-08-05T16:57:50.122Z",
-      "source": "hook",
-      "symbols": [
-        {
-          "name": "ok",
-          "kind": "fn",
-          "startLine": 16,
-          "endLine": 19,
-          "tokens": 29
-        },
-        {
-          "name": "espera",
-          "kind": "fn",
-          "startLine": 20,
-          "endLine": 37,
-          "tokens": 168
-        },
-        {
-          "name": "cliente",
-          "kind": "fn",
-          "startLine": 38,
-          "endLine": 54,
-          "tokens": 217
-        },
-        {
-          "name": "enviar",
-          "kind": "fn",
-          "startLine": 55,
-          "endLine": 55,
-          "tokens": 24
-        },
-        {
-          "name": "ultimoInv",
-          "kind": "fn",
-          "startLine": 56,
-          "endLine": 56,
-          "tokens": 15
-        },
-        {
-          "name": "contar",
-          "kind": "fn",
-          "startLine": 57,
-          "endLine": 58,
-          "tokens": 30
-        },
-        {
-          "name": "slotDe",
-          "kind": "fn",
-          "startLine": 59,
-          "endLine": 59,
-          "tokens": 26
-        },
-        {
-          "name": "blocoEm",
-          "kind": "fn",
-          "startLine": 60,
-          "endLine": 60,
-          "tokens": 20
-        },
-        {
-          "name": "mover",
-          "kind": "fn",
-          "startLine": 61,
-          "endLine": 62,
-          "tokens": 34
-        },
-        {
-          "name": "abrir",
-          "kind": "fn",
-          "startLine": 63,
-          "endLine": 63,
-          "tokens": 24
-        },
-        {
-          "name": "transferir",
-          "kind": "fn",
-          "startLine": 64,
-          "endLine": 66,
-          "tokens": 54
-        },
-        {
-          "name": "cont",
-          "kind": "fn",
-          "startLine": 67,
-          "endLine": 68,
-          "tokens": 33
-        },
-        {
-          "name": "noSlot",
-          "kind": "fn",
-          "startLine": 69,
-          "endLine": 175,
-          "tokens": 1350
-        }
-      ]
-    },
-    "shared/src/gate-claim.test.ts": {
-      "description": "§🍖 F10f — O PORTÃO DO CLAIM (pedido do usuário, 2026-08-05):",
-      "tokens": 2868,
-      "hash": "69b4d2fe36a9179b",
-      "size": 10168,
-      "mtimeMs": 1785949897775.3232,
-      "updatedAt": "2026-08-05T17:11:37.917Z",
-      "source": "hook",
-      "symbols": [
-        {
-          "name": "tiposComCelula",
-          "kind": "fn",
-          "startLine": 54,
-          "endLine": 72,
-          "tokens": 231
-        },
-        {
-          "name": "collect",
-          "kind": "fn",
-          "startLine": 73,
-          "endLine": 76,
-          "tokens": 55
-        },
-        {
-          "name": "join",
-          "kind": "fn",
-          "startLine": 77,
-          "endLine": 78,
-          "tokens": 34
-        },
-        {
-          "name": "cmd",
-          "kind": "fn",
-          "startLine": 79,
-          "endLine": 79,
-          "tokens": 20
-        },
-        {
-          "name": "mark",
-          "kind": "fn",
-          "startLine": 80,
-          "endLine": 81,
-          "tokens": 35
-        },
-        {
-          "name": "move",
-          "kind": "fn",
-          "startLine": 82,
-          "endLine": 85,
-          "tokens": 54
-        },
-        {
-          "name": "retrato",
-          "kind": "fn",
-          "startLine": 86,
-          "endLine": 93,
-          "tokens": 83
-        },
-        {
-          "name": "turmaComClaimDaAna",
-          "kind": "fn",
-          "startLine": 94,
-          "endLine": 114,
-          "tokens": 293
-        },
-        {
-          "name": "mensagemPara",
-          "kind": "fn",
-          "startLine": 115,
-          "endLine": 221,
-          "tokens": 1454
-        }
-      ]
-    },
-    "shared/src/raw.d.ts": {
-      "description": "`import x from \"./arquivo?raw\"` — o fonte do arquivo como string.",
-      "tokens": 173,
-      "hash": "161c7308210ab32c",
-      "size": 621,
-      "mtimeMs": 1785949979891.3232,
-      "updatedAt": "2026-08-05T17:13:00.084Z",
-      "source": "hook"
-    },
-    "shared/src/algodao.test.ts": {
-      "description": "§🍖 F10c — ALGODÃO. A ponte HONESTA que aposenta a lã-de-trigo: o lite não",
-      "tokens": 2035,
-      "hash": "eee0dbf6c166b8b7",
-      "size": 7209,
-      "mtimeMs": 1785950471767.3232,
-      "updatedAt": "2026-08-05T17:21:11.952Z",
-      "source": "hook",
-      "symbols": [
-        {
-          "name": "canteiro",
-          "kind": "fn",
-          "startLine": 31,
-          "endLine": 180,
-          "tokens": 1770
-        }
-      ]
-    },
-    "shared/src/ferramentas.ts": {
-      "description": "§🍖 F10d (2026-08-05) — FERRAMENTAS. As duas decisões vieram do usuário:",
-      "tokens": 2029,
-      "hash": "ce99608d467d7733",
-      "size": 7264,
-      "mtimeMs": 1785950838627.324,
-      "updatedAt": "2026-08-05T17:27:18.772Z",
-      "source": "hook",
-      "symbols": [
-        {
-          "name": "Ferramenta",
-          "kind": "section",
-          "startLine": 56,
-          "endLine": 71,
-          "tokens": 244
-        },
-        {
-          "name": "isFerramenta",
-          "kind": "fn",
-          "startLine": 72,
-          "endLine": 76,
-          "tokens": 47
-        },
-        {
-          "name": "Exigencia",
-          "kind": "section",
-          "startLine": 77,
-          "endLine": 115,
-          "tokens": 449
-        },
-        {
-          "name": "exigenciaDe",
-          "kind": "fn",
-          "startLine": 116,
-          "endLine": 141,
-          "tokens": 342
-        },
-        {
-          "name": "melhorNivel",
-          "kind": "fn",
-          "startLine": 142,
-          "endLine": 160,
-          "tokens": 194
-        },
-        {
-          "name": "faltaFerramenta",
-          "kind": "fn",
-          "startLine": 161,
-          "endLine": 170,
-          "tokens": 116
-        }
-      ]
-    },
-    "shared/src/ferramentas.test.ts": {
-      "description": "Mochila com uma picareta (ou vazia).",
-      "tokens": 2750,
-      "hash": "236e22814c966d74",
-      "size": 9703,
-      "mtimeMs": 1785951181831.3245,
-      "updatedAt": "2026-08-05T17:33:02.028Z",
-      "source": "hook",
-      "symbols": [
-        {
-          "name": "comPicareta",
-          "kind": "fn",
-          "startLine": 36,
-          "endLine": 151,
-          "tokens": 1516
-        },
-        {
-          "name": "collect",
-          "kind": "fn",
-          "startLine": 152,
-          "endLine": 155,
-          "tokens": 55
-        },
-        {
-          "name": "join",
-          "kind": "fn",
-          "startLine": 156,
-          "endLine": 157,
-          "tokens": 34
-        },
-        {
-          "name": "cmd",
-          "kind": "fn",
-          "startLine": 158,
-          "endLine": 159,
-          "tokens": 20
-        },
-        {
-          "name": "turma",
-          "kind": "fn",
-          "startLine": 160,
-          "endLine": 172,
-          "tokens": 162
-        },
-        {
-          "name": "pedra",
-          "kind": "fn",
-          "startLine": 173,
-          "endLine": 179,
-          "tokens": 62
-        },
-        {
-          "name": "chats",
-          "kind": "fn",
-          "startLine": 180,
-          "endLine": 231,
-          "tokens": 674
-        }
-      ]
     }
   }
 }
