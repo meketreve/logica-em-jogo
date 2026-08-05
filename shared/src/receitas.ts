@@ -1,4 +1,11 @@
-import { BlockId, ITEM_BALDE_VAZIO, ITEM_PAO, ITEM_TRIGO } from "./blocks";
+import {
+  BlockId,
+  ITEM_BALDE_VAZIO,
+  ITEM_CARVAO,
+  ITEM_GRAVETO,
+  ITEM_PAO,
+  ITEM_TRIGO,
+} from "./blocks";
 import {
   type Inventario,
   type Stack,
@@ -122,7 +129,7 @@ const VERDE = { id: BlockId.Mandacaru, qtd: 1 } as const;
 
 const CORES: readonly Cor[] = [
   { nome: "branco", la: BlockId.WoolWhite, vidro: BlockId.VidroBranco, tapete: BlockId.TapeteBranco, corante: [F_BRANCA] },
-  { nome: "preto", la: BlockId.WoolBlack, vidro: BlockId.VidroPreto, tapete: BlockId.TapetePreto, corante: [{ id: BlockId.MinerioCarvao, qtd: 1 }] },
+  { nome: "preto", la: BlockId.WoolBlack, vidro: BlockId.VidroPreto, tapete: BlockId.TapetePreto, corante: [{ id: ITEM_CARVAO, qtd: 1 }] },
   { nome: "vermelho", la: BlockId.WoolRed, vidro: BlockId.VidroVermelho, tapete: BlockId.TapeteVermelho, corante: [F_VERMELHA] },
   // laranja, roxo, rosa e ciano NÃO têm flor própria: saem de MISTURA
   { nome: "laranja", la: BlockId.WoolOrange, vidro: BlockId.VidroLaranja, tapete: BlockId.TapeteLaranja, corante: [F_AMARELA, F_VERMELHA] },
@@ -146,12 +153,15 @@ const MATERIAIS: readonly Receita[] = [
   { saida: { id: BlockId.Gravel, qtd: 2 }, custo: [{ id: BlockId.Cobblestone, qtd: 1 }] },
   // obsidiana não nasce no mundo (nem há lava): é pedra prensada e queimada,
   // e o preço alto é o que a mantém sendo o bloco "difícil" de uma construção
-  { saida: { id: BlockId.Obsidian, qtd: 1 }, custo: [{ id: BlockId.Stone, qtd: 4 }, { id: BlockId.MinerioCarvao, qtd: 1 }] },
+  { saida: { id: BlockId.Obsidian, qtd: 1 }, custo: [{ id: BlockId.Stone, qtd: 4 }, { id: ITEM_CARVAO, qtd: 1 }] },
   // lajes e escadas de tijolo (as de pedra e tábua já existiam na BASE)
   { saida: { id: BlockId.LajeTijoloBaixo, qtd: 6 }, custo: [{ id: BlockId.Brick, qtd: 3 }] },
   { saida: { id: BlockId.EscadaTijoloXP, qtd: 4 }, custo: [{ id: BlockId.Brick, qtd: 6 }] },
-  // a tocha é o que faz a caverna (e a noite do F9) ser jogável
-  { saida: { id: BlockId.Tocha, qtd: 4 }, custo: [{ id: BlockId.Planks, qtd: 1 }, { id: BlockId.MinerioCarvao, qtd: 1 }] },
+  // a tocha é o que faz a caverna (e a noite do F9) ser jogável. §🍖 F10: era
+  // tábua + minério — gastava uma tábua inteira e pedia o CUBO de minério na
+  // mão. Agora é o par do Minecraft (cabo + brasa), e o carvão VEGETAL serve
+  // igual (a receita gêmea está em `FUNDICAO`, no fim da lista).
+  { saida: { id: BlockId.Tocha, qtd: 4 }, custo: [{ id: ITEM_GRAVETO, qtd: 1 }, { id: ITEM_CARVAO, qtd: 1 }] },
 ];
 
 /** Lã: a BRANCA é a base (fibra de trigo, sem tintura); as outras 11 se tingem
@@ -224,9 +234,24 @@ const GLIFOS: readonly Receita[] = Array.from({ length: 36 }, (_, i) => ({
   saida: { id: i < 26 ? BlockId.LetterA + i : BlockId.Digit0 + (i - 26), qtd: 1 },
   custo: [
     { id: BlockId.Cobblestone, qtd: 1 },
-    { id: BlockId.MinerioCarvao, qtd: 1 },
+    { id: ITEM_CARVAO, qtd: 1 },
   ],
 }));
+
+/**
+ * §🍖 F10 (2026-08-05) — a FUNDIÇÃO. **Este grupo é o fim da lista, e tem de
+ * continuar sendo**: toda receita nova entra aqui embaixo, nunca no meio de um
+ * grupo anterior. Um `push` no meio do `MATERIAIS` deslocaria as 98 receitas
+ * seguintes, e o índice é o que o `fabricar {receita}` manda pelo fio.
+ *
+ * O **graveto** é o primeiro: 2 tábuas viram 4 (o número do Minecraft). Ele é
+ * a peça mais barata do jogo e destrava as duas coisas que o aluno mais quer
+ * cedo — a tocha (pra caverna e pra noite do F9) e, no F10d, o cabo de toda
+ * ferramenta.
+ */
+const FUNDICAO: readonly Receita[] = [
+  { saida: { id: ITEM_GRAVETO, qtd: 4 }, custo: [{ id: BlockId.Planks, qtd: 2 }] },
+];
 
 export const RECEITAS: readonly Receita[] = [
   ...BASE,
@@ -237,6 +262,7 @@ export const RECEITAS: readonly Receita[] = [
   ...MOVEIS,
   ...NATUREZA,
   ...GLIFOS,
+  ...FUNDICAO,
 ];
 
 /**
@@ -258,10 +284,13 @@ export const SEM_RECEITA: ReadonlyMap<number, string> = new Map([
   [BlockId.FlorAmarela, "flor do gen — matéria-prima do corante amarelo"],
   [BlockId.FlorAzul, "flor do gen — matéria-prima do corante azul"],
   [BlockId.FlorBranca, "flor do gen — matéria-prima do corante branco"],
-  [BlockId.MinerioCarvao, "minério: sai da caverna, e é a matéria-prima do corante preto e da tocha"],
-  [BlockId.MinerioFerro, "minério: sai da caverna (e vira balde)"],
-  [BlockId.MinerioOuro, "minério: sai da caverna — sem uso no lite ainda"],
-  [BlockId.MinerioDiamante, "minério: sai da caverna — sem uso no lite ainda"],
+  // §🍖 F10: os quatro minérios continuam sem receita, mas por razões que agora
+  // são DIFERENTES — carvão e diamante largam o ITEM (o bloco fica na caverna),
+  // ferro e ouro largam o próprio bloco pra ir à fornalha.
+  [BlockId.MinerioCarvao, "minério: sai da caverna e larga o ITEM carvão — o bloco não se refaz"],
+  [BlockId.MinerioFerro, "minério: sai da caverna, e é ele que a fornalha funde em lingote"],
+  [BlockId.MinerioOuro, "minério: sai da caverna, e é ele que a fornalha funde em lingote"],
+  [BlockId.MinerioDiamante, "minério: sai da caverna e larga o ITEM diamante — o bloco não se refaz"],
   [BlockId.Plantacao0, "muda: vem do capim quebrado (1 em 4) e da colheita"],
   [BlockId.Bedrock, "só do professor (`isProfessorOnly`) — nunca vai pra mochila"],
 ]);

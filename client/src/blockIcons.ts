@@ -2,7 +2,10 @@ import {
   ATLAS,
   BlockId,
   ITEM_BALDE_AGUA,
+  ITEM_CARVAO,
+  ITEM_DIAMANTE,
   ITEM_FRUTA,
+  ITEM_GRAVETO,
   ITEM_TRIGO,
   blockIconTile,
   isBalde,
@@ -121,6 +124,73 @@ function drawSemente(ctx: CanvasRenderingContext2D, px: number): void {
 }
 
 /**
+ * §🍖 F10: os itens da fundição. Mesma disciplina do balde e da comida — item
+ * não tem tile no atlas, e o ícone é desenhado. O critério continua sendo a
+ * leitura DE LONGE num slot de hotbar de aparelho de escola: uma pedra preta,
+ * uma gema azul e um pauzinho marrom não se confundem nem com o rabo do olho.
+ */
+function drawItemF10(ctx: CanvasRenderingContext2D, px: number, id: number): void {
+  ctx.clearRect(0, 0, px, px);
+  if (id === ITEM_GRAVETO) {
+    // gravetinho na diagonal, com dois nós — sem os nós vira um risco
+    ctx.strokeStyle = "#7a5426";
+    ctx.lineWidth = Math.max(1, px * 0.14);
+    ctx.lineCap = "round";
+    ctx.beginPath();
+    ctx.moveTo(px * 0.26, px * 0.82);
+    ctx.lineTo(px * 0.74, px * 0.2);
+    ctx.stroke();
+    ctx.fillStyle = "#9c6d33";
+    ctx.fillRect(px * 0.4, px * 0.5, px * 0.12, px * 0.12);
+    ctx.fillRect(px * 0.56, px * 0.3, px * 0.1, px * 0.1);
+    return;
+  }
+  if (id === ITEM_DIAMANTE) {
+    // gema em losango com faceta clara em cima (o brilho é o que a identifica)
+    ctx.fillStyle = "#3fc9d6";
+    ctx.beginPath();
+    ctx.moveTo(px * 0.5, px * 0.16);
+    ctx.lineTo(px * 0.84, px * 0.5);
+    ctx.lineTo(px * 0.5, px * 0.84);
+    ctx.lineTo(px * 0.16, px * 0.5);
+    ctx.closePath();
+    ctx.fill();
+    ctx.fillStyle = "#a8f0f6";
+    ctx.beginPath();
+    ctx.moveTo(px * 0.5, px * 0.2);
+    ctx.lineTo(px * 0.72, px * 0.46);
+    ctx.lineTo(px * 0.5, px * 0.5);
+    ctx.closePath();
+    ctx.fill();
+    return;
+  }
+  // carvão (mineral ou vegetal): pedra preta irregular. O vegetal é o MESMO
+  // desenho num marrom queimado — são a mesma brasa, e o aluno tem de ver isso.
+  const vegetal = id !== ITEM_CARVAO;
+  ctx.fillStyle = vegetal ? "#4a3524" : "#26262a";
+  ctx.beginPath();
+  ctx.moveTo(px * 0.22, px * 0.44);
+  ctx.lineTo(px * 0.42, px * 0.2);
+  ctx.lineTo(px * 0.76, px * 0.3);
+  ctx.lineTo(px * 0.82, px * 0.62);
+  ctx.lineTo(px * 0.56, px * 0.82);
+  ctx.lineTo(px * 0.26, px * 0.7);
+  ctx.closePath();
+  ctx.fill();
+  ctx.fillStyle = vegetal ? "#6d5136" : "#46464e"; // faceta: sem ela é um borrão
+  ctx.beginPath();
+  ctx.moveTo(px * 0.4, px * 0.28);
+  ctx.lineTo(px * 0.66, px * 0.36);
+  ctx.lineTo(px * 0.5, px * 0.54);
+  ctx.closePath();
+  ctx.fill();
+}
+
+/** Os itens que `drawItemF10` sabe desenhar. Set explícito (e não faixa de id)
+ *  pela mesma razão do `ITENS` do shared: a banda ≥900 não é intervalo aberto. */
+const ITENS_F10: ReadonlySet<number> = new Set([ITEM_CARVAO, ITEM_DIAMANTE, ITEM_GRAVETO]);
+
+/**
  * Ícones 2D dos blocos pra hotbar e pro inventário: recorta o tile LATERAL do
  * mesmo canvas do texture atlas (procedural — sem assets externos, regra do
  * projeto) e vira data URL. Gerado uma vez por partida; CSS amplia com
@@ -150,6 +220,11 @@ export function makeBlockIcons(
     }
     if (isComida(id) || id === ITEM_TRIGO) {
       drawComida(ctx, px, id); // §🍖 F6: idem — o trigo entra porque é da família
+      out.set(id, c.toDataURL());
+      continue;
+    }
+    if (ITENS_F10.has(id)) {
+      drawItemF10(ctx, px, id);
       out.set(id, c.toDataURL());
       continue;
     }

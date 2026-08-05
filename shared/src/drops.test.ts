@@ -1,6 +1,8 @@
 import { describe, expect, it } from "vitest";
 import {
   BlockId,
+  ITEM_CARVAO,
+  ITEM_DIAMANTE,
   ITEM_FRUTA,
   ITEM_TRIGO,
   isItem,
@@ -62,7 +64,19 @@ describe("drops — a tabela", () => {
   it("por PADRÃO o bloco cai ele mesmo (construir e desfazer é reversível)", () => {
     expect(dropsDe(BlockId.Cobblestone)).toEqual([{ id: BlockId.Cobblestone, qtd: 1 }]);
     expect(dropsDe(BlockId.WoolBlue)).toEqual([{ id: BlockId.WoolBlue, qtd: 1 }]);
-    expect(dropsDe(BlockId.MinerioCarvao)).toEqual([{ id: BlockId.MinerioCarvao, qtd: 1 }]);
+    expect(dropsDe(BlockId.Sandstone)).toEqual([{ id: BlockId.Sandstone, qtd: 1 }]);
+  });
+
+  it("§🍖 F10: carvão e diamante largam o ITEM — o bloco de minério não volta", () => {
+    expect(dropsDe(BlockId.MinerioCarvao)).toEqual([{ id: ITEM_CARVAO, qtd: 1 }]);
+    expect(dropsDe(BlockId.MinerioDiamante)).toEqual([{ id: ITEM_DIAMANTE, qtd: 1 }]);
+  });
+
+  it("§🍖 F10: ferro e ouro continuam caindo como BLOCO (é ele que a fornalha funde)", () => {
+    // a diferença entre os quatro minérios É a lição: dois entregam o material
+    // direto, dois entregam a rocha que precisa passar pelo fogo.
+    expect(dropsDe(BlockId.MinerioFerro)).toEqual([{ id: BlockId.MinerioFerro, qtd: 1 }]);
+    expect(dropsDe(BlockId.MinerioOuro)).toEqual([{ id: BlockId.MinerioOuro, qtd: 1 }]);
   });
 
   it("as três gramas climáticas caem como TERRA", () => {

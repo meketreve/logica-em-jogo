@@ -1,12 +1,12 @@
 {
   "version": 1,
   "meta": {
-    "lastScanned": "2026-08-05T16:14:09.271Z",
+    "lastScanned": "2026-08-05T16:33:22.378Z",
     "fileCount": 289,
     "hits": 0,
     "misses": 0,
-    "renderedHash": "0c14f8b6a7d370070948707c9e25939d7c4d210b52c35739cd90fb84ca8e38c1",
-    "storeUpdatedAt": "2026-08-05T16:14:09.295Z"
+    "renderedHash": "249a37459bb5ad0cd935f03fa96277d6c250db162ee56f578b7b7a90e9eca037",
+    "storeUpdatedAt": "2026-08-05T16:33:22.397Z"
   },
   "files": {
     ".claude/commands/reframe.md": {
@@ -1774,40 +1774,47 @@
     },
     "client/src/blockIcons.ts": {
       "description": "Ícone procedural do balde (item, não tem tile no atlas): balde cinza em",
-      "tokens": 1553,
-      "hash": "9adef7b749b76e1e",
-      "size": 5489,
-      "mtimeMs": 1785806628146.392,
-      "updatedAt": "2026-08-05T15:36:57.293Z",
-      "source": "scan",
+      "tokens": 2313,
+      "hash": "fc82f56473dab99c",
+      "size": 8179,
+      "mtimeMs": 1785947514695.3228,
+      "updatedAt": "2026-08-05T16:31:54.808Z",
+      "source": "hook",
       "symbols": [
         {
           "name": "drawBalde",
           "kind": "fn",
-          "startLine": 14,
-          "endLine": 56,
+          "startLine": 17,
+          "endLine": 59,
           "tokens": 389
         },
         {
           "name": "drawComida",
           "kind": "fn",
-          "startLine": 57,
-          "endLine": 107,
+          "startLine": 60,
+          "endLine": 110,
           "tokens": 528
         },
         {
           "name": "drawSemente",
           "kind": "fn",
-          "startLine": 108,
-          "endLine": 128,
-          "tokens": 242
+          "startLine": 111,
+          "endLine": 131,
+          "tokens": 258
+        },
+        {
+          "name": "drawItemF10",
+          "kind": "fn",
+          "startLine": 132,
+          "endLine": 198,
+          "tokens": 697
         },
         {
           "name": "makeBlockIcons",
           "kind": "fn",
-          "startLine": 129,
-          "endLine": 165,
-          "tokens": 309
+          "startLine": 199,
+          "endLine": 240,
+          "tokens": 342
         }
       ]
     },
@@ -2241,187 +2248,187 @@
     },
     "client/src/main.ts": {
       "description": "O cliente não tem filesystem: aprende os nomes das aulas pela resposta de",
-      "tokens": 32574,
-      "hash": "b4f43e89c569b039",
-      "size": 115565,
-      "mtimeMs": 1785942341215.3235,
-      "updatedAt": "2026-08-05T15:36:57.305Z",
-      "source": "scan",
+      "tokens": 32684,
+      "hash": "6abfa4a1da02d75a",
+      "size": 115957,
+      "mtimeMs": 1785947529099.3225,
+      "updatedAt": "2026-08-05T16:32:09.228Z",
+      "source": "hook",
       "symbols": [
         {
           "name": "cachearMundos",
           "kind": "fn",
-          "startLine": 114,
-          "endLine": 209,
+          "startLine": 117,
+          "endLine": 212,
           "tokens": 1256
         },
         {
           "name": "applySettings",
           "kind": "fn",
-          "startLine": 210,
-          "endLine": 274,
+          "startLine": 213,
+          "endLine": 277,
           "tokens": 960
         },
         {
           "name": "showOverlayMain",
           "kind": "fn",
-          "startLine": 275,
-          "endLine": 279,
+          "startLine": 278,
+          "endLine": 282,
           "tokens": 35
         },
         {
           "name": "updateOverlay",
           "kind": "fn",
-          "startLine": 280,
-          "endLine": 302,
+          "startLine": 283,
+          "endLine": 305,
           "tokens": 330
         },
         {
           "name": "startPlay",
           "kind": "fn",
-          "startLine": 303,
-          "endLine": 313,
+          "startLine": 306,
+          "endLine": 316,
           "tokens": 83
         },
         {
           "name": "onSettingsChanged",
           "kind": "fn",
-          "startLine": 314,
-          "endLine": 335,
+          "startLine": 317,
+          "endLine": 338,
           "tokens": 294
         },
         {
           "name": "enviarRaio",
           "kind": "fn",
-          "startLine": 336,
-          "endLine": 379,
+          "startLine": 339,
+          "endLine": 382,
           "tokens": 589
         },
         {
           "name": "playerName",
           "kind": "fn",
-          "startLine": 380,
-          "endLine": 390,
+          "startLine": 383,
+          "endLine": 393,
           "tokens": 187
         },
         {
           "name": "abrirAmigosPorComando",
           "kind": "fn",
-          "startLine": 391,
-          "endLine": 431,
+          "startLine": 394,
+          "endLine": 434,
           "tokens": 425
         },
         {
           "name": "registrarChegadaDeRede",
           "kind": "fn",
-          "startLine": 432,
-          "endLine": 439,
+          "startLine": 435,
+          "endLine": 442,
           "tokens": 60
         },
         {
           "name": "jitterDeRede",
           "kind": "fn",
-          "startLine": 440,
-          "endLine": 483,
+          "startLine": 443,
+          "endLine": 486,
           "tokens": 592
         },
         {
           "name": "podeVoar",
           "kind": "fn",
-          "startLine": 484,
-          "endLine": 494,
+          "startLine": 487,
+          "endLine": 497,
           "tokens": 178
         },
         {
           "name": "vitals",
           "kind": "fn",
-          "startLine": 495,
-          "endLine": 571,
+          "startLine": 498,
+          "endLine": 574,
           "tokens": 1106
         },
         {
           "name": "pushPanelData",
           "kind": "fn",
-          "startLine": 572,
-          "endLine": 584,
+          "startLine": 575,
+          "endLine": 587,
           "tokens": 139
         },
         {
           "name": "pushFriendsData",
           "kind": "fn",
-          "startLine": 585,
-          "endLine": 595,
+          "startLine": 588,
+          "endLine": 598,
           "tokens": 95
         },
         {
           "name": "ownDone",
           "kind": "fn",
-          "startLine": 596,
-          "endLine": 604,
+          "startLine": 599,
+          "endLine": 607,
           "tokens": 90
         },
         {
           "name": "refreshObjectivesView",
           "kind": "fn",
-          "startLine": 605,
-          "endLine": 636,
+          "startLine": 608,
+          "endLine": 639,
           "tokens": 358
         },
         {
           "name": "drenarFilaTroca",
           "kind": "fn",
-          "startLine": 637,
-          "endLine": 644,
+          "startLine": 640,
+          "endLine": 647,
           "tokens": 79
         },
         {
           "name": "segurarAteATelaPintar",
           "kind": "fn",
-          "startLine": 645,
-          "endLine": 654,
+          "startLine": 648,
+          "endLine": 657,
           "tokens": 109
         },
         {
           "name": "handleServerData",
           "kind": "fn",
-          "startLine": 655,
-          "endLine": 866,
+          "startLine": 658,
+          "endLine": 869,
           "tokens": 2729
         },
         {
           "name": "connect",
           "kind": "fn",
-          "startLine": 867,
-          "endLine": 902,
+          "startLine": 870,
+          "endLine": 905,
           "tokens": 400
         },
         {
           "name": "startMultiplayer",
           "kind": "fn",
-          "startLine": 903,
-          "endLine": 920,
+          "startLine": 906,
+          "endLine": 923,
           "tokens": 224
         },
         {
           "name": "startSingleplayer",
           "kind": "fn",
-          "startLine": 921,
-          "endLine": 944,
+          "startLine": 924,
+          "endLine": 947,
           "tokens": 284
         },
         {
           "name": "persistWorld",
           "kind": "fn",
-          "startLine": 945,
-          "endLine": 992,
+          "startLine": 948,
+          "endLine": 995,
           "tokens": 520
         },
         {
           "name": "startGame",
           "kind": "fn",
-          "startLine": 993,
-          "endLine": 2577,
-          "tokens": 20578
+          "startLine": 996,
+          "endLine": 2589,
+          "tokens": 20674
         }
       ]
     },
@@ -5789,12 +5796,12 @@
     },
     "shared/src/blocks.ts": {
       "description": "IDs de bloco. Gravados como bytes crus nos chunks (Uint8Array), no save e no",
-      "tokens": 8235,
-      "hash": "04ebf4f677d52afc",
-      "size": 29369,
-      "mtimeMs": 1785805840718.392,
-      "updatedAt": "2026-08-05T15:36:57.387Z",
-      "source": "scan",
+      "tokens": 8536,
+      "hash": "fb6fc4527f21ed8c",
+      "size": 30463,
+      "mtimeMs": 1785947413643.324,
+      "updatedAt": "2026-08-05T16:30:13.746Z",
+      "source": "hook",
       "symbols": [
         {
           "name": "isAgua",
@@ -5821,189 +5828,189 @@
           "name": "aguaComNivel",
           "kind": "fn",
           "startLine": 233,
-          "endLine": 262,
-          "tokens": 388
+          "endLine": 283,
+          "tokens": 676
         },
         {
           "name": "isBalde",
           "kind": "fn",
-          "startLine": 263,
-          "endLine": 278,
-          "tokens": 144
+          "startLine": 284,
+          "endLine": 302,
+          "tokens": 158
         },
         {
           "name": "isItem",
           "kind": "fn",
-          "startLine": 279,
-          "endLine": 283,
+          "startLine": 303,
+          "endLine": 307,
           "tokens": 39
         },
         {
           "name": "isPlantacao",
           "kind": "fn",
-          "startLine": 284,
-          "endLine": 288,
+          "startLine": 308,
+          "endLine": 312,
           "tokens": 51
         },
         {
           "name": "estagioPlantacao",
           "kind": "fn",
-          "startLine": 289,
-          "endLine": 293,
+          "startLine": 313,
+          "endLine": 317,
           "tokens": 46
         },
         {
           "name": "isPlantacaoMadura",
           "kind": "fn",
-          "startLine": 294,
-          "endLine": 301,
+          "startLine": 318,
+          "endLine": 325,
           "tokens": 113
         },
         {
           "name": "isSolo",
           "kind": "fn",
-          "startLine": 302,
-          "endLine": 316,
+          "startLine": 326,
+          "endLine": 340,
           "tokens": 168
         },
         {
           "name": "isReplaceable",
           "kind": "fn",
-          "startLine": 317,
-          "endLine": 321,
+          "startLine": 341,
+          "endLine": 345,
           "tokens": 39
         },
         {
           "name": "isFlor",
           "kind": "fn",
-          "startLine": 322,
-          "endLine": 326,
+          "startLine": 346,
+          "endLine": 350,
           "tokens": 55
         },
         {
           "name": "isGramaAlta",
           "kind": "fn",
-          "startLine": 327,
-          "endLine": 331,
+          "startLine": 351,
+          "endLine": 355,
           "tokens": 54
         },
         {
           "name": "isFolhas",
           "kind": "fn",
-          "startLine": 332,
-          "endLine": 341,
+          "startLine": 356,
+          "endLine": 365,
           "tokens": 80
         },
         {
           "name": "isVidroColorido",
           "kind": "fn",
-          "startLine": 342,
-          "endLine": 346,
+          "startLine": 366,
+          "endLine": 370,
           "tokens": 50
         },
         {
           "name": "isSlab",
           "kind": "fn",
-          "startLine": 347,
-          "endLine": 351,
+          "startLine": 371,
+          "endLine": 375,
           "tokens": 57
         },
         {
           "name": "slabTop",
           "kind": "fn",
-          "startLine": 352,
-          "endLine": 356,
+          "startLine": 376,
+          "endLine": 380,
           "tokens": 47
         },
         {
           "name": "slabMaterial",
           "kind": "fn",
-          "startLine": 357,
-          "endLine": 361,
+          "startLine": 381,
+          "endLine": 385,
           "tokens": 46
         },
         {
           "name": "isStairs",
           "kind": "fn",
-          "startLine": 362,
-          "endLine": 366,
+          "startLine": 386,
+          "endLine": 390,
           "tokens": 58
         },
         {
           "name": "stairsFacing",
           "kind": "fn",
-          "startLine": 367,
-          "endLine": 371,
+          "startLine": 391,
+          "endLine": 395,
           "tokens": 47
         },
         {
           "name": "stairsTop",
           "kind": "fn",
-          "startLine": 372,
-          "endLine": 376,
+          "startLine": 396,
+          "endLine": 400,
           "tokens": 47
         },
         {
           "name": "stairsMaterial",
           "kind": "fn",
-          "startLine": 377,
-          "endLine": 382,
+          "startLine": 401,
+          "endLine": 406,
           "tokens": 72
         },
         {
           "name": "escadaId",
           "kind": "fn",
-          "startLine": 383,
-          "endLine": 391,
+          "startLine": 407,
+          "endLine": 415,
           "tokens": 131
         },
         {
           "name": "stepFootprint",
           "kind": "fn",
-          "startLine": 392,
-          "endLine": 404,
+          "startLine": 416,
+          "endLine": 428,
           "tokens": 167
         },
         {
           "name": "collisionBoxes",
           "kind": "fn",
-          "startLine": 405,
-          "endLine": 418,
+          "startLine": 429,
+          "endLine": 442,
           "tokens": 148
         },
         {
           "name": "isQuadro",
           "kind": "fn",
-          "startLine": 419,
-          "endLine": 423,
+          "startLine": 443,
+          "endLine": 447,
           "tokens": 42
         },
         {
           "name": "isCadeira",
           "kind": "fn",
-          "startLine": 424,
-          "endLine": 427,
+          "startLine": 448,
+          "endLine": 451,
           "tokens": 42
         },
         {
           "name": "isSofa",
           "kind": "fn",
-          "startLine": 428,
-          "endLine": 431,
+          "startLine": 452,
+          "endLine": 455,
           "tokens": 39
         },
         {
           "name": "isCama",
           "kind": "fn",
-          "startLine": 432,
-          "endLine": 437,
+          "startLine": 456,
+          "endLine": 461,
           "tokens": 78
         },
         {
           "name": "camaHeadDir",
           "kind": "fn",
-          "startLine": 438,
-          "endLine": 659,
+          "startLine": 462,
+          "endLine": 683,
           "tokens": 2648
         }
       ]
@@ -6318,34 +6325,34 @@
     },
     "shared/src/drops.test.ts": {
       "description": "Declares id",
-      "tokens": 1721,
-      "hash": "303751cf67685048",
-      "size": 6097,
-      "mtimeMs": 1785805890498.3918,
-      "updatedAt": "2026-08-05T15:36:57.390Z",
-      "source": "scan"
+      "tokens": 1926,
+      "hash": "8b3509dc21be55bb",
+      "size": 6832,
+      "mtimeMs": 1785947586759.3223,
+      "updatedAt": "2026-08-05T16:33:06.870Z",
+      "source": "hook"
     },
     "shared/src/drops.ts": {
       "description": "§🍖 F4 — o que CAI ao quebrar um bloco. Tabela pura: entra o byte que estava",
-      "tokens": 1457,
-      "hash": "1f29421c115adf53",
-      "size": 5247,
-      "mtimeMs": 1785805350778.3901,
-      "updatedAt": "2026-08-05T15:36:57.390Z",
-      "source": "scan",
+      "tokens": 1619,
+      "hash": "f40bb9964de320cb",
+      "size": 5841,
+      "mtimeMs": 1785947429231.324,
+      "updatedAt": "2026-08-05T16:30:29.342Z",
+      "source": "hook",
       "symbols": [
         {
           "name": "formaCanonica",
           "kind": "fn",
-          "startLine": 45,
-          "endLine": 101,
-          "tokens": 719
+          "startLine": 47,
+          "endLine": 111,
+          "tokens": 872
         },
         {
           "name": "dropsDe",
           "kind": "fn",
-          "startLine": 102,
-          "endLine": 132,
+          "startLine": 112,
+          "endLine": 142,
           "tokens": 335
         }
       ]
@@ -7567,85 +7574,85 @@
     },
     "shared/src/receitas.test.ts": {
       "description": "Inventário com pilhas em slots escolhidos (o resto vazio).",
-      "tokens": 3087,
-      "hash": "dc94a243feb84962",
-      "size": 10944,
-      "mtimeMs": 1785942975939.3223,
-      "updatedAt": "2026-08-05T15:36:57.402Z",
-      "source": "scan",
+      "tokens": 3307,
+      "hash": "846fb69c731a57fc",
+      "size": 11733,
+      "mtimeMs": 1785947602271.3223,
+      "updatedAt": "2026-08-05T16:33:22.378Z",
+      "source": "hook",
       "symbols": [
         {
           "name": "inv",
           "kind": "fn",
-          "startLine": 30,
-          "endLine": 36,
+          "startLine": 32,
+          "endLine": 38,
           "tokens": 77
         },
         {
           "name": "receitaDe",
           "kind": "fn",
-          "startLine": 37,
-          "endLine": 262,
-          "tokens": 2858
+          "startLine": 39,
+          "endLine": 280,
+          "tokens": 3069
         }
       ]
     },
     "shared/src/receitas.ts": {
       "description": "§🍖 F5 — CRAFT POR LISTA (receitas puras).",
-      "tokens": 4952,
-      "hash": "953880dcfc91aec6",
-      "size": 17669,
-      "mtimeMs": 1785942997599.3225,
-      "updatedAt": "2026-08-05T15:36:57.403Z",
-      "source": "scan",
+      "tokens": 5303,
+      "hash": "7f26799588bfe7e5",
+      "size": 18942,
+      "mtimeMs": 1785947474683.323,
+      "updatedAt": "2026-08-05T16:31:14.781Z",
+      "source": "hook",
       "symbols": [
         {
           "name": "Receita",
           "kind": "section",
-          "startLine": 31,
-          "endLine": 106,
+          "startLine": 38,
+          "endLine": 113,
           "tokens": 1226
         },
         {
           "name": "Cor",
           "kind": "section",
-          "startLine": 107,
-          "endLine": 269,
-          "tokens": 2855
+          "startLine": 114,
+          "endLine": 298,
+          "tokens": 3195
         },
         {
           "name": "receitaValida",
           "kind": "fn",
-          "startLine": 270,
-          "endLine": 274,
+          "startLine": 299,
+          "endLine": 303,
           "tokens": 62
         },
         {
           "name": "temIngredientes",
           "kind": "fn",
-          "startLine": 275,
-          "endLine": 284,
+          "startLine": 304,
+          "endLine": 313,
           "tokens": 131
         },
         {
           "name": "podeFabricar",
           "kind": "fn",
-          "startLine": 285,
-          "endLine": 294,
+          "startLine": 314,
+          "endLine": 323,
           "tokens": 115
         },
         {
           "name": "fabricar",
           "kind": "fn",
-          "startLine": 295,
-          "endLine": 307,
+          "startLine": 324,
+          "endLine": 336,
           "tokens": 160
         },
         {
           "name": "ingredientesDe",
           "kind": "fn",
-          "startLine": 308,
-          "endLine": 317,
+          "startLine": 337,
+          "endLine": 346,
           "tokens": 87
         }
       ]

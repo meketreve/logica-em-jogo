@@ -1222,3 +1222,30 @@ passa pelo próprio portão) · 5 prints da pista. **PLAYTEST PENDENTE.**
 | 13:09 | Session end: 55 writes across 18 files (sobrevivencia.ts, raycast.ts, protocol.ts, regras.ts, session.ts) | 21 reads | ~176478 tok |
 | 13:14 | Edited todo.md | modified rio() | ~191 |
 | 13:14 | §🍖 F10 ORGANIZADO pro /clear: usuário respondeu as 2 perguntas (ferramenta SEM durabilidade + OBRIGATÓRIA pra minerar) e somou 2 pedidos — claim protegendo QUALQUER interação de não autorizado (conferido: porta/janela/quadro/balde JÁ passam por `claimBloqueia`; o que falta é os containers novos nascerem dentro da regra + teste-portão) e BAÚ com receita e painel de transferência (mochila | baú, gesto tocar-origem-tocar-destino do F4). Viraram F10d (decidido), F10e e F10f; ordem por dependência: F10a → F10b (fornalha cria o encanamento) → F10e (baú reusa) → F10f → F10c → F10d. 4 decisões no Decision Log do cerebrum | .wolf/TODO.md, .wolf/STATUS.md, .wolf/cerebrum.md, todo.md | anotado, nada começado — pronto pro /clear | ~10k |
+| 13:14 | Session end: 56 writes across 18 files (sobrevivencia.ts, raycast.ts, protocol.ts, regras.ts, session.ts) | 21 reads | ~176754 tok |
+
+## Session: 2026-08-05 13:23
+
+| Time | Action | File(s) | Outcome | ~Tokens |
+|------|--------|---------|---------|--------|
+| 13:30 | Edited shared/src/blocks.ts | modified isBalde() | ~356 |
+| 13:30 | Edited shared/src/blocks.ts | 7→10 lines | ~50 |
+| 13:30 | Edited shared/src/drops.ts | 4→6 lines | ~23 |
+| 13:30 | Edited shared/src/drops.ts | expanded (+8 lines) | ~284 |
+| 13:30 | Edited shared/src/receitas.ts | expanded (+7 lines) | ~33 |
+| 13:30 | Edited shared/src/receitas.ts | inline fix | ~40 |
+| 13:30 | Edited shared/src/receitas.ts | inline fix | ~33 |
+| 13:30 | Edited shared/src/receitas.ts | 2→5 lines | ~118 |
+| 13:31 | Edited shared/src/receitas.ts | expanded (+16 lines) | ~320 |
+| 13:31 | Edited shared/src/receitas.ts | caverna() → ITEM() | ~175 |
+| 13:31 | Edited client/src/blockIcons.ts | 10→13 lines | ~54 |
+| 13:31 | Edited client/src/blockIcons.ts | added 2 condition(s) | ~663 |
+| 13:31 | Edited client/src/blockIcons.ts | added 1 condition(s) | ~86 |
+| 13:31 | Edited client/src/blockIcons.ts | 2→6 lines | ~97 |
+| 13:32 | Edited client/src/main.ts | added 3 condition(s) | ~222 |
+| 13:32 | Edited client/src/main.ts | 4→7 lines | ~31 |
+| 13:32 | Edited shared/src/drops.test.ts | expanded (+12 lines) | ~274 |
+| 13:33 | Edited shared/src/drops.test.ts | 8→10 lines | ~41 |
+| 13:33 | Edited shared/src/receitas.test.ts | modified for() | ~229 |
+| 13:33 | Edited shared/src/receitas.test.ts | 8→10 lines | ~42 |
+| 13:34 | §🍖 F10a: itens carvão/diamante/graveto, minério larga item, tocha = graveto + carvão, receita do graveto | blocks.ts, drops.ts, receitas.ts, blockIcons.ts, main.ts + 2 testes | verde: typecheck 3/3, 609 testes, build | ~28k |

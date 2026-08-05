@@ -2,6 +2,8 @@ import { describe, expect, it } from "vitest";
 import {
   BlockId,
   ITEM_BALDE_VAZIO,
+  ITEM_CARVAO,
+  ITEM_GRAVETO,
   ITEM_TRIGO,
   isItem,
   isPlaceable,
@@ -135,6 +137,22 @@ describe("receitas — tabela", () => {
     const saidas = new Set(RECEITAS.map((r) => r.saida.id));
     for (let i = 0; i < 26; i++) expect(saidas.has(BlockId.LetterA + i)).toBe(true);
     for (let i = 0; i < 10; i++) expect(saidas.has(BlockId.Digit0 + i)).toBe(true);
+  });
+
+  it("§🍖 F10: nenhuma receita cobra CUBO de minério de carvão — quem paga é o item", () => {
+    // o minério de carvão deixou de cair como bloco (drops.ts), então uma
+    // receita que ainda o pedisse ficaria inalcançável em silêncio.
+    for (const r of RECEITAS) {
+      for (const c of r.custo) expect(c.id).not.toBe(BlockId.MinerioCarvao);
+    }
+  });
+
+  it("§🍖 F10: a tocha é graveto + carvão, e o graveto sai de 2 tábuas", () => {
+    const tocha = receitaDe(BlockId.Tocha);
+    expect(tocha.custo.map((c) => c.id).sort()).toEqual([ITEM_CARVAO, ITEM_GRAVETO].sort());
+    const graveto = receitaDe(ITEM_GRAVETO);
+    expect(graveto.custo).toEqual([{ id: BlockId.Planks, qtd: 2 }]);
+    expect(graveto.saida.qtd).toBe(4);
   });
 
   it("receitaValida barra o índice que veio pelo fio", () => {

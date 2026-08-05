@@ -259,6 +259,27 @@ export const ITEM_FRUTA = 902;
 export const ITEM_TRIGO = 903;
 export const ITEM_PAO = 904;
 
+/**
+ * §🍖 F10 (2026-08-05): os itens da FUNDIÇÃO. Três deles nascem aqui, no lote
+ * que precede a fornalha:
+ *
+ * `carvao` e `diamante` são o que o MINÉRIO passa a largar. Até agora o minério
+ * caía ele mesmo — um cubo de pedra com pepitas que não servia pra nada. No
+ * Minecraft esses dois não vão ao forno: o minério já entrega o item, e é o
+ * item que vira tocha, corante e (um dia) ferramenta. O ferro e o ouro
+ * continuam caindo como BLOCO de propósito: é o bloco que a fornalha funde, e
+ * é essa diferença que ensina PRA QUE serve a fornalha.
+ *
+ * `graveto` é o elo que faltava pra tocha e pra ferramenta. Ele não existia, e
+ * a tocha da sessão 45 saía de tábua + minério — o que estava errado nos dois
+ * lados: gastava uma tábua inteira e pedia um cubo de minério na mão. Agora é
+ * o par honesto **1 graveto + 1 carvão**, e o mesmo graveto é o cabo de toda
+ * ferramenta do §🍖 F10d.
+ */
+export const ITEM_CARVAO = 905;
+export const ITEM_DIAMANTE = 906;
+export const ITEM_GRAVETO = 907;
+
 /** É o item balde (cheio ou vazio)? */
 export function isBalde(id: number): boolean {
   return id === ITEM_BALDE_VAZIO || id === ITEM_BALDE_AGUA;
@@ -273,6 +294,9 @@ const ITENS: ReadonlySet<number> = new Set([
   ITEM_FRUTA,
   ITEM_TRIGO,
   ITEM_PAO,
+  ITEM_CARVAO,
+  ITEM_DIAMANTE,
+  ITEM_GRAVETO,
 ]);
 
 /** É um item conhecido (não-bloco)? */

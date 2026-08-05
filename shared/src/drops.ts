@@ -1,5 +1,7 @@
 import {
   BlockId,
+  ITEM_CARVAO,
+  ITEM_DIAMANTE,
   ITEM_FRUTA,
   ITEM_TRIGO,
   escadaId,
@@ -66,6 +68,12 @@ export function formaCanonica(id: number): number {
  * - **água → nada**: só o balde recolhe fonte (a mecânica é do `case "balde"`).
  * - **rocha-matriz → nada**: `isBreakable` já barra o jogador; a tabela é o
  *   cinto além do suspensório, porque `/bloco` do professor remove.
+ * - **§🍖 F10 — minério de carvão → ITEM carvão, minério de diamante → ITEM
+ *   diamante**: os dois minérios que no Minecraft NÃO passam pelo forno. O
+ *   minério é a rocha onde o material está preso; quebrá-la devolve o
+ *   material, não a rocha. **Ferro e ouro ficam de fora de propósito** —
+ *   continuam caindo como bloco de minério, porque é ele que a fornalha funde,
+ *   e é essa diferença entre os quatro que ensina pra que serve fundir.
  */
 const EXCECOES = new Map<number, number | null>([
   [BlockId.Grass, BlockId.Dirt],
@@ -73,6 +81,8 @@ const EXCECOES = new Map<number, number | null>([
   [BlockId.GramaFria, BlockId.Dirt],
   [BlockId.Stone, BlockId.Cobblestone],
   [BlockId.Bedrock, null],
+  [BlockId.MinerioCarvao, ITEM_CARVAO],
+  [BlockId.MinerioDiamante, ITEM_DIAMANTE],
 ]);
 
 /**

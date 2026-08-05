@@ -15,7 +15,10 @@ import {
   type Snapshot,
   ITEM_BALDE_AGUA,
   ITEM_BALDE_VAZIO,
+  ITEM_CARVAO,
+  ITEM_DIAMANTE,
   ITEM_FRUTA,
+  ITEM_GRAVETO,
   ITEM_PAO,
   ITEM_TRIGO,
   acenderColuna,
@@ -1676,7 +1679,13 @@ function startGame(snap: Snapshot): void {
     // balde VAZIO não está em PLACEABLE (só o cheio); precisa do ícone dele
     // §🍖 F6: a comida também é item (não está em PLACEABLE) e precisa de ícone
     // — o painel de craft mostra "falta 3 trigo" com ele.
-    [...PLACEABLE.map((b) => b.id), ITEM_BALDE_VAZIO, ITEM_FRUTA, ITEM_TRIGO, ITEM_PAO],
+    // §🍖 F10: os itens da fundição entram pela mesma porta — a lista de craft
+    // mostra "1/1 carvão" com o ícone deles.
+    [
+      ...PLACEABLE.map((b) => b.id),
+      ITEM_BALDE_VAZIO, ITEM_FRUTA, ITEM_TRIGO, ITEM_PAO,
+      ITEM_CARVAO, ITEM_DIAMANTE, ITEM_GRAVETO,
+    ],
   );
   const blockName = (id: number): string => {
     if (id === ITEM_BALDE_VAZIO) return "balde vazio";
@@ -1684,6 +1693,9 @@ function startGame(snap: Snapshot): void {
     if (id === ITEM_FRUTA) return "fruta";
     if (id === ITEM_TRIGO) return "trigo";
     if (id === ITEM_PAO) return "pão";
+    if (id === ITEM_CARVAO) return "carvão";
+    if (id === ITEM_DIAMANTE) return "diamante";
+    if (id === ITEM_GRAVETO) return "graveto";
     return PLACEABLE.find((b) => b.id === id)?.name ?? "?";
   };
   const refreshHotbar = (): void => {
