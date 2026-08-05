@@ -217,6 +217,27 @@ export const BlockId = {
    *  contrário da fornalha, não há estado nenhum pra guardar no byte (aberto é
    *  coisa de painel, não de mundo). */
   Bau: 188,
+  /**
+   * Algodão (§🍖 F10c, 2026-08-05, pedido do usuário): a **ponte honesta** que
+   * aposenta a lã-de-trigo. O lite não tem ovelha, e por isso a sessão 45
+   * inventou "lã ← trigo" — o que criou uma competição errada (o mesmo trigo
+   * fazia pão e cobertor) e deixou a comida disputando com a construção.
+   * Agora a lã tem planta própria, com a MESMA cadeia que o trigo já ensina
+   * (achar → plantar → esperar → colher), e o trigo volta a ser só comida.
+   *
+   * Quatro estágios em ids consecutivos, molde exato da plantação do F6: só o
+   * 0 é colocável (é ele que vai à mochila, como semente), os outros nascem
+   * crescendo no tick.
+   */
+  Algodao0: 189,
+  Algodao1: 190,
+  Algodao2: 191,
+  Algodao3: 192,
+  /** Algodão SELVAGEM: o pé que o gen espalha pelo cerrado, e a única forma de
+   *  o aluno ACHAR a cadeia sem o professor entregar. Bloco SEPARADO do
+   *  cultivado de propósito — ele larga SEMENTE por sorte (o molde do capim),
+   *  não a colheita cheia; quem quer algodão de verdade tem de plantar. */
+  AlgodaoSelvagem: 193,
 } as const;
 
 export type BlockId = (typeof BlockId)[keyof typeof BlockId];
@@ -229,7 +250,7 @@ export type BlockId = (typeof BlockId)[keyof typeof BlockId];
  * dois arquivos, e esquecer significava um portão que deixava de olhar
  * justamente o bloco recém-criado — o oposto do que ele existe pra fazer.
  */
-export const MAX_BLOCK_ID = BlockId.Bau;
+export const MAX_BLOCK_ID = BlockId.AlgodaoSelvagem;
 
 /** Água? Fonte (129) OU fluida (130-136) — atravessável e translúcida. */
 export function isAgua(id: number): boolean {
@@ -317,6 +338,10 @@ export const ITEM_CARVAO_VEGETAL = 908;
 export const ITEM_LINGOTE_FERRO = 909;
 export const ITEM_LINGOTE_OURO = 910;
 
+/** §🍖 F10c: o capulho colhido do algodão maduro. É a fibra — 3 dele viram uma
+ *  lã branca, e é ele que devolve o trigo ao papel de comida. */
+export const ITEM_ALGODAO = 911;
+
 /** É brasa (mineral ou vegetal)? As duas acendem tocha e alimentam fornalha —
  *  a pergunta é UMA, senão a receita e o combustível divergiriam. */
 export function isCarvao(id: number): boolean {
@@ -348,6 +373,7 @@ const ITENS: ReadonlySet<number> = new Set([
   ITEM_CARVAO_VEGETAL,
   ITEM_LINGOTE_FERRO,
   ITEM_LINGOTE_OURO,
+  ITEM_ALGODAO,
 ]);
 
 /** É um item conhecido (não-bloco)? */
@@ -355,19 +381,51 @@ export function isItem(id: number): boolean {
   return ITENS.has(id);
 }
 
-/** Plantação em qualquer estágio (0 = muda … 3 = madura)? */
-export function isPlantacao(id: number): boolean {
-  return id >= BlockId.Plantacao0 && id <= BlockId.Plantacao3;
+/**
+ * §🍖 F10c: uma planta CULTIVÁVEL — o id do estágio 0 e quantos estágios ela
+ * tem. A tabela existe porque a plantação deixou de ser "o trigo": o algodão
+ * segue o mesmo ciclo, e uma segunda faixa de ids escrita à mão em cada
+ * função (`isPlantacao`, `estagio`, `madura`, `formaCanonica`, `isPlaceable`)
+ * seria cinco chances de esquecer uma. Planta nova = uma linha aqui.
+ */
+export interface Planta {
+  readonly base: number;
+  readonly estagios: number;
 }
 
-/** Estágio 0..3 da plantação (−1 se não for plantação). */
+export const PLANTAS: readonly Planta[] = [
+  { base: BlockId.Plantacao0, estagios: 4 },
+  { base: BlockId.Algodao0, estagios: 4 },
+];
+
+/** A planta a que este byte pertence (`null` se ele não é plantação). */
+export function plantaDe(id: number): Planta | null {
+  for (const p of PLANTAS) {
+    if (id >= p.base && id < p.base + p.estagios) return p;
+  }
+  return null;
+}
+
+/** Plantação em qualquer estágio (0 = muda … n−1 = madura)? */
+export function isPlantacao(id: number): boolean {
+  return plantaDe(id) !== null;
+}
+
+/** Estágio da plantação, contado do 0 (−1 se não for plantação). */
 export function estagioPlantacao(id: number): number {
-  return isPlantacao(id) ? id - BlockId.Plantacao0 : -1;
+  const p = plantaDe(id);
+  return p ? id - p.base : -1;
 }
 
 /** Plantação MADURA (pronta pra colher)? */
 export function isPlantacaoMadura(id: number): boolean {
-  return id === BlockId.Plantacao3;
+  const p = plantaDe(id);
+  return p !== null && id === p.base + p.estagios - 1;
+}
+
+/** É a MUDA (o único estágio que vai à mochila e se coloca)? */
+export function isMudaDePlantacao(id: number): boolean {
+  return plantaDe(id)?.base === id;
 }
 
 /** SOLO onde uma plantação pega: terra e as três gramas climáticas. Pedra,
@@ -534,7 +592,8 @@ export function isTapete(id: number): boolean {
  *  querer um apoio ESPECÍFICO (ver `apoioValido`). */
 export function precisaApoio(id: number): boolean {
   return (
-    id === BlockId.Tocha || isTapete(id) || isFlor(id) || isGramaAlta(id) || isPlantacao(id)
+    id === BlockId.Tocha || isTapete(id) || isFlor(id) || isGramaAlta(id) ||
+    isPlantacao(id) || id === BlockId.AlgodaoSelvagem
   );
 }
 
@@ -545,7 +604,9 @@ export function precisaApoio(id: number): boolean {
  * tick seguinte. Cubo cheio serve pra todo mundo; a plantação exige SOLO.
  */
 export function apoioValido(id: number, idAbaixo: number): boolean {
-  if (isPlantacao(id)) return isSolo(idAbaixo);
+  // §🍖 F10c: o algodão SELVAGEM é planta igual às outras — exige solo, senão o
+  // gen o penduraria em pedra e o tick o derrubaria no instante seguinte
+  if (isPlantacao(id) || id === BlockId.AlgodaoSelvagem) return isSolo(idAbaixo);
   return isFullCube(idAbaixo);
 }
 
@@ -685,6 +746,7 @@ export function isFullCube(id: number): boolean {
     !isFlor(id) &&
     !isGramaAlta(id) &&
     !isPlantacao(id) && // cruz de sprite, como a flor
+    id !== BlockId.AlgodaoSelvagem && // idem
     !isSlab(id) && // laje = meia altura (forma própria + colisão parcial)
     !isStairs(id) // escada = L (forma própria + colisão parcial)
   );
@@ -703,6 +765,7 @@ export function isSolidBlock(id: number): boolean {
     !isFlor(id) &&
     !isGramaAlta(id) && // capim atravessa (decorativo, como a flor)
     !isPlantacao(id) && // a plantação também: pisar na horta não empurra o aluno
+    id !== BlockId.AlgodaoSelvagem &&
     !isAgua(id) // água atravessa — o jogador entra e nada (physics.ts)
   );
 }
@@ -716,7 +779,7 @@ export function isPlaceable(id: number): boolean {
   // §🍖 F6: só a MUDA se planta. Os estágios crescidos nascem do tick e nunca
   // voltam pra mochila (o drop devolve muda), então aceitar o byte pelo fio só
   // daria ao cliente um jeito de plantar trigo maduro de graça.
-  if (isPlantacao(id) && id !== BlockId.Plantacao0) return false;
+  if (isPlantacao(id) && !isMudaDePlantacao(id)) return false;
   // §🍖 F10b: a fornalha ACESA é estado, não item — nasce do tick quando o fogo
   // pega e volta a apagada sozinha. Aceitá-la pelo fio daria ao cliente uma
   // fornalha eternamente acesa (e uma luminária de graça).

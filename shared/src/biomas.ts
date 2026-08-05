@@ -38,6 +38,17 @@ export interface Bioma {
   /** Chance de mandacaru por coluna (só caatinga). */
   readonly mandacaru: number;
   /**
+   * §🍖 F10c: chance de um pé de ALGODÃO SELVAGEM por coluna (0 = não nasce).
+   * É a porta de entrada da cadeia da lã, e mora no CERRADO — campo aberto,
+   * o bioma que já é a cara do capim. A mata ganha um pouco (chão sombreado,
+   * pé mais raro) e a caatinga fica de fora: lá o topo é areia, e algodão não
+   * pega em areia (`isSolo`).
+   *
+   * Bem mais raro que o capim de propósito: achar o algodão tem de ser uma
+   * descoberta da aula, não o chão inteiro.
+   */
+  readonly algodao: number;
+  /**
    * §🏔️ Teto de RELEVO deste bioma, em [0,1] — multiplica a amplitude da serra.
    * 0 = tabuleiro; 1 = serra alta. É o que impede duna de areia de 100 blocos
    * (playtest 2026-07-28: a caatinga chegava a 106).
@@ -61,6 +72,7 @@ export const BIOMAS = {
     // 1/16 (2026-07-26): com 1/96 o mundo M inteiro tinha ~2 cactos — caatinga
     // sem cacto nenhum. A densidade só vale nas colunas SECAS (h > NIVEL_MAR).
     mandacaru: 1 / 16,
+    algodao: 0,
     // duna, não montanha: o teto da caatinga é ~9 blocos acima da base
     relevo: 0.1,
     neve: false,
@@ -74,6 +86,7 @@ export const BIOMAS = {
     flores: 1 / 64,
     gramaAlta: 1 / 6, // cerrado é campo aberto: capim é a cara dele
     mandacaru: 0,
+    algodao: 1 / 40,
     relevo: 0.35, // chapada: mesa larga e baixa, não pico
     neve: false,
   },
@@ -89,6 +102,7 @@ export const BIOMAS = {
     flores: 1 / 48,
     gramaAlta: 1 / 10, // mata: o chão é mais sombreado, capim mais ralo
     mandacaru: 0,
+    algodao: 1 / 120,
     relevo: 0.5, // morros da mata atlântica
     neve: false,
   },
@@ -101,6 +115,7 @@ export const BIOMAS = {
     flores: 1 / 128,
     gramaAlta: 1 / 12,
     mandacaru: 0,
+    algodao: 1 / 160,
     relevo: 1, // a serra alta é DAQUI — e é o único bioma que ganha neve
     neve: true,
   },

@@ -3,7 +3,6 @@ import {
   aguaNivel,
   camaHeadDir,
   collisionBoxes,
-  estagioPlantacao,
   isAgua,
   isCadeira,
   isCama,
@@ -162,6 +161,14 @@ export const TILE = {
    *  lados. Cubo cheio (a forma de caixa do Minecraft é refino futuro). */
   bauTopo: 127,
   bauLado: 128,
+  /** §🍖 F10c: os 4 estágios do algodão CULTIVADO, contíguos e na ordem dos
+   *  ids (`TILE.algodao0 + estagio`), + o pé SELVAGEM do gen. Cruz de sprite
+   *  como a plantação: fundo transparente. */
+  algodao0: 129,
+  algodao1: 130,
+  algodao2: 131,
+  algodao3: 132,
+  algodaoSelvagem: 133,
 } as const;
 
 /** cp20: blocos-glifo. Letras A–Z e dígitos 0–9 ocupam tiles consecutivos a
@@ -312,6 +319,12 @@ for (let i = 0; i < 4; i++) {
   BLOCK_TILES[BlockId.Plantacao0 + i] = uniform(TILE.plantacao0 + i);
 }
 
+// algodão (§🍖 F10c 2026-08-05): mesma ideia — 4 estágios + o pé selvagem.
+for (let i = 0; i < 4; i++) {
+  BLOCK_TILES[BlockId.Algodao0 + i] = uniform(TILE.algodao0 + i);
+}
+BLOCK_TILES[BlockId.AlgodaoSelvagem] = uniform(TILE.algodaoSelvagem);
+
 // cp20: letras/dígitos = cubos uniformes com o tile do glifo (append A→Z, 0→9).
 for (let i = 0; i < GLYPH.letters.length; i++) {
   BLOCK_TILES[BlockId.LetterA + i] = uniform(GLYPH.base + i);
@@ -336,6 +349,16 @@ export function blockIconTile(id: number): number {
   return BLOCK_TILES[id]?.side ?? TILE.stone;
 }
 
+/** Bloco desenhado como CRUZ DE SPRITE (duas lâminas a 90°): flor, capim,
+ *  plantação e o pé de algodão selvagem. Uma pergunta só, porque as três
+ *  respostas que dependem dela — a caixa de seleção, o balanço no vento e a
+ *  forma no mesher — têm de concordar sempre. */
+function ehCruzDeSprite(id: number): boolean {
+  return (
+    isFlor(id) || isGramaAlta(id) || isPlantacao(id) || id === BlockId.AlgodaoSelvagem
+  );
+}
+
 /** Caixa de SELEÇÃO (o contorno preto da mira / "hitbox" visual) de um bloco,
  *  em frações da célula: [x0,y0,z0,x1,y1,z1]. Cubo cheio = célula inteira;
  *  cada não-cubo devolve a caixa que ENVOLVE a forma do mesher, então o
@@ -344,7 +367,7 @@ export function blockIconTile(id: number): number {
 export function blockSelectionBox(
   id: number,
 ): readonly [number, number, number, number, number, number] {
-  if (isFlor(id) || isGramaAlta(id) || isPlantacao(id)) {
+  if (ehCruzDeSprite(id)) {
     return [4 * P, 0, 4 * P, 12 * P, 1, 12 * P];
   }
   if (isTapete(id)) return [0, 0, 0, 1, P, 1];
@@ -578,7 +601,7 @@ export const SWAY_PLANTA = 1;
 /** Balanço do bloco. 0 = rígido (a esmagadora maioria — pedra não venta). */
 function swayDoBloco(id: number): number {
   if (isFolhas(id)) return SWAY_FOLHAS;
-  if (isFlor(id) || isGramaAlta(id) || isPlantacao(id)) return SWAY_PLANTA;
+  if (ehCruzDeSprite(id)) return SWAY_PLANTA;
   return 0;
 }
 
@@ -1009,8 +1032,11 @@ export function meshVizinhanca(viz: Uint8Array, luzViz?: Uint8Array | null): Chu
         // plantação (§🍖 F6 2026-08-04): mesma cruz, tile por ESTÁGIO — é a
         // altura desenhada no tile que conta a idade da planta pro aluno, sem
         // forma nova no mesher nem mensagem extra na rede.
-        if (isPlantacao(id)) {
-          const tile = TILE.plantacao0 + estagioPlantacao(id);
+        // §🍖 F10c: o tile vem da TABELA, e não de `plantacao0 + estagio` —
+        // com duas plantas a aritmética de âncora daria o tile do trigo pro
+        // algodão. O pé selvagem entra pela mesma porta.
+        if (isPlantacao(id) || id === BlockId.AlgodaoSelvagem) {
+          const tile = blockIconTile(id);
           emitCrossPlane(lx, ly, lz, tile, 0, 0, 1, 1);
           emitCrossPlane(lx, ly, lz, tile, 0, 1, 1, 0);
           return true;

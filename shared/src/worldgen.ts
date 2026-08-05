@@ -547,6 +547,15 @@ export function gerarColunaDeChunks(
             const cor = Math.floor(hash2(x, z, seed ^ 0xc0e5) * 4);
             setBlock(world, x, h + 1, z, BlockId.FlorVermelha + cor);
           }
+        } else if (bioma.algodao > 0 && hash2(x, z, seed ^ 0xa16d) < bioma.algodao) {
+          // §🍖 F10c: o pé de algodão SELVAGEM. Entra ANTES do capim na cadeia
+          // de `else if` (que é o que impede dois sorteios de escreverem na
+          // mesma célula) porque é o mais RARO dos três: deixado por último,
+          // o capim do cerrado — 1 em 6 — comeria quase toda coluna elegível,
+          // e a descoberta que abre a cadeia da lã quase não aconteceria.
+          if (getBlock(world, x, h + 1, z) === BlockId.Air) {
+            setBlock(world, x, h + 1, z, BlockId.AlgodaoSelvagem);
+          }
         } else if (bioma.gramaAlta > 0 && hash2(x, z, seed ^ 0x6a3a) < bioma.gramaAlta) {
           // §🌬️ capim (2026-07-27): SÓ onde não caiu flor (o `else if` evita que
           // um sorteie por cima do outro) e só em célula vazia. A variante segue

@@ -124,6 +124,12 @@ export const PLACEABLE: readonly PlaceableEntry[] = [
   // O nome é "semente" e não "muda" porque é o que se CARREGA; o que aparece no
   // mundo ao plantar é um broto, e o ícone da bolsa mostra grãos (blockIcons).
   { id: BlockId.Plantacao0, name: "semente", cat: "vegetacao" },
+  // Algodão (§🍖 F10c 2026-08-05): a semente cultivável + o pé SELVAGEM que o
+  // gen espalha pelo cerrado. O selvagem está na paleta pro professor poder
+  // semear a descoberta num mundo de aula; em sobrevivência ele não se obtém
+  // (quebrar dá semente, nunca o pé).
+  { id: BlockId.Algodao0, name: "semente de algodão", cat: "vegetacao" },
+  { id: BlockId.AlgodaoSelvagem, name: "algodão selvagem", cat: "vegetacao" },
   // Minérios (2026-07-20): porta de entrada do survival — por ora só blocos
   { id: BlockId.MinerioCarvao, name: "minério de carvão", cat: "minerios" },
   { id: BlockId.MinerioFerro, name: "minério de ferro", cat: "minerios" },

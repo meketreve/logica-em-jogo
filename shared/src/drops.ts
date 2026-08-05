@@ -1,5 +1,6 @@
 import {
   BlockId,
+  ITEM_ALGODAO,
   ITEM_CARVAO,
   ITEM_DIAMANTE,
   ITEM_FRUTA,
@@ -12,8 +13,8 @@ import {
   isFornalha,
   isGramaAlta,
   isJanela,
-  isPlantacao,
   isPlantacaoMadura,
+  plantaDe,
   isPorta,
   isQuadro,
   isSlab,
@@ -54,9 +55,13 @@ export function formaCanonica(id: number): number {
   if (isQuadro(id)) return BlockId.QuadroXP;
   if (isSlab(id)) return BlockId.LajePedraBaixo + slabMaterial(id) * 2;
   if (isStairs(id)) return escadaId(stairsMaterial(id), 0, false);
-  // §🍖 F6: os 4 estágios da plantação têm UMA entrada na mochila — a muda. É a
-  // mesma razão da porta: o aluno guarda o que sabe replantar.
-  if (isPlantacao(id)) return BlockId.Plantacao0;
+  // §🍖 F6: os estágios da plantação têm UMA entrada na mochila — a muda. É a
+  // mesma razão da porta: o aluno guarda o que sabe replantar. §🍖 F10c: a
+  // muda é a da PLANTA dele (trigo ou algodão), não a do trigo sempre.
+  {
+    const p = plantaDe(id);
+    if (p) return p.base;
+  }
   // §🍖 F10b: fornalha acesa volta como fornalha — o fogo é estado, não item.
   if (isFornalha(id)) return BlockId.Fornalha;
   return id;
@@ -103,6 +108,9 @@ const EXCECOES = new Map<number, number | null>([
  */
 export const CHANCE_FRUTA_DA_FOLHA = 1 / 8;
 export const CHANCE_SEMENTE_DO_CAPIM = 1 / 4;
+/** §🍖 F10c: a semente do pé de algodão SELVAGEM. Mesma régua do capim, e pela
+ *  mesma razão — é assim que o aluno acha a cadeia da lã sem ninguém entregar. */
+export const CHANCE_SEMENTE_DO_ALGODAO = 1 / 4;
 
 /**
  * O que o jogador ganha ao quebrar esta célula. Lista (e não pilha única)
@@ -130,7 +138,22 @@ export function dropsDe(
   // plantação MADURA: colhe o trigo E devolve a muda — replantar é o passo que
   // fecha o ciclo, e cobrar uma semente nova a cada colheita transformaria a
   // horta num gargalo de sorte em vez de uma sequência.
+  // §🍖 F10c: o algodão SELVAGEM do gen larga SEMENTE por sorte, como o capim —
+  // e nunca ele mesmo. É a porta de entrada da cadeia (achar → plantar), e
+  // devolvê-lo daria ao aluno um pé de algodão infinito sem plantar nada.
+  if (blockId === BlockId.AlgodaoSelvagem) {
+    return sorteio() < CHANCE_SEMENTE_DO_ALGODAO ? [{ id: BlockId.Algodao0, qtd: 1 }] : [];
+  }
   if (isPlantacaoMadura(blockId)) {
+    // §🍖 F10c: o algodão é o PRIMEIRO drop com quantidade sorteada (1 ou 2) —
+    // cabe sem motor novo porque `sorteio` já entra injetável, e o teste não
+    // vira sorteio: ele injeta o sorteio.
+    if (blockId === BlockId.Algodao3) {
+      return [
+        { id: ITEM_ALGODAO, qtd: sorteio() < 0.5 ? 1 : 2 },
+        { id: BlockId.Algodao0, qtd: 1 },
+      ];
+    }
     return [
       { id: ITEM_TRIGO, qtd: 1 },
       { id: BlockId.Plantacao0, qtd: 1 },

@@ -1,5 +1,6 @@
 import {
   BlockId,
+  ITEM_ALGODAO,
   ITEM_BALDE_VAZIO,
   ITEM_CARVAO,
   ITEM_CARVAO_VEGETAL,
@@ -115,8 +116,8 @@ const BASE: readonly Receita[] = [
  *
  * - **vidro ← areia** (o forno é o que falta, e a areia é o que sobra)
  * - **tijolo ← terra + areia** (barro secado ao sol, sem fornalha)
- * - **lã ← trigo** (fibra da palha: a horta passa a alimentar a construção
- *   também, e é uma ESCOLHA — o mesmo trigo faz pão)
+ * - **lã ← trigo** (ponte APOSENTADA no §🍖 F10c: o algodão virou planta de
+ *   verdade e a lã passou a sair dele, devolvendo o trigo ao papel de comida)
  * - **corante ← FLOR** (e as cores que não têm flor saem de MISTURA: laranja é
  *   amarelo + vermelho, roxo é vermelho + azul). Misturar cor é conteúdo de
  *   sala de aula, e aqui ele é uma receita de verdade.
@@ -197,7 +198,10 @@ const MATERIAIS: readonly Receita[] = [
  *  a partir dela. Duas etapas de propósito — é a mesma dependência do tronco →
  *  tábua → escada, e o aluno vê a cor NASCER de uma mistura. */
 const LAS: readonly Receita[] = [
-  { saida: { id: BlockId.WoolWhite, qtd: 1 }, custo: [{ id: ITEM_TRIGO, qtd: 2 }] },
+  // §🍖 F10c: era 2 TRIGO — a ponte inventada na 45 porque o lite não tem
+  // ovelha. Com o algodão a fibra tem planta própria, e some a competição
+  // pão × cobertor que fazia a horta escolher entre alimentar e vestir.
+  { saida: { id: BlockId.WoolWhite, qtd: 1 }, custo: [{ id: ITEM_ALGODAO, qtd: 3 }] },
   ...CORES.filter((c) => c.la !== BlockId.WoolWhite).map((c) => ({
     saida: { id: c.la, qtd: 1 },
     custo: [{ id: BlockId.WoolWhite, qtd: 1 }, ...c.corante],
@@ -332,6 +336,8 @@ export const SEM_RECEITA: ReadonlyMap<number, string> = new Map([
   [BlockId.MinerioOuro, "minério: sai da caverna, e é ele que a fornalha funde em lingote"],
   [BlockId.MinerioDiamante, "minério: sai da caverna e larga o ITEM diamante — o bloco não se refaz"],
   [BlockId.Plantacao0, "muda: vem do capim quebrado (1 em 4) e da colheita"],
+  [BlockId.Algodao0, "semente de algodão: vem do pé selvagem (1 em 4) e da colheita"],
+  [BlockId.AlgodaoSelvagem, "pé do gen: é onde o aluno ACHA a cadeia da lã — não se refaz"],
   [BlockId.Bedrock, "só do professor (`isProfessorOnly`) — nunca vai pra mochila"],
 ]);
 

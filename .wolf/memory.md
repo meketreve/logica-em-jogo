@@ -1339,3 +1339,13 @@ passa pelo próprio portão) · 5 prints da pista. **PLAYTEST PENDENTE.**
 | 14:11 | Created shared/src/gate-claim.test.ts | — | ~2868 |
 | 14:13 | Created shared/src/raw.d.ts | — | ~173 |
 | 14:14 | §🍖 F10f: portão do claim — teste que LÊ a união ClientMessage do protocol.ts (via ?raw) e exige gate ou razão escrita pra toda mensagem com célula; confinamento passou a barrar use_block | gate-claim.test.ts (novo), raw.d.ts (novo), session.ts (use_block ganhou confinaBloqueia no F10b) | verde: typecheck 3/3, 664 testes, build; A/B honesto (mensagem nova sem gate e gate removido derrubam o portão) | ~18k |
+| 14:15 | Edited shared/src/blocks.ts | modified o() | ~309 |
+| 14:15 | Edited shared/src/blocks.ts | inline fix | ~15 |
+| 14:15 | Edited shared/src/blocks.ts | added optional chaining | ~436 |
+| 14:16 | Edited shared/src/drops.ts | 3→7 lines | ~83 |
+| 14:16 | Edited shared/src/drops.ts | added 2 condition(s) | ~252 |
+| 14:17 | Edited shared/src/worldgen.ts | added 2 condition(s) | ~202 |
+| 14:17 | Edited client/src/atlasTexture.ts | added 1 condition(s) | ~467 |
+| 14:17 | Edited client/src/atlasTexture.ts | modified o() | ~99 |
+| 14:21 | Created shared/src/algodao.test.ts | — | ~2035 |
+| 14:25 | §🍖 F10c: ALGODÃO — plantação virou TABELA (base + estágios), pé selvagem no cerrado, drop com quantidade sorteada, lã branca <- 3 algodão (trigo volta a ser só comida) | blocks.ts, drops.ts, receitas.ts, mesher.ts, biomas.ts, worldgen.ts, atlasTexture.ts, blocksUi.ts, blockIcons.ts, main.ts + algodao.test.ts | verde: typecheck 3/3, 682 testes, build, 15/15 smokes; A/B do worldgen (sem ele, 0 pés) | ~45k |

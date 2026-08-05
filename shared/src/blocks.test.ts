@@ -113,7 +113,15 @@ describe("formato de bloco/chunk (contrato de save e snapshot)", () => {
     // fornalha, não há estado nenhum pra guardar no byte.
     expect(BlockId.Bau).toBe(188);
     expect(isPlaceable(BlockId.Bau)).toBe(true);
-    expect(isPlaceable(189)).toBe(false); // próximo byte NÃO é bloco
+    // algodão (§🍖 F10c 2026-08-05): append 189-193. Mesma regra da plantação
+    // do F6 — só a MUDA se coloca; os estágios crescidos nascem do tick.
+    expect(BlockId.Algodao0).toBe(189);
+    expect(BlockId.AlgodaoSelvagem).toBe(193);
+    expect(isPlaceable(BlockId.Algodao0)).toBe(true);
+    expect(isPlaceable(BlockId.Algodao1)).toBe(false);
+    expect(isPlaceable(BlockId.Algodao3)).toBe(false);
+    expect(isPlaceable(BlockId.AlgodaoSelvagem)).toBe(true);
+    expect(isPlaceable(194)).toBe(false); // próximo byte NÃO é bloco
   });
 
   it("água: fonte + fluida atravessável (não-sólida) e translúcida no mesher", () => {

@@ -535,6 +535,43 @@ function paintBau(ctx: CanvasRenderingContext2D, tile: number, topo: boolean): v
   ctx.fillRect(ox + 7, oy + 5, 2, 2); // o buraco da chave
 }
 
+/**
+ * §🍖 F10c: o algodão. Hastes verdes que SOBEM com a idade (a mesma régua da
+ * plantação de trigo, pra os dois canteiros se lerem do mesmo jeito à
+ * distância) e, no fim, os CAPULHOS brancos — a bolinha branca é o sinal de
+ * "pode colher", e ela só aparece no último estágio.
+ *
+ * O pé SELVAGEM é desenhado com os capulhos já abertos e a haste mais seca: no
+ * meio do capim do cerrado, é o branco que o olho acha.
+ */
+function paintAlgodao(
+  ctx: CanvasRenderingContext2D,
+  tile: number,
+  estagio: number,
+  selvagem = false,
+): void {
+  const [ox, oy] = tileOrigin(tile);
+  const px = ATLAS.tilePx;
+  ctx.clearRect(ox, oy, px, px);
+  const base: Rgb = selvagem ? [126, 140, 74] : [88, 152, 78];
+  const alturaMax = selvagem ? 11 : 4 + estagio * 3;
+  const HASTES = 4;
+  for (let i = 0; i < HASTES; i++) {
+    const x0 = 3 + Math.floor(pixelHash(i, 0, 61) * (px - 6));
+    const alt = Math.max(2, alturaMax - Math.floor(pixelHash(i, 1, 67) * 3));
+    const t = 0.8 + pixelHash(i, 2, 71) * 0.4;
+    ctx.fillStyle = `rgb(${Math.round(base[0] * t)},${Math.round(base[1] * t)},${Math.round(base[2] * t)})`;
+    for (let k = 0; k < alt; k++) ctx.fillRect(ox + x0, oy + px - 1 - k, 1, 1);
+    // capulho: só no ESTÁGIO FINAL (e no selvagem, que já nasce aberto)
+    if (estagio === 3 || selvagem) {
+      ctx.fillStyle = "rgb(244,244,238)";
+      ctx.fillRect(ox + x0 - 1, oy + px - alt - 2, 3, 3);
+      ctx.fillStyle = "rgb(206,206,198)"; // sombra: sem ela o capulho some no céu
+      ctx.fillRect(ox + x0 + 1, oy + px - alt, 1, 1);
+    }
+  }
+}
+
 /** Vetor de onda da água: dois setores inteiros + a mistura entre eles (ver
  *  `ondaAguaDoVento` em shared/vento.ts, que explica por que é um PAR). */
 export interface OndaAgua {
@@ -800,6 +837,10 @@ export function createAtlasTexture(): THREE.Texture {
   // baú (§🍖 F10e 2026-08-05): tampa em cima, ripas + ferrolho nos lados
   paintBau(ctx, TILE.bauTopo, true);
   paintBau(ctx, TILE.bauLado, false);
+
+  // algodão (§🍖 F10c 2026-08-05): 4 estágios cultivados + o pé selvagem
+  for (let i = 0; i < 4; i++) paintAlgodao(ctx, TILE.algodao0 + i, i);
+  paintAlgodao(ctx, TILE.algodaoSelvagem, 3, true);
 
   // vidro colorido (2026-07-25): mesma paleta das lãs, na ordem VidroBranco..Marrom
   const CORES_VIDRO: readonly Rgb[] = [

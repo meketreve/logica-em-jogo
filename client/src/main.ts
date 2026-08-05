@@ -14,11 +14,15 @@ import {
   type ScenarioModo,
   type Snapshot,
   ITEM_BALDE_AGUA,
+  ITEM_ALGODAO,
   ITEM_BALDE_VAZIO,
   ITEM_CARVAO,
+  ITEM_CARVAO_VEGETAL,
   ITEM_DIAMANTE,
   ITEM_FRUTA,
   ITEM_GRAVETO,
+  ITEM_LINGOTE_FERRO,
+  ITEM_LINGOTE_OURO,
   ITEM_PAO,
   ITEM_TRIGO,
   acenderColuna,
@@ -1698,6 +1702,7 @@ function startGame(snap: Snapshot): void {
       ...PLACEABLE.map((b) => b.id),
       ITEM_BALDE_VAZIO, ITEM_FRUTA, ITEM_TRIGO, ITEM_PAO,
       ITEM_CARVAO, ITEM_DIAMANTE, ITEM_GRAVETO,
+      ITEM_CARVAO_VEGETAL, ITEM_LINGOTE_FERRO, ITEM_LINGOTE_OURO, ITEM_ALGODAO,
     ],
   );
   const blockName = (id: number): string => {
@@ -1709,6 +1714,10 @@ function startGame(snap: Snapshot): void {
     if (id === ITEM_CARVAO) return "carvão";
     if (id === ITEM_DIAMANTE) return "diamante";
     if (id === ITEM_GRAVETO) return "graveto";
+    if (id === ITEM_CARVAO_VEGETAL) return "carvão vegetal";
+    if (id === ITEM_LINGOTE_FERRO) return "lingote de ferro";
+    if (id === ITEM_LINGOTE_OURO) return "lingote de ouro";
+    if (id === ITEM_ALGODAO) return "algodão";
     return PLACEABLE.find((b) => b.id === id)?.name ?? "?";
   };
   const refreshHotbar = (): void => {

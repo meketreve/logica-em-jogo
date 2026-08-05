@@ -2,10 +2,14 @@ import {
   ATLAS,
   BlockId,
   ITEM_BALDE_AGUA,
+  ITEM_ALGODAO,
   ITEM_CARVAO,
+  ITEM_CARVAO_VEGETAL,
   ITEM_DIAMANTE,
   ITEM_FRUTA,
   ITEM_GRAVETO,
+  ITEM_LINGOTE_FERRO,
+  ITEM_LINGOTE_OURO,
   ITEM_TRIGO,
   blockIconTile,
   isBalde,
@@ -108,17 +112,19 @@ function drawComida(ctx: CanvasRenderingContext2D, px: number, id: number): void
  * na mochila não é um broto, é um punhado de semente. O bloco no mundo continua
  * sendo o broto; aqui é só o retrato dele na bolsa.
  */
-function drawSemente(ctx: CanvasRenderingContext2D, px: number): void {
+function drawSemente(ctx: CanvasRenderingContext2D, px: number, algodao = false): void {
   ctx.clearRect(0, 0, px, px);
   const GRAOS: readonly [number, number][] = [
     [0.32, 0.4], [0.6, 0.34], [0.46, 0.58], [0.28, 0.68], [0.66, 0.64],
   ];
   for (const [gx, gy] of GRAOS) {
-    ctx.fillStyle = "#8a6b32";
+    // §🍖 F10c: a semente do algodão é a MESMA forma num tom claro — duas
+    // sementes iguais na mochila seriam duas chances de plantar a errada.
+    ctx.fillStyle = algodao ? "#6d7a4a" : "#8a6b32";
     ctx.beginPath();
     ctx.ellipse(px * gx, px * gy, px * 0.11, px * 0.16, Math.PI / 5, 0, Math.PI * 2);
     ctx.fill();
-    ctx.fillStyle = "#c8a558"; // brilho: sem ele os grãos viram uma mancha só
+    ctx.fillStyle = algodao ? "#b6c489" : "#c8a558"; // brilho: sem ele os grãos viram uma mancha só
     ctx.fillRect(px * gx - px * 0.04, px * gy - px * 0.1, px * 0.05, px * 0.1);
   }
 }
@@ -164,9 +170,49 @@ function drawItemF10(ctx: CanvasRenderingContext2D, px: number, id: number): voi
     ctx.fill();
     return;
   }
+  if (id === ITEM_LINGOTE_FERRO || id === ITEM_LINGOTE_OURO) {
+    // lingote: barra em perspectiva (topo menor que a base). Ferro é cinza,
+    // ouro é dourado — a MESMA forma, porque o que muda é o metal
+    const ouro = id === ITEM_LINGOTE_OURO;
+    ctx.fillStyle = ouro ? "#d8a72c" : "#b9bcc4";
+    ctx.beginPath();
+    ctx.moveTo(px * 0.3, px * 0.42);
+    ctx.lineTo(px * 0.7, px * 0.42);
+    ctx.lineTo(px * 0.82, px * 0.68);
+    ctx.lineTo(px * 0.18, px * 0.68);
+    ctx.closePath();
+    ctx.fill();
+    ctx.fillStyle = ouro ? "#f6dc7a" : "#e2e5ec"; // topo iluminado: dá o volume
+    ctx.beginPath();
+    ctx.moveTo(px * 0.3, px * 0.42);
+    ctx.lineTo(px * 0.7, px * 0.42);
+    ctx.lineTo(px * 0.66, px * 0.5);
+    ctx.lineTo(px * 0.34, px * 0.5);
+    ctx.closePath();
+    ctx.fill();
+    return;
+  }
+  if (id === ITEM_ALGODAO) {
+    // capulho: três bolotas brancas com sombra e um cabinho seco
+    ctx.strokeStyle = "#8a7d52";
+    ctx.lineWidth = Math.max(1, px * 0.08);
+    ctx.beginPath();
+    ctx.moveTo(px * 0.5, px * 0.86);
+    ctx.lineTo(px * 0.5, px * 0.56);
+    ctx.stroke();
+    for (const [cx, cy, r] of [[0.5, 0.36, 0.22], [0.31, 0.5, 0.17], [0.69, 0.5, 0.17]] as const) {
+      ctx.fillStyle = "#f4f4ee";
+      ctx.beginPath();
+      ctx.arc(px * cx, px * cy, px * r, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = "#cccdc6"; // sombra: sem ela o capulho some no fundo claro
+      ctx.fillRect(px * (cx + r * 0.3), px * (cy + r * 0.1), px * r * 0.5, px * r * 0.6);
+    }
+    return;
+  }
   // carvão (mineral ou vegetal): pedra preta irregular. O vegetal é o MESMO
   // desenho num marrom queimado — são a mesma brasa, e o aluno tem de ver isso.
-  const vegetal = id !== ITEM_CARVAO;
+  const vegetal = id === ITEM_CARVAO_VEGETAL;
   ctx.fillStyle = vegetal ? "#4a3524" : "#26262a";
   ctx.beginPath();
   ctx.moveTo(px * 0.22, px * 0.44);
@@ -188,7 +234,10 @@ function drawItemF10(ctx: CanvasRenderingContext2D, px: number, id: number): voi
 
 /** Os itens que `drawItemF10` sabe desenhar. Set explícito (e não faixa de id)
  *  pela mesma razão do `ITENS` do shared: a banda ≥900 não é intervalo aberto. */
-const ITENS_F10: ReadonlySet<number> = new Set([ITEM_CARVAO, ITEM_DIAMANTE, ITEM_GRAVETO]);
+const ITENS_F10: ReadonlySet<number> = new Set([
+  ITEM_CARVAO, ITEM_CARVAO_VEGETAL, ITEM_DIAMANTE, ITEM_GRAVETO,
+  ITEM_LINGOTE_FERRO, ITEM_LINGOTE_OURO, ITEM_ALGODAO,
+]);
 
 /**
  * Ícones 2D dos blocos pra hotbar e pro inventário: recorta o tile LATERAL do
@@ -213,8 +262,8 @@ export function makeBlockIcons(
       out.set(id, c.toDataURL());
       continue;
     }
-    if (id === BlockId.Plantacao0) {
-      drawSemente(ctx, px);
+    if (id === BlockId.Plantacao0 || id === BlockId.Algodao0) {
+      drawSemente(ctx, px, id === BlockId.Algodao0);
       out.set(id, c.toDataURL());
       continue;
     }

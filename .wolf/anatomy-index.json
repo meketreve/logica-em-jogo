@@ -1,12 +1,12 @@
 {
   "version": 1,
   "meta": {
-    "lastScanned": "2026-08-05T17:13:00.085Z",
-    "fileCount": 298,
+    "lastScanned": "2026-08-05T17:21:11.953Z",
+    "fileCount": 299,
     "hits": 0,
     "misses": 0,
-    "renderedHash": "b48dfa4d38193cfb1e3f09be945e4737f654e73274b78d23957f433e7ebe64d4",
-    "storeUpdatedAt": "2026-08-05T17:13:00.103Z"
+    "renderedHash": "2a14d487492474acab92a470fff91915d890cf2ea03d2a9ab010944b38c649e9",
+    "storeUpdatedAt": "2026-08-05T17:21:11.982Z"
   },
   "files": {
     ".claude/commands/reframe.md": {
@@ -1447,11 +1447,11 @@
     },
     "client/src/atlasTexture.ts": {
       "description": "Texture atlas procedural pintado num canvas (sem assets externos — restrição",
-      "tokens": 9869,
-      "hash": "d5274a8d2221fed2",
-      "size": 34863,
-      "mtimeMs": 1785949544547.3237,
-      "updatedAt": "2026-08-05T17:05:44.674Z",
+      "tokens": 10370,
+      "hash": "a935297ffbfdf08f",
+      "size": 36646,
+      "mtimeMs": 1785950265891.3245,
+      "updatedAt": "2026-08-05T17:17:46.014Z",
       "source": "hook",
       "symbols": [
         {
@@ -1661,8 +1661,8 @@
           "name": "paintFornalhaTopo",
           "kind": "fn",
           "startLine": 496,
-          "endLine": 830,
-          "tokens": 4173
+          "endLine": 871,
+          "tokens": 4674
         }
       ]
     },
@@ -5796,222 +5796,222 @@
     },
     "shared/src/blocks.ts": {
       "description": "IDs de bloco. Gravados como bytes crus nos chunks (Uint8Array), no save e no",
-      "tokens": 9324,
-      "hash": "82b035641e8655b1",
-      "size": 33308,
-      "mtimeMs": 1785949595491.3237,
-      "updatedAt": "2026-08-05T17:06:35.601Z",
+      "tokens": 9923,
+      "hash": "072c00b59cf7f0e0",
+      "size": 35476,
+      "mtimeMs": 1785950148503.3247,
+      "updatedAt": "2026-08-05T17:15:48.664Z",
       "source": "hook",
       "symbols": [
         {
           "name": "isAgua",
           "kind": "fn",
-          "startLine": 235,
-          "endLine": 240,
+          "startLine": 256,
+          "endLine": 261,
           "tokens": 75
         },
         {
           "name": "isAguaFonte",
           "kind": "fn",
-          "startLine": 241,
-          "endLine": 246,
+          "startLine": 262,
+          "endLine": 267,
           "tokens": 69
         },
         {
           "name": "aguaNivel",
           "kind": "fn",
-          "startLine": 247,
-          "endLine": 255,
+          "startLine": 268,
+          "endLine": 276,
           "tokens": 82
         },
         {
           "name": "aguaComNivel",
           "kind": "fn",
-          "startLine": 256,
-          "endLine": 321,
+          "startLine": 277,
+          "endLine": 342,
           "tokens": 889
         },
         {
           "name": "isCarvao",
           "kind": "fn",
-          "startLine": 322,
-          "endLine": 326,
+          "startLine": 343,
+          "endLine": 347,
           "tokens": 55
         },
         {
           "name": "isFornalha",
           "kind": "fn",
-          "startLine": 327,
-          "endLine": 331,
+          "startLine": 348,
+          "endLine": 352,
           "tokens": 46
         },
         {
           "name": "isBalde",
           "kind": "fn",
-          "startLine": 332,
-          "endLine": 353,
+          "startLine": 353,
+          "endLine": 374,
           "tokens": 177
         },
         {
           "name": "isItem",
           "kind": "fn",
-          "startLine": 354,
-          "endLine": 358,
-          "tokens": 39
+          "startLine": 375,
+          "endLine": 385,
+          "tokens": 131
+        },
+        {
+          "name": "Planta",
+          "kind": "section",
+          "startLine": 386,
+          "endLine": 396,
+          "tokens": 84
+        },
+        {
+          "name": "plantaDe",
+          "kind": "fn",
+          "startLine": 397,
+          "endLine": 404,
+          "tokens": 66
         },
         {
           "name": "isPlantacao",
           "kind": "fn",
-          "startLine": 359,
-          "endLine": 363,
-          "tokens": 51
+          "startLine": 405,
+          "endLine": 409,
+          "tokens": 44
         },
         {
           "name": "estagioPlantacao",
           "kind": "fn",
-          "startLine": 364,
-          "endLine": 368,
+          "startLine": 410,
+          "endLine": 415,
           "tokens": 46
         },
         {
           "name": "isPlantacaoMadura",
           "kind": "fn",
-          "startLine": 369,
-          "endLine": 376,
+          "startLine": 416,
+          "endLine": 421,
+          "tokens": 59
+        },
+        {
+          "name": "isMudaDePlantacao",
+          "kind": "fn",
+          "startLine": 422,
+          "endLine": 429,
           "tokens": 113
         },
         {
           "name": "isSolo",
           "kind": "fn",
-          "startLine": 377,
-          "endLine": 391,
+          "startLine": 430,
+          "endLine": 444,
           "tokens": 168
         },
         {
           "name": "isReplaceable",
           "kind": "fn",
-          "startLine": 392,
-          "endLine": 396,
+          "startLine": 445,
+          "endLine": 449,
           "tokens": 39
         },
         {
           "name": "isFlor",
           "kind": "fn",
-          "startLine": 397,
-          "endLine": 401,
+          "startLine": 450,
+          "endLine": 454,
           "tokens": 55
         },
         {
           "name": "isGramaAlta",
           "kind": "fn",
-          "startLine": 402,
-          "endLine": 406,
+          "startLine": 455,
+          "endLine": 459,
           "tokens": 54
         },
         {
           "name": "isFolhas",
           "kind": "fn",
-          "startLine": 407,
-          "endLine": 416,
+          "startLine": 460,
+          "endLine": 469,
           "tokens": 80
         },
         {
           "name": "isVidroColorido",
           "kind": "fn",
-          "startLine": 417,
-          "endLine": 421,
+          "startLine": 470,
+          "endLine": 474,
           "tokens": 50
         },
         {
           "name": "isSlab",
           "kind": "fn",
-          "startLine": 422,
-          "endLine": 426,
+          "startLine": 475,
+          "endLine": 479,
           "tokens": 57
         },
         {
           "name": "slabTop",
           "kind": "fn",
-          "startLine": 427,
-          "endLine": 431,
+          "startLine": 480,
+          "endLine": 484,
           "tokens": 47
         },
         {
           "name": "slabMaterial",
           "kind": "fn",
-          "startLine": 432,
-          "endLine": 436,
+          "startLine": 485,
+          "endLine": 489,
           "tokens": 46
         },
         {
           "name": "isStairs",
           "kind": "fn",
-          "startLine": 437,
-          "endLine": 441,
+          "startLine": 490,
+          "endLine": 494,
           "tokens": 58
         },
         {
           "name": "stairsFacing",
           "kind": "fn",
-          "startLine": 442,
-          "endLine": 446,
+          "startLine": 495,
+          "endLine": 499,
           "tokens": 47
         },
         {
           "name": "stairsTop",
           "kind": "fn",
-          "startLine": 447,
-          "endLine": 451,
+          "startLine": 500,
+          "endLine": 504,
           "tokens": 47
         },
         {
           "name": "stairsMaterial",
           "kind": "fn",
-          "startLine": 452,
-          "endLine": 457,
+          "startLine": 505,
+          "endLine": 510,
           "tokens": 72
         },
         {
           "name": "escadaId",
           "kind": "fn",
-          "startLine": 458,
-          "endLine": 466,
+          "startLine": 511,
+          "endLine": 519,
           "tokens": 131
         },
         {
           "name": "stepFootprint",
           "kind": "fn",
-          "startLine": 467,
-          "endLine": 479,
+          "startLine": 520,
+          "endLine": 532,
           "tokens": 167
         },
         {
           "name": "collisionBoxes",
           "kind": "fn",
-          "startLine": 480,
-          "endLine": 493,
-          "tokens": 148
-        },
-        {
-          "name": "isQuadro",
-          "kind": "fn",
-          "startLine": 494,
-          "endLine": 498,
-          "tokens": 42
-        },
-        {
-          "name": "isCadeira",
-          "kind": "fn",
-          "startLine": 499,
-          "endLine": 502,
-          "tokens": 42
-        },
-        {
-          "name": "isSofa",
-          "kind": "fn",
-          "startLine": 503,
-          "endLine": 738,
-          "tokens": 2842
+          "startLine": 533,
+          "endLine": 791,
+          "tokens": 3073
         }
       ]
     },
@@ -6334,26 +6334,26 @@
     },
     "shared/src/drops.ts": {
       "description": "§🍖 F4 — o que CAI ao quebrar um bloco. Tabela pura: entra o byte que estava",
-      "tokens": 1659,
-      "hash": "89fec18cff7b79fa",
-      "size": 5988,
-      "mtimeMs": 1785948101075.3232,
-      "updatedAt": "2026-08-05T16:41:41.189Z",
+      "tokens": 1899,
+      "hash": "7cdd56f151f20960",
+      "size": 6856,
+      "mtimeMs": 1785950188415.322,
+      "updatedAt": "2026-08-05T17:16:28.526Z",
       "source": "hook",
       "symbols": [
         {
           "name": "formaCanonica",
           "kind": "fn",
           "startLine": 48,
-          "endLine": 114,
-          "tokens": 908
+          "endLine": 118,
+          "tokens": 935
         },
         {
           "name": "dropsDe",
           "kind": "fn",
-          "startLine": 115,
-          "endLine": 145,
-          "tokens": 335
+          "startLine": 119,
+          "endLine": 164,
+          "tokens": 548
         }
       ]
     },
@@ -8730,12 +8730,12 @@
     },
     "shared/src/worldgen.ts": {
       "description": "Preset de criação de mundo (cp14): escolhido no menu/host, só vale pra",
-      "tokens": 7853,
-      "hash": "639bcb1c823fc50d",
-      "size": 27927,
-      "mtimeMs": 1785417216944.3035,
-      "updatedAt": "2026-08-05T15:36:57.421Z",
-      "source": "scan",
+      "tokens": 8029,
+      "hash": "94c5f83272c74c5a",
+      "size": 28560,
+      "mtimeMs": 1785950244875.3237,
+      "updatedAt": "2026-08-05T17:17:24.989Z",
+      "source": "hook",
       "symbols": [
         {
           "name": "parseWorldPreset",
@@ -8874,35 +8874,35 @@
           "name": "gerarColunaDeChunks",
           "kind": "fn",
           "startLine": 439,
-          "endLine": 579,
-          "tokens": 1876
+          "endLine": 588,
+          "tokens": 2052
         },
         {
           "name": "generateWorld",
           "kind": "fn",
-          "startLine": 580,
-          "endLine": 597,
+          "startLine": 589,
+          "endLine": 606,
           "tokens": 164
         },
         {
           "name": "generateFlatWorld",
           "kind": "fn",
-          "startLine": 598,
-          "endLine": 623,
+          "startLine": 607,
+          "endLine": 632,
           "tokens": 317
         },
         {
           "name": "generateCabinsWorld",
           "kind": "fn",
-          "startLine": 624,
-          "endLine": 645,
+          "startLine": 633,
+          "endLine": 654,
           "tokens": 275
         },
         {
           "name": "generateWorldForPreset",
           "kind": "fn",
-          "startLine": 646,
-          "endLine": 656,
+          "startLine": 655,
+          "endLine": 665,
           "tokens": 93
         }
       ]
@@ -9424,6 +9424,24 @@
       "mtimeMs": 1785949979891.3232,
       "updatedAt": "2026-08-05T17:13:00.084Z",
       "source": "hook"
+    },
+    "shared/src/algodao.test.ts": {
+      "description": "§🍖 F10c — ALGODÃO. A ponte HONESTA que aposenta a lã-de-trigo: o lite não",
+      "tokens": 2035,
+      "hash": "eee0dbf6c166b8b7",
+      "size": 7209,
+      "mtimeMs": 1785950471767.3232,
+      "updatedAt": "2026-08-05T17:21:11.952Z",
+      "source": "hook",
+      "symbols": [
+        {
+          "name": "canteiro",
+          "kind": "fn",
+          "startLine": 31,
+          "endLine": 180,
+          "tokens": 1770
+        }
+      ]
     }
   }
 }
