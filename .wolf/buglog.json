@@ -4041,6 +4041,25 @@
       ],
       "occurrences": 1,
       "last_seen": "2026-08-05T14:40:00.000000Z"
+    },
+    {
+      "id": "bug-580",
+      "timestamp": "2026-08-05T18:05:00.000000Z",
+      "error_message": "shots:f10: '✗ o título virou \"baú\" (fornalha)' e '✗ e ele tem 27 slots (3)' — o painel abria como FORNALHA em cima de um baú",
+      "file": "shared/src/session.ts",
+      "root_cause": "O `applyBlockQuieto` limpava o container da célula só quando o bloco NOVO deixava de ser container (`containerTipoDe(blockId) === null`). Trocar fornalha por baú na MESMA célula (`/bloco` do professor) mantém `containerTipoDe` não-nulo, então o conteúdo da fornalha ficava no mapa por posição — e o `use_block` seguinte respondia com o container guardado (`tipo: \"fornalha\"`, 3 slots, barra de fogo) por cima de um baú.",
+      "fix": "A pergunta passou a ser pelo TIPO, comparando o byte VELHO (`containerTipoDe(getBlock(...))`, lido antes do `setBlock`) com o novo: tipo diferente → apaga o container e fecha o painel de quem o tinha aberto. Fornalha apagada↔acesa continua fora do ramo (mesmo tipo) e container novo nasce sempre limpo.",
+      "tags": [
+        "fornalha",
+        "bau",
+        "container",
+        "session",
+        "f10",
+        "meta-por-posicao"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-08-05T18:05:00.000000Z"
     }
   ]
 }

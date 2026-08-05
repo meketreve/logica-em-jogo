@@ -308,4 +308,26 @@ describe("§🍖 F10b — a fornalha pelo fio", () => {
       .filter((m) => m?.type === "container");
     expect(novos).toEqual([]);
   });
+
+  it("bug-580: trocar fornalha por BAÚ na mesma célula não herda o conteúdo dela", () => {
+    // o `/bloco` do professor troca o byte sem passar pelo gate de quebra, e
+    // até aqui o mapa por posição só era limpo quando a célula deixava de ser
+    // container — de fornalha pra baú ele SOBREVIVIA, e o `use_block` seguinte
+    // respondia "fornalha, 3 slots, com barra de fogo" em cima de um baú.
+    const { session, sent } = turma();
+    const f = poeFornalha(session);
+    session.handleMessage(1, cmd(`/dar ana ${BlockId.MinerioFerro} 3`));
+    session.handleMessage(2, abrir(f.x, f.y, f.z));
+    session.handleMessage(2, mover(f.x, f.y, f.z, 0, INV_SLOTS + FORNALHA_ENTRADA));
+    // controle POSITIVO: o minério está mesmo guardado na fornalha
+    expect(ultimoContainer(sent, 2)!.slots).toEqual([
+      { slot: FORNALHA_ENTRADA, id: BlockId.MinerioFerro, qtd: 3 },
+    ]);
+
+    session.handleMessage(1, cmd(`/bloco ${f.x} ${f.y} ${f.z} ${BlockId.Bau}`));
+    session.handleMessage(2, abrir(f.x, f.y, f.z));
+    const c = ultimoContainer(sent, 2)!;
+    expect(c.tipo).toBe("bau");
+    expect(c.slots).toEqual([]); // o minério não atravessou a troca de bloco
+  });
 });

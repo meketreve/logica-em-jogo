@@ -4255,11 +4255,21 @@ export class GameSession {
     // §🍖 F10: idem pro container. A célula que deixa de ser fornalha/baú perde
     // o conteúdo — e como quebrar container com coisa dentro é RECUSADO no
     // `break_block`, o que morre aqui é sempre um vazio (ou uma teleoperação de
-    // professor, que é escolha dele). A fornalha apagada↔acesa NÃO cai neste
-    // ramo: os dois bytes são o mesmo container.
-    if (containerTipoDe(blockId) === null) {
-      this.containers.delete(containerKey(x, y, z));
-      this.fecharContainerEm(x, y, z);
+    // professor, que é escolha dele).
+    //
+    // A pergunta é pelo TIPO, comparando o byte VELHO com o novo, e não por
+    // "o novo ainda é container?" (bug-580): trocar fornalha por baú na mesma
+    // célula deixava o conteúdo da fornalha para trás, e o `use_block` seguinte
+    // respondia `tipo: "fornalha"` em cima de um baú — 3 slots com barra de
+    // fogo desenhados sobre um bloco que não queima nada. Assim a fornalha
+    // apagada↔acesa (o MESMO tipo) segue não caindo neste ramo, e um container
+    // NOVO nasce sempre limpo, sem herdar sobra de quem estava ali.
+    {
+      const tipoAntes = containerTipoDe(getBlock(this.world, x, y, z));
+      if (containerTipoDe(blockId) !== tipoAntes) {
+        this.containers.delete(containerKey(x, y, z));
+        this.fecharContainerEm(x, y, z);
+      }
     }
     // §🍖 F6: o índice das plantações segue o byte — plantar entra, crescer
     // reescreve a mesma chave, colher/derrubar sai. Como TODA mudança de mundo
