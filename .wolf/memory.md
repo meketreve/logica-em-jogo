@@ -1670,3 +1670,22 @@ passa pelo próprio portão) · 5 prints da pista. **PLAYTEST PENDENTE.**
 | 11:23 | Edited shared/src/controleJogador.test.ts | 12→14 lines | ~249 |
 | 11:54 | Edited client/src/main.ts | inline fix | ~11 |
 | 11:55 | Edited client/src/main.ts | modified startGame() | ~204 |
+
+## Session: 2026-08-06 — SESSÃO 53 (frentes 5 e 6 do GameRuntime)
+
+| Time | Action | File(s) | Outcome | ~Tokens |
+|------|--------|---------|---------|--------|
+| 11:05 | leu STATUS.md, mapeou os 11 `let` do laço | .wolf/STATUS.md, client/src/main.ts | fila da 52 confirmada: frentes 5 e 6 | ~30k |
+| 11:10 | §🎮 duplo-toque + olho subiram pro shared | shared/src/controleJogador.ts (novo) | DuploToque + ControleDoJogador | ~4k |
+| 11:13 | 21 testes; 2 falharam por asserção minha, corrigidas | shared/src/controleJogador.test.ts (novo) | 21/21 | ~5k |
+| 11:15 | MovimentoDoJogador (teclado + odômetro) no cliente | client/src/movimentoJogador.ts (novo) | main.ts 2.174 → 2.122 | ~4k |
+| 11:23 | A/B em 6 frentes: 2 não derrubaram nada | shared/src/controleJogador.test.ts | comentário falso corrigido, teste de FPS refeito | ~6k |
+| 11:26 | bug-594 (sentinela `0` vs performance.now) | .wolf/buglog.json | latente, sem sintoma | ~1k |
+| 11:30 | commit e601b4a — frente 5 | — | verde: 778 testes, f10/toque/luz OK | ~2k |
+| 11:35 | mapeou startGame: 44 bindings + 16 ganchos de módulo | client/src/main.ts | plano da frente 6 | ~20k |
+| 11:45 | startGame → class GameRuntime (script + tsc de guarda) | client/src/main.ts | 16 ganchos viraram métodos; `started` → `jogo !== null` | ~15k |
+| 11:52 | diff de linhas normalizadas achou 2 defeitos que compilavam | client/src/main.ts | lookDir duplo + reloadWorld chamando pelo módulo | ~6k |
+| 11:58 | A/B com rebuild: applyBlockChanged (8 falhas), aplicarColunas (luz morre) | — | ganchos provados | ~4k |
+| 12:05 | bug-595: smoke `atividade` flaky, 1 em 3, sem conserto | .wolf/buglog.json | registrado | ~1k |
+| 12:10 | commit f7cd0dd + 35a6700 (dist) — frente 6 | — | typecheck 3/3, 778 testes, 15/15, f10/toque/luz OK | ~3k |
+| 12:15 | STATUS/cerebrum/anatomy atualizados | .wolf/* | fila do refactor FECHADA; próximo é o playtest | ~6k |

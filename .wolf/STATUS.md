@@ -1,6 +1,74 @@
 # STATUS — Projeto "Lógica em Jogo" (jogo voxel educacional)
 
 > Single source of truth for resuming work. Read this FIRST when starting a session.
+> **SESSÃO 53 (2026-08-06) — A FILA DO `GameRuntime` FECHOU, E A ÚLTIMA FRENTE ACHOU UM CAMINHO
+> SEM VOLTA QUE NINGUÉM TINHA VISTO.** Sessão de uma palavra ("continuar"): as frentes 5 e 6
+> estavam escritas e ordenadas desde a 51, e foi a fila que mandou. **`main.ts` 2.174 → 2.176 —
+> e o número mentiria se lido sozinho: o corpo do `startGame` (1.110 linhas de closure) virou
+> uma classe, e o que entrou de volta foram as 44 declarações de campo e as chaves dos métodos.**
+> 2 commits + o dist.
+>
+> **§🎮 5. `MovimentoDoJogador`, e a decisão que a 52 deixou em aberto foi resolvida do lado
+> caro:** os duplo-toques e a câmera **subiram pro `shared/`** em vez de sair com o aviso de "o
+> controle é o playtest". A razão é a do `FreioDePose` (§📡): **lá há onde rodar teste**. São
+> quatro regras que erram calado — `sprintLatch`/`forwardWasDown`/`lastForwardTap`,
+> `jumpWasDown`/`lastJumpTap`, `eyeHeight`, `stepSuave` — e o `posAnt{X,Y,Z}` (o odômetro do
+> perfil) ficou no cliente, que é onde ele serve.
+>
+> **`shared/src/controleJogador.ts`: `DuploToque` + `ControleDoJogador`, 21 testes.** O detector
+> conta BORDA de subida e anota o relógio em TODA borda — **três toques batem duas vezes, e isso
+> foi mantido de propósito** (era o que o laço fazia; mudar é mudar o controle). **A propriedade
+> que mais paga é a independência de FPS:** os dois decaimentos são `exp(-dt·k)`, e um `1 - dt·k`
+> linear compila, parece igual a 60 fps e fica pesado a 20 — que é o Kindle Fire do alvo.
+>
+> **A/B honesto em SEIS frentes, e duas delas voltaram contra mim — é o achado metodológico da
+> sessão.** `<` → `<=` derruba 2 asserções · anotar a borda depois do `return`, 8 · degrau
+> linear, 1 · teto do degrau removido, 1 · sentinela do relógio de volta em `0`, 4. **As duas que
+> NÃO derrubaram nada:** (a) inverter as duas linhas do `correndo` é INÓCUO — as duas guardas são
+> condições opostas sobre a mesma tecla, e o comentário do teste que afirmava o contrário estava
+> errado e foi corrigido; (b) trocar a suavização do olho por linear passava, porque o teste
+> media o FIM da transição — qualquer suavização converge se der tempo. **Refeito pra medir o
+> MEIO (0,1 s), e aí o linear cai.** A lição está no cerebrum: *um A/B que não derruba nada é um
+> teste fraco ou uma afirmação falsa — nos dois casos o resultado é do experimento, não do
+> código.*
+>
+> **bug-594, latente e sem sintoma:** `lastForwardTap = 0` guardava "nunca houve toque" com o
+> MESMO valor que `performance.now()` tem na navegação — nos primeiros 300 ms o primeiro toque
+> contaria como duplo e a corrida engataria sozinha. Sentinela virou `-Infinity`.
+>
+> **§🎮 6. `GameRuntime`, e o preço do `startGame` estava FORA dele.** Dezesseis `let … | null`
+> de módulo existiam só pra que o despachante alcançasse aquele escopo, e os tipos que eles
+> declaravam à mão eram **cópias do protocolo** (`applyBlockChanged` re-escrevia `{x,y,z,blockId}`
+> na unha). Os 44 bindings viraram campos (29 `readonly`), o corpo virou construtor, o laço virou
+> `iniciar()`, e os 16 ganchos viraram MÉTODOS. **`started` some: `jogo !== null` é a mesma
+> pergunta.** O `hudAtual`, com sua interface estrutural de três métodos, virou o campo `hud`.
+>
+> **E a conversão achou um caminho sem volta que ninguém tinha visto:** o `started` era setado
+> FORA do `startGame`, então um snapshot sem conexão o deixava `true` **com o jogo nunca
+> construído** — nem `startGame` nem `reloadWorld` rodariam depois, para sempre. Agora a saída
+> sem conexão deixa `jogo` em `null` e o próximo snapshot tenta de novo. Nunca aconteceu (o
+> `connect()` vem antes do snapshot), mas era irrecuperável.
+>
+> **A conferência que autorizou o remanejo, e ela vale mais que o typecheck:** diff das linhas de
+> código antes/depois **com `this.` removido** — toda linha que sumiu tem contrapartida na que
+> apareceu. Ela achou **dois defeitos do próprio remanejo** que compilavam: `lookDir`
+> inicializado DUAS vezes (campo + construtor) e o `reloadWorld` chamando `applyObjectiveBoxes`
+> pelo ponteiro de módulo em vez de `this`. **O `tsc` passou nos dois.**
+>
+> **A/B do 6, com rebuild entre cada um** (o f10 e o toque servem `client/dist` — do-not-repeat
+> da 52): sem `applyBlockChanged` o `shots:f10` cai em 8 asserções a partir de "o toque no ▣
+> abriu o painel"; sem `aplicarColunas` o `shots:luz` cai em "as duas cenas foram capturadas" (a
+> tela de carga nunca sai).
+>
+> **VERDE:** typecheck 3/3 (binário cru, bug-586) · **778 testes (+21)** · build · **15/15
+> smokes** · **`shots:f10` OK** · **`shots:toque` OK** · **`shots:luz` 5/5** (dia 21.7, noite
+> 8.4, razão 0.39).
+>
+> ⚠️ **bug-595 registrado SEM conserto:** o smoke `atividade` falhou 1 vez em 3 rodadas da suíte
+> inteira e passa isolado em 3 s. Os smokes não tocam o cliente, então não pode vir desta sessão
+> — anotado pra não custar bissecção depois.
+
+
 > **SESSÃO 52 (2026-08-06) — QUATRO DAS SEIS FRENTES DO `GameRuntime`, E DUAS DELAS ACHARAM
 > BURACO NO CONTROLE, NÃO NO CÓDIGO.** Sessão de uma palavra ("continuar"): a fila da 51 estava
 > escrita e ordenada, e foi ela que mandou. **`main.ts` 2.343 → 2.174.** 4 commits.
@@ -231,105 +299,54 @@
 
 ## 🚀 Próxima fase
 
-### 1. ⭐ A QUEST (continua): frentes 5 e 6 do `GameRuntime`
+### 1. ⭐ A FILA DO REFACTOR ACABOU — e o que manda agora é o PLAYTEST
 
-**As frentes 1–4 fecharam na sessão 52** (`MateriaisMundo`, `ProgressoCarga`, `PainelHost`,
-`FreioDePose`), uma por commit, verde entre cada uma. `main.ts` está em **2.174**. Faltam as
-duas que a 51 já marcou como as mais caras — e a ordem entre elas não é negociável, a 6 depende
-da 5:
+**As seis frentes do `GameRuntime` fecharam** (52: `MateriaisMundo`, `ProgressoCarga`,
+`PainelHost`, `FreioDePose`; 53: `MovimentoDoJogador`, `GameRuntime`). O plano que o usuário
+mandou anotar no fim da 51 está **cumprido inteiro**. Não há próxima frente de refactor
+enfileirada, e **inventar uma seria escopo não pedido**.
 
-5. **`MovimentoDoJogador`** — o bolo de `let` do laço: `sprintLatch`, `forwardWasDown`,
-   `lastForwardTap`, `jumpWasDown`, `lastJumpTap`, `eyeHeight`, `stepSuave`, `posAnt{X,Y,Z}`.
-   **O mais enganoso da lista, e a razão está no controle:** são estados de um frame pro outro,
-   e trocar a ordem de leitura e escrita muda a SENSAÇÃO sem quebrar nada que compila. Nenhum
-   print pega isso — **só jogando**. Antes de mexer, decidir o que serve de rede: ou o duplo-tap
-   (correr e voar) vira lógica pura no `shared/` com teste, como o `FreioDePose` da 52, ou a
-   frente sai com o aviso explícito de que o controle é o playtest.
-6. **`GameRuntime` propriamente** — só depois da 5: o que sobrar de `let` vira campo, o
-   `startGame` vira construtor + `iniciar()`, e o laço de render vira um método.
+**O que sobrou como candidato, e nenhum deles é óbvio:**
+- `handleServerData` (o despachante do cliente) e `handleMessage` (o do `session.ts`, 532 linhas)
+  seguem de fora **com razão escrita desde a 50**: são PORTA, e cada `case` é achável por Ctrl-F
+  com o nome da mensagem. **Não reabrir sem pedido.**
+- O construtor do `GameRuntime` tem ~600 linhas de construção + fiação. Ele é grande, mas é
+  ORDEM DE CONSTRUÇÃO — quebrá-lo em `montarCena()` / `montarPaineis()` / `montarHud()` é
+  cosmético, e o critério da casa é FRONTEIRA, não tamanho.
 
-**O que NÃO deve sair, e o critério é o mesmo desde a 50:** o que é PORTA (despachante) fica.
-`applyBlockChanged` / `applyBlocksFilled` / `reloadWorld` / `applyTeleport` são os ganchos de
-módulo que o `handleServerData` chama. **Critério de corte: ter FRONTEIRA (estado próprio + API
-estreita), não tamanho.**
+**⭐ O item 1 da fila de jogo virou o item 1 da fila inteira: o PLAYTEST DO F10.** É a única
+coisa da lista que nenhuma máquina faz, e ela não encosta desde a 47. Ver a seção 3.
 
-<!-- fim do bloco vivo — o que segue é o plano original da 51, mantido por contexto -->
+### 1b. ⚠️ A BATERIA DE CONTROLE (vale pra QUALQUER mexida no cliente)
 
-### 1b. O plano da 51, como foi escrito (frentes 1–4 já feitas)
-
-**DECIDIDO PELO USUÁRIO no fim da 51** (*"anota para fazer o restante do refatoramento na
-próxima sessão"*). Não reabrir a discussão de "vale a pena?" — ela já foi feita, com os dois
-lados na mesa, e a resposta dele foi essa. O que segue é o plano.
-
-**O ponto de partida:** `startGame` é `client/src/main.ts:1061–2343` — **1.282 linhas de
-closure**, com o estado do jogo em `let`/`const` locais. A rota B (subir lógica PURA pro
-`shared/`) **esgotou**: dos três candidatos da 50, um virou o `colunas.ts` na 51 e os outros dois
-foram inspecionados e recusados com razão (`target + normal` é `t.x + t.nx` inline em dois
-lugares; `podeVoar()` já delega ao `podeVoarNoModo` e o resto é uma linha que lê estado de
-módulo). E o arquivo fechou a 51 em **2.343 (+4)**: o que saiu do corpo voltou como import — a
-extração de peça solta acabou.
-
-**O padrão é COMPOSIÇÃO POR CLASSE, não função livre com bag de contexto** (já está no cerebrum,
-e é a diferença do corte que a 49 fez no servidor): cada subsistema vira classe DONA do próprio
-estado, como `TorchGlow`, `RegionRenderer`, `AguaFx`, `ChunkRenderer`, `LuzCliente`,
-`RemotePlayersView`, `ColunasFaltando` e `HotbarUi` já são. O `GameRuntime` é o que sobra depois
-que os donos saírem: os campos, a ordem de construção e o laço.
-
-**A ordem, do mais barato pro mais caro — uma frente por commit, verde entre cada uma:**
-
-1. **`MateriaisMundo`** (~L1093–1163: `atlas`, `material`, `materialAgua`, `materialVidro`,
-   `luzUniforms` e o estado de animação da água — `aguaQuadroParada`, `aguaFluxoRelogio`,
-   `aguaQuadroFluxo`, `aguaUltimaPintura`). **É a prova do padrão:** estado próprio, API estreita
-   (`atualizar(dt, hora)` + os materiais), e é o único ponto que hoje mistura relógio com
-   material. Começar por aqui.
-2. **`ProgressoCarga`** (`totalCarga`, `observarCarga`, `iniciarTroca` e o portão do
-   `loading.concluir()` no laço). A CONTA já saiu pro `shared/colunas.ts` na 51 — sobra o estado
-   da tela. Fronteira limpa.
-3. **`PainelHost`** (`friendsPanel`, `inventoryPanel`, `containerPanel`, `quadroEditor`,
-   `sendCmd`, `onPanelToggle`, `openPlayers`, `podeAbrirMenu`). ⚠️ **A regra "um menu por vez"
-   da 48 mora aqui e é fácil de quebrar sem perceber** — quem prova é o `shots:toque`.
-4. **`EnvioDePosicao`** (`IDLE_HEARTBEAT_MS`, `lastSent`, `lastSentAt`, `lastNet`): "manda quando
-   muda + heartbeat 1×/2 s". Pequeno e isolado.
-5. **`MovimentoDoJogador`** — o bolo de `let` do laço: `sprintLatch`, `forwardWasDown`,
-   `lastForwardTap`, `jumpWasDown`, `lastJumpTap`, `eyeHeight`, `stepSuave`, `posAnt{X,Y,Z}`.
-   **O mais enganoso da lista:** são estados de um frame pro outro, e trocar a ordem de leitura e
-   escrita muda a SENSAÇÃO sem quebrar nada que compila. Nenhum print pega isso — só jogando.
-6. **`GameRuntime` propriamente** — só depois de 1–5: o que sobrar de `let` vira campo, o
-   `startGame` vira construtor + `iniciar()`, e o laço de render vira um método.
-
-**O que NÃO deve sair, e o critério é o mesmo da 50:** o que é PORTA (despachante) fica.
-`applyBlockChanged` / `applyBlocksFilled` / `reloadWorld` / `applyTeleport` são os ganchos de
-módulo que o `handleServerData` chama — mexer neles reabre a decisão que a 50 tomou com razão
-escrita. **Critério de corte: ter FRONTEIRA (estado próprio + API estreita), não tamanho.**
-
-**⚠️ O CONTROLE, e é a diferença que pesa:** no servidor a 49 teve 715 testes de controle; **no
-cliente não há teste unitário nenhum.** O controle é este, e roda inteiro entre cada frente:
+No cliente **não há teste unitário nenhum** — o controle é este, e roda inteiro entre cada
+frente:
 
 ```
 cd shared && ../node_modules/.bin/tsc --noEmit   # binário CRU — npx tsc MENTE (bug-586)
 cd client && ../node_modules/.bin/tsc --noEmit
 cd server && ../node_modules/.bin/tsc --noEmit
-npm run build && npm run smoke        # 15/15
-npm run shots:f10                     # 22 asserções, sobe host próprio
-npm run shots:toque                   # 15 asserções, sobe host próprio — prova a regra dos painéis
-npm run shots:luz                     # 5 — ⚠️ EXIGE `npx vite --port 5173 client` de pé ANTES
+npm test && npm run build && npm run smoke       # 778 testes · 15/15 smokes
+npm run shots:f10                                # sobe host próprio
+npm run shots:toque                              # sobe host próprio — prova a regra dos painéis
+npm run shots:luz                                # ⚠️ EXIGE vite em :5173 de pé ANTES
 ```
 
-⚠️ **O `shots:f10` e o `shots:toque` servem `client/dist`** — o cliente COMPILADO. Rodar `npm run
-build` ANTES, e de novo a cada bissecção com `git stash`, senão eles medem o binário velho
-(custou uma bissecção falsa na 52). O `shots:luz` é o oposto: roda no vite e lê o fonte na hora.
+Subir o vite: `nohup ./node_modules/.bin/vite --port 5173 --strictPort client > log 2>&1 &`
+(`npm run dev` em background morre com exit 143 e log vazio — do-not-repeat).
 
-⚠️ Os scripts de print bufferizam stdout fora de TTY: **rodar sem pipe pra `tail`**, senão um
-script morto no meio não deixa rastro nenhum (do-not-repeat) — e foi por causa do pipe que a 51
-não conseguiu recontar as asserções do f10 e do toque.
+⚠️ **O `shots:f10` e o `shots:toque` servem `client/dist`** — o cliente COMPILADO. Rodar
+`npm run build` ANTES, e de novo a cada A/B, senão eles medem o binário velho (custou uma
+bissecção falsa na 52). O `shots:luz` é o oposto: roda no vite e lê o fonte na hora.
 
-E a régua da casa vale aqui também: **A/B honesto** — desligar o que se acabou de escrever e
-mostrar quais asserções caem. Num refactor sem teste unitário, é ele que separa "compilou" de
-"funciona".
+⚠️ Os scripts de print bufferizam stdout fora de TTY: **rodar sem pipe pra `tail`** (redirecionar
+pra arquivo e ler depois), senão um script morto no meio não deixa rastro nenhum.
 
-⚠️ **Registrado, sem re-litigar:** a fila de JOGO (item 3) não encosta desde a 47, e o
-`GameRuntime` muda muito código sem mudar nada para a turma. O **playtest do F10** segue sendo a
-única coisa da lista que nenhuma máquina faz.
+E a régua da casa: **A/B honesto** — desligar o que se acabou de escrever e mostrar quais
+asserções caem. Sem teste unitário, é ele que separa "compilou" de "funciona". **E um A/B que
+não derruba nada é resultado do EXPERIMENTO, não do código: ou o teste é fraco, ou a afirmação
+era falsa** (aconteceu duas vezes na 53).
+
 ### 2. Ainda aberto do `session.ts` (opcional, e menor)
 
 `handleMessage` tem **532 linhas** — é o despachante do protocolo, um `switch` de 65 `case`.
@@ -338,7 +355,7 @@ da mensagem. Quebrá-lo por família de mensagem é possível, mas o ganho é me
 `main.ts` e ele tem a contabilidade de fome (`mudancasAntes`) atravessada, que é fácil de
 quebrar sem querer.
 
-### 3. A fila de jogo (inalterada desde a 47 — nada disto foi tocado na 49, 50 nem 51)
+### 3. ⭐ A fila de JOGO (inalterada desde a 47 — nada disto foi tocado da 49 à 53)
 
 1. **PLAYTEST do F10** — é o que manda, e é a única coisa da lista que nenhuma máquina faz. A
    cadeia inteira (árvore → picareta → fornalha → lingote) nunca passou por uma turma.

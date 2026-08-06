@@ -772,6 +772,49 @@
   mira no servidor recusaria soco legítimo. Quem mira é o cliente (`raycastJogador`, puro); o
   servidor garante que ninguém soca do outro lado do mapa (mesma folga `+2` do `withinReach`).
 
+### [2026-08-06, sessão 53] Um A/B que NÃO derruba nada é resultado do experimento, não do código
+
+Dos seis A/B do `controleJogador.ts`, **dois passaram com a regra desligada** — e os dois eram
+defeito meu, não prova de robustez:
+
+1. **Inverter as duas linhas do `correndo`** (engatar antes/depois de desengatar) é INÓCUO: as
+   duas guardas são condições OPOSTAS sobre a mesma tecla (`if (bateu(andando))` e
+   `if (!andando)`), então a ordem não pode importar. O comentário do teste afirmava o contrário
+   — corrigido. **Afirmação falsa.**
+2. **Trocar `k = 1 - exp(-dt*20)` por `k = dt*20`** passava porque o teste media o valor FINAL
+   depois de meio segundo, e *qualquer* suavização converge se der tempo. Refeito pra medir o
+   MEIO da transição (0,1 s), e aí o linear cai. **Teste fraco.**
+
+**A regra:** quando o A/B fica verde, a primeira hipótese não é "o código é robusto" — é "o
+experimento está errado". Investigar QUAL das duas antes de seguir.
+
+### [2026-08-06, sessão 53] Refactor mecânico grande: o `tsc` não é controle suficiente
+
+A conversão do `startGame` (1.110 linhas de closure) em `class GameRuntime` passou no `tsc` com
+**dois defeitos dentro**: `lookDir` inicializado duas vezes (campo + construtor) e o
+`reloadWorld` chamando `applyObjectiveBoxes` pelo ponteiro de MÓDULO (`jogo?.`) em vez de
+`this.` — os dois compilam e os dois rodam.
+
+**O que achou foi um diff de LINHAS DE CÓDIGO com `this.` removido**, contando ocorrências dos
+dois lados: toda linha que sumiu tem de ter contrapartida na que apareceu. É barato
+(~30 linhas de Python) e é a única conferência que enxerga "código duplicado" e "código
+perdido" num remanejo que o compilador aceita.
+
+Armadilhas do transform automático que apareceram, todas caçadas pelo `tsc`:
+- **template literals** (`` `${world.dims.x}` ``) — se o script trata `` ` `` como string, o
+  `${}` de dentro não é transformado;
+- **shorthand de objeto** (`{ colunasRecebidas, }`) vira `{ this.x, }`, que é erro de sintaxe;
+- **chaves de objeto** (`{ bench: bench.meta() }`) — a chave não pode ganhar `this.`.
+  Lookahead de `:` resolve as duas últimas.
+
+### [2026-08-06, sessão 53] Ganchos de módulo `let … | null`: o cheiro é o TIPO, não o número
+
+`main.ts` tinha 16 `let apply* : ((msg: {…}) => void) | null`, e o problema não era a
+quantidade — era que **os tipos eram cópias escritas à mão do protocolo**
+(`applyBlockChanged` re-declarava `{x,y,z,blockId}`). Um campo novo na mensagem passava
+despercebido. Virando métodos de uma classe alcançada por UM ponteiro (`jogo`), as cópias
+sumiram junto. E o `started` que morava ao lado dizia exatamente o mesmo que `jogo !== null`.
+
 ## Do-Not-Repeat
 
 - [2026-08-06] **Bissectar com `git stash` num script de print EXIGE `npm run build` no meio.**
@@ -1064,6 +1107,14 @@
   ⚠️ `tsx src/index.ts` roda em VÁRIOS processos e só o node filho FINAL registra `SIGINT`:
   pra disparar o save, `pkill -INT -f 'index.ts'`.
   ⚠️ O PID de `$!` com `nohup npx tsx &` é o WRAPPER; o dono real sai de `ss -tlnp` (bug-092).
+- [2026-08-06] **Sentinela "nunca aconteceu" NÃO pode ser `0` quando o relógio é
+  `performance.now()`** — ele também começa em 0, então `agora - ultimo < janela` é VERDADE nos
+  primeiros ms da página (bug-594). Usar `Number.NEGATIVE_INFINITY`.
+- [2026-08-06] **Teste de "independe do FPS" tem de medir o MEIO da transição, não o fim** —
+  qualquer suavização converge se der tempo, e um decaimento linear passa no teste do fim.
+- [2026-08-06] Em refactor mecânico grande, **`tsc` verde não prova que o código não foi
+  duplicado nem perdido**. Conferir com diff de linhas de código normalizadas (ver Key
+  Learnings da 53).
 - [2026-07-12] `npm run dev` via Bash background morre com exit 143 e log VAZIO — subir com
   `nohup npx tsx …` e conferir a porta com `ss -tln` (o vite pode pular pra 5174).
 - [2026-07-13] Smoke `.mts` no scratchpad: `node --import tsx script.mts` **com CWD no repo**
