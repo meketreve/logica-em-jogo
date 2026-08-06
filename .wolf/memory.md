@@ -1668,3 +1668,5 @@ passa pelo próprio portão) · 5 prints da pista. **PLAYTEST PENDENTE.**
 | 11:15 | Edited client/src/main.ts | suaves() → olho() | ~157 |
 | 11:23 | Edited shared/src/controleJogador.test.ts | 3→4 lines | ~66 |
 | 11:23 | Edited shared/src/controleJogador.test.ts | 12→14 lines | ~249 |
+| 11:54 | Edited client/src/main.ts | inline fix | ~11 |
+| 11:55 | Edited client/src/main.ts | modified startGame() | ~204 |

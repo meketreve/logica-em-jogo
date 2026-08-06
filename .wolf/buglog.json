@@ -4357,6 +4357,27 @@
       ],
       "occurrences": 1,
       "last_seen": "2026-08-06T14:25:00Z"
+    },
+    {
+      "id": "bug-595",
+      "timestamp": "2026-08-06T15:05:00Z",
+      "error_message": "npm run smoke: '14/15 smokes OK — atividade falhou' (1 em 3 rodadas). Rodado sozinho (`node scripts/smoke.mjs atividade`) passa em 3s; a suíte inteira rodada de novo dá 15/15.",
+      "file": "scripts/smoke.mjs (smoke `atividade`) — NÃO reproduzido, causa não isolada",
+      "root_cause": "DESCONHECIDA. O que se sabe: o refactor da sessão 53 mexeu só em `client/src/main.ts` e os smokes sobem host+GameSession sem cliente nenhum, então a falha não pode vir do que foi editado. O smoke `atividade` é o 8º de 15 e roda depois de vizinhos pesados (`fornalha` 24-26s, `pvp` 14-15s) — a hipótese é timeout/corrida de porta ou de tick sob carga da suíte, não defeito de regra.",
+      "fix": "NENHUM aplicado — registrado para não custar bissecção na próxima vez que aparecer. Se repetir: capturar a saída do smoke ISOLANDO o log (o runner só imprime 'falhou' sem a asserção), e conferir se é sempre depois do `fornalha`.",
+      "tags": [
+        "flaky",
+        "smoke",
+        "atividade",
+        "intermitente",
+        "nao-reproduzido",
+        "sem-conserto"
+      ],
+      "related_bugs": [
+        "bug-593"
+      ],
+      "occurrences": 1,
+      "last_seen": "2026-08-06T15:05:00Z"
     }
   ]
 }
