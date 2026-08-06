@@ -227,6 +227,14 @@ export class ContainerPanel {
       );
     }
 
+    // --- o DIVISOR (2026-08-05, pedido do usuário) ---
+    // Os 27 slots do baú e os 27 da mochila são a MESMA grade de 9 colunas, com
+    // o mesmo desenho de slot, coladas uma na outra: quem abre o baú pela
+    // primeira vez não tem como saber onde acaba um e começa o outro — e o erro
+    // é caro, porque tirar da metade errada é dar o item pro baú da colega.
+    // Uma faixa com o nome dos dois lados resolve sem custar altura de painel.
+    root.append(this.divisor(this.tipo === "fornalha" ? "fornalha" : "baú", "sua mochila"));
+
     // --- a mochila, embaixo: a grade de 18 e a faixa da hotbar de 9 ---
     const grade = document.createElement("div");
     grade.className = "inv-mochila";
@@ -245,6 +253,21 @@ export class ContainerPanel {
     }
 
     root.append(grade, bar);
+  }
+
+  /** A faixa que separa o container da mochila: o rótulo de CIMA à esquerda, o
+   *  de BAIXO à direita, e a linha entre eles. Dois nomes (e não um traço) —
+   *  "onde é o baú" e "onde sou eu" é a pergunta, e a resposta tem dois lados. */
+  private divisor(cima: string, baixo: string): HTMLElement {
+    const wrap = document.createElement("div");
+    wrap.className = "cont-divisor";
+    const a = document.createElement("small");
+    a.textContent = `▲ ${cima}`;
+    const linha = document.createElement("i");
+    const b = document.createElement("small");
+    b.textContent = `${baixo} ▼`;
+    wrap.append(a, linha, b);
+    return wrap;
   }
 
   /** Barrinha de 0..1 com rótulo. Duas cores: fogo (laranja) e cozimento

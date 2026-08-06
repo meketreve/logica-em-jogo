@@ -147,10 +147,16 @@ describe("§🍖 F6 — as duas fontes de comida", () => {
     expect(CHANCE_SEMENTE_DO_CAPIM).toBeGreaterThan(CHANCE_FRUTA_DA_FOLHA);
   });
 
-  it("plantação MADURA dá o trigo E devolve a muda (replantar fecha o ciclo)", () => {
-    expect(dropsDe(BlockId.Plantacao3)).toEqual([
+  it("plantação MADURA dá o trigo E devolve a semente (replantar fecha o ciclo)", () => {
+    // o trigo é 1 fixo; a semente é 1–3 desde 2026-08-05 (a horta tem de poder
+    // CRESCER, não só se replantar) — as duas pontas do sorteio provam a faixa
+    expect(dropsDe(BlockId.Plantacao3, () => 0)).toEqual([
       { id: ITEM_TRIGO, qtd: 1 },
       { id: BlockId.Plantacao0, qtd: 1 },
+    ]);
+    expect(dropsDe(BlockId.Plantacao3, () => 0.99)).toEqual([
+      { id: ITEM_TRIGO, qtd: 1 },
+      { id: BlockId.Plantacao0, qtd: 3 },
     ]);
   });
 

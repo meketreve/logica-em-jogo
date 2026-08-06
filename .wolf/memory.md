@@ -1426,3 +1426,63 @@ passa pelo próprio portão) · 5 prints da pista. **PLAYTEST PENDENTE.**
 | 19:46 | §🍖 Refino 2 — **a fornalha ganhou FRENTE**: boca numa face só, direção no id. 186/187 viraram o −Z, 194-199 são as outras três (não contíguos: mundo salvo é contrato), tradução por `FORNALHA_POR_FRENTE`, acender preserva a direção, tile novo `fornalhaCostas`. | blocks.ts, mesher.ts, luz.ts, session.ts, main.ts, atlasTexture.ts | A/B: boca no `side` → 4 bocas onde tem de ter 1 | ~5k |
 | 19:46 | VERDE: typecheck 3/3 · **704 testes** (+7) · build · **15/15 smokes** · shots:f10 22/22. | — | tudo verde | ~2k |
 | 19:46 | Handoff: STATUS 🚀, TODO 🔥, cerebrum (2 preferências, 8 aprendizados, 2 do-not-repeat, 2 decisões), buglog bug-580. | .wolf/* | pronto pro /clear | ~4k |
+| 19:47 | Session end: 58 writes across 12 files (f10-shot.mjs, package.json, session.ts, blocks.ts, mesher.ts) | 21 reads | ~190717 tok |
+
+## Session: 2026-08-05 20:13
+
+| Time | Action | File(s) | Outcome | ~Tokens |
+|------|--------|---------|---------|--------|
+| 20:28 | Edited shared/src/receitas.ts | modified idsDoIngrediente() | ~401 |
+| 20:28 | Edited shared/src/receitas.ts | igual() → APOSENTADA() | ~149 |
+| 20:29 | Edited shared/src/receitas.ts | expanded (+6 lines) | ~167 |
+| 20:29 | Edited shared/src/receitas.ts | modified temDoIngrediente() | ~135 |
+| 20:29 | Edited shared/src/receitas.ts | added 1 condition(s) | ~152 |
+| 20:29 | Edited shared/src/receitas.ts | modified ingredientesDe() | ~210 |
+| 20:29 | Edited shared/src/drops.ts | expanded (+21 lines) | ~342 |
+| 20:29 | Edited shared/src/drops.ts | modified if() | ~155 |
+| 20:29 | Edited shared/src/drops.ts | modified sementes() | ~119 |
+| 20:30 | Edited shared/src/blocks.ts | modified precisaApoio() | ~300 |
+| 20:30 | Edited shared/src/rules.ts | added 1 condition(s) | ~286 |
+| 20:30 | Edited shared/src/rules.ts | 3→4 lines | ~20 |
+| 20:30 | Edited client/src/blocksUi.ts | 3→7 lines | ~152 |
+| 20:31 | Edited client/src/input.ts | added 1 condition(s) | ~241 |
+| 20:32 | Edited client/src/main.ts | modified menuAberto() | ~519 |
+| 20:32 | Edited client/src/main.ts | added optional chaining | ~373 |
+| 20:33 | Edited client/src/main.ts | added nullish coalescing | ~205 |
+| 20:33 | Edited client/src/main.ts | added nullish coalescing | ~134 |
+| 20:33 | Edited client/src/main.ts | modified if() | ~165 |
+| 20:33 | Edited client/src/main.ts | added nullish coalescing | ~68 |
+| 20:33 | Edited client/src/main.ts | added nullish coalescing | ~41 |
+| 20:34 | Edited client/src/main.ts | added 1 condition(s) | ~115 |
+| 20:34 | Edited client/src/container.ts | expanded (+8 lines) | ~191 |
+| 20:34 | Edited client/src/container.ts | modified divisor() | ~206 |
+| 20:34 | Edited client/index.html | modified mochila() | ~265 |
+| 20:34 | Edited client/src/inventory.ts | 6→11 lines | ~138 |
+| 20:34 | Edited client/src/inventory.ts | 1→5 lines | ~80 |
+| 20:34 | Edited client/src/inventory.ts | 4→5 lines | ~26 |
+| 20:37 | Edited shared/src/algodao.test.ts | modified for() | ~568 |
+| 20:37 | Edited shared/src/algodao.test.ts | expanded (+6 lines) | ~33 |
+| 20:37 | Edited shared/src/comida.test.ts | expanded (+6 lines) | ~168 |
+| 20:37 | Edited shared/src/receitas.test.ts | expanded (+6 lines) | ~52 |
+| 20:37 | Edited shared/src/receitas.test.ts | 11→12 lines | ~55 |
+| 20:38 | Edited shared/src/receitas.test.ts | added 1 condition(s) | ~1090 |
+| 20:38 | Edited shared/src/receitas.test.ts | 3→4 lines | ~21 |
+| 20:38 | Edited shared/src/rules.test.ts | added 1 condition(s) | ~776 |
+| 20:39 | Edited shared/src/rules.test.ts | expanded (+7 lines) | ~32 |
+| 20:39 | Edited shared/src/receitas.ts | added 1 condition(s) | ~163 |
+| 20:39 | Edited shared/src/drops.test.ts | muda() → semente() | ~156 |
+| 00:16 | Edited server/src/cenarios/_smoke-comida.mjs | voltou() → sementes() | ~106 |
+| 00:19 | Edited todo.md | expanded (+37 lines) | ~727 |
+
+## Sessão 48 (2026-08-06) — a bateria de 11 pedidos do usuário, e a decisão de stack no fim
+
+| 00:21 | §🧹 bug-582: `contextmenu` subiu do canvas pro `document` (menu do navegador abria em cima do baú) | client/src/input.ts | corrigido | ~2k |
+| 00:21 | §🧹 UM MENU POR VEZ: `menuAberto`/`menuDePausaAberto`/`podeAbrirMenu` + Esc fecha o menu de PAUSA | client/src/main.ts | novo | ~9k |
+| 00:21 | §🍖 semente da colheita virou 1–3 (`SEMENTES_MIN/MAX`); algodão selvagem 1/4 → 2/3 | shared/src/drops.ts | novo | ~3k |
+| 00:21 | §🍖 "semente" → "semente de trigo" (duas bolsas iguais na mesma aba) | client/src/blocksUi.ts | corrigido | ~1k |
+| 00:21 | §🔥 `Ingrediente.ou`: a tocha virou UMA receita (a gêmea do carvão vegetal foi APOSENTADA) | shared/src/receitas.ts | novo | ~8k |
+| 00:21 | §🌱 bug-581: apoio passou a ser DERIVADO de `precisaApoio` (o algodão inteiro flutuava); mandacaru entrou | shared/src/rules.ts, blocks.ts | corrigido | ~5k |
+| 00:21 | §🎨 divisor container↕mochila no painel do baú (dois rótulos + linha) | client/src/container.ts, index.html | novo | ~4k |
+| 00:21 | §🧪 bug-583/584: 5 asserções viraram FAIXA; `remover` é tudo-ou-nada no laço do `ou` | *.test.ts, _smoke-comida.mjs | corrigido | ~7k |
+| 00:21 | §📋 5 ideias do usuário no TODO (durabilidade, ferramenta na mão, tempo de quebra, tooltip, esconder hotbar) | todo.md | anotado | ~2k |
+| 00:21 | VERDE: typecheck 3/3 · 715 testes (+11) · build · 15/15 smokes | — | ok | ~6k |

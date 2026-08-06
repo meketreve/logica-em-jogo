@@ -1,6 +1,62 @@
 # STATUS — Projeto "Lógica em Jogo" (jogo voxel educacional)
 
 > Single source of truth for resuming work. Read this FIRST when starting a session.
+> **SESSÃO 48 (2026-08-06) — A BATERIA DE 11 PEDIDOS, E DEPOIS A PERGUNTA GRANDE DE STACK.**
+> O usuário mandou tudo num parágrafo só, misturando bug, regra de jogo e ideia de backlog — e
+> ele mesmo marcou onde a fronteira estava (*"agora ideias para o todo.md"*). **As 6 primeiras
+> viraram código; as 5 últimas viraram TODO e não foram implementadas** (implementar o que ele
+> mandou anotar seria escopo não pedido).
+>
+> **bug-582 — o menu do navegador em cima do baú.** O `preventDefault` do `contextmenu` estava
+> só no CANVAS, que é exatamente o caso em que ele não é preciso: com pointer lock o navegador
+> nem abre o menu. Abrir um baú SOLTA o ponteiro, o cursor reaparece no meio da tela (em cima do
+> `#container`), e o `contextmenu` daquele mesmo clique cai no PAINEL. Subiu pro `document`, com
+> isenção pra campo de texto (o chat precisa de copiar/colar).
+>
+> **UM MENU POR VEZ, e a diferença com o que já existia.** Antes cada tecla de painel FECHAVA os
+> outros ("um painel por vez na tela"); com o baú aberto, apertar E trocava o baú pela mochila e
+> **o servidor continuava achando que o baú estava aberto**. Agora o segundo menu simplesmente
+> não abre (`podeAbrirMenu()`, que soma painéis + menu de pausa + chat) — e o **Esc fecha o menu
+> de PAUSA**, que era o único que só saía com clique. O chat entrou na regra: o Enter atravessava
+> o painel aberto e o aluno digitava numa caixa escondida atrás dele.
+>
+> **bug-581 — o algodão inteiro FLUTUAVA, e é o bug-558 outra vez.** `precisaApoio` (blocks.ts) e
+> o `rulesMap` (rules.ts) eram DUAS listas do mesmo conjunto; o §🍖 F10c pôs os 5 ids do algodão
+> numa e nenhum na outra, e quem derruba o que perdeu apoio é a regra do TICK. Esquecer não
+> quebra nada — o pé só fica pendurado no ar. **O registro passou a ser DERIVADO** de
+> `precisaApoio`, as 4 faixas escritas à mão sumiram, o **mandacaru** entrou (era a última planta
+> de fora) e um teste-portão varre `0..MAX_BLOCK_ID` cobrando a coerência.
+>
+> **A TOCHA VIROU UMA RECEITA SÓ, e isso exigiu motor novo.** `Ingrediente.ou` é a alternativa de
+> ingrediente que o `Receita.custo` não tinha — a razão de existirem duas receitas de tocha. A
+> gêmea do carvão vegetal foi **APOSENTADA** (o índice é a identidade no protocolo: apagar
+> deslocaria as picaretas logo abaixo), o `fabricar` gasta o **principal primeiro** e a linha do
+> painel diz *"1/1 carvão ou carvão vegetal"*. **bug-584 no caminho:** `remover` é tudo-ou-nada,
+> então pedir o custo inteiro de cada alternativa fazia "1 de cada pra um custo de 2" não pagar
+> nada.
+>
+> **Números de horta, os dois pedidos dele:** a colheita devolve **1–3 sementes** (era 1 fixo — a
+> horta se replantava mas nunca CRESCIA) e a semente do algodão selvagem subiu de **1/4 pra
+> 2/3**, porque o capim cobre campo inteiro e o pé de algodão é esparso: com a mesma régua,
+> "achei um algodão" era quase sempre "e não veio nada". E **"semente" virou "semente de
+> trigo"** — duas bolsas quase iguais na mesma aba faziam plantar a errada.
+>
+> **O painel do baú ganhou DIVISOR** (linha + os dois rótulos, `▲ baú` / `sua mochila ▼`): 27
+> slots do container e 27 da mochila são a mesma grade de 9 colunas coladas, e tirar da metade
+> errada é mexer no baú da colega.
+>
+> ✅ **A FORNALHA JÁ ACEITAVA tábua e tronco como combustível, e tronco já virava carvão vegetal**
+> (`COMBUSTIVEIS` + `COZIMENTO`, com teste desde o F10b: *"tronco é combustível E matéria-prima"*).
+> Nada mudou — o pedido já estava atendido.
+>
+> **VERDE:** typecheck 3/3 · **715 testes** (+11) · build · **15/15 smokes** · **bug-583**
+> (autoria de teste: 4 asserções puras + 1 smoke fixavam `qtd: 1` na semente; as puras viraram as
+> duas PONTAS do sorteio, as de fio viraram FAIXA).
+>
+> ⚠️ **PENDENTE, e é a conversa que abre a próxima sessão: TROCA DE STACK.** O usuário levantou
+> — sem decidir — migrar de web para **aplicação nativa em janela própria** (cliente servido pela
+> rede, mas não uma aba), possivelmente **Rust** no cliente e **SpacetimeDB** no servidor. Nada
+> foi analisado nem escrito ainda. Ver "🚀 Próxima fase".
 > **SESSÃO 47 (2026-08-05) — OS PRINTS DO F10, OS DOIS REFINOS DE FORMA, E O PUSH DOS 11
 > COMMITS.** Aberta com "onde paramos?" e `git fetch` (a rotina desde a 40) — desta vez o local
 > estava **9 commits À FRENTE**: a sessão 46 inteira nunca tinha sido empurrada. O pedido foi
@@ -164,6 +220,34 @@
 
 ## 🚀 Próxima fase
 
+### 1. A CONVERSA DE STACK (pedida na 48, nada decidido ainda) — **é o que abre a sessão**
+
+O usuário escreveu, no fim da 48: *"devido a crescente complexidade do projeto, estou pensando em
+mudar a stack para algo mais robusto e que aceite mais alterações. tem ainda como servir o cliente
+por rede mas a página abrir uma janela separada do jogo? não mais um web mas sim uma aplicação.
+algo ambicioso e novo, talvez usando SpacetimeDB por exemplo e o cliente como algo bem performático
+talvez em Rust."*
+
+**Nenhuma análise foi feita — a sessão acabou no limite de uso.** O que a próxima sessão tem de
+entregar é a ANÁLISE, não a migração: três eixos separados (janela nativa · linguagem do cliente ·
+banco/servidor autoritativo), o que cada um custa, e o que se PERDE. Contexto que já está na casa e
+pesa na decisão:
+
+- **O alvo de campo é KINDLE FIRE 1024×600 e laboratório de escola** (cerebrum: "os dois, Fire
+  manda"; celular foi RECUSADO). Cliente nativo em Rust **não roda no Fire** do jeito que o
+  navegador roda — isso é a primeira pergunta, não um detalhe.
+- **O `.wolf/cerebrum.md` registra que aba de navegador não abre socket nem executa binário** —
+  foi essa propriedade que fez a TI da escola aceitar o jogo. Aplicação instalada muda essa
+  conversa.
+- **`shared/` é ~40 arquivos de lógica pura testada** (715 testes) e é o ativo mais caro do
+  projeto: worldgen, luz, mesher, física, receitas, regras. Qualquer plano tem de dizer o que
+  acontece com ele.
+- **Meio-termo que ninguém levantou ainda e cabe na resposta:** Tauri/Electron dão "janela
+  própria, servida pela rede" **sem reescrever nada**, e WebGPU/wasm dão performance sem trocar
+  de linguagem. Apresentar isso como opção real, não como consolo.
+
+### 2. O resto da fila (inalterado desde a 47)
+
 **A fila do §🍖 está VAZIA — os refinos que sobravam fecharam na 47.** O que resta é escolha do
 usuário:
 
@@ -174,6 +258,13 @@ usuário:
    cavar?** Depois da 47 há uma segunda: a fornalha virada pro lado certo ajuda ou confunde?
 2. **§🍖 F8 — MOBS**: a única frente do roadmap de sobrevivência ainda fora. 3+ sessões, e tem
    o aviso de GPU do laboratório pendurado nela.
+2b. **§🔨 FERRAMENTAS v2 — 3 itens novos no `todo.md` (pedido da 48).** Durabilidade · exigir a
+   ferramenta no slot SELECIONADO · tempo de quebra por (bloco × ferramenta). **As três andam
+   juntas** e destravam machado e pá, que o F10d deixou de fora justamente porque a quebra é
+   instantânea. A durabilidade é a 1ª coisa a quebrar o par `{id, qtd}` da pilha — a decisão
+   (campo `dano?` vs. ids por faixa de desgaste) está escrita no TODO.
+2c. **§💬 UI: tooltip no hover + esconder a hotbar com menu aberto** (pedido da 48, no TODO). O
+   `menuAberto()` da 48 já responde a pergunta que a hotbar precisa fazer.
 3. **O tile do algodão maduro** (ver o ⚠️ da sessão 47): o capulho lê como martelo cinza.
    Meia hora de `paintAlgodao` em `client/src/atlasTexture.ts` **se** ele achar que incomoda —
    o print `08-canteiro-algodao.png` é a evidência.

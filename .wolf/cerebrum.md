@@ -12,6 +12,16 @@
 
 <!-- How the user likes things done. Code style, tools, patterns, communication. -->
 
+- **Manda BATERIA de pedidos num parágrafo só, misturando bug, regra de jogo e ideia de
+  backlog** (2026-08-06: 11 itens numa frase). A separação é trabalho MEU: o que é bug vira
+  fix + entrada no buglog, o que é regra vira código + teste, e o que ele mesmo marca como
+  "ideias para o todo.md" vai pro TODO **sem ser implementado**. Implementar o que ele mandou
+  anotar é escopo não pedido.
+- **"Fica confuso ter 2 receitas separadas para a mesma coisa"** (2026-08-06) — a régua dele pra
+  UI é a CRIANÇA ESCOLHENDO. Duas linhas com a mesma saída não são "informação", são uma
+  escolha falsa. Quando uma decisão antiga foi tomada por limitação do motor ("`custo` não tem
+  ou"), o pedido dele é pra mudar o MOTOR, não pra explicar a limitação.
+
 - Dev é **100% vibecode**: ele orquestra, NÃO revisa código. A arquitetura carrega o peso
   sozinha (TS estrito, módulos pequenos, testes, checkpoints jogáveis).
 - **Simplicidade > segurança quando não há dado sensível** (2026-07-12: mandou tirar o hash do
@@ -693,6 +703,14 @@
 
 ### Autoria de teste e de smoke
 
+- **[2026-08-06, sessão 48] Drop que virou SORTEIO derruba teste puro E smoke, e os dois se
+  consertam de jeitos DIFERENTES.** A semente da colheita passou de 1 fixo pra 1–3 e quebrou 4
+  asserções puras + 1 smoke (bug-583). No teste puro o `sorteio` é injetável: use as duas
+  PONTAS (`() => 0` e `() => 0.99999`) e compare com as constantes exportadas
+  (`SEMENTES_MIN`/`SEMENTES_MAX`), nunca com literais. No smoke **não há injeção** — o servidor
+  usa o `Math.random` de verdade —, então a asserção tem de ser FAIXA (`n >= 3 && n <= 5`) com a
+  conta escrita no comentário; número fixo ali reprova por sorte numa rodada em cinco.
+  **Ao tornar qualquer drop aleatório, exporte MIN/MAX antes de escrever o primeiro teste.**
 - **[2026-08-05, sessão 46] Asserção de smoke não pode correr contra o TICK.** O
   `_smoke-fornalha` conferia a tábua NO SLOT de combustível 350 ms depois de a pôr lá — e a
   fornalha acende no 1º tick com entrada + combustível, consumindo a única unidade (bug-577,
@@ -780,6 +798,24 @@
 
 ### Código e arquitetura
 
+- **[2026-08-06, sessão 48] DUAS listas do mesmo conjunto é um bug esperando a próxima feature.**
+  `precisaApoio` (blocks.ts) dizia QUEM precisa de chão e o `rulesMap` (rules.ts) REGISTRAVA a
+  regra do tick — duas listas de faixas de id escritas à mão. Esquecer a segunda não quebra
+  nada: o bloco só fica FLUTUANDO. Custou o capim na sessão 36 (bug-558) e, dois meses depois,
+  o algodão inteiro — 5 ids que o F10c pôs numa lista e não na outra (bug-581). A cura é
+  DERIVAR uma da outra (`for id … if (precisaApoio(id)) rulesMap.set(id, torchRule)`) e pôr um
+  teste-portão que varre `0..MAX_BLOCK_ID` cobrando a coerência. **Sempre que uma feature exigir
+  tocar em duas listas pra funcionar, uma delas está sobrando.**
+- **[2026-08-06, sessão 48] `remover` do inventário é TUDO OU NADA — pedir mais do que existe
+  devolve ZERO, não o parcial.** O laço novo do `Ingrediente.ou` pedia o custo inteiro de cada
+  alternativa, então "1 carvão + 1 vegetal" pra um custo de 2 não pagava nada e a receita
+  parecia impossível com os ingredientes na mão (bug-584). Quem soma fontes tem de pedir
+  `Math.min(falta, contar(inv, id))` de cada uma.
+- **[2026-08-06, sessão 48] `preventDefault` de `contextmenu` no CANVAS cobre justamente o caso
+  em que ele não é preciso.** Com pointer lock o navegador nem abre o menu; o problema mora
+  quando o ponteiro está SOLTO (painel aberto), e aí o alvo do evento é o painel (bug-582).
+  Handler de "o navegador não manda aqui" pertence ao `document`, com isenção pra campo de
+  texto.
 - **[2026-08-05, sessão 47] Meta POR POSIÇÃO tem de ser limpo quando o TIPO muda, não só quando
   o bloco deixa de ter meta.** O `applyBlockQuieto` apagava o container da célula com
   `if (containerTipoDe(blockId) === null)` — trocar fornalha por baú passa nesse teste e o

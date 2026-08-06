@@ -42,10 +42,37 @@ import {
  * nova entra no fim.
  */
 
+/**
+ * Um ingrediente de receita. `ou` lista ids ALTERNATIVOS que valem pelo mesmo
+ * custo — o carvão mineral e o vegetal na tocha são o caso que a criou
+ * (2026-08-05, pedido do usuário: *"craft de tocha deve aceitar qualquer tipo
+ * de carvão em apenas uma receita — fica confuso ter 2 receitas separadas para
+ * a mesma coisa"*).
+ *
+ * **Duas linhas na lista era pior que uma linha com "ou".** A regra do §🍖 F10
+ * dizia o contrário ("`custo` não tem ou, e duas linhas dizem QUAIS servem"),
+ * e o playtest desmentiu: na lista filtrada por "tocha" apareciam duas receitas
+ * com a MESMA saída, e a criança fica escolhendo entre duas coisas iguais em
+ * vez de fabricar. Agora é uma linha só, e ela DIZ as duas ("1/1 carvão ou
+ * carvão vegetal").
+ *
+ * O id principal (`id`) continua sendo o do ícone e o primeiro a ser gasto —
+ * quem tem os dois queima o mineral antes do vegetal, que é o que sobra de
+ * quem tem fornalha.
+ */
+export interface Ingrediente extends Stack {
+  readonly ou?: readonly number[];
+}
+
+/** Todos os ids que satisfazem este ingrediente, o principal primeiro. */
+export function idsDoIngrediente(c: Ingrediente): readonly number[] {
+  return c.ou && c.ou.length > 0 ? [c.id, ...c.ou] : [c.id];
+}
+
 /** Uma receita: o que sai + a lista de ingredientes (ids DISTINTOS entre si). */
 export interface Receita {
   readonly saida: Stack;
-  readonly custo: readonly Stack[];
+  readonly custo: readonly Ingrediente[];
   /**
    * §🍖 F10: receita APOSENTADA — o texto é a razão.
    *
@@ -194,9 +221,10 @@ const MATERIAIS: readonly Receita[] = [
   { saida: { id: BlockId.EscadaTijoloXP, qtd: 4 }, custo: [{ id: BlockId.Brick, qtd: 6 }] },
   // a tocha é o que faz a caverna (e a noite do F9) ser jogável. §🍖 F10: era
   // tábua + minério — gastava uma tábua inteira e pedia o CUBO de minério na
-  // mão. Agora é o par do Minecraft (cabo + brasa), e o carvão VEGETAL serve
-  // igual (a receita gêmea está em `FUNDICAO`, no fim da lista).
-  { saida: { id: BlockId.Tocha, qtd: 4 }, custo: [{ id: ITEM_GRAVETO, qtd: 1 }, { id: ITEM_CARVAO, qtd: 1 }] },
+  // mão. Agora é o par do Minecraft (cabo + brasa). **2026-08-05: esta é a
+  // ÚNICA receita de tocha** — o carvão vegetal entrou como alternativa do
+  // mesmo ingrediente e a gêmea da `FUNDICAO` foi APOSENTADA (ver lá).
+  { saida: { id: BlockId.Tocha, qtd: 4 }, custo: [{ id: ITEM_GRAVETO, qtd: 1 }, { id: ITEM_CARVAO, qtd: 1, ou: [ITEM_CARVAO_VEGETAL] }] },
 ];
 
 /** Lã: a BRANCA é a base (fibra de trigo, sem tintura); as outras 11 se tingem
@@ -292,10 +320,16 @@ const FUNDICAO: readonly Receita[] = [
   // a fornalha custa 8 pedregulho (o número do Minecraft): cara o bastante pra
   // ser uma conquista da aula, barata o bastante pra caber numa aula só
   { saida: { id: BlockId.Fornalha, qtd: 1 }, custo: [{ id: BlockId.Cobblestone, qtd: 8 }] },
-  // a tocha GÊMEA: carvão vegetal acende igual ao mineral. São duas receitas
-  // porque `Receita.custo` não tem "ou" — e ter duas linhas na lista é melhor
-  // pro aluno do que uma linha que aceita duas coisas sem dizer quais.
-  { saida: { id: BlockId.Tocha, qtd: 4 }, custo: [{ id: ITEM_GRAVETO, qtd: 1 }, { id: ITEM_CARVAO_VEGETAL, qtd: 1 }] },
+  // a tocha GÊMEA, APOSENTADA em 2026-08-05. Ela nasceu porque `Receita.custo`
+  // não tinha "ou"; agora tem (`Ingrediente.ou`), e duas receitas com a MESMA
+  // saída na lista filtrada é uma escolha falsa na frente da criança. A linha
+  // fica onde está porque o índice é a identidade no protocolo — apagá-la
+  // deslocaria as picaretas logo abaixo.
+  {
+    saida: { id: BlockId.Tocha, qtd: 4 },
+    custo: [{ id: ITEM_GRAVETO, qtd: 1 }, { id: ITEM_CARVAO_VEGETAL, qtd: 1 }],
+    aposentada: "virou UMA receita só — o carvão vegetal é alternativa do mineral (2026-08-05)",
+  },
   // §🍖 F10e: o baú — 8 tábuas, o número do Minecraft. Barato de propósito: é
   // ele que resolve a mochila de 27 slots que enche no meio da aula, e uma
   // solução cara pro problema mais comum da turma seria a decisão errada.
@@ -361,9 +395,16 @@ export function receitaValida(indice: number): boolean {
   return receitaAtiva(RECEITAS[indice]!);
 }
 
+/** Quanto o jogador tem que sirva pra este ingrediente (soma das alternativas). */
+function temDoIngrediente(inv: Inventario, c: Ingrediente): number {
+  let n = 0;
+  for (const id of idsDoIngrediente(c)) n += contar(inv, id);
+  return n;
+}
+
 /** O jogador tem TODOS os ingredientes? (ainda não olha se a saída cabe) */
 export function temIngredientes(inv: Inventario, receita: Receita): boolean {
-  return receita.custo.every((c) => contar(inv, c.id) >= c.qtd);
+  return receita.custo.every((c) => temDoIngrediente(inv, c) >= c.qtd);
 }
 
 /**
@@ -386,22 +427,50 @@ export function fabricar(inv: Inventario, receita: Receita): Inventario | null {
   if (!receitaAtiva(receita)) return null; // §🍖 F10: aposentada não fabrica
   let atual = inv;
   for (const c of receita.custo) {
-    const { inv: depois, removido } = remover(atual, c.id, c.qtd);
-    if (removido < c.qtd) return null;
-    atual = depois;
+    // com alternativas (`ou`), gasta na ORDEM: o id principal primeiro, e só o
+    // que faltar sai do seguinte. Quem tem carvão mineral e vegetal queima o
+    // mineral — o vegetal é o que sobra de quem já tem fornalha.
+    let falta = c.qtd;
+    for (const id of idsDoIngrediente(c)) {
+      if (falta <= 0) break;
+      // `remover` é TUDO OU NADA: pedir mais do que existe devolve zero e o
+      // inventário intacto. Então o pedido é o MENOR entre o que falta e o que
+      // há — senão "1 carvão + 1 vegetal" pra um custo de 2 não pagaria nada.
+      const pega = Math.min(falta, contar(atual, id));
+      if (pega <= 0) continue;
+      const { inv: depois, removido } = remover(atual, id, pega);
+      atual = depois;
+      falta -= removido;
+    }
+    if (falta > 0) return null;
   }
   if (!cabe(atual, receita.saida.id, receita.saida.qtd)) return null;
   return adicionar(atual, receita.saida.id, receita.saida.qtd).inv;
 }
 
 /** Quanto FALTA de cada ingrediente (`have`/`need` por id), pra a lista mostrar
- *  "falta 3 tábua". `falta` é 0 quando o jogador já tem o bastante. */
+ *  "falta 3 tábua". `falta` é 0 quando o jogador já tem o bastante.
+ *  `ids` traz o ingrediente e suas alternativas (o principal primeiro) — é o
+ *  que deixa a linha dizer "carvão ou carvão vegetal" em vez de esconder metade
+ *  do que serve. */
 export function ingredientesDe(
   inv: Inventario,
   receita: Receita,
-): readonly { id: number; need: number; have: number; falta: number }[] {
+): readonly {
+  id: number;
+  ids: readonly number[];
+  need: number;
+  have: number;
+  falta: number;
+}[] {
   return receita.custo.map((c) => {
-    const have = contar(inv, c.id);
-    return { id: c.id, need: c.qtd, have, falta: Math.max(0, c.qtd - have) };
+    const have = temDoIngrediente(inv, c);
+    return {
+      id: c.id,
+      ids: idsDoIngrediente(c),
+      need: c.qtd,
+      have,
+      falta: Math.max(0, c.qtd - have),
+    };
   });
 }

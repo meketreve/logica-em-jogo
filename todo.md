@@ -299,6 +299,43 @@ Singleplayer (Web Worker) não tem fs — chat não vira arquivo lá, como plane
 * \[x] pvp — **FEITO** (§🍖 F7, sessão 45)
 * \[ ] mobs (§🍖 F8) — fora do lite, 3+ sessões, com o aviso de GPU do laboratório
 
+### §🔨 Ferramentas v2 — as 3 peças que faltam (pedido do usuário, 2026-08-06)
+
+As três andam JUNTAS e é por isso que estão no mesmo bloco: hoje a quebra é **1 clique
+instantâneo**, e foi essa instantaneidade que barrou machado e pá no F10d ("ferramenta que só
+ACELERA não tem onde aparecer"). Fazer só a durabilidade seria punição sem recompensa; fazer só
+o tempo de quebra seria espera sem razão. As três juntas fecham o laço do Minecraft: a
+ferramenta certa quebra rápido, gasta, e precisa ser refeita.
+
+* \[ ] **durabilidade das ferramentas.** É a 1ª coisa do jogo que quebra o par `{id, qtd}` da
+  pilha (o F10d anotou isso de propósito: "a pilha continua `{id, qtd}`, nenhum campo novo em
+  lugar nenhum"). Decisão a tomar ANTES de codar: um campo `dano?` opcional no `Stack`
+  (atravessa save, protocolo e todo `moverEmArray`/`adicionar`, que hoje juntam pilhas por id) ou
+  ids separados por faixa de desgaste. **Ferramenta danificada não empilha com a inteira** — é
+  essa consequência que decide o desenho.
+* \[ ] **exigir a ferramenta no slot SELECIONADO pra usar.** Hoje a picareta vale onde ESTIVER
+  na mochila, e isso foi decisão explícita do F10d ("precisa dela na MÃO é um 2º enigma, e o
+  clique não diz qual dos dois falhou"). O pedido reabre a decisão — e ela só fica justa junto
+  do tooltip e do aviso na tela, senão a criança fica com a picareta na mochila achando que o
+  bloco é inquebrável.
+* \[ ] **tempo de quebra por (bloco × ferramenta).** A tabela do `ferramentas.ts` já é
+  (tipo × família), então o número entra sem redesenho. Isto é o que destrava **machado e pá**,
+  que ficaram de fora do F10d. Precisa de progresso VISÍVEL (rachadura no bloco ou anel na mira)
+  e de segurar o botão — o `mousedown`/`mouseup` hoje é um clique só, e no toque é um tap.
+
+### §💬 UI de jogo (pedido do usuário, 2026-08-06)
+
+* \[ ] **tooltip no hover de item.** Vale pra mochila, baú, hotbar e lista de craft. Hoje o nome
+  só existe no `title` do botão (`container.ts`/`inventory.ts`), que é o tooltip do NAVEGADOR:
+  demora ~1 s, não aparece no tablet e some sozinho. Um tooltip próprio serve os dois aparelhos
+  (hover no PC, toque-e-segure no tablet) e é onde a durabilidade e o "serve pra quê" vão morar
+  quando existirem.
+* \[ ] **esconder a hotbar com QUALQUER menu aberto** (incluindo a mochila). O `updateOverlay`
+  já sabe se há menu (`menuAberto()`, 2026-08-05) e já esconde a barra de TOQUE por isso — falta
+  a hotbar do PC. Ela hoje fica visível atrás dos painéis, e no painel de container aparece
+  DUAS vezes (a de verdade atrás e a faixa de 9 slots dentro do painel), que é a confusão que o
+  pedido aponta.
+
 ## Geração de mundo / performance
 
 * \[ ] algoritmo de geração de terreno procedural pra mundos

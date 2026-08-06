@@ -255,8 +255,14 @@ describe("§🍖 F6 — pelo fio: plantar, crescer, colher, comer", () => {
       session.handleMessage(2, JSON.stringify({ type: "break_block", x: c.x, y: c.y, z: c.z }));
     }
     expect(naMochila(sent, 2, ITEM_TRIGO)).toBe(3);
-    // a muda voltou toda vez: plantou 3, colheu 3, continua com as 4 do /dar
-    expect(naMochila(sent, 2, BlockId.Plantacao0)).toBe(4);
+    // A semente voltou toda vez, e desde 2026-08-05 ela vem de 1 a 3 (sorteio
+    // real: a session usa `Math.random`, e fixá-lo aqui provaria o `dropsDe`,
+    // que já tem teste próprio). Então o que este teste garante é o que
+    // importa pelo FIO: plantou 3, colheu 3, e **nunca fica com menos do que
+    // começou** — a horta se paga. 4 − 3 plantadas + 3×(1..3) = 4 a 10.
+    const sementes = naMochila(sent, 2, BlockId.Plantacao0);
+    expect(sementes).toBeGreaterThanOrEqual(4);
+    expect(sementes).toBeLessThanOrEqual(10);
     session.handleMessage(2, JSON.stringify({ type: "fabricar", receita: RECEITA_PAO }));
     expect(naMochila(sent, 2, ITEM_TRIGO)).toBe(0);
     expect(naMochila(sent, 2, ITEM_PAO)).toBe(1);

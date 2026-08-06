@@ -3,6 +3,7 @@ import {
   BlockId,
   ITEM_BALDE_VAZIO,
   ITEM_CARVAO,
+  ITEM_CARVAO_VEGETAL,
   ITEM_GRAVETO,
   ITEM_LINGOTE_FERRO,
   ITEM_TRIGO,
@@ -24,6 +25,7 @@ import {
   type Receita,
   SEM_RECEITA,
   fabricar,
+  idsDoIngrediente,
   ingredientesDe,
   podeFabricar,
   receitaAtiva,
@@ -289,7 +291,13 @@ describe("receitas — ingredientesDe (o 'falta 3 tábua' do painel)", () => {
     const escada = receitaDe(BlockId.EscadaTabuaXP); // 6 tábuas
     const i = inv([0, BlockId.Planks, 3]);
     const [ing] = ingredientesDe(i, escada);
-    expect(ing).toEqual({ id: BlockId.Planks, need: 6, have: 3, falta: 3 });
+    expect(ing).toEqual({
+      id: BlockId.Planks,
+      ids: [BlockId.Planks], // sem alternativas: a lista é só o próprio id
+      need: 6,
+      have: 3,
+      falta: 3,
+    });
   });
 
   it("falta 0 quando há de sobra", () => {
@@ -298,5 +306,83 @@ describe("receitas — ingredientesDe (o 'falta 3 tábua' do painel)", () => {
     const [ing] = ingredientesDe(inv([0, troncoId, 9]), tabuas);
     expect(ing!.falta).toBe(0);
     expect(ing!.have).toBe(9);
+  });
+});
+
+/**
+ * §🔥 A TOCHA VIROU UMA RECEITA SÓ (2026-08-05, pedido do usuário: *"craft de
+ * tocha deve aceitar qualquer tipo de carvão em apenas uma receita"*).
+ *
+ * O que estes testes protegem não é a tocha: é o `Ingrediente.ou`, que é motor
+ * novo no meio do caminho tudo-ou-nada do `fabricar`. Gastar da alternativa
+ * quando a principal acaba no MEIO da conta é onde um "ou" mal feito perde
+ * ingrediente sem entregar nada.
+ */
+describe("receitas — ingrediente com alternativa (`ou`)", () => {
+  const tochas = (): Receita[] => RECEITAS.filter((r) => r.saida.id === BlockId.Tocha);
+  const tocha = (): Receita => {
+    const r = tochas().find(receitaAtiva);
+    if (!r) throw new Error("nenhuma receita de tocha ativa");
+    return r;
+  };
+
+  it("existe UMA receita de tocha ativa — a gêmea continua no índice, aposentada", () => {
+    expect(tochas().length).toBeGreaterThanOrEqual(2); // o índice não se apaga
+    expect(tochas().filter(receitaAtiva)).toHaveLength(1);
+    // e a aposentada é justamente a do carvão vegetal sozinho
+    const velha = tochas().find((r) => !receitaAtiva(r))!;
+    expect(velha.custo.some((c) => c.id === ITEM_CARVAO_VEGETAL)).toBe(true);
+    expect(velha.aposentada).toMatch(/carvão vegetal/);
+  });
+
+  it("a receita ativa aceita os DOIS carvões, e o painel consegue nomear os dois", () => {
+    const brasa = tocha().custo.find((c) => c.id === ITEM_CARVAO)!;
+    expect(idsDoIngrediente(brasa)).toEqual([ITEM_CARVAO, ITEM_CARVAO_VEGETAL]);
+  });
+
+  it("fabrica só com MINERAL, só com VEGETAL, e gasta o certo em cada caso", () => {
+    const r = tocha();
+    const soMineral = inv([0, ITEM_GRAVETO, 1], [1, ITEM_CARVAO, 1]);
+    const soVegetal = inv([0, ITEM_GRAVETO, 1], [1, ITEM_CARVAO_VEGETAL, 1]);
+    for (const i of [soMineral, soVegetal]) {
+      expect(temIngredientes(i, r)).toBe(true);
+      expect(podeFabricar(i, r)).toBe(true);
+    }
+    const d1 = fabricar(soMineral, r)!;
+    expect(contar(d1, ITEM_CARVAO)).toBe(0);
+    expect(contar(d1, BlockId.Tocha)).toBe(4);
+    const d2 = fabricar(soVegetal, r)!;
+    expect(contar(d2, ITEM_CARVAO_VEGETAL)).toBe(0);
+    expect(contar(d2, BlockId.Tocha)).toBe(4);
+  });
+
+  it("com os dois na mochila, gasta o PRINCIPAL primeiro (o vegetal é a reserva)", () => {
+    const i = inv([0, ITEM_GRAVETO, 1], [1, ITEM_CARVAO, 1], [2, ITEM_CARVAO_VEGETAL, 1]);
+    const d = fabricar(i, tocha())!;
+    expect(contar(d, ITEM_CARVAO)).toBe(0);
+    expect(contar(d, ITEM_CARVAO_VEGETAL)).toBe(1);
+  });
+
+  it("sem NENHUM dos dois não fabrica, e o inventário não é tocado", () => {
+    const i = inv([0, ITEM_GRAVETO, 1]);
+    expect(temIngredientes(i, tocha())).toBe(false);
+    expect(fabricar(i, tocha())).toBeNull();
+    expect(contar(i, ITEM_GRAVETO)).toBe(1); // o graveto NÃO sumiu no caminho
+  });
+
+  it("a soma das duas conta como uma só, e a falta some quando elas se somam", () => {
+    // uma receita de laboratório: 2 brasas, e o jogador tem 1 de cada
+    const duasBrasas: Receita = {
+      saida: { id: BlockId.Tocha, qtd: 1 },
+      custo: [{ id: ITEM_CARVAO, qtd: 2, ou: [ITEM_CARVAO_VEGETAL] }],
+    };
+    const i = inv([0, ITEM_CARVAO, 1], [1, ITEM_CARVAO_VEGETAL, 1]);
+    const [ing] = ingredientesDe(i, duasBrasas);
+    expect(ing!.have).toBe(2); // 1 + 1 — a UI mostra "2/2", não "1/2"
+    expect(ing!.falta).toBe(0);
+    const d = fabricar(i, duasBrasas)!;
+    // gastou 1 de cada: a principal acabou no MEIO e a alternativa completou
+    expect(contar(d, ITEM_CARVAO)).toBe(0);
+    expect(contar(d, ITEM_CARVAO_VEGETAL)).toBe(0);
   });
 });

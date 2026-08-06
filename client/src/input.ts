@@ -53,7 +53,19 @@ export class Input {
     window.addEventListener("keyup", (e) => this.keys.delete(e.code));
     window.addEventListener("blur", () => this.keys.clear());
 
-    canvas.addEventListener("contextmenu", (e) => e.preventDefault());
+    // bug-582: o menu do NAVEGADOR no botão direito. Era prevenido só no
+    // canvas, e isso cobria exatamente o caso em que ele não incomodava (com o
+    // ponteiro travado o navegador nem o abre). O caso real é o oposto: abrir
+    // um baú SOLTA o ponteiro, o cursor reaparece no meio da tela — em cima do
+    // painel — e o `contextmenu` daquele mesmo clique direito cai no `#container`,
+    // não no canvas. O aluno vê "voltar / recarregar / salvar como" por cima do
+    // baú. Vale pra qualquer painel: no jogo, botão direito é COLOCAR bloco.
+    // Campo de texto fica de fora (o chat precisa de copiar/colar do sistema).
+    document.addEventListener("contextmenu", (e) => {
+      const alvo = e.target;
+      if (alvo instanceof HTMLInputElement || alvo instanceof HTMLTextAreaElement) return;
+      e.preventDefault();
+    });
     canvas.addEventListener("mousedown", (e) => {
       if (!this.locked) return; // primeiro clique só trava o mouse
       if (e.button === 1) e.preventDefault(); // botão do meio: sem autoscroll

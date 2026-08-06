@@ -4060,6 +4060,87 @@
       "related_bugs": [],
       "occurrences": 1,
       "last_seen": "2026-08-05T18:05:00.000000Z"
+    },
+    {
+      "id": "bug-581",
+      "timestamp": "2026-08-06T01:20:00.000000Z",
+      "error_message": "usuário: 'adicionar qualquer planta (selvagem ou cultivada) a regra de precisar bloco de suporte' — o algodão ficava flutuando quando cavavam a terra debaixo dele",
+      "file": "shared/src/rules.ts",
+      "root_cause": "`precisaApoio` (blocks.ts) e o `rulesMap` (rules.ts) eram DUAS listas do mesmo conjunto. O §🍖 F10c pôs os 5 ids do algodão (Algodao0..3 + AlgodaoSelvagem) no `precisaApoio` e NENHUM no `rulesMap` — e quem derruba o que perdeu apoio é a regra do TICK, não o gate do place. Sem registro, o bloco simplesmente flutua: nada quebra, nada avisa. É o bug-558 (capim, sessão 36) outra vez, na segunda planta. O mandacaru nunca esteve em nenhuma das duas.",
+      "fix": "O registro passou a ser DERIVADO: `for (let id=0; id<256; id++) if (precisaApoio(id) && !rulesMap.has(id)) rulesMap.set(id, torchRule)`, substituindo as 4 faixas escritas à mão (tapete, flor, capim, plantação). O mandacaru entrou no `precisaApoio`. Teste-portão novo em rules.test.ts varre 0..MAX_BLOCK_ID e exige `ruleFor(id) === torchRule` pra todo id que responde `precisaApoio`.",
+      "tags": [
+        "apoio",
+        "plantas",
+        "algodao",
+        "mandacaru",
+        "rules",
+        "duas-listas",
+        "regressao-do-558"
+      ],
+      "related_bugs": [
+        "bug-558"
+      ],
+      "occurrences": 1,
+      "last_seen": "2026-08-06T01:20:00.000000Z"
+    },
+    {
+      "id": "bug-582",
+      "timestamp": "2026-08-06T01:20:00.000000Z",
+      "error_message": "usuário: 'ao clicar com o botão direito do mouse no baú o submenu abre por conta do mouse não ser mais capturado'",
+      "file": "client/src/input.ts",
+      "root_cause": "O `preventDefault` do `contextmenu` estava só no CANVAS — que é exatamente o caso em que ele não é preciso (com pointer lock o navegador nem abre o menu). Abrir um baú SOLTA o ponteiro e o cursor reaparece no meio da tela, em cima do `#container`: o `contextmenu` daquele mesmo clique direito cai no painel, não no canvas, e o menu do navegador abre por cima do baú.",
+      "fix": "O listener subiu pro `document`, com isenção para `HTMLInputElement`/`HTMLTextAreaElement` (o chat precisa de copiar/colar do sistema). Vale pra qualquer painel: no jogo, botão direito é COLOCAR bloco.",
+      "tags": [
+        "contextmenu",
+        "pointer-lock",
+        "container",
+        "bau",
+        "ui"
+      ],
+      "related_bugs": [
+        "bug-572"
+      ],
+      "occurrences": 1,
+      "last_seen": "2026-08-06T01:20:00.000000Z"
+    },
+    {
+      "id": "bug-583",
+      "timestamp": "2026-08-06T01:20:00.000000Z",
+      "error_message": "npm test: 'expected [ { id: 903, qtd: 1 }, …(1) ] to deeply equal …' (4 asserções) e smoke /comida: '✗ e a muda voltou (4)'",
+      "file": "shared/src/algodao.test.ts",
+      "root_cause": "Autoria de teste, a família do 560/574/575/577: 4 testes e 1 smoke fixavam `qtd: 1` na semente da colheita, que virou sorteio de 1–3. O smoke é pior: ele roda com o `Math.random` REAL do servidor, então um número fixo reprovaria por sorte numa rodada em cinco.",
+      "fix": "Os testes puros injetam as duas PONTAS do sorteio (`() => 0` e `() => 0.99`) e comparam com `SEMENTES_MIN`/`SEMENTES_MAX`, que são exportados; o smoke e o teste de sessão passaram a exigir a FAIXA (3–5 e 4–10), com a conta escrita no comentário.",
+      "tags": [
+        "teste",
+        "sorteio",
+        "drops",
+        "sementes",
+        "faixa-em-vez-de-numero"
+      ],
+      "related_bugs": [
+        "bug-560",
+        "bug-577"
+      ],
+      "occurrences": 1,
+      "last_seen": "2026-08-06T01:20:00.000000Z"
+    },
+    {
+      "id": "bug-584",
+      "timestamp": "2026-08-06T01:20:00.000000Z",
+      "error_message": "receitas.test.ts: 'TypeError: inv is not iterable' em `contar` — `fabricar` devolveu null com 1 carvão + 1 vegetal pra um custo de 2",
+      "file": "shared/src/receitas.ts",
+      "root_cause": "`remover` é TUDO OU NADA: pedir mais do que existe devolve `removido: 0` e o inventário INTACTO. O laço novo do `Ingrediente.ou` pedia `falta` inteiro de cada alternativa, então quando a principal tinha MENOS que o total ela devolvia zero e a soma nunca fechava — a receita parecia impossível com os ingredientes na mão.",
+      "fix": "Pedir `Math.min(falta, contar(atual, id))` de cada alternativa. Teste novo cobre exatamente o caso da soma (1 de cada pra um custo de 2).",
+      "tags": [
+        "receitas",
+        "ingrediente-ou",
+        "remover",
+        "tudo-ou-nada",
+        "tocha"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-08-06T01:20:00.000000Z"
     }
   ]
 }

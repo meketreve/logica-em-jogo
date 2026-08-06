@@ -9,6 +9,7 @@ import {
   isFullCube,
   isPlantacao,
   isPlantacaoMadura,
+  precisaApoio,
 } from "./blocks";
 import { type World, getBlock, inBounds } from "./world";
 
@@ -290,29 +291,20 @@ const rulesMap = new Map<number, BlockRule>([
   [BlockId.PortaZAbertaR, doorRule],
   [BlockId.Tocha, torchRule],
 ]);
-// Tapetes (2026-07-19): mesma regra de apoio da tocha, pras 12 cores.
-for (let id = BlockId.TapeteBranco; id <= BlockId.TapeteMarrom; id++) {
-  rulesMap.set(id, torchRule);
-}
 // Cama (2026-07-20): as 4 direções usam a regra de órfão do par horizontal.
 for (const id of [BlockId.CamaXP, BlockId.CamaZP, BlockId.CamaXN, BlockId.CamaZN]) {
   rulesMap.set(id, camaRule);
 }
-// Flores (2026-07-20): mesma regra de apoio da tocha — sem chão embaixo, some.
-for (let id = BlockId.FlorVermelha; id <= BlockId.FlorBranca; id++) {
-  rulesMap.set(id, torchRule);
-}
-// Grama alta (§🌬️ 2026-07-27): `precisaApoio` já a listava, mas ela nunca foi
-// REGISTRADA aqui — então o capim ficava flutuando quando o chão sumia debaixo
-// dele (achado na sessão 36, corrigido no §🍖 F6).
-for (let id = BlockId.GramaAlta; id <= BlockId.GramaAltaFria; id++) {
-  rulesMap.set(id, torchRule);
-}
-// Plantação (§🍖 F6 2026-08-04): a regra de vizinhança só cuida do APOIO (cavar
-// a terra debaixo da horta derruba a horta). Crescer é `crescerPlantacao`, que
-// a session chama por TEMPO — ver a nota lá.
-for (let id = BlockId.Plantacao0; id <= BlockId.Plantacao3; id++) {
-  rulesMap.set(id, torchRule);
+// APOIO (2026-08-05): quem responde `precisaApoio` ganha o `torchRule`, e é
+// tudo. Antes eram quatro faixas de id escritas à mão aqui (tapete, flor,
+// capim, plantação) ao lado da lista do `precisaApoio` — DUAS listas do mesmo
+// conjunto, e esquecer uma é silencioso porque o bloco simplesmente flutua.
+// Já custou dois bugs: o capim (bug-558, sessão 36→F6) e o ALGODÃO inteiro,
+// cultivado e selvagem (bug-581) — o F10c pôs os 5 ids no `precisaApoio` e
+// nenhum aqui, então cavar debaixo do canteiro deixava o pé no ar. Planta nova
+// agora entra numa lista só.
+for (let id = 0; id < 256; id++) {
+  if (precisaApoio(id) && !rulesMap.has(id)) rulesMap.set(id, torchRule);
 }
 // Água FLUIDA (2026-07-22): fonte (129) + os 7 níveis fluidos ticam pelo
 // waterRule (espalha, cai, seca, água infinita).

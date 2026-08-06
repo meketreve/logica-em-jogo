@@ -2,6 +2,7 @@ import {
   HOTBAR_SLOTS,
   INV_SLOTS,
   RECEITAS,
+  idsDoIngrediente,
   ingredientesDe,
   podeFabricar,
 } from "@logica/shared";
@@ -430,7 +431,12 @@ export class InventoryPanel {
     const casa = (indice: number): boolean => {
       if (!q) return true;
       const r = RECEITAS[indice]!;
-      const nomes = [this.nameOf(r.saida.id), ...r.custo.map((c) => this.nameOf(c.id))];
+      // as ALTERNATIVAS entram na busca: quem digita "carvão vegetal" tem de
+      // achar a tocha, mesmo o ingrediente principal sendo o carvão mineral
+      const nomes = [
+        this.nameOf(r.saida.id),
+        ...r.custo.flatMap((c) => idsDoIngrediente(c).map((id) => this.nameOf(id))),
+      ];
       return nomes.some((n) => n.toLowerCase().includes(q));
     };
 
@@ -463,7 +469,11 @@ export class InventoryPanel {
         if (k > 0) custo.append(" · ");
         const span = document.createElement("span");
         span.className = ing.falta > 0 ? "falta" : "ok";
-        span.textContent = `${ing.have}/${ing.need} ${this.nameOf(ing.id)}`;
+        // "1/1 carvão ou carvão vegetal": a linha DIZ o que serve, que é o que
+        // as duas receitas separadas faziam antes de virarem uma só
+        span.textContent = `${ing.have}/${ing.need} ${ing.ids
+          .map((id) => this.nameOf(id))
+          .join(" ou ")}`;
         custo.appendChild(span);
       });
 

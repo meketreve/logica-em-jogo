@@ -16,7 +16,13 @@ import {
   plantaDe,
 } from "./blocks";
 import { BIOMAS } from "./biomas";
-import { CHANCE_SEMENTE_DO_ALGODAO, dropsDe, formaCanonica } from "./drops";
+import {
+  CHANCE_SEMENTE_DO_ALGODAO,
+  SEMENTES_MAX,
+  SEMENTES_MIN,
+  dropsDe,
+  formaCanonica,
+} from "./drops";
 import { RECEITAS, receitaAtiva } from "./receitas";
 import { TICKS_POR_CRESCIMENTO, crescerPlantacao } from "./rules";
 import { createWorld, getBlock, setBlock } from "./world";
@@ -115,11 +121,11 @@ describe("§🍖 F10c — os drops (achar, plantar, colher)", () => {
   it("o cultivado MADURO é o 1º drop com QUANTIDADE sorteada (1 ou 2) + a semente", () => {
     expect(dropsDe(BlockId.Algodao3, () => 0)).toEqual([
       { id: ITEM_ALGODAO, qtd: 1 },
-      { id: BlockId.Algodao0, qtd: 1 },
+      { id: BlockId.Algodao0, qtd: SEMENTES_MIN },
     ]);
     expect(dropsDe(BlockId.Algodao3, () => 0.9)).toEqual([
       { id: ITEM_ALGODAO, qtd: 2 },
-      { id: BlockId.Algodao0, qtd: 1 },
+      { id: BlockId.Algodao0, qtd: SEMENTES_MAX },
     ]);
   });
 
@@ -129,11 +135,31 @@ describe("§🍖 F10c — os drops (achar, plantar, colher)", () => {
     }
   });
 
-  it("o trigo NÃO virou sorteio junto: a colheita dele continua fixa", () => {
+  it("o trigo NÃO virou sorteio de FIBRA: só a semente dele é sorteada", () => {
     expect(dropsDe(BlockId.Plantacao3, () => 0.9)).toEqual([
       { id: ITEM_TRIGO, qtd: 1 },
-      { id: BlockId.Plantacao0, qtd: 1 },
+      { id: BlockId.Plantacao0, qtd: SEMENTES_MAX },
     ]);
+  });
+
+  // 2026-08-05 (pedido do usuário): a colheita devolve 1–3 SEMENTES, nas duas
+  // plantas. Antes era 1 fixo — a horta se replantava mas nunca crescia.
+  it("a semente da colheita é 1–3, e as pontas do sorteio caem dentro", () => {
+    const sementesDe = (id: number, s: () => number): number =>
+      dropsDe(id, s).find((d) => d.id === (id === BlockId.Algodao3 ? BlockId.Algodao0 : BlockId.Plantacao0))!.qtd;
+    for (const madura of [BlockId.Plantacao3, BlockId.Algodao3]) {
+      // as duas pontas do intervalo aberto [0,1) — nenhuma escapa da faixa
+      expect(sementesDe(madura, () => 0)).toBe(1);
+      expect(sementesDe(madura, () => 0.99999)).toBe(3);
+      for (const r of [0, 0.32, 0.34, 0.66, 0.68, 0.99]) {
+        const n = sementesDe(madura, () => r);
+        expect(n).toBeGreaterThanOrEqual(SEMENTES_MIN);
+        expect(n).toBeLessThanOrEqual(SEMENTES_MAX);
+      }
+    }
+    // os 3 valores acontecem de verdade (senão "1 a 3" seria "sempre 1")
+    expect(new Set([0.1, 0.5, 0.9].map((r) => sementesDe(BlockId.Plantacao3, () => r))))
+      .toEqual(new Set([1, 2, 3]));
   });
 });
 

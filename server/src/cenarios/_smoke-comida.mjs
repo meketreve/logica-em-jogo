@@ -111,7 +111,14 @@ console.log("== colher a madura dá trigo E devolve a muda ==");
 quebrar(ana, cel);
 await espera(400);
 ok(contar(ana, ITEM_TRIGO) === 1, `colheu 1 trigo (${contar(ana, ITEM_TRIGO)})`);
-ok(contar(ana, PLANTACAO0) === 3, `e a muda voltou (${contar(ana, PLANTACAO0)})`);
+// 2026-08-05: a colheita devolve 1–3 sementes (antes era 1 fixo), e o sorteio
+// aqui é o `Math.random` de verdade do servidor — então o que o fio prova é a
+// FAIXA: sobraram 2, voltou de 1 a 3, logo 3 a 5. Fixar o número aqui seria
+// reprovar por sorte numa rodada em cinco.
+{
+  const n = contar(ana, PLANTACAO0);
+  ok(n >= 3 && n <= 5, `e a semente voltou de 1 a 3 (${n}, esperado 3–5)`);
+}
 ok(blocoEm(ana, cel) === AR, "a célula ficou vazia");
 
 console.log("== cavar a terra debaixo derruba a horta (regra de apoio) ==");

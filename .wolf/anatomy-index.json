@@ -1,12 +1,12 @@
 {
   "version": 1,
   "meta": {
-    "lastScanned": "2026-08-05T22:41:42.149Z",
+    "lastScanned": "2026-08-06T03:19:53.588Z",
     "fileCount": 303,
     "hits": 0,
     "misses": 0,
-    "renderedHash": "3d379974b05824fe9a0cb58ec0e9fe350141c286d00677d7d045c5fe50251453",
-    "storeUpdatedAt": "2026-08-05T22:41:42.167Z"
+    "renderedHash": "9bfa4036d17a5db926af3a23ef9340c2dacc7993de03969cdaa72123b94bd240",
+    "storeUpdatedAt": "2026-08-06T03:19:53.607Z"
   },
   "files": {
     ".claude/commands/reframe.md": {
@@ -1404,12 +1404,12 @@
     },
     "client/index.html": {
       "description": "Lógica em Jogo",
-      "tokens": 9632,
-      "hash": "12b97431756aa0d7",
-      "size": 36501,
-      "mtimeMs": 1785948736091.3228,
-      "updatedAt": "2026-08-05T17:51:20.889Z",
-      "source": "scan"
+      "tokens": 9874,
+      "hash": "75baaaad5cc02e52",
+      "size": 37412,
+      "mtimeMs": 1785972869491.3228,
+      "updatedAt": "2026-08-05T23:34:29.598Z",
+      "source": "hook"
     },
     "client/package.json": {
       "description": "Node.js package manifest",
@@ -1820,25 +1820,25 @@
     },
     "client/src/blocksUi.ts": {
       "description": "Blocos colocáveis com nome em português — fonte única pra hotbar (main.ts)",
-      "tokens": 2673,
-      "hash": "713f5f924391728e",
-      "size": 9501,
-      "mtimeMs": 1785950372635.3232,
-      "updatedAt": "2026-08-05T17:51:20.892Z",
-      "source": "scan",
+      "tokens": 2760,
+      "hash": "35730a0ce6cd04c3",
+      "size": 9812,
+      "mtimeMs": 1785972656691.3237,
+      "updatedAt": "2026-08-05T23:30:56.791Z",
+      "source": "hook",
       "symbols": [
         {
           "name": "PlaceableEntry",
           "kind": "section",
           "startLine": 31,
-          "endLine": 176,
-          "tokens": 2335
+          "endLine": 180,
+          "tokens": 2422
         },
         {
           "name": "placeableFor",
           "kind": "fn",
-          "startLine": 177,
-          "endLine": 181,
+          "startLine": 181,
+          "endLine": 185,
           "tokens": 56
         }
       ]
@@ -1973,19 +1973,19 @@
     },
     "client/src/container.ts": {
       "description": "§🍖 F10 — O PAINEL DE TRANSFERÊNCIA (fornalha e baú).",
-      "tokens": 2696,
-      "hash": "fc511fa218fcbc49",
-      "size": 9503,
-      "mtimeMs": 1785948702075.3228,
-      "updatedAt": "2026-08-05T17:51:20.893Z",
-      "source": "scan",
+      "tokens": 3037,
+      "hash": "55b514cd681f22a7",
+      "size": 10722,
+      "mtimeMs": 1785972861163.3228,
+      "updatedAt": "2026-08-05T23:34:21.276Z",
+      "source": "hook",
       "symbols": [
         {
           "name": "ContainerPanel",
           "kind": "class",
           "startLine": 33,
-          "endLine": 267,
-          "tokens": 2365
+          "endLine": 290,
+          "tokens": 2706
         }
       ]
     },
@@ -2138,37 +2138,37 @@
     },
     "client/src/input.ts": {
       "description": "Teclado + mouse (pointer lock). SÓ coleta input — nenhuma decisão de",
-      "tokens": 1777,
-      "hash": "1f715014fbbad016",
-      "size": 6270,
-      "mtimeMs": 1785941724015.3196,
-      "updatedAt": "2026-08-05T17:51:20.896Z",
-      "source": "scan",
+      "tokens": 1998,
+      "hash": "47050fbdc9cbb1db",
+      "size": 7057,
+      "mtimeMs": 1785972665771.3237,
+      "updatedAt": "2026-08-05T23:31:05.922Z",
+      "source": "hook",
       "symbols": [
         {
           "name": "Input",
           "kind": "class",
           "startLine": 5,
-          "endLine": 162,
-          "tokens": 1731
+          "endLine": 174,
+          "tokens": 1952
         }
       ]
     },
     "client/src/inventory.ts": {
       "description": "Inventário de blocos (cp16) — grade dos colocáveis + faixa da hotbar de 9",
-      "tokens": 5087,
-      "hash": "cfa1a5ea34cc9df0",
-      "size": 18003,
-      "mtimeMs": 1785943164115.3215,
-      "updatedAt": "2026-08-05T17:51:20.897Z",
-      "source": "scan",
+      "tokens": 5212,
+      "hash": "46c17a1db47a4d0a",
+      "size": 18445,
+      "mtimeMs": 1785972884927.3225,
+      "updatedAt": "2026-08-05T23:34:45.041Z",
+      "source": "hook",
       "symbols": [
         {
           "name": "InventoryPanel",
           "kind": "class",
-          "startLine": 28,
-          "endLine": 489,
-          "tokens": 4768
+          "startLine": 29,
+          "endLine": 499,
+          "tokens": 4886
         }
       ]
     },
@@ -2266,11 +2266,11 @@
     },
     "client/src/main.ts": {
       "description": "O cliente não tem filesystem: aprende os nomes das aulas pela resposta de",
-      "tokens": 33745,
-      "hash": "6755bceee1be655e",
-      "size": 119739,
-      "mtimeMs": 1785968933915.3215,
-      "updatedAt": "2026-08-05T22:28:54.048Z",
+      "tokens": 34608,
+      "hash": "616fd3babbeb7989",
+      "size": 122831,
+      "mtimeMs": 1785972844951.3228,
+      "updatedAt": "2026-08-05T23:34:05.074Z",
       "source": "hook",
       "symbols": [
         {
@@ -2291,162 +2291,183 @@
           "name": "showOverlayMain",
           "kind": "fn",
           "startLine": 293,
-          "endLine": 297,
-          "tokens": 35
+          "endLine": 307,
+          "tokens": 192
+        },
+        {
+          "name": "menuAberto",
+          "kind": "fn",
+          "startLine": 308,
+          "endLine": 319,
+          "tokens": 107
+        },
+        {
+          "name": "menuDePausaAberto",
+          "kind": "fn",
+          "startLine": 320,
+          "endLine": 332,
+          "tokens": 165
+        },
+        {
+          "name": "podeAbrirMenu",
+          "kind": "fn",
+          "startLine": 333,
+          "endLine": 336,
+          "tokens": 29
         },
         {
           "name": "updateOverlay",
           "kind": "fn",
-          "startLine": 298,
-          "endLine": 321,
-          "tokens": 341
+          "startLine": 337,
+          "endLine": 355,
+          "tokens": 292
         },
         {
           "name": "startPlay",
           "kind": "fn",
-          "startLine": 322,
-          "endLine": 332,
-          "tokens": 83
+          "startLine": 356,
+          "endLine": 388,
+          "tokens": 374
         },
         {
           "name": "onSettingsChanged",
           "kind": "fn",
-          "startLine": 333,
-          "endLine": 354,
+          "startLine": 389,
+          "endLine": 410,
           "tokens": 294
         },
         {
           "name": "enviarRaio",
           "kind": "fn",
-          "startLine": 355,
-          "endLine": 398,
+          "startLine": 411,
+          "endLine": 454,
           "tokens": 589
         },
         {
           "name": "playerName",
           "kind": "fn",
-          "startLine": 399,
-          "endLine": 409,
+          "startLine": 455,
+          "endLine": 465,
           "tokens": 187
         },
         {
           "name": "abrirAmigosPorComando",
           "kind": "fn",
-          "startLine": 410,
-          "endLine": 450,
+          "startLine": 466,
+          "endLine": 506,
           "tokens": 425
         },
         {
           "name": "registrarChegadaDeRede",
           "kind": "fn",
-          "startLine": 451,
-          "endLine": 458,
+          "startLine": 507,
+          "endLine": 514,
           "tokens": 60
         },
         {
           "name": "jitterDeRede",
           "kind": "fn",
-          "startLine": 459,
-          "endLine": 502,
+          "startLine": 515,
+          "endLine": 558,
           "tokens": 592
         },
         {
           "name": "podeVoar",
           "kind": "fn",
-          "startLine": 503,
-          "endLine": 513,
+          "startLine": 559,
+          "endLine": 569,
           "tokens": 178
         },
         {
           "name": "vitals",
           "kind": "fn",
-          "startLine": 514,
-          "endLine": 590,
+          "startLine": 570,
+          "endLine": 646,
           "tokens": 1106
         },
         {
           "name": "pushPanelData",
           "kind": "fn",
-          "startLine": 591,
-          "endLine": 603,
+          "startLine": 647,
+          "endLine": 659,
           "tokens": 139
         },
         {
           "name": "pushFriendsData",
           "kind": "fn",
-          "startLine": 604,
-          "endLine": 614,
+          "startLine": 660,
+          "endLine": 670,
           "tokens": 95
         },
         {
           "name": "ownDone",
           "kind": "fn",
-          "startLine": 615,
-          "endLine": 623,
+          "startLine": 671,
+          "endLine": 679,
           "tokens": 90
         },
         {
           "name": "refreshObjectivesView",
           "kind": "fn",
-          "startLine": 624,
-          "endLine": 655,
+          "startLine": 680,
+          "endLine": 711,
           "tokens": 358
         },
         {
           "name": "drenarFilaTroca",
           "kind": "fn",
-          "startLine": 656,
-          "endLine": 663,
+          "startLine": 712,
+          "endLine": 719,
           "tokens": 79
         },
         {
           "name": "segurarAteATelaPintar",
           "kind": "fn",
-          "startLine": 664,
-          "endLine": 673,
+          "startLine": 720,
+          "endLine": 729,
           "tokens": 109
         },
         {
           "name": "handleServerData",
           "kind": "fn",
-          "startLine": 674,
-          "endLine": 892,
+          "startLine": 730,
+          "endLine": 948,
           "tokens": 2846
         },
         {
           "name": "connect",
           "kind": "fn",
-          "startLine": 893,
-          "endLine": 928,
-          "tokens": 400
+          "startLine": 949,
+          "endLine": 988,
+          "tokens": 464
         },
         {
           "name": "startMultiplayer",
           "kind": "fn",
-          "startLine": 929,
-          "endLine": 946,
+          "startLine": 989,
+          "endLine": 1006,
           "tokens": 224
         },
         {
           "name": "startSingleplayer",
           "kind": "fn",
-          "startLine": 947,
-          "endLine": 970,
+          "startLine": 1007,
+          "endLine": 1030,
           "tokens": 284
         },
         {
           "name": "persistWorld",
           "kind": "fn",
-          "startLine": 971,
-          "endLine": 1018,
+          "startLine": 1031,
+          "endLine": 1078,
           "tokens": 520
         },
         {
           "name": "startGame",
           "kind": "fn",
-          "startLine": 1019,
-          "endLine": 2668,
-          "tokens": 21470
+          "startLine": 1079,
+          "endLine": 2726,
+          "tokens": 21570
         }
       ]
     },
@@ -4472,12 +4493,12 @@
     },
     "server/src/cenarios/_smoke-comida.mjs": {
       "description": "Smoke do §🍖 F6 (comida) contra o servidor REAL. Prova pelo fio o que o teste",
-      "tokens": 2081,
-      "hash": "80187bc98a2a7435",
-      "size": 7868,
-      "mtimeMs": 1785806337938.3909,
-      "updatedAt": "2026-08-05T17:51:20.985Z",
-      "source": "scan",
+      "tokens": 2164,
+      "hash": "0a6fbd87dc9f87f5",
+      "size": 8191,
+      "mtimeMs": 1785986177304.631,
+      "updatedAt": "2026-08-06T03:16:17.415Z",
+      "source": "hook",
       "symbols": [
         {
           "name": "ok",
@@ -4567,8 +4588,8 @@
           "name": "fomeDe",
           "kind": "fn",
           "startLine": 65,
-          "endLine": 182,
-          "tokens": 1382
+          "endLine": 189,
+          "tokens": 1471
         }
       ]
     },
@@ -5776,19 +5797,19 @@
     },
     "shared/src/algodao.test.ts": {
       "description": "§🍖 F10c — ALGODÃO. A ponte HONESTA que aposenta a lã-de-trigo: o lite não",
-      "tokens": 2583,
-      "hash": "385ee48499dc1d83",
-      "size": 9160,
-      "mtimeMs": 1785968991187.3213,
-      "updatedAt": "2026-08-05T22:29:51.356Z",
+      "tokens": 2918,
+      "hash": "e63cc1807f891744",
+      "size": 10345,
+      "mtimeMs": 1785973029675.322,
+      "updatedAt": "2026-08-05T23:37:09.793Z",
       "source": "hook",
       "symbols": [
         {
           "name": "canteiro",
           "kind": "fn",
-          "startLine": 33,
-          "endLine": 224,
-          "tokens": 2301
+          "startLine": 39,
+          "endLine": 250,
+          "tokens": 2624
         }
       ]
     },
@@ -5943,11 +5964,11 @@
     },
     "shared/src/blocks.ts": {
       "description": "IDs de bloco. Gravados como bytes crus nos chunks (Uint8Array), no save e no",
-      "tokens": 11586,
-      "hash": "02104dab37f06a3f",
-      "size": 41491,
-      "mtimeMs": 1785969205647.3188,
-      "updatedAt": "2026-08-05T22:33:25.778Z",
+      "tokens": 11767,
+      "hash": "2cabafab12ebb7c3",
+      "size": 42144,
+      "mtimeMs": 1785972609031.3235,
+      "updatedAt": "2026-08-05T23:30:09.138Z",
       "source": "hook",
       "symbols": [
         {
@@ -6157,8 +6178,8 @@
           "name": "stairsFacing",
           "kind": "fn",
           "startLine": 601,
-          "endLine": 913,
-          "tokens": 3836
+          "endLine": 926,
+          "tokens": 4018
         }
       ]
     },
@@ -6263,12 +6284,12 @@
     },
     "shared/src/comida.test.ts": {
       "description": "Quantas unidades de `id` a última mensagem `inventario` mostra.",
-      "tokens": 4053,
-      "hash": "6b00cc31cd539bb3",
-      "size": 14312,
-      "mtimeMs": 1785943057219.3225,
-      "updatedAt": "2026-08-05T17:51:20.996Z",
-      "source": "scan",
+      "tokens": 4167,
+      "hash": "fc2da2ecc98a25af",
+      "size": 14722,
+      "mtimeMs": 1785973044019.322,
+      "updatedAt": "2026-08-05T23:37:24.140Z",
+      "source": "hook",
       "symbols": [
         {
           "name": "collect",
@@ -6323,8 +6344,8 @@
           "name": "canteiro",
           "kind": "fn",
           "startLine": 75,
-          "endLine": 318,
-          "tokens": 3278
+          "endLine": 324,
+          "tokens": 3392
         }
       ]
     },
@@ -6599,35 +6620,42 @@
     },
     "shared/src/drops.test.ts": {
       "description": "Declares id",
-      "tokens": 1929,
-      "hash": "b89d125b9197ddd6",
-      "size": 6842,
-      "mtimeMs": 1785949603235.3235,
-      "updatedAt": "2026-08-05T17:51:21.001Z",
-      "source": "scan"
+      "tokens": 2020,
+      "hash": "e0bb8386e503de4e",
+      "size": 7168,
+      "mtimeMs": 1785973196015.3215,
+      "updatedAt": "2026-08-05T23:39:56.140Z",
+      "source": "hook"
     },
     "shared/src/drops.ts": {
       "description": "§🍖 F4 — o que CAI ao quebrar um bloco. Tabela pura: entra o byte que estava",
-      "tokens": 1963,
-      "hash": "b1aeb940e58d162e",
-      "size": 7092,
-      "mtimeMs": 1785950199631.3225,
-      "updatedAt": "2026-08-05T17:51:21.001Z",
-      "source": "scan",
+      "tokens": 2324,
+      "hash": "dd706071d9bc7490",
+      "size": 8386,
+      "mtimeMs": 1785972596159.3232,
+      "updatedAt": "2026-08-05T23:29:56.266Z",
+      "source": "hook",
       "symbols": [
         {
           "name": "formaCanonica",
           "kind": "fn",
           "startLine": 49,
-          "endLine": 122,
-          "tokens": 995
+          "endLine": 137,
+          "tokens": 1189
+        },
+        {
+          "name": "sementes",
+          "kind": "fn",
+          "startLine": 138,
+          "endLine": 150,
+          "tokens": 158
         },
         {
           "name": "dropsDe",
           "kind": "fn",
-          "startLine": 123,
-          "endLine": 168,
-          "tokens": 548
+          "startLine": 151,
+          "endLine": 196,
+          "tokens": 558
         }
       ]
     },
@@ -8217,93 +8245,114 @@
     },
     "shared/src/receitas.test.ts": {
       "description": "Inventário com pilhas em slots escolhidos (o resto vazio).",
-      "tokens": 3597,
-      "hash": "3cbc0874796cf221",
-      "size": 12771,
-      "mtimeMs": 1785949603235.3235,
-      "updatedAt": "2026-08-05T17:51:21.013Z",
-      "source": "scan",
+      "tokens": 4652,
+      "hash": "a329c13e93767040",
+      "size": 16504,
+      "mtimeMs": 1785973114327.322,
+      "updatedAt": "2026-08-05T23:38:34.449Z",
+      "source": "hook",
       "symbols": [
         {
           "name": "inv",
           "kind": "fn",
-          "startLine": 36,
-          "endLine": 42,
+          "startLine": 38,
+          "endLine": 44,
           "tokens": 77
         },
         {
           "name": "receitaDe",
           "kind": "fn",
-          "startLine": 43,
-          "endLine": 303,
-          "tokens": 3332
+          "startLine": 45,
+          "endLine": 389,
+          "tokens": 4375
         }
       ]
     },
     "shared/src/receitas.ts": {
       "description": "§🍖 F5 — CRAFT POR LISTA (receitas puras).",
-      "tokens": 6363,
-      "hash": "89464eb874be6787",
-      "size": 22747,
-      "mtimeMs": 1785951769959.3247,
-      "updatedAt": "2026-08-05T17:51:21.014Z",
-      "source": "scan",
+      "tokens": 7155,
+      "hash": "0e60580344a7deac",
+      "size": 25576,
+      "mtimeMs": 1785973185731.3215,
+      "updatedAt": "2026-08-05T23:39:45.839Z",
+      "source": "hook",
       "symbols": [
+        {
+          "name": "Ingrediente",
+          "kind": "section",
+          "startLine": 63,
+          "endLine": 67,
+          "tokens": 45
+        },
+        {
+          "name": "idsDoIngrediente",
+          "kind": "fn",
+          "startLine": 68,
+          "endLine": 72,
+          "tokens": 62
+        },
         {
           "name": "Receita",
           "kind": "section",
-          "startLine": 46,
-          "endLine": 62,
-          "tokens": 193
+          "startLine": 73,
+          "endLine": 89,
+          "tokens": 195
         },
         {
           "name": "receitaAtiva",
           "kind": "fn",
-          "startLine": 63,
-          "endLine": 141,
+          "startLine": 90,
+          "endLine": 168,
           "tokens": 1296
         },
         {
           "name": "Cor",
           "kind": "section",
-          "startLine": 142,
-          "endLine": 358,
-          "tokens": 3904
+          "startLine": 169,
+          "endLine": 392,
+          "tokens": 4002
         },
         {
           "name": "receitaValida",
           "kind": "fn",
-          "startLine": 359,
-          "endLine": 364,
-          "tokens": 77
+          "startLine": 393,
+          "endLine": 398,
+          "tokens": 79
+        },
+        {
+          "name": "temDoIngrediente",
+          "kind": "fn",
+          "startLine": 399,
+          "endLine": 405,
+          "tokens": 68
         },
         {
           "name": "temIngredientes",
           "kind": "fn",
-          "startLine": 365,
-          "endLine": 374,
-          "tokens": 131
+          "startLine": 406,
+          "endLine": 415,
+          "tokens": 133
         },
         {
           "name": "podeFabricar",
           "kind": "fn",
-          "startLine": 375,
-          "endLine": 384,
+          "startLine": 416,
+          "endLine": 425,
           "tokens": 115
         },
         {
           "name": "fabricar",
           "kind": "fn",
-          "startLine": 385,
-          "endLine": 398,
-          "tokens": 182
+          "startLine": 426,
+          "endLine": 455,
+          "tokens": 423
         },
         {
           "name": "ingredientesDe",
           "kind": "fn",
-          "startLine": 399,
-          "endLine": 408,
-          "tokens": 87
+          "startLine": 456,
+          "endLine": 477,
+          "tokens": 116
         }
       ]
     },
@@ -8513,70 +8562,70 @@
       ]
     },
     "shared/src/rules.test.ts": {
-      "description": "Declares DIMS",
-      "tokens": 736,
-      "hash": "b0bf534f83fda70c",
-      "size": 2583,
-      "mtimeMs": 1784496603029.764,
-      "updatedAt": "2026-08-05T17:51:21.015Z",
-      "source": "scan"
+      "description": "O PORTÃO DO APOIO (2026-08-05) — este teste é a razão de o registro ter",
+      "tokens": 1469,
+      "hash": "269a9c19fcc3fe1b",
+      "size": 5168,
+      "mtimeMs": 1785973141383.322,
+      "updatedAt": "2026-08-05T23:39:01.478Z",
+      "source": "hook"
     },
     "shared/src/rules.ts": {
       "description": "Sistema GENÉRICO de atualização de bloco por vizinhança — a REGRA DE OURO",
-      "tokens": 4097,
-      "hash": "9d39ac96a8786563",
-      "size": 14672,
-      "mtimeMs": 1785805407142.3901,
-      "updatedAt": "2026-08-05T17:51:21.016Z",
-      "source": "scan",
+      "tokens": 4016,
+      "hash": "b6605a4d803b3526",
+      "size": 14379,
+      "mtimeMs": 1785972630251.3235,
+      "updatedAt": "2026-08-05T23:30:30.350Z",
+      "source": "hook",
       "symbols": [
         {
           "name": "BlockChange",
           "kind": "section",
-          "startLine": 23,
-          "endLine": 125,
+          "startLine": 24,
+          "endLine": 126,
           "tokens": 1257
         },
         {
           "name": "fontesLaterais",
           "kind": "fn",
-          "startLine": 126,
-          "endLine": 137,
+          "startLine": 127,
+          "endLine": 138,
           "tokens": 146
         },
         {
           "name": "nivelSuportado",
           "kind": "fn",
-          "startLine": 138,
-          "endLine": 157,
+          "startLine": 139,
+          "endLine": 158,
           "tokens": 290
         },
         {
           "name": "temQueda",
           "kind": "fn",
-          "startLine": 158,
-          "endLine": 166,
+          "startLine": 159,
+          "endLine": 167,
           "tokens": 137
         },
         {
           "name": "aguaAtravessa",
           "kind": "fn",
-          "startLine": 167,
-          "endLine": 175,
+          "startLine": 168,
+          "endLine": 176,
           "tokens": 136
         },
         {
           "name": "passosAteQueda",
           "kind": "fn",
-          "startLine": 176,
-          "endLine": 324,
-          "tokens": 1924
+          "startLine": 177,
+          "endLine": 316,
+          "tokens": 1838
         },
         {
           "name": "ruleFor",
           "kind": "fn",
-          "startLine": 325,
-          "endLine": 328,
+          "startLine": 317,
+          "endLine": 320,
           "tokens": 28
         }
       ]
@@ -9563,12 +9612,12 @@
     },
     "todo.md": {
       "description": "Ideias para fazer",
-      "tokens": 7387,
-      "hash": "944794c145685eac",
-      "size": 30549,
-      "mtimeMs": 1785952137647.324,
-      "updatedAt": "2026-08-05T17:51:21.030Z",
-      "source": "scan"
+      "tokens": 8048,
+      "hash": "bc699f5654878a7c",
+      "size": 33278,
+      "mtimeMs": 1785986393440.63,
+      "updatedAt": "2026-08-06T03:19:53.588Z",
+      "source": "hook"
     },
     "tsconfig.base.json": {
       "description": "",

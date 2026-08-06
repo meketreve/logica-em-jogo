@@ -295,15 +295,49 @@ function showOverlayMain(): void {
   overlayConfig?.classList.add("hidden");
 }
 
-function updateOverlay(): void {
-  // some quando o jogo tem o controle (mouse travado OU modo toque), o chat
-  // está aberto OU um painel do cp14 está na tela (senão cobre o painel)
-  const panelOpen =
+/**
+ * Algum painel de tela cheia está aberto? (2026-08-05) — a lista existia solta
+ * dentro do `updateOverlay`; virou função porque a REGRA DE UM MENU POR VEZ
+ * (pedido do usuário) precisa da mesma pergunta em todo lugar que abre menu.
+ *
+ * O editor de quadro fica de fora de propósito: ele é modal por cima de tudo,
+ * tem o Esc dele, e só abre com o ponteiro travado (clique direito no bloco) —
+ * ou seja, nunca com outro menu na tela. Entrar aqui só criaria TDZ, porque ele
+ * nasce lá no `startGame` e o `updateOverlay` roda no boot.
+ */
+function menuAberto(): boolean {
+  return (
     (activePanel?.open ?? false) ||
     (inventoryPanel?.open ?? false) ||
     (playersPanel?.open ?? false) ||
     (friendsPanel?.open ?? false) ||
-    (containerPanel?.open ?? false);
+    (containerPanel?.open ?? false)
+  );
+}
+
+/** O menu de PAUSA está na tela? (ele não tem estado próprio — quem manda é a
+ *  classe que o `updateOverlay` acabou de escrever). */
+function menuDePausaAberto(): boolean {
+  return overlay !== null && !overlay.classList.contains("hidden");
+}
+
+/**
+ * UM MENU POR VEZ (2026-08-05, pedido do usuário: *"adicione uma regra para não
+ * poder abrir um menu (esc e mochila por exemplo) se já tem outro aberto"*).
+ *
+ * Antes, cada tecla de painel FECHAVA os outros ("um painel por vez na tela") —
+ * e isso é diferente: com o baú aberto, apertar E trocava o baú pela mochila e
+ * o servidor continuava achando que o baú estava aberto. Agora o segundo menu
+ * simplesmente não abre, e o Esc é o caminho de volta.
+ */
+function podeAbrirMenu(): boolean {
+  return !menuAberto() && !menuDePausaAberto() && !chat.open;
+}
+
+function updateOverlay(): void {
+  // some quando o jogo tem o controle (mouse travado OU modo toque), o chat
+  // está aberto OU um painel do cp14 está na tela (senão cobre o painel)
+  const panelOpen = menuAberto();
   // §🕐 `loading.ativo`: durante o carregamento o ponteiro NÃO está travado —
   // sem esta condição o menu de pausa aparecia junto com a tela de carga.
   overlay?.classList.toggle(
@@ -328,6 +362,28 @@ function startPlay(): void {
     input.lock();
   }
 }
+
+/**
+ * Esc FECHA QUALQUER MENU (2026-08-05, pedido do usuário).
+ *
+ * Os painéis já tinham o deles (cada um registra o próprio `keydown` em CAPTURE
+ * e dá `stopPropagation`, então este handler nem roda quando um deles está na
+ * tela). O que faltava era o menu de PAUSA: ele nasce quando o navegador solta
+ * o ponteiro, e o único jeito de sair era CLICAR em "voltar ao jogo" — a mesma
+ * tecla que o abriu não o fechava. Agora fecha, que é o que a mão espera.
+ *
+ * A guarda do `#menu`: no menu principal (antes de entrar em mundo nenhum) o
+ * overlay está tecnicamente "visível", só que atrás do launcher (z-index 30 vs
+ * 20). Sem esta linha, um Esc na tela de escolher mundo travaria o ponteiro
+ * sobre o launcher — cursor sumido numa tela de botões.
+ */
+window.addEventListener("keydown", (e) => {
+  if (e.code !== "Escape") return;
+  if (!menuDePausaAberto() || chat.open) return;
+  if (!(document.getElementById("menu")?.classList.contains("hidden") ?? false)) return;
+  e.preventDefault();
+  startPlay();
+});
 
 /** Config mudou no menu de pausa: aplica AO VIVO no jogo em andamento. */
 function onSettingsChanged(): void {
@@ -908,6 +964,10 @@ function connect(c: Connection, auth?: MultiAuth): void {
   c.onMessage(handleServerData);
   input.onKey(settings.keys.chat, () => {
     if (chat.open) return; // dentro do chat a tecla é do campo, não daqui
+    // o chat é menu como os outros (2026-08-05): não abre por cima da mochila.
+    // Sem isto, o Enter atravessava o painel aberto e o aluno digitava numa
+    // caixa escondida atrás dele.
+    if (!podeAbrirMenu()) return;
     document.exitPointerLock();
     chat.openInput();
   });
@@ -1343,22 +1403,18 @@ function startGame(snap: Snapshot): void {
       : new GroupPanel(sendCmd, onPanelToggle);
   pushPanelData();
   input.onKey(settings.keys.painel, () => {
-    if (chat.open) return;
+    // um menu por vez: com outro aberto a tecla não faz NADA (antes fechava o
+    // outro por baixo do pano). O próprio painel continua fechando na 2ª tecla.
+    if (!(activePanel?.open ?? false) && !podeAbrirMenu()) return;
     // painel do aluno só abre DEPOIS do professor criar grupos (decisão do MVP v2)
     if (papel !== "professor" && latestGroups.length === 0) {
       chat.addMessage("jogo", "o professor ainda não criou grupos — o painel abre quando existirem");
       return;
     }
-    inventoryPanel?.hide(); // um painel por vez na tela
-    playersPanel?.hide();
-    friendsPanel?.hide();
     activePanel?.toggle();
   });
   input.onKey(settings.keys.amigos, () => {
-    if (chat.open) return;
-    activePanel?.hide(); // um painel por vez na tela
-    inventoryPanel?.hide();
-    playersPanel?.hide();
+    if (!(friendsPanel?.open ?? false) && !podeAbrirMenu()) return;
     friendsPanel?.toggle();
   });
   if (papel === "professor") {
@@ -1816,12 +1872,8 @@ function startGame(snap: Snapshot): void {
       refreshHotbar();
     },
     (open) => {
-      if (open) {
-        activePanel?.hide(); // um painel por vez na tela
-        playersPanel?.hide();
-        friendsPanel?.hide();
-        document.exitPointerLock();
-      } else input.lock();
+      if (open) document.exitPointerLock();
+      else input.lock();
       updateOverlay();
     },
     mochila,
@@ -1830,7 +1882,7 @@ function startGame(snap: Snapshot): void {
     (receita) => activeConn.send(JSON.stringify({ type: "fabricar", receita })),
   );
   input.onKey(settings.keys.inventario, () => {
-    if (chat.open) return;
+    if (!(inventoryPanel?.open ?? false) && !podeAbrirMenu()) return;
     inventoryPanel?.toggle();
   });
 
@@ -1846,7 +1898,11 @@ function startGame(snap: Snapshot): void {
     () => activeConn.send(JSON.stringify({ type: "fechar_container" })),
     (open) => {
       if (open) {
-        activePanel?.hide(); // um painel por vez na tela
+        // este é o ÚNICO menu que não passa pelo `podeAbrirMenu`: quem o abre é
+        // o servidor, e a verdade dele ganha da tela. Na prática nunca há o que
+        // fechar (abrir baú é clique direito, que exige ponteiro travado, que
+        // exige nenhum menu aberto) — os `hide` são o cinto além do suspensório.
+        activePanel?.hide();
         playersPanel?.hide();
         friendsPanel?.hide();
         inventoryPanel?.hide();
@@ -2213,7 +2269,11 @@ function startGame(snap: Snapshot): void {
       quebrar: () => input.press(0),
       colocar: () => input.press(2),
       copiar: () => input.press(1),
-      inventario: () => inventoryPanel?.toggle(),
+      inventario: () => {
+        // mesma regra de um menu por vez do teclado (o dedo não tem Esc)
+        if (!(inventoryPanel?.open ?? false) && !podeAbrirMenu()) return;
+        inventoryPanel?.toggle();
+      },
       chat: () => {
         if (chat.open) return;
         document.exitPointerLock();
@@ -2228,9 +2288,7 @@ function startGame(snap: Snapshot): void {
       hud: () => hud.toggle(),
       varinha: () => toggleVarinha(),
       amigos: () => {
-        activePanel?.hide(); // um painel por vez na tela
-        inventoryPanel?.hide();
-        playersPanel?.hide();
+        if (!(friendsPanel?.open ?? false) && !podeAbrirMenu()) return;
         friendsPanel?.toggle();
       },
     });

@@ -527,6 +527,36 @@
         font-size: 10px;
         opacity: 0.7;
       }
+      /* o divisor container↕mochila (2026-08-05): duas grades de 9 colunas
+         coladas viravam um bloco só de quadrados, e tirar da metade errada é
+         mexer no baú da colega. A linha corta o painel inteiro; os dois rótulos
+         dizem de quem é cada lado. */
+      .cont-divisor {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        width: 100%;
+        max-width: 470px;
+        margin: 4px auto 6px;
+      }
+      .cont-divisor small {
+        font-size: 11px;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+        opacity: 0.75;
+        white-space: nowrap;
+      }
+      .cont-divisor i {
+        flex: 1;
+        height: 2px;
+        border-radius: 1px;
+        background: linear-gradient(
+          90deg,
+          rgba(127, 212, 255, 0.05),
+          rgba(127, 212, 255, 0.55),
+          rgba(127, 212, 255, 0.05)
+        );
+      }
       .cont-barra {
         display: flex;
         align-items: center;

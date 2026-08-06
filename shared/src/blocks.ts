@@ -693,13 +693,26 @@ export function isTapete(id: number): boolean {
   return id >= BlockId.TapeteBranco && id <= BlockId.TapeteMarrom;
 }
 
-/** Precisa de apoio embaixo pra ser colocado E pra continuar existindo (regra
- *  no tick). Tocha, tapetes, flores, capim — e a plantação, que é a única a
- *  querer um apoio ESPECÍFICO (ver `apoioValido`). */
+/**
+ * Precisa de apoio embaixo pra ser colocado E pra continuar existindo (regra no
+ * tick). Tocha, tapetes, flores, capim — e a plantação, que é a única a querer
+ * um apoio ESPECÍFICO (ver `apoioValido`).
+ *
+ * **2026-08-05 (pedido do usuário): TODA planta entra aqui, selvagem ou
+ * cultivada.** O mandacaru era a última de fora — cavar a areia debaixo dele
+ * deixava a coluna de cacto pendurada no ar. Ele se apoia em cubo cheio (a
+ * areia da caatinga, ou o próprio mandacaru de baixo), então a coluna inteira
+ * cai de baixo pra cima, um tick por célula.
+ *
+ * ⚠️ Esta função é a fonte ÚNICA da lista: `rules.ts` REGISTRA a regra do tick
+ * a partir dela, e não de uma segunda lista de faixas de id. Foi uma segunda
+ * lista que deixou o capim flutuando (bug-558) e o algodão inteiro de fora
+ * (bug-581).
+ */
 export function precisaApoio(id: number): boolean {
   return (
     id === BlockId.Tocha || isTapete(id) || isFlor(id) || isGramaAlta(id) ||
-    isPlantacao(id) || id === BlockId.AlgodaoSelvagem
+    isPlantacao(id) || id === BlockId.AlgodaoSelvagem || id === BlockId.Mandacaru
   );
 }
 

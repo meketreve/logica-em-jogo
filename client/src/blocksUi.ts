@@ -123,7 +123,11 @@ export const PLACEABLE: readonly PlaceableEntry[] = [
   // está na paleta porque o professor precisa desenhar uma horta pronta na aula.
   // O nome é "semente" e não "muda" porque é o que se CARREGA; o que aparece no
   // mundo ao plantar é um broto, e o ícone da bolsa mostra grãos (blockIcons).
-  { id: BlockId.Plantacao0, name: "semente", cat: "vegetacao" },
+  // 2026-08-05: virou "semente DE TRIGO" a pedido do usuário. Enquanto era a
+  // única, "semente" bastava; com a de algodão ao lado na mesma aba, duas
+  // bolsas quase iguais e um nome genérico faziam o aluno plantar a errada — e
+  // só descobrir um minuto depois, quando o broto crescesse.
+  { id: BlockId.Plantacao0, name: "semente de trigo", cat: "vegetacao" },
   // Algodão (§🍖 F10c 2026-08-05): a semente cultivável + o pé SELVAGEM que o
   // gen espalha pelo cerrado. O selvagem está na paleta pro professor poder
   // semear a descoberta num mundo de aula; em sobrevivência ele não se obtém

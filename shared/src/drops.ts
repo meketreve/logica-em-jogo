@@ -108,9 +108,37 @@ const EXCECOES = new Map<number, number | null>([
  */
 export const CHANCE_FRUTA_DA_FOLHA = 1 / 8;
 export const CHANCE_SEMENTE_DO_CAPIM = 1 / 4;
-/** §🍖 F10c: a semente do pé de algodão SELVAGEM. Mesma régua do capim, e pela
- *  mesma razão — é assim que o aluno acha a cadeia da lã sem ninguém entregar. */
-export const CHANCE_SEMENTE_DO_ALGODAO = 1 / 4;
+/**
+ * §🍖 F10c: a semente do pé de algodão SELVAGEM. Nasceu com a régua do capim
+ * (1 em 4) e SUBIU pra 2 em 3 em 2026-08-05, a pedido do usuário.
+ *
+ * A razão é que os dois não são igualmente comuns: o capim cobre campo inteiro
+ * e o aluno derruba dez sem procurar, enquanto o pé de algodão selvagem é
+ * esparso no cerrado — com a mesma chance, "achei um algodão" virava quase
+ * sempre "e não veio nada". A cadeia da lã não pode depender de achar o
+ * SEGUNDO pé.
+ */
+export const CHANCE_SEMENTE_DO_ALGODAO = 2 / 3;
+
+/**
+ * Quantas sementes a colheita devolve (2026-08-05, pedido do usuário: *"drop de
+ * sementes cultivadas deve ser de 1 a 3"*).
+ *
+ * O F6 devolvia exatamente 1: a horta se replantava, mas nunca CRESCIA — quem
+ * quisesse a segunda fileira tinha de voltar a caçar capim. Com 1–3 a média é
+ * 2, então cada colheita paga a próxima e sobra — e a turma passa a poder
+ * plantar um canteiro de verdade sem que o professor distribua semente.
+ * Continua sendo sorteio, então o aluno vê que às vezes a horta não cresce.
+ */
+export const SEMENTES_MIN = 1;
+export const SEMENTES_MAX = 3;
+
+/** 1–3 sementes, uniformes. Fica aqui (e não inline) porque as DUAS plantas
+ *  colhem pela mesma régua, e planta nova entra sem escolher um número novo. */
+function sementes(sorteio: () => number): number {
+  const faixa = SEMENTES_MAX - SEMENTES_MIN + 1;
+  return SEMENTES_MIN + Math.min(faixa - 1, Math.floor(sorteio() * faixa));
+}
 
 /**
  * O que o jogador ganha ao quebrar esta célula. Lista (e não pilha única)
@@ -151,12 +179,12 @@ export function dropsDe(
     if (blockId === BlockId.Algodao3) {
       return [
         { id: ITEM_ALGODAO, qtd: sorteio() < 0.5 ? 1 : 2 },
-        { id: BlockId.Algodao0, qtd: 1 },
+        { id: BlockId.Algodao0, qtd: sementes(sorteio) },
       ];
     }
     return [
       { id: ITEM_TRIGO, qtd: 1 },
-      { id: BlockId.Plantacao0, qtd: 1 },
+      { id: BlockId.Plantacao0, qtd: sementes(sorteio) },
     ];
   }
   if (EXCECOES.has(blockId)) {
