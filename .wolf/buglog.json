@@ -4336,6 +4336,27 @@
       ],
       "occurrences": 2,
       "last_seen": "2026-08-06T14:10:00Z"
+    },
+    {
+      "id": "bug-594",
+      "timestamp": "2026-08-06T14:25:00Z",
+      "error_message": "(latente, achado no refactor da §🎮 — nenhum sintoma relatado) o relógio do duplo-toque nascia em 0, e `performance.now()` também começa em 0",
+      "file": "shared/src/controleJogador.ts (era client/src/main.ts, os `let lastForwardTap`/`lastJumpTap`)",
+      "root_cause": "`lastForwardTap = 0` e `lastJumpTap = 0` guardavam 'nunca houve toque' com o MESMO valor que o relógio tem no instante da navegação. `performance.now()` conta ms desde o carregamento da página, então `now - 0 < 300` é VERDADE nos primeiros 300 ms: o PRIMEIRO toque no W contaria como duplo-toque e a corrida engataria sozinha (idem o voo no espaço). Na prática nunca disparou porque o jogo só começa depois do menu e da carga do mundo — mas é uma janela real, e ela vira alcançável no dia em que o boot ficar mais rápido ou o `startGame` for chamado direto por automação.",
+      "fix": "O sentinela virou `Number.NEGATIVE_INFINITY` no `DuploToque`: `agora - (-Infinity)` é `Infinity`, que nunca cabe na janela. Coberto por 'o PRIMEIRO toque nunca bate — nem no início do relógio'; o A/B com o sentinela de volta em 0 derruba 4 asserções.",
+      "tags": [
+        "latente",
+        "duplo-toque",
+        "performance.now",
+        "sentinela",
+        "refactor",
+        "controle"
+      ],
+      "related_bugs": [
+        "bug-590"
+      ],
+      "occurrences": 1,
+      "last_seen": "2026-08-06T14:25:00Z"
     }
   ]
 }

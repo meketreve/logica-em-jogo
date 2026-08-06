@@ -1,12 +1,12 @@
 {
   "version": 1,
   "meta": {
-    "lastScanned": "2026-08-06T14:05:05.096Z",
-    "fileCount": 328,
+    "lastScanned": "2026-08-06T14:23:12.727Z",
+    "fileCount": 331,
     "hits": 0,
     "misses": 0,
-    "renderedHash": "c49ccf253249bb34d4ddca166d61586a4653afbbe8d5add813fc1ce057709b95",
-    "storeUpdatedAt": "2026-08-06T14:05:05.102Z"
+    "renderedHash": "4b9593679e81ce8fdb15bd449336fb1394d0f3a8b2b47f0402d979f8aec448ae",
+    "storeUpdatedAt": "2026-08-06T14:23:12.747Z"
   },
   "files": {
     ".claude/commands/reframe.md": {
@@ -2327,194 +2327,194 @@
     },
     "client/src/main.ts": {
       "description": "O cliente não tem filesystem: aprende os nomes das aulas pela resposta de",
-      "tokens": 27553,
-      "hash": "0acb37b78bdbf6b5",
-      "size": 97846,
-      "mtimeMs": 1786023395462.503,
-      "updatedAt": "2026-08-06T14:05:04.939Z",
-      "source": "scan",
+      "tokens": 26976,
+      "hash": "fc286d64038c5954",
+      "size": 95817,
+      "mtimeMs": 1786025729254.5024,
+      "updatedAt": "2026-08-06T14:15:29.383Z",
+      "source": "hook",
       "symbols": [
         {
           "name": "cachearMundos",
           "kind": "fn",
-          "startLine": 112,
-          "endLine": 203,
+          "startLine": 113,
+          "endLine": 204,
           "tokens": 1200
         },
         {
           "name": "applySettings",
           "kind": "fn",
-          "startLine": 204,
-          "endLine": 264,
+          "startLine": 205,
+          "endLine": 265,
           "tokens": 905
         },
         {
           "name": "showOverlayMain",
           "kind": "fn",
-          "startLine": 265,
-          "endLine": 271,
+          "startLine": 266,
+          "endLine": 272,
           "tokens": 74
         },
         {
           "name": "menuDePausaAberto",
           "kind": "fn",
-          "startLine": 272,
-          "endLine": 275,
+          "startLine": 273,
+          "endLine": 276,
           "tokens": 32
         },
         {
           "name": "updateOverlay",
           "kind": "fn",
-          "startLine": 276,
-          "endLine": 294,
+          "startLine": 277,
+          "endLine": 295,
           "tokens": 294
         },
         {
           "name": "startPlay",
           "kind": "fn",
-          "startLine": 295,
-          "endLine": 327,
+          "startLine": 296,
+          "endLine": 328,
           "tokens": 374
         },
         {
           "name": "onSettingsChanged",
           "kind": "fn",
-          "startLine": 328,
-          "endLine": 349,
+          "startLine": 329,
+          "endLine": 350,
           "tokens": 294
         },
         {
           "name": "enviarRaio",
           "kind": "fn",
-          "startLine": 350,
-          "endLine": 393,
+          "startLine": 351,
+          "endLine": 394,
           "tokens": 589
         },
         {
           "name": "playerName",
           "kind": "fn",
-          "startLine": 394,
-          "endLine": 404,
+          "startLine": 395,
+          "endLine": 405,
           "tokens": 187
         },
         {
           "name": "abrirAmigosPorComando",
           "kind": "fn",
-          "startLine": 405,
-          "endLine": 440,
+          "startLine": 406,
+          "endLine": 441,
           "tokens": 376
         },
         {
           "name": "registrarChegadaDeRede",
           "kind": "fn",
-          "startLine": 441,
-          "endLine": 448,
+          "startLine": 442,
+          "endLine": 449,
           "tokens": 60
         },
         {
           "name": "jitterDeRede",
           "kind": "fn",
-          "startLine": 449,
-          "endLine": 492,
+          "startLine": 450,
+          "endLine": 493,
           "tokens": 592
         },
         {
           "name": "podeVoar",
           "kind": "fn",
-          "startLine": 493,
-          "endLine": 503,
+          "startLine": 494,
+          "endLine": 504,
           "tokens": 178
         },
         {
           "name": "vitals",
           "kind": "fn",
-          "startLine": 504,
-          "endLine": 580,
+          "startLine": 505,
+          "endLine": 581,
           "tokens": 1106
         },
         {
           "name": "pushPanelData",
           "kind": "fn",
-          "startLine": 581,
-          "endLine": 593,
+          "startLine": 582,
+          "endLine": 594,
           "tokens": 139
         },
         {
           "name": "pushFriendsData",
           "kind": "fn",
-          "startLine": 594,
-          "endLine": 604,
+          "startLine": 595,
+          "endLine": 605,
           "tokens": 96
         },
         {
           "name": "ownDone",
           "kind": "fn",
-          "startLine": 605,
-          "endLine": 613,
+          "startLine": 606,
+          "endLine": 614,
           "tokens": 90
         },
         {
           "name": "refreshObjectivesView",
           "kind": "fn",
-          "startLine": 614,
-          "endLine": 645,
+          "startLine": 615,
+          "endLine": 646,
           "tokens": 358
         },
         {
           "name": "drenarFilaTroca",
           "kind": "fn",
-          "startLine": 646,
-          "endLine": 653,
+          "startLine": 647,
+          "endLine": 654,
           "tokens": 79
         },
         {
           "name": "segurarAteATelaPintar",
           "kind": "fn",
-          "startLine": 654,
-          "endLine": 663,
+          "startLine": 655,
+          "endLine": 664,
           "tokens": 109
         },
         {
           "name": "handleServerData",
           "kind": "fn",
-          "startLine": 664,
-          "endLine": 882,
+          "startLine": 665,
+          "endLine": 883,
           "tokens": 2849
         },
         {
           "name": "connect",
           "kind": "fn",
-          "startLine": 883,
-          "endLine": 922,
+          "startLine": 884,
+          "endLine": 923,
           "tokens": 465
         },
         {
           "name": "startMultiplayer",
           "kind": "fn",
-          "startLine": 923,
-          "endLine": 940,
+          "startLine": 924,
+          "endLine": 941,
           "tokens": 224
         },
         {
           "name": "startSingleplayer",
           "kind": "fn",
-          "startLine": 941,
-          "endLine": 964,
+          "startLine": 942,
+          "endLine": 965,
           "tokens": 284
         },
         {
           "name": "persistWorld",
           "kind": "fn",
-          "startLine": 965,
-          "endLine": 1012,
+          "startLine": 966,
+          "endLine": 1013,
           "tokens": 520
         },
         {
           "name": "startGame",
           "kind": "fn",
-          "startLine": 1013,
-          "endLine": 2175,
-          "tokens": 15191
+          "startLine": 1014,
+          "endLine": 2126,
+          "tokens": 14598
         }
       ]
     },
@@ -7414,12 +7414,12 @@
     },
     "shared/src/index.ts": {
       "description": "",
-      "tokens": 270,
-      "hash": "b03e4addf8bffbf8",
-      "size": 945,
-      "mtimeMs": 1786023366110.5032,
-      "updatedAt": "2026-08-06T14:05:05.044Z",
-      "source": "scan"
+      "tokens": 280,
+      "hash": "ccc476fac94739d8",
+      "size": 980,
+      "mtimeMs": 1786025528386.5027,
+      "updatedAt": "2026-08-06T14:12:08.483Z",
+      "source": "hook"
     },
     "shared/src/inventario.test.ts": {
       "description": "Inventário com pilhas em slots escolhidos (o resto vazio).",
@@ -10918,6 +10918,72 @@
       "mtimeMs": 1784590204344.3562,
       "updatedAt": "2026-08-06T14:05:05.085Z",
       "source": "scan"
+    },
+    "shared/src/controleJogador.ts": {
+      "description": "§🎮 O que o CONTROLE do jogador lembra de um frame pro outro.",
+      "tokens": 1563,
+      "hash": "0b2d5f5f215799f9",
+      "size": 5572,
+      "mtimeMs": 1786025479090.504,
+      "updatedAt": "2026-08-06T14:11:19.194Z",
+      "source": "hook",
+      "symbols": [
+        {
+          "name": "DuploToque",
+          "kind": "class",
+          "startLine": 44,
+          "endLine": 61,
+          "tokens": 197
+        },
+        {
+          "name": "EstadoDoOlho",
+          "kind": "section",
+          "startLine": 62,
+          "endLine": 79,
+          "tokens": 160
+        },
+        {
+          "name": "ControleDoJogador",
+          "kind": "class",
+          "startLine": 80,
+          "endLine": 138,
+          "tokens": 625
+        }
+      ]
+    },
+    "shared/src/controleJogador.test.ts": {
+      "description": "Um segundo de frames a 60 fps.",
+      "tokens": 2448,
+      "hash": "e6742733edf61f43",
+      "size": 8646,
+      "mtimeMs": 1786026192618.5044,
+      "updatedAt": "2026-08-06T14:23:12.726Z",
+      "source": "hook"
+    },
+    "client/src/movimentoJogador.ts": {
+      "description": "§🎮 O movimento do jogador local, do teclado até a altura da câmera.",
+      "tokens": 1303,
+      "hash": "1667d0f8a3bc5c64",
+      "size": 4631,
+      "mtimeMs": 1786025669214.5022,
+      "updatedAt": "2026-08-06T14:14:29.371Z",
+      "source": "hook",
+      "symbols": [
+        {
+          "name": "ComandoDeMovimento",
+          "kind": "section",
+          "startLine": 24,
+          "endLine": 36,
+          "tokens": 96
+        },
+        {
+          "name": "MovimentoDoJogador",
+          "kind": "class",
+          "startLine": 37,
+          "endLine": 126,
+          "tokens": 894
+        }
+      ]
     }
   }
 }

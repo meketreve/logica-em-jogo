@@ -1646,3 +1646,25 @@ passa pelo próprio portão) · 5 prints da pista. **PLAYTEST PENDENTE.**
 | 11:10 | bug-593: painel de container ZUMBI (mensagem em voo reabre) | client/src/container.ts, shared/src/session.ts | servidor confirma + cliente descarta | ~12k |
 | 11:25 | A/B do 593 por ENCENAÇÃO (injeção da msg em voo, na ordem certa) | shared/src/session.ts (temp) | original reproduz, conserto verde | ~10k |
 | 11:40 | fecho: 4 commits, buglog 591/592/593, cerebrum, STATUS | .wolf/* | pausa pro /clear | ~8k |
+| 11:05 | Session end: 21 writes across 8 files (materiaisMundo.ts, main.ts, luz-shots.mjs, progressoCarga.ts, f10-shot.mjs) | 6 reads | ~49425 tok |
+
+## Session: 2026-08-06 11:07
+
+| Time | Action | File(s) | Outcome | ~Tokens |
+|------|--------|---------|---------|--------|
+| 11:11 | Created shared/src/controleJogador.ts | — | ~1563 |
+| 11:12 | Created shared/src/controleJogador.test.ts | — | ~2261 |
+| 11:12 | Edited shared/src/index.ts | 1→2 lines | ~19 |
+| 11:12 | Edited shared/src/controleJogador.test.ts | toBeCloseTo() → toBe() | ~115 |
+| 11:12 | Edited shared/src/controleJogador.test.ts | restante() → fracaoApos200ms() | ~226 |
+| 11:14 | Created client/src/movimentoJogador.ts | — | ~1303 |
+| 11:14 | Edited client/src/main.ts | 2→7 lines | ~114 |
+| 11:14 | Edited client/src/main.ts | added 1 import(s) | ~31 |
+| 11:14 | Edited client/src/main.ts | 4→4 lines | ~58 |
+| 11:14 | Edited client/src/main.ts | inline fix | ~13 |
+| 11:14 | Edited client/src/main.ts | 4→5 lines | ~53 |
+| 11:15 | Edited client/src/main.ts | removed 52 lines | ~116 |
+| 11:15 | Edited client/src/main.ts | modified if() | ~126 |
+| 11:15 | Edited client/src/main.ts | suaves() → olho() | ~157 |
+| 11:23 | Edited shared/src/controleJogador.test.ts | 3→4 lines | ~66 |
+| 11:23 | Edited shared/src/controleJogador.test.ts | 12→14 lines | ~249 |

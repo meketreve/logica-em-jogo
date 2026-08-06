@@ -11,9 +11,7 @@ import {
   type NamedRegion,
   type Modo,
   type ObjectiveState,
-  PLAYER,
   PLAYER_REACH,
-  STEP_HEIGHT,
   type RayHit,
   SERVER_TICK_RATE,
   type ScenarioModo,
@@ -76,6 +74,7 @@ import { learnPlayers, learnWorlds } from "./commands";
 import { SkyCycle } from "./daynight";
 import { VentoCliente } from "./vento";
 import { MateriaisMundo } from "./materiaisMundo";
+import { MovimentoDoJogador } from "./movimentoJogador";
 import { PainelHost } from "./painelHost";
 import { ProgressoCarga } from "./progressoCarga";
 import { type Connection, WorkerConnection, WsConnection } from "./connection";
@@ -1036,10 +1035,10 @@ function startGame(snap: Snapshot): void {
    *  quando voltar. */
   let colunasCarregadas = new Set<number>();
   let frameCount = 0; // varredura de descarte roda 1×/s (a cada 60 frames)
-  /** Colunas APLICADAS desde o boot e distância andada — só o perfil usa: viram
-   *  delta na janela de 10 s e dizem se a gravação foi voando ou parado. */
+  /** Colunas APLICADAS desde o boot — só o perfil usa: vira delta na janela de
+   *  10 s e, com a distância do `movimento`, diz se a gravação foi voando ou
+   *  parado. */
   let colunasRecebidas = 0;
-  let distanciaPercorrida = 0;
   // §🎨 atlas + os três materiais do chunk + os uniforms do balanço e da luz +
   // os dois relógios da água. A ordem interna importa (balanço antes da luz) e
   // está escrita lá; aqui só se constrói e se chama `atualizar` 1×/frame.
@@ -1252,6 +1251,11 @@ function startGame(snap: Snapshot): void {
     z: world.sizeZ / 2 + 0.5,
   };
   const player = createPlayer(spawn.x, spawn.y, spawn.z);
+  // §🎮 os duplo-toques (correr/voar), a altura do olho com degrau suave e o
+  // odômetro do perfil. A REGRA mora no `shared/controleJogador.ts` (lá há onde
+  // rodar teste); aqui fica a leitura do teclado, que só existe no cliente.
+  const movimento = new MovimentoDoJogador(input, () => settings.keys);
+  movimento.ancorar(player.pos);
 
   // §🕐 o total esperado do raio inicial e o "já chegou" da tela de carga. As
   // contagens chegam por callback (o `Set` é reassinado na troca de aula), e a
@@ -1684,7 +1688,7 @@ function startGame(snap: Snapshot): void {
     fov: settings.fov,
     nuvens: settings.nuvens,
     balanco: settings.balanco,
-    distanciaTotal: distanciaPercorrida,
+    distanciaTotal: movimento.distanciaTotal,
     colunasRecebidas,
     bytesRecebidos: activeConn.stats.bytesIn,
   });
@@ -1752,9 +1756,10 @@ function startGame(snap: Snapshot): void {
       // salto (spawn → borda do círculo) não entra na distância percorrida da
       // gravação, que deve medir só o voo
       const inicio = bench.amostra(performance.now());
-      player.pos.x = posAntX = inicio.x;
-      player.pos.y = posAntY = inicio.y;
-      player.pos.z = posAntZ = inicio.z;
+      player.pos.x = inicio.x;
+      player.pos.y = inicio.y;
+      player.pos.z = inicio.z;
+      movimento.ancorar(player.pos);
       // grava o trajeto INTEIRO (o botão do F3 grava 10 s; aqui são os 30)
       hud.record((report) => {
         benchRodando = false;
@@ -1900,56 +1905,15 @@ function startGame(snap: Snapshot): void {
   }, 1000);
 
   let last = performance.now();
-  let posAntX = player.pos.x;
-  let posAntY = player.pos.y;
-  let posAntZ = player.pos.z;
-  // corrida por duplo-toque no andar: latch fica armado até soltar a tecla
-  let sprintLatch = false;
-  let forwardWasDown = false;
-  let lastForwardTap = 0;
-  // voo por duplo-toque no pular (só quem pode voar)
-  let jumpWasDown = false;
-  let lastJumpTap = 0;
-  // altura do olho com transição suave (agachar abaixa a câmera)
-  let eyeHeight = PLAYER.eyeHeight;
-  // step-up suave (2026-07-25): a FÍSICA sobe o degrau (laje/escada) de uma vez
-  // — tem que ser assim, o servidor valida a mesma simulação. Quem suaviza é o
-  // OLHO: guarda aqui quanto da subida ainda falta "alcançar" e desconta da
-  // câmera, decaindo em ~0,15 s. Visual puro, não muda colisão nem rede.
-  let stepSuave = 0;
   renderer.setAnimationLoop(() => {
     const now = performance.now();
     const dtMs = now - last;
     last = now;
     const dt = Math.min(dtMs / 1000, 0.05);
 
-    const forward = input.active
-      ? (input.down(settings.keys.forward) ? 1 : 0) - (input.down(settings.keys.back) ? 1 : 0)
-      : 0;
-    const strafe = input.active
-      ? (input.down(settings.keys.right) ? 1 : 0) - (input.down(settings.keys.left) ? 1 : 0)
-      : 0;
-    const jump = input.active && input.down(settings.keys.jump);
-
-    const forwardDown = input.active && input.down(settings.keys.forward);
-    if (forwardDown && !forwardWasDown) {
-      if (now - lastForwardTap < 300) sprintLatch = true;
-      lastForwardTap = now;
-    }
-    if (!forwardDown) sprintLatch = false;
-    forwardWasDown = forwardDown;
-
-    const sneak = input.active && input.down(settings.keys.agachar);
-    const sprint =
-      forward > 0 && !sneak && (sprintLatch || (input.active && input.down(settings.keys.correr)));
-
-    // duplo-toque no pular alterna o voo (só quem pode voar); em voo, pular sobe
-    if (jump && !jumpWasDown) {
-      if (podeVoar() && now - lastJumpTap < 300) flying = !flying;
-      lastJumpTap = now;
-    }
-    jumpWasDown = jump;
-    const fly = flying && podeVoar();
+    // §🎮 teclado + os dois duplo-toques (correr engatado, alternar voo)
+    const cmd = movimento.comando(now, { voando: flying, podeVoar: podeVoar() });
+    flying = cmd.voando;
 
     // F2 streaming: processa a fila de mesh (N chunks/frame — config) e SÓ
     // simula física com o chão debaixo dos pés carregado (coluna ausente =
@@ -2042,42 +2006,26 @@ function startGame(snap: Snapshot): void {
     }
     const yAntesDoPasso = player.pos.y;
     if (chaoCarregado && !bench?.ativo) {
-      stepPlayer(world, player, { forward, strafe, jump, yaw: input.yaw, sprint, sneak, fly }, dt);
+      stepPlayer(world, player, cmd, dt);
     }
-    // subiu um degrau andando (só step-up: no chão, sem pular/voar) → a câmera
-    // fica pra trás e recupera suave; decaimento exponencial = independe do FPS
-    const subiu = player.pos.y - yAntesDoPasso;
-    if (player.onGround && !fly && subiu > 0.01 && subiu <= STEP_HEIGHT + 0.01) {
-      stepSuave = Math.min(stepSuave + subiu, STEP_HEIGHT);
-    }
-    stepSuave *= Math.exp(-dt * 14);
-    if (stepSuave < 0.002) stepSuave = 0;
-    // distância do frame (escalares, sem alocar): o perfil precisa saber se a
-    // gravação foi voando ou parado — a taxa de rede sozinha engana
-    distanciaPercorrida += Math.hypot(
-      player.pos.x - posAntX,
-      player.pos.y - posAntY,
-      player.pos.z - posAntZ,
-    );
-    posAntX = player.pos.x;
-    posAntY = player.pos.y;
-    posAntZ = player.pos.z;
+    // §🎮 olho (agachar) + degrau suave + odômetro — ANTES do respawn: a subida
+    // é medida contra o `y` de antes do passo, e um teleporte no meio viraria
+    // "degrau" de 40 blocos
+    movimento.aposOPasso(dt, player, yAntesDoPasso, cmd);
     if (player.pos.y < -16) respawn(); // caiu da borda do mundo
 
     // jogadores remotos deslizam até o último update (suave mesmo a 10 Hz)
     outros.interpolar(dt);
 
-    // olho abaixa agachado; FOV abre correndo — transições suaves (independem do FPS)
-    const kCam = 1 - Math.exp(-dt * 20);
-    eyeHeight += ((sneak && !fly ? PLAYER.sneakEyeHeight : PLAYER.eyeHeight) - eyeHeight) * kCam;
-    // FOV segue a corrida ENGATADA (player.sprinting), não a tecla: soltar o
-    // Ctrl segurando o W continua correndo — o FOV tem que continuar aberto
+    // FOV abre correndo — mesma transição suave do olho (independe do FPS).
+    // Segue a corrida ENGATADA (player.sprinting), não a tecla: soltar o Ctrl
+    // segurando o W continua correndo — o FOV tem que continuar aberto
     const fovAlvo = settings.fov * (player.sprinting ? 1.1 : 1);
     if (Math.abs(camera.fov - fovAlvo) > 0.01) {
-      camera.fov += (fovAlvo - camera.fov) * kCam;
+      camera.fov += (fovAlvo - camera.fov) * (1 - Math.exp(-dt * 20));
       camera.updateProjectionMatrix();
     }
-    camera.position.set(player.pos.x, player.pos.y + eyeHeight - stepSuave, player.pos.z);
+    camera.position.set(player.pos.x, player.pos.y + movimento.alturaOlho, player.pos.z);
     camera.rotation.set(input.pitch, input.yaw, 0);
 
     // mira: raycast local (visual) — decisão continua no servidor
