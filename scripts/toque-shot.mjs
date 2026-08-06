@@ -225,7 +225,10 @@ const estado = () =>
       if (!e) return 'AUSENTE';
       return e.checkVisibility() ? 'VISIVEL' : 'escondido';
     };
-    return { menu: vis('#overlay'), barra: vis('#touch-topo'), amigos: vis('#amigos') };
+    return {
+      menu: vis('#overlay'), barra: vis('#touch-topo'), amigos: vis('#amigos'),
+      mochila: vis('#inventario'), chat: vis('#chat-input'),
+    };
   })()`);
 const foto = async (nome) => {
   const r = await cdp("Page.captureScreenshot", { format: "png" });
@@ -394,6 +397,34 @@ if (!rolagem) {
   ok(depois === antes, `a rolagem ficou onde estava (${antes} → ${depois})`);
   await foto("03-craft-rolagem.png");
 }
+
+// A regra de UM MENU POR VEZ (§48) não tinha asserção nenhuma até a sessão 52 —
+// e ela é justamente a que se quebra em silêncio: o segundo menu abre por cima,
+// o servidor continua achando que o primeiro está aberto (foi o bug do baú com
+// a mochila), e nada na tela grita. A mochila está aberta desde a seção C.
+diga("== D: com a mochila aberta, nenhum outro menu abre (um menu por vez, §48) ==");
+let d = await estado();
+ok(d.mochila === "VISIVEL", "a mochila continua aberta (o palco da regra)");
+await tecla("KeyG"); // painel de amigos
+await espera(500);
+d = await estado();
+ok(d.amigos === "escondido", "G NÃO abriu o painel de amigos por cima");
+ok(d.mochila === "VISIVEL", "e a mochila ficou onde estava");
+await tecla("Enter"); // chat — é menu como os outros desde a §48
+await espera(500);
+d = await estado();
+ok(d.chat !== "VISIVEL", `Enter NÃO abriu o chat por baixo do painel (${d.chat})`);
+// e o portão é só pra ABRIR: o próprio painel continua fechando na 2ª tecla
+await tecla("KeyE");
+await espera(500);
+d = await estado();
+ok(d.mochila === "escondido", "E fechou a mochila (o portão não tranca quem já está aberto)");
+await tecla("KeyG");
+await espera(500);
+d = await estado();
+ok(d.amigos === "VISIVEL", "e com a tela livre o G abre o de amigos");
+await tecla("KeyG");
+await espera(400);
 
 if (excecoes.length) {
   diga(`\n✗ exceções no console: ${excecoes.join(" | ")}`);

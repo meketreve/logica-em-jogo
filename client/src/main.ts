@@ -75,6 +75,7 @@ import { learnPlayers, learnWorlds } from "./commands";
 import { SkyCycle } from "./daynight";
 import { VentoCliente } from "./vento";
 import { MateriaisMundo } from "./materiaisMundo";
+import { PainelHost } from "./painelHost";
 import { ProgressoCarga } from "./progressoCarga";
 import { type Connection, WorkerConnection, WsConnection } from "./connection";
 import { emitGameEvent } from "./events";
@@ -93,7 +94,7 @@ import { Mochila } from "./mochila";
 import { type VidaInfo, VitalsUi } from "./vitals";
 import { FriendsPanel } from "./friends";
 import { PlayersPanel } from "./players";
-import { AuthorPanel, type GamePanel, GroupPanel, type PanelData } from "./panels";
+import { AuthorPanel, GroupPanel, type PanelData } from "./panels";
 import { RegionRenderer } from "./regions";
 import { keyLabel, loadSettings } from "./settings";
 import { QuadroEditor, QuadroRenderer } from "./quadros";
@@ -219,18 +220,11 @@ let touchControls: TouchControls | null = null;
 let settings = applySettings();
 initUiAudio(settings.volume);
 
-/** Painel do cp14 — criado no startGame conforme o papel (autoria OU grupo).
- *  Declarado ANTES do updateOverlay do boot (TDZ). */
-let activePanel: GamePanel | null = null;
-/** Inventário de blocos (cp16) — criado no startGame (precisa do atlas). */
-let inventoryPanel: InventoryPanel | null = null;
-/** Painel de jogadores (2026-07-21) — só professor (expulsar/banir/desbanir). */
-let playersPanel: PlayersPanel | null = null;
-/** Painel de amigos (2026-08-04) — de todo jogador; a interface do /amigos. */
-let friendsPanel: FriendsPanel | null = null;
-/** §🍖 F10: painel de transferência (fornalha, baú). Quem o abre é a resposta
- *  do servidor ao `use_block`, não uma tecla — ver `ContainerPanel`. */
-let containerPanel: ContainerPanel | null = null;
+/** Os painéis de tela cheia e a regra de UM MENU POR VEZ (§48). Nasce vazio: os
+ *  painéis são criados no startGame (o cp14 depende do papel, o inventário do
+ *  atlas), mas o `updateOverlay` do boot já pergunta a ele — daí o objeto vir
+ *  antes, e não os cinco `let` que ele substituiu. */
+const paineis = new PainelHost(() => menuDePausaAberto() || chat.open);
 /** Último `friends` que o servidor mandou (o painel é puro consumo dele). */
 let latestFriends: { equipe: { dono: string; membros: string[] } | null; convites: string[]; enviados: string[] } = {
   equipe: null,
@@ -272,49 +266,16 @@ function showOverlayMain(): void {
   overlayConfig?.classList.add("hidden");
 }
 
-/**
- * Algum painel de tela cheia está aberto? (2026-08-05) — a lista existia solta
- * dentro do `updateOverlay`; virou função porque a REGRA DE UM MENU POR VEZ
- * (pedido do usuário) precisa da mesma pergunta em todo lugar que abre menu.
- *
- * O editor de quadro fica de fora de propósito: ele é modal por cima de tudo,
- * tem o Esc dele, e só abre com o ponteiro travado (clique direito no bloco) —
- * ou seja, nunca com outro menu na tela. Entrar aqui só criaria TDZ, porque ele
- * nasce lá no `startGame` e o `updateOverlay` roda no boot.
- */
-function menuAberto(): boolean {
-  return (
-    (activePanel?.open ?? false) ||
-    (inventoryPanel?.open ?? false) ||
-    (playersPanel?.open ?? false) ||
-    (friendsPanel?.open ?? false) ||
-    (containerPanel?.open ?? false)
-  );
-}
-
 /** O menu de PAUSA está na tela? (ele não tem estado próprio — quem manda é a
  *  classe que o `updateOverlay` acabou de escrever). */
 function menuDePausaAberto(): boolean {
   return overlay !== null && !overlay.classList.contains("hidden");
 }
 
-/**
- * UM MENU POR VEZ (2026-08-05, pedido do usuário: *"adicione uma regra para não
- * poder abrir um menu (esc e mochila por exemplo) se já tem outro aberto"*).
- *
- * Antes, cada tecla de painel FECHAVA os outros ("um painel por vez na tela") —
- * e isso é diferente: com o baú aberto, apertar E trocava o baú pela mochila e
- * o servidor continuava achando que o baú estava aberto. Agora o segundo menu
- * simplesmente não abre, e o Esc é o caminho de volta.
- */
-function podeAbrirMenu(): boolean {
-  return !menuAberto() && !menuDePausaAberto() && !chat.open;
-}
-
 function updateOverlay(): void {
   // some quando o jogo tem o controle (mouse travado OU modo toque), o chat
   // está aberto OU um painel do cp14 está na tela (senão cobre o painel)
-  const panelOpen = menuAberto();
+  const panelOpen = paineis.algumAberto;
   // §🕐 `loading.ativo`: durante o carregamento o ponteiro NÃO está travado —
   // sem esta condição o menu de pausa aparecia junto com a tela de carga.
   overlay?.classList.toggle(
@@ -442,12 +403,7 @@ function playerName(): string {
  *  painel ainda (antes do join) também, e aí o servidor responde no chat. */
 function abrirAmigosPorComando(text: string): boolean {
   if (text.trim().toLowerCase() !== "/amigos") return false;
-  if (!friendsPanel) return false;
-  activePanel?.hide(); // um painel por vez na tela (mesma regra da tecla e do 👥)
-  inventoryPanel?.hide();
-  playersPanel?.hide();
-  friendsPanel.toggle();
-  return true;
+  return paineis.trocarParaAmigos();
 }
 
 // --- Chat (checkpoint 6): UI em HTML por cima do canvas; comando roda no servidor ---
@@ -622,7 +578,7 @@ const nomesOnline = new Map<number, string>();
 
 /** Estado consolidado pros painéis — chamada sempre que algo deles muda. */
 function pushPanelData(): void {
-  activePanel?.update({
+  paineis.cp14?.update({
     regions: latestRegions,
     modo: latestObjectives?.modo ?? "sequencial",
     objetivos: latestObjectives?.objetivos ?? [],
@@ -635,7 +591,7 @@ function pushPanelData(): void {
  *  main aprende do relay). Chamado dos DOIS lados — o feed muda quando o grupo
  *  muda, e a lista de online muda quando alguém entra ou sai da aula. */
 function pushFriendsData(): void {
-  friendsPanel?.update({
+  paineis.amigos?.update({
     eu: playerName(),
     equipe: latestFriends.equipe,
     convites: latestFriends.convites,
@@ -774,9 +730,9 @@ function handleServerData(data: string | ArrayBuffer): void {
       // §🍖 F10: o conteúdo do bloco que este jogador tem aberto. É ESTA
       // mensagem que abre o painel (o clique direito só pede) — e ela continua
       // chegando enquanto a fornalha cozinha, que é o que faz a barrinha andar.
-      containerPanel?.atualizar(msg);
+      paineis.container?.atualizar(msg);
     } else if (msg.type === "container_fechado") {
-      containerPanel?.fecharSemAvisar();
+      paineis.container?.fecharSemAvisar();
     } else if (msg.type === "claims") {
       // cp24: proteção de áreas — wireframes pra todo mundo + habilita a varinha
       // do aluno quando ligada. O servidor é quem barra a edição de fato.
@@ -801,7 +757,7 @@ function handleServerData(data: string | ArrayBuffer): void {
       pushFriendsData();
     } else if (msg.type === "players") {
       // 2026-07-21: painel de jogadores do professor (conectados + banidos)
-      playersPanel?.update({ conectados: msg.conectados, banidos: msg.banidos });
+      paineis.jogadores?.update({ conectados: msg.conectados, banidos: msg.banidos });
     } else if (msg.type === "mundo_trocando") {
       // chega ANTES do snapshot: o host ainda vai salvar a aula atual e montar
       // a nova (segundos). Sem isto a tela só aparecia no fim, "quase pronta".
@@ -944,7 +900,7 @@ function connect(c: Connection, auth?: MultiAuth): void {
     // o chat é menu como os outros (2026-08-05): não abre por cima da mochila.
     // Sem isto, o Enter atravessava o painel aberto e o aluno digitava numa
     // caixa escondida atrás dele.
-    if (!podeAbrirMenu()) return;
+    if (!paineis.podeAbrir) return;
     document.exitPointerLock();
     chat.openInput();
   });
@@ -1257,19 +1213,15 @@ function startGame(snap: Snapshot): void {
   };
   // painel de jogadores (2026-07-21): só professor; aberto por um botão no topo
   // do painel de autoria (some quando não é professor).
-  if (papel === "professor") playersPanel = new PlayersPanel(sendCmd, onPanelToggle);
-  const openPlayers = (): void => {
-    activePanel?.hide(); // troca do painel de autoria pro de jogadores
-    inventoryPanel?.hide();
-    friendsPanel?.hide();
-    playersPanel?.show();
-  };
+  if (papel === "professor") paineis.jogadores = new PlayersPanel(sendCmd, onPanelToggle);
+  // troca do painel de autoria pro de jogadores — não é "abrir por cima"
+  const openPlayers = (): void => paineis.trocarParaJogadores();
   // painel de amigos (2026-08-04): de TODO jogador — é o dono de área quem
   // convide quem pode construir junto. Sem gate de grupos (o de aluno tem),
   // porque amigos existe justamente em mundo livre, sem grupos de aula.
-  friendsPanel = new FriendsPanel(sendCmd, onPanelToggle);
+  paineis.amigos = new FriendsPanel(sendCmd, onPanelToggle);
   pushFriendsData();
-  activePanel =
+  paineis.cp14 =
     papel === "professor"
       ? new AuthorPanel(sendCmd, onPanelToggle, openPlayers)
       : new GroupPanel(sendCmd, onPanelToggle);
@@ -1277,18 +1229,15 @@ function startGame(snap: Snapshot): void {
   input.onKey(settings.keys.painel, () => {
     // um menu por vez: com outro aberto a tecla não faz NADA (antes fechava o
     // outro por baixo do pano). O próprio painel continua fechando na 2ª tecla.
-    if (!(activePanel?.open ?? false) && !podeAbrirMenu()) return;
+    if (!paineis.podeAlternar(paineis.cp14)) return;
     // painel do aluno só abre DEPOIS do professor criar grupos (decisão do MVP v2)
     if (papel !== "professor" && latestGroups.length === 0) {
       chat.addMessage("jogo", "o professor ainda não criou grupos — o painel abre quando existirem");
       return;
     }
-    activePanel?.toggle();
+    paineis.cp14?.toggle();
   });
-  input.onKey(settings.keys.amigos, () => {
-    if (!(friendsPanel?.open ?? false) && !podeAbrirMenu()) return;
-    friendsPanel?.toggle();
-  });
+  input.onKey(settings.keys.amigos, () => paineis.alternar(paineis.amigos));
   if (papel === "professor") {
     chat.addMessage("jogo", `tecla ${keyLabel(settings.keys.painel)} abre o painel de autoria`);
   }
@@ -1502,8 +1451,8 @@ function startGame(snap: Snapshot): void {
     claimsAtivo: () => claimsAtivo,
     setVarinhaToque: (ativa) => touchControls?.setVarinha(ativa),
     aoRedesenhar: () => {
-      inventoryPanel?.refresh();
-      containerPanel?.refresh(); // §🍖 F10: o lado de baixo do painel é a mochila
+      paineis.mochila?.refresh();
+      paineis.container?.refresh(); // §🍖 F10: o lado de baixo do painel é a mochila
     },
   });
   aoMudarMochila = () => hotbarUi.refresh();
@@ -1518,7 +1467,7 @@ function startGame(snap: Snapshot): void {
   input.onWheel((dir) => hotbarUi.ciclar(dir));
 
   // inventário (cp16): grade de todos os colocáveis → slot selecionado
-  inventoryPanel = new InventoryPanel(
+  paineis.mochila = new InventoryPanel(
     hotbarUi.icons,
     () => hotbarUi.meusBlocos,
     () => ({ hotbar: hotbarUi.paleta, selected: hotbarUi.selected }),
@@ -1534,15 +1483,12 @@ function startGame(snap: Snapshot): void {
     (id) => hotbarUi.nome(id),
     (receita) => activeConn.send(JSON.stringify({ type: "fabricar", receita })),
   );
-  input.onKey(settings.keys.inventario, () => {
-    if (!(inventoryPanel?.open ?? false) && !podeAbrirMenu()) return;
-    inventoryPanel?.toggle();
-  });
+  input.onKey(settings.keys.inventario, () => paineis.alternar(paineis.mochila));
 
   // §🍖 F10: o painel de container. Ele NÃO tem tecla própria: quem o abre é o
   // clique direito no bloco — ou melhor, é a RESPOSTA do servidor a ele, porque
   // quem decide se o aluno pode ler aquele baú é o gate de claim.
-  containerPanel = new ContainerPanel(
+  paineis.container = new ContainerPanel(
     hotbarUi.icons,
     mochila,
     (id) => hotbarUi.nome(id),
@@ -1551,14 +1497,9 @@ function startGame(snap: Snapshot): void {
     () => activeConn.send(JSON.stringify({ type: "fechar_container" })),
     (open) => {
       if (open) {
-        // este é o ÚNICO menu que não passa pelo `podeAbrirMenu`: quem o abre é
-        // o servidor, e a verdade dele ganha da tela. Na prática nunca há o que
-        // fechar (abrir baú é clique direito, que exige ponteiro travado, que
-        // exige nenhum menu aberto) — os `hide` são o cinto além do suspensório.
-        activePanel?.hide();
-        playersPanel?.hide();
-        friendsPanel?.hide();
-        inventoryPanel?.hide();
+        // este é o ÚNICO menu que não passa pelo portão: quem o abre é o
+        // servidor, e a verdade dele ganha da tela.
+        paineis.aoAbrirContainer();
         document.exitPointerLock();
       } else input.lock();
       updateOverlay();
@@ -1844,11 +1785,8 @@ function startGame(snap: Snapshot): void {
       quebrar: () => input.press(0),
       colocar: () => input.press(2),
       copiar: () => input.press(1),
-      inventario: () => {
-        // mesma regra de um menu por vez do teclado (o dedo não tem Esc)
-        if (!(inventoryPanel?.open ?? false) && !podeAbrirMenu()) return;
-        inventoryPanel?.toggle();
-      },
+      // mesma regra de um menu por vez do teclado (o dedo não tem Esc)
+      inventario: () => paineis.alternar(paineis.mochila),
       chat: () => {
         if (chat.open) return;
         document.exitPointerLock();
@@ -1862,10 +1800,7 @@ function startGame(snap: Snapshot): void {
       },
       hud: () => hud.toggle(),
       varinha: () => hotbarUi.toggleVarinha(),
-      amigos: () => {
-        if (!(friendsPanel?.open ?? false) && !podeAbrirMenu()) return;
-        friendsPanel?.toggle();
-      },
+      amigos: () => paineis.alternar(paineis.amigos),
     });
     // os dois botões condicionais nascem escondidos: aqui é o 1º estado real
     touchControls.setVarinhaDisponivel(papel === "professor" || claimsAtivo);
@@ -2240,10 +2175,10 @@ function startGame(snap: Snapshot): void {
   // ?hud na URL: abre o F3 no boot (verificação headless do painel de perfil)
   if (bootParams.has("hud")) hud.toggle();
   // ?painel na URL: abre o painel já no boot (verificação headless do cp14)
-  if (new URLSearchParams(location.search).has("painel")) activePanel?.toggle();
-  if (new URLSearchParams(location.search).has("inv")) inventoryPanel?.toggle();
+  if (new URLSearchParams(location.search).has("painel")) paineis.cp14?.toggle();
+  if (new URLSearchParams(location.search).has("inv")) paineis.mochila?.toggle();
   // ?amigos na URL: abre o painel de amigos no boot (verificação headless)
-  if (new URLSearchParams(location.search).has("amigos")) friendsPanel?.toggle();
+  if (new URLSearchParams(location.search).has("amigos")) paineis.amigos?.toggle();
   // ?touch (teste no desktop/headless): entra direto no modo toque, sem tap
   if (bootParams.has("touch")) startPlay();
 }
