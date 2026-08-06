@@ -1572,3 +1572,32 @@ passa pelo próprio portão) · 5 prints da pista. **PLAYTEST PENDENTE.**
 | 02:00 | `shots:luz` NÃO sobe dev server (f10 e toque sobem host próprio) — travou 2× sem rastro | (ferramenta) | cerebrum | ~3k |
 | 02:00 | 2 commits: shared/orientacao e o corte do cliente. main.ts 2.600 → 2.339 | — | main.ts segue ABERTO (startGame 1.283 linhas) | ~4k |
 | 02:35 | Session end: 38 writes across 6 files (colunasFaltando.ts, main.ts, hotbarUi.ts, orientacao.ts, index.ts) | 7 reads | ~63374 tok |
+
+## Session: 2026-08-06 07:47
+
+| Time | Action | File(s) | Outcome | ~Tokens |
+|------|--------|---------|---------|--------|
+| 08:30 | Created shared/src/colunas.ts | — | ~1001 |
+| 08:30 | Edited shared/src/index.ts | 2→3 lines | ~23 |
+| 08:30 | Edited shared/src/session/streaming.ts | expanded (+7 lines) | ~74 |
+| 08:30 | Edited shared/src/session/streaming.ts | modified for() | ~156 |
+| 08:30 | Edited shared/src/session/streaming.ts | modified for() | ~68 |
+| 08:31 | Edited shared/src/session/streaming.ts | modified for() | ~69 |
+| 08:31 | Edited client/src/colunasFaltando.ts | inline fix | ~26 |
+| 08:31 | Edited client/src/colunasFaltando.ts | 3→3 lines | ~46 |
+| 08:31 | Edited client/src/colunasFaltando.ts | 7→6 lines | ~64 |
+| 08:31 | Edited client/src/main.ts | 9→8 lines | ~123 |
+| 08:31 | Edited client/src/main.ts | modified for() | ~210 |
+| 08:31 | Edited client/src/main.ts | 4→9 lines | ~40 |
+| 08:32 | Created shared/src/colunas.test.ts | — | ~1647 |
+
+## Sessão 51 — 2026-08-06
+
+| 11:30 | rota escolhida: B (subir lógica pura pro shared) — ele delegou (*"do melhor jeito que achar"*) | STATUS.md | rota A (GameRuntime) fica pra depois, com razão escrita | ~3k |
+| 11:35 | dos 3 candidatos da 50, 2 RECUSADOS após inspeção: `target+normal` é inline em 2 lugares, `podeVoar` já delega ao shared | client/src/main.ts | só `calcularTotalCarga` era real | ~3k |
+| 11:40 | §🧹 `shared/src/colunas.ts`: a geometria do raio de colunas estava escrita 6× (2 streaming, 2 main.ts, 1 colunasFaltando) | shared/src/colunas.ts | 6 pontos religados, cliente E servidor | ~6k |
+| 11:40 | bug-590 (latente): cliente DIGITAVA a folga (`raioRender + 2`) e o chunk (`/ 16`) — servidor lia FOLGA_DESCARTE e CHUNK_SIZE | client/src/main.ts | achado por `grep "+ 2"`, não por nome de função | ~4k |
+| 11:45 | 11 testes novos; 4 cruzam o total do CLIENTE (fórmula fechada) com o que o `streamColunas` do SERVIDOR manda (anéis) | shared/src/colunas.test.ts | 739 → 750 | ~8k |
+| 11:45 | A/B honesto: sem o recorte de borda, 4 asserções caem (canto manda 49, fórmula diz 169) e o CENTRO segue passando | — | é a borda que o teste mede | ~3k |
+| 11:50 | verificação: typecheck 3/3 (binário cru) · 750 testes · build · 15/15 smokes · shots:f10 OK · shots:toque OK | — | verde | ~9k |
+| 11:50 | main.ts 2.339 → 2.343 (+4): o que saiu do corpo voltou como import. O ganho foi DEDUPLICAÇÃO, não linha | — | evidência de que a extração de peça esgotou | ~2k |

@@ -1,6 +1,46 @@
 # STATUS — Projeto "Lógica em Jogo" (jogo voxel educacional)
 
 > Single source of truth for resuming work. Read this FIRST when starting a session.
+> **SESSÃO 51 (2026-08-06) — A ROTA BARATA RENDEU MAIS QUE A CARA, E ELA ACHOU UMA CONSTANTE
+> COPIADA À MÃO.** Sessão de uma frase (*"aborda do melhor jeito que achar"*) depois de eu pôr
+> as duas rotas da 50 na mesa: (A) `startGame` → classe `GameRuntime`, do tamanho do que a 49
+> fez no servidor e **sem teste de controle no cliente**; (B) continuar subindo lógica PURA pro
+> `shared/`. Escolhi B — foi o que mais rendeu na 50 — e ela pagou melhor do que o STATUS
+> previa.
+>
+> **Dos três candidatos que a 50 anotou, só UM era real, e ele era muito maior que o anunciado.**
+> `target + normal` é `t.x + t.nx` inline em dois lugares (nada a extrair) e `podeVoar()` já
+> delega ao `podeVoarNoModo` do shared — sobra uma linha. **O terceiro, `calcularTotalCarga`,
+> não era uma função de 8 linhas: era a sexta cópia da mesma conta.**
+>
+> **§🧹 `shared/src/colunas.ts` — a geometria do raio de colunas num lugar só.** A regra que faz
+> o streaming F2 dispensar mensagem de unload é cliente e servidor descartarem IGUAL (raio +
+> folga). Ela estava escrita **seis vezes**: 2× em `session/streaming.ts` (enviar e evictar), 2×
+> em `main.ts` (o total da tela de carga e a varredura de descarte 1×/s) e 1× em
+> `colunasFaltando.ts`. `colunaDaPosicao` · `distanciaColunas` · `colunaInteressa` ·
+> `colunaKey`/`colunaDeKey` · `contarColunasNoRaio`, e os seis pontos religados.
+>
+> **bug-590, latente e sem sintoma: o cliente DIGITAVA a folga.** `settings.raioRender + 2` e
+> `player.pos.x / 16`, enquanto o servidor lia `FOLGA_DESCARTE` e `CHUNK_SIZE`. Nada quebra
+> enquanto os dois números não mudam; no dia em que mudassem, o cliente guardaria coluna que o
+> servidor já esqueceu e o sintoma seria buraco no mundo, longe do arquivo editado. **Achar isso
+> exige procurar pelo NÚMERO literal — `grep FOLGA_DESCARTE` no cliente dá zero, e é esse o
+> ponto.**
+>
+> **O teste que dá razão ao módulo cruza DUAS implementações do mesmo conjunto:** o cliente conta
+> por fórmula fechada (retângulo recortado pelas bordas), o servidor ENUMERA andando em anéis
+> (`streamColunas`). Se discordarem por uma coluna, a tela de carga nunca fecha — ou fecha com o
+> mundo furado. 4 dos 11 testes novos sobem uma `GameSession` lazy de verdade, drenam o stream e
+> conferem o CONJUNTO, no centro e em três bordas. **A/B honesto:** com o recorte de borda
+> removido do `contarColunasNoRaio`, 4 asserções caem (o canto manda **49** colunas, a fórmula
+> sem recorte diz **169**) e **o caso do centro segue passando** — é a BORDA que o teste mede, e
+> um caso no meio do mundo não provaria nada.
+>
+> **VERDE:** typecheck 3/3 (binário cru, bug-586) · **750 testes (+11)** · build · **15/15
+> smokes** · **`shots:f10` OK** e **`shots:toque` OK** — os dois com exit 0 e o veredito do
+> próprio script (`SHOTS /f10 OK` / `tudo certo`); capturei só a CAUDA dos logs, então não
+> recontei as 22 e as 15 asserções uma a uma.
+>
 > **SESSÃO 50 (2026-08-06) — O CORTE DO `main.ts` ANDOU, E A ÚLTIMA PEÇA DA FILA NÃO FOI
 > CORTADA DE PROPÓSITO.** Sessão de uma palavra ("continue"): a fila da 49 estava escrita e
 > ordenada por valor/risco, e foi ela que mandou. **`main.ts` 2.600 → 2.339**, `startGame`
@@ -117,24 +157,30 @@
 
 ## 🚀 Próxima fase
 
-### 1. O `main.ts` — o que sobrou, e por que a fila da 49 acabou
+### 1. O `main.ts` — a fila de candidatos PUROS acabou; sobra a rota cara
 
-**Os itens 1 e 2 da fila da 49 fecharam (`ColunasFaltando`, `HotbarUi`) e o item 3
-(`handleServerData`) foi DECIDIDO como "fica onde está"** — a razão está no bloco da sessão 50
-acima e no Decision Log do cerebrum. Sobra o item 4, e ele é uma fase própria:
+**A rota B esgotou os candidatos que a 50 anotou.** `calcularTotalCarga` virou o
+`shared/src/colunas.ts` (sessão 51); os outros dois foram INSPECIONADOS e recusados, com razão:
+`target + normal` é `t.x + t.nx` escrito inline em dois lugares (extrair só acrescentaria uma
+indireção) e `podeVoar()` já delega ao `podeVoarNoModo` do shared — o que sobra dele é
+`papel === "professor" || vooLiberado`, uma linha que só faz sentido ao lado do estado de módulo
+que ela lê. **Não vale procurar mais lógica pura no `main.ts` às cegas: o critério que funcionou
+foi outro** — subir o que os DOIS LADOS DO FIO aplicam igual, achado procurando pelo NÚMERO
+literal (`grep "+ 2"`, `grep "/ 16"`), não pelo nome da função (ver o cerebrum).
 
-**Transformar o `startGame` (1.283 linhas) em classe `GameRuntime`** — campos no lugar dos
-`let` de closure — e aí aplicar o corte por domínio que a 49 fez no `session.ts`. Os domínios
-que dá pra ver de fora hoje: água/FX, carga (`calcularTotalCarga`/`observarCarga`/`iniciarTroca`),
-quadros, painéis, e o laço de render. **É um trabalho do tamanho do que a 49 fez no servidor**,
-com uma diferença que pesa: no servidor os 715 testes serviram de controle, e **no cliente não
-há teste unitário nenhum** — o controle são os prints. Vale começar pelo mais barato (água/FX)
-pra provar o padrão da classe antes de mexer no laço.
+**Então o que sobra é a rota A, e ela continua sendo uma fase própria: transformar o `startGame`
+(1.282 linhas) em classe `GameRuntime`** — campos no lugar dos `let` de closure — e aí aplicar o
+corte por domínio que a 49 fez no `session.ts`. Domínios visíveis de fora: água/FX, carga
+(`observarCarga`/`iniciarTroca`), quadros, painéis, e o laço de render. **É do tamanho do que a
+49 fez no servidor**, com a diferença que pesa: lá os testes serviram de controle, e **no cliente
+não há teste unitário nenhum** — o controle são os prints. Vale começar pelo mais barato
+(água/FX) pra provar o padrão da classe antes de mexer no laço.
 
-**A alternativa mais barata, e talvez melhor: continuar subindo lógica PURA pro `shared/`.** Foi
-o que mais rendeu na 50 (16 `if` viraram 2 funções com 24 testes). Candidatos que ainda estão em
-closure no `main.ts` e são puros: a decisão de qual célula recebe o bloco (`target + normal`), a
-regra de `podeVoar`/`flying`, e o cálculo do total de carga.
+⚠️ **E vale considerar NÃO fazer.** O corte do `main.ts` rendeu 2.725 → 2.339 em duas sessões e
+**parou aí: a 51 fechou em 2.343 (+4), porque o que saiu do corpo voltou como lista de import.**
+É a evidência de que o arquivo já entregou o que dava por extração de peça — os subsistemas com fronteira real (luz, jogadores remotos, colunas faltando, hotbar,
+orientação, colunas) já saíram, e a fila de JOGO (item 3 abaixo) não encostou desde a 47. O
+`GameRuntime` é a primeira coisa da lista que muda muito código sem mudar nada para a turma.
 
 **Verificação disponível pro cliente:** typecheck pelo binário cru (`../node_modules/.bin/tsc
 --noEmit` dentro do workspace), `npm run build`, e os scripts de print — `shots:f10` (22

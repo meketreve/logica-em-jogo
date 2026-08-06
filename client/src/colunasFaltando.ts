@@ -1,4 +1,4 @@
-import type { WorldDims } from "@logica/shared";
+import { type WorldDims, colunaDeKey, colunaKey, distanciaColunas } from "@logica/shared";
 
 /**
  * §🔁 A rede de segurança do streaming, e por que ela é um objeto.
@@ -73,7 +73,7 @@ export class ColunasFaltando {
     for (let cx = pcx - raio; cx <= pcx + raio; cx++) {
       for (let cz = pcz - raio; cz <= pcz + raio; cz++) {
         if (cx < 0 || cz < 0 || cx >= dims.x || cz >= dims.z) continue;
-        const key = cz * dims.x + cx;
+        const key = colunaKey(dims, cx, cz);
         if (carregadas.has(key)) continue;
         const f = this.faltando.get(key);
         if (!f) {
@@ -104,9 +104,8 @@ export class ColunasFaltando {
     // saiu do raio (ou finalmente chegou): esquece — o mapa não pode crescer
     // enquanto o jogador anda pelo mundo
     for (const key of this.faltando.keys()) {
-      const cx = key % dims.x;
-      const cz = (key - cx) / dims.x;
-      if (carregadas.has(key) || Math.max(Math.abs(cx - pcx), Math.abs(cz - pcz)) > raio) {
+      const { cx, cz } = colunaDeKey(dims, key);
+      if (carregadas.has(key) || distanciaColunas(cx, cz, pcx, pcz) > raio) {
         this.faltando.delete(key);
       }
     }

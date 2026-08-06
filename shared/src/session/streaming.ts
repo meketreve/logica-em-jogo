@@ -1,5 +1,12 @@
+import {
+  colunaDaPosicao,
+  colunaDeKey,
+  colunaInteressa,
+  colunaKey,
+  distanciaColunas,
+} from "../colunas";
 import { CHUNK_SIZE } from "../constants";
-import { type ColunaRef, FOLGA_DESCARTE, encodeColunas } from "../protocol";
+import { type ColunaRef, encodeColunas } from "../protocol";
 import { chunkIndex } from "../world";
 import { gerarColunaDeChunks } from "../worldgen";
 import type { GameSession } from "../session";
@@ -50,19 +57,13 @@ export function evictColunas(ses: GameSession): void {
   for (const [clientId, p] of ses.players) {
     const st = ses.stream.get(clientId);
     if (!st) continue;
-    interesses.push({
-      pcx: Math.max(0, Math.min(dims.x - 1, Math.floor(p.x / CHUNK_SIZE))),
-      pcz: Math.max(0, Math.min(dims.z - 1, Math.floor(p.z / CHUNK_SIZE))),
-      raio: st.raio + FOLGA_DESCARTE,
-    });
+    const { cx, cz } = colunaDaPosicao(dims, p.x, p.z);
+    interesses.push({ pcx: cx, pcz: cz, raio: st.raio });
   }
   for (const key of ses.residentCols) {
     if (ses.editedCols.has(key)) continue; // edição fica residente
-    const cx = key % dims.x;
-    const cz = (key - cx) / dims.x;
-    const querido = interesses.some(
-      (i) => Math.max(Math.abs(cx - i.pcx), Math.abs(cz - i.pcz)) <= i.raio,
-    );
+    const { cx, cz } = colunaDeKey(dims, key);
+    const querido = interesses.some((i) => colunaInteressa(cx, cz, i.pcx, i.pcz, i.raio));
     if (querido) continue;
     // libera os bytes de todos os cy da coluna
     for (let cy = 0; cy < dims.y; cy++) {
@@ -83,22 +84,18 @@ export function streamColunas(ses: GameSession): void {
   for (const [clientId, p] of ses.players) {
     const st = ses.stream.get(clientId);
     if (!st) continue;
-    const pcx = Math.max(0, Math.min(dims.x - 1, Math.floor(p.x / CHUNK_SIZE)));
-    const pcz = Math.max(0, Math.min(dims.z - 1, Math.floor(p.z / CHUNK_SIZE)));
+    const { cx: pcx, cz: pcz } = colunaDaPosicao(dims, p.x, p.z);
     for (const key of st.enviadas) {
-      const cx = key % dims.x;
-      const cz = (key - cx) / dims.x;
-      if (Math.max(Math.abs(cx - pcx), Math.abs(cz - pcz)) > st.raio + FOLGA_DESCARTE) {
-        st.enviadas.delete(key);
-      }
+      const { cx, cz } = colunaDeKey(dims, key);
+      if (!colunaInteressa(cx, cz, pcx, pcz, st.raio)) st.enviadas.delete(key);
     }
     const lote: ColunaRef[] = [];
     anel: for (let r = 0; r <= st.raio; r++) {
       for (let cx = pcx - r; cx <= pcx + r; cx++) {
         for (let cz = pcz - r; cz <= pcz + r; cz++) {
-          if (Math.max(Math.abs(cx - pcx), Math.abs(cz - pcz)) !== r) continue;
+          if (distanciaColunas(cx, cz, pcx, pcz) !== r) continue;
           if (cx < 0 || cz < 0 || cx >= dims.x || cz >= dims.z) continue;
-          const key = cz * dims.x + cx;
+          const key = colunaKey(dims, cx, cz);
           if (st.enviadas.has(key)) continue;
           gerarColuna(ses, cx, cz);
           st.enviadas.add(key);

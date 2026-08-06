@@ -15,6 +15,10 @@
   com custo e o que se PERDE, e ele descartou SpacetimeDB sozinho (*"o problema real é outro"*)
   e aceitou que janela própria estava fora. **O que ele queria de verdade era o sintoma:
   arquivos grandes demais.** Perguntar "que dor isso resolve" antes de orçar a tecnologia.
+- **[2026-08-06, sessão 51] Quando a fila já está escrita e ordenada, ele DELEGA a escolha da
+  rota** (*"aborda do melhor jeito que achar"*, depois de eu apresentar rota cara × rota barata
+  com recomendação). Não é convite pra perguntar de novo: é pra executar a recomendada e contar
+  o resultado. Perguntar ali seria devolver o trabalho que ele acabou de delegar.
 - **[2026-08-06] Ele É a TI da escola** (*"o TI da escola é eu, posso testar o que eu quiser"*).
   A restrição de "aba de navegador não instala nada" continua valendo pro laboratório e pro
   Fire, mas NÃO é um veto de terceiro — é escolha dele.
@@ -116,6 +120,21 @@
   arquivos ao mesmo tempo (um sobrando, um faltando) — é o sintoma de off-by-one no intervalo.
 - **A poda de import não converge em uma passada:** tirar um import deixa outro sozinho. Laço
   com `tsc --noUnusedLocals` até dar zero (e o `TS6192` apaga o `import` inteiro, não um nome).
+- **[2026-08-06, sessão 51] O que merece subir pro `shared/` não é "ser puro" — é ser a regra
+  que os DOIS LADOS DO FIO têm de aplicar igual.** Pureza é o requisito de entrada; o que dá
+  valor é a duplicação atravessando a fronteira. A geometria do raio de colunas estava escrita
+  SEIS vezes (2× no `session/streaming.ts`, 2× no `main.ts`, 1× no `colunasFaltando.ts`) e as
+  do cliente com `16` e `+ 2` DIGITADOS no lugar de `CHUNK_SIZE` e `FOLGA_DESCARTE` — a mesma
+  constante que o cerebrum já dizia ser o que dispensa mensagem de unload. **Procurar a cópia
+  pelo NÚMERO literal, não pelo nome da função:** `grep "+ 2"` acha o que `grep FOLGA_DESCARTE`
+  nunca acharia, porque o ponto é justamente que ele não está lá.
+- **[2026-08-06, sessão 51] Duas implementações do MESMO conjunto valem mais que uma testada.**
+  O cliente conta as colunas do raio por fórmula fechada (`contarColunasNoRaio`, um retângulo
+  recortado) e o servidor as ENUMERA andando em anéis (`streamColunas`). O teste que paga é o
+  que cruza os dois — contar tem de dar exatamente o que o stream manda. E **a divergência mora
+  na BORDA**: com o recorte removido, o caso do centro segue passando e só os cantos caem (o
+  canto manda 49 colunas, a fórmula sem recorte diz 169). Caso de teste no meio do mundo não
+  prova nada sobre fórmula de recorte.
 - **No CLIENTE o padrão é outro, e ele já estava no arquivo:** `main.ts` não é classe, é script
   com 51 `let` de módulo e um `startGame` de 1.646 linhas de closure. Ali o corte que funciona
   é **composição por classe** — que é o que `TorchGlow`, `RegionRenderer`, `AguaFx` e

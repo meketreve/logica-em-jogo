@@ -2,6 +2,11 @@ import * as THREE from "three";
 import {
   BlockId,
   type Claim,
+  colunaDaPosicao,
+  colunaDeKey,
+  colunaInteressa,
+  colunaKey,
+  contarColunasNoRaio,
   type GroupDef,
   type NamedRegion,
   type Modo,
@@ -1353,12 +1358,11 @@ function startGame(snap: Snapshot): void {
   // o `buildAll` que já rodou lá em cima.
   const calcularTotalCarga = (): number => {
     if (!mundoLazy) return 0;
-    const r = settings.raioRender;
-    const pcx = Math.max(0, Math.min(world.dims.x - 1, Math.floor(player.pos.x / 16)));
-    const pcz = Math.max(0, Math.min(world.dims.z - 1, Math.floor(player.pos.z / 16)));
-    const nx = Math.min(world.dims.x - 1, pcx + r) - Math.max(0, pcx - r) + 1;
-    const nz = Math.min(world.dims.z - 1, pcz + r) - Math.max(0, pcz - r) + 1;
-    return Math.max(1, nx * nz);
+    const { cx, cz } = colunaDaPosicao(world.dims, player.pos.x, player.pos.z);
+    // `max(1, …)` é guarda de divisor: a conta já é ≥ 1 com o centro dentro do
+    // mundo (é o teorema que o `colunas.test.ts` cobra), e o anel de progresso
+    // divide por ele.
+    return Math.max(1, contarColunasNoRaio(world.dims, cx, cz, settings.raioRender));
   };
   // `let`: a troca de aula (cp19) recalcula — mundo novo, spawn novo, e o mundo
   // pode até deixar de ser lazy
@@ -2114,15 +2118,15 @@ function startGame(snap: Snapshot): void {
       chunkRenderer.processarFila(settings.meshMsPorFrame, (fx, fz) => {
         colunasCarregadas.delete(fz * world.dims.x + fx);
       });
-      const pcx = Math.max(0, Math.min(world.dims.x - 1, Math.floor(player.pos.x / 16)));
-      const pcz = Math.max(0, Math.min(world.dims.z - 1, Math.floor(player.pos.z / 16)));
-      chaoCarregado = colunasCarregadas.has(pcz * world.dims.x + pcx);
-      // varredura de descarte 1×/s (mesma regra do servidor: raio + folga)
+      const { cx: pcx, cz: pcz } = colunaDaPosicao(world.dims, player.pos.x, player.pos.z);
+      chaoCarregado = colunasCarregadas.has(colunaKey(world.dims, pcx, pcz));
+      // varredura de descarte 1×/s — a regra é a MESMA função do servidor
+      // (`colunaInteressa`), não uma cópia da fórmula: a folga digitada aqui à
+      // mão sairia do lugar no dia em que o `FOLGA_DESCARTE` mudasse.
       if ((frameCount = (frameCount + 1) % 60) === 0) {
         for (const key of colunasCarregadas) {
-          const cx = key % world.dims.x;
-          const cz = (key - cx) / world.dims.x;
-          if (Math.max(Math.abs(cx - pcx), Math.abs(cz - pcz)) > settings.raioRender + 2) {
+          const { cx, cz } = colunaDeKey(world.dims, key);
+          if (!colunaInteressa(cx, cz, pcx, pcz, settings.raioRender)) {
             colunasCarregadas.delete(key);
             descartarColuna(cx, cz);
           }

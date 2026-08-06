@@ -4245,6 +4245,28 @@
       ],
       "occurrences": 1,
       "last_seen": "2026-08-06T02:10:00Z"
+    },
+    {
+      "id": "bug-590",
+      "timestamp": "2026-08-06T11:45:00Z",
+      "error_message": "(latente, achado em refactor — nenhum sintoma relatado) o cliente decidia descartar coluna com `settings.raioRender + 2`, com a folga DIGITADA, enquanto o servidor usava a constante exportada `FOLGA_DESCARTE`",
+      "file": "client/src/main.ts (varredura de descarte 1×/s) + shared/src/colunas.ts (novo)",
+      "root_cause": "O streaming F2 dispensa mensagem de unload justamente porque cliente e servidor descartam pela MESMA regra (raio + folga). A regra estava escrita SEIS vezes — 2× em `shared/src/session/streaming.ts` (enviar e evictar), 2× em `client/src/main.ts` (total da tela de carga e varredura de descarte), 1× em `client/src/colunasFaltando.ts`, e as do cliente com `16` e `+ 2` no lugar de `CHUNK_SIZE` e `FOLGA_DESCARTE`. Enquanto os dois números não mudassem, ninguém veria nada; no dia em que mudassem, o cliente guardaria coluna que o servidor já esqueceu (ou descartaria a que ele ainda tem) e o sintoma seria buraco no mundo, longe do arquivo que se editou.",
+      "fix": "Criado `shared/src/colunas.ts` com a geometria do raio num lugar só (`colunaDaPosicao`, `distanciaColunas`, `colunaInteressa`, `colunaKey`/`colunaDeKey`, `contarColunasNoRaio`) e os SEIS pontos religados nele — cliente e servidor. `colunaInteressa` lê o `FOLGA_DESCARTE` do protocolo; `colunaDaPosicao` lê o `CHUNK_SIZE`. 11 testes novos em `colunas.test.ts`, dos quais 4 cruzam o total do cliente com o que o `streamColunas` do servidor realmente manda (centro, dois cantos e uma borda). A/B: com o recorte de borda removido do `contarColunasNoRaio`, 4 asserções caem (canto manda 49 colunas, a fórmula sem recorte diz 169) e o caso do centro segue passando — é a BORDA que o teste mede.",
+      "tags": [
+        "streaming",
+        "colunas",
+        "constante-duplicada",
+        "cliente-servidor",
+        "refactor",
+        "shared",
+        "latente"
+      ],
+      "related_bugs": [
+        "bug-211"
+      ],
+      "occurrences": 1,
+      "last_seen": "2026-08-06T11:45:00Z"
     }
   ]
 }
