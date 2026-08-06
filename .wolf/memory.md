@@ -1486,3 +1486,32 @@ passa pelo próprio portão) · 5 prints da pista. **PLAYTEST PENDENTE.**
 | 00:21 | §🧪 bug-583/584: 5 asserções viraram FAIXA; `remover` é tudo-ou-nada no laço do `ou` | *.test.ts, _smoke-comida.mjs | corrigido | ~7k |
 | 00:21 | §📋 5 ideias do usuário no TODO (durabilidade, ferramenta na mão, tempo de quebra, tooltip, esconder hotbar) | todo.md | anotado | ~2k |
 | 00:21 | VERDE: typecheck 3/3 · 715 testes (+11) · build · 15/15 smokes | — | ok | ~6k |
+| 00:27 | Session end: 41 writes across 17 files (receitas.ts, drops.ts, blocks.ts, rules.ts, blocksUi.ts) | 24 reads | ~186506 tok |
+
+## Session: 2026-08-06 00:37
+
+| Time | Action | File(s) | Outcome | ~Tokens |
+|------|--------|---------|---------|--------|
+| 00:55 | Created shared/src/session/containers.ts | — | ~1619 |
+| 00:55 | Edited shared/src/session.ts | removed 116 lines | ~2 |
+| 00:56 | Edited shared/src/session.ts | expanded (+9 lines) | ~56 |
+| 01:03 | Created shared/src/session/coords.ts | — | ~237 |
+| 01:08 | Created shared/src/session/avisos.ts | — | ~239 |
+| 01:19 | Created client/src/luzCliente.ts | — | ~1473 |
+| 01:34 | Created client/src/remotePlayers.ts | — | ~1455 |
+| 01:36 | Edited client/src/input.ts | added 2 condition(s) | ~657 |
+| 01:36 | Edited client/src/input.ts | added 1 condition(s) | ~158 |
+
+## Sessão 49 — 2026-08-06
+
+| 01:41 | git fetch de abertura (rotina desde a 40): local 1 commit à frente, remote sem novidade | — | ok | ~1k |
+| 01:41 | análise dos 3 eixos de stack (janela nativa · Rust · SpacetimeDB) com números medidos do repo | STATUS.md | usuário descartou SpacetimeDB e janela própria | ~12k |
+| 01:41 | conferência que autorizou o refactor: `grep -c "as any"` nos testes de session = 0 | shared/src/*.test.ts | API pública é a única superfície | ~1k |
+| 01:41 | §🧹 session.ts 4.677 → 2.163 + 11 módulos em session/ (funções livres recebendo `ses`) | shared/src/session.ts, session/*.ts | 715 testes verdes em cada etapa | ~60k |
+| 01:41 | transformador mecânico do corte (cortar.mjs) + poda iterativa de imports (podar.py) | scratchpad | bug do `this` solto achado e corrigido no meio | ~8k |
+| 01:41 | §🧹 LuzCliente: grade + fila + orçamento + custo saíram de 6 pontos do startGame | client/src/luzCliente.ts | shots:luz 5/5 | ~10k |
+| 01:41 | §🧹 RemotePlayersView: caixa, plaquinha, LERP e os alvos da mira do pvp | client/src/remotePlayers.ts | typecheck + build | ~6k |
+| 01:41 | bug-585: pointerlockerror sem listener + retry imediato dentro da carência do Esc | client/src/input.ts | shots:toque 15/15, pedidos=0 no dedo | ~6k |
+| 01:41 | bug-586: `npx tsc` via rtk devolveu 2 erros CACHEADOS que não existem | (ferramenta) | binário cru sai exit 0 | ~4k |
+| 01:41 | verificação final: typecheck 3/3 · 715 testes · build · 15/15 smokes · f10 22/22 · toque 15/15 · luz 5/5 | — | verde | ~8k |
+| 01:41 | STATUS/cerebrum/buglog/memory atualizados; main.ts fica ABERTO com a fila mapeada | .wolf/* | handoff escrito | ~6k |

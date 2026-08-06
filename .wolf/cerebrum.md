@@ -10,6 +10,15 @@
 
 ## User Preferences
 
+- **[2026-08-06] Quando levanta uma tecnologia nova, quer a ANÁLISE, não a migração** — e muda
+  de ideia com argumento técnico. Apresentei os três eixos (janela nativa · Rust · SpacetimeDB)
+  com custo e o que se PERDE, e ele descartou SpacetimeDB sozinho (*"o problema real é outro"*)
+  e aceitou que janela própria estava fora. **O que ele queria de verdade era o sintoma:
+  arquivos grandes demais.** Perguntar "que dor isso resolve" antes de orçar a tecnologia.
+- **[2026-08-06] Ele É a TI da escola** (*"o TI da escola é eu, posso testar o que eu quiser"*).
+  A restrição de "aba de navegador não instala nada" continua valendo pro laboratório e pro
+  Fire, mas NÃO é um veto de terceiro — é escolha dele.
+
 <!-- How the user likes things done. Code style, tools, patterns, communication. -->
 
 - **Manda BATERIA de pedidos num parágrafo só, misturando bug, regra de jogo e ideia de
@@ -82,6 +91,36 @@
   não conseguiu alcançar?", não "que constante eu mexo?".
 
 ## Key Learnings
+
+### Corte por domínio de arquivo grande (2026-08-06)
+
+- **A API pública é a prova.** Antes de cortar `session.ts` (4.677 linhas), o que autorizou o
+  corte foi um `grep -c "as any\|@ts-expect"` nos testes de session: **0**. Nenhum dos 715
+  testes toca campo interno, então mexer por dentro é livre e os testes valem como controle.
+  Fazer essa conferência PRIMEIRO é o que separa refactor seguro de aposta.
+- **Módulo de funções livres > mixin/prototype merging** pra quebrar classe grande em TS. Cada
+  domínio vira `export function f(ses: GameSession, …)`; a classe segue dona do estado e da
+  API. O ciclo `core → domínio → (type) core` some porque a volta é `import type` (apagado no
+  runtime); ciclo entre DOMÍNIOS (modo↔vitais↔inventário) é seguro porque `export function` é
+  hoisted.
+- **`private` cai, e a razão tem de ficar escrita.** TS não tem visibilidade de PACOTE: módulo
+  irmão não alcança `private`. A convenção mora num bloco no topo da classe, não em 40
+  `/** @internal */` soltos (viram ruído e ninguém lê).
+- **O transformador mecânico erra em `this` SOLTO.** Trocar `this.` → `ses.` deixa passar
+  `foo(this, x)` — que aparece assim que um domínio anterior já foi religado. Trocar `\bthis\b`
+  inteiro é o certo: dentro de função livre, `this` não tem outro significado.
+  E `private static` não casa com a regex de método — vira lixo no meio do módulo.
+- **Cortar de BAIXO pra cima.** Extrair não muda o arquivo; DELETAR muda. Fazendo os `sed -i`
+  do maior número de linha pro menor, os intervalos que faltam continuam válidos.
+- **Fronteira de bloco: conferir a chave.** Um `}` do lado errado do corte dá erro em DOIS
+  arquivos ao mesmo tempo (um sobrando, um faltando) — é o sintoma de off-by-one no intervalo.
+- **A poda de import não converge em uma passada:** tirar um import deixa outro sozinho. Laço
+  com `tsc --noUnusedLocals` até dar zero (e o `TS6192` apaga o `import` inteiro, não um nome).
+- **No CLIENTE o padrão é outro, e ele já estava no arquivo:** `main.ts` não é classe, é script
+  com 51 `let` de módulo e um `startGame` de 1.646 linhas de closure. Ali o corte que funciona
+  é **composição por classe** — que é o que `TorchGlow`, `RegionRenderer`, `AguaFx` e
+  `ChunkRenderer` já fazem. Subsistema novo vira classe dona do próprio estado, não função
+  livre com bag de contexto.
 
 <!-- Só a REGRA acionável. Narrativa, números e contexto de cada sessão: .wolf/history.md
      (`## Key Learnings arquivados (2026-07-25)` e `## Cerebrum arquivado (2026-07-28)`). -->
@@ -698,6 +737,12 @@
   servidor garante que ninguém soca do outro lado do mapa (mesma folga `+2` do `withinReach`).
 
 ## Do-Not-Repeat
+
+- [2026-08-06] **`npx tsc` passa pelo rtk e pode devolver erro CACHEADO que não existe**
+  (bug-586): `npx tsc --noEmit` em `client/` acusou 2 erros em `vitals.ts` que o binário cru
+  (`./node_modules/.bin/tsc --noEmit -p client`, exit 0, saída vazia) não vê. Cheguei a rodar
+  `git stash` pra bissectar um erro inexistente. **Conferir typecheck pelo binário direto ou
+  por `npm run typecheck`** — mesma família do do-not-repeat do `git status` (2026-07-11).
 
 <!-- Cada entrada impede o mesmo erro de voltar. Narrativa completa: .wolf/history.md -->
 

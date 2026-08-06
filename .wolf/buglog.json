@@ -4141,6 +4141,46 @@
       "related_bugs": [],
       "occurrences": 1,
       "last_seen": "2026-08-06T01:20:00.000000Z"
+    },
+    {
+      "id": "bug-585",
+      "timestamp": "2026-08-06T02:10:00Z",
+      "error_message": "usuário: 'comandos não serem aceitos e acabam saindo do jogo' — clique em 'voltar ao jogo' não devolvia o pointer lock",
+      "file": "client/src/input.ts",
+      "root_cause": "O Chrome recusa requestPointerLock por ~1,25 s depois de o USUÁRIO sair do lock com Esc. O retry em `req?.catch(...)` era IMEDIATO, então caía dentro da mesma carência e falhava junto. Sem listener de `pointerlockerror`, as duas falhas eram silenciosas: o overlay ficava na tela e o clique não fazia nada.",
+      "fix": "Listener de `pointerlockerror` que reagenda UMA tentativa depois de CARENCIA_ESC_MS (1400 ms). Campo `reagendado` impede pedidos empilhados por cliques repetidos; `pointerlockchange` cancela o reagendamento quando o lock chega por outro caminho. Guarda `touchDevice` continua na frente (aparelho de dedo nunca trava ponteiro).",
+      "tags": [
+        "pointer-lock",
+        "input",
+        "chrome",
+        "esc",
+        "carencia",
+        "silencioso",
+        "ux"
+      ],
+      "related_bugs": [
+        "bug-572"
+      ],
+      "occurrences": 1,
+      "last_seen": "2026-08-06T02:10:00Z"
+    },
+    {
+      "id": "bug-586",
+      "timestamp": "2026-08-06T01:55:00Z",
+      "error_message": "npx tsc --noEmit em client/: \"src/vitals.ts(277,5): error TS2322: Type 'Timeout' is not assignable to type 'number'\" — erro que NÃO existe",
+      "file": "(nenhum — falso positivo de ferramenta)",
+      "root_cause": "O hook do Claude Code reescreve `npx tsc` para `rtk npx tsc`, e o rtk devolveu um resultado CACHEADO de outra rodada. O binário cru (`node_modules/.bin/tsc --noEmit -p client`) sai com exit 0 e nenhuma saída. Perdi tempo investigando um erro inexistente e cheguei a rodar `git stash` pra bissectar.",
+      "fix": "Conferir typecheck com `./node_modules/.bin/tsc --noEmit -p <workspace>` (binário direto) ou `npm run typecheck`, nunca com `npx tsc` cru. É a mesma família do do-not-repeat de 2026-07-11 sobre `git status` via rtk.",
+      "tags": [
+        "rtk",
+        "cache",
+        "falso-positivo",
+        "typecheck",
+        "ferramenta"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-08-06T01:55:00Z"
     }
   ]
 }

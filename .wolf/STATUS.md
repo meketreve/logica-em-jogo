@@ -1,6 +1,132 @@
 # STATUS — Projeto "Lógica em Jogo" (jogo voxel educacional)
 
 > Single source of truth for resuming work. Read this FIRST when starting a session.
+> **SESSÃO 49 (2026-08-06) — A CONVERSA DE STACK VIROU UM DIAGNÓSTICO, E O DIAGNÓSTICO VIROU
+> O CORTE POR DOMÍNIO.** A sessão abriu com o pendente da 48 (`git fetch`: local 1 commit à
+> frente, nada novo no remote) e a análise dos três eixos que ele levantou. **Nenhum dos três
+> sobreviveu ao próprio contexto do projeto — e ele descartou dois sozinho.**
+>
+> **A ANÁLISE, e o fato que quebrou a premissa do pedido.** O servidor autoritativo **não mora
+> em `server/`**: mora em `shared/session.ts`, que tinha **4.677 linhas, 205 métodos e 65 `case`
+> de protocolo**. `server/` são 2.451 linhas de transporte puro. Então "migrar o servidor pra
+> SpacetimeDB" custava reescrever `session.ts` inteira em Rust — **e matava o singleplayer
+> offline**, porque hoje a MESMA `GameSession` roda num Web Worker sem servidor nenhum
+> (`server/src/worker.ts`), que é o que faz a aula sem wi-fi funcionar. Cliente em Rust custava
+> os 11.7k do cliente MAIS os 14.2k de `shared/` (mesher, luz, física e raycast rodam no
+> CLIENTE), levava junto os 715 testes, e **não roda no Fire**. Janela nativa (Tauri) era o
+> único barato — e no Fire continuaria sendo uma webview, só que mais velha que o Chrome que ele
+> já usa.
+>
+> **A resposta dele fechou o escopo:** *"separa o session.ts e main.ts por dominio… esquece a
+> ideia do spacetimedb, parecia boa por o problema real é outro"*. E sobre a janela: ela era
+> só pra **manter o mouse capturado e o aluno não sair do jogo** — não um requisito de produto.
+>
+> **§🧹 `session.ts` VIROU 12 ARQUIVOS: 4.677 → 2.163 no core + 11 módulos** (`session/`):
+> cenário 535 · equipes 586 · vitais 306 · modo 263 · regiões 238 · tp 221 · inventário 177 ·
+> containers 150 · ambiente 147 · streaming 112 · avisos 20 · coords 21.
+>
+> **O que autorizou o corte foi uma conferência de uma linha:** `grep -c "as any"` nos testes de
+> session = **0**. Nenhum dos 715 testes toca campo interno, então a API pública é a única
+> superfície e os testes valem como CONTROLE do refactor. Sem isso, seria aposta.
+>
+> **O padrão: funções livres que recebem `ses`, não mixin nem prototype merging.** A classe
+> continua dona do estado e da API (`handleMessage`, `tick`, `toSave`, `adotar`, `banir`…), que
+> não mudou uma linha. O ciclo core↔domínio some porque a volta é `import type`; ciclo ENTRE
+> domínios (modo↔vitais↔inventário) é seguro porque `export function` é hoisted. **Os campos
+> perderam o `private` porque TS não tem visibilidade de PACOTE** — a razão está escrita num
+> bloco no topo da classe, não em 40 `@internal` soltos.
+>
+> **Duas coisas mudaram de casa por serem de mais de um domínio:** `parseCoordArg` (o `~` do
+> Minecraft, usado por `/bloco`, `/regiao` e `/tp`) → `session/coords.ts`; e o freio de aviso
+> `avisarComFreio` (mochila cheia, baú cheio, falta picareta) → `session/avisos.ts`.
+>
+> **§🧹 `main.ts`: 2.725 → 2.600, e AQUI O TRABALHO NÃO FECHOU — ver "Próxima fase".** O padrão
+> do cliente é outro e ele já estava no arquivo: `main.ts` não é classe, é script com **51 `let`
+> de módulo** e um **`startGame` de 1.646 linhas de closure**. Ali o corte que funciona é
+> composição por classe — o que `TorchGlow`, `RegionRenderer`, `AguaFx` e `ChunkRenderer` já
+> fazem. Saíram dois subsistemas: **`LuzCliente`** (a grade, a fila de colunas, o orçamento por
+> frame e o custo — estavam espalhados por SEIS pontos) e **`RemotePlayersView`** (caixa,
+> plaquinha e o LERP; a mira do pvp vem junto de propósito, porque ela tem de medir contra a
+> posição interpolada, que é a que o aluno vê).
+>
+> **bug-585 — e ele é a resposta REAL ao "aluno saindo do jogo".** A Keyboard Lock API já
+> existia (`shortcutGuard.ts`) com `Escape` fora do lock **de propósito** (o menu de pausa
+> precisa dele). O defeito era outro: **o Chrome recusa `requestPointerLock` por ~1,25 s depois
+> de o usuário sair com Esc**, e o retry que existia era IMEDIATO — caía dentro da mesma
+> carência e falhava junto. As duas falhas eram SILENCIOSAS (não havia listener de
+> `pointerlockerror`): o aluno clicava em "voltar ao jogo", nada acontecia, clicava de novo,
+> nada, e concluía que o jogo travou. Agora o erro reagenda UMA tentativa depois da carência.
+>
+> **bug-586, e é armadilha de FERRAMENTA:** `npx tsc` passa pelo hook do rtk e devolveu 2 erros
+> CACHEADOS em `vitals.ts` que não existem (binário cru: exit 0, saída vazia). Cheguei a rodar
+> `git stash` pra bissectar um erro inexistente. Está no do-not-repeat.
+>
+> **VERDE:** typecheck 3/3 · **715 testes** (os mesmos — refactor não inventa teste) · build ·
+> **15/15 smokes** · **`shots:f10` 22/22** · **`shots:toque` 15/15** (incluindo "o toque no ☰
+> não pede pointer lock, pedidos=0" — o caminho de dedo não mudou) · **`shots:luz` 5/5**
+> (shader compila, meio-dia 21.8, meia-noite 8.8, razão 0.40). **3 commits.**
+
+## 🚀 Próxima fase
+
+### 1. TERMINAR o `main.ts` — é o que ficou aberto, e o caminho já está provado
+
+`main.ts` saiu de 2.725 pra 2.600. **O grosso continua lá: `startGame` tem 1.646 linhas.** Dois
+subsistemas saíram (`LuzCliente`, `RemotePlayersView`) e provaram o padrão; faltam os que já
+estão mapeados, em ordem de razão valor/risco:
+
+1. **`ColunasFaltando`** (§🔁 rede de segurança do streaming): `colunasFaltando`, `repedidas`,
+   `varrerFaltando`, os 4 constantes de backoff. ~60 linhas, 15 referências, fronteira limpa —
+   precisa de callbacks pra `descartarColuna` e pra `pedir_coluna`.
+2. **`HotbarUi`**: `hotbar`, `selected`, `varinhaAtiva`, `icons`, `refreshHotbar`, `blockName`,
+   `meusBlocos`, `toggleVarinha`. ~200 linhas, mas **81 referências** — `selected` é lido pela
+   lógica de colocar bloco, então é o mais entrelaçado dos quatro. Verificável pelo
+   `shots:f10`, que já fotografa os 9 ícones da hotbar.
+3. **`handleServerData`** (217 linhas, no TOPO do arquivo, fora do `startGame`): é o switch das
+   mensagens do servidor e mexe em ~20 `let` de módulo. Precisa de um objeto de contexto — é o
+   corte que exige decisão de desenho, não só mecânica.
+4. **O resto do `startGame`**: água/FX, carga/observarCarga, quadros, painéis. O caminho
+   principiado é transformar o closure em classe `GameRuntime` (campos no lugar dos `let`) e aí
+   aplicar o mesmo corte por domínio do `session.ts` — é um trabalho do tamanho do que a 49 fez
+   no servidor, então vale como fase própria.
+
+**Verificação disponível pro cliente** (não há teste unitário lá): typecheck pelo binário cru,
+`npm run build`, e os scripts de print — `shots:f10` (22 asserções, 8 prints), `shots:toque`
+(15), `shots:luz` (5, e é o único que prova shader).
+
+### 2. Ainda aberto do `session.ts` (opcional, e menor)
+
+`handleMessage` tem **532 linhas** — é o despachante do protocolo, um `switch` de 65 `case`.
+Ficou no core de propósito: é a porta de entrada, e cada `case` é achável por Ctrl-F com o nome
+da mensagem. Quebrá-lo por família de mensagem é possível, mas o ganho é menor que o do
+`main.ts` e ele tem a contabilidade de fome (`mudancasAntes`) atravessada, que é fácil de
+quebrar sem querer.
+
+### 3. A fila de jogo (inalterada desde a 47 — nada disto foi tocado na 49)
+
+1. **PLAYTEST do F10** — é o que manda, e é a única coisa da lista que nenhuma máquina faz. A
+   cadeia inteira (árvore → picareta → fornalha → lingote) nunca passou por uma turma.
+   **A pergunta específica: a turma aguenta ter de fazer a picareta antes de cavar?** E a
+   segunda, da 47: a fornalha virada pro lado certo ajuda ou confunde? **E agora uma terceira,
+   da 49: o "voltar ao jogo" ficou responsivo depois do bug-585?**
+2. **§🍖 F8 — MOBS**: a única frente do roadmap de sobrevivência ainda fora. 3+ sessões, e tem
+   o aviso de GPU do laboratório pendurado nela.
+2b. **§🔨 FERRAMENTAS v2 — 3 itens no `todo.md`** (pedido da 48): durabilidade · exigir a
+   ferramenta no slot SELECIONADO · tempo de quebra por (bloco × ferramenta). As três andam
+   juntas e destravam machado e pá.
+2c. **§💬 UI: tooltip no hover + esconder a hotbar com menu aberto** (pedido da 48, no TODO).
+3. **O tile do algodão maduro** (⚠️ da sessão 47): o capulho lê como martelo cinza. Meia hora
+   de `paintAlgodao` em `client/src/atlasTexture.ts` **se** ele achar que incomoda — o print
+   `08-canteiro-algodao.png` é a evidência.
+4. **Refinos de forma que NÃO foram feitos** (nenhum pedido, ficam anotados): a mesa e a cadeira
+   ainda colidem como célula cheia; a água fluida ainda é cubo cheio (altura por nível).
+
+### 4. Ideia dele que ficou anotada e NÃO foi feita
+
+Na conversa de stack ele disse que a performance está aceitável, e sugeriu ele mesmo: **baixar
+o update de água pra 64 por tick** (hoje `LJ_AGUA_TICK` / `aguaPorTick`) **ou fazer sistema de
+budget igual ao do render pra update de vizinhos**. Não foi tocado — é otimização sem sintoma
+medido, e a régua do projeto é medir na máquina que dói antes de mexer.
+
 > **SESSÃO 48 (2026-08-06) — A BATERIA DE 11 PEDIDOS, E DEPOIS A PERGUNTA GRANDE DE STACK.**
 > O usuário mandou tudo num parágrafo só, misturando bug, regra de jogo e ideia de backlog — e
 > ele mesmo marcou onde a fronteira estava (*"agora ideias para o todo.md"*). **As 6 primeiras
