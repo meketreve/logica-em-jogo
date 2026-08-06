@@ -6,7 +6,7 @@
 > (2026-07-25)` e `## Cerebrum arquivado (2026-07-28, sessão 32)`. Aqui fica só a REGRA
 > acionável; o Decision Log completo também está no history.md (aqui vai só o índice).
 > **Ao aprender algo novo, escrever a REGRA, não a história** — é isto que segura o orçamento.
-> Last updated: 2026-08-04 (sessão 43)
+> Last updated: 2026-08-06 (sessão 51)
 
 ## User Preferences
 
@@ -1065,6 +1065,18 @@
 <!-- Uma linha por decisão. TEXTO COMPLETO (motivo, alternativas, contexto) em
      .wolf/history.md → "## Cerebrum — Decision Log" e "## Cerebrum arquivado (2026-07-28)". -->
 
+- [2026-08-06, sessão 51] **O `main.ts` termina o refactor ANTES do playtest — decisão DELE.**
+  Apresentei os dois lados: a extração de peça solta esgotou (o arquivo fechou a 51 em +4 linhas,
+  o que saiu do corpo voltou como import), o que resta é o `startGame` → `GameRuntime`, que muda
+  muito código sem mudar nada para a turma, e a fila de JOGO não encosta desde a 47. Recomendei o
+  playtest primeiro; ele mandou terminar o refactor. **Está decidido — a próxima sessão executa o
+  plano do STATUS §1 e não reabre a pergunta.**
+- [2026-08-06, sessão 51] **O que merece subir pro `shared/` é a regra que os DOIS LADOS DO FIO
+  aplicam igual — pureza é só o requisito de entrada.** Complementa (não substitui) a decisão da
+  50 sobre ganhar teste: a da 50 diz por que `shared/` é o destino, esta diz como ACHAR o
+  candidato. A geometria do raio de colunas estava escrita 6× e as cópias do cliente com os
+  números digitados (`/ 16`, `+ 2`) em vez de `CHUNK_SIZE` e `FOLGA_DESCARTE` — invisível por
+  nome de função, achável pelo NÚMERO literal.
 - [2026-08-06, sessão 50] **Despachante de protocolo FICA no arquivo de entrada.** O
   `handleServerData` (217 linhas, ~30 `let` de módulo) NÃO foi cortado, pela mesma razão que o
   `handleMessage` da 49 ficou no core do `session.ts`: extrair exigiria um objeto de contexto de

@@ -157,36 +157,77 @@
 
 ## 🚀 Próxima fase
 
-### 1. O `main.ts` — a fila de candidatos PUROS acabou; sobra a rota cara
+### 1. ⭐ A QUEST: terminar o refactor do `main.ts` — o `startGame` vira `GameRuntime`
 
-**A rota B esgotou os candidatos que a 50 anotou.** `calcularTotalCarga` virou o
-`shared/src/colunas.ts` (sessão 51); os outros dois foram INSPECIONADOS e recusados, com razão:
-`target + normal` é `t.x + t.nx` escrito inline em dois lugares (extrair só acrescentaria uma
-indireção) e `podeVoar()` já delega ao `podeVoarNoModo` do shared — o que sobra dele é
-`papel === "professor" || vooLiberado`, uma linha que só faz sentido ao lado do estado de módulo
-que ela lê. **Não vale procurar mais lógica pura no `main.ts` às cegas: o critério que funcionou
-foi outro** — subir o que os DOIS LADOS DO FIO aplicam igual, achado procurando pelo NÚMERO
-literal (`grep "+ 2"`, `grep "/ 16"`), não pelo nome da função (ver o cerebrum).
+**DECIDIDO PELO USUÁRIO no fim da 51** (*"anota para fazer o restante do refatoramento na
+próxima sessão"*). Não reabrir a discussão de "vale a pena?" — ela já foi feita, com os dois
+lados na mesa, e a resposta dele foi essa. O que segue é o plano.
 
-**Então o que sobra é a rota A, e ela continua sendo uma fase própria: transformar o `startGame`
-(1.282 linhas) em classe `GameRuntime`** — campos no lugar dos `let` de closure — e aí aplicar o
-corte por domínio que a 49 fez no `session.ts`. Domínios visíveis de fora: água/FX, carga
-(`observarCarga`/`iniciarTroca`), quadros, painéis, e o laço de render. **É do tamanho do que a
-49 fez no servidor**, com a diferença que pesa: lá os testes serviram de controle, e **no cliente
-não há teste unitário nenhum** — o controle são os prints. Vale começar pelo mais barato
-(água/FX) pra provar o padrão da classe antes de mexer no laço.
+**O ponto de partida:** `startGame` é `client/src/main.ts:1061–2343` — **1.282 linhas de
+closure**, com o estado do jogo em `let`/`const` locais. A rota B (subir lógica PURA pro
+`shared/`) **esgotou**: dos três candidatos da 50, um virou o `colunas.ts` na 51 e os outros dois
+foram inspecionados e recusados com razão (`target + normal` é `t.x + t.nx` inline em dois
+lugares; `podeVoar()` já delega ao `podeVoarNoModo` e o resto é uma linha que lê estado de
+módulo). E o arquivo fechou a 51 em **2.343 (+4)**: o que saiu do corpo voltou como import — a
+extração de peça solta acabou.
 
-⚠️ **E vale considerar NÃO fazer.** O corte do `main.ts` rendeu 2.725 → 2.339 em duas sessões e
-**parou aí: a 51 fechou em 2.343 (+4), porque o que saiu do corpo voltou como lista de import.**
-É a evidência de que o arquivo já entregou o que dava por extração de peça — os subsistemas com fronteira real (luz, jogadores remotos, colunas faltando, hotbar,
-orientação, colunas) já saíram, e a fila de JOGO (item 3 abaixo) não encostou desde a 47. O
-`GameRuntime` é a primeira coisa da lista que muda muito código sem mudar nada para a turma.
+**O padrão é COMPOSIÇÃO POR CLASSE, não função livre com bag de contexto** (já está no cerebrum,
+e é a diferença do corte que a 49 fez no servidor): cada subsistema vira classe DONA do próprio
+estado, como `TorchGlow`, `RegionRenderer`, `AguaFx`, `ChunkRenderer`, `LuzCliente`,
+`RemotePlayersView`, `ColunasFaltando` e `HotbarUi` já são. O `GameRuntime` é o que sobra depois
+que os donos saírem: os campos, a ordem de construção e o laço.
 
-**Verificação disponível pro cliente:** typecheck pelo binário cru (`../node_modules/.bin/tsc
---noEmit` dentro do workspace), `npm run build`, e os scripts de print — `shots:f10` (22
-asserções, 8 prints), `shots:toque` (15), `shots:luz` (5, e é o único que prova shader, **mas
-exige `npx vite --port 5173 client` de pé antes** — ver o ⚠️ da sessão 50).
+**A ordem, do mais barato pro mais caro — uma frente por commit, verde entre cada uma:**
 
+1. **`MateriaisMundo`** (~L1093–1163: `atlas`, `material`, `materialAgua`, `materialVidro`,
+   `luzUniforms` e o estado de animação da água — `aguaQuadroParada`, `aguaFluxoRelogio`,
+   `aguaQuadroFluxo`, `aguaUltimaPintura`). **É a prova do padrão:** estado próprio, API estreita
+   (`atualizar(dt, hora)` + os materiais), e é o único ponto que hoje mistura relógio com
+   material. Começar por aqui.
+2. **`ProgressoCarga`** (`totalCarga`, `observarCarga`, `iniciarTroca` e o portão do
+   `loading.concluir()` no laço). A CONTA já saiu pro `shared/colunas.ts` na 51 — sobra o estado
+   da tela. Fronteira limpa.
+3. **`PainelHost`** (`friendsPanel`, `inventoryPanel`, `containerPanel`, `quadroEditor`,
+   `sendCmd`, `onPanelToggle`, `openPlayers`, `podeAbrirMenu`). ⚠️ **A regra "um menu por vez"
+   da 48 mora aqui e é fácil de quebrar sem perceber** — quem prova é o `shots:toque`.
+4. **`EnvioDePosicao`** (`IDLE_HEARTBEAT_MS`, `lastSent`, `lastSentAt`, `lastNet`): "manda quando
+   muda + heartbeat 1×/2 s". Pequeno e isolado.
+5. **`MovimentoDoJogador`** — o bolo de `let` do laço: `sprintLatch`, `forwardWasDown`,
+   `lastForwardTap`, `jumpWasDown`, `lastJumpTap`, `eyeHeight`, `stepSuave`, `posAnt{X,Y,Z}`.
+   **O mais enganoso da lista:** são estados de um frame pro outro, e trocar a ordem de leitura e
+   escrita muda a SENSAÇÃO sem quebrar nada que compila. Nenhum print pega isso — só jogando.
+6. **`GameRuntime` propriamente** — só depois de 1–5: o que sobrar de `let` vira campo, o
+   `startGame` vira construtor + `iniciar()`, e o laço de render vira um método.
+
+**O que NÃO deve sair, e o critério é o mesmo da 50:** o que é PORTA (despachante) fica.
+`applyBlockChanged` / `applyBlocksFilled` / `reloadWorld` / `applyTeleport` são os ganchos de
+módulo que o `handleServerData` chama — mexer neles reabre a decisão que a 50 tomou com razão
+escrita. **Critério de corte: ter FRONTEIRA (estado próprio + API estreita), não tamanho.**
+
+**⚠️ O CONTROLE, e é a diferença que pesa:** no servidor a 49 teve 715 testes de controle; **no
+cliente não há teste unitário nenhum.** O controle é este, e roda inteiro entre cada frente:
+
+```
+cd shared && ../node_modules/.bin/tsc --noEmit   # binário CRU — npx tsc MENTE (bug-586)
+cd client && ../node_modules/.bin/tsc --noEmit
+cd server && ../node_modules/.bin/tsc --noEmit
+npm run build && npm run smoke        # 15/15
+npm run shots:f10                     # 22 asserções, sobe host próprio
+npm run shots:toque                   # 15 asserções, sobe host próprio — prova a regra dos painéis
+npm run shots:luz                     # 5 — ⚠️ EXIGE `npx vite --port 5173 client` de pé ANTES
+```
+
+⚠️ Os scripts de print bufferizam stdout fora de TTY: **rodar sem pipe pra `tail`**, senão um
+script morto no meio não deixa rastro nenhum (do-not-repeat) — e foi por causa do pipe que a 51
+não conseguiu recontar as asserções do f10 e do toque.
+
+E a régua da casa vale aqui também: **A/B honesto** — desligar o que se acabou de escrever e
+mostrar quais asserções caem. Num refactor sem teste unitário, é ele que separa "compilou" de
+"funciona".
+
+⚠️ **Registrado, sem re-litigar:** a fila de JOGO (item 3) não encosta desde a 47, e o
+`GameRuntime` muda muito código sem mudar nada para a turma. O **playtest do F10** segue sendo a
+única coisa da lista que nenhuma máquina faz.
 ### 2. Ainda aberto do `session.ts` (opcional, e menor)
 
 `handleMessage` tem **532 linhas** — é o despachante do protocolo, um `switch` de 65 `case`.
@@ -195,7 +236,7 @@ da mensagem. Quebrá-lo por família de mensagem é possível, mas o ganho é me
 `main.ts` e ele tem a contabilidade de fome (`mudancasAntes`) atravessada, que é fácil de
 quebrar sem querer.
 
-### 3. A fila de jogo (inalterada desde a 47 — nada disto foi tocado na 49 nem na 50)
+### 3. A fila de jogo (inalterada desde a 47 — nada disto foi tocado na 49, 50 nem 51)
 
 1. **PLAYTEST do F10** — é o que manda, e é a única coisa da lista que nenhuma máquina faz. A
    cadeia inteira (árvore → picareta → fornalha → lingote) nunca passou por uma turma.

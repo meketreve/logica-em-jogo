@@ -1601,3 +1601,7 @@ passa pelo próprio portão) · 5 prints da pista. **PLAYTEST PENDENTE.**
 | 11:45 | A/B honesto: sem o recorte de borda, 4 asserções caem (canto manda 49, fórmula diz 169) e o CENTRO segue passando | — | é a borda que o teste mede | ~3k |
 | 11:50 | verificação: typecheck 3/3 (binário cru) · 750 testes · build · 15/15 smokes · shots:f10 OK · shots:toque OK | — | verde | ~9k |
 | 11:50 | main.ts 2.339 → 2.343 (+4): o que saiu do corpo voltou como import. O ganho foi DEDUPLICAÇÃO, não linha | — | evidência de que a extração de peça esgotou | ~2k |
+| 08:41 | Session end: 13 writes across 6 files (colunas.ts, index.ts, streaming.ts, colunasFaltando.ts, main.ts) | 2 reads | ~34562 tok |
+| 12:05 | handoff pro /clear: STATUS §1 virou a QUEST (`startGame` → `GameRuntime`, 6 frentes ordenadas + receita de verificação) | .wolf/STATUS.md | decidido por ele; não reabrir | ~6k |
+| 12:05 | cerebrum: 2 decisões novas (refactor antes do playtest é escolha dele; critério do shared é a regra dos dois lados do fio) | .wolf/cerebrum.md | Decision Log + Key Learnings + User Preferences | ~4k |
+| 12:05 | nenhum servidor/chrome de teste ficou no ar; 1 commit local NÃO empurrado (origin/main atrás) | — | pronto pro /clear | ~1k |
