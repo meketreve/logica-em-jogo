@@ -368,6 +368,13 @@ enfileirada, e **inventar uma seria escopo não pedido**.
 **⭐ O item 1 da fila de jogo virou o item 1 da fila inteira: o PLAYTEST DO F10.** É a única
 coisa da lista que nenhuma máquina faz, e ela não encosta desde a 47. Ver a seção 3.
 
+**A 54 reforçou isso do jeito mais direto possível:** os dois defeitos que ela consertou vieram
+de ELE JOGANDO, não de teste nenhum. A luz da tocha e o Esc dos painéis passaram por 781 testes,
+15 smokes e quatro scripts de print sem levantar um dedo — o primeiro porque nenhum teste cruzava
+os dois motores de luz, o segundo porque a única cobertura de painel era a de TOQUE, e no toque
+não existe pointer lock. **Onde não há olho humano, o buraco fica no lugar que ninguém pensou em
+olhar.**
+
 ### 1b. ⚠️ A BATERIA DE CONTROLE (vale pra QUALQUER mexida no cliente)
 
 No cliente **não há teste unitário nenhum** — o controle é este, e roda inteiro entre cada
@@ -377,7 +384,7 @@ frente:
 cd shared && ../node_modules/.bin/tsc --noEmit   # binário CRU — npx tsc MENTE (bug-586)
 cd client && ../node_modules/.bin/tsc --noEmit
 cd server && ../node_modules/.bin/tsc --noEmit
-npm test && npm run build && npm run smoke       # 778 testes · 15/15 smokes
+npm test && npm run build && npm run smoke       # 781 testes · 15/15 smokes
 npm run shots:f10                                # sobe host próprio
 npm run shots:toque                              # sobe host próprio — prova a regra dos painéis
 npm run shots:esc                                # DESKTOP: pointer lock + a regra do Esc (§54)
@@ -387,7 +394,7 @@ npm run shots:luz                                # ⚠️ EXIGE vite em :5173 de
 Subir o vite: `nohup ./node_modules/.bin/vite --port 5173 --strictPort client > log 2>&1 &`
 (`npm run dev` em background morre com exit 143 e log vazio — do-not-repeat).
 
-⚠️ **O `shots:f10` e o `shots:toque` servem `client/dist`** — o cliente COMPILADO. Rodar
+⚠️ **O `shots:f10`, o `shots:toque` e o `shots:esc` servem `client/dist`** — o cliente COMPILADO. Rodar
 `npm run build` ANTES, e de novo a cada A/B, senão eles medem o binário velho (custou uma
 bissecção falsa na 52). O `shots:luz` é o oposto: roda no vite e lê o fonte na hora.
 

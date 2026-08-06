@@ -1713,3 +1713,4 @@ passa pelo próprio portão) · 5 prints da pista. **PLAYTEST PENDENTE.**
 | 14:40 | Input.retomando + pointerlockerror redesenha + retry "só uma" | client/src/input.ts, main.ts | Esc fecha só o painel | ~4k |
 | 14:50 | shots:esc — o par de DESKTOP do shots:toque, 3 seções | scripts/esc-shot.mjs (novo) | A/B em 2 frentes | ~7k |
 | 15:00 | bateria completa + 2 commits + dist | — | 781 testes, 15/15, f10/toque/esc/luz OK | ~5k |
+| 14:29 | Session end: 27 writes across 8 files (controleJogador.ts, controleJogador.test.ts, index.ts, movimentoJogador.ts, main.ts) | 10 reads | ~68211 tok |
