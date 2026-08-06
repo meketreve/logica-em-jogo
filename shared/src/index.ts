@@ -16,6 +16,7 @@ export * from "./worldgen";
 export * from "./luz";
 export * from "./mesher";
 export * from "./modo";
+export * from "./orientacao";
 export * from "./receitas";
 export * from "./regras";
 export * from "./sobrevivencia";
