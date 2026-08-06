@@ -14,21 +14,7 @@ import {
   type ScenarioModo,
   type Snapshot,
   ITEM_BALDE_AGUA,
-  ITEM_ALGODAO,
   ITEM_BALDE_VAZIO,
-  ITEM_CARVAO,
-  ITEM_CARVAO_VEGETAL,
-  ITEM_DIAMANTE,
-  ITEM_FRUTA,
-  ITEM_GRAVETO,
-  ITEM_LINGOTE_FERRO,
-  ITEM_LINGOTE_OURO,
-  ITEM_PAO,
-  ITEM_PICARETA_DIAMANTE,
-  ITEM_PICARETA_FERRO,
-  ITEM_PICARETA_MADEIRA,
-  ITEM_PICARETA_PEDRA,
-  ITEM_TRIGO,
   acenderColuna,
   atualizarBloco,
   blockSelectionBox,
@@ -37,27 +23,16 @@ import {
   decodeSnapshot,
   descartarColunaLuz,
   findSpawnY,
-  fornalhaComFrente,
   getBlock,
   isBalde,
-  isCadeira,
-  isFornalha,
   isComida,
-  isCama,
   containerTipoDe,
   isInterativo,
-  isJanela,
   isPlaceable,
-  isPorta,
   isProfessorOnly,
   isQuadro,
-  isSlab,
-  isSofa,
-  isStairs,
-  escadaId,
-  slabMaterial,
-  slabTop,
-  stairsMaterial,
+  ancoraDeCopia,
+  orientarParaColocar,
   type QuadroConteudo,
   type ColunaRef,
   COLUNAS_MAGIC,
@@ -85,12 +60,12 @@ import { AGUA_FRAMES, animarAguaAtlas, createAtlasTexture } from "./atlasTexture
 import { AguaFx } from "./aguaFx";
 import { initUiAudio, playUi, setUiVolume } from "./audio";
 import { BENCH_SEED, Bench, benchDaUrl, benchSettings } from "./bench";
-import { makeBlockIcons } from "./blockIcons";
-import { PLACEABLE, placeableFor } from "./blocksUi";
 import { ContainerPanel } from "./container";
 import { InventoryPanel } from "./inventory";
 import { ChatUi } from "./chat";
 import { ChunkRenderer } from "./chunks";
+import { ColunasFaltando } from "./colunasFaltando";
+import { HotbarUi } from "./hotbarUi";
 import { LuzCliente } from "./luzCliente";
 import { RemotePlayersView } from "./remotePlayers";
 import { learnPlayers, learnWorlds } from "./commands";
@@ -1104,10 +1079,6 @@ function startGame(snap: Snapshot): void {
    *  quando voltar. */
   let colunasCarregadas = new Set<number>();
   let frameCount = 0; // varredura de descarte roda 1×/s (a cada 60 frames)
-  /** §🔁 rede de segurança: coluna DENTRO do raio que não chegou (lote perdido,
-   *  decode falhou, mesh falhou). `proximo` = quando pedir de novo (backoff). */
-  const colunasFaltando = new Map<number, { tentativas: number; proximo: number }>();
-  let repedidas = 0; // total de `pedir_coluna` mandados (F3)
   /** Colunas APLICADAS desde o boot e distância andada — só o perfil usa: viram
    *  delta na janela de 10 s e dizem se a gravação foi voando ou parado. */
   let colunasRecebidas = 0;
@@ -1210,7 +1181,7 @@ function startGame(snap: Snapshot): void {
     for (const { cx, cz } of cols) {
       const key = cz * world.dims.x + cx;
       colunasCarregadas.add(key);
-      colunasFaltando.delete(key);
+      colunasFaltando.chegou(key);
       // §💡 a coluna entra na FILA DE LUZ; quem acende (e só então enfileira pro
       // mesh) é o loop de render, sob orçamento de tempo. Acender aqui, no
       // handler da rede, colocaria as 8 colunas de um lote no MESMO frame — o
@@ -1224,72 +1195,36 @@ function startGame(snap: Snapshot): void {
     colunasRecebidas += cols.length; // acumulado do perfil (≠ do Set, que descarta)
   };
 
-  // §🔁 rede de segurança do streaming (ver ROADMAP). O streaming F2 é
-  // fire-and-forget: lote perdido, decode falho ou mesh falho deixava buraco
-  // PERMANENTE (só sair do raio e voltar consertava).
-  /** Carência antes do 1º pedido: o lote pode estar a caminho (o servidor manda
-   *  `colunasPorTick` por vez, o mundo inteiro não chega num tick). */
   /** §💡 Orçamento de luz por frame DURANTE O JOGO. Uma coluna é atômica (não dá
    *  pra parar a propagação no meio), então isto não limita o custo de UMA — ele
    *  limita quantas cabem no mesmo frame, que é o caso que trava: o lote do
    *  streaming traz várias de uma vez. */
   const ORCAMENTO_LUZ_MS = 3;
-  const ESPERA_INICIAL_MS = 4000;
-  const BACKOFF_BASE_MS = 2000; // dobra a cada tentativa…
-  const BACKOFF_MAX_MS = 30_000; // …até este teto (servidor lento ≠ flood)
-  /** Teto de pedidos por varredura (o servidor tem o SEU teto — este evita
-   *  gastar upload à toa quando o mundo inteiro está faltando). */
-  const PEDIDOS_POR_VARREDURA = 4;
-
-  /**
-   * Percorre o quadrado até `raioRender` e pede de volta a coluna que deveria
-   * estar carregada e não está. Roda na MESMA passada 1×/s do descarte.
-   */
-  const varrerFaltando = (pcx: number, pcz: number, agora: number): void => {
-    const dims = world.dims;
-    const r = settings.raioRender;
-    let pedidos = 0;
-    for (let cx = pcx - r; cx <= pcx + r; cx++) {
-      for (let cz = pcz - r; cz <= pcz + r; cz++) {
-        if (cx < 0 || cz < 0 || cx >= dims.x || cz >= dims.z) continue;
-        const key = cz * dims.x + cx;
-        if (colunasCarregadas.has(key)) continue;
-        const f = colunasFaltando.get(key);
-        if (!f) {
-          colunasFaltando.set(key, { tentativas: 0, proximo: agora + ESPERA_INICIAL_MS });
-          continue;
-        }
-        if (agora < f.proximo || pedidos >= PEDIDOS_POR_VARREDURA) continue;
-        // descarta bytes + geometria ANTES de repedir: um decode que morreu no
-        // meio pode ter deixado meia coluna, e remeshar por cima do lixo
-        // esconderia o buraco em vez de consertar
-        chunkRenderer.descartarColuna(cx, cz);
-        torchGlow.descartarColuna(cx, cz);
-        luz.descartar(cx, cz); // §💡 a luz vai junto com os bytes
-        for (let cy = 0; cy < dims.y; cy++) {
-          world.chunks[(cy * dims.z + cz) * dims.x + cx] = undefined;
-        }
-        activeConn.send(JSON.stringify({ type: "pedir_coluna", cx, cz }));
-        f.tentativas++;
-        f.proximo = agora + Math.min(BACKOFF_MAX_MS, BACKOFF_BASE_MS * 2 ** (f.tentativas - 1));
-        pedidos++;
-        repedidas++;
-      }
-    }
-    // saiu do raio (ou finalmente chegou): esquece — o mapa não pode crescer
-    // enquanto o jogador anda pelo mundo
-    for (const key of colunasFaltando.keys()) {
-      const cx = key % dims.x;
-      const cz = (key - cx) / dims.x;
-      if (colunasCarregadas.has(key) || Math.max(Math.abs(cx - pcx), Math.abs(cz - pcz)) > r) {
-        colunasFaltando.delete(key);
-      }
-    }
-  };
 
   // halo das tochas (cp23): visual puro, segue o mundo autoritativo
   const torchGlow = new TorchGlow(scene);
   torchGlow.setFromWorld(world);
+
+  /**
+   * Joga a coluna fora INTEIRA — os quatro donos de uma vez. Sai do raio (a
+   * varredura 1×/s) ou vai ser repedida (§🔁): nos dois casos deixar um dos
+   * quatro pra trás esconde o buraco em vez de consertá-lo.
+   * `colunasCarregadas` fica de fora de propósito: quem descarta por distância
+   * está iterando o próprio Set.
+   */
+  const descartarColuna = (cx: number, cz: number): void => {
+    chunkRenderer.descartarColuna(cx, cz);
+    torchGlow.descartarColuna(cx, cz); // sprites da coluna somem junto
+    luz.descartar(cx, cz); // §💡 e a luz também
+    for (let cy = 0; cy < world.dims.y; cy++) {
+      world.chunks[(cy * world.dims.z + cz) * world.dims.x + cx] = undefined;
+    }
+  };
+
+  // §🔁 rede de segurança do streaming (ver ROADMAP e `colunasFaltando.ts`)
+  const colunasFaltando = new ColunasFaltando(descartarColuna, (cx, cz) => {
+    activeConn.send(JSON.stringify({ type: "pedir_coluna", cx, cz }));
+  });
 
   // regiões nomeadas (cp11): wireframes — o servidor só manda pra professor
   const regionRenderer = new RegionRenderer(scene);
@@ -1311,14 +1246,11 @@ function startGame(snap: Snapshot): void {
     regionRenderer.clearCorners(); // claim criado: os cantos-rascunho da varinha já eram
     // proteção desligada no meio do jogo: tira o aluno do modo varinha (senão a
     // tecla R fica travada — o guard não deixa reentrar sem proteção ligada)
-    if (!claimsAtivo && papel !== "professor" && varinhaAtiva) {
-      varinhaAtiva = false;
-      touchControls?.setVarinha(false);
-    }
+    hotbarUi.revalidarVarinha();
     // barra de toque: varinha e amigos só aparecem quando servem
     touchControls?.setVarinhaDisponivel(papel === "professor" || claimsAtivo);
     touchControls?.setAmigosDisponivel(claimsAtivo);
-    refreshHotbar(); // a dica da varinha muda conforme a proteção liga/desliga
+    hotbarUi.refresh(); // a dica da varinha muda conforme a proteção liga/desliga
   };
 
   // quadros (2026-07-19): planes de conteúdo (texto/imagem) + editor
@@ -1440,8 +1372,8 @@ function startGame(snap: Snapshot): void {
       prontas: colunasCarregadas.size,
       total: totalCarga,
       faltando:
-        colunasFaltando.size > 0
-          ? colunasFaltando.size
+        colunasFaltando.tamanho > 0
+          ? colunasFaltando.tamanho
           : Math.max(0, totalCarga - colunasCarregadas.size),
       fila: chunkRenderer.filaPendente,
     }));
@@ -1489,7 +1421,7 @@ function startGame(snap: Snapshot): void {
     worldSeed = novo.seed; // F3 mostra clima/bioma — a seed muda com a aula
     mundoLazy = proximoLazy; // aula nova pode ser mundo ENORME (ou deixar de ser)
     colunasCarregadas = new Set();
-    colunasFaltando.clear(); // §🔁 buracos do mundo VELHO não valem no novo
+    colunasFaltando.limpar(); // §🔁 buracos do mundo VELHO não valem no novo
     // mundo ENORME não tem o que montar aqui (as colunas chegam por streaming);
     // `buildAll` num mundo E varria 460 800 slots vazios = ~19 s de trava
     // §💡 grade de luz NOVA: o mundo pode ter até outro tamanho, e luz do mundo
@@ -1627,151 +1559,34 @@ function startGame(snap: Snapshot): void {
   // cp16: hotbar virou 9 SLOTS configuráveis (persistem no navegador via
   // localStorage); o inventário (tecla E) escolhe o bloco de cada slot.
   // A lista de colocáveis segue em blocksUi.ts (painel de autoria usa a mesma).
-  // papel já chegou no spawn (antes do snapshot que dispara startGame): a
-  // hotbar do aluno nunca oferece rocha-matriz, nem por slot salvo antigo.
-  const HOTBAR_KEY = "lj-hotbar";
-  const meusBlocos = placeableFor(papel);
-  const defaultHotbar = (): number[] => meusBlocos.slice(0, 9).map((b) => b.id);
-  const loadHotbar = (): number[] => {
-    // defensivo por slot: id fora da lista (ou config velha) cai no default
-    const valid = new Set<number>(meusBlocos.map((b) => b.id));
-    valid.add(ITEM_BALDE_VAZIO); // balde esvaziado guardado no slot sobrevive ao reload
-    const def = defaultHotbar();
-    try {
-      const raw: unknown = JSON.parse(localStorage.getItem(HOTBAR_KEY) ?? "null");
-      if (!Array.isArray(raw)) return def;
-      return def.map((d, i) => {
-        const v: unknown = raw[i];
-        return typeof v === "number" && valid.has(v) ? v : d;
-      });
-    } catch {
-      return def;
-    }
-  };
-  const hotbar = loadHotbar();
-  let selected = 0;
-  // varinha (cp11, só professor): cliques viram marcas de canto de região
-  let varinhaAtiva = false;
-  const hotbarEl = document.getElementById("hotbar");
-  // ícones recortados do próprio texture atlas (blockIcons.ts)
-  const icons = makeBlockIcons(
-    material.map?.image as HTMLCanvasElement,
-    // balde VAZIO não está em PLACEABLE (só o cheio); precisa do ícone dele
-    // §🍖 F6: a comida também é item (não está em PLACEABLE) e precisa de ícone
-    // — o painel de craft mostra "falta 3 trigo" com ele.
-    // §🍖 F10: os itens da fundição entram pela mesma porta — a lista de craft
-    // mostra "1/1 carvão" com o ícone deles.
-    [
-      ...PLACEABLE.map((b) => b.id),
-      ITEM_BALDE_VAZIO, ITEM_FRUTA, ITEM_TRIGO, ITEM_PAO,
-      ITEM_CARVAO, ITEM_DIAMANTE, ITEM_GRAVETO,
-      ITEM_CARVAO_VEGETAL, ITEM_LINGOTE_FERRO, ITEM_LINGOTE_OURO, ITEM_ALGODAO,
-      ITEM_PICARETA_MADEIRA, ITEM_PICARETA_PEDRA, ITEM_PICARETA_FERRO, ITEM_PICARETA_DIAMANTE,
-    ],
-  );
-  const blockName = (id: number): string => {
-    if (id === ITEM_BALDE_VAZIO) return "balde vazio";
-    if (id === ITEM_BALDE_AGUA) return "balde de água";
-    if (id === ITEM_FRUTA) return "fruta";
-    if (id === ITEM_TRIGO) return "trigo";
-    if (id === ITEM_PAO) return "pão";
-    if (id === ITEM_CARVAO) return "carvão";
-    if (id === ITEM_DIAMANTE) return "diamante";
-    if (id === ITEM_GRAVETO) return "graveto";
-    if (id === ITEM_CARVAO_VEGETAL) return "carvão vegetal";
-    if (id === ITEM_LINGOTE_FERRO) return "lingote de ferro";
-    if (id === ITEM_LINGOTE_OURO) return "lingote de ouro";
-    if (id === ITEM_ALGODAO) return "algodão";
-    if (id === ITEM_PICARETA_MADEIRA) return "picareta de madeira";
-    if (id === ITEM_PICARETA_PEDRA) return "picareta de pedra";
-    if (id === ITEM_PICARETA_FERRO) return "picareta de ferro";
-    if (id === ITEM_PICARETA_DIAMANTE) return "picareta de diamante";
-    return PLACEABLE.find((b) => b.id === id)?.name ?? "?";
-  };
-  const refreshHotbar = (): void => {
-    if (!hotbarEl) return;
-    // nomes/ícones são constantes do código (sem input externo) — innerHTML ok aqui
-    if (varinhaAtiva) {
-      const criar = papel === "professor" ? "/regiao criar nome" : "/claim criar";
-      hotbarEl.innerHTML =
-        `<b>[varinha]</b> esq = canto 1 · dir = canto 2 · ${criar} · R/🪄 volta`;
-      return;
-    }
-    // §🍖 F4: em sobrevivência os 9 slots são os do SERVIDOR (com quantidade);
-    // em criativo, a paleta escolhida no inventário, como sempre.
-    const ids = mochila.ativa ? mochila.hotbar() : hotbar;
-    const slots = ids
-      .map((id, i) => {
-        const sel = i === selected ? " sel" : "";
-        if (id === null || id === undefined) return `<span class="slot${sel} vazio"><small>${i + 1}</small></span>`;
-        const qtd = mochila.ativa ? mochila.qtdDoSlot(i) : 0;
-        const conta = qtd > 1 ? `<b class="qtd">${qtd}</b>` : "";
-        return `<span class="slot${sel}"><small>${i + 1}</small><img src="${icons.get(id) ?? ""}" alt="">${conta}</span>`;
-      })
-      .join("");
-    const naMao = ids[selected];
-    hotbarEl.innerHTML =
-      `<span class="bar-nome">${naMao === null || naMao === undefined ? "mão vazia" : blockName(naMao)}</span>` +
-      `<span class="slots">${slots}</span>`;
-    inventoryPanel?.refresh();
-    containerPanel?.refresh(); // §🍖 F10: o lado de baixo do painel é a mochila
-  };
-  /** Id na mão AGORA (null = mão vazia em sobrevivência). Fonte única pra quem
-   *  precisa saber o que o jogador segura: colocar, quebrar com balde, hotbar. */
-  const idNaMao = (): number | null =>
-    mochila.ativa ? mochila.idDoSlot(selected) : (hotbar[selected] ?? null);
-  aoMudarMochila = () => refreshHotbar();
-  refreshHotbar();
-  // professor: varinha p/ regiões (sempre). aluno: só com a proteção de áreas
-  // ligada (cp24), pra marcar o próprio claim. Extraído pra ser chamado tanto
-  // pela tecla R quanto pelo botão 🪄 do toque (celular não tem R).
-  const toggleVarinha = (): void => {
-    if (papel !== "professor" && !claimsAtivo) return;
-    varinhaAtiva = !varinhaAtiva;
-    touchControls?.setVarinha(varinhaAtiva); // ⛏/▣ viram canto 1 / canto 2
-    refreshHotbar();
-  };
-  input.onKey(settings.keys.varinha, toggleVarinha);
+  // Os 9 slots, o selecionado, a varinha, os ícones e os nomes moram em
+  // `hotbarUi.ts` — aqui fica só a fiação com o input e com os painéis.
+  const hotbarUi = new HotbarUi(papel, mochila, material.map?.image as HTMLCanvasElement, {
+    claimsAtivo: () => claimsAtivo,
+    setVarinhaToque: (ativa) => touchControls?.setVarinha(ativa),
+    aoRedesenhar: () => {
+      inventoryPanel?.refresh();
+      containerPanel?.refresh(); // §🍖 F10: o lado de baixo do painel é a mochila
+    },
+  });
+  aoMudarMochila = () => hotbarUi.refresh();
+  hotbarUi.refresh();
+  // a varinha é a MESMA nos dois caminhos: tecla R e botão 🪄 do toque
+  // (celular não tem R)
+  input.onKey(settings.keys.varinha, () => hotbarUi.toggleVarinha());
   // 1–9 escolhe o slot; scroll cicla os 9 slots
   for (let i = 0; i < 9; i++) {
-    input.onKey(`Digit${i + 1}`, () => {
-      selected = i;
-      refreshHotbar();
-    });
+    input.onKey(`Digit${i + 1}`, () => hotbarUi.selecionar(i));
   }
-  input.onWheel((dir) => {
-    selected = (selected + dir + hotbar.length) % hotbar.length;
-    refreshHotbar();
-  });
-  // Toque (2026-07-27, layouts mobile): tocar num slot escolhe o bloco. No
-  // tablet não existe 1–9 nem scroll do mouse, então sem isto trocar de bloco
-  // exigia abrir o inventário TODA vez. Delegação no #hotbar porque o
-  // refreshHotbar troca o innerHTML inteiro. O CSS só dá pointer-events à
-  // faixa .slots — no resto da barra o arrasto tem que chegar no #touch-look.
-  hotbarEl?.addEventListener("pointerdown", (e) => {
-    const slot = (e.target as HTMLElement | null)?.closest?.(".slot");
-    if (!slot) return;
-    const i = [...hotbarEl.querySelectorAll(".slot")].indexOf(slot);
-    if (i < 0) return;
-    e.preventDefault(); // sem clique sintetizado depois (mesmo motivo do touch.ts)
-    selected = i;
-    refreshHotbar();
-  });
+  input.onWheel((dir) => hotbarUi.ciclar(dir));
 
   // inventário (cp16): grade de todos os colocáveis → slot selecionado
   inventoryPanel = new InventoryPanel(
-    icons,
-    () => meusBlocos,
-    () => ({ hotbar, selected }),
-    (blockId) => {
-      hotbar[selected] = blockId;
-      localStorage.setItem(HOTBAR_KEY, JSON.stringify(hotbar));
-      refreshHotbar();
-    },
-    (slot) => {
-      selected = slot;
-      refreshHotbar();
-    },
+    hotbarUi.icons,
+    () => hotbarUi.meusBlocos,
+    () => ({ hotbar: hotbarUi.paleta, selected: hotbarUi.selected }),
+    (blockId) => hotbarUi.definirSlotLocal(blockId),
+    (slot) => hotbarUi.selecionar(slot),
     (open) => {
       if (open) document.exitPointerLock();
       else input.lock();
@@ -1779,7 +1594,7 @@ function startGame(snap: Snapshot): void {
     },
     mochila,
     (de, para) => activeConn.send(JSON.stringify({ type: "mover_item", de, para })),
-    blockName,
+    (id) => hotbarUi.nome(id),
     (receita) => activeConn.send(JSON.stringify({ type: "fabricar", receita })),
   );
   input.onKey(settings.keys.inventario, () => {
@@ -1791,9 +1606,9 @@ function startGame(snap: Snapshot): void {
   // clique direito no bloco — ou melhor, é a RESPOSTA do servidor a ele, porque
   // quem decide se o aluno pode ler aquele baú é o gate de claim.
   containerPanel = new ContainerPanel(
-    icons,
+    hotbarUi.icons,
     mochila,
-    blockName,
+    (id) => hotbarUi.nome(id),
     (x, y, z, de, para) =>
       activeConn.send(JSON.stringify({ type: "mover_container", x, y, z, de, para })),
     () => activeConn.send(JSON.stringify({ type: "fechar_container" })),
@@ -1825,18 +1640,18 @@ function startGame(snap: Snapshot): void {
     // §🍖 F7: soco vem ANTES do bloco — quem está mirado é gente, e o bloco
     // atrás dela não pode quebrar no mesmo clique. O cliente só manda a
     // intenção: regra, modo, alcance e cooldown são conferidos no servidor.
-    if (alvoJogador && !varinhaAtiva) {
+    if (alvoJogador && !hotbarUi.varinhaAtiva) {
       activeConn.send(JSON.stringify({ type: "atacar", alvo: alvoJogador.id }));
       return;
     }
     if (!target) return;
-    if (varinhaAtiva) {
+    if (hotbarUi.varinhaAtiva) {
       wandMark(1, target);
       return;
     }
     // balde não quebra bloco em sobrevivência; em criativo o professor pode
     // quebrar com o balde na mão (clique direito segue despejando/recolhendo água).
-    if (isBalde(idNaMao() ?? -1) && modoAtual !== "criativo") return;
+    if (isBalde(hotbarUi.idNaMao() ?? -1) && modoAtual !== "criativo") return;
     activeConn.send(
       JSON.stringify({ type: "break_block", x: target.x, y: target.y, z: target.z }),
     );
@@ -1846,12 +1661,12 @@ function startGame(snap: Snapshot): void {
     // mirado (olhar pro céu e morder tem de funcionar), e é o único uso do
     // clique direito que não tem célula. O servidor decide se a mordida vale
     // (barriga cheia recusa); o cliente só pede, como em todo o resto.
-    if (mochila.ativa && isComida(idNaMao() ?? -1)) {
-      activeConn.send(JSON.stringify({ type: "comer", slot: selected }));
+    if (mochila.ativa && isComida(hotbarUi.idNaMao() ?? -1)) {
+      activeConn.send(JSON.stringify({ type: "comer", slot: hotbarUi.selected }));
       return;
     }
     if (!target) return;
-    if (varinhaAtiva) {
+    if (hotbarUi.varinhaAtiva) {
       wandMark(2, target);
       return;
     }
@@ -1864,9 +1679,9 @@ function startGame(snap: Snapshot): void {
       // slot do SERVIDOR e o slot vai no `slot:` da mensagem — quem troca
       // vazio↔cheio (e responde com a mochila) é o servidor. Em criativo segue
       // escrevendo o slot local da hotbar, como sempre.
-      const held = idNaMao();
+      const held = hotbarUi.idNaMao();
       if (isBalde(held ?? -1)) {
-        const slot = mochila.ativa ? { slot: selected } : {};
+        const slot = mochila.ativa ? { slot: hotbarUi.selected } : {};
         if (held === ITEM_BALDE_AGUA) {
           activeConn.send(
             JSON.stringify({
@@ -1878,7 +1693,7 @@ function startGame(snap: Snapshot): void {
               ...slot,
             }),
           );
-          if (!mochila.ativa) hotbar[selected] = ITEM_BALDE_VAZIO; // esvaziou (local)
+          if (!mochila.ativa) hotbarUi.definirSlotLocal(ITEM_BALDE_VAZIO); // esvaziou (local)
         } else {
           // só recolhe se mirou numa FONTE (id Agua); fluxo derivado não coleta
           if (getBlock(world, target.x, target.y, target.z) !== BlockId.Agua) return;
@@ -1892,11 +1707,7 @@ function startGame(snap: Snapshot): void {
               ...slot,
             }),
           );
-          if (!mochila.ativa) hotbar[selected] = ITEM_BALDE_AGUA; // encheu (local)
-        }
-        if (!mochila.ativa) {
-          localStorage.setItem(HOTBAR_KEY, JSON.stringify(hotbar));
-          refreshHotbar();
+          if (!mochila.ativa) hotbarUi.definirSlotLocal(ITEM_BALDE_AGUA); // encheu (local)
         }
         return;
       }
@@ -1941,62 +1752,11 @@ function startGame(snap: Snapshot): void {
     }
     // §🍖 F4: em sobrevivência o bloco vem do slot do SERVIDOR — mão vazia não
     // manda pedido nenhum (o servidor recusaria calado de qualquer jeito).
-    let blockId = idNaMao();
-    if (blockId === null) return;
-    // porta/janela na mão: o EIXO sai da direção do olhar (a lâmina fecha a
-    // passagem que o jogador está encarando)
-    if (blockId === BlockId.PortaXFechada || blockId === BlockId.PortaZFechada) {
-      blockId =
-        Math.abs(Math.sin(input.yaw)) > Math.abs(Math.cos(input.yaw))
-          ? BlockId.PortaXFechada
-          : BlockId.PortaZFechada;
-    }
-    if (blockId === BlockId.JanelaXFechada || blockId === BlockId.JanelaZFechada) {
-      blockId =
-        Math.abs(Math.sin(input.yaw)) > Math.abs(Math.cos(input.yaw))
-          ? BlockId.JanelaXFechada
-          : BlockId.JanelaZFechada;
-    }
-    // móveis/quadro direcionais: a FRENTE encara o jogador (encosto/cabeceira/
-    // parede pro lado de lá — convenção Minecraft). Quadrante do olhar → k×90°.
-    if (isCadeira(blockId) || isSofa(blockId) || isCama(blockId) || isQuadro(blockId)) {
-      const dx = -Math.sin(input.yaw);
-      const dz = -Math.cos(input.yaw);
-      const olhar = Math.abs(dx) > Math.abs(dz) ? (dx > 0 ? 0 : 2) : (dz > 0 ? 1 : 3);
-      const frente = (olhar + 2) % 4; // oposto do olhar = de frente pro jogador
-      const anchor = isCadeira(blockId)
-        ? BlockId.CadeiraXP
-        : isSofa(blockId)
-          ? BlockId.SofaXP
-          : isCama(blockId)
-            ? BlockId.CamaXP
-            : BlockId.QuadroXP;
-      blockId = anchor + frente;
-    }
-    // §🍖 F10 (refino): a fornalha segue a MESMA convenção — a boca encara quem
-    // colocou. Não entra no `if` de cima porque a família dela não é `âncora +
-    // k`: os dois ids originais nasceram sem direção e viraram o −Z, então quem
-    // traduz é a tabela do shared (ver `FORNALHA_POR_FRENTE`).
-    if (isFornalha(blockId)) {
-      const dx = -Math.sin(input.yaw);
-      const dz = -Math.cos(input.yaw);
-      const olhar = Math.abs(dx) > Math.abs(dz) ? (dx > 0 ? 0 : 2) : (dz > 0 ? 1 : 3);
-      blockId = fornalhaComFrente((olhar + 2) % 4);
-    }
-    // laje (2026-07-25): mirou por BAIXO (face de baixo do bloco) → laje de
-    // CIMA; senão laje de baixo (piso). A hotbar guarda a âncora "baixo".
-    if (isSlab(blockId)) {
-      const baixo = blockId - (slabTop(blockId) ? 1 : 0);
-      blockId = target.ny < 0 ? baixo + 1 : baixo;
-    }
-    // escada (2026-07-25): direção SOBE pra onde o jogador olha; metade
-    // (base/cabeça-pra-baixo) pela face clicada (por baixo = de cabeça pra baixo).
-    if (isStairs(blockId)) {
-      const dx = -Math.sin(input.yaw);
-      const dz = -Math.cos(input.yaw);
-      const olhar = Math.abs(dx) > Math.abs(dz) ? (dx > 0 ? 0 : 2) : (dz > 0 ? 1 : 3);
-      blockId = escadaId(stairsMaterial(blockId), olhar, target.ny < 0);
-    }
+    const naMao = hotbarUi.idNaMao();
+    if (naMao === null) return;
+    // eixo da porta/janela, frente do móvel e da fornalha, metade da laje,
+    // direção da escada: a regra inteira é pura e mora em `shared/orientacao.ts`
+    const blockId = orientarParaColocar(naMao, input.yaw, target.ny < 0);
     activeConn.send(
       JSON.stringify({
         type: "place_block",
@@ -2010,29 +1770,17 @@ function startGame(snap: Snapshot): void {
 
   // botão do meio = copiar o bloco mirado pro slot atual (pedido do usuário)
   input.onMouseButton(1, () => {
-    if (!target || varinhaAtiva) return;
+    if (!target || hotbarUi.varinhaAtiva) return;
     // §🍖 F4: em sobrevivência o slot é do servidor — copiar o bloco mirado pra
     // mão daria bloco de graça. O gesto simplesmente não existe lá.
     if (mochila.ativa) return;
-    let id = getBlock(world, target.x, target.y, target.z);
-    // qualquer porta/janela/móvel copiado vira a entrada única da hotbar
-    // (o eixo/direção é re-escolhido pelo olhar na hora de colocar)
-    if (isPorta(id)) id = BlockId.PortaXFechada;
-    if (isJanela(id)) id = BlockId.JanelaXFechada;
-    if (isCadeira(id)) id = BlockId.CadeiraXP;
-    if (isSofa(id)) id = BlockId.SofaXP;
-    if (isCama(id)) id = BlockId.CamaXP;
-    if (isQuadro(id)) id = BlockId.QuadroXP;
-    // fornalha (acesa OU em qualquer direção) copia pra entrada única da hotbar
-    if (isFornalha(id)) id = BlockId.Fornalha;
-    // laje/escada: copia pra âncora do material (metade/direção re-escolhidas no place)
-    if (isSlab(id)) id = BlockId.LajePedraBaixo + slabMaterial(id) * 2;
-    if (isStairs(id)) id = BlockId.EscadaPedraXP + stairsMaterial(id) * 8;
+    // qualquer porta/janela/móvel/laje/escada copiado vira a entrada única da
+    // hotbar (o eixo/direção é re-escolhido pelo olhar na hora de colocar) — é
+    // o caminho de volta do `orientarParaColocar`, e mora ao lado dele
+    const id = ancoraDeCopia(getBlock(world, target.x, target.y, target.z));
     if (!isPlaceable(id)) return; // ar/porta-aberta e afins não vão pra mão
     if (isProfessorOnly(id) && papel !== "professor") return; // aluno não copia rocha-matriz
-    hotbar[selected] = id;
-    localStorage.setItem(HOTBAR_KEY, JSON.stringify(hotbar));
-    refreshHotbar();
+    hotbarUi.definirSlotLocal(id);
   });
 
   const hud = new Hud(renderer, {
@@ -2153,18 +1901,7 @@ function startGame(snap: Snapshot): void {
   // controles de toque (tablet): joystick/arrasto/botões sintetizam o MESMO
   // input do teclado+mouse — o loop e os handlers acima não mudam
   if (isTouchDevice()) {
-    if (hotbarEl) {
-      hotbarEl.style.pointerEvents = "auto"; // hotbar tocável escolhe o slot
-      hotbarEl.addEventListener("click", (e) => {
-        const slot = e.target instanceof HTMLElement ? e.target.closest(".slot") : null;
-        const idx = slot?.parentElement
-          ? Array.from(slot.parentElement.children).indexOf(slot)
-          : -1;
-        if (idx < 0) return;
-        selected = idx;
-        refreshHotbar();
-      });
-    }
+    hotbarUi.habilitarToque(); // hotbar tocável escolhe o slot
     touchControls = new TouchControls(input, {
       keys: () => settings.keys,
       quebrar: () => input.press(0),
@@ -2187,7 +1924,7 @@ function startGame(snap: Snapshot): void {
         updateOverlay();
       },
       hud: () => hud.toggle(),
-      varinha: () => toggleVarinha(),
+      varinha: () => hotbarUi.toggleVarinha(),
       amigos: () => {
         if (!(friendsPanel?.open ?? false) && !podeAbrirMenu()) return;
         friendsPanel?.toggle();
@@ -2292,8 +2029,8 @@ function startGame(snap: Snapshot): void {
     hud.stream = {
       colunas: colunasCarregadas.size,
       fila: chunkRenderer.filaPendente,
-      faltando: colunasFaltando.size,
-      repedidas,
+      faltando: colunasFaltando.tamanho,
+      repedidas: colunasFaltando.repedidas,
       ultimoLote: chunkRenderer.ultimoLote,
     };
     hud.luz = luz.medidas; // §💡
@@ -2387,16 +2124,18 @@ function startGame(snap: Snapshot): void {
           const cz = (key - cx) / world.dims.x;
           if (Math.max(Math.abs(cx - pcx), Math.abs(cz - pcz)) > settings.raioRender + 2) {
             colunasCarregadas.delete(key);
-            chunkRenderer.descartarColuna(cx, cz);
-            torchGlow.descartarColuna(cx, cz); // sprites da coluna somem junto
-            luz.descartar(cx, cz); // §💡 e a luz também
-            for (let cy = 0; cy < world.dims.y; cy++) {
-              world.chunks[(cy * world.dims.z + cz) * world.dims.x + cx] = undefined;
-            }
+            descartarColuna(cx, cz);
           }
         }
         // §🔁 MESMA passada: coluna que DEVERIA estar aqui e não está
-        varrerFaltando(pcx, pcz, now);
+        colunasFaltando.varrer(
+          pcx,
+          pcz,
+          now,
+          world.dims,
+          settings.raioRender,
+          colunasCarregadas,
+        );
         // 2026-08-04: wireframe de área reservada além do raio não é desenhado
         // (ele ficaria sobre coluna descarregada). Custo O(nº de áreas), na
         // MESMA varredura de 1×/s — a área só entra/sai no limite do render, e
@@ -2487,7 +2226,7 @@ function startGame(snap: Snapshot): void {
           camera.position.x, camera.position.y, camera.position.z,
           lookDir.x, lookDir.y, lookDir.z,
           PLAYER_REACH,
-          hotbar[selected] === ITEM_BALDE_VAZIO, // balde vazio mira a água (recolher)
+          hotbarUi.slotLocal === ITEM_BALDE_VAZIO, // balde vazio mira a água (recolher)
         )
       : null;
     // §🍖 F7: jogador na frente? Só onde o soco valeria (sobrevivência + pvp
