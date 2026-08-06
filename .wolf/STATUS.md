@@ -1,6 +1,55 @@
 # STATUS — Projeto "Lógica em Jogo" (jogo voxel educacional)
 
 > Single source of truth for resuming work. Read this FIRST when starting a session.
+> **SESSÃO 50 (2026-08-06) — O CORTE DO `main.ts` ANDOU, E A ÚLTIMA PEÇA DA FILA NÃO FOI
+> CORTADA DE PROPÓSITO.** Sessão de uma palavra ("continue"): a fila da 49 estava escrita e
+> ordenada por valor/risco, e foi ela que mandou. **`main.ts` 2.600 → 2.339**, `startGame`
+> 1.646 → 1.283.
+>
+> **§🧹 `ColunasFaltando`** (item 1 da fila): o mapa dos buracos, os quatro números do backoff
+> e o contador de repedidas. A decisão que importa é o que NÃO entrou no construtor —
+> `colunasCarregadas` é REASSINADO na troca de aula, então guardar a referência daria um Set
+> fantasma do mundo velho; ele chega por parâmetro a cada varredura. Descartar e pedir entram
+> como callback (descartar mexe em quatro donos: mesh, tochas, luz e os bytes). **De brinde, o
+> descarte virou UMA função:** o laço de distância do render e a repedida faziam as mesmas
+> quatro operações, lado a lado, havia meses.
+>
+> **§🧹 `HotbarUi`** (item 2, o das 81 referências): 9 slots locais com persistência, o
+> selecionado, o modo varinha, os ícones recortados do atlas e a tabela de nomes PT. A regra
+> que dá sentido ao conjunto **agora está escrita no topo da classe**: em sobrevivência os 9
+> slots são os do SERVIDOR (`mochila.hotbar()`), em criativo são a paleta do inventário — e é
+> por isso que `idNaMao()` existe. **`slotLocal` é a exceção deliberada:** a mira do balde
+> vazio lê o slot LOCAL mesmo em sobrevivência, como fazia antes de a mochila existir, e isso
+> ficou documentado em vez de "consertado".
+>
+> **§🧹 A ORIENTAÇÃO SUBIU PRO `shared/` E GANHOU 24 TESTES — é o achado da sessão.** A regra
+> que decide o id final ao colocar (eixo da porta/janela pelo olhar, frente do móvel e da
+> fornalha encarando quem colocou, metade da laje e direção da escada pela face clicada) eram
+> **sete `if` dentro do handler do botão direito**, e o caminho de volta (o botão do meio copia
+> o bloco mirado pra entrada única da família) **mais nove no handler do botão do meio**.
+> Puros, e sem teste nenhum — no cliente não há onde rodar um. Viraram
+> `shared/src/orientacao.ts`: `orientarParaColocar` e `ancoraDeCopia`, **o mesmo contrato visto
+> dos dois lados**, e é isso que o teste cobra (`ancoraDeCopia(orientar(a, …)) === a` pra toda
+> âncora × 4 olhares × 2 faces). **A/B honesto:** o código velho copiado verbatim contra o novo
+> em **30.800 casos** (todo id × 40 olhares × 2 faces) e nos 200 ids do copiar — **0
+> diferenças**.
+>
+> **O item 3 da fila (`handleServerData`) NÃO foi cortado, e a razão está no cerebrum.** São
+> 217 linhas que mexem em ~30 `let` de módulo; extrair exigiria um objeto de contexto de ~30
+> campos cujo único trabalho é reexpor o escopo do arquivo — **mais linhas, não menos**, e uma
+> indireção entre o nome da mensagem e o que ela faz. É a MESMA decisão que a 49 tomou sobre o
+> `handleMessage` do `session.ts`. **O critério de corte é ter FRONTEIRA (estado próprio + API
+> estreita), não tamanho:** `ColunasFaltando` tem um mapa e dois callbacks, `HotbarUi` tem nove
+> slots e o que se faz com eles; o despachante não tem — ele é a porta.
+>
+> **VERDE:** typecheck 3/3 (binário cru, bug-586) · **739 testes (+24)** · build · **15/15
+> smokes** · **`shots:f10` 22/22** · **`shots:toque` 15/15** · **`shots:luz` 5/5** (dia 22.1,
+> noite 8.9, razão 0.40). **2 commits.**
+>
+> ⚠️ **Armadilha de ferramenta paga aqui, no cerebrum:** `npm run shots:luz` **não sobe o dev
+> server** (o f10 e o toque sobem host próprio; o luz só sobe o Chrome). Sem `:5173` no ar ele
+> espera 180 s e morre — e com pipe pra `tail` não sai NADA na tela.
+>
 > **SESSÃO 49 (2026-08-06) — A CONVERSA DE STACK VIROU UM DIAGNÓSTICO, E O DIAGNÓSTICO VIROU
 > O CORTE POR DOMÍNIO.** A sessão abriu com o pendente da 48 (`git fetch`: local 1 commit à
 > frente, nada novo no remote) e a análise dos três eixos que ele levantou. **Nenhum dos três
@@ -68,30 +117,29 @@
 
 ## 🚀 Próxima fase
 
-### 1. TERMINAR o `main.ts` — é o que ficou aberto, e o caminho já está provado
+### 1. O `main.ts` — o que sobrou, e por que a fila da 49 acabou
 
-`main.ts` saiu de 2.725 pra 2.600. **O grosso continua lá: `startGame` tem 1.646 linhas.** Dois
-subsistemas saíram (`LuzCliente`, `RemotePlayersView`) e provaram o padrão; faltam os que já
-estão mapeados, em ordem de razão valor/risco:
+**Os itens 1 e 2 da fila da 49 fecharam (`ColunasFaltando`, `HotbarUi`) e o item 3
+(`handleServerData`) foi DECIDIDO como "fica onde está"** — a razão está no bloco da sessão 50
+acima e no Decision Log do cerebrum. Sobra o item 4, e ele é uma fase própria:
 
-1. **`ColunasFaltando`** (§🔁 rede de segurança do streaming): `colunasFaltando`, `repedidas`,
-   `varrerFaltando`, os 4 constantes de backoff. ~60 linhas, 15 referências, fronteira limpa —
-   precisa de callbacks pra `descartarColuna` e pra `pedir_coluna`.
-2. **`HotbarUi`**: `hotbar`, `selected`, `varinhaAtiva`, `icons`, `refreshHotbar`, `blockName`,
-   `meusBlocos`, `toggleVarinha`. ~200 linhas, mas **81 referências** — `selected` é lido pela
-   lógica de colocar bloco, então é o mais entrelaçado dos quatro. Verificável pelo
-   `shots:f10`, que já fotografa os 9 ícones da hotbar.
-3. **`handleServerData`** (217 linhas, no TOPO do arquivo, fora do `startGame`): é o switch das
-   mensagens do servidor e mexe em ~20 `let` de módulo. Precisa de um objeto de contexto — é o
-   corte que exige decisão de desenho, não só mecânica.
-4. **O resto do `startGame`**: água/FX, carga/observarCarga, quadros, painéis. O caminho
-   principiado é transformar o closure em classe `GameRuntime` (campos no lugar dos `let`) e aí
-   aplicar o mesmo corte por domínio do `session.ts` — é um trabalho do tamanho do que a 49 fez
-   no servidor, então vale como fase própria.
+**Transformar o `startGame` (1.283 linhas) em classe `GameRuntime`** — campos no lugar dos
+`let` de closure — e aí aplicar o corte por domínio que a 49 fez no `session.ts`. Os domínios
+que dá pra ver de fora hoje: água/FX, carga (`calcularTotalCarga`/`observarCarga`/`iniciarTroca`),
+quadros, painéis, e o laço de render. **É um trabalho do tamanho do que a 49 fez no servidor**,
+com uma diferença que pesa: no servidor os 715 testes serviram de controle, e **no cliente não
+há teste unitário nenhum** — o controle são os prints. Vale começar pelo mais barato (água/FX)
+pra provar o padrão da classe antes de mexer no laço.
 
-**Verificação disponível pro cliente** (não há teste unitário lá): typecheck pelo binário cru,
-`npm run build`, e os scripts de print — `shots:f10` (22 asserções, 8 prints), `shots:toque`
-(15), `shots:luz` (5, e é o único que prova shader).
+**A alternativa mais barata, e talvez melhor: continuar subindo lógica PURA pro `shared/`.** Foi
+o que mais rendeu na 50 (16 `if` viraram 2 funções com 24 testes). Candidatos que ainda estão em
+closure no `main.ts` e são puros: a decisão de qual célula recebe o bloco (`target + normal`), a
+regra de `podeVoar`/`flying`, e o cálculo do total de carga.
+
+**Verificação disponível pro cliente:** typecheck pelo binário cru (`../node_modules/.bin/tsc
+--noEmit` dentro do workspace), `npm run build`, e os scripts de print — `shots:f10` (22
+asserções, 8 prints), `shots:toque` (15), `shots:luz` (5, e é o único que prova shader, **mas
+exige `npx vite --port 5173 client` de pé antes** — ver o ⚠️ da sessão 50).
 
 ### 2. Ainda aberto do `session.ts` (opcional, e menor)
 
@@ -101,7 +149,7 @@ da mensagem. Quebrá-lo por família de mensagem é possível, mas o ganho é me
 `main.ts` e ele tem a contabilidade de fome (`mudancasAntes`) atravessada, que é fácil de
 quebrar sem querer.
 
-### 3. A fila de jogo (inalterada desde a 47 — nada disto foi tocado na 49)
+### 3. A fila de jogo (inalterada desde a 47 — nada disto foi tocado na 49 nem na 50)
 
 1. **PLAYTEST do F10** — é o que manda, e é a única coisa da lista que nenhuma máquina faz. A
    cadeia inteira (árvore → picareta → fornalha → lingote) nunca passou por uma turma.

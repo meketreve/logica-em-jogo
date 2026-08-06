@@ -1,7 +1,7 @@
 # anatomy.md
 
-> Auto-maintained by OpenWolf. Last scanned: 2026-08-06T04:41:09.093Z
-> Files: 317 tracked | Anatomy hits: 0 | Misses: 0
+> Auto-maintained by OpenWolf. Last scanned: 2026-08-06T05:32:58.777Z
+> Files: 321 tracked | Anatomy hits: 0 | Misses: 0
 
 ## ./
 
@@ -284,6 +284,8 @@
 - `chunks.ts` — Teto duro de chunks por frame: rede de segurança se o relógio for grosseiro (~5987 tok)
   - section `JobMesh` L33-51 (~197 tok)
   - class `ChunkRenderer` L52-494 (~5525 tok)
+- `colunasFaltando.ts` — §🔁 A rede de segurança do streaming, e por que ela é um objeto. (~1238 tok)
+  - class `ColunasFaltando` L19-115 (~986 tok)
 - `commands.ts` — Autocompletar de comandos de chat (Tab). Puro, sem DOM — o chat.ts liga o (~1011 tok)
   - fn `learnWorlds` L64-68 (~48 tok)
   - fn `learnPlayers` L69-72 (~25 tok)
@@ -306,6 +308,9 @@
 - `friends.ts` — Painel de amigos (2026-08-04) — a interface do `/amigos`, para TODO jogador: convites recebidos, o grupo (N/6, expulsar, sair) e a lista de quem convidar. Puro consumo do feed `friends`; cada botão compõe um `/amigos ...` (~2377 tok)
   - section `FriendsData` L18-31 (~150 tok)
   - class `FriendsPanel` L33-240 (~1900 tok)
+- `hotbarUi.ts` — cp16: os 9 slots da hotbar, o selecionado, o modo varinha, os ícones do atlas e a tabela de nomes PT. Em sobrevivência os slots são os do SERVIDOR (mochila); em criativo, a paleta do inventário. (~2774 tok)
+  - section `HotbarDeps` L24-51 (~378 tok)
+  - class `HotbarUi` L52-243 (~2233 tok)
 - `hud.ts` — HUD de perfilação (F3): FPS, frametime méd+p95, remesh, draw calls e (~8605 tok)
   - section `HudRemeshStats` L35-51 (~268 tok)
   - section `Recording` L52-70 (~220 tok)
@@ -333,35 +338,35 @@
   - section `LuzUniforms` L22-32 (~120 tok)
   - fn `criarLuzUniforms` L33-43 (~116 tok)
   - fn `aplicarLuz` L44-99 (~640 tok)
-- `main.ts` — O cliente não tem filesystem: aprende os nomes das aulas pela resposta de (~33042 tok)
-  - fn `cachearMundos` L131-226 (~1256 tok)
-  - fn `applySettings` L227-294 (~1017 tok)
-  - fn `showOverlayMain` L295-309 (~192 tok)
-  - fn `menuAberto` L310-321 (~107 tok)
-  - fn `menuDePausaAberto` L322-334 (~165 tok)
-  - fn `podeAbrirMenu` L335-338 (~29 tok)
-  - fn `updateOverlay` L339-357 (~292 tok)
-  - fn `startPlay` L358-390 (~374 tok)
-  - fn `onSettingsChanged` L391-412 (~294 tok)
-  - fn `enviarRaio` L413-456 (~589 tok)
-  - fn `playerName` L457-467 (~187 tok)
-  - fn `abrirAmigosPorComando` L468-508 (~425 tok)
-  - fn `registrarChegadaDeRede` L509-516 (~60 tok)
-  - fn `jitterDeRede` L517-560 (~592 tok)
-  - fn `podeVoar` L561-571 (~178 tok)
-  - fn `vitals` L572-648 (~1106 tok)
-  - fn `pushPanelData` L649-661 (~139 tok)
-  - fn `pushFriendsData` L662-672 (~95 tok)
-  - fn `ownDone` L673-681 (~90 tok)
-  - fn `refreshObjectivesView` L682-713 (~358 tok)
-  - fn `drenarFilaTroca` L714-721 (~79 tok)
-  - fn `segurarAteATelaPintar` L722-731 (~109 tok)
-  - fn `handleServerData` L732-950 (~2846 tok)
-  - fn `connect` L951-990 (~464 tok)
-  - fn `startMultiplayer` L991-1008 (~224 tok)
-  - fn `startSingleplayer` L1009-1032 (~284 tok)
-  - fn `persistWorld` L1033-1080 (~520 tok)
-  - fn `startGame` L1081-2601 (~19976 tok)
+- `main.ts` — O cliente não tem filesystem: aprende os nomes das aulas pela resposta de (~29761 tok)
+  - fn `cachearMundos` L106-201 (~1256 tok)
+  - fn `applySettings` L202-269 (~1017 tok)
+  - fn `showOverlayMain` L270-284 (~192 tok)
+  - fn `menuAberto` L285-296 (~107 tok)
+  - fn `menuDePausaAberto` L297-309 (~165 tok)
+  - fn `podeAbrirMenu` L310-313 (~29 tok)
+  - fn `updateOverlay` L314-332 (~292 tok)
+  - fn `startPlay` L333-365 (~374 tok)
+  - fn `onSettingsChanged` L366-387 (~294 tok)
+  - fn `enviarRaio` L388-431 (~589 tok)
+  - fn `playerName` L432-442 (~187 tok)
+  - fn `abrirAmigosPorComando` L443-483 (~425 tok)
+  - fn `registrarChegadaDeRede` L484-491 (~60 tok)
+  - fn `jitterDeRede` L492-535 (~592 tok)
+  - fn `podeVoar` L536-546 (~178 tok)
+  - fn `vitals` L547-623 (~1106 tok)
+  - fn `pushPanelData` L624-636 (~139 tok)
+  - fn `pushFriendsData` L637-647 (~95 tok)
+  - fn `ownDone` L648-656 (~90 tok)
+  - fn `refreshObjectivesView` L657-688 (~358 tok)
+  - fn `drenarFilaTroca` L689-696 (~79 tok)
+  - fn `segurarAteATelaPintar` L697-706 (~109 tok)
+  - fn `handleServerData` L707-925 (~2846 tok)
+  - fn `connect` L926-965 (~464 tok)
+  - fn `startMultiplayer` L966-983 (~224 tok)
+  - fn `startSingleplayer` L984-1007 (~284 tok)
+  - fn `persistWorld` L1008-1055 (~520 tok)
+  - fn `startGame` L1056-2340 (~16811 tok)
 - `menu.ts` — Menu principal (cp8) — HTML/CSS por cima do canvas, sem GUI de engine. (~4783 tok)
   - section `PlayWorldChoice` L36-53 (~221 tok)
   - section `MultiAuth` L54-58 (~19 tok)
@@ -450,7 +455,7 @@
 ## mundos/_smoke-coluna/
 
 - `_smoke-coluna.ljw` (~62 tok)
-- `chat.log` (~1440 tok)
+- `chat.log` (~1494 tok)
 
 ## mundos/_smoke-comida/
 
@@ -474,7 +479,7 @@
 
 ## mundos/_smoke-kicar/
 
-- `chat.log` (~7199 tok)
+- `chat.log` (~7440 tok)
 
 ## mundos/_smoke-modoa/
 
@@ -495,7 +500,7 @@
 ## mundos/_smoke-trocaa/
 
 - `_smoke-trocaa.ljw` (~87 tok)
-- `chat.log` (~4399 tok)
+- `chat.log` (~4564 tok)
 
 ## mundos/_smoke-trocab/
 
@@ -507,11 +512,11 @@
 
 ## mundos/aula1-sequencia/
 
-- `chat.log` (~23706 tok)
+- `chat.log` (~24507 tok)
 
 ## mundos/aula2-binario/
 
-- `chat.log` (~960 tok)
+- `chat.log` (~992 tok)
 
 ## mundos/aula7-corrida/
 
@@ -1066,7 +1071,7 @@
   - fn `joinAluno` L48-50 (~36 tok)
   - fn `criarRegiao` L51-325 (~3268 tok)
 - `groups.ts` — Grupos de alunos (cp13) — membros por NOME (mesma identidade do roster: (~280 tok)
-- `index.ts` (~246 tok)
+- `index.ts` (~254 tok)
 - `inventario.test.ts` — Inventário com pilhas em slots escolhidos (o resto vazio). (~6846 tok)
   - fn `inv` L23-232 (~2422 tok)
   - fn `collect` L233-236 (~55 tok)
@@ -1166,6 +1171,11 @@
   - fn `podeVoarNoModo` L57-61 (~43 tok)
   - fn `nomeModo` L62-78 (~234 tok)
   - fn `ehPresetSobrevivencia` L79-82 (~32 tok)
+- `orientacao.test.ts` — 24 testes da orientação: eixo da porta, frente do móvel/fornalha, metade da laje, direção da escada, e o ida-e-volta `ancoraDeCopia(orientar(a)) === a`. (~2160 tok)
+- `orientacao.ts` — `orientarParaColocar` (id da mão + yaw + face → id final) e `ancoraDeCopia` (o caminho de volta, pro botão do meio). Puras. (~1392 tok)
+  - fn `quadranteDoOlhar` L43-55 (~121 tok)
+  - fn `orientarParaColocar` L56-106 (~717 tok)
+  - fn `ancoraDeCopia` L107-121 (~195 tok)
 - `physics.test.ts` — Mundo 1 chunk com chão sólido em y ∈ [0,7]. (~4462 tok)
   - fn `flatWorld` L15-22 (~63 tok)
   - fn `simulate` L23-359 (~4315 tok)

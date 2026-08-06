@@ -1516,3 +1516,58 @@ passa pelo próprio portão) · 5 prints da pista. **PLAYTEST PENDENTE.**
 | 01:41 | verificação final: typecheck 3/3 · 715 testes · build · 15/15 smokes · f10 22/22 · toque 15/15 · luz 5/5 | — | verde | ~8k |
 | 01:41 | STATUS/cerebrum/buglog/memory atualizados; main.ts fica ABERTO com a fila mapeada | .wolf/* | handoff escrito | ~6k |
 | 01:42 | Session end: 9 writes across 7 files (containers.ts, session.ts, coords.ts, avisos.ts, luzCliente.ts) | 5 reads | ~100586 tok |
+
+## Session: 2026-08-06 01:43
+
+| Time | Action | File(s) | Outcome | ~Tokens |
+|------|--------|---------|---------|--------|
+| 01:44 | Created client/src/colunasFaltando.ts | — | ~1238 |
+| 01:45 | Edited client/src/main.ts | added 1 import(s) | ~40 |
+| 01:45 | Edited client/src/main.ts | 6→2 lines | ~32 |
+| 01:45 | Edited client/src/main.ts | delete() → chegou() | ~20 |
+| 01:45 | Edited client/src/main.ts | modified tochas() | ~399 |
+| 01:45 | Edited client/src/main.ts | 4→4 lines | ~43 |
+| 01:45 | Edited client/src/main.ts | inline fix | ~22 |
+| 01:46 | Edited client/src/main.ts | 2→2 lines | ~24 |
+| 01:46 | Edited client/src/main.ts | 12→14 lines | ~124 |
+| 01:48 | Created client/src/hotbarUi.ts | — | ~2774 |
+| 01:49 | Edited client/src/main.ts | modified for() | ~423 |
+| 01:49 | Edited client/src/main.ts | 5→5 lines | ~62 |
+| 01:49 | Edited client/src/main.ts | 4→4 lines | ~30 |
+| 01:49 | Edited client/src/main.ts | 10→7 lines | ~135 |
+| 01:50 | Edited client/src/main.ts | modified if() | ~142 |
+| 01:50 | Edited client/src/main.ts | modified if() | ~78 |
+| 01:50 | Edited client/src/main.ts | 3→3 lines | ~41 |
+| 01:50 | Edited client/src/main.ts | inline fix | ~27 |
+| 01:50 | Edited client/src/main.ts | 7→3 lines | ~34 |
+| 01:50 | Edited client/src/main.ts | inline fix | ~14 |
+| 01:50 | Edited client/src/main.ts | 4→2 lines | ~12 |
+| 01:50 | Edited client/src/main.ts | reduced (-11 lines) | ~32 |
+| 01:50 | Edited client/src/main.ts | inline fix | ~14 |
+| 01:50 | Edited client/src/main.ts | inline fix | ~26 |
+| 01:50 | Edited client/src/main.ts | added 1 import(s) | ~26 |
+| 01:51 | Edited client/src/main.ts | inline fix | ~11 |
+| 01:51 | Edited client/src/main.ts | removed 17 lines | ~16 |
+| 01:51 | Edited client/src/main.ts | 3→1 lines | ~13 |
+| 01:55 | Created shared/src/orientacao.ts | — | ~1290 |
+| 01:55 | Edited shared/src/orientacao.ts | modified if() | ~171 |
+| 01:55 | Edited shared/src/orientacao.ts | 5→6 lines | ~21 |
+| 01:55 | Edited shared/src/orientacao.ts | 4→3 lines | ~10 |
+| 01:55 | Edited shared/src/index.ts | 1→2 lines | ~16 |
+| 01:56 | Edited client/src/main.ts | removed 65 lines | ~145 |
+| 01:56 | Edited client/src/main.ts | reduced (-10 lines) | ~110 |
+| 01:56 | Edited client/src/main.ts | reduced (-11 lines) | ~55 |
+| 01:57 | Created shared/src/orientacao.test.ts | — | ~2142 |
+| 01:57 | Edited shared/src/orientacao.test.ts | 4→4 lines | ~93 |
+
+## Sessão 50 — 2026-08-06
+
+| 02:00 | §🧹 ColunasFaltando: mapa dos buracos + 4 backoffs + repedidas saíram do startGame | client/src/colunasFaltando.ts | `colunasCarregadas` entra por parâmetro (é reassinado na troca de aula) | ~8k |
+| 02:00 | descarte de coluna virou UMA função — o laço de distância e a repedida faziam as mesmas 4 operações | client/src/main.ts | duplicação morta | ~2k |
+| 02:00 | §🧹 HotbarUi: 9 slots + persistência + selecionado + varinha + ícones + nomes PT | client/src/hotbarUi.ts | 81 referências reduzidas a uma API de 12 membros | ~14k |
+| 02:00 | §🧹 orientação de colocar/copiar virou shared PURO e testado (era 16 `if` em 2 handlers) | shared/src/orientacao.ts | 24 testes novos (715 → 739) | ~12k |
+| 02:00 | A/B honesto do corte: código velho verbatim × novo em 30.800 casos + 200 ids de copiar | scratchpad/ab-orientacao.mts | 0 diferenças | ~4k |
+| 02:00 | handleServerData NÃO foi cortado, com razão escrita — 30 campos de contexto pra reexpor escopo de módulo | STATUS.md | mesma decisão do handleMessage da 49 | ~2k |
+| 02:00 | verificação: typecheck 3/3 · 739 testes · build · 15/15 smokes · f10 22/22 · toque 15/15 · luz 5/5 | — | verde | ~10k |
+| 02:00 | `shots:luz` NÃO sobe dev server (f10 e toque sobem host próprio) — travou 2× sem rastro | (ferramenta) | cerebrum | ~3k |
+| 02:00 | 2 commits: shared/orientacao e o corte do cliente. main.ts 2.600 → 2.339 | — | main.ts segue ABERTO (startGame 1.283 linhas) | ~4k |

@@ -738,6 +738,13 @@
 
 ## Do-Not-Repeat
 
+- [2026-08-06] **`npm run shots:luz` NÃO sobe o dev server — ele espera um `:5173` já de pé.**
+  O `shots:f10`, o `shots:toque` e o `shots:amigos` sobem host + chrome próprios; o
+  `luz-shots.mjs` só sobe o CHROME e navega pra `http://localhost:5173/?bench=…`. Sem o vite
+  no ar ele fica 180 s em `t=…s` esperando `window.__benchRodando` e morre no `timeout` —
+  **e com pipe pra `tail` não sai NADA** (o do-not-repeat do stdout bufferizado, de novo).
+  Subir antes com `nohup npx vite --port 5173 --strictPort client > log 2>&1 &`, conferir com
+  `ss -tln`, e matar depois.
 - [2026-08-06] **`npx tsc` passa pelo rtk e pode devolver erro CACHEADO que não existe**
   (bug-586): `npx tsc --noEmit` em `client/` acusou 2 erros em `vitals.ts` que o binário cru
   (`./node_modules/.bin/tsc --noEmit -p client`, exit 0, saída vazia) não vê. Cheguei a rodar
@@ -1039,6 +1046,18 @@
 <!-- Uma linha por decisão. TEXTO COMPLETO (motivo, alternativas, contexto) em
      .wolf/history.md → "## Cerebrum — Decision Log" e "## Cerebrum arquivado (2026-07-28)". -->
 
+- [2026-08-06, sessão 50] **Despachante de protocolo FICA no arquivo de entrada.** O
+  `handleServerData` (217 linhas, ~30 `let` de módulo) NÃO foi cortado, pela mesma razão que o
+  `handleMessage` da 49 ficou no core do `session.ts`: extrair exigiria um objeto de contexto de
+  ~30 campos cujo único trabalho é reexpor o escopo de módulo — mais linhas, não menos, e uma
+  indireção a mais entre o nome da mensagem e o que ela faz. **O critério de corte é ter FRONTEIRA
+  (estado próprio + API estreita), não tamanho.** `ColunasFaltando` tem: 1 mapa, 2 callbacks.
+  `HotbarUi` tem: 9 slots e o que se faz com eles. O despachante não tem — ele é a porta.
+- [2026-08-06, sessão 50] **Lógica pura do cliente sobe pro `shared/` pra GANHAR TESTE.** A
+  orientação de colocar (eixo da porta, frente do móvel, metade da laje) era pura e vivia num
+  handler de mouse, onde nenhum teste alcança. Em `shared/` ela entra na suíte que já roda. É a
+  mesma razão de mesher, luz, física e raycast morarem lá apesar de rodarem no CLIENTE: o critério
+  do `shared/` é ser PURO e valer um teste, não ser usado pelos dois lados.
 - [2026-08-05, sessão 47] **Os ids de direção da fornalha NÃO são contíguos, e é escolha.**
   186/187 já estão gravados nos mundos da sessão 46; renumerar pra abrir um bloco de 8 trocaria
   a fornalha de quem já jogou por outro bloco. Eles viraram a direção −Z, as outras três foram
