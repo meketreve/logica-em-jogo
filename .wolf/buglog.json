@@ -4267,6 +4267,75 @@
       ],
       "occurrences": 1,
       "last_seen": "2026-08-06T11:45:00Z"
+    },
+    {
+      "id": "bug-591",
+      "timestamp": "2026-08-06T13:20:00Z",
+      "error_message": "npm run shots:f10: 'SHOTS /f10 com 4 falha(s)' — ✗ o painel fechou · ✗ o título virou \"baú\" (fornalha) · ✗ e ele tem 27 slots (3) · ✗ sem barrinha nenhuma (baú não tem fogo)",
+      "file": "scripts/f10-shot.mjs",
+      "root_cause": "O script esperava `espera(900)` SECA por um round-trip de servidor: `cont-fechar` manda `fechar_container` e quem fecha o painel é a RESPOSTA do host. Numa máquina carregada (rodei logo depois da suíte de smoke) 900 ms não bastam. O sintoma não parece lentidão nenhuma: o painel da FORNALHA continua aberto, a regra 'um menu por vez' da sessão 48 impede o baú de abrir por cima, e as três asserções da seção 6 medem o painel ERRADO — 4 falhas que leem como defeito de container. Custou uma bissecção com `git stash`, e a primeira tentativa dela deu FALSO NEGATIVO porque o `shots:f10` serve `client/dist` (cliente COMPILADO): stashar o fonte sem rodar `npm run build` mede o binário velho.",
+      "fix": "Helper `ateQue(ler, satisfeito, limiteMs = 4000)` sondando a cada 100 ms, nos três round-trips: abrir o painel da fornalha, fechar, e abrir o do baú. Os prints e as asserções não mudaram — só a espera deixou de ser um prazo fixo.",
+      "tags": [
+        "shots",
+        "f10",
+        "flaky",
+        "teste",
+        "timing",
+        "servidor",
+        "dist",
+        "bissec"
+      ],
+      "related_bugs": [
+        "bug-582"
+      ],
+      "occurrences": 2,
+      "last_seen": "2026-08-06T13:20:00Z"
+    },
+    {
+      "id": "bug-592",
+      "timestamp": "2026-08-06T12:40:00Z",
+      "error_message": "(latente, achado no A/B do refactor — nenhum sintoma relatado) o `shots:luz` cobrava `noite/dia < 0,75` e o defeito que ele existe pra pegar produz 0,69 — passava",
+      "file": "scripts/luz-shots.mjs",
+      "root_cause": "`aplicarBalanco` e `aplicarLuz` enxertam os dois o `onBeforeCompile` do material do terreno; o three guarda UM só e `aplicarLuz` encadeia o que já estiver lá. Na ordem TROCADA (luz antes do balanço) o balanço sobrescreve a luz e o TERRENO deixa de escurecer à noite — sem erro de shader, sem exceção no console. Céu, água e vidro mantêm a luz e continuam escurecendo, então a razão noite/dia não explode: vai de 0,37 pra 0,69, raspando por baixo do 0,75.",
+      "fix": "Portão apertado pra `< 0,55` (medidas com a ordem certa nesta máquina: 0,40 · 0,40 · 0,37 · 0,35 · 0,33 · 0,38), com a razão do número escrita no script. Verificado nos DOIS sentidos: ordem trocada agora falha com 0,74; ordem certa passa com 0,33. A regra de ordem ficou escrita no topo do `MateriaisMundo`, com o ponteiro pra qual script a pega.",
+      "tags": [
+        "shots",
+        "luz",
+        "shader",
+        "onBeforeCompile",
+        "three",
+        "balanco",
+        "limiar",
+        "latente",
+        "refactor"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-08-06T12:40:00Z"
+    },
+    {
+      "id": "bug-593",
+      "timestamp": "2026-08-06T14:10:00Z",
+      "error_message": "npm run shots:f10 (intermitente, 2 em ~8 rodadas): '✗ o painel fechou' · '✗ o título virou \"baú\" (fornalha)' · '✗ e ele tem 27 slots (3)' · '✗ sem barrinha nenhuma'",
+      "file": "client/src/container.ts + shared/src/session.ts (case fechar_container)",
+      "root_cause": "`ContainerPanel.atualizar` REABRE o painel (`if (!this.isOpen) { isOpen = true; … }`) e a fornalha COZINHANDO manda `container` 10×/s. Entre o clique em 'fechar' e o servidor processar o `fechar_container` cabem mensagens que já estavam no fio — e o `fechar_container` não respondia NADA, então nada as desfazia. O painel voltava ZUMBI: na tela, mas o servidor já o havia esquecido, logo nunca mais atualizava e todo clique nele pedia `mover_container` de um container fechado. Na cena do f10 o efeito é pior do que parece: com a fornalha de volta, a regra 'um menu por vez' (§48) impede o baú de abrir e as três asserções seguintes medem o painel ERRADO — 4 falhas que leem como defeito de container.",
+      "fix": "Dois lados. SERVIDOR: `case fechar_container` passou a chamar `fecharContainer(this, clientId)` em vez de só `delete` — ele já mandava `container_fechado`, então nenhuma mensagem nova entrou no protocolo. CLIENTE: `esperandoFechar` liga no `fechar()` e desliga no `fecharSemAvisar()`; enquanto ligado, `atualizar` DESCARTA `container` da MESMA célula. A ordem do TCP faz o resto — tudo que o servidor mandou antes de ver o pedido chega antes da confirmação. Mensagem de OUTRA célula reabre (só pode ter nascido de clique novo) e serve de rede caso o host seja velho e não confirme.",
+      "tags": [
+        "container",
+        "fornalha",
+        "corrida",
+        "protocolo",
+        "zumbi",
+        "f10",
+        "flaky",
+        "tcp"
+      ],
+      "related_bugs": [
+        "bug-580",
+        "bug-591"
+      ],
+      "occurrences": 2,
+      "last_seen": "2026-08-06T14:10:00Z"
     }
   ]
 }

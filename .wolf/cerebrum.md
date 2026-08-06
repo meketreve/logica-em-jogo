@@ -96,6 +96,23 @@
 
 ## Key Learnings
 
+- [2026-08-06] **O critério de corte do `startGame` já rendeu quatro donos, e o que decide não é
+  tamanho: é FRONTEIRA.** `MateriaisMundo` (atlas + 3 materiais + os relógios), `ProgressoCarga`
+  (um número só, mas escrito em 3 pontos a 1.000 linhas de distância e lido 60×/s),
+  `PainelHost` (5 painéis + a regra da §48 que estava em 5 cópias) e o `FreioDePose`. Regra
+  prática: **estado próprio + API estreita**; despachante (`handleServerData`) fica.
+- [2026-08-06] **Lógica pura do cliente vai pro `shared/`, não pra uma classe do cliente — lá há
+  onde testar.** O `FreioDePose` (política do `move`) virou 7 testes; se tivesse ficado no
+  `client/` seria zero. Pergunta antes de criar classe no cliente: *isto depende de DOM, THREE ou
+  da conexão?* Se não, o lugar é `shared/`.
+- [2026-08-06] **`onBeforeCompile` do three guarda UM só, e `aplicarLuz` encadeia o que achar.**
+  Por isso `aplicarBalanco` vem ANTES de `aplicarLuz` no material do terreno. Trocar não dá erro
+  nenhum: o terreno só deixa de escurecer à noite (bug-592).
+- [2026-08-06] **Painel de container REABRE em `atualizar`, e a fornalha cozinhando manda 10×/s.**
+  Toda mudança no fluxo de fechar tem de pensar na mensagem em voo (bug-593). O padrão que vale:
+  pedido → CONFIRMAÇÃO do servidor → o cliente descarta o que chega no meio, e a ordem do TCP
+  garante o corte.
+
 ### Corte por domínio de arquivo grande (2026-08-06)
 
 - **A API pública é a prova.** Antes de cortar `session.ts` (4.677 linhas), o que autorizou o
@@ -756,6 +773,21 @@
   servidor garante que ninguém soca do outro lado do mapa (mesma folga `+2` do `withinReach`).
 
 ## Do-Not-Repeat
+
+- [2026-08-06] **Bissectar com `git stash` num script de print EXIGE `npm run build` no meio.**
+  O `shots:f10` e o `shots:toque` servem `client/dist` — o cliente COMPILADO. Stashar o fonte
+  e rodar o script mede o binário VELHO: a primeira bissecção do bug-591 deu falso negativo
+  (as duas versões "falharam") justamente por isso. `shots:luz` é o oposto: roda no vite, então
+  lê o fonte na hora.
+- [2026-08-06] **Antes de culpar o próprio commit por falha em script de print, rode DE NOVO.**
+  O `shots:f10` falhou 2 vezes em ~8 com as MESMAS 4 asserções, e a matriz pass/fail cruzou as
+  duas versões do código — era corrida de servidor (bug-593), não regressão. A conclusão só sai
+  da matriz; uma rodada não decide nada.
+- [2026-08-06] **A/B de CORRIDA precisa de encenação, não de repetição.** Rodar o teste 2× com a
+  guarda desligada não reproduziu o bug-593. O que provou foi injetar no servidor a mensagem em
+  voo, na ORDEM certa (antes de tratar o pedido de fechar). A primeira tentativa injetou DEPOIS
+  da confirmação e "falhou dos dois lados" — sem valor nenhum. **Numa corrida, a ordem da
+  encenação É o experimento.**
 
 - [2026-08-06] **`npm run shots:luz` NÃO sobe o dev server — ele espera um `:5173` já de pé.**
   O `shots:f10`, o `shots:toque` e o `shots:amigos` sobem host + chrome próprios; o

@@ -1,6 +1,80 @@
 # STATUS — Projeto "Lógica em Jogo" (jogo voxel educacional)
 
 > Single source of truth for resuming work. Read this FIRST when starting a session.
+> **SESSÃO 52 (2026-08-06) — QUATRO DAS SEIS FRENTES DO `GameRuntime`, E DUAS DELAS ACHARAM
+> BURACO NO CONTROLE, NÃO NO CÓDIGO.** Sessão de uma palavra ("continuar"): a fila da 51 estava
+> escrita e ordenada, e foi ela que mandou. **`main.ts` 2.343 → 2.174.** 4 commits.
+>
+> **§🧹 1. `MateriaisMundo`** — o atlas, os três materiais do chunk, os uniforms do balanço
+> (§🌬️) e da luz (§💡) e os quatro `let` da animação da água. Estavam separados por 200 linhas
+> mas são uma coisa só: o laço mexia em SEIS pontos que só existem por causa deles, e agora
+> chama `atualizar(dt, vento, nivelCeu, balanco)` uma vez. O balanço veio junto de propósito
+> (era `let` de módulo, e só o material do terreno o lê).
+>
+> **bug-592, e é a razão de esta frente valer mais que as linhas que economizou.** A regra que o
+> construtor guarda é `aplicarBalanco` ANTES de `aplicarLuz` (os dois enxertam
+> `onBeforeCompile`, o three guarda UM só). **Trocar não dá erro de shader nenhum:** o terreno
+> deixa de escurecer à noite, céu/água/vidro continuam escurecendo, e a razão noite/dia vai de
+> 0,37 pra **0,69** — passando raspando no `< 0,75` que o `shots:luz` cobrava. Portão apertado
+> pra **0,55** (medidas com a ordem certa: 0,40 · 0,40 · 0,37 · 0,35 · 0,33 · 0,38 · 0,39) e
+> verificado NOS DOIS SENTIDOS: ordem trocada falha com 0,74, ordem certa passa com 0,33.
+>
+> **§🧹 2. `ProgressoCarga`** — o total esperado do raio inicial. O estado próprio é um número
+> só, e é por ser um número só que merecia dono: escrito em TRÊS pontos separados por 1.000
+> linhas e lido 60×/s pelo portão do laço. A conta já tinha subido pro `shared/colunas.ts` na
+> 51. As contagens vivas chegam por CALLBACK — o `Set` é reassinado na troca de aula (a
+> armadilha que o `ColunasFaltando` documentou na 50). **A/B:** com `raioCompleto` fixo em
+> `false` a tela nunca fecha, o `iniciarBench` (que roda no fechamento) nunca dispara e o
+> `shots:luz` morre em "o bench não começou em 180s".
+>
+> **§🧹 3. `PainelHost`** — cinco `let` de módulo viraram um objeto, e com eles a regra da §48
+> que estava em **cinco cópias** do mesmo `if` mais três cascatas de `hide()` em ordens
+> diferentes. O que ficou escrito: o portão é só pra ABRIR (fechar sempre pode, senão o menu se
+> tranca sozinho); `podeAlternar` existe separado porque o cp14 tem gate próprio no meio (o
+> aviso de "sem grupos" sai ENTRE o portão e o toggle); `trocarPara*` são TROCA e não passam
+> pelo portão; o container é a exceção declarada (quem o abre é o servidor).
+>
+> **A regra da §48 não tinha asserção NENHUMA — ganhou a seção D do `shots:toque`**, no palco
+> que a seção C já deixava pronto (mochila aberta): G não abre amigos por cima, Enter não abre
+> o chat por baixo, E ainda fecha a mochila, e com a tela livre o G abre. **A/B:** com
+> `podeAbrir` fixo em `true` a seção D acusa 3 falhas.
+>
+> **§📡 4. `FreioDePose` — e ele foi pro `shared/`, não pro cliente, porque LÁ HÁ ONDE TESTAR.**
+> "Manda quando muda; parado, heartbeat 1×/2 s" são duas comparações que erram calado, e o
+> número que protegem é da LAN da escola (20 alunos parados = ~200 msg/s sem o freio). **7
+> testes novos.** A/B: sem heartbeat caem 2 asserções; guardando a REFERÊNCIA da pose em vez de
+> cópia cai 1. **`lastNet` NÃO veio junto** apesar de estar na lista da fase: é a taxa de rede
+> do HUD, não tem a ver com envio de posição, e juntar faria sacola em vez de fronteira.
+>
+> **bug-593 — o achado da sessão, e ele veio de uma flakiness que eu primeiro tomei por
+> lentidão.** O painel de container REABRE em `atualizar`, e a fornalha cozinhando manda
+> `container` 10×/s: entre o clique em "fechar" e o servidor ver o `fechar_container` cabem
+> mensagens que já estavam no fio — e o `fechar_container` **não respondia nada**, então nada as
+> desfazia. O painel voltava **ZUMBI**: na tela, mas o servidor já o esquecera, logo nunca mais
+> atualizava e todo clique pedia `mover_container` de um container fechado. No f10 o efeito era
+> pior do que parece: com a fornalha de volta, a regra "um menu por vez" impedia o baú de abrir
+> e as três asserções seguintes mediam o painel ERRADO — 4 falhas que leem como defeito de
+> container. **Conserto dos dois lados:** o servidor CONFIRMA (reusando `fecharContainer`, que
+> já mandava `container_fechado` — nenhuma mensagem nova no protocolo) e o cliente descarta
+> `container` da MESMA célula entre o pedido e a confirmação; a ordem do TCP faz o resto.
+>
+> **O A/B do 593 precisou de ENCENAÇÃO, e a lição está no cerebrum:** a corrida não reproduz sob
+> demanda (2 falhas em ~8 rodadas). O que provou foi injetar no servidor a mensagem em voo, na
+> ORDEM certa — antes de tratar o pedido. Com o código ORIGINAL + injeção o f10 reproduz as 4
+> falhas observadas; com o conserto + a MESMA injeção, verde. **A primeira tentativa injetou
+> DEPOIS da confirmação e "falhou dos dois lados": numa corrida, a ordem da encenação É o
+> experimento.**
+>
+> **bug-591, e ele custou uma bissecção falsa:** o `shots:f10` esperava `espera(900)` seca por
+> round-trip de servidor. Virou `ateQue(ler, satisfeito, 4000)` sondando a cada 100 ms. **A
+> primeira bissecção com `git stash` deu FALSO NEGATIVO porque o f10 serve `client/dist`** — o
+> cliente COMPILADO. Stashar o fonte sem `npm run build` mede o binário velho. Está no
+> do-not-repeat.
+>
+> **VERDE:** typecheck 3/3 (binário cru, bug-586) · **757 testes (+7)** · build · **15/15
+> smokes** · **`shots:f10` OK** (com a asserção nova do 593) · **`shots:toque` OK** (com a seção
+> D nova) · **`shots:luz` 5/5** (dia 22.8, noite 8.9, razão 0.39, contra o portão novo de 0,55).
+
 > **SESSÃO 51 (2026-08-06) — A ROTA BARATA RENDEU MAIS QUE A CARA, E ELA ACHOU UMA CONSTANTE
 > COPIADA À MÃO.** Sessão de uma frase (*"aborda do melhor jeito que achar"*) depois de eu pôr
 > as duas rotas da 50 na mesa: (A) `startGame` → classe `GameRuntime`, do tamanho do que a 49
@@ -157,7 +231,31 @@
 
 ## 🚀 Próxima fase
 
-### 1. ⭐ A QUEST: terminar o refactor do `main.ts` — o `startGame` vira `GameRuntime`
+### 1. ⭐ A QUEST (continua): frentes 5 e 6 do `GameRuntime`
+
+**As frentes 1–4 fecharam na sessão 52** (`MateriaisMundo`, `ProgressoCarga`, `PainelHost`,
+`FreioDePose`), uma por commit, verde entre cada uma. `main.ts` está em **2.174**. Faltam as
+duas que a 51 já marcou como as mais caras — e a ordem entre elas não é negociável, a 6 depende
+da 5:
+
+5. **`MovimentoDoJogador`** — o bolo de `let` do laço: `sprintLatch`, `forwardWasDown`,
+   `lastForwardTap`, `jumpWasDown`, `lastJumpTap`, `eyeHeight`, `stepSuave`, `posAnt{X,Y,Z}`.
+   **O mais enganoso da lista, e a razão está no controle:** são estados de um frame pro outro,
+   e trocar a ordem de leitura e escrita muda a SENSAÇÃO sem quebrar nada que compila. Nenhum
+   print pega isso — **só jogando**. Antes de mexer, decidir o que serve de rede: ou o duplo-tap
+   (correr e voar) vira lógica pura no `shared/` com teste, como o `FreioDePose` da 52, ou a
+   frente sai com o aviso explícito de que o controle é o playtest.
+6. **`GameRuntime` propriamente** — só depois da 5: o que sobrar de `let` vira campo, o
+   `startGame` vira construtor + `iniciar()`, e o laço de render vira um método.
+
+**O que NÃO deve sair, e o critério é o mesmo desde a 50:** o que é PORTA (despachante) fica.
+`applyBlockChanged` / `applyBlocksFilled` / `reloadWorld` / `applyTeleport` são os ganchos de
+módulo que o `handleServerData` chama. **Critério de corte: ter FRONTEIRA (estado próprio + API
+estreita), não tamanho.**
+
+<!-- fim do bloco vivo — o que segue é o plano original da 51, mantido por contexto -->
+
+### 1b. O plano da 51, como foi escrito (frentes 1–4 já feitas)
 
 **DECIDIDO PELO USUÁRIO no fim da 51** (*"anota para fazer o restante do refatoramento na
 próxima sessão"*). Não reabrir a discussão de "vale a pena?" — ela já foi feita, com os dois
@@ -216,6 +314,10 @@ npm run shots:f10                     # 22 asserções, sobe host próprio
 npm run shots:toque                   # 15 asserções, sobe host próprio — prova a regra dos painéis
 npm run shots:luz                     # 5 — ⚠️ EXIGE `npx vite --port 5173 client` de pé ANTES
 ```
+
+⚠️ **O `shots:f10` e o `shots:toque` servem `client/dist`** — o cliente COMPILADO. Rodar `npm run
+build` ANTES, e de novo a cada bissecção com `git stash`, senão eles medem o binário velho
+(custou uma bissecção falsa na 52). O `shots:luz` é o oposto: roda no vite e lê o fonte na hora.
 
 ⚠️ Os scripts de print bufferizam stdout fora de TTY: **rodar sem pipe pra `tail`**, senão um
 script morto no meio não deixa rastro nenhum (do-not-repeat) — e foi por causa do pipe que a 51

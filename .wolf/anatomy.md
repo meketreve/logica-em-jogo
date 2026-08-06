@@ -1,7 +1,7 @@
 # anatomy.md
 
-> Auto-maintained by OpenWolf. Last scanned: 2026-08-06T11:32:45.861Z
-> Files: 323 tracked | Anatomy hits: 0 | Misses: 0
+> Auto-maintained by OpenWolf. Last scanned: 2026-08-06T14:05:05.096Z
+> Files: 328 tracked | Anatomy hits: 0 | Misses: 0
 
 ## ./
 
@@ -296,8 +296,8 @@
   - section `Connection` L14-19 (~43 tok)
   - class `WorkerConnection` L20-87 (~653 tok)
   - class `WsConnection` L88-145 (~609 tok)
-- `container.ts` — §🍖 F10 — O PAINEL DE TRANSFERÊNCIA (fornalha e baú). (~3037 tok)
-  - class `ContainerPanel` L33-290 (~2706 tok)
+- `container.ts` — §🍖 F10 — O PAINEL DE TRANSFERÊNCIA (fornalha e baú). (~3399 tok)
+  - class `ContainerPanel` L33-312 (~3068 tok)
 - `daynight.ts` — Ciclo dia/noite (cp21; astros no backlog 2026-07-19) — SÓ visual. A hora é (~4429 tok)
   - section `Keyframe` L18-86 (~890 tok)
   - fn `latticeHash` L87-95 (~116 tok)
@@ -338,35 +338,35 @@
   - section `LuzUniforms` L22-32 (~120 tok)
   - fn `criarLuzUniforms` L33-43 (~116 tok)
   - fn `aplicarLuz` L44-99 (~640 tok)
-- `main.ts` — O cliente não tem filesystem: aprende os nomes das aulas pela resposta de (~29777 tok)
-  - fn `cachearMundos` L111-206 (~1256 tok)
-  - fn `applySettings` L207-274 (~1017 tok)
-  - fn `showOverlayMain` L275-289 (~192 tok)
-  - fn `menuAberto` L290-301 (~107 tok)
-  - fn `menuDePausaAberto` L302-314 (~165 tok)
-  - fn `podeAbrirMenu` L315-318 (~29 tok)
-  - fn `updateOverlay` L319-337 (~292 tok)
-  - fn `startPlay` L338-370 (~374 tok)
-  - fn `onSettingsChanged` L371-392 (~294 tok)
-  - fn `enviarRaio` L393-436 (~589 tok)
-  - fn `playerName` L437-447 (~187 tok)
-  - fn `abrirAmigosPorComando` L448-488 (~425 tok)
-  - fn `registrarChegadaDeRede` L489-496 (~60 tok)
-  - fn `jitterDeRede` L497-540 (~592 tok)
-  - fn `podeVoar` L541-551 (~178 tok)
-  - fn `vitals` L552-628 (~1106 tok)
-  - fn `pushPanelData` L629-641 (~139 tok)
-  - fn `pushFriendsData` L642-652 (~95 tok)
-  - fn `ownDone` L653-661 (~90 tok)
-  - fn `refreshObjectivesView` L662-693 (~358 tok)
-  - fn `drenarFilaTroca` L694-701 (~79 tok)
-  - fn `segurarAteATelaPintar` L702-711 (~109 tok)
-  - fn `handleServerData` L712-930 (~2846 tok)
-  - fn `connect` L931-970 (~464 tok)
-  - fn `startMultiplayer` L971-988 (~224 tok)
-  - fn `startSingleplayer` L989-1012 (~284 tok)
-  - fn `persistWorld` L1013-1060 (~520 tok)
-  - fn `startGame` L1061-2344 (~16802 tok)
+- `main.ts` — O cliente não tem filesystem: aprende os nomes das aulas pela resposta de (~27553 tok)
+  - fn `cachearMundos` L112-203 (~1200 tok)
+  - fn `applySettings` L204-264 (~905 tok)
+  - fn `showOverlayMain` L265-271 (~74 tok)
+  - fn `menuDePausaAberto` L272-275 (~32 tok)
+  - fn `updateOverlay` L276-294 (~294 tok)
+  - fn `startPlay` L295-327 (~374 tok)
+  - fn `onSettingsChanged` L328-349 (~294 tok)
+  - fn `enviarRaio` L350-393 (~589 tok)
+  - fn `playerName` L394-404 (~187 tok)
+  - fn `abrirAmigosPorComando` L405-440 (~376 tok)
+  - fn `registrarChegadaDeRede` L441-448 (~60 tok)
+  - fn `jitterDeRede` L449-492 (~592 tok)
+  - fn `podeVoar` L493-503 (~178 tok)
+  - fn `vitals` L504-580 (~1106 tok)
+  - fn `pushPanelData` L581-593 (~139 tok)
+  - fn `pushFriendsData` L594-604 (~96 tok)
+  - fn `ownDone` L605-613 (~90 tok)
+  - fn `refreshObjectivesView` L614-645 (~358 tok)
+  - fn `drenarFilaTroca` L646-653 (~79 tok)
+  - fn `segurarAteATelaPintar` L654-663 (~109 tok)
+  - fn `handleServerData` L664-882 (~2849 tok)
+  - fn `connect` L883-922 (~465 tok)
+  - fn `startMultiplayer` L923-940 (~224 tok)
+  - fn `startSingleplayer` L941-964 (~284 tok)
+  - fn `persistWorld` L965-1012 (~520 tok)
+  - fn `startGame` L1013-2175 (~15191 tok)
+- `materiaisMundo.ts` — §🎨 Os TRÊS materiais do chunk — e o relógio que os anima. (~1829 tok)
+  - class `MateriaisMundo` L23-131 (~1489 tok)
 - `menu.ts` — Menu principal (cp8) — HTML/CSS por cima do canvas, sem GUI de engine. (~4783 tok)
   - section `PlayWorldChoice` L36-53 (~221 tok)
   - section `MultiAuth` L54-58 (~19 tok)
@@ -390,6 +390,9 @@
 - `objectivesUi.ts` — Grupo do PRÓPRIO jogador (null = sem grupo). (~1244 tok)
   - section `ObjectivesCtx` L7-20 (~160 tok)
   - class `ObjectivesUi` L21-118 (~1054 tok)
+- `painelHost.ts` — O mínimo que a regra de um menu por vez precisa de um painel. (~1404 tok)
+  - section `MenuDeTela` L8-37 (~389 tok)
+  - class `PainelHost` L38-129 (~926 tok)
 - `panels.ts` — Painéis HTML do cp14 — açúcar visual sobre os comandos de chat: cada botão (~5944 tok)
   - section `PanelData` L24-33 (~82 tok)
   - section `GamePanel` L34-40 (~36 tok)
@@ -399,6 +402,9 @@
 - `players.ts` — Painel de jogadores (2026-07-21) — SÓ para o professor. Mesma estrutura do (~1668 tok)
   - section `PlayersData` L10-16 (~45 tok)
   - class `PlayersPanel` L17-187 (~1507 tok)
+- `progressoCarga.ts` — As contagens VIVAS que a tela amostra. Chegam por callback, e não por (~1112 tok)
+  - section `FontesDeCarga` L9-34 (~335 tok)
+  - class `ProgressoCarga` L35-96 (~653 tok)
 - `quadros.ts` — Quadros (2026-07-19) — lado cliente. Duas peças: (~3156 tok)
   - fn `desenharConteudo` L33-82 (~446 tok)
   - class `QuadroRenderer` L83-177 (~923 tok)
@@ -455,7 +461,7 @@
 ## mundos/_smoke-coluna/
 
 - `_smoke-coluna.ljw` (~62 tok)
-- `chat.log` (~1494 tok)
+- `chat.log` (~1814 tok)
 
 ## mundos/_smoke-comida/
 
@@ -479,7 +485,7 @@
 
 ## mundos/_smoke-kicar/
 
-- `chat.log` (~7440 tok)
+- `chat.log` (~8890 tok)
 
 ## mundos/_smoke-modoa/
 
@@ -500,7 +506,7 @@
 ## mundos/_smoke-trocaa/
 
 - `_smoke-trocaa.ljw` (~87 tok)
-- `chat.log` (~4564 tok)
+- `chat.log` (~5549 tok)
 
 ## mundos/_smoke-trocab/
 
@@ -512,11 +518,11 @@
 
 ## mundos/aula1-sequencia/
 
-- `chat.log` (~24507 tok)
+- `chat.log` (~29310 tok)
 
 ## mundos/aula2-binario/
 
-- `chat.log` (~992 tok)
+- `chat.log` (~1184 tok)
 
 ## mundos/aula7-corrida/
 
@@ -649,7 +655,7 @@
   - fn `cdp` L76-77 (~44 tok)
   - fn `avaliar` L78-79 (~38 tok)
   - fn `tecla` L80-147 (~1052 tok)
-- `f10-shot.mjs` — Prints do §🍖 F10 (fundição, fornalha, baú, algodão, picaretas) contra o (~5209 tok)
+- `f10-shot.mjs` — Prints do §🍖 F10 (fundição, fornalha, baú, algodão, picaretas) contra o (~5563 tok)
   - fn `espera` L55-57 (~61 tok)
   - fn `diga` L58-100 (~409 tok)
   - fn `acharChrome` L101-136 (~344 tok)
@@ -664,10 +670,11 @@
   - fn `botaoDeAcao` L266-276 (~169 tok)
   - fn `limparChat` L277-278 (~28 tok)
   - fn `foto` L279-286 (~90 tok)
-  - fn `ok` L287-291 (~42 tok)
-  - fn `painel` L292-406 (~1277 tok)
-  - fn `clicar` L407-499 (~1106 tok)
-- `luz-shots.mjs` — §💡 Verificação da LUZ VOXEL num Chrome headless (2026-07-28). (~2866 tok)
+  - fn `ok` L287-301 (~206 tok)
+  - fn `ateQue` L302-311 (~80 tok)
+  - fn `painel` L312-426 (~1284 tok)
+  - fn `clicar` L427-524 (~1235 tok)
+- `luz-shots.mjs` — §💡 Verificação da LUZ VOXEL num Chrome headless (2026-07-28). (~3003 tok)
   - fn `decodificarPng` L45-108 (~650 tok)
   - fn `medir` L109-134 (~245 tok)
   - fn `acharChrome` L135-149 (~157 tok)
@@ -675,7 +682,7 @@
   - fn `abrirAba` L170-205 (~362 tok)
   - fn `cdp` L206-211 (~50 tok)
   - fn `avaliar` L212-255 (~491 tok)
-  - fn `checar` L256-282 (~344 tok)
+  - fn `checar` L256-289 (~490 tok)
 - `smoke.mjs` — Runner dos smokes de rede — sobe o servidor REAL, roda o cenário, mata tudo. (~4441 tok)
   - fn `espera` L358-360 (~42 tok)
   - fn `esperaPorta` L361-375 (~144 tok)
@@ -696,7 +703,7 @@
   - fn `barra` L415-419 (~76 tok)
   - fn `acoes` L420-423 (~59 tok)
   - fn `tocarNaBarra` L424-503 (~838 tok)
-- `toque-shot.mjs` — Os GESTOS da barra de toque, contra o servidor REAL (2026-08-04). (~4120 tok)
+- `toque-shot.mjs` — Os GESTOS da barra de toque, contra o servidor REAL (2026-08-04). (~4490 tok)
   - fn `espera` L40-42 (~60 tok)
   - fn `diga` L43-44 (~15 tok)
   - fn `acharChrome` L45-79 (~332 tok)
@@ -709,9 +716,9 @@
   - fn `dizer` L190-202 (~129 tok)
   - fn `tocar` L203-209 (~90 tok)
   - fn `botaoDaBarra` L210-220 (~174 tok)
-  - fn `estado` L221-229 (~89 tok)
-  - fn `foto` L230-276 (~424 tok)
-  - fn `ok` L277-404 (~1468 tok)
+  - fn `estado` L221-232 (~110 tok)
+  - fn `foto` L233-279 (~424 tok)
+  - fn `ok` L280-435 (~1843 tok)
 
 ## server/
 
@@ -1029,6 +1036,10 @@
   - fn `formaCanonica` L49-137 (~1189 tok)
   - fn `sementes` L138-150 (~158 tok)
   - fn `dropsDe` L151-196 (~558 tok)
+- `envioPose.test.ts` — Declares Pose (~700 tok)
+- `envioPose.ts` — §📡 Quando a posição do jogador vai pro servidor. (~628 tok)
+  - section `Pose` L19-37 (~165 tok)
+  - class `FreioDePose` L38-58 (~226 tok)
 - `ferramentas.test.ts` — Mochila com uma picareta (ou vazia). (~2750 tok)
   - fn `comPicareta` L36-151 (~1516 tok)
   - fn `collect` L152-155 (~55 tok)
@@ -1079,7 +1090,7 @@
   - fn `joinAluno` L48-50 (~36 tok)
   - fn `criarRegiao` L51-325 (~3268 tok)
 - `groups.ts` — Grupos de alunos (cp13) — membros por NOME (mesma identidade do roster: (~280 tok)
-- `index.ts` (~262 tok)
+- `index.ts` (~270 tok)
 - `inventario.test.ts` — Inventário com pilhas em slots escolhidos (o resto vazio). (~6846 tok)
   - fn `inv` L23-232 (~2422 tok)
   - fn `collect` L233-236 (~55 tok)
@@ -1334,11 +1345,11 @@
   - fn `parseObjectiveState` L304-361 (~576 tok)
 - `session.test.ts` — Testes de MECÂNICA rodam com singleplayer: true (join sem PIN) — a (~14784 tok)
   - fn `collect` L12-1091 (~14641 tok)
-- `session.ts` — GameSession: o SERVIDOR autoritativo, independente de hospedeiro. (~27385 tok)
+- `session.ts` — GameSession: o SERVIDOR autoritativo, independente de hospedeiro. (~27474 tok)
   - section `SessionOptions` L209-255 (~644 tok)
   - section `SessionPlayer` L256-266 (~60 tok)
   - section `Identity` L267-271 (~19 tok)
-  - class `GameSession` L272-2164 (~25437 tok)
+  - class `GameSession` L272-2168 (~25526 tok)
 - `sobrevivencia.test.ts` — Professor (1) + ana (2). `modo` decide o padrão do mundo. (~6248 tok)
   - fn `collect` L38-41 (~55 tok)
   - fn `join` L42-43 (~34 tok)

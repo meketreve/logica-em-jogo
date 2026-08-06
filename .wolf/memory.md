@@ -1605,3 +1605,44 @@ passa pelo próprio portão) · 5 prints da pista. **PLAYTEST PENDENTE.**
 | 12:05 | handoff pro /clear: STATUS §1 virou a QUEST (`startGame` → `GameRuntime`, 6 frentes ordenadas + receita de verificação) | .wolf/STATUS.md | decidido por ele; não reabrir | ~6k |
 | 12:05 | cerebrum: 2 decisões novas (refactor antes do playtest é escolha dele; critério do shared é a regra dos dois lados do fio) | .wolf/cerebrum.md | Decision Log + Key Learnings + User Preferences | ~4k |
 | 12:05 | nenhum servidor/chrome de teste ficou no ar; 1 commit local NÃO empurrado (origin/main atrás) | — | pronto pro /clear | ~1k |
+
+## Session: 2026-08-06 09:42
+
+| Time | Action | File(s) | Outcome | ~Tokens |
+|------|--------|---------|---------|--------|
+| 09:45 | Created client/src/materiaisMundo.ts | — | ~1787 |
+| 09:45 | Edited client/src/main.ts | reduced (-36 lines) | ~136 |
+| 09:45 | Edited client/src/main.ts | inline fix | ~8 |
+| 09:45 | Edited client/src/main.ts | removed 8 lines | ~13 |
+| 09:45 | Edited client/src/main.ts | modified gua() | ~182 |
+| 09:46 | Edited client/src/main.ts | inline fix | ~20 |
+| 09:46 | Edited client/src/main.ts | 2→1 lines | ~10 |
+| 09:46 | Edited client/src/main.ts | 2→2 lines | ~26 |
+| 09:46 | Edited client/src/main.ts | removed 5 lines | ~13 |
+| 09:53 | Edited client/src/materiaisMundo.ts | 3→3 lines | ~45 |
+| 09:53 | Edited client/src/materiaisMundo.ts | 3→3 lines | ~46 |
+| 09:54 | Edited scripts/luz-shots.mjs | expanded (+7 lines) | ~175 |
+| 09:55 | Edited client/src/materiaisMundo.ts | 3→5 lines | ~88 |
+| 09:57 | Created client/src/progressoCarga.ts | — | ~1112 |
+| 09:58 | Edited client/src/main.ts | reduced (-20 lines) | ~204 |
+| 09:58 | Edited client/src/main.ts | 3→3 lines | ~23 |
+| 10:10 | Edited scripts/f10-shot.mjs | modified ateQue() | ~248 |
+| 10:23 | Created client/src/painelHost.ts | — | ~1322 |
+| 10:24 | Edited client/src/painelHost.ts | modified alternar() | ~116 |
+| 10:35 | Created shared/src/envioPose.ts | — | ~628 |
+| 10:35 | Created shared/src/envioPose.test.ts | — | ~700 |
+
+## Sessão 52 (2026-08-06) — frentes 1–4 do GameRuntime
+
+| 09:40 | leitura do STATUS + mapa do startGame | .wolf/STATUS.md, client/src/main.ts | quest 1 confirmada | ~8k |
+| 09:55 | §🧹 MateriaisMundo (atlas, 3 materiais, balanço+luz, relógios da água) | client/src/materiaisMundo.ts (novo), main.ts | 2343→2269 | ~12k |
+| 10:05 | A/B da ordem balanço/luz → bug-592: shots:luz passava com 0,69 no portão de 0,75 | scripts/luz-shots.mjs | portão pra 0,55, verificado nos 2 sentidos | ~6k |
+| 10:15 | §🧹 ProgressoCarga (total da tela de carga, contagens por callback) | client/src/progressoCarga.ts (novo), main.ts | 2269→2249 | ~9k |
+| 10:20 | flakiness do shots:f10 → bissecção FALSA (dist não reconstruído) → bug-591 | scripts/f10-shot.mjs | helper ateQue(), 3 round-trips | ~10k |
+| 10:30 | A/B ProgressoCarga: raioCompleto=false → shots:luz morre em 180s | — | wiring provado | ~4k |
+| 10:40 | §🧹 PainelHost (5 painéis + regra da §48 que estava em 5 cópias) | client/src/painelHost.ts (novo), main.ts | 2249→2184 | ~14k |
+| 10:45 | seção D nova no shots:toque: a regra da §48 não tinha asserção nenhuma | scripts/toque-shot.mjs | A/B: podeAbrir=true → 3 falhas | ~7k |
+| 10:55 | §📡 FreioDePose no SHARED (política do move) + 7 testes | shared/src/envioPose.ts + .test.ts (novos), index.ts, main.ts | 2184→2174, 750→757 testes | ~9k |
+| 11:10 | bug-593: painel de container ZUMBI (mensagem em voo reabre) | client/src/container.ts, shared/src/session.ts | servidor confirma + cliente descarta | ~12k |
+| 11:25 | A/B do 593 por ENCENAÇÃO (injeção da msg em voo, na ordem certa) | shared/src/session.ts (temp) | original reproduz, conserto verde | ~10k |
+| 11:40 | fecho: 4 commits, buglog 591/592/593, cerebrum, STATUS | .wolf/* | pausa pro /clear | ~8k |
