@@ -4181,6 +4181,70 @@
       "related_bugs": [],
       "occurrences": 1,
       "last_seen": "2026-08-06T01:55:00Z"
+    },
+    {
+      "id": "bug-587",
+      "timestamp": "2026-08-06T02:05:00Z",
+      "error_message": "orientacao.test.ts, 5 asserções: \"expected 2 to be +0\", \"expected 88 to be 90\", \"expected 92 to be 94\", \"expected 96 to be 98\", \"expected 100 to be 102\"",
+      "file": "shared/src/orientacao.test.ts",
+      "root_cause": "AUTORIA DE TESTE (família do bug-560/574/575/576): escrevi a tabela `OLHANDO` com o sinal do yaw invertido. A câmera do three olha pra −Z com yaw 0 e o quadrante sai de `dx = -sin(yaw)`, então o yaw CRESCE anti-horário visto de cima: +π/2 olha pra −X, não pra +X. O código sob teste estava certo; a expectativa é que estava errada.",
+      "fix": "`OLHANDO = { menosZ: 0, menosX: +π/2, maisZ: π, maisX: -π/2 }`, com a convenção (`dx = -sin(yaw)`) escrita no comentário em vez de deduzida. E o A/B contra o código velho verbatim (30.800 casos, 0 diferenças) é o que prova que o alvo do teste nunca esteve errado — sem ele, a tentação seria 'consertar' a função pra fazer a asserção passar.",
+      "tags": [
+        "autoria-de-teste",
+        "orientacao",
+        "yaw",
+        "three",
+        "quadrante",
+        "refactor"
+      ],
+      "related_bugs": [
+        "bug-576",
+        "bug-575",
+        "bug-574",
+        "bug-560"
+      ],
+      "occurrences": 1,
+      "last_seen": "2026-08-06T02:05:00Z"
+    },
+    {
+      "id": "bug-588",
+      "timestamp": "2026-08-06T02:06:00Z",
+      "error_message": "orientacao.test.ts, 'tudo que volta pra mão é COLOCÁVEL': \"expected false to be true\" — sem dizer QUAL id falhou",
+      "file": "shared/src/orientacao.test.ts",
+      "root_cause": "Usei `BlockId.Terra`, `BlockId.Pedra` e `BlockId.Tabua` — nomes que NÃO existem: o enum é em inglês (`Dirt`, `Stone`, `Planks`). Em TS, `BlockId.Terra` num objeto tipado com `as const` não gera erro de compilação quando o acesso passa por um array de números, então virou `undefined` em runtime e `isPlaceable(undefined)` deu false. O teste falhou pelo motivo errado.",
+      "fix": "`BlockId.Dirt` / `BlockId.Stone` / `BlockId.Planks`. Lição: o enum de blocos é MISTO — os ids antigos são em inglês (Stone, Dirt, Planks, Log, Brick) e os novos em português (Fornalha, CadeiraXP, LajePedraBaixo). Conferir o nome no `blocks.ts` antes de escrever, não deduzir pelo idioma dos vizinhos.",
+      "tags": [
+        "autoria-de-teste",
+        "BlockId",
+        "nomenclatura",
+        "undefined"
+      ],
+      "related_bugs": [
+        "bug-587"
+      ],
+      "occurrences": 1,
+      "last_seen": "2026-08-06T02:06:00Z"
+    },
+    {
+      "id": "bug-589",
+      "timestamp": "2026-08-06T02:10:00Z",
+      "error_message": "`npm run shots:luz` morreu duas vezes no timeout (exit 143 e 124) travado em 't=15s …' / 't=30s …', e com pipe pra `tail` não imprimiu NADA",
+      "file": "(nenhum — pré-requisito de harness)",
+      "root_cause": "O `scripts/luz-shots.mjs` sobe só o CHROME e navega pra `http://localhost:5173/?bench=…`: ele NÃO sobe o dev server, ao contrário do `f10-shot.mjs`, do `toque-shot.mjs` e do `amigos-shot.mjs`, que sobem host próprio. Sem o vite no ar ele espera `window.__benchRodando` por 180 s e morre. O silêncio total é o do-not-repeat do stdout bufferizado do node fora de TTY — `| tail` engole tudo quando o processo é morto no meio.",
+      "fix": "Subir antes com `nohup npx vite --port 5173 --strictPort client > log 2>&1 &`, conferir a porta com `ss -tln`, rodar o script REDIRECIONANDO pra arquivo (não pra pipe) e matar o vite depois. Registrado no do-not-repeat do cerebrum.",
+      "tags": [
+        "ferramenta",
+        "shots",
+        "luz",
+        "vite",
+        "stdout-buffer",
+        "harness"
+      ],
+      "related_bugs": [
+        "bug-586"
+      ],
+      "occurrences": 1,
+      "last_seen": "2026-08-06T02:10:00Z"
     }
   ]
 }
