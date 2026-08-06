@@ -1515,3 +1515,4 @@ passa pelo próprio portão) · 5 prints da pista. **PLAYTEST PENDENTE.**
 | 01:41 | bug-586: `npx tsc` via rtk devolveu 2 erros CACHEADOS que não existem | (ferramenta) | binário cru sai exit 0 | ~4k |
 | 01:41 | verificação final: typecheck 3/3 · 715 testes · build · 15/15 smokes · f10 22/22 · toque 15/15 · luz 5/5 | — | verde | ~8k |
 | 01:41 | STATUS/cerebrum/buglog/memory atualizados; main.ts fica ABERTO com a fila mapeada | .wolf/* | handoff escrito | ~6k |
+| 01:42 | Session end: 9 writes across 7 files (containers.ts, session.ts, coords.ts, avisos.ts, luzCliente.ts) | 5 reads | ~100586 tok |
