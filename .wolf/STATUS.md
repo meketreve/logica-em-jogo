@@ -1,6 +1,57 @@
 # STATUS — Projeto "Lógica em Jogo" (jogo voxel educacional)
 
 > Single source of truth for resuming work. Read this FIRST when starting a session.
+> **SESSÃO 54 (2026-08-06) — OS DOIS BUGS QUE ELE RELATOU, E UM TERCEIRO QUE O TESTE DO PRIMEIRO
+> ACHOU E QUE NÃO FOI CONSERTADO.** Pedido de uma frase, com dois defeitos misturados: *"bug de
+> iluminação, depois de colocar a tocha no chão, qualquer bloco quebrado continua fazendo sombra
+> … esc fecha todos os menus e vai direto para o menu esc?"*. Os dois reproduzidos no cliente
+> REAL antes de qualquer conserto. 3 commits.
+>
+> **bug-596 — e a frase dele já continha o diagnóstico: "depois de colocar a tocha".** Quebrar
+> bloco OPACO nunca re-semeava o canal de luz de BLOCO. A célula era parede, logo tinha nível 0,
+> logo o `apagar` saía na PRIMEIRA LINHA sem coletar vizinho nenhum; `luzEmitida(Air)` é 0; e o
+> `propagar` recebia fila VAZIA. Ficava 0 pra sempre. **O canal do CÉU já semeava os 6 vizinhos
+> ao abrir a célula, dez linhas abaixo, no mesmo `atualizarBloco`** — o do bloco não. Sem emissor
+> no mundo não há luz de bloco pra faltar, e é por isso que só aparece com tocha.
+>
+> **O teste que vale é o de FUZZ, e ele achou dois bugs de uma vez.** `atualizarBloco` e
+> `acenderColuna` calculam a MESMA função dos bytes, então cruzá-los célula por célula depois de
+> 200 edições aleatórias pega qualquer semente esquecida em qualquer canal. **Um caso escrito à
+> mão só pega o buraco que quem escreveu já suspeitava.**
+>
+> **bug-597 — e a causa não está no Esc, está no PONTEIRO.** O menu de pausa é desenhado por
+> AUSÊNCIA (`!input.active`). Fechar painel chama `input.lock()`, mas o Esc do painel É o Esc do
+> usuário, e o Chrome recusa `requestPointerLock` por ~1,25 s depois dele (a carência do
+> bug-585). O pedido falha e a ausência vira "pausa". `Input.retomando` passou a distinguir "não
+> tenho o ponteiro" de "estou PEDINDO ele". De brinde, o `reagendarLock` passou a cumprir o "uma
+> tentativa e só uma" que o comentário já prometia — sem isso ele se reagendava a cada recusa e o
+> `retomando` nunca voltaria a false, escondendo o menu de pausa pra sempre.
+>
+> **`npm run shots:esc` é NOVO, e é o par de DESKTOP do `shots:toque`** — que cobre a regra dos
+> painéis justamente no aparelho onde pointer lock não existe. Era esse o vão por onde o 597
+> passou. Três seções, com clique real no canvas: Esc no painel fecha só ele (**12 amostras em
+> 3 s, porque o defeito PISCA** — uma leitura só depois de 2 s não o pegaria) · Esc na tela livre
+> abre a pausa · **lock recusado DE VEZ devolve a pausa** (esta existe porque a correção podia
+> esconder o menu pra sempre, e o A/B mostra que ela pega exatamente isso).
+>
+> ⚠️ **bug-598, ACHADO PELO FUZZ E NÃO CONSERTADO — está aberto.** Os dois motores de céu
+> discordam sobre a PRÓPRIA célula que atenua (folha, água): o de coluna escreve o nível que
+> CHEGA (15) e desconta só pra quem está abaixo; o BFS cobra passo + opacidade e escreve 13. As
+> células de baixo coincidem em 14 num caso isolado, mas com copa larga a divergência se espalha.
+> **Consertar exige mudar o modelo de raio de sol do `propagar`** (guardar "esta luz veio reta do
+> céu" pra sobreviver à atenuação) — desenho novo, efeito visual em todo mundo gerado, e as
+> cavernas dependem da regra atual. Fora do escopo dos dois pedidos. O fuzz tira folha e água da
+> paleta **com a razão escrita no próprio teste**.
+>
+> ⚠️ **Armadilha de ferramenta que custou TRÊS repros falsos, no do-not-repeat:** `node --import
+> tsx script.mts` **não checa tipo**. `BlockId.Pedra` não existe (é `Stone`), virou `undefined`
+> em silêncio, e o `setBlock` construiu um mundo de AR — três repros seguidos "provaram" que não
+> havia bug nenhum. Quem achou foi o `tsc --noEmit`, e a mesma armadilha derrubou o primeiro fuzz
+> (`BlockId.Vidro`/`Folhas`).
+>
+> **VERDE:** typecheck 3/3 · **781 testes (+3)** · build · **15/15 smokes** · **`shots:f10` OK** ·
+> **`shots:toque` OK** · **`shots:esc` OK (novo)** · **`shots:luz` 5/5** (razão 0.41).
+
 > **SESSÃO 53 (2026-08-06) — A FILA DO `GameRuntime` FECHOU, E A ÚLTIMA FRENTE ACHOU UM CAMINHO
 > SEM VOLTA QUE NINGUÉM TINHA VISTO.** Sessão de uma palavra ("continuar"): as frentes 5 e 6
 > estavam escritas e ordenadas desde a 51, e foi a fila que mandou. **`main.ts` 2.174 → 2.176 —
@@ -329,6 +380,7 @@ cd server && ../node_modules/.bin/tsc --noEmit
 npm test && npm run build && npm run smoke       # 778 testes · 15/15 smokes
 npm run shots:f10                                # sobe host próprio
 npm run shots:toque                              # sobe host próprio — prova a regra dos painéis
+npm run shots:esc                                # DESKTOP: pointer lock + a regra do Esc (§54)
 npm run shots:luz                                # ⚠️ EXIGE vite em :5173 de pé ANTES
 ```
 
@@ -346,6 +398,22 @@ E a régua da casa: **A/B honesto** — desligar o que se acabou de escrever e m
 asserções caem. Sem teste unitário, é ele que separa "compilou" de "funciona". **E um A/B que
 não derruba nada é resultado do EXPERIMENTO, não do código: ou o teste é fraco, ou a afirmação
 era falsa** (aconteceu duas vezes na 53).
+
+### 1c. ⚠️ ABERTO: bug-598 — os dois motores de luz discordam na célula que atenua
+
+Achado pelo fuzz da 54, **não consertado, e não é urgente**: folha e água sob céu aberto ficam em
+15 quando a coluna vem do worldgen (`semearCeuDaColuna` escreve o nível que CHEGA e desconta só
+pra baixo) e em 13 quando a mesma célula é recalculada por edição (`propagar` cobra passo +
+opacidade, e a exceção da descida reta exige `op === 0`).
+
+**Sintoma de jogo:** quebrar/colocar bloco perto de uma árvore escurece a folha em 2 níveis. As
+células ABAIXO coincidem num caso isolado (as colunas vizinhas as acendem de lado); com copa larga
+a divergência se espalha.
+
+**Por que não foi feito:** o conserto é mudar o modelo de raio de sol do `propagar` — guardar
+"esta luz veio reta do céu" pra que a atenuação não vire gradiente. É desenho novo, com efeito
+visual em TODO mundo gerado, e as cavernas dependem da regra atual (`descidaReta` só no máximo).
+O teste `luz.test.ts` já tem o fuzz que o pegaria: basta devolver `BlockId.Leaves` à paleta.
 
 ### 2. Ainda aberto do `session.ts` (opcional, e menor)
 
