@@ -4378,6 +4378,71 @@
       ],
       "occurrences": 1,
       "last_seen": "2026-08-06T15:05:00Z"
+    },
+    {
+      "id": "bug-596",
+      "timestamp": "2026-08-06T17:10:00Z",
+      "error_message": "usuário: 'bug de iluminação, depois de colocar a tocha no chão, qualquer bloco quebrado continua fazendo sombra, a luz não atualiza'",
+      "file": "shared/src/luz.ts (atualizarBloco, canal BLOCO)",
+      "root_cause": "Quebrar um bloco OPACO nunca re-semeava o canal de luz de bloco. A célula era parede, logo tinha nível 0, logo o `apagar` saía na primeira linha (`if (nivel0 <= 0) return`) sem coletar vizinho nenhum; `luzEmitida(Air)` é 0, então nada mais entrava na fila; e `propagar` recebia uma fila VAZIA. A célula ficava em 0 pra sempre e tudo atrás dela seguia escuro. O canal do CÉU já tinha a semeadura dos 6 vizinhos logo abaixo (`if (op < OPACO) for (const [dx,dy,dz] of DIRS) ...`); o canal do bloco não. Só aparece com alguma tocha/fornalha acesa no mundo — sem emissor não há luz de bloco pra faltar, e é por isso que o relato começa em 'depois de colocar a tocha'.",
+      "fix": "Espelhado o que o canal do céu já fazia: quando a célula fica transparente (`op < OPACO`), os 6 vizinhos entram como sementes do `propagar` do canal BLOCO. 3 testes novos em luz.test.ts (um caso escrito à mão + dois fuzz de 200 edições que cruzam `atualizarBloco` contra `acenderColuna` célula por célula); A/B: sem a semeadura os 3 caem. Verificado também no cliente real — a parede tapa a tocha (65.7 → 51.4 de luminância) e quebrá-la devolve o valor EXATO de antes (65.7); antes devolvia +0.05.",
+      "tags": [
+        "luz",
+        "tocha",
+        "canal-bloco",
+        "atualizarBloco",
+        "propagacao",
+        "relatado-pelo-usuario"
+      ],
+      "related_bugs": [
+        "bug-598"
+      ],
+      "occurrences": 1,
+      "last_seen": "2026-08-06T17:10:00Z"
+    },
+    {
+      "id": "bug-597",
+      "timestamp": "2026-08-06T17:30:00Z",
+      "error_message": "usuário: 'esc fecha todos os menus e vai direto para o menu esc? deveria apenas fechar qualquer menu aberto e parar por ai'",
+      "file": "client/src/input.ts + client/src/main.ts (updateOverlay)",
+      "root_cause": "A causa não está no Esc, está no ponteiro. Fechar um painel chama `input.lock()`, mas o Esc do painel É o Esc do usuário — e o Chrome recusa `requestPointerLock` por ~1,25 s depois dele (a mesma carência do bug-585). O pedido falha, e o `updateOverlay` só olhava `input.active`: 'sem ponteiro travado' era indistinguível de 'o aluno pediu pausa', então o menu de pausa subia. Ele some sozinho quando o retry (1,4 s) pega o lock — o que o aluno vê é o Esc fechando o painel E abrindo o menu de pausa.",
+      "fix": "`Input` ganhou `retomando`: verdadeiro enquanto há pedido de lock em andamento ou tentativa atrasada no ar. O `updateOverlay` esconde o menu de pausa nesse vão, e o `pointerlockerror` passou a redesenhar o overlay (senão uma recusa definitiva esconderia o menu pra sempre). De brinde, o `reagendarLock` passou a cumprir o 'uma tentativa e só uma' que o comentário já prometia — sem isso ele se reagendava a cada recusa e `retomando` nunca voltaria a false. Script novo `npm run shots:esc` (desktop, com pointer lock de verdade) com as 3 asserções: Esc no painel fecha só ele · Esc na tela livre abre a pausa · lock recusado de vez devolve a pausa.",
+      "tags": [
+        "esc",
+        "pointer-lock",
+        "menu-de-pausa",
+        "overlay",
+        "relatado-pelo-usuario",
+        "shots-esc"
+      ],
+      "related_bugs": [
+        "bug-585",
+        "bug-582"
+      ],
+      "occurrences": 1,
+      "last_seen": "2026-08-06T17:30:00Z"
+    },
+    {
+      "id": "bug-598",
+      "timestamp": "2026-08-06T17:45:00Z",
+      "error_message": "(achado pelo fuzz do bug-596, NÃO relatado e NÃO consertado) o céu na própria célula de folha/água vale 15 quando vem do worldgen e 13 quando vem de uma edição",
+      "file": "shared/src/luz.ts — semearCeuDaColuna vs propagar (canal CÉU)",
+      "root_cause": "Os dois motores de céu têm modelos diferentes pra bloco que ATENUA (folha e água, opacidade 1). O de coluna (`semearCeuDaColuna`) escreve na célula o nível que CHEGA nela e só desconta a opacidade pra quem está ABAIXO — a folha sob céu aberto fica 15 e o chão embaixo 14. O BFS (`propagar`) cobra `nivel - 1 - op` e a exceção da descida reta exige `op === 0`, então a mesma folha vira 13. As células abaixo coincidem em 14 neste caso porque as colunas vizinhas as acendem de lado; com uma copa larga a divergência se espalha.",
+      "fix": "NENHUM. Consertar exige mudar o modelo de raio de sol do `propagar` (guardar 'esta luz veio reta do céu' pra sobreviver à atenuação), que é mudança de desenho com efeito visual em todo mundo gerado, e as cavernas dependem da regra atual (`descidaReta` só no máximo). Fora do escopo dos dois bugs relatados. O fuzz do bug-596 tira folha/água da paleta com a razão escrita no próprio teste.",
+      "tags": [
+        "luz",
+        "canal-ceu",
+        "folhas",
+        "agua",
+        "divergencia-de-motor",
+        "ABERTO",
+        "sem-conserto"
+      ],
+      "related_bugs": [
+        "bug-596"
+      ],
+      "occurrences": 1,
+      "last_seen": "2026-08-06T17:45:00Z"
     }
   ]
 }

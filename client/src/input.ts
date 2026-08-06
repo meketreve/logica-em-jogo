@@ -86,10 +86,18 @@ export class Input {
 
     // bug-585: o pedido recusado era SILENCIOSO — sem este listener, o clique
     // do aluno dentro da carência do Esc não deixava rastro nenhum.
-    document.addEventListener("pointerlockerror", () => this.reagendarLock());
+    document.addEventListener("pointerlockerror", () => {
+      this.reagendarLock();
+      // sem tentativa no ar, o pedido ACABOU: quem desenha o overlay precisa
+      // saber, senão o menu de pausa nunca mais apareceria (bug-597)
+      this.pedindo = this.reagendado !== null;
+    });
     // o lock chegou por outro caminho: cancela a tentativa atrasada
     document.addEventListener("pointerlockchange", () => {
-      if (this.locked && this.reagendado !== null) {
+      if (!this.locked) return;
+      this.pedindo = false;
+      this.retryGasto = false; // o ciclo fechou: a próxima recusa merece retry
+      if (this.reagendado !== null) {
         clearTimeout(this.reagendado);
         this.reagendado = null;
       }
@@ -141,14 +149,37 @@ export class Input {
     // `touchDevice` antes de `touch`: no tablet o modo desliga (menu de pausa),
     // mas o aparelho continua sendo de dedo — pointer lock ali nunca serve.
     if (this.touchDevice || this.touch || this.locked) return;
+    // pedido NOVO (clique, fechar painel, fechar chat): a tentativa atrasada
+    // volta a valer — é o "o próximo clique do aluno tenta outra vez".
+    this.retryGasto = false;
     this.pedirLock();
+  }
+
+  /**
+   * O jogo está RETOMANDO o controle? (pedido de pointer lock em andamento, ou
+   * tentativa atrasada no ar.)
+   *
+   * Quem desenha o menu de pausa lê isto. Sem ele, fechar um painel com Esc
+   * pisca o menu de pausa pelo tempo inteiro da carência do Chrome: o Esc do
+   * painel É o Esc do usuário, o `lock()` que vem logo atrás cai dentro da
+   * carência e falha, e "sem ponteiro travado" é indistinguível de "o aluno
+   * pediu pausa" pra quem só olha o `locked` (bug-597).
+   */
+  get retomando(): boolean {
+    return this.pedindo;
   }
 
   /** Carência do Chrome depois de um Esc do usuário (~1,25 s) + folga. */
   private static readonly CARENCIA_ESC_MS = 1400;
   private reagendado: ReturnType<typeof setTimeout> | null = null;
+  /** A tentativa atrasada já foi gasta neste ciclo? Sem isto o `reagendarLock`
+   *  se reagenda pra sempre a cada recusa — o comentário abaixo prometia "só
+   *  uma" e o código não cumpria. */
+  private retryGasto = false;
+  private pedindo = false;
 
   private pedirLock(): void {
+    this.pedindo = true;
     // unadjustedMovement: movimento cru, sem aceleração do SO (menos spikes no Chrome/Windows)
     const req = this.canvas.requestPointerLock({ unadjustedMovement: true }) as
       | Promise<void>
@@ -157,7 +188,15 @@ export class Input {
     // assinatura recusada — esperar aqui só atrasaria o jogo)
     req?.catch(() => {
       try {
-        this.canvas.requestPointerLock();
+        // a forma antiga TAMBÉM devolve Promise no Chrome atual: sem este
+        // `catch` a recusa vira "unhandled rejection" e o console do aluno (e o
+        // dos scripts de print, que exigem console limpo) ganha um
+        // `NotAllowedError` que não é bug nenhum — o `pointerlockerror` abaixo
+        // já é quem trata o caso.
+        const antigo = this.canvas.requestPointerLock() as Promise<void> | undefined;
+        antigo?.catch(() => {
+          /* tratado pelo `pointerlockerror` */
+        });
       } catch {
         /* o `pointerlockerror` abaixo cuida do reagendamento */
       }
@@ -167,7 +206,9 @@ export class Input {
   /** Uma tentativa atrasada, e só uma: se falhar de novo o overlay continua na
    *  tela e o próximo clique do aluno tenta outra vez. */
   private reagendarLock(): void {
-    if (this.reagendado !== null || this.locked || this.touchDevice || this.touch) return;
+    if (this.reagendado !== null || this.retryGasto) return;
+    if (this.locked || this.touchDevice || this.touch) return;
+    this.retryGasto = true;
     this.reagendado = setTimeout(() => {
       this.reagendado = null;
       if (!this.locked && !this.touchDevice && !this.touch) this.pedirLock();

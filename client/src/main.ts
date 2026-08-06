@@ -281,9 +281,14 @@ function updateOverlay(): void {
   const panelOpen = paineis.algumAberto;
   // §🕐 `loading.ativo`: durante o carregamento o ponteiro NÃO está travado —
   // sem esta condição o menu de pausa aparecia junto com a tela de carga.
+  // `input.retomando`: o jogo pediu o ponteiro de volta e o navegador ainda não
+  // respondeu. Fechar um painel com Esc cai sempre aqui — o Esc do painel É o
+  // Esc do usuário, e o Chrome recusa o `requestPointerLock` por ~1,25 s depois
+  // dele. Sem esta condição o menu de pausa aparece nesse vão, e o que o aluno
+  // vê é "o Esc fechou o menu E abriu o de pausa" (bug-597).
   overlay?.classList.toggle(
     "hidden",
-    benchRodando || loading.ativo || input.active || chat.open || panelOpen,
+    benchRodando || loading.ativo || input.active || input.retomando || chat.open || panelOpen,
   );
   // mira só existe COM o jogo no controle (pedido do usuário: invisível no Esc)
   crosshairEl?.classList.toggle("hidden", !input.active);
@@ -292,6 +297,11 @@ function updateOverlay(): void {
   touchControls?.setShown(input.touch && !chat.open && !panelOpen && !loading.ativo);
 }
 document.addEventListener("pointerlockchange", updateOverlay);
+// a recusa também muda o `input.retomando`: sem redesenhar aqui, uma tentativa
+// que falha de vez deixaria o menu de pausa escondido pra sempre. Registrado
+// DEPOIS do listener do `Input` (construído lá em cima), que é quem atualiza o
+// estado — a ordem de registro é a ordem de execução.
+document.addEventListener("pointerlockerror", updateOverlay);
 
 /** Entrar no jogo: desktop trava o mouse; tablet liga o modo toque. */
 function startPlay(): void {

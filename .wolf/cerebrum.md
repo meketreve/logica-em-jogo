@@ -815,6 +815,30 @@ quantidade — era que **os tipos eram cópias escritas à mão do protocolo**
 despercebido. Virando métodos de uma classe alcançada por UM ponteiro (`jogo`), as cópias
 sumiram junto. E o `started` que morava ao lado dizia exatamente o mesmo que `jogo !== null`.
 
+### [2026-08-06, sessão 54] "A luz não atualiza" era o canal do BLOCO, e o `apagar` sai cedo
+
+`atualizarBloco` faz dois passes (céu e bloco) com a mesma engrenagem, mas só o do CÉU semeava os
+6 vizinhos quando a célula ABRE. O do bloco não, e o buraco é invisível até existir um emissor:
+quebrar parede opaca cai em `apagar` → `nivel0 === 0` → `return` → fila de reacender VAZIA.
+**A regra pra lembrar: todo caminho que torna uma célula transparente precisa semear os vizinhos,
+nos DOIS canais** — o `apagar` só devolve semente quando havia luz ali, e parede nunca tem.
+
+### [2026-08-06, sessão 54] Bug de "menu" que na verdade é bug de PONTEIRO
+
+"O Esc fecha o painel e abre o menu de pausa" não tinha nada a ver com o handler do Esc. O menu de
+pausa é desenhado por ausência (`!input.active`), e fechar painel pede o pointer lock de volta
+dentro da carência do Chrome pós-Esc (bug-585) — o pedido falha e a ausência vira "pausa".
+**Estado desenhado por AUSÊNCIA precisa distinguir "não tenho" de "estou pedindo".** É o mesmo
+formato do bug-585 (falha silenciosa de pointer lock) visto do lado do desenho.
+
+### [2026-08-06, sessão 54] O teste do cliente que faltava era o de DESKTOP
+
+`shots:toque` cobre a regra dos painéis no aparelho onde pointer lock NÃO existe — e era por isso
+que a regra do Esc no teclado estava sem ninguém. `npm run shots:esc` é o par dele: mesmo harness,
+sem emulação de toque, com clique real no canvas pra travar o ponteiro. A seção C ("lock recusado
+de vez ainda devolve o menu de pausa") existe porque a correção podia esconder o menu pra sempre —
+e o A/B mostra que ela pega exatamente isso.
+
 ## Do-Not-Repeat
 
 - [2026-08-06] **Bissectar com `git stash` num script de print EXIGE `npm run build` no meio.**
@@ -1107,6 +1131,15 @@ sumiram junto. E o `started` que morava ao lado dizia exatamente o mesmo que `jo
   ⚠️ `tsx src/index.ts` roda em VÁRIOS processos e só o node filho FINAL registra `SIGINT`:
   pra disparar o save, `pkill -INT -f 'index.ts'`.
   ⚠️ O PID de `$!` com `nohup npx tsx &` é o WRAPPER; o dono real sai de `ss -tlnp` (bug-092).
+- [2026-08-06] **`node --import tsx script.mts` NÃO checa tipo** — `BlockId.Pedra`,
+  `BlockId.Vidro` e `BlockId.Folhas` não existem (são `Stone`, `Glass`, `Leaves`) e viram
+  `undefined` em silêncio: `setBlock(w,x,y,z,undefined)` construiu um mundo de AR e três repros
+  seguidos "provaram" que não havia bug. Rodar `tsc --noEmit` no arquivo, ou conferir um id com
+  `getBlock` logo depois de escrever.
+- [2026-08-06] **Quando `atualizarBloco` (luz) ganhar um canal ou uma regra nova, cruzar com
+  `acenderColuna`** — os dois motores calculam a MESMA função dos bytes, e o fuzz que os compara
+  célula por célula achou o bug-596 e o bug-598 de uma vez. Caso escrito à mão só pega o buraco
+  que quem escreveu já suspeitava.
 - [2026-08-06] **Sentinela "nunca aconteceu" NÃO pode ser `0` quando o relógio é
   `performance.now()`** — ele também começa em 0, então `agora - ultimo < janela` é VERDADE nos
   primeiros ms da página (bug-594). Usar `Number.NEGATIVE_INFINITY`.

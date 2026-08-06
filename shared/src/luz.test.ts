@@ -214,6 +214,116 @@ describe("luz de bloco (tocha)", () => {
       expect(luzBloco(luz, x, 10, 22)).toBe(luzBloco(luzGerada, x, 10, 22));
     }
   });
+
+  it("QUEBRAR a parede devolve a luz da tocha atrás dela (bug-596)", () => {
+    const world = mundoComChao(20);
+    for (let x = 10; x <= 34; x++) setBlock(world, x, 10, 22, BlockId.Air);
+    setBlock(world, 22, 10, 22, BlockId.Tocha);
+    const luz = acenderTudo(world);
+    expect(luzBloco(luz, 26, 10, 22)).toBe(10);
+
+    // parede a 1 bloco da tocha: o corredor atrás dela apaga
+    setBlock(world, 23, 10, 22, BlockId.Stone);
+    atualizarBloco(world, luz, 23, 10, 22);
+    expect(luzBloco(luz, 23, 10, 22)).toBe(0);
+    expect(luzBloco(luz, 26, 10, 22)).toBe(0);
+
+    // e quebrá-la tem de devolver TUDO. O `apagar` sai na primeira linha aqui
+    // (a parede tinha nível 0), então a única semente possível é o VIZINHO —
+    // sem ela a célula fica 0 pra sempre e o corredor nunca reacende.
+    setBlock(world, 23, 10, 22, BlockId.Air);
+    atualizarBloco(world, luz, 23, 10, 22);
+    expect(luzBloco(luz, 23, 10, 22)).toBe(13);
+    expect(luzBloco(luz, 26, 10, 22)).toBe(10);
+  });
+});
+
+/**
+ * O motor incremental (`atualizarBloco`) contra o motor de mundo pronto
+ * (`acenderColuna`), célula por célula, depois de uma sequência de edições.
+ *
+ * É o teste que pega a família inteira do bug-596: os dois caminhos calculam a
+ * MESMA função dos bytes, e qualquer semente esquecida em qualquer um dos dois
+ * canais aparece aqui como divergência. Um caso escrito à mão só pega o buraco
+ * que quem escreveu já suspeitava.
+ */
+describe("incremental × recálculo do zero", () => {
+  /** Gerador determinístico (mulberry32) — falha reproduzível vale mais que
+   *  aleatoriedade de verdade. */
+  function rng(semente: number): () => number {
+    let a = semente >>> 0;
+    return () => {
+      a = (a + 0x6d2b79f5) >>> 0;
+      let t = Math.imul(a ^ (a >>> 15), 1 | a);
+      t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+  }
+
+  function divergencias(world: ReturnType<typeof mundoComChao>, luz: ReturnType<typeof criarLuz>) {
+    const ref = acenderTudo(world);
+    const fora: string[] = [];
+    for (let x = 0; x < world.sizeX; x++)
+      for (let y = 0; y < world.sizeY; y++)
+        for (let z = 0; z < world.sizeZ; z++) {
+          const ceuA = luzCeu(luz, x, y, z), ceuB = luzCeu(ref, x, y, z);
+          const blocoA = luzBloco(luz, x, y, z), blocoB = luzBloco(ref, x, y, z);
+          if (ceuA !== ceuB || blocoA !== blocoB) {
+            if (fora.length < 5) {
+              fora.push(`(${x},${y},${z}) céu ${ceuA}≠${ceuB} · bloco ${blocoA}≠${blocoB}`);
+            }
+          }
+        }
+    return fora;
+  }
+
+  it("uma sala com tochas aguenta 200 edições aleatórias sem sair do lugar", () => {
+    const world = mundoComChao(20);
+    // sala escavada em y=10..13, com teto: é onde a luz de tocha manda
+    for (let x = 16; x <= 30; x++)
+      for (let z = 16; z <= 30; z++)
+        for (let y = 10; y <= 13; y++) setBlock(world, x, y, z, BlockId.Air);
+    setBlock(world, 20, 10, 20, BlockId.Tocha);
+    setBlock(world, 27, 10, 27, BlockId.Tocha);
+    const luz = acenderTudo(world);
+    expect(divergencias(world, luz)).toEqual([]); // o palco já tem de bater
+
+    const sorteio = rng(596);
+    const paleta = [BlockId.Air, BlockId.Stone, BlockId.Tocha, BlockId.Glass];
+    for (let i = 0; i < 200; i++) {
+      const x = 16 + ((sorteio() * 15) | 0);
+      const z = 16 + ((sorteio() * 15) | 0);
+      const y = 10 + ((sorteio() * 4) | 0);
+      const id = paleta[(sorteio() * paleta.length) | 0]!;
+      setBlock(world, x, y, z, id);
+      atualizarBloco(world, luz, x, y, z);
+    }
+    expect(divergencias(world, luz)).toEqual([]);
+  });
+
+  it("a céu ABERTO, 200 edições aleatórias também batem (os dois canais juntos)", () => {
+    const world = mundoComChao(12);
+    setBlock(world, 22, 12, 22, BlockId.Tocha);
+    const luz = acenderTudo(world);
+
+    const sorteio = rng(1596);
+    // ⚠️ FOLHA e ÁGUA ficam de fora, e não é descuido: os dois motores DISCORDAM
+    // sobre o céu na própria célula que atenua (o de coluna escreve o nível que
+    // CHEGA — 15 — e só desconta pra quem está abaixo; o BFS cobra o passo mais
+    // a opacidade e escreve 13). É defeito real e ANTERIOR a este arquivo, com
+    // outro mecanismo e outro conserto — está no buglog como bug-598. Pôr folha
+    // aqui faria este teste falhar por um bug que ele não existe pra pegar.
+    const paleta = [BlockId.Air, BlockId.Stone, BlockId.Tocha, BlockId.Cerca];
+    for (let i = 0; i < 200; i++) {
+      const x = 18 + ((sorteio() * 12) | 0);
+      const z = 18 + ((sorteio() * 12) | 0);
+      const y = 10 + ((sorteio() * 6) | 0);
+      const id = paleta[(sorteio() * paleta.length) | 0]!;
+      setBlock(world, x, y, z, id);
+      atualizarBloco(world, luz, x, y, z);
+    }
+    expect(divergencias(world, luz)).toEqual([]);
+  });
 });
 
 describe("fronteira de coluna (mundo LAZY do streaming)", () => {

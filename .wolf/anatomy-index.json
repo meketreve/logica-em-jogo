@@ -1,12 +1,12 @@
 {
   "version": 1,
   "meta": {
-    "lastScanned": "2026-08-06T14:55:01.308Z",
+    "lastScanned": "2026-08-06T17:20:23.565Z",
     "fileCount": 331,
     "hits": 0,
     "misses": 0,
-    "renderedHash": "0369be3f1f39d9619dcd778872e44ad8e68790e34ea256f9e771bd4b8eaa60fa",
-    "storeUpdatedAt": "2026-08-06T14:55:01.329Z"
+    "renderedHash": "3cb66df3f6453490e6a6a6aefb71e85991a5df8b64ca1413b8e702b905ab2f6a",
+    "storeUpdatedAt": "2026-08-06T17:20:23.585Z"
   },
   "files": {
     ".claude/commands/reframe.md": {
@@ -2181,19 +2181,19 @@
     },
     "client/src/input.ts": {
       "description": "Teclado + mouse (pointer lock). SÓ coleta input — nenhuma decisão de",
-      "tokens": 2609,
-      "hash": "364aa0d33fb26217",
-      "size": 9232,
-      "mtimeMs": 1785990983820.6304,
-      "updatedAt": "2026-08-06T14:05:04.931Z",
-      "source": "scan",
+      "tokens": 3146,
+      "hash": "f0f8d5dafe5cd7e6",
+      "size": 11141,
+      "mtimeMs": 1786036139094.5015,
+      "updatedAt": "2026-08-06T17:08:59.216Z",
+      "source": "hook",
       "symbols": [
         {
           "name": "Input",
           "kind": "class",
           "startLine": 5,
-          "endLine": 225,
-          "tokens": 2563
+          "endLine": 266,
+          "tokens": 3100
         }
       ]
     },
@@ -2327,11 +2327,11 @@
     },
     "client/src/main.ts": {
       "description": "O cliente não tem filesystem: aprende os nomes das aulas pela resposta de",
-      "tokens": 28474,
-      "hash": "e9ef48a084c89d30",
-      "size": 101103,
-      "mtimeMs": 1786028101182.502,
-      "updatedAt": "2026-08-06T14:55:01.308Z",
+      "tokens": 28690,
+      "hash": "9d68823ac083f520",
+      "size": 101879,
+      "mtimeMs": 1786036052214.5034,
+      "updatedAt": "2026-08-06T17:07:32.359Z",
       "source": "hook",
       "symbols": [
         {
@@ -2366,161 +2366,161 @@
           "name": "updateOverlay",
           "kind": "fn",
           "startLine": 278,
-          "endLine": 296,
-          "tokens": 294
+          "endLine": 306,
+          "tokens": 510
         },
         {
           "name": "startPlay",
           "kind": "fn",
-          "startLine": 297,
-          "endLine": 329,
+          "startLine": 307,
+          "endLine": 339,
           "tokens": 374
         },
         {
           "name": "onSettingsChanged",
           "kind": "fn",
-          "startLine": 330,
-          "endLine": 351,
+          "startLine": 340,
+          "endLine": 361,
           "tokens": 294
         },
         {
           "name": "enviarRaio",
           "kind": "fn",
-          "startLine": 352,
-          "endLine": 395,
+          "startLine": 362,
+          "endLine": 405,
           "tokens": 589
         },
         {
           "name": "playerName",
           "kind": "fn",
-          "startLine": 396,
-          "endLine": 406,
+          "startLine": 406,
+          "endLine": 416,
           "tokens": 187
         },
         {
           "name": "abrirAmigosPorComando",
           "kind": "fn",
-          "startLine": 407,
-          "endLine": 442,
+          "startLine": 417,
+          "endLine": 452,
           "tokens": 376
         },
         {
           "name": "registrarChegadaDeRede",
           "kind": "fn",
-          "startLine": 443,
-          "endLine": 450,
+          "startLine": 453,
+          "endLine": 460,
           "tokens": 60
         },
         {
           "name": "jitterDeRede",
           "kind": "fn",
-          "startLine": 451,
-          "endLine": 473,
+          "startLine": 461,
+          "endLine": 483,
           "tokens": 352
         },
         {
           "name": "podeVoar",
           "kind": "fn",
-          "startLine": 474,
-          "endLine": 483,
+          "startLine": 484,
+          "endLine": 493,
           "tokens": 164
         },
         {
           "name": "vitals",
           "kind": "fn",
-          "startLine": 484,
-          "endLine": 550,
+          "startLine": 494,
+          "endLine": 560,
           "tokens": 904
         },
         {
           "name": "pushPanelData",
           "kind": "fn",
-          "startLine": 551,
-          "endLine": 563,
+          "startLine": 561,
+          "endLine": 573,
           "tokens": 139
         },
         {
           "name": "pushFriendsData",
           "kind": "fn",
-          "startLine": 564,
-          "endLine": 574,
+          "startLine": 574,
+          "endLine": 584,
           "tokens": 96
         },
         {
           "name": "ownDone",
           "kind": "fn",
-          "startLine": 575,
-          "endLine": 583,
+          "startLine": 585,
+          "endLine": 593,
           "tokens": 90
         },
         {
           "name": "refreshObjectivesView",
           "kind": "fn",
-          "startLine": 584,
-          "endLine": 615,
+          "startLine": 594,
+          "endLine": 625,
           "tokens": 359
         },
         {
           "name": "drenarFilaTroca",
           "kind": "fn",
-          "startLine": 616,
-          "endLine": 623,
+          "startLine": 626,
+          "endLine": 633,
           "tokens": 79
         },
         {
           "name": "segurarAteATelaPintar",
           "kind": "fn",
-          "startLine": 624,
-          "endLine": 633,
+          "startLine": 634,
+          "endLine": 643,
           "tokens": 109
         },
         {
           "name": "handleServerData",
           "kind": "fn",
-          "startLine": 634,
-          "endLine": 851,
+          "startLine": 644,
+          "endLine": 861,
           "tokens": 2858
         },
         {
           "name": "connect",
           "kind": "fn",
-          "startLine": 852,
-          "endLine": 891,
+          "startLine": 862,
+          "endLine": 901,
           "tokens": 465
         },
         {
           "name": "startMultiplayer",
           "kind": "fn",
-          "startLine": 892,
-          "endLine": 909,
+          "startLine": 902,
+          "endLine": 919,
           "tokens": 223
         },
         {
           "name": "startSingleplayer",
           "kind": "fn",
-          "startLine": 910,
-          "endLine": 933,
+          "startLine": 920,
+          "endLine": 943,
           "tokens": 284
         },
         {
           "name": "persistWorld",
           "kind": "fn",
-          "startLine": 934,
-          "endLine": 1000,
+          "startLine": 944,
+          "endLine": 1010,
           "tokens": 793
         },
         {
           "name": "GameRuntime",
           "kind": "class",
-          "startLine": 1001,
-          "endLine": 2170,
+          "startLine": 1011,
+          "endLine": 2180,
           "tokens": 16198
         },
         {
           "name": "startGame",
           "kind": "fn",
-          "startLine": 2171,
-          "endLine": 2177,
+          "startLine": 2181,
+          "endLine": 2187,
           "tokens": 58
         }
       ]
@@ -7655,12 +7655,12 @@
     },
     "shared/src/luz.test.ts": {
       "description": "3×3 colunas de chunk, 2 chunks de altura (32 blocos) — dá pra enterrar uma",
-      "tokens": 3721,
-      "hash": "ac7aa5de804d5172",
-      "size": 13093,
-      "mtimeMs": 1785238923681.0793,
-      "updatedAt": "2026-08-06T14:05:05.046Z",
-      "source": "scan",
+      "tokens": 5090,
+      "hash": "5c60c5210a5a6ee7",
+      "size": 17956,
+      "mtimeMs": 1786036823422.5034,
+      "updatedAt": "2026-08-06T17:20:23.565Z",
+      "source": "hook",
       "symbols": [
         {
           "name": "mundoComChao",
@@ -7673,19 +7673,19 @@
           "name": "acenderTudo",
           "kind": "fn",
           "startLine": 33,
-          "endLine": 324,
-          "tokens": 3487
+          "endLine": 434,
+          "tokens": 4857
         }
       ]
     },
     "shared/src/luz.ts": {
       "description": "§💡 LUZ VOXEL (2026-07-28) — o pré-requisito das cavernas.",
-      "tokens": 7270,
-      "hash": "e72fb944e2b7dce6",
-      "size": 25739,
-      "mtimeMs": 1785968891415.3215,
-      "updatedAt": "2026-08-06T14:05:05.047Z",
-      "source": "scan",
+      "tokens": 7455,
+      "hash": "4afc26221cb3cdb9",
+      "size": 26397,
+      "mtimeMs": 1786035744414.502,
+      "updatedAt": "2026-08-06T17:02:24.574Z",
+      "source": "hook",
       "symbols": [
         {
           "name": "opacidadeLuz",
@@ -7866,8 +7866,8 @@
           "name": "atualizarBloco",
           "kind": "fn",
           "startLine": 613,
-          "endLine": 650,
-          "tokens": 369
+          "endLine": 663,
+          "tokens": 554
         }
       ]
     },

@@ -1689,3 +1689,13 @@ passa pelo próprio portão) · 5 prints da pista. **PLAYTEST PENDENTE.**
 | 12:05 | bug-595: smoke `atividade` flaky, 1 em 3, sem conserto | .wolf/buglog.json | registrado | ~1k |
 | 12:10 | commit f7cd0dd + 35a6700 (dist) — frente 6 | — | typecheck 3/3, 778 testes, 15/15, f10/toque/luz OK | ~3k |
 | 12:15 | STATUS/cerebrum/anatomy atualizados | .wolf/* | fila do refactor FECHADA; próximo é o playtest | ~6k |
+| 13:28 | Session end: 18 writes across 5 files (controleJogador.ts, controleJogador.test.ts, index.ts, movimentoJogador.ts, main.ts) | 5 reads | ~40480 tok |
+| 14:02 | Edited shared/src/luz.ts | added 2 condition(s) | ~305 |
+| 14:03 | Edited shared/src/luz.test.ts | added 2 condition(s) | ~1269 |
+| 14:06 | Edited client/src/input.ts | added 1 condition(s) | ~237 |
+| 14:07 | Edited client/src/input.ts | modified lock() | ~428 |
+| 14:07 | Edited client/src/input.ts | added 1 condition(s) | ~65 |
+| 14:07 | Edited client/src/main.ts | 7→12 lines | ~206 |
+| 14:07 | Edited client/src/main.ts | 1→6 lines | ~120 |
+| 14:08 | Edited client/src/input.ts | expanded (+8 lines) | ~185 |
+| 14:20 | Edited shared/src/luz.test.ts | expanded (+6 lines) | ~169 |

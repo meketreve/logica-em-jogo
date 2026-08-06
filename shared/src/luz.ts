@@ -630,6 +630,19 @@ export function atualizarBloco(
     setCanal(luz, x, y, z, CANAL_BLOCO, emite, sujos);
     reacenderBloco.push(empacotar(luz, x, y, z));
   }
+  // A célula ABRIU (era parede, virou passagem): os vizinhos acesos são as
+  // sementes que enchem o buraco. Sem isto, quebrar um bloco opaco não devolve
+  // luz de tocha nenhuma — o `apagar` acima sai na primeira linha (a parede
+  // tinha nível 0, não havia o que apagar) e a fila de reacender fica VAZIA.
+  // O canal do céu já fazia isto logo abaixo; o do bloco não, e o defeito só
+  // aparece quando existe alguma tocha no mundo (bug-596).
+  if (op < OPACO) {
+    for (const [dx, dy, dz] of DIRS) {
+      if (temCelula(luz, x + dx, y + dy, z + dz)) {
+        reacenderBloco.push(empacotar(luz, x + dx, y + dy, z + dz));
+      }
+    }
+  }
   propagar(world, luz, reacenderBloco, CANAL_BLOCO, sujos);
 
   // --- canal CÉU: idem, mas a célula pode reabrir uma coluna inteira ---
