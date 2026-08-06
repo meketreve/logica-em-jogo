@@ -447,6 +447,12 @@ await foto("03-fornalha-painel.png");
 diga("== 5. a fornalha ACESA no mundo (o byte trocou, e com ele a luz) ==");
 await avaliar(`document.querySelector('#container .cont-fechar')?.click()`);
 ok((await ateQue(painel, (p) => p === null)) === null, "o painel fechou");
+// bug-593: a fornalha CONTINUA cozinhando e mandando `container` 10×/s. Os que
+// já estavam no fio quando o pedido de fechar chegou reabriam o painel — e ele
+// voltava zumbi, com o servidor já tendo esquecido dele. 1,5 s cobre o fio
+// inteiro (o painel de cima levou milissegundos pra fechar).
+await espera(1500);
+ok((await painel()) === null, "e NÃO voltou sozinho com a fornalha cozinhando (bug-593)");
 await limparChat();
 await foto("05-fornalha-acesa-no-mundo.png");
 

@@ -6,6 +6,7 @@ import {
   colunaDeKey,
   colunaInteressa,
   colunaKey,
+  FreioDePose,
   type GroupDef,
   type NamedRegion,
   type Modo,
@@ -1849,12 +1850,10 @@ function startGame(snap: Snapshot): void {
     );
   };
 
-  // move REATIVO: até 10×/s enquanto muda; parado, vira heartbeat 1×/2 s
-  // (mantém presença/último estado sem inundar a LAN com posição repetida —
-  // 20 alunos parados: ~200 msg/s de subida caem pra ~10)
-  const IDLE_HEARTBEAT_MS = 2000;
-  let lastSent = { x: NaN, y: NaN, z: NaN, yaw: NaN, pitch: NaN };
-  let lastSentAt = 0;
+  // move REATIVO: acorda no ritmo do tick, mas quem decide se sai mensagem é o
+  // §📡 `FreioDePose` (manda quando muda; parado, heartbeat 1×/2 s). A regra
+  // mora no shared porque lá há onde TESTÁ-LA — no cliente não há.
+  const freioDePose = new FreioDePose();
   setInterval(() => {
     const cur = {
       x: player.pos.x,
@@ -1863,16 +1862,7 @@ function startGame(snap: Snapshot): void {
       yaw: input.yaw,
       pitch: input.pitch,
     };
-    const changed =
-      cur.x !== lastSent.x ||
-      cur.y !== lastSent.y ||
-      cur.z !== lastSent.z ||
-      cur.yaw !== lastSent.yaw ||
-      cur.pitch !== lastSent.pitch;
-    const now = performance.now();
-    if (!changed && now - lastSentAt < IDLE_HEARTBEAT_MS) return;
-    lastSent = cur;
-    lastSentAt = now;
+    if (!freioDePose.aEnviar(cur, performance.now())) return;
     activeConn.send(JSON.stringify({ type: "move", ...cur }));
   }, 1000 / SERVER_TICK_RATE);
 

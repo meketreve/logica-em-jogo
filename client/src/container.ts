@@ -43,6 +43,20 @@ export class ContainerPanel {
   private progresso = 0;
   /** Slot "pego" esperando destino, no índice UNIFICADO (ou null). */
   private pegando: number | null = null;
+  /**
+   * O aluno pediu pra fechar e o servidor ainda não confirmou (bug-593).
+   *
+   * A fornalha COZINHANDO manda `container` 10×/s. Entre o clique em "fechar" e
+   * o servidor processar o `fechar_container` cabem mensagens que já estavam no
+   * fio — e `atualizar` REABRE o painel. O resultado é um painel zumbi: de volta
+   * na tela, mas o servidor já o esqueceu, então ele nunca mais atualiza e todo
+   * clique nele pede um `mover_container` de um container que não está aberto.
+   *
+   * A confirmação é o `container_fechado` que o servidor passou a responder. A
+   * ordem do TCP faz o resto: tudo que ele mandou ANTES de ver o pedido chega
+   * antes da confirmação, e é justamente isso que se descarta.
+   */
+  private esperandoFechar = false;
 
   private readonly onEsc = (e: KeyboardEvent): void => {
     if (e.code !== "Escape") return;
@@ -91,6 +105,11 @@ export class ContainerPanel {
   }): void {
     const trocouDeCelula =
       !this.pos || this.pos.x !== msg.x || this.pos.y !== msg.y || this.pos.z !== msg.z;
+    // §🍖 F10 (bug-593): mensagem de ANTES do "fechar" não reabre o painel. A de
+    // OUTRA célula reabre: ela só pode ter nascido de um clique novo, e é o
+    // cinto além do suspensório caso o host seja velho e não confirme nada.
+    if (this.esperandoFechar && !trocouDeCelula) return;
+    this.esperandoFechar = false;
     if (trocouDeCelula) this.pegando = null; // o item pego era do outro container
     this.pos = { x: msg.x, y: msg.y, z: msg.z };
     this.tipo = msg.tipo;
@@ -115,11 +134,14 @@ export class ContainerPanel {
     if (!this.isOpen) return;
     this.avisarFechado();
     this.fecharSemAvisar();
+    // ...e o `container_fechado` do servidor é que solta este freio.
+    this.esperandoFechar = true;
   }
 
   /** Fecha porque o SERVIDOR mandou (`container_fechado`: o bloco sumiu, o
    *  direito mudou). Não devolve aviso — ele já sabe. */
   fecharSemAvisar(): void {
+    this.esperandoFechar = false; // o servidor falou: o que vier daqui é novo
     if (!this.isOpen) return;
     this.isOpen = false;
     this.pos = null;

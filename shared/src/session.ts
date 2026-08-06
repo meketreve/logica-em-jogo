@@ -1303,7 +1303,11 @@ export class GameSession {
         break;
       }
       case "fechar_container": {
-        this.containerAberto.delete(clientId);
+        // CONFIRMA (bug-593). Sem a resposta o cliente não tem como saber quais
+        // `container` ainda vêm por aí: a fornalha cozinhando manda 10×/s, e os
+        // que já estavam no fio quando o pedido chegou reabririam o painel que o
+        // aluno acabou de fechar — um painel que o servidor já esqueceu.
+        fecharContainer(this, clientId);
         break;
       }
       case "fabricar": {
