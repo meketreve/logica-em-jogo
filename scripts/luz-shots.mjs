@@ -268,8 +268,15 @@ if (dia && noite) {
   checar(dia.media > 12, `meio-dia tem imagem (média ${dia.media.toFixed(1)} > 12)`);
   checar(dia.max > 60, `meio-dia tem terreno iluminado (pico ${dia.max.toFixed(0)} > 60)`);
   checar(noite.media > 1, `meia-noite não é preto absoluto (média ${noite.media.toFixed(1)} > 1)`);
+  // 0,55 e não 0,75: o A/B da sessão 52 mediu o defeito REAL que este número
+  // existe pra pegar — `aplicarLuz` antes de `aplicarBalanco` no material do
+  // terreno faz o balanço sobrescrever o `onBeforeCompile` da luz (o three
+  // guarda UM só) e o TERRENO deixa de escurecer, sem erro de shader nenhum.
+  // Céu, água e vidro continuam escurecendo, então a razão não explode: ela vai
+  // de 0,37 pra 0,69 — passava raspando no 0,75 velho. Medidas com a ordem
+  // certa nesta máquina: 0,40 · 0,40 · 0,37.
   const razao = noite.media / (dia.media || 1);
-  checar(razao < 0.75, `a noite escurece de verdade (noite/dia = ${razao.toFixed(2)} < 0,75)`);
+  checar(razao < 0.55, `a noite escurece de verdade (noite/dia = ${razao.toFixed(2)} < 0,55)`);
 } else {
   checar(false, "as duas cenas foram capturadas");
 }

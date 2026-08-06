@@ -61,7 +61,6 @@ import {
   setBlock,
   stepPlayer,
 } from "@logica/shared";
-import { AGUA_FRAMES, animarAguaAtlas, createAtlasTexture } from "./atlasTexture";
 import { AguaFx } from "./aguaFx";
 import { initUiAudio, playUi, setUiVolume } from "./audio";
 import { BENCH_SEED, Bench, benchDaUrl, benchSettings } from "./bench";
@@ -75,8 +74,8 @@ import { LuzCliente } from "./luzCliente";
 import { RemotePlayersView } from "./remotePlayers";
 import { learnPlayers, learnWorlds } from "./commands";
 import { SkyCycle } from "./daynight";
-import { VentoCliente, aplicarBalanco, criarBalancoUniforms } from "./vento";
-import { aplicarLuz, criarLuzUniforms } from "./luzShader";
+import { VentoCliente } from "./vento";
+import { MateriaisMundo } from "./materiaisMundo";
 import { type Connection, WorkerConnection, WsConnection } from "./connection";
 import { emitGameEvent } from "./events";
 import { Hud } from "./hud";
@@ -175,10 +174,6 @@ const ventoForcado = ((): { dir: number; forca: number } | null => {
   return { dir: d, forca: Number.isFinite(f) ? f! : 0.6 };
 })();
 if (ventoForcado) vento.sync(ventoForcado.dir, ventoForcado.forca, true);
-/** Uniforms do balanço de folhas/grama — compartilhados com o material do
- *  terreno (criado lá embaixo, no startGame) e escritos 1×/frame. */
-const balancoUniforms = criarBalancoUniforms();
-
 const input = new Input(renderer.domElement);
 // APARELHO de dedo, decidido uma vez no boot (o `input.touch` é o MODO e vai
 // ligar/desligar durante a partida). É o que impede o clique no canvas de pedir
@@ -1088,50 +1083,14 @@ function startGame(snap: Snapshot): void {
    *  delta na janela de 10 s e dizem se a gravação foi voando ou parado. */
   let colunasRecebidas = 0;
   let distanciaPercorrida = 0;
-  // alphaTest = cutout dos transparentes (vidro/folhas): pixel opaco ou
-  // descartado — sem blending, sem sorting, mesmo draw call por chunk (cp18)
-  const atlas = createAtlasTexture();
-  const material = new THREE.MeshLambertMaterial({
-    map: atlas,
-    alphaTest: 0.5,
-  });
-  // §🌬️ balanço no vento: folhas, flores e grama alta vergam no vertex shader
-  // deste material (só ele — água e vidro não têm vegetação). Os uniforms são
-  // atualizados 1×/frame no loop; `settings.balanco` zera a força pra desligar
-  // sem recompilar shader.
-  aplicarBalanco(material, balancoUniforms);
-  // §💡 luz voxel nos TRÊS materiais do chunk. Precisa vir DEPOIS do balanço:
-  // `aplicarLuz` encadeia o `onBeforeCompile` que já estiver lá (three guarda
-  // um só, e sobrescrever mataria o vento em silêncio).
-  const luzUniforms = criarLuzUniforms();
-  aplicarLuz(material, luzUniforms);
-  // água (2026-07-22): material SEPARADO, transparente DE VERDADE (blend) — sem
-  // os furos xadrez. Mesma textura do atlas (as UVs do tile da água batem).
-  // depthWrite:false = várias faces de água blendam sem brigar pelo z-buffer;
-  // renderiza no passe de transparência do three (grupo próprio do mesh do chunk).
-  const materialAgua = new THREE.MeshLambertMaterial({
-    map: atlas,
-    transparent: true,
-    opacity: 0.72,
-    depthWrite: false,
-  });
-  // vidro colorido (2026-07-25): material PRÓPRIO, blend de verdade — o tile do
-  // atlas é a cor CHEIA (ícone da hotbar sai sólido) e a translucidez vem daqui.
-  // (Antes era dither cutout no atlas — ficou "tela de mosquiteiro", rejeitado
-  // no playtest.) 0.4 = cor bem legível, ainda dá pra ver através; calibrado no
-  // playtest de 2026-07-25 (0.2 ficou fraco). depthWrite:false igual à água.
-  const materialVidro = new THREE.MeshLambertMaterial({
-    map: atlas,
-    transparent: true,
-    opacity: 0.4,
-    depthWrite: false,
-  });
-  aplicarLuz(materialAgua, luzUniforms);
-  aplicarLuz(materialVidro, luzUniforms);
+  // §🎨 atlas + os três materiais do chunk + os uniforms do balanço e da luz +
+  // os dois relógios da água. A ordem interna importa (balanço antes da luz) e
+  // está escrita lá; aqui só se constrói e se chama `atualizar` 1×/frame.
+  const materiais = new MateriaisMundo();
 
   // ?atlas na URL: pendura o canvas do texture atlas no canto (inspeção visual)
   if (new URLSearchParams(location.search).has("atlas")) {
-    const img = material.map?.image as HTMLCanvasElement;
+    const img = materiais.canvas;
     img.style.cssText =
       "position:fixed;right:8px;top:8px;width:256px;image-rendering:pixelated;z-index:20;border:1px solid #000";
     document.body.appendChild(img);
@@ -1148,7 +1107,7 @@ function startGame(snap: Snapshot): void {
   const meshDepth = Number(urlMesh.get("meshdepth"));
   const chunkRenderer = new ChunkRenderer(
     world,
-    [material, materialAgua, materialVidro],
+    materiais.paraChunks,
     scene,
     !semWorker,
     Number.isFinite(meshDepth) && meshDepth > 0 ? meshDepth : undefined,
@@ -1156,12 +1115,6 @@ function startGame(snap: Snapshot): void {
   );
   // efeitos de água (2026-07-26): névoa+tint ao submergir, animação da textura
   const aguaFx = new AguaFx(scene);
-  let aguaQuadroParada = -1;
-  /** Relógio da água CORRENTE — independente do vento (8 fps fixos). Serve
-   *  também de relógio do TETO de repintura (ver o loop de render). */
-  let aguaFluxoRelogio = 0;
-  let aguaQuadroFluxo = -1;
-  let aguaUltimaPintura = -1;
   // lazy: nada a meshar ainda — as colunas entram na fila conforme chegam.
   // A luz vem ANTES do mesh: geometria montada sem luz nasceria clara e
   // escureceria num segundo remesh, piscando na cara da turma.
@@ -1565,7 +1518,7 @@ function startGame(snap: Snapshot): void {
   // A lista de colocáveis segue em blocksUi.ts (painel de autoria usa a mesma).
   // Os 9 slots, o selecionado, a varinha, os ícones e os nomes moram em
   // `hotbarUi.ts` — aqui fica só a fiação com o input e com os painéis.
-  const hotbarUi = new HotbarUi(papel, mochila, material.map?.image as HTMLCanvasElement, {
+  const hotbarUi = new HotbarUi(papel, mochila, materiais.canvas, {
     claimsAtivo: () => claimsAtivo,
     setVarinhaToque: (ativa) => touchControls?.setVarinha(ativa),
     aoRedesenhar: () => {
@@ -2281,40 +2234,13 @@ function startGame(snap: Snapshot): void {
       porCaminho: chunkRenderer.porCaminho, // este é 1×/frame: sem isto some
     });
     vento.update(dt); // §🌬️: suaviza dir/forca e avança o relógio de animação
-    // balanço: `settings.balanco` desligado = força 0 (o `if` do shader sai fora
-    // sem recompilar nada). A fase vira radianos aqui, uma vez por frame.
-    balancoUniforms.ventoTempo.value = vento.fase * Math.PI * 2;
-    balancoUniforms.ventoDir.value.set(vento.x, vento.z);
-    balancoUniforms.ventoForca.value = settings.balanco ? vento.forca : 0;
     skyCycle.update(dt, vento); // ciclo dia/noite (cp21) + nuvens andando no vento
-    // §💡 a hora manda no canal CÉU da luz voxel (a tocha não obedece a ela).
-    // Um uniform por frame — nada de remesh: escurecer o mundo à noite não pode
-    // custar geometria nova.
-    luzUniforms.nivelCeu.value = skyCycle.nivelCeu;
-    // água (2026-07-26): névoa/tint quando o OLHO está submerso + correnteza no
-    // tile do atlas. O quadro vem da fase do VENTO (§🌬️), não de um relógio fixo:
-    // vento forte = correnteza mais rápida, calmaria = água só respirando.
+    // §🎨 tudo que os materiais do chunk precisam por frame: o vento no balanço,
+    // a hora no canal céu da luz voxel e os dois relógios da correnteza. Nenhum
+    // deles custa geometria — ver `MateriaisMundo.atualizar`.
+    materiais.atualizar(dt, vento, skyCycle.nivelCeu, settings.balanco);
+    // água (2026-07-26): névoa/tint quando o OLHO está submerso.
     aguaFx.update(world, camera.position.x, camera.position.y, camera.position.z);
-    // DOIS relógios (playtest 2026-07-27): a água PARADA anda no ritmo e no rumo
-    // do vento; a CORRENTE anda no ritmo dela (8 fps fixos), no rumo do próprio
-    // fluxo — vento não manda em correnteza. Quem decide qual tile cada bloco usa
-    // é o mesher; aqui só se toca os dois relógios.
-    const quadroParada = Math.floor(vento.fase * AGUA_FRAMES) % AGUA_FRAMES;
-    aguaFluxoRelogio += dt;
-    const quadroFluxo = Math.floor(aguaFluxoRelogio * 8) % AGUA_FRAMES;
-    // TETO de 12 repinturas/s: cada uma reenvia o atlas INTEIRO (256², 262 KB) à
-    // GPU, e com dois relógios independentes a UNIÃO dos dois passaria de 20/s
-    // sem o teto. 12/s já não se distingue a olho e devolve metade do upload na
-    // GPU do laboratório. Sem repintura nenhuma quando os dois quadros param.
-    if (
-      (quadroParada !== aguaQuadroParada || quadroFluxo !== aguaQuadroFluxo) &&
-      aguaFluxoRelogio - aguaUltimaPintura >= 1 / 12
-    ) {
-      aguaUltimaPintura = aguaFluxoRelogio;
-      aguaQuadroParada = quadroParada;
-      aguaQuadroFluxo = quadroFluxo;
-      animarAguaAtlas(atlas, quadroParada, vento.ondaAgua, quadroFluxo);
-    }
     // mede só o render: o resto do frame é lógica nossa (mesh, física, streaming).
     // `renderer.render` é síncrono do lado da CPU — o que a GPU faz depois não
     // entra aqui, mas é exatamente a fatia que nós controlamos.
