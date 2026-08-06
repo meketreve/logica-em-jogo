@@ -6,7 +6,6 @@ import {
   colunaDeKey,
   colunaInteressa,
   colunaKey,
-  contarColunasNoRaio,
   type GroupDef,
   type NamedRegion,
   type Modo,
@@ -76,6 +75,7 @@ import { learnPlayers, learnWorlds } from "./commands";
 import { SkyCycle } from "./daynight";
 import { VentoCliente } from "./vento";
 import { MateriaisMundo } from "./materiaisMundo";
+import { ProgressoCarga } from "./progressoCarga";
 import { type Connection, WorkerConnection, WsConnection } from "./connection";
 import { emitGameEvent } from "./events";
 import { Hud } from "./hud";
@@ -1303,56 +1303,36 @@ function startGame(snap: Snapshot): void {
   };
   const player = createPlayer(spawn.x, spawn.y, spawn.z);
 
-  // §🕐 total esperado do raio inicial: o quadrado de `raioRender` em volta do
-  // chunk do spawn, recortado pelas bordas do mundo — é a MESMA conta que o
-  // servidor faz em `streamColunas` (anel por anel até `st.raio`). O jogador
-  // não anda enquanto carrega (sem pointer lock), então o centro não muda.
-  // Mundo denso (não-lazy) chega inteiro no snapshot: nada a contar, o custo é
-  // o `buildAll` que já rodou lá em cima.
-  const calcularTotalCarga = (): number => {
-    if (!mundoLazy) return 0;
-    const { cx, cz } = colunaDaPosicao(world.dims, player.pos.x, player.pos.z);
-    // `max(1, …)` é guarda de divisor: a conta já é ≥ 1 com o centro dentro do
-    // mundo (é o teorema que o `colunas.test.ts` cobra), e o anel de progresso
-    // divide por ele.
-    return Math.max(1, contarColunasNoRaio(world.dims, cx, cz, settings.raioRender));
-  };
-  // `let`: a troca de aula (cp19) recalcula — mundo novo, spawn novo, e o mundo
-  // pode até deixar de ser lazy
-  let totalCarga = calcularTotalCarga();
-  // contadores REAIS do jogo — a tela só amostra (§🔁 já mede `faltando` na
-  // varredura 1×/s; antes do 1º tick dela o total-prontas dá a mesma resposta).
-  // Reassinado a cada reabertura: `fechar()` solta a fonte de propósito.
-  const observarCarga = (): void => {
-    loading.observar(() => ({
-      bytes: activeConn.stats.bytesIn + activeConn.stats.bytesOut,
-      prontas: colunasCarregadas.size,
-      total: totalCarga,
-      faltando:
-        colunasFaltando.tamanho > 0
-          ? colunasFaltando.tamanho
-          : Math.max(0, totalCarga - colunasCarregadas.size),
-      fila: chunkRenderer.filaPendente,
-    }));
-  };
-  observarCarga();
+  // §🕐 o total esperado do raio inicial e o "já chegou" da tela de carga. As
+  // contagens chegam por callback (o `Set` é reassinado na troca de aula), e a
+  // CONTA mora no shared — é a mesma que o servidor usa pra decidir o que manda.
+  const progresso = new ProgressoCarga(loading, () => ({
+    bytes: activeConn.stats.bytesIn + activeConn.stats.bytesOut,
+    prontas: colunasCarregadas.size,
+    buracos: colunasFaltando.tamanho,
+    fila: chunkRenderer.filaPendente,
+  }));
+  const recalcularCarga = (): void =>
+    progresso.recalcular(world.dims, player.pos.x, player.pos.z, settings.raioRender, mundoLazy);
+  recalcularCarga();
+  progresso.observar();
   loading.setFase(mundoLazy ? "mundo" : "malha");
 
   /**
    * §🕐 O host avisou que a troca COMEÇOU (`mundo_trocando`), antes de salvar a
-   * aula atual e montar a nova. Sobe a tela já: `totalCarga = 0` deixa o anel
-   * indeterminado (não há o que medir enquanto o trabalho é todo do servidor) e
-   * o `reloadWorld` assume quando o snapshot chegar.
+   * aula atual e montar a nova. Sobe a tela já: `indeterminar()` deixa o anel
+   * sem fim (não há o que medir enquanto o trabalho é todo do servidor) e o
+   * `reloadWorld` assume quando o snapshot chegar.
    */
   iniciarTroca = (nome) => {
-    totalCarga = 0;
+    progresso.indeterminar();
     loading.abrir({
       host: serverHostLabel,
       rede: !(activeConn instanceof WorkerConnection),
       titulo: "trocando de aula",
       alvo: nome,
     });
-    observarCarga();
+    progresso.observar();
     loading.setFase("preparando");
     hud.setFase("carregando"); // perfil: o que travar daqui pra frente é carga
     hud.marcar("troca de aula", nome); // §📊 causa registrada pro pico que vem
@@ -1423,13 +1403,13 @@ function startGame(snap: Snapshot): void {
     // §🕐 a mesma tela cobre a troca de aula. O pointer lock CONTINUA travado
     // (o aluno estava jogando), então quando ela fechar ele volta ao jogo sem
     // clique nenhum. `respawn()` já rodou: o total sai do spawn NOVO.
-    totalCarga = calcularTotalCarga();
+    recalcularCarga();
     loading.abrir({
       host: serverHostLabel,
       rede: !(activeConn instanceof WorkerConnection),
       titulo: "trocando de aula",
     });
-    observarCarga();
+    progresso.observar();
     loading.setFase(mundoLazy ? "mundo" : "malha");
     hud.setFase("carregando");
     updateOverlay(); // esconde o menu de pausa se ele estava aberto na troca
@@ -2112,7 +2092,7 @@ function startGame(snap: Snapshot): void {
       // então `filaPendente` estaria em 0 com o mundo cheio de buraco.
       if (
         loading.ativo &&
-        colunasCarregadas.size >= totalCarga &&
+        progresso.raioCompleto &&
         luz.filaVazia &&
         chunkRenderer.filaPendente === 0
       ) {

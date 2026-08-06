@@ -288,6 +288,26 @@ const ok = (cond, msg) => {
   diga(`  ${cond ? "✓" : "✗"} ${msg}`);
   if (!cond) falhas++;
 };
+/**
+ * Espera uma condição do DOM, sondando a cada 100 ms até `limiteMs`.
+ *
+ * Abrir e FECHAR container são round-trip de servidor (`use_block` /
+ * `fechar_container`): quem aplica é ele, e o DOM só muda quando a resposta
+ * volta. Uma `espera(900)` seca passa na máquina rápida e falha na carregada —
+ * foi o que aconteceu na sessão 52, e o sintoma não parece "lento": o painel da
+ * fornalha fica aberto, a regra "um menu por vez" (§48) impede o baú de abrir
+ * por cima, e o script acusa QUATRO falhas que parecem defeito de container.
+ * Devolve o último valor lido, satisfeito ou não — a asserção é de quem chamou.
+ */
+async function ateQue(ler, satisfeito, limiteMs = 4000) {
+  const fim = Date.now() + limiteMs;
+  let v = await ler();
+  while (!satisfeito(v) && Date.now() < fim) {
+    await espera(100);
+    v = await ler();
+  }
+  return v;
+}
 /** Estado do painel de container, medido no DOM. */
 const painel = () =>
   avaliar(`(() => {
@@ -394,7 +414,7 @@ if (!btnColocar) {
   encerrar(1);
 }
 await tocar(btnColocar.x, btnColocar.y);
-let p = await painel();
+let p = await ateQue(painel, (p) => p !== null);
 ok(p !== null, "o toque no ▣ abriu o painel (o servidor respondeu ao use_block)");
 ok(p?.titulo === "fornalha", `e o título é "fornalha" (${p?.titulo})`);
 ok(p?.slotsContainer === 3, `a fornalha mostra 3 slots (${p?.slotsContainer})`);
@@ -426,8 +446,7 @@ await foto("03-fornalha-painel.png");
 
 diga("== 5. a fornalha ACESA no mundo (o byte trocou, e com ele a luz) ==");
 await avaliar(`document.querySelector('#container .cont-fechar')?.click()`);
-await espera(900);
-ok((await painel()) === null, "o painel fechou");
+ok((await ateQue(painel, (p) => p === null)) === null, "o painel fechou");
 await limparChat();
 await foto("05-fornalha-acesa-no-mundo.png");
 
@@ -435,7 +454,7 @@ diga("== 6. o BAÚ: 27 slots, o mesmo encanamento ==");
 for (const dy of [1, 2]) await dizer(`/bloco ~ ~${dy} ~-3 ${BAU}`);
 await espera(600);
 await tocar(btnColocar.x, btnColocar.y);
-p = await painel();
+p = await ateQue(painel, (p) => p?.titulo === "baú");
 ok(p?.titulo === "baú", `o título virou "baú" (${p?.titulo})`);
 ok(p?.slotsContainer === 27, `e ele tem 27 slots (${p?.slotsContainer})`);
 ok(p?.barras === 0, "sem barrinha nenhuma (baú não tem fogo)");
