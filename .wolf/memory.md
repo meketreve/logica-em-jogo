@@ -1699,3 +1699,17 @@ passa pelo próprio portão) · 5 prints da pista. **PLAYTEST PENDENTE.**
 | 14:07 | Edited client/src/main.ts | 1→6 lines | ~120 |
 | 14:08 | Edited client/src/input.ts | expanded (+8 lines) | ~185 |
 | 14:20 | Edited shared/src/luz.test.ts | expanded (+6 lines) | ~169 |
+
+## Session: 2026-08-06 — SESSÃO 54 (dois bugs relatados)
+
+| Time | Action | File(s) | Outcome | ~Tokens |
+|------|--------|---------|---------|--------|
+| 14:00 | repro puro do bug de luz: 3 tentativas FALSAS (BlockId.Pedra não existe) | scratchpad | mundo de ar; tsx não checa tipo | ~8k |
+| 14:05 | repro no cliente real: parede tapa a tocha e quebrá-la não devolve | scratchpad/luzbug.mjs | REPRODUZIDO (+0.05 de 14.29) | ~10k |
+| 14:10 | bug-596: canal BLOCO não semeia vizinhos ao abrir a célula | shared/src/luz.ts | 6 linhas, espelha o canal do céu | ~3k |
+| 14:15 | 3 testes (1 à mão + 2 fuzz incremental × recálculo) | shared/src/luz.test.ts | A/B: os 3 caem sem a correção | ~6k |
+| 14:18 | o fuzz achou bug-598 (folha/água: 15 vs 13) — pré-existente | .wolf/buglog.json | ANOTADO sem conserto, fora de escopo | ~4k |
+| 14:30 | bug-597 reproduzido: menu de pausa pisca depois do Esc no painel | scratchpad/escbug.mjs | causa = carência do pointer lock (bug-585) | ~6k |
+| 14:40 | Input.retomando + pointerlockerror redesenha + retry "só uma" | client/src/input.ts, main.ts | Esc fecha só o painel | ~4k |
+| 14:50 | shots:esc — o par de DESKTOP do shots:toque, 3 seções | scripts/esc-shot.mjs (novo) | A/B em 2 frentes | ~7k |
+| 15:00 | bateria completa + 2 commits + dist | — | 781 testes, 15/15, f10/toque/esc/luz OK | ~5k |
