@@ -84,6 +84,17 @@ export class Input {
 
     canvas.addEventListener("click", () => this.lock());
 
+    // bug-585: o pedido recusado era SILENCIOSO — sem este listener, o clique
+    // do aluno dentro da carência do Esc não deixava rastro nenhum.
+    document.addEventListener("pointerlockerror", () => this.reagendarLock());
+    // o lock chegou por outro caminho: cancela a tentativa atrasada
+    document.addEventListener("pointerlockchange", () => {
+      if (this.locked && this.reagendado !== null) {
+        clearTimeout(this.reagendado);
+        this.reagendado = null;
+      }
+    });
+
     document.addEventListener("mousemove", (e) => {
       if (!this.locked) return;
       const mag = Math.max(Math.abs(e.movementX), Math.abs(e.movementY));
@@ -111,16 +122,56 @@ export class Input {
     return this.locked || this.touch;
   }
 
-  /** Pede pointer lock (clique no canvas ou ao fechar o chat). Pode falhar sem gesto do usuário — aí o overlay "clique para jogar" cobre. */
+  /**
+   * Pede pointer lock (clique no canvas ou ao fechar o chat). Pode falhar sem
+   * gesto do usuário — aí o overlay "clique para jogar" cobre.
+   *
+   * ⚠️ **A carência do Esc (bug-585).** Quando o próprio usuário sai do lock
+   * com Esc, o Chrome RECUSA um novo `requestPointerLock` por ~1,25 s — é uma
+   * defesa do navegador contra a página que reprende o ponteiro na hora. O
+   * retry que existia aqui era IMEDIATO, então caía dentro da mesma carência e
+   * falhava junto: o aluno clicava em "voltar ao jogo", não acontecia nada,
+   * clicava de novo, nada — e concluía que o jogo travou.
+   *
+   * Agora a segunda tentativa espera a carência passar. `pendente` impede que
+   * cinco cliques nervosos virem cinco pedidos empilhados, e qualquer um deles
+   * é cancelado se o lock chegar por outro caminho.
+   */
   lock(): void {
     // `touchDevice` antes de `touch`: no tablet o modo desliga (menu de pausa),
     // mas o aparelho continua sendo de dedo — pointer lock ali nunca serve.
     if (this.touchDevice || this.touch || this.locked) return;
+    this.pedirLock();
+  }
+
+  /** Carência do Chrome depois de um Esc do usuário (~1,25 s) + folga. */
+  private static readonly CARENCIA_ESC_MS = 1400;
+  private reagendado: ReturnType<typeof setTimeout> | null = null;
+
+  private pedirLock(): void {
     // unadjustedMovement: movimento cru, sem aceleração do SO (menos spikes no Chrome/Windows)
     const req = this.canvas.requestPointerLock({ unadjustedMovement: true }) as
       | Promise<void>
       | undefined;
-    req?.catch(() => this.canvas.requestPointerLock());
+    // navegador sem a opção: tenta a forma antiga NA HORA (não é carência, é
+    // assinatura recusada — esperar aqui só atrasaria o jogo)
+    req?.catch(() => {
+      try {
+        this.canvas.requestPointerLock();
+      } catch {
+        /* o `pointerlockerror` abaixo cuida do reagendamento */
+      }
+    });
+  }
+
+  /** Uma tentativa atrasada, e só uma: se falhar de novo o overlay continua na
+   *  tela e o próximo clique do aluno tenta outra vez. */
+  private reagendarLock(): void {
+    if (this.reagendado !== null || this.locked || this.touchDevice || this.touch) return;
+    this.reagendado = setTimeout(() => {
+      this.reagendado = null;
+      if (!this.locked && !this.touchDevice && !this.touch) this.pedirLock();
+    }, Input.CARENCIA_ESC_MS);
   }
 
   down(code: string): boolean {

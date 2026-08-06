@@ -92,6 +92,7 @@ import { InventoryPanel } from "./inventory";
 import { ChatUi } from "./chat";
 import { ChunkRenderer } from "./chunks";
 import { LuzCliente } from "./luzCliente";
+import { RemotePlayersView } from "./remotePlayers";
 import { learnPlayers, learnWorlds } from "./commands";
 import { SkyCycle } from "./daynight";
 import { VentoCliente, aplicarBalanco, criarBalancoUniforms } from "./vento";
@@ -1602,89 +1603,10 @@ function startGame(snap: Snapshot): void {
     );
   };
 
-  // --- Outros jogadores: caixa colorida por id, com LERP (gatilho disparou:
-  // usuário reportou serrilhado — updates chegam a 10 Hz, o render interpola) ---
-  interface RemotePlayer {
-    mesh: THREE.Mesh;
-    target: THREE.Vector3;
-    targetYaw: number;
-    /** Plaquinha de nome sobre a cabeça (filha da mesh; Sprite sempre encara a câmera). */
-    label?: THREE.Sprite;
-    labelName?: string;
-  }
-  const remotePlayers = new Map<number, RemotePlayer>();
-  // Plaquinha desenhada num canvas (zero assets, mesma regra do atlas):
-  // texto branco sobre fundo escuro translúcido, visível através de parede
-  // (convenção Minecraft — e o professor acha o aluno atrás do bloco).
-  const makeNameSprite = (name: string): THREE.Sprite => {
-    const canvas = document.createElement("canvas");
-    const ctx = canvas.getContext("2d")!;
-    const font = "bold 32px sans-serif";
-    ctx.font = font;
-    const pad = 10;
-    canvas.width = Math.ceil(ctx.measureText(name).width) + pad * 2;
-    canvas.height = 44;
-    ctx.font = font; // redimensionar o canvas reseta o contexto
-    ctx.fillStyle = "rgba(0,0,0,0.4)";
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-    ctx.fillStyle = "#fff";
-    ctx.textAlign = "center";
-    ctx.textBaseline = "middle";
-    ctx.fillText(name, canvas.width / 2, canvas.height / 2);
-    const texture = new THREE.CanvasTexture(canvas);
-    texture.minFilter = THREE.LinearFilter; // canvas não-potência-de-2: sem mipmap
-    const sprite = new THREE.Sprite(
-      new THREE.SpriteMaterial({ map: texture, depthTest: false, transparent: true }),
-    );
-    sprite.renderOrder = 999; // depois do mundo — depthTest off não briga com nada
-    const h = 0.32; // altura no mundo; largura segue a proporção do texto
-    sprite.scale.set((h * canvas.width) / canvas.height, h, 1);
-    sprite.position.set(0, PLAYER.height / 2 + 0.35, 0); // acima da caixa
-    return sprite;
-  };
-  const disposeLabel = (rp: RemotePlayer): void => {
-    if (!rp.label) return;
-    rp.label.material.map?.dispose();
-    rp.label.material.dispose();
-    rp.mesh.remove(rp.label);
-    rp.label = undefined;
-  };
-  applyPlayerMoved = (msg) => {
-    let rp = remotePlayers.get(msg.id);
-    if (!rp) {
-      const mesh = new THREE.Mesh(
-        new THREE.BoxGeometry(PLAYER.width, PLAYER.height, PLAYER.width),
-        new THREE.MeshLambertMaterial({
-          color: new THREE.Color().setHSL((msg.id * 0.618034) % 1, 0.7, 0.5),
-        }),
-      );
-      // primeira vez: aparece JÁ no lugar (sem deslizar desde a origem)
-      mesh.position.set(msg.x, msg.y + PLAYER.height / 2, msg.z);
-      mesh.rotation.y = msg.yaw;
-      scene.add(mesh);
-      rp = { mesh, target: mesh.position.clone(), targetYaw: msg.yaw };
-      remotePlayers.set(msg.id, rp);
-    }
-    // nome viaja no player_moved (ausente = host antigo, caixa fica sem nome)
-    if (msg.name && msg.name !== rp.labelName) {
-      disposeLabel(rp);
-      rp.label = makeNameSprite(msg.name);
-      rp.labelName = msg.name;
-      rp.mesh.add(rp.label);
-    }
-    // pos do servidor = pés do jogador; BoxGeometry é centrada
-    rp.target.set(msg.x, msg.y + PLAYER.height / 2, msg.z);
-    rp.targetYaw = msg.yaw;
-  };
-  applyPlayerLeft = (id) => {
-    const rp = remotePlayers.get(id);
-    if (!rp) return;
-    disposeLabel(rp);
-    scene.remove(rp.mesh);
-    rp.mesh.geometry.dispose();
-    (rp.mesh.material as THREE.Material).dispose();
-    remotePlayers.delete(id);
-  };
+  // §👥 Os outros jogadores (caixa + plaquinha + LERP) moram em RemotePlayersView.
+  const outros = new RemotePlayersView(scene);
+  applyPlayerMoved = (msg) => outros.aoMover(msg);
+  applyPlayerLeft = (id) => outros.aoSair(id);
 
   // --- Mira + colocar/quebrar ---
   // Cubo unitário centrado na origem: o loop o REESCALA/reposiciona pela
@@ -2541,14 +2463,8 @@ function startGame(snap: Snapshot): void {
     posAntZ = player.pos.z;
     if (player.pos.y < -16) respawn(); // caiu da borda do mundo
 
-    // jogadores remotos deslizam até o último update (suave mesmo a 10 Hz);
-    // fator exponencial = independente do FPS (~90% do caminho em ~190 ms)
-    const k = 1 - Math.exp(-dt * 12);
-    for (const rp of remotePlayers.values()) {
-      rp.mesh.position.lerp(rp.target, k);
-      const dyaw = rp.targetYaw - rp.mesh.rotation.y;
-      rp.mesh.rotation.y += Math.atan2(Math.sin(dyaw), Math.cos(dyaw)) * k;
-    }
+    // jogadores remotos deslizam até o último update (suave mesmo a 10 Hz)
+    outros.interpolar(dt);
 
     // olho abaixa agachado; FOV abre correndo — transições suaves (independem do FPS)
     const kCam = 1 - Math.exp(-dt * 20);
@@ -2585,12 +2501,7 @@ function startGame(snap: Snapshot): void {
             lookDir.x, lookDir.y, lookDir.z,
             // a posição do LERP é a que o aluno vê; o `target` do servidor
             // pularia 10×/s e a mira ficaria intermitente
-            [...remotePlayers].map(([id, rp]) => ({
-              id,
-              x: rp.mesh.position.x,
-              y: rp.mesh.position.y - PLAYER.height / 2, // mesh é centrada; a caixa quer os PÉS
-              z: rp.mesh.position.z,
-            })),
+            outros.alvosParaMira(),
             PLAYER_REACH,
           )
         : null;
