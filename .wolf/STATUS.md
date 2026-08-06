@@ -348,6 +348,13 @@
 > não pede pointer lock, pedidos=0" — o caminho de dedo não mudou) · **`shots:luz` 5/5**
 > (shader compila, meio-dia 21.8, meia-noite 8.8, razão 0.40). **3 commits.**
 
+## ⚠️ Pendência externa
+
+**17 commits locais NÃO empurrados** (sessões 52, 53 e 54). `git fetch` na 54: nada novo no
+remote, o local está só à frente. **Não empurrei porque ele não pediu** — a autorização da 47
+(*"e depois o push"*) foi de uma vez, não permanente. Abrir a próxima sessão perguntando, como a
+rotina de `git fetch` desde a 40.
+
 ## 🚀 Próxima fase
 
 ### 1. ⭐ A FILA DO REFACTOR ACABOU — e o que manda agora é o PLAYTEST
