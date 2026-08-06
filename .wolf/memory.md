@@ -1571,3 +1571,4 @@ passa pelo próprio portão) · 5 prints da pista. **PLAYTEST PENDENTE.**
 | 02:00 | verificação: typecheck 3/3 · 739 testes · build · 15/15 smokes · f10 22/22 · toque 15/15 · luz 5/5 | — | verde | ~10k |
 | 02:00 | `shots:luz` NÃO sobe dev server (f10 e toque sobem host próprio) — travou 2× sem rastro | (ferramenta) | cerebrum | ~3k |
 | 02:00 | 2 commits: shared/orientacao e o corte do cliente. main.ts 2.600 → 2.339 | — | main.ts segue ABERTO (startGame 1.283 linhas) | ~4k |
+| 02:35 | Session end: 38 writes across 6 files (colunasFaltando.ts, main.ts, hotbarUi.ts, orientacao.ts, index.ts) | 7 reads | ~63374 tok |
