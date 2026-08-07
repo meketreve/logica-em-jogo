@@ -1,12 +1,12 @@
 {
   "version": 1,
   "meta": {
-    "lastScanned": "2026-08-06T17:20:23.565Z",
+    "lastScanned": "2026-08-06T18:47:04.808Z",
     "fileCount": 331,
     "hits": 0,
     "misses": 0,
-    "renderedHash": "3cb66df3f6453490e6a6a6aefb71e85991a5df8b64ca1413b8e702b905ab2f6a",
-    "storeUpdatedAt": "2026-08-06T17:20:23.585Z"
+    "renderedHash": "71d7ac005e2380592cc6f91ae8d234d397be14b5bc68f9dbea422cf08c2a4cae",
+    "storeUpdatedAt": "2026-08-06T18:47:04.828Z"
   },
   "files": {
     ".claude/commands/reframe.md": {
@@ -3269,12 +3269,12 @@
     },
     "iniciar-servidor.bat": {
       "description": "",
-      "tokens": 3310,
-      "hash": "c1592341e162a3df",
-      "size": 12411,
-      "mtimeMs": 1785941724019.3196,
-      "updatedAt": "2026-08-06T14:05:04.947Z",
-      "source": "scan"
+      "tokens": 3462,
+      "hash": "96ba4eae007e3fbf",
+      "size": 12981,
+      "mtimeMs": 1786042024702.5027,
+      "updatedAt": "2026-08-06T18:47:04.808Z",
+      "source": "hook"
     },
     "iniciar-servidor.sh": {
       "description": "============================================================",

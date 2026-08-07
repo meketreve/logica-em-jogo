@@ -35,3 +35,7 @@ chrome/
 # snapshots por sessão que a rotação do OpenWolf cria (cópia do que já é
 # versionado — 3 MB por rodada, cresce sem fim). Local, nunca no repo.
 .wolf/backups/
+
+# versao instalada pelo launcher do Windows (o commit baixado do GitHub).
+# E estado da maquina da escola, nao do repo.
+.lj-versao

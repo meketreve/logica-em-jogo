@@ -14,87 +14,86 @@ echo ============================================
 echo.
 
 REM ============================================================
-REM  Atualizacao (git) - so a maquina do PROFESSOR atualiza:
+REM  Atualizacao (SEM git) - so a maquina do PROFESSOR atualiza:
 REM  o aluno abre o navegador e recebe o cliente deste servidor.
-REM  client\dist e VERSIONADO, entao nao precisa compilar nada aqui.
-REM  Pula sozinho, SEM travar a aula, quando: LJ_SEM_UPDATE=1, a pasta nao
-REM  e um clone do git, o git nao esta instalado, o branch nao e o main, ou
-REM  a rede nao responde.
-REM  MUDANCA LOCAL NAO PULA MAIS A BUSCA (era o bug-567): o "git fetch"
-REM  acontece de qualquer jeito, e quem sujou os arquivos decide na hora - as
-REM  mudancas vao pro "git stash" (guardadas, nunca apagadas) e a atualizacao
-REM  segue.
+REM  client\dist e VERSIONADO, entao vem pronto no ZIP e nao se compila nada.
+REM
+REM  COMO: baixa o ZIP do branch no GitHub com "curl.exe", abre com "tar.exe" e
+REM  copia por cima com "robocopy". Os tres ja vem no Windows 10 (1803+) e no
+REM  11 - nao precisa instalar git, nem winget, nem nada. NAO usa PowerShell,
+REM  que e justamente o que a escola bloqueia.
+REM
+REM  A versao instalada fica gravada em ".lj-versao" (o commit do GitHub). Na
+REM  primeira vez esse arquivo nao existe: o launcher avisa e baixa uma vez.
+REM
+REM  Pula sozinho, SEM travar a aula, quando: LJ_SEM_UPDATE=1, a pasta e um
+REM  clone do git (nesse caso quem atualiza e o "git pull" - copiar por cima
+REM  pisaria no trabalho de quem desenvolve), falta curl/tar, ou a rede nao
+REM  responde.
 REM ============================================================
+set "LJ_DONO=meketreve"
+set "LJ_NOME=logica-em-jogo"
+set "LJ_RAMO=main"
+set "LJ_TMP=%TEMP%\lj-update"
+set "LJ_ZIP=%TEMP%\lj-update.zip"
+set "LJ_SRC=%LJ_TMP%\%LJ_NOME%-%LJ_RAMO%"
+
 if defined LJ_SEM_UPDATE (
   echo ^(LJ_SEM_UPDATE=1: nao vou procurar atualizacao^)
   goto :depois_update
 )
-if not exist ".git" (
-  echo ^(esta pasta nao veio de um clone do git: atualizacao automatica desligada^)
+if exist ".git" (
+  echo ^(esta pasta e um clone do git: atualize com "git pull" - update automatico desligado^)
   goto :depois_update
 )
-where git >nul 2>nul
+where curl >nul 2>nul
 if errorlevel 1 (
-  echo ^(git nao encontrado - instale em https://git-scm.com para atualizar daqui^)
+  echo ^(curl.exe nao encontrado - precisa do Windows 10 1803 ou mais novo^)
   goto :depois_update
 )
-set "BRANCH="
-for /f "delims=" %%b in ('git rev-parse --abbrev-ref HEAD 2^>nul') do set "BRANCH=%%b"
-if not "%BRANCH%"=="main" (
-  echo ^(branch "%BRANCH%": atualizacao automatica so vale no main^)
+where tar >nul 2>nul
+if errorlevel 1 (
+  echo ^(tar.exe nao encontrado - precisa do Windows 10 1803 ou mais novo^)
   goto :depois_update
 )
+
 echo Procurando atualizacao...
-git fetch --quiet origin
+REM O cabecalho "Accept: ...github.sha" faz a API responder o commit em texto
+REM puro, so os 40 caracteres - batch nao tem como ler JSON.
+del "%TEMP%\lj-versao-remota.txt" >nul 2>nul
+curl -sL --max-time 15 -H "Accept: application/vnd.github.sha" -o "%TEMP%\lj-versao-remota.txt" "https://api.github.com/repos/%LJ_DONO%/%LJ_NOME%/commits/%LJ_RAMO%"
 if errorlevel 1 (
   echo ^(sem conexao com o GitHub - seguindo com a versao instalada^)
+  del "%TEMP%\lj-versao-remota.txt" >nul 2>nul
   goto :depois_update
 )
-set "ATRAS=0"
-for /f %%n in ('git rev-list --count HEAD..origin/main 2^>nul') do set "ATRAS=%%n"
-if "%ATRAS%"=="0" (
+set "LJ_NOVA="
+for /f "usebackq delims=" %%v in ("%TEMP%\lj-versao-remota.txt") do set "LJ_NOVA=%%v"
+del "%TEMP%\lj-versao-remota.txt" >nul 2>nul
+REM Resposta boa = exatamente 40 caracteres. Erro da API volta como JSON, que
+REM nunca tem esse tamanho - e essa a conferencia.
+if not defined LJ_NOVA goto :update_resposta_ruim
+if "%LJ_NOVA:~39,1%"=="" goto :update_resposta_ruim
+if not "%LJ_NOVA:~40,1%"=="" goto :update_resposta_ruim
+goto :update_versao_ok
+:update_resposta_ruim
+echo ^(o GitHub nao respondeu direito - seguindo com a versao instalada^)
+goto :depois_update
+:update_versao_ok
+
+set "LJ_ATUAL="
+if exist ".lj-versao" for /f "usebackq delims=" %%v in (".lj-versao") do set "LJ_ATUAL=%%v"
+if "%LJ_ATUAL%"=="%LJ_NOVA%" (
   echo Ja esta na versao mais nova.
   goto :depois_update
 )
 echo.
-echo Existem %ATRAS% atualizacao^(oes^) nova^(s^):
-git --no-pager log --oneline --no-decorate -n 5 HEAD..origin/main
-echo.
-
-REM --- A pasta dos mundos salvos e intocavel, e isso e CONFERIDO ---
-REM "mundos\" esta no .gitignore e nenhum arquivo dela e rastreado, entao a
-REM atualizacao nao a alcanca - os mundos que viajam no repo sao os MODELOS de
-REM aula, em "cenarios\". A conferencia existe porque o dia em que alguem
-REM versionar um .ljw de turma por engano, o professor tem de ser avisado ANTES
-REM de a turma perder o que construiu. Padrao = NAO sobrescrever.
-git diff --name-only HEAD...origin/main -- mundos/ > "%TEMP%\lj-mundos.txt" 2>nul
-set "MUNDOSZ=0"
-for %%s in ("%TEMP%\lj-mundos.txt") do set "MUNDOSZ=%%~zs"
-if "%MUNDOSZ%"=="0" goto :mundos_intactos
-echo ATENCAO: esta atualizacao MEXE na pasta dos mundos salvos ^(mundos\^):
-setlocal enabledelayedexpansion
-set /a LJM=0
-for /f "usebackq delims=" %%l in ("%TEMP%\lj-mundos.txt") do (
-  set /a LJM+=1
-  if !LJM! leq 10 echo     %%l
+if not defined LJ_ATUAL (
+  echo Nao da para saber que versao esta instalada aqui ^(falta o arquivo .lj-versao^).
+  echo A mais nova no GitHub e a %LJ_NOVA:~0,7% - baixar agora resolve isso de vez.
+) else (
+  echo Existe versao nova: %LJ_ATUAL:~0,7% -^> %LJ_NOVA:~0,7%
 )
-if !LJM! gtr 10 echo     ... e mais arquivos ^(sao !LJM! no total^)
-endlocal
-del "%TEMP%\lj-mundos.txt" >nul 2>nul
-echo   Os mundos que a sua turma construiu podem ser SOBRESCRITOS.
-set "SOBR="
-set /p "SOBR=  Sobrescrever os mundos salvos? [s/N] (Enter = nao): "
-if /i "%SOBR%"=="s" goto :mundos_sobrescrever
-if /i "%SOBR%"=="sim" goto :mundos_sobrescrever
-echo   ^(mantendo os mundos salvos - atualizacao cancelada^)
-goto :depois_update
-:mundos_sobrescrever
-echo   ^(ok - a atualizacao vai sobrescrever mundos\^)
-goto :perguntar_update
-:mundos_intactos
-del "%TEMP%\lj-mundos.txt" >nul 2>nul
-echo ^(seus mundos salvos em mundos\ nao sao tocados pela atualizacao^)
-:perguntar_update
 echo.
 set "UPD="
 set /p "UPD=Atualizar agora? [S/n] (Enter = sim): "
@@ -103,82 +102,90 @@ if /i "%UPD%"=="n" (
   goto :depois_update
 )
 
-REM --ff-only: nunca cria commit de merge na maquina da escola. Se nao der
-REM fast-forward, avisa e segue jogando com o que ja funciona.
-git merge --ff-only origin/main >nul 2>nul
-if not errorlevel 1 goto :update_ok
-
-REM O merge recusou. A causa comum NAO e divergencia: e arquivo rastreado
-REM modificado aqui que a atualizacao tambem mexe (no Windows o suspeito comum
-REM e fim-de-linha CRLF sujando o repo inteiro, entao a lista para em 10).
-REM O "del" do arquivo temporario vem DEPOIS do uso: ele ja foi apagado antes
-REM de dar pra ler uma vez (bug-567).
-git status --porcelain --untracked-files=no > "%TEMP%\lj-git-status.txt" 2>nul
-set "SUJO=0"
-for %%s in ("%TEMP%\lj-git-status.txt") do set "SUJO=%%~zs"
-if "%SUJO%"=="0" goto :update_divergiu
-echo.
-echo NAO foi possivel atualizar: ha arquivo^(s^) alterado^(s^) nesta maquina
-echo que a atualizacao tambem mexe:
-setlocal enabledelayedexpansion
-set /a LJN=0
-for /f "usebackq delims=" %%l in ("%TEMP%\lj-git-status.txt") do (
-  set /a LJN+=1
-  if !LJN! leq 10 echo     %%l
-)
-if !LJN! gtr 10 echo     ... e mais arquivos ^(sao !LJN! no total^)
-endlocal
-del "%TEMP%\lj-git-status.txt" >nul 2>nul
-echo.
-set "GUARDAR="
-set /p "GUARDAR=  Guardar essas mudancas e atualizar mesmo assim? [S/n] (Enter = sim): "
-if /i "%GUARDAR%"=="n" (
-  echo   ^(mantendo a versao atual - nada foi mexido^)
-  goto :depois_update
-)
-REM "git stash push" GUARDA, nao apaga. Sem --include-untracked de proposito:
-REM arquivo solto na pasta (um .ljw exportado, por exemplo) fica onde esta.
-git stash push --quiet -m "lj-auto"
+echo Baixando ^(uns 4 MB^)...
+del "%LJ_ZIP%" >nul 2>nul
+rd /s /q "%LJ_TMP%" >nul 2>nul
+curl -L --max-time 300 --fail -o "%LJ_ZIP%" "https://github.com/%LJ_DONO%/%LJ_NOME%/archive/refs/heads/%LJ_RAMO%.zip"
 if errorlevel 1 (
-  echo   ^(nao deu para guardar as mudancas - seguindo com a versao instalada^)
-  goto :depois_update
+  echo ^(o download falhou - seguindo com a versao instalada^)
+  goto :limpar_update
 )
-echo   Guardado no git ^(stash "lj-auto"^).
-REM 2^>nul: no fracasso o git manda rodar "git rebase"/"git merge --no-ff", e
-REM essa nao e conversa pra ter com o professor no comeco da aula.
-git merge --ff-only origin/main 2>nul
-if errorlevel 1 goto :update_stash_falhou
-echo Atualizado.
-REM Sem "stash pop" automatico: se o pop conflitar, a pasta fica em conflito no
-REM meio da aula. Guardado e reversivel; conflito na hora da aula, nao.
-echo   As suas mudancas NAO foram perdidas: ficaram guardadas no git.
-echo   Para trazer de volta:            git stash pop
-echo   Para so ver o que foi guardado:  git stash list
-goto :update_deps
+mkdir "%LJ_TMP%" >nul 2>nul
+tar -xf "%LJ_ZIP%" -C "%LJ_TMP%"
+if errorlevel 1 (
+  echo ^(nao deu para abrir o ZIP - seguindo com a versao instalada^)
+  goto :limpar_update
+)
+if not exist "%LJ_SRC%\package.json" (
+  echo ^(o ZIP veio num formato inesperado - seguindo com a versao instalada^)
+  goto :limpar_update
+)
 
-:update_stash_falhou
+REM --- A pasta dos mundos salvos e intocavel, e isso e CONFERIDO ---
+REM "mundos\" esta no .gitignore e nenhum arquivo dela e rastreado, entao ela
+REM nao viaja no ZIP - os mundos que viajam sao os MODELOS de aula, em
+REM "cenarios\". A conferencia existe porque o dia em que alguem versionar um
+REM .ljw de turma por engano, o professor tem de ser avisado ANTES de a turma
+REM perder o que construiu. Padrao = NAO sobrescrever.
+set "LJ_XD="
+if not exist "%LJ_SRC%\mundos" goto :mundos_intactos
 echo.
-echo Mesmo assim NAO deu para atualizar ^(a copia local divergiu^).
-echo Devolvendo as suas mudancas...
-git stash pop
-if errorlevel 1 echo   ^(as mudancas seguem guardadas - recupere com: git stash pop^)
-echo Seguindo com a versao instalada.
-goto :depois_update
+echo ATENCAO: esta atualizacao TRAZ arquivos para a pasta dos mundos salvos ^(mundos\^):
+dir /b "%LJ_SRC%\mundos"
+echo   Os mundos que a sua turma construiu podem ser SOBRESCRITOS.
+set "SOBR="
+set /p "SOBR=  Sobrescrever os mundos salvos? [s/N] (Enter = nao): "
+if /i "%SOBR%"=="s" goto :mundos_decidido
+if /i "%SOBR%"=="sim" goto :mundos_decidido
+set "LJ_XD=/XD mundos"
+echo   ^(ok - os mundos salvos ficam como estao^)
+goto :mundos_decidido
+:mundos_intactos
+echo ^(seus mundos salvos em mundos\ nao sao tocados pela atualizacao^)
+:mundos_decidido
 
-:update_divergiu
-del "%TEMP%\lj-git-status.txt" >nul 2>nul
-echo.
-echo NAO foi possivel atualizar automaticamente ^(a copia local divergiu^).
-echo Seguindo com a versao instalada.
-goto :depois_update
-
-:update_ok
-echo Atualizado.
-:update_deps
+echo Aplicando a atualizacao...
+REM robocopy SEM /PURGE: so escreve por cima e acrescenta, nunca apaga o que e
+REM so seu (mundos\, node_modules\, .env, .ljw exportado solto na pasta).
+REM /XF do proprio .bat: o cmd.exe le este arquivo enquanto executa, entao
+REM troca-lo no meio da execucao corrompe a rodada. A troca dele vem depois,
+REM em :trocar_launcher, com o launcher ja fora do ar.
+robocopy "%LJ_SRC%" "%CD%" /E /NFL /NDL /NJH /NJS /NP /R:1 /W:1 /XF "iniciar-servidor.bat" %LJ_XD% >nul
+if errorlevel 8 (
+  echo ^(a copia falhou - seguindo com a versao instalada^)
+  goto :limpar_update
+)
+> ".lj-versao" echo %LJ_NOVA%
+echo Atualizado para a %LJ_NOVA:~0,7%.
 echo Conferindo as dependencias...
 call npm install
 if errorlevel 1 echo ^(aviso: npm install falhou - se o servidor nao subir, rode "npm install" a mao^)
+
+REM --- O proprio launcher mudou nesta atualizacao? ---
+REM fc devolve 0 quando os dois arquivos sao iguais.
+fc /b "%LJ_SRC%\iniciar-servidor.bat" "%~f0" >nul 2>nul
+if not errorlevel 1 goto :limpar_update
+:trocar_launcher
+REM Um .cmd de fora faz a troca: este aqui precisa SAIR antes de ser
+REM sobrescrito, senao o cmd.exe continua lendo o arquivo velho por offset e
+REM executa lixo. Ele espera, copia, limpa o temporario e reabre o launcher.
+echo.
+echo O proprio launcher mudou. Trocando e reabrindo a janela...
+> "%TEMP%\lj-troca.cmd" echo @echo off
+>>"%TEMP%\lj-troca.cmd" echo ping -n 3 127.0.0.1 ^>nul
+>>"%TEMP%\lj-troca.cmd" echo copy /y "%LJ_SRC%\iniciar-servidor.bat" "%~f0" ^>nul
+>>"%TEMP%\lj-troca.cmd" echo rd /s /q "%LJ_TMP%" ^>nul 2^>nul
+>>"%TEMP%\lj-troca.cmd" echo del "%LJ_ZIP%" ^>nul 2^>nul
+>>"%TEMP%\lj-troca.cmd" echo start "" "%~f0"
+start "" "%TEMP%\lj-troca.cmd"
+exit
+
+:limpar_update
+del "%LJ_ZIP%" >nul 2>nul
+rd /s /q "%LJ_TMP%" >nul 2>nul
 :depois_update
+set "LJ_DONO=" & set "LJ_NOME=" & set "LJ_RAMO=" & set "LJ_TMP=" & set "LJ_ZIP="
+set "LJ_SRC=" & set "LJ_NOVA=" & set "LJ_ATUAL=" & set "LJ_XD="
 echo.
 
 REM --- Dependencias instaladas? (so na primeira vez) ---

@@ -1,6 +1,6 @@
 # anatomy.md
 
-> Auto-maintained by OpenWolf. Last scanned: 2026-08-06T17:20:23.565Z
+> Auto-maintained by OpenWolf. Last scanned: 2026-08-06T18:47:04.808Z
 > Files: 331 tracked | Anatomy hits: 0 | Misses: 0
 
 ## ./
@@ -8,7 +8,7 @@
 - `.gitattributes` — LF em tudo (projeto vive no WSL/ext4; evita ruído CRLF de ferramentas Windows) (~31 tok)
 - `.gitignore` — Git ignore rules (~331 tok)
 - `CLAUDE.md` — OpenWolf (~57 tok)
-- `iniciar-servidor.bat` (~3310 tok)
+- `iniciar-servidor.bat` (~3462 tok)
 - `iniciar-servidor.sh` — ============================================================ (~3117 tok)
 - `LICENSE` — Licença de Uso — Lógica em Jogo (~1070 tok)
 - `package-lock.json` — npm lock file (~20120 tok)
