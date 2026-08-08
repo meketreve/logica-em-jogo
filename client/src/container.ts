@@ -11,6 +11,7 @@ import {
 } from "@logica/shared";
 import { playUi } from "./audio";
 import type { Mochila } from "./mochila";
+import { ArrastoDeSlot, primeiroLugar, slotSob } from "./slotDrag";
 
 /**
  * §🍖 F10 — O PAINEL DE TRANSFERÊNCIA (fornalha e baú).
@@ -43,6 +44,11 @@ export class ContainerPanel {
   private progresso = 0;
   /** Slot "pego" esperando destino, no índice UNIFICADO (ou null). */
   private pegando: number | null = null;
+  /** §🧹 (playtest): quantas unidades a MÃO carrega numa pilha DIVIDIDA (clique
+   *  direito no PC) — null = a pilha inteira. */
+  private metadePegando: number | null = null;
+  /** §🧹 (playtest): arrasto com o mouse por cima do tocar-origem/destino. */
+  private readonly arrasto: ArrastoDeSlot;
   /**
    * O aluno pediu pra fechar e o servidor ainda não confirmou (bug-593).
    *
@@ -70,7 +76,14 @@ export class ContainerPanel {
     private readonly mochila: Mochila,
     private readonly nameOf: (id: number) => string,
     /** Pede ao servidor pra mover (índices UNIFICADOS). */
-    private readonly mover: (x: number, y: number, z: number, de: number, para: number) => void,
+    private readonly mover: (
+      x: number,
+      y: number,
+      z: number,
+      de: number,
+      para: number,
+      qtd?: number,
+    ) => void,
     /** Avisa o servidor que o painel fechou (senão ele manda o conteúdo pra sempre). */
     private readonly avisarFechado: () => void,
     private readonly onToggle: (open: boolean) => void,
@@ -78,6 +91,35 @@ export class ContainerPanel {
     this.root?.addEventListener("click", (e) => {
       const btn = e.target instanceof HTMLElement ? e.target.closest("button") : null;
       if (btn) playUi("click");
+    });
+    // §🧹 (playtest): o arrasto do PC reusa o `pegando` do gesto de toque e o
+    // MESMO `mover_container` — quem aplica é o servidor, como sempre.
+    this.arrasto = new ArrastoDeSlot({
+      slotEm: (x, y) => slotSob(x, y),
+      iconeDe: (slot) => {
+        const id =
+          slot < INV_SLOTS
+            ? this.mochila.idDoSlot(slot)
+            : (this.slots[slot - INV_SLOTS]?.id ?? null);
+        return id === null ? null : (this.icons.get(id) ?? null);
+      },
+      qtdDe: (slot) =>
+        slot < INV_SLOTS
+          ? this.mochila.qtdDoSlot(slot)
+          : (this.slots[slot - INV_SLOTS]?.qtd ?? 0),
+      pegando: () => this.pegando,
+      setPegando: (s) => {
+        this.pegando = s;
+      },
+      metade: () => this.metadePegando,
+      setMetade: (q) => {
+        this.metadePegando = q;
+      },
+      mover: (de, para, qtd) => {
+        if (this.pos) this.mover(this.pos.x, this.pos.y, this.pos.z, de, para, qtd);
+      },
+      redesenhar: () => this.render(),
+      aoClicar: (slot, vazio, shift) => this.clicar(slot, vazio, shift),
     });
   }
 
@@ -164,17 +206,58 @@ export class ContainerPanel {
     return "pronto";
   }
 
-  private clicar(unificado: number, vazio: boolean): void {
+  private clicar(unificado: number, vazio: boolean, shift: boolean): void {
     if (this.pegando === null) {
       if (vazio) return; // nada pra pegar
+      if (shift) {
+        this.moverRapido(unificado);
+        return;
+      }
       this.pegando = unificado;
     } else if (this.pegando === unificado) {
       this.pegando = null; // tocar de novo solta
     } else if (this.pos) {
-      this.mover(this.pos.x, this.pos.y, this.pos.z, this.pegando, unificado);
+      this.mover(this.pos.x, this.pos.y, this.pos.z, this.pegando, unificado, this.metadePegando ?? undefined);
+      this.metadePegando = null;
       this.pegando = null;
     }
     this.render();
+  }
+
+  /**
+   * §🧹 (playtest) — shift+clique no painel de transferência: manda o item pro
+   * primeiro lugar que aceita no OUTRO lado — mochila → container, container →
+   * hotbar/grade. O servidor valida e aplica; se nada aceitar, nada muda.
+   */
+  private moverRapido(unificado: number): void {
+    if (this.pos === null) return;
+    const naMochila = unificado < INV_SLOTS;
+    let id: number | null;
+    let qtd: number;
+    if (naMochila) {
+      id = this.mochila.idDoSlot(unificado);
+      qtd = this.mochila.qtdDoSlot(unificado);
+    } else {
+      const s = this.slots[unificado - INV_SLOTS];
+      id = s?.id ?? null;
+      qtd = s?.qtd ?? 0;
+    }
+    if (id === null || qtd <= 0) return;
+    if (naMochila) {
+      const para = primeiroLugar(
+        this.slots,
+        0,
+        this.slots.length,
+        id,
+      );
+      if (para === null) return;
+      this.mover(this.pos.x, this.pos.y, this.pos.z, unificado, INV_SLOTS + para);
+    } else {
+      const inv = this.mochila.estado();
+      const para = primeiroLugar(inv, 0, INV_SLOTS, id);
+      if (para === null) return;
+      this.mover(this.pos.x, this.pos.y, this.pos.z, unificado, para);
+    }
   }
 
   /** Um slot: ícone, quantidade e o contorno de "pego". */
@@ -195,7 +278,9 @@ export class ContainerPanel {
         b.appendChild(n);
       }
     }
-    b.addEventListener("click", () => this.clicar(unificado, id === null));
+    // §🧹 (playtest): o botão entra no arrasto do PC (que reusa o `pegando`);
+    // o clique SEM arrasto continua sendo o tocar-origem/destino de sempre.
+    this.arrasto.anexar(b, unificado, id, qtd);
     return b;
   }
 

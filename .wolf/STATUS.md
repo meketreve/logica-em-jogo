@@ -1,6 +1,38 @@
 # STATUS — Projeto "Lógica em Jogo" (jogo voxel educacional)
 
 > Single source of truth for resuming work. Read this FIRST when starting a session.
+> **SESSÃO 59 (2026-08-07) — PLAYTEST DO TODO: COMER NO TABLET, 🧱→🎒, CLICK'N'DRAG E SHIFT-CLIQUE.**
+> A sessão fechou o pedido do playtest em 4 frentes: os 2 itens de toque (T1/T2) e os 2 do PC
+> (T3/T4). Tudo sem decidir estado no cliente — as mensagens `mover_item`/`mover_container`
+> ganharam `qtd` opcional (pilha parcial) e quem aplica segue sendo o servidor.
+>
+> **T1 — comer no tablet:** o botão ▣ do toque vira "comer 🍎" quando dá pra morder — mão com
+> comida E fome pra gastar (`fome < FOME_MAX`). `touch.ts` ganhou `setModoComer()` e
+> `atualizarBtnColocar()` (decide o rótulo ▣ entre varinha ② / comer 🍎 / colocar ▣); o
+> `main.ts` chamou `atualizarComerToque()` no handler do `modo`, do `vida` e no `aoRedesenhar`
+> da hotbar — comer SOME quando a barra enche. A recusa final (barriga cheia devolve o item)
+> continua no servidor.
+> **T2 — rótulo da mochila:** o botão 🧱 "blocos" do topo vira 🎒 "mochila" em sobrevivência
+> (`setMochilaRotulo`), fiado no handler do `modo` e no boot.
+> **T3 — click'n'drag no PC:** `client/src/slotDrag.ts` (NOVO) — `ArrastoDeSlot` adiciona o
+> SEGURAR→arrastar→soltar do Minecraft POR CIMA do gesto de tocar-origem/destino (clique sem
+> arrasto continua o toque de sempre). Traz o **fantasma** no cursor, a **divisão de pilha**
+> (clique DIREITO pega a metade, arredondada pra cima; segurando, larga 1 item por destino) e o
+> **shift-clique**. Anexado à mochila (`inventory.ts`) e ao painel de transferência
+> (`container.ts`, com os índices UNIFICADOS — o painel do container fecha o da mochila). Reusa
+> o estado `pegando` de sempre e envia `mover_item`/`mover_container` com `qtd?`.
+> **T4 — shift-clique (quick move do Minecraft):** `primeiroLugar` (em `slotDrag.ts`) acha o
+> primeiro slot que aceita — mesmo id com espaço ou vazio, na ordem do `adicionar` do servidor.
+> Mochila: hotbar↔grade. Transferência: mochila↔container.
+> **Protocolo — pilha parcial:** `mover_item`/`mover_container` ganharam `qtd?: number` (ausente
+> = pilha inteira) com parser que valida inteiro ≥ 1; `moverSlot`/`moverEntre` usam o novo
+> `moverParteEmArray` (destino vazio recebe a parte; mesmo id JUNTA até o teto; id diferente
+> TROCA a parte pela pilha do destino; no-op devolve o MESMO array). 9 testes novos
+> (`inventario.test.ts` + `containers.test.ts`, incluindo a regra da SAÍDA da fornalha).
+> **Bateria verde:** `npm test` shared **45/45 arquivos, 811/811 testes** · `npm run typecheck`
+> (shared/server/client) ✓ · `npm run build` ✓ · `npm run smoke` **15/15** ✓.
+> **Nada commitado ainda** — o commit da sessão 59 é o próximo passo.
+
 > **SESSÃO 58 (2026-08-07) — F10h CULTIVOS (6 CULTURAS + BATATA COZIDA) + bugs 599-604 FIXED.**
 > A sessão fechou o playtest da 55: os **6 bugs consertados** (A1-A6), os 2 pedidos de toque
 > (B1/B2) e o **pedido de conteúdo F10h** inteiro (6 culturas no molde do algodão + batata

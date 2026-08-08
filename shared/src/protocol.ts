@@ -67,7 +67,7 @@ export type ClientMessage =
   /** Inventário (§🍖 F4): o aluno arrastou/tocou pra reorganizar a mochila.
    *  O cliente NÃO decide — manda os dois índices e o servidor aplica (ou não)
    *  e responde com o `inventario` inteiro. Índice inválido é ignorado. */
-  | { type: "mover_item"; de: number; para: number }
+  | { type: "mover_item"; de: number; para: number; qtd?: number }
   /**
    * Container (§🍖 F10): move item entre a MOCHILA e o bloco com inventário
    * (fornalha, baú) daquela célula. O índice é UNIFICADO — `0..26` é a
@@ -78,7 +78,7 @@ export type ClientMessage =
    * abre), e o servidor reconfere alcance e claim a cada movimento — quem
    * abriu o baú e saiu andando não continua mexendo nele de longe.
    */
-  | { type: "mover_container"; x: number; y: number; z: number; de: number; para: number }
+  | { type: "mover_container"; x: number; y: number; z: number; de: number; para: number; qtd?: number }
   /** Container (§🍖 F10): o aluno fechou o painel. Sem isto o servidor
    *  continuaria mandando o conteúdo daquele bloco a cada tick pra sempre. */
   | { type: "fechar_container" }
@@ -544,7 +544,15 @@ export function parseClientMessage(raw: string): ClientMessage | null {
     case "mover_item": {
       const ints = [m["de"], m["para"]];
       if (!ints.every((n) => typeof n === "number" && Number.isInteger(n))) return null;
-      return { type: "mover_item", de: m["de"] as number, para: m["para"] as number };
+      // §🧹 (playtest): `qtd` opcional = move só PARTE da pilha (o PC divide com
+      // clique direito); ausente = pilha inteira, como sempre.
+      const qtd = m["qtd"];
+      return {
+        type: "mover_item",
+        de: m["de"] as number,
+        para: m["para"] as number,
+        ...(typeof qtd === "number" && Number.isInteger(qtd) && qtd >= 1 ? { qtd } : {}),
+      };
     }
     case "mover_container": {
       // §🍖 F10: os 5 inteiros são a célula + o par de índices unificados. A
@@ -552,6 +560,7 @@ export function parseClientMessage(raw: string): ClientMessage | null {
       // container tem é o `moverEntre`, que já recusa o que sai da faixa.
       const ints = [m["x"], m["y"], m["z"], m["de"], m["para"]];
       if (!ints.every((n) => typeof n === "number" && Number.isInteger(n))) return null;
+      const qtd = m["qtd"];
       return {
         type: "mover_container",
         x: m["x"] as number,
@@ -559,6 +568,7 @@ export function parseClientMessage(raw: string): ClientMessage | null {
         z: m["z"] as number,
         de: m["de"] as number,
         para: m["para"] as number,
+        ...(typeof qtd === "number" && Number.isInteger(qtd) && qtd >= 1 ? { qtd } : {}),
       };
     }
     case "fechar_container":

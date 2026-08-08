@@ -9,6 +9,7 @@ import {
 import { playUi } from "./audio";
 import { CATEGORIAS, type Categoria, type PlaceableEntry } from "./blocksUi";
 import type { Mochila } from "./mochila";
+import { ArrastoDeSlot, primeiroLugar, slotSob } from "./slotDrag";
 
 /**
  * Inventário de blocos (cp16) — grade dos colocáveis + faixa da hotbar de 9
@@ -33,6 +34,12 @@ export class InventoryPanel {
   private cat: Categoria = "blocos";
   /** §🍖 F4: slot "pego" esperando o destino (null = nenhum). */
   private pegando: number | null = null;
+  /** §🧹 (playtest): quantas unidades a MÃO carrega quando foi uma DIVISÃO de
+   *  pilha (clique direito no PC) — null = a pilha inteira. */
+  private metadePegando: number | null = null;
+  /** §🧹 (playtest): arrasto com o mouse por cima do gesto de tocar-origem/
+   *  destino. Nasce uma vez; os botões se ligam a ele a cada render. */
+  private readonly arrasto: ArrastoDeSlot;
   /** §🍖 F5: em sobrevivência o painel tem duas visões — arrumar a mochila e
    *  fabricar. Sobrevive a abrir/fechar dentro da sessão, como `cat`. */
   private subaba: "mochila" | "criar" = "mochila";
@@ -77,7 +84,7 @@ export class InventoryPanel {
     /** §🍖 F4: a mochila autoritativa. `ativa === false` = criativo (paleta). */
     private readonly mochila: Mochila,
     /** §🍖 F4: pede ao servidor pra mover uma pilha de slot. */
-    private readonly mover: (de: number, para: number) => void,
+    private readonly mover: (de: number, para: number, qtd?: number) => void,
     /** §🍖 F5: nome PT de um id (bloco ou item, ex. "tábuas", "balde vazio"). */
     private readonly nameOf: (id: number) => string,
     /** §🍖 F5: pede ao servidor pra fabricar a receita de índice `indice`. */
@@ -88,6 +95,76 @@ export class InventoryPanel {
       const btn = e.target instanceof HTMLElement ? e.target.closest("button") : null;
       if (btn) playUi("click");
     });
+    // §🧹 (playtest): o arrasto do PC (SEGURAR → arrastar → soltar) reusa o
+    // MESMO estado `pegando` do gesto de toque e o MESMO `mover_item` — quem
+    // aplica é o servidor, como sempre.
+    this.arrasto = new ArrastoDeSlot({
+      slotEm: (x, y) => slotSob(x, y),
+      iconeDe: (slot) => {
+        const id = this.mochila.idDoSlot(slot);
+        return id === null ? null : (this.icons.get(id) ?? null);
+      },
+      qtdDe: (slot) => this.mochila.qtdDoSlot(slot),
+      pegando: () => this.pegando,
+      setPegando: (s) => {
+        this.pegando = s;
+      },
+      metade: () => this.metadePegando,
+      setMetade: (q) => {
+        this.metadePegando = q;
+      },
+      mover: (de, para, qtd) => this.mover(de, para, qtd),
+      redesenhar: () => this.render(),
+      aoClicar: (slot, vazio, shift) => this.clicarMochila(slot, vazio, shift),
+    });
+  }
+
+  /**
+   * §🧹 (playtest) — o clique SEM arrasto nos slots da mochila (PC): o gesto
+   * de tocar-origem/destino de sempre, com as escolhas novas:
+   *  • shift+clique = mover rápido (mochila ↔ hotbar ↔ mesa/baú quando abre);
+   *  • clique direito = pegar a METADE da pilha.
+   */
+  private clicarMochila(slot: number, vazio: boolean, shift: boolean): void {
+    if (this.pegando === null) {
+      if (vazio) {
+        // slot vazio da HOTBAR sem nada pego: vale como escolher a mão
+        if (slot < HOTBAR_SLOTS) this.select(slot);
+        this.render();
+        return;
+      }
+      if (shift) {
+        this.moverRapido(slot);
+        return;
+      }
+      this.pegando = slot;
+    } else if (this.pegando === slot) {
+      this.pegando = null;
+    } else {
+      const qtd = this.metadePegando ?? undefined;
+      this.mover(this.pegando, slot, qtd);
+      this.metadePegando = null;
+      this.pegando = null;
+    }
+    this.render();
+  }
+
+  /**
+   * §🧹 (playtest) — shift+clique: o quick move do Minecraft. Hotbar → grade e
+   * grade → hotbar (o painel do container fecha o da mochila, então aqui o
+   * destino é sempre o próprio inventário). Vai pro primeiro lugar que aceita:
+   * mesmo id com espaço ou vazio — o servidor valida e aplica.
+   */
+  private moverRapido(slot: number): void {
+    const inv = this.mochila.estado();
+    const id = inv[slot]?.id;
+    if (id === undefined) return;
+    // hotbar → grade; grade → hotbar
+    const de = slot < HOTBAR_SLOTS ? HOTBAR_SLOTS : 0;
+    const ate = slot < HOTBAR_SLOTS ? INV_SLOTS : HOTBAR_SLOTS;
+    const para = primeiroLugar(inv, de, ate, id);
+    if (para === null) return;
+    this.mover(slot, para);
   }
 
   get open(): boolean {
@@ -289,23 +366,9 @@ export class InventoryPanel {
           b.appendChild(n);
         }
       }
-      b.addEventListener("click", () => {
-        if (this.pegando === null) {
-          if (id === null) {
-            // slot vazio da HOTBAR sem nada pego: vale como escolher a mão
-            if (i < HOTBAR_SLOTS) this.select(i);
-            this.render();
-            return;
-          }
-          this.pegando = i;
-        } else if (this.pegando === i) {
-          this.pegando = null;
-        } else {
-          this.mover(this.pegando, i);
-          this.pegando = null;
-        }
-        this.render();
-      });
+      // §🧹 (playtest): o botão entra no arrasto do PC (que reusa o `pegando`).
+      // O clique SEM arrasto continua sendo o gesto de tocar-origem/destino.
+      this.arrasto.anexar(b, i, id, qtd);
       return b;
     };
 

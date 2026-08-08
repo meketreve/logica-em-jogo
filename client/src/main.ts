@@ -28,6 +28,7 @@ import {
   decodeSnapshot,
   descartarColunaLuz,
   findSpawnY,
+  FOME_MAX,
   getBlock,
   isBalde,
   isComida,
@@ -780,6 +781,9 @@ function handleServerData(data: string | ArrayBuffer): void {
       // bug-600: copiar (botão do meio) não existe em sobrevivência — esconde o
       // botão ✋ do tablet junto (o gesto já era no-op lá, o botão só enganava).
       touchControls?.setCopiarDisponivel(msg.efetivo !== "sobrevivencia");
+      // playtest: o 🧱 vira "mochila" no rótulo quando o inventário é o do servidor
+      touchControls?.setMochilaRotulo(msg.efetivo === "sobrevivencia");
+      jogo?.atualizarComerToque(); // §🍖 F6: só dá pra comer em sobrevivência
       pvpLigado = msg.pvp === true; // §🍖 F7: ausente (host antigo) = desligado
       if (!podeVoar()) flying = false; // entrou em sobrevivência voando: cai
       // §🍖 F2: corações só existem em sobrevivência (o ?vida força e vence,
@@ -812,6 +816,7 @@ function handleServerData(data: string | ArrayBuffer): void {
       if (vidaForcada !== null) return; // ?vida= congela o HUD (inspeção)
       ultimaVida = msg; // §🍖 F3: o F3 (tecla) mostra vida/fome do servidor
       vitals().aplicar(msg);
+      jogo?.atualizarComerToque(); // §🍖 F6: comer some quando a barra enche
       if (msg.causa) emitGameEvent({ kind: "dano" });
       if (msg.morreu) {
         emitGameEvent({ kind: "morte" });
@@ -1233,6 +1238,7 @@ class GameRuntime {
       aoRedesenhar: () => {
         paineis.mochila?.refresh();
         paineis.container?.refresh(); // §🍖 F10: o lado de baixo do painel é a mochila
+        this.atualizarComerToque(); // §🍖 F6: trocar de slot na hotbar muda o que o ▣ faz
       },
     });
     this.hotbarUi.refresh();
@@ -1257,7 +1263,8 @@ class GameRuntime {
         updateOverlay();
       },
       mochila,
-      (de, para) => this.activeConn.send(JSON.stringify({ type: "mover_item", de, para })),
+      (de, para, qtd) =>
+        this.activeConn.send(JSON.stringify({ type: "mover_item", de, para, qtd })),
       (id) => this.hotbarUi.nome(id),
       (receita) => this.activeConn.send(JSON.stringify({ type: "fabricar", receita })),
     );
@@ -1270,8 +1277,8 @@ class GameRuntime {
       this.hotbarUi.icons,
       mochila,
       (id) => this.hotbarUi.nome(id),
-      (x, y, z, de, para) =>
-        this.activeConn.send(JSON.stringify({ type: "mover_container", x, y, z, de, para })),
+      (x, y, z, de, para, qtd) =>
+        this.activeConn.send(JSON.stringify({ type: "mover_container", x, y, z, de, para, qtd })),
       () => this.activeConn.send(JSON.stringify({ type: "fechar_container" })),
       (open) => {
         if (open) {
@@ -1495,6 +1502,10 @@ class GameRuntime {
         keys: () => settings.keys,
         quebrar: () => input.press(0),
         colocar: () => input.press(2),
+        // §🍖 F6 (playtest): o ▣ vira "comer" — manda a mordida direto (a
+        // regra de "não comer de barriga cheia" é do servidor, como sempre)
+        comer: () =>
+          this.activeConn.send(JSON.stringify({ type: "comer", slot: this.hotbarUi.selected })),
         copiar: () => input.press(1),
         // mesma regra de um menu por vez do teclado (o dedo não tem Esc)
         inventario: () => paineis.alternar(paineis.mochila),
@@ -1518,7 +1529,10 @@ class GameRuntime {
       touchControls.setAmigosDisponivel(claimsAtivo);
       // bug-600: o ✋ de copiar segue o MODO — some em sobrevivência
       touchControls.setCopiarDisponivel(modoAtual !== "sobrevivencia");
+      // playtest: o 🧱 do topo vira a mochila em sobrevivência (rótulo + ícone)
+      touchControls.setMochilaRotulo(modoAtual === "sobrevivencia");
       touchControls.setScale(settings.uiScale); // aplica a escala salva de cara
+      this.atualizarComerToque(); // §🍖 F6: o ▣ pode já ser o "comer" no boot
       updateOverlay();
     }
 
@@ -2185,6 +2199,21 @@ class GameRuntime {
   /** §🍖 F4: a mochila autoritativa mudou — a hotbar se redesenha. */
   aoMudarMochila(): void {
     this.hotbarUi.refresh();
+    this.atualizarComerToque(); // §🍖 F6: a comida da mão mudou (pegou/gastou)
+  }
+
+  /**
+   * §🍖 F6 (playtest): o ▣ do tablet vira "comer" quando DÁ pra morder — mão
+   * com comida E fome pra gastar. A recusa final continua no servidor (barriga
+   * cheia devolve o item intacto); esta regra é só pra UI não oferecer mordida
+   * inútil. Quem decide o rótulo do botão é o touch.ts.
+   */
+  atualizarComerToque(): void {
+    const naMao = this.hotbarUi.idNaMao();
+    const fome = ultimaVida?.fome;
+    const comendo =
+      mochila.ativa && naMao !== null && isComida(naMao) && fome !== undefined && fome < FOME_MAX;
+    touchControls?.setModoComer(comendo);
   }
 }
 

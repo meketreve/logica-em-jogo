@@ -110,6 +110,30 @@ describe("containers — o índice unificado (mochila + container)", () => {
     expect(r!.container.slots[FORNALHA_COMBUSTIVEL]).toEqual({ id: ITEM_CARVAO, qtd: 3 });
   });
 
+  it("§🧹 com qtd: só PARTE atravessa, o resto fica na origem", () => {
+    const r = moverEntre(
+      inv([0, BlockId.MinerioFerro, 5]),
+      containerVazio("fornalha"),
+      0,
+      INV_SLOTS + FORNALHA_ENTRADA,
+      2,
+    );
+    expect(r).not.toBeNull();
+    expect(r!.mochila[0]).toEqual({ id: BlockId.MinerioFerro, qtd: 3 });
+    expect(r!.container.slots[FORNALHA_ENTRADA]).toEqual({ id: BlockId.MinerioFerro, qtd: 2 });
+  });
+
+  it("§🧹 com qtd na SAÍDA da fornalha: a regra de mão única continua valendo", () => {
+    const r = moverEntre(
+      inv([0, BlockId.MinerioFerro, 5]),
+      forno(FORNALHA_SAIDA, BlockId.Glass, 2),
+      0,
+      INV_SLOTS + FORNALHA_SAIDA,
+      2,
+    );
+    expect(r).toBeNull();
+  });
+
   it("ids diferentes TROCAM de lugar (o gesto de trocar o que está na fornalha)", () => {
     const r = moverEntre(
       inv([0, BlockId.Sand, 8]),

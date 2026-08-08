@@ -549,3 +549,55 @@ describe("§🍖 F4 — mover_item (o aluno arruma a mochila)", () => {
     expect(ultimoInv(sent, 2)).toBeNull();
   });
 });
+
+describe("§🧹 moverSlot com qtd — o PC divide a pilha (playtest)", () => {
+  it("move só a parte e o resto fica na origem", () => {
+    const antes = inv([0, BlockId.Stone, 10]);
+    const depois = moverSlot(antes, 0, 20, 3);
+    expect(depois[0]).toEqual({ id: BlockId.Stone, qtd: 7 });
+    expect(depois[20]).toEqual({ id: BlockId.Stone, qtd: 3 });
+  });
+
+  it("destino vazio recebe a parte (e nada mais muda)", () => {
+    const antes = inv([0, BlockId.Stone, 10], [5, BlockId.WoolRed, 2]);
+    const depois = moverSlot(antes, 0, 25, 4);
+    expect(depois[0]).toEqual({ id: BlockId.Stone, qtd: 6 });
+    expect(depois[25]).toEqual({ id: BlockId.Stone, qtd: 4 });
+    expect(depois[5]).toEqual({ id: BlockId.WoolRed, qtd: 2 });
+  });
+
+  it("mesmo id JUNTA até o teto e devolve o resto à origem", () => {
+    const antes = inv([0, BlockId.Stone, 64], [5, BlockId.Stone, 10]);
+    const depois = moverSlot(antes, 0, 5, 3);
+    expect(depois[5]).toEqual({ id: BlockId.Stone, qtd: 13 });
+    expect(depois[0]).toEqual({ id: BlockId.Stone, qtd: 61 });
+  });
+
+  it("id diferente TROCA a parte pela pilha do destino (Minecraft)", () => {
+    const antes = inv([0, BlockId.Stone, 10], [5, BlockId.WoolRed, 2]);
+    const depois = moverSlot(antes, 0, 5, 4);
+    expect(depois[0]).toEqual({ id: BlockId.WoolRed, qtd: 2 });
+    expect(depois[5]).toEqual({ id: BlockId.Stone, qtd: 4 });
+  });
+
+  it("qtd ≥ a pilha inteira cai no movimento completo", () => {
+    const antes = inv([0, BlockId.Stone, 5]);
+    const depois = moverSlot(antes, 0, 20, 99);
+    expect(depois[0]).toBeNull();
+    expect(depois[20]).toEqual({ id: BlockId.Stone, qtd: 5 });
+  });
+
+  it("qtd inválida (0, negativa, fracionária) não muda nada", () => {
+    const antes = inv([0, BlockId.Stone, 10]);
+    expect(moverSlot(antes, 0, 20, 0)).toBe(antes);
+    expect(moverSlot(antes, 0, 20, -3)).toBe(antes);
+    expect(moverSlot(antes, 0, 20, 2.5)).toBe(antes);
+  });
+
+  it("origem vazia, índice fora da faixa ou de === para não muda nada", () => {
+    const antes = inv([0, BlockId.Stone, 10]);
+    expect(moverSlot(antes, 9, 20, 2)).toBe(antes);
+    expect(moverSlot(antes, 0, 999, 2)).toBe(antes);
+    expect(moverSlot(antes, 0, 0, 2)).toBe(antes);
+  });
+});

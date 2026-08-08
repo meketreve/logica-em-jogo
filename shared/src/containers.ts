@@ -6,6 +6,7 @@ import {
   type Slot,
   type SlotSalvo,
   moverEmArray,
+  moverParteEmArray,
   tamanhoStack,
 } from "./inventario";
 
@@ -150,6 +151,7 @@ export function moverEntre(
   c: Container,
   de: number,
   para: number,
+  qtd?: number,
 ): { mochila: Inventario; container: Container } | null {
   const total = totalDeSlots(c.tipo);
   if (!Number.isInteger(de) || !Number.isInteger(para)) return null;
@@ -158,7 +160,12 @@ export function moverEntre(
   if (moverBloqueadoPorCombustivel(mochila, c, de, para)) return null;
 
   const juntos: readonly Slot[] = [...mochila, ...c.slots];
-  const depois = moverEmArray(juntos, de, para);
+  // §🧹 (playtest): `qtd` opcional = move só parte da pilha (a divisão do PC);
+  // ausente = pilha inteira, como sempre.
+  const depois =
+    qtd === undefined
+      ? moverEmArray(juntos, de, para)
+      : moverParteEmArray(juntos, de, para, qtd);
   if (depois === juntos) return null; // `moverEmArray` devolve o MESMO array no no-op
   return {
     mochila: depois.slice(0, INV_SLOTS),

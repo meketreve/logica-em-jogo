@@ -23,6 +23,10 @@ export interface TouchActions {
   keys(): { forward: string; back: string; left: string; right: string; jump: string; agachar: string };
   quebrar(): void;
   colocar(): void;
+  /** §🍖 F6 (playtest): o botão ▣ vira "comer" quando há comida na mão e fome
+   *  pra gastar — manda `{type: comer}` pro servidor, que decide (barriga
+   *  cheia devolve o item intacto). */
+  comer(): void;
   copiar(): void;
   inventario(): void;
   chat(): void;
@@ -119,6 +123,13 @@ export class TouchControls {
   private btnQuebrar: HTMLButtonElement | null = null;
   private btnColocar: HTMLButtonElement | null = null;
   private btnCopiar: HTMLButtonElement | null = null;
+  private btnBlocos: HTMLButtonElement | null = null;
+  /** §🍖 F6 (playtest): o ▣ está no modo "comer"? (comida na mão + fome pra
+   *  gastar — quem decide o rótulo é o main.ts via setModoComer). */
+  private modoComer = false;
+  /** Espelha o `ativo` da varinha pra decidir o que o ▣ faz (canto 2 manda na
+   *  frente do comer). */
+  private varinhaAtiva = false;
   private joyPointer: number | null = null;
   private lookPointer: number | null = null;
   private lookX = 0;
@@ -214,8 +225,18 @@ export class TouchControls {
       // borda; voando DESCE). Segurar, como o pular.
       this.holdButton("⤓", "agachar", () => this.actions.keys().agachar),
       (this.btnQuebrar = this.tapButton("⛏", "quebrar", () => this.actions.quebrar())),
-      (this.btnColocar = this.tapButton("▣", "colocar", () => this.actions.colocar())),
     );
+    // §🍖 F6 (playtest): o ▣ vira 🍎 "comer" com comida na mão e fome — o rótulo
+    // muda por estado (mesmo mecanismo do setVarinha), e o TAP também: manda
+    // `comer` em vez de `colocar`. O servidor decide se a mordida vale.
+    const btnColocar = this.makeButton("▣", "colocar");
+    btnColocar.addEventListener("pointerdown", (e) => {
+      e.preventDefault();
+      if (this.varinhaAtiva || !this.modoComer) this.actions.colocar();
+      else this.actions.comer();
+    });
+    this.btnColocar = btnColocar;
+    acoes.appendChild(btnColocar);
 
     // Topo: SÓ o que é de jogo (2026-08-04, revisão pedida pelo usuário). Eram
     // 6 botões fixos em 1024×600, e 3 deles não são de jogo: tela cheia é 1× por
@@ -226,7 +247,9 @@ export class TouchControls {
     topo.id = "touch-topo";
     topo.append(
       this.tapButton("☰", "menu", () => this.actions.menu()),
-      this.tapButton("🧱", "blocos", () => this.actions.inventario()),
+      // §🍖 F4 (playtest): em sobrevivência o 🧱 abre a MOCHILA — e o rótulo
+      // troca junto (setMochilaRotulo), que é o nome que o aluno usa.
+      (this.btnBlocos = this.tapButton("🧱", "blocos", () => this.actions.inventario())),
       this.tapButton("💬", "chat", () => this.actions.chat()),
       // varinha: sem tecla R no celular — o toggle liga o modo; aí os botões
       // ⛏/▣ marcam canto 1/canto 2 (mesmo caminho do clique esq/dir)
@@ -275,9 +298,33 @@ export class TouchControls {
    *  outra coisa e nenhum sinal na barra (a linha da hotbar já avisa, mas ela
    *  fica do outro lado da tela). */
   setVarinha(ativa: boolean): void {
+    this.varinhaAtiva = ativa;
     this.btnVarinha?.classList.toggle("ativo", ativa);
     if (this.btnQuebrar) rotular(this.btnQuebrar, ativa ? "①" : "⛏", ativa ? "canto 1" : "quebrar");
-    if (this.btnColocar) rotular(this.btnColocar, ativa ? "②" : "▣", ativa ? "canto 2" : "colocar");
+    this.atualizarBtnColocar();
+  }
+
+  /** §🍖 F6 (playtest): o ▣ vira 🍎 "comer" quando dá pra morder (comida na mão
+   *  e fome pra gastar). Quem decide é o main.ts; aqui só se rotula e se muda o
+   *  que o tap faz. */
+  setModoComer(comendo: boolean): void {
+    this.modoComer = comendo;
+    this.atualizarBtnColocar();
+  }
+
+  /** §🍖 F4 (playtest): em sobrevivência o 🧱 é a MOCHILA do servidor, não a
+   *  paleta de blocos — o rótulo acompanha o modo (o nome que o aluno usa). */
+  setMochilaRotulo(survival: boolean): void {
+    if (this.btnBlocos) rotular(this.btnBlocos, survival ? "🎒" : "🧱", survival ? "mochila" : "blocos");
+  }
+
+  /** Um rótulo só pro ▣, decido pelos DOIS estados que competem nele: a
+   *  varinha (canto 2) manda na frente do modo comer. */
+  private atualizarBtnColocar(): void {
+    if (!this.btnColocar) return;
+    if (this.varinhaAtiva) rotular(this.btnColocar, "②", "canto 2");
+    else if (this.modoComer) rotular(this.btnColocar, "🍎", "comer");
+    else rotular(this.btnColocar, "▣", "colocar");
   }
 
   /** Mostra/esconde a UI de toque (main.ts decide junto com o overlay). */

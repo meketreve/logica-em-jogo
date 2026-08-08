@@ -2,11 +2,36 @@
 
 > Working checklist. **STATUS.md** = handoff ("why & where we are"); **TODO.md** = "what's left to do".
 > Keep items actionable and short. Check off with `[x]`; sweep done items into STATUS.md ✅ when a phase closes.
-> Last updated: 2026-08-07 (sessão 58 — bugs 599-604 FIXED + B1/B2 + F10h cultivos; ver STATUS 🚀).
+> Last updated: 2026-08-07 (sessão 59 — playtest: comer no tablet, 🧱→🎒, click'n'drag e shift-clique).
 
 ---
 
 ## 🔥 Now (this session)
+
+<!-- Sessão 59 (2026-08-07). Fechou o pedido do playtest: os 2 itens de toque (comer + rótulo da
+     mochila) e os 2 do PC (click'n'drag + divisão de pilha + shift-clique). Registrado no STATUS.
+     FALTA: commit. -->
+
+- [x] **T1 — comer no tablet (playtest):** botão ▣ vira "comer 🍎" quando dá pra morder (mão com
+      comida E fome < FOME_MAX) — `setModoComer`/`atualizarBtnColocar` no `touch.ts`, fiação no
+      `main.ts` (handler `modo`, `vida`, `aoRedesenhar` da hotbar). O servidor continua dono da
+      recusa (barriga cheia devolve o item intacto).
+- [x] **T2 — renomear o botão 🧱→🎒 (playtest):** `btnBlocos` no topo + `setMochilaRotulo(survival)`
+      — em sobrevivência o rótulo vira "mochila".
+- [x] **T3 — click'n'drag no PC (playtest):** `client/src/slotDrag.ts` (NOVO) — `ArrastoDeSlot`
+      SEGURAR→arrastar→soltar por cima do tocar-origem/destino (clique sem arrasto continua o
+      gesto de toque), com fantasma no cursor, **divisão de pilha no clique DIREITO** (pega a
+      metade; segurando, larga 1 por destino). Anexado à mochila (`inventory.ts`) e ao painel de
+      transferência (`container.ts`). Reusa o `pegando` de sempre e manda `mover_item`/
+      `mover_container` com `qtd` — o servidor aplica.
+- [x] **T4 — shift-clique no PC (playtest):** o quick move do Minecraft — hotbar↔grade no painel
+      da mochila, mochila↔container no de transferência — pro primeiro slot que aceita (mesmo id
+      com espaço ou vazio). `moverRapido` + `primeiroLugar` (novo, em `slotDrag.ts`).
+- [x] **Protocolo — pilha parcial:** `mover_item`/`mover_container` ganharam `qtd?` (ausente =
+      pilha inteira); `moverSlot`/`moverEntre` com `moverParteEmArray` no shared. Testes:
+      9 novos em `inventario.test.ts` + `containers.test.ts` (811 testes ✓).
+- [ ] **COMMIT da sessão 59** (client+shared+testes+dist+registros do wolf). Bateria verde:
+      811/811 testes, typecheck/build/smoke ✓.
 
 <!-- Sessão 58 (2026-08-07). Fechou o playtest da 55: os 6 bugs consertados + os 2 pedidos de
      toque + o pedido de conteúdo (F10h: 6 culturas + batata cozida). Tudo registrado no STATUS.
@@ -26,8 +51,8 @@
       aipim no molde do algodão + `batata → batata cozida` na fornalha. Blocos 200-229 (4 estágios
       + pé selvagem), itens 916-922, `selvagem` por bioma, drops 2/3, SACIEDADE, TILEs 135-164,
       ícones e nomes. Detalhe no STATUS 🚀.
-- [ ] **COMMIT da sessão 58** (feature + fixes + testes + registros do wolf). Bateria já verde:
-      802/802 testes, typecheck/build/smoke ✓.
+- [x] **COMMIT da sessão 58** (feature + fixes + testes + registros do wolf). `9d4c485` feat ·
+      `388f4d0` chore(build) · `be5dd1f` docs(wolf).
 
 <!-- Sessão 47 (2026-08-05). "roda os prints, faz os refinos e depois o push". Abriu com
      `git fetch`: o local estava 9 commits À FRENTE (a 46 inteira nunca foi empurrada). -->

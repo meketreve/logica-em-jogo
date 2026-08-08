@@ -156,10 +156,15 @@ export function remover(
  * Mesmo id = JUNTA até o teto (o que passar fica pra trás); ids diferentes (ou
  * pilha cheia) = TROCA. Índice inválido ou `de === para` devolve o inventário
  * como está — o servidor não pode confiar no índice que veio pelo fio.
+ *
+ * `qtd` (opcional, §🧹 playtest): move só UMA PARTE da pilha — a divisão que o
+ * clique direito do PC pede. Ausente = pilha inteira, como sempre.
  */
-export function moverSlot(inv: Inventario, de: number, para: number): Inventario {
+export function moverSlot(inv: Inventario, de: number, para: number, qtd?: number): Inventario {
   if (!slotValido(de) || !slotValido(para)) return inv;
-  return moverEmArray(inv, de, para);
+  return qtd === undefined
+    ? moverEmArray(inv, de, para)
+    : moverParteEmArray(inv, de, para, qtd);
 }
 
 /**
@@ -195,6 +200,51 @@ export function moverEmArray(
     return out;
   }
   out[para] = origem;
+  out[de] = destino;
+  return out;
+}
+
+/**
+ * Move só `qtd` unidades do slot `de` pro `para` — a pilha DIVIDIDA do §🧹
+ * (playtest: o clique direito do PC pega a metade). A mesma semântica de
+ * juntar/trocar do `moverEmArray`, mas movendo PARTE da origem: destino vazio
+ * recebe a parte · mesmo id JUNTA até o teto (o que não couber fica na
+ * origem) · id diferente TROCA a parte pela pilha do destino (Minecraft).
+ *
+ * `qtd` inválido (≤ 0, não-inteiro) devolve o mesmo array; `qtd` ≥ a pilha
+ * inteira cai no movimento completo. No-op devolve o MESMO array — a
+ * identidade é o sinal de "nada mudou" pra quem chama.
+ */
+export function moverParteEmArray(
+  slots: readonly Slot[],
+  de: number,
+  para: number,
+  qtd: number,
+): readonly Slot[] {
+  if (!Number.isInteger(de) || !Number.isInteger(para)) return slots;
+  if (de < 0 || para < 0 || de >= slots.length || para >= slots.length) return slots;
+  if (de === para) return slots;
+  const origem = slots[de] ?? null;
+  if (origem === null) return slots;
+  if (!Number.isInteger(qtd) || qtd <= 0) return slots;
+  if (qtd >= origem.qtd) return moverEmArray(slots, de, para);
+
+  const destino = slots[para] ?? null;
+  const out = slots.slice();
+  if (destino === null) {
+    out[para] = { id: origem.id, qtd };
+    out[de] = { id: origem.id, qtd: origem.qtd - qtd };
+    return out;
+  }
+  if (destino.id === origem.id) {
+    const teto = tamanhoStack(origem.id);
+    const leva = Math.min(qtd, teto - destino.qtd);
+    if (leva <= 0) return slots; // destino cheio: nada muda
+    out[para] = { id: destino.id, qtd: destino.qtd + leva };
+    out[de] = origem.qtd === leva ? null : { id: origem.id, qtd: origem.qtd - leva };
+    return out;
+  }
+  out[para] = { id: origem.id, qtd };
   out[de] = destino;
   return out;
 }

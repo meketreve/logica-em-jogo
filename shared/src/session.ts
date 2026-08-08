@@ -1293,7 +1293,7 @@ export class GameSession {
         const p = this.players.get(clientId);
         if (!p || !inventarioVale(this, clientId)) return;
         const antes = inventarioDe(this, p.name);
-        const depois = moverSlot(antes, msg.de, msg.para);
+        const depois = moverSlot(antes, msg.de, msg.para, msg.qtd);
         if (depois === antes) return;
         this.inventarios.set(p.name, depois);
         sendInventario(this, clientId);
@@ -1333,7 +1333,7 @@ export class GameSession {
           );
           return;
         }
-        const r = moverEntre(inventarioDe(this, p.name), cont, msg.de, msg.para);
+        const r = moverEntre(inventarioDe(this, p.name), cont, msg.de, msg.para, msg.qtd);
         if (!r) return; // índice inválido, origem vazia, destino cheio/proibido
         this.inventarios.set(p.name, r.mochila);
         this.containers.set(containerKey(msg.x, msg.y, msg.z), r.container);
