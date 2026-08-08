@@ -1751,3 +1751,8 @@ passa pelo próprio portão) · 5 prints da pista. **PLAYTEST PENDENTE.**
 | 19:37 | Edited iniciar-servidor.sh | modified E() | ~206 |
 | 19:40 | Sincronizei o .sh com o .bat: update por pacote .tar.gz (espelho do ZIP, 8bfb086) + mundo procedural [9] e tamanho P/M/G/E (c2c09c6) | iniciar-servidor.sh, .wolf/anatomy.md | bash -n OK; A/B em sandbox isolada: download+cópia+.lj-versao+troca de launcher OK, mundos/ da turma intacto, 2ª rodada "já está na versão mais nova", API ruim recusada, pasta com .git cai no caminho do git | ~9000 |
 | 19:40 | Session end: 6 writes across 1 files (iniciar-servidor.sh) | 2 reads | ~9010 tok |
+| 19:48 | bug-606 no buglog (deriva .sh vs .bat) — 1ª gravação com indent=2 reformatou o arquivo inteiro, revertida e regravada com indent=1 | .wolf/buglog.json | diff aditivo de 24 linhas, 258 bugs | ~2500 |
+| 19:52 | Commit + push do launcher | iniciar-servidor.sh + .wolf/* | 3a43954 empurrado | ~1200 |
+| 19:53 | STATUS da sessão 62 | .wolf/STATUS.md | 246eb2a | ~1500 |
+| 20:02 | Release v0.9.0 (o usuário cobrou o bump): npm version minor --no-git-tag-version + build + tag anotada | package.json, package-lock.json, client/dist | e15848e + tag v0.9.0 empurrados; typecheck 3/3, 811 testes, build, 15/15 smokes, dist com 0.9.0 e sem 0.8.0 | ~6000 |
+| 20:06 | Preparação pro /clear: STATUS (release, pendência externa zerada, fila de jogo atualizada, seção 0 com a deriva do todo.md) + 3 aprendizados no cerebrum | .wolf/STATUS.md, .wolf/cerebrum.md | pronto | ~4000 |

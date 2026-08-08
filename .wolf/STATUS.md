@@ -27,6 +27,18 @@
 > pasta com `.git` caindo no caminho do git · nenhum temporário deixado. `bash -n` ✓.
 > **Commitado e empurrado:** `3a43954`.
 >
+> **E A SESSÃO FECHOU COM O RELEASE `v0.9.0` (`e15848e`, tag empurrada).** O usuário perguntou
+> se eu estava fazendo o bump — não estava, e ele estava certo em cobrar: **o último era a
+> `0.8.0` de `d8ca720`**, e desde lá entraram sufocamento (57), 6 culturas + batata cozida (58),
+> os 6 bugs do playtest (599-604), click'n'drag + shift-clique (59) e dividir pilha (61).
+> **O bump não é cosmético:** `shared/src/version.ts` lê o campo `version` do `package.json` da
+> RAIZ e o perfilador anônimo grava o resultado **por versão** (`hud.ts:529`) — sem subir, o
+> playtest de 07/08 fica agrupado com o de meses atrás. **E `client/dist` é VERSIONADO e embute
+> a string**, então o `npm run build` entra no MESMO commit, senão o cliente que a escola baixa
+> reporta a versão velha. Feito com `npm version minor --no-git-tag-version` + build + tag
+> anotada à mão. **Bateria verde:** typecheck 3/3 · **811 testes** · build · **15/15 smokes** ·
+> dist confere (`0.9.0` presente, `0.8.0` sumiu).
+>
 > ⚠️ **DERIVA ACHADA E NÃO CORRIGIDA — o `todo.md` está desatualizado.** Seis itens seguem `[ ]`
 > com o código JÁ no repo: comer no tablet (L134, `touch.ts:310`) · 🧱→🎒 mochila (L147,
 > `touch.ts:317`) · fornalha filtra combustível (L323, `containers.ts:120`) · 6 cultivos + batata
@@ -602,24 +614,41 @@
 
 ## ⚠️ Pendência externa
 
-**17 commits locais NÃO empurrados** (sessões 52, 53 e 54). `git fetch` na 54: nada novo no
-remote, o local está só à frente. **Não empurrei porque ele não pediu** — a autorização da 47
-(*"e depois o push"*) foi de uma vez, não permanente. Abrir a próxima sessão perguntando, como a
-rotina de `git fetch` desde a 40.
+**NADA pendente (2026-08-08, sessão 62): `main` == `origin/main` em `e15848e`, tag `v0.9.0`
+empurrada, árvore limpa.** As sessões 52-54 foram empurradas na 60 e as 61-62 na hora.
+Manter a rotina de abrir a sessão com `git fetch` (desde a 40) e **não empurrar sem pedido** —
+a autorização é sempre de uma vez, nunca permanente.
+
+⚠️ **`git status` via rtk MENTE** (saída comprimida/cacheada — do-not-repeat). A verdade sai de
+`/usr/bin/git -C <repo> status --porcelain`. Nesta sessão o rtk chegou a reportar 1 commit à
+frente com o repo já sincronizado.
 
 ## 🚀 Próxima fase
 
-### 1. ⭐ A FILA DO REFACTOR ACABOU — e o que manda agora é o PLAYTEST
+### 0. ⭐ A PRIMEIRA TAREFA DA PRÓXIMA SESSÃO É BARATA: DESATUALIZAR O `todo.md`
+
+**Seis itens seguem `[ ]` com o código JÁ no repo** (conferido na 62, com o arquivo e a linha):
+comer no tablet (todo.md L134 → `client/src/touch.ts:310 setModoComer`) · 🧱→🎒 mochila (L147 →
+`touch.ts:317 setMochilaRotulo`) · fornalha filtra combustível (L323 →
+`shared/src/containers.ts:120 moverBloqueadoPorCombustivel`) · 6 cultivos + batata cozida (L334 →
+`shared/src/comida.ts` + `fornalha.ts`) · click'n'drag no PC (L403 → `client/src/slotDrag.ts`) ·
+shift-clique (L416 → `slotDrag.ts primeiroLugar`). **Marcar `[x]` com a evidência**, no molde que
+a 60 já usou. Sem isso a próxima sessão reimplementa o que existe — foi exatamente o que quase
+aconteceu na 60.
+
+### 1. A FILA DO REFACTOR ACABOU — e o que manda agora é o PLAYTEST
 
 **As seis frentes do `GameRuntime` fecharam** (52: `MateriaisMundo`, `ProgressoCarga`,
 `PainelHost`, `FreioDePose`; 53: `MovimentoDoJogador`, `GameRuntime`). O plano que o usuário
 mandou anotar no fim da 51 está **cumprido inteiro**. Não há próxima frente de refactor
 enfileirada, e **inventar uma seria escopo não pedido**.
 
-**O playtest do F10 (o item 1 da fila) ACONTECEU na 55 (2026-08-07, escola):** a sessão produziu
-**6 bugs relatados (599-604, todos no buglog.json, nenhum consertado)** + o pedido de cultivos
-(comidas/cultivos + batata cozida na fornalha + validação do slot de combustível). **Consertar
-os bugs e tocar o pedido de comidas é agora a fila de jogo real** — ver a seção 3.
+**O playtest do F10 ACONTECEU na 55 (2026-08-07, escola) e o trabalho que ele gerou está FEITO:**
+os **6 bugs (599-604) viraram FIXED na 58**, o **pedido de cultivos (F10h) entrou na 58**, os
+**2 itens de toque e os 2 do PC saíram na 59** e o **dividir pilha do tablet na 61**. O que o
+playtest deixou ABERTO é um bug só: **a laje de CIMA não desenha a face de baixo** (todo.md L37)
+— parente do bug-602 já consertado, mesmo `emitBox`/`fundeVertical` do mesher. **É o candidato
+mais barato da fila de jogo.**
 
 **O que sobrou como candidato, e nenhum deles é óbvio:**
 - `handleServerData` (o despachante do cliente) e `handleMessage` (o do `session.ts`, 532 linhas)
@@ -694,25 +723,27 @@ da mensagem. Quebrá-lo por família de mensagem é possível, mas o ganho é me
 `main.ts` e ele tem a contabilidade de fome (`mudancasAntes`) atravessada, que é fácil de
 quebrar sem querer.
 
-### 3. ⭐ A fila de JOGO (atualizada na 55 — o playtest aconteceu e mandou trabalho novo)
+### 3. ⭐ A fila de JOGO (atualizada na 62 — o trabalho da 55 FECHOU nas sessões 57-61)
 
-1. **⭐ CONSERTAR OS 6 BUGS DO PLAYTEST** (55): **599** (balde de água no sobrevivência) ·
-   **600** (sumir com o botão "copiar" do touch UI no sobrevivência) · **601** (baú não abre com
-   a mão ocupada) · **602** (laje só na metade de baixo) · **603** (`/confinar` travando o mundo
-   todo — revisar relação com `/claim` + varinha) · **604** (oxigênio reseta ao sair da água, o
-   certo é regenerar até 100%). Todos no buglog.json.
-1b. **⭐ PEDIDO DE CONTEÚDO da 55 (vira TODO):** comidas/cultivos — **cenoura, batata,
-   beterraba, melancia, banana e aipim** no molde do algodão (F10c) + **batata COZIDA na
-   fornalha** (batata crua → cozida, tabela da F10b) + validação do slot de COMBUSTÍVEL da
-   fornalha (só item com `energiaCombustivel > 0`). No `todo.md`.
+~~1. Consertar os 6 bugs do playtest (599-604)~~ — **FEITO na 58** (e o 605, sufocamento, na 57).
+~~1b. Cultivos + batata cozida + validação do combustível~~ — **FEITO na 58** (F10h).
+
+1. **⭐ BUG DA LAJE DE CIMA — a face de baixo não é desenhada** (todo.md L37, playtest da escola
+   de 07/08, ainda ABERTO). Vê-se o buraco por baixo. É o vizinho do bug-602: lá o mesher cullava
+   a face vertical entre lajes do MESMO id, e a cura foi `emitBox(..., fundeVertical=false)` pra
+   laje/escada. **O mais barato da fila, e é playtest real.**
+1b. **bug-598 (aberto desde a 54, NÃO urgente):** os dois motores de céu discordam na célula que
+   atenua (folha/água em 15 pelo worldgen, 13 pelo BFS de edição). O conserto é desenho novo do
+   raio de sol — ver a seção 1c.
 2. **§🍖 F8 — MOBS**: a única frente do roadmap de sobrevivência ainda fora. 3+ sessões, e tem
    o aviso de GPU do laboratório pendurado nela.
 2b. **§🔨 FERRAMENTAS v2 — 3 itens no `todo.md`** (pedido da 48): durabilidade · exigir a
    ferramenta no slot SELECIONADO · tempo de quebra por (bloco × ferramenta). As três andam
    juntas e destravam machado e pá.
-2c. **§💬 UI: tooltip no hover + esconder a hotbar com menu aberto** (pedido da 48, no TODO; o
-   "esconder a hotbar" foi REPEDIDO na 55 — "ocultar hotbar do hud principal quando tiver
-   qualquer painel aberto" — e já consta no todo.md).
+2c. **§💬 UI: tooltip no hover** (pedido da 48, no TODO). ⚠️ O par dele, "esconder a hotbar com
+   menu aberto", **saiu PARCIAL na 58**: o `updateOverlay()` já faz `toggle` da classe `hidden`
+   na `#hotbar` com a mesma condição do overlay. **Conferir no jogo se a MOCHILA aberta também
+   esconde** antes de tratar o item como pendente (todo.md L398 segue `[ ]`).
 3. **O tile do algodão maduro** (⚠️ da sessão 47): o capulho lê como martelo cinza. Meia hora
    de `paintAlgodao` em `client/src/atlasTexture.ts` **se** ele achar que incomoda — o print
    `08-canteiro-algodao.png` é a evidência.

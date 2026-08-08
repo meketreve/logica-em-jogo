@@ -96,6 +96,18 @@
 
 ## Key Learnings
 
+- [2026-08-08] **Bump de versão tem TRÊS passos, e pular o do meio faz o cliente da escola
+  mentir.** `shared/src/version.ts` importa o campo `version` do `package.json` da RAIZ e o
+  perfilador anônimo grava o resultado **por versão** (`client/src/hud.ts:529`). Como
+  `client/dist` é **versionado e embute a string**, a receita é: `npm version minor
+  --no-git-tag-version` → `npm run build` → commit com `package.json` + `package-lock.json` +
+  `client/dist` **juntos** → tag anotada (`v0.8.0` e `v0.9.0` existem; o repo TEM tags de
+  release). Conferência barata: `grep -rl "0\.9\.0" client/dist/assets/*.js` acha, e a versão
+  velha não acha mais. O bump é raro e por MARCO (0.7.0, 0.8.0, 0.9.0), não por commit.
+- [2026-08-08] **`json.dump` no `.wolf/buglog.json` tem de ser `indent=1`.** O arquivo é
+  `indent=1`; gravar com o `indent=2` habitual reformata as 4.585 linhas e uma entrada nova vira
+  diff de 9.193. Conferir com `git diff --stat` DEPOIS de escrever — se passar de ~30 linhas,
+  reverter e regravar.
 - [2026-08-08] **`iniciar-servidor.bat` e `.sh` são PAR e derivam um do outro — conferir os dois
   quando um mudar.** Eles divergiram por dois commits que só tocaram o `.bat` (`c2c09c6` mundo
   procedural, com "`.sh` não tocado (pedido: só o `.bat`)" na própria mensagem; `8bfb086` update
