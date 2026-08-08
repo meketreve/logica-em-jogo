@@ -1,4 +1,5 @@
 import { BlockId, isFornalha } from "./blocks";
+import { ehCombustivel } from "./fornalha";
 import {
   INV_SLOTS,
   type Inventario,
@@ -109,15 +110,40 @@ export function ehSlotDeContainer(i: number): boolean {
 }
 
 /**
+ * bug-600→ (pedido playtest 2026-08-07): o slot de COMBUSTÍVEL da fornalha só
+ * aceita item que queima (`ehCombustivel`). Qualquer outra coisa largada ali
+ * ficaria presa num slot que não cozinha e não queima. Devolve `true` quando o
+ * mover deve ser RECUSADO por isso — é a MESMA pergunta que o `moverEntre`
+ * responde e que a session usa pra avisar a criança.
+ */
+export function moverBloqueadoPorCombustivel(
+  mochila: Inventario,
+  c: Container,
+  de: number,
+  para: number,
+): boolean {
+  if (c.tipo !== "fornalha" || para !== INV_SLOTS + FORNALHA_COMBUSTIVEL) return false;
+  const total = totalDeSlots(c.tipo);
+  if (!Number.isInteger(de) || de < 0 || para < 0 || de >= total || para >= total) return false;
+  const juntos: readonly Slot[] = [...mochila, ...c.slots];
+  const origem = juntos[de] ?? null;
+  return origem !== null && !ehCombustivel(origem.id);
+}
+
+/**
  * Move do índice unificado `de` pro `para`, atravessando (ou não) a fronteira
  * entre a mochila e o container. Devolve `null` quando NADA mudou — índice
  * fora da faixa, origem vazia, destino cheio da mesma pilha, ou o destino
- * proibido do parágrafo abaixo.
+ * proibido dos parágrafos abaixo.
  *
  * **A saída da fornalha é de mão única.** Dá pra tirar dela, nunca pôr nela: um
  * item largado ali ficaria preso num slot que não cozinha e não queima, e a
  * criança não teria como saber por quê. É a única regra de destino do jogo, e
  * ela mora aqui (e não na UI) pela disciplina de sempre — a UI nunca decide.
+ *
+ * **O slot de combustível só queima o que queima.** Mesmo motivo: lenha e
+ * carvão entram; grama, picareta e comida ficam de fora (o aviso pra criança
+ * sai pela session, que usa `moverBloqueadoPorCombustivel`).
  */
 export function moverEntre(
   mochila: Inventario,
@@ -129,6 +155,7 @@ export function moverEntre(
   if (!Number.isInteger(de) || !Number.isInteger(para)) return null;
   if (de < 0 || para < 0 || de >= total || para >= total) return null;
   if (c.tipo === "fornalha" && para === INV_SLOTS + FORNALHA_SAIDA) return null;
+  if (moverBloqueadoPorCombustivel(mochila, c, de, para)) return null;
 
   const juntos: readonly Slot[] = [...mochila, ...c.slots];
   const depois = moverEmArray(juntos, de, para);

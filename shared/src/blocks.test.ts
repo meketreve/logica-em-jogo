@@ -140,6 +140,35 @@ describe("formato de bloco/chunk (contrato de save e snapshot)", () => {
     expect(isPlaceable(BlockId.Algodao1)).toBe(false);
     expect(isPlaceable(BlockId.Algodao3)).toBe(false);
     expect(isPlaceable(BlockId.AlgodaoSelvagem)).toBe(true);
+    // §🍖 F10h (2026-08-06): as seis culturas — 4 estágios + 1 pé selvagem
+    // cada, append 200-229, no MOLDE exato do algodão. Só a MUDA se coloca e
+    // só o pé selvagem também (ambos são o que o gen/aluno põe no mundo).
+    expect(BlockId.Cenoura0).toBe(200);
+    expect(BlockId.CenouraSelvagem).toBe(204);
+    expect(BlockId.Batata0).toBe(205);
+    expect(BlockId.BatataSelvagem).toBe(209);
+    expect(BlockId.Beterraba0).toBe(210);
+    expect(BlockId.BeterrabaSelvagem).toBe(214);
+    expect(BlockId.Melancia0).toBe(215);
+    expect(BlockId.MelanciaSelvagem).toBe(219);
+    expect(BlockId.Banana0).toBe(220);
+    expect(BlockId.BananaSelvagem).toBe(224);
+    expect(BlockId.Aipim0).toBe(225);
+    expect(BlockId.AipimSelvagem).toBe(229);
+    const culturas: readonly (readonly [number, number])[] = [
+      [BlockId.Cenoura0, BlockId.CenouraSelvagem],
+      [BlockId.Batata0, BlockId.BatataSelvagem],
+      [BlockId.Beterraba0, BlockId.BeterrabaSelvagem],
+      [BlockId.Melancia0, BlockId.MelanciaSelvagem],
+      [BlockId.Banana0, BlockId.BananaSelvagem],
+      [BlockId.Aipim0, BlockId.AipimSelvagem],
+    ];
+    for (const [base, selvagem] of culturas) {
+      expect(isPlaceable(base)).toBe(true);
+      expect(isPlaceable(base + 1)).toBe(false);
+      expect(isPlaceable(base + 3)).toBe(false);
+      expect(isPlaceable(selvagem)).toBe(true);
+    }
     expect(isPlaceable(MAX_BLOCK_ID + 1)).toBe(false); // próximo byte NÃO é bloco
   });
 

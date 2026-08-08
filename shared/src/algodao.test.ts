@@ -46,10 +46,12 @@ function canteiro() {
 }
 
 describe("§🍖 F10c — a planta virou TABELA (trigo e algodão são o mesmo motor)", () => {
-  it("as duas plantas estão na tabela, e cada byte sabe de qual é", () => {
-    expect(PLANTAS).toHaveLength(2);
+  it("as OITO plantas estão na tabela, e cada byte sabe de qual é", () => {
+    expect(PLANTAS).toHaveLength(8);
     expect(plantaDe(BlockId.Plantacao2)?.base).toBe(BlockId.Plantacao0);
     expect(plantaDe(BlockId.Algodao2)?.base).toBe(BlockId.Algodao0);
+    expect(plantaDe(BlockId.Cenoura2)?.base).toBe(BlockId.Cenoura0);
+    expect(plantaDe(BlockId.Banana3)?.base).toBe(BlockId.Banana0);
     expect(plantaDe(BlockId.Stone)).toBeNull();
     expect(plantaDe(BlockId.AlgodaoSelvagem)).toBeNull(); // o selvagem não CRESCE
   });
@@ -190,16 +192,40 @@ describe("§🍖 F10c — a lã honesta", () => {
 
 describe("§🍖 F10c — onde o aluno ACHA a cadeia", () => {
   it("o algodão selvagem nasce no CERRADO, e não na caatinga (lá o topo é areia)", () => {
-    expect(BIOMAS.cerrado.algodao).toBeGreaterThan(0);
-    expect(BIOMAS.caatinga.algodao).toBe(0);
+    expect(BIOMAS.cerrado.selvagem[BlockId.AlgodaoSelvagem]).toBeGreaterThan(0);
+    const caatinga = BIOMAS.caatinga.selvagem as Readonly<Partial<Record<number, number>>>;
+    expect(caatinga[BlockId.AlgodaoSelvagem]).toBeUndefined();
     // e é mais raro que o capim: achar tem de ser descoberta, não chão inteiro
-    expect(BIOMAS.cerrado.algodao).toBeLessThan(BIOMAS.cerrado.gramaAlta);
+    expect(BIOMAS.cerrado.selvagem[BlockId.AlgodaoSelvagem]).toBeLessThan(
+      BIOMAS.cerrado.gramaAlta,
+    );
+  });
+
+  it("cada pé selvagem nasce no bioma DA CULTURA, e os seis não se pisam", () => {
+    // a mesma cultura não ocupa DOIS biomas (cada pé tem um lugar só — a
+    // descoberta é "onde mora", não "em qual de dois campos")
+    const porCultura = new Map<number, string[]>();
+    for (const b of Object.values(BIOMAS)) {
+      for (const id of Object.keys(b.selvagem)) {
+        const num = Number(id);
+        if (num === BlockId.AlgodaoSelvagem) continue; // o algodão tem o seu
+        const lista = porCultura.get(num) ?? [];
+        lista.push(b.nome);
+        porCultura.set(num, lista);
+      }
+    }
+    for (const [id, biomas] of porCultura) {
+      expect(biomas.length, `selvagem ${id} em ${biomas.length} biomas`).toBe(1);
+    }
+    expect(porCultura.size).toBe(6);
   });
 
   it("todo bioma declara a chance (bioma novo não nasce sem responder isto)", () => {
     for (const b of Object.values(BIOMAS)) {
-      expect(typeof b.algodao).toBe("number");
-      expect(b.algodao).toBeGreaterThanOrEqual(0);
+      for (const chance of Object.values(b.selvagem)) {
+        expect(typeof chance).toBe("number");
+        expect(chance).toBeGreaterThanOrEqual(0);
+      }
     }
   });
 

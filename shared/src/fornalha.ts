@@ -1,5 +1,7 @@
 import {
   BlockId,
+  ITEM_BATATA,
+  ITEM_BATATA_COZIDA,
   ITEM_CARVAO,
   ITEM_CARVAO_VEGETAL,
   ITEM_LINGOTE_FERRO,
@@ -49,6 +51,9 @@ export const TICKS_POR_COZIMENTO = 100;
  * - **areia → vidro**: a receita de verdade. A ponte "vidro ← areia" da sessão
  *   45 foi inventada porque não havia forno; agora há, e ela foi APOSENTADA
  *   (`receitas.ts`) a pedido do usuário — vidro se faz com fogo.
+ * - **batata CRUA → batata assada** (§🍖 F10h): a primeira comida da fornalha.
+ *   O ganho é a régua do Minecraft — crua devolve 1 de fome, assada 5 — e é
+ *   isso que faz a fornalha "dar aula" de comida, não só de minério.
  */
 export const COZIMENTO: ReadonlyMap<number, Stack> = new Map<number, Stack>([
   [BlockId.MinerioFerro, { id: ITEM_LINGOTE_FERRO, qtd: 1 }],
@@ -58,6 +63,7 @@ export const COZIMENTO: ReadonlyMap<number, Stack> = new Map<number, Stack>([
   [BlockId.LogAraucaria, { id: ITEM_CARVAO_VEGETAL, qtd: 1 }],
   [BlockId.LogPauBrasil, { id: ITEM_CARVAO_VEGETAL, qtd: 1 }],
   [BlockId.Sand, { id: BlockId.Glass, qtd: 1 }],
+  [ITEM_BATATA, { id: ITEM_BATATA_COZIDA, qtd: 1 }],
 ]);
 
 /**

@@ -38,16 +38,22 @@ export interface Bioma {
   /** Chance de mandacaru por coluna (só caatinga). */
   readonly mandacaru: number;
   /**
-   * §🍖 F10c: chance de um pé de ALGODÃO SELVAGEM por coluna (0 = não nasce).
-   * É a porta de entrada da cadeia da lã, e mora no CERRADO — campo aberto,
-   * o bioma que já é a cara do capim. A mata ganha um pouco (chão sombreado,
-   * pé mais raro) e a caatinga fica de fora: lá o topo é areia, e algodão não
-   * pega em areia (`isSolo`).
+   * §🍖 F10c + F10h: plantas SELVAGENS do gen — mapa `{ bloco selvagem →
+   * chance por coluna }` (0/vazio = não nasce). É a porta de entrada de CADA
+   * cadeia de cultivo: o aluno ACHA o pé no mundo, quebrar larga a semente
+   * (drops.ts) e a semente é que planta de verdade. Nasceu como `algodao: 1`
+   * e virou mapa quando o pedido do usuário trouxe as seis culturas do F10h —
+   * o algodão não podia mais ser uma linha à parte.
    *
-   * Bem mais raro que o capim de propósito: achar o algodão tem de ser uma
+   * Cada cultura mora no bioma onde ela faz sentido geográfico (a pedagogia
+   * da aula): melancia e aipim no cerrado quente e seco, banana na mata
+   * úmida, batata/cenoura/beterraba nas araucárias frias, e a caatinga de
+   * fora — lá o topo é areia e planta não pega (`isSolo`).
+   *
+   * Bem mais raros que o capim de propósito: achar um pé tem de ser uma
    * descoberta da aula, não o chão inteiro.
    */
-  readonly algodao: number;
+  readonly selvagem: Readonly<Partial<Record<number, number>>>;
   /**
    * §🏔️ Teto de RELEVO deste bioma, em [0,1] — multiplica a amplitude da serra.
    * 0 = tabuleiro; 1 = serra alta. É o que impede duna de areia de 100 blocos
@@ -72,7 +78,7 @@ export const BIOMAS = {
     // 1/16 (2026-07-26): com 1/96 o mundo M inteiro tinha ~2 cactos — caatinga
     // sem cacto nenhum. A densidade só vale nas colunas SECAS (h > NIVEL_MAR).
     mandacaru: 1 / 16,
-    algodao: 0,
+    selvagem: {}, // topo é areia: nenhuma planta pega (isSolo recusa)
     // duna, não montanha: o teto da caatinga é ~9 blocos acima da base
     relevo: 0.1,
     neve: false,
@@ -86,7 +92,15 @@ export const BIOMAS = {
     flores: 1 / 64,
     gramaAlta: 1 / 6, // cerrado é campo aberto: capim é a cara dele
     mandacaru: 0,
-    algodao: 1 / 40,
+    // §🍖 F10c + F10h: campo quente e seco — o algodão (a porta da lã) e as
+    // duas culturas que aguentam a seca: melancia e aipim. O algodão continua
+    // o mais comum (1/40): é ele que a turma precisa achar logo pra abrir a
+    // cadeia da lã; as outras duas são descoberta.
+    selvagem: {
+      [BlockId.AlgodaoSelvagem]: 1 / 40,
+      [BlockId.MelanciaSelvagem]: 1 / 90,
+      [BlockId.AipimSelvagem]: 1 / 70,
+    },
     relevo: 0.35, // chapada: mesa larga e baixa, não pico
     neve: false,
   },
@@ -102,7 +116,10 @@ export const BIOMAS = {
     flores: 1 / 48,
     gramaAlta: 1 / 10, // mata: o chão é mais sombreado, capim mais ralo
     mandacaru: 0,
-    algodao: 1 / 120,
+    // banana: fruta da floresta úmida — é a descoberta da mata
+    selvagem: {
+      [BlockId.BananaSelvagem]: 1 / 60,
+    },
     relevo: 0.5, // morros da mata atlântica
     neve: false,
   },
@@ -115,7 +132,14 @@ export const BIOMAS = {
     flores: 1 / 128,
     gramaAlta: 1 / 12,
     mandacaru: 0,
-    algodao: 1 / 160,
+    // raízes e folhas do frio: as três hortaliças que a horta brasileira de
+    // verdade planta no Sul — batata (a mais comum, pra abrir a cadeia),
+    // cenoura e beterraba.
+    selvagem: {
+      [BlockId.BatataSelvagem]: 1 / 50,
+      [BlockId.CenouraSelvagem]: 1 / 110,
+      [BlockId.BeterrabaSelvagem]: 1 / 130,
+    },
     relevo: 1, // a serra alta é DAQUI — e é o único bioma que ganha neve
     neve: true,
   },

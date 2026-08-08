@@ -118,6 +118,7 @@ export class TouchControls {
   private btnAmigos: HTMLButtonElement | null = null;
   private btnQuebrar: HTMLButtonElement | null = null;
   private btnColocar: HTMLButtonElement | null = null;
+  private btnCopiar: HTMLButtonElement | null = null;
   private joyPointer: number | null = null;
   private lookPointer: number | null = null;
   private lookX = 0;
@@ -207,7 +208,7 @@ export class TouchControls {
     const acoes = document.createElement("div");
     acoes.id = "touch-acoes";
     acoes.append(
-      this.tapButton("✋", "copiar", () => this.actions.copiar()),
+      (this.btnCopiar = this.tapButton("✋", "copiar", () => this.actions.copiar())),
       this.holdButton("⤒", "pular", () => this.actions.keys().jump),
       // agachar (2026-07-21): segura = mesma tecla do Shift (andando não cai da
       // borda; voando DESCE). Segurar, como o pular.
@@ -260,6 +261,13 @@ export class TouchControls {
    *  "quem está no meu grupo constrói na minha área"). */
   setAmigosDisponivel(disponivel: boolean): void {
     this.btnAmigos?.classList.toggle("hidden", !disponivel);
+  }
+
+  /** Copiar (botão do meio do mouse) não existe em sobrevivência — o slot é do
+   *  servidor e copiar daria bloco de graça. O botão ✋ some nesse modo
+   *  (bug-600), junto do `if (mochila.ativa) return` do handler no main.ts. */
+  setCopiarDisponivel(disponivel: boolean): void {
+    this.btnCopiar?.classList.toggle("hidden", !disponivel);
   }
 
   /** A varinha ligou/desligou: destaca o botão E TROCA o rótulo de ⛏/▣, que

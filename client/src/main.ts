@@ -263,6 +263,7 @@ const overlay = document.getElementById("overlay");
 const overlayMain = document.getElementById("overlay-main");
 const overlayConfig = document.getElementById("overlay-config");
 const crosshairEl = document.getElementById("crosshair");
+const hotbarEl = document.getElementById("hotbar");
 
 function showOverlayMain(): void {
   overlayMain?.classList.remove("hidden");
@@ -289,6 +290,15 @@ function updateOverlay(): void {
   overlay?.classList.toggle(
     "hidden",
     benchRodando || loading.ativo || input.active || input.retomando || chat.open || panelOpen,
+  );
+  // §💬 (2026-08-07, pedido do usuário): a hotbar some com QUALQUER menu aberto.
+  // A de TOQUE já escondia (setShown ali em cima); a do PC ficava pintada por
+  // baixo dos painéis — e duplicada na grade de container/inventário, que
+  // mostram a PRÓPRIA faixa de 9. Condição espelhada do overlay: visível só com
+  // o jogo no controle (a barra de toque também é o seletor do tablet).
+  hotbarEl?.classList.toggle(
+    "hidden",
+    !(benchRodando || loading.ativo || input.active || input.retomando || chat.open || panelOpen),
   );
   // mira só existe COM o jogo no controle (pedido do usuário: invisível no Esc)
   crosshairEl?.classList.toggle("hidden", !input.active);
@@ -767,6 +777,9 @@ function handleServerData(data: string | ArrayBuffer): void {
       // entram nas frentes seguintes lendo daqui.
       const mudou = modoAtual !== msg.efetivo;
       modoAtual = msg.efetivo;
+      // bug-600: copiar (botão do meio) não existe em sobrevivência — esconde o
+      // botão ✋ do tablet junto (o gesto já era no-op lá, o botão só enganava).
+      touchControls?.setCopiarDisponivel(msg.efetivo !== "sobrevivencia");
       pvpLigado = msg.pvp === true; // §🍖 F7: ausente (host antigo) = desligado
       if (!podeVoar()) flying = false; // entrou em sobrevivência voando: cai
       // §🍖 F2: corações só existem em sobrevivência (o ?vida força e vence,
@@ -810,7 +823,9 @@ function handleServerData(data: string | ArrayBuffer): void {
               ? "você ficou sem ar — voltou ao ponto de partida"
               : msg.causa === "fome"
                 ? "você passou fome demais — voltou ao ponto de partida"
-                : msg.causa === "pvp"
+                : msg.causa === "sufocamento"
+                  ? "você ficou soterrado — voltou ao ponto de partida"
+                  : msg.causa === "pvp"
                   ? "você foi derrubado por outro jogador — voltou ao ponto de partida"
                   : "você não sobreviveu — voltou ao ponto de partida",
         );
@@ -1302,19 +1317,41 @@ class GameRuntime {
       // mirado (olhar pro céu e morder tem de funcionar), e é o único uso do
       // clique direito que não tem célula. O servidor decide se a mordida vale
       // (barriga cheia recusa); o cliente só pede, como em todo o resto.
+      // bug-601: com um CONTAINER ou bloco INTERATIVO na mira o clique direito
+      // ABRE/USA, não come — regra Minecraft (comida na mão + baú = abre o baú).
+      // O `target` é consultado aqui de propósito: comer sem bloco mirado segue
+      // funcionando (olhar pro céu e morder).
       if (mochila.ativa && isComida(this.hotbarUi.idNaMao() ?? -1)) {
-        this.activeConn.send(JSON.stringify({ type: "comer", slot: this.hotbarUi.selected }));
-        return;
+        const alvoId = this.target
+          ? getBlock(this.world, this.target.x, this.target.y, this.target.z)
+          : null;
+        if (alvoId === null || (containerTipoDe(alvoId) === null && !isInterativo(alvoId))) {
+          this.activeConn.send(JSON.stringify({ type: "comer", slot: this.hotbarUi.selected }));
+          return;
+        }
       }
       if (!this.target) return;
       if (this.hotbarUi.varinhaAtiva) {
         wandMark(2, this.target);
         return;
       }
-      // balde (2026-07-22): clique direito com balde na mão sempre faz água
-      // (prioridade sobre porta/quadro). Cheio → DESPEJA fonte na célula da face
-      // mirada (target+normal). Vazio → RECOLHE a fonte mirada (o raycast parou
-      // na água). Estado cheio/vazio troca no slot da hotbar.
+      // bug-601: ABRIR container (baú/fornalha) e USAR bloco interativo
+      // (porta/janela) tem prioridade sobre comer/balde/colocar — com QUALQUER
+      // item na mão o clique direito abre o baú (regra Minecraft). O servidor
+      // decide o efeito e responde `container`/`use_block`; é a resposta que
+      // abre o painel — o cliente não abre nada por conta própria, senão o aluno
+      // veria a caixa de um baú que o claim do colega nem deixaria ele ler.
+      const alvoId = getBlock(this.world, this.target.x, this.target.y, this.target.z);
+      if (containerTipoDe(alvoId) !== null || isInterativo(alvoId)) {
+        this.activeConn.send(
+          JSON.stringify({ type: "use_block", x: this.target.x, y: this.target.y, z: this.target.z }),
+        );
+        return;
+      }
+      // balde (2026-07-22): clique direito com balde na mão sempre faz água.
+      // Cheio → DESPEJA fonte na célula da face mirada (target+normal). Vazio →
+      // RECOLHE a fonte mirada (o raycast parou na água). Estado cheio/vazio
+      // troca no slot da hotbar. (Fica ABAIXO do container/interativo: bug-601.)
       {
         // §🍖 F5: o balde virou item de mochila. Em sobrevivência o item vem do
         // slot do SERVIDOR e o slot vai no `slot:` da mensagem — quem troca
@@ -1355,40 +1392,18 @@ class GameRuntime {
       }
       // quadro (2026-07-19): clique direito abre o EDITOR (texto/imagem); o
       // conteúdo vai por quadro_set e volta pra todos por quadro_changed
-      {
-        const alvoId = getBlock(this.world, this.target.x, this.target.y, this.target.z);
-        if (isQuadro(alvoId)) {
-          const { x, y, z } = this.target;
-          quadroEditor.open(this.quadroRenderer.get(x, y, z), (r) => {
-            input.lock();
-            if (!r) return; // cancelou
-            this.activeConn.send(
-              JSON.stringify({
-                type: "quadro_set", x, y, z, texto: r.texto,
-                ...(r.imagem ? { imagem: r.imagem } : {}),
-              }),
-            );
-          });
-          return;
-        }
-      }
-      // §🍖 F10: clique direito num CONTAINER (fornalha, baú) ABRE — mesma
-      // mensagem `use_block`, e é o servidor que decide o efeito. Ele responde
-      // com `container`, e é a resposta que abre o painel: o cliente não abre
-      // nada por conta própria, senão o aluno veria a caixa de um baú que o claim
-      // do colega nem deixaria ele ler.
-      if (containerTipoDe(getBlock(this.world, this.target.x, this.target.y, this.target.z)) !== null) {
-        this.activeConn.send(
-          JSON.stringify({ type: "use_block", x: this.target.x, y: this.target.y, z: this.target.z }),
-        );
-        return;
-      }
-      // cp23: clique direito em bloco INTERATIVO (porta/janela) interage, não
-      // coloca — convenção Minecraft; o servidor alterna (porta: as 2 metades)
-      if (isInterativo(getBlock(this.world, this.target.x, this.target.y, this.target.z))) {
-        this.activeConn.send(
-          JSON.stringify({ type: "use_block", x: this.target.x, y: this.target.y, z: this.target.z }),
-        );
+      if (isQuadro(alvoId)) {
+        const { x, y, z } = this.target;
+        quadroEditor.open(this.quadroRenderer.get(x, y, z), (r) => {
+          input.lock();
+          if (!r) return; // cancelou
+          this.activeConn.send(
+            JSON.stringify({
+              type: "quadro_set", x, y, z, texto: r.texto,
+              ...(r.imagem ? { imagem: r.imagem } : {}),
+            }),
+          );
+        });
         return;
       }
       // §🍖 F4: em sobrevivência o bloco vem do slot do SERVIDOR — mão vazia não
@@ -1501,6 +1516,8 @@ class GameRuntime {
       // os dois botões condicionais nascem escondidos: aqui é o 1º estado real
       touchControls.setVarinhaDisponivel(papel === "professor" || claimsAtivo);
       touchControls.setAmigosDisponivel(claimsAtivo);
+      // bug-600: o ✋ de copiar segue o MODO — some em sobrevivência
+      touchControls.setCopiarDisponivel(modoAtual !== "sobrevivencia");
       touchControls.setScale(settings.uiScale); // aplica a escala salva de cara
       updateOverlay();
     }
@@ -1795,7 +1812,10 @@ class GameRuntime {
             camera.position.x, camera.position.y, camera.position.z,
             this.lookDir.x, this.lookDir.y, this.lookDir.z,
             PLAYER_REACH,
-            this.hotbarUi.slotLocal === ITEM_BALDE_VAZIO, // balde vazio mira a água (recolher)
+            // §🍖 F5: o balde vazio é item da MOCHILA em sobrevivência — `idNaMao()`
+            // enxerga o slot do servidor (o `slotLocal` é a paleta criativa). Sem
+            // isso a mira atravessava a água e o recolher nunca acionava (bug-599).
+            this.hotbarUi.idNaMao() === ITEM_BALDE_VAZIO, // balde vazio mira a água (recolher)
           )
         : null;
       // §🍖 F7: jogador na frente? Só onde o soco valeria (sobrevivência + pvp

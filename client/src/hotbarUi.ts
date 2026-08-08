@@ -1,14 +1,21 @@
 import {
+  ITEM_AIPIM,
   ITEM_ALGODAO,
   ITEM_BALDE_AGUA,
   ITEM_BALDE_VAZIO,
+  ITEM_BANANA,
+  ITEM_BATATA,
+  ITEM_BATATA_COZIDA,
+  ITEM_BETERRABA,
   ITEM_CARVAO,
   ITEM_CARVAO_VEGETAL,
+  ITEM_CENOURA,
   ITEM_DIAMANTE,
   ITEM_FRUTA,
   ITEM_GRAVETO,
   ITEM_LINGOTE_FERRO,
   ITEM_LINGOTE_OURO,
+  ITEM_MELANCIA,
   ITEM_PAO,
   ITEM_PICARETA_DIAMANTE,
   ITEM_PICARETA_FERRO,
@@ -43,11 +50,9 @@ export interface HotbarDeps {
  * A regra que dá sentido ao conjunto está no `refresh`: **em sobrevivência os 9
  * slots são os do SERVIDOR** (`mochila.hotbar()`, com quantidade) e **em
  * criativo são a paleta escolhida no inventário**, que é a única que persiste.
- * Por isso `idNaMao()` existe: quem precisa saber o que o jogador segura
- * (colocar, quebrar com balde, comer) não pode escolher a fonte errada.
- *
- * `slotLocal` é a exceção deliberada: a mira do balde vazio lê o slot LOCAL
- * mesmo em sobrevivência, como fazia antes de a mochila existir.
+ *  Por isso `idNaMao()` existe: quem precisa saber o que o jogador segura
+ *  (colocar, quebrar com balde, comer, mirar a água com balde vazio) não pode
+ *  escolher a fonte errada.
  */
 export class HotbarUi {
   private static readonly KEY = "lj-hotbar";
@@ -79,6 +84,10 @@ export class HotbarUi {
       ITEM_CARVAO, ITEM_DIAMANTE, ITEM_GRAVETO,
       ITEM_CARVAO_VEGETAL, ITEM_LINGOTE_FERRO, ITEM_LINGOTE_OURO, ITEM_ALGODAO,
       ITEM_PICARETA_MADEIRA, ITEM_PICARETA_PEDRA, ITEM_PICARETA_FERRO, ITEM_PICARETA_DIAMANTE,
+      // §🍖 F10h (2026-08-06): os comestíveis das seis culturas + a batata
+      // assada da fornalha — o inventário mostra "5× cenoura" com o ícone.
+      ITEM_CENOURA, ITEM_BATATA, ITEM_BATATA_COZIDA, ITEM_BETERRABA,
+      ITEM_MELANCIA, ITEM_BANANA, ITEM_AIPIM,
     ]);
     // Toque (2026-07-27, layouts mobile): tocar num slot escolhe o bloco. No
     // tablet não existe 1–9 nem scroll do mouse, então sem isto trocar de bloco
@@ -122,12 +131,6 @@ export class HotbarUi {
     return this.slots;
   }
 
-  /** O id do slot local selecionado, ignorando a mochila. Só a mira do balde
-   *  vazio usa isto; todo o resto quer `idNaMao()`. */
-  get slotLocal(): number | undefined {
-    return this.slots[this.sel];
-  }
-
   /** Id na mão AGORA (null = mão vazia em sobrevivência). Fonte única pra quem
    *  precisa saber o que o jogador segura: colocar, quebrar com balde, comer. */
   idNaMao(): number | null {
@@ -147,6 +150,13 @@ export class HotbarUi {
     if (id === ITEM_LINGOTE_FERRO) return "lingote de ferro";
     if (id === ITEM_LINGOTE_OURO) return "lingote de ouro";
     if (id === ITEM_ALGODAO) return "algodão";
+    if (id === ITEM_CENOURA) return "cenoura";
+    if (id === ITEM_BATATA) return "batata crua";
+    if (id === ITEM_BATATA_COZIDA) return "batata assada";
+    if (id === ITEM_BETERRABA) return "beterraba";
+    if (id === ITEM_MELANCIA) return "melancia";
+    if (id === ITEM_BANANA) return "banana";
+    if (id === ITEM_AIPIM) return "aipim";
     if (id === ITEM_PICARETA_MADEIRA) return "picareta de madeira";
     if (id === ITEM_PICARETA_PEDRA) return "picareta de pedra";
     if (id === ITEM_PICARETA_FERRO) return "picareta de ferro";

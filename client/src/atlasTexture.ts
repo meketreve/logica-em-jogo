@@ -585,6 +585,65 @@ function paintAlgodao(
   }
 }
 
+/**
+ * §🍖 F10h (2026-08-06): as SEIS CULTURAS — UM pintor, parametrizado. Cada
+ * cultura tem a cor da folhagem, a cor do COLHÍVEL e onde ele aparece:
+ * - **raiz na BASE** (cenoura, batata, beterraba, aipim): o colhível mora
+ *   debaixo da terra e só ESPIA — como o aluno quebra pra ver.
+ * - **fruta NO TOPO** (melancia na rama, cacho de banana): pendurada no alto.
+ * A distinção entre as seis nasce do colhível — é ele que a aula precisa achar
+ * de longe, e é ele que casa com o item que cai no drops. O pé SELVAGEM tem a
+ * haste mais seca (folha desbotada) e o colhível já aberto, como o algodão.
+ */
+interface CulturaVisual {
+  readonly folha: Rgb;
+  readonly fruta: Rgb;
+  /** `true` = fruta NO TOPO (melancia, banana); `false` = raiz na BASE. */
+  readonly frutaNoTopo: boolean;
+  /** 1..4 — melancia é larga, aipim é estreito. */
+  readonly largura: number;
+}
+
+function paintCultura(
+  ctx: CanvasRenderingContext2D,
+  tile: number,
+  estagio: number,
+  v: CulturaVisual,
+  salt: number,
+  selvagem = false,
+): void {
+  const [ox, oy] = tileOrigin(tile);
+  const px = ATLAS.tilePx;
+  ctx.clearRect(ox, oy, px, px);
+  const folha: Rgb = selvagem
+    ? [Math.round(v.folha[0] * 0.9), Math.round(v.folha[1] * 0.85), Math.round(v.folha[2] * 0.6)]
+    : v.folha;
+  const alturaMax = selvagem ? 12 : 4 + estagio * 3;
+  const HASTES = 4;
+  // hastes que sobem com a idade — a mesma régua do algodão, pra os canteiros
+  // da turma se lerem do mesmo jeito à distância
+  for (let i = 0; i < HASTES; i++) {
+    const x0 = 3 + Math.floor(pixelHash(i, 0, salt + 11) * (px - 6));
+    const alt = Math.max(2, alturaMax - Math.floor(pixelHash(i, 1, salt + 17) * 3));
+    const t = 0.78 + pixelHash(i, 2, salt + 23) * 0.42;
+    ctx.fillStyle = `rgb(${Math.round(folha[0] * t)},${Math.round(folha[1] * t)},${Math.round(folha[2] * t)})`;
+    for (let k = 0; k < alt; k++) ctx.fillRect(ox + x0, oy + px - 1 - k, 1, 1);
+  }
+  // colhível: só no último estágio (e no selvagem, que já nasce com ele)
+  if (estagio === 3 || selvagem) {
+    ctx.fillStyle = `rgb(${v.fruta[0]},${v.fruta[1]},${v.fruta[2]})`;
+    if (v.frutaNoTopo) {
+      const cx = ox + px / 2 - v.largura;
+      const cy = oy + px - alturaMax - 3;
+      ctx.fillRect(cx, cy, v.largura * 2, Math.max(2, v.largura));
+    } else {
+      const cx = ox + px / 2 - v.largura;
+      ctx.fillRect(cx, oy + px - 3, v.largura * 2, 3);
+      ctx.fillRect(cx + 1, oy + px - 4, v.largura * 2 - 2, 1);
+    }
+  }
+}
+
 /** Vetor de onda da água: dois setores inteiros + a mistura entre eles (ver
  *  `ondaAguaDoVento` em shared/vento.ts, que explica por que é um PAR). */
 export interface OndaAgua {
@@ -856,6 +915,22 @@ export function createAtlasTexture(): THREE.Texture {
   // algodão (§🍖 F10c 2026-08-05): 4 estágios cultivados + o pé selvagem
   for (let i = 0; i < 4; i++) paintAlgodao(ctx, TILE.algodao0 + i, i);
   paintAlgodao(ctx, TILE.algodaoSelvagem, 3, true);
+
+  // §🍖 F10h (2026-08-06): as seis culturas — 4 estágios + o pé selvagem, no
+  // molde do algodão. O salt é fixo por CULTURA (não por tile) pra os 5 tiles
+  // de cada uma dividirem o MESMO desenho de hastes e só mudar altura/fruta.
+  const CULTURAS: readonly (readonly [number, number, number, CulturaVisual])[] = [
+    [TILE.cenoura0, TILE.cenouraSelvagem, 101, { folha: [82, 148, 70], fruta: [238, 138, 40], frutaNoTopo: false, largura: 2 }],
+    [TILE.batata0, TILE.batataSelvagem, 107, { folha: [86, 140, 76], fruta: [196, 162, 96], frutaNoTopo: false, largura: 2 }],
+    [TILE.beterraba0, TILE.beterrabaSelvagem, 113, { folha: [104, 64, 108], fruta: [170, 42, 66], frutaNoTopo: false, largura: 2 }],
+    [TILE.melancia0, TILE.melanciaSelvagem, 127, { folha: [72, 150, 66], fruta: [40, 120, 56], frutaNoTopo: true, largura: 3 }],
+    [TILE.banana0, TILE.bananaSelvagem, 131, { folha: [70, 140, 84], fruta: [240, 206, 60], frutaNoTopo: true, largura: 2 }],
+    [TILE.aipim0, TILE.aipimSelvagem, 137, { folha: [84, 152, 78], fruta: [178, 138, 88], frutaNoTopo: false, largura: 1 }],
+  ];
+  for (const [base, selv, salt, v] of CULTURAS) {
+    for (let i = 0; i < 4; i++) paintCultura(ctx, base + i, i, v, salt);
+    paintCultura(ctx, selv, 3, v, salt, true);
+  }
 
   // vidro colorido (2026-07-25): mesma paleta das lãs, na ordem VidroBranco..Marrom
   const CORES_VIDRO: readonly Rgb[] = [

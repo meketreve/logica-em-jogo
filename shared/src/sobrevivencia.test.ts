@@ -6,6 +6,7 @@ import { GameSession } from "./session";
 import {
   DANO_AFOGAMENTO,
   DANO_FOME,
+  DANO_SUFOCAMENTO,
   EXAUSTAO_POR_BLOCO_ANDADO,
   EXAUSTAO_POR_EDICAO,
   EXAUSTAO_POR_PONTO,
@@ -15,6 +16,7 @@ import {
   FOME_PARA_REGENERAR,
   TICKS_POR_AFOGAMENTO,
   TICKS_POR_DANO_FOME,
+  TICKS_POR_DANO_SUFOCAMENTO,
   TICKS_POR_REGEN,
   VIDA_MAX,
   VIDA_MINIMA_POR_FOME,
@@ -29,8 +31,10 @@ import {
   tickFolego,
   tickFome,
   tickRegen,
+  tickSufocamento,
 } from "./sobrevivencia";
 import { getBlock, setBlock } from "./world";
+import { teleportar } from "./session/tp";
 
 const DIMS = { x: 2, z: 2, y: 2 };
 
@@ -159,8 +163,14 @@ describe("sobrevivencia — módulo puro", () => {
     expect(danos).toBe(DANO_AFOGAMENTO * 3);
     // o contador NÃO cresce sem limite (fica na janela de um segundo)
     expect(e.folego).toBeGreaterThanOrEqual(-TICKS_POR_AFOGAMENTO);
-    // sair da água enche o pulmão de uma vez
-    expect(tickFolego(e, false).estado.folego).toBe(FOLEGO_TICKS);
+    // sair da água enche o pulmão AOS POUCOS (bug-604): um passo por tick até o topo
+    let fora = tickFolego(e, false).estado;
+    expect(fora.folego).toBeGreaterThan(e.folego);
+    expect(fora.folego).toBeLessThan(FOLEGO_TICKS);
+    while (fora.folego < FOLEGO_TICKS) fora = tickFolego(fora, false).estado;
+    expect(fora.folego).toBe(FOLEGO_TICKS);
+    // já cheio, ficar fora d'água não muda nada (não transborda)
+    expect(tickFolego(fora, false).estado.folego).toBe(FOLEGO_TICKS);
   });
 
   it("regeneração passiva: 1 ponto a cada 4 s, só com fome alta e vida faltando", () => {
@@ -187,9 +197,33 @@ describe("sobrevivencia — módulo puro", () => {
     expect(parseCausaDano(7)).toBeNull();
   });
 
+  it("sufocamento: 1 dano a cada 10 ticks soterrado, e zera fora de sólido", () => {
+    let e = novoEstadoVital();
+    // o primeiro dano cai no TICKS_POR_DANO_SUFOCAMENTO-ésimo tick
+    for (let i = 0; i < TICKS_POR_DANO_SUFOCAMENTO - 1; i++) {
+      const r = tickSufocamento(e, true);
+      expect(r.dano).toBe(0);
+      e = r.estado;
+    }
+    expect(tickSufocamento(e, true).dano).toBe(DANO_SUFOCAMENTO);
+    // o contador NÃO cresce sem limite (fica na janela de um segundo)
+    let e2 = e;
+    for (let i = 0; i < TICKS_POR_DANO_SUFOCAMENTO * 2; i++) {
+      const r = tickSufocamento(e2, true);
+      expect(r.dano).toBeLessThanOrEqual(DANO_SUFOCAMENTO);
+      e2 = r.estado;
+    }
+    // sair do sólido zera a contagem de uma vez
+    expect(tickSufocamento(e2, false).estado.sufocandoTicks).toBe(0);
+    // morto não acumula sufocamento (não tem vida pra gastar)
+    const morto = { ...novoEstadoVital(), vida: 0 };
+    expect(tickSufocamento(morto, true).dano).toBe(0);
+  });
+
   it("a morte tem texto por causa (o professor precisa ver o que houve)", () => {
     expect(textoDaMorte("ana", "queda")).toContain("ana");
     expect(textoDaMorte("ana", "afogamento")).toContain("ar");
+    expect(textoDaMorte("ana", "sufocamento")).toContain("soterrado");
   });
 });
 
@@ -505,5 +539,101 @@ describe("§🍖 F3 — fome na sessão", () => {
     expect(lido.roster.find((p) => p.name === "ana")?.fome).toBe(0);
     expect(lido.roster.find((p) => p.name === "bia")?.fome).toBeUndefined();
     expect(lido.roster.find((p) => p.name === "caio")?.fome).toBeUndefined();
+  });
+});
+
+describe("bug-605 — sufocamento (soterrado) na sessão", () => {
+  const DIMS_G = { x: 8, z: 8, y: 8 }; // 128³ blocos (CHUNK_SIZE=16)
+  const TETO_G = 128; // world.sizeY — cubo cheio até aqui = coluna "sem vão"
+
+  /** Mundo 8³ com a região do canto (0..15)² limpa: piso plano de pedra (y=0),
+   *  ar até o teto. O spawn original (terreno, x=64) fica intacto pro prof. */
+  function saveGrande(): SaveData {
+    const { send } = collect();
+    const s0 = new GameSession(send, { dims: DIMS_G, seed: 5, codigo: "sala" });
+    const save = decodeSave(encodeSave(s0.world, s0.toSave()));
+    for (let x = 0; x < 16; x++)
+      for (let z = 0; z < 16; z++) {
+        for (let y = 1; y < TETO_G; y++) setBlock(save.world, x, y, z, BlockId.Air);
+        setBlock(save.world, x, 0, z, BlockId.Stone);
+      }
+    return save;
+  }
+
+  /** Sessão do saveGrande com a ana EM (6.5, 1, 6.5) via teleporte (zera o
+   *  pico de queda — mover a pé de y=23 deixaria o HUD de corações baixo). */
+  function turmaGrande(modo: "criativo" | "sobrevivencia" = "sobrevivencia") {
+    const { session, sent } = turma(modo, saveGrande());
+    teleportar(session, 2, 6.5, 1, 6.5);
+    return { session, sent };
+  }
+
+  /** Enterra a ana (6.5,1,6.5): cubo 9×9 (x/z 2..10) de pedra do chão ao TETO.
+   *  Coluna cheia = findSpawnY fora do mundo = não é vão (bug-605). A busca do
+   *  vão só alcança o raio 2, então mesmo uma célula de borda do cubo não
+   *  "enxerga" o mundo limpo lá fora. `comVao` abre a coluna vizinha (7,6)
+   *  inteira — o vão mais próximo fica no anel 1. */
+  function enterrar(session: GameSession, comVao: boolean) {
+    for (let x = 2; x <= 10; x++)
+      for (let z = 2; z <= 10; z++)
+        for (let y = 0; y < TETO_G; y++) setBlock(session.world, x, y, z, BlockId.Stone);
+    if (comVao) for (let y = 0; y < TETO_G; y++) setBlock(session.world, 7, y, 6, BlockId.Air);
+  }
+
+  /** Mensagens de UM tipo que chegaram à ana (clientId 2). */
+  function paraAna(sent: Sent, tipo: string): any[] {
+    return sent
+      .filter((s) => s.clientId === 2)
+      .map((s) => parseServerMessage(s.data as string))
+      .filter((m) => !!m && m.type === tipo);
+  }
+
+  it("soterrado SEM vão: dano contínuo de sufocamento + move rejeitado + morte", () => {
+    const { session, sent } = turmaGrande();
+    enterrar(session, false);
+    // o dano vem do tick (gate do servidor), 1 coração por segundo
+    for (let i = 0; i < TICKS_POR_DANO_SUFOCAMENTO; i++) session.tick();
+    expect(ultimaVida(sent, 2)).toMatchObject({
+      vida: VIDA_MAX - DANO_SUFOCAMENTO,
+      causa: "sufocamento",
+    });
+    // SEM vão o `move` é REJEITADO: a posição não muda e o servidor devolve o
+    // teleport à posição atual; não há relay `player_moved` (os outros a veem parada)
+    const antes = sent.length;
+    session.handleMessage(2, move(6.5, 1, 7.5)); // outra célula também soterrada
+    const p = session.players.get(2)!;
+    expect(p.x).toBe(6.5); // não andou
+    const novas = sent.slice(antes);
+    expect(novas.some((s) => s.clientId === 2 && parseServerMessage(s.data as string)?.type === "teleport")).toBe(true);
+    expect(novas.some((s) => s.clientId === 2 && parseServerMessage(s.data as string)?.type === "player_moved")).toBe(false);
+    // insistir no sufocamento leva à morte: avisa a turma e devolve ao spawn
+    for (let i = 0; i < TICKS_POR_DANO_SUFOCAMENTO * 12; i++) session.tick();
+    const daMorte = paraAna(sent, "vida").find((m) => m.morreu);
+    expect(daMorte).toMatchObject({ vida: 0, causa: "sufocamento" });
+    expect(chats(sent, 1).some((t) => t.includes("ana") && t.includes("soterrado"))).toBe(true);
+    expect(ultimaVida(sent, 2)?.vida).toBe(VIDA_MAX); // respawn cheio
+  });
+
+  it("soterrado COM vão no raio 2: teleporta pro vão e o dano para", () => {
+    const { session, sent } = turmaGrande();
+    enterrar(session, true);
+    // o vão (7,6) está no anel 1 e é achado no tick — sem dano antes
+    session.tick();
+    const tp = paraAna(sent, "teleport").at(-1);
+    expect(tp).toMatchObject({ x: 7.5, z: 6.5 });
+    const p = session.players.get(2)!;
+    expect(p.x).toBe(7.5);
+    expect(p.z).toBe(6.5);
+    // fora do sólido, o sufocamento zera: o tick seguinte não machuca
+    for (let i = 0; i < TICKS_POR_DANO_SUFOCAMENTO * 2; i++) session.tick();
+    expect(ultimaVida(sent, 2)?.vida).toBe(VIDA_MAX);
+  });
+
+  it("em CRIATIVO o soterrado não recebe dano (vida não vale)", () => {
+    const { session, sent } = turmaGrande("criativo");
+    enterrar(session, false);
+    for (let i = 0; i < TICKS_POR_DANO_SUFOCAMENTO * 2; i++) session.tick();
+    // sem `vida` nenhuma: criativo não tem vida (a msg nem é mandada)
+    expect(paraAna(sent, "vida")).toHaveLength(0);
   });
 });

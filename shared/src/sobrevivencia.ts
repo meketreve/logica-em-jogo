@@ -87,6 +87,22 @@ export const TICKS_POR_AFOGAMENTO = 10;
 /** …deste tamanho (1 coração por segundo). */
 export const DANO_AFOGAMENTO = 2;
 
+/** Fora d'água o pulmão enche a cada tick (10 Hz → cheio em ~1,9 s). A regen
+ *  é gradual de propósito (bug-604): o reset instantâneo fazia a barra de ar
+ *  sumir de uma vez; agora o HUD reenvia a cada bolha e ela enche visível. */
+export const FOLEGO_POR_TICK = 8;
+
+// --- §🍖 F2: sufocamento (bug-605) -------------------------------------------
+//
+// Jogador SOTERRADO por blocos sólidos (AABB sobreposto a `isSolidBlock`): recebe
+// dano contínuo e é levado pro vão livre mais próximo; sem vão, não pode se mover
+// e o dano leva à morte. Contagem igual ao afogamento (1 coração por segundo).
+
+/** Soterrado: um dano a cada 10 ticks (1 s). */
+export const TICKS_POR_DANO_SUFOCAMENTO = 10;
+/** …deste tamanho (1 coração por segundo). */
+export const DANO_SUFOCAMENTO = 2;
+
 // --- §🍖 F7: pvp ------------------------------------------------------------
 //
 // Sem arma no lite: o soco é o único ataque, e o número é o do punho do
@@ -105,9 +121,9 @@ export const DANO_PVP = 2;
  */
 export const TICKS_ENTRE_ATAQUES = 5;
 
-export type CausaDano = "queda" | "afogamento" | "fome" | "pvp" | "outro";
+export type CausaDano = "queda" | "afogamento" | "fome" | "pvp" | "sufocamento" | "outro";
 
-const CAUSAS: readonly CausaDano[] = ["queda", "afogamento", "fome", "pvp", "outro"];
+const CAUSAS: readonly CausaDano[] = ["queda", "afogamento", "fome", "pvp", "sufocamento", "outro"];
 
 /** Causa vinda de fora (protocolo). Desconhecida = null — quem chama decide se
  *  descarta ou trata como sem-causa; a mensagem de vida NÃO se perde por isso. */
@@ -131,6 +147,10 @@ export interface EstadoVital {
   exaustao: number;
   /** Ticks com a barra no zero desde o último dano de fome (§🍖 F3). */
   fomeTicks: number;
+  /** Ticks soterrado desde o último dano de sufocamento (bug-605). NÃO vai
+   *  pro save (mesma regra do `exaustao`: perder no máximo 1 s de contagem no
+   *  rejoin não muda partida nenhuma). */
+  sufocandoTicks: number;
 }
 
 export function novoEstadoVital(): EstadoVital {
@@ -141,6 +161,7 @@ export function novoEstadoVital(): EstadoVital {
     regenTicks: 0,
     exaustao: 0,
     fomeTicks: 0,
+    sufocandoTicks: 0,
   };
 }
 
@@ -206,14 +227,18 @@ export function danoDeQueda(blocos: number): number {
 /**
  * Um tick submerso ou fora d'água. Devolve o estado novo e o dano a aplicar
  * (a session é quem chama `aplicarDano`, pra existir UMA porta só).
- * Fora d'água o pulmão enche na hora — nadar de novo recomeça do zero.
+ * Fora d'água o pulmão ENCHE AOS POUCOS (`FOLEGO_POR_TICK` por tick) — o reset
+ * instantâneo fazia a barra de ar simplesmente sumir (bug-604); com a regen o
+ * HUD reenvia a cada bolha que volta e o aluno vê a barra encher, como no
+ * Minecraft.
  */
 export function tickFolego(
   e: EstadoVital,
   cabecaNaAgua: boolean,
 ): { estado: EstadoVital; dano: number } {
   if (!cabecaNaAgua) {
-    return { estado: e.folego === FOLEGO_TICKS ? e : { ...e, folego: FOLEGO_TICKS }, dano: 0 };
+    if (e.folego >= FOLEGO_TICKS) return { estado: e, dano: 0 };
+    return { estado: { ...e, folego: Math.min(FOLEGO_TICKS, e.folego + FOLEGO_POR_TICK) }, dano: 0 };
   }
   if (e.folego > 0) return { estado: { ...e, folego: e.folego - 1 }, dano: 0 };
   // pulmão vazio: o contador desce até -TICKS_POR_AFOGAMENTO, cobra o dano e
@@ -278,6 +303,28 @@ export function tickFome(e: EstadoVital): { estado: EstadoVital; dano: number } 
 }
 
 /**
+ * Um tick soterrado ou fora de sólido (bug-605). Devolve o estado novo e o dano
+ * a aplicar (a session é quem chama `aplicarDano`, pra existir UMA porta só).
+ * Fora de sólido o contador zera na hora — sair do sufocamento recomeça do zero.
+ * O contador é LIMITADO (nunca cresce sem fim) e não se confunde com o estado
+ * normal, porque só o ramo de cima zera.
+ */
+export function tickSufocamento(
+  e: EstadoVital,
+  soterrado: boolean,
+): { estado: EstadoVital; dano: number } {
+  if (!soterrado) {
+    return { estado: e.sufocandoTicks === 0 ? e : { ...e, sufocandoTicks: 0 }, dano: 0 };
+  }
+  if (!estaVivo(e)) return { estado: e, dano: 0 };
+  const sufocandoTicks = e.sufocandoTicks + 1;
+  if (sufocandoTicks < TICKS_POR_DANO_SUFOCAMENTO) {
+    return { estado: { ...e, sufocandoTicks }, dano: 0 };
+  }
+  return { estado: { ...e, sufocandoTicks: 0 }, dano: DANO_SUFOCAMENTO };
+}
+
+/**
  * Texto da morte pro chat da turma (o professor precisa ver o que aconteceu).
  *
  * §🍖 F7: no pvp o NOME de quem bateu entra na frase — numa aula, "alguém
@@ -293,6 +340,8 @@ export function textoDaMorte(nome: string, causa: CausaDano, porQuem?: string): 
       return `${nome} ficou sem ar debaixo d'água.`;
     case "fome":
       return `${nome} passou fome demais.`;
+    case "sufocamento":
+      return `${nome} ficou soterrado.`;
     case "pvp":
       return porQuem
         ? `${nome} não resistiu aos golpes de ${porQuem}.`

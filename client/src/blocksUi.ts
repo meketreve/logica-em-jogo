@@ -134,6 +134,22 @@ export const PLACEABLE: readonly PlaceableEntry[] = [
   // (quebrar dá semente, nunca o pé).
   { id: BlockId.Algodao0, name: "semente de algodão", cat: "vegetacao" },
   { id: BlockId.AlgodaoSelvagem, name: "algodão selvagem", cat: "vegetacao" },
+  // §🍖 F10h (2026-08-06): as seis culturas — a semente + o pé SELVAGEM do gen,
+  // no molde exato do algodão. Cada selvagem está na paleta pro professor poder
+  // semear a descoberta num mundo de aula; em sobrevivência quebrar dá a
+  // semente, nunca o pé.
+  { id: BlockId.Cenoura0, name: "semente de cenoura", cat: "vegetacao" },
+  { id: BlockId.CenouraSelvagem, name: "cenoura selvagem", cat: "vegetacao" },
+  { id: BlockId.Batata0, name: "batata-semente", cat: "vegetacao" },
+  { id: BlockId.BatataSelvagem, name: "batata selvagem", cat: "vegetacao" },
+  { id: BlockId.Beterraba0, name: "semente de beterraba", cat: "vegetacao" },
+  { id: BlockId.BeterrabaSelvagem, name: "beterraba selvagem", cat: "vegetacao" },
+  { id: BlockId.Melancia0, name: "semente de melancia", cat: "vegetacao" },
+  { id: BlockId.MelanciaSelvagem, name: "melancia selvagem", cat: "vegetacao" },
+  { id: BlockId.Banana0, name: "muda de bananeira", cat: "vegetacao" },
+  { id: BlockId.BananaSelvagem, name: "bananeira selvagem", cat: "vegetacao" },
+  { id: BlockId.Aipim0, name: "rama de aipim", cat: "vegetacao" },
+  { id: BlockId.AipimSelvagem, name: "aipim selvagem", cat: "vegetacao" },
   // Minérios (2026-07-20): porta de entrada do survival — por ora só blocos
   { id: BlockId.MinerioCarvao, name: "minério de carvão", cat: "minerios" },
   { id: BlockId.MinerioFerro, name: "minério de ferro", cat: "minerios" },

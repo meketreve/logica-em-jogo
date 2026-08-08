@@ -267,6 +267,21 @@ export const BlockId = {
   FornalhaAcesaXP: 197,
   FornalhaAcesaZP: 198,
   FornalhaAcesaXN: 199,
+  /**
+   * §🍖 F10h (2026-08-06, pedido do usuário): as SEIS CULTURAS. Cada uma tem
+   * 4 estágios em ids consecutivos — molde EXATO do algodão: só o 0 é
+   * colocável (é ele que vai à mochila, como semente), os outros nascem
+   * crescendo no tick — e um pé SELVAGEM (sempre `base + 4`) que o gen
+   * espalha por UM bioma: é a porta de entrada da cadeia (achar → plantar →
+   * esperar → colher), igual ao AlgodaoSelvagem. Ordem = a da aula:
+   * cenoura, batata, beterraba, melancia, banana, aipim.
+   */
+  Cenoura0: 200, Cenoura1: 201, Cenoura2: 202, Cenoura3: 203, CenouraSelvagem: 204,
+  Batata0: 205, Batata1: 206, Batata2: 207, Batata3: 208, BatataSelvagem: 209,
+  Beterraba0: 210, Beterraba1: 211, Beterraba2: 212, Beterraba3: 213, BeterrabaSelvagem: 214,
+  Melancia0: 215, Melancia1: 216, Melancia2: 217, Melancia3: 218, MelanciaSelvagem: 219,
+  Banana0: 220, Banana1: 221, Banana2: 222, Banana3: 223, BananaSelvagem: 224,
+  Aipim0: 225, Aipim1: 226, Aipim2: 227, Aipim3: 228, AipimSelvagem: 229,
 } as const;
 
 export type BlockId = (typeof BlockId)[keyof typeof BlockId];
@@ -279,7 +294,7 @@ export type BlockId = (typeof BlockId)[keyof typeof BlockId];
  * dois arquivos, e esquecer significava um portão que deixava de olhar
  * justamente o bloco recém-criado — o oposto do que ele existe pra fazer.
  */
-export const MAX_BLOCK_ID = BlockId.FornalhaAcesaXN;
+export const MAX_BLOCK_ID = BlockId.AipimSelvagem;
 
 /** Água? Fonte (129) OU fluida (130-136) — atravessável e translúcida. */
 export function isAgua(id: number): boolean {
@@ -381,6 +396,28 @@ export const ITEM_PICARETA_PEDRA = 913;
 export const ITEM_PICARETA_FERRO = 914;
 export const ITEM_PICARETA_DIAMANTE = 915;
 
+/**
+ * §🍖 F10h (2026-08-06): as COLHEITAS das seis culturas + a batata ASSADA.
+ *
+ * Cada cultura madura devolve o seu item (`Planta.colheita`) — cenoura,
+ * batata, beterraba, melancia (a fatia), banana e aipim. Os seis são COMIDA
+ * (`SACIEDADE` em comida.ts); o aipim cru é uma simplificação do jogo (na
+ * vida real manioca crua é tóxica — mas a lição da cadeia aqui é a horta, e
+ * um veneno no meio da aula seria um detalhe que ensina a coisa errada).
+ *
+ * A **batata assada** é o caso que destrava o pote: é a PRIMEIRA comida que
+ * nasce da FORNALHA (`COZIMENTO`), e cozinhar em vez de comer cru é a
+ * descoberta que liga a horta à fundição — a batata crua alimenta pouco
+ * (`SACIEDADE` baixa), a assada alimenta como o pão.
+ */
+export const ITEM_CENOURA = 916;
+export const ITEM_BATATA = 917;
+export const ITEM_BETERRABA = 918;
+export const ITEM_MELANCIA = 919;
+export const ITEM_BANANA = 920;
+export const ITEM_AIPIM = 921;
+export const ITEM_BATATA_COZIDA = 922;
+
 /** Um dos itens de FERRAMENTA (§🍖 F10d)? Mora aqui, junto de `isBalde`, e não
  *  em `ferramentas.ts`, porque quem pergunta primeiro é o `tamanhoStack` do
  *  inventário — e `inventario.ts` importando `ferramentas.ts`, que importa
@@ -475,6 +512,13 @@ const ITENS: ReadonlySet<number> = new Set([
   ITEM_PICARETA_PEDRA,
   ITEM_PICARETA_FERRO,
   ITEM_PICARETA_DIAMANTE,
+  ITEM_CENOURA,
+  ITEM_BATATA,
+  ITEM_BETERRABA,
+  ITEM_MELANCIA,
+  ITEM_BANANA,
+  ITEM_AIPIM,
+  ITEM_BATATA_COZIDA,
 ]);
 
 /** É um item conhecido (não-bloco)? */
@@ -483,20 +527,37 @@ export function isItem(id: number): boolean {
 }
 
 /**
- * §🍖 F10c: uma planta CULTIVÁVEL — o id do estágio 0 e quantos estágios ela
- * tem. A tabela existe porque a plantação deixou de ser "o trigo": o algodão
- * segue o mesmo ciclo, e uma segunda faixa de ids escrita à mão em cada
- * função (`isPlantacao`, `estagio`, `madura`, `formaCanonica`, `isPlaceable`)
- * seria cinco chances de esquecer uma. Planta nova = uma linha aqui.
+ * §🍖 F10c: uma planta CULTIVÁVEL — o id do estágio 0, quantos estágios ela
+ * tem, o ITEM que a madura devolve e o pé SELVAGEM que o gen espalha. A
+ * tabela existe porque a plantação deixou de ser "o trigo": o algodão e as
+ * seis culturas do §🍖 F10h seguem o mesmo ciclo, e uma faixa de ids escrita
+ * à mão em cada função (`isPlantacao`, `estagio`, `madura`, `formaCanonica`,
+ * `isPlaceable`, os drops) seria N chances de esquecer uma. Planta nova =
+ * uma linha aqui — e ela já entra no mundo, na colheita e na mochila.
  */
 export interface Planta {
   readonly base: number;
   readonly estagios: number;
+  /** §🍖 F10h: o ITEM que a planta MADURA devolve (trigo, algodão, cenoura…). */
+  readonly colheita: number;
+  /** §🍖 F10h: teto do sorteio da colheita. 1 = quantidade fixa (o trigo);
+   *  2 = 1 ou 2 (o algodão — e as seis novas, pro canteiro render mais que
+   *  ele come). */
+  readonly colheitaMax: number;
+  /** §🍖 F10h: o id do pé SELVAGEM do gen (undefined = a planta não nasce
+   *  no gen — hoje só o trigo, que tem porta de entrada no capim). */
+  readonly selvagem?: number;
 }
 
 export const PLANTAS: readonly Planta[] = [
-  { base: BlockId.Plantacao0, estagios: 4 },
-  { base: BlockId.Algodao0, estagios: 4 },
+  { base: BlockId.Plantacao0, estagios: 4, colheita: ITEM_TRIGO, colheitaMax: 1 },
+  { base: BlockId.Algodao0, estagios: 4, colheita: ITEM_ALGODAO, colheitaMax: 2, selvagem: BlockId.AlgodaoSelvagem },
+  { base: BlockId.Cenoura0, estagios: 4, colheita: ITEM_CENOURA, colheitaMax: 2, selvagem: BlockId.CenouraSelvagem },
+  { base: BlockId.Batata0, estagios: 4, colheita: ITEM_BATATA, colheitaMax: 2, selvagem: BlockId.BatataSelvagem },
+  { base: BlockId.Beterraba0, estagios: 4, colheita: ITEM_BETERRABA, colheitaMax: 2, selvagem: BlockId.BeterrabaSelvagem },
+  { base: BlockId.Melancia0, estagios: 4, colheita: ITEM_MELANCIA, colheitaMax: 2, selvagem: BlockId.MelanciaSelvagem },
+  { base: BlockId.Banana0, estagios: 4, colheita: ITEM_BANANA, colheitaMax: 2, selvagem: BlockId.BananaSelvagem },
+  { base: BlockId.Aipim0, estagios: 4, colheita: ITEM_AIPIM, colheitaMax: 2, selvagem: BlockId.AipimSelvagem },
 ];
 
 /** A planta a que este byte pertence (`null` se ele não é plantação). */
@@ -527,6 +588,19 @@ export function isPlantacaoMadura(id: number): boolean {
 /** É a MUDA (o único estágio que vai à mochila e se coloca)? */
 export function isMudaDePlantacao(id: number): boolean {
   return plantaDe(id)?.base === id;
+}
+
+/** §🍖 F10h: o pé SELVAGEM a que este byte pertence (`null` se não é selvagem
+ *  de nada). O selvagem NÃO cresce — ele é a porta de entrada da cadeia:
+ *  quebrar larga a semente (drops.ts), e a semente é que planta de verdade. */
+export function plantaPorSelvagem(id: number): Planta | null {
+  for (const p of PLANTAS) if (p.selvagem === id) return p;
+  return null;
+}
+
+/** É um pé SELVAGEM do gen (algodão, e as seis culturas do §🍖 F10h)? */
+export function isSelvagem(id: number): boolean {
+  return plantaPorSelvagem(id) !== null;
 }
 
 /** SOLO onde uma plantação pega: terra e as três gramas climáticas. Pedra,
@@ -712,7 +786,7 @@ export function isTapete(id: number): boolean {
 export function precisaApoio(id: number): boolean {
   return (
     id === BlockId.Tocha || isTapete(id) || isFlor(id) || isGramaAlta(id) ||
-    isPlantacao(id) || id === BlockId.AlgodaoSelvagem || id === BlockId.Mandacaru
+    isPlantacao(id) || isSelvagem(id) || id === BlockId.Mandacaru
   );
 }
 
@@ -724,8 +798,9 @@ export function precisaApoio(id: number): boolean {
  */
 export function apoioValido(id: number, idAbaixo: number): boolean {
   // §🍖 F10c: o algodão SELVAGEM é planta igual às outras — exige solo, senão o
-  // gen o penduraria em pedra e o tick o derrubaria no instante seguinte
-  if (isPlantacao(id) || id === BlockId.AlgodaoSelvagem) return isSolo(idAbaixo);
+  // gen o penduraria em pedra e o tick o derrubaria no instante seguinte.
+  // §🍖 F10h: `isSelvagem` cobre os pés das seis novas culturas na MESMA linha.
+  if (isPlantacao(id) || isSelvagem(id)) return isSolo(idAbaixo);
   return isFullCube(idAbaixo);
 }
 
@@ -865,7 +940,7 @@ export function isFullCube(id: number): boolean {
     !isFlor(id) &&
     !isGramaAlta(id) &&
     !isPlantacao(id) && // cruz de sprite, como a flor
-    id !== BlockId.AlgodaoSelvagem && // idem
+    !isSelvagem(id) && // idem (algodão + as seis culturas do §🍖 F10h)
     // §🍖 F10 (refino): o baú é uma CAIXA de 14/16 dentro da célula. Sair daqui
     // é o que faz o vão entre dois baús existir — e, de brinde, a luz passa por
     // ele (como no Minecraft) e a cerca não se conecta a ele.
@@ -888,7 +963,7 @@ export function isSolidBlock(id: number): boolean {
     !isFlor(id) &&
     !isGramaAlta(id) && // capim atravessa (decorativo, como a flor)
     !isPlantacao(id) && // a plantação também: pisar na horta não empurra o aluno
-    id !== BlockId.AlgodaoSelvagem &&
+    !isSelvagem(id) && // idem (pé selvagem do gen)
     !isAgua(id) // água atravessa — o jogador entra e nada (physics.ts)
   );
 }

@@ -1,15 +1,22 @@
 import {
   ATLAS,
   BlockId,
-  ITEM_BALDE_AGUA,
+  ITEM_AIPIM,
   ITEM_ALGODAO,
+  ITEM_BALDE_AGUA,
+  ITEM_BANANA,
+  ITEM_BATATA,
+  ITEM_BATATA_COZIDA,
+  ITEM_BETERRABA,
   ITEM_CARVAO,
   ITEM_CARVAO_VEGETAL,
+  ITEM_CENOURA,
   ITEM_DIAMANTE,
   ITEM_FRUTA,
   ITEM_GRAVETO,
   ITEM_LINGOTE_FERRO,
   ITEM_LINGOTE_OURO,
+  ITEM_MELANCIA,
   ITEM_PICARETA_DIAMANTE,
   ITEM_PICARETA_FERRO,
   ITEM_PICARETA_MADEIRA,
@@ -99,6 +106,97 @@ function drawComida(ctx: CanvasRenderingContext2D, px: number, id: number): void
     }
     return;
   }
+  // §🍖 F10h: as seis culturas + a batata assada. Cada comida tem uma SILHUETA
+  // própria — o critério continua sendo a leitura de longe num slot de hotbar.
+  if (id === ITEM_CENOURA) {
+    // cenoura: cone laranja virado pra baixo + topete verde
+    ctx.fillStyle = "#e8923c";
+    ctx.beginPath();
+    ctx.moveTo(px * 0.42, px * 0.36);
+    ctx.lineTo(px * 0.58, px * 0.36);
+    ctx.lineTo(px * 0.5, px * 0.84);
+    ctx.closePath();
+    ctx.fill();
+    ctx.fillStyle = "#4a8c3a";
+    for (const dx of [-0.12, 0, 0.12]) {
+      ctx.fillRect(px * (0.5 + dx) - px * 0.05, px * 0.2, px * 0.1, px * 0.16);
+    }
+    return;
+  }
+  if (id === ITEM_BATATA || id === ITEM_BATATA_COZIDA) {
+    // batata: tubérculo oval com pintas. CRUA é terrosa; assada clareia (a
+    // diferença é a mesma do carvão vegetal: é a MESMA batata, cozida).
+    ctx.fillStyle = id === ITEM_BATATA_COZIDA ? "#d8b078" : "#a8783c";
+    ctx.beginPath();
+    ctx.ellipse(px * 0.5, px * 0.55, px * 0.3, px * 0.24, -0.3, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = id === ITEM_BATATA_COZIDA ? "#e8c890" : "#8a5e30";
+    for (const [gx, gy] of [[0.42, 0.46], [0.6, 0.6], [0.52, 0.72]] as const) {
+      ctx.fillRect(px * gx, px * gy, px * 0.08, px * 0.06);
+    }
+    return;
+  }
+  if (id === ITEM_BETERRABA) {
+    // beterraba: bulbo vermelho-roxo com folhas da MESMA cor (o talo é dela)
+    ctx.fillStyle = "#a02a3e";
+    ctx.beginPath();
+    ctx.arc(px * 0.5, px * 0.62, px * 0.26, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = "#7c1f30"; // sombra embaixo: dá o volume de raiz
+    ctx.fillRect(px * 0.5, px * 0.6, px * 0.12, px * 0.28);
+    ctx.fillStyle = "#8c2440";
+    for (const dx of [-0.1, 0.1]) {
+      ctx.fillRect(px * (0.5 + dx) - px * 0.05, px * 0.22, px * 0.1, px * 0.2);
+    }
+    return;
+  }
+  if (id === ITEM_MELANCIA) {
+    // fatia de melancia: casca verde, polpa vermelha, sementes pretas
+    ctx.fillStyle = "#2e7a3a";
+    ctx.beginPath();
+    ctx.moveTo(px * 0.2, px * 0.3);
+    ctx.lineTo(px * 0.8, px * 0.3);
+    ctx.lineTo(px * 0.5, px * 0.82);
+    ctx.closePath();
+    ctx.fill();
+    ctx.fillStyle = "#d83a38";
+    ctx.beginPath();
+    ctx.moveTo(px * 0.3, px * 0.3);
+    ctx.lineTo(px * 0.7, px * 0.3);
+    ctx.lineTo(px * 0.5, px * 0.74);
+    ctx.closePath();
+    ctx.fill();
+    ctx.fillStyle = "#26262a";
+    for (const [sx, sy] of [[0.42, 0.44], [0.58, 0.44], [0.5, 0.6]] as const) {
+      ctx.fillRect(px * sx, px * sy, px * 0.06, px * 0.08);
+    }
+    return;
+  }
+  if (id === ITEM_BANANA) {
+    // banana: crescente amarela com a ponta marrom
+    ctx.strokeStyle = "#e6c23a";
+    ctx.lineWidth = Math.max(2, px * 0.16);
+    ctx.lineCap = "round";
+    ctx.beginPath();
+    ctx.arc(px * 0.48, px * 0.5, px * 0.26, Math.PI * 0.25, Math.PI * 1.15);
+    ctx.stroke();
+    ctx.fillStyle = "#8a6b2a"; // ponta seca: sem ela vira um arco qualquer
+    ctx.fillRect(px * 0.24, px * 0.24, px * 0.08, px * 0.1);
+    return;
+  }
+  if (id === ITEM_AIPIM) {
+    // aipim: dois toletes pálidos amarrados — a raiz que a farinha sai
+    ctx.fillStyle = "#c8b088";
+    for (const [gx, gy, rot] of [[0.36, 0.6, -0.4], [0.66, 0.5, 0.4]] as const) {
+      ctx.beginPath();
+      ctx.ellipse(px * gx, px * gy, px * 0.14, px * 0.26, rot, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    ctx.strokeStyle = "#a08058";
+    ctx.lineWidth = Math.max(1, px * 0.06);
+    for (const gx of [0.34, 0.66]) ctx.fillRect(px * gx, px * 0.36, px * 0.04, px * 0.2);
+    return;
+  }
   // pão: pãozinho oval com dois cortes claros em cima
   ctx.fillStyle = "#b5762f";
   ctx.beginPath();
@@ -115,22 +213,34 @@ function drawComida(ctx: CanvasRenderingContext2D, px: number, id: number): void
  * px de 16 e sai quase invisível num slot de hotbar — e o que o aluno carrega
  * na mochila não é um broto, é um punhado de semente. O bloco no mundo continua
  * sendo o broto; aqui é só o retrato dele na bolsa.
+ *
+ * §🍖 F10c: cada planta tem a COR da própria semente — duas sementes iguais na
+ * mochila seriam duas chances de plantar a errada. §🍖 F10h: as seis novas
+ * culturas seguem a mesma régua (`cor` entra por parâmetro).
  */
-function drawSemente(ctx: CanvasRenderingContext2D, px: number, algodao = false): void {
+function drawSemente(ctx: CanvasRenderingContext2D, px: number, cor: string): void {
   ctx.clearRect(0, 0, px, px);
   const GRAOS: readonly [number, number][] = [
     [0.32, 0.4], [0.6, 0.34], [0.46, 0.58], [0.28, 0.68], [0.66, 0.64],
   ];
+  const brilho = shade(cor, 60);
   for (const [gx, gy] of GRAOS) {
-    // §🍖 F10c: a semente do algodão é a MESMA forma num tom claro — duas
-    // sementes iguais na mochila seriam duas chances de plantar a errada.
-    ctx.fillStyle = algodao ? "#6d7a4a" : "#8a6b32";
+    ctx.fillStyle = cor;
     ctx.beginPath();
     ctx.ellipse(px * gx, px * gy, px * 0.11, px * 0.16, Math.PI / 5, 0, Math.PI * 2);
     ctx.fill();
-    ctx.fillStyle = algodao ? "#b6c489" : "#c8a558"; // brilho: sem ele os grãos viram uma mancha só
+    ctx.fillStyle = brilho; // brilho: sem ele os grãos viram uma mancha só
     ctx.fillRect(px * gx - px * 0.04, px * gy - px * 0.1, px * 0.05, px * 0.1);
   }
+}
+
+/** Clareia/escurece um hex por um passo (+ = clareia, − = escurece). */
+function shade(cor: string, passo: number): string {
+  const n = parseInt(cor.slice(1), 16);
+  const r = Math.min(255, Math.max(0, ((n >> 16) & 255) + passo));
+  const g = Math.min(255, Math.max(0, ((n >> 8) & 255) + passo));
+  const b = Math.min(255, Math.max(0, (n & 255) + passo));
+  return `#${((r << 16) | (g << 8) | b).toString(16).padStart(6, "0")}`;
 }
 
 /**
@@ -272,6 +382,20 @@ const COR_DA_PICARETA: ReadonlyMap<number, string> = new Map([
   [ITEM_PICARETA_DIAMANTE, "#4fd6e0"],
 ]);
 
+/** §🍖 F10c + F10h: a cor da semente de cada planta — o punhado que o aluno
+ *  carrega na mochila (ver `drawSemente`). Trigo continua o marrom original;
+ *  cada cultura nova tem a cor do próprio grão, pra a bolsa não mentir. */
+const SEMENTES: ReadonlyMap<number, string> = new Map([
+  [BlockId.Plantacao0, "#8a6b32"],
+  [BlockId.Algodao0, "#6d7a4a"],
+  [BlockId.Cenoura0, "#b0711f"],
+  [BlockId.Batata0, "#9c7a3c"],
+  [BlockId.Beterraba0, "#7c2f38"],
+  [BlockId.Melancia0, "#4c3a22"],
+  [BlockId.Banana0, "#5a5a52"],
+  [BlockId.Aipim0, "#8a7d5a"],
+]);
+
 /**
  * Ícones 2D dos blocos pra hotbar e pro inventário: recorta o tile LATERAL do
  * mesmo canvas do texture atlas (procedural — sem assets externos, regra do
@@ -295,8 +419,8 @@ export function makeBlockIcons(
       out.set(id, c.toDataURL());
       continue;
     }
-    if (id === BlockId.Plantacao0 || id === BlockId.Algodao0) {
-      drawSemente(ctx, px, id === BlockId.Algodao0);
+    if (SEMENTES.has(id)) {
+      drawSemente(ctx, px, SEMENTES.get(id)!); // semente: ícone desenhado
       out.set(id, c.toDataURL());
       continue;
     }

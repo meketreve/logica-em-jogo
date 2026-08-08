@@ -45,6 +45,7 @@ import {
   containerKey,
   containerTemConteudo,
   containerTipoDe,
+  moverBloqueadoPorCombustivel,
   moverEntre,
 } from "./containers";
 import {
@@ -86,6 +87,7 @@ import {
   runTp,
   runTpa,
   runTpr,
+  teleportar,
   teleportarGrupos,
 } from "./session/tp";
 import { parseCoordArg } from "./session/coords";
@@ -141,7 +143,7 @@ import {
   MODO_PADRAO,
   type Modo,
 } from "./modo";
-import { PLAYER } from "./physics";
+import { PLAYER, acharEspacoVago, sobrepoeSolidos } from "./physics";
 import { parseRegras, regrasParaSave } from "./regras";
 import {
   EXAUSTAO_POR_BLOCO_ANDADO,
@@ -881,6 +883,35 @@ export class GameSession {
       case "move": {
         const p = this.players.get(clientId);
         if (!p) return;
+        // bug-605: jogador dentro de bloco sólido não pode andar por dentro dele
+        // (o bug era andar livremente soterrado). Posição nova soterrada:
+        // tenta levar pro vão livre mais próximo (raio 2); se não houver vão,
+        // REJEITA o passo — não atualiza a posição, não faz relay, e devolve o
+        // jogador à posição válida atual (o cliente "quica" na parede).
+        if (sobrepoeSolidos(this.world, { x: msg.x, y: msg.y, z: msg.z })) {
+          const vao = acharEspacoVago(
+            this.world,
+            { x: msg.x, y: msg.y, z: msg.z },
+            2,
+            (x, y, z) => this.overlapsAnyPlayer(x, y, z),
+          );
+          if (vao) {
+            teleportar(this, clientId, vao.x, vao.y, vao.z);
+          } else {
+            this.send(
+              clientId,
+              JSON.stringify({
+                type: "teleport",
+                x: p.x,
+                y: p.y,
+                z: p.z,
+                yaw: p.yaw,
+                pitch: p.pitch,
+              } satisfies ServerMessage),
+            );
+          }
+          break;
+        }
         // §🍖 F3: o passo sai da MESMA amostra que fecha a queda (10 Hz), antes
         // de a posição nova sobrescrever a antiga. Só o plano horizontal conta:
         // cair não é esforço (e já se paga em dano).
@@ -1292,6 +1323,16 @@ export class GameSession {
         const atual = getBlock(this.world, msg.x, msg.y, msg.z);
         const cont = containerDe(this, msg.x, msg.y, msg.z, atual);
         if (!cont) return;
+        // slot de combustível só queima o que queima (pedido do playtest): o
+        // mover recusa e a criança ouve o motivo — senão o item ficava preso
+        // num slot que não cozinha nem queima, e ela não tinha como saber por quê.
+        if (moverBloqueadoPorCombustivel(inventarioDe(this, p.name), cont, msg.de, msg.para)) {
+          this.sendServerChat(
+            clientId,
+            "Este item não queima: o slot de combustível da fornalha só aceita lenha ou carvão.",
+          );
+          return;
+        }
         const r = moverEntre(inventarioDe(this, p.name), cont, msg.de, msg.para);
         if (!r) return; // índice inválido, origem vazia, destino cheio/proibido
         this.inventarios.set(p.name, r.mochila);

@@ -19,6 +19,7 @@ import {
   isPorta,
   isPortaAberta,
   isQuadro,
+  isSelvagem,
   isSlab,
   isSofa,
   isStairs,
@@ -178,6 +179,24 @@ export const TILE = {
   algodaoSelvagem: 133,
   /** §🍖 F10 (refino): os três lados SEM boca da fornalha. Ver `fornalhaLado`. */
   fornalhaCostas: 134,
+  /** §🍖 F10h (2026-08-06): as SEIS culturas — 4 estágios cada, contíguos e na
+   *  ordem dos ids (`TILE.cenoura0 + estagio`, e assim por diante), no MESMO
+   *  molde da plantação (120) e do algodão (129), seguidos dos SEIS pés
+   *  SELVAGENS do gen. Cruz de sprite como todos os outros: fundo transparente.
+   *  Cada bloco vai à mochila só no estágio 0 — é ele que o ícone da hotbar
+   *  mostra (blockIconTile → side = uniform de `cenoura0`). */
+  cenoura0: 135, cenoura1: 136, cenoura2: 137, cenoura3: 138,
+  batata0: 139, batata1: 140, batata2: 141, batata3: 142,
+  beterraba0: 143, beterraba1: 144, beterraba2: 145, beterraba3: 146,
+  melancia0: 147, melancia1: 148, melancia2: 149, melancia3: 150,
+  banana0: 151, banana1: 152, banana2: 153, banana3: 154,
+  aipim0: 155, aipim1: 156, aipim2: 157, aipim3: 158,
+  cenouraSelvagem: 159,
+  batataSelvagem: 160,
+  beterrabaSelvagem: 161,
+  melanciaSelvagem: 162,
+  bananaSelvagem: 163,
+  aipimSelvagem: 164,
 } as const;
 
 /** cp20: blocos-glifo. Letras A–Z e dígitos 0–9 ocupam tiles consecutivos a
@@ -362,6 +381,24 @@ for (let i = 0; i < 4; i++) {
 }
 BLOCK_TILES[BlockId.AlgodaoSelvagem] = uniform(TILE.algodaoSelvagem);
 
+// §🍖 F10h (2026-08-06): as seis culturas, no MOLDE exato do algodão — um tile
+// por estágio (a altura desenhada conta a idade), e cada pé selvagem com o
+// próprio tile. Ordem das âncoras = a ordem dos ids, então um único laço por
+// cultura faz tudo; o `uniform` é só o ícone 2D + tile da cruz.
+const CULTURAS_SELVAGENS: readonly (readonly [number, number, number])[] = [
+  // [id do estágio 0, tile estágio 0, tile selvagem]
+  [BlockId.Cenoura0, TILE.cenoura0, TILE.cenouraSelvagem],
+  [BlockId.Batata0, TILE.batata0, TILE.batataSelvagem],
+  [BlockId.Beterraba0, TILE.beterraba0, TILE.beterrabaSelvagem],
+  [BlockId.Melancia0, TILE.melancia0, TILE.melanciaSelvagem],
+  [BlockId.Banana0, TILE.banana0, TILE.bananaSelvagem],
+  [BlockId.Aipim0, TILE.aipim0, TILE.aipimSelvagem],
+];
+for (const [base, tile, tileSelvagem] of CULTURAS_SELVAGENS) {
+  for (let i = 0; i < 4; i++) BLOCK_TILES[base + i] = uniform(tile + i);
+  BLOCK_TILES[base + 4] = uniform(tileSelvagem);
+}
+
 // cp20: letras/dígitos = cubos uniformes com o tile do glifo (append A→Z, 0→9).
 for (let i = 0; i < GLYPH.letters.length; i++) {
   BLOCK_TILES[BlockId.LetterA + i] = uniform(GLYPH.base + i);
@@ -390,12 +427,12 @@ export function blockIconTile(id: number): number {
 }
 
 /** Bloco desenhado como CRUZ DE SPRITE (duas lâminas a 90°): flor, capim,
- *  plantação e o pé de algodão selvagem. Uma pergunta só, porque as três
- *  respostas que dependem dela — a caixa de seleção, o balanço no vento e a
- *  forma no mesher — têm de concordar sempre. */
+ *  plantação e os pés SELVAGENS (algodão e as seis culturas). Uma pergunta só,
+ *  porque as três respostas que dependem dela — a caixa de seleção, o balanço
+ *  no vento e a forma no mesher — têm de concordar sempre. */
 function ehCruzDeSprite(id: number): boolean {
   return (
-    isFlor(id) || isGramaAlta(id) || isPlantacao(id) || id === BlockId.AlgodaoSelvagem
+    isFlor(id) || isGramaAlta(id) || isPlantacao(id) || isSelvagem(id)
   );
 }
 
@@ -860,6 +897,11 @@ export function meshVizinhanca(viz: Uint8Array, luzViz?: Uint8Array | null): Chu
      *  tampa do baú). Uma caixa com dois tiles é mais barata — e mais fácil de
      *  ler — que duas caixas coladas com z-fight na junta. */
     tileY: number = tile,
+    /** Fusão vertical por MESMO id (bug-602). Laje/escada passam `false`: duas
+     *  lajes de mesma metade empilhadas NÃO encostam (vão de 0,5 entre elas) —
+     *  cullar a face do meio deixaria um "buraco" visível por baixo. A face
+     *  lateral (X/Z) entre vizinhos no mesmo Y continua fundindo, como sempre. */
+    fundeVertical = true,
   ): void => {
     const lo = [x0, y0, z0] as const;
     const hi = [x1, y1, z1] as const;
@@ -873,7 +915,7 @@ export function meshVizinhanca(viz: Uint8Array, luzViz?: Uint8Array | null): Chu
         face.dir[2] === -1 ? z0 === 0 : z1 === 1;
       if (flush) {
         const nb = bloco(lx + face.dir[0], ly + face.dir[1], lz + face.dir[2]);
-        if (nb === id) continue;
+        if (nb === id && (fundeVertical || face.dir[1] === 0)) continue;
         if (isFullCube(nb) && !isTransparentBlock(nb)) continue;
       }
       // §💡 face rente à borda vê o VIZINHO; face interna (topo de laje, tampo
@@ -1062,7 +1104,10 @@ export function meshVizinhanca(viz: Uint8Array, luzViz?: Uint8Array | null): Chu
         if (isSlab(id) || isStairs(id)) {
           const tile = SLAB_STAIR_TILES[isSlab(id) ? slabMaterial(id) : stairsMaterial(id)]!;
           for (const [bx0, by0, bz0, bx1, by1, bz1] of collisionBoxes(id)) {
-            emitBox(lx, ly, lz, id, tile, bx0, by0, bz0, bx1, by1, bz1);
+            // fundeVertical=false (bug-602): lajes/escadas têm altura parcial —
+            // vizinho de mesmo id empilhado deixa vão; a face vertical do meio
+            // tem de aparecer (senão "buraco" por baixo na pilha).
+            emitBox(lx, ly, lz, id, tile, bx0, by0, bz0, bx1, by1, bz1, tile, false);
           }
           return true;
         }
@@ -1095,8 +1140,9 @@ export function meshVizinhanca(viz: Uint8Array, luzViz?: Uint8Array | null): Chu
         // forma nova no mesher nem mensagem extra na rede.
         // §🍖 F10c: o tile vem da TABELA, e não de `plantacao0 + estagio` —
         // com duas plantas a aritmética de âncora daria o tile do trigo pro
-        // algodão. O pé selvagem entra pela mesma porta.
-        if (isPlantacao(id) || id === BlockId.AlgodaoSelvagem) {
+        // algodão. §🍖 F10h: o pé SELVAGEM de cada cultura entra pela mesma
+        // porta (`isSelvagem` abraça os seis novos, no molde do algodão).
+        if (isPlantacao(id) || isSelvagem(id)) {
           const tile = blockIconTile(id);
           emitCrossPlane(lx, ly, lz, tile, 0, 0, 1, 1);
           emitCrossPlane(lx, ly, lz, tile, 0, 1, 1, 0);

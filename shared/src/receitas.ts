@@ -382,8 +382,24 @@ export const SEM_RECEITA: ReadonlyMap<number, string> = new Map([
   [BlockId.MinerioOuro, "minério: sai da caverna, e é ele que a fornalha funde em lingote"],
   [BlockId.MinerioDiamante, "minério: sai da caverna e larga o ITEM diamante — o bloco não se refaz"],
   [BlockId.Plantacao0, "muda: vem do capim quebrado (1 em 4) e da colheita"],
-  [BlockId.Algodao0, "semente de algodão: vem do pé selvagem (1 em 4) e da colheita"],
+  [BlockId.Algodao0, "semente de algodão: vem do pé selvagem (2 em 3) e da colheita"],
   [BlockId.AlgodaoSelvagem, "pé do gen: é onde o aluno ACHA a cadeia da lã — não se refaz"],
+  // §🍖 F10h: as seis culturas seguem o molde exato do algodão — a semente vem
+  // do pé selvagem (régua única, 2 em 3) e da colheita; o pé selvagem é do gen
+  // e é ele que abre a cadeia da comida. Colocá-los aqui é o que deixa o
+  // teste-portão (todo colocável alcançável) com a conta fechada.
+  [BlockId.Cenoura0, "semente de cenoura: vem do pé selvagem do Sul e da colheita"],
+  [BlockId.CenouraSelvagem, "pé do gen das araucárias: é onde o aluno ACHA a cenoura"],
+  [BlockId.Batata0, "batata-semente: vem do pé selvagem do Sul e da colheita"],
+  [BlockId.BatataSelvagem, "pé do gen das araucárias: é onde o aluno ACHA a batata"],
+  [BlockId.Beterraba0, "semente de beterraba: vem do pé selvagem do Sul e da colheita"],
+  [BlockId.BeterrabaSelvagem, "pé do gen das araucárias: é onde o aluno ACHA a beterraba"],
+  [BlockId.Melancia0, "semente de melancia: vem do pé selvagem do cerrado e da colheita"],
+  [BlockId.MelanciaSelvagem, "pé do gen do cerrado: é onde o aluno ACHA a melancia"],
+  [BlockId.Banana0, "muda de bananeira: vem do pé selvagem da mata e da colheita"],
+  [BlockId.BananaSelvagem, "pé do gen da mata: é onde o aluno ACHA a banana"],
+  [BlockId.Aipim0, "rama de aipim: vem do pé selvagem do cerrado e da colheita"],
+  [BlockId.AipimSelvagem, "pé do gen do cerrado: é onde o aluno ACHA o aipim"],
   [BlockId.Bedrock, "só do professor (`isProfessorOnly`) — nunca vai pra mochila"],
 ]);
 

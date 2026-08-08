@@ -1,10 +1,8 @@
 import {
   BlockId,
-  ITEM_ALGODAO,
   ITEM_CARVAO,
   ITEM_DIAMANTE,
   ITEM_FRUTA,
-  ITEM_TRIGO,
   escadaId,
   isAgua,
   isCadeira,
@@ -15,6 +13,7 @@ import {
   isJanela,
   isPlantacaoMadura,
   plantaDe,
+  plantaPorSelvagem,
   isPorta,
   isQuadro,
   isSlab,
@@ -109,14 +108,15 @@ const EXCECOES = new Map<number, number | null>([
 export const CHANCE_FRUTA_DA_FOLHA = 1 / 8;
 export const CHANCE_SEMENTE_DO_CAPIM = 1 / 4;
 /**
- * §🍖 F10c: a semente do pé de algodão SELVAGEM. Nasceu com a régua do capim
- * (1 em 4) e SUBIU pra 2 em 3 em 2026-08-05, a pedido do usuário.
+ * §🍖 F10c: a semente do pé SELVAGEM. Nasceu com a régua do capim (1 em 4) e
+ * SUBIU pra 2 em 3 em 2026-08-05, a pedido do usuário.
  *
  * A razão é que os dois não são igualmente comuns: o capim cobre campo inteiro
- * e o aluno derruba dez sem procurar, enquanto o pé de algodão selvagem é
- * esparso no cerrado — com a mesma chance, "achei um algodão" virava quase
- * sempre "e não veio nada". A cadeia da lã não pode depender de achar o
- * SEGUNDO pé.
+ * e o aluno derruba dez sem procurar, enquanto o pé selvagem (algodão e as
+ * seis culturas do §🍖 F10h) é esparso no bioma — com a mesma chance, "achei
+ * um pé" virava quase sempre "e não veio nada". A cadeia da comida não pode
+ * depender de achar o SEGUNDO pé. A régua é UMA para todos os selvagens: o que
+ * muda de cultura pra cultura é o QUANTO cada pé é raro no bioma (biomas.ts).
  */
 export const CHANCE_SEMENTE_DO_ALGODAO = 2 / 3;
 
@@ -163,28 +163,32 @@ export function dropsDe(
   if (isGramaAlta(blockId)) {
     return sorteio() < CHANCE_SEMENTE_DO_CAPIM ? [{ id: BlockId.Plantacao0, qtd: 1 }] : [];
   }
-  // plantação MADURA: colhe o trigo E devolve a muda — replantar é o passo que
-  // fecha o ciclo, e cobrar uma semente nova a cada colheita transformaria a
-  // horta num gargalo de sorte em vez de uma sequência.
-  // §🍖 F10c: o algodão SELVAGEM do gen larga SEMENTE por sorte, como o capim —
-  // e nunca ele mesmo. É a porta de entrada da cadeia (achar → plantar), e
-  // devolvê-lo daria ao aluno um pé de algodão infinito sem plantar nada.
-  if (blockId === BlockId.AlgodaoSelvagem) {
-    return sorteio() < CHANCE_SEMENTE_DO_ALGODAO ? [{ id: BlockId.Algodao0, qtd: 1 }] : [];
+  // §🍖 F10c: o pé SELVAGEM do gen larga SEMENTE por sorte, como o capim — e
+  // nunca ele mesmo. É a porta de entrada da cadeia (achar → plantar), e
+  // devolvê-lo daria ao aluno um pé infinito sem plantar nada. §🍖 F10h: o
+  // mesmo vale pros pés das seis novas culturas — `plantaPorSelvagem` diz a
+  // semente de quem.
+  {
+    const selvagem = plantaPorSelvagem(blockId);
+    if (selvagem) {
+      return sorteio() < CHANCE_SEMENTE_DO_ALGODAO
+        ? [{ id: selvagem.base, qtd: 1 }]
+        : [];
+    }
   }
   if (isPlantacaoMadura(blockId)) {
-    // §🍖 F10c: o algodão é o PRIMEIRO drop com quantidade sorteada (1 ou 2) —
-    // cabe sem motor novo porque `sorteio` já entra injetável, e o teste não
-    // vira sorteio: ele injeta o sorteio.
-    if (blockId === BlockId.Algodao3) {
-      return [
-        { id: ITEM_ALGODAO, qtd: sorteio() < 0.5 ? 1 : 2 },
-        { id: BlockId.Algodao0, qtd: sementes(sorteio) },
-      ];
-    }
+    // §🍖 F10c: a colheita sai da TABELA (`Planta.colheita`), e o algodão foi
+    // o primeiro drop com quantidade sorteada (1 ou 2). §🍖 F10h: as seis
+    // novas culturas usam a MESMA régua — `colheitaMax` decide quem é fixo
+    // (o trigo, 1) e quem sorteia (1 ou 2) — e cabe sem motor novo porque
+    // `sorteio` já entra injetável, e o teste não vira sorteio: injeta ele.
+    const p = plantaDe(blockId)!;
     return [
-      { id: ITEM_TRIGO, qtd: 1 },
-      { id: BlockId.Plantacao0, qtd: sementes(sorteio) },
+      {
+        id: p.colheita,
+        qtd: p.colheitaMax > 1 ? (sorteio() < 0.5 ? 1 : p.colheitaMax) : 1,
+      },
+      { id: p.base, qtd: sementes(sorteio) },
     ];
   }
   if (EXCECOES.has(blockId)) {

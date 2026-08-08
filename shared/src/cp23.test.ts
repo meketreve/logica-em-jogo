@@ -137,6 +137,35 @@ describe("cp23 — mesher (formas não-cubo)", () => {
     // some contra o chão/vizinho, ao contrário das caixas)
     expect(geomLen(world) - empty).toBe(48);
   });
+
+  it("lajes empilhadas do MESMO id não fundem a face vertical (bug-602)", () => {
+    const world = generateFlatWorld(DIMS);
+    const yd = SOLO + 6;
+    setBlock(world, 5, yd, 5, BlockId.LajePedraBaixo);
+    setBlock(world, 5, yd + 1, 5, BlockId.LajePedraBaixo);
+    const { positions, normals } = meshChunk(world, 0, 0, 0);
+    // face de BAIXO (normal −Y) da laje de cima, em y = yd+1: tinha que existir.
+    // Antes do fix o merge `nb === id` do emitBox cullava e a pilha mostrava
+    // "buraco" por baixo (a face não toca a laje debaixo — há um vão de 0,5).
+    let downs = 0;
+    for (let i = 0; i < positions.length; i += 3) {
+      if (normals[i + 1]! < -0.99 && Math.abs(positions[i + 1]! - (yd + 1)) < 1e-6) downs++;
+    }
+    expect(downs).toBe(4);
+    // lateral (X/Z) de lajes vizinhas no MESMO Y continua fundindo. Checa SÓ a
+    // faixa da laje do chão (y entre yd e yd+0.5): a de cima empilhada tem face
+    // +X em x=6 legítima (o vizinho dela é ar).
+    setBlock(world, 6, yd, 5, BlockId.LajePedraBaixo);
+    const { positions: p2, normals: n2 } = meshChunk(world, 0, 0, 0);
+    let laterais = 0;
+    for (let i = 0; i < p2.length; i += 3) {
+      if (
+        n2[i]! > 0.99 && Math.abs(p2[i]! - 6) < 1e-6 &&
+        p2[i + 1]! >= yd && p2[i + 1]! <= yd + 0.5
+      ) laterais++;
+    }
+    expect(laterais).toBe(0);
+  });
 });
 
 describe("blockSelectionBox — hitbox visual segue a forma", () => {

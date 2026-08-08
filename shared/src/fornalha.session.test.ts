@@ -176,6 +176,25 @@ describe("§🍖 F10b — a fornalha pelo fio", () => {
     expect(naMochila(sent, 2, BlockId.Cobblestone)).toBe(4);
   });
 
+  it("o slot de COMBUSTÍVEL recusa o que não queima e avisa (pedido do playtest)", () => {
+    const { session, sent } = turma();
+    const f = poeFornalha(session);
+    session.handleMessage(1, cmd(`/dar ana ${BlockId.Cobblestone} 4`));
+    session.handleMessage(2, abrir(f.x, f.y, f.z));
+    const antes = sent.length;
+    session.handleMessage(2, mover(f.x, f.y, f.z, 0, INV_SLOTS + FORNALHA_COMBUSTIVEL));
+    // o item VOLTOU pra mochila e o slot continua vazio
+    expect(ultimoContainer(sent, 2)!.slots).toEqual([]);
+    expect(naMochila(sent, 2, BlockId.Cobblestone)).toBe(4);
+    // e a criança ouviu o porquê
+    const avisos = sent
+      .slice(antes)
+      .map((s) => parseServerMessage(s.data as string))
+      .filter((m) => m?.type === "chat");
+    expect(avisos.length).toBe(1);
+    expect((avisos[0] as { text: string }).text).toContain("não queima");
+  });
+
   it("fornalha COM COISA DENTRO não quebra — e o aluno é avisado no chat", () => {
     const { session, sent } = turma();
     const f = poeFornalha(session);

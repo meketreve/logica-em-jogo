@@ -91,7 +91,9 @@ describe("apoio — quem precisa de chão TEM regra de tick (bug-558 / bug-581)"
       ...PLANTAS.flatMap((p) =>
         Array.from({ length: p.estagios }, (_, i) => p.base + i),
       ),
-      BlockId.AlgodaoSelvagem,
+      // §🍖 F10h: os pés SELVAGENS do gen entram pela tabela, não à mão — o
+      // teste não pode esquecer o próximo gen que nascer.
+      ...PLANTAS.flatMap((p) => (p.selvagem === undefined ? [] : [p.selvagem])),
       BlockId.GramaAlta,
       BlockId.GramaAltaSeca,
       BlockId.GramaAltaFria,

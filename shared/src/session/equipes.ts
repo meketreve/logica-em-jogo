@@ -215,7 +215,7 @@ export function runClaim(ses: GameSession, clientId: number, parts: string[]): s
         type: "chat",
         author: "servidor",
         text: novo
-          ? "Proteção de áreas LIGADA. Marque sua área com a varinha (tecla R) e use /claim criar; convide amigos com /amigos convidar nome."
+          ? "Proteção de áreas LIGADA. Marque sua área com a varinha (tecla R) e use /claim criar; convide amigos com /amigos convidar nome. (Diferente do /confinar, que é o modo aula preso à área do grupo.)"
           : "Proteção de áreas desligada — as áreas voltam a ser livres.",
       });
       return novo ? "Proteção de áreas ligada." : "Proteção de áreas desligada.";
@@ -550,7 +550,15 @@ export function runGrupo(ses: GameSession, clientId: number, parts: string[]): s
 export function runConfinar(ses: GameSession, parts: string[]): string {
   const arg = parts[1]?.toLowerCase();
   if (arg === undefined || arg === "status") {
-    return `Confinamento por área de grupo está ${ses.confinamentoAtivo ? "LIGADO" : "desligado"}. Use /confinar ligar ou /confinar desligar.`;
+    // bug-603: os DOIS sistemas coexistem e não se confundem — o confinamento
+    // (cp25) é o modo aula que prende o aluno à área do grupo; o /claim (cp24)
+    // protege só as áreas marcadas. O status deixa a diferença explícita.
+    return (
+      `Confinamento por área de grupo (modo aula): ${ses.confinamentoAtivo ? "LIGADO" : "desligado"}. ` +
+      `Use /confinar ligar ou /confinar desligar. ` +
+      `— É OUTRO sistema do /claim: a proteção de áreas está ${ses.claimsAtivo ? "LIGADA" : "desligada"} ` +
+      `(o claim só guarda as áreas marcadas com a varinha; o confinamento restringe TODO o mundo à área do grupo).`
+    );
   }
   let novo: boolean;
   if (arg === "ligar" || arg === "on") novo = true;

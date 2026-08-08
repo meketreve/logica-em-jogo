@@ -1,6 +1,6 @@
 import { isAgua } from "../blocks";
 import { PLAYER_REACH } from "../constants";
-import { PLAYER, apoiadoNoChao } from "../physics";
+import { PLAYER, acharEspacoVago, apoiadoNoChao, sobrepoeSolidos } from "../physics";
 import { type ServerMessage } from "../protocol";
 import { valorRegra } from "../regras";
 import {
@@ -20,6 +20,7 @@ import {
   tickFolego,
   tickFome,
   tickRegen,
+  tickSufocamento,
 } from "../sobrevivencia";
 import { getBlock } from "../world";
 import { AVISO_MOCHILA_MS } from "./avisos";
@@ -281,6 +282,12 @@ export function tickVitais(ses: GameSession): void {
       depois = f.estado;
       danoFome = f.dano;
     }
+    // bug-605: SOTERRADO — dano contínuo de sufocamento + levar pro vão livre
+    // mais próximo (raio 2). Se achar o vão, teleporta na hora (o dano para);
+    // se não achar, o jogador continua soterrado e o dano acumula até a morte.
+    const soterrado = sobrepoeSolidos(ses.world, { x: p.x, y: p.y, z: p.z });
+    const sufoc = tickSufocamento(depois, soterrado);
+    depois = sufoc.estado;
     ses.vitais.set(p.name, depois);
     if (folego.dano > 0) {
       machucar(ses, clientId, folego.dano, "afogamento"); // já manda a `vida`
@@ -289,6 +296,22 @@ export function tickVitais(ses: GameSession): void {
     if (danoFome > 0) {
       machucar(ses, clientId, danoFome, "fome"); // idem
       continue;
+    }
+    if (sufoc.dano > 0) {
+      machucar(ses, clientId, sufoc.dano, "sufocamento"); // idem
+      continue;
+    }
+    if (soterrado) {
+      const vao = acharEspacoVago(
+        ses.world,
+        { x: p.x, y: p.y, z: p.z },
+        2,
+        (x, y, z) => ses.overlapsAnyPlayer(x, y, z),
+      );
+      if (vao) {
+        teleportar(ses, clientId, vao.x, vao.y, vao.z);
+        continue;
+      }
     }
     if (
       depois.vida !== antes.vida ||

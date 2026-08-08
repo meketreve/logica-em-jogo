@@ -521,7 +521,7 @@ describe("GameSession (servidor autoritativo)", () => {
       "/bloco 1 2",                       // args faltando
       "/bloco 1.5 2 3 4",                 // não inteiro
       "/bloco 999 0 0 1",                 // fora do mundo
-      "/bloco 5 5 5 200",                 // id inválido
+      "/bloco 5 5 5 300",                 // id inválido (200 agora é a cenoura do §🍖 F10h)
     ];
     for (const text of bad) {
       session.handleMessage(1, JSON.stringify({ type: "chat", text }));
@@ -689,8 +689,10 @@ describe("GameSession (servidor autoritativo)", () => {
     const { sent, send } = collect();
     const session = new GameSession(send, { dims: DIMS, singleplayer: true });
     session.handleMessage(1, JSON.stringify({ type: "join", name: "ana" }));
-    // ana anda até um canto e FICA PARADA (nenhum move depois)
-    session.handleMessage(1, JSON.stringify({ type: "move", x: 3.5, y: 20, z: 4.5, yaw: 1, pitch: 0 }));
+    // ana anda até um canto e FICA PARADA (nenhum move depois). O y é o do chão
+    // da coluna — bug-605: posição dentro de bloco sólido agora é recusada.
+    const ay = findSpawnY(session.world, 3, 4);
+    session.handleMessage(1, JSON.stringify({ type: "move", x: 3.5, y: ay, z: 4.5, yaw: 1, pitch: 0 }));
     sent.length = 0;
 
     session.handleMessage(2, JSON.stringify({ type: "join", name: "bia" }));
@@ -698,7 +700,7 @@ describe("GameSession (servidor autoritativo)", () => {
     const toBia = sent.filter((s) => s.clientId === 2 && typeof s.data === "string")
       .map((s) => parseServerMessage(s.data as string));
     expect(toBia).toContainEqual({
-      type: "player_moved", id: 1, x: 3.5, y: 20, z: 4.5, yaw: 1, pitch: 0, name: "ana",
+      type: "player_moved", id: 1, x: 3.5, y: ay, z: 4.5, yaw: 1, pitch: 0, name: "ana",
     });
     // …e a ana fica sabendo da bia (nascendo no spawn)
     const toAna = sent.filter((s) => s.clientId === 1)
@@ -722,12 +724,12 @@ describe("GameSession (servidor autoritativo)", () => {
     sent.length = 0;
 
     session.handleMessage(1, JSON.stringify({
-      type: "move", x: 5.5, y: 20, z: 6.5, yaw: 1.2, pitch: -0.3,
+      type: "move", x: 5.5, y: findSpawnY(session.world, 5, 6), z: 6.5, yaw: 1.2, pitch: -0.3,
     }));
     expect(sent).toHaveLength(1);
     expect(sent[0]?.clientId).toBe(2);
     expect(parseServerMessage(sent[0]?.data as string)).toEqual({
-      type: "player_moved", id: 1, x: 5.5, y: 20, z: 6.5, yaw: 1.2, pitch: -0.3, name: "ana",
+      type: "player_moved", id: 1, x: 5.5, y: findSpawnY(session.world, 5, 6), z: 6.5, yaw: 1.2, pitch: -0.3, name: "ana",
     });
   });
 
@@ -741,12 +743,14 @@ describe("GameSession (servidor autoritativo)", () => {
     s1.handleMessage(1, JSON.stringify({
       type: "break_block", x: sx, y: Math.floor(s1.spawn.y) - 1, z: sz,
     }));
-    s1.handleMessage(1, JSON.stringify({ type: "move", x: 2.5, y: 20, z: 3.5, yaw: 1.2, pitch: -0.3 }));
+    s1.handleMessage(1, JSON.stringify({
+      type: "move", x: 2.5, y: findSpawnY(s1.world, 2, 3), z: 3.5, yaw: 1.2, pitch: -0.3,
+    }));
     s1.handleDisconnect(1);
 
     // "grava e recarrega" (encode/decode reais ficam no save.test — aqui o contrato da sessão)
     const save = { world: s1.world, ...s1.toSave() };
-    expect(save.roster).toEqual([{ name: "ana", x: 2.5, y: 20, z: 3.5, yaw: 1.2, pitch: -0.3 }]);
+    expect(save.roster).toEqual([{ name: "ana", x: 2.5, y: findSpawnY(s1.world, 2, 3), z: 3.5, yaw: 1.2, pitch: -0.3 }]);
 
     const { sent: sent2, send: send2 } = collect();
     const s2 = new GameSession(send2, { restore: save, singleplayer: true });
@@ -766,7 +770,7 @@ describe("GameSession (servidor autoritativo)", () => {
       .map((s) => (typeof s.data === "string" ? parseServerMessage(s.data) : null))
       .find((m) => m?.type === "teleport");
     // volta onde parou E olhando pra onde olhava
-    expect(tp).toEqual({ type: "teleport", x: 2.5, y: 20, z: 3.5, yaw: 1.2, pitch: -0.3 });
+    expect(tp).toEqual({ type: "teleport", x: 2.5, y: findSpawnY(s1.world, 2, 3), z: 3.5, yaw: 1.2, pitch: -0.3 });
 
     // nome desconhecido: sem teleport (nasce no spawn do mundo)
     sent2.length = 0;
@@ -780,8 +784,10 @@ describe("GameSession (servidor autoritativo)", () => {
     const { send } = collect();
     const session = new GameSession(send, { dims: DIMS, seed: 5, singleplayer: true });
     session.handleMessage(1, JSON.stringify({ type: "join", name: "ana" }));
-    session.handleMessage(1, JSON.stringify({ type: "move", x: 9.5, y: 22, z: 8.5, yaw: 1, pitch: 0 }));
-    expect(session.toSave().roster).toEqual([{ name: "ana", x: 9.5, y: 22, z: 8.5, yaw: 1, pitch: 0 }]);
+    session.handleMessage(1, JSON.stringify({
+      type: "move", x: 9.5, y: findSpawnY(session.world, 9, 8), z: 8.5, yaw: 1, pitch: 0,
+    }));
+    expect(session.toSave().roster).toEqual([{ name: "ana", x: 9.5, y: findSpawnY(session.world, 9, 8), z: 8.5, yaw: 1, pitch: 0 }]);
   });
 
   it("disconnect vira player_left pra quem fica; id desconhecido é silêncio", () => {

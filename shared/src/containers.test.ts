@@ -13,6 +13,7 @@ import {
   containerTipoDe,
   containerVazio,
   ehSlotDeContainer,
+  moverBloqueadoPorCombustivel,
   moverEntre,
   parseContainerSalvo,
   totalDeSlots,
@@ -130,6 +131,50 @@ describe("containers — o índice unificado (mochila + container)", () => {
       INV_SLOTS + FORNALHA_SAIDA,
     );
     expect(r).toBeNull();
+  });
+
+  it("slot de COMBUSTÍVEL só aceita quem queima (pedido do playtest)", () => {
+    // pedra NÃO queima → o mover é recusado (item fica onde está)
+    expect(
+      moverEntre(
+        inv([0, BlockId.Cobblestone, 3]),
+        containerVazio("fornalha"),
+        0,
+        INV_SLOTS + FORNALHA_COMBUSTIVEL,
+      ),
+    ).toBeNull();
+    // carvão queima → entra normal
+    const comCarvao = moverEntre(
+      inv([0, ITEM_CARVAO, 3]),
+      containerVazio("fornalha"),
+      0,
+      INV_SLOTS + FORNALHA_COMBUSTIVEL,
+    );
+    expect(comCarvao).not.toBeNull();
+    expect(comCarvao!.container.slots[FORNALHA_COMBUSTIVEL]).toEqual({ id: ITEM_CARVAO, qtd: 3 });
+    // a TÁBUA (bloco colocável de lenha) também queima → entra
+    expect(
+      moverEntre(
+        inv([0, BlockId.Planks, 2]),
+        containerVazio("fornalha"),
+        0,
+        INV_SLOTS + FORNALHA_COMBUSTIVEL,
+      ),
+    ).not.toBeNull();
+    // tirar COMBUSTÍVEL da fornalha continua livre (de já é combustível)
+    const deVolta = moverEntre(
+      inventarioVazio(),
+      forno(FORNALHA_COMBUSTIVEL, ITEM_CARVAO, 4),
+      INV_SLOTS + FORNALHA_COMBUSTIVEL,
+      3,
+    );
+    expect(deVolta!.mochila[3]).toEqual({ id: ITEM_CARVAO, qtd: 4 });
+    expect(deVolta!.container.slots[FORNALHA_COMBUSTIVEL]).toBeNull();
+  });
+
+  it("o BAÚ não tem slot de combustível: a regra não engancha nele", () => {
+    const bau = containerVazio("bau");
+    expect(moverBloqueadoPorCombustivel(inv([0, BlockId.Cobblestone, 1]), bau, 0, 0)).toBe(false);
   });
 
   it("índice do FIO fora da faixa, origem vazia e de===para não mudam nada", () => {

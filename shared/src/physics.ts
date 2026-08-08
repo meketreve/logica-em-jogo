@@ -1,5 +1,5 @@
 import { collisionBoxes, isAgua, isSlab, isSolidBlock, isStairs } from "./blocks";
-import { type World, getBlock } from "./world";
+import { type World, findSpawnY, getBlock, inBounds } from "./world";
 
 /**
  * Física do jogador (andar, gravidade, colisão AABB com o grid de voxels).
@@ -134,6 +134,58 @@ const FULL_BOX: readonly (readonly [number, number, number, number, number, numb
  */
 export function apoiadoNoChao(world: World, pos: Vec3): boolean {
   return collides(world, { x: pos.x, y: pos.y - 0.05, z: pos.z });
+}
+
+/** O AABB do jogador sobrepõe algum bloco sólido agora? (bug-605) É a definição
+ *  de SOTERRADO: de pé no chão o AABB não penetra o bloco de baixo, então `false`;
+ *  dentro de um sólido (bloco apareceu por cima, construíram em volta, tp pra
+ *  dentro da pedra), `true`. O servidor usa isto no tick pra cobrar o dano de
+ *  sufocamento e no handler do `move` pra recusar posição que entraria em bloco. */
+export function sobrepoeSolidos(world: World, pos: Vec3): boolean {
+  return collides(world, pos);
+}
+
+/**
+ * Vão livre mais próximo para tirar um jogador soterrado (bug-605). Busca por
+ * COLUNA, do mais perto pro mais longe: a coluna própria (r=0 — sobe pro topo do
+ * que o soterrou) e depois os anéis de Chebyshev até `raio`. Aceita a primeira
+ * coluna em que o jogador cabe de pé (`findSpawnY` + `!sobrepoeSolidos`) e que
+ * `rejeitar` não vete (ex.: já tem outro jogador). Determinística — sem host.
+ * Devolve a posição dos PÉS pronta pro `teleportar`, ou null se não achar.
+ */
+export function acharEspacoVago(
+  world: World,
+  pos: Vec3,
+  raio = 2,
+  rejeitar?: (x: number, y: number, z: number) => boolean,
+): Vec3 | null {
+  const cx = Math.floor(pos.x);
+  const cz = Math.floor(pos.z);
+  const caber = (x: number, z: number): Vec3 | null => {
+    const y = findSpawnY(world, x, z);
+    // coluna cheia até o TETO do mundo (findSpawnY == sizeY) não é vão — o
+    // jogador não pode nascer acima do mundo; sem isto, "não há vão" seria
+    // impossível e o soterrado escaparia sempre pelo topo (bug-605).
+    if (!inBounds(world, x, y, z)) return null;
+    const p = { x: x + 0.5, y, z: z + 0.5 };
+    if (sobrepoeSolidos(world, p)) return null;
+    if (rejeitar && rejeitar(x, y, z)) return null;
+    return p;
+  };
+  for (let r = 0; r <= raio; r++) {
+    for (let d = -r; d <= r; d++) {
+      for (const [x, z] of [
+        [cx + d, cz - r],
+        [cx + d, cz + r],
+        [cx - r, cz + d],
+        [cx + r, cz + d],
+      ] as const) {
+        const p = caber(x, z);
+        if (p) return p;
+      }
+    }
+  }
+  return null;
 }
 
 /** Superfície de apoio (topo/base) de colisão sob/sobre o jogador ao longo de Y,
