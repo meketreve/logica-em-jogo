@@ -2,15 +2,16 @@
 
 > Working checklist. **STATUS.md** = handoff ("why & where we are"); **TODO.md** = "what's left to do".
 > Keep items actionable and short. Check off with `[x]`; sweep done items into STATUS.md ✅ when a phase closes.
-> Last updated: 2026-08-07 (sessão 59 — playtest: comer no tablet, 🧱→🎒, click'n'drag e shift-clique).
+> Last updated: 2026-08-07 (sessão 60 — nome do mundo no desktop + push; 2 itens do TODO
+> marcados como já feitos em `8d75527`).
 
 ---
 
 ## 🔥 Now (this session)
 
-<!-- Sessão 59 (2026-08-07). Fechou o pedido do playtest: os 2 itens de toque (comer + rótulo da
-     mochila) e os 2 do PC (click'n'drag + divisão de pilha + shift-clique). Registrado no STATUS.
-     FALTA: commit. -->
+<!-- Sessão 60 (2026-08-07). Dívidas de UI: nome do mundo truncado no desktop (fix 1 linha no
+     .menu-screen) + push dos commits 58/59. A culação de claims e a 2ª rodada mobile dos
+     painéis de autoria já estavam feitas em 8d75527 — TODO desatualizado, marcado. -->
 
 - [x] **T1 — comer no tablet (playtest):** botão ▣ vira "comer 🍎" quando dá pra morder (mão com
       comida E fome < FOME_MAX) — `setModoComer`/`atualizarBtnColocar` no `touch.ts`, fiação no
@@ -30,8 +31,14 @@
 - [x] **Protocolo — pilha parcial:** `mover_item`/`mover_container` ganharam `qtd?` (ausente =
       pilha inteira); `moverSlot`/`moverEntre` com `moverParteEmArray` no shared. Testes:
       9 novos em `inventario.test.ts` + `containers.test.ts` (811 testes ✓).
-- [ ] **COMMIT da sessão 59** (client+shared+testes+dist+registros do wolf). Bateria verde:
-      811/811 testes, typecheck/build/smoke ✓.
+- [x] **COMMIT da sessão 59** (client+shared+testes+dist+registros do wolf). `a70fb32` feat
+      (17 arquivos). Bateria verde: 811/811 testes, typecheck/build/smoke ✓.
+- [x] **PUSH das sessões 58+59** — `9d4c485..a70fb32` empurrados (sessão 60). Local não está
+      mais à frente.
+- [x] **Nome do mundo truncado no desktop (sessão 60):** `.menu-screen { width: min(680px, 92vw) }`
+      na base, sem media query — a troca que o TODO sugeria, com o aval do usuário.
+- [ ] **COMMIT da sessão 60** (index.html + dist + registros do wolf). Bateria verde:
+      811/811 testes, typecheck/build/smoke/shots:tablet ✓.
 
 <!-- Sessão 58 (2026-08-07). Fechou o playtest da 55: os 6 bugs consertados + os 2 pedidos de
      toque + o pedido de conteúdo (F10h: 6 culturas + batata cozida). Tudo registrado no STATUS.
@@ -397,11 +404,14 @@ gate de claim nos containers, junto de cada um) → F10c (algodão) → F10d (fe
 
 ## ⏭️ Next (queued, ready to pick up)
 
-- [ ] **Mobile, 2ª rodada — painéis de AUTORIA** (`#painel`: quadros, objetivos, regiões) e o
-      de grupo/jogadores. O usuário deixou de fora da 1ª rodada. Seguem em
-      `width: min(580px, 94vw)` / `height: min(560px, 84vh)`; os botões internos já têm alvo
-      de 40px, mas o layout não foi revisto. O caminho que funcionou no inventário foi
-      ALARGAR em paisagem baixa, não quebrar linha.
+- [x] **Mobile, 2ª rodada — painéis de AUTORIA** (`#painel`: quadros, objetivos, regiões) e o
+      de grupo/jogadores. **FEITO em `8d75527` (2026-08-04).** `#painel`/`#jogadores`/`#amigos`
+      entraram no alargamento de paisagem baixa (`min(760px, 94vw)`) que o inventário já tinha;
+      `#painel` entrou no `tablet-shots.mjs` (mede 1024×600 coarse: cabe na janela, alvo de 40px
+      em botão/select/campo, linhas quebradas) e o `pointer: coarse` subiu selects/campos
+      28/26px → 40px. A/B: selects 28→40, campos 26→54, linhas quebradas 4→3 (as 3 que restam
+      são o teto documentado — `.painel-row` flex-wrap sem largura vira altura, e em 600px
+      altura é o que falta). Verificação atual: `shots:tablet` verde (0 ✗).
 - [x] **👥 PAINEL DE AMIGOS — a interface do `/amigos`** (sessão 43). `client/src/friends.ts`
       (`FriendsPanel`, molde do `players.ts`, root `#amigos`), aberto pela tecla **G**
       (`KeyAction` nova `amigos`) e por dica no chat quando a proteção de áreas LIGA.
@@ -428,17 +438,20 @@ gate de claim nos containers, junto de cada um) → F10c (algodão) → F10d (fe
       **Não feito de propósito:** os comandos locais (`/hud`, `/varinha`, `/telacheia`) da
       3ª sugestão — pro tablet o menu resolve com menos peça nova. Se o usuário quiser o
       caminho digitado no desktop, `/hud` é o candidato natural.
-- [ ] **Nome do mundo truncado no DESKTOP** ("seque…", "labirin…") — a coluna do nome fica com
-      ~84px depois dos 3 botões. Em paisagem baixa já resolveu (painel de 680px). No desktop
-      resolve com UMA linha (`.menu-screen { width: min(680px, 92vw) }` sem media query), mas
-      é mudança visual não pedida numa tela de uso diário: **só com o aval do usuário.**
+- [x] **Nome do mundo truncado no DESKTOP** ("seque…", "labirin…") — a coluna do nome fica com
+      ~84px depois dos 3 botões. **FEITO na sessão 60 (2026-08-07, com o aval do usuário):**
+      `.menu-screen { width: min(460px, 92vw) }` → `min(680px, 92vw)` na base, sem media
+      query — resolve em qualquer altura (a regra da paisagem baixa ficou redundante e
+      inofensiva).
 - [ ] Som de água (splash/borbulha/balde, WebAudio em `audio.ts`) — 4ª opção do refino de
       água, nunca escolhida. **Casa bem com o §🌬️ recém-fechado** (som de vento junto).
-- [ ] **Não renderizar as bordas de área reservada (claim/região) além da distância de render**
-      (pedido do usuário, 2026-08-03). Hoje o `regionRenderer` desenha os wireframes das áreas
-      reservadas dos jogadores independentemente da distância; cular por `raioRender` (a área
-      cujo centro/caixa está além do raio não gera vértice) alivia GPU/overdraw em mundo com
-      muitos claims. Barato: filtro por distância antes de montar as linhas.
+- [x] **Não renderizar as bordas de área reservada (claim/região) além da distância de render**
+      (pedido do usuário, 2026-08-03; **FEITO em `8d75527`, 2026-08-04**).
+      `RegionRenderer.cularPorDistancia()` guarda os limites ao lado das caixas e esconde a que
+      passou do raio, pela MESMA régua chebyshev em x/z do descarte de coluna; reaplica sozinha
+      quando a lista troca. Chamada dentro do `if (mundoLazy)` (só o procedural descarta coluna) —
+      em mundo denso cular esconderia borda sobre terreno visível. Caixas de objetivo não chamam
+      (são alvo de navegação); o frustum do three.js já corta o que sai do campo de visão.
 - [ ] **Cauda de GPU no lab — SÓ SE VOLTAR A INCOMODAR** (nenhum gatilho aceso hoje): GPU p95
       16,8–19,6 ms contra 16,7 ms de orçamento de 60 FPS. Candidatos: teto de `raioRender` em
       GPU fraca, overdraw da água, custo de fragment.

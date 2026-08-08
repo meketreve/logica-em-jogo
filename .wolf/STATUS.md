@@ -1,6 +1,25 @@
 # STATUS — Projeto "Lógica em Jogo" (jogo voxel educacional)
 
 > Single source of truth for resuming work. Read this FIRST when starting a session.
+> **SESSÃO 60 (2026-08-07) — DÍVIDAS DE UI DO TODO: NOME DE MUNDO + PUSH + 2 ITENS JÁ FEITOS.**
+> O usuário pediu pra continuar as tarefas e escolheu 4: cular bordas de claim por distância,
+> push dos 4 commits, a 2ª rodada mobile dos painéis de autoria e o nome do mundo truncado no
+> desktop. **As duas primeiras já estavam feitas** (a culação em `8d75527` de 2026-08-04; os
+> painéis de autoria também em `8d75527`, com `shots:tablet` verde 0 ✗) — o TODO estava
+> desatualizado e foi marcado com a evidência. O que a sessão FEZ de fato:
+>
+> **NOME DO MUNDO TRUNCADO NO DESKTOP:** `.menu-screen { width: min(460px, 92vw) }` →
+> `min(680px, 92vw)` na base, sem media query (a troca que o TODO já sugeria; com o aval do
+> usuário). Os 3 botões de alvo de dedo comiam a linha de 460px e o nome saía "seq…". Alargar
+> resolve em qualquer altura; a regra de paisagem baixa (que já fazia `min(680px, 92vw)`) ficou
+> redundante e inofensiva. O menu de pausa (`#overlay .menu-screen`) reusa a base e também
+> alarga — mudança visual aprovada junto.
+> **PUSH:** `9d4c485..a70fb32` (sessões 58+59) empurrados — o local não está mais à frente.
+>
+> **Bateria verde:** `npm test` shared 811/811 · `npm run typecheck` (3/3) ✓ · `npm run build`
+> ✓ · `npm run smoke` **15/15** ✓ · `npm run shots:tablet` (1024×600 coarse) **0 ✗**.
+> **Nada commitado ainda** — o commit da sessão 60 é o próximo passo.
+
 > **SESSÃO 59 (2026-08-07) — PLAYTEST DO TODO: COMER NO TABLET, 🧱→🎒, CLICK'N'DRAG E SHIFT-CLIQUE.**
 > A sessão fechou o pedido do playtest em 4 frentes: os 2 itens de toque (T1/T2) e os 2 do PC
 > (T3/T4). Tudo sem decidir estado no cliente — as mensagens `mover_item`/`mover_container`
