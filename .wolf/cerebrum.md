@@ -96,6 +96,20 @@
 
 ## Key Learnings
 
+- [2026-08-08] **`iniciar-servidor.bat` e `.sh` são PAR e derivam um do outro — conferir os dois
+  quando um mudar.** Eles divergiram por dois commits que só tocaram o `.bat` (`c2c09c6` mundo
+  procedural, com "`.sh` não tocado (pedido: só o `.bat`)" na própria mensagem; `8bfb086` update
+  por ZIP). Diferenças que DEVEM permanecer, porque são de plataforma: o `.bat` baixa `.zip`
+  (o `tar.exe` do Windows lê zip; o tar do GNU **não** lê) e o `.sh` baixa `.tar.gz`; o `.bat`
+  copia com `robocopy` sem `/PURGE`, o `.sh` com `cp -R src/. .`; o `.bat` relança a janela
+  depois de trocar o próprio launcher, o `.sh` grava o novo AO LADO e **renomeia** (rename só
+  troca o nome — o bash em execução segue lendo o inode velho até o fim, e o temporário tem de
+  ficar na MESMA pasta, senão `mv` vira cópia por cima do inode vivo).
+- [2026-08-08] **O caminho de update do `.sh` é escolhido pela pasta, não por flag:** com `.git`
+  → `git fetch` + `merge --ff-only` (máquina de quem desenvolve); sem `.git` → pacote do GitHub
+  (máquina da escola). O `.bat` faz a mesma bifurcação ao contrário (com `.git` ele DESLIGA o
+  update e manda usar `git pull`). Os dois gravam o mesmo `.lj-versao` (sha de 40 chars, no
+  `.gitignore`).
 - [2026-08-07] **Dims de mundo de teste NÃO são blocos: CHUNK_SIZE=16.** `{x:8,z:8,y:8}` é um
   mundo de 128³ blocos — limpar/enterrar o "canto 0..7" deixa o resto (terreno gerado, spawn no
   centro) intocado. Para encenar sufocamento/colisão: cubo até o TETO (`findSpawnY == sizeY` →

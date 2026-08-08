@@ -4582,6 +4582,29 @@
    ],
    "occurrences": 1,
    "last_seen": "2026-08-07T00:00:00Z"
+  },
+  {
+   "id": "bug-606",
+   "timestamp": "2026-08-08T00:00:00Z",
+   "error_message": "iniciar-servidor.sh ficou pra trás do .bat: numa pasta que NÃO é clone do git ele imprimia \"(esta pasta não veio de um clone do git: atualização automática desligada)\" e nunca atualizava, e o menu não tinha a opção [9] mundo PROCEDURAL nem o [E] no tamanho",
+   "file": "iniciar-servidor.sh",
+   "root_cause": "Os dois launchers são PAR mas evoluíram separados: c2c09c6 (mundo procedural [9] + tamanho P/M/G/E) declarou na própria mensagem \".sh não tocado (pedido: só o .bat)\", e 8bfb086 (update por ZIP do GitHub, porque a escola bloqueia git e PowerShell) reescreveu o motor de update SÓ no .bat. Resultado: instalação Linux/macOS sem .git (pacote baixado à mão) ficava SEM caminho nenhum de atualização, e o mundo procedural só existia no Windows.",
+   "fix": "FEITO em 2026-08-08. (1) atualizar_pacote(): espelho do caminho do .bat — sha de 40 hex pela API do GitHub (Accept: application/vnd.github.sha), compara com .lj-versao (o MESMO arquivo do .bat), baixa .tar.gz (o tar do GNU não lê zip, o tar.exe do Windows lê — daí a diferença de formato), confere package.json, avisa se o pacote traz mundos/ (padrão NÃO sobrescrever → rm -rf no src antes de copiar), copia com 'cp -R src/. .' (equivale ao robocopy sem /PURGE: nunca apaga mundos/, node_modules/, .env, .ljw solto), grava .lj-versao e roda npm install. (2) Bifurcação por pasta: com .git segue o caminho git/--ff-only de sempre (intacto); sem .git chama atualizar_pacote. (3) Troca do próprio launcher por RENAME: grava .lj-launcher-novo.sh na MESMA pasta e mv por cima — rename só troca o nome e o bash em execução segue lendo o inode velho (escrever por cima do mesmo inode corromperia a rodada; vindo de /tmp o mv viraria cópia por cima). Sem o relançamento de janela do .bat: a rodada atual termina no launcher velho. (4) criar_procedural() + opção [9] no menu; menu de tamanho rotulado com [P/M/G/E] e pulado quando o procedural já fixou LJ_TAMANHO=E. A/B em sandbox isolada: update real aplicado (.lj-versao = origin/main), mundos/turma-a intacto por md5, arquivo solto preservado, 2ª rodada 'Já está na versão mais nova', API de repo inexistente recusada sem sobrescrever .lj-versao, pasta com .git caindo no caminho do git, nenhum temporário deixado.",
+   "tags": [
+    "launcher",
+    "iniciar-servidor",
+    "update",
+    "paridade-bat-sh",
+    "procedural",
+    "shell",
+    "FIXED",
+    "fix-2026-08-08"
+   ],
+   "related_bugs": [
+    "bug-567"
+   ],
+   "occurrences": 1,
+   "last_seen": "2026-08-08T00:00:00Z"
   }
  ]
 }

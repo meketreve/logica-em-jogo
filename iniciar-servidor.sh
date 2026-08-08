@@ -12,16 +12,26 @@ echo "============================================"
 echo
 
 # ============================================================
-#  Atualização (git) — só a máquina do PROFESSOR atualiza: o aluno abre o
-#  navegador e recebe o cliente DESTE servidor. `client/dist` é versionado,
-#  então não há nada pra compilar aqui.
-#  Pula sozinho, sem travar a aula, quando: LJ_SEM_UPDATE=1, a pasta não é
-#  clone do git, o git não está instalado, o branch não é main, ou a rede não
-#  responde.
+#  Atualização — só a máquina do PROFESSOR atualiza: o aluno abre o navegador e
+#  recebe o cliente DESTE servidor. `client/dist` é versionado, então não há
+#  nada pra compilar aqui.
+#
+#  DOIS CAMINHOS, escolhidos pela pasta:
+#   - é clone do git  -> `git fetch` + `merge --ff-only` (o de sempre; é a
+#     máquina de quem desenvolve, e o histórico local vale mais que a cópia).
+#   - NÃO é clone     -> baixa o pacote do branch no GitHub e copia por cima,
+#     o mesmo que o .bat faz na escola (lá o git é bloqueado). A versão
+#     instalada fica gravada em ".lj-versao" — o MESMO arquivo do .bat.
+#
+#  Pula sozinho, sem travar a aula, quando: LJ_SEM_UPDATE=1, falta git (ou
+#  curl/tar, no caminho do pacote), o branch não é main, ou a rede não responde.
 #  MUDANÇA LOCAL NÃO PULA MAIS A BUSCA (era o bug-567): o `git fetch` acontece
 #  de qualquer jeito, e quem sujou os arquivos decide na hora — as mudanças vão
 #  pro `git stash` (guardadas, nunca apagadas) e a atualização segue.
 # ============================================================
+LJ_DONO="meketreve"
+LJ_NOME="logica-em-jogo"
+LJ_RAMO="main"
 
 # Depois de um merge bem-sucedido: dependência nova só chega por aqui.
 concluir_atualizacao() {
@@ -46,9 +56,123 @@ listar_ate_10() {
   return 0
 }
 
+# --- Caminho SEM git: baixa o pacote do branch e copia por cima -------------
+# É o que o .bat faz na escola. Diferença de ferramenta, de propósito: o .bat
+# baixa .zip porque o tar.exe do Windows lê zip; o tar do GNU NÃO lê zip, então
+# aqui o endereço é o .tar.gz. Mesmo conteúdo, mesma pasta de dentro
+# (<repo>-<ramo>), mesmo ".lj-versao" gravado no fim.
+atualizar_pacote() {
+  command -v curl >/dev/null 2>&1 || { echo "(esta pasta não veio de um clone do git e não há curl aqui: atualização automática desligada)"; return; }
+  command -v tar  >/dev/null 2>&1 || { echo "(esta pasta não veio de um clone do git e não há tar aqui: atualização automática desligada)"; return; }
+
+  echo "Procurando atualização..."
+  # O cabeçalho "Accept: ...github.sha" faz a API responder o commit em texto
+  # puro, só os 40 caracteres — assim não é preciso ler JSON no shell.
+  local nova atual
+  nova="$(curl -sL --max-time 15 -H 'Accept: application/vnd.github.sha' \
+    "https://api.github.com/repos/$LJ_DONO/$LJ_NOME/commits/$LJ_RAMO" 2>/dev/null | tr -d ' \r\n')"
+  # Resposta boa = exatamente 40 caracteres hexadecimais. Erro da API volta como
+  # JSON, que nunca passa nas duas conferências.
+  case "$nova" in
+    ""|*[!0-9a-f]*) echo "(o GitHub não respondeu direito — seguindo com a versão instalada)"; return ;;
+  esac
+  [ ${#nova} -eq 40 ] || { echo "(o GitHub não respondeu direito — seguindo com a versão instalada)"; return; }
+
+  atual=""
+  [ -f .lj-versao ] && atual="$(tr -d ' \r\n' < .lj-versao)"
+  [ "$atual" = "$nova" ] && { echo "Já está na versão mais nova."; return; }
+  echo
+  if [ -z "$atual" ]; then
+    echo "Não dá para saber que versão está instalada aqui (falta o arquivo .lj-versao)."
+    echo "A mais nova no GitHub é a ${nova:0:7} — baixar agora resolve isso de vez."
+  else
+    echo "Existe versão nova: ${atual:0:7} -> ${nova:0:7}"
+  fi
+  echo
+  read -r -p "Atualizar agora? [S/n] (Enter = sim): " UPD
+  case "$UPD" in
+    [nN]*) echo "(mantendo a versão atual)"; return ;;
+  esac
+
+  local tmp tgz src
+  tmp="${TMPDIR:-/tmp}/lj-update"
+  tgz="${TMPDIR:-/tmp}/lj-update.tar.gz"
+  src="$tmp/$LJ_NOME-$LJ_RAMO"
+  rm -rf "$tmp" "$tgz"
+  echo "Baixando (uns 4 MB)..."
+  if ! curl -L --max-time 300 --fail -o "$tgz" \
+       "https://github.com/$LJ_DONO/$LJ_NOME/archive/refs/heads/$LJ_RAMO.tar.gz"; then
+    echo "(o download falhou — seguindo com a versão instalada)"
+    rm -rf "$tmp" "$tgz"; return
+  fi
+  mkdir -p "$tmp"
+  if ! tar -xzf "$tgz" -C "$tmp" 2>/dev/null; then
+    echo "(não deu para abrir o pacote — seguindo com a versão instalada)"
+    rm -rf "$tmp" "$tgz"; return
+  fi
+  if [ ! -f "$src/package.json" ]; then
+    echo "(o pacote veio num formato inesperado — seguindo com a versão instalada)"
+    rm -rf "$tmp" "$tgz"; return
+  fi
+
+  # --- A pasta dos mundos salvos é intocável, e isso é CONFERIDO ---
+  # `mundos/` está no .gitignore e nenhum arquivo dela é rastreado, então ela
+  # não viaja no pacote — os mundos que viajam são os MODELOS de aula, em
+  # `cenarios/`. A conferência existe porque o dia em que alguém versionar um
+  # .ljw de turma por engano, o professor tem de ser avisado ANTES de a turma
+  # perder o que construiu. Padrão = NÃO sobrescrever.
+  if [ -d "$src/mundos" ]; then
+    echo
+    echo "ATENÇÃO: esta atualização TRAZ arquivos para a pasta dos mundos salvos (mundos/):"
+    listar_ate_10 "$(ls -1 "$src/mundos")"
+    echo "  Os mundos que a sua turma construiu podem ser SOBRESCRITOS."
+    read -r -p "  Sobrescrever os mundos salvos? [s/N] (Enter = não): " SOBR
+    case "$SOBR" in
+      [sS]*) echo "  (ok — a atualização vai sobrescrever mundos/)" ;;
+      *) rm -rf "$src/mundos"; echo "  (ok — os mundos salvos ficam como estão)" ;;
+    esac
+  else
+    echo "(seus mundos salvos em mundos/ não são tocados pela atualização)"
+  fi
+
+  # --- O próprio launcher mudou nesta atualização? ---
+  # O bash lê ESTE arquivo aos poucos enquanto executa: escrever por cima do
+  # mesmo inode corrompe a rodada em andamento. Então o novo é gravado ao lado
+  # e RENOMEADO por cima — rename troca só o nome, e o processo atual segue
+  # lendo o inode velho até o fim. O temporário fica na MESMA pasta de
+  # propósito: rename só vale dentro do mesmo sistema de arquivos (vindo de
+  # /tmp o `mv` viraria cópia por cima, que é justamente o que se evita).
+  # Por isso não há o relançamento de janela que o .bat faz: aqui a rodada atual
+  # termina com o launcher velho, e o novo vale na próxima.
+  local troca=""
+  if ! cmp -s "$src/iniciar-servidor.sh" ./iniciar-servidor.sh; then
+    troca=".lj-launcher-novo.sh"
+    cp "$src/iniciar-servidor.sh" "./$troca"
+  fi
+  rm -f "$src/iniciar-servidor.sh"
+
+  echo "Aplicando a atualização..."
+  # `cp -R origem/. destino` escreve por cima e acrescenta, nunca apaga o que é
+  # só seu (mundos/, node_modules/, .env, .ljw exportado solto na pasta) — é o
+  # robocopy SEM /PURGE do .bat. O "/." leva junto os arquivos ocultos.
+  if ! cp -R "$src/." . ; then
+    echo "(a cópia falhou — seguindo com a versão instalada)"
+    rm -f "./$troca"; rm -rf "$tmp" "$tgz"; return
+  fi
+  echo "$nova" > .lj-versao
+  echo "Atualizado para a ${nova:0:7}."
+  concluir_atualizacao
+  if [ -n "$troca" ]; then
+    chmod +x "./$troca"
+    mv -f "./$troca" ./iniciar-servidor.sh
+    echo "(o próprio launcher mudou — a versão nova vale na próxima vez que você abrir este arquivo)"
+  fi
+  rm -rf "$tmp" "$tgz"
+}
+
 atualizar() {
   [ -n "$LJ_SEM_UPDATE" ] && { echo "(LJ_SEM_UPDATE=1: não vou procurar atualização)"; return; }
-  [ -d .git ] || { echo "(esta pasta não veio de um clone do git: atualização automática desligada)"; return; }
+  [ -d .git ] || { atualizar_pacote; return; }
   command -v git >/dev/null 2>&1 || { echo "(git não encontrado — instale o git para atualizar daqui)"; return; }
   local branch
   branch="$(git rev-parse --abbrev-ref HEAD 2>/dev/null)"
@@ -176,6 +300,20 @@ for f in mundos/*.ljw; do
   echo "(mundo '$nome' movido para a própria pasta)"
 done
 
+# --- Sub-rotina: criar/abrir um mundo PROCEDURAL (enorme) com nome próprio ---
+# Não sobrescreve o mundo-livre: cada procedural tem a própria pasta.
+criar_procedural() {
+  echo
+  echo "Mundo PROCEDURAL: gigante (3840x3840), só gera onde você anda."
+  echo "O terreno regenera do zero; só o que você CONSTRUIR é salvo."
+  read -r -p "Nome do mundo (Enter = 'procedural'): " PNOME
+  [ -z "$PNOME" ] && PNOME="procedural"
+  PNOME="${PNOME// /-}"   # sem espaços (o nome vira a pasta em mundos/)
+  export LJ_SAVE="mundos/$PNOME/$PNOME.ljw"
+  export LJ_TAMANHO="E"
+  echo "(mundo procedural: mundos/$PNOME/)"
+}
+
 # --- Qual mundo abrir ---
 echo "Escolha o mundo:"
 echo "   [1] Mundo livre (construção livre)   <-- padrão"
@@ -186,6 +324,7 @@ echo "   [5] Aula 4 — Decifre a mensagem"
 echo "   [6] Aula 5 — Conserte o desenho"
 echo "   [7] Aula 6 — Siga o manual"
 echo "   [8] Carregar mundo salvo (da pasta mundos/)"
+echo "   [9] Criar mundo PROCEDURAL (gigante, gera conforme você explora)"
 echo
 read -r -p "Digite o número e tecle Enter (Enter direto = 1): " ESCOLHA
 
@@ -227,6 +366,7 @@ case "$ESCOLHA" in
       fi
     fi
     ;;
+  9) criar_procedural ;;
   *) export LJ_SAVE="mundos/mundo-livre/mundo-livre.ljw" ;;
 esac
 
@@ -236,13 +376,20 @@ read -r -p "Código do professor (Enter = manter o atual / gerar um): " CODIGO
 [ -n "$CODIGO" ] && export LJ_CODIGO="$CODIGO"
 
 # --- Tamanho do mundo (só vale se o mundo for NOVO) ---
+# O procedural [9] já fixou LJ_TAMANHO=E; nesse caso, pula o menu de tamanho.
 # Carregar mundo salvo [8]: o save já tem as dimensões -> pula o menu de tamanho.
-if [ -z "$PULAR_TAMANHO" ]; then
+if [ -z "$PULAR_TAMANHO" ] && [ "$LJ_TAMANHO" != "E" ]; then
   echo
-  read -r -p "Tamanho do mundo novo P/M/G (Enter = P pequeno): " TAMANHO
+  echo "Tamanho do mundo novo:"
+  echo "   [P] pequeno 128x128        (padrão)"
+  echo "   [M] médio 192x192"
+  echo "   [G] grande 256x256         (exige PC melhor)"
+  echo "   [E] procedural — gigante, gera conforme você explora"
+  read -r -p "Escolha P/M/G/E (Enter = P pequeno): " TAMANHO
   case "$TAMANHO" in
     [mM]) export LJ_TAMANHO="M" ;;
     [gG]) export LJ_TAMANHO="G" ;;
+    [eE]|[pP]rocedural|PROCEDURAL) export LJ_TAMANHO="E" ;;
     *) export LJ_TAMANHO="P" ;;
   esac
 fi

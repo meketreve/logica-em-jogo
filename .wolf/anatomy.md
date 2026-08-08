@@ -1,6 +1,6 @@
 # anatomy.md
 
-> Auto-maintained by OpenWolf. Last scanned: 2026-08-06T18:47:04.808Z
+> Auto-maintained by OpenWolf. Last scanned: 2026-08-08T22:37:14.272Z
 > Files: 331 tracked | Anatomy hits: 0 | Misses: 0
 
 ## ./
@@ -8,8 +8,8 @@
 - `.gitattributes` — LF em tudo (projeto vive no WSL/ext4; evita ruído CRLF de ferramentas Windows) (~31 tok)
 - `.gitignore` — Git ignore rules (~331 tok)
 - `CLAUDE.md` — OpenWolf (~57 tok)
-- `iniciar-servidor.bat` (~3462 tok)
-- `iniciar-servidor.sh` — ============================================================ (~3117 tok)
+- `iniciar-servidor.bat` — launcher Windows (duplo-clique): update por ZIP do GitHub (curl+tar+robocopy, sem git/PowerShell — a escola bloqueia), menu de mundo [1-9] com procedural, código do professor, tamanho P/M/G/E, água por tick (~3462 tok)
+- `iniciar-servidor.sh` — launcher Linux/WSL/macOS, PAR do .bat: update por git quando é clone, por pacote .tar.gz do GitHub quando não é; mesmo menu de mundo [1-9] com procedural, tamanho P/M/G/E, LJ_SAVE/LJ_CODIGO/LJ_TAMANHO/LJ_AGUA_TICK (~4746 tok)
 - `LICENSE` — Licença de Uso — Lógica em Jogo (~1070 tok)
 - `package-lock.json` — npm lock file (~20120 tok)
 - `package.json` — Node.js package manifest (~341 tok)

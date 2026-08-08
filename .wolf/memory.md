@@ -1738,3 +1738,16 @@ passa pelo próprio portão) · 5 prints da pista. **PLAYTEST PENDENTE.**
 | Time | Action | File(s) | Outcome | ~Tokens |
 |------|--------|---------|---------|--------|
 | 15:47 | Edited iniciar-servidor.bat | expanded (+7 lines) | ~1900 |
+
+## Session: 2026-08-08 19:24
+
+| Time | Action | File(s) | Outcome | ~Tokens |
+|------|--------|---------|---------|--------|
+| 19:36 | Edited iniciar-servidor.sh | modified BUSCA() | ~314 |
+| 19:36 | Edited iniciar-servidor.sh | modified atualizar_pacote() | ~1511 |
+| 19:36 | Edited iniciar-servidor.sh | modified criar_procedural() | ~176 |
+| 19:36 | Edited iniciar-servidor.sh | 2→3 lines | ~36 |
+| 19:37 | Edited iniciar-servidor.sh | 4→5 lines | ~28 |
+| 19:37 | Edited iniciar-servidor.sh | modified E() | ~206 |
+| 19:40 | Sincronizei o .sh com o .bat: update por pacote .tar.gz (espelho do ZIP, 8bfb086) + mundo procedural [9] e tamanho P/M/G/E (c2c09c6) | iniciar-servidor.sh, .wolf/anatomy.md | bash -n OK; A/B em sandbox isolada: download+cópia+.lj-versao+troca de launcher OK, mundos/ da turma intacto, 2ª rodada "já está na versão mais nova", API ruim recusada, pasta com .git cai no caminho do git | ~9000 |
+| 19:40 | Session end: 6 writes across 1 files (iniciar-servidor.sh) | 2 reads | ~9010 tok |

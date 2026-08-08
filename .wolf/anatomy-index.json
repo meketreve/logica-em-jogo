@@ -1,12 +1,12 @@
 {
   "version": 1,
   "meta": {
-    "lastScanned": "2026-08-06T18:47:04.808Z",
+    "lastScanned": "2026-08-08T22:37:14.272Z",
     "fileCount": 331,
     "hits": 0,
     "misses": 0,
-    "renderedHash": "71d7ac005e2380592cc6f91ae8d234d397be14b5bc68f9dbea422cf08c2a4cae",
-    "storeUpdatedAt": "2026-08-06T18:47:04.828Z"
+    "renderedHash": "639b089d5fe0f0e39f98f99f39cb5c0e0456354ab7963d6d0875c5b2462bc7ee",
+    "storeUpdatedAt": "2026-08-08T22:37:14.293Z"
   },
   "files": {
     ".claude/commands/reframe.md": {
@@ -3278,12 +3278,12 @@
     },
     "iniciar-servidor.sh": {
       "description": "============================================================",
-      "tokens": 3117,
-      "hash": "26ca894a98f5fce0",
-      "size": 11125,
-      "mtimeMs": 1785941724019.3196,
-      "updatedAt": "2026-08-06T14:05:04.948Z",
-      "source": "scan"
+      "tokens": 4746,
+      "hash": "bcbcc13d36b25fa6",
+      "size": 18160,
+      "mtimeMs": 1786228634172.4167,
+      "updatedAt": "2026-08-08T22:37:14.271Z",
+      "source": "hook"
     },
     "LICENSE": {
       "description": "Licença de Uso — Lógica em Jogo",
