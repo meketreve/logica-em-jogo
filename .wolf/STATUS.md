@@ -1,6 +1,42 @@
 # STATUS — Projeto "Lógica em Jogo" (jogo voxel educacional)
 
 > Single source of truth for resuming work. Read this FIRST when starting a session.
+> **SESSÃO 62 (2026-08-08) — O `.sh` ALCANÇOU O `.bat` (bug-606), E A DERIVA DO `todo.md`.**
+> Sessão de retomada: a 61 já estava commitada E empurrada (`bba8c34`), árvore limpa. O pedido
+> foi sincronizar o launcher de Linux/WSL/macOS com o do Windows. **Dois commits tinham tocado só
+> o `.bat`:** `c2c09c6` (mundo procedural — a mensagem dizia *".sh não tocado (pedido: só o
+> .bat)"*) e `8bfb086` (update por ZIP, porque a escola bloqueia git e PowerShell).
+>
+> **O buraco real que isso deixou:** numa instalação Linux/macOS **sem `.git`** o `.sh` não tinha
+> caminho NENHUM de atualização — imprimia *"atualização automática desligada"* e seguia. E o
+> mundo procedural só existia no Windows. **bug-606 no buglog.json (FIXED).**
+> **`atualizar_pacote()`** espelha o caminho do `.bat`: sha de 40 hex pela API do GitHub
+> (`Accept: application/vnd.github.sha`), compara com `.lj-versao` (o MESMO arquivo do `.bat`),
+> baixa, avisa se o pacote traz `mundos/` (padrão NÃO sobrescrever), copia por cima, grava a
+> versão, `npm install`. **A bifurcação é pela PASTA:** com `.git` segue o `git --ff-only` de
+> sempre (intacto); sem `.git` vai pelo pacote. Mais a opção **[9] mundo PROCEDURAL** e o menu de
+> tamanho rotulado **P/M/G/E** (pulado quando o procedural já fixou `E`).
+> **Três diferenças de plataforma, deliberadas e comentadas no arquivo:** baixa `.tar.gz` porque
+> **o tar do GNU não lê zip** (o `tar.exe` do Windows lê); copia com `cp -R src/. .` no lugar do
+> `robocopy` sem `/PURGE`; e troca o próprio launcher por **rename** — o bash lê o script aos
+> poucos, então escrever por cima do inode vivo corromperia a rodada, e o temporário fica na
+> MESMA pasta senão o `mv` vira cópia por cima. Sem o relançamento de janela do `.bat`.
+> **A/B honesto, em pasta isolada com `npm` falso:** update real aplicado (`.lj-versao` =
+> `origin/main`) · `mundos/turma-a` intacto por md5 · arquivo solto preservado · 2ª rodada *"já
+> está na versão mais nova"* · API de repo inexistente RECUSADA sem sobrescrever `.lj-versao` ·
+> pasta com `.git` caindo no caminho do git · nenhum temporário deixado. `bash -n` ✓.
+> **Commitado e empurrado:** `3a43954`.
+>
+> ⚠️ **DERIVA ACHADA E NÃO CORRIGIDA — o `todo.md` está desatualizado.** Seis itens seguem `[ ]`
+> com o código JÁ no repo: comer no tablet (L134, `touch.ts:310`) · 🧱→🎒 mochila (L147,
+> `touch.ts:317`) · fornalha filtra combustível (L323, `containers.ts:120`) · 6 cultivos + batata
+> cozida (L334, `comida.ts`/`fornalha.ts`) · click'n'drag no PC (L403, `slotDrag.ts`) ·
+> shift-clique (L416, `slotDrag.ts primeiroLugar`). **Marcar com a evidência é a tarefa mais
+> barata da fila** — sem isso a próxima sessão reimplementa o que já existe.
+>
+> ⚠️ **Armadilha paga aqui:** gravar o `buglog.json` com `json.dump(indent=2)` **reformata o
+> arquivo inteiro** (9.193 linhas de ruído num diff de uma entrada). **O arquivo é `indent=1`.**
+
 > **SESSÃO 61 (2026-08-08) — DIVIDIR PILHA NO TABLET + PLAYTEST MARCADO COMO FEITO.**
 > O usuário pediu a divisão de pilha e a marcação do playtest. O PC já dividia (clique
 > DIREITO = metade, sessão 59, `slotDrag.ts`); o TABLET não tinha caminho pra partir uma
