@@ -2,13 +2,32 @@
 
 > Working checklist. **STATUS.md** = handoff ("why & where we are"); **TODO.md** = "what's left to do".
 > Keep items actionable and short. Check off with `[x]`; sweep done items into STATUS.md ✅ when a phase closes.
-> Last updated: 2026-08-05 (sessão 47 — os **PRINTS do F10** (`shots:f10`, novo), os dois
-> **REFINOS de forma** (caixa do baú, frente da fornalha), o **bug-580** e o **push dos 11
-> commits**. Ver 🔥 abaixo e STATUS 🚀)
+> Last updated: 2026-08-07 (sessão 58 — bugs 599-604 FIXED + B1/B2 + F10h cultivos; ver STATUS 🚀).
 
 ---
 
 ## 🔥 Now (this session)
+
+<!-- Sessão 58 (2026-08-07). Fechou o playtest da 55: os 6 bugs consertados + os 2 pedidos de
+     toque + o pedido de conteúdo (F10h: 6 culturas + batata cozida). Tudo registrado no STATUS.
+     FALTA: commit da sessão 58 (feature + fixes + testes). -->
+
+- [x] **A1-A6 — bugs 599-604 FIXED** (playtest da escola). Balde survival (cliente: `idNaMao()`),
+      botão copiar some do touch em survival (`setCopiarDisponivel`), baú abre com mão ocupada
+      (nova ordem do clique direito), laje de cima renderiza (`emitBox` `fundeVertical=false`),
+      `/confinar` explica que é OUTRO sistema do /claim (texto), oxigênio REGENERA gradual
+      (`FOLEGO_POR_TICK=8`). ⚠️ **bug-603:** comportamento do gate NÃO mudou — "confinar ligado
+      sem grupos bloqueia tudo" continua intencional (decisão de aula). Detalhe no buglog.json.
+- [x] **B1 — fornalha valida o slot de COMBUSTÍVEL**: `moverBloqueadoPorCombustivel` recusa item
+      que não queima + aviso no chat. (Testes em `containers.test.ts` + `fornalha.session.test.ts`.)
+- [x] **B2 — esconder a hotbar com menu/painel/chat aberto**: `#hotbar` ganha `hidden` na mesma
+      condição do overlay.
+- [x] **§🍖 F10h — 6 CULTURAS + BATATA COZIDA**: cenoura, batata, beterraba, melancia, banana,
+      aipim no molde do algodão + `batata → batata cozida` na fornalha. Blocos 200-229 (4 estágios
+      + pé selvagem), itens 916-922, `selvagem` por bioma, drops 2/3, SACIEDADE, TILEs 135-164,
+      ícones e nomes. Detalhe no STATUS 🚀.
+- [ ] **COMMIT da sessão 58** (feature + fixes + testes + registros do wolf). Bateria já verde:
+      802/802 testes, typecheck/build/smoke ✓.
 
 <!-- Sessão 47 (2026-08-05). "roda os prints, faz os refinos e depois o push". Abriu com
      `git fetch`: o local estava 9 commits À FRENTE (a 46 inteira nunca foi empurrada). -->

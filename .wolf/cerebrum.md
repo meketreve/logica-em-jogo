@@ -96,6 +96,16 @@
 
 ## Key Learnings
 
+- [2026-08-07] **Dims de mundo de teste NÃO são blocos: CHUNK_SIZE=16.** `{x:8,z:8,y:8}` é um
+  mundo de 128³ blocos — limpar/enterrar o "canto 0..7" deixa o resto (terreno gerado, spawn no
+  centro) intocado. Para encenar sufocamento/colisão: cubo até o TETO (`findSpawnY == sizeY` →
+  `inBounds` false → coluna não é vão), senão o soterrado "escapa pelo topo" sempre.
+- [2026-08-07] **`teleportar()` zera o pico de queda.** Reposicionar jogador em teste via `move`
+  de spawn y=26 → y=1 cobra 22 blocos de dano de queda (machuca o HUD de corações). Para
+  posicionar sem dano: `teleportar()` ou roster do save.
+- [2026-08-07] **Tests de `move` antigos assumem posição no ar; com gate de colisão quebram.**
+  `session.test.ts` usava y=20 num terreno cujo topo é ~23 (posição dentro de sólido). Ao
+  adicionar validação de colisão, posições de teste viram `findSpawnY(world, x, z)`.
 - [2026-08-06] **O critério de corte do `startGame` já rendeu quatro donos, e o que decide não é
   tamanho: é FRONTEIRA.** `MateriaisMundo` (atlas + 3 materiais + os relógios), `ProgressoCarga`
   (um número só, mas escrito em 3 pontos a 1.000 linhas de distância e lido 60×/s),

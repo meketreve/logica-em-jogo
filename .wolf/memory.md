@@ -3,6 +3,19 @@
 > Chronological action log. Hooks and AI append to this file automatically.
 > Old sessions are consolidated by the daemon weekly.
 
+## Session: 2026-08-07
+
+| Time | Action | File(s) | Outcome | ~Tokens |
+|------|--------|---------|---------|--------|
+| — | Análise do bug-605 (soterrado anda dentro de blocos) — física client-side, servidor confia no move; plano: dano contínuo + teleportar pro vão mais próximo + morte sem vão | shared/src/physics.ts, blocks.ts, session.ts, vitais.ts, tp.ts, sobrevivencia.ts | desenho da mecânica, sem fix | ~70k |
+| — | Anotada no todo.md a regra de comida no tablet (botão ▣ vira 🍎 comer com comida no slot + só comer com fome) | todo.md (Mobile/toque) | anotado | ~2k |
+| — | Anotada no todo.md a mecânica de sufocamento (bug-605) | todo.md (Sistema de sobrevivência) | anotado | ~2k |
+| — | Anotado rename do botão "blocos"→"mochila" em sobrevivência | todo.md (Mobile/toque) | anotado | ~1k |
+| — | bug-605 registrado no buglog (ABERTO, NÃO INVESTIGADO) | .wolf/buglog.json | bug-605, total 257 | ~1k |
+| — | SESSÃO 57 — bug-605 FIX implementado: sobrevivencia.ts (CausaDano sufocamento, tickSufocamento, textoDaMorte), physics.ts (sobrepoeSolidos, acharEspacoVago raio 2), vitais.ts (dano + teleporte no tick), session.ts (move rejeita posição soterrada sem vão), main.ts (morte sufocamento) | shared/src/sobrevivencia.ts, physics.ts, session/vitais.ts, session.ts, client/src/main.ts | implementado | ~8k |
+| — | SESSÃO 57 — testes: 2 puros + 3 de integração (sem vão/dano+morte, com vão/teleporte, criativo sem dano); 4 testes antigos de session.test.ts atualizados p/ findSpawnY (y=20 era sólido) | shared/src/sobrevivencia.test.ts, session.test.ts | 785 testes ✓ | ~4k |
+| — | SESSÃO 57 — bateria verde: typecheck (3 ws) ✓ · test 785 ✓ · build ✓ · smoke 15/15 ✓; buglog bug-605 → FIXED | .wolf/buglog.json, .wolf/STATUS.md | fix registrado | ~1k |
+
 ## Session: 2026-07-26 21:31
 
 | Time | Action | File(s) | Outcome | ~Tokens |

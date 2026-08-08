@@ -34,6 +34,12 @@
     `blockSelectionBox` do mesher) e `collides`/`moveAxis` passam a ler essa caixa. Decisão
     a travar: step-up automático (subir slab andando) ou só pulo?
   * 2 slabs no mesmo lugar = bloco cheio (Minecraft) — opcional, decisão de escopo.
+* \[ ] **BUG slab: topo do bloco não renderiza a face de baixo** (2026-08-07, playtest na
+  escola): a laje de CIMA (metade superior) não desenha a parte de baixo da textura — vê-se
+  o buraco por baixo. A face inferior da metade superior fica órfã (culling acha que é
+  interior?). Conferir o `emitBox` do slab no mesher: a face de baixo da caixa 0.5..1 cai
+  fora do culling da face do vizinho inferior (que não existe/é outra metade) — provável
+  falta de regra de "laje em cima de laje de baixo" ou de face exposta sempre.
 * \[x] **escadas (stairs)** — **FEITO** (2026-07-25): ids 155-178 (pedra/tábua/tijolo × 4
   direções × base/cabeça-pra-baixo). Forma em L = 2 caixas em `collisionBoxes` (base meia-altura
   pegada cheia + degrau meia-pegada), reusadas pelo mesher E pela física. Sobe andando via o mesmo
@@ -125,6 +131,27 @@ senão lado com parede; empate → base. Cliente inalterado.
     real por px continua valendo, como no uiScale.
   * Escopo mínimo travável: só destro/canhoto (espelhar) — já cobre o pedido mais comum.
     Botões reposicionáveis por arrasto = fase 2 (guarda x/y por botão no settings).
+* \[ ] **comer no tablet: o botão de COLOCAR vira de COMER quando tem comida no slot
+  selecionado** (2026-08-07, pedido no playtest da escola). No touch a ação de comer hoje é a
+  mesma tecla/clique do PC (clique direito no main.ts:1305 já detecta comida e manda `comer`),
+  mas o botão ▣ continua parecendo "colocar bloco". O gesto é o mesmo (tap no ▣), só o RÓTULO
+  que muda — mesma mecânica do `setVarinha` (rotular o botão com ícone + nome). Refino:
+  * Ícone/legenda quando `mochila.ativa` E o slot selecionado (`hotbarUi.selected`) é comida
+    (`isComida(hotbarUi.idNaMao())`): ex. 🍎 "comer" — e o tap chama a ação de comer
+    (`comer` → manda `{type: comer, slot}`), NÃO `colocar`. Sem comida na mão, volta ▣ "colocar".
+  * **Regra de fome**: só oferece "comer" (ícone de comida) quando o jogador TEM fome pra
+    gastar — com a barra cheia (`vida` mostra fome == FOME_MAX) o botão fica ▣ "colocar"
+    mesmo com comida na mão. A recusa final continua no servidor (`comer` com fome cheia
+    devolve o item intacto); esta regra é só pra UI não oferecer mordida inútil. Pode
+    exigir guardar a fome no estado de HUD (o `vitals().aplicar` já recebe `fome`).
+* \[ ] **renomear o botão "blocos" → "mochila" no modo sobrevivência** (2026-08-07, pedido
+  do usuário). O botão 🧱 do topo do touch (touch.ts ~228) abre o inventário, mas em
+  sobrevivência o aluno o chama de "mochila" (e o inventário do servidor é literalmente a
+  `Mochila` do `client/src/mochila.ts`). Refino:
+  * Só troca o RÓTULO quando `mochila.ativa` (sobrevivência): `rotular(btn, "🎒", "mochila")`.
+  * Em criativo continua "🧱 blocos". Mesmo mecanismo do `setVarinha`/comida (rotular por
+    estado). Fiação junto do handler da msg `modo` (main.ts:765–792) ou do `setAtiva` da
+    Mochila.
 
 ## Visual / player
 
@@ -291,12 +318,50 @@ Singleplayer (Web Worker) não tem fs — chat não vira arquivo lá, como plane
   escapar.
 * \[x] **minérios: fornalha + lingotes + carvão** — **FEITO** (§🍖 F10a/F10b, sessão 46).
   Carvão e diamante saem do minério como ITEM; ferro e ouro continuam bloco e vão à fornalha.
-  Tempo de queima por combustível (carvão rende 8× a madeira), e a fornalha é o primeiro bloco
+  Tempo de   queima por combustível (carvão rende 8× a madeira), e a fornalha é o primeiro bloco
   com inventário — o encanamento (`containers.ts`) nasceu uma vez e serve ao baú.
+* \[ ] **fornalha: filtrar o que entra no slot de COMBUSTÍVEL** (2026-08-07, playtest na
+  escola) — hoje dá pra colocar QUALQUER item no slot de baixo da fornalha (ex.: grama,
+  picareta), que não queima e fica preso até a criança perceber. Regra: o slot de
+  combustível só aceita item com `energiaCombustivel > 0` (a mesma tabela da F10b); se
+  não tem energia, o mover/deixar é RECUSADO (item volta pra origem + aviso), igual o
+  baú "não quebra com item dentro". O slot de minério continua livre. Refino: a validação
+  entra no MESMO gate do mover (o `containers.ts` já valida lugar-cheio; falta o tipo) e o
+  teste-portão de "mensagem nova não escapa" (F10f) cobre o caso.
 * \[x] **algodão no lugar da lã-de-trigo** — **FEITO** (§🍖 F10c, sessão 46). Pé selvagem no
   cerrado larga semente por sorte; cultivado maduro dá 1–2 capulhos + a semente. `3 algodão →
   1 lã branca`, e o trigo voltou a ser só comida.
+* \[ ] **comidas/cultivos: cenoura, batata, beterraba, melancia, banana e aipim** (2026-08-07,
+  pedido no playtest da escola). Refino:
+  * Mesmo molde do algodão (F10c): semente plantada no solo, pé maduro larga o item + a
+    semente — vale pros seis. Comer enche a fome (F3/F6), como o trigo.
+  * **BATATA COZIDA na fornalha**: receita nova na fornalha (tabela da F10b) — batata crua →
+    batata cozida (comida que enche mais fome que a crua).
 * \[x] pvp — **FEITO** (§🍖 F7, sessão 45)
+* \[x] **sufocamento / ficar SOTERRADO — o jogador anda dentro de blocos sólidos** (bug-605,
+  2026-08-07) — **FEITO** (§🍖 F7b, sessão 57; bateria verde: 785 testes + 15/15 smoke).
+  Mecânica implementada: (1) soterrado por sólidos (`sobrepoeSolidos` = AABB vs colisão) recebe
+  dano de sufocamento CONTÍNUO no tick do servidor (1 coração/s, `tickSufocamento`,
+  `TICKS_POR_DANO_SUFOCAMENTO=10`/`DANO_SUFOCAMENTO=2`, só sobrevivência, `machucar`); (2) a cada
+  tick busca vão livre num RAIO DE 2 (`acharEspacoVago`: por coluna via `findSpawnY`, coluna cheia
+  até o teto não é vão, veto de outros jogadores) — achar = `teleportar()` pro vão, dano para;
+  (3) não achar vão → NÃO pode se mover: o handler `move` rejeita posição nova soterrada (sem
+  relay, manda `teleport` de volta à posição válida) e o dano leva à morte → respawn normal;
+  morte avisa "X ficou soterrado." Testes: 2 puros + 3 de sessão (sem vão → dano+morte; com vão →
+  teleporte; criativo sem dano). 4 testes antigos de session.test.ts atualizados p/ findSpawnY
+  (posição y=20 ficava dentro de sólido). Registrar original abaixo:
+  * **Detectar soterrado**: jogador com AABB sobreposto a sólido (`isSolidBlock`,
+    blocks.ts:880). Em vez de "não deixa andar", o jogo age.
+  * **Dano de sufocamento CONTÍNUO**: enquanto soterrado, `aplicarDano` a cada tick (gate
+    autoritativo no servidor, `vitais.ts` — o cliente NÃO reporta dano). Nova `CausaDano`
+    tipo sufocamento + `textoDaMorte` correspondente em `shared/src/sobrevivencia.ts`
+    (ex.: "sufocou").
+  * **Mover pro espaço vago mais próximo**: quando soterrado, teleportar o jogador pro vão
+    livre mais próximo (busca por raio) via `teleportar()` (`shared/src/session/tp.ts`).
+  * **Sem espaço vago → morte**: se não achar vão (ex.: completamente enclausurado), o dano
+    contínuo leva à morte — não fica preso pra sempre.
+  * Servidor já é autoridade de dano/vida; falta o detector de overlap no tick da sessão
+    (`session.ts`, ao lado do `overlapsAnyPlayer` ~1977).
 * \[ ] mobs (§🍖 F8) — fora do lite, 3+ sessões, com o aviso de GPU do laboratório
 
 ### §🔨 Ferramentas v2 — as 3 peças que faltam (pedido do usuário, 2026-08-06)
@@ -335,6 +400,29 @@ ferramenta certa quebra rápido, gasta, e precisa ser refeita.
   a hotbar do PC. Ela hoje fica visível atrás dos painéis, e no painel de container aparece
   DUAS vezes (a de verdade atrás e a faixa de 9 slots dentro do painel), que é a confusão que o
   pedido aponta.
+* \[ ] **clique e arraste (click'n'drag) pra mover item na versão PC** — hoje o item é
+  movido por gesto tocar-origem/tocar-destino (que serve pro tablet). No PC a criança
+  espera o Minecraft: SEGURAR o item, mover o mouse e soltar. Isso destrava também o
+  **dividir pilha** (segurado, botão direito solta 1 por vez; tecla ou gesto pra dividir
+  ao meio). Refino:
+  * Arrastar = `pointerdown` no slot de origem, `pointermove` atualiza o fantasma (ícone
+    acompanha o cursor), `pointerup` solta no slot sob o mouse (troca/junta como o
+    mover-origem/destino atual). Sem hover lock — só repor no alvo.
+  * Botão direito no arrasto: solta UM item por clique no destino (e o fantasma vira o
+    resto). Shift+clique direito / meio no slot = divide a pilha ao meio (arredonda pra
+    cima) — modo "espalhar".
+  * Continuar aceitando o gesto tocar-origem/tocar-destino no tablet (sem mouse); o
+    handler de toque já é outro caminho.
+* \[ ] **shift-clique pra mover item direto pro OUTRO inventário** (baú ↔ mochila, e mochila
+  ↔ hotbar). Click + Shift no PC (e no toque: botão dedicado ou gesto) joga o item da
+  origem pro primeiro espaço equivalente do destino — mochila→baú, baú→mochila,
+  mochila↔hotbar. Sem isso hoje a criança faz tocar-origem/tocar-destino sempre. Refino:
+  * "Equivalente": da mochila/hotbar → vai pro inventário do container aberto (baú/
+    fornalha); do container → volta pra mochila (e da mochila pra hotbar se tiver no
+    mesmo panel e o slot-alvo for de hotbar). Regra simples: o DESTINO é sempre o "outro
+    lado" do container atual.
+  * Junta pilha como o mover normal (mesma `adicionar`); lotou tudo → não move (devolve
+    aviso, não perde item).
 
 ## Geração de mundo / performance
 
@@ -357,6 +445,19 @@ não tem filesystem; export de "pasta" no single fica de fora (não faz sentido 
   (caatinga/cerrado/mata/araucárias) por campos de clima, minérios em veia, árvores
   por bioma (ipê/araucária/pau-brasil), gramas climáticas com blend. Candidatos v2:
   altura por bioma, cavernas, forma custom do mandacaru, madeira por espécie.
+* \[ ] **função de DIVIDIR itens de um slot** (2026-08-07, playtest na escola) — não dá
+  pra partir uma pilha (ex.: metade dos 64 blocos) sem jogar fora. Hoje o mover move a
+  pilha INTEIRA (tocar-origem/tocar-destino); falta o "espalhar/dividir". Ações:
+  * Clique DIREITO no slot em modo arrasto = solta 1 item por clique (já previsto no
+    item de click'n'drag da UI).
+  * Tecla ou gesto de "dividir ao meio" (metade pra cima, arredonda) no PC e um botão
+    no tablet (parte do item de click'n'drag) — precisa que o mover aceite QUANTIDADE
+    parcial, que hoje não existe no protocolo do mover (provavelmente). Refino:
+    * `moverEmArray`/`adicionar` já juntam pilhas por id; a divisão é só "pegar N da
+      origem e mover como pilha nova pro destino" — checar se o handler de mover já
+      aceita um `qtd` opcional na mensagem (hoje move a pilha toda).
+    * Mantém o par `{id, qtd}` — NÃO cria campo novo (a decisão de durabilidade no
+      §🔨 v2 é que vai mexer no Stack, não esta).
 
 
 ## Registros / apresentação
@@ -369,3 +470,10 @@ não tem filesystem; export de "pasta" no single fica de fora (não faz sentido 
 * \[x] perfilador anônimo + versão do jogo — **FEITO** (2026-07-23): saída carrega `versao:VERSION`,
   nome do aluno não é mais coletado (filename `perf-<timestamp>-<sufixo>.json`). profiles-escola/
   removido do tracking + gitignored; resumo agregado anônimo em `registros/perfilador-v0.8.0-escola.md`.
+
+## Playtest na escola
+
+* \[ ] **playtest na escola** (2026-08-07): sessão ao vivo na escola — **FEITO** no registro:
+  os 6 bugs relatados (599-604) estão no `.wolf/buglog.json` e o resumo da sessão no
+  `.wolf/STATUS.md` (sessão 55). Os pedidos de conteúdo e a fila de consertos estão nas seções
+  de sobrevivência/backlog acima. Marcar como FEITO ao encerrar a sessão de trabalho.

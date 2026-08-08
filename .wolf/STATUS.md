@@ -1,6 +1,151 @@
 # STATUS — Projeto "Lógica em Jogo" (jogo voxel educacional)
 
 > Single source of truth for resuming work. Read this FIRST when starting a session.
+> **SESSÃO 58 (2026-08-07) — F10h CULTIVOS (6 CULTURAS + BATATA COZIDA) + bugs 599-604 FIXED.**
+> A sessão fechou o playtest da 55: os **6 bugs consertados** (A1-A6), os 2 pedidos de toque
+> (B1/B2) e o **pedido de conteúdo F10h** inteiro (6 culturas no molde do algodão + batata
+> cozida na fornalha). Todos os 6 bugs do playtest viraram **FIXED** no buglog.json com causa
+> raiz e conserto documentados — e o conserto mostrou que duas causas registradas na 55
+> estavam erradas (bug-602 era RENDER, não colocação; bug-604 era no SERVIDOR, não em
+> physics.ts).
+>
+> **Bugs 599-604 — todos FIXED (detalhe completo de cada um no buglog.json):**
+> - **bug-599** (balde não funciona em survival) — era do CLIENTE: a mira usava `slotLocal`
+>   (paleta criativa), que não via o balde da mochila; o raio atravessava a água. Agora usa
+>   `hotbarUi.idNaMao() === ITEM_BALDE_VAZIO`. O `slotLocal` morreu (getter removido).
+> - **bug-600** (botão "copiar" no touch em survival) — `touch.ts` ganhou `setCopiarDisponivel()`
+>   (liga/desliga a classe `hidden`); fiado no handler do `modo` e no boot do runtime.
+> - **bug-601** (baú não abre com a mão ocupada) — era do CLIENTE: os ramos comer/balde do clique
+>   direito retornavam antes dos checks de container. Nova ordem: comer (só se o alvo não for
+>   container/interativo) → varinha → **container/interativo → `use_block`** → balde → quadro →
+>   colocar. Regra Minecraft (comida na mão + baú = abre o baú). O servidor nunca teve gate.
+> - **bug-602** (laje só na metade de baixo) — NÃO era colocação: a regra metade-pela-face sempre
+>   funcionou (`orientacao.ts`). Era RENDER: o mesher cullava a face vertical entre lajes do MESMO
+>   id empilhadas. `emitBox` ganhou `fundeVertical`; lajes/escadas chamam com `false`. Teste novo
+>   em `cp23.test.ts`.
+> - **bug-603** (`/confinar` "travando" o mundo) — conserto de TEXTO: o `/confinar` é OUTRO sistema
+>   do `/claim` (o claim guarda só as áreas marcadas; o confinamento restringe todo o mundo à área
+>   do grupo). O `status` agora explica isso. ⚠️ "ligar sem grupos bloqueia tudo" continua
+>   INTENCIONAL — não foi mudado (decisão de aula).
+> - **bug-604** (oxigênio reseta) — `tickFolego` agora REGENERA gradual (`FOLEGO_POR_TICK = 8`,
+>   cheio em ~1,9 s a 10 Hz), não mais reset instantâneo; `vitais.ts` só emite quando o nº de
+>   bolhas muda. Teste atualizado em `sobrevivencia.test.ts`.
+>
+> **B1/B2 (pedidos de toque do TODO):**
+> - **B1 — fornalha valida o slot de COMBUSTÍVEL**: `moverBloqueadoPorCombustivel` (containers.ts)
+>   recusa item que não queima (só `COMBUSTIVEIS`); aviso no chat *"Este item não queima: o slot
+>   de combustível da fornalha só aceita lenha ou carvão."* Testes em `containers.test.ts` +
+>   `fornalha.session.test.ts`.
+> - **B2 — hotbar some com painel/chat/carregando aberto**: `updateOverlay()` faz `toggle` da
+>   classe `hidden` na `#hotbar` com a MESMA condição do overlay. (A de toque já sumia.)
+>
+> **F10h — 6 CULTURAS + BATATA COZIDA (a feature de conteúdo do pedido da 55):**
+> cenoura, batata, beterraba, melancia, banana e aipim **no molde EXATO do algodão (F10c)**.
+> - **Ids:** blocos 200-229 (4 estágios + pé SELVAGEM por cultura; `base+4` = selvagem; só estágio
+>   0 colocável; `MAX_BLOCK_ID = AipimSelvagem`). Itens 916-922 (`ITEM_CENOURA`..`ITEM_AIPIM`,
+>   `ITEM_BATATA_COZIDA` = 922), todos em `ITENS`.
+> - **PLANTAS:** 8 linhas (trigo `colheitaMax:1` sem selvagem; algodão + 6 novas `colheitaMax:2`).
+>   Ordem de plantio: cenoura, batata, beterraba, melancia, banana, aipim. Helpers
+>   `plantaPorSelvagem(id)` e `isSelvagem(id)`.
+> - **Worldgen (selvagem por bioma):** o campo `algodao` de `biomas.ts` virou o MAPA
+>   `selvagem: { [BlockId]: chance }` (chance por coluna). Cerrado: Melancia 1/90 + Aipim 1/70 +
+>   Algodão 1/40 · Mata: Banana 1/60 · Araucárias: Batata 1/50, Cenoura 1/110, Beterraba 1/130 ·
+>   Caatinga fora. Selvagens mais raros que o capim (descoberta). `worldgen.ts` restruturado:
+>   selvarvagens em loop (mais raro vence; sal do algodão `0xa16d` preservado p/ mundos antigos)
+>   e o **bug do capim zerado corrigido**: capim agora é guardado por `getBlock == Air` (o
+>   `else if (selvagens.length > 0)` comia o capim). Coberto por teste com múltiplas seeds.
+> - **Drops:** a régua `CHANCE_SEMENTE_DO_ALGODAO = 2/3` vale pra todos os selvagens (pé selvagem →
+>   1 item base por sorteio); maduro → `colheitaMax > 1 ? sorteio : 1` + semente de volta.
+> - **Comida:** SACIEDADE — Cenoura 4 · Batata crua 1 (empurrão pra fornalha) · Beterraba 1 ·
+>   Melancia 2 · Banana 4 · Aipim 4 · **Batata cozida 5 (= pão)**. **Fornalha**: `COZIMENTO`
+>   ganhou `[ITEM_BATATA, { id: ITEM_BATATA_COZIDA, qtd: 1 }]`.
+> - **UI/mesher:** TILEs 135-164 (24 estágios + 6 selvagens); `paintCultura` unificado com sal fixo
+>   por cultura; ícones de comida desenhados pros 7 itens; nomes em `blocksUi`/`hotbarUi`.
+> - **`SEM_RECEITA`**: as 6 sementes + 6 pés selvagens com razão (molde do algodão).
+>
+> **Bateria verde:** `npm test` shared **45/45 arquivos, 802/802 testes** · `npm run typecheck`
+> (shared/server/client) ✓ · `npm run build` ✓ · `npm run smoke` **15/15** ✓. Novos/atualizados:
+> `culturas.test.ts` (novo), `algodao.test.ts`, `rules.test.ts`, `blocks.test.ts`,
+> `session.test.ts` (o `/bloco` "id inválido" 200→300), `sobrevivencia.test.ts`,
+> `containers.test.ts`, `fornalha.session.test.ts`, `cp23.test.ts` (bug-602).
+> **Nada commitado ainda** — o commit da sessão 58 (feature + fixes + testes) é o próximo passo.
+
+> **SESSÃO 57 (2026-08-07) — bug-605 FIX: MECÂNICA DE SUFOCAMENTO (SOTERRADO) IMPLEMENTADA.**
+> Implementação completa + testes + bateria verde. Mecânica final: (1) soterrado por sólidos
+> recebe dano de sufocamento CONTÍNUO (1 coração/s, só sobrevivência); (2) a cada tick busca vão
+> livre num RAIO DE 2 — achar = `teleportar()` pro vão (dano para); (3) NÃO achar vão = não pode
+> se mover (servidor rejeita o `move` que entra em sólido) E morre de sufocamento → respawn.
+>
+> **O que mudou:**
+> - `shared/src/sobrevivencia.ts` — `CausaDano`/`CAUSAS` + `"sufocamento"`; consts
+>   `TICKS_POR_DANO_SUFOCAMENTO = 10`, `DANO_SUFOCAMENTO = 2`; `EstadoVital.sufocandoTicks` (não
+>   vai pro save); função pura `tickSufocamento(e, soterrado)` (espelha `tickFome`, o dano cai no
+>   10º tick); `textoDaMorte` case `"sufocamento"` → `${nome} ficou soterrado.`
+> - `shared/src/physics.ts` — `sobrepoeSolidos(world, pos)` (wrapper de `collides`); nova
+>   `acharEspacoVago(world, pos, raio = 2, rejeitar?): Vec3 | null` (busca por coluna via
+>   `findSpawnY`, coluna própria → anéis de Chebyshev até o raio; coluna cheia até o TETO do mundo
+>   não é vão — `inBounds` — senão "sem vão" seria impossível; determinística).
+> - `shared/src/session/vitais.ts` (`tickVitais`) — soterrado → `tickSufocamento` → dano via
+>   `machucar(..., "sufocamento")`; achar vão (raio 2, veto `overlapsAnyPlayer`) → `teleportar()`.
+> - `shared/src/session.ts` (handler `move`, ~881) — posição nova soterrada: tenta vão raio 2 →
+>   teleporta; sem vão → REJEITA (não atualiza pos, sem relay, manda `teleport` de volta à posição
+>   válida atual, o cliente "quica" na parede).
+> - `client/src/main.ts` (~813) — case `msg.causa === "sufocamento"` na morte.
+>
+> **Testes (785/785 + 15/15 smoke):** 2 puros novos em `sobrevivencia.test.ts` (tickSufocamento +
+> textoDaMorte) + 3 de integração de sessão (sem vão → dano repetido + move rejeitado + morte/
+> respawn; com vão no raio 2 → teleport pro vão e dano para; criativo sem dano). **4 testes
+> antigos de `session.test.ts` foram ATUALIZADOS** p/ posições válidas (`findSpawnY`) — o y=20
+> que usavam ficava dentro de bloco sólido e a nova validação (corretamente) recusa.
+>
+> **Bateria:** `npm run typecheck` (shared/server/client) ✓ · `npm test` 785 ✓ · `npm run build` ✓
+> · `npm run smoke` 15/15 ✓. buglog bug-605 → **FIXED**.
+
+> **SESSÃO 55 (2026-08-07) — PLAYTEST DO F10 NA ESCOLA: 6 BUGS RELATADOS + PEDIDO DE CULTIVOS.**
+> Sessão ao vivo com a turma em curso; o usuário relatou os bugs um a um e eu registrei (nenhum
+> foi consertado — registrar era o pedido). **bugs 599-604 no buglog.json**, todos
+> `playtest-escola-2026-08-07`, `root_cause: NÃO INVESTIGADO`:
+>
+> - **bug-599** — balde de água não funciona no modo sobrevivência (900/901 não cria/recolhe).
+> - **bug-600** — remover botão "copiar" dos controles do tablet no sobrevivência (botão do meio
+>   não faz sentido lá; esconder do touch UI no modo sobrevivência).
+> - **bug-601** — não abre baú com a mão ocupada (gate do use_block/container).
+> - **bug-602** — laje (meio bloco) só coloca na metade de BAIXO (metade de cima nunca sai;
+>   provável falha da regra "metade pela face clicada").
+> - **bug-603** — `/confinar` travando TODO o mundo, não só fora das áreas; o esperado é que ele
+>   só ATIVE/DESATIVE o sistema de claim (mantendo `/claim` + varinha). **Pergunta do usuário:
+>   esse comando substituiu o `/claim` e a varinha?** Revisar a relação entre os três.
+> - **bug-604** — barra de OXIGÊNIO reseta ao sair da água; o correto seria REGENERAR até 100%
+>   (contínuo, estilo Minecraft). Conferir o handler do nado/sufocamento em physics.ts.
+>
+> **Pedido de conteúdo (vira TODO, não bug):** comidas/cultivos — **cenoura, batata, beterraba,
+> melancia, banana e aipim** no molde do algodão (F10c) + **batata COZIDA na fornalha** (batata
+> crua → cozida, tabela da F10b). E a validação do slot de COMBUSTÍVEL da fornalha (só item com
+> `energiaCombustivel > 0`; já anotado no todo.md, refino existente). Tudo isso está no
+> `todo.md` (comidas/cultivos + fornalha-combustível + esconder hotbar com menu aberto — este
+> último JÁ EXISTIA no TODO da 48).
+>
+> **VERDE:** nada rodado (sessão de registro apenas). Nenhum código mudou.
+
+> **SESSÃO 56 (2026-08-07) — REGISTRO DE PÓS-PLAYTEST: bug-605 + 2 PEDIDOS DE TOUCH NO TODO.**
+> Continuação do playtest (nada de código mudou, sessão de anotação). O usuário pediu a
+> mecânica de **sufocamento** (jogador soterrado anda dentro dos blocos) e 2 refinos de UI de
+> toque. Tudo anotado:
+> - **bug-605** no buglog.json (ABERTO, `root_cause: NÃO INVESTIGADO`): jogador fica soterrado
+>   por blocos sólidos e anda livremente por dentro deles. Mecânica pedida: (1) dano de
+>   sufocamento CONTÍNUO enquanto soterrado (`aplicarDano`, nova `CausaDano` + `textoDaMorte`),
+>   (2) teleportar pro espaço vago mais próximo (`teleportar()` de tp.ts), (3) sem espaço vago →
+>   morte. Gate no servidor (`session.ts`, perto do `overlapsAnyPlayer` ~1977) — física é
+>   client-side e o servidor confia no `move`.
+> - **todo.md (Mobile/toque):** comer no tablet — o botão ▣ "colocar" vira 🍎 "comer" quando o
+>   slot selecionado tem comida (`isComida(hotbarUi.idNaMao())` + `mochila.ativa`), e só mostra
+>   "comer" com fome pra gastar (barra cheia → continua ▣); recusa final no servidor.
+> - **todo.md (Mobile/toque):** renomear o botão "🧱 blocos" → "🎒 mochila" quando `mochila.ativa`
+>   (sobrevivência); criativo continua "blocos".
+> - **todo.md (Sistema de sobrevivência):** item do bug-605 (mecânica de sufocamento completa).
+> 
+> **VERDE:** nada rodado (anotações apenas). Nenhum código mudou.
+
 > **SESSÃO 54 (2026-08-06) — OS DOIS BUGS QUE ELE RELATOU, E UM TERCEIRO QUE O TESTE DO PRIMEIRO
 > ACHOU E QUE NÃO FOI CONSERTADO.** Pedido de uma frase, com dois defeitos misturados: *"bug de
 > iluminação, depois de colocar a tocha no chão, qualquer bloco quebrado continua fazendo sombra
@@ -364,6 +509,11 @@ rotina de `git fetch` desde a 40.
 mandou anotar no fim da 51 está **cumprido inteiro**. Não há próxima frente de refactor
 enfileirada, e **inventar uma seria escopo não pedido**.
 
+**O playtest do F10 (o item 1 da fila) ACONTECEU na 55 (2026-08-07, escola):** a sessão produziu
+**6 bugs relatados (599-604, todos no buglog.json, nenhum consertado)** + o pedido de cultivos
+(comidas/cultivos + batata cozida na fornalha + validação do slot de combustível). **Consertar
+os bugs e tocar o pedido de comidas é agora a fila de jogo real** — ver a seção 3.
+
 **O que sobrou como candidato, e nenhum deles é óbvio:**
 - `handleServerData` (o despachante do cliente) e `handleMessage` (o do `session.ts`, 532 linhas)
   seguem de fora **com razão escrita desde a 50**: são PORTA, e cada `case` é achável por Ctrl-F
@@ -437,19 +587,25 @@ da mensagem. Quebrá-lo por família de mensagem é possível, mas o ganho é me
 `main.ts` e ele tem a contabilidade de fome (`mudancasAntes`) atravessada, que é fácil de
 quebrar sem querer.
 
-### 3. ⭐ A fila de JOGO (inalterada desde a 47 — nada disto foi tocado da 49 à 53)
+### 3. ⭐ A fila de JOGO (atualizada na 55 — o playtest aconteceu e mandou trabalho novo)
 
-1. **PLAYTEST do F10** — é o que manda, e é a única coisa da lista que nenhuma máquina faz. A
-   cadeia inteira (árvore → picareta → fornalha → lingote) nunca passou por uma turma.
-   **A pergunta específica: a turma aguenta ter de fazer a picareta antes de cavar?** E a
-   segunda, da 47: a fornalha virada pro lado certo ajuda ou confunde? **E agora uma terceira,
-   da 49: o "voltar ao jogo" ficou responsivo depois do bug-585?**
+1. **⭐ CONSERTAR OS 6 BUGS DO PLAYTEST** (55): **599** (balde de água no sobrevivência) ·
+   **600** (sumir com o botão "copiar" do touch UI no sobrevivência) · **601** (baú não abre com
+   a mão ocupada) · **602** (laje só na metade de baixo) · **603** (`/confinar` travando o mundo
+   todo — revisar relação com `/claim` + varinha) · **604** (oxigênio reseta ao sair da água, o
+   certo é regenerar até 100%). Todos no buglog.json.
+1b. **⭐ PEDIDO DE CONTEÚDO da 55 (vira TODO):** comidas/cultivos — **cenoura, batata,
+   beterraba, melancia, banana e aipim** no molde do algodão (F10c) + **batata COZIDA na
+   fornalha** (batata crua → cozida, tabela da F10b) + validação do slot de COMBUSTÍVEL da
+   fornalha (só item com `energiaCombustivel > 0`). No `todo.md`.
 2. **§🍖 F8 — MOBS**: a única frente do roadmap de sobrevivência ainda fora. 3+ sessões, e tem
    o aviso de GPU do laboratório pendurado nela.
 2b. **§🔨 FERRAMENTAS v2 — 3 itens no `todo.md`** (pedido da 48): durabilidade · exigir a
    ferramenta no slot SELECIONADO · tempo de quebra por (bloco × ferramenta). As três andam
    juntas e destravam machado e pá.
-2c. **§💬 UI: tooltip no hover + esconder a hotbar com menu aberto** (pedido da 48, no TODO).
+2c. **§💬 UI: tooltip no hover + esconder a hotbar com menu aberto** (pedido da 48, no TODO; o
+   "esconder a hotbar" foi REPEDIDO na 55 — "ocultar hotbar do hud principal quando tiver
+   qualquer painel aberto" — e já consta no todo.md).
 3. **O tile do algodão maduro** (⚠️ da sessão 47): o capulho lê como martelo cinza. Meia hora
    de `paintAlgodao` em `client/src/atlasTexture.ts` **se** ele achar que incomoda — o print
    `08-canteiro-algodao.png` é a evidência.
