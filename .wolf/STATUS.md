@@ -1,6 +1,26 @@
 # STATUS — Projeto "Lógica em Jogo" (jogo voxel educacional)
 
 > Single source of truth for resuming work. Read this FIRST when starting a session.
+> **SESSÃO 61 (2026-08-08) — DIVIDIR PILHA NO TABLET + PLAYTEST MARCADO COMO FEITO.**
+> O usuário pediu a divisão de pilha e a marcação do playtest. O PC já dividia (clique
+> DIREITO = metade, sessão 59, `slotDrag.ts`); o TABLET não tinha caminho pra partir uma
+> pilha. Agora tem, nos dois painéis que mexem em inventário:
+>
+> **BOTÃO ✂ "dividir ao meio" no tablet:** mochila (`inventory.ts`) e painel de
+> transferência (`container.ts`) mostram um botão quando o aluno está SEGURANDO uma pilha
+> com mais de 1 item. O tap alterna `metadePegando` entre `null` (pilha inteira) e
+> `ceil(qtd/2)`; o toque no destino manda o `mover_item`/`mover_container` com o `qtd`
+> opcional que a sessão 59 já adicionou ao protocolo. Quem aplica segue sendo o servidor.
+> Rótulo do botão mostra a metade ("✂ dividir ao meio (32)") e a dica avisa quanto a mão
+> leva. CSS novo `.inv-dividir` (amarelo, igual ao slot selecionado).
+> **FIX: `metadePegando` não resetava ao soltar no MESMO slot** (tocar de novo no pego) —
+> ficava pendurado e o próximo "pegar" carregava uma metade velha. Resetado nos dois
+> painéis junto com o `pegando = null`.
+> **PLAYTEST (07/08/2026) marcado como FEITO no todo.md** — a linha agora é `[x]`.
+> **Bateria verde:** typecheck client ✓ · `npm run build` ✓ · `npm run smoke` **15/15** ✓ ·
+> `npm run shots:toque` **exit 0** ✓.
+> **Nada commitado ainda** — o commit da sessão 61 é o próximo passo.
+
 > **SESSÃO 60 (2026-08-07) — DÍVIDAS DE UI DO TODO: NOME DE MUNDO + PUSH + 2 ITENS JÁ FEITOS.**
 > O usuário pediu pra continuar as tarefas e escolheu 4: cular bordas de claim por distância,
 > push dos 4 commits, a 2ª rodada mobile dos painéis de autoria e o nome do mundo truncado no

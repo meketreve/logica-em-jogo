@@ -206,6 +206,13 @@ export class ContainerPanel {
     return "pronto";
   }
 
+  /** Quantidade num slot do espaço unificado (mochila ou container). */
+  private qtdUnificado(unificado: number): number {
+    return unificado < INV_SLOTS
+      ? this.mochila.qtdDoSlot(unificado)
+      : (this.slots[unificado - INV_SLOTS]?.qtd ?? 0);
+  }
+
   private clicar(unificado: number, vazio: boolean, shift: boolean): void {
     if (this.pegando === null) {
       if (vazio) return; // nada pra pegar
@@ -216,6 +223,7 @@ export class ContainerPanel {
       this.pegando = unificado;
     } else if (this.pegando === unificado) {
       this.pegando = null; // tocar de novo solta
+      this.metadePegando = null;
     } else if (this.pos) {
       this.mover(this.pos.x, this.pos.y, this.pos.z, this.pegando, unificado, this.metadePegando ?? undefined);
       this.metadePegando = null;
@@ -303,7 +311,31 @@ export class ContainerPanel {
     dica.textContent =
       this.pegando === null
         ? "toque num item para pegar, depois toque onde ele deve ficar"
-        : "agora toque no destino (ou no mesmo item para soltar)";
+        : this.metadePegando !== null
+          ? `agora toque no destino (leva ${this.metadePegando} do item) — ou no mesmo item para soltar`
+          : "agora toque no destino (ou no mesmo item para soltar)";
+
+    if (this.pegando !== null) {
+      const qtd = this.qtdUnificado(this.pegando);
+      if (qtd > 1) {
+        const dividir = document.createElement("button");
+        dividir.type = "button";
+        dividir.className = "inv-dividir";
+        dividir.textContent =
+          this.metadePegando !== null
+            ? "↩ voltar a pilha inteira"
+            : `✂ dividir ao meio (${Math.ceil(qtd / 2)})`;
+        dividir.addEventListener("click", () => {
+          const pego = this.pegando;
+          this.metadePegando =
+            this.metadePegando === null
+              ? Math.ceil(this.qtdUnificado(pego!) / 2)
+              : null;
+          this.render();
+        });
+        dica.after(dividir);
+      }
+    }
 
     // --- o container, em cima ---
     const cima = document.createElement("div");

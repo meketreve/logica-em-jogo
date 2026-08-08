@@ -445,9 +445,10 @@ não tem filesystem; export de "pasta" no single fica de fora (não faz sentido 
   (caatinga/cerrado/mata/araucárias) por campos de clima, minérios em veia, árvores
   por bioma (ipê/araucária/pau-brasil), gramas climáticas com blend. Candidatos v2:
   altura por bioma, cavernas, forma custom do mandacaru, madeira por espécie.
-* \[ ] **função de DIVIDIR itens de um slot** (2026-08-07, playtest na escola) — não dá
-  pra partir uma pilha (ex.: metade dos 64 blocos) sem jogar fora. Hoje o mover move a
-  pilha INTEIRA (tocar-origem/tocar-destino); falta o "espalhar/dividir". Ações:
+* \[x] **função de DIVIDIR itens de um slot** — **FEITO** (2026-08-08): PC (clique DIREITO
+  pega a metade / larga 1 por clique, sessão 59) e tablet (botão ✂ "dividir ao meio" na mochila
+  e no painel de transferência). O protocolo `mover_item`/`mover_container` já aceita `qtd`
+  opcional (pilha parcial) e quem aplica é o servidor. Ações:
   * Clique DIREITO no slot em modo arrasto = solta 1 item por clique (já previsto no
     item de click'n'drag da UI).
   * Tecla ou gesto de "dividir ao meio" (metade pra cima, arredonda) no PC e um botão
@@ -473,7 +474,7 @@ não tem filesystem; export de "pasta" no single fica de fora (não faz sentido 
 
 ## Playtest na escola
 
-* \[ ] **playtest na escola** (2026-08-07): sessão ao vivo na escola — **FEITO** no registro:
+* \[x] **playtest na escola** (2026-08-07): sessão ao vivo na escola — **FEITO** no registro:
   os 6 bugs relatados (599-604) estão no `.wolf/buglog.json` e o resumo da sessão no
   `.wolf/STATUS.md` (sessão 55). Os pedidos de conteúdo e a fila de consertos estão nas seções
-  de sobrevivência/backlog acima. Marcar como FEITO ao encerrar a sessão de trabalho.
+  de sobrevivência/backlog acima.

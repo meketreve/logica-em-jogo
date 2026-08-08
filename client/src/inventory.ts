@@ -140,6 +140,7 @@ export class InventoryPanel {
       this.pegando = slot;
     } else if (this.pegando === slot) {
       this.pegando = null;
+      this.metadePegando = null;
     } else {
       const qtd = this.metadePegando ?? undefined;
       this.mover(this.pegando, slot, qtd);
@@ -334,7 +335,28 @@ export class InventoryPanel {
         ? "toque numa receita pra fabricar · o vermelho é o que falta · fabrica em qualquer lugar"
         : this.pegando === null
           ? "toque num item para pegar, depois toque onde ele deve ficar · 1–9 escolhem o slot da mão"
-          : "agora toque no slot de destino (ou no mesmo item para soltar)";
+          : this.metadePegando !== null
+            ? `agora toque no destino (leva ${this.metadePegando} do item) — ou toque no mesmo item para soltar`
+            : "agora toque no slot de destino (ou no mesmo item para soltar)";
+
+    if (this.subaba === "mochila" && this.pegando !== null) {
+      const qtd = this.mochila.qtdDoSlot(this.pegando);
+      if (qtd > 1) {
+        const dividir = document.createElement("button");
+        dividir.type = "button";
+        dividir.className = "inv-dividir";
+        dividir.textContent =
+          this.metadePegando !== null
+            ? "↩ voltar a pilha inteira"
+            : `✂ dividir ao meio (${Math.ceil(qtd / 2)})`;
+        dividir.addEventListener("click", () => {
+          this.metadePegando =
+            this.metadePegando === null ? Math.ceil(this.mochila.qtdDoSlot(this.pegando!) / 2) : null;
+          this.render();
+        });
+        dica.after(dividir);
+      }
+    }
 
     if (this.subaba === "criar") {
       const bar = this.hotbarBar();
