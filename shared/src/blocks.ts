@@ -560,12 +560,28 @@ export const PLANTAS: readonly Planta[] = [
   { base: BlockId.Aipim0, estagios: 4, colheita: ITEM_AIPIM, colheitaMax: 2, selvagem: BlockId.AipimSelvagem },
 ];
 
+/**
+ * §🍖 F10h (2026-08-08): as duas buscas por id viraram TABELA, montada uma vez
+ * no import — no mesmo molde do `BLOCK_TILES` do mesher.
+ *
+ * Elas eram varredura linear do `PLANTAS`, e isso passou despercebido enquanto
+ * a lista tinha DUAS linhas (trigo + algodão). O F10h a levou a OITO, e o preço
+ * não é onde a plantação aparece: `swayDoBloco` chama `ehCruzDeSprite` pra TODO
+ * bloco não-ar do chunk (até 4096 por chunk), e ele pergunta `isPlantacao` E
+ * `isSelvagem` — 16 iterações por bloco de pedra. O mesher ficou 63% mais lento
+ * (worker 2,7 s → 4,4 s no `?bench`), e o custo teria subido de novo a cada
+ * planta nova. Indexado, planta nova é de graça.
+ */
+const PLANTA_POR_ID: (Planta | undefined)[] = [];
+const PLANTA_POR_SELVAGEM: (Planta | undefined)[] = [];
+for (const p of PLANTAS) {
+  for (let i = 0; i < p.estagios; i++) PLANTA_POR_ID[p.base + i] = p;
+  if (p.selvagem !== undefined) PLANTA_POR_SELVAGEM[p.selvagem] = p;
+}
+
 /** A planta a que este byte pertence (`null` se ele não é plantação). */
 export function plantaDe(id: number): Planta | null {
-  for (const p of PLANTAS) {
-    if (id >= p.base && id < p.base + p.estagios) return p;
-  }
-  return null;
+  return PLANTA_POR_ID[id] ?? null;
 }
 
 /** Plantação em qualquer estágio (0 = muda … n−1 = madura)? */
@@ -594,8 +610,7 @@ export function isMudaDePlantacao(id: number): boolean {
  *  de nada). O selvagem NÃO cresce — ele é a porta de entrada da cadeia:
  *  quebrar larga a semente (drops.ts), e a semente é que planta de verdade. */
 export function plantaPorSelvagem(id: number): Planta | null {
-  for (const p of PLANTAS) if (p.selvagem === id) return p;
-  return null;
+  return PLANTA_POR_SELVAGEM[id] ?? null;
 }
 
 /** É um pé SELVAGEM do gen (algodão, e as seis culturas do §🍖 F10h)? */
