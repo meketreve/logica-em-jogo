@@ -48,8 +48,10 @@ export class ProgressoCarga {
    * anel em `streamColunas`. O jogador não anda enquanto carrega (sem pointer
    * lock), então o centro não muda depois desta chamada.
    *
-   * Mundo DENSO (não-lazy) chega inteiro no snapshot: nada a contar, e o total
-   * fica em 0 — o custo dele foi o `buildAll` que já rodou.
+   * Mundo DENSO (não-lazy) chega inteiro no snapshot: nada a CONTAR em colunas,
+   * e o total fica em 0 (`raioCompleto` vira trivialmente true). O custo dele
+   * está na fila de malha que o `buildAll` enfileirou, e quem segura a tela de
+   * carga até ela zerar é o `filaPendente` do portão (bug-608).
    */
   recalcular(dims: WorldDims, x: number, z: number, raio: number, lazy: boolean): void {
     if (!lazy) {

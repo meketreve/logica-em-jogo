@@ -231,7 +231,7 @@ await avaliar(`document.getElementById('menu-new-nome').value='aula de hoje';
   document.getElementById('menu-btn-new').click()`);
 for (let i = 0; i < 150; i++) {
   await espera(1000);
-  if (await avaliar(`!!document.querySelector('#hotbar .slot')`)) break;
+  if (await avaliar(`!!document.querySelector('#hotbar .slot') && !document.getElementById('load-tela')`)) break;
   if (i % 20 === 0) {
     console.log(
       `  t=${i}s ${await avaliar("document.getElementById('load-fase')?.textContent ?? '…'")}`,

@@ -114,7 +114,7 @@ await avaliar(`
 `);
 for (let i = 0; i < 120; i++) {
   await espera(1000);
-  if (await avaliar(`!!document.querySelector('#hotbar .slot')`)) break;
+  if (await avaliar(`!!document.querySelector('#hotbar .slot') && !document.getElementById('load-tela')`)) break;
 }
 // clique DE VERDADE (o `.click()` sintético não conta como gesto do usuário e
 // o menu de pausa fica por cima da cena inteira)

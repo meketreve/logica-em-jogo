@@ -262,9 +262,14 @@ await cdp("Page.navigate", {
   url: `${BASE}/?server=ws://localhost:${PORTA_WS}&nome=ana&pin=1111&codigo=prof2026`,
 });
 let pronto = false;
+// A sonda pede as DUAS coisas: a hotbar montada E a tela de carga já fora do
+// DOM (`#load-tela`). Só a hotbar não basta — ela nasce no `startGame`, e desde
+// o bug-608 o mundo DENSO (este, `LJ_TAMANHO: "P"`) segue com a tela de carga
+// na frente até a malha ficar pronta. Sondar só a hotbar fazia o script clicar
+// e medir POR BAIXO da tela de carga, com a barra de toque escondida.
 for (let i = 0; i < 90; i++) {
   await espera(1000);
-  if (await avaliar(`!!document.querySelector('#hotbar .slot')`)) {
+  if (await avaliar(`!!document.querySelector('#hotbar .slot') && !document.getElementById('load-tela')`)) {
     pronto = true;
     break;
   }

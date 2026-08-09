@@ -46,7 +46,13 @@ export interface HudRemeshStats {
    *  sai sem dizer qual perfil é qual (acontecido em 2026-07-27). */
   config?: { workers: number; profundidadeJogo: number; profundidadeCarga: number } | null;
   /** Custo separado por quem pediu (fila do streaming × bloco × área). */
-  porCaminho?: { fila: { n: number; ms: number }; bloco: { n: number; ms: number }; area: { n: number; ms: number } };
+  porCaminho?: {
+    fila: { n: number; ms: number };
+    bloco: { n: number; ms: number };
+    area: { n: number; ms: number };
+    /** `buildAll` do mundo denso — separado do `fila` desde o bug-608. */
+    carga: { n: number; ms: number };
+  };
 }
 
 interface Recording {

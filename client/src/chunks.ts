@@ -15,6 +15,15 @@ import { MeshPool } from "./meshPool";
 /** Teto duro de chunks por frame: rede de segurança se o relógio for grosseiro
  *  (ou se um lote inteiro custar quase nada e o `while` virar loop longo). */
 const TETO_CHUNKS_POR_FRAME = 64;
+/**
+ * O mesmo teto enquanto a tela de carga cobre a tela (`modoCarga`). Existe
+ * porque a fila só anda 1×/frame, então o teto vira um PISO de frames: os 2 048
+ * chunks de um mundo G não saem em menos de 32 frames com o teto de jogo — 0,5 s
+ * a 60 fps, mas 11 s numa máquina a 3 fps. Com a tela de carga na frente não há
+ * frame a proteger (mesma regra do `modoCarga` do pool e do orçamento de luz),
+ * e quem limita volta a ser o orçamento em ms, que é o freio que se quer.
+ */
+const TETO_CHUNKS_POR_FRAME_CARGA = 1024;
 
 /** Geometria sem face nenhuma (chunk que virou 100% ar): `aplicar` só derruba
  *  a mesh antiga e sai. Compartilhada — nada a montar, nada a mutar. */
@@ -42,6 +51,11 @@ interface JobMesh {
   /** Custo de `extrairVizinhanca` — main thread, entra no contador junto com
    *  o custo de montar a `BufferGeometry` na volta. */
   msExtracao: number;
+  /** Veio do `buildAll` (mundo denso na carga) e não do streaming. Viaja junto
+   *  com o job porque o custo é contabilizado na VOLTA, frames depois — sem
+   *  isso o `porCaminho` somaria a carga do mundo denso com o streaming
+   *  (bug-608). */
+  carga: boolean;
 }
 
 /**
@@ -53,7 +67,7 @@ export class ChunkRenderer {
   private meshes = new Map<number, THREE.Mesh>();
   /** Fila de remesh (streaming F2): chunks entram quando a coluna chega e
    *  saem N por frame (processarFila) — o custo de mesh não estoura o frame. */
-  private fila: { cx: number; cy: number; cz: number }[] = [];
+  private fila: { cx: number; cy: number; cz: number; carga: boolean }[] = [];
   private filaSet = new Set<number>();
   remeshCount = 0;
   remeshMsTotal = 0;
@@ -61,18 +75,24 @@ export class ChunkRenderer {
   /**
    * Mesmo custo, separado por QUEM pediu (2026-07-26): `fila` = coluna nova do
    * streaming, `bloco` = block_changed (jogador/regra/água célula a célula),
-   * `area` = blocks_filled (encher em lote). Um contador só não deixava saber
-   * de onde vinha o pico — foi por isso que precisei DEDUZIR a origem dos 475 k
-   * remesh do perfil de 2026-07-26.
+   * `area` = blocks_filled (encher em lote), `carga` = o `buildAll` do mundo
+   * denso. Um contador só não deixava saber de onde vinha o pico — foi por isso
+   * que precisei DEDUZIR a origem dos 475 k remesh do perfil de 2026-07-26.
+   *
+   * `carga` nasceu do bug-608 (2026-08-09): o `buildAll` marcava `fila`, então
+   * o perfil de um mundo G lia "2 048 chunks pelo streaming" num mundo que não
+   * tem streaming nenhum (`stream.colunas = 0`). Rótulo trocado dá as duas
+   * respostas separadas.
    */
   readonly porCaminho = {
     fila: { n: 0, ms: 0 },
     bloco: { n: 0, ms: 0 },
     area: { n: 0, ms: 0 },
+    carga: { n: 0, ms: 0 },
   };
   /** Quem está pedindo o remesh corrente (o `remesh` público é chamado de
    *  vários lugares; a tag acompanha a chamada em vez de virar parâmetro). */
-  private caminho: "fila" | "bloco" | "area" = "bloco";
+  private caminho: "fila" | "bloco" | "area" | "carga" = "bloco";
 
   /**
    * §💡 Grade de luz do mundo corrente. `undefined` = sem luz voxel (o mesher
@@ -83,11 +103,19 @@ export class ChunkRenderer {
   private luz: LuzWorld | undefined;
 
   /**
-   * Meshing da FILA (streaming) sai da main thread (2026-07-26). Só a fila:
-   * `remeshBlock`/`remeshBox`/`buildAll` seguem síncronos porque são a resposta
-   * visual a uma ação do jogador (um frame de atraso se nota) e porque no perfil
-   * do lab eles foram 0% do custo — `remeshPorCaminho` acusou 5 267 remesh, TODOS
-   * pelo caminho `fila`.
+   * Meshing da FILA (streaming) e da CARGA do mundo denso sai da main thread.
+   * `remeshBlock`/`remeshBox` seguem síncronos porque são a resposta visual a
+   * uma ação do jogador — um frame de atraso se nota.
+   *
+   * O `buildAll` era síncrono junto com eles (2026-07-26), com a justificativa
+   * de que "no perfil do lab eles foram 0% do custo — `remeshPorCaminho` acusou
+   * 5 267 remesh, TODOS pelo caminho `fila`". **Aquele perfil é de mundo E**,
+   * onde `mundoLazy` é true e o `buildAll` nunca chega a ser chamado
+   * (`main.ts`, `if (!this.mundoLazy)`) — medir aquele caminho ali dá 0% por
+   * construção. Em mundo DENSO ele é 100% do custo de mesh: o perfil de
+   * `?bench&tamanho=G` de 2026-08-09 mostrou os 2 048 chunks saindo na main
+   * thread a 2,06 e 4,03 ms cada, com `remeshWorkerMs = 0`, contra 0,74–0,81 ms
+   * no worker do mundo E. Era o bug-608, e é por isso que ele enfileira agora.
    */
   private pool: MeshPool | null = null;
   /** Versão corrente de cada chunk. Sobe a cada pedido de remesh; resultado do
@@ -128,8 +156,12 @@ export class ChunkRenderer {
    * núcleo com a main thread e com o driver D3D11.
    */
   set modoCarga(ativo: boolean) {
+    this.emCarga = ativo;
     if (this.pool) this.pool.modoCarga = ativo;
   }
+  /** Espelho local do `modoCarga`: o pool guarda o dele, mas o teto por frame é
+   *  daqui (e existe mesmo sem pool, no caminho síncrono). */
+  private emCarga = false;
 
   /** `materials[0]` = opaco (cutout), `materials[1]` = água (transparente/blend),
    *  `materials[2]` = vidro colorido (blend, 2026-07-25). O mesher fatia os
@@ -155,7 +187,7 @@ export class ChunkRenderer {
         this.sujosEmVoo.clear();
         for (const id of idsPerdidos) {
           const job = this.emVoo.get(id);
-          if (job) this.enfileirar(job.cx, job.cy, job.cz);
+          if (job) this.enfileirar(job.cx, job.cy, job.cz, job.carga);
         }
         this.emVoo.clear();
         this.pool = null;
@@ -219,11 +251,16 @@ export class ChunkRenderer {
     }
   }
 
+  /**
+   * Mundo DENSO recém-chegado: põe o mundo inteiro na fila do mesher (bug-608).
+   * NÃO monta nada aqui — quem monta é o `processarFila` do laço de render, sob
+   * orçamento e nos 4 workers. Quem chama tem que manter a tela de carga aberta
+   * até `filaPendente === 0`, senão o aluno cai num mundo pela metade.
+   */
   buildAll(): void {
-    this.caminho = "fila"; // mesh de CARREGAMENTO (mundo denso vem inteiro)
     for (let cy = 0; cy < this.world.dims.y; cy++)
       for (let cz = 0; cz < this.world.dims.z; cz++)
-        for (let cx = 0; cx < this.world.dims.x; cx++) this.remesh(cx, cy, cz);
+        for (let cx = 0; cx < this.world.dims.x; cx++) this.enfileirar(cx, cy, cz, true);
   }
 
   remesh(cx: number, cy: number, cz: number): void {
@@ -315,7 +352,7 @@ export class ChunkRenderer {
 
   /** Enfileira os chunks da coluna (cx,cz) recém-chegada + os vizinhos JÁ
    *  carregados (a face culled na borda deles depende da coluna nova). */
-  private enfileirar(qx: number, qy: number, qz: number): void {
+  private enfileirar(qx: number, qy: number, qz: number, carga = false): void {
     const key = chunkIndex(this.world, qx, qy, qz);
     if (this.filaSet.has(key)) return;
     // já está no worker: anota como sujo em vez de abrir job duplicado. O
@@ -325,7 +362,7 @@ export class ChunkRenderer {
       return;
     }
     this.filaSet.add(key);
-    this.fila.push({ cx: qx, cy: qy, cz: qz });
+    this.fila.push({ cx: qx, cy: qy, cz: qz, carga });
   }
 
   enfileirarColuna(cx: number, cz: number): void {
@@ -357,9 +394,11 @@ export class ChunkRenderer {
    * reportada pro chamador, que a marca como faltando e repede ao servidor.
    */
   processarFila(orcamentoMs: number, onFalha?: (cx: number, cz: number) => void): void {
-    this.caminho = "fila";
+    // sem `caminho` fixo aqui: cada entrada traz a sua (`fila` ou `carga`), e é
+    // ela que vale na hora de contabilizar — ver `JobMesh.carga` (bug-608).
     this.onFalha = onFalha;
     const fim = performance.now() + orcamentoMs;
+    const teto = this.emCarga ? TETO_CHUNKS_POR_FRAME_CARGA : TETO_CHUNKS_POR_FRAME;
     let n = 0;
 
     if (this.pool) {
@@ -367,15 +406,18 @@ export class ChunkRenderer {
       // parada é mundo com buraco na tela, e é o único passo aqui que ainda
       // custa caro na main thread (BufferGeometry + upload).
       let r = this.pool.colher();
-      while (r && n < TETO_CHUNKS_POR_FRAME) {
+      while (r && n < teto) {
         const t0 = performance.now();
         const job = this.emVoo.get(r.id);
         this.emVoo.delete(r.id);
         if (job) {
           this.chavesEmVoo.delete(job.key);
+          // a etiqueta do job manda: o custo é cobrado AQUI, frames depois de
+          // quem pediu (bug-608 — sem isto a carga do denso vira "streaming")
+          this.caminho = job.carga ? "carga" : "fila";
           // sujou enquanto estava no ar (coluna vizinha chegou): UM job novo
           // agora, no lugar dos N que teriam sido abertos em paralelo
-          if (this.sujosEmVoo.delete(job.key)) this.enfileirar(job.cx, job.cy, job.cz);
+          if (this.sujosEmVoo.delete(job.key)) this.enfileirar(job.cx, job.cy, job.cz, job.carga);
           if (r.erro) {
             console.warn(`[mesh] chunk ${job.cx},${job.cy},${job.cz} falhou no worker: ${r.erro}`);
             this.onFalha?.(job.cx, job.cz);
@@ -400,10 +442,11 @@ export class ChunkRenderer {
       // (2) alimentar os workers. Extrair a vizinhança custa ~30 µs contra os
       // ~3,5 ms do mesh, então enche fundo: com 1 job por worker eles ficariam
       // ociosos entre frames e o pool renderia MENOS que o caminho síncrono.
-      while (this.fila.length > 0 && this.pool.temVaga && n < TETO_CHUNKS_POR_FRAME) {
+      while (this.fila.length > 0 && this.pool.temVaga && n < teto) {
         const c = this.fila.shift()!;
         const key = chunkIndex(this.world, c.cx, c.cy, c.cz);
         this.filaSet.delete(key);
+        this.caminho = c.carga ? "carga" : "fila";
         const t0 = performance.now();
         const versao = this.novaVersao(key);
         let viz: Uint8Array | null;
@@ -420,7 +463,15 @@ export class ChunkRenderer {
           this.contabilizar(performance.now() - t0);
         } else {
           const id = this.pool.enviar(viz, extrairVizinhancaLuz(this.luz, c.cx, c.cy, c.cz));
-          this.emVoo.set(id, { key, cx: c.cx, cy: c.cy, cz: c.cz, versao, msExtracao: performance.now() - t0 });
+          this.emVoo.set(id, {
+            key,
+            cx: c.cx,
+            cy: c.cy,
+            cz: c.cz,
+            versao,
+            msExtracao: performance.now() - t0,
+            carga: c.carga,
+          });
           this.chavesEmVoo.add(key);
         }
         if (++n >= 1 && performance.now() >= fim) break;
@@ -429,9 +480,10 @@ export class ChunkRenderer {
       return;
     }
 
-    while (this.fila.length > 0 && n < TETO_CHUNKS_POR_FRAME) {
+    while (this.fila.length > 0 && n < teto) {
       const c = this.fila.shift()!;
       this.filaSet.delete(chunkIndex(this.world, c.cx, c.cy, c.cz));
+      this.caminho = c.carga ? "carga" : "fila";
       try {
         this.remesh(c.cx, c.cy, c.cz);
       } catch (e) {

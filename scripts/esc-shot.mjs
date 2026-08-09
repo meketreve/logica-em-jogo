@@ -237,7 +237,7 @@ await cdp("Page.navigate", {
 let pronto = false;
 for (let i = 0; i < 90; i++) {
   await espera(1000);
-  if (await avaliar(`!!document.querySelector('#hotbar .slot')`)) { pronto = true; break; }
+  if (await avaliar(`!!document.querySelector('#hotbar .slot') && !document.getElementById('load-tela')`)) { pronto = true; break; }
 }
 if (!pronto) { console.error("✗ o mundo não ficou pronto"); encerrar(1); }
 

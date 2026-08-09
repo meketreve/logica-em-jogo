@@ -226,7 +226,7 @@ await cdp("Emulation.setEmulatedMedia", {
 await cdp("Page.navigate", { url: `${BASE}/?server=ws://localhost:${PORTA_WS}&nome=ana&pin=1111` });
 for (let i = 0; i < 90; i++) {
   await espera(1000);
-  if (await avaliar(`!!document.querySelector('#hotbar .slot')`)) break;
+  if (await avaliar(`!!document.querySelector('#hotbar .slot') && !document.getElementById('load-tela')`)) break;
 }
 await avaliar(`document.getElementById('overlay-voltar')?.click()`);
 await espera(1500);

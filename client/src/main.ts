@@ -1709,12 +1709,14 @@ class GameRuntime {
       // simula física com o chão debaixo dos pés carregado (coluna ausente =
       // ar → cairia no vazio; congela até a coluna chegar)
       let chaoCarregado = true;
+      // pool de mesh solto só enquanto a tela de carga cobre a tela; depois
+      // freia (senão os workers roubam núcleo do render — lab 2026-07-27).
+      // FORA do `if (mundoLazy)` desde o bug-608: o mundo denso também mesha
+      // pela fila agora, e a carga dele é justamente o que precisa do pool solto.
+      this.chunkRenderer.modoCarga = loading.ativo;
       if (this.mundoLazy) {
         // mesh que falhou = coluna suspeita: sai de `colunasCarregadas` e a
         // varredura abaixo a repede (§🔁)
-        // pool de mesh solto só enquanto a tela de carga cobre a tela; depois
-        // freia (senão os workers roubam núcleo do render — lab 2026-07-27)
-        this.chunkRenderer.modoCarga = loading.ativo;
         // §💡 luz ANTES do mesh, sob orçamento próprio. Na tela de carga não há
         // frame a proteger (mesma regra do `modoCarga` do pool), no jogo há.
         // SEMPRE acende pelo menos uma: orçamento apertado não pode significar
@@ -1765,18 +1767,36 @@ class GameRuntime {
           this.claimRenderer.cularPorDistancia(this.player.pos.x, this.player.pos.z, raioBlocos);
           this.regionRenderer.cularPorDistancia(this.player.pos.x, this.player.pos.z, raioBlocos);
         }
-        // §🕐 a tela de carga só sai com o raio inicial INTEIRO aplicado E a fila
-        // do mesher vazia — entrar antes é cair num mundo cheio de buracos
-        // §💡 `filaLuz` entra no portão: coluna esperando luz ainda NÃO virou mesh,
-        // então `filaPendente` estaria em 0 com o mundo cheio de buraco.
-        if (
-          loading.ativo &&
-          this.progresso.raioCompleto &&
-          this.luz.filaVazia &&
-          this.chunkRenderer.filaPendente === 0
-        ) {
-          loading.concluir();
-        }
+      } else {
+        // Mundo DENSO (P/M/G): não há streaming, luz nem descarte a fazer — o
+        // snapshot trouxe tudo e o `acenderTudo` já rodou. O que sobra é drenar
+        // a fila que o `buildAll` encheu (bug-608). Sem `onFalha`: coluna que
+        // falha aqui não tem a quem ser repedida, o mundo inteiro já chegou.
+        //
+        // ORÇAMENTO GORDO enquanto a tela de carga cobre a tela, e o número não
+        // é chute: a fila anda 1×/frame, então com os 6 ms do jogo o tempo de
+        // carga vira `trabalho / (6 ms × fps)` — REFÉM do FPS da máquina. No A/B
+        // em SwiftShader (3 fps) isso levou a carga do mundo G de 5,4 s pra 28 s,
+        // e a máquina lenta, que é justamente a do laboratório, é a mais punida.
+        // Com a tela de carga na frente não há frame de JOGO a proteger (mesma
+        // regra do `modoCarga` do pool e do orçamento de luz logo acima); 50 ms
+        // ainda deixa a tela de carga animando a ~20 fps.
+        this.chunkRenderer.processarFila(loading.ativo ? 50 : settings.meshMsPorFrame);
+      }
+      // §🕐 a tela de carga só sai com o raio inicial INTEIRO aplicado E a fila
+      // do mesher vazia — entrar antes é cair num mundo cheio de buracos
+      // §💡 `filaLuz` entra no portão: coluna esperando luz ainda NÃO virou mesh,
+      // então `filaPendente` estaria em 0 com o mundo cheio de buraco.
+      // Vale pros DOIS mundos desde o bug-608: no denso o `raioCompleto` é
+      // trivialmente true (total 0) e a `filaLuz` já está vazia, então quem
+      // segura a tela é só o `filaPendente` do `buildAll`.
+      if (
+        loading.ativo &&
+        this.progresso.raioCompleto &&
+        this.luz.filaVazia &&
+        this.chunkRenderer.filaPendente === 0
+      ) {
+        loading.concluir();
       }
       // ?bench: a posição é FUNÇÃO DO TEMPO (não integração por frame) — PC lento
       // e PC rápido percorrem o mesmo trajeto, que é o ponto do modo. A física
@@ -1898,9 +1918,9 @@ class GameRuntime {
       this.hud.gpuFim();
       this.hud.frame(dtMs, performance.now() - tRender);
     });
-    // §🕐 mundo denso: veio inteiro no snapshot e o `buildAll` já rodou — não há
-    // streaming a esperar, a tela sai assim que o loop desenha o primeiro frame.
-    if (!this.mundoLazy) loading.concluir();
+    // §🕐 mundo denso: veio inteiro no snapshot, mas o `buildAll` agora só
+    // ENFILEIRA (bug-608) — quem fecha a tela é o portão do laço, quando
+    // `filaPendente` zerar. Fechar aqui deixaria o aluno num mundo pela metade.
 
     // ?hud na URL: abre o F3 no boot (verificação headless do painel de perfil)
     if (bootParams.has("hud")) this.hud.toggle();
@@ -2124,7 +2144,8 @@ class GameRuntime {
     loading.setFase(this.mundoLazy ? "mundo" : "malha");
     this.hud.setFase("carregando");
     updateOverlay(); // esconde o menu de pausa se ele estava aberto na troca
-    if (!this.mundoLazy) loading.concluir(); // denso: `trocarMundo` já montou tudo
+    // denso: o `trocarMundo` ENFILEIROU o mundo novo (bug-608) — o portão do
+    // laço fecha a tela quando a fila zerar, igual ao boot.
   };
 
   // servidor manda posição E orientação (volta-onde-parou; futuro /tp)
