@@ -1,6 +1,46 @@
 # STATUS — Projeto "Lógica em Jogo" (jogo voxel educacional)
 
 > Single source of truth for resuming work. Read this FIRST when starting a session.
+> **SESSÃO 63 (2026-08-08) — "POUCO FPS NA MÁQUINA DE CASA": O MESHER TINHA FICADO 63% MAIS
+> LENTO, E A CAUSA NÃO ESTAVA NO MESHER.** O pedido foi listar as mudanças desde 06/08 (41
+> commits, +9.081/−4.818 em 69 arquivos) e revisá-las contra a queda de FPS. **bug-607 FIXED.**
+>
+> **A CAUSA (bug-607, `shared/src/blocks.ts`):** `plantaDe` e `plantaPorSelvagem` eram
+> VARREDURA LINEAR do array `PLANTAS`, e o §🍖 F10h (`9d4c485`) levou `PLANTAS` de **2 linhas
+> (trigo, algodão) para 8**. O preço não é onde a plantação aparece: **`swayDoBloco`
+> (`mesher.ts:1281`) roda pra TODO bloco não-ar do chunk** — até 4096 por chunk, ~2650 chunks
+> por rodada — e chama `ehCruzDeSprite`, que pergunta `isPlantacao` (→ `plantaDe`, 2→8
+> iterações) **E** `isSelvagem` (→ `plantaPorSelvagem`, 8 iterações, chamada NOVA que
+> substituiu o `id === BlockId.AlgodaoSelvagem` de UMA comparação). De ~3 pra ~16 iterações por
+> bloco de PEDRA. **O mesher ficou 63% mais lento sem ninguém tocar no mesher.**
+> **O CONSERTO:** `PLANTA_POR_ID` e `PLANTA_POR_SELVAGEM`, tabelas indexadas por id montadas
+> UMA vez no import (molde do `BLOCK_TILES`). Conserta na RAIZ — todo chamador ganha (mesher,
+> drops, rules, session) — e planta nova passa a ser de graça.
+> **A/B no `dist` COMPILADO, 3 rodadas por lado:** worker remesh **4356–4573 ms → 2491–2579 ms**
+> (−43%), e ~6% **ABAIXO** do baseline `44c6656` pré-06/08 (2658–2748 ms), porque o `plantaDe`
+> já era varredura de 2 antes. Triângulos +576 (+0,4%) = os pés selvagens novos, esperado.
+>
+> ⚠️ **DUAS CONCLUSÕES MINHAS CAÍRAM NO CAMINHO, e as duas viraram do-not-repeat.**
+> (1) **"+11% de triângulos / +13% de draw calls"** — falso. `perfil.triangles`/`drawCalls` são
+> SNAPSHOT do frame final e oscilam entre DOIS valores fixos (135366/305 e 119454/269) conforme
+> o frustum na hora de fechar a gravação; **os dois valores saem dos DOIS lados**. Uma rodada de
+> cada "provou" uma regressão que não existe. O invariante é **triângulo por draw call** (452,5
+> vs 443,8 = mesma geometria por chunk).
+> (2) **"`e58814a` custa +37% de main thread"** — verdade em vite DEV, **ZERO no `dist`**. O
+> commit é semanticamente NO-OP (`FOLGA_DESCARTE` é 2, igual ao `+2` digitado); em dev o ESM
+> não-bundleado impede o V8 de inlinar a chamada que atravessa módulo, e o rollup junta tudo.
+> **Bissecção em dev ORDENA suspeitos; confirmar exige `client/dist`.** Os dists antigos estão
+> versionados — `git worktree` + `python3 -m http.server` em `client/dist` dá A/B sem rebuild.
+>
+> **Bateria verde:** typecheck 3/3 · **811 testes** · build · **15/15 smokes**.
+> ⚠️ Os 2 smokes que falharam na 1ª tentativa (`mundo`, `kicar`) eram **as portas 8091/8092
+> ocupadas pelo meu servidor de A/B** — os cenários usam 8091–8096. No do-not-repeat.
+>
+> 🚀 **PRÓXIMA FASE:** (a) a deriva do `todo.md` da sessão 62 continua aberta — 6 itens `[ ]`
+> com o código já no repo (evidência listada abaixo, na sessão 62); é a tarefa mais barata da
+> fila. (b) O bench roda aqui em **SwiftShader** (WSL sem `/dev/dri`, ~12 fps, `gpu: null`):
+> os números de CPU/mesher valem, os de GPU não existem. **Medir o FPS percebido pede o
+> `?bench` no navegador da máquina real**, com o `dist` desta sessão.
 > **SESSÃO 62 (2026-08-08) — O `.sh` ALCANÇOU O `.bat` (bug-606), E A DERIVA DO `todo.md`.**
 > Sessão de retomada: a 61 já estava commitada E empurrada (`bba8c34`), árvore limpa. O pedido
 > foi sincronizar o launcher de Linux/WSL/macOS com o do Windows. **Dois commits tinham tocado só

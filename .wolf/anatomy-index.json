@@ -1,12 +1,12 @@
 {
   "version": 1,
   "meta": {
-    "lastScanned": "2026-08-08T22:37:14.272Z",
+    "lastScanned": "2026-08-08T23:43:15.150Z",
     "fileCount": 331,
     "hits": 0,
     "misses": 0,
-    "renderedHash": "639b089d5fe0f0e39f98f99f39cb5c0e0456354ab7963d6d0875c5b2462bc7ee",
-    "storeUpdatedAt": "2026-08-08T22:37:14.293Z"
+    "renderedHash": "fa77fdffd8553a7a41540262ef584e8f6db703ed8db93353623c919386cde8c6",
+    "storeUpdatedAt": "2026-08-08T23:43:15.170Z"
   },
   "files": {
     ".claude/commands/reframe.md": {
@@ -3268,22 +3268,22 @@
       "source": "scan"
     },
     "iniciar-servidor.bat": {
-      "description": "",
+      "description": "launcher Windows (duplo-clique): update por ZIP do GitHub (curl+tar+robocopy, sem git/PowerShell — a escola bloqueia), menu de mundo [1-9] com procedural, código do professor, tamanho P/M/G/E, água por tick",
       "tokens": 3462,
       "hash": "96ba4eae007e3fbf",
       "size": 12981,
       "mtimeMs": 1786042024702.5027,
-      "updatedAt": "2026-08-06T18:47:04.808Z",
-      "source": "hook"
+      "updatedAt": "2026-08-08T23:43:11.192Z",
+      "source": "md-import"
     },
     "iniciar-servidor.sh": {
-      "description": "============================================================",
+      "description": "launcher Linux/WSL/macOS, PAR do .bat: update por git quando é clone, por pacote .tar.gz do GitHub quando não é; mesmo menu de mundo [1-9] com procedural, tamanho P/M/G/E, LJ_SAVE/LJ_CODIGO/LJ_TAMANHO/LJ_AGUA_TICK",
       "tokens": 4746,
       "hash": "bcbcc13d36b25fa6",
       "size": 18160,
       "mtimeMs": 1786228634172.4167,
-      "updatedAt": "2026-08-08T22:37:14.271Z",
-      "source": "hook"
+      "updatedAt": "2026-08-08T23:43:11.192Z",
+      "source": "md-import"
     },
     "LICENSE": {
       "description": "Licença de Uso — Lógica em Jogo",
@@ -6248,222 +6248,222 @@
     },
     "shared/src/blocks.ts": {
       "description": "IDs de bloco. Gravados como bytes crus nos chunks (Uint8Array), no save e no",
-      "tokens": 11767,
-      "hash": "2cabafab12ebb7c3",
-      "size": 42144,
-      "mtimeMs": 1785972609031.3235,
-      "updatedAt": "2026-08-06T14:05:05.036Z",
-      "source": "scan",
+      "tokens": 13207,
+      "hash": "f9c8781a9030d207",
+      "size": 47306,
+      "mtimeMs": 1786232594976.415,
+      "updatedAt": "2026-08-08T23:43:15.150Z",
+      "source": "hook",
       "symbols": [
         {
           "name": "isAgua",
           "kind": "fn",
-          "startLine": 285,
-          "endLine": 290,
+          "startLine": 300,
+          "endLine": 305,
           "tokens": 75
         },
         {
           "name": "isAguaFonte",
           "kind": "fn",
-          "startLine": 291,
-          "endLine": 296,
+          "startLine": 306,
+          "endLine": 311,
           "tokens": 69
         },
         {
           "name": "aguaNivel",
           "kind": "fn",
-          "startLine": 297,
-          "endLine": 305,
+          "startLine": 312,
+          "endLine": 320,
           "tokens": 82
         },
         {
           "name": "aguaComNivel",
           "kind": "fn",
-          "startLine": 306,
-          "endLine": 395,
-          "tokens": 1158
+          "startLine": 321,
+          "endLine": 432,
+          "tokens": 1437
         },
         {
           "name": "isFerramenta",
           "kind": "fn",
-          "startLine": 396,
-          "endLine": 401,
+          "startLine": 433,
+          "endLine": 438,
           "tokens": 66
         },
         {
           "name": "isCarvao",
           "kind": "fn",
-          "startLine": 402,
-          "endLine": 423,
+          "startLine": 439,
+          "endLine": 460,
           "tokens": 295
         },
         {
           "name": "isFornalha",
           "kind": "fn",
-          "startLine": 424,
-          "endLine": 428,
+          "startLine": 461,
+          "endLine": 465,
           "tokens": 60
         },
         {
           "name": "fornalhaEstaAcesa",
           "kind": "fn",
-          "startLine": 429,
-          "endLine": 434,
+          "startLine": 466,
+          "endLine": 471,
           "tokens": 68
         },
         {
           "name": "fornalhaFrente",
           "kind": "fn",
-          "startLine": 435,
-          "endLine": 440,
+          "startLine": 472,
+          "endLine": 477,
           "tokens": 78
         },
         {
           "name": "fornalhaComFrente",
           "kind": "fn",
-          "startLine": 441,
-          "endLine": 447,
+          "startLine": 478,
+          "endLine": 484,
           "tokens": 94
         },
         {
           "name": "fornalhaComEstado",
           "kind": "fn",
-          "startLine": 448,
-          "endLine": 453,
+          "startLine": 485,
+          "endLine": 490,
           "tokens": 67
         },
         {
           "name": "isBalde",
           "kind": "fn",
-          "startLine": 454,
-          "endLine": 480,
-          "tokens": 209
+          "startLine": 491,
+          "endLine": 524,
+          "tokens": 242
         },
         {
           "name": "isItem",
           "kind": "fn",
-          "startLine": 481,
-          "endLine": 491,
-          "tokens": 131
+          "startLine": 525,
+          "endLine": 537,
+          "tokens": 174
         },
         {
           "name": "Planta",
           "kind": "section",
-          "startLine": 492,
-          "endLine": 502,
-          "tokens": 84
+          "startLine": 538,
+          "endLine": 582,
+          "tokens": 730
         },
         {
           "name": "plantaDe",
           "kind": "fn",
-          "startLine": 503,
-          "endLine": 510,
-          "tokens": 66
+          "startLine": 583,
+          "endLine": 587,
+          "tokens": 45
         },
         {
           "name": "isPlantacao",
           "kind": "fn",
-          "startLine": 511,
-          "endLine": 515,
+          "startLine": 588,
+          "endLine": 592,
           "tokens": 44
         },
         {
           "name": "estagioPlantacao",
           "kind": "fn",
-          "startLine": 516,
-          "endLine": 521,
+          "startLine": 593,
+          "endLine": 598,
           "tokens": 46
         },
         {
           "name": "isPlantacaoMadura",
           "kind": "fn",
-          "startLine": 522,
-          "endLine": 527,
+          "startLine": 599,
+          "endLine": 604,
           "tokens": 59
         },
         {
           "name": "isMudaDePlantacao",
           "kind": "fn",
-          "startLine": 528,
-          "endLine": 535,
-          "tokens": 113
+          "startLine": 605,
+          "endLine": 611,
+          "tokens": 94
+        },
+        {
+          "name": "plantaPorSelvagem",
+          "kind": "fn",
+          "startLine": 612,
+          "endLine": 616,
+          "tokens": 52
+        },
+        {
+          "name": "isSelvagem",
+          "kind": "fn",
+          "startLine": 617,
+          "endLine": 624,
+          "tokens": 112
         },
         {
           "name": "isSolo",
           "kind": "fn",
-          "startLine": 536,
-          "endLine": 550,
+          "startLine": 625,
+          "endLine": 639,
           "tokens": 168
         },
         {
           "name": "isReplaceable",
           "kind": "fn",
-          "startLine": 551,
-          "endLine": 555,
+          "startLine": 640,
+          "endLine": 644,
           "tokens": 39
         },
         {
           "name": "isFlor",
           "kind": "fn",
-          "startLine": 556,
-          "endLine": 560,
+          "startLine": 645,
+          "endLine": 649,
           "tokens": 55
         },
         {
           "name": "isGramaAlta",
           "kind": "fn",
-          "startLine": 561,
-          "endLine": 565,
+          "startLine": 650,
+          "endLine": 654,
           "tokens": 54
         },
         {
           "name": "isFolhas",
           "kind": "fn",
-          "startLine": 566,
-          "endLine": 575,
+          "startLine": 655,
+          "endLine": 664,
           "tokens": 80
         },
         {
           "name": "isVidroColorido",
           "kind": "fn",
-          "startLine": 576,
-          "endLine": 580,
+          "startLine": 665,
+          "endLine": 669,
           "tokens": 50
         },
         {
           "name": "isSlab",
           "kind": "fn",
-          "startLine": 581,
-          "endLine": 585,
+          "startLine": 670,
+          "endLine": 674,
           "tokens": 57
         },
         {
           "name": "slabTop",
           "kind": "fn",
-          "startLine": 586,
-          "endLine": 590,
+          "startLine": 675,
+          "endLine": 679,
           "tokens": 47
         },
         {
           "name": "slabMaterial",
           "kind": "fn",
-          "startLine": 591,
-          "endLine": 595,
-          "tokens": 46
-        },
-        {
-          "name": "isStairs",
-          "kind": "fn",
-          "startLine": 596,
-          "endLine": 600,
-          "tokens": 58
-        },
-        {
-          "name": "stairsFacing",
-          "kind": "fn",
-          "startLine": 601,
-          "endLine": 926,
-          "tokens": 4018
+          "startLine": 680,
+          "endLine": 1016,
+          "tokens": 4148
         }
       ]
     },

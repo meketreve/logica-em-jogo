@@ -346,6 +346,14 @@
 
 - **Mesher é FUNÇÃO PURA (bytes → geometria)** e roda no cliente — é o que o deixa caber num
   Worker. Todo acesso está em `[-1..CHUNK_SIZE]`, por isso a vizinhança padded 18³ basta.
+- **Predicado de bloco que o mesher chama é O(1) OU É BUG DE PERF (bug-607).** `swayDoBloco`
+  roda pra TODO bloco não-ar do chunk (até 4096 por chunk, ~2650 chunks por rodada de bench) e
+  pergunta `ehCruzDeSprite`. Qualquer `for (const x of LISTA)` embaixo disso cresce junto com a
+  LISTA, e o custo aparece longe de onde a lista foi editada: `PLANTAS` foi de 2 pra 8 linhas no
+  F10h e o mesher ficou **63% mais lento** sem ninguém tocar no mesher. **Tabela indexada por id
+  montada no import** (o molde do `BLOCK_TILES`, que já está no arquivo) resolve na raiz e faz
+  entrada nova sair de graça. Vale pra `plantaDe`, `plantaPorSelvagem` — e pra qualquer
+  `isXxx(id)` que vire varredura.
 - **Oclusão de face se decide pela transparência do VIZINHO, não do dono da face:** face
   aparece se `vizinho == ar || (transparente(vizinho) && vizinho != id)`. Mesmo id funde
   (vidraça contínua); não-cubo NUNCA oclui vizinho.
@@ -662,6 +670,17 @@
   "o lab está lento" pode ser só raio 12 contra 6.
 - **Ruído do instrumento ≈ 1–2%** (duas rodadas na mesma máquina): acima disso é sinal.
   **Primeira rodada de um lote é suspeita** (aquecimento, shader): descartar.
+- **`perfil.triangles` e `drawCalls` são SNAPSHOT do frame final, não média — sozinhos não
+  fazem A/B (2026-08-08).** Eles oscilam entre DOIS valores fixos (aqui 135366/305 e
+  119454/269) conforme o chunk que estava no frustum quando a gravação fechou, e os dois
+  valores saem dos DOIS lados. Uma rodada de cada "provou" +11% de geometria que não existia.
+  **O invariante é triângulo POR draw call** (452,5 vs 443,8 = mesma geometria por chunk);
+  quem mede trabalho de verdade é `remeshWorkerMs` / `remeshPorCaminho`.
+- **`remeshPorCaminho` (`fila` / `bloco` / `area`) separa carga de edição** e é o que localiza
+  regressão de mesh — mas o `bench-headless.mjs` não o imprime. Dumpar o perfil inteiro:
+  `sed 's#^if (perfil) {#... writeFileSync(process.env.LJ_DUMP, JSON.stringify(perfil))#'`
+  numa cópia do script. `fila.ms / fila.n` = custo de MAIN THREAD por chunk (extração da
+  vizinhança + `BufferGeometry`); `remeshWorkerMs` = o mesher em si.
 - **A variável do experimento tem que sair no resultado** — A/B de knob sem o knob gravado no
   perfil só é atribuível pela memória de quem rodou (bug-529).
 - **Percentil esconde a FORMA:** exportar histograma junto (p95 igual pode ser bimodal).
@@ -877,6 +896,26 @@ e o A/B mostra que ela pega exatamente isso.
 
 ## Do-Not-Repeat
 
+- [2026-08-08] **PERF medida no vite DEV MENTE — o número vale no `dist` compilado, e só nele.**
+  Bissectando o bug-607 em vite dev, `e58814a` (um refactor NO-OP: `FOLGA_DESCARTE` é 2, igual
+  ao `+2` que estava digitado) apareceu como **+37% de main thread por chunk**, reproduzível em
+  8 rodadas e isolado até o arquivo. **No `dist` a diferença é ZERO** (0,165–0,172 dos dois
+  lados): dev serve ESM não-bundleado, e a chamada que atravessa módulo não é inlinada pelo V8;
+  o rollup junta tudo e o custo some. Bissecção em dev serve pra ORDENAR suspeitos rápido —
+  **confirmar exige `npm run build` e servir `client/dist`**, que é o que o launcher entrega.
+  Os dists antigos estão VERSIONADOS: `git worktree` + `python3 -m http.server` na pasta
+  `client/dist` do commit velho dá A/B de binário sem rebuildar nada.
+- [2026-08-08] **`npm run smoke` usa as portas 8091–8096.** Deixar um servidor de A/B em 8091/
+  8092 derruba os smokes `mundo` e `kicar` com 13 falhas cujo texto não tem NADA a ver com a
+  mudança em teste ("ana recebeu `kicked`…"). Liberar as portas antes: `fuser -k 8091/tcp`.
+- [2026-08-08] **`pkill -f "vite --port 5174"` mata o PRÓPRIO script** (o padrão casa com a
+  linha de comando do bash que o contém) — sai com exit 144 e o resto do script nunca roda.
+  Matar pelo DONO DA PORTA: `fuser -k 5174/tcp`.
+- [2026-08-08] **`CHUNK_SIZE` mora em `constants.ts`, NÃO em `world.ts`.** Num `.mts` de
+  scratchpad o import errado vira `undefined` calado, `x0`/`x1` viram `NaN`, o laço não executa
+  nenhuma vez e o censo sai `{}` com **exit 0** — parece "não há diferença". É a mesma armadilha
+  do `node --import tsx` não checar tipo (2026-08-06): num script de medição, **afirmar o que
+  se importou** (`if (typeof X !== "number") throw`) custa uma linha.
 - [2026-08-06] **Bissectar com `git stash` num script de print EXIGE `npm run build` no meio.**
   O `shots:f10` e o `shots:toque` servem `client/dist` — o cliente COMPILADO. Stashar o fonte
   e rodar o script mede o binário VELHO: a primeira bissecção do bug-591 deu falso negativo

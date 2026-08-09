@@ -1756,3 +1756,20 @@ passa pelo próprio portão) · 5 prints da pista. **PLAYTEST PENDENTE.**
 | 19:53 | STATUS da sessão 62 | .wolf/STATUS.md | 246eb2a | ~1500 |
 | 20:02 | Release v0.9.0 (o usuário cobrou o bump): npm version minor --no-git-tag-version + build + tag anotada | package.json, package-lock.json, client/dist | e15848e + tag v0.9.0 empurrados; typecheck 3/3, 811 testes, build, 15/15 smokes, dist com 0.9.0 e sem 0.8.0 | ~6000 |
 | 20:06 | Preparação pro /clear: STATUS (release, pendência externa zerada, fila de jogo atualizada, seção 0 com a deriva do todo.md) + 3 aprendizados no cerebrum | .wolf/STATUS.md, .wolf/cerebrum.md | pronto | ~4000 |
+| 20:00 | Session end: 6 writes across 1 files (iniciar-servidor.sh) | 3 reads | ~9351 tok |
+
+## Session: 2026-08-08 20:01
+
+| Time | Action | File(s) | Outcome | ~Tokens |
+|------|--------|---------|---------|--------|
+| 20:43 | Edited shared/src/blocks.ts | added nullish coalescing | ~320 |
+| 20:43 | Edited shared/src/blocks.ts | added nullish coalescing | ~31 |
+| 20:10 | Listou 41 commits desde 06/08 (+9.081/−4.818, 69 arquivos) | git log/diff | baseline fixado em 44c6656 | ~2k |
+| 20:20 | A/B `?bench` headless HEAD vs baseline (vite dev) | scripts/bench-headless.mjs | "+11% triângulos" — DEPOIS refutado (snapshot do frustum) | ~3k |
+| 20:30 | Bissecção do custo de main thread por chunk (caminho `fila`) | worktree lj-base + probe.sh | apontou e58814a — DEPOIS refutado (artefato do vite dev) | ~4k |
+| 20:38 | A/B nos dists COMPILADOS (8091 vs 8092), 3 rodadas/lado | client/dist versionado | worker remesh +63% no HEAD: sinal real | ~2k |
+| 20:41 | Causa raiz: PLANTAS 2→8 + varredura linear em swayDoBloco | shared/src/blocks.ts | bug-607 | ~1k |
+| 20:42 | FIX: PLANTA_POR_ID/PLANTA_POR_SELVAGEM (tabela O(1) no import) | shared/src/blocks.ts | worker 4,4s → 2,5s (−43%, abaixo do baseline) | ~1k |
+| 20:44 | Bateria | typecheck 3/3, 811 testes, build, smoke 15/15 | verde | ~1k |
+| 20:50 | bug-607 no buglog (indent=1), 1 Key Learning + 4 do-not-repeat, STATUS sessão 63 | .wolf/ | registrado | ~2k |
+| 20:55 | Session end: 2 writes across 1 files (blocks.ts) | 1 reads | ~12118 tok |

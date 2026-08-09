@@ -4605,6 +4605,28 @@
    ],
    "occurrences": 1,
    "last_seen": "2026-08-08T00:00:00Z"
+  },
+  {
+   "id": "bug-607",
+   "timestamp": "2026-08-08T21:00:00Z",
+   "error_message": "\"estou com pouco fps rodando na maquina de casa\" — o mesher ficou 63% mais lento desde 06/08 (remesh no worker 2,7 s → 4,4 s numa rodada de ?bench de 15 s)",
+   "file": "shared/src/blocks.ts",
+   "root_cause": "`plantaDe` e `plantaPorSelvagem` são VARREDURA LINEAR do array PLANTAS, e o §🍖 F10h (9d4c485) levou PLANTAS de 2 linhas (trigo, algodão) para 8. O preço não é onde a plantação aparece: `swayDoBloco` (mesher.ts:1281) roda para TODO bloco não-ar do chunk — até 4096 por chunk — e chama `ehCruzDeSprite`, que pergunta `isPlantacao(id)` (→ plantaDe, 2→8 iterações) E `isSelvagem(id)` (→ plantaPorSelvagem, 8 iterações, chamada NOVA que substituiu o `id === BlockId.AlgodaoSelvagem` de UMA comparação). De ~3 iterações por bloco de pedra para ~16, vezes ~2650 chunks por rodada.",
+   "fix": "FEITO em 2026-08-08. Duas tabelas indexadas por id (PLANTA_POR_ID e PLANTA_POR_SELVAGEM) montadas UMA vez no import a partir de PLANTAS — mesmo molde do BLOCK_TILES do mesher; as duas funções viram `tabela[id] ?? null`. Corrige na RAIZ (todo chamador ganha: mesher, drops, rules, session) e o custo deixa de crescer com planta nova. A/B no dist COMPILADO, 3 rodadas por lado: worker remesh 4356–4573 ms (HEAD antes) → 2491–2579 ms (com o fix), ~6% ABAIXO do baseline 44c6656 pré-06/08 (2658–2748 ms), porque o plantaDe já era varredura de 2. Triângulos +576 (+0,4%, os pés selvagens novos do gen) — esperado, não é regressão.",
+   "tags": [
+    "performance",
+    "mesher",
+    "worker",
+    "plantas",
+    "F10h",
+    "regressao",
+    "bench",
+    "FIXED",
+    "fix-2026-08-08"
+   ],
+   "related_bugs": [],
+   "occurrences": 1,
+   "last_seen": "2026-08-08T21:00:00Z"
   }
  ]
 }
