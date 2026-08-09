@@ -1,12 +1,12 @@
 {
   "version": 1,
   "meta": {
-    "lastScanned": "2026-08-09T00:33:12.375Z",
+    "lastScanned": "2026-08-09T16:54:47.465Z",
     "fileCount": 336,
     "hits": 0,
     "misses": 0,
-    "renderedHash": "7c6810be6c5206977cd2b51da20ebc3b5a0981cfef90998985a1acd85a27dd8e",
-    "storeUpdatedAt": "2026-08-09T00:33:12.396Z"
+    "renderedHash": "bebe553b02fc77b18e513d5f75c70eedb9a886d93015f7b0bb0641baf01d76f0",
+    "storeUpdatedAt": "2026-08-09T16:54:47.506Z"
   },
   "files": {
     ".claude/commands/reframe.md": {
@@ -1877,26 +1877,26 @@
     },
     "client/src/chunks.ts": {
       "description": "Teto duro de chunks por frame: rede de segurança se o relógio for grosseiro",
-      "tokens": 5987,
-      "hash": "118decec6311c4d4",
-      "size": 21176,
-      "mtimeMs": 1785239166809.0806,
-      "updatedAt": "2026-08-09T00:31:36.246Z",
-      "source": "scan",
+      "tokens": 6805,
+      "hash": "2801ce3879ac190b",
+      "size": 24089,
+      "mtimeMs": 1786292782085.4456,
+      "updatedAt": "2026-08-09T16:26:22.229Z",
+      "source": "hook",
       "symbols": [
         {
           "name": "JobMesh",
           "kind": "section",
-          "startLine": 33,
-          "endLine": 51,
-          "tokens": 197
+          "startLine": 42,
+          "endLine": 65,
+          "tokens": 273
         },
         {
           "name": "ChunkRenderer",
           "kind": "class",
-          "startLine": 52,
-          "endLine": 494,
-          "tokens": 5525
+          "startLine": 66,
+          "endLine": 546,
+          "tokens": 6116
         }
       ]
     },
@@ -2121,67 +2121,67 @@
     },
     "client/src/hud.ts": {
       "description": "HUD de perfilação (F3): FPS, frametime méd+p95, remesh, draw calls e",
-      "tokens": 8605,
-      "hash": "4520cd62132fcbd7",
-      "size": 30454,
-      "mtimeMs": 1785239845461.0728,
-      "updatedAt": "2026-08-09T00:31:36.254Z",
-      "source": "scan",
+      "tokens": 8642,
+      "hash": "3133809ac9bd09d5",
+      "size": 30584,
+      "mtimeMs": 1786292562597.4448,
+      "updatedAt": "2026-08-09T16:22:42.724Z",
+      "source": "hook",
       "symbols": [
         {
           "name": "HudRemeshStats",
           "kind": "section",
           "startLine": 35,
-          "endLine": 51,
-          "tokens": 268
+          "endLine": 57,
+          "tokens": 305
         },
         {
           "name": "Recording",
           "kind": "section",
-          "startLine": 52,
-          "endLine": 70,
+          "startLine": 58,
+          "endLine": 76,
           "tokens": 220
         },
         {
           "name": "Marcador",
           "kind": "section",
-          "startLine": 71,
-          "endLine": 80,
+          "startLine": 77,
+          "endLine": 86,
           "tokens": 93
         },
         {
           "name": "RegrasServidor",
           "kind": "section",
-          "startLine": 81,
-          "endLine": 93,
+          "startLine": 87,
+          "endLine": 99,
           "tokens": 134
         },
         {
           "name": "ContextoPerfil",
           "kind": "section",
-          "startLine": 94,
-          "endLine": 120,
+          "startLine": 100,
+          "endLine": 126,
           "tokens": 240
         },
         {
           "name": "ContadorFase",
           "kind": "section",
-          "startLine": 121,
-          "endLine": 133,
+          "startLine": 127,
+          "endLine": 139,
           "tokens": 92
         },
         {
           "name": "histograma",
           "kind": "fn",
-          "startLine": 134,
-          "endLine": 156,
+          "startLine": 140,
+          "endLine": 162,
           "tokens": 189
         },
         {
           "name": "Hud",
           "kind": "class",
-          "startLine": 157,
-          "endLine": 719,
+          "startLine": 163,
+          "endLine": 725,
           "tokens": 6882
         }
       ]
@@ -2334,12 +2334,12 @@
     },
     "client/src/main.ts": {
       "description": "O cliente não tem filesystem: aprende os nomes das aulas pela resposta de",
-      "tokens": 29577,
-      "hash": "878c2e2135445708",
-      "size": 105090,
-      "mtimeMs": 1786189542256.4185,
-      "updatedAt": "2026-08-09T00:31:36.265Z",
-      "source": "scan",
+      "tokens": 30000,
+      "hash": "ac2c17994ebe7519",
+      "size": 106608,
+      "mtimeMs": 1786292808109.4453,
+      "updatedAt": "2026-08-09T16:26:48.317Z",
+      "source": "hook",
       "symbols": [
         {
           "name": "cachearMundos",
@@ -2520,14 +2520,14 @@
           "name": "GameRuntime",
           "kind": "class",
           "startLine": 1031,
-          "endLine": 2229,
-          "tokens": 16721
+          "endLine": 2250,
+          "tokens": 17144
         },
         {
           "name": "startGame",
           "kind": "fn",
-          "startLine": 2230,
-          "endLine": 2236,
+          "startLine": 2251,
+          "endLine": 2257,
           "tokens": 58
         }
       ]
@@ -2854,12 +2854,12 @@
     },
     "client/src/progressoCarga.ts": {
       "description": "As contagens VIVAS que a tela amostra. Chegam por callback, e não por",
-      "tokens": 1112,
-      "hash": "e4ab60cb8b28a869",
-      "size": 3972,
-      "mtimeMs": 1786022368098.5005,
-      "updatedAt": "2026-08-09T00:31:36.275Z",
-      "source": "scan",
+      "tokens": 1159,
+      "hash": "26b3330bef8902fd",
+      "size": 4137,
+      "mtimeMs": 1786292569341.4448,
+      "updatedAt": "2026-08-09T16:22:49.469Z",
+      "source": "hook",
       "symbols": [
         {
           "name": "FontesDeCarga",
@@ -2872,8 +2872,8 @@
           "name": "ProgressoCarga",
           "kind": "class",
           "startLine": 35,
-          "endLine": 96,
-          "tokens": 653
+          "endLine": 98,
+          "tokens": 700
         }
       ]
     },
@@ -4818,12 +4818,12 @@
     },
     "scripts/toque-shot.mjs": {
       "description": "Os GESTOS da barra de toque, contra o servidor REAL (2026-08-04).",
-      "tokens": 4490,
-      "hash": "d67dfe42807518f3",
-      "size": 17023,
-      "mtimeMs": 1786023145462.5034,
-      "updatedAt": "2026-08-09T00:31:36.404Z",
-      "source": "scan",
+      "tokens": 4604,
+      "hash": "5fd0cafeb0ca8f65",
+      "size": 17460,
+      "mtimeMs": 1786294487141.4473,
+      "updatedAt": "2026-08-09T16:54:47.464Z",
+      "source": "hook",
       "symbols": [
         {
           "name": "espera",
@@ -4920,14 +4920,14 @@
           "name": "foto",
           "kind": "fn",
           "startLine": 233,
-          "endLine": 279,
-          "tokens": 424
+          "endLine": 284,
+          "tokens": 546
         },
         {
           "name": "ok",
           "kind": "fn",
-          "startLine": 280,
-          "endLine": 435,
+          "startLine": 285,
+          "endLine": 440,
           "tokens": 1843
         }
       ]

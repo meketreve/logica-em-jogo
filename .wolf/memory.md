@@ -1781,3 +1781,55 @@ passa pelo próprio portão) · 5 prints da pista. **PLAYTEST PENDENTE.**
 | 21:33 | Edited todo.md | 2→6 lines | ~117 |
 | 21:05 | `openwolf scan` — anatomy regenerada | .wolf/anatomy.md, anatomy-index.json | 331 → 336 arquivos | ~1k |
 | 21:10 | Fechou a deriva do todo.md da sessão 62: 6 itens `[ ]` → `[x]` com evidência VERIFICADA no código | todo.md | 16 abertos restantes, todos legítimos | ~2k |
+| 21:33 | Session end: 8 writes across 2 files (blocks.ts, todo.md) | 2 reads | ~23748 tok |
+
+## Session: 2026-08-09 12:49
+
+| Time | Action | File(s) | Outcome | ~Tokens |
+|------|--------|---------|---------|--------|
+| 13:05 | Servidor estático em client/dist (8099) pro usuário rodar `?bench` no Windows | client/dist | 4 perfis colhidos | ~1k |
+| 13:20 | Análise dos 4 perfis do Windows | /mnt/c/Users/Meketreve/Downloads/perf-bench-*.json | GPU = Microsoft Basic Render Driver (WARP): SOFTWARE. RTX 2060 presente e OK. FPS ainda não medido | ~3k |
+| 13:22 | Válido dos perfis: worker mesh 1,39–1,49 ms/chunk estável nas 3 rodadas E (fix bug-607 segura); longTasks 88–94% do tempo, render só 9–13% | — | mesher não é o gargalo aqui | ~1k |
+| 13:24 | Achado independente de GPU: `?tamanho=G` (denso) mesha 100% na MAIN thread (worker 0 ms, 3,47 ms/chunk vs 0,33 no E) — suspeita `buildAll()` chunks.ts:222 chamar o `remesh()` síncrono | client/src/chunks.ts | não investigado | ~1k |
+| 13:40 | 2ª bateria (aceleração de hardware LIGADA): GPU real = ANGLE (NVIDIA RTX 2060) D3D11, timer de GPU ativo | Downloads/perf-bench-*T16-*.json | 7 perfis, 1 limpo | ~2k |
+| 13:42 | RODADA LIMPA (16:05:18, 30s, E): **59 fps**, p50 16,7 · p95 17,3 · p99 35,2 · max 128 ms; GPU 5,44 ms médio / 10,19 p95; longTasks 147 ms em 30 s (era 27.895 no WARP); carga 2815 ms (era 6020) | — | trava no vsync de 60 | ~2k |
+| 13:44 | 6 das 7 rodadas CONTAMINADAS por abas simultâneas (exports colidindo no mesmo segundo, max frametime 3,6–25,5 s = throttle de aba em background, carga do 60s = 55.694 ms) | — | A/B do semvida ainda não medido | ~1k |
+| 13:45 | Worker mesh REAL: 7094 ms / 8475 chunks = 0,84 ms/chunk (era 1,45 sob WARP, que roubava núcleo dos 4 workers) | — | fix bug-607 confirmado na GPU real | ~1k |
+| 14:00 | 3ª bateria, uma aba por vez: 5 perfis LIMPOS | Downloads/perf-bench-*T16-1[1-4]*.json | todas 59-60 fps, p50 16,7 · p95 17,0-17,1 · longTasks 0 ms | ~2k |
+| 14:02 | A/B do `?semvida` LIMPO: GPU 5,31→4,74 ms médio (−10,7%), p95 9,92→9,16 (−7,7%), render CPU 5,30→4,73 (−10,8%); geometria idêntica | — | vida ambiental custa ~0,6 ms/frame, cabe folgado | ~1k |
+| 14:05 | bug-608 ABERTO no buglog: mundo denso carrega 2-4x mais devagar que o E; `buildAll` síncrono, worker 0 ms | client/src/chunks.ts:222 | não consertado | ~2k |
+| 13:20 | Edited client/src/chunks.ts | 4→9 lines | ~122 |
+| 13:20 | Edited client/src/chunks.ts | inline fix | ~23 |
+| 13:20 | Edited client/src/chunks.ts | modified pediu() | ~294 |
+| 13:20 | Edited client/src/chunks.ts | added 1 condition(s) | ~266 |
+| 13:21 | Edited client/src/chunks.ts | modified buildAll() | ~156 |
+| 13:21 | Edited client/src/chunks.ts | modified enfileirar() | ~144 |
+| 13:21 | Edited client/src/chunks.ts | modified if() | ~150 |
+| 13:21 | Edited client/src/chunks.ts | 4→5 lines | ~64 |
+| 13:21 | Edited client/src/chunks.ts | expanded (+8 lines) | ~91 |
+| 13:21 | Edited client/src/chunks.ts | modified while() | ~66 |
+| 13:21 | Edited client/src/chunks.ts | modified for() | ~47 |
+| 13:21 | Edited client/src/chunks.ts | 3→4 lines | ~79 |
+| 13:22 | Edited client/src/main.ts | added 1 condition(s) | ~179 |
+| 13:22 | Edited client/src/main.ts | modified DENSO() | ~381 |
+| 13:22 | Edited client/src/main.ts | concluir() → ENFILEIRA() | ~66 |
+| 13:22 | Edited client/src/main.ts | concluir() → novo() | ~90 |
+| 13:22 | Edited client/src/hud.ts | expanded (+6 lines) | ~71 |
+| 13:22 | Edited client/src/progressoCarga.ts | 3→5 lines | ~89 |
+| 13:26 | Edited client/src/chunks.ts | expanded (+9 lines) | ~205 |
+| 13:26 | Edited client/src/chunks.ts | modified modoCarga() | ~81 |
+| 13:26 | Edited client/src/chunks.ts | 5→6 lines | ~96 |
+| 13:26 | Edited client/src/main.ts | modified DENSO() | ~298 |
+| 13:54 | Edited scripts/toque-shot.mjs | modified for() | ~152 |
+| 14:20 | bug-608 CONSERTADO: `buildAll` enfileira (etiqueta `carga` viaja no JobMesh), caminho `carga` novo no perfil, ramo denso drena no laço, portão `filaPendente === 0` fecha a tela nos dois mundos | client/src/{chunks,main,hud,progressoCarga}.ts | A/B headless G: main 2096 → 444 ms (−79%), worker 0 → 3325 ms | ~6k |
+| 14:35 | ⚠️ Relógio de parede da carga G em SwiftShader PIOROU 5,4 → 28 s: a fila anda 1×/frame e a 3 fps vira refém do FPS | client/src/{chunks,main}.ts | teto de carga 1024 + orçamento 50 ms na tela de carga → 10,9 s; A/B da máquina real ainda falta | ~2k |
+| 14:45 | Smoke `modo` falhou 19 asserções — culpa MINHA: os servidores de A/B em 8098/8099 são exatamente as portas do cenário. Derrubados → 15/15 | scripts/smoke.mjs | do-not-repeat: cenários usam 8091–8109, não só 8091–8096 | ~2k |
+| 14:55 | `shots:toque` seção A caiu (3 ✗): os 8 scripts sondavam prontidão só por `#hotbar .slot`, que existe ANTES da tela de carga sair — no mundo denso passaram a medir por baixo da tela | scripts/*-shot*.mjs | sonda agora exige `!document.getElementById('load-tela')` | ~2k |
+| 14:13 | Session end: 23 writes across 5 files (chunks.ts, main.ts, hud.ts, progressoCarga.ts, toque-shot.mjs) | 10 reads | ~55650 tok |
+| 17:05 | A/B do bug-608 na MÁQUINA REAL (RTX 2060, `?bench&tamanho=G`, 5174 antes × 5173 depois) | Downloads/perf-bench-*T19-59/T20-00*.json | main 8086 → 596 ms (−93%), worker 0 → 4913, **pior travada 9489 → 99 ms**, carga 11190 → 6820 ms | ~3k |
+| 17:08 | Rótulo do perfil confirmado no JSON: antes `fila:(2048, 8086)`, depois `carga:(2048, 596)` e `fila:(0,0)` | client/src/chunks.ts | a mistura buildAll×streaming acabou | ~1k |
+| 17:10 | A piora de relógio de parede do SwiftShader NÃO reproduz na máquina real (6820 está DENTRO da faixa velha de 6019–11338) | — | o conserto fica | ~1k |
+| 17:20 | Commit do fix: `f941567` fix(perf) bug-608 (4 fontes + 8 scripts de sonda) | client/src, scripts/ | main, 1 à frente da origin | ~2k |
+| 17:22 | Handoff: STATUS da sessão 64 escrito, servidores de teste (5173/5174) derrubados | .wolf/STATUS.md | faltam `chore(build)` do dist e `docs(wolf)` | ~2k |
+| 17:30 | Commit do dist: `19292b1` chore(build) — é o binário que a escola baixa e o que rodou a bateria | client/dist | main | ~1k |
+| 17:32 | Session end — sessão 64 fechada: bug-608 medido, consertado e validado nas duas máquinas | .wolf/ | 3 commits + push | ~2k |

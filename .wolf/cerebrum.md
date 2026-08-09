@@ -894,6 +894,29 @@ sem emulação de toque, com clique real no canvas pra travar o ponteiro. A seç
 de vez ainda devolve o menu de pausa") existe porque a correção podia esconder o menu pra sempre —
 e o A/B mostra que ela pega exatamente isso.
 
+### [2026-08-09, sessão 64] Uma medida só vale se a configuração medida EXECUTA o caminho
+
+O `buildAll` ficou síncrono por três semanas com a justificativa escrita no código: *"no perfil do
+lab eles foram 0% do custo — `remeshPorCaminho` acusou 5 267 remesh, TODOS pelo caminho `fila`"*.
+A frase é verdadeira e a conclusão é falsa: **aquele perfil é de mundo E**, onde `mundoLazy` é true
+e o `buildAll` nunca chega a ser chamado. Medir um caminho numa configuração que não o executa dá
+0% **por construção** — não é evidência de que ele é barato, é evidência de que ele não rodou.
+Antes de citar um perfil como prova de que algo custa pouco, confira que o cenário do perfil passa
+por lá. O sintoma some no lugar mais provável de olhar: `stream.colunas = 0` no mesmo JSON dizia,
+o tempo todo, que aquele mundo não tinha streaming nenhum.
+
+### [2026-08-09, sessão 64] Fila que anda 1×/frame faz o tempo de carga ser refém do FPS
+
+Tirar trabalho da main thread não é de graça: `trabalho / (orçamento_ms × fps)`. Trocar o laço
+bloqueante do `buildAll` por fila cortou a main thread em 79% (2 096 → 444 ms) **e triplicou o
+relógio de parede da carga em SwiftShader** (5,4 → 28 s), porque a 3 fps só há 3 oportunidades de
+drenar por segundo. A 60 fps o mesmo código carrega em ~1 s. **A máquina lenta — que é a do
+laboratório — é a mais punida por esse desenho**, então o número que decide tem que sair dela.
+Dois freios independentes viraram piso de frames e precisaram de valor próprio na carga: o
+orçamento em ms (6 → 50) e o `TETO_CHUNKS_POR_FRAME` (64 → 1024). Sobra um terceiro, não mexido:
+a profundidade do pool (8 por worker = 32 jobs em voo) limita a ~64 idas e voltas, e cada uma
+custa pelo menos um frame.
+
 ## Do-Not-Repeat
 
 - [2026-08-08] **PERF medida no vite DEV MENTE — o número vale no `dist` compilado, e só nele.**
@@ -908,6 +931,26 @@ e o A/B mostra que ela pega exatamente isso.
 - [2026-08-08] **`npm run smoke` usa as portas 8091–8096.** Deixar um servidor de A/B em 8091/
   8092 derruba os smokes `mundo` e `kicar` com 13 falhas cujo texto não tem NADA a ver com a
   mudança em teste ("ana recebeu `kicked`…"). Liberar as portas antes: `fuser -k 8091/tcp`.
+- [2026-08-09] **CORREÇÃO DA LINHA ACIMA: a faixa dos smokes vai até 8109, não 8096.**
+  `grep -n "porta:" scripts/smoke.mjs` lista 8091–8105, 8107 e 8109; o cenário `modo` usa
+  **8098 e 8099**. Escolhi 8098/8099 pro A/B de dist justamente por "estarem fora de 8091–8096"
+  e derrubei o `modo` com **19 asserções**, todas do primeiro ✗ em diante ("ana entrou em
+  criativo (recebeu 0 msg de modo)") — texto que não sugere porta nenhuma, e o smoke falha
+  IGUAL isolado, então a flakiness não é pista. Servidor local de A/B: use 5173 ou 8181+, e
+  confira com `ss -ltn` antes. Os `shots:*` do jogo (f10 8111, toque 8108, esc 8141) também
+  moram por ali.
+- [2026-08-09] **`npm run shots:luz` NÃO sobe servidor — ele espera algo na 5173.** Diferente do
+  f10/toque/esc, que servem `client/dist` pela própria porta de jogo. Sem servidor ele não
+  falha: imprime `t=0s …`, `t=15s …` até o teto de 180 s **por cena**, com o log do Bash em
+  background VAZIO (buffer), e parece travado. Subir antes:
+  `cd client/dist && python3 -m http.server 5173 --bind 127.0.0.1`.
+- [2026-08-09] **Os 8 scripts de `shots:*` sondam prontidão por `#hotbar .slot`, que aparece
+  ANTES de a tela de carga sair.** A hotbar nasce no `startGame`; a `#load-tela` só some quando
+  o mundo está montado. Enquanto o mundo denso fechava a tela na hora isso empatava — no dia em
+  que ele passou a esperar a malha (bug-608), os scripts passaram a clicar e medir POR BAIXO da
+  tela de carga, e o `shots:toque` acusou 3 ✗ na seção A ("a barra de toque está na tela antes
+  do ☰") sem nada a ver com a mudança. A sonda certa pede as duas coisas:
+  `!!document.querySelector('#hotbar .slot') && !document.getElementById('load-tela')`.
 - [2026-08-08] **`pkill -f "vite --port 5174"` mata o PRÓPRIO script** (o padrão casa com a
   linha de comando do bash que o contém) — sai com exit 144 e o resto do script nunca roda.
   Matar pelo DONO DA PORTA: `fuser -k 5174/tcp`.

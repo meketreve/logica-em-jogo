@@ -1,6 +1,112 @@
 # STATUS — Projeto "Lógica em Jogo" (jogo voxel educacional)
 
 > Single source of truth for resuming work. Read this FIRST when starting a session.
+> **SESSÃO 64 (2026-08-09) — O FPS DA MÁQUINA REAL FOI MEDIDO (60, NO TETO DO VSYNC), E A
+> BATERIA ACHOU O bug-608: MUNDO DENSO MESHAVA 100% NA MAIN THREAD.**
+> Pedido: gerar o link de localhost pro `?bench` rodar no navegador do Windows (a pendência que a
+> 63 deixou). Foram **TRÊS baterias** até um número válido, e as duas primeiras morreram por
+> motivos que valem mais que os números.
+>
+> ⚠️ **1ª bateria — os 4 perfis rodaram em SOFTWARE.** `dispositivo.gpu` acusava
+> `ANGLE (Microsoft, Microsoft Basic Render Driver, D3D11)` = **WARP**, o rasterizador por CPU,
+> nos quatro. A máquina tem **RTX 2060, driver 32.0.15.9186, Status OK** — era a **aceleração de
+> hardware desligada no Chrome**. Mesmo buraco do SwiftShader do WSL, no Windows. 13 fps.
+> ⚠️ **2ª bateria — 6 das 7 rodadas contaminadas por ABAS SIMULTÂNEAS.** As provas: dois exports
+> no MESMO segundo (16:06:06 e 16:07:16/17), maior frametime de **3,6 a 25,5 SEGUNDOS** (aba em
+> segundo plano congela o `requestAnimationFrame`), `carga` de 55.694 ms numa rodada — e o p50
+> continuando 16,7 ms em todas, porque enquanto visível ela rodava no cap.
+>
+> ✅ **3ª bateria, uma aba por vez, 5 rodadas: TODAS 59–60 fps.** p50 **16,7** · p95 **17,0–17,1**
+> · p99 18,5–26 · **`longTasks` = 0 ms** em 30 e em 60 s de jogo (era 27.895 ms sob WARP) ·
+> 1 ou 2 frames acima de 50 ms em ~1790 · **GPU 5,3 / 9,9 ms p95** contra 16,7 de orçamento ·
+> carga do mundo E **2735–2788 ms**. **p50 = 16,7 é o teto do vsync, não o limite da máquina.**
+> Mesh no worker **0,74–0,81 ms/chunk** estável nas 3 rodadas E — o fix do bug-607 confirmado na
+> GPU real. **A/B do `?semvida` limpo:** GPU 5,31 → 4,74 ms médio (−10,7%), p95 9,92 → 9,16
+> (−7,7%), render CPU 5,30 → 4,73, **geometria idêntica** — vida ambiental custa ~0,6 ms/frame e
+> cabe folgado. Não há motivo de desempenho pra desligar.
+> ⚠️ **Ressalva honesta:** o "pouco fps na máquina de casa" que abriu o bug-607 era provavelmente
+> a aceleração desligada. A regressão de 63% no mesher era real e medida na CPU, mas nenhum
+> conserto de mesher tira 13 fps de um rasterizador por CPU. Os dois achados ficam, com pesos
+> diferentes.
+>
+> 🔧 **bug-608 FIXED — o mundo DENSO carregava 2 a 4× mais devagar que o ENORME.** `?bench&tamanho=G`
+> gastava **6.019 e 11.338 ms** de carga contra 2.735 do E, com **`remeshWorkerMs = 0`**: o
+> `buildAll` (`chunks.ts`) montava os 2 048 chunks pelo `remesh()` SÍNCRONO e o pool de 4 workers
+> nunca via um job. **A justificativa escrita no código estava medida no mundo errado** — *"no
+> perfil do lab foram 0% do custo, TODOS pelo caminho `fila`"* é de um perfil de mundo **E**, onde
+> `buildAll` nunca é chamado. Segundo defeito, de medição: ele marcava `caminho = "fila"`, então o
+> perfil do G lia como streaming num mundo com `stream.colunas = 0`.
+> **O conserto:** `buildAll` ENFILEIRA (etiqueta `carga` viajando no `JobMesh`, porque o custo é
+> cobrado na volta do worker), caminho `carga` novo no `porCaminho`, ramo `else` no laço drenando
+> a fila do denso, `modoCarga` fora do `if (mundoLazy)`, e os **dois** `loading.concluir()`
+> imediatos do denso (boot e troca de aula) removidos — quem fecha a tela agora é o portão
+> `filaPendente === 0`, o mesmo do E.
+> **A/B headless nos dists compilados dos dois lados (`?bench=15&tamanho=G`): main thread
+> 2.096,4 → 443,6 ms (−79%), worker 0 → 3.325 ms.**
+>
+> ⚠️ **E O A/B DEVOLVEU UMA SEGUNDA LIÇÃO, CONTRA MIM:** tirar da main thread não é de graça. O
+> relógio de PAREDE da carga em SwiftShader **piorou de 5,4 s pra 28 s**, porque a fila anda
+> 1×/frame e a 3 fps só há 3 chances de drenar por segundo. Dois freios viraram piso de frames e
+> ganharam valor próprio na carga (`TETO_CHUNKS_POR_FRAME_CARGA = 1024`, orçamento 50 ms) e o
+> número caiu pra 10,9 s — **ainda pior que o baseline em SwiftShader, melhor a 60 fps**. Sobra um
+> terceiro freio NÃO mexido: a profundidade do pool (8/worker = 32 em voo) limita a ~64 idas e
+> voltas, uma por frame. **A máquina lenta é a mais punida por esse desenho, e a máquina lenta é a
+> do laboratório — então esse número tem que sair de lá.**
+>
+> **Bateria verde:** typecheck 3/3 · **811 testes** · build · **15/15 smokes** · `shots:luz` 5/5
+> (razão 0,34) · `shots:f10` · `shots:toque` · `shots:esc` · `shots:tablet` · `shots:craft` ·
+> `shots:amigos` · `shots:comida`. (`shots:corrida` NÃO roda na bateria: precisa de servidor
+> subido à mão com `cenarios/aula7-corrida.ljw`.)
+> ⚠️ **Dois tropeços meus na bateria, os dois no do-not-repeat:** (1) o smoke `modo` caiu com 19
+> asserções porque meus servidores de A/B estavam em **8098/8099**, que são as portas DELE — a
+> faixa dos cenários vai até **8109**, não até 8096; (2) o `shots:toque` acusou 3 ✗ na seção A
+> porque os **8 scripts de shot** sondam prontidão por `#hotbar .slot`, que existe ANTES de a tela
+> de carga sair — no mundo denso passaram a medir por baixo dela. A sonda agora exige também
+> `!document.getElementById('load-tela')`.
+>
+> ✅ **O A/B DA MÁQUINA REAL SAIU, E ELE ABSOLVE O CONSERTO** (RTX 2060, `?bench&tamanho=G`, um
+> dist de cada lado, 1 rodada por lado):
+> | | antes | depois |
+> |---|---|---|
+> | mesh na **main thread** | 8.086 ms | **596 ms** (−93%) |
+> | mesh no worker | 0 ms | 4.913 ms |
+> | **pior travada** | **9.489 ms** | **99 ms** |
+> | longTasks da carga | 10.227 ms | 357 ms |
+> | carga total | 11.190 ms | 6.820 ms |
+> | fps em jogo | 59 (p95 18,9) | 59 (p95 18,6) |
+>
+> **A trava de 9,5 SEGUNDOS na cara do aluno virou 99 ms** — é esse o resultado, não o relógio de
+> parede. **A piora do SwiftShader NÃO reproduz na máquina real:** 6.820 ms cai DENTRO da faixa do
+> código velho (6.019 / 11.190 / 11.338 em três rodadas), cuja variância de ~2× segue **sem causa
+> identificada**. Com 1 amostra por lado o delta de carga total **não está fixado**; o que está
+> fora de dúvida é a main thread e a travada, consistentes em TODAS as amostras (main velha:
+> 4.227 · 4.993 · 7.101 · 8.086 · 8.255 ms; nova: 596).
+> **As fases passaram a dizer a verdade:** `mundo` 9.089 → 3.208 ms e `malha` 404 → 2.250 ms — o
+> `buildAll` vinha sendo contado como worldgen. E o rótulo novo confere no JSON: antes
+> `fila:(2048, 8086)`, depois `carga:(2048, 596)` com `fila:(0,0)`.
+>
+> ✅ **O FIX ESTÁ COMMITADO: `f941567`** (`chunks.ts`, `main.ts`, `hud.ts`, `progressoCarga.ts` +
+> os 8 scripts de sonda). **FALTAM DOIS COMMITS pra fechar a 64, e eles são o primeiro passo da
+> próxima sessão:**
+> 1. **`chore(build)` do `client/dist`** — o dist é VERSIONADO e é o que a escola baixa; sem ele
+>    o launcher entrega o binário SEM o conserto. Já está construído na árvore
+>    (`index-CW3BJFzL.js` entra, `index-Dk05XoiX.js` sai) e foi ele que rodou em toda a bateria.
+> 2. **`docs(wolf)`** do `.wolf/` (STATUS, buglog, cerebrum, memory, anatomy).
+> Depois: **`git push`** — o local fica 1 commit à frente da origin.
+>
+> 🚀 **PRÓXIMA FASE (depois dos dois commits):** se alguém quiser o delta de **carga total** com
+> número honesto, são **3 rodadas por lado na máquina real** — a variância de ~2× do lado velho é
+> grande demais pra uma amostra decidir, e a causa dessa variância segue desconhecida. Candidato
+> seguinte se a carga ainda incomodar: **a profundidade do pool na carga** (`PROFUNDIDADE_CARGA = 8`
+> por worker = 32 jobs em voo → ~64 idas e voltas, uma por frame). ⚠️ Esse número tem A/B próprio
+> documentado em `meshPool.ts` — e ele também foi medido em mundo E, então vale reler com a lição
+> da 64 na mão.
+>
+> 🔧 **Como remontar o A/B de dist (foi assim que esta sessão mediu):**
+> `git archive HEAD client/dist | tar -x -C /tmp/antes --strip-components=2` → um
+> `python3 -m http.server` em cada pasta → `node scripts/bench-headless.mjs "URL/?bench=15&tamanho=G"`.
+> **Portas: 5173/5174 ou 8181+ — NUNCA 8090–8141** (smokes e shots moram lá).
+> Servidores desta sessão já foram derrubados.
 > **SESSÃO 63 (2026-08-08) — "POUCO FPS NA MÁQUINA DE CASA": O MESHER TINHA FICADO 63% MAIS
 > LENTO, E A CAUSA NÃO ESTAVA NO MESHER.** O pedido foi listar as mudanças desde 06/08 (41
 > commits, +9.081/−4.818 em 69 arquivos) e revisá-las contra a queda de FPS. **bug-607 FIXED.**

@@ -4627,6 +4627,30 @@
    "related_bugs": [],
    "occurrences": 1,
    "last_seen": "2026-08-08T21:00:00Z"
+  },
+  {
+   "id": "bug-608",
+   "timestamp": "2026-08-09T16:20:00Z",
+   "error_message": "mundo DENSO (P/M/G) carrega 2x a 4x mais devagar que o mundo E ENORME: `?bench&tamanho=G` gasta 6.019 e 11.338 ms de carga contra 2.735-2.788 ms do E, com `remeshWorkerMs = 0` nos dois perfis",
+   "file": "client/src/chunks.ts",
+   "root_cause": "`buildAll()` (chunks.ts:222) monta o mundo denso inteiro chamando o `remesh()` SINCRONO num triplo laco, entao o pool de 4 workers nunca recebe job — no perfil de mundo G os 2048 chunks saem 100% na main thread (2,06 e 4,03 ms/chunk; worker 0 ms), contra 0,74-0,81 ms/chunk no worker do mundo E. A justificativa escrita em chunks.ts:85-91 (\"no perfil do lab foram 0% do custo — 5267 remesh, TODOS pelo caminho fila\") esta medida no mundo ERRADO: aquele perfil e de mundo E, onde `mundoLazy` e true e o `buildAll` nunca e chamado (main.ts:1126 so o chama com `!this.mundoLazy`), entao medir aquele caminho ali da 0% por construcao. Em mundo denso ele e 100% do custo de mesh. SEGUNDO defeito, de medicao: `buildAll` marca `this.caminho = \"fila\"` (chunks.ts:223), o mesmo rotulo do streaming, entao `remeshPorCaminho.fila` mistura os dois e o perfil do mundo G le como custo de streaming num mundo que nem tem streaming (`stream.colunas = 0`).",
+   "fix": "FEITO em 2026-08-09. (1) `buildAll` (chunks.ts) ENFILEIRA em vez de chamar o `remesh` sincrono, com a etiqueta `carga: true` viajando na fila e no `JobMesh` — o custo e cobrado na VOLTA do worker, frames depois, entao a etiqueta tem que viajar com o job. (2) Caminho novo `carga` no `porCaminho` (e no tipo do hud), separado do `fila`. (3) main.ts: o mundo denso ganhou um ramo `else` que chama `processarFila` no laco, o `modoCarga` subiu pra fora do `if (mundoLazy)`, e os DOIS `loading.concluir()` imediatos do denso (boot e troca de aula) sairam — quem fecha a tela agora e o portao `filaPendente === 0`, o mesmo do mundo E. (4) `TETO_CHUNKS_POR_FRAME_CARGA = 1024` enquanto `modoCarga`: o teto de 64/frame virava um PISO de frames (2048 chunks nao saem em menos de 32 frames). (5) Orcamento de 50 ms/frame no ramo denso enquanto a tela de carga esta na frente. MEDIDO (headless SwiftShader, dist compilado dos dois lados, `?bench=15&tamanho=G`): main thread 2096,4 -> 443,6 ms (-79%), worker 0 -> 3325 ms; a trava unica virou fila drenada com a tela de carga animando. ATENCAO — o relogio de parede da carga em SwiftShader PIOROU: 5377 -> 10902 ms, porque a fila anda 1x/frame e a 3 fps isso e ruinoso; a 60 fps os ~64 round-trips do pool (32 jobs em voo) custam ~1 s. O A/B que vale e o da maquina real, e ele AINDA NAO FOI FEITO. Efeito colateral consertado no mesmo commit: os 8 scripts de shot sondavam prontidao so por `#hotbar .slot`, que existe ANTES da tela de carga sair — no denso isso passou a medir por baixo da tela (`shots:toque` secao A, 3 falhas). A sonda agora exige tambem `!document.getElementById('load-tela')`. A/B DA MAQUINA REAL (RTX 2060, `?bench&tamanho=G`, dists servidos lado a lado, 1 rodada por lado): mesh na main thread 8.086 -> 596 ms (-93%), worker 0 -> 4.913 ms, **pior travada 9.489 -> 99 ms**, longTasks da carga 10.227 -> 357 ms, carga total 11.190 -> 6.820 ms. As fases passaram a dizer a verdade (`mundo` 9.089 -> 3.208 e `malha` 404 -> 2.250: o buildAll estava sendo contado como worldgen). O rotulo novo confere no JSON: antes `fila:(2048, 8086)`, depois `carga:(2048, 596)` com `fila:(0,0)`. A PIORA DE RELOGIO DE PAREDE DO SWIFTSHADER NAO REPRODUZ na maquina real — 6.820 ms cai DENTRO da faixa do codigo velho (6.019 / 11.190 / 11.338 em tres rodadas), cuja variancia de ~2x segue sem causa identificada. Com 1 amostra por lado o delta de carga total nao esta fixado; o que esta fora de duvida e a main thread e a travada, consistentes em todas as amostras (main velha: 4.227, 4.993, 7.101, 8.086, 8.255 ms; nova: 596).",
+   "tags": [
+    "performance",
+    "mesher",
+    "worker",
+    "mundo-denso",
+    "carga",
+    "bench",
+    "medicao",
+    "FIXED",
+    "fix-2026-08-09"
+   ],
+   "related_bugs": [
+    "bug-607"
+   ],
+   "occurrences": 1,
+   "last_seen": "2026-08-09T16:20:00Z"
   }
  ]
 }
