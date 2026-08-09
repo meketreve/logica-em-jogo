@@ -131,8 +131,12 @@ senão lado com parede; empate → base. Cliente inalterado.
     real por px continua valendo, como no uiScale.
   * Escopo mínimo travável: só destro/canhoto (espelhar) — já cobre o pedido mais comum.
     Botões reposicionáveis por arrasto = fase 2 (guarda x/y por botão no settings).
-* \[ ] **comer no tablet: o botão de COLOCAR vira de COMER quando tem comida no slot
-  selecionado** (2026-08-07, pedido no playtest da escola). No touch a ação de comer hoje é a
+* \[x] **comer no tablet: o botão de COLOCAR vira de COMER quando tem comida no slot
+  selecionado** — **FEITO** (sessão 59, commit `a70fb32`; `touch.ts` ganhou `setModoComer()` +
+  `atualizarBtnColocar()`, que decide o rótulo ▣ entre varinha ② / comer 🍎 / colocar ▣;
+  fiado em `main.ts:2216` pelos handlers do `modo`, da `vida` e do `aoRedesenhar` da hotbar,
+  então o "comer" SOME quando a barra de fome enche. A recusa final continua no servidor).
+  (2026-08-07, pedido no playtest da escola). No touch a ação de comer hoje é a
   mesma tecla/clique do PC (clique direito no main.ts:1305 já detecta comida e manda `comer`),
   mas o botão ▣ continua parecendo "colocar bloco". O gesto é o mesmo (tap no ▣), só o RÓTULO
   que muda — mesma mecânica do `setVarinha` (rotular o botão com ícone + nome). Refino:
@@ -144,8 +148,10 @@ senão lado com parede; empate → base. Cliente inalterado.
     mesmo com comida na mão. A recusa final continua no servidor (`comer` com fome cheia
     devolve o item intacto); esta regra é só pra UI não oferecer mordida inútil. Pode
     exigir guardar a fome no estado de HUD (o `vitals().aplicar` já recebe `fome`).
-* \[ ] **renomear o botão "blocos" → "mochila" no modo sobrevivência** (2026-08-07, pedido
-  do usuário). O botão 🧱 do topo do touch (touch.ts ~228) abre o inventário, mas em
+* \[x] **renomear o botão "blocos" → "mochila" no modo sobrevivência** — **FEITO** (sessão 59,
+  commit `a70fb32`; `setMochilaRotulo` em `touch.ts`, fiado no handler do `modo`
+  (`main.ts:785`) e no boot (`main.ts:1533`). Criativo continua "🧱 blocos").
+  (2026-08-07, pedido do usuário). O botão 🧱 do topo do touch (touch.ts ~228) abre o inventário, mas em
   sobrevivência o aluno o chama de "mochila" (e o inventário do servidor é literalmente a
   `Mochila` do `client/src/mochila.ts`). Refino:
   * Só troca o RÓTULO quando `mochila.ativa` (sobrevivência): `rotular(btn, "🎒", "mochila")`.
@@ -320,8 +326,12 @@ Singleplayer (Web Worker) não tem fs — chat não vira arquivo lá, como plane
   Carvão e diamante saem do minério como ITEM; ferro e ouro continuam bloco e vão à fornalha.
   Tempo de   queima por combustível (carvão rende 8× a madeira), e a fornalha é o primeiro bloco
   com inventário — o encanamento (`containers.ts`) nasceu uma vez e serve ao baú.
-* \[ ] **fornalha: filtrar o que entra no slot de COMBUSTÍVEL** (2026-08-07, playtest na
-  escola) — hoje dá pra colocar QUALQUER item no slot de baixo da fornalha (ex.: grama,
+* \[x] **fornalha: filtrar o que entra no slot de COMBUSTÍVEL** — **FEITO** (B1 da sessão 58,
+  commit `9d4c485`; `moverBloqueadoPorCombustivel` em `shared/src/containers.ts:120` recusa
+  item que não queima — só `COMBUSTIVEIS` — com aviso no chat *"Este item não queima: o slot
+  de combustível da fornalha só aceita lenha ou carvão."*. Testes em `containers.test.ts` e
+  `fornalha.session.test.ts`).
+  (2026-08-07, playtest na escola) — hoje dá pra colocar QUALQUER item no slot de baixo da fornalha (ex.: grama,
   picareta), que não queima e fica preso até a criança perceber. Regra: o slot de
   combustível só aceita item com `energiaCombustivel > 0` (a mesma tabela da F10b); se
   não tem energia, o mover/deixar é RECUSADO (item volta pra origem + aviso), igual o
@@ -331,8 +341,15 @@ Singleplayer (Web Worker) não tem fs — chat não vira arquivo lá, como plane
 * \[x] **algodão no lugar da lã-de-trigo** — **FEITO** (§🍖 F10c, sessão 46). Pé selvagem no
   cerrado larga semente por sorte; cultivado maduro dá 1–2 capulhos + a semente. `3 algodão →
   1 lã branca`, e o trigo voltou a ser só comida.
-* \[ ] **comidas/cultivos: cenoura, batata, beterraba, melancia, banana e aipim** (2026-08-07,
-  pedido no playtest da escola). Refino:
+* \[x] **comidas/cultivos: cenoura, batata, beterraba, melancia, banana e aipim** — **FEITO**
+  (§🍖 F10h, sessão 58, commit `9d4c485`; blocos 200-229 — 4 estágios + pé selvagem por
+  cultura — e itens 916-922 em `blocks.ts`; `PLANTAS` foi de 2 pra 8 linhas; selvagem por bioma
+  em `biomas.ts`/`worldgen.ts`; saciedade em `comida.ts`; **batata cozida** (`ITEM_BATATA_COZIDA`
+  = 922, saciedade 5 = pão) na tabela `COZIMENTO` de `fornalha.ts`; TILEs 135-164 no mesher.
+  Testes: `culturas.test.ts` novo + `algodao/rules/blocks/session/sobrevivencia` atualizados.
+  ⚠️ Esta linha é a origem do **bug-607**: `PLANTAS` 2→8 tornou a varredura linear de
+  `plantaDe`/`plantaPorSelvagem` cara no mesher — consertado na sessão 63, `ef53d8f`).
+  (2026-08-07, pedido no playtest da escola). Refino:
   * Mesmo molde do algodão (F10c): semente plantada no solo, pé maduro larga o item + a
     semente — vale pros seis. Comer enche a fome (F3/F6), como o trigo.
   * **BATATA COZIDA na fornalha**: receita nova na fornalha (tabela da F10b) — batata crua →
@@ -400,7 +417,13 @@ ferramenta certa quebra rápido, gasta, e precisa ser refeita.
   a hotbar do PC. Ela hoje fica visível atrás dos painéis, e no painel de container aparece
   DUAS vezes (a de verdade atrás e a faixa de 9 slots dentro do painel), que é a confusão que o
   pedido aponta.
-* \[ ] **clique e arraste (click'n'drag) pra mover item na versão PC** — hoje o item é
+* \[x] **clique e arraste (click'n'drag) pra mover item na versão PC** — **FEITO** (T3 da
+  sessão 59, commit `a70fb32`; `client/src/slotDrag.ts` NOVO — `ArrastoDeSlot` (linha 77)
+  põe o SEGURAR→arrastar→soltar POR CIMA do gesto tocar-origem/destino, que continua valendo
+  no clique sem arrasto. Traz o fantasma no cursor e a divisão de pilha (clique DIREITO pega
+  a metade). Anexado à mochila (`inventory.ts`) e ao painel de transferência (`container.ts`).
+  O protocolo ganhou `qtd?` em `mover_item`/`mover_container` — quem aplica segue sendo o
+  servidor). Hoje o item é
   movido por gesto tocar-origem/tocar-destino (que serve pro tablet). No PC a criança
   espera o Minecraft: SEGURAR o item, mover o mouse e soltar. Isso destrava também o
   **dividir pilha** (segurado, botão direito solta 1 por vez; tecla ou gesto pra dividir
@@ -413,7 +436,11 @@ ferramenta certa quebra rápido, gasta, e precisa ser refeita.
     cima) — modo "espalhar".
   * Continuar aceitando o gesto tocar-origem/tocar-destino no tablet (sem mouse); o
     handler de toque já é outro caminho.
-* \[ ] **shift-clique pra mover item direto pro OUTRO inventário** (baú ↔ mochila, e mochila
+* \[x] **shift-clique pra mover item direto pro OUTRO inventário** — **FEITO** (T4 da sessão
+  59, commit `a70fb32`; `primeiroLugar` em `slotDrag.ts:63` acha o primeiro slot que aceita —
+  mesmo id com espaço, ou vazio — na MESMA ordem do `adicionar` do servidor. Mochila:
+  hotbar↔grade. Transferência: mochila↔container).
+  (baú ↔ mochila, e mochila
   ↔ hotbar). Click + Shift no PC (e no toque: botão dedicado ou gesto) joga o item da
   origem pro primeiro espaço equivalente do destino — mochila→baú, baú→mochila,
   mochila↔hotbar. Sem isso hoje a criança faz tocar-origem/tocar-destino sempre. Refino:

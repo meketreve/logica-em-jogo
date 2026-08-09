@@ -1773,3 +1773,11 @@ passa pelo próprio portão) · 5 prints da pista. **PLAYTEST PENDENTE.**
 | 20:44 | Bateria | typecheck 3/3, 811 testes, build, smoke 15/15 | verde | ~1k |
 | 20:50 | bug-607 no buglog (indent=1), 1 Key Learning + 4 do-not-repeat, STATUS sessão 63 | .wolf/ | registrado | ~2k |
 | 20:55 | Session end: 2 writes across 1 files (blocks.ts) | 1 reads | ~12118 tok |
+| 21:32 | Edited todo.md | 2→6 lines | ~142 |
+| 21:32 | Edited todo.md | 2→4 lines | ~96 |
+| 21:32 | Edited todo.md | 2→6 lines | ~138 |
+| 21:32 | Edited todo.md | expanded (+7 lines) | ~211 |
+| 21:33 | Edited todo.md | expanded (+6 lines) | ~177 |
+| 21:33 | Edited todo.md | 2→6 lines | ~117 |
+| 21:05 | `openwolf scan` — anatomy regenerada | .wolf/anatomy.md, anatomy-index.json | 331 → 336 arquivos | ~1k |
+| 21:10 | Fechou a deriva do todo.md da sessão 62: 6 itens `[ ]` → `[x]` com evidência VERIFICADA no código | todo.md | 16 abertos restantes, todos legítimos | ~2k |

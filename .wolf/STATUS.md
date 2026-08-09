@@ -36,9 +36,16 @@
 > ⚠️ Os 2 smokes que falharam na 1ª tentativa (`mundo`, `kicar`) eram **as portas 8091/8092
 > ocupadas pelo meu servidor de A/B** — os cenários usam 8091–8096. No do-not-repeat.
 >
-> 🚀 **PRÓXIMA FASE:** (a) a deriva do `todo.md` da sessão 62 continua aberta — 6 itens `[ ]`
-> com o código já no repo (evidência listada abaixo, na sessão 62); é a tarefa mais barata da
-> fila. (b) O bench roda aqui em **SwiftShader** (WSL sem `/dev/dri`, ~12 fps, `gpu: null`):
+> ✅ **A DERIVA DO `todo.md` FOI FECHADA NESTA SESSÃO.** Os 6 itens que a 62 achou `[ ]` com o
+> código já no repo foram marcados `[x]` **com a evidência verificada no código antes de
+> marcar** (não pela memória do STATUS): comer no tablet (`setModoComer`, `main.ts:2216`) ·
+> 🧱→🎒 (`setMochilaRotulo`, `main.ts:785`) · fornalha filtra combustível
+> (`moverBloqueadoPorCombustivel`, `shared/src/containers.ts:120` — **não** o `session/`) ·
+> 6 cultivos + batata cozida (`ITEM_BATATA_COZIDA` em `fornalha.ts`) · click'n'drag
+> (`ArrastoDeSlot`, `slotDrag.ts:77`) · shift-clique (`primeiroLugar`, `slotDrag.ts:63`).
+> **Restam 16 itens abertos, todos legítimos.** `openwolf scan` rodado: 331 → **336 arquivos**.
+>
+> 🚀 **PRÓXIMA FASE:** O bench roda aqui em **SwiftShader** (WSL sem `/dev/dri`, ~12 fps, `gpu: null`):
 > os números de CPU/mesher valem, os de GPU não existem. **Medir o FPS percebido pede o
 > `?bench` no navegador da máquina real**, com o `dist` desta sessão.
 > **SESSÃO 62 (2026-08-08) — O `.sh` ALCANÇOU O `.bat` (bug-606), E A DERIVA DO `todo.md`.**
