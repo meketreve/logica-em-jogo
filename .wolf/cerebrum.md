@@ -940,6 +940,27 @@ orçamento em ms (6 → 50) e o `TETO_CHUNKS_POR_FRAME` (64 → 1024). Sobra um 
 a profundidade do pool (8 por worker = 32 jobs em voo) limita a ~64 idas e voltas, e cada uma
 custa pelo menos um frame.
 
+### [2026-08-10, sessão 66] "Mesma condição que X" quase nunca é a MESMA condição
+
+O pedido "a hotbar some com qualquer menu aberto" virou, na sessão 58, o ESPELHO da condição do
+overlay (`toggle("hidden", !A)` com o mesmo `A`). Espelhar deu o oposto do pedido: o overlay some
+justamente **porque** o painel abriu (pra não cobrir o painel), então a barra passou a aparecer com
+painel, com chat e durante a carga, e a sumir só no menu de pausa — bug-614. **Dois elementos que
+reagem aos mesmos estados quase nunca reagem com o mesmo sinal**: quando escrever "a mesma condição
+de", montar a tabela verdade dos estados (jogando / painel / chat / carga / pausa) antes de digitar
+a expressão, e deixar a tabela no comentário. O comentário certo já estava lá; era o código que
+discordava dele.
+
+### [2026-08-10, sessão 66] Guarda de UI colado num callback protege só aquele caminho
+
+O bug-610 (o `/amigos` prendia o mouse) foi consertado no callback de fechar o chat:
+`if (!open && !paineis.algumAberto) input.lock()`. Só que **quem pede pointer lock não é só esse
+callback** — o `reagendarLock` dispara `pedirLock()` 1,4 s depois de uma recusa, sem passar por
+guarda nenhum (bug-613). O sintoma volta por outra porta: recusa dentro da carência do Esc → o
+aluno abre a mochila → a tentativa atrasada trava o ponteiro por cima do painel. **Guarda de
+política mora no ponto de estrangulamento** (`pedirLock`), não em cada chamador; o `Input` não
+conhece painel, então quem conhece INJETA a pergunta (`input.podeTravar = () => …`).
+
 ## Do-Not-Repeat
 
 - [2026-08-10] **NÃO chamar a suíte completa de "verde" ou "quebrada" sem o baseline do
@@ -1026,6 +1047,20 @@ custa pelo menos um frame.
 
 ### Autoria de teste e de smoke
 
+- **[2026-08-10, sessão 66] Em shot headless, seção NOVA custa transição de pointer lock — meça
+  DENTRO de uma seção que já segura o ponteiro.** A verificação da hotbar (bug-614) nasceu como
+  seção B4 própria, e cada `Esc`/`voltar ao jogo` que ela precisou gastou a carência do Chrome:
+  numa rodada o chat não abriu e "✓ a hotbar sumiu com o chat aberto" passou **com o chat
+  FECHADO**; na outra a mochila não abriu e ainda derrubou a seção C, que herdava o estado. Movida
+  pra dentro das seções A e B2 (que já provaram lock na mão), custou ZERO transição e ficou
+  estável. E toda asserção de "sumiu" tem de exigir a causa na tela
+  (`ok(chatAberto && sobChat.escondida, …)`) — senão ela passa por AUSÊNCIA.
+- **[2026-08-10, sessão 66] Sonda que conta chamada de `requestPointerLock` conta 2 por
+  tentativa.** `pedirLock()` chama `requestPointerLock({unadjustedMovement:true})` e, no `catch`,
+  a forma antiga — uma tentativa lógica são duas chamadas. Ao ler `pedidos=2`, é UMA tentativa.
+  Carimbe o instante (`performance.now() - t0`): o caminho do comando aparece em <50 ms, a
+  tentativa atrasada do `reagendarLock` aparece ~600-1400 ms depois. Sem o carimbo não dá pra
+  dizer QUEM pediu, e a sonda vira acusação sem réu.
 - **[2026-08-06, sessão 48] Drop que virou SORTEIO derruba teste puro E smoke, e os dois se
   consertam de jeitos DIFERENTES.** A semente da colheita passou de 1 fixo pra 1–3 e quebrou 4
   asserções puras + 1 smoke (bug-583). No teste puro o `sorteio` é injetável: use as duas
@@ -1052,6 +1087,19 @@ custa pelo menos um frame.
 
 ### Ferramentas e ambiente
 
+- **[2026-08-10, sessão 66] Os scripts de shot deixam CHROME ÓRFÃO vivo, e ele sobrevive à
+  sessão.** Achados dois headless de `shots:luz` de **09/08 com 1 dia e 1h30 de vida**, ~420 MB de
+  RSS somados, ainda escutando 9334/9357. Isso é candidato direto à contenção que faz o bug-612
+  (3 testes de worldgen falhando só na suíte cheia, `STACK_TRACE_ERROR` sem mensagem). **Antes de
+  medir qualquer coisa — suíte, bench ou shot — rodar `pgrep -af "chrome-linux64/chrome
+  --headless"` e `ss -ltnp | grep 9[0-9][0-9][0-9]`**, e matar o que sobrou. Vale também pros
+  servidores de A/B (do-not-repeat das portas 8090-8141).
+- **[2026-08-10, sessão 66] `pgrep -f <padrão>` se AUTO-CASA quando o padrão está na linha de
+  comando do bash que o chama** — `until ! pgrep -f "tablet-shots"; do sleep 5; done` nunca sai,
+  porque o próprio `bash -c` carrega a string. Usar a classe de um caractere: `pgrep -f
+  "[t]ablet-shots"`. E `cmd | grep …` redirecionado pra arquivo **segura a saída inteira até o
+  fim** (o grep bufferiza fora de TTY): pra acompanhar script longo, redirecionar o script CRU e
+  filtrar na leitura.
 - **[2026-08-04, sessão 44] Gesto de TOQUE só se testa com `Input.dispatchTouchEvent` do CDP.**
   O `dispatchEvent(new PointerEvent(...))` do `tablet-shots.mjs` dispara o handler e NÃO gera o
   `click` de compatibilidade — e era o click que carregava o bug-572 (atravessa o `#overlay`

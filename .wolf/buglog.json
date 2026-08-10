@@ -4738,6 +4738,55 @@
    "related_bugs": [],
    "occurrences": 1,
    "last_seen": "2026-08-10T00:00:00Z"
+  },
+  {
+   "id": "bug-613",
+   "timestamp": "2026-08-10T00:00:00Z",
+   "error_message": "(achado pela sonda nova do shots:esc, sessão 66) o /amigos abria o painel e AINDA assim saíam 2 pedidos de requestPointerLock 588-747 ms depois do comando — o mouse voltava a ser capturado por cima do painel, o mesmo sintoma do bug-610 por outra porta",
+   "file": "client/src/input.ts",
+   "root_cause": "O guarda do bug-610 (`if (!open && !paineis.algumAberto) input.lock()`) está no callback de FECHAR O CHAT, em main.ts. A tentativa ATRASADA do `reagendarLock` (setTimeout de CARENCIA_ESC_MS = 1400 ms, armada quando o Chrome recusa um lock dentro da carência do Esc) chama `pedirLock()` DIRETO e não passa por esse guarda — ela só checa `locked`/`touchDevice`/`touch`, nunca a tela. Sequência real: Esc → clique em 'voltar ao jogo' recusado dentro da carência → retry armado → o aluno abre a mochila (ou um comando abre painel) → 1,4 s depois o ponteiro trava POR CIMA do painel. Os 2 pedidos por tentativa são o `pedirLock` chamando `requestPointerLock({unadjustedMovement:true})` e, no catch, a forma antiga — 1 tentativa = 2 chamadas na contagem da sonda.",
+   "fix": "`Input.podeTravar: () => boolean` (default `() => true`), checada na PRIMEIRA linha de `pedirLock()` — o ponto por onde passam o clique no canvas, o `lock()` e o retry atrasado. `main.ts` injeta `input.podeTravar = () => !paineis.algumAberto` logo depois de criar o `PainelHost`. Quando recusa, zera `pedindo` (não há tentativa no ar pra o menu de pausa desenhar). A/B no `shots:esc`: com o guarda 0 pedidos; trocando por `() => true` e reconstruindo o dist, voltam os 2 (588 e 651 ms do comando).",
+   "tags": [
+    "pointer-lock",
+    "input",
+    "paineis",
+    "ui",
+    "cliente",
+    "FIXED",
+    "bug-610",
+    "shots-esc"
+   ],
+   "related_bugs": [
+    "bug-610",
+    "bug-597",
+    "bug-585"
+   ],
+   "occurrences": 1,
+   "last_seen": "2026-08-10T00:00:00Z"
+  },
+  {
+   "id": "bug-614",
+   "timestamp": "2026-08-10T00:00:00Z",
+   "error_message": "a hotbar do PC NÃO sumia com painel, chat ou tela de carga na tela — ela sumia só no menu de pausa, que é o oposto do pedido do usuário registrado na sessão 58 (todo.md L437). No tablet nunca sumia.",
+   "file": "client/src/main.ts",
+   "root_cause": "`classList.toggle(tok, force)` ADICIONA a classe quando `force` é true. A 58 escreveu 'a MESMA condição do overlay' e implementou o espelho literal: overlay esconde com `A`, hotbar escondia com `!A`, sendo `A = benchRodando || loading.ativo || input.active || input.retomando || chat.open || panelOpen`. Espelhar dá o OPOSTO do pedido, porque o overlay some justamente quando o painel abre (pra não cobrir o painel) — logo a hotbar aparecia COM painel, COM chat e durante a CARGA, e só sumia no menu de pausa. No toque era pior: `input.active = locked || touch` é sempre true no tablet, então lá a barra nunca sumia. O comentário acima da linha descrevia o comportamento pedido, não o implementado.",
+   "fix": "`const noControle = benchRodando || input.active || input.retomando` e `toggle('hidden', !(noControle && !chat.open && !panelOpen && !loading.ativo))` — os dois conjuntos NÃO são espelho e o comentário passou a dizer por quê. `retomando` e `benchRodando` ficam do lado visível (carência de 1,25 s do Chrome no bug-597 senão a barra pisca; e as baterias de bench das sessões 63/64 foram medidas com a barra na tela). Prova: 4 asserções novas no `shots:esc` (dentro das seções A e B2, que já seguram o pointer lock) — com o dist do código velho as 3 que importam CAEM (altura 81px com a mochila aberta).",
+   "tags": [
+    "ui",
+    "hotbar",
+    "cliente",
+    "classList",
+    "FIXED",
+    "todo",
+    "playtest",
+    "sessao-58"
+   ],
+   "related_bugs": [
+    "bug-597",
+    "bug-610"
+   ],
+   "occurrences": 1,
+   "last_seen": "2026-08-10T00:00:00Z"
   }
  ]
 }

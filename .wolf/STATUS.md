@@ -1,6 +1,97 @@
 # STATUS — Projeto "Lógica em Jogo" (jogo voxel educacional)
 
 > Single source of truth for resuming work. Read this FIRST when starting a session.
+
+> **SESSÃO 66 (2026-08-10) — PLANO DE 4 FRENTES, E O F0 JÁ FECHOU COM DOIS BUGS: A HOTBAR
+> INVERTIDA (614) E UM IRMÃO DO 610 QUE A SONDA NOVA DESENTERROU (613).**
+> O pedido foi "plano pra arrumar os bugs e rever o código de esconder a hotbar". **A revisão da
+> hotbar achou bug de verdade — a condição estava INVERTIDA**, e o item L437 do `todo.md` estava
+> aberto com razão (não era deriva de documentação). **F0 CONCLUÍDO E VERDE**; F1/F2/F3 seguem
+> como plano abaixo, F4 esperando decisão.
+>
+> ✅ **bug-614 (F0) FIXED, `client/src/main.ts`.** Conserto aplicado, `noControle = benchRodando ||
+> input.active || input.retomando` e visível só com `noControle && !chat.open && !panelOpen &&
+> !loading.ativo`. **4 asserções novas no `shots:esc`**, e o A/B com o dist do código velho
+> derruba as 3 que importam (a barra media **81px de altura com a mochila aberta**).
+>
+> ✅ **bug-613 FIXED — e ele só apareceu porque a sonda nova passou a carimbar o INSTANTE do
+> pedido de lock.** Depois do `/amigos` ainda saíam **2 pedidos de `requestPointerLock`, 588-747 ms
+> depois do comando**, com o painel já na tela: é o `reagendarLock` (1,4 s depois de uma recusa)
+> chamando `pedirLock()` DIRETO, sem passar pelo guarda do bug-610 — que mora no callback de
+> fechar o chat, em `main.ts`. Sintoma real: Esc → "voltar ao jogo" recusado dentro da carência →
+> o aluno abre a mochila → 1,4 s depois o ponteiro trava POR CIMA do painel. **O conserto é no
+> ponto de estrangulamento:** `Input.podeTravar: () => boolean` checada na 1ª linha de
+> `pedirLock()`, e o `main.ts` injeta `() => !paineis.algumAberto`. A/B: com o guarda **0
+> pedidos**; trocando por `() => true` e reconstruindo o dist, voltam os **2 (588 e 651 ms)**.
+> ⚠️ **`pedidos=2` é UMA tentativa:** `pedirLock` chama a assinatura nova e, no `catch`, a antiga.
+>
+> **VERDE (F0):** typecheck 3/3 · **814/814 testes** · build · **15/15 smokes** · **`shots:esc` OK
+> (26+4 asserções)** · **`shots:tablet` 0 ✗** · `shots:toque` ✓ · `shots:f10` OK.
+> ⚠️ **`shots:tablet` NÃO sobe servidor: ele quer `npm run dev` na 5173** (está escrito no
+> cabeçalho do script). Sem isso a rodada inteira sai vermelha com "hotbar AUSENTE" + `SecurityError
+> IDBFactory` e parece regressão da UI — custou duas rodadas de 15 min aqui.
+> ⚠️ **Dois Chrome ÓRFÃOS de `shots:luz` de 09/08 estavam vivos há 1 dia** (~420 MB de RSS, portas
+> 9334/9357). Mortos. **É candidato direto à causa do bug-612** — está no cerebrum.
+>
+> ⚠️ **O ACHADO ORIGINAL (F0), `client/src/main.ts:300-303`:** `classList.toggle(tok, force)` ADICIONA
+> quando `force` é true. Chamando `A` a expressão de dentro, o overlay esconde com `A` e a hotbar
+> esconde com `!A` → **a hotbar aparece exatamente quando o menu de pausa some.** Resultado:
+> painel aberto, chat aberto e TELA DE CARGA deixam a barra na tela; ela só some no menu de pausa
+> (Esc). A 58 escreveu *"a MESMA condição do overlay"* e implementou espelho literal — **espelhar
+> dá o oposto**, porque o overlay some quando o painel abre justamente pra não cobrir o painel.
+> O comentário das linhas 295-299 descreve o que o código NÃO faz. No TABLET é pior:
+> `input.active = locked || touch` (`input.ts:129`) é sempre true no toque → lá a barra nunca some.
+> `.hidden { display:none !important }` (`client/index.html:25`), então é sumiço real, não z-index.
+> **O conserto:** `noControle = benchRodando || input.active || input.retomando`, e a hotbar fica
+> visível só com `noControle && !chat.open && !panelOpen && !loading.ativo`. Os dois conjuntos
+> **não são espelho** e o comentário tem de dizer por quê. `retomando` fica no lado visível
+> (carência de 1,25 s do Chrome, bug-597 — senão pisca); `benchRodando` também (63/64 mediram com
+> a barra na tela; tirá-la muda a base de comparação). **Prova:** seção nova no `esc-shot.mjs` +
+> `shots:tablet`, e **revertendo o fix a seção tem de CAIR** (senão é sonda vazia — lição do 610).
+>
+> **F1 — bug-612 (suíte completa).** ⚠️ **NÃO REPRODUZ:** 3 rodadas nesta sessão, **814/814 nas
+> três** (`npx vitest run` + `npm test` ×2). Logo é carga de máquina, não ordem fixa. Quadro =
+> reincidência do **bug-545**: o `shared/vitest.config.ts` (`maxWorkers: 8`, `testTimeout: 20000`)
+> foi calibrado com **392** testes e hoje são **814**, com mundos de 128³ (2 a 4,5 MB por fork).
+> `STACK_TRACE_ERROR` **sem mensagem** cheira a fork morto (OOM), não a timeout — timeout traz
+> texto. Passos: reproduzir sob pressão de RAM/CPU (as sessões 63/64 deixavam `http.server` e
+> servidores de A/B vivos — provável causa da 65) · capturar com `--reporter=verbose
+> --logHeapUsage` · consertar pela causa (`maxWorkers`, `singleFork` nos 3 arquivos pesados, ou
+> mundo menor onde o tamanho não é o objeto do teste — preferir liberar memória a subir teto) ·
+> portão de 5 rodadas verdes COM carga concorrente. Se não reproduzir nem sob pressão, **fechar
+> como "não reproduz em 8 rodadas" com o número escrito** — melhor que deixar "3 falhas =
+> baseline" mentindo pra próxima sessão.
+>
+> **F2 — bug-595 (smoke `atividade`, 1 em 3 rodadas).** O primeiro passo NÃO é caçar o bug: é
+> fazer o `scripts/smoke.mjs` **imprimir a asserção que caiu** (hoje só diz "falhou"). Depois 20
+> rodadas isoladas e 20 na suíte, contando a frequência dos dois lados. Suspeitos: porta ocupada
+> (a faixa dos cenários vai até **8109**, do-not-repeat da 64) e corrida de tempo no `join`.
+>
+> **F3 — laje: a face de baixo da metade de CIMA (todo L37, playtest da escola).** Os dois
+> suspeitos óbvios já foram DESCARTADOS na leitura: `collisionBoxes` devolve `[0,0.5,0,1,1,1]` pro
+> `slabTop` (`blocks.ts:735`), então a face de baixo fica em `y=0.5` e **não é `flush`** → não
+> passa por nenhum dos dois `continue` do culling (`mesher.ts:918-919`); e a laje está **fora** do
+> `isFullCube` (`blocks.ts:963`), logo `opacidadeLuz = 0` e a célula recebe luz — não é face preta.
+> Então começa por REPRO, não por teoria: teste puro no `shared/` (sem navegador) com
+> `LajePedraCima` e ar embaixo, perguntando em ordem — (a) existe triângulo com normal `(0,-1,0)`
+> em `y=0.5`? (b) que luz foi pros vértices? (c) se existe e está iluminado, o defeito é de
+> material/winding e mora no CLIENTE, não no mesher. Vira teste em `cp23.test.ts`, ao lado do 602.
+>
+> **F4 — bug-598 (luz do céu na própria célula que atenua): PARADO, esperando decisão.** Não é
+> conserto, é mudança de desenho (o `propagar` teria de carregar "esta luz veio reta do céu").
+> Efeito visual em todo mundo já gerado e as cavernas dependem da regra atual. Nenhum aluno
+> relatou — quem achou foi o fuzz. Recomendação: por último, ou aceitar e fechar.
+>
+> **ORDEM: ~~F0~~ (feito) → F2 → F1 → F3.** F0 era o pedido e era uma linha com A/B barato; F2/F1 são o portão de
+> teste (enquanto a suíte for sorteio, medição de qualquer frente fica sem base); F3 é o único que
+> o aluno vê na tela, mas é o que precisa de mais investigação — sessão própria.
+> Cada frente fecha com: bateria (typecheck 3/3 · `npm test` · build · `smoke` 15/15 · shots da
+> área) · buglog com causa raiz · `todo.md` marcado COM a evidência · STATUS/cerebrum.
+> **Estado no início da 66:** árvore limpa, `e56be50` = `origin/main`, nada pendente de push.
+> **Estado depois do F0: NADA COMMITADO AINDA** — o commit do F0 (`main.ts`, `input.ts`,
+> `esc-shot.mjs`, `client/dist`, `.wolf/`, `todo.md`) é o próximo passo, e o `client/dist` **tem
+> de entrar no MESMO commit** (é versionado e é o que a escola baixa).
+
 > **SESSÃO 65 (2026-08-10) — PLAYTEST NOVO: 3 BUGS (609/610/611) CONSERTADOS E A ÁREA DO CLAIM
 > VIROU ORÇAMENTO POR MEMBRO, COM `/claim modificar`.**
 > Cinco pedidos numa mensagem só: dois defeitos de UI de PC, uma revisão de receitas, uma feature

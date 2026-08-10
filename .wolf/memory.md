@@ -1913,3 +1913,26 @@ VERDE: typecheck 3/3 · 812/814 testes · build · 15/15 smokes · `shots:esc` 2
 `shots:f10` OK · `shots:amigos` OK. **Nada commitado — a árvore está suja de propósito.**
 | 12:14 | Session end: 45 writes across 11 files (slotDrag.ts, inventory.ts, container.ts, main.ts, receitas.ts) | 16 reads | ~120581 tok |
 | 12:20 | Playtest 2026-08-10: bugs 609 (fantasma da divisão de pilha), 610 (`/amigos` retravava o mouse) e 611 (26 receitas cobravam lã) FIXED; área do claim virou 1024×membros + `/claim modificar`; coluna 0→topo conferida (correta) | slotDrag.ts, inventory.ts, container.ts, main.ts, receitas.ts, claims.ts, session/equipes.ts, esc-shot.mjs, +3 testes, todo.md, buglog/cerebrum/STATUS | verde: tsc 3/3 · 812/814 (3 falhas = baseline do bug-612, aberto) · build · 15/15 smokes · shots:esc 26/26 · f10/amigos OK; não commitado | ~121k |
+
+## Session: 2026-08-10 14:19
+
+| Time | Action | File(s) | Outcome | ~Tokens |
+|------|--------|---------|---------|--------|
+| 14:36 | Edited client/src/main.ts | modified era() | ~397 |
+| 14:37 | Edited scripts/esc-shot.mjs | added optional chaining | ~703 |
+| 14:39 | Edited scripts/esc-shot.mjs | modified voltarPraTela() | ~562 |
+| 14:40 | Edited scripts/esc-shot.mjs | removed 67 lines | ~21 |
+| 14:40 | Edited scripts/esc-shot.mjs | added 1 condition(s) | ~259 |
+| 14:41 | Edited scripts/esc-shot.mjs | expanded (+10 lines) | ~235 |
+| 14:41 | Edited scripts/esc-shot.mjs | 3→3 lines | ~46 |
+| 14:41 | Edited scripts/esc-shot.mjs | 2→6 lines | ~117 |
+| 14:41 | Edited scripts/esc-shot.mjs | modified fim() | ~138 |
+| 14:42 | Edited scripts/esc-shot.mjs | modified fim() | ~138 |
+| 14:45 | Edited scripts/esc-shot.mjs | added nullish coalescing | ~95 |
+| 14:45 | Edited scripts/esc-shot.mjs | 4→6 lines | ~95 |
+| 14:45 | Edited scripts/esc-shot.mjs | added nullish coalescing | ~80 |
+| 14:46 | Edited client/src/input.ts | added 1 condition(s) | ~282 |
+| 14:47 | Edited client/src/main.ts | 1→6 lines | ~124 |
+| 15:18 | Edited todo.md | 5→8 lines | ~194 |
+| 15:40 | Sessão 66 F0: hotbar invertida (bug-614) consertada + bug-613 (lock atrasado por cima de painel) achado pela sonda nova | client/src/main.ts, client/src/input.ts, scripts/esc-shot.mjs | shots:esc OK (4 asserções novas), A/B derruba os dois lados | ~28k |
+| 15:36 | Session end: 16 writes across 4 files (main.ts, esc-shot.mjs, input.ts, todo.md) | 12 reads | ~91226 tok |

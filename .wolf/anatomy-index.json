@@ -1,12 +1,12 @@
 {
   "version": 1,
   "meta": {
-    "lastScanned": "2026-08-10T15:13:59.060Z",
+    "lastScanned": "2026-08-10T18:18:25.625Z",
     "fileCount": 336,
     "hits": 0,
     "misses": 0,
-    "renderedHash": "235b3e6edf92c200456fbdf084d208610ea490493cfe6ce1a01a76688a089415",
-    "storeUpdatedAt": "2026-08-10T15:13:59.066Z"
+    "renderedHash": "c1fdbb3ec199b9796c46eda7fc6643ecfd0659b4d547c99c7b64cc6211c4b6f4",
+    "storeUpdatedAt": "2026-08-10T18:18:25.646Z"
   },
   "files": {
     ".claude/commands/reframe.md": {
@@ -2188,19 +2188,19 @@
     },
     "client/src/input.ts": {
       "description": "Teclado + mouse (pointer lock). SÓ coleta input — nenhuma decisão de",
-      "tokens": 3146,
-      "hash": "f0f8d5dafe5cd7e6",
-      "size": 11141,
-      "mtimeMs": 1786036411482.5042,
-      "updatedAt": "2026-08-10T15:13:58.876Z",
-      "source": "scan",
+      "tokens": 3396,
+      "hash": "3bf492f8aef091d8",
+      "size": 12033,
+      "mtimeMs": 1786384014457.4473,
+      "updatedAt": "2026-08-10T17:46:54.669Z",
+      "source": "hook",
       "symbols": [
         {
           "name": "Input",
           "kind": "class",
           "startLine": 5,
-          "endLine": 266,
-          "tokens": 3100
+          "endLine": 284,
+          "tokens": 3349
         }
       ]
     },
@@ -2334,12 +2334,12 @@
     },
     "client/src/main.ts": {
       "description": "O cliente não tem filesystem: aprende os nomes das aulas pela resposta de",
-      "tokens": 30073,
-      "hash": "17dc49b547dc9ddb",
-      "size": 106869,
-      "mtimeMs": 1786373345437.4475,
-      "updatedAt": "2026-08-10T15:13:58.883Z",
-      "source": "scan",
+      "tokens": 30420,
+      "hash": "fc3f55c68e7b5de1",
+      "size": 108109,
+      "mtimeMs": 1786384028765.447,
+      "updatedAt": "2026-08-10T17:47:08.953Z",
+      "source": "hook",
       "symbols": [
         {
           "name": "cachearMundos",
@@ -2352,182 +2352,182 @@
           "name": "applySettings",
           "kind": "fn",
           "startLine": 206,
-          "endLine": 268,
-          "tokens": 932
+          "endLine": 273,
+          "tokens": 1036
         },
         {
           "name": "showOverlayMain",
           "kind": "fn",
-          "startLine": 269,
-          "endLine": 275,
+          "startLine": 274,
+          "endLine": 280,
           "tokens": 74
         },
         {
           "name": "menuDePausaAberto",
           "kind": "fn",
-          "startLine": 276,
-          "endLine": 279,
+          "startLine": 281,
+          "endLine": 284,
           "tokens": 32
         },
         {
           "name": "updateOverlay",
           "kind": "fn",
-          "startLine": 280,
-          "endLine": 317,
-          "tokens": 664
+          "startLine": 285,
+          "endLine": 336,
+          "tokens": 907
         },
         {
           "name": "startPlay",
           "kind": "fn",
-          "startLine": 318,
-          "endLine": 350,
+          "startLine": 337,
+          "endLine": 369,
           "tokens": 374
         },
         {
           "name": "onSettingsChanged",
           "kind": "fn",
-          "startLine": 351,
-          "endLine": 372,
+          "startLine": 370,
+          "endLine": 391,
           "tokens": 294
         },
         {
           "name": "enviarRaio",
           "kind": "fn",
-          "startLine": 373,
-          "endLine": 416,
+          "startLine": 392,
+          "endLine": 435,
           "tokens": 589
         },
         {
           "name": "playerName",
           "kind": "fn",
-          "startLine": 417,
-          "endLine": 427,
+          "startLine": 436,
+          "endLine": 446,
           "tokens": 187
         },
         {
           "name": "abrirAmigosPorComando",
           "kind": "fn",
-          "startLine": 428,
-          "endLine": 467,
+          "startLine": 447,
+          "endLine": 486,
           "tokens": 450
         },
         {
           "name": "registrarChegadaDeRede",
           "kind": "fn",
-          "startLine": 468,
-          "endLine": 475,
+          "startLine": 487,
+          "endLine": 494,
           "tokens": 60
         },
         {
           "name": "jitterDeRede",
           "kind": "fn",
-          "startLine": 476,
-          "endLine": 498,
+          "startLine": 495,
+          "endLine": 517,
           "tokens": 352
         },
         {
           "name": "podeVoar",
           "kind": "fn",
-          "startLine": 499,
-          "endLine": 508,
+          "startLine": 518,
+          "endLine": 527,
           "tokens": 164
         },
         {
           "name": "vitals",
           "kind": "fn",
-          "startLine": 509,
-          "endLine": 575,
+          "startLine": 528,
+          "endLine": 594,
           "tokens": 904
         },
         {
           "name": "pushPanelData",
           "kind": "fn",
-          "startLine": 576,
-          "endLine": 588,
+          "startLine": 595,
+          "endLine": 607,
           "tokens": 139
         },
         {
           "name": "pushFriendsData",
           "kind": "fn",
-          "startLine": 589,
-          "endLine": 599,
+          "startLine": 608,
+          "endLine": 618,
           "tokens": 96
         },
         {
           "name": "ownDone",
           "kind": "fn",
-          "startLine": 600,
-          "endLine": 608,
+          "startLine": 619,
+          "endLine": 627,
           "tokens": 90
         },
         {
           "name": "refreshObjectivesView",
           "kind": "fn",
-          "startLine": 609,
-          "endLine": 640,
+          "startLine": 628,
+          "endLine": 659,
           "tokens": 359
         },
         {
           "name": "drenarFilaTroca",
           "kind": "fn",
-          "startLine": 641,
-          "endLine": 648,
+          "startLine": 660,
+          "endLine": 667,
           "tokens": 79
         },
         {
           "name": "segurarAteATelaPintar",
           "kind": "fn",
-          "startLine": 649,
-          "endLine": 658,
+          "startLine": 668,
+          "endLine": 677,
           "tokens": 109
         },
         {
           "name": "handleServerData",
           "kind": "fn",
-          "startLine": 659,
-          "endLine": 885,
+          "startLine": 678,
+          "endLine": 904,
           "tokens": 3049
         },
         {
           "name": "connect",
           "kind": "fn",
-          "startLine": 886,
-          "endLine": 925,
+          "startLine": 905,
+          "endLine": 944,
           "tokens": 465
         },
         {
           "name": "startMultiplayer",
           "kind": "fn",
-          "startLine": 926,
-          "endLine": 943,
+          "startLine": 945,
+          "endLine": 962,
           "tokens": 223
         },
         {
           "name": "startSingleplayer",
           "kind": "fn",
-          "startLine": 944,
-          "endLine": 967,
+          "startLine": 963,
+          "endLine": 986,
           "tokens": 284
         },
         {
           "name": "persistWorld",
           "kind": "fn",
-          "startLine": 968,
-          "endLine": 1034,
+          "startLine": 987,
+          "endLine": 1053,
           "tokens": 793
         },
         {
           "name": "GameRuntime",
           "kind": "class",
-          "startLine": 1035,
-          "endLine": 2254,
+          "startLine": 1054,
+          "endLine": 2273,
           "tokens": 17144
         },
         {
           "name": "startGame",
           "kind": "fn",
-          "startLine": 2255,
-          "endLine": 2261,
+          "startLine": 2274,
+          "endLine": 2280,
           "tokens": 58
         }
       ]
@@ -4350,12 +4350,12 @@
     },
     "scripts/esc-shot.mjs": {
       "description": "§🎮 O Esc, num Chrome headless de DESKTOP (2026-08-06).",
-      "tokens": 4983,
-      "hash": "cb64c3114d7101af",
-      "size": 18872,
-      "mtimeMs": 1786374375457.4487,
-      "updatedAt": "2026-08-10T15:13:58.959Z",
-      "source": "scan",
+      "tokens": 5779,
+      "hash": "adf7dec8be0a6c20",
+      "size": 21925,
+      "mtimeMs": 1786383928825.4473,
+      "updatedAt": "2026-08-10T17:45:29.001Z",
+      "source": "hook",
       "symbols": [
         {
           "name": "espera",
@@ -4459,14 +4459,21 @@
           "name": "estado",
           "kind": "fn",
           "startLine": 247,
-          "endLine": 362,
-          "tokens": 1727
+          "endLine": 261,
+          "tokens": 251
+        },
+        {
+          "name": "hotbar",
+          "kind": "fn",
+          "startLine": 262,
+          "endLine": 410,
+          "tokens": 2329
         },
         {
           "name": "ler",
           "kind": "fn",
-          "startLine": 363,
-          "endLine": 438,
+          "startLine": 411,
+          "endLine": 486,
           "tokens": 1022
         }
       ]
@@ -11265,12 +11272,12 @@
     },
     "todo.md": {
       "description": "Ideias para fazer",
-      "tokens": 11609,
-      "hash": "a7a37826eb8fce07",
-      "size": 47966,
-      "mtimeMs": 1786374598121.4473,
-      "updatedAt": "2026-08-10T15:13:59.045Z",
-      "source": "scan"
+      "tokens": 11692,
+      "hash": "4fe8600639042b07",
+      "size": 48301,
+      "mtimeMs": 1786385905497.4482,
+      "updatedAt": "2026-08-10T18:18:25.625Z",
+      "source": "hook"
     },
     "tsconfig.base.json": {
       "description": "",
