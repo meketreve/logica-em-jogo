@@ -177,7 +177,7 @@ describe("§🍖 F10c — a lã honesta", () => {
     expect(comTrigo[0]!.saida.id).toBe(904); // ITEM_PAO
   });
 
-  it("as 11 lãs coloridas não mudaram: continuam saindo da BRANCA + corante", () => {
+  it("as 11 lãs coloridas saem da FIBRA + corante (2026-08-10: sem a etapa da branca)", () => {
     for (let i = 1; i < 12; i++) {
       const cor = [
         BlockId.WoolBlack, BlockId.WoolRed, BlockId.WoolOrange, BlockId.WoolYellow,
@@ -185,8 +185,28 @@ describe("§🍖 F10c — a lã honesta", () => {
         BlockId.WoolCyan, BlockId.WoolGray, BlockId.WoolBrown,
       ][i - 1]!;
       const r = RECEITAS.find((x) => x.saida.id === cor && receitaAtiva(x));
-      expect(r?.custo[0]?.id, `lã ${cor}`).toBe(BlockId.WoolWhite);
+      // mesma fibra da branca (3 algodão) + a tintura daquela cor
+      expect(r?.custo[0], `lã ${cor}`).toEqual({ id: ITEM_ALGODAO, qtd: 3 });
+      expect(r?.custo.length, `lã ${cor}`).toBeGreaterThan(1);
     }
+  });
+
+  /**
+   * 2026-08-10 (playtest) — o pedido foi "revisa todos os crafts, alguns ainda
+   * usam lã ao invés de algodão". Este é o teste-portão: a lã virou destino, e
+   * nenhuma receita ATIVA pode voltar a cobrá-la como matéria-prima.
+   */
+  it("nenhuma receita ativa cobra LÃ: a fibra do jogo é o algodão", () => {
+    // os 12 ids NÃO são contíguos (11–18 e 23–26): a lista é explícita
+    const LAS_IDS = new Set<number>([
+      BlockId.WoolWhite, BlockId.WoolBlack, BlockId.WoolRed, BlockId.WoolOrange,
+      BlockId.WoolYellow, BlockId.WoolGreen, BlockId.WoolBlue, BlockId.WoolPurple,
+      BlockId.WoolPink, BlockId.WoolCyan, BlockId.WoolGray, BlockId.WoolBrown,
+    ]);
+    const comLa = RECEITAS.filter(
+      (r) => receitaAtiva(r) && r.custo.some((c) => LAS_IDS.has(c.id)),
+    );
+    expect(comLa.map((r) => r.saida.id)).toEqual([]);
   });
 });
 

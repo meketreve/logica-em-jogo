@@ -227,17 +227,27 @@ const MATERIAIS: readonly Receita[] = [
   { saida: { id: BlockId.Tocha, qtd: 4 }, custo: [{ id: ITEM_GRAVETO, qtd: 1 }, { id: ITEM_CARVAO, qtd: 1, ou: [ITEM_CARVAO_VEGETAL] }] },
 ];
 
-/** Lã: a BRANCA é a base (fibra de trigo, sem tintura); as outras 11 se tingem
- *  a partir dela. Duas etapas de propósito — é a mesma dependência do tronco →
- *  tábua → escada, e o aluno vê a cor NASCER de uma mistura. */
+/**
+ * Lã: a fibra é o ALGODÃO, e a cor entra na mesma receita. A branca é a lisa
+ * (sem tintura); as outras 11 são a mesma fibra mais o corante.
+ *
+ * **2026-08-10 (playtest): a lã deixou de ser INGREDIENTE.** Antes a colorida
+ * cobrava 1 lã branca + corante, o que fazia o aluno fabricar branco só pra
+ * desfazer no passo seguinte — uma etapa que não ensina nada e some da lista de
+ * "o que dá pra fazer agora". A conta não mudou: onde havia 1 lã entram os 3
+ * algodões que ela custava; a tintura tinge o LOTE, então continua 1 de cada
+ * corante. A lã segue existindo como bloco de construção — só não é mais
+ * matéria-prima de ninguém.
+ */
+const FIBRA_POR_LA = 3;
 const LAS: readonly Receita[] = [
   // §🍖 F10c: era 2 TRIGO — a ponte inventada na 45 porque o lite não tem
   // ovelha. Com o algodão a fibra tem planta própria, e some a competição
   // pão × cobertor que fazia a horta escolher entre alimentar e vestir.
-  { saida: { id: BlockId.WoolWhite, qtd: 1 }, custo: [{ id: ITEM_ALGODAO, qtd: 3 }] },
+  { saida: { id: BlockId.WoolWhite, qtd: 1 }, custo: [{ id: ITEM_ALGODAO, qtd: FIBRA_POR_LA }] },
   ...CORES.filter((c) => c.la !== BlockId.WoolWhite).map((c) => ({
     saida: { id: c.la, qtd: 1 },
-    custo: [{ id: BlockId.WoolWhite, qtd: 1 }, ...c.corante],
+    custo: [{ id: ITEM_ALGODAO, qtd: FIBRA_POR_LA }, ...c.corante],
   })),
 ];
 
@@ -248,10 +258,15 @@ const VIDROS: readonly Receita[] = CORES.map((c) => ({
   custo: [{ id: BlockId.Glass, qtd: 1 }, ...c.corante],
 }));
 
-/** Tapete: 2 lãs da MESMA cor viram 3 tapetes (o número do Minecraft). */
+/** Tapete: o equivalente a 2 lãs da mesma cor vira 3 tapetes (o número do
+ *  Minecraft) — 2026-08-10, direto da FIBRA, como as lãs. O branco é o liso;
+ *  os coloridos levam o mesmo corante da lã daquela cor. */
 const TAPETES: readonly Receita[] = CORES.map((c) => ({
   saida: { id: c.tapete, qtd: 3 },
-  custo: [{ id: c.la, qtd: 2 }],
+  custo: [
+    { id: ITEM_ALGODAO, qtd: 2 * FIBRA_POR_LA },
+    ...(c.la === BlockId.WoolWhite ? [] : c.corante),
+  ],
 }));
 
 /** Móveis e aberturas. Direção e metade NÃO entram na receita: o que sai é a
@@ -261,9 +276,11 @@ const MOVEIS: readonly Receita[] = [
   { saida: { id: BlockId.PortaXFechada, qtd: 3 }, custo: [{ id: BlockId.Planks, qtd: 6 }] },
   { saida: { id: BlockId.JanelaXFechada, qtd: 2 }, custo: [{ id: BlockId.Glass, qtd: 2 }, { id: BlockId.Planks, qtd: 1 }] },
   { saida: { id: BlockId.CadeiraXP, qtd: 1 }, custo: [{ id: BlockId.Planks, qtd: 4 }] },
-  { saida: { id: BlockId.SofaXP, qtd: 1 }, custo: [{ id: BlockId.Planks, qtd: 3 }, { id: BlockId.WoolWhite, qtd: 2 }] },
-  { saida: { id: BlockId.CamaXP, qtd: 1 }, custo: [{ id: BlockId.Planks, qtd: 3 }, { id: BlockId.WoolWhite, qtd: 3 }] },
-  { saida: { id: BlockId.QuadroXP, qtd: 1 }, custo: [{ id: BlockId.Planks, qtd: 2 }, { id: BlockId.WoolWhite, qtd: 1 }] },
+  // 2026-08-10 (playtest): o estofado era 2/3/1 LÃ BRANCA. Virou a fibra que
+  // ela custava (×3 algodão) — mesma conta, uma etapa a menos até o móvel.
+  { saida: { id: BlockId.SofaXP, qtd: 1 }, custo: [{ id: BlockId.Planks, qtd: 3 }, { id: ITEM_ALGODAO, qtd: 2 * FIBRA_POR_LA }] },
+  { saida: { id: BlockId.CamaXP, qtd: 1 }, custo: [{ id: BlockId.Planks, qtd: 3 }, { id: ITEM_ALGODAO, qtd: 3 * FIBRA_POR_LA }] },
+  { saida: { id: BlockId.QuadroXP, qtd: 1 }, custo: [{ id: BlockId.Planks, qtd: 2 }, { id: ITEM_ALGODAO, qtd: FIBRA_POR_LA }] },
 ];
 
 /**
