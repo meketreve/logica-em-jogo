@@ -190,6 +190,12 @@ export class InventoryPanel {
   hide(): void {
     if (!this.isOpen) return;
     this.isOpen = false;
+    // fechar esvazia a MÃO: o `pegando` é só seleção de UI (a pilha nunca saiu
+    // do servidor), e deixá-lo vivo mantinha o fantasma da divisão na tela
+    // depois do painel sumir (bug-609)
+    this.pegando = null;
+    this.metadePegando = null;
+    this.arrasto.sincronizar();
     this.root?.classList.add("hidden");
     window.removeEventListener("keydown", this.onEsc, true);
     this.onToggle(false);
@@ -201,6 +207,9 @@ export class InventoryPanel {
   }
 
   private render(): void {
+    // toda mudança de estado passa por aqui: é o ponto onde o fantasma do
+    // arrasto/divisão some quando a mão esvazia (bug-609)
+    this.arrasto.sincronizar();
     if (this.mochila.ativa) {
       this.renderMochila();
       return;

@@ -438,7 +438,11 @@ const chat = new ChatUi(
   },
   (open) => {
     updateOverlay();
-    if (!open) input.lock(); // fechou o chat → devolve o mouse pro jogo
+    // fechou o chat → devolve o mouse pro jogo, MAS não quando o próprio
+    // comando abriu um painel: `/amigos` fecha o chat logo depois de trocar
+    // pro painel, e o lock voltava por cima dele — o aluno via a interface e
+    // não conseguia clicar em nada (bug-610).
+    if (!open && !paineis.algumAberto) input.lock();
   },
 );
 updateOverlay(); // estado inicial: sem lock → overlay visível, mira escondida

@@ -84,10 +84,26 @@ export class ArrastoDeSlot {
   private ghost: HTMLDivElement | null = null;
   /** Quantas unidades o fantasma mostra (o contador cai no larga-1-a-1). */
   private qtdFantasma = 0;
+  /** Última posição conhecida do ponteiro. O fantasma do clique DIREITO nasce
+   *  SEM arrasto, então não há `pointermove` pra posicioná-lo depois: sem esta
+   *  memória ele aparecia no canto onde o `position:fixed` sem `left/top` cai —
+   *  o "ícone flutuando no meio da tela" do playtest (bug-609). */
+  private px = 0;
+  private py = 0;
 
   constructor(private readonly hooks: SlotDragHooks) {
     document.addEventListener("pointermove", (e) => this.mover(e));
     document.addEventListener("pointerup", (e) => this.soltar(e));
+  }
+
+  /**
+   * O painel mudou de estado (render, fechar, resposta do servidor): o fantasma
+   * só pode existir enquanto há pilha NA MÃO. Sem esta chamada a divisão por
+   * clique direito deixava o ícone na tela pra sempre — quem larga a metade com
+   * o clique ESQUERDO nunca passa pelo `soltar` (bug-609).
+   */
+  sincronizar(): void {
+    if (this.hooks.pegando() === null) this.esconderFantasma();
   }
 
   /** Liga ponteiro + clique a UM slot. O painel chama por botão, a cada render. */
@@ -99,6 +115,8 @@ export class ArrastoDeSlot {
 
   private pressionar(slot: number, id: number | null, qtd: number, e: PointerEvent): void {
     this.suprimirClique = false;
+    this.px = e.clientX;
+    this.py = e.clientY;
     if (e.pointerType !== "mouse") return; // tablet segue com tocar-origem/destino
     if (e.button === 2) {
       // direito: divide — pega a METADE, ou (segurando) larga 1 no destino
@@ -125,6 +143,11 @@ export class ArrastoDeSlot {
   }
 
   private mover(e: PointerEvent): void {
+    // o fantasma segue o cursor mesmo SEM arrasto: a metade pega no clique
+    // direito fica na mão até o aluno largar em algum lugar (bug-609)
+    this.px = e.clientX;
+    this.py = e.clientY;
+    this.posicionarFantasma();
     if (!this.cand) return;
     const dx = e.clientX - this.cand.x;
     const dy = e.clientY - this.cand.y;
@@ -141,8 +164,7 @@ export class ArrastoDeSlot {
         this.hooks.redesenhar();
       }
     }
-    this.ghost?.style.setProperty("left", `${e.clientX + 8}px`);
-    this.ghost?.style.setProperty("top", `${e.clientY + 8}px`);
+    this.posicionarFantasma();
   }
 
   private soltar(e: PointerEvent): void {
@@ -173,6 +195,10 @@ export class ArrastoDeSlot {
   private mostrarFantasma(slot: number, qtd: number): void {
     if (!this.ghost) {
       this.ghost = document.createElement("div");
+      // classe estável (não id: mochila e container têm um arrasto CADA, e dois
+      // ids iguais no documento seriam mentira). É o que o `shots:esc` mede pra
+      // provar que o fantasma nasce no cursor e some com a mão vazia (bug-609).
+      this.ghost.className = "arrasto-fantasma";
       this.ghost.style.cssText =
         "position:fixed;pointer-events:none;z-index:999;" +
         "filter:drop-shadow(0 2px 3px rgba(0,0,0,0.5));";
@@ -192,9 +218,19 @@ export class ArrastoDeSlot {
         "font:700 13px/1.4 system-ui,sans-serif;";
       this.ghost.appendChild(n);
     }
+    this.posicionarFantasma(); // já nasce no cursor, mesmo sem arrasto
+  }
+
+  /** `position:fixed` sem `left`/`top` cai no fluxo do `<body>` — por isso o
+   *  fantasma tem de ser posicionado na hora em que nasce, não só no arrasto. */
+  private posicionarFantasma(): void {
+    if (!this.ghost) return;
+    this.ghost.style.setProperty("left", `${this.px + 8}px`);
+    this.ghost.style.setProperty("top", `${this.py + 8}px`);
   }
 
   private esconderFantasma(): void {
     this.ghost?.replaceChildren();
+    this.qtdFantasma = 0;
   }
 }

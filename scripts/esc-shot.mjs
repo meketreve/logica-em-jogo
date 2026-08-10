@@ -292,6 +292,132 @@ const pausado = await ateQue(estado, (a) => a.pausa === true, 4000);
 ok(pausado.pausa, "o menu de pausa abriu");
 await foto("02-menu-de-pausa.png");
 
+diga("== B2: `/amigos` no chat abre o painel SEM retomar o ponteiro (bug-610) ==");
+// o playtest achou assim: o aluno digitava /amigos, via a interface na tela e
+// não conseguia clicar em nada. O comando abre o painel e o chat fecha logo
+// atrás — e era o fechar do chat que mandava `input.lock()` por cima do painel.
+// a pré-condição é o menu de PAUSA fechado (é ele que o `podeAbrir` do chat
+// checa), NÃO o ponteiro travado: em headless a concessão do pointer lock é
+// flaky (o cabeçalho deste arquivo já avisa), e exigi-la deixava a seção
+// intermitente. A sonda abaixo conta o PEDIDO, que acontece travado ou não.
+let dejogo = await estado();
+for (let i = 0; i < 4 && dejogo.pausa; i++) {
+  await avaliar(`document.getElementById('overlay-voltar')?.click()`);
+  dejogo = await ateQue(estado, (a) => a.pausa === false, 3000);
+}
+ok(!dejogo.pausa, `voltou pro jogo (ponteiro travado: ${dejogo.travado})`);
+// ⚠️ a medida aqui é o PEDIDO, não a concessão (o mesmo caminho do
+// `shots:toque`): o Enter que este script dispara é sintético, e sem gesto de
+// usuário o Chrome recusa `requestPointerLock` de qualquer jeito. Contar
+// `pointerLockElement` daria ✓ mesmo com o bug de volta — foi o que aconteceu
+// na primeira versão desta seção. Quem tem de somar zero é a CHAMADA.
+await avaliar(`(() => {
+  window.__lockPedidos = 0;
+  const orig = HTMLCanvasElement.prototype.requestPointerLock;
+  HTMLCanvasElement.prototype.requestPointerLock = function (...a) {
+    window.__lockPedidos++;
+    return orig.apply(this, a);
+  };
+  return 1;
+})()`);
+await tecla("Enter"); // a tecla do chat (settings.keys.chat)
+await espera(400);
+ok(await avaliar(`!document.getElementById('chat-input').classList.contains('hidden')`), "o chat abriu");
+await avaliar(`window.__lockPedidos = 0`); // zera: o que interessa é o do comando
+await avaliar(`(() => {
+  const f = document.getElementById('chat-input');
+  f.value = '/amigos';
+  f.dispatchEvent(new KeyboardEvent('keydown', { code: 'Enter', key: 'Enter', bubbles: true }));
+  return 1;
+})()`);
+await espera(2000);
+ok((await estado()).painel, "o painel de amigos ficou aberto");
+const pedidos = await avaliar(`window.__lockPedidos`);
+ok(pedidos === 0, `o comando não pediu o ponteiro de volta (pedidos=${pedidos}) — dá pra clicar no painel`);
+await foto("03-amigos-por-comando.png");
+await tecla("Escape"); // fecha o painel e devolve o jogo pro estado de sempre
+await espera(1500);
+
+diga("== B3: dividir pilha no clique DIREITO — o fantasma no cursor, e ele SOME (bug-609) ==");
+// o playtest achou assim: "dividir pilha no inventário deixa o ícone do item
+// dividido flutuando no meio da tela". Dividir é o único caminho que faz nascer
+// um fantasma SEM arrasto, e era o `pointermove` do arrasto quem o posicionava
+// e quem o apagava — sem arrasto ele nascia no fluxo do <body> e nunca saía.
+await dizer("/modo sobrevivencia eu");
+await dizer("/dar eu 2 32"); // 32 de pedra no primeiro slot da mochila
+await espera(600);
+await tecla("KeyE");
+const comMochila = await ateQue(estado, (a) => a.painel === true, 4000);
+ok(comMochila.painel, "a mochila abriu em sobrevivência");
+const slot = await avaliar(`(() => {
+  const b = [...document.querySelectorAll('#inventario button.inv-slot')].find(x => x.querySelector('img'));
+  if (!b) return null;
+  const r = b.getBoundingClientRect();
+  return { x: Math.round(r.left + r.width / 2), y: Math.round(r.top + r.height / 2), txt: b.textContent };
+})()`);
+ok(slot !== null, `achou o slot com a pilha ("${slot?.txt ?? ""}")`);
+for (const type of ["mousePressed", "mouseReleased"]) {
+  await cdp("Input.dispatchMouseEvent", { type, x: slot.x, y: slot.y, button: "right", clickCount: 1 });
+}
+await espera(400);
+const ler = () => avaliar(`(() => {
+  const el = [...document.querySelectorAll('.arrasto-fantasma')].find(e => e.childElementCount > 0);
+  if (!el) return { existe: false };
+  const r = el.getBoundingClientRect();
+  return { existe: true, txt: el.textContent, x: Math.round(r.left), y: Math.round(r.top) };
+})()`);
+const nasceu = await ler();
+ok(nasceu.existe, "o fantasma da metade apareceu");
+ok(nasceu.txt === "16", `mostra a METADE da pilha de 32 ("${nasceu.txt}")`);
+ok(
+  Math.abs(nasceu.x - slot.x) < 60 && Math.abs(nasceu.y - slot.y) < 60,
+  `nasceu NO CURSOR (${nasceu.x},${nasceu.y}) e não solto na página (o clique foi em ${slot.x},${slot.y})`,
+);
+// e ele SEGUE o ponteiro mesmo sem arrasto (a metade fica na mão)
+// ⚠️ a asserção é contra o ÚLTIMO `pointermove` QUE O NAVEGADOR ENTREGOU, e não
+// contra a última coordenada que o script dispara: neste headless o CDP para de
+// entregar `mouseMoved` depois de dois ou três de uma sequência (medido: o
+// evento congela em (378,437) enquanto o script segue mandando). Ancorar no
+// evento entregue mede o que interessa — o fantasma fica no ponteiro — sem
+// depender de quantos o Chrome resolveu passar adiante.
+await avaliar(
+  `(() => { window.__pm = ''; document.addEventListener('pointermove', e => { window.__pm = e.clientX + ',' + e.clientY; }); return 1; })()`,
+);
+for (const passo of [35, 70, 105, 140]) {
+  await cdp("Input.dispatchMouseEvent", {
+    type: "mouseMoved",
+    x: slot.x + passo,
+    y: Math.round(slot.y + (passo * 9) / 14),
+    button: "none",
+    buttons: 0,
+    pointerType: "mouse",
+  });
+  await espera(150);
+}
+const visto = (await avaliar(`window.__pm`)) || "";
+const [pmx, pmy] = visto.split(",").map(Number);
+const seguiu = await ler();
+ok(visto !== "" && pmx > slot.x, `o ponteiro andou para (${visto})`);
+// o fantasma fica 8 px à frente do cursor (o `+ 8` do `posicionarFantasma`)
+ok(
+  Math.abs(seguiu.x - (pmx + 8)) <= 2 && Math.abs(seguiu.y - (pmy + 8)) <= 2,
+  `o fantasma seguiu junto: está em (${seguiu.x},${seguiu.y}), 8 px à frente de (${visto})`,
+);
+ok(seguiu.x !== nasceu.x, `e saiu de onde nasceu (${nasceu.x} → ${seguiu.x})`);
+await foto("04-metade-no-cursor.png");
+// fechar o painel esvazia a mão: sem isto o ícone ficava na tela pra sempre
+await tecla("Escape");
+await espera(900);
+const limpo = await avaliar(
+  `[...document.querySelectorAll('.arrasto-fantasma')].every(e => e.childElementCount === 0)`,
+);
+ok(limpo === true, "fechar o painel apagou o fantasma (nada sobra flutuando)");
+// devolve o estado que o C espera receber: pausado, sem ponteiro (é o que o B
+// deixava antes desta seção existir)
+await espera(1500);
+await avaliar(`document.exitPointerLock()`);
+await ateQue(estado, (a) => a.pausa === true, 4000);
+
 diga("== C: pointer lock recusado DE VEZ ainda devolve o menu de pausa ==");
 // sem isto a correção do A poderia esconder o menu pra sempre, e o aluno
 // ficaria sem nenhum jeito de sair do jogo

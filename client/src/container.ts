@@ -188,6 +188,10 @@ export class ContainerPanel {
     this.isOpen = false;
     this.pos = null;
     this.pegando = null;
+    // sem isto o fantasma da divisão (clique direito) ficava na tela depois de
+    // o painel sumir — bug-609, o mesmo do inventário
+    this.metadePegando = null;
+    this.arrasto.sincronizar();
     this.root?.classList.add("hidden");
     window.removeEventListener("keydown", this.onEsc, true);
     this.onToggle(false);
@@ -293,6 +297,8 @@ export class ContainerPanel {
   }
 
   private render(): void {
+    // mão vazia = sem fantasma na tela (bug-609)
+    this.arrasto.sincronizar();
     const root = this.root;
     if (!root) return;
     root.replaceChildren();
