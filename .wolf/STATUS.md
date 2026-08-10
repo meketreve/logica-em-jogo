@@ -1,6 +1,58 @@
 # STATUS — Projeto "Lógica em Jogo" (jogo voxel educacional)
 
 > Single source of truth for resuming work. Read this FIRST when starting a session.
+> **SESSÃO 65 (2026-08-10) — PLAYTEST NOVO: 3 BUGS (609/610/611) CONSERTADOS E A ÁREA DO CLAIM
+> VIROU ORÇAMENTO POR MEMBRO, COM `/claim modificar`.**
+> Cinco pedidos numa mensagem só: dois defeitos de UI de PC, uma revisão de receitas, uma feature
+> de claim e uma verificação. **Os cinco fecharam.**
+>
+> **bug-609 — o ícone que ficava flutuando ao dividir pilha, e ele tinha TRÊS buracos com a mesma
+> raiz.** O fantasma do `slotDrag.ts` foi escrito pro ARRASTO; a divisão por clique direito nasceu
+> depois reusando `mostrarFantasma` e nada mais. Como `pressionar(button === 2)` não seta
+> `this.cand`, e tudo que posiciona/apaga o fantasma vinha DEPOIS de um `if (!this.cand) return`:
+> ele nascia sem `left`/`top` (e `position:fixed` sem coordenada **cai na posição estática do
+> fluxo do `<body>`** — medido: **(0,457)** numa tela de 1024×600), não seguia o cursor, e nunca
+> sumia (nem largando a metade com o esquerdo, nem fechando o painel — `hide()` nem limpava o
+> `pegando`). Fix: memória `px/py`, `posicionarFantasma()` chamado na CRIAÇÃO, `mover` posiciona
+> antes do `return`, e um `sincronizar()` público que os dois painéis chamam no `render()`.
+>
+> **bug-610 — `/amigos` abria o painel e o chat re-travava o mouse por cima dele.** `chat.ts`
+> fecha o campo na linha seguinte ao `onSend`, e o callback de fechar era `if (!open)
+> input.lock()` — escrito quando voltar pro jogo era o único destino. Uma linha: `&&
+> !paineis.algumAberto`. Vale pra QUALQUER comando que abra painel pelo cliente.
+>
+> ⚠️ **A primeira sonda do 610 era VAZIA e passou com o bug de volta.** Ela media
+> `pointerLockElement`; o Enter que o script dispara é sintético, e sem gesto de usuário o Chrome
+> recusa o lock dos dois lados. **Sonda de pointer lock em headless mede CHAMADA, não estado** —
+> o `shots:toque` já fazia certo. Refeita contando `requestPointerLock`: **4 pedidos → 0**.
+>
+> **bug-611 — 26 receitas ainda cobravam LÃ.** O F10c trocou a fonte da lã (trigo → algodão) e
+> não mexeu em quem a consome: 11 lãs coloridas, 12 tapetes e 3 móveis. Regra única, escolhida
+> por ser mecânica e explicável em uma frase: **1 lã = os 3 algodões que ela custava**, tintura
+> 1 por lote. Os ÍNDICES de `RECEITAS` não se mexeram (só o `custo`, no lugar) — o índice é a
+> identidade no protocolo. Teste-portão novo: "nenhuma receita ativa cobra LÃ".
+>
+> **A feature: área do claim = 1.024 blocos × pessoas no grupo** (teto 6 → 6.144), eixo máximo
+> 128. **Ele escolheu a régua mais enxuta das três, avisado de que ela ENCOLHE o solo** (2.048 →
+> 1.024). Grupo que encolhe **não perde área**: o claim continua valendo, só o remarcar trava —
+> e como `/claim modificar` valida a marcação NOVA contra o limite ATUAL, encolher pra caber
+> continua funcionando pelo mesmo portão. `/claim modificar` (apelido `editar`) remarca no lugar,
+> herda o rótulo e ignora o próprio claim no cruzamento; `criar` e ele dividem o `marcarClaim`.
+> `/claim limite` mostra a conta.
+>
+> **A verificação (coluna 0 → topo): CONFERIDA, nada a corrigir.** Os dois caminhos forçam:
+> `marcarClaim` na marcação (`min.y = 0`, `max.y = sizeY - 1`) e `session.ts:580-583` na carga de
+> save antigo. Já havia teste; agora o `/claim modificar` também tem.
+>
+> ⚠️ **bug-612, achado de raspão e EM ABERTO: a suíte completa falha 3 testes de worldgen que
+> passam isolados — e falhava ANTES deste diff.** `git stash` + rodar = os mesmos 3 (808/811).
+> Sem baseline eu teria caçado regressão num diff que não tinha nenhuma. Está no do-not-repeat.
+>
+> **VERDE:** typecheck 3/3 · **812/814 testes** (+3 novos; as 2–3 falhas são o baseline do 612) ·
+> build · **15/15 smokes** · **`shots:esc` 26/26** (era 18 — as seções B2 e B3 são novas, e as
+> duas foram verificadas revertendo o fix: 4 pedidos de lock e fantasma em (0,457)) ·
+> `shots:f10` OK · `shots:amigos` OK.
+>
 > **SESSÃO 64 (2026-08-09) — O FPS DA MÁQUINA REAL FOI MEDIDO (60, NO TETO DO VSYNC), E A
 > BATERIA ACHOU O bug-608: MUNDO DENSO MESHAVA 100% NA MAIN THREAD.**
 > Pedido: gerar o link de localhost pro `?bench` rodar no navegador do Windows (a pendência que a
@@ -778,16 +830,25 @@ frente com o repo já sincronizado.
 
 ## 🚀 Próxima fase
 
-### 0. ⭐ A PRIMEIRA TAREFA DA PRÓXIMA SESSÃO É BARATA: DESATUALIZAR O `todo.md`
+### 0. ⚠️ ABERTO E BARATO: bug-612 — a suíte completa falha 3 testes que passam isolados
 
-**Seis itens seguem `[ ]` com o código JÁ no repo** (conferido na 62, com o arquivo e a linha):
-comer no tablet (todo.md L134 → `client/src/touch.ts:310 setModoComer`) · 🧱→🎒 mochila (L147 →
-`touch.ts:317 setMochilaRotulo`) · fornalha filtra combustível (L323 →
-`shared/src/containers.ts:120 moverBloqueadoPorCombustivel`) · 6 cultivos + batata cozida (L334 →
-`shared/src/comida.ts` + `fornalha.ts`) · click'n'drag no PC (L403 → `client/src/slotDrag.ts`) ·
-shift-clique (L416 → `slotDrag.ts primeiroLugar`). **Marcar `[x]` com a evidência**, no molde que
-a 60 já usou. Sem isso a próxima sessão reimplementa o que existe — foi exatamente o que quase
-aconteceu na 60.
+Achado de raspão na 65 e **não investigado**. `arvores` (cada espécie usa o próprio tronco) ·
+`culturas` (o algodão não sumiu — 7 selvagens) · `worldgen` (banda de profundidade dos minérios).
+Falham na suíte cheia, **passam isolados ou em dupla**, e a falha chega como
+`Error: STACK_TRACE_ERROR` **sem mensagem**. É PRÉ-EXISTENTE (medido: `git stash` do diff da 65 e
+os mesmos 3 caem, 808/811), e o cheiro é contenção no pool de workers do vitest, não regressão de
+lógica. **Enquanto isso não fechar, "a suíte tem 3 falhas de worldgen" é o BASELINE** — comparar
+com `git stash` antes de culpar o próprio diff (está no do-not-repeat, custou tempo na 65).
+Primeiro passo barato: `--pool=forks --poolOptions.forks.singleFork` ou `--no-file-parallelism`
+pra confirmar que é recurso, e olhar se algum dos três aloca mundo grande sem liberar.
+
+### 0b. A DERIVA DO `todo.md` — FECHADA na 64, e a régua fica
+
+Os seis itens que a 62 listou como `[ ]` com o código no repo foram marcados na 64 (commit
+`4e84dbc`). A 65 seguiu o mesmo molde: os 3 bugs do playtest e as 2 features de claim entraram
+como `[x]` **com o arquivo, a constante e a prova** (seções "Playtest na escola" e "Sistema
+anti-griefing"). **Manter a régua:** quem fecha trabalho, marca no `todo.md` com a evidência na
+mesma sessão — a alternativa é a próxima reimplementar o que já existe.
 
 ### 1. A FILA DO REFACTOR ACABOU — e o que manda agora é o PLAYTEST
 
@@ -798,10 +859,15 @@ enfileirada, e **inventar uma seria escopo não pedido**.
 
 **O playtest do F10 ACONTECEU na 55 (2026-08-07, escola) e o trabalho que ele gerou está FEITO:**
 os **6 bugs (599-604) viraram FIXED na 58**, o **pedido de cultivos (F10h) entrou na 58**, os
-**2 itens de toque e os 2 do PC saíram na 59** e o **dividir pilha do tablet na 61**. O que o
-playtest deixou ABERTO é um bug só: **a laje de CIMA não desenha a face de baixo** (todo.md L37)
-— parente do bug-602 já consertado, mesmo `emitBox`/`fundeVertical` do mesher. **É o candidato
-mais barato da fila de jogo.**
+**2 itens de toque e os 2 do PC saíram na 59** e o **dividir pilha do tablet na 61**.
+
+**A 65 recebeu um playtest NOVO (2026-08-10) e fechou os cinco pedidos dele** — bugs 609/610/611
+FIXED, área do claim por membro e `/claim modificar` entregues, coluna 0→topo conferida. **Nada
+ficou pendente dessa mensagem.**
+
+O que os playtests deixaram ABERTO é um bug só: **a laje de CIMA não desenha a face de baixo**
+(todo.md L37, relatado em 2026-08-07) — parente do bug-602 já consertado, mesmo
+`emitBox`/`fundeVertical` do mesher. **É o candidato mais barato da fila de jogo.**
 
 **O que sobrou como candidato, e nenhum deles é óbvio:**
 - `handleServerData` (o despachante do cliente) e `handleMessage` (o do `session.ts`, 532 linhas)
@@ -830,10 +896,10 @@ frente:
 cd shared && ../node_modules/.bin/tsc --noEmit   # binário CRU — npx tsc MENTE (bug-586)
 cd client && ../node_modules/.bin/tsc --noEmit
 cd server && ../node_modules/.bin/tsc --noEmit
-npm test && npm run build && npm run smoke       # 781 testes · 15/15 smokes
+npm test && npm run build && npm run smoke       # 814 testes (⚠️ 3 falham: bug-612) · 15/15 smokes
 npm run shots:f10                                # sobe host próprio
 npm run shots:toque                              # sobe host próprio — prova a regra dos painéis
-npm run shots:esc                                # DESKTOP: pointer lock + a regra do Esc (§54)
+npm run shots:esc                                # DESKTOP: pointer lock + Esc (§54) + 609/610 (§65)
 npm run shots:luz                                # ⚠️ EXIGE vite em :5173 de pé ANTES
 ```
 
@@ -850,7 +916,12 @@ pra arquivo e ler depois), senão um script morto no meio não deixa rastro nenh
 E a régua da casa: **A/B honesto** — desligar o que se acabou de escrever e mostrar quais
 asserções caem. Sem teste unitário, é ele que separa "compilou" de "funciona". **E um A/B que
 não derruba nada é resultado do EXPERIMENTO, não do código: ou o teste é fraco, ou a afirmação
-era falsa** (aconteceu duas vezes na 53).
+era falsa** (aconteceu duas vezes na 53 — e uma na 65, com a sonda de pointer lock que media a
+concessão e não a chamada; ela passou COM o bug de volta até ser refeita).
+
+⚠️ **`npm run test` via rtk trunca a saída, e o `tail` come justamente a linha de contagem.** Pra
+ler o resultado de verdade:
+`npx vitest run --reporter=json --outputFile=<scratchpad>/x.json` e somar do JSON.
 
 ### 1c. ⚠️ ABERTO: bug-598 — os dois motores de luz discordam na célula que atenua
 

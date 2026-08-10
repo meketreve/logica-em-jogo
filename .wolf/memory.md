@@ -1833,3 +1833,83 @@ passa pelo próprio portão) · 5 prints da pista. **PLAYTEST PENDENTE.**
 | 17:22 | Handoff: STATUS da sessão 64 escrito, servidores de teste (5173/5174) derrubados | .wolf/STATUS.md | faltam `chore(build)` do dist e `docs(wolf)` | ~2k |
 | 17:30 | Commit do dist: `19292b1` chore(build) — é o binário que a escola baixa e o que rodou a bateria | client/dist | main | ~1k |
 | 17:32 | Session end — sessão 64 fechada: bug-608 medido, consertado e validado nas duas máquinas | .wolf/ | 3 commits + push | ~2k |
+
+## Session: 2026-08-09 20:58
+
+| Time | Action | File(s) | Outcome | ~Tokens |
+|------|--------|---------|---------|--------|
+
+## Session: 2026-08-10 08:46
+
+| Time | Action | File(s) | Outcome | ~Tokens |
+|------|--------|---------|---------|--------|
+| 11:30 | Edited client/src/slotDrag.ts | added 1 condition(s) | ~313 |
+| 11:30 | Edited client/src/slotDrag.ts | modified pressionar() | ~74 |
+| 11:30 | Edited client/src/slotDrag.ts | modified mover() | ~96 |
+| 11:30 | Edited client/src/slotDrag.ts | setProperty() → posicionarFantasma() | ~12 |
+| 11:30 | Edited client/src/slotDrag.ts | added 1 condition(s) | ~164 |
+| 11:30 | Edited client/src/inventory.ts | modified hide() | ~113 |
+| 11:31 | Edited client/src/inventory.ts | modified render() | ~78 |
+| 11:31 | Edited client/src/container.ts | 4→8 lines | ~88 |
+| 11:31 | Edited client/src/container.ts | modified render() | ~68 |
+| 11:31 | Edited client/src/main.ts | 5→9 lines | ~106 |
+| 11:32 | Edited shared/src/receitas.ts | modified 10() | ~345 |
+| 11:32 | Edited shared/src/receitas.ts | 5→10 lines | ~123 |
+| 11:32 | Edited shared/src/receitas.ts | modified 10() | ~156 |
+| 11:33 | Edited shared/src/algodao.test.ts | modified for() | ~356 |
+| 11:33 | Edited shared/src/algodao.test.ts | modified guos() | ~172 |
+| 11:34 | Edited shared/src/claims.ts | modified areaMaxDoClaim() | ~416 |
+| 11:34 | Edited shared/src/claims.ts | added 1 condition(s) | ~205 |
+| 11:35 | Edited shared/src/session/equipes.ts | 9→11 lines | ~56 |
+| 11:35 | Edited shared/src/session/equipes.ts | added 4 condition(s) | ~520 |
+| 11:35 | Edited shared/src/session/equipes.ts | added optional chaining | ~984 |
+| 11:35 | Edited shared/src/session/equipes.ts | modified 10() | ~133 |
+| 11:36 | Edited shared/src/session/equipes.ts | expanded (+10 lines) | ~357 |
+| 11:36 | Edited shared/src/session/equipes.ts | modified for() | ~225 |
+| 11:36 | Edited shared/src/session/equipes.ts | 3→4 lines | ~53 |
+| 11:36 | Edited shared/src/algodao.test.ts | inline fix | ~11 |
+| 11:37 | Edited shared/src/claims.test.ts | expanded (+15 lines) | ~395 |
+| 11:37 | Edited shared/src/claims.test.ts | 7→9 lines | ~46 |
+| 11:38 | Edited shared/src/claims.test.ts | added optional chaining | ~1064 |
+| 11:47 | Edited scripts/esc-shot.mjs | added optional chaining | ~429 |
+| 11:48 | Edited scripts/esc-shot.mjs | modified o() | ~366 |
+| 11:50 | Edited client/src/slotDrag.ts | 2→5 lines | ~72 |
+| 11:50 | Edited client/src/slotDrag.ts | 3→4 lines | ~84 |
+| 11:51 | Edited scripts/esc-shot.mjs | added optional chaining | ~734 |
+| 11:52 | Edited scripts/esc-shot.mjs | modified for() | ~66 |
+| 11:52 | Edited scripts/esc-shot.mjs | 4→8 lines | ~105 |
+| 11:53 | Edited scripts/esc-shot.mjs | modified for() | ~168 |
+| 11:54 | Edited scripts/esc-shot.mjs | modified for() | ~124 |
+| 11:55 | Edited scripts/esc-shot.mjs | added nullish coalescing | ~35 |
+| 11:55 | Edited scripts/esc-shot.mjs | 1→2 lines | ~56 |
+| 11:56 | Edited scripts/esc-shot.mjs | modified for() | ~376 |
+| 12:06 | Edited scripts/esc-shot.mjs | modified for() | ~159 |
+| 12:09 | Edited todo.md | expanded (+22 lines) | ~548 |
+| 12:09 | Edited todo.md | expanded (+18 lines) | ~466 |
+| 12:09 | Edited todo.md | inline fix | ~45 |
+| 12:09 | Edited todo.md | "/claim ligar|desligar|cri" → "/claim ligar|desligar|cri" | ~32 |
+
+## Sessão 65 — 2026-08-10 — playtest: 3 bugs + a área do claim por membro
+
+Cinco pedidos numa mensagem só; os cinco fecharam.
+
+| item | o que era | onde | prova |
+|---|---|---|---|
+| bug-609 | ícone flutuando ao dividir pilha (PC) | `client/src/slotDrag.ts` + `inventory.ts`/`container.ts` | `shots:esc` B3 — com o bug o fantasma lia (0,457) |
+| bug-610 | `/amigos` não soltava o mouse | `client/src/main.ts` (1 linha) | `shots:esc` B2 — 4 pedidos de lock → 0 |
+| bug-611 | 26 receitas cobravam lã | `shared/src/receitas.ts` | teste-portão "nenhuma receita ativa cobra LÃ" |
+| feature | área do claim = 1024 × membros | `shared/src/claims.ts` + `session/equipes.ts` | `claims.test.ts` (limite + `/claim modificar`) |
+| verificação | claim é coluna 0 → topo? | — | **sim**, nos dois caminhos; nada a corrigir |
+
+O que custou tempo, e vale mais que o diff:
+- a **primeira sonda do 610 era vazia** — media `pointerLockElement`, e passou com o bug de
+  volta. Sonda de pointer lock em headless mede **chamada**, não estado.
+- **3 testes de worldgen falham na suíte cheia e passam isolados**, e já falhavam no HEAD limpo
+  (bug-612, aberto). Sem o baseline do `git stash` eu teria caçado uma regressão inexistente.
+- `position: fixed` sem `left`/`top` **não fica onde foi criado** — cai no fluxo do `<body>`.
+  Era a raiz do 609.
+
+VERDE: typecheck 3/3 · 812/814 testes · build · 15/15 smokes · `shots:esc` 26/26 ·
+`shots:f10` OK · `shots:amigos` OK. **Nada commitado — a árvore está suja de propósito.**
+| 12:14 | Session end: 45 writes across 11 files (slotDrag.ts, inventory.ts, container.ts, main.ts, receitas.ts) | 16 reads | ~120581 tok |
+| 12:20 | Playtest 2026-08-10: bugs 609 (fantasma da divisão de pilha), 610 (`/amigos` retravava o mouse) e 611 (26 receitas cobravam lã) FIXED; área do claim virou 1024×membros + `/claim modificar`; coluna 0→topo conferida (correta) | slotDrag.ts, inventory.ts, container.ts, main.ts, receitas.ts, claims.ts, session/equipes.ts, esc-shot.mjs, +3 testes, todo.md, buglog/cerebrum/STATUS | verde: tsc 3/3 · 812/814 (3 falhas = baseline do bug-612, aberto) · build · 15/15 smokes · shots:esc 26/26 · f10/amigos OK; não commitado | ~121k |

@@ -96,6 +96,29 @@
 
 ## Key Learnings
 
+- [2026-08-10] **Prova de UI que mede a CONCESSÃO do pointer lock é vazia — o que vale é contar
+  os PEDIDOS.** Na primeira versão da seção B2 do `shots:esc` a asserção era
+  `document.pointerLockElement === null`, e ela passou **com o bug de volta** (revertido o fix,
+  ✓ mesmo assim). Motivo: o Enter que o script dispara é sintético (`dispatchEvent`), não conta
+  como gesto de usuário, e sem gesto o Chrome recusa `requestPointerLock` de qualquer jeito. O
+  caminho certo é o que o `shots:toque` já usava: envelopar
+  `HTMLCanvasElement.prototype.requestPointerLock` num contador e exigir zero. **Toda sonda de
+  pointer lock em headless mede chamada, não estado.**
+- [2026-08-10] **`position: fixed` sem `left`/`top` NÃO fica onde o elemento foi criado — ele
+  cai na posição estática do fluxo do `<body>`.** É o que produzia o "ícone flutuando no meio da
+  tela" do bug-609: medido no headless, (0,457) numa tela de 1024×600. Elemento flutuante que
+  nasce fora de um gesto de movimento tem de ser posicionado **na criação**, não só no
+  `pointermove` que talvez venha depois.
+- [2026-08-10] **Mudar o `custo` de uma receita EXISTENTE é seguro; mexer na POSIÇÃO dela não
+  é.** O que viaja no protocolo (`fabricar {receita}`) é o ÍNDICE em `RECEITAS`, então editar
+  ingredientes no lugar não desloca nada — foi o que o §🍖 F10c já tinha feito com a lã branca
+  (2 trigo → 3 algodão) e o que a sessão 65 fez com as 26 receitas de lã. Receita que sai de
+  circulação continua sendo `aposentada: "…"`, nunca apagada.
+- [2026-08-10] **Os 12 ids de lã NÃO são contíguos** (`WoolWhite`..`WoolPurple` = 11–18, depois
+  `WoolPink`..`WoolBrown` = 23–26; entre eles moram Sandstone/StoneBricks/Snow/Obsidian). Um
+  teste que varra "toda lã" com `id >= WoolWhite && id <= WoolBrown` pega 4 blocos que não são
+  lã. A lista tem de ser explícita — `receitas.test.ts` já denunciava isso com dois laços
+  separados (`for i<8` e `for i<4`).
 - [2026-08-08] **Bump de versão tem TRÊS passos, e pular o do meio faz o cliente da escola
   mentir.** `shared/src/version.ts` importa o campo `version` do `package.json` da RAIZ e o
   perfilador anônimo grava o resultado **por versão** (`client/src/hud.ts:529`). Como
@@ -919,6 +942,18 @@ custa pelo menos um frame.
 
 ## Do-Not-Repeat
 
+- [2026-08-10] **NÃO chamar a suíte completa de "verde" ou "quebrada" sem o baseline do
+  `git stash`.** A suíte cheia falha **3 testes de worldgen** (árvores / 7 selvagens / banda de
+  minério) que **passam isolados** e que já falhavam no HEAD limpo — é o bug-612, em aberto. Na
+  sessão 65 isso quase virou meia hora caçando regressão num diff que não tinha nenhuma. O
+  procedimento: `git stash push -- shared/src client/src`, rodar, `git stash pop`, comparar.
+  Rodar com `--reporter=json --outputFile=…` — a saída de texto do vitest via rtk é truncada e
+  o `tail` esconde justamente a linha de contagem.
+- [2026-08-10] **Sonda de `pointermove` por CDP no headless PARA de ser entregue depois de dois
+  ou três `Input.dispatchMouseEvent` seguidos.** Medido: o evento congela em (378,437) enquanto
+  o script continua mandando 105 e 140. Asserção ancorada na última coordenada que o SCRIPT
+  disparou falha por motivo errado; ancorar no último `pointermove` que o NAVEGADOR entregou
+  (guardado num `window.__pm` por um listener próprio) e comparar o elemento contra ele.
 - [2026-08-08] **PERF medida no vite DEV MENTE — o número vale no `dist` compilado, e só nele.**
   Bissectando o bug-607 em vite dev, `e58814a` (um refactor NO-OP: `FOLGA_DESCARTE` é 2, igual
   ao `+2` que estava digitado) apareceu como **+37% de main thread por chunk**, reproduzível em
@@ -1299,6 +1334,27 @@ custa pelo menos um frame.
 <!-- Uma linha por decisão. TEXTO COMPLETO (motivo, alternativas, contexto) em
      .wolf/history.md → "## Cerebrum — Decision Log" e "## Cerebrum arquivado (2026-07-28)". -->
 
+- [2026-08-10, sessão 65] **A área do claim é ORÇAMENTO POR MEMBRO (1.024 blocos × pessoas no
+  grupo, teto 6), e não um teto fixo — escolha do usuário entre três opções que apresentei.** Ele
+  descartou tanto o "2.048 por membro (mantém o solo como está hoje)" quanto o "eixo Z escala, X
+  fixo" e escolheu **o mais enxuto**, ciente e avisado de que isso ENCOLHE quem joga sozinho de
+  2.048 para 1.024 e deixa claims salvos acima do limite. Razão da régua: a área protegida tem de
+  crescer com quantas mãos vão construir nela.
+- [2026-08-10, sessão 65] **Grupo que encolhe NÃO encolhe nem apaga o claim — só trava o
+  remarcar, e avisa no chat.** As outras duas opções (cortar a área na hora, remover o claim)
+  apagariam proteção de construção já feita, no meio da aula e sem o aluno pedir. Como
+  `/claim modificar` valida a marcação NOVA contra o limite ATUAL, encolher para caber continua
+  valendo — o mesmo portão serve para as duas coisas.
+- [2026-08-10, sessão 65] **Editar claim é `/claim modificar`, não remover+criar** — escolha do
+  usuário entre as duas. Remover+criar perde o rótulo e abre uma janela em que a construção fica
+  desprotegida; `modificar` substitui no lugar, herda o rótulo e ignora o próprio claim no teste
+  de cruzamento. `criar` e `modificar` dividem o corpo (`marcarClaim`), porque a diferença entre
+  os dois cabe em três linhas.
+- [2026-08-10, sessão 65] **A lã deixou de ser INGREDIENTE de qualquer receita** (pedido do
+  playtest, com o usuário escolhendo as três famílias: móveis, tapetes e lãs coloridas). A
+  conversão é mecânica e explicável em uma frase — **1 lã = os 3 algodões que ela custava**, com
+  a tintura contando 1 por lote e não por fio. Ela segue sendo bloco de construção; o que morreu
+  foi a etapa intermediária que obrigava a fabricar branco só pra desfazer no passo seguinte.
 - [2026-08-06, sessão 51] **O `main.ts` termina o refactor ANTES do playtest — decisão DELE.**
   Apresentei os dois lados: a extração de peça solta esgotou (o arquivo fechou a 51 em +4 linhas,
   o que saiu do corpo voltou como import), o que resta é o `startGame` → `GameRuntime`, que muda

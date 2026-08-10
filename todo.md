@@ -104,7 +104,7 @@ senão lado com parede; empate → base. Cliente inalterado.
 
 ## Sistema anti-griefing (claim de blocos)
 
-* \[x] sistema anti-griefing: claim de blocos + alunos criam grupos de amigos para deixar só certos alunos alterarem suas áreas — **FEITO** (cp24, 2026-07-17; PLAYTEST DO USUÁRIO PENDENTE). `shared/claims.ts` (Claim/GrupoAmigos, MAX_CLAIM_XZ=32, MAX_AMIGOS=6). Claim = COLUNA de altura total (camada 0 → teto), decidido 2026-07-20: aluno marca só a pegada XZ; servidor força min.y=0/max.y=sizeY-1 → ninguém faz ilha flutuante por cima nem escava por baixo. Saves antigos sobem pra coluna cheia no restore. Gate `claimBloqueia` em place/break/use_block; `/claim ligar|desligar|criar|remover|lista` e `/amigos convidar|aceitar|recusar|sair|expulsar|lista`; msgs `claims`+`friends`; persiste no meta do save de mundo livre (some em mundo-aula read-only). Cliente: wireframes laranja + varinha do aluno.
+* \[x] sistema anti-griefing: claim de blocos + alunos criam grupos de amigos para deixar só certos alunos alterarem suas áreas — **FEITO** (cp24, 2026-07-17; PLAYTEST DO USUÁRIO PENDENTE). `shared/claims.ts` (Claim/GrupoAmigos, MAX_AMIGOS=6; a pegada máxima virou orçamento por membro em 2026-08-10 — ver o item logo abaixo). Claim = COLUNA de altura total (camada 0 → teto), decidido 2026-07-20: aluno marca só a pegada XZ; servidor força min.y=0/max.y=sizeY-1 → ninguém faz ilha flutuante por cima nem escava por baixo. Saves antigos sobem pra coluna cheia no restore. Gate `claimBloqueia` em place/break/use_block; `/claim ligar|desligar|criar|modificar|remover|lista|limite` e `/amigos convidar|aceitar|recusar|sair|expulsar|lista`; msgs `claims`+`friends`; persiste no meta do save de mundo livre (some em mundo-aula read-only). Cliente: wireframes laranja + varinha do aluno.
 
   Decisões (todas travadas 2026-07-17):
 
@@ -113,6 +113,28 @@ senão lado com parede; empate → base. Cliente inalterado.
   * grupos de AMIGOS = sistema À PARTE (convite+aceite), NÃO os grupos pedagógicos do cp13.
   * professor IGNORA todo claim (sempre edita).
   * persiste no `.ljw` (meta do mundo livre); em mundo-aula read-only o claim some — sem conflito.
+* \[x] **área máxima do claim cresce com o TAMANHO DO GRUPO** — **FEITO** (2026-08-10, pedido do
+  playtest). O teto fixo de 64×32 saiu; entrou orçamento de área: `AREA_CLAIM_POR_MEMBRO = 1024`
+  blocos de pegada × nº de pessoas no grupo de amigos (dono incluído, teto `MAX_AMIGOS = 6` →
+  6.144), com `MAX_CLAIM_EIXO = 128` pra faixa de 1 bloco não virar atalho barato.
+  `areaMaxDoClaim(membros)` e `claimDentroDoLimite(min, max, membros)` em `shared/src/claims.ts`;
+  `tamanhoDaEquipe`/`areaMaxDe` em `shared/src/session/equipes.ts`. ⚠️ **quem joga sozinho
+  ENCOLHEU** (2.048 → 1.024): claim antigo maior que o limite continua valendo, e o que trava é
+  só remarcar. `/claim limite` diz a conta na tela.
+* \[x] **`/claim modificar`** — **FEITO** (2026-08-10, pedido do playtest; o usuário escolheu
+  "modificar" em vez de "rodar criar de novo"). Remarca com a varinha e roda: substitui a área no
+  lugar, **herda o rótulo**, ignora o próprio claim no teste de cruzamento e não abre a janela em
+  que a construção fica desprotegida (que era o que remover+criar fazia). `criar` e `modificar`
+  compartilham o corpo (`marcarClaim` em `equipes.ts`); `editar` é apelido. Quando o grupo
+  encolhe, quem ficou com claim maior que o limite novo recebe aviso no chat
+  (`avisarClaimApertado`, chamado no sair/dissolver/expulsar) — a área NÃO é encolhida nem
+  removida, decisão do usuário.
+* \[x] **conferir se o claim cria a coluna da camada 0 até a mais alta** — **CONFERIDO**
+  (2026-08-10): cria sim, e nos dois caminhos. Na marcação, `equipes.ts marcarClaim` força
+  `min.y = 0` / `max.y = ses.world.sizeY - 1` depois de validar a pegada; na CARGA de save,
+  `session.ts:580-583` sobe todo claim restaurado pra coluna cheia (saves antigos guardavam
+  altura parcial). Coberto por `claims.test.ts` (`min.y === 0` e `max.y === sizeY - 1` para aluno,
+  professor e para o `/claim modificar`). Nada a corrigir.
 * \[x] bloquear que alunos coloquem blocos fora das áreas de cada grupo nos mundos de aula/atividades — **FEITO** (2026-07-17, cp25 confinamento: `/confinar ligar|desligar` + auto em mundo-aula; aluno só coloca/quebra na área do seu grupo (cp13); sem grupo = travado; professor livre. Playtest do usuário PENDENTE)
 
 ## Mobile / toque
@@ -505,3 +527,21 @@ não tem filesystem; export de "pasta" no single fica de fora (não faz sentido 
   os 6 bugs relatados (599-604) estão no `.wolf/buglog.json` e o resumo da sessão no
   `.wolf/STATUS.md` (sessão 55). Os pedidos de conteúdo e a fila de consertos estão nas seções
   de sobrevivência/backlog acima.
+* \[x] **playtest 2026-08-10 — 3 bugs relatados, os 3 consertados no mesmo dia** (bug-609/610/611
+  no `.wolf/buglog.json`; sessão 65 no `.wolf/STATUS.md`):
+  * \[x] **dividir pilha deixa o ícone flutuando no meio da tela (notebook/PC)** — bug-609.
+    O fantasma era do ARRASTO e a divisão por clique direito o criava sem `cand`, então ele
+    nascia sem `left`/`top` (medido: (0,457) numa tela de 1024×600), não seguia o cursor e
+    nunca sumia. `client/src/slotDrag.ts` + o `sincronizar()` chamado por `inventory.ts` e
+    `container.ts`. Prova: `shots:esc` seção **B3**.
+  * \[x] **`/amigos` não libera o mouse** — bug-610. O painel abria e o `close()` do chat
+    mandava `input.lock()` por cima dele. `client/src/main.ts`: o lock só volta se nenhum
+    painel estiver aberto. Prova: `shots:esc` seção **B2** (conta os PEDIDOS de
+    `requestPointerLock`: 4 → 0).
+  * \[x] **crafts ainda cobrando lã em vez de algodão** — bug-611. As 26 receitas que
+    consumiam lã (11 coloridas, 12 tapetes, sofá/cama/quadro) passaram a cobrar a FIBRA, na
+    regra 1 lã = 3 algodão (`FIBRA_POR_LA`), com a tintura contando 1 por lote. Teste-portão
+    novo: "nenhuma receita ativa cobra LÃ" (`algodao.test.ts`). A lã segue como bloco de
+    construção — só não é mais matéria-prima de ninguém.
+  * Os dois pedidos de FEATURE da mesma conversa (área do claim por membro e `/claim
+    modificar`) estão na seção **Sistema anti-griefing**, acima.

@@ -4651,6 +4651,93 @@
    ],
    "occurrences": 1,
    "last_seen": "2026-08-09T16:20:00Z"
+  },
+  {
+   "id": "bug-609",
+   "timestamp": "2026-08-10T00:00:00Z",
+   "error_message": "playtest: \"dividir pilha de itens no inventario deixa icone do item dividido flutuando no meio da tela quando feito em notebook/pc\"",
+   "file": "client/src/slotDrag.ts",
+   "root_cause": "O fantasma (o icone que segue o cursor) foi escrito para o ARRASTO, e a divisao por clique DIREITO nasceu depois reusando `mostrarFantasma` sem reusar o resto do caminho. Tres buracos, todos com a mesma raiz: `pressionar` (button === 2) NAO seta `this.cand`. (1) POSICAO: quem posicionava o fantasma eram as duas linhas `style.setProperty('left'/'top')` no FIM de `mover(e)`, e `mover` comeca com `if (!this.cand) return` — sem arrasto elas nunca rodavam, entao o div `position:fixed` ficava SEM `left`/`top` e caia na posicao estatica do fluxo do <body> (medido no headless: (0,457) numa tela de 1024x600 — colado na borda esquerda, no meio da altura, exatamente o \"flutuando no meio da tela\"). (2) NAO SEGUIA o cursor, pelo mesmo `if (!this.cand) return`. (3) NUNCA SUMIA: `esconderFantasma()` so era chamado de `soltar()`, que tambem exige `cand` — largar a metade com o clique ESQUERDO (que passa por `aoClicar` do painel) ou fechar o painel deixava o icone na tela para sempre, e `hide()` do inventario nem limpava o `pegando`.",
+   "fix": "FEITO em 2026-08-10. slotDrag.ts: (a) memoria `px/py` da ultima posicao do ponteiro, gravada em `pressionar` e no topo de `mover` ANTES do `return`; (b) `posicionarFantasma()` extraido e chamado tambem no fim de `mostrarFantasma` — o fantasma ja nasce no cursor; (c) `mover` posiciona antes do `if (!this.cand) return`, entao a metade na mao segue o ponteiro sem arrasto; (d) metodo publico `sincronizar()` que apaga o fantasma quando `hooks.pegando()` e null; (e) o div ganhou `className = 'arrasto-fantasma'` (classe, nao id: mochila e container tem um ArrastoDeSlot CADA) para o shot poder medi-lo. inventory.ts e container.ts chamam `sincronizar()` no topo de `render()` e limpam `pegando`/`metadePegando` no fechar. PROVA: `shots:esc` secao B3 (Chrome headless de desktop, clique direito REAL por CDP numa pilha de 32) — com o fix o fantasma nasce em (316,400) para um clique em (308,392), mostra 16, segue o ponteiro 8 px a frente e some ao fechar o painel; com o codigo velho a mesma sonda le (0,457), nao segue e sobrevive ao fechar.",
+   "tags": [
+    "inventario",
+    "drag",
+    "divisao-de-pilha",
+    "clique-direito",
+    "pc",
+    "playtest-2026-08-10",
+    "ui",
+    "FIXED",
+    "fix-2026-08-10"
+   ],
+   "related_bugs": [],
+   "occurrences": 1,
+   "last_seen": "2026-08-10T00:00:00Z"
+  },
+  {
+   "id": "bug-610",
+   "timestamp": "2026-08-10T00:00:00Z",
+   "error_message": "playtest: \"o comando amigos nao libera o mouse para poder clicar, a interface continua capiturando o mouse\"",
+   "file": "client/src/main.ts",
+   "root_cause": "`/amigos` sem subcomando abre o painel pelo cliente (`abrirAmigosPorComando` -> `paineis.trocarParaAmigos()`), e o ChatUi fecha o campo NA LINHA SEGUINTE ao `onSend` (chat.ts:69-70). O callback de fechamento do chat era `if (!open) input.lock()` (main.ts) — escrito quando o unico destino de fechar o chat era voltar pro jogo. Com o painel na frente, o `requestPointerLock` vinha por cima dele: o aluno via a interface e nao conseguia clicar em nada. Vale para QUALQUER comando que abra painel pelo lado do cliente, nao so o /amigos.",
+   "fix": "FEITO em 2026-08-10. main.ts: `if (!open && !paineis.algumAberto) input.lock()`. PROVA: `shots:esc` secao B2 conta as CHAMADAS de `requestPointerLock` (nao o `pointerLockElement`): 4 pedidos com o codigo velho, 0 com o fix. A contagem de pedidos e obrigatoria aqui — o Enter que o script dispara e sintetico, e sem gesto de usuario o Chrome recusa o lock de qualquer jeito, entao medir a CONCESSAO dava verde nos dois lados (a primeira versao da sonda passou com o bug de volta).",
+   "tags": [
+    "pointer-lock",
+    "chat",
+    "painel",
+    "amigos",
+    "playtest-2026-08-10",
+    "ui",
+    "FIXED",
+    "fix-2026-08-10"
+   ],
+   "related_bugs": [
+    "bug-585",
+    "bug-597"
+   ],
+   "occurrences": 1,
+   "last_seen": "2026-08-10T00:00:00Z"
+  },
+  {
+   "id": "bug-611",
+   "timestamp": "2026-08-10T00:00:00Z",
+   "error_message": "playtest: \"revisa todos os crafts, alguns ainda usam la ao invez de algodao\"",
+   "file": "shared/src/receitas.ts",
+   "root_cause": "O F10c (sessao 46) trocou a FONTE da la (era 2 trigo, virou 3 algodao) mas nao mexeu em quem CONSOME la. Sobraram 26 receitas cobrando la como materia-prima: as 11 coloridas (1 la branca + corante), os 12 tapetes (2 las da mesma cor) e 3 moveis (sofa 2, cama 3, quadro 1 la branca). Na lista do painel isso obriga o aluno a fabricar la branca so pra desfazer no passo seguinte — uma etapa que nao ensina nada e que some do filtro \"so o que da pra fazer agora\".",
+   "fix": "FEITO em 2026-08-10, com a regra unica 1 la = 3 algodao (`FIBRA_POR_LA`), a conta preservada e a tintura contando 1 por LOTE. Las coloridas: 3 algodao + corante. Tapetes: 6 algodao (+ corante nos 11 coloridos; o branco e o liso, sem tintura, como na la). Moveis: sofa 3 tabua + 6 algodao, cama 3 tabua + 9 algodao, quadro 2 tabua + 3 algodao. Os INDICES de `RECEITAS` nao se mexeram (so `custo` mudou no lugar) — o indice e a identidade no protocolo `fabricar {receita}`, e o precedente e o proprio F10c. A la segue existindo como bloco de construcao, so nao e mais materia-prima de ninguem. Teste-portao novo em algodao.test.ts: \"nenhuma receita ativa cobra LA\" (com os 12 ids explicitos — eles NAO sao contiguos: 11-18 e 23-26).",
+   "tags": [
+    "receitas",
+    "craft",
+    "algodao",
+    "la",
+    "playtest-2026-08-10",
+    "balanceamento",
+    "FIXED",
+    "fix-2026-08-10"
+   ],
+   "related_bugs": [],
+   "occurrences": 1,
+   "last_seen": "2026-08-10T00:00:00Z"
+  },
+  {
+   "id": "bug-612",
+   "timestamp": "2026-08-10T00:00:00Z",
+   "error_message": "3 testes de worldgen falham SO na suite completa e passam isolados: \"arvores — cada especie usa o proprio tronco e a propria copa\", \"F10h — o algodao nao sumiu (7 especies selvagens)\", \"gen procedural — minerios respeitam a banda de profundidade\". A falha vem como `Error: STACK_TRACE_ERROR` sem mensagem.",
+   "file": "shared/src/worldgen.test.ts",
+   "root_cause": "NAO INVESTIGADO — descoberto de raspao na sessao 65 enquanto se media o baseline. E PRE-EXISTENTE: com `git stash` de todo o diff da sessao a suite completa falha os MESMOS 3 (808/811). Os tres sao os testes de worldgen mais pesados e os tres passam quando rodados sozinhos ou em grupo de dois (0/15), o que aponta pra contencao de recurso no pool de workers do vitest (OOM/timeout) e nao pra regressao de logica. A falta de mensagem (`STACK_TRACE_ERROR`) e o que impede confirmar sem investigar.",
+   "fix": "EM ABERTO. Enquanto nao for investigado, a leitura correta da suite e \"3 falhas de worldgen = baseline\", e qualquer sessao tem de comparar com `git stash` antes de culpar o proprio diff.",
+   "tags": [
+    "testes",
+    "vitest",
+    "worldgen",
+    "flaky",
+    "suite-completa",
+    "ABERTO",
+    "baseline"
+   ],
+   "related_bugs": [],
+   "occurrences": 1,
+   "last_seen": "2026-08-10T00:00:00Z"
   }
  ]
 }
