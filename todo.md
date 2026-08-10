@@ -434,11 +434,14 @@ ferramenta certa quebra rápido, gasta, e precisa ser refeita.
   demora ~1 s, não aparece no tablet e some sozinho. Um tooltip próprio serve os dois aparelhos
   (hover no PC, toque-e-segure no tablet) e é onde a durabilidade e o "serve pra quê" vão morar
   quando existirem.
-* \[ ] **esconder a hotbar com QUALQUER menu aberto** (incluindo a mochila). O `updateOverlay`
-  já sabe se há menu (`menuAberto()`, 2026-08-05) e já esconde a barra de TOQUE por isso — falta
-  a hotbar do PC. Ela hoje fica visível atrás dos painéis, e no painel de container aparece
-  DUAS vezes (a de verdade atrás e a faixa de 9 slots dentro do painel), que é a confusão que o
-  pedido aponta.
+* \[x] **esconder a hotbar com QUALQUER menu aberto** (incluindo a mochila) — **FEITO**
+  (2026-08-10, sessão 66, **bug-614**). A 58 tinha escrito o `toggle` da classe `hidden` na
+  `#hotbar` como o ESPELHO da condição do overlay, e espelhar dá o oposto: o overlay some
+  justamente quando o painel abre, então a barra ficava na tela com painel, com chat e durante
+  a CARGA, e sumia só no menu de pausa (no tablet nunca sumia — `input.active` inclui `touch`).
+  Agora `client/src/main.ts` usa `noControle && !chat.open && !panelOpen && !loading.ativo`.
+  Prova: 4 asserções novas no `npm run shots:esc` (seções A e B2), e com o dist do código
+  velho as 3 que importam CAEM (a barra media 81px de altura com a mochila aberta).
 * \[x] **clique e arraste (click'n'drag) pra mover item na versão PC** — **FEITO** (T3 da
   sessão 59, commit `a70fb32`; `client/src/slotDrag.ts` NOVO — `ArrastoDeSlot` (linha 77)
   põe o SEGURAR→arrastar→soltar POR CIMA do gesto tocar-origem/destino, que continua valendo

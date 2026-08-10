@@ -251,6 +251,21 @@ const estado = () => avaliar(`(() => ({
   travado: document.pointerLockElement !== null,
 }))()`);
 
+/** A hotbar do PC está na tela? (§💬 todo L437 — ela tem de sumir com QUALQUER
+ *  menu aberto.) A `altura` guarda contra deriva do `.hidden` no CSS: a classe
+ *  pode estar lá e não esconder nada.
+ *  ⚠️ Não há seção própria pra ela DE PROPÓSITO: em headless cada transição de
+ *  painel gasta a carência de pointer lock do Chrome, e uma seção nova caía no
+ *  menu de pausa — com o chat fechado, "a hotbar sumiu com o chat aberto"
+ *  passava VAZIA. Medir DENTRO das seções que já seguram o ponteiro (A e B2)
+ *  custa zero transição e não pode passar por ausência. */
+const hotbar = () => avaliar(`(() => {
+  const e = document.getElementById('hotbar');
+  if (!e) return { existe: false, escondida: false, altura: -1 };
+  return { existe: true, escondida: e.classList.contains('hidden'),
+           altura: Math.round(e.getBoundingClientRect().height) };
+})()`);
+
 await cdp("Page.bringToFront");
 await avaliar(`document.getElementById('overlay-voltar')?.click()`);
 await espera(1200);
@@ -268,10 +283,20 @@ if (!jogando.travado) {
 diga(`  jogando: ${JSON.stringify(jogando)}`);
 
 diga("== A: Esc com a MOCHILA aberta fecha só ela (bug-597) ==");
+const naJogatina = await hotbar(); // linha de base: jogando, sem menu nenhum
 await tecla("KeyE");
 const comPainel = await ateQue(estado, (a) => a.painel === true, 3000);
 ok(comPainel.painel, "a mochila abriu");
 ok(!comPainel.pausa, "e o menu de pausa não veio junto");
+// §💬 a hotbar do PC some com o painel (todo L437). A 58 escreveu "a MESMA
+// condição do overlay" e implementou o ESPELHO dela — e espelhar dá o oposto,
+// porque o overlay some justamente quando o painel abre. Resultado: a faixa de
+// 9 ficava na tela, duplicada com a que a própria mochila desenha.
+const sobPainel = await ateQue(hotbar, (h) => h.escondida === true, 2000);
+ok(comPainel.painel && sobPainel.escondida, "e a hotbar SUMIU junto");
+ok(sobPainel.altura === 0, `ela não ocupa mais espaço (altura ${sobPainel.altura}px)`);
+ok(!naJogatina.escondida, `— e estava na tela antes de abrir (altura ${naJogatina.altura}px)`);
+await foto("05-hotbar-sob-painel.png");
 
 await tecla("Escape");
 // 3 s de amostras: o piscar do menu de pausa dura o tempo da carência do
@@ -282,6 +307,10 @@ ok(!amostras[0].painel, "o Esc fechou a mochila");
 const piscou = amostras.filter((a) => a.pausa).length;
 ok(piscou === 0, `o menu de pausa NÃO apareceu em nenhuma das 12 amostras (${piscou})`);
 ok(amostras.at(-1).travado, "e o jogo recuperou o ponteiro sozinho");
+// a barra volta junto com o jogo — e só é cobrada aqui porque a linha de cima
+// acabou de provar que o ponteiro voltou (sem lock ela fica escondida COM razão)
+const depoisDoEsc = await ateQue(hotbar, (h) => h.escondida === false, 3000);
+ok(amostras.at(-1).travado && !depoisDoEsc.escondida, "e a hotbar VOLTOU com ele");
 await foto("01-depois-do-esc-no-painel.png");
 
 diga("== B: Esc com a TELA LIVRE abre o menu de pausa ==");
@@ -313,17 +342,32 @@ ok(!dejogo.pausa, `voltou pro jogo (ponteiro travado: ${dejogo.travado})`);
 // na primeira versão desta seção. Quem tem de somar zero é a CHAMADA.
 await avaliar(`(() => {
   window.__lockPedidos = 0;
+  window.__lockQuando = [];
   const orig = HTMLCanvasElement.prototype.requestPointerLock;
   HTMLCanvasElement.prototype.requestPointerLock = function (...a) {
     window.__lockPedidos++;
+    window.__lockQuando.push(Math.round(performance.now() - (window.__t0 ?? 0)));
     return orig.apply(this, a);
   };
   return 1;
 })()`);
 await tecla("Enter"); // a tecla do chat (settings.keys.chat)
 await espera(400);
-ok(await avaliar(`!document.getElementById('chat-input').classList.contains('hidden')`), "o chat abriu");
-await avaliar(`window.__lockPedidos = 0`); // zera: o que interessa é o do comando
+const chatAberto = await avaliar(
+  `!document.getElementById('chat-input').classList.contains('hidden')`,
+);
+ok(chatAberto, "o chat abriu");
+// §💬 o chat é "menu aberto" pro mesmo fim (todo L437): a barra some com ele.
+// A asserção exige o chat NA TELA — senão passaria por ausência.
+// ⚠️ leitura CURTA de propósito (400 ms, não 2 s): o `updateOverlay` roda no
+// mesmo tick que abre o chat, e uma espera longa aqui deixa o `reagendarLock`
+// (1 tentativa, 1,4 s) cair DEPOIS do `__lockPedidos = 0` logo abaixo e sujar a
+// contagem do bug-610 com um pedido que não veio do comando.
+const sobChat = await ateQue(hotbar, (h) => h.escondida === true, 400);
+ok(chatAberto && sobChat.escondida, "e a hotbar SUMIU com ele na tela");
+// zera e marca o instante do comando: o que interessa é o pedido que sai do
+// caminho do /amigos, e o carimbo separa ele de uma tentativa atrasada
+await avaliar(`(window.__lockPedidos = 0, window.__lockQuando = [], window.__t0 = performance.now(), 1)`);
 await avaliar(`(() => {
   const f = document.getElementById('chat-input');
   f.value = '/amigos';
@@ -333,7 +377,11 @@ await avaliar(`(() => {
 await espera(2000);
 ok((await estado()).painel, "o painel de amigos ficou aberto");
 const pedidos = await avaliar(`window.__lockPedidos`);
-ok(pedidos === 0, `o comando não pediu o ponteiro de volta (pedidos=${pedidos}) — dá pra clicar no painel`);
+const quando = (await avaliar(`window.__lockQuando`)) ?? [];
+ok(
+  pedidos === 0,
+  `o comando não pediu o ponteiro de volta (pedidos=${pedidos}${quando.length ? `, em ${quando.join(" e ")} ms do comando` : ""}) — dá pra clicar no painel`,
+);
 await foto("03-amigos-por-comando.png");
 await tecla("Escape"); // fecha o painel e devolve o jogo pro estado de sempre
 await espera(1500);

@@ -178,7 +178,25 @@ export class Input {
   private retryGasto = false;
   private pedindo = false;
 
+  /**
+   * Dá pra travar o ponteiro AGORA? (bug-613, 2026-08-10.)
+   *
+   * O `Input` não conhece painel nem chat, então quem sabe disso injeta a
+   * pergunta — o `main.ts` responde `!paineis.algumAberto`. Sem ela, a tentativa
+   * ATRASADA do `reagendarLock` (1,4 s depois de uma recusa) dispara sem olhar a
+   * tela e prende o ponteiro POR CIMA de um painel que o aluno abriu no meio do
+   * caminho: Esc → "voltar ao jogo" recusado dentro da carência → o aluno abre a
+   * mochila → 1,4 s depois o ponteiro trava e ele não clica em mais nada. É o
+   * mesmo sintoma do bug-610 por outra porta, e o guarda daquele conserto está
+   * no callback do chat (`main.ts`), que este caminho não passa.
+   */
+  podeTravar: () => boolean = () => true;
+
   private pedirLock(): void {
+    if (!this.podeTravar()) {
+      this.pedindo = false; // desistiu: não há tentativa no ar pra desenhar
+      return;
+    }
     this.pedindo = true;
     // unadjustedMovement: movimento cru, sem aceleração do SO (menos spikes no Chrome/Windows)
     const req = this.canvas.requestPointerLock({ unadjustedMovement: true }) as

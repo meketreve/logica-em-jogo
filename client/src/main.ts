@@ -228,6 +228,11 @@ initUiAudio(settings.volume);
  *  atlas), mas o `updateOverlay` do boot já pergunta a ele — daí o objeto vir
  *  antes, e não os cinco `let` que ele substituiu. */
 const paineis = new PainelHost(() => menuDePausaAberto() || chat.open);
+// bug-613: nenhum pedido de pointer lock com painel na tela — nem o do clique,
+// nem a tentativa ATRASADA do `reagendarLock`, que dispara 1,4 s depois de uma
+// recusa e não passa pelo guarda do fechar-chat (o conserto do bug-610, logo
+// abaixo). Travar o ponteiro por cima de um painel deixa o aluno sem clique.
+input.podeTravar = () => !paineis.algumAberto;
 /** Último `friends` que o servidor mandou (o painel é puro consumo dele). */
 let latestFriends: { equipe: { dono: string; membros: string[] } | null; convites: string[]; enviados: string[] } = {
   equipe: null,
@@ -293,13 +298,27 @@ function updateOverlay(): void {
     benchRodando || loading.ativo || input.active || input.retomando || chat.open || panelOpen,
   );
   // §💬 (2026-08-07, pedido do usuário): a hotbar some com QUALQUER menu aberto.
-  // A de TOQUE já escondia (setShown ali em cima); a do PC ficava pintada por
-  // baixo dos painéis — e duplicada na grade de container/inventário, que
-  // mostram a PRÓPRIA faixa de 9. Condição espelhada do overlay: visível só com
-  // o jogo no controle (a barra de toque também é o seletor do tablet).
+  // A do PC ficava pintada por baixo dos painéis — e duplicada na grade de
+  // container/inventário, que mostram a PRÓPRIA faixa de 9. Vale pro tablet
+  // também: a barra de toque é o seletor do dedo.
+  //
+  // ⚠️ NÃO é a condição do overlay espelhada, e a 1ª versão disto era (2026-08-10):
+  // `toggle("hidden", !A)` com o MESMO `A` do overlay deixava a hotbar visível
+  // exatamente quando o menu de pausa some — ou seja, COM painel, COM chat e
+  // durante a tela de CARGA, que é o oposto do pedido. O overlay some quando o
+  // painel abre justamente pra não cobrir o painel; a hotbar tem de fazer o
+  // contrário, então `panelOpen`/`chat.open`/`loading.ativo` entram NEGADOS aqui.
+  // No toque o buraco era pior: `input.active` inclui `touch`, logo a barra nunca
+  // sumia no tablet.
+  //
+  // `input.retomando` fica no lado VISÍVEL: fechar painel com Esc cai na carência
+  // de ~1,25 s do Chrome (bug-597) e sem ele a barra pisca no vão. `benchRodando`
+  // também: o ?bench mede render de jogo e as baterias das sessões 63/64 foram
+  // tiradas com a barra na tela — escondê-la mudaria a base de comparação.
+  const noControle = benchRodando || input.active || input.retomando;
   hotbarEl?.classList.toggle(
     "hidden",
-    !(benchRodando || loading.ativo || input.active || input.retomando || chat.open || panelOpen),
+    !(noControle && !chat.open && !panelOpen && !loading.ativo),
   );
   // mira só existe COM o jogo no controle (pedido do usuário: invisível no Esc)
   crosshairEl?.classList.toggle("hidden", !input.active);
