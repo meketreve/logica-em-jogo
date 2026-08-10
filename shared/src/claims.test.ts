@@ -1,7 +1,9 @@
 import { describe, expect, it } from "vitest";
 import { BlockId } from "./blocks";
 import {
+  AREA_CLAIM_POR_MEMBRO,
   MAX_AMIGOS,
+  areaMaxDoClaim,
   caixasSeCruzam,
   claimDentroDoLimite,
   parseClaim,
@@ -36,11 +38,26 @@ function ultimaChat(sent: Sent, clientId: number): string | null {
 }
 
 describe("claims — helpers puros", () => {
-  it("claimDentroDoLimite: até 64 (x) × 32 (z), altura livre (coluna cheia)", () => {
-    expect(claimDentroDoLimite({ x: 0, y: 0, z: 0 }, { x: 63, y: 0, z: 31 })).toBe(true);
-    expect(claimDentroDoLimite({ x: 0, y: 0, z: 0 }, { x: 64, y: 0, z: 0 })).toBe(false); // 65 de largura
-    expect(claimDentroDoLimite({ x: 0, y: 0, z: 0 }, { x: 0, y: 0, z: 32 })).toBe(false); // 33 de fundo
-    expect(claimDentroDoLimite({ x: 0, y: 0, z: 0 }, { x: 0, y: 999, z: 0 })).toBe(true); // altura não limita
+  // 2026-08-10: o teto virou ORÇAMENTO DE ÁREA por membro do grupo (1.024 cada,
+  // até 6), com teto de 128 por eixo. Sozinho = 1.024 (era 64×32 = 2.048).
+  it("claimDentroDoLimite: 1.024 blocos por membro, altura livre (coluna cheia)", () => {
+    const O = { x: 0, y: 0, z: 0 };
+    expect(claimDentroDoLimite(O, { x: 31, y: 0, z: 31 })).toBe(true); // 32×32 = 1.024
+    expect(claimDentroDoLimite(O, { x: 32, y: 0, z: 31 })).toBe(false); // 33×32 = 1.056
+    expect(claimDentroDoLimite(O, { x: 0, y: 999, z: 0 })).toBe(true); // altura não limita
+    // o grupo é que compra área: 6 pessoas chegam a 6.144
+    expect(claimDentroDoLimite(O, { x: 63, y: 0, z: 63 }, 4)).toBe(true); // 4.096 com 4
+    expect(claimDentroDoLimite(O, { x: 63, y: 0, z: 63 }, 3)).toBe(false); // 4.096 com 3 = não
+    expect(claimDentroDoLimite(O, { x: 127, y: 0, z: 47 }, 6)).toBe(true); // 6.144 com 6
+    // e nenhum lado passa de 128, por barata que a faixa seja em área
+    expect(claimDentroDoLimite(O, { x: 128, y: 0, z: 0 }, 6)).toBe(false);
+  });
+
+  it("areaMaxDoClaim: presa entre 1 e MAX_AMIGOS (sem grupo = 1 membro)", () => {
+    expect(areaMaxDoClaim(1)).toBe(AREA_CLAIM_POR_MEMBRO);
+    expect(areaMaxDoClaim(6)).toBe(6 * AREA_CLAIM_POR_MEMBRO);
+    expect(areaMaxDoClaim(0)).toBe(AREA_CLAIM_POR_MEMBRO);
+    expect(areaMaxDoClaim(99)).toBe(MAX_AMIGOS * AREA_CLAIM_POR_MEMBRO);
   });
 
   it("caixasSeCruzam é inclusiva (tocar num canto conta)", () => {
@@ -180,11 +197,77 @@ describe("claims — proteção de áreas (cp24)", () => {
     session.handleMessage(3, cmd("/claim criar"));
     expect(ultimaChat(sent, 3)).toContain("encosta na área de ana");
 
-    // bia tenta um claim gigante (65 de largura, passa dos 64)
+    // bia tenta um claim gigante: 40×31 = 1.240, e sozinha ela só tem 1.024
     session.handleMessage(3, mark(1, 0, 0, 0));
-    session.handleMessage(3, mark(2, 64, 0, 0));
+    session.handleMessage(3, mark(2, 39, 0, 30));
     session.handleMessage(3, cmd("/claim criar"));
     expect(ultimaChat(sent, 3)).toContain("grande demais");
+    expect(ultimaChat(sent, 3)).toContain("1024"); // o limite dela, escrito
+  });
+
+  /**
+   * 2026-08-10 (pedido do playtest): a área máxima cresce com o GRUPO, e editar
+   * o claim é remarcar com a varinha e rodar `/claim modificar` — sem passar por
+   * remover+criar, que deixa a construção desprotegida no meio do caminho.
+   */
+  it("o limite de área cresce com o grupo, e /claim modificar remarca no lugar", () => {
+    const { sent, session, sx, sz, h } = mundoComTurma({ x: 5, z: 2, y: 2 });
+    session.handleMessage(1, cmd("/claim ligar"));
+
+    // sozinha, ana não passa de 1.024 (40×31 = 1.240 é recusado)
+    session.handleMessage(2, mark(1, 0, 0, 0));
+    session.handleMessage(2, mark(2, 39, 0, 30));
+    session.handleMessage(2, cmd("/claim criar"));
+    expect(ultimaChat(sent, 2)).toContain("grande demais");
+    expect(session.toSave().claims ?? []).toHaveLength(0);
+
+    // com a bia no grupo são 2 pessoas = 2.048, e a MESMA marcação passa
+    session.handleMessage(2, cmd("/amigos convidar bia"));
+    session.handleMessage(3, cmd("/amigos aceitar ana"));
+    session.handleMessage(2, mark(1, 0, 0, 0));
+    session.handleMessage(2, mark(2, 39, 0, 30));
+    session.handleMessage(2, cmd("/claim criar casa"));
+    const criado = session.toSave().claims?.find((c) => c.dono === "ana");
+    expect(criado?.max.x).toBe(39);
+    expect(criado?.nome).toBe("casa");
+
+    // criar de novo não vale: o comando de editar é o modificar
+    session.handleMessage(2, mark(1, 50, 0, 0));
+    session.handleMessage(2, mark(2, 60, 0, 10));
+    session.handleMessage(2, cmd("/claim criar"));
+    expect(ultimaChat(sent, 2)).toContain("/claim modificar");
+
+    // modificar remarca no lugar, HERDA o rótulo e continua sendo coluna cheia
+    session.handleMessage(2, mark(1, 50, h, 0));
+    session.handleMessage(2, mark(2, 60, h + 3, 10));
+    session.handleMessage(2, cmd("/claim modificar"));
+    const novo = session.toSave().claims?.find((c) => c.dono === "ana");
+    expect(novo?.min.x).toBe(50);
+    expect(novo?.max.x).toBe(60);
+    expect(novo?.nome).toBe("casa"); // não digitou nome: herda o que tinha
+    expect(novo?.min.y).toBe(0);
+    expect(novo?.max.y).toBe(session.world.sizeY - 1);
+    expect(session.toSave().claims).toHaveLength(1); // remarcou, não criou outro
+
+    // e a bia saindo do grupo NÃO apaga a área — só avisa que ficou apertada
+    const grande = { min: { x: 0, y: 0, z: 0 }, max: { x: 39, y: 0, z: 30 } };
+    session.handleMessage(2, mark(1, grande.min.x, h, grande.min.z));
+    session.handleMessage(2, mark(2, grande.max.x, h, grande.max.z));
+    session.handleMessage(2, cmd("/claim modificar"));
+    session.handleMessage(3, cmd("/amigos sair"));
+    expect(ultimaChat(sent, 2)).toContain("continua protegida");
+    expect(session.toSave().claims?.find((c) => c.dono === "ana")?.max.x).toBe(39);
+
+    // ...e agora o modificar recusa remarcar do mesmo tamanho (1 pessoa = 1.024)
+    session.handleMessage(2, mark(1, 0, h, 0));
+    session.handleMessage(2, mark(2, 39, h, 30));
+    session.handleMessage(2, cmd("/claim modificar"));
+    expect(ultimaChat(sent, 2)).toContain("grande demais");
+    // encolher para dentro do limite continua valendo
+    session.handleMessage(2, mark(1, 0, h, 0));
+    session.handleMessage(2, mark(2, 31, h, 31));
+    session.handleMessage(2, cmd("/claim modificar"));
+    expect(session.toSave().claims?.find((c) => c.dono === "ana")?.max.x).toBe(31);
   });
 
   it("claimsAtivo + claim + grupo de amigos sobrevivem ao save/restore", () => {

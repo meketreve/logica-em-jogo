@@ -1,11 +1,13 @@
 import {
+  AREA_CLAIM_POR_MEMBRO,
   type Claim,
   MAX_AMIGOS,
+  MAX_CLAIM_EIXO,
   MAX_CLAIM_NAME,
-  MAX_CLAIM_X,
-  MAX_CLAIM_Z,
+  areaMaxDoClaim,
   caixasSeCruzam,
   claimDentroDoLimite,
+  pegadaDoClaim,
 } from "../claims";
 import { MAX_GRUPOS } from "../groups";
 import { type ServerMessage } from "../protocol";
@@ -56,6 +58,44 @@ export function mesmaEquipe(ses: GameSession, a: string, b: string): boolean {
 export function membrosDaEquipe(ses: GameSession, dono: string): string[] {
   const membros = ses.amigos.get(dono);
   return membros ? [dono, ...membros] : [];
+}
+
+/** Quantas pessoas contam pro limite de área DESTE aluno: o tamanho do grupo de
+ *  amigos dele (contando o dono), ou 1 se ele joga sozinho (2026-08-10). */
+export function tamanhoDaEquipe(ses: GameSession, name: string): number {
+  const dono = equipeDe(ses, name);
+  if (dono === null) return 1;
+  return Math.max(1, membrosDaEquipe(ses, dono).length);
+}
+
+/** Limite de pegada do claim deste aluno, agora. */
+export function areaMaxDe(ses: GameSession, name: string): number {
+  return areaMaxDoClaim(tamanhoDaEquipe(ses, name));
+}
+
+/**
+ * O grupo ENCOLHEU (alguém saiu, foi expulso, ou o dono dissolveu): quem ficou
+ * com claim maior que o limite novo é avisado no chat. A decisão de 2026-08-10
+ * é **não mexer na área** — apagar ou encolher proteção de construção já feita,
+ * no meio da aula e sem o aluno pedir, é o pior dos três. O claim continua
+ * valendo; o que trava é o `/claim modificar`, que só aceita marcação nova
+ * dentro do limite atual.
+ */
+function avisarClaimApertado(ses: GameSession, nomes: readonly string[]): void {
+  for (const n of new Set(nomes)) {
+    const c = ses.claims.get(n);
+    if (!c) continue;
+    const limite = areaMaxDe(ses, n);
+    const { area } = pegadaDoClaim(c.min, c.max);
+    if (area <= limite) continue;
+    const id = clientIdDe(ses, n);
+    if (id === null) continue;
+    ses.sendServerChat(
+      id,
+      `Seu grupo de amigos diminuiu: o limite de área caiu para ${limite} blocos e a sua tem ${area}. ` +
+        `Ela continua protegida — mas o /claim modificar só vai aceitar uma marcação que caiba em ${limite}.`,
+    );
+  }
 }
 
 /**
@@ -195,8 +235,77 @@ export function avisarEquipe(ses: GameSession, dono: string, texto: string): voi
   }
 }
 
-/** `/claim` — proteção de áreas. ligar/desligar = professor; criar/remover/
- *  lista = aluno. O professor edita qualquer lugar (ignora claims). */
+/**
+ * O corpo COMUM de `/claim criar` e `/claim modificar` — lê a marcação da
+ * varinha, força a COLUNA (camada 0 → teto do mundo) e recusa o que estoura o
+ * limite ou encosta em área alheia. Os dois comandos diferem em três pontos, e
+ * só neles: `modificar` exige um claim já existente, **ignora o próprio claim**
+ * no teste de cruzamento (senão a área nova sempre bateria na velha) e herda o
+ * rótulo quando o aluno não digita um novo.
+ */
+function marcarClaim(
+  ses: GameSession,
+  clientId: number,
+  nome: string | undefined,
+  modificar: boolean,
+): string {
+  const p = ses.players.get(clientId)!;
+  if (!ses.claimsAtivo) return "A proteção de áreas está desligada. Ligue com /claim ligar.";
+  const atual = ses.claims.get(p.name);
+  if (modificar && !atual) {
+    return "Você ainda não tem área reservada. Marque com a varinha e use /claim criar.";
+  }
+  if (!modificar && atual) {
+    return "Você já tem uma área reservada. Use /claim modificar para mudá-la de lugar ou de tamanho (ou /claim remover).";
+  }
+  const marks = ses.wandMarks.get(clientId);
+  if (!marks?.c1 || !marks.c2) {
+    const quais = modificar ? "os dois NOVOS cantos" : "os dois cantos";
+    return `Marque ${quais} com a varinha primeiro (tecla R ou o botão 🪄: clique esquerdo = canto 1, direito = canto 2).`;
+  }
+  const { min, max } = regionFromCorners(marks.c1, marks.c2);
+  const d = pegadaDoClaim(min, max);
+  const membros = tamanhoDaEquipe(ses, p.name);
+  const limite = areaMaxDoClaim(membros);
+  if (d.x > MAX_CLAIM_EIXO || d.z > MAX_CLAIM_EIXO) {
+    return `A área é comprida demais: nenhum lado pode passar de ${MAX_CLAIM_EIXO} blocos (você marcou ${d.x}×${d.z}).`;
+  }
+  if (!claimDentroDoLimite(min, max, membros)) {
+    const quem = membros === 1 ? "você sozinho" : `${membros} pessoas no grupo`;
+    return (
+      `A área é grande demais: ${d.x}×${d.z} = ${d.area} blocos, e o seu limite é ${limite} ` +
+      `(${quem} × ${AREA_CLAIM_POR_MEMBRO} blocos por membro). ` +
+      `Marque uma área menor — ou convide amigos (/amigos convidar nome) para o limite subir.`
+    );
+  }
+  // o claim protege a COLUNA inteira: da camada 0 (bedrock) ao teto do mundo.
+  // Assim ninguém constrói ilha flutuante por cima nem escava por baixo — só a
+  // pegada XZ que o autor marcou define a área.
+  min.y = 0;
+  max.y = ses.world.sizeY - 1;
+  for (const c of ses.claims.values()) {
+    if (modificar && c.dono === p.name) continue;
+    if (caixasSeCruzam({ min, max }, c)) return `Sua área encosta na área de ${c.dono}. Marque em outro lugar.`;
+  }
+  for (const r of ses.regions.values()) {
+    if (caixasSeCruzam({ min, max }, r)) {
+      return "Sua área encosta numa região reservada pelo professor. Marque em outro lugar.";
+    }
+  }
+  const rotulo = nome && nome.length <= MAX_CLAIM_NAME ? nome : (modificar ? atual?.nome : undefined);
+  const claim: Claim = { dono: p.name, min, max, ...(rotulo ? { nome: rotulo } : {}) };
+  ses.claims.set(p.name, claim);
+  ses.wandMarks.delete(clientId);
+  broadcastClaims(ses);
+  const verbo = modificar ? "Área remarcada" : "Área reservada";
+  return (
+    `${verbo}: coluna de ${d.x}×${d.z} blocos (${d.area} de ${limite} do seu limite), da base ao topo do mundo. ` +
+    `Só você e seus amigos constroem aqui (/amigos convidar nome).`
+  );
+}
+
+/** `/claim` — proteção de áreas. ligar/desligar = professor; criar/modificar/
+ *  remover/lista = aluno. O professor edita qualquer lugar (ignora claims). */
 export function runClaim(ses: GameSession, clientId: number, parts: string[]): string {
   const p = ses.players.get(clientId);
   if (!p) return "Entre no mundo primeiro.";
@@ -220,44 +329,15 @@ export function runClaim(ses: GameSession, clientId: number, parts: string[]): s
       });
       return novo ? "Proteção de áreas ligada." : "Proteção de áreas desligada.";
     }
-    case "criar": {
-      // 2026-07-21: o PROFESSOR também reserva área (mesmo acesso do aluno).
-      if (!ses.claimsAtivo) return "A proteção de áreas está desligada. Ligue com /claim ligar.";
-      if (ses.claims.has(p.name)) return "Você já tem uma área reservada. Use /claim remover antes de marcar outra.";
-      const marks = ses.wandMarks.get(clientId);
-      if (!marks?.c1 || !marks.c2) {
-        return "Marque os dois cantos com a varinha primeiro (tecla R ou o botão 🪄: clique esquerdo = canto 1, direito = canto 2).";
-      }
-      const { min, max } = regionFromCorners(marks.c1, marks.c2);
-      if (!claimDentroDoLimite(min, max)) {
-        return `A área é grande demais (máximo de ${MAX_CLAIM_X}×${MAX_CLAIM_Z} blocos na horizontal).`;
-      }
-      // o claim protege a COLUNA inteira: da camada 0 (bedrock) ao teto do
-      // mundo. Assim ninguém constrói ilha flutuante por cima nem escava por
-      // baixo — só a pegada XZ que o autor marcou define a área.
-      min.y = 0;
-      max.y = ses.world.sizeY - 1;
-      for (const c of ses.claims.values()) {
-        if (caixasSeCruzam({ min, max }, c)) return `Sua área encosta na área de ${c.dono}. Marque em outro lugar.`;
-      }
-      for (const r of ses.regions.values()) {
-        if (caixasSeCruzam({ min, max }, r)) {
-          return "Sua área encosta numa região reservada pelo professor. Marque em outro lugar.";
-        }
-      }
-      const nome = parts[2];
-      const claim: Claim = {
-        dono: p.name,
-        min,
-        max,
-        ...(nome && nome.length <= MAX_CLAIM_NAME ? { nome } : {}),
-      };
-      ses.claims.set(p.name, claim);
-      ses.wandMarks.delete(clientId);
-      broadcastClaims(ses);
-      const d = regionDims({ nome: "", min, max });
-      return `Área reservada: coluna de ${d.x}×${d.z} blocos, da base ao topo do mundo. Só você e seus amigos constroem aqui (/amigos convidar nome).`;
-    }
+    // 2026-07-21: o PROFESSOR também reserva área (mesmo acesso do aluno).
+    case "criar":
+      return marcarClaim(ses, clientId, parts[2], false);
+    // 2026-08-10 (pedido do playtest): editar a área é REMARCAR com a varinha e
+    // rodar isto — sem passar por remover+criar, que perdia o rótulo e abria a
+    // janela em que a construção fica desprotegida.
+    case "modificar":
+    case "editar":
+      return marcarClaim(ses, clientId, parts[2], true);
     case "remover": {
       const alvo = parts[2];
       if (alvo) {
@@ -279,10 +359,20 @@ export function runClaim(ses: GameSession, clientId: number, parts: string[]): s
         })
         .join("\n");
     }
+    case "limite": {
+      const membros = tamanhoDaEquipe(ses, p.name);
+      const limite = areaMaxDoClaim(membros);
+      const meu = ses.claims.get(p.name);
+      const usado = meu ? ` A sua tem ${pegadaDoClaim(meu.min, meu.max).area}.` : "";
+      return (
+        `Seu limite de área é ${limite} blocos: ${membros} ${membros === 1 ? "pessoa" : "pessoas"} ` +
+        `× ${AREA_CLAIM_POR_MEMBRO}, até ${MAX_AMIGOS} no grupo (nenhum lado passa de ${MAX_CLAIM_EIXO}).${usado}`
+      );
+    }
     default:
       return professor
-        ? "Uso: /claim ligar · /claim desligar · /claim criar · /claim remover [nome] · /claim lista"
-        : "Uso: /claim criar [nome] (marque a área com a varinha R antes) · /claim remover · /claim lista";
+        ? "Uso: /claim ligar · /claim desligar · /claim criar · /claim modificar · /claim remover [nome] · /claim lista · /claim limite"
+        : "Uso: /claim criar [nome] (marque a área com a varinha R antes) · /claim modificar [nome] (remarque e rode) · /claim remover · /claim lista · /claim limite";
   }
 }
 
@@ -385,12 +475,14 @@ export function runAmigos(ses: GameSession, clientId: number, parts: string[]): 
           }
         }
         sendFriends(ses, clientId);
+        avisarClaimApertado(ses, [me, ...outros]);
         return "Seu grupo de amigos foi dissolvido.";
       }
       ses.amigos.get(equipe)?.delete(me);
       avisarEquipe(ses, equipe, `${me} saiu do grupo de amigos.`);
       atualizarEquipe(ses, equipe);
       sendFriends(ses, clientId);
+      avisarClaimApertado(ses, [me, ...membrosDaEquipe(ses, equipe)]);
       return `Você saiu do grupo de ${equipe}.`;
     }
     case "expulsar": {
@@ -406,6 +498,7 @@ export function runAmigos(ses: GameSession, clientId: number, parts: string[]): 
       }
       atualizarEquipe(ses, me);
       sendFriends(ses, clientId);
+      avisarClaimApertado(ses, [alvo, ...membrosDaEquipe(ses, me)]);
       return `${alvo} foi removido do seu grupo.`;
     }
     case "lista": {
