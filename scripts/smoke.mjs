@@ -477,9 +477,20 @@ for (const f of falhas) {
   console.log(`\n${"─".repeat(60)}\n${f.smoke.nome} — saída completa:\n${f.saida}`);
 }
 
+// as asserções que caíram REPETEM aqui embaixo, depois da saída completa: quem
+// lê a bateria lê pelo `| tail`, e com o resumo sozinho no fim a única coisa que
+// sobrava na tela era "atividade falhou" — foi assim que o bug-595 ficou um mês
+// sem causa, custando uma sessão inteira de repro pra descobrir QUAL asserção era
 console.log(
   falhas.length === 0
     ? `\n${alvos.length}/${alvos.length} smokes OK`
-    : `\n${alvos.length - falhas.length}/${alvos.length} smokes OK — ${falhas.map((f) => f.smoke.nome).join(", ")} falhou`,
+    : `\n${alvos.length - falhas.length}/${alvos.length} smokes OK — ${falhas.map((f) => f.smoke.nome).join(", ")} falhou\n${falhas
+        .flatMap((f) => {
+          const marcas = f.saida.split("\n").filter((l) => l.includes("✗"));
+          return marcas.length
+            ? marcas.map((l) => `  [${f.smoke.nome}]${l.replace(/^\s*/, " ")}`)
+            : [`  [${f.smoke.nome}] ${f.motivo} (nenhuma asserção ✗ na saída)`];
+        })
+        .join("\n")}`,
 );
 process.exit(falhas.length === 0 ? 0 : 1);
