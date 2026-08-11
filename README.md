@@ -26,7 +26,16 @@ curricular.
 | **[Node.js](https://nodejs.org) 20 ou mais novo** | só na máquina que hospeda |
 | **Rede local** | o roteador do laboratório basta — **internet não é necessária** |
 | **Navegador nos dispositivos dos alunos** | tablets e notebooks entram por um endereço |
-| **[Git](https://git-scm.com) (opcional)** | só para o launcher se atualizar sozinho |
+| **Git — *não* precisa** | o launcher se atualiza sozinho sem ele (veja [Atualizar](#atualizar)) |
+
+### Baixar
+
+Na página do projeto no GitHub: **Code → Download ZIP**, e descompacte onde quiser (o
+Desktop serve). Não precisa de git, nem de conta, nem de linha de comando — e a partir daí o
+próprio launcher se mantém atualizado (veja [Atualizar](#atualizar)).
+
+Quem desenvolve pode clonar (`git clone`) em vez disso: o launcher reconhece a pasta e usa o
+git para atualizar.
 
 ### Rodar
 
@@ -57,15 +66,42 @@ autoria, os comandos de chat, os grupos e a moderação da turma.
 
 ### Atualizar
 
-Se a pasta veio de um `git clone` e o git está instalado, o launcher **procura atualização
-antes de subir** e pergunta se quer aplicar (Enter = sim). Ele se cuida sozinho:
+O launcher **procura atualização antes de subir** e pergunta se quer aplicar (Enter = sim).
+**Isso funciona mesmo sem git** — que é o caso da escola, onde a pasta veio de um ZIP baixado
+do GitHub. Ele escolhe o caminho **pela própria pasta**:
+
+**Se a pasta NÃO tem `.git`** (baixou o ZIP/tar.gz) — o caminho normal na escola:
+
+- baixa o pacote do GitHub e copia por cima, sem instalar nada: no Windows usa o `curl.exe` e
+  o `tar.exe` que já vêm no Windows 10 (1803+) e no 11, **sem PowerShell**, que é justamente o
+  que a rede da escola costuma bloquear; no Linux/macOS usa `curl` e `tar`;
+- a versão instalada fica gravada no arquivo `.lj-versao`. Na primeira vez ele não existe: o
+  launcher avisa e baixa uma vez para acertar o marco;
+- copia **por cima, sem apagar** o que é só seu (`mundos/`, `node_modules/`, `.env`, um `.ljw`
+  exportado solto na pasta);
+- se o pacote trouxer arquivos para `mundos/`, ele **pergunta antes**, e o padrão é **não
+  sobrescrever** os mundos da turma;
+- ao terminar, diz o que mudou em número de versão: *"Atualizado da versão 0.9.0 para a
+  1.0.0"* — ou *"continua na versão 0.9.0, com as correções mais novas"* quando o conserto veio
+  dentro da mesma versão;
+- o `client/dist` é versionado, então o cliente vem **pronto no pacote**: não se compila nada.
+
+**Se a pasta veio de um `git clone`** (quem desenvolve) — o launcher usa o git:
 
 - só atualiza no branch `main`, e só por *fast-forward* (nunca cria merge na máquina da escola);
-- **não** atualiza se houver mudança local no código — seu trabalho não se perde;
-- sem rede, sem git ou fora de um clone, ele avisa e segue com a versão instalada;
-- `LJ_SEM_UPDATE=1` desliga a checagem (útil no dia da aula).
+- se houver mudança local nos arquivos que a atualização mexe, ele **pergunta** e guarda no
+  `git stash` (nada é apagado; volta com `git stash pop`);
+- copiar por cima aqui seria pisar no trabalho de quem desenvolve — por isso o caminho é outro.
 
-Os mundos da turma ficam em `mundos/`, que o git ignora: atualizar **não** mexe nos saves.
+**Nos dois casos:**
+
+- sem rede, ou sem as ferramentas necessárias, ele avisa e segue com a versão instalada — a
+  aula **não trava**;
+- `LJ_SEM_UPDATE=1` desliga a checagem (útil no dia da aula);
+- os mundos da turma ficam em `mundos/`, que o git ignora: atualizar **não** mexe nos saves.
+
+> ⚠️ Só a máquina que **hospeda** precisa atualizar. O aluno abre o navegador e recebe o
+> cliente desse servidor — não há nada instalado no tablet dele.
 
 ---
 
