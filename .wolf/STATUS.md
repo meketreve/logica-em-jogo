@@ -2,6 +2,51 @@
 
 > Single source of truth for resuming work. Read this FIRST when starting a session.
 
+> **SESSAO 68c (2026-08-11) — O UPDATE FUNCIONOU E O LAUNCHER NOVO CHEGOU QUEBRADO: bug-621,
+> UM EMOJI MEU NUM COMENTARIO `REM`.**
+> Relato: depois de aplicar e relancar a janela, dezenas de *"'d' nao e reconhecido como um
+> comando interno ou externo"* — 'd', 'o', 'LOGICA', '.', 'Atualizacao', 'client\dist', 'copia'…
+> A rodada seguiu e chegou no menu, mas a tela ficou aterrorizante. **A boa noticia escondida no
+> relato: o auto-update do bug-620 FUNCIONOU** — baixou, trocou os arquivos e relancou.
+>
+> 💀 **A causa fui eu.** Pus um `⚠️` (6 bytes) num `REM` do cabecalho, num arquivo que era
+> **ASCII PURO de proposito** — o autor original escreve "atualizacao", "voce", "nao" sem acento,
+> e nunca escreveu por que. **O `cmd.exe` le `.bat` por DESLOCAMENTO DE BYTE.** Com `chcp 65001`
+> (linha 7) o numero de bytes diverge do de caracteres, e **sem `\r` para reancorar** o parser
+> retoma no MEIO da linha seguinte e executa pedacos de comentario como comandos. As palavras do
+> erro sao literalmente fragmentos das linhas do cabecalho.
+> **A/B no `cmd.exe` de verdade, quatro variantes do MESMO cabecalho:**
+> **LF + emoji → QUEBRA** (reproduz o relato palavra por palavra) · LF + ASCII → ok ·
+> CRLF + emoji → ok · CRLF + ASCII → ok.
+> **NAO forcei CRLF no `.gitattributes`:** o projeto forca `eol=lf` em tudo porque vive no WSL, e
+> excecao por extensao e mais uma coisa pra lembrar. **ASCII puro no `.bat`** e a regra — que o
+> arquivo ja seguia sozinho e agora esta escrita.
+>
+> ⚠️ **E DESCOBRI UM BURACO NA MINHA PROPRIA VERIFICACAO DO bug-620:** rodei a matriz de 6 casos
+> com **CRLF** no driver, e o arquivo **ships em LF**. O `goto` de dentro dos blocos `if (...)` e
+> justamente o que fica fragil com LF. **Refeita em LF: os 6 casos passam.** Testar no formato em
+> que o arquivo NAO chega no usuario e nao testar.
+>
+> ✅ **PORTAO NOVO: `scripts/checar-launchers.mjs`** (`npm run check:launchers`, e ligado em
+> `npm run verify` e ANTES do `npm run smoke`). Existe porque **este erro nao aparece em bateria
+> nenhuma**: typecheck, testes, build e smoke passam TODOS VERDES com o launcher quebrado, e quem
+> descobre e a escola no meio da aula. Recusa byte nao-ASCII no `.bat` **apontando a LINHA e
+> dizendo o conserto**, recusa mistura LF/CRLF, recusa `\r` no `.sh`, e confere que os dois
+> launchers ainda decidem por capacidade (bug-620). A/B: recolocando o emoji, cai na linha 34.
+> ⚠️ **Mora em `scripts/` e NAO em `shared/src/*.test.ts`** — tentei la primeiro e o typecheck do
+> shared caiu: **o workspace `shared` nao tem `@types/node` de proposito**, e e isso que impede o
+> codigo de producao dele de alcancar API de Node. Um teste que le arquivo furaria a garantia do
+> pacote inteiro. (Foi o unico teste do shared que ja importou `node:` — sinal suficiente.)
+>
+> **VERDE:** typecheck 3/3 · 822/822 · build · 15/15 smokes · **portao dos launchers 5/5** ·
+> matriz do bug-620 em LF, 6/6 no `cmd.exe`. Commits `ddc3866` (bug-621) sobre `f114fb6`
+> (bug-620).
+>
+> 🚀 **PROXIMO PASSO DO USUARIO: rodar o launcher na escola de novo.** Desta vez **nao precisa
+> apagar nada** — o `.bat` quebrado ainda roda o update (o relato prova: ele chegou em "Ja esta na
+> versao mais nova"), entao ele vai baixar sozinho o launcher consertado. O que a tela tem de
+> dizer: **sem nenhuma linha de "nao e reconhecido"**, e o update aplicando normal.
+
 > **SESSÃO 68b (2026-08-11) — O PILOTO DA ESCOLA RODOU E DERRUBOU O AUTO-UPDATE NA PRIMEIRA
 > LINHA: bug-620, DECISÃO POR PRESENÇA DE PASTA EM VEZ DE CAPACIDADE.**
 > Relato: *"fica dizendo que é um clone e desabilita o autoupdate… mas toda vez que eu atualizo

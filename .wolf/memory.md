@@ -2081,3 +2081,20 @@ senão vai pelo pacote imprimindo o motivo. Override `LJ_UPDATE=pacote|zip|git`.
 casos rodada no cmd.exe e no bash; A/B contra o código velho derruba os 3 casos quebrados.
 Commit f114fb6. ⚠️ O launcher novo não chega lá pelo auto-update — o desbloqueio é apagar a
 pasta `.git` da instalação da escola.
+| 11:54 | Session end: 57 writes across 16 files (ferramentas.ts, usos.ts, index.ts, tooltip.ts, inventory.ts) | 12 reads | ~90181 tok |
+| 16:25 | Created shared/src/launchers.test.ts | — | ~1045 |
+| 16:30 | Created scripts/checar-launchers.mjs | — | ~1132 |
+
+### Sessão 68c (2026-08-11) — bug-621: um emoji meu num REM quebrou o .bat
+
+O update do bug-620 FUNCIONOU (baixou, trocou, relançou) e o launcher novo chegou cuspindo
+"'d' nao e reconhecido como um comando interno". Causa: o `⚠️` que eu pus num comentário REM,
+num arquivo que era ASCII puro de propósito. O cmd.exe lê .bat por deslocamento de BYTE e o
+`chcp 65001` desalinha o parser, que retoma no meio da linha seguinte. A/B no cmd real:
+LF+emoji quebra; LF+ASCII, CRLF+emoji e CRLF+ASCII passam. Não forcei CRLF no .gitattributes
+(o projeto é eol=lf porque vive no WSL) — a regra é ASCII puro no .bat.
+Também achei um buraco na minha verificação do bug-620: rodei a matriz com CRLF e o arquivo
+ships em LF. Refeita em LF, 6/6.
+Portão novo `scripts/checar-launchers.mjs` em `npm run verify` e antes do `npm run smoke` —
+porque este erro passa verde em typecheck/testes/build/smoke. Tentei pôr como teste do shared
+e o typecheck caiu: o shared não tem @types/node DE PROPÓSITO. Commit ddc3866.

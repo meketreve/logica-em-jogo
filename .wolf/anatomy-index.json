@@ -1,12 +1,12 @@
 {
   "version": 1,
   "meta": {
-    "lastScanned": "2026-08-11T14:49:33.841Z",
-    "fileCount": 341,
+    "lastScanned": "2026-08-11T19:30:51.105Z",
+    "fileCount": 343,
     "hits": 0,
     "misses": 0,
-    "renderedHash": "f3bbe991343eaf50dac0678739450cc4c492973bcda9c4122eafa3d9d9c7d3e7",
-    "storeUpdatedAt": "2026-08-11T14:49:33.860Z"
+    "renderedHash": "418c144f1c4de710ac24f3c682422393158337b5991f88e93e2c83880fe34b3f",
+    "storeUpdatedAt": "2026-08-11T19:30:51.126Z"
   },
   "files": {
     ".claude/commands/reframe.md": {
@@ -11534,6 +11534,40 @@
           "startLine": 129,
           "endLine": 256,
           "tokens": 1627
+        }
+      ]
+    },
+    "shared/src/launchers.test.ts": {
+      "description": "PORTÃO DOS LAUNCHERS (bug-621) — o único teste do projeto que olha para",
+      "tokens": 1045,
+      "hash": "0cbb7f5bd0bfa4db",
+      "size": 3723,
+      "mtimeMs": 1786476357104.3162,
+      "updatedAt": "2026-08-11T19:25:57.214Z",
+      "source": "hook"
+    },
+    "scripts/checar-launchers.mjs": {
+      "description": "PORTÃO DOS LAUNCHERS (bug-621).",
+      "tokens": 1132,
+      "hash": "04593249857aeb23",
+      "size": 4314,
+      "mtimeMs": 1786476651000.3154,
+      "updatedAt": "2026-08-11T19:30:51.104Z",
+      "source": "hook",
+      "symbols": [
+        {
+          "name": "ler",
+          "kind": "fn",
+          "startLine": 39,
+          "endLine": 41,
+          "tokens": 20
+        },
+        {
+          "name": "ok",
+          "kind": "fn",
+          "startLine": 42,
+          "endLine": 100,
+          "tokens": 660
         }
       ]
     }

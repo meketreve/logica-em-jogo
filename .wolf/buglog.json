@@ -4926,6 +4926,32 @@
    ],
    "occurrences": 1,
    "last_seen": "2026-08-11T14:05:00Z"
+  },
+  {
+   "id": "bug-621",
+   "timestamp": "2026-08-11T16:20:00Z",
+   "error_message": "depois de o auto-update aplicar e relançar a janela, o launcher cuspiu dezenas de \"'d' nao e reconhecido como um comando interno ou externo\" — 'd', 'o', 'LOGICA', '.', 'Atualizacao', 'client\\dist', 'copia', '11', 'que', 'primeira', 'clone', 'copiar', 'ou'. A rodada continuou e chegou no menu, mas a tela ficou aterrorizante.",
+   "file": "iniciar-servidor.bat",
+   "root_cause": "Eu introduzi um `⚠️` (6 bytes, E2 9A A0 EF B8 8F) num comentário REM do cabeçalho, num arquivo que era ASCII PURO de propósito — o autor original escrevia \"atualizacao\", \"voce\", \"nao\" sem acento e nunca escreveu por quê. O cmd.exe lê arquivo .bat por DESLOCAMENTO DE BYTE; com `chcp 65001` (linha 7) o número de bytes diverge do de caracteres, e sem `\\r` para reancorar o parser retoma no MEIO da linha seguinte e executa pedaços de comentário como comandos. As palavras do erro são justamente fragmentos das linhas do cabeçalho.",
+   "fix": "Emoji removido (`ATENCAO:` no lugar), .bat de volta a 0 bytes não-ASCII. E um PORTÃO novo, `scripts/checar-launchers.mjs`, ligado em `npm run verify` e antes de `npm run smoke`: recusa byte não-ASCII no .bat (apontando a LINHA e dizendo o conserto), recusa mistura de LF/CRLF, recusa `\\r` no .sh, e confere que os dois launchers ainda decidem o update por capacidade (bug-620). Mora em scripts/ e não em shared/src/*.test.ts porque o workspace shared não tem @types/node de propósito — é isso que impede o código de produção dele de alcançar API de Node, e um teste que lê arquivo furaria a garantia para o pacote inteiro.",
+   "tags": [
+    "launcher",
+    "bat",
+    "cmd",
+    "encoding",
+    "chcp",
+    "utf-8",
+    "escola",
+    "portao",
+    "regressao"
+   ],
+   "related_bugs": [
+    "bug-620",
+    "bug-616",
+    "bug-615"
+   ],
+   "occurrences": 1,
+   "last_seen": "2026-08-11T16:20:00Z"
   }
  ]
 }

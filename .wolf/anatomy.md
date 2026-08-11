@@ -1,7 +1,7 @@
 # anatomy.md
 
-> Auto-maintained by OpenWolf. Last scanned: 2026-08-11T14:49:33.841Z
-> Files: 341 tracked | Anatomy hits: 0 | Misses: 0
+> Auto-maintained by OpenWolf. Last scanned: 2026-08-11T19:30:51.105Z
+> Files: 343 tracked | Anatomy hits: 0 | Misses: 0
 
 ## ./
 
@@ -658,6 +658,9 @@
   - fn `abrirAba` L69-97 (~261 tok)
   - fn `cdp` L98-103 (~50 tok)
   - fn `avaliar` L104-153 (~762 tok)
+- `checar-launchers.mjs` — PORTÃO DOS LAUNCHERS (bug-621). (~1132 tok)
+  - fn `ler` L39-41 (~20 tok)
+  - fn `ok` L42-100 (~660 tok)
 - `comida-shot.mjs` — Prints do §🍖 F6 (comida) — inspeção visual do que só o olho responde: (~1682 tok)
   - fn `acharChrome` L32-47 (~171 tok)
   - fn `espera` L48-54 (~108 tok)
@@ -1196,6 +1199,7 @@
   - section `SlotSalvo` L277-283 (~38 tok)
   - fn `inventarioParaSave` L284-299 (~162 tok)
   - fn `parseInventario` L300-317 (~190 tok)
+- `launchers.test.ts` — PORTÃO DOS LAUNCHERS (bug-621) — o único teste do projeto que olha para (~1045 tok)
 - `luz.test.ts` — 3×3 colunas de chunk, 2 chunks de altura (32 blocos) — dá pra enterrar uma (~5090 tok)
   - fn `mundoComChao` L24-32 (~88 tok)
   - fn `acenderTudo` L33-434 (~4857 tok)
