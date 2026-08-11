@@ -313,9 +313,10 @@ Singleplayer (Web Worker) não tem fs — chat não vira arquivo lá, como plane
 
 ## Deploy / auto-update
 
-* \[ ] **auto-update do servidor** — **CÓDIGO, DOCUMENTAÇÃO E MENSAGEM FEITOS; falta SÓ o
-  piloto na máquina da escola** (2026-08-11, sessão 68 — e é o único item que não dá pra fechar
-  daqui: precisa do notebook da escola, da rede dela e de um update de verdade acontecendo).
+* \[ ] **auto-update do servidor** — **CÓDIGO, DOCUMENTAÇÃO E MENSAGEM FEITOS. O PILOTO RODOU
+  NA ESCOLA e o mecanismo FUNCIONA de ponta a ponta** (baixou, trocou, relançou); ele derrubou
+  os bugs 620 e 621, os dois consertados. **Falta uma rodada limpa de confirmação** — é o único
+  passo que não dá pra dar daqui (2026-08-11, sessões 68/68b/68c).
   * ✅ **Feito:** `8bfb086` (2026-08-07) pôs o update no `iniciar-servidor.bat` e `3a43954`
     (2026-08-08, bug-606) espelhou no `iniciar-servidor.sh`. Bifurca **pela pasta**: com
     `.git` segue `git fetch` + `merge --ff-only`; **sem `.git`** baixa o pacote do GitHub
@@ -332,11 +333,24 @@ Singleplayer (Web Worker) não tem fs — chat não vira arquivo lá, como plane
     sem PowerShell, `.lj-versao`, copiar-por-cima-sem-apagar, o aviso do `mundos/`, o
     `client/dist` já pronto) e com `.git` (ff-only + `git stash`), mais o que vale nos dois
     (`LJ_SEM_UPDATE=1`, sem rede não trava a aula, `mundos/` intocado).
-  * ❌ **FALTA (2) — piloto real na máquina da escola.** O A/B da 62 rodou em pasta isolada
-    com `npm` falso (update aplicado, `mundos/` intacto por md5, 2ª rodada dizendo "já está na
-    versão mais nova", API inexistente recusada sem corromper o `.lj-versao`). Isso valida a
-    lógica, não o ambiente — e o do-not-repeat de 2026-07-10 é justamente *não escrever
-    relatório de aplicação antes de o piloto acontecer*.
+  * ⚠️ **(2) — O PILOTO RODOU NA ESCOLA (2026-08-11) E JÁ PROVOU O ESSENCIAL; falta UMA rodada
+    limpa.** Não é mais teoria: a máquina da escola **baixou o pacote, trocou os arquivos e
+    relançou a janela sozinha**. O ambiente está validado — Windows, rede da escola, sem git,
+    sem PowerShell. **Mas o piloto derrubou DOIS defeitos que nenhuma bateria pegava:**
+    * **bug-620** — a 1ª rodada nem tentou: a pasta de lá tem um `.git` sobrando e nenhum git
+      instalado, e os launchers decidiam por PRESENÇA de pasta em vez de CAPACIDADE do git.
+      Consertado (`f114fb6`), com `LJ_UPDATE=pacote|zip|git` de escape.
+    * **bug-621** — a 2ª rodada atualizou, mas o launcher NOVO chegou cuspindo dezenas de
+      *"'d' nao e reconhecido como um comando interno"*: um `⚠️` que eu pus num comentário `REM`,
+      e o `cmd.exe` lê `.bat` por deslocamento de BYTE. Consertado (`ddc3866`) + portão
+      `npm run check:launchers`, porque isso passava VERDE em typecheck, 822 testes, build e
+      15/15 smokes.
+    * ❌ **Falta:** a 3ª rodada, **sem nenhuma linha de "não é reconhecido"**, com a mensagem
+      `Atualizado da versao 0.9.0 para a 0.10.0` na tela. Não precisa de passo manual — o `.bat`
+      quebrado ainda executa o update e traz o consertado sozinho.
+    (O A/B da 62 tinha rodado em pasta isolada com `npm` falso: validava a lógica, não o
+    ambiente. O do-not-repeat de 2026-07-10 — *não escrever relatório de aplicação antes de o
+    piloto acontecer* — está honrado: o relatório acima é do piloto que aconteceu.)
   * ✅ **FEITO (3) — a mensagem "atualizado da vX pra vY" (2026-08-11, sessão 68).** Os dois
     launchers passaram a ler o campo `version` do `package.json` da raiz (`versao_do_pacote` no
     `.sh`, a sub-rotina `:ler_versao` no `.bat`) e a dizer **duas frases diferentes**, porque os

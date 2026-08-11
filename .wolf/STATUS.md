@@ -2,6 +2,45 @@
 
 > Single source of truth for resuming work. Read this FIRST when starting a session.
 
+> ## 🧭 HANDOFF — ESTADO AO FIM DA SESSÃO 68 (2026-08-11)
+>
+> **Árvore limpa, tudo empurrado.** Release **`v0.10.0`** (tag em `dca38a7`); o topo do `main`
+> anda a cada commit de documentação, então **confira com `git rev-parse --short origin/main`** em
+> vez de confiar num sha escrito aqui. Os 2 commits parados da sessão 67 também foram junto.
+>
+> **O que esta sessão entregou:** o **tooltip de item** (PC + tablet, com o "serve pra quê" saindo
+> das tabelas do jogo), o **fecho documental do auto-update** (README + mensagem `vX → vY`), a
+> **release v0.10.0**, e os dois bugs que o **piloto da escola** derrubou — **bug-620** (decisão
+> por presença de `.git` em vez de capacidade do git) e **bug-621** (emoji num `REM` quebrando o
+> `.bat` no `cmd.exe`).
+>
+> 🔴 **A ÚNICA COISA PENDENTE, E ELA É DO USUÁRIO: a 3ª rodada do launcher na escola.**
+> O mecanismo **já foi provado de ponta a ponta lá** (baixou, trocou os arquivos, relançou a
+> janela). Falta só a rodada limpa. O que a tela tem de mostrar:
+> - **zero linhas de "não é reconhecido como um comando interno"** (era o bug-621);
+> - `Existe versao nova: voce esta na 0.9.0 (commit …) e o GitHub esta na <sha do topo>`;
+> - **`Atualizado da versao 0.9.0 para a 0.10.0`** ← a frase que o bug-616 existe
+>   pra produzir;
+> - `O proprio launcher mudou. Trocando e reabrindo a janela...` — **esperado, não é crash**.
+> **Não precisa de passo manual nenhum.** Com o relato, o item do auto-update fecha no `todo.md`.
+> ⚠️ Escape se der ruim: `set LJ_SEM_UPDATE=1` sobe direto; `set LJ_UPDATE=pacote` força o ZIP.
+>
+> 🚀 **FILA DEPOIS DISSO (o `todo.md` tem 9 itens abertos):**
+> 1. **§🔨 Ferramentas v2** — durabilidade + ferramenta na mão + tempo de quebra. As três andam
+>    juntas e é o próximo bloco grande de JOGO. **O tooltip já tem o lugar da durabilidade
+>    pronto:** uma variante nova no `Uso` (`shared/src/usos.ts`) e uma frase no `tooltip.ts`.
+>    ⚠️ A decisão a tomar ANTES de codar continua sendo a do `todo.md`: campo `dano?` no `Stack`
+>    (atravessa save, protocolo e todo `moverEmArray`) **ou** ids por faixa de desgaste. O que
+>    decide é a consequência: **ferramenta danificada não empilha com a inteira.**
+> 2. **Mobs (§🍖 F8)** — 3+ sessões, com o aviso de GPU do laboratório.
+> 3. **Fechar o auto-update** assim que vier o relato da escola.
+>
+> 🔧 **A BATERIA GANHOU UM PORTÃO NOVO NESTA SESSÃO — use-o:**
+> `npm run check:launchers` (também roda dentro de `npm run verify` e antes de `npm run smoke`).
+> Ele existe porque o `.bat` quebrado passava VERDE em typecheck, 822 testes, build e 15/15
+> smokes. Bateria completa hoje: `check:launchers` · typecheck 3/3 · **822 testes** · build ·
+> 15/15 smokes · shots da área (`shots:tooltip` é novo, 18 asserções).
+
 > **SESSAO 68c (2026-08-11) — O UPDATE FUNCIONOU E O LAUNCHER NOVO CHEGOU QUEBRADO: bug-621,
 > UM EMOJI MEU NUM COMENTARIO `REM`.**
 > Relato: depois de aplicar e relancar a janela, dezenas de *"'d' nao e reconhecido como um
@@ -78,12 +117,12 @@
 > git" e DESLIGAVAM a atualização** — o sintoma exato do relato.
 > Commit `f114fb6`. Bateria: typecheck 3/3 · 822/822 · 15/15 smokes · `bash -n`.
 >
-> 🔴 **O OVO E A GALINHA, E É O PRÓXIMO PASSO DO USUÁRIO:** o launcher consertado **não chega na
-> escola pelo auto-update**, porque quem bloqueia o update é o launcher quebrado que está lá.
-> **Desbloqueio de um passo: APAGAR a pasta `.git` da instalação da escola.** Com o `.bat` que já
-> está instalado lá, isso sozinho faz o update voltar a funcionar — ele baixa o pacote e traz o
-> launcher novo junto. (A alternativa é extrair o ZIP por cima uma vez, à mão.)
-> Depois disso o `.git` sobrando deixa de importar pra sempre.
+> ~~🔴 O OVO E A GALINHA: o launcher consertado não chega na escola pelo auto-update, e o
+> desbloqueio é apagar a pasta `.git` de lá.~~ **ERRADO, e o piloto desmentiu na hora seguinte:**
+> o `.bat` velho **NÃO bloqueava a si mesmo** — o ramo do `.git` só desligava o update DEPOIS de
+> a pasta ser declarada clone, e a escola aplicou o pacote sem apagar nada. **Ninguém precisou
+> mexer em `.git` nenhum.** Lição: o alarme foi teoria minha sobre um caminho que eu não tinha
+> executado.
 
 > **SESSÃO 68 (2026-08-11) — O TOOLTIP DE ITEM SAIU (PC + TABLET) E O AUTO-UPDATE FECHOU TUDO
 > QUE DÁ PRA FECHAR DAQUI. SOBROU UM ITEM SÓ, E ELE PRECISA DO NOTEBOOK DA ESCOLA.**
@@ -167,7 +206,8 @@
 > (conferido: `0.10.0` presente no bundle, `0.9.0` sumiu). Bateria repetida depois do bump:
 > typecheck 3/3 · 822/822 · build · 15/15 smokes.
 >
-> 🚀 **PRÓXIMA FASE:**
+> 🚀 **(PRÓXIMA FASE da 68 — já cumprida: o commit, o push e a v0.10.0 saíram. Mantida como
+> registro; a fila viva está no bloco de HANDOFF no topo deste arquivo.)**
 > 1. **O PILOTO NA ESCOLA está armado e é o próximo passo real** — o usuário vai rodar o
 >    `iniciar-servidor.bat` lá. O que a tela tem de dizer: `Existe versao nova: voce esta na
 >    0.9.0 (commit …) e o GitHub esta na <sha do topo do main>` → `(seus mundos salvos em mundos\

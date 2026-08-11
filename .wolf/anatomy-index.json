@@ -1,12 +1,12 @@
 {
   "version": 1,
   "meta": {
-    "lastScanned": "2026-08-11T19:30:51.105Z",
-    "fileCount": 343,
+    "lastScanned": "2026-08-11T19:58:13.335Z",
+    "fileCount": 342,
     "hits": 0,
     "misses": 0,
-    "renderedHash": "418c144f1c4de710ac24f3c682422393158337b5991f88e93e2c83880fe34b3f",
-    "storeUpdatedAt": "2026-08-11T19:30:51.126Z"
+    "renderedHash": "629c02c1aee0f6ca31b0641be1f31c2807ec25f83a8b21aec2ead9dad9b8432b",
+    "storeUpdatedAt": "2026-08-11T19:58:13.341Z"
   },
   "files": {
     ".claude/commands/reframe.md": {
@@ -15,7 +15,7 @@
       "hash": "17a75695be5d4629",
       "size": 2221,
       "mtimeMs": 1785725496089.4773,
-      "updatedAt": "2026-08-11T11:45:44.935Z",
+      "updatedAt": "2026-08-11T19:58:12.831Z",
       "source": "scan"
     },
     ".claude/commands/security-audit.md": {
@@ -24,7 +24,7 @@
       "hash": "e6f7e0b7337c9c86",
       "size": 2060,
       "mtimeMs": 1785725496089.4773,
-      "updatedAt": "2026-08-11T11:45:44.936Z",
+      "updatedAt": "2026-08-11T19:58:12.831Z",
       "source": "scan"
     },
     ".claude/rules/openwolf.md": {
@@ -33,7 +33,7 @@
       "hash": "6d735b2c1c54a916",
       "size": 1323,
       "mtimeMs": 1785725496069.4773,
-      "updatedAt": "2026-08-11T11:45:44.937Z",
+      "updatedAt": "2026-08-11T19:58:12.832Z",
       "source": "scan"
     },
     ".claude/settings.json": {
@@ -42,7 +42,7 @@
       "hash": "d8888b729911cfaf",
       "size": 1799,
       "mtimeMs": 1785725496069.4773,
-      "updatedAt": "2026-08-11T11:45:44.937Z",
+      "updatedAt": "2026-08-11T19:58:12.833Z",
       "source": "scan"
     },
     ".claude/settings.local.json": {
@@ -51,7 +51,7 @@
       "hash": "dc7d39ac3038ca42",
       "size": 22122,
       "mtimeMs": 1784569171012.358,
-      "updatedAt": "2026-08-11T11:45:44.938Z",
+      "updatedAt": "2026-08-11T19:58:12.833Z",
       "source": "scan"
     },
     ".gitattributes": {
@@ -60,7 +60,7 @@
       "hash": "9f882e7b33fcaca1",
       "size": 114,
       "mtimeMs": 1783780660396.0913,
-      "updatedAt": "2026-08-11T11:45:44.938Z",
+      "updatedAt": "2026-08-11T19:58:12.834Z",
       "source": "scan"
     },
     ".gitignore": {
@@ -69,7 +69,7 @@
       "hash": "397eecc4bfd3dce8",
       "size": 1408,
       "mtimeMs": 1786042029734.5027,
-      "updatedAt": "2026-08-11T11:45:44.939Z",
+      "updatedAt": "2026-08-11T19:58:12.835Z",
       "source": "scan"
     },
     ".wolf.bak-pre-lean/anatomy-index.json": {
@@ -78,7 +78,7 @@
       "hash": "0589d553d78e88e5",
       "size": 35286,
       "mtimeMs": 1784982110010.7358,
-      "updatedAt": "2026-08-11T11:45:44.940Z",
+      "updatedAt": "2026-08-11T19:58:12.837Z",
       "source": "scan"
     },
     ".wolf.bak-pre-lean/anatomy.md": {
@@ -87,7 +87,7 @@
       "hash": "f926b9cb0350f5f4",
       "size": 16778,
       "mtimeMs": 1784982110006.7358,
-      "updatedAt": "2026-08-11T11:45:44.942Z",
+      "updatedAt": "2026-08-11T19:58:12.839Z",
       "source": "scan"
     },
     ".wolf.bak-pre-lean/buglog.json": {
@@ -96,7 +96,7 @@
       "hash": "b378a659bed058f6",
       "size": 272540,
       "mtimeMs": 1784982110010.7358,
-      "updatedAt": "2026-08-11T11:45:44.947Z",
+      "updatedAt": "2026-08-11T19:58:12.845Z",
       "source": "scan"
     },
     ".wolf.bak-pre-lean/cerebrum.md": {
@@ -105,7 +105,7 @@
       "hash": "79d3990b59ed2cff",
       "size": 116786,
       "mtimeMs": 1784982110010.7358,
-      "updatedAt": "2026-08-11T11:45:44.950Z",
+      "updatedAt": "2026-08-11T19:58:12.848Z",
       "source": "scan"
     },
     ".wolf.bak-pre-lean/config.json": {
@@ -114,7 +114,7 @@
       "hash": "b6bffcfc8c800824",
       "size": 1869,
       "mtimeMs": 1784982110018.7358,
-      "updatedAt": "2026-08-11T11:45:44.951Z",
+      "updatedAt": "2026-08-11T19:58:12.848Z",
       "source": "scan"
     },
     ".wolf.bak-pre-lean/cron-manifest.json": {
@@ -123,7 +123,7 @@
       "hash": "5c39ea43ee48cebf",
       "size": 3246,
       "mtimeMs": 1784982110018.7358,
-      "updatedAt": "2026-08-11T11:45:44.952Z",
+      "updatedAt": "2026-08-11T19:58:12.850Z",
       "source": "scan"
     },
     ".wolf.bak-pre-lean/cron-state.json": {
@@ -132,7 +132,7 @@
       "hash": "cb1702362c2bd56c",
       "size": 148,
       "mtimeMs": 1784982110022.7358,
-      "updatedAt": "2026-08-11T11:45:44.952Z",
+      "updatedAt": "2026-08-11T19:58:12.851Z",
       "source": "scan"
     },
     ".wolf.bak-pre-lean/daemon.log": {
@@ -141,7 +141,7 @@
       "hash": "4d3dc07b7d60fb5d",
       "size": 612,
       "mtimeMs": 1784982110022.7358,
-      "updatedAt": "2026-08-11T11:45:44.954Z",
+      "updatedAt": "2026-08-11T19:58:12.852Z",
       "source": "scan"
     },
     ".wolf.bak-pre-lean/dashboard-token": {
@@ -150,7 +150,7 @@
       "hash": "4d1ccf09835043d7",
       "size": 65,
       "mtimeMs": 1784982110022.7358,
-      "updatedAt": "2026-08-11T11:45:44.954Z",
+      "updatedAt": "2026-08-11T19:58:12.852Z",
       "source": "scan"
     },
     ".wolf.bak-pre-lean/designqc-report.json": {
@@ -159,7 +159,7 @@
       "hash": "747082a345652ffd",
       "size": 90,
       "mtimeMs": 1784982110010.7358,
-      "updatedAt": "2026-08-11T11:45:44.955Z",
+      "updatedAt": "2026-08-11T19:58:12.854Z",
       "source": "scan"
     },
     ".wolf.bak-pre-lean/hooks/_session.json": {
@@ -168,7 +168,7 @@
       "hash": "bc945a2809a77f5c",
       "size": 7571,
       "mtimeMs": 1784982110014.7358,
-      "updatedAt": "2026-08-11T11:45:44.956Z",
+      "updatedAt": "2026-08-11T19:58:12.855Z",
       "source": "scan"
     },
     ".wolf.bak-pre-lean/hooks/anatomy-lock.js": {
@@ -177,7 +177,7 @@
       "hash": "35a2eb1d1178f407",
       "size": 3645,
       "mtimeMs": 1784982110018.7358,
-      "updatedAt": "2026-08-11T11:45:44.958Z",
+      "updatedAt": "2026-08-11T19:58:12.857Z",
       "source": "scan",
       "symbols": [
         {
@@ -223,7 +223,7 @@
       "hash": "06beb5db24c469eb",
       "size": 10192,
       "mtimeMs": 1784982110018.7358,
-      "updatedAt": "2026-08-11T11:45:44.959Z",
+      "updatedAt": "2026-08-11T19:58:12.858Z",
       "source": "scan",
       "symbols": [
         {
@@ -318,7 +318,7 @@
       "hash": "3ca9d4afd2142508",
       "size": 23,
       "mtimeMs": 1784982110018.7358,
-      "updatedAt": "2026-08-11T11:45:44.959Z",
+      "updatedAt": "2026-08-11T19:58:12.859Z",
       "source": "scan"
     },
     ".wolf.bak-pre-lean/hooks/post-read.js": {
@@ -327,7 +327,7 @@
       "hash": "1e3f925aa8b6bcca",
       "size": 2304,
       "mtimeMs": 1784982110014.7358,
-      "updatedAt": "2026-08-11T11:45:44.961Z",
+      "updatedAt": "2026-08-11T19:58:12.861Z",
       "source": "scan",
       "symbols": [
         {
@@ -345,7 +345,7 @@
       "hash": "803605e70c86d482",
       "size": 24043,
       "mtimeMs": 1784982110014.7358,
-      "updatedAt": "2026-08-11T11:45:44.963Z",
+      "updatedAt": "2026-08-11T19:58:12.863Z",
       "source": "scan",
       "symbols": [
         {
@@ -426,7 +426,7 @@
       "hash": "26bb3edd10d30bf9",
       "size": 3720,
       "mtimeMs": 1784982110014.7358,
-      "updatedAt": "2026-08-11T11:45:44.964Z",
+      "updatedAt": "2026-08-11T19:58:12.864Z",
       "source": "scan",
       "symbols": [
         {
@@ -444,7 +444,7 @@
       "hash": "c3f16cb435b7896b",
       "size": 5457,
       "mtimeMs": 1784982110014.7358,
-      "updatedAt": "2026-08-11T11:45:44.965Z",
+      "updatedAt": "2026-08-11T19:58:12.865Z",
       "source": "scan",
       "symbols": [
         {
@@ -483,7 +483,7 @@
       "hash": "059511f905bbda75",
       "size": 1284,
       "mtimeMs": 1784982110018.7358,
-      "updatedAt": "2026-08-11T11:45:44.965Z",
+      "updatedAt": "2026-08-11T19:58:12.865Z",
       "source": "scan"
     },
     ".wolf.bak-pre-lean/hooks/session-start.js": {
@@ -492,7 +492,7 @@
       "hash": "3dcf824f97fb3771",
       "size": 9925,
       "mtimeMs": 1784982110014.7358,
-      "updatedAt": "2026-08-11T11:45:44.966Z",
+      "updatedAt": "2026-08-11T19:58:12.866Z",
       "source": "scan",
       "symbols": [
         {
@@ -538,7 +538,7 @@
       "hash": "53924dda9bca652d",
       "size": 33100,
       "mtimeMs": 1784982110018.7358,
-      "updatedAt": "2026-08-11T11:45:44.968Z",
+      "updatedAt": "2026-08-11T19:58:12.868Z",
       "source": "scan",
       "symbols": [
         {
@@ -668,7 +668,7 @@
       "hash": "ec33531d99273f71",
       "size": 15496,
       "mtimeMs": 1784982110014.7358,
-      "updatedAt": "2026-08-11T11:45:44.969Z",
+      "updatedAt": "2026-08-11T19:58:12.870Z",
       "source": "scan",
       "symbols": [
         {
@@ -728,7 +728,7 @@
       "hash": "25fa19c35fd46f2d",
       "size": 3869,
       "mtimeMs": 1784982110018.7358,
-      "updatedAt": "2026-08-11T11:45:44.971Z",
+      "updatedAt": "2026-08-11T19:58:12.871Z",
       "source": "scan",
       "symbols": [
         {
@@ -753,7 +753,7 @@
       "hash": "b707a5ffbd25f2f3",
       "size": 371,
       "mtimeMs": 1784982110018.7358,
-      "updatedAt": "2026-08-11T11:45:44.971Z",
+      "updatedAt": "2026-08-11T19:58:12.871Z",
       "source": "scan"
     },
     ".wolf.bak-pre-lean/memory.md": {
@@ -762,7 +762,7 @@
       "hash": "4fede9257f58a7ab",
       "size": 204493,
       "mtimeMs": 1784982110006.7358,
-      "updatedAt": "2026-08-11T11:45:44.975Z",
+      "updatedAt": "2026-08-11T19:58:12.875Z",
       "source": "scan"
     },
     ".wolf.bak-pre-lean/OPENWOLF.md": {
@@ -771,7 +771,7 @@
       "hash": "763dc6c1d2391954",
       "size": 9236,
       "mtimeMs": 1784982109998.7358,
-      "updatedAt": "2026-08-11T11:45:44.976Z",
+      "updatedAt": "2026-08-11T19:58:12.876Z",
       "source": "scan"
     },
     ".wolf.bak-pre-lean/reframe-frameworks.md": {
@@ -780,7 +780,7 @@
       "hash": "44acc3e2561ebba9",
       "size": 31141,
       "mtimeMs": 1784982110010.7358,
-      "updatedAt": "2026-08-11T11:45:44.977Z",
+      "updatedAt": "2026-08-11T19:58:12.878Z",
       "source": "scan"
     },
     ".wolf.bak-pre-lean/STATUS-archive.md": {
@@ -789,7 +789,7 @@
       "hash": "20afd6e3f9c2ef61",
       "size": 65658,
       "mtimeMs": 1784982110006.7358,
-      "updatedAt": "2026-08-11T11:45:44.979Z",
+      "updatedAt": "2026-08-11T19:58:12.879Z",
       "source": "scan"
     },
     ".wolf.bak-pre-lean/STATUS.md": {
@@ -798,7 +798,7 @@
       "hash": "a3ada206837ad535",
       "size": 73719,
       "mtimeMs": 1784982110010.7358,
-      "updatedAt": "2026-08-11T11:45:44.981Z",
+      "updatedAt": "2026-08-11T19:58:12.881Z",
       "source": "scan"
     },
     ".wolf.bak-pre-lean/STATUS.md.bak": {
@@ -807,7 +807,7 @@
       "hash": "7be44d2ace8a95ef",
       "size": 137152,
       "mtimeMs": 1784982110006.7358,
-      "updatedAt": "2026-08-11T11:45:44.984Z",
+      "updatedAt": "2026-08-11T19:58:12.885Z",
       "source": "scan"
     },
     ".wolf.bak-pre-lean/streaming-plan.md": {
@@ -816,7 +816,7 @@
       "hash": "63f86f00cb4c2c95",
       "size": 2843,
       "mtimeMs": 1784982110006.7358,
-      "updatedAt": "2026-08-11T11:45:44.985Z",
+      "updatedAt": "2026-08-11T19:58:12.885Z",
       "source": "scan"
     },
     ".wolf.bak-pre-lean/suggestions.json": {
@@ -825,7 +825,7 @@
       "hash": "77f9790b0404c49a",
       "size": 47,
       "mtimeMs": 1784982110010.7358,
-      "updatedAt": "2026-08-11T11:45:44.986Z",
+      "updatedAt": "2026-08-11T19:58:12.886Z",
       "source": "scan"
     },
     ".wolf.bak-pre-lean/TODO.md": {
@@ -834,7 +834,7 @@
       "hash": "f84db922aff22fec",
       "size": 665,
       "mtimeMs": 1784982110022.7358,
-      "updatedAt": "2026-08-11T11:45:44.986Z",
+      "updatedAt": "2026-08-11T19:58:12.886Z",
       "source": "scan"
     },
     ".wolf.bak-pre-v2/anatomy.md": {
@@ -843,7 +843,7 @@
       "hash": "f926b9cb0350f5f4",
       "size": 16778,
       "mtimeMs": 1784956656822.735,
-      "updatedAt": "2026-08-11T11:45:44.987Z",
+      "updatedAt": "2026-08-11T19:58:12.888Z",
       "source": "scan"
     },
     ".wolf.bak-pre-v2/buglog.json": {
@@ -852,7 +852,7 @@
       "hash": "b378a659bed058f6",
       "size": 272540,
       "mtimeMs": 1784956656822.735,
-      "updatedAt": "2026-08-11T11:45:44.992Z",
+      "updatedAt": "2026-08-11T19:58:12.894Z",
       "source": "scan"
     },
     ".wolf.bak-pre-v2/cerebrum.md": {
@@ -861,7 +861,7 @@
       "hash": "79d3990b59ed2cff",
       "size": 116786,
       "mtimeMs": 1784956656822.735,
-      "updatedAt": "2026-08-11T11:45:44.995Z",
+      "updatedAt": "2026-08-11T19:58:12.897Z",
       "source": "scan"
     },
     ".wolf.bak-pre-v2/config.json": {
@@ -870,7 +870,7 @@
       "hash": "14911b999f67f499",
       "size": 1714,
       "mtimeMs": 1784956656822.735,
-      "updatedAt": "2026-08-11T11:45:44.996Z",
+      "updatedAt": "2026-08-11T19:58:12.899Z",
       "source": "scan"
     },
     ".wolf.bak-pre-v2/cron-manifest.json": {
@@ -879,7 +879,7 @@
       "hash": "5c39ea43ee48cebf",
       "size": 3246,
       "mtimeMs": 1784956656826.735,
-      "updatedAt": "2026-08-11T11:45:44.996Z",
+      "updatedAt": "2026-08-11T19:58:12.901Z",
       "source": "scan"
     },
     ".wolf.bak-pre-v2/cron-state.json": {
@@ -888,7 +888,7 @@
       "hash": "c2f4cc3e739e1d13",
       "size": 148,
       "mtimeMs": 1784956656822.735,
-      "updatedAt": "2026-08-11T11:45:44.997Z",
+      "updatedAt": "2026-08-11T19:58:12.902Z",
       "source": "scan"
     },
     ".wolf.bak-pre-v2/designqc-report.json": {
@@ -897,7 +897,7 @@
       "hash": "747082a345652ffd",
       "size": 90,
       "mtimeMs": 1784956656826.735,
-      "updatedAt": "2026-08-11T11:45:44.998Z",
+      "updatedAt": "2026-08-11T19:58:12.903Z",
       "source": "scan"
     },
     ".wolf.bak-pre-v2/hooks/_session.json": {
@@ -906,7 +906,7 @@
       "hash": "bc945a2809a77f5c",
       "size": 7571,
       "mtimeMs": 1784956656826.735,
-      "updatedAt": "2026-08-11T11:45:44.998Z",
+      "updatedAt": "2026-08-11T19:58:12.906Z",
       "source": "scan"
     },
     ".wolf.bak-pre-v2/hooks/package.json": {
@@ -915,7 +915,7 @@
       "hash": "3ca9d4afd2142508",
       "size": 23,
       "mtimeMs": 1784956656826.735,
-      "updatedAt": "2026-08-11T11:45:44.999Z",
+      "updatedAt": "2026-08-11T19:58:12.907Z",
       "source": "scan"
     },
     ".wolf.bak-pre-v2/hooks/post-read.js": {
@@ -924,7 +924,7 @@
       "hash": "fb55dd5a846b1b84",
       "size": 2797,
       "mtimeMs": 1784956656826.735,
-      "updatedAt": "2026-08-11T11:45:44.999Z",
+      "updatedAt": "2026-08-11T19:58:12.908Z",
       "source": "scan",
       "symbols": [
         {
@@ -942,7 +942,7 @@
       "hash": "95919865e5583d4c",
       "size": 22629,
       "mtimeMs": 1784956656826.735,
-      "updatedAt": "2026-08-11T11:45:45.001Z",
+      "updatedAt": "2026-08-11T19:58:12.909Z",
       "source": "scan",
       "symbols": [
         {
@@ -1016,7 +1016,7 @@
       "hash": "6c7155a7da14fe26",
       "size": 3206,
       "mtimeMs": 1784956656826.735,
-      "updatedAt": "2026-08-11T11:45:45.001Z",
+      "updatedAt": "2026-08-11T19:58:12.910Z",
       "source": "scan",
       "symbols": [
         {
@@ -1034,7 +1034,7 @@
       "hash": "a3d931c71982a509",
       "size": 5494,
       "mtimeMs": 1784956656826.735,
-      "updatedAt": "2026-08-11T11:45:45.002Z",
+      "updatedAt": "2026-08-11T19:58:12.911Z",
       "source": "scan",
       "symbols": [
         {
@@ -1073,7 +1073,7 @@
       "hash": "d6d4bbda4a67b9c3",
       "size": 3530,
       "mtimeMs": 1784956656826.735,
-      "updatedAt": "2026-08-11T11:45:45.003Z",
+      "updatedAt": "2026-08-11T19:58:12.912Z",
       "source": "scan",
       "symbols": [
         {
@@ -1091,7 +1091,7 @@
       "hash": "f5777fcb2c16d15a",
       "size": 30797,
       "mtimeMs": 1784956656826.735,
-      "updatedAt": "2026-08-11T11:45:45.006Z",
+      "updatedAt": "2026-08-11T19:58:12.915Z",
       "source": "scan",
       "symbols": [
         {
@@ -1200,7 +1200,7 @@
       "hash": "3677906178eefa14",
       "size": 11538,
       "mtimeMs": 1784956656826.735,
-      "updatedAt": "2026-08-11T11:45:45.007Z",
+      "updatedAt": "2026-08-11T19:58:12.917Z",
       "source": "scan",
       "symbols": [
         {
@@ -1246,7 +1246,7 @@
       "hash": "b707a5ffbd25f2f3",
       "size": 371,
       "mtimeMs": 1784956656826.735,
-      "updatedAt": "2026-08-11T11:45:45.007Z",
+      "updatedAt": "2026-08-11T19:58:12.917Z",
       "source": "scan"
     },
     ".wolf.bak-pre-v2/memory.md": {
@@ -1255,7 +1255,7 @@
       "hash": "4fede9257f58a7ab",
       "size": 204493,
       "mtimeMs": 1784956656822.735,
-      "updatedAt": "2026-08-11T11:45:45.011Z",
+      "updatedAt": "2026-08-11T19:58:12.921Z",
       "source": "scan"
     },
     ".wolf.bak-pre-v2/OPENWOLF.md": {
@@ -1264,7 +1264,7 @@
       "hash": "2fa5051dfe938488",
       "size": 7891,
       "mtimeMs": 1784956656818.735,
-      "updatedAt": "2026-08-11T11:45:45.012Z",
+      "updatedAt": "2026-08-11T19:58:12.922Z",
       "source": "scan"
     },
     ".wolf.bak-pre-v2/reframe-frameworks.md": {
@@ -1273,7 +1273,7 @@
       "hash": "9a12be53c7910ed1",
       "size": 26494,
       "mtimeMs": 1784956656826.735,
-      "updatedAt": "2026-08-11T11:45:45.014Z",
+      "updatedAt": "2026-08-11T19:58:12.924Z",
       "source": "scan"
     },
     ".wolf.bak-pre-v2/STATUS-archive.md": {
@@ -1282,7 +1282,7 @@
       "hash": "20afd6e3f9c2ef61",
       "size": 65658,
       "mtimeMs": 1784956656822.735,
-      "updatedAt": "2026-08-11T11:45:45.015Z",
+      "updatedAt": "2026-08-11T19:58:12.926Z",
       "source": "scan"
     },
     ".wolf.bak-pre-v2/STATUS.md": {
@@ -1291,7 +1291,7 @@
       "hash": "a3ada206837ad535",
       "size": 73719,
       "mtimeMs": 1784956656822.735,
-      "updatedAt": "2026-08-11T11:45:45.017Z",
+      "updatedAt": "2026-08-11T19:58:12.928Z",
       "source": "scan"
     },
     ".wolf.bak-pre-v2/STATUS.md.bak": {
@@ -1300,7 +1300,7 @@
       "hash": "7be44d2ace8a95ef",
       "size": 137152,
       "mtimeMs": 1784956656822.735,
-      "updatedAt": "2026-08-11T11:45:45.020Z",
+      "updatedAt": "2026-08-11T19:58:12.931Z",
       "source": "scan"
     },
     ".wolf.bak-pre-v2/streaming-plan.md": {
@@ -1309,7 +1309,7 @@
       "hash": "63f86f00cb4c2c95",
       "size": 2843,
       "mtimeMs": 1784956656822.735,
-      "updatedAt": "2026-08-11T11:45:45.021Z",
+      "updatedAt": "2026-08-11T19:58:12.931Z",
       "source": "scan"
     },
     ".wolf.bak-pre-v2/suggestions.json": {
@@ -1318,7 +1318,7 @@
       "hash": "77f9790b0404c49a",
       "size": 47,
       "mtimeMs": 1784956656826.735,
-      "updatedAt": "2026-08-11T11:45:45.022Z",
+      "updatedAt": "2026-08-11T19:58:12.932Z",
       "source": "scan"
     },
     "cenarios/aula1-sequencia.ljw": {
@@ -1327,7 +1327,7 @@
       "hash": "ae391c58ccd024d5",
       "size": 593672,
       "mtimeMs": 1785808598330.3933,
-      "updatedAt": "2026-08-11T11:45:45.030Z",
+      "updatedAt": "2026-08-11T19:58:12.943Z",
       "source": "scan"
     },
     "cenarios/aula2-binario.ljw": {
@@ -1336,7 +1336,7 @@
       "hash": "cf18f51eae5af917",
       "size": 591251,
       "mtimeMs": 1785808598362.3933,
-      "updatedAt": "2026-08-11T11:45:45.038Z",
+      "updatedAt": "2026-08-11T19:58:12.954Z",
       "source": "scan"
     },
     "cenarios/aula3-depurar.ljw": {
@@ -1345,7 +1345,7 @@
       "hash": "3d712727b1476a2a",
       "size": 591352,
       "mtimeMs": 1785808598374.3933,
-      "updatedAt": "2026-08-11T11:45:45.048Z",
+      "updatedAt": "2026-08-11T19:58:12.966Z",
       "source": "scan"
     },
     "cenarios/aula4-decifrar.ljw": {
@@ -1354,7 +1354,7 @@
       "hash": "f851fc5c266df2ed",
       "size": 591241,
       "mtimeMs": 1785808598390.3933,
-      "updatedAt": "2026-08-11T11:45:45.056Z",
+      "updatedAt": "2026-08-11T19:58:12.976Z",
       "source": "scan"
     },
     "cenarios/aula5-simetria.ljw": {
@@ -1363,7 +1363,7 @@
       "hash": "759990dcb681e8ac",
       "size": 591918,
       "mtimeMs": 1785808598406.3933,
-      "updatedAt": "2026-08-11T11:45:45.064Z",
+      "updatedAt": "2026-08-11T19:58:12.986Z",
       "source": "scan"
     },
     "cenarios/aula6-manual.ljw": {
@@ -1372,7 +1372,7 @@
       "hash": "819ae4537a7a744c",
       "size": 592513,
       "mtimeMs": 1785808598426.3933,
-      "updatedAt": "2026-08-11T11:45:45.074Z",
+      "updatedAt": "2026-08-11T19:58:12.997Z",
       "source": "scan"
     },
     "cenarios/aula7-corrida.ljw": {
@@ -1381,7 +1381,7 @@
       "hash": "bb693a0b12e1b2f1",
       "size": 788555,
       "mtimeMs": 1785808598514.3933,
-      "updatedAt": "2026-08-11T11:45:45.086Z",
+      "updatedAt": "2026-08-11T19:58:13.010Z",
       "source": "scan"
     },
     "cenarios/README.md": {
@@ -1390,7 +1390,7 @@
       "hash": "611020bc803f2fa5",
       "size": 11227,
       "mtimeMs": 1785808862562.3943,
-      "updatedAt": "2026-08-11T11:45:45.087Z",
+      "updatedAt": "2026-08-11T19:58:13.011Z",
       "source": "scan"
     },
     "CLAUDE.md": {
@@ -1399,7 +1399,7 @@
       "hash": "b1ca356fa9d5f3a6",
       "size": 225,
       "mtimeMs": 1783780454096.0908,
-      "updatedAt": "2026-08-11T11:45:45.087Z",
+      "updatedAt": "2026-08-11T19:58:13.013Z",
       "source": "scan"
     },
     "client/index.html": {
@@ -1408,8 +1408,8 @@
       "hash": "67f7e3a48eea1f81",
       "size": 39063,
       "mtimeMs": 1786450694316.3152,
-      "updatedAt": "2026-08-11T12:18:14.425Z",
-      "source": "hook"
+      "updatedAt": "2026-08-11T19:58:13.015Z",
+      "source": "scan"
     },
     "client/package.json": {
       "description": "Node.js package manifest",
@@ -1417,7 +1417,7 @@
       "hash": "cb328a26968e8a66",
       "size": 356,
       "mtimeMs": 1783780454104.0908,
-      "updatedAt": "2026-08-11T11:45:45.088Z",
+      "updatedAt": "2026-08-11T19:58:13.015Z",
       "source": "scan"
     },
     "client/src/aguaFx.ts": {
@@ -1426,7 +1426,7 @@
       "hash": "f19b99bf8e9b3395",
       "size": 2680,
       "mtimeMs": 1785080416779.7651,
-      "updatedAt": "2026-08-11T11:45:45.089Z",
+      "updatedAt": "2026-08-11T19:58:13.016Z",
       "source": "scan",
       "symbols": [
         {
@@ -1451,7 +1451,7 @@
       "hash": "a3e0ae6302239a62",
       "size": 41181,
       "mtimeMs": 1786147571402.9912,
-      "updatedAt": "2026-08-11T11:45:45.090Z",
+      "updatedAt": "2026-08-11T19:58:13.018Z",
       "source": "scan",
       "symbols": [
         {
@@ -1672,7 +1672,7 @@
       "hash": "afbc574f47a18f11",
       "size": 3510,
       "mtimeMs": 1783904198285.4753,
-      "updatedAt": "2026-08-11T11:45:45.090Z",
+      "updatedAt": "2026-08-11T19:58:13.019Z",
       "source": "scan",
       "symbols": [
         {
@@ -1725,7 +1725,7 @@
       "hash": "bbf0c70b4caf449e",
       "size": 8961,
       "mtimeMs": 1785155310820.7986,
-      "updatedAt": "2026-08-11T11:45:45.090Z",
+      "updatedAt": "2026-08-11T19:58:13.020Z",
       "source": "scan",
       "symbols": [
         {
@@ -1778,7 +1778,7 @@
       "hash": "dad8ad6755fca5e8",
       "size": 16004,
       "mtimeMs": 1786147687310.9907,
-      "updatedAt": "2026-08-11T11:45:45.091Z",
+      "updatedAt": "2026-08-11T19:58:13.021Z",
       "source": "scan",
       "symbols": [
         {
@@ -1831,7 +1831,7 @@
       "hash": "c4bd7202185a25f2",
       "size": 10996,
       "mtimeMs": 1786147587174.9912,
-      "updatedAt": "2026-08-11T11:45:45.091Z",
+      "updatedAt": "2026-08-11T19:58:13.022Z",
       "source": "scan",
       "symbols": [
         {
@@ -1856,7 +1856,7 @@
       "hash": "c7aa8147b99ec6fd",
       "size": 7042,
       "mtimeMs": 1785206365860.7996,
-      "updatedAt": "2026-08-11T11:45:45.092Z",
+      "updatedAt": "2026-08-11T19:58:13.023Z",
       "source": "scan",
       "symbols": [
         {
@@ -1881,7 +1881,7 @@
       "hash": "388103e1e7e67941",
       "size": 24038,
       "mtimeMs": 1786292787781.4456,
-      "updatedAt": "2026-08-11T11:45:45.092Z",
+      "updatedAt": "2026-08-11T19:58:13.025Z",
       "source": "scan",
       "symbols": [
         {
@@ -1906,7 +1906,7 @@
       "hash": "707abcbf6b3d8132",
       "size": 4389,
       "mtimeMs": 1786015875254.5046,
-      "updatedAt": "2026-08-11T11:45:45.093Z",
+      "updatedAt": "2026-08-11T19:58:13.025Z",
       "source": "scan",
       "symbols": [
         {
@@ -1924,7 +1924,7 @@
       "hash": "cda73032bfe6a5c1",
       "size": 3564,
       "mtimeMs": 1785725586817.4775,
-      "updatedAt": "2026-08-11T11:45:45.093Z",
+      "updatedAt": "2026-08-11T19:58:13.026Z",
       "source": "scan",
       "symbols": [
         {
@@ -1963,7 +1963,7 @@
       "hash": "19937a7f07894c3b",
       "size": 4946,
       "mtimeMs": 1785941724015.3196,
-      "updatedAt": "2026-08-11T11:45:45.093Z",
+      "updatedAt": "2026-08-11T19:58:13.027Z",
       "source": "scan",
       "symbols": [
         {
@@ -2002,8 +2002,8 @@
       "hash": "9f362eb3953cbfb3",
       "size": 16523,
       "mtimeMs": 1786450243904.314,
-      "updatedAt": "2026-08-11T12:10:44.001Z",
-      "source": "hook",
+      "updatedAt": "2026-08-11T19:58:13.028Z",
+      "source": "scan",
       "symbols": [
         {
           "name": "ContainerPanel",
@@ -2020,7 +2020,7 @@
       "hash": "0174e9fdbb9e15a0",
       "size": 15697,
       "mtimeMs": 1785239279469.0793,
-      "updatedAt": "2026-08-11T11:45:45.094Z",
+      "updatedAt": "2026-08-11T19:58:13.029Z",
       "source": "scan",
       "symbols": [
         {
@@ -2066,7 +2066,7 @@
       "hash": "4cd45301d903821d",
       "size": 764,
       "mtimeMs": 1785712501773.5942,
-      "updatedAt": "2026-08-11T11:45:45.095Z",
+      "updatedAt": "2026-08-11T19:58:13.030Z",
       "source": "scan"
     },
     "client/src/friends.ts": {
@@ -2075,7 +2075,7 @@
       "hash": "eb28710509eda48e",
       "size": 8416,
       "mtimeMs": 1785941724015.3196,
-      "updatedAt": "2026-08-11T11:45:45.095Z",
+      "updatedAt": "2026-08-11T19:58:13.031Z",
       "source": "scan",
       "symbols": [
         {
@@ -2100,8 +2100,8 @@
       "hash": "28079a90b518c772",
       "size": 10509,
       "mtimeMs": 1786450255400.3142,
-      "updatedAt": "2026-08-11T12:10:55.496Z",
-      "source": "hook",
+      "updatedAt": "2026-08-11T19:58:13.033Z",
+      "source": "scan",
       "symbols": [
         {
           "name": "HotbarDeps",
@@ -2125,7 +2125,7 @@
       "hash": "3133809ac9bd09d5",
       "size": 30584,
       "mtimeMs": 1786292562597.4448,
-      "updatedAt": "2026-08-11T11:45:45.097Z",
+      "updatedAt": "2026-08-11T19:58:13.035Z",
       "source": "scan",
       "symbols": [
         {
@@ -2192,7 +2192,7 @@
       "hash": "3bf492f8aef091d8",
       "size": 12033,
       "mtimeMs": 1786384014457.4473,
-      "updatedAt": "2026-08-11T11:45:45.097Z",
+      "updatedAt": "2026-08-11T19:58:13.036Z",
       "source": "scan",
       "symbols": [
         {
@@ -2210,8 +2210,8 @@
       "hash": "c8cd566b80a21f72",
       "size": 23047,
       "mtimeMs": 1786450169252.3147,
-      "updatedAt": "2026-08-11T12:09:29.358Z",
-      "source": "hook",
+      "updatedAt": "2026-08-11T19:58:13.038Z",
+      "source": "scan",
       "symbols": [
         {
           "name": "InventoryPanel",
@@ -2228,7 +2228,7 @@
       "hash": "aa2a774a1dff16c5",
       "size": 18303,
       "mtimeMs": 1785112623895.764,
-      "updatedAt": "2026-08-11T11:45:45.099Z",
+      "updatedAt": "2026-08-11T19:58:13.039Z",
       "source": "scan",
       "symbols": [
         {
@@ -2288,7 +2288,7 @@
       "hash": "eb42e9cc9d223aa2",
       "size": 5214,
       "mtimeMs": 1785990084780.6304,
-      "updatedAt": "2026-08-11T11:45:45.099Z",
+      "updatedAt": "2026-08-11T19:58:13.040Z",
       "source": "scan",
       "symbols": [
         {
@@ -2306,7 +2306,7 @@
       "hash": "6e328084e984012f",
       "size": 4024,
       "mtimeMs": 1785246739613.0776,
-      "updatedAt": "2026-08-11T11:45:45.099Z",
+      "updatedAt": "2026-08-11T19:58:13.041Z",
       "source": "scan",
       "symbols": [
         {
@@ -2338,8 +2338,8 @@
       "hash": "bff5ea8b0a46bb7c",
       "size": 108538,
       "mtimeMs": 1786450275284.3145,
-      "updatedAt": "2026-08-11T12:11:15.405Z",
-      "source": "hook",
+      "updatedAt": "2026-08-11T19:58:13.046Z",
+      "source": "scan",
       "symbols": [
         {
           "name": "cachearMundos",
@@ -2538,7 +2538,7 @@
       "hash": "7f4b8ab129e641e6",
       "size": 6551,
       "mtimeMs": 1786020920774.5034,
-      "updatedAt": "2026-08-11T11:45:45.104Z",
+      "updatedAt": "2026-08-11T19:58:13.047Z",
       "source": "scan",
       "symbols": [
         {
@@ -2556,7 +2556,7 @@
       "hash": "c9f5f007f954dbf8",
       "size": 16863,
       "mtimeMs": 1785941724015.3196,
-      "updatedAt": "2026-08-11T11:45:45.105Z",
+      "updatedAt": "2026-08-11T19:58:13.048Z",
       "source": "scan",
       "symbols": [
         {
@@ -2651,7 +2651,7 @@
       "hash": "acd6bea923584b63",
       "size": 8197,
       "mtimeMs": 1785239088169.0806,
-      "updatedAt": "2026-08-11T11:45:45.105Z",
+      "updatedAt": "2026-08-11T19:58:13.050Z",
       "source": "scan",
       "symbols": [
         {
@@ -2676,7 +2676,7 @@
       "hash": "b85762c157eee05c",
       "size": 1852,
       "mtimeMs": 1785239112009.0806,
-      "updatedAt": "2026-08-11T11:45:45.105Z",
+      "updatedAt": "2026-08-11T19:58:13.050Z",
       "source": "scan",
       "symbols": [
         {
@@ -2694,7 +2694,7 @@
       "hash": "844f74176a842aa3",
       "size": 2686,
       "mtimeMs": 1785804687130.392,
-      "updatedAt": "2026-08-11T11:45:45.105Z",
+      "updatedAt": "2026-08-11T19:58:13.051Z",
       "source": "scan",
       "symbols": [
         {
@@ -2712,7 +2712,7 @@
       "hash": "1667d0f8a3bc5c64",
       "size": 4631,
       "mtimeMs": 1786025669214.5022,
-      "updatedAt": "2026-08-11T11:45:45.106Z",
+      "updatedAt": "2026-08-11T19:58:13.052Z",
       "source": "scan",
       "symbols": [
         {
@@ -2737,7 +2737,7 @@
       "hash": "e4e4e002740da62b",
       "size": 4391,
       "mtimeMs": 1783911067353.4763,
-      "updatedAt": "2026-08-11T11:45:45.106Z",
+      "updatedAt": "2026-08-11T19:58:13.054Z",
       "source": "scan",
       "symbols": [
         {
@@ -2762,7 +2762,7 @@
       "hash": "7b2bfb53792a0823",
       "size": 5027,
       "mtimeMs": 1786023215074.5017,
-      "updatedAt": "2026-08-11T11:45:45.106Z",
+      "updatedAt": "2026-08-11T19:58:13.055Z",
       "source": "scan",
       "symbols": [
         {
@@ -2787,7 +2787,7 @@
       "hash": "03eb67bd211b8fd6",
       "size": 20951,
       "mtimeMs": 1784654762914.7644,
-      "updatedAt": "2026-08-11T11:45:45.107Z",
+      "updatedAt": "2026-08-11T19:58:13.056Z",
       "source": "scan",
       "symbols": [
         {
@@ -2833,7 +2833,7 @@
       "hash": "6e59d99c61a65ad6",
       "size": 5868,
       "mtimeMs": 1784654719646.7644,
-      "updatedAt": "2026-08-11T11:45:45.107Z",
+      "updatedAt": "2026-08-11T19:58:13.057Z",
       "source": "scan",
       "symbols": [
         {
@@ -2858,7 +2858,7 @@
       "hash": "26b3330bef8902fd",
       "size": 4137,
       "mtimeMs": 1786292569341.4448,
-      "updatedAt": "2026-08-11T11:45:45.107Z",
+      "updatedAt": "2026-08-11T19:58:13.057Z",
       "source": "scan",
       "symbols": [
         {
@@ -2883,7 +2883,7 @@
       "hash": "f0753194956c8350",
       "size": 11097,
       "mtimeMs": 1784503965169.7603,
-      "updatedAt": "2026-08-11T11:45:45.108Z",
+      "updatedAt": "2026-08-11T19:58:13.058Z",
       "source": "scan",
       "symbols": [
         {
@@ -2922,7 +2922,7 @@
       "hash": "63374e46c6617dce",
       "size": 4142,
       "mtimeMs": 1785941724019.3196,
-      "updatedAt": "2026-08-11T11:45:45.108Z",
+      "updatedAt": "2026-08-11T19:58:13.059Z",
       "source": "scan",
       "symbols": [
         {
@@ -2940,7 +2940,7 @@
       "hash": "415dedeb07786ecf",
       "size": 5145,
       "mtimeMs": 1785990883552.6306,
-      "updatedAt": "2026-08-11T11:45:45.109Z",
+      "updatedAt": "2026-08-11T19:58:13.060Z",
       "source": "scan",
       "symbols": [
         {
@@ -2965,7 +2965,7 @@
       "hash": "a1873adff06f20cd",
       "size": 5427,
       "mtimeMs": 1785941724019.3196,
-      "updatedAt": "2026-08-11T11:45:45.109Z",
+      "updatedAt": "2026-08-11T19:58:13.060Z",
       "source": "scan",
       "symbols": [
         {
@@ -3018,7 +3018,7 @@
       "hash": "175b2de972a44340",
       "size": 3523,
       "mtimeMs": 1784495699493.7593,
-      "updatedAt": "2026-08-11T11:45:45.109Z",
+      "updatedAt": "2026-08-11T19:58:13.061Z",
       "source": "scan",
       "symbols": [
         {
@@ -3071,7 +3071,7 @@
       "hash": "8e71f7e6186f4192",
       "size": 9689,
       "mtimeMs": 1786373876301.447,
-      "updatedAt": "2026-08-11T11:45:45.110Z",
+      "updatedAt": "2026-08-11T19:58:13.062Z",
       "source": "scan",
       "symbols": [
         {
@@ -3104,13 +3104,94 @@
         }
       ]
     },
+    "client/src/tooltip.ts": {
+      "description": "§💬 UI de jogo (todo §💬, pedido de 2026-08-06) — O TOOLTIP DE ITEM.",
+      "tokens": 3378,
+      "hash": "eda24e1e7eacff6f",
+      "size": 11960,
+      "mtimeMs": 1786450741912.315,
+      "updatedAt": "2026-08-11T19:58:13.062Z",
+      "source": "scan",
+      "symbols": [
+        {
+          "name": "TooltipDeps",
+          "kind": "section",
+          "startLine": 40,
+          "endLine": 52,
+          "tokens": 116
+        },
+        {
+          "name": "Tooltip",
+          "kind": "class",
+          "startLine": 53,
+          "endLine": 230,
+          "tokens": 1868
+        },
+        {
+          "name": "dono",
+          "kind": "fn",
+          "startLine": 231,
+          "endLine": 244,
+          "tokens": 220
+        },
+        {
+          "name": "linhaDeUso",
+          "kind": "fn",
+          "startLine": 245,
+          "endLine": 253,
+          "tokens": 86
+        },
+        {
+          "name": "frase",
+          "kind": "fn",
+          "startLine": 254,
+          "endLine": 276,
+          "tokens": 246
+        },
+        {
+          "name": "listar",
+          "kind": "fn",
+          "startLine": 277,
+          "endLine": 284,
+          "tokens": 80
+        },
+        {
+          "name": "garantir",
+          "kind": "fn",
+          "startLine": 285,
+          "endLine": 290,
+          "tokens": 41
+        },
+        {
+          "name": "configurarTooltip",
+          "kind": "fn",
+          "startLine": 291,
+          "endLine": 300,
+          "tokens": 94
+        },
+        {
+          "name": "tipDeItem",
+          "kind": "fn",
+          "startLine": 301,
+          "endLine": 306,
+          "tokens": 65
+        },
+        {
+          "name": "esconderTooltip",
+          "kind": "fn",
+          "startLine": 307,
+          "endLine": 310,
+          "tokens": 19
+        }
+      ]
+    },
     "client/src/torchGlow.ts": {
       "description": "Halo das tochas (cp23) — SÓ visual (decisão 2026-07-17: tocha decorativa,",
       "tokens": 1522,
       "hash": "55cf9012e5ccbde9",
       "size": 5368,
       "mtimeMs": 1785107014479.7632,
-      "updatedAt": "2026-08-11T11:45:45.110Z",
+      "updatedAt": "2026-08-11T19:58:13.063Z",
       "source": "scan",
       "symbols": [
         {
@@ -3128,7 +3209,7 @@
       "hash": "90c1b0757ea9d673",
       "size": 17076,
       "mtimeMs": 1786189014396.416,
-      "updatedAt": "2026-08-11T11:45:45.110Z",
+      "updatedAt": "2026-08-11T19:58:13.064Z",
       "source": "scan",
       "symbols": [
         {
@@ -3174,7 +3255,7 @@
       "hash": "c3a9fed4fd8010e8",
       "size": 5530,
       "mtimeMs": 1785138081868.8,
-      "updatedAt": "2026-08-11T11:45:45.111Z",
+      "updatedAt": "2026-08-11T19:58:13.065Z",
       "source": "scan",
       "symbols": [
         {
@@ -3213,7 +3294,7 @@
       "hash": "c69387d0e311809a",
       "size": 11405,
       "mtimeMs": 1785714698481.5942,
-      "updatedAt": "2026-08-11T11:45:45.111Z",
+      "updatedAt": "2026-08-11T19:58:13.066Z",
       "source": "scan",
       "symbols": [
         {
@@ -3259,7 +3340,7 @@
       "hash": "e6025ab17cb2b065",
       "size": 2745,
       "mtimeMs": 1783822470725.4783,
-      "updatedAt": "2026-08-11T11:45:45.112Z",
+      "updatedAt": "2026-08-11T19:58:13.067Z",
       "source": "scan",
       "symbols": [
         {
@@ -3326,7 +3407,7 @@
       "hash": "bf2a471c0429f519",
       "size": 136,
       "mtimeMs": 1783780454104.0908,
-      "updatedAt": "2026-08-11T11:45:45.112Z",
+      "updatedAt": "2026-08-11T19:58:13.068Z",
       "source": "scan"
     },
     "client/vite.config.ts": {
@@ -3335,26 +3416,26 @@
       "hash": "16825100bb7507ec",
       "size": 331,
       "mtimeMs": 1784037564732.0417,
-      "updatedAt": "2026-08-11T11:45:45.112Z",
+      "updatedAt": "2026-08-11T19:58:13.068Z",
       "source": "scan"
     },
     "iniciar-servidor.bat": {
       "description": "",
-      "tokens": 4712,
-      "hash": "205582ffb94f768d",
-      "size": 17671,
-      "mtimeMs": 1786459658572.3154,
-      "updatedAt": "2026-08-11T14:47:38.687Z",
-      "source": "hook"
+      "tokens": 4713,
+      "hash": "fd33531ee8454890",
+      "size": 17673,
+      "mtimeMs": 1786476666464.3154,
+      "updatedAt": "2026-08-11T19:58:13.069Z",
+      "source": "scan"
     },
     "iniciar-servidor.sh": {
       "description": "============================================================",
-      "tokens": 5992,
+      "tokens": 6420,
       "hash": "d4b731d85806bd63",
       "size": 22942,
       "mtimeMs": 1786459623304.3147,
-      "updatedAt": "2026-08-11T14:47:03.404Z",
-      "source": "hook"
+      "updatedAt": "2026-08-11T19:58:13.070Z",
+      "source": "scan"
     },
     "LICENSE": {
       "description": "Licença de Uso — Lógica em Jogo",
@@ -3362,7 +3443,7 @@
       "hash": "4851e58b213543cd",
       "size": 4128,
       "mtimeMs": 1785159089632.7986,
-      "updatedAt": "2026-08-11T11:45:45.114Z",
+      "updatedAt": "2026-08-11T19:58:13.071Z",
       "source": "scan"
     },
     "mundos/_smoke-coluna/_smoke-coluna.ljw": {
@@ -3370,107 +3451,107 @@
       "tokens": 62,
       "hash": "54ee50c452dfd676",
       "size": 229,
-      "mtimeMs": 1786448542788.316,
-      "updatedAt": "2026-08-11T11:45:45.114Z",
+      "mtimeMs": 1786476712204.3157,
+      "updatedAt": "2026-08-11T19:58:13.073Z",
       "source": "scan"
     },
     "mundos/_smoke-coluna/chat.log": {
       "description": "",
-      "tokens": 3360,
-      "hash": "51e20b93fd40828f",
-      "size": 12726,
-      "mtimeMs": 1786448542172.316,
-      "updatedAt": "2026-08-11T11:45:45.115Z",
+      "tokens": 3627,
+      "hash": "d618e51accff111c",
+      "size": 13736,
+      "mtimeMs": 1786476711596.3157,
+      "updatedAt": "2026-08-11T19:58:13.075Z",
       "source": "scan"
     },
     "mundos/_smoke-comida/chat.log": {
       "description": "",
       "tokens": 390,
-      "hash": "8b29cec978c4f089",
+      "hash": "34909e014ddba7cd",
       "size": 1490,
-      "mtimeMs": 1786448624724.3162,
-      "updatedAt": "2026-08-11T11:45:45.115Z",
+      "mtimeMs": 1786476796128.3152,
+      "updatedAt": "2026-08-11T19:58:13.077Z",
       "source": "scan"
     },
     "mundos/_smoke-craft/chat.log": {
       "description": "",
       "tokens": 244,
-      "hash": "a19b8d14e9298765",
+      "hash": "6f543798bb1832cf",
       "size": 943,
-      "mtimeMs": 1786448609760.3162,
-      "updatedAt": "2026-08-11T11:45:45.116Z",
+      "mtimeMs": 1786476780160.3152,
+      "updatedAt": "2026-08-11T19:58:13.078Z",
       "source": "scan"
     },
     "mundos/_smoke-fome/chat.log": {
       "description": "",
       "tokens": 231,
-      "hash": "410eeb4042db4f89",
+      "hash": "f1713a3a411d8265",
       "size": 890,
-      "mtimeMs": 1786448583992.3162,
-      "updatedAt": "2026-08-11T11:45:45.116Z",
+      "mtimeMs": 1786476754416.3157,
+      "updatedAt": "2026-08-11T19:58:13.079Z",
       "source": "scan"
     },
     "mundos/_smoke-fornalha/chat.log": {
       "description": "",
       "tokens": 353,
-      "hash": "d52b905805d4e666",
+      "hash": "0599bc8ca3e177cb",
       "size": 1359,
-      "mtimeMs": 1786448669204.3162,
-      "updatedAt": "2026-08-11T11:45:45.117Z",
+      "mtimeMs": 1786476841628.3152,
+      "updatedAt": "2026-08-11T19:58:13.081Z",
       "source": "scan"
     },
     "mundos/_smoke-inv/chat.log": {
       "description": "",
       "tokens": 566,
-      "hash": "6c538078f21f956a",
+      "hash": "4686e866544c8213",
       "size": 2174,
-      "mtimeMs": 1786448602036.3162,
-      "updatedAt": "2026-08-11T11:45:45.117Z",
+      "mtimeMs": 1786476772432.3154,
+      "updatedAt": "2026-08-11T19:58:13.083Z",
       "source": "scan"
     },
     "mundos/_smoke-kicar/chat.log": {
       "description": "",
-      "tokens": 15655,
-      "hash": "503a9169c384fbde",
-      "size": 60111,
-      "mtimeMs": 1786448529672.3157,
-      "updatedAt": "2026-08-11T11:45:45.119Z",
+      "tokens": 16863,
+      "hash": "351c76f4a6a872a1",
+      "size": 64751,
+      "mtimeMs": 1786476699048.3154,
+      "updatedAt": "2026-08-11T19:58:13.086Z",
       "source": "scan"
     },
     "mundos/_smoke-modoa/chat.log": {
       "description": "",
       "tokens": 606,
-      "hash": "bac1dde2bdcf8deb",
+      "hash": "44733db69f07b8de",
       "size": 2325,
-      "mtimeMs": 1786448566668.3162,
-      "updatedAt": "2026-08-11T11:45:45.120Z",
+      "mtimeMs": 1786476736060.3157,
+      "updatedAt": "2026-08-11T19:58:13.087Z",
       "source": "scan"
     },
     "mundos/_smoke-modob/chat.log": {
       "description": "",
       "tokens": 52,
-      "hash": "85f303972b3ef8e0",
+      "hash": "53d738cdc6f99b4b",
       "size": 199,
-      "mtimeMs": 1786448560712.3162,
-      "updatedAt": "2026-08-11T11:45:45.120Z",
+      "mtimeMs": 1786476730088.3157,
+      "updatedAt": "2026-08-11T19:58:13.088Z",
       "source": "scan"
     },
     "mundos/_smoke-preset/chat.log": {
       "description": "",
       "tokens": 256,
-      "hash": "12d0ad36cfd1f2c7",
+      "hash": "121e3f7e926e4a76",
       "size": 989,
-      "mtimeMs": 1786448631280.3162,
-      "updatedAt": "2026-08-11T11:45:45.120Z",
+      "mtimeMs": 1786476803684.3152,
+      "updatedAt": "2026-08-11T19:58:13.091Z",
       "source": "scan"
     },
     "mundos/_smoke-pvp/chat.log": {
       "description": "",
       "tokens": 462,
-      "hash": "247c6394a58c8958",
+      "hash": "0c5c52bb9917ceb9",
       "size": 1773,
-      "mtimeMs": 1786448645756.3164,
-      "updatedAt": "2026-08-11T11:45:45.121Z",
+      "mtimeMs": 1786476818184.3152,
+      "updatedAt": "2026-08-11T19:58:13.092Z",
       "source": "scan"
     },
     "mundos/_smoke-trocaa/_smoke-trocaa.ljw": {
@@ -3478,17 +3559,17 @@
       "tokens": 87,
       "hash": "1c45f4a4fd8ea6a4",
       "size": 326,
-      "mtimeMs": 1786448681092.3162,
-      "updatedAt": "2026-08-11T11:45:45.121Z",
+      "mtimeMs": 1786476853504.3152,
+      "updatedAt": "2026-08-11T19:58:13.094Z",
       "source": "scan"
     },
     "mundos/_smoke-trocaa/chat.log": {
       "description": "",
-      "tokens": 10149,
-      "hash": "a8528cd510945c85",
-      "size": 39280,
-      "mtimeMs": 1786448681100.3162,
-      "updatedAt": "2026-08-11T11:45:45.123Z",
+      "tokens": 10970,
+      "hash": "cb01f50ed67bcac1",
+      "size": 42460,
+      "mtimeMs": 1786476853516.3152,
+      "updatedAt": "2026-08-11T19:58:13.096Z",
       "source": "scan"
     },
     "mundos/_smoke-trocab/_smoke-trocab.ljw": {
@@ -3496,35 +3577,35 @@
       "tokens": 80,
       "hash": "2db98bb25138d352",
       "size": 300,
-      "mtimeMs": 1786448691088.316,
-      "updatedAt": "2026-08-11T11:45:45.123Z",
+      "mtimeMs": 1786476863512.315,
+      "updatedAt": "2026-08-11T19:58:13.098Z",
       "source": "scan"
     },
     "mundos/_smoke-vida/chat.log": {
       "description": "",
       "tokens": 205,
-      "hash": "7e1cc6d54dddb406",
+      "hash": "ab7a93d4af2861d1",
       "size": 792,
-      "mtimeMs": 1786448578140.3162,
-      "updatedAt": "2026-08-11T11:45:45.123Z",
+      "mtimeMs": 1786476747544.3157,
+      "updatedAt": "2026-08-11T19:58:13.099Z",
       "source": "scan"
     },
     "mundos/aula1-sequencia/chat.log": {
       "description": "",
-      "tokens": 53808,
-      "hash": "550343a6958a1ff8",
-      "size": 207262,
-      "mtimeMs": 1786448531876.316,
-      "updatedAt": "2026-08-11T11:45:45.128Z",
+      "tokens": 57827,
+      "hash": "3fcf6ca1b18a0b3f",
+      "size": 222762,
+      "mtimeMs": 1786476701272.3154,
+      "updatedAt": "2026-08-11T19:58:13.105Z",
       "source": "scan"
     },
     "mundos/aula2-binario/chat.log": {
       "description": "",
-      "tokens": 2080,
-      "hash": "384da7f25431bc56",
-      "size": 7930,
-      "mtimeMs": 1786448526220.3157,
-      "updatedAt": "2026-08-11T11:45:45.129Z",
+      "tokens": 2240,
+      "hash": "3fdc5f72d38d79c0",
+      "size": 8540,
+      "mtimeMs": 1786476695584.3154,
+      "updatedAt": "2026-08-11T19:58:13.106Z",
       "source": "scan"
     },
     "mundos/aula7-corrida/chat.log": {
@@ -3533,7 +3614,7 @@
       "hash": "1f28b0cef667b2bf",
       "size": 1412,
       "mtimeMs": 1785808725642.3938,
-      "updatedAt": "2026-08-11T11:45:45.129Z",
+      "updatedAt": "2026-08-11T19:58:13.108Z",
       "source": "scan"
     },
     "mundos/flor-world/chat.log": {
@@ -3542,7 +3623,7 @@
       "hash": "d3835fd3983ad094",
       "size": 1644,
       "mtimeMs": 1784936235584.8582,
-      "updatedAt": "2026-08-11T11:45:45.130Z",
+      "updatedAt": "2026-08-11T19:58:13.109Z",
       "source": "scan"
     },
     "mundos/jstage/chat.log": {
@@ -3551,7 +3632,7 @@
       "hash": "d999722ef31ab9c5",
       "size": 511,
       "mtimeMs": 1784576416364.3574,
-      "updatedAt": "2026-08-11T11:45:45.131Z",
+      "updatedAt": "2026-08-11T19:58:13.110Z",
       "source": "scan"
     },
     "mundos/mundo-livre/chat.log": {
@@ -3560,7 +3641,7 @@
       "hash": "6c2187c9b4feb69b",
       "size": 12580,
       "mtimeMs": 1786403395585.4468,
-      "updatedAt": "2026-08-11T11:45:45.132Z",
+      "updatedAt": "2026-08-11T19:58:13.112Z",
       "source": "scan"
     },
     "mundos/playtest-streaming/chat.log": {
@@ -3569,7 +3650,7 @@
       "hash": "70c8ee03effaadc6",
       "size": 2311,
       "mtimeMs": 1785115154891.7612,
-      "updatedAt": "2026-08-11T11:45:45.133Z",
+      "updatedAt": "2026-08-11T19:58:13.113Z",
       "source": "scan"
     },
     "mundos/playtest-streaming/playtest-streaming.ljw": {
@@ -3578,7 +3659,7 @@
       "hash": "cb8c83932b8a5f50",
       "size": 4420,
       "mtimeMs": 1785149855020.8003,
-      "updatedAt": "2026-08-11T11:45:45.133Z",
+      "updatedAt": "2026-08-11T19:58:13.114Z",
       "source": "scan"
     },
     "mundos/smoke-coluna/chat.log": {
@@ -3587,7 +3668,7 @@
       "hash": "33643b54c52b9a96",
       "size": 202,
       "mtimeMs": 1785084935423.764,
-      "updatedAt": "2026-08-11T11:45:45.134Z",
+      "updatedAt": "2026-08-11T19:58:13.115Z",
       "source": "scan"
     },
     "mundos/smoke-coluna/smoke-coluna.ljw": {
@@ -3596,7 +3677,7 @@
       "hash": "c64e2299287676a1",
       "size": 233,
       "mtimeMs": 1785084946291.764,
-      "updatedAt": "2026-08-11T11:45:45.134Z",
+      "updatedAt": "2026-08-11T19:58:13.115Z",
       "source": "scan"
     },
     "mundos/stage/chat.log": {
@@ -3605,7 +3686,7 @@
       "hash": "a3b9c881558668e6",
       "size": 1898,
       "mtimeMs": 1784585650092.3542,
-      "updatedAt": "2026-08-11T11:45:45.135Z",
+      "updatedAt": "2026-08-11T19:58:13.116Z",
       "source": "scan"
     },
     "mundos/teste-biomas/chat.log": {
@@ -3614,7 +3695,7 @@
       "hash": "55206f4a0abf64f7",
       "size": 1275,
       "mtimeMs": 1784598715358.7644,
-      "updatedAt": "2026-08-11T11:45:45.136Z",
+      "updatedAt": "2026-08-11T19:58:13.118Z",
       "source": "scan"
     },
     "mundos/teste-v60/chat.log": {
@@ -3623,7 +3704,7 @@
       "hash": "c9a342cebf40ce52",
       "size": 525,
       "mtimeMs": 1786229751964.4175,
-      "updatedAt": "2026-08-11T11:45:45.137Z",
+      "updatedAt": "2026-08-11T19:58:13.120Z",
       "source": "scan"
     },
     "mundos/teste-v60/teste-v60.ljw": {
@@ -3632,26 +3713,26 @@
       "hash": "ba0dbb4651d9df1b",
       "size": 25251,
       "mtimeMs": 1786406648185.4465,
-      "updatedAt": "2026-08-11T11:45:45.139Z",
+      "updatedAt": "2026-08-11T19:58:13.122Z",
       "source": "scan"
     },
     "package-lock.json": {
       "description": "npm lock file",
       "tokens": 20120,
-      "hash": "c6548b2c2e7138cb",
-      "size": 70418,
-      "mtimeMs": 1786229623156.4114,
-      "updatedAt": "2026-08-11T11:45:45.141Z",
+      "hash": "c180ef066aa4e48c",
+      "size": 70420,
+      "mtimeMs": 1786454750416.3152,
+      "updatedAt": "2026-08-11T19:58:13.123Z",
       "source": "scan"
     },
     "package.json": {
       "description": "Node.js package manifest",
-      "tokens": 370,
-      "hash": "7e661815c42f1e54",
-      "size": 1292,
-      "mtimeMs": 1786450449880.3152,
-      "updatedAt": "2026-08-11T12:14:09.989Z",
-      "source": "hook"
+      "tokens": 405,
+      "hash": "17a81da3b81f5c6e",
+      "size": 1417,
+      "mtimeMs": 1786476656836.3154,
+      "updatedAt": "2026-08-11T19:58:13.123Z",
+      "source": "scan"
     },
     "profiles/perf-1784923796301-gius.json": {
       "description": "",
@@ -3659,7 +3740,7 @@
       "hash": "6b1fd088047de085",
       "size": 1687,
       "mtimeMs": 1784923796296.8596,
-      "updatedAt": "2026-08-11T11:45:45.142Z",
+      "updatedAt": "2026-08-11T19:58:13.126Z",
       "source": "scan"
     },
     "profiles/perf-1784923813150-01rx.json": {
@@ -3668,7 +3749,7 @@
       "hash": "6c38b0a4d7ac297c",
       "size": 1689,
       "mtimeMs": 1784923813144.8596,
-      "updatedAt": "2026-08-11T11:45:45.142Z",
+      "updatedAt": "2026-08-11T19:58:13.126Z",
       "source": "scan"
     },
     "profiles/perf-1785086834711-wmi5.json": {
@@ -3677,7 +3758,7 @@
       "hash": "8157fc8c7eb274ee",
       "size": 1741,
       "mtimeMs": 1785086834707.763,
-      "updatedAt": "2026-08-11T11:45:45.143Z",
+      "updatedAt": "2026-08-11T19:58:13.127Z",
       "source": "scan"
     },
     "profiles/perf-1785089686334-7pm7.json": {
@@ -3686,7 +3767,7 @@
       "hash": "193235df99424caa",
       "size": 1748,
       "mtimeMs": 1785089686331.763,
-      "updatedAt": "2026-08-11T11:45:45.144Z",
+      "updatedAt": "2026-08-11T19:58:13.128Z",
       "source": "scan"
     },
     "profiles/perf-1785091204014-l9iv.json": {
@@ -3695,7 +3776,7 @@
       "hash": "46e0e3e0fbb45664",
       "size": 1747,
       "mtimeMs": 1785091204011.7634,
-      "updatedAt": "2026-08-11T11:45:45.144Z",
+      "updatedAt": "2026-08-11T19:58:13.129Z",
       "source": "scan"
     },
     "profiles/perf-1785094449096-atcq.json": {
@@ -3704,7 +3785,7 @@
       "hash": "34872b859c702627",
       "size": 1745,
       "mtimeMs": 1785094449091.7651,
-      "updatedAt": "2026-08-11T11:45:45.144Z",
+      "updatedAt": "2026-08-11T19:58:13.129Z",
       "source": "scan"
     },
     "profiles/perf-1785094461396-pze2.json": {
@@ -3713,7 +3794,7 @@
       "hash": "ea7cd09ebe2f2fd9",
       "size": 1753,
       "mtimeMs": 1785094461391.7646,
-      "updatedAt": "2026-08-11T11:45:45.145Z",
+      "updatedAt": "2026-08-11T19:58:13.130Z",
       "source": "scan"
     },
     "profiles/perf-1785107927563-pznv.json": {
@@ -3722,7 +3803,7 @@
       "hash": "f22b69df6263b85a",
       "size": 1746,
       "mtimeMs": 1785107927559.7625,
-      "updatedAt": "2026-08-11T11:45:45.146Z",
+      "updatedAt": "2026-08-11T19:58:13.130Z",
       "source": "scan"
     },
     "profiles/perf-1785107951364-0cqe.json": {
@@ -3731,7 +3812,7 @@
       "hash": "d84cd45a58ec3868",
       "size": 1741,
       "mtimeMs": 1785107951359.7622,
-      "updatedAt": "2026-08-11T11:45:45.146Z",
+      "updatedAt": "2026-08-11T19:58:13.131Z",
       "source": "scan"
     },
     "profiles/perf-1785107963182-4t6p.json": {
@@ -3740,7 +3821,7 @@
       "hash": "2a4383ee29acddef",
       "size": 1746,
       "mtimeMs": 1785107963179.762,
-      "updatedAt": "2026-08-11T11:45:45.147Z",
+      "updatedAt": "2026-08-11T19:58:13.132Z",
       "source": "scan"
     },
     "profiles/perf-1785107989935-hxzk.json": {
@@ -3749,7 +3830,7 @@
       "hash": "a23374422a957050",
       "size": 1741,
       "mtimeMs": 1785107989931.762,
-      "updatedAt": "2026-08-11T11:45:45.147Z",
+      "updatedAt": "2026-08-11T19:58:13.132Z",
       "source": "scan"
     },
     "profiles/perf-1785109868954-fi1w.json": {
@@ -3758,7 +3839,7 @@
       "hash": "0280e9c3e90f2414",
       "size": 2243,
       "mtimeMs": 1785109868951.7625,
-      "updatedAt": "2026-08-11T11:45:45.148Z",
+      "updatedAt": "2026-08-11T19:58:13.133Z",
       "source": "scan"
     },
     "profiles/perf-1785109881819-124a.json": {
@@ -3767,7 +3848,7 @@
       "hash": "5ac2b924e1bd4c29",
       "size": 2248,
       "mtimeMs": 1785109881815.7625,
-      "updatedAt": "2026-08-11T11:45:45.148Z",
+      "updatedAt": "2026-08-11T19:58:13.134Z",
       "source": "scan"
     },
     "profiles/perf-1785114908092-eevb.json": {
@@ -3776,7 +3857,7 @@
       "hash": "76d15cb25621d50f",
       "size": 5008,
       "mtimeMs": 1785114908087.763,
-      "updatedAt": "2026-08-11T11:45:45.149Z",
+      "updatedAt": "2026-08-11T19:58:13.135Z",
       "source": "scan"
     },
     "profiles/perf-1785114918677-t1a5.json": {
@@ -3785,7 +3866,7 @@
       "hash": "8d219e6e97ceab8e",
       "size": 5009,
       "mtimeMs": 1785114918671.763,
-      "updatedAt": "2026-08-11T11:45:45.149Z",
+      "updatedAt": "2026-08-11T19:58:13.135Z",
       "source": "scan"
     },
     "profiles/perf-1785115154897-znkz.json": {
@@ -3794,7 +3875,7 @@
       "hash": "41ae6c0d548b641a",
       "size": 4996,
       "mtimeMs": 1785115154891.7612,
-      "updatedAt": "2026-08-11T11:45:45.150Z",
+      "updatedAt": "2026-08-11T19:58:13.136Z",
       "source": "scan"
     },
     "profiles/perf-bench-1785116286940-r96x.json": {
@@ -3803,7 +3884,7 @@
       "hash": "3372ce1ac60b8dd7",
       "size": 4994,
       "mtimeMs": 1785116286935.7605,
-      "updatedAt": "2026-08-11T11:45:45.151Z",
+      "updatedAt": "2026-08-11T19:58:13.137Z",
       "source": "scan"
     },
     "profiles/perf-bench-1785116788267-48ab.json": {
@@ -3812,7 +3893,7 @@
       "hash": "a004cd64c21f5ef6",
       "size": 4917,
       "mtimeMs": 1785116788263.7625,
-      "updatedAt": "2026-08-11T11:45:45.151Z",
+      "updatedAt": "2026-08-11T19:58:13.138Z",
       "source": "scan"
     },
     "profiles/perf-bench-1785117299927-v1w4.json": {
@@ -3821,7 +3902,7 @@
       "hash": "f77391dd392b403d",
       "size": 5422,
       "mtimeMs": 1785117299922.5916,
-      "updatedAt": "2026-08-11T11:45:45.152Z",
+      "updatedAt": "2026-08-11T19:58:13.139Z",
       "source": "scan"
     },
     "profiles/perf-bench-1785117351891-nfhx.json": {
@@ -3830,7 +3911,7 @@
       "hash": "bdd45806fa641b51",
       "size": 5226,
       "mtimeMs": 1785117351886.5947,
-      "updatedAt": "2026-08-11T11:45:45.153Z",
+      "updatedAt": "2026-08-11T19:58:13.140Z",
       "source": "scan"
     },
     "profiles/perf-bench-1785120251535-jkso.json": {
@@ -3839,7 +3920,7 @@
       "hash": "93802af4147cbfd2",
       "size": 5254,
       "mtimeMs": 1785120251606.5981,
-      "updatedAt": "2026-08-11T11:45:45.154Z",
+      "updatedAt": "2026-08-11T19:58:13.141Z",
       "source": "scan"
     },
     "profiles/perf-bench-1785120314529-t3xn.json": {
@@ -3848,7 +3929,7 @@
       "hash": "8867e01b27e99e6f",
       "size": 5217,
       "mtimeMs": 1785120314526.5986,
-      "updatedAt": "2026-08-11T11:45:45.155Z",
+      "updatedAt": "2026-08-11T19:58:13.142Z",
       "source": "scan"
     },
     "profiles/perf-bench-1785134477051-rmcb.json": {
@@ -3857,7 +3938,7 @@
       "hash": "346af3d3ffc41846",
       "size": 5357,
       "mtimeMs": 1785134477048.7988,
-      "updatedAt": "2026-08-11T11:45:45.156Z",
+      "updatedAt": "2026-08-11T19:58:13.143Z",
       "source": "scan"
     },
     "profiles/perf-bench-1785134537737-t87u.json": {
@@ -3866,7 +3947,7 @@
       "hash": "8c37328bf53085b7",
       "size": 5283,
       "mtimeMs": 1785134537736.7988,
-      "updatedAt": "2026-08-11T11:45:45.156Z",
+      "updatedAt": "2026-08-11T19:58:13.143Z",
       "source": "scan"
     },
     "profiles/perf-bench-1785134587621-l9yc.json": {
@@ -3875,7 +3956,7 @@
       "hash": "c4b127d82418daad",
       "size": 5166,
       "mtimeMs": 1785134587620.798,
-      "updatedAt": "2026-08-11T11:45:45.157Z",
+      "updatedAt": "2026-08-11T19:58:13.144Z",
       "source": "scan"
     },
     "profiles/perf-bench-1785134781360-tkc7.json": {
@@ -3884,7 +3965,7 @@
       "hash": "da4432e3ed8c13dc",
       "size": 5297,
       "mtimeMs": 1785134781356.8005,
-      "updatedAt": "2026-08-11T11:45:45.158Z",
+      "updatedAt": "2026-08-11T19:58:13.148Z",
       "source": "scan"
     },
     "profiles/perf-bench-1785134829421-l9xf.json": {
@@ -3893,7 +3974,7 @@
       "hash": "609d1693cfd8471c",
       "size": 5034,
       "mtimeMs": 1785134829420.8005,
-      "updatedAt": "2026-08-11T11:45:45.159Z",
+      "updatedAt": "2026-08-11T19:58:13.149Z",
       "source": "scan"
     },
     "profiles/perf-bench-1785134871734-bjrv.json": {
@@ -3902,7 +3983,7 @@
       "hash": "a9d3ab2a2960ce3d",
       "size": 5301,
       "mtimeMs": 1785134871732.7983,
-      "updatedAt": "2026-08-11T11:45:45.159Z",
+      "updatedAt": "2026-08-11T19:58:13.150Z",
       "source": "scan"
     },
     "profiles/perf-bench-1785149563442-2zcg.json": {
@@ -3911,7 +3992,7 @@
       "hash": "3c03628ae444a164",
       "size": 5134,
       "mtimeMs": 1785149563440.7983,
-      "updatedAt": "2026-08-11T11:45:45.160Z",
+      "updatedAt": "2026-08-11T19:58:13.150Z",
       "source": "scan"
     },
     "profiles/perf-bench-1785149642860-j1lu.json": {
@@ -3920,7 +4001,7 @@
       "hash": "2398a516ddd2d388",
       "size": 5405,
       "mtimeMs": 1785149642860.8008,
-      "updatedAt": "2026-08-11T11:45:45.161Z",
+      "updatedAt": "2026-08-11T19:58:13.151Z",
       "source": "scan"
     },
     "profiles/perf-bench-1785192177031-52k0.json": {
@@ -3929,7 +4010,7 @@
       "hash": "81942a2f1ae0102f",
       "size": 5126,
       "mtimeMs": 1785192177028.7961,
-      "updatedAt": "2026-08-11T11:45:45.162Z",
+      "updatedAt": "2026-08-11T19:58:13.152Z",
       "source": "scan"
     },
     "profiles/perf-bench-2026-07-27T01-24-08-311Z.json": {
@@ -3938,7 +4019,7 @@
       "hash": "16215188399d2b13",
       "size": 4991,
       "mtimeMs": 1785115448313.597,
-      "updatedAt": "2026-08-11T11:45:45.162Z",
+      "updatedAt": "2026-08-11T19:58:13.153Z",
       "source": "scan"
     },
     "profiles/perf-bench-semvida-1785192221358-y9ew.json": {
@@ -3947,7 +4028,7 @@
       "hash": "f7f8121e02a2847d",
       "size": 5149,
       "mtimeMs": 1785192221356.7961,
-      "updatedAt": "2026-08-11T11:45:45.163Z",
+      "updatedAt": "2026-08-11T19:58:13.154Z",
       "source": "scan"
     },
     "projeto.txt": {
@@ -3956,7 +4037,7 @@
       "hash": "f19fe7802d1fba27",
       "size": 19459,
       "mtimeMs": 1783780454112.0908,
-      "updatedAt": "2026-08-11T11:45:45.164Z",
+      "updatedAt": "2026-08-11T19:58:13.155Z",
       "source": "scan"
     },
     "README.md": {
@@ -3965,8 +4046,8 @@
       "hash": "b5f4edfa73f6fc11",
       "size": 10437,
       "mtimeMs": 1786459773732.315,
-      "updatedAt": "2026-08-11T14:49:33.840Z",
-      "source": "hook"
+      "updatedAt": "2026-08-11T19:58:13.156Z",
+      "source": "scan"
     },
     "registros/perfilador-v0.8.0-escola.md": {
       "description": "Tabela agregada dos 52 perfis do piloto v0.8.0 (dispositivo/GPU/FPS/tick, sem nome de aluno)",
@@ -3974,7 +4055,7 @@
       "hash": "02f8ee6daeb3303b",
       "size": 4719,
       "mtimeMs": 1784846189756.3027,
-      "updatedAt": "2026-08-11T11:45:45.165Z",
+      "updatedAt": "2026-08-11T19:58:13.157Z",
       "source": "scan"
     },
     "registros/prints/README.md": {
@@ -3983,7 +4064,7 @@
       "hash": "9b3be794838de50d",
       "size": 2321,
       "mtimeMs": 1784850121824.3022,
-      "updatedAt": "2026-08-11T11:45:45.166Z",
+      "updatedAt": "2026-08-11T19:58:13.158Z",
       "source": "scan"
     },
     "registros/README.md": {
@@ -3992,7 +4073,7 @@
       "hash": "41bb69e1ba49d933",
       "size": 1217,
       "mtimeMs": 1784846149164.3032,
-      "updatedAt": "2026-08-11T11:45:45.167Z",
+      "updatedAt": "2026-08-11T19:58:13.158Z",
       "source": "scan"
     },
     "relatorio/apresentacao-cre.html": {
@@ -4001,7 +4082,7 @@
       "hash": "ede8ce82e783e509",
       "size": 296715,
       "mtimeMs": 1785156159372.7979,
-      "updatedAt": "2026-08-11T11:45:45.172Z",
+      "updatedAt": "2026-08-11T19:58:13.164Z",
       "source": "scan"
     },
     "relatorio/relatorio-aplicacao.md": {
@@ -4010,7 +4091,7 @@
       "hash": "f80de7e607c9250b",
       "size": 21421,
       "mtimeMs": 1785155223212.7979,
-      "updatedAt": "2026-08-11T11:45:45.173Z",
+      "updatedAt": "2026-08-11T19:58:13.166Z",
       "source": "scan"
     },
     "scripts/amigos-shot.mjs": {
@@ -4019,7 +4100,7 @@
       "hash": "5b0737a4b8beade0",
       "size": 11434,
       "mtimeMs": 1786294476337.4473,
-      "updatedAt": "2026-08-11T11:45:45.174Z",
+      "updatedAt": "2026-08-11T19:58:13.168Z",
       "source": "scan",
       "symbols": [
         {
@@ -4128,7 +4209,7 @@
       "hash": "99a9f47381501cb9",
       "size": 6577,
       "mtimeMs": 1785155492800.7988,
-      "updatedAt": "2026-08-11T11:45:45.174Z",
+      "updatedAt": "2026-08-11T19:58:13.168Z",
       "source": "scan",
       "symbols": [
         {
@@ -4168,13 +4249,38 @@
         }
       ]
     },
+    "scripts/checar-launchers.mjs": {
+      "description": "PORTÃO DOS LAUNCHERS (bug-621).",
+      "tokens": 1132,
+      "hash": "04593249857aeb23",
+      "size": 4314,
+      "mtimeMs": 1786476651000.3154,
+      "updatedAt": "2026-08-11T19:58:13.169Z",
+      "source": "scan",
+      "symbols": [
+        {
+          "name": "ler",
+          "kind": "fn",
+          "startLine": 39,
+          "endLine": 41,
+          "tokens": 20
+        },
+        {
+          "name": "ok",
+          "kind": "fn",
+          "startLine": 42,
+          "endLine": 100,
+          "tokens": 660
+        }
+      ]
+    },
     "scripts/comida-shot.mjs": {
       "description": "Prints do §🍖 F6 (comida) — inspeção visual do que só o olho responde:",
       "tokens": 1682,
       "hash": "167427d7938ff190",
       "size": 6366,
       "mtimeMs": 1786294476337.4473,
-      "updatedAt": "2026-08-11T11:45:45.175Z",
+      "updatedAt": "2026-08-11T19:58:13.170Z",
       "source": "scan",
       "symbols": [
         {
@@ -4234,7 +4340,7 @@
       "hash": "a13665273a586051",
       "size": 7318,
       "mtimeMs": 1786294476337.4473,
-      "updatedAt": "2026-08-11T11:45:45.175Z",
+      "updatedAt": "2026-08-11T19:58:13.172Z",
       "source": "scan",
       "symbols": [
         {
@@ -4301,7 +4407,7 @@
       "hash": "4490d45cb688f5c2",
       "size": 7190,
       "mtimeMs": 1786294476341.4473,
-      "updatedAt": "2026-08-11T11:45:45.176Z",
+      "updatedAt": "2026-08-11T19:58:13.172Z",
       "source": "scan",
       "symbols": [
         {
@@ -4354,7 +4460,7 @@
       "hash": "adf7dec8be0a6c20",
       "size": 21925,
       "mtimeMs": 1786383928825.4473,
-      "updatedAt": "2026-08-11T11:45:45.177Z",
+      "updatedAt": "2026-08-11T19:58:13.174Z",
       "source": "scan",
       "symbols": [
         {
@@ -4484,7 +4590,7 @@
       "hash": "c4eb05801fb39a09",
       "size": 21173,
       "mtimeMs": 1786294476341.4473,
-      "updatedAt": "2026-08-11T11:45:45.178Z",
+      "updatedAt": "2026-08-11T19:58:13.176Z",
       "source": "scan",
       "symbols": [
         {
@@ -4621,7 +4727,7 @@
       "hash": "b8005e860114dc06",
       "size": 11409,
       "mtimeMs": 1786020842230.5037,
-      "updatedAt": "2026-08-11T11:45:45.179Z",
+      "updatedAt": "2026-08-11T19:58:13.176Z",
       "source": "scan",
       "symbols": [
         {
@@ -4688,7 +4794,7 @@
       "hash": "2f38c65ddafd8ce3",
       "size": 17551,
       "mtimeMs": 1786405724961.4468,
-      "updatedAt": "2026-08-11T11:45:45.180Z",
+      "updatedAt": "2026-08-11T19:58:13.178Z",
       "source": "scan",
       "symbols": [
         {
@@ -4734,7 +4840,7 @@
       "hash": "59e6fc0485150251",
       "size": 20245,
       "mtimeMs": 1786294476341.4473,
-      "updatedAt": "2026-08-11T11:45:45.181Z",
+      "updatedAt": "2026-08-11T19:58:13.179Z",
       "source": "scan",
       "symbols": [
         {
@@ -4830,13 +4936,108 @@
         }
       ]
     },
+    "scripts/tooltip-shot.mjs": {
+      "description": "§💬 SONDA DO TOOLTIP DE ITEM (`client/src/tooltip.ts`).",
+      "tokens": 3001,
+      "hash": "2647d4bd61b57bf6",
+      "size": 11375,
+      "mtimeMs": 1786450780024.3147,
+      "updatedAt": "2026-08-11T19:58:13.179Z",
+      "source": "scan",
+      "symbols": [
+        {
+          "name": "acharChrome",
+          "kind": "fn",
+          "startLine": 42,
+          "endLine": 57,
+          "tokens": 171
+        },
+        {
+          "name": "espera",
+          "kind": "fn",
+          "startLine": 58,
+          "endLine": 64,
+          "tokens": 107
+        },
+        {
+          "name": "abrirAba",
+          "kind": "fn",
+          "startLine": 65,
+          "endLine": 87,
+          "tokens": 243
+        },
+        {
+          "name": "cdp",
+          "kind": "fn",
+          "startLine": 88,
+          "endLine": 89,
+          "tokens": 44
+        },
+        {
+          "name": "avaliar",
+          "kind": "fn",
+          "startLine": 90,
+          "endLine": 91,
+          "tokens": 38
+        },
+        {
+          "name": "tecla",
+          "kind": "fn",
+          "startLine": 92,
+          "endLine": 95,
+          "tokens": 46
+        },
+        {
+          "name": "ok",
+          "kind": "fn",
+          "startLine": 96,
+          "endLine": 101,
+          "tokens": 55
+        },
+        {
+          "name": "centroDoSlot",
+          "kind": "fn",
+          "startLine": 102,
+          "endLine": 109,
+          "tokens": 104
+        },
+        {
+          "name": "tooltip",
+          "kind": "fn",
+          "startLine": 110,
+          "endLine": 120,
+          "tokens": 130
+        },
+        {
+          "name": "mouseEm",
+          "kind": "fn",
+          "startLine": 121,
+          "endLine": 122,
+          "tokens": 32
+        },
+        {
+          "name": "toqueEm",
+          "kind": "fn",
+          "startLine": 123,
+          "endLine": 128,
+          "tokens": 68
+        },
+        {
+          "name": "pegos",
+          "kind": "fn",
+          "startLine": 129,
+          "endLine": 256,
+          "tokens": 1627
+        }
+      ]
+    },
     "scripts/toque-shot.mjs": {
       "description": "Os GESTOS da barra de toque, contra o servidor REAL (2026-08-04).",
       "tokens": 4604,
       "hash": "5fd0cafeb0ca8f65",
       "size": 17460,
       "mtimeMs": 1786294487141.4473,
-      "updatedAt": "2026-08-11T11:45:45.182Z",
+      "updatedAt": "2026-08-11T19:58:13.181Z",
       "source": "scan",
       "symbols": [
         {
@@ -4952,7 +5153,7 @@
       "hash": "6327a023bd75a1a3",
       "size": 416,
       "mtimeMs": 1784035016068.0422,
-      "updatedAt": "2026-08-11T11:45:45.182Z",
+      "updatedAt": "2026-08-11T19:58:13.183Z",
       "source": "scan"
     },
     "server/src/cenarios/_smoke-atividade.mjs": {
@@ -4961,7 +5162,7 @@
       "hash": "6d53dcfe9e768594",
       "size": 5087,
       "mtimeMs": 1786406330125.447,
-      "updatedAt": "2026-08-11T11:45:45.183Z",
+      "updatedAt": "2026-08-11T19:58:13.184Z",
       "source": "scan",
       "symbols": [
         {
@@ -5014,7 +5215,7 @@
       "hash": "0a6fbd87dc9f87f5",
       "size": 8191,
       "mtimeMs": 1785986177304.631,
-      "updatedAt": "2026-08-11T11:45:45.183Z",
+      "updatedAt": "2026-08-11T19:58:13.185Z",
       "source": "scan",
       "symbols": [
         {
@@ -5116,7 +5317,7 @@
       "hash": "3545840a5101dceb",
       "size": 7241,
       "mtimeMs": 1785949025627.3242,
-      "updatedAt": "2026-08-11T11:45:45.183Z",
+      "updatedAt": "2026-08-11T19:58:13.186Z",
       "source": "scan",
       "symbols": [
         {
@@ -5197,7 +5398,7 @@
       "hash": "d616e270f727bb56",
       "size": 4578,
       "mtimeMs": 1785714526641.593,
-      "updatedAt": "2026-08-11T11:45:45.183Z",
+      "updatedAt": "2026-08-11T19:58:13.186Z",
       "source": "scan",
       "symbols": [
         {
@@ -5250,7 +5451,7 @@
       "hash": "370d909e7b66b848",
       "size": 10351,
       "mtimeMs": 1785951769955.3247,
-      "updatedAt": "2026-08-11T11:45:45.184Z",
+      "updatedAt": "2026-08-11T19:58:13.187Z",
       "source": "scan",
       "symbols": [
         {
@@ -5352,7 +5553,7 @@
       "hash": "1d6624509900ca78",
       "size": 7885,
       "mtimeMs": 1785951769955.3247,
-      "updatedAt": "2026-08-11T11:45:45.184Z",
+      "updatedAt": "2026-08-11T19:58:13.188Z",
       "source": "scan",
       "symbols": [
         {
@@ -5419,7 +5620,7 @@
       "hash": "e2bd568eb940903b",
       "size": 2863,
       "mtimeMs": 1785093125979.7627,
-      "updatedAt": "2026-08-11T11:45:45.184Z",
+      "updatedAt": "2026-08-11T19:58:13.189Z",
       "source": "scan",
       "symbols": [
         {
@@ -5458,7 +5659,7 @@
       "hash": "46f59bcd3be3a74a",
       "size": 4731,
       "mtimeMs": 1785704976313.5957,
-      "updatedAt": "2026-08-11T11:45:45.185Z",
+      "updatedAt": "2026-08-11T19:58:13.189Z",
       "source": "scan",
       "symbols": [
         {
@@ -5504,7 +5705,7 @@
       "hash": "00165fde9cabbe5f",
       "size": 3297,
       "mtimeMs": 1785093326179.7627,
-      "updatedAt": "2026-08-11T11:45:45.185Z",
+      "updatedAt": "2026-08-11T19:58:13.190Z",
       "source": "scan",
       "symbols": [
         {
@@ -5536,7 +5737,7 @@
       "hash": "8738d2a5cf574819",
       "size": 5084,
       "mtimeMs": 1785084904959.764,
-      "updatedAt": "2026-08-11T11:45:45.185Z",
+      "updatedAt": "2026-08-11T19:58:13.191Z",
       "source": "scan",
       "symbols": [
         {
@@ -5568,7 +5769,7 @@
       "hash": "f6b3e445c8e0f738",
       "size": 3669,
       "mtimeMs": 1785115974415.7622,
-      "updatedAt": "2026-08-11T11:45:45.185Z",
+      "updatedAt": "2026-08-11T19:58:13.191Z",
       "source": "scan",
       "symbols": [
         {
@@ -5600,7 +5801,7 @@
       "hash": "fd0f39b354d97c95",
       "size": 3333,
       "mtimeMs": 1785941724023.3196,
-      "updatedAt": "2026-08-11T11:45:45.185Z",
+      "updatedAt": "2026-08-11T19:58:13.192Z",
       "source": "scan",
       "symbols": [
         {
@@ -5646,7 +5847,7 @@
       "hash": "1ea5cf0cafe0e25a",
       "size": 6670,
       "mtimeMs": 1785942568571.3218,
-      "updatedAt": "2026-08-11T11:45:45.186Z",
+      "updatedAt": "2026-08-11T19:58:13.193Z",
       "source": "scan",
       "symbols": [
         {
@@ -5713,7 +5914,7 @@
       "hash": "76eb85d6625b3373",
       "size": 4614,
       "mtimeMs": 1785091561247.7642,
-      "updatedAt": "2026-08-11T11:45:45.186Z",
+      "updatedAt": "2026-08-11T19:58:13.193Z",
       "source": "scan",
       "symbols": [
         {
@@ -5759,7 +5960,7 @@
       "hash": "15b3f3610ce3ef9a",
       "size": 4570,
       "mtimeMs": 1785712659397.5945,
-      "updatedAt": "2026-08-11T11:45:45.186Z",
+      "updatedAt": "2026-08-11T19:58:13.194Z",
       "source": "scan",
       "symbols": [
         {
@@ -5826,7 +6027,7 @@
       "hash": "578ae9b2c40d152f",
       "size": 3096,
       "mtimeMs": 1785807673198.3909,
-      "updatedAt": "2026-08-11T11:45:45.186Z",
+      "updatedAt": "2026-08-11T19:58:13.195Z",
       "source": "scan",
       "symbols": [
         {
@@ -5851,7 +6052,7 @@
       "hash": "218405b6fa70a5c2",
       "size": 23305,
       "mtimeMs": 1785808597558.3933,
-      "updatedAt": "2026-08-11T11:45:45.189Z",
+      "updatedAt": "2026-08-11T19:58:13.196Z",
       "source": "scan",
       "symbols": [
         {
@@ -5981,7 +6182,7 @@
       "hash": "c4fb51c4970822ae",
       "size": 17696,
       "mtimeMs": 1785807843674.3896,
-      "updatedAt": "2026-08-11T11:45:45.190Z",
+      "updatedAt": "2026-08-11T19:58:13.197Z",
       "source": "scan",
       "symbols": [
         {
@@ -6027,7 +6228,7 @@
       "hash": "b23cf401d35ded19",
       "size": 6663,
       "mtimeMs": 1784517263524.3567,
-      "updatedAt": "2026-08-11T11:45:45.190Z",
+      "updatedAt": "2026-08-11T19:58:13.198Z",
       "source": "scan",
       "symbols": [
         {
@@ -6080,7 +6281,7 @@
       "hash": "0d4442c6fe381938",
       "size": 22986,
       "mtimeMs": 1785941724023.3196,
-      "updatedAt": "2026-08-11T11:45:45.191Z",
+      "updatedAt": "2026-08-11T19:58:13.199Z",
       "source": "scan",
       "symbols": [
         {
@@ -6147,7 +6348,7 @@
       "hash": "c9668b01d4e0aafc",
       "size": 7296,
       "mtimeMs": 1785091443451.7627,
-      "updatedAt": "2026-08-11T11:45:45.191Z",
+      "updatedAt": "2026-08-11T19:58:13.200Z",
       "source": "scan",
       "symbols": [
         {
@@ -6193,7 +6394,7 @@
       "hash": "4e26cf36c38fc5a7",
       "size": 3252,
       "mtimeMs": 1784559009932.3584,
-      "updatedAt": "2026-08-11T11:45:45.191Z",
+      "updatedAt": "2026-08-11T19:58:13.201Z",
       "source": "scan",
       "symbols": [
         {
@@ -6218,7 +6419,7 @@
       "hash": "f45d06b0c323dccb",
       "size": 4550,
       "mtimeMs": 1785155345404.7988,
-      "updatedAt": "2026-08-11T11:45:45.191Z",
+      "updatedAt": "2026-08-11T19:58:13.202Z",
       "source": "scan",
       "symbols": [
         {
@@ -6250,7 +6451,7 @@
       "hash": "95c3c4725f764a96",
       "size": 3730,
       "mtimeMs": 1784050273432.041,
-      "updatedAt": "2026-08-11T11:45:45.192Z",
+      "updatedAt": "2026-08-11T19:58:13.203Z",
       "source": "scan",
       "symbols": [
         {
@@ -6282,7 +6483,7 @@
       "hash": "c8bedfa9c0571b31",
       "size": 3207,
       "mtimeMs": 1785941724023.3196,
-      "updatedAt": "2026-08-11T11:45:45.192Z",
+      "updatedAt": "2026-08-11T19:58:13.203Z",
       "source": "scan",
       "symbols": [
         {
@@ -6300,7 +6501,7 @@
       "hash": "38f8c30a652950e8",
       "size": 149,
       "mtimeMs": 1783800698780.0908,
-      "updatedAt": "2026-08-11T11:45:45.192Z",
+      "updatedAt": "2026-08-11T19:58:13.204Z",
       "source": "scan"
     },
     "shared/package.json": {
@@ -6309,7 +6510,7 @@
       "hash": "b269352ac97149eb",
       "size": 194,
       "mtimeMs": 1783780454112.0908,
-      "updatedAt": "2026-08-11T11:45:45.192Z",
+      "updatedAt": "2026-08-11T19:58:13.205Z",
       "source": "scan"
     },
     "shared/src/algodao.test.ts": {
@@ -6318,7 +6519,7 @@
       "hash": "eb518438e79da45a",
       "size": 12536,
       "mtimeMs": 1786372941817.4465,
-      "updatedAt": "2026-08-11T11:45:45.193Z",
+      "updatedAt": "2026-08-11T19:58:13.210Z",
       "source": "scan",
       "symbols": [
         {
@@ -6336,7 +6537,7 @@
       "hash": "beb0e1537852027d",
       "size": 2325,
       "mtimeMs": 1784594589156.3552,
-      "updatedAt": "2026-08-11T11:45:45.193Z",
+      "updatedAt": "2026-08-11T19:58:13.210Z",
       "source": "scan"
     },
     "shared/src/arvores.ts": {
@@ -6345,7 +6546,7 @@
       "hash": "12bfe62e77def2a6",
       "size": 5819,
       "mtimeMs": 1784653234218.7644,
-      "updatedAt": "2026-08-11T11:45:45.194Z",
+      "updatedAt": "2026-08-11T19:58:13.211Z",
       "source": "scan",
       "symbols": [
         {
@@ -6405,7 +6606,7 @@
       "hash": "29e5d3d6a88b634f",
       "size": 1510,
       "mtimeMs": 1784393177754.9072,
-      "updatedAt": "2026-08-11T11:45:45.194Z",
+      "updatedAt": "2026-08-11T19:58:13.212Z",
       "source": "scan"
     },
     "shared/src/auth.ts": {
@@ -6414,7 +6615,7 @@
       "hash": "3f085ad28ebc2dee",
       "size": 1729,
       "mtimeMs": 1784393091074.9092,
-      "updatedAt": "2026-08-11T11:45:45.194Z",
+      "updatedAt": "2026-08-11T19:58:13.212Z",
       "source": "scan"
     },
     "shared/src/biomas.ts": {
@@ -6423,7 +6624,7 @@
       "hash": "76519795be3a9d22",
       "size": 10174,
       "mtimeMs": 1786141363306.9922,
-      "updatedAt": "2026-08-11T11:45:45.194Z",
+      "updatedAt": "2026-08-11T19:58:13.213Z",
       "source": "scan",
       "symbols": [
         {
@@ -6476,7 +6677,7 @@
       "hash": "10c8c2248bb5c40e",
       "size": 11285,
       "mtimeMs": 1786147209086.9883,
-      "updatedAt": "2026-08-11T11:45:45.195Z",
+      "updatedAt": "2026-08-11T19:58:13.214Z",
       "source": "scan"
     },
     "shared/src/blocks.ts": {
@@ -6485,7 +6686,7 @@
       "hash": "f9c8781a9030d207",
       "size": 47306,
       "mtimeMs": 1786232594976.415,
-      "updatedAt": "2026-08-11T11:45:45.196Z",
+      "updatedAt": "2026-08-11T19:58:13.216Z",
       "source": "scan",
       "symbols": [
         {
@@ -6706,7 +6907,7 @@
       "hash": "f352b65cc0d2ae11",
       "size": 20432,
       "mtimeMs": 1786372941817.4465,
-      "updatedAt": "2026-08-11T11:45:45.196Z",
+      "updatedAt": "2026-08-11T19:58:13.218Z",
       "source": "scan",
       "symbols": [
         {
@@ -6752,7 +6953,7 @@
       "hash": "d18c4fb1c5aeb062",
       "size": 5064,
       "mtimeMs": 1786372941817.4465,
-      "updatedAt": "2026-08-11T11:45:45.197Z",
+      "updatedAt": "2026-08-11T19:58:13.218Z",
       "source": "scan",
       "symbols": [
         {
@@ -6819,7 +7020,7 @@
       "hash": "007acd94677117a1",
       "size": 5823,
       "mtimeMs": 1786015965694.5042,
-      "updatedAt": "2026-08-11T11:45:45.197Z",
+      "updatedAt": "2026-08-11T19:58:13.219Z",
       "source": "scan"
     },
     "shared/src/colunas.ts": {
@@ -6828,7 +7029,7 @@
       "hash": "3c9d2de60dbeeaa8",
       "size": 3555,
       "mtimeMs": 1786016013054.5037,
-      "updatedAt": "2026-08-11T11:45:45.197Z",
+      "updatedAt": "2026-08-11T19:58:13.219Z",
       "source": "scan",
       "symbols": [
         {
@@ -6881,7 +7082,7 @@
       "hash": "fc2da2ecc98a25af",
       "size": 14722,
       "mtimeMs": 1785973044019.322,
-      "updatedAt": "2026-08-11T11:45:45.197Z",
+      "updatedAt": "2026-08-11T19:58:13.220Z",
       "source": "scan",
       "symbols": [
         {
@@ -6948,7 +7149,7 @@
       "hash": "bba896ed6433bbce",
       "size": 2019,
       "mtimeMs": 1786141437058.991,
-      "updatedAt": "2026-08-11T11:45:45.198Z",
+      "updatedAt": "2026-08-11T19:58:13.221Z",
       "source": "scan",
       "symbols": [
         {
@@ -6973,7 +7174,7 @@
       "hash": "6ab1809f9889e7ac",
       "size": 8798,
       "mtimeMs": 1784340400012.3667,
-      "updatedAt": "2026-08-11T11:45:45.198Z",
+      "updatedAt": "2026-08-11T19:58:13.222Z",
       "source": "scan",
       "symbols": [
         {
@@ -7040,7 +7241,7 @@
       "hash": "45412e368dc7cda5",
       "size": 1827,
       "mtimeMs": 1784764145511.3923,
-      "updatedAt": "2026-08-11T11:45:45.198Z",
+      "updatedAt": "2026-08-11T19:58:13.223Z",
       "source": "scan"
     },
     "shared/src/containers.test.ts": {
@@ -7049,7 +7250,7 @@
       "hash": "d4b8dcb56697d64c",
       "size": 10259,
       "mtimeMs": 1786189201612.4153,
-      "updatedAt": "2026-08-11T11:45:45.198Z",
+      "updatedAt": "2026-08-11T19:58:13.223Z",
       "source": "scan",
       "symbols": [
         {
@@ -7074,7 +7275,7 @@
       "hash": "5acfd0f87d0fb551",
       "size": 10941,
       "mtimeMs": 1786189118000.4146,
-      "updatedAt": "2026-08-11T11:45:45.199Z",
+      "updatedAt": "2026-08-11T19:58:13.224Z",
       "source": "scan",
       "symbols": [
         {
@@ -7183,7 +7384,7 @@
       "hash": "e6742733edf61f43",
       "size": 8646,
       "mtimeMs": 1786026192618.5044,
-      "updatedAt": "2026-08-11T11:45:45.199Z",
+      "updatedAt": "2026-08-11T19:58:13.225Z",
       "source": "scan"
     },
     "shared/src/controleJogador.ts": {
@@ -7192,7 +7393,7 @@
       "hash": "0b2d5f5f215799f9",
       "size": 5572,
       "mtimeMs": 1786026205310.5044,
-      "updatedAt": "2026-08-11T11:45:45.199Z",
+      "updatedAt": "2026-08-11T19:58:13.226Z",
       "source": "scan",
       "symbols": [
         {
@@ -7224,7 +7425,7 @@
       "hash": "2d381e5b77f2bf4b",
       "size": 7001,
       "mtimeMs": 1784220873934.2222,
-      "updatedAt": "2026-08-11T11:45:45.200Z",
+      "updatedAt": "2026-08-11T19:58:13.227Z",
       "source": "scan",
       "symbols": [
         {
@@ -7263,7 +7464,7 @@
       "hash": "2c12847b950218c6",
       "size": 29819,
       "mtimeMs": 1786139752726.9922,
-      "updatedAt": "2026-08-11T11:45:45.201Z",
+      "updatedAt": "2026-08-11T19:58:13.229Z",
       "source": "scan",
       "symbols": [
         {
@@ -7281,7 +7482,7 @@
       "hash": "cad4e1c30b122126",
       "size": 8427,
       "mtimeMs": 1786147711258.9907,
-      "updatedAt": "2026-08-11T11:45:45.201Z",
+      "updatedAt": "2026-08-11T19:58:13.230Z",
       "source": "scan"
     },
     "shared/src/drops.test.ts": {
@@ -7290,7 +7491,7 @@
       "hash": "e0bb8386e503de4e",
       "size": 7168,
       "mtimeMs": 1785973196015.3215,
-      "updatedAt": "2026-08-11T11:45:45.201Z",
+      "updatedAt": "2026-08-11T19:58:13.231Z",
       "source": "scan"
     },
     "shared/src/drops.ts": {
@@ -7299,7 +7500,7 @@
       "hash": "bedeb8c5cfb57a87",
       "size": 8555,
       "mtimeMs": 1786141421006.9922,
-      "updatedAt": "2026-08-11T11:45:45.202Z",
+      "updatedAt": "2026-08-11T19:58:13.232Z",
       "source": "scan",
       "symbols": [
         {
@@ -7331,7 +7532,7 @@
       "hash": "58ee08ba26fe3c7c",
       "size": 2477,
       "mtimeMs": 1786023357626.5032,
-      "updatedAt": "2026-08-11T11:45:45.202Z",
+      "updatedAt": "2026-08-11T19:58:13.233Z",
       "source": "scan"
     },
     "shared/src/envioPose.ts": {
@@ -7340,7 +7541,7 @@
       "hash": "32823554cfd35aa9",
       "size": 2245,
       "mtimeMs": 1786023422438.503,
-      "updatedAt": "2026-08-11T11:45:45.202Z",
+      "updatedAt": "2026-08-11T19:58:13.233Z",
       "source": "scan",
       "symbols": [
         {
@@ -7365,7 +7566,7 @@
       "hash": "236e22814c966d74",
       "size": 9703,
       "mtimeMs": 1785951181831.3245,
-      "updatedAt": "2026-08-11T11:45:45.202Z",
+      "updatedAt": "2026-08-11T19:58:13.234Z",
       "source": "scan",
       "symbols": [
         {
@@ -7425,8 +7626,8 @@
       "hash": "6e15566ab3b70214",
       "size": 8064,
       "mtimeMs": 1786449986928.314,
-      "updatedAt": "2026-08-11T12:06:27.021Z",
-      "source": "hook",
+      "updatedAt": "2026-08-11T19:58:13.235Z",
+      "source": "scan",
       "symbols": [
         {
           "name": "Ferramenta",
@@ -7485,7 +7686,7 @@
       "hash": "9a30a460259f6c0d",
       "size": 17882,
       "mtimeMs": 1786139953814.9924,
-      "updatedAt": "2026-08-11T11:45:45.203Z",
+      "updatedAt": "2026-08-11T19:58:13.236Z",
       "source": "scan",
       "symbols": [
         {
@@ -7566,7 +7767,7 @@
       "hash": "209359731a29805f",
       "size": 8048,
       "mtimeMs": 1785948559611.323,
-      "updatedAt": "2026-08-11T11:45:45.203Z",
+      "updatedAt": "2026-08-11T19:58:13.237Z",
       "source": "scan",
       "symbols": [
         {
@@ -7591,7 +7792,7 @@
       "hash": "0f635ff5f87acc26",
       "size": 7780,
       "mtimeMs": 1786141501850.9907,
-      "updatedAt": "2026-08-11T11:45:45.204Z",
+      "updatedAt": "2026-08-11T19:58:13.238Z",
       "source": "scan",
       "symbols": [
         {
@@ -7637,7 +7838,7 @@
       "hash": "85597594a7812b0c",
       "size": 10253,
       "mtimeMs": 1785950004267.323,
-      "updatedAt": "2026-08-11T11:45:45.204Z",
+      "updatedAt": "2026-08-11T19:58:13.239Z",
       "source": "scan",
       "symbols": [
         {
@@ -7711,7 +7912,7 @@
       "hash": "d9fa52f95bebb7d1",
       "size": 13548,
       "mtimeMs": 1784140932259.4033,
-      "updatedAt": "2026-08-11T11:45:45.205Z",
+      "updatedAt": "2026-08-11T19:58:13.240Z",
       "source": "scan",
       "symbols": [
         {
@@ -7750,7 +7951,7 @@
       "hash": "5256d9b9535d2376",
       "size": 987,
       "mtimeMs": 1783908749009.4753,
-      "updatedAt": "2026-08-11T11:45:45.205Z",
+      "updatedAt": "2026-08-11T19:58:13.241Z",
       "source": "scan"
     },
     "shared/src/index.ts": {
@@ -7759,8 +7960,8 @@
       "hash": "0380051eddc07d22",
       "size": 1004,
       "mtimeMs": 1786450021660.3137,
-      "updatedAt": "2026-08-11T12:07:01.761Z",
-      "source": "hook"
+      "updatedAt": "2026-08-11T19:58:13.242Z",
+      "source": "scan"
     },
     "shared/src/inventario.test.ts": {
       "description": "Inventário com pilhas em slots escolhidos (o resto vazio).",
@@ -7768,7 +7969,7 @@
       "hash": "312820b8eb6eaf02",
       "size": 26381,
       "mtimeMs": 1786189184996.4146,
-      "updatedAt": "2026-08-11T11:45:45.206Z",
+      "updatedAt": "2026-08-11T19:58:13.243Z",
       "source": "scan",
       "symbols": [
         {
@@ -7870,7 +8071,7 @@
       "hash": "78bbe40a8579a992",
       "size": 11773,
       "mtimeMs": 1786189106316.4146,
-      "updatedAt": "2026-08-11T11:45:45.206Z",
+      "updatedAt": "2026-08-11T19:58:13.244Z",
       "source": "scan",
       "symbols": [
         {
@@ -8000,7 +8201,7 @@
       "hash": "5c60c5210a5a6ee7",
       "size": 17956,
       "mtimeMs": 1786036823422.5034,
-      "updatedAt": "2026-08-11T11:45:45.207Z",
+      "updatedAt": "2026-08-11T19:58:13.246Z",
       "source": "scan",
       "symbols": [
         {
@@ -8025,7 +8226,7 @@
       "hash": "4afc26221cb3cdb9",
       "size": 26397,
       "mtimeMs": 1786036845826.5046,
-      "updatedAt": "2026-08-11T11:45:45.208Z",
+      "updatedAt": "2026-08-11T19:58:13.248Z",
       "source": "scan",
       "symbols": [
         {
@@ -8218,7 +8419,7 @@
       "hash": "43a518400f1f1ab5",
       "size": 24294,
       "mtimeMs": 1785969164155.3179,
-      "updatedAt": "2026-08-11T11:45:45.209Z",
+      "updatedAt": "2026-08-11T19:58:13.249Z",
       "source": "scan",
       "symbols": [
         {
@@ -8243,7 +8444,7 @@
       "hash": "abaa2472de5cc45c",
       "size": 61609,
       "mtimeMs": 1786448473396.315,
-      "updatedAt": "2026-08-11T11:45:45.210Z",
+      "updatedAt": "2026-08-11T19:58:13.252Z",
       "source": "scan",
       "symbols": [
         {
@@ -8387,7 +8588,7 @@
       "hash": "11b943c5fb782059",
       "size": 13033,
       "mtimeMs": 1785941724023.3196,
-      "updatedAt": "2026-08-11T11:45:45.211Z",
+      "updatedAt": "2026-08-11T19:58:13.254Z",
       "source": "scan",
       "symbols": [
         {
@@ -8454,7 +8655,7 @@
       "hash": "72043c4f95f3ad0a",
       "size": 3418,
       "mtimeMs": 1785941724023.3196,
-      "updatedAt": "2026-08-11T11:45:45.211Z",
+      "updatedAt": "2026-08-11T19:58:13.254Z",
       "source": "scan",
       "symbols": [
         {
@@ -8500,7 +8701,7 @@
       "hash": "70f72f24dfd29ea1",
       "size": 7636,
       "mtimeMs": 1785992311832.6284,
-      "updatedAt": "2026-08-11T11:45:45.211Z",
+      "updatedAt": "2026-08-11T19:58:13.255Z",
       "source": "scan"
     },
     "shared/src/orientacao.ts": {
@@ -8509,7 +8710,7 @@
       "hash": "af616e9310fbd8c7",
       "size": 4981,
       "mtimeMs": 1785992146896.6292,
-      "updatedAt": "2026-08-11T11:45:45.212Z",
+      "updatedAt": "2026-08-11T19:58:13.256Z",
       "source": "scan",
       "symbols": [
         {
@@ -8541,7 +8742,7 @@
       "hash": "722a94e3f885648d",
       "size": 15748,
       "mtimeMs": 1785028387002.7332,
-      "updatedAt": "2026-08-11T11:45:45.212Z",
+      "updatedAt": "2026-08-11T19:58:13.257Z",
       "source": "scan",
       "symbols": [
         {
@@ -8566,7 +8767,7 @@
       "hash": "64d1485accfcb78b",
       "size": 21030,
       "mtimeMs": 1786129736718.992,
-      "updatedAt": "2026-08-11T11:45:45.213Z",
+      "updatedAt": "2026-08-11T19:58:13.259Z",
       "source": "scan",
       "symbols": [
         {
@@ -8703,7 +8904,7 @@
       "hash": "dd1fcf9e6d85264f",
       "size": 12811,
       "mtimeMs": 1785113025311.7625,
-      "updatedAt": "2026-08-11T11:45:45.214Z",
+      "updatedAt": "2026-08-11T19:58:13.261Z",
       "source": "scan"
     },
     "shared/src/protocol.ts": {
@@ -8712,7 +8913,7 @@
       "hash": "77f429869a3625ea",
       "size": 44082,
       "mtimeMs": 1786189086864.4146,
-      "updatedAt": "2026-08-11T11:45:45.215Z",
+      "updatedAt": "2026-08-11T19:58:13.263Z",
       "source": "scan",
       "symbols": [
         {
@@ -8800,7 +9001,7 @@
       "hash": "8e35013534eed888",
       "size": 13155,
       "mtimeMs": 1785942448235.324,
-      "updatedAt": "2026-08-11T11:45:45.216Z",
+      "updatedAt": "2026-08-11T19:58:13.264Z",
       "source": "scan",
       "symbols": [
         {
@@ -8895,7 +9096,7 @@
       "hash": "56b3386e00f831e0",
       "size": 5640,
       "mtimeMs": 1784504065673.7603,
-      "updatedAt": "2026-08-11T11:45:45.216Z",
+      "updatedAt": "2026-08-11T19:58:13.265Z",
       "source": "scan",
       "symbols": [
         {
@@ -8913,7 +9114,7 @@
       "hash": "b67b9f1e807b2514",
       "size": 1903,
       "mtimeMs": 1784503766657.7568,
-      "updatedAt": "2026-08-11T11:45:45.216Z",
+      "updatedAt": "2026-08-11T19:58:13.265Z",
       "source": "scan",
       "symbols": [
         {
@@ -8945,7 +9146,7 @@
       "hash": "161c7308210ab32c",
       "size": 621,
       "mtimeMs": 1785949979891.3232,
-      "updatedAt": "2026-08-11T11:45:45.216Z",
+      "updatedAt": "2026-08-11T19:58:13.266Z",
       "source": "scan"
     },
     "shared/src/raycast.test.ts": {
@@ -8954,7 +9155,7 @@
       "hash": "a1d9d0fc1d08eb29",
       "size": 3710,
       "mtimeMs": 1784731907611.3936,
-      "updatedAt": "2026-08-11T11:45:45.217Z",
+      "updatedAt": "2026-08-11T19:58:13.267Z",
       "source": "scan",
       "symbols": [
         {
@@ -8972,7 +9173,7 @@
       "hash": "401c812b62c6d42b",
       "size": 8195,
       "mtimeMs": 1785942052967.3232,
-      "updatedAt": "2026-08-11T11:45:45.217Z",
+      "updatedAt": "2026-08-11T19:58:13.268Z",
       "source": "scan",
       "symbols": [
         {
@@ -9025,7 +9226,7 @@
       "hash": "a329c13e93767040",
       "size": 16504,
       "mtimeMs": 1785973114327.322,
-      "updatedAt": "2026-08-11T11:45:45.218Z",
+      "updatedAt": "2026-08-11T19:58:13.269Z",
       "source": "scan",
       "symbols": [
         {
@@ -9050,7 +9251,7 @@
       "hash": "7bda4beecc0dc106",
       "size": 27834,
       "mtimeMs": 1786372941817.4465,
-      "updatedAt": "2026-08-11T11:45:45.219Z",
+      "updatedAt": "2026-08-11T19:58:13.271Z",
       "source": "scan",
       "symbols": [
         {
@@ -9138,7 +9339,7 @@
       "hash": "242d36f406756874",
       "size": 12364,
       "mtimeMs": 1784296351544.3696,
-      "updatedAt": "2026-08-11T11:45:45.219Z",
+      "updatedAt": "2026-08-11T19:58:13.272Z",
       "source": "scan",
       "symbols": [
         {
@@ -9177,7 +9378,7 @@
       "hash": "6b81b99d9c62aa99",
       "size": 2669,
       "mtimeMs": 1783903813957.476,
-      "updatedAt": "2026-08-11T11:45:45.219Z",
+      "updatedAt": "2026-08-11T19:58:13.273Z",
       "source": "scan",
       "symbols": [
         {
@@ -9237,7 +9438,7 @@
       "hash": "665d855a60d0ab19",
       "size": 6724,
       "mtimeMs": 1785942383227.3237,
-      "updatedAt": "2026-08-11T11:45:45.220Z",
+      "updatedAt": "2026-08-11T19:58:13.274Z",
       "source": "scan",
       "symbols": [
         {
@@ -9290,7 +9491,7 @@
       "hash": "a5f3f8d4e64d3763",
       "size": 4594,
       "mtimeMs": 1785942078983.3237,
-      "updatedAt": "2026-08-11T11:45:45.220Z",
+      "updatedAt": "2026-08-11T19:58:13.275Z",
       "source": "scan",
       "symbols": [
         {
@@ -9343,7 +9544,7 @@
       "hash": "b8d1a4999de4ef1f",
       "size": 5365,
       "mtimeMs": 1786141676590.9902,
-      "updatedAt": "2026-08-11T11:45:45.220Z",
+      "updatedAt": "2026-08-11T19:58:13.276Z",
       "source": "scan"
     },
     "shared/src/rules.ts": {
@@ -9352,7 +9553,7 @@
       "hash": "b6605a4d803b3526",
       "size": 14379,
       "mtimeMs": 1785972630251.3235,
-      "updatedAt": "2026-08-11T11:45:45.221Z",
+      "updatedAt": "2026-08-11T19:58:13.278Z",
       "source": "scan",
       "symbols": [
         {
@@ -9412,7 +9613,7 @@
       "hash": "05525b3e15050653",
       "size": 3624,
       "mtimeMs": 1784627896830.7642,
-      "updatedAt": "2026-08-11T11:45:45.221Z",
+      "updatedAt": "2026-08-11T19:58:13.279Z",
       "source": "scan",
       "symbols": [
         {
@@ -9430,7 +9631,7 @@
       "hash": "c42c0647f0aa07d8",
       "size": 5117,
       "mtimeMs": 1784211046370.2214,
-      "updatedAt": "2026-08-11T11:45:45.222Z",
+      "updatedAt": "2026-08-11T19:58:13.280Z",
       "source": "scan"
     },
     "shared/src/save.ts": {
@@ -9439,7 +9640,7 @@
       "hash": "3912e1805192bb43",
       "size": 18360,
       "mtimeMs": 1785948185439.324,
-      "updatedAt": "2026-08-11T11:45:45.222Z",
+      "updatedAt": "2026-08-11T19:58:13.281Z",
       "source": "scan",
       "symbols": [
         {
@@ -9520,7 +9721,7 @@
       "hash": "ccfee5c9091cac23",
       "size": 14472,
       "mtimeMs": 1784222581962.2236,
-      "updatedAt": "2026-08-11T11:45:45.223Z",
+      "updatedAt": "2026-08-11T19:58:13.283Z",
       "source": "scan",
       "symbols": [
         {
@@ -9559,7 +9760,7 @@
       "hash": "bf2e80b898f1669a",
       "size": 13017,
       "mtimeMs": 1784299192544.3682,
-      "updatedAt": "2026-08-11T11:45:45.223Z",
+      "updatedAt": "2026-08-11T19:58:13.284Z",
       "source": "scan",
       "symbols": [
         {
@@ -9675,7 +9876,7 @@
       "hash": "da997797894169a2",
       "size": 5615,
       "mtimeMs": 1785989313756.6309,
-      "updatedAt": "2026-08-11T11:45:45.224Z",
+      "updatedAt": "2026-08-11T19:58:13.287Z",
       "source": "scan",
       "symbols": [
         {
@@ -9777,7 +9978,7 @@
       "hash": "306625bca4774e02",
       "size": 847,
       "mtimeMs": 1785989286596.631,
-      "updatedAt": "2026-08-11T11:45:45.224Z",
+      "updatedAt": "2026-08-11T19:58:13.288Z",
       "source": "scan"
     },
     "shared/src/session/cenario.ts": {
@@ -9786,7 +9987,7 @@
       "hash": "111a47de961eab66",
       "size": 21844,
       "mtimeMs": 1785989597388.6304,
-      "updatedAt": "2026-08-11T11:45:45.225Z",
+      "updatedAt": "2026-08-11T19:58:13.290Z",
       "source": "scan",
       "symbols": [
         {
@@ -9916,7 +10117,7 @@
       "hash": "cbaf1b0177d52bcd",
       "size": 5783,
       "mtimeMs": 1785989313760.6309,
-      "updatedAt": "2026-08-11T11:45:45.225Z",
+      "updatedAt": "2026-08-11T19:58:13.291Z",
       "source": "scan",
       "symbols": [
         {
@@ -9983,7 +10184,7 @@
       "hash": "e9230584426b5b05",
       "size": 843,
       "mtimeMs": 1785988999300.6287,
-      "updatedAt": "2026-08-11T11:45:45.225Z",
+      "updatedAt": "2026-08-11T19:58:13.291Z",
       "source": "scan"
     },
     "shared/src/session/equipes.ts": {
@@ -9992,7 +10193,7 @@
       "hash": "ecf7322c56b47828",
       "size": 29396,
       "mtimeMs": 1786372941817.4465,
-      "updatedAt": "2026-08-11T11:45:45.226Z",
+      "updatedAt": "2026-08-11T19:58:13.293Z",
       "source": "scan",
       "symbols": [
         {
@@ -10206,7 +10407,7 @@
       "hash": "6152c4562d63a8ed",
       "size": 6990,
       "mtimeMs": 1785989597392.6304,
-      "updatedAt": "2026-08-11T11:45:45.226Z",
+      "updatedAt": "2026-08-11T19:58:13.294Z",
       "source": "scan",
       "symbols": [
         {
@@ -10280,7 +10481,7 @@
       "hash": "e07515503935ee9c",
       "size": 11941,
       "mtimeMs": 1785989597392.6304,
-      "updatedAt": "2026-08-11T11:45:45.227Z",
+      "updatedAt": "2026-08-11T19:58:13.295Z",
       "source": "scan",
       "symbols": [
         {
@@ -10354,7 +10555,7 @@
       "hash": "006ce0985de8ab8b",
       "size": 11782,
       "mtimeMs": 1785989313756.6309,
-      "updatedAt": "2026-08-11T11:45:45.227Z",
+      "updatedAt": "2026-08-11T19:58:13.296Z",
       "source": "scan",
       "symbols": [
         {
@@ -10372,7 +10573,7 @@
       "hash": "e4d8513f0d9fed09",
       "size": 4566,
       "mtimeMs": 1786015862702.5007,
-      "updatedAt": "2026-08-11T11:45:45.227Z",
+      "updatedAt": "2026-08-11T19:58:13.297Z",
       "source": "scan",
       "symbols": [
         {
@@ -10411,7 +10612,7 @@
       "hash": "83246999fd75d26c",
       "size": 9562,
       "mtimeMs": 1785989597392.6304,
-      "updatedAt": "2026-08-11T11:45:45.230Z",
+      "updatedAt": "2026-08-11T19:58:13.298Z",
       "source": "scan",
       "symbols": [
         {
@@ -10485,7 +10686,7 @@
       "hash": "818445510c222b00",
       "size": 13172,
       "mtimeMs": 1786128791966.9915,
-      "updatedAt": "2026-08-11T11:45:45.230Z",
+      "updatedAt": "2026-08-11T19:58:13.299Z",
       "source": "scan",
       "symbols": [
         {
@@ -10587,7 +10788,7 @@
       "hash": "9793b5b714465f58",
       "size": 52469,
       "mtimeMs": 1786147439158.9915,
-      "updatedAt": "2026-08-11T11:45:45.231Z",
+      "updatedAt": "2026-08-11T19:58:13.304Z",
       "source": "scan",
       "symbols": [
         {
@@ -10605,7 +10806,7 @@
       "hash": "a67d9d034a32902e",
       "size": 99413,
       "mtimeMs": 1786189129200.4143,
-      "updatedAt": "2026-08-11T11:45:45.234Z",
+      "updatedAt": "2026-08-11T19:58:13.308Z",
       "source": "scan",
       "symbols": [
         {
@@ -10644,7 +10845,7 @@
       "hash": "5882b5caa5252d2f",
       "size": 28366,
       "mtimeMs": 1786139340518.9917,
-      "updatedAt": "2026-08-11T11:45:45.235Z",
+      "updatedAt": "2026-08-11T19:58:13.309Z",
       "source": "scan",
       "symbols": [
         {
@@ -10725,7 +10926,7 @@
       "hash": "a45fd9decf6e6338",
       "size": 14796,
       "mtimeMs": 1786139334898.9917,
-      "updatedAt": "2026-08-11T11:45:45.235Z",
+      "updatedAt": "2026-08-11T19:58:13.310Z",
       "source": "scan",
       "symbols": [
         {
@@ -10834,7 +11035,7 @@
       "hash": "eb36be1328804bd8",
       "size": 16618,
       "mtimeMs": 1785084838063.7642,
-      "updatedAt": "2026-08-11T11:45:45.236Z",
+      "updatedAt": "2026-08-11T19:58:13.311Z",
       "source": "scan",
       "symbols": [
         {
@@ -10866,7 +11067,7 @@
       "hash": "bda58c4b9b1c5c9b",
       "size": 5288,
       "mtimeMs": 1784570408024.357,
-      "updatedAt": "2026-08-11T11:45:45.236Z",
+      "updatedAt": "2026-08-11T19:58:13.312Z",
       "source": "scan",
       "symbols": [
         {
@@ -10878,13 +11079,49 @@
         }
       ]
     },
+    "shared/src/usos.test.ts": {
+      "description": "Só o campo `tipo` — as asserções abaixo perguntam \"que usos ele tem?\".",
+      "tokens": 934,
+      "hash": "ba5207d8b1c9e92b",
+      "size": 3308,
+      "mtimeMs": 1786450315328.3147,
+      "updatedAt": "2026-08-11T19:58:13.313Z",
+      "source": "scan",
+      "symbols": [
+        {
+          "name": "uso",
+          "kind": "fn",
+          "startLine": 19,
+          "endLine": 75,
+          "tokens": 764
+        }
+      ]
+    },
+    "shared/src/usos.ts": {
+      "description": "§💬 UI de jogo — \"SERVE PRA QUÊ?\", a resposta que o tooltip mostra.",
+      "tokens": 897,
+      "hash": "57e89cdcc2bd31e7",
+      "size": 3192,
+      "mtimeMs": 1786450007692.314,
+      "updatedAt": "2026-08-11T19:58:13.314Z",
+      "source": "scan",
+      "symbols": [
+        {
+          "name": "usosDoItem",
+          "kind": "fn",
+          "startLine": 49,
+          "endLine": 76,
+          "tokens": 242
+        }
+      ]
+    },
     "shared/src/vento.test.ts": {
       "description": "§🌬️ (2026-07-27): o vento é a MESMA engrenagem do horaDoDia — função pura do",
       "tokens": 1886,
       "hash": "135ad744120d66ac",
       "size": 6710,
       "mtimeMs": 1785150164660.7988,
-      "updatedAt": "2026-08-11T11:45:45.236Z",
+      "updatedAt": "2026-08-11T19:58:13.314Z",
       "source": "scan"
     },
     "shared/src/vento.ts": {
@@ -10893,7 +11130,7 @@
       "hash": "fba726ded72cbc1f",
       "size": 5966,
       "mtimeMs": 1785149854896.8003,
-      "updatedAt": "2026-08-11T11:45:45.237Z",
+      "updatedAt": "2026-08-11T19:58:13.315Z",
       "source": "scan",
       "symbols": [
         {
@@ -10953,7 +11190,7 @@
       "hash": "d56c16d4448cf3db",
       "size": 477,
       "mtimeMs": 1784590216096.3562,
-      "updatedAt": "2026-08-11T11:45:45.237Z",
+      "updatedAt": "2026-08-11T19:58:13.315Z",
       "source": "scan"
     },
     "shared/src/water.test.ts": {
@@ -10962,7 +11199,7 @@
       "hash": "bbeb0963b565385d",
       "size": 5931,
       "mtimeMs": 1784764307803.3923,
-      "updatedAt": "2026-08-11T11:45:45.237Z",
+      "updatedAt": "2026-08-11T19:58:13.316Z",
       "source": "scan",
       "symbols": [
         {
@@ -10987,7 +11224,7 @@
       "hash": "93ffe28bddf5ec41",
       "size": 3044,
       "mtimeMs": 1784653238530.7644,
-      "updatedAt": "2026-08-11T11:45:45.237Z",
+      "updatedAt": "2026-08-11T19:58:13.317Z",
       "source": "scan"
     },
     "shared/src/world.ts": {
@@ -10996,7 +11233,7 @@
       "hash": "5fd56c77437aada4",
       "size": 5850,
       "mtimeMs": 1785240421889.0796,
-      "updatedAt": "2026-08-11T11:45:45.237Z",
+      "updatedAt": "2026-08-11T19:58:13.317Z",
       "source": "scan",
       "symbols": [
         {
@@ -11098,7 +11335,7 @@
       "hash": "d2239a72517afc52",
       "size": 24400,
       "mtimeMs": 1785415838628.3066,
-      "updatedAt": "2026-08-11T11:45:45.238Z",
+      "updatedAt": "2026-08-11T19:58:13.319Z",
       "source": "scan"
     },
     "shared/src/worldgen.ts": {
@@ -11107,7 +11344,7 @@
       "hash": "e01585d749b4088d",
       "size": 29811,
       "mtimeMs": 1786147362818.9902,
-      "updatedAt": "2026-08-11T11:45:45.239Z",
+      "updatedAt": "2026-08-11T19:58:13.321Z",
       "source": "scan",
       "symbols": [
         {
@@ -11286,7 +11523,7 @@
       "hash": "0baa7dd48e8a2672",
       "size": 63,
       "mtimeMs": 1783780454116.0908,
-      "updatedAt": "2026-08-11T11:45:45.239Z",
+      "updatedAt": "2026-08-11T19:58:13.321Z",
       "source": "scan"
     },
     "shared/vitest.config.ts": {
@@ -11295,17 +11532,17 @@
       "hash": "7062d51e4372b6b0",
       "size": 1217,
       "mtimeMs": 1785415954444.307,
-      "updatedAt": "2026-08-11T11:45:45.239Z",
+      "updatedAt": "2026-08-11T19:58:13.322Z",
       "source": "scan"
     },
     "todo.md": {
       "description": "Ideias para fazer",
-      "tokens": 13422,
-      "hash": "168ce68c94a8800a",
-      "size": 55421,
-      "mtimeMs": 1786451627660.314,
-      "updatedAt": "2026-08-11T12:33:47.765Z",
-      "source": "hook"
+      "tokens": 13719,
+      "hash": "f3109a65f53dcd05",
+      "size": 56643,
+      "mtimeMs": 1786478230520.3174,
+      "updatedAt": "2026-08-11T19:58:13.323Z",
+      "source": "scan"
     },
     "tsconfig.base.json": {
       "description": "",
@@ -11313,7 +11550,7 @@
       "hash": "d0e4e177b21f3848",
       "size": 452,
       "mtimeMs": 1784590204344.3562,
-      "updatedAt": "2026-08-11T11:45:45.240Z",
+      "updatedAt": "2026-08-11T19:58:13.324Z",
       "source": "scan"
     },
     "vitest.config.ts": {
@@ -11322,254 +11559,8 @@
       "hash": "0891b4c3322f8c25",
       "size": 1200,
       "mtimeMs": 1786448361124.3147,
-      "updatedAt": "2026-08-11T11:45:45.240Z",
+      "updatedAt": "2026-08-11T19:58:13.324Z",
       "source": "scan"
-    },
-    "shared/src/usos.ts": {
-      "description": "§💬 UI de jogo — \"SERVE PRA QUÊ?\", a resposta que o tooltip mostra.",
-      "tokens": 897,
-      "hash": "57e89cdcc2bd31e7",
-      "size": 3192,
-      "mtimeMs": 1786450007692.314,
-      "updatedAt": "2026-08-11T12:06:47.779Z",
-      "source": "hook",
-      "symbols": [
-        {
-          "name": "usosDoItem",
-          "kind": "fn",
-          "startLine": 49,
-          "endLine": 76,
-          "tokens": 242
-        }
-      ]
-    },
-    "client/src/tooltip.ts": {
-      "description": "§💬 UI de jogo (todo §💬, pedido de 2026-08-06) — O TOOLTIP DE ITEM.",
-      "tokens": 3378,
-      "hash": "eda24e1e7eacff6f",
-      "size": 11960,
-      "mtimeMs": 1786450741912.315,
-      "updatedAt": "2026-08-11T12:19:02.034Z",
-      "source": "hook",
-      "symbols": [
-        {
-          "name": "TooltipDeps",
-          "kind": "section",
-          "startLine": 40,
-          "endLine": 52,
-          "tokens": 116
-        },
-        {
-          "name": "Tooltip",
-          "kind": "class",
-          "startLine": 53,
-          "endLine": 230,
-          "tokens": 1868
-        },
-        {
-          "name": "dono",
-          "kind": "fn",
-          "startLine": 231,
-          "endLine": 244,
-          "tokens": 220
-        },
-        {
-          "name": "linhaDeUso",
-          "kind": "fn",
-          "startLine": 245,
-          "endLine": 253,
-          "tokens": 86
-        },
-        {
-          "name": "frase",
-          "kind": "fn",
-          "startLine": 254,
-          "endLine": 276,
-          "tokens": 246
-        },
-        {
-          "name": "listar",
-          "kind": "fn",
-          "startLine": 277,
-          "endLine": 284,
-          "tokens": 80
-        },
-        {
-          "name": "garantir",
-          "kind": "fn",
-          "startLine": 285,
-          "endLine": 290,
-          "tokens": 41
-        },
-        {
-          "name": "configurarTooltip",
-          "kind": "fn",
-          "startLine": 291,
-          "endLine": 300,
-          "tokens": 94
-        },
-        {
-          "name": "tipDeItem",
-          "kind": "fn",
-          "startLine": 301,
-          "endLine": 306,
-          "tokens": 65
-        },
-        {
-          "name": "esconderTooltip",
-          "kind": "fn",
-          "startLine": 307,
-          "endLine": 310,
-          "tokens": 19
-        }
-      ]
-    },
-    "shared/src/usos.test.ts": {
-      "description": "Só o campo `tipo` — as asserções abaixo perguntam \"que usos ele tem?\".",
-      "tokens": 934,
-      "hash": "ba5207d8b1c9e92b",
-      "size": 3308,
-      "mtimeMs": 1786450315328.3147,
-      "updatedAt": "2026-08-11T12:11:55.437Z",
-      "source": "hook",
-      "symbols": [
-        {
-          "name": "uso",
-          "kind": "fn",
-          "startLine": 19,
-          "endLine": 75,
-          "tokens": 764
-        }
-      ]
-    },
-    "scripts/tooltip-shot.mjs": {
-      "description": "§💬 SONDA DO TOOLTIP DE ITEM (`client/src/tooltip.ts`).",
-      "tokens": 3001,
-      "hash": "2647d4bd61b57bf6",
-      "size": 11375,
-      "mtimeMs": 1786450780024.3147,
-      "updatedAt": "2026-08-11T12:19:40.125Z",
-      "source": "hook",
-      "symbols": [
-        {
-          "name": "acharChrome",
-          "kind": "fn",
-          "startLine": 42,
-          "endLine": 57,
-          "tokens": 171
-        },
-        {
-          "name": "espera",
-          "kind": "fn",
-          "startLine": 58,
-          "endLine": 64,
-          "tokens": 107
-        },
-        {
-          "name": "abrirAba",
-          "kind": "fn",
-          "startLine": 65,
-          "endLine": 87,
-          "tokens": 243
-        },
-        {
-          "name": "cdp",
-          "kind": "fn",
-          "startLine": 88,
-          "endLine": 89,
-          "tokens": 44
-        },
-        {
-          "name": "avaliar",
-          "kind": "fn",
-          "startLine": 90,
-          "endLine": 91,
-          "tokens": 38
-        },
-        {
-          "name": "tecla",
-          "kind": "fn",
-          "startLine": 92,
-          "endLine": 95,
-          "tokens": 46
-        },
-        {
-          "name": "ok",
-          "kind": "fn",
-          "startLine": 96,
-          "endLine": 101,
-          "tokens": 55
-        },
-        {
-          "name": "centroDoSlot",
-          "kind": "fn",
-          "startLine": 102,
-          "endLine": 109,
-          "tokens": 104
-        },
-        {
-          "name": "tooltip",
-          "kind": "fn",
-          "startLine": 110,
-          "endLine": 120,
-          "tokens": 130
-        },
-        {
-          "name": "mouseEm",
-          "kind": "fn",
-          "startLine": 121,
-          "endLine": 122,
-          "tokens": 32
-        },
-        {
-          "name": "toqueEm",
-          "kind": "fn",
-          "startLine": 123,
-          "endLine": 128,
-          "tokens": 68
-        },
-        {
-          "name": "pegos",
-          "kind": "fn",
-          "startLine": 129,
-          "endLine": 256,
-          "tokens": 1627
-        }
-      ]
-    },
-    "shared/src/launchers.test.ts": {
-      "description": "PORTÃO DOS LAUNCHERS (bug-621) — o único teste do projeto que olha para",
-      "tokens": 1045,
-      "hash": "0cbb7f5bd0bfa4db",
-      "size": 3723,
-      "mtimeMs": 1786476357104.3162,
-      "updatedAt": "2026-08-11T19:25:57.214Z",
-      "source": "hook"
-    },
-    "scripts/checar-launchers.mjs": {
-      "description": "PORTÃO DOS LAUNCHERS (bug-621).",
-      "tokens": 1132,
-      "hash": "04593249857aeb23",
-      "size": 4314,
-      "mtimeMs": 1786476651000.3154,
-      "updatedAt": "2026-08-11T19:30:51.104Z",
-      "source": "hook",
-      "symbols": [
-        {
-          "name": "ler",
-          "kind": "fn",
-          "startLine": 39,
-          "endLine": 41,
-          "tokens": 20
-        },
-        {
-          "name": "ok",
-          "kind": "fn",
-          "startLine": 42,
-          "endLine": 100,
-          "tokens": 660
-        }
-      ]
     }
   }
 }

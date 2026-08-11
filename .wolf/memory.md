@@ -2098,3 +2098,25 @@ ships em LF. Refeita em LF, 6/6.
 Portão novo `scripts/checar-launchers.mjs` em `npm run verify` e antes do `npm run smoke` —
 porque este erro passa verde em typecheck/testes/build/smoke. Tentei pôr como teste do shared
 e o typecheck caiu: o shared não tem @types/node DE PROPÓSITO. Commit ddc3866.
+| 16:36 | Session end: 59 writes across 18 files (ferramentas.ts, usos.ts, index.ts, tooltip.ts, inventory.ts) | 12 reads | ~92439 tok |
+| 16:57 | Edited todo.md | expanded (+13 lines) | ~411 |
+| 16:57 | Edited todo.md | 3→4 lines | ~94 |
+
+### Fecho da sessão 68 (2026-08-11)
+
+Três frentes numa sessão: tooltip de item (PC+tablet, com `usosDoItem` lendo as tabelas do
+jogo), fecho documental do auto-update (README + mensagem vX→vY) e release v0.10.0 — e depois
+os dois bugs que o piloto da escola derrubou: bug-620 (decisão por presença de `.git` em vez
+de capacidade do git) e bug-621 (emoji num REM quebrando o .bat no cmd.exe, que lê por
+deslocamento de byte).
+
+Lição que atravessa as duas partes: **os dois defeitos passavam VERDES em toda a bateria** —
+typecheck, 822 testes, build e 15/15 smokes — e quem descobriu foi a escola. Daí o portão novo
+`npm run check:launchers`. E duas correções contra mim: verifiquei a matriz do bug-620 em CRLF
+quando o arquivo ships em LF, e anunciei um "ovo e a galinha" (o launcher quebrado bloquearia
+o próprio update) que o piloto desmentiu na hora seguinte — era teoria sobre um caminho que eu
+não tinha executado.
+
+Estado: árvore limpa, tudo empurrado, v0.10.0 lançada. Pendente só a 3ª rodada do launcher na
+escola, que é do usuário. Fila depois: §🔨 Ferramentas v2 (o tooltip já tem o lugar da
+durabilidade pronto), mobs F8.

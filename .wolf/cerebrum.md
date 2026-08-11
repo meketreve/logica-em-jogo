@@ -96,6 +96,36 @@
 
 ## Key Learnings
 
+- [2026-08-11] **O `cmd.exe` lê arquivo `.bat` por DESLOCAMENTO DE BYTE — então `.bat` deste
+  projeto é ASCII PURO, sem acento e sem emoji.** Um `⚠️` (6 bytes) num comentário `REM` do
+  `iniciar-servidor.bat` fez a rodada inteira virar dezenas de *"'d' nao e reconhecido como um
+  comando interno"* na escola (bug-621). Com o `chcp 65001` da linha 7 o número de bytes diverge
+  do de caracteres e, **sem `\r` para reancorar**, o parser retoma no MEIO da linha seguinte e
+  executa pedaços de comentário como comandos. A/B no `cmd.exe` de verdade, mesmo cabeçalho:
+  **LF+emoji QUEBRA** · LF+ASCII ok · CRLF+emoji ok · CRLF+ASCII ok. O arquivo já seguia essa
+  regra sozinho ("atualizacao", "voce", "nao") e ninguém tinha escrito por quê — agora o
+  **`npm run check:launchers`** recusa, apontando a linha.
+- [2026-08-11] **Testar um script no formato de linha em que ele NÃO chega no usuário é não
+  testar.** A matriz de 6 casos do bug-620 rodou com **CRLF** no meu driver, e o `.bat` **ships
+  em LF** (o `.gitattributes` força `eol=lf`) — e `goto` de dentro de bloco `if (...)` é
+  justamente o que fica frágil com LF. Refeita em LF passou, mas por sorte. **Gerar o arquivo de
+  teste com os MESMOS bytes do arquivo real** (`open(...,"rb")` e fatiar), não redigitar.
+- [2026-08-11] **Decidir por CAPACIDADE, não por PRESENÇA.** Os launchers perguntavam *"existe
+  `.git`?"* quando a pergunta é *"o git consegue atualizar aqui?"* — e um `.git` sobrando numa
+  máquina sem git desligava o auto-update inteiro (bug-620). O molde do conserto vale além dele:
+  quando o programa **não pode** operar, cair pro caminho alternativo **dizendo o motivo na
+  tela** (a próxima rodada do usuário vira o próprio diagnóstico); quando ele **pode** e recusa,
+  parar — recusa informada é resposta, não falha.
+- [2026-08-11] **O workspace `shared` NÃO tem `@types/node`, e isso é a garantia de que o código
+  de produção dele não alcança API de Node.** Um teste em `shared/src/*.test.ts` que lesse
+  arquivo (`node:fs`) derrubaria o `npm run typecheck -w shared` e, se "consertado" com
+  `@types/node`, furaria a garantia do pacote inteiro. Verificação que precisa de disco mora em
+  `scripts/*.mjs`. Nenhum outro teste do shared importa `node:` — o sinal estava lá.
+- [2026-08-11] **Erro que passa VERDE em toda a bateria precisa de portão próprio.** O `.bat`
+  quebrado passava em typecheck, 822 testes, build e 15/15 smokes — quem descobria era a escola
+  no meio da aula. Daí `scripts/checar-launchers.mjs`, ligado em `npm run verify` e antes do
+  `npm run smoke`. **A mensagem de falha dele diz a LINHA e o conserto**, não só "falhou".
+
 - [2026-08-11] **O `cmd.exe` do Windows roda a partir do WSL — dá pra testar o
   `iniciar-servidor.bat` DE VERDADE**, e foi assim que a sub-rotina `:ler_versao` da sessão 68
   foi validada. ⚠️ **Mas o cmd NÃO aceita caminho UNC**: rodando de `/home/...` ou do
@@ -1003,6 +1033,20 @@ conhece painel, então quem conhece INJETA a pergunta (`input.podeTravar = () =>
 
 ## Do-Not-Repeat
 
+- [2026-08-11] **NUNCA pôr acento ou emoji no `iniciar-servidor.bat`** — nem em comentário `REM`.
+  Quebra a rodada inteira no `cmd.exe` (bug-621, e foi a escola que descobriu). Escrever
+  `ATENCAO`, `voce`, `nao`, `atualizacao`. O `npm run check:launchers` recusa, mas a regra vem
+  antes do portão. **No `.sh` acento é livre** — o problema é só do `cmd`.
+- [2026-08-11] **Não "verificar" um script gerando um driver redigitado.** Fatiar os BYTES do
+  arquivo real (`open(...,"rb")`, `b.index(...)`) e preservar o terminador de linha dele. Duas
+  vezes numa sessão isso deu problema: a extração por `src.index(":rotulo")` pegou a linha do
+  `call` e rodou o launcher inteiro 3×, e a matriz do bug-620 rodou em CRLF quando o arquivo
+  ships em LF.
+- [2026-08-11] **`echo ==>` em batch é REDIRECIONAMENTO, não texto** — `echo   ==> VIA=PACOTE`
+  cria um arquivo chamado `VIA` e não imprime nada. Custou uma rodada de matriz inteira lida como
+  "nenhum caso decidiu". Mesma armadilha: `set X=valor && cmd` grava `valor ` **com espaço no
+  fim**, e o `if /i "%X%"=="valor"` dá falso.
+
 - [2026-08-11] **Extrair sub-rotina de `.bat` procurando `src.index(":rotulo")` pega a linha do
   `call :rotulo`, não o RÓTULO** — o "driver de teste" virou uma cópia do launcher inteiro, que
   rodou **três vezes** e deixou um `node_modules` em `C:\lj-tmp`. Casar a linha inteira
@@ -1451,6 +1495,18 @@ conhece painel, então quem conhece INJETA a pergunta (`input.podeTravar = () =>
 - [2026-07-10] Não escrever "relatório de aplicação" antes de o piloto real acontecer.
 
 ## Decision Log — índice das decisões ATIVAS
+
+- [2026-08-11] **`.bat` é ASCII puro; o `.gitattributes` NÃO ganha exceção de `eol=crlf`.**
+  As duas coisas consertam o bug-621 isoladamente (medido), e a escolha foi a do ASCII: o projeto
+  força `eol=lf` em tudo porque vive no WSL, e uma exceção por extensão é mais uma coisa pra
+  lembrar — enquanto ASCII puro é a regra que o arquivo já seguia sozinho. Quem garante é o
+  `npm run check:launchers`.
+- [2026-08-11] **`LJ_UPDATE=pacote|zip|git` — o escape manual do auto-update.** Nasceu com o
+  bug-620: se a detecção automática errar de novo, o professor tem uma linha pra digitar em vez
+  de ficar sem atualização. `LJ_SEM_UPDATE=1` continua sendo "não procure nada".
+- [2026-08-11] **O tooltip conta "serve pra quê" lendo as tabelas do JOGO (`usosDoItem`), nunca
+  uma lista própria.** Lista à mão sai de sincronia no primeiro item novo e o aluno lê mentira.
+  Custo aceito: o `shared` ganhou um módulo (`usos.ts`) que só a UI consome.
 
 <!-- Uma linha por decisão. TEXTO COMPLETO (motivo, alternativas, contexto) em
      .wolf/history.md → "## Cerebrum — Decision Log" e "## Cerebrum arquivado (2026-07-28)". -->

@@ -1,21 +1,21 @@
 # anatomy.md
 
-> Auto-maintained by OpenWolf. Last scanned: 2026-08-11T19:30:51.105Z
-> Files: 343 tracked | Anatomy hits: 0 | Misses: 0
+> Auto-maintained by OpenWolf. Last scanned: 2026-08-11T19:58:13.335Z
+> Files: 342 tracked | Anatomy hits: 0 | Misses: 0
 
 ## ./
 
 - `.gitattributes` — LF em tudo (projeto vive no WSL/ext4; evita ruído CRLF de ferramentas Windows) (~31 tok)
 - `.gitignore` — Git ignore rules (~367 tok)
 - `CLAUDE.md` — OpenWolf (~57 tok)
-- `iniciar-servidor.bat` (~4712 tok)
-- `iniciar-servidor.sh` — ============================================================ (~5992 tok)
+- `iniciar-servidor.bat` (~4713 tok)
+- `iniciar-servidor.sh` — ============================================================ (~6420 tok)
 - `LICENSE` — Licença de Uso — Lógica em Jogo (~1070 tok)
 - `package-lock.json` — npm lock file (~20120 tok)
-- `package.json` — Node.js package manifest (~370 tok)
+- `package.json` — Node.js package manifest (~405 tok)
 - `projeto.txt` (~4707 tok)
 - `README.md` — Project documentation (~2541 tok)
-- `todo.md` — Ideias para fazer (~13422 tok)
+- `todo.md` — Ideias para fazer (~13719 tok)
 - `tsconfig.base.json` (~130 tok)
 - `vitest.config.ts` — Config do vitest da RAIZ (2026-08-11, bug-612). (~335 tok)
 
@@ -483,7 +483,7 @@
 ## mundos/_smoke-coluna/
 
 - `_smoke-coluna.ljw` (~62 tok)
-- `chat.log` (~3360 tok)
+- `chat.log` (~3627 tok)
 
 ## mundos/_smoke-comida/
 
@@ -507,7 +507,7 @@
 
 ## mundos/_smoke-kicar/
 
-- `chat.log` (~15655 tok)
+- `chat.log` (~16863 tok)
 
 ## mundos/_smoke-modoa/
 
@@ -528,7 +528,7 @@
 ## mundos/_smoke-trocaa/
 
 - `_smoke-trocaa.ljw` (~87 tok)
-- `chat.log` (~10149 tok)
+- `chat.log` (~10970 tok)
 
 ## mundos/_smoke-trocab/
 
@@ -540,11 +540,11 @@
 
 ## mundos/aula1-sequencia/
 
-- `chat.log` (~53808 tok)
+- `chat.log` (~57827 tok)
 
 ## mundos/aula2-binario/
 
-- `chat.log` (~2080 tok)
+- `chat.log` (~2240 tok)
 
 ## mundos/aula7-corrida/
 
@@ -1199,7 +1199,6 @@
   - section `SlotSalvo` L277-283 (~38 tok)
   - fn `inventarioParaSave` L284-299 (~162 tok)
   - fn `parseInventario` L300-317 (~190 tok)
-- `launchers.test.ts` — PORTÃO DOS LAUNCHERS (bug-621) — o único teste do projeto que olha para (~1045 tok)
 - `luz.test.ts` — 3×3 colunas de chunk, 2 chunks de altura (32 blocos) — dá pra enterrar uma (~5090 tok)
   - fn `mundoComChao` L24-32 (~88 tok)
   - fn `acenderTudo` L33-434 (~4857 tok)
