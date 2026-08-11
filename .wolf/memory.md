@@ -1962,3 +1962,7 @@ VERDE: typecheck 3/3 · 812/814 testes · build · 15/15 smokes · `shots:esc` 2
 | 08:45 | Varredura das 5 alegacoes de "ja foi feito" do todo.md | todo.md | 4 confirmadas (agua animada, procedural dup, save/load, mobs) + tooltip DERRUBADA | ~6k |
 | 08:50 | Registros: STATUS sessao 67, buglog 612/602/598, cerebrum (3 DNR + 4 learnings) | .wolf/ | buglog valido, diff cirurgico (19+/13-) | ~9k |
 | 08:52 | Bateria completa | (verificacao) | typecheck 3/3 · build · 15/15 smokes · 814/814 | ~2k |
+| 08:48 | Session end: 5 writes across 2 files (vitest.config.ts, todo.md) | 5 reads | ~22027 tok |
+| 09:02 | F4/bug-598 FECHADO como wontfix (decisao do usuario), STATUS ajustado | .wolf/buglog.json, STATUS.md | saiu da fila; razoes e caminho do conserto futuro escritos no buglog | ~2k |
+| 09:05 | Commit da sessao 67 | d083999 | arvore limpa, 1 commit a frente da origin (push NAO pedido) | ~2k |
+| 09:06 | Session end: bug-612 FIXED · F3 ja estava (bug-602) · F4 fechado · todo.md 15 abertos -> 10 | 8 arquivos | bateria verde: typecheck 3/3 · 814/814 · build · 15/15 smokes | ~1k |
