@@ -10,6 +10,7 @@ import { playUi } from "./audio";
 import { CATEGORIAS, type Categoria, type PlaceableEntry } from "./blocksUi";
 import type { Mochila } from "./mochila";
 import { ArrastoDeSlot, primeiroLugar, slotSob } from "./slotDrag";
+import { esconderTooltip, tipDeItem } from "./tooltip";
 
 /**
  * Inventário de blocos (cp16) — grade dos colocáveis + faixa da hotbar de 9
@@ -196,6 +197,9 @@ export class InventoryPanel {
     this.pegando = null;
     this.metadePegando = null;
     this.arrasto.sincronizar();
+    // o dono do tooltip vai sair do DOM junto com o painel: sem isto a caixa
+    // ficaria pendurada na tela, porque o `pointerout` nunca chega
+    esconderTooltip();
     this.root?.classList.add("hidden");
     window.removeEventListener("keydown", this.onEsc, true);
     this.onToggle(false);
@@ -256,7 +260,7 @@ export class InventoryPanel {
       const btn = document.createElement("button");
       btn.type = "button";
       btn.className = "inv-bloco";
-      btn.title = b.name;
+      tipDeItem(btn, b.id);
       const img = document.createElement("img");
       img.src = this.icons.get(b.id) ?? "";
       img.alt = b.name;
@@ -282,6 +286,7 @@ export class InventoryPanel {
       const img = document.createElement("img");
       img.src = this.icons.get(id) ?? "";
       img.alt = "";
+      tipDeItem(slot, id);
       slot.append(num, img);
       slot.addEventListener("click", () => {
         this.select(i);
@@ -385,6 +390,7 @@ export class InventoryPanel {
         "inv-slot" +
         (i === this.pegando ? " pego" : "") +
         (i === this.state().selected && i < HOTBAR_SLOTS ? " sel" : "");
+      tipDeItem(b, id);
       if (id !== null) {
         const img = document.createElement("img");
         img.src = this.icons.get(id) ?? "";
@@ -438,6 +444,7 @@ export class InventoryPanel {
       const num = document.createElement("small");
       num.textContent = String(i + 1);
       b.appendChild(num);
+      tipDeItem(b, id);
       if (id !== null) {
         const img = document.createElement("img");
         img.src = this.icons.get(id) ?? "";
@@ -545,6 +552,9 @@ export class InventoryPanel {
       row.type = "button";
       row.className = "craft-row";
       row.disabled = !pode;
+      // a linha do craft descreve a SAÍDA: é ali que mora o "pra que serve o
+      // que eu ia fabricar", que é a pergunta de quem lê a lista inteira
+      tipDeItem(row, r.saida.id);
 
       const img = document.createElement("img");
       img.src = this.icons.get(r.saida.id) ?? "";

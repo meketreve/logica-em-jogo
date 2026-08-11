@@ -14,6 +14,7 @@ export * from "./ferramentas";
 export * from "./groups";
 export * from "./drops";
 export * from "./inventario";
+export * from "./usos";
 export * from "./world";
 export * from "./worldgen";
 export * from "./luz";

@@ -12,6 +12,7 @@ import {
 import { playUi } from "./audio";
 import type { Mochila } from "./mochila";
 import { ArrastoDeSlot, primeiroLugar, slotSob } from "./slotDrag";
+import { esconderTooltip, tipDeItem } from "./tooltip";
 
 /**
  * §🍖 F10 — O PAINEL DE TRANSFERÊNCIA (fornalha e baú).
@@ -74,7 +75,6 @@ export class ContainerPanel {
   constructor(
     private readonly icons: Map<number, string>,
     private readonly mochila: Mochila,
-    private readonly nameOf: (id: number) => string,
     /** Pede ao servidor pra mover (índices UNIFICADOS). */
     private readonly mover: (
       x: number,
@@ -192,6 +192,7 @@ export class ContainerPanel {
     // o painel sumir — bug-609, o mesmo do inventário
     this.metadePegando = null;
     this.arrasto.sincronizar();
+    esconderTooltip(); // o dono da caixa sai do DOM com o painel
     this.root?.classList.add("hidden");
     window.removeEventListener("keydown", this.onEsc, true);
     this.onToggle(false);
@@ -277,8 +278,8 @@ export class ContainerPanel {
     const b = document.createElement("button");
     b.type = "button";
     b.className = "inv-slot" + (unificado === this.pegando ? " pego" : "");
+    tipDeItem(b, id);
     if (id !== null) {
-      b.title = this.nameOf(id);
       const img = document.createElement("img");
       img.src = this.icons.get(id) ?? "";
       img.alt = "";

@@ -102,6 +102,7 @@ import { RegionRenderer } from "./regions";
 import { keyLabel, loadSettings } from "./settings";
 import { QuadroEditor, QuadroRenderer } from "./quadros";
 import { armarGuardaDeAtalhos, desarmarGuardaDeAtalhos } from "./shortcutGuard";
+import { configurarTooltip } from "./tooltip";
 import { TorchGlow } from "./torchGlow";
 import { TouchControls, isTouchDevice, solicitarTelaCheia } from "./touch";
 import { putWorld } from "./worldStore";
@@ -1265,6 +1266,14 @@ class GameRuntime {
       },
     });
     this.hotbarUi.refresh();
+    // §💬 o tooltip de item (mochila, baú, hotbar e lista de craft). Ele só
+    // precisa de duas coisas do jogo: o nome PT de um id e se a partida é de
+    // SOBREVIVÊNCIA — em criativo não há exigência de ferramenta, e a linha
+    // "para quebrar: picareta de pedra" seria mentira.
+    configurarTooltip({
+      nameOf: (id) => this.hotbarUi.nome(id),
+      sobrevivencia: () => mochila.ativa,
+    });
     // a varinha é a MESMA nos dois caminhos: tecla R e botão 🪄 do toque
     // (celular não tem R)
     input.onKey(settings.keys.varinha, () => this.hotbarUi.toggleVarinha());
@@ -1299,7 +1308,6 @@ class GameRuntime {
     paineis.container = new ContainerPanel(
       this.hotbarUi.icons,
       mochila,
-      (id) => this.hotbarUi.nome(id),
       (x, y, z, de, para, qtd) =>
         this.activeConn.send(JSON.stringify({ type: "mover_container", x, y, z, de, para, qtd })),
       () => this.activeConn.send(JSON.stringify({ type: "fechar_container" })),

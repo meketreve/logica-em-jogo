@@ -27,7 +27,8 @@
     "shots:f10": "node scripts/f10-shot.mjs",
     "verify": "npm run typecheck && npm run test && npm run build",
     "verify:all": "npm run verify && npm run smoke",
-    "shots:esc": "node scripts/esc-shot.mjs"
+    "shots:esc": "node scripts/esc-shot.mjs",
+    "shots:tooltip": "node scripts/tooltip-shot.mjs"
   },
   "devDependencies": {
     "typescript": "^7.0.2",

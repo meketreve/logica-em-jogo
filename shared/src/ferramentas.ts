@@ -144,6 +144,30 @@ export function melhorNivel(inv: Inventario, tipo: TipoFerramenta): number {
   return nivel;
 }
 
+/** O nome PT da ferramenta de um (tipo × nível), ou `null` se não existe uma. */
+export function nomeDaFerramenta(tipo: TipoFerramenta, nivel: number): string | null {
+  return (
+    [...FERRAMENTAS.values()].find((f) => f.tipo === tipo && f.nivel === nivel)?.nome ?? null
+  );
+}
+
+/**
+ * §💬 (tooltip) — os blocos que passam a sair com esta ferramenta, e SÓ eles:
+ * os de nível menor já saíam com a anterior, então listá-los de novo faria toda
+ * picareta dizer a mesma coisa. É o "serve pra quê" da picareta escrito com a
+ * tabela que já decide a quebra — sem uma segunda lista pra sair de sincronia.
+ *
+ * Só o que está no `EXIGE` direto: laje, escada e glifo herdam do material e
+ * apareceriam como dezenas de ids repetindo "pedra", que é ruído num tooltip.
+ */
+export function liberadosPor(tipo: TipoFerramenta, nivel: number): readonly number[] {
+  const ids: number[] = [];
+  for (const [id, ex] of EXIGE) {
+    if (ex.tipo === tipo && ex.nivel === nivel) ids.push(id);
+  }
+  return ids;
+}
+
 /**
  * O jogador consegue quebrar esta célula? `null` = sim; string = o AVISO que
  * ele vai ler no chat.
@@ -157,8 +181,6 @@ export function faltaFerramenta(inv: Inventario, blockId: number): string | null
   const exige = exigenciaDe(blockId);
   if (!exige) return null;
   if (melhorNivel(inv, exige.tipo) >= exige.nivel) return null;
-  const nome = [...FERRAMENTAS.values()].find(
-    (f) => f.tipo === exige.tipo && f.nivel === exige.nivel,
-  )?.nome;
+  const nome = nomeDaFerramenta(exige.tipo, exige.nivel);
   return `Você precisa de uma ${nome ?? exige.tipo} para quebrar isso.`;
 }

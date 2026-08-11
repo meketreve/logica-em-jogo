@@ -221,7 +221,10 @@ export class HotbarUi {
           return `<span class="slot${sel} vazio"><small>${i + 1}</small></span>`;
         const qtd = this.mochila.ativa ? this.mochila.qtdDoSlot(i) : 0;
         const conta = qtd > 1 ? `<b class="qtd">${qtd}</b>` : "";
-        return `<span class="slot${sel}"><small>${i + 1}</small><img src="${this.icons.get(id) ?? ""}" alt="">${conta}</span>`;
+        // §💬 `data-tip-id`: o tooltip próprio (`tooltip.ts`) escuta o documento
+        // e se vira com o atributo. No PC a barra só é alcançável com o ponteiro
+        // solto; no tablet é o toque-e-segure, que é onde ela mais serve.
+        return `<span class="slot${sel}" data-tip-id="${id}"><small>${i + 1}</small><img src="${this.icons.get(id) ?? ""}" alt="">${conta}</span>`;
       })
       .join("");
     const naMao = ids[this.sel];
