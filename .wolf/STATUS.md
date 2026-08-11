@@ -87,8 +87,9 @@
 > 🚀 **PRÓXIMA FASE:**
 > 1. **O PILOTO NA ESCOLA está armado e é o próximo passo real** — o usuário vai rodar o
 >    `iniciar-servidor.bat` lá. O que a tela tem de dizer: `Existe versao nova: voce esta na
->    0.9.0 (commit …) e o GitHub esta na dca38a7` → `(seus mundos salvos em mundos\ nao sao
->    tocados)` → **`Atualizado da versao 0.9.0 para a 0.10.0 (commit dca38a7)`** → e, porque o
+>    0.9.0 (commit …) e o GitHub esta na <sha do topo do main>` → `(seus mundos salvos em mundos\
+>    nao sao tocados)` → **`Atualizado da versao 0.9.0 para a 0.10.0 (commit <sha>)`** — o que
+>    importa é o **0.9.0 → 0.10.0**; o sha é o do topo do `main` na hora, não o da tag → e, porque o
 >    próprio `.bat` mudou em `61caa0f`, `O proprio launcher mudou. Trocando e reabrindo a
 >    janela...` (a janela fecha e reabre sozinha — **é esperado, não é crash**).
 >    ⚠️ Se a pasta de lá for um `git clone`, ele vai pelo caminho do GIT, não pelo do pacote —
