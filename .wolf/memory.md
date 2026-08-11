@@ -2030,6 +2030,11 @@ VERDE: typecheck 3/3 · 812/814 testes · build · 15/15 smokes · `shots:esc` 2
 | 09:44 | cerebrum: 4 Key Learnings (cmd.exe do WSL, botão disabled, pointer coarse, UI opaca) + 1 do-not-repeat | .wolf/cerebrum.md | escrito | ~700 |
 | 09:46 | buglog: bug-615..619 (README, mensagem de versão, disabled, contraste, sonda) | .wolf/buglog.json | 5 entradas, indent=1 preservado | ~900 |
 
+| 10:05 | 4 commits da sessão 68 (tooltip+dist, launcher, README, wolf) e push | (repo) | origin/main = 4a0583d | ~1400 |
+| 10:25 | Bump 0.9.0 → 0.10.0 + rebuild (o dist embute a string) | package.json, client/dist | 0.10.0 no bundle, 0.9.0 sumiu | ~300 |
+| 10:28 | Bateria repetida depois do bump | (repo) | typecheck 3/3 · 822/822 · build · 15/15 smokes | ~700 |
+| 10:31 | chore(release) v0.10.0 + tag anotada, push de main e da tag | (repo) | origin/main = dca38a7, API confirma | ~500 |
+
 ### Resumo da sessão 68 (2026-08-11) — tooltip de item + fecho do auto-update
 
 Pedido: "faz tooltip e terminar o autoupdate". Os dois entregues.
@@ -2048,6 +2053,10 @@ o carimbo caem 9 asserções, inclusive a B3 (sem tooltip o toque longo volta a 
 atualização) e a mensagem "vX → vY" nos dois launchers e nos três caminhos, lendo o campo
 `version` do `package.json`. O `.bat` foi testado no `cmd.exe` real chamado do WSL. Sobrou só
 o piloto na máquina da escola, que não dá pra fazer daqui.
+
+**Fecho:** 5 commits empurrados e a release **v0.10.0** (`dca38a7`) lançada — o bump foi
+feito pra o piloto da escola exercitar a frase "da versão 0.9.0 para a 0.10.0" em vez do ramo
+de "mesma versão". Falta só o relato da tela de lá.
 
 VERDE: typecheck 3/3 · 822/822 testes · build · 15/15 smokes · shots:tooltip 18/18 (dev e
 dist) · shots:esc · shots:toque · shots:craft · shots:f10. Nada commitado ainda; os 2 commits

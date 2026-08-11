@@ -69,8 +69,32 @@
 > MESMO commit, é o que a escola baixa)** · `.wolf/`.
 > **Nada commitado ainda**, e os **2 commits da 67 (`d083999`, `2ee8211`) seguem sem push.**
 >
+> ✅ **COMMITADO, EMPURRADO E LANÇADO — `v0.10.0` (`dca38a7`), tag anotada empurrada.**
+> Cinco commits: `55b44eb` feat(ui) tooltip **com o `client/dist` junto** · `61caa0f`
+> feat(launcher) bug-616 · `9822235` docs(readme) bug-615 · `4a0583d` docs(wolf) · `dca38a7`
+> chore(release) v0.10.0. Mais os 2 da 67, que estavam parados. `origin/main` = `dca38a7`, e a
+> **API do GitHub já responde esse sha sem credencial** — é o que o launcher compara com o
+> `.lj-versao`.
+> **O bump foi feito pra que o PILOTO exercite a frase NOVA:** com o `package.json` parado em
+> 0.9.0 o launcher cairia no ramo "mesma versão" e a mensagem `vX → vY` nunca apareceria. Agora
+> a escola tem de ler **"Atualizado da versao 0.9.0 para a 0.10.0 (commit dca38a7)"**.
+> E o bump era devido de qualquer jeito: `shared/src/version.ts` lê o campo `version` da raiz e o
+> perfilador anônimo agrupa **por versão** (`hud.ts:529`) — sem subir, o playtest de hoje ficaria
+> junto com o de 0.9.0. `client/dist` **embute a string**, então o build entrou no MESMO commit
+> (conferido: `0.10.0` presente no bundle, `0.9.0` sumiu). Bateria repetida depois do bump:
+> typecheck 3/3 · 822/822 · build · 15/15 smokes.
+>
 > 🚀 **PRÓXIMA FASE:**
-> 1. **Commitar** (o `client/dist` junto) e **`git push`** — o local está 2 commits à frente.
+> 1. **O PILOTO NA ESCOLA está armado e é o próximo passo real** — o usuário vai rodar o
+>    `iniciar-servidor.bat` lá. O que a tela tem de dizer: `Existe versao nova: voce esta na
+>    0.9.0 (commit …) e o GitHub esta na dca38a7` → `(seus mundos salvos em mundos\ nao sao
+>    tocados)` → **`Atualizado da versao 0.9.0 para a 0.10.0 (commit dca38a7)`** → e, porque o
+>    próprio `.bat` mudou em `61caa0f`, `O proprio launcher mudou. Trocando e reabrindo a
+>    janela...` (a janela fecha e reabre sozinha — **é esperado, não é crash**).
+>    ⚠️ Se a pasta de lá for um `git clone`, ele vai pelo caminho do GIT, não pelo do pacote —
+>    e aí o piloto não testa o que interessa. Conferir se existe `.git` ANTES.
+>    ⚠️ Escape se der ruim: `LJ_SEM_UPDATE=1` sobe direto, sem procurar atualização.
+>    Com o relato da tela, o item do auto-update fecha no `todo.md` (é o último dos três).
 > 2. **§🔨 Ferramentas v2** (durabilidade + ferramenta na mão + tempo de quebra) — as três andam
 >    juntas, é o próximo bloco grande de jogo, e o tooltip já tem o lugar da durabilidade pronto
 >    (`usos.ts`: uma variante nova no `Uso` e uma frase no `tooltip.ts`).
