@@ -1,12 +1,12 @@
 {
   "version": 1,
   "meta": {
-    "lastScanned": "2026-08-11T12:33:47.766Z",
+    "lastScanned": "2026-08-11T14:49:33.841Z",
     "fileCount": 341,
     "hits": 0,
     "misses": 0,
-    "renderedHash": "7ba1fd5ebd8eac1df782a43d06f98b317994075e9dd4700da15edd16c073e162",
-    "storeUpdatedAt": "2026-08-11T12:33:47.785Z"
+    "renderedHash": "f3bbe991343eaf50dac0678739450cc4c492973bcda9c4122eafa3d9d9c7d3e7",
+    "storeUpdatedAt": "2026-08-11T14:49:33.860Z"
   },
   "files": {
     ".claude/commands/reframe.md": {
@@ -3340,20 +3340,20 @@
     },
     "iniciar-servidor.bat": {
       "description": "",
-      "tokens": 4124,
-      "hash": "2430b53c0bce1d17",
-      "size": 15464,
-      "mtimeMs": 1786451030176.3135,
-      "updatedAt": "2026-08-11T12:23:50.286Z",
+      "tokens": 4712,
+      "hash": "205582ffb94f768d",
+      "size": 17671,
+      "mtimeMs": 1786459658572.3154,
+      "updatedAt": "2026-08-11T14:47:38.687Z",
       "source": "hook"
     },
     "iniciar-servidor.sh": {
       "description": "============================================================",
-      "tokens": 5341,
-      "hash": "44653f1f9629a481",
-      "size": 20438,
-      "mtimeMs": 1786450921140.314,
-      "updatedAt": "2026-08-11T12:22:01.243Z",
+      "tokens": 5992,
+      "hash": "d4b731d85806bd63",
+      "size": 22942,
+      "mtimeMs": 1786459623304.3147,
+      "updatedAt": "2026-08-11T14:47:03.404Z",
       "source": "hook"
     },
     "LICENSE": {
@@ -3961,11 +3961,11 @@
     },
     "README.md": {
       "description": "Project documentation",
-      "tokens": 2440,
-      "hash": "a5c40a44fdb10676",
-      "size": 10022,
-      "mtimeMs": 1786451189468.313,
-      "updatedAt": "2026-08-11T12:26:29.577Z",
+      "tokens": 2541,
+      "hash": "b5f4edfa73f6fc11",
+      "size": 10437,
+      "mtimeMs": 1786459773732.315,
+      "updatedAt": "2026-08-11T14:49:33.840Z",
       "source": "hook"
     },
     "registros/perfilador-v0.8.0-escola.md": {

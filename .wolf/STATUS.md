@@ -2,6 +2,44 @@
 
 > Single source of truth for resuming work. Read this FIRST when starting a session.
 
+> **SESSÃO 68b (2026-08-11) — O PILOTO DA ESCOLA RODOU E DERRUBOU O AUTO-UPDATE NA PRIMEIRA
+> LINHA: bug-620, DECISÃO POR PRESENÇA DE PASTA EM VEZ DE CAPACIDADE.**
+> Relato: *"fica dizendo que é um clone e desabilita o autoupdate… mas toda vez que eu atualizo
+> na escola é baixando o zip lá do git"*.
+>
+> ⚠️ **A causa é de PERGUNTA ERRADA, e ela estava nos DOIS launchers desde sempre.**
+> `if exist ".git"` (.bat) e `[ -d .git ]` (.sh) perguntam *"existe `.git`?"* quando a pergunta é
+> ***"o git CONSEGUE atualizar aqui?"***. A pasta da escola tem um `.git` sobrando (clone antigo,
+> ou ZIP extraído por cima de um) e **nenhum git instalado** — o teste dava verdadeiro e o
+> launcher mandava rodar `git pull` justamente pra quem atualiza por ZIP.
+> 💀 **E no `.bat` era pior: ele NÃO TEM caminho de git nenhum.** Aquele ramo só DESLIGAVA a
+> atualização. Os becos seguintes do `.sh` (git ausente, branch != main) também terminavam em
+> `return`, sem cair pro pacote.
+> ⚠️ **NÃO era nome curto 8.3** — a hipótese óbvia. Pasta só com `.gitignore`/`.gitattributes`
+> testada no `cmd.exe` real: `if exist ".git"` deu **falso**. Medir antes de teorizar.
+>
+> **O conserto: decidir por CAPACIDADE.** Usa git só se `.git` existe **E** git está no PATH
+> **E** `git rev-parse --is-inside-work-tree` = true **E** há `remote.origin.url`. Falhando
+> qualquer um → **pacote, imprimindo o motivo** (a próxima rodada da escola conta sozinha o que
+> estava errado). Override novo **`LJ_UPDATE=pacote|zip|git`**. No `.sh`, `-e` no lugar de `-d`
+> (em worktree/submódulo o `.git` é um ARQUIVO).
+> **A distinção que decide tudo:** git que **não pode** operar → pacote (seguro: copia por cima,
+> nunca apaga); git que **pode** e recusa (branch != main) → **PARA**, senão pisaria no trabalho
+> de quem desenvolve, que é o motivo de o caminho do git existir.
+> **Matriz no `cmd.exe` DE VERDADE (6 casos) e no bash (6 casos):** ZIP puro → pacote · clone
+> válido → git · `.git` quebrado → pacote+motivo · sem `origin` → pacote+motivo · **git fora do
+> PATH → pacote+motivo** (o caso da escola) · `LJ_UPDATE` força cada um.
+> **A/B contra o código velho nos três casos quebrados: os três diziam "esta pasta e um clone do
+> git" e DESLIGAVAM a atualização** — o sintoma exato do relato.
+> Commit `f114fb6`. Bateria: typecheck 3/3 · 822/822 · 15/15 smokes · `bash -n`.
+>
+> 🔴 **O OVO E A GALINHA, E É O PRÓXIMO PASSO DO USUÁRIO:** o launcher consertado **não chega na
+> escola pelo auto-update**, porque quem bloqueia o update é o launcher quebrado que está lá.
+> **Desbloqueio de um passo: APAGAR a pasta `.git` da instalação da escola.** Com o `.bat` que já
+> está instalado lá, isso sozinho faz o update voltar a funcionar — ele baixa o pacote e traz o
+> launcher novo junto. (A alternativa é extrair o ZIP por cima uma vez, à mão.)
+> Depois disso o `.git` sobrando deixa de importar pra sempre.
+
 > **SESSÃO 68 (2026-08-11) — O TOOLTIP DE ITEM SAIU (PC + TABLET) E O AUTO-UPDATE FECHOU TUDO
 > QUE DÁ PRA FECHAR DAQUI. SOBROU UM ITEM SÓ, E ELE PRECISA DO NOTEBOOK DA ESCOLA.**
 > Pedido: "faz tooltip e terminar o autoupdate". **Os dois entregues; do auto-update, 2 das 3

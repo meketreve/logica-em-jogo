@@ -4900,6 +4900,32 @@
    ],
    "occurrences": 1,
    "last_seen": "2026-08-11T12:00:00Z"
+  },
+  {
+   "id": "bug-620",
+   "timestamp": "2026-08-11T14:05:00Z",
+   "error_message": "relato do usuário no piloto da escola: \"testei e fica dizendo que é um clone e desabilita o autoupdate... mas toda vez que eu atualizo na escola é baixando o zip lá do git\". O launcher imprimia \"(esta pasta e um clone do git: atualize com \\\"git pull\\\" - update automatico desligado)\" e pulava a atualização inteira.",
+   "file": "iniciar-servidor.bat",
+   "root_cause": "Os dois launchers decidiam o caminho por PRESENÇA de pasta, não por CAPACIDADE: `if exist \".git\"` no .bat e `[ -d .git ]` no .sh. A pasta da escola tem um `.git` sobrando (clone antigo, ou ZIP extraído por cima de um) e nenhum git instalado — então o teste dava verdadeiro, o launcher a declarava clone e mandava rodar `git pull` justamente para quem atualiza baixando o ZIP. Pior: no .bat NÃO EXISTE caminho de git nenhum, então esse ramo só desligava a atualização. Todos os becos seguintes do .sh (git ausente, branch != main) também terminavam em `return` sem cair pro pacote. ⚠️ NÃO era nome curto 8.3: uma pasta só com .gitignore/.gitattributes foi testada no cmd.exe real e o `if exist \".git\"` deu falso.",
+   "fix": "A decisão passou a ser por capacidade, nos dois launchers (`decidir_caminho_de_update` no .sh, o bloco `:via_decidida` no .bat). Usa git SÓ se: `.git` existe E o git está no PATH E `git rev-parse --is-inside-work-tree` responde true E há `remote.origin.url`. Falhando qualquer um, vai pelo PACOTE e imprime o motivo. A distinção que decide: git que NÃO PODE operar (não instalado, .git quebrado, sem origin) cai pro pacote, que é seguro porque copia por cima e nunca apaga; git que PODE operar e recusa (branch != main) PARA, porque copiar por cima pisaria no trabalho de quem desenvolve. Override novo `LJ_UPDATE=pacote|zip|git`, documentado no README. No .sh o `-e` substituiu o `-d` (em worktree/submódulo o `.git` é um ARQUIVO).",
+   "tags": [
+    "launcher",
+    "auto-update",
+    "bat",
+    "sh",
+    "git",
+    "escola",
+    "piloto",
+    "deteccao"
+   ],
+   "related_bugs": [
+    "bug-606",
+    "bug-615",
+    "bug-616",
+    "bug-233"
+   ],
+   "occurrences": 1,
+   "last_seen": "2026-08-11T14:05:00Z"
   }
  ]
 }

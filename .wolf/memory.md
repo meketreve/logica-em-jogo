@@ -2062,3 +2062,22 @@ VERDE: typecheck 3/3 · 822/822 testes · build · 15/15 smokes · shots:tooltip
 dist) · shots:esc · shots:toque · shots:craft · shots:f10. Nada commitado ainda; os 2 commits
 da sessão 67 seguem sem push.
 | 09:38 | Session end: 51 writes across 16 files (ferramentas.ts, usos.ts, index.ts, tooltip.ts, inventory.ts) | 12 reads | ~88438 tok |
+| 11:46 | Edited iniciar-servidor.sh | modified decidir_caminho_de_update() | ~660 |
+| 11:47 | Edited iniciar-servidor.sh | expanded (+6 lines) | ~97 |
+| 11:47 | Edited iniciar-servidor.bat | expanded (+44 lines) | ~534 |
+| 11:47 | Edited iniciar-servidor.bat | 2→2 lines | ~33 |
+| 11:47 | Edited iniciar-servidor.bat | 4→9 lines | ~151 |
+| 11:49 | Edited README.md | expanded (+6 lines) | ~130 |
+
+### Sessão 68b (2026-08-11) — o piloto derrubou o auto-update: bug-620
+
+Relato da escola: "fica dizendo que é um clone e desabilita o autoupdate, mas eu atualizo
+baixando o zip". Causa: os dois launchers decidiam por PRESENÇA de `.git` em vez de
+CAPACIDADE do git. A pasta de lá tem um `.git` sobrando e nenhum git instalado — e no `.bat`
+esse ramo só DESLIGAVA a atualização, porque ele nem tem caminho de git. Não era nome curto
+8.3 (medido no cmd.exe real: pasta só com `.gitignore` dá falso no `if exist ".git"`).
+Conserto: usa git só se `.git` existe E git no PATH E work-tree válida E `remote.origin.url`;
+senão vai pelo pacote imprimindo o motivo. Override `LJ_UPDATE=pacote|zip|git`. Matriz de 6
+casos rodada no cmd.exe e no bash; A/B contra o código velho derruba os 3 casos quebrados.
+Commit f114fb6. ⚠️ O launcher novo não chega lá pelo auto-update — o desbloqueio é apagar a
+pasta `.git` da instalação da escola.
