@@ -1966,3 +1966,90 @@ VERDE: typecheck 3/3 · 812/814 testes · build · 15/15 smokes · `shots:esc` 2
 | 09:02 | F4/bug-598 FECHADO como wontfix (decisao do usuario), STATUS ajustado | .wolf/buglog.json, STATUS.md | saiu da fila; razoes e caminho do conserto futuro escritos no buglog | ~2k |
 | 09:05 | Commit da sessao 67 | d083999 | arvore limpa, 1 commit a frente da origin (push NAO pedido) | ~2k |
 | 09:06 | Session end: bug-612 FIXED · F3 ja estava (bug-602) · F4 fechado · todo.md 15 abertos -> 10 | 8 arquivos | bateria verde: typecheck 3/3 · 814/814 · build · 15/15 smokes | ~1k |
+
+## Session: 2026-08-11 08:50
+
+| Time | Action | File(s) | Outcome | ~Tokens |
+|------|--------|---------|---------|--------|
+| 09:06 | Edited shared/src/ferramentas.ts | added optional chaining | ~316 |
+| 09:06 | Edited shared/src/ferramentas.ts | 4→2 lines | ~38 |
+| 09:06 | Created shared/src/usos.ts | — | ~897 |
+| 09:07 | Edited shared/src/index.ts | 1→2 lines | ~14 |
+| 09:08 | Created client/src/tooltip.ts | — | ~3097 |
+| 09:08 | Edited client/src/inventory.ts | added 1 import(s) | ~36 |
+| 09:09 | Edited client/src/inventory.ts | 4→7 lines | ~85 |
+| 09:09 | Edited client/src/inventory.ts | 3→3 lines | ~32 |
+| 09:09 | Edited client/src/inventory.ts | 5→6 lines | ~61 |
+| 09:09 | Edited client/src/inventory.ts | modified if() | ~35 |
+| 09:09 | Edited client/src/inventory.ts | modified if() | ~47 |
+| 09:09 | Edited client/src/inventory.ts | 2→5 lines | ~71 |
+| 09:10 | Edited client/src/tooltip.ts | added 2 condition(s) | ~254 |
+| 09:10 | Edited client/src/tooltip.ts | 2→2 lines | ~28 |
+| 09:10 | Edited client/src/tooltip.ts | modified dono() | ~34 |
+| 09:10 | Edited client/src/container.ts | added 1 import(s) | ~36 |
+| 09:10 | Edited client/src/container.ts | nameOf() → tipDeItem() | ~49 |
+| 09:10 | Edited client/src/container.ts | 3→4 lines | ~48 |
+| 09:10 | Edited client/src/container.ts | 3→2 lines | ~28 |
+| 09:10 | Edited client/src/main.ts | 4→3 lines | ~22 |
+| 09:10 | Edited client/src/hotbarUi.ts | 2→5 lines | ~130 |
+| 09:11 | Edited client/src/main.ts | added 1 import(s) | ~37 |
+| 09:11 | Edited client/src/main.ts | expanded (+8 lines) | ~146 |
+| 09:11 | Edited client/index.html | modified item() | ~282 |
+| 09:11 | Created shared/src/usos.test.ts | — | ~934 |
+| 09:13 | Created scripts/tooltip-shot.mjs | — | ~2835 |
+| 09:14 | Edited scripts/tooltip-shot.mjs | 4→2 lines | ~14 |
+| 09:14 | Edited package.json | 1→2 lines | ~28 |
+| 09:15 | Edited scripts/tooltip-shot.mjs | 22→27 lines | ~323 |
+| 09:15 | Edited scripts/tooltip-shot.mjs | 3→3 lines | ~34 |
+| 09:18 | Edited client/index.html | 2→5 lines | ~84 |
+| 09:18 | Edited client/index.html | 5→5 lines | ~27 |
+| 09:18 | Edited client/src/tooltip.ts | 3→5 lines | ~75 |
+| 09:19 | Edited client/src/tooltip.ts | added 1 condition(s) | ~134 |
+| 09:19 | Edited scripts/tooltip-shot.mjs | expanded (+6 lines) | ~109 |
+| 09:21 | Edited iniciar-servidor.sh | modified versao_do_pacote() | ~408 |
+| 09:21 | Edited iniciar-servidor.sh | expanded (+6 lines) | ~205 |
+| 09:21 | Edited iniciar-servidor.sh | expanded (+6 lines) | ~208 |
+| 09:21 | Edited iniciar-servidor.sh | 9→11 lines | ~115 |
+| 09:22 | Edited iniciar-servidor.sh | 2→3 lines | ~51 |
+| 09:22 | Edited iniciar-servidor.bat | expanded (+7 lines) | ~258 |
+| 09:22 | Edited iniciar-servidor.bat | expanded (+15 lines) | ~299 |
+| 09:22 | Edited iniciar-servidor.bat | 3→4 lines | ~51 |
+| 09:23 | Edited iniciar-servidor.bat | 13→18 lines | ~179 |
+| 09:25 | Edited README.md | inline fix | ~27 |
+| 09:26 | Edited README.md | expanded (+27 lines) | ~582 |
+| 09:26 | Edited README.md | expanded (+9 lines) | ~116 |
+| 09:33 | Edited todo.md | 5→6 lines | ~143 |
+| 09:33 | Edited todo.md | expanded (+13 lines) | ~368 |
+| 09:33 | Edited todo.md | 2→3 lines | ~75 |
+| 09:33 | Edited todo.md | expanded (+15 lines) | ~474 |
+
+| 09:36 | Bateria completa: typecheck 3/3 · 822/822 testes · build · 15/15 smokes | (repo) | tudo verde | ~900 |
+| 09:38 | shots:tooltip contra o dist (1024×600) + shots:esc/toque/craft/f10 | scripts/, client/dist | 18/18 e 0 ✗ | ~1200 |
+| 09:40 | shots:tablet 1024×600 coarse (rede de regressão do toque) | client/ | 0 ✗ | ~400 |
+| 09:42 | STATUS.md sessão 68 no topo (tooltip + auto-update, próxima fase) | .wolf/STATUS.md | escrito | ~1500 |
+| 09:44 | cerebrum: 4 Key Learnings (cmd.exe do WSL, botão disabled, pointer coarse, UI opaca) + 1 do-not-repeat | .wolf/cerebrum.md | escrito | ~700 |
+| 09:46 | buglog: bug-615..619 (README, mensagem de versão, disabled, contraste, sonda) | .wolf/buglog.json | 5 entradas, indent=1 preservado | ~900 |
+
+### Resumo da sessão 68 (2026-08-11) — tooltip de item + fecho do auto-update
+
+Pedido: "faz tooltip e terminar o autoupdate". Os dois entregues.
+
+**Tooltip** (`client/src/tooltip.ts` + `shared/src/usos.ts`, ambos NOVOS): mochila, baú,
+hotbar e craft; hover no PC e toque-e-segure (400 ms) no tablet, com a caixa nascendo ACIMA
+do dedo e ficando 2,5 s depois de soltar. Por DELEGAÇÃO (`data-tip-id` + listener no
+`document`) porque os painéis fazem `replaceChildren` inteiro e a fornalha redesenha 10×/s.
+O toque que abre a caixa é engolido em captura pra não valer como o tap de pegar pilha
+(§🍖 F4). O conteúdo (`usosDoItem`) lê as tabelas do jogo — comida, fornalha, ferramentas,
+`PLANTAS` — e a linha "para quebrar" só aparece em sobrevivência. 8 testes novos +
+`npm run shots:tooltip` (NOVO, 18 asserções, dev e dist, 1280×800 e 1024×600). A/B: revertendo
+o carimbo caem 9 asserções, inclusive a B3 (sem tooltip o toque longo volta a pegar a pilha).
+
+**Auto-update:** README reescrito (linha da tabela, seção "Baixar" e os dois caminhos de
+atualização) e a mensagem "vX → vY" nos dois launchers e nos três caminhos, lendo o campo
+`version` do `package.json`. O `.bat` foi testado no `cmd.exe` real chamado do WSL. Sobrou só
+o piloto na máquina da escola, que não dá pra fazer daqui.
+
+VERDE: typecheck 3/3 · 822/822 testes · build · 15/15 smokes · shots:tooltip 18/18 (dev e
+dist) · shots:esc · shots:toque · shots:craft · shots:f10. Nada commitado ainda; os 2 commits
+da sessão 67 seguem sem push.
+| 09:38 | Session end: 51 writes across 16 files (ferramentas.ts, usos.ts, index.ts, tooltip.ts, inventory.ts) | 12 reads | ~88438 tok |

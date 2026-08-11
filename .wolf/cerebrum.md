@@ -96,6 +96,31 @@
 
 ## Key Learnings
 
+- [2026-08-11] **O `cmd.exe` do Windows roda a partir do WSL — dá pra testar o
+  `iniciar-servidor.bat` DE VERDADE**, e foi assim que a sub-rotina `:ler_versao` da sessão 68
+  foi validada. ⚠️ **Mas o cmd NÃO aceita caminho UNC**: rodando de `/home/...` ou do
+  scratchpad ele imprime *"Não há suporte para caminhos UNC. Padronizando para pasta do
+  Windows"* e o `.bat` nem é encontrado. Receita: copiar os arquivos pra uma pasta em `C:\`
+  (`mkdir -p /mnt/c/lj-tmp`) e chamar
+  `/mnt/c/Windows/System32/cmd.exe /c "cd /d C:\lj-tmp\... && arquivo.bat"`, apagando a pasta no
+  fim. Escapar aspas dentro de `for /f` com crase é a receita do erro silencioso em batch — no
+  `findstr` do `:ler_versao` o padrão usa `.` no lugar da aspa (`^ *.version.: *.[0-9]`) e não
+  tem nenhuma aspa dentro.
+- [2026-08-11] **Botão `disabled` NÃO despacha evento de ponteiro — delegação por
+  `e.target.closest(...)` não o encontra.** Apareceu no tooltip (sessão 68): as linhas de receita
+  que o aluno ainda não pode fabricar são justamente onde "o que é isso?" importa, e eram as
+  únicas mudas. Conserto sem tocar no `disabled` (3 scripts de shot dependem dele — `craft-shot`,
+  `toque-shot`): quando o `closest` falha, cair pra `document.elementFromPoint(x, y)`, que
+  **enxerga** o botão desabilitado porque ele continua desenhado. ⚠️ Deixar esse teste ATRÁS de
+  um `closest('.craft-lista')`, senão ele roda a cada `pointermove` do jogo.
+- [2026-08-11] **`Emulation.setEmulatedMedia` com `pointer: coarse` muda o CSS e portanto o
+  LAYOUT** (os alvos de dedo crescem). Coordenada de slot medida na seção de mouse **não aponta
+  mais pro mesmo slot** na seção de toque — no `tooltip-shot.mjs` a caixa dizia "picareta de
+  pedra" onde o log afirmava "tronco". Remedir depois de trocar a emulação.
+- [2026-08-11] **UI que nasce na beirada de um painel precisa ser OPACA.** O tooltip com
+  `rgba(...,0.94)` saía em dois tons — metade sobre o painel escuro, metade sobre o céu — e o
+  texto de 0,78 rem ficava ilegível justo na metade de fora. Cor sólida resolveu.
+
 - [2026-08-10] **Prova de UI que mede a CONCESSÃO do pointer lock é vazia — o que vale é contar
   os PEDIDOS.** Na primeira versão da seção B2 do `shots:esc` a asserção era
   `document.pointerLockElement === null`, e ela passou **com o bug de volta** (revertido o fix,
@@ -977,6 +1002,12 @@ política mora no ponto de estrangulamento** (`pedirLock`), não em cada chamado
 conhece painel, então quem conhece INJETA a pergunta (`input.podeTravar = () => …`).
 
 ## Do-Not-Repeat
+
+- [2026-08-11] **Extrair sub-rotina de `.bat` procurando `src.index(":rotulo")` pega a linha do
+  `call :rotulo`, não o RÓTULO** — o "driver de teste" virou uma cópia do launcher inteiro, que
+  rodou **três vezes** e deixou um `node_modules` em `C:\lj-tmp`. Casar a linha inteira
+  (`l.strip() == ":rotulo"`), e conferir o começo do arquivo gerado antes de executar qualquer
+  coisa copiada pro lado do Windows.
 
 - [2026-08-11] **LER O NÚMERO DO TIMEOUT antes de teorizar sobre teste instável.** O bug-612
   passou duas sessões como "contenção de recurso / OOM / baseline de 3 falhas" e a resposta

@@ -313,8 +313,9 @@ Singleplayer (Web Worker) não tem fs — chat não vira arquivo lá, como plane
 
 ## Deploy / auto-update
 
-* \[ ] **auto-update do servidor** — **O CÓDIGO ESTÁ FEITO NOS DOIS LAUNCHERS; falta a
-  DOCUMENTAÇÃO e o piloto na escola** (conferido em 2026-08-11).
+* \[ ] **auto-update do servidor** — **CÓDIGO, DOCUMENTAÇÃO E MENSAGEM FEITOS; falta SÓ o
+  piloto na máquina da escola** (2026-08-11, sessão 68 — e é o único item que não dá pra fechar
+  daqui: precisa do notebook da escola, da rede dela e de um update de verdade acontecendo).
   * ✅ **Feito:** `8bfb086` (2026-08-07) pôs o update no `iniciar-servidor.bat` e `3a43954`
     (2026-08-08, bug-606) espelhou no `iniciar-servidor.sh`. Bifurca **pela pasta**: com
     `.git` segue `git fetch` + `merge --ff-only`; **sem `.git`** baixa o pacote do GitHub
@@ -325,18 +326,32 @@ Singleplayer (Web Worker) não tem fs — chat não vira arquivo lá, como plane
   * ✅ **O pré-requisito do repo público está satisfeito:** `api.github.com/repos/meketreve/
     logica-em-jogo` responde **200 sem credencial** (conferido em 2026-08-11) — é o que faz o
     caminho do pacote funcionar no PC da escola sem token nem deploy key.
-  * ❌ **FALTA (1) — o README ainda descreve só o caminho do git e MENTE por omissão:** a
-    tabela de requisitos diz *"Git (opcional) | só para o launcher se atualizar sozinho"*
-    (README.md:29) e a seção de atualização (README.md:60-68) fala só de `git clone` +
-    fast-forward. Quem baixou o ZIP lê que não tem auto-update, e tem. Escrever o caminho do
-    pacote, o `.lj-versao`, o `LJ_SEM_UPDATE` e o aviso do `mundos/`.
+  * ✅ **FEITO (1) — o README (2026-08-11, sessão 68).** A linha da tabela virou *"Git — **não**
+    precisa"*, entrou uma seção **Baixar** (Code → Download ZIP, que é como a escola pega) e a
+    seção **Atualizar** foi reescrita com os DOIS caminhos: sem `.git` (pacote, `curl`+`tar`,
+    sem PowerShell, `.lj-versao`, copiar-por-cima-sem-apagar, o aviso do `mundos/`, o
+    `client/dist` já pronto) e com `.git` (ff-only + `git stash`), mais o que vale nos dois
+    (`LJ_SEM_UPDATE=1`, sem rede não trava a aula, `mundos/` intocado).
   * ❌ **FALTA (2) — piloto real na máquina da escola.** O A/B da 62 rodou em pasta isolada
     com `npm` falso (update aplicado, `mundos/` intacto por md5, 2ª rodada dizendo "já está na
     versão mais nova", API inexistente recusada sem corromper o `.lj-versao`). Isso valida a
     lógica, não o ambiente — e o do-not-repeat de 2026-07-10 é justamente *não escrever
     relatório de aplicação antes de o piloto acontecer*.
-  * ❌ **FALTA (3) — a mensagem "atualizado da vX pra vY"** que o refino abaixo pedia: hoje o
-    launcher imprime o sha, não a versão legível do `package.json`.
+  * ✅ **FEITO (3) — a mensagem "atualizado da vX pra vY" (2026-08-11, sessão 68).** Os dois
+    launchers passaram a ler o campo `version` do `package.json` da raiz (`versao_do_pacote` no
+    `.sh`, a sub-rotina `:ler_versao` no `.bat`) e a dizer **duas frases diferentes**, porque os
+    dois casos são diferentes pro professor: *"Atualizado da versão 0.9.0 para a 1.0.0 (commit
+    abc1234)"* quando o número muda, e *"Atualizado — continua na versão 0.9.0, com as correções
+    mais novas"* quando o conserto veio dentro da mesma versão (o caso comum — "atualizado para
+    a 0.9.0" faria parecer que nada aconteceu). O sha **continua sendo a identidade** do update
+    (é ele que responde "estou na última?"); o número é só o que a pessoa lê. Vale nos TRÊS
+    caminhos: pacote, `merge --ff-only` e o ff depois do `git stash`. Os dois números são lidos
+    ANTES da cópia — depois dela o `package.json` de casa já é o novo. Sem o campo (ou sem o
+    arquivo) a frase cai na antiga, com o sha: a mensagem piora, nada quebra.
+    **A/B real com o `cmd.exe` do Windows** (a sub-rotina do `.bat` extraída e rodada em
+    `C:\`, porque cmd não roda em caminho UNC do WSL): `package.json` 0.9.0 e pacote 1.2.3 →
+    *"da versão 0.9.0 para a 1.2.3"*; os dois 0.9.0 → *"continua na versão 0.9.0"*; arquivo
+    inexistente e arquivo SEM o campo → vazio nos dois, caindo na frase velha.
   * Refino original (o plano era pelo git; o que saiu foi git **ou** pacote):
   * **Gatilho no LAUNCHER** (`iniciar-servidor.bat` Windows/escola + `iniciar-servidor.sh` WSL/casa):
     antes do `npm run start`, um passo de update opcional. Fluxo mínimo: `git fetch` → comparar
@@ -466,11 +481,26 @@ ferramenta certa quebra rápido, gasta, e precisa ser refeita.
 
 ### §💬 UI de jogo (pedido do usuário, 2026-08-06)
 
-* \[ ] **tooltip no hover de item.** Vale pra mochila, baú, hotbar e lista de craft. Hoje o nome
-  só existe no `title` do botão (`container.ts`/`inventory.ts`), que é o tooltip do NAVEGADOR:
-  demora ~1 s, não aparece no tablet e some sozinho. Um tooltip próprio serve os dois aparelhos
-  (hover no PC, toque-e-segure no tablet) e é onde a durabilidade e o "serve pra quê" vão morar
-  quando existirem.
+* \[x] **tooltip no hover de item** — **FEITO** (2026-08-11, sessão 68). `client/src/tooltip.ts`
+  (NOVO) + `shared/src/usos.ts` (NOVO). Vale nos quatro lugares pedidos: mochila, baú/fornalha,
+  hotbar e lista de craft. **PC** = hover, na hora, seguindo o cursor; **tablet** = toque e
+  segure (400 ms), a caixa nasce ACIMA do dedo (senão a criança lê a própria unha) e fica 2,5 s
+  na tela depois de o dedo sair. **O toque que abre o tooltip não conta como tap** — senão
+  segurar pra ler também pegaria a pilha, que é o gesto do §🍖 F4; quem garante isso é um
+  engolidor de `click` em CAPTURA, com remoção por tempo caso o clique nunca venha.
+  Por **delegação** (`data-tip-id` no botão + listener no `document`): os painéis se redesenham
+  inteiros e a fornalha faz isso 10×/s, então listener por slot morreria a cada frame.
+  O **"serve pra quê"** sai do `usosDoItem`, que lê as MESMAS tabelas que decidem o jogo
+  (comida, fornalha, ferramentas, `PLANTAS`) — seis linhas possíveis: ferramenta (o que ELA
+  destrava, e só o nível dela), comida (quanto enche), funde na fornalha, queima na fornalha
+  (em cozimentos, não ticks), colheita da muda, e "para quebrar: picareta de X" (**só em
+  sobrevivência** — em criativo seria mentira). Lista escrita à mão sairia de sincronia no
+  primeiro item novo; assim, item novo conta sozinho. É o lugar já preparado pra **durabilidade**
+  (§🔨) aparecer sem tocar no tooltip. O `btn.title` do navegador saiu dos dois painéis.
+  **Prova:** 8 testes em `shared/src/usos.test.ts` + `npm run shots:tooltip` (NOVO, 18
+  asserções em 1280×800 e em 1024×600, contra o dev E contra o `client/dist`). **A/B: com o
+  carimbo `data-tip-id` revertido caem 9 asserções** — inclusive a B3, porque sem tooltip o
+  toque longo volta a pegar a pilha.
 * \[x] **esconder a hotbar com QUALQUER menu aberto** (incluindo a mochila) — **FEITO**
   (2026-08-10, sessão 66, **bug-614**). A 58 tinha escrito o `toggle` da classe `hidden` na
   `#hotbar` como o ESPELHO da condição do overlay, e espelhar dá o oposto: o overlay some

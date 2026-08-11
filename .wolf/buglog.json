@@ -4797,6 +4797,109 @@
    ],
    "occurrences": 1,
    "last_seen": "2026-08-10T00:00:00Z"
+  },
+  {
+   "id": "bug-615",
+   "timestamp": "2026-08-11T12:26:00Z",
+   "error_message": "README.md:29 dizia \"Git (opcional) | só para o launcher se atualizar sozinho\" e a seção Atualizar descrevia SÓ o caminho do git clone + fast-forward. Quem baixou o ZIP — que é o caso real da escola — lia que não tinha auto-update, e tinha desde 8bfb086/3a43954.",
+   "file": "README.md",
+   "root_cause": "O README foi escrito quando o único caminho de update era `git pull`. Os commits 8bfb086 (.bat, 2026-08-07) e 3a43954 (.sh, bug-606, 2026-08-08) acrescentaram o caminho do PACOTE (zip/tar.gz, sem git) e nenhum dos dois tocou na documentação. Defeito por OMISSÃO: nada do que estava escrito era falso, mas a conclusão que o leitor tirava era.",
+   "fix": "Linha da tabela virou \"Git — **não** precisa | o launcher se atualiza sozinho sem ele\". Seção \"Baixar\" nova (Code → Download ZIP). Seção \"Atualizar\" reescrita com os DOIS caminhos, escolhidos pela pasta: sem `.git` = pacote (curl+tar, sem PowerShell, `.lj-versao`, cópia por cima sem apagar, aviso do `mundos/`, `client/dist` já pronto); com `.git` = ff-only + `git stash`. Mais o que vale nos dois: `LJ_SEM_UPDATE=1`, sem rede não trava a aula, `mundos/` intocado.",
+   "tags": [
+    "readme",
+    "documentacao",
+    "auto-update",
+    "launcher",
+    "escola"
+   ],
+   "related_bugs": [
+    "bug-606",
+    "bug-233"
+   ],
+   "occurrences": 1,
+   "last_seen": "2026-08-11T12:26:00Z"
+  },
+  {
+   "id": "bug-616",
+   "timestamp": "2026-08-11T12:27:00Z",
+   "error_message": "os launchers anunciavam a atualização só pelo sha do commit (\"Atualizado para a a1b2c3d.\") — o professor não tem como saber que versão do jogo está rodando.",
+   "file": "iniciar-servidor.sh",
+   "root_cause": "O update se identifica pelo sha de 40 hex da API do GitHub (é ele que responde \"estou na última?\" e é o que fica no `.lj-versao`), e a mensagem foi escrita reusando esse mesmo valor. Mas sha não é legível nem repetível por telefone; a versão que a pessoa lê mora no campo `version` do `package.json` da raiz — a MESMA que o jogo mostra e que o perfilador anônimo carimba por versão (hud.ts:529).",
+   "fix": "`versao_do_pacote` + `anunciar_versao` no .sh e a sub-rotina `:ler_versao` no .bat leem o campo `version` do package.json da raiz. DUAS frases, porque os casos são diferentes pro professor: \"Atualizado da versão 0.9.0 para a 1.0.0 (commit abc1234)\" quando o número muda, e \"Atualizado — continua na versão 0.9.0, com as correções mais novas\" quando o conserto veio dentro da mesma versão (o caso comum). Vale nos TRÊS caminhos: pacote, `merge --ff-only` e o ff depois do `git stash`. Os dois números são lidos ANTES da cópia — depois dela o package.json de casa já é o novo, e a frase viraria \"da 1.0.0 para a 1.0.0\". Sem o campo (ou sem o arquivo) cai na frase antiga com o sha: piora, não quebra.",
+   "tags": [
+    "launcher",
+    "auto-update",
+    "bat",
+    "sh",
+    "versao",
+    "ux"
+   ],
+   "related_bugs": [
+    "bug-606",
+    "bug-615"
+   ],
+   "occurrences": 1,
+   "last_seen": "2026-08-11T12:27:00Z"
+  },
+  {
+   "id": "bug-617",
+   "timestamp": "2026-08-11T12:10:00Z",
+   "error_message": "o tooltip novo não aparecia nas linhas de receita DESABILITADAS da lista de craft — justamente as que o aluno ainda não consegue fabricar, que é onde a pergunta \"o que é isso?\" nasce.",
+   "file": "client/src/tooltip.ts",
+   "root_cause": "Botão com o atributo `disabled` NÃO despacha evento de ponteiro (nem nos filhos dele). O tooltip funciona por delegação no `document` e acha o dono com `e.target.closest('[data-tip-id]')`; com a linha desabilitada o `target` que chega é a `.craft-lista`, não a receita, então o `closest` volta null.",
+   "fix": "Sem tocar no `disabled` (3 scripts de shot dependem dele: craft-shot.mjs:111/129 e toque-shot.mjs:390): quando o `closest` falha, cair para `document.elementFromPoint(x, y)`, que ENXERGA o botão desabilitado porque ele continua desenhado. O teste caro fica ATRÁS de um `closest('.craft-lista')` — senão rodaria a cada `pointermove` do jogo, com o ponteiro travado no canvas.",
+   "tags": [
+    "tooltip",
+    "dom",
+    "disabled",
+    "pointer-events",
+    "craft",
+    "delegacao"
+   ],
+   "related_bugs": [],
+   "occurrences": 1,
+   "last_seen": "2026-08-11T12:10:00Z"
+  },
+  {
+   "id": "bug-618",
+   "timestamp": "2026-08-11T12:05:00Z",
+   "error_message": "a caixa do tooltip saía em DOIS tons e o texto menor ficava ilegível — no print da sonda dava para ver o painel por baixo de metade dela.",
+   "file": "client/index.html",
+   "root_cause": "`background: rgba(12,14,20,0.94)`. A caixa nasce na beirada do painel de inventário: metade dela cai sobre o painel escuro e metade sobre o céu do jogo. Com QUALQUER alfa os dois fundos atravessam com luminâncias diferentes, e a linha de uso (0,78 rem, opacidade 0,85) morre justamente na metade que está sobre o céu claro.",
+   "fix": "Cor sólida (`background: #0c0e14`) com a borda de sempre. Regra geral: UI flutuante que pode nascer na beirada de um painel é opaca.",
+   "tags": [
+    "tooltip",
+    "css",
+    "legibilidade",
+    "contraste",
+    "ui"
+   ],
+   "related_bugs": [
+    "bug-617"
+   ],
+   "occurrences": 1,
+   "last_seen": "2026-08-11T12:05:00Z"
+  },
+  {
+   "id": "bug-619",
+   "timestamp": "2026-08-11T12:00:00Z",
+   "error_message": "o `tooltip-shot.mjs` afirmava medir o slot 0 (tronco) na seção de toque e a caixa dizia \"picareta de pedra\" — o log estava mentindo sobre o que tinha sido tocado.",
+   "file": "scripts/tooltip-shot.mjs",
+   "root_cause": "A coordenada do slot foi medida na seção A (mouse) e reusada na seção B, mas entre as duas o script chama `Emulation.setEmulatedMedia` com `pointer: coarse`. Isso muda o CSS (os alvos de dedo crescem) e portanto o LAYOUT: o mesmo par x,y passou a cair noutro slot.",
+   "fix": "Remedir o centro do slot DEPOIS de trocar a emulação (`q0`), e usar `q0` em todas as asserções de toque. A asserção B1/B1b (tap curto pega e solta) confirma que a coordenada nova é um slot com item.",
+   "tags": [
+    "sonda",
+    "cdp",
+    "emulation",
+    "layout",
+    "tooltip",
+    "shots"
+   ],
+   "related_bugs": [
+    "bug-617"
+   ],
+   "occurrences": 1,
+   "last_seen": "2026-08-11T12:00:00Z"
   }
  ]
 }

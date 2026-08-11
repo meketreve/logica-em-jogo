@@ -2,6 +2,82 @@
 
 > Single source of truth for resuming work. Read this FIRST when starting a session.
 
+> **SESSÃO 68 (2026-08-11) — O TOOLTIP DE ITEM SAIU (PC + TABLET) E O AUTO-UPDATE FECHOU TUDO
+> QUE DÁ PRA FECHAR DAQUI. SOBROU UM ITEM SÓ, E ELE PRECISA DO NOTEBOOK DA ESCOLA.**
+> Pedido: "faz tooltip e terminar o autoupdate". **Os dois entregues; do auto-update, 2 das 3
+> pendências fecharam e a 3ª é externa por natureza.**
+>
+> ✅ **TOOLTIP DE ITEM — `client/src/tooltip.ts` (NOVO) + `shared/src/usos.ts` (NOVO).**
+> Vale nos quatro lugares que o `todo.md` pedia: mochila, baú/fornalha, hotbar e lista de craft.
+> **PC:** hover, na hora, seguindo o cursor. **Tablet:** toque e segure (400 ms), a caixa nasce
+> **ACIMA** do dedo (senão a criança lê a própria unha) e fica 2,5 s na tela depois de o dedo
+> sair. O `btn.title` do navegador (o tooltip que demora ~1 s e não existe no tablet) saiu dos
+> dois painéis.
+> ⚠️ **A decisão que fez o recurso caber: DELEGAÇÃO.** O painel só carimba `data-tip-id="<id>"`
+> no botão e o módulo escuta o `document`. Listener por slot morreria e renasceria o tempo todo
+> — os painéis fazem `replaceChildren` inteiro a cada mexida, e a **fornalha cozinhando
+> redesenha 10×/s**. Um elemento na tela, zero listeners por slot.
+> ⚠️ **O toque que ABRE o tooltip não pode contar como tap** — senão segurar pra ler também
+> pegaria a pilha (o gesto do §🍖 F4). Quem garante é um engolidor de `click` em **CAPTURA**,
+> com remoção por tempo caso o clique nunca venha (dedo escorregou pra fora do botão).
+> **O "serve pra quê" (`usosDoItem`) lê as MESMAS tabelas que decidem o jogo** — comida,
+> fornalha, ferramentas, `PLANTAS`. Seis linhas: ferramenta (**só o que ELA destrava**, não o
+> que a anterior já dava), comida (quanto enche), funde na fornalha, queima (em **cozimentos**,
+> não ticks), colheita da muda, e "para quebrar: picareta de X" — esta **só em sobrevivência**,
+> porque em criativo não há exigência de ferramenta e a linha seria mentira. Lista escrita à mão
+> sairia de sincronia no primeiro item novo. **É o lugar já preparado pra durabilidade (§🔨).**
+> **Prova:** 8 testes em `shared/src/usos.test.ts` · **`npm run shots:tooltip` (NOVO)**, 18
+> asserções, em 1280×800 e 1024×600, contra o dev **e** contra o `client/dist`.
+> **A/B (a lição do bug-610): com o carimbo `data-tip-id` revertido caem 9 asserções** — e entre
+> elas a B3, porque sem tooltip o toque longo volta a PEGAR a pilha. A sonda não é vazia.
+>
+> ✅ **AUTO-UPDATE (1) — O README AGORA CONTA A VERDADE.** A tabela dizia *"Git (opcional) | só
+> para o launcher se atualizar sozinho"*, e quem baixou o ZIP (o caso REAL da escola) lia que
+> não tinha auto-update — e tem, desde `8bfb086`/`3a43954`. Agora: a linha virou **"Git — não
+> precisa"**, entrou uma seção **Baixar** (Code → Download ZIP) e a seção **Atualizar** foi
+> reescrita com os DOIS caminhos — sem `.git` (pacote, `curl`+`tar`, **sem PowerShell**,
+> `.lj-versao`, copiar-por-cima-sem-apagar, o aviso do `mundos/`, o `client/dist` já pronto) e
+> com `.git` (ff-only + `git stash`) — mais o que vale nos dois (`LJ_SEM_UPDATE=1`, sem rede não
+> trava a aula, `mundos/` intocado).
+>
+> ✅ **AUTO-UPDATE (3) — A MENSAGEM "vX → vY", NOS DOIS LAUNCHERS E NOS TRÊS CAMINHOS.**
+> `versao_do_pacote`/`anunciar_versao` no `.sh`, sub-rotina `:ler_versao` no `.bat`, lendo o
+> campo `version` do `package.json` da raiz. **Duas frases, porque os dois casos são diferentes
+> pro professor:** *"Atualizado da versão 0.9.0 para a 1.0.0 (commit abc1234)"* quando o número
+> muda, e *"Atualizado — continua na versão 0.9.0, com as correções mais novas"* quando o
+> conserto veio dentro da mesma versão (o caso COMUM — "atualizado para a 0.9.0" faria parecer
+> que nada aconteceu). **O sha continua sendo a identidade** do update; o número é só o que a
+> pessoa lê. Os dois números são lidos **antes** da cópia — depois dela o `package.json` de casa
+> já é o novo. Sem o campo (ou sem o arquivo) a frase cai na antiga, com o sha: piora, não quebra.
+> ⚠️ **O `.bat` foi testado no `cmd.exe` DE VERDADE** (dá pra chamar `/mnt/c/Windows/System32/
+> cmd.exe` do WSL): 0.9.0 + pacote 1.2.3 → *"da versão 0.9.0 para a 1.2.3"* · os dois 0.9.0 →
+> *"continua na versão 0.9.0"* · arquivo inexistente e arquivo SEM o campo → vazio nos dois.
+>
+> ⚠️ **AUTO-UPDATE (2) — O PILOTO NA ESCOLA SEGUE ABERTO, E NÃO DÁ PRA FECHAR DAQUI.** Precisa
+> do notebook da escola, da rede dela e de um update de verdade acontecendo. O A/B da 62 rodou
+> em pasta isolada com `npm` falso: valida a lógica, não o ambiente. **É o único item que sobrou
+> do auto-update** — e o do-not-repeat de 2026-07-10 (*não escrever relatório de aplicação antes
+> de o piloto acontecer*) continua valendo.
+>
+> **VERDE:** typecheck 3/3 · **822/822 testes** (+8 novos) · build · **15/15 smokes** ·
+> **`shots:tooltip` 18/18** (dev e dist) · `shots:esc` OK · `shots:toque` OK · `shots:craft` OK ·
+> `shots:f10` OK (é ele que passa pelo painel do baú).
+> **Diff:** `tooltip.ts`, `usos.ts`, `usos.test.ts`, `tooltip-shot.mjs` (novos) · `inventory.ts`,
+> `container.ts`, `hotbarUi.ts`, `main.ts`, `client/index.html` · `ferramentas.ts`,
+> `shared/src/index.ts` · `iniciar-servidor.sh`, `iniciar-servidor.bat`, `README.md`, `todo.md`,
+> `package.json` (o script `shots:tooltip`) · **`client/dist` (VERSIONADO — tem de entrar no
+> MESMO commit, é o que a escola baixa)** · `.wolf/`.
+> **Nada commitado ainda**, e os **2 commits da 67 (`d083999`, `2ee8211`) seguem sem push.**
+>
+> 🚀 **PRÓXIMA FASE:**
+> 1. **Commitar** (o `client/dist` junto) e **`git push`** — o local está 2 commits à frente.
+> 2. **§🔨 Ferramentas v2** (durabilidade + ferramenta na mão + tempo de quebra) — as três andam
+>    juntas, é o próximo bloco grande de jogo, e o tooltip já tem o lugar da durabilidade pronto
+>    (`usos.ts`: uma variante nova no `Uso` e uma frase no `tooltip.ts`).
+> 3. **Mobs (§🍖 F8)** — 3+ sessões, com o aviso de GPU do laboratório.
+> 4. **Piloto do auto-update na escola** — quando houver acesso à máquina.
+> **`todo.md`: 10 itens abertos → 9.**
+
 > **SESSÃO 67 (2026-08-11) — O bug-612 CAIU, E A CAUSA ERA O COMANDO QUE A GENTE DIGITAVA.
 > MAIS UMA VARREDURA DE "ISSO JÁ FOI FEITO?" QUE MUDOU 5 LINHAS DO `todo.md`.**
 > Pedido: pegar o F1, conferir se F3 e F4 já estavam consertados, e conferir 5 alegações de

@@ -1,12 +1,12 @@
 {
   "version": 1,
   "meta": {
-    "lastScanned": "2026-08-11T11:45:45.250Z",
-    "fileCount": 337,
+    "lastScanned": "2026-08-11T12:33:47.766Z",
+    "fileCount": 341,
     "hits": 0,
     "misses": 0,
-    "renderedHash": "c664bf808806531c4a8e24f75de243c2244e261374f26854e3d0d554b9b783a4",
-    "storeUpdatedAt": "2026-08-11T11:45:45.255Z"
+    "renderedHash": "7ba1fd5ebd8eac1df782a43d06f98b317994075e9dd4700da15edd16c073e162",
+    "storeUpdatedAt": "2026-08-11T12:33:47.785Z"
   },
   "files": {
     ".claude/commands/reframe.md": {
@@ -1404,12 +1404,12 @@
     },
     "client/index.html": {
       "description": "Lógica em Jogo",
-      "tokens": 9987,
-      "hash": "b908234b3cbf1ddf",
-      "size": 37844,
-      "mtimeMs": 1786207227036.4167,
-      "updatedAt": "2026-08-11T11:45:45.088Z",
-      "source": "scan"
+      "tokens": 10310,
+      "hash": "67f7e3a48eea1f81",
+      "size": 39063,
+      "mtimeMs": 1786450694316.3152,
+      "updatedAt": "2026-08-11T12:18:14.425Z",
+      "source": "hook"
     },
     "client/package.json": {
       "description": "Node.js package manifest",
@@ -1998,19 +1998,19 @@
     },
     "client/src/container.ts": {
       "description": "§🍖 F10 — O PAINEL DE TRANSFERÊNCIA (fornalha e baú).",
-      "tokens": 4657,
-      "hash": "f20b405df4efef29",
-      "size": 16465,
-      "mtimeMs": 1786373876301.447,
-      "updatedAt": "2026-08-11T11:45:45.094Z",
-      "source": "scan",
+      "tokens": 4674,
+      "hash": "9f362eb3953cbfb3",
+      "size": 16523,
+      "mtimeMs": 1786450243904.314,
+      "updatedAt": "2026-08-11T12:10:44.001Z",
+      "source": "hook",
       "symbols": [
         {
           "name": "ContainerPanel",
           "kind": "class",
-          "startLine": 34,
-          "endLine": 435,
-          "tokens": 4307
+          "startLine": 35,
+          "endLine": 436,
+          "tokens": 4308
         }
       ]
     },
@@ -2096,12 +2096,12 @@
     },
     "client/src/hotbarUi.ts": {
       "description": "O que a barra precisa do resto do jogo, e nada além disso.",
-      "tokens": 2890,
-      "hash": "ec0b7f4b28ec3d19",
-      "size": 10240,
-      "mtimeMs": 1786147662762.9905,
-      "updatedAt": "2026-08-11T11:45:45.096Z",
-      "source": "scan",
+      "tokens": 2964,
+      "hash": "28079a90b518c772",
+      "size": 10509,
+      "mtimeMs": 1786450255400.3142,
+      "updatedAt": "2026-08-11T12:10:55.496Z",
+      "source": "hook",
       "symbols": [
         {
           "name": "HotbarDeps",
@@ -2114,8 +2114,8 @@
           "name": "HotbarUi",
           "kind": "class",
           "startLine": 57,
-          "endLine": 253,
-          "tokens": 2347
+          "endLine": 256,
+          "tokens": 2421
         }
       ]
     },
@@ -2206,19 +2206,19 @@
     },
     "client/src/inventory.ts": {
       "description": "Inventário de blocos (cp16) — grade dos colocáveis + faixa da hotbar de 9",
-      "tokens": 6364,
-      "hash": "c250285300adf1e7",
-      "size": 22555,
-      "mtimeMs": 1786373876301.447,
-      "updatedAt": "2026-08-11T11:45:45.098Z",
-      "source": "scan",
+      "tokens": 6504,
+      "hash": "c8cd566b80a21f72",
+      "size": 23047,
+      "mtimeMs": 1786450169252.3147,
+      "updatedAt": "2026-08-11T12:09:29.358Z",
+      "source": "hook",
       "symbols": [
         {
           "name": "InventoryPanel",
           "kind": "class",
-          "startLine": 30,
-          "endLine": 593,
-          "tokens": 6019
+          "startLine": 31,
+          "endLine": 603,
+          "tokens": 6143
         }
       ]
     },
@@ -2334,200 +2334,200 @@
     },
     "client/src/main.ts": {
       "description": "O cliente não tem filesystem: aprende os nomes das aulas pela resposta de",
-      "tokens": 30420,
-      "hash": "fc3f55c68e7b5de1",
-      "size": 108109,
-      "mtimeMs": 1786384115977.4473,
-      "updatedAt": "2026-08-11T11:45:45.104Z",
-      "source": "scan",
+      "tokens": 30539,
+      "hash": "bff5ea8b0a46bb7c",
+      "size": 108538,
+      "mtimeMs": 1786450275284.3145,
+      "updatedAt": "2026-08-11T12:11:15.405Z",
+      "source": "hook",
       "symbols": [
         {
           "name": "cachearMundos",
           "kind": "fn",
-          "startLine": 114,
-          "endLine": 205,
+          "startLine": 115,
+          "endLine": 206,
           "tokens": 1200
         },
         {
           "name": "applySettings",
           "kind": "fn",
-          "startLine": 206,
-          "endLine": 273,
+          "startLine": 207,
+          "endLine": 274,
           "tokens": 1036
         },
         {
           "name": "showOverlayMain",
           "kind": "fn",
-          "startLine": 274,
-          "endLine": 280,
+          "startLine": 275,
+          "endLine": 281,
           "tokens": 74
         },
         {
           "name": "menuDePausaAberto",
           "kind": "fn",
-          "startLine": 281,
-          "endLine": 284,
+          "startLine": 282,
+          "endLine": 285,
           "tokens": 32
         },
         {
           "name": "updateOverlay",
           "kind": "fn",
-          "startLine": 285,
-          "endLine": 336,
+          "startLine": 286,
+          "endLine": 337,
           "tokens": 907
         },
         {
           "name": "startPlay",
           "kind": "fn",
-          "startLine": 337,
-          "endLine": 369,
+          "startLine": 338,
+          "endLine": 370,
           "tokens": 374
         },
         {
           "name": "onSettingsChanged",
           "kind": "fn",
-          "startLine": 370,
-          "endLine": 391,
+          "startLine": 371,
+          "endLine": 392,
           "tokens": 294
         },
         {
           "name": "enviarRaio",
           "kind": "fn",
-          "startLine": 392,
-          "endLine": 435,
+          "startLine": 393,
+          "endLine": 436,
           "tokens": 589
         },
         {
           "name": "playerName",
           "kind": "fn",
-          "startLine": 436,
-          "endLine": 446,
+          "startLine": 437,
+          "endLine": 447,
           "tokens": 187
         },
         {
           "name": "abrirAmigosPorComando",
           "kind": "fn",
-          "startLine": 447,
-          "endLine": 486,
+          "startLine": 448,
+          "endLine": 487,
           "tokens": 450
         },
         {
           "name": "registrarChegadaDeRede",
           "kind": "fn",
-          "startLine": 487,
-          "endLine": 494,
+          "startLine": 488,
+          "endLine": 495,
           "tokens": 60
         },
         {
           "name": "jitterDeRede",
           "kind": "fn",
-          "startLine": 495,
-          "endLine": 517,
+          "startLine": 496,
+          "endLine": 518,
           "tokens": 352
         },
         {
           "name": "podeVoar",
           "kind": "fn",
-          "startLine": 518,
-          "endLine": 527,
+          "startLine": 519,
+          "endLine": 528,
           "tokens": 164
         },
         {
           "name": "vitals",
           "kind": "fn",
-          "startLine": 528,
-          "endLine": 594,
+          "startLine": 529,
+          "endLine": 595,
           "tokens": 904
         },
         {
           "name": "pushPanelData",
           "kind": "fn",
-          "startLine": 595,
-          "endLine": 607,
+          "startLine": 596,
+          "endLine": 608,
           "tokens": 139
         },
         {
           "name": "pushFriendsData",
           "kind": "fn",
-          "startLine": 608,
-          "endLine": 618,
+          "startLine": 609,
+          "endLine": 619,
           "tokens": 96
         },
         {
           "name": "ownDone",
           "kind": "fn",
-          "startLine": 619,
-          "endLine": 627,
+          "startLine": 620,
+          "endLine": 628,
           "tokens": 90
         },
         {
           "name": "refreshObjectivesView",
           "kind": "fn",
-          "startLine": 628,
-          "endLine": 659,
+          "startLine": 629,
+          "endLine": 660,
           "tokens": 359
         },
         {
           "name": "drenarFilaTroca",
           "kind": "fn",
-          "startLine": 660,
-          "endLine": 667,
+          "startLine": 661,
+          "endLine": 668,
           "tokens": 79
         },
         {
           "name": "segurarAteATelaPintar",
           "kind": "fn",
-          "startLine": 668,
-          "endLine": 677,
+          "startLine": 669,
+          "endLine": 678,
           "tokens": 109
         },
         {
           "name": "handleServerData",
           "kind": "fn",
-          "startLine": 678,
-          "endLine": 904,
+          "startLine": 679,
+          "endLine": 905,
           "tokens": 3049
         },
         {
           "name": "connect",
           "kind": "fn",
-          "startLine": 905,
-          "endLine": 944,
+          "startLine": 906,
+          "endLine": 945,
           "tokens": 465
         },
         {
           "name": "startMultiplayer",
           "kind": "fn",
-          "startLine": 945,
-          "endLine": 962,
+          "startLine": 946,
+          "endLine": 963,
           "tokens": 223
         },
         {
           "name": "startSingleplayer",
           "kind": "fn",
-          "startLine": 963,
-          "endLine": 986,
+          "startLine": 964,
+          "endLine": 987,
           "tokens": 284
         },
         {
           "name": "persistWorld",
           "kind": "fn",
-          "startLine": 987,
-          "endLine": 1053,
+          "startLine": 988,
+          "endLine": 1054,
           "tokens": 793
         },
         {
           "name": "GameRuntime",
           "kind": "class",
-          "startLine": 1054,
-          "endLine": 2273,
-          "tokens": 17144
+          "startLine": 1055,
+          "endLine": 2281,
+          "tokens": 17249
         },
         {
           "name": "startGame",
           "kind": "fn",
-          "startLine": 2274,
-          "endLine": 2280,
+          "startLine": 2282,
+          "endLine": 2288,
           "tokens": 58
         }
       ]
@@ -3339,22 +3339,22 @@
       "source": "scan"
     },
     "iniciar-servidor.bat": {
-      "description": "launcher Windows (duplo-clique): update por ZIP do GitHub (curl+tar+robocopy, sem git/PowerShell — a escola bloqueia), menu de mundo [1-9] com procedural, código do professor, tamanho P/M/G/E, água por tick",
-      "tokens": 3462,
-      "hash": "96ba4eae007e3fbf",
-      "size": 12981,
-      "mtimeMs": 1786042024702.5027,
-      "updatedAt": "2026-08-11T11:45:45.112Z",
-      "source": "scan"
+      "description": "",
+      "tokens": 4124,
+      "hash": "2430b53c0bce1d17",
+      "size": 15464,
+      "mtimeMs": 1786451030176.3135,
+      "updatedAt": "2026-08-11T12:23:50.286Z",
+      "source": "hook"
     },
     "iniciar-servidor.sh": {
-      "description": "launcher Linux/WSL/macOS, PAR do .bat: update por git quando é clone, por pacote .tar.gz do GitHub quando não é; mesmo menu de mundo [1-9] com procedural, tamanho P/M/G/E, LJ_SAVE/LJ_CODIGO/LJ_TAMANHO/LJ_AGUA_TICK",
-      "tokens": 5085,
-      "hash": "bcbcc13d36b25fa6",
-      "size": 18160,
-      "mtimeMs": 1786228634172.4167,
-      "updatedAt": "2026-08-11T11:45:45.113Z",
-      "source": "scan"
+      "description": "============================================================",
+      "tokens": 5341,
+      "hash": "44653f1f9629a481",
+      "size": 20438,
+      "mtimeMs": 1786450921140.314,
+      "updatedAt": "2026-08-11T12:22:01.243Z",
+      "source": "hook"
     },
     "LICENSE": {
       "description": "Licença de Uso — Lógica em Jogo",
@@ -3646,12 +3646,12 @@
     },
     "package.json": {
       "description": "Node.js package manifest",
-      "tokens": 354,
-      "hash": "7477230a7259668d",
-      "size": 1238,
-      "mtimeMs": 1786229623152.4114,
-      "updatedAt": "2026-08-11T11:45:45.141Z",
-      "source": "scan"
+      "tokens": 370,
+      "hash": "7e661815c42f1e54",
+      "size": 1292,
+      "mtimeMs": 1786450449880.3152,
+      "updatedAt": "2026-08-11T12:14:09.989Z",
+      "source": "hook"
     },
     "profiles/perf-1784923796301-gius.json": {
       "description": "",
@@ -3961,12 +3961,12 @@
     },
     "README.md": {
       "description": "Project documentation",
-      "tokens": 1948,
-      "hash": "c104e4882c8992e6",
-      "size": 7999,
-      "mtimeMs": 1785159102288.7983,
-      "updatedAt": "2026-08-11T11:45:45.165Z",
-      "source": "scan"
+      "tokens": 2440,
+      "hash": "a5c40a44fdb10676",
+      "size": 10022,
+      "mtimeMs": 1786451189468.313,
+      "updatedAt": "2026-08-11T12:26:29.577Z",
+      "source": "hook"
     },
     "registros/perfilador-v0.8.0-escola.md": {
       "description": "Tabela agregada dos 52 perfis do piloto v0.8.0 (dispositivo/GPU/FPS/tick, sem nome de aluno)",
@@ -7421,12 +7421,12 @@
     },
     "shared/src/ferramentas.ts": {
       "description": "§🍖 F10d (2026-08-05) — FERRAMENTAS. As duas decisões vieram do usuário:",
-      "tokens": 1982,
-      "hash": "a63ecad04da73976",
-      "size": 7101,
-      "mtimeMs": 1785950872611.3237,
-      "updatedAt": "2026-08-11T11:45:45.203Z",
-      "source": "scan",
+      "tokens": 2251,
+      "hash": "6e15566ab3b70214",
+      "size": 8064,
+      "mtimeMs": 1786449986928.314,
+      "updatedAt": "2026-08-11T12:06:27.021Z",
+      "source": "hook",
       "symbols": [
         {
           "name": "Ferramenta",
@@ -7453,15 +7453,29 @@
           "name": "melhorNivel",
           "kind": "fn",
           "startLine": 137,
-          "endLine": 155,
-          "tokens": 194
+          "endLine": 147,
+          "tokens": 102
+        },
+        {
+          "name": "nomeDaFerramenta",
+          "kind": "fn",
+          "startLine": 148,
+          "endLine": 162,
+          "tokens": 196
+        },
+        {
+          "name": "liberadosPor",
+          "kind": "fn",
+          "startLine": 163,
+          "endLine": 179,
+          "tokens": 182
         },
         {
           "name": "faltaFerramenta",
           "kind": "fn",
-          "startLine": 156,
-          "endLine": 165,
-          "tokens": 116
+          "startLine": 180,
+          "endLine": 187,
+          "tokens": 99
         }
       ]
     },
@@ -7741,12 +7755,12 @@
     },
     "shared/src/index.ts": {
       "description": "",
-      "tokens": 280,
-      "hash": "ccc476fac94739d8",
-      "size": 980,
-      "mtimeMs": 1786025528386.5027,
-      "updatedAt": "2026-08-11T11:45:45.205Z",
-      "source": "scan"
+      "tokens": 287,
+      "hash": "0380051eddc07d22",
+      "size": 1004,
+      "mtimeMs": 1786450021660.3137,
+      "updatedAt": "2026-08-11T12:07:01.761Z",
+      "source": "hook"
     },
     "shared/src/inventario.test.ts": {
       "description": "Inventário com pilhas em slots escolhidos (o resto vazio).",
@@ -11286,12 +11300,12 @@
     },
     "todo.md": {
       "description": "Ideias para fazer",
-      "tokens": 12715,
-      "hash": "5f4fbf3307012148",
-      "size": 52505,
-      "mtimeMs": 1786448433956.3147,
-      "updatedAt": "2026-08-11T11:45:45.240Z",
-      "source": "scan"
+      "tokens": 13422,
+      "hash": "168ce68c94a8800a",
+      "size": 55421,
+      "mtimeMs": 1786451627660.314,
+      "updatedAt": "2026-08-11T12:33:47.765Z",
+      "source": "hook"
     },
     "tsconfig.base.json": {
       "description": "",
@@ -11310,6 +11324,218 @@
       "mtimeMs": 1786448361124.3147,
       "updatedAt": "2026-08-11T11:45:45.240Z",
       "source": "scan"
+    },
+    "shared/src/usos.ts": {
+      "description": "§💬 UI de jogo — \"SERVE PRA QUÊ?\", a resposta que o tooltip mostra.",
+      "tokens": 897,
+      "hash": "57e89cdcc2bd31e7",
+      "size": 3192,
+      "mtimeMs": 1786450007692.314,
+      "updatedAt": "2026-08-11T12:06:47.779Z",
+      "source": "hook",
+      "symbols": [
+        {
+          "name": "usosDoItem",
+          "kind": "fn",
+          "startLine": 49,
+          "endLine": 76,
+          "tokens": 242
+        }
+      ]
+    },
+    "client/src/tooltip.ts": {
+      "description": "§💬 UI de jogo (todo §💬, pedido de 2026-08-06) — O TOOLTIP DE ITEM.",
+      "tokens": 3378,
+      "hash": "eda24e1e7eacff6f",
+      "size": 11960,
+      "mtimeMs": 1786450741912.315,
+      "updatedAt": "2026-08-11T12:19:02.034Z",
+      "source": "hook",
+      "symbols": [
+        {
+          "name": "TooltipDeps",
+          "kind": "section",
+          "startLine": 40,
+          "endLine": 52,
+          "tokens": 116
+        },
+        {
+          "name": "Tooltip",
+          "kind": "class",
+          "startLine": 53,
+          "endLine": 230,
+          "tokens": 1868
+        },
+        {
+          "name": "dono",
+          "kind": "fn",
+          "startLine": 231,
+          "endLine": 244,
+          "tokens": 220
+        },
+        {
+          "name": "linhaDeUso",
+          "kind": "fn",
+          "startLine": 245,
+          "endLine": 253,
+          "tokens": 86
+        },
+        {
+          "name": "frase",
+          "kind": "fn",
+          "startLine": 254,
+          "endLine": 276,
+          "tokens": 246
+        },
+        {
+          "name": "listar",
+          "kind": "fn",
+          "startLine": 277,
+          "endLine": 284,
+          "tokens": 80
+        },
+        {
+          "name": "garantir",
+          "kind": "fn",
+          "startLine": 285,
+          "endLine": 290,
+          "tokens": 41
+        },
+        {
+          "name": "configurarTooltip",
+          "kind": "fn",
+          "startLine": 291,
+          "endLine": 300,
+          "tokens": 94
+        },
+        {
+          "name": "tipDeItem",
+          "kind": "fn",
+          "startLine": 301,
+          "endLine": 306,
+          "tokens": 65
+        },
+        {
+          "name": "esconderTooltip",
+          "kind": "fn",
+          "startLine": 307,
+          "endLine": 310,
+          "tokens": 19
+        }
+      ]
+    },
+    "shared/src/usos.test.ts": {
+      "description": "Só o campo `tipo` — as asserções abaixo perguntam \"que usos ele tem?\".",
+      "tokens": 934,
+      "hash": "ba5207d8b1c9e92b",
+      "size": 3308,
+      "mtimeMs": 1786450315328.3147,
+      "updatedAt": "2026-08-11T12:11:55.437Z",
+      "source": "hook",
+      "symbols": [
+        {
+          "name": "uso",
+          "kind": "fn",
+          "startLine": 19,
+          "endLine": 75,
+          "tokens": 764
+        }
+      ]
+    },
+    "scripts/tooltip-shot.mjs": {
+      "description": "§💬 SONDA DO TOOLTIP DE ITEM (`client/src/tooltip.ts`).",
+      "tokens": 3001,
+      "hash": "2647d4bd61b57bf6",
+      "size": 11375,
+      "mtimeMs": 1786450780024.3147,
+      "updatedAt": "2026-08-11T12:19:40.125Z",
+      "source": "hook",
+      "symbols": [
+        {
+          "name": "acharChrome",
+          "kind": "fn",
+          "startLine": 42,
+          "endLine": 57,
+          "tokens": 171
+        },
+        {
+          "name": "espera",
+          "kind": "fn",
+          "startLine": 58,
+          "endLine": 64,
+          "tokens": 107
+        },
+        {
+          "name": "abrirAba",
+          "kind": "fn",
+          "startLine": 65,
+          "endLine": 87,
+          "tokens": 243
+        },
+        {
+          "name": "cdp",
+          "kind": "fn",
+          "startLine": 88,
+          "endLine": 89,
+          "tokens": 44
+        },
+        {
+          "name": "avaliar",
+          "kind": "fn",
+          "startLine": 90,
+          "endLine": 91,
+          "tokens": 38
+        },
+        {
+          "name": "tecla",
+          "kind": "fn",
+          "startLine": 92,
+          "endLine": 95,
+          "tokens": 46
+        },
+        {
+          "name": "ok",
+          "kind": "fn",
+          "startLine": 96,
+          "endLine": 101,
+          "tokens": 55
+        },
+        {
+          "name": "centroDoSlot",
+          "kind": "fn",
+          "startLine": 102,
+          "endLine": 109,
+          "tokens": 104
+        },
+        {
+          "name": "tooltip",
+          "kind": "fn",
+          "startLine": 110,
+          "endLine": 120,
+          "tokens": 130
+        },
+        {
+          "name": "mouseEm",
+          "kind": "fn",
+          "startLine": 121,
+          "endLine": 122,
+          "tokens": 32
+        },
+        {
+          "name": "toqueEm",
+          "kind": "fn",
+          "startLine": 123,
+          "endLine": 128,
+          "tokens": 68
+        },
+        {
+          "name": "pegos",
+          "kind": "fn",
+          "startLine": 129,
+          "endLine": 256,
+          "tokens": 1627
+        }
+      ]
     }
   }
 }
