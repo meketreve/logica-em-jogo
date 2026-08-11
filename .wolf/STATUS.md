@@ -2,6 +2,97 @@
 
 > Single source of truth for resuming work. Read this FIRST when starting a session.
 
+> **SESSÃO 67 (2026-08-11) — O bug-612 CAIU, E A CAUSA ERA O COMANDO QUE A GENTE DIGITAVA.
+> MAIS UMA VARREDURA DE "ISSO JÁ FOI FEITO?" QUE MUDOU 5 LINHAS DO `todo.md`.**
+> Pedido: pegar o F1, conferir se F3 e F4 já estavam consertados, e conferir 5 alegações de
+> "já foi feito" no `todo.md`. **Das 6 verificações, 5 confirmaram e 1 caiu.**
+>
+> ✅ **F1 — bug-612 FIXED, e não era OOM, nem `maxWorkers`, nem ordem de teste.**
+> `npx vitest run` rodado da **RAIZ** não acha config nenhuma e cai nos **defaults do vitest**:
+> `testTimeout` **5000** ms e um fork por núcleo (24 aqui). A `shared/vitest.config.ts`
+> (20000 ms / 8 workers, calibrada no bug-545 pra mundos de 128³) só era lida por `npm test`,
+> que é `npm run test -w shared` e roda com CWD em `shared/`. **A coleta é idêntica nos dois
+> caminhos** (45 arquivos, 814 testes — não há teste fora de `shared/`), e é por isso que
+> ninguém via. Com a máquina ocupada, os testes que GERAM MUNDO estouram os 5 s.
+> ⚠️ **A resposta estava impressa na falha o tempo todo: `Test timed out in 5000ms`.** O
+> projeto configura 20000. Timeout que não é o configurado = config não aplicada. Duas sessões
+> teorizaram sobre carga e heap sem ler o número.
+> **O conserto:** `vitest.config.ts` NOVO na raiz, reexportando o do shared (`import
+> compartilhada from "./shared/vitest.config"`) — uma fonte só pros dois limites.
+> **A/B sob pressão (3 suítes completas CONCORRENTES, mesmo commit, mesma máquina):**
+> raiz sem config **9 vermelhas em 9** (2 a 5 falhas cada) · `npm test` **6 verdes em 6** ·
+> raiz com `--config shared/vitest.config.ts` **3 verdes em 3** (prova que quem decide é a
+> CONFIG, não o diretório). **PORTÃO depois do fix: 9 verdes em 9, 814/814 nas nove.**
+> ⚠️ Sem pressão a suíte já era 6 verdes em 6 (3 na 66 + 3 aqui) — **repetir em série numa
+> máquina ociosa era o método que não reproduzia.** A variável era a carga; crie a carga.
+> 💀 **A regra "3 falhas de worldgen = baseline" está MORTA.** Qualquer vermelho agora é
+> vermelho de verdade.
+>
+> ✅ **F3 — a laje JÁ ESTAVA CONSERTADA: era o bug-602, do mesmo dia do relato.** O `todo.md`
+> tinha uma linha separada ("topo do bloco não renderiza a face de baixo") que é o MESMO defeito
+> descrito pelo lado do render em vez do lado da colocação; ficou `[ ]` por 4 dias sem nada a
+> fazer. **A/B refeito:** trocando `mesher.ts:918` de volta pro `if (nb === id) continue` cru, o
+> teste do `cp23.test.ts:141` cai com `expected +0 to be 4` (zero faces −Y = o buraco);
+> restaurado, passa. **E a sonda corrigiu a teoria que o plano da 66 carregava:** a metade de
+> CIMA (`slabTop`, caixa 0.5..1) tem `y0 = 0.5`, logo a face de baixo dela **nunca é `flush`** e
+> nunca passou pelo culling — `LajePedraCima` solta, sobre `Stone` e empilhada emitem os 4 cantos
+> de normal −Y em `y+0.5` **mesmo com o fix revertido**. Quem aparecia furada era a pilha de
+> metades de BAIXO. Nada a codar.
+>
+> ⚠️ **F4 — bug-598 NÃO foi consertado, ao contrário do palpite, e SEGUE ESPERANDO DECISÃO.**
+> Sonda de 15 linhas (`criarLuz`/`acenderColuna`/`atualizarBloco`), folha em céu aberto: posta
+> **antes** de acender (caminho do worldgen) = **15**, com 14 embaixo; a MESMA folha posta
+> **depois** por edição (caminho do BFS) = **13**, com 14 embaixo. O código também não mudou:
+> `luz.ts:254` segue exigindo `op === 0` na `descidaReta` e `luz.ts:255` segue cobrando
+> `nivel - 1 - op`. **Consertar é mudança de DESENHO** (o `propagar` teria de carregar "esta luz
+> veio reta do céu" pra sobreviver à atenuação), com efeito visual em todo mundo já gerado, e as
+> cavernas dependem da regra atual. Ninguém relatou — quem achou foi o fuzz.
+> ✅ **DECIDIDO NESTA SESSÃO: o usuário ACEITOU E FECHOU** como conhecido e tolerado. O bug-598
+> saiu da fila (`FECHADO`/`wontfix` no buglog, com as 3 razões e o caminho do conserto escritos
+> lá, caso um aluno um dia relate copa larga com sombra errada). **Não reabrir sem relato novo.**
+>
+> 📋 **A VARREDURA DO `todo.md` — 5 linhas mudadas, 1 alegação derrubada:**
+> - ✅ **textura da água + textura ANIMADA: FEITAS** (`e3eaac4` 26/07 e `3418cf4` 27/07). Saiu por
+>   **flipbook procedural**, não pelos dois caminhos que o item listava: `AGUA_FRAMES = 16` e
+>   `animarAguaAtlas(...)` repintam **só as células da água no atlas** 1×/frame
+>   (`materiaisMundo.ts:113-127`) — sem `map.offset`, então não há risco de arrastar o tile dos
+>   opacos, que era a ressalva anotada no item. Há **dois** tiles (parada com onda do vento,
+>   fluxo com fase própria). ⚠️ Grep por "anima"/"animated" não achava nada: o nome é `AGUA_FRAMES`.
+> - ✅ **terreno procedural: DUPLICATA** — já existia `[x] FEITO v1` (2026-07-20) noutra seção.
+> - ✅ **otimização de save/load: FEITA**, em três peças com teste: save ESPARSO (`LJS2`, só os
+>   chunks editados, `save-lazy.test.ts`) · streaming por colunas de interesse
+>   (`streaming.test.ts`) · carga pelo pool de workers (bug-608).
+> - ⚠️ **auto-update: o CÓDIGO está pronto nos dois launchers, a DOCUMENTAÇÃO não.** `8bfb086`
+>   (.bat) e `3a43954` (.sh, bug-606) bifurcam pela pasta: com `.git` = `merge --ff-only`; sem
+>   `.git` = pacote do GitHub (zip/tar.gz), que é o caso real da escola. O pré-requisito do repo
+>   público **está satisfeito** (`api.github.com/repos/meketreve/logica-em-jogo` responde **200
+>   sem credencial**). **Falta:** (1) o README, que ainda diz *"Git (opcional) | só para o
+>   launcher se atualizar sozinho"* (README.md:29) e descreve só o caminho do git — quem baixou
+>   ZIP lê que não tem auto-update, e tem; (2) o piloto real na máquina da escola (o A/B da 62 foi
+>   em pasta isolada com `npm` falso); (3) a mensagem "atualizado da vX pra vY" — hoje imprime sha.
+> - ❌ **TOOLTIP DE ITEM: NÃO ESTÁ FEITA.** Única coisa que existe é `btn.title = b.name`
+>   (`inventory.ts:259`) e `b.title = this.nameOf(id)` (`container.ts:281`) — que é **exatamente o
+>   estado que o item do `todo.md` descreve como insuficiente**: é o tooltip do NAVEGADOR, demora
+>   ~1 s, não aparece no tablet e some sozinho. Não há elemento próprio, nem `mouseenter`, nem
+>   toque-e-segure. O item continua `[ ]`.
+> - ✅ **mobs: pendente mesmo** — a única ocorrência no código é um comentário em `session.ts:678`
+>   (*"…e (no F8) o mob signifiquem alguma coisa"*).
+>
+> **VERDE:** typecheck 3/3 · **814/814** (e agora 814/814 **sob carga**, nos dois caminhos) ·
+> build · smoke.
+> **Diff da sessão:** `vitest.config.ts` (novo) · `todo.md` (5 itens) · `.wolf/` (STATUS, buglog
+> 612/602/598, cerebrum, memory, anatomy). **Nada commitado ainda** — o commit é o próximo passo.
+>
+> 🚀 **PRÓXIMA FASE — a fila ficou curta e honesta (o F4 saiu dela; o usuário escolheu commitar
+> antes de abrir frente nova):**
+> 1. **Tooltip de item** — a única dívida de UI de verdade, e é onde durabilidade e "serve pra
+>    quê" vão morar quando existirem. Serve PC (hover) e tablet (toque-e-segure).
+> 2. **Fechar o auto-update:** README + piloto na escola + a linha "vX → vY".
+> 3. **§🔨 Ferramentas v2** (durabilidade + ferramenta na mão + tempo de quebra) — as três andam
+>    juntas, é o próximo bloco grande de jogo.
+> 4. **Mobs (§🍖 F8)** — 3+ sessões, com o aviso de GPU do laboratório.
+> **`todo.md`: 15 itens abertos → 10.**
+
 > **SESSÃO 66 (2026-08-10) — PLANO DE 4 FRENTES, E O F0 JÁ FECHOU COM DOIS BUGS: A HOTBAR
 > INVERTIDA (614) E UM IRMÃO DO 610 QUE A SONDA NOVA DESENTERROU (613).**
 > O pedido foi "plano pra arrumar os bugs e rever o código de esconder a hotbar". **A revisão da

@@ -34,12 +34,19 @@
     `blockSelectionBox` do mesher) e `collides`/`moveAxis` passam a ler essa caixa. Decisão
     a travar: step-up automático (subir slab andando) ou só pulo?
   * 2 slabs no mesmo lugar = bloco cheio (Minecraft) — opcional, decisão de escopo.
-* \[ ] **BUG slab: topo do bloco não renderiza a face de baixo** (2026-08-07, playtest na
-  escola): a laje de CIMA (metade superior) não desenha a parte de baixo da textura — vê-se
-  o buraco por baixo. A face inferior da metade superior fica órfã (culling acha que é
-  interior?). Conferir o `emitBox` do slab no mesher: a face de baixo da caixa 0.5..1 cai
-  fora do culling da face do vizinho inferior (que não existe/é outra metade) — provável
-  falta de regra de "laje em cima de laje de baixo" ou de face exposta sempre.
+* \[x] **BUG slab: topo do bloco não renderiza a face de baixo** (2026-08-07, playtest na
+  escola) — **FEITO no MESMO dia, era o bug-602** (sessão 58); só a marcação ficou pra trás,
+  conferida em 2026-08-11. O item e o bug-602 descrevem o mesmo defeito por dois lados: o
+  `emitBox` cullava a face rente sempre que o vizinho tinha o MESMO id, e duas lajes de baixo
+  empilhadas NÃO se encostam (vão de 0,5 entre elas) → a de cima ficava sem a face de baixo e
+  se via o buraco. **Conserto:** parâmetro `fundeVertical` no `emitBox` (`mesher.ts:904`);
+  laje/escada passam `false`, então a fusão por mesmo id vale só nas laterais X/Z
+  (`mesher.ts:918`). **Teste-portão:** `cp23.test.ts:141` "lajes empilhadas do MESMO id não
+  fundem a face vertical (bug-602)" — exige 4 cantos de normal −Y na laje de cima.
+  **Sonda de 2026-08-11 (`meshChunk` puro, sem navegador):** `LajePedraCima` solta, sobre
+  `Stone` e empilhada emitem a face −Y em `y+0.5` nos três casos. A metade de CIMA tem
+  `y0 = 0.5`, logo a face de baixo **nunca é `flush`** e nunca passou pelo culling — quem
+  aparecia com buraco era a pilha de metades de BAIXO, exatamente o que o bug-602 consertou.
 * \[x] **escadas (stairs)** — **FEITO** (2026-07-25): ids 155-178 (pedra/tábua/tijolo × 4
   direções × base/cabeça-pra-baixo). Forma em L = 2 caixas em `collisionBoxes` (base meia-altura
   pegada cheia + degrau meia-pegada), reusadas pelo mesher E pela física. Sobe andando via o mesmo
@@ -222,11 +229,19 @@ senão lado com parede; empate → base. Cliente inalterado.
   * Testes (raycast.test/session): raio atravessa água e para no sólido; place sobre água TROCA
     (não é recusado); break através de água atinge o de trás. É o caso EXTREMO do item "hitbox real
     dos não-cubos" (Móveis/blocos) — água não tem forma sólida, some de vez da mira.
-* \[ ] **mudar a textura da água (refino visual)** — agora que a água tem material próprio,
-  dá pra caprichar no tile sem restrição de furos. Pintar no atlas procedural (`paintAgua`
-  em atlasTexture.ts) — gradiente, espuma na borda, tom por profundidade. Barato e isolado.
-* \[ ] **textura ANIMADA (ciclo de N tiles) — DESTRAVADA** (a água já está em material
-  próprio, 2026-07-22). Caminhos agora diretos:
+* \[x] **mudar a textura da água (refino visual)** — **FEITO** (2026-07-26 `e3eaac4` /
+  2026-07-27 `3418cf4`), junto com a animação do item abaixo; marcação conferida em
+  2026-08-11. `escreverAgua`/`pintarAguas` (atlasTexture.ts:686/743) pintam o tile por onda
+  senoidal em vez de cor chapada, e há **dois** tiles: água PARADA (onda do vento) e água de
+  FLUXO (fase própria, direção da correnteza). Quem escolhe o tile por bloco é o mesher
+  (`tileDaAgua`).
+* \[x] **textura ANIMADA (ciclo de N tiles) — FEITO** (2026-07-26/27, mesmos commits acima;
+  marcação conferida em 2026-08-11). Saiu pelo caminho **flipbook procedural**, não pelos dois
+  listados abaixo: `AGUA_FRAMES = 16` (atlasTexture.ts:659) e `animarAguaAtlas(atlas,
+  quadroParada, ondaAgua, quadroFluxo)` repinta **só as células da água no atlas** 1×/frame
+  (materiaisMundo.ts:113-127) — sem `map.offset`, então não há risco de arrastar o tile dos
+  blocos opacos, que era a ressalva anotada aqui embaixo. A parada anda pela fase do vento
+  (`vento.ts:55`, 5,6 a 12 quadros/s) e a de fluxo por relógio próprio. Plano original:
   1. **UV-scroll**: animar `materialAgua.map.offset` no render loop → correnteza contínua.
      Mais barato; a textura precisa ladrilhar (tile-able) no eixo do scroll.
   2. **Flipbook**: N quadros lado a lado no atlas + trocar `map.offset.x` a cada ~200ms.
@@ -298,9 +313,31 @@ Singleplayer (Web Worker) não tem fs — chat não vira arquivo lá, como plane
 
 ## Deploy / auto-update
 
-* \[ ] **auto-update do servidor** — hoje a escola atualiza rodando `git pull` À MÃO (é o padrão
-  de deploy: quase todo bloco de STATUS termina com "escola: git pull"). Ideia: o launcher busca a
-  versão nova sozinho antes de subir o servidor. Refino:
+* \[ ] **auto-update do servidor** — **O CÓDIGO ESTÁ FEITO NOS DOIS LAUNCHERS; falta a
+  DOCUMENTAÇÃO e o piloto na escola** (conferido em 2026-08-11).
+  * ✅ **Feito:** `8bfb086` (2026-08-07) pôs o update no `iniciar-servidor.bat` e `3a43954`
+    (2026-08-08, bug-606) espelhou no `iniciar-servidor.sh`. Bifurca **pela pasta**: com
+    `.git` segue `git fetch` + `merge --ff-only`; **sem `.git`** baixa o pacote do GitHub
+    (`.zip` no Windows, `.tar.gz` no Linux/macOS) — que é o caso real da escola, que baixa
+    ZIP. A versão instalada mora em `.lj-versao` (o sha de 40 hex do commit, pela API
+    `Accept: application/vnd.github.sha`), o MESMO arquivo nos dois launchers. `LJ_SEM_UPDATE=1`
+    desliga. Pacote que traz `mundos/` avisa e o padrão é NÃO sobrescrever.
+  * ✅ **O pré-requisito do repo público está satisfeito:** `api.github.com/repos/meketreve/
+    logica-em-jogo` responde **200 sem credencial** (conferido em 2026-08-11) — é o que faz o
+    caminho do pacote funcionar no PC da escola sem token nem deploy key.
+  * ❌ **FALTA (1) — o README ainda descreve só o caminho do git e MENTE por omissão:** a
+    tabela de requisitos diz *"Git (opcional) | só para o launcher se atualizar sozinho"*
+    (README.md:29) e a seção de atualização (README.md:60-68) fala só de `git clone` +
+    fast-forward. Quem baixou o ZIP lê que não tem auto-update, e tem. Escrever o caminho do
+    pacote, o `.lj-versao`, o `LJ_SEM_UPDATE` e o aviso do `mundos/`.
+  * ❌ **FALTA (2) — piloto real na máquina da escola.** O A/B da 62 rodou em pasta isolada
+    com `npm` falso (update aplicado, `mundos/` intacto por md5, 2ª rodada dizendo "já está na
+    versão mais nova", API inexistente recusada sem corromper o `.lj-versao`). Isso valida a
+    lógica, não o ambiente — e o do-not-repeat de 2026-07-10 é justamente *não escrever
+    relatório de aplicação antes de o piloto acontecer*.
+  * ❌ **FALTA (3) — a mensagem "atualizado da vX pra vY"** que o refino abaixo pedia: hoje o
+    launcher imprime o sha, não a versão legível do `package.json`.
+  * Refino original (o plano era pelo git; o que saiu foi git **ou** pacote):
   * **Gatilho no LAUNCHER** (`iniciar-servidor.bat` Windows/escola + `iniciar-servidor.sh` WSL/casa):
     antes do `npm run start`, um passo de update opcional. Fluxo mínimo: `git fetch` → comparar
     versão local × remota → se houver nova, `git pull` + `npm install` (se `package-lock` mudou) e
@@ -478,8 +515,18 @@ ferramenta certa quebra rápido, gasta, e precisa ser refeita.
 
 ## Geração de mundo / performance
 
-* \[ ] algoritmo de geração de terreno procedural pra mundos
-* \[ ] consequente otimização de como os mundos são salvos e carregados
+* \[x] algoritmo de geração de terreno procedural pra mundos — **DUPLICATA** da linha "geração
+  de terreno procedural — FEITO v1" (2026-07-20) lá embaixo, em *Inventário*; conferido e
+  marcado em 2026-08-11. Os candidatos de v2 (altura por bioma, cavernas, mandacaru, madeira
+  por espécie) ficam registrados naquele item, não aqui.
+* \[x] consequente otimização de como os mundos são salvos e carregados — **FEITO** (F2/F3,
+  conferido em 2026-08-11). Três peças, todas com teste: (1) **save ESPARSO** do mundo lazy —
+  magia `LJS2`/`LAZY_SAVE_MAGIC` (save.ts:45) grava só os chunks EDITADOS, o resto volta do
+  seed no restore (`save-lazy.test.ts`); (2) **streaming por colunas de interesse** — o
+  servidor manda só o raio ao redor do aluno e re-manda o que ele esqueceu na ida
+  (`streaming.test.ts`, geometria única em `colunas.ts`, bug-590); (3) **carga pelo pool de
+  workers** no cliente, com o mundo denso enfileirando em vez de meshar na main thread
+  (bug-608, sessão 64: trava de 9,5 s → 99 ms na máquina real).
 * \[x] salvar mundo em PASTAS (uma pasta por mundo) — **FEITO** (2026-07-20, HOST): cada
 mundo mora em `mundos/<nome>/` com `<nome>.ljw` + `chat.log` (paths.ts: `pastaDoMundo`,
 `savePathDoMundo`, `chatLogDoMundo`). Launcher migra layouts antigos e lista as pastas.

@@ -733,6 +733,21 @@
 
 - **`npm run verify` (typecheck+testes+build) e `npm run smoke` são o caminho oficial.** Metade
   do Do-Not-Repeat deste projeto é sobre o APARATO de teste, não sobre o código.
+- **Config do vitest: `vitest.config.ts` na RAIZ reexporta `shared/vitest.config.ts`** (bug-612,
+  2026-08-11). Os testes moram todos em `shared/src` e os dois limites que importam
+  (`testTimeout: 20000`, `maxWorkers: 8`, calibrados no bug-545 pra mundos de 128³) têm UMA fonte
+  só, no shared. A cópia da raiz existe pra `npx vitest run` digitado no diretório do repo não
+  cair nos defaults — era esse o bug-612 inteiro.
+- **Instabilidade de suíte se mede sob CARGA, com N suítes concorrentes** (`for k in a b c; do
+  (npx vitest run > log-$k) & done; wait`). Repetir em série numa máquina ociosa é o método que
+  não reproduz. Foi assim que o bug-612 saiu de "não reproduz em 3 rodadas" pra "9 em 9" em uma
+  tentativa — e é o mesmo aparato pra conferir o conserto depois (portão de 9 verdes).
+- **"Isso já foi feito" merece SONDA, não busca por palavra-chave** (2026-08-11). Três itens do
+  `todo.md` dados como prontos precisaram de verificação diferente cada um: a água animada
+  apareceu só ao procurar `AGUA_FRAMES` (grep por "anima"/"tooltip" não achava nada, porque o
+  nome é outro); a laje exigiu **reverter o fix e ver o teste cair**; e a luz do céu (bug-598)
+  precisou de uma sonda de 15 linhas que devolveu 15 × 13 — ela **não** estava consertada. Grep
+  vazio não prova ausência e memória de STATUS não prova presença.
 - `npm run smoke -- --lista` diz o que cada cenário prova SEM abrir arquivo. Porta própria por
   cenário (8091–8096), a 8080 fica livre pro dev server do usuário.
   `git bisect run npm run smoke -- <nome>` funciona. **`LJ_SEED` fixa o terreno**;
@@ -963,11 +978,25 @@ conhece painel, então quem conhece INJETA a pergunta (`input.podeTravar = () =>
 
 ## Do-Not-Repeat
 
-- [2026-08-10] **NÃO chamar a suíte completa de "verde" ou "quebrada" sem o baseline do
-  `git stash`.** A suíte cheia falha **3 testes de worldgen** (árvores / 7 selvagens / banda de
-  minério) que **passam isolados** e que já falhavam no HEAD limpo — é o bug-612, em aberto. Na
-  sessão 65 isso quase virou meia hora caçando regressão num diff que não tinha nenhuma. O
-  procedimento: `git stash push -- shared/src client/src`, rodar, `git stash pop`, comparar.
+- [2026-08-11] **LER O NÚMERO DO TIMEOUT antes de teorizar sobre teste instável.** O bug-612
+  passou duas sessões como "contenção de recurso / OOM / baseline de 3 falhas" e a resposta
+  estava impressa na própria falha: `Test timed out in **5000**ms`. O projeto configura
+  **20000**. Um timeout que não é o configurado quer dizer **config não aplicada** — não vale
+  investigar carga, `maxWorkers` nem heap antes de conferir isso. Vale pra qualquer ferramenta
+  com config por diretório.
+- [2026-08-11] **`npx vitest run` da RAIZ não é o mesmo portão que `npm test`.** `npm test` é
+  `npm run test -w shared` (CWD = `shared/`), e era só assim que a `shared/vitest.config.ts`
+  entrava. Da raiz o vitest **coleta os mesmos 45 arquivos / 814 testes** — por isso ninguém
+  percebia — mas com os defaults (5 s de timeout, 1 fork por núcleo). Consertado em 2026-08-11
+  com um `vitest.config.ts` na raiz reexportando o do shared; se algum dia ele sumir, o sorteio
+  volta. **Nunca comparar rodada da raiz com rodada de `npm test` sem checar qual config valeu.**
+- [2026-08-11] **Suíte que só falha "às vezes" tem de ser medida SOB PRESSÃO, não repetida à
+  toa.** 6 rodadas sequenciais em máquina ociosa deram 814/814 e não provaram nada; **3 suítes
+  completas concorrentes** deram 9 vermelhas em 9 na primeira tentativa. Rodar N vezes em série
+  é o jeito caro de não reproduzir — a variável é a carga, então crie a carga.
+- ~~[2026-08-10] "3 falhas de worldgen = baseline"~~ — **MORTA em 2026-08-11**: era o bug-612,
+  consertado. A suíte é 814/814 em qualquer caminho, com ou sem carga. Qualquer vermelho agora é
+  vermelho de verdade; não existe mais falha "esperada" pra descontar.
   Rodar com `--reporter=json --outputFile=…` — a saída de texto do vitest via rtk é truncada e
   o `tail` esconde justamente a linha de contagem.
 - [2026-08-10] **Sonda de `pointermove` por CDP no headless PARA de ser entregue depois de dois

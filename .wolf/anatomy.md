@@ -1,7 +1,7 @@
 # anatomy.md
 
-> Auto-maintained by OpenWolf. Last scanned: 2026-08-10T23:58:50.280Z
-> Files: 336 tracked | Anatomy hits: 0 | Misses: 0
+> Auto-maintained by OpenWolf. Last scanned: 2026-08-11T11:45:45.250Z
+> Files: 337 tracked | Anatomy hits: 0 | Misses: 0
 
 ## ./
 
@@ -15,8 +15,9 @@
 - `package.json` — Node.js package manifest (~354 tok)
 - `projeto.txt` (~4707 tok)
 - `README.md` — Project documentation (~1948 tok)
-- `todo.md` — Ideias para fazer (~11692 tok)
+- `todo.md` — Ideias para fazer (~12715 tok)
 - `tsconfig.base.json` (~130 tok)
+- `vitest.config.ts` — Config do vitest da RAIZ (2026-08-11, bug-612). (~335 tok)
 
 ## .claude/
 
@@ -471,7 +472,7 @@
 ## mundos/_smoke-coluna/
 
 - `_smoke-coluna.ljw` (~62 tok)
-- `chat.log` (~2880 tok)
+- `chat.log` (~3360 tok)
 
 ## mundos/_smoke-comida/
 
@@ -495,7 +496,7 @@
 
 ## mundos/_smoke-kicar/
 
-- `chat.log` (~13480 tok)
+- `chat.log` (~15655 tok)
 
 ## mundos/_smoke-modoa/
 
@@ -516,7 +517,7 @@
 ## mundos/_smoke-trocaa/
 
 - `_smoke-trocaa.ljw` (~87 tok)
-- `chat.log` (~8670 tok)
+- `chat.log` (~10149 tok)
 
 ## mundos/_smoke-trocab/
 
@@ -528,11 +529,11 @@
 
 ## mundos/aula1-sequencia/
 
-- `chat.log` (~45346 tok)
+- `chat.log` (~53808 tok)
 
 ## mundos/aula2-binario/
 
-- `chat.log` (~1792 tok)
+- `chat.log` (~2080 tok)
 
 ## mundos/aula7-corrida/
 
@@ -548,7 +549,7 @@
 
 ## mundos/mundo-livre/
 
-- `chat.log` (~2956 tok)
+- `chat.log` (~3207 tok)
 
 ## mundos/playtest-streaming/
 
@@ -571,7 +572,7 @@
 ## mundos/teste-v60/
 
 - `chat.log` (~136 tok)
-- `teste-v60.ljw` (~6727 tok)
+- `teste-v60.ljw` (~6734 tok)
 
 ## profiles/
 

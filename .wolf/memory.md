@@ -1943,3 +1943,22 @@ VERDE: typecheck 3/3 · 812/814 testes · build · 15/15 smokes · `shots:esc` 2
 | 20:58 | Edited server/src/cenarios/_smoke-atividade.mjs | expanded (+12 lines) | ~277 |
 | 17:05 | Sessão 66 F2: bug-595 FIXED — corrida de ordem de join no smoke atividade + resumo do runner repete as ✗ | server/src/cenarios/_smoke-atividade.mjs, scripts/smoke.mjs | 4 suítes completas verdes (15/15) | ~22k |
 | 17:10 | Fim de sessão 66: F0 e F2 fechados e commitados; F1/F3/F4 no STATUS | .wolf/STATUS.md, .wolf/buglog.json, .wolf/cerebrum.md | 3 commits + push | ~6k |
+| 21:11 | Session end: 21 writes across 6 files (main.ts, esc-shot.mjs, input.ts, todo.md, _smoke-atividade.mjs) | 16 reads | ~108771 tok |
+
+## Session: 2026-08-11 08:11
+
+| Time | Action | File(s) | Outcome | ~Tokens |
+|------|--------|---------|---------|--------|
+| 08:39 | Created vitest.config.ts | — | ~335 |
+| 08:39 | Edited todo.md | modified 11() | ~312 |
+| 08:40 | Edited todo.md | expanded (+8 lines) | ~293 |
+| 08:40 | Edited todo.md | expanded (+10 lines) | ~274 |
+| 08:40 | Edited todo.md | modified original() | ~567 |
+| 08:20 | F1/bug-612: repro sob carga — 3 suites vitest concorrentes x3 rodadas | (medicao) | 9 rodadas VERMELHAS em 9; msg `Test timed out in 5000ms` (config manda 20000) | ~4k |
+| 08:28 | A/B da causa: `npm test` x6 e `--config shared/vitest.config.ts` x3, mesma pressao | (medicao) | 6/6 e 3/3 VERDES — quem decide e a CONFIG, nao o CWD | ~3k |
+| 08:34 | bug-612 FIXED: config do vitest na raiz reexportando a do shared | vitest.config.ts (novo) | portao 9 rodadas concorrentes = 9 VERDES, 814/814 | ~2k |
+| 08:38 | F3: sonda do mesher + A/B revertendo `fundeVertical` no mesher.ts:918 | cp23.test.ts (leitura) | ja estava consertado (bug-602); teste cai com `expected +0 to be 4` no revert | ~3k |
+| 08:41 | F4/bug-598: sonda de luz do ceu (folha em ceu aberto, coluna x BFS) | (medicao) | REPRODUZ: 15 vs 13 — NAO foi consertado, segue esperando decisao | ~2k |
+| 08:45 | Varredura das 5 alegacoes de "ja foi feito" do todo.md | todo.md | 4 confirmadas (agua animada, procedural dup, save/load, mobs) + tooltip DERRUBADA | ~6k |
+| 08:50 | Registros: STATUS sessao 67, buglog 612/602/598, cerebrum (3 DNR + 4 learnings) | .wolf/ | buglog valido, diff cirurgico (19+/13-) | ~9k |
+| 08:52 | Bateria completa | (verificacao) | typecheck 3/3 · build · 15/15 smokes · 814/814 | ~2k |

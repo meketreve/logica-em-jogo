@@ -4432,21 +4432,22 @@
    "error_message": "(achado pelo fuzz do bug-596, NÃO relatado e NÃO consertado) o céu na própria célula de folha/água vale 15 quando vem do worldgen e 13 quando vem de uma edição",
    "file": "shared/src/luz.ts — semearCeuDaColuna vs propagar (canal CÉU)",
    "root_cause": "Os dois motores de céu têm modelos diferentes pra bloco que ATENUA (folha e água, opacidade 1). O de coluna (`semearCeuDaColuna`) escreve na célula o nível que CHEGA nela e só desconta a opacidade pra quem está ABAIXO — a folha sob céu aberto fica 15 e o chão embaixo 14. O BFS (`propagar`) cobra `nivel - 1 - op` e a exceção da descida reta exige `op === 0`, então a mesma folha vira 13. As células abaixo coincidem em 14 neste caso porque as colunas vizinhas as acendem de lado; com uma copa larga a divergência se espalha.",
-   "fix": "NENHUM. Consertar exige mudar o modelo de raio de sol do `propagar` (guardar 'esta luz veio reta do céu' pra sobreviver à atenuação), que é mudança de desenho com efeito visual em todo mundo gerado, e as cavernas dependem da regra atual (`descidaReta` só no máximo). Fora do escopo dos dois bugs relatados. O fuzz do bug-596 tira folha/água da paleta com a razão escrita no próprio teste.",
+   "fix": "NENHUM, E NÃO VAI TER — FECHADO em 2026-08-11 (sessão 67) por DECISÃO DO USUÁRIO, aceito como comportamento conhecido e tolerado. As razões, escritas pra ninguém reabrir isto por engano: (a) nenhum aluno relatou — quem achou foi o fuzz do bug-596; (b) o efeito é 2 níveis de luz na PRÓPRIA célula de folha/água, e as células abaixo coincidem em 14; (c) as cavernas dependem da regra atual (`descidaReta` só no nível máximo), então mexer no `propagar` mudaria a aparência de TODO mundo já gerado, inclusive os saves da escola.\nRE-CONFERIDO antes de fechar, porque o usuário suspeitava que já estivesse consertado: NÃO estava, e a divergência é exatamente a registrada. Sonda com `criarLuz`/`acenderColuna`/`atualizarBloco`, folha em céu aberto: posta ANTES de acender (caminho do worldgen) = 15 com 14 embaixo; a MESMA folha posta DEPOIS por edição (caminho do BFS) = 13 com 14 embaixo. O código também não mudou: `luz.ts:254` segue `const descidaReta = canal === CANAL_CEU && dy === -1 && nivel === LUZ_MAX && op === 0` e `luz.ts:255` segue `nivel - 1 - op`.\nSE um dia um aluno relatar copa larga com sombra errada, a investigação começa AQUI e o trabalho é: fazer o `propagar` carregar 'esta luz veio reta do céu' pra ela sobreviver à atenuação, unificando os dois motores — mudança de desenho, com A/B visual em mundo gerado e conferência de caverna antes de soltar. O fuzz do bug-596 continua tirando folha/água da paleta, com a razão escrita no próprio teste.",
    "tags": [
     "luz",
     "canal-ceu",
     "folhas",
     "agua",
     "divergencia-de-motor",
-    "ABERTO",
-    "sem-conserto"
+    "FECHADO",
+    "wontfix",
+    "aceito-pelo-usuario"
    ],
    "related_bugs": [
     "bug-596"
    ],
-   "occurrences": 1,
-   "last_seen": "2026-08-06T17:45:00Z"
+   "occurrences": 2,
+   "last_seen": "2026-08-11T00:00:00Z"
   },
   {
    "id": "bug-599",
@@ -4512,18 +4513,20 @@
    "error_message": "laje (meio bloco) só coloca na metade de BAIXO do bloco — a metade de cima não sai (relatado no playtest da escola)",
    "file": "shared/src/session.ts (place_block — escolha da metade pela face clicada)",
    "root_cause": "NÃO era a colocação (a regra metade-pela-face sempre funcionou, `orientacao.ts`): era RENDER — o mesher cullava a face vertical entre duas lajes do MESMO id empilhadas (`nb === id` no `emitBox`), e a pilha mostrava um buraco por baixo, parecendo que a metade de cima não saía.",
-   "fix": "FEITO em 2026-08-07 (SESSÃO 58): `emitBox` ganhou `fundeVertical` (padrão true); lajes/escadas chamam com `false` (duas lajes de mesma metade não encostam — vão de 0,5 — cullar a face do meio deixaria buraco). Teste novo em `cp23.test.ts` (lajes empilhadas do mesmo id não fundem a face vertical).",
+   "fix": "FEITO em 2026-08-07 (SESSÃO 58): `emitBox` ganhou `fundeVertical` (padrão true); lajes/escadas chamam com `false` (duas lajes de mesma metade não encostam — vão de 0,5 — cullar a face do meio deixaria buraco). Teste novo em `cp23.test.ts` (lajes empilhadas do mesmo id não fundem a face vertical).\nRE-CONFERIDO em 2026-08-11 (sessão 67) — e ele fechou DOIS itens, não um: o `todo.md` tinha uma linha separada, do MESMO playtest, escrita como \"BUG slab: topo do bloco não renderiza a face de baixo — vê-se o buraco por baixo\", que é este defeito descrito pelo lado do render em vez do lado da colocação. A linha ficou `[ ]` por 4 dias sem nada a fazer; marcada agora. A/B refeito: trocando `mesher.ts:918` de volta pro `if (nb === id) continue` cru, o teste do cp23 cai com `expected +0 to be 4` (zero faces −Y = o buraco); restaurado, passa.\nDe quebra a sonda de 2026-08-11 corrigiu uma teoria: a metade de CIMA (`slabTop`, caixa 0.5..1) tem `y0 = 0.5`, logo a face de baixo dela NUNCA é `flush` e nunca passou pelo culling — `LajePedraCima` solta, sobre `Stone` e empilhada emitem os 4 cantos de normal −Y em `y+0.5` mesmo com o fix revertido. Quem aparecia furada era a pilha de metades de BAIXO.",
    "tags": [
     "slab",
     "laje",
     "colocacao",
+    "render",
+    "culling",
     "playtest-escola-2026-08-07",
     "FIXED",
     "fix-2026-08-07"
    ],
    "related_bugs": [],
    "occurrences": 1,
-   "last_seen": "2026-08-07T00:00:00Z"
+   "last_seen": "2026-08-11T00:00:00Z"
   },
   {
    "id": "bug-603",
@@ -4728,20 +4731,23 @@
    "timestamp": "2026-08-10T00:00:00Z",
    "error_message": "3 testes de worldgen falham SO na suite completa e passam isolados: \"arvores — cada especie usa o proprio tronco e a propria copa\", \"F10h — o algodao nao sumiu (7 especies selvagens)\", \"gen procedural — minerios respeitam a banda de profundidade\". A falha vem como `Error: STACK_TRACE_ERROR` sem mensagem.",
    "file": "shared/src/worldgen.test.ts",
-   "root_cause": "NAO INVESTIGADO — descoberto de raspao na sessao 65 enquanto se media o baseline. E PRE-EXISTENTE: com `git stash` de todo o diff da sessao a suite completa falha os MESMOS 3 (808/811). Os tres sao os testes de worldgen mais pesados e os tres passam quando rodados sozinhos ou em grupo de dois (0/15), o que aponta pra contencao de recurso no pool de workers do vitest (OOM/timeout) e nao pra regressao de logica. A falta de mensagem (`STACK_TRACE_ERROR`) e o que impede confirmar sem investigar.",
-   "fix": "EM ABERTO. Enquanto nao for investigado, a leitura correta da suite e \"3 falhas de worldgen = baseline\", e qualquer sessao tem de comparar com `git stash` antes de culpar o proprio diff.",
+   "root_cause": "O COMANDO, nao a config: `npx vitest run` rodado da RAIZ do repo nao acha config nenhuma e cai nos DEFAULTS do vitest (`testTimeout` 5000 ms, um fork por nucleo = 24 nesta maquina). A `shared/vitest.config.ts` (que manda `testTimeout: 20000, maxWorkers: 8`, calibrada no bug-545) so era lida por `npm test`, que e `npm run test -w shared` e portanto roda com CWD = `shared/`. A coleta e IDENTICA nos dois caminhos (45 arquivos, 814 testes — nao ha teste fora de `shared/`), entao a diferenca passa despercebida ate a maquina ficar ocupada: com carga, os testes que GERAM MUNDO (128³, 2 a 4,5 MB por fork) estouram os 5 s e a suite vira sorteio. A mensagem estava la o tempo todo — `Test timed out in 5000ms` — mas `5000` e o numero que denuncia a config ausente, e ninguem tinha lido ate 2026-08-11. O `STACK_TRACE_ERROR` sem mensagem que a sessao 65 viu e a outra face do mesmo aperto (fork morto).",
+   "fix": "FEITO em 2026-08-11 (sessao 67): `vitest.config.ts` NOVO na raiz reexportando a config do shared (`import compartilhada from \"./shared/vitest.config\"`), pra os dois limites terem UMA fonte so — o comentario que os justifica continua no shared. Rodar da raiz passa a valer os mesmos 20 s / 8 workers.\nA/B sob pressao real (3 suites completas CONCORRENTES, mesma maquina, mesmo commit): `npx vitest run` da raiz SEM a config = 9 rodadas vermelhas em 9 (2 a 5 falhas cada, sempre `Test timed out in 5000ms`); `npm test` = 6 verdes em 6; `npx vitest run --config shared/vitest.config.ts` da raiz = 3 verdes em 3 (prova que quem decide e a CONFIG, nao o diretorio). PORTAO depois do conserto: `npx vitest run` da raiz, 3 concorrentes x 3 rodadas = 9 verdes em 9, 814/814 nas nove. Sem pressao a suite ja era 6 verdes em 6 (3 na sessao 66 + 3 nesta), que e por que ela nunca reproduzia sozinha.\nA leitura antiga \"3 falhas de worldgen = baseline\" esta MORTA: qualquer vermelho agora e vermelho de verdade.",
    "tags": [
     "testes",
     "vitest",
     "worldgen",
     "flaky",
     "suite-completa",
-    "ABERTO",
-    "baseline"
+    "config",
+    "timeout",
+    "FIXED"
    ],
-   "related_bugs": [],
-   "occurrences": 1,
-   "last_seen": "2026-08-10T00:00:00Z"
+   "related_bugs": [
+    "bug-545"
+   ],
+   "occurrences": 2,
+   "last_seen": "2026-08-11T00:00:00Z"
   },
   {
    "id": "bug-613",
