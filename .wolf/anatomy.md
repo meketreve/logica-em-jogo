@@ -1,6 +1,6 @@
 # anatomy.md
 
-> Auto-maintained by OpenWolf. Last scanned: 2026-08-10T18:18:25.625Z
+> Auto-maintained by OpenWolf. Last scanned: 2026-08-10T23:58:50.280Z
 > Files: 336 tracked | Anatomy hits: 0 | Misses: 0
 
 ## ./
@@ -716,12 +716,12 @@
   - fn `cdp` L206-211 (~50 tok)
   - fn `avaliar` L212-255 (~491 tok)
   - fn `checar` L256-289 (~490 tok)
-- `smoke.mjs` — Runner dos smokes de rede — sobe o servidor REAL, roda o cenário, mata tudo. (~4441 tok)
+- `smoke.mjs` — Runner dos smokes de rede — sobe o servidor REAL, roda o cenário, mata tudo. (~4618 tok)
   - fn `espera` L358-360 (~42 tok)
   - fn `esperaPorta` L361-375 (~144 tok)
   - fn `sobeServidor` L376-388 (~112 tok)
   - fn `mata` L389-397 (~52 tok)
-  - fn `rodaSmoke` L398-486 (~797 tok)
+  - fn `rodaSmoke` L398-497 (~986 tok)
 - `tablet-shots.mjs` — MEDE e fotografa as telas de UI num viewport de TABLET — 1024×600 paisagem (~5292 tok)
   - fn `acharChrome` L40-54 (~154 tok)
   - fn `espera` L55-74 (~149 tok)
@@ -791,11 +791,13 @@
 
 ## server/src/cenarios/
 
-- `_smoke-atividade.mjs` — Smoke de /tp grupos e /iniciar contra o servidor REAL (aula1 na 8080). (~806 tok)
+- `_smoke-atividade.mjs` — Smoke de /tp grupos e /iniciar contra o servidor REAL (aula1 na 8080). (~1340 tok)
   - fn `ok` L14-18 (~29 tok)
-  - fn `cliente` L19-32 (~153 tok)
-  - fn `espera` L33-33 (~18 tok)
-  - fn `enviar` L34-84 (~506 tok)
+  - fn `cliente` L19-33 (~180 tok)
+  - fn `espera` L34-45 (~174 tok)
+  - fn `ateQue` L46-50 (~47 tok)
+  - fn `enviar` L51-63 (~204 tok)
+  - fn `entrar` L64-121 (~645 tok)
 - `_smoke-comida.mjs` — Smoke do §🍖 F6 (comida) contra o servidor REAL. Prova pelo fio o que o teste (~2164 tok)
   - fn `ok` L18-21 (~29 tok)
   - fn `espera` L22-36 (~136 tok)

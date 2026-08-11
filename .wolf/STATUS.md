@@ -62,10 +62,22 @@
 > como "não reproduz em 8 rodadas" com o número escrito** — melhor que deixar "3 falhas =
 > baseline" mentindo pra próxima sessão.
 >
-> **F2 — bug-595 (smoke `atividade`, 1 em 3 rodadas).** O primeiro passo NÃO é caçar o bug: é
-> fazer o `scripts/smoke.mjs` **imprimir a asserção que caiu** (hoje só diz "falhou"). Depois 20
-> rodadas isoladas e 20 na suíte, contando a frequência dos dois lados. Suspeitos: porta ocupada
-> (a faixa dos cenários vai até **8109**, do-not-repeat da 64) e corrida de tempo no `join`.
+> ✅ **F2 — bug-595 FIXED, e o servidor estava certo o tempo todo.** A aposta do plano (fazer o
+> runner mostrar a asserção) foi o que resolveu — mas por um motivo diferente do escrito: o
+> `smoke.mjs` **já imprimia a saída completa da falha**, só que ANTES do resumo, e a bateria se lê
+> com `| tail`. O que sobrava na tela era "atividade falhou". Com as linhas ✗ **repetidas depois do
+> resumo**, a rodada vermelha disse `[atividade] ✗ ana→g1, bia→g2` e a causa saiu em minutos.
+> **A causa:** `/grupo criar` (`equipes.ts:580`) monta `alunosOnline` de `[...ses.players.values()]`
+> — ordem de INSERÇÃO do Map, a ordem em que cada join foi aceito — e distribui em round-robin. O
+> smoke abria os **três WebSocket em paralelo** e afirmava `ana→g1, bia→g2`: quando a bia era
+> aceita primeiro, ela virava o grupo 1. **Era o smoke afirmando o que ele mesmo não garantia.**
+> **O conserto:** os clientes entram UM DE CADA VEZ (`entrar()` espera a 1ª mensagem do host, que
+> só vem depois do registro) e a ordem virou asserção explícita; os `espera(ms)` fixos
+> (700/500/400/300) viraram `ateQue(cond, teto)` — espera o FATO, não o relógio.
+> **Verificação: 4 suítes completas seguidas, 15/15 nas quatro, zero ✗.** A corrida aparecia 1 em
+> 3 antes — e apareceu de novo NESTA sessão, na 2ª de 3 rodadas, que foi o repro que deu a causa.
+> ⚠️ Os outros 11 smokes também abrem clientes em paralelo, mas nenhum depende de ORDEM de jogador
+> (endereçam por nome) — conferido, nada a mudar lá.
 >
 > **F3 — laje: a face de baixo da metade de CIMA (todo L37, playtest da escola).** Os dois
 > suspeitos óbvios já foram DESCARTADOS na leitura: `collisionBoxes` devolve `[0,0.5,0,1,1,1]` pro

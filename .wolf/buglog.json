@@ -4362,22 +4362,26 @@
    "id": "bug-595",
    "timestamp": "2026-08-06T15:05:00Z",
    "error_message": "npm run smoke: '14/15 smokes OK — atividade falhou' (1 em 3 rodadas). Rodado sozinho (`node scripts/smoke.mjs atividade`) passa em 3s; a suíte inteira rodada de novo dá 15/15.",
-   "file": "scripts/smoke.mjs (smoke `atividade`) — NÃO reproduzido, causa não isolada",
-   "root_cause": "DESCONHECIDA. O que se sabe: o refactor da sessão 53 mexeu só em `client/src/main.ts` e os smokes sobem host+GameSession sem cliente nenhum, então a falha não pode vir do que foi editado. O smoke `atividade` é o 8º de 15 e roda depois de vizinhos pesados (`fornalha` 24-26s, `pvp` 14-15s) — a hipótese é timeout/corrida de porta ou de tick sob carga da suíte, não defeito de regra.",
-   "fix": "NENHUM aplicado — registrado para não custar bissecção na próxima vez que aparecer. Se repetir: capturar a saída do smoke ISOLANDO o log (o runner só imprime 'falhou' sem a asserção), e conferir se é sempre depois do `fornalha`.",
+   "file": "server/src/cenarios/_smoke-atividade.mjs",
+   "root_cause": "RESOLVIDO na sessão 66, e a causa não era carga nem tick: era o PRÓPRIO smoke afirmando algo que não garantia. O `/grupo criar` (shared/src/session/equipes.ts:580) monta `alunosOnline` a partir de `[...ses.players.values()]` — ordem de INSERÇÃO do Map, isto é, a ordem em que cada join foi aceito — e distribui em round-robin. O smoke abria os TRÊS WebSocket em paralelo, então a ordem entre ana e bia ficava no ar: quando a bia era aceita primeiro ela virava o grupo 1 e a asserção `ana→g1, bia→g2` caía, levando junto tudo o que vinha depois. Sozinho o smoke fecha em 1-2 s e a corrida quase nunca aparece; dentro da suíte a máquina ocupada embaralha o handshake. O servidor está CERTO — round-robin sobre ordem de chegada é determinístico dada a ordem.",
+   "fix": "Duas coisas, e a segunda é a que pagou a conta. (1) `_smoke-atividade.mjs`: os clientes entram UM DE CADA VEZ (`entrar()` espera a 1ª mensagem do host, que só vem depois do registro), e a ordem virou asserção explícita ('a ana (1ª aluna → grupo 1)'); os `espera(ms)` fixos de 700/500/400/300 ms viraram `ateQue(cond, teto)` — espera o FATO, não o relógio. (2) `scripts/smoke.mjs`: o resumo final passou a REPETIR as linhas ✗ de cada smoke que falhou. A saída completa já era impressa antes do resumo, mas a bateria é lida com `| tail`, e o que sobrava na tela era só 'atividade falhou' — foi por isso que este bug ficou desde a sessão 53 sem causa. Com o resumo novo a rodada que falhou disse `[atividade] ✗ ana→g1, bia→g2` e a causa saiu em minutos. Verificação: 4 suítes completas seguidas depois do conserto (a corrida aparecia 1 em 3 antes).",
    "tags": [
     "flaky",
     "smoke",
     "atividade",
     "intermitente",
     "nao-reproduzido",
-    "sem-conserto"
+    "sem-conserto",
+    "corrida",
+    "ordem-de-join",
+    "FIXED",
+    "observabilidade"
    ],
    "related_bugs": [
     "bug-593"
    ],
    "occurrences": 1,
-   "last_seen": "2026-08-06T15:05:00Z"
+   "last_seen": "2026-08-10T00:00:00Z"
   },
   {
    "id": "bug-596",

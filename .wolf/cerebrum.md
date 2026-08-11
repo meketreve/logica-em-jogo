@@ -1047,6 +1047,19 @@ conhece painel, então quem conhece INJETA a pergunta (`input.podeTravar = () =>
 
 ### Autoria de teste e de smoke
 
+- **[2026-08-10, sessão 66] Smoke que abre vários clientes EM PARALELO não pode afirmar ordem de
+  jogador.** O `/grupo criar` distribui em round-robin sobre `[...ses.players.values()]` — ordem
+  de INSERÇÃO do Map, ou seja, ordem em que cada join foi aceito. O `_smoke-atividade` abria os
+  três WebSocket de uma vez e afirmava `ana→g1, bia→g2`: 1 rodada em 3 da suíte a bia chegava
+  primeiro (bug-595, aberto desde a sessão 53). **O servidor estava certo o tempo todo.** Se a
+  ordem importa, SERIALIZE o join (esperar a 1ª mensagem do host, que só vem depois do registro) e
+  escreva a ordem na própria mensagem da asserção; se não importa, afirme o conjunto.
+- **[2026-08-10, sessão 66] Resumo de bateria tem de sobreviver ao `| tail`.** O `smoke.mjs` já
+  imprimia a saída completa da falha — mas ANTES do resumo, e todo mundo lê a bateria pelo fim.
+  O que sobrava na tela era "atividade falhou", sem asserção nenhuma, e foi por isso que o bug-595
+  passou **um mês** com `root_cause` vazio. Com as linhas ✗ repetidas DEPOIS do resumo, a rodada
+  vermelha disse `[atividade] ✗ ana→g1, bia→g2` e a causa saiu em minutos. **Quem escreve runner
+  decide o que o próximo vai conseguir depurar.**
 - **[2026-08-10, sessão 66] Em shot headless, seção NOVA custa transição de pointer lock — meça
   DENTRO de uma seção que já segura o ponteiro.** A verificação da hotbar (bug-614) nasceu como
   seção B4 própria, e cada `Esc`/`voltar ao jogo` que ela precisou gastou a carência do Chrome:

@@ -1,12 +1,12 @@
 {
   "version": 1,
   "meta": {
-    "lastScanned": "2026-08-10T18:18:25.625Z",
+    "lastScanned": "2026-08-10T23:58:50.280Z",
     "fileCount": 336,
     "hits": 0,
     "misses": 0,
-    "renderedHash": "c1fdbb3ec199b9796c46eda7fc6643ecfd0659b4d547c99c7b64cc6211c4b6f4",
-    "storeUpdatedAt": "2026-08-10T18:18:25.646Z"
+    "renderedHash": "e1299bef75df6c2414bed4ab97f268cbb2c6a19b25c04d66dece84f76e981b6c",
+    "storeUpdatedAt": "2026-08-10T23:58:50.302Z"
   },
   "files": {
     ".claude/commands/reframe.md": {
@@ -4684,12 +4684,12 @@
     },
     "scripts/smoke.mjs": {
       "description": "Runner dos smokes de rede — sobe o servidor REAL, roda o cenário, mata tudo.",
-      "tokens": 4441,
-      "hash": "cc4f20e69410bcbd",
-      "size": 16868,
-      "mtimeMs": 1785949730815.3235,
-      "updatedAt": "2026-08-10T15:13:58.962Z",
-      "source": "scan",
+      "tokens": 4618,
+      "hash": "2f38c65ddafd8ce3",
+      "size": 17551,
+      "mtimeMs": 1786405724961.4468,
+      "updatedAt": "2026-08-10T23:48:45.068Z",
+      "source": "hook",
       "symbols": [
         {
           "name": "espera",
@@ -4723,8 +4723,8 @@
           "name": "rodaSmoke",
           "kind": "fn",
           "startLine": 398,
-          "endLine": 486,
-          "tokens": 797
+          "endLine": 497,
+          "tokens": 986
         }
       ]
     },
@@ -4957,12 +4957,12 @@
     },
     "server/src/cenarios/_smoke-atividade.mjs": {
       "description": "Smoke de /tp grupos e /iniciar contra o servidor REAL (aula1 na 8080).",
-      "tokens": 806,
-      "hash": "edfb97d4cf6f9a29",
-      "size": 3037,
-      "mtimeMs": 1785093127307.7627,
-      "updatedAt": "2026-08-10T15:13:58.964Z",
-      "source": "scan",
+      "tokens": 1340,
+      "hash": "6d53dcfe9e768594",
+      "size": 5087,
+      "mtimeMs": 1786406330125.447,
+      "updatedAt": "2026-08-10T23:58:50.280Z",
+      "source": "hook",
       "symbols": [
         {
           "name": "ok",
@@ -4975,22 +4975,36 @@
           "name": "cliente",
           "kind": "fn",
           "startLine": 19,
-          "endLine": 32,
-          "tokens": 153
+          "endLine": 33,
+          "tokens": 180
         },
         {
           "name": "espera",
           "kind": "fn",
-          "startLine": 33,
-          "endLine": 33,
-          "tokens": 18
+          "startLine": 34,
+          "endLine": 45,
+          "tokens": 174
+        },
+        {
+          "name": "ateQue",
+          "kind": "fn",
+          "startLine": 46,
+          "endLine": 50,
+          "tokens": 47
         },
         {
           "name": "enviar",
           "kind": "fn",
-          "startLine": 34,
-          "endLine": 84,
-          "tokens": 506
+          "startLine": 51,
+          "endLine": 63,
+          "tokens": 204
+        },
+        {
+          "name": "entrar",
+          "kind": "fn",
+          "startLine": 64,
+          "endLine": 121,
+          "tokens": 645
         }
       ]
     },

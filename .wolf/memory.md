@@ -1936,3 +1936,10 @@ VERDE: typecheck 3/3 · 812/814 testes · build · 15/15 smokes · `shots:esc` 2
 | 15:18 | Edited todo.md | 5→8 lines | ~194 |
 | 15:40 | Sessão 66 F0: hotbar invertida (bug-614) consertada + bug-613 (lock atrasado por cima de painel) achado pela sonda nova | client/src/main.ts, client/src/input.ts, scripts/esc-shot.mjs | shots:esc OK (4 asserções novas), A/B derruba os dois lados | ~28k |
 | 15:36 | Session end: 16 writes across 4 files (main.ts, esc-shot.mjs, input.ts, todo.md) | 12 reads | ~91226 tok |
+| 20:48 | Edited server/src/cenarios/_smoke-atividade.mjs | modified cliente() | ~587 |
+| 20:48 | Edited server/src/cenarios/_smoke-atividade.mjs | 4→4 lines | ~64 |
+| 20:48 | Edited server/src/cenarios/_smoke-atividade.mjs | 3→7 lines | ~62 |
+| 20:48 | Edited scripts/smoke.mjs | expanded (+11 lines) | ~234 |
+| 20:58 | Edited server/src/cenarios/_smoke-atividade.mjs | expanded (+12 lines) | ~277 |
+| 17:05 | Sessão 66 F2: bug-595 FIXED — corrida de ordem de join no smoke atividade + resumo do runner repete as ✗ | server/src/cenarios/_smoke-atividade.mjs, scripts/smoke.mjs | 4 suítes completas verdes (15/15) | ~22k |
+| 17:10 | Fim de sessão 66: F0 e F2 fechados e commitados; F1/F3/F4 no STATUS | .wolf/STATUS.md, .wolf/buglog.json, .wolf/cerebrum.md | 3 commits + push | ~6k |
