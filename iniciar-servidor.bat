@@ -31,7 +31,7 @@ REM  clone do git QUE FUNCIONA (nesse caso quem atualiza e o "git pull" -
 REM  copiar por cima pisaria no trabalho de quem desenvolve), falta curl/tar,
 REM  ou a rede nao responde.
 REM
-REM  ⚠️ Um ".git" SOBRANDO na pasta (clone antigo, ou ZIP extraido por cima de
+REM  ATENCAO: um ".git" SOBRANDO na pasta (clone antigo, ou ZIP extraido por cima de
 REM  um) NAO desliga mais nada: se o git nao esta instalado, ou o .git esta
 REM  quebrado, ou nao ha remoto "origin", o update segue pelo PACOTE e diz por
 REM  que (bug-620). Forcar: set LJ_UPDATE=pacote / set LJ_UPDATE=git
