@@ -86,7 +86,13 @@ do GitHub. Ele escolhe o caminho **pela própria pasta**:
   dentro da mesma versão;
 - o `client/dist` é versionado, então o cliente vem **pronto no pacote**: não se compila nada.
 
-**Se a pasta veio de um `git clone`** (quem desenvolve) — o launcher usa o git:
+> ⚠️ Um `.git` **sobrando** na pasta (clone antigo, ou um ZIP extraído por cima de um) **não
+> desliga mais nada**: se o git não estiver instalado, ou o `.git` estiver quebrado, ou não
+> houver o remoto `origin`, o launcher segue pelo pacote **e diz por quê**. Para forçar um
+> caminho: `LJ_UPDATE=pacote` ou `LJ_UPDATE=git` (no Windows, `set LJ_UPDATE=pacote` antes de
+> abrir o launcher).
+
+**Se a pasta veio de um `git clone` que funciona** (quem desenvolve) — o launcher usa o git:
 
 - só atualiza no branch `main`, e só por *fast-forward* (nunca cria merge na máquina da escola);
 - se houver mudança local nos arquivos que a atualização mexe, ele **pergunta** e guarda no

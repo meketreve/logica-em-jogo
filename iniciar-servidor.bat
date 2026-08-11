@@ -27,9 +27,14 @@ REM  A versao instalada fica gravada em ".lj-versao" (o commit do GitHub). Na
 REM  primeira vez esse arquivo nao existe: o launcher avisa e baixa uma vez.
 REM
 REM  Pula sozinho, SEM travar a aula, quando: LJ_SEM_UPDATE=1, a pasta e um
-REM  clone do git (nesse caso quem atualiza e o "git pull" - copiar por cima
-REM  pisaria no trabalho de quem desenvolve), falta curl/tar, ou a rede nao
-REM  responde.
+REM  clone do git QUE FUNCIONA (nesse caso quem atualiza e o "git pull" -
+REM  copiar por cima pisaria no trabalho de quem desenvolve), falta curl/tar,
+REM  ou a rede nao responde.
+REM
+REM  ⚠️ Um ".git" SOBRANDO na pasta (clone antigo, ou ZIP extraido por cima de
+REM  um) NAO desliga mais nada: se o git nao esta instalado, ou o .git esta
+REM  quebrado, ou nao ha remoto "origin", o update segue pelo PACOTE e diz por
+REM  que (bug-620). Forcar: set LJ_UPDATE=pacote / set LJ_UPDATE=git
 REM ============================================================
 set "LJ_DONO=meketreve"
 set "LJ_NOME=logica-em-jogo"
@@ -42,10 +47,54 @@ if defined LJ_SEM_UPDATE (
   echo ^(LJ_SEM_UPDATE=1: nao vou procurar atualizacao^)
   goto :depois_update
 )
-if exist ".git" (
-  echo ^(esta pasta e um clone do git: atualize com "git pull" - update automatico desligado^)
+REM --- Este launcher pode atualizar esta pasta? (bug-620) ---
+REM A pergunta certa NAO e "existe .git?" - e "o git CONSEGUE atualizar aqui?".
+REM A pasta da escola tinha um .git (sobra de clone antigo, ou um ZIP extraido
+REM por cima de um) e este teste a declarava clone e DESLIGAVA a atualizacao,
+REM mandando rodar "git pull" justamente para quem atualiza baixando o ZIP.
+REM Presenca de pasta nao e capacidade.
+REM
+REM Se o git NAO PODE operar (nao instalado, .git quebrado, sem "origin"), o
+REM pacote e a unica saida - e ele e seguro: copia por cima e nunca apaga. Se o
+REM git PODE operar, a pasta e de quem desenvolve e copiar por cima pisaria no
+REM trabalho dele: ai sim o update por pacote sai de cena.
+REM
+REM Forcar: set LJ_UPDATE=pacote (ou zip) / set LJ_UPDATE=git
+set "LJ_MOTIVO="
+if /i "%LJ_UPDATE%"=="git" (
+  echo ^(LJ_UPDATE=git: atualize esta pasta com "git pull" - update por pacote desligado^)
   goto :depois_update
 )
+if /i "%LJ_UPDATE%"=="pacote" (
+  echo ^(LJ_UPDATE=pacote: atualizando pelo pacote do GitHub, sem usar git^)
+  goto :via_decidida
+)
+if /i "%LJ_UPDATE%"=="zip" (
+  echo ^(LJ_UPDATE=zip: atualizando pelo pacote do GitHub, sem usar git^)
+  goto :via_decidida
+)
+REM Sem .git nenhum: veio do ZIP, nem vale mencionar o git.
+if not exist ".git" goto :via_decidida
+where git >nul 2>nul
+if errorlevel 1 (
+  set "LJ_MOTIVO=o git nao esta instalado nesta maquina"
+  goto :via_decidida
+)
+git rev-parse --is-inside-work-tree >nul 2>nul
+if errorlevel 1 (
+  set "LJ_MOTIVO=a pasta .git nao e um repositorio utilizavel"
+  goto :via_decidida
+)
+git config --get remote.origin.url >nul 2>nul
+if errorlevel 1 (
+  set "LJ_MOTIVO=o repositorio nao tem o remoto 'origin'"
+  goto :via_decidida
+)
+echo ^(esta pasta e um clone do git que FUNCIONA: atualize com "git pull"^)
+echo ^(para baixar o pacote do GitHub mesmo assim: set LJ_UPDATE=pacote^)
+goto :depois_update
+:via_decidida
+if defined LJ_MOTIVO echo ^(esta pasta tem .git, mas %LJ_MOTIVO% - atualizando pelo pacote do GitHub^)
 where curl >nul 2>nul
 if errorlevel 1 (
   echo ^(curl.exe nao encontrado - precisa do Windows 10 1803 ou mais novo^)
@@ -208,7 +257,7 @@ rd /s /q "%LJ_TMP%" >nul 2>nul
 :depois_update
 set "LJ_DONO=" & set "LJ_NOME=" & set "LJ_RAMO=" & set "LJ_TMP=" & set "LJ_ZIP="
 set "LJ_SRC=" & set "LJ_NOVA=" & set "LJ_ATUAL=" & set "LJ_XD="
-set "LJ_VER_ATUAL=" & set "LJ_VER_NOVA="
+set "LJ_VER_ATUAL=" & set "LJ_VER_NOVA=" & set "LJ_MOTIVO="
 echo.
 
 REM --- Dependencias instaladas? (so na primeira vez) ---

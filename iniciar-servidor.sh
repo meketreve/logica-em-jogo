@@ -209,13 +209,73 @@ atualizar_pacote() {
   rm -rf "$tmp" "$tgz"
 }
 
+# Qual caminho serve NESTA pasta? Preenche LJ_CAMINHO (git|pacote|nenhum) e
+# LJ_MOTIVO (a linha que o professor lê, ou vazio quando não há o que explicar).
+#
+# ⚠️ **A pergunta certa não é "existe .git?" — é "o git CONSEGUE atualizar
+# aqui?".** A pasta da escola tinha um `.git` (sobra de um clone antigo, ou um
+# ZIP extraído por cima de um) e os dois launchers a declaravam clone e
+# DESLIGAVAM a atualização, mandando rodar `git pull` justamente para quem
+# atualiza baixando o ZIP. Presença de pasta não é capacidade (bug-620).
+#
+# A distinção que decide tudo:
+#  - o git **não pode** operar (não instalado, `.git` quebrado, sem `origin`)
+#    → o pacote é a única saída, e ele é seguro: copia por cima e nunca apaga;
+#  - o git **pode** operar e recusa (branch != main, árvore divergente)
+#    → é o git dizendo não, e a resposta é PARAR. Copiar por cima aí pisaria no
+#    trabalho de quem desenvolve, que é o motivo original de o caminho existir.
+#
+# `LJ_UPDATE=pacote` (ou `zip`) força o pacote; `LJ_UPDATE=git` força o git.
+decidir_caminho_de_update() {
+  LJ_MOTIVO=""
+  case "$LJ_UPDATE" in
+    pacote|zip)
+      LJ_CAMINHO="pacote"
+      LJ_MOTIVO="(LJ_UPDATE=$LJ_UPDATE: atualizando pelo pacote do GitHub, sem usar git)"
+      return ;;
+    git)
+      LJ_CAMINHO="git"
+      return ;;
+  esac
+  LJ_CAMINHO="pacote"
+  # `-e` e não `-d`: em worktree/submódulo o `.git` é um ARQUIVO apontando pro
+  # repositório de verdade, e ele também conta como "aqui tem git".
+  [ -e .git ] || return   # veio do ZIP: nem vale mencionar o git
+  local porque=""
+  if ! command -v git >/dev/null 2>&1; then
+    porque="o git não está instalado nesta máquina"
+  elif [ "$(git rev-parse --is-inside-work-tree 2>/dev/null)" != "true" ]; then
+    porque="a pasta .git não é um repositório utilizável"
+  elif ! git config --get remote.origin.url >/dev/null 2>&1; then
+    porque="o repositório não tem o remoto \"origin\""
+  else
+    LJ_CAMINHO="git"
+    return
+  fi
+  LJ_MOTIVO="(esta pasta tem .git, mas $porque — atualizando pelo pacote do GitHub)"
+}
+
 atualizar() {
   [ -n "$LJ_SEM_UPDATE" ] && { echo "(LJ_SEM_UPDATE=1: não vou procurar atualização)"; return; }
-  [ -d .git ] || { atualizar_pacote; return; }
-  command -v git >/dev/null 2>&1 || { echo "(git não encontrado — instale o git para atualizar daqui)"; return; }
+  decidir_caminho_de_update
+  if [ "$LJ_CAMINHO" = "pacote" ]; then
+    [ -n "$LJ_MOTIVO" ] && echo "$LJ_MOTIVO"
+    atualizar_pacote
+    return
+  fi
+  command -v git >/dev/null 2>&1 || {
+    echo "(LJ_UPDATE=git mas o git não está instalado — use LJ_UPDATE=pacote para baixar do GitHub)"
+    return
+  }
   local branch
   branch="$(git rev-parse --abbrev-ref HEAD 2>/dev/null)"
-  [ "$branch" = "main" ] || { echo "(branch \"$branch\": atualização automática só vale no main)"; return; }
+  # Aqui o git PODE operar e está recusando — não se cai pro pacote (ver o
+  # comentário do `decidir_caminho_de_update`). Quem quiser forçar, força.
+  [ "$branch" = "main" ] || {
+    echo "(branch \"$branch\": atualização automática só vale no main)"
+    echo "(para baixar o pacote do GitHub mesmo assim: LJ_UPDATE=pacote ./iniciar-servidor.sh)"
+    return
+  }
   echo "Procurando atualização..."
   git fetch --quiet origin || { echo "(sem conexão com o servidor do código — seguindo com a versão instalada)"; return; }
   local atras
