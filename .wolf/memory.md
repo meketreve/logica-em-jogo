@@ -2188,6 +2188,12 @@ Sessão curta, sem código de jogo. Três coisas:
 | 10:47 | Edited client/index.html | expanded (+6 lines) | ~188 |
 | 10:49 | Edited client/index.html | modified todo() | ~174 |
 | 10:51 | Edited todo.md | expanded (+11 lines) | ~304 |
+| 10:47 | `.tooltip-item` ganha `color:#ffffff`, fundo `#0c0e14`→`#05070b`, borda `.22`→`.28` (bug-622) | client/index.html | contraste resolvido | ~190 |
+| 10:48 | Medi o padrão de cor do UA com `prefers-color-scheme` emulado (CDP) | scratchpad/cor.mjs | `rgb(0,0,0)` em light E dark — não era bug "de tablet"; comentário do CSS reescrito | ~600 |
+| 10:49 | `npm run build` + `npm run verify` | client/dist/index.html | launchers OK · typecheck 3/3 · 822/822 · build | ~400 |
+| 10:52 | `npm run shots:tooltip -- 1024 600` contra o dist servido em 5173 | .wolf/designqc-captures/tooltip | 18/18, print conferido a olho | ~2800 |
+| 10:55 | Registros da sessão 70 | todo.md · buglog.json (bug-622) · cerebrum.md (Key Learning + Do-Not-Repeat) · STATUS.md | handoff fechado | ~1200 |
+| 10:58 | commit `968d8f7` + push | árvore inteira | `origin/main` = 968d8f7 | ~300 |
 
 ### Resumo da sessão 70 (2026-08-12) — contraste do tooltip (bug-622)
 
@@ -2209,3 +2215,4 @@ versão, não a do palpite.
 `npm run shots:tooltip -- 1024 600` **18/18** contra o `client/dist` servido em 5173
 (`python3 -m http.server` na pasta do dist), com o print `tooltip-toque.png` conferido a olho.
 `client/dist` rebuildado e commitado junto — o CSS vai inline no `dist/index.html`.
+| 10:53 | Session end: 3 writes across 2 files (index.html, todo.md) | 3 reads | ~29748 tok |
