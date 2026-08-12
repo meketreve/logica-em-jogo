@@ -2147,3 +2147,36 @@ durabilidade pronto), mobs F8.
 | 08:27 | Edited todo.md | isso() → update() | ~72 |
 | 10:05 | hotfix bump v0.10.0 -> v0.10.1 (`npm version patch --no-git-tag-version`) + rebuild | package.json, client/dist | dist embute 0.10.1, 0.10.0 sumiu; bateria: check:launchers 5/5, typecheck 3/3, 822/822, build, 15/15 smokes | ~5k |
 | 10:07 | usuário confirmou a mensagem de versão na tela da escola ("mostrando quantos commits estava atrás") | todo.md, .wolf/STATUS.md | ressalva de "sem confirmação ocular" removida — os 3 itens do auto-update provados no ambiente real | ~2k |
+| 08:28 | Session end: 5 writes across 1 files (todo.md) | 2 reads | ~15898 tok |
+
+## Sessão 69 — 2026-08-12 — FECHO DO AUTO-UPDATE + v0.10.1 + duas ideias anotadas
+
+Sessão curta, sem código de jogo. Três coisas:
+
+1. **Ideia do usuário anotada (todo.md §Mundo/professor):** ajustar AO VIVO o número de cópias da
+   área de atividade conforme o número de grupos, e carimbar em **GRADE** em vez de fileira.
+   Mapeada contra o código antes de escrever: `/regiao carimbar` (`regioes.ts:138`) já lê
+   `ses.grupos.size` na hora — a metade difícil existe. Buracos: (1) não existe descarimbar;
+   (2) ⚠️ a fonte do carimbo está VAZIA nos cenários prontos — o `modelo` guarda o GABARITO e é
+   apagado em `gerar.ts:370`, então carimbar dele ao vivo estampa AR e não o estado de PARTIDA
+   (partida ≠ gabarito); (3) `dims.x` cresce com n (`gerar.ts:304`), .ljw de 5 grupos = 96 blocos
+   de X; (4) grade resolve boa parte do (3): 8 grupos hoje = 128 blocos em fileira, 4×2 = 64×32, e
+   em Z já há folga (`dims.z = 6`, cabines em `cz = centro+1`).
+
+2. **Auto-update FECHADO.** O usuário rodou a 3ª rodada na escola e saiu limpa: sem nenhuma linha
+   de "nao e reconhecido" (bug-621), troca-e-reabertura do próprio launcher OK, e a mensagem de
+   versão na tela. Não precisou de passo manual — o `.bat` quebrado ainda executava o update e
+   trouxe o consertado sozinho, como a 68c previu. bug-620/621 marcados confirmados em campo;
+   item do `todo.md` para `[x]` (9 → 8 abertos).
+   ⚠️ **Pergunta do usuário respondida com o arquivo aberto (não de memória): o `.sh` TEM as mesmas
+   mudanças** — capacidade do git (L245-249), `LJ_UPDATE` (L231-234), `vX → vY` (L70-85). **Só o
+   bug-621 não se aplica:** o `.sh` tem 179 linhas com byte não-ASCII e está CERTO assim. Regra
+   assimétrica registrada no cerebrum pra ninguém "consertar" os acentos dele.
+
+3. **Hotfix `v0.10.1`** — `npm version patch --no-git-tag-version` + `npm run build` no MESMO
+   commit (o dist embute a string). Conferido: `0.10.1` no bundle, `0.10.0` sumiu. Bateria:
+   check:launchers 5/5 · typecheck 3/3 · 822/822 · build · 15/15 smokes.
+
+**Commits:** `4cf0894` (docs/fecho) · `1a55947` (chore/release v0.10.1) + tag anotada `v0.10.1`.
+**Empurrado.** A API do GitHub responde `1a55947…` sem credencial — a escola pega sozinha.
+**Não há mais pendência externa no projeto.**

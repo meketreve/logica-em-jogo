@@ -2,17 +2,28 @@
 
 > Single source of truth for resuming work. Read this FIRST when starting a session.
 
-> ## 🧭 HANDOFF — ESTADO AO FIM DA SESSÃO 68 (2026-08-11)
+> ## 🧭 HANDOFF — ESTADO AO FIM DA SESSÃO 69 (2026-08-12)
 >
-> **Árvore limpa, tudo empurrado.** Release **`v0.10.0`** (tag em `dca38a7`); o topo do `main`
-> anda a cada commit de documentação, então **confira com `git rev-parse --short origin/main`** em
-> vez de confiar num sha escrito aqui. Os 2 commits parados da sessão 67 também foram junto.
+> **Árvore limpa, tudo empurrado, release `v0.10.1` (tag anotada) no ar.** O topo do `main` anda a
+> cada commit de documentação, então **confira com `git rev-parse --short origin/main`** em vez de
+> confiar num sha escrito aqui. **A API do GitHub já responde o sha novo sem credencial** — é
+> exatamente o que o launcher compara com o `.lj-versao`, então a escola pega a 0.10.1 sozinha na
+> próxima rodada.
 >
-> **O que esta sessão entregou:** o **tooltip de item** (PC + tablet, com o "serve pra quê" saindo
-> das tabelas do jogo), o **fecho documental do auto-update** (README + mensagem `vX → vY`), a
-> **release v0.10.0**, e os dois bugs que o **piloto da escola** derrubou — **bug-620** (decisão
-> por presença de `.git` em vez de capacidade do git) e **bug-621** (emoji num `REM` quebrando o
-> `.bat` no `cmd.exe`).
+> **Sessão curta e de FECHO, sem código de jogo.** Entregou: o **auto-update fechado com a
+> confirmação do piloto da escola** (o último item externo do projeto), o **hotfix v0.10.1**, e
+> **duas ideias novas anotadas** — cópias da área de atividade ajustáveis ao vivo por nº de grupos,
+> e o carimbo em GRADE em vez de fileira (as duas no `todo.md` §Mundo/professor, com os buracos
+> mapeados contra o código, não no chute).
+>
+> ⚠️ **NADA a verificar de código nesta sessão** — o diff foi `todo.md`, `.wolf/`, `package.json`,
+> `package-lock.json` e `client/dist` (rebuild do bump). A bateria rodou por causa do bump e saiu
+> verde: `check:launchers` 5/5 · typecheck 3/3 · 822/822 · build · 15/15 smokes.
+>
+> **O que a sessão 68 tinha entregue** (contexto): o **tooltip de item** (PC + tablet), o **fecho
+> documental do auto-update** (README + mensagem `vX → vY`), a **release v0.10.0**, e os dois bugs
+> que o **piloto da escola** derrubou — **bug-620** (decisão por presença de `.git` em vez de
+> capacidade do git) e **bug-621** (emoji num `REM` quebrando o `.bat` no `cmd.exe`).
 >
 > ✅ **FECHADO EM 2026-08-12 — A 3ª RODADA NA ESCOLA SAIU LIMPA E O AUTO-UPDATE ACABOU.**
 > Relato do usuário: *"testei na escola e funcionou corretamente, a nova versão já não teve os
@@ -52,7 +63,11 @@
 >    `gerar.ts:370` — carimbar dele ao vivo estampa AR), **largura de mundo** (`dims.x` em
 >    `gerar.ts:304`) e **carimbo em GRADE** em vez de fileira (8 grupos hoje = 128 blocos em linha).
 >
-> 🔧 **A BATERIA GANHOU UM PORTÃO NOVO NESTA SESSÃO — use-o:**
+> 🔴 **PELA PRIMEIRA VEZ EM VÁRIAS SESSÕES, NÃO HÁ PENDÊNCIA EXTERNA.** O piloto da escola era o
+> último item que dependia de outra máquina; ele fechou. Tudo na fila acima é trabalho que dá pra
+> começar daqui, agora.
+>
+> 🔧 **O PORTÃO DOS LAUNCHERS (da sessão 68c) — use-o:**
 > `npm run check:launchers` (também roda dentro de `npm run verify` e antes de `npm run smoke`).
 > Ele existe porque o `.bat` quebrado passava VERDE em typecheck, 822 testes, build e 15/15
 > smokes. Bateria completa hoje: `check:launchers` · typecheck 3/3 · **822 testes** · build ·

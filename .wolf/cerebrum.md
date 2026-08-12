@@ -96,6 +96,19 @@
 
 ## Key Learnings
 
+- [2026-08-12] **Cenário de aula: o número de grupos é congelado na GERAÇÃO, mas o carimbo é uma
+  ferramenta AO VIVO.** `npm run cenarios -- --grupos 5` (padrão 5, teto 8) decide quantas áreas o
+  `.ljw` traz, e `dims.x` cresce com esse número (`gerar.ts:304`) — um chunk por grupo, todos na
+  mesma fileira de Z (`gerar.ts:350-351`). Mas `/regiao carimbar modelo prefixo espacamento [z]`
+  (`shared/src/session/regioes.ts:138`) lê **`ses.grupos.size` na hora**, copia com blocos inclusos
+  e valida `inBounds` de todas as cópias antes de tocar em bloco nenhum. Quem for mexer em "mais/
+  menos grupos durante a aula" começa daí, não do zero.
+  ⚠️ **A armadilha: a região `modelo` está VAZIA nos cenários prontos.** Ela guarda o **gabarito**,
+  é fotografada pelo objetivo e depois apagada (`/regiao encher modelo 0`, `gerar.ts:370`, salvo
+  com `--revelar`). **Partida ≠ gabarito** (aula 3 nasce com 2 erros, aula 2 nasce vazia), então
+  carimbar do `modelo` ao vivo estampa **AR**. Fonte tem de ser área de grupo intocada ou uma
+  região `partida` que o gerador passe a gravar.
+
 - [2026-08-11] **O `cmd.exe` lê arquivo `.bat` por DESLOCAMENTO DE BYTE — então `.bat` deste
   projeto é ASCII PURO, sem acento e sem emoji.** Um `⚠️` (6 bytes) num comentário `REM` do
   `iniciar-servidor.bat` fez a rodada inteira virar dezenas de *"'d' nao e reconhecido como um
