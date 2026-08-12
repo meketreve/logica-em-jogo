@@ -1051,8 +1051,29 @@ aluno abre a mochila → a tentativa atrasada trava o ponteiro por cima do paine
 política mora no ponto de estrangulamento** (`pedirLock`), não em cada chamador; o `Input` não
 conhece painel, então quem conhece INJETA a pergunta (`input.podeTravar = () => …`).
 
+### [2026-08-12, sessão 70] Caixa escura sem `color` própria nasce com texto PRETO — nos dois temas
+
+O bug-622 (contraste do tooltip) parecia "coisa de tablet" e não era. `.tooltip-item` fixava
+`background: #0c0e14` e **não declarava `color`**; `html,body` também não declara nenhuma. Como o
+tooltip é o único filho direto do `body` com fundo escuro próprio (`document.body.appendChild`,
+`client/src/tooltip.ts:65`), ele não herda o `color: #fff` que todo painel da UI traz — cai no
+padrão do UA. **E o padrão é preto em light E em dark**: medido com `prefers-color-scheme`
+emulado por CDP, `rgb(0,0,0)` nos dois, porque o documento **não declara `color-scheme` em lugar
+nenhum** — sem essa declaração o Chrome renderiza a página em light mesmo com o SO no escuro, e
+`canvastext` nunca vira branco. Duas regras que saem daí:
+
+1. **Quem fixa `background` fixa `color` na mesma regra.** Fundo herdado + cor herdada é seguro;
+   fundo próprio + cor herdada é a combinação que quebra.
+2. **Antes de escrever "no tema claro fica X" num comentário, MEÇA** — a intuição "PC escuro,
+   tablet claro" estava errada e eu quase deixei a explicação errada no CSS. O teste custa 40
+   linhas: chrome headless + `Emulation.setEmulatedMedia` + `getComputedStyle(...).color`.
+
 ## Do-Not-Repeat
 
+- [2026-08-12] **Não atribuir diferença de aparência a "tema do aparelho" enquanto o documento
+  não declarar `color-scheme`.** Sem essa declaração o navegador renderiza em light sempre, e o
+  padrão de texto é preto nos dois esquemas (medido, bug-622). Se a queixa chega de um aparelho
+  só, o mais provável é que o defeito esteja em TODOS e só ali alguém tenha lido de perto.
 - [2026-08-11] **NUNCA pôr acento ou emoji no `iniciar-servidor.bat`** — nem em comentário `REM`.
   Quebra a rodada inteira no `cmd.exe` (bug-621, e foi a escola que descobriu). Escrever
   `ATENCAO`, `voce`, `nao`, `atualizacao`. O `npm run check:launchers` recusa, mas a regra vem

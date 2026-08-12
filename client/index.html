@@ -319,8 +319,17 @@
         /* OPACO de propósito: a caixa nasce na beirada do painel e metade dela
            cai sobre o mundo. Com qualquer alfa ela sai em dois tons, e o texto
            menor fica ilegível justo na metade que está sobre o céu. */
-        background: #0c0e14;
-        border: 1px solid rgba(255, 255, 255, 0.22);
+        background: #05070b;
+        /* EXPLÍCITA, e é o ponto todo (queixa do usuário no tablet, 2026-08-12):
+           esta era a ÚNICA caixa escura da UI sem `color` própria, e o `body`
+           também não declara nenhuma — então ela caía no padrão do navegador,
+           que é PRETO sobre este fundo quase preto. Medido nos dois esquemas
+           com `prefers-color-scheme` emulado: `rgb(0,0,0)` em light E em dark,
+           porque o documento não declara `color-scheme` (o tema do aparelho
+           nem entra na conta). Todo o resto da UI escapava por herdar de um
+           painel que já tem `color: #fff`; o tooltip pendura no `body`. */
+        color: #ffffff;
+        border: 1px solid rgba(255, 255, 255, 0.28);
         box-shadow: 0 4px 14px rgba(0, 0, 0, 0.55);
         pointer-events: none; /* nunca rouba o clique do slot que ele descreve */
         display: flex;

@@ -1,12 +1,12 @@
 {
   "version": 1,
   "meta": {
-    "lastScanned": "2026-08-12T11:27:30.686Z",
+    "lastScanned": "2026-08-12T13:51:22.565Z",
     "fileCount": 342,
     "hits": 0,
     "misses": 0,
-    "renderedHash": "8a7a12dc4461f3e4bd0813030b97f634e341554089fa2779e61b324a2d2fb58c",
-    "storeUpdatedAt": "2026-08-12T11:27:30.706Z"
+    "renderedHash": "5319a6ec6e77c1d48c6a15f50efc808899cc79d0a53b707f0437434b44b3d19e",
+    "storeUpdatedAt": "2026-08-12T13:51:22.585Z"
   },
   "files": {
     ".claude/commands/reframe.md": {
@@ -1404,12 +1404,12 @@
     },
     "client/index.html": {
       "description": "Lógica em Jogo",
-      "tokens": 10310,
-      "hash": "67f7e3a48eea1f81",
-      "size": 39063,
-      "mtimeMs": 1786450694316.3152,
-      "updatedAt": "2026-08-11T19:58:13.015Z",
-      "source": "scan"
+      "tokens": 10484,
+      "hash": "221523629e377fe1",
+      "size": 39730,
+      "mtimeMs": 1786542572350.1497,
+      "updatedAt": "2026-08-12T13:49:32.443Z",
+      "source": "hook"
     },
     "client/package.json": {
       "description": "Node.js package manifest",
@@ -11537,11 +11537,11 @@
     },
     "todo.md": {
       "description": "Ideias para fazer",
-      "tokens": 15347,
-      "hash": "7271067e9e463bf4",
-      "size": 63365,
-      "mtimeMs": 1786534050590.1526,
-      "updatedAt": "2026-08-12T11:27:30.686Z",
+      "tokens": 15601,
+      "hash": "d5b8b8621273f1af",
+      "size": 64401,
+      "mtimeMs": 1786542682434.1494,
+      "updatedAt": "2026-08-12T13:51:22.564Z",
       "source": "hook"
     },
     "tsconfig.base.json": {

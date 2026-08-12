@@ -567,6 +567,17 @@ ferramenta certa quebra rápido, gasta, e precisa ser refeita.
 
 ### §💬 UI de jogo (pedido do usuário, 2026-08-06)
 
+* \[x] **contraste do tooltip no tablet** — **FEITO** (2026-08-12, sessão 70, **bug-622**).
+  Queixa do usuário: o texto saía PRETO sobre a caixa escura. A caixa nunca declarou `color`,
+  e o `body` também não — então ela caía no padrão do navegador. **E o padrão é preto nos DOIS
+  esquemas:** medido com `prefers-color-scheme` emulado em light e em dark, `rgb(0,0,0)` nas
+  duas, porque o documento não declara `color-scheme` em lugar nenhum (o tema do aparelho nem
+  entra na conta — não era um bug "de tablet", era de toda tela; o tablet foi só onde alguém
+  leu de perto). Todo o resto da UI escapava por herdar de um painel que já traz `color: #fff`;
+  o tooltip pendura no `body`. Agora `client/index.html` fixa `color: #ffffff`, o fundo desceu
+  de `#0c0e14` para `#05070b` e a borda subiu de 0.22 para 0.28 de alfa (a caixa mais escura
+  precisava da beirada de volta). Prova: `npm run shots:tooltip -- 1024 600` contra o
+  `client/dist` servido, 18/18, e o print `tooltip-toque.png` com o texto legível.
 * \[x] **tooltip no hover de item** — **FEITO** (2026-08-11, sessão 68). `client/src/tooltip.ts`
   (NOVO) + `shared/src/usos.ts` (NOVO). Vale nos quatro lugares pedidos: mochila, baú/fornalha,
   hotbar e lista de craft. **PC** = hover, na hora, seguindo o cursor; **tablet** = toque e

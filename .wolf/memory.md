@@ -2180,3 +2180,32 @@ Sessão curta, sem código de jogo. Três coisas:
 **Commits:** `4cf0894` (docs/fecho) · `1a55947` (chore/release v0.10.1) + tag anotada `v0.10.1`.
 **Empurrado.** A API do GitHub responde `1a55947…` sem credencial — a escola pega sozinha.
 **Não há mais pendência externa no projeto.**
+
+## Session: 2026-08-12 10:45
+
+| Time | Action | File(s) | Outcome | ~Tokens |
+|------|--------|---------|---------|--------|
+| 10:47 | Edited client/index.html | expanded (+6 lines) | ~188 |
+| 10:49 | Edited client/index.html | modified todo() | ~174 |
+| 10:51 | Edited todo.md | expanded (+11 lines) | ~304 |
+
+### Resumo da sessão 70 (2026-08-12) — contraste do tooltip (bug-622)
+
+Sessão curta, um pedido só: **"melhorar o contraste da tooltip no tablet — texto de preto para
+branco, fundo um pouco mais escuro"**. Feito em `client/index.html` (`.tooltip-item`):
+`color: #ffffff` explícita, fundo `#0c0e14` → `#05070b`, borda `.22` → `.28` de alfa (a caixa
+mais escura tinha perdido a beirada).
+
+**O achado que mudou a explicação:** ia escrever no comentário do CSS que o texto ficava branco
+no PC (tema escuro) e preto no tablet (tema claro). **Medi antes de afirmar** — chrome headless +
+`Emulation.setEmulatedMedia` com `prefers-color-scheme` — e deu `rgb(0,0,0)` nos DOIS esquemas: o
+documento não declara `color-scheme` em canto nenhum, então o Chrome renderiza em light sempre.
+Ou seja, **não era bug de tablet: o texto estava preto em toda tela**, e o tablet foi só onde
+alguém leu de perto. O resto da UI escapa porque herda de painéis que já trazem `color: #fff`; o
+tooltip pendura direto no `body`. Comentário do CSS, `todo.md`, buglog e cerebrum contam essa
+versão, não a do palpite.
+
+**Prova:** `npm run verify` verde (launchers OK · typecheck 3/3 · 822/822 · build) e
+`npm run shots:tooltip -- 1024 600` **18/18** contra o `client/dist` servido em 5173
+(`python3 -m http.server` na pasta do dist), com o print `tooltip-toque.png` conferido a olho.
+`client/dist` rebuildado e commitado junto — o CSS vai inline no `dist/index.html`.

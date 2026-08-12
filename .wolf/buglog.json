@@ -4952,6 +4952,29 @@
       ],
       "occurrences": 1,
       "last_seen": "2026-08-12"
+    },
+    {
+      "id": "bug-622",
+      "timestamp": "2026-08-12T13:50:00Z",
+      "error_message": "queixa do usuário: \"melhorar o contraste da tooltip no tablet\" — o texto do tooltip de item saía PRETO sobre a caixa quase preta, ilegível no tablet da escola.",
+      "file": "client/index.html",
+      "root_cause": "`.tooltip-item` nunca declarou `color`, e `html,body` também não declara nenhuma — o elemento pendura direto no `body` (`document.body.appendChild` em `client/src/tooltip.ts:65`), então caía no padrão do navegador sobre o fundo fixo `#0c0e14`. E o padrão é PRETO nos dois esquemas: medido com `prefers-color-scheme` emulado via CDP, `rgb(0,0,0)` em light E em dark, porque o documento não declara `color-scheme` em lugar nenhum. Logo não era bug 'de tablet' — era de toda tela; o tablet foi só onde alguém leu de perto. Todo o resto da UI escapava por herdar de um painel que já traz `color: #fff`; o tooltip é o único filho direto do body com fundo escuro próprio.",
+      "fix": "Em `client/index.html`: `color: #ffffff` explícita no `.tooltip-item` (com comentário explicando por que não pode depender do padrão do UA), fundo de `#0c0e14` para `#05070b` e borda de `rgba(255,255,255,.22)` para `.28` (a caixa mais escura perdia a beirada). `npm run build` obrigatório — o `client/dist/index.html` é tracked e carrega o CSS inline. Prova: `npm run shots:tooltip -- 1024 600` contra o dist servido, 18/18, e o print `tooltip-toque.png`.",
+      "tags": [
+        "tooltip",
+        "css",
+        "contraste",
+        "acessibilidade",
+        "tablet",
+        "color-scheme",
+        "ui"
+      ],
+      "related_bugs": [
+        "bug-618",
+        "bug-619"
+      ],
+      "occurrences": 1,
+      "last_seen": "2026-08-12T13:50:00Z"
     }
   ]
 }

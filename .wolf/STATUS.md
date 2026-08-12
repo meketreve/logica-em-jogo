@@ -2,7 +2,29 @@
 
 > Single source of truth for resuming work. Read this FIRST when starting a session.
 
-> ## 🧭 HANDOFF — ESTADO AO FIM DA SESSÃO 69 (2026-08-12)
+> ## 🧭 HANDOFF — ESTADO AO FIM DA SESSÃO 70 (2026-08-12)
+>
+> **Sessão de um pedido só, já empurrada: o contraste do tooltip (bug-622).** Árvore limpa.
+> `client/index.html` — `.tooltip-item` ganhou `color: #ffffff` explícita, fundo `#0c0e14` →
+> `#05070b`, borda `.22` → `.28` de alfa. `client/dist` rebuildado no mesmo commit (o CSS vai
+> inline no `dist/index.html`, e o dist é tracked). **Sem bump de versão** — mudança de CSS só.
+>
+> ⚠️ **O diagnóstico ÓBVIO estava errado e vale lembrar:** não era "tema claro do tablet". O
+> documento **não declara `color-scheme` em lugar nenhum**, então o padrão de texto do UA é
+> **preto nos dois esquemas** (medido com `prefers-color-scheme` emulado, `rgb(0,0,0)` em light
+> e em dark) — o tooltip estava preto em TODA tela, e o tablet foi só onde alguém leu de perto.
+> Ele é o único filho direto do `body` com fundo escuro próprio; o resto da UI herda
+> `color: #fff` dos painéis. Está no cerebrum (Key Learning + Do-Not-Repeat) e no bug-622.
+>
+> ✅ **Bateria verde nesta sessão:** `check:launchers` OK · typecheck 3/3 · 822/822 · build ·
+> `shots:tooltip -- 1024 600` **18/18** contra o `client/dist` servido em 5173 (`python3 -m
+> http.server` dentro de `client/dist` — a sonda NÃO sobe servidor), print conferido a olho.
+>
+> 🚀 **Fila inalterada** — segue a da sessão 69 abaixo (Ferramentas v2, mobs, cópias da área).
+>
+> ---
+>
+> ## 🧭 HANDOFF ANTERIOR — FIM DA SESSÃO 69 (2026-08-12)
 >
 > **Árvore limpa, tudo empurrado, release `v0.10.1` (tag anotada) no ar.** O topo do `main` anda a
 > cada commit de documentação, então **confira com `git rev-parse --short origin/main`** em vez de
