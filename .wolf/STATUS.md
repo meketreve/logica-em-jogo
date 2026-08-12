@@ -14,18 +14,30 @@
 > por presença de `.git` em vez de capacidade do git) e **bug-621** (emoji num `REM` quebrando o
 > `.bat` no `cmd.exe`).
 >
-> 🔴 **A ÚNICA COISA PENDENTE, E ELA É DO USUÁRIO: a 3ª rodada do launcher na escola.**
-> O mecanismo **já foi provado de ponta a ponta lá** (baixou, trocou os arquivos, relançou a
-> janela). Falta só a rodada limpa. O que a tela tem de mostrar:
-> - **zero linhas de "não é reconhecido como um comando interno"** (era o bug-621);
-> - `Existe versao nova: voce esta na 0.9.0 (commit …) e o GitHub esta na <sha do topo>`;
-> - **`Atualizado da versao 0.9.0 para a 0.10.0`** ← a frase que o bug-616 existe
->   pra produzir;
-> - `O proprio launcher mudou. Trocando e reabrindo a janela...` — **esperado, não é crash**.
-> **Não precisa de passo manual nenhum.** Com o relato, o item do auto-update fecha no `todo.md`.
-> ⚠️ Escape se der ruim: `set LJ_SEM_UPDATE=1` sobe direto; `set LJ_UPDATE=pacote` força o ZIP.
+> ✅ **FECHADO EM 2026-08-12 — A 3ª RODADA NA ESCOLA SAIU LIMPA E O AUTO-UPDATE ACABOU.**
+> Relato do usuário: *"testei na escola e funcionou corretamente, a nova versão já não teve os
+> erros de texto no início. Fechou a versão antiga e abriu a versão nova corretamente."*
+> **Zero linhas de "não é reconhecido"** (bug-621 morto no `cmd.exe` real) e a **troca-e-reabertura
+> do próprio launcher** rodando limpa — o comportamento mais assustador da lista, e o único que
+> não dava pra provar daqui. Confirmou também a previsão da 68c: **não precisou de passo manual
+> nenhum**, o `.bat` quebrado executou o update e trouxe o consertado sozinho. bug-620 e bug-621
+> marcados como confirmados em campo no `buglog.json`; o item do `todo.md` foi para `[x]`.
+> ✅ **A mensagem de versão APARECEU** — confirmação do usuário na mesma conversa: *"atualizou para
+> a versão mais nova mostrando quantos commits estava atrás"*. Os TRÊS itens do auto-update
+> (código, README, mensagem `vX → vY`) estão provados no ambiente real. Nada mais a fazer aqui.
 >
-> 🚀 **FILA DEPOIS DISSO (o `todo.md` tem 9 itens abertos):**
+> 🔖 **HOTFIX `v0.10.1` SAIU JUNTO COM O FECHO (2026-08-12).** `npm version patch
+> --no-git-tag-version` + `npm run build` **no MESMO commit** — `client/dist` **embute a string**
+> (`shared/src/version.ts` lê o campo `version` da raiz), então dist e `package.json` não podem se
+> separar: conferido, `0.10.1` presente no bundle e `0.10.0` sumiu. Bateria repetida depois do
+> bump: `check:launchers` 5/5 · typecheck 3/3 · 822/822 · build · 15/15 smokes.
+> ⚠️ **E a pergunta que o usuário fez junto, respondida com o arquivo aberto: o `.sh` TEM as mesmas
+> mudanças** — capacidade do git (L245-249), `LJ_UPDATE` (L231-234), `vX → vY`
+> (`versao_do_pacote`/`anunciar_versao`, L70-85). **Só o bug-621 não se aplica a ele, de
+> propósito:** o `.sh` tem 179 linhas com byte não-ASCII e está certo (bash não parseia por
+> deslocamento de byte). Está no cerebrum pra ninguém "consertar" os acentos dele.
+>
+> 🚀 **FILA AGORA (o `todo.md` tem 8 itens abertos):**
 > 1. **§🔨 Ferramentas v2** — durabilidade + ferramenta na mão + tempo de quebra. As três andam
 >    juntas e é o próximo bloco grande de JOGO. **O tooltip já tem o lugar da durabilidade
 >    pronto:** uma variante nova no `Uso` (`shared/src/usos.ts`) e uma frase no `tooltip.ts`.
@@ -33,7 +45,12 @@
 >    (atravessa save, protocolo e todo `moverEmArray`) **ou** ids por faixa de desgaste. O que
 >    decide é a consequência: **ferramenta danificada não empilha com a inteira.**
 > 2. **Mobs (§🍖 F8)** — 3+ sessões, com o aviso de GPU do laboratório.
-> 3. **Fechar o auto-update** assim que vier o relato da escola.
+> 3. **Cópias da área de atividade ajustáveis AO VIVO por nº de grupos** (ideia do usuário,
+>    2026-08-12, anotada no `todo.md` §Mundo/professor). Metade já roda: `/regiao carimbar`
+>    (`regioes.ts:138`) lê `ses.grupos.size` na hora. Faltam: **descarimbar** (hoje só adiciona),
+>    **uma fonte com o estado de PARTIDA** (o `modelo` guarda o gabarito e é esvaziado em
+>    `gerar.ts:370` — carimbar dele ao vivo estampa AR), **largura de mundo** (`dims.x` em
+>    `gerar.ts:304`) e **carimbo em GRADE** em vez de fileira (8 grupos hoje = 128 blocos em linha).
 >
 > 🔧 **A BATERIA GANHOU UM PORTÃO NOVO NESTA SESSÃO — use-o:**
 > `npm run check:launchers` (também roda dentro de `npm run verify` e antes de `npm run smoke`).

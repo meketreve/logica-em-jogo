@@ -105,6 +105,13 @@
   **LF+emoji QUEBRA** · LF+ASCII ok · CRLF+emoji ok · CRLF+ASCII ok. O arquivo já seguia essa
   regra sozinho ("atualizacao", "voce", "nao") e ninguém tinha escrito por quê — agora o
   **`npm run check:launchers`** recusa, apontando a linha.
+  ⚠️ **A regra é ASSIMÉTRICA e NÃO se aplica ao `.sh`: não "conserte" os acentos dele.** O
+  `iniciar-servidor.sh` tem **179 linhas com byte não-ASCII** ("Lógica", "Atualização", travessão)
+  e está certo — bash lê UTF-8 e não parseia por deslocamento de byte. O portão reflete isso: do
+  `.bat` ele cobra ASCII puro (checagem 1), do `.sh` cobra **ausência de `\r`** (checagem 3), que é
+  o defeito espelhado — CRLF em shell script quebra o shebang. Cada arquivo tem a SUA regra,
+  vinda do SEU interpretador. ✅ Confirmado em campo (escola, 2026-08-12): rodada limpa, sem uma
+  linha de "não é reconhecido".
 - [2026-08-11] **Testar um script no formato de linha em que ele NÃO chega no usuário é não
   testar.** A matriz de 6 casos do bug-620 rodou com **CRLF** no meu driver, e o `.bat` **ships
   em LF** (o `.gitattributes` força `eol=lf`) — e `goto` de dentro de bloco `if (...)` é

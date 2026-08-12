@@ -109,6 +109,65 @@ senão lado com parede; empate → base. Cliente inalterado.
 * \[x] professor cria área com /claim (mesmo acesso do aluno) — **FEITO** (2026-07-21): removido o bloqueio do professor no `/claim criar`; ele reserva "terreno"/plot como o aluno. Claim SEGUE sendo COLUNA cheia (camada 0 → teto — decisão do usuário 2026-07-21, mantida); limite horizontal 64 (X) × 32 (Z) pra TODOS (era 32×32).
 * \[x] **aba de JOGADORES no painel da tecla P (professor)** — **FEITO** (2026-07-21): `client/players.ts` (PlayersPanel, estrutura do inventário: altura fixa, abas, scroll só na lista). Abas "conectados" (botões expulsar/banir, 2 cliques) e "banidos" (desbanir). Aberto por um botão "👥 jogadores" no topo do painel de autoria. Ban por NICK: estado + gate de join na GameSession (`banir`/`desbanir`/`estaBanido`, persiste no meta `banidos[]`); `/banir`·`/desbanir` no HOST (fecham socket como o /kicar); msg `players` (conectados+banidos) → só professores, no join/saída/ban.
 
+* \[ ] **AJUSTAR AO VIVO O NÚMERO DE CÓPIAS DA ÁREA DA ATIVIDADE, CONFORME O NÚMERO DE GRUPOS**
+  (ideia do usuário, 2026-08-12). Hoje a quantidade de cópias é decidida **na geração do `.ljw`**
+  (`npm run cenarios -- --grupos 5`, padrão 5, teto 8) — se a turma de verdade der 7 grupos, o
+  professor não tem como aumentar durante a aula. Queremos: professor escolhe X grupos → o cenário
+  passa a ter X cópias, uma área por grupo, sem regerar mundo nem reiniciar servidor.
+  ✅ **A METADE DIFÍCIL JÁ EXISTE E É AO VIVO:** `/regiao carimbar modelo prefixo espacamento [z]`
+  (`shared/src/session/regioes.ts:138`) lê `ses.grupos.size` **na hora**, replica a região ao longo
+  do eixo com os BLOCOS inclusos (cabine junto), nomeia `prefixo-1…N`, valida `inBounds` de TODAS
+  as cópias antes de mexer em bloco nenhum, e pula bloco onde tem jogador em pé (conta os pulados).
+  O `cenario.ts:52` já manda o professor usar ele quando falta área pra algum grupo.
+  **O que falta, em ordem de dificuldade:**
+  1. **Não existe DESCARIMBAR.** Carimbar só ADICIONA. Diminuir de 7 pra 4 grupos deixa `area-5…7`
+     com os blocos em pé, a região nomeada viva e o objetivo per-grupo pendurado. Precisa de
+     `/regiao descarimbar prefixo` (apagar blocos + `regions.delete` + `broadcastRegions`) ou o
+     próprio `carimbar` virar SINCRONIZAR (n cópias exatas, sobra some).
+  2. ⚠️ **A fonte do carimbo está VAZIA nos cenários prontos, e é a pegadinha central.** O gerador
+     usa a região `modelo` pra guardar o **gabarito**, fotografa o objetivo e depois **apaga**
+     (`/regiao encher modelo 0`, `gerar.ts:370`, salvo com `--revelar`). Carimbar dela ao vivo
+     estamparia **AR**, não o estado de **partida** — e partida ≠ gabarito (aula 3 nasce com 2
+     erros, aula 2 nasce vazia). A cópia nova tem de sair de uma **área de grupo ainda intocada**
+     ou de uma região `partida` escondida que o gerador passe a gravar.
+  3. ⚠️ **O mundo pode não CABER.** `dims.x = max(6, n ímpar ? n+1 : n)` chunks (`gerar.ts:304`):
+     um `.ljw` gerado com `--grupos 5` tem 6 chunks de X = 96 blocos. Pedir 8 grupos ao vivo bate no
+     `inBounds` e devolve *"A cópia g não cabe no mundo"*. **Conserto barato: gerar os cenários
+     sempre na largura do TETO (8 grupos) e carimbar só quantos a turma tiver** — custo é `.ljw`
+     maior e chunk vazio à vista. Caro: mundo crescível em runtime.
+  4. **Uma passada por FASE:** as fases têm sufixo (`area`/`area2`/`area3`, `gerar.ts:331`), então
+     o ajuste roda uma vez por fase, e o objetivo per-grupo casa pelo prefixo.
+  5. **Forma pro professor:** o alvo não é ele digitar `/regiao carimbar` 3 vezes. É `/grupo criar X`
+     (ou o botão de grupos no painel P) **já ajustar o mundo junto**, ou um `/aula grupos X` que
+     faça os dois — a conta de offset/espaçamento não pode ficar na cabeça de quem está dando aula.
+  ⚠️ Aluno em cima do bloco na hora do ajuste deixa de ser caso raro (na geração o autor se afasta
+  com `a.afastar`, ao vivo tem criança no lugar): o "pulados" precisa virar aviso e re-tentativa.
+
+  **6. CARIMBAR EM GRADE, NÃO EM LINHA** (ideia do usuário, 2026-08-12) — e ela resolve boa parte
+  do item 3 sozinha. Hoje o carimbo anda num eixo só (`eixo = "x" | "z"`, `regioes.ts:144`) e o
+  gerador dá **um chunk por grupo em X, todos na MESMA fileira de Z** (`ox = (cx0+g-1)*CHUNK_SIZE`,
+  `oz = cz*CHUNK_SIZE`, `gerar.ts:350-351`). Com `CHUNK_SIZE = 16`, 8 grupos = **128 blocos de
+  fileira**, e o professor no meio anda ~64 blocos até cada ponta. Em **4×2** vira 64 × 32 — mesma
+  turma, metade da caminhada, e todo mundo cabe no campo de visão.
+  **O que muda no espaço:** `dims.x` deixa de crescer com `n` (vira `ceil(n / colunas)` chunks), e
+  o teto de 8 grupos passa a caber em 4 chunks de largura em vez de 8 — **o "gerar sempre na
+  largura do teto" do item 3 fica barato**. Em Z já há folga hoje: `dims.z = 6` e as cabines ficam
+  em `cz = profOz/16 + 1` (`gerar.ts:338`), então **sobra pelo menos mais uma fileira de chunks
+  à frente** — 4×2 provavelmente entra sem mexer nas dimensões.
+  **O que muda no comando:** `espacamento` + `eixo` viram `colunas` + passo nos DOIS eixos
+  (`passoX = dx + espX`, `passoZ = dz + espZ` — a região não é quadrada: as fases somam até
+  `LARGURA_MAX = 8` em X e a profundidade cabe em `FAIXA_MAX = 13`). Índice natural: cópia `g` na
+  célula `(g % colunas, floor(g / colunas))` — o **modelo é a célula 0**, então a grade fecha sem
+  buraco, e a numeração sai em ordem de LEITURA (esquerda→direita, frente→fundo), que é como o
+  professor vai procurar "o grupo 5". A validação de `inBounds` passa a ser nos dois eixos, e
+  continua ANTES de mexer em bloco (carimbo pela metade = lixo — já é assim hoje).
+  ⚠️ **O espaçamento entre FILEIRAS quer ser maior que entre colunas:** a cabine ocupa `z 0..4` do
+  chunk (`FAIXA_DZ = 2`), então fileira colada na outra deixa o grupo de trás olhando pro fundo da
+  cabine da frente. Corredor pra circular (e pro professor ver as duas fileiras) é decisão de
+  aula, não de código — mas o comando tem de permitir espaçamento por eixo.
+  ⚠️ `MAX_REGIONS = 64` (`shared/src/regions.ts:22`) segue folgado: 3 fases × 8 grupos + 3 modelos
+  = 27. O `carimbar` já barra em `ses.regions.size + n > MAX_REGIONS`.
+
 ## Sistema anti-griefing (claim de blocos)
 
 * \[x] sistema anti-griefing: claim de blocos + alunos criam grupos de amigos para deixar só certos alunos alterarem suas áreas — **FEITO** (cp24, 2026-07-17; PLAYTEST DO USUÁRIO PENDENTE). `shared/claims.ts` (Claim/GrupoAmigos, MAX_AMIGOS=6; a pegada máxima virou orçamento por membro em 2026-08-10 — ver o item logo abaixo). Claim = COLUNA de altura total (camada 0 → teto), decidido 2026-07-20: aluno marca só a pegada XZ; servidor força min.y=0/max.y=sizeY-1 → ninguém faz ilha flutuante por cima nem escava por baixo. Saves antigos sobem pra coluna cheia no restore. Gate `claimBloqueia` em place/break/use_block; `/claim ligar|desligar|criar|modificar|remover|lista|limite` e `/amigos convidar|aceitar|recusar|sair|expulsar|lista`; msgs `claims`+`friends`; persiste no meta do save de mundo livre (some em mundo-aula read-only). Cliente: wireframes laranja + varinha do aluno.
@@ -313,10 +372,17 @@ Singleplayer (Web Worker) não tem fs — chat não vira arquivo lá, como plane
 
 ## Deploy / auto-update
 
-* \[ ] **auto-update do servidor** — **CÓDIGO, DOCUMENTAÇÃO E MENSAGEM FEITOS. O PILOTO RODOU
-  NA ESCOLA e o mecanismo FUNCIONA de ponta a ponta** (baixou, trocou, relançou); ele derrubou
-  os bugs 620 e 621, os dois consertados. **Falta uma rodada limpa de confirmação** — é o único
-  passo que não dá pra dar daqui (2026-08-11, sessões 68/68b/68c).
+* \[x] **auto-update do servidor** — **FEITO E FECHADO NA ESCOLA (2026-08-12).** Código,
+  documentação, mensagem `vX → vY` e **as três rodadas de piloto**: a 1ª derrubou o bug-620, a 2ª
+  atualizou mas trouxe o launcher com o bug-621, e a **3ª rodada limpa confirmou** — relato do
+  usuário: *"testei na escola e funcionou corretamente, a nova versão já não teve os erros de
+  texto no início. Fechou a versão antiga e abriu a versão nova corretamente"*. Ou seja: **zero
+  linhas de "não é reconhecido como um comando interno"** (bug-621 morto no ambiente real) e a
+  **troca-e-relançamento do próprio launcher** funcionando na cara do professor — que era o
+  comportamento mais assustador de todos e o único que não dava pra provar daqui.
+  ✅ **A mensagem de versão também foi confirmada:** *"atualizou para a versão mais nova mostrando
+  quantos commits estava atrás"*. Os três itens do auto-update (código, README, mensagem) estão
+  provados no ambiente real. Sessões 68/68b/68c + confirmação em 2026-08-12.
   * ✅ **Feito:** `8bfb086` (2026-08-07) pôs o update no `iniciar-servidor.bat` e `3a43954`
     (2026-08-08, bug-606) espelhou no `iniciar-servidor.sh`. Bifurca **pela pasta**: com
     `.git` segue `git fetch` + `merge --ff-only`; **sem `.git`** baixa o pacote do GitHub
@@ -333,8 +399,8 @@ Singleplayer (Web Worker) não tem fs — chat não vira arquivo lá, como plane
     sem PowerShell, `.lj-versao`, copiar-por-cima-sem-apagar, o aviso do `mundos/`, o
     `client/dist` já pronto) e com `.git` (ff-only + `git stash`), mais o que vale nos dois
     (`LJ_SEM_UPDATE=1`, sem rede não trava a aula, `mundos/` intocado).
-  * ⚠️ **(2) — O PILOTO RODOU NA ESCOLA (2026-08-11) E JÁ PROVOU O ESSENCIAL; falta UMA rodada
-    limpa.** Não é mais teoria: a máquina da escola **baixou o pacote, trocou os arquivos e
+  * ✅ **FEITO (2) — O PILOTO RODOU NA ESCOLA E FECHOU EM TRÊS RODADAS (2026-08-11 → 08-12).**
+    Não é mais teoria: a máquina da escola **baixou o pacote, trocou os arquivos e
     relançou a janela sozinha**. O ambiente está validado — Windows, rede da escola, sem git,
     sem PowerShell. **Mas o piloto derrubou DOIS defeitos que nenhuma bateria pegava:**
     * **bug-620** — a 1ª rodada nem tentou: a pasta de lá tem um `.git` sobrando e nenhum git
@@ -345,9 +411,15 @@ Singleplayer (Web Worker) não tem fs — chat não vira arquivo lá, como plane
       e o `cmd.exe` lê `.bat` por deslocamento de BYTE. Consertado (`ddc3866`) + portão
       `npm run check:launchers`, porque isso passava VERDE em typecheck, 822 testes, build e
       15/15 smokes.
-    * ❌ **Falta:** a 3ª rodada, **sem nenhuma linha de "não é reconhecido"**, com a mensagem
-      `Atualizado da versao 0.9.0 para a 0.10.0` na tela. Não precisa de passo manual — o `.bat`
-      quebrado ainda executa o update e traz o consertado sozinho.
+    * ✅ **3ª rodada, 2026-08-12 — LIMPA.** Relato do usuário: *"funcionou corretamente, a nova
+      versão já não teve os erros de texto no início; fechou a versão antiga e abriu a versão
+      nova corretamente"*. **Sem nenhuma linha de "não é reconhecido"** e com a troca-e-reabertura
+      do próprio launcher acontecendo direito. Confirmou também a previsão da 68c: **não precisou
+      de passo manual nenhum** — o `.bat` quebrado ainda executava o update e trouxe o consertado
+      sozinho. ✅ **E a mensagem de versão APARECEU** (confirmado pelo usuário na mesma conversa):
+      *"atualizou para a versão mais nova mostrando quantos commits estava atrás"* — a comparação
+      que o `.bat` imprime em `Existe versao nova: voce esta na <X> (commit <sha>) e o GitHub esta
+      na <sha>` (L145). Com isso os TRÊS itens do auto-update estão provados no ambiente real.
     (O A/B da 62 tinha rodado em pasta isolada com `npm` falso: validava a lógica, não o
     ambiente. O do-not-repeat de 2026-07-10 — *não escrever relatório de aplicação antes de o
     piloto acontecer* — está honrado: o relatório acima é do piloto que aconteceu.)

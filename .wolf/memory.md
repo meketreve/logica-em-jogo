@@ -2120,3 +2120,30 @@ não tinha executado.
 Estado: árvore limpa, tudo empurrado, v0.10.0 lançada. Pendente só a 3ª rodada do launcher na
 escola, que é do usuário. Fila depois: §🔨 Ferramentas v2 (o tooltip já tem o lugar da
 durabilidade pronto), mobs F8.
+| 16:59 | Session end: 61 writes across 18 files (ferramentas.ts, usos.ts, index.ts, tooltip.ts, inventory.ts) | 12 reads | ~92980 tok |
+
+## Session: 2026-08-12 23:01
+
+| Time | Action | File(s) | Outcome | ~Tokens |
+|------|--------|---------|---------|--------|
+| 00:05 | Edited todo.md | modified chunks() | ~825 |
+| 09:12 | anotou ideia do usuário: nº de cópias da área de atividade ajustável AO VIVO por nº de grupos | todo.md (§Mundo/professor) | anotado com o mapeamento: `/regiao carimbar` (regioes.ts:138) já lê grupos.size ao vivo; faltam descarimbar, fonte de PARTIDA (modelo é esvaziado em gerar.ts:370) e largura de mundo (dims.x em gerar.ts:304) | ~9k |
+| 00:06 | Session end: 1 writes across 1 files (todo.md) | 4 reads | ~25634 tok |
+| 00:15 | Edited todo.md | modified raro() | ~638 |
+| 09:31 | ideia complementar do usuário: carimbar em GRADE em vez de linha | todo.md (mesmo item, ponto 6) | anotado: 8 grupos hoje = 128 blocos de fileira (1 chunk/grupo em X, gerar.ts:350); 4×2 = 64×32 e faz dims.x parar de crescer com n; comando precisa de `colunas` + passo por eixo, célula (g%C, floor(g/C)) com o modelo na célula 0 | ~4k |
+| 00:15 | Session end: 2 writes across 1 files (todo.md) | 4 reads | ~26318 tok |
+
+## Session: 2026-08-12 08:14
+
+| Time | Action | File(s) | Outcome | ~Tokens |
+|------|--------|---------|---------|--------|
+| 08:19 | Edited todo.md | expanded (+8 lines) | ~287 |
+| 08:19 | Edited todo.md | 2→2 lines | ~47 |
+| 08:20 | Edited todo.md | 3→7 lines | ~172 |
+| 09:48 | auto-update FECHADO: 3ª rodada da escola saiu limpa (relato do usuário, sem erros de texto, troca+relançamento do launcher ok) | todo.md, .wolf/STATUS.md, .wolf/buglog.json (620/621 confirmados em campo), .wolf/cerebrum.md | item [x]; anotada a ressalva de que a frase vX→vY não foi mencionada no relato | ~6k |
+| 09:50 | respondida a pergunta do .sh conferindo o arquivo | iniciar-servidor.sh/.bat (leitura) | .sh TEM capacidade do git (L245-249), LJ_UPDATE (L231-234) e vX→vY (L70-85); bug-621 NÃO se aplica (179 linhas não-ASCII, e está certo) — regra assimétrica registrada no cerebrum | ~3k |
+| 08:21 | Session end: 3 writes across 1 files (todo.md) | 1 reads | ~15573 tok |
+| 08:27 | Edited todo.md | 2→4 lines | ~104 |
+| 08:27 | Edited todo.md | isso() → update() | ~72 |
+| 10:05 | hotfix bump v0.10.0 -> v0.10.1 (`npm version patch --no-git-tag-version`) + rebuild | package.json, client/dist | dist embute 0.10.1, 0.10.0 sumiu; bateria: check:launchers 5/5, typecheck 3/3, 822/822, build, 15/15 smokes | ~5k |
+| 10:07 | usuário confirmou a mensagem de versão na tela da escola ("mostrando quantos commits estava atrás") | todo.md, .wolf/STATUS.md | ressalva de "sem confirmação ocular" removida — os 3 itens do auto-update provados no ambiente real | ~2k |
