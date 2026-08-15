@@ -70,7 +70,7 @@ const NAME_KEY = "lj-nome";
  */
 const SPLASHES: string[] = [
   "que bão, um bloco quadrado!",
-  "pika de ferro, coragem de verdade",
+  "picareta engraçada não minera minério",
   "os blocos se foram? a gente recria!",
   "minerar é maratonar",
   "a galinha virou portal",
