@@ -164,7 +164,7 @@ export function iniciarFundoMenu(): MenuFundo {
     if (parado) return;
     raf = requestAnimationFrame(girar);
     // giro LENTO — o menu é lugar de sossego, não de câmara de passeio
-    const t = bola * 0.002;
+    const t = bola * 0.0002;
     camera.position.x = Math.sin(t) * 0.6;
     camera.position.z = Math.cos(t) * 0.6;
     camera.lookAt(0, 0.5, 0);
