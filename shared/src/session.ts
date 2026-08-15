@@ -11,6 +11,7 @@ import {
   isFullCube,
   isPlaceable,
   isPlantacao,
+  isMuda,
   isPorta,
   isInterativo,
   isJanela,
@@ -175,7 +176,7 @@ import {
 import {
   type Claim,
 } from "./claims";
-import { TICKS_POR_CRESCIMENTO, crescerPlantacao, ruleFor } from "./rules";
+import { TICKS_POR_CRESCIMENTO, crescerMuda, crescerPlantacao, ruleFor } from "./rules";
 import { type SaveData, type SaveMeta } from "./save";
 import {
   type Objective,
@@ -1931,9 +1932,11 @@ export class GameSession {
     // §🍖 F6: o índice das plantações segue o byte — plantar entra, crescer
     // reescreve a mesma chave, colher/derrubar sai. Como TODA mudança de mundo
     // passa por aqui, não existe horta fora do índice.
+    // §🪵: a muda de árvore segue a MESMA engrenagem (cresce no pulso, e
+    // não na fila de vizinhança) — então mora no MESMO índice.
     {
       const key = this.packCoord(x, y, z);
-      if (isPlantacao(blockId)) this.plantacoes.add(key);
+      if (isPlantacao(blockId) || isMuda(blockId)) this.plantacoes.add(key);
       else this.plantacoes.delete(key);
     }
     setBlock(this.world, x, y, z, blockId);
@@ -2140,7 +2143,11 @@ export class GameSession {
       // cópia: o applyBlock de cada mudança mexe no próprio índice
       for (const key of [...this.plantacoes]) {
         const { x, y, z } = this.unpackCoord(key);
-        const changes = crescerPlantacao(this.world, x, y, z);
+        // §🪵: a muda cresce no MESMO pulso — a própria função diz se é ela
+        // ou uma plantação (crescerMuda despacha por `isMuda`).
+        const changes = isMuda(getBlock(this.world, x, y, z))
+          ? crescerMuda(this.world, x, y, z)
+          : crescerPlantacao(this.world, x, y, z);
         if (!changes) continue;
         for (const c of changes) this.applyBlock(c.x, c.y, c.z, c.blockId);
       }

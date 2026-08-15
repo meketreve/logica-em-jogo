@@ -460,6 +460,49 @@ function paintPlantacao(ctx: CanvasRenderingContext2D, tile: number, estagio: nu
 }
 
 /**
+ * §🪵 (2026-08-15): a MUDA de árvore — 4 estágios por espécie, mini-árvore
+ * em cruz de sprite. O estágio é a ALTURA (o tronco cresce e a copa engorda);
+ * a COR da copa é a da SENHORA árvore (ipê já brota amarelo, araucária verde
+ * escuro) e a casca é a do tronco dela — a muda é a prologa do que nasce.
+ * Mesmo corte da plantação: verde/rasteira no 0, alta e encorpada no 3.
+ */
+interface MudaVisual {
+  readonly folha: Rgb;
+  readonly casca: Rgb;
+}
+
+function paintMuda(
+  ctx: CanvasRenderingContext2D,
+  tile: number,
+  estagio: number,
+  v: MudaVisual,
+): void {
+  const [ox, oy] = tileOrigin(tile);
+  const px = ATLAS.tilePx;
+  ctx.clearRect(ox, oy, px, px);
+  // tronco: 2 px de largura, cresce 2 px por estágio (4 → 10)
+  const troncoAlt = 4 + estagio * 2;
+  const tx = ox + (px / 2 | 0) - 1;
+  ctx.fillStyle = `rgb(${v.casca[0]},${v.casca[1]},${v.casca[2]})`;
+  for (let k = 0; k < troncoAlt; k++) ctx.fillRect(tx, oy + px - 1 - k, 2, 1);
+  // copa: bolha da cor da folhagem no topo do tronco; engorda com a idade
+  const base = oy + px - 1 - troncoAlt;
+  const raio = 1 + estagio; // 1 → 4 px
+  const tom = (dx: number, dy: number): number =>
+    0.8 + pixelHash(tile * 7 + dx + dy * 37, 0, 41) * 0.5;
+  for (let cy = 0; cy < raio * 2 - 1; cy++) {
+    const dy = cy - raio + 1;
+    const largura = 2 * raio - Math.abs(dy) * 2 - 1; // losango ≈ bolha
+    const cx0 = tx + 1 - (largura >> 1);
+    for (let dx = 0; dx < largura; dx++) {
+      const t = tom(dx, dy);
+      ctx.fillStyle = `rgb(${Math.round(v.folha[0] * t)},${Math.round(v.folha[1] * t)},${Math.round(v.folha[2] * t)})`;
+      ctx.fillRect(cx0 + dx, base - raio + 1 + cy, 1, 1);
+    }
+  }
+}
+
+/**
  * §🍖 F10b: a fornalha. Pedregulho com uma BOCA quadrada escura no meio da
  * face — e é a boca que faz o bloco ser reconhecível de longe num tablet: sem
  * ela seria mais um cubo cinza no meio da parede de pedregulho que o aluno
@@ -930,6 +973,21 @@ export function createAtlasTexture(): THREE.Texture {
   for (const [base, selv, salt, v] of CULTURAS) {
     for (let i = 0; i < 4; i++) paintCultura(ctx, base + i, i, v, salt);
     paintCultura(ctx, selv, 3, v, salt, true);
+  }
+
+  // §🪵 (2026-08-15): as 16 mudas de árvore — 4 estágios × 4 espécies, na
+  // ordem dos ids. Cores da copa = as das folhas da árvore adulta; casca = a
+  // do tronco dela (ver as paletas do logIpe/logAraucaria/logPauBrasil).
+  const MUDA_VISUAL: readonly MudaVisual[] = [
+    { folha: [52, 118, 44], casca: [104, 78, 48] }, // comum (carvalho)
+    { folha: [222, 186, 48], casca: [128, 110, 86] }, // ipê-amarelo
+    { folha: [34, 88, 46], casca: [86, 60, 42] }, // araucária (verde-escuro)
+    { folha: [42, 130, 54], casca: [124, 66, 46] }, // pau-brasil (mata)
+  ];
+  for (let esp = 0; esp < MUDA_VISUAL.length; esp++) {
+    for (let i = 0; i < 4; i++) {
+      paintMuda(ctx, TILE.mudaComum0 + esp * 4 + i, i, MUDA_VISUAL[esp]!);
+    }
   }
 
   // vidro colorido (2026-07-25): mesma paleta das lãs, na ordem VidroBranco..Marrom

@@ -417,6 +417,13 @@ export const SEM_RECEITA: ReadonlyMap<number, string> = new Map([
   [BlockId.BananaSelvagem, "pé do gen da mata: é onde o aluno ACHA a banana"],
   [BlockId.Aipim0, "rama de aipim: vem do pé selvagem do cerrado e da colheita"],
   [BlockId.AipimSelvagem, "pé do gen do cerrado: é onde o aluno ACHA o aipim"],
+  // §🪵 (2026-08-15): as MUDAS DE ÁRVORE — cada uma vem SÓ das folhas da
+  // PRÓPRIA espécie (1 em 10, junto da fruta). É a única porta da cadeia das
+  // árvores: a muda plantada cresce e vira a árvore completa.
+  [BlockId.MudaComum0, "muda de carvalho: vem das folhas de carvalho (1 em 10)"],
+  [BlockId.MudaIpe0, "muda de ipê: vem das folhas de ipê (1 em 10)"],
+  [BlockId.MudaAraucaria0, "muda de araucária: vem das folhas de araucária (1 em 10)"],
+  [BlockId.MudaPauBrasil0, "muda de pau-brasil: vem das folhas de pau-brasil (1 em 10)"],
   [BlockId.Bedrock, "só do professor (`isProfessorOnly`) — nunca vai pra mochila"],
 ]);
 

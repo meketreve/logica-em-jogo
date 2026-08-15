@@ -282,6 +282,18 @@ export const BlockId = {
   Melancia0: 215, Melancia1: 216, Melancia2: 217, Melancia3: 218, MelanciaSelvagem: 219,
   Banana0: 220, Banana1: 221, Banana2: 222, Banana3: 223, BananaSelvagem: 224,
   Aipim0: 225, Aipim1: 226, Aipim2: 227, Aipim3: 228, AipimSelvagem: 229,
+  /**
+   * §🪵 (2026-08-15): MUDAS DE ÁRVORE. Quarteto por espécie, na ordem das
+   * `ArvoreTipo` (`comum, ipe, araucaria, paubrasil`), 4 estágios cada —
+   * molde EXATO da plantação: só o estágio 0 se coloca (é ele que vai à
+   * mochila), os outros nascem crescendo no tick, e o estágio 3 (madura)
+   * vira a árvore COMPLETA do bioma (tronco+copa, `celulasDaArvore`).
+   * Espécie fixa por muda: a folha cai a muda da PRÓPRIA espécie (drops.ts).
+   */
+  MudaComum0: 230, MudaComum1: 231, MudaComum2: 232, MudaComum3: 233,
+  MudaIpe0: 234, MudaIpe1: 235, MudaIpe2: 236, MudaIpe3: 237,
+  MudaAraucaria0: 238, MudaAraucaria1: 239, MudaAraucaria2: 240, MudaAraucaria3: 241,
+  MudaPauBrasil0: 242, MudaPauBrasil1: 243, MudaPauBrasil2: 244, MudaPauBrasil3: 245,
 } as const;
 
 export type BlockId = (typeof BlockId)[keyof typeof BlockId];
@@ -294,7 +306,7 @@ export type BlockId = (typeof BlockId)[keyof typeof BlockId];
  * dois arquivos, e esquecer significava um portão que deixava de olhar
  * justamente o bloco recém-criado — o oposto do que ele existe pra fazer.
  */
-export const MAX_BLOCK_ID = BlockId.AipimSelvagem;
+export const MAX_BLOCK_ID = BlockId.MudaPauBrasil3;
 
 /** Água? Fonte (129) OU fluida (130-136) — atravessável e translúcida. */
 export function isAgua(id: number): boolean {
@@ -618,6 +630,53 @@ export function isSelvagem(id: number): boolean {
   return plantaPorSelvagem(id) !== null;
 }
 
+/** Ordem das espécies nos ids das mudas (MudaComum0..MudaPauBrasil3). A
+ *  sequência literal espelha `ArvoreTipo` do biomas.ts (que IMPORTÁ blocks;
+ *  importar de volta aqui criaria ciclo) e é estruturalmente a mesma união. */
+const ARVORE_TIPOS = ["comum", "ipe", "araucaria", "paubrasil"] as const;
+
+/** É uma MUDA de árvore (qualquer espécie/estágio)? */
+export function isMuda(id: number): boolean {
+  return id >= BlockId.MudaComum0 && id <= BlockId.MudaPauBrasil3;
+}
+
+/** Índice da espécie da muda: 0 comum, 1 ipê, 2 araucária, 3 pau-brasil. */
+export function mudaEspecie(id: number): number {
+  return (id - BlockId.MudaComum0) >> 2;
+}
+
+/** Espécie da muda (mesma união que `ArvoreTipo`, `null` se não é muda). É ela
+ *  que decide em que árvore a muda vira (`crescerMuda` usa `celulasDaArvore`). */
+export function mudaTipo(id: number): (typeof ARVORE_TIPOS)[number] | null {
+  return isMuda(id) ? (ARVORE_TIPOS[mudaEspecie(id)] ?? null) : null;
+}
+
+/** Estágio da muda, 0..3 (−1 se não é muda). */
+export function mudaEstagio(id: number): number {
+  return isMuda(id) ? (id - BlockId.MudaComum0) & 3 : -1;
+}
+
+/** Muda MADURA (estágio 3, a do tick que vira árvore)? */
+export function isMudaMadura(id: number): boolean {
+  return isMuda(id) && mudaEstagio(id) === 3;
+}
+
+/** É a MUDA INICIAL (estágio 0 — o único que vai à mochila e se coloca)? */
+export function isMudaInicial(id: number): boolean {
+  return isMuda(id) && mudaEstagio(id) === 0;
+}
+
+/** Muda-base (estágio 0) da ESPÉCIE da folhagem: «Leaves →MudaComum0, folhas
+ *  de ipê →MudaIpe0…». É o que a folha DROPS (drops.ts) — a espécie do muda
+ *  casa com a copa que a largou, então o aluno sabe o que vai nascer. */
+export function mudaDaFolhagem(id: number): number {
+  let esp = 0;
+  if (id === BlockId.FolhasIpe) esp = 1;
+  else if (id === BlockId.FolhasAraucaria) esp = 2;
+  else if (id === BlockId.FolhasPauBrasil) esp = 3;
+  return BlockId.MudaComum0 + esp * 4;
+}
+
 /** SOLO onde uma plantação pega: terra e as três gramas climáticas. Pedra,
  *  areia e tábua não servem — "planta precisa de terra" é a regra que o aluno
  *  descobre na primeira tentativa, e ela vale no PLACE e no tick (a muda posta
@@ -815,7 +874,8 @@ export function apoioValido(id: number, idAbaixo: number): boolean {
   // §🍖 F10c: o algodão SELVAGEM é planta igual às outras — exige solo, senão o
   // gen o penduraria em pedra e o tick o derrubaria no instante seguinte.
   // §🍖 F10h: `isSelvagem` cobre os pés das seis novas culturas na MESMA linha.
-  if (isPlantacao(id) || isSelvagem(id)) return isSolo(idAbaixo);
+  // §🪵: a muda é planta igual — exige SOLO, senão o tick a derrubaria.
+  if (isPlantacao(id) || isSelvagem(id) || isMuda(id)) return isSolo(idAbaixo);
   return isFullCube(idAbaixo);
 }
 
@@ -956,6 +1016,7 @@ export function isFullCube(id: number): boolean {
     !isGramaAlta(id) &&
     !isPlantacao(id) && // cruz de sprite, como a flor
     !isSelvagem(id) && // idem (algodão + as seis culturas do §🍖 F10h)
+    !isMuda(id) && // idem (mudas de árvore do §🪵)
     // §🍖 F10 (refino): o baú é uma CAIXA de 14/16 dentro da célula. Sair daqui
     // é o que faz o vão entre dois baús existir — e, de brinde, a luz passa por
     // ele (como no Minecraft) e a cerca não se conecta a ele.
@@ -979,6 +1040,7 @@ export function isSolidBlock(id: number): boolean {
     !isGramaAlta(id) && // capim atravessa (decorativo, como a flor)
     !isPlantacao(id) && // a plantação também: pisar na horta não empurra o aluno
     !isSelvagem(id) && // idem (pé selvagem do gen)
+    !isMuda(id) && // idem (muda de árvore do §🪵)
     !isAgua(id) // água atravessa — o jogador entra e nada (physics.ts)
   );
 }
@@ -993,6 +1055,10 @@ export function isPlaceable(id: number): boolean {
   // voltam pra mochila (o drop devolve muda), então aceitar o byte pelo fio só
   // daria ao cliente um jeito de plantar trigo maduro de graça.
   if (isPlantacao(id) && !isMudaDePlantacao(id)) return false;
+  // §🪵: mesma disciplina da plantação — só a muda INICIAL se planta. Os
+  // estágios crescidos nascem do tick; aceitá-los pelo fio daria ao cliente
+  // um jeito de plantar árvore pronta de graça.
+  if (isMuda(id) && !isMudaInicial(id)) return false;
   // §🍖 F10b: a fornalha ACESA é estado, não item — nasce do tick quando o fogo
   // pega e volta a apagada sozinha. Aceitá-la pelo fio daria ao cliente uma
   // fornalha eternamente acesa (e uma luminária de graça). As QUATRO direções

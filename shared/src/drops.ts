@@ -11,7 +11,9 @@ import {
   isFornalha,
   isGramaAlta,
   isJanela,
+  isMuda,
   isPlantacaoMadura,
+  mudaDaFolhagem,
   plantaDe,
   plantaPorSelvagem,
   isPorta,
@@ -61,6 +63,10 @@ export function formaCanonica(id: number): number {
     const p = plantaDe(id);
     if (p) return p.base;
   }
+  // §🪵: as mudas têm UMA entrada na mochila — a inicial. É a MESMA razão da
+  // plantação (guarda-se o que sabe replantar); quebrar a muda crescida
+  // devolve a muda-base da espécie.
+  if (isMuda(id)) return BlockId.MudaComum0 + ((id - BlockId.MudaComum0) & ~3);
   // §🍖 F10b: fornalha acesa volta como fornalha — o fogo é estado, não item.
   if (isFornalha(id)) return BlockId.Fornalha;
   return id;
@@ -108,6 +114,15 @@ const EXCECOES = new Map<number, number | null>([
 export const CHANCE_FRUTA_DA_FOLHA = 1 / 8;
 export const CHANCE_SEMENTE_DO_CAPIM = 1 / 4;
 /**
+ * §🪵 (2026-08-15): a MUDA de árvore que a folha às vezes larga. Mais rara que
+ * a fruta (1/8) de propósito: é a descoberta MAIS valiosa da folha — é a ÚNICA
+ * porta de entrada da cadeia das árvores (plantar → esperar → a muda vira a
+ * árvore), e se fosse comum demais a árvore perdia o valor. 1 em 10 numa copa
+ * inteira ainda rende a turma (uma árvore tem dezenas de folhas), mas o aluno
+ * nota quando a muda cai.
+ */
+export const CHANCE_MUDA_DA_FOLHA = 1 / 10;
+/**
  * §🍖 F10c: a semente do pé SELVAGEM. Nasceu com a régua do capim (1 em 4) e
  * SUBIU pra 2 em 3 em 2026-08-05, a pedido do usuário.
  *
@@ -154,9 +169,14 @@ export function dropsDe(
 ): readonly Stack[] {
   if (blockId === BlockId.Air) return [];
   if (isAgua(blockId)) return [];
-  // folha → fruta ÀS VEZES (a folha em si continua não sendo material)
+  // folha → fruta ÀS VEZES, e muda da PRÓPRIA espécie ÀS VEZES (§🪵). A folha
+  // em si continua não sendo material — e os DOIS sorteios são independentes
+  // (uma folha pode dar só fruta, só muda, os dois, ou nada).
   if (isFolhas(blockId)) {
-    return sorteio() < CHANCE_FRUTA_DA_FOLHA ? [{ id: ITEM_FRUTA, qtd: 1 }] : [];
+    const drops: Stack[] = [];
+    if (sorteio() < CHANCE_FRUTA_DA_FOLHA) drops.push({ id: ITEM_FRUTA, qtd: 1 });
+    if (sorteio() < CHANCE_MUDA_DA_FOLHA) drops.push({ id: mudaDaFolhagem(blockId), qtd: 1 });
+    return drops;
   }
   // capim → semente às vezes (e nunca o próprio capim: é decoração do gen, e
   // devolvê-lo daria ao aluno um tapete de mato infinito)

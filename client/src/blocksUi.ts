@@ -150,6 +150,14 @@ export const PLACEABLE: readonly PlaceableEntry[] = [
   { id: BlockId.BananaSelvagem, name: "bananeira selvagem", cat: "vegetacao" },
   { id: BlockId.Aipim0, name: "rama de aipim", cat: "vegetacao" },
   { id: BlockId.AipimSelvagem, name: "aipim selvagem", cat: "vegetacao" },
+  // §🪵 (2026-08-15): as MUDAS de árvore — UMA entrada por espécie (o estágio
+  // 0, único que se coloca; os outros crescem sozinhos no tick). Na sobrevivên-
+  // cia cada uma vem das FOLHAS da própria espécie (drops.ts); em criativo
+  // estão na paleta pro professor poder plantar uma árvore na aula.
+  { id: BlockId.MudaComum0, name: "muda de carvalho", cat: "vegetacao" },
+  { id: BlockId.MudaIpe0, name: "muda de ipê", cat: "vegetacao" },
+  { id: BlockId.MudaAraucaria0, name: "muda de araucária", cat: "vegetacao" },
+  { id: BlockId.MudaPauBrasil0, name: "muda de pau-brasil", cat: "vegetacao" },
   // Minérios (2026-07-20): porta de entrada do survival — por ora só blocos
   { id: BlockId.MinerioCarvao, name: "minério de carvão", cat: "minerios" },
   { id: BlockId.MinerioFerro, name: "minério de ferro", cat: "minerios" },

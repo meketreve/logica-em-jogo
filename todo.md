@@ -568,6 +568,20 @@ Singleplayer (Web Worker) não tem fs — chat não vira arquivo lá, como plane
     luz (§💡 é 100% do cliente) — a condição de "exposta" é AR acima, o proxy do céu aberto.
   * Decisão aberta pro usuário: TAMBÉM espalhar pra cima/baixo (encostas) e a VELOCIDADE
     (spread 1 célula/tick = ~10 cél/s). Hoje é só horizontal e não configurável.
+* \[x] **muda de árvore — a porta da cadeia das árvores (pedido do usuário, 2026-08-15: "plantar
+  a árvore")** — **FEITO** (2026-08-15). 4 espécies × 4 estágios = 16 ids APPEND
+  (`MudaComum0..MudaPauBrasil3`, 230-245). "Árvore" = a folha É a única fonte: quebrar folha
+  larga fruta (1/8) E/OU a muda DA PRÓPRIA espécie (1/10, decisão do usuário); quebrar muda
+  devolve a muda-base. Plantar na terra/grama (`apoioValido` exige solo), só o estágio 0 entra
+  na hotbar (crescidos nascem do tick); cresce no MESMO pulso da plantação
+  (`TICKS_POR_CRESCIMENTO = 200`, abraça o `index plantacoes` com `isMuda`); o estágio maduro
+  vira a árvore COMPLETA via `celulasDaArvore` — a base É a muda → vira o 1º tronco,
+  `varia` = hash determinístico da posição (sem Math.random no servidor), e **aborta** se
+  qualquer célula estiver ocupada. Render: cruz de sprite, `TILE.mudaComum0=165..180`,
+  `paintMuda` (copa na cor da FOLHAGEM, casca na do TRONCO da espécie-adulta). 13 testes em
+  `shared/src/mudas.test.ts` (layout dos 16, colocação, solo, drops, determinismo, aborto,
+  crescimento pelo fio); `drops.test.ts:129` atualizado (folha larga muda também). Bateria
+  verde: 849/849, typecheck 3/3, build, 15/15 smokes.
 * \[x] **ferramentas** — **FEITO** (§🍖 F10d, sessão 46). 4 picaretas, sem durabilidade e
   OBRIGATÓRIAS pra minerar: sem picareta o bloco **não quebra** e o aluno é avisado (decisão do
   usuário). Machado e pá ficaram de fora com razão escrita em `ferramentas.ts`.

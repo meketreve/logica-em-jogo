@@ -7,10 +7,15 @@ import {
   isAgua,
   isAguaFonte,
   isFullCube,
+  isMuda,
   isPlantacao,
   isPlantacaoMadura,
+  isTransparentBlock,
+  mudaEstagio,
+  mudaTipo,
   precisaApoio,
 } from "./blocks";
+import { celulasDaArvore } from "./arvores";
 import { type World, getBlock, inBounds } from "./world";
 
 /**
@@ -114,6 +119,61 @@ export const crescerPlantacao: BlockRule = (world, x, y, z) => {
   if (!apoioValido(id, getBlock(world, x, y - 1, z))) return null;
   return [{ x, y, z, blockId: id + 1 }];
 };
+
+/**
+ * §🪵 (2026-08-15): a muda de árvore avança UM estágio; a MADURA (estágio 3)
+ * vira a árvore COMPLETA — tronco + copa da espécie (`celulasDaArvore`).
+ *
+ * Gira na MESMA engrenagem da plantação: é pulso de TEMPO (a session a chama
+ * de `TICKS_POR_CRESCIMENTO` em `TICKS_POR_CRESCIMENTO`), NÃO regra de
+ * vizinhança — crescer não é reação a "alguém mexeu do lado". Por isso não
+ * entra no `RULES`.
+ *
+ * O último estágio materializa a árvore com O MESMO contrato do gen
+ * (ver `aplicarCelula` em arvores.ts): tronco sobrescreve ar/folhas, copa só
+ * enche ar. A muda ocupa a BASE do tronco — ela VIRA o primeiro tronco. Se
+ * qualquer célula da copa estiver ocupada (a árvore não cabe no espaço), a
+ * muda ABORTA e espera o próximo pulso. `varia` deriva de um hash da posição:
+ * a MESMA muda em mundos iguais nasce a MESMA árvore — nada de Math.random
+ * no servidor (mesma disciplina dos drops).
+ */
+export const crescerMuda: BlockRule = (world, x, y, z) => {
+  const id = getBlock(world, x, y, z);
+  if (!isMuda(id)) return null;
+  const estagio = mudaEstagio(id);
+  if (estagio < 3) {
+    // sem solo embaixo a muda está de saída (torchRule) — não cresce no caminho
+    if (!apoioValido(id, getBlock(world, x, y - 1, z))) return null;
+    return [{ x, y, z, blockId: id + 1 }];
+  }
+  const tipo = mudaTipo(id) ?? "comum";
+  const varia = variaPorPosicao(x, y, z);
+  const changes: BlockChange[] = [];
+  for (const c of celulasDaArvore(x, y, z, tipo, varia)) {
+    if (c.x === x && c.y === y && c.z === z) {
+      // a muda é a base: vira o primeiro tronco, sem polêmica
+      changes.push({ x, y, z, blockId: c.id });
+      continue;
+    }
+    const atual = getBlock(world, c.x, c.y, c.z);
+    const cabe =
+      atual === BlockId.Air || (c.tronco && isTransparentBlock(atual));
+    if (!cabe) return null; // espaço ocupado → aborta, tenta no próximo pulso
+    changes.push({ x: c.x, y: c.y, z: c.z, blockId: c.id });
+  }
+  return changes.length > 1 ? changes : null;
+};
+
+/** Variante [0,1) da árvore, HASH determinístico da posição da muda — mesmo
+ *  esqueleto do hash2 do worldgen (mul 374761393/668265263, fusão e finalização
+ *  xorshift), sem entrar no mundo de ruído. A MESMA posição entrega a MESMA
+ *  árvore em qualquer execução. */
+function variaPorPosicao(x: number, y: number, z: number): number {
+  let h = (x ^ Math.imul(z, 374761393)) ^ Math.imul(y, 668265263);
+  h = Math.imul(h ^ (h >>> 13), 1274126177);
+  h ^= h >>> 16;
+  return (h >>> 0) / 4294967296;
+}
 
 /** 4 vizinhos horizontais (água só espalha na MESMA camada + cai; a grama
  *  só espalha na MESMA camada — terra enterrada fica terra). */

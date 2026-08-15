@@ -15,6 +15,7 @@ import {
   isJanela,
   isJanelaAberta,
   isMovel,
+  isMuda,
   isPlantacao,
   isPorta,
   isPortaAberta,
@@ -197,6 +198,15 @@ export const TILE = {
   melanciaSelvagem: 162,
   bananaSelvagem: 163,
   aipimSelvagem: 164,
+  /** §🪵 (2026-08-15): as 16 mudas de árvore — 4 estágios × 4 espécies,
+   *  contíguas e na ordem dos ids (`TILE.mudaComum0 + espécie*4 + estágio`).
+   *  Cruz de sprite como plantação/cultura: fundo transparente, o ESTÁGIO é a
+   *  altura desenhada e a COR já diz a espécie (a muda é a prologa da árvore
+   *  que será). 165 em diante: a última linha do atlas (aipimSelvagem = 164). */
+  mudaComum0: 165, mudaComum1: 166, mudaComum2: 167, mudaComum3: 168,
+  mudaIpe0: 169, mudaIpe1: 170, mudaIpe2: 171, mudaIpe3: 172,
+  mudaAraucaria0: 173, mudaAraucaria1: 174, mudaAraucaria2: 175, mudaAraucaria3: 176,
+  mudaPauBrasil0: 177, mudaPauBrasil1: 178, mudaPauBrasil2: 179, mudaPauBrasil3: 180,
 } as const;
 
 /** cp20: blocos-glifo. Letras A–Z e dígitos 0–9 ocupam tiles consecutivos a
@@ -399,6 +409,13 @@ for (const [base, tile, tileSelvagem] of CULTURAS_SELVAGENS) {
   BLOCK_TILES[base + 4] = uniform(tileSelvagem);
 }
 
+// §🪵 (2026-08-15): as 16 mudas — um tile por espécie/estágio, na ordem dos
+// ids. Alimenta o ícone 2D (o estágio 0, único que vai à mochila) e o tile da
+// cruz; nunca passa pelo caminho de cubo (isFullCube é false).
+for (let i = 0; i < 16; i++) {
+  BLOCK_TILES[BlockId.MudaComum0 + i] = uniform(TILE.mudaComum0 + i);
+}
+
 // cp20: letras/dígitos = cubos uniformes com o tile do glifo (append A→Z, 0→9).
 for (let i = 0; i < GLYPH.letters.length; i++) {
   BLOCK_TILES[BlockId.LetterA + i] = uniform(GLYPH.base + i);
@@ -432,7 +449,8 @@ export function blockIconTile(id: number): number {
  *  no vento e a forma no mesher — têm de concordar sempre. */
 function ehCruzDeSprite(id: number): boolean {
   return (
-    isFlor(id) || isGramaAlta(id) || isPlantacao(id) || isSelvagem(id)
+    isFlor(id) || isGramaAlta(id) || isPlantacao(id) || isSelvagem(id) ||
+    isMuda(id)
   );
 }
 
@@ -1142,7 +1160,7 @@ export function meshVizinhanca(viz: Uint8Array, luzViz?: Uint8Array | null): Chu
         // com duas plantas a aritmética de âncora daria o tile do trigo pro
         // algodão. §🍖 F10h: o pé SELVAGEM de cada cultura entra pela mesma
         // porta (`isSelvagem` abraça os seis novos, no molde do algodão).
-        if (isPlantacao(id) || isSelvagem(id)) {
+        if (isPlantacao(id) || isSelvagem(id) || isMuda(id)) {
           const tile = blockIconTile(id);
           emitCrossPlane(lx, ly, lz, tile, 0, 0, 1, 1);
           emitCrossPlane(lx, ly, lz, tile, 0, 1, 1, 0);

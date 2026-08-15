@@ -2,6 +2,37 @@
 
 > Single source of truth for resuming work. Read this FIRST when starting a session.
 
+> ## 🧭 HANDOFF — ESTADO AO FIM DA SESSÃO 73 (2026-08-15)
+>
+> **Sessão de UM pedido (mudas de árvore), entregue.** Bateria completa verde, dist rebuildado,
+> o commit+push é o próximo passo.
+>
+> **O que saiu:** a MUDA DE ÁRVORE — a porta da cadeia das árvores. **4 espécies × 4 estágios =
+> 16 ids** (`MudaComum0..MudaPauBrasil3`, APPEND 230–245; decisão do usuário nesta sessão).
+> - `blocks.ts`: ids + helpers (`isMuda`, `mudaEspecie`, `mudaTipo`, `mudaEstagio`,
+>   `isMudaMadura/isMudaInicial`, `mudaDaFolhagem`). ⚠️ **Não importar `ArvoreTipo` do biomas
+>   (ciclo em runtime): a ordem das espécies é um `as const` local que espelha a união.**
+> - `rules.ts`: **`crescerMuda`** no mesmo pulso da plantação (0–2 avançam; o 3 vira a árvore
+>   COMPLETA via `celulasDaArvore`, base É a muda → vira o 1º tronco; **aborta se a copa não
+>   cabe**; `varia` = hash determinístico da posição, sem Math.random no servidor).
+> - `session.ts`: **o MESMO índice `plantacoes`** abraça `isMuda`; o pulso despacha
+>   (`isMuda` → crescerMuda, senão crescerPlantacao).
+> - `drops.ts`: folha agora larga **fruta E/OU a muda da PRÓPRIA espécie** (`mudaDaFolhagem`,
+>   `CHANCE_MUDA_DA_FOLHA = 1/10`, mais rara que a fruta — a folha é a ÚNICA fonte); quebrar
+>   toda muda devolve a muda-base (`formaCanonica`).
+> - `mesher.ts`: `TILE.mudaComum0=165..mudaPauBrasil3=180` (contíguos, foi a última linha livre),
+>   loop no `BLOCK_TILES`, `ehCruzDeSprite` + ramo da cruz + `blockSelectionBox` (herda 4P..12P).
+> - Cliente: `paintMuda` (mini-árvore: tronco cresce, copa é a cor da FOLHAGEM e casca a do
+>   TRONCO da espécie-adulta) nos 16 tiles; 4 nomes em `blocksUi` ("muda de carvalho/ipê/
+>   araucária/pau-brasil"); notas em `receitas`.
+>
+> ✅ **Bateria:** typecheck 3/3 · **849/849 testes** (836 + 13 em `shared/src/mudas.test.ts`; 1
+> portão antigo em `drops.test.ts:129` atualizado — a folha passou a largar muda) · build ·
+> **15/15 smokes**. `todo.md` e `.wolf/` atualizados.
+>
+> 🚀 **Fila:** dormir na cama pra passar a noite (L304), Ferramentas v2 / mobs / cópias da área
+> ao vivo. Nenhuma pendência externa.
+
 > ## 🧭 HANDOFF — ESTADO AO FIM DA SESSÃO 72 (2026-08-15)
 >
 > **Sessão de UM pedido, entregue: a GRAMA ESPALHA pra terra exposta ao redor.** Bateria

@@ -126,13 +126,30 @@ describe("drops — a tabela", () => {
 });
 
 describe("§🍖 F6 — as duas fontes de comida", () => {
-  it("folha dá fruta ÀS VEZES, e nada no resto das vezes", () => {
+  it("folha dá fruta ÀS VEZES, NADA no resto — e, desde o §🪵, muda da espécie", () => {
     for (const folha of [
       BlockId.Leaves, BlockId.FolhasIpe, BlockId.FolhasAraucaria, BlockId.FolhasPauBrasil,
     ]) {
-      expect(dropsDe(folha, () => 0)).toEqual([{ id: ITEM_FRUTA, qtd: 1 }]);
+      // sorteio no teto: nada cai (a folha em si nunca é material)
       expect(dropsDe(folha, () => 0.999)).toEqual([]);
     }
+    // sorteio 0: FRUTA + a MUDA da própria espécie (cada folha → sua árvore)
+    expect(dropsDe(BlockId.Leaves, () => 0)).toEqual([
+      { id: ITEM_FRUTA, qtd: 1 },
+      { id: BlockId.MudaComum0, qtd: 1 },
+    ]);
+    expect(dropsDe(BlockId.FolhasIpe, () => 0)).toEqual([
+      { id: ITEM_FRUTA, qtd: 1 },
+      { id: BlockId.MudaIpe0, qtd: 1 },
+    ]);
+    expect(dropsDe(BlockId.FolhasAraucaria, () => 0)).toEqual([
+      { id: ITEM_FRUTA, qtd: 1 },
+      { id: BlockId.MudaAraucaria0, qtd: 1 },
+    ]);
+    expect(dropsDe(BlockId.FolhasPauBrasil, () => 0)).toEqual([
+      { id: ITEM_FRUTA, qtd: 1 },
+      { id: BlockId.MudaPauBrasil0, qtd: 1 },
+    ]);
   });
 
   it("capim dá SEMENTE às vezes — e nunca o próprio capim", () => {
