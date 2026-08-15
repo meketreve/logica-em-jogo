@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { BlockId, ITEM_BALDE_VAZIO, ITEM_FRUTA, ITEM_PICARETA_MADEIRA } from "./blocks";
+import { BlockId, ITEM_BALDE_VAZIO, ITEM_FRUTA, ITEM_PICARETA_MADEIRA, mudaDaFolhagem } from "./blocks";
 import {
   HOTBAR_SLOTS,
   INV_SLOTS,
@@ -379,10 +379,16 @@ describe("§🍖 F4 — quebrar DÁ (pela tabela de drops)", () => {
     session.handleMessage(2, quebrar(a.x, a.y, a.z));
     expect(getBlock(session.world, a.x, a.y, a.z)).toBe(BlockId.Air);
     // a chance mora em `drops.ts` (e o teste dela injeta o sorteio); aqui o que
-    // importa é que a folha NUNCA vira folha na mochila
+    // importa é que a folha NUNCA vira folha na mochila. Desde o §🪵 a folha
+    // também é a fonte da MUDA (1 em 10) — o sorteio real pode dar só fruta,
+    // só muda, as duas ou nada (sorteios independentes em `drops.ts`).
     const inv = ultimoInv(sent, 2) ?? inventarioVazio();
     expect(contar(inv, BlockId.Leaves)).toBe(0);
-    expect(estaVazio(inv) || contar(inv, ITEM_FRUTA) === 1).toBe(true);
+    expect(
+      estaVazio(inv) ||
+        contar(inv, ITEM_FRUTA) === 1 ||
+        contar(inv, mudaDaFolhagem(BlockId.Leaves)) === 1,
+    ).toBe(true);
   });
 
   it("em CRIATIVO quebrar não dá nada (paleta infinita, mochila intocada)", () => {

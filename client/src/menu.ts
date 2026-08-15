@@ -25,6 +25,7 @@ import {
   putWorld,
 } from "./worldStore";
 import { isTouchDevice } from "./touch";
+import { buildChangelogScreen } from "./changelog";
 
 /**
  * Menu principal (cp8) — HTML/CSS por cima do canvas, sem GUI de engine.
@@ -97,6 +98,7 @@ export function showMenu(handlers: MenuHandlers): void {
     worlds: el<HTMLElement>("menu-worlds"),
     multi: el<HTMLElement>("menu-multi"),
     config: el<HTMLElement>("menu-config"),
+    changelog: el<HTMLElement>("menu-changelog"),
   };
   function show(which: keyof typeof screens): void {
     for (const [k, s] of Object.entries(screens)) {
@@ -137,6 +139,10 @@ export function showMenu(handlers: MenuHandlers): void {
   });
   el("menu-btn-multi").addEventListener("click", () => show("multi"));
   el("menu-btn-config").addEventListener("click", () => show("config"));
+  el("menu-btn-novidades").addEventListener("click", () => {
+    buildChangelogScreen(el("menu-changelog-body"), () => show("home"));
+    show("changelog");
+  });
   for (const btn of menu.querySelectorAll(".menu-back")) {
     btn.addEventListener("click", () => show("home"));
   }

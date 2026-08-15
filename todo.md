@@ -748,7 +748,7 @@ ferramenta certa quebra rápido, gasta, e precisa ser refeita.
     lado" do container atual.
   * Junta pilha como o mover normal (mesma `adicionar`); lotou tudo → não move (devolve
     aviso, não perde item).
-* \[ ] **botão de CHANGELOG/NOVIDADES no menu (ideia do usuário, 2026-08-15)**. Botão
+* \[x] **botão de CHANGELOG/NOVIDADES no menu (ideia do usuário, 2026-08-15)**. Botão
   "📜 novidades" que abre a tela de mudanças da versão. Nomenclatura fixada (a MESMA do
   código): o primeiro menu, que aparece ao entrar no jogo (tela de título), é o **menu
   principal** (`#menu`, `menu.ts`, cp8); o menu do Esc dentro do jogo é o **menu de pausa**
@@ -760,6 +760,16 @@ ferramenta certa quebra rápido, gasta, e precisa ser refeita.
   Refino: fonte de verdade única do texto (ex.: `client/src/changelog.ts` com `CHANGELOG`),
   e o `#menu-version`/F3 já exibem `VERSION` — a tela pode reusar essa constante.
   (Sem URL externa — tela local, estilo as outras do `#menu`.)
+* \[ ] **fundo ANIMADO do menu principal (ideia do usuário, 2026-08-15)**. Três peças:
+  1. **Cena 3D de fundo BARATA — "câmera dentro de um cubo"**: um cubo coroado de OFFLINE
+     gerada-ser-fashion (ou imagens) e câmera no MEIO, dando a impressão de um ambiente 3D de
+     verdade por um custo mínimo (projeção das faces internas). Alternativa aceita: **carrosel
+     de fotos** (galeria do professor) — deslizar/desvanecer por trás do menu. Objetivo: o menu
+     não ser um fundo estático de gradiente.
+  2. **Frase engraçada por vez** (splashes estilo Minecraft/Terraria — *público LIVRE*, pensado
+     pra criança e pra sala): histórias aleatórias, rola uma por vez logo ACIMA do título
+     "Lógica em Jogo".
+  3. **Rodapé**: *"feito com [❤️], [☕] e IA"* no rodapé do menu principal.
 
 ## Geração de mundo / performance
 

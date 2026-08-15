@@ -819,6 +819,26 @@
         opacity: 0.5;
         pointer-events: none;
       }
+      .changelog-bloco {
+        border-left: 3px solid rgba(255, 255, 255, 0.25);
+        padding-left: 12px;
+        display: flex;
+        flex-direction: column;
+        gap: 0.2rem;
+      }
+      .changelog-bloco h3 {
+        margin: 0;
+        font-size: 1rem;
+      }
+      .changelog-bloco ul {
+        margin: 0;
+        padding-left: 18px;
+      }
+      .changelog-bloco li {
+        font-size: 0.9rem;
+        opacity: 0.85;
+        margin: 0.15rem 0;
+      }
       #menu-world-list {
         display: flex;
         flex-direction: column;
@@ -1126,7 +1146,7 @@
         }
       }
     </style>
-    <script type="module" crossorigin src="/assets/index-FAoTqNUr.js"></script>
+    <script type="module" crossorigin src="/assets/index-CaKB6U0U.js"></script>
   </head>
   <body>
     <div id="menu" class="hidden">
@@ -1138,6 +1158,7 @@
         <button id="menu-btn-single" type="button">🌍 Jogar sozinho</button>
         <button id="menu-btn-multi" type="button">🌐 Jogar em rede</button>
         <button id="menu-btn-config" type="button">⚙️ Configurações</button>
+        <button id="menu-btn-novidades" type="button">📜 novidades</button>
       </section>
       <section id="menu-worlds" class="menu-screen hidden">
         <h2>Meus mundos</h2>
@@ -1193,6 +1214,10 @@
       <section id="menu-config" class="menu-screen hidden">
         <h2>Configurações</h2>
         <div id="menu-config-body"></div>
+      </section>
+      <section id="menu-changelog" class="menu-screen hidden">
+        <h2>📜 Novidades</h2>
+        <div id="menu-changelog-body"></div>
       </section>
     </div>
     <div id="overlay">

@@ -217,6 +217,15 @@ await espera(600);
 await medir("menu-config", "#menu-config");
 await tirar("04-menu-config");
 
+console.log("— menu: novidades —");
+await avaliar(`[...document.querySelectorAll('.menu-back')].find(b=>b.offsetParent)?.click()`);
+await espera(400);
+await avaliar(`document.getElementById('menu-btn-novidades').click()`);
+await espera(600);
+await medir("menu-changelog", "#menu-changelog");
+await alvos("blocos de versão", "#menu-changelog-body .changelog-bloco");
+await tirar("04b-menu-novidades");
+
 // ─── em jogo: hotbar, chat, inventário ───────────────────────────────────
 // caminho REAL (menu → criar mundo → jogar): o ?bench pula o menu e não liga
 // os controles de toque, que é justamente o que precisa aparecer aqui.
