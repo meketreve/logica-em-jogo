@@ -146,7 +146,7 @@ export function iniciarFundoMenu(): MenuFundo {
     0.1,
     CUBO * 2,
   );
-  camera.position.set(0, -1.5, 0); // olho um pouquinho acima do centro
+  camera.position.set(0, 0, 0.6); // olho no centro, na altura do horizonte
 
   // 6 faces internas pintadas do MUNDO REAL (`scripts/fundo-shots.mjs` gera os
   // PNGs; o Vite serve a pasta public/menu-fundo na raiz). Enquanto os PNGs não
@@ -197,8 +197,9 @@ export function iniciarFundoMenu(): MenuFundo {
     // giro LENTO — o menu é lugar de sossego, não de câmara de passeio
     const t = bola * 0.00004;
     camera.position.x = Math.sin(t) * 0.6;
+    camera.position.y = 0;
     camera.position.z = Math.cos(t) * 0.6;
-    camera.lookAt(0, 0.5, 0);
+    camera.lookAt(0, 0, 0);
     renderer.render(scene, camera);
   };
   raf = requestAnimationFrame(girar);
