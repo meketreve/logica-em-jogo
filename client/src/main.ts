@@ -33,6 +33,7 @@ import {
   isBalde,
   isComida,
   containerTipoDe,
+  isCama,
   isInterativo,
   isPlaceable,
   isProfessorOnly,
@@ -106,6 +107,16 @@ import { configurarTooltip } from "./tooltip";
 import { TorchGlow } from "./torchGlow";
 import { TouchControls, isTouchDevice, solicitarTelaCheia } from "./touch";
 import { putWorld } from "./worldStore";
+
+/**
+ * §💬 (2026-08-14) Fonte ÚNICA de "a mira aponta pra algo que o clique direito
+ * USA em vez de colocar" — container (baú/fornalha), interativo (porta/janela)
+ * e a cama-de-spawn. O gesto (`use_block`) e o rótulo do ▣ do tablet consultam
+ * AQUI: uma definição, senão a barra e o clique divergem no primeiro bloco novo.
+ */
+function ehInterativo(alvoId: number): boolean {
+  return containerTipoDe(alvoId) !== null || isInterativo(alvoId) || isCama(alvoId);
+}
 
 /**
  * O cliente não tem filesystem: aprende os nomes das aulas pela resposta de
@@ -1097,6 +1108,10 @@ class GameRuntime {
    *  mesmo lugar que o `target` do bloco, e é ele que decide se o clique
    *  esquerdo vira soco em vez de quebra. */
   private alvoJogador: { id: number; dist: number } | null = null;
+  /** §💬 (2026-08-14): último id que esteve na mira — quando ele M UDA o rótulo
+   *  do ▣ do tablet é reavaliado (vira "interagir"). Id fora da faixa = nunca
+   *  mirado. */
+  private ultimoIdMirado = -1;
   /** ?bench: uma corrida por sessão (a troca de aula não reinicia). */
   private bench: Bench | null = null;
 
@@ -1363,7 +1378,7 @@ class GameRuntime {
         const alvoId = this.target
           ? getBlock(this.world, this.target.x, this.target.y, this.target.z)
           : null;
-        if (alvoId === null || (containerTipoDe(alvoId) === null && !isInterativo(alvoId))) {
+        if (alvoId === null || !ehInterativo(alvoId)) {
           this.activeConn.send(JSON.stringify({ type: "comer", slot: this.hotbarUi.selected }));
           return;
         }
@@ -1380,7 +1395,7 @@ class GameRuntime {
       // abre o painel — o cliente não abre nada por conta própria, senão o aluno
       // veria a caixa de um baú que o claim do colega nem deixaria ele ler.
       const alvoId = getBlock(this.world, this.target.x, this.target.y, this.target.z);
-      if (containerTipoDe(alvoId) !== null || isInterativo(alvoId)) {
+      if (ehInterativo(alvoId)) {
         this.activeConn.send(
           JSON.stringify({ type: "use_block", x: this.target.x, y: this.target.y, z: this.target.z }),
         );
@@ -1883,6 +1898,16 @@ class GameRuntime {
             this.hotbarUi.idNaMao() === ITEM_BALDE_VAZIO, // balde vazio mira a água (recolher)
           )
         : null;
+      // §💬 (2026-08-14): sempre que o id MI RADO muda, o ▣ do tablet reavalia o
+      // rótulo — vira "interagir" sobre container/interativo/cama. Exige guarda
+      // (o raycast roda 1×/frame): sem ela o rotular escreveria no DOM sem parar.
+      const idMirado = this.target
+        ? getBlock(this.world, this.target.x, this.target.y, this.target.z)
+        : null;
+      if (idMirado !== this.ultimoIdMirado) {
+        this.ultimoIdMirado = idMirado ?? -1;
+        touchControls?.setModoInteragir(idMirado !== null && ehInterativo(idMirado));
+      }
       // §🍖 F7: jogador na frente? Só onde o soco valeria (sobrevivência + pvp
       // ligado), e só se ele estiver MAIS PERTO que o bloco mirado — senão dava
       // pra bater em quem está atrás da parede. Quem está mirado ganha o clique

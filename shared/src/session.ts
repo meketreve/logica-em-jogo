@@ -359,6 +359,11 @@ export class GameSession {
     number,
     { deId: number; deNome: string; expira: number }[]
   >();
+  /** Cama-ponto-de-spawn por NOME (2026-08-14): o override que a morte usa em
+   *  vez de `spawn`. Sessão-só como os vitais — sobrevive ao rejoin, morre no
+   *  fechamento (a morte é o único consumidor; `/tp` e o join seguem no spawn
+   *  do mundo). Valor = a CÉLULA da cama clicada; o respawn cai em cima dela. */
+  readonly spawnCama = new Map<string, { x: number; y: number; z: number }>();
   /** Cenário (cp12): objetivos + progresso do MUNDO. Persiste no save. */
   readonly scenario: {
     modo: ScenarioModo;
@@ -1087,6 +1092,26 @@ export class GameSession {
           }
           this.containerAberto.set(clientId, { x: msg.x, y: msg.y, z: msg.z });
           sendContainer(this, clientId, msg.x, msg.y, msg.z);
+          return;
+        }
+        // cama como ponto de spawn (2026-08-14): clicar define o PRÓPRIO
+        // nascimento; a morte passa a devolver pra cama em vez do `spawn`.
+        // Mesmos gates do container — marcar spawn na cama/área do colega é
+        // editar o mundo dele. A cama é um PAR horizontal (pé+cabeceira) e os
+        // dois compartilham o MESMO id, então tanto faz qual metade foi clicada:
+        // o ponto guardado é a célula clicada, e o respawn cai em cima dela.
+        if (isCama(id)) {
+          {
+            const bloqueio =
+              claimBloqueia(this, clientId, msg.x, msg.y, msg.z) ??
+              confinaBloqueia(this, clientId, msg.x, msg.y, msg.z);
+            if (bloqueio) {
+              this.sendServerChat(clientId, bloqueio);
+              return;
+            }
+          }
+          this.spawnCama.set(p.name, { x: msg.x, y: msg.y, z: msg.z });
+          this.sendServerChat(clientId, "Ponto de nascimento definido nesta cama.");
           return;
         }
         if (!isInterativo(id)) return; // porta (cp23) e janela (2026-07-19)

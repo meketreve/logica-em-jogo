@@ -127,6 +127,10 @@ export class TouchControls {
   /** §🍖 F6 (playtest): o ▣ está no modo "comer"? (comida na mão + fome pra
    *  gastar — quem decide o rótulo é o main.ts via setModoComer). */
   private modoComer = false;
+  /** §💬 (2026-08-14): o ▣ está no modo "interagir"? (mira apontando pra algo
+   *  que o clique direito USA em vez de colocar — quem decide é o main.ts via
+   *  setModoInteragir, realimentado pelo id mirado). */
+  private modoInteragir = false;
   /** Espelha o `ativo` da varinha pra decidir o que o ▣ faz (canto 2 manda na
    *  frente do comer). */
   private varinhaAtiva = false;
@@ -312,17 +316,30 @@ export class TouchControls {
     this.atualizarBtnColocar();
   }
 
+  /** §💬 (2026-08-14): o ▣ vira "interagir" quando a mira aponta pra algo que
+   *  o clique direito USA em vez de colocar (baú/fornalha/porta/janela/cama).
+   *  Quem alimenta é o main.ts, no frame em que o id mirado muda. Guarda por
+   *  igualdade: o main pode chamar de novo com o mesmo valor sem re-render. */
+  setModoInteragir(interagir: boolean): void {
+    if (this.modoInteragir === interagir) return;
+    this.modoInteragir = interagir;
+    this.atualizarBtnColocar();
+  }
+
   /** §🍖 F4 (playtest): em sobrevivência o 🧱 é a MOCHILA do servidor, não a
    *  paleta de blocos — o rótulo acompanha o modo (o nome que o aluno usa). */
   setMochilaRotulo(survival: boolean): void {
     if (this.btnBlocos) rotular(this.btnBlocos, survival ? "🎒" : "🧱", survival ? "mochila" : "blocos");
   }
 
-  /** Um rótulo só pro ▣, decido pelos DOIS estados que competem nele: a
-   *  varinha (canto 2) manda na frente do modo comer. */
+  /** Um rótulo só pro ▣, decido pelos estados que competem nele: a varinha
+   *  (canto 2) manda na frente de tudo; o interagir (2026-08-14) vence o comer
+   *  porque o clique direito abre/USA o bloco mirado ANTES de morder
+   *  (main.ts:1362-1383) — o rótulo espelha a ordem real do gesto. */
   private atualizarBtnColocar(): void {
     if (!this.btnColocar) return;
     if (this.varinhaAtiva) rotular(this.btnColocar, "②", "canto 2");
+    else if (this.modoInteragir) rotular(this.btnColocar, "👆", "interagir");
     else if (this.modoComer) rotular(this.btnColocar, "🍎", "comer");
     else rotular(this.btnColocar, "▣", "colocar");
   }

@@ -2216,3 +2216,60 @@ versão, não a do palpite.
 (`python3 -m http.server` na pasta do dist), com o print `tooltip-toque.png` conferido a olho.
 `client/dist` rebuildado e commitado junto — o CSS vai inline no `dist/index.html`.
 | 10:53 | Session end: 3 writes across 2 files (index.html, todo.md) | 3 reads | ~29748 tok |
+| HH:MM | Pedido: anotar 2 ideias no todo.md — cama como ponto de spawn (clique no botão de colocar) e ícone ▣ de "colocar" virando "interagir" conforme a mira (baú/fornalha/porta/janela) | todo.md | anotado com buracos mapeados (vitais.ts:220, session.ts:1071, blocks.ts:760/766, touch.ts:323, main.ts:1366/1383/1874) | ~0 |
+| HH:MM | Pedido: mais 2 ideias no todo.md — mais tempo pro /tpa ("30 s é pouco") e painel de COMANDOS RÁPIDOS no chat do MOBILE | todo.md | anotadas; decisões do usuário: /tpa 60 s; painel = ÁRVORE COMPLETA, tap em comando inteiro ENVIA, comando com nome PREENCHE o campo | ~0 |
+| 22:xx | Sessão 71 — implementar as 4 ideias + bateria + commit | 4 ideias | ver narrativa abaixo | ~45k tok |
+
+## Sessão 71 (2026-08-14) — 4 ideias do todo.md
+
+Executadas as 4 ideias anotadas (2 da sessão anterior + 2 novas de hoje), na ordem de valor
+pro jogo: a cama-de-spawn da perspectiva do SERVIDOR primeiro (é onde as decisões de gates e
+do respawn moram), depois o interagir no CLIENTE (RÓTULO + predicado único), depois o /tpa
+(toda a mudança em `shared`), e por fim o painel de comandos (cliente). Ao contrário do que o
+STATUS.md da sessão 70 dizia, o interagir NÃO é "só rótulo": a fonte única `ehInterativo`
+mudou TAMBÉM os dois handlers do clique (gastei uma volta lendo o `gate-claim.test.ts` pra
+separar o que é o toll-policing do cliente do que é barreira do servidor).
+
+**#4 /tpa 60 s (FEITO).** `TP_PEDIDO_MS` em `shared/src/session/tp.ts` virou `export const`
+60_000; as 4 frases (aviso ao alvo, resposta ao solicitante, erro de expirado com nome e sem)
+interpolam `${TP_PEDIDO_MS / 1000}` — caí no clássico: a 4ª frase tinha o `${}` dentro de ASPAS
+DUPLAS (string, não template), interpolava literal. `tp.test.ts`: passei a importar a constante
+e conferir "60 segundos"; teste de fronteira novo com `TP_PEDIDO_MS - 1_000` (a 1ª tentativa,
+pingando `+ TP_PEDIDO_MS` exato no relógio injetado, FALHOU — o pedido morre no t na célula do
+limite, `>` estrito no `runTpa`).
+
+**#2 cama como spawn (FEITO, servidor + teste).** `session.ts` ganhou
+`spawnCama = new Map<nome,{x,y,z}>()` (sessão-só — sobrevive ao rejoin via roster como os
+vitais, morre no fechamento; decisão do refino: não vai pro SaveMeta). Ramo `isCama` no
+`use_block` DEPOIS do container e ANTES do `isInterativo`, com os MESMOS gates
+`claimBloqueia` + `confinaBloqueia` (clone do bloco do container) e chat "Ponto de nascimento
+definido nesta cama." `matar()` em `vitais.ts` lê o spawnCama; ATENÇÃO ao pontinho do respawn:
+`teleportar` pra célula da cama ESTÁ OCUPADA por ela, então o alvo é a célula de AR ACIMA
+(cama.x, cama.y+1, cama.z)+0.5 — se ocupada, cai no `ses.spawn` (bug-605 de sufocamento).
+Teste dedicado `cama-spawn.test.ts` (4 casos: definir+aviso, morte devolve pra cama, célula
+ocupada → spawn do mundo, clicar na CABECEIRA também define — par de 2 células, id irmão).
+
+**#1 botão ▣ vira "interagir" (FEITO).** Aprendizado da sessão: a cama entrou no predicado
+`ehInterativo` — o rótulo e o gesto TEM que ver a msm coisa. `client/src/main.ts`:
+`private ultimoIdMirado = -1` + guarda no loop do render (id mirado mudou → reavalia
+`setModoInteragir`), helper `ehInterativo(alvoId)` (fonte única) nos 2 handlers do clique
+direito/mouse button 2. `client/src/touch.ts`: `modoInteragir` + `setModoInteragir` (guarda de
+igualdade) + `atualizarBtnColocar` priorizando `② > 👆 interagir > 🍎 comer > ▣` (espelha a
+ordem real do gesto: interagir usa o bloco ANTES de pensar em comer).
+
+**#3 painel de COMANDOS RÁPIDOS (FEITO).** Lógica pura em `commands.ts`:
+`DestinoDeToque = enviar|nivel|preencher` + `destinoDeToque(caminho)` decidido por regrinhas
+explícitas espelhando `CMD_COM_NOME`/`AMIGOS_COM_NOME`/`SUBCOMANDOS`/`nivel3` (UMA árvore: o
+autocomplete evoluiu e o painel junto). UI em `client/src/chat.ts`: `montarPainel` SÓ com
+`isTouchDevice()`, palco é o `#chat` (pointer-events:none → painel e botões com
+`pointer-events:auto`), ui nasce no `openInput`, some no `close()`, `renderPainel` pinta o
+caminho navegado (botões voltar) + os candidatos do nível; `toqueNaOpcao`:
+nivel→desce, preencher→`field.value = caminho + " "` (e mantém o painel aberto), enviar→injeta
+Enter no campo (reusa o handler existente: envia + fecha, mesmo caminho do teclado).
+
+**Verificação:** `npm run verify` verde — launchers OK, typecheck 3/3 (cliente: tsc travou em
+`AMIGOS_COM_NOME.has(sub)` porque o `caminho[1]` é `string | undefined`; passei `?? ""`), test
+827/827 (822 antigos + 1 tp novo + 4 cama). `npm run shots:toque` verde com a seção E NOVA
+(abre o chat, painel aparece, /tp → nível 2 → grupos → ENVIA `/tp grupos`): 04-painel-comandos-tp.png.
+`npm run shots:tooltip -- 1024 600` 18/18 contra o dist rebuildado (commit junto com os
+hashes novos de assets). |

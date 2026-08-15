@@ -97,3 +97,47 @@ export function candidatos(completos: string[]): string[] {
   if (completos.length === 2) return nivel3(cmd, completos[1] ?? "");
   return [];
 }
+
+// ── Painel de COMANDOS RÁPIDOS do chat no mobile (2026-08-14) ────────────────
+//
+// O Tab não existe na tela de dedo, mas os comandos são MUITOS pra decorar. O
+// painel reusa a MESMA árvore do autocomplete (`candidatos`): uma fonte só —
+// comando novo que nasça lá ganha botão aqui junto, sem lista duplicada pra
+// manter (mesma trip-wire da decisão 2026-08-14 de um predicado só pro botão
+// interagir). O usuário decidiu:
+//   (1) ÁRVORE COMPLETA navegável (comando → subcomando), não uma lista curada;
+//   (2) o tap ENVIA na hora quando o comando está inteiro, e comando que
+//       termina em NOME preenche o campo (pra digitar o resto).
+export type DestinoDeToque = "enviar" | "nivel" | "preencher";
+
+/** O que acontece ao TOCAR num nó da árvore dado o caminho já navegado (o 1º
+ *  item tem a barra: ["/tpr"]). Regras:
+ *  - `enviar` — comando inteiro, manda na hora;
+ *  - `nivel`  — ainda há subcomando fixo pra escolher (abre o próximo nível);
+ *  - `preencher` — o próximo argumento é um NOME (jogador/regra/modo), então o
+ *    painel preenche o campo pra digitar o resto (o tap não manda sozinho —
+ *    mandar "/tpr" sem nome é erro de uso no servidor).
+ */
+export function destinoDeToque(caminho: string[]): DestinoDeToque {
+  const cmd = (caminho[0] ?? "").replace(/^\//, "");
+  if (caminho.length === 1) {
+    if (cmd === "tpa") return "enviar"; // aceita o pedido mais recente — inteiro
+    if (cmd === "dar") return "preencher"; // §🍖 F4: /dar <nome> <id> — nome 1º
+    if (CMD_COM_NOME.has(cmd)) return "preencher"; // kicar/resetpin/tpr pedem nome
+    if (cmd === "tp") return "nivel"; // abre a lista: grupos + quem está online
+    if (SUBCOMANDOS[cmd]?.length) return "nivel"; // há subcomando pra escolher
+    return "enviar"; // /iniciar, /mundo atual… sem próximo token fixo
+  }
+  if (caminho.length === 2) {
+    const sub = caminho[1];
+    if (cmd === "tpa") return "enviar"; // /tpa nome aceita o pedido DAQUELE nome
+    if (cmd === "dar") return "preencher"; // /dar eu <id> <qtd> ainda tem o id
+    if (cmd === "tp") return "enviar"; // /tp grupos ou /tp <nome> — inteiros
+    if (cmd === "amigos" && AMIGOS_COM_NOME.has(sub ?? "")) return "preencher";
+    if (cmd === "modo" && (sub === "criativo" || sub === "sobrevivencia"))
+      return "preencher"; // /modo <modo> <eu|all|nome>
+    if (nivel3(cmd, sub ?? "").length) return "nivel"; // objetivo add/modo, mundo carregar…
+    return "enviar"; // /regiao lista, /amigos lista, /grupo criar… inteiros
+  }
+  return "enviar";
+}

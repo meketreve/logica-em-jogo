@@ -2,7 +2,49 @@
 
 > Single source of truth for resuming work. Read this FIRST when starting a session.
 
-> ## 🧭 HANDOFF — ESTADO AO FIM DA SESSÃO 70 (2026-08-12)
+> ## 🧭 HANDOFF — ESTADO AO FIM DA SESSÃO 71 (2026-08-14)
+>
+> **Sessão de 4 ideias anotadas virou 4 features entregues: interagir no ▣, cama como spawn,
+> /tpa com 60 s e o painel de comandos rápidos do chat mobile.** Bateria verde, shots verdes,
+> dist rebuildado — o commit+push é o passo final (lista no fim).
+>
+> **O que saiu:**
+> 1. **Botão ▣ → "interagir"** (`client/src/main.ts`, `client/src/touch.ts`). A lição grande da
+>    sessão: o item parecia "só trocar o rótulo", mas virou **fonte única** `ehInterativo(alvoId)`
+>    (`main.ts:115`) = container | interativo | **cama** — usada pelos 2 handlers do clique E pelo
+>    rótulo do ▣, senão a barra e o gesto divergem no primeiro bloco novo. O loop realimenta
+>    `setModoInteragir` só quando o id mirado muda (guarda `ultimoIdMirado`); prioridade do rótulo
+>    `② > 👆 interagir > 🍎 comer > ▣` (espelha a ordem real do clique).
+> 2. **Cama como ponto de spawn** (`shared/src/session.ts`, `shared/src/session/vitais.ts`).
+>    Ramo `isCama` no `use_block` (depois do container, antes do interativo) grava `spawnCama`
+>    por NOME, sessão-só (sobrevive ao rejoin, morre no fechamento), com os MESMOS gates
+>    claim+confinamento. ⚠️ **O respawn NA CAIXA DA CAMA sufocaria (bug-605)** — o alvo é a célula
+>    de AR ACIMA da cama e, se ocupada, cai no `ses.spawn`. 4 testes novos em
+>    `shared/src/cama-spawn.test.ts`.
+> 3. **/tpa com 60 s** (`shared/src/session/tp.ts`, `shared/src/tp.test.ts`). `TP_PEDIDO_MS`
+>    virou `export const` 60_000 e as 4 frases interpolam `${TP_PEDIDO_MS / 1000}`. ⚠️ Tropeço:
+>    uma frase tinha o `${…}` dentro de ASPAS DUPLAS (não interpolava). Teste de fronteira novo
+>    (`TP_PEDIDO_MS - 1_000` vale; o `+ TP_PEDIDO_MS` exato NAO — o `>` estrito mata no limite).
+> 4. **Painel de COMANDOS RÁPIDOS no chat mobile** (`client/src/commands.ts`, `client/src/chat.ts`).
+>    `destinoDeToque` (UMA árvore, reusa `candidatos`) + painel só com `isTouchDevice()`, dentro
+>    do `#chat` (que é `pointer-events:none` → painel e botões `pointer-events:auto`), piso de
+>    40px. Tap: comando inteiro ENVIA, tem subcomando desce nível, pede NOME preenche o campo.
+>    Verificação NOVA: seção E do `scripts/toque-shot.mjs` — abre, /tp desce pro nível, "grupos"
+>    ENVIA.
+>
+> ✅ **Bateria desta sessão:** `check:launchers` OK · typecheck 3/3 (cliente travou 1× no
+> `AMIGOS_COM_NOME.has(sub)` com `string | undefined` → `?? ""`) · **827/827 testes** (822
+> antigos + 1 tp + 4 cama) · build · `shots:toque` ✓ (seção E nova) · `shots:tooltip -- 1024 600`
+> 18/18 contra o `client/dist`.
+>
+> 🚀 **Fila segue a da sessão 70:** Ferramentas v2 (decisão `dano?` no Stack × faixa de ids),
+> mobs, cópias da área ao vivo. **Nenhuma pendência externa** — o piloto da escola fechou na 70.
+>
+> 📌 **FICA PRO PRÓXIMO:** o painel e o interagir não têm teste de UNIDADE no cliente (não há
+> suite — a verificação é o `toque-shot`); testam via build+shots. E o todo.md tem 4 itens
+> marcados `[x]` com a evidência (2026-08-14).
+
+> ## 🧭 HANDOFF ANTERIOR — ESTADO AO FIM DA SESSÃO 70 (2026-08-12)
 >
 > **Sessão de um pedido só, já empurrada: o contraste do tooltip (bug-622).** Árvore limpa.
 > `client/index.html` — `.tooltip-item` ganhou `color: #ffffff` explícita, fundo `#0c0e14` →

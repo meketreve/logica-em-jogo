@@ -6,8 +6,10 @@ import { runGrupo } from "./equipes";
 import { parseCoordArg } from "./coords";
 import type { GameSession } from "../session";
 
-/** Validade de um pedido de /tpr (aceite com /tpa) — 30 s. */
-const TP_PEDIDO_MS = 30_000;
+/** Validade de um pedido de /tpr (aceite com /tpa) — 60 s (2026-08-14: pedido
+ *  do usuário — "30 segundos é pouco"; o professor lê o aviso e o aluno ainda
+ *  tem tempo de digitar). */
+export const TP_PEDIDO_MS = 60_000;
 
 /**
  * TELEPORTE e INÍCIO DA ATIVIDADE.
@@ -132,9 +134,9 @@ export function runTpr(ses: GameSession, clientId: number, parts: string[]): str
   ses.tpPedidos.set(alvoId, fila);
   ses.sendServerChat(
     alvoId,
-    `${de.name} quer se teleportar até você. Digite /tpa para aceitar — o pedido expira em 30 segundos.`,
+    `${de.name} quer se teleportar até você. Digite /tpa para aceitar — o pedido expira em ${TP_PEDIDO_MS / 1000} segundos.`,
   );
-  return `Pedido enviado a ${nome}. Ele tem 30 segundos para aceitar com /tpa.`;
+  return `Pedido enviado a ${nome}. Ele tem ${TP_PEDIDO_MS / 1000} segundos para aceitar com /tpa.`;
 }
 
 /** `/tpa [nome]`: aceita o pedido de teleporte mais recente (ou o de `nome`). */
@@ -152,8 +154,8 @@ export function runTpa(ses: GameSession, clientId: number, parts: string[]): str
   if (!pedido) {
     ses.tpPedidos.set(clientId, fila);
     return nome
-      ? `Não há pedido de teleporte de "${nome}" — pode ter expirado (o prazo é de 30 segundos).`
-      : "Não há pedido de teleporte pendente. Peça com /tpr nome (o pedido dura 30 segundos).";
+      ? `Não há pedido de teleporte de "${nome}" — pode ter expirado (o prazo é de ${TP_PEDIDO_MS / 1000} segundos).`
+      : `Não há pedido de teleporte pendente. Peça com /tpr nome (o pedido dura ${TP_PEDIDO_MS / 1000} segundos).`;
   }
   ses.tpPedidos.set(clientId, fila.filter((p) => p !== pedido));
   teleportar(ses, pedido.deId, eu.x, eu.y, eu.z);

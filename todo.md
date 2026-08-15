@@ -101,6 +101,13 @@ base). Só o mesher muda a folha ABERTA de lado; física/cliente não mudam (tud
 (112-115); reusa o MESMO `escolherDobradica` do servidor (agora genérico, parametrizado
 por altura=1 e pelos helpers da janela). Mesma regra: janela vizinha do mesmo eixo → oposta;
 senão lado com parede; empate → base. Cliente inalterado.
+* \[x] **mais tempo pra usar o /tpa (pedido do usuário, 2026-08-14: "os 30 segundos é pouco")** —
+  o pedido de `/tpr` expira em 30 s (`TP_PEDIDO_MS` em `shared/src/session/tp.ts:10`, citado em
+  3 frases: o aviso pro alvo, a resposta do solicitante e o erro de "expirado"). Decidido
+  (2026-08-14): **60 s** — uma constante e as 3 mensagens; o teste `tp.test.ts` tem de conferir
+  o prazo novo (não só o fato de o pedido expirar). — **FEITO** (2026-08-14): `TP_PEDIDO_MS` virou
+  `export const` 60_000 e as 4 frases interpolam `${TP_PEDIDO_MS / 1000}`; `tp.test.ts` ganhou a
+  conferência do "60 segundos" + o teste de fronteira (`TP_PEDIDO_MS - 1_000` ainda vale).
 
 ## Mundo / professor
 
@@ -246,6 +253,51 @@ senão lado com parede; empate → base. Cliente inalterado.
   * Em criativo continua "🧱 blocos". Mesmo mecanismo do `setVarinha`/comida (rotular por
     estado). Fiação junto do handler da msg `modo` (main.ts:765–792) ou do `setAtiva` da
     Mochila.
+* \[x] **o botão ▣ de COLOCAR vira de INTERAGIR conforme a mira (pedido do usuário,
+  2026-08-14)** — **SÓ na UI do MOBILE (touch)** — mirando baú/fornalha (container) ou
+  porta/janela (interativo), o ícone deixa de ser ▣ "colocar" (ou 🍎 "comer") e vira
+  "interagir"; o mesmo vale pra TODO bloco que o botão usa em vez de colocar. — **FEITO**
+  (2026-08-14): `ehInterativo(alvoId)` em `main.ts` como fonte única (`containerTipoDe !==
+  null || isInterativo || isCama`), usada pelo rótulo E pelos dois handlers do clique
+  (main.ts:1366/1383); o loop realimenta `touchControls.setModoInteragir` quando o id mirado
+  muda (guarda `ultimoIdMirado`); `touch.ts` ganhou `modoInteragir`/`setModoInteragir` com
+  prioridade `varinha ② > interagir 👆 > comer 🍎 > colocar ▣`. Refino (histórico):
+  * **O TAP já faz a coisa certa**: `colocar()` = `input.press(2)` (main.ts:1535) = clique
+    direito, e o handler dele (main.ts:1383) já ABRE/USA container e interativo com prioridade
+    sobre o comer. Só o RÓTULO mente — `atualizarBtnColocar()` (`touch.ts:323`) só conhece
+    varinha ② / comer 🍎 / colocar ▣.
+  * **Fonte única do "é interativo?":** extrair o predicado inline de `main.ts:1366`/`1383`
+    (`containerTipoDe(alvoId) !== null || isInterativo(alvoId)`) pra UMA função reusada pelo
+    rótulo E pelo clique — senão a barra e o gesto divergem no primeiro bloco novo. A cama-de-
+    spawn (item da seção de sobrevivência) entra nesse predicado também.
+  * **Quem alimenta:** `this.target` é recalculado a cada frame (`main.ts:1874`); fiar um
+    `setModoInteragir(bool)` no loop quando o id mirado muda (ou junto dos handlers do `modo`/
+    hotbar, como o `setModoComer` de `main.ts:2216`). Prioridade do rótulo = varinha >
+    interagir > comer > colocar — espelha a ordem real do clique (interagir ganha de comer
+    com comida na mão, main.ts:1362-1383).
+  * **PC:** não existe botão no clique direito — o escopo é o ▣ do touch; o crosshair não muda.
+* \[x] **painel de COMANDOS RÁPIDOS no chat do MOBILE (pedido do usuário, 2026-08-14)** — ao
+  abrir o chat no touch, um painel mostra os comandos de texto que dá pra usar; toque usa.
+  — **FEITO** (2026-08-14): `destinoDeToque` em `commands.ts` (UMA árvore, reusa `candidatos`)
+  + painel em `chat.ts` (só `isTouchDevice()`, nasce com o chat, some no `close()`,
+  `pointer-events:auto`). Verificação: seção E do `toque-shot.mjs` (abre, desce pro nível do
+  `/tp`, tap em "grupos" ENVIA) — tudo verde.
+  **Decisões (2026-08-14):** (1) **ÁRVORE COMPLETA** do autocomplete navegável por toque
+  (comando → subcomando → depois), não uma lista curada; (2) o tap **ENVIA na hora** quando o
+  comando está inteiro (sem argumento pendente); comando que termina em NOME de jogador
+  **preenche o campo** (`/tpr `) pra digitar o nome. Refino:
+  * **Lógica pura em `commands.ts`** (o `chat.ts` só renderiza): `destinoDeToque(caminho,
+    botao)` → `enviar` | `nivel` | `preencher`, reusando `candidatos` — UMA árvore só, senão
+    o painel e o autocomplete divergem no primeiro comando novo. Botão "voltar" no painel e a
+    primeira tela sempre com os comandos-raiz.
+  * **Trato dos nomes:** `/tpa` é comando SOLTO (sem argumento = inteiro): envia `/tpa` na
+    hora, não vira lista. `tpr/kicar/resetpin/dar`, `amigos convidar|aceitar|recusar|expulsar`
+    e `modo <modo>` preenchem o campo (o próximo token é NOME/Jogador — espelha as zonas de
+    nome do autocomplete: `CMD_COM_NOME` + `AMIGOS_COM_NOME` + nível 3 do `/modo`). `/tp` abre
+    a lista (`grupos` + nomes); tap num nome = `/tp ana`, comando inteiro.
+  * **UI em `chat.ts`**: painel criado só com `isTouchDevice()`; aparece só com o chat aberto
+    (`openInput()`, some no `close()`), dentro do `#chat` (que é pointer-events:none — os
+    botões precisam de `pointer-events:auto`). Alvo de dedo: piso de 40px (régua coarse).
 
 ## Visual / player
 
@@ -471,6 +523,32 @@ Singleplayer (Web Worker) não tem fs — chat não vira arquivo lá, como plane
 
 * \[x] fome — **FEITO** (§🍖 F3, sessão 35; F6 fechou o laço e ela voltou a matar)
 * \[x] vida — **FEITO** (§🍖 F2, sessão 34: queda, afogamento, morte, respawn)
+* \[x] **cama como PONTO DE SPAWN do jogador (pedido do usuário, 2026-08-14)** — quem clicar
+  na cama com o botão de colocar (clique direito / tap no ▣) define o PRÓPRIO ponto de
+  nascimento; a morte passa a devolver pra CAMA em vez do `ses.spawn` do mundo. — **FEITO**
+  (2026-08-14): ramo `isCama` no `use_block` (`session.ts`) grava `spawnCama` por NOME
+  (sessão-só, sobrevive ao rejoin) com os MESMOS gates claim+confinamento do container;
+  `matar()` (`vitais.ts`) respawna na célula de AR acima da cama (fallback pro `ses.spawn` se
+  ocupada — senão o bug-605 morde); feedback no chat. Testes novos em
+  `shared/src/cama-spawn.test.ts` (4: clicar define + aviso, morte devolve pra cama, célula
+  ocupada → spawn do mundo, cabeceira também define). Refino:
+  * **Servidor:** o `use_block` (`session.ts:1071`) hoje só trata container (`containerTipoDe`)
+    e interativo (`isInterativo` = porta/janela); a cama (`isCama`, `blocks.ts:760`) cai no
+    `return` mudo. Entra um ramo `isCama` que grava o override de spawn por NOME (molde do
+    `ses.vitais`/roster — sobrevive ao rejoin; sessão-só, como os vitais, ou persistir no
+    SaveMeta se quiser sobreviver ao fechamento). Mesmos gates do container: claim +
+    confinamento (senão o aluno marca spawn na área/baú do colega).
+  * **A cama é um PAR de 2 células** (ids 96-99; cabeceira via `camaHeadDir`, `blocks.ts:766`) —
+    clicar em QUALQUER metade marca o mesmo ponto, e não há helper "outra metade" (o par é
+    HORIZONTAL, não tem o `yPar` da porta, `session.ts:1105`). Definir onde a célula irmã está
+    antes de gravar.
+  * **`matar()`** (`vitais.ts:220`) teleporta pro `ses.spawn`; passa a ler o override por
+    jogador com fallback pro spawn do mundo. O ponto da cama tem de ser uma célula de AR acima
+    dela — senão o `teleportar` nasce DENTRO do bloco e o bug-605 (sufocamento) morde no
+    respawn.
+  * Feedback no chat ("ponto de nascimento definido aqui"); `/tp` e o "volta onde parou" do join
+    (`session.ts:1559`) continuam usando o caminho atual — o override vale SÓ pra morte
+    (decisão a confirmar).
 * \[x] craft — **FEITO** (§🍖 F5, sessão 39; sessão 45 levou de 12 pra 110 receitas, cobrindo
   todo bloco colocável)
 * \[x] **ferramentas** — **FEITO** (§🍖 F10d, sessão 46). 4 picaretas, sem durabilidade e

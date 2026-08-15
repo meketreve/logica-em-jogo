@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { GameSession, type SessionOptions } from "./session";
+import { TP_PEDIDO_MS } from "./session/tp";
 
 /**
  * /tpr (pedir teleporte) + /tpa (aceitar) — todos os jogadores; e /tp nome /
@@ -67,13 +68,22 @@ describe("/tpr e /tpa — pedido e aceite", () => {
     expect(s.lastChat(2)).toContain("Uso: /tpr nome");
   });
 
-  it("pedido expira em 30 s (clock injetado)", () => {
+  it("pedido expira em 60 s (clock injetado)", () => {
     const s = makeTp();
     s.chat(2, "/tpr bia");
-    s.clock.t += 31_000;
+    expect(s.lastChat(3)).toContain("60 segundos");
+    s.clock.t += TP_PEDIDO_MS + 1_000;
     s.chat(3, "/tpa");
     expect(s.lastChat(3)).toContain("Não há pedido");
     expect(s.lastTeleport(2)).toBeUndefined();
+  });
+
+  it("dentro do prazo o pedido ainda vale (fronteira do 60 s)", () => {
+    const s = makeTp();
+    s.chat(2, "/tpr bia");
+    s.clock.t += TP_PEDIDO_MS - 1_000;
+    s.chat(3, "/tpa");
+    expect(s.lastTeleport(2)).toMatchObject({ x: 20.5, z: 20.5 });
   });
 
   it("dois pedidos: /tpa nome escolhe; /tpa sem nome pega o restante mais recente", () => {

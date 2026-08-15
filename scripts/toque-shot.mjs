@@ -431,6 +431,53 @@ ok(d.amigos === "VISIVEL", "e com a tela livre o G abre o de amigos");
 await tecla("KeyG");
 await espera(400);
 
+diga("== E: painel de COMANDOS RÁPIDOS no chat (2026-08-14) ==");
+// o painel é este: o panccel nasce quando isTouchDevice() — e é exatamente o
+// que a sonda emula (coarse). Verifica a ÁRVORE, não um botão: o caminho de
+// navegação precisa REPETIR o que o chat.ts renderiza.
+const painelBotao = (nome) =>
+  avaliar(`(() => {
+    const p = document.getElementById('chat-painel');
+    if (!p) return null;
+    const b = [...p.querySelectorAll('button')]
+      .find(e => e.textContent === ${JSON.stringify(nome)});
+    if (!b) return null;
+    const r = b.getBoundingClientRect();
+    return { x: Math.round(r.left + r.width/2), y: Math.round(r.top + r.height/2) };
+  })()`);
+await tecla("Enter"); // abre o chat
+await espera(400);
+d = await estado();
+ok(d.chat === "VISIVEL", "chat aberto (a sonda emula dedo — o painel devia pintar)");
+const painelApareceu = await avaliar(`(() => {
+  const p = document.getElementById('chat-painel');
+  return p ? p.checkVisibility() : 'AUSENTE';
+})()`);
+ok(painelApareceu === true, `o painel de comandos apareceu junto do chat (${painelApareceu})`);
+// 1º nível = árvore: comandos com a barra. Não há a barra de toque ocupando o
+// topo, mas há o #touch-topo: os botões do painel ficam CAIXA do chat, então
+// rola de dedo. Só olhar se /tp existe.
+const tp = await painelBotao("/tp");
+ok(tp !== null, "o 1º nível do painel mostra os comandos (ex.: /tp)");
+if (tp) {
+  await tocar(tp.x, tp.y);
+  await espera(300);
+  // /tp abre um NÍVEL (não manda): o 2º nível tem "grupos" + quem está online
+  const grupos = await painelBotao("grupos");
+  ok(grupos !== null, "tap em /tp desceu pro nível dele (grupos + nomes online)");
+  if (grupos) {
+    await tocar(grupos.x, grupos.y);
+    await espera(400);
+    const enviou = await avaliar(
+      `[...document.querySelectorAll('#chat-log .msg')].some(d => /teleport|grupo|Uso:/i.test(d.textContent || ''))`,
+    );
+    ok(enviou, "tap em 'grupos' ENVIA o comando inteiro (/tp grupos)");
+  }
+  await foto("04-painel-comandos-tp.png");
+}
+await tecla("Escape");
+await espera(300);
+
 if (excecoes.length) {
   diga(`\n✗ exceções no console: ${excecoes.join(" | ")}`);
   falhas++;

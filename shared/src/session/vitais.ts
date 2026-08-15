@@ -1,4 +1,4 @@
-import { isAgua } from "../blocks";
+import { BlockId, isAgua } from "../blocks";
 import { PLAYER_REACH } from "../constants";
 import { PLAYER, acharEspacoVago, apoiadoNoChao, sobrepoeSolidos } from "../physics";
 import { type ServerMessage } from "../protocol";
@@ -217,7 +217,16 @@ export function matar(ses: GameSession, clientId: number, causa: CausaDano, porQ
     ses.inventarios.delete(p.name);
     sendInventario(ses, clientId);
   }
-  teleportar(ses, clientId, ses.spawn.x, ses.spawn.y, ses.spawn.z);
+  // cama-ponto-de-spawn (2026-08-14): a morte devolve pra CAMA em vez do
+  // spawn do mundo — a célula de AR acima da metade clicada. Se alguém
+  // construiu por cima (a célula já não é ar), CAI no spawn do mundo: nascer
+  // dentro de bloco é o golpe do bug-605 (sufocamento) no respawn.
+  const cama = ses.spawnCama.get(p.name);
+  if (cama && getBlock(ses.world, cama.x, cama.y + 1, cama.z) === BlockId.Air) {
+    teleportar(ses, clientId, cama.x + 0.5, cama.y + 1, cama.z + 0.5);
+  } else {
+    teleportar(ses, clientId, ses.spawn.x, ses.spawn.y, ses.spawn.z);
+  }
   sendVida(ses, clientId); // vida cheia de novo, agora sem causa
 }
 
