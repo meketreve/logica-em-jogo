@@ -303,7 +303,7 @@ senão lado com parede; empate → base. Cliente inalterado.
 
 * \[ ] animação de sentar na cadeira e deitar na cama (pra passar a noite)
 * \[ ] trocar modelo do player pra estilo Minecraft
-* \[ ] trocar sol pra ser quadrado, estilo Minecraft (kkk)
+* \[x] trocar sol pra ser quadrado, estilo Minecraft (kkk) — **FEITO** (2026-08-15): `sunDisc` virou `PlaneGeometry(56, 56)` (bilboard, `lookAt` da câmera) no lugar do `CircleGeometry(30, 24)`; lado 56 ≈ diâmetro do disco antigo, céu não encolheu. Lua segue circular (não pedida).
 
 ## Água (visual + fluido)
 
@@ -748,6 +748,18 @@ ferramenta certa quebra rápido, gasta, e precisa ser refeita.
     lado" do container atual.
   * Junta pilha como o mover normal (mesma `adicionar`); lotou tudo → não move (devolve
     aviso, não perde item).
+* \[ ] **botão de CHANGELOG/NOVIDADES no menu (ideia do usuário, 2026-08-15)**. Botão
+  "📜 novidades" que abre a tela de mudanças da versão. Nomenclatura fixada (a MESMA do
+  código): o primeiro menu, que aparece ao entrar no jogo (tela de título), é o **menu
+  principal** (`#menu`, `menu.ts`, cp8); o menu do Esc dentro do jogo é o **menu de pausa**
+  (`#overlay`, `overlay.ts` — guarda a referência `overlay-main`/`overlay-config`). **O botão
+  aparece SÓ no menu principal** (decisão do usuário, 2026-08-15) — no menu de pausa fica de
+  fora. Conteúdo: lista por versão (o que mudou v0.8.0 → atual 0.10.1); garantir que a tela
+  `changelog` DELE fecha como as outras (voltam pro menu correspondente — em jogo, evento de
+  fechar restaura o ponteiro/overlay; no menu principal, só alterna a `.menu-screen` ativa).
+  Refino: fonte de verdade única do texto (ex.: `client/src/changelog.ts` com `CHANGELOG`),
+  e o `#menu-version`/F3 já exibem `VERSION` — a tela pode reusar essa constante.
+  (Sem URL externa — tela local, estilo as outras do `#menu`.)
 
 ## Geração de mundo / performance
 
