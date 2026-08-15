@@ -168,6 +168,44 @@ async function alvos(nome, sel) {
   console.log(`  ${nome.padEnd(22)} ${ok} menor alvo ${m.min}px (${m.n} elementos)`);
 }
 
+/** Peça 1 do fundo animado: o cubo 3D renderiza ATRÁS do menu? Check por PINTA
+ *  em vez de screenshot: garimpa o canvas `#menu-fundo` via toDataURL (webgl2 +
+ *  preserveDrawingBuffer) e amostra as 4 pontas. Se o cubo estiver lá, as
+ *  leituras não são tudo a MESMA cor (o gradiente estático era um só). */
+async function checarFundoMenu() {
+  const expr = `(async () => {
+    const c = document.getElementById('menu-fundo');
+    if (!c) return 'SEM canvas #menu-fundo';
+    const z = getComputedStyle(c).zIndex;
+    if (!(z < getComputedStyle(document.getElementById('menu')).zIndex)) return 'canvas não fica atrás do #menu (z ' + z + ')';
+    const url = c.toDataURL();
+    if (!url || url === 'data:,') return 'canvas vazio (sem pixels)';
+    const img = new Image();
+    await new Promise((res, rej) => { img.onload = res; img.onerror = rej; img.src = url; });
+    const aux = document.createElement('canvas');
+    aux.width = c.width; aux.height = c.height;
+    const g2 = aux.getContext('2d');
+    g2.drawImage(img, 0, 0);
+    const R = 8, cores = [];
+    for (let qx = 0; qx < 2; qx++) for (let qy = 0; qy < 2; qy++) {
+      const d = g2.getImageData(qx * (c.width - R), qy * (c.height - R), R, R).data;
+      let acc = 0;
+      for (let i = 0; i < R * R; i++) acc += d[i * 4] + d[i * 4 + 1] + d[i * 4 + 2];
+      cores.push(Math.round(acc / (R * R)));
+    }
+    const distintos = new Set(cores).size;
+    return { cores, ok: distintos > 1 };
+  })()`;
+  const resp = await cdp("Runtime.evaluate", {
+    expression: expr,
+    returnByValue: true,
+    awaitPromise: true,
+  });
+  const r = resp.result?.result?.value;
+  const v = typeof r === "string" ? r : r?.ok ? "✓ cubo renderiza (4 pontas pintadas)" : `✗ fundo uniforme (${r?.cores?.join(",")})`;
+  console.log(`  fundo animado         ${v}`);
+}
+
 console.log(`▶ ${BASE} em ${L}×${A}, pointer:coarse\n`);
 await cdp("Page.navigate", { url: `${BASE}/` });
 await espera(2500);
@@ -190,6 +228,7 @@ await espera(2500);
 
 console.log("— menu: início —");
 await medir("menu-home", "#menu-home");
+await checarFundoMenu();
 await tirar("01-menu-home");
 
 console.log("— menu: meus mundos —");
@@ -250,6 +289,11 @@ for (let i = 0; i < 150; i++) {
 // fecha o menu de pausa (o jogo devolve o overlay ao fim da carga)
 await avaliar(`document.getElementById('overlay-voltar')?.click()`);
 await espera(1500);
+console.log(
+  `  ${"fundo 3D fecha ao jogar".padEnd(22)} ${
+    (await avaliar(`!document.getElementById('menu-fundo')`)) ? "✓" : "✗ ficou na tela"
+  }`,
+);
 await medir("hotbar", "#hotbar");
 await alvos("slots da hotbar", "#hotbar .slot");
 console.log(

@@ -778,7 +778,15 @@ ferramenta certa quebra rápido, gasta, e precisa ser refeita.
      gerada-ser-fashion (ou imagens) e câmera no MEIO, dando a impressão de um ambiente 3D de
      verdade por um custo mínimo (projeção das faces internas). Alternativa aceita: **carrosel
      de fotos** (galeria do professor) — deslizar/desvanecer por trás do menu. Objetivo: o menu
-     não ser um fundo estático de gradiente.
+     não ser um fundo estático de gradiente. — **FEITO** (2026-08-15, escolha do usuário: cubo
+     ️3D, sem galeria): `client/src/menuFundo.ts` — cubo 48×48×48 com as 6 FACES INTERNAS
+     pintadas em canvas 2D procedural (céu, sol quadrado com raios, nuvens pixeladas, chão de
+     blocos, árvore quadrada, vinheta) — zero arquivo externo; câmera no centro orbitando
+     0.6u devagar (`bola*0.02`), `MeshBasicMaterial + BackSide`, renderer webgl2 PRÓPRIO
+     (`preserveDrawingBuffer` pra screenshot), pixelRatio 1, canvas `position:fixed; z:29`
+     ATRÁS do `#menu` (que ficou translúcido `rgba(9,15,28,.55)`); `iniciarFundoMenu()` nasce
+     no `showMenu`, `encerrar()` ao jogar (single e rede). Testado: `tablet-shots` confere o
+     cubo por PINTA (toDataURL das 4 pontas ≠ mesma cor) e que ele SAI ao entrar no jogo.
   2. **Frase engraçada por vez** (splashes estilo Minecraft/Terraria — *público LIVRE*, pensado
      pra criança e pra sala): histórias aleatórias, rola uma por vez logo ACIMA do título
      "Lógica em Jogo". — **FEITO** (2026-08-15): `SPLASHES` (15 frases) + `#menu-splash` acima

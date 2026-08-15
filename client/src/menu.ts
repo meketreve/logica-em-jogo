@@ -26,6 +26,7 @@ import {
 } from "./worldStore";
 import { isTouchDevice } from "./touch";
 import { buildChangelogScreen } from "./changelog";
+import { iniciarFundoMenu } from "./menuFundo";
 
 /**
  * Menu principal (cp8) — HTML/CSS por cima do canvas, sem GUI de engine.
@@ -69,21 +70,155 @@ const NAME_KEY = "lj-nome";
  * sortudas no espírito do Minecraft. Público LIVRE: sala de aula, criança.
  */
 const SPLASHES: string[] = [
-  "que bão, um bloco quadrado!",
-  "picareta engraçada não minera minério",
-  "os blocos se foram? a gente recria!",
-  "minerar é maratonar",
-  "a galinha virou portal",
-  "répteis de pedra? isso acaba em tocha",
-  "um machado por dia, a torre vem fácil",
-  "de onde vêm os blocos? do picareteio",
-  "a grama correu demais",
-  "melhor que pão de queijo, é craft de queijo",
-  "cuidado: zumbi de chinelo na caverna",
   "esse mundo menos quadrado? impossível",
   "as melhores histórias nascem do barro",
-  "planta a semente, espera a folha, comemora",
-  "só pulo seta — e muita esperança",
+  "planta a semente > espera a folha > comemora",
+  "minerar sem cair é apenas um detalhe",
+  "o bloco de ouro não aceita fiado",
+  "a pedra estava quieta até alguém quebrá-la",
+  "se não sabe o que fazer, construa uma casa",
+  "se sabe o que fazer, construa duas",
+  "a casa ficou torta? é arquitetura moderna",
+  "não é bagunça, é inventário criativo",
+  "quem precisa de mapa quando existe coragem?",
+  "a caverna disse olá. eu disse tchau.",
+  "um bloco de cada vez e chegamos lá",
+  "cuidado com o buraco que você mesmo cavou",
+  "não confie em uma galinha suspeita",
+  "hoje é um ótimo dia para quebrar blocos",
+  "a madeira não vai se coletar sozinha",
+  "craftar é transformar ideias em coisas quadradas",
+  "mais vale uma tocha na mão que um creeper no pé",
+  "a noite chegou, e a casinha também",
+  "se explodir, provavelmente era um creeper",
+  "não existe bloco inútil, só bloco esperando uma ideia",
+  "o diamante estava escondido por vergonha",
+  "a picareta trabalha, o jogador comemora",
+  "minha estratégia é apertar botões com confiança",
+  "se deu errado, chama de experimento",
+  "construir é fácil, decorar é outra história",
+  "não cave para baixo. sério.",
+  "não cave para cima também. talvez.",
+  "a lava não é água quente",
+  "um balde resolve quase tudo",
+  "menos teoria, mais blocos!",
+  "pensar primeiro, quebrar depois",
+  "cada bloco conta uma história",
+  "a criatividade não precisa de crafting table",
+  "se pode construir, pode melhorar",
+  "o melhor combustível é a curiosidade",
+  "bloco pequeno, ideia gigante",
+  "o cérebro também faz crafting",
+  "a lógica está carregando...",
+  "calculando a rota mais quadrada possível",
+  "algoritmo encontrado: andar, pensar, construir",
+  "erro 404: bloco perdido",
+  "carregando criatividade em 3... 2... 1...",
+  "processando uma ideia muito quadrada",
+  "o cérebro está minerando conhecimento",
+  "craftando uma solução...",
+  "atenção: criatividade em nível máximo",
+  "não é mágica, é pensamento computacional",
+  "primeiro pensamos, depois construímos",
+  "resolver problemas dá menos trabalho que quebrar tudo",
+  "a lógica também sabe fazer parkour",
+  "um bom plano vale muitos blocos",
+  "se não funcionar, tente de outro jeito",
+  "bug encontrado: o jogador está pensando",
+  "sistema operacional: criatividade",
+  "memória cheia de ideias",
+  "iniciando modo construtor",
+  "carregando mundo... não derrube a internet",
+  "conectando cérebro ao bloco",
+  "quase pronto para mais uma aventura",
+  "a aventura começa depois do loading",
+  "carregando... favor não alimentar os creepers",
+  "loading de ideias quadradas",
+  "o mundo está carregando, respire",
+  "aguarde: estamos procurando diamantes",
+  "carregando criatividade...",
+  "só mais um bloco...",
+  "só mais uma fase...",
+  "só mais cinco minutinhos...",
+  "eu juro que era para ser uma casa",
+  "era para ser uma ponte, confia",
+  "ninguém perguntou, mas eu fiz uma torre",
+  "essa construção tem conceito",
+  "não está torto, está criativo",
+  "foi planejado. mais ou menos.",
+  "a planta da casa sumiu",
+  "o arquiteto pediu mais blocos",
+  "engenharia movida a picareta",
+  "construção aprovada pelo conselho das galinhas",
+  "se cair, chamamos de túnel",
+  "se ficar bonito, foi de propósito",
+  "se ficar feio, é versão beta",
+  "o importante é tentar... e colocar uma tocha",
+  "quem deixou esse buraco aqui?",
+  "provavelmente fui eu",
+  "não entre nessa caverna sozinho... ou entre",
+  "a tocha é a melhor amiga do explorador",
+  "escuridão detectada: cadê a tocha?",
+  "o zumbi também quer aprender",
+  "o creeper pediu trabalho em grupo",
+  "o esqueleto está estudando pontaria",
+  "a aranha só queria conversar",
+  "o zumbi esqueceu o caminho de casa",
+  "o creeper não sabe bater na porta",
+  "a galinha sabe mais do que parece",
+  "não subestime uma galinha quadrada",
+  "galinha detectada. plano cancelado.",
+  "o porco sabe o caminho. talvez.",
+  "todo herói precisa de um balde",
+  "todo construtor precisa de madeira",
+  "todo estudante precisa de curiosidade",
+  "todo problema precisa de uma solução",
+  "todo bloco precisa de um lugar",
+  "minerar conhecimento é permitido",
+  "a melhor ferramenta é uma boa ideia",
+  "curiosidade equipada!",
+  "criatividade equipada!",
+  "pensamento lógico equipado!",
+  "modo inventor ativado",
+  "modo explorador ativado",
+  "modo construtor ativado",
+  "modo cientista quase ativado",
+  "missão: aprender brincando",
+  "objetivo: descobrir como funciona",
+  "desafio aceito!",
+  "problema encontrado. hora de pensar!",
+  "solução encontrada. hora de comemorar!",
+  "cada erro ensina alguma coisa",
+  "errar também faz parte do jogo",
+  "tentativa número... quem está contando?",
+  "se não deu certo, temos mais blocos",
+  "pensar é o primeiro passo",
+  "imaginar é o segundo",
+  "construir é o terceiro",
+  "agora só falta não explodir",
+  "conhecimento minerado com sucesso!",
+  "experiência adquirida!",
+  "nível de criatividade aumentado!",
+  "nível de curiosidade aumentado!",
+  "nível de lógica aumentado!",
+  "parabéns, você sobreviveu ao loading!",
+  "o cérebro também faz crafting",
+  "minerar conhecimento é permitido",
+  "pensar primeiro, quebrar depois",
+  "algoritmo encontrado: andar, pensar, construir",
+  "não é mágica, é pensamento computacional",
+  "cada bloco conta uma história",
+  "bloco pequeno, ideia gigante",
+  "se deu errado, chama de experimento",
+  "se não funcionar, tente de outro jeito",
+  "problema encontrado. hora de pensar!",
+  "solução encontrada. hora de comemorar!",
+  "cada erro ensina alguma coisa",
+  "curiosidade equipada!",
+  "criatividade equipada!",
+  "pensamento lógico equipado!",
+  "missão: aprender brincando",
+  "o combustível da aventura é a curiosidade",
 ];
 
 export function getPlayerName(): string {
@@ -130,6 +265,11 @@ export function showMenu(handlers: MenuHandlers): void {
   menu.classList.remove("hidden");
   show("home");
   el<HTMLDivElement>("menu-version").textContent = `v${VERSION}`;
+
+  // peça 1 do fundo animado: cubo 3D girando atrás do menu (2026-08-15).
+  // Renderer próprio, só texto procedural — precisa existir ANTES do canvas do
+  // jogo nascer (start*), então inicia aqui e encerra ao jogar.
+  const fundo = iniciarFundoMenu();
 
   // splash engraçado (peça 2 do fundo animado do menu, 2026-08-15): frase
   // aleatória por vez logo acima do título; nova a cada volta ao menu.
@@ -179,6 +319,7 @@ export function showMenu(handlers: MenuHandlers): void {
 
   function startWorld(choice: PlayWorldChoice): void {
     menu.classList.add("hidden");
+    fundo.encerrar();
     handlers.onPlayWorld(choice);
   }
 
@@ -300,6 +441,7 @@ export function showMenu(handlers: MenuHandlers): void {
     localStorage.setItem("lj-endereco", url); // só o endereço — PIN nunca
     const codigo = codigoInput.value.trim();
     menu.classList.add("hidden");
+    fundo.encerrar();
     handlers.onPlayMulti(url, { pin, ...(codigo ? { codigo } : {}) });
   });
 

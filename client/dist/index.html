@@ -726,7 +726,10 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        background: linear-gradient(180deg, #24344d 0%, #101826 100%);
+        /* 2026-08-15: translúcido de propósito — o cubo 3D do menuFundo (peça 1
+           do fundo animado) gira ATRÁS dele. Os painéis .menu-screen seguram o
+           contraste próprio (rgba escuro + borda). */
+        background: rgba(9, 15, 28, 0.55);
         color: #fff;
         z-index: 30;
         overflow-y: auto;
@@ -1162,7 +1165,7 @@
         }
       }
     </style>
-    <script type="module" crossorigin src="/assets/index-Bxi5o4pg.js"></script>
+    <script type="module" crossorigin src="/assets/index-CZWnVEjI.js"></script>
   </head>
   <body>
     <div id="menu" class="hidden">
