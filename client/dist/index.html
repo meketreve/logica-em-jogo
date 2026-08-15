@@ -823,7 +823,8 @@
         pointer-events: none;
       }
       .menu-splash {
-        margin: 0 0 0.15rem;
+        align-self: flex-end;
+        margin: 0 1.6rem 0.15rem 0;
         text-align: center;
         font-size: 0.95rem;
         font-style: italic;
@@ -831,6 +832,19 @@
         opacity: 0.9;
         min-height: 1.2em;
         user-select: none;
+        /* -15° anti-horário + respiração de zoom (escala sobe e desce em ciclo) */
+        transform: rotate(-15deg);
+        transform-origin: center;
+        animation: menu-splash-zoom 4s ease-in-out infinite;
+      }
+      @keyframes menu-splash-zoom {
+        0%,
+        100% {
+          transform: rotate(-15deg) scale(1);
+        }
+        50% {
+          transform: rotate(-15deg) scale(1.25);
+        }
       }
       .menu-footer {
         margin: 0.6rem 0 0;
