@@ -2273,3 +2273,31 @@ Enter no campo (reusa o handler existente: envia + fecha, mesmo caminho do tecla
 (abre o chat, painel aparece, /tp → nível 2 → grupos → ENVIA `/tp grupos`): 04-painel-comandos-tp.png.
 `npm run shots:tooltip -- 1024 600` 18/18 contra o dist rebuildado (commit junto com os
 hashes novos de assets). |
+
+## Session: 2026-08-15 19:01
+
+| Time | Action | File(s) | Outcome | ~Tokens |
+|------|--------|---------|---------|--------|
+| 19:03 | Edited client/src/main.ts | modified cubo() | ~174 |
+| 19:04 | Edited client/src/menuFundo.ts | modified for() | ~624 |
+| 19:05 | Edited client/src/menuFundo.ts | 6→9 lines | ~101 |
+| 19:05 | Edited client/src/menuFundo.ts | modified centro() | ~86 |
+| 19:05 | Edited scripts/fundo-shots.mjs | 10→13 lines | ~157 |
+| 19:05 | Edited client/src/main.ts | 3→8 lines | ~98 |
+| 19:05 | Edited scripts/fundo-shots.mjs | added optional chaining | ~278 |
+| 19:09 | Edited client/src/menuFundo.ts | 5→6 lines | ~122 |
+
+**Sessão 74 — fundo 3D do menu: enquadramento das 6 fotos.** Queixa: "as fotos não ficaram com
+enquadramento bom". Causa raiz: face de cubo pede FOV 90 e aspect 1 na CAPTURA, e as prints
+saíam com o FOV do jogo (75) → esticadas ~1,4× na face + vão de 15° por aresta (horizonte
+pulava na quina). O commit b1a7949 tinha mexido no lado errado (FOV de visualização do menu).
+Correções: `main.ts` ramo `?foto` força `fov: 90` e expõe `window.__fotoCam()`;
+`fundo-shots.mjs` aborta se fov≠90 ou aspect≠1 e usa pitch ±π/2 EXATO nas faces ±y (o clamp do
+input.ts só roda nos handlers de mouse/toque); `menuFundo.ts` — as faces ±y estavam sem espelho
+mas o UV do BoxGeometry pede espelho VERTICAL nelas, espelho passou a ser `repeat=-1` +
+`offset=1` com ClampToEdge (matou a linha de 1 px na quina) e a câmera parou de orbitar em raio
+0,6 pra só girar `rotation.y` no centro exato. 6 PNGs regerados. Verificação: horizonte agora
+cai na metade vertical exata das prints; prints do menu real em 45°/90°/135° (script no
+scratchpad) mostram a emenda contínua e sem linha. typecheck 3/3 + build verdes. bug-623.
+| 19:12 | Session end: 8 writes across 3 files (main.ts, menuFundo.ts, fundo-shots.mjs) | 9 reads | ~32210 tok |
+| 19:12 | Fundo 3D do menu: enquadramento das 6 fotos (FOV de captura 90 + espelho ±y + emenda) | client/src/main.ts, client/src/menuFundo.ts, scripts/fundo-shots.mjs, client/public/menu-fundo/*.png | typecheck 3/3 + build verdes; horizonte na metade exata; quinas contínuas em 45/90/135°; bug-623 | ~32k |

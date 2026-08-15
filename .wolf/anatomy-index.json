@@ -1,12 +1,12 @@
 {
   "version": 1,
   "meta": {
-    "lastScanned": "2026-08-12T13:51:22.565Z",
-    "fileCount": 342,
+    "lastScanned": "2026-08-15T22:09:31.817Z",
+    "fileCount": 344,
     "hits": 0,
     "misses": 0,
-    "renderedHash": "5319a6ec6e77c1d48c6a15f50efc808899cc79d0a53b707f0437434b44b3d19e",
-    "storeUpdatedAt": "2026-08-12T13:51:22.585Z"
+    "renderedHash": "e1db11730fb7aa4eb72d61c780d28e2026a1c4c1e55909314c948890e50c6a79",
+    "storeUpdatedAt": "2026-08-15T22:09:31.838Z"
   },
   "files": {
     ".claude/commands/reframe.md": {
@@ -2333,201 +2333,208 @@
       ]
     },
     "client/src/main.ts": {
-      "description": "O cliente não tem filesystem: aprende os nomes das aulas pela resposta de",
-      "tokens": 30539,
-      "hash": "bff5ea8b0a46bb7c",
-      "size": 108538,
-      "mtimeMs": 1786450275284.3145,
-      "updatedAt": "2026-08-11T19:58:13.046Z",
-      "source": "scan",
+      "description": "§💬 (2026-08-14) Fonte ÚNICA de \"a mira aponta pra algo que o clique direito",
+      "tokens": 31847,
+      "hash": "180697a57efdc637",
+      "size": 113194,
+      "mtimeMs": 1786831531222.373,
+      "updatedAt": "2026-08-15T22:05:31.365Z",
+      "source": "hook",
       "symbols": [
+        {
+          "name": "ehInterativo",
+          "kind": "fn",
+          "startLine": 117,
+          "endLine": 125,
+          "tokens": 107
+        },
         {
           "name": "cachearMundos",
           "kind": "fn",
-          "startLine": 115,
-          "endLine": 206,
-          "tokens": 1200
+          "startLine": 126,
+          "endLine": 225,
+          "tokens": 1334
         },
         {
           "name": "applySettings",
           "kind": "fn",
-          "startLine": 207,
-          "endLine": 274,
-          "tokens": 1036
+          "startLine": 226,
+          "endLine": 307,
+          "tokens": 1279
         },
         {
           "name": "showOverlayMain",
           "kind": "fn",
-          "startLine": 275,
-          "endLine": 281,
+          "startLine": 308,
+          "endLine": 314,
           "tokens": 74
         },
         {
           "name": "menuDePausaAberto",
           "kind": "fn",
-          "startLine": 282,
-          "endLine": 285,
+          "startLine": 315,
+          "endLine": 318,
           "tokens": 32
         },
         {
           "name": "updateOverlay",
           "kind": "fn",
-          "startLine": 286,
-          "endLine": 337,
-          "tokens": 907
+          "startLine": 319,
+          "endLine": 370,
+          "tokens": 911
         },
         {
           "name": "startPlay",
           "kind": "fn",
-          "startLine": 338,
-          "endLine": 370,
+          "startLine": 371,
+          "endLine": 403,
           "tokens": 374
         },
         {
           "name": "onSettingsChanged",
           "kind": "fn",
-          "startLine": 371,
-          "endLine": 392,
+          "startLine": 404,
+          "endLine": 425,
           "tokens": 294
         },
         {
           "name": "enviarRaio",
           "kind": "fn",
-          "startLine": 393,
-          "endLine": 436,
+          "startLine": 426,
+          "endLine": 469,
           "tokens": 589
         },
         {
           "name": "playerName",
           "kind": "fn",
-          "startLine": 437,
-          "endLine": 447,
+          "startLine": 470,
+          "endLine": 480,
           "tokens": 187
         },
         {
           "name": "abrirAmigosPorComando",
           "kind": "fn",
-          "startLine": 448,
-          "endLine": 487,
+          "startLine": 481,
+          "endLine": 520,
           "tokens": 450
         },
         {
           "name": "registrarChegadaDeRede",
           "kind": "fn",
-          "startLine": 488,
-          "endLine": 495,
+          "startLine": 521,
+          "endLine": 528,
           "tokens": 60
         },
         {
           "name": "jitterDeRede",
           "kind": "fn",
-          "startLine": 496,
-          "endLine": 518,
+          "startLine": 529,
+          "endLine": 551,
           "tokens": 352
         },
         {
           "name": "podeVoar",
           "kind": "fn",
-          "startLine": 519,
-          "endLine": 528,
+          "startLine": 552,
+          "endLine": 561,
           "tokens": 164
         },
         {
           "name": "vitals",
           "kind": "fn",
-          "startLine": 529,
-          "endLine": 595,
+          "startLine": 562,
+          "endLine": 628,
           "tokens": 904
         },
         {
           "name": "pushPanelData",
           "kind": "fn",
-          "startLine": 596,
-          "endLine": 608,
+          "startLine": 629,
+          "endLine": 641,
           "tokens": 139
         },
         {
           "name": "pushFriendsData",
           "kind": "fn",
-          "startLine": 609,
-          "endLine": 619,
+          "startLine": 642,
+          "endLine": 652,
           "tokens": 96
         },
         {
           "name": "ownDone",
           "kind": "fn",
-          "startLine": 620,
-          "endLine": 628,
+          "startLine": 653,
+          "endLine": 661,
           "tokens": 90
         },
         {
           "name": "refreshObjectivesView",
           "kind": "fn",
-          "startLine": 629,
-          "endLine": 660,
+          "startLine": 662,
+          "endLine": 693,
           "tokens": 359
         },
         {
           "name": "drenarFilaTroca",
           "kind": "fn",
-          "startLine": 661,
-          "endLine": 668,
+          "startLine": 694,
+          "endLine": 701,
           "tokens": 79
         },
         {
           "name": "segurarAteATelaPintar",
           "kind": "fn",
-          "startLine": 669,
-          "endLine": 678,
+          "startLine": 702,
+          "endLine": 711,
           "tokens": 109
         },
         {
           "name": "handleServerData",
           "kind": "fn",
-          "startLine": 679,
-          "endLine": 905,
+          "startLine": 712,
+          "endLine": 938,
           "tokens": 3049
         },
         {
           "name": "connect",
           "kind": "fn",
-          "startLine": 906,
-          "endLine": 945,
+          "startLine": 939,
+          "endLine": 978,
           "tokens": 465
         },
         {
           "name": "startMultiplayer",
           "kind": "fn",
-          "startLine": 946,
-          "endLine": 963,
+          "startLine": 979,
+          "endLine": 996,
           "tokens": 223
         },
         {
           "name": "startSingleplayer",
           "kind": "fn",
-          "startLine": 964,
-          "endLine": 987,
+          "startLine": 997,
+          "endLine": 1020,
           "tokens": 284
         },
         {
           "name": "persistWorld",
           "kind": "fn",
-          "startLine": 988,
-          "endLine": 1054,
-          "tokens": 793
+          "startLine": 1021,
+          "endLine": 1101,
+          "tokens": 902
         },
         {
           "name": "GameRuntime",
           "kind": "class",
-          "startLine": 1055,
-          "endLine": 2281,
-          "tokens": 17249
+          "startLine": 1102,
+          "endLine": 2376,
+          "tokens": 17931
         },
         {
           "name": "startGame",
           "kind": "fn",
-          "startLine": 2282,
-          "endLine": 2288,
+          "startLine": 2377,
+          "endLine": 2383,
           "tokens": 58
         }
       ]
@@ -11561,6 +11568,91 @@
       "mtimeMs": 1786448361124.3147,
       "updatedAt": "2026-08-11T19:58:13.324Z",
       "source": "scan"
+    },
+    "client/src/menuFundo.ts": {
+      "description": "Fundo animado do menu principal (peça 1 do fundo animado, 2026-08-15):",
+      "tokens": 2720,
+      "hash": "c128d0fd3d910bbb",
+      "size": 9608,
+      "mtimeMs": 1786831771650.377,
+      "updatedAt": "2026-08-15T22:09:31.816Z",
+      "source": "hook",
+      "symbols": [
+        {
+          "name": "MenuFundo",
+          "kind": "section",
+          "startLine": 14,
+          "endLine": 18,
+          "tokens": 37
+        },
+        {
+          "name": "pintarPaisagem",
+          "kind": "fn",
+          "startLine": 19,
+          "endLine": 128,
+          "tokens": 1090
+        },
+        {
+          "name": "iniciarFundoMenu",
+          "kind": "fn",
+          "startLine": 129,
+          "endLine": 241,
+          "tokens": 1433
+        }
+      ]
+    },
+    "scripts/fundo-shots.mjs": {
+      "description": "Gera as 6 prints do fundo do menu principal (`?foto` no cliente).",
+      "tokens": 1973,
+      "hash": "ae1ab3a6679693af",
+      "size": 7506,
+      "mtimeMs": 1786831542514.3735,
+      "updatedAt": "2026-08-15T22:05:42.624Z",
+      "source": "hook",
+      "symbols": [
+        {
+          "name": "acharChrome",
+          "kind": "fn",
+          "startLine": 27,
+          "endLine": 63,
+          "tokens": 317
+        },
+        {
+          "name": "espera",
+          "kind": "fn",
+          "startLine": 64,
+          "endLine": 65,
+          "tokens": 18
+        },
+        {
+          "name": "abrirAba",
+          "kind": "fn",
+          "startLine": 66,
+          "endLine": 93,
+          "tokens": 254
+        },
+        {
+          "name": "cdp",
+          "kind": "fn",
+          "startLine": 94,
+          "endLine": 99,
+          "tokens": 50
+        },
+        {
+          "name": "avaliar",
+          "kind": "fn",
+          "startLine": 100,
+          "endLine": 184,
+          "tokens": 908
+        },
+        {
+          "name": "tirar",
+          "kind": "fn",
+          "startLine": 185,
+          "endLine": 206,
+          "tokens": 221
+        }
+      ]
     }
   }
 }

@@ -2,6 +2,38 @@
 
 > Single source of truth for resuming work. Read this FIRST when starting a session.
 
+> ## 🧭 HANDOFF — ESTADO AO FIM DA SESSÃO 74 (2026-08-15)
+>
+> **Sessão de UM pedido, entregue: o ENQUADRAMENTO das 6 fotos do fundo 3D do menu.** typecheck
+> 3/3 + build verdes, dist rebuildado, PNGs regerados — o commit+push é o próximo passo.
+>
+> **Causa raiz (bug-623):** foto que vira face interna de cubo tem que ser tirada com **FOV 90 e
+> aspect 1** — do centro do cubo cada face ocupa exatos 90°×90°. As prints saíam com o FOV do
+> JOGO (`settings.fov` = 75): cobriam 75°×75°, esticavam ~1,4× na face e deixavam um vão de 15°
+> em cada aresta (o horizonte PULAVA na quina). O commit `b1a7949` tinha mexido no lado errado —
+> baixou o FOV de VISUALIZAÇÃO do menu em vez de subir o de CAPTURA.
+>
+> **O que mudou:**
+> - `main.ts`: ramo `?foto` do `applySettings` força **`fov: 90`** (o laço converge `camera.fov`
+>   pra `settings.fov`); expõe `window.__fotoCam()` (fov+aspect) pro script conferir.
+> - `scripts/fundo-shots.mjs`: **guarda** que aborta se fov≠90 ou aspect≠1 (mais barato que
+>   descobrir depois de 6 prints); pitch de teto/chão virou **±π/2 EXATO** — o clamp `π/2-0.01`
+>   do `input.ts` só roda nos handlers de mouse/toque, e `__fotoApontar` escreve direto.
+> - `menuFundo.ts`: as faces **±y estavam sem espelho nenhum**, mas o UV do `BoxGeometry` pede
+>   espelho VERTICAL nelas (face `+y` quer `v+ → -z`, a foto olhando pra cima põe `+z` no topo).
+>   Espelho passou a ser **`repeat=-1` COM `offset=1`** e wrap ClampToEdge — com
+>   `RepeatWrapping` o texel da borda interpolava com o da borda OPOSTA e desenhava uma linha de
+>   1 px bem na quina. E a câmera **parou de orbitar** em raio 0,6: gira `rotation.y` no **centro
+>   exato** (fora do centro o cubemap ganha paralaxe e torce a emenda).
+> - 6 PNGs regerados (`npm run shots:fundo`, vite já no ar em :5173).
+>
+> ✅ **Verificação:** com pitch=0 o horizonte agora cai na **metade vertical exata** das prints
+> (prova geométrica do 90°); prints do menu REAL em 45°/90°/135° (script de emenda no
+> scratchpad) mostram a quina contínua e sem linha. typecheck 3/3 + build.
+>
+> 🚀 **Fila:** dormir na cama pra passar a noite (L304), Ferramentas v2 / mobs / cópias da área
+> ao vivo. Nenhuma pendência externa.
+
 > ## 🧭 HANDOFF — ESTADO AO FIM DA SESSÃO 73 (2026-08-15)
 >
 > **Sessão de UM pedido (mudas de árvore), entregue.** Bateria completa verde, dist rebuildado,

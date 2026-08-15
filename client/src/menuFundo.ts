@@ -141,12 +141,15 @@ export function iniciarFundoMenu(): MenuFundo {
 
   const scene = new THREE.Scene();
   const camera = new THREE.PerspectiveCamera(
-    75, // = FOV padrão do jogo: as fotos das faces foram tiradas com ele
+    // FOV de VISUALIZAÇÃO (quanto do cubo cabe na tela) — independente do FOV
+    // de CAPTURA das fotos, que é 90 obrigatório (main.ts, ramo `?foto`). 75
+    // deixa a borda da tela menos esticada que 90.
+    75,
     window.innerWidth / window.innerHeight,
     0.1,
     CUBO * 2,
   );
-  camera.position.set(0, 0, 0.6); // olho no centro, na altura do horizonte
+  camera.position.set(0, 0, 0); // olho no CENTRO exato do cubo
 
   // 6 faces internas pintadas do MUNDO REAL (`scripts/fundo-shots.mjs` gera os
   // PNGs; o Vite serve a pasta public/menu-fundo na raiz). Enquanto os PNGs não
@@ -164,26 +167,38 @@ export function iniciarFundoMenu(): MenuFundo {
   // O BoxGeometry devolve as faces na ordem [+x, -x, +y, -y, +z, -z]. No
   // fundo-shots cada print recebeu o nome da NORMAL que encara (um -z.png é a
   // foto tirada olhando pra -z, logo é a textura da face -z). A EQUIVALÊNCIA é
-  // direta: índice da face → "±x/±y/±z.png". `virada` = face LATERAL (eixo
-  // horizontal do mundo): de DENTRO do cubo o lado invertido do BackSide
-  // espelha a textura; repeat.x=-1 espelha de volta e a vizinhança continua de
-  // uma face à outra (sem isso o terreno "espelha" ao cruzar a aresta).
-  const LISTA_FACES: { indice: number; arquivo: string; virada: boolean }[] = [
-    { indice: 0, arquivo: "+x.png", virada: true },
-    { indice: 1, arquivo: "-x.png", virada: true },
-    { indice: 2, arquivo: "+y.png", virada: false },
-    { indice: 3, arquivo: "-y.png", virada: false },
-    { indice: 4, arquivo: "+z.png", virada: true },
-    { indice: 5, arquivo: "-z.png", virada: true },
-  ];
+  // direta: índice da face → "±x/±y/±z.png".
+  //
+  // Falta casar a ORIENTAÇÃO. O UV que o BoxGeometry dá a cada face e o que a
+  // câmera FPS enquadra na foto não batem no mesmo eixo:
+  //  · 4 LATERAIS — a face quer u+ → o lado OPOSTO ao que a foto põe à direita
+  //    (ex.: face -z quer u+ → mundo -x; a foto olhando -z tem +x à direita).
+  //    `espelharX` (repeat.x=-1) desespelha; sem isso o terreno "espelha" ao
+  //    cruzar a aresta.
+  //  · TETO/CHÃO — a face +y quer v+ → mundo -z, e a foto olhando pra cima
+  //    (yaw=0) põe mundo +z no TOPO da imagem; a face -y quer v+ → mundo +z e a
+  //    foto olhando pra baixo põe -z no topo. Nos dois casos é um espelho
+  //    VERTICAL: `espelharY` (repeat.y=-1). Sem isso o chão fica de cabeça pra
+  //    baixo e não emenda com o horizonte das laterais.
+  const LISTA_FACES: { indice: number; arquivo: string; espelharX: boolean; espelharY: boolean }[] =
+    [
+      { indice: 0, arquivo: "+x.png", espelharX: true, espelharY: false },
+      { indice: 1, arquivo: "-x.png", espelharX: true, espelharY: false },
+      { indice: 2, arquivo: "+y.png", espelharX: false, espelharY: true },
+      { indice: 3, arquivo: "-y.png", espelharX: false, espelharY: true },
+      { indice: 4, arquivo: "+z.png", espelharX: true, espelharY: false },
+      { indice: 5, arquivo: "-z.png", espelharX: true, espelharY: false },
+    ];
   const loader = new THREE.TextureLoader();
-  for (const { indice, arquivo, virada } of LISTA_FACES) {
+  for (const { indice, arquivo, espelharX, espelharY } of LISTA_FACES) {
     loader.load(`/menu-fundo/${arquivo}`, (tex) => {
       tex.colorSpace = THREE.SRGBColorSpace;
-      if (virada) {
-        tex.wrapS = THREE.RepeatWrapping;
-        tex.repeat.set(-1, 1); // espelha o horizonte p/ dentro do cubo
-      }
+      // espelho = repeat -1 COM offset 1: uv' = 1-uv, que fica dentro de [0,1] e
+      // não precisa de RepeatWrapping. Com wrap REPEAT o texel colado na borda
+      // interpola com o da borda OPOSTA e desenha uma linha de 1 px no meio da
+      // quina; com o ClampToEdge padrão a emenda sai limpa.
+      tex.repeat.set(espelharX ? -1 : 1, espelharY ? -1 : 1);
+      tex.offset.set(espelharX ? 1 : 0, espelharY ? 1 : 0);
       mats[indice]!.map = tex;
       mats[indice]!.needsUpdate = true;
     });
@@ -194,12 +209,10 @@ export function iniciarFundoMenu(): MenuFundo {
   const girar = (bola: number): void => {
     if (parado) return;
     raf = requestAnimationFrame(girar);
-    // giro LENTO — o menu é lugar de sossego, não de câmara de passeio
-    const t = bola * 0.00004;
-    camera.position.x = Math.sin(t) * 0.6;
-    camera.position.y = 0;
-    camera.position.z = Math.cos(t) * 0.6;
-    camera.lookAt(0, 0, 0);
+    // giro LENTO — o menu é lugar de sossego, não de câmara de passeio.
+    // GIRA o olhar no centro (não orbita): a projeção do cubemap só fecha exata
+    // do centro; sair dele dá paralaxe e torce a emenda das arestas.
+    camera.rotation.y = bola * 0.00004;
     renderer.render(scene, camera);
   };
   raf = requestAnimationFrame(girar);

@@ -141,6 +141,23 @@ if (!rodando) {
   process.exit(1);
 }
 await avaliar(limparHud);
+
+// GUARDA de enquadramento: cada foto vira uma face INTERNA do cubo do menu, e
+// do centro do cubo a face ocupa exatamente 90°×90°. Com fov≠90 ou aspect≠1 a
+// foto cobre um pedaço errado do mundo e sai esticada na face, com um vão em
+// cada aresta (o horizonte "pula" ao cruzar a quina). Falhar aqui é mais barato
+// que descobrir depois de 6 prints.
+const cam = await avaliar(`(window.__fotoCam ? window.__fotoCam() : null)`);
+if (!cam || Math.abs(cam.fov - 90) > 0.01 || Math.abs(cam.aspect - 1) > 0.001) {
+  console.log(
+    `✗ enquadramento errado: fov=${cam?.fov ?? "?"} aspect=${cam?.aspect ?? "?"} — precisa fov=90 e aspect=1 (janela ${L}×${A})`,
+  );
+  ws.close();
+  chrome.kill("SIGKILL");
+  process.exit(1);
+}
+console.log(`  fov=${cam.fov} aspect=${cam.aspect} ✓ (90°×90° por face)`);
+
 // espera o mesher esvaziar a fila (raio 12 são MUITAS colunas; dá tempo de ver
 // o horizonte inteiro, não só o corte ao lado do jogador)
 await espera(12_000);
@@ -151,15 +168,18 @@ console.log("câmera liberada; mundo estabilizando…");
  * A câmera FPS (rotation yxz, main.ts) olha pra:
  *   yaw=0 → -z · yaw=π → +z · yaw=-π/2 → +x · yaw=π/2 → -x
  *   pitch=+90° → +y (cima) · pitch=-90° → -y (baixo)
- * Lima do pitch é π/2-0.01 (input.ts) — raspar nele, sem estourar.
+ * Pitch de teto/chão é π/2 EXATO: o limite de π/2-0.01 do input.ts só é aplicado
+ * nos handlers de mouse/toque, e `__fotoApontar` escreve direto em input.pitch —
+ * no headless não há mouse pra reclampar. Aproximar (0,01 rad ≈ 0,57°) deixaria
+ * a face ±y torta contra as 4 laterais.
  */
 const FACES = [
   ["-z", 0, 0, "face frontal (norte)"],
   ["+z", Math.PI, 0, "face oposta (sul)"],
   ["+x", -Math.PI / 2, 0, "face direita (leste)"],
   ["-x", Math.PI / 2, 0, "face esquerda (oeste)"],
-  ["+y", 0, Math.PI / 2 - 0.01, "teto (para cima)"],
-  ["-y", 0, -(Math.PI / 2 - 0.01), "chão (para baixo)"],
+  ["+y", 0, Math.PI / 2, "teto (para cima)"],
+  ["-y", 0, -Math.PI / 2, "chão (para baixo)"],
 ];
 
 async function tirar(nome, yaw, pitch, legenda) {

@@ -229,7 +229,13 @@ function applySettings(): ReturnType<typeof loadSettings> {
   const s = benchOpts
     ? { ...loadSettings(), ...benchSettings(benchOpts) }
     : fotoSeed !== null
-      ? { ...loadSettings(), raioRender: 12, meshMsPorFrame: 16 } // ?foto: carregar tudo
+      ? // ?foto: carregar tudo + FOV 90 OBRIGATÓRIO. As 6 prints viram as faces
+        // internas de um cubo (menuFundo.ts): do centro do cubo cada face ocupa
+        // exatamente 90°×90°, então a foto TEM que cobrir 90° na vertical e, com
+        // a janela quadrada (aspect 1), 90° na horizontal. Com o FOV do jogo (75)
+        // a foto cobre menos mundo e é esticada ~1,4× na face, e sobra um vão de
+        // 15° em cada aresta — o horizonte "pula" ao cruzar a quina do cubo.
+        { ...loadSettings(), raioRender: 12, meshMsPorFrame: 16, fov: 90 }
       : loadSettings();
   input.sensitivity = s.sensitivity;
   camera.fov = s.fov;
@@ -1794,6 +1800,11 @@ class GameRuntime {
     };
     const globals = window as unknown as Record<string, unknown>;
     globals["__fotoApontar"] = apontar;
+    // o script confere: face de cubo só fecha com fov 90 e aspect 1
+    globals["__fotoCam"] = (): { fov: number; aspect: number } => ({
+      fov: camera.fov,
+      aspect: camera.aspect,
+    });
     globals["__fotoRodando"] = true;
   }
 

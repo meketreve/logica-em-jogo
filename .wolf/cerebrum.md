@@ -96,6 +96,17 @@
 
 ## Key Learnings
 
+- [2026-08-15] **Orientar as 6 faces do cubo do menu (`menuFundo.ts`) é UV do `BoxGeometry`
+  contra o que a câmera FPS enquadra — dá pra derivar, não precisa chutar.** O
+  `BoxGeometry.buildPlane` fixa, por face, qual eixo do mundo cresce com `u` e com `v`; a foto
+  fixa o que fica à direita e no topo da imagem (com `flipY` padrão, topo da imagem = `v=1`).
+  Onde os dois discordam, entra espelho. Resultado medido: as **4 laterais** precisam de
+  espelho em X (ex.: face `-z` quer `u+ → -x`, a foto olhando `-z` põe `+x` à direita) e o
+  **teto/chão** precisam de espelho em Y (face `+y` quer `v+ → -z`, a foto olhando pra cima com
+  yaw=0 põe `+z` no topo; `-y` é o simétrico). Espelho = `repeat=-1` **com `offset=1`** e wrap
+  ClampToEdge: com `RepeatWrapping` o texel da borda interpola com o da borda OPOSTA e desenha
+  uma linha de 1 px bem na quina. E a câmera do menu tem que GIRAR no centro exato
+  (`rotation.y`), não orbitar: a projeção do cubemap só fecha do centro.
 - [2026-08-12] **Cenário de aula: o número de grupos é congelado na GERAÇÃO, mas o carimbo é uma
   ferramenta AO VIVO.** `npm run cenarios -- --grupos 5` (padrão 5, teto 8) decide quantas áreas o
   `.ljw` traz, e `dims.x` cresce com esse número (`gerar.ts:304`) — um chunk por grupo, todos na
@@ -1070,6 +1081,13 @@ nenhum** — sem essa declaração o Chrome renderiza a página em light mesmo c
 
 ## Do-Not-Repeat
 
+- [2026-08-15] **Foto que vira FACE DE CUBO se tira com FOV 90 e aspect 1 — ponto.** Não é "o
+  mesmo FOV do jogo", não é "o mesmo FOV da câmera do menu". Do centro do cubo cada face
+  ocupa exatos 90°×90°; qualquer outro FOV de captura estica a textura na face e deixa um vão
+  na aresta (com 75 sobra 15° e o horizonte PULA na quina). O FOV de VISUALIZAÇÃO do menu é
+  independente e pode ser o que se quiser. Conferir na foto: com pitch=0 o horizonte tem que
+  cair exatamente na metade vertical. Guarda no `fundo-shots.mjs` via `window.__fotoCam()`
+  (bug-623).
 - [2026-08-12] **Não atribuir diferença de aparência a "tema do aparelho" enquanto o documento
   não declarar `color-scheme`.** Sem essa declaração o navegador renderiza em light sempre, e o
   padrão de texto é preto nos dois esquemas (medido, bug-622). Se a queixa chega de um aparelho

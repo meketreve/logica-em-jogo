@@ -4975,6 +4975,27 @@
       ],
       "occurrences": 1,
       "last_seen": "2026-08-12T13:50:00Z"
+    },
+    {
+      "id": "bug-623",
+      "timestamp": "2026-08-15T19:11:27",
+      "error_message": "usuario: 'as fotos nao ficaram com enquadramento bom' (fundo 3D do menu principal)",
+      "file": "client/src/main.ts, client/src/menuFundo.ts, scripts/fundo-shots.mjs",
+      "root_cause": "As 6 prints viram faces INTERNAS de um cubo; do centro cada face ocupa 90x90 graus. As fotos eram tiradas com o FOV do JOGO (settings.fov=75) e aspect 1, cobrindo so 75x75 graus -> esticadas ~1,4x na face e faltando um vao de 15 graus em cada aresta (horizonte 'pulava' na quina). O commit b1a7949 mexeu no lado errado: baixou o FOV da camera de VISUALIZACAO do menu de 80 para 75 em vez de subir o FOV de CAPTURA para 90.",
+      "fix": "main.ts: ramo `?foto` do applySettings forca fov:90 (o laco converge camera.fov para settings.fov). fundo-shots.mjs: guarda que le window.__fotoCam() e aborta se fov!=90 ou aspect!=1; pitch de teto/chao virou +-PI/2 EXATO (o clamp PI/2-0.01 do input.ts so roda nos handlers de mouse/toque, e __fotoApontar escreve direto). menuFundo.ts: faces +y/-y estavam sem espelho nenhum, mas o UV do BoxGeometry quer v+ -> -z (face +y) e v+ -> +z (face -y) enquanto a foto poe o oposto no topo -> repeat.y=-1; espelho agora usa repeat=-1 COM offset=1 e wrap ClampToEdge (RepeatWrapping interpolava com a borda oposta e desenhava linha de 1px na quina); camera do menu parou de ORBITAR em raio 0.6 e passou a so girar rotation.y no centro exato (fora do centro o cubemap ganha paralaxe e torce a emenda).",
+      "tags": [
+        "menu",
+        "fundo-3d",
+        "cubemap",
+        "fov",
+        "three.js",
+        "screenshot",
+        "enquadramento",
+        "uv"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-08-15T19:11:27"
     }
   ]
 }
