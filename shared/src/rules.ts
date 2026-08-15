@@ -115,13 +115,46 @@ export const crescerPlantacao: BlockRule = (world, x, y, z) => {
   return [{ x, y, z, blockId: id + 1 }];
 };
 
-/** 4 vizinhos horizontais (a água só espalha na MESMA camada + cai). */
+/** 4 vizinhos horizontais (água só espalha na MESMA camada + cai; a grama
+ *  só espalha na MESMA camada — terra enterrada fica terra). */
 const LADOS: ReadonlyArray<readonly [number, number]> = [
   [1, 0],
   [-1, 0],
   [0, 1],
   [0, -1],
 ];
+
+/** É UMA das três gramas climáticas? */
+export function isGrama(id: number): boolean {
+  return id === BlockId.Grass || id === BlockId.GramaSeca || id === BlockId.GramaFria;
+}
+
+/**
+ * Grama (2026-08-15): um bloco de grama sujo olha os 4 vizinhos da MESMA
+ * camada; terra EXPOSTA (ar em cima) vira grama da MESMA variante (Grass →
+ * Grass, GramaSeca → GramaSeca…), preservando o clima da vizinhança. Terra com
+ * bloco por cima NÃO vira — é subsolo (o gen nasce com grama em cima de terra
+ * por TODA a superfície; sem essa condição o mundo inteiro ser engolido no
+ * primeiro tick de qualquer mudança). REGRA DE VIZINHANÇA de propósito: quem
+ * acorda a célula é "alguém mexeu do lado" (quebrou grama, pôs terra) — sem
+ * pulso periódico nem índice, e o custo é o perímetro da mudança, não o do
+ * mundo. A onda anda 1 célula por tick (o applyBlock da conversão suja a grama
+ * nova pro próximo tick), então reformar um caminho de terra na grama "cura"
+ * visivelmente, célula a célula.
+ */
+export const grassRule: BlockRule = (world, x, y, z) => {
+  const id = getBlock(world, x, y, z);
+  if (!isGrama(id)) return null;
+  const changes: BlockChange[] = [];
+  for (const [dx, dz] of LADOS) {
+    const nx = x + dx;
+    const nz = z + dz;
+    if (getBlock(world, nx, y, nz) !== BlockId.Dirt) continue;
+    if (getBlock(world, nx, y + 1, nz) !== BlockId.Air) continue; // enterrada não pega
+    changes.push({ x: nx, y, z: nz, blockId: id });
+  }
+  return changes.length ? changes : null;
+};
 
 /** Quantos dos 4 vizinhos laterais são FONTE (água infinita: ≥2 = vira fonte). */
 function fontesLaterais(world: World, x: number, y: number, z: number): number {
@@ -310,6 +343,13 @@ for (let id = 0; id < 256; id++) {
 // waterRule (espalha, cai, seca, água infinita).
 for (let id = BlockId.Agua; id <= BlockId.AguaFluida7; id++) {
   rulesMap.set(id, waterRule);
+}
+// GRAMA (2026-08-15): as três gramas climáticas espalham pra terra exposta ao
+// lado (grassRule). Terra (Dirt) NÃO tem regra própria de propósito — quem
+// espalha é a GRAMA, senão a terra toda do mundo viraria candidata a virar e
+// o tick varria o mundo.
+for (const id of [BlockId.Grass, BlockId.GramaSeca, BlockId.GramaFria]) {
+  rulesMap.set(id, grassRule);
 }
 const RULES: ReadonlyMap<number, BlockRule> = rulesMap;
 

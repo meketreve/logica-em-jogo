@@ -2,7 +2,42 @@
 
 > Single source of truth for resuming work. Read this FIRST when starting a session.
 
-> ## 🧭 HANDOFF — ESTADO AO FIM DA SESSÃO 71 (2026-08-14)
+> ## 🧭 HANDOFF — ESTADO AO FIM DA SESSÃO 72 (2026-08-15)
+>
+> **Sessão de UM pedido, entregue: a GRAMA ESPALHA pra terra exposta ao redor.** Bateria
+> completa verde, dist rebuildado (a regra é `/shared`, o cliente recompila) — o commit+push é
+> o próximo passo.
+>
+> **O que saiu:**
+> A mecânica virou **`grassRule` em `shared/src/rules.ts`**, usando exatamente a engrenagem que a
+> regra de ouro já tinha (avaliação de vizinhos + fila de sujeira do tick). **Quem espalha é a
+> GRAMA, não a terra** — um bloco de grama cujo vizinho mudou (`markDirtyAround` já acorda a
+> célula) olha os 4 vizinhos HORIZONTAIS da mesma camada: **terra com AR em cima** vira grama da
+> **MESMA variante climática** (Grass→Grass, GramaSeca→GramaSeca, GramaFria→GramaFria). Terra
+> tampada = subsolo, **NÃO vira** (senão o mundo inteiro, que nasce grama-em-cima-de-terra, seria
+> engolido no primeiro tick). Registrada no `rulesMap` pros 3 ids de grama; `Dirt`
+> deliberadamente SEM regra própria (varreria o mundo). **A onda anda 1 célula/tick** — o
+> `applyBlock` da conversão suja a grama nova pro próximo tick (batch = dirty do tick anterior).
+> Sem pulso periódico nem índice novo: **custo = perímetro da mudança**, não do mundo.
+> ⚠️ **Decisões abertas pro usuário (anotadas no todo.md):** o sprunt só horizontal (encostas de
+> terra não pegam vem, e terra acima/abaixo de grama não vira) e a velocidade fixa (1 célula/tick
+> ≈ 10 cél/s, não configurável).
+>
+> ✅ **Bateria desta sessão:** `check:launchers` 5/5 · typecheck 3/3 · **836/836 testes** (827
+> antigos + 9 novos em `shared/src/grama.test.ts`; 1 teste PRÉ-existente em `rules.test.ts`
+> afirmava `ruleFor(Grass)` undefined e foi atualizado — a grama ganhou regra) · build ·
+> **15/15 smokes**. Testes novos: 3 ids de grama usam grassRule e Dirt/Stone/Cobblestone não;
+> espalha 1 passo por chamada; terra tampada não vira; variante espalha a própria; onda anda
+> célula a célula; barreira (Cobblestone) para a frente; só vizinho horizontal; NORTE/SUL também;
+> ilha de grama cobre os 4 lados. `.wolf/` e `todo.md` (item `[x]` com o refino no código)
+> atualizados; `todo.md` também ganhou as DECISÕES ABERTAS e a mecânica completa.
+>
+> 🚀 **Fila (do usuário, anotada em 2026-08-15, além da antiga):** mudas de árvore (plantar e
+> crescer — checar `crescerPlantacao`/`isSolo`), **dormir na cama pra passar a noite** (item L304
+> do todo.md: animação de deitar — o ramo `isCama` já existe), depois Ferramentas v2 / mobs /
+> cópias da área ao vivo. **Nenhuma pendência externa.**
+
+> ## 🧭 HANDOFF ANTERIOR — ESTADO AO FIM DA SESSÃO 71 (2026-08-14)
 >
 > **Sessão de 4 ideias anotadas virou 4 features entregues: interagir no ▣, cama como spawn,
 > /tpa com 60 s e o painel de comandos rápidos do chat mobile.** Bateria verde, shots verdes,

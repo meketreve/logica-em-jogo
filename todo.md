@@ -549,8 +549,25 @@ Singleplayer (Web Worker) não tem fs — chat não vira arquivo lá, como plane
   * Feedback no chat ("ponto de nascimento definido aqui"); `/tp` e o "volta onde parou" do join
     (`session.ts:1559`) continuam usando o caminho atual — o override vale SÓ pra morte
     (decisão a confirmar).
-* \[x] craft — **FEITO** (§🍖 F5, sessão 39; sessão 45 levou de 12 pra 110 receitas, cobrindo
-  todo bloco colocável)
+* \[x] **grama ESPALHA pra terra exposta ao redor (pedido do usuário, 2026-08-15: "grama em
+  bloco de grama se espalha para blocos de terra ao redor")** — **FEITO** (2026-08-15):
+  `grassRule` em `shared/src/rules.ts` (módulo puro, na MESMA engrenagem da regra de ouro).
+  Um bloco de grama sujo (vizinho mudou — o `markDirtyAround` já acorda a célula) olha os 4
+  vizinhos da MESMA camada: terra com ar EM CIMA vira grama da MESMA variante climática
+  (Grass→Grass, GramaSeca→GramaSeca…). Terra tampada = subsolo, NÃO vira (senão o mundo
+  inteiro, que nasce com grama em cima de terra, seria engolido). Registrada na `rulesMap`
+  pros 3 ids de grama; a TERRA (`Dirt`) deliberadamente NÃO tem regra própria — quem espalha
+  é a grama (onda anda 1 célula/tick: o `applyBlock` da conversão suja a grama nova pro
+  próximo tick). Sem pulso periódico nem índice novo — custo = perímetro da mudança, não do
+  mundo. 9 testes em `shared/src/grama.test.ts` (regra pura + onda pelo fio); `rules.test.ts`
+  atualizado (Grass ganhou regra; Dirt segue sem). Refino original:
+  * Se a grama espalhar no MESMO tick da colocação? Não — o batch é o `dirty` do tick
+    ANTERIOR, então a conversão nasce no tick seguinte à sujeira; isso é o que dá o efeito
+    "cura célula a célula" e barra loop infinito (a nova grama só espalha no próximo tick).
+  * Crescer não olha luz (como a plantação, `crescerPlantacao`): o servidor não tem o byte de
+    luz (§💡 é 100% do cliente) — a condição de "exposta" é AR acima, o proxy do céu aberto.
+  * Decisão aberta pro usuário: TAMBÉM espalhar pra cima/baixo (encostas) e a VELOCIDADE
+    (spread 1 célula/tick = ~10 cél/s). Hoje é só horizontal e não configurável.
 * \[x] **ferramentas** — **FEITO** (§🍖 F10d, sessão 46). 4 picaretas, sem durabilidade e
   OBRIGATÓRIAS pra minerar: sem picareta o bloco **não quebra** e o aluno é avisado (decisão do
   usuário). Machado e pá ficaram de fora com razão escrita em `ferramentas.ts`.

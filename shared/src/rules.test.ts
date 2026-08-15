@@ -13,14 +13,14 @@ import { createWorld, setBlock } from "./world";
 const DIMS = { x: 1, z: 1, y: 1 };
 
 describe("regras de bloco (sistema genérico de vizinhança)", () => {
-  it("areia e cascalho compartilham a MESMA regra de queda; o resto não tem regra", () => {
+  it("areia e cascalho compartilham a MESMA regra de queda; a grama espalha (grassRule); o resto não tem", () => {
     expect(ruleFor(BlockId.Sand)).toBe(fallingRule);
     expect(ruleFor(BlockId.Gravel)).toBe(fallingRule);
     expect(ruleFor(BlockId.Air)).toBeUndefined();
-    expect(ruleFor(BlockId.Grass)).toBeUndefined();
     expect(ruleFor(BlockId.Stone)).toBeUndefined();
     expect(ruleFor(BlockId.Cobblestone)).toBeUndefined();
     expect(ruleFor(BlockId.Bedrock)).toBeUndefined();
+    expect(ruleFor(BlockId.Dirt)).toBeUndefined();
   });
 
   it("bloco sobre ar desce 1 PRESERVANDO o id: materializa embaixo antes de limpar a origem", () => {
