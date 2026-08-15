@@ -29,7 +29,8 @@
     "verify": "npm run check:launchers && npm run typecheck && npm run test && npm run build",
     "verify:all": "npm run verify && npm run smoke",
     "shots:esc": "node scripts/esc-shot.mjs",
-    "shots:tooltip": "node scripts/tooltip-shot.mjs"
+    "shots:tooltip": "node scripts/tooltip-shot.mjs",
+    "shots:fundo": "node scripts/fundo-shots.mjs"
   },
   "devDependencies": {
     "typescript": "^7.0.2",

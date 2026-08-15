@@ -213,12 +213,24 @@ if (pitchForcado !== null) input.pitch = pitchForcado;
  *  Lido aqui em cima porque o `applySettings` do boot já precisa dele. */
 const benchOpts = benchDaUrl(new URLSearchParams(location.search));
 
+/** `?foto=SEED` (2026-08-15): mundo procedural E de seed fixa pra GERAR o fundo
+ *  do menu (as 6 prints do cubo). Par do `?bench`, mas PARADO: sem trajeto, e a
+ *  câmera fica exposta como `window.__fotoApontar(yaw, pitch)` pro script
+ *  headless apontar nas 6 faces. O `?foto` não sobreescreve a config igual o
+ *  `?bench` — só empurra raio de render pro MÁXIMO (o pedido é "carrega o
+ *  máximo de chunks que conseguir"). */
+const fotoSeed = numParam("foto");
+
 /** (Re)aplica as configurações do jogador — chamada no boot e ao iniciar jogo
  *  (o menu pode ter mudado tudo antes do play). */
 function applySettings(): ReturnType<typeof loadSettings> {
   // bench: a config do localStorage do PC do lab é desconhecida — sobrescreve
   // com a canônica (em memória, sem salvar) pra dois perfis serem comparáveis
-  const s = benchOpts ? { ...loadSettings(), ...benchSettings(benchOpts) } : loadSettings();
+  const s = benchOpts
+    ? { ...loadSettings(), ...benchSettings(benchOpts) }
+    : fotoSeed !== null
+      ? { ...loadSettings(), raioRender: 12, meshMsPorFrame: 16 } // ?foto: carregar tudo
+      : loadSettings();
   input.sensitivity = s.sensitivity;
   camera.fov = s.fov;
   camera.updateProjectionMatrix();
@@ -261,6 +273,7 @@ const loading = new LoadingScreen(() => {
   jogo?.hud.setFase("jogando"); // perfil: daqui pra frente a travada é SENTIDA
   jogo?.hud.marcar("carga concluída"); // §📊 fim da espera do aluno na linha do tempo
   jogo?.iniciarBench(); // ?bench: o trajeto só começa com o mundo na tela
+  jogo?.iniciarFoto(); // ?foto: fecha a tela de carga pra câmera do fundo
 });
 /**
  * O jogo em andamento, ou `null` antes do primeiro snapshot.
@@ -275,6 +288,9 @@ let jogo: GameRuntime | null = null;
 /** ?bench em andamento — o menu de pausa não pode aparecer por cima do trajeto
  *  (sem pointer lock, `updateOverlay` mostraria o menu assim que a carga sai). */
 let benchRodando = false;
+/** ?foto igual ao ?bench: a câmera do menu não pode aparecer por cima do mundo
+ *  enquanto o script de prints do fundo aponta as faces (2026-08-15). */
+let fotoRodando = false;
 
 // --- Menu de pausa (Esc = pointer lock solto) ---
 const overlay = document.getElementById("overlay");
@@ -307,7 +323,7 @@ function updateOverlay(): void {
   // vê é "o Esc fechou o menu E abriu o de pausa" (bug-597).
   overlay?.classList.toggle(
     "hidden",
-    benchRodando || loading.ativo || input.active || input.retomando || chat.open || panelOpen,
+    benchRodando || fotoRodando || loading.ativo || input.active || input.retomando || chat.open || panelOpen,
   );
   // §💬 (2026-08-07, pedido do usuário): a hotbar some com QUALQUER menu aberto.
   // A do PC ficava pintada por baixo dos painéis — e duplicada na grade de
@@ -1036,6 +1052,20 @@ if (bootServer) {
     },
     BENCH_SEED,
   );
+} else if (fotoSeed !== null) {
+  // ?foto=SEED: mesmo caminho do ?bench (mundo NOVO de seed fixa, sem passar
+  // pelo menu, sem putWorld), mas a câmera fica PARADA pro script de prints.
+  startSingleplayer(
+    {
+      id: `foto-${fotoSeed}`,
+      name: "fundo do menu",
+      createdAt: 0,
+      data: null,
+      preset: "normal",
+      tamanho: "E",
+    },
+    fotoSeed,
+  );
 } else {
   showMenu({
     onPlayWorld: startSingleplayer,
@@ -1114,6 +1144,8 @@ class GameRuntime {
   private ultimoIdMirado = -1;
   /** ?bench: uma corrida por sessão (a troca de aula não reinicia). */
   private bench: Bench | null = null;
+  /** ?foto (2026-08-15): a câmera foi liberada pro script do fundo do menu. */
+  private foto = false;
 
   constructor(snap: Snapshot, activeConn: Connection) {
     this.activeConn = activeConn;
@@ -1718,6 +1750,7 @@ class GameRuntime {
     (window as unknown as Record<string, unknown>)["__benchRodando"] = true;
     flying = true; // o observador não cai: a posição vem do tempo, não da física
     updateOverlay(); // sem pointer lock o menu de pausa apareceria por cima
+    this.hud.marcar("foto: câmera liberada");
     bench.iniciar(performance.now());
     // teleporta pro início do trajeto AQUI, não no primeiro frame: assim o
     // salto (spawn → borda do círculo) não entra na distância percorrida da
@@ -1736,6 +1769,32 @@ class GameRuntime {
       (window as unknown as Record<string, unknown>)["__benchPerfil"] = report;
       void this.entregarPerfilDoBench(report, opts.semVida);
     }, opts.duracaoS * 1000);
+  }
+
+  /** ?foto: câmera PARADA para o script do fundo do menu (2026-08-15). Não há
+   *  mouse no headless pra guiá-la, então o hook `window.__fotoApontar(yaw,
+   *  pitch)` escreve direto no input a cada chamada (o laço lê `input.yaw/
+   *  pitch` todo frame: main.ts camera.rotation). O spawn vence no applyTeleport
+   *  DO JOIN (yaw/pitch do servidor); aqui o mundo já está pronto e o gancho do
+   *  script aponta depois. */
+  iniciarFoto(): void {
+    if (fotoSeed === null || this.foto) return; // uma sessão por página
+    this.foto = true;
+    fotoRodando = true;
+    flying = true; // o observador não cai: posição e olhar vêm do script
+    // sobe acima do relevo pro horizonte ficar DESIMPEZADO (a cama do spawn está
+    // no chão; de lá as dunas escondem o horizonte nas 4 fotos cardeais)
+    const ALTURA_FOTO = 40;
+    this.player.pos.y = Math.max(this.player.pos.y, this.spawn.y ?? this.player.pos.y) + ALTURA_FOTO;
+    this.movimento.ancorar(this.player.pos);
+    updateOverlay(); // sem pointer lock o menu de pausa apareceria por cima
+    const apontar: (yaw: number, pitch: number) => void = (yaw, pitch) => {
+      input.yaw = yaw;
+      input.pitch = pitch;
+    };
+    const globals = window as unknown as Record<string, unknown>;
+    globals["__fotoApontar"] = apontar;
+    globals["__fotoRodando"] = true;
   }
 
   /** Liga o laço de render e destrava a tela de carga do mundo denso. */
@@ -1861,7 +1920,7 @@ class GameRuntime {
         }
       }
       const yAntesDoPasso = this.player.pos.y;
-      if (chaoCarregado && !this.bench?.ativo) {
+      if (chaoCarregado && !this.bench?.ativo && !this.foto) {
         stepPlayer(this.world, this.player, cmd, dt);
       }
       // §🎮 olho (agachar) + degrau suave + odômetro — ANTES do respawn: a subida

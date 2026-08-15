@@ -148,7 +148,10 @@ export function iniciarFundoMenu(): MenuFundo {
   );
   camera.position.set(0, -1.5, 0); // olho um pouquinho acima do centro
 
-  // 6 faces internas, cada uma com uma paisagem diferente
+  // 6 faces internas pintadas do MUNDO REAL (`scripts/fundo-shots.mjs` gera os
+  // PNGs; o Vite serve a pasta public/menu-fundo na raiz). Enquanto os PNGs não
+  // chegam (rede/arquivo ausente), caímos na paisagem procedural — o cubo nunca
+  // fica preto.
   const mats: THREE.MeshBasicMaterial[] = [];
   for (let i = 0; i < 6; i++) {
     const tex = new THREE.CanvasTexture(pintarPaisagem(i));
@@ -157,6 +160,34 @@ export function iniciarFundoMenu(): MenuFundo {
   }
   const cubo = new THREE.Mesh(new THREE.BoxGeometry(CUBO, CUBO, CUBO), mats);
   scene.add(cubo);
+
+  // O BoxGeometry devolve as faces na ordem [+x, -x, +y, -y, +z, -z]. No
+  // fundo-shots cada print recebeu o nome da NORMAL que encara (um -z.png é a
+  // foto tirada olhando pra -z, logo é a textura da face -z). A EQUIVALÊNCIA é
+  // direta: índice da face → "±x/±y/±z.png". `virada` = face LATERAL (eixo
+  // horizontal do mundo): de DENTRO do cubo o lado invertido do BackSide
+  // espelha a textura; repeat.x=-1 espelha de volta e a vizinhança continua de
+  // uma face à outra (sem isso o terreno "espelha" ao cruzar a aresta).
+  const LISTA_FACES: { indice: number; arquivo: string; virada: boolean }[] = [
+    { indice: 0, arquivo: "+x.png", virada: true },
+    { indice: 1, arquivo: "-x.png", virada: true },
+    { indice: 2, arquivo: "+y.png", virada: false },
+    { indice: 3, arquivo: "-y.png", virada: false },
+    { indice: 4, arquivo: "+z.png", virada: true },
+    { indice: 5, arquivo: "-z.png", virada: true },
+  ];
+  const loader = new THREE.TextureLoader();
+  for (const { indice, arquivo, virada } of LISTA_FACES) {
+    loader.load(`/menu-fundo/${arquivo}`, (tex) => {
+      tex.colorSpace = THREE.SRGBColorSpace;
+      if (virada) {
+        tex.wrapS = THREE.RepeatWrapping;
+        tex.repeat.set(-1, 1); // espelha o horizonte p/ dentro do cubo
+      }
+      mats[indice]!.map = tex;
+      mats[indice]!.needsUpdate = true;
+    });
+  }
 
   let parado = false;
   let raf = 0;
