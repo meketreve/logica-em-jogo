@@ -189,9 +189,11 @@ export class SkyCycle {
     /** Nuvens ligadas? (Configurações — protege a GPU do PC de laboratório.) */
     nuvensLigadas = true,
   ) {
-    // sol: disco quente + halo aditivo maior (sem textura, na regra do projeto)
+    // sol: QUADRADO quente estilo Minecraft + halo aditivo (o plano olha pra
+    // câmera no apply(); sem textura, na regra do projeto). Lado 56 ≈ diâmetro
+    // do disco antigo (60), pra não encolher o céu.
     this.sunMat = new THREE.MeshBasicMaterial({ color: 0xffdf6b, transparent: true, depthWrite: false });
-    this.sunDisc = new THREE.Mesh(new THREE.CircleGeometry(30, 24), this.sunMat);
+    this.sunDisc = new THREE.Mesh(new THREE.PlaneGeometry(56, 56), this.sunMat);
     this.glowMat = new THREE.MeshBasicMaterial({
       color: 0xffb050,
       transparent: true,
