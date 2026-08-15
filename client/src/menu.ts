@@ -64,6 +64,28 @@ export interface MenuHandlers {
 
 const NAME_KEY = "lj-nome";
 
+/**
+ * Splashes do menu principal (peça 2 do fundo animado, 2026-08-15) — frases
+ * sortudas no espírito do Minecraft. Público LIVRE: sala de aula, criança.
+ */
+const SPLASHES: string[] = [
+  "que bão, um bloco quadrado!",
+  "pika de ferro, coragem de verdade",
+  "os blocos se foram? a gente recria!",
+  "minerar é maratonar",
+  "a galinha virou portal",
+  "répteis de pedra? isso acaba em tocha",
+  "um machado por dia, a torre vem fácil",
+  "de onde vêm os blocos? do picareteio",
+  "a grama correu demais",
+  "melhor que pão de queijo, é craft de queijo",
+  "cuidado: zumbi de chinelo na caverna",
+  "esse mundo menos quadrado? impossível",
+  "as melhores histórias nascem do barro",
+  "planta a semente, espera a folha, comemora",
+  "só pulo seta — e muita esperança",
+];
+
 export function getPlayerName(): string {
   const stored = localStorage.getItem(NAME_KEY);
   // sanitiza na leitura: nome antigo com espaço/especial (gravado antes desta
@@ -108,6 +130,14 @@ export function showMenu(handlers: MenuHandlers): void {
   menu.classList.remove("hidden");
   show("home");
   el<HTMLDivElement>("menu-version").textContent = `v${VERSION}`;
+
+  // splash engraçado (peça 2 do fundo animado do menu, 2026-08-15): frase
+  // aleatória por vez logo acima do título; nova a cada volta ao menu.
+  const splash = el<HTMLParagraphElement>("menu-splash");
+  const sorteia = (): void => {
+    splash.textContent = SPLASHES[Math.floor(Math.random() * SPLASHES.length)] ?? "";
+  };
+  sorteia();
 
   // som de UI: delegação — QUALQUER botão do menu toca (voltar tem som próprio)
   menu.addEventListener("click", (e) => {

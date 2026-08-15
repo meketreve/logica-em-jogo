@@ -108,6 +108,19 @@ senão lado com parede; empate → base. Cliente inalterado.
   o prazo novo (não só o fato de o pedido expirar). — **FEITO** (2026-08-14): `TP_PEDIDO_MS` virou
   `export const` 60_000 e as 4 frases interpolam `${TP_PEDIDO_MS / 1000}`; `tp.test.ts` ganhou a
   conferência do "60 segundos" + o teste de fronteira (`TP_PEDIDO_MS - 1_000` ainda vale).
+* \[ ] **SILENCIAR o chat: só os COMANDOS (pedido do usuário, 2026-08-15: "desativar as
+  mensagens e deixar apenas os comandos")** — não existe hoje. O material já está pronto: a
+  mensagem de JOGADOR chega como broadcast com `author` de verdade (`nome#id`,
+  `session.ts:1403` → `main.ts:888`), e a resposta de COMANDO chega SÓ pro autor com
+  `author: "servidor"` (`sendServerChat`, `session.ts:1831-1836`). Refino:
+  * Filtro do LAZER (só esconde na tela) é pureza de cliente: botão 🚫 ou tecla no chat
+    esconde o `addMessage` quando `author !== "servidor"` — nada no servidor, nada no
+    protocolo. O broadcast continua acontecendo (outros leem), o autor some da tela.
+  * Ou comando `/silenciar [nome]` (nos dois extremos: o professor cansa do papo da turma,
+    ou o aluno quieto quer foco) — vira estado PESSOAL do jogador, no molde do
+    `settings.chatSilenciado` (persistido no localStorage) e não afeta ninguém.
+  * Quem manda: o servidor NÃO precisa saber — é só a regra de CLIENTE no handler da msg
+    `chat` (main.ts:888). Teste de UI (shots:chat) fecha a porta.
 
 ## Mundo / professor
 
@@ -768,8 +781,13 @@ ferramenta certa quebra rápido, gasta, e precisa ser refeita.
      não ser um fundo estático de gradiente.
   2. **Frase engraçada por vez** (splashes estilo Minecraft/Terraria — *público LIVRE*, pensado
      pra criança e pra sala): histórias aleatórias, rola uma por vez logo ACIMA do título
-     "Lógica em Jogo".
-  3. **Rodapé**: *"feito com [❤️], [☕] e IA"* no rodapé do menu principal.
+     "Lógica em Jogo". — **FEITO** (2026-08-15): `SPLASHES` (15 frases) + `#menu-splash` acima
+     do `h1` na `#menu-home`; sorteio aleatório a cada `showMenu` (`menu.ts`), CSS `.menu-splash`
+     (itálico, âmbar `#ffd98a`); `shots:tablet` confirma que `#menu-home` continua cabendo
+     (92..508 de 600px).
+  3. **Rodapé**: *"feito com [❤️], [☕] e IA"* no rodapé do menu principal. — **FEITO**
+     (2026-08-15): `<p class="menu-footer">feito com ❤️ ☕ e IA</p>` no fim da `#menu-home`,
+     CSS `.menu-footer` (0.75rem, opacidade 0.55).
 
 ## Geração de mundo / performance
 

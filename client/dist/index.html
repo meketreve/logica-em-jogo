@@ -819,6 +819,22 @@
         opacity: 0.5;
         pointer-events: none;
       }
+      .menu-splash {
+        margin: 0 0 0.15rem;
+        text-align: center;
+        font-size: 0.95rem;
+        font-style: italic;
+        color: #ffd98a;
+        opacity: 0.9;
+        min-height: 1.2em;
+        user-select: none;
+      }
+      .menu-footer {
+        margin: 0.6rem 0 0;
+        text-align: center;
+        font-size: 0.75rem;
+        opacity: 0.55;
+      }
       .changelog-bloco {
         border-left: 3px solid rgba(255, 255, 255, 0.25);
         padding-left: 12px;
@@ -1146,12 +1162,13 @@
         }
       }
     </style>
-    <script type="module" crossorigin src="/assets/index-CaKB6U0U.js"></script>
+    <script type="module" crossorigin src="/assets/index-BvN8Z9jW.js"></script>
   </head>
   <body>
     <div id="menu" class="hidden">
       <div id="menu-version" class="menu-version"></div>
       <section id="menu-home" class="menu-screen">
+        <p id="menu-splash" class="menu-splash">↺</p>
         <h1>Lógica em Jogo</h1>
         <p id="menu-erro" class="menu-erro hidden"></p>
         <label>seu nome <input id="menu-nome" type="text" maxlength="24" autocomplete="off" pattern="[\p{L}\p{N}_-]+" title="Só letras, números, _ e - (sem espaço nem símbolo)" placeholder="sem espaço nem símbolo" /></label>
@@ -1159,6 +1176,7 @@
         <button id="menu-btn-multi" type="button">🌐 Jogar em rede</button>
         <button id="menu-btn-config" type="button">⚙️ Configurações</button>
         <button id="menu-btn-novidades" type="button">📜 novidades</button>
+        <p class="menu-footer">feito com <span aria-hidden="true">❤️</span> <span aria-hidden="true">☕</span> e IA</p>
       </section>
       <section id="menu-worlds" class="menu-screen hidden">
         <h2>Meus mundos</h2>
