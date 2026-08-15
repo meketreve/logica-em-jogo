@@ -141,7 +141,7 @@ export function iniciarFundoMenu(): MenuFundo {
 
   const scene = new THREE.Scene();
   const camera = new THREE.PerspectiveCamera(
-    80,
+    75, // = FOV padrão do jogo: as fotos das faces foram tiradas com ele
     window.innerWidth / window.innerHeight,
     0.1,
     CUBO * 2,
