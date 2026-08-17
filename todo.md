@@ -129,64 +129,45 @@ senão lado com parede; empate → base. Cliente inalterado.
 * \[x] professor cria área com /claim (mesmo acesso do aluno) — **FEITO** (2026-07-21): removido o bloqueio do professor no `/claim criar`; ele reserva "terreno"/plot como o aluno. Claim SEGUE sendo COLUNA cheia (camada 0 → teto — decisão do usuário 2026-07-21, mantida); limite horizontal 64 (X) × 32 (Z) pra TODOS (era 32×32).
 * \[x] **aba de JOGADORES no painel da tecla P (professor)** — **FEITO** (2026-07-21): `client/players.ts` (PlayersPanel, estrutura do inventário: altura fixa, abas, scroll só na lista). Abas "conectados" (botões expulsar/banir, 2 cliques) e "banidos" (desbanir). Aberto por um botão "👥 jogadores" no topo do painel de autoria. Ban por NICK: estado + gate de join na GameSession (`banir`/`desbanir`/`estaBanido`, persiste no meta `banidos[]`); `/banir`·`/desbanir` no HOST (fecham socket como o /kicar); msg `players` (conectados+banidos) → só professores, no join/saída/ban.
 
-* \[ ] **AJUSTAR AO VIVO O NÚMERO DE CÓPIAS DA ÁREA DA ATIVIDADE, CONFORME O NÚMERO DE GRUPOS**
-  (ideia do usuário, 2026-08-12). Hoje a quantidade de cópias é decidida **na geração do `.ljw`**
-  (`npm run cenarios -- --grupos 5`, padrão 5, teto 8) — se a turma de verdade der 7 grupos, o
-  professor não tem como aumentar durante a aula. Queremos: professor escolhe X grupos → o cenário
-  passa a ter X cópias, uma área por grupo, sem regerar mundo nem reiniciar servidor.
-  ✅ **A METADE DIFÍCIL JÁ EXISTE E É AO VIVO:** `/regiao carimbar modelo prefixo espacamento [z]`
-  (`shared/src/session/regioes.ts:138`) lê `ses.grupos.size` **na hora**, replica a região ao longo
-  do eixo com os BLOCOS inclusos (cabine junto), nomeia `prefixo-1…N`, valida `inBounds` de TODAS
-  as cópias antes de mexer em bloco nenhum, e pula bloco onde tem jogador em pé (conta os pulados).
-  O `cenario.ts:52` já manda o professor usar ele quando falta área pra algum grupo.
-  **O que falta, em ordem de dificuldade:**
-  1. **Não existe DESCARIMBAR.** Carimbar só ADICIONA. Diminuir de 7 pra 4 grupos deixa `area-5…7`
-     com os blocos em pé, a região nomeada viva e o objetivo per-grupo pendurado. Precisa de
-     `/regiao descarimbar prefixo` (apagar blocos + `regions.delete` + `broadcastRegions`) ou o
-     próprio `carimbar` virar SINCRONIZAR (n cópias exatas, sobra some).
-  2. ⚠️ **A fonte do carimbo está VAZIA nos cenários prontos, e é a pegadinha central.** O gerador
-     usa a região `modelo` pra guardar o **gabarito**, fotografa o objetivo e depois **apaga**
-     (`/regiao encher modelo 0`, `gerar.ts:370`, salvo com `--revelar`). Carimbar dela ao vivo
-     estamparia **AR**, não o estado de **partida** — e partida ≠ gabarito (aula 3 nasce com 2
-     erros, aula 2 nasce vazia). A cópia nova tem de sair de uma **área de grupo ainda intocada**
-     ou de uma região `partida` escondida que o gerador passe a gravar.
-  3. ⚠️ **O mundo pode não CABER.** `dims.x = max(6, n ímpar ? n+1 : n)` chunks (`gerar.ts:304`):
-     um `.ljw` gerado com `--grupos 5` tem 6 chunks de X = 96 blocos. Pedir 8 grupos ao vivo bate no
-     `inBounds` e devolve *"A cópia g não cabe no mundo"*. **Conserto barato: gerar os cenários
-     sempre na largura do TETO (8 grupos) e carimbar só quantos a turma tiver** — custo é `.ljw`
-     maior e chunk vazio à vista. Caro: mundo crescível em runtime.
-  4. **Uma passada por FASE:** as fases têm sufixo (`area`/`area2`/`area3`, `gerar.ts:331`), então
-     o ajuste roda uma vez por fase, e o objetivo per-grupo casa pelo prefixo.
-  5. **Forma pro professor:** o alvo não é ele digitar `/regiao carimbar` 3 vezes. É `/grupo criar X`
-     (ou o botão de grupos no painel P) **já ajustar o mundo junto**, ou um `/aula grupos X` que
-     faça os dois — a conta de offset/espaçamento não pode ficar na cabeça de quem está dando aula.
-  ⚠️ Aluno em cima do bloco na hora do ajuste deixa de ser caso raro (na geração o autor se afasta
-  com `a.afastar`, ao vivo tem criança no lugar): o "pulados" precisa virar aviso e re-tentativa.
+* \[x] **AJUSTAR AO VIVO O NÚMERO DE CÓPIAS DA ÁREA DA ATIVIDADE, CONFORME O NÚMERO DE GRUPOS**
+  — **FEITO** (2026-08-17). Ideia do usuário em 2026-08-12; entregue como `/aula grupos X
+  [confirmar]` (`shared/src/session/aula.ts`) mais a aba **grupos** no painel P. Spec e plano em
+  `docs/superpowers/specs/2026-08-17-copias-ao-vivo-design.md` e
+  `docs/superpowers/plans/2026-08-17-copias-ao-vivo.md`.
+  **Como ficou:**
+  * **Grade de 6 colunas** (`shared/src/grade.ts`, módulo PURO) é a fonte única de "onde fica o
+    grupo g", usada pelo gerador **e** pelo comando. Ordem de LEITURA. 8 grupos = 6×2,
+    20 = 6×4; o teto futuro de 35 = 6×6 = 96×96 blocos.
+  * **Mundo nasce no tamanho do TETO** (`dimsDaAula()` = 6×10×4 chunks), não do `--grupos`:
+    o professor nunca esbarra no `inBounds` durante a aula. ⚠️ Custou tamanho: o `.ljw` foi de
+    ~593 kB para ~987 kB (+66%) — o save destes mundos **não** é esparso.
+  * **Célula-molde** com o estado de PARTIDA + os `extras`, no chunk atrás do professor, região
+    `partida`. ⚠️ **O `baseline` do objetivo NÃO servia como fonte:** ele cobre só a caixa da
+    ÁREA, e os extras ficam fora dela (a parede de manual da aula 6 mora em x+3/x+4 de uma área
+    com dx=3). A unidade de cópia é o CHUNK inteiro.
+  * **Conteúdo de quadro viaja junto** (`GameSession.moverQuadros`/`apagarQuadros`): ele mora
+    fora do id de bloco, então sem isso o grupo novo receberia a parede de manual EM BRANCO.
+  * **Incremental:** grupos `1..min(N,X)` mantêm composição, progresso e blocos. `/grupo criar X`
+    segue sendo o reset explícito ("turma nova"). Encolher exige `confirmar` e realoca os alunos.
+  * O gerador carimba os grupos com o **mesmo** `copiarCelula` do comando ao vivo — se ele
+    regredir, `npm run cenarios` quebra antes de o mundo chegar na escola.
+  * `MAX_REGIONS` 64 → 256 (o teto usava 64 exatos). `--grupos` do gerador: teto 8 → 20.
+  * **Prova contra o `.ljw` REAL** (aula6, sonda no scratchpad): 5→8 cria 3 áreas e leva os
+    quadros (18→27 com conteúdo); 8→3 sem `confirmar` relata "5 grupos, 45 blocos" e não escreve
+    nada; com `confirmar` remove 5 áreas (27→12 quadros, célula vazia, região apagada).
+  * Bateria: `check:launchers` 5/5 · typecheck 3/3 · **874/874** (+25) · build · 15/15 smokes ·
+    `npm run cenarios` 7/7 conferidos.
 
-  **6. CARIMBAR EM GRADE, NÃO EM LINHA** (ideia do usuário, 2026-08-12) — e ela resolve boa parte
-  do item 3 sozinha. Hoje o carimbo anda num eixo só (`eixo = "x" | "z"`, `regioes.ts:144`) e o
-  gerador dá **um chunk por grupo em X, todos na MESMA fileira de Z** (`ox = (cx0+g-1)*CHUNK_SIZE`,
-  `oz = cz*CHUNK_SIZE`, `gerar.ts:350-351`). Com `CHUNK_SIZE = 16`, 8 grupos = **128 blocos de
-  fileira**, e o professor no meio anda ~64 blocos até cada ponta. Em **4×2** vira 64 × 32 — mesma
-  turma, metade da caminhada, e todo mundo cabe no campo de visão.
-  **O que muda no espaço:** `dims.x` deixa de crescer com `n` (vira `ceil(n / colunas)` chunks), e
-  o teto de 8 grupos passa a caber em 4 chunks de largura em vez de 8 — **o "gerar sempre na
-  largura do teto" do item 3 fica barato**. Em Z já há folga hoje: `dims.z = 6` e as cabines ficam
-  em `cz = profOz/16 + 1` (`gerar.ts:338`), então **sobra pelo menos mais uma fileira de chunks
-  à frente** — 4×2 provavelmente entra sem mexer nas dimensões.
-  **O que muda no comando:** `espacamento` + `eixo` viram `colunas` + passo nos DOIS eixos
-  (`passoX = dx + espX`, `passoZ = dz + espZ` — a região não é quadrada: as fases somam até
-  `LARGURA_MAX = 8` em X e a profundidade cabe em `FAIXA_MAX = 13`). Índice natural: cópia `g` na
-  célula `(g % colunas, floor(g / colunas))` — o **modelo é a célula 0**, então a grade fecha sem
-  buraco, e a numeração sai em ordem de LEITURA (esquerda→direita, frente→fundo), que é como o
-  professor vai procurar "o grupo 5". A validação de `inBounds` passa a ser nos dois eixos, e
-  continua ANTES de mexer em bloco (carimbo pela metade = lixo — já é assim hoje).
-  ⚠️ **O espaçamento entre FILEIRAS quer ser maior que entre colunas:** a cabine ocupa `z 0..4` do
-  chunk (`FAIXA_DZ = 2`), então fileira colada na outra deixa o grupo de trás olhando pro fundo da
-  cabine da frente. Corredor pra circular (e pro professor ver as duas fileiras) é decisão de
-  aula, não de código — mas o comando tem de permitir espaçamento por eixo.
-  ⚠️ `MAX_REGIONS = 64` (`shared/src/regions.ts:22`) segue folgado: 3 fases × 8 grupos + 3 modelos
-  = 27. O `carimbar` já barra em `ses.regions.size + n > MAX_REGIONS`.
+* \[ ] **subir o teto de grupos para 35** (turma de 35 fazendo individualmente — pedido do
+  usuário, 2026-08-17). Custa **uma constante**: `MAX_GRUPOS_AULA` em `shared/src/grade.ts`.
+  `dimsDaAula()` acompanha sozinha (`dims.z` sai de 10 para 14, grade 6×6) e os cenários são
+  regerados. Consequência a medir antes: o `.ljw` passaria de ~987 kB para ~1,38 MB por aula.
+
+* \[ ] **proteger a célula-molde contra edição** (achado ao implementar o item acima,
+  2026-08-17). A região `partida` fica no chunk atrás do professor, fora das fileiras de grupo,
+  mas nada impede alguém de destruí-la — e daí em diante `/aula grupos` copiaria o estrago.
+  Candidatos: bloquear edição dentro da região `partida` (mesma engrenagem do claim), ou tirar o
+  molde do mundo e guardá-lo no meta do save.
 
 ## Sistema anti-griefing (claim de blocos)
 
@@ -847,6 +828,23 @@ não tem filesystem; export de "pasta" no single fica de fora (não faz sentido 
       aceita um `qtd` opcional na mensagem (hoje move a pilha toda).
     * Mantém o par `{id, qtd}` — NÃO cria campo novo (a decisão de durabilidade no
       §🔨 v2 é que vai mexer no Stack, não esta).
+
+* \[ ] **VARRER TODA RECEITA DE CRAFT ATRÁS DE "LÃ" QUE DEVIA SER "ALGODÃO"** (pedido do
+  usuário, 2026-08-17). Uma a uma, incluindo os casos em que a palavra aparece **só no NOME** e
+  o bloco de lã nem entra na receita. Contexto: no §🍖 F10c o algodão virou planta de verdade e
+  a lã passou a sair dele, aposentando a ponte "lã ← trigo" (`receitas.ts:151-152`) — mas o
+  vocabulário exposto ao aluno não foi revisto junto. Onde procurar: os 12 nomes `"lã <cor>"` em
+  `client/src/blocksUi.ts:62-74`, os `WoolXxx` do `BlockId`, o campo `la:` da tabela de cores
+  (`receitas.ts:186-198`), as notas de receita e os textos de `usos.ts`. **Decidir primeiro se a
+  troca é só de RÓTULO (nome exibido) ou também de identificador** — mexer em `BlockId` atravessa
+  save, protocolo e os `.ljw` de aula já gerados, então a aposta é rótulo só.
+
+* \[ ] **CERCA está na aba "mobília", não em "blocos"** (relato do usuário, 2026-08-17).
+  Verificado: existe UM bloco de cerca (`BlockId.Cerca = 65`), ele **está** no menu do criativo
+  e `isPlaceable` o aceita — o que houve foi categoria. `client/src/blocksUi.ts:83` traz
+  `{ id: BlockId.Cerca, name: "cerca", cat: "mobilia" }`, junto de porta, tocha e tapete.
+  Decisão pendente do usuário: mover para `cat: "blocos"` (1 linha) ou manter em mobília e
+  aceitar que a busca começa por lá.
 
 
 ## Registros / apresentação

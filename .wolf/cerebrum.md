@@ -96,6 +96,27 @@
 
 ## Key Learnings
 
+- [2026-08-17] **O `baseline` do objetivo NÃO é o estado de partida da CÉLULA — só da CAIXA da
+  área.** `capturarBaseline` (`cenario.ts:285`) fotografa `o.alvos`, e os `extras` do cenário
+  ficam FORA: a parede de manual da aula 6 é plantada em `o.x+3`/`o.x+4`, `o.y+1`
+  (`gerar.ts:261-267`) numa área que tem `dx:3, dy:1`. Copiar área por área daria ao grupo novo a
+  atividade **sem o enunciado**. Por isso a unidade de cópia da aula é o CHUNK inteiro
+  (`caixaDaCelula`, `grade.ts`), não a região do objetivo.
+- [2026-08-17] **`o.alvos`/`o.baseline` são CONGELADOS na criação do objetivo; `o.porGrupo` é
+  DERIVADO no broadcast.** `resolveAlvos` (`cenario.ts:38`) resolve `<prefixo>-<g>` uma vez e
+  guarda as caixas em `o.alvos[g-1]` (`cenario.ts:124`); `porGrupo` é remontado de `ses.grupos` a
+  cada `broadcastObjectives` (`cenario.ts:478`). Consequência: criar a região `area-6` depois
+  **não** estende o objetivo — é preciso empurrar em `alvos` E em `baseline` na mesma operação
+  (e `porGrupo` se resolve sozinho).
+- [2026-08-17] **Conteúdo de quadro mora FORA do id de bloco.** `ses.quadros`
+  (`Map<quadroKey, QuadroConteudo>`, `session.ts:410`, PRIVADO) persiste no meta.
+  `snapshotRegion` fotografa só ids, então qualquer cópia/limpeza de área tem de mexer no mapa
+  junto (`moverQuadros`/`apagarQuadros`), senão o quadro chega em branco. E `quadro_set` exige
+  **ALCANCE** (`session.ts:1149`): teste ou script que escreve quadro precisa aproximar o jogador
+  antes, como o `Autoria.quadro` do gerador faz.
+- [2026-08-17] **`/grupo criar X` é RESET, não ajuste** (`equipes.ts:586-587`: `grupos.clear()` +
+  `completosGrupo.clear()`, "turma nova"). Ajustar a turma no meio da aula precisa de outro
+  caminho — é o que `/aula grupos X` faz, preservando `1..min(N,X)`.
 - [2026-08-17] **Os astros do céu (`client/src/daynight.ts`) são planos COPLANARES na mesma
   posição, com o mesmo `lookAt(camera)` — logo mudar a forma de um sem mudar a do outro sempre
   aparece.** `sunDisc` + `sunGlow` ficam ambos em `(sx,sy,sz)` e recebem `lookAt` idêntico:
@@ -1556,6 +1577,10 @@ nenhum** — sem essa declaração o Chrome renderiza a página em light mesmo c
   `nohup npx tsx …` e conferir a porta com `ss -tln` (o vite pode pular pra 5174).
 - [2026-07-13] Smoke `.mts` no scratchpad: `node --import tsx script.mts` **com CWD no repo**
   (tsx resolve de node_modules do projeto); do scratchpad dá ERR_MODULE_NOT_FOUND.
+  ⚠️ **[2026-08-17] CWD no repo NÃO BASTA.** A resolução de `@logica/shared` parte do diretório
+  do ARQUIVO, não do CWD — sonda que mora em `/tmp/...` falha com `ERR_MODULE_NOT_FOUND` mesmo
+  rodada da raiz do repo. Copie o `.mts` para DENTRO do repo (raiz serve), rode, e apague depois
+  — nunca `git add`.
 - [2026-07-17] **Smoke do HOST sem `LJ_SAVE` sobrescreve o `server/world.ljw` RASTREADO.**
   Sempre passar `LJ_SAVE=<scratchpad>/teste.ljw` e `LJ_PORT` próprio. Se poluiu:
   `git checkout -- server/world.ljw`.
@@ -1582,6 +1607,21 @@ nenhum** — sem essa declaração o Chrome renderiza a página em light mesmo c
 
 ## Decision Log — índice das decisões ATIVAS
 
+- [2026-08-17] **A aula tem GRADE de 6 colunas e teto de 20 grupos, com o mundo dimensionado
+  pelo TETO.** 6 colunas porque fecha os três tamanhos que interessam (8 = 6×2, 20 = 6×4, e o
+  teto futuro de 35 = 6×6 = 96×96 blocos, a pegada de sempre) e mantém `dims.x` em 6. O mundo
+  nascer do tamanho do teto, e não do `--grupos` pedido, é o que tira o `inBounds` do caminho do
+  professor durante a aula — **ao custo medido de +66% no `.ljw` (593 kB → 987 kB)**, porque o
+  save destes mundos não é esparso. Decisão do usuário, com a ida a 35 adiada e anotada.
+- [2026-08-17] **`/aula grupos X` é INCREMENTAL, e `/grupo criar X` continua sendo o reset.**
+  Grupos `1..min(N,X)` preservam composição, progresso e blocos; só a diferença é criada ou
+  removida. Encolher exige `/aula grupos X confirmar` (relatório do estrago no 1º passo) porque
+  apaga trabalho de aluno — mesmo padrão de 2 cliques dos botões de expulsar/banir.
+- [2026-08-17] **A fonte da cópia é uma CÉLULA-MOLDE no mundo (região `partida`), não o
+  `baseline` do objetivo.** O baseline cobre só a caixa da área e perderia os `extras`. A célula
+  fica no chunk atrás do professor, fora das fileiras de grupo. O gerador carimba os grupos com
+  o MESMO `copiarCelula` do comando ao vivo — de propósito: se ele regredir, `npm run cenarios`
+  quebra antes de o mundo chegar na escola.
 - [2026-08-11] **`.bat` é ASCII puro; o `.gitattributes` NÃO ganha exceção de `eol=crlf`.**
   As duas coisas consertam o bug-621 isoladamente (medido), e a escolha foi a do ASCII: o projeto
   força `eol=lf` em tudo porque vive no WSL, e uma exceção por extensão é mais uma coisa pra

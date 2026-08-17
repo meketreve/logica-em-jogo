@@ -2342,3 +2342,40 @@ scratchpad) mostram a emenda contínua e sem linha. typecheck 3/3 + build verdes
 | 10:30 | Edited docs/superpowers/plans/2026-08-17-copias-ao-vivo.md | modified mundoDeAula() | ~623 |
 | 10:31 | Edited docs/superpowers/plans/2026-08-17-copias-ao-vivo.md | modified mundoDeAula() | ~578 |
 | 10:31 | Edited docs/superpowers/plans/2026-08-17-copias-ao-vivo.md | 3→3 lines | ~57 |
+| 10:32 | Created shared/src/grade.test.ts | — | ~685 |
+| 10:33 | Created shared/src/grade.ts | — | ~1107 |
+| 10:33 | Edited shared/src/index.ts | 2→3 lines | ~24 |
+| 10:33 | Created shared/src/quadros-mover.test.ts | — | ~918 |
+| 10:33 | Edited shared/src/regions.ts | 1→4 lines | ~75 |
+| 10:34 | Edited shared/src/session.ts | 4→5 lines | ~23 |
+| 10:34 | Edited shared/src/session.ts | added 3 condition(s) | ~453 |
+| 10:35 | Created shared/src/aula-celula.test.ts | — | ~1406 |
+| 10:36 | Created shared/src/session/aula.ts | — | ~870 |
+| 10:36 | Edited shared/src/index.ts | 2→7 lines | ~109 |
+| 10:36 | Edited server/src/cenarios/gerar.ts | expanded (+8 lines) | ~78 |
+| 10:37 | Edited server/src/cenarios/gerar.ts | 2→4 lines | ~73 |
+| 10:37 | Edited server/src/cenarios/gerar.ts | 10→11 lines | ~166 |
+| 10:37 | Edited server/src/cenarios/gerar.ts | added 1 condition(s) | ~460 |
+| 10:37 | Edited server/src/cenarios/gerar.ts | 6→9 lines | ~122 |
+| 10:37 | Edited server/src/cenarios/gerar.ts | 4→4 lines | ~60 |
+| 10:38 | Edited docs/superpowers/specs/2026-08-17-copias-ao-vivo-design.md | inline fix | ~135 |
+| 10:39 | Edited todo.md | expanded (+17 lines) | ~399 |
+| 10:40 | Created shared/src/aula-crescer.test.ts | — | ~1262 |
+| 10:40 | Edited shared/src/session/aula.ts | added 4 import(s) | ~121 |
+| 10:41 | Edited shared/src/session.ts | 2→4 lines | ~38 |
+| 10:41 | Edited shared/src/session.ts | added 1 import(s) | ~26 |
+| 10:41 | Edited shared/src/session.ts | "Comando desconhecido: ${t" → "Comando desconhecido: ${t" | ~68 |
+| 10:42 | Created shared/src/aula-encolher.test.ts | — | ~1020 |
+| 10:43 | Edited shared/src/session/cenario.ts | 2→2 lines | ~53 |
+| 10:43 | Edited shared/src/session/cenario.ts | 2→2 lines | ~38 |
+| 10:43 | Edited client/src/commands.ts | 2→3 lines | ~9 |
+| 10:43 | Edited client/src/commands.ts | 1→2 lines | ~19 |
+| 10:44 | Edited client/src/players.ts | added 1 import(s) | ~204 |
+| 10:44 | Edited client/src/players.ts | 4→5 lines | ~72 |
+| 10:44 | Edited client/src/players.ts | added 1 condition(s) | ~47 |
+| 10:44 | Edited client/src/players.ts | modified renderGrupos() | ~266 |
+| 09:40 | Task 1-3: grade.ts (grade 6 col, teto 20), moverQuadros/apagarQuadros + MAX_REGIONS 256, copiarCelula/limparCelula | shared/src/grade.ts, session.ts, session/aula.ts | 15 testes novos verdes; typecheck 3/3 | ~40k |
+| 10:05 | Task 4: gerador na grade com celula-molde; conferirExtra da aula 6 = (grupos+1)*PASSOS | server/src/cenarios/gerar.ts, cenarios/*.ljw | 7 cenarios regerados e conferidos; .ljw 593kB -> 987kB (+66%) | ~15k |
+| 10:20 | anotados 2 pedidos do usuario: varrer receitas atras de "lã" que devia ser "algodão"; cerca esta em cat "mobilia" e nao "blocos" (decisao pendente) | todo.md | anotado, nao alterado codigo | ~5k |
+| 10:35 | Task 5-7: /aula grupos X (crescer + encolher com confirmar), aba grupos no painel P, autocompletar, textos de ajuda | shared/src/session/aula.ts, session.ts, client/src/players.ts, commands.ts | 874/874; A/B derruba os testes ao remover as guardas | ~35k |
+| 10:50 | sonda contra o .ljw REAL (aula6): 5->8 cria 3 areas e leva 18->27 quadros COM conteudo; 8->3 sem confirmar nao escreve; com confirmar volta a 12 quadros e celula vazia | scratchpad/aula-real.mts | ponta a ponta OK | ~8k |

@@ -2,6 +2,53 @@
 
 > Single source of truth for resuming work. Read this FIRST when starting a session.
 
+> ## 🧭 HANDOFF — ESTADO AO FIM DA SESSÃO 75 (2026-08-17)
+>
+> **Duas entregas: o halo do sol e o item 4 inteiro (cópias da área ajustáveis ao vivo).**
+> Bateria completa verde, `.ljw` regerados, tudo commitado e empurrado para `main`.
+>
+> ### 1. Halo do sol quadrado (bug-624) — `client/src/daynight.ts:204`
+> `CircleGeometry(52,24)` → `PlaneGeometry(104,104)`. Os dois meshes ficam na MESMA posição com o
+> MESMO `lookAt(camera)`, então o círculo aparecia concêntrico ao quadrado com borda desigual:
+> 24 nos eixos e só 12 nas quinas (a quina do sol avança 28·√2 ≈ 39,6). 104 = 56 do sol + 24 de
+> anel na volta inteira. **A lua segue redonda de propósito.** Provado com print do modo `?foto`
+> apontado ao sol (h=12), antes e depois.
+>
+> ### 2. `/aula grupos X [confirmar]` — item 4 do todo.md, FECHADO
+> Spec: `docs/superpowers/specs/2026-08-17-copias-ao-vivo-design.md` ·
+> Plano: `docs/superpowers/plans/2026-08-17-copias-ao-vivo.md`
+>
+> - **`shared/src/grade.ts` (NOVO, puro)** — fonte ÚNICA de "onde fica o grupo g". Grade de
+>   **6 colunas**, teto **20**, ordem de leitura. `dimsDaAula()` = `{x:6, z:10, y:4}`: o mundo
+>   nasce do tamanho do TETO, não do `--grupos`. Professor no chunk (3,5), célula-molde em (3,4),
+>   grupos em `z = 6..9`.
+> - **`shared/src/session/aula.ts` (NOVO)** — `copiarCelula`/`limparCelula` (a unidade é o CHUNK
+>   inteiro) e `runAula`. Crescer preserva `1..min(N,X)`; encolher exige `confirmar` e realoca os
+>   alunos. `alvo === atual` **não é no-op**: é a re-tentativa quando blocos foram pulados.
+> - **`gerar.ts`** planta partida+extras UMA vez na célula-molde (região `partida`, nunca
+>   esvaziada) e carimba os grupos com o **mesmo** `copiarCelula` do comando ao vivo.
+> - **`GameSession.moverQuadros`/`apagarQuadros`** — conteúdo de quadro mora fora do id de bloco.
+> - `MAX_REGIONS` 64 → **256**. `--grupos` do gerador: teto 8 → 20. Aba **grupos** no painel P.
+>
+> ⚠️ **DUAS COISAS QUE EU TINHA ESCRITO ERRADO E A IMPLEMENTAÇÃO DESMENTIU:**
+> 1. **O `baseline` do objetivo NÃO serve como fonte da cópia.** Ele cobre só a caixa da ÁREA, e
+>    os `extras` ficam fora (aula 6: área `dx:3`, parede de manual em `x+3`/`x+4`). Por isso a
+>    célula-molde existe.
+> 2. **O save destes mundos NÃO é esparso.** O `.ljw` foi de ~593 kB para **~987 kB (+66%)**,
+>    exatamente o crescimento de 144 → 240 chunks. 7 aulas: ~4,2 MB → ~6,9 MB no download da escola.
+>
+> ✅ **Bateria:** `check:launchers` 5/5 · typecheck 3/3 · **874/874** (+25) · build · **15/15
+> smokes** · `npm run cenarios` 7/7 conferidos · **sonda contra o `.ljw` REAL** (aula6): 5→8 cria
+> 3 áreas e leva 18→27 quadros COM conteúdo; 8→3 sem `confirmar` relata e não escreve; com
+> `confirmar` volta a 12 quadros, célula vazia, região apagada. A/B derruba os testes ao remover
+> cada guarda.
+>
+> 🚀 **Fila:** **dormir na cama pra passar a noite** (todo.md L304 — era o próximo que o usuário
+> pediu), varrer receitas atrás de "lã" que devia ser "algodão" (pedido 2026-08-17),
+> **decisão pendente do usuário: mover a CERCA de `cat:"mobilia"` para `"blocos"`**
+> (`client/src/blocksUi.ts:83` — ela NÃO está faltando, está em mobília), subir o teto para 35
+> grupos, proteger a célula-molde, Ferramentas v2, mobs. Nenhuma pendência externa.
+
 > ## 🧭 HANDOFF — ESTADO AO FIM DA SESSÃO 74 (2026-08-15)
 >
 > **Sessão de UM pedido, entregue: o ENQUADRAMENTO das 6 fotos do fundo 3D do menu.** typecheck
