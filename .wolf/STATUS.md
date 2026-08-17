@@ -2,6 +2,51 @@
 
 > Single source of truth for resuming work. Read this FIRST when starting a session.
 
+> ## 🧭 HANDOFF — ESTADO AO FIM DA SESSÃO 76 (2026-08-17)
+>
+> **Sessão longa, tudo commitado e empurrado. `origin/main` = `6e6be51`.**
+> Ordem do usuário: halo do sol → item 4 (cópias ao vivo) → cerca → item 1 (dormir).
+>
+> ### ✅ Entregue e VALIDADO NA ESCOLA
+> **Dormir na cama** (`shared/src/session/dormir.ts`). O playtest da escola derrubou 4 defeitos
+> no mesmo dia, todos consertados, e o usuário confirmou: *"testei e a animação funcionou"*.
+> - **bug-626** — `/hora noite` e nada acontecia. `if (!cicloAtivo) return null` era **mudo**, e
+>   ⚠️ **`/hora` NÃO liga o ciclo** (só `/ciclo` faz) — e o `.ljw` de aula nasce com ele
+>   desligado. O gate também estava errado de conceito: `cicloAtivo` diz se o tempo anda
+>   SOZINHO; dormir é ação explícita. Removido. Regra virou **metade ou mais** (`>=`): com
+>   maioria estrita a DUPLA precisaria dos dois. E o motivo entrou na MESMA frase do spawn —
+>   separado, todo clique de dia terminava numa reclamação e derrubava 2 testes antigos.
+> - **bug-627** — flicker e boneco fora da cama. ⚠️ **O flicker era ESTRUTURAL:** o laço reescreve
+>   `camera.position/rotation` da pose do jogador TODO FRAME, e eu interpolava a câmera depois
+>   disso — o lerp nunca converge, **estaciona em 13% do caminho** (medido: parou em 4,7623
+>   querendo 5,9) e treme junto com o jogador. Quem interpola agora é um **progresso persistente**.
+>   E ⚠️ **o servidor NÃO move quem dorme**, então `player_moved` levava os pés do jogador EM PÉ:
+>   a mensagem passou a carregar a célula da cama.
+>
+> ### ✅ Também entregue nesta sessão
+> - **Halo do sol quadrado** (bug-624): `CircleGeometry(52,24)` → `PlaneGeometry(104,104)`.
+>   Provado com print do `?foto`. A lua segue redonda de propósito.
+> - **Item 4 — `/aula grupos X [confirmar]`**: grade de 6 colunas (`shared/src/grade.ts`, puro),
+>   célula-molde com o estado de partida, teto 20, mundo dimensionado pelo teto,
+>   `MAX_REGIONS` 64→256, aba **grupos** no painel P, `.ljw` regerados.
+>   ⚠️ Duas suposições minhas caíram: o `baseline` do objetivo **não** cobre os `extras`, e o
+>   save destes mundos **não** é esparso (`.ljw` 593 kB → 987 kB).
+> - **Cerca** movida de `cat:"mobilia"` para `"blocos"` (bug-625) — não estava faltando.
+>
+> ✅ **Bateria final:** `check:launchers` 5/5 · typecheck 3/3 · **891/891** · build ·
+> **15/15 smokes** · `npm run cenarios` 7/7.
+>
+> 🚀 **Fila (nenhuma pendência externa):**
+> 1. **Varrer receitas atrás de "lã" que devia ser "algodão"** (pedido 2026-08-17). Decidir
+>    ANTES: só rótulo ou também `BlockId`? Mexer no id atravessa save, protocolo e `.ljw`.
+> 2. **Aba "todos" no inventário** — blocos por id + barra de pesquisa (ideia 2026-08-17).
+> 3. **Painel de comandos do mobile ao LADO** (ideia 2026-08-17) — a conta do teclado já está
+>    resolvida por `--kb`; o que muda é o eixo do layout.
+> 4. **`/invisivel`** para professor (ideia 2026-08-17) — ⚠️ a filtragem tem de ser no SERVIDOR,
+>    por cliente, senão a posição vaza no fio.
+> 5. Animação de **sentar na cadeira** (par do dormir), teto de 35 grupos, proteger a
+>    célula-molde, Ferramentas v2, mobs.
+
 > ## 🧭 HANDOFF — ESTADO AO FIM DA SESSÃO 75 (2026-08-17)
 >
 > **Duas entregas: o halo do sol e o item 4 inteiro (cópias da área ajustáveis ao vivo).**

@@ -338,7 +338,8 @@ senão lado com parede; empate → base. Cliente inalterado.
 
 ## Visual / player
 
-* \[x] **deitar na cama para passar a noite** — **FEITO** (2026-08-17). O MESMO clique da cama
+* \[x] **deitar na cama para passar a noite** — **FEITO e VALIDADO NA ESCOLA** (2026-08-17;
+  relato do usuário no mesmo dia: *"testei e a animação funcionou"*). O MESMO clique da cama
   define o ponto de nascimento (2026-08-14) **e** deita — decisão do usuário, sem gesto novo; o
   rótulo ▣ "interagir" já cobria a cama. `shared/src/session/dormir.ts` (novo).
   * **Maioria dos acordados** (`dormem * 2 > online`) faz a noite passar. Os dois extremos são

@@ -2438,3 +2438,5 @@ scratchpad) mostram a emenda contínua e sem linha. typecheck 3/3 + build verdes
 | 14:12 | Edited client/src/main.ts | 5→6 lines | ~39 |
 | 12:50 | bug-626: relato da escola "/hora noite e nao consegui dormir" — gate do cicloAtivo era SILENCIOSO e conceitualmente errado; regra virou metade-ou-mais; motivo entrou na mesma frase do spawn | shared/src/session/dormir.ts, session.ts | reproduzido contra aula1.ljw; 17 testes; A/B derruba os 2 casos | ~30k |
 | 13:10 | bug-627: flicker da camera (lerp em valor reescrito todo frame -> estaciona em 13%) e corpo deitando fora da cama (player_moved leva os PES, servidor nao move quem dorme) | client/src/main.ts, remotePlayers.ts, shared/src/protocol.ts | dormirT persistente + cama no player_moved; simulacao numerica 4.7623 fixo vs converge a 5.9 | ~25k |
+| 14:19 | Session end: 115 writes across 25 files (daynight.ts, 2026-08-17-copias-ao-vivo-design.md, 2026-08-17-copias-ao-vivo.md, grade.test.ts, grade.ts) | 14 reads | ~175998 tok |
+| 13:30 | usuario confirmou em campo: "testei e a animacao funcionou" — bug-626 e bug-627 fechados na escola | .wolf/buglog.json, STATUS.md | dormir validado no ambiente real | ~5k |
