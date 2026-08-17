@@ -1,18 +1,20 @@
+import { MAX_GRUPOS_AULA } from "@logica/shared";
 import { playUi } from "./audio";
 
 /**
  * Painel de jogadores (2026-07-21) — SÓ para o professor. Mesma estrutura do
  * inventário (cp16): altura FIXA, abas no topo e rolagem só na lista quando não
- * cabe. Duas abas: "conectados" (expulsar/banir) e "banidos" (desbanir). Os
- * botões COMPÕEM comandos de chat (/kicar, /banir, /desbanir) — o servidor
- * valida como sempre; o painel nunca decide estado.
+ * cabe. Três abas: "conectados" (expulsar/banir), "banidos" (desbanir) e
+ * "grupos" (2026-08-17: ajustar o número de áreas da atividade ao vivo). Os
+ * botões COMPÕEM comandos de chat (/kicar, /banir, /desbanir, /aula grupos) —
+ * o servidor valida como sempre; o painel nunca decide estado.
  */
 export interface PlayersData {
   conectados: { name: string; papel: "professor" | "aluno" }[];
   banidos: string[];
 }
 
-type Aba = "conectados" | "banidos";
+type Aba = "conectados" | "banidos" | "grupos";
 
 export class PlayersPanel {
   private readonly root = document.getElementById("jogadores");
@@ -120,6 +122,7 @@ export class PlayersPanel {
     const tabs: { id: Aba; label: string }[] = [
       { id: "conectados", label: `conectados (${this.data.conectados.length})` },
       { id: "banidos", label: `banidos (${this.data.banidos.length})` },
+      { id: "grupos", label: "grupos" },
     ];
     for (const t of tabs) {
       const tab = document.createElement("button");
@@ -136,6 +139,7 @@ export class PlayersPanel {
     const lista = document.createElement("div");
     lista.className = "jog-lista";
     if (this.aba === "conectados") this.renderConectados(lista);
+    else if (this.aba === "grupos") this.renderGrupos(lista);
     else this.renderBanidos(lista);
 
     root.append(head, abas, lista);
@@ -162,6 +166,27 @@ export class PlayersPanel {
       }
       lista.append(row);
     }
+  }
+
+  /**
+   * Ajuste do número de grupos (2026-08-17). Cada botão é um comando de chat,
+   * como o resto do painel — o servidor é quem decide.
+   *
+   * Todos passam pelos 2 cliques do `armedBtn` e mandam "confirmar" no segundo:
+   * o servidor só EXIGE a confirmação para diminuir, mas o painel não sabe
+   * quantos grupos existem agora, e um botão que às vezes pede confirmação e
+   * às vezes não seria pior que um que sempre pede.
+   */
+  private renderGrupos(lista: HTMLElement): void {
+    lista.append(
+      this.hint("quantos grupos a turma tem? aumentar cria as áreas; diminuir apaga as que sobram."),
+    );
+    const grade = document.createElement("div");
+    grade.className = "jog-row";
+    for (let n = 1; n <= MAX_GRUPOS_AULA; n++) {
+      grade.append(this.armedBtn(String(n), () => this.send(`/aula grupos ${n} confirmar`)));
+    }
+    lista.append(grade);
   }
 
   private renderBanidos(lista: HTMLElement): void {

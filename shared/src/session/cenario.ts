@@ -49,7 +49,7 @@ export function resolveAlvos(
         return {
           erro:
             `Falta a região "${nome}-${g}": o mundo tem ${ses.grupos.size} grupos, ` +
-            `então é preciso uma área para cada um (crie-as com /regiao carimbar).`,
+            `então é preciso uma área para cada um (ajuste com /aula grupos ${ses.grupos.size}).`,
         };
       }
       porGrupo.push(r);
@@ -81,7 +81,7 @@ export function runObjetivo(ses: GameSession, parts: string[]): string {
             "Uso: /objetivo add construir modelo alvo enunciado… — o jogo fotografa a " +
               "região MODELO agora e passa a conferir a região ALVO, que precisa ter o " +
               "mesmo tamanho. O alvo pode ser um prefixo com uma área para cada grupo, " +
-              "criado com /regiao carimbar."
+              "criado com /aula grupos."
           );
         }
         const caixas = res.porGrupo ?? [res.shared as NamedRegion];
