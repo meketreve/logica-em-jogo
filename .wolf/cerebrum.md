@@ -96,6 +96,23 @@
 
 ## Key Learnings
 
+- [2026-08-17] **Os astros do céu (`client/src/daynight.ts`) são planos COPLANARES na mesma
+  posição, com o mesmo `lookAt(camera)` — logo mudar a forma de um sem mudar a do outro sempre
+  aparece.** `sunDisc` + `sunGlow` ficam ambos em `(sx,sy,sz)` e recebem `lookAt` idêntico:
+  mesma quaternion, mesma orientação, concêntricos (não brigam no z-buffer porque os dois são
+  `depthWrite:false`). Foi assim que o halo redondo em volta do sol quadrado ficou visível
+  (bug-624). **A conta que decide o tamanho:** com o sol `PlaneGeometry(L,L)` (meio-lado L/2), um
+  halo CIRCULAR de raio r dá borda `r - L/2` nos eixos e só `r - (L/2)·√2` nas quinas; um halo
+  QUADRADO de lado `L + 2·e` dá borda `e` na volta inteira. Sol 56 + anel 24 = **104**.
+  ⚠️ A **lua** (`CircleGeometry(20,24)`) segue redonda de propósito — o pedido do usuário era o
+  par sol+halo, e ela é outro astro.
+- [2026-08-17] **Dá pra provar mudança visual do CÉU sem escrever script de shot novo: reusar o
+  `?foto`.** `window.__fotoApontar(yaw, pitch)` aponta a câmera; a direção do sol sai do próprio
+  `daynight.ts` (`ang = ((h-6)/12)·π`, `dir = (cos ang, sin ang, 0.35)` normalizada) e a câmera
+  FPS (rotation YXZ) tem `forward = (-sin y·cos p, sin p, -cos y·cos p)` → `pitch = asin(uy)`,
+  `yaw = atan2(-ux, -uz)`. ⚠️ **A hora do mundo NÃO é legível da página** (não há hook), então a
+  sonda varre `h = 7..17` e uma das prints pega o sol; com `HORA_PADRAO = 12` a de h=12 acerta.
+  Sonda em `scratchpad/sol-shot.mjs`, moldada no `scripts/fundo-shots.mjs`.
 - [2026-08-15] **Orientar as 6 faces do cubo do menu (`menuFundo.ts`) é UV do `BoxGeometry`
   contra o que a câmera FPS enquadra — dá pra derivar, não precisa chutar.** O
   `BoxGeometry.buildPlane` fixa, por face, qual eixo do mundo cresce com `u` e com `v`; a foto
@@ -1081,6 +1098,16 @@ nenhum** — sem essa declaração o Chrome renderiza a página em light mesmo c
 
 ## Do-Not-Repeat
 
+- [2026-08-17] **`npx vite` rodado da RAIZ do repo SOBE e escuta na 5173, mas serve página
+  VAZIA (`curl … | wc -c` = 1).** O dev do cliente é `npm run dev -w client`, ou seja, vite com
+  **CWD em `client/`** — a raiz só tem config de `vite build`. Sintoma: sonda headless fica os
+  300 s inteiros em `__fotoRodando !== true` com `load-fase` = `…` e parece bug do CLIENTE.
+  **Confira o servidor antes da sonda:** `curl -s --max-time 10 http://localhost:5173/ | wc -c`
+  tem de dar dezenas de milhares de bytes, não 1.
+- [2026-08-17] **`pkill -f "vite --port 5173"` MATA O PRÓPRIO SHELL do Bash** (a linha de
+  comando do shell contém o padrão, então o pkill casa consigo mesmo) — a chamada volta com
+  exit 144 e o comando seguinte some junto. Use classe de caractere: `pkill -f
+  "[v]ite --port 5173"`.
 - [2026-08-15] **Foto que vira FACE DE CUBO se tira com FOV 90 e aspect 1 — ponto.** Não é "o
   mesmo FOV do jogo", não é "o mesmo FOV da câmera do menu". Do centro do cubo cada face
   ocupa exatos 90°×90°; qualquer outro FOV de captura estica a textura na face e deixa um vão

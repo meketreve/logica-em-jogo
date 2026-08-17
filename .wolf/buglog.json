@@ -4996,6 +4996,26 @@
       "related_bugs": [],
       "occurrences": 1,
       "last_seen": "2026-08-15T19:11:27"
+    },
+    {
+      "id": "bug-624",
+      "timestamp": "2026-08-17T08:45:42",
+      "error_message": "usuario: 'agora o sol esta quadrado mas o halo esta redondo, deixe tudo quadrado'",
+      "file": "client/src/daynight.ts",
+      "root_cause": "Quando o disco do sol virou QUADRADO (PlaneGeometry(56,56), estilo Minecraft) o halo aditivo ficou para tras: seguia CircleGeometry(52,24). Os dois planos ficam na MESMA posicao e usam o mesmo lookAt(camera), entao o circulo aparecia concentrico com o quadrado e a borda de brilho tinha espessura DESIGUAL: 52-28 = 24 nos eixos, mas so 52-39,6 = 12 nas quinas (a quina do quadrado avanca 28*raiz(2) = 39,6). Resultado visivel: sol quadrado dentro de um halo redondo.",
+      "fix": "sunGlow passou a ser PlaneGeometry(104,104) (= 56 do sol + 24 de anel em VOLTA INTEIRA), mantendo o alcance nos eixos que o circulo r=52 ja tinha e deixando a borda uniforme. Nao mexeu no material (AdditiveBlending, opacity 0.28, depthWrite:false) nem no apply(): sunDisc e sunGlow continuam na mesma posicao e com o mesmo lookAt, logo saem com a MESMA orientacao e concentricos. A lua (CircleGeometry(20,24)) ficou REDONDA de proposito, fora do pedido.",
+      "tags": [
+        "daynight",
+        "sol",
+        "halo",
+        "geometria",
+        "three",
+        "visual",
+        "menu-nao"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-08-17T08:45:42"
     }
   ]
 }

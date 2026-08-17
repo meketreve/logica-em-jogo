@@ -189,9 +189,14 @@ export class SkyCycle {
     /** Nuvens ligadas? (Configurações — protege a GPU do PC de laboratório.) */
     nuvensLigadas = true,
   ) {
-    // sol: QUADRADO quente estilo Minecraft + halo aditivo (o plano olha pra
-    // câmera no apply(); sem textura, na regra do projeto). Lado 56 ≈ diâmetro
-    // do disco antigo (60), pra não encolher o céu.
+    // sol: QUADRADO quente estilo Minecraft + halo aditivo TAMBÉM quadrado (o
+    // plano olha pra câmera no apply(); sem textura, na regra do projeto). Lado
+    // 56 ≈ diâmetro do disco antigo (60), pra não encolher o céu.
+    // ⚠️ O halo era CircleGeometry(52): redondo em volta de um sol quadrado, a
+    // borda de brilho ficava 24 nos eixos e só 12 nas quinas (a quina do sol
+    // avança 28·√2 ≈ 39,6). Quadrado 104 = 56 do sol + 24 de anel em VOLTA
+    // INTEIRA — mesmo alcance nos eixos de antes, uniforme. Os dois usam o
+    // mesmo `lookAt`, então saem com a MESMA orientação e ficam concêntricos.
     this.sunMat = new THREE.MeshBasicMaterial({ color: 0xffdf6b, transparent: true, depthWrite: false });
     this.sunDisc = new THREE.Mesh(new THREE.PlaneGeometry(56, 56), this.sunMat);
     this.glowMat = new THREE.MeshBasicMaterial({
@@ -201,7 +206,7 @@ export class SkyCycle {
       depthWrite: false,
       blending: THREE.AdditiveBlending,
     });
-    this.sunGlow = new THREE.Mesh(new THREE.CircleGeometry(52, 24), this.glowMat);
+    this.sunGlow = new THREE.Mesh(new THREE.PlaneGeometry(104, 104), this.glowMat);
     // lua: disco pálido no ponto OPOSTO do arco do sol
     this.moonMat = new THREE.MeshBasicMaterial({ color: 0xdfe6f2, transparent: true, depthWrite: false });
     this.moonDisc = new THREE.Mesh(new THREE.CircleGeometry(20, 24), this.moonMat);
