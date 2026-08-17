@@ -35,4 +35,9 @@ export * from "./scenario";
 export * from "./protocol";
 export * from "./save";
 export * from "./session";
+// único módulo de session/* no barrel, de propósito: `copiarCelula` é o
+// primitivo que o GERADOR de cenários (server/src/cenarios/gerar.ts) usa para
+// carimbar as áreas — o mesmo que o /aula grupos usa ao vivo. Os outros
+// session/* são handlers de comando e não têm consumidor fora daqui.
+export * from "./session/aula";
 export * from "./version";
