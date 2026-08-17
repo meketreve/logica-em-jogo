@@ -2440,3 +2440,41 @@ scratchpad) mostram a emenda contínua e sem linha. typecheck 3/3 + build verdes
 | 13:10 | bug-627: flicker da camera (lerp em valor reescrito todo frame -> estaciona em 13%) e corpo deitando fora da cama (player_moved leva os PES, servidor nao move quem dorme) | client/src/main.ts, remotePlayers.ts, shared/src/protocol.ts | dormirT persistente + cama no player_moved; simulacao numerica 4.7623 fixo vs converge a 5.9 | ~25k |
 | 14:19 | Session end: 115 writes across 25 files (daynight.ts, 2026-08-17-copias-ao-vivo-design.md, 2026-08-17-copias-ao-vivo.md, grade.test.ts, grade.ts) | 14 reads | ~175998 tok |
 | 13:30 | usuario confirmou em campo: "testei e a animacao funcionou" — bug-626 e bug-627 fechados na escola | .wolf/buglog.json, STATUS.md | dormir validado no ambiente real | ~5k |
+
+## Session: 2026-08-17 15:44
+
+| Time | Action | File(s) | Outcome | ~Tokens |
+|------|--------|---------|---------|--------|
+| 15:49 | Created relatorio/oficio-sed.md | — | ~1919 |
+| 15:49 | ofício de recomendação do projeto para a SED/SC (3 parágrafos: apresentação, aplicabilidade/recursos, resultados + fecho com o pedido) | relatorio/oficio-sed.md | criado, base = relatorio-aplicacao.md + README + cenarios | ~35k |
+| 15:49 | Session end: 1 writes across 1 files (oficio-sed.md) | 2 reads | ~9769 tok |
+
+### Resumo da sessão 76 (2026-08-17) — fecho
+
+**Pedido do usuário, em ordem:** halo do sol → item 4 (cópias da área ao vivo) → cerca → item 1
+(dormir na cama). Tudo entregue, commitado e empurrado. `origin/main` = 6d38365.
+
+**Commits (11):** 701e4f7 halo do sol · 50d87b4 grade · b69a355 quadros+MAX_REGIONS · b653506
+copiarCelula · 63d105c gerador na grade · 6fdfe5e /aula crescer · 9426189 encolher · 4b88256
+painel P · c0f4555 docs · 3f08ace cerca · 79cf38e dormir · 6e6be51 4 correções do playtest ·
+6d38365 confirmação em campo.
+
+**Bugs:** 624 (halo redondo), 625 (cerca em mobília — não era defeito), 626 (gate mudo do ciclo
++ maioria estrita), 627 (flicker da câmera + corpo fora da cama). 626 e 627 vieram do playtest
+na escola no MESMO dia e foram confirmados corrigidos por ele.
+
+**As 4 suposições minhas que a implementação/campo derrubaram** (todas no cerebrum):
+1. `baseline` do objetivo NÃO cobre os `extras` → precisou de célula-molde (chunk inteiro).
+2. Save destes mundos NÃO é esparso → `.ljw` 593 kB → 987 kB (+66%).
+3. Gate silencioso é bug mesmo com a regra certa; e `cicloAtivo` não é permissão pra dormir.
+4. Lerp na câmera não converge neste laço — ela é reescrita todo frame; interpolar o PROGRESSO.
+
+**Bateria final:** check:launchers 5/5 · typecheck 3/3 · 891/891 · build · 15/15 smokes ·
+cenarios 7/7.
+
+**Fila para a próxima:** varredura lã→algodão (decidir rótulo × BlockId ANTES), aba "todos" no
+inventário, painel de comandos mobile ao lado, /invisivel, sentar na cadeira, teto de 35 grupos,
+proteger a célula-molde, Ferramentas v2, mobs. Nenhuma pendência externa.
+
+⚠️ `relatorio/oficio-sed.md` está SEM RASTREAR — veio de outra sessão (15:49), não desta.
+Decisão do usuário se entra no git.

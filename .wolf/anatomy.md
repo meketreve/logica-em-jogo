@@ -1,7 +1,7 @@
 # anatomy.md
 
-> Auto-maintained by OpenWolf. Last scanned: 2026-08-17T17:18:38.266Z
-> Files: 359 tracked | Anatomy hits: 0 | Misses: 0
+> Auto-maintained by OpenWolf. Last scanned: 2026-08-17T18:49:37.885Z
+> Files: 360 tracked | Anatomy hits: 0 | Misses: 0
 
 ## ./
 
@@ -650,6 +650,7 @@
 ## relatorio/
 
 - `apresentacao-cre.html` — Deck de 20 slides pra apresentar o projeto na CRE (pedagógico + demo + técnico). Um arquivo, offline, ← → navega e N mostra notas do apresentador; 3 prints em JPEG base64 no mapa `IMGS` do script. ⚠️ NÃO LER INTEIRO (base64) — editar por Edit ancorado em texto de slide (~78978 tok)
+- `oficio-sed.md` — Ofício nº ____/2026 — E.E.B. Prof. Otília da Silva Berti (~1799 tok)
 - `relatorio-aplicacao.md` — Relatório de Aplicação — *Lógica em Jogo* (~5172 tok)
 
 ## scripts/

@@ -1,12 +1,12 @@
 {
   "version": 1,
   "meta": {
-    "lastScanned": "2026-08-17T17:18:38.266Z",
-    "fileCount": 359,
+    "lastScanned": "2026-08-17T18:49:37.885Z",
+    "fileCount": 360,
     "hits": 0,
     "misses": 0,
-    "renderedHash": "320d08496a027f999db92cd26931e64b0295c65be3deed028056657da6573670",
-    "storeUpdatedAt": "2026-08-17T17:18:38.270Z"
+    "renderedHash": "4cd1a6c7c66a1c61cf5507369331d51086cc2f821a4e8abbac2b180648f43330",
+    "storeUpdatedAt": "2026-08-17T18:49:37.921Z"
   },
   "files": {
     ".claude/commands/reframe.md": {
@@ -12127,6 +12127,15 @@
       "mtimeMs": 1786448361124.3147,
       "updatedAt": "2026-08-17T17:18:38.256Z",
       "source": "scan"
+    },
+    "relatorio/oficio-sed.md": {
+      "description": "Ofício nº ____/2026 — E.E.B. Prof. Otília da Silva Berti",
+      "tokens": 1799,
+      "hash": "9f0bfc95b765ae6b",
+      "size": 7444,
+      "mtimeMs": 1786992577788.1873,
+      "updatedAt": "2026-08-17T18:49:37.885Z",
+      "source": "hook"
     }
   }
 }

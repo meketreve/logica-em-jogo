@@ -10,6 +10,24 @@
 
 ## User Preferences
 
+- **[2026-08-17] "anotar ideia" significa ESCREVER no `todo.md`, não implementar.** Ele solta
+  ideias no meio de outra tarefa (`/invisivel`, aba "todos" no inventário, painel de comandos ao
+  lado) com o verbo "anotar" — é fila, não pedido. O que ele valoriza na anotação é o que
+  economiza a próxima sessão: as ÂNCORAS no código (arquivo:linha), as ARMADILHAS já descobertas
+  e as DECISÕES a tomar antes de codar. Anotação de uma linha ("fazer X") não serve.
+- **[2026-08-17] Ele testa NA ESCOLA logo depois de cada push, e reporta na hora.** O ciclo real
+  é: entrego → ele atualiza no notebook da escola → relato em minutos. Duas consequências:
+  (1) o que eu marcar como "não verificado em tela" é exatamente onde os bugs vão aparecer, então
+  vale dizer isso EXPLICITAMENTE no fecho; (2) relato dele é sempre reprodução real, não teoria —
+  reproduzir contra o `.ljw` de verdade antes de teorizar.
+- **[2026-08-17] Decide o escopo grande ele mesmo, e decide para o FUTURO.** Perguntei teto de
+  grupos e ele respondeu "teto grande + já aumenta o mapa base", mais "no futuro revisitar para
+  35 (turma individual)". Ou seja: quando a pergunta é de dimensionamento, ele quer folga
+  agora e o caminho de crescer depois escrito — não o mínimo que resolve hoje.
+- **[2026-08-17] Quando eu marco algo como decisão DELE, ele decide rápido e sem discussão**
+  (a cerca em "mobília" → "blocos" foi um "pode seguir, mas antes move"). Vale separar
+  claramente "isto é gosto teu" de "isto é defeito" — ele responde bem aos dois, mas de formas
+  diferentes.
 - **[2026-08-06] Quando levanta uma tecnologia nova, quer a ANÁLISE, não a migração** — e muda
   de ideia com argumento técnico. Apresentei os três eixos (janela nativa · Rust · SpacetimeDB)
   com custo e o que se PERDE, e ele descartou SpacetimeDB sozinho (*"o problema real é outro"*)
