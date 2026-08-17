@@ -2385,3 +2385,35 @@ scratchpad) mostram a emenda contínua e sem linha. typecheck 3/3 + build verdes
 | 10:55 | Edited todo.md | removed 9 lines | ~8 |
 | 11:05 | cerca movida de cat "mobilia" para "blocos" (pedido do usuario); bug-625 fechado | client/src/blocksUi.ts, client/dist | conferido no bundle: {id:G.Cerca,name:`cerca`,cat:`blocos`} | ~6k |
 | 11:10 | anotada ideia: aba "todos" no inventario do criativo, blocos por ID + barra de pesquisa | todo.md | anotado com pontos a decidir e as armadilhas (tablet, data-tip-id) | ~4k |
+| 11:36 | Edited todo.md | expanded (+20 lines) | ~417 |
+| 11:37 | Session end: 69 writes across 19 files (daynight.ts, 2026-08-17-copias-ao-vivo-design.md, 2026-08-17-copias-ao-vivo.md, grade.test.ts, grade.ts) | 13 reads | ~151752 tok |
+| 11:47 | Edited todo.md | expanded (+23 lines) | ~474 |
+| 11:48 | Created shared/src/dormir.test.ts | — | ~1227 |
+| 11:48 | Created shared/src/session/dormir.ts | — | ~1809 |
+| 11:49 | Edited shared/src/session.ts | expanded (+6 lines) | ~133 |
+| 11:49 | Edited shared/src/session.ts | added 1 condition(s) | ~134 |
+| 11:49 | Edited shared/src/session.ts | added 1 import(s) | ~40 |
+| 11:49 | Edited shared/src/session.ts | 9→12 lines | ~150 |
+| 11:49 | Edited shared/src/session.ts | modified if() | ~124 |
+| 11:49 | Edited shared/src/session.ts | expanded (+7 lines) | ~36 |
+| 11:49 | Edited shared/src/session.ts | modified handleDisconnect() | ~83 |
+| 11:50 | Edited shared/src/session.ts | 4→7 lines | ~96 |
+| 11:50 | Edited shared/src/protocol.ts | expanded (+13 lines) | ~265 |
+| 11:51 | Edited shared/src/dormir.test.ts | modified for() | ~283 |
+| 11:51 | Edited shared/src/dormir.test.ts | 7→10 lines | ~144 |
+| 11:51 | Edited shared/src/dormir.test.ts | expanded (+7 lines) | ~232 |
+| 11:52 | Edited shared/src/dormir.test.ts | inline fix | ~24 |
+| 11:52 | Edited client/src/remotePlayers.ts | 8→10 lines | ~96 |
+| 11:52 | Edited client/src/remotePlayers.ts | modified aoMover() | ~43 |
+| 11:53 | Edited client/src/remotePlayers.ts | modified deitado() | ~136 |
+| 11:53 | Edited client/src/remotePlayers.ts | added 1 condition(s) | ~248 |
+| 11:53 | Edited client/src/remotePlayers.ts | added 1 condition(s) | ~145 |
+| 11:53 | Edited client/src/main.ts | added 1 condition(s) | ~276 |
+| 11:54 | Edited client/src/main.ts | 2→5 lines | ~88 |
+| 11:54 | Edited client/src/main.ts | modified applyPlayerMoved() | ~158 |
+| 11:54 | Edited client/src/main.ts | added optional chaining | ~48 |
+| 11:54 | Edited client/src/main.ts | 2→3 lines | ~13 |
+| 11:55 | Edited shared/src/protocol.ts | added 4 condition(s) | ~360 |
+| 11:59 | Created dormir-shot.probe.mjs | — | ~1175 |
+| 11:40 | anotadas 2 ideias: /invisivel para professor (filtragem tem de ser no SERVIDOR por cliente) e painel de comandos mobile ao LADO | todo.md | anotado com ancoras e armadilhas | ~6k |
+| 12:10 | dormir na cama: shared/src/session/dormir.ts + wiring (use_block, move, tick, disconnect), protocolo (player_moved.dormindo + msg dormindo), cliente (camera deitada, caixa tombada, plaquinha no eixo +z) | shared/src/session/dormir.ts, session.ts, protocol.ts, client/src/main.ts, remotePlayers.ts | 886/886; A/B derruba maioria, gate do ciclo e acordar-ao-sair | ~45k |

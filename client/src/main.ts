@@ -52,6 +52,7 @@ import {
   decodeColunas,
   decodeLazyInfo,
   gramaPorClima,
+  PLAYER,
   heightAt,
   parseServerMessage,
   parseWorldTamanho,
@@ -746,6 +747,8 @@ function handleServerData(data: string | ArrayBuffer): void {
         pushFriendsData(); // quem entrou vira candidato a convite
       }
       jogo?.applyPlayerMoved(msg);
+    } else if (msg.type === "dormindo") {
+      jogo?.aoDormir(msg.dormindo, msg.cama);
     } else if (msg.type === "player_left") {
       nomesOnline.delete(msg.id);
       learnPlayers([...new Set(nomesOnline.values())]);
@@ -1133,6 +1136,9 @@ class GameRuntime {
   private readonly movimento: MovimentoDoJogador;
   private readonly progresso: ProgressoCarga;
   private readonly outros: RemotePlayersView;
+  /** Cama em que o PRÓPRIO jogador está deitado (2026-08-17), ou null em pé.
+   *  Vem da mensagem `dormindo`; o servidor é quem decide. */
+  private dormindo: { x: number; y: number; z: number } | null = null;
   private readonly highlight: THREE.LineSegments;
   private readonly lookDir = new THREE.Vector3();
   private readonly hotbarUi: HotbarUi;
@@ -1953,6 +1959,19 @@ class GameRuntime {
       }
       camera.position.set(this.player.pos.x, this.player.pos.y + this.movimento.alturaOlho, this.player.pos.z);
       camera.rotation.set(input.pitch, input.yaw, 0);
+      // dormindo (2026-08-17): a câmera desce até a cama e olha pra cima. Sobre-
+      // escreve DEPOIS da pose normal, e não antes, porque o `stepPlayer` acima
+      // continua rodando — sair da cama tem de acordar, e para sair é preciso
+      // andar. Interpolado pelo mesmo fator do resto, senão o corte enjoa.
+      if (this.dormindo) {
+        const k = 1 - Math.exp(-dt * 8);
+        const alvoY = this.dormindo.y + 1 + PLAYER.width / 2;
+        camera.position.y += (alvoY - camera.position.y) * k;
+        camera.position.x += (this.dormindo.x + 0.5 - camera.position.x) * k;
+        camera.position.z += (this.dormindo.z + 0.5 - camera.position.z) * k;
+        const alvoPitch = Math.PI / 3; // olhando pro teto
+        camera.rotation.x += (alvoPitch - camera.rotation.x) * k;
+      }
 
       // mira: raycast local (visual) — decisão continua no servidor
       camera.getWorldDirection(this.lookDir);
@@ -2334,12 +2353,26 @@ class GameRuntime {
       );
     };
 
-  applyPlayerMoved(msg: { id: number; x: number; y: number; z: number; yaw: number; name?: string }): void {
+  applyPlayerMoved(msg: {
+    id: number;
+    x: number;
+    y: number;
+    z: number;
+    yaw: number;
+    name?: string;
+    dormindo?: boolean;
+  }): void {
   this.outros.aoMover(msg);
   }
 
   applyPlayerLeft(id: number): void {
   this.outros.aoSair(id);
+  }
+
+  /** O PRÓPRIO jogador deitou ou levantou (2026-08-17). O servidor decide; aqui
+   *  só guardamos a cama, e o laço de render leva a câmera até ela. */
+  aoDormir(dormindo: boolean, cama?: { x: number; y: number; z: number }): void {
+    this.dormindo = dormindo && cama ? cama : null;
   }
 
 

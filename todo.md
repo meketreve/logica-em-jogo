@@ -84,6 +84,26 @@
 
 ## Comandos / jogador
 
+* \[ ] **`/invisivel` — professor some para os alunos; só outro professor o vê** (ideia do
+  usuário, 2026-08-17). Serve para observar a turma trabalhando sem virar atração.
+  **A parte que decide o desenho: a filtragem tem de ser no SERVIDOR, por cliente.**
+  Hoje a pose sai por `broadcastExcept` (`session.ts:1718`) e no join por um laço que manda
+  todos para todos (`session.ts:1705-1717`) — some tudo para todo mundo. Se o cliente é que
+  escondesse, a posição do professor continuaria viajando no fio e um aluno curioso leria ela
+  no devtools. Então: onde hoje há `broadcastExcept` de `player_moved`, entra um laço que pula
+  quem é aluno quando o autor está invisível.
+  **Pontos a decidir antes de codar:**
+  * O que mais denuncia a presença além da pose? `player_left`/`player_moved` do join, a lista
+    do painel P (`broadcastPlayers`, mas ela já é **só para professores**), o chat, blocos
+    colocados/quebrados, o som, e a mira do pvp (`alvosParaMira`). Escolher o que some e o que
+    fica — sumir do chat também é outra decisão.
+  * Ao ligar, mandar `player_left` do professor para cada aluno (senão a caixa dele congela na
+    tela onde estava); ao desligar, mandar `player_moved` de volta.
+  * Persiste no rejoin? Aposta: **não** — estado de sessão, como o `spawnCama`.
+  * O professor invisível ainda colide? (Se sim, alunos esbarram no nada.)
+  * ⚠️ Precisa de teste: aluno NÃO recebe `player_moved` do professor invisível, professor
+    recebe. É exatamente o tipo de coisa que passa verde sem sonda e vaza em campo.
+
 * \[x] comando para kicar aluno por mau comportamento — **JÁ EXISTE** (`/kicar`, cp22)
 * \[x] arrumar sistema de dia e noite — **FEITO** (2026-07-19): sol/lua/estrelas visíveis (grupo segue câmera), keyframes com smoothstep, dia 10→20min (`DIA_SEGUNDOS=1200`), `/hora` liberado pro aluno. Corrigiu bug-301 (TDZ) e bug-302 (céu travado na meia-noite).
 * \[x] voo do modo criativo do Minecraft — **FEITO** (2026-07-17: `/voo` do professor libera pra turma; duplo-toque no espaço)
@@ -206,6 +226,29 @@ senão lado com parede; empate → base. Cliente inalterado.
 
 ## Mobile / toque
 
+* \[ ] **PAINEL DE COMANDOS DO MOBILE AO LADO, não embaixo** (ideia do usuário, 2026-08-17).
+  Hoje o painel é uma faixa horizontal DEPOIS do campo (`#chat-painel { margin-top: 4px;
+  max-height: 26vh; flex-wrap: wrap }`, `client/src/chat.ts:24-35`), empilhada com o input no
+  mesmo `#chat`. Com o teclado virtual aberto sobra pouca altura, e o conjunto campo+painel
+  espreme ou empurra o campo pra fora. **Queremos: painel numa COLUNA lateral**, para que campo,
+  histórico do chat e comandos fiquem os três visíveis com o teclado na tela.
+  **O que já existe e ajuda:** `acompanharTecladoVirtual()` (`chat.ts:~70`) já mede o teclado
+  com `visualViewport` e publica `--kb` no `:root`; o `#chat` do `index.html` soma isso no
+  `bottom`. A conta de altura já está resolvida — o que muda é o EIXO do layout.
+  **Pontos a decidir antes:**
+  * Qual lado? Em paisagem provavelmente à direita (a mão que digita costuma tapar a esquerda),
+    mas quem decide é o playtest, não o palpite.
+  * Em RETRATO a coluna lateral rouba largura do histórico do chat — talvez o layout tenha de
+    ser por orientação (`@media (orientation: landscape)`), não fixo.
+  * O painel hoje tem `max-height: 26vh` e quebra em linhas; virando coluna passa a querer
+    `max-width` e rolagem vertical.
+  * ⚠️ O `#chat` é `pointer-events: none` e o painel/botões são `auto` — mover o painel para
+    fora do `#chat` quebraria isso. Manter dentro.
+  * ⚠️ Piso de toque de 40px por botão (`min-height: 40px`) não pode cair.
+  * **Verificação:** `npm run shots:toque` tem a seção E, que abre o painel, desce um nível no
+    `/tp` e envia "grupos" — ela tem de continuar verde. E `npm run shots:tablet` para o
+    enquadramento (⚠️ exige `npm run dev` na 5173, não sobe servidor sozinho).
+
 * \[x] varinha no celular (sem tecla R) — **FEITO** (2026-07-21): botão 🪄 na fileira do topo do touch UI liga/desliga o modo varinha (mesmo `toggleVarinha` da tecla R); aí os botões ⛏/▣ marcam canto 1/canto 2 (já roteiam pelo mesmo handler de clique esq/dir que checa `varinhaAtiva`).
 * \[x] botão de AGACHAR no celular — **FEITO** (2026-07-21): botão de SEGURAR ⤓ nas ações do touch, mantém a tecla `agachar` (Shift) pressionada — andando não cai da borda, voando DESCE (mesma `input.down(settings.keys.agachar)` do teclado).
 * \[x] **config no painel do mobile pra mudar a ESCALA da UI dos controles** — **FEITO** (2026-07-21): `settings.uiScale` (persistido, 60–180%), slider "escala dos controles (toque)" na aba controles (só em dispositivo touch). Aplicado por `--ts` (var CSS) nos tamanhos do `#touch-ui` via `calc()` — NÃO transform:scale() (o joystick lê getBoundingClientRect e o polegar se posiciona por px reais).
@@ -295,7 +338,38 @@ senão lado com parede; empate → base. Cliente inalterado.
 
 ## Visual / player
 
-* \[ ] animação de sentar na cadeira e deitar na cama (pra passar a noite)
+* \[x] **deitar na cama para passar a noite** — **FEITO** (2026-08-17). O MESMO clique da cama
+  define o ponto de nascimento (2026-08-14) **e** deita — decisão do usuário, sem gesto novo; o
+  rótulo ▣ "interagir" já cobria a cama. `shared/src/session/dormir.ts` (novo).
+  * **Maioria dos acordados** (`dormem * 2 > online`) faz a noite passar. Os dois extremos são
+    ruins numa sala: "um basta" vira brincadeira, "todos" nunca acontece com 30 crianças.
+    Reavaliado também na DESCONEXÃO — sair pode completar a maioria, e travar a noite porque
+    alguém fechou a aba seria o defeito da regra "todos".
+  * **A noite ACELERA, não corta**: `PULO_NOITE_FATOR = 120` multiplica o mesmo avanço de
+    `horaDoDia` que o tick já fazia, então o céu gira à vista de todos (inclusive de quem não
+    deitou) e a mensagem `time` que já existe carrega tudo — zero estado de transição no cliente.
+  * Acorda ao: andar para longe da cama, amanhecer, ou desconectar. Cama ocupada por outro recusa.
+  * ⚠️ **Mundo de aula fica inerte de graça**: ele nasce com `/ciclo desligar` (`gerar.ts`), e o
+    gate do `cicloAtivo` é o que impede a mecânica de aparecer onde não faz sentido.
+  * Cliente: a câmera desce até a cama e olha pra cima; a caixa dos OUTROS tomba -90° em X e
+    desce pra `PLAYER.width/2`. ⚠️ A plaquinha é FILHA da mesh — sob a caixa tombada o local
+    `+y` vira `-z` no mundo (nome na frente do corpo), então ela passa a usar o local `+z`.
+    Medido com three: local `+y` → `(0,0,-h)`, local `+z` → `(0,h,0)`.
+  * Protocolo: `player_moved` ganhou `dormindo?: boolean` (ausente = em pé, compatível com host
+    antigo) e nasceu a msg `dormindo` (só para o autor — o servidor nunca ecoa o move de quem o
+    mandou). ⚠️ `parseServerMessage` é LISTA BRANCA: sem o ramo novo a mensagem seria descartada
+    calada. Tem teste.
+  * **12 testes** (`shared/src/dormir.test.ts`), com A/B: trocar a maioria por "um basta" derruba
+    o teste da minoria; tirar o gate do ciclo derruba o do mundo de aula; tirar o acordar-ao-sair
+    derruba o dele.
+  * ⚠️ **NÃO verificado em tela**: o cliente não tem suíte e a sonda de browser não valia o custo
+    aqui (o `?foto` trava a câmera e não tem cama). Camera deitada e caixa tombada têm typecheck
+    e build, mais a medida do eixo da plaquinha — mas ninguém viu em jogo ainda.
+
+* \[ ] **animação de SENTAR na cadeira** (o par do item acima; L298 original juntava os dois).
+  O gesto e os gates são outros: cadeira não tem noite nem maioria, e provavelmente quer travar
+  o movimento sem mexer na hora. Reusa a mesma engrenagem de pose (`player_moved.dormindo` viraria
+  algo como `pose`), então vale fazer depois de o dormir ter rodado num playtest.
 * \[ ] trocar modelo do player pra estilo Minecraft
 * \[x] trocar sol pra ser quadrado, estilo Minecraft (kkk) — **FEITO** (2026-08-15): `sunDisc` virou `PlaneGeometry(56, 56)` (bilboard, `lookAt` da câmera) no lugar do `CircleGeometry(30, 24)`; lado 56 ≈ diâmetro do disco antigo, céu não encolheu. Lua segue circular (não pedida).
 

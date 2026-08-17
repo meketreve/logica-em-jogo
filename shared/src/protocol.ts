@@ -176,6 +176,19 @@ export type ServerMessage =
       /** Nome do jogador — o cliente desenha a plaquinha sobre o boneco.
        *  Ausente = host antigo (compatível: caixa sem nome). */
       name?: string;
+      /** Está DEITADO na cama (2026-08-17)? O cliente deita a caixa dele sobre
+       *  a cama. Ausente = em pé — é o que faz o campo ser compatível com host
+       *  antigo sem ramo de versão. */
+      dormindo?: boolean;
+    }
+  | {
+      /** O PRÓPRIO jogador deitou ou levantou (2026-08-17). Só para o autor: o
+       *  `player_moved` cobre os outros, mas o servidor nunca ecoa o move de
+       *  quem o mandou, então a própria câmera precisa desta mensagem.
+       *  `cama` é a célula onde ele deitou (ausente ao levantar). */
+      type: "dormindo";
+      dormindo: boolean;
+      cama?: { x: number; y: number; z: number };
     }
   | {
       /** Jogador desconectou — cliente remove a representação dele. */
@@ -688,7 +701,25 @@ export function parseServerMessage(raw: string): ServerMessage | null {
         pitch: m["pitch"] as number,
         // nome inválido/ausente = sem plaquinha (host antigo compatível)
         ...(typeof m["name"] === "string" ? { name: m["name"] } : {}),
+        // deitado (2026-08-17): só o `true` entra; ausente = em pé, que é o
+        // que host antigo manda
+        ...(m["dormindo"] === true ? { dormindo: true } : {}),
       };
+    }
+    case "dormindo": {
+      if (typeof m["dormindo"] !== "boolean") return null;
+      const c = m["cama"];
+      let cama: { x: number; y: number; z: number } | undefined;
+      if (typeof c === "object" && c !== null) {
+        const v = c as Record<string, unknown>;
+        const ints = [v["x"], v["y"], v["z"]];
+        if (ints.every((n) => typeof n === "number" && Number.isInteger(n))) {
+          cama = { x: v["x"] as number, y: v["y"] as number, z: v["z"] as number };
+        }
+      }
+      // sem cama válida, "deitado" não tem para onde levar a câmera: vira em pé
+      if (m["dormindo"] === true && !cama) return { type: "dormindo", dormindo: false };
+      return { type: "dormindo", dormindo: m["dormindo"], ...(cama ? { cama } : {}) };
     }
     case "player_left": {
       if (typeof m["id"] !== "number" || !Number.isInteger(m["id"])) return null;

@@ -96,6 +96,16 @@
 
 ## Key Learnings
 
+- [2026-08-17] **`parseServerMessage` (`shared/src/protocol.ts`) é LISTA BRANCA com validação
+  por caso.** Mensagem de servidor NOVA não chega ao cliente só por existir no tipo
+  `ServerMessage` — sem o `case` no parser ela é descartada em silêncio, e o sintoma é "a
+  feature não faz nada" sem erro nenhum. Campo novo em mensagem existente idem: tem de ser
+  copiado no `return` do caso. Vale um teste por mensagem nova.
+- [2026-08-17] **Filho de mesh tombada não fica acima só por ter `+y`.** A plaquinha de nome é
+  FILHA da caixa do jogador (`remotePlayers.ts`), então a posição dela passa pela rotação do pai.
+  Com `rotation.x = -π/2` (o jogador deitado), o local `+y` vira `(0,0,-h)` no mundo — o nome vai
+  parar NA FRENTE do corpo — e quem mapeia para `(0,h,0)` é o local `+z`. Medido com three, não
+  deduzido.
 - [2026-08-17] **O `baseline` do objetivo NÃO é o estado de partida da CÉLULA — só da CAIXA da
   área.** `capturarBaseline` (`cenario.ts:285`) fotografa `o.alvos`, e os `extras` do cenário
   ficam FORA: a parede de manual da aula 6 é plantada em `o.x+3`/`o.x+4`, `o.y+1`

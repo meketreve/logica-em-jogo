@@ -8,6 +8,8 @@ interface RemotePlayer {
   /** Plaquinha de nome sobre a cabeça (filha da mesh; Sprite sempre encara a câmera). */
   label?: THREE.Sprite;
   labelName?: string;
+  /** Deitado na cama (2026-08-17)? A caixa tomba e desce até a altura da cama. */
+  dormindo?: boolean;
 }
 
 /**
@@ -70,7 +72,15 @@ export class RemotePlayersView {
     rp.label = undefined;
   }
 
-  aoMover(msg: { id: number; x: number; y: number; z: number; yaw: number; name?: string }): void {
+  aoMover(msg: {
+    id: number;
+    x: number;
+    y: number;
+    z: number;
+    yaw: number;
+    name?: string;
+    dormindo?: boolean;
+  }): void {
     let rp = this.players.get(msg.id);
     if (!rp) {
       const mesh = new THREE.Mesh(
@@ -93,8 +103,13 @@ export class RemotePlayersView {
       rp.labelName = msg.name;
       rp.mesh.add(rp.label);
     }
+    // deitado (2026-08-17): a caixa TOMBA e o centro dela desce, porque o
+    // corpo deitado ocupa `width` de altura, não `height`. Sem baixar o centro
+    // junto, o colega dormindo flutuaria meio bloco acima da cama.
+    rp.dormindo = msg.dormindo === true;
     // pos do servidor = pés do jogador; BoxGeometry é centrada
-    rp.target.set(msg.x, msg.y + PLAYER.height / 2, msg.z);
+    const meia = rp.dormindo ? PLAYER.width / 2 : PLAYER.height / 2;
+    rp.target.set(msg.x, msg.y + meia, msg.z);
     rp.targetYaw = msg.yaw;
   }
 
@@ -116,6 +131,20 @@ export class RemotePlayersView {
       rp.mesh.position.lerp(rp.target, k);
       const dyaw = rp.targetYaw - rp.mesh.rotation.y;
       rp.mesh.rotation.y += Math.atan2(Math.sin(dyaw), Math.cos(dyaw)) * k;
+      // tombar/levantar também desliza — deitar de estalo destoaria do resto,
+      // que é todo interpolado. `rotation.x` é local, então a caixa tomba PARA
+      // ONDE ela olha, seja qual for o yaw.
+      const alvoTomba = rp.dormindo ? -Math.PI / 2 : 0;
+      rp.mesh.rotation.x += (alvoTomba - rp.mesh.rotation.x) * k;
+      // ⚠️ A plaquinha é FILHA da mesh, então a posição dela passa pela rotação
+      // do pai. Com a caixa tombada -90° em X, o local +y vira -z no mundo e o
+      // nome iria parar NA FRENTE do corpo. O offset que mapeia para o +y do
+      // mundo, tombado, é o local +z — daí a troca de eixo.
+      if (rp.label) {
+        const h = 0.35 + (rp.dormindo ? PLAYER.width : PLAYER.height) / 2;
+        if (rp.dormindo) rp.label.position.set(0, 0, h);
+        else rp.label.position.set(0, h, 0);
+      }
     }
   }
 

@@ -126,6 +126,14 @@ import {
 } from "./session/inventario";
 import { runConfinar } from "./session/equipes";
 import { runAula } from "./session/aula";
+import {
+  PULO_NOITE_FATOR,
+  acordar,
+  acordarSeSaiu,
+  reavaliar,
+  tentarDormir,
+  tickDormir,
+} from "./session/dormir";
 import { runRegiao } from "./session/regioes";
 import { avisarComFreio } from "./session/avisos";
 import { evictColunas, garantirColunas, gerarColuna, streamColunas } from "./session/streaming";
@@ -367,6 +375,12 @@ export class GameSession {
    *  fechamento (a morte é o único consumidor; `/tp` e o join seguem no spawn
    *  do mundo). Valor = a CÉLULA da cama clicada; o respawn cai em cima dela. */
   readonly spawnCama = new Map<string, { x: number; y: number; z: number }>();
+  /** Quem está DEITADO agora e em qual cama (2026-08-17). Sessão-só, como o
+   *  `spawnCama`: dormir não sobrevive a fechar o mundo. */
+  readonly dormindo = new Map<number, { x: number; y: number; z: number }>();
+  /** A noite está correndo acelerada? Ligado quando a MAIORIA dos online está
+   *  deitada; desligado ao amanhecer ou quando alguém levanta. */
+  pulandoNoite = false;
   /** Cenário (cp12): objetivos + progresso do MUNDO. Persiste no save. */
   readonly scenario: {
     modo: ScenarioModo;
@@ -940,7 +954,10 @@ export class GameSession {
           x: msg.x, y: msg.y, z: msg.z,
           yaw: msg.yaw, pitch: msg.pitch,
           name: p.name,
+          ...(this.dormindo.has(clientId) ? { dormindo: true } : {}),
         });
+        // sair de cima da cama acorda (mexer o OLHAR não; andar sim)
+        acordarSeSaiu(this, clientId, msg.x, msg.y, msg.z);
         // objetivo "chegar" (cp12/13): pisar dentro da região conclui
         checkChegar(this, clientId);
         break;
@@ -1115,6 +1132,10 @@ export class GameSession {
           }
           this.spawnCama.set(p.name, { x: msg.x, y: msg.y, z: msg.z });
           this.sendServerChat(clientId, "Ponto de nascimento definido nesta cama.");
+          // …e o MESMO clique deita (2026-08-17, decisão do usuário): não há
+          // gesto novo pra ensinar, e o rótulo ▣ "interagir" já cobre a cama.
+          const recado = tentarDormir(this, clientId, msg.x, msg.y, msg.z);
+          if (recado) this.sendServerChat(clientId, recado);
           return;
         }
         if (!isInterativo(id)) return; // porta (cp23) e janela (2026-07-19)
@@ -2096,6 +2117,7 @@ export class GameSession {
 
   handleDisconnect(clientId: number): void {
     this.stream.delete(clientId); // interesse de streaming morre com a conexão
+    this.dormindo.delete(clientId); // quem saiu não conta na maioria (reavalia no fim)
     this.wandMarks.delete(clientId); // rascunho de canto morre com a conexão
     this.tpPedidos.delete(clientId); // pedidos ENDEREÇADOS a quem saiu morrem
     this.picoQueda.delete(clientId); // §🍖 quem volta não paga a queda de ontem
@@ -2111,6 +2133,9 @@ export class GameSession {
     this.players.delete(clientId);
     this.broadcast({ type: "player_left", id: clientId });
     this.broadcastPlayers(); // painel dos professores (2026-07-21)
+    // sair pode COMPLETAR a maioria: travar a noite porque alguém fechou a aba
+    // seria exatamente o defeito da regra "todos precisam dormir".
+    reavaliar(this);
   }
 
   /**
@@ -2126,7 +2151,12 @@ export class GameSession {
     // Ciclo dia/noite (cp21): a hora avança de forma determinística por tick
     // (não usa o relógio de parede — hosts diferentes andam igual). SÓ visual.
     if (this.cicloAtivo) {
-      this.horaDoDia = (this.horaDoDia + 24 / (DIA_SEGUNDOS * SERVER_TICK_RATE)) % 24;
+      // dormir (2026-08-17): a noite passa ACELERANDO o mesmo avanço, não
+      // cortando a hora — o céu gira à vista de todos, inclusive de quem não
+      // deitou, e a mensagem `time` que já existe carrega tudo.
+      const fator = this.pulandoNoite ? PULO_NOITE_FATOR : 1;
+      this.horaDoDia = (this.horaDoDia + (24 * fator) / (DIA_SEGUNDOS * SERVER_TICK_RATE)) % 24;
+      tickDormir(this);
     }
 
     this.changedThisTick.clear();
