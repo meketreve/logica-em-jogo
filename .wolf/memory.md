@@ -2379,3 +2379,9 @@ scratchpad) mostram a emenda contínua e sem linha. typecheck 3/3 + build verdes
 | 10:20 | anotados 2 pedidos do usuario: varrer receitas atras de "lã" que devia ser "algodão"; cerca esta em cat "mobilia" e nao "blocos" (decisao pendente) | todo.md | anotado, nao alterado codigo | ~5k |
 | 10:35 | Task 5-7: /aula grupos X (crescer + encolher com confirmar), aba grupos no painel P, autocompletar, textos de ajuda | shared/src/session/aula.ts, session.ts, client/src/players.ts, commands.ts | 874/874; A/B derruba os testes ao remover as guardas | ~35k |
 | 10:50 | sonda contra o .ljw REAL (aula6): 5->8 cria 3 areas e leva 18->27 quadros COM conteudo; 8->3 sem confirmar nao escreve; com confirmar volta a 12 quadros e celula vazia | scratchpad/aula-real.mts | ponta a ponta OK | ~8k |
+| 10:53 | Session end: 65 writes across 18 files (daynight.ts, 2026-08-17-copias-ao-vivo-design.md, 2026-08-17-copias-ao-vivo.md, grade.test.ts, grade.ts) | 13 reads | ~150811 tok |
+| 10:53 | Edited client/src/blocksUi.ts | 2→5 lines | ~102 |
+| 10:54 | Edited todo.md | expanded (+25 lines) | ~530 |
+| 10:55 | Edited todo.md | removed 9 lines | ~8 |
+| 11:05 | cerca movida de cat "mobilia" para "blocos" (pedido do usuario); bug-625 fechado | client/src/blocksUi.ts, client/dist | conferido no bundle: {id:G.Cerca,name:`cerca`,cat:`blocos`} | ~6k |
+| 11:10 | anotada ideia: aba "todos" no inventario do criativo, blocos por ID + barra de pesquisa | todo.md | anotado com pontos a decidir e as armadilhas (tablet, data-tip-id) | ~4k |

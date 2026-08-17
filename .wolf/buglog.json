@@ -5023,18 +5023,17 @@
       "error_message": "usuario: 'reparei que os blocos de cerca nao estao no menu blocos do creativo'",
       "file": "client/src/blocksUi.ts",
       "root_cause": "NAO era ausencia. Existe UM bloco de cerca (BlockId.Cerca = 65), ele esta no menu do criativo e isPlaceable o aceita. O que houve foi CATEGORIA: blocksUi.ts:83 traz { id: BlockId.Cerca, name: 'cerca', cat: 'mobilia' }, junto de porta, tocha e tapete — nao em cat: 'blocos', que e onde o usuario procurou.",
-      "fix": "NAO aplicado — e escolha de categorizacao, nao defeito. Anotado no todo.md (secao Inventario) como decisao pendente do usuario: mover para cat: 'blocos' (1 linha) ou manter em mobilia.",
+      "fix": "Movida para cat: 'blocos' (client/src/blocksUi.ts) por decisao do usuario em 2026-08-17: a cerca e material de CONSTRUCAO (cercar terreno, parapeito) e quem procura por ela vai na aba de blocos, mesmo ela sendo nao-cubo como a porta. Conferido no bundle: {id:G.Cerca,name:`cerca`,cat:`blocos`}.",
       "tags": [
         "inventario",
         "criativo",
         "cerca",
         "categoria",
-        "nao-e-bug",
-        "decisao-pendente"
+        "ux"
       ],
       "related_bugs": [],
       "occurrences": 1,
-      "last_seen": "2026-08-17T10:51:40"
+      "last_seen": "2026-08-17T10:54:28"
     }
   ]
 }

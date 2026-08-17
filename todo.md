@@ -839,12 +839,30 @@ não tem filesystem; export de "pasta" no single fica de fora (não faz sentido 
   troca é só de RÓTULO (nome exibido) ou também de identificador** — mexer em `BlockId` atravessa
   save, protocolo e os `.ljw` de aula já gerados, então a aposta é rótulo só.
 
-* \[ ] **CERCA está na aba "mobília", não em "blocos"** (relato do usuário, 2026-08-17).
-  Verificado: existe UM bloco de cerca (`BlockId.Cerca = 65`), ele **está** no menu do criativo
-  e `isPlaceable` o aceita — o que houve foi categoria. `client/src/blocksUi.ts:83` traz
-  `{ id: BlockId.Cerca, name: "cerca", cat: "mobilia" }`, junto de porta, tocha e tapete.
-  Decisão pendente do usuário: mover para `cat: "blocos"` (1 linha) ou manter em mobília e
-  aceitar que a busca começa por lá.
+* \[ ] **ABA "TODOS" NO INVENTÁRIO DO CRIATIVO: todos os blocos por ID, com BARRA DE PESQUISA**
+  (ideia do usuário, 2026-08-17). Uma aba nova ao lado de blocos/vegetação/mobília/… listando
+  **todo** bloco colocável **ordenado só por id** (sem categoria, sem curadoria) mais um campo de
+  busca por nome. Motivo: as categorias ajudam a navegar mas escondem — foi exatamente assim que
+  a cerca "sumiu" (ver o item logo abaixo). Com a lista completa, nada fica inalcançável.
+  **Onde mexe:** `client/src/blocksUi.ts` (a união `Categoria`, o array `CATEGORIAS` e a lista
+  `PLACEABLE`) e `client/src/inventory.ts` (barra de abas + grade; a aba ativa já sobrevive a
+  abrir/fechar). **Pontos a decidir antes:**
+  * A aba "todos" é uma `Categoria` de verdade ou um modo à parte? Se virar `Categoria`, cada
+    entrada precisaria de dois `cat` — provavelmente é modo à parte, e a grade filtra por
+    `cat === aba || aba === "todos"`.
+  * A busca vale só na aba "todos" ou em todas? (Digitar filtra a grade da aba atual é mais
+    simples e mais previsível.)
+  * Busca por NOME exibido apenas, ou também por id numérico? Professor às vezes sabe o id
+    (usa `/bloco x y z <id>`).
+  * ⚠️ **Tablet:** campo de texto abre teclado virtual por cima do painel — conferir com
+    `npm run shots:tablet` (que exige `npm run dev` na 5173, não sobe servidor sozinho).
+  * ⚠️ O tooltip de item funciona por delegação com `data-tip-id` no botão; a grade nova tem de
+    carimbar o mesmo atributo, senão os itens dela ficam sem tooltip.
+
+* \[x] **CERCA está na aba "mobília", não em "blocos"** (relato do usuário, 2026-08-17) —
+  **RESOLVIDO no mesmo dia**: movida para `cat: "blocos"` a pedido do usuário. Não era ausência —
+  existe UM bloco de cerca (`BlockId.Cerca = 65`), ele já estava no menu e `isPlaceable` o
+  aceitava; era categorização (estava junto de porta, tocha e tapete). Registro em bug-625.
 
 
 ## Registros / apresentação

@@ -80,7 +80,10 @@ export const PLACEABLE: readonly PlaceableEntry[] = [
   ...GLYPH_BLOCKS,
   // cp23 — não-cubos. A porta tem UMA entrada: na hora de colocar, o cliente
   // escolhe o eixo (X ou Z) pela direção do olhar; aberta só existe no mundo.
-  { id: BlockId.Cerca, name: "cerca", cat: "mobilia" },
+  // cerca fica em "blocos" (2026-08-17, pedido do usuário): ela é material de
+  // construção — cercar terreno, fazer parapeito — e quem procura por ela vai
+  // na aba de blocos, não na de mobília, mesmo ela sendo não-cubo como a porta.
+  { id: BlockId.Cerca, name: "cerca", cat: "blocos" },
   { id: BlockId.PortaXFechada, name: "porta", cat: "mobilia" },
   { id: BlockId.Tocha, name: "tocha", cat: "mobilia" },
   // janela: entrada única, eixo escolhido pelo olhar (igual porta)
