@@ -11,6 +11,7 @@ export * from "./containers";
 export * from "./controleJogador";
 export * from "./fornalha";
 export * from "./ferramentas";
+export * from "./grade";
 export * from "./groups";
 export * from "./drops";
 export * from "./inventario";
