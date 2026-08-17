@@ -125,6 +125,7 @@ import {
   sendInventario,
 } from "./session/inventario";
 import { runConfinar } from "./session/equipes";
+import { runAula } from "./session/aula";
 import { runRegiao } from "./session/regioes";
 import { avisarComFreio } from "./session/avisos";
 import { evictColunas, garantirColunas, gerarColuna, streamColunas } from "./session/streaming";
@@ -1499,6 +1500,8 @@ export class GameSession {
       }
       case "grupo":
         return runGrupo(this, clientId, parts);
+      case "aula":
+        return runAula(this, clientId, parts);
       case "tp": {
         if (!professor) {
           return "Somente o professor pode usar /tp. Para pedir teleporte até um colega, use /tpr nome.";
@@ -1568,7 +1571,7 @@ export class GameSession {
         return runConfinar(this, parts);
       }
       default:
-        return `Comando desconhecido: ${text}. Os comandos disponíveis são /bloco, /resetpin, /regiao, /objetivo, /grupo, /tp, /tpr, /tpa, /iniciar, /hora, /ciclo, /vento, /voo, /modo, /regra, /pvp, /claim, /amigos e /confinar.`;
+        return `Comando desconhecido: ${text}. Os comandos disponíveis são /bloco, /resetpin, /regiao, /objetivo, /grupo, /aula, /tp, /tpr, /tpa, /iniciar, /hora, /ciclo, /vento, /voo, /modo, /regra, /pvp, /claim, /amigos e /confinar.`;
     }
   }
 
