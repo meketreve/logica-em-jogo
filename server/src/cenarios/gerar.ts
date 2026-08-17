@@ -23,11 +23,19 @@ import { dirname, isAbsolute, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import {
   BlockId,
+  CELULA_Y0,
   CHUNK_SIZE,
-  FLAT_SURFACE_Y,
   GameSession,
+  MAX_GRUPOS_AULA,
+  REGIAO_PARTIDA,
   type SessionOptions,
+  caixaDaCelula,
+  chunkDoGrupo,
+  chunkDoMolde,
+  chunkDoProfessor,
+  copiarCelula,
   decodeSave,
+  dimsDaAula,
   encodeSave,
 } from "@logica/shared";
 import { Autoria, type Vec } from "./autoria";
@@ -43,7 +51,9 @@ import { conferir } from "./verificar";
 const SEED = 20260714;
 
 /** Canto da área do grupo: à frente da cabine (lado aberto = +x). */
-const FAIXA_Y = FLAT_SURFACE_Y + 1; // em cima da grama
+// a base em Y vem do shared: o /aula grupos copia exatamente a fatia que começa
+// aqui, e duas contas separadas divergiriam no primeiro ajuste feito na aula
+const FAIXA_Y = CELULA_Y0;
 const FAIXA_DX = 8; // a cabine acaba em ox+4; 8 deixa a área na parte aberta
 const FAIXA_DZ = 2; // recuo dentro do chunk (cabine ocupa z 0..4)
 /** Profundidade máxima (z) sem vazar pro chunk vizinho. */
@@ -268,10 +278,13 @@ const CENARIOS: Cenario[] = [
       },
     ],
     conferirExtra: (buf, grupos) => {
+      // grupos + 1: a célula-molde tem a própria parede de manual, e é dela que
+      // o /aula grupos copia quando o professor aumenta a turma na aula
+      const esperado = (grupos + 1) * PASSOS.length;
       const q = decodeSave(buf).quadros ?? [];
-      return q.length === grupos * PASSOS.length
+      return q.length === esperado
         ? []
-        : [`esperava ${grupos * PASSOS.length} quadros com conteúdo, save tem ${q.length}`];
+        : [`esperava ${esperado} quadros com conteúdo, save tem ${q.length}`];
     },
   },
 ];
@@ -299,16 +312,17 @@ function gerar(c: Cenario, o: Opcoes): ArrayBuffer {
     throw new Error(`${c.arquivo}: fases somam largura ${offX - 1} (máx. ${LARGURA_MAX})`);
   }
 
-  // mundo par (o spawn cai no CANTO do chunk central) e largo o bastante pra
-  // uma cabine por grupo lado a lado
-  const dims = { x: Math.max(6, n % 2 ? n + 1 : n), z: 6, y: 4 };
+  // o mundo nasce no tamanho do TETO, não do `--grupos` pedido: é isso que tira
+  // o inBounds do caminho do professor quando ele ajusta os grupos na aula
+  const dims = dimsDaAula();
   const a = new Autoria({ dims, preset: "cabines", seed: SEED, codigo: o.codigo });
   a.entrar(o.codigo);
   a.afastar(1.5, 20, 1.5); // longe de qualquer área: bloco não é colocado em cima de jogador
 
   // cabine do professor = chunk central (é onde todo mundo nasce)
-  const profOx = a.session.world.sizeX / 2;
-  const profOz = a.session.world.sizeZ / 2;
+  const chunkProf = chunkDoProfessor();
+  const profOx = chunkProf.cx * CHUNK_SIZE;
+  const profOz = chunkProf.cz * CHUNK_SIZE;
   const canto = (ox: number, oz: number, f: number): Vec => ({
     x: ox + FAIXA_DX + (offsets[f] ?? 0),
     y: FAIXA_Y,
@@ -333,29 +347,43 @@ function gerar(c: Cenario, o: Opcoes): ArrayBuffer {
   // grupos PRIMEIRO: o carimbo e o objetivo per-grupo só existem se houver grupos
   a.cmd(`/grupo criar ${n}`, `${n} grupo(s) criados`);
 
-  // uma cabine por grupo, na fileira de chunks logo à frente (+z), centrada no professor
-  const profCx = profOx / CHUNK_SIZE;
-  const cz = profOz / CHUNK_SIZE + 1;
-  const cx0 = Math.min(Math.max(profCx - Math.floor((n - 1) / 2), 0), dims.x - n);
-
-  // modelo de CADA fase na cabine do professor — o estado certo, fotografado
+  // modelo de CADA fase na cabine do professor — o GABARITO, fotografado
   c.fases.forEach((fase, f) => {
     const org = canto(profOx, profOz, f);
     a.regiao(`modelo${suf(f)}`, org, fim(org, fase));
     plantar(org, fase, fase.gabarito);
   });
 
-  // áreas de cada grupo (todas as fases), com partida + extras (dica/quadros)
+  // CÉLULA-MOLDE: o estado de PARTIDA + os extras, plantados UMA vez só, no
+  // chunk atrás do professor. É a fonte que o /aula grupos copia durante a aula
+  // — e é por isso que ela NÃO é esvaziada junto com o gabarito lá embaixo.
+  const chunkMolde = chunkDoMolde();
+  const moldeOx = chunkMolde.cx * CHUNK_SIZE;
+  const moldeOz = chunkMolde.cz * CHUNK_SIZE;
+  c.fases.forEach((fase, f) => {
+    const org = canto(moldeOx, moldeOz, f);
+    plantar(org, fase, fase.partida);
+    fase.extras?.(a, org);
+  });
+  a.afastar(1.5, 20, 1.5); // extras chegaram perto — volta pro alto
+  const caixaMolde = caixaDaCelula(chunkMolde);
+  a.regiao(REGIAO_PARTIDA, caixaMolde.min, caixaMolde.max);
+
+  // áreas de cada grupo: carimbo da célula-molde pelo MESMO primitivo que o
+  // /aula grupos usa ao vivo — um caminho de código só, e a geração vira o
+  // teste de fumaça dele
   for (let g = 1; g <= n; g++) {
-    const ox = (cx0 + g - 1) * CHUNK_SIZE;
-    const oz = cz * CHUNK_SIZE;
+    const chunkG = chunkDoGrupo(g);
+    const r = copiarCelula(a.session, caixaMolde, caixaDaCelula(chunkG));
+    if (r.pulados > 0) {
+      throw new Error(`${c.arquivo}: grupo ${g} teve ${r.pulados} bloco(s) pulados na geração`);
+    }
+    const ox = chunkG.cx * CHUNK_SIZE;
+    const oz = chunkG.cz * CHUNK_SIZE;
     c.fases.forEach((fase, f) => {
       const org = canto(ox, oz, f);
       a.regiao(`area${suf(f)}-${g}`, org, fim(org, fase));
-      plantar(org, fase, fase.partida);
-      fase.extras?.(a, org);
     });
-    a.afastar(1.5, 20, 1.5); // extras podem ter chegado perto — volta pro alto
   }
 
   // modo: 1 fase = livre (como sempre); 2+ = sequencial (fase a fase, por grupo)
@@ -390,8 +418,8 @@ function parseArgs(argv: string[]): Opcoes {
     return i >= 0 ? argv[i + 1] : undefined;
   };
   const grupos = Number(flag("grupos") ?? 5);
-  if (!Number.isInteger(grupos) || grupos < 1 || grupos > 8) {
-    throw new Error("--grupos precisa ser um inteiro de 1 a 8");
+  if (!Number.isInteger(grupos) || grupos < 1 || grupos > MAX_GRUPOS_AULA) {
+    throw new Error(`--grupos precisa ser um inteiro de 1 a ${MAX_GRUPOS_AULA}`);
   }
   // saída relativa à RAIZ do repo, não ao cwd: `npm run -w server` roda dentro
   // de server/ e os .ljw iam parar em server/cenarios/
