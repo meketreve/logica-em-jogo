@@ -19,7 +19,10 @@ export interface NamedRegion {
   max: Vec3i;
 }
 
-export const MAX_REGIONS = 64;
+/** Teto de regiões nomeadas por mundo. 256 desde 2026-08-17: o mundo de aula
+ *  no teto usa 20 grupos × 3 fases + 3 modelos + 1 partida = 64, que era o
+ *  valor antigo INTEIRO — não sobrava uma região para o professor criar. */
+export const MAX_REGIONS = 256;
 export const MAX_REGION_NAME = 24;
 
 /** Normaliza 2 cantos quaisquer em min/max por eixo (ordem dos cliques não importa). */

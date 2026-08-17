@@ -179,6 +179,7 @@ import {
 import { TICKS_POR_CRESCIMENTO, crescerMuda, crescerPlantacao, ruleFor } from "./rules";
 import { type SaveData, type SaveMeta } from "./save";
 import {
+  type Box,
   type Objective,
   type ScenarioModo,
 } from "./scenario";
@@ -1887,6 +1888,39 @@ export class GameSession {
   applyBlock(x: number, y: number, z: number, blockId: number): void {
     this.applyBlockQuieto(x, y, z, blockId);
     this.broadcast({ type: "block_changed", x, y, z, blockId });
+  }
+
+  /**
+   * Copia o CONTEÚDO dos quadros de dentro de `origem` para a caixa deslocada
+   * por (dx,dy,dz). O bloco do quadro já tem de estar no destino — quem copia
+   * blocos é o chamador; aqui vai só o texto/imagem, que mora FORA do id.
+   *
+   * A ORIGEM fica intacta: a célula-molde da aula é copiada muitas vezes.
+   * Devolve quantas entradas foram escritas.
+   */
+  moverQuadros(origem: Box, dx: number, dy: number, dz: number): number {
+    let movidos = 0;
+    for (const q of [...this.quadros.values()]) {
+      if (!regionContains(origem, q.x, q.y, q.z)) continue;
+      const alvo = { ...q, x: q.x + dx, y: q.y + dy, z: q.z + dz };
+      // só entra onde a célula É quadro (mesma tolerância do restore)
+      if (!isQuadro(getBlock(this.world, alvo.x, alvo.y, alvo.z))) continue;
+      this.quadros.set(quadroKey(alvo.x, alvo.y, alvo.z), alvo);
+      movidos++;
+    }
+    return movidos;
+  }
+
+  /** Apaga o conteúdo de quadro dentro da caixa (o bloco é problema do
+   *  chamador). Devolve quantas entradas saíram. */
+  apagarQuadros(caixa: Box): number {
+    let apagados = 0;
+    for (const q of [...this.quadros.values()]) {
+      if (!regionContains(caixa, q.x, q.y, q.z)) continue;
+      this.quadros.delete(quadroKey(q.x, q.y, q.z));
+      apagados++;
+    }
+    return apagados;
   }
 
   /** Tudo do applyBlock MENOS o broadcast — o encher em lote (cp23b) avisa a
