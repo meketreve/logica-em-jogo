@@ -954,7 +954,9 @@ export class GameSession {
           x: msg.x, y: msg.y, z: msg.z,
           yaw: msg.yaw, pitch: msg.pitch,
           name: p.name,
-          ...(this.dormindo.has(clientId) ? { dormindo: true } : {}),
+          ...(this.dormindo.has(clientId)
+            ? { dormindo: true, cama: this.dormindo.get(clientId) }
+            : {}),
         });
         // sair de cima da cama acorda (mexer o OLHAR não; andar sim)
         acordarSeSaiu(this, clientId, msg.x, msg.y, msg.z);
@@ -1131,11 +1133,16 @@ export class GameSession {
             }
           }
           this.spawnCama.set(p.name, { x: msg.x, y: msg.y, z: msg.z });
-          this.sendServerChat(clientId, "Ponto de nascimento definido nesta cama.");
           // …e o MESMO clique deita (2026-08-17, decisão do usuário): não há
           // gesto novo pra ensinar, e o rótulo ▣ "interagir" já cobre a cama.
+          // ⚠️ UMA fala só (bug-626): mandar o motivo de não ter dormido numa
+          // mensagem separada fazia todo clique de DIA — que é ação normal,
+          // definir o nascimento — terminar numa reclamação.
           const recado = tentarDormir(this, clientId, msg.x, msg.y, msg.z);
-          if (recado) this.sendServerChat(clientId, recado);
+          this.sendServerChat(
+            clientId,
+            "Ponto de nascimento definido nesta cama." + (recado ? ` ${recado}` : ""),
+          );
           return;
         }
         if (!isInterativo(id)) return; // porta (cp23) e janela (2026-07-19)
@@ -2150,10 +2157,13 @@ export class GameSession {
 
     // Ciclo dia/noite (cp21): a hora avança de forma determinística por tick
     // (não usa o relógio de parede — hosts diferentes andam igual). SÓ visual.
-    if (this.cicloAtivo) {
-      // dormir (2026-08-17): a noite passa ACELERANDO o mesmo avanço, não
-      // cortando a hora — o céu gira à vista de todos, inclusive de quem não
-      // deitou, e a mensagem `time` que já existe carrega tudo.
+    // dormir (2026-08-17): a noite passa ACELERANDO o mesmo avanço, não
+    // cortando a hora — o céu gira à vista de todos, inclusive de quem não
+    // deitou, e a mensagem `time` que já existe carrega tudo.
+    // ⚠️ `pulandoNoite` entra no OU (bug-626): dormir é ação explícita e vale
+    // mesmo com o ciclo parado, que só diz se o tempo anda sozinho. Quando
+    // amanhece, `tickDormir` desliga o pulo e a hora volta a congelar.
+    if (this.cicloAtivo || this.pulandoNoite) {
       const fator = this.pulandoNoite ? PULO_NOITE_FATOR : 1;
       this.horaDoDia = (this.horaDoDia + (24 * fator) / (DIA_SEGUNDOS * SERVER_TICK_RATE)) % 24;
       tickDormir(this);

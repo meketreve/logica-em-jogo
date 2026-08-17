@@ -180,6 +180,10 @@ export type ServerMessage =
        *  a cama. Ausente = em pé — é o que faz o campo ser compatível com host
        *  antigo sem ramo de versão. */
       dormindo?: boolean;
+      /** Célula da cama em que ele deitou. ⚠️ SEM isto o corpo deita onde o
+       *  jogador está EM PÉ (ao lado da cama), porque `x/y/z` são os pés dele e
+       *  o servidor não o move ao dormir — só o cliente leva a câmera. */
+      cama?: { x: number; y: number; z: number };
     }
   | {
       /** O PRÓPRIO jogador deitou ou levantou (2026-08-17). Só para o autor: o
@@ -637,6 +641,16 @@ export function parseClientMessage(raw: string): ClientMessage | null {
   }
 }
 
+/** Célula da cama (2026-08-17), validada. Devolve `{}` quando não vier ou vier
+ *  quebrada — o chamador decide o que fazer com a ausência. */
+function parseCama(v: unknown): { cama?: { x: number; y: number; z: number } } {
+  if (typeof v !== "object" || v === null) return {};
+  const c = v as Record<string, unknown>;
+  const ints = [c["x"], c["y"], c["z"]];
+  if (!ints.every((n) => typeof n === "number" && Number.isInteger(n))) return {};
+  return { cama: { x: c["x"] as number, y: c["y"] as number, z: c["z"] as number } };
+}
+
 export function parseServerMessage(raw: string): ServerMessage | null {
   let msg: unknown;
   try {
@@ -704,19 +718,12 @@ export function parseServerMessage(raw: string): ServerMessage | null {
         // deitado (2026-08-17): só o `true` entra; ausente = em pé, que é o
         // que host antigo manda
         ...(m["dormindo"] === true ? { dormindo: true } : {}),
+        ...(m["dormindo"] === true ? parseCama(m["cama"]) : {}),
       };
     }
     case "dormindo": {
       if (typeof m["dormindo"] !== "boolean") return null;
-      const c = m["cama"];
-      let cama: { x: number; y: number; z: number } | undefined;
-      if (typeof c === "object" && c !== null) {
-        const v = c as Record<string, unknown>;
-        const ints = [v["x"], v["y"], v["z"]];
-        if (ints.every((n) => typeof n === "number" && Number.isInteger(n))) {
-          cama = { x: v["x"] as number, y: v["y"] as number, z: v["z"] as number };
-        }
-      }
+      const cama = parseCama(m["cama"]).cama;
       // sem cama válida, "deitado" não tem para onde levar a câmera: vira em pé
       if (m["dormindo"] === true && !cama) return { type: "dormindo", dormindo: false };
       return { type: "dormindo", dormindo: m["dormindo"], ...(cama ? { cama } : {}) };

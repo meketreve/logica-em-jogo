@@ -1,6 +1,6 @@
 # anatomy.md
 
-> Auto-maintained by OpenWolf. Last scanned: 2026-08-17T15:01:14.032Z
+> Auto-maintained by OpenWolf. Last scanned: 2026-08-17T17:18:38.266Z
 > Files: 359 tracked | Anatomy hits: 0 | Misses: 0
 
 ## ./
@@ -15,7 +15,7 @@
 - `package.json` — Node.js package manifest (~420 tok)
 - `projeto.txt` (~4707 tok)
 - `README.md` — Project documentation (~2541 tok)
-- `todo.md` — Ideias para fazer (~20763 tok)
+- `todo.md` — Ideias para fazer (~20933 tok)
 - `tsconfig.base.json` (~130 tok)
 - `vitest.config.ts` — Config do vitest da RAIZ (2026-08-11, bug-612). (~335 tok)
 
@@ -344,7 +344,7 @@
   - section `LuzUniforms` L22-32 (~120 tok)
   - fn `criarLuzUniforms` L33-43 (~116 tok)
   - fn `aplicarLuz` L44-99 (~640 tok)
-- `main.ts` — §💬 (2026-08-14) Fonte ÚNICA de "a mira aponta pra algo que o clique direito (~32262 tok)
+- `main.ts` — §💬 (2026-08-14) Fonte ÚNICA de "a mira aponta pra algo que o clique direito (~32610 tok)
   - fn `ehInterativo` L118-126 (~107 tok)
   - fn `cachearMundos` L127-226 (~1334 tok)
   - fn `applySettings` L227-308 (~1279 tok)
@@ -371,8 +371,8 @@
   - fn `startMultiplayer` L982-999 (~223 tok)
   - fn `startSingleplayer` L1000-1023 (~284 tok)
   - fn `persistWorld` L1024-1104 (~902 tok)
-  - class `GameRuntime` L1105-2409 (~18318 tok)
-  - fn `startGame` L2410-2416 (~58 tok)
+  - class `GameRuntime` L1105-2430 (~18666 tok)
+  - fn `startGame` L2431-2437 (~58 tok)
 - `materiaisMundo.ts` — §🎨 Os TRÊS materiais do chunk — e o relógio que os anima. (~1829 tok)
   - class `MateriaisMundo` L23-131 (~1489 tok)
 - `menu.ts` — Menu principal (cp8) — HTML/CSS por cima do canvas, sem GUI de engine. (~6769 tok)
@@ -427,9 +427,9 @@
   - class `QuadroEditor` L205-316 (~1156 tok)
 - `regions.ts` — Wireframes das regiões nomeadas (cp11) — visão do PROFESSOR (o servidor só (~1171 tok)
   - class `RegionRenderer` L10-105 (~1073 tok)
-- `remotePlayers.ts` — Plaquinha de nome sobre a cabeça (filha da mesh; Sprite sempre encara a câmera). (~1829 tok)
+- `remotePlayers.ts` — Plaquinha de nome sobre a cabeça (filha da mesh; Sprite sempre encara a câmera). (~1933 tok)
   - section `RemotePlayer` L4-28 (~290 tok)
-  - class `RemotePlayersView` L29-161 (~1518 tok)
+  - class `RemotePlayersView` L29-168 (~1623 tok)
 - `settings.ts` — Configurações do jogador, persistidas em localStorage (por navegador). (~1530 tok)
   - section `GameSettings` L12-90 (~784 tok)
   - fn `num` L91-94 (~49 tok)
@@ -500,7 +500,7 @@
 ## mundos/_smoke-coluna/
 
 - `_smoke-coluna.ljw` (~62 tok)
-- `chat.log` (~4160 tok)
+- `chat.log` (~4214 tok)
 
 ## mundos/_smoke-comida/
 
@@ -524,7 +524,7 @@
 
 ## mundos/_smoke-kicar/
 
-- `chat.log` (~19279 tok)
+- `chat.log` (~19520 tok)
 
 ## mundos/_smoke-modoa/
 
@@ -545,7 +545,7 @@
 ## mundos/_smoke-trocaa/
 
 - `_smoke-trocaa.ljw` (~87 tok)
-- `chat.log` (~12613 tok)
+- `chat.log` (~12777 tok)
 
 ## mundos/_smoke-trocab/
 
@@ -557,11 +557,11 @@
 
 ## mundos/aula1-sequencia/
 
-- `chat.log` (~65864 tok)
+- `chat.log` (~66668 tok)
 
 ## mundos/aula2-binario/
 
-- `chat.log` (~2560 tok)
+- `chat.log` (~2592 tok)
 
 ## mundos/aula7-corrida/
 
@@ -1139,8 +1139,8 @@
 - `cp23.test.ts` — DIMS: makeFlat (~8452 tok)
   - fn `makeFlat` L30-623 (~8223 tok)
 - `culturas.test.ts` — §🍖 F10h (2026-08-06) — AS SEIS CULTURAS. Cenoura, batata, beterraba, (~2369 tok)
-- `dormir.test.ts` — Dormir na cama para passar a noite (2026-08-17). (~1789 tok)
-  - fn `mundoComCama` L16-161 (~1610 tok)
+- `dormir.test.ts` — Dormir na cama para passar a noite (2026-08-17). (~3072 tok)
+  - fn `mundoComCama` L18-255 (~2858 tok)
 - `drops.test.ts` — Declares id (~2212 tok)
 - `drops.ts` — §🍖 F4 — o que CAI ao quebrar um bloco. Tabela pura: entra o byte que estava (~2673 tok)
   - fn `formaCanonica` L50-152 (~1441 tok)
@@ -1345,18 +1345,19 @@
   - fn `moveAxisGuarded` L413-428 (~96 tok)
   - fn `stepPlayer` L429-514 (~1096 tok)
 - `protocol.test.ts` — Declares DIMS (~3650 tok)
-- `protocol.ts` — Protocolo v0 (checkpoint 2). Mensagens JSON dos dois lados + world_snapshot (~12898 tok)
-  - fn `parseClientMessage` L472-639 (~1727 tok)
-  - fn `parseServerMessage` L640-934 (~3494 tok)
-  - section `Snapshot` L935-939 (~18 tok)
-  - fn `encodeSnapshot` L940-959 (~201 tok)
-  - fn `decodeSnapshot` L960-1019 (~763 tok)
-  - fn `peekMagic` L1020-1024 (~40 tok)
-  - fn `encodeLazyInfo` L1025-1037 (~134 tok)
-  - fn `decodeLazyInfo` L1038-1062 (~245 tok)
-  - section `ColunaRef` L1063-1070 (~80 tok)
-  - fn `encodeColunas` L1071-1095 (~276 tok)
-  - fn `decodeColunas` L1096-1129 (~340 tok)
+- `protocol.ts` — Protocolo v0 (checkpoint 2). Mensagens JSON dos dois lados + world_snapshot (~13044 tok)
+  - fn `parseClientMessage` L476-645 (~1768 tok)
+  - fn `parseCama` L646-653 (~112 tok)
+  - fn `parseServerMessage` L654-941 (~3407 tok)
+  - section `Snapshot` L942-946 (~18 tok)
+  - fn `encodeSnapshot` L947-966 (~201 tok)
+  - fn `decodeSnapshot` L967-1026 (~763 tok)
+  - fn `peekMagic` L1027-1031 (~40 tok)
+  - fn `encodeLazyInfo` L1032-1044 (~134 tok)
+  - fn `decodeLazyInfo` L1045-1069 (~245 tok)
+  - section `ColunaRef` L1070-1077 (~80 tok)
+  - fn `encodeColunas` L1078-1102 (~276 tok)
+  - fn `decodeColunas` L1103-1136 (~340 tok)
 - `pvp.test.ts` — §🍖 F7 — pvp (2026-08-05). (~3732 tok)
   - fn `collect` L21-24 (~55 tok)
   - fn `join` L25-26 (~34 tok)
@@ -1479,11 +1480,11 @@
   - fn `parseObjectiveState` L304-361 (~576 tok)
 - `session.test.ts` — Testes de MECÂNICA rodam com singleplayer: true (join sem PIN) — a (~14895 tok)
   - fn `collect` L12-1097 (~14752 tok)
-- `session.ts` — GameSession: o SERVIDOR autoritativo, independente de hospedeiro. (~29342 tok)
+- `session.ts` — GameSession: o SERVIDOR autoritativo, independente de hospedeiro. (~29492 tok)
   - section `SessionOptions` L222-268 (~644 tok)
   - section `SessionPlayer` L269-279 (~60 tok)
   - section `Identity` L280-284 (~19 tok)
-  - class `GameSession` L285-2308 (~27312 tok)
+  - class `GameSession` L285-2318 (~27462 tok)
 - `sobrevivencia.test.ts` — Professor (1) + ana (2). `modo` decide o padrão do mundo. (~8035 tok)
   - fn `collect` L42-45 (~55 tok)
   - fn `join` L46-47 (~34 tok)
@@ -1629,19 +1630,19 @@
   - fn `avisarContainerCheio` L111-127 (~212 tok)
   - fn `tickFornalhas` L128-151 (~321 tok)
 - `coords.ts` — Coordenada DIGITADA num comando (`/bloco`, `/regiao`, `/tp`): inteiro, `~` (~237 tok)
-- `dormir.ts` — Dormir na cama para passar a noite (2026-08-17). (~1809 tok)
+- `dormir.ts` — Dormir na cama para passar a noite (2026-08-17). (~2007 tok)
   - fn `ehNoite` L35-39 (~39 tok)
   - fn `dormindoAgora` L40-50 (~122 tok)
-  - fn `tentarDormir` L51-79 (~261 tok)
-  - fn `acordar` L80-86 (~63 tok)
-  - fn `acordarTodos` L87-97 (~99 tok)
-  - fn `acordarSeSaiu` L98-108 (~116 tok)
-  - fn `contagem` L109-118 (~126 tok)
-  - fn `reavaliar` L119-134 (~170 tok)
-  - fn `tickDormir` L135-143 (~86 tok)
-  - fn `camaDe` L144-149 (~76 tok)
-  - fn `avisarPose` L150-168 (~180 tok)
-  - fn `ehCama` L169-172 (~20 tok)
+  - fn `tentarDormir` L51-84 (~374 tok)
+  - fn `acordar` L85-91 (~63 tok)
+  - fn `acordarTodos` L92-102 (~99 tok)
+  - fn `acordarSeSaiu` L103-113 (~116 tok)
+  - fn `contagem` L114-123 (~126 tok)
+  - fn `reavaliar` L124-143 (~247 tok)
+  - fn `tickDormir` L144-152 (~86 tok)
+  - fn `camaDe` L153-158 (~76 tok)
+  - fn `avisarPose` L159-178 (~187 tok)
+  - fn `ehCama` L179-182 (~20 tok)
 - `equipes.ts` — EQUIPES — as três formas de "com quem eu jogo" que o servidor conhece. (~8293 tok)
   - fn `claimEm` L34-41 (~82 tok)
   - fn `equipeDe` L42-50 (~83 tok)

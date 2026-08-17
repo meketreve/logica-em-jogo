@@ -96,6 +96,25 @@
 
 ## Key Learnings
 
+- [2026-08-17] **Nunca interpole a CÂMERA no laço de render deste projeto — interpole o
+  PROGRESSO.** `main.ts` faz `camera.position.set(...)` e `camera.rotation.set(...)` a partir da
+  pose do jogador TODO FRAME. Um lerp aplicado depois disso nunca converge: cada frame recomeça
+  do zero e anda só uma fração fixa, então o valor ESTACIONA (medido: parou em 4,7623 querendo
+  chegar a 5,9) e treme junto com a posição do jogador. O padrão certo é um campo de progresso
+  0→1 que persiste entre frames, e a pose vira `lerp(poseNormal, poseAlvo, t)`. (bug-627)
+- [2026-08-17] **O servidor NÃO move quem dorme** — só o cliente leva a câmera até a cama. Logo
+  `player_moved` carrega os pés do jogador EM PÉ, ao lado da cama, e qualquer coisa que deva
+  aparecer na cama precisa da célula dela viajando junto. (bug-627)
+- [2026-08-17] **Gate silencioso é bug, mesmo quando a regra está certa.** `tentarDormir`
+  devolvia `null` com o ciclo parado; o professor deu `/hora noite` na escola, clicou na cama e
+  não aconteceu NADA. E gate que recusa merece uma segunda pergunta: `cicloAtivo` diz se o tempo
+  anda SOZINHO, não se dormir é permitido. (bug-626)
+- [2026-08-17] **Maioria de gesto coletivo é `>=` metade, não `>`.** Com `>` a DUPLA precisa dos
+  dois — a regra "todos" disfarçada, exatamente o que a decisão de maioria queria evitar.
+  (bug-626)
+- [2026-08-17] **`/hora` NÃO liga o ciclo** (`ambiente.ts`): só `/ciclo` mexe em `cicloAtivo`. E
+  o `.ljw` de aula nasce com `/ciclo desligar`, então qualquer mecânica que dependa de tempo
+  passando está inerte nos mundos de aula por padrão.
 - [2026-08-17] **`parseServerMessage` (`shared/src/protocol.ts`) é LISTA BRANCA com validação
   por caso.** Mensagem de servidor NOVA não chega ao cliente só por existir no tipo
   `ServerMessage` — sem o `case` no parser ela é descartada em silêncio, e o sintoma é "a

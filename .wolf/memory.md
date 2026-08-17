@@ -2417,3 +2417,24 @@ scratchpad) mostram a emenda contínua e sem linha. typecheck 3/3 + build verdes
 | 11:59 | Created dormir-shot.probe.mjs | — | ~1175 |
 | 11:40 | anotadas 2 ideias: /invisivel para professor (filtragem tem de ser no SERVIDOR por cliente) e painel de comandos mobile ao LADO | todo.md | anotado com ancoras e armadilhas | ~6k |
 | 12:10 | dormir na cama: shared/src/session/dormir.ts + wiring (use_block, move, tick, disconnect), protocolo (player_moved.dormindo + msg dormindo), cliente (camera deitada, caixa tombada, plaquinha no eixo +z) | shared/src/session/dormir.ts, session.ts, protocol.ts, client/src/main.ts, remotePlayers.ts | 886/886; A/B derruba maioria, gate do ciclo e acordar-ao-sair | ~45k |
+| 12:01 | Session end: 97 writes across 25 files (daynight.ts, 2026-08-17-copias-ao-vivo-design.md, 2026-08-17-copias-ao-vivo.md, grade.test.ts, grade.ts) | 14 reads | ~173023 tok |
+| 14:07 | Edited shared/src/session/dormir.ts | 2→7 lines | ~154 |
+| 14:07 | Edited shared/src/session.ts | modified dormir() | ~193 |
+| 14:07 | Edited shared/src/dormir.test.ts | added nullish coalescing | ~676 |
+| 14:08 | Edited shared/src/session/dormir.ts | 1→5 lines | ~94 |
+| 14:09 | Edited shared/src/dormir.test.ts | 3→5 lines | ~78 |
+| 14:10 | Edited shared/src/session.ts | modified deita() | ~198 |
+| 14:11 | Edited shared/src/protocol.ts | 4→8 lines | ~146 |
+| 14:11 | Edited shared/src/protocol.ts | modified deitado() | ~72 |
+| 14:11 | Edited shared/src/protocol.ts | reduced (-8 lines) | ~112 |
+| 14:11 | Edited shared/src/protocol.ts | added 2 condition(s) | ~173 |
+| 14:11 | Edited shared/src/session/dormir.ts | has() → get() | ~72 |
+| 14:11 | Edited shared/src/session.ts | 3→5 lines | ~47 |
+| 14:11 | Edited client/src/remotePlayers.ts | 3→4 lines | ~30 |
+| 14:12 | Edited client/src/remotePlayers.ts | added 1 condition(s) | ~227 |
+| 14:12 | Edited client/src/main.ts | added nullish coalescing | ~393 |
+| 14:12 | Edited client/src/main.ts | expanded (+6 lines) | ~175 |
+| 14:12 | Edited client/src/main.ts | added 1 condition(s) | ~96 |
+| 14:12 | Edited client/src/main.ts | 5→6 lines | ~39 |
+| 12:50 | bug-626: relato da escola "/hora noite e nao consegui dormir" — gate do cicloAtivo era SILENCIOSO e conceitualmente errado; regra virou metade-ou-mais; motivo entrou na mesma frase do spawn | shared/src/session/dormir.ts, session.ts | reproduzido contra aula1.ljw; 17 testes; A/B derruba os 2 casos | ~30k |
+| 13:10 | bug-627: flicker da camera (lerp em valor reescrito todo frame -> estaciona em 13%) e corpo deitando fora da cama (player_moved leva os PES, servidor nao move quem dorme) | client/src/main.ts, remotePlayers.ts, shared/src/protocol.ts | dormirT persistente + cama no player_moved; simulacao numerica 4.7623 fixo vs converge a 5.9 | ~25k |

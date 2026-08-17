@@ -55,7 +55,12 @@ export function tentarDormir(
   y: number,
   z: number,
 ): string | null {
-  if (!ses.cicloAtivo) return null; // mundo de aula: não há noite passando
+  // ⚠️ NÃO exigimos `cicloAtivo` (bug-626). A primeira versão exigia, e o
+  // relato da escola foi exatamente isso: o professor deu `/hora noite`, clicou
+  // na cama e não aconteceu NADA — o gate devolvia `null`, sem uma palavra.
+  // Além de calado, ele estava errado: com o ciclo parado o mundo fica travado
+  // no meio-dia, então dormir só pode disparar se alguém já escolheu a noite de
+  // propósito. O ciclo diz se o tempo anda SOZINHO; dormir é ação explícita.
   if (!ehNoite(ses.horaDoDia)) return "Só dá para dormir à noite.";
   if (ses.dormindo.has(clientId)) return null;
   for (const [outro, cama] of ses.dormindo) {
@@ -118,7 +123,11 @@ function contagem(ses: GameSession): { dormem: number; acordados: number } {
  */
 export function reavaliar(ses: GameSession): void {
   const { dormem, acordados } = contagem(ses);
-  const maioria = acordados > 0 && dormem * 2 > acordados;
+  // METADE OU MAIS, não maioria estrita (bug-626). Com `>` a dupla precisaria
+  // dos DOIS (1×2 > 2 é falso) — ou seja, a regra "todos" disfarçada, que é
+  // justamente o que a decisão de maioria queria evitar. Com `>=`: 2 online
+  // pedem 1, 3 pedem 2, 5 pedem 3.
+  const maioria = acordados > 0 && dormem * 2 >= acordados;
   if (maioria && !ses.pulandoNoite && ehNoite(ses.horaDoDia)) {
     ses.pulandoNoite = true;
     ses.broadcast({ type: "chat", author: "servidor", text: "A noite está passando…" });
@@ -150,13 +159,14 @@ export function camaDe(ses: GameSession, clientId: number): { x: number; y: numb
 function avisarPose(ses: GameSession, clientId: number): void {
   const p = ses.players.get(clientId);
   if (!p) return;
+  const cama = ses.dormindo.get(clientId);
   ses.broadcastExcept(clientId, {
     type: "player_moved",
     id: clientId,
     x: p.x, y: p.y, z: p.z,
     yaw: p.yaw, pitch: p.pitch,
     name: p.name,
-    ...(ses.dormindo.has(clientId) ? { dormindo: true } : {}),
+    ...(cama ? { dormindo: true, cama } : {}),
   });
   // e o próprio autor precisa saber que deitou/levantou
   ses.send(

@@ -362,9 +362,18 @@ senão lado com parede; empate → base. Cliente inalterado.
   * **12 testes** (`shared/src/dormir.test.ts`), com A/B: trocar a maioria por "um basta" derruba
     o teste da minoria; tirar o gate do ciclo derruba o do mundo de aula; tirar o acordar-ao-sair
     derruba o dele.
-  * ⚠️ **NÃO verificado em tela**: o cliente não tem suíte e a sonda de browser não valia o custo
-    aqui (o `?foto` trava a câmera e não tem cama). Camera deitada e caixa tombada têm typecheck
-    e build, mais a medida do eixo da plaquinha — mas ninguém viu em jogo ainda.
+  * **Playtest na escola no mesmo dia derrubou 2 bugs** (a parte que eu tinha marcado como não
+    verificada em tela era exatamente onde eles estavam):
+    * **bug-626** — `/hora noite` e nada acontecia. O gate `if (!cicloAtivo) return null` era
+      SILENCIOSO (e `/hora` não liga o ciclo; o `.ljw` de aula nasce com ele desligado) e
+      conceitualmente errado: `cicloAtivo` diz se o tempo anda SOZINHO, e dormir é ação
+      explícita. Removido. De quebra, a regra virou **metade ou mais** (`>=`): com maioria
+      estrita a dupla precisaria dos dois.
+    * **bug-627** — tela piscando e boneco deitando fora da cama. O flicker era estrutural: eu
+      interpolava a CÂMERA depois de ela ser reescrita todo frame, então o valor estacionava em
+      13% do caminho. Agora quem interpola é um progresso persistente. E o corpo ia para os pés
+      do jogador porque o servidor não move quem dorme — `player_moved` passou a levar a célula
+      da cama.
 
 * \[ ] **animação de SENTAR na cadeira** (o par do item acima; L298 original juntava os dois).
   O gesto e os gates são outros: cadeira não tem noite nem maioria, e provavelmente quer travar

@@ -1139,6 +1139,12 @@ class GameRuntime {
   /** Cama em que o PRÓPRIO jogador está deitado (2026-08-17), ou null em pé.
    *  Vem da mensagem `dormindo`; o servidor é quem decide. */
   private dormindo: { x: number; y: number; z: number } | null = null;
+  /** A última cama, mantida enquanto a animação de LEVANTAR corre — sem ela o
+   *  destino sumiria no frame do acordar e a câmera saltaria de volta. */
+  private ultimaCama: { x: number; y: number; z: number } | null = null;
+  /** Progresso da deitada, 0 = em pé, 1 = deitado. Persiste entre frames: é
+   *  ELE que se interpola, porque a câmera é reescrita a cada frame. */
+  private dormirT = 0;
   private readonly highlight: THREE.LineSegments;
   private readonly lookDir = new THREE.Vector3();
   private readonly hotbarUi: HotbarUi;
@@ -1959,18 +1965,29 @@ class GameRuntime {
       }
       camera.position.set(this.player.pos.x, this.player.pos.y + this.movimento.alturaOlho, this.player.pos.z);
       camera.rotation.set(input.pitch, input.yaw, 0);
-      // dormindo (2026-08-17): a câmera desce até a cama e olha pra cima. Sobre-
-      // escreve DEPOIS da pose normal, e não antes, porque o `stepPlayer` acima
-      // continua rodando — sair da cama tem de acordar, e para sair é preciso
-      // andar. Interpolado pelo mesmo fator do resto, senão o corte enjoa.
-      if (this.dormindo) {
-        const k = 1 - Math.exp(-dt * 8);
-        const alvoY = this.dormindo.y + 1 + PLAYER.width / 2;
-        camera.position.y += (alvoY - camera.position.y) * k;
-        camera.position.x += (this.dormindo.x + 0.5 - camera.position.x) * k;
-        camera.position.z += (this.dormindo.z + 0.5 - camera.position.z) * k;
-        const alvoPitch = Math.PI / 3; // olhando pro teto
-        camera.rotation.x += (alvoPitch - camera.rotation.x) * k;
+      // dormindo (2026-08-17): a câmera desce até a cama e olha pra cima.
+      //
+      // ⚠️ O PROGRESSO é que se interpola, NÃO a câmera (bug-627). As duas
+      // linhas acima reescrevem posição e rotação do ZERO a cada frame, a
+      // partir da pose do jogador; lerpar a câmera em cima disso nunca
+      // converge — todo frame recomeça em pé e anda só uma fração, então a
+      // imagem TREME junto com a posição do jogador. Foi o relato do playtest.
+      // Com `dormirT` persistindo entre frames, a mistura é estável.
+      const alvoT = this.dormindo ? 1 : 0;
+      this.dormirT += (alvoT - this.dormirT) * (1 - Math.exp(-dt * 6));
+      const cama = this.dormindo ?? this.ultimaCama;
+      if (cama && this.dormirT > 0.002) {
+        const t = this.dormirT;
+        camera.position.set(
+          camera.position.x + (cama.x + 0.5 - camera.position.x) * t,
+          camera.position.y + (cama.y + 1 + PLAYER.width / 2 - camera.position.y) * t,
+          camera.position.z + (cama.z + 0.5 - camera.position.z) * t,
+        );
+        // olhando pro teto; `input.pitch` segue sendo a base, então levantar
+        // devolve o olhar exatamente pra onde estava
+        camera.rotation.x = input.pitch + (Math.PI / 3 - input.pitch) * t;
+      } else if (this.dormirT <= 0.002) {
+        this.ultimaCama = null; // acabou de levantar: solta a cama antiga
       }
 
       // mira: raycast local (visual) — decisão continua no servidor
@@ -2361,6 +2378,7 @@ class GameRuntime {
     yaw: number;
     name?: string;
     dormindo?: boolean;
+    cama?: { x: number; y: number; z: number };
   }): void {
   this.outros.aoMover(msg);
   }
@@ -2373,6 +2391,9 @@ class GameRuntime {
    *  só guardamos a cama, e o laço de render leva a câmera até ela. */
   aoDormir(dormindo: boolean, cama?: { x: number; y: number; z: number }): void {
     this.dormindo = dormindo && cama ? cama : null;
+    // guarda o destino para a volta: sem isto o alvo sumiria no frame em que
+    // acorda e a câmera saltaria de pé em vez de se levantar
+    if (this.dormindo) this.ultimaCama = this.dormindo;
   }
 
 

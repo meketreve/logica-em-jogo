@@ -80,6 +80,7 @@ export class RemotePlayersView {
     yaw: number;
     name?: string;
     dormindo?: boolean;
+    cama?: { x: number; y: number; z: number };
   }): void {
     let rp = this.players.get(msg.id);
     if (!rp) {
@@ -103,13 +104,19 @@ export class RemotePlayersView {
       rp.labelName = msg.name;
       rp.mesh.add(rp.label);
     }
-    // deitado (2026-08-17): a caixa TOMBA e o centro dela desce, porque o
-    // corpo deitado ocupa `width` de altura, não `height`. Sem baixar o centro
-    // junto, o colega dormindo flutuaria meio bloco acima da cama.
-    rp.dormindo = msg.dormindo === true;
-    // pos do servidor = pés do jogador; BoxGeometry é centrada
-    const meia = rp.dormindo ? PLAYER.width / 2 : PLAYER.height / 2;
-    rp.target.set(msg.x, msg.y + meia, msg.z);
+    // deitado (2026-08-17): a caixa TOMBA e o centro desce, porque o corpo
+    // deitado ocupa `width` de altura, não `height`.
+    // ⚠️ E vai para a CAMA, não para `msg.x/y/z`: o servidor NÃO move quem
+    // dorme, então esses são os pés dele EM PÉ, ao lado da cama. Sem isto o
+    // colega deita no chão do lado (relato do playtest, bug-627). O `+1` põe o
+    // corpo em cima da célula da cama, não dentro dela.
+    rp.dormindo = msg.dormindo === true && msg.cama !== undefined;
+    if (rp.dormindo && msg.cama) {
+      rp.target.set(msg.cama.x + 0.5, msg.cama.y + 1 + PLAYER.width / 2, msg.cama.z + 0.5);
+    } else {
+      // pos do servidor = pés do jogador; BoxGeometry é centrada
+      rp.target.set(msg.x, msg.y + PLAYER.height / 2, msg.z);
+    }
     rp.targetYaw = msg.yaw;
   }
 

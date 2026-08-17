@@ -5034,6 +5034,51 @@
       "related_bugs": [],
       "occurrences": 1,
       "last_seen": "2026-08-17T10:54:28"
+    },
+    {
+      "id": "bug-626",
+      "timestamp": "2026-08-17T14:18:08",
+      "error_message": "usuario (escola): 'usei o comando /hora noite e nao consegui dormir'",
+      "file": "shared/src/session/dormir.ts, shared/src/session.ts",
+      "root_cause": "DOIS defeitos. (1) tentarDormir tinha `if (!ses.cicloAtivo) return null` — retorno SILENCIOSO. `/hora` nunca liga o ciclo (so `/ciclo` faz isso) e o .ljw de aula nasce com `/ciclo desligar`, entao o clique na cama respondia so 'Ponto de nascimento definido nesta cama.' e mais nada. Reproduzido contra cenarios/aula1-sequencia.ljw: cicloAtivo=false, /hora noite -> hora=21 ciclo=false, clique -> dormindo=false sem explicacao. (2) O gate estava conceitualmente errado: cicloAtivo diz se o tempo anda SOZINHO; dormir e acao explicita. Com o ciclo parado o mundo fica travado no meio-dia, entao dormir so pode disparar se alguem ja escolheu a noite de proposito. (3) Descoberto no conserto: a regra era maioria ESTRITA (dormem*2 > online), o que numa DUPLA exigiria os dois — a regra 'todos' disfarcada.",
+      "fix": "Removido o gate do cicloAtivo. O tick passou a avancar a hora quando `cicloAtivo || pulandoNoite`, entao a noite passa mesmo com o ciclo parado e a hora volta a congelar depois de amanhecer. Regra virou METADE OU MAIS (dormem*2 >= online). E o motivo de nao ter dormido passou a ir na MESMA frase do spawn ('Ponto de nascimento definido nesta cama. So da para dormir a noite.') — em mensagem separada, todo clique de DIA terminava numa reclamacao, e os 2 testes antigos de cama-spawn caiam porque olham a ultima fala.",
+      "tags": [
+        "dormir",
+        "cama",
+        "ciclo",
+        "silencio",
+        "escola",
+        "playtest",
+        "maioria"
+      ],
+      "related_bugs": [
+        "bug-627"
+      ],
+      "occurrences": 1,
+      "last_seen": "2026-08-17T14:18:08"
+    },
+    {
+      "id": "bug-627",
+      "timestamp": "2026-08-17T14:18:08",
+      "error_message": "usuario (escola): 'o player deita (fora da cama, precisa subir o modelo um bloco pra cima) mas a tela fica flicando, a animacao nao esta funcionando corretamente'",
+      "file": "client/src/main.ts, client/src/remotePlayers.ts, shared/src/protocol.ts",
+      "root_cause": "DOIS defeitos de cliente. (1) FLICKER: o laco de render faz `camera.position.set(pose do jogador)` e `camera.rotation.set(...)` TODO FRAME, e eu interpolava a camera DEPOIS disso. O lerp nunca converge — cada frame recomeca na pose em pe e anda so uma fracao fixa. Simulado: o valor estaciona em 4.7623 para sempre (13% do caminho) em vez de chegar a 5.9, deixando a camera encravada na geometria da cama e tremendo junto com a posicao do jogador. (2) CORPO FORA DA CAMA: o `player_moved` leva `x/y/z` = os PES do jogador, e o servidor NAO move quem dorme (so o cliente leva a camera) — entao o boneco deitava no chao ao lado da cama.",
+      "fix": "(1) Interpolar o PROGRESSO (`dormirT`, campo que persiste entre frames) em vez da camera; a pose vira lerp(pose em pe, cama, t), que converge e e estavel. `ultimaCama` guarda o destino durante a animacao de levantar, senao o alvo sumiria no frame do acordar e a camera saltaria. (2) `player_moved` ganhou `cama?: {x,y,z}` (enviado so quando dormindo) e o corpo remoto passou a ser posicionado em `cama.x+0.5, cama.y+1+PLAYER.width/2, cama.z+0.5`.",
+      "tags": [
+        "dormir",
+        "cliente",
+        "camera",
+        "animacao",
+        "flicker",
+        "protocolo",
+        "playtest",
+        "escola"
+      ],
+      "related_bugs": [
+        "bug-626"
+      ],
+      "occurrences": 1,
+      "last_seen": "2026-08-17T14:18:08"
     }
   ]
 }
