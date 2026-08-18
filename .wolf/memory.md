@@ -2487,3 +2487,4 @@ segue com `relatorio-aplicacao.md` e `apresentacao-cre.html`, ambos rastreados.
 |------|--------|---------|---------|--------|
 | 08:28 | ideia anotada: mundo de terreno real via DEM (pesquisa: Google Earth ToS barra, usar AWS Terrain Tiles/Copernicus) | .wolf/ROADMAP.md | seção BACKLOG nova, costura = heightAt() | ~9k |
 | 08:33 | preferencia registrada: commit direto na main, sem branch | .wolf/cerebrum.md | User Preferences + memoria global | ~1k |
+| 08:38 | STATUS.md: handoff da sessao 77 no topo + ponteiro na secao de ideias | .wolf/STATUS.md | atualizado, terreno real fica em BACKLOG | ~2k |

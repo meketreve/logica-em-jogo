@@ -2,6 +2,42 @@
 
 > Single source of truth for resuming work. Read this FIRST when starting a session.
 
+> ## 🧭 HANDOFF — ESTADO AO FIM DA SESSÃO 77 (2026-08-18)
+>
+> **Sessão CURTA e só de documento — nenhuma linha de código do jogo foi tocada.** Por isso
+> não rodou bateria: não havia o que quebrar. `main` empurrada (`3c4e572`, `16b3089`).
+>
+> ### ✅ Entregue
+> - **Ideia nova anotada e pesquisada: MUNDO DE TERRENO REAL (relevo de área real).** Seção
+>   nova no fim do `.wolf/ROADMAP.md`, com fontes de dado, contas de escala e decisões
+>   pendentes. **Não foi implementado nada** — ele pediu para anotar e pesquisar.
+> - **Regra de trabalho fixada:** *"pode commitar direto na main, sem branch"*. Vale pra doc
+>   e pra código; `push` continua só a pedido. Registrada em `cerebrum.md` (User Preferences).
+>
+> ### O que a pesquisa fechou (o resumo que evita refazê-la)
+> - ⚠️ **Google Earth está FORA.** Os Termos Adicionais do Maps/Earth proíbem literalmente
+>   *"usar ferramentas de terceiros pra capturar a saída do Google Earth pra reconstruir
+>   modelos 3D"* — é exatamente o truque do RenderDoc. E o dado dele é fotogrametria de
+>   SUPERFÍCIE (prédio e árvore embutidos), não terreno nu: seria pior mesmo se fosse legal.
+> - **A fonte certa é DEM aberto:** AWS Terrain Tiles (formato Terrarium, sem chave, sem
+>   custo) pro protótipo; Copernicus GLO-30 (RMSE ~4 m contra 10-16 m do SRTM) pra entrega;
+>   TOPODATA/INPE a checar no recorte Brasil. Decodificação: `(R*256 + G + B/256) - 32768`.
+> - **A costura no motor é UMA função:** `heightAt()` (`shared/src/worldgen.ts:277`) é o único
+>   ponto que decide a altura da coluna — preset `"real"` troca a fonte do `h` e nada mais.
+> - **O gargalo é a ESCALA, não o dado:** mundo G tem 256×256 blocos e **128 de altura**; a
+>   Serra do Mar tem ~1000 m de desnível. Precisa de escala vertical explícita, separada da
+>   horizontal.
+> - **A escola não tem internet**, então o download é fase de BUILD: heightmaps pré-cozidos
+>   no repo (128 KB cada). Mundo P/M/G é denso e grava blocos no save — só o tamanho **E**
+>   (lazy/streaming) quebraria, porque lá a coluna nasce sob demanda nos dois lados.
+> - **Arte anterior que vale ler antes de codar:** Arnis (Rust, open source) faz OSM + AWS
+>   Terrain Tiles → mundo Minecraft. Mesmo desenho de pipeline.
+>
+> ### 🚀 Próximo
+> **A fila NÃO mudou** — segue o bloco `## 🚀 Próxima fase` mais abaixo neste arquivo. O
+> terreno real é BACKLOG (`ROADMAP.md`), não quest ativa: só entra quando ele pegar o item e
+> travar as decisões pendentes (escala horizontal/vertical, fonte final, formato do asset).
+
 > ## 🧭 HANDOFF — ESTADO AO FIM DA SESSÃO 76 (2026-08-17)
 >
 > **Sessão longa, tudo commitado e empurrado.** O topo do `main` anda a cada commit de
@@ -1686,6 +1722,11 @@ Na conversa de stack ele disse que a performance está aceitável, e sugeriu ele
 o update de água pra 64 por tick** (hoje `LJ_AGUA_TICK` / `aguaPorTick`) **ou fazer sistema de
 budget igual ao do render pra update de vizinhos**. Não foi tocado — é otimização sem sintoma
 medido, e a régua do projeto é medir na máquina que dói antes de mexer.
+
+**Sessão 77 (2026-08-18) — MUNDO DE TERRENO REAL.** Ele pediu para anotar e pesquisar
+"importar o relevo de uma área real". Virou seção própria no `ROADMAP.md` (fontes de DEM,
+Google Earth barrado por ToS, `heightAt()` como costura, contas de escala). **Anotado, não
+implementado** — as decisões de escala e fonte continuam abertas.
 
 > **SESSÃO 48 (2026-08-06) — A BATERIA DE 11 PEDIDOS, E DEPOIS A PERGUNTA GRANDE DE STACK.**
 > O usuário mandou tudo num parágrafo só, misturando bug, regra de jogo e ideia de backlog — e
