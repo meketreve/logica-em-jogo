@@ -2480,3 +2480,9 @@ proteger a célula-molde, Ferramentas v2, mobs. Nenhuma pendência externa.
 15:49) foi **APAGADO a pedido do usuário** no fecho desta sessão. Nunca esteve em commit
 nenhum, então não há como recuperar — se voltar a ser preciso, é refazer. `relatorio/`
 segue com `relatorio-aplicacao.md` e `apresentacao-cre.html`, ambos rastreados.
+
+## Session: 2026-08-18 08:24
+
+| Time | Action | File(s) | Outcome | ~Tokens |
+|------|--------|---------|---------|--------|
+| 08:28 | ideia anotada: mundo de terreno real via DEM (pesquisa: Google Earth ToS barra, usar AWS Terrain Tiles/Copernicus) | .wolf/ROADMAP.md | seção BACKLOG nova, costura = heightAt() | ~9k |

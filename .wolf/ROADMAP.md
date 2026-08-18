@@ -1421,3 +1421,118 @@ web + empacotar host depois — ver Decision Log); água/outros blocos.
 - **Relevo:** teste de fronteira sem degrau maior que N blocos entre colunas adjacentes ·
   `topoPrevisto` continua a fonte única · perfil do lab comparado com a régua
   (`…-l9xf.json`) — relevo mais alto = mais coluna materializada = mais malha.
+
+---
+
+## 🗺️ BACKLOG — MUNDO DE TERRENO REAL (relevo de área real, DEM) — ideia anotada 2026-08-18
+
+**Ideia do usuário:** importar imagens do Google Earth, extrair a topografia e gerar
+mapas com o relevo de áreas determinadas de terreno real.
+
+### ⚠️ Veredito da pesquisa: Google Earth NÃO serve como fonte
+
+Os Termos Adicionais do Google Maps/Earth proíbem explicitamente *"usar a saída, ou usar
+ferramentas de terceiros pra capturar a saída, do Google Earth / Earth Pro / Earth Studio
+pra reconstruir modelos 3D ou criar conteúdo similar"*. O truque conhecido (capturar a
+malha com RenderDoc) é exatamente o que a cláusula fecha. Além do lado legal, é caminho
+ruim tecnicamente: a malha do Earth é fotogrametria com prédio/árvore embutidos (superfície,
+não terreno nu) e vem sem georreferência limpa.
+
+**O dado que a gente quer é aberto, gratuito e melhor pro caso:** DEM (Digital Elevation
+Model) — uma grade de altitude em metros. Todo o resto da ideia continua de pé.
+
+### Fontes de DEM (todas livres, com atribuição)
+
+| Fonte | Resolução | Acesso | Nota |
+|---|---|---|---|
+| **AWS Terrain Tiles** (`elevation-tiles-prod`) | tiles XYZ até z15 | HTTP direto, **sem chave, sem custo** | Melhor pra protótipo. Mosaico global (SRTM+3DEP+outros). É o que o Arnis usa. |
+| **Copernicus DEM GLO-30** | 30 m | Copernicus Data Space / OpenTopography | DEM global livre mais preciso hoje (RMSE ~4 m, vs ~10-16 m do SRTM). Melhor pra entrega final. |
+| SRTM / NASADEM | 30 m | USGS / OpenTopography | Clássico, pior verticalmente. |
+| ALOS AW3D30 | 30 m | JAXA | Vai um pouco melhor que Copernicus em terreno íngreme. |
+| USGS 3DEP | 1 m (lidar) | só EUA | Não serve pro Brasil. |
+| TOPODATA (INPE) / INDE | 30 m | INPE | Refinamento brasileiro do SRTM — checar antes de escolher, é o recorte nacional. |
+
+**Cobertura de solo (pra escolher o BLOCO, não a altura):** ESA WorldCover 10 m
+(CC BY 4.0) → floresta/campo/água/urbano/areia. OpenStreetMap → água, estrada, prédio.
+
+### Como o dado vira altura (formato Terrarium)
+
+Tile PNG RGB em `https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png`
+(também tem `/geotiff/{z}/{x}/{y}.tif`). Decodifica pixel a pixel:
+
+```
+metros = (R * 256 + G + B / 256) - 32768
+```
+
+Offset de 32768 pra não precisar de negativo; B é a parte fracionária.
+
+Resolução por zoom (Web Mercator): `156543 / 2^z * cos(lat)` m/px.
+No Brasil (lat ~-23, cos ~0,92): z12 ≈ 35 m/px, z13 ≈ 17,6, z14 ≈ 8,8, z15 ≈ 4,4.
+⚠️ Acima de z13 o tile é **interpolado** — o dado bruto por baixo continua sendo 30 m,
+salvo onde existe lidar (não é o caso do Brasil). Pedir z15 não inventa detalhe.
+
+### A conta que decide tudo: escala
+
+Mundo denso G = `MAX_WORLD_CHUNKS` = **256×256 blocos em XZ, 128 de altura**
+(`shared/src/constants.ts`, `TAMANHO_CHUNKS` em `shared/src/worldgen.ts:41`).
+
+- 1 bloco = 1 célula de DEM 30 m → G cobre **7,7 km × 7,7 km**. Cabe uma serra inteira,
+  mas o jogador anda 30 m por bloco (escala de maquete, não de caminhada).
+- 1 bloco = 1 m (escala Minecraft honesta) → G cobre **256 m × 256 m** e o DEM de 30 m
+  vira papa borrada (1 célula real a cada 30 blocos). Só faz sentido com lidar, que o
+  Brasil não tem de graça.
+- **Meio-termo provável: 1 bloco ≈ 5-10 m**, reamostrando o DEM com bilinear. G = 1,3-2,6 km.
+- **Vertical é o gargalo real:** 128 blocos de altura. Serra do Mar tem ~1000 m de
+  desnível. Precisa normalizar: `y = base + (elev - elevMin) * escalaV`, com escalaV
+  independente da horizontal (exagero/compressão vertical explícito, não acidental).
+  Nível do mar vira uma constante do preset.
+
+### Onde encaixa no motor (a costura já existe — é boa notícia)
+
+`heightAt(x, z, seed, sizeY, clima)` em `shared/src/worldgen.ts:277` é o **único** ponto
+que decide a altura da coluna; `gerarColunaDeChunks` chama ele em 4 lugares e o resto
+(caverna, bioma, grama, árvore) pendura em cima do `h`. Terreno real = trocar a fonte
+do `h` por uma consulta a heightmap, sem tocar em mais nada.
+
+Plano mínimo:
+1. Preset novo `"real"` ao lado de `normal | plano | cabines` (`WorldPreset`, worldgen.ts:30).
+2. Heightmap como asset: `Uint16Array` de 256×256 = **128 KB** por mapa. Cabe no repo.
+3. Pipeline **offline** (script, não runtime): lat/lon + raio → baixa tiles → decodifica →
+   reamostra → normaliza vertical → grava `.ljh` (ou PNG 16-bit) em `assets/relevo/`.
+   Ferramenta: `gdalwarp`/`rasterio` ou só `sharp` + a fórmula acima.
+4. Bioma/bloco: v1 usa o `climaAt` que já existe (relevo real + bioma sintético);
+   v2 pluga WorldCover pra grama/areia/pedra/água baterem com o real.
+
+**Restrição da escola: sem internet na aula.** Logo o download é fase de *build*, não de
+jogo — mapas pré-cozidos versionados (ex.: serra local, morro da cidade, Pão de Açúcar).
+Mundo P/M/G é denso e já grava os blocos no save, então cliente e servidor não precisam
+compartilhar o heightmap em runtime. **Só o tamanho E (lazy/streaming) quebraria** — lá a
+coluna nasce sob demanda nos dois lados e o heightmap teria que viajar no header.
+
+**Valor pedagógico:** aula de geografia dentro do jogo — "esse é o morro que dá pra ver da
+janela", curva de nível, bacia hidrográfica, por que a cidade cresceu no vale.
+
+### Arte anterior (confirma que o caminho funciona)
+
+**Arnis** (Rust, open source, ~300k usuários): lê OSM + AWS Terrain Tiles, converte altura
+em Y do Minecraft e cospe mundo jogável. Migrou pro Terrain Tiles justamente pra zerar
+custo de dado. Vale ler antes de codar — o pipeline deles é o mesmo desenho.
+
+### Decisões pendentes (quando pegar o item)
+
+- Escala horizontal (m por bloco) e vertical (exagero) — travar como parâmetro do preset.
+- Formato do asset de heightmap (`.ljh` próprio vs PNG 16-bit).
+- Fonte final: AWS Terrain Tiles (fácil) vs Copernicus GLO-30 (preciso) vs TOPODATA (Brasil).
+- Água: preencher tudo abaixo do nível do mar do preset, ou só onde OSM/WorldCover disser?
+- Lista de lugares do primeiro lote de mapas.
+
+### Fontes da pesquisa (2026-08-18)
+
+- [Terrain Tiles — Registry of Open Data on AWS](https://registry.opendata.aws/terrain-tiles/)
+- [AWS Public Sector Blog — como o Arnis usa elevação em escala](https://aws.amazon.com/blogs/publicsector/building-realistic-minecraft-worlds-with-open-data-on-aws-how-arnis-uses-elevation-datasets-at-scale/)
+- [Mapzen — Terrain Tile Service (formato Terrarium)](https://www.mapzen.com/blog/terrain-tile-service/)
+- [Copernicus DEM — Copernicus Data Space Ecosystem](https://dataspace.copernicus.eu/explore-data/data-collections/copernicus-contributing-missions/collections-description/COP-DEM)
+- [OpenTopography — Copernicus Global DEM](https://portal.opentopography.org/datasetMetadata?otCollectionID=OT.032021.4326.1)
+- [Acurácia vertical de DEMs livres (FABDEM, Copernicus, NASADEM, AW3D30, SRTM)](https://www.tandfonline.com/doi/full/10.1080/17538947.2024.2308734)
+- [Google Maps/Earth Additional Terms of Service](https://www.google.com/help/terms_maps_no_navigation.html)
+- [Arnis — projeto](https://arnis.io/)
