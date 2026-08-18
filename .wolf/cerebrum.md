@@ -111,6 +111,10 @@
   *"conseguiram fazer craft, plantar e comer"*). Ele não pediu número nenhum diferente — pediu
   o que FALTAVA (todas as receitas). Quando o playtest passa, a pergunta certa é "o que a turma
   não conseguiu alcançar?", não "que constante eu mexo?".
+- **Commit vai DIRETO na `main`, sem branch** (2026-08-18, confirmado explicitamente:
+  *"pode commitar direto na main, sem branch"*). Vale pra doc e pra código — o histórico
+  do repo sempre foi assim. Não abrir branch nem PR por conta própria; não empurrar `push`
+  sem ele pedir.
 
 ## Key Learnings
 
