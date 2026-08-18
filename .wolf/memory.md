@@ -2476,5 +2476,7 @@ cenarios 7/7.
 inventário, painel de comandos mobile ao lado, /invisivel, sentar na cadeira, teto de 35 grupos,
 proteger a célula-molde, Ferramentas v2, mobs. Nenhuma pendência externa.
 
-⚠️ `relatorio/oficio-sed.md` está SEM RASTREAR — veio de outra sessão (15:49), não desta.
-Decisão do usuário se entra no git.
+⚠️ `relatorio/oficio-sed.md` (rascunho de ofício à SED, 110 linhas, criado na sessão das
+15:49) foi **APAGADO a pedido do usuário** no fecho desta sessão. Nunca esteve em commit
+nenhum, então não há como recuperar — se voltar a ser preciso, é refazer. `relatorio/`
+segue com `relatorio-aplicacao.md` e `apresentacao-cre.html`, ambos rastreados.

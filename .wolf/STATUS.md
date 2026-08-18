@@ -4,7 +4,9 @@
 
 > ## 🧭 HANDOFF — ESTADO AO FIM DA SESSÃO 76 (2026-08-17)
 >
-> **Sessão longa, tudo commitado e empurrado. `origin/main` = `6e6be51`.**
+> **Sessão longa, tudo commitado e empurrado.** O topo do `main` anda a cada commit de
+> documentação — confira com `git rev-parse --short origin/main` em vez de confiar num sha
+> escrito aqui (era `693a5fb` no fecho).
 > Ordem do usuário: halo do sol → item 4 (cópias ao vivo) → cerca → item 1 (dormir).
 >
 > ### ✅ Entregue e VALIDADO NA ESCOLA
