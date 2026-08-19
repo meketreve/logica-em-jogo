@@ -165,9 +165,9 @@ describe("§🍖 F10c — os drops (achar, plantar, colher)", () => {
   });
 });
 
-describe("§🍖 F10c — a lã honesta", () => {
-  it("a lã branca sai de 3 ALGODÃO, e nenhuma receita cobra trigo pra vestir", () => {
-    const la = RECEITAS.find((r) => r.saida.id === BlockId.WoolWhite && receitaAtiva(r));
+describe("§🍖 F10c — a fibra honesta", () => {
+  it("o bloco de algodão branco sai de 3 ALGODÃO, e nenhuma receita cobra trigo pra vestir", () => {
+    const la = RECEITAS.find((r) => r.saida.id === BlockId.BlocoAlgodaoBranco && receitaAtiva(r));
     expect(la?.custo).toEqual([{ id: ITEM_ALGODAO, qtd: 3 }]);
     // o trigo volta a ser SÓ comida: a única receita que o cobra é o pão
     const comTrigo = RECEITAS.filter(
@@ -177,31 +177,31 @@ describe("§🍖 F10c — a lã honesta", () => {
     expect(comTrigo[0]!.saida.id).toBe(904); // ITEM_PAO
   });
 
-  it("as 11 lãs coloridas saem da FIBRA + corante (2026-08-10: sem a etapa da branca)", () => {
+  it("os 11 blocos de algodão coloridos saem da FIBRA + corante (2026-08-10: sem a etapa do branco)", () => {
     for (let i = 1; i < 12; i++) {
       const cor = [
-        BlockId.WoolBlack, BlockId.WoolRed, BlockId.WoolOrange, BlockId.WoolYellow,
-        BlockId.WoolGreen, BlockId.WoolBlue, BlockId.WoolPurple, BlockId.WoolPink,
-        BlockId.WoolCyan, BlockId.WoolGray, BlockId.WoolBrown,
+        BlockId.BlocoAlgodaoPreto, BlockId.BlocoAlgodaoVermelho, BlockId.BlocoAlgodaoLaranja, BlockId.BlocoAlgodaoAmarelo,
+        BlockId.BlocoAlgodaoVerde, BlockId.BlocoAlgodaoAzul, BlockId.BlocoAlgodaoRoxo, BlockId.BlocoAlgodaoRosa,
+        BlockId.BlocoAlgodaoCiano, BlockId.BlocoAlgodaoCinza, BlockId.BlocoAlgodaoMarrom,
       ][i - 1]!;
       const r = RECEITAS.find((x) => x.saida.id === cor && receitaAtiva(x));
       // mesma fibra da branca (3 algodão) + a tintura daquela cor
-      expect(r?.custo[0], `lã ${cor}`).toEqual({ id: ITEM_ALGODAO, qtd: 3 });
-      expect(r?.custo.length, `lã ${cor}`).toBeGreaterThan(1);
+      expect(r?.custo[0], `bloco de algodão ${cor}`).toEqual({ id: ITEM_ALGODAO, qtd: 3 });
+      expect(r?.custo.length, `bloco de algodão ${cor}`).toBeGreaterThan(1);
     }
   });
 
   /**
    * 2026-08-10 (playtest) — o pedido foi "revisa todos os crafts, alguns ainda
-   * usam lã ao invés de algodão". Este é o teste-portão: a lã virou destino, e
-   * nenhuma receita ATIVA pode voltar a cobrá-la como matéria-prima.
+   * usam lã ao invés de algodão". Este é o teste-portão: o BLOCO virou destino, e
+   * nenhuma receita ATIVA pode voltar a cobrá-lo como matéria-prima.
    */
-  it("nenhuma receita ativa cobra LÃ: a fibra do jogo é o algodão", () => {
+  it("nenhuma receita ativa cobra o BLOCO de algodão: a matéria-prima é a fibra", () => {
     // os 12 ids NÃO são contíguos (11–18 e 23–26): a lista é explícita
     const LAS_IDS = new Set<number>([
-      BlockId.WoolWhite, BlockId.WoolBlack, BlockId.WoolRed, BlockId.WoolOrange,
-      BlockId.WoolYellow, BlockId.WoolGreen, BlockId.WoolBlue, BlockId.WoolPurple,
-      BlockId.WoolPink, BlockId.WoolCyan, BlockId.WoolGray, BlockId.WoolBrown,
+      BlockId.BlocoAlgodaoBranco, BlockId.BlocoAlgodaoPreto, BlockId.BlocoAlgodaoVermelho, BlockId.BlocoAlgodaoLaranja,
+      BlockId.BlocoAlgodaoAmarelo, BlockId.BlocoAlgodaoVerde, BlockId.BlocoAlgodaoAzul, BlockId.BlocoAlgodaoRoxo,
+      BlockId.BlocoAlgodaoRosa, BlockId.BlocoAlgodaoCiano, BlockId.BlocoAlgodaoCinza, BlockId.BlocoAlgodaoMarrom,
     ]);
     const comLa = RECEITAS.filter(
       (r) => receitaAtiva(r) && r.custo.some((c) => LAS_IDS.has(c.id)),

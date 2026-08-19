@@ -17,29 +17,36 @@ export const BlockId = {
   Gravel: 9,
   /** Indestrutível pra jogador (professor delimita arena); /bloco passa por cima. */
   Bedrock: 10,
-  // 8 lãs coloridas — base da pedagogia de "sequência de blocos coloridos".
-  WoolWhite: 11,
-  WoolBlack: 12,
-  WoolRed: 13,
-  WoolOrange: 14,
-  WoolYellow: 15,
-  WoolGreen: 16,
-  WoolBlue: 17,
-  WoolPurple: 18,
-  // cp17 (2026-07-13): 2º lote de cubos opacos + 4 lãs (sequências mais ricas).
+  // 8 blocos de algodão coloridos — base da pedagogia de "sequência de blocos
+  // coloridos". 2026-08-19: chamavam-se `Wool*`/"lã", mas a fibra é o ALGODÃO
+  // (§🍖 F10c) e não há ovelha — algodão não vira lã. O NÚMERO não mudou (11..18,
+  // 23..26), só a chave e o nome exibido, então save, fio e `.ljw` seguem lendo
+  // o mesmo bloco. ⚠️ O nome "lã" fica RESERVADO: quando a ovelha entrar, a lã é
+  // outro item, com receita própria e ids NOVOS (append) — nunca estes.
+  BlocoAlgodaoBranco: 11,
+  BlocoAlgodaoPreto: 12,
+  BlocoAlgodaoVermelho: 13,
+  BlocoAlgodaoLaranja: 14,
+  BlocoAlgodaoAmarelo: 15,
+  BlocoAlgodaoVerde: 16,
+  BlocoAlgodaoAzul: 17,
+  BlocoAlgodaoRoxo: 18,
+  // cp17 (2026-07-13): 2º lote de cubos opacos + 4 blocos de algodão (sequências
+  // mais ricas).
   Sandstone: 19,
   StoneBricks: 20,
   Snow: 21,
   Obsidian: 22,
-  WoolPink: 23,
-  WoolCyan: 24,
-  WoolGray: 25,
-  WoolBrown: 26,
+  BlocoAlgodaoRosa: 23,
+  BlocoAlgodaoCiano: 24,
+  BlocoAlgodaoCinza: 25,
+  BlocoAlgodaoMarrom: 26,
   // cp18 (2026-07-13): grupo B — transparentes (cutout/alphaTest no cliente).
   Glass: 27,
   Leaves: 28,
   // cp20 (2026-07-16): blocos-glifo — letras A–Z e dígitos 0–9. Cubos opacos
-  // (mesmo caminho das lãs); pedagogia de soletrar palavras / escrever números.
+  // (mesmo caminho dos blocos de algodão); pedagogia de soletrar palavras /
+  // escrever números.
   // APPEND only: A=29 … Z=54, 0=55 … 9=64. LetterA e Digit0 são as âncoras dos
   // loops que derivam tiles/nomes (ver GLYPH em mesher.ts).
   LetterA: 29, LetterB: 30, LetterC: 31, LetterD: 32, LetterE: 33, LetterF: 34,
@@ -63,8 +70,9 @@ export const BlockId = {
   /** Decorativa (sem luz voxel — decisão 2026-07-17): brilha por textura +
    *  halo no cliente. Precisa de cubo cheio embaixo; sem suporte, some. */
   Tocha: 70,
-  // Tapetes (backlog 2026-07-19): lã FINA no chão (1/16 da célula), decorativo.
-  // Mesmas 12 cores das lãs (tile reusado — zero pintura nova); atravessável
+  // Tapetes (backlog 2026-07-19): pano FINO no chão (1/16 da célula), decorativo.
+  // Mesmas 12 cores dos blocos de algodão (tile reusado — zero pintura nova);
+  // atravessável
   // (colisão desprezível, estilo Minecraft) e precisa de cubo cheio embaixo
   // (mesma regra da tocha). Ordem = âncora TapeteBranco + offset (loops).
   TapeteBranco: 71, TapetePreto: 72, TapeteVermelho: 73, TapeteLaranja: 74,
@@ -154,7 +162,8 @@ export const BlockId = {
   AguaFluida5: 134,
   AguaFluida6: 135,
   AguaFluida7: 136,
-  /** Vidro colorido (2026-07-25): 12 cores (mesma paleta das lãs). Cubo CHEIO
+  /** Vidro colorido (2026-07-25): 12 cores (mesma paleta dos blocos de algodão).
+   *  Cubo CHEIO
    *  transparente (cutout tingido no atlas — dither, sem material novo); funde
    *  com vidro do MESMO id no mesher e mostra a face contra vidro de outra cor. */
   VidroBranco: 137, VidroPreto: 138, VidroVermelho: 139, VidroLaranja: 140,
@@ -231,8 +240,10 @@ export const BlockId = {
    * aposenta a lã-de-trigo. O lite não tem ovelha, e por isso a sessão 45
    * inventou "lã ← trigo" — o que criou uma competição errada (o mesmo trigo
    * fazia pão e cobertor) e deixou a comida disputando com a construção.
-   * Agora a lã tem planta própria, com a MESMA cadeia que o trigo já ensina
+   * Agora a FIBRA tem planta própria, com a MESMA cadeia que o trigo já ensina
    * (achar → plantar → esperar → colher), e o trigo volta a ser só comida.
+   * (2026-08-19: o bloco que ela faz deixou de se chamar "lã" — é `BlocoAlgodao*`,
+   * porque algodão não vira lã e a lã de verdade chega com a ovelha.)
    *
    * Quatro estágios em ids consecutivos, molde exato da plantação do F6: só o
    * 0 é colocável (é ele que vai à mochila, como semente), os outros nascem
@@ -394,8 +405,8 @@ export const ITEM_CARVAO_VEGETAL = 908;
 export const ITEM_LINGOTE_FERRO = 909;
 export const ITEM_LINGOTE_OURO = 910;
 
-/** §🍖 F10c: o capulho colhido do algodão maduro. É a fibra — 3 dele viram uma
- *  lã branca, e é ele que devolve o trigo ao papel de comida. */
+/** §🍖 F10c: o capulho colhido do algodão maduro. É a fibra — 3 dele viram um
+ *  bloco de algodão branco, e é ele que devolve o trigo ao papel de comida. */
 export const ITEM_ALGODAO = 911;
 
 /**

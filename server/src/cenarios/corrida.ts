@@ -58,12 +58,12 @@ const VOLTA_DZ = 18;
 const {
   Sandstone: PISTA,
   StoneBricks: PAREDE,
-  WoolWhite: BRANCO,
-  WoolBlack: PRETO,
-  WoolGreen: POSTO,
-  WoolRed: OBSTACULO,
-  WoolBlue: MURO,
-  WoolYellow: PODIO,
+  BlocoAlgodaoBranco: BRANCO,
+  BlocoAlgodaoPreto: PRETO,
+  BlocoAlgodaoVerde: POSTO,
+  BlocoAlgodaoVermelho: OBSTACULO,
+  BlocoAlgodaoAzul: MURO,
+  BlocoAlgodaoAmarelo: PODIO,
   Planks: PONTE,
   Dirt: FUNDO,
 } = BlockId;

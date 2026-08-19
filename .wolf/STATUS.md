@@ -2,6 +2,59 @@
 
 > Single source of truth for resuming work. Read this FIRST when starting a session.
 
+> ## 🧭 HANDOFF — ESTADO AO FIM DA SESSÃO 78 (2026-08-19)
+>
+> **Item 1 da fila FECHADO: o vocabulário "lã" saiu do jogo.** Bateria completa verde. Commitado
+> direto na `main` (sem branch, como ele pediu na 77); **push só a pedido — ainda NÃO empurrado.**
+>
+> ### ⚠️ A varredura inverteu a premissa do item
+> O pedido era "varrer receita atrás de lã que devia ser algodão". **Nenhuma receita cobrava lã.**
+> Isso já fora resolvido no **bug-611 (2026-08-10)**: as 26 receitas passaram a cobrar
+> `ITEM_ALGODAO` e o teste-portão de `algodao.test.ts` prova. O resíduo era **só vocabulário** —
+> 12 blocos chamados "lã" num jogo sem ovelha, e algodão não vira lã.
+>
+> ### ✅ Entregue
+> - **`"lã <cor>"` → `"bloco de algodão <cor>"`** nos 12 blocos. `client/src/blocksUi.ts:62-77` é
+>   fonte ÚNICA dos nomes exibidos (`hotbarUi.nameOf`, `tooltip`, `panels`, mochila leem de lá).
+> - **`BlockId.WoolXxx` → `BlocoAlgodaoXxx`**, `TILE.woolXxx` → `blocoAlgodaoXxx`, `Cor.la` →
+>   `Cor.blocoAlgodao`, `FIBRA_POR_LA` → `FIBRA_POR_BLOCO`, `LAS` → `BLOCOS_ALGODAO`.
+>   **Os NÚMEROS não mudaram** (11–18, 23–26). 17 arquivos `.ts`.
+> - Textos do professor/aluno: `SEM_RECEITA` do algodão selvagem, entrada v0.9.0 do
+>   `changelog.ts`, `cenarios/README.md` (aulas 1 e 5) e ~30 comentários.
+> - **Reserva registrada em `blocks.ts:20-26`**: o nome "lã" fica pra ovelha, com **ids NOVOS
+>   (append)** — nunca estes.
+>
+> ### O que a sessão PROVOU (não repetir a dúvida)
+> - ⚠️ **`todo.md` dizia que mexer em `BlockId` "atravessa save, protocolo e `.ljw`". É FALSO.**
+>   Não existe `BlockId[nome]` nem lookup reverso no repo; save/fio/`.ljw` carregam o NÚMERO.
+>   **Prova dura:** `md5sum cenarios/*.ljw` → `npm run cenarios` → `md5sum -c` = **7/7 OK,
+>   byte-idênticos.** Use esse truque sempre que suspeitar de deslocamento de id.
+> - **"algodão \<cor\>" seco não servia:** colidia com `ITEM_ALGODAO` ("algodão"), "semente de
+>   algodão" e "algodão selvagem". O prefixo "bloco de" é o que desambigua.
+> - **Custo visual MEDIDO** (sonda headless, criativo, 1024×600): o nome ocupa **3 linhas** na
+>   célula do inventário — 88 px contra 64–76 px dos vizinhos, célula de 79 px. **Não trunca, não
+>   estoura na horizontal.** Print em `.wolf/designqc-captures/blocos-nome/inv-blocos.png`.
+> - ⚠️ **Pra fotografar o inventário de blocos o mundo tem de nascer CRIATIVO**
+>   (`menu-new-jogo='criativo'`, e **sem** `?mochila=` na URL). `/modo criativo` pelo chat NÃO
+>   basta. Sintoma de erro: `abas: ["mochila","criar"]`, `celulas: 0`.
+>
+> ✅ **Bateria:** `check:launchers` 5/5 · typecheck 3/3 · **891/891** · build ·
+> **15/15 smokes** · `npm run cenarios` 7/7 byte-idênticos.
+>
+> ### 🚀 Próximo — a fila avançou uma casa
+> 1. **Aba "todos" no inventário** — blocos por id + barra de pesquisa (`todo.md`, ideia
+>    2026-08-17). ⚠️ Decidir antes: a aba é uma `Categoria` de verdade ou um modo à parte?
+> 2. **Painel de comandos do mobile ao LADO** (ideia 2026-08-17) — a conta do teclado já está
+>    resolvida por `--kb`; o que muda é o eixo do layout.
+> 3. **`/invisivel`** para professor (ideia 2026-08-17) — ⚠️ filtragem no SERVIDOR, por cliente,
+>    senão a posição vaza no fio.
+> 4. **Ovelha + lã de verdade** (novo, 2026-08-19) — o nome está reservado e os ids são NOVOS.
+> 5. Animação de **sentar na cadeira**, teto de 35 grupos, proteger a célula-molde,
+>    Ferramentas v2, mobs.
+>
+> **Backlog:** mundo de terreno real via DEM (`.wolf/ROADMAP.md`) — só entra quando ele travar as
+> decisões pendentes (escala horizontal/vertical, fonte final, formato do asset).
+
 > ## 🧭 HANDOFF — ESTADO AO FIM DA SESSÃO 77 (2026-08-18)
 >
 > **Sessão CURTA e só de documento — nenhuma linha de código do jogo foi tocada.** Por isso

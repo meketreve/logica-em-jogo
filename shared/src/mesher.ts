@@ -64,23 +64,23 @@ export const TILE = {
   brick: 9,
   gravel: 10,
   bedrock: 11,
-  woolWhite: 12,
-  woolBlack: 13,
-  woolRed: 14,
-  woolOrange: 15,
-  woolYellow: 16,
-  woolGreen: 17,
-  woolBlue: 18,
-  woolPurple: 19,
+  blocoAlgodaoBranco: 12,
+  blocoAlgodaoPreto: 13,
+  blocoAlgodaoVermelho: 14,
+  blocoAlgodaoLaranja: 15,
+  blocoAlgodaoAmarelo: 16,
+  blocoAlgodaoVerde: 17,
+  blocoAlgodaoAzul: 18,
+  blocoAlgodaoRoxo: 19,
   // cp17
   sandstone: 20,
   stoneBricks: 21,
   snow: 22,
   obsidian: 23,
-  woolPink: 24,
-  woolCyan: 25,
-  woolGray: 26,
-  woolBrown: 27,
+  blocoAlgodaoRosa: 24,
+  blocoAlgodaoCiano: 25,
+  blocoAlgodaoCinza: 26,
+  blocoAlgodaoMarrom: 27,
   // cp18 (transparentes)
   glass: 28,
   leaves: 29,
@@ -255,22 +255,22 @@ const BLOCK_TILES: Record<number, FaceTiles> = {
   [BlockId.Brick]: uniform(TILE.brick),
   [BlockId.Gravel]: uniform(TILE.gravel),
   [BlockId.Bedrock]: uniform(TILE.bedrock),
-  [BlockId.WoolWhite]: uniform(TILE.woolWhite),
-  [BlockId.WoolBlack]: uniform(TILE.woolBlack),
-  [BlockId.WoolRed]: uniform(TILE.woolRed),
-  [BlockId.WoolOrange]: uniform(TILE.woolOrange),
-  [BlockId.WoolYellow]: uniform(TILE.woolYellow),
-  [BlockId.WoolGreen]: uniform(TILE.woolGreen),
-  [BlockId.WoolBlue]: uniform(TILE.woolBlue),
-  [BlockId.WoolPurple]: uniform(TILE.woolPurple),
+  [BlockId.BlocoAlgodaoBranco]: uniform(TILE.blocoAlgodaoBranco),
+  [BlockId.BlocoAlgodaoPreto]: uniform(TILE.blocoAlgodaoPreto),
+  [BlockId.BlocoAlgodaoVermelho]: uniform(TILE.blocoAlgodaoVermelho),
+  [BlockId.BlocoAlgodaoLaranja]: uniform(TILE.blocoAlgodaoLaranja),
+  [BlockId.BlocoAlgodaoAmarelo]: uniform(TILE.blocoAlgodaoAmarelo),
+  [BlockId.BlocoAlgodaoVerde]: uniform(TILE.blocoAlgodaoVerde),
+  [BlockId.BlocoAlgodaoAzul]: uniform(TILE.blocoAlgodaoAzul),
+  [BlockId.BlocoAlgodaoRoxo]: uniform(TILE.blocoAlgodaoRoxo),
   [BlockId.Sandstone]: uniform(TILE.sandstone),
   [BlockId.StoneBricks]: uniform(TILE.stoneBricks),
   [BlockId.Snow]: uniform(TILE.snow),
   [BlockId.Obsidian]: uniform(TILE.obsidian),
-  [BlockId.WoolPink]: uniform(TILE.woolPink),
-  [BlockId.WoolCyan]: uniform(TILE.woolCyan),
-  [BlockId.WoolGray]: uniform(TILE.woolGray),
-  [BlockId.WoolBrown]: uniform(TILE.woolBrown),
+  [BlockId.BlocoAlgodaoRosa]: uniform(TILE.blocoAlgodaoRosa),
+  [BlockId.BlocoAlgodaoCiano]: uniform(TILE.blocoAlgodaoCiano),
+  [BlockId.BlocoAlgodaoCinza]: uniform(TILE.blocoAlgodaoCinza),
+  [BlockId.BlocoAlgodaoMarrom]: uniform(TILE.blocoAlgodaoMarrom),
   [BlockId.Glass]: uniform(TILE.glass),
   [BlockId.Leaves]: uniform(TILE.leaves),
   // cp23: não-cubos NÃO passam pelo caminho de cubo do mesher (têm forma
@@ -424,12 +424,12 @@ for (let i = 0; i < GLYPH.digits.length; i++) {
   BLOCK_TILES[BlockId.Digit0 + i] = uniform(GLYPH.base + GLYPH.letters.length + i);
 }
 
-/** Tapetes (2026-07-19): tile da PRÓPRIA lã, na ordem TapeteBranco..TapeteMarrom
+/** Tapetes (2026-07-19): tile do PRÓPRIO bloco de algodão, na ordem TapeteBranco..TapeteMarrom
  *  (a forma fina vive no emitShape; estas entradas dão o ícone 2D + o tile). */
 const TAPETE_TILES: readonly number[] = [
-  TILE.woolWhite, TILE.woolBlack, TILE.woolRed, TILE.woolOrange,
-  TILE.woolYellow, TILE.woolGreen, TILE.woolBlue, TILE.woolPurple,
-  TILE.woolPink, TILE.woolCyan, TILE.woolGray, TILE.woolBrown,
+  TILE.blocoAlgodaoBranco, TILE.blocoAlgodaoPreto, TILE.blocoAlgodaoVermelho, TILE.blocoAlgodaoLaranja,
+  TILE.blocoAlgodaoAmarelo, TILE.blocoAlgodaoVerde, TILE.blocoAlgodaoAzul, TILE.blocoAlgodaoRoxo,
+  TILE.blocoAlgodaoRosa, TILE.blocoAlgodaoCiano, TILE.blocoAlgodaoCinza, TILE.blocoAlgodaoMarrom,
 ];
 for (let i = 0; i < TAPETE_TILES.length; i++) {
   BLOCK_TILES[BlockId.TapeteBranco + i] = uniform(TAPETE_TILES[i]!);
@@ -1186,7 +1186,7 @@ export function meshVizinhanca(viz: Uint8Array, luzViz?: Uint8Array | null): Chu
                   // cabeceira: estrado + colchão + travesseiro no fundo (−x)
                   [TILE.planks, 0, 0, 0, 1, 3 * P, 1],
                   [TILE.colchao, 0, 3 * P, 1 * P, 1, 7 * P, 15 * P],
-                  [TILE.woolWhite, 1 * P, 7 * P, 3 * P, 6 * P, 9 * P, 13 * P],
+                  [TILE.blocoAlgodaoBranco, 1 * P, 7 * P, 3 * P, 6 * P, 9 * P, 13 * P],
                 ];
           for (const [tile, xa, ya, za, xb, yb, zb] of boxes) {
             const [rxa, rza, rxb, rzb] = rotXZ(xa, za, xb, zb, k);
@@ -1222,7 +1222,7 @@ export function meshVizinhanca(viz: Uint8Array, luzViz?: Uint8Array | null): Chu
           }
           return true;
         }
-        // tapete: lâmina de 1/16 cobrindo o chão da célula, tile da própria lã
+        // tapete: lâmina de 1/16 cobrindo o chão da célula, tile do próprio bloco
         if (isTapete(id)) {
           emitBox(lx, ly, lz, id, TAPETE_TILES[id - BlockId.TapeteBranco]!, 0, 0, 0, 1, P, 1);
           return true;

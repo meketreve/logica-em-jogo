@@ -565,11 +565,11 @@ describe("§🧹 moverSlot com qtd — o PC divide a pilha (playtest)", () => {
   });
 
   it("destino vazio recebe a parte (e nada mais muda)", () => {
-    const antes = inv([0, BlockId.Stone, 10], [5, BlockId.WoolRed, 2]);
+    const antes = inv([0, BlockId.Stone, 10], [5, BlockId.BlocoAlgodaoVermelho, 2]);
     const depois = moverSlot(antes, 0, 25, 4);
     expect(depois[0]).toEqual({ id: BlockId.Stone, qtd: 6 });
     expect(depois[25]).toEqual({ id: BlockId.Stone, qtd: 4 });
-    expect(depois[5]).toEqual({ id: BlockId.WoolRed, qtd: 2 });
+    expect(depois[5]).toEqual({ id: BlockId.BlocoAlgodaoVermelho, qtd: 2 });
   });
 
   it("mesmo id JUNTA até o teto e devolve o resto à origem", () => {
@@ -580,9 +580,9 @@ describe("§🧹 moverSlot com qtd — o PC divide a pilha (playtest)", () => {
   });
 
   it("id diferente TROCA a parte pela pilha do destino (Minecraft)", () => {
-    const antes = inv([0, BlockId.Stone, 10], [5, BlockId.WoolRed, 2]);
+    const antes = inv([0, BlockId.Stone, 10], [5, BlockId.BlocoAlgodaoVermelho, 2]);
     const depois = moverSlot(antes, 0, 5, 4);
-    expect(depois[0]).toEqual({ id: BlockId.WoolRed, qtd: 2 });
+    expect(depois[0]).toEqual({ id: BlockId.BlocoAlgodaoVermelho, qtd: 2 });
     expect(depois[5]).toEqual({ id: BlockId.Stone, qtd: 4 });
   });
 

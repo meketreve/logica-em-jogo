@@ -57,14 +57,14 @@ describe("drops — forma canônica (o byte volta como entrada da hotbar)", () =
 
   it("bloco comum é a própria forma canônica", () => {
     expect(formaCanonica(BlockId.Stone)).toBe(BlockId.Stone);
-    expect(formaCanonica(BlockId.WoolRed)).toBe(BlockId.WoolRed);
+    expect(formaCanonica(BlockId.BlocoAlgodaoVermelho)).toBe(BlockId.BlocoAlgodaoVermelho);
   });
 });
 
 describe("drops — a tabela", () => {
   it("por PADRÃO o bloco cai ele mesmo (construir e desfazer é reversível)", () => {
     expect(dropsDe(BlockId.Cobblestone)).toEqual([{ id: BlockId.Cobblestone, qtd: 1 }]);
-    expect(dropsDe(BlockId.WoolBlue)).toEqual([{ id: BlockId.WoolBlue, qtd: 1 }]);
+    expect(dropsDe(BlockId.BlocoAlgodaoAzul)).toEqual([{ id: BlockId.BlocoAlgodaoAzul, qtd: 1 }]);
     expect(dropsDe(BlockId.Sandstone)).toEqual([{ id: BlockId.Sandstone, qtd: 1 }]);
   });
 

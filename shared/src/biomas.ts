@@ -92,10 +92,10 @@ export const BIOMAS = {
     flores: 1 / 64,
     gramaAlta: 1 / 6, // cerrado é campo aberto: capim é a cara dele
     mandacaru: 0,
-    // §🍖 F10c + F10h: campo quente e seco — o algodão (a porta da lã) e as
+    // §🍖 F10c + F10h: campo quente e seco — o algodão (a porta do tecido) e as
     // duas culturas que aguentam a seca: melancia e aipim. O algodão continua
     // o mais comum (1/40): é ele que a turma precisa achar logo pra abrir a
-    // cadeia da lã; as outras duas são descoberta.
+    // cadeia do algodão; as outras duas são descoberta.
     selvagem: {
       [BlockId.AlgodaoSelvagem]: 1 / 40,
       [BlockId.MelanciaSelvagem]: 1 / 90,

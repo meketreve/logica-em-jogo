@@ -61,10 +61,10 @@ describe("§🍖 F10d — ferramenta SEM durabilidade (a decisão do usuário)",
 });
 
 describe("§🍖 F10d — quem exige o quê", () => {
-  it("o que o aluno CONSTRÓI sai com a mão (terra, madeira, lã, vidro, areia)", () => {
+  it("o que o aluno CONSTRÓI sai com a mão (terra, madeira, bloco de algodão, vidro, areia)", () => {
     for (const id of [
       BlockId.Dirt, BlockId.Grass, BlockId.Sand, BlockId.Log, BlockId.Planks,
-      BlockId.WoolWhite, BlockId.Glass, BlockId.Leaves, BlockId.Gravel,
+      BlockId.BlocoAlgodaoBranco, BlockId.Glass, BlockId.Leaves, BlockId.Gravel,
       BlockId.LajeTabuaBaixo, BlockId.EscadaTabuaXP, BlockId.Bau, BlockId.Cerca,
     ]) {
       expect(exigenciaDe(id), `bloco ${id}`).toBeNull();

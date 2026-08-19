@@ -913,15 +913,26 @@ não tem filesystem; export de "pasta" no single fica de fora (não faz sentido 
     * Mantém o par `{id, qtd}` — NÃO cria campo novo (a decisão de durabilidade no
       §🔨 v2 é que vai mexer no Stack, não esta).
 
-* \[ ] **VARRER TODA RECEITA DE CRAFT ATRÁS DE "LÃ" QUE DEVIA SER "ALGODÃO"** (pedido do
-  usuário, 2026-08-17). Uma a uma, incluindo os casos em que a palavra aparece **só no NOME** e
-  o bloco de lã nem entra na receita. Contexto: no §🍖 F10c o algodão virou planta de verdade e
-  a lã passou a sair dele, aposentando a ponte "lã ← trigo" (`receitas.ts:151-152`) — mas o
-  vocabulário exposto ao aluno não foi revisto junto. Onde procurar: os 12 nomes `"lã <cor>"` em
-  `client/src/blocksUi.ts:62-74`, os `WoolXxx` do `BlockId`, o campo `la:` da tabela de cores
-  (`receitas.ts:186-198`), as notas de receita e os textos de `usos.ts`. **Decidir primeiro se a
-  troca é só de RÓTULO (nome exibido) ou também de identificador** — mexer em `BlockId` atravessa
-  save, protocolo e os `.ljw` de aula já gerados, então a aposta é rótulo só.
+* \[x] **VARRER TODA RECEITA DE CRAFT ATRÁS DE "LÃ" QUE DEVIA SER "ALGODÃO"** — **FEITO**
+  (2026-08-19; pedido de 2026-08-17). ⚠️ **A varredura inverteu a premissa: nenhuma receita
+  cobrava lã.** Isso já tinha sido resolvido no bug-611 (2026-08-10), quando as 26 receitas
+  passaram a cobrar `ITEM_ALGODAO` com `FIBRA_POR_BLOCO = 3`; o teste-portão em `algodao.test.ts`
+  segue provando isso. O que sobrava era **só vocabulário**: os 12 blocos ainda se chamavam "lã"
+  num jogo sem ovelha, e algodão não vira lã — o nome ensinava errado.
+  * **Renomeado rótulo E identificador** (decisão do usuário, 2026-08-19): `"lã <cor>"` →
+    **`"bloco de algodão <cor>"`**, `BlockId.WoolXxx` → **`BlocoAlgodaoXxx`**, `TILE.woolXxx` →
+    `blocoAlgodaoXxx`, `Cor.la` → `Cor.blocoAlgodao`, `FIBRA_POR_LA` → `FIBRA_POR_BLOCO`,
+    `LAS` → `BLOCOS_ALGODAO`. **Os NÚMEROS não mudaram** (11–18, 23–26).
+  * ⚠️ **A nota antiga aqui estava ERRADA**: dizia que mexer no `BlockId` "atravessa save,
+    protocolo e os `.ljw`". Não atravessa — não existe `BlockId[nome]` nem lookup reverso em
+    lugar nenhum, e save/fio/`.ljw` carregam o NÚMERO. Prova dura: regerar os 7 cenários deu
+    `.ljw` **byte-idênticos** (md5 conferido antes/depois).
+  * **Por que renomear o id também:** a ovelha entra depois, e a lã vai ser **outro** item, com
+    receita e blocos próprios (ids NOVOS, append). Deixar `Wool*` ocupado pelo algodão criaria
+    a colisão exatamente quando ela custasse caro.
+  * Tapetes e vidros já estavam certos (`tapete ${cor}` / `vidro ${cor}`, geradas em loop).
+  * Bateria: `check:launchers` 5/5 · typecheck 3/3 · **891/891** · build · **15/15 smokes** ·
+    `npm run cenarios` 7/7 byte-idênticos.
 
 * \[ ] **ABA "TODOS" NO INVENTÁRIO DO CRIATIVO: todos os blocos por ID, com BARRA DE PESQUISA**
   (ideia do usuário, 2026-08-17). Uma aba nova ao lado de blocos/vegetação/mobília/… listando

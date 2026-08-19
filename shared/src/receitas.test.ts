@@ -145,15 +145,15 @@ describe("receitas — tabela", () => {
     expect(RECEITAS.length).toBeGreaterThan(12);
   });
 
-  it("as cores: 12 lãs, 12 vidros e 12 tapetes, e cada cor sai de UMA receita só", () => {
+  it("as cores: 12 blocos de algodão, 12 vidros e 12 tapetes, e cada cor sai de UMA receita só", () => {
     const saidas = RECEITAS.map((r) => r.saida.id);
     const umaSo = (id: number) => saidas.filter((s) => s === id).length === 1;
-    for (const id of [BlockId.WoolWhite, BlockId.WoolBrown, BlockId.VidroCiano, BlockId.TapeteRosa]) {
+    for (const id of [BlockId.BlocoAlgodaoBranco, BlockId.BlocoAlgodaoMarrom, BlockId.VidroCiano, BlockId.TapeteRosa]) {
       expect(umaSo(id)).toBe(true);
     }
     // as 12 de cada família estão todas lá
-    for (let i = 0; i < 8; i++) expect(saidas).toContain(BlockId.WoolWhite + i);
-    for (let i = 0; i < 4; i++) expect(saidas).toContain(BlockId.WoolPink + i);
+    for (let i = 0; i < 8; i++) expect(saidas).toContain(BlockId.BlocoAlgodaoBranco + i);
+    for (let i = 0; i < 4; i++) expect(saidas).toContain(BlockId.BlocoAlgodaoRosa + i);
     for (let i = 0; i < 12; i++) expect(saidas).toContain(BlockId.VidroBranco + i);
     for (let i = 0; i < 12; i++) expect(saidas).toContain(BlockId.TapeteBranco + i);
   });

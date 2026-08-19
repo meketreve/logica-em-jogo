@@ -121,15 +121,15 @@ describe("grupos — composição", () => {
 });
 
 describe("grupos — carimbo e objetivos per-grupo", () => {
-  /** prof + 2 alunos em 2 grupos; modelo 2×1×1 com lã vermelha+azul. */
+  /** prof + 2 alunos em 2 grupos; modelo 2×1×1 com bloco de algodão vermelho+azul. */
   function setup(s: S): void {
     joinProf(s);
     joinAluno(s, 2);
     joinAluno(s, 3);
     s.chat(1, "/grupo criar 2");
     criarRegiao(s, 1, "modelo", [4, 4, 4], [5, 4, 4]);
-    s.chat(1, `/bloco 4 4 4 ${BlockId.WoolRed}`);
-    s.chat(1, `/bloco 5 4 4 ${BlockId.WoolBlue}`);
+    s.chat(1, `/bloco 4 4 4 ${BlockId.BlocoAlgodaoVermelho}`);
+    s.chat(1, `/bloco 5 4 4 ${BlockId.BlocoAlgodaoAzul}`);
   }
 
   it("/regiao carimbar replica blocos e cria prefixo-1..N", () => {
@@ -138,9 +138,9 @@ describe("grupos — carimbo e objetivos per-grupo", () => {
     s.chat(1, "/regiao carimbar modelo area 2 x"); // passo = 2+2 = 4
     expect(s.lastChat(1)).toContain("2 cópia(s)");
     // cópia 1 em x+4, cópia 2 em x+8 — blocos idênticos ao modelo
-    expect(getBlock(s.session.world, 8, 4, 4)).toBe(BlockId.WoolRed);
-    expect(getBlock(s.session.world, 9, 4, 4)).toBe(BlockId.WoolBlue);
-    expect(getBlock(s.session.world, 12, 4, 4)).toBe(BlockId.WoolRed);
+    expect(getBlock(s.session.world, 8, 4, 4)).toBe(BlockId.BlocoAlgodaoVermelho);
+    expect(getBlock(s.session.world, 9, 4, 4)).toBe(BlockId.BlocoAlgodaoAzul);
+    expect(getBlock(s.session.world, 12, 4, 4)).toBe(BlockId.BlocoAlgodaoVermelho);
     s.chat(1, "/regiao lista");
     expect(s.lastChat(1)).toContain("area-1");
     expect(s.lastChat(1)).toContain("area-2");
@@ -157,8 +157,8 @@ describe("grupos — carimbo e objetivos per-grupo", () => {
     expect(s.lastChat(1)).toContain("Objetivo #1");
 
     // grupo 1 (aluno2) completa a área 1
-    s.chat(1, `/bloco 10 4 10 ${BlockId.WoolRed}`);
-    s.chat(1, `/bloco 11 4 10 ${BlockId.WoolBlue}`);
+    s.chat(1, `/bloco 10 4 10 ${BlockId.BlocoAlgodaoVermelho}`);
+    s.chat(1, `/bloco 11 4 10 ${BlockId.BlocoAlgodaoAzul}`);
     s.session.tick();
     const obj = s.lastObjectives(2)?.objetivos[0] as {
       porGrupo: { grupo: number; completo: boolean; atual: number }[];
@@ -185,8 +185,8 @@ describe("grupos — carimbo e objetivos per-grupo", () => {
     expect(obj2.porGrupo[1]?.completo).toBe(false);
 
     // grupo 1 constrói → objetivo 2 ativa SÓ pro grupo 1 → chega e conclui
-    s.chat(1, `/bloco 10 4 10 ${BlockId.WoolRed}`);
-    s.chat(1, `/bloco 11 4 10 ${BlockId.WoolBlue}`);
+    s.chat(1, `/bloco 10 4 10 ${BlockId.BlocoAlgodaoVermelho}`);
+    s.chat(1, `/bloco 11 4 10 ${BlockId.BlocoAlgodaoAzul}`);
     s.session.tick();
     s.move(2, 27.5, 4, 27.5);
     obj2 = s.lastObjectives(3)?.objetivos[1] as { porGrupo: { completo: boolean }[] };
@@ -247,8 +247,8 @@ describe("grupos — carimbo e objetivos per-grupo", () => {
     criarRegiao(s, 1, "area-2", [20, 4, 20], [21, 4, 20]);
     s.chat(1, "/objetivo add construir modelo area Copie");
     // grupo 1 conclui a sua área
-    s.chat(1, `/bloco 10 4 10 ${BlockId.WoolRed}`);
-    s.chat(1, `/bloco 11 4 10 ${BlockId.WoolBlue}`);
+    s.chat(1, `/bloco 10 4 10 ${BlockId.BlocoAlgodaoVermelho}`);
+    s.chat(1, `/bloco 11 4 10 ${BlockId.BlocoAlgodaoAzul}`);
     s.session.tick();
     let obj = s.lastObjectives(2)?.objetivos[0] as { porGrupo: { completo: boolean }[] };
     expect(obj.porGrupo[0]?.completo).toBe(true);
@@ -265,15 +265,15 @@ describe("grupos — carimbo e objetivos per-grupo", () => {
 
   it("reiniciar restaura a área ao estado AUTORAL (mantém sementes, tira o resto)", () => {
     const s = makeSession();
-    setup(s); // modelo = WoolRed(4,4,4) + WoolBlue(5,4,4)
+    setup(s); // modelo = BlocoAlgodaoVermelho(4,4,4) + BlocoAlgodaoAzul(5,4,4)
     criarRegiao(s, 1, "area-1", [10, 4, 10], [11, 4, 10]);
     criarRegiao(s, 1, "area-2", [20, 4, 20], [21, 4, 20]);
     // semente: a área NÃO nasce vazia — o 1º bloco já vem dado (como na aula1)
-    s.chat(1, `/bloco 10 4 10 ${BlockId.WoolRed}`);
+    s.chat(1, `/bloco 10 4 10 ${BlockId.BlocoAlgodaoVermelho}`);
     s.chat(1, "/objetivo add construir modelo area Continue"); // baseline: [Red, ar]
 
     // grupo 1 completa colocando o 2º bloco
-    s.chat(1, `/bloco 11 4 10 ${BlockId.WoolBlue}`);
+    s.chat(1, `/bloco 11 4 10 ${BlockId.BlocoAlgodaoAzul}`);
     s.session.tick();
     let obj = s.lastObjectives(2)?.objetivos[0] as { porGrupo: { completo: boolean }[] };
     expect(obj.porGrupo[0]?.completo).toBe(true);
@@ -281,7 +281,7 @@ describe("grupos — carimbo e objetivos per-grupo", () => {
     s.chat(1, "/objetivo resetar");
     s.session.tick();
     // a semente FICA, o bloco do aluno SAI — 4/12 na vida real, aqui 1/2
-    expect(getBlock(s.session.world, 10, 4, 10)).toBe(BlockId.WoolRed);
+    expect(getBlock(s.session.world, 10, 4, 10)).toBe(BlockId.BlocoAlgodaoVermelho);
     expect(getBlock(s.session.world, 11, 4, 10)).toBe(BlockId.Air);
     obj = s.lastObjectives(2)?.objetivos[0] as { porGrupo: { completo: boolean; atual: number }[] };
     expect(obj.porGrupo[0]).toMatchObject({ completo: false, atual: 1 });

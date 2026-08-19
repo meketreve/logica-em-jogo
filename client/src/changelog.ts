@@ -47,7 +47,7 @@ const MUDANCAS: readonly Mudanca[] = [
     itens: [
       "minerar exige picareta; carvão e diamante saem do minério, ferro e ouro fundem na fornalha",
       "baú com painel de transferência (tocar origem → tocar destino)",
-      "algodão no lugar da lã-de-trigo: cultive e transforme em lã branca",
+      "algodão no lugar da lã-de-trigo: cultive e transforme em bloco de algodão",
       "6 cultivos novos: cenoura, batata, beterraba, melancia, banana e aipim",
       "picareta obrigatória, /pvp, e o mundo pesado carrega nos workers (trava de 9,5s → 99ms)",
     ],

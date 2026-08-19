@@ -135,8 +135,8 @@ const BASE: readonly Receita[] = [
  * --- COBERTURA TOTAL (2026-08-05, pedido do usuário depois do playtest com 17
  * alunos) ---
  *
- * Até aqui a sobrevivência alcançava madeira, pedra, o balde e o pão: lã,
- * vidro, tijolo, tocha, porta, janela, móvel, tapete e quadro só existiam em
+ * Até aqui a sobrevivência alcançava madeira, pedra, o balde e o pão: bloco de
+ * algodão, vidro, tijolo, tocha, porta, janela, móvel, tapete e quadro só existiam em
  * criativo ou pela mão do professor (`/dar`). O pedido foi cobrir TUDO, e o
  * escopo escolhido foi o grande: **inventar os elos que faltam**.
  *
@@ -148,8 +148,10 @@ const BASE: readonly Receita[] = [
  *
  * - **vidro ← areia** (o forno é o que falta, e a areia é o que sobra)
  * - **tijolo ← terra + areia** (barro secado ao sol, sem fornalha)
- * - **lã ← trigo** (ponte APOSENTADA no §🍖 F10c: o algodão virou planta de
- *   verdade e a lã passou a sair dele, devolvendo o trigo ao papel de comida)
+ * - **"lã" ← trigo** (ponte APOSENTADA no §🍖 F10c: o algodão virou planta de
+ *   verdade e o tecido passou a sair dele, devolvendo o trigo ao papel de comida.
+ *   2026-08-19 o bloco também largou o NOME: é "bloco de algodão", porque algodão
+ *   não vira lã — a lã de verdade chega junto com a ovelha, com receita própria)
  * - **corante ← FLOR** (e as cores que não têm flor saem de MISTURA: laranja é
  *   amarelo + vermelho, roxo é vermelho + azul). Misturar cor é conteúdo de
  *   sala de aula, e aqui ele é uma receita de verdade.
@@ -164,11 +166,11 @@ const BASE: readonly Receita[] = [
  */
 
 /** Uma cor do jogo: os três blocos dela e o que a tinge. A ordem das três
- *  famílias (lã, vidro colorido, tapete) é a MESMA no `BlockId`, então uma
+ *  famílias (bloco de algodão, vidro colorido, tapete) é a MESMA no `BlockId`, então uma
  *  tabela só gera as 36 receitas sem repetir a paleta três vezes. */
 interface Cor {
   nome: string;
-  la: number;
+  blocoAlgodao: number;
   vidro: number;
   tapete: number;
   /** Ingredientes que dão a cor (ids DISTINTOS, como manda `Receita.custo`). */
@@ -183,19 +185,19 @@ const F_BRANCA = { id: BlockId.FlorBranca, qtd: 1 } as const;
 const VERDE = { id: BlockId.Mandacaru, qtd: 1 } as const;
 
 const CORES: readonly Cor[] = [
-  { nome: "branco", la: BlockId.WoolWhite, vidro: BlockId.VidroBranco, tapete: BlockId.TapeteBranco, corante: [F_BRANCA] },
-  { nome: "preto", la: BlockId.WoolBlack, vidro: BlockId.VidroPreto, tapete: BlockId.TapetePreto, corante: [{ id: ITEM_CARVAO, qtd: 1 }] },
-  { nome: "vermelho", la: BlockId.WoolRed, vidro: BlockId.VidroVermelho, tapete: BlockId.TapeteVermelho, corante: [F_VERMELHA] },
+  { nome: "branco", blocoAlgodao: BlockId.BlocoAlgodaoBranco, vidro: BlockId.VidroBranco, tapete: BlockId.TapeteBranco, corante: [F_BRANCA] },
+  { nome: "preto", blocoAlgodao: BlockId.BlocoAlgodaoPreto, vidro: BlockId.VidroPreto, tapete: BlockId.TapetePreto, corante: [{ id: ITEM_CARVAO, qtd: 1 }] },
+  { nome: "vermelho", blocoAlgodao: BlockId.BlocoAlgodaoVermelho, vidro: BlockId.VidroVermelho, tapete: BlockId.TapeteVermelho, corante: [F_VERMELHA] },
   // laranja, roxo, rosa e ciano NÃO têm flor própria: saem de MISTURA
-  { nome: "laranja", la: BlockId.WoolOrange, vidro: BlockId.VidroLaranja, tapete: BlockId.TapeteLaranja, corante: [F_AMARELA, F_VERMELHA] },
-  { nome: "amarelo", la: BlockId.WoolYellow, vidro: BlockId.VidroAmarelo, tapete: BlockId.TapeteAmarelo, corante: [F_AMARELA] },
-  { nome: "verde", la: BlockId.WoolGreen, vidro: BlockId.VidroVerde, tapete: BlockId.TapeteVerde, corante: [VERDE] },
-  { nome: "azul", la: BlockId.WoolBlue, vidro: BlockId.VidroAzul, tapete: BlockId.TapeteAzul, corante: [F_AZUL] },
-  { nome: "roxo", la: BlockId.WoolPurple, vidro: BlockId.VidroRoxo, tapete: BlockId.TapeteRoxo, corante: [F_VERMELHA, F_AZUL] },
-  { nome: "rosa", la: BlockId.WoolPink, vidro: BlockId.VidroRosa, tapete: BlockId.TapeteRosa, corante: [F_VERMELHA, F_BRANCA] },
-  { nome: "ciano", la: BlockId.WoolCyan, vidro: BlockId.VidroCiano, tapete: BlockId.TapeteCiano, corante: [F_AZUL, VERDE] },
-  { nome: "cinza", la: BlockId.WoolGray, vidro: BlockId.VidroCinza, tapete: BlockId.TapeteCinza, corante: [{ id: BlockId.Cobblestone, qtd: 1 }] },
-  { nome: "marrom", la: BlockId.WoolBrown, vidro: BlockId.VidroMarrom, tapete: BlockId.TapeteMarrom, corante: [{ id: BlockId.Dirt, qtd: 1 }] },
+  { nome: "laranja", blocoAlgodao: BlockId.BlocoAlgodaoLaranja, vidro: BlockId.VidroLaranja, tapete: BlockId.TapeteLaranja, corante: [F_AMARELA, F_VERMELHA] },
+  { nome: "amarelo", blocoAlgodao: BlockId.BlocoAlgodaoAmarelo, vidro: BlockId.VidroAmarelo, tapete: BlockId.TapeteAmarelo, corante: [F_AMARELA] },
+  { nome: "verde", blocoAlgodao: BlockId.BlocoAlgodaoVerde, vidro: BlockId.VidroVerde, tapete: BlockId.TapeteVerde, corante: [VERDE] },
+  { nome: "azul", blocoAlgodao: BlockId.BlocoAlgodaoAzul, vidro: BlockId.VidroAzul, tapete: BlockId.TapeteAzul, corante: [F_AZUL] },
+  { nome: "roxo", blocoAlgodao: BlockId.BlocoAlgodaoRoxo, vidro: BlockId.VidroRoxo, tapete: BlockId.TapeteRoxo, corante: [F_VERMELHA, F_AZUL] },
+  { nome: "rosa", blocoAlgodao: BlockId.BlocoAlgodaoRosa, vidro: BlockId.VidroRosa, tapete: BlockId.TapeteRosa, corante: [F_VERMELHA, F_BRANCA] },
+  { nome: "ciano", blocoAlgodao: BlockId.BlocoAlgodaoCiano, vidro: BlockId.VidroCiano, tapete: BlockId.TapeteCiano, corante: [F_AZUL, VERDE] },
+  { nome: "cinza", blocoAlgodao: BlockId.BlocoAlgodaoCinza, vidro: BlockId.VidroCinza, tapete: BlockId.TapeteCinza, corante: [{ id: BlockId.Cobblestone, qtd: 1 }] },
+  { nome: "marrom", blocoAlgodao: BlockId.BlocoAlgodaoMarrom, vidro: BlockId.VidroMarrom, tapete: BlockId.TapeteMarrom, corante: [{ id: BlockId.Dirt, qtd: 1 }] },
 ];
 
 /** Materiais de construção — as pontes que substituem o forno. */
@@ -228,44 +230,48 @@ const MATERIAIS: readonly Receita[] = [
 ];
 
 /**
- * Lã: a fibra é o ALGODÃO, e a cor entra na mesma receita. A branca é a lisa
- * (sem tintura); as outras 11 são a mesma fibra mais o corante.
+ * Bloco de algodão: a fibra é o ALGODÃO, e a cor entra na mesma receita. O branco
+ * é o liso (sem tintura); os outros 11 são a mesma fibra mais o corante.
  *
- * **2026-08-10 (playtest): a lã deixou de ser INGREDIENTE.** Antes a colorida
- * cobrava 1 lã branca + corante, o que fazia o aluno fabricar branco só pra
+ * **2026-08-10 (playtest): o bloco deixou de ser INGREDIENTE.** Antes o colorido
+ * cobrava 1 branco + corante, o que fazia o aluno fabricar branco só pra
  * desfazer no passo seguinte — uma etapa que não ensina nada e some da lista de
- * "o que dá pra fazer agora". A conta não mudou: onde havia 1 lã entram os 3
- * algodões que ela custava; a tintura tinge o LOTE, então continua 1 de cada
- * corante. A lã segue existindo como bloco de construção — só não é mais
+ * "o que dá pra fazer agora". A conta não mudou: onde havia 1 bloco entram os 3
+ * algodões que ele custava; a tintura tinge o LOTE, então continua 1 de cada
+ * corante. O bloco segue existindo como material de construção — só não é mais
  * matéria-prima de ninguém.
+ *
+ * **2026-08-19: chamava-se "lã".** Nunca houve ovelha, e algodão não vira lã: o
+ * nome ensinava errado. Trocado por "bloco de algodão <cor>" (ids intactos, ver
+ * `blocks.ts`). "Lã" fica reservado pro que vem da ovelha, com receita própria.
  */
-const FIBRA_POR_LA = 3;
-const LAS: readonly Receita[] = [
+const FIBRA_POR_BLOCO = 3;
+const BLOCOS_ALGODAO: readonly Receita[] = [
   // §🍖 F10c: era 2 TRIGO — a ponte inventada na 45 porque o lite não tem
   // ovelha. Com o algodão a fibra tem planta própria, e some a competição
   // pão × cobertor que fazia a horta escolher entre alimentar e vestir.
-  { saida: { id: BlockId.WoolWhite, qtd: 1 }, custo: [{ id: ITEM_ALGODAO, qtd: FIBRA_POR_LA }] },
-  ...CORES.filter((c) => c.la !== BlockId.WoolWhite).map((c) => ({
-    saida: { id: c.la, qtd: 1 },
-    custo: [{ id: ITEM_ALGODAO, qtd: FIBRA_POR_LA }, ...c.corante],
+  { saida: { id: BlockId.BlocoAlgodaoBranco, qtd: 1 }, custo: [{ id: ITEM_ALGODAO, qtd: FIBRA_POR_BLOCO }] },
+  ...CORES.filter((c) => c.blocoAlgodao !== BlockId.BlocoAlgodaoBranco).map((c) => ({
+    saida: { id: c.blocoAlgodao, qtd: 1 },
+    custo: [{ id: ITEM_ALGODAO, qtd: FIBRA_POR_BLOCO }, ...c.corante],
   })),
 ];
 
-/** Vidro colorido: o mesmo corante da lã, agora sobre o vidro liso. O branco
+/** Vidro colorido: o mesmo corante do bloco de algodão, agora sobre o vidro liso. O branco
  *  também se tinge (o vidro liso é transparente, o branco é leitoso). */
 const VIDROS: readonly Receita[] = CORES.map((c) => ({
   saida: { id: c.vidro, qtd: 1 },
   custo: [{ id: BlockId.Glass, qtd: 1 }, ...c.corante],
 }));
 
-/** Tapete: o equivalente a 2 lãs da mesma cor vira 3 tapetes (o número do
- *  Minecraft) — 2026-08-10, direto da FIBRA, como as lãs. O branco é o liso;
- *  os coloridos levam o mesmo corante da lã daquela cor. */
+/** Tapete: o equivalente a 2 blocos de algodão da mesma cor vira 3 tapetes (o número do
+ *  Minecraft) — 2026-08-10, direto da FIBRA, como os blocos. O branco é o liso;
+ *  os coloridos levam o mesmo corante do bloco daquela cor. */
 const TAPETES: readonly Receita[] = CORES.map((c) => ({
   saida: { id: c.tapete, qtd: 3 },
   custo: [
-    { id: ITEM_ALGODAO, qtd: 2 * FIBRA_POR_LA },
-    ...(c.la === BlockId.WoolWhite ? [] : c.corante),
+    { id: ITEM_ALGODAO, qtd: 2 * FIBRA_POR_BLOCO },
+    ...(c.blocoAlgodao === BlockId.BlocoAlgodaoBranco ? [] : c.corante),
   ],
 }));
 
@@ -278,9 +284,9 @@ const MOVEIS: readonly Receita[] = [
   { saida: { id: BlockId.CadeiraXP, qtd: 1 }, custo: [{ id: BlockId.Planks, qtd: 4 }] },
   // 2026-08-10 (playtest): o estofado era 2/3/1 LÃ BRANCA. Virou a fibra que
   // ela custava (×3 algodão) — mesma conta, uma etapa a menos até o móvel.
-  { saida: { id: BlockId.SofaXP, qtd: 1 }, custo: [{ id: BlockId.Planks, qtd: 3 }, { id: ITEM_ALGODAO, qtd: 2 * FIBRA_POR_LA }] },
-  { saida: { id: BlockId.CamaXP, qtd: 1 }, custo: [{ id: BlockId.Planks, qtd: 3 }, { id: ITEM_ALGODAO, qtd: 3 * FIBRA_POR_LA }] },
-  { saida: { id: BlockId.QuadroXP, qtd: 1 }, custo: [{ id: BlockId.Planks, qtd: 2 }, { id: ITEM_ALGODAO, qtd: FIBRA_POR_LA }] },
+  { saida: { id: BlockId.SofaXP, qtd: 1 }, custo: [{ id: BlockId.Planks, qtd: 3 }, { id: ITEM_ALGODAO, qtd: 2 * FIBRA_POR_BLOCO }] },
+  { saida: { id: BlockId.CamaXP, qtd: 1 }, custo: [{ id: BlockId.Planks, qtd: 3 }, { id: ITEM_ALGODAO, qtd: 3 * FIBRA_POR_BLOCO }] },
+  { saida: { id: BlockId.QuadroXP, qtd: 1 }, custo: [{ id: BlockId.Planks, qtd: 2 }, { id: ITEM_ALGODAO, qtd: FIBRA_POR_BLOCO }] },
 ];
 
 /**
@@ -363,7 +369,7 @@ const FUNDICAO: readonly Receita[] = [
 export const RECEITAS: readonly Receita[] = [
   ...BASE,
   ...MATERIAIS,
-  ...LAS,
+  ...BLOCOS_ALGODAO,
   ...VIDROS,
   ...TAPETES,
   ...MOVEIS,
@@ -400,7 +406,7 @@ export const SEM_RECEITA: ReadonlyMap<number, string> = new Map([
   [BlockId.MinerioDiamante, "minério: sai da caverna e larga o ITEM diamante — o bloco não se refaz"],
   [BlockId.Plantacao0, "muda: vem do capim quebrado (1 em 4) e da colheita"],
   [BlockId.Algodao0, "semente de algodão: vem do pé selvagem (2 em 3) e da colheita"],
-  [BlockId.AlgodaoSelvagem, "pé do gen: é onde o aluno ACHA a cadeia da lã — não se refaz"],
+  [BlockId.AlgodaoSelvagem, "pé do gen: é onde o aluno ACHA a cadeia do algodão — não se refaz"],
   // §🍖 F10h: as seis culturas seguem o molde exato do algodão — a semente vem
   // do pé selvagem (régua única, 2 em 3) e da colheita; o pé selvagem é do gen
   // e é ele que abre a cadeia da comida. Colocá-los aqui é o que deixa o

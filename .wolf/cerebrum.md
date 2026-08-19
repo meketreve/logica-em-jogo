@@ -10,6 +10,14 @@
 
 ## User Preferences
 
+- **[2026-08-19] Antes de renomear qualquer coisa VISÍVEL ao aluno, traga o levantamento e
+  pergunte — mas traga também a RECOMENDAÇÃO e o custo medido.** Ele recusou a primeira rodada de
+  perguntas ("quero esclarecer") porque faltava o contexto de PRODUTO, não porque as opções
+  estavam erradas: ele já sabia que a ovelha entra depois e que a lã seria outro item. Quando o
+  levantamento veio junto (o que quebra, o que não quebra, quantos arquivos), ele decidiu as duas
+  perguntas de uma vez. **Ele não tem medo de churn** — "pode trocar os nomes sem problema porque
+  já deixei claro que o projeto está em desenvolvimento".
+
 - **[2026-08-17] "anotar ideia" significa ESCREVER no `todo.md`, não implementar.** Ele solta
   ideias no meio de outra tarefa (`/invisivel`, aba "todos" no inventário, painel de comandos ao
   lado) com o verbo "anotar" — é fila, não pedido. O que ele valoriza na anotação é o que
@@ -1170,6 +1178,20 @@ nenhum** — sem essa declaração o Chrome renderiza a página em light mesmo c
 
 ## Do-Not-Repeat
 
+- [2026-08-19] **A nota do `todo.md` dizia que mexer em `BlockId` "atravessa save, protocolo e
+  os `.ljw`". É FALSO — e quase custou a decisão certa.** Não existe `BlockId[nome]` nem lookup
+  reverso nenhum no repo (só o `type` derivado em `blocks.ts`); save, fio e `.ljw` carregam o
+  **NÚMERO**. Renomear a CHAVE mantendo o número é rename mecânico de símbolo TS. **Prova barata
+  antes de apostar:** `md5sum cenarios/*.ljw` → `npm run cenarios` → `md5sum -c` — se der tudo
+  OK, nenhum id se moveu. O que de fato atravessa save é mudar o NÚMERO, não o nome.
+- [2026-08-19] **Pra fotografar o INVENTÁRIO DE BLOCOS a sonda tem de criar o mundo em
+  CRIATIVO.** O painel `E` é o mesmo objeto (`paineis.mochila`), mas `render()` desvia pra
+  `renderMochila()` quando `mochila.ativa` — e aí só existem as abas `mochila`/`criar`, sem
+  `.inv-bloco` nenhum. ⚠️ **`/modo criativo` pelo chat NÃO basta** (o cliente segue com a mochila
+  ativa no momento do render). O que funciona: `menu-new-jogo = 'criativo'` na criação do mundo,
+  e **sem** `?mochila=` na URL (ele força sobrevivência). Sintoma de que caiu nessa: `abas:
+  ["mochila","criar"]` e `celulas: 0`.
+
 - [2026-08-17] **`npx vite` rodado da RAIZ do repo SOBE e escuta na 5173, mas serve página
   VAZIA (`curl … | wc -c` = 1).** O dev do cliente é `npm run dev -w client`, ou seja, vite com
   **CWD em `client/`** — a raiz só tem config de `vite build`. Sintoma: sonda headless fica os
@@ -1657,6 +1679,16 @@ nenhum** — sem essa declaração o Chrome renderiza a página em light mesmo c
 - [2026-07-10] Não escrever "relatório de aplicação" antes de o piloto real acontecer.
 
 ## Decision Log — índice das decisões ATIVAS
+
+- [2026-08-19] **Os 12 blocos coloridos deixaram de se chamar "lã": são `BlocoAlgodao*` /
+  "bloco de algodão \<cor\>".** Nunca houve ovelha e a fibra é o algodão (§🍖 F10c) — o nome
+  ensinava errado numa escola. Renomeados rótulo E identificador, **com os números intactos**
+  (11–18, 23–26), porque o id nunca sai como string. **O motivo de mexer no identificador, e não
+  só no rótulo:** a ovelha entra depois e a lã vai ser **outro** item, com receita e blocos
+  próprios (ids novos, append) — deixar `Wool*` ocupado pelo algodão criaria a colisão bem na
+  hora de implementá-la. Decisão do usuário. ⚠️ Custo aceito e MEDIDO: o nome ocupa **3 linhas**
+  na célula do inventário (88 px contra 64–76 px dos vizinhos, célula de 79 px); não trunca e não
+  estoura na horizontal.
 
 - [2026-08-17] **A aula tem GRADE de 6 colunas e teto de 20 grupos, com o mundo dimensionado
   pelo TETO.** 6 colunas porque fecha os três tamanhos que interessam (8 = 6×2, 20 = 6×4, e o

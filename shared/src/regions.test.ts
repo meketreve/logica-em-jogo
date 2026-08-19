@@ -261,16 +261,16 @@ describe("regions — sessão (varinha + /regiao)", () => {
     criarCasa(s); // (0,0,0)→(3,4,5)
     s.send(1, {
       type: "chat",
-      text: `/regiao sortear casa ${BlockId.WoolRed} ${BlockId.WoolBlue}`,
+      text: `/regiao sortear casa ${BlockId.BlocoAlgodaoVermelho} ${BlockId.BlocoAlgodaoAzul}`,
     });
     expect(s.msgsTo(1).filter((m) => m["type"] === "chat").at(-1)?.["text"]).toContain(
       "sorteado(s) entre 2 tipo(s)",
     );
-    // invariante independente do sorteio: toda célula é uma das duas lãs
+    // invariante independente do sorteio: toda célula é um dos dois blocos de algodão
     for (let y = 0; y <= 4; y++)
       for (let z = 0; z <= 5; z++)
         for (let x = 0; x <= 3; x++) {
-          expect([BlockId.WoolRed, BlockId.WoolBlue]).toContain(
+          expect([BlockId.BlocoAlgodaoVermelho, BlockId.BlocoAlgodaoAzul]).toContain(
             getBlock(s.session.world, x, y, z),
           );
         }
@@ -284,7 +284,7 @@ describe("regions — sessão (varinha + /regiao)", () => {
     expect(s.msgsTo(1).filter((m) => m["type"] === "chat").at(-1)?.["text"]).toContain(
       "Não existe bloco",
     );
-    s.send(1, { type: "chat", text: `/regiao sortear fantasma ${BlockId.WoolRed}` });
+    s.send(1, { type: "chat", text: `/regiao sortear fantasma ${BlockId.BlocoAlgodaoVermelho}` });
     expect(s.msgsTo(1).filter((m) => m["type"] === "chat").at(-1)?.["text"]).toContain(
       'Não existe região chamada "fantasma"',
     );

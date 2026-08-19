@@ -275,7 +275,7 @@ function paintEstofado(ctx: CanvasRenderingContext2D, tile: number): void {
 }
 
 /** Colchão (2026-07-19, cama): vermelho com costuras — o travesseiro é uma
- *  caixa separada de lã branca no mesher. */
+ *  caixa separada de bloco de algodão branco no mesher. */
 function paintColchao(ctx: CanvasRenderingContext2D, tile: number): void {
   paintNoise(ctx, tile, [178, 54, 48], 8);
   const [ox, oy] = tileOrigin(tile);
@@ -859,15 +859,15 @@ export function createAtlasTexture(): THREE.Texture {
   paintBricks(ctx, TILE.brick); // …tijolos por cima
   paintNoise(ctx, TILE.gravel, [112, 106, 100], 30);
   paintNoise(ctx, TILE.bedrock, [42, 42, 46], 24);
-  // lãs: cor forte + ruído sutil (leitura clara à distância — pedagogia de sequência)
-  paintNoise(ctx, TILE.woolWhite, [232, 232, 230], 6);
-  paintNoise(ctx, TILE.woolBlack, [38, 38, 42], 6);
-  paintNoise(ctx, TILE.woolRed, [196, 52, 46], 8);
-  paintNoise(ctx, TILE.woolOrange, [226, 132, 38], 8);
-  paintNoise(ctx, TILE.woolYellow, [232, 206, 58], 8);
-  paintNoise(ctx, TILE.woolGreen, [74, 164, 62], 8);
-  paintNoise(ctx, TILE.woolBlue, [58, 94, 194], 8);
-  paintNoise(ctx, TILE.woolPurple, [142, 72, 182], 8);
+  // blocos de algodão: cor forte + ruído sutil (leitura clara à distância — pedagogia de sequência)
+  paintNoise(ctx, TILE.blocoAlgodaoBranco, [232, 232, 230], 6);
+  paintNoise(ctx, TILE.blocoAlgodaoPreto, [38, 38, 42], 6);
+  paintNoise(ctx, TILE.blocoAlgodaoVermelho, [196, 52, 46], 8);
+  paintNoise(ctx, TILE.blocoAlgodaoLaranja, [226, 132, 38], 8);
+  paintNoise(ctx, TILE.blocoAlgodaoAmarelo, [232, 206, 58], 8);
+  paintNoise(ctx, TILE.blocoAlgodaoVerde, [74, 164, 62], 8);
+  paintNoise(ctx, TILE.blocoAlgodaoAzul, [58, 94, 194], 8);
+  paintNoise(ctx, TILE.blocoAlgodaoRoxo, [142, 72, 182], 8);
 
   // cp17 (2026-07-13): 2º lote de opacos
   paintNoise(ctx, TILE.sandstone, [214, 198, 146], 8);
@@ -877,10 +877,10 @@ export function createAtlasTexture(): THREE.Texture {
   paintNoise(ctx, TILE.snow, [240, 244, 248], 5);
   paintNoise(ctx, TILE.obsidian, [30, 24, 42], 8);
   paintObsidianSpecks(ctx, TILE.obsidian);
-  paintNoise(ctx, TILE.woolPink, [226, 140, 170], 8);
-  paintNoise(ctx, TILE.woolCyan, [70, 178, 190], 8);
-  paintNoise(ctx, TILE.woolGray, [130, 130, 134], 6);
-  paintNoise(ctx, TILE.woolBrown, [110, 80, 54], 8);
+  paintNoise(ctx, TILE.blocoAlgodaoRosa, [226, 140, 170], 8);
+  paintNoise(ctx, TILE.blocoAlgodaoCiano, [70, 178, 190], 8);
+  paintNoise(ctx, TILE.blocoAlgodaoCinza, [130, 130, 134], 6);
+  paintNoise(ctx, TILE.blocoAlgodaoMarrom, [110, 80, 54], 8);
 
   // cp18: transparentes (cutout — alphaTest no material do cliente)
   paintGlass(ctx, TILE.glass);
@@ -990,7 +990,7 @@ export function createAtlasTexture(): THREE.Texture {
     }
   }
 
-  // vidro colorido (2026-07-25): mesma paleta das lãs, na ordem VidroBranco..Marrom
+  // vidro colorido (2026-07-25): mesma paleta dos blocos de algodão, na ordem VidroBranco..Marrom
   const CORES_VIDRO: readonly Rgb[] = [
     [232, 232, 230], [38, 38, 42], [196, 52, 46], [226, 132, 38],
     [232, 206, 58], [74, 164, 62], [58, 94, 194], [142, 72, 182],

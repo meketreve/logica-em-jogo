@@ -52,7 +52,7 @@ Na cabine do professor há uma **caixa verde vazia**: é o gabarito, fotografado
 apagado de propósito. No fechamento da aula, o professor pode montar a resposta ali para a turma
 conferir — ou gerar os mundos com `--revelar` se a turma precisar do modelo à vista.
 
-Blocos: tecla `E` abre o inventário; as lãs coloridas estão lá. Clique esquerdo quebra, direito
+Blocos: tecla `E` abre o inventário; os blocos de algodão coloridos estão lá. Clique esquerdo quebra, direito
 coloca, botão do meio copia o bloco mirado.
 
 ---
@@ -123,7 +123,7 @@ grupos inventam mensagens cifradas uns para os outros no mundo livre.
 
 **Pilar:** decomposição + depuração com invariante (simetria).
 
-Uma **parede** de 7×6 lãs (vermelho sobre fundo branco) devia mostrar um coração simétrico —
+Uma **parede** de 7×6 blocos de algodão (vermelho sobre fundo branco) devia mostrar um coração simétrico —
 mas nasce com **4 células erradas**, nenhuma com a espelhada errada junto: toda troca quebra
 a simetria, então a regra do enunciado basta para achar todas.
 

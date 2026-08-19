@@ -2488,3 +2488,15 @@ segue com `relatorio-aplicacao.md` e `apresentacao-cre.html`, ambos rastreados.
 | 08:28 | ideia anotada: mundo de terreno real via DEM (pesquisa: Google Earth ToS barra, usar AWS Terrain Tiles/Copernicus) | .wolf/ROADMAP.md | seção BACKLOG nova, costura = heightAt() | ~9k |
 | 08:33 | preferencia registrada: commit direto na main, sem branch | .wolf/cerebrum.md | User Preferences + memoria global | ~1k |
 | 08:38 | STATUS.md: handoff da sessao 77 no topo + ponteiro na secao de ideias | .wolf/STATUS.md | atualizado, terreno real fica em BACKLOG | ~2k |
+
+## Session: 2026-08-18 08:39
+
+| Time | Action | File(s) | Outcome | ~Tokens |
+|------|--------|---------|---------|--------|
+| 08:05 | varredura do item 1: receitas JÁ cobravam algodão (bug-611); resíduo era só vocabulário | shared/src/receitas.ts, blocks.ts | gate test algodao 21/21 verde | ~9k |
+| 08:20 | rename Wool*→BlocoAlgodao* + TILE/Cor/FIBRA_POR_BLOCO (números intactos) | 17 arquivos .ts | typecheck 3/3 | ~7k |
+| 08:28 | rótulos "lã <cor>" → "bloco de algodão <cor>" + 30 comentários e textos | blocksUi.ts, receitas.ts, blocks.ts, atlasTexture.ts, changelog.ts, cenarios/README.md | 891/891 | ~8k |
+| 08:35 | bateria: launchers 5/5, typecheck 3/3, 891/891, build, 15/15 smokes | — | tudo verde | ~3k |
+| 08:38 | `npm run cenarios` + md5 antes/depois: 7 .ljw BYTE-IDÊNTICOS | cenarios/*.ljw | prova de que nenhum id se moveu | ~2k |
+| 08:44 | sonda headless do inventário em criativo: nome ocupa 3 linhas (88px vs 64-76px), sem truncar | .wolf/designqc-captures/blocos-nome/ | medido, aceitável | ~6k |
+| 08:50 | registros: todo.md item fechado, bug-628, 3 entradas de cerebrum | .wolf/ | — | ~4k |

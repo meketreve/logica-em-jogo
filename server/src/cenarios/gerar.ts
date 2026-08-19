@@ -95,7 +95,7 @@ interface Cenario {
   conferirExtra?: (buf: ArrayBuffer, grupos: number) => string[];
 }
 
-const { WoolRed: R, WoolBlue: B, WoolYellow: Y, WoolWhite: W, WoolBlack: K } = BlockId;
+const { BlocoAlgodaoVermelho: R, BlocoAlgodaoAzul: B, BlocoAlgodaoAmarelo: Y, BlocoAlgodaoBranco: W, BlocoAlgodaoPreto: K } = BlockId;
 const AR = BlockId.Air;
 
 /** Repete um trecho até dar `n` células — a "regra" da sequência, escrita uma vez só. */

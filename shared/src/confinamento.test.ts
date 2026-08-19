@@ -108,8 +108,8 @@ describe("confinamento por área de grupo (cp25)", () => {
     const sz = Math.floor(world.sizeZ / 2);
     const h = findSpawnY(world, sx, sz);
     const cel = { x: sx - 2, y: h + 2, z: sz };
-    session.handleMessage(2, place(cel.x, cel.y, cel.z, BlockId.WoolRed));
-    expect(getBlock(world, cel.x, cel.y, cel.z)).not.toBe(BlockId.WoolRed);
+    session.handleMessage(2, place(cel.x, cel.y, cel.z, BlockId.BlocoAlgodaoVermelho));
+    expect(getBlock(world, cel.x, cel.y, cel.z)).not.toBe(BlockId.BlocoAlgodaoVermelho);
     expect(ultimaChat(sent, 2)).toContain("não está em um grupo");
   });
 
@@ -123,17 +123,17 @@ describe("confinamento por área de grupo (cp25)", () => {
     session.handleMessage(1, quebra(cel2.x, cel2.y, cel2.z));
 
     // ana (g1) coloca DENTRO da sua área → funciona
-    session.handleMessage(2, place(cel1.x, cel1.y, cel1.z, BlockId.WoolRed));
-    expect(getBlock(world, cel1.x, cel1.y, cel1.z)).toBe(BlockId.WoolRed);
+    session.handleMessage(2, place(cel1.x, cel1.y, cel1.z, BlockId.BlocoAlgodaoVermelho));
+    expect(getBlock(world, cel1.x, cel1.y, cel1.z)).toBe(BlockId.BlocoAlgodaoVermelho);
 
     // ana tenta colocar na área do OUTRO grupo → barrada, com aviso
-    session.handleMessage(2, place(cel2.x, cel2.y, cel2.z, BlockId.WoolBlue));
-    expect(getBlock(world, cel2.x, cel2.y, cel2.z)).not.toBe(BlockId.WoolBlue);
+    session.handleMessage(2, place(cel2.x, cel2.y, cel2.z, BlockId.BlocoAlgodaoAzul));
+    expect(getBlock(world, cel2.x, cel2.y, cel2.z)).not.toBe(BlockId.BlocoAlgodaoAzul);
     expect(ultimaChat(sent, 2)).toContain("área do seu grupo");
 
     // bia (g2) coloca na SUA área (a mesma célula que barrou a ana) → funciona
-    session.handleMessage(3, place(cel2.x, cel2.y, cel2.z, BlockId.WoolBlue));
-    expect(getBlock(world, cel2.x, cel2.y, cel2.z)).toBe(BlockId.WoolBlue);
+    session.handleMessage(3, place(cel2.x, cel2.y, cel2.z, BlockId.BlocoAlgodaoAzul));
+    expect(getBlock(world, cel2.x, cel2.y, cel2.z)).toBe(BlockId.BlocoAlgodaoAzul);
 
     // professor coloca na área do g1 sem restrição
     session.handleMessage(1, place(cel1.x, cel1.y + 1, cel1.z, BlockId.Stone));
@@ -167,12 +167,12 @@ describe("confinamento por área de grupo (cp25)", () => {
     session.handleMessage(1, quebra(cel1.x, cel1.y, cel1.z)); // professor limpa
 
     // ana constrói na área dela sem o professor ter digitado nada
-    session.handleMessage(2, place(cel1.x, cel1.y, cel1.z, BlockId.WoolRed));
-    expect(getBlock(world, cel1.x, cel1.y, cel1.z)).toBe(BlockId.WoolRed);
+    session.handleMessage(2, place(cel1.x, cel1.y, cel1.z, BlockId.BlocoAlgodaoVermelho));
+    expect(getBlock(world, cel1.x, cel1.y, cel1.z)).toBe(BlockId.BlocoAlgodaoVermelho);
 
     // e continua barrada na área do outro grupo
-    session.handleMessage(2, place(cel2.x, cel2.y, cel2.z, BlockId.WoolBlue));
-    expect(getBlock(world, cel2.x, cel2.y, cel2.z)).not.toBe(BlockId.WoolBlue);
+    session.handleMessage(2, place(cel2.x, cel2.y, cel2.z, BlockId.BlocoAlgodaoAzul));
+    expect(getBlock(world, cel2.x, cel2.y, cel2.z)).not.toBe(BlockId.BlocoAlgodaoAzul);
     expect(ultimaChat(sent, 2)).toContain("área do seu grupo");
   });
 

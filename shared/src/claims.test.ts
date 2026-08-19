@@ -134,8 +134,8 @@ describe("claims — proteção de áreas (cp24)", () => {
     session.handleMessage(2, cmd("/amigos convidar bia"));
     session.handleMessage(3, cmd("/amigos aceitar ana"));
     const alto = { x: sx, y: h + 2, z: sz };
-    session.handleMessage(3, JSON.stringify({ type: "place_block", ...alto, blockId: BlockId.WoolRed }));
-    expect(getBlock(world, alto.x, alto.y, alto.z)).toBe(BlockId.WoolRed);
+    session.handleMessage(3, JSON.stringify({ type: "place_block", ...alto, blockId: BlockId.BlocoAlgodaoVermelho }));
+    expect(getBlock(world, alto.x, alto.y, alto.z)).toBe(BlockId.BlocoAlgodaoVermelho);
 
     // professor ignora a proteção
     session.handleMessage(1, JSON.stringify({ type: "place_block", ...alvo, blockId: BlockId.Stone }));

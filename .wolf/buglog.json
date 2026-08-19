@@ -5081,6 +5081,29 @@
       ],
       "occurrences": 1,
       "last_seen": "2026-08-17T14:25:15"
+    },
+    {
+      "id": "bug-628",
+      "timestamp": "2026-08-19T08:45:00",
+      "error_message": "usuario: 'varrer toda receita de craft atras de LA que devia ser ALGODAO, incluindo os casos em que a palavra aparece so no NOME'",
+      "file": "client/src/blocksUi.ts, shared/src/blocks.ts, shared/src/receitas.ts, shared/src/mesher.ts, client/src/atlasTexture.ts (+12 arquivos)",
+      "root_cause": "NAO era defeito de receita: o bug-611 (2026-08-10) ja migrara as 26 receitas pra ITEM_ALGODAO, e o teste-portao de algodao.test.ts provava isso. O residuo era VOCABULARIO — os 12 blocos seguiam chamados 'la <cor>' num jogo que nunca teve ovelha, e algodao nao vira la. O F10c trocou a CADEIA (la<-trigo virou algodao) mas ninguem revisou o nome exposto ao aluno.",
+      "fix": "Renomeado rotulo E identificador: 'la <cor>' -> 'bloco de algodao <cor>'; BlockId.WoolXxx -> BlocoAlgodaoXxx; TILE.woolXxx -> blocoAlgodaoXxx; Cor.la -> Cor.blocoAlgodao; FIBRA_POR_LA -> FIBRA_POR_BLOCO; LAS -> BLOCOS_ALGODAO. Os NUMEROS dos ids nao mudaram (11-18, 23-26), entao save/fio/.ljw ficaram intactos — provado regerando os 7 cenarios e conferindo md5 (byte-identicos). Nome 'la' fica RESERVADO pra ovelha, que entra depois como item separado com ids novos.",
+      "tags": [
+        "vocabulario",
+        "algodao",
+        "la",
+        "blockid",
+        "rename",
+        "receitas",
+        "pedagogia",
+        "ui"
+      ],
+      "related_bugs": [
+        "bug-611"
+      ],
+      "occurrences": 1,
+      "last_seen": "2026-08-19T08:45:00"
     }
   ]
 }

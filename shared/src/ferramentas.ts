@@ -84,7 +84,7 @@ const PICARETA = (nivel: number): Exigencia => ({ tipo: "picareta", nivel });
  * ouro e diamante exigem a de ferro, e a obsidiana — que aqui é fabricada, não
  * achada — exige a de diamante, que é o que a mantém sendo o bloco difícil.
  *
- * **Terra, areia, madeira, folha, lã e vidro ficam de fora**: são o que o aluno
+ * **Terra, areia, madeira, folha, bloco de algodão e vidro ficam de fora**: são o que o aluno
  * usa pra construir, e cobrar ferramenta neles transformaria uma aula de
  * construção numa aula de inventário.
  */

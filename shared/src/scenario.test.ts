@@ -81,15 +81,15 @@ describe("scenario — funções puras", () => {
 
   it("matchRegion conta corretos, alvo e extras separados", () => {
     const w = generateFlatWorld(DIMS);
-    // gabarito: 1 lã vermelha em y=4 (acima da grama), resto conforme mundo
+    // gabarito: 1 bloco de algodão vermelho em y=4 (acima da grama), resto conforme mundo
     const box: Box = { min: { x: 4, y: 4, z: 4 }, max: { x: 5, y: 4, z: 5 } };
-    const gabarito = [BlockId.WoolRed, BlockId.Air, BlockId.Air, BlockId.Air];
+    const gabarito = [BlockId.BlocoAlgodaoVermelho, BlockId.Air, BlockId.Air, BlockId.Air];
     let m = matchRegion(w, box, gabarito);
     expect(m).toEqual({ corretos: 0, alvo: 1, extras: 0 });
     // bloco certo no lugar certo + um sobrando onde devia ser ar
     // (ordem canônica y→z→x: índice 0 = (4,4,4), índice 3 = (5,4,5))
     const w2 = generateFlatWorld(DIMS);
-    setBlock(w2, 4, 4, 4, BlockId.WoolRed);
+    setBlock(w2, 4, 4, 4, BlockId.BlocoAlgodaoVermelho);
     setBlock(w2, 5, 4, 5, BlockId.Stone);
     m = matchRegion(w2, box, gabarito);
     expect(m).toEqual({ corretos: 1, alvo: 1, extras: 1 });
@@ -116,14 +116,14 @@ describe("scenario — funções puras", () => {
 });
 
 describe("scenario — sessão (autoria, detecção, HUD)", () => {
-  /** Cenário padrão: modelo 2×1×2 de lã em (4..5,4,4..5), alvo em (10..11,4,10..11). */
+  /** Cenário padrão: modelo 2×1×2 de bloco de algodão em (4..5,4,4..5), alvo em (10..11,4,10..11). */
   function setupConstruir(s: S) {
     joinProf(s);
     criarRegiao(s, 1, "modelo", [4, 4, 4], [5, 4, 5]);
     criarRegiao(s, 1, "alvo", [10, 4, 10], [11, 4, 11]);
-    // constrói o modelo: 4 lãs vermelhas
+    // constrói o modelo: 4 blocos de algodão vermelhos
     for (const [x, z] of [[4, 4], [4, 5], [5, 4], [5, 5]]) {
-      s.chat(1, `/bloco ${x} 4 ${z} ${BlockId.WoolRed}`);
+      s.chat(1, `/bloco ${x} 4 ${z} ${BlockId.BlocoAlgodaoVermelho}`);
     }
     s.chat(1, "/objetivo add construir modelo alvo Reproduza o quadrado vermelho");
   }
@@ -138,16 +138,16 @@ describe("scenario — sessão (autoria, detecção, HUD)", () => {
 
     // 3 blocos certos + 1 errado → tick → 3/4 e um extra em célula de ar? não:
     // célula errada DENTRO do padrão conta como não-correto, sem extra
-    s.chat(1, `/bloco 10 4 10 ${BlockId.WoolRed}`);
-    s.chat(1, `/bloco 10 4 11 ${BlockId.WoolRed}`);
-    s.chat(1, `/bloco 11 4 10 ${BlockId.WoolRed}`);
+    s.chat(1, `/bloco 10 4 10 ${BlockId.BlocoAlgodaoVermelho}`);
+    s.chat(1, `/bloco 10 4 11 ${BlockId.BlocoAlgodaoVermelho}`);
+    s.chat(1, `/bloco 11 4 10 ${BlockId.BlocoAlgodaoVermelho}`);
     s.chat(1, `/bloco 11 4 11 ${BlockId.Stone}`); // errado
     s.session.tick();
     obj = s.lastObjectives(2)?.objetivos[0];
     expect(obj).toMatchObject({ atual: 3, total: 4, extras: 0, completo: false });
 
     // corrige o último → concluído + anúncio no chat DEPOIS do estado
-    s.chat(1, `/bloco 11 4 11 ${BlockId.WoolRed}`);
+    s.chat(1, `/bloco 11 4 11 ${BlockId.BlocoAlgodaoVermelho}`);
     s.session.tick();
     obj = s.lastObjectives(2)?.objetivos[0];
     expect(obj).toMatchObject({ completo: true, atual: 4 });
@@ -162,18 +162,18 @@ describe("scenario — sessão (autoria, detecção, HUD)", () => {
     s.chat(1, "/objetivo modo sequencial");
 
     // sequência 1 (vermelho, azul): modelo fotografado, faixa "alvo" nasce vazia
-    s.chat(1, `/bloco 1 4 1 ${BlockId.WoolRed}`);
-    s.chat(1, `/bloco 1 4 2 ${BlockId.WoolBlue}`);
+    s.chat(1, `/bloco 1 4 1 ${BlockId.BlocoAlgodaoVermelho}`);
+    s.chat(1, `/bloco 1 4 2 ${BlockId.BlocoAlgodaoAzul}`);
     s.chat(1, "/objetivo add construir modelo alvo Sequencia 1");
     // sequência 2 (azul, vermelho) na MESMA faixa "alvo": só o modelo é refeito
     s.chat(1, "/regiao encher modelo 0");
-    s.chat(1, `/bloco 1 4 1 ${BlockId.WoolBlue}`);
-    s.chat(1, `/bloco 1 4 2 ${BlockId.WoolRed}`);
+    s.chat(1, `/bloco 1 4 1 ${BlockId.BlocoAlgodaoAzul}`);
+    s.chat(1, `/bloco 1 4 2 ${BlockId.BlocoAlgodaoVermelho}`);
     s.chat(1, "/objetivo add construir modelo alvo Sequencia 2");
 
     // conclui a 1ª sequência na faixa
-    s.chat(1, `/bloco 5 4 1 ${BlockId.WoolRed}`);
-    s.chat(1, `/bloco 5 4 2 ${BlockId.WoolBlue}`);
+    s.chat(1, `/bloco 5 4 1 ${BlockId.BlocoAlgodaoVermelho}`);
+    s.chat(1, `/bloco 5 4 2 ${BlockId.BlocoAlgodaoAzul}`);
     s.session.tick();
 
     // a faixa se limpou sozinha (baseline vazio da 2ª) e a 2ª virou a ativa em 0
@@ -184,8 +184,8 @@ describe("scenario — sessão (autoria, detecção, HUD)", () => {
     expect(objs[1]).toMatchObject({ completo: false, ativo: true, atual: 0 });
 
     // conclui a 2ª na MESMA faixa → também fecha
-    s.chat(1, `/bloco 5 4 1 ${BlockId.WoolBlue}`);
-    s.chat(1, `/bloco 5 4 2 ${BlockId.WoolRed}`);
+    s.chat(1, `/bloco 5 4 1 ${BlockId.BlocoAlgodaoAzul}`);
+    s.chat(1, `/bloco 5 4 2 ${BlockId.BlocoAlgodaoVermelho}`);
     s.session.tick();
     expect(s.lastObjectives(1)?.objetivos[1]).toMatchObject({ completo: true });
   });
@@ -194,7 +194,7 @@ describe("scenario — sessão (autoria, detecção, HUD)", () => {
     const s = makeSession();
     joinProf(s);
     criarRegiao(s, 1, "modelo", [4, 4, 4], [5, 4, 5]);
-    s.chat(1, `/bloco 4 4 4 ${BlockId.WoolRed}`);
+    s.chat(1, `/bloco 4 4 4 ${BlockId.BlocoAlgodaoVermelho}`);
     s.chat(1, "/objetivo add construir modelo modelo Copie aqui");
     expect(s.lastChat(1)).toContain("JÁ bate com o modelo");
   });
