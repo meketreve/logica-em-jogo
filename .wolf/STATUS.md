@@ -2,6 +2,80 @@
 
 > Single source of truth for resuming work. Read this FIRST when starting a session.
 
+> ## 🧭 HANDOFF — SESSÃO 83 (2026-08-21) · `/painel` e o 6º botão do dedo
+>
+> **A quest do `/painel` FECHOU.** Bateria verde: launchers 5/5 · typecheck 3/3 · **897/897** ·
+> build · **15/15 smokes** · `cenarios` 7/7 byte-idênticos · `shots:toque` tudo ✓ em três
+> tamanhos (1024×600, 600×1024, 420×900).
+>
+> ### ✅ Entregue
+> **O painel do cp14 ganhou duas portas novas — `/painel` no chat e o botão 📋 no HUD de toque.**
+> Antes ele só tinha a tecla P, que **não existe no tablet**: no dedo, o painel de autoria (a
+> ferramenta com que o professor toca a aula inteira) era inalcançável.
+>
+> - **`client/src/painelHost.ts`** — `trocarParaPainel()`, molde exato do `trocarParaAmigos()`.
+>   ⚠️ **Ele não passa pelo portão de propósito:** `podeAbrir` é
+>   `!algumAberto && !bloqueado()`, e o `bloqueado()` do `main.ts` inclui `chat.open`. Quem
+>   digitou o comando ESTÁ com o chat aberto — pelo caminho normal o comando morreria em
+>   silêncio. Tecla e botão usam o portão; comando, não.
+> - **`client/src/main.ts`** — o corpo inline do `onKey` da tecla P virou três funções:
+>   `painelDoCp14Liberado()` (o gate do aluno sem grupos, que agora vale nas TRÊS portas),
+>   `alternarPainelCp14()` (tecla + botão, com portão) e `abrirPainelPorComando()` (o comando).
+>   A interceptação entra no callback do `ChatUi`, na linha de baixo do `/amigos`.
+> - **`client/src/touch.ts`** — 6º botão 📋 "painel" no `#touch-topo` + `painel()` na
+>   `TouchActions`.
+> - **`scripts/toque-shot.mjs`** — seções **B4** (a interceptação) e **B5** (o botão + a medida
+>   da fileira). ⚠️ **A asserção que vale é "o chat NÃO recebeu 'Comando desconhecido'"**, não "o
+>   painel abriu": `/painel` não existe no `session.ts`, então sem a interceptação o aluno leva a
+>   recusa do servidor. As duas asserções andam juntas — cada uma sozinha passa nos dois mundos.
+>
+> ### 🧭 As 3 decisões (todas do usuário, 2026-08-21)
+> 1. **📋 "painel"**, rótulo igual pros dois papéis (não troca por autoria/grupos).
+> 2. **Botão fixo pros dois**, e não o condicional do 👥/🪄: escondê-lo do aluno sem grupos o
+>    deixaria sem saber que o painel existe. Ele leva o mesmo aviso da tecla P.
+> 3. **`/painel` ALTERNA**, como a tecla. Na prática nunca fecha — o chat não abre com painel na
+>    tela, então digitar o comando só é possível com ele fechado.
+>
+> ### ⚠️ O que mordeu no caminho (os dois estão no buglog e no cerebrum)
+> - **bug-633 — o CSS do `touch.ts` vive num TEMPLATE LITERAL.** Escrevi crase num comentário
+>   dentro dele (hábito de markdown) e fechei o literal: build morre com "Expected a semicolon"
+>   apontando o comentário, não a crase. **O `tsc --noEmit` PASSA** — quem pega é o `vite build`.
+>   Cometido DUAS vezes na mesma sessão, a segunda depois de eu ter escrito o aviso no arquivo.
+> - **bug-634 — `position: fixed; left: 50%` sem `right` dá só METADE da janela** à largura
+>   disponível do shrink-to-fit. Ficou invisível por anos porque, sem `flex-wrap`, o conteúdo
+>   transbordava a caixa de 512px e o `translateX(-50%)` recentrava. No instante em que liguei o
+>   wrap (defesa pra tela estreita), a barra quebrou em 2 linhas **com meia tela sobrando**.
+>   Conserto: `left: 8px; right: 8px` + `justify-content: center`, mais `pointer-events: none` no
+>   container (ele passa a cobrir a faixa inteira) com `auto` nos `.touch-btn`.
+> - **Higiene de shell:** `pkill -f "<padrão>"` no MESMO comando Bash mata o próprio shell quando
+>   o padrão casa a linha de comando dele. Sintoma: **exit 144 sem saída nenhuma** — parece build
+>   morto e não é. Rodar o `pkill` num comando separado.
+>
+> ### 📐 A conta da fileira de 6 (medida, não estimada)
+> | janela | conteúdo | linhas |
+> |---|---|---|
+> | 1024px (tablet deitado, o da escola) | 519px | 1 |
+> | 600px (o mesmo em pé) | 519px | 1 |
+> | 420px (celular estreito) | — | 2 (o wrap defendendo) |
+>
+> ### 📌 Pendências
+> - **Nada validado na escola.** A fila de campo agora tem SEIS coisas no ar sem confirmação: o
+>   rename de algodão, a aba "todos", o freio da grama, a rolagem do painel, o conserto do
+>   soterramento e este `/painel` + 📋. **O soterramento segue o que mais pede teste real.**
+> - **`/painel` não aparece em lista de ajuda nenhuma** — nem no `session.ts` (não existe lá, de
+>   propósito), nem no painel de comandos rápidos do chat, nem no aviso que o professor recebe no
+>   join ("tecla P abre o painel de autoria" — frase que não serve a quem está no dedo). Ficou de
+>   FORA do escopo desta quest de propósito; se ele quiser, é um item curto.
+>
+> ### 🚀 PRÓXIMA QUEST
+> **Painel de comandos do mobile ao LADO** (ideia de 2026-08-17). A conta do teclado virtual já
+> está resolvida pela var `--kb`; o que muda é o EIXO do layout — hoje o `#chat-painel` empilha
+> por baixo do campo e come a altura que o teclado já levou.
+>
+> **Depois:** `/invisivel` (⚠️ a filtragem é no SERVIDOR, por cliente) · ovelha + lã de verdade ·
+> sentar na cadeira · teto de 35 grupos · proteger a célula-molde · Ferramentas v2 · mobs.
+> **Backlog:** mundo de terreno real via DEM (`.wolf/ROADMAP.md`).
+
 > ## 🧭 HANDOFF — FIM DA SESSÃO (2026-08-18 → 21) · sessões 78-82 consolidadas
 >
 > **5 commits, todos empurrados. `origin/main` = `a81278d`. Árvore limpa, bateria verde.**
@@ -82,7 +156,7 @@
 >   O soterramento é o que mais pede teste real (cavar, deixar areia cair, ver se escorrega pro
 >   lado ou morre — sem subir pro céu).
 >
-> ### 🚀 PRÓXIMA QUEST
+> ### 🚀 PRÓXIMA QUEST — ✅ **FEITA na sessão 83** (ver o handoff no topo deste arquivo)
 > **Botão de comandos no HUD de toque + comando `/painel`** (ideia dele, 2026-08-21).
 > - ⚠️ **O molde exato já existe:** `abrirAmigosPorComando()` em `client/src/main.ts:475-485` —
 >   `/amigos` sem subcomando abre o painel NO CLIENTE e não vai ao servidor.

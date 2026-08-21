@@ -2551,3 +2551,19 @@ soterramento; e mandou anotar 2 ideias (botão de comandos no HUD + `/painel`; r
 
 **Próxima quest:** botão de comandos no HUD de toque + `/painel` (molde pronto em
 `client/src/main.ts:475-485`). Ver `.wolf/STATUS.md` para as decisões pendentes e as armadilhas.
+
+## Session: 2026-08-21 16:14
+
+| Time | Action | File(s) | Outcome | ~Tokens |
+|------|--------|---------|---------|--------|
+| 16:20 | Retomada: li STATUS.md, git log e a próxima quest (botão de comandos + `/painel`) | .wolf/STATUS.md | quest ativa: 3 decisões pendentes | ~9k |
+| 16:35 | Mapeei as 3 portas do painel do cp14 (tecla P, HUD de toque, chat) e o portão do PainelHost | client/src/{main,touch,painelHost}.ts | achado: `bloqueado()` inclui `chat.open` → comando precisa desviar do portão | ~12k |
+| 16:45 | Decisões do usuário: 📋 "painel" · botão fixo pros dois papéis · `/painel` alterna | — | as 3 recomendações aceitas | ~1k |
+| 16:55 | `trocarParaPainel()` no PainelHost (troca sem portão, molde do trocarParaAmigos) | client/src/painelHost.ts | +18 linhas | ~2k |
+| 17:00 | Extraí o gate da tecla P pra `painelDoCp14Liberado()` + `alternarPainelCp14()` + `abrirPainelPorComando()`; liguei as 3 portas | client/src/main.ts | typecheck 3/3 limpo | ~4k |
+| 17:05 | 6º botão 📋 no `#touch-topo` + `painel()` na TouchActions | client/src/touch.ts | build QUEBROU: crase no comentário fechou o template literal do CSS (bug-633) | ~3k |
+| 17:15 | Sonda: seções B4 (interceptação do `/painel`) e B5 (botão 📋 + medida da fileira) | scripts/toque-shot.mjs | 1024×600 tudo ✓ | ~5k |
+| 17:25 | Medida da fileira CHEIA (desesconde os 6, mede, reesconde) — o estado da sonda esconde o 👥 | scripts/toque-shot.mjs | retrato 600px: 519px de conteúdo, cabe | ~2k |
+| 17:35 | `flex-wrap` de defesa expôs bug-634: `left:50%` dá só meia janela ao shrink-to-fit → 2 linhas com sobra | client/src/touch.ts | trocado por `left/right` + justify-content + pointer-events | ~4k |
+| 17:50 | Bateria: typecheck 3/3 · 897/897 · build · 15/15 smokes · cenários byte-idênticos · sonda de toque em 1024×600, 600×1024 e 420×900 | — | tudo verde | ~6k |
+| 18:00 | bug-633 e bug-634 no buglog; 3 Do-Not-Repeat, 2 Key Learnings e 1 Decision Log no cerebrum | .wolf/{buglog.json,cerebrum.md} | registrado | ~3k |

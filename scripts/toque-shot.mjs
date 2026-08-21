@@ -227,7 +227,7 @@ const estado = () =>
     };
     return {
       menu: vis('#overlay'), barra: vis('#touch-topo'), amigos: vis('#amigos'),
-      mochila: vis('#inventario'), chat: vis('#chat-input'),
+      mochila: vis('#inventario'), chat: vis('#chat-input'), painel: vis('#painel'),
     };
   })()`);
 const foto = async (nome) => {
@@ -348,6 +348,92 @@ const temResposta = await avaliar(
 ok(temResposta, "o servidor respondeu no chat ao /amigos lista");
 s = await estado();
 ok(s.amigos === "escondido", "subcomando NÃO abre o painel");
+
+diga("== B4: /painel é INTERCEPTADO no cliente e abre o painel do cp14 ==");
+// ⚠️ O que esta seção prova NÃO é o painel abrir — é o comando não CHEGAR ao
+// servidor. `/painel` não existe no `session.ts`: sem a interceptação o aluno
+// leva "Comando desconhecido" e o painel fica fechado. Por isso as duas
+// asserções andam juntas (o falso-verde do bug-569: uma sozinha passa nos dois
+// mundos). A sonda entra como PROFESSORA, então o painel é o de autoria.
+await dizer("/painel");
+s = await estado();
+ok(s.painel === "VISIVEL", "o painel abriu pelo comando de chat");
+const semDesconhecido = await avaliar(
+  `![...document.querySelectorAll('#chat-log .msg')].some(d => /desconhecido/i.test(d.textContent||''))`,
+);
+ok(semDesconhecido, "o chat NÃO recebeu 'Comando desconhecido' (o comando virou gesto)");
+await foto("02b-painel-por-comando.png");
+// fecha pela tecla: o chat não abre com painel na tela, então digitar /painel de
+// novo é impossível — é o motivo de "alterna" e "só abre" darem no mesmo.
+await tecla("KeyP");
+await espera(500);
+s = await estado();
+ok(s.painel === "escondido", "a tecla P fechou o painel (o portão é só pra abrir)");
+
+diga("== B5: o botão 📋 da barra abre o mesmo painel (sem tecla P no dedo) ==");
+const btnPainel = await botaoDaBarra("painel");
+ok(btnPainel !== null, "o 6º botão 📋 existe na barra do topo");
+if (btnPainel) {
+  await tocar(btnPainel.x, btnPainel.y);
+  s = await estado();
+  ok(s.painel === "VISIVEL", "o toque no 📋 abriu o painel");
+  ok(s.barra === "escondido", "e a barra saiu de cena sob o painel (um menu por vez)");
+  await foto("02c-painel-pelo-botao.png");
+  await tecla("KeyP");
+  await espera(500);
+}
+// A barra não pode transbordar a janela com o 6º botão. ⚠️ Medir o estado ATUAL
+// mentiria: nesta sonda o 👥 está escondido (proteção de áreas desligada), e o
+// pior caso é justamente a fileira CHEIA. Então a medida desesconde os 6, mede,
+// e devolve as classes — a conta passa a valer pra qualquer estado, e o RETRATO
+// (a metade da largura do tablet deitado) é onde ela aperta.
+const desesconder = (ligar) =>
+  avaliar(`(() => {
+    const b = document.getElementById('touch-topo');
+    if (!b) return 0;
+    const btns = [...b.querySelectorAll('.touch-btn')];
+    if (${ligar ? "true" : "false"}) {
+      window.__reesconder = btns.filter(e => e.classList.contains('hidden'));
+      window.__reesconder.forEach(e => e.classList.remove('hidden'));
+    } else {
+      (window.__reesconder ?? []).forEach(e => e.classList.add('hidden'));
+    }
+    return btns.length;
+  })()`);
+await desesconder(true);
+await espera(200);
+await foto("02d-barra-cheia.png"); // a fileira dos 6, pra olho humano conferir o 📋
+// ⚠️ Medir a CAIXA da barra não prova mais nada: desde o conserto do wrap ela é
+// a faixa inteira (left:8/right:8), então a largura dela é sempre a da janela.
+// O que interessa é BOTÃO NENHUM sair da tela — vale com uma linha ou com duas.
+const barra = await avaliar(`(() => {
+  const b = document.getElementById('touch-topo');
+  if (!b) return null;
+  const btns = [...b.querySelectorAll('.touch-btn')];
+  const cx = btns.map(e => e.getBoundingClientRect());
+  const alt = cx.length ? Math.round(cx[0].height) : 0;
+  const topos = new Set(cx.map(r => Math.round(r.top)));
+  return {
+    botoes: btns.length, linhas: topos.size, altBotao: alt, janela: window.innerWidth,
+    conteudo: Math.round(cx.reduce((t, r) => t + r.width, 0) + 8 * (cx.length - 1)),
+    fora: cx.filter(r => r.left < 0 || r.right > window.innerWidth).length,
+  };
+})()`);
+await desesconder(false);
+if (!barra) {
+  diga("  ✗ a barra do topo sumiu da medição");
+  falhas++;
+} else {
+  diga(
+    `  barra CHEIA: ${barra.botoes} botões · ${barra.conteudo}px de conteúdo em ${barra.janela}px · ${barra.linhas} linha(s) de ${barra.altBotao}px`,
+  );
+  ok(barra.fora === 0, `nenhum dos 6 botões sai da tela (${barra.fora} fora)`);
+  // e em tablet deitado (o aparelho da escola) a fileira tem de caber INTEIRA
+  // numa linha só — quebrar ali seria regressão, não defesa
+  if (barra.janela >= 1024) {
+    ok(barra.linhas === 1, `em ${barra.janela}px a fileira fica em UMA linha (${barra.linhas})`);
+  }
+}
 
 diga("== C: fabricar NÃO joga a lista de craft de volta pro topo (bug-573) ==");
 // craft só existe em sobrevivência, e a lista só rola se houver receita

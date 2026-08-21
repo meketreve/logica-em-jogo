@@ -484,10 +484,46 @@ function abrirAmigosPorComando(text: string): boolean {
   return paineis.trocarParaAmigos();
 }
 
+/** O gate do MEIO do painel do cp14: o painel do aluno só abre depois de o
+ *  professor criar grupos (decisão do MVP v2). Vale nas TRÊS portas — tecla P,
+ *  botão 📋 do dedo e `/painel` —, e por isso mora aqui em vez de inline no
+ *  `onKey`: uma cópia esquecida abriria um painel de grupos vazio.
+ *  Devolve `false` quando barrou (e já explicou o motivo no chat). */
+function painelDoCp14Liberado(): boolean {
+  if (papel === "professor" || latestGroups.length > 0) return true;
+  chat.addMessage("jogo", "o professor ainda não criou grupos — o painel abre quando existirem");
+  return false;
+}
+
+/** Tecla P e botão 📋 do HUD de toque: gesto de tela, passa pelo portão de UM
+ *  MENU POR VEZ (com outro aberto não faz nada; o próprio painel continua
+ *  fechando na 2ª vez, porque o portão é só pra abrir). */
+function alternarPainelCp14(): void {
+  if (!paineis.podeAlternar(paineis.cp14)) return;
+  if (!painelDoCp14Liberado()) return;
+  paineis.cp14?.toggle();
+}
+
+/** `/painel` sem subcomando abre/fecha o painel NO CLIENTE (molde do `/amigos`,
+ *  ideia do usuário em 2026-08-21). Alterna, igual à tecla — na prática nunca
+ *  fecha, porque o chat não abre com painel na tela e sem chat não há o que
+ *  digitar.
+ *  ⚠️ `/painel` NÃO existe no servidor: se esta interceptação falhar, o aluno vê
+ *  "Comando desconhecido" em vez do painel. Barrado pelo gate de grupos também
+ *  devolve `true` — o aviso do chat é a resposta, e mandar ao servidor só
+ *  trocaria essa frase por "Comando desconhecido". */
+function abrirPainelPorComando(text: string): boolean {
+  if (text.trim().toLowerCase() !== "/painel") return false;
+  if (!paineis.cp14) return false; // antes do join não há painel: siga pro servidor
+  if (!painelDoCp14Liberado()) return true;
+  return paineis.trocarParaPainel();
+}
+
 // --- Chat (checkpoint 6): UI em HTML por cima do canvas; comando roda no servidor ---
 const chat = new ChatUi(
   (text) => {
     if (abrirAmigosPorComando(text)) return;
+    if (abrirPainelPorComando(text)) return;
     conn?.send(JSON.stringify({ type: "chat", text }));
   },
   (open) => {
@@ -1262,17 +1298,7 @@ class GameRuntime {
         ? new AuthorPanel(sendCmd, onPanelToggle, openPlayers)
         : new GroupPanel(sendCmd, onPanelToggle);
     pushPanelData();
-    input.onKey(settings.keys.painel, () => {
-      // um menu por vez: com outro aberto a tecla não faz NADA (antes fechava o
-      // outro por baixo do pano). O próprio painel continua fechando na 2ª tecla.
-      if (!paineis.podeAlternar(paineis.cp14)) return;
-      // painel do aluno só abre DEPOIS do professor criar grupos (decisão do MVP v2)
-      if (papel !== "professor" && latestGroups.length === 0) {
-        chat.addMessage("jogo", "o professor ainda não criou grupos — o painel abre quando existirem");
-        return;
-      }
-      paineis.cp14?.toggle();
-    });
+    input.onKey(settings.keys.painel, alternarPainelCp14);
     input.onKey(settings.keys.amigos, () => paineis.alternar(paineis.amigos));
     if (papel === "professor") {
       chat.addMessage("jogo", `tecla ${keyLabel(settings.keys.painel)} abre o painel de autoria`);
@@ -1619,6 +1645,7 @@ class GameRuntime {
         hud: () => this.hud.toggle(),
         varinha: () => this.hotbarUi.toggleVarinha(),
         amigos: () => paineis.alternar(paineis.amigos),
+        painel: () => alternarPainelCp14(),
       });
       // os dois botões condicionais nascem escondidos: aqui é o 1º estado real
       touchControls.setVarinhaDisponivel(papel === "professor" || claimsAtivo);

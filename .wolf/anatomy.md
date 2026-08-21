@@ -1,6 +1,6 @@
 # anatomy.md
 
-> Auto-maintained by OpenWolf. Last scanned: 2026-08-21T18:38:23.819Z
+> Auto-maintained by OpenWolf. Last scanned: 2026-08-21T19:40:53.283Z
 > Files: 360 tracked | Anatomy hits: 0 | Misses: 0
 
 ## ./
@@ -344,7 +344,7 @@
   - section `LuzUniforms` L22-32 (~120 tok)
   - fn `criarLuzUniforms` L33-43 (~116 tok)
   - fn `aplicarLuz` L44-99 (~640 tok)
-- `main.ts` — §💬 (2026-08-14) Fonte ÚNICA de "a mira aponta pra algo que o clique direito (~32610 tok)
+- `main.ts` — §💬 (2026-08-14) Fonte ÚNICA de "a mira aponta pra algo que o clique direito (~33001 tok)
   - fn `ehInterativo` L118-126 (~107 tok)
   - fn `cachearMundos` L127-226 (~1334 tok)
   - fn `applySettings` L227-308 (~1279 tok)
@@ -355,24 +355,26 @@
   - fn `onSettingsChanged` L405-426 (~294 tok)
   - fn `enviarRaio` L427-470 (~589 tok)
   - fn `playerName` L471-481 (~187 tok)
-  - fn `abrirAmigosPorComando` L482-521 (~450 tok)
-  - fn `registrarChegadaDeRede` L522-529 (~60 tok)
-  - fn `jitterDeRede` L530-552 (~352 tok)
-  - fn `podeVoar` L553-562 (~164 tok)
-  - fn `vitals` L563-629 (~904 tok)
-  - fn `pushPanelData` L630-642 (~139 tok)
-  - fn `pushFriendsData` L643-653 (~96 tok)
-  - fn `ownDone` L654-662 (~90 tok)
-  - fn `refreshObjectivesView` L663-694 (~359 tok)
-  - fn `drenarFilaTroca` L695-702 (~79 tok)
-  - fn `segurarAteATelaPintar` L703-712 (~109 tok)
-  - fn `handleServerData` L713-941 (~3074 tok)
-  - fn `connect` L942-981 (~465 tok)
-  - fn `startMultiplayer` L982-999 (~223 tok)
-  - fn `startSingleplayer` L1000-1023 (~284 tok)
-  - fn `persistWorld` L1024-1104 (~902 tok)
-  - class `GameRuntime` L1105-2430 (~18666 tok)
-  - fn `startGame` L2431-2437 (~58 tok)
+  - fn `abrirAmigosPorComando` L482-491 (~151 tok)
+  - fn `painelDoCp14Liberado` L492-500 (~127 tok)
+  - fn `alternarPainelCp14` L501-514 (~200 tok)
+  - fn `abrirPainelPorComando` L515-557 (~499 tok)
+  - fn `registrarChegadaDeRede` L558-565 (~60 tok)
+  - fn `jitterDeRede` L566-588 (~352 tok)
+  - fn `podeVoar` L589-598 (~164 tok)
+  - fn `vitals` L599-665 (~904 tok)
+  - fn `pushPanelData` L666-678 (~139 tok)
+  - fn `pushFriendsData` L679-689 (~96 tok)
+  - fn `ownDone` L690-698 (~90 tok)
+  - fn `refreshObjectivesView` L699-730 (~359 tok)
+  - fn `drenarFilaTroca` L731-738 (~79 tok)
+  - fn `segurarAteATelaPintar` L739-748 (~109 tok)
+  - fn `handleServerData` L749-977 (~3074 tok)
+  - fn `connect` L978-1017 (~465 tok)
+  - fn `startMultiplayer` L1018-1035 (~223 tok)
+  - fn `startSingleplayer` L1036-1059 (~284 tok)
+  - fn `persistWorld` L1060-1140 (~902 tok)
+  - class `GameRuntime` L1141-2464 (~18588 tok)
 - `materiaisMundo.ts` — §🎨 Os TRÊS materiais do chunk — e o relógio que os anima. (~1829 tok)
   - class `MateriaisMundo` L23-131 (~1489 tok)
 - `menu.ts` — Menu principal (cp8) — HTML/CSS por cima do canvas, sem GUI de engine. (~6769 tok)
@@ -405,9 +407,9 @@
 - `objectivesUi.ts` — Grupo do PRÓPRIO jogador (null = sem grupo). (~1244 tok)
   - section `ObjectivesCtx` L7-20 (~160 tok)
   - class `ObjectivesUi` L21-118 (~1054 tok)
-- `painelHost.ts` — O mínimo que a regra de um menu por vez precisa de um painel. (~1404 tok)
+- `painelHost.ts` — O mínimo que a regra de um menu por vez precisa de um painel. (~1644 tok)
   - section `MenuDeTela` L8-37 (~389 tok)
-  - class `PainelHost` L38-129 (~926 tok)
+  - class `PainelHost` L38-149 (~1166 tok)
 - `panels.ts` — Painéis HTML do cp14 — açúcar visual sobre os comandos de chat: cada botão (~6464 tok)
   - section `PanelData` L24-33 (~82 tok)
   - section `GamePanel` L34-40 (~36 tok)
@@ -462,12 +464,12 @@
   - fn `esconderTooltip` L307-310 (~19 tok)
 - `torchGlow.ts` — Halo das tochas (cp23) — SÓ visual (decisão 2026-07-17: tocha decorativa, (~1522 tok)
   - class `TorchGlow` L10-138 (~1403 tok)
-- `touch.ts` — Controles de toque (tablet) — joystick, arrasto de olhar e botões. SÓ (~5081 tok)
+- `touch.ts` — Controles de toque (tablet) — joystick, arrasto de olhar e botões. SÓ (~5567 tok)
   - fn `isTouchDevice` L15-20 (~72 tok)
-  - section `TouchActions` L21-46 (~296 tok)
-  - fn `solicitarTelaCheia` L47-107 (~862 tok)
-  - fn `rotular` L108-114 (~69 tok)
-  - class `TouchControls` L115-404 (~3623 tok)
+  - section `TouchActions` L21-50 (~358 tok)
+  - fn `solicitarTelaCheia` L51-125 (~1144 tok)
+  - fn `rotular` L126-132 (~69 tok)
+  - class `TouchControls` L133-429 (~3764 tok)
 - `vento.ts` — Vento do lado do CLIENTE (§🌬️, 2026-07-27). O servidor manda `dir`/`forca` (~1552 tok)
   - class `VentoCliente` L21-83 (~669 tok)
   - section `BalancoUniforms` L84-105 (~290 tok)
@@ -500,7 +502,7 @@
 ## mundos/_smoke-coluna/
 
 - `_smoke-coluna.ljw` (~62 tok)
-- `chat.log` (~4534 tok)
+- `chat.log` (~4640 tok)
 
 ## mundos/_smoke-comida/
 
@@ -524,7 +526,7 @@
 
 ## mundos/_smoke-kicar/
 
-- `chat.log` (~20970 tok)
+- `chat.log` (~21453 tok)
 
 ## mundos/_smoke-modoa/
 
@@ -545,7 +547,7 @@
 ## mundos/_smoke-trocaa/
 
 - `_smoke-trocaa.ljw` (~87 tok)
-- `chat.log` (~13763 tok)
+- `chat.log` (~14091 tok)
 
 ## mundos/_smoke-trocab/
 
@@ -557,11 +559,11 @@
 
 ## mundos/aula1-sequencia/
 
-- `chat.log` (~71490 tok)
+- `chat.log` (~73098 tok)
 
 ## mundos/aula2-binario/
 
-- `chat.log` (~2784 tok)
+- `chat.log` (~2848 tok)
 
 ## mundos/aula7-corrida/
 
@@ -789,7 +791,7 @@
   - fn `mouseEm` L121-122 (~32 tok)
   - fn `toqueEm` L123-128 (~68 tok)
   - fn `pegos` L129-256 (~1627 tok)
-- `toque-shot.mjs` — Os GESTOS da barra de toque, contra o servidor REAL (2026-08-04). (~5153 tok)
+- `toque-shot.mjs` — Os GESTOS da barra de toque, contra o servidor REAL (2026-08-04). (~6267 tok)
   - fn `espera` L40-42 (~60 tok)
   - fn `diga` L43-44 (~15 tok)
   - fn `acharChrome` L45-79 (~332 tok)
@@ -802,10 +804,11 @@
   - fn `dizer` L190-202 (~129 tok)
   - fn `tocar` L203-209 (~90 tok)
   - fn `botaoDaBarra` L210-220 (~174 tok)
-  - fn `estado` L221-232 (~110 tok)
+  - fn `estado` L221-232 (~116 tok)
   - fn `foto` L233-284 (~546 tok)
-  - fn `ok` L285-437 (~1869 tok)
-  - fn `painelBotao` L438-487 (~562 tok)
+  - fn `ok` L285-389 (~1337 tok)
+  - fn `desesconder` L390-523 (~1719 tok)
+  - fn `painelBotao` L524-573 (~562 tok)
 
 ## server/
 

@@ -126,6 +126,17 @@
 
 ## Key Learnings
 
+- [2026-08-21] **Todo comando interceptado no CLIENTE tem de desviar do portão do `PainelHost`.**
+  O `podeAbrir` é `!algumAberto && !bloqueado()`, e o `bloqueado()` do `main.ts` inclui
+  `chat.open` — quem digitou `/painel` ou `/amigos` está COM O CHAT ABERTO, então `podeAlternar`
+  diz não e o comando morre em silêncio. Por isso os dois têm método próprio no `PainelHost`
+  (`trocarParaAmigos`, `trocarParaPainel`) que faz `hide()` nos outros e chama `toggle()` sem
+  passar pelo portão. Tecla e botão de dedo usam o caminho normal (com portão); comando, não.
+- [2026-08-21] **O painel do cp14 tem TRÊS portas** (tecla P, botão 📋 do HUD de toque, `/painel`)
+  e um gate no meio: o painel do ALUNO só abre depois de o professor criar grupos. O gate mora em
+  `painelDoCp14Liberado()` no `main.ts` justamente porque ele lê `papel` e `latestGroups`, que são
+  estado de módulo do cliente — o `PainelHost` não os conhece e não deve conhecer.
+
 - [2026-08-21] **Os painéis de altura fixa do jogo (`#painel`, `#inventario`, `#jogadores`,
   `#amigos`, `#container`) compartilham UMA regra de CSS** (`client/index.html:167-190`):
   `height: min(560px, 84vh)`, `display: flex; flex-direction: column`, `overflow: hidden`. O
@@ -1206,6 +1217,26 @@ nenhum** — sem essa declaração o Chrome renderiza a página em light mesmo c
 
 ## Do-Not-Repeat
 
+- [2026-08-21] **O CSS da UI de toque vive num TEMPLATE LITERAL** (`const CSS = \`…\`` em
+  `client/src/touch.ts`). **Nunca escrever crase dentro dele** — nem em comentário `/* */`, nem
+  citando um seletor no hábito de markdown: a crase FECHA o literal e o build morre com
+  "Expected a semicolon" apontando a linha do comentário, não a crase. E o `tsc --noEmit`
+  **passa** — quem pega é o `vite build`. Conferência: `grep -n '\`' client/src/touch.ts` só
+  pode acender nas linhas que abrem e fecham o literal. (bug-633, cometido DUAS vezes na mesma
+  sessão, a segunda depois de eu mesmo ter escrito o aviso.)
+- [2026-08-21] **`pkill -f "<padrão>"` no mesmo comando Bash MATA O PRÓPRIO SHELL** quando o
+  padrão aparece na linha de comando dele (`pkill -f "remote-debugging-port=9358"` casa o
+  `bash -c '… remote-debugging-port=9358 …'`). Sintoma: exit 144 e nenhuma saída — parece o
+  build/sonda tendo morrido, e não é. Rodar o `pkill` num comando SEPARADO, ou usar
+  `pkill -f 'remote-debugging-port=935[0-9]'` com o padrão escrito de um jeito que não case a si
+  mesmo.
+- [2026-08-21] **`position: fixed; left: 50%` sem `right` limita a largura disponível à METADE da
+  janela.** Enquanto o filho não podia quebrar linha (sem `flex-wrap`) isso ficava invisível: o
+  conteúdo transbordava a caixa e o `translateX(-50%)` recentrava. Ao ligar `flex-wrap: wrap` a
+  barra do topo quebrou em duas linhas com meia tela sobrando (bug-634). Barra centralizada que
+  pode quebrar = `left/right` + `justify-content: center`, e aí `pointer-events: none` no
+  container (ele passa a cobrir a faixa inteira) com `auto` nos botões.
+
 - [2026-08-21] **`findSpawnY` é "superfície da coluna a céu aberto", NUNCA "espaço livre perto
   daqui".** Ele varre do TETO do mundo pra baixo. Usá-lo pra resolver posição de um jogador que
   está no SUBSOLO teletransporta a pessoa pela rocha inteira até o dia (bug-632: aluno soterrado
@@ -1753,6 +1784,20 @@ nenhum** — sem essa declaração o Chrome renderiza a página em light mesmo c
 - [2026-07-10] Não escrever "relatório de aplicação" antes de o piloto real acontecer.
 
 ## Decision Log — índice das decisões ATIVAS
+
+- [2026-08-21] **O 📋 do HUD de toque é FIXO pros dois papéis, e o `/painel` ALTERNA.** Três
+  decisões tomadas juntas (o usuário escolheu as três recomendações):
+  1. **Ícone/rótulo:** 📋 "painel" igual pros dois papéis, em vez de trocar o rótulo por papel
+     (autoria/grupos). "painel" é a palavra que o chat já usa no aviso do professor, e um rótulo
+     só dispensa mais um `setXRotulo` na `TouchControls`.
+  2. **Quem vê:** todos, sempre — e não o precedente condicional do 👥/🪄. Esconder o botão do
+     aluno sem grupos o deixaria sem saber que o painel existe; com ele fixo, o toque devolve o
+     mesmo aviso da tecla P ("o professor ainda não criou grupos"). Custo zero de estado novo: o
+     `TouchControls` não precisa saber de `latestGroups`.
+  3. **`/painel` alterna, como a tecla P.** Um caminho de código só. Na prática nunca fecha: o
+     chat não abre com painel na tela (`main.ts`, o gate `podeAbrir` do Enter), então digitar o
+     comando só é possível com o painel já fechado — "alterna" e "só abre" dão no mesmo, e
+     alternar é o que não diverge da tecla.
 
 - [2026-08-21] **A grama espalha 1 célula a cada 30 ticks (3 s), não 1 por tick.** Pedido do
   usuário ("deixa mais demorado pra grama espalhar"): a ~10 células/s um caminho de terra se

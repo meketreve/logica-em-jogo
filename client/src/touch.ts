@@ -36,6 +36,10 @@ export interface TouchActions {
   varinha(): void;
   /** Abre/fecha o painel de amigos (sem a tecla G no tablet). */
   amigos(): void;
+  /** Abre/fecha o painel do cp14 — autoria pro professor, grupos pro aluno
+   *  (sem a tecla P no tablet). O aluno sem grupos ainda leva o aviso do chat:
+   *  o gate é do `main.ts`, não daqui. */
+  painel(): void;
 }
 
 /**
@@ -81,9 +85,23 @@ const CSS = `
   position: fixed; right: 16px; bottom: 88px; display: grid;
   grid-template-columns: repeat(2, calc(64px * var(--ts))); gap: calc(10px * var(--ts)); z-index: 8;
 }
+/* Com o 6º botão (📋, 2026-08-21) a fileira CHEIA mede 512px — em retrato de
+   600px sobram só 41px de cada lado, folga curta demais pra apostar num
+   aparelho mais estreito. O flex-wrap faz a fileira cair pra 2ª linha em vez de
+   sair da tela.
+   ⚠️ E o wrap OBRIGOU a trocar o left:50% + translateX(-50%): com ele a
+   largura DISPONÍVEL do shrink-to-fit é só do meio da tela pra direita (512px
+   em 1024px), então a fileira quebrava em duas linhas com meia tela sobrando.
+   Sem wrap isso passava batido — o conteúdo transbordava a caixa de 512px e o
+   translate recentrava. A faixa inteira (left+right) mede o que a janela tem de
+   verdade, e o justify-content faz o centro.
+   O pointer-events vai junto: a faixa cobre o topo inteiro, e sem ele o toque
+   AO LADO dos botões morreria no container em vez de chegar ao jogo.
+   (Sem crase de template aqui dentro: este bloco é um template literal de TS.) */
 #touch-topo {
-  position: fixed; top: 8px; left: 50%; transform: translateX(-50%);
-  display: flex; gap: 8px; z-index: 8;
+  position: fixed; top: 8px; left: 8px; right: 8px;
+  display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; z-index: 8;
+  pointer-events: none;
 }
 .touch-btn {
   display: flex; flex-direction: column; align-items: center; justify-content: center;
@@ -99,7 +117,7 @@ const CSS = `
 /* alvo de dedo: a barra do topo abre mão do quadrado de 64px (ela é uma linha
    de ícone + texto), mas NÃO do piso de 40px — medido em 1024×600, ela estava
    em 30px, abaixo do mínimo que o resto da UI já respeita (2026-08-04) */
-#touch-topo .touch-btn { width: auto; height: auto; min-height: 40px; padding: 6px 12px; font-size: 16px; flex-direction: row; gap: 6px; }
+#touch-topo .touch-btn { width: auto; height: auto; min-height: 40px; padding: 6px 12px; font-size: 16px; flex-direction: row; gap: 6px; pointer-events: auto; }
 #touch-topo .touch-btn small { font-size: 12px; }
 `;
 
@@ -245,8 +263,11 @@ export class TouchControls {
     // Topo: SÓ o que é de jogo (2026-08-04, revisão pedida pelo usuário). Eram
     // 6 botões fixos em 1024×600, e 3 deles não são de jogo: tela cheia é 1× por
     // sessão e HUD é diagnóstico — os dois desceram pro menu de pausa (☰), que
-    // já é a porta do "resto". Sobraram os 3 de sempre + 2 que só aparecem
-    // QUANDO SERVEM: a varinha e os amigos, ambos da proteção de áreas.
+    // já é a porta do "resto". Sobraram os 4 fixos + 2 que só aparecem QUANDO
+    // SERVEM: a varinha e os amigos, ambos da proteção de áreas.
+    // O 4º fixo é o 📋 (2026-08-21): sem ele o painel do cp14 não tinha porta
+    // nenhuma no dedo — a tecla P não existe, e é o painel que o professor usa
+    // pra tocar a aula inteira.
     const topo = document.createElement("div");
     topo.id = "touch-topo";
     topo.append(
@@ -261,6 +282,10 @@ export class TouchControls {
       // amigos: sem tecla G no tablet. Só existe com a proteção ligada, que é
       // quando "quem constrói na minha área" vira pergunta.
       (this.btnAmigos = this.tapButton("👥", "amigos", () => this.actions.amigos())),
+      // painel do cp14: fixo pros dois papéis. O do aluno é o de GRUPOS e só
+      // abre com grupos criados — quem barra (e explica no chat) é o main, não
+      // um botão escondido: sumir com ele deixaria o aluno sem saber que existe.
+      this.tapButton("📋", "painel", () => this.actions.painel()),
     );
     // os dois nascem escondidos: quem os mostra é o main, pelo papel e pelo
     // estado da proteção de áreas

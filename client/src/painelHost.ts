@@ -115,6 +115,26 @@ export class PainelHost {
   }
 
   /**
+   * `/painel` sem subcomando (2026-08-21): a mesma porta que o `/amigos` abriu —
+   * a tecla P não existe no dedo, e digitar o comando é o gesto que o aluno já
+   * conhece. É TROCA, como o 👥, e **não passa pelo portão de propósito**: quem
+   * digitou o comando está com o chat aberto, o chat conta como menu no
+   * `bloqueado()`, e o `podeAbrir` diria não — o comando morreria em silêncio.
+   *
+   * Devolve `false` se não há painel ainda (antes do join) — aí o comando segue
+   * pro servidor. ⚠️ E lá `/painel` NÃO existe (`session.ts`): o aluno vê
+   * "Comando desconhecido". É o preço de não ter painel pra abrir, não um bug.
+   */
+  trocarParaPainel(): boolean {
+    if (!this.cp14) return false;
+    this.mochila?.hide();
+    this.jogadores?.hide();
+    this.amigos?.hide();
+    this.cp14.toggle();
+    return true;
+  }
+
+  /**
    * O servidor mandou abrir um container. Na prática nunca há o que fechar
    * (abrir baú é clique direito, que exige ponteiro travado, que exige nenhum
    * menu aberto) — os `hide` são o cinto além do suspensório.

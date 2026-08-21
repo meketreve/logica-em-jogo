@@ -5196,6 +5196,47 @@
       ],
       "occurrences": 1,
       "last_seen": "2026-08-21T15:40:00"
+    },
+    {
+      "id": "bug-633",
+      "timestamp": "2026-08-21T17:05:00",
+      "error_message": "npm run build: '[builtin:vite-transform] Expected a semicolon or an implicit semicolon after a statement, but found none — src/touch.ts:91'",
+      "file": "client/src/touch.ts",
+      "root_cause": "O CSS da UI de toque mora num TEMPLATE LITERAL de TS (`const CSS = \\u0060...\\u0060`). Escrevi um comentario /* */ dentro dele citando um seletor entre CRASES (o habito de markdown). A crase FECHOU o template literal no meio, e o resto do CSS virou codigo TS invalido. O typecheck (tsc --noEmit) rodou ANTES do comentario e passou; quem pegou foi o build, e a mensagem aponta a linha do comentario, nao a crase.",
+      "fix": "Tirei as crases do comentario (texto puro) e deixei a nota '(Sem crase de template aqui dentro: este bloco e um template literal de TS.)' no proprio bloco pra proxima sessao. Verificacao barata: `grep -n '\\u0060' client/src/touch.ts` — so as linhas 68 e 122 (abre/fecha) podem ter crase.",
+      "tags": [
+        "touch",
+        "css",
+        "template-literal",
+        "build",
+        "vite",
+        "comentario"
+      ],
+      "related_bugs": [],
+      "occurrences": 2,
+      "last_seen": "2026-08-21T17:20:00"
+    },
+    {
+      "id": "bug-634",
+      "timestamp": "2026-08-21T17:30:00",
+      "error_message": "sonda toque-shot: 'barra CHEIA: 6 botoes · 512x88px em 1024px' — a fileira do topo quebrou em DUAS linhas com meia tela sobrando, logo depois de ganhar `flex-wrap: wrap`",
+      "file": "client/src/touch.ts (CSS #touch-topo)",
+      "root_cause": "`#touch-topo` era `position: fixed; left: 50%; transform: translateX(-50%)`. Com `left:50%` e sem `right`, a largura DISPONIVEL do shrink-to-fit vai do meio da tela ate a borda direita — 512px numa janela de 1024px. Sem `flex-wrap` isso passava batido por 2 anos: o conteudo simplesmente TRANSBORDAVA a caixa de 512px e o `translateX(-50%)` recentrava o resultado. No instante em que o wrap entrou, o flex passou a OBEDECER os 512px e quebrou a linha.",
+      "fix": "Troquei por `left: 8px; right: 8px` + `justify-content: center` (a faixa mede o que a janela tem de verdade; o centro vem do justify). O container passou a cobrir o topo inteiro, entao `pointer-events: none` nele e `pointer-events: auto` nos `.touch-btn` — senao o toque AO LADO dos botoes morreria no container em vez de chegar ao jogo. Medido depois: 1024px = 1 linha (519px de conteudo), 600px = 1 linha, 420px = 2 linhas (defesa funcionando).",
+      "tags": [
+        "touch",
+        "css",
+        "flexbox",
+        "shrink-to-fit",
+        "layout",
+        "mobile",
+        "retrato"
+      ],
+      "related_bugs": [
+        "bug-633"
+      ],
+      "occurrences": 1,
+      "last_seen": "2026-08-21T17:30:00"
     }
   ]
 }
