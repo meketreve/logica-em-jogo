@@ -126,6 +126,14 @@
 
 ## Key Learnings
 
+- [2026-08-21] **A fila de células sujas DESCARTA quem devolve `null` — e só quem mexe ao lado
+  suja uma célula.** (`session.ts`, laço do `tick()`: `const changes = rule(...); if (!changes)
+  continue;`.) Consequência prática: **pôr sorteio ou espera DENTRO de uma `BlockRule` mata o
+  efeito**, porque a célula sai da fila e nunca mais é acordada. Quem precisa de "tentar de novo
+  depois" tem de se RE-ADICIONAR (`this.dirty.add(key)`) — é o que o teto de água já faz, e é o
+  molde que o freio da grama copiou. As duas engrenagens alternativas são o PULSO DE TEMPO
+  (plantação, muda, fornalha: índice próprio, fora do `RULES`) e o gate no laço do tick.
+
 - [2026-08-21] **O nome exibido de bloco tem UMA fonte: `PLACEABLE[].name` em
   `client/src/blocksUi.ts`.** Leem de lá `hotbarUi.nome()` (que antes disso resolve os ITENS numa
   cadeia de `if`), `tooltip.ts`, `panels.ts:514` e a grade da mochila. Trocar ali propaga pra
@@ -1705,6 +1713,15 @@ nenhum** — sem essa declaração o Chrome renderiza a página em light mesmo c
 - [2026-07-10] Não escrever "relatório de aplicação" antes de o piloto real acontecer.
 
 ## Decision Log — índice das decisões ATIVAS
+
+- [2026-08-21] **A grama espalha 1 célula a cada 30 ticks (3 s), não 1 por tick.** Pedido do
+  usuário ("deixa mais demorado pra grama espalhar"): a ~10 células/s um caminho de terra se
+  fechava quase instantaneamente e parecia bug, não mato. **O freio NÃO está na `grassRule`** —
+  ela continua pura e "um passo por chamada", e os testes dela seguem intactos. Quem segura é o
+  laço do `tick()` da session, com a célula fora da vez voltando pra `dirty` (o gesto do teto de
+  água). Contador GLOBAL, uma vez por tick: a fronteira inteira anda junta, no mesmo gosto do
+  canteiro que amadurece em bloco — escalonar por célula só faria a borda tremer. Ajustável por
+  `LJ_GRAMA` (molde do `LJ_CRESCIMENTO`); `LJ_GRAMA=1` devolve o ritmo antigo.
 
 - [2026-08-21] **A aba "todos" é um MODO de exibição, não uma `Categoria`.** Se fosse categoria,
   cada entrada de `PLACEABLE` precisaria declarar dois `cat`. `AbaInventario = Categoria |

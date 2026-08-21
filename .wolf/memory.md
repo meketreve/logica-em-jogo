@@ -2506,3 +2506,7 @@ segue com `relatorio-aplicacao.md` e `apresentacao-cre.html`, ambos rastreados.
 | 09:32 | armadilha do tablet MEDIDA: teclado aberto deixava a grade com 7px | client/index.html | media query max-height:460px -> grade 92px | ~6k |
 | 09:40 | bug-629: smoke comida falhava — /salvar NUNCA existiu e espera(800) fixa apos 3000 mover | server/src/cenarios/_smoke-comida.mjs | helper `ate()`, A/B conferido, 21s->14s | ~9k |
 | 09:50 | bateria: launchers 5/5, typecheck 3/3, 891/891, build, 15/15 smokes, cenarios byte-identicos | — | verify:all exit 0 | ~3k |
+| 11:46 | Created shared/src/grama.session.test.ts | — | ~1010 |
+| 11:30 | freio da grama: TICKS_POR_GRAMA=30 no rules.ts, gate no laço do tick da session, LJ_GRAMA no server | rules.ts, session.ts, server/index.ts | 1 celula/3s (era 10/s) | ~10k |
+| 11:46 | grama.session.test.ts novo (4 testes) + A/B: sem o dirty.add, 2 caem | shared/src/grama.session.test.ts | 895/895 | ~7k |
+| 11:55 | anotadas 2 ideias: botao de comandos no HUD + /painel; e rolagem do painel P | todo.md | #painel NAO tem filho rolavel — problema confirmado | ~6k |

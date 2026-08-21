@@ -2,6 +2,47 @@
 
 > Single source of truth for resuming work. Read this FIRST when starting a session.
 
+> ## 🧭 HANDOFF — SESSÃO 80 (2026-08-21, continuação da 79)
+>
+> **Freio da grama + duas ideias novas anotadas.** Bateria verde (**895/895**, +4 testes).
+>
+> ### ✅ Entregue — a grama espalha DEVAGAR
+> Pedido: *"deixa mais demorado pra grama espalhar"*. Antes a onda andava **1 célula por tick
+> (~10 células/s)** e um caminho de terra se fechava quase instantaneamente. Agora é
+> **1 célula a cada 30 ticks (3 s)** — `TICKS_POR_GRAMA` em `shared/src/rules.ts`, ajustável por
+> **`LJ_GRAMA`** (molde do `LJ_CRESCIMENTO`; `LJ_GRAMA=1` devolve o ritmo antigo).
+>
+> ⚠️ **A armadilha do desenho, que é o que vale guardar:** o laço do `tick()` **descarta a célula
+> cuja regra devolve `null`**, e só quem mexe ao lado suja uma célula. Então **sorteio ou espera
+> DENTRO da `grassRule` mataria o espalhamento** em vez de atrasá-lo. O freio ficou no laço da
+> session, com a célula fora da vez voltando pra `dirty` — o mesmo gesto do teto de água. A
+> `grassRule` continua pura ("um passo por chamada") e o `grama.test.ts` seguiu intacto.
+> Contador GLOBAL (uma vez por tick): a fronteira anda junta, como o canteiro que amadurece em
+> bloco. `shared/src/grama.session.test.ts` (NOVO, 4 testes) cobre isso — **A/B conferido:
+> removendo o `dirty.add`, 2 dos 4 caem**.
+>
+> ### 📝 Duas ideias anotadas (NÃO implementadas), com âncoras
+> 1. **Botão de comandos no HUD de toque + comando `/painel`.** ⚠️ O molde exato já existe:
+>    `abrirAmigosPorComando()` em `client/src/main.ts:475-485` (o `/amigos` sem subcomando abre o
+>    painel no CLIENTE e não vai ao servidor). Botão entra em `#touch-topo`
+>    (`client/src/touch.ts:251-263`, helper `tapButton`). ⚠️ `/painel` não existe no servidor.
+> 2. **Rolagem do painel do professor (botão `P`).** ⚠️ **Já verifiquei: o problema é REAL.** O
+>    `#painel` divide a moldura de altura FIXA (`min(560px, 84vh)` + `overflow: hidden`,
+>    `client/index.html:167-190`) com `#inventario`/`#jogadores`, **mas é o único sem um filho
+>    rolável** — os outros têm `.inv-grid` e `.jog-lista` (`flex: 1; overflow-y: auto`). O que
+>    passa do fim é cortado. Conserto provável: wrapper rolável nas `.painel-row`
+>    (`client/src/panels.ts`), molde do `.jog-lista`. **Medir antes de mexer.**
+>
+> ✅ **Bateria:** `verify:all` **exit 0** — launchers 5/5 · typecheck 3/3 · **895/895** · build ·
+> **15/15 smokes** · `cenarios` 7/7 byte-idênticos.
+>
+> ### 🚀 Próximo
+> 1. **Rolagem do painel `P`** — o menor dos dois e já diagnosticado.
+> 2. **Botão de comandos no HUD + `/painel`.**
+> 3. **Painel de comandos do mobile ao LADO** (item de 2026-08-17, irmão do 2).
+> 4. **`/invisivel`** para professor — ⚠️ filtragem no SERVIDOR, por cliente.
+> 5. **Ovelha + lã de verdade** (ids NOVOS, ver `shared/src/blocks.ts:20-26`).
+
 > ## 🧭 HANDOFF — ESTADO AO FIM DA SESSÃO 79 (2026-08-21)
 >
 > **Duas entregas: o push da 78 e a aba "todos" + busca no inventário.** De quebra, um defeito

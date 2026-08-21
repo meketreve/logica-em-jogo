@@ -98,6 +98,22 @@ export const torchRule: BlockRule = (world, x, y, z) => {
 export const TICKS_POR_CRESCIMENTO = 200;
 
 /**
+ * Ticks entre dois PASSOS da grama (2026-08-21, pedido do usuário: "deixa mais
+ * demorado pra grama espalhar"). 10 Hz → **1 célula a cada 3 s**.
+ *
+ * Antes a `grassRule` corria na fila de vizinhança sem freio nenhum: a onda
+ * andava 1 célula POR TICK, ~10 células/s, e um caminho de terra se fechava
+ * quase instantaneamente — parecia bug, não mato crescendo.
+ *
+ * ⚠️ O freio NÃO está na regra: quem segura é a `session` no laço do tick, do
+ * mesmo jeito que o teto de água — a célula de grama que não é da vez volta
+ * pra fila de sujas e tenta de novo. Pôr sorteio dentro da `grassRule` MATARIA
+ * o espalhamento, porque o laço descarta a célula que devolve `null` e ela
+ * nunca mais seria acordada (só quem mexe ao lado suja uma célula).
+ */
+export const TICKS_POR_GRAMA = 30;
+
+/**
  * §🍖 F6 — a plantação avança UM estágio.
  *
  * NÃO está no registro `RULES`, e isso é a decisão do desenho: a fila de células

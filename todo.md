@@ -226,6 +226,52 @@ senão lado com parede; empate → base. Cliente inalterado.
 
 ## Mobile / toque
 
+* \[ ] **BOTÃO DE COMANDOS NO HUD DE TOQUE + `/painel` QUE ABRE O MESMO PAINEL** (ideia do
+  usuário, 2026-08-21). Duas portas novas pro painel de comandos do mobile, para não depender de
+  achar o caminho pelo chat. **Irmã do item logo abaixo** (painel ao LADO) — decidir se as duas
+  entram juntas ou se esta vem primeiro, já que é bem menor.
+  * **Porta 1 — botão no HUD de toque.** A fileira de cima é `#touch-topo`
+    (`client/src/touch.ts:251-263`), montada com o helper `this.tapButton(ícone, nome, ação)`.
+    Hoje tem ☰ menu · 🧱 blocos · 💬 chat · 🪄 varinha · 👥 amigos. O botão novo entra ali com o
+    mesmo molde (uma linha), e a ação chama o que o `/painel` chamar.
+  * **Porta 2 — comando `/painel`.** ⚠️ **O molde EXATO já existe e é para copiar:**
+    `abrirAmigosPorComando()` em `client/src/main.ts:475-485`. `/amigos` sem subcomando abre o
+    painel NO CLIENTE e não vai ao servidor; com subcomando segue pro fio como sempre. O
+    comentário lá explica a razão que vale igual aqui: *"é a única porta que serve nos dois — a
+    tecla não existe no tablet"*. Registrar `/painel` no mesmo ponto de intercepção.
+  * ⚠️ **`/painel` NÃO existe no servidor** (`session.ts:1602` lista os comandos, e ele não está
+    lá). Se a intercepção do cliente falhar, o aluno recebe "Comando desconhecido" — então o
+    teste tem de provar a intercepção, não só o clique do botão.
+  * **Pontos a decidir antes:**
+    * Qual ícone e rótulo? (`⌨` comandos? `/` comandos?) A fileira já tem 5 botões e em retrato
+      a largura é escassa — conferir se cabe um 6º sem quebrar linha.
+    * O botão aparece pra TODO MUNDO ou só pro professor? (o 👥 amigos, por exemplo, só aparece
+      com a proteção de áreas ligada — há precedente pra botão condicional.)
+    * `/painel` alterna (abre/fecha) ou só abre? O `/amigos` só abre.
+  * **Verificação:** `npm run shots:toque` já fotografa o HUD de toque e tem seção que abre o
+    painel de comandos — é onde o botão novo tem de aparecer.
+
+* \[ ] **VERIFICAR SE DÁ PRA ROLAR O PAINEL DO PROFESSOR (botão `P`)** (ideia do usuário,
+  2026-08-21). ⚠️ **Já verifiquei o essencial e o problema é REAL:** o `#painel` **não tem
+  nenhum filho com `overflow-y: auto`**. Ele divide com `#inventario`/`#jogadores`/`#amigos` a
+  moldura de **altura FIXA** `min(560px, 84vh)` + `overflow: hidden`
+  (`client/index.html:167-190`) — mas os irmãos têm um container rolável dentro
+  (`.inv-grid` e `.jog-lista`, ambos `flex: 1; overflow-y: auto`) e **o `#painel` não tem**.
+  Resultado: o que passa do fim é cortado, sem jeito de alcançar. E ele é o painel mais DENSO do
+  jogo — o próprio CSS diz isso na media query de paisagem baixa (`index.html`, comentário da
+  "2ª rodada 2026-08-04": *"cada `.painel-row` é rótulo + select largo"*).
+  * **O conserto provavelmente é pequeno:** um wrapper rolável em volta das `.painel-row`, no
+    molde do `.jog-lista`, deixando `.painel-head` fixo em cima. Quem monta é
+    `client/src/panels.ts` (nenhum `overflow` lá hoje — conferido por grep).
+  * **Pontos a decidir antes:**
+    * As ABAS do painel ficam fixas junto do cabeçalho, ou rolam com o conteúdo? (Fixas é o que
+      o inventário faz.)
+    * Vale reaproveitar a media query de `max-height: 460px` que a busca de blocos criou
+      (2026-08-21) pra encolher o enfeite do `#painel` também com o teclado aberto?
+  * ⚠️ **Medir ANTES de mexer**, como foi feito na busca de blocos: abrir o painel P numa sonda
+    headless em 1024×600 E em ~300px de altura e comparar `scrollHeight` com `clientHeight` de
+    cada aba. Sem o número, "não rola" vira palpite — e pode ser que só UMA aba estoure.
+
 * \[ ] **PAINEL DE COMANDOS DO MOBILE AO LADO, não embaixo** (ideia do usuário, 2026-08-17).
   Hoje o painel é uma faixa horizontal DEPOIS do campo (`#chat-painel { margin-top: 4px;
   max-height: 26vh; flex-wrap: wrap }`, `client/src/chat.ts:24-35`), empilhada com o input no

@@ -219,6 +219,12 @@ let session = new GameSession(
     ...(Number.isFinite(Number(process.env["LJ_CRESCIMENTO"])) && process.env["LJ_CRESCIMENTO"]
       ? { crescimentoPorEstagio: Number(process.env["LJ_CRESCIMENTO"]) }
       : {}),
+    // grama (2026-08-21): ticks por PASSO do espalhamento. Padrão = 3 s por
+    // célula; `LJ_GRAMA=1` devolve o comportamento antigo (um passo por tick),
+    // que é o que os smokes usam pra não ficar esperando o mato crescer.
+    ...(Number.isFinite(Number(process.env["LJ_GRAMA"])) && process.env["LJ_GRAMA"]
+      ? { gramaPorPasso: Number(process.env["LJ_GRAMA"]) }
+      : {}),
   },
 );
 if (session.isLazy) {

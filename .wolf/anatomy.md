@@ -1,7 +1,7 @@
 # anatomy.md
 
-> Auto-maintained by OpenWolf. Last scanned: 2026-08-21T14:07:47.164Z
-> Files: 359 tracked | Anatomy hits: 0 | Misses: 0
+> Auto-maintained by OpenWolf. Last scanned: 2026-08-21T14:53:06.300Z
+> Files: 360 tracked | Anatomy hits: 0 | Misses: 0
 
 ## ./
 
@@ -15,7 +15,7 @@
 - `package.json` — Node.js package manifest (~420 tok)
 - `projeto.txt` (~4707 tok)
 - `README.md` — Project documentation (~2541 tok)
-- `todo.md` — Ideias para fazer (~21253 tok)
+- `todo.md` — Ideias para fazer (~22159 tok)
 - `tsconfig.base.json` (~130 tok)
 - `vitest.config.ts` — Config do vitest da RAIZ (2026-08-11, bug-612). (~335 tok)
 
@@ -500,7 +500,7 @@
 ## mundos/_smoke-coluna/
 
 - `_smoke-coluna.ljw` (~62 tok)
-- `chat.log` (~4374 tok)
+- `chat.log` (~4427 tok)
 
 ## mundos/_smoke-comida/
 
@@ -524,7 +524,7 @@
 
 ## mundos/_smoke-kicar/
 
-- `chat.log` (~20245 tok)
+- `chat.log` (~20487 tok)
 
 ## mundos/_smoke-modoa/
 
@@ -545,7 +545,7 @@
 ## mundos/_smoke-trocaa/
 
 - `_smoke-trocaa.ljw` (~87 tok)
-- `chat.log` (~13270 tok)
+- `chat.log` (~13434 tok)
 
 ## mundos/_smoke-trocab/
 
@@ -557,11 +557,11 @@
 
 ## mundos/aula1-sequencia/
 
-- `chat.log` (~69079 tok)
+- `chat.log` (~69883 tok)
 
 ## mundos/aula2-binario/
 
-- `chat.log` (~2688 tok)
+- `chat.log` (~2720 tok)
 
 ## mundos/aula7-corrida/
 
@@ -814,15 +814,15 @@
 
 ## server/src/
 
-- `index.ts` — Hospedeiro Node+ws do servidor (LAN): embrulha a MESMA GameSession do Web (~6494 tok)
+- `index.ts` — Hospedeiro Node+ws do servidor (LAN): embrulha a MESMA GameSession do Web (~6604 tok)
   - fn `gerarCodigo` L121-157 (~526 tok)
-  - fn `registrarChat` L158-232 (~942 tok)
-  - fn `saveNow` L233-289 (~620 tok)
-  - fn `interceptarMundo` L290-346 (~533 tok)
-  - fn `interceptarKicar` L347-415 (~633 tok)
-  - fn `interceptarBanimento` L416-499 (~787 tok)
-  - fn `interceptarProfile` L500-564 (~761 tok)
-  - fn `enderecoDaRede` L565-586 (~230 tok)
+  - fn `registrarChat` L158-238 (~1052 tok)
+  - fn `saveNow` L239-295 (~620 tok)
+  - fn `interceptarMundo` L296-352 (~533 tok)
+  - fn `interceptarKicar` L353-421 (~633 tok)
+  - fn `interceptarBanimento` L422-505 (~787 tok)
+  - fn `interceptarProfile` L506-570 (~761 tok)
+  - fn `enderecoDaRede` L571-592 (~230 tok)
 - `mundos.ts` — `/mundo` (cp19) — trocar a aula SEM derrubar a turma. (~2060 tok)
   - fn `mundosDisponiveis` L29-49 (~214 tok)
   - fn `acharMundo` L50-57 (~81 tok)
@@ -1205,6 +1205,8 @@
   - fn `chunkDoMolde` L68-73 (~59 tok)
   - fn `chunkDoGrupo` L74-82 (~125 tok)
   - fn `caixaDaCelula` L83-91 (~84 tok)
+- `grama.session.test.ts` — Grama PELO TICK DA SESSION (2026-08-21). O `grama.test.ts` prova a regra pura (~1063 tok)
+  - fn `faixa` L23-89 (~789 tok)
 - `grama.test.ts` — Autômato celular síncrono do water.test.ts — força-bruta da regra. (~1452 tok)
   - fn `simular` L9-28 (~206 tok)
   - fn `superfice` L29-134 (~1152 tok)
@@ -1434,16 +1436,16 @@
   - fn `parseRegras` L80-95 (~185 tok)
   - fn `regrasParaSave` L96-110 (~102 tok)
 - `rules.test.ts` — O PORTÃO DO APOIO (2026-08-05) — este teste é a razão de o registro ter (~1529 tok)
-- `rules.ts` — Sistema GENÉRICO de atualização de bloco por vizinhança — a REGRA DE OURO (~5308 tok)
-  - section `BlockChange` L29-170 (~1828 tok)
-  - fn `variaPorPosicao` L171-187 (~148 tok)
-  - fn `isGrama` L188-219 (~439 tok)
-  - fn `fontesLaterais` L220-231 (~146 tok)
-  - fn `nivelSuportado` L232-251 (~290 tok)
-  - fn `temQueda` L252-260 (~137 tok)
-  - fn `aguaAtravessa` L261-269 (~136 tok)
-  - fn `passosAteQueda` L270-416 (~1943 tok)
-  - fn `ruleFor` L417-420 (~28 tok)
+- `rules.ts` — Sistema GENÉRICO de atualização de bloco por vizinhança — a REGRA DE OURO (~5535 tok)
+  - section `BlockChange` L29-186 (~2054 tok)
+  - fn `variaPorPosicao` L187-203 (~148 tok)
+  - fn `isGrama` L204-235 (~439 tok)
+  - fn `fontesLaterais` L236-247 (~146 tok)
+  - fn `nivelSuportado` L248-267 (~290 tok)
+  - fn `temQueda` L268-276 (~137 tok)
+  - fn `aguaAtravessa` L277-285 (~136 tok)
+  - fn `passosAteQueda` L286-432 (~1943 tok)
+  - fn `ruleFor` L433-436 (~28 tok)
 - `save-lazy.test.ts` — Dims lazy de teste (33k chunks > teto denso) — mesmo caminho do tamanho E. (~1031 tok)
   - fn `novaLazy` L13-77 (~890 tok)
 - `save.test.ts` — Declares DIMS (~1454 tok)
@@ -1481,11 +1483,11 @@
   - fn `parseObjectiveState` L304-361 (~576 tok)
 - `session.test.ts` — Testes de MECÂNICA rodam com singleplayer: true (join sem PIN) — a (~14895 tok)
   - fn `collect` L12-1097 (~14752 tok)
-- `session.ts` — GameSession: o SERVIDOR autoritativo, independente de hospedeiro. (~29492 tok)
-  - section `SessionOptions` L222-268 (~644 tok)
-  - section `SessionPlayer` L269-279 (~60 tok)
-  - section `Identity` L280-284 (~19 tok)
-  - class `GameSession` L285-2318 (~27462 tok)
+- `session.ts` — GameSession: o SERVIDOR autoritativo, independente de hospedeiro. (~29876 tok)
+  - section `SessionOptions` L229-281 (~721 tok)
+  - section `SessionPlayer` L282-292 (~60 tok)
+  - section `Identity` L293-297 (~19 tok)
+  - class `GameSession` L298-2349 (~27759 tok)
 - `sobrevivencia.test.ts` — Professor (1) + ana (2). `modo` decide o padrão do mundo. (~8035 tok)
   - fn `collect` L42-45 (~55 tok)
   - fn `join` L46-47 (~34 tok)

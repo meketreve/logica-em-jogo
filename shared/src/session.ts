@@ -185,7 +185,14 @@ import {
 import {
   type Claim,
 } from "./claims";
-import { TICKS_POR_CRESCIMENTO, crescerMuda, crescerPlantacao, ruleFor } from "./rules";
+import {
+  TICKS_POR_CRESCIMENTO,
+  TICKS_POR_GRAMA,
+  crescerMuda,
+  crescerPlantacao,
+  isGrama,
+  ruleFor,
+} from "./rules";
 import { type SaveData, type SaveMeta } from "./save";
 import {
   type Box,
@@ -264,6 +271,12 @@ export interface SessionOptions {
    * botão pra o professor experimentar o ritmo num playtest sem esperar a aula.
    */
   crescimentoPorEstagio?: number;
+  /**
+   * Ticks entre dois PASSOS da grama (LJ_GRAMA). O padrão é `TICKS_POR_GRAMA`
+   * (3 s por célula); **1 devolve o comportamento antigo** (um passo por tick,
+   * ~10 células/s), que é o que os smokes usam pra não esperar o mato.
+   */
+  gramaPorPasso?: number;
 }
 
 export interface SessionPlayer {
@@ -515,6 +528,9 @@ export class GameSession {
   private crescimentoTicks = 0;
   /** §🍖 F6: de quantos em quantos ticks a horta anda um estágio. */
   private readonly crescimentoPorEstagio: number;
+  private readonly gramaPorPasso: number;
+  /** Conta os ticks até a próxima vez da grama (ver `TICKS_POR_GRAMA`). */
+  private gramaTicks = 0;
 
   constructor(
     readonly send: SendFn,
@@ -528,6 +544,7 @@ export class GameSession {
       1,
       opts.crescimentoPorEstagio ?? TICKS_POR_CRESCIMENTO,
     );
+    this.gramaPorPasso = Math.max(1, opts.gramaPorPasso ?? TICKS_POR_GRAMA);
     this.codigo = opts.codigo ?? opts.restore?.codigo;
     this.somenteLeitura = opts.somenteLeitura ?? false;
     if (opts.restore) {
@@ -2179,6 +2196,13 @@ export class GameSession {
     let celulas = 0; // células que a regra REALMENTE examinou neste tick
     let mudancas = 0; // blocos que as regras mudaram neste tick
     let aguaCelulas = 0;
+    // É a vez da grama? (2026-08-21) Um passo a cada `gramaPorPasso` ticks, e
+    // não um por tick — a onda de ~10 células/s fechava um caminho de terra
+    // antes de o aluno ver. O contador anda UMA vez por tick, fora do laço, pra
+    // toda a fronteira avançar junta (o mesmo gosto do canteiro que amadurece
+    // em bloco); escalonar por célula só faria a borda tremer.
+    const vezDaGrama = ++this.gramaTicks >= this.gramaPorPasso;
+    if (vezDaGrama) this.gramaTicks = 0;
     for (const key of batch) {
       if (this.changedThisTick.has(key)) continue; // célula já mudou neste tick
       const x = key % this.world.sizeX;
@@ -2191,6 +2215,13 @@ export class GameSession {
       const ehAgua = isAgua(atual);
       if (ehAgua && aguaOrcamento <= 0) {
         this.dirty.add(key); // teto atingido → escorre no próximo tick
+        continue;
+      }
+      // ⚠️ a grama fora da vez VOLTA PRA FILA (mesmo gesto do teto de água). O
+      // laço descarta quem devolve `null`, e só quem mexe ao lado suja uma
+      // célula: sem este `add`, a onda morreria no primeiro tick de espera.
+      if (!vezDaGrama && isGrama(atual)) {
+        this.dirty.add(key);
         continue;
       }
       celulas++;
