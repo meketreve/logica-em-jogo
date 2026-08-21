@@ -2,257 +2,103 @@
 
 > Single source of truth for resuming work. Read this FIRST when starting a session.
 
-> ## 🧭 HANDOFF — SESSÃO 82 (2026-08-21) — BUG DE CAMPO CONSERTADO
+> ## 🧭 HANDOFF — FIM DA SESSÃO (2026-08-18 → 21) · sessões 78-82 consolidadas
 >
-> **Relato da escola:** *"um aluno estava em uma caverna e foi soterrado por areia, foi
-> teleportado para a superfície ao invés de morrer por soterramento"*. Consertado na raiz.
+> **5 commits, todos empurrados. `origin/main` = `a81278d`. Árvore limpa, bateria verde.**
+> `verify:all` exit 0 — launchers 5/5 · typecheck 3/3 · **897/897** · build · **15/15 smokes** ·
+> `cenarios` 7/7 byte-idênticos.
 >
-> ### 🔎 Causa raiz — `acharEspacoVago` ignorava o `pos.y`
-> A busca do "vão livre mais próximo" era por **COLUNA**: `caber(x,z)` fazia
-> `findSpawnY(world, x, z)`, e o `findSpawnY` varre **do TETO do mundo pra baixo** devolvendo a
-> **superfície a céu aberto**. O modelo mental do autor (bug-605, sessão 57) era *"soterrado pela
-> areia, pula em cima dela"* — o próprio comentário dizia *"a coluna própria (r=0 — sobe pro topo
-> do que o soterrou)"*. A céu aberto parecia certo; no subsolo virava teletransporte **pela rocha
-> inteira até a luz do dia**.
+> ```
+> a81278d  fix(soterramento): procurar o vão AO REDOR do jogador, não no topo da coluna
+> 4548c54  fix(painel): o painel do professor rola — a seção de grupos estava inalcançável
+> 7fb305a  feat(grama): espalha 1 célula a cada 3s, não 10 por segundo
+> 97da85b  feat(inventario): aba "todos" por id + barra de busca
+> 0563613  refactor(blocos): "lã <cor>" vira "bloco de algodão <cor>"
+> ```
 >
-> ⚠️ **Efeito colateral que ninguém tinha visto: quem estava soterrado no subsolo NUNCA morria.**
-> Sempre havia "vão" (a superfície), então o teleporte acontecia no 1º tick e o dano de
-> sufocamento zerava. A mecânica de morte por soterramento era letra morta fora da superfície.
+> ---
 >
-> ⚠️ **O tell estava nos próprios testes do bug-605:** a fixture `enterrar()` constrói a coluna
-> cheia **até o teto do mundo** — a única forma de o `findSpawnY` não achar superfície. Quando um
-> teste precisa de um pilar até o céu pra provar "não há vão", a semântica está errada.
+> ### 1. `a81278d` — SOTERRAMENTO (bug de campo, o mais grave da sessão)
+> **Relato:** *"um aluno estava numa caverna e foi soterrado por areia; foi teleportado para a
+> superfície em vez de morrer por soterramento"*.
 >
-> ### ✅ Conserto (`shared/src/physics.ts`)
-> Busca **ao redor do jogador** (pedido explícito dele: *"deveria procurar blocos ao redor e não
-> a cima do player"*): cascas de **Chebyshev 3D** do raio 0 pra fora a partir de
-> `(floor(pos.x), floor(pos.y), floor(pos.z))`. Desempate na casca por
-> **`peso = |dy|*100 + dx² + dz²`** — com `raio ≤ 2` o termo horizontal (≤ 8) nunca alcança um
-> nível de Y, então a PROFUNDIDADE sempre ganha. Determinístico. O vão não precisa de chão: se
-> for no ar, a gravidade resolve. Corrige os DOIS chamadores de uma vez (o `tickVitais` e o
-> handler de `move`). `findSpawnY` saiu do import de `physics.ts`.
+> **Causa raiz:** `acharEspacoVago` (`shared/src/physics.ts`) **ignorava o `pos.y`** — buscava por
+> COLUNA via `findSpawnY`, que varre do TETO do mundo pra baixo e devolve a superfície a céu
+> aberto. ⚠️ **Efeito que ninguém tinha visto: soterrado no subsolo NUNCA morria** (sempre havia
+> "vão" = a superfície, o teleporte saía no 1º tick e o dano zerava).
+> **Conserto:** cascas de Chebyshev **3D** ao redor do jogador, desempate por
+> `|Δy|*100 + dx² + dz²` (com raio ≤ 2 a profundidade sempre ganha). +2 testes.
 >
-> ### ⚠️ 3 testes de FOME quebraram — e a fixture é que estava errada
-> `sobrevivencia.test.ts` punha a ana em `y: 20` num mundo 32³, **dentro da rocha** (medido:
-> bloco = 5, `sobrepoeSolidos` = `true`, `findSpawnY(1,1)` = 23). Eles passavam **graças ao bug**,
-> que a resgatava pra superfície no 1º tick; sem o resgate ela sufocava, morria e respawnava com
-> vida cheia — daí `expected 20 to be 13`. Corrigidas pra `y: 23`. O bug-605 já tinha feito essa
-> correção no `session.test.ts`; estas passaram batido.
+> ### 2. `4548c54` — ROLAGEM DO PAINEL `P`
+> **Medido antes:** 701px de conteúdo em 536px → **165px cortados já no notebook de 600px**
+> (417px com teclado de tablet). A seção **👥 grupos inteira** era inalcançável.
+> **Causa:** o `#painel` era o único da moldura de altura fixa sem filho rolável.
+> **Conserto:** `Panel.abrir()` devolve um `.painel-corpo` (`flex:1; min-height:0; overflow-y:auto`)
+> + `scrollCorpo` preservando a rolagem entre renders de broadcast.
 >
-> ✅ **Bateria:** `verify:all` **exit 0** — launchers 5/5 · typecheck 3/3 · **897/897** (+2) ·
-> build · **15/15 smokes** · `cenarios` 7/7 byte-idênticos.
+> ### 3. `7fb305a` — GRAMA MAIS LENTA
+> Era 1 célula/tick (~10/s); virou **1 a cada 30 ticks (3 s)**, `TICKS_POR_GRAMA`, ajustável por
+> **`LJ_GRAMA`** (`=1` volta ao ritmo antigo). O freio está no laço do `tick()` da session, não na
+> `grassRule`. +4 testes (`grama.session.test.ts`).
 >
-> ### 🚀 Próximo
-> 1. **Botão de comandos no HUD de toque + `/painel`** — molde em `client/src/main.ts:475-485`
->    (`abrirAmigosPorComando`); botão em `#touch-topo` (`client/src/touch.ts:251-263`).
-> 2. **Painel de comandos do mobile ao LADO** (2026-08-17).
-> 3. **`/invisivel`** para professor — ⚠️ filtragem no SERVIDOR, por cliente.
-> 4. **Ovelha + lã de verdade** (ids NOVOS, `shared/src/blocks.ts:20-26`).
-> 5. Sentar na cadeira, teto de 35 grupos, proteger a célula-molde, Ferramentas v2, mobs.
-
-> ## 🧭 HANDOFF — SESSÃO 81 (2026-08-21)
+> ### 4. `97da85b` — ABA "TODOS" + BUSCA NO INVENTÁRIO
+> 145 colocáveis por id + busca sem acento e por id exato. `@media (max-height: 460px)` salva a
+> grade com o teclado aberto (**7px → 92px**).
 >
-> **Rolagem do painel do professor.** Bateria verde. Commitado e empurrado.
+> ### 5. `0563613` — "lã \<cor\>" → "bloco de algodão \<cor\>"
+> Rótulo E identificador (`BlockId.BlocoAlgodao*`), **números intactos** (11-18, 23-26). Nenhuma
+> receita cobrava lã — isso já fora resolvido no bug-611; o resíduo era vocabulário. ⚠️ **"lã"
+> fica RESERVADO pra ovelha** (ids NOVOS, append — ver `shared/src/blocks.ts:20-26`).
 >
-> ### ✅ Entregue — e NÃO era só "possibilidade": estava cortando de verdade
-> **Medido antes de mexer:** 701px de conteúdo em 536px de painel → **165px cortados já no
-> notebook de 600px** (417px com o teclado do tablet aberto). A seção **👥 grupos INTEIRA** e a
-> dica final ficavam invisíveis e inalcançáveis — o professor não conseguia criar grupos pelo
-> painel.
+> ---
 >
-> **Causa:** o `#painel` divide a moldura de altura FIXA (`min(560px, 84vh)` + `overflow: hidden`,
-> `client/index.html:167-190`) com `#inventario`/`#jogadores`/`#amigos`, mas era o **único sem um
-> filho rolável** — os irmãos têm `.inv-grid` e `.jog-lista`.
+> ### ⚠️ AS ARMADILHAS DESTA SESSÃO (evitam refazer a descoberta)
+> - **`findSpawnY` é "superfície a céu aberto", nunca "espaço livre perto daqui".** Usá-lo pra
+>   resolver posição de quem está no subsolo teletransporta a pessoa pela rocha até o dia.
+> - **Fixture de teste com `y` literal pode nascer DENTRO da rocha — e um bug de resgate mascara
+>   isso.** 3 testes de FOME passavam graças ao bug do soterramento; consertado ele, caíram
+>   medindo sufocamento. Checagem barata: `sobrepoeSolidos(world, pos)`.
+> - **A fila de células sujas DESCARTA quem devolve `null`.** Sorteio/espera DENTRO de uma
+>   `BlockRule` MATA o efeito em vez de atrasá-lo — quem precisa tentar de novo tem de se
+>   re-adicionar (`this.dirty.add(key)`), como o teto de água e o freio da grama.
+> - **`overflow: hidden` ainda aceita `scrollTop` por SCRIPT.** Sonda que testa rolagem com
+>   `el.scrollTop = 99999` dá **falso positivo** num painel cortado.
+> - **Sonda headless medindo código ANTIGO depois do rebuild = PROCESSO ÓRFÃO, não bug.** O
+>   `http.server` fica preso ao inode da pasta que o build recria, e um **Chrome antigo segurando
+>   a porta 9355** faz a sonda falar com o browser da rodada anterior. **Higiene:** após todo
+>   build, `pkill -f "http.server <porta>"` e `pkill -f "remote-debugging-port=9355"`.
+>   **Diagnóstico:** comparar o `script[src]` lido DENTRO da página com o do `curl $BASE`.
+> - **Pra sondar o inventário de BLOCOS o mundo tem de nascer CRIATIVO** (`menu-new-jogo` =
+>   `'criativo'`, **sem** `?mochila=`): o painel `E` tem dois `render` e desvia pra
+>   `renderMochila()` quando `mochila.ativa`.
+> - **`npm run cenarios` + `md5sum -c` é a prova barata de que nenhum id de bloco se moveu.**
 >
-> **Conserto:** `Panel.abrir(titulo)` na base (`client/src/panels.ts`) limpa o root, prega o
-> `.painel-head` no topo e devolve um **`.painel-corpo`** (`flex: 1; min-height: 0; overflow-y:
-> auto`); `AuthorPanel` e `GroupPanel` trocaram `this.root` por `this.abrir(...)`.
-> ⚠️ **`min-height: 0` é obrigatório** — o padrão `auto` do item flex impede encolher abaixo do
-> conteúdo e o `overflow-y` nunca chega a agir.
+> ### 📌 Pendências e observações
+> - ⚠️ **O baseline "bug-612: 3 testes de worldgen falham na suíte cheia" NÃO reproduziu** em
+>   nenhuma das 5 rodadas desta sessão (891→897 sempre 100%). Tratar a seção 0 do
+>   `## 🚀 Próxima fase` como possivelmente obsoleta antes de gastar tempo nela.
+> - **Nada a validar na escola ainda:** o rename, a aba "todos", o freio da grama, a rolagem do
+>   painel e o conserto do soterramento estão TODOS no ar e sem confirmação de campo.
+>   O soterramento é o que mais pede teste real (cavar, deixar areia cair, ver se escorrega pro
+>   lado ou morre — sem subir pro céu).
 >
-> **Somado, e não era pedido mas quebraria na aula:** `scrollCorpo` guarda a rolagem entre
-> renders. A `update()` de broadcast redesenha o painel INTEIRO — o professor rolado até
-> "regiões" voltava pro topo a cada aluno que entrasse. A/B com broadcast real
-> (`/grupo criar 3`): **com a restauração 155→155; sem ela 155→0.**
+> ### 🚀 PRÓXIMA QUEST
+> **Botão de comandos no HUD de toque + comando `/painel`** (ideia dele, 2026-08-21).
+> - ⚠️ **O molde exato já existe:** `abrirAmigosPorComando()` em `client/src/main.ts:475-485` —
+>   `/amigos` sem subcomando abre o painel NO CLIENTE e não vai ao servidor.
+> - Botão entra em `#touch-topo` (`client/src/touch.ts:251-263`), helper `this.tapButton(ícone,
+>   nome, ação)`. Hoje a fileira tem 5 botões (☰ 🧱 💬 🪄 👥) — conferir se cabe o 6º em retrato.
+> - ⚠️ **`/painel` NÃO existe no servidor** (`session.ts:1602` lista os comandos): se a
+>   intercepção do cliente falhar, o aluno vê "Comando desconhecido". O teste tem de provar a
+>   INTERCEPÇÃO, não só o clique.
+> - **Decidir antes:** ícone/rótulo · botão pra todos ou só professor (há precedente condicional
+>   no 👥) · `/painel` alterna ou só abre (o `/amigos` só abre).
+> - **Verificação:** `npm run shots:toque` já fotografa o HUD de toque.
 >
-> ### ⚠️ Duas armadilhas que custaram tempo (estão no cerebrum e no buglog)
-> - **bug-630 / medição:** `overflow: hidden` **ainda aceita `scrollTop` por SCRIPT**. A sonda
->   media `podeRolar: true` num painel cortado — falso positivo. Medir com
->   `getComputedStyle(el).overflowY` e checando se o elemento entra no retângulo do container.
-> - **bug-631 / sonda medindo código ANTIGO depois do rebuild = PROCESSO ÓRFÃO.** Duas causas
->   somadas: o `python3 -m http.server` fica preso ao INODE da pasta antiga (o `npm run build`
->   RECRIA `client/dist`), e — pior — um **Chrome de rodada anterior segurando a porta 9355**
->   faz o `abrirAba()` conversar com o browser velho, que já tem a página velha carregada.
->   **Higiene:** depois de todo build, `pkill -f "http.server <porta>"` e
->   `pkill -f "remote-debugging-port=9355"` antes de resubir. **Diagnóstico barato:** comparar o
->   `script[src]` lido DENTRO da página com o que o `curl $BASE` mostra.
->
-> ✅ **Bateria:** `verify:all` **exit 0** — launchers 5/5 · typecheck 3/3 · **895/895** · build ·
-> **15/15 smokes** · `cenarios` 7/7 byte-idênticos.
-> Sondas em `.wolf/designqc-captures/painel-p/` (600px, 300px e rolado).
->
-> ### 🚀 Próximo
-> 1. **Botão de comandos no HUD de toque + `/painel`** (ideia 2026-08-21) — ⚠️ o molde exato é
->    `abrirAmigosPorComando()` em `client/src/main.ts:475-485`; botão em `#touch-topo`
->    (`client/src/touch.ts:251-263`, helper `tapButton`). `/painel` não existe no servidor.
-> 2. **Painel de comandos do mobile ao LADO** (2026-08-17, irmão do 1).
-> 3. **`/invisivel`** para professor — ⚠️ filtragem no SERVIDOR, por cliente.
-> 4. **Ovelha + lã de verdade** (ids NOVOS, ver `shared/src/blocks.ts:20-26`).
-> 5. Sentar na cadeira, teto de 35 grupos, proteger a célula-molde, Ferramentas v2, mobs.
-
-> ## 🧭 HANDOFF — SESSÃO 80 (2026-08-21, continuação da 79)
->
-> **Freio da grama + duas ideias novas anotadas.** Bateria verde (**895/895**, +4 testes).
->
-> ### ✅ Entregue — a grama espalha DEVAGAR
-> Pedido: *"deixa mais demorado pra grama espalhar"*. Antes a onda andava **1 célula por tick
-> (~10 células/s)** e um caminho de terra se fechava quase instantaneamente. Agora é
-> **1 célula a cada 30 ticks (3 s)** — `TICKS_POR_GRAMA` em `shared/src/rules.ts`, ajustável por
-> **`LJ_GRAMA`** (molde do `LJ_CRESCIMENTO`; `LJ_GRAMA=1` devolve o ritmo antigo).
->
-> ⚠️ **A armadilha do desenho, que é o que vale guardar:** o laço do `tick()` **descarta a célula
-> cuja regra devolve `null`**, e só quem mexe ao lado suja uma célula. Então **sorteio ou espera
-> DENTRO da `grassRule` mataria o espalhamento** em vez de atrasá-lo. O freio ficou no laço da
-> session, com a célula fora da vez voltando pra `dirty` — o mesmo gesto do teto de água. A
-> `grassRule` continua pura ("um passo por chamada") e o `grama.test.ts` seguiu intacto.
-> Contador GLOBAL (uma vez por tick): a fronteira anda junta, como o canteiro que amadurece em
-> bloco. `shared/src/grama.session.test.ts` (NOVO, 4 testes) cobre isso — **A/B conferido:
-> removendo o `dirty.add`, 2 dos 4 caem**.
->
-> ### 📝 Duas ideias anotadas (NÃO implementadas), com âncoras
-> 1. **Botão de comandos no HUD de toque + comando `/painel`.** ⚠️ O molde exato já existe:
->    `abrirAmigosPorComando()` em `client/src/main.ts:475-485` (o `/amigos` sem subcomando abre o
->    painel no CLIENTE e não vai ao servidor). Botão entra em `#touch-topo`
->    (`client/src/touch.ts:251-263`, helper `tapButton`). ⚠️ `/painel` não existe no servidor.
-> 2. **Rolagem do painel do professor (botão `P`).** ⚠️ **Já verifiquei: o problema é REAL.** O
->    `#painel` divide a moldura de altura FIXA (`min(560px, 84vh)` + `overflow: hidden`,
->    `client/index.html:167-190`) com `#inventario`/`#jogadores`, **mas é o único sem um filho
->    rolável** — os outros têm `.inv-grid` e `.jog-lista` (`flex: 1; overflow-y: auto`). O que
->    passa do fim é cortado. Conserto provável: wrapper rolável nas `.painel-row`
->    (`client/src/panels.ts`), molde do `.jog-lista`. **Medir antes de mexer.**
->
-> ✅ **Bateria:** `verify:all` **exit 0** — launchers 5/5 · typecheck 3/3 · **895/895** · build ·
-> **15/15 smokes** · `cenarios` 7/7 byte-idênticos.
->
-> ### 🚀 Próximo
-> 1. **Rolagem do painel `P`** — o menor dos dois e já diagnosticado.
-> 2. **Botão de comandos no HUD + `/painel`.**
-> 3. **Painel de comandos do mobile ao LADO** (item de 2026-08-17, irmão do 2).
-> 4. **`/invisivel`** para professor — ⚠️ filtragem no SERVIDOR, por cliente.
-> 5. **Ovelha + lã de verdade** (ids NOVOS, ver `shared/src/blocks.ts:20-26`).
-
-> ## 🧭 HANDOFF — ESTADO AO FIM DA SESSÃO 79 (2026-08-21)
->
-> **Duas entregas: o push da 78 e a aba "todos" + busca no inventário.** De quebra, um defeito
-> pré-existente no smoke `comida` caçado e consertado. Bateria completa verde.
-> **Commitado direto na `main`; push só a pedido.**
->
-> ### ✅ Entregue
-> 1. **Push da sessão 78** — `origin/main` = `0563613` (o rename "lã" → "bloco de algodão").
-> 2. **Aba "todos" + barra de busca no inventário de blocos** (item 2 da fila).
->    - `blocksUi.ts`: `AbaInventario = Categoria | "todos"` e `ABAS` (categorias + "todos" no fim).
->    - `inventory.ts`: `cat` → `aba`, `filtroBlocos`, `normalizarBusca()` e **`montarGrade()`**
->      novo — a busca repovoa SÓ a grade, pra o campo não perder o foco a cada letra.
->    - `index.html`: `.inv-busca` + a media query de viewport curta.
-> 3. **bug-629 — smoke `comida` consertado** (era pré-existente no `main` já empurrado).
->
-> ### Decisões travadas (item 2)
-> - **"todos" é MODO de exibição, não `Categoria`.** Como categoria, cada entrada de `PLACEABLE`
->   precisaria de dois `cat`. A grade resolve com `aba === "todos" || b.cat === aba`.
-> - **Fica por ÚLTIMO na barra:** a curadoria segue sendo o caminho normal; "todos" é a rede
->   contra o bloco que "sumiu" numa aba (bug-625, a cerca).
-> - **Busca vale na aba ATUAL e o texto SOBREVIVE à troca de aba** (quem digita "azul" quer ver o
->   azul de cada categoria). Sem acento ("algodao" acha "algodão") e por **id EXATO** com dígitos
->   — `includes` no id faria "1" trazer 1, 11, 12, 100…
->
-> ### ⚠️ Armadilhas que a sessão MEDIU (não refazer a descoberta)
-> - **A do tablet era real.** Teclado virtual aberto → viewport ~300px; o painel é de altura FIXA
->   (`min(560px, 84vh)`, `overflow: hidden`) e cabeçalho + dica + 7 abas comiam 132 dos 286px:
->   **a grade sobrava com 7px.** `@media (max-height: 460px)` encolhe o enfeite e dá
->   `min-height: 92px` à grade. Medido depois: **7px → 92px**, painel e hotbar ainda cabendo.
->   ⚠️ O seletor é `#inventario > .inv-dica` — a mensagem "nenhum bloco com esse nome" usa a MESMA
->   classe DENTRO da grade, e esconder as duas cegaria a busca.
-> - **bug-629, dois defeitos na mesma asserção do smoke:** ela mandava **`/salvar`, comando que
->   NUNCA existiu** (`git log --all -S 'case "salvar"'` = vazio) e passava por acidente, porque a
->   resposta "Comando desconhecido: **/salv**ar…" casava com `includes("salv")`. E os `espera(800)`
->   fixos depois do laço de **3000 `mover`** faziam o resultado depender da CARGA da máquina.
->   Reescrita pro que vale ali — "o professor continua sendo atendido depois da enxurrada" — com
->   o `/bloco` que já existia no fluxo e um helper **`ate(cond, teto)`** no lugar do relógio.
->   A/B conferido; o smoke ficou mais rápido (21s → 14s).
-> - ⚠️ **Pra sondar o inventário de BLOCOS o mundo tem de nascer criativo** (`menu-new-jogo` =
->   `'criativo'`, e **sem** `?mochila=` na URL). O painel `E` é UM objeto com dois `render`
->   diferentes: `render()` desvia pra `renderMochila()` quando `mochila.ativa`.
->
-> ✅ **Bateria:** `verify:all` **exit 0** — `check:launchers` 5/5 · typecheck 3/3 · **891/891** ·
-> build · **15/15 smokes** · `npm run cenarios` 7/7 byte-idênticos.
-> Sondas em `.wolf/designqc-captures/aba-todos/` e `.../tablet-kb/`.
->
-> ### 🚀 Próximo
-> 1. **Painel de comandos do mobile ao LADO** (ideia 2026-08-17) — a conta do teclado já está
->    resolvida por `--kb`; o que muda é o eixo do layout.
-> 2. **`/invisivel`** para professor (ideia 2026-08-17) — ⚠️ a filtragem tem de ser no SERVIDOR,
->    por cliente, senão a posição vaza no fio.
-> 3. **Ovelha + lã de verdade** — o nome está reservado e os ids são NOVOS (append), ver
->    `shared/src/blocks.ts:20-26`.
-> 4. Animação de **sentar na cadeira**, teto de 35 grupos, proteger a célula-molde,
->    Ferramentas v2, mobs.
->
-> ⚠️ **O baseline "bug-612: 3 testes de worldgen falham na suíte cheia" NÃO reproduziu** — nem na
-> 78 nem na 79 (891/891 nas duas). Não investigado; trate a seção 0 do `## 🚀 Próxima fase` como
-> possivelmente obsoleta antes de gastar tempo nela.
-
-> ## 🧭 HANDOFF — ESTADO AO FIM DA SESSÃO 78 (2026-08-19)
->
-> **Item 1 da fila FECHADO: o vocabulário "lã" saiu do jogo.** Bateria completa verde. Commitado
-> direto na `main` (sem branch, como ele pediu na 77); **push só a pedido — ainda NÃO empurrado.**
->
-> ### ⚠️ A varredura inverteu a premissa do item
-> O pedido era "varrer receita atrás de lã que devia ser algodão". **Nenhuma receita cobrava lã.**
-> Isso já fora resolvido no **bug-611 (2026-08-10)**: as 26 receitas passaram a cobrar
-> `ITEM_ALGODAO` e o teste-portão de `algodao.test.ts` prova. O resíduo era **só vocabulário** —
-> 12 blocos chamados "lã" num jogo sem ovelha, e algodão não vira lã.
->
-> ### ✅ Entregue
-> - **`"lã <cor>"` → `"bloco de algodão <cor>"`** nos 12 blocos. `client/src/blocksUi.ts:62-77` é
->   fonte ÚNICA dos nomes exibidos (`hotbarUi.nameOf`, `tooltip`, `panels`, mochila leem de lá).
-> - **`BlockId.WoolXxx` → `BlocoAlgodaoXxx`**, `TILE.woolXxx` → `blocoAlgodaoXxx`, `Cor.la` →
->   `Cor.blocoAlgodao`, `FIBRA_POR_LA` → `FIBRA_POR_BLOCO`, `LAS` → `BLOCOS_ALGODAO`.
->   **Os NÚMEROS não mudaram** (11–18, 23–26). 17 arquivos `.ts`.
-> - Textos do professor/aluno: `SEM_RECEITA` do algodão selvagem, entrada v0.9.0 do
->   `changelog.ts`, `cenarios/README.md` (aulas 1 e 5) e ~30 comentários.
-> - **Reserva registrada em `blocks.ts:20-26`**: o nome "lã" fica pra ovelha, com **ids NOVOS
->   (append)** — nunca estes.
->
-> ### O que a sessão PROVOU (não repetir a dúvida)
-> - ⚠️ **`todo.md` dizia que mexer em `BlockId` "atravessa save, protocolo e `.ljw`". É FALSO.**
->   Não existe `BlockId[nome]` nem lookup reverso no repo; save/fio/`.ljw` carregam o NÚMERO.
->   **Prova dura:** `md5sum cenarios/*.ljw` → `npm run cenarios` → `md5sum -c` = **7/7 OK,
->   byte-idênticos.** Use esse truque sempre que suspeitar de deslocamento de id.
-> - **"algodão \<cor\>" seco não servia:** colidia com `ITEM_ALGODAO` ("algodão"), "semente de
->   algodão" e "algodão selvagem". O prefixo "bloco de" é o que desambigua.
-> - **Custo visual MEDIDO** (sonda headless, criativo, 1024×600): o nome ocupa **3 linhas** na
->   célula do inventário — 88 px contra 64–76 px dos vizinhos, célula de 79 px. **Não trunca, não
->   estoura na horizontal.** Print em `.wolf/designqc-captures/blocos-nome/inv-blocos.png`.
-> - ⚠️ **Pra fotografar o inventário de blocos o mundo tem de nascer CRIATIVO**
->   (`menu-new-jogo='criativo'`, e **sem** `?mochila=` na URL). `/modo criativo` pelo chat NÃO
->   basta. Sintoma de erro: `abas: ["mochila","criar"]`, `celulas: 0`.
->
-> ✅ **Bateria:** `check:launchers` 5/5 · typecheck 3/3 · **891/891** · build ·
-> **15/15 smokes** · `npm run cenarios` 7/7 byte-idênticos.
->
-> ### 🚀 Próximo — a fila avançou uma casa
-> 1. **Aba "todos" no inventário** — blocos por id + barra de pesquisa (`todo.md`, ideia
->    2026-08-17). ⚠️ Decidir antes: a aba é uma `Categoria` de verdade ou um modo à parte?
-> 2. **Painel de comandos do mobile ao LADO** (ideia 2026-08-17) — a conta do teclado já está
->    resolvida por `--kb`; o que muda é o eixo do layout.
-> 3. **`/invisivel`** para professor (ideia 2026-08-17) — ⚠️ filtragem no SERVIDOR, por cliente,
->    senão a posição vaza no fio.
-> 4. **Ovelha + lã de verdade** (novo, 2026-08-19) — o nome está reservado e os ids são NOVOS.
-> 5. Animação de **sentar na cadeira**, teto de 35 grupos, proteger a célula-molde,
->    Ferramentas v2, mobs.
->
-> **Backlog:** mundo de terreno real via DEM (`.wolf/ROADMAP.md`) — só entra quando ele travar as
-> decisões pendentes (escala horizontal/vertical, fonte final, formato do asset).
+> **Depois:** painel de comandos do mobile ao LADO (2026-08-17) · `/invisivel` (⚠️ filtragem no
+> SERVIDOR, por cliente) · ovelha + lã de verdade · sentar na cadeira · teto de 35 grupos ·
+> proteger a célula-molde · Ferramentas v2 · mobs.
+> **Backlog:** mundo de terreno real via DEM (`.wolf/ROADMAP.md`).
 
 > ## 🧭 HANDOFF — ESTADO AO FIM DA SESSÃO 77 (2026-08-18)
 >

@@ -2521,3 +2521,33 @@ segue com `relatorio-aplicacao.md` e `apresentacao-cre.html`, ambos rastreados.
 | 15:45 | conserto: busca em cascas de Chebyshev 3D ao redor do pos, peso |dy|*100+dx²+dz² | shared/src/physics.ts | 2 novos testes passam | ~7k |
 | 15:55 | 3 testes de FOME quebraram: fixtures em y=20 nasciam DENTRO da rocha e o bug as resgatava | shared/src/sobrevivencia.test.ts | medido sobrepoeSolidos=true, corrigido pra y=23 | ~6k |
 | 16:05 | bateria: launchers 5/5, typecheck 3/3, 897/897, build, 15/15 smokes, cenarios byte-identicos | — | verify:all exit 0 | ~3k |
+
+## FECHO DA SESSÃO — 2026-08-18 → 21 (sessões 78-82)
+
+**5 commits, todos empurrados. `origin/main` = `a81278d`. Árvore limpa.**
+Bateria final: `verify:all` exit 0 — launchers 5/5 · typecheck 3/3 · **897/897** · build ·
+15/15 smokes · cenarios 7/7 byte-idênticos.
+
+| commit | o quê |
+|---|---|
+| `0563613` | "lã \<cor\>" → "bloco de algodão \<cor\>" (rótulo E `BlockId`, números intactos) |
+| `97da85b` | aba "todos" por id + barra de busca no inventário |
+| `7fb305a` | grama espalha 1 célula/3 s (era 10/s), `LJ_GRAMA` |
+| `4548c54` | painel do professor rola — a seção de grupos estava inalcançável |
+| `a81278d` | soterramento: vão procurado AO REDOR, não no topo da coluna (bug de campo) |
+
+**Bugs registrados:** bug-628 (vocabulário lã→algodão), bug-629 (smoke comida: `/salvar` nunca
+existiu + espera fixa), bug-630 (painel P sem filho rolável), bug-631 (sonda medindo código
+antigo = processo órfão), bug-632 (soterrado teleportado pra superfície).
+
+**Dois achados que ninguém tinha visto:** (1) quem estava soterrado no subsolo NUNCA morria — a
+mecânica era letra morta fora da superfície; (2) 3 testes de fome passavam *graças* a esse bug,
+porque as fixtures nasciam dentro da rocha e o resgate as salvava.
+
+**Correções de rumo do usuário nesta sessão:** ele recusou a 1ª rodada de perguntas do rename
+pedindo mais contexto de produto; fixou "procurar ao redor, não acima" na mecânica de
+soterramento; e mandou anotar 2 ideias (botão de comandos no HUD + `/painel`; rolagem do painel P
+— esta virou entrega). Tudo em `cerebrum.md`.
+
+**Próxima quest:** botão de comandos no HUD de toque + `/painel` (molde pronto em
+`client/src/main.ts:475-485`). Ver `.wolf/STATUS.md` para as decisões pendentes e as armadilhas.
