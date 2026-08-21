@@ -126,6 +126,15 @@
 
 ## Key Learnings
 
+- [2026-08-21] **Os painéis de altura fixa do jogo (`#painel`, `#inventario`, `#jogadores`,
+  `#amigos`, `#container`) compartilham UMA regra de CSS** (`client/index.html:167-190`):
+  `height: min(560px, 84vh)`, `display: flex; flex-direction: column`, `overflow: hidden`. O
+  contrato implícito é que **cada um traga um filho rolável** (`.inv-grid`, `.jog-lista`,
+  `.painel-corpo`) com `flex: 1; min-height: 0; overflow-y: auto` — sem isso o conteúdo que
+  passa do fim some. ⚠️ `min-height: 0` não é enfeite: o padrão `min-height: auto` do item flex
+  impede encolher abaixo do conteúdo, e o `overflow-y` nunca chega a agir. O cabeçalho fica FORA
+  do filho rolável pra o "✕ fechar" continuar alcançável com a lista no fim.
+
 - [2026-08-21] **A fila de células sujas DESCARTA quem devolve `null` — e só quem mexe ao lado
   suja uma célula.** (`session.ts`, laço do `tick()`: `const changes = rule(...); if (!changes)
   continue;`.) Consequência prática: **pôr sorteio ou espera DENTRO de uma `BlockRule` mata o
@@ -1196,6 +1205,23 @@ nenhum** — sem essa declaração o Chrome renderiza a página em light mesmo c
    linhas: chrome headless + `Emulation.setEmulatedMedia` + `getComputedStyle(...).color`.
 
 ## Do-Not-Repeat
+
+- [2026-08-21] **Sonda headless medindo o código ANTIGO depois de um rebuild = PROCESSO ÓRFÃO,
+  não bug de código** (bug-631). Duas causas, e a segunda engana muito: (1) o
+  `python3 -m http.server` deixado rodando em `client/dist` fica preso ao INODE da pasta antiga,
+  porque `npm run build` RECRIA o diretório — ele serve o bundle velho enquanto o `curl` do
+  shell vê o novo; (2) um Chrome de rodada anterior segurando a **porta 9355**: o novo falha em
+  bindar e `abrirAba()` (que só faz `fetch` em `127.0.0.1:9355/json/list`) conversa com o browser
+  ANTIGO, que já tem a página velha carregada — URL certa, `BASE` certo, medida de outra sessão.
+  **Higiene:** depois de todo build, `pkill -f "http.server <porta>"` e `pkill -f
+  "remote-debugging-port=9355"`, e só então resubir. **Diagnóstico barato:** avaliar
+  `[...document.querySelectorAll('script[src]')].map(s=>s.src)` DENTRO da página e comparar com
+  `curl $BASE | grep -o 'assets/index-[^"]*\.js'`. Divergiu = órfão.
+- [2026-08-21] **`overflow: hidden` NÃO impede `scrollTop` por script — só tira a rolagem do
+  USUÁRIO** (roda, dedo, barra). Uma sonda que testa rolagem com `el.scrollTop = 99999` dá
+  **falso positivo** num painel cortado (foi o que o `podeRolar: true` do bug-630 fez). Pra
+  medir de verdade: `getComputedStyle(el).overflowY` e se o elemento que interessa entra no
+  retângulo do container depois de rolar.
 
 - [2026-08-21] **Smoke que falha "sem ninguém mexer em código" = procure `espera(n)` FIXA
   depois de uma enxurrada de mensagens, não regressão.** No `_smoke-comida.mjs` o aluno despeja

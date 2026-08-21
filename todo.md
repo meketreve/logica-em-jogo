@@ -251,26 +251,28 @@ senão lado com parede; empate → base. Cliente inalterado.
   * **Verificação:** `npm run shots:toque` já fotografa o HUD de toque e tem seção que abre o
     painel de comandos — é onde o botão novo tem de aparecer.
 
-* \[ ] **VERIFICAR SE DÁ PRA ROLAR O PAINEL DO PROFESSOR (botão `P`)** (ideia do usuário,
-  2026-08-21). ⚠️ **Já verifiquei o essencial e o problema é REAL:** o `#painel` **não tem
-  nenhum filho com `overflow-y: auto`**. Ele divide com `#inventario`/`#jogadores`/`#amigos` a
-  moldura de **altura FIXA** `min(560px, 84vh)` + `overflow: hidden`
-  (`client/index.html:167-190`) — mas os irmãos têm um container rolável dentro
-  (`.inv-grid` e `.jog-lista`, ambos `flex: 1; overflow-y: auto`) e **o `#painel` não tem**.
-  Resultado: o que passa do fim é cortado, sem jeito de alcançar. E ele é o painel mais DENSO do
-  jogo — o próprio CSS diz isso na media query de paisagem baixa (`index.html`, comentário da
-  "2ª rodada 2026-08-04": *"cada `.painel-row` é rótulo + select largo"*).
-  * **O conserto provavelmente é pequeno:** um wrapper rolável em volta das `.painel-row`, no
-    molde do `.jog-lista`, deixando `.painel-head` fixo em cima. Quem monta é
-    `client/src/panels.ts` (nenhum `overflow` lá hoje — conferido por grep).
-  * **Pontos a decidir antes:**
-    * As ABAS do painel ficam fixas junto do cabeçalho, ou rolam com o conteúdo? (Fixas é o que
-      o inventário faz.)
-    * Vale reaproveitar a media query de `max-height: 460px` que a busca de blocos criou
-      (2026-08-21) pra encolher o enfeite do `#painel` também com o teclado aberto?
-  * ⚠️ **Medir ANTES de mexer**, como foi feito na busca de blocos: abrir o painel P numa sonda
-    headless em 1024×600 E em ~300px de altura e comparar `scrollHeight` com `clientHeight` de
-    cada aba. Sem o número, "não rola" vira palpite — e pode ser que só UMA aba estoure.
+* \[x] **ROLAGEM DO PAINEL DO PROFESSOR (botão `P`)** — **FEITO** (2026-08-21). Não era só
+  possibilidade: **estava cortando conteúdo no notebook da escola**, não só no tablet.
+  * **Medido antes:** 701px de conteúdo em 536px de painel → **165px cortados a 600px de
+    viewport** (417px com o teclado do tablet aberto). A seção **👥 grupos inteira** e a dica
+    final ficavam invisíveis e inalcançáveis.
+  * **Causa:** o `#painel` divide a moldura de altura FIXA (`min(560px, 84vh)` + `overflow:
+    hidden`, `client/index.html:167-190`) com `#inventario`/`#jogadores`, mas era o ÚNICO sem um
+    filho rolável — os irmãos têm `.inv-grid` e `.jog-lista`.
+  * **Conserto:** `Panel.abrir(titulo)` na base (`client/src/panels.ts`) limpa o root, prega o
+    `.painel-head` no topo e devolve um `.painel-corpo` (`flex: 1; min-height: 0; overflow-y:
+    auto`). Os dois subtipos (`AuthorPanel`, `GroupPanel`) trocaram `this.root` por
+    `this.abrir(...)`. ⚠️ `min-height: 0` é obrigatório — sem ele o item flex não encolhe abaixo
+    do conteúdo e o `overflow-y` nunca age.
+  * **Somado:** `scrollCorpo` guarda a rolagem entre renders. A `update()` de broadcast redesenha
+    o painel INTEIRO, e o professor rolado até "regiões" voltava pro topo a cada aluno que
+    entrasse. A/B com broadcast real (`/grupo criar 3`): **com a restauração 155→155; sem ela
+    155→0.**
+  * ⚠️ **Armadilha de medição:** `overflow: hidden` ainda aceita `scrollTop` por SCRIPT, então
+    `el.scrollTop = 99999` dá falso positivo num painel cortado. Medir com
+    `getComputedStyle(el).overflowY` e checando se o elemento entra no retângulo do container.
+  * **Sondas:** `.wolf/designqc-captures/painel-p/` (600px, 300px e rolado). Aceitação: "grupos"
+    passa de invisível a visível ao rolar, head fica no topo, "✕ fechar" segue alcançável.
 
 * \[ ] **PAINEL DE COMANDOS DO MOBILE AO LADO, não embaixo** (ideia do usuário, 2026-08-17).
   Hoje o painel é uma faixa horizontal DEPOIS do campo (`#chat-painel { margin-top: 4px;

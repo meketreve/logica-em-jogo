@@ -2510,3 +2510,9 @@ segue com `relatorio-aplicacao.md` e `apresentacao-cre.html`, ambos rastreados.
 | 11:30 | freio da grama: TICKS_POR_GRAMA=30 no rules.ts, gate no laço do tick da session, LJ_GRAMA no server | rules.ts, session.ts, server/index.ts | 1 celula/3s (era 10/s) | ~10k |
 | 11:46 | grama.session.test.ts novo (4 testes) + A/B: sem o dirty.add, 2 caem | shared/src/grama.session.test.ts | 895/895 | ~7k |
 | 11:55 | anotadas 2 ideias: botao de comandos no HUD + /painel; e rolagem do painel P | todo.md | #painel NAO tem filho rolavel — problema confirmado | ~6k |
+| 11:53 | Session end: 1 writes across 1 files (grama.session.test.ts) | 0 reads | ~1010 tok |
+| 12:20 | medi o painel P antes de mexer: 701px em 536px = 165px cortados a 600px, secao grupos invisivel | .wolf/designqc-captures/painel-p/ | problema confirmado, pior que o estimado | ~8k |
+| 12:45 | Panel.abrir() + .painel-corpo (flex:1, min-height:0, overflow-y:auto) + scrollCorpo | client/src/panels.ts, client/index.html | typecheck 0 erros | ~9k |
+| 12:50 | bug-631: sonda media codigo ANTIGO — http.server preso no inode e chrome orfao na 9355 | scratchpad | higiene de pkill apos build | ~7k |
+| 13:05 | aceitacao: grupos invisivel->visivel, head no topo, fechar alcancavel; A/B rolagem 155->155 vs 155->0 | .wolf/designqc-captures/painel-p/ | provado | ~6k |
+| 13:15 | bateria: launchers 5/5, typecheck 3/3, 895/895, build, 15/15 smokes, cenarios byte-identicos | — | verify:all exit 0 | ~3k |

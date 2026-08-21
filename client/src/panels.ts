@@ -49,6 +49,18 @@ abstract class Panel implements GamePanel {
   };
   private isOpen = false;
   private dirty = false;
+  /** O CORPO rolável (`abrir()` o cria a cada render). O `#painel` tem altura
+   *  FIXA e `overflow: hidden`, então sem ele o que passa do fim fica
+   *  inalcançável — medido em 2026-08-21: 701px de conteúdo em 536px de painel,
+   *  **165px cortados já no notebook de 600px**, e a seção "grupos" inteira
+   *  invisível. (`overflow: hidden` ainda aceita `scrollTop` por script, mas
+   *  roda do mouse, dedo e barra não fazem nada — pro professor é inalcançável.) */
+  private corpo: HTMLElement | null = null;
+  /** Rolagem do corpo entre renders. A `update()` de broadcast redesenha o
+   *  painel INTEIRO, e sem guardar isto o professor que rolou até "regiões"
+   *  voltava pro topo cada vez que um aluno entrasse ou um grupo mudasse.
+   *  Mesma disciplina do `scrollCraft` do inventário. */
+  private scrollCorpo = 0;
 
   private readonly onEsc = (e: KeyboardEvent): void => {
     if (e.code !== "Escape") return;
@@ -71,7 +83,7 @@ abstract class Panel implements GamePanel {
     this.root?.addEventListener("focusout", () => {
       if (this.dirty && this.isOpen) {
         this.dirty = false;
-        this.render();
+        this.redesenhar();
       }
     });
   }
@@ -92,7 +104,7 @@ abstract class Panel implements GamePanel {
       this.dirty = true;
       return;
     }
-    this.render();
+    this.redesenhar();
   }
 
   toggle(): void {
@@ -103,7 +115,8 @@ abstract class Panel implements GamePanel {
   show(): void {
     if (this.isOpen || !this.root) return;
     this.isOpen = true;
-    this.render();
+    this.scrollCorpo = 0; // abrir do zero mostra o topo
+    this.redesenhar();
     this.root.classList.remove("hidden");
     // capture: fecha o painel ANTES do Input ver a tecla
     window.addEventListener("keydown", this.onEsc, true);
@@ -119,6 +132,34 @@ abstract class Panel implements GamePanel {
   }
 
   protected abstract render(): void;
+
+  /** Re-renderiza preservando a rolagem do corpo (ver `scrollCorpo`). */
+  private redesenhar(): void {
+    this.scrollCorpo = this.corpo?.scrollTop ?? this.scrollCorpo;
+    this.render();
+    if (this.corpo) this.corpo.scrollTop = this.scrollCorpo;
+  }
+
+  /**
+   * Limpa o painel, prega o cabeçalho no topo e devolve o CORPO ROLÁVEL — é
+   * nele que o `render()` de cada painel enche as seções, nunca no `root`.
+   *
+   * O cabeçalho fica FORA do corpo de propósito: o "✕ fechar" tem de continuar
+   * alcançável com a lista rolada até o fim (é o molde do `.inv-grid` e do
+   * `.jog-lista`, que já faziam isso — o `#painel` era o único da moldura de
+   * altura fixa sem um filho rolável).
+   */
+  protected abrir(titulo: string): HTMLElement | null {
+    const root = this.root;
+    if (!root) return null;
+    root.textContent = "";
+    root.append(this.head(titulo));
+    const corpo = document.createElement("div");
+    corpo.className = "painel-corpo";
+    root.append(corpo);
+    this.corpo = corpo;
+    return corpo;
+  }
 
   // --- fábrica de controles (textContent sempre — entrada vem de gente) ---
 
@@ -297,10 +338,8 @@ export class AuthorPanel extends Panel {
   }
 
   protected render(): void {
-    const root = this.root;
+    const root = this.abrir("painel de autoria");
     if (!root) return;
-    root.textContent = "";
-    root.append(this.head("painel de autoria"));
     if (this.onOpenPlayers) {
       root.append(this.row(this.btn("👥 jogadores (expulsar / banir)", () => this.onOpenPlayers?.())));
     }
@@ -610,10 +649,8 @@ export class AuthorPanel extends Panel {
 
 export class GroupPanel extends Panel {
   protected render(): void {
-    const root = this.root;
+    const root = this.abrir("grupos");
     if (!root) return;
-    root.textContent = "";
-    root.append(this.head("grupos"));
     if (this.data.grupos.length === 0) {
       root.append(this.hint("o professor ainda não criou grupos"));
       return;

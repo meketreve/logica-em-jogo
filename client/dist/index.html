@@ -209,6 +209,21 @@
         justify-content: space-between;
         gap: 8px;
       }
+      /* CORPO ROLÁVEL do painel (2026-08-21). O `#painel` divide a moldura de
+         altura FIXA (`min(560px, 84vh)` + `overflow: hidden`) com o inventário
+         e o de jogadores, mas era o ÚNICO sem um filho rolável — os outros têm
+         `.inv-grid` e `.jog-lista`. Medido antes do conserto: 701px de conteúdo
+         em 536px de painel, **165px cortados já no notebook de 600px** (com o
+         teclado do tablet aberto, 417px), e a seção "grupos" inteira invisível.
+         ⚠️ `min-height: 0` não é enfeite: sem ele o item flex se recusa a
+         encolher abaixo do conteúdo e o `overflow-y` nunca chega a agir.
+         ⚠️ O `touch-action: none` do `body` NÃO é herdado, então no tablet este
+         container rola no dedo (mesma nota do `.inv-grid`). */
+      .painel-corpo {
+        flex: 1;
+        min-height: 0;
+        overflow-y: auto;
+      }
       .painel-row {
         display: flex;
         flex-wrap: wrap;
@@ -1223,7 +1238,7 @@
         }
       }
     </style>
-    <script type="module" crossorigin src="/assets/index-Bhjv4X_j.js"></script>
+    <script type="module" crossorigin src="/assets/index-CZmbHBkn.js"></script>
   </head>
   <body>
     <div id="menu" class="hidden">

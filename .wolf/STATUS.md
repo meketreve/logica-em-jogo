@@ -2,6 +2,56 @@
 
 > Single source of truth for resuming work. Read this FIRST when starting a session.
 
+> ## 🧭 HANDOFF — SESSÃO 81 (2026-08-21)
+>
+> **Rolagem do painel do professor.** Bateria verde. Commitado e empurrado.
+>
+> ### ✅ Entregue — e NÃO era só "possibilidade": estava cortando de verdade
+> **Medido antes de mexer:** 701px de conteúdo em 536px de painel → **165px cortados já no
+> notebook de 600px** (417px com o teclado do tablet aberto). A seção **👥 grupos INTEIRA** e a
+> dica final ficavam invisíveis e inalcançáveis — o professor não conseguia criar grupos pelo
+> painel.
+>
+> **Causa:** o `#painel` divide a moldura de altura FIXA (`min(560px, 84vh)` + `overflow: hidden`,
+> `client/index.html:167-190`) com `#inventario`/`#jogadores`/`#amigos`, mas era o **único sem um
+> filho rolável** — os irmãos têm `.inv-grid` e `.jog-lista`.
+>
+> **Conserto:** `Panel.abrir(titulo)` na base (`client/src/panels.ts`) limpa o root, prega o
+> `.painel-head` no topo e devolve um **`.painel-corpo`** (`flex: 1; min-height: 0; overflow-y:
+> auto`); `AuthorPanel` e `GroupPanel` trocaram `this.root` por `this.abrir(...)`.
+> ⚠️ **`min-height: 0` é obrigatório** — o padrão `auto` do item flex impede encolher abaixo do
+> conteúdo e o `overflow-y` nunca chega a agir.
+>
+> **Somado, e não era pedido mas quebraria na aula:** `scrollCorpo` guarda a rolagem entre
+> renders. A `update()` de broadcast redesenha o painel INTEIRO — o professor rolado até
+> "regiões" voltava pro topo a cada aluno que entrasse. A/B com broadcast real
+> (`/grupo criar 3`): **com a restauração 155→155; sem ela 155→0.**
+>
+> ### ⚠️ Duas armadilhas que custaram tempo (estão no cerebrum e no buglog)
+> - **bug-630 / medição:** `overflow: hidden` **ainda aceita `scrollTop` por SCRIPT**. A sonda
+>   media `podeRolar: true` num painel cortado — falso positivo. Medir com
+>   `getComputedStyle(el).overflowY` e checando se o elemento entra no retângulo do container.
+> - **bug-631 / sonda medindo código ANTIGO depois do rebuild = PROCESSO ÓRFÃO.** Duas causas
+>   somadas: o `python3 -m http.server` fica preso ao INODE da pasta antiga (o `npm run build`
+>   RECRIA `client/dist`), e — pior — um **Chrome de rodada anterior segurando a porta 9355**
+>   faz o `abrirAba()` conversar com o browser velho, que já tem a página velha carregada.
+>   **Higiene:** depois de todo build, `pkill -f "http.server <porta>"` e
+>   `pkill -f "remote-debugging-port=9355"` antes de resubir. **Diagnóstico barato:** comparar o
+>   `script[src]` lido DENTRO da página com o que o `curl $BASE` mostra.
+>
+> ✅ **Bateria:** `verify:all` **exit 0** — launchers 5/5 · typecheck 3/3 · **895/895** · build ·
+> **15/15 smokes** · `cenarios` 7/7 byte-idênticos.
+> Sondas em `.wolf/designqc-captures/painel-p/` (600px, 300px e rolado).
+>
+> ### 🚀 Próximo
+> 1. **Botão de comandos no HUD de toque + `/painel`** (ideia 2026-08-21) — ⚠️ o molde exato é
+>    `abrirAmigosPorComando()` em `client/src/main.ts:475-485`; botão em `#touch-topo`
+>    (`client/src/touch.ts:251-263`, helper `tapButton`). `/painel` não existe no servidor.
+> 2. **Painel de comandos do mobile ao LADO** (2026-08-17, irmão do 1).
+> 3. **`/invisivel`** para professor — ⚠️ filtragem no SERVIDOR, por cliente.
+> 4. **Ovelha + lã de verdade** (ids NOVOS, ver `shared/src/blocks.ts:20-26`).
+> 5. Sentar na cadeira, teto de 35 grupos, proteger a célula-molde, Ferramentas v2, mobs.
+
 > ## 🧭 HANDOFF — SESSÃO 80 (2026-08-21, continuação da 79)
 >
 > **Freio da grama + duas ideias novas anotadas.** Bateria verde (**895/895**, +4 testes).

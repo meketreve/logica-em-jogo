@@ -5128,6 +5128,50 @@
       ],
       "occurrences": 1,
       "last_seen": "2026-08-21T09:40:00"
+    },
+    {
+      "id": "bug-630",
+      "timestamp": "2026-08-21T13:10:00",
+      "error_message": "usuario: 'verificar a possibilidade de rolar o painel do professor do botao P'",
+      "file": "client/src/panels.ts, client/index.html",
+      "root_cause": "O #painel divide com #inventario/#jogadores/#amigos a moldura de altura FIXA (min(560px,84vh) + overflow:hidden, index.html:167-190), mas era o UNICO sem um filho rolavel — os irmaos tem .inv-grid e .jog-lista (flex:1; overflow-y:auto). O AuthorPanel.render() despejava as 5 secoes DIRETO no root. Medido: 701px de conteudo em 536px de painel = 165px cortados JA no notebook de 600px (417px com o teclado do tablet aberto), e a secao '👥 grupos' inteira mais a dica final ficavam invisiveis e inalcancaveis. ⚠️ `overflow:hidden` ainda aceita scrollTop por SCRIPT (a sonda media podeRolar=true e enganava), mas roda do mouse, dedo e barra nao fazem nada — pro professor era inalcancavel.",
+      "fix": "Panel base ganhou `abrir(titulo)`: limpa o root, prega o .painel-head no topo e devolve um `.painel-corpo` (flex:1; min-height:0; overflow-y:auto) onde os render() enchem as secoes. Os dois subtipos (AuthorPanel, GroupPanel) trocaram `const root = this.root` por `const root = this.abrir(...)`. ⚠️ min-height:0 e obrigatorio: sem ele o item flex nao encolhe abaixo do conteudo e o overflow-y nunca age. Somado: `scrollCorpo` guarda a rolagem entre renders, porque a update() de broadcast redesenha o painel INTEIRO e o professor rolado voltava pro topo a cada aluno que entrasse (A/B com broadcast real de /grupo criar 3: com a restauracao 155->155; sem ela 155->0). Sonda de aceitacao: a secao 'grupos' passa de invisivel a visivel ao rolar, o head fica no topo e o botao fechar segue alcancavel.",
+      "tags": [
+        "painel",
+        "professor",
+        "rolagem",
+        "overflow",
+        "css",
+        "flex",
+        "min-height",
+        "ui",
+        "scroll"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-08-21T13:10:00"
+    },
+    {
+      "id": "bug-631",
+      "timestamp": "2026-08-21T12:50:00",
+      "error_message": "sonda headless media o codigo ANTIGO depois do rebuild: 'temCorpoRolavel: false' e 'css .painel-corpo presente: false', mesmo com fonte, bundle e dist todos corretos (curl confirmava o bundle novo)",
+      "file": "scripts de sonda no scratchpad (derivados de scripts/craft-shot.mjs)",
+      "root_cause": "DUAS causas somadas, as duas de PROCESSO ORFAO. (1) O `python3 -m http.server` deixado rodando em client/dist ficou preso ao INODE da pasta antiga, porque `npm run build` recria o diretorio — ele seguia servindo o bundle velho enquanto o curl do shell via o novo. (2) Pior e mais enganosa: um Chrome de uma rodada anterior continuava vivo segurando a porta 9355; o chrome NOVO falhava em bindar, e `abrirAba()` (que so faz fetch em 127.0.0.1:9355/json/list) conversava com o browser ANTIGO, que ja tinha a pagina velha carregada. A URL batia, o BASE batia, e mesmo assim a medida era de outra sessao.",
+      "fix": "Depois de todo rebuild: matar e resubir o http.server, e `pkill -f 'remote-debugging-port=9355'` antes de cada sonda. Diagnostico barato que aponta direto pra isso: avaliar `[...document.querySelectorAll('script[src]')].map(s=>s.src)` DENTRO da pagina e comparar com `curl BASE | grep -o 'assets/index-[^\"]*\\.js'` — se divergirem, e processo orfao, nao bug de codigo.",
+      "tags": [
+        "sonda",
+        "headless",
+        "chrome",
+        "porta-9355",
+        "http.server",
+        "inode",
+        "rebuild",
+        "falso-negativo",
+        "processo-orfao"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-08-21T12:50:00"
     }
   ]
 }

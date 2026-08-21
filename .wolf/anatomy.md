@@ -1,6 +1,6 @@
 # anatomy.md
 
-> Auto-maintained by OpenWolf. Last scanned: 2026-08-21T14:53:06.300Z
+> Auto-maintained by OpenWolf. Last scanned: 2026-08-21T18:00:04.461Z
 > Files: 360 tracked | Anatomy hits: 0 | Misses: 0
 
 ## ./
@@ -15,7 +15,7 @@
 - `package.json` — Node.js package manifest (~420 tok)
 - `projeto.txt` (~4707 tok)
 - `README.md` — Project documentation (~2541 tok)
-- `todo.md` — Ideias para fazer (~22159 tok)
+- `todo.md` — Ideias para fazer (~22204 tok)
 - `tsconfig.base.json` (~130 tok)
 - `vitest.config.ts` — Config do vitest da RAIZ (2026-08-11, bug-612). (~335 tok)
 
@@ -215,7 +215,7 @@
 
 ## client/
 
-- `index.html` — Lógica em Jogo (~11452 tok)
+- `index.html` — Lógica em Jogo (~11684 tok)
 - `package.json` — Node.js package manifest (~102 tok)
 - `tsconfig.json` — TypeScript configuration (~39 tok)
 - `vite.config.ts` — Vite build configuration (~94 tok)
@@ -408,12 +408,12 @@
 - `painelHost.ts` — O mínimo que a regra de um menu por vez precisa de um painel. (~1404 tok)
   - section `MenuDeTela` L8-37 (~389 tok)
   - class `PainelHost` L38-129 (~926 tok)
-- `panels.ts` — Painéis HTML do cp14 — açúcar visual sobre os comandos de chat: cada botão (~5944 tok)
+- `panels.ts` — Painéis HTML do cp14 — açúcar visual sobre os comandos de chat: cada botão (~6464 tok)
   - section `PanelData` L24-33 (~82 tok)
   - section `GamePanel` L34-40 (~36 tok)
-  - class `Panel` L41-226 (~1476 tok)
-  - class `AuthorPanel` L227-610 (~3822 tok)
-  - class `GroupPanel` L611-642 (~292 tok)
+  - class `Panel` L41-267 (~2027 tok)
+  - class `AuthorPanel` L268-649 (~3806 tok)
+  - class `GroupPanel` L650-679 (~277 tok)
 - `players.ts` — Painel de jogadores (2026-07-21) — SÓ para o professor. Mesma estrutura do (~1992 tok)
   - section `PlayersData` L12-18 (~48 tok)
   - class `PlayersPanel` L19-212 (~1788 tok)
@@ -500,7 +500,7 @@
 ## mundos/_smoke-coluna/
 
 - `_smoke-coluna.ljw` (~62 tok)
-- `chat.log` (~4427 tok)
+- `chat.log` (~4480 tok)
 
 ## mundos/_smoke-comida/
 
@@ -524,7 +524,7 @@
 
 ## mundos/_smoke-kicar/
 
-- `chat.log` (~20487 tok)
+- `chat.log` (~20728 tok)
 
 ## mundos/_smoke-modoa/
 
@@ -545,7 +545,7 @@
 ## mundos/_smoke-trocaa/
 
 - `_smoke-trocaa.ljw` (~87 tok)
-- `chat.log` (~13434 tok)
+- `chat.log` (~13598 tok)
 
 ## mundos/_smoke-trocab/
 
@@ -557,11 +557,11 @@
 
 ## mundos/aula1-sequencia/
 
-- `chat.log` (~69883 tok)
+- `chat.log` (~70686 tok)
 
 ## mundos/aula2-binario/
 
-- `chat.log` (~2720 tok)
+- `chat.log` (~2752 tok)
 
 ## mundos/aula7-corrida/
 
