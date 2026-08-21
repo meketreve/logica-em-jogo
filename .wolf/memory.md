@@ -2567,3 +2567,12 @@ soterramento; e mandou anotar 2 ideias (botão de comandos no HUD + `/painel`; r
 | 17:35 | `flex-wrap` de defesa expôs bug-634: `left:50%` dá só meia janela ao shrink-to-fit → 2 linhas com sobra | client/src/touch.ts | trocado por `left/right` + justify-content + pointer-events | ~4k |
 | 17:50 | Bateria: typecheck 3/3 · 897/897 · build · 15/15 smokes · cenários byte-idênticos · sonda de toque em 1024×600, 600×1024 e 420×900 | — | tudo verde | ~6k |
 | 18:00 | bug-633 e bug-634 no buglog; 3 Do-Not-Repeat, 2 Key Learnings e 1 Decision Log no cerebrum | .wolf/{buglog.json,cerebrum.md} | registrado | ~3k |
+| 18:05 | Commit `706534b` na main (não empurrado) | — | quest do /painel fechada | ~2k |
+| 18:10 | Pedido: "adicionar o comando painel na lista de comandos e onde achar necessário" | — | 2ª rodada | — |
+| 18:20 | `case "painel"` no servidor (responde ONDE o painel mora, em vez de "Comando desconhecido") + lista de disponíveis ganhou /painel e /dar | shared/src/session.ts | achado: /dar faltava na lista desde sempre | ~3k |
+| 18:25 | `/painel` e `/pvp` na árvore do cliente (Tab + painel rápido do dedo) | client/src/commands.ts | achado: /pvp faltava desde o §🍖 F7 | ~2k |
+| 18:35 | `comoAbrirPainel()` no main: 3 avisos que diziam "tecla X" passam a apontar o botão no dedo; `painelKey`→`painelComo` | client/src/{main,objectivesUi}.ts | typecheck 3/3 | ~3k |
+| 18:45 | Teste do `/painel` no servidor (resposta útil + a lista nomeia /painel /pvp /dar) | shared/src/session.test.ts | 898/898 | ~2k |
+| 18:55 | Sonda: aviso do join na B4, seção F (o /painel no painel rápido) | scripts/toque-shot.mjs | F FALHOU: tap no vazio | ~3k |
+| 19:05 | bug-635: `/painel` no fim da lista caía fora da caixa de 26vh; virou o PRIMEIRO + scrollIntoView na sonda | client/src/commands.ts, scripts/toque-shot.mjs | F ✓, /painel à vista sem rolar | ~4k |
+| 19:15 | Bateria: typecheck 3/3 · 898/898 · build · 15/15 smokes · cenários byte-idênticos · shots:toque ✓ | — | tudo verde | ~4k |

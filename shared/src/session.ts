@@ -1611,12 +1611,21 @@ export class GameSession {
         return runClaim(this, clientId, parts);
       case "amigos":
         return runAmigos(this, clientId, parts);
+      case "painel": {
+        // ⚠️ `/painel` é do CLIENTE: quem abre o painel é o `main.ts`, que
+        // intercepta o comando antes de mandá-lo pra cá (o molde do `/amigos`
+        // sem subcomando). Chegar aqui significa uma de duas coisas — cliente
+        // desatualizado, ou o comando veio com sobra (`/painel algo`) — e nos
+        // dois casos "Comando desconhecido" seria uma mentira: o comando
+        // existe, só não é daqui. Então respondemos ONDE ele mora.
+        return "O painel abre no seu próprio aparelho, não no servidor: tecla P no computador, ou o botão 📋 da barra de cima no tablet. Se você digitou /painel e nada aconteceu, recarregue a página.";
+      }
       case "confinar": {
         if (!professor) return "Somente o professor pode controlar o confinamento das áreas.";
         return runConfinar(this, parts);
       }
       default:
-        return `Comando desconhecido: ${text}. Os comandos disponíveis são /bloco, /resetpin, /regiao, /objetivo, /grupo, /aula, /tp, /tpr, /tpa, /iniciar, /hora, /ciclo, /vento, /voo, /modo, /regra, /pvp, /claim, /amigos e /confinar.`;
+        return `Comando desconhecido: ${text}. Os comandos disponíveis são /bloco, /resetpin, /regiao, /objetivo, /grupo, /aula, /tp, /tpr, /tpa, /iniciar, /hora, /ciclo, /vento, /voo, /modo, /regra, /pvp, /dar, /claim, /amigos, /painel e /confinar.`;
     }
   }
 

@@ -5237,6 +5237,28 @@
       ],
       "occurrences": 1,
       "last_seen": "2026-08-21T17:30:00"
+    },
+    {
+      "id": "bug-635",
+      "timestamp": "2026-08-21T18:40:00",
+      "error_message": "sonda toque-shot secao F: 'X o tap em /painel ENVIA o comando inteiro e abre o painel' — o chat FECHOU e o painel nao abriu, sem erro nenhum no log",
+      "file": "client/src/commands.ts (ordem de COMANDOS) + scripts/toque-shot.mjs (painelBotao)",
+      "root_cause": "O painel de comandos rapidos do dedo (`#chat-painel`) e uma caixa `max-height: 26vh; overflow-y: auto` com flex-wrap. Com ~24 comandos, os ULTIMOS da lista ficam fora da vista. Eu tinha acrescentado 'painel' no FIM de COMANDOS. O `painelBotao` da sonda achava o botao pelo textContent e media o `getBoundingClientRect` sem rolar — coordenadas de um botao invisivel. O dedo caia no vazio, e tocar fora do campo FECHA o chat: a falha se apresentou como 'o comando nao abriu o painel', diagnostico errado.",
+      "fix": "Dois lados. (1) Produto: 'painel' passou a ser o PRIMEIRO item de COMANDOS — e a ordem da lista e a ordem dos botoes; `/painel` e justamente o comando de quem esta no tablet, o resto e quase todo do professor no teclado. 'pvp' entrou junto de 'regra' (mesmo assunto). (2) Sonda: `painelBotao` faz `scrollIntoView({block:'nearest'})` antes de medir, e a secao F ganhou asserção de que o `/painel` esta a vista SEM rolar (compara o rect do botao com o do container).",
+      "tags": [
+        "chat",
+        "comandos",
+        "mobile",
+        "overflow",
+        "sonda",
+        "toque-shot",
+        "falso-diagnostico"
+      ],
+      "related_bugs": [
+        "bug-634"
+      ],
+      "occurrences": 1,
+      "last_seen": "2026-08-21T18:40:00"
     }
   ]
 }

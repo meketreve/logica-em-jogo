@@ -126,6 +126,19 @@
 
 ## Key Learnings
 
+- [2026-08-21] **`client/src/commands.ts` é a lista ÚNICA de comandos do cliente** — o Tab e o
+  painel de comandos rápidos do dedo leem os mesmos `COMANDOS`/`SUBCOMANDOS`. **E a ordem dela é
+  a ordem dos botões no dedo**, numa caixa de `max-height: 26vh` que rola: comando no fim da
+  lista só aparece pra quem rola (bug-635). Comando que serve ao ALUNO NO TABLET vai pro começo.
+  ⚠️ A lista tinha DUAS divergências antigas quando fui mexer: `/pvp` faltava aqui, e `/dar`
+  faltava na frase de "comandos disponíveis" do `session.ts`. Ao tocar em qualquer uma das duas,
+  conferir a outra.
+- [2026-08-21] **Três avisos do cliente anunciavam painel dizendo "tecla X"** — o do professor no
+  join, o do aluno sem grupo (`objectivesUi`, via `ctx.painelComo`) e o de amigos quando a
+  proteção liga. No tablet isso é um beco sem saída. Passaram todos por `comoAbrirPainel(tecla,
+  ícone, comando)` no `main.ts`, que troca a frase por "botão 📋 da barra de cima" quando
+  `isTouchDevice()`. Aviso novo que aponte painel deve usar o mesmo helper.
+
 - [2026-08-21] **Todo comando interceptado no CLIENTE tem de desviar do portão do `PainelHost`.**
   O `podeAbrir` é `!algumAberto && !bloqueado()`, e o `bloqueado()` do `main.ts` inclui
   `chat.open` — quem digitou `/painel` ou `/amigos` está COM O CHAT ABERTO, então `podeAlternar`
@@ -1216,6 +1229,11 @@ nenhum** — sem essa declaração o Chrome renderiza a página em light mesmo c
    linhas: chrome headless + `Emulation.setEmulatedMedia` + `getComputedStyle(...).color`.
 
 ## Do-Not-Repeat
+
+- [2026-08-21] **Botão que a sonda de toque não acha À VISTA não é um botão que falhou** —
+  `getBoundingClientRect` devolve coordenadas de elemento rolado pra fora, o dedo cai no vazio, e
+  em cima do chat isso FECHA o chat. O sintoma vira "o comando não funcionou", que é diagnóstico
+  errado. Toda medida de tap dentro de caixa rolável precisa de `scrollIntoView` antes (bug-635).
 
 - [2026-08-21] **O CSS da UI de toque vive num TEMPLATE LITERAL** (`const CSS = \`…\`` em
   `client/src/touch.ts`). **Nunca escrever crase dentro dele** — nem em comentário `/* */`, nem

@@ -533,6 +533,40 @@ describe("GameSession (servidor autoritativo)", () => {
     }
   });
 
+  it("/painel: o servidor não chama de desconhecido — diz que o painel é do aparelho", () => {
+    const { sent, send } = collect();
+    const session = new GameSession(send, { dims: DIMS, seed: 5, singleplayer: true });
+    session.handleMessage(1, JSON.stringify({ type: "join", name: "ana" }));
+    sent.length = 0;
+
+    const responder = (text: string): string => {
+      sent.length = 0;
+      session.handleMessage(1, JSON.stringify({ type: "chat", text }));
+      const m = parseServerMessage(sent[0]?.data as string);
+      if (m?.type !== "chat") throw new Error(`sem resposta de chat pra ${text}`);
+      return m.text;
+    };
+
+    // ⚠️ Quem abre o painel é o CLIENTE (main.ts intercepta o /painel antes de
+    // mandar). Chegar aqui é cliente desatualizado ou comando com sobra — e nos
+    // dois casos "Comando desconhecido" seria mentira: o comando existe, só não
+    // é daqui. O teste trava a resposta ÚTIL, não só a ausência do erro.
+    const r = responder("/painel");
+    expect(r).not.toMatch(/desconhecido/i);
+    expect(r).toMatch(/tecla P/);
+    expect(r).toMatch(/recarregue a página/);
+    expect(responder("/painel algo")).toBe(r); // com sobra, a mesma explicação
+
+    // e a lista que o desconhecido imprime nomeia o /painel: é por ela que o
+    // aluno descobre os comandos, e a origem (cliente ou servidor) não importa
+    // pra ele
+    const lista = responder("/naoexiste");
+    expect(lista).toMatch(/Comando desconhecido/);
+    for (const cmd of ["/painel", "/pvp", "/dar", "/amigos", "/claim"]) {
+      expect(lista).toContain(cmd);
+    }
+  });
+
   it("ciclo dia/noite (cp21): nasce parado ao meio-dia; /ciclo liga, /hora ajusta", () => {
     const { sent, send } = collect();
     const session = new GameSession(send, { dims: DIMS, seed: 5, singleplayer: true });

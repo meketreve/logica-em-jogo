@@ -4,9 +4,10 @@
 
 > ## 🧭 HANDOFF — SESSÃO 83 (2026-08-21) · `/painel` e o 6º botão do dedo
 >
-> **A quest do `/painel` FECHOU.** Bateria verde: launchers 5/5 · typecheck 3/3 · **897/897** ·
-> build · **15/15 smokes** · `cenarios` 7/7 byte-idênticos · `shots:toque` tudo ✓ em três
-> tamanhos (1024×600, 600×1024, 420×900).
+> **A quest do `/painel` FECHOU**, com uma 2ª rodada em cima (o comando entrou em toda lista que
+> o anuncia — ver a seção própria abaixo). Bateria verde: launchers 5/5 · typecheck 3/3 ·
+> **898/898** · build · **15/15 smokes** · `cenarios` 7/7 byte-idênticos · `shots:toque` tudo ✓
+> em três tamanhos (1024×600, 600×1024, 420×900).
 >
 > ### ✅ Entregue
 > **O painel do cp14 ganhou duas portas novas — `/painel` no chat e o botão 📋 no HUD de toque.**
@@ -58,14 +59,40 @@
 > | 600px (o mesmo em pé) | 519px | 1 |
 > | 420px (celular estreito) | — | 2 (o wrap defendendo) |
 >
+> ### ✅ 2ª rodada — o `/painel` entrou em TODA lista que o anuncia
+> Pedido dele logo depois do commit: *"pode adicionar o comando painel na lista de comandos e
+> onde achar necessário"*. Quatro lugares:
+> - **`shared/src/session.ts`** — `case "painel"` que responde **ONDE o painel mora** ("tecla P
+>   no computador, ou o botão 📋 no tablet… recarregue a página") em vez de "Comando
+>   desconhecido". Só dispara com cliente desatualizado ou `/painel algo`, mas é exatamente o
+>   modo de falha que este arquivo vinha avisando. `/painel` entrou na frase de comandos
+>   disponíveis.
+> - **`client/src/commands.ts`** — `/painel` no Tab e no painel de comandos rápidos do dedo, como
+>   **PRIMEIRO** item (ver bug-635 abaixo).
+> - **`comoAbrirPainel()` no `main.ts`** — os **três** avisos que diziam "tecla X" (professor no
+>   join · aluno sem grupo, via `objectivesUi` · amigos quando a proteção liga) agora apontam o
+>   botão da barra quando `isTouchDevice()`. O campo `painelKey` do `ObjectivesCtx` virou
+>   `painelComo` (frase pronta, montada no main — só ele sabe se o aparelho é de toque).
+> - **Sonda** — o aviso do join na B4, e a **seção F** inteira pro `/painel` no painel rápido.
+>
+> ⚠️ **Duas divergências ANTIGAS apareceram no caminho e foram consertadas junto:** `/pvp` nunca
+> tinha entrado no `commands.ts` (desde o §🍖 F7), e `/dar` nunca tinha entrado na frase de
+> "comandos disponíveis" do `session.ts`. Mexeu numa das duas listas, confira a outra.
+>
+> ### ⚠️ bug-635 — o tap no `/painel` caía no vazio
+> O `#chat-painel` é `max-height: 26vh; overflow-y: auto` com flex-wrap, e com ~24 comandos os
+> ÚLTIMOS ficam fora da vista. Eu tinha posto "painel" no FIM de `COMANDOS`. A sonda achava o
+> botão pelo texto e media o rect **sem rolar** → coordenadas de botão invisível → o dedo cai no
+> vazio → **tocar fora do campo FECHA o chat**. O sintoma foi "o comando não abriu o painel", que
+> é diagnóstico errado. Conserto nos dois lados: "painel" virou o **primeiro** de `COMANDOS` (a
+> ordem da lista É a ordem dos botões, e esse é o comando de quem está no tablet), e o
+> `painelBotao` da sonda faz `scrollIntoView` antes de medir. A seção F ainda trava que o
+> `/painel` está **à vista sem rolar**.
+>
 > ### 📌 Pendências
-> - **Nada validado na escola.** A fila de campo agora tem SEIS coisas no ar sem confirmação: o
->   rename de algodão, a aba "todos", o freio da grama, a rolagem do painel, o conserto do
->   soterramento e este `/painel` + 📋. **O soterramento segue o que mais pede teste real.**
-> - **`/painel` não aparece em lista de ajuda nenhuma** — nem no `session.ts` (não existe lá, de
->   propósito), nem no painel de comandos rápidos do chat, nem no aviso que o professor recebe no
->   join ("tecla P abre o painel de autoria" — frase que não serve a quem está no dedo). Ficou de
->   FORA do escopo desta quest de propósito; se ele quiser, é um item curto.
+> - **Nada validado na escola.** A fila de campo tem SEIS coisas no ar sem confirmação: o rename
+>   de algodão, a aba "todos", o freio da grama, a rolagem do painel, o conserto do soterramento
+>   e este `/painel` + 📋. **O soterramento segue o que mais pede teste real.**
 >
 > ### 🚀 PRÓXIMA QUEST
 > **Painel de comandos do mobile ao LADO** (ideia de 2026-08-17). A conta do teclado virtual já

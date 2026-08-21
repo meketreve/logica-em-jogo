@@ -362,6 +362,15 @@ const semDesconhecido = await avaliar(
   `![...document.querySelectorAll('#chat-log .msg')].some(d => /desconhecido/i.test(d.textContent||''))`,
 );
 ok(semDesconhecido, "o chat NÃO recebeu 'Comando desconhecido' (o comando virou gesto)");
+// o aviso que o professor leva no join: num aparelho de dedo ele não pode dizer
+// "tecla P" — o `comoAbrirPainel` do main troca a frase pelo botão da barra
+const dicaDoJoin = await avaliar(
+  `([...document.querySelectorAll('#chat-log .msg')].find(d => /abre o painel de autoria/.test(d.textContent||''))?.textContent) ?? 'AUSENTE'`,
+);
+ok(
+  /barra de cima/.test(dicaDoJoin) && /\/painel/.test(dicaDoJoin),
+  `o aviso do join aponta o botão e o comando, não a tecla P — "${dicaDoJoin}"`,
+);
 await foto("02b-painel-por-comando.png");
 // fecha pela tecla: o chat não abre com painel na tela, então digitar /painel de
 // novo é impossível — é o motivo de "alterna" e "só abre" darem no mesmo.
@@ -521,6 +530,11 @@ diga("== E: painel de COMANDOS RÁPIDOS no chat (2026-08-14) ==");
 // o painel é este: o panccel nasce quando isTouchDevice() — e é exatamente o
 // que a sonda emula (coarse). Verifica a ÁRVORE, não um botão: o caminho de
 // navegação precisa REPETIR o que o chat.ts renderiza.
+// ⚠️ O `scrollIntoView` não é zelo: a caixa do painel é `max-height: 26vh` com
+// overflow, e com ~24 comandos os últimos ficam FORA da vista. Sem rolar, o
+// `getBoundingClientRect` devolve coordenadas de um botão invisível, o dedo cai
+// no vazio e o chat FECHA — a falha aparece como "o comando não abriu o painel",
+// que é um diagnóstico errado.
 const painelBotao = (nome) =>
   avaliar(`(() => {
     const p = document.getElementById('chat-painel');
@@ -528,6 +542,7 @@ const painelBotao = (nome) =>
     const b = [...p.querySelectorAll('button')]
       .find(e => e.textContent === ${JSON.stringify(nome)});
     if (!b) return null;
+    b.scrollIntoView({ block: 'nearest', inline: 'nearest' });
     const r = b.getBoundingClientRect();
     return { x: Math.round(r.left + r.width/2), y: Math.round(r.top + r.height/2) };
   })()`);
@@ -563,6 +578,39 @@ if (tp) {
 }
 await tecla("Escape");
 await espera(300);
+
+diga("== F: /painel entrou na árvore de comandos do dedo (commands.ts) ==");
+// O painel de comandos rápidos e o Tab leem a MESMA lista (`COMANDOS`). Se o
+// /painel não estivesse lá, o aluno de tablet teria de saber o comando de cor —
+// e o botão 📋 do topo some sob qualquer menu aberto, então o chat é a segunda
+// porta de verdade, não um luxo.
+await tecla("Enter");
+await espera(500);
+await foto("05a-comandos-rapidos.png"); // a lista ANTES do tap: /painel tem de estar à vista
+const pnlPainel = await painelBotao("/painel");
+ok(pnlPainel !== null, "o /painel aparece entre os comandos do painel rápido");
+// e sem rolar: ele é o 1º da lista justamente pra caber na 1ª faixa visível
+const semRolar = await avaliar(`(() => {
+  const p = document.getElementById('chat-painel');
+  const b = [...p.querySelectorAll('button')].find(e => e.textContent === '/painel');
+  if (!b) return 'AUSENTE';
+  const rp = p.getBoundingClientRect(), rb = b.getBoundingClientRect();
+  return rb.top >= rp.top - 1 && rb.bottom <= rp.bottom + 1;
+})()`);
+ok(semRolar === true, `o /painel está à vista sem rolar a caixa de comandos (${semRolar})`);
+if (pnlPainel) {
+  await tocar(pnlPainel.x, pnlPainel.y);
+  await espera(600);
+  d = await estado();
+  ok(d.painel === "VISIVEL", "o tap em /painel ENVIA o comando inteiro e abre o painel");
+  const semRecusa = await avaliar(
+    `![...document.querySelectorAll('#chat-log .msg')].some(d => /desconhecido/i.test(d.textContent||''))`,
+  );
+  ok(semRecusa, "e nenhuma recusa do servidor no chat (o cliente interceptou)");
+  await foto("05-painel-pelo-comando-rapido.png");
+  await tecla("KeyP");
+  await espera(400);
+}
 
 if (excecoes.length) {
   diga(`\n✗ exceções no console: ${excecoes.join(" | ")}`);

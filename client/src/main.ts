@@ -519,6 +519,20 @@ function abrirPainelPorComando(text: string): boolean {
   return paineis.trocarParaPainel();
 }
 
+/**
+ * Como se chega a um painel NESTE aparelho, em uma frase.
+ *
+ * Os três avisos que anunciam painel (o do professor no join, o do aluno sem
+ * grupo, e o de amigos quando a proteção de áreas liga) diziam "tecla X" — o
+ * que no tablet é um beco sem saída, porque teclado não existe lá. O comando de
+ * chat entra nas duas frases por ser a porta que serve nos dois aparelhos.
+ */
+function comoAbrirPainel(tecla: string, icone: string, comando: string): string {
+  return isTouchDevice()
+    ? `botão ${icone} da barra de cima (ou o comando ${comando})`
+    : `tecla ${tecla} (ou o comando ${comando})`;
+}
+
 // --- Chat (checkpoint 6): UI em HTML por cima do canvas; comando roda no servidor ---
 const chat = new ChatUi(
   (text) => {
@@ -712,7 +726,7 @@ function refreshObjectivesView(beep: boolean): void {
   objectivesUi.update(latestObjectives.modo, latestObjectives.objetivos, {
     grupo: myGrupo,
     professor: papel === "professor",
-    painelKey: keyLabel(settings.keys.painel),
+    painelComo: comoAbrirPainel(keyLabel(settings.keys.painel), "📋", "/painel"),
   });
   jogo?.applyObjectiveBoxes(latestObjectives.objetivos);
 }
@@ -833,7 +847,7 @@ function handleServerData(data: string | ArrayBuffer): void {
         dicaAmigosDada = true;
         chat.addMessage(
           "jogo",
-          `tecla ${keyLabel(settings.keys.amigos)} abre o painel de amigos — quem está no seu grupo constrói na sua área`,
+          `${comoAbrirPainel(keyLabel(settings.keys.amigos), "👥", "/amigos")} abre o painel de amigos — quem está no seu grupo constrói na sua área`,
         );
       }
       latestClaims = msg.claims;
@@ -1301,7 +1315,10 @@ class GameRuntime {
     input.onKey(settings.keys.painel, alternarPainelCp14);
     input.onKey(settings.keys.amigos, () => paineis.alternar(paineis.amigos));
     if (papel === "professor") {
-      chat.addMessage("jogo", `tecla ${keyLabel(settings.keys.painel)} abre o painel de autoria`);
+      chat.addMessage(
+        "jogo",
+        `${comoAbrirPainel(keyLabel(settings.keys.painel), "📋", "/painel")} abre o painel de autoria`,
+      );
     }
 
     // Spawn vem do SERVIDOR (fixo, do terreno pristino) — o snapshot pode já
@@ -2298,7 +2315,7 @@ class GameRuntime {
     objectivesUi.update("livre", [], {
       grupo: null,
       professor: papel === "professor",
-      painelKey: keyLabel(settings.keys.painel),
+      painelComo: comoAbrirPainel(keyLabel(settings.keys.painel), "📋", "/painel"),
     });
     knownComplete.clear();
     objectivesSeeded = false; // o 1º objetivo do mundo novo não é "conquista"

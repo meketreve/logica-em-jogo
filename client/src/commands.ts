@@ -6,11 +6,24 @@
  * host (server/mundos.ts: /mundo; server/index.ts: /kicar). Se um comando novo
  * nascer lá, atualize aqui. O cliente NÃO tem sistema de arquivos: os nomes de
  * mundo entram ao vivo, pelo que o professor viu por último em "/mundo lista".
+ *
+ * ⚠️ E há um comando que NÃO é de servidor nenhum: `/painel` é interceptado no
+ * `main.ts` e abre o painel do cp14 aqui mesmo. Ele entra na lista porque quem
+ * lê a lista é o ALUNO, e pra ele a origem não importa — o que importa é que o
+ * comando exista no Tab e no painel de comandos rápidos do dedo.
+ *
+ * A ORDEM desta lista é a ordem dos botões no painel do dedo, e a caixa deles
+ * rola (`max-height: 26vh`): comando que cai no fim só aparece pra quem rola.
  */
 
 import { nomesDeRegra } from "@logica/shared";
 
 const COMANDOS = [
+  // ⚠️ PRIMEIRO de propósito. O painel de comandos rápidos do dedo é uma caixa
+  // de `max-height: 26vh` com wrap: com ~24 comandos, o que cai no fim da lista
+  // só aparece ROLANDO. E `/painel` é justamente o comando de quem está no
+  // tablet — o resto da lista é quase todo do professor no teclado.
+  "painel",
   "bloco",
   "resetpin",
   "regiao",
@@ -28,6 +41,7 @@ const COMANDOS = [
   "voo",
   "modo",
   "regra",
+  "pvp",
   "dar",
   "confinar",
   "kicar",
@@ -51,6 +65,7 @@ const SUBCOMANDOS: Record<string, string[]> = {
   confinar: ["ligar", "desligar", "status"],
   claim: ["ligar", "desligar", "criar", "remover", "lista"],
   amigos: ["convidar", "aceitar", "recusar", "sair", "expulsar", "lista"],
+  pvp: ["ligar", "desligar"],
 };
 
 /** Comandos cujo 2º token é um NOME de jogador. /tp também aceita "grupos".
