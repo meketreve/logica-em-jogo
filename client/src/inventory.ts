@@ -7,10 +7,18 @@ import {
   podeFabricar,
 } from "@logica/shared";
 import { playUi } from "./audio";
-import { CATEGORIAS, type Categoria, type PlaceableEntry } from "./blocksUi";
+import { ABAS, type AbaInventario, type PlaceableEntry } from "./blocksUi";
 import type { Mochila } from "./mochila";
 import { ArrastoDeSlot, primeiroLugar, slotSob } from "./slotDrag";
 import { esconderTooltip, tipDeItem } from "./tooltip";
+
+/**
+ * Chave de busca: sem espaço nas pontas, minúscula e **sem acento**. Ninguém
+ * digita "algodão" com til num teclado de tablet, e "vegetacao" tem de achar
+ * "vegetação". `NFD` separa a letra do diacrítico e o replace tira só ele.
+ */
+const normalizarBusca = (s: string): string =>
+  s.trim().toLowerCase().normalize("NFD").replace(/\p{Diacritic}/gu, "");
 
 /**
  * Inventário de blocos (cp16) — grade dos colocáveis + faixa da hotbar de 9
@@ -32,7 +40,14 @@ export class InventoryPanel {
   private readonly root = document.getElementById("inventario");
   private isOpen = false;
   /** Aba ativa — sobrevive a abrir/fechar dentro da sessão. */
-  private cat: Categoria = "blocos";
+  private aba: AbaInventario = "blocos";
+  /** Texto da busca de blocos (persiste entre re-renders, como `filtroCraft`).
+   *  Vale pra aba ATUAL: digitar filtra o que está à vista, e trocar de aba
+   *  mantém o texto — quem digitou "azul" quer ver o azul de cada categoria. */
+  private filtroBlocos = "";
+  /** A `.inv-grid` viva, pra a busca repovoar SÓ ela e o campo não perder o
+   *  foco (mesma disciplina do `listaCraft`). */
+  private gradeBlocos: HTMLElement | null = null;
   /** §🍖 F4: slot "pego" esperando o destino (null = nenhum). */
   private pegando: number | null = null;
   /** §🧹 (playtest): quantas unidades a MÃO carrega quando foi uma DIVISÃO de
@@ -237,42 +252,41 @@ export class InventoryPanel {
     dica.textContent =
       "clique num bloco pra pôr no slot selecionado · 1–9 ou clique escolhem o slot";
 
-    // abas de categoria — só aparecem as que têm bloco visível pro papel
+    // abas — a categoria curada só aparece se tiver bloco visível PRO PAPEL
+    // (o aluno não vê rocha-matriz); "todos" aparece sempre, é a lista inteira
     const todos = this.blocks();
     const abas = document.createElement("div");
     abas.className = "inv-abas";
-    for (const c of CATEGORIAS) {
-      if (!todos.some((b) => b.cat === c.id)) continue;
+    for (const c of ABAS) {
+      if (c.id !== "todos" && !todos.some((b) => b.cat === c.id)) continue;
       const tab = document.createElement("button");
       tab.type = "button";
-      tab.className = "inv-aba" + (c.id === this.cat ? " sel" : "");
+      tab.className = "inv-aba" + (c.id === this.aba ? " sel" : "");
       tab.textContent = c.label;
       tab.addEventListener("click", () => {
-        this.cat = c.id;
+        this.aba = c.id;
         this.render();
       });
       abas.appendChild(tab);
     }
 
+    // busca (2026-08-21): filtra a grade da ABA ATUAL. Digitar repovoa só a
+    // grade — re-renderizar o painel inteiro tiraria o foco do campo a cada
+    // letra (é o que o filtro de receitas já faz, mesmo motivo).
+    const busca = document.createElement("input");
+    busca.type = "text";
+    busca.className = "craft-filtro inv-busca";
+    busca.placeholder = "buscar bloco por nome ou id…";
+    busca.value = this.filtroBlocos;
+    busca.addEventListener("input", () => {
+      this.filtroBlocos = busca.value;
+      if (this.gradeBlocos) this.montarGrade(this.gradeBlocos);
+    });
+
     const grid = document.createElement("div");
     grid.className = "inv-grid";
-    for (const b of todos.filter((x) => x.cat === this.cat)) {
-      const btn = document.createElement("button");
-      btn.type = "button";
-      btn.className = "inv-bloco";
-      tipDeItem(btn, b.id);
-      const img = document.createElement("img");
-      img.src = this.icons.get(b.id) ?? "";
-      img.alt = b.name;
-      const nome = document.createElement("small");
-      nome.textContent = b.name;
-      btn.append(img, nome);
-      btn.addEventListener("click", () => {
-        this.pick(b.id);
-        this.render();
-      });
-      grid.appendChild(btn);
-    }
+    this.gradeBlocos = grid;
+    this.montarGrade(grid);
 
     const bar = document.createElement("div");
     bar.className = "inv-hotbar";
@@ -295,7 +309,64 @@ export class InventoryPanel {
       bar.appendChild(slot);
     });
 
-    root.append(head, dica, abas, grid, bar);
+    root.append(head, dica, abas, busca, grid, bar);
+  }
+
+  /**
+   * (Re)preenche a grade de blocos com a aba e a busca atuais. Separado do
+   * `render` pra a busca poder chamá-lo sem o campo perder o foco.
+   *
+   * A aba **"todos"** ordena por ID e ignora categoria: é a rede de segurança
+   * contra o bloco que "sumiu" numa aba que ninguém pensou em abrir (bug-625,
+   * a cerca). As outras abas mantêm a ordem de `PLACEABLE`, que já segue os ids
+   * e é a mesma da hotbar.
+   */
+  private montarGrade(grid: HTMLElement): void {
+    grid.replaceChildren();
+    const q = normalizarBusca(this.filtroBlocos);
+    const daAba = this.blocks().filter((b) => this.aba === "todos" || b.cat === this.aba);
+    const lista = this.aba === "todos" ? [...daAba].sort((a, b) => a.id - b.id) : daAba;
+
+    const casa = (b: PlaceableEntry): boolean => {
+      if (!q) return true;
+      if (normalizarBusca(b.name).includes(q)) return true;
+      // o professor às vezes sabe o ID de cor (usa `/bloco x y z <id>`). Só
+      // dígitos, e IGUALDADE: `includes` faria "1" trazer 1, 11, 12, 100…
+      return /^\d+$/.test(q) && String(b.id) === q;
+    };
+
+    const visiveis = lista.filter(casa);
+    for (const b of visiveis) {
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "inv-bloco";
+      // ⚠️ o tooltip é por DELEGAÇÃO (`data-tip-id` no botão): sem esta linha a
+      // grade nova ficaria sem tooltip nenhum
+      tipDeItem(btn, b.id);
+      const img = document.createElement("img");
+      img.src = this.icons.get(b.id) ?? "";
+      img.alt = b.name;
+      const nome = document.createElement("small");
+      nome.textContent = b.name;
+      btn.append(img, nome);
+      btn.addEventListener("click", () => {
+        this.pick(b.id);
+        this.render();
+      });
+      grid.appendChild(btn);
+    }
+
+    if (visiveis.length === 0) {
+      const vazio = document.createElement("p");
+      vazio.className = "inv-dica";
+      // na própria "todos" não há pra onde mandar: ali a lista já é inteira, e
+      // "não existe" é a resposta honesta
+      vazio.textContent =
+        this.aba === "todos"
+          ? "nenhum bloco com esse nome ou id."
+          : 'nenhum bloco com esse nome nesta aba — tente a aba "todos".';
+      grid.appendChild(vazio);
+    }
   }
 
   /**

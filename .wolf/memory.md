@@ -2500,3 +2500,9 @@ segue com `relatorio-aplicacao.md` e `apresentacao-cre.html`, ambos rastreados.
 | 08:38 | `npm run cenarios` + md5 antes/depois: 7 .ljw BYTE-IDÊNTICOS | cenarios/*.ljw | prova de que nenhum id se moveu | ~2k |
 | 08:44 | sonda headless do inventário em criativo: nome ocupa 3 linhas (88px vs 64-76px), sem truncar | .wolf/designqc-captures/blocos-nome/ | medido, aceitável | ~6k |
 | 08:50 | registros: todo.md item fechado, bug-628, 3 entradas de cerebrum | .wolf/ | — | ~4k |
+| 09:05 | push do rename (sessao 78) — origin/main = 0563613 | — | ele testa na escola depois do push | ~1k |
+| 09:12 | aba "todos" + busca: AbaInventario/ABAS no blocksUi, montarGrade/normalizarBusca no inventory | blocksUi.ts, inventory.ts, index.html | typecheck 3/3 | ~12k |
+| 09:25 | sonda: 145 blocos ordenados por id, 145/145 com tooltip, busca sem acento e por id exato, foco sobrevive | .wolf/designqc-captures/aba-todos/ | tudo OK | ~7k |
+| 09:32 | armadilha do tablet MEDIDA: teclado aberto deixava a grade com 7px | client/index.html | media query max-height:460px -> grade 92px | ~6k |
+| 09:40 | bug-629: smoke comida falhava — /salvar NUNCA existiu e espera(800) fixa apos 3000 mover | server/src/cenarios/_smoke-comida.mjs | helper `ate()`, A/B conferido, 21s->14s | ~9k |
+| 09:50 | bateria: launchers 5/5, typecheck 3/3, 891/891, build, 15/15 smokes, cenarios byte-identicos | — | verify:all exit 0 | ~3k |

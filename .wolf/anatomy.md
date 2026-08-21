@@ -1,6 +1,6 @@
 # anatomy.md
 
-> Auto-maintained by OpenWolf. Last scanned: 2026-08-19T11:41:43.019Z
+> Auto-maintained by OpenWolf. Last scanned: 2026-08-21T14:07:47.164Z
 > Files: 359 tracked | Anatomy hits: 0 | Misses: 0
 
 ## ./
@@ -15,7 +15,7 @@
 - `package.json` — Node.js package manifest (~420 tok)
 - `projeto.txt` (~4707 tok)
 - `README.md` — Project documentation (~2541 tok)
-- `todo.md` — Ideias para fazer (~21170 tok)
+- `todo.md` — Ideias para fazer (~21253 tok)
 - `tsconfig.base.json` (~130 tok)
 - `vitest.config.ts` — Config do vitest da RAIZ (2026-08-11, bug-612). (~335 tok)
 
@@ -215,7 +215,7 @@
 
 ## client/
 
-- `index.html` — Lógica em Jogo (~10988 tok)
+- `index.html` — Lógica em Jogo (~11452 tok)
 - `package.json` — Node.js package manifest (~102 tok)
 - `tsconfig.json` — TypeScript configuration (~39 tok)
 - `vite.config.ts` — Vite build configuration (~94 tok)
@@ -277,9 +277,9 @@
   - fn `shade` L238-251 (~195 tok)
   - fn `drawItemF10` L252-404 (~1635 tok)
   - fn `makeBlockIcons` L405-446 (~353 tok)
-- `blocksUi.ts` — Blocos colocáveis com nome em português — fonte única pra hotbar (main.ts) (~3418 tok)
-  - section `PlaceableEntry` L31-207 (~3080 tok)
-  - fn `placeableFor` L208-212 (~56 tok)
+- `blocksUi.ts` — Blocos colocáveis com nome em português — fonte única pra hotbar (main.ts) (~3693 tok)
+  - section `PlaceableEntry` L55-231 (~3080 tok)
+  - fn `placeableFor` L232-236 (~56 tok)
 - `changelog.ts` — Tela "📜 novidades" do menu principal — o que mudou em cada versão. (~981 tok)
   - section `Mudanca` L10-67 (~607 tok)
   - fn `buildChangelogScreen` L68-101 (~280 tok)
@@ -328,8 +328,8 @@
   - class `Hud` L163-725 (~6882 tok)
 - `input.ts` — Teclado + mouse (pointer lock). SÓ coleta input — nenhuma decisão de (~3396 tok)
   - class `Input` L5-284 (~3349 tok)
-- `inventory.ts` — Inventário de blocos (cp16) — grade dos colocáveis + faixa da hotbar de 9 (~6504 tok)
-  - class `InventoryPanel` L31-603 (~6143 tok)
+- `inventory.ts` — Chave de busca: sem espaço nas pontas, minúscula e **sem acento**. Ninguém (~7432 tok)
+  - class `InventoryPanel` L39-674 (~6968 tok)
 - `loading.ts` — Tela de carregamento (§🕐) — o que o jogador vê entre "apertei jogar" e "o (~5177 tok)
   - section `CargaInfo` L29-41 (~153 tok)
   - section `CargaStats` L42-60 (~218 tok)
@@ -500,11 +500,11 @@
 ## mundos/_smoke-coluna/
 
 - `_smoke-coluna.ljw` (~62 tok)
-- `chat.log` (~4267 tok)
+- `chat.log` (~4374 tok)
 
 ## mundos/_smoke-comida/
 
-- `chat.log` (~391 tok)
+- `chat.log` (~323 tok)
 
 ## mundos/_smoke-craft/
 
@@ -524,7 +524,7 @@
 
 ## mundos/_smoke-kicar/
 
-- `chat.log` (~19762 tok)
+- `chat.log` (~20245 tok)
 
 ## mundos/_smoke-modoa/
 
@@ -545,7 +545,7 @@
 ## mundos/_smoke-trocaa/
 
 - `_smoke-trocaa.ljw` (~87 tok)
-- `chat.log` (~12941 tok)
+- `chat.log` (~13270 tok)
 
 ## mundos/_smoke-trocab/
 
@@ -557,11 +557,11 @@
 
 ## mundos/aula1-sequencia/
 
-- `chat.log` (~67471 tok)
+- `chat.log` (~69079 tok)
 
 ## mundos/aula2-binario/
 
-- `chat.log` (~2624 tok)
+- `chat.log` (~2688 tok)
 
 ## mundos/aula7-corrida/
 
@@ -852,20 +852,21 @@
   - fn `ateQue` L46-50 (~47 tok)
   - fn `enviar` L51-63 (~204 tok)
   - fn `entrar` L64-121 (~645 tok)
-- `_smoke-comida.mjs` — Smoke do §🍖 F6 (comida) contra o servidor REAL. Prova pelo fio o que o teste (~2164 tok)
+- `_smoke-comida.mjs` — Smoke do §🍖 F6 (comida) contra o servidor REAL. Prova pelo fio o que o teste (~2439 tok)
   - fn `ok` L18-21 (~29 tok)
-  - fn `espera` L22-36 (~136 tok)
-  - fn `cliente` L37-52 (~196 tok)
-  - fn `enviar` L53-53 (~24 tok)
-  - fn `ultimoInv` L54-54 (~15 tok)
-  - fn `contar` L55-56 (~30 tok)
-  - fn `slotDe` L57-57 (~26 tok)
-  - fn `blocoEm` L58-58 (~20 tok)
-  - fn `mover` L59-60 (~34 tok)
-  - fn `plantar` L61-62 (~32 tok)
-  - fn `quebrar` L63-63 (~25 tok)
-  - fn `comer` L64-64 (~24 tok)
-  - fn `fomeDe` L65-189 (~1471 tok)
+  - fn `espera` L22-25 (~83 tok)
+  - fn `ate` L26-46 (~169 tok)
+  - fn `cliente` L47-62 (~196 tok)
+  - fn `enviar` L63-63 (~24 tok)
+  - fn `ultimoInv` L64-64 (~15 tok)
+  - fn `contar` L65-66 (~30 tok)
+  - fn `slotDe` L67-67 (~26 tok)
+  - fn `blocoEm` L68-68 (~20 tok)
+  - fn `mover` L69-70 (~34 tok)
+  - fn `plantar` L71-72 (~32 tok)
+  - fn `quebrar` L73-73 (~25 tok)
+  - fn `comer` L74-74 (~24 tok)
+  - fn `fomeDe` L75-205 (~1649 tok)
 - `_smoke-craft.mjs` — Smoke do §🍖 F5 (craft por lista + balde-item) contra o servidor REAL. Prova (~1907 tok)
   - fn `ok` L17-20 (~29 tok)
   - fn `espera` L21-36 (~168 tok)

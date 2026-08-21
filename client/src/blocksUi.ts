@@ -18,7 +18,7 @@ export type Categoria =
   | "ferramentas"
   | "glifos";
 
-/** Abas do inventário, na ordem de exibição. */
+/** Categorias CURADAS, na ordem de exibição. */
 export const CATEGORIAS: readonly { id: Categoria; label: string }[] = [
   { id: "blocos", label: "blocos" },
   { id: "vegetacao", label: "vegetação" },
@@ -26,6 +26,30 @@ export const CATEGORIAS: readonly { id: Categoria; label: string }[] = [
   { id: "minerios", label: "minérios" },
   { id: "ferramentas", label: "ferramentas" },
   { id: "glifos", label: "letras e números" },
+];
+
+/**
+ * Aba do inventário: uma categoria curada, ou **"todos"** — a lista COMPLETA.
+ *
+ * "todos" NÃO é uma `Categoria`, de propósito: se fosse, cada entrada de
+ * `PLACEABLE` precisaria declarar DOIS `cat`. É um MODO de exibição, e a grade
+ * resolve com `aba === "todos" || b.cat === aba`.
+ */
+export type AbaInventario = Categoria | "todos";
+
+/**
+ * Abas do inventário na ordem de exibição: as categorias curadas e, por último,
+ * **"todos"**.
+ *
+ * A categoria ajuda a navegar mas ESCONDE — foi exatamente assim que a cerca
+ * "sumiu" (bug-625: estava em mobília, e quem procurava material de construção
+ * ia em blocos). Com a lista inteira ordenada por id, nenhum colocável fica
+ * inalcançável. Fica por ÚLTIMO porque é a rede de segurança, não o caminho
+ * normal: a curadoria continua sendo a primeira coisa que o aluno vê.
+ */
+export const ABAS: readonly { id: AbaInventario; label: string }[] = [
+  ...CATEGORIAS,
+  { id: "todos", label: "todos" },
 ];
 
 export interface PlaceableEntry {

@@ -2,6 +2,66 @@
 
 > Single source of truth for resuming work. Read this FIRST when starting a session.
 
+> ## 🧭 HANDOFF — ESTADO AO FIM DA SESSÃO 79 (2026-08-21)
+>
+> **Duas entregas: o push da 78 e a aba "todos" + busca no inventário.** De quebra, um defeito
+> pré-existente no smoke `comida` caçado e consertado. Bateria completa verde.
+> **Commitado direto na `main`; push só a pedido.**
+>
+> ### ✅ Entregue
+> 1. **Push da sessão 78** — `origin/main` = `0563613` (o rename "lã" → "bloco de algodão").
+> 2. **Aba "todos" + barra de busca no inventário de blocos** (item 2 da fila).
+>    - `blocksUi.ts`: `AbaInventario = Categoria | "todos"` e `ABAS` (categorias + "todos" no fim).
+>    - `inventory.ts`: `cat` → `aba`, `filtroBlocos`, `normalizarBusca()` e **`montarGrade()`**
+>      novo — a busca repovoa SÓ a grade, pra o campo não perder o foco a cada letra.
+>    - `index.html`: `.inv-busca` + a media query de viewport curta.
+> 3. **bug-629 — smoke `comida` consertado** (era pré-existente no `main` já empurrado).
+>
+> ### Decisões travadas (item 2)
+> - **"todos" é MODO de exibição, não `Categoria`.** Como categoria, cada entrada de `PLACEABLE`
+>   precisaria de dois `cat`. A grade resolve com `aba === "todos" || b.cat === aba`.
+> - **Fica por ÚLTIMO na barra:** a curadoria segue sendo o caminho normal; "todos" é a rede
+>   contra o bloco que "sumiu" numa aba (bug-625, a cerca).
+> - **Busca vale na aba ATUAL e o texto SOBREVIVE à troca de aba** (quem digita "azul" quer ver o
+>   azul de cada categoria). Sem acento ("algodao" acha "algodão") e por **id EXATO** com dígitos
+>   — `includes` no id faria "1" trazer 1, 11, 12, 100…
+>
+> ### ⚠️ Armadilhas que a sessão MEDIU (não refazer a descoberta)
+> - **A do tablet era real.** Teclado virtual aberto → viewport ~300px; o painel é de altura FIXA
+>   (`min(560px, 84vh)`, `overflow: hidden`) e cabeçalho + dica + 7 abas comiam 132 dos 286px:
+>   **a grade sobrava com 7px.** `@media (max-height: 460px)` encolhe o enfeite e dá
+>   `min-height: 92px` à grade. Medido depois: **7px → 92px**, painel e hotbar ainda cabendo.
+>   ⚠️ O seletor é `#inventario > .inv-dica` — a mensagem "nenhum bloco com esse nome" usa a MESMA
+>   classe DENTRO da grade, e esconder as duas cegaria a busca.
+> - **bug-629, dois defeitos na mesma asserção do smoke:** ela mandava **`/salvar`, comando que
+>   NUNCA existiu** (`git log --all -S 'case "salvar"'` = vazio) e passava por acidente, porque a
+>   resposta "Comando desconhecido: **/salv**ar…" casava com `includes("salv")`. E os `espera(800)`
+>   fixos depois do laço de **3000 `mover`** faziam o resultado depender da CARGA da máquina.
+>   Reescrita pro que vale ali — "o professor continua sendo atendido depois da enxurrada" — com
+>   o `/bloco` que já existia no fluxo e um helper **`ate(cond, teto)`** no lugar do relógio.
+>   A/B conferido; o smoke ficou mais rápido (21s → 14s).
+> - ⚠️ **Pra sondar o inventário de BLOCOS o mundo tem de nascer criativo** (`menu-new-jogo` =
+>   `'criativo'`, e **sem** `?mochila=` na URL). O painel `E` é UM objeto com dois `render`
+>   diferentes: `render()` desvia pra `renderMochila()` quando `mochila.ativa`.
+>
+> ✅ **Bateria:** `verify:all` **exit 0** — `check:launchers` 5/5 · typecheck 3/3 · **891/891** ·
+> build · **15/15 smokes** · `npm run cenarios` 7/7 byte-idênticos.
+> Sondas em `.wolf/designqc-captures/aba-todos/` e `.../tablet-kb/`.
+>
+> ### 🚀 Próximo
+> 1. **Painel de comandos do mobile ao LADO** (ideia 2026-08-17) — a conta do teclado já está
+>    resolvida por `--kb`; o que muda é o eixo do layout.
+> 2. **`/invisivel`** para professor (ideia 2026-08-17) — ⚠️ a filtragem tem de ser no SERVIDOR,
+>    por cliente, senão a posição vaza no fio.
+> 3. **Ovelha + lã de verdade** — o nome está reservado e os ids são NOVOS (append), ver
+>    `shared/src/blocks.ts:20-26`.
+> 4. Animação de **sentar na cadeira**, teto de 35 grupos, proteger a célula-molde,
+>    Ferramentas v2, mobs.
+>
+> ⚠️ **O baseline "bug-612: 3 testes de worldgen falham na suíte cheia" NÃO reproduziu** — nem na
+> 78 nem na 79 (891/891 nas duas). Não investigado; trate a seção 0 do `## 🚀 Próxima fase` como
+> possivelmente obsoleta antes de gastar tempo nela.
+
 > ## 🧭 HANDOFF — ESTADO AO FIM DA SESSÃO 78 (2026-08-19)
 >
 > **Item 1 da fila FECHADO: o vocabulário "lã" saiu do jogo.** Bateria completa verde. Commitado

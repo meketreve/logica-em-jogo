@@ -5104,6 +5104,30 @@
       ],
       "occurrences": 1,
       "last_seen": "2026-08-19T08:45:00"
+    },
+    {
+      "id": "bug-629",
+      "timestamp": "2026-08-21T09:40:00",
+      "error_message": "npm run verify:all: '14/15 smokes OK — comida falhou' · '[comida] X o mundo foi salvo (o professor viu a confirmacao)'",
+      "file": "server/src/cenarios/_smoke-comida.mjs",
+      "root_cause": "DOIS defeitos na mesma assercao, ambos desde o commit 84c3146 que a criou. (1) MENTIRA: ela mandava '/salvar', um comando que NUNCA existiu — `git log --all -S 'case \"salvar\"'` nao acha nada, e a lista de comandos de session.ts:1602 nao o inclui. Passava por ACIDENTE, porque a resposta e 'Comando desconhecido: /salvar…' e o `includes(\"salv\")` casava com o eco do proprio comando. Nunca provou save nenhum. (2) FRAGILIDADE: logo acima o aluno despeja 3000 `mover` num for sem await; com a fila do servidor cheia, os 800ms fixos de `espera` nao bastavam pra resposta chegar, e o smoke passava ou falhava conforme a CARGA da maquina. Medido: com espera(6000) passava; o eco do /bloco anterior tambem estava faltando no prof.chats, o que denunciou a fila e nao o comando.",
+      "fix": "Assercao reescrita pro que de fato vale ali: 'o professor continua sendo atendido depois da enxurrada de movimento'. Usa o /bloco que JA existia no fluxo (comando real, efeito real) em vez de inventar /salvar, e espera por CONDICAO com um helper `ate(cond, teto)` no lugar de `espera` fixa (teto 10s, passo 100ms). A ida-e-volta do save pelo disco continua provada em comida.test.ts, como o proprio comentario ja dizia. A/B conferido: trocando o prefixo esperado por um impossivel, o smoke falha. Efeito colateral bom: o smoke ficou mais rapido (21s -> 14s), porque agora sai assim que a resposta chega.",
+      "tags": [
+        "smoke",
+        "comida",
+        "flake",
+        "timing",
+        "assercao-falsa",
+        "salvar",
+        "fila",
+        "backpressure"
+      ],
+      "related_bugs": [
+        "bug-547",
+        "bug-560"
+      ],
+      "occurrences": 1,
+      "last_seen": "2026-08-21T09:40:00"
     }
   ]
 }

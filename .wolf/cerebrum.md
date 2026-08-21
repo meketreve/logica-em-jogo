@@ -126,6 +126,17 @@
 
 ## Key Learnings
 
+- [2026-08-21] **O nome exibido de bloco tem UMA fonte: `PLACEABLE[].name` em
+  `client/src/blocksUi.ts`.** Leem de lá `hotbarUi.nome()` (que antes disso resolve os ITENS numa
+  cadeia de `if`), `tooltip.ts`, `panels.ts:514` e a grade da mochila. Trocar ali propaga pra
+  hotbar, inventário, tooltip, painel de autoria e lista de receitas de uma vez — e o servidor
+  não tem nome de bloco nenhum, só ids.
+- [2026-08-21] **O painel `E` é UM objeto (`paineis.mochila`, `InventoryPanel`) com dois
+  `render` completamente diferentes**: `renderMochila()` em sobrevivência (abas `mochila`/`criar`,
+  slots com quantidade) e a grade de colocáveis em criativo (abas de categoria, `.inv-bloco`). O
+  desvio é `if (this.mochila.ativa)` no topo do `render()`. Qualquer sonda ou mudança de UI tem
+  de dizer PRA QUAL das duas está olhando.
+
 - [2026-08-17] **Nunca interpole a CÂMERA no laço de render deste projeto — interpole o
   PROGRESSO.** `main.ts` faz `camera.position.set(...)` e `camera.rotation.set(...)` a partir da
   pose do jogador TODO FRAME. Um lerp aplicado depois disso nunca converge: cada frame recomeça
@@ -1178,6 +1189,21 @@ nenhum** — sem essa declaração o Chrome renderiza a página em light mesmo c
 
 ## Do-Not-Repeat
 
+- [2026-08-21] **Smoke que falha "sem ninguém mexer em código" = procure `espera(n)` FIXA
+  depois de uma enxurrada de mensagens, não regressão.** No `_smoke-comida.mjs` o aluno despeja
+  3000 `mover` num `for` sem await; com a fila do servidor cheia, 800 ms não bastavam pra
+  resposta do professor chegar, e o resultado virava função da CARGA da máquina (bug-629).
+  **Como isolar em 2 passos, antes de culpar o diff:** (1) `git stash push -u` e rodar o smoke —
+  se falhar sem o diff, é pré-existente; (2) dumpar o log que a asserção lê (`prof.chats`) —
+  ali dava pra ver que o eco do comando ANTERIOR também sumira, o que aponta a fila, não o
+  comando. Conserto certo: esperar por CONDIÇÃO com teto (`ate(cond, 10000)`), nunca por relógio.
+- [2026-08-21] **Asserção que casa com o ECO do próprio comando não testa nada.** A do save
+  mandava `/salvar` — comando que nunca existiu — e conferia `chats.some(t => t.includes("salv"))`.
+  A resposta era "Comando desconhecido: **/salv**ar…", então ela passava sempre. **Regra:** ao
+  escrever asserção sobre resposta de comando, confirme que o comando EXISTE
+  (`git log --all -S 'case "<nome>"'`) e case com o texto do SUCESSO, não com uma palavra que o
+  próprio pedido contém.
+
 - [2026-08-19] **A nota do `todo.md` dizia que mexer em `BlockId` "atravessa save, protocolo e
   os `.ljw`". É FALSO — e quase custou a decisão certa.** Não existe `BlockId[nome]` nem lookup
   reverso nenhum no repo (só o `type` derivado em `blocks.ts`); save, fio e `.ljw` carregam o
@@ -1679,6 +1705,15 @@ nenhum** — sem essa declaração o Chrome renderiza a página em light mesmo c
 - [2026-07-10] Não escrever "relatório de aplicação" antes de o piloto real acontecer.
 
 ## Decision Log — índice das decisões ATIVAS
+
+- [2026-08-21] **A aba "todos" é um MODO de exibição, não uma `Categoria`.** Se fosse categoria,
+  cada entrada de `PLACEABLE` precisaria declarar dois `cat`. `AbaInventario = Categoria |
+  "todos"`, e a grade resolve com `aba === "todos" || b.cat === aba`. Fica por ÚLTIMO na barra:
+  a curadoria continua sendo o caminho normal e "todos" é a rede de segurança contra o bloco que
+  "sumiu" numa aba (bug-625, a cerca). **A busca vale na aba ATUAL e o texto SOBREVIVE à troca
+  de aba** — quem digita "azul" quer ver o azul de cada categoria. Casa por nome sem acento
+  ("algodao" acha "algodão") e por **id EXATO** quando são só dígitos (o professor sabe o id de
+  cor porque usa `/bloco x y z <id>`); `includes` no id faria "1" trazer 1, 11, 12, 100…
 
 - [2026-08-19] **Os 12 blocos coloridos deixaram de se chamar "lã": são `BlocoAlgodao*` /
   "bloco de algodão \<cor\>".** Nunca houve ovelha e a fibra é o algodão (§🍖 F10c) — o nome

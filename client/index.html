@@ -382,6 +382,15 @@
         background: rgba(90, 140, 220, 0.35) !important;
         outline: 1px solid rgba(120, 170, 255, 0.6);
       }
+      /* busca de blocos (2026-08-21): mesma pele do filtro de receitas, mas
+         com o piso de toque de 40px e sem encolher — ela é a rede que faz a
+         aba "todos" valer a pena com 150+ colocáveis na lista. */
+      .inv-busca {
+        flex: 0 0 auto;
+        width: 100%;
+        min-height: 40px;
+        box-sizing: border-box;
+      }
       .inv-grid {
         display: grid;
         grid-template-columns: repeat(auto-fill, minmax(76px, 1fr));
@@ -1057,6 +1066,41 @@
           overflow-y: auto;
           overscroll-behavior: contain;
           pointer-events: auto;
+        }
+      }
+
+      /* TECLADO VIRTUAL ABERTO (2026-08-21, junto com a busca de blocos): no
+         tablet o teclado come metade da viewport — 1024×600 vira ~1024×300, e
+         o painel é de ALTURA FIXA (`min(560px, 84vh)`) com `overflow: hidden`.
+         Medido antes desta regra: cabeçalho + dica + 7 abas comiam 132px dos
+         286px do painel, e a grade sobrava com **7px** — dava pra digitar e não
+         pra ver o resultado. Aqui o enfeite encolhe pra a grade sobreviver.
+         ⚠️ `#inventario > .inv-dica` é o SELETOR CERTO: a dica do topo é filha
+         direta, mas a mensagem de "nenhum bloco com esse nome" usa a MESMA
+         classe dentro da `.inv-grid` — esconder as duas cegaria a busca. */
+      @media (max-height: 460px) {
+        #inventario > .inv-dica {
+          display: none;
+        }
+        #inventario h2 {
+          font-size: 1rem;
+        }
+        #inventario .inv-abas {
+          margin-bottom: 5px;
+          padding-bottom: 4px;
+        }
+        #inventario .inv-busca {
+          min-height: 34px;
+          margin-bottom: 5px;
+        }
+        #inventario .inv-grid {
+          /* uma fileira inteira sempre visível: a célula mais alta hoje é a do
+             "bloco de algodão vermelho", com 88px */
+          min-height: 92px;
+        }
+        #inventario .inv-hotbar {
+          margin-top: 6px;
+          padding: 5px 0 2px;
         }
       }
 

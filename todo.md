@@ -934,25 +934,28 @@ não tem filesystem; export de "pasta" no single fica de fora (não faz sentido 
   * Bateria: `check:launchers` 5/5 · typecheck 3/3 · **891/891** · build · **15/15 smokes** ·
     `npm run cenarios` 7/7 byte-idênticos.
 
-* \[ ] **ABA "TODOS" NO INVENTÁRIO DO CRIATIVO: todos os blocos por ID, com BARRA DE PESQUISA**
-  (ideia do usuário, 2026-08-17). Uma aba nova ao lado de blocos/vegetação/mobília/… listando
-  **todo** bloco colocável **ordenado só por id** (sem categoria, sem curadoria) mais um campo de
-  busca por nome. Motivo: as categorias ajudam a navegar mas escondem — foi exatamente assim que
-  a cerca "sumiu" (ver o item logo abaixo). Com a lista completa, nada fica inalcançável.
-  **Onde mexe:** `client/src/blocksUi.ts` (a união `Categoria`, o array `CATEGORIAS` e a lista
-  `PLACEABLE`) e `client/src/inventory.ts` (barra de abas + grade; a aba ativa já sobrevive a
-  abrir/fechar). **Pontos a decidir antes:**
-  * A aba "todos" é uma `Categoria` de verdade ou um modo à parte? Se virar `Categoria`, cada
-    entrada precisaria de dois `cat` — provavelmente é modo à parte, e a grade filtra por
-    `cat === aba || aba === "todos"`.
-  * A busca vale só na aba "todos" ou em todas? (Digitar filtra a grade da aba atual é mais
-    simples e mais previsível.)
-  * Busca por NOME exibido apenas, ou também por id numérico? Professor às vezes sabe o id
-    (usa `/bloco x y z <id>`).
-  * ⚠️ **Tablet:** campo de texto abre teclado virtual por cima do painel — conferir com
-    `npm run shots:tablet` (que exige `npm run dev` na 5173, não sobe servidor sozinho).
-  * ⚠️ O tooltip de item funciona por delegação com `data-tip-id` no botão; a grade nova tem de
-    carimbar o mesmo atributo, senão os itens dela ficam sem tooltip.
+* \[x] **ABA "TODOS" NO INVENTÁRIO DO CRIATIVO: todos os blocos por ID, com BARRA DE PESQUISA**
+  — **FEITO** (2026-08-21; ideia de 2026-08-17). Aba nova no fim da barra + campo de busca.
+  * **Decisões tomadas:** "todos" é **modo de exibição**, não `Categoria` (`AbaInventario =
+    Categoria | "todos"`, grade filtra por `aba === "todos" || b.cat === aba`) — como categoria,
+    cada entrada precisaria de dois `cat`. A busca vale na aba **ATUAL** e o texto **sobrevive à
+    troca de aba**. Casa por nome **sem acento** ("algodao" acha "algodão") e por **id EXATO**
+    quando são só dígitos — `includes` no id faria "1" trazer 1, 11, 12, 100…
+  * **Onde:** `client/src/blocksUi.ts` (`AbaInventario`, `ABAS`), `client/src/inventory.ts`
+    (`montarGrade()` novo, `cat` → `aba`, `filtroBlocos`, `normalizarBusca`),
+    `client/index.html` (`.inv-busca` + media query).
+  * ⚠️ **A armadilha do tablet era REAL e foi medida.** Com o teclado virtual aberto a viewport
+    cai pra ~300px; o painel é de altura FIXA (`min(560px, 84vh)`) com `overflow: hidden`, e
+    cabeçalho + dica + 7 abas comiam 132 dos 286px — **a grade sobrava com 7px**. Media query
+    `@media (max-height: 460px)` encolhe o enfeite e põe `min-height: 92px` na grade (uma fileira
+    inteira). Medido depois: grade de **7px → 92px**, painel e hotbar ainda cabendo.
+    ⚠️ O seletor tem de ser `#inventario > .inv-dica`: a mensagem de "nenhum bloco com esse nome"
+    usa a MESMA classe dentro da grade, e esconder as duas cegaria a busca.
+  * ⚠️ O tooltip por delegação (`data-tip-id`) foi mantido — sonda conferiu **145/145** botões
+    com o atributo.
+  * **Sonda headless** (`.wolf/designqc-captures/aba-todos/`): 145 colocáveis ordenados por id,
+    busca com/sem acento e maiúscula = mesmo resultado, `"11"` → 1 item, foco no campo
+    **sobrevive a cada letra** digitada.
 
 * \[x] **CERCA está na aba "mobília", não em "blocos"** (relato do usuário, 2026-08-17) —
   **RESOLVIDO no mesmo dia**: movida para `cat: "blocos"` a pedido do usuário. Não era ausência —

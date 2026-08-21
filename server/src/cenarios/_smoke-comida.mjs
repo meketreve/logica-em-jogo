@@ -20,6 +20,16 @@ const ok = (cond, msg) => {
   if (!cond) falhas++;
 };
 const espera = (ms) => new Promise((r) => setTimeout(r, ms));
+/** Espera uma CONDIÇÃO, não um relógio. Devolve true se ela ficou verdadeira
+ *  dentro do teto. Onde o servidor pode estar com a fila cheia, `espera(n)`
+ *  fixa vira um teste que depende da velocidade da máquina (bug-629). */
+const ate = async (cond, tetoMs, passoMs = 100) => {
+  for (let t = 0; t < tetoMs; t += passoMs) {
+    if (cond()) return true;
+    await espera(passoMs);
+  }
+  return cond();
+};
 
 // espelhos das constantes de /shared (o smoke fala JSON, não importa TS)
 const AR = 0;
@@ -161,9 +171,24 @@ await espera(400);
 ok(fomeDe(ana) > fomeAntes, `comer encheu a barra (${fomeAntes} → ${fomeDe(ana)})`);
 ok(contar(ana, ITEM_FRUTA) === 1, `gastou UMA fruta (${contar(ana, ITEM_FRUTA)} sobrando)`);
 
-console.log("== e a horta ATRAVESSA o save: replanta, salva, recarrega, cresce ==");
+// 2026-08-21 (bug-629): esta seção dizia "a horta ATRAVESSA o save" e mandava
+// `/salvar`, **um comando que nunca existiu** — `git log -S 'case "salvar"'` não
+// acha nada. Ela passava por ACIDENTE: a resposta é "Comando desconhecido:
+// /salvar…", e o `includes("salv")` casava com o eco do próprio comando. Nunca
+// provou save nenhum. A ida-e-volta pelo disco é do teste puro (`comida.test.ts`).
+// O que sobra aqui, e vale de verdade, é o que o `mover` de 3000 iterações logo
+// acima põe em risco: o professor continua sendo ATENDIDO depois de o aluno
+// inundar o servidor.
+console.log("== depois da enxurrada de movimento o professor ainda é atendido ==");
 enviar(prof, `/bloco ${base.x} ${base.y} ${base.z} ${TERRA}`);
-await espera(300);
+// ⚠️ condição, NÃO relógio: com a fila cheia a resposta pode levar segundos. Os
+// 800 ms fixos de antes faziam o smoke passar ou falhar conforme a CARGA da
+// máquina — foi assim que ele começou a cair sem ninguém mexer em código.
+const atendeu = await ate(
+  () => prof.chats.some((t) => t.startsWith(`Bloco (${base.x}, ${base.y}, ${base.z})`)),
+  10000,
+);
+ok(atendeu, "o professor continua sendo atendido depois da enxurrada de movimento");
 plantar(ana, cel);
 await espera(300);
 // qualquer estágio serve: com LJ_CRESCIMENTO=5 a muda já pode ter crescido
@@ -171,17 +196,8 @@ await espera(300);
 const naCelula = blocoEm(ana, cel);
 ok(
   naCelula >= PLANTACAO0 && naCelula <= PLANTACAO3,
-  `plantou de novo antes de salvar (${naCelula})`,
+  `a horta replantada está de pé (${naCelula})`,
 );
-enviar(prof, "/salvar");
-await espera(800);
-ok(
-  prof.chats.some((t) => t.toLowerCase().includes("salv")),
-  "o mundo foi salvo (o professor viu a confirmação)",
-);
-// a prova de que a horta volta a crescer depois do reload é do teste puro
-// (`comida.test.ts`, ida-e-volta pelo disco) — aqui basta o save não recusar a
-// célula plantada, que é o que quebraria antes de chegar lá.
 
 for (const c of [prof, ana]) c.ws.close();
 console.log(falhas === 0 ? "\nSMOKE /comida OK" : `\nSMOKE /comida FALHOU (${falhas})`);
