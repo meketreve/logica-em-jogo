@@ -2516,3 +2516,8 @@ segue com `relatorio-aplicacao.md` e `apresentacao-cre.html`, ambos rastreados.
 | 12:50 | bug-631: sonda media codigo ANTIGO — http.server preso no inode e chrome orfao na 9355 | scratchpad | higiene de pkill apos build | ~7k |
 | 13:05 | aceitacao: grupos invisivel->visivel, head no topo, fechar alcancavel; A/B rolagem 155->155 vs 155->0 | .wolf/designqc-captures/painel-p/ | provado | ~6k |
 | 13:15 | bateria: launchers 5/5, typecheck 3/3, 895/895, build, 15/15 smokes, cenarios byte-identicos | — | verify:all exit 0 | ~3k |
+| 15:20 | bug-632 relatado pela escola: soterrado em caverna teleporta pra superficie em vez de morrer | — | buglog: bug-605 era a origem | ~5k |
+| 15:30 | causa raiz: acharEspacoVago usava findSpawnY (superficie da coluna) e ignorava pos.y | shared/src/physics.ts:156 | 2 testes de reproducao escritos e falhando | ~8k |
+| 15:45 | conserto: busca em cascas de Chebyshev 3D ao redor do pos, peso |dy|*100+dx²+dz² | shared/src/physics.ts | 2 novos testes passam | ~7k |
+| 15:55 | 3 testes de FOME quebraram: fixtures em y=20 nasciam DENTRO da rocha e o bug as resgatava | shared/src/sobrevivencia.test.ts | medido sobrepoeSolidos=true, corrigido pra y=23 | ~6k |
+| 16:05 | bateria: launchers 5/5, typecheck 3/3, 897/897, build, 15/15 smokes, cenarios byte-identicos | — | verify:all exit 0 | ~3k |

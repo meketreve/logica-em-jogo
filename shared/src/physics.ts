@@ -1,5 +1,5 @@
 import { collisionBoxes, isAgua, isSlab, isSolidBlock, isStairs } from "./blocks";
-import { type World, findSpawnY, getBlock, inBounds } from "./world";
+import { type World, getBlock, inBounds } from "./world";
 
 /**
  * Física do jogador (andar, gravidade, colisão AABB com o grid de voxels).
@@ -146,12 +146,27 @@ export function sobrepoeSolidos(world: World, pos: Vec3): boolean {
 }
 
 /**
- * Vão livre mais próximo para tirar um jogador soterrado (bug-605). Busca por
- * COLUNA, do mais perto pro mais longe: a coluna própria (r=0 — sobe pro topo do
- * que o soterrou) e depois os anéis de Chebyshev até `raio`. Aceita a primeira
- * coluna em que o jogador cabe de pé (`findSpawnY` + `!sobrepoeSolidos`) e que
- * `rejeitar` não vete (ex.: já tem outro jogador). Determinística — sem host.
- * Devolve a posição dos PÉS pronta pro `teleportar`, ou null se não achar.
+ * Vão livre mais próximo para tirar um jogador soterrado (bug-605). Busca **ao
+ * redor do jogador**, em cascas de Chebyshev 3D do raio 0 pra fora, e devolve a
+ * posição dos PÉS pronta pro `teleportar` — ou null se não houver vão.
+ *
+ * ⚠️ **bug-632 (relato da escola, 2026-08-21): antes esta busca era por COLUNA,
+ * com `findSpawnY`, e por isso ignorava o `pos.y` — o vão de qualquer coluna era
+ * sempre o TOPO dela.** A céu aberto isso parecia certo (soterrado pela areia,
+ * você pula em cima dela); embaixo da terra era um teletransporte pela rocha
+ * inteira até a luz do dia: *"um aluno estava em uma caverna e foi soterrado por
+ * areia; foi teleportado para a superfície em vez de morrer por soterramento"*.
+ * De quebra, quem estava soterrado no subsolo NUNCA morria — sempre havia
+ * "vão", então o dano de sufocamento zerava no primeiro tick.
+ *
+ * **Desempate dentro da casca:** primeiro o |Δy| (ficar na PROFUNDIDADE do
+ * jogador é o que ele pediu — "ao redor, não acima"), depois a distância
+ * horizontal ao quadrado; empate resolve pela ordem do laço. Com `raio ≤ 2` o
+ * termo horizontal (≤ 8) nunca alcança o peso de um nível de Y (100), então a
+ * profundidade sempre ganha. Determinística — não depende de host nem de sorteio.
+ *
+ * O vão NÃO precisa ter chão embaixo: se for no ar, a gravidade resolve, igual a
+ * qualquer bloco quebrado sob os pés. Tirar o jogador do sólido é o que importa.
  */
 export function acharEspacoVago(
   world: World,
@@ -160,30 +175,36 @@ export function acharEspacoVago(
   rejeitar?: (x: number, y: number, z: number) => boolean,
 ): Vec3 | null {
   const cx = Math.floor(pos.x);
+  const cy = Math.floor(pos.y);
   const cz = Math.floor(pos.z);
-  const caber = (x: number, z: number): Vec3 | null => {
-    const y = findSpawnY(world, x, z);
-    // coluna cheia até o TETO do mundo (findSpawnY == sizeY) não é vão — o
-    // jogador não pode nascer acima do mundo; sem isto, "não há vão" seria
-    // impossível e o soterrado escaparia sempre pelo topo (bug-605).
+  const cabe = (x: number, y: number, z: number): Vec3 | null => {
     if (!inBounds(world, x, y, z)) return null;
     const p = { x: x + 0.5, y, z: z + 0.5 };
     if (sobrepoeSolidos(world, p)) return null;
     if (rejeitar && rejeitar(x, y, z)) return null;
     return p;
   };
+  /** Menor = melhor. |Δy| domina; a distância horizontal só desempata. */
+  const peso = (dx: number, dy: number, dz: number): number =>
+    Math.abs(dy) * 100 + dx * dx + dz * dz;
   for (let r = 0; r <= raio; r++) {
-    for (let d = -r; d <= r; d++) {
-      for (const [x, z] of [
-        [cx + d, cz - r],
-        [cx + d, cz + r],
-        [cx - r, cz + d],
-        [cx + r, cz + d],
-      ] as const) {
-        const p = caber(x, z);
-        if (p) return p;
+    let melhor: Vec3 | null = null;
+    let melhorPeso = Number.POSITIVE_INFINITY;
+    for (let dx = -r; dx <= r; dx++) {
+      for (let dy = -r; dy <= r; dy++) {
+        for (let dz = -r; dz <= r; dz++) {
+          // só a CASCA deste raio: o miolo já foi visto nas voltas anteriores
+          if (Math.max(Math.abs(dx), Math.abs(dy), Math.abs(dz)) !== r) continue;
+          const w = peso(dx, dy, dz);
+          if (w >= melhorPeso) continue; // empate fica com o primeiro achado
+          const p = cabe(cx + dx, cy + dy, cz + dz);
+          if (!p) continue;
+          melhor = p;
+          melhorPeso = w;
+        }
       }
     }
+    if (melhor) return melhor;
   }
   return null;
 }

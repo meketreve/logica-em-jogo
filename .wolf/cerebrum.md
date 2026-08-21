@@ -1206,6 +1206,20 @@ nenhum** — sem essa declaração o Chrome renderiza a página em light mesmo c
 
 ## Do-Not-Repeat
 
+- [2026-08-21] **`findSpawnY` é "superfície da coluna a céu aberto", NUNCA "espaço livre perto
+  daqui".** Ele varre do TETO do mundo pra baixo. Usá-lo pra resolver posição de um jogador que
+  está no SUBSOLO teletransporta a pessoa pela rocha inteira até o dia (bug-632: aluno soterrado
+  numa caverna reapareceu na superfície e por isso nunca morria). Pra "achar espaço perto do
+  jogador" a busca tem de partir do `pos.y` dele — foi o que o `acharEspacoVago` passou a fazer.
+- [2026-08-21] **Fixture de teste que põe jogador em `y` fixo (`y: 20`) num mundo gerado pode
+  nascer DENTRO da rocha — e um bug de resgate mascara isso.** Três testes de FOME passavam só
+  porque o `acharEspacoVago` defeituoso subia a ana pra superfície no 1º tick; consertado o bug,
+  eles caíram medindo sufocamento em vez de fome. **Sinal de alerta:** teste que roda `tick()`
+  com posição literal em vez de `findSpawnY`. **Verificação barata antes de culpar o próprio
+  diff:** `sobrepoeSolidos(world, pos)` num script solto — se der `true`, a fixture é que está
+  errada. (O bug-605 já tinha corrigido as fixtures do `session.test.ts` pelo mesmo motivo; as
+  do `sobrevivencia.test.ts` passaram batido.)
+
 - [2026-08-21] **Sonda headless medindo o código ANTIGO depois de um rebuild = PROCESSO ÓRFÃO,
   não bug de código** (bug-631). Duas causas, e a segunda engana muito: (1) o
   `python3 -m http.server` deixado rodando em `client/dist` fica preso ao INODE da pasta antiga,

@@ -5172,6 +5172,30 @@
       "related_bugs": [],
       "occurrences": 1,
       "last_seen": "2026-08-21T12:50:00"
+    },
+    {
+      "id": "bug-632",
+      "timestamp": "2026-08-21T15:40:00",
+      "error_message": "usuario (escola): 'tem um bug com a mecanica de soterramento, jogadores estao sendo teleportados para camadas superiores; um aluno estava em uma caverna e foi soterrado por areia, foi teleportado para a superficie ao inves de morrer por soterramento'",
+      "file": "shared/src/physics.ts (acharEspacoVago) + shared/src/sobrevivencia.test.ts (3 fixtures)",
+      "root_cause": "`acharEspacoVago` IGNORAVA o `pos.y`. A busca era por COLUNA: `caber(x,z)` fazia `const y = findSpawnY(world, x, z)`, e `findSpawnY` varre do TETO do mundo pra baixo devolvendo o primeiro ar acima de solido — ou seja, a SUPERFICIE a ceu aberto. O modelo mental do autor (bug-605, sessao 57) era 'soterrado pela areia, pula em cima dela', e o proprio comentario dizia 'a coluna propria (r=0 — sobe pro topo do que o soterrou)'. A ceu aberto parecia certo; no subsolo virava teletransporte pela rocha inteira ate a luz do dia. Efeito colateral grave: quem estava soterrado embaixo da terra NUNCA morria — sempre havia 'vao' (a superficie), entao o teleporte acontecia no 1o tick e o dano de sufocamento zerava. Os testes de bug-605 so passavam porque a fixture `enterrar()` constroi a coluna cheia ATE O TETO DO MUNDO, a unica forma de o findSpawnY nao achar superficie — o tell de que a semantica estava errada.",
+      "fix": "`acharEspacoVago` passou a buscar AO REDOR do jogador (pedido explicito do usuario: 'a mecanica deveria procurar blocos ao redor e nao a cima do player'): cascas de Chebyshev 3D do raio 0 pra fora a partir de (floor(pos.x), floor(pos.y), floor(pos.z)). Desempate dentro da casca por peso = |dy|*100 + dx²+dz², entao a PROFUNDIDADE do jogador sempre ganha da distancia horizontal (com raio<=2 o termo horizontal e no maximo 8). Deterministico, sem sorteio. O vao nao precisa de chao embaixo: se for no ar a gravidade resolve. `findSpawnY` saiu do import de physics.ts. ⚠️ Efeito: 3 testes de FOME (sobrevivencia.test.ts) quebraram porque as fixtures punham a ana em y=20, DENTRO da rocha do mundo 32³ (medido: bloco=5, sobrepoeSolidos=true, findSpawnY(1,1)=23) — elas passavam GRACAS ao bug, que a resgatava pra superficie no 1o tick; sem o resgate ela sufocava, morria e respawnava com vida cheia. Corrigidas pra y=23 (a superficie da coluna), que e exatamente o que o bug-605 ja fizera no session.test.ts e passou batido aqui.",
+      "tags": [
+        "soterramento",
+        "sufocamento",
+        "teleporte",
+        "caverna",
+        "physics",
+        "findSpawnY",
+        "escola",
+        "playtest",
+        "fixture-mascarando-bug"
+      ],
+      "related_bugs": [
+        "bug-605"
+      ],
+      "occurrences": 1,
+      "last_seen": "2026-08-21T15:40:00"
     }
   ]
 }

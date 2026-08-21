@@ -485,7 +485,11 @@ describe("§🍖 F3 — fome na sessão", () => {
   it("com a regra desligada, quem já estava faminto volta a se regenerar", () => {
     const save = baseSave();
     save.modo = "sobrevivencia";
-    save.roster = [{ name: "ana", x: 1, y: 20, z: 1, yaw: 0, pitch: 0, vida: 10, fome: 0 }];
+    // ⚠️ y=23 é a SUPERFÍCIE da coluna (1,1): em y=20 a ana nasce DENTRO da rocha.
+    // Estes testes rodam `tick`, então a posição precisa ser válida — senão o que
+    // eles medem é sufocamento, não fome (bug-632: até 2026-08-21 a busca do vão
+    // subia o soterrado pra superfície e escondia o defeito da fixture).
+    save.roster = [{ name: "ana", x: 1, y: 23, z: 1, yaw: 0, pitch: 0, vida: 10, fome: 0 }];
     const { session, sent } = turma("sobrevivencia", decodeSave(encodeSave(save.world, save)));
     session.handleMessage(1, cmd("/regra fome desligar"));
     for (let i = 0; i < TICKS_POR_REGEN + 1; i++) session.tick();
@@ -495,7 +499,7 @@ describe("§🍖 F3 — fome na sessão", () => {
   it("barra no zero: dói no tick, avisa a causa e (§🍖 F6) chega a MATAR", () => {
     const save = baseSave();
     save.modo = "sobrevivencia";
-    save.roster = [{ name: "ana", x: 1, y: 20, z: 1, yaw: 0, pitch: 0, fome: 0 }];
+    save.roster = [{ name: "ana", x: 1, y: 23, z: 1, yaw: 0, pitch: 0, fome: 0 }]; // y=23 = superfície
     const { session, sent } = turma("sobrevivencia", decodeSave(encodeSave(save.world, save)));
     for (let i = 0; i < TICKS_POR_DANO_FOME + 1; i++) session.tick();
     expect(ultimaVida(sent, 2)?.causa).toBe("fome");
@@ -511,7 +515,7 @@ describe("§🍖 F3 — fome na sessão", () => {
   it("curar custa comida, e a fome baixa TRAVA a regeneração", () => {
     const save = baseSave();
     save.modo = "sobrevivencia";
-    save.roster = [{ name: "ana", x: 1, y: 20, z: 1, yaw: 0, pitch: 0, vida: 10, fome: 19 }];
+    save.roster = [{ name: "ana", x: 1, y: 23, z: 1, yaw: 0, pitch: 0, vida: 10, fome: 19 }]; // y=23 = superfície
     const { session, sent } = turma("sobrevivencia", decodeSave(encodeSave(save.world, save)));
     for (let i = 0; i < TICKS_POR_REGEN * 6; i++) session.tick();
     // 3 pontos curados a EXAUSTAO_POR_REGEN cada = 9 de esforço = 2 pontos de
@@ -635,5 +639,96 @@ describe("bug-605 — sufocamento (soterrado) na sessão", () => {
     for (let i = 0; i < TICKS_POR_DANO_SUFOCAMENTO * 2; i++) session.tick();
     // sem `vida` nenhuma: criativo não tem vida (a msg nem é mandada)
     expect(paraAna(sent, "vida")).toHaveLength(0);
+  });
+});
+
+/**
+ * bug-632 (relato da escola, 2026-08-21): *"um aluno estava em uma caverna e foi
+ * soterrado por areia; foi teleportado para a superfície em vez de morrer por
+ * soterramento"*.
+ *
+ * O `enterrar()` do bloco acima constrói a coluna cheia **até o teto do mundo**,
+ * que é a ÚNICA forma de o `findSpawnY` não achar superfície. Numa caverna de
+ * verdade há céu aberto lá em cima, e é aí que a mecânica falha: o vão tem de
+ * ser procurado **ao redor do jogador**, na profundidade dele, e não no topo da
+ * coluna.
+ */
+describe("bug-632 — o vão é procurado AO REDOR, não na superfície", () => {
+  const DIMS_G = { x: 8, z: 8, y: 8 };
+  const MACICO = 40; // pedra de y=0 a 39; de 40 pra cima é céu aberto
+  const CAVERNA = 20; // o "chão" da caverna é y=19; o jogador ocupa y=20
+
+  /** Maciço de pedra com céu aberto em cima — o mundo que a escola tem. */
+  function saveCaverna(): SaveData {
+    const { send } = collect();
+    const s0 = new GameSession(send, { dims: DIMS_G, seed: 5, codigo: "sala" });
+    const save = decodeSave(encodeSave(s0.world, s0.toSave()));
+    for (let x = 0; x < 16; x++)
+      for (let z = 0; z < 16; z++)
+        for (let y = 0; y < save.world.sizeY; y++)
+          setBlock(save.world, x, y, z, y < MACICO ? BlockId.Stone : BlockId.Air);
+    return save;
+  }
+
+  /** Bolha de ar de 5×5 (x/z 4..8) e 3 de altura na profundidade da caverna. */
+  function cavar(w: SaveData["world"] | GameSession["world"]): void {
+    for (let x = 4; x <= 8; x++)
+      for (let z = 4; z <= 8; z++)
+        for (let y = CAVERNA; y < CAVERNA + 3; y++) setBlock(w, x, y, z, BlockId.Air);
+  }
+
+  function turmaCaverna() {
+    const save = saveCaverna();
+    cavar(save.world);
+    const { session, sent } = turma("sobrevivencia", save);
+    teleportar(session, 2, 6.5, CAVERNA, 6.5);
+    return { session, sent };
+  }
+
+  /** Enche a bolha de AREIA (o soterramento da escola). `folga` deixa uma
+   *  célula livre ao lado, na MESMA profundidade. */
+  function soterrarComAreia(session: GameSession, folga: boolean): void {
+    for (let x = 4; x <= 8; x++)
+      for (let z = 4; z <= 8; z++)
+        for (let y = CAVERNA; y < CAVERNA + 3; y++) setBlock(session.world, x, y, z, BlockId.Sand);
+    if (folga)
+      for (let y = CAVERNA; y < CAVERNA + 3; y++) setBlock(session.world, 5, y, 6, BlockId.Air);
+  }
+
+  function ultimoTp(sent: Sent) {
+    return sent
+      .filter((s) => s.clientId === 2)
+      .map((s) => parseServerMessage(s.data as string))
+      .filter((m) => !!m && m.type === "teleport")
+      .at(-1) as { x: number; y: number; z: number } | undefined;
+  }
+
+  it("soterrado na caverna NÃO sobe pra superfície — sufoca e morre", () => {
+    const { session, sent } = turmaCaverna();
+    soterrarComAreia(session, false);
+    for (let i = 0; i < TICKS_POR_DANO_SUFOCAMENTO; i++) session.tick();
+    // continua na caverna: nada de reaparecer no topo do maciço
+    const p = session.players.get(2)!;
+    expect(p.y).toBeLessThan(MACICO);
+    expect(ultimoTp(sent)?.y ?? 0).toBeLessThan(MACICO);
+    // e o sufocamento cobra o preço
+    expect(ultimaVida(sent, 2)).toMatchObject({
+      vida: VIDA_MAX - DANO_SUFOCAMENTO,
+      causa: "sufocamento",
+    });
+    for (let i = 0; i < TICKS_POR_DANO_SUFOCAMENTO * 12; i++) session.tick();
+    expect(chats(sent, 1).some((t) => t.includes("ana") && t.includes("soterrado"))).toBe(true);
+  });
+
+  it("com folga AO LADO, vai pra ela na mesma profundidade (não pro céu)", () => {
+    const { session, sent } = turmaCaverna();
+    soterrarComAreia(session, true);
+    session.tick();
+    const tp = ultimoTp(sent);
+    expect(tp).toBeDefined();
+    expect(tp!.x).toBe(5.5);
+    expect(tp!.z).toBe(6.5);
+    expect(tp!.y).toBeLessThan(MACICO); // e NÃO a superfície do maciço
+    expect(ultimaVida(sent, 2)?.vida).toBe(VIDA_MAX); // sem dano: saiu na hora
   });
 });

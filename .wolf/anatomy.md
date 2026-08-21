@@ -1,6 +1,6 @@
 # anatomy.md
 
-> Auto-maintained by OpenWolf. Last scanned: 2026-08-21T18:00:04.461Z
+> Auto-maintained by OpenWolf. Last scanned: 2026-08-21T18:38:23.819Z
 > Files: 360 tracked | Anatomy hits: 0 | Misses: 0
 
 ## ./
@@ -500,7 +500,7 @@
 ## mundos/_smoke-coluna/
 
 - `_smoke-coluna.ljw` (~62 tok)
-- `chat.log` (~4480 tok)
+- `chat.log` (~4534 tok)
 
 ## mundos/_smoke-comida/
 
@@ -524,7 +524,7 @@
 
 ## mundos/_smoke-kicar/
 
-- `chat.log` (~20728 tok)
+- `chat.log` (~20970 tok)
 
 ## mundos/_smoke-modoa/
 
@@ -545,7 +545,7 @@
 ## mundos/_smoke-trocaa/
 
 - `_smoke-trocaa.ljw` (~87 tok)
-- `chat.log` (~13598 tok)
+- `chat.log` (~13763 tok)
 
 ## mundos/_smoke-trocab/
 
@@ -557,11 +557,11 @@
 
 ## mundos/aula1-sequencia/
 
-- `chat.log` (~70686 tok)
+- `chat.log` (~71490 tok)
 
 ## mundos/aula2-binario/
 
-- `chat.log` (~2752 tok)
+- `chat.log` (~2784 tok)
 
 ## mundos/aula7-corrida/
 
@@ -1328,7 +1328,7 @@
 - `physics.test.ts` — Mundo 1 chunk com chão sólido em y ∈ [0,7]. (~4462 tok)
   - fn `flatWorld` L15-22 (~63 tok)
   - fn `simulate` L23-359 (~4315 tok)
-- `physics.ts` — Física do jogador (andar, gravidade, colisão AABB com o grid de voxels). (~5935 tok)
+- `physics.ts` — Física do jogador (andar, gravidade, colisão AABB com o grid de voxels). (~6307 tok)
   - section `Vec3` L11-58 (~527 tok)
   - fn `temColisaoParcial` L59-62 (~26 tok)
   - section `PlayerState` L63-72 (~97 tok)
@@ -1336,17 +1336,17 @@
   - fn `createPlayer` L86-92 (~117 tok)
   - fn `collides` L93-134 (~482 tok)
   - fn `apoiadoNoChao` L135-143 (~156 tok)
-  - fn `sobrepoeSolidos` L144-155 (~168 tok)
-  - fn `acharEspacoVago` L156-194 (~395 tok)
-  - fn `resolveVertical` L195-237 (~563 tok)
-  - fn `resolveHoriz` L238-277 (~497 tok)
-  - fn `moveAxis` L278-311 (~398 tok)
-  - fn `inWater` L312-325 (~114 tok)
-  - fn `hasSupport` L326-355 (~364 tok)
-  - fn `moveHoriz` L356-389 (~353 tok)
-  - fn `paredeAdjacente` L390-412 (~261 tok)
-  - fn `moveAxisGuarded` L413-428 (~96 tok)
-  - fn `stepPlayer` L429-514 (~1096 tok)
+  - fn `sobrepoeSolidos` L144-170 (~437 tok)
+  - fn `acharEspacoVago` L171-215 (~501 tok)
+  - fn `resolveVertical` L216-258 (~563 tok)
+  - fn `resolveHoriz` L259-298 (~497 tok)
+  - fn `moveAxis` L299-332 (~398 tok)
+  - fn `inWater` L333-346 (~114 tok)
+  - fn `hasSupport` L347-376 (~364 tok)
+  - fn `moveHoriz` L377-410 (~353 tok)
+  - fn `paredeAdjacente` L411-433 (~261 tok)
+  - fn `moveAxisGuarded` L434-449 (~96 tok)
+  - fn `stepPlayer` L450-535 (~1096 tok)
 - `protocol.test.ts` — Declares DIMS (~3650 tok)
 - `protocol.ts` — Protocolo v0 (checkpoint 2). Mensagens JSON dos dois lados + world_snapshot (~13044 tok)
   - fn `parseClientMessage` L476-645 (~1768 tok)
@@ -1488,7 +1488,7 @@
   - section `SessionPlayer` L282-292 (~60 tok)
   - section `Identity` L293-297 (~19 tok)
   - class `GameSession` L298-2349 (~27759 tok)
-- `sobrevivencia.test.ts` — Professor (1) + ana (2). `modo` decide o padrão do mundo. (~8035 tok)
+- `sobrevivencia.test.ts` — Professor (1) + ana (2). `modo` decide o padrão do mundo. (~9235 tok)
   - fn `collect` L42-45 (~55 tok)
   - fn `join` L46-47 (~34 tok)
   - fn `cmd` L48-48 (~20 tok)
@@ -1498,7 +1498,7 @@
   - fn `baseSave` L70-76 (~75 tok)
   - fn `turma` L77-86 (~125 tok)
   - fn `andar` L87-95 (~96 tok)
-  - fn `cair` L96-640 (~7160 tok)
+  - fn `cair` L96-735 (~8360 tok)
 - `sobrevivencia.ts` — Vida, dano e morte (§🍖 F2, 2026-08-02) — módulo PURO, sem I/O e sem relógio (~4136 tok)
   - fn `parseCausaDano` L130-136 (~63 tok)
   - section `EstadoVital` L137-155 (~231 tok)

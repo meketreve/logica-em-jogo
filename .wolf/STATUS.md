@@ -2,6 +2,54 @@
 
 > Single source of truth for resuming work. Read this FIRST when starting a session.
 
+> ## 🧭 HANDOFF — SESSÃO 82 (2026-08-21) — BUG DE CAMPO CONSERTADO
+>
+> **Relato da escola:** *"um aluno estava em uma caverna e foi soterrado por areia, foi
+> teleportado para a superfície ao invés de morrer por soterramento"*. Consertado na raiz.
+>
+> ### 🔎 Causa raiz — `acharEspacoVago` ignorava o `pos.y`
+> A busca do "vão livre mais próximo" era por **COLUNA**: `caber(x,z)` fazia
+> `findSpawnY(world, x, z)`, e o `findSpawnY` varre **do TETO do mundo pra baixo** devolvendo a
+> **superfície a céu aberto**. O modelo mental do autor (bug-605, sessão 57) era *"soterrado pela
+> areia, pula em cima dela"* — o próprio comentário dizia *"a coluna própria (r=0 — sobe pro topo
+> do que o soterrou)"*. A céu aberto parecia certo; no subsolo virava teletransporte **pela rocha
+> inteira até a luz do dia**.
+>
+> ⚠️ **Efeito colateral que ninguém tinha visto: quem estava soterrado no subsolo NUNCA morria.**
+> Sempre havia "vão" (a superfície), então o teleporte acontecia no 1º tick e o dano de
+> sufocamento zerava. A mecânica de morte por soterramento era letra morta fora da superfície.
+>
+> ⚠️ **O tell estava nos próprios testes do bug-605:** a fixture `enterrar()` constrói a coluna
+> cheia **até o teto do mundo** — a única forma de o `findSpawnY` não achar superfície. Quando um
+> teste precisa de um pilar até o céu pra provar "não há vão", a semântica está errada.
+>
+> ### ✅ Conserto (`shared/src/physics.ts`)
+> Busca **ao redor do jogador** (pedido explícito dele: *"deveria procurar blocos ao redor e não
+> a cima do player"*): cascas de **Chebyshev 3D** do raio 0 pra fora a partir de
+> `(floor(pos.x), floor(pos.y), floor(pos.z))`. Desempate na casca por
+> **`peso = |dy|*100 + dx² + dz²`** — com `raio ≤ 2` o termo horizontal (≤ 8) nunca alcança um
+> nível de Y, então a PROFUNDIDADE sempre ganha. Determinístico. O vão não precisa de chão: se
+> for no ar, a gravidade resolve. Corrige os DOIS chamadores de uma vez (o `tickVitais` e o
+> handler de `move`). `findSpawnY` saiu do import de `physics.ts`.
+>
+> ### ⚠️ 3 testes de FOME quebraram — e a fixture é que estava errada
+> `sobrevivencia.test.ts` punha a ana em `y: 20` num mundo 32³, **dentro da rocha** (medido:
+> bloco = 5, `sobrepoeSolidos` = `true`, `findSpawnY(1,1)` = 23). Eles passavam **graças ao bug**,
+> que a resgatava pra superfície no 1º tick; sem o resgate ela sufocava, morria e respawnava com
+> vida cheia — daí `expected 20 to be 13`. Corrigidas pra `y: 23`. O bug-605 já tinha feito essa
+> correção no `session.test.ts`; estas passaram batido.
+>
+> ✅ **Bateria:** `verify:all` **exit 0** — launchers 5/5 · typecheck 3/3 · **897/897** (+2) ·
+> build · **15/15 smokes** · `cenarios` 7/7 byte-idênticos.
+>
+> ### 🚀 Próximo
+> 1. **Botão de comandos no HUD de toque + `/painel`** — molde em `client/src/main.ts:475-485`
+>    (`abrirAmigosPorComando`); botão em `#touch-topo` (`client/src/touch.ts:251-263`).
+> 2. **Painel de comandos do mobile ao LADO** (2026-08-17).
+> 3. **`/invisivel`** para professor — ⚠️ filtragem no SERVIDOR, por cliente.
+> 4. **Ovelha + lã de verdade** (ids NOVOS, `shared/src/blocks.ts:20-26`).
+> 5. Sentar na cadeira, teto de 35 grupos, proteger a célula-molde, Ferramentas v2, mobs.
+
 > ## 🧭 HANDOFF — SESSÃO 81 (2026-08-21)
 >
 > **Rolagem do painel do professor.** Bateria verde. Commitado e empurrado.
