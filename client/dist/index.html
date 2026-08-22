@@ -155,6 +155,33 @@
         opacity: 0.85;
         color: #9fe8bc;
       }
+      /* aviso permanente do /invisivel (2026-08-22) — só o professor invisível
+         o vê. Sem ele o professor esquece que sumiu e fala sozinho com a turma.
+         ⚠️ bug-634: faixa de `left:0; right:0` + `justify-content: center`, NÃO
+         `left:50%` sem `right` (aquilo dá só metade da janela ao shrink-to-fit). */
+      #invisivel {
+        position: fixed;
+        top: 8px;
+        left: 0;
+        right: 0;
+        display: flex;
+        justify-content: center;
+        pointer-events: none;
+        z-index: 7;
+      }
+      /* ⚠️ o `top` de quem tem barra de toque é MEDIDO no `invisivelUi.ts`, não
+         escrito aqui: a fileira de botões quebra em DUAS linhas em tela estreita
+         (≤420px), e qualquer número fixo cobre a segunda. */
+      #invisivel span {
+        padding: 6px 14px;
+        background: rgba(90, 60, 140, 0.78);
+        color: #fff;
+        font-family: ui-monospace, monospace;
+        font-size: 12px;
+        line-height: 1.4;
+        border-radius: 999px;
+        border: 1px solid rgba(255, 255, 255, 0.35);
+      }
       #hotbar b {
         white-space: nowrap;
         font-size: 13px;
@@ -1238,7 +1265,7 @@
         }
       }
     </style>
-    <script type="module" crossorigin src="/assets/index-swAflj90.js"></script>
+    <script type="module" crossorigin src="/assets/index-B_ALZtIU.js"></script>
   </head>
   <body>
     <div id="menu" class="hidden">
@@ -1352,6 +1379,8 @@
     </div>
     <div id="hotbar"></div>
     <div id="objetivos" class="hidden"></div>
+    <!-- /invisivel (2026-08-22): aviso permanente pro professor escondido -->
+    <div id="invisivel" class="hidden"></div>
     <div id="painel" class="hidden"></div>
     <div id="inventario" class="hidden"></div>
     <div id="jogadores" class="hidden"></div>
