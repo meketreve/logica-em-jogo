@@ -135,6 +135,7 @@ import {
   tickDormir,
 } from "./session/dormir";
 import { runRegiao } from "./session/regioes";
+import { ehFantasma, runInvisivel } from "./session/invisivel";
 import { avisarComFreio } from "./session/avisos";
 import { evictColunas, garantirColunas, gerarColuna, streamColunas } from "./session/streaming";
 import { faltaFerramenta } from "./ferramentas";
@@ -391,6 +392,9 @@ export class GameSession {
   /** Quem está DEITADO agora e em qual cama (2026-08-17). Sessão-só, como o
    *  `spawnCama`: dormir não sobrevive a fechar o mundo. */
   readonly dormindo = new Map<number, { x: number; y: number; z: number }>();
+  /** `/invisivel` (2026-08-22): professores que sumiram para os ALUNOS. Sessão-só,
+   *  como o `dormindo` — quem cai e volta volta visível. Ver `session/invisivel.ts`. */
+  readonly invisiveis = new Set<number>();
   /** A noite está correndo acelerada? Ligado quando a MAIORIA dos online está
    *  deitada; desligado ao amanhecer ou quando alguém levanta. */
   pulandoNoite = false;
@@ -927,7 +931,10 @@ export class GameSession {
         // tenta levar pro vão livre mais próximo (raio 2); se não houver vão,
         // REJEITA o passo — não atualiza a posição, não faz relay, e devolve o
         // jogador à posição válida atual (o cliente "quica" na parede).
-        if (sobrepoeSolidos(this.world, { x: msg.x, y: msg.y, z: msg.z })) {
+        // `/invisivel` (2026-08-22): o fantasma ATRAVESSA parede. Sem esta
+        // saída o servidor quicaria o professor invisível na rocha e o noclip
+        // do cliente não valeria nada — quem decide a posição é este portão.
+        if (!ehFantasma(this, clientId) && sobrepoeSolidos(this.world, { x: msg.x, y: msg.y, z: msg.z })) {
           const vao = acharEspacoVago(
             this.world,
             { x: msg.x, y: msg.y, z: msg.z },
@@ -965,7 +972,7 @@ export class GameSession {
         }
         // Relay pros OUTROS (nunca ecoa pro autor — cliente não precisa saber
         // o próprio id). Validação de física vem depois do MVP.
-        this.broadcastExcept(clientId, {
+        this.broadcastPose(clientId, {
           type: "player_moved",
           id: clientId,
           x: msg.x, y: msg.y, z: msg.z,
@@ -1620,12 +1627,16 @@ export class GameSession {
         // existe, só não é daqui. Então respondemos ONDE ele mora.
         return "O painel abre no seu próprio aparelho, não no servidor: tecla P no computador, ou o botão 📋 da barra de cima no tablet. Se você digitou /painel e nada aconteceu, recarregue a página.";
       }
+      case "invisivel": {
+        if (!professor) return "Somente o professor pode ficar invisível.";
+        return runInvisivel(this, clientId);
+      }
       case "confinar": {
         if (!professor) return "Somente o professor pode controlar o confinamento das áreas.";
         return runConfinar(this, parts);
       }
       default:
-        return `Comando desconhecido: ${text}. Os comandos disponíveis são /bloco, /resetpin, /regiao, /objetivo, /grupo, /aula, /tp, /tpr, /tpa, /iniciar, /hora, /ciclo, /vento, /voo, /modo, /regra, /pvp, /dar, /claim, /amigos, /painel e /confinar.`;
+        return `Comando desconhecido: ${text}. Os comandos disponíveis são /bloco, /resetpin, /regiao, /objetivo, /grupo, /aula, /tp, /tpr, /tpa, /iniciar, /hora, /ciclo, /vento, /voo, /modo, /regra, /pvp, /dar, /claim, /amigos, /painel, /invisivel e /confinar.`;
     }
   }
 
@@ -1756,8 +1767,12 @@ export class GameSession {
     // Presença (bug-064): jogador PARADO não manda move — sem isto o
     // recém-chegado só via quem se mexia. Estado atual de todo mundo pro novo
     // (depois do snapshot: o cliente já montou o jogo) e o novo pros outros.
+    const novatoEhProfessor = this.players.get(clientId)?.papel === "professor";
     for (const [otherId, other] of this.players) {
       if (otherId === clientId) continue;
+      // `/invisivel`: o professor escondido também não aparece pra quem CHEGA
+      // depois. Este laço é a segunda porta da pose (a 1ª é o `broadcastPose`).
+      if (!novatoEhProfessor && this.invisiveis.has(otherId)) continue;
       this.send(
         clientId,
         JSON.stringify({
@@ -1769,7 +1784,7 @@ export class GameSession {
         } satisfies ServerMessage),
       );
     }
-    this.broadcastExcept(clientId, {
+    this.broadcastPose(clientId, {
       type: "player_moved",
       id: clientId,
       x: destino.x, y: destino.y, z: destino.z,
@@ -2125,6 +2140,25 @@ export class GameSession {
     }
   }
 
+  /**
+   * Relay da POSE de `autorId` — `broadcastExcept` com o portão do `/invisivel`
+   * (2026-08-22). ⚠️ **É aqui que a invisibilidade acontece**: o aluno não
+   * recebe a mensagem, em vez de recebê-la e não desenhar. Se a filtragem fosse
+   * do cliente, a posição do professor viajaria no fio e o devtools a mostraria.
+   *
+   * Todo `player_moved` do jogo passa por aqui — o do `move` (10 Hz) e o do
+   * join. Quem mandar um por fora abre o vazamento de volta.
+   */
+  broadcastPose(autorId: number, msg: ServerMessage): void {
+    const escondido = this.invisiveis.has(autorId);
+    const raw = JSON.stringify(msg);
+    for (const [clientId, p] of this.players) {
+      if (clientId === autorId) continue;
+      if (escondido && p.papel !== "professor") continue;
+      this.send(clientId, raw);
+    }
+  }
+
   /** Distância olho→centro do bloco, com folga (pos do move chega a 10 Hz). */
   private withinReach(p: SessionPlayer, x: number, y: number, z: number): boolean {
     const dx = x + 0.5 - p.x;
@@ -2136,7 +2170,11 @@ export class GameSession {
   /** Célula (x,y,z) sobrepõe o AABB de algum jogador? (não emparedar ninguém) */
   overlapsAnyPlayer(x: number, y: number, z: number): boolean {
     const half = PLAYER.width / 2;
-    for (const p of this.players.values()) {
+    for (const [clientId, p] of this.players) {
+      // `/invisivel`: o fantasma não ocupa célula. Sem isto o aluno tentaria
+      // colocar um bloco num vazio aparente e levaria recusa SILENCIOSA
+      // (`place_block` devolve sem avisar) — a sala ficaria assombrada.
+      if (this.invisiveis.has(clientId)) continue;
       if (
         x < p.x + half && x + 1 > p.x - half &&
         y < p.y + PLAYER.height && y + 1 > p.y &&
@@ -2151,6 +2189,7 @@ export class GameSession {
   handleDisconnect(clientId: number): void {
     this.stream.delete(clientId); // interesse de streaming morre com a conexão
     this.dormindo.delete(clientId); // quem saiu não conta na maioria (reavalia no fim)
+    this.invisiveis.delete(clientId); // `/invisivel` é de sessão: quem volta volta visível
     this.wandMarks.delete(clientId); // rascunho de canto morre com a conexão
     this.tpPedidos.delete(clientId); // pedidos ENDEREÇADOS a quem saiu morrem
     this.picoQueda.delete(clientId); // §🍖 quem volta não paga a queda de ontem

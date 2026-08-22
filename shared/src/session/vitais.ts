@@ -294,7 +294,10 @@ export function tickVitais(ses: GameSession): void {
     // bug-605: SOTERRADO — dano contínuo de sufocamento + levar pro vão livre
     // mais próximo (raio 2). Se achar o vão, teleporta na hora (o dano para);
     // se não achar, o jogador continua soterrado e o dano acumula até a morte.
-    const soterrado = sobrepoeSolidos(ses.world, { x: p.x, y: p.y, z: p.z });
+    // `/invisivel` (2026-08-22): o fantasma atravessa parede, então "dentro da
+    // rocha" é onde ele TRABALHA — nem o dano nem o resgate valem pra ele.
+    const soterrado =
+      !ses.invisiveis.has(clientId) && sobrepoeSolidos(ses.world, { x: p.x, y: p.y, z: p.z });
     const sufoc = tickSufocamento(depois, soterrado);
     depois = sufoc.estado;
     ses.vitais.set(p.name, depois);

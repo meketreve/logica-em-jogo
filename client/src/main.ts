@@ -95,6 +95,7 @@ import {
   showMenu,
 } from "./menu";
 import { ObjectivesUi } from "./objectivesUi";
+import { InvisivelUi } from "./invisivelUi";
 import { Mochila } from "./mochila";
 import { type VidaInfo, VitalsUi } from "./vitals";
 import { FriendsPanel } from "./friends";
@@ -662,6 +663,11 @@ let dicaAmigosDada = false;
 let latestClaims: Claim[] = [];
 // cenário (cp12/13): painel HTML vive fora do jogo 3D; caixas verdes no startGame
 const objectivesUi = new ObjectivesUi();
+/** `/invisivel` (2026-08-22): estou escondido dos alunos agora? Quem manda é o
+ *  servidor (msg `invisivel`) — o cliente só desenha o aviso e liga o noclip.
+ *  ⚠️ ele NÃO decide a invisibilidade: a pose já foi filtrada lá. */
+let invisivelAtivo = false;
+const invisivelUi = new InvisivelUi();
 let latestObjectives: { modo: ScenarioModo; objetivos: ObjectiveState[] } | null = null;
 /** Grupo do PRÓPRIO jogador (cp13) — vem na mensagem `group`. */
 let myGrupo: number | null = null;
@@ -883,6 +889,12 @@ function handleServerData(data: string | ArrayBuffer): void {
           ? "voo liberado — dois toques no espaço para voar (espaço sobe, agachar desce)"
           : "voo trancado pela turma",
       );
+    } else if (msg.type === "invisivel") {
+      invisivelAtivo = msg.ativo;
+      invisivelUi.mostrar(msg.ativo);
+      // o fantasma atravessa parede, e `noclip` só vale EM VOO (physics.ts):
+      // sem decolar junto ele ficaria de pé no chão com o noclip inerte.
+      if (msg.ativo && podeVoar()) flying = true;
     } else if (msg.type === "modo") {
       // §🍖 F1: por enquanto o modo só decide rótulo e VOO — vida/fome/craft
       // entram nas frentes seguintes lendo daqui.
@@ -1988,7 +2000,7 @@ class GameRuntime {
       }
       const yAntesDoPasso = this.player.pos.y;
       if (chaoCarregado && !this.bench?.ativo && !this.foto) {
-        stepPlayer(this.world, this.player, cmd, dt);
+        stepPlayer(this.world, this.player, { ...cmd, noclip: invisivelAtivo }, dt);
       }
       // §🎮 olho (agachar) + degrau suave + odômetro — ANTES do respawn: a subida
       // é medida contra o `y` de antes do passo, e um teleporte no meio viraria

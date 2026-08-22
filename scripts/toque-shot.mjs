@@ -228,6 +228,7 @@ const estado = () =>
     return {
       menu: vis('#overlay'), barra: vis('#touch-topo'), amigos: vis('#amigos'),
       mochila: vis('#inventario'), chat: vis('#chat-input'), painel: vis('#painel'),
+      invisivel: vis('#invisivel'),
     };
   })()`);
 const foto = async (nome) => {
@@ -443,6 +444,51 @@ if (!barra) {
     ok(barra.linhas === 1, `em ${barra.janela}px a fileira fica em UMA linha (${barra.linhas})`);
   }
 }
+
+diga("== B6: /invisivel liga o aviso 👻 na tela do professor ==");
+// ⚠️ O que esta seção prova é a FAIXA, não a invisibilidade: a filtragem da
+// pose é do servidor (bateria própria em shared/src/invisivel.test.ts), e o
+// professor nunca se desenhou pra si mesmo, então na tela dele NADA muda —
+// a faixa é o único sintoma. Sem ela ele esquece que sumiu e fala sozinho.
+await dizer("/invisivel");
+s = await estado();
+ok(s.invisivel === "VISIVEL", "a faixa 👻 apareceu ao ligar");
+const textoFaixa = await avaliar(
+  `(document.getElementById('invisivel')?.textContent ?? 'AUSENTE')`,
+);
+ok(/invis/i.test(textoFaixa), `a faixa diz o que está acontecendo — "${textoFaixa}"`);
+// no dedo a faixa desce pra não cobrir a barra do topo (classe do main.ts)
+const faixa = await avaliar(`(() => {
+  const f = document.getElementById('invisivel');
+  const b = document.getElementById('touch-topo');
+  if (!f) return null;
+  const rf = f.querySelector('span')?.getBoundingClientRect();
+  const rb = b?.getBoundingClientRect();
+  if (!rf) return null;
+  const linhas = rb ? new Set([...b.querySelectorAll('.touch-btn')]
+    .filter(e => e.checkVisibility())
+    .map(e => Math.round(e.getBoundingClientRect().top))).size : 0;
+  return {
+    linhasDaBarra: linhas,
+    fora: rf.left < 0 || rf.right > window.innerWidth ? 1 : 0,
+    cobreBarra: rb ? (rf.top < rb.bottom && rf.bottom > rb.top) ? 1 : 0 : 0,
+  };
+})()`);
+if (!faixa) {
+  diga("  ✗ a faixa do /invisivel sumiu da medição");
+  falhas++;
+} else {
+  // ⚠️ a asserção é o RESULTADO (não cobre a barra), não o mecanismo (uma
+  // classe CSS): a fileira quebra em 2 linhas a ≤420px, e a 1ª versão disto
+  // media a classe e passava verde com a faixa em cima da 2ª linha.
+  diga(`  barra em ${faixa.linhasDaBarra} linha(s) sob a faixa`);
+  ok(faixa.fora === 0, "a faixa não sai da tela");
+  ok(faixa.cobreBarra === 0, "e não cobre a barra de botões do topo");
+}
+await foto("02e-invisivel-aviso.png");
+await dizer("/invisivel");
+s = await estado();
+ok(s.invisivel === "escondido", "o comando ALTERNA: a faixa sai ao desligar");
 
 diga("== C: fabricar NÃO joga a lista de craft de volta pro topo (bug-573) ==");
 // craft só existe em sobrevivência, e a lista só rola se houver receita

@@ -349,6 +349,23 @@ describe("voo criativo (fly)", () => {
     expect(p.pos.y).toBeGreaterThanOrEqual(8 - 1e-2); // parou em cima
   });
 
+  // `/invisivel` (2026-08-22): o professor fantasma atravessa parede. A física é
+  // do CLIENTE, então sem este flag ele bateria na rocha mesmo com o servidor
+  // aceitando o passo — os dois lados precisam concordar.
+  it("noclip atravessa o chão que o voo comum respeita", () => {
+    const w = flatWorld(); // sólido y ∈ [0,7]
+    const p = createPlayer(8, 8.001, 8);
+    simulate(w, p, { ...IDLE, fly: true, sneak: true, noclip: true }, 2);
+    expect(p.pos.y).toBeLessThan(4); // afundou na pedra em vez de parar em cima
+  });
+
+  it("noclip sem voo não faz nada (o fantasma só atravessa voando)", () => {
+    const w = flatWorld();
+    const p = createPlayer(8, 8.001, 8);
+    simulate(w, p, { ...IDLE, noclip: true }, 2); // caindo, sem fly
+    expect(p.pos.y).toBeGreaterThanOrEqual(8 - 1e-2); // a gravidade parou no chão
+  });
+
   it("voo move na horizontal mais rápido que andar", () => {
     const w = flatWorld();
     const p = createPlayer(8, 20, 8);

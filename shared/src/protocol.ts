@@ -413,6 +413,18 @@ export type ServerMessage =
     }
   | {
       /**
+       * `/invisivel` (2026-08-22): o PRÓPRIO professor está invisível pros
+       * alunos? Só o autor recebe — o aluno nunca sabe que alguém sumiu, que é
+       * o ponto da feature. O cliente usa pra dois fins: o aviso permanente na
+       * tela (senão o professor esquece e fala sozinho com a turma) e o noclip
+       * do voo. A filtragem da POSE não depende desta mensagem: ela é do
+       * servidor, por cliente — aqui só viaja o estado do próprio dono.
+       */
+      type: "invisivel";
+      ativo: boolean;
+    }
+  | {
+      /**
        * Modo de jogo EFETIVO deste jogador (§🍖 F1) — já resolvido no servidor
        * (override pessoal vence o padrão do mundo), porque quem decide o modo é
        * o servidor e o cliente não tem o mapa de overrides. Vai no join e a cada
@@ -884,6 +896,11 @@ export function parseServerMessage(raw: string): ServerMessage | null {
     case "voo":
       if (typeof m["liberado"] !== "boolean") return null;
       return { type: "voo", liberado: m["liberado"] };
+    case "invisivel":
+      // o flag É a mensagem inteira: sem ele não há o que aplicar (ao contrário
+      // do `pvp` do `modo`, que é diagnóstico opcional)
+      if (typeof m["ativo"] !== "boolean") return null;
+      return { type: "invisivel", ativo: m["ativo"] };
     case "modo": {
       // §🍖 F1: modo desconhecido = mensagem descartada (é o campo INTEIRO da
       // mensagem, não um diagnóstico opcional — sem ele não há o que aplicar)

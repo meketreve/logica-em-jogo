@@ -39,6 +39,7 @@ const COMANDOS = [
   "ciclo",
   "vento",
   "voo",
+  "invisivel",
   "modo",
   "regra",
   "pvp",

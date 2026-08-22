@@ -81,6 +81,10 @@ export interface MoveInput {
   sneak?: boolean;
   /** Em voo (modo criativo): sem gravidade; `jump` sobe e `sneak` desce. */
   fly?: boolean;
+  /** `/invisivel` (2026-08-22): o professor fantasma atravessa parede. Só vale
+   *  EM VOO — quem anda no chão continua colidindo, senão ele afundaria no
+   *  mundo sem querer. O servidor tem o portão gêmeo no `move` da session. */
+  noclip?: boolean;
 }
 
 export function createPlayer(x: number, y: number, z: number): PlayerState {
@@ -453,7 +457,8 @@ export function stepPlayer(world: World, p: PlayerState, input: MoveInput, dt: n
   const s = input.strafe;
 
   // Voo criativo: sem gravidade; pular sobe, agachar desce. Ainda COLIDE com
-  // blocos (não atravessa parede — convenção Minecraft criativo).
+  // blocos (não atravessa parede — convenção Minecraft criativo), a menos que
+  // seja o fantasma do `/invisivel`.
   if (input.fly === true) {
     p.sprinting = false;
     p.onGround = false;
@@ -468,6 +473,13 @@ export function stepPlayer(world: World, p: PlayerState, input: MoveInput, dt: n
     const steps = Math.max(1, Math.ceil(maxDist / MAX_STEP));
     const h = dt / steps;
     for (let i = 0; i < steps; i++) {
+      if (input.noclip === true) {
+        // sem resolução de eixo: a posição anda direto, atravessando o sólido
+        p.pos.y += p.vel.y * h;
+        p.pos.x += p.vel.x * h;
+        p.pos.z += p.vel.z * h;
+        continue;
+      }
       moveAxis(world, p, "y", p.vel.y * h);
       moveAxis(world, p, "x", p.vel.x * h);
       moveAxis(world, p, "z", p.vel.z * h);
