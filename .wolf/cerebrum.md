@@ -1789,6 +1789,13 @@ nenhum** — sem essa declaração o Chrome renderiza a página em light mesmo c
   de verdade (e precisa de um `move` pro spawn antes, por causa do alcance).
 - [2026-07-11] Saída de git via rtk é comprimida/cacheada — `git status` pode mentir. Verdade:
   `git diff --numstat`, `git diff-index HEAD --`, ou `rtk proxy "<comando>"`.
+  **[2026-08-22] Não é só o `status`.** Depois de um `git push` OK, `git rev-parse origin/main`
+  devolveu `fatal: Needed a single revision` e `git log origin/main..main | wc -l` devolveu `1`
+  (commit pendente) — **as duas coisas falsas**: por `rtk proxy`, o `origin/main` estava no sha
+  certo e o `status --branch` dizia `## main...origin/main`, sem divergência. Regra: **qualquer
+  leitura de REF (`rev-parse`, `A..B`, `ls-remote`) vale só por `rtk proxy`.** E a prova de que
+  um push chegou é `rtk proxy git ls-remote origin <branch>`, que pergunta ao servidor em vez de
+  ler ref local.
 - [2026-07-11] NUNCA rodar sed/normalização em `git ls-files` sem excluir binários (corrompeu o
   PDF do projeto). Filtrar por extensão ou usar `git grep -Il ''`.
 
