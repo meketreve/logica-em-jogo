@@ -5278,6 +5278,89 @@
       "related_bugs": [],
       "occurrences": 1,
       "last_seen": "2026-08-22T09:10:00"
+    },
+    {
+      "id": "bug-637",
+      "timestamp": "2026-08-22T14:20:00",
+      "error_message": "teste CONTROLE do sufocamento: 'expected 20 to be less than 20' — o professor emparedado no fixture NAO sofria dano nenhum",
+      "file": "shared/src/invisivel.test.ts",
+      "root_cause": "Duas armadilhas de FIXTURE empilhadas, as duas do bug-605. (1) O handler de 'move' do servidor REJEITA o passo pra dentro de solido: emparedar antes de mover deixava o professor de fora do macico. (2) Depois de corrigir a ordem, uma parede de raio 1 ainda nao bastava — o resgate do soterramento procura vao ate o raio 2 e teleportava o jogador pra fora no 1o tick, antes de qualquer dano.",
+      "fix": "No fixture: mover PRIMEIRO, emparedar DEPOIS, e com cubo de raio 3 (nao 1). E o teste de CONTROLE (professor visivel sofre) e o que expos os dois — sem ele o teste do invisivel passava por motivo errado.",
+      "tags": [
+        "teste",
+        "fixture",
+        "falso-verde",
+        "soterramento",
+        "invisivel",
+        "tdd"
+      ],
+      "related_bugs": [
+        "bug-605"
+      ],
+      "occurrences": 1,
+      "last_seen": "2026-08-22T14:20:00"
+    },
+    {
+      "id": "bug-638",
+      "timestamp": "2026-08-22T15:05:00",
+      "error_message": "place_block do aluno na celula do professor invisivel: 'expected +0 to be 2' — o bloco nao era colocado nem com a invisibilidade ligada",
+      "file": "shared/src/invisivel.test.ts",
+      "root_cause": "O fixture movia a ALUNA pro lado (sx+2.5) pra sair de cima da celula-alvo, mas ali o terreno vizinho e solido: o 'move' foi recusado em silencio e ela ficou no spawn. A recusa do place vinha do corpo DELA ocupando a celula, nao do professor — e a primeira metade do teste (recusa com professor visivel) passava pelo motivo errado.",
+      "fix": "Inverter quem se move: a aluna FICA no spawn e o professor sobe 2 blocos (ar garantido acima da cabeca). Mais um 'expect(teleportesRecebidos(sent,1)).toBe(0)' logo apos o move, provando que o passo valeu antes de medir qualquer outra coisa.",
+      "tags": [
+        "teste",
+        "fixture",
+        "falso-verde",
+        "place_block",
+        "overlapsAnyPlayer",
+        "invisivel"
+      ],
+      "related_bugs": [
+        "bug-637",
+        "bug-605"
+      ],
+      "occurrences": 1,
+      "last_seen": "2026-08-22T15:05:00"
+    },
+    {
+      "id": "bug-639",
+      "timestamp": "2026-08-22T16:40:00",
+      "error_message": "sonda toque-shot secao B6 a 420x900: 'X e nao cobre a barra de botoes do topo' — a faixa do /invisivel caia em cima da 2a linha de botoes",
+      "file": "client/src/invisivelUi.ts",
+      "root_cause": "'top: 64px' fixo no CSS pra quem tem barra de toque. A fileira de botoes quebra em DUAS linhas a <=420px (o wrap defensivo do bug-634), e qualquer numero escrito a mao cobre a segunda.",
+      "fix": "Medir: 'getBoundingClientRect().bottom' da #touch-topo + 8px de folga, refeito no mostrar() e num listener de resize (girar o tablet reflui a fileira). Barra ausente/escondida mede 0 e a faixa sobe pro topo. A asserção da sonda tambem foi trocada — media a CLASSE CSS (o mecanismo) e passava verde com a faixa por cima; agora mede a sobreposicao real.",
+      "tags": [
+        "css",
+        "layout",
+        "tablet",
+        "wrap",
+        "sonda",
+        "falso-verde",
+        "invisivel"
+      ],
+      "related_bugs": [
+        "bug-634"
+      ],
+      "occurrences": 1,
+      "last_seen": "2026-08-22T16:40:00"
+    },
+    {
+      "id": "bug-640",
+      "timestamp": "2026-08-22T17:10:00",
+      "error_message": "tela 'novidades' do menu mostrava o bloco do topo rotulado 'recem-chegado' na v0.10.1 — e continuaria mostrando pra sempre",
+      "file": "client/src/changelog.ts",
+      "root_cause": "O rotulo da entrada mais nova era uma string escrita a mao. Nada no processo obrigava a troca-la no bump, e ela sobreviveu a 12 versoes de trabalho (dormir, menu 3D, aula/grupos, inventario, algodao, grama, painel, soterramento, /painel). Com o launcher se atualizando sozinho na escola, o professor via 'recem-chegado' indefinidamente.",
+      "fix": "'Mudanca.versao' virou opcional: ausente = release ATUAL, e o numero sai do package.json via rotuloDeVersao() (shared/src/version.ts, com teste). Um 'npm version' relabela a tela sozinho. Conteudo das 12 versoes perdidas foi escrito no bloco do topo.",
+      "tags": [
+        "changelog",
+        "versao",
+        "ui",
+        "menu",
+        "staleness"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-08-22T17:10:00"
     }
   ]
 }

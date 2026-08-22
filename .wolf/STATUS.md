@@ -2,6 +2,90 @@
 
 > Single source of truth for resuming work. Read this FIRST when starting a session.
 
+> ## 🧭 HANDOFF — SESSÃO 84 (2026-08-22) · `/invisivel`, changelog dinâmico e v0.11.0
+>
+> **A quest do `/invisivel` FECHOU**, e junto saiu o bump pra **v0.11.0** com a tela de novidades
+> consertada. Bateria verde: launchers 5/5 · typecheck 3/3 · **916/916** · build · **15/15
+> smokes** · `cenarios` 7/7 byte-idênticos · `shots:toque` ✓ nos três tamanhos (1024×600,
+> 600×1024, 420×900).
+>
+> ⚠️ Confira o sha do topo com `rtk proxy git rev-parse --short origin/main`, nunca com um sha
+> escrito aqui — ele anda a cada commit de documentação.
+>
+> ### ✅ Entregue — `/invisivel`
+> **O professor some para os alunos e atravessa paredes, pra observar a turma trabalhando sem
+> virar atração.** Outro professor continua vendo.
+>
+> ⚠️ **A decisão que define a feature: a filtragem é do SERVIDOR, por cliente.** O que some é a
+> MENSAGEM, não o desenho — se o cliente escondesse, a posição do professor continuaria viajando
+> no fio e um aluno curioso a leria no devtools.
+>
+> - **`shared/src/session/invisivel.ts`** (novo) — `runInvisivel` (alterna), `ehFantasma`,
+>   `sendInvisivel`. Ao **ligar** manda `player_left` só pros alunos (senão a caixa dele CONGELA
+>   na tela onde estava); ao **desligar** manda a pose de volta (quem observa parado nunca manda
+>   um `move`, e ficaria invisível pra sempre).
+> - **`shared/src/session.ts`** — `invisiveis: Set<number>` (sessão-só, morre no disconnect) e
+>   **`broadcastPose(autorId, msg)`**, o funil por onde TODA pose passa. ⚠️ **Mandar um
+>   `player_moved` por fora dele reabre o vazamento.** A **2ª porta** é o laço de presença do
+>   `admitir` — quem CHEGA depois.
+> - **Fantasma = 3 portões + noclip.** Achado que encolheu o trabalho: **`physics.ts` não conhece
+>   jogadores — eles nunca colidiram entre si**, então não houve colisão jogador-jogador a mexer.
+>   O que houve: (1) o `move` do servidor REJEITA passo pra dentro de sólido — o invisível passa;
+>   (2) `tickVitais` não conta soterramento pra ele (nem dano nem resgate); (3)
+>   `overlapsAnyPlayer` o ignora, senão o aluno leva **recusa SILENCIOSA** ao colocar bloco num
+>   vazio aparente. E `noclip` no `physics.ts`, **só no ramo `fly`** — o cliente liga o voo junto.
+> - **`client/src/invisivelUi.ts`** (novo) — a faixa 👻 permanente. Existe porque a invisibilidade
+>   **não tem sintoma nenhum** na tela de quem a ligou: sem ela o professor esquece que sumiu e
+>   fala sozinho com a turma.
+>
+> ### 🧭 As decisões (todas do usuário, 2026-08-22)
+> 1. **Esconde só o CORPO** — chat, blocos e som normais. Sumir do chat também foi recusado: ele
+>    falaria com a turma e ninguém responderia. O contrapeso é a faixa 👻, pedida na mesma resposta.
+> 2. **Vira fantasma** — aluno esbarrando num corpo invisível é pior que ver o professor.
+> 3. **Estado de sessão** — não vai pro save; quem cai e volta volta visível.
+>
+> ### ✅ Entregue — changelog dinâmico + v0.11.0
+> A tela "📜 novidades" tinha o bloco do topo rotulado **"recém-chegado" à mão**, e a string
+> sobreviveu a **12 versões de trabalho** — com o launcher se atualizando sozinho na escola, o
+> professor veria "recém-chegado" pra sempre (bug-640).
+> - **`Mudanca.versao` virou opcional**: ausente = release ATUAL, número do `package.json` via
+>   **`rotuloDeVersao()`** (`shared/src/version.ts`, com teste). Um `npm version` relabela sozinho.
+> - O bloco do topo recebeu as 12 versões perdidas (dormir, menu 3D, aula/grupos, inventário
+>   "todos", algodão, freio da grama, rolagem do painel, soterramento, `/painel`, `/invisivel`).
+> - ⚠️ **`client/dist` é RASTREADO e inlina o `VERSION`**: o bump vem ANTES do build. Use
+>   `npm version <tipo> --no-git-tag-version` (o `npm version` normal exige árvore limpa).
+>
+> ### ⚠️ O que mordeu (bugs 637-640, todos no buglog e no cerebrum)
+> - **bug-637/638 — falso-verde de FIXTURE, duas vezes.** Pôr jogador dentro de bloco esbarra em
+>   dois portões do bug-605: o `move` rejeita o passo (empareda DEPOIS de mover) e o resgate
+>   procura vão até o **raio 2** (parede de raio 1 não basta). E mover alguém "pro lado" num teste
+>   é passo pra dentro da rocha vizinha, recusado em **silêncio** — a asserção passa a medir o
+>   corpo dele. **O teste de CONTROLE foi o que expôs os dois.**
+> - **bug-639 — asserção de sonda que mede o MECANISMO passa verde com a tela quebrada.** Media
+>   `classList.contains(...)` e dizia ✓ com a faixa deitada em cima da 2ª linha de botões (a
+>   fileira quebra a ≤420px, o wrap do bug-634). Conserto dos dois lados: `top` virou **medida**
+>   do `getBoundingClientRect().bottom` (+ `resize`), e a sonda passou a medir a sobreposição real.
+> - **Higiene:** `pkill -f "<padrão>"` sai com **144 sem saída nenhuma** quando casa o próprio
+>   shell — não é erro. E `npm run shots:*` PRECISA de servidor de pé (ou
+>   `python3 -m http.server` em `client/dist` + `BASE=`).
+>
+> ### 📌 Pendências
+> - **Só o último push está sem campo.** Correção do usuário nesta sessão: as outras cinco coisas
+>   (algodão, aba "todos", freio da grama, rolagem do painel, soterramento) **já passaram na
+>   escola**. Falta validar `/painel` + 📋 e agora o `/invisivel`.
+> - `/invisivel` está na lista de `COMANDOS` do `commands.ts` ao lado do `/voo` (posição ~17 de
+>   25). No painel rápido do dedo ele exige ROLAR — aceitável porque é comando de professor no
+>   teclado, mas se virar comando de tablet, promova-o (ver bug-635).
+>
+> ### 🚀 PRÓXIMA QUEST
+> **Painel de comandos do mobile ao LADO** (ideia de 2026-08-17). A conta do teclado virtual já
+> está resolvida pela var `--kb`; o que muda é o EIXO do layout — hoje o `#chat-painel` empilha
+> por baixo do campo e come a altura que o teclado já levou.
+>
+> **Depois:** ovelha + lã de verdade · sentar na cadeira · teto de 35 grupos · proteger a
+> célula-molde · Ferramentas v2 · mobs. **Backlog:** mundo de terreno real via DEM
+> (`.wolf/ROADMAP.md`).
+
 > ## 🧭 HANDOFF — SESSÃO 83 (2026-08-21 → 22) · `/painel` e o 6º botão do dedo
 >
 > **A quest do `/painel` FECHOU**, com uma 2ª rodada em cima (o comando entrou em toda lista que

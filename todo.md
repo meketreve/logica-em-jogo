@@ -84,26 +84,13 @@
 
 ## Comandos / jogador
 
-* \[ ] **`/invisivel` — professor some para os alunos; só outro professor o vê** (ideia do
-  usuário, 2026-08-17). Serve para observar a turma trabalhando sem virar atração.
-  **A parte que decide o desenho: a filtragem tem de ser no SERVIDOR, por cliente.**
-  Hoje a pose sai por `broadcastExcept` (`session.ts:1718`) e no join por um laço que manda
-  todos para todos (`session.ts:1705-1717`) — some tudo para todo mundo. Se o cliente é que
-  escondesse, a posição do professor continuaria viajando no fio e um aluno curioso leria ela
-  no devtools. Então: onde hoje há `broadcastExcept` de `player_moved`, entra um laço que pula
-  quem é aluno quando o autor está invisível.
-  **Pontos a decidir antes de codar:**
-  * O que mais denuncia a presença além da pose? `player_left`/`player_moved` do join, a lista
-    do painel P (`broadcastPlayers`, mas ela já é **só para professores**), o chat, blocos
-    colocados/quebrados, o som, e a mira do pvp (`alvosParaMira`). Escolher o que some e o que
-    fica — sumir do chat também é outra decisão.
-  * Ao ligar, mandar `player_left` do professor para cada aluno (senão a caixa dele congela na
-    tela onde estava); ao desligar, mandar `player_moved` de volta.
-  * Persiste no rejoin? Aposta: **não** — estado de sessão, como o `spawnCama`.
-  * O professor invisível ainda colide? (Se sim, alunos esbarram no nada.)
-  * ⚠️ Precisa de teste: aluno NÃO recebe `player_moved` do professor invisível, professor
-    recebe. É exatamente o tipo de coisa que passa verde sem sonda e vaza em campo.
-
+* \[x] **`/invisivel` — professor some para os alunos; só outro professor o vê** — **FEITO**
+  (2026-08-22, v0.11.0). A filtragem é do SERVIDOR, por cliente: `broadcastPose` no `session.ts`
+  é o funil de TODA pose, e o laço de presença do `admitir` é a 2ª porta. Esconde **só o corpo**
+  (chat, blocos e som seguem) + faixa 👻 permanente na tela do professor. **Vira fantasma:** 3
+  portões (`move`, `tickVitais`, `overlapsAnyPlayer`) + `noclip` no `physics.ts` (só no ramo
+  `fly`). Estado de SESSÃO — rejoin volta visível. Ver `shared/src/session/invisivel.ts` e
+  `shared/src/invisivel.test.ts` (13 testes).
 * \[x] comando para kicar aluno por mau comportamento — **JÁ EXISTE** (`/kicar`, cp22)
 * \[x] arrumar sistema de dia e noite — **FEITO** (2026-07-19): sol/lua/estrelas visíveis (grupo segue câmera), keyframes com smoothstep, dia 10→20min (`DIA_SEGUNDOS=1200`), `/hora` liberado pro aluno. Corrigiu bug-301 (TDZ) e bug-302 (céu travado na meia-noite).
 * \[x] voo do modo criativo do Minecraft — **FEITO** (2026-07-17: `/voo` do professor libera pra turma; duplo-toque no espaço)

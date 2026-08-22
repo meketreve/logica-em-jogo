@@ -2606,3 +2606,19 @@ ref — três diagnósticos meus inventados em cima disso).
 
 **Próxima quest:** painel de comandos do mobile ao LADO — a conta do teclado virtual já está
 resolvida pela var `--kb`; o que muda é o EIXO do layout.
+
+## Session: 2026-08-22 12:27
+
+| Time | Action | File(s) | Outcome | ~Tokens |
+|------|--------|---------|---------|--------|
+| 13:10 | brainstorm do `/invisivel`: classifiquei BOUNDED, li os 3 pontos de broadcast e as 2 decisões foram do usuário (só o corpo + faixa de aviso; vira fantasma) | shared/src/session.ts (leitura) | desenho aprovado, "mete ficha" | ~28k |
+| 13:40 | TDD RED: 13 testes do `/invisivel` — protocolo, gate, as 3 portas da pose, rejoin, fantasma | shared/src/invisivel.test.ts | 10 falhando pelo motivo certo | ~14k |
+| 14:20 | teste de CONTROLE expôs 2 armadilhas de fixture do bug-605 (ordem do move, raio do resgate) | shared/src/invisivel.test.ts | bug-637 logado, fixture consertada | ~9k |
+| 14:50 | GREEN servidor: `broadcastPose`, `invisiveis: Set`, 3 portões do fantasma, comando novo | shared/src/session.ts · session/invisivel.ts · vitais.ts · protocol.ts | 911/911 | ~22k |
+| 15:05 | 2ª armadilha de fixture: mover a aluna "pro lado" a jogava na rocha e a recusa vinha do corpo dela | shared/src/invisivel.test.ts | bug-638 logado, 13/13 verde | ~6k |
+| 15:30 | achado que mudou o desenho: `physics.ts` NÃO conhece jogadores — eles nunca colidiram entre si | shared/src/physics.ts (leitura) | "fantasma" reduziu a 3 portões + noclip | ~4k |
+| 15:45 | noclip em TDD no `physics.ts` (só no ramo `fly`) + faixa 👻 no cliente | shared/src/physics.ts · client/src/invisivelUi.ts · main.ts · index.html | 916/916 · typecheck 3/3 | ~16k |
+| 16:15 | changelog dinâmico: `Mudanca.versao` opcional, `rotuloDeVersao()` no shared com teste; 12 versões de trabalho escritas no bloco do topo | shared/src/version.ts · client/src/changelog.ts | bug-640 logado, tela confirmada em print | ~13k |
+| 16:30 | bump 0.10.1 → 0.11.0 ANTES do build (dist é rastreado e inlina o VERSION) | package.json | v0.11.0 na tela e no rodapé | ~3k |
+| 16:40 | sonda B6 a 420px pegou a faixa cobrindo a 2ª linha de botões; `top` fixo virou medida do rect + resize | client/src/invisivelUi.ts · scripts/toque-shot.mjs | bug-639 logado, 3 tamanhos verdes | ~11k |
+| 17:00 | bateria final | — | launchers 5/5 · typecheck 3/3 · **916/916** · build · 15/15 smokes · cenários 7/7 byte-idênticos · shots:toque ✓ em 1024×600, 600×1024, 420×900 | ~6k |

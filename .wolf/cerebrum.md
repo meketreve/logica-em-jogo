@@ -126,6 +126,25 @@
 
 ## Key Learnings
 
+- [2026-08-22] **`shared/src/physics.ts` não conhece jogadores — eles NUNCA colidiram entre si.**
+  A única presença de corpo alheio no servidor é `overlapsAnyPlayer`, e ela serve só pra não
+  emparedar ninguém ao colocar bloco. Consequência prática: "fantasma" não precisou mexer em
+  colisão jogador-jogador; o que precisou foi o portão do `move`, o do soterramento e esse.
+- [2026-08-22] **Toda pose de jogador sai por `broadcastPose` (`session.ts`), não por
+  `broadcastExcept`.** É o funil onde a filtragem por cliente do `/invisivel` mora. Mandar um
+  `player_moved` por fora dele reabre o vazamento — a posição volta a viajar no fio pro aluno.
+  A **segunda** porta é o laço de presença do `admitir` (quem CHEGA depois).
+- [2026-08-22] **`client/dist` é RASTREADO.** Bump de versão tem de vir ANTES do `npm run build`,
+  senão o bundle commitado carrega o número velho (`VERSION` é inlinado do package.json pelo
+  tree-shake). Use `npm version <tipo> --no-git-tag-version` (o `npm version` normal exige árvore
+  limpa e faz commit sozinho), build, commit de tudo junto, e a tag à mão.
+- [2026-08-22] **`npm run shots:*` precisa de servidor de pé.** Sem `npm run dev` na 5173 a sonda
+  fica pendurada até o timeout. Alternativa sem dev server: `python3 -m http.server 8080` dentro
+  de `client/dist` + `BASE=http://localhost:8080`. ⚠️ Mede o BUILD, então rebuild antes.
+- [2026-08-22] **Não há jsdom no vitest deste projeto** (config em `shared/vitest.config.ts`, e
+  `npm test` roda só `-w shared`). Lógica de cliente que precise de teste tem de ter a parte PURA
+  extraída pro `shared` — foi o caminho do `rotuloDeVersao`.
+
 - [2026-08-21] **`client/src/commands.ts` é a lista ÚNICA de comandos do cliente** — o Tab e o
   painel de comandos rápidos do dedo leem os mesmos `COMANDOS`/`SUBCOMANDOS`. **E a ordem dela é
   a ordem dos botões no dedo**, numa caixa de `max-height: 26vh` que rola: comando no fim da
@@ -1230,6 +1249,29 @@ nenhum** — sem essa declaração o Chrome renderiza a página em light mesmo c
 
 ## Do-Not-Repeat
 
+- [2026-08-22] **Fixture que põe jogador dentro de bloco tem DOIS portões do bug-605 no caminho.**
+  (1) O `move` do servidor REJEITA o passo pra dentro de sólido: empareda DEPOIS de mover, nunca
+  antes. (2) O resgate do soterramento procura vão até o **raio 2**: parede de raio 1 teleporta o
+  jogador pra fora no 1º tick e o dano nunca acontece. Use cubo de raio 3.
+  ⚠️ **E escreva o teste de CONTROLE** (o caso VISÍVEL/antigo passa?) — foi ele que expôs os dois;
+  sem ele o teste da feature nova passava por motivo errado. Ver bug-637.
+- [2026-08-22] **Mover um jogador "pro lado" num teste é passo pra dentro da rocha vizinha, e a
+  recusa é SILENCIOSA.** O terreno não é plano: `sx+2` na altura do spawn de `sx` costuma ser
+  maciço. O jogador fica onde estava, e a asserção passa a medir o corpo DELE. Prefira mover no
+  eixo **y** (ar garantido acima da cabeça) e cole um `expect(teleportes).toBe(0)` logo após o
+  move, provando que o passo valeu antes de medir qualquer outra coisa. Ver bug-638.
+- [2026-08-22] **Asserção de sonda que mede o MECANISMO (uma classe CSS) em vez do RESULTADO
+  passa verde com a tela quebrada.** `f.classList.contains('com-barra-de-toque')` dizia ✓ com a
+  faixa deitada em cima da 2ª linha de botões. A asserção certa é a sobreposição de retângulos.
+  Ver bug-639, e é o mesmo defeito do falso-verde do bug-569.
+- [2026-08-22] **Número de layout escrito à mão pra "ficar abaixo da barra do dedo" quebra a
+  ≤420px**, onde a fileira vira 2 linhas (o wrap do bug-634). Meça
+  `#touch-topo.getBoundingClientRect().bottom` e refaça no `resize` — girar o tablet reflui a
+  fileira. Ver bug-639.
+- [2026-08-22] **Rótulo de versão escrito à mão no changelog apodrece em silêncio.** "recém-chegado"
+  sobreviveu a 12 versões de trabalho porque nada no processo obrigava a troca. A entrada do topo
+  não leva número: ela É a release atual e sai do `package.json` (`rotuloDeVersao`). Ver bug-640.
+
 - [2026-08-21] **Botão que a sonda de toque não acha À VISTA não é um botão que falhou** —
   `getBoundingClientRect` devolve coordenadas de elemento rolado pra fora, o dedo cai no vazio, e
   em cima do chat isso FECHA o chat. O sintoma vira "o comando não funcionou", que é diagnóstico
@@ -1817,6 +1859,17 @@ nenhum** — sem essa declaração o Chrome renderiza a página em light mesmo c
 - [2026-07-10] Não escrever "relatório de aplicação" antes de o piloto real acontecer.
 
 ## Decision Log — índice das decisões ATIVAS
+
+- [2026-08-22] **`/invisivel`: esconde só o CORPO.** Chat, blocos e som seguem normais (decisão do
+  usuário). Alternativa recusada: sumir do chat também — o professor esqueceria que está invisível,
+  falaria com a turma e ninguém responderia. O contrapeso escolhido foi a **faixa 👻 permanente**
+  na tela dele, pedida na mesma resposta.
+- [2026-08-22] **`/invisivel` vira FANTASMA** (atravessa parede), e não "só some". Motivo: aluno
+  esbarrando num corpo invisível é pior que ver o professor. Custou três portões de servidor
+  (`move`, `tickVitais`, `overlapsAnyPlayer`) + `noclip` no `physics.ts`, e o cliente liga o VOO
+  junto — `noclip` só vale no ramo `fly`.
+- [2026-08-22] **Invisibilidade é estado de SESSÃO**, como o `dormindo`/`spawnCama`: não vai pro
+  save, e quem cai e volta volta visível.
 
 - [2026-08-21] **O 📋 do HUD de toque é FIXO pros dois papéis, e o `/painel` ALTERNA.** Três
   decisões tomadas juntas (o usuário escolheu as três recomendações):
