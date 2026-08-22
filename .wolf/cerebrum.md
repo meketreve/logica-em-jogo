@@ -1796,6 +1796,14 @@ nenhum** — sem essa declaração o Chrome renderiza a página em light mesmo c
   leitura de REF (`rev-parse`, `A..B`, `ls-remote`) vale só por `rtk proxy`.** E a prova de que
   um push chegou é `rtk proxy git ls-remote origin <branch>`, que pergunta ao servidor em vez de
   ler ref local.
+  ⚠️ **[2026-08-22] E o `git push` TAMBÉM.** Um `git push origin main` devolveu
+  `fatal: unable to access … Failed to connect to github.com port 443 after 135305 ms` **com
+  `EXIT=0`** — e o mesmo texto, com o **mesmo tempo ao milissegundo**, já tinha saído de um
+  comando anterior. Era saída cacheada: o push nem foi tentado. Por `rtk proxy git push` saiu na
+  hora. **Dois sinais de que a saída é cache e não uma tentativa: tempo idêntico ao ms repetido
+  entre comandos, e `fatal:` com código de saída 0.** Comando de git que MUDA estado (push, fetch)
+  vai por `rtk proxy` sempre — cache de leitura desperdiça tokens, cache de escrita faz diagnóstico
+  inventado.
 - [2026-07-11] NUNCA rodar sed/normalização em `git ls-files` sem excluir binários (corrompeu o
   PDF do projeto). Filtrar por extensão ou usar `git grep -Il ''`.
 

@@ -2,12 +2,22 @@
 
 > Single source of truth for resuming work. Read this FIRST when starting a session.
 
-> ## 🧭 HANDOFF — SESSÃO 83 (2026-08-21) · `/painel` e o 6º botão do dedo
+> ## 🧭 HANDOFF — SESSÃO 83 (2026-08-21 → 22) · `/painel` e o 6º botão do dedo
 >
 > **A quest do `/painel` FECHOU**, com uma 2ª rodada em cima (o comando entrou em toda lista que
 > o anuncia — ver a seção própria abaixo). Bateria verde: launchers 5/5 · typecheck 3/3 ·
 > **898/898** · build · **15/15 smokes** · `cenarios` 7/7 byte-idênticos · `shots:toque` tudo ✓
 > em três tamanhos (1024×600, 600×1024, 420×900).
+>
+> **3 commits de trabalho, todos empurrados. Árvore limpa.** ⚠️ O sha do topo anda a cada commit
+> de documentação (este handoff é um deles) — confira com
+> `rtk proxy git rev-parse --short origin/main`, não com um sha escrito aqui.
+>
+> ```
+> 6ed37b1  docs(wolf): leitura de ref via rtk também mente, não só o git status
+> d5a9111  feat(painel): /painel entra nas listas de comandos e nos avisos de painel
+> 706534b  feat(painel): /painel no chat e botão 📋 no HUD de toque
+> ```
 >
 > ### ✅ Entregue
 > **O painel do cp14 ganhou duas portas novas — `/painel` no chat e o botão 📋 no HUD de toque.**
@@ -88,6 +98,19 @@
 > ordem da lista É a ordem dos botões, e esse é o comando de quem está no tablet), e o
 > `painelBotao` da sonda faz `scrollIntoView` antes de medir. A seção F ainda trava que o
 > `/painel` está **à vista sem rolar**.
+>
+> ### ⚠️ bug-636 — o `rtk` mentiu sobre o PUSH (custou 3 diagnósticos inventados)
+> Não é do jogo, é da ferramenta, e é o que mais atrapalha uma sessão futura. Depois de um push
+> que FUNCIONOU, o wrapper `rtk` serviu saída cacheada em três comandos seguidos:
+> `git rev-parse origin/main` → `fatal: Needed a single revision`; `git log origin/main..main` →
+> "1 commit pendente"; e um segundo `git push` → `Failed to connect to github.com port 443 after
+> 135305 ms` **com `EXIT=0`**. Eu diagnostiquei em voz alta um "ref de rastreio inexistente" e
+> depois uma "queda de rede" — **os dois inventados**.
+> **Os dois tells de saída cacheada:** tempo idêntico ao milissegundo repetido entre comandos
+> diferentes, e `fatal:` com código de saída 0.
+> **Regra:** comando de git que MUDA estado (`push`, `fetch`) e qualquer leitura de REF
+> (`rev-parse`, `A..B`) vão por **`rtk proxy`** sempre. A prova de que um push chegou é
+> `rtk proxy git ls-remote origin <branch>` — pergunta ao servidor em vez de ler ref local.
 >
 > ### 📌 Pendências
 > - **Nada validado na escola.** A fila de campo tem SEIS coisas no ar sem confirmação: o rename

@@ -2576,3 +2576,33 @@ soterramento; e mandou anotar 2 ideias (botão de comandos no HUD + `/painel`; r
 | 18:55 | Sonda: aviso do join na B4, seção F (o /painel no painel rápido) | scripts/toque-shot.mjs | F FALHOU: tap no vazio | ~3k |
 | 19:05 | bug-635: `/painel` no fim da lista caía fora da caixa de 26vh; virou o PRIMEIRO + scrollIntoView na sonda | client/src/commands.ts, scripts/toque-shot.mjs | F ✓, /painel à vista sem rolar | ~4k |
 | 19:15 | Bateria: typecheck 3/3 · 898/898 · build · 15/15 smokes · cenários byte-idênticos · shots:toque ✓ | — | tudo verde | ~4k |
+| 19:20 | Commit `d5a9111` (2ª rodada) | — | 2 commits na main | ~2k |
+| 09:00 (22) | Push a pedido. `git push` "OK", mas `rev-parse origin/main` deu fatal e `log A..B` acusou 1 pendente | — | 2 diagnósticos meus INVENTADOS (ref inexistente, queda de rede) | ~3k |
+| 09:10 (22) | bug-636: era CACHE do rtk — `fatal:` com EXIT=0 e tempo idêntico ao ms. `rtk proxy git push` saiu na hora | .wolf/{buglog.json,cerebrum.md} | `origin/main` = `6ed37b1` | ~3k |
+| 09:20 (22) | Fim de sessão: STATUS com os 3 commits + bug-636, cerebrum estendido, anatomy rescan | .wolf/* | handoff pronto | ~3k |
+
+### Resumo da sessão 83 (2026-08-21 → 22)
+
+**Entregue:** a quest do `/painel` inteira, em duas rodadas. (1) Duas portas novas pro painel do
+cp14 — o comando `/painel` e o botão 📋 do HUD de toque —, porque a tecla P não existe no tablet
+e o painel de autoria era inalcançável no dedo. (2) O comando entrou em toda lista que o anuncia:
+`case "painel"` no servidor (responde ONDE o painel mora em vez de "Comando desconhecido"), o Tab
+e o painel de comandos rápidos do dedo, e os três avisos que diziam "tecla X" via
+`comoAbrirPainel()`.
+
+**Achados de tabela:** `/pvp` nunca tinha entrado no `commands.ts` e `/dar` nunca tinha entrado na
+frase de comandos disponíveis do servidor — as duas divergências consertadas junto.
+
+**4 bugs logados:** 633 (crase fecha o template literal do CSS — cometido DUAS vezes), 634
+(`left:50%` sem `right` dá meia janela ao shrink-to-fit; ficou invisível até o `flex-wrap` entrar),
+635 (comando no fim de uma caixa de 26vh cai fora da vista; o tap da sonda mediu botão invisível e
+o sintoma foi um diagnóstico errado), 636 (o `rtk` serviu saída CACHEADA de `push` e de leitura de
+ref — três diagnósticos meus inventados em cima disso).
+
+**Bateria final:** launchers 5/5 · typecheck 3/3 · **898/898** · build · **15/15 smokes** ·
+`cenarios` 7/7 byte-idênticos · `shots:toque` ✓ em 1024×600, 600×1024 e 420×900.
+
+**`origin/main` = `6ed37b1`.** 3 commits, todos empurrados, árvore limpa.
+
+**Próxima quest:** painel de comandos do mobile ao LADO — a conta do teclado virtual já está
+resolvida pela var `--kb`; o que muda é o EIXO do layout.

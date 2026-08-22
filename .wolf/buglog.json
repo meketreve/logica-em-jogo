@@ -5259,6 +5259,25 @@
       ],
       "occurrences": 1,
       "last_seen": "2026-08-21T18:40:00"
+    },
+    {
+      "id": "bug-636",
+      "timestamp": "2026-08-22T09:10:00",
+      "error_message": "git push origin main: 'fatal: unable to access https://github.com/meketreve/logica-em-jogo.git/: Failed to connect to github.com port 443 after 135305 ms: Could not connect to server' — com EXIT=0",
+      "file": "(nenhum — ferramenta, nao codigo do projeto)",
+      "root_cause": "Saida CACHEADA do wrapper rtk, nao uma tentativa de push. Dois tells: (1) o texto e o tempo '135305 ms' eram IDENTICOS ao milissegundo aos de um comando anterior; (2) 'fatal:' com codigo de saida 0. Antes disso o mesmo cache ja tinha produzido 'fatal: Needed a single revision' pro `git rev-parse origin/main` e '1 commit pendente' pro `git log origin/main..main`, os dois falsos — o que me levou a diagnosticar em voz alta um 'ref de rastreio inexistente' e depois uma 'queda de rede', ambos inventados.",
+      "fix": "`rtk proxy git push origin main` — saiu na hora (d5a9111..6ed37b1). Regra registrada no cerebrum: comando de git que MUDA estado (push, fetch) vai por `rtk proxy` sempre, e a prova de que um push chegou e `rtk proxy git ls-remote origin <branch>` (pergunta ao servidor, nao le ref local).",
+      "tags": [
+        "rtk",
+        "git",
+        "push",
+        "cache",
+        "falso-diagnostico",
+        "ferramenta"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-08-22T09:10:00"
     }
   ]
 }
