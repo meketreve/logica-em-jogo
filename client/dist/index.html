@@ -777,6 +777,10 @@
         display: flex;
         align-items: center;
         justify-content: center;
+        /* 44px reservados pra tira de bandeiras do rodapé (2026-08-23): sem
+           isso o painel fica centrado na tela INTEIRA e a tela "📜 novidades",
+           que enche a altura toda, imprime texto por baixo das bandeiras. */
+        padding-bottom: 44px;
         /* 2026-08-15: translúcido de propósito — o cubo 3D do menuFundo (peça 1
            do fundo animado) gira ATRÁS dele. Os painéis .menu-screen seguram o
            contraste próprio (rgba escuro + borda). */
@@ -873,28 +877,88 @@
         opacity: 0.5;
         pointer-events: none;
       }
+      /* Rodapé da TELA (não do painel): país → estado → município + a escola
+         do piloto. Fica fora das <section>, então aparece em toda tela do menu.
+         Dados conferidos em 2026-08-23:
+         · Bandeira de SC — 3 faixas iguais (vermelha/branca/vermelha) com losango
+           verde-claro central e as Armas do Estado (estado.sc.gov.br/conheca-sc/simbolos).
+         · Bandeira de Araranguá — Lei municipal 547/1972: faixa superior AZUL larga,
+           duas internas estreitas (1ª BRANCA, 2ª VERMELHA), faixa inferior AMARELA da
+           mesma largura da superior, brasão ao centro (ararangua.sc.gov.br + FOTW br-sc019).
+         · Escola — INEP 42076820, "EEB PROF OTILIA DA SILVA BERTI", Araranguá/SC. */
+      .menu-bandeiras {
+        position: absolute;
+        bottom: 10px;
+        left: 0;
+        right: 0;
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: center;
+        gap: 4px 8px;
+        /* 84px de folga dos DOIS lados: o "v0.11.0" mora no canto de baixo à
+           direita e a linha não pode encostar nele em tela estreita (420px),
+           onde ela quebra em duas — bandeiras em cima, escola embaixo. */
+        padding: 0 84px;
+        pointer-events: none;
+        user-select: none;
+      }
+      .menu-bandeiras-tira {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+      }
+      .menu-bandeira {
+        display: block;
+        width: 22px;
+        height: auto;
+        border-radius: 2px;
+        /* contorno claro: o azul/verde das bandeiras some no fundo escuro do menu */
+        box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.4);
+      }
+      .menu-escola {
+        font-size: 0.72rem;
+        opacity: 0.6;
+        text-align: center;
+      }
+      /* par do padding-bottom acima: o painel também precisa ENCOLHER, senão o
+         max-height de .menu-screen (100dvh - 20px) estoura a caixa encurtada.
+         Escopado em #menu — o #overlay em jogo não tem rodapé de bandeira. */
+      #menu .menu-screen {
+        max-height: calc(100vh - 64px);
+        max-height: calc(100dvh - 64px);
+      }
       .menu-splash {
-        align-self: flex-end;
-        margin: 0 1.6rem 0.15rem 0;
+        /* 2026-08-23: SAIU de dentro do #menu-home. Lá dentro a frase longa era
+           RECORTADA pelo overflow do painel e caía em cima do <h1>; aqui ela
+           flutua POR CIMA do painel e ninguém a corta. Quem a ancora na borda
+           de cima do painel é posicionaSplash() no menu.ts — o painel é
+           centrado e a altura dele muda com a tela, não dá só com CSS. */
+        position: absolute;
+        z-index: 1;
+        margin: 0;
+        max-width: min(90vw, 34rem);
         text-align: center;
         font-size: 0.95rem;
         font-style: italic;
         color: #ffd98a;
         opacity: 0.9;
-        min-height: 1.2em;
         user-select: none;
-        /* -15° anti-horário + respiração de zoom (escala sobe e desce em ciclo) */
-        transform: rotate(-15deg);
-        transform-origin: center;
+        pointer-events: none;
+        /* +15° HORÁRIO (era -15°, anti-horário) + respiração de zoom.
+           translate(-50%, -100%): o ponto ancorado é o MEIO DE BAIXO da frase,
+           então ela cresce pra CIMA e nunca invade o título. */
+        transform: translate(-50%, -100%) rotate(15deg);
+        transform-origin: center bottom;
         animation: menu-splash-zoom 4s ease-in-out infinite;
       }
       @keyframes menu-splash-zoom {
         0%,
         100% {
-          transform: rotate(-15deg) scale(1);
+          transform: translate(-50%, -100%) rotate(15deg) scale(1);
         }
         50% {
-          transform: rotate(-15deg) scale(1.25);
+          transform: translate(-50%, -100%) rotate(15deg) scale(1.25);
         }
       }
       .menu-footer {
@@ -1265,13 +1329,52 @@
         }
       }
     </style>
-    <script type="module" crossorigin src="/assets/index-B_ALZtIU.js"></script>
+    <script type="module" crossorigin src="/assets/index-CoujLBDL.js"></script>
   </head>
   <body>
     <div id="menu" class="hidden">
       <div id="menu-version" class="menu-version"></div>
+      <p id="menu-splash" class="menu-splash hidden">↺</p>
+      <div class="menu-bandeiras">
+        <span class="menu-bandeiras-tira">
+          <svg class="menu-bandeira" viewBox="0 0 20 14" role="img" aria-label="Bandeira do Brasil">
+            <title>Brasil</title>
+            <clipPath id="bnd-br-disco"><circle cx="10" cy="7" r="3.5" /></clipPath>
+            <rect width="20" height="14" fill="#009c3b" />
+            <path d="M1.7 7 10 1.7 18.3 7 10 12.3Z" fill="#ffdf00" />
+            <circle cx="10" cy="7" r="3.5" fill="#002776" />
+            <g fill="#fff">
+              <circle cx="8.2" cy="4.9" r="0.17" />
+              <circle cx="11.5" cy="5.3" r="0.17" />
+              <circle cx="9.3" cy="6" r="0.15" />
+              <circle cx="12.4" cy="6.8" r="0.15" />
+              <circle cx="7.4" cy="6.4" r="0.15" />
+              <circle cx="10.7" cy="9.7" r="0.15" />
+            </g>
+            <path d="M5.6 10.2A6 6 0 0 1 14.8 8.4" fill="none" stroke="#fff" stroke-width="1.1"
+              clip-path="url(#bnd-br-disco)" />
+          </svg>
+          <svg class="menu-bandeira" viewBox="0 0 20 14" role="img" aria-label="Bandeira de Santa Catarina">
+            <title>Santa Catarina</title>
+            <rect width="20" height="14" fill="#d9261c" />
+            <rect y="4.67" width="20" height="4.66" fill="#fff" />
+            <path d="M10 1.1 16.6 7 10 12.9 3.4 7Z" fill="#6abf4b" />
+            <path d="M10 5.4 10.4 6.45 11.52 6.51 10.65 7.21 10.94 8.29 10 7.68 9.06 8.29 9.35 7.21 8.48 6.51 9.6 6.45Z"
+              fill="#fff" />
+          </svg>
+          <svg class="menu-bandeira" viewBox="0 0 20 14" role="img" aria-label="Bandeira de Araranguá">
+            <title>Araranguá</title>
+            <rect width="20" height="5" fill="#00529b" />
+            <rect y="5" width="20" height="2" fill="#fff" />
+            <rect y="7" width="20" height="2" fill="#ce1126" />
+            <rect y="9" width="20" height="5" fill="#ffcc00" />
+            <path d="M8.3 4.8h3.4v2.7c0 1.5-1.2 2.2-1.7 2.5-0.5-0.3-1.7-1-1.7-2.5Z"
+              fill="#fff" stroke="#00294d" stroke-width="0.3" stroke-linejoin="round" />
+          </svg>
+        </span>
+        <span class="menu-escola">E.E.B. Prof.ª Otília da Silva Berti</span>
+      </div>
       <section id="menu-home" class="menu-screen">
-        <p id="menu-splash" class="menu-splash">↺</p>
         <h1>Lógica em Jogo</h1>
         <p id="menu-erro" class="menu-erro hidden"></p>
         <label>seu nome <input id="menu-nome" type="text" maxlength="24" autocomplete="off" pattern="[\p{L}\p{N}_-]+" title="Só letras, números, _ e - (sem espaço nem símbolo)" placeholder="sem espaço nem símbolo" /></label>

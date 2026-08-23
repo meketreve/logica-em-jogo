@@ -25,6 +25,16 @@ interface Mudanca {
 const MUDANCAS: readonly Mudanca[] = [
   {
     // sem `versao`: esta é a release atual (ver rotuloDeVersao)
+    titulo: "A escola no rodapé",
+    itens: [
+      "o rodapé do menu ganhou as bandeiras do Brasil, de Santa Catarina e de Araranguá, com o nome da E.E.B. Prof.ª Otília da Silva Berti",
+      "a frase engraçada do menu gira para o outro lado, passa por cima do painel e não é mais cortada quando é comprida",
+      "as frases do menu perderam o bicho emprestado de outro jogo e as repetidas (eram 149, agora são 118)",
+      "ao atualizar, o launcher reconstrói a tela do jogo sozinho — o que foi corrigido chega inteiro, sem depender de um passo manual",
+    ],
+  },
+  {
+    versao: "v0.11.0",
     titulo: "Dormir, plantar e sumir",
     itens: [
       "/invisivel: o professor some para os alunos e atravessa paredes, para observar a turma trabalhando sem virar atração (outros professores continuam vendo)",
