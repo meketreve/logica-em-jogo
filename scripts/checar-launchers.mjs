@@ -95,5 +95,25 @@ console.log("portão dos launchers (bug-621):");
   }
 }
 
+// --- 5. os dois launchers RECONSTROEM a tela depois de atualizar ---------
+// `client/dist` é versionado e a escola não compila nada por conta própria: se
+// o commit vier sem o dist reconstruído, ela roda a tela velha. O `npm run
+// build` no launcher é a rede de segurança disso (o portão do dist,
+// `checar-dist.mjs`, é o cinto do lado de cá). Some de um dos dois launchers e
+// só metade das escolas fica protegida — daí este teste.
+{
+  const bat = ler("iniciar-servidor.bat").toString("utf8");
+  const sh = ler("iniciar-servidor.sh").toString("utf8");
+  for (const [nome, txt] of [["bat", bat], ["sh", sh]]) {
+    ok(
+      txt.includes("npm run build"),
+      `iniciar-servidor.${nome} reconstrói client/dist depois de atualizar`,
+      txt.includes("npm run build")
+        ? ""
+        : "sem o `npm run build` aqui, um commit que mexe em client/src sem reconstruir o dist chega na escola como TELA VELHA",
+    );
+  }
+}
+
 console.log(falhas === 0 ? "  launchers OK" : `  ✗ ${falhas} falha(s) no portão dos launchers`);
 process.exit(falhas === 0 ? 0 : 1);

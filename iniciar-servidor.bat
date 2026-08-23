@@ -232,6 +232,23 @@ echo Conferindo as dependencias...
 call npm install
 if errorlevel 1 echo ^(aviso: npm install falhou - se o servidor nao subir, rode "npm install" a mao^)
 
+REM --- Rede de seguranca: reconstruir a tela do jogo -----------------------
+REM client\dist e VERSIONADO e viaja pronto, mas um commit que mexe em
+REM client\src e esquece de reconstruir o dist chegaria aqui como TELA VELHA.
+REM A ferramenta ja esta na maquina: o npm install acima nao usa --omit=dev
+REM (nao pode - o servidor roda com tsx, que e devDependency), entao o vite do
+REM client vem junto.
+REM ATENCAO: NUNCA fatal. Se o build falhar, o dist que veio no pacote continua
+REM ali e a aula acontece com a tela de ontem - melhor que aula nenhuma.
+echo Reconstruindo a tela do jogo ^(alguns segundos^)...
+call npm run build > "%TEMP%\lj-build.log" 2>&1
+if errorlevel 1 (
+  echo ^(aviso: nao deu para reconstruir a tela - seguindo com a que veio no pacote^)
+  echo ^(detalhes em %TEMP%\lj-build.log^)
+) else (
+  echo Tela do jogo reconstruida.
+)
+
 REM --- O proprio launcher mudou nesta atualizacao? ---
 REM fc devolve 0 quando os dois arquivos sao iguais.
 fc /b "%LJ_SRC%\iniciar-servidor.bat" "%~f0" >nul 2>nul

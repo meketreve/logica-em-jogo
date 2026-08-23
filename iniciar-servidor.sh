@@ -34,9 +34,28 @@ LJ_NOME="logica-em-jogo"
 LJ_RAMO="main"
 
 # Depois de um merge bem-sucedido: dependência nova só chega por aqui.
+#
+# O `npm run build` é REDE DE SEGURANÇA (2026-08-23), não o caminho normal:
+# `client/dist` é versionado e viaja pronto no repositório, mas um commit que
+# mexe em `client/src` e esquece de reconstruir o dist chegaria aqui como TELA
+# VELHA. Reconstruir depois de atualizar garante que o patch chegou inteiro.
+# A ferramenta já está na máquina: o `npm install` acima não usa `--omit=dev`
+# (não pode — o próprio servidor roda com `tsx`, que é devDependency), então o
+# `vite` do client já vem junto.
+#
+# ⚠️ NUNCA fatal. Se o build falhar, o dist que veio no pacote continua ali e a
+# aula acontece com a tela de ontem — que é infinitamente melhor que aula
+# nenhuma no meio do horário.
 concluir_atualizacao() {
   echo "Conferindo as dependências..."
   npm install || echo "(aviso: npm install falhou — se o servidor não subir, rode 'npm install' à mão)"
+  echo "Reconstruindo a tela do jogo (alguns segundos)..."
+  if npm run build > "${TMPDIR:-/tmp}/lj-build.log" 2>&1; then
+    echo "Tela do jogo reconstruída."
+  else
+    echo "(aviso: não deu para reconstruir a tela — seguindo com a que veio no pacote)"
+    echo "(detalhes em ${TMPDIR:-/tmp}/lj-build.log)"
+  fi
 }
 
 # Lista de arquivos RASTREADOS modificados nesta máquina, um por linha.
