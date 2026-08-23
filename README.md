@@ -1,5 +1,7 @@
 # Lógica em Jogo
 
+<img src="docs/bandeiras/brasil.png" alt="Brasil" title="Brasil" height="18"> <img src="docs/bandeiras/santa-catarina.png" alt="Santa Catarina" title="Santa Catarina" height="18"> <img src="docs/bandeiras/ararangua.png" alt="Araranguá" title="Araranguá" height="18"> &nbsp;**E.E.B. Prof.ª Otília da Silva Berti** — Araranguá / Santa Catarina
+
 Jogo sandbox **voxel 3D** feito para desenvolver **pensamento lógico e raciocínio
 computacional** no Ensino Fundamental. Roda **no navegador**, em **rede local**, com a turma
 inteira junta — **sem internet, sem instalação no dispositivo do aluno e sem licença paga**.

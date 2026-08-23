@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="100" height="70" viewBox="0 0 20 14" role="img" aria-label="Bandeira de Santa Catarina">
+<title>Santa Catarina</title>
+<rect width="20" height="14" fill="#d9261c" />
+<rect y="4.67" width="20" height="4.66" fill="#fff" />
+<path d="M10 1.1 16.6 7 10 12.9 3.4 7Z" fill="#6abf4b" />
+<path d="M10 5.4 10.4 6.45 11.52 6.51 10.65 7.21 10.94 8.29 10 7.68 9.06 8.29 9.35 7.21 8.48 6.51 9.6 6.45Z"
+fill="#fff" />
+</svg>

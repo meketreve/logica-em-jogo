@@ -144,6 +144,12 @@
 
 ## Key Learnings
 
+- [2026-08-23] **As bandeiras têm DUAS casas, e a fonte é o `client/index.html`.** Os SVG inline do
+  rodapé do menu foram extraídos pra `docs/bandeiras/*.svg` e rasterizados em `*.png` (100×70, via
+  Chrome headless) porque o README usa PNG — `<img>` de PNG renderiza no GitHub sem depender de
+  como ele serve SVG. ⚠️ Mudou a bandeira no jogo? Reextraia os dois arquivos, senão o README
+  passa a mentir.
+
 - [2026-08-23] **`check:dist` sozinho num hook dá FALSO-VERDE.** Ele pergunta "o build acabou de
   mudar o dist?" — sem rodar o build antes, nada mudou e ele passa verde com o dist defasado. Por
   isso o `pre-push` roda o `verify` INTEIRO (que já tem o build), nunca só o portão.
