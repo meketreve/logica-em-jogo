@@ -2640,3 +2640,4 @@ resolvida pela var `--kb`; o que muda é o EIXO do layout.
 | 14:10 | v0.12.1: bump patch + bloco "O voltar fica à mão" no changelog | client/src/changelog.ts, package.json, client/dist | ✓ verify 916/916, tela mostra v0.12.1 | ~7k |
 | 14:25 | hook pre-push roda verify; hooksPath aponta pra scripts/git-hooks | scripts/git-hooks/pre-push | ✓ falha, escape e push real testados | ~9k |
 | 16:05 | bandeiras no cabeçalho do README (PNG + SVG fonte em docs/bandeiras) | README.md, docs/bandeiras/* | ✓ 3 PNGs conferidos a olho | ~7k |
+| 16:20 | todo.md atualizado com o entregue+pushado da sessão 85 | todo.md | ✓ 4 blocos (dist travado, splash, rodapé, changelog) | ~12k |

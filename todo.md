@@ -620,10 +620,25 @@ Singleplayer (Web Worker) não tem fs — chat não vira arquivo lá, como plane
   * **Windows tem git?** O notebook da escola bloqueia `npm` no PowerShell (bug-232) — por isso os
     launchers rodam por cmd.exe/duplo-clique. `git` via cmd.exe deve passar igual; confirmar que o
     Git está instalado (checar `git --version`, senão instruir a instalar / cair no modo manual).
-  * **`client/dist` versionado:** hoje o dist buildado é COMMITADO (vai no repo) → um `git pull`
-    já traz o cliente novo, SEM `npm run build` na escola (bom: build no PC fraco é lento). Manter
-    essa disciplina (buildar+commitar o dist ao lançar versão) OU mudar pra buildar no update —
-    decisão a travar. Se manter, o auto-update é só pull (barato).
+  * ✅ **`client/dist` versionado — DECISÃO TRAVADA (2026-08-23): os DOIS.** A pergunta do
+    usuário ("não seria melhor o launcher rodar o build?") derrubou o argumento de que a escola
+    não compila: o `npm install` do launcher **não usa `--omit=dev`** — e não pode, porque o
+    próprio servidor roda com `tsx`, que é devDependency — então o `vite` já está lá, e o build
+    custa ~2s aqui / dezenas de segundos no PC do professor. Ficou cinto **e** suspensório:
+    * o dist **continua versionado e viajando pronto** (é o caminho rápido e o fallback);
+    * **`scripts/checar-dist.mjs`** (`npm run check:dist`, dentro do `verify`) falha quando a
+      FONTE está commitada e o dist não — o estado exato que chega na escola como TELA VELHA.
+      Com fonte e dist sujos juntos só avisa: falhar no desenvolvimento normal ensinaria a
+      ignorar o portão. Testado nos 4 casos num repo git sintético;
+    * **`npm run build` no `concluir_atualizacao` dos DOIS launchers**, **nunca fatal** — se
+      falhar, avisa, aponta o log e segue com o dist do pacote. O bloco do `.bat` foi rodado no
+      `cmd.exe` de verdade nos dois ramos (é o arquivo do bug-621, não se mexe às cegas);
+    * **`checar-launchers` ganhou a regra 5**: some o `npm run build` de um dos dois e o `verify`
+      fecha;
+    * **hook `scripts/git-hooks/pre-push`** roda o `verify` inteiro antes de publicar. ⚠️ Inteiro
+      de propósito: `check:dist` sozinho dá **falso-verde** (ele pergunta "o build mudou o dist?"
+      e, sem build antes, nada mudou). Ligar num clone: `git config core.hooksPath
+      scripts/git-hooks`. Escape: `LJ_SEM_VERIFY=1 git push`.
   * **Segurança/robustez:** só puxa com a árvore limpa (a escola só RODA, não edita tracked; mundos/
     são gitignored — sem conflito esperado); se `git pull` falhar (offline, conflito), NÃO travar —
     cair pro servidor com a versão atual e avisar. Boot já loga a versão (`v0.8.0`) — dá pra mostrar
@@ -873,6 +888,18 @@ ferramenta certa quebra rápido, gasta, e precisa ser refeita.
   Refino: fonte de verdade única do texto (ex.: `client/src/changelog.ts` com `CHANGELOG`),
   e o `#menu-version`/F3 já exibem `VERSION` — a tela pode reusar essa constante.
   (Sem URL externa — tela local, estilo as outras do `#menu`.)
+  * ✅ **O "← voltar" subiu pro topo e virou `sticky` (pedido do usuário, 2026-08-23)** — v0.12.1
+    *"O voltar fica à mão"*. Esta é a única tela do menu que rola por dentro e a lista só cresce a
+    cada release: com o botão no fim, sair dela exigia rolar o changelog inteiro. Duas armadilhas
+    que só a MEDIDA pegou: a **área rolável de um `.menu-screen` inclui o próprio `padding`**
+    (sobrava vão acima da faixa grudada — o padding de cima saiu do painel e virou `margin-top` do
+    `<h2>`), e `@media (max-height: 700px)` **troca o padding pra 16/18px**, então a margem
+    negativa fixa estourava 11px pra fora justamente em 1024×600, a régua da escola (o padding
+    virou `--pad-y`/`--pad-x`; quem sangra até a borda usa `calc(-1 * var(--pad-x))`).
+    ⚠️ Sonda de sticky mede **ESTABILIDADE** (`meio == fim < parado`), nunca uma coordenada.
+  * ✅ **A entrada do topo não leva `versao`** (2026-08-22) e o `npm version` relabela a tela
+    sozinho — por isso **bump SEMPRE arrasta o painel de novidades**, que virou regra de workflow
+    no cerebrum (2026-08-23).
 * \[ ] **fundo ANIMADO do menu principal (ideia do usuário, 2026-08-15)**. Três peças:
   1. **Cena 3D de fundo BARATA — "câmera dentro de um cubo"**: um cubo coroado de OFFLINE
      gerada-ser-fashion (ou imagens) e câmera no MEIO, dando a impressão de um ambiente 3D de
@@ -898,9 +925,32 @@ ferramenta certa quebra rápido, gasta, e precisa ser refeita.
      do `h1` na `#menu-home`; sorteio aleatório a cada `showMenu` (`menu.ts`), CSS `.menu-splash`
      (itálico, âmbar `#ffd98a`); `shots:tablet` confirma que `#menu-home` continua cabendo
      (92..508 de 600px).
+     * ✅ **Refeito em 2026-08-23 (pedido do usuário):** gira **+15° HORÁRIO** (era -15°) e
+       **saiu de dentro do painel** — lá dentro a frase longa era RECORTADA pelo `overflow-y`
+       do `.menu-screen` e caía em cima do `<h1>`. Virou irmão absoluto do painel, ancorado por
+       medida (`posicionaSplash`, com `resize` de MÓDULO porque `showMenu` roda a cada volta ao
+       menu). Sonda com a frase mais longa (53 chars) nos 3 tamanhos: não corta, não sai da tela,
+       não toca o título.
+     * ✅ **Frases limpas em 2026-08-23:** saíram as 15 com **mob** (creeper, zumbi, esqueleto,
+       aranha, galinha, porco — o jogo não tem bicho nenhum, F8 é fase futura) e as **16
+       duplicadas**: **149 → 118**. As guardas ficaram no comentário do bloco `SPLASHES`.
   3. **Rodapé**: *"feito com [❤️], [☕] e IA"* no rodapé do menu principal. — **FEITO**
      (2026-08-15): `<p class="menu-footer">feito com ❤️ ☕ e IA</p>` no fim da `#menu-home`,
      CSS `.menu-footer` (0.75rem, opacidade 0.55).
+     * ✅ **Bandeiras da escola no rodapé da TELA (pedido do usuário, 2026-08-23)** — v0.12.0
+       *"Orgulho da minha terra!"*. Brasil → Santa Catarina → Araranguá em SVG inline (22px),
+       fora das `<section>` (aparecem em toda tela do menu), com **E.E.B. Prof.ª Otília da Silva
+       Berti**. Símbolos conferidos na web e as fontes anotadas no CSS: SC = 3 faixas
+       vermelha/branca/vermelha + losango verde-claro com as Armas; Araranguá = **Lei municipal
+       547/1972** (azul larga / branca / vermelha / amarela larga, brasão ao centro); escola =
+       **INEP 42076820**. ⚠️ A tira exigiu **ENCURTAR o painel**, não só posicionar: `#menu` é
+       flex centrado e `.menu-screen` ia até `calc(100dvh - 20px)`, então a tela "📜 novidades"
+       imprimia texto POR BAIXO das bandeiras (bug-641). `padding-bottom: 44px` no `#menu` +
+       `max-height` menor **escopado em `#menu`** (o `#overlay` em jogo não tem rodapé).
+     * ✅ **As mesmas bandeiras no cabeçalho do README (2026-08-23)** — `docs/bandeiras/*.svg`
+       extraídos do `client/index.html` (que segue sendo a fonte) e rasterizados em `*.png`
+       100×70 via Chrome headless, porque `<img>` de PNG renderiza no GitHub sem depender de
+       como ele serve SVG. ⚠️ Mudou a bandeira no jogo? Reextraia os dois, senão o README mente.
 
 ## Geração de mundo / performance
 
