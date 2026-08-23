@@ -136,6 +136,16 @@
 > - ⚠️ Sonda de sticky mede **ESTABILIDADE** (`meio == fim < parado`), nunca uma coordenada: a
 >   asserção "o botão está em 0?" dá ✗ com o sticky funcionando.
 >
+> ### ✅ Entregue — hook `pre-push` (2026-08-23)
+> `scripts/git-hooks/pre-push` roda `npm run verify` antes de publicar. Fecha o último buraco do
+> fluxo: o portão do dist só valia se eu lembrasse de chamar o `verify` à mão.
+> - ⚠️ Roda o `verify` INTEIRO de propósito: `check:dist` sozinho dá **falso-verde** — ele
+>   pergunta "o build mudou o dist?" e, sem build antes, nada mudou.
+> - **Ligar num clone novo:** `git config core.hooksPath scripts/git-hooks` (config local, não
+>   viaja no repositório). Não virou `prepare` do npm porque o `npm install` também roda na
+>   máquina da escola, pelo launcher.
+> - Emergência: `LJ_SEM_VERIFY=1 git push` — e mesmo aí o launcher reconstrói o dist lá.
+>
 > ### 📌 Pendências
 > - **Só o último push está sem campo.** Correção do usuário nesta sessão: as outras cinco coisas
 >   (algodão, aba "todos", freio da grama, rolagem do painel, soterramento) **já passaram na

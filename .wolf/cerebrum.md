@@ -144,6 +144,14 @@
 
 ## Key Learnings
 
+- [2026-08-23] **`check:dist` sozinho num hook dá FALSO-VERDE.** Ele pergunta "o build acabou de
+  mudar o dist?" — sem rodar o build antes, nada mudou e ele passa verde com o dist defasado. Por
+  isso o `pre-push` roda o `verify` INTEIRO (que já tem o build), nunca só o portão.
+- [2026-08-23] **O hook mora em `scripts/git-hooks/` (versionado), e a ligação é local.**
+  `git config core.hooksPath scripts/git-hooks` — uma vez por clone. NÃO foi automatizado num
+  `prepare` do npm de propósito: o `npm install` também roda na máquina da escola pelo launcher, e
+  mexer na config git de lá é efeito colateral que ninguém pediu. Escape: `LJ_SEM_VERIFY=1 git push`.
+
 - [2026-08-23] **A área rolável de um `.menu-screen` inclui o próprio `padding`.** Uma faixa
   `position: sticky; top: 0` gruda na borda do painel, mas o conteúdo continua rolando DENTRO dos
   28px de padding-top — sobrava um vão onde a lista aparecia por cima da faixa. Conserto: tirar o

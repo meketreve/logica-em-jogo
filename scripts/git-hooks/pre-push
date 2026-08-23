@@ -1,0 +1,50 @@
+#!/usr/bin/env bash
+# ============================================================================
+#  pre-push — a última porta antes de a escola receber o código.
+#
+#  Por que existe: `client/dist` é VERSIONADO e a escola roda o bundle pronto.
+#  Um commit que mexe em `client/src` sem reconstruir o dist chega lá como TELA
+#  VELHA, e o portão que pega isso (`npm run check:dist`) só rodava se eu
+#  lembrasse de chamar `npm run verify` à mão. Este hook tira o "se eu lembrar"
+#  da história.
+#
+#  ⚠️ Roda o `verify` INTEIRO, não só o `check:dist`, e o motivo é uma
+#  armadilha: `check:dist` pergunta "o build acabou de mudar o dist?". Sem o
+#  build antes, nada mudou e ele passa VERDE com o dist defasado. O build tem
+#  de vir junto — e já que ele vem, typecheck e testes vêm de graça no mesmo
+#  comando.
+#
+#  Escape para emergência (servidor caindo no meio da aula, por exemplo):
+#      LJ_SEM_VERIFY=1 git push
+#
+#  Instalação (uma vez por clone — `core.hooksPath` é config local, não viaja
+#  no repositório):
+#      git config core.hooksPath scripts/git-hooks
+# ============================================================================
+raiz="$(git rev-parse --show-toplevel 2>/dev/null)" || exit 0
+cd "$raiz" || exit 0
+
+if [ -n "$LJ_SEM_VERIFY" ]; then
+  echo "pre-push: LJ_SEM_VERIFY=1 — pulando a bateria (o launcher da escola ainda reconstrói o dist)"
+  exit 0
+fi
+
+echo "pre-push: rodando 'npm run verify' antes de publicar..."
+if npm run verify; then
+  echo "pre-push: bateria verde — publicando."
+  exit 0
+fi
+
+cat <<'FIM'
+
+pre-push: BLOQUEADO — a bateria falhou, nada foi publicado.
+
+  Se a linha vermelha for a do portão do dist, o conserto é:
+
+      npm run build
+      git add client/dist
+      git commit --amend --no-edit
+
+  Se for de verdade uma emergência:  LJ_SEM_VERIFY=1 git push
+FIM
+exit 1
