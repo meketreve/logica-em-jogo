@@ -2636,3 +2636,4 @@ resolvida pela var `--kb`; o que muda é o EIXO do layout.
 | 13:00 | v0.12.0: changelog no topo + bump minor | client/src/changelog.ts, package.json, client/dist | ✓ verify 916/916, tela mostra v0.12.0 | ~10k |
 | 13:20 | v0.12.0 rebatizada "Orgulho da minha terra!" + item das bandeiras explicado | client/src/changelog.ts, client/dist | ✓ verify 916/916 | ~8k |
 | 13:35 | botão ← voltar foi pro TOPO da tela de novidades | client/src/changelog.ts, client/dist | ✓ verify 916/916 + shot | ~5k |
+| 13:55 | ← voltar do changelog virou sticky (faixa + --pad-x) | client/src/changelog.ts, client/index.html, client/dist | ✓ sonda nos 3 tamanhos + verify 916/916 | ~18k |

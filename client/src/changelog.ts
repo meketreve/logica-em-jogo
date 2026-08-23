@@ -98,13 +98,18 @@ export function buildChangelogScreen(body: HTMLElement, onBack: () => void): voi
 
   // O voltar vem PRIMEIRO (2026-08-23): esta é a única tela do menu que rola
   // por dentro, e a lista só cresce a cada release — com o botão no fim, sair
-  // dela exigia rolar o changelog inteiro até o rodapé.
+  // dela exigia rolar o changelog inteiro até o rodapé. A faixa em volta existe
+  // para ele poder GRUDAR no topo (`position: sticky`): sozinho, o botão não
+  // cobre a largura do painel e a lista rolaria visível ao lado dele.
+  const topo = document.createElement("div");
+  topo.className = "changelog-topo";
   const back = document.createElement("button");
   back.type = "button";
   back.className = "menu-back";
   back.textContent = "← voltar";
   back.addEventListener("click", onBack);
-  body.appendChild(back);
+  topo.appendChild(back);
+  body.appendChild(topo);
 
   const atual = document.createElement("p");
   atual.className = "menu-hint";

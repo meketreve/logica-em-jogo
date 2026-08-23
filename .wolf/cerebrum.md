@@ -144,6 +144,20 @@
 
 ## Key Learnings
 
+- [2026-08-23] **A área rolável de um `.menu-screen` inclui o próprio `padding`.** Uma faixa
+  `position: sticky; top: 0` gruda na borda do painel, mas o conteúdo continua rolando DENTRO dos
+  28px de padding-top — sobrava um vão onde a lista aparecia por cima da faixa. Conserto: tirar o
+  padding-top do painel (`#menu-changelog`) e devolver o respiro como `margin-top` do `<h2>`.
+- [2026-08-23] **`.menu-screen` agora expõe `--pad-y` / `--pad-x`.** O padding muda em
+  `@media (max-height: 700px)` (28/30 → 16/18), e a faixa sticky do changelog precisa CANCELAR o
+  lateral com margem negativa. Com valor fixo ela estourava 11px pra fora do painel em tela baixa
+  — medido, não suposto. Quem for sangrar até a borda de um painel usa
+  `calc(-1 * var(--pad-x))`, nunca o número.
+- [2026-08-23] **Sonda de sticky: a asserção certa é ESTABILIDADE, não uma coordenada.** Medir
+  "botão está em 0?" dá ✗ com o sticky funcionando (borda, padding da faixa). Medir em dois
+  scrollTop diferentes e exigir `meio == fim < parado` responde a pergunta de verdade. Idem pra
+  cobertura lateral: `<= 1px` é a borda do painel, não folga.
+
 - [2026-08-23] **A escola TEM toolchain de build.** O argumento "lá não compila" é falso: o
   `npm install` do launcher não usa `--omit=dev` — e não pode, porque o próprio servidor roda com
   `tsx`, que é devDependency. Logo o `vite` do client já está instalado na máquina do professor, e

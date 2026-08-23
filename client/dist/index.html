@@ -797,7 +797,11 @@
            os 3 botões de alvo de dedo comem a linha de 460px. Alargar a base
            inteira (sem media query) resolve em qualquer altura. */
         width: min(680px, 92vw);
-        padding: 28px 30px;
+        /* em variável porque a faixa sticky do changelog precisa CANCELAR o
+           padding lateral, e ele muda na media query de tela baixa. */
+        --pad-y: 28px;
+        --pad-x: 30px;
+        padding: var(--pad-y) var(--pad-x);
         background: rgba(0, 0, 0, 0.35);
         border: 1px solid rgba(255, 255, 255, 0.15);
         border-radius: 10px;
@@ -966,6 +970,38 @@
         text-align: center;
         font-size: 0.75rem;
         opacity: 0.55;
+      }
+      /* O padding de cima sai do PAINEL e vai pro título (2026-08-23): a área
+         rolável de um .menu-screen inclui o próprio padding, então com
+         `padding-top: 28px` sobrava um vão de 28px acima da faixa grudada e a
+         lista aparecia rolando ali, por cima dela. Com o respiro no <h2> o
+         visual parado é idêntico e o `top: 0` da faixa cola na borda. */
+      #menu-changelog {
+        padding-top: 0;
+      }
+      #menu-changelog > h2 {
+        margin-top: var(--pad-y);
+      }
+      /* O voltar gruda no topo enquanto o changelog rola (2026-08-23).
+         `margin: 0 -30px` cancela o padding lateral do .menu-screen: sem isso
+         a faixa não alcança a borda do painel e a lista aparece rolando pelos
+         lados dela. O fundo próprio é obrigatório — a lista passa POR TRÁS, e
+         com fundo translúcido o texto atravessaria o botão. */
+      .changelog-topo {
+        position: sticky;
+        top: 0;
+        z-index: 2;
+        margin: 0 calc(-1 * var(--pad-x));
+        padding: 4px var(--pad-x) 8px;
+        /* o painel é arredondado: grudada no topo, a faixa é o canto de cima */
+        border-radius: 9px 9px 0 0;
+        background: rgba(12, 20, 34, 0.94);
+      }
+      @supports (backdrop-filter: blur(3px)) {
+        .changelog-topo {
+          background: rgba(12, 20, 34, 0.8);
+          backdrop-filter: blur(3px);
+        }
       }
       .changelog-bloco {
         border-left: 3px solid rgba(255, 255, 255, 0.25);
@@ -1148,7 +1184,8 @@
           max-height: none;
         }
         .menu-screen {
-          padding: 16px 18px;
+          --pad-y: 16px;
+          --pad-x: 18px;
           gap: 0.55rem;
         }
         .menu-screen h1 {
@@ -1329,7 +1366,7 @@
         }
       }
     </style>
-    <script type="module" crossorigin src="/assets/index-D66f-HOP.js"></script>
+    <script type="module" crossorigin src="/assets/index-CG6O0byc.js"></script>
   </head>
   <body>
     <div id="menu" class="hidden">
