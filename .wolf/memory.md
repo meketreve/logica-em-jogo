@@ -2622,3 +2622,15 @@ resolvida pela var `--kb`; o que muda é o EIXO do layout.
 | 16:30 | bump 0.10.1 → 0.11.0 ANTES do build (dist é rastreado e inlina o VERSION) | package.json | v0.11.0 na tela e no rodapé | ~3k |
 | 16:40 | sonda B6 a 420px pegou a faixa cobrindo a 2ª linha de botões; `top` fixo virou medida do rect + resize | client/src/invisivelUi.ts · scripts/toque-shot.mjs | bug-639 logado, 3 tamanhos verdes | ~11k |
 | 17:00 | bateria final | — | launchers 5/5 · typecheck 3/3 · **916/916** · build · 15/15 smokes · cenários 7/7 byte-idênticos · shots:toque ✓ em 1024×600, 600×1024, 420×900 | ~6k |
+
+## Session: 2026-08-23 10:22
+
+| Time | Action | File(s) | Outcome | ~Tokens |
+|------|--------|---------|---------|--------|
+| 10:35 | rodapé com bandeiras Brasil/SC/Araranguá + nome da escola no menu | client/index.html, client/dist | ✓ verify 916/916 + shots 3 tamanhos | ~28k |
+| 11:05 | EADDRINUSE 8080: http.server órfão de client/dist (21h) morto | — | ✓ porta livre, bug-642 | ~3k |
+| 11:40 | splash gira horário e saiu de dentro do painel (ancorado por medida) | client/index.html, client/src/menu.ts, client/dist | ✓ verify 916/916 + sonda nos 3 tamanhos | ~22k |
+| 12:05 | varredura removeu 15 splashes com mob do Minecraft (149→134) | client/src/menu.ts, client/dist | ✓ verify 916/916, varredura final limpa | ~9k |
+| 12:15 | 16 splashes duplicadas removidas do literal (134→118) | client/src/menu.ts, client/dist | ✓ verify 916/916, 0 duplicadas | ~6k |
+| 12:50 | auto-build no launcher + portão do dist + regra de release | scripts/checar-dist.mjs, scripts/checar-launchers.mjs, iniciar-servidor.sh/.bat, package.json | ✓ 4/4 casos do portão, .bat testado no cmd.exe real | ~35k |
+| 13:00 | v0.12.0: changelog no topo + bump minor | client/src/changelog.ts, package.json, client/dist | ✓ verify 916/916, tela mostra v0.12.0 | ~10k |

@@ -69,6 +69,63 @@
 >   shell — não é erro. E `npm run shots:*` PRECISA de servidor de pé (ou
 >   `python3 -m http.server` em `client/dist` + `BASE=`).
 >
+> ### ✅ Entregue — rodapé de bandeiras do menu (2026-08-23)
+> **`client/index.html`** ganhou uma tira no RODAPÉ DA TELA (fora das `<section>`, logo aparece
+> em toda tela do menu): Brasil → Santa Catarina → Araranguá em SVG inline (22px), seguidas de
+> "E.E.B. Prof.ª Otília da Silva Berti".
+> - Dados conferidos na web e anotados no comentário do CSS: SC = 3 faixas
+>   vermelha/branca/vermelha + losango verde-claro com as Armas; Araranguá = Lei 547/1972, azul
+>   larga / branca / vermelha / amarela larga, brasão ao centro; escola = INEP 42076820.
+> - ⚠️ **A tira exigiu ENCURTAR o painel, não só posicionar** (bug-641). `#menu` é flex CENTRADO
+>   e `.menu-screen` tem `max-height: calc(100dvh - 20px)`: só `padding-bottom` deixaria o painel
+>   estourando a caixa encurtada, e só encurtar o `max-height` o manteria centrado na tela
+>   INTEIRA. Os dois juntos: `padding-bottom: 44px` no `#menu` + `#menu .menu-screen
+>   { max-height: calc(100dvh - 64px) }` — escopado, porque o `#overlay` em jogo não tem rodapé.
+> - Conferido com `shots:tablet` em 1024×600, 600×1024 e 420×900 (todos ✓ cabe) e `verify`
+>   (916/916). `client/dist` reconstruído.
+>
+> ### ✅ Entregue — splash do menu fora do painel (2026-08-23)
+> Gira **+15° HORÁRIO** (era anti-horário) e deixou de ser filho do `#menu-home`: virou irmão
+> absoluto dentro do `#menu`, sobrepondo o painel em vez de morar nele (bug-643).
+> - ⚠️ `.menu-screen` tem `overflow-y: auto`, então **RECORTA** — e filho absoluto não escapa
+>   (`overflow-x: visible` computa pra `auto` quando o outro eixo é `auto`). Só saindo do painel.
+> - Fora dele ninguém recorta, mas ninguém posiciona: **`posicionaSplash()` no `menu.ts`** mede o
+>   rect do painel e ancora o MEIO DE BAIXO da frase (`translate(-50%, -100%)`) em
+>   `(right - 96, top + 10)`, com clamp. O `resize` é listener de **MÓDULO** — `showMenu` roda a
+>   cada volta ao menu e empilharia um por volta.
+> - Sonda one-off com a frase mais longa (53 chars) nos 3 tamanhos: não corta, não sai da tela,
+>   não toca o `<h1>`. ⚠️ A linha "invade o título" da sonda deu **falso-positivo em 1024×600** —
+>   rect de elemento ROTACIONADO é a caixa da diagonal, não do texto (ver cerebrum).
+>
+> ### ✅ Entregue — splashes sem mob (2026-08-23)
+> `SPLASHES` (`client/src/menu.ts`) perdeu **15 frases** com creeper, zumbi, esqueleto, aranha,
+> galinha e porco — de 149 pra **134**. Motivo: **o jogo não tem mob nenhum** (F8 é fase futura,
+> `blocks.ts` registra "não há ovelha"), então era fauna emprestada de jogo alheio. A guarda
+> ficou no comentário do bloco pra ninguém repor.
+> - As **16 duplicadas** também saíram na sequência (a pedido): **134 → 118**, zero repetida.
+>   Cortadas no LITERAL, não com `Set` em runtime — a lista fica sendo a verdade.
+>   A guarda ficou no comentário do bloco.
+>
+> ### ✅ Entregue — o dist nunca mais chega defasado (2026-08-23)
+> Decisão do usuário (cinto **e** suspensório) depois da pergunta "não seria melhor o launcher
+> rodar o build?". Os dois lados do push:
+> - **`scripts/checar-dist.mjs`** (`npm run check:dist`, agora dentro do `verify`) falha quando a
+>   FONTE está commitada e o `client/dist` não — o estado exato que a escola roda como tela velha.
+>   ⚠️ Com fonte e dist sujos JUNTOS ele só avisa: falhar no desenvolvimento normal ensinaria a
+>   ignorar o portão. Testado nos 4 casos num repo git sintético.
+> - **`npm run build` no `concluir_atualizacao`** dos DOIS launchers, **nunca fatal** (se falhar,
+>   segue com o dist que veio no pacote e aponta o log). O bloco do `.bat` foi rodado no `cmd.exe`
+>   de verdade nos dois ramos — é o arquivo do bug-621, não se mexe nele às cegas.
+> - **Portão dos launchers ganhou a regra 5**: some o `npm run build` de um dos dois e o `verify`
+>   fecha.
+> - 🔑 O que destravou: **a escola TEM a toolchain**. O `npm install` do launcher não usa
+>   `--omit=dev` (não pode — o servidor roda com `tsx`), então o `vite` já está lá.
+>
+> ### ✅ Entregue — v0.12.0 "A escola no rodapé" (2026-08-23)
+> Bump minor com o painel de novidades atualizado na mesma passada — isso virou **regra de
+> workflow** (cerebrum, User Preferences): changelog primeiro, `npm version --no-git-tag-version`,
+> build DEPOIS do bump, verify, commit com `client/dist` junto.
+>
 > ### 📌 Pendências
 > - **Só o último push está sem campo.** Correção do usuário nesta sessão: as outras cinco coisas
 >   (algodão, aba "todos", freio da grama, rolagem do painel, soterramento) **já passaram na

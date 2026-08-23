@@ -5361,6 +5361,67 @@
       "related_bugs": [],
       "occurrences": 1,
       "last_seen": "2026-08-22T17:10:00"
+    },
+    {
+      "id": "bug-641",
+      "timestamp": "2026-08-23T10:35:00Z",
+      "error_message": "tela '📜 novidades' do menu imprimia texto POR BAIXO da nova tira de bandeiras do rodapé (painel media 10..590 numa janela de 600)",
+      "file": "client/index.html",
+      "root_cause": "#menu é flex centrado com inset:0 e .menu-screen tem max-height: calc(100dvh - 20px) — o painel ocupa quase a altura inteira, então qualquer elemento absoluto colado no bottom da TELA cai em cima dele. Reservar espaço exige DUAS mudanças: padding-bottom no #menu (encolhe a caixa de centragem) E um max-height menor no painel (senão ele estoura a caixa encurtada). Só uma das duas não resolve.",
+      "fix": "#menu { padding-bottom: 44px } + #menu .menu-screen { max-height: calc(100dvh - 64px) }, escopado em #menu para não encolher o .menu-screen do #overlay em jogo. Conferido com npm run shots:tablet em 1024x600, 600x1024 e 420x900.",
+      "tags": [
+        "css",
+        "menu",
+        "layout",
+        "rodape",
+        "bandeiras",
+        "flexbox",
+        "max-height"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-08-23T10:35:00Z"
+    },
+    {
+      "id": "bug-642",
+      "timestamp": "2026-08-23T11:05:00Z",
+      "error_message": "Error: listen EADDRINUSE: address already in use :::8080 ao rodar npm run dev:server",
+      "file": "server/src/index.ts:580 (sintoma; a causa era externa ao repo)",
+      "root_cause": "Um `python3 -m http.server 8080` com cwd em client/dist tinha ficado de pé desde a sessão anterior (21h de uptime), servindo o BUILD estático pra conferência. Ele mora na MESMA porta 8080 que o servidor do jogo — o servidor do jogo já serve o cliente, então o http.server era redundante e só roubava a porta. Não tinha relação com o build recém-feito.",
+      "fix": "Achar o dono com `ss -ltnp | grep :8080` (confirmar com `tr '\\0' ' ' < /proc/<pid>/cmdline` e `ls -l /proc/<pid>/cwd`) e `kill <pid>`. Pra servir o build estático sem colidir, usar OUTRA porta: `cd client/dist && python3 -m http.server 8099` + `BASE=http://localhost:8099`.",
+      "tags": [
+        "EADDRINUSE",
+        "porta",
+        "8080",
+        "http.server",
+        "servidor",
+        "ambiente"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-08-23T11:05:00Z"
+    },
+    {
+      "id": "bug-643",
+      "timestamp": "2026-08-23T11:40:00Z",
+      "error_message": "usuário: 'se a frase [splash] for grande é cortada pelo painel e fica por cima do titulo'",
+      "file": "client/index.html, client/src/menu.ts",
+      "root_cause": "O <p id=menu-splash> era FILHO do #menu-home, que é .menu-screen com overflow-y: auto — a frase longa era recortada pela borda do painel, e como era item de fluxo (align-self: flex-end) empurrava/encostava no <h1>. Filho absoluto não resolveria: com overflow-y: auto o overflow-x visible computa pra auto, então o painel recorta de todo jeito.",
+      "fix": "O <p> virou IRMÃO do painel dentro de #menu, position: absolute + z-index 1 + pointer-events: none, com max-width: min(90vw, 34rem). Como o painel é centrado e a altura dele muda com a tela, a âncora só existe medida: posicionaSplash() no menu.ts lê o getBoundingClientRect() do #menu-home e põe o MEIO DE BAIXO da frase (transform: translate(-50%,-100%)) em (right-96, top+10), com clamp lateral e de topo. Chamado no sorteio, no show(), num rAF e num listener de resize de MÓDULO (showMenu roda a cada volta ao menu e empilharia listeners). Na mesma passada a rotação foi de -15° (anti-horário) pra +15° (horário), a pedido.",
+      "tags": [
+        "css",
+        "menu",
+        "splash",
+        "overflow",
+        "rotate",
+        "layout",
+        "clipping"
+      ],
+      "related_bugs": [
+        "bug-641"
+      ],
+      "occurrences": 1,
+      "last_seen": "2026-08-23T11:40:00Z"
     }
   ]
 }

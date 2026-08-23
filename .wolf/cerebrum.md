@@ -10,6 +10,17 @@
 
 ## User Preferences
 
+- [2026-08-23] **REGRA DE RELEASE — bump SEMPRE arrasta o painel de novidades.** Pedido explícito
+  do usuário: "bumpa uma minor (o que precisa atualizar o painel de novidades e isso já deve ser
+  uma regra de workflow)". Ordem OBRIGATÓRIA, e ela não é arbitrária:
+  1. `client/src/changelog.ts` — bloco NOVO no topo **sem campo `versao`** (ele É a release atual),
+     e o bloco que era o topo recebe o número que acabou de deixar de ser.
+  2. `npm version <patch|minor|major> --no-git-tag-version` — o `npm version` normal exige árvore
+     limpa e recusa no meio do trabalho.
+  3. `npm run build` **depois** do bump: o `client/dist` inlina o `VERSION`.
+  4. `npm run verify` (já inclui o portão do dist).
+  5. commit + push **com `client/dist` junto** — a escola roda o dist, não o src.
+
 - **[2026-08-19] Antes de renomear qualquer coisa VISÍVEL ao aluno, traga o levantamento e
   pergunte — mas traga também a RECOMENDAÇÃO e o custo medido.** Ele recusou a primeira rodada de
   perguntas ("quero esclarecer") porque faltava o contexto de PRODUTO, não porque as opções
@@ -125,6 +136,54 @@
   sem ele pedir.
 
 ## Key Learnings
+
+- [2026-08-23] **A escola TEM toolchain de build.** O argumento "lá não compila" é falso: o
+  `npm install` do launcher não usa `--omit=dev` — e não pode, porque o próprio servidor roda com
+  `tsx`, que é devDependency. Logo o `vite` do client já está instalado na máquina do professor, e
+  `npm run build` custa ~2s aqui / dezenas de segundos lá. Foi o que destravou a decisão de pôr o
+  build no launcher.
+- [2026-08-23] **Dois portões novos, um de cada lado do push:** `scripts/checar-dist.mjs`
+  (`npm run check:dist`, dentro do `verify`) falha quando a FONTE está commitada e o `client/dist`
+  não — o estado exato que chega na escola como tela velha; e o `npm run build` dentro do
+  `concluir_atualizacao` dos dois launchers, **nunca fatal**, que reconstrói lá se eu esquecer aqui.
+  ⚠️ O portão NÃO falha com fonte e dist sujos juntos (desenvolvimento normal) — falhar aí só
+  ensinaria a ignorá-lo.
+
+- [2026-08-23] **Splash do menu NÃO cita mob** (`SPLASHES` em `client/src/menu.ts`). O jogo não
+  tem bicho nenhum — F8 é fase futura e `blocks.ts` registra que "não há ovelha" — então
+  creeper/zumbi/esqueleto/aranha/galinha/porco eram fauna emprestada de jogo alheio pra falar de
+  uma coisa que não existe aqui. 15 frases saíram a pedido do usuário; a guarda está no comentário
+  do bloco. Frase nova: só bloco, ferramenta, ideia e obra.
+  Na mesma passada saíram **16 duplicadas** (a lista tinha frase repetida, o que dobrava a chance
+  dela no sorteio): 149 → 134 → **118**. Cortadas no LITERAL, não com `Set` em runtime — o array
+  continua sendo a única verdade sobre o que existe.
+
+- [2026-08-23] **Caixa de elemento ROTACIONADO mente numa sonda de sobreposição.**
+  `getBoundingClientRect()` de um `transform: rotate()` devolve a caixa alinhada aos eixos que
+  envolve a DIAGONAL — a sonda do splash acusou "invade o título" com o texto passando
+  visivelmente por cima e à direita dele. Pra elemento rotacionado, o rect serve pra "sai da
+  tela?"; pra "encosta em X?" só a foto decide. (Espelho do bug-639: lá a asserção mentia por
+  medir o mecanismo, aqui mente por medir a caixa errada.)
+- [2026-08-23] **`.menu-screen` recorta o que passa dele: `overflow-y: auto`.** Filho absoluto não
+  escapa (com `overflow-y: auto`, o `overflow-x: visible` computa pra `auto`). Pra um enfeite
+  sobrepor o painel ele precisa ser IRMÃO do painel dentro de `#menu`, absoluto, e ancorado por
+  medida em JS — foi o que o splash virou.
+
+- [2026-08-23] **Rodapé colado no bottom do `#menu` COLIDE com o painel.** `#menu` é
+  `position: fixed; inset: 0` + flex CENTRADO, e `.menu-screen` vai até
+  `max-height: calc(100dvh - 20px)` — a tela "📜 novidades" enche a altura toda. Pra abrir uma
+  faixa embaixo são DUAS mudanças casadas: `padding-bottom` no `#menu` (encolhe a caixa de
+  centragem) **e** `#menu .menu-screen { max-height: calc(100dvh - <20+padding>px) }`. Escopar em
+  `#menu` — o `#overlay` do jogo reusa `.menu-screen` e não tem rodapé nenhum. (bug-641)
+- [2026-08-23] **Símbolos oficiais do piloto** (conferidos na web; fontes no comentário do CSS em
+  `client/index.html`): bandeira de SC = 3 faixas iguais vermelha/branca/vermelha + losango
+  verde-claro com as Armas do Estado; bandeira de Araranguá = Lei municipal 547/1972, faixa
+  superior AZUL larga, duas internas estreitas (1ª BRANCA, 2ª VERMELHA) e inferior AMARELA da
+  mesma largura da superior, brasão ao centro; escola do piloto = "EEB PROF OTILIA DA SILVA
+  BERTI", INEP 42076820, bairro Barranca, Araranguá/SC.
+- [2026-08-23] `npm run shots:tablet` roda contra o BUILD com
+  `cd client/dist && python3 -m http.server 8099` + `BASE=http://localhost:8099` — dispensa o
+  `npm run dev`. Ele só MEDE e imprime, nunca lança erro: o teste é LER o "✓ cabe (top..bottom)".
 
 - [2026-08-22] **`shared/src/physics.ts` não conhece jogadores — eles NUNCA colidiram entre si.**
   A única presença de corpo alheio no servidor é `overlapsAnyPlayer`, e ela serve só pra não
@@ -1248,6 +1307,13 @@ nenhum** — sem essa declaração o Chrome renderiza a página em light mesmo c
    linhas: chrome headless + `Emulation.setEmulatedMedia` + `getComputedStyle(...).color`.
 
 ## Do-Not-Repeat
+
+- [2026-08-23] **NÃO servir `client/dist` com `python3 -m http.server 8080`** — é a MESMA porta do
+  servidor do jogo, e o http.server sobrevive à sessão (achado de pé com 21h de uptime), fazendo
+  `npm run dev:server` morrer com `EADDRINUSE :::8080` numa sessão futura sem relação nenhuma.
+  Usar **8099**. Diagnóstico: `ss -ltnp | grep :8080` → `tr '\0' ' ' < /proc/<pid>/cmdline` →
+  `ls -l /proc/<pid>/cwd` antes de matar. E o servidor do jogo JÁ serve o cliente — o http.server
+  só é preciso quando se quer o build sem o servidor. (bug-642)
 
 - [2026-08-22] **Fixture que põe jogador dentro de bloco tem DOIS portões do bug-605 no caminho.**
   (1) O `move` do servidor REJEITA o passo pra dentro de sólido: empareda DEPOIS de mover, nunca
