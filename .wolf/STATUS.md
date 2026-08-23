@@ -126,6 +126,16 @@
 > workflow** (cerebrum, User Preferences): changelog primeiro, `npm version --no-git-tag-version`,
 > build DEPOIS do bump, verify, commit com `client/dist` junto.
 >
+> ### ✅ Entregue — v0.12.1 "O voltar fica à mão" (2026-08-23)
+> O `← voltar` da tela "📜 novidades" subiu pro topo e virou `sticky`. Duas armadilhas medidas,
+> não deduzidas: a **área rolável de um `.menu-screen` inclui o próprio padding** (sobrava vão
+> acima da faixa grudada — o padding de cima saiu do painel e virou `margin-top` do `<h2>`), e
+> `@media (max-height: 700px)` **troca o padding pra 16/18px**, então a margem negativa fixa
+> estourava 11px pra fora em 1024×600, a régua da escola. O padding do `.menu-screen` virou
+> `--pad-y`/`--pad-x`; quem sangra até a borda usa `calc(-1 * var(--pad-x))`.
+> - ⚠️ Sonda de sticky mede **ESTABILIDADE** (`meio == fim < parado`), nunca uma coordenada: a
+>   asserção "o botão está em 0?" dá ✗ com o sticky funcionando.
+>
 > ### 📌 Pendências
 > - **Só o último push está sem campo.** Correção do usuário nesta sessão: as outras cinco coisas
 >   (algodão, aba "todos", freio da grama, rolagem do painel, soterramento) **já passaram na

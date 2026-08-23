@@ -25,6 +25,13 @@ interface Mudanca {
 const MUDANCAS: readonly Mudanca[] = [
   {
     // sem `versao`: esta é a release atual (ver rotuloDeVersao)
+    titulo: "O voltar fica à mão",
+    itens: [
+      "nesta tela o “← voltar” subiu para o topo e GRUDA ali enquanto a lista rola — não é mais preciso rolar as novidades inteiras até o fim para sair",
+    ],
+  },
+  {
+    versao: "v0.12.0",
     titulo: "Orgulho da minha terra!",
     itens: [
       "o rodapé do menu ganhou as bandeiras do Brasil, de Santa Catarina e de Araranguá, com o nome da E.E.B. Prof.ª Otília da Silva Berti",
