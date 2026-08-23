@@ -2641,3 +2641,29 @@ resolvida pela var `--kb`; o que muda é o EIXO do layout.
 | 14:25 | hook pre-push roda verify; hooksPath aponta pra scripts/git-hooks | scripts/git-hooks/pre-push | ✓ falha, escape e push real testados | ~9k |
 | 16:05 | bandeiras no cabeçalho do README (PNG + SVG fonte em docs/bandeiras) | README.md, docs/bandeiras/* | ✓ 3 PNGs conferidos a olho | ~7k |
 | 16:20 | todo.md atualizado com o entregue+pushado da sessão 85 | todo.md | ✓ 4 blocos (dist travado, splash, rodapé, changelog) | ~12k |
+
+## Resumo — Sessão 85 (2026-08-23)
+
+**Duas releases: v0.12.0 "Orgulho da minha terra!" e v0.12.1 "O voltar fica à mão". 12 commits,
+todos empurrados, árvore limpa.**
+
+Começou em identidade e terminou em infraestrutura de publicação. O pedido inicial foram as três
+bandeiras (Brasil, SC, Araranguá) e o nome da escola no rodapé do menu — com os símbolos
+conferidos na web antes de desenhar (Lei municipal 547/1972 para Araranguá, INEP 42076820 para a
+E.E.B. Prof.ª Otília da Silva Berti). No caminho: splash refeito (gira horário, saiu de dentro do
+painel onde era recortado), frases limpas de mob e de duplicadas (149 → 118), e o `← voltar` do
+changelog no topo e sticky.
+
+**A virada foi uma pergunta do usuário:** *"não seria melhor o launcher rodar o build?"*. Ela
+derrubou o argumento de que a escola não compila — o `npm install` do launcher não usa
+`--omit=dev`, e não pode, porque o servidor roda com `tsx` — e travou uma decisão que estava
+aberta no `todo.md` desde a fase do auto-update. Resultado: cinto e suspensório (portão do dist no
+`verify`, build não-fatal nos dois launchers, regra 5 no portão dos launchers, hook `pre-push`).
+
+**O que o método ensinou nesta sessão:** três asserções minhas deram falso-positivo ou
+falso-verde e só a medida/foto desempatou — rect de elemento ROTACIONADO mede a diagonal; sonda de
+sticky tem de medir ESTABILIDADE, não coordenada; e `check:dist` sem build antes passa verde com o
+dist defasado. Tudo no cerebrum.
+
+**Bugs:** 641 (tira de bandeiras em cima do texto das novidades), 642 (EADDRINUSE 8080 por
+`http.server` órfão de 21h), 636 reincidente (push caindo na rede).

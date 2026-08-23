@@ -1,21 +1,21 @@
 # anatomy.md
 
-> Auto-maintained by OpenWolf. Last scanned: 2026-08-22T16:22:11.854Z
-> Files: 364 tracked | Anatomy hits: 0 | Misses: 0
+> Auto-maintained by OpenWolf. Last scanned: 2026-08-23T19:20:00.489Z
+> Files: 366 tracked | Anatomy hits: 0 | Misses: 0
 
 ## ./
 
 - `.gitattributes` — LF em tudo (projeto vive no WSL/ext4; evita ruído CRLF de ferramentas Windows) (~31 tok)
 - `.gitignore` — Git ignore rules (~367 tok)
 - `CLAUDE.md` — OpenWolf (~57 tok)
-- `iniciar-servidor.bat` (~4713 tok)
-- `iniciar-servidor.sh` — ============================================================ (~6420 tok)
+- `iniciar-servidor.bat` (~4941 tok)
+- `iniciar-servidor.sh` — Lógica em Jogo — iniciar o servidor (Linux / WSL / macOS) (~6706 tok)
 - `LICENSE` — Licença de Uso — Lógica em Jogo (~1070 tok)
 - `package-lock.json` — npm lock file (~20120 tok)
-- `package.json` — Node.js package manifest (~420 tok)
+- `package.json` — Node.js package manifest (~440 tok)
 - `projeto.txt` (~4707 tok)
-- `README.md` — Project documentation (~2541 tok)
-- `todo.md` — Ideias para fazer (~22204 tok)
+- `README.md` — Project documentation (~2627 tok)
+- `todo.md` — Ideias para fazer (~23081 tok)
 - `tsconfig.base.json` (~130 tok)
 - `vitest.config.ts` — Config do vitest da RAIZ (2026-08-11, bug-612). (~335 tok)
 
@@ -215,7 +215,7 @@
 
 ## client/
 
-- `index.html` — Lógica em Jogo (~12003 tok)
+- `index.html` — Lógica em Jogo (~13831 tok)
 - `package.json` — Node.js package manifest (~102 tok)
 - `tsconfig.json` — TypeScript configuration (~39 tok)
 - `vite.config.ts` — Vite build configuration (~94 tok)
@@ -280,9 +280,9 @@
 - `blocksUi.ts` — Blocos colocáveis com nome em português — fonte única pra hotbar (main.ts) (~3693 tok)
   - section `PlaceableEntry` L55-231 (~3080 tok)
   - fn `placeableFor` L232-236 (~56 tok)
-- `changelog.ts` — Tela "📜 novidades" do menu principal — o que mudou em cada versão. (~1436 tok)
-  - section `Mudanca` L18-83 (~907 tok)
-  - fn `buildChangelogScreen` L84-117 (~284 tok)
+- `changelog.ts` — Tela "📜 novidades" do menu principal — o que mudou em cada versão. (~2016 tok)
+  - section `Mudanca` L18-102 (~1346 tok)
+  - fn `buildChangelogScreen` L103-145 (~426 tok)
 - `chat.ts` — UI de chat em HTML/CSS por cima do canvas (regra: sem GUI de engine). (~3149 tok)
   - fn `acompanharTecladoVirtual` L69-81 (~138 tok)
   - class `ChatUi` L82-303 (~2335 tok)
@@ -379,19 +379,20 @@
   - fn `persistWorld` L1086-2493 (~19524 tok)
 - `materiaisMundo.ts` — §🎨 Os TRÊS materiais do chunk — e o relógio que os anima. (~1829 tok)
   - class `MateriaisMundo` L23-131 (~1489 tok)
-- `menu.ts` — Menu principal (cp8) — HTML/CSS por cima do canvas, sem GUI de engine. (~6769 tok)
+- `menu.ts` — Menu principal (cp8) — HTML/CSS por cima do canvas, sem GUI de engine. (~7168 tok)
   - section `PlayWorldChoice` L38-55 (~221 tok)
   - section `MultiAuth` L56-60 (~19 tok)
-  - section `MenuHandlers` L61-223 (~1760 tok)
-  - fn `getPlayerName` L224-232 (~120 tok)
-  - fn `el` L233-239 (~76 tok)
-  - fn `flashError` L240-246 (~52 tok)
-  - fn `clearError` L247-250 (~28 tok)
-  - fn `showMenu` L251-458 (~2230 tok)
-  - fn `buildConfigScreen` L459-466 (~47 tok)
-  - fn `backButton` L467-483 (~153 tok)
-  - fn `renderConfigRoot` L484-504 (~215 tok)
-  - fn `renderConfigPanel` L505-667 (~1589 tok)
+  - section `MenuHandlers` L61-202 (~1568 tok)
+  - fn `getPlayerName` L203-211 (~120 tok)
+  - fn `el` L212-218 (~76 tok)
+  - fn `flashError` L219-225 (~52 tok)
+  - fn `clearError` L226-240 (~184 tok)
+  - fn `posicionaSplash` L241-261 (~300 tok)
+  - fn `showMenu` L262-479 (~2366 tok)
+  - fn `buildConfigScreen` L480-487 (~47 tok)
+  - fn `backButton` L488-504 (~153 tok)
+  - fn `renderConfigRoot` L505-525 (~215 tok)
+  - fn `renderConfigPanel` L526-688 (~1589 tok)
 - `menuFundo.ts` — Fundo animado do menu principal (peça 1 do fundo animado, 2026-08-15): (~2720 tok)
   - section `MenuFundo` L14-18 (~37 tok)
   - fn `pintarPaisagem` L19-128 (~1090 tok)
@@ -679,9 +680,12 @@
   - fn `abrirAba` L69-97 (~261 tok)
   - fn `cdp` L98-103 (~50 tok)
   - fn `avaliar` L104-153 (~762 tok)
-- `checar-launchers.mjs` — PORTÃO DOS LAUNCHERS (bug-621). (~1132 tok)
+- `checar-dist.mjs` — PORTÃO DO DIST: falha quando a FONTE está commitada e o `client/dist` não (o estado que chega na escola como tela velha). Roda no `verify`, DEPOIS do build — sem build antes dá falso-verde. (~846 tok)
+  - fn `git` L24-47 (~260 tok)
+  - fn `status` L48-77 (~351 tok)
+- `checar-launchers.mjs` — PORTÃO DOS LAUNCHERS (bug-621). (~1381 tok)
   - fn `ler` L39-41 (~20 tok)
-  - fn `ok` L42-100 (~660 tok)
+  - fn `ok` L42-120 (~926 tok)
 - `comida-shot.mjs` — Prints do §🍖 F6 (comida) — inspeção visual do que só o olho responde: (~1682 tok)
   - fn `acharChrome` L32-47 (~171 tok)
   - fn `espera` L48-54 (~108 tok)
@@ -811,6 +815,10 @@
   - fn `ok` L286-399 (~1478 tok)
   - fn `desesconder` L400-583 (~2412 tok)
   - fn `painelBotao` L584-667 (~1051 tok)
+
+## scripts/git-hooks/
+
+- `pre-push` — hook que roda `npm run verify` antes de publicar. Ligar: `git config core.hooksPath scripts/git-hooks`. Escape: `LJ_SEM_VERIFY=1 git push`. (~486 tok)
 
 ## server/
 
