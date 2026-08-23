@@ -2635,3 +2635,4 @@ resolvida pela var `--kb`; o que muda é o EIXO do layout.
 | 12:50 | auto-build no launcher + portão do dist + regra de release | scripts/checar-dist.mjs, scripts/checar-launchers.mjs, iniciar-servidor.sh/.bat, package.json | ✓ 4/4 casos do portão, .bat testado no cmd.exe real | ~35k |
 | 13:00 | v0.12.0: changelog no topo + bump minor | client/src/changelog.ts, package.json, client/dist | ✓ verify 916/916, tela mostra v0.12.0 | ~10k |
 | 13:20 | v0.12.0 rebatizada "Orgulho da minha terra!" + item das bandeiras explicado | client/src/changelog.ts, client/dist | ✓ verify 916/916 | ~8k |
+| 13:35 | botão ← voltar foi pro TOPO da tela de novidades | client/src/changelog.ts, client/dist | ✓ verify 916/916 + shot | ~5k |

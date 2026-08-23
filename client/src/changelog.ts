@@ -96,6 +96,16 @@ const MUDANCAS: readonly Mudanca[] = [
 export function buildChangelogScreen(body: HTMLElement, onBack: () => void): void {
   body.textContent = "";
 
+  // O voltar vem PRIMEIRO (2026-08-23): esta é a única tela do menu que rola
+  // por dentro, e a lista só cresce a cada release — com o botão no fim, sair
+  // dela exigia rolar o changelog inteiro até o rodapé.
+  const back = document.createElement("button");
+  back.type = "button";
+  back.className = "menu-back";
+  back.textContent = "← voltar";
+  back.addEventListener("click", onBack);
+  body.appendChild(back);
+
   const atual = document.createElement("p");
   atual.className = "menu-hint";
   atual.textContent = `versão atual: v${VERSION}`;
@@ -120,10 +130,4 @@ export function buildChangelogScreen(body: HTMLElement, onBack: () => void): voi
     body.appendChild(bloco);
   }
 
-  const back = document.createElement("button");
-  back.type = "button";
-  back.className = "menu-back";
-  back.textContent = "← voltar";
-  back.addEventListener("click", onBack);
-  body.appendChild(back);
 }
