@@ -10,6 +10,13 @@
 
 ## User Preferences
 
+- [2026-08-23] **O changelog é texto de PROPÓSITO, não só de mecânica.** O usuário rebatizou a
+  v0.12.0 pra "Orgulho da minha terra!" e pediu pra explicar POR QUE as bandeiras importam numa
+  escola pequena de comunidade carente. Lição pro texto de release: quando a mudança carrega
+  intenção pedagógica ou afetiva, o item diz o que muda **e** por que existe. ⚠️ Sem rotular a
+  comunidade na tela — quem lê o painel é o aluno da própria escola; o valor se explica por
+  pertencimento ("isso é nosso"), nunca por carência.
+
 - [2026-08-23] **REGRA DE RELEASE — bump SEMPRE arrasta o painel de novidades.** Pedido explícito
   do usuário: "bumpa uma minor (o que precisa atualizar o painel de novidades e isso já deve ser
   uma regra de workflow)". Ordem OBRIGATÓRIA, e ela não é arbitrária:

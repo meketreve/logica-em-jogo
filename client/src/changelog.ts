@@ -25,9 +25,11 @@ interface Mudanca {
 const MUDANCAS: readonly Mudanca[] = [
   {
     // sem `versao`: esta é a release atual (ver rotuloDeVersao)
-    titulo: "A escola no rodapé",
+    titulo: "Orgulho da minha terra!",
     itens: [
       "o rodapé do menu ganhou as bandeiras do Brasil, de Santa Catarina e de Araranguá, com o nome da E.E.B. Prof.ª Otília da Silva Berti",
+      "são os símbolos OFICIAIS, conferidos um a um: a de Araranguá segue a Lei municipal 547/1972 — faixa azul do mar que banha a costa, branca e vermelha da integração com o estado, amarela da beleza das praias — e a de Santa Catarina traz o losango verde-claro com as Armas do Estado",
+      "por que isso está no jogo: quase todo jogo se passa num lugar que o aluno não conhece e não sabe apontar no mapa. Ver a bandeira do próprio município ao lado da do país, e o nome da própria escola escrito na abertura, troca “alguém fez isso” por “isso é nosso” — e quem está ali não é uma escola qualquer, é a Otília da Silva Berti, com o mesmo peso do Brasil e de Santa Catarina na mesma linha",
       "a frase engraçada do menu gira para o outro lado, passa por cima do painel e não é mais cortada quando é comprida",
       "as frases do menu perderam o bicho emprestado de outro jogo e as repetidas (eram 149, agora são 118)",
       "ao atualizar, o launcher reconstrói a tela do jogo sozinho — o que foi corrigido chega inteiro, sem depender de um passo manual",
