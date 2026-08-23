@@ -67,7 +67,17 @@ const NAME_KEY = "lj-nome";
 
 /**
  * Splashes do menu principal (peça 2 do fundo animado, 2026-08-15) — frases
- * sortudas no espírito do Minecraft. Público LIVRE: sala de aula, criança.
+ * sortudas no espírito do gênero. Público LIVRE: sala de aula, criança.
+ *
+ * ⚠️ **Nada de MOB** (2026-08-23): 15 frases com creeper, zumbi, esqueleto,
+ * aranha, galinha e porco saíram. O jogo não tem bicho nenhum (F8 é fase
+ * futura, e `blocks.ts` registra que "não há ovelha"), então citá-los era
+ * emprestar fauna de jogo alheio pra falar de uma coisa que não existe aqui.
+ * Ao acrescentar frase nova: só bloco, ferramenta, ideia e obra.
+ *
+ * ⚠️ **Sem REPETIDA** (2026-08-23): 16 frases apareciam duas vezes na lista, o
+ * que dobrava a chance delas no sorteio. Antes de somar uma frase, confira que
+ * ela ainda não está aqui.
  */
 const SPLASHES: string[] = [
   "esse mundo menos quadrado? impossível",
@@ -84,13 +94,10 @@ const SPLASHES: string[] = [
   "a caverna disse olá. eu disse tchau.",
   "um bloco de cada vez e chegamos lá",
   "cuidado com o buraco que você mesmo cavou",
-  "não confie em uma galinha suspeita",
   "hoje é um ótimo dia para quebrar blocos",
   "a madeira não vai se coletar sozinha",
   "craftar é transformar ideias em coisas quadradas",
-  "mais vale uma tocha na mão que um creeper no pé",
   "a noite chegou, e a casinha também",
-  "se explodir, provavelmente era um creeper",
   "não existe bloco inútil, só bloco esperando uma ideia",
   "o diamante estava escondido por vergonha",
   "a picareta trabalha, o jogador comemora",
@@ -132,7 +139,6 @@ const SPLASHES: string[] = [
   "conectando cérebro ao bloco",
   "quase pronto para mais uma aventura",
   "a aventura começa depois do loading",
-  "carregando... favor não alimentar os creepers",
   "loading de ideias quadradas",
   "o mundo está carregando, respire",
   "aguarde: estamos procurando diamantes",
@@ -149,7 +155,6 @@ const SPLASHES: string[] = [
   "a planta da casa sumiu",
   "o arquiteto pediu mais blocos",
   "engenharia movida a picareta",
-  "construção aprovada pelo conselho das galinhas",
   "se cair, chamamos de túnel",
   "se ficar bonito, foi de propósito",
   "se ficar feio, é versão beta",
@@ -159,16 +164,6 @@ const SPLASHES: string[] = [
   "não entre nessa caverna sozinho... ou entre",
   "a tocha é a melhor amiga do explorador",
   "escuridão detectada: cadê a tocha?",
-  "o zumbi também quer aprender",
-  "o creeper pediu trabalho em grupo",
-  "o esqueleto está estudando pontaria",
-  "a aranha só queria conversar",
-  "o zumbi esqueceu o caminho de casa",
-  "o creeper não sabe bater na porta",
-  "a galinha sabe mais do que parece",
-  "não subestime uma galinha quadrada",
-  "galinha detectada. plano cancelado.",
-  "o porco sabe o caminho. talvez.",
   "todo herói precisa de um balde",
   "todo construtor precisa de madeira",
   "todo estudante precisa de curiosidade",
@@ -202,22 +197,6 @@ const SPLASHES: string[] = [
   "nível de curiosidade aumentado!",
   "nível de lógica aumentado!",
   "parabéns, você sobreviveu ao loading!",
-  "o cérebro também faz crafting",
-  "minerar conhecimento é permitido",
-  "pensar primeiro, quebrar depois",
-  "algoritmo encontrado: andar, pensar, construir",
-  "não é mágica, é pensamento computacional",
-  "cada bloco conta uma história",
-  "bloco pequeno, ideia gigante",
-  "se deu errado, chama de experimento",
-  "se não funcionar, tente de outro jeito",
-  "problema encontrado. hora de pensar!",
-  "solução encontrada. hora de comemorar!",
-  "cada erro ensina alguma coisa",
-  "curiosidade equipada!",
-  "criatividade equipada!",
-  "pensamento lógico equipado!",
-  "missão: aprender brincando",
   "o combustível da aventura é a curiosidade",
 ];
 
@@ -248,6 +227,38 @@ function clearError(id: string): void {
   document.getElementById(id)?.classList.add("hidden");
 }
 
+/**
+ * Ancora o splash na borda de CIMA do painel de início (2026-08-23).
+ *
+ * Existe porque o <p> deixou de ser filho do #menu-home: lá dentro a frase
+ * longa era recortada pelo `overflow-y: auto` do painel e sobrava em cima do
+ * <h1>. Fora do painel ninguém a corta — e ninguém a posiciona: o painel é
+ * centrado e a altura dele muda com a tela, então a âncora só existe medida.
+ *
+ * O CSS ancora o MEIO DE BAIXO da frase (`translate(-50%, -100%)`), logo ela
+ * cresce pra cima e o título fica livre por mais comprida que ela seja.
+ */
+function posicionaSplash(): void {
+  const splash = document.getElementById("menu-splash");
+  const painel = document.getElementById("menu-home");
+  if (!splash || !painel || splash.classList.contains("hidden")) return;
+  const r = painel.getBoundingClientRect();
+  const meia = splash.offsetWidth / 2;
+  const alt = splash.offsetHeight;
+  // recuado do canto direito do painel, com clamp pra frase longa não sair
+  // pela lateral nem subir pra fora do topo da tela.
+  const x = Math.min(Math.max(r.right - 96, meia + 8), window.innerWidth - meia - 8);
+  // +10px: a base pousa DENTRO do painel, então a frase o sobrepõe de verdade
+  // em vez de flutuar solta acima dele — e ainda para antes do <h1> (que começa
+  // nos 28px de padding do painel).
+  const y = Math.max(r.top + 10, alt + 8);
+  splash.style.left = `${Math.round(x)}px`;
+  splash.style.top = `${Math.round(y)}px`;
+}
+// listener de MÓDULO: showMenu roda a cada volta ao menu e registrá-lo lá
+// dentro empilharia um a cada volta.
+window.addEventListener("resize", posicionaSplash);
+
 export function showMenu(handlers: MenuHandlers): void {
   const menu = el<HTMLDivElement>("menu");
   const screens = {
@@ -261,23 +272,33 @@ export function showMenu(handlers: MenuHandlers): void {
     for (const [k, s] of Object.entries(screens)) {
       s.classList.toggle("hidden", k !== which);
     }
+    // o splash mora FORA do painel, então não some junto com ele: some aqui.
+    const sp = document.getElementById("menu-splash");
+    sp?.classList.toggle("hidden", which !== "home");
+    posicionaSplash();
   }
   menu.classList.remove("hidden");
+
+  // splash engraçado (peça 2 do fundo animado do menu, 2026-08-15): frase
+  // aleatória por vez, nova a cada volta ao menu. Vem ANTES do show("home")
+  // porque é ele quem revela e ancora a frase.
+  const splash = el<HTMLParagraphElement>("menu-splash");
+  const sorteia = (): void => {
+    splash.textContent = SPLASHES[Math.floor(Math.random() * SPLASHES.length)] ?? "";
+    posicionaSplash();
+  };
+  sorteia();
+
   show("home");
+  // 2ª medida no quadro seguinte: na 1ª o texto recém-trocado ainda pode não
+  // ter passado pelo layout, e a largura errada desloca a âncora.
+  requestAnimationFrame(posicionaSplash);
   el<HTMLDivElement>("menu-version").textContent = `v${VERSION}`;
 
   // peça 1 do fundo animado: cubo 3D girando atrás do menu (2026-08-15).
   // Renderer próprio, só texto procedural — precisa existir ANTES do canvas do
   // jogo nascer (start*), então inicia aqui e encerra ao jogar.
   const fundo = iniciarFundoMenu();
-
-  // splash engraçado (peça 2 do fundo animado do menu, 2026-08-15): frase
-  // aleatória por vez logo acima do título; nova a cada volta ao menu.
-  const splash = el<HTMLParagraphElement>("menu-splash");
-  const sorteia = (): void => {
-    splash.textContent = SPLASHES[Math.floor(Math.random() * SPLASHES.length)] ?? "";
-  };
-  sorteia();
 
   // som de UI: delegação — QUALQUER botão do menu toca (voltar tem som próprio)
   menu.addEventListener("click", (e) => {
