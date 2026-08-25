@@ -2,6 +2,94 @@
 
 > Single source of truth for resuming work. Read this FIRST when starting a session.
 
+> ## 🧭 HANDOFF — SESSÃO 86 (2026-08-25) · o painel de comandos saiu de cima do teclado
+>
+> **A 🚀 PRÓXIMA QUEST da sessão 85 fechou** — o painel de comandos rápidos do chat virou
+> COLUNA LATERAL no dedo. Bateria verde: launchers · typecheck 3/3 · **916/916** · build ·
+> portão do dist ✓ · **sonda de toque verde nos TRÊS tamanhos** (1024×600, 600×1024, 420×900).
+>
+> ⚠️ Confira o sha do topo com `rtk proxy git rev-parse --short origin/main`, nunca com um sha
+> escrito aqui.
+>
+> ### 🔑 O fio da sessão
+> A quest era "mudar o EIXO do painel". O que ela virou foi **medir o teclado virtual pela
+> primeira vez** — e aí três defeitos apareceram de uma vez, todos escondidos pelo mesmo ponto
+> cego: **a sonda roda em headless, headless não tem teclado virtual, logo `--kb` era sempre 0**
+> e o caso mais apertado do aparelho da escola nunca tinha sido medido.
+>
+> ### ✅ Entregue — painel de comandos ao lado (2026-08-25)
+> **`client/src/chat.ts`** — o `PAINEL_CSS` ganhou `@media (pointer: coarse) and (min-width: 700px)`:
+> o `#chat-painel` vira `position: fixed` no vão entre o `#chat` e a borda direita
+> (`top: 8px` · `right: 16px` · `bottom: calc(8px + var(--kb))`).
+> **`client/index.html`** — o `#chat` de toque publica a própria caixa em `--chat-esq` /
+> `--chat-larg`, e o painel (que é FILHO dele) herda: a expressão não vive duplicada nos dois
+> arquivos.
+> - **Medido a 1024×600 com teclado de 280px:** coluna de **388×304** — os 25 comandos à vista
+>   **sem rolar**. Antes: 440×156, ~11 à vista.
+> - **Abaixo de 700px não há vão** (o `#chat` mede `min(440px, 52vw)`; a 600px sobram 92px) e o
+>   caminho **empilhado continua valendo de propósito** — em retrato a altura não é o problema.
+>
+> ### ⚠️ A descoberta que derrubou metade do desenho
+> **O HUD de toque some INTEIRO com o chat aberto** — `main.ts:363`,
+> `setShown(input.touch && !chat.open && !panelOpen && !loading.ativo)` — **e a hotbar também**
+> (`main.ts:357`). Sem joystick, sem ⛏/▣, sem barra do topo: com o chat na tela o painel tem a
+> tela toda e não desvia de nada. Passei metade do projeto calculando desvios do `#touch-acoes`
+> que nem estava lá.
+> ⚠️ E `getBoundingClientRect()` num elemento `display: none` devolve **tudo zero**, não `null` —
+> foi o `barraFundo: 0` da sonda que denunciou.
+>
+> ### ✅ Entregue — bug-644, o log sem teto em retrato
+> O `#chat.open #chat-log { max-height: 30vh }` morava em `@media (max-height: 700px)`, feito pra
+> janela BAIXA do tablet deitado. Em RETRATO a media query não casa e **o log não tinha teto
+> nenhum**. Como o `#chat` é ancorado no rodapé e cresce PRA CIMA, com o teclado aberto o bloco
+> saía inteiro pelo topo da tela. O teto foi pro bloco `(pointer: coarse)` e desconta `var(--kb)`;
+> abaixo de 700px desconta os 26vh do painel empilhado também.
+>
+> ### ✅ Entregue — os 104px de espaço morto do `#chat.open`
+> Os 112px do `bottom` do `#chat` desviam da hotbar (bug-539) — que **não está lá com o chat
+> aberto**. `#chat.open` passou a usar `8px`: o campo cola no teclado em vez de flutuar acima
+> dele. **Vão medido: 126px → 8px.**
+>
+> ### 📐 A conta (topo do bloco do chat, com teclado de 280px)
+> | janela | antes | depois |
+> |---|---|---|
+> | 1024×600 (o tablet da escola) | **y = −173** | y = **+99** |
+> | 600×1024 | **y = −396** | y = **+19 → +118** |
+> | 420×900 | **y = −698** | y = **+19 → +63** |
+>
+> Negativo = log e campo FORA da tela: o aluno digitava sem ver o campo nem o que tinha mandado.
+>
+> ### 🧪 A sonda ganhou o teclado — seção E2 do `toque-shot.mjs`
+> Ela **escreve `--kb` à mão** (`document.documentElement.style.setProperty('--kb','280px')`),
+> que é exatamente o que o `acompanharTecladoVirtual()` do `chat.ts` faz quando o Android abre o
+> teclado. Nenhum `resize` de `visualViewport` dispara em headless, então o valor gruda até
+> apagarem. Asserções: o campo acima da linha do teclado **e colado nela** (≤24px), o bloco do
+> chat dentro da janela, e — só a ≥900px — a coluna fixa que não cobre o chat e usa a altura da
+> tela. Foto nova: `03b-chat-com-teclado.png`.
+> ⚠️ **Toda sonda de layout de dedo devia escrever `--kb`.** Sem isso o layout é medido num
+> aparelho que não existe.
+>
+> ### 📌 Pendências — o que falta VALIDAR NA ESCOLA
+> A fila herdada continua (nada foi validado lá ainda):
+> - `/painel` + o botão 📋, e o `/invisivel` (sessão 84);
+> - ⭐ o `npm run build` do launcher — 1ª vez que o launcher COMPILA na máquina do professor;
+> - as bandeiras e o nome da escola na tela de abertura;
+> - 🆕 **o chat com o teclado aberto no tablet** — a coluna de comandos, e o campo colado no
+>   teclado. Tudo medido em headless com `--kb` escrito à mão; ninguém viu no aparelho.
+>
+> ### 🚀 PRÓXIMA QUEST
+> Livre. As candidatas da fila, na ordem em que o `todo.md` as deixou: **ovelha + lã de verdade**
+> · sentar na cadeira · teto de 35 grupos · proteger a célula-molde · Ferramentas v2 · mobs.
+>
+> 🆕 **Anotada em 2026-08-24 (backlog do `TODO.md`, escopo ABERTO):** *amizade entre DONOS de
+> claim* — aluno com terreno fica preso fora do grupo na construção livre. O nó é que o time de
+> amigos é DUAS coisas ao mesmo tempo (quem constrói no meu claim **e** o orçamento de área,
+> `membros × 1024`). Três saídas mapeadas lá; a recomendação é `/claim convidar nome` (permissão
+> por claim, separada do time).
+>
+> **Backlog:** mundo de terreno real via DEM (`.wolf/ROADMAP.md`).
+
+
 > ## 🧭 HANDOFF — SESSÃO 85 (2026-08-23) · a escola na tela, e o dist que não atrasa mais
 >
 > **Duas releases fecharam: v0.12.0 "Orgulho da minha terra!" e v0.12.1 "O voltar fica à mão".**

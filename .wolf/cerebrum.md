@@ -144,6 +144,28 @@
 
 ## Key Learnings
 
+- [2026-08-25] **O HUD de toque some INTEIRO com o chat aberto** — `main.ts:363`,
+  `touchControls?.setShown(input.touch && !chat.open && !panelOpen && !loading.ativo)`. Com o chat
+  na tela não há joystick, nem os botões ⛏/▣, nem a barra do topo: a tela é toda do chat. Isso
+  muda o desenho de qualquer coisa que abra JUNTO do chat — passei metade do projeto do painel
+  lateral calculando desvios do `#touch-acoes` que nem estava lá. ⚠️ E `getBoundingClientRect()`
+  num elemento `display: none` devolve **tudo zero**, não `null` — foi o `barraFundo: 0` da sonda
+  que denunciou. Quem mede geometria no dedo tem de saber se o alvo está visível ANTES de confiar
+  no retângulo.
+- [2026-08-25] **O headless não tem teclado virtual, então `--kb` é sempre 0 nas sondas** — e
+  `--kb` é exatamente a variável que aperta o layout do tablet (`visualViewport` encolhe, o
+  `acompanharTecladoVirtual()` do `chat.ts` publica a diferença). Resultado: o caso MAIS apertado
+  do aparelho da escola nunca era testado. A saída é escrever a var à mão na sonda
+  (`document.documentElement.style.setProperty('--kb', '280px')`) — nenhum `resize` de
+  `visualViewport` dispara em headless, então o valor gruda até apagarem. 280px = medido no
+  1024×600 deitado. Ver a seção E2 do `toque-shot.mjs` e o bug-644.
+- [2026-08-25] **O `#chat` é ancorado no RODAPÉ (`bottom: calc(112px + var(--kb))`) e cresce PRA
+  CIMA.** Toda altura que um filho ganha empurra o bloco inteiro em direção ao topo da tela — e
+  quando estoura, o que some é o LOG e o CAMPO, não o filho que cresceu. Por isso teto de altura
+  em filho do `#chat` (log, painel de comandos) não é zelo: é o que segura o bloco dentro da
+  janela. Os 112px, aliás, desviam da hotbar e do joystick, que estão **escondidos** justamente
+  quando o chat está aberto — dívida conhecida, não mexida em 2026-08-25.
+
 - [2026-08-23] **As bandeiras têm DUAS casas, e a fonte é o `client/index.html`.** Os SVG inline do
   rodapé do menu foram extraídos pra `docs/bandeiras/*.svg` e rasterizados em `*.png` (100×70, via
   Chrome headless) porque o README usa PNG — `<img>` de PNG renderiza no GitHub sem depender de

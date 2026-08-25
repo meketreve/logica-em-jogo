@@ -2667,3 +2667,11 @@ dist defasado. Tudo no cerebrum.
 
 **Bugs:** 641 (tira de bandeiras em cima do texto das novidades), 642 (EADDRINUSE 8080 por
 `http.server` órfão de 21h), 636 reincidente (push caindo na rede).
+
+## Session: 2026-08-23 17:17
+
+| Time | Action | File(s) | Outcome | ~Tokens |
+|------|--------|---------|---------|--------|
+| 16:56 | anota ideia: amizade entre donos de claim (aluno com terreno preso fora do grupo) | .wolf/TODO.md | anotado no backlog, escopo aberto, 3 saidas mapeadas | ~9k |
+| 11:21 | painel de comandos vira COLUNA LATERAL no dedo (>=700px) + teto do log contra --kb | client/src/chat.ts, client/index.html, scripts/toque-shot.mjs | sonda E2 nova (emula teclado), 3 tamanhos verdes, verify 916/916 | ~55k |
+| 11:39 | rodape morto do #chat.open (112px -> 8px) + TODO da sessao 86 | client/index.html, .wolf/TODO.md | campo cola no teclado (126px -> 8px), 3 tamanhos verdes, verify verde | ~18k |

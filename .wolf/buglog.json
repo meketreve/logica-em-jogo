@@ -5422,6 +5422,33 @@
       ],
       "occurrences": 1,
       "last_seen": "2026-08-23T11:40:00Z"
+    },
+    {
+      "id": "bug-644",
+      "timestamp": "2026-08-25T11:20:00Z",
+      "error_message": "sonda toque-shot secao E2 a 600x1024 e 420x900 com --kb=280: 'o bloco do chat nao sai pelo topo da tela (topo -396 >= 0)' e '(topo -698 >= 0)'",
+      "file": "client/index.html",
+      "root_cause": "O teto do log com o chat aberto (#chat.open #chat-log { max-height: 30vh }) morava dentro de @media (max-height: 700px) — feito para a janela BAIXA do tablet deitado. Em RETRATO (altura 900/1024) a media query nao casa e o log ficava SEM teto nenhum. Como o #chat e ancorado no rodape (bottom: 112px + --kb) e cresce PRA CIMA, com o teclado virtual aberto o bloco log+painel+campo saia inteiro pelo topo da tela: o aluno digitava sem ver o campo nem o que tinha mandado. Nunca apareceu antes porque a sonda roda em headless, onde nao existe teclado virtual e --kb fica sempre 0 — o aperto real do tablet nunca era medido.",
+      "fix": "(1) O teto do log foi para o bloco @media (pointer: coarse), que e onde o teclado virtual existe, e passou a descontar a var: max-height: min(30dvh, calc(100dvh - var(--kb, 0px) - 176px)). (2) Abaixo de 700px o #chat-painel continua EMPILHADO e come mais 26vh, entao um @media (pointer: coarse) and (max-width: 699px) desconta essa fatia tambem. (3) A sonda ganhou a secao E2, que ESCREVE --kb a mao (document.documentElement.style.setProperty) para emular o teclado — sem isso o caso mais apertado do aparelho da escola nao era testavel em headless. (4) De quebra, os 112px do `bottom` do #chat (desvio da hotbar, bug-539) viraram 8px em `#chat.open`: a hotbar (main.ts:357) e a UI de toque (main.ts:363) somem as duas com `!chat.open`, entao eram 104px de espaco morto justo com a tela no aperto. Vao entre o campo e o teclado: 126px -> 8px.",
+      "tags": [
+        "css",
+        "mobile",
+        "chat",
+        "teclado-virtual",
+        "--kb",
+        "media-query",
+        "retrato",
+        "sonda",
+        "toque",
+        "headless",
+        "espaco-morto"
+      ],
+      "related_bugs": [
+        "bug-539",
+        "bug-635"
+      ],
+      "occurrences": 1,
+      "last_seen": "2026-08-25T11:20:00Z"
     }
   ]
 }

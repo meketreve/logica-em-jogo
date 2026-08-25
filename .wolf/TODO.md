@@ -2,8 +2,8 @@
 
 > Working checklist. **STATUS.md** = handoff ("why & where we are"); **TODO.md** = "what's left to do".
 > Keep items actionable and short. Check off with `[x]`; sweep done items into STATUS.md ✅ when a phase closes.
-> Last updated: 2026-08-07 (sessão 60 — nome do mundo no desktop + push; 2 itens do TODO
-> marcados como já feitos em `8d75527`).
+> Last updated: 2026-08-25 (sessão 86 — painel de comandos do chat vira COLUNA LATERAL no dedo,
+> teto do log contra o teclado virtual (bug-644) e o rodapé morto do #chat aberto).
 
 ---
 
@@ -305,6 +305,38 @@ gate de claim nos containers, junto de cada um) → F10c (algodão) → F10d (fe
 
 ## ⏭️ Next
 
+- [x] **Painel de comandos do chat AO LADO no mobile** (sessão 86, 2026-08-25 — era a
+      🚀 PRÓXIMA QUEST do STATUS, ideia de 2026-08-17). O `#chat-painel` empilhava entre o log e
+      o campo e comia a altura que o teclado virtual já tinha levado. Agora, em `(pointer: coarse)
+      and (min-width: 700px)`, ele vira **coluna fixa** no vão entre o `#chat` e a borda direita:
+      `top: 8px` · `right: 16px` · `bottom: calc(8px + var(--kb))`, com `left` lido das vars
+      `--chat-esq`/`--chat-larg` que o `#chat` publica (herança — o painel é filho dele, e assim a
+      expressão não vive duplicada nos dois arquivos). Abaixo de 700px não há vão e o caminho
+      empilhado continua valendo de propósito.
+      - ⚠️ **A descoberta que mudou o desenho: o HUD de toque some INTEIRO com o chat aberto**
+        (`main.ts:363`, `setShown(… && !chat.open && …)`), e a **hotbar também** (`main.ts:357`).
+        Sem joystick, sem ⛏/▣, sem barra do topo — o painel tem a tela toda e não desvia de nada.
+      - **Sobrou disso:** os 112px do `bottom` do `#chat` desviavam da hotbar (bug-539), que não
+        está lá com o chat aberto. `#chat.open` agora usa `8px` — o campo cola no teclado
+        (vão medido: **126px → 8px**).
+      - **Medido a 1024×600 com teclado de 280px:** coluna de **388×304**, os 25 comandos à vista
+        sem rolar (antes: 440×156, ~11 à vista), e o topo do bloco do chat saiu de **y=−173 para
+        y=+99**.
+      - **Sonda:** seção **E2** nova no `toque-shot.mjs`, que **escreve `--kb` à mão** pra emular
+        o teclado virtual — headless não tem teclado, então `--kb` era sempre 0 e o caso mais
+        apertado do aparelho da escola nunca era medido. Verde nos três tamanhos
+        (1024×600, 600×1024, 420×900) + `verify` (launchers · typecheck 3/3 · 916/916 · build ·
+        portão do dist).
+
+- [x] **bug-644 — o log do chat não tinha teto em RETRATO** (sessão 86, achado pela asserção nova).
+      O `#chat.open #chat-log { max-height: 30vh }` morava em `@media (max-height: 700px)`, feito
+      pra janela baixa do tablet deitado; em retrato a media query não casa e o log crescia sem
+      limite. Como o `#chat` é ancorado no rodapé e cresce PRA CIMA, com o teclado aberto o bloco
+      inteiro saía pelo topo da tela (medido: **y=−396** a 600×1024, **y=−698** a 420×900) — o
+      aluno digitava sem ver o campo nem o que tinha mandado. O teto foi pro bloco
+      `(pointer: coarse)` e passou a descontar `var(--kb)`; abaixo de 700px desconta os 26vh do
+      painel empilhado também.
+
 - [x] **Vegetação precisa de bloco de apoio** (sessão 40, bug-558) — `GramaAlta`/`Seca`/`Fria`
       (179–181) entraram no `rulesMap` apontando pro `torchRule`, e a plantação do F6 junto.
       A varredura pedida foi feita: **`precisaApoio()` e o `rulesMap` batem** agora. De quebra,
@@ -487,6 +519,30 @@ gate de claim nos containers, junto de cada um) → F10c (algodão) → F10d (fe
       não bloqueia entrega). O §desempenho ganhou material forte na sessão 27 (A/B com o
       caminho síncrono + régua dev × lab).
 - [ ] Gerar PDF/HTML de `relatorio/relatorio-aplicacao.md` quando o usuário pedir a entrega
+
+- [ ] **Aluno com terreno preso fora do grupo — amizade entre DONOS de claim** (ideia do usuário,
+      2026-08-24, escopo ABERTO). Na construção livre, quem já montou o próprio time fica de fora
+      do time dos outros: o aluno com terreno não consegue participar de grupo, e ninguém consegue
+      contribuir no terreno dele.
+      - **Onde a regra mora:** `equipeDe()` (`shared/src/session/equipes.ts:42`) — você está num
+        time se é chave de `ses.amigos` (dono) OU está no `Set` de membros de alguém. Daí as duas
+        recusas do `/amigos convidar`: `equipeDe(alvo) !== null` → *"já está em um grupo de
+        amigos"*, e dono ≠ eu → *"Você está no grupo de outra pessoa. Saia dele"*.
+      - ⚠️ **Ter `/claim` NÃO cria time.** `ses.amigos.set(me, …)` só roda no primeiro
+        `convidar`. Quem tem terreno e nunca convidou ninguém **já pode ser convidado hoje** — o
+        que trava é ter convidado alguém uma vez. Vale conferir no playtest se o que o aluno viveu
+        foi essa recusa ou a outra, antes de mexer.
+      - **A decisão travada:** o time de amigos é DUAS coisas ao mesmo tempo — quem constrói no meu
+        claim (`mesmaEquipe` dentro de `claimBloqueia`) **e** o orçamento de área do claim
+        (`areaMaxDoClaim(membros) = membros × 1024`, teto `MAX_AMIGOS = 6` → 6.144 blocos,
+        `shared/src/claims.ts`). Juntar dois donos não é de graça: os membros de quem passam a
+        contar pro limite de quem? Sem responder isso, um aluno vira 2× área de graça.
+      - **Saídas a avaliar (nenhuma escolhida):** (a) `/claim convidar nome` — permissão POR CLAIM,
+        separada do time, sem tocar no orçamento; (b) times mútuos (A no time de B e B no de A),
+        com o orçamento contando só o time onde a pessoa é DONA; (c) fundir times num só dono e
+        somar as áreas com teto — o mais simples de explicar e o mais fácil de abusar.
+      - Recomendação minha: **(a)**. Separa "quem pode construir aqui" de "quanto eu posso
+        reservar", que é exatamente a confusão que criou o problema.
 
 ## 🧭 Fora deste repo (aberto)
 
