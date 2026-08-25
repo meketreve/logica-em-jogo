@@ -601,6 +601,90 @@ const painelApareceu = await avaliar(`(() => {
   return p ? p.checkVisibility() : 'AUSENTE';
 })()`);
 ok(painelApareceu === true, `o painel de comandos apareceu junto do chat (${painelApareceu})`);
+
+// ── E2: o APERTO DO TECLADO VIRTUAL (2026-08-25) ──────────────────────────
+// O headless nao tem teclado virtual: `visualViewport.height` nunca encolhe,
+// entao `--kb` fica em 0 e o aperto REAL do tablet jamais aparecia aqui. A var
+// e escrita a mao — e exatamente o que o `acompanharTecladoVirtual()` do
+// chat.ts faz quando o Android abre o teclado. Nenhum resize de visualViewport
+// dispara em headless, entao o valor gruda ate a gente apagar.
+const KB = 280; // medido no tablet da escola, 1024x600 deitado
+const medir = () =>
+  avaliar(`(() => {
+    const cx = (id) => document.getElementById(id);
+    const r = (e) => { const b = e.getBoundingClientRect();
+      return { t: Math.round(b.top), b: Math.round(b.bottom),
+               l: Math.round(b.left), r: Math.round(b.right) }; };
+    const cruza = (a, b) => a.l < b.r && b.l < a.r && a.t < b.b && b.t < a.b;
+    const p = cx('chat-painel'), chat = cx('chat'), campo = cx('chat-input');
+    if (!p || !chat || !campo) return 'AUSENTE';
+    const rp = r(p), rchat = r(chat);
+    return {
+      pos: getComputedStyle(p).position,
+      alturaPainel: rp.b - rp.t,
+      larguraPainel: rp.r - rp.l,
+      // o bloco do chat (log + campo) cresce PRA CIMA e nao pode sair pelo topo
+      chatTopo: rchat.t,
+      // o campo tem de ficar ACIMA da linha do teclado
+      campoFundo: r(campo).b,
+      cruzaOChat: cruza(rp, rchat),
+      painelTopo: rp.t,
+      painelDireita: rp.r,
+    };
+  })()`);
+await avaliar(`document.documentElement.style.setProperty('--kb', '${KB}px')`);
+await espera(250);
+const kb = await medir();
+ok(kb !== "AUSENTE", "mediu o chat com o teclado virtual emulado");
+if (kb !== "AUSENTE") {
+  const linhaDoTeclado = A - KB;
+  ok(
+    kb.campoFundo <= linhaDoTeclado,
+    `o campo de texto fica acima do teclado (fundo ${kb.campoFundo} <= ${linhaDoTeclado})`,
+  );
+  // e COLA nele: com o chat aberto nao ha hotbar nem HUD de toque no rodape
+  // (main.ts:357 e :363, os dois com !chat.open), entao os 112px de desvio do
+  // #chat viravam espaco morto justo com a tela no aperto. Medido antes: 126px
+  // de vao entre o campo e o teclado.
+  ok(
+    linhaDoTeclado - kb.campoFundo <= 24,
+    `o campo cola no teclado (vao de ${linhaDoTeclado - kb.campoFundo}px <= 24px)`,
+  );
+  // ⚠️ ESTA e a assercao da quest: com o painel empilhado, log(30vh) + painel
+  // (26vh) + campo crescem PRA CIMA a partir de `bottom: 112px + --kb` e o
+  // bloco inteiro sai pelo topo da tela. Medido antes do fix: y = -173.
+  // (O teto e a propria janela, nao a barra de botoes: o HUD de toque some com
+  // o chat aberto — main.ts, setShown com !chat.open.)
+  ok(
+    kb.chatTopo >= 0,
+    `o bloco do chat nao sai pelo topo da tela (topo ${kb.chatTopo} >= 0)`,
+  );
+  if (L >= 900) {
+    // painel LATERAL: sai do empilhamento e vira coluna fixa no vao entre o
+    // chat e a borda direita, do topo da tela ate em cima do teclado
+    ok(kb.pos === "fixed", `o painel virou coluna fixa na lateral (position: ${kb.pos})`);
+    ok(!kb.cruzaOChat, "a coluna do painel nao cobre o log nem o campo");
+    ok(
+      kb.painelTopo >= 0 && kb.painelDireita <= L,
+      `a coluna cabe na janela (topo ${kb.painelTopo}, direita ${kb.painelDireita} <= ${L})`,
+    );
+    ok(
+      kb.alturaPainel > 200,
+      `a coluna usa a altura da tela, nao 26vh (${kb.alturaPainel}px > 200px)`,
+    );
+    ok(
+      kb.larguraPainel >= 120,
+      `a coluna e larga o bastante pra um botao (${kb.larguraPainel}px >= 120px)`,
+    );
+  } else {
+    // tela estreita: nao ha espaco horizontal (joystick numa ponta, acoes na
+    // outra) e o caminho EMPILHADO continua valendo — de proposito
+    ok(kb.pos === "static", `em tela estreita o painel segue empilhado (position: ${kb.pos})`);
+  }
+}
+await foto("03b-chat-com-teclado.png"); // o aperto real: e aqui que o layout decide
+await avaliar(`document.documentElement.style.removeProperty('--kb')`);
+await espera(200);
 // 1º nível = árvore: comandos com a barra. Não há a barra de toque ocupando o
 // topo, mas há o #touch-topo: os botões do painel ficam CAIXA do chat, então
 // rola de dedo. Só olhar se /tp existe.

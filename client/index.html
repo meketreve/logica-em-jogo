@@ -1359,10 +1359,53 @@
            touch.ts) e do topo da hotbar, que aqui é ~93px de altura com os
            slots de dedo. Começa depois do joystick e acima da barra; --ts tem
            fallback 1 porque o CSS do toque só é injetado em aparelho de toque. */
+        /* O #chat e ancorado no RODAPE (bottom: 112px + --kb) e cresce PRA CIMA.
+           Com o teclado virtual aberto sobra ~1/3 da janela, e o log sozinho ja
+           empurrava o bloco inteiro pra FORA do topo da tela — medido a 600x1024
+           com teclado de 280px: o topo do #chat em y=-396, log e campo invisiveis.
+           O teto de 30vh existia so em `@media (max-height: 700px)`, entao em
+           RETRATO o log nao tinha teto nenhum; aqui ele vale pra todo aparelho de
+           dedo, que e onde o teclado virtual existe.
+           72px = os 8px do rodape do #chat.open + o campo + a folga do topo.
+           Sem teclado (--kb: 0) o min() devolve o 30dvh de sempre.
+           (2026-08-25, junto do painel lateral do chat.) */
+        #chat.open #chat-log {
+          max-height: 30vh;
+          max-height: min(30dvh, calc(100dvh - var(--kb, 0px) - 72px));
+          overflow-y: auto;
+          overscroll-behavior: contain;
+          pointer-events: auto;
+        }
         #chat {
-          left: calc(40px + 128px * var(--ts, 1));
+          /* a caixa vira VAR porque o #chat-painel lateral (chat.ts) precisa
+             saber onde o chat termina pra comecar depois dele. Duplicar a
+             expressao nos dois arquivos era o jeito de elas divergirem. */
+          --chat-esq: calc(40px + 128px * var(--ts, 1));
+          --chat-larg: min(440px, 52vw);
+          left: var(--chat-esq);
           bottom: calc(112px + var(--kb, 0px));
-          width: min(440px, 52vw);
+          width: var(--chat-larg);
+        }
+        /* Os 112px acima desviam da hotbar (bug-539: o log caia por cima dela) e
+           do joystick — mas os DOIS somem com o chat ABERTO: a hotbar em
+           main.ts:357 e a UI de toque em main.ts:363, ambas com `!chat.open`.
+           Ou seja, eram 104px de espaco morto exatamente no momento mais
+           apertado da tela, com o teclado virtual comendo o resto. Aberto, o
+           campo desce e cola no teclado; fechado, o log volta a desviar.
+           (2026-08-25.) */
+        #chat.open {
+          bottom: calc(8px + var(--kb, 0px));
+        }
+      }
+
+      /* Abaixo de 700px o #chat-painel NAO vira coluna lateral (nao ha vao —
+         ver o @media em chat.ts): ele segue empilhado entre o log e o campo,
+         comendo mais 26vh. O log desconta essa fatia tambem, senao o bloco
+         volta a sair pelo topo — medido a 420x900 com teclado: topo em y=-44
+         mesmo ja com o teto acima. (2026-08-25.) */
+      @media (pointer: coarse) and (max-width: 699px) {
+        #chat.open #chat-log {
+          max-height: min(30dvh, calc(100dvh - var(--kb, 0px) - 26vh - 72px));
         }
       }
     </style>

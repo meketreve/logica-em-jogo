@@ -51,6 +51,39 @@ const PAINEL_CSS = `
 #chat-painel button.pnl-volta {
   border-color: #ffd74a;
 }
+
+/* PAINEL LATERAL (2026-08-25). Empilhado, o painel cresce PRA CIMA a partir do
+   rodape do #chat e come a altura que o teclado virtual ja levou: medido a
+   1024x600 com teclado de 280px, o bloco chat+painel comecava em y=-173, ou
+   seja, log e campo FORA da tela.
+
+   Deitado ele vira COLUNA, no vao entre o chat e a borda direita. E o vao e a
+   tela inteira: o HUD de toque some com o chat aberto (main.ts, setShown com
+   !chat.open), entao nao ha joystick, botao de acao nem barra do topo pra
+   desviar — so o teclado, embaixo.
+
+   A conta a 1024x600: 388px de largura (3 colunas de botao) x 304px de altura
+   com o teclado aberto, 584px sem ele. Contra 440x156 de antes: ~21 dos 25
+   comandos a vista em vez de ~11, e o log volta a caber.
+
+   O piso de 700px e o vao minimo que ainda da UMA coluna: o #chat mede
+   min(440px, 52vw), entao a 700px sobram 140px e a 600px so 92px — estreito
+   demais pra um botao. Abaixo disso o caminho EMPILHADO continua valendo, e la
+   a altura nao e o problema (em retrato o teclado deixa 600px de janela).
+   As vars --chat-esq/--chat-larg vem do #chat do index.html (heranca: o painel
+   e filho dele). */
+@media (pointer: coarse) and (min-width: 700px) {
+  #chat-painel {
+    position: fixed;
+    top: 8px;
+    left: calc(var(--chat-esq, 168px) + var(--chat-larg, 440px) + 12px);
+    right: 16px;
+    bottom: calc(8px + var(--kb, 0px));
+    width: auto;
+    max-height: none;
+    margin-top: 0;
+  }
+}
 `;
 
 /**
