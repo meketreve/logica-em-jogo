@@ -353,6 +353,17 @@ const SMOKES = [
       },
     ],
   },
+  {
+    nome: "sighup",
+    arquivo: `${DIR}/_smoke-sighup.mjs`,
+    prova:
+      "bug-645 — fechar a JANELA do terminal (SIGHUP, e é o que o Node emite no Windows quando o console fecha) grava o mundo como o Ctrl+C sempre gravou; sem isso some tudo desde o último autosave e o relato vira 'o ciclo de dia e noite voltou desligado'.",
+    lento: false,
+    // O smoke sobe o PRÓPRIO host: a prova exige matar o servidor no meio, com
+    // um sinal escolhido, e subir de novo. Daí `servidores: []` e `porta`.
+    servidores: [],
+    porta: 8106,
+  },
 ];
 
 const espera = (ms) => new Promise((r) => setTimeout(r, ms));
@@ -417,7 +428,8 @@ async function rodaSmoke(smoke) {
       }
     }
 
-    const porta = smoke.servidores.filter((s) => !s.efemero).at(-1).porta;
+    // smoke sem `servidores` sobe o próprio host (ver `sighup`): a porta vem da entrada
+    const porta = smoke.servidores.filter((s) => !s.efemero).at(-1)?.porta ?? smoke.porta;
     const args = [smoke.arquivo, String(porta), ...(smoke.args ?? [])];
     const res = await new Promise((r) => {
       const p = spawn("node", args, { cwd: RAIZ, stdio: ["ignore", "pipe", "pipe"] });

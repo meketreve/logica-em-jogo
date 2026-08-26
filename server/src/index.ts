@@ -253,14 +253,19 @@ function saveNow(reason: string): void {
 }
 
 setInterval(() => saveNow("autosave"), AUTOSAVE_MS);
-process.on("SIGINT", () => {
-  saveNow("encerrando");
-  process.exit(0);
-});
-process.on("SIGTERM", () => {
-  saveNow("encerrando");
-  process.exit(0);
-});
+// Todo jeito de encerrar grava (bug-645, 2026-08-25). Só SIGINT e SIGTERM não
+// bastam: quem FECHA A JANELA do terminal manda SIGHUP, e o Node no Windows
+// emite SIGHUP quando o console fecha — que é justamente como a escola encerra
+// o `.bat`. Sem isto o host morre sem `saveNow` e some tudo desde o último
+// autosave (até 30 s de mundo). O relato foi "liguei o ciclo de dia e noite e
+// ele voltou desligado": o ciclo não tinha defeito nenhum, o desligamento
+// tinha. SIGQUIT entra pelo mesmo motivo. Prova: `_smoke-sighup.mjs`.
+for (const sinal of ["SIGINT", "SIGTERM", "SIGHUP", "SIGQUIT"] as const) {
+  process.on(sinal, () => {
+    saveNow("encerrando");
+    process.exit(0);
+  });
+}
 
 let nextClientId = 1;
 
