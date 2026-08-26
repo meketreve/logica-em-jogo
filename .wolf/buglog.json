@@ -5501,6 +5501,32 @@
       ],
       "occurrences": 1,
       "last_seen": "2026-08-25T17:40:00Z"
+    },
+    {
+      "id": "bug-647",
+      "timestamp": "2026-08-26T00:50:00Z",
+      "error_message": "sonda scripts/grupos-shot.mjs a 1024x600: 'a fileira NAO transborda na horizontal (sobra 941px de conteudo)' e 'o centro do botao 35 e o proprio botao (achei \"nada\")' — o botao do ultimo grupo nascia em x=1790, 800px fora de uma tela de 1024",
+      "file": "client/index.html (.jog-grade) + client/src/players.ts (renderGrupos)",
+      "root_cause": "A grade de grupos do painel P usava a classe `.jog-row`, que e `display: flex` SEM `flex-wrap` — ela foi desenhada para a LINHA de um jogador (nome + 2 botoes), nao para uma grade de N botoes. Com um botao por grupo o conteudo passa da caixa e o `overflow: hidden` de altura FIXA do `#jogadores` come o excedente, sem barra de rolagem nenhuma (a rolagem da `.jog-lista` e so VERTICAL). O A/B com a constante em 20 provou que JA transbordava 181px desde 2026-08-17, quando a aba grupos nasceu: ninguem tinha medido, e a aba estava no todo.md como feita. Subir o teto para 35 nao criou o defeito, so o levou de 181px para 941px.",
+      "fix": "Classe propria `.jog-grade`: `display: grid` com `grid-template-columns: repeat(auto-fill, minmax(44px, 1fr))` e `gap: 6px`. Quebra sozinha em 3 fileiras (146px de altura, dentro dos 405px da `.jog-lista`) e alinha em colunas os numeros de 1 e 2 digitos, que com `flex-wrap` ficariam de larguras diferentes. Provado pela sonda nova `scripts/grupos-shot.mjs` (`npm run shots:grupos`): transbordo 0, botao 35 dentro do painel E da viewport, e `elementFromPoint` no centro dele devolve o proprio botao — a 1024x600 e a 600x1024.",
+      "tags": [
+        "css",
+        "flex",
+        "flex-wrap",
+        "overflow",
+        "painel-p",
+        "grupos",
+        "aula",
+        "ui",
+        "invisivel",
+        "sonda",
+        "teto-35"
+      ],
+      "related_bugs": [
+        "bug-646"
+      ],
+      "occurrences": 1,
+      "last_seen": "2026-08-26T00:50:00Z"
     }
   ]
 }

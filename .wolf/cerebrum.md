@@ -144,6 +144,18 @@
 
 ## Key Learnings
 
+- [2026-08-26] **`.jog-row` do painel P é uma LINHA, não uma grade** — `display: flex` **sem
+  `flex-wrap`**, desenhada para "nome + 2 botões". Usá-la para N botões faz o conteúdo passar da
+  caixa pela DIREITA, e o `overflow: hidden` de altura fixa do `#jogadores` come o excedente **sem
+  barra de rolagem** (a rolagem da `.jog-lista` é só vertical — `overflow-y`). Ou seja: um painel
+  que transborda na horizontal não tem NENHUM sinal na tela. Grade de N itens quer
+  `display: grid` + `repeat(auto-fill, minmax(Xpx, 1fr))`; ele quebra sozinho e ainda alinha em
+  colunas rótulos de larguras diferentes (1 e 2 dígitos), coisa que `flex-wrap` não faz. (bug-647)
+- [2026-08-26] **Constante do `/shared` pode mudar a TELA sem passar por arquivo do cliente.**
+  `MAX_GRUPOS_AULA` é o limite de um laço de render em `client/src/players.ts` — subir o teto
+  redesenhou o painel sem tocar em uma linha de cliente, e nenhum teste de unidade tem olho pra
+  isso. Antes de mexer numa constante compartilhada, `grep` por ela no `/client`: se aparecer num
+  laço de render, a mudança precisa de SONDA, não de teste.
 - [2026-08-25] **O HUD de toque some INTEIRO com o chat aberto** — `main.ts:363`,
   `touchControls?.setShown(input.touch && !chat.open && !panelOpen && !loading.ativo)`. Com o chat
   na tela não há joystick, nem os botões ⛏/▣, nem a barra do topo: a tela é toda do chat. Isso
@@ -1401,6 +1413,13 @@ nenhum** — sem essa declaração o Chrome renderiza a página em light mesmo c
 
 ## Do-Not-Repeat
 
+- [2026-08-26] **Não afirmar "eu quebrei isso" (nem "isso já estava quebrado") sem o A/B.** A
+  sonda do painel P acusou 941px de transbordo logo depois do teto ir de 20 para 35 — parecia
+  regressão da mudança. O A/B (constante de volta em 20, `npm run build`, sonda de novo) mediu
+  **181px de transbordo já com 20**: o defeito nasceu em 2026-08-17 com a própria aba, e a subida
+  só o ampliou. Um rebuild e uma sonda separam "causei" de "revelei", e a diferença muda o que se
+  escreve no buglog e no todo. (bug-647)
+
 - [2026-08-23] **NÃO servir `client/dist` com `python3 -m http.server 8080`** — é a MESMA porta do
   servidor do jogo, e o http.server sobrevive à sessão (achado de pé com 21h de uptime), fazendo
   `npm run dev:server` morrer com `EADDRINUSE :::8080` numa sessão futura sem relação nenhuma.
@@ -2022,6 +2041,14 @@ nenhum** — sem essa declaração o Chrome renderiza a página em light mesmo c
 
 ## Decision Log — índice das decisões ATIVAS
 
+- [2026-08-26] **Teto de aula = 35 grupos, e o preço em BYTE foi aceito de olho aberto.** O mundo
+  de aula nasce do tamanho do TETO (decisão #4 de 2026-08-17, que tira o `inBounds` do caminho do
+  professor), então subir o teto engorda TODO `.ljw`: 6,70 MB → **9,06 MB** nos 7 cenários, que é
+  o que a escola baixa no auto-update. O usuário escolheu pagar. Alternativas oferecidas e
+  recusadas: **teto de 30** (5 fileiras, +1,2 MB — mas não fecha a turma individual, que era o
+  pedido) e **comprimir o `.ljw`** (o formato LJS1 é cru; gzip cortaria muito mais que os 2,3 MB,
+  mas mexe no save em TODOS os hospedeiros — disco do host, IndexedDB do navegador, import/export
+  — então vira quest própria, não um degrau desta).
 - [2026-08-22] **`/invisivel`: esconde só o CORPO.** Chat, blocos e som seguem normais (decisão do
   usuário). Alternativa recusada: sumir do chat também — o professor esqueceria que está invisível,
   falaria com a turma e ninguém responderia. O contrapeso escolhido foi a **faixa 👻 permanente**

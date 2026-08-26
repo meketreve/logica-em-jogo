@@ -1,7 +1,7 @@
 # anatomy.md
 
-> Auto-maintained by OpenWolf. Last scanned: 2026-08-26T02:15:40.250Z
-> Files: 367 tracked | Anatomy hits: 0 | Misses: 0
+> Auto-maintained by OpenWolf. Last scanned: 2026-08-26T03:56:04.318Z
+> Files: 362 tracked | Anatomy hits: 0 | Misses: 0
 
 ## ./
 
@@ -12,10 +12,10 @@
 - `iniciar-servidor.sh` — Lógica em Jogo — iniciar o servidor (Linux / WSL / macOS) (~6706 tok)
 - `LICENSE` — Licença de Uso — Lógica em Jogo (~1070 tok)
 - `package-lock.json` — npm lock file (~20120 tok)
-- `package.json` — Node.js package manifest (~440 tok)
+- `package.json` — Node.js package manifest (~455 tok)
 - `projeto.txt` (~4707 tok)
 - `README.md` — Project documentation (~2627 tok)
-- `todo.md` — Ideias para fazer (~23603 tok)
+- `todo.md` — Ideias para fazer (~23886 tok)
 - `tsconfig.base.json` (~130 tok)
 - `vitest.config.ts` — Config do vitest da RAIZ (2026-08-11, bug-612). (~335 tok)
 
@@ -204,18 +204,12 @@
 
 ## cenarios/
 
-- `aula1-sequencia.ljw` (~263196 tok)
-- `aula2-binario.ljw` (~262546 tok)
-- `aula3-depurar.ljw` (~262573 tok)
-- `aula4-decifrar.ljw` (~262544 tok)
-- `aula5-simetria.ljw` (~262724 tok)
-- `aula6-manual.ljw` (~262940 tok)
 - `aula7-corrida.ljw` (~210279 tok)
 - `README.md` — Project documentation (~2721 tok)
 
 ## client/
 
-- `index.html` — Lógica em Jogo (~14737 tok)
+- `index.html` — Lógica em Jogo (~14981 tok)
 - `package.json` — Node.js package manifest (~102 tok)
 - `tsconfig.json` — TypeScript configuration (~39 tok)
 - `vite.config.ts` — Vite build configuration (~94 tok)
@@ -419,9 +413,9 @@
   - class `Panel` L41-267 (~2027 tok)
   - class `AuthorPanel` L268-649 (~3806 tok)
   - class `GroupPanel` L650-679 (~277 tok)
-- `players.ts` — Painel de jogadores (2026-07-21) — SÓ para o professor. Mesma estrutura do (~1992 tok)
+- `players.ts` — Painel de jogadores (2026-07-21) — SÓ para o professor. Mesma estrutura do (~2076 tok)
   - section `PlayersData` L12-18 (~48 tok)
-  - class `PlayersPanel` L19-212 (~1788 tok)
+  - class `PlayersPanel` L19-216 (~1872 tok)
 - `progressoCarga.ts` — As contagens VIVAS que a tela amostra. Chegam por callback, e não por (~1159 tok)
   - section `FontesDeCarga` L9-34 (~335 tok)
   - class `ProgressoCarga` L35-98 (~700 tok)
@@ -507,7 +501,7 @@
 ## mundos/_smoke-coluna/
 
 - `_smoke-coluna.ljw` (~62 tok)
-- `chat.log` (~5014 tok)
+- `chat.log` (~5067 tok)
 
 ## mundos/_smoke-comida/
 
@@ -531,7 +525,7 @@
 
 ## mundos/_smoke-kicar/
 
-- `chat.log` (~23144 tok)
+- `chat.log` (~23386 tok)
 
 ## mundos/_smoke-modoa/
 
@@ -552,7 +546,7 @@
 ## mundos/_smoke-trocaa/
 
 - `_smoke-trocaa.ljw` (~87 tok)
-- `chat.log` (~15241 tok)
+- `chat.log` (~15405 tok)
 
 ## mundos/_smoke-trocab/
 
@@ -564,11 +558,11 @@
 
 ## mundos/aula1-sequencia/
 
-- `chat.log` (~78886 tok)
+- `chat.log` (~79689 tok)
 
 ## mundos/aula2-binario/
 
-- `chat.log` (~3072 tok)
+- `chat.log` (~3104 tok)
 
 ## mundos/aula7-corrida/
 
@@ -756,6 +750,18 @@
   - fn `cdp` L94-99 (~50 tok)
   - fn `avaliar` L100-184 (~908 tok)
   - fn `tirar` L185-206 (~221 tok)
+- `grupos-shot.mjs` — Print + medição da ABA "grupos" DO PAINEL P (2026-08-26) — a grade de botões (~3121 tok)
+  - fn `espera` L46-47 (~18 tok)
+  - fn `acharChrome` L48-79 (~298 tok)
+  - fn `esperaPorta` L80-91 (~105 tok)
+  - fn `encerrar` L92-133 (~372 tok)
+  - fn `abrirAba` L134-161 (~251 tok)
+  - fn `cdp` L162-167 (~48 tok)
+  - fn `avaliar` L168-169 (~38 tok)
+  - fn `tecla` L170-174 (~64 tok)
+  - fn `clicar` L175-181 (~88 tok)
+  - fn `foto` L182-211 (~318 tok)
+  - fn `ok` L212-288 (~1114 tok)
 - `luz-shots.mjs` — §💡 Verificação da LUZ VOXEL num Chrome headless (2026-07-28). (~3003 tok)
   - fn `decodificarPng` L45-108 (~650 tok)
   - fn `medir` L109-134 (~245 tok)
@@ -1042,8 +1048,8 @@
   - fn `plantarMandacaru` L170-182 (~84 tok)
 - `aula-celula.test.ts` — A CÉLULA é a unidade de cópia da aula (2026-08-17). O baseline do objetivo (~1406 tok)
   - fn `sessaoDeAula` L14-124 (~1242 tok)
-- `aula-crescer.test.ts` — `/aula grupos X` crescendo. O que importa e não é óbvio: os grupos que já (~1262 tok)
-  - fn `mundoDeAula` L20-121 (~1087 tok)
+- `aula-crescer.test.ts` — `/aula grupos X` crescendo. O que importa e não é óbvio: os grupos que já (~1680 tok)
+  - fn `mundoDeAula` L22-154 (~1496 tok)
 - `aula-encolher.test.ts` — `/aula grupos X` diminuindo. Apaga trabalho de aluno, então é em DOIS passos: (~1020 tok)
   - fn `mundoDeAula` L19-97 (~867 tok)
 - `auth.test.ts` (~428 tok)
@@ -1223,14 +1229,14 @@
   - fn `retrato` L89-96 (~83 tok)
   - fn `turmaComClaimDaAna` L97-117 (~293 tok)
   - fn `mensagemPara` L118-226 (~1488 tok)
-- `grade.test.ts` — A grade da aula (2026-08-17). O layout antigo era uma FILEIRA: um chunk por (~685 tok)
-- `grade.ts` — Geometria da GRADE de áreas da aula (2026-08-17). (~1107 tok)
-  - fn `linhasDaGrade` L44-55 (~128 tok)
-  - fn `dimsDaAula` L56-60 (~53 tok)
-  - fn `chunkDoProfessor` L61-67 (~92 tok)
-  - fn `chunkDoMolde` L68-73 (~59 tok)
-  - fn `chunkDoGrupo` L74-82 (~125 tok)
-  - fn `caixaDaCelula` L83-91 (~84 tok)
+- `grade.test.ts` — A grade da aula (2026-08-17). O layout antigo era uma FILEIRA: um chunk por (~729 tok)
+- `grade.ts` — Geometria da GRADE de áreas da aula (2026-08-17). (~1277 tok)
+  - fn `linhasDaGrade` L54-65 (~128 tok)
+  - fn `dimsDaAula` L66-70 (~53 tok)
+  - fn `chunkDoProfessor` L71-77 (~92 tok)
+  - fn `chunkDoMolde` L78-83 (~59 tok)
+  - fn `chunkDoGrupo` L84-92 (~125 tok)
+  - fn `caixaDaCelula` L93-101 (~84 tok)
 - `grama.session.test.ts` — Grama PELO TICK DA SESSION (2026-08-21). O `grama.test.ts` prova a regra pura (~1063 tok)
   - fn `faixa` L23-89 (~789 tok)
 - `grama.test.ts` — Autômato celular síncrono do water.test.ts — força-bruta da regra. (~1452 tok)
@@ -1415,9 +1421,9 @@
   - fn `turma` L79-89 (~144 tok)
   - fn `mover` L90-94 (~74 tok)
   - fn `ticks` L95-314 (~2686 tok)
-- `quadros-mover.test.ts` — Conteúdo de quadro mora FORA do id de bloco (mapa por posição). Copiar uma (~918 tok)
-  - fn `sessaoComQuadro` L11-26 (~129 tok)
-  - fn `escrever` L27-97 (~674 tok)
+- `quadros-mover.test.ts` — Conteúdo de quadro mora FORA do id de bloco (mapa por posição). Copiar uma (~1017 tok)
+  - fn `sessaoComQuadro` L12-27 (~129 tok)
+  - fn `escrever` L28-103 (~761 tok)
 - `quadros.test.ts` — DIMS: makeFlat (~1603 tok)
   - fn `makeFlat` L12-138 (~1471 tok)
 - `quadros.ts` — Quadro (backlog 2026-07-19): bloco de parede com CONTEÚDO autoral — texto (~540 tok)

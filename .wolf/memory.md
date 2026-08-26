@@ -2714,3 +2714,27 @@ Decisão do usuário: mundo de aula continua sem salvar ("aula não precisa salv
 construção livre"). Fix: laço de `saveNow` sobre SIGINT/SIGTERM/SIGHUP/SIGQUIT. Prova permanente:
 smoke `sighup` (16º), que sobe o próprio host pra escolher o sinal e repete a rodada com SIGINT
 como controle — TDD de verdade, vermelho antes do fix.
+
+## Session: 2026-08-26 23:27
+
+| Time | Action | File(s) | Outcome | ~Tokens |
+|------|--------|---------|---------|--------|
+| 00:43 | TDD vermelho: grade.test.ts pede teto 35 / 6 fileiras; aula-crescer ganha teste do inBounds em mundo velho e do teto inteiro; quadros-mover põe a conta de regiões no expect | shared/src/grade.test.ts, shared/src/aula-crescer.test.ts, shared/src/quadros-mover.test.ts | 3 ✗ pelos motivos certos (o do inBounds bate no teto de 20 antes — prova que discrimina os dois guardas) | ~12k |
+| 00:44 | MAX_GRUPOS_AULA 20 → 35 + comentário com o custo em byte e a nota do .ljw antigo | shared/src/grade.ts | verde; typecheck 3/3, 933/933 (+2) | ~4k |
+| 00:46 | regerar os 7 cenários no modelo do teto novo | cenarios/aula1..6.ljw | 7/7 ✓; medido 6,70 MB → 9,06 MB (+2,36); aula7-corrida byte-idêntico (dims próprias) | ~3k |
+| 00:47 | sonda nova do painel P aba grupos (host real + professor por ?codigo=, mede n de botões, transbordo, elementFromPoint no botão 35) | scripts/grupos-shot.mjs, package.json (shots:grupos) | 4 ✗ a 1024×600: 941px de transbordo, botão 35 em x=1790 | ~14k |
+| 00:48 | A/B com a constante de volta em 20 pra separar regressão de defeito herdado | shared/src/grade.ts (temporário) | **181px de transbordo JÁ com 20** — defeito nasceu em 2026-08-17 com a aba, a subida só ampliou (bug-647) | ~3k |
+| 00:49 | fix do layout: .jog-row (flex sem wrap) → .jog-grade (grid auto-fill 44px) | client/index.html, client/src/players.ts | sonda 7/7 ✓ a 1024×600 E a 600×1024; 35 botões em 3 fileiras alinhadas, elementFromPoint devolve o próprio botão | ~6k |
+| 00:50 | bateria completa | — | typecheck 3/3 · 933/933 · build · portão do dist · 16/16 smokes · launchers 7/7 · cenários 7/7 | ~5k |
+| 00:52 | registro: bug-647, todo.md do teto marcado feito, cerebrum (2 Key Learnings, 1 Do-Not-Repeat do A/B, 1 Decision Log do preço em byte) | .wolf/buglog.json, todo.md, .wolf/cerebrum.md | — | ~8k |
+
+**Sessão 89 — o teto de 35 grupos, e o painel que já estava furado.** `MAX_GRUPOS_AULA` 20 → 35
+(`dimsDaAula()` acompanhou sozinha: `dims.z` 10 → 14, grade 6×6). Custo medido, não estimado: os
+7 cenários somam **6,70 MB → 9,06 MB**, aceito pelo usuário de olho aberto (recusou teto de 30 e
+adiou comprimir o `.ljw`, que mexeria no formato em todos os hospedeiros). A descoberta foi a aba
+**grupos** do painel P: `.jog-row` é flex **sem `flex-wrap`**, e o A/B provou que ela já
+transbordava **181px com o teto de 20**, desde que a aba nasceu em 2026-08-17 — o teto de 35 só
+levou pra 941px. Virou `.jog-grade` (grid `auto-fill`), com sonda própria (`npm run shots:grupos`)
+que mede `elementFromPoint` no centro do botão do último grupo — o gate que retângulo nenhum
+fraude.
+| 00:58 | commit do código: teto 35 + fix do painel + cenários + dist + sonda, tudo junto (dist e src no MESMO commit — a escola roda o dist) | b7e4d71 | 17 arquivos | ~3k |

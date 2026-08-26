@@ -165,10 +165,23 @@ senão lado com parede; empate → base. Cliente inalterado.
   * Bateria: `check:launchers` 5/5 · typecheck 3/3 · **874/874** (+25) · build · 15/15 smokes ·
     `npm run cenarios` 7/7 conferidos.
 
-* \[ ] **subir o teto de grupos para 35** (turma de 35 fazendo individualmente — pedido do
-  usuário, 2026-08-17). Custa **uma constante**: `MAX_GRUPOS_AULA` em `shared/src/grade.ts`.
-  `dimsDaAula()` acompanha sozinha (`dims.z` sai de 10 para 14, grade 6×6) e os cenários são
-  regerados. Consequência a medir antes: o `.ljw` passaria de ~987 kB para ~1,38 MB por aula.
+* \[x] **subir o teto de grupos para 35** — **FEITO** (2026-08-26; pedido do usuário de
+  2026-08-17: turma de 35 fazendo individualmente). `MAX_GRUPOS_AULA` 20 → 35 em
+  `shared/src/grade.ts` e `dimsDaAula()` acompanhou sozinha: `dims.z` 10 → 14, grade 6×6,
+  `linhasDaGrade()` 4 → 6. `MAX_REGIONS` já comportava (35×3 + 3 + 1 = **109** de 256) — e a
+  conta saiu do comentário para o `expect` de `quadros-mover.test.ts`.
+  * **Custo medido, não estimado:** os `.ljw` das aulas 1–6 foram de ~964 kB para ~1,35 MB
+    (240 → 336 chunks); os 7 cenários somam **6,70 MB → 9,06 MB** (+2,36 MB no repositório e no
+    auto-update do launcher). `aula7-corrida` tem `dims` próprias e saiu **byte-idêntico**.
+  * **`.ljw` gerado ANTES desta subida** tem o `dims.z` do teto velho: `/aula grupos X` além do
+    que ele comporta é recusado pelo `inBounds` de `session/aula.ts` **antes de escrever bloco**
+    (não pela constante). Passou a ter teste — não tinha.
+  * ⚠️ **A subida descobriu o bug-647:** a aba **grupos** do painel P desenha um botão por grupo
+    numa `.jog-row`, que é flex **sem `flex-wrap`** — já transbordava 181px com o teto de 20
+    (A/B medido), e com 35 virou 941px, com o botão do grupo 35 nascendo 800px fora da tela.
+    Virou `.jog-grade` (grid `auto-fill` de 44px). Sonda nova: `npm run shots:grupos`.
+  * Bateria: typecheck 3/3 · **933/933** (+2) · build · portão do dist · **16/16 smokes** ·
+    launchers 7/7 · `npm run cenarios` 7/7 · `shots:grupos` verde a 1024×600 e 600×1024.
 
 * \[ ] **proteger a célula-molde contra edição** (achado ao implementar o item acima,
   2026-08-17). A região `partida` fica no chunk atrás do professor, fora das fileiras de grupo,

@@ -2,6 +2,65 @@
 
 > Single source of truth for resuming work. Read this FIRST when starting a session.
 
+> ## 🧭 HANDOFF — SESSÃO 89 (2026-08-26) · o teto de 35, e o painel que já estava furado
+>
+> **Bateria verde:** typecheck 3/3 · **933/933** (+2) · build · portão do dist ✓ · **16/16
+> smokes** · `npm run cenarios` 7/7 · launchers 7/7 · **sonda nova `shots:grupos` verde a
+> 1024×600 E a 600×1024**.
+>
+> ⚠️ Confira o sha do topo com `rtk proxy git rev-parse --short origin/main`, nunca com um sha
+> escrito aqui. **10 commits na main, NADA empurrado** (push só a pedido) — árvore limpa. Desta
+> sessão: `b7e4d71` feat(aula): sobe o teto de grupos de 20 para 35 (código, cenários, dist e a
+> sonda no MESMO commit — a escola roda o dist) · `SHA_DOCS` docs(wolf): registra a sessão 89.
+> (`origin/main` seguia em `073c2bf` no início da sessão.)
+>
+> ### ✅ Entregue — TETO DE 35 GRUPOS (§ turma individual, pedido de 2026-08-17)
+> `MAX_GRUPOS_AULA` **20 → 35** em `shared/src/grade.ts`, e `dimsDaAula()` acompanhou sozinha:
+> `linhasDaGrade()` 4 → **6**, `dims.z` 10 → **14**, grade 6×6. `MAX_REGIONS` já comportava
+> (35×3 + 3 + 1 = **109** de 256) — e essa conta saiu do comentário para o `expect`.
+> - **Custo MEDIDO, não estimado:** os `.ljw` das aulas 1–6 foram de ~964 kB para ~1,35 MB
+>   (240 → 336 chunks). Os 7 cenários: **6,70 MB → 9,06 MB** (+2,36 MB no repositório e no
+>   auto-update do launcher). `aula7-corrida` tem `dims` próprias e saiu **byte-idêntico**.
+> - **Decisão do usuário:** pagar os MB. Recusou teto de 30 (não fecha a turma individual) e
+>   adiou comprimir o `.ljw` — o formato LJS1 é **cru**, e gzip mexeria no save em TODOS os
+>   hospedeiros (disco do host, IndexedDB, import/export). Vira quest própria.
+> - **`.ljw` gerado ANTES** tem o `dims.z` velho: `/aula grupos X` além do que ele comporta é
+>   recusado pelo `inBounds` de `session/aula.ts` **antes de escrever bloco** — não pela
+>   constante. Isso não tinha teste; agora tem (`aula-crescer.test.ts`), junto do caminho feliz
+>   dos 35 no mundo dimensionado pro teto.
+>
+> ### ⚠️ A descoberta — bug-647: a aba "grupos" do painel P já nascia cortada
+> A aba desenha **um botão por grupo** (`players.ts:renderGrupos`), num contêiner `.jog-row` —
+> que é `display: flex` **sem `flex-wrap`**, feito para "nome + 2 botões". O conteúdo passa da
+> caixa pela DIREITA e o `overflow: hidden` de altura fixa do `#jogadores` come o excedente
+> **sem barra de rolagem nenhuma** (a da `.jog-lista` é só `overflow-y`).
+> A sonda mediu **941px transbordando** com 35, o botão do grupo 35 nascendo em **x=1790** numa
+> tela de 1024. **O A/B (constante de volta em 20, rebuild, sonda) mediu 181px de transbordo JÁ
+> com 20** — o defeito nasceu em 2026-08-17 com a própria aba; a subida do teto só o ampliou.
+> **Fix:** classe própria `.jog-grade` — `display: grid` com
+> `repeat(auto-fill, minmax(44px, 1fr))`. Quebra sozinha em 3 fileiras (146px dentro dos 405px
+> da lista) e alinha em COLUNAS os números de 1 e 2 dígitos, que `flex-wrap` deixaria tortos.
+>
+> ### 🔬 Sonda nova — `npm run shots:grupos` (`scripts/grupos-shot.mjs`)
+> Sobe host Node de verdade, entra pelo navegador como **professor** (é o `?codigo=`, não o PIN,
+> que dá o papel), abre painel de autoria pela tecla P → botão `👥 jogadores` → aba `grupos`, e
+> mede: nº de botões, rótulo do último, `scrollWidth − clientWidth` da grade, a caixa do botão
+> 35 contra a do painel E a viewport, alvo de toque ≥ 40px, e **`elementFromPoint` no centro do
+> botão 35** — o gate que retângulo nenhum fraude (botão dentro da caixa mas fora da parte
+> visível ainda devolve outra coisa). Roda em 1024×600 e 600×1024.
+>
+> ### 🚀 PRÓXIMA QUEST
+> Nada em aberto do teto. A fila manda: **ovelha + lã de verdade** (§🍖 F8 — mob, tosa, lã como
+> recurso) — é a que destrava cama, noite e o resto do §🍖. Depois: sentar na cadeira ·
+> **proteger a célula-molde contra edição** (`todo.md`, aberto desde 2026-08-17: nada impede
+> alguém de destruir a região `partida`, e daí em diante `/aula grupos` copiaria o estrago) ·
+> Ferramentas v2 (decisão `dano?` no Stack × faixa de ids). Se o usuário não escolher, comece
+> pela ovelha.
+>
+> **Herdado, não urgente:** `mundo-livre.ljw.corrompido-1785704408442` em `mundos/mundo-livre/`
+> — sobra de um boot que achou o save inválido e o renomeou; ninguém investigou por quê.
+
+
 > ## 🧭 HANDOFF — SESSÃO 88 (2026-08-25) · o ciclo não tinha defeito: o desligamento tinha
 >
 > **Bateria verde:** typecheck 3/3 · **931/931** · build · portão do dist ✓ · **16/16 smokes**
