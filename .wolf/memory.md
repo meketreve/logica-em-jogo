@@ -2684,3 +2684,10 @@ dist defasado. Tudo no cerebrum.
 | 17:03 | anota bug-645: ciclo dia/noite volta desligado ao carregar mundo (sonda de roundtrip PASSOU — furo fora da camada pura) | .wolf/buglog.json | registrado, não corrigido | ~18k |
 | 17:39 | lixeira 🗑️ (descartar item) pronta: puro+protocolo+session+2 painéis, TDD; conserta ✂ invisível (bug-646) | shared/{inventario,containers,protocol,session}.ts, client/src/{inventory,container,slotDrag,main}.ts, index.html | 931/931 · 15/15 smokes · cenarios 7/7 | ~95k |
 | 21:32 | 2 commits na main (feat lixeira + docs sessão 87); sem push | git | árvore limpa | ~3k |
+
+## Session: 2026-08-26 21:38
+
+| Time | Action | File(s) | Outcome | ~Tokens |
+|------|--------|---------|---------|--------|
+| 22:10 | bug-645: 4 sondas contra host/cliente REAIS (host livre, singleplayer no navegador, mundo de aula, sinais) | scratchpad | causa achada: NÃO é o ciclo, é o desligamento — SIGHUP não salva | ~85k |
+| 23:05 | fix: saveNow no SIGINT/SIGTERM/SIGHUP/SIGQUIT + smoke novo `sighup` (TDD: vermelho→verde) | server/src/index.ts, server/src/cenarios/_smoke-sighup.mjs, scripts/smoke.mjs | 931/931 · 16/16 smokes · build · dist · cenarios 7/7 byte-idênticos | ~40k |

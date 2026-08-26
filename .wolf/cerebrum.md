@@ -647,6 +647,28 @@
   e exige `Input.dispatchTouchEvent`. Misturar os dois é o jeito barato de dirigir o cliente
   inteiro sem pointer lock.
 
+- **[2026-08-25, sessão 88] Persistência do host: TODO caminho de saída tem de gravar.** O host
+  só tratava `SIGINT` e `SIGTERM`; **fechar a JANELA do terminal manda `SIGHUP`** — e o Node no
+  **Windows emite `SIGHUP` quando o console fecha**, que é como a escola encerra o `.bat`. Sem
+  handler o processo morre sem `saveNow` e some tudo desde o último autosave (30 s). Virou um laço
+  sobre `["SIGINT","SIGTERM","SIGHUP","SIGQUIT"]` em `server/src/index.ts`, com o smoke `sighup`
+  de guarda (bug-645). Regra geral: sinal novo de saída = nova linha nesse laço.
+- **[2026-08-25, sessão 88] "O estado X não é salvo" quase nunca é o estado X.** O ciclo dia/noite
+  passou em roundtrip puro (sessão 87) e passou nas sondas de host e de navegador; o que falhava
+  era o DESLIGAMENTO, comum a todo o mundo. Antes de mexer na camada do estado relatado, **meça o
+  caminho inteiro com o mesmo comando e dois desfechos diferentes** (aqui: mesmo mundo, `/ciclo
+  ligar`, SIGINT × SIGHUP) — a diferença entre os dois é a causa, e o controle já vem junto.
+- **[2026-08-25, sessão 88] O `.ljw` responde "gravou?" em um passo, e o `chat.log` diz onde o
+  usuário esteve.** `decodeSave(bytes).ciclo/.hora/.modo` lido dos mundos da máquina mostrou
+  `hora=12` EXATA em todos (ou seja: o ciclo nunca sobreviveu a um autosave em lugar nenhum), e
+  `grep "Ciclo de dia e noite" mundos/*/chat.log` mostrou que o comando nunca rodou num mundo de
+  host aqui — `registrarChat` grava **mesmo em mundo somenteLeitura**, então o log da aula existe
+  sem `.ljw` nenhum ao lado. Duas leituras baratas que valem mais que meia hora de hipótese.
+- **[2026-08-25, sessão 88] Smoke que precisa MATAR o host sobe o próprio host.** `scripts/smoke.mjs`
+  passou a aceitar entrada com `servidores: []` + `porta` (o runner cai pra `smoke.porta`); o
+  `_smoke-sighup.mjs` faz `spawn`/`process.kill(-pid, sinal)` como o `esc-shot.mjs`. Rodar a MESMA
+  rodada com `SIGINT` logo depois é o controle que separa "o fix funciona" de "o smoke é frouxo".
+
 ### Invariantes e contratos
 
 - **Arquivo de mundo que começa com `aula` é MUNDO DE AULA** (`ehMundoDeAula`, server/src/

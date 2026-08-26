@@ -5454,24 +5454,30 @@
       "id": "bug-645",
       "timestamp": "2026-08-25T17:05:00Z",
       "error_message": "usuário: 'mundo com ciclo de dia e noite ativado, quando é carregado fica desativado — estado do ciclo não é salvo mas a hora é'",
-      "file": "shared/src/session.ts (toSave/restore) — caminho real do save AINDA NÃO IDENTIFICADO",
-      "root_cause": "ABERTO. Sonda descartável (vitest, roundtrip GameSession{cicloAtivo:true,horaDoDia:18.5} → toSave → encodeSave → decodeSave → new GameSession({restore})) PASSOU: meta.ciclo=true, restore.ciclo=true, b.cicloAtivo=true, b.horaDoDia=18.5. Logo a camada pura (save.ts encode/decode readSaveMeta, session.ts:814 grava `ciclo`, session.ts:649 restaura) NÃO é o furo. Suspeitos, em ordem: (1) SAVE VELHO — o arquivo não foi reescrito depois do `/ciclo ligar` (autosave/desligamento), e a hora 'salva' que o usuário vê é a hora antiga, plausível o bastante pra não chamar atenção; (2) mundo de AULA/modelo (`somenteLeitura`), que por projeto NUNCA persiste alteração (server/src/index.ts:240 `if (somenteLeitura) return;`) — aí nem hora nem ciclo do runtime entram no arquivo; (3) o mundo veio de um cenário gerado por server/src/cenarios/gerar.ts, que nasce com ciclo OFF; (4) caminho de troca de mundo (`comandoMundo`/`novaSessao` em server/src/index.ts:321) salvando antes/depois errado. Falta reproduzir com o .ljw do usuário.",
-      "fix": "AINDA NÃO CORRIGIDO — só registrado. Próximo passo: pedir o .ljw ao usuário (ou reproduzir) e ler o meta cru do arquivo (`decodeSave(...).ciclo`) — isso separa 'não gravou' de 'não restaurou' em um passo. Se `ciclo:true` estiver no arquivo, o furo é no carregamento; se não estiver, é gravação (save velho / aula read-only / cenário).",
+      "file": "server/src/index.ts (desligamento do host) — NÃO era shared/src/session.ts",
+      "root_cause": "RESOLVIDO (2026-08-25, sessão 88). O ciclo NUNCA teve defeito de persistência — o DESLIGAMENTO tinha. `server/src/index.ts` só tinha handler de SIGINT e SIGTERM; FECHAR A JANELA do terminal manda SIGHUP (e o Node no Windows emite SIGHUP quando o console fecha — é assim que a escola encerra o .bat), o processo morre sem `saveNow` e some TUDO desde o último autosave (até 30 s de mundo). Medido: mesmo mundo, mesmo comando — SIGINT grava ciclo=true hora=12.03; SIGHUP não grava nada (arquivo nem existe num mundo novo). Quatro sondas contra o host/cliente REAIS antes de achar: (1) host, mundo livre, Ctrl+C — VERDE (grava e restaura); (2) singleplayer no navegador (Chrome headless, worker + IndexedDB, autosave e botão sair) — VERDE; (3) mundo de AULA (cenarios/aula*.ljw) — não grava NADA por projeto (`ehMundoDeAula` em server/src/paths.ts + `saveNow` retorna cedo), decisão mantida pelo usuário: 'aula não precisa salvar, apenas mundos de construção livre'; (4) SIGHUP × SIGINT no mesmo mundo — REPRODUZIDO. A metade estranha do relato ('a hora é salva') é o último autosave: hora quase parada em 12h parece 'a hora certa', e só o ciclo salta aos olhos. Confere com o disco: os 4 mundos da máquina têm hora=12 exata e ciclo=false.",
+      "fix": "server/src/index.ts: um laço registra `saveNow('encerrando') + exit(0)` para SIGINT, SIGTERM, SIGHUP e SIGQUIT (antes eram dois handlers soltos, só os dois primeiros). Prova permanente: `server/src/cenarios/_smoke-sighup.mjs` (smoke novo, 16º) — liga o ciclo num mundo novo, mata o host com o sinal, sobe de novo SEM LJ_NOVO e exige o ciclo ligado; roda a mesma rodada com SIGINT como CONTROLE. O smoke sobe o próprio host (precisa escolher o sinal), por isso `scripts/smoke.mjs` passou a aceitar entrada com `servidores: []` + `porta`.",
       "tags": [
+        "aula",
         "ciclo",
+        "corrigido",
+        "cp21",
+        "desligamento",
         "dia-noite",
-        "save",
         "ljw",
         "persistencia",
-        "cp21",
-        "aberto",
-        "nao-reproduzido"
+        "reproduzido",
+        "save",
+        "sem-aviso",
+        "sighup",
+        "smoke",
+        "somente-leitura"
       ],
       "related_bugs": [
         "bug-626"
       ],
       "occurrences": 1,
-      "last_seen": "2026-08-25T17:05:00Z"
+      "last_seen": "2026-08-25T23:20:00Z"
     },
     {
       "id": "bug-646",

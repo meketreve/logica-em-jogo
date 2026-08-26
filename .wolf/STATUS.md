@@ -2,6 +2,51 @@
 
 > Single source of truth for resuming work. Read this FIRST when starting a session.
 
+> ## 🧭 HANDOFF — SESSÃO 88 (2026-08-25) · o ciclo não tinha defeito: o desligamento tinha
+>
+> **Bateria verde:** typecheck 3/3 · **931/931** · build · portão do dist ✓ · **16/16 smokes**
+> (o 16º é novo) · `npm run cenarios` 7/7 **byte-idênticos** · launchers 7/7.
+>
+> ⚠️ Confira o sha do topo com `rtk proxy git rev-parse --short origin/main`, nunca com um sha
+> escrito aqui. Entrando na sessão havia **5 commits na main não empurrados** (`origin/main` =
+> `073c2bf`); esta sessão deixou a correção **na árvore, não commitada**.
+>
+> ### ✅ Fechado — bug-645 (o ciclo dia/noite "não era salvo")
+> Relato: "mundo com ciclo ativado volta desativado ao carregar; a hora é salva, o ciclo não".
+> **O ciclo nunca teve defeito de persistência.** Quatro sondas contra o host e o cliente REAIS:
+> 1. **host, mundo livre, Ctrl+C** — grava `ciclo=true hora=12.55` e restaura. VERDE.
+> 2. **singleplayer no navegador** (Chrome headless: menu → criar mundo → `/ciclo ligar` →
+>    autosave de 30 s no IndexedDB → botão sair → carregar pelo `jogar`) — `/hora` responde
+>    "o tempo está passando" às 12h54. VERDE.
+> 3. **mundo de AULA** (`cenarios/aula*.ljw`) — não grava NADA (`ehMundoDeAula` por NOME de
+>    arquivo + `saveNow` retorna cedo). Decisão do usuário nesta sessão: **fica assim** — "aula
+>    não precisa salvar, apenas mundos de construção livre". `mundos/aula1-sequencia/` tem só
+>    `chat.log`, nenhum `.ljw` — é a assinatura no disco.
+> 4. **SIGHUP × SIGINT no mesmo mundo** — REPRODUZIDO: SIGINT grava `ciclo=true`, **SIGHUP não
+>    grava nada**.
+>
+> **Causa:** `server/src/index.ts` só tinha handler de `SIGINT` e `SIGTERM`. **Fechar a janela do
+> terminal manda `SIGHUP`** — e o Node no **Windows emite `SIGHUP` quando o console fecha**, que é
+> como a escola encerra o `.bat`. O host morria sem `saveNow` e sumia tudo desde o último autosave
+> (até 30 s de mundo); o ciclo era só o que mais saltava aos olhos. A "hora salva" é a do último
+> autosave — quase parada em 12h, parece a hora certa. Confere com o disco: os 4 mundos da máquina
+> têm `hora=12` EXATA e `ciclo=false`.
+>
+> **Fix:** um laço registra `saveNow("encerrando") + exit(0)` para
+> `SIGINT · SIGTERM · SIGHUP · SIGQUIT`. Sinal de saída novo = linha nova nesse laço.
+>
+> **Prova permanente — smoke `sighup` (16º):** `server/src/cenarios/_smoke-sighup.mjs` liga o
+> ciclo num mundo NOVO, mata o host com o sinal, sobe de novo **sem `LJ_NOVO`** (se nada foi
+> gravado o host recusa subir) e exige o ciclo ligado; roda a MESMA rodada com `SIGINT` como
+> CONTROLE. Ele sobe o próprio host, então `scripts/smoke.mjs` passou a aceitar entrada com
+> `servidores: []` + `porta`. TDD de verdade: vermelho (2 ✗ no SIGHUP) → fix → verde.
+>
+> ### 🚀 PRÓXIMA QUEST
+> 1. **Commitar** o que está na árvore: `server/src/index.ts`, `scripts/smoke.mjs`,
+>    `server/src/cenarios/_smoke-sighup.mjs` + os arquivos do `.wolf/`.
+> 2. Fila antiga: ovelha + lã de verdade · sentar na cadeira · teto de 35 grupos · Ferramentas v2.
+
+
 > ## 🧭 HANDOFF — SESSÃO 87 (2026-08-25) · a lixeira (e o ✂ que nunca existiu)
 >
 > **Bateria verde:** launchers 7/7 · typecheck 3/3 · **931/931** · build · portão do dist ✓ ·

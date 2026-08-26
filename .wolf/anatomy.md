@@ -1,7 +1,7 @@
 # anatomy.md
 
-> Auto-maintained by OpenWolf. Last scanned: 2026-08-25T20:39:17.993Z
-> Files: 366 tracked | Anatomy hits: 0 | Misses: 0
+> Auto-maintained by OpenWolf. Last scanned: 2026-08-26T02:15:40.250Z
+> Files: 367 tracked | Anatomy hits: 0 | Misses: 0
 
 ## ./
 
@@ -507,7 +507,7 @@
 ## mundos/_smoke-coluna/
 
 - `_smoke-coluna.ljw` (~62 tok)
-- `chat.log` (~4960 tok)
+- `chat.log` (~5014 tok)
 
 ## mundos/_smoke-comida/
 
@@ -531,7 +531,7 @@
 
 ## mundos/_smoke-kicar/
 
-- `chat.log` (~22903 tok)
+- `chat.log` (~23144 tok)
 
 ## mundos/_smoke-modoa/
 
@@ -552,7 +552,7 @@
 ## mundos/_smoke-trocaa/
 
 - `_smoke-trocaa.ljw` (~87 tok)
-- `chat.log` (~15077 tok)
+- `chat.log` (~15241 tok)
 
 ## mundos/_smoke-trocab/
 
@@ -564,11 +564,11 @@
 
 ## mundos/aula1-sequencia/
 
-- `chat.log` (~77920 tok)
+- `chat.log` (~78886 tok)
 
 ## mundos/aula2-binario/
 
-- `chat.log` (~3040 tok)
+- `chat.log` (~3072 tok)
 
 ## mundos/aula7-corrida/
 
@@ -765,12 +765,12 @@
   - fn `cdp` L206-211 (~50 tok)
   - fn `avaliar` L212-255 (~491 tok)
   - fn `checar` L256-289 (~490 tok)
-- `smoke.mjs` — Runner dos smokes de rede — sobe o servidor REAL, roda o cenário, mata tudo. (~4618 tok)
-  - fn `espera` L358-360 (~42 tok)
-  - fn `esperaPorta` L361-375 (~144 tok)
-  - fn `sobeServidor` L376-388 (~112 tok)
-  - fn `mata` L389-397 (~52 tok)
-  - fn `rodaSmoke` L398-497 (~986 tok)
+- `smoke.mjs` — Runner dos smokes de rede — sobe o servidor REAL, roda o cenário, mata tudo. (~4792 tok)
+  - fn `espera` L369-371 (~42 tok)
+  - fn `esperaPorta` L372-386 (~144 tok)
+  - fn `sobeServidor` L387-399 (~112 tok)
+  - fn `mata` L400-408 (~52 tok)
+  - fn `rodaSmoke` L409-509 (~1016 tok)
 - `tablet-shots.mjs` — MEDE e fotografa as telas de UI num viewport de TABLET — 1024×600 paisagem (~5931 tok)
   - fn `acharChrome` L40-54 (~154 tok)
   - fn `espera` L55-74 (~149 tok)
@@ -830,15 +830,15 @@
 
 ## server/src/
 
-- `index.ts` — Hospedeiro Node+ws do servidor (LAN): embrulha a MESMA GameSession do Web (~6604 tok)
+- `index.ts` — Hospedeiro Node+ws do servidor (LAN): embrulha a MESMA GameSession do Web (~6759 tok)
   - fn `gerarCodigo` L121-157 (~526 tok)
   - fn `registrarChat` L158-238 (~1052 tok)
-  - fn `saveNow` L239-295 (~620 tok)
-  - fn `interceptarMundo` L296-352 (~533 tok)
-  - fn `interceptarKicar` L353-421 (~633 tok)
-  - fn `interceptarBanimento` L422-505 (~787 tok)
-  - fn `interceptarProfile` L506-570 (~761 tok)
-  - fn `enderecoDaRede` L571-592 (~230 tok)
+  - fn `saveNow` L239-300 (~775 tok)
+  - fn `interceptarMundo` L301-357 (~533 tok)
+  - fn `interceptarKicar` L358-426 (~633 tok)
+  - fn `interceptarBanimento` L427-510 (~787 tok)
+  - fn `interceptarProfile` L511-575 (~761 tok)
+  - fn `enderecoDaRede` L576-597 (~230 tok)
 - `mundos.ts` — `/mundo` (cp19) — trocar a aula SEM derrubar a turma. (~2060 tok)
   - fn `mundosDisponiveis` L29-49 (~214 tok)
   - fn `acharMundo` L50-57 (~81 tok)
@@ -962,6 +962,15 @@
   - fn `socar` L47-47 (~24 tok)
   - fn `ultimaVida` L48-48 (~16 tok)
   - fn `ultimoModo` L49-162 (~1277 tok)
+- `_smoke-sighup.mjs` — Smoke do DESLIGAMENTO do host (bug-645, 2026-08-25). (~1249 tok)
+  - fn `ok` L25-28 (~29 tok)
+  - fn `espera` L29-30 (~18 tok)
+  - fn `sobe` L31-49 (~138 tok)
+  - fn `esperaPorta` L50-64 (~133 tok)
+  - fn `cliente` L65-77 (~140 tok)
+  - fn `dizer` L78-78 (~26 tok)
+  - fn `ultimo` L79-85 (~76 tok)
+  - fn `rodada` L86-133 (~495 tok)
 - `_smoke-troca-raio.mjs` — Smoke da TROCA DE AULA em mundo LAZY (cp19 + F2), contra o servidor REAL. (~1223 tok)
   - fn `ok` L19-22 (~29 tok)
   - fn `espera` L23-27 (~43 tok)
