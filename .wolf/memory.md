@@ -2738,3 +2738,4 @@ levou pra 941px. Virou `.jog-grade` (grid `auto-fill`), com sonda própria (`npm
 que mede `elementFromPoint` no centro do botão do último grupo — o gate que retângulo nenhum
 fraude.
 | 00:58 | commit do código: teto 35 + fix do painel + cenários + dist + sonda, tudo junto (dist e src no MESMO commit — a escola roda o dist) | b7e4d71 | 17 arquivos | ~3k |
+| 01:00 | commit dos docs (STATUS 89, buglog 647, cerebrum, todo, anatomy) | 212df66 | 7 arquivos | ~3k |

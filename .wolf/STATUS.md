@@ -9,9 +9,9 @@
 > 1024×600 E a 600×1024**.
 >
 > ⚠️ Confira o sha do topo com `rtk proxy git rev-parse --short origin/main`, nunca com um sha
-> escrito aqui. **10 commits na main, NADA empurrado** (push só a pedido) — árvore limpa. Desta
+> escrito aqui. **11 commits na main, NADA empurrado** (push só a pedido) — árvore limpa. Desta
 > sessão: `b7e4d71` feat(aula): sobe o teto de grupos de 20 para 35 (código, cenários, dist e a
-> sonda no MESMO commit — a escola roda o dist) · `SHA_DOCS` docs(wolf): registra a sessão 89.
+> sonda no MESMO commit — a escola roda o dist) · `212df66` docs(wolf): registra a sessão 89.
 > (`origin/main` seguia em `073c2bf` no início da sessão.)
 >
 > ### ✅ Entregue — TETO DE 35 GRUPOS (§ turma individual, pedido de 2026-08-17)
