@@ -35,6 +35,7 @@ import {
   type Inventario,
   contar,
   definirSlot,
+  descartarSlot,
   moverSlot,
   parseInventario,
   remover,
@@ -46,6 +47,7 @@ import {
   containerKey,
   containerTemConteudo,
   containerTipoDe,
+  descartarEm,
   moverBloqueadoPorCombustivel,
   moverEntre,
 } from "./containers";
@@ -1420,6 +1422,51 @@ export class GameSession {
         sendInventario(this, clientId);
         // TODOS os que estão com este container aberto recebem o conteúdo novo
         // — senão um item some na cara do colega (o caso que a mochila não tem)
+        avisarContainer(this, msg.x, msg.y, msg.z);
+        break;
+      }
+      case "descartar_item": {
+        // §🗑️ (playtest 2026-08-25): o aluno JOGA FORA a pilha. Mesma disciplina
+        // do `mover_item` — o cliente manda o slot, o servidor decide e responde
+        // com a mochila inteira. O item EVAPORA: não existe item no chão neste
+        // jogo, e a lixeira não vai ser a exceção que obriga a inventar um.
+        // Criativo cai no `inventarioVale` (lá a paleta é infinita: descartar
+        // não significaria nada).
+        const p = this.players.get(clientId);
+        if (!p || !inventarioVale(this, clientId)) return;
+        const antes = inventarioDe(this, p.name);
+        const depois = descartarSlot(antes, msg.slot, msg.qtd);
+        if (depois === antes) return; // índice inválido ou slot vazio
+        this.inventarios.set(p.name, depois);
+        sendInventario(this, clientId);
+        break;
+      }
+      case "descartar_container": {
+        // §🗑️ com o baú/fornalha ABERTO. Índice UNIFICADO e os MESMOS gates do
+        // `mover_container`: sem eles o fio esvaziaria o baú de qualquer um, de
+        // qualquer lugar.
+        const p = this.players.get(clientId);
+        if (!p || !inventarioVale(this, clientId)) return;
+        const aberto = this.containerAberto.get(clientId);
+        if (!aberto || aberto.x !== msg.x || aberto.y !== msg.y || aberto.z !== msg.z) return;
+        if (!inBounds(this.world, msg.x, msg.y, msg.z)) return;
+        if (!this.withinReach(p, msg.x, msg.y, msg.z)) return;
+        if (
+          claimBloqueia(this, clientId, msg.x, msg.y, msg.z) ??
+          confinaBloqueia(this, clientId, msg.x, msg.y, msg.z)
+        ) {
+          fecharContainer(this, clientId);
+          return;
+        }
+        const atual = getBlock(this.world, msg.x, msg.y, msg.z);
+        const cont = containerDe(this, msg.x, msg.y, msg.z, atual);
+        if (!cont) return;
+        const r = descartarEm(inventarioDe(this, p.name), cont, msg.slot, msg.qtd);
+        if (!r) return; // índice inválido ou slot vazio
+        this.inventarios.set(p.name, r.mochila);
+        this.containers.set(containerKey(msg.x, msg.y, msg.z), r.container);
+        sendInventario(this, clientId);
+        // quem mais está com este container aberto vê o slot esvaziar na hora
         avisarContainer(this, msg.x, msg.y, msg.z);
         break;
       }

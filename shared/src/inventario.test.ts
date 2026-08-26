@@ -8,6 +8,7 @@ import {
   adicionar,
   cabe,
   contar,
+  descartarSlot,
   espacoPara,
   estaVazio,
   inventarioParaSave,
@@ -605,5 +606,68 @@ describe("§🧹 moverSlot com qtd — o PC divide a pilha (playtest)", () => {
     expect(moverSlot(antes, 9, 20, 2)).toBe(antes);
     expect(moverSlot(antes, 0, 999, 2)).toBe(antes);
     expect(moverSlot(antes, 0, 0, 2)).toBe(antes);
+  });
+});
+
+describe("§🗑️ descartarSlot — o aluno joga fora (playtest 2026-08-25)", () => {
+  it("sem qtd, o slot inteiro vai embora e o resto fica de pé", () => {
+    const antes = inv([0, BlockId.Stone, 40], [5, BlockId.Sand, 3]);
+    const depois = descartarSlot(antes, 0);
+    expect(depois[0]).toBeNull();
+    expect(depois[5]).toEqual({ id: BlockId.Sand, qtd: 3 });
+  });
+
+  it("com qtd, tira só a parte e deixa o resto no MESMO slot", () => {
+    const depois = descartarSlot(inv([3, BlockId.Stone, 10]), 3, 4);
+    expect(depois[3]).toEqual({ id: BlockId.Stone, qtd: 6 });
+  });
+
+  it("qtd ≥ a pilha esvazia o slot (não deixa pilha de qtd 0)", () => {
+    expect(descartarSlot(inv([3, BlockId.Stone, 5]), 3, 5)[3]).toBeNull();
+    expect(descartarSlot(inv([3, BlockId.Stone, 5]), 3, 99)[3]).toBeNull();
+  });
+
+  it("nada pra descartar devolve o MESMO inventário (é o sinal de no-op)", () => {
+    const antes = inv([0, BlockId.Stone, 4]);
+    expect(descartarSlot(antes, 1)).toBe(antes); // slot vazio
+    expect(descartarSlot(antes, 27)).toBe(antes); // fora da faixa
+    expect(descartarSlot(antes, -1)).toBe(antes);
+    expect(descartarSlot(antes, 0.5)).toBe(antes);
+    expect(descartarSlot(antes, 0, 0)).toBe(antes); // qtd inválida
+    expect(descartarSlot(antes, 0, -2)).toBe(antes);
+    expect(descartarSlot(antes, 0, 1.5)).toBe(antes);
+  });
+});
+
+describe("§🗑️ descartar_item pelo fio (o botão de lixeira)", () => {
+  const jogarFora = (slot: number, qtd?: number) =>
+    JSON.stringify({ type: "descartar_item", slot, ...(qtd === undefined ? {} : { qtd }) });
+
+  it("a pilha some e o inventário inteiro volta sem ela", () => {
+    const { session, sent } = turma("sobrevivencia");
+    session.handleMessage(1, cmd(`/dar ana ${BlockId.Stone} 5`));
+    session.handleMessage(2, jogarFora(0));
+    expect((ultimoInv(sent, 2) ?? inventarioVazio())[0]).toBeNull();
+  });
+
+  it("com qtd, joga fora só a parte e o resto fica no slot", () => {
+    const { session, sent } = turma("sobrevivencia");
+    session.handleMessage(1, cmd(`/dar ana ${BlockId.Stone} 5`));
+    session.handleMessage(2, jogarFora(0, 2));
+    expect((ultimoInv(sent, 2) ?? inventarioVazio())[0]).toEqual({ id: BlockId.Stone, qtd: 3 });
+  });
+
+  it("em criativo o comando é ignorado (não existe mochila lá)", () => {
+    const { session, sent } = turma("criativo");
+    session.handleMessage(2, jogarFora(0));
+    expect(ultimoInv(sent, 2)).toBeNull();
+  });
+
+  it("slot do fio fora da faixa não derruba nem muda nada", () => {
+    const { session, sent } = turma("sobrevivencia");
+    session.handleMessage(1, cmd(`/dar ana ${BlockId.Stone} 5`));
+    session.handleMessage(2, jogarFora(999));
+    session.handleMessage(2, jogarFora(-1));
+    expect((ultimoInv(sent, 2) ?? inventarioVazio())[0]).toEqual({ id: BlockId.Stone, qtd: 5 });
   });
 });

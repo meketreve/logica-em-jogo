@@ -12,6 +12,7 @@ import {
   containerTemConteudo,
   containerTipoDe,
   containerVazio,
+  descartarEm,
   ehSlotDeContainer,
   moverBloqueadoPorCombustivel,
   moverEntre,
@@ -276,5 +277,45 @@ describe("containers — save (o conteúdo não cabe no byte do chunk)", () => {
 
   it("a chave é a posição, e é a mesma forma do quadro", () => {
     expect(containerKey(1, -2, 3)).toBe("1,-2,3");
+  });
+});
+
+describe("§🗑️ descartarEm — a lixeira também vale com o baú aberto", () => {
+  const bau = (i: number, id: number, qtd: number): Container => {
+    const base = containerVazio("bau");
+    const slots = base.slots.slice();
+    slots[i] = { id, qtd };
+    return { ...base, slots };
+  };
+
+  it("descarta um slot da MOCHILA sem tocar no container", () => {
+    const c = bau(0, BlockId.Stone, 5);
+    const r = descartarEm(inv([2, BlockId.Sand, 9]), c, 2);
+    expect(r).not.toBeNull();
+    expect(r?.mochila[2]).toBeNull();
+    expect(r?.container.slots[0]).toEqual({ id: BlockId.Stone, qtd: 5 });
+  });
+
+  it("descarta um slot do CONTAINER pelo índice unificado", () => {
+    const r = descartarEm(inventarioVazio(), bau(1, BlockId.Sand, 7), INV_SLOTS + 1);
+    expect(r?.container.slots[1]).toBeNull();
+  });
+
+  it("com qtd, tira só a parte da pilha do container", () => {
+    const r = descartarEm(inventarioVazio(), bau(1, BlockId.Sand, 7), INV_SLOTS + 1, 2);
+    expect(r?.container.slots[1]).toEqual({ id: BlockId.Sand, qtd: 5 });
+  });
+
+  it("a SAÍDA da fornalha pode ser descartada — a mão única proíbe PÔR, não tirar", () => {
+    const r = descartarEm(inventarioVazio(), forno(FORNALHA_SAIDA, ITEM_CARVAO, 3), INV_SLOTS + FORNALHA_SAIDA);
+    expect(r?.container.slots[FORNALHA_SAIDA]).toBeNull();
+  });
+
+  it("nada pra descartar devolve null (o sinal de no-op do moverEntre)", () => {
+    const c = bau(0, BlockId.Stone, 5);
+    expect(descartarEm(inventarioVazio(), c, 3)).toBeNull(); // slot vazio
+    expect(descartarEm(inventarioVazio(), c, -1)).toBeNull();
+    expect(descartarEm(inventarioVazio(), c, totalDeSlots("bau"))).toBeNull(); // fora da faixa
+    expect(descartarEm(inventarioVazio(), c, INV_SLOTS, 0)).toBeNull(); // qtd inválida
   });
 });

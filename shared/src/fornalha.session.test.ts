@@ -379,3 +379,39 @@ describe("§🍖 F10b — a fornalha pelo fio", () => {
     expect(c.slots).toEqual([]); // o minério não atravessou a troca de bloco
   });
 });
+
+describe("§🗑️ descartar_container — a lixeira com o painel aberto", () => {
+  const jogarFora = (x: number, y: number, z: number, slot: number, qtd?: number) =>
+    JSON.stringify({
+      type: "descartar_container",
+      x,
+      y,
+      z,
+      slot,
+      ...(qtd === undefined ? {} : { qtd }),
+    });
+
+  it("joga fora o que está DENTRO da fornalha e devolve o container", () => {
+    const { session, sent } = turma();
+    const f = poeFornalha(session);
+    session.handleMessage(1, cmd(`/dar ana ${ITEM_CARVAO} 4`));
+    session.handleMessage(2, abrir(f.x, f.y, f.z));
+    session.handleMessage(2, mover(f.x, f.y, f.z, 0, INV_SLOTS + FORNALHA_COMBUSTIVEL));
+    session.handleMessage(2, jogarFora(f.x, f.y, f.z, INV_SLOTS + FORNALHA_COMBUSTIVEL));
+    expect(ultimoContainer(sent, 2)?.slots.length).toBe(0);
+    expect(naMochila(sent, 2, ITEM_CARVAO)).toBe(0);
+  });
+
+  it("sem o painel ABERTO, o descarte é ignorado (o fio não mexe em baú de longe)", () => {
+    const { session, sent } = turma();
+    const f = poeFornalha(session);
+    session.handleMessage(1, cmd(`/dar ana ${ITEM_CARVAO} 4`));
+    session.handleMessage(2, abrir(f.x, f.y, f.z));
+    session.handleMessage(2, mover(f.x, f.y, f.z, 0, INV_SLOTS + FORNALHA_COMBUSTIVEL));
+    session.handleMessage(2, JSON.stringify({ type: "fechar_container" }));
+    session.handleMessage(2, jogarFora(f.x, f.y, f.z, INV_SLOTS + FORNALHA_COMBUSTIVEL));
+    expect(ultimoContainer(sent, 2)?.slots).toEqual([
+      { slot: FORNALHA_COMBUSTIVEL, id: ITEM_CARVAO, qtd: 4 },
+    ]);
+  });
+});

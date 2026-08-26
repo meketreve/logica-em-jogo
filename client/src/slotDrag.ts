@@ -37,6 +37,11 @@ export interface SlotDragHooks {
   mover(de: number, para: number, qtd?: number): void;
   /** Redesenha o painel (o pego ou a mochila mudou). */
   redesenhar(): void;
+  /** §🗑️: a coordenada caiu em cima da LIXEIRA do painel? */
+  sobreLixeira(x: number, y: number): boolean;
+  /** §🗑️: joga fora a pilha do slot (`qtd` opcional = só parte). Quem apaga é
+   *  o servidor — aqui é só a intenção, como no `mover`. */
+  descartar(slot: number, qtd?: number): void;
   /** Clique SEM arrasto: o gesto tocar-origem/destino segue vivo. `shift` =
    *  o shift-clique do quick move (ver o painel). */
   aoClicar(slot: number, vazio: boolean, shift: boolean): void;
@@ -72,6 +77,25 @@ export function primeiroLugar(
     if (s.id === id && s.qtd < tamanhoStack(id)) return i;
   }
   return null;
+}
+
+/** A coordenada está em cima da lixeira? Mesmo molde do `slotSob`: quem marca
+ *  o alvo é a CLASSE no botão, e não uma medida de retângulo que o scroll do
+ *  painel invalidaria. Vale pros dois painéis. */
+export function lixeiraSob(x: number, y: number): boolean {
+  const el = document.elementFromPoint(x, y) as HTMLElement | null;
+  return !!el?.closest?.(".inv-lixeira");
+}
+
+/** A fileira de botões de ação do item NA MÃO (✂ dividir, 🗑️ descartar). Os
+ *  dois painéis desenham a mesma coisa, e ela é UMA LINHA porque o painel tem
+ *  altura fixa: dois botões empilhados comeriam a fileira de slots que a media
+ *  query do tablet luta pra manter visível. */
+export function linhaDeAcoes(botoes: readonly HTMLElement[]): HTMLElement {
+  const linha = document.createElement("div");
+  linha.className = "inv-acoes";
+  linha.append(...botoes);
+  return linha;
 }
 
 export class ArrastoDeSlot {
@@ -174,9 +198,16 @@ export class ArrastoDeSlot {
     if (!this.arrastando) return; // clique sem arrasto: quem cuida é o `click`
     this.arrastando = false;
     this.suprimirClique = true;
-    const para = this.hooks.slotEm(e.clientX, e.clientY);
-    if (para !== null && para !== de) {
-      this.hooks.mover(de, para, this.hooks.metade() ?? undefined);
+    // §🗑️: largar em cima da lixeira JOGA FORA (o destino que não é slot). A
+    // pergunta vem antes do `slotEm` porque a lixeira mora fora da grade — e
+    // largar fora de qualquer alvo continua sendo "não fez nada".
+    if (this.hooks.sobreLixeira(e.clientX, e.clientY)) {
+      this.hooks.descartar(de, this.hooks.metade() ?? undefined);
+    } else {
+      const para = this.hooks.slotEm(e.clientX, e.clientY);
+      if (para !== null && para !== de) {
+        this.hooks.mover(de, para, this.hooks.metade() ?? undefined);
+      }
     }
     this.hooks.setPegando(null);
     this.hooks.setMetade(null);

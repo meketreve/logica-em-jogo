@@ -9,7 +9,7 @@ import {
 import { playUi } from "./audio";
 import { ABAS, type AbaInventario, type PlaceableEntry } from "./blocksUi";
 import type { Mochila } from "./mochila";
-import { ArrastoDeSlot, primeiroLugar, slotSob } from "./slotDrag";
+import { ArrastoDeSlot, linhaDeAcoes, lixeiraSob, primeiroLugar, slotSob } from "./slotDrag";
 import { esconderTooltip, tipDeItem } from "./tooltip";
 
 /**
@@ -101,6 +101,8 @@ export class InventoryPanel {
     private readonly mochila: Mochila,
     /** §🍖 F4: pede ao servidor pra mover uma pilha de slot. */
     private readonly mover: (de: number, para: number, qtd?: number) => void,
+    /** §🗑️: pede ao servidor pra JOGAR FORA a pilha (ou `qtd` dela). */
+    private readonly descartar: (slot: number, qtd?: number) => void,
     /** §🍖 F5: nome PT de um id (bloco ou item, ex. "tábuas", "balde vazio"). */
     private readonly nameOf: (id: number) => string,
     /** §🍖 F5: pede ao servidor pra fabricar a receita de índice `indice`. */
@@ -130,6 +132,8 @@ export class InventoryPanel {
         this.metadePegando = q;
       },
       mover: (de, para, qtd) => this.mover(de, para, qtd),
+      sobreLixeira: (x, y) => lixeiraSob(x, y),
+      descartar: (slot, qtd) => this.descartar(slot, qtd),
       redesenhar: () => this.render(),
       aoClicar: (slot, vazio, shift) => this.clicarMochila(slot, vazio, shift),
     });
@@ -378,6 +382,25 @@ export class InventoryPanel {
    * movimento ao servidor; tocar no mesmo de novo solta. Nada muda na tela até
    * o servidor responder — a UI não decide.
    */
+  /** §🗑️: o botão de jogar fora. É também o ALVO do arrasto do PC (a classe
+   *  `inv-lixeira` é o que o `lixeiraSob` procura), por isso ele existe durante
+   *  o arrasto — e não só depois de um toque. */
+  private botaoLixeira(quantos: number): HTMLButtonElement {
+    const b = document.createElement("button");
+    b.type = "button";
+    b.className = "inv-lixeira";
+    b.textContent = `🗑️ descartar (${quantos})`;
+    b.addEventListener("click", () => {
+      const slot = this.pegando;
+      if (slot === null) return;
+      this.descartar(slot, this.metadePegando ?? undefined);
+      this.pegando = null;
+      this.metadePegando = null;
+      this.render();
+    });
+    return b;
+  }
+
   private renderMochila(): void {
     const root = this.root;
     if (!root) return;
@@ -424,6 +447,11 @@ export class InventoryPanel {
             ? `agora toque no destino (leva ${this.metadePegando} do item) — ou toque no mesmo item para soltar`
             : "agora toque no slot de destino (ou no mesmo item para soltar)";
 
+    // ⚠️ Os botões de ação (✂ e 🗑️) entram no `root.append` LÁ EMBAIXO, e não
+    // por `dica.after(...)`: aqui o `dica` ainda está FORA do documento, e
+    // `after()` em nó sem pai é no-op silencioso — foi assim que o ✂ nasceu
+    // invisível em 2026-08-08 (bug-646).
+    const acoes: HTMLElement[] = [];
     if (this.subaba === "mochila" && this.pegando !== null) {
       const qtd = this.mochila.qtdDoSlot(this.pegando);
       if (qtd > 1) {
@@ -439,8 +467,13 @@ export class InventoryPanel {
             this.metadePegando === null ? Math.ceil(this.mochila.qtdDoSlot(this.pegando!) / 2) : null;
           this.render();
         });
-        dica.after(dividir);
+        acoes.push(dividir);
       }
+      // §🗑️ (playtest 2026-08-25): jogar fora. Só nasce com item NA MÃO, e só
+      // aqui dentro — o `renderMochila` inteiro é do modo sobrevivência (em
+      // criativo o painel é a paleta infinita, onde descartar não quer dizer
+      // nada). O item some pra sempre: quem apaga é o servidor.
+      acoes.push(this.botaoLixeira(this.metadePegando ?? qtd));
     }
 
     if (this.subaba === "criar") {
@@ -494,7 +527,7 @@ export class InventoryPanel {
       bar.appendChild(b);
     }
 
-    root.append(head, abas, dica, grade, bar);
+    root.append(head, abas, dica, ...(acoes.length ? [linhaDeAcoes(acoes)] : []), grade, bar);
   }
 
   /**

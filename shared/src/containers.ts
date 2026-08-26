@@ -5,6 +5,7 @@ import {
   type Inventario,
   type Slot,
   type SlotSalvo,
+  descartarEmArray,
   moverEmArray,
   moverParteEmArray,
   tamanhoStack,
@@ -167,6 +168,30 @@ export function moverEntre(
       ? moverEmArray(juntos, de, para)
       : moverParteEmArray(juntos, de, para, qtd);
   if (depois === juntos) return null; // `moverEmArray` devolve o MESMO array no no-op
+  return {
+    mochila: depois.slice(0, INV_SLOTS),
+    container: { ...c, slots: depois.slice(INV_SLOTS) },
+  };
+}
+
+/**
+ * Joga fora o slot do índice UNIFICADO — a lixeira do §🗑️ com o baú/fornalha
+ * aberto. Mesmo contrato do `moverEntre`: `null` quando NADA mudou (índice
+ * fora da faixa, slot vazio, `qtd` inválida), senão as duas pontas novas.
+ *
+ * ⚠️ A saída da fornalha PODE ser descartada. A regra de mão única do
+ * `moverEntre` proíbe **pôr** coisa lá (ficaria presa); tirar de lá — pro
+ * inventário ou pro lixo — sempre foi permitido.
+ */
+export function descartarEm(
+  mochila: Inventario,
+  c: Container,
+  slot: number,
+  qtd?: number,
+): { mochila: Inventario; container: Container } | null {
+  const juntos: readonly Slot[] = [...mochila, ...c.slots];
+  const depois = descartarEmArray(juntos, slot, qtd);
+  if (depois === juntos) return null; // identidade = no-op, como no `moverEntre`
   return {
     mochila: depois.slice(0, INV_SLOTS),
     container: { ...c, slots: depois.slice(INV_SLOTS) },

@@ -168,6 +168,44 @@ export function moverSlot(inv: Inventario, de: number, para: number, qtd?: numbe
 }
 
 /**
+ * Joga fora o conteúdo do slot `slot` — o botão de lixeira do §🗑️ (playtest
+ * 2026-08-25: a mochila entope de terra e não havia como se livrar dela). O
+ * item EVAPORA: não existe item no chão neste jogo (ver o cabeçalho deste
+ * arquivo), e a lixeira não vai ser a exceção que obriga a inventar um.
+ *
+ * `qtd` (opcional) descarta só PARTE da pilha — a mesma divisão que o
+ * `moverSlot` aceita; ausente (ou ≥ a pilha) leva o slot inteiro. Índice
+ * inválido, slot vazio ou `qtd` inválida devolvem o MESMO inventário — é a
+ * identidade que diz a quem chamou "nada mudou, nem manda mensagem".
+ */
+export function descartarSlot(inv: Inventario, slot: number, qtd?: number): Inventario {
+  if (!slotValido(slot)) return inv;
+  return descartarEmArray(inv, slot, qtd);
+}
+
+/**
+ * O NÚCLEO do descarte, sobre um array de slots QUALQUER — sem a régua de 27
+ * do inventário do jogador. Existe separado pelo mesmo motivo do
+ * `moverEmArray`: o painel do container (§🍖 F10) trabalha no array
+ * CONCATENADO mochila+container, e a regra de "tira N da pilha" tem de ser
+ * UMA só nos dois lados.
+ */
+export function descartarEmArray(
+  slots: readonly Slot[],
+  slot: number,
+  qtd?: number,
+): readonly Slot[] {
+  if (!Number.isInteger(slot) || slot < 0 || slot >= slots.length) return slots;
+  const origem = slots[slot] ?? null;
+  if (origem === null) return slots;
+  if (qtd !== undefined && (!Number.isInteger(qtd) || qtd <= 0)) return slots;
+
+  const out = slots.slice();
+  out[slot] = qtd === undefined || qtd >= origem.qtd ? null : { id: origem.id, qtd: origem.qtd - qtd };
+  return out;
+}
+
+/**
  * O NÚCLEO do movimento (junta ou troca), sobre um array de slots QUALQUER —
  * sem a régua de 27 do inventário do jogador. Índice fora do array, origem
  * vazia ou `de === para` devolvem o MESMO array (é essa identidade que quem

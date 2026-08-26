@@ -11,7 +11,7 @@ import {
 } from "@logica/shared";
 import { playUi } from "./audio";
 import type { Mochila } from "./mochila";
-import { ArrastoDeSlot, primeiroLugar, slotSob } from "./slotDrag";
+import { ArrastoDeSlot, linhaDeAcoes, lixeiraSob, primeiroLugar, slotSob } from "./slotDrag";
 import { esconderTooltip, tipDeItem } from "./tooltip";
 
 /**
@@ -84,6 +84,14 @@ export class ContainerPanel {
       para: number,
       qtd?: number,
     ) => void,
+    /** §🗑️: pede pra JOGAR FORA a pilha do slot UNIFICADO (`qtd` = só parte). */
+    private readonly descartar: (
+      x: number,
+      y: number,
+      z: number,
+      slot: number,
+      qtd?: number,
+    ) => void,
     /** Avisa o servidor que o painel fechou (senão ele manda o conteúdo pra sempre). */
     private readonly avisarFechado: () => void,
     private readonly onToggle: (open: boolean) => void,
@@ -118,9 +126,31 @@ export class ContainerPanel {
       mover: (de, para, qtd) => {
         if (this.pos) this.mover(this.pos.x, this.pos.y, this.pos.z, de, para, qtd);
       },
+      sobreLixeira: (x, y) => lixeiraSob(x, y),
+      descartar: (slot, qtd) => {
+        if (this.pos) this.descartar(this.pos.x, this.pos.y, this.pos.z, slot, qtd);
+      },
       redesenhar: () => this.render(),
       aoClicar: (slot, vazio, shift) => this.clicar(slot, vazio, shift),
     });
+  }
+
+  /** §🗑️: jogar fora com o painel aberto. Mesmo botão (e mesma classe
+   *  `inv-lixeira`, que é o alvo do arrasto) do painel da mochila. */
+  private botaoLixeira(quantos: number): HTMLButtonElement {
+    const b = document.createElement("button");
+    b.type = "button";
+    b.className = "inv-lixeira";
+    b.textContent = `🗑️ descartar (${quantos})`;
+    b.addEventListener("click", () => {
+      const slot = this.pegando;
+      if (slot === null || !this.pos) return;
+      this.descartar(this.pos.x, this.pos.y, this.pos.z, slot, this.metadePegando ?? undefined);
+      this.pegando = null;
+      this.metadePegando = null;
+      this.render();
+    });
+    return b;
   }
 
   get open(): boolean {
@@ -322,6 +352,9 @@ export class ContainerPanel {
           ? `agora toque no destino (leva ${this.metadePegando} do item) — ou no mesmo item para soltar`
           : "agora toque no destino (ou no mesmo item para soltar)";
 
+    // ⚠️ mesmo cuidado do painel da mochila: o `dica` ainda não está no
+    // documento aqui, então os botões entram no `append` do fim (bug-646).
+    const acoes: HTMLElement[] = [];
     if (this.pegando !== null) {
       const qtd = this.qtdUnificado(this.pegando);
       if (qtd > 1) {
@@ -340,8 +373,11 @@ export class ContainerPanel {
               : null;
           this.render();
         });
-        dica.after(dividir);
+        acoes.push(dividir);
       }
+      // §🗑️: a mesma lixeira da mochila, aqui no espaço UNIFICADO — dá pra
+      // jogar fora tanto o que está na mochila quanto o que está no baú.
+      acoes.push(this.botaoLixeira(this.metadePegando ?? qtd));
     }
 
     // --- o container, em cima ---
@@ -361,7 +397,7 @@ export class ContainerPanel {
       cima.appendChild(cel);
     }
 
-    root.append(head, fechar, dica, cima);
+    root.append(head, fechar, dica, ...(acoes.length ? [linhaDeAcoes(acoes)] : []), cima);
 
     // --- a barra de fogo e a de cozimento (só a fornalha) ---
     if (this.tipo === "fornalha") {

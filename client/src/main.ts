@@ -1417,6 +1417,8 @@ class GameRuntime {
       mochila,
       (de, para, qtd) =>
         this.activeConn.send(JSON.stringify({ type: "mover_item", de, para, qtd })),
+      (slot, qtd) =>
+        this.activeConn.send(JSON.stringify({ type: "descartar_item", slot, qtd })),
       (id) => this.hotbarUi.nome(id),
       (receita) => this.activeConn.send(JSON.stringify({ type: "fabricar", receita })),
     );
@@ -1430,6 +1432,8 @@ class GameRuntime {
       mochila,
       (x, y, z, de, para, qtd) =>
         this.activeConn.send(JSON.stringify({ type: "mover_container", x, y, z, de, para, qtd })),
+      (x, y, z, slot, qtd) =>
+        this.activeConn.send(JSON.stringify({ type: "descartar_container", x, y, z, slot, qtd })),
       () => this.activeConn.send(JSON.stringify({ type: "fechar_container" })),
       (open) => {
         if (open) {

@@ -399,12 +399,33 @@
         opacity: 0.65;
         margin: 6px 0 10px;
       }
+      /* a fileira de ações do item NA MÃO: ✂ e 🗑️ dividem UMA linha — o painel
+         tem altura fixa e dois botões empilhados comem a fileira de slots. */
+      .inv-acoes {
+        display: flex;
+        gap: 6px;
+        margin: 0 0 10px;
+      }
+      .inv-acoes > button {
+        flex: 1 1 0;
+        margin: 0;
+      }
       .inv-dividir {
         font-size: 0.78rem;
         padding: 5px 12px !important;
         margin: 0 0 10px;
         border-color: rgba(255, 215, 94, 0.6) !important;
         color: #ffd75e;
+      }
+      /* §🗑️ (playtest 2026-08-25): JOGAR FORA. Vermelho porque é a única ação
+         do inventário que não tem volta — e a classe é também o ALVO do
+         arrasto do PC (é ela que o `lixeiraSob` procura). */
+      .inv-lixeira {
+        font-size: 0.78rem;
+        padding: 5px 12px !important;
+        margin: 0 0 10px 6px;
+        border-color: rgba(255, 120, 110, 0.65) !important;
+        color: #ff8a80;
       }
       .inv-abas {
         display: flex;
@@ -1234,6 +1255,11 @@
         }
         #inventario .inv-busca {
           min-height: 34px;
+          margin-bottom: 5px;
+        }
+        /* §🗑️: com item na mão são DOIS botões (✂ e 🗑️) roubando altura do
+           painel de altura fixa — o mesmo aperto que a aba "todos" mediu. */
+        #inventario .inv-acoes {
           margin-bottom: 5px;
         }
         #inventario .inv-grid {

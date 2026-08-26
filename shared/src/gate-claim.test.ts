@@ -34,6 +34,7 @@ const COM_GATE = [
   "balde",
   "quadro_set",
   "mover_container",
+  "descartar_container",
 ] as const;
 
 /**
@@ -128,6 +129,8 @@ function mensagemPara(tipo: string, cel: { x: number; y: number; z: number }): s
       return JSON.stringify({ type: "quadro_set", ...cel, texto: "invadi" });
     case "mover_container":
       return JSON.stringify({ type: "mover_container", ...cel, de: 0, para: INV_SLOTS });
+    case "descartar_container":
+      return JSON.stringify({ type: "descartar_container", ...cel, slot: INV_SLOTS });
     default:
       throw new Error(`sem mensagem de teste pra ${tipo}`);
   }

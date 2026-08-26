@@ -79,6 +79,14 @@ export type ClientMessage =
    * abriu o baú e saiu andando não continua mexendo nele de longe.
    */
   | { type: "mover_container"; x: number; y: number; z: number; de: number; para: number; qtd?: number }
+  /** Inventário (§🗑️ playtest 2026-08-25): o aluno JOGA FORA a pilha do slot
+   *  (botão de lixeira). `qtd` opcional = só parte, como no `mover_item`. O
+   *  item EVAPORA — não existe item no chão. Servidor confere modo e índice. */
+  | { type: "descartar_item"; slot: number; qtd?: number }
+  /** Container (§🗑️): o mesmo descarte com o baú/fornalha ABERTO — `slot` é o
+   *  índice UNIFICADO (`0..26` mochila, `27 + i` container), como no
+   *  `mover_container`, e valem os mesmos gates (aberto, alcance, claim). */
+  | { type: "descartar_container"; x: number; y: number; z: number; slot: number; qtd?: number }
   /** Container (§🍖 F10): o aluno fechou o painel. Sem isto o servidor
    *  continuaria mandando o conteúdo daquele bloco a cada tick pra sempre. */
   | { type: "fechar_container" }
@@ -580,6 +588,32 @@ export function parseClientMessage(raw: string): ClientMessage | null {
         type: "mover_item",
         de: m["de"] as number,
         para: m["para"] as number,
+        ...(typeof qtd === "number" && Number.isInteger(qtd) && qtd >= 1 ? { qtd } : {}),
+      };
+    }
+    case "descartar_item": {
+      // §🗑️: o slot é o único inteiro; `qtd` segue a régua do `mover_item`
+      // (inteiro ≥ 1 ou ausente = pilha inteira).
+      if (typeof m["slot"] !== "number" || !Number.isInteger(m["slot"])) return null;
+      const qtd = m["qtd"];
+      return {
+        type: "descartar_item",
+        slot: m["slot"],
+        ...(typeof qtd === "number" && Number.isInteger(qtd) && qtd >= 1 ? { qtd } : {}),
+      };
+    }
+    case "descartar_container": {
+      // §🗑️: célula + índice UNIFICADO. A FAIXA do índice não é conferida aqui
+      // (quem sabe quantos slots o container tem é o `descartarEm`).
+      const ints = [m["x"], m["y"], m["z"], m["slot"]];
+      if (!ints.every((n) => typeof n === "number" && Number.isInteger(n))) return null;
+      const qtd = m["qtd"];
+      return {
+        type: "descartar_container",
+        x: m["x"] as number,
+        y: m["y"] as number,
+        z: m["z"] as number,
+        slot: m["slot"] as number,
         ...(typeof qtd === "number" && Number.isInteger(qtd) && qtd >= 1 ? { qtd } : {}),
       };
     }
