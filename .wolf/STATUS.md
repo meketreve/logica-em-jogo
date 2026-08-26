@@ -8,8 +8,9 @@
 > (o 16º é novo) · `npm run cenarios` 7/7 **byte-idênticos** · launchers 7/7.
 >
 > ⚠️ Confira o sha do topo com `rtk proxy git rev-parse --short origin/main`, nunca com um sha
-> escrito aqui. Entrando na sessão havia **5 commits na main não empurrados** (`origin/main` =
-> `073c2bf`); esta sessão deixou a correção **na árvore, não commitada**.
+> escrito aqui. **7 commits na main, NADA empurrado** (push só a pedido) — árvore limpa. Desta
+> sessão: `ebe2f01` fix(server): grava o mundo ao fechar a janela (SIGHUP) · `c9eaac5` docs(wolf):
+> registra a sessão 88. (`origin/main` estava em `073c2bf` no início da sessão.)
 >
 > ### ✅ Fechado — bug-645 (o ciclo dia/noite "não era salvo")
 > Relato: "mundo com ciclo ativado volta desativado ao carregar; a hora é salva, o ciclo não".
@@ -42,9 +43,14 @@
 > `servidores: []` + `porta`. TDD de verdade: vermelho (2 ✗ no SIGHUP) → fix → verde.
 >
 > ### 🚀 PRÓXIMA QUEST
-> 1. **Commitar** o que está na árvore: `server/src/index.ts`, `scripts/smoke.mjs`,
->    `server/src/cenarios/_smoke-sighup.mjs` + os arquivos do `.wolf/`.
-> 2. Fila antiga: ovelha + lã de verdade · sentar na cadeira · teto de 35 grupos · Ferramentas v2.
+> Nada em aberto do bug-645. A fila antiga manda: **ovelha + lã de verdade** (§🍖 F8 — mob, tosa,
+> lã como recurso) · sentar na cadeira · teto de 35 grupos · Ferramentas v2 (decisão `dano?` no
+> Stack × faixa de ids). Se o usuário não escolher, comece pela ovelha — é a que destrava cama,
+> noite e o resto do §🍖.
+>
+> **Herdado, não urgente:** 7 commits esperando push (só a pedido) e o `mundo-livre.ljw.
+> corrompido-1785704408442` em `mundos/mundo-livre/` — sobra de um boot que achou o save
+> inválido e o renomeou; ninguém investigou por que corrompeu.
 
 
 > ## 🧭 HANDOFF — SESSÃO 87 (2026-08-25) · a lixeira (e o ✂ que nunca existiu)

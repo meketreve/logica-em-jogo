@@ -2691,3 +2691,26 @@ dist defasado. Tudo no cerebrum.
 |------|--------|---------|---------|--------|
 | 22:10 | bug-645: 4 sondas contra host/cliente REAIS (host livre, singleplayer no navegador, mundo de aula, sinais) | scratchpad | causa achada: NÃO é o ciclo, é o desligamento — SIGHUP não salva | ~85k |
 | 23:05 | fix: saveNow no SIGINT/SIGTERM/SIGHUP/SIGQUIT + smoke novo `sighup` (TDD: vermelho→verde) | server/src/index.ts, server/src/cenarios/_smoke-sighup.mjs, scripts/smoke.mjs | 931/931 · 16/16 smokes · build · dist · cenarios 7/7 byte-idênticos | ~40k |
+| 23:35 | 2 commits na main (fix SIGHUP + docs sessão 88); sem push | git | árvore limpa, 7 à frente | ~3k |
+
+**Sessão 88 em uma frase:** o bug-645 ("o ciclo de dia e noite não é salvo") não era do ciclo —
+era do DESLIGAMENTO do host, que só gravava em SIGINT/SIGTERM e morria calado no SIGHUP de quem
+fecha a janela do terminal (no Windows o Node emite SIGHUP quando o console fecha, e é assim que
+a escola encerra o `.bat`).
+
+O que achou a causa foi a ordem das sondas, não a leitura do código: o roundtrip puro já tinha
+passado na sessão 87, então a sessão mediu o CAMINHO INTEIRO quatro vezes — host livre com Ctrl+C
+(verde), singleplayer no navegador com Chrome headless + IndexedDB (verde), mundo de aula (não
+grava nada, e é de projeto), e por fim o mesmo mundo com o MESMO comando morrendo de dois jeitos:
+SIGINT grava `ciclo=true`, SIGHUP não grava nada. A diferença entre os dois desfechos É a causa, e
+o controle vem junto de graça.
+
+Duas leituras baratas encurtaram tudo: `decodeSave` dos 4 mundos da máquina mostrou `hora=12`
+EXATA em todos (o ciclo nunca sobreviveu a um autosave em lugar nenhum), e o `grep` nos
+`mundos/*/chat.log` mostrou que `/ciclo ligar` nunca rodou num mundo de host aqui — o chat.log é
+escrito mesmo em mundo `somenteLeitura`, então a pasta da aula existe sem `.ljw` nenhum ao lado.
+
+Decisão do usuário: mundo de aula continua sem salvar ("aula não precisa salvar, apenas mundos de
+construção livre"). Fix: laço de `saveNow` sobre SIGINT/SIGTERM/SIGHUP/SIGQUIT. Prova permanente:
+smoke `sighup` (16º), que sobe o próprio host pra escolher o sinal e repete a rodada com SIGINT
+como controle — TDD de verdade, vermelho antes do fix.
