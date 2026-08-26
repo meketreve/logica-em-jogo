@@ -28,12 +28,14 @@ describe("grade da aula", () => {
     // grupo 7 quebra a linha
     expect(chunkDoGrupo(7)).toEqual({ cx: 0, cz: prof.cz + 2 });
     expect(chunkDoGrupo(20)).toEqual({ cx: 1, cz: prof.cz + 4 });
+    // o teto: 35 = 5ª coluna da 6ª fileira (i=34 → 34%6=4, floor(34/6)=5)
+    expect(chunkDoGrupo(MAX_GRUPOS_AULA)).toEqual({ cx: 4, cz: prof.cz + 6 });
   });
 
-  it("usa 6 colunas e 4 fileiras para o teto de 20", () => {
+  it("usa 6 colunas e 6 fileiras para o teto de 35", () => {
     expect(COLUNAS_AULA).toBe(6);
-    expect(MAX_GRUPOS_AULA).toBe(20);
-    expect(linhasDaGrade()).toBe(4);
+    expect(MAX_GRUPOS_AULA).toBe(35);
+    expect(linhasDaGrade()).toBe(6);
   });
 
   it("dimensiona o mundo para caber o teto inteiro", () => {

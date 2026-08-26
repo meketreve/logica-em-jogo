@@ -21,12 +21,22 @@ import type { WorldDims } from "./world";
 import { FLAT_SURFACE_Y } from "./worldgen";
 
 /** Colunas da grade. 6 fecha os três tamanhos que interessam: 8 grupos = 6×2,
- *  20 = 6×4, e o teto futuro de 35 = 6×6 = 96×96 blocos (a pegada de hoje). */
+ *  20 = 6×4 e o teto de 35 = 6×6 = 96×96 blocos de área de aluno. */
 export const COLUNAS_AULA = 6;
 
-/** Teto de grupos que o mundo de aula comporta. Subir daqui é trocar esta
- *  constante e regerar os cenários — `dimsDaAula()` acompanha sozinha. */
-export const MAX_GRUPOS_AULA = 20;
+/** Teto de grupos que o mundo de aula comporta. 35 = turma individual (um
+ *  aluno por área), subido de 20 em 2026-08-26. Subir daqui é trocar esta
+ *  constante e regerar os cenários — `dimsDaAula()` acompanha sozinha.
+ *
+ *  ⚠️ Custa BYTE: o mundo nasce do tamanho do teto (não de `--grupos`), então
+ *  cada fileira nova são 2 chunks de `dims.z` × 6 colunas × 4 de altura. De 20
+ *  para 35 o `.ljw` de uma aula foi de ~964 kB para ~1,35 MB — o save não é
+ *  esparso, e é isso que a escola baixa no auto-update do launcher.
+ *
+ *  ⚠️ `.ljw` gerado ANTES desta subida tem `dims.z` do teto velho: `/aula
+ *  grupos X` além do que ele comporta é recusado pelo `inBounds` de
+ *  `session/aula.ts`, ANTES de escrever bloco (não pela constante daqui). */
+export const MAX_GRUPOS_AULA = 35;
 
 /** Base em Y da célula: em cima da grama, o mesmo chão da área do grupo.
  *  A borda da cabine fica em FLAT_SURFACE_Y, ou seja ABAIXO da célula — copiar

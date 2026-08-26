@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { BlockId } from "./blocks";
+import { MAX_GRUPOS_AULA } from "./grade";
 import { MAX_REGIONS } from "./regions";
 import { GameSession } from "./session";
 
@@ -89,8 +90,13 @@ describe("mover e apagar conteúdo de quadro", () => {
   });
 
   it("MAX_REGIONS comporta o teto de grupos com folga", () => {
-    // 20 grupos × 3 fases + 3 modelos + 1 partida = 64 — o valor antigo era
-    // exatamente isso, zero folga para o professor criar região própria.
+    // A conta que o teto obriga, no `expect` e não só no comentário: cada grupo
+    // gasta uma região por FASE, mais os 3 modelos e a `partida`. Com o teto de
+    // 20 dava 64 exatos — o valor antigo de MAX_REGIONS, zero folga para o
+    // professor criar região própria. Subir o teto refaz esta conta sozinho.
+    const FASES = 3;
+    const FIXAS = 3 + 1; // 3 modelos + partida
+    expect(MAX_GRUPOS_AULA * FASES + FIXAS).toBeLessThan(MAX_REGIONS);
     expect(MAX_REGIONS).toBe(256);
   });
 });

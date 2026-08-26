@@ -2,11 +2,13 @@ import { describe, expect, it } from "vitest";
 import { BlockId } from "./blocks";
 import {
   CELULA_Y0,
+  MAX_GRUPOS_AULA,
   REGIAO_PARTIDA,
   caixaDaCelula,
   chunkDoGrupo,
   chunkDoMolde,
   chunkDoProfessor,
+  dimsDaAula,
 } from "./grade";
 import { GameSession } from "./session";
 import { getBlock } from "./world";
@@ -17,9 +19,14 @@ import { getBlock } from "./world";
  * puseram), e os objetivos per-grupo passam a valer para os grupos novos — o
  * `o.alvos` é congelado na criação, então criar a região sozinha não bastaria.
  */
-function mundoDeAula(quantos = 2) {
-  const session = new GameSession(() => {}, {
-    dims: { x: 6, z: 10, y: 4 },
+function mundoDeAula(quantos = 2, dims = { x: 6, z: 10, y: 4 }) {
+  const ditos: string[] = [];
+  const session = new GameSession((_id, data) => {
+    if (typeof data !== "string") return;
+    const m = JSON.parse(data) as { type?: string; text?: string };
+    if (m.type === "chat" && typeof m.text === "string") ditos.push(m.text);
+  }, {
+    dims,
     seed: 13,
     flat: true,
     codigo: "sala",
@@ -59,7 +66,7 @@ function mundoDeAula(quantos = 2) {
     });
   }
   cmd(1, "/objetivo add construir modelo area monte a figura");
-  return { session, cmd };
+  return { session, cmd, ditos };
 }
 
 describe("/aula grupos — crescer", () => {
@@ -102,6 +109,32 @@ describe("/aula grupos — crescer", () => {
     const { session, cmd } = mundoDeAula();
     cmd(1, "/aula grupos 99");
     expect(session.grupos.size).toBe(2);
+  });
+
+  it("recusa o grupo que não cabe no mundo, sem tocar em bloco nenhum", () => {
+    // O teto subiu para 35 em 2026-08-26, mas os `.ljw` que a escola já baixou
+    // nasceram com `dims.z = 10` (teto de 20). Pedir 25 num mundo desses manda
+    // o grupo para `cz = 10`, fora do mundo: o `inBounds` de `aula.ts` valida
+    // TODOS os grupos ANTES de escrever, senão o carimbo pararia pela metade.
+    const { session, cmd, ditos } = mundoDeAula();
+    const fora = caixaDaCelula(chunkDoGrupo(25));
+    expect(fora.max.z).toBeGreaterThanOrEqual(session.world.dims.z * 16);
+
+    cmd(1, "/aula grupos 25");
+
+    expect(session.grupos.size).toBe(2);
+    expect(session.regions.has("area-3")).toBe(false);
+    expect(ditos.at(-1)).toContain("não cabe neste mundo");
+  });
+
+  it("aceita o teto inteiro no mundo dimensionado para ele", () => {
+    const { session, cmd } = mundoDeAula(2, dimsDaAula());
+    cmd(1, `/aula grupos ${MAX_GRUPOS_AULA}`);
+    expect(session.grupos.size).toBe(MAX_GRUPOS_AULA);
+    const ultimo = caixaDaCelula(chunkDoGrupo(MAX_GRUPOS_AULA));
+    expect(getBlock(session.world, ultimo.min.x + 1, CELULA_Y0, ultimo.min.z + 1)).toBe(
+      BlockId.Stone,
+    );
   });
 
   it("recusa em mundo sem a região partida", () => {

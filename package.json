@@ -22,6 +22,7 @@
     "shots:luz": "node scripts/luz-shots.mjs",
     "shots:craft": "node scripts/craft-shot.mjs",
     "shots:amigos": "node scripts/amigos-shot.mjs",
+    "shots:grupos": "node scripts/grupos-shot.mjs",
     "shots:toque": "node scripts/toque-shot.mjs",
     "shots:comida": "node scripts/comida-shot.mjs",
     "shots:corrida": "node scripts/corrida-shot.mjs",

@@ -299,6 +299,23 @@
         background: rgba(255, 255, 255, 0.07);
         border-radius: 6px;
       }
+      /* Grade de grupos do painel P (2026-08-26). Era `.jog-row`, que é flex
+         SEM `flex-wrap`: um botão por grupo estourava a caixa pela direita e o
+         `overflow: hidden` do `#jogadores` comia o resto. Medido a 1024×600
+         com `npm run shots:grupos`: 181px transbordando já com o teto de 20,
+         941px com o de 35 (o botão do grupo 35 nascia em x=1790).
+         Grid de trilha fixa em vez de `flex-wrap`: além de quebrar sozinha,
+         alinha em colunas os números de 1 e 2 dígitos, que no flex ficariam de
+         larguras diferentes. A altura de 40px do alvo de toque vem do
+         `#jogadores button` da media query de `pointer: coarse`. */
+      .jog-grade {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(44px, 1fr));
+        gap: 6px;
+        padding: 7px 10px;
+        background: rgba(255, 255, 255, 0.07);
+        border-radius: 6px;
+      }
       .jog-nome {
         flex: 1;
         overflow: hidden;

@@ -182,7 +182,11 @@ export class PlayersPanel {
       this.hint("quantos grupos a turma tem? aumentar cria as áreas; diminuir apaga as que sobram."),
     );
     const grade = document.createElement("div");
-    grade.className = "jog-row";
+    // GRADE, não `.jog-row` (2026-08-26): a linha de jogador é flex SEM wrap, e
+    // com um botão por grupo a sonda mediu 181px de conteúdo transbordando já
+    // com o teto de 20 — com o de 35 viraram 941px, e o botão do grupo 35 caía
+    // 800px fora da tela num Kindle Fire de 1024px.
+    grade.className = "jog-grade";
     for (let n = 1; n <= MAX_GRUPOS_AULA; n++) {
       grade.append(this.armedBtn(String(n), () => this.send(`/aula grupos ${n} confirmar`)));
     }
