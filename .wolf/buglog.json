@@ -5449,6 +5449,52 @@
       ],
       "occurrences": 1,
       "last_seen": "2026-08-25T11:20:00Z"
+    },
+    {
+      "id": "bug-645",
+      "timestamp": "2026-08-25T17:05:00Z",
+      "error_message": "usuário: 'mundo com ciclo de dia e noite ativado, quando é carregado fica desativado — estado do ciclo não é salvo mas a hora é'",
+      "file": "shared/src/session.ts (toSave/restore) — caminho real do save AINDA NÃO IDENTIFICADO",
+      "root_cause": "ABERTO. Sonda descartável (vitest, roundtrip GameSession{cicloAtivo:true,horaDoDia:18.5} → toSave → encodeSave → decodeSave → new GameSession({restore})) PASSOU: meta.ciclo=true, restore.ciclo=true, b.cicloAtivo=true, b.horaDoDia=18.5. Logo a camada pura (save.ts encode/decode readSaveMeta, session.ts:814 grava `ciclo`, session.ts:649 restaura) NÃO é o furo. Suspeitos, em ordem: (1) SAVE VELHO — o arquivo não foi reescrito depois do `/ciclo ligar` (autosave/desligamento), e a hora 'salva' que o usuário vê é a hora antiga, plausível o bastante pra não chamar atenção; (2) mundo de AULA/modelo (`somenteLeitura`), que por projeto NUNCA persiste alteração (server/src/index.ts:240 `if (somenteLeitura) return;`) — aí nem hora nem ciclo do runtime entram no arquivo; (3) o mundo veio de um cenário gerado por server/src/cenarios/gerar.ts, que nasce com ciclo OFF; (4) caminho de troca de mundo (`comandoMundo`/`novaSessao` em server/src/index.ts:321) salvando antes/depois errado. Falta reproduzir com o .ljw do usuário.",
+      "fix": "AINDA NÃO CORRIGIDO — só registrado. Próximo passo: pedir o .ljw ao usuário (ou reproduzir) e ler o meta cru do arquivo (`decodeSave(...).ciclo`) — isso separa 'não gravou' de 'não restaurou' em um passo. Se `ciclo:true` estiver no arquivo, o furo é no carregamento; se não estiver, é gravação (save velho / aula read-only / cenário).",
+      "tags": [
+        "ciclo",
+        "dia-noite",
+        "save",
+        "ljw",
+        "persistencia",
+        "cp21",
+        "aberto",
+        "nao-reproduzido"
+      ],
+      "related_bugs": [
+        "bug-626"
+      ],
+      "occurrences": 1,
+      "last_seen": "2026-08-25T17:05:00Z"
+    },
+    {
+      "id": "bug-646",
+      "timestamp": "2026-08-25T17:40:00Z",
+      "error_message": "sonda headless da lixeira: 'arrasto começou e a lixeira nasceu: null' — e o CONTROLE mostrou que o botão ✂ 'dividir ao meio' (de 2026-08-08) também não existia no DOM",
+      "file": "client/src/inventory.ts + client/src/container.ts",
+      "root_cause": "Os dois painéis chamavam `dica.after(botao)` no meio do render — mas ali o `<p class=inv-dica>` ainda está SOLTO (só entra no documento no `root.append(head, abas, dica, grade, bar)` do fim da função). `after()` num nó SEM PAI é no-op SILENCIOSO: não lança, não avisa, não insere. Resultado: o botão ✂ nasceu invisível no commit c7e7689 (2026-08-08) e ficou 17 dias assim — o todo.md o dava como FEITO, e ninguém no playtest tinha como usá-lo.",
+      "fix": "Os botões de ação viram um array `acoes` e entram no `root.append(...)` do fim, dentro de `linhaDeAcoes()` (novo helper em client/src/slotDrag.ts) — uma `<div class=inv-acoes>` flex, porque o painel tem altura FIXA e dois botões empilhados comiam a fileira de slots que a media query de 460px luta pra manter. Provado pela sonda: ✂ e 🗑️ aparecem no dedo e no mouse, nos dois painéis.",
+      "tags": [
+        "dom",
+        "after",
+        "no-op",
+        "inventario",
+        "container",
+        "ui",
+        "invisivel",
+        "playtest"
+      ],
+      "related_bugs": [
+        "bug-609"
+      ],
+      "occurrences": 1,
+      "last_seen": "2026-08-25T17:40:00Z"
     }
   ]
 }

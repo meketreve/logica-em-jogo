@@ -1048,6 +1048,31 @@ não tem filesystem; export de "pasta" no single fica de fora (não faz sentido 
   aceitava; era categorização (estava junto de porta, tocha e tapete). Registro em bug-625.
 
 
+* \[x] **DESCARTAR ITENS (botão de lixeira 🗑️)** — **FEITO** (2026-08-25; ideia do mesmo dia).
+  Não havia como se livrar de um item: a mochila entope de terra/pedregulho no playtest.
+  * **O item EVAPORA** — não cai no chão (decisão travada do ROADMAP §🍖; a morte já é sem túmulo).
+  * **Puro:** `descartarSlot` (mochila) e `descartarEmArray` (núcleo) em `shared/src/inventario.ts`;
+    `descartarEm` (índice UNIFICADO) em `shared/src/containers.ts`. Contrato do `moverSlot`:
+    devolvem o MESMO objeto (ou `null`) no no-op, que é o sinal de "nem manda mensagem".
+  * **Fio:** `descartar_item { slot, qtd? }` e `descartar_container { x, y, z, slot, qtd? }` —
+    mesma régua de `qtd` do `mover_item`. Handlers ao lado dos `mover_*` em `shared/src/session.ts`,
+    com os MESMOS gates: `inventarioVale` (criativo cai fora de graça), e no container também
+    container ABERTO + `inBounds` + alcance + claim/confinamento. O portão do `gate-claim.test.ts`
+    já cobre a mensagem nova (ela entrou no `COM_GATE`).
+  * **Decisões do usuário:** vale nos DOIS painéis (mochila e baú/fornalha) · **sem confirmação**
+    (um toque joga fora) · escondida no criativo (lá a paleta é infinita).
+  * **UI:** botão `🗑️ descartar (N)` ao lado do `✂`, e no PC ele é também o ALVO do arrasto
+    (`lixeiraSob` em `slotDrag.ts`, testado antes do `slotEm` no `soltar`).
+  * ⚠️ **De quebra, consertou o ✂ (bug-646):** o botão de dividir era chamado por `dica.after(...)`
+    com o `dica` ainda FORA do documento — `after()` sem pai é no-op silencioso. Ou seja, o ✂ de
+    2026-08-08 NUNCA apareceu. Agora os dois entram por `linhaDeAcoes()` no `root.append` do fim,
+    numa `<div class="inv-acoes">` flex (uma linha só: o painel é de altura fixa).
+  * **Sonda headless** (mouse, dedo, criativo e baú): arrasto até a lixeira descarta e o fantasma
+    some · toque no 🗑️ descarta · sem item na mão a lixeira não existe · no criativo não há painel
+    de mochila · o baú descarta pelo índice unificado. Bateria: typecheck 3/3 · **931/931** ·
+    15/15 smokes · `npm run cenarios` 7/7 byte-idênticos.
+
+
 ## Registros / apresentação
 
 * \[x] PRINTS DE PONTOS-CHAVE p/ apresentação — **FEITO** (2026-07-23, sessão 18): 6 cenas

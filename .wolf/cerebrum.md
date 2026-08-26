@@ -1362,6 +1362,20 @@ nenhum** — sem essa declaração o Chrome renderiza a página em light mesmo c
 2. **Antes de escrever "no tema claro fica X" num comentário, MEÇA** — a intuição "PC escuro,
    tablet claro" estava errada e eu quase deixei a explicação errada no CSS. O teste custa 40
    linhas: chrome headless + `Emulation.setEmulatedMedia` + `getComputedStyle(...).color`.
+- [2026-08-25] **`node.after(x)` num nó SEM PAI é no-op SILENCIOSO** — e os dois painéis de
+  inventário criam `head/abas/dica` soltos e só chamam `root.append(...)` no FIM do render. Botão
+  inserido com `dica.after(botao)` no meio da função nunca chega à tela (bug-646: o ✂ de
+  2026-08-08 ficou 17 dias invisível, marcado como FEITO no todo). Em `inventory.ts`/`container.ts`,
+  junte os botões num array e passe no `root.append` do fim — `linhaDeAcoes()` em `slotDrag.ts`.
+- [2026-08-25] **O rótulo do botão ▣ da barra de toque é `interagir`, não `colocar`** — sondas
+  antigas (`f10-shot.mjs`) procuram por `small` com "colocar" e não acham mais nada. Ao copiar
+  aquele molde, procure os DOIS.
+- [2026-08-25] **A grade da mochila é `.inv-mochila` (slots 9..26); `.inv-grid` é a PALETA do
+  criativo, e os slots 0..8 ficam em `.inv-hotbar`.** Sonda que procura o slot 0 dentro de
+  `.inv-mochila` acha vazio e parece que o `/dar` falhou.
+- [2026-08-25] **CDP: `Input.dispatchMouseEvent` de `mouseReleased` com `buttons: 0` +
+  `pointerType` é ENGOLIDO** (nenhum `pointerup` chega ao documento; a resposta vem `{}` como se
+  tivesse ido). Repita o envio até o documento ver o evento — defeito da sonda, não do jogo.
 
 ## Do-Not-Repeat
 
@@ -1980,6 +1994,9 @@ nenhum** — sem essa declaração o Chrome renderiza a página em light mesmo c
 - [2026-07-10] Aba de navegador NÃO abre socket de escuta nem executa binário, e WebAssembly
   NÃO contorna. "Abrir pra LAN" é papel do HOST — não prometer cliente-web que vira servidor.
 - [2026-07-10] Não escrever "relatório de aplicação" antes de o piloto real acontecer.
+- [2026-08-25] **Marcar UI como FEITA sem sonda que a ENXERGUE no DOM.** O ✂ de 2026-08-08 entrou
+  no todo.md como pronto e nunca existiu na tela (bug-646). Toda UI nova precisa de uma sonda que
+  pergunte ao DOM se o elemento está lá — `querySelector` na classe, não só screenshot no olho.
 
 ## Decision Log — índice das decisões ATIVAS
 

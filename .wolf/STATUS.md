@@ -2,6 +2,52 @@
 
 > Single source of truth for resuming work. Read this FIRST when starting a session.
 
+> ## 🧭 HANDOFF — SESSÃO 87 (2026-08-25) · a lixeira (e o ✂ que nunca existiu)
+>
+> **Bateria verde:** launchers 7/7 · typecheck 3/3 · **931/931** · build · portão do dist ✓ ·
+> **15/15 smokes** · `npm run cenarios` **7/7 byte-idênticos** · sonda headless da lixeira verde
+> nos quatro cenários (mouse, dedo, criativo, baú).
+>
+> ⚠️ Confira o sha do topo com `rtk proxy git rev-parse --short origin/main`, nunca com um sha
+> escrito aqui. **Nada foi commitado nem empurrado nesta sessão** — a árvore está suja de
+> propósito, esperando revisão.
+>
+> ### ✅ Entregue — DESCARTAR ITENS (§🗑️)
+> Pedido do usuário: "a mochila entope, quero um botão de lixeira". Decisões dele: vale nos **dois
+> painéis** (mochila e baú/fornalha) · **sem confirmação** · **escondida no criativo**.
+> - **Puro:** `descartarSlot` + `descartarEmArray` (`shared/src/inventario.ts`), `descartarEm`
+>   (`shared/src/containers.ts`, índice UNIFICADO). Contrato do `moverSlot`: no-op devolve o MESMO
+>   objeto (ou `null`) — é a identidade que diz "nem manda mensagem".
+> - **Fio:** `descartar_item { slot, qtd? }` e `descartar_container { x, y, z, slot, qtd? }`.
+>   Handlers ao lado dos `mover_*`, com os MESMOS gates (modo, container aberto, alcance, claim,
+>   confinamento). O `gate-claim.test.ts` já cobre a mensagem nova — ela entrou no `COM_GATE`.
+> - **O item EVAPORA** — não existe item no chão (ROADMAP §🍖), e a lixeira não virou a exceção.
+> - **UI:** `🗑️ descartar (N)` ao lado do `✂`; no PC ele é também o ALVO do arrasto (`lixeiraSob`,
+>   testado ANTES do `slotEm` no `soltar`).
+>
+> ### ⚠️ A descoberta: o botão ✂ nunca esteve na tela (bug-646)
+> A sonda mediu, como controle, o botão de dividir pilha de **2026-08-08** — e ele **não existia no
+> DOM**. Causa: `dica.after(botao)` era chamado com o `<p class="inv-dica">` ainda **fora do
+> documento** (ele só entra no `root.append(...)` do fim do render), e **`after()` num nó sem pai é
+> no-op silencioso**. O `todo.md` dava a divisão de pilha no tablet como FEITA desde 08/08.
+> Agora os dois botões entram por `linhaDeAcoes()` (`slotDrag.ts`) numa `<div class="inv-acoes">`
+> flex — **uma linha só**, porque o painel é de altura FIXA e dois botões empilhados comiam a
+> fileira de slots que a media query de 460px luta pra manter.
+>
+> ### 📝 Registrado, NÃO corrigido — bug-645 (ciclo dia/noite)
+> Relato: "mundo com ciclo ativado volta desativado ao carregar; a hora é salva, o ciclo não".
+> Sonda de roundtrip (`toSave` → `encodeSave` → `decodeSave` → `new GameSession({restore})`)
+> **PASSOU** — a camada pura grava e restaura o ciclo. Suspeitos anotados no buglog: save velho
+> (não reescrito depois do `/ciclo ligar`), mundo de AULA (`somenteLeitura` **nunca** persiste),
+> cenário gerado com ciclo OFF, ou o caminho de troca de mundo. **Falta o `.ljw` do usuário** —
+> ler `decodeSave(...).ciclo` do arquivo separa "não gravou" de "não restaurou" em um passo.
+>
+> ### 🚀 PRÓXIMA QUEST
+> 1. **Fechar o bug-645** com o `.ljw` do usuário (uma leitura de meta responde).
+> 2. Revisar/commitar o que esta sessão deixou na árvore.
+> 3. Fila antiga: ovelha + lã de verdade · sentar na cadeira · teto de 35 grupos · Ferramentas v2.
+
+
 > ## 🧭 HANDOFF — SESSÃO 86 (2026-08-25) · o painel de comandos saiu de cima do teclado
 >
 > **A 🚀 PRÓXIMA QUEST da sessão 85 fechou** — o painel de comandos rápidos do chat virou

@@ -2675,3 +2675,11 @@ dist defasado. Tudo no cerebrum.
 | 16:56 | anota ideia: amizade entre donos de claim (aluno com terreno preso fora do grupo) | .wolf/TODO.md | anotado no backlog, escopo aberto, 3 saidas mapeadas | ~9k |
 | 11:21 | painel de comandos vira COLUNA LATERAL no dedo (>=700px) + teto do log contra --kb | client/src/chat.ts, client/index.html, scripts/toque-shot.mjs | sonda E2 nova (emula teclado), 3 tamanhos verdes, verify 916/916 | ~55k |
 | 11:39 | rodape morto do #chat.open (112px -> 8px) + TODO da sessao 86 | client/index.html, .wolf/TODO.md | campo cola no teclado (126px -> 8px), 3 tamanhos verdes, verify verde | ~18k |
+
+## Session: 2026-08-25 16:02
+
+| Time | Action | File(s) | Outcome | ~Tokens |
+|------|--------|---------|---------|--------|
+| 16:04 | anota ideia: descartar itens com botão de lixeira (evapora, servidor decide) | todo.md §Inventário | nota escrita | ~4k |
+| 17:03 | anota bug-645: ciclo dia/noite volta desligado ao carregar mundo (sonda de roundtrip PASSOU — furo fora da camada pura) | .wolf/buglog.json | registrado, não corrigido | ~18k |
+| 17:39 | lixeira 🗑️ (descartar item) pronta: puro+protocolo+session+2 painéis, TDD; conserta ✂ invisível (bug-646) | shared/{inventario,containers,protocol,session}.ts, client/src/{inventory,container,slotDrag,main}.ts, index.html | 931/931 · 15/15 smokes · cenarios 7/7 | ~95k |
