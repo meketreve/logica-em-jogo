@@ -9,8 +9,9 @@
 > nos quatro cenários (mouse, dedo, criativo, baú).
 >
 > ⚠️ Confira o sha do topo com `rtk proxy git rev-parse --short origin/main`, nunca com um sha
-> escrito aqui. **Nada foi commitado nem empurrado nesta sessão** — a árvore está suja de
-> propósito, esperando revisão.
+> escrito aqui. **2 commits na main, NADA empurrado** (push só a pedido) — árvore limpa:
+> `80553a9` feat(inventario): lixeira descarta item na mochila e no baú ·
+> `759bd32` docs(wolf): registra a sessão 87.
 >
 > ### ✅ Entregue — DESCARTAR ITENS (§🗑️)
 > Pedido do usuário: "a mochila entope, quero um botão de lixeira". Decisões dele: vale nos **dois

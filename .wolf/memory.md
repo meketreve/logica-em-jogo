@@ -2683,3 +2683,4 @@ dist defasado. Tudo no cerebrum.
 | 16:04 | anota ideia: descartar itens com botão de lixeira (evapora, servidor decide) | todo.md §Inventário | nota escrita | ~4k |
 | 17:03 | anota bug-645: ciclo dia/noite volta desligado ao carregar mundo (sonda de roundtrip PASSOU — furo fora da camada pura) | .wolf/buglog.json | registrado, não corrigido | ~18k |
 | 17:39 | lixeira 🗑️ (descartar item) pronta: puro+protocolo+session+2 painéis, TDD; conserta ✂ invisível (bug-646) | shared/{inventario,containers,protocol,session}.ts, client/src/{inventory,container,slotDrag,main}.ts, index.html | 931/931 · 15/15 smokes · cenarios 7/7 | ~95k |
+| 21:32 | 2 commits na main (feat lixeira + docs sessão 87); sem push | git | árvore limpa | ~3k |
