@@ -115,19 +115,35 @@ senão lado com parede; empate → base. Cliente inalterado.
   o prazo novo (não só o fato de o pedido expirar). — **FEITO** (2026-08-14): `TP_PEDIDO_MS` virou
   `export const` 60_000 e as 4 frases interpolam `${TP_PEDIDO_MS / 1000}`; `tp.test.ts` ganhou a
   conferência do "60 segundos" + o teste de fronteira (`TP_PEDIDO_MS - 1_000` ainda vale).
-* \[ ] **SILENCIAR o chat: só os COMANDOS (pedido do usuário, 2026-08-15: "desativar as
-  mensagens e deixar apenas os comandos")** — não existe hoje. O material já está pronto: a
-  mensagem de JOGADOR chega como broadcast com `author` de verdade (`nome#id`,
-  `session.ts:1403` → `main.ts:888`), e a resposta de COMANDO chega SÓ pro autor com
-  `author: "servidor"` (`sendServerChat`, `session.ts:1831-1836`). Refino:
-  * Filtro do LAZER (só esconde na tela) é pureza de cliente: botão 🚫 ou tecla no chat
-    esconde o `addMessage` quando `author !== "servidor"` — nada no servidor, nada no
-    protocolo. O broadcast continua acontecendo (outros leem), o autor some da tela.
-  * Ou comando `/silenciar [nome]` (nos dois extremos: o professor cansa do papo da turma,
-    ou o aluno quieto quer foco) — vira estado PESSOAL do jogador, no molde do
-    `settings.chatSilenciado` (persistido no localStorage) e não afeta ninguém.
-  * Quem manda: o servidor NÃO precisa saber — é só a regra de CLIENTE no handler da msg
-    `chat` (main.ts:888). Teste de UI (shots:chat) fecha a porta.
+* \[x] **SILENCIAR o chat: só os COMANDOS** — **FEITO** (2026-08-27, pedido de 2026-08-15:
+  "desativar as mensagens e deixar apenas os comandos"). Escopo final: comando `/silenciar`, só
+  o PROFESSOR roda — toggle de turma inteira, estado do MUNDO, no molde do `/confinar`/`/ciclo`
+  (não o filtro pessoal de cliente nem o `/silenciar [nome]` cogitados antes; descartados).
+  * `shared/src/session/silenciar.ts` — `runSilenciar` alterna `ses.chatSilenciado`
+    (ligar/desligar/alterna sem argumento), broadcast pra turma inteira avisando a mudança.
+  * Gate mora no `case "chat"` de `session.ts`: mensagem de JOGADOR some (não broadcasta);
+    comando (`/…`) sempre passou por resposta SÓ ao autor, então nunca foi afetado. Aviso ao
+    autor com FREIO (`avisarChatSilenciado`, `session/avisos.ts`), mesmo molde do pvp desligado.
+  * Persiste no save (`SaveMeta.chatSilenciado`, ausente = liberado — mesma disciplina do
+    confinamento/ciclo). Comando registrado no autocomplete/painel do dedo (`client/src/commands.ts`).
+  * Bateria: typecheck 3/3 · 936/936 (+3) · build · 16/16 smokes · `npm run cenarios` 7/7
+    byte-idênticos.
+
+* \[ ] **IDEIA (não iniciar ainda) — traduzir TODOS os comandos de chat pro português, e toda
+  aparição deles** (pedido do usuário, 2026-08-27, ao lado do `/silenciar`). Ex.: `/claim` viraria
+  `/terreno`. Não é só renomear a `case` do switch:
+  * **Dispatch do servidor** — `shared/src/session.ts` (switch de `parts[0]` em `runCommand`,
+    ~L1590-1670): cada `case "claim"`, `case "pvp"` etc.
+  * **Autocomplete do cliente** — `client/src/commands.ts`: array `COMANDOS`, `SUBCOMANDOS`,
+    `CMD_COM_NOME`/`AMIGOS_COM_NOME` (nomes literais espalhados nas duas).
+  * **Painel de comandos rápidos do dedo** — mesma árvore de `commands.ts`, ganha os nomes
+    junto, sem lista própria pra manter.
+  * **Textos de uso/erro** — cada `runX` tem frases tipo "Uso: /claim ligar|desligar|..." que
+    citam o próprio comando; são MUITAS, espalhadas por `shared/src/session/*.ts`.
+  * **Docs** — `todo.md`, `README`, `.wolf/*` citam comandos pelo nome atual.
+  * Candidatos que hoje NÃO são português: `claim` → `terreno`(?), `pvp` → já é sigla comum,
+    talvez fique. Não decidido — é só a ideia registrada, escopo e nomes finais ficam pro dia
+    de fazer.
 
 ## Mundo / professor
 
@@ -226,30 +242,14 @@ senão lado com parede; empate → base. Cliente inalterado.
 
 ## Mobile / toque
 
-* \[ ] **BOTÃO DE COMANDOS NO HUD DE TOQUE + `/painel` QUE ABRE O MESMO PAINEL** (ideia do
-  usuário, 2026-08-21). Duas portas novas pro painel de comandos do mobile, para não depender de
-  achar o caminho pelo chat. **Irmã do item logo abaixo** (painel ao LADO) — decidir se as duas
-  entram juntas ou se esta vem primeiro, já que é bem menor.
-  * **Porta 1 — botão no HUD de toque.** A fileira de cima é `#touch-topo`
-    (`client/src/touch.ts:251-263`), montada com o helper `this.tapButton(ícone, nome, ação)`.
-    Hoje tem ☰ menu · 🧱 blocos · 💬 chat · 🪄 varinha · 👥 amigos. O botão novo entra ali com o
-    mesmo molde (uma linha), e a ação chama o que o `/painel` chamar.
-  * **Porta 2 — comando `/painel`.** ⚠️ **O molde EXATO já existe e é para copiar:**
-    `abrirAmigosPorComando()` em `client/src/main.ts:475-485`. `/amigos` sem subcomando abre o
-    painel NO CLIENTE e não vai ao servidor; com subcomando segue pro fio como sempre. O
-    comentário lá explica a razão que vale igual aqui: *"é a única porta que serve nos dois — a
-    tecla não existe no tablet"*. Registrar `/painel` no mesmo ponto de intercepção.
-  * ⚠️ **`/painel` NÃO existe no servidor** (`session.ts:1602` lista os comandos, e ele não está
-    lá). Se a intercepção do cliente falhar, o aluno recebe "Comando desconhecido" — então o
-    teste tem de provar a intercepção, não só o clique do botão.
-  * **Pontos a decidir antes:**
-    * Qual ícone e rótulo? (`⌨` comandos? `/` comandos?) A fileira já tem 5 botões e em retrato
-      a largura é escassa — conferir se cabe um 6º sem quebrar linha.
-    * O botão aparece pra TODO MUNDO ou só pro professor? (o 👥 amigos, por exemplo, só aparece
-      com a proteção de áreas ligada — há precedente pra botão condicional.)
-    * `/painel` alterna (abre/fecha) ou só abre? O `/amigos` só abre.
-  * **Verificação:** `npm run shots:toque` já fotografa o HUD de toque e tem seção que abre o
-    painel de comandos — é onde o botão novo tem de aparecer.
+* \[x] **BOTÃO DE COMANDOS NO HUD DE TOQUE + `/painel` QUE ABRE O MESMO PAINEL** — **FEITO**
+  (2026-08-21, `706534b`). Achado tarde (2026-08-27): já estava pronto, só faltava marcar aqui.
+  * Botão **📋 "painel"** entrou em `#touch-topo` (`client/src/touch.ts:288`), visível pra
+    TODO MUNDO (sem `hidden`, ao contrário de 🪄/👥 que são condicionais).
+  * `/painel` sem subcomando intercepta no CLIENTE (`abrirPainelPorComando()`,
+    `client/src/main.ts:516`) — mesmo molde do `/amigos`, nunca vai ao fio. Alterna
+    (`paineis.trocarParaPainel()`), mas na prática quase nunca fecha (chat não abre com painel
+    na tela).
 
 * \[x] **ROLAGEM DO PAINEL DO PROFESSOR (botão `P`)** — **FEITO** (2026-08-21). Não era só
   possibilidade: **estava cortando conteúdo no notebook da escola**, não só no tablet.
@@ -274,28 +274,15 @@ senão lado com parede; empate → base. Cliente inalterado.
   * **Sondas:** `.wolf/designqc-captures/painel-p/` (600px, 300px e rolado). Aceitação: "grupos"
     passa de invisível a visível ao rolar, head fica no topo, "✕ fechar" segue alcançável.
 
-* \[ ] **PAINEL DE COMANDOS DO MOBILE AO LADO, não embaixo** (ideia do usuário, 2026-08-17).
-  Hoje o painel é uma faixa horizontal DEPOIS do campo (`#chat-painel { margin-top: 4px;
-  max-height: 26vh; flex-wrap: wrap }`, `client/src/chat.ts:24-35`), empilhada com o input no
-  mesmo `#chat`. Com o teclado virtual aberto sobra pouca altura, e o conjunto campo+painel
-  espreme ou empurra o campo pra fora. **Queremos: painel numa COLUNA lateral**, para que campo,
-  histórico do chat e comandos fiquem os três visíveis com o teclado na tela.
-  **O que já existe e ajuda:** `acompanharTecladoVirtual()` (`chat.ts:~70`) já mede o teclado
-  com `visualViewport` e publica `--kb` no `:root`; o `#chat` do `index.html` soma isso no
-  `bottom`. A conta de altura já está resolvida — o que muda é o EIXO do layout.
-  **Pontos a decidir antes:**
-  * Qual lado? Em paisagem provavelmente à direita (a mão que digita costuma tapar a esquerda),
-    mas quem decide é o playtest, não o palpite.
-  * Em RETRATO a coluna lateral rouba largura do histórico do chat — talvez o layout tenha de
-    ser por orientação (`@media (orientation: landscape)`), não fixo.
-  * O painel hoje tem `max-height: 26vh` e quebra em linhas; virando coluna passa a querer
-    `max-width` e rolagem vertical.
-  * ⚠️ O `#chat` é `pointer-events: none` e o painel/botões são `auto` — mover o painel para
-    fora do `#chat` quebraria isso. Manter dentro.
-  * ⚠️ Piso de toque de 40px por botão (`min-height: 40px`) não pode cair.
-  * **Verificação:** `npm run shots:toque` tem a seção E, que abre o painel, desce um nível no
-    `/tp` e envia "grupos" — ela tem de continuar verde. E `npm run shots:tablet` para o
-    enquadramento (⚠️ exige `npm run dev` na 5173, não sobe servidor sozinho).
+* \[x] **PAINEL DE COMANDOS DO MOBILE AO LADO, não embaixo** — **FEITO** (2026-08-25, `dd28bbd`).
+  Achado tarde (2026-08-27): já estava pronto, só faltava marcar aqui.
+  * `@media (pointer: coarse) and (min-width: 700px)` em `client/src/chat.ts` vira o
+    `#chat-painel` de faixa empilhada em coluna FIXA à direita do chat (`left: calc(--chat-esq +
+    --chat-larg + 12px)`) — lado escolhido foi direita, como o item cogitava. Abaixo de 700px de
+    largura (retrato) fica o layout empilhado antigo — decisão por LARGURA, não por
+    `orientation`, porque é a largura que sobra pra coluna, não a orientação em si.
+  * Ganho medido: 388×304px de painel (com teclado) contra 440×156px de antes — ~21 dos 25
+    comandos à vista em vez de ~11.
 
 * \[x] varinha no celular (sem tecla R) — **FEITO** (2026-07-21): botão 🪄 na fileira do topo do touch UI liga/desliga o modo varinha (mesmo `toggleVarinha` da tecla R); aí os botões ⛏/▣ marcam canto 1/canto 2 (já roteiam pelo mesmo handler de clique esq/dir que checa `varinhaAtiva`).
 * \[x] botão de AGACHAR no celular — **FEITO** (2026-07-21): botão de SEGURAR ⤓ nas ações do touch, mantém a tecla `agachar` (Shift) pressionada — andando não cai da borda, voando DESCE (mesma `input.down(settings.keys.agachar)` do teclado).

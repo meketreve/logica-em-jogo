@@ -1413,6 +1413,15 @@ nenhum** — sem essa declaração o Chrome renderiza a página em light mesmo c
 
 ## Do-Not-Repeat
 
+- [2026-08-27] **`todo.md` mente por atraso, não só por erro — checar `[ ]` contra `git log`/
+  código antes de listar pendências.** Dois itens marcados `[ ]` (botão 📋 do HUD de toque +
+  `/painel`, e painel de comandos em coluna lateral no dedo) já estavam commitados havia dias
+  (`706534b` 2026-08-21, `dd28bbd` 2026-08-25) — a sessão que fez ficou de escrever o "FEITO" e
+  não escreveu. Primeira varredura só leu o trecho de CSS citado no próprio item e concluiu
+  "não mudou"; o usuário perguntou "os últimos commits não foram sobre isso?" e aí apareceu a
+  media query nova mais abaixo no arquivo. Ler o arquivo INTEIRO (ou `git log -- <arquivo>`),
+  não só a linha que o item aponta.
+
 - [2026-08-26] **Não afirmar "eu quebrei isso" (nem "isso já estava quebrado") sem o A/B.** A
   sonda do painel P acusou 941px de transbordo logo depois do teto ir de 20 para 35 — parecia
   regressão da mudança. O A/B (constante de volta em 20, `npm run build`, sonda de novo) mediu

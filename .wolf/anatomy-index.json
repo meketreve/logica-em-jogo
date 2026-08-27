@@ -1,12 +1,12 @@
 {
   "version": 1,
   "meta": {
-    "lastScanned": "2026-08-26T03:56:04.318Z",
-    "fileCount": 362,
+    "lastScanned": "2026-08-27T13:27:33.142Z",
+    "fileCount": 363,
     "hits": 0,
     "misses": 0,
-    "renderedHash": "63fd54b51939798b717419230e430c3276bbf56088451ee76f362844f611854e",
-    "storeUpdatedAt": "2026-08-26T03:56:04.331Z"
+    "renderedHash": "5b1db07b9fb0d120954b60c13b4a809e15562e367f6577dee12fb111d43daf4b",
+    "storeUpdatedAt": "2026-08-27T13:27:33.181Z"
   },
   "files": {
     ".claude/commands/reframe.md": {
@@ -1891,46 +1891,46 @@
     },
     "client/src/commands.ts": {
       "description": "Autocompletar de comandos de chat (Tab). Puro, sem DOM — o chat.ts liga o",
-      "tokens": 1980,
-      "hash": "44165ad2edee5e92",
-      "size": 7080,
-      "mtimeMs": 1787413576835.053,
-      "updatedAt": "2026-08-26T03:56:04.062Z",
-      "source": "scan",
+      "tokens": 1994,
+      "hash": "fbd81b3d618194b4",
+      "size": 7131,
+      "mtimeMs": 1787836911416.3164,
+      "updatedAt": "2026-08-27T13:21:51.554Z",
+      "source": "hook",
       "symbols": [
         {
           "name": "learnWorlds",
           "kind": "fn",
-          "startLine": 82,
-          "endLine": 86,
+          "startLine": 84,
+          "endLine": 88,
           "tokens": 48
         },
         {
           "name": "learnPlayers",
           "kind": "fn",
-          "startLine": 87,
-          "endLine": 90,
+          "startLine": 89,
+          "endLine": 92,
           "tokens": 25
         },
         {
           "name": "nivel3",
           "kind": "fn",
-          "startLine": 91,
-          "endLine": 105,
+          "startLine": 93,
+          "endLine": 107,
           "tokens": 210
         },
         {
           "name": "candidatos",
           "kind": "fn",
-          "startLine": 106,
-          "endLine": 138,
+          "startLine": 108,
+          "endLine": 140,
           "tokens": 489
         },
         {
           "name": "destinoDeToque",
           "kind": "fn",
-          "startLine": 139,
-          "endLine": 162,
+          "startLine": 141,
+          "endLine": 164,
           "tokens": 383
         }
       ]
@@ -10383,12 +10383,12 @@
     },
     "shared/src/save.ts": {
       "description": "Formato de save (.ljw) — MESMO arquivo em todos os hospedeiros: disco do",
-      "tokens": 5176,
-      "hash": "3912e1805192bb43",
-      "size": 18360,
-      "mtimeMs": 1785948185439.324,
-      "updatedAt": "2026-08-26T03:56:04.262Z",
-      "source": "scan",
+      "tokens": 5265,
+      "hash": "a719a7db507e6e78",
+      "size": 18671,
+      "mtimeMs": 1787836852552.316,
+      "updatedAt": "2026-08-27T13:20:52.693Z",
+      "source": "hook",
       "symbols": [
         {
           "name": "SavedPlayer",
@@ -10401,64 +10401,64 @@
           "name": "SaveMeta",
           "kind": "section",
           "startLine": 74,
-          "endLine": 129,
-          "tokens": 832
+          "endLine": 132,
+          "tokens": 884
         },
         {
           "name": "SaveData",
           "kind": "section",
-          "startLine": 130,
-          "endLine": 136,
+          "startLine": 133,
+          "endLine": 139,
           "tokens": 80
         },
         {
           "name": "encodeSave",
           "kind": "fn",
-          "startLine": 137,
-          "endLine": 150,
+          "startLine": 140,
+          "endLine": 153,
           "tokens": 198
         },
         {
           "name": "encodeLazySave",
           "kind": "fn",
-          "startLine": 151,
-          "endLine": 176,
+          "startLine": 154,
+          "endLine": 179,
           "tokens": 255
         },
         {
           "name": "isFinitePos",
           "kind": "fn",
-          "startLine": 177,
-          "endLine": 187,
+          "startLine": 180,
+          "endLine": 190,
           "tokens": 138
         },
         {
           "name": "inventarioComItem",
           "kind": "fn",
-          "startLine": 188,
-          "endLine": 194,
+          "startLine": 191,
+          "endLine": 197,
           "tokens": 88
         },
         {
           "name": "decodeSave",
           "kind": "fn",
-          "startLine": 195,
-          "endLine": 212,
+          "startLine": 198,
+          "endLine": 215,
           "tokens": 234
         },
         {
           "name": "decodeLazySave",
           "kind": "fn",
-          "startLine": 213,
-          "endLine": 251,
+          "startLine": 216,
+          "endLine": 254,
           "tokens": 453
         },
         {
           "name": "readSaveMeta",
           "kind": "fn",
-          "startLine": 252,
-          "endLine": 411,
-          "tokens": 1951
+          "startLine": 255,
+          "endLine": 416,
+          "tokens": 1988
         }
       ]
     },
@@ -10788,12 +10788,12 @@
     },
     "shared/src/session/avisos.ts": {
       "description": "§🍖 F4: freio do aviso \"mochila cheia\" (quebrar é clique repetido).",
-      "tokens": 239,
-      "hash": "306625bca4774e02",
-      "size": 847,
-      "mtimeMs": 1785989286596.631,
-      "updatedAt": "2026-08-26T03:56:04.265Z",
-      "source": "scan"
+      "tokens": 407,
+      "hash": "65814017aeb88e77",
+      "size": 1442,
+      "mtimeMs": 1787836866760.316,
+      "updatedAt": "2026-08-27T13:21:06.886Z",
+      "source": "hook"
     },
     "shared/src/session/cenario.ts": {
       "description": "Cenário (cp12/13) — os OBJETIVOS de uma aula, do lado do servidor.",
@@ -11725,58 +11725,58 @@
     },
     "shared/src/session.test.ts": {
       "description": "Testes de MECÂNICA rodam com singleplayer: true (join sem PIN) — a",
-      "tokens": 15348,
-      "hash": "903b1d05b07c68c9",
-      "size": 54078,
-      "mtimeMs": 1787341915463.4238,
-      "updatedAt": "2026-08-26T03:56:04.277Z",
-      "source": "scan",
+      "tokens": 16331,
+      "hash": "2b135985bb111463",
+      "size": 57529,
+      "mtimeMs": 1787836943716.3167,
+      "updatedAt": "2026-08-27T13:22:23.841Z",
+      "source": "hook",
       "symbols": [
         {
           "name": "collect",
           "kind": "fn",
           "startLine": 12,
-          "endLine": 1131,
-          "tokens": 15205
+          "endLine": 1201,
+          "tokens": 16188
         }
       ]
     },
     "shared/src/session.ts": {
       "description": "GameSession: o SERVIDOR autoritativo, independente de hospedeiro.",
-      "tokens": 31380,
-      "hash": "1babf3accb3c8610",
-      "size": 111579,
-      "mtimeMs": 1787688526336.3145,
-      "updatedAt": "2026-08-26T03:56:04.282Z",
-      "source": "scan",
+      "tokens": 31707,
+      "hash": "687427ef6dd945b0",
+      "size": 112732,
+      "mtimeMs": 1787836903548.3162,
+      "updatedAt": "2026-08-27T13:21:43.707Z",
+      "source": "hook",
       "symbols": [
         {
           "name": "SessionOptions",
           "kind": "section",
-          "startLine": 232,
-          "endLine": 284,
+          "startLine": 233,
+          "endLine": 285,
           "tokens": 721
         },
         {
           "name": "SessionPlayer",
           "kind": "section",
-          "startLine": 285,
-          "endLine": 295,
+          "startLine": 286,
+          "endLine": 296,
           "tokens": 60
         },
         {
           "name": "Identity",
           "kind": "section",
-          "startLine": 296,
-          "endLine": 300,
+          "startLine": 297,
+          "endLine": 301,
           "tokens": 19
         },
         {
           "name": "GameSession",
           "kind": "class",
-          "startLine": 301,
-          "endLine": 2444,
-          "tokens": 29235
+          "startLine": 302,
+          "endLine": 2466,
+          "tokens": 29541
         }
       ]
     },
@@ -12487,12 +12487,12 @@
     },
     "todo.md": {
       "description": "Ideias para fazer",
-      "tokens": 23886,
-      "hash": "0778dffd7492229d",
-      "size": 98587,
-      "mtimeMs": 1787716496388.3162,
-      "updatedAt": "2026-08-26T03:56:04.294Z",
-      "source": "scan"
+      "tokens": 23594,
+      "hash": "9ecf866ce3903497",
+      "size": 97344,
+      "mtimeMs": 1787837253008.316,
+      "updatedAt": "2026-08-27T13:27:33.142Z",
+      "source": "hook"
     },
     "tsconfig.base.json": {
       "description": "",
@@ -12511,6 +12511,15 @@
       "mtimeMs": 1786448361124.3147,
       "updatedAt": "2026-08-26T03:56:04.295Z",
       "source": "scan"
+    },
+    "shared/src/session/silenciar.ts": {
+      "description": "`/silenciar` (2026-08-27, pedido do usuário) — SÓ o professor roda: alterna",
+      "tokens": 349,
+      "hash": "a11487d587a9ba24",
+      "size": 1235,
+      "mtimeMs": 1787836859716.316,
+      "updatedAt": "2026-08-27T13:20:59.830Z",
+      "source": "hook"
     }
   }
 }

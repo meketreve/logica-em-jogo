@@ -2739,3 +2739,37 @@ que mede `elementFromPoint` no centro do botão do último grupo — o gate que 
 fraude.
 | 00:58 | commit do código: teto 35 + fix do painel + cenários + dist + sonda, tudo junto (dist e src no MESMO commit — a escola roda o dist) | b7e4d71 | 17 arquivos | ~3k |
 | 01:00 | commit dos docs (STATUS 89, buglog 647, cerebrum, todo, anatomy) | 212df66 | 7 arquivos | ~3k |
+
+## Session: 2026-08-26 08:55
+
+| Time | Action | File(s) | Outcome | ~Tokens |
+|------|--------|---------|---------|--------|
+
+## Session: 2026-08-27 09:49
+
+| Time | Action | File(s) | Outcome | ~Tokens |
+|------|--------|---------|---------|--------|
+| 10:14 | Edited todo.md | modified tarde() | ~167 |
+| 10:14 | Edited todo.md | modified tarde() | ~198 |
+| 10:20 | Auditou todo.md contra git log: 2 itens [ ] já estavam commitados (706534b, dd28bbd), marcados [x] | todo.md, cerebrum.md | achado do usuário ("os últimos commits não foram sobre isso?") corrigiu 1ª varredura incompleta | ~3200 |
+| 10:15 | Session end: 2 writes across 1 files (todo.md) | 5 reads | ~67870 tok |
+| 10:17 | Edited todo.md | modified Decidido() | ~539 |
+| 10:20 | Edited shared/src/save.ts | modified Confinamento() | ~104 |
+| 10:20 | Edited shared/src/save.ts | 2→4 lines | ~75 |
+| 10:20 | Created shared/src/session/silenciar.ts | — | ~349 |
+| 10:21 | Edited shared/src/session/avisos.ts | added 1 condition(s) | ~257 |
+| 10:21 | Edited shared/src/session.ts | added 1 import(s) | ~68 |
+| 10:21 | Edited shared/src/session.ts | 3→6 lines | ~99 |
+| 10:21 | Edited shared/src/session.ts | 2→5 lines | ~62 |
+| 10:21 | Edited shared/src/session.ts | 1→2 lines | ~45 |
+| 10:21 | Edited shared/src/session.ts | 2→4 lines | ~76 |
+| 10:21 | Edited shared/src/session.ts | 1→2 lines | ~22 |
+| 10:21 | Edited shared/src/session.ts | added 1 condition(s) | ~172 |
+| 10:21 | Edited shared/src/session.ts | added 1 condition(s) | ~175 |
+| 10:21 | Edited client/src/commands.ts | 3→4 lines | ~14 |
+| 10:21 | Edited client/src/commands.ts | 1→2 lines | ~23 |
+| 10:22 | Edited shared/src/session.test.ts | added 2 condition(s) | ~1061 |
+| 10:25 | Session end: 18 writes across 7 files (todo.md, save.ts, silenciar.ts, avisos.ts, session.ts) | 10 reads | ~97442 tok |
+| 10:27 | Edited todo.md | 10→13 lines | ~303 |
+| 10:35 | `/silenciar`: comando novo, só professor, toggle de turma (molde /confinar/ciclo) | session.ts, session/silenciar.ts, session/avisos.ts, save.ts, commands.ts, session.test.ts | verde: typecheck 3/3, 936/936 (+3), build, 16/16 smokes, cenarios 7/7 byte-idênticos | ~15000 |
+| 10:27 | Session end: 19 writes across 7 files (todo.md, save.ts, silenciar.ts, avisos.ts, session.ts) | 10 reads | ~98000 tok |
