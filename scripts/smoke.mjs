@@ -62,7 +62,7 @@ const SMOKES = [
     nome: "kicar",
     arquivo: `${DIR}/_smoke-kicar.mjs`,
     prova:
-      "cp22 — /kicar remove o aluno de verdade pelo fio (msg `kicked` + socket cai), avisa os demais; aluno não kica, nome inexistente e o próprio professor não removem ninguém.",
+      "cp22 — /expulsar remove o aluno de verdade pelo fio (msg `kicked` + socket cai), avisa os demais; aluno não expulsa, nome inexistente e o próprio professor não removem ninguém.",
     lento: false,
     servidores: [
       {

@@ -317,7 +317,7 @@ export function showMenu(handlers: MenuHandlers): void {
   const nameInput = el<HTMLInputElement>("menu-nome");
   nameInput.value = getPlayerName();
   nameInput.addEventListener("change", () => {
-    // sem espaço nem caractere especial (quebrariam /kicar, /tp, /grupo…)
+    // sem espaço nem caractere especial (quebrariam /expulsar, /tp, /grupo…)
     const v = sanitizeName(nameInput.value);
     localStorage.setItem(NAME_KEY, v);
     nameInput.value = v;

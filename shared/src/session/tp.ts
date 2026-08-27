@@ -6,7 +6,7 @@ import { runGrupo } from "./equipes";
 import { parseCoordArg } from "./coords";
 import type { GameSession } from "../session";
 
-/** Validade de um pedido de /tpr (aceite com /tpa) — 60 s (2026-08-14: pedido
+/** Validade de um pedido de /tpp (aceite com /tpa) — 60 s (2026-08-14: pedido
  *  do usuário — "30 segundos é pouco"; o professor lê o aviso e o aluno ainda
  *  tem tempo de digitar). */
 export const TP_PEDIDO_MS = 60_000;
@@ -14,7 +14,7 @@ export const TP_PEDIDO_MS = 60_000;
 /**
  * TELEPORTE e INÍCIO DA ATIVIDADE.
  *
- * `/tp` é do professor (teleoperação, sem custo e sem alcance); `/tpr` + `/tpa`
+ * `/tp` é do professor (teleoperação, sem custo e sem alcance); `/tpp` + `/tpa`
  * é o par que o ALUNO usa — pedir e aceitar —, porque teleporte unilateral de
  * aluno pra aluno é ferramenta de perseguir colega. `/tp grupos` e `/iniciar`
  * são o gesto de abrir a aula: levam cada grupo à área do seu objetivo.
@@ -117,12 +117,12 @@ export function runTp(ses: GameSession, clientId: number, parts: string[]): stri
   return `${nome} foi teleportado para (${x}, ${y}, ${z}).`;
 }
 
-/** `/tpr nome` (todos): pede para se teleportar até o jogador — ele aceita
+/** `/tpp nome` (todos): pede para se teleportar até o jogador — ele aceita
  *  com /tpa. Um pedido por solicitante (o novo substitui o antigo). */
 export function runTpr(ses: GameSession, clientId: number, parts: string[]): string {
   const nome = parts[1];
   if (parts.length !== 2 || !nome) {
-    return "Uso: /tpr nome — pede para se teleportar até o jogador; ele aceita com /tpa.";
+    return "Uso: /tpp nome — pede para se teleportar até o jogador; ele aceita com /tpa.";
   }
   const de = ses.players.get(clientId);
   if (!de) return "Entre no mundo antes de pedir teleporte.";
@@ -155,7 +155,7 @@ export function runTpa(ses: GameSession, clientId: number, parts: string[]): str
     ses.tpPedidos.set(clientId, fila);
     return nome
       ? `Não há pedido de teleporte de "${nome}" — pode ter expirado (o prazo é de ${TP_PEDIDO_MS / 1000} segundos).`
-      : `Não há pedido de teleporte pendente. Peça com /tpr nome (o pedido dura ${TP_PEDIDO_MS / 1000} segundos).`;
+      : `Não há pedido de teleporte pendente. Peça com /tpp nome (o pedido dura ${TP_PEDIDO_MS / 1000} segundos).`;
   }
   ses.tpPedidos.set(clientId, fila.filter((p) => p !== pedido));
   teleportar(ses, pedido.deId, eu.x, eu.y, eu.z);

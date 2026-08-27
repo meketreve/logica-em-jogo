@@ -505,7 +505,7 @@ await tecla("Enter");
 await espera(150);
 await avaliar(`(() => {
   const f = document.getElementById('chat-input');
-  f.value = '/claim ligar';
+  f.value = '/terreno ligar';
   f.dispatchEvent(new KeyboardEvent('keydown', { code: 'Enter', key: 'Enter', bubbles: true }));
 })()`);
 await espera(800);

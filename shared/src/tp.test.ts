@@ -3,7 +3,7 @@ import { GameSession, type SessionOptions } from "./session";
 import { TP_PEDIDO_MS } from "./session/tp";
 
 /**
- * /tpr (pedir teleporte) + /tpa (aceitar) — todos os jogadores; e /tp nome /
+ * /tpp (pedir teleporte) + /tpa (aceitar) — todos os jogadores; e /tp nome /
  * /tp nome x y z — teleoperação direta do professor. Convenção combinada em
  * 2026-07-17: aluno nunca teleporta ninguém sem consentimento.
  */
@@ -43,10 +43,10 @@ function makeTp(opts: SessionOptions = {}) {
   return { session, send, chat, msgsTo, lastChat, lastTeleport, clock };
 }
 
-describe("/tpr e /tpa — pedido e aceite", () => {
+describe("/tpp e /tpa — pedido e aceite", () => {
   it("fluxo feliz: ana pede, bia aceita, ana aparece na bia; pedido é consumido", () => {
     const s = makeTp();
-    s.chat(2, "/tpr bia");
+    s.chat(2, "/tpp bia");
     expect(s.lastChat(2)).toContain("Pedido enviado a bia");
     expect(s.lastChat(3)).toContain("ana quer se teleportar até você");
     s.chat(3, "/tpa");
@@ -58,19 +58,19 @@ describe("/tpr e /tpa — pedido e aceite", () => {
     expect(s.lastChat(3)).toContain("Não há pedido");
   });
 
-  it("/tpr valida: nome offline, si mesmo, uso", () => {
+  it("/tpp valida: nome offline, si mesmo, uso", () => {
     const s = makeTp();
-    s.chat(2, "/tpr caio");
+    s.chat(2, "/tpp caio");
     expect(s.lastChat(2)).toContain('"caio" não está no mundo');
-    s.chat(2, "/tpr ana");
+    s.chat(2, "/tpp ana");
     expect(s.lastChat(2)).toContain("Você já está aí");
-    s.chat(2, "/tpr");
-    expect(s.lastChat(2)).toContain("Uso: /tpr nome");
+    s.chat(2, "/tpp");
+    expect(s.lastChat(2)).toContain("Uso: /tpp nome");
   });
 
   it("pedido expira em 60 s (clock injetado)", () => {
     const s = makeTp();
-    s.chat(2, "/tpr bia");
+    s.chat(2, "/tpp bia");
     expect(s.lastChat(3)).toContain("60 segundos");
     s.clock.t += TP_PEDIDO_MS + 1_000;
     s.chat(3, "/tpa");
@@ -80,7 +80,7 @@ describe("/tpr e /tpa — pedido e aceite", () => {
 
   it("dentro do prazo o pedido ainda vale (fronteira do 60 s)", () => {
     const s = makeTp();
-    s.chat(2, "/tpr bia");
+    s.chat(2, "/tpp bia");
     s.clock.t += TP_PEDIDO_MS - 1_000;
     s.chat(3, "/tpa");
     expect(s.lastTeleport(2)).toMatchObject({ x: 20.5, z: 20.5 });
@@ -88,8 +88,8 @@ describe("/tpr e /tpa — pedido e aceite", () => {
 
   it("dois pedidos: /tpa nome escolhe; /tpa sem nome pega o restante mais recente", () => {
     const s = makeTp();
-    s.chat(2, "/tpr bia"); // ana → bia
-    s.chat(1, "/tpr bia"); // prof → bia (mais recente)
+    s.chat(2, "/tpp bia"); // ana → bia
+    s.chat(1, "/tpp bia"); // prof → bia (mais recente)
     s.chat(3, "/tpa ana"); // escolhe o da ana explicitamente
     expect(s.lastTeleport(2)).toMatchObject({ x: 20.5, z: 20.5 });
     s.chat(3, "/tpa"); // sobrou o do prof
@@ -98,7 +98,7 @@ describe("/tpr e /tpa — pedido e aceite", () => {
 
   it("quem pediu e desconectou não é teleportado (poda no aceite)", () => {
     const s = makeTp();
-    s.chat(2, "/tpr bia");
+    s.chat(2, "/tpp bia");
     s.session.handleDisconnect(2);
     s.chat(3, "/tpa");
     expect(s.lastChat(3)).toContain("Não há pedido");
@@ -112,7 +112,7 @@ describe("/tp nome — teleoperação do professor", () => {
     expect(s.lastTeleport(1)).toMatchObject({ x: 10.5, z: 10.5 });
     s.chat(2, "/tp bia");
     expect(s.lastChat(2)).toContain("Somente o professor");
-    expect(s.lastChat(2)).toContain("/tpr");
+    expect(s.lastChat(2)).toContain("/tpp");
   });
 
   it("/tp nome x y z envia o aluno; ~ é relativo a QUEM DIGITA (o professor)", () => {

@@ -656,7 +656,7 @@ if (vidaForcada) {
 /** Última lista de regiões do servidor (chega só pra professor). */
 let latestRegions: NamedRegion[] = [];
 /** Anti-griefing (cp24): proteção de áreas ligada? + claims (TODOS recebem).
- *  Com a proteção ligada o aluno também usa a varinha (pra /claim criar). */
+ *  Com a proteção ligada o aluno também usa a varinha (pra /terreno criar). */
 let claimsAtivo = false;
 /** A dica da tecla do painel de amigos já saiu nesta sessão? (uma vez só) */
 let dicaAmigosDada = false;

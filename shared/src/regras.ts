@@ -7,7 +7,7 @@
  * em português de professor) e UM comando genérico; regra nova é uma entrada
  * nesta lista, sem comando novo, sem campo novo no save e sem protocolo novo.
  *
- * O que NÃO entra aqui: `/ciclo`, `/voo`, `/vento`, `/confinar`, `/claim`. São
+ * O que NÃO entra aqui: `/ciclo`, `/voo`, `/vento`, `/confinar`, `/terreno`. São
  * comandos que o professor já usou em piloto — reescrever a UX deles não é
  * escopo da sobrevivência. Unificar depois é barato (cada um vira um alias);
  * reaprender comando no meio da aula, não.

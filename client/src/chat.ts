@@ -122,7 +122,7 @@ export class ChatUi {
   private cycle: { produced: string; matches: string[]; index: number; base: string } | null =
     null;
 
-  /** O caminho navegado no painel de comandos (["/tpr"] → ["/tpr","bia"]). */
+  /** O caminho navegado no painel de comandos (["/tpp"] → ["/tpp","bia"]). */
   private painelCaminho: string[] = [];
 
   /** O painel de comandos rápidos (só em aparelho de dedo). */

@@ -384,7 +384,7 @@ export class GameSession {
   readonly regions = new Map<string, NamedRegion>();
   /** Cantos pendentes da varinha, por cliente (não persistem — são rascunho). */
   readonly wandMarks = new Map<number, { c1?: Vec3i; c2?: Vec3i }>();
-  /** Pedidos de /tpr pendentes, por DESTINATÁRIO (id do cliente). Rascunho de
+  /** Pedidos de /tpp pendentes, por DESTINATÁRIO (id do cliente). Rascunho de
    *  sessão: não persiste, expira em TP_PEDIDO_MS e morre no disconnect. */
   readonly tpPedidos = new Map<
     number,
@@ -1538,7 +1538,7 @@ export class GameSession {
         else marks.c2 = corner;
         this.wandMarks.set(clientId, marks);
         const pronto = marks.c1 && marks.c2;
-        const dica = p.papel === "professor" ? " — agora /regiao criar nome" : " — agora /claim criar";
+        const dica = p.papel === "professor" ? " — agora /regiao criar nome" : " — agora /terreno criar";
         this.sendServerChat(
           clientId,
           `canto ${msg.corner}: (${msg.x}, ${msg.y}, ${msg.z})` + (pronto ? dica : ""),
@@ -1567,7 +1567,7 @@ export class GameSession {
 
   /**
    * Comandos de chat (prefixo "/"), resposta SÓ pro autor. Privilegiados
-   * (/bloco, /resetpin) exigem papel professor (cp9). /bloco prova o
+   * (/bloco, /redefinirpin) exigem papel professor (cp9). /bloco prova o
    * pipeline comando→estado→broadcast: a mudança sai como block_changed
    * normal e acorda as regras de vizinhança (areia cai), igual a qualquer
    * ação de jogador. Sem checagem de alcance: comando é teleoperação.
@@ -1596,10 +1596,10 @@ export class GameSession {
         this.applyBlock(x, y, z, id);
         return `Bloco (${x}, ${y}, ${z}) definido como ${id}.`;
       }
-      case "resetpin": {
-        if (!professor) return "Somente o professor pode usar /resetpin.";
+      case "redefinirpin": {
+        if (!professor) return "Somente o professor pode usar /redefinirpin.";
         const alvo = parts[1];
-        if (parts.length !== 2 || !alvo) return "Uso: /resetpin nome.";
+        if (parts.length !== 2 || !alvo) return "Uso: /redefinirpin nome.";
         const id = this.identity.get(alvo);
         if (!id?.pin) return `Ninguém entrou neste mundo com o nome "${alvo}" — não há PIN para apagar.`;
         id.pin = undefined;
@@ -1620,12 +1620,12 @@ export class GameSession {
         return runAula(this, clientId, parts);
       case "tp": {
         if (!professor) {
-          return "Somente o professor pode usar /tp. Para pedir teleporte até um colega, use /tpr nome.";
+          return "Somente o professor pode usar /tp. Para pedir teleporte até um colega, use /tpp nome.";
         }
         if (parts[1] === "grupos") return teleportarGrupos(this);
         return runTp(this, clientId, parts);
       }
-      case "tpr":
+      case "tpp":
         return runTpr(this, clientId, parts);
       case "tpa":
         return runTpa(this, clientId, parts);
@@ -1678,7 +1678,7 @@ export class GameSession {
         if (!professor) return "Somente o professor pode usar /dar.";
         return runDar(this, clientId, parts);
       }
-      case "claim":
+      case "terreno":
         return runClaim(this, clientId, parts);
       case "amigos":
         return runAmigos(this, clientId, parts);
@@ -1704,7 +1704,7 @@ export class GameSession {
         return runSilenciar(this, parts);
       }
       default:
-        return `Comando desconhecido: ${text}. Os comandos disponíveis são /bloco, /resetpin, /regiao, /objetivo, /grupo, /aula, /tp, /tpr, /tpa, /iniciar, /hora, /ciclo, /vento, /voo, /modo, /regra, /pvp, /dar, /claim, /amigos, /painel, /invisivel, /confinar e /silenciar.`;
+        return `Comando desconhecido: ${text}. Os comandos disponíveis são /bloco, /redefinirpin, /regiao, /objetivo, /grupo, /aula, /tp, /tpp, /tpa, /iniciar, /hora, /ciclo, /vento, /voo, /modo, /regra, /pvp, /dar, /terreno, /amigos, /painel, /invisivel, /confinar e /silenciar.`;
     }
   }
 
@@ -1783,10 +1783,10 @@ export class GameSession {
         ? `A aula mudou: você está em um mundo novo${papel === "professor" ? "" : ". Confira o objetivo no canto da tela"}.`
         : `Bem-vindo, ${this.authorTag(clientId)}! Pressione Enter para abrir o chat.` +
             (papel === "professor"
-              ? " Comandos: /bloco · /resetpin · /regiao (varinha: R) · /objetivo · /grupo · /tp grupos · /tp nome · /iniciar · /hora · /ciclo · /voo · /modo · /regra · /claim · /confinar"
-              : " Comandos: /tpr nome (pedir teleporte até um colega) · /tpa (aceitar)" +
+              ? " Comandos: /bloco · /redefinirpin · /regiao (varinha: R) · /objetivo · /grupo · /tp grupos · /tp nome · /iniciar · /hora · /ciclo · /voo · /modo · /regra · /terreno · /confinar"
+              : " Comandos: /tpp nome (pedir teleporte até um colega) · /tpa (aceitar)" +
                 (this.claimsAtivo
-                  ? " · /claim criar (proteja sua área: marque com a varinha R) · /amigos convidar nome"
+                  ? " · /terreno criar (proteja sua área: marque com a varinha R) · /amigos convidar nome"
                   : "")),
     );
     // professor vê as regiões existentes desde o join (depois do snapshot)
@@ -1875,7 +1875,7 @@ export class GameSession {
 
   // --- Banimento + painel de jogadores (2026-07-21) ---
   // Estado (lista de banidos) e o gate de join moram AQUI (autoridade + save);
-  // FECHAR o socket de quem foi banido é do HOST (index.ts), como o /kicar.
+  // FECHAR o socket de quem foi banido é do HOST (index.ts), como o /expulsar.
 
   /** Nick está banido? (case-insensitive — o nick é sanitizado no join). */
   estaBanido(name: string): boolean {
@@ -1920,7 +1920,7 @@ export class GameSession {
   }
 
   /** Estado dos jogadores (conectados + banidos) → SÓ professores (painel P).
-   *  No singleplayer (Web Worker) não roda: não há turma a gerir e /kicar·/banir
+   *  No singleplayer (Web Worker) não roda: não há turma a gerir e /expulsar·/banir
    *  são do HOST (a Web Worker nem os intercepta). Mantém o retrato de mensagens
    *  do join/saída idêntico no singleplayer (testes de contrato). */
   private broadcastPlayers(): void {

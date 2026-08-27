@@ -49,7 +49,7 @@ const SEM_GATE: ReadonlyMap<string, string> = new Map([
   ],
   [
     "wand_mark",
-    "marca um canto na tela de quem marcou. Não lê nem escreve nada do mundo; quem cria a área de verdade é o /claim criar, que confere sobreposição.",
+    "marca um canto na tela de quem marcou. Não lê nem escreve nada do mundo; quem cria a área de verdade é o /terreno criar, que confere sobreposição.",
   ],
 ]);
 
@@ -104,10 +104,10 @@ function turmaComClaimDaAna(confinar = false) {
   const sx = Math.floor(w.sizeX / 2);
   const sz = Math.floor(w.sizeZ / 2);
   const h = findSpawnY(w, sx, sz);
-  session.handleMessage(1, cmd("/claim ligar"));
+  session.handleMessage(1, cmd("/terreno ligar"));
   session.handleMessage(2, mark(1, sx - 3, h - 1, sz - 3));
   session.handleMessage(2, mark(2, sx + 3, h + 3, sz + 3));
-  session.handleMessage(2, cmd("/claim criar casa"));
+  session.handleMessage(2, cmd("/terreno criar casa"));
   if (confinar) session.handleMessage(1, cmd("/confinar ligar"));
   // a bia está no spawn, com a área da ana ao alcance da mão
   session.handleMessage(3, move({ x: sx + 0.5, y: h, z: sz + 0.5 }));

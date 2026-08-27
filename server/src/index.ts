@@ -350,7 +350,7 @@ function interceptarMundo(clientId: number, texto: string): boolean {
 }
 
 /**
- * `/kicar nome` (cp22) — o professor remove um aluno por mau comportamento.
+ * `/expulsar nome` (cp22) — o professor remove um aluno por mau comportamento.
  * Mora no HOST (como /mundo) porque FECHAR um socket é transporte, não estado
  * do mundo — a GameSession não tem sockets. O aluno pode entrar de novo com o
  * PIN (é expulsão, não banimento). Devolve true quando engoliu a mensagem.
@@ -364,7 +364,7 @@ function interceptarKicar(clientId: number, texto: string): boolean {
   }
   if (msg.type !== "chat" || typeof msg.text !== "string") return false;
   const partes = msg.text.trim().split(/\s+/);
-  if (partes[0] !== "/kicar") return false;
+  if (partes[0] !== "/expulsar") return false;
 
   const quem = session.jogadoresConectados().find((j) => j.id === clientId);
   if (!quem) {
@@ -380,7 +380,7 @@ function interceptarKicar(clientId: number, texto: string): boolean {
   if (!alvoNome) {
     falarCom(
       clientId,
-      "Uso: /kicar nome — remove o aluno da aula. Ele pode entrar de novo com o PIN.",
+      "Uso: /expulsar nome — remove o aluno da aula. Ele pode entrar de novo com o PIN.",
     );
     return true;
   }
@@ -420,7 +420,7 @@ function interceptarKicar(clientId: number, texto: string): boolean {
 
 /**
  * `/banir nome` e `/desbanir nome` (2026-07-21) — o professor bane/desbane por
- * NICK. Mora no HOST (como /kicar) porque banir também FECHA o socket de quem
+ * NICK. Mora no HOST (como /expulsar) porque banir também FECHA o socket de quem
  * está conectado; o ESTADO (lista de banidos + gate de join) vive na GameSession
  * e persiste no save. Devolve true quando engoliu a mensagem.
  */
@@ -503,7 +503,7 @@ function interceptarBanimento(clientId: number, texto: string): boolean {
 /**
  * `profile_report` (HUD F3 → "enviar pro servidor") mora no HOST porque
  * gravar arquivo é transporte, a GameSession não tem sistema de arquivos —
- * mesmo raciocínio de /mundo e /kicar. Exige join. Quem grava (e batiza) o
+ * mesmo raciocínio de /mundo e /expulsar. Exige join. Quem grava (e batiza) o
  * arquivo é `perfis.ts` — o mesmo caminho do `POST /perfil` que o `?bench` usa,
  * pra tudo cair na MESMA pasta com a MESMA regra de nome. Devolve true quando
  * engoliu a mensagem.
@@ -552,7 +552,7 @@ wss.on("connection", (socket, req) => {
     if (isBinary) return;
     const texto = data.toString();
     if (interceptarMundo(id, texto)) return; // /mundo é do HOST (mexe em arquivo)
-    if (interceptarKicar(id, texto)) return; // /kicar é do HOST (fecha socket)
+    if (interceptarKicar(id, texto)) return; // /expulsar é do HOST (fecha socket)
     if (interceptarBanimento(id, texto)) return; // /banir·/desbanir do HOST (fecha socket + estado na session)
     if (interceptarProfile(id, texto)) return; // profile_report é do HOST (grava arquivo)
     session.handleMessage(id, texto);

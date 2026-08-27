@@ -21,7 +21,7 @@ export function isValidPin(pin: string): boolean {
 /**
  * Normaliza o nome de um jogador: só letra, número, acento, `_` e `-`.
  * ESPAÇO e caractere especial são REMOVIDOS — o espaço quebrava todo comando
- * que lê o nome por posição (`/kicar ana maria` viraria `parts[1]="ana"`, sem
+ * que lê o nome por posição (`/expulsar ana maria` viraria `parts[1]="ana"`, sem
  * como mirar o aluno; idem /tp, /grupo entrar, /amigos…). Acento de nome
  * brasileiro (José, João) continua valendo — `\p{L}`/`\p{M}` cobrem Unicode.
  * Corta em MAX_NAME_LENGTH; se sobrar vazio, cai no genérico "jogador".

@@ -632,7 +632,7 @@ describe("GameSession (servidor autoritativo)", () => {
     // pra ele
     const lista = responder("/naoexiste");
     expect(lista).toMatch(/Comando desconhecido/);
-    for (const cmd of ["/painel", "/pvp", "/dar", "/amigos", "/claim"]) {
+    for (const cmd of ["/painel", "/pvp", "/dar", "/amigos", "/terreno"]) {
       expect(lista).toContain(cmd);
     }
   });
@@ -1002,7 +1002,7 @@ describe("identidade cp9: PIN + papel (default = estrito, PIN exigido)", () => {
       .map((s) => (typeof s.data === "string" ? parseServerMessage(s.data) : null))
       .find((m) => m?.type === "chat");
     if (welcome?.type !== "chat") throw new Error("esperava boas-vindas");
-    expect(welcome.text).toContain("/resetpin"); // dica só de professor
+    expect(welcome.text).toContain("/redefinirpin"); // dica só de professor
 
     // /bloco funciona pra professor
     const h = findSpawnY(session.world, 1, 1);
@@ -1024,10 +1024,10 @@ describe("identidade cp9: PIN + papel (default = estrito, PIN exigido)", () => {
       .map((s) => (typeof s.data === "string" ? parseServerMessage(s.data) : null))
       .find((m) => m?.type === "chat");
     if (welcome2?.type !== "chat") throw new Error("esperava boas-vindas");
-    expect(welcome2.text).toContain("/resetpin");
+    expect(welcome2.text).toContain("/redefinirpin");
   });
 
-  it("aluno não roda /bloco nem /resetpin — mundo intacto, recusa só pro autor", () => {
+  it("aluno não roda /bloco nem /redefinirpin — mundo intacto, recusa só pro autor", () => {
     const { sent, send } = collect();
     const session = new GameSession(send, { dims: DIMS, seed: 5 });
     session.handleMessage(1, join("ana", "1111"));
@@ -1036,7 +1036,7 @@ describe("identidade cp9: PIN + papel (default = estrito, PIN exigido)", () => {
     sent.length = 0;
 
     session.handleMessage(1, chatCmd(`/bloco 1 ${h} 1 ${BlockId.Stone}`));
-    session.handleMessage(1, chatCmd("/resetpin ana"));
+    session.handleMessage(1, chatCmd("/redefinirpin ana"));
     expect(getBlock(session.world, 1, h, 1)).toBe(before);
     expect(sent).toHaveLength(2);
     for (const s of sent) {
@@ -1047,7 +1047,7 @@ describe("identidade cp9: PIN + papel (default = estrito, PIN exigido)", () => {
     }
   });
 
-  it("/resetpin apaga o PIN e a próxima entrada registra um novo", () => {
+  it("/redefinirpin apaga o PIN e a próxima entrada registra um novo", () => {
     const { sent, send } = collect();
     const session = new GameSession(send, { dims: DIMS, codigo: "salaverde" });
     session.handleMessage(1, join("prof", "4321", "salaverde"));
@@ -1055,14 +1055,14 @@ describe("identidade cp9: PIN + papel (default = estrito, PIN exigido)", () => {
     session.handleDisconnect(2); // ana esqueceu o PIN e saiu
     sent.length = 0;
 
-    session.handleMessage(1, chatCmd("/resetpin ana"));
+    session.handleMessage(1, chatCmd("/redefinirpin ana"));
     const reply = parseServerMessage(sent[0]?.data as string);
     if (reply?.type !== "chat") throw new Error("esperava chat");
     expect(reply.text).toContain("apagado");
     sent.length = 0;
 
     // nome sem PIN registrado: resposta explica
-    session.handleMessage(1, chatCmd("/resetpin beto"));
+    session.handleMessage(1, chatCmd("/redefinirpin beto"));
     const missing = parseServerMessage(sent[0]?.data as string);
     if (missing?.type !== "chat") throw new Error("esperava chat");
     expect(missing.text).toContain("não há PIN para apagar");
@@ -1126,7 +1126,7 @@ describe("identidade cp9: PIN + papel (default = estrito, PIN exigido)", () => {
       .map((s) => (typeof s.data === "string" ? parseServerMessage(s.data) : null))
       .find((m) => m?.type === "chat");
     if (welcome?.type !== "chat") throw new Error("esperava boas-vindas");
-    expect(welcome.text).toContain("/resetpin");
+    expect(welcome.text).toContain("/redefinirpin");
   });
 });
 

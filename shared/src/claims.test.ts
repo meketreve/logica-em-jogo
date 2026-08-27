@@ -101,20 +101,20 @@ describe("claims — proteção de áreas (cp24)", () => {
   function anaCriaClaim(session: GameSession, sx: number, sz: number, h: number, nome = ""): void {
     session.handleMessage(2, mark(1, sx - 2, h - 1, sz - 2));
     session.handleMessage(2, mark(2, sx + 2, h + 2, sz + 2));
-    session.handleMessage(2, cmd(`/claim criar ${nome}`.trim()));
+    session.handleMessage(2, cmd(`/terreno criar ${nome}`.trim()));
   }
 
   it("aluno não liga a proteção; professor liga", () => {
     const { sent, session } = mundoComTurma();
-    session.handleMessage(2, cmd("/claim ligar"));
+    session.handleMessage(2, cmd("/terreno ligar"));
     expect(ultimaChat(sent, 2)).toContain("Somente o professor");
-    session.handleMessage(1, cmd("/claim ligar"));
+    session.handleMessage(1, cmd("/terreno ligar"));
     expect(ultimaChat(sent, 1)).toContain("ligada");
   });
 
   it("dono edita, amigo aceito edita, estranho é barrado, professor ignora", () => {
     const { sent, session, world, sx, sz, h } = mundoComTurma();
-    session.handleMessage(1, cmd("/claim ligar"));
+    session.handleMessage(1, cmd("/terreno ligar"));
     anaCriaClaim(session, sx, sz, h, "casa");
 
     const alvo = { x: sx, y: h - 1, z: sz };
@@ -144,7 +144,7 @@ describe("claims — proteção de áreas (cp24)", () => {
 
   it("claim protege a COLUNA inteira (0..teto) — sem escavar por baixo nem ilha flutuante", () => {
     const { sent, session, world, sx, sz, h } = mundoComTurma();
-    session.handleMessage(1, cmd("/claim ligar"));
+    session.handleMessage(1, cmd("/terreno ligar"));
     anaCriaClaim(session, sx, sz, h, "casa"); // marca só h-1..h+2
 
     // a caixa guardada cobre a coluna toda: da base (0) ao teto do mundo
@@ -162,13 +162,13 @@ describe("claims — proteção de áreas (cp24)", () => {
     expect(ultimaChat(sent, 3)).toContain("protegida por ana");
   });
 
-  it("professor também reserva área com /claim (mesmo acesso do aluno)", () => {
+  it("professor também reserva área com /terreno (mesmo acesso do aluno)", () => {
     const { sent, session, world, sx, sz, h } = mundoComTurma();
-    session.handleMessage(1, cmd("/claim ligar"));
+    session.handleMessage(1, cmd("/terreno ligar"));
     // professor marca com a varinha e cria — antes era barrado
     session.handleMessage(1, mark(1, sx - 1, h, sz - 1));
     session.handleMessage(1, mark(2, sx + 1, h + 1, sz + 1));
-    session.handleMessage(1, cmd("/claim criar palco"));
+    session.handleMessage(1, cmd("/terreno criar palco"));
     const claim = session.toSave().claims?.find((c) => c.dono === "prof");
     expect(claim).toBeDefined();
     expect(claim?.min.y).toBe(0); // coluna cheia, como a do aluno
@@ -188,36 +188,36 @@ describe("claims — proteção de áreas (cp24)", () => {
   it("claim novo não sobrepõe outro nem passa do tamanho máximo", () => {
     // mundo largo (5 chunks = 80) pra caber um claim maior que o limite X de 64
     const { sent, session, sx, sz, h } = mundoComTurma({ x: 5, z: 2, y: 2 });
-    session.handleMessage(1, cmd("/claim ligar"));
+    session.handleMessage(1, cmd("/terreno ligar"));
     anaCriaClaim(session, sx, sz, h);
 
     // bia tenta um claim encostando no da ana
     session.handleMessage(3, mark(1, sx, h - 1, sz));
     session.handleMessage(3, mark(2, sx + 1, h, sz + 1));
-    session.handleMessage(3, cmd("/claim criar"));
+    session.handleMessage(3, cmd("/terreno criar"));
     expect(ultimaChat(sent, 3)).toContain("encosta na área de ana");
 
     // bia tenta um claim gigante: 40×31 = 1.240, e sozinha ela só tem 1.024
     session.handleMessage(3, mark(1, 0, 0, 0));
     session.handleMessage(3, mark(2, 39, 0, 30));
-    session.handleMessage(3, cmd("/claim criar"));
+    session.handleMessage(3, cmd("/terreno criar"));
     expect(ultimaChat(sent, 3)).toContain("grande demais");
     expect(ultimaChat(sent, 3)).toContain("1024"); // o limite dela, escrito
   });
 
   /**
    * 2026-08-10 (pedido do playtest): a área máxima cresce com o GRUPO, e editar
-   * o claim é remarcar com a varinha e rodar `/claim modificar` — sem passar por
+   * o claim é remarcar com a varinha e rodar `/terreno modificar` — sem passar por
    * remover+criar, que deixa a construção desprotegida no meio do caminho.
    */
-  it("o limite de área cresce com o grupo, e /claim modificar remarca no lugar", () => {
+  it("o limite de área cresce com o grupo, e /terreno modificar remarca no lugar", () => {
     const { sent, session, sx, sz, h } = mundoComTurma({ x: 5, z: 2, y: 2 });
-    session.handleMessage(1, cmd("/claim ligar"));
+    session.handleMessage(1, cmd("/terreno ligar"));
 
     // sozinha, ana não passa de 1.024 (40×31 = 1.240 é recusado)
     session.handleMessage(2, mark(1, 0, 0, 0));
     session.handleMessage(2, mark(2, 39, 0, 30));
-    session.handleMessage(2, cmd("/claim criar"));
+    session.handleMessage(2, cmd("/terreno criar"));
     expect(ultimaChat(sent, 2)).toContain("grande demais");
     expect(session.toSave().claims ?? []).toHaveLength(0);
 
@@ -226,7 +226,7 @@ describe("claims — proteção de áreas (cp24)", () => {
     session.handleMessage(3, cmd("/amigos aceitar ana"));
     session.handleMessage(2, mark(1, 0, 0, 0));
     session.handleMessage(2, mark(2, 39, 0, 30));
-    session.handleMessage(2, cmd("/claim criar casa"));
+    session.handleMessage(2, cmd("/terreno criar casa"));
     const criado = session.toSave().claims?.find((c) => c.dono === "ana");
     expect(criado?.max.x).toBe(39);
     expect(criado?.nome).toBe("casa");
@@ -234,13 +234,13 @@ describe("claims — proteção de áreas (cp24)", () => {
     // criar de novo não vale: o comando de editar é o modificar
     session.handleMessage(2, mark(1, 50, 0, 0));
     session.handleMessage(2, mark(2, 60, 0, 10));
-    session.handleMessage(2, cmd("/claim criar"));
-    expect(ultimaChat(sent, 2)).toContain("/claim modificar");
+    session.handleMessage(2, cmd("/terreno criar"));
+    expect(ultimaChat(sent, 2)).toContain("/terreno modificar");
 
     // modificar remarca no lugar, HERDA o rótulo e continua sendo coluna cheia
     session.handleMessage(2, mark(1, 50, h, 0));
     session.handleMessage(2, mark(2, 60, h + 3, 10));
-    session.handleMessage(2, cmd("/claim modificar"));
+    session.handleMessage(2, cmd("/terreno modificar"));
     const novo = session.toSave().claims?.find((c) => c.dono === "ana");
     expect(novo?.min.x).toBe(50);
     expect(novo?.max.x).toBe(60);
@@ -253,7 +253,7 @@ describe("claims — proteção de áreas (cp24)", () => {
     const grande = { min: { x: 0, y: 0, z: 0 }, max: { x: 39, y: 0, z: 30 } };
     session.handleMessage(2, mark(1, grande.min.x, h, grande.min.z));
     session.handleMessage(2, mark(2, grande.max.x, h, grande.max.z));
-    session.handleMessage(2, cmd("/claim modificar"));
+    session.handleMessage(2, cmd("/terreno modificar"));
     session.handleMessage(3, cmd("/amigos sair"));
     expect(ultimaChat(sent, 2)).toContain("continua protegida");
     expect(session.toSave().claims?.find((c) => c.dono === "ana")?.max.x).toBe(39);
@@ -261,18 +261,18 @@ describe("claims — proteção de áreas (cp24)", () => {
     // ...e agora o modificar recusa remarcar do mesmo tamanho (1 pessoa = 1.024)
     session.handleMessage(2, mark(1, 0, h, 0));
     session.handleMessage(2, mark(2, 39, h, 30));
-    session.handleMessage(2, cmd("/claim modificar"));
+    session.handleMessage(2, cmd("/terreno modificar"));
     expect(ultimaChat(sent, 2)).toContain("grande demais");
     // encolher para dentro do limite continua valendo
     session.handleMessage(2, mark(1, 0, h, 0));
     session.handleMessage(2, mark(2, 31, h, 31));
-    session.handleMessage(2, cmd("/claim modificar"));
+    session.handleMessage(2, cmd("/terreno modificar"));
     expect(session.toSave().claims?.find((c) => c.dono === "ana")?.max.x).toBe(31);
   });
 
   it("claimsAtivo + claim + grupo de amigos sobrevivem ao save/restore", () => {
     const { session, sx, sz, h } = mundoComTurma();
-    session.handleMessage(1, cmd("/claim ligar"));
+    session.handleMessage(1, cmd("/terreno ligar"));
     anaCriaClaim(session, sx, sz, h, "casa");
     session.handleMessage(2, cmd("/amigos convidar bia"));
     session.handleMessage(3, cmd("/amigos aceitar ana"));

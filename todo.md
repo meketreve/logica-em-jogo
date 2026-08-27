@@ -109,7 +109,7 @@ base). Só o mesher muda a folha ABERTA de lado; física/cliente não mudam (tud
 por altura=1 e pelos helpers da janela). Mesma regra: janela vizinha do mesmo eixo → oposta;
 senão lado com parede; empate → base. Cliente inalterado.
 * \[x] **mais tempo pra usar o /tpa (pedido do usuário, 2026-08-14: "os 30 segundos é pouco")** —
-  o pedido de `/tpr` expira em 30 s (`TP_PEDIDO_MS` em `shared/src/session/tp.ts:10`, citado em
+  o pedido de `/tpp` expira em 30 s (`TP_PEDIDO_MS` em `shared/src/session/tp.ts:10`, citado em
   3 frases: o aviso pro alvo, a resposta do solicitante e o erro de "expirado"). Decidido
   (2026-08-14): **60 s** — uma constante e as 3 mensagens; o teste `tp.test.ts` tem de conferir
   o prazo novo (não só o fato de o pedido expirar). — **FEITO** (2026-08-14): `TP_PEDIDO_MS` virou
@@ -129,21 +129,26 @@ senão lado com parede; empate → base. Cliente inalterado.
   * Bateria: typecheck 3/3 · 936/936 (+3) · build · 16/16 smokes · `npm run cenarios` 7/7
     byte-idênticos.
 
-* \[ ] **IDEIA (não iniciar ainda) — traduzir TODOS os comandos de chat pro português, e toda
-  aparição deles** (pedido do usuário, 2026-08-27, ao lado do `/silenciar`). Ex.: `/claim` viraria
-  `/terreno`. Não é só renomear a `case` do switch:
-  * **Dispatch do servidor** — `shared/src/session.ts` (switch de `parts[0]` em `runCommand`,
-    ~L1590-1670): cada `case "claim"`, `case "pvp"` etc.
-  * **Autocomplete do cliente** — `client/src/commands.ts`: array `COMANDOS`, `SUBCOMANDOS`,
-    `CMD_COM_NOME`/`AMIGOS_COM_NOME` (nomes literais espalhados nas duas).
-  * **Painel de comandos rápidos do dedo** — mesma árvore de `commands.ts`, ganha os nomes
-    junto, sem lista própria pra manter.
-  * **Textos de uso/erro** — cada `runX` tem frases tipo "Uso: /claim ligar|desligar|..." que
-    citam o próprio comando; são MUITAS, espalhadas por `shared/src/session/*.ts`.
-  * **Docs** — `todo.md`, `README`, `.wolf/*` citam comandos pelo nome atual.
-  * Candidatos que hoje NÃO são português: `claim` → `terreno`(?), `pvp` → já é sigla comum,
-    talvez fique. Não decidido — é só a ideia registrada, escopo e nomes finais ficam pro dia
-    de fazer.
+* \[x] **traduzir os comandos de chat que não eram português, e toda aparição deles** — **FEITO**
+  (2026-08-27, pedido ao lado do `/silenciar`). Passada a régua em TODOS os comandos: a maioria
+  já era português (fica como estava); só 4 eram anglicismo e trocaram, corte na hora (sem
+  alias — nome velho vira "comando desconhecido"):
+  * `/claim` → **`/terreno`** · `/resetpin` → **`/redefinirpin`** · `/tpr` → **`/tpp`**
+    (`/tpa` ficou — já dá a entender "teleporte aceitar") · `/kicar` → **`/expulsar`**.
+  * `/tp`, `/pvp` e o resto (já liam como português ou sigla comum) **ficaram iguais** — decisão
+    do usuário durante o brainstorm, não esquecimento.
+  * Mudou: `shared/src/session.ts` (switch + lista "comando desconhecido" + dicas), `equipes.ts`
+    e `tp.ts` (textos de uso/erro), `client/src/commands.ts` (`COMANDOS`/`SUBCOMANDOS`/
+    `CMD_COM_NOME`), `players.ts` (botão expulsar), `server/src/index.ts` (match + uso do
+    `/expulsar`, host), testes que MANDAM o comando de verdade (`claims.test.ts`,
+    `gate-claim.test.ts`, `session.test.ts`, `tp.test.ts`), `scripts/tablet-shots.mjs` e
+    `_smoke-kicar.mjs`.
+  * **NÃO mudou de propósito:** nomes internos — `claims.ts`, tipo `Claim`, campo
+    `ses.claims`/`claimsAtivo`, nome de arquivo de teste/smoke. `claims` é chave **persistida no
+    `.ljw`**; trocar quebraria save antigo sem migração, e não foi pedido. `.wolf/STATUS.md`,
+    `cerebrum.md` (Decision Log) e `changelog.ts` também ficaram intocados — são registro
+    histórico de quando o comando ainda tinha o nome velho.
+  * Bateria: typecheck 3/3 · 936/936 · build · smokes.
 
 ## Mundo / professor
 

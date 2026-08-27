@@ -19,7 +19,7 @@ import type { GameSession } from "../session";
 /**
  * EQUIPES — as três formas de "com quem eu jogo" que o servidor conhece.
  *
- * **Claims (cp24)**: a área que o ALUNO reserva pra si, com `/claim`. Protege
+ * **Claims (cp24)**: a área que o ALUNO reserva pra si, com `/terreno`. Protege
  * contra griefing e é a única das três que o próprio aluno cria.
  * **Amigos**: o grupo informal que atravessa o claim — quem está no meu grupo
  * constrói na minha área. Convite + aceite, e o feed volta pros DOIS lados
@@ -78,7 +78,7 @@ export function areaMaxDe(ses: GameSession, name: string): number {
  * com claim maior que o limite novo é avisado no chat. A decisão de 2026-08-10
  * é **não mexer na área** — apagar ou encolher proteção de construção já feita,
  * no meio da aula e sem o aluno pedir, é o pior dos três. O claim continua
- * valendo; o que trava é o `/claim modificar`, que só aceita marcação nova
+ * valendo; o que trava é o `/terreno modificar`, que só aceita marcação nova
  * dentro do limite atual.
  */
 function avisarClaimApertado(ses: GameSession, nomes: readonly string[]): void {
@@ -93,7 +93,7 @@ function avisarClaimApertado(ses: GameSession, nomes: readonly string[]): void {
     ses.sendServerChat(
       id,
       `Seu grupo de amigos diminuiu: o limite de área caiu para ${limite} blocos e a sua tem ${area}. ` +
-        `Ela continua protegida — mas o /claim modificar só vai aceitar uma marcação que caiba em ${limite}.`,
+        `Ela continua protegida — mas o /terreno modificar só vai aceitar uma marcação que caiba em ${limite}.`,
     );
   }
 }
@@ -236,7 +236,7 @@ export function avisarEquipe(ses: GameSession, dono: string, texto: string): voi
 }
 
 /**
- * O corpo COMUM de `/claim criar` e `/claim modificar` — lê a marcação da
+ * O corpo COMUM de `/terreno criar` e `/terreno modificar` — lê a marcação da
  * varinha, força a COLUNA (camada 0 → teto do mundo) e recusa o que estoura o
  * limite ou encosta em área alheia. Os dois comandos diferem em três pontos, e
  * só neles: `modificar` exige um claim já existente, **ignora o próprio claim**
@@ -250,13 +250,13 @@ function marcarClaim(
   modificar: boolean,
 ): string {
   const p = ses.players.get(clientId)!;
-  if (!ses.claimsAtivo) return "A proteção de áreas está desligada. Ligue com /claim ligar.";
+  if (!ses.claimsAtivo) return "A proteção de áreas está desligada. Ligue com /terreno ligar.";
   const atual = ses.claims.get(p.name);
   if (modificar && !atual) {
-    return "Você ainda não tem área reservada. Marque com a varinha e use /claim criar.";
+    return "Você ainda não tem área reservada. Marque com a varinha e use /terreno criar.";
   }
   if (!modificar && atual) {
-    return "Você já tem uma área reservada. Use /claim modificar para mudá-la de lugar ou de tamanho (ou /claim remover).";
+    return "Você já tem uma área reservada. Use /terreno modificar para mudá-la de lugar ou de tamanho (ou /terreno remover).";
   }
   const marks = ses.wandMarks.get(clientId);
   if (!marks?.c1 || !marks.c2) {
@@ -304,7 +304,7 @@ function marcarClaim(
   );
 }
 
-/** `/claim` — proteção de áreas. ligar/desligar = professor; criar/modificar/
+/** `/terreno` — proteção de áreas. ligar/desligar = professor; criar/modificar/
  *  remover/lista = aluno. O professor edita qualquer lugar (ignora claims). */
 export function runClaim(ses: GameSession, clientId: number, parts: string[]): string {
   const p = ses.players.get(clientId);
@@ -324,7 +324,7 @@ export function runClaim(ses: GameSession, clientId: number, parts: string[]): s
         type: "chat",
         author: "servidor",
         text: novo
-          ? "Proteção de áreas LIGADA. Marque sua área com a varinha (tecla R) e use /claim criar; convide amigos com /amigos convidar nome. (Diferente do /confinar, que é o modo aula preso à área do grupo.)"
+          ? "Proteção de áreas LIGADA. Marque sua área com a varinha (tecla R) e use /terreno criar; convide amigos com /amigos convidar nome. (Diferente do /confinar, que é o modo aula preso à área do grupo.)"
           : "Proteção de áreas desligada — as áreas voltam a ser livres.",
       });
       return novo ? "Proteção de áreas ligada." : "Proteção de áreas desligada.";
@@ -341,7 +341,7 @@ export function runClaim(ses: GameSession, clientId: number, parts: string[]): s
     case "remover": {
       const alvo = parts[2];
       if (alvo) {
-        if (!professor) return "Você só pode remover a SUA área (/claim remover, sem nome).";
+        if (!professor) return "Você só pode remover a SUA área (/terreno remover, sem nome).";
         if (!ses.claims.delete(alvo)) return `${alvo} não tem área protegida.`;
         broadcastClaims(ses);
         return `Área de ${alvo} removida.`;
@@ -371,8 +371,8 @@ export function runClaim(ses: GameSession, clientId: number, parts: string[]): s
     }
     default:
       return professor
-        ? "Uso: /claim ligar · /claim desligar · /claim criar · /claim modificar · /claim remover [nome] · /claim lista · /claim limite"
-        : "Uso: /claim criar [nome] (marque a área com a varinha R antes) · /claim modificar [nome] (remarque e rode) · /claim remover · /claim lista · /claim limite";
+        ? "Uso: /terreno ligar · /terreno desligar · /terreno criar · /terreno modificar · /terreno remover [nome] · /terreno lista · /terreno limite"
+        : "Uso: /terreno criar [nome] (marque a área com a varinha R antes) · /terreno modificar [nome] (remarque e rode) · /terreno remover · /terreno lista · /terreno limite";
   }
 }
 
@@ -644,12 +644,12 @@ export function runConfinar(ses: GameSession, parts: string[]): string {
   const arg = parts[1]?.toLowerCase();
   if (arg === undefined || arg === "status") {
     // bug-603: os DOIS sistemas coexistem e não se confundem — o confinamento
-    // (cp25) é o modo aula que prende o aluno à área do grupo; o /claim (cp24)
+    // (cp25) é o modo aula que prende o aluno à área do grupo; o /terreno (cp24)
     // protege só as áreas marcadas. O status deixa a diferença explícita.
     return (
       `Confinamento por área de grupo (modo aula): ${ses.confinamentoAtivo ? "LIGADO" : "desligado"}. ` +
       `Use /confinar ligar ou /confinar desligar. ` +
-      `— É OUTRO sistema do /claim: a proteção de áreas está ${ses.claimsAtivo ? "LIGADA" : "desligada"} ` +
+      `— É OUTRO sistema do /terreno: a proteção de áreas está ${ses.claimsAtivo ? "LIGADA" : "desligada"} ` +
       `(o claim só guarda as áreas marcadas com a varinha; o confinamento restringe TODO o mundo à área do grupo).`
     );
   }

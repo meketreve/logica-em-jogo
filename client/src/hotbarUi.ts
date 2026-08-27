@@ -205,7 +205,7 @@ export class HotbarUi {
     if (!this.el) return;
     // nomes/ícones são constantes do código (sem input externo) — innerHTML ok aqui
     if (this.varinha) {
-      const criar = this.papel === "professor" ? "/regiao criar nome" : "/claim criar";
+      const criar = this.papel === "professor" ? "/regiao criar nome" : "/terreno criar";
       this.el.innerHTML = `<b>[varinha]</b> esq = canto 1 · dir = canto 2 · ${criar} · R/🪄 volta`;
       return;
     }

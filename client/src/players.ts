@@ -6,7 +6,7 @@ import { playUi } from "./audio";
  * inventário (cp16): altura FIXA, abas no topo e rolagem só na lista quando não
  * cabe. Três abas: "conectados" (expulsar/banir), "banidos" (desbanir) e
  * "grupos" (2026-08-17: ajustar o número de áreas da atividade ao vivo). Os
- * botões COMPÕEM comandos de chat (/kicar, /banir, /desbanir, /aula grupos) —
+ * botões COMPÕEM comandos de chat (/expulsar, /banir, /desbanir, /aula grupos) —
  * o servidor valida como sempre; o painel nunca decide estado.
  */
 export interface PlayersData {
@@ -160,7 +160,7 @@ export class PlayersPanel {
       // professor não expulsa/bane outro professor nem a si mesmo
       if (j.papel !== "professor") {
         row.append(
-          this.armedBtn("expulsar", () => this.send(`/kicar ${j.name}`)),
+          this.armedBtn("expulsar", () => this.send(`/expulsar ${j.name}`)),
           this.armedBtn("banir", () => this.send(`/banir ${j.name}`)),
         );
       }

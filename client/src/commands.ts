@@ -3,7 +3,7 @@
  * teclado; aqui mora só a árvore de comandos e a busca de candidatos.
  *
  * A árvore espelha os comandos do servidor (shared/session.ts: runCommand) e do
- * host (server/mundos.ts: /mundo; server/index.ts: /kicar). Se um comando novo
+ * host (server/mundos.ts: /mundo; server/index.ts: /expulsar). Se um comando novo
  * nascer lá, atualize aqui. O cliente NÃO tem sistema de arquivos: os nomes de
  * mundo entram ao vivo, pelo que o professor viu por último em "/mundo lista".
  *
@@ -25,14 +25,14 @@ const COMANDOS = [
   // tablet — o resto da lista é quase todo do professor no teclado.
   "painel",
   "bloco",
-  "resetpin",
+  "redefinirpin",
   "regiao",
   "objetivo",
   "grupo",
   "aula",
   "mundo",
   "tp",
-  "tpr",
+  "tpp",
   "tpa",
   "iniciar",
   "hora",
@@ -46,8 +46,8 @@ const COMANDOS = [
   "dar",
   "confinar",
   "silenciar",
-  "kicar",
-  "claim",
+  "expulsar",
+  "terreno",
   "amigos",
 ];
 
@@ -66,14 +66,14 @@ const SUBCOMANDOS: Record<string, string[]> = {
   regra: nomesDeRegra(),
   confinar: ["ligar", "desligar", "status"],
   silenciar: ["ligar", "desligar"],
-  claim: ["ligar", "desligar", "criar", "remover", "lista"],
+  terreno: ["ligar", "desligar", "criar", "remover", "lista"],
   amigos: ["convidar", "aceitar", "recusar", "sair", "expulsar", "lista"],
   pvp: ["ligar", "desligar"],
 };
 
 /** Comandos cujo 2º token é um NOME de jogador. /tp também aceita "grupos".
  *  §🍖 F4: /dar também aceita "eu" e "all" (ver `candidatos`). */
-const CMD_COM_NOME = new Set(["kicar", "resetpin", "tpr", "tpa"]);
+const CMD_COM_NOME = new Set(["expulsar", "redefinirpin", "tpp", "tpa"]);
 /** Subcomandos de /amigos cujo 3º token é um nome de jogador. */
 const AMIGOS_COM_NOME = new Set(["convidar", "aceitar", "recusar", "expulsar"]);
 
@@ -131,19 +131,19 @@ export function candidatos(completos: string[]): string[] {
 export type DestinoDeToque = "enviar" | "nivel" | "preencher";
 
 /** O que acontece ao TOCAR num nó da árvore dado o caminho já navegado (o 1º
- *  item tem a barra: ["/tpr"]). Regras:
+ *  item tem a barra: ["/tpp"]). Regras:
  *  - `enviar` — comando inteiro, manda na hora;
  *  - `nivel`  — ainda há subcomando fixo pra escolher (abre o próximo nível);
  *  - `preencher` — o próximo argumento é um NOME (jogador/regra/modo), então o
  *    painel preenche o campo pra digitar o resto (o tap não manda sozinho —
- *    mandar "/tpr" sem nome é erro de uso no servidor).
+ *    mandar "/tpp" sem nome é erro de uso no servidor).
  */
 export function destinoDeToque(caminho: string[]): DestinoDeToque {
   const cmd = (caminho[0] ?? "").replace(/^\//, "");
   if (caminho.length === 1) {
     if (cmd === "tpa") return "enviar"; // aceita o pedido mais recente — inteiro
     if (cmd === "dar") return "preencher"; // §🍖 F4: /dar <nome> <id> — nome 1º
-    if (CMD_COM_NOME.has(cmd)) return "preencher"; // kicar/resetpin/tpr pedem nome
+    if (CMD_COM_NOME.has(cmd)) return "preencher"; // expulsar/redefinirpin/tpp pedem nome
     if (cmd === "tp") return "nivel"; // abre a lista: grupos + quem está online
     if (SUBCOMANDOS[cmd]?.length) return "nivel"; // há subcomando pra escolher
     return "enviar"; // /iniciar, /mundo atual… sem próximo token fixo

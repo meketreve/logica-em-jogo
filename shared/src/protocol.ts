@@ -112,7 +112,7 @@ export type ClientMessage =
        * as medidas na MESMA pasta, sem precisar catar arquivo exportado de
        * cada máquina. Opaco: o servidor só grava, não interpreta — o shape
        * acompanha o que hud.ts exporta e pode crescer sem re-versionar o
-       * protocolo. Tratado no HOST (como /mundo, /kicar): gravar arquivo é
+       * protocolo. Tratado no HOST (como /mundo, /expulsar): gravar arquivo é
        * transporte, a GameSession não tem sistema de arquivos.
        */
       type: "profile_report";
@@ -287,7 +287,7 @@ export type ServerMessage =
       /**
        * Painel de jogadores (2026-07-21) — SÓ para o professor: quem está
        * conectado agora + a lista de nicks banidos. No join do professor e a
-       * cada join/saída/banimento. O painel manda /kicar, /banir, /desbanir.
+       * cada join/saída/banimento. O painel manda /expulsar, /banir, /desbanir.
        */
       type: "players";
       conectados: { name: string; papel: "professor" | "aluno" }[];
@@ -484,7 +484,7 @@ export type ServerMessage =
     }
   | {
       /**
-       * Aluno REMOVIDO da aula pelo professor (cp22, /kicar). Cliente mostra o
+       * Aluno REMOVIDO da aula pelo professor (cp22, /expulsar). Cliente mostra o
        * motivo e volta pro menu — mesmo caminho do join_denied. O socket cai
        * logo depois; ele pode entrar de novo com o PIN.
        */

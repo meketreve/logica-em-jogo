@@ -1,5 +1,5 @@
 /**
- * Smoke de /kicar (cp22) contra o servidor REAL. Prova o caminho de host de
+ * Smoke de /expulsar (cp22) contra o servidor REAL. Prova o caminho de host de
  * ponta a ponta: o professor remove um aluno, o aluno recebe `kicked` e o
  * socket cai; os demais são avisados no chat; aluno não pode kicar; nome
  * inexistente e o próprio professor não removem ninguém.
@@ -41,7 +41,7 @@ const bia = cliente({ name: "bia", pin: "2222" });
 await espera(700);
 
 console.log("== professor remove a ana ==");
-enviar(prof, "/kicar ana");
+enviar(prof, "/expulsar ana");
 await espera(500);
 ok(ana.kicked && ana.kicked.includes("removido"), "ana recebeu `kicked` com motivo");
 ok(ana.fechou, "o socket da ana caiu");
@@ -52,17 +52,17 @@ ok(
 ok(!bia.fechou, "bia continua conectada");
 
 console.log("== aluno NÃO pode kicar ==");
-enviar(bia, "/kicar profa");
+enviar(bia, "/expulsar profa");
 await espera(300);
 ok(
   bia.chats.some((c) => c.includes("Somente o professor pode remover")),
-  "bia é barrada ao tentar /kicar",
+  "bia é barrada ao tentar /expulsar",
 );
 ok(!prof.fechou, "o professor não foi removido por um aluno");
 
 console.log("== nome inexistente e o próprio professor ==");
-enviar(prof, "/kicar ninguem");
-enviar(prof, "/kicar profa"); // não pode remover a si mesmo
+enviar(prof, "/expulsar ninguem");
+enviar(prof, "/expulsar profa"); // não pode remover a si mesmo
 await espera(300);
 ok(
   prof.chats.some((c) => c.includes('Ninguém chamado "ninguem"')),
@@ -74,6 +74,6 @@ ok(
 );
 ok(!prof.fechou, "o professor continua no ar");
 
-console.log(falhas === 0 ? "\nSMOKE /kicar OK" : `\nSMOKE /kicar FALHOU (${falhas})`);
+console.log(falhas === 0 ? "\nSMOKE /expulsar OK" : `\nSMOKE /expulsar FALHOU (${falhas})`);
 for (const c of [prof, bia]) c.ws.close();
 process.exit(falhas === 0 ? 0 : 1);
