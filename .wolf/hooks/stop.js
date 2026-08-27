@@ -176,6 +176,14 @@ function upsertSessionEndLine(memoryPath, line) {
  * Returns a reminder string if action is needed, otherwise null.
  */
 function checkForMissingBugLogs(wolfDir, session) {
+    // `openwolf.buglog.auto_detect: false` (config.json) means the user already
+    // hit false positives from this exact heuristic (multi-edit ≠ bug — a clean
+    // multi-file feature edits the same file 3+ times too) and turned it off.
+    // Without this read, the flag did nothing: it silenced the buglog.json
+    // *entry* auto-detection elsewhere, but this Stop reminder ran unconditionally.
+    const config = readJSON(path.join(wolfDir, "config.json"), {});
+    if (config?.openwolf?.buglog?.auto_detect === false)
+        return null;
     if (!session.edit_counts)
         return null;
     const multiEditFiles = Object.entries(session.edit_counts)
