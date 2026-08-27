@@ -2773,3 +2773,5 @@ fraude.
 | 10:27 | Edited todo.md | 10→13 lines | ~303 |
 | 10:35 | `/silenciar`: comando novo, só professor, toggle de turma (molde /confinar/ciclo) | session.ts, session/silenciar.ts, session/avisos.ts, save.ts, commands.ts, session.test.ts | verde: typecheck 3/3, 936/936 (+3), build, 16/16 smokes, cenarios 7/7 byte-idênticos | ~15000 |
 | 10:27 | Session end: 19 writes across 7 files (todo.md, save.ts, silenciar.ts, avisos.ts, session.ts) | 10 reads | ~98000 tok |
+| 10:40 | Edited todo.md | added 1 condition(s) | ~304 |
+| 10:40 | Session end: 20 writes across 7 files (todo.md, save.ts, silenciar.ts, avisos.ts, session.ts) | 10 reads | ~98393 tok |

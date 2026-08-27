@@ -1,6 +1,6 @@
 # anatomy.md
 
-> Auto-maintained by OpenWolf. Last scanned: 2026-08-27T13:27:33.142Z
+> Auto-maintained by OpenWolf. Last scanned: 2026-08-27T13:40:18.320Z
 > Files: 363 tracked | Anatomy hits: 0 | Misses: 0
 
 ## ./
@@ -15,7 +15,7 @@
 - `package.json` — Node.js package manifest (~455 tok)
 - `projeto.txt` (~4707 tok)
 - `README.md` — Project documentation (~2627 tok)
-- `todo.md` — Ideias para fazer (~23594 tok)
+- `todo.md` — Ideias para fazer (~23775 tok)
 - `tsconfig.base.json` (~130 tok)
 - `vitest.config.ts` — Config do vitest da RAIZ (2026-08-11, bug-612). (~335 tok)
 

@@ -199,11 +199,20 @@ senão lado com parede; empate → base. Cliente inalterado.
   * Bateria: typecheck 3/3 · **933/933** (+2) · build · portão do dist · **16/16 smokes** ·
     launchers 7/7 · `npm run cenarios` 7/7 · `shots:grupos` verde a 1024×600 e 600×1024.
 
-* \[ ] **proteger a célula-molde contra edição** (achado ao implementar o item acima,
-  2026-08-17). A região `partida` fica no chunk atrás do professor, fora das fileiras de grupo,
-  mas nada impede alguém de destruí-la — e daí em diante `/aula grupos` copiaria o estrago.
-  Candidatos: bloquear edição dentro da região `partida` (mesma engrenagem do claim), ou tirar o
-  molde do mundo e guardá-lo no meta do save.
+* \[x] **proteger a célula-molde contra edição** — **FECHADO, NÃO IMPLEMENTADO** (analisado
+  2026-08-27; achado originalmente 2026-08-17). A região `partida` fica no chunk atrás do
+  professor, fora das fileiras de grupo; nada impede alguém (na prática, só o PROFESSOR — o
+  aluno confinado nem chega perto) de editá-la ali, e `/aula grupos` copiaria o estrago dali
+  pra frente.
+  * **Decisão do usuário: não precisa de gate.** Mundo de aula nunca salva
+    (`server/src/index.ts:240`, `if (somenteLeitura) return`) e `/mundo carregar` em aula
+    **sempre** parte do modelo puro em `cenarios/` (`server/src/mundos.ts:151`), nunca da cópia
+    de trabalho — então estragar o molde em sessão é recarregar a aula e o dano some, sem perda
+    nenhuma. Se o `cenarios/*.ljw` em si corrompesse (não deveria, nunca é escrito em sessão),
+    `npm run cenarios` regenera do zero.
+  * O risco real não era perda de dado — era a JANELA entre estragar sem perceber e rodar
+    `/aula grupos X` antes de notar (o grupo novo herdaria o estrago). Considerado baixo o
+    bastante pra não valer o gate novo (`moldeBloqueia`, cogitado, nunca escrito).
 
 ## Sistema anti-griefing (claim de blocos)
 
