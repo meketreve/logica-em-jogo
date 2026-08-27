@@ -1,7 +1,7 @@
 # anatomy.md
 
-> Auto-maintained by OpenWolf. Last scanned: 2026-08-27T13:40:18.320Z
-> Files: 363 tracked | Anatomy hits: 0 | Misses: 0
+> Auto-maintained by OpenWolf. Last scanned: 2026-08-27T17:20:51.429Z
+> Files: 364 tracked | Anatomy hits: 0 | Misses: 0
 
 ## ./
 
@@ -12,7 +12,7 @@
 - `iniciar-servidor.sh` — Lógica em Jogo — iniciar o servidor (Linux / WSL / macOS) (~6706 tok)
 - `LICENSE` — Licença de Uso — Lógica em Jogo (~1070 tok)
 - `package-lock.json` — npm lock file (~20120 tok)
-- `package.json` — Node.js package manifest (~455 tok)
+- `package.json` — Node.js package manifest (~487 tok)
 - `projeto.txt` (~4707 tok)
 - `README.md` — Project documentation (~2627 tok)
 - `todo.md` — Ideias para fazer (~23775 tok)
@@ -274,9 +274,9 @@
 - `blocksUi.ts` — Blocos colocáveis com nome em português — fonte única pra hotbar (main.ts) (~3693 tok)
   - section `PlaceableEntry` L55-231 (~3080 tok)
   - fn `placeableFor` L232-236 (~56 tok)
-- `changelog.ts` — Tela "📜 novidades" do menu principal — o que mudou em cada versão. (~2016 tok)
-  - section `Mudanca` L18-102 (~1346 tok)
-  - fn `buildChangelogScreen` L103-145 (~426 tok)
+- `changelog.ts` — Tela "📜 novidades" do menu principal — registro do que já foi feito no (~4320 tok)
+  - section `Mudanca` L36-322 (~3348 tok)
+  - fn `buildChangelogScreen` L323-366 (~426 tok)
 - `chat.ts` — UI de chat em HTML/CSS por cima do canvas (regra: sem GUI de engine). (~3564 tok)
   - fn `acompanharTecladoVirtual` L102-114 (~138 tok)
   - class `ChatUi` L115-336 (~2335 tok)
@@ -311,7 +311,7 @@
 - `hotbarUi.ts` — O que a barra precisa do resto do jogo, e nada além disso. (~2964 tok)
   - section `HotbarDeps` L31-56 (~347 tok)
   - class `HotbarUi` L57-256 (~2421 tok)
-- `hud.ts` — HUD de perfilação (F3): FPS, frametime méd+p95, remesh, draw calls e (~8642 tok)
+- `hud.ts` — HUD de perfilação (F3): FPS, frametime méd+p95, remesh, draw calls e (~8645 tok)
   - section `HudRemeshStats` L35-57 (~305 tok)
   - section `Recording` L58-76 (~220 tok)
   - section `Marcador` L77-86 (~93 tok)
@@ -319,7 +319,7 @@
   - section `ContextoPerfil` L100-126 (~240 tok)
   - section `ContadorFase` L127-139 (~92 tok)
   - fn `histograma` L140-162 (~189 tok)
-  - class `Hud` L163-725 (~6882 tok)
+  - class `Hud` L163-725 (~6884 tok)
 - `input.ts` — Teclado + mouse (pointer lock). SÓ coleta input — nenhuma decisão de (~3396 tok)
   - class `Input` L5-284 (~3349 tok)
 - `inventory.ts` — Chave de busca: sem espaço nas pontas, minúscula e **sem acento**. Ninguém (~7917 tok)
@@ -373,7 +373,7 @@
   - fn `persistWorld` L1086-2497 (~19591 tok)
 - `materiaisMundo.ts` — §🎨 Os TRÊS materiais do chunk — e o relógio que os anima. (~1829 tok)
   - class `MateriaisMundo` L23-131 (~1489 tok)
-- `menu.ts` — Menu principal (cp8) — HTML/CSS por cima do canvas, sem GUI de engine. (~7168 tok)
+- `menu.ts` — Menu principal (cp8) — HTML/CSS por cima do canvas, sem GUI de engine. (~7169 tok)
   - section `PlayWorldChoice` L38-55 (~221 tok)
   - section `MultiAuth` L56-60 (~19 tok)
   - section `MenuHandlers` L61-202 (~1568 tok)
@@ -382,7 +382,7 @@
   - fn `flashError` L219-225 (~52 tok)
   - fn `clearError` L226-240 (~184 tok)
   - fn `posicionaSplash` L241-261 (~300 tok)
-  - fn `showMenu` L262-479 (~2366 tok)
+  - fn `showMenu` L262-479 (~2365 tok)
   - fn `buildConfigScreen` L480-487 (~47 tok)
   - fn `backButton` L488-504 (~153 tok)
   - fn `renderConfigRoot` L505-525 (~215 tok)
@@ -750,6 +750,7 @@
   - fn `cdp` L94-99 (~50 tok)
   - fn `avaliar` L100-184 (~908 tok)
   - fn `tirar` L185-206 (~221 tok)
+- `gerar-build-info.mjs` — GERA `shared/src/build-info.json` (2026-08-27). (~494 tok)
 - `grupos-shot.mjs` — Print + medição da ABA "grupos" DO PAINEL P (2026-08-26) — a grade de botões (~3121 tok)
   - fn `espera` L46-47 (~18 tok)
   - fn `acharChrome` L48-79 (~298 tok)
@@ -836,7 +837,7 @@
 
 ## server/src/
 
-- `index.ts` — Hospedeiro Node+ws do servidor (LAN): embrulha a MESMA GameSession do Web (~6759 tok)
+- `index.ts` — Hospedeiro Node+ws do servidor (LAN): embrulha a MESMA GameSession do Web (~6764 tok)
   - fn `gerarCodigo` L121-157 (~526 tok)
   - fn `registrarChat` L158-238 (~1052 tok)
   - fn `saveNow` L239-300 (~775 tok)
@@ -844,7 +845,7 @@
   - fn `interceptarKicar` L358-426 (~633 tok)
   - fn `interceptarBanimento` L427-510 (~787 tok)
   - fn `interceptarProfile` L511-575 (~761 tok)
-  - fn `enderecoDaRede` L576-597 (~230 tok)
+  - fn `enderecoDaRede` L576-597 (~234 tok)
 - `mundos.ts` — `/mundo` (cp19) — trocar a aula SEM derrubar a turma. (~2060 tok)
   - fn `mundosDisponiveis` L29-49 (~214 tok)
   - fn `acharMundo` L50-57 (~81 tok)
@@ -1580,8 +1581,10 @@
   - fn `ventoIntensidade` L79-115 (~455 tok)
   - fn `setorDaDirecao` L116-123 (~112 tok)
   - fn `ondaAguaDoVento` L124-137 (~104 tok)
-- `version.test.ts` — A tela "📜 novidades" (client/src/changelog.ts) tinha o bloco do topo (~328 tok)
-- `version.ts` — Versão do jogo — FONTE ÚNICA = campo "version" do package.json da raiz. (~334 tok)
+- `version.test.ts` — A tela "📜 novidades" (client/src/changelog.ts) tinha o bloco do topo (~373 tok)
+- `version.ts` — Rótulo de BUILD — data + commit curto do HEAD (2026-08-27). (~574 tok)
+  - fn `dataBr` L23-42 (~246 tok)
+  - fn `rotuloDoBloco` L43-46 (~26 tok)
 - `water.test.ts` — Autômato celular síncrono: coleta as mudanças de TODA célula com regra (~1673 tok)
   - fn `simular` L12-32 (~231 tok)
   - fn `pisoPlano` L33-131 (~1278 tok)

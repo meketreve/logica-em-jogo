@@ -2775,3 +2775,14 @@ fraude.
 | 10:27 | Session end: 19 writes across 7 files (todo.md, save.ts, silenciar.ts, avisos.ts, session.ts) | 10 reads | ~98000 tok |
 | 10:40 | Edited todo.md | added 1 condition(s) | ~304 |
 | 10:40 | Session end: 20 writes across 7 files (todo.md, save.ts, silenciar.ts, avisos.ts, session.ts) | 10 reads | ~98393 tok |
+| 14:14 | Created scripts/gerar-build-info.mjs | — | ~494 |
+| 14:15 | Created shared/src/version.ts | — | ~574 |
+| 14:19 | Created client/src/changelog.ts | — | ~4320 |
+| 14:19 | Edited client/src/menu.ts | 3→3 lines | ~13 |
+| 14:20 | Edited client/src/menu.ts | inline fix | ~19 |
+| 14:20 | Edited server/src/index.ts | 3→3 lines | ~14 |
+| 14:20 | Edited server/src/index.ts | "[server] Lógica em Jogo v" → "[server] Lógica em Jogo —" | ~19 |
+| 14:20 | Edited client/src/hud.ts | inline fix | ~14 |
+| 14:20 | Edited client/src/hud.ts | inline fix | ~26 |
+| 14:20 | Created shared/src/version.test.ts | — | ~373 |
+| 14:20 | Edited package.json | 3→3 lines | ~66 |

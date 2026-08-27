@@ -17,14 +17,37 @@
   comunidade na tela — quem lê o painel é o aluno da própria escola; o valor se explica por
   pertencimento ("isso é nosso"), nunca por carência.
 
-- [2026-08-23] **REGRA DE RELEASE — bump SEMPRE arrasta o painel de novidades.** Pedido explícito
-  do usuário: "bumpa uma minor (o que precisa atualizar o painel de novidades e isso já deve ser
-  uma regra de workflow)". Ordem OBRIGATÓRIA, e ela não é arbitrária:
+- [2026-08-27] **REGRA DE RELEASE MUDOU — sem `npm version` nunca mais.** SUBSTITUI a regra de
+  2026-08-23 abaixo (mantida riscada só pelo histórico). O usuário perguntou "manter releases de
+  código que compila em runtime e que precisa do repo todo na máquina é desnecessário, correto?"
+  — e é: confirmei no código que `iniciar-servidor.sh` compara **commit** via API do GitHub pra
+  decidir "está atualizado" (nunca semver), e o `VERSION` do `package.json` só aparecia em 4
+  lugares de TELA (rodapé do menu, log do servidor, "versão atual" do changelog, metadado de
+  teste do hud) — zero lógica de decisão usava ele. Bump virou ritual sem função técnica.
+  **Como fica:** `shared/src/build-info.json` (GERADO por `scripts/gerar-build-info.mjs`, nunca
+  editado à mão) guarda `{ data, commit }` do HEAD; `shared/src/version.ts` expõe
+  `ROTULO_BUILD` ("27/08/2026 · dd1619a") e `rotuloDoBloco(data?)` pro changelog. O gerador roda
+  ANTES de `build`/`dev`/`dev:server` (`package.json` da raiz) — `npm version` não entra mais no
+  workflow, `package.json.version` fica CONGELADO em 0.12.1 sem mais bumps.
+  **`client/src/changelog.ts` mudou de granularidade:** cada marco/checkpoint (não cada "release")
+  vira um bloco, com `data` (dia ou intervalo) no lugar de `versao`. Reconstruído em 2026-08-27
+  do PRIMEIRO commit (10/07/2026) até hoje — pedido do usuário: "queria que o painel de
+  novidades fosse de fato um registro de tudo que já fizemos no projeto e com as datas". A
+  entrada do topo continua sem `data` escrita à mão (pega o build atual sozinha, mesmo motivo
+  de sempre: "recém-chegado" ficou preso 12 versões por ninguém trocar à mão).
+  **Workflow de push (sem bump), ordem:** 1. escrever o bloco novo no changelog (se a mudança for
+  visível a aluno/professor) · 2. `npm run build` (gera `build-info.json` + `client/dist`
+  atualizados) · 3. `npm run verify` · 4. commit + push **com `client/dist` (e `build-info.json`)
+  junto** — a escola roda o dist, não o src.
+
+- ~~[2026-08-23] REGRA DE RELEASE — bump SEMPRE arrasta o painel de novidades.~~ SUBSTITUÍDA
+  acima (2026-08-27). Pedido explícito do usuário na época: "bumpa uma minor (o que precisa
+  atualizar o painel de novidades e isso já deve ser uma regra de workflow)". Ordem que valia:
   1. `client/src/changelog.ts` — bloco NOVO no topo **sem campo `versao`** (ele É a release atual),
-     e o bloco que era o topo recebe o número que acabou de deixar de ser.
+     e o bloco que era o topo recebia o número que acabou de deixar de ser.
   2. `npm version <patch|minor|major> --no-git-tag-version` — o `npm version` normal exige árvore
      limpa e recusa no meio do trabalho.
-  3. `npm run build` **depois** do bump: o `client/dist` inlina o `VERSION`.
+  3. `npm run build` **depois** do bump: o `client/dist` inlinava o `VERSION`.
   4. `npm run verify` (já inclui o portão do dist).
   5. commit + push **com `client/dist` junto** — a escola roda o dist, não o src.
 

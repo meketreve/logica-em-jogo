@@ -1,12 +1,12 @@
 {
   "version": 1,
   "meta": {
-    "lastScanned": "2026-08-27T13:40:18.320Z",
-    "fileCount": 363,
+    "lastScanned": "2026-08-27T17:20:51.429Z",
+    "fileCount": 364,
     "hits": 0,
     "misses": 0,
-    "renderedHash": "2404db75d36ec998b222773aab2029bdf9fb9dd45b80c3df8cf31b2ef21f024a",
-    "storeUpdatedAt": "2026-08-27T13:40:18.350Z"
+    "renderedHash": "cfbe946e7e9d5dc7339b1dae8ce8319578b5bf824ef8fb8af5ef6400d4503f6b",
+    "storeUpdatedAt": "2026-08-27T17:20:51.460Z"
   },
   "files": {
     ".claude/commands/reframe.md": {
@@ -1797,26 +1797,26 @@
       ]
     },
     "client/src/changelog.ts": {
-      "description": "Tela \"📜 novidades\" do menu principal — o que mudou em cada versão.",
-      "tokens": 2016,
-      "hash": "b5cad43b4ea1cff5",
-      "size": 7247,
-      "mtimeMs": 1787501520496.315,
-      "updatedAt": "2026-08-26T03:56:04.058Z",
-      "source": "scan",
+      "description": "Tela \"📜 novidades\" do menu principal — registro do que já foi feito no",
+      "tokens": 4320,
+      "hash": "82bf949657c12df8",
+      "size": 15503,
+      "mtimeMs": 1787851192516.316,
+      "updatedAt": "2026-08-27T17:19:52.694Z",
+      "source": "hook",
       "symbols": [
         {
           "name": "Mudanca",
           "kind": "section",
-          "startLine": 18,
-          "endLine": 102,
-          "tokens": 1346
+          "startLine": 36,
+          "endLine": 322,
+          "tokens": 3348
         },
         {
           "name": "buildChangelogScreen",
           "kind": "fn",
-          "startLine": 103,
-          "endLine": 145,
+          "startLine": 323,
+          "endLine": 366,
           "tokens": 426
         }
       ]
@@ -2099,12 +2099,12 @@
     },
     "client/src/hud.ts": {
       "description": "HUD de perfilação (F3): FPS, frametime méd+p95, remesh, draw calls e",
-      "tokens": 8642,
-      "hash": "3133809ac9bd09d5",
-      "size": 30584,
-      "mtimeMs": 1786292562597.4448,
-      "updatedAt": "2026-08-26T03:56:04.076Z",
-      "source": "scan",
+      "tokens": 8645,
+      "hash": "289b56f4509f78ca",
+      "size": 30595,
+      "mtimeMs": 1787851239144.316,
+      "updatedAt": "2026-08-27T17:20:39.270Z",
+      "source": "hook",
       "symbols": [
         {
           "name": "HudRemeshStats",
@@ -2160,7 +2160,7 @@
           "kind": "class",
           "startLine": 163,
           "endLine": 725,
-          "tokens": 6882
+          "tokens": 6884
         }
       ]
     },
@@ -2569,12 +2569,12 @@
     },
     "client/src/menu.ts": {
       "description": "Menu principal (cp8) — HTML/CSS por cima do canvas, sem GUI de engine.",
-      "tokens": 7168,
-      "hash": "47d5deabb288f7d6",
-      "size": 25393,
-      "mtimeMs": 1787494648248.3157,
-      "updatedAt": "2026-08-26T03:56:04.083Z",
-      "source": "scan",
+      "tokens": 7169,
+      "hash": "6451e66832609dae",
+      "size": 25397,
+      "mtimeMs": 1787851201980.316,
+      "updatedAt": "2026-08-27T17:20:02.116Z",
+      "source": "hook",
       "symbols": [
         {
           "name": "PlayWorldChoice",
@@ -2637,7 +2637,7 @@
           "kind": "fn",
           "startLine": 262,
           "endLine": 479,
-          "tokens": 2366
+          "tokens": 2365
         },
         {
           "name": "buildConfigScreen",
@@ -3815,12 +3815,12 @@
     },
     "package.json": {
       "description": "Node.js package manifest",
-      "tokens": 455,
-      "hash": "f054a2906ac02fbd",
-      "size": 1592,
-      "mtimeMs": 1787715995812.315,
-      "updatedAt": "2026-08-26T03:56:04.137Z",
-      "source": "scan"
+      "tokens": 487,
+      "hash": "9f882ec8cc547ba3",
+      "size": 1703,
+      "mtimeMs": 1787851251292.316,
+      "updatedAt": "2026-08-27T17:20:51.428Z",
+      "source": "hook"
     },
     "profiles/perf-1784923796301-gius.json": {
       "description": "",
@@ -6642,12 +6642,12 @@
     },
     "server/src/index.ts": {
       "description": "Hospedeiro Node+ws do servidor (LAN): embrulha a MESMA GameSession do Web",
-      "tokens": 6759,
-      "hash": "3433586391376ce3",
-      "size": 23926,
-      "mtimeMs": 1787710063056.314,
-      "updatedAt": "2026-08-26T03:56:04.197Z",
-      "source": "scan",
+      "tokens": 6764,
+      "hash": "043b2ee6c809b9d0",
+      "size": 23945,
+      "mtimeMs": 1787851229824.316,
+      "updatedAt": "2026-08-27T17:20:29.971Z",
+      "source": "hook",
       "symbols": [
         {
           "name": "gerarCodigo",
@@ -6703,7 +6703,7 @@
           "kind": "fn",
           "startLine": 576,
           "endLine": 597,
-          "tokens": 230
+          "tokens": 234
         }
       ]
     },
@@ -12127,21 +12127,37 @@
     },
     "shared/src/version.test.ts": {
       "description": "A tela \"📜 novidades\" (client/src/changelog.ts) tinha o bloco do topo",
-      "tokens": 328,
-      "hash": "10644ecfa945d656",
-      "size": 1172,
-      "mtimeMs": 1787413916695.0532,
-      "updatedAt": "2026-08-26T03:56:04.286Z",
-      "source": "scan"
+      "tokens": 373,
+      "hash": "cef3a94da8e2912f",
+      "size": 1326,
+      "mtimeMs": 1787851247340.316,
+      "updatedAt": "2026-08-27T17:20:47.472Z",
+      "source": "hook"
     },
     "shared/src/version.ts": {
-      "description": "Versão do jogo — FONTE ÚNICA = campo \"version\" do package.json da raiz.",
-      "tokens": 334,
-      "hash": "a57efdf0ebfa84a2",
-      "size": 1200,
-      "mtimeMs": 1787413928615.0532,
-      "updatedAt": "2026-08-26T03:56:04.287Z",
-      "source": "scan"
+      "description": "Rótulo de BUILD — data + commit curto do HEAD (2026-08-27).",
+      "tokens": 574,
+      "hash": "e0c0e67a844bb268",
+      "size": 2060,
+      "mtimeMs": 1787850905948.3171,
+      "updatedAt": "2026-08-27T17:15:06.133Z",
+      "source": "hook",
+      "symbols": [
+        {
+          "name": "dataBr",
+          "kind": "fn",
+          "startLine": 23,
+          "endLine": 42,
+          "tokens": 246
+        },
+        {
+          "name": "rotuloDoBloco",
+          "kind": "fn",
+          "startLine": 43,
+          "endLine": 46,
+          "tokens": 26
+        }
+      ]
     },
     "shared/src/water.test.ts": {
       "description": "Autômato celular síncrono: coleta as mudanças de TODA célula com regra",
@@ -12519,6 +12535,15 @@
       "size": 1235,
       "mtimeMs": 1787836859716.316,
       "updatedAt": "2026-08-27T13:20:59.830Z",
+      "source": "hook"
+    },
+    "scripts/gerar-build-info.mjs": {
+      "description": "GERA `shared/src/build-info.json` (2026-08-27).",
+      "tokens": 494,
+      "hash": "a227fdd8789e2099",
+      "size": 1887,
+      "mtimeMs": 1787850850952.317,
+      "updatedAt": "2026-08-27T17:14:11.086Z",
       "source": "hook"
     }
   }
