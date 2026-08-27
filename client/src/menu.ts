@@ -1,5 +1,5 @@
 import {
-  VERSION,
+  ROTULO_BUILD,
   type WorldPreset,
   type WorldTamanho,
   ehPresetSobrevivencia,
@@ -293,7 +293,7 @@ export function showMenu(handlers: MenuHandlers): void {
   // 2ª medida no quadro seguinte: na 1ª o texto recém-trocado ainda pode não
   // ter passado pelo layout, e a largura errada desloca a âncora.
   requestAnimationFrame(posicionaSplash);
-  el<HTMLDivElement>("menu-version").textContent = `v${VERSION}`;
+  el<HTMLDivElement>("menu-version").textContent = ROTULO_BUILD;
 
   // peça 1 do fundo animado: cubo 3D girando atrás do menu (2026-08-15).
   // Renderer próprio, só texto procedural — precisa existir ANTES do canvas do

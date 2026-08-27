@@ -10,8 +10,8 @@ import {
   SERVER_TICK_RATE,
   type SaveData,
   type ServerMessage,
+  ROTULO_BUILD,
   TAMANHO_CHUNKS,
-  VERSION,
   decodeSave,
   ehPresetSobrevivencia,
   encodeLazySave,
@@ -584,7 +584,7 @@ function enderecoDaRede(): string {
 
 http.listen(PORT, () => {
   const onde = restore ? `mundo de ${CARREGAR_DE}` : `mundo novo, seed ${WORLD_SEED}`;
-  console.log(`[server] Lógica em Jogo v${VERSION}`);
+  console.log(`[server] Lógica em Jogo — build ${ROTULO_BUILD}`);
   console.log(`[server] no ar — ${onde}, tick alvo ${SERVER_TICK_RATE} tps`);
   console.log(`[server] os alunos abrem no navegador:  http://${enderecoDaRede()}:${PORT}`);
   if (!clienteFoiBuildado()) {

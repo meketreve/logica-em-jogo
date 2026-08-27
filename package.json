@@ -9,9 +9,9 @@
     "client"
   ],
   "scripts": {
-    "dev": "npm run dev -w client",
-    "dev:server": "npm run dev -w server",
-    "build": "npm run build -w client",
+    "dev": "node scripts/gerar-build-info.mjs && npm run dev -w client",
+    "dev:server": "node scripts/gerar-build-info.mjs && npm run dev -w server",
+    "build": "node scripts/gerar-build-info.mjs && npm run build -w client",
     "test": "npm run test -w shared",
     "cenarios": "npm run cenarios -w server --",
     "typecheck": "npm run typecheck -w shared && npm run typecheck -w server && npm run typecheck -w client",

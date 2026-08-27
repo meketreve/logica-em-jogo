@@ -1,5 +1,5 @@
 import type * as THREE from "three";
-import { VERSION } from "@logica/shared";
+import { ROTULO_BUILD } from "@logica/shared";
 
 /**
  * HUD de perfilação (F3): FPS, frametime méd+p95, remesh, draw calls e
@@ -532,7 +532,7 @@ export class Hud {
     const { fps, avgMs, p95Ms } = this.frameStats();
     const info = this.renderer.info;
     return {
-      versao: VERSION, // versão do jogo que rodou o teste (registro por versão)
+      build: ROTULO_BUILD, // build do jogo que rodou o teste (registro por commit+data)
       timestamp: new Date().toISOString(),
       userAgent: navigator.userAgent,
       meta: this.meta,
