@@ -1,7 +1,7 @@
 # anatomy.md
 
-> Auto-maintained by OpenWolf. Last scanned: 2026-08-27T17:20:51.429Z
-> Files: 364 tracked | Anatomy hits: 0 | Misses: 0
+> Auto-maintained by OpenWolf. Last scanned: 2026-08-27T19:29:50.064Z
+> Files: 365 tracked | Anatomy hits: 0 | Misses: 0
 
 ## ./
 
@@ -15,7 +15,7 @@
 - `package.json` — Node.js package manifest (~487 tok)
 - `projeto.txt` (~4707 tok)
 - `README.md` — Project documentation (~2627 tok)
-- `todo.md` — Ideias para fazer (~23775 tok)
+- `todo.md` — Ideias para fazer (~23890 tok)
 - `tsconfig.base.json` (~130 tok)
 - `vitest.config.ts` — Config do vitest da RAIZ (2026-08-11, bug-612). (~335 tok)
 
@@ -285,12 +285,12 @@
   - class `ChunkRenderer` L66-546 (~6102 tok)
 - `colunasFaltando.ts` — §🔁 A rede de segurança do streaming, e por que ela é um objeto. (~1243 tok)
   - class `ColunasFaltando` L19-114 (~978 tok)
-- `commands.ts` — Autocompletar de comandos de chat (Tab). Puro, sem DOM — o chat.ts liga o (~1994 tok)
+- `commands.ts` — Autocompletar de comandos de chat (Tab). Puro, sem DOM — o chat.ts liga o (~2002 tok)
   - fn `learnWorlds` L84-88 (~48 tok)
   - fn `learnPlayers` L89-92 (~25 tok)
   - fn `nivel3` L93-107 (~210 tok)
   - fn `candidatos` L108-140 (~489 tok)
-  - fn `destinoDeToque` L141-164 (~383 tok)
+  - fn `destinoDeToque` L141-164 (~385 tok)
 - `connection.ts` — Conexão do cliente com O SERVIDOR — interface única, hospedeiro invisível. (~1403 tok)
   - section `NetStats` L7-13 (~31 tok)
   - section `Connection` L14-19 (~43 tok)
@@ -308,9 +308,9 @@
 - `friends.ts` — Painel de amigos (2026-08-04) — a interface do `/amigos`, para TODO jogador: convites recebidos, o grupo (N/6, expulsar, sair) e a lista de quem convidar. Puro consumo do feed `friends`; cada botão compõe um `/amigos ...` (~2377 tok)
   - section `FriendsData` L18-31 (~150 tok)
   - class `FriendsPanel` L33-240 (~1900 tok)
-- `hotbarUi.ts` — O que a barra precisa do resto do jogo, e nada além disso. (~2964 tok)
+- `hotbarUi.ts` — O que a barra precisa do resto do jogo, e nada além disso. (~2965 tok)
   - section `HotbarDeps` L31-56 (~347 tok)
-  - class `HotbarUi` L57-256 (~2421 tok)
+  - class `HotbarUi` L57-256 (~2422 tok)
 - `hud.ts` — HUD de perfilação (F3): FPS, frametime méd+p95, remesh, draw calls e (~8645 tok)
   - section `HudRemeshStats` L35-57 (~305 tok)
   - section `Recording` L58-76 (~220 tok)
@@ -359,7 +359,7 @@
   - fn `registrarChegadaDeRede` L573-580 (~60 tok)
   - fn `jitterDeRede` L581-603 (~352 tok)
   - fn `podeVoar` L604-613 (~164 tok)
-  - fn `vitals` L614-685 (~988 tok)
+  - fn `vitals` L614-685 (~989 tok)
   - fn `pushPanelData` L686-698 (~139 tok)
   - fn `pushFriendsData` L699-709 (~96 tok)
   - fn `ownDone` L710-718 (~90 tok)
@@ -373,7 +373,7 @@
   - fn `persistWorld` L1086-2497 (~19591 tok)
 - `materiaisMundo.ts` — §🎨 Os TRÊS materiais do chunk — e o relógio que os anima. (~1829 tok)
   - class `MateriaisMundo` L23-131 (~1489 tok)
-- `menu.ts` — Menu principal (cp8) — HTML/CSS por cima do canvas, sem GUI de engine. (~7169 tok)
+- `menu.ts` — Menu principal (cp8) — HTML/CSS por cima do canvas, sem GUI de engine. (~7170 tok)
   - section `PlayWorldChoice` L38-55 (~221 tok)
   - section `MultiAuth` L56-60 (~19 tok)
   - section `MenuHandlers` L61-202 (~1568 tok)
@@ -382,7 +382,7 @@
   - fn `flashError` L219-225 (~52 tok)
   - fn `clearError` L226-240 (~184 tok)
   - fn `posicionaSplash` L241-261 (~300 tok)
-  - fn `showMenu` L262-479 (~2365 tok)
+  - fn `showMenu` L262-479 (~2366 tok)
   - fn `buildConfigScreen` L480-487 (~47 tok)
   - fn `backButton` L488-504 (~153 tok)
   - fn `renderConfigRoot` L505-525 (~215 tok)
@@ -413,9 +413,9 @@
   - class `Panel` L41-267 (~2027 tok)
   - class `AuthorPanel` L268-649 (~3806 tok)
   - class `GroupPanel` L650-679 (~277 tok)
-- `players.ts` — Painel de jogadores (2026-07-21) — SÓ para o professor. Mesma estrutura do (~2076 tok)
+- `players.ts` — Painel de jogadores (2026-07-21) — SÓ para o professor. Mesma estrutura do (~2078 tok)
   - section `PlayersData` L12-18 (~48 tok)
-  - class `PlayersPanel` L19-216 (~1872 tok)
+  - class `PlayersPanel` L19-216 (~1873 tok)
 - `progressoCarga.ts` — As contagens VIVAS que a tela amostra. Chegam por callback, e não por (~1159 tok)
   - section `FontesDeCarga` L9-34 (~335 tok)
   - class `ProgressoCarga` L35-98 (~700 tok)
@@ -501,35 +501,35 @@
 ## mundos/_smoke-coluna/
 
 - `_smoke-coluna.ljw` (~62 tok)
-- `chat.log` (~5067 tok)
+- `chat.log` (~5280 tok)
 
 ## mundos/_smoke-comida/
 
-- `chat.log` (~323 tok)
+- `chat.log` (~325 tok)
 
 ## mundos/_smoke-craft/
 
-- `chat.log` (~244 tok)
+- `chat.log` (~246 tok)
 
 ## mundos/_smoke-fome/
 
-- `chat.log` (~231 tok)
+- `chat.log` (~232 tok)
 
 ## mundos/_smoke-fornalha/
 
-- `chat.log` (~353 tok)
+- `chat.log` (~354 tok)
 
 ## mundos/_smoke-inv/
 
-- `chat.log` (~566 tok)
+- `chat.log` (~569 tok)
 
 ## mundos/_smoke-kicar/
 
-- `chat.log` (~23386 tok)
+- `chat.log` (~24354 tok)
 
 ## mundos/_smoke-modoa/
 
-- `chat.log` (~606 tok)
+- `chat.log` (~608 tok)
 
 ## mundos/_smoke-modob/
 
@@ -537,16 +537,16 @@
 
 ## mundos/_smoke-preset/
 
-- `chat.log` (~256 tok)
+- `chat.log` (~258 tok)
 
 ## mundos/_smoke-pvp/
 
-- `chat.log` (~462 tok)
+- `chat.log` (~464 tok)
 
 ## mundos/_smoke-trocaa/
 
 - `_smoke-trocaa.ljw` (~87 tok)
-- `chat.log` (~15405 tok)
+- `chat.log` (~16064 tok)
 
 ## mundos/_smoke-trocab/
 
@@ -554,15 +554,15 @@
 
 ## mundos/_smoke-vida/
 
-- `chat.log` (~205 tok)
+- `chat.log` (~206 tok)
 
 ## mundos/aula1-sequencia/
 
-- `chat.log` (~79689 tok)
+- `chat.log` (~82912 tok)
 
 ## mundos/aula2-binario/
 
-- `chat.log` (~3104 tok)
+- `chat.log` (~3232 tok)
 
 ## mundos/aula7-corrida/
 
@@ -650,7 +650,7 @@
 
 ## relatorio/
 
-- `apresentacao-cre.html` — Deck de 20 slides pra apresentar o projeto na CRE (pedagógico + demo + técnico). Um arquivo, offline, ← → navega e N mostra notas do apresentador; 3 prints em JPEG base64 no mapa `IMGS` do script. ⚠️ NÃO LER INTEIRO (base64) — editar por Edit ancorado em texto de slide (~78978 tok)
+- `apresentacao-cre.html` — Deck de 20 slides pra apresentar o projeto na CRE (pedagógico + demo + técnico). Um arquivo, offline, ← → navega e N mostra notas do apresentador; 3 prints em JPEG base64 no mapa `IMGS` do script. Slide 14 documenta uso real fora do piloto (Geografia, 2º ano). ⚠️ NÃO LER INTEIRO (base64) — editar por Edit ancorado em texto de slide (~79407 tok)
 - `relatorio-aplicacao.md` — Relatório de Aplicação — *Lógica em Jogo* (~5172 tok)
 
 ## scripts/
@@ -772,7 +772,7 @@
   - fn `cdp` L206-211 (~50 tok)
   - fn `avaliar` L212-255 (~491 tok)
   - fn `checar` L256-289 (~490 tok)
-- `smoke.mjs` — Runner dos smokes de rede — sobe o servidor REAL, roda o cenário, mata tudo. (~4792 tok)
+- `smoke.mjs` — Runner dos smokes de rede — sobe o servidor REAL, roda o cenário, mata tudo. (~4794 tok)
   - fn `espera` L369-371 (~42 tok)
   - fn `esperaPorta` L372-386 (~144 tok)
   - fn `sobeServidor` L387-399 (~112 tok)
@@ -792,7 +792,7 @@
   - fn `cmdChat` L391-467 (~865 tok)
   - fn `barra` L468-472 (~76 tok)
   - fn `acoes` L473-476 (~59 tok)
-  - fn `tocarNaBarra` L477-556 (~838 tok)
+  - fn `tocarNaBarra` L477-556 (~839 tok)
 - `tooltip-shot.mjs` — §💬 SONDA DO TOOLTIP DE ITEM (`client/src/tooltip.ts`). (~3001 tok)
   - fn `acharChrome` L42-57 (~171 tok)
   - fn `espera` L58-64 (~107 tok)
@@ -837,14 +837,14 @@
 
 ## server/src/
 
-- `index.ts` — Hospedeiro Node+ws do servidor (LAN): embrulha a MESMA GameSession do Web (~6764 tok)
+- `index.ts` — Hospedeiro Node+ws do servidor (LAN): embrulha a MESMA GameSession do Web (~6769 tok)
   - fn `gerarCodigo` L121-157 (~526 tok)
   - fn `registrarChat` L158-238 (~1052 tok)
   - fn `saveNow` L239-300 (~775 tok)
-  - fn `interceptarMundo` L301-357 (~533 tok)
-  - fn `interceptarKicar` L358-426 (~633 tok)
-  - fn `interceptarBanimento` L427-510 (~787 tok)
-  - fn `interceptarProfile` L511-575 (~761 tok)
+  - fn `interceptarMundo` L301-357 (~534 tok)
+  - fn `interceptarKicar` L358-426 (~636 tok)
+  - fn `interceptarBanimento` L427-510 (~788 tok)
+  - fn `interceptarProfile` L511-575 (~762 tok)
   - fn `enderecoDaRede` L576-597 (~234 tok)
 - `mundos.ts` — `/mundo` (cp19) — trocar a aula SEM derrubar a turma. (~2060 tok)
   - fn `mundosDisponiveis` L29-49 (~214 tok)
@@ -931,11 +931,11 @@
   - fn `contar` L50-51 (~30 tok)
   - fn `blocoEm` L52-64 (~129 tok)
   - fn `mover` L65-179 (~1514 tok)
-- `_smoke-kicar.mjs` — Smoke de /kicar (cp22) contra o servidor REAL. Prova o caminho de host de (~758 tok)
+- `_smoke-kicar.mjs` — Smoke de /expulsar (cp22) contra o servidor REAL. Prova o caminho de host de (~764 tok)
   - fn `ok` L14-18 (~29 tok)
   - fn `cliente` L19-34 (~145 tok)
   - fn `espera` L35-35 (~18 tok)
-  - fn `enviar` L36-80 (~454 tok)
+  - fn `enviar` L36-80 (~460 tok)
 - `_smoke-modo.mjs` — Smoke do §🍖 F1 (/modo e /regra) contra o servidor REAL. Prova pelo fio o que (~1252 tok)
   - fn `ok` L18-21 (~29 tok)
   - fn `espera` L22-24 (~42 tok)
@@ -1054,7 +1054,7 @@
 - `aula-encolher.test.ts` — `/aula grupos X` diminuindo. Apaga trabalho de aluno, então é em DOIS passos: (~1020 tok)
   - fn `mundoDeAula` L19-97 (~867 tok)
 - `auth.test.ts` (~428 tok)
-- `auth.ts` — Identidade por mundo (cp9): nome + PIN de 4 dígitos, papel professor/aluno. (~483 tok)
+- `auth.ts` — Identidade por mundo (cp9): nome + PIN de 4 dígitos, papel professor/aluno. (~484 tok)
 - `biomas.ts` — Biomas do gen procedural (2026-07-20) — a REGRA DE OURO aplicada ao terreno: (~2854 tok)
   - section `Clima` L16-22 (~43 tok)
   - section `Bioma` L23-148 (~1401 tok)
@@ -1094,14 +1094,15 @@
   - fn `mudaDaFolhagem` L683-694 (~158 tok)
   - fn `isSolo` L695-709 (~168 tok)
   - fn `isReplaceable` L710-1093 (~4656 tok)
+- `build-info.json` (~15 tok)
 - `cama-spawn.test.ts` — Cama como PONTO DE SPAWN (2026-08-14): clicar na cama com o botão de colocar (~1183 tok)
   - fn `turmaComCama` L14-93 (~1044 tok)
-- `claims.test.ts` — Último texto de chat enviado a um cliente (rejeições/respostas de comando). (~5814 tok)
+- `claims.test.ts` — Último texto de chat enviado a um cliente (rejeições/respostas de comando). (~5827 tok)
   - fn `collect` L20-23 (~55 tok)
   - fn `join` L24-25 (~34 tok)
   - fn `cmd` L26-26 (~20 tok)
   - fn `mark` L27-30 (~59 tok)
-  - fn `ultimaChat` L31-423 (~5495 tok)
+  - fn `ultimaChat` L31-423 (~5508 tok)
 - `claims.ts` — Anti-griefing (cp24) — CLAIMS + GRUPOS DE AMIGOS. (~1428 tok)
   - fn `areaMaxDoClaim` L39-44 (~70 tok)
   - section `Claim` L45-54 (~82 tok)
@@ -1220,7 +1221,7 @@
   - fn `saidaDe` L101-110 (~126 tok)
   - fn `podeCozinhar` L111-134 (~308 tok)
   - fn `tickFornalha` L135-192 (~524 tok)
-- `gate-claim.test.ts` — §🍖 F10f — O PORTÃO DO CLAIM (pedido do usuário, 2026-08-05): (~2932 tok)
+- `gate-claim.test.ts` — §🍖 F10f — O PORTÃO DO CLAIM (pedido do usuário, 2026-08-05): (~2934 tok)
   - fn `tiposComCelula` L57-75 (~216 tok)
   - fn `collect` L76-79 (~55 tok)
   - fn `join` L80-81 (~34 tok)
@@ -1228,7 +1229,7 @@
   - fn `mark` L83-84 (~35 tok)
   - fn `move` L85-88 (~54 tok)
   - fn `retrato` L89-96 (~83 tok)
-  - fn `turmaComClaimDaAna` L97-117 (~293 tok)
+  - fn `turmaComClaimDaAna` L97-117 (~294 tok)
   - fn `mensagemPara` L118-226 (~1488 tok)
 - `grade.test.ts` — A grade da aula (2026-08-17). O layout antigo era uma FILEIRA: um chunk por (~729 tok)
 - `grade.ts` — Geometria da GRADE de áreas da aula (2026-08-17). (~1277 tok)
@@ -1396,7 +1397,7 @@
   - fn `moveAxisGuarded` L438-453 (~96 tok)
   - fn `stepPlayer` L454-547 (~1177 tok)
 - `protocol.test.ts` — Declares DIMS (~3650 tok)
-- `protocol.ts` — Protocolo v0 (checkpoint 2). Mensagens JSON dos dois lados + world_snapshot (~13763 tok)
+- `protocol.ts` — Protocolo v0 (checkpoint 2). Mensagens JSON dos dois lados + world_snapshot (~13766 tok)
   - fn `parseClientMessage` L496-691 (~2078 tok)
   - fn `parseCama` L692-699 (~112 tok)
   - fn `parseServerMessage` L700-992 (~3484 tok)
@@ -1476,7 +1477,7 @@
   - fn `ultimaChat` L18-26 (~82 tok)
   - fn `baseSave` L27-32 (~57 tok)
   - fn `turma` L33-156 (~1549 tok)
-- `regras.ts` — Regras de mundo (§🍖 F1, 2026-08-02) — o registro do `/regra`. (~1285 tok)
+- `regras.ts` — Regras de mundo (§🍖 F1, 2026-08-02) — o registro do `/regra`. (~1286 tok)
   - section `RegraDef` L24-59 (~450 tok)
   - fn `regraDef` L60-63 (~32 tok)
   - fn `nomesDeRegra` L64-68 (~44 tok)
@@ -1529,13 +1530,13 @@
   - fn `parseObjective` L197-265 (~766 tok)
   - fn `parseScenarioMeta` L266-303 (~416 tok)
   - fn `parseObjectiveState` L304-361 (~576 tok)
-- `session.test.ts` — Testes de MECÂNICA rodam com singleplayer: true (join sem PIN) — a (~16331 tok)
-  - fn `collect` L12-1201 (~16188 tok)
-- `session.ts` — GameSession: o SERVIDOR autoritativo, independente de hospedeiro. (~31707 tok)
+- `session.test.ts` — Testes de MECÂNICA rodam com singleplayer: true (join sem PIN) — a (~16341 tok)
+  - fn `collect` L12-1201 (~16197 tok)
+- `session.ts` — GameSession: o SERVIDOR autoritativo, independente de hospedeiro. (~31718 tok)
   - section `SessionOptions` L233-285 (~721 tok)
   - section `SessionPlayer` L286-296 (~60 tok)
   - section `Identity` L297-301 (~19 tok)
-  - class `GameSession` L302-2466 (~29541 tok)
+  - class `GameSession` L302-2466 (~29552 tok)
 - `sobrevivencia.test.ts` — Professor (1) + ana (2). `modo` decide o padrão do mundo. (~9235 tok)
   - fn `collect` L42-45 (~55 tok)
   - fn `join` L46-47 (~34 tok)
@@ -1566,7 +1567,7 @@
   - section `Sent` L24-31 (~52 tok)
   - fn `novaSessaoLazy` L32-46 (~153 tok)
   - fn `colunasDe` L47-354 (~4324 tok)
-- `tp.test.ts` — /tpr (pedir teleporte) + /tpa (aceitar) — todos os jogadores; e /tp nome / (~1602 tok)
+- `tp.test.ts` — /tpp (pedir teleporte) + /tpa (aceitar) — todos os jogadores; e /tp nome / (~1602 tok)
   - fn `makeTp` L13-143 (~1482 tok)
 - `usos.test.ts` — Só o campo `tipo` — as asserções abaixo perguntam "que usos ele tem?". (~934 tok)
   - fn `uso` L19-75 (~764 tok)
@@ -1697,14 +1698,14 @@
   - fn `camaDe` L153-158 (~76 tok)
   - fn `avisarPose` L159-178 (~187 tok)
   - fn `ehCama` L179-182 (~20 tok)
-- `equipes.ts` — EQUIPES — as três formas de "com quem eu jogo" que o servidor conhece. (~8293 tok)
+- `equipes.ts` — EQUIPES — as três formas de "com quem eu jogo" que o servidor conhece. (~8308 tok)
   - fn `claimEm` L34-41 (~82 tok)
   - fn `equipeDe` L42-50 (~83 tok)
   - fn `mesmaEquipe` L51-57 (~74 tok)
   - fn `membrosDaEquipe` L58-64 (~92 tok)
   - fn `tamanhoDaEquipe` L65-71 (~73 tok)
   - fn `areaMaxDe` L72-83 (~158 tok)
-  - fn `avisarClaimApertado` L84-105 (~245 tok)
+  - fn `avisarClaimApertado` L84-105 (~246 tok)
   - fn `claimBloqueia` L106-120 (~224 tok)
   - fn `areasDoGrupo` L121-137 (~202 tok)
   - fn `confinaBloqueia` L138-159 (~273 tok)
@@ -1716,9 +1717,9 @@
   - fn `convitesEnviadosPor` L198-206 (~88 tok)
   - fn `sendFriends` L207-222 (~159 tok)
   - fn `atualizarEquipe` L223-230 (~74 tok)
-  - fn `avisarEquipe` L231-245 (~193 tok)
-  - fn `marcarClaim` L246-308 (~856 tok)
-  - fn `runClaim` L309-379 (~964 tok)
+  - fn `avisarEquipe` L231-245 (~194 tok)
+  - fn `marcarClaim` L246-308 (~859 tok)
+  - fn `runClaim` L309-379 (~972 tok)
   - fn `runAmigos` L380-524 (~1851 tok)
   - fn `grupoDe` L525-532 (~68 tok)
   - fn `sendGroup` L533-544 (~77 tok)
@@ -1726,7 +1727,7 @@
   - fn `sendGroups` L556-560 (~54 tok)
   - fn `broadcastGroups` L561-566 (~69 tok)
   - fn `runGrupo` L567-642 (~908 tok)
-  - fn `runConfinar` L643-688 (~632 tok)
+  - fn `runConfinar` L643-688 (~633 tok)
 - `inventario.ts` — §🍖 F4: teto de um `/dar` (27 slots × 64 = a mochila inteira de uma vez). (~1971 tok)
   - fn `inventarioDe` L35-46 (~118 tok)
   - fn `inventarioVale` L47-50 (~33 tok)
@@ -1759,7 +1760,7 @@
   - fn `garantirColunas` L35-52 (~232 tok)
   - fn `evictColunas` L53-81 (~353 tok)
   - fn `streamColunas` L82-110 (~321 tok)
-- `tp.ts` — Validade de um pedido de /tpr (aceite com /tpa) — 60 s (2026-08-14: pedido (~2755 tok)
+- `tp.ts` — Validade de um pedido de /tpp (aceite com /tpa) — 60 s (2026-08-14: pedido (~2755 tok)
   - fn `teleportar` L29-62 (~293 tok)
   - fn `areaDoGrupo` L63-73 (~142 tok)
   - fn `destinoNaCaixa` L74-81 (~127 tok)

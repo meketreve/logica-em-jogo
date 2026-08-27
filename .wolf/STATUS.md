@@ -2,6 +2,57 @@
 
 > Single source of truth for resuming work. Read this FIRST when starting a session.
 
+> **Nota lateral (2026-08-27, fora da fila de código):** `relatorio/apresentacao-cre.html`
+> (deck de 20 slides pra CRE) foi revisado — mesclou os 2 slides de resultado/engajamento
+> que repetiam o mesmo achado, corrigiu números velhos (358→936 testes, 6→7 aulas — a
+> corrida entrou na tabela) e ganhou um slide novo (14): uso real **fora do piloto**, outra
+> professora (Geografia, 2º ano) usando cultivo/fabricação já existentes pra ensinar cadeia
+> produtiva do algodão e da madeira — prova de campo da tese "a pedagogia mora nos
+> cenários" do slide 5. Slide 13 (AEE) ganhou o relato do aluno que passou a digitar pra
+> buscar item no craft. Zero código tocado — não mexe na fila de quest abaixo.
+
+> ## 🧭 HANDOFF — SESSÃO 91 (2026-08-27) · comandos anglicismo viram português
+
+> **Bateria verde:** typecheck 3/3 · **936/936** · build · **16/16 smokes** (inclui o de
+> `/expulsar`) · `npm run cenarios` 7/7 byte-idênticos · `shots:tablet` verde (exercitou
+> `/terreno ligar` de verdade no navegador — proteção liga, botão "amigos" aparece).
+
+> ⚠️ Confira o sha do topo com `rtk proxy git rev-parse --short origin/main`, nunca com um sha
+> escrito aqui. **Nada commitado ainda nesta sessão** — árvore com mudanças pendentes (a
+> tradução de comandos abaixo). `origin/main` seguia em `9dca2e5` no início da sessão.
+
+> ### ✅ Entregue — tradução dos comandos de chat (item do `todo.md`, pedido de 2026-08-27)
+> Passada a régua em TODOS os comandos existentes (brainstorm com o usuário definiu o mapa
+> antes de codar). Maioria já era português e ficou igual; só 4 eram anglicismo:
+> `/claim`→**`/terreno`** · `/resetpin`→**`/redefinirpin`** · `/tpr`→**`/tpp`** (`/tpa` ficou,
+> já lê como "teleporte aceitar") · `/kicar`→**`/expulsar`**. **Corte na hora, sem alias** —
+> decisão do usuário: nome velho vira "comando desconhecido".
+> - Tocado: `shared/src/session.ts` (switch + lista de comandos + dicas), `session/equipes.ts` +
+>   `session/tp.ts` (textos de uso/erro), `client/src/commands.ts` (autocomplete +
+>   painel do dedo, mesma árvore), `players.ts` (botão expulsar), `server/src/index.ts`
+>   (`/expulsar` é comando de HOST, fora do `session.ts`), testes que MANDAM o comando de
+>   verdade (`claims.test.ts`, `gate-claim.test.ts`, `session.test.ts`, `tp.test.ts`),
+>   `scripts/tablet-shots.mjs` e `_smoke-kicar.mjs`.
+> - **Decisão de escopo (técnica, não estética):** nomes internos ficaram — `claims.ts`, tipo
+>   `Claim`, campo `ses.claims`/`claimsAtivo`. `claims` é chave **persistida no `.ljw`**;
+>   trocar quebraria save antigo sem migração, e ninguém pediu isso. Comentário-jargão
+>   ("rocha-matriz/claim") também ficou — não é referência a comando.
+> - **Registro histórico intocado de propósito:** `.wolf/STATUS.md` (sessões antigas),
+>   `cerebrum.md` (Decision Log) e `client/src/changelog.ts` citam os nomes VELHOS porque
+>   descrevem o que aconteceu QUANDO o comando ainda se chamava assim — reescrever apagaria
+>   o registro do que de fato houve.
+> - `todo.md` fechado com o mapa completo e a lista do que mudou/não mudou.
+
+> ### 🚀 PRÓXIMA QUEST
+> Nada em aberto da tradução. A fila do `todo.md` manda: **ovelha + lã de verdade** (§🍖 F8 —
+> mob, tosa, lã como recurso, destrava cama/noite) · sentar na cadeira · layouts diferentes
+> pros controles do mobile · trocar modelo do player pra estilo Minecraft · Ferramentas v2
+> (durabilidade + slot selecionado + tempo de quebra — decidir `dano?` no Stack ANTES de codar).
+> Se o usuário não escolher, comece pela ovelha — é a que destrava mais coisa.
+>
+> **Herdado, não urgente:** `mundo-livre.ljw.corrompido-1785704408442` em `mundos/mundo-livre/`
+> — sobra de um boot que achou o save inválido e o renomeou; ninguém investigou por quê.
+
 > ## 🧭 HANDOFF — SESSÃO 90 (2026-08-27) · o changelog vira registro de verdade, e `npm version` se aposenta
 >
 > **Bateria verde:** typecheck 3/3 · **936/936** (+3) · `npm run verify` inteiro · **16/16

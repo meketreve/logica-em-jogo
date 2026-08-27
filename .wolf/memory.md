@@ -2787,3 +2787,55 @@ fraude.
 | 14:20 | Created shared/src/version.test.ts | — | ~373 |
 | 14:20 | Edited package.json | 3→3 lines | ~66 |
 | 14:59 | Sessão 90 fechada: célula-molde fechada s/ implementar, audit do todo, /silenciar, stop.js sem nag, changelog 34 blocos + npm version aposentado | STATUS.md, buglog.json, todo.md, session.ts, changelog.ts, version.ts, stop.js | 17 commits pushed (ee42e33→9dca2e5), tudo verde | ~330000 |
+
+## Session: 2026-08-27 15:07
+
+| Time | Action | File(s) | Outcome | ~Tokens |
+|------|--------|---------|---------|--------|
+| 15:24 | Edited relatorio/apresentacao-cre.html | 18→20 lines | ~468 |
+| 15:24 | Edited relatorio/apresentacao-cre.html | modified ncia() | ~511 |
+| 15:25 | Edited relatorio/apresentacao-cre.html | expanded (+17 lines) | ~662 |
+| 15:25 | Edited relatorio/apresentacao-cre.html | 358 → 936 | ~20 |
+| 15:25 | Edited relatorio/apresentacao-cre.html | 2→3 lines | ~66 |
+| 15:25 | Edited relatorio/apresentacao-cre.html | 2→2 lines | ~40 |
+| 15:25 | Edited relatorio/apresentacao-cre.html | 1→2 lines | ~44 |
+| 15:27 | Session end: 7 writes across 1 files (apresentacao-cre.html) | 2 reads | ~86519 tok |
+| 15:27 | Deck CRE atualizado: mesclou slides repetitivos (resultado+engajamento), atualizou 358→936 testes e 6→7 aulas, documentou uso real fora do piloto (Geografia 2º ano, cadeia algodão/madeira) e ganho de leitura/escrita de aluno AEE via busca no craft | relatorio/apresentacao-cre.html, .wolf/anatomy.md | 20 slides, tags balanceadas, sem quebra | ~90k |
+
+## Session: 2026-08-27 15:35
+
+| Time | Action | File(s) | Outcome | ~Tokens |
+|------|--------|---------|---------|--------|
+| 16:15 | Edited shared/src/session.ts | 4→4 lines | ~62 |
+| 16:15 | Edited shared/src/session.ts | modified if() | ~93 |
+| 16:15 | Edited shared/src/session.ts | 2→2 lines | ~20 |
+| 16:16 | Edited shared/src/session.ts | "Comando desconhecido: ${t" → "Comando desconhecido: ${t" | ~81 |
+| 16:16 | Edited shared/src/session.ts | 4→4 lines | ~122 |
+| 16:16 | Edited shared/src/session.ts | inline fix | ~30 |
+| 16:16 | Edited shared/src/session.ts | inline fix | ~21 |
+| 16:16 | Edited shared/src/session.ts | inline fix | ~23 |
+| 16:17 | Edited shared/src/session/equipes.ts | inline fix | ~22 |
+| 16:18 | Edited client/src/commands.ts | 2→2 lines | ~47 |
+| 16:18 | Edited client/src/commands.ts | 27→27 lines | ~87 |
+| 16:18 | Edited client/src/commands.ts | inline fix | ~18 |
+| 16:18 | Edited client/src/commands.ts | "kicar" → "expulsar" | ~21 |
+| 16:18 | Edited client/src/commands.ts | 2→3 lines | ~61 |
+| 16:18 | Edited client/src/commands.ts | 3→2 lines | ~40 |
+| 16:18 | Edited client/src/commands.ts | 8→8 lines | ~133 |
+| 16:18 | Edited client/src/commands.ts | inline fix | ~26 |
+| 16:19 | Edited client/src/players.ts | inline fix | ~22 |
+| 16:19 | Edited client/src/hotbarUi.ts | inline fix | ~26 |
+| 16:19 | Edited client/src/main.ts | inline fix | ~23 |
+| 16:19 | Edited client/src/players.ts | inline fix | ~24 |
+| 16:19 | Edited client/src/menu.ts | inline fix | ~22 |
+| 16:19 | Edited server/src/index.ts | modified interceptarKicar() | ~204 |
+| 16:20 | Edited server/src/index.ts | "Uso: /kicar nome — remove" → "Uso: /expulsar nome — rem" | ~26 |
+| 16:21 | Edited scripts/tablet-shots.mjs | "/claim ligar" → "/terreno ligar" | ~8 |
+| 16:21 | Edited scripts/smoke.mjs | "cp22 — /kicar remove o al" → "cp22 — /expulsar remove o" | ~50 |
+| 16:21 | Edited shared/src/regras.ts | inline fix | ~24 |
+| 16:21 | Edited client/src/chat.ts | "/tpr" → "/tpp" | ~23 |
+| 16:22 | Edited shared/src/claims.test.ts | "./terrenos" → "./claims" | ~6 |
+| 16:26 | Edited todo.md | "/tpr" → "/tpp" | ~26 |
+| 16:26 | Edited todo.md | modified hora() | ~430 |
+| 16:35 | Tradução de comandos: /claim→/terreno, /resetpin→/redefinirpin, /tpr→/tpp, /kicar→/expulsar | shared/session.ts, equipes.ts, tp.ts, protocol.ts, auth.ts, client/commands.ts, players.ts, hotbarUi.ts, main.ts, menu.ts, chat.ts, regras.ts, server/index.ts, testes, scripts | typecheck 3/3 · 936/936 · build · 16/16 smokes · cenarios 7/7 byte-idênticos · shots:tablet verde (/terreno ligar real no navegador) | ~180k |
+| 16:30 | Session end: 31 writes across 14 files (session.ts, equipes.ts, commands.ts, players.ts, hotbarUi.ts) | 14 reads | ~98535 tok |
