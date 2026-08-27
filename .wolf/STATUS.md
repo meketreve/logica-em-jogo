@@ -2,6 +2,72 @@
 
 > Single source of truth for resuming work. Read this FIRST when starting a session.
 
+> ## 🧭 HANDOFF — SESSÃO 90 (2026-08-27) · o changelog vira registro de verdade, e `npm version` se aposenta
+>
+> **Bateria verde:** typecheck 3/3 · **936/936** (+3) · `npm run verify` inteiro · **16/16
+> smokes** · `npm run cenarios` 7/7 byte-idênticos · screenshot real (`shots:tablet`) confirmando
+> os 34 blocos do changelog renderizando e rolando por dentro sem estourar.
+>
+> ⚠️ Confira o sha do topo com `rtk proxy git rev-parse --short origin/main`, nunca com um sha
+> escrito aqui. **PUSH GRANDE nesta sessão:** `origin/main` estava em `ee42e33` (sessão 86, 6
+> sessões atrasado) — empurrei **17 commits acumulados** (sessões 87 a 90) de uma vez.
+> `origin/main` agora é `9dca2e5`, conferido por `ls-remote` (não só ref local). Árvore limpa.
+>
+> ### ✅ Entregue — célula-molde: FECHADA sem implementar (pedido de 2026-08-17)
+> Usuário apontou o que eu tinha deixado passar: mundo de aula **nunca salva**
+> (`server/src/index.ts:240`) e `/mundo carregar` em aula **sempre** parte do modelo puro em
+> `cenarios/` (`server/src/mundos.ts:151`), nunca da cópia de trabalho. Estragar o molde em
+> sessão se resolve recarregando a aula — sem perda, sem gate novo. `moldeBloqueia` foi cogitado,
+> nunca escrito. Registrado em `todo.md` como `[x] FECHADO, NÃO IMPLEMENTADO`.
+>
+> ### ✅ Entregue — auditoria do `todo.md` contra o `git log`
+> 2 itens marcados `[ ]` já estavam commitados havia dias — a sessão que fez ficou de escrever o
+> FEITO e não escreveu: botão 📋 do HUD de toque + `/painel` (`706534b`, 21/08) e painel de
+> comandos em coluna lateral no dedo (`dd28bbd`, 25/08). O usuário achou o 2º ("os últimos
+> commits não foram sobre isso?") depois de eu ter varrido só o trecho de CSS citado no próprio
+> item, não o arquivo inteiro — virou Do-Not-Repeat no `cerebrum.md`.
+>
+> ### ✅ Entregue — `/silenciar` (pedido de 2026-08-15, fechado agora)
+> Só o PROFESSOR roda; alterna o chat de TURMA inteira (comando sempre passa, mensagem de
+> jogador some com aviso de freio pro autor). `shared/src/session/silenciar.ts` + gate no `case
+> "chat"` de `session.ts`. Persiste no save (`SaveMeta.chatSilenciado`), autocomplete e painel do
+> dedo. Ideia anotada ao lado (não iniciada): traduzir todos os comandos pro português
+> (`/claim` → `/terreno`?) e toda aparição deles.
+>
+> ### ✅ Entregue — `.wolf/hooks/stop.js` parou de nagear
+> `checkForMissingBugLogs` nunca lia `config.json` — a flag `openwolf.buglog.auto_detect: false`
+> (desligada em 2026-07-26 por falso-positivo) não valia pra ESTE lembrete de fim de turno,
+> só pra outro lugar. Reinjetava o mesmo aviso em TODO stop da sessão. `bug-648` no buglog.
+>
+> ### ✅ Entregue — painel "novidades" vira registro completo, e `npm version` se aposenta
+> Pedido do usuário: *"queria que o painel de novidades fosse de fato um registro de tudo que já
+> fizemos no projeto e com as datas"*. `client/src/changelog.ts` reescrito do PRIMEIRO commit
+> (10/07/2026) até hoje — **34 blocos por checkpoint/marco**, cada data verificada contra o
+> `git log` real (2 rodadas de pesquisa em fork, shas conferidos à mão por amostragem).
+> - No caminho, o usuário perguntou se `npm version` fazia sentido sem executável nem release
+>   empacotado. Confirmei no código: `iniciar-servidor.sh` compara **commit** via API do GitHub
+>   pra decidir "está atualizado", nunca semver — e `VERSION` do `package.json` só aparecia em 4
+>   lugares de TELA, zero lógica de decisão usava. Bump virou ritual sem função técnica.
+> - **Substituído:** `shared/src/build-info.json` (GERADO por `scripts/gerar-build-info.mjs`,
+>   nunca editado à mão) guarda `{data, commit}` do HEAD; `shared/src/version.ts` expõe
+>   `ROTULO_BUILD` ("27/08/2026 · 9dca2e5") e `rotuloDoBloco(data?)`. Gerador roda ANTES de
+>   `build`/`dev`/`dev:server` (`package.json` raiz). `package.json.version` fica CONGELADO em
+>   0.12.1, sem mais bump. Nova regra de release em `cerebrum.md` (a de 2026-08-23 fica riscada).
+> - ⚠️ **Imprecisão "off-by-one" é esperada, não bug:** o `build-info.json` commitado nomeia o
+>   commit ANTERIOR a si mesmo (committar muda o sha do HEAD de novo) — mesma disciplina de
+>   qualquer rótulo de build auto-referente. O `pre-push` (roda `verify`) regenera dist/build-info
+>   com o sha do commit que está sendo empurrado; esse churn pós-push é esperado, descartei.
+>
+> ### 🚀 PRÓXIMA QUEST
+> Nada em aberto do changelog nem do `/silenciar`. A fila do `todo.md` manda: **ovelha + lã de
+> verdade** (§🍖 F8 — mob, tosa, lã como recurso, destrava cama/noite) · sentar na cadeira ·
+> layouts diferentes pros controles do mobile · trocar modelo do player pra estilo Minecraft ·
+> durabilidade/slot-selecionado/tempo-de-quebra das ferramentas. Se o usuário não escolher,
+> comece pela ovelha — é a que destrava mais coisa.
+>
+> **Herdado, não urgente:** `mundo-livre.ljw.corrompido-1785704408442` em `mundos/mundo-livre/`
+> — sobra de um boot que achou o save inválido e o renomeou; ninguém investigou por quê.
+
 > ## 🧭 HANDOFF — SESSÃO 89 (2026-08-26) · o teto de 35, e o painel que já estava furado
 >
 > **Bateria verde:** typecheck 3/3 · **933/933** (+2) · build · portão do dist ✓ · **16/16

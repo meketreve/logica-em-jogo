@@ -2786,3 +2786,4 @@ fraude.
 | 14:20 | Edited client/src/hud.ts | inline fix | ~26 |
 | 14:20 | Created shared/src/version.test.ts | — | ~373 |
 | 14:20 | Edited package.json | 3→3 lines | ~66 |
+| 14:59 | Sessão 90 fechada: célula-molde fechada s/ implementar, audit do todo, /silenciar, stop.js sem nag, changelog 34 blocos + npm version aposentado | STATUS.md, buglog.json, todo.md, session.ts, changelog.ts, version.ts, stop.js | 17 commits pushed (ee42e33→9dca2e5), tudo verde | ~330000 |

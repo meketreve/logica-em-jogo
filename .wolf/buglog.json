@@ -5527,6 +5527,27 @@
       ],
       "occurrences": 1,
       "last_seen": "2026-08-26T00:50:00Z"
+    },
+    {
+      "id": "bug-648",
+      "timestamp": "2026-08-27T10:40:00-03:00",
+      "error_message": "Stop hook reinjetava 'ACTION REQUIRED: Files edited 3+ times this session ... buglog.json was not updated' em TODO fim de turno da sessão, sem nenhum arquivo novo — o mesmo aviso, turno após turno, mesmo com openwolf.buglog.auto_detect: false no config.json",
+      "file": ".wolf/hooks/stop.js",
+      "root_cause": "checkForMissingBugLogs() nunca lia config.json — a flag buglog.auto_detect: false (desligada em 2026-07-26, cerebrum, por causa de falso-positivo igual a este: multi-edit != bug, feature limpa de vários passos edita o mesmo arquivo 3+ vezes também) só silenciava a autodetecção de ENTRADA no buglog em outro lugar, não este lembrete de fim de turno. bug-555 (2026-08-03) já tinha mexido nesta mesma função pra aceitar buglog escrito via Bash, mas não tratou o caso de o usuário ter desligado a checagem inteira.",
+      "fix": "checkForMissingBugLogs() lê config.json (openwolf.buglog.auto_detect) e sai cedo (return null) quando é false, antes de olhar session.edit_counts.",
+      "tags": [
+        "openwolf",
+        "hooks",
+        "stop",
+        "buglog",
+        "config",
+        "falso-positivo"
+      ],
+      "related_bugs": [
+        "bug-555"
+      ],
+      "occurrences": 1,
+      "last_seen": "2026-08-27T10:40:00-03:00"
     }
   ]
 }
