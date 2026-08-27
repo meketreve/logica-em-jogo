@@ -138,7 +138,8 @@ import {
 } from "./session/dormir";
 import { runRegiao } from "./session/regioes";
 import { ehFantasma, runInvisivel } from "./session/invisivel";
-import { avisarComFreio } from "./session/avisos";
+import { avisarChatSilenciado, avisarComFreio } from "./session/avisos";
+import { runSilenciar } from "./session/silenciar";
 import { evictColunas, garantirColunas, gerarColuna, streamColunas } from "./session/streaming";
 import { faltaFerramenta } from "./ferramentas";
 import { RECEITAS, fabricar, receitaValida } from "./receitas";
@@ -366,6 +367,9 @@ export class GameSession {
   /** §🍖 F7: quando cada cliente ouviu "o pvp está desligado". Freio do aviso,
    *  igual ao da mochila cheia. */
   readonly avisoPvp = new Map<number, number>();
+  /** `/silenciar` (2026-08-27): quando cada cliente ouviu "o chat está
+   *  silenciado". Freio do aviso, igual ao do pvp. */
+  readonly avisoSilencio = new Map<number, number>();
 
   readonly players = new Map<number, SessionPlayer>();
   /** Última POSIÇÃO conhecida por nome: volta onde parou, olhando pra onde
@@ -440,6 +444,9 @@ export class GameSession {
    *  e em mundo-aula nasce ligado (opts.somenteLeitura). Persiste no save de
    *  mundo livre; em aula não salva (read-only) — reseta por turma. */
   confinamentoAtivo = false;
+  /** `/silenciar` (2026-08-27): chat de turma mudo (só comandos passam)?
+   *  Professor alterna; nasce liberado; persiste no save. */
+  chatSilenciado = false;
   /** Quadros (2026-07-19): conteúdo (texto/imagem) por posição — primeiro
    *  estado FORA do id de bloco. Chave = quadroKey(x,y,z). Persiste. */
   private readonly quadros = new Map<string, QuadroConteudo>();
@@ -630,6 +637,7 @@ export class GameSession {
       for (const g of opts.restore.amigos ?? []) this.amigos.set(g.dono, new Set(g.membros));
       for (const n of opts.restore.banidos ?? []) this.banidos.add(n); // 2026-07-21
       this.confinamentoAtivo = opts.restore.confinamento ?? false; // cp25
+      this.chatSilenciado = opts.restore.chatSilenciado ?? false; // `/silenciar`
       // quadros (2026-07-19): só entra conteúdo cuja célula AINDA é quadro
       for (const q of opts.restore.quadros ?? []) {
         if (isQuadro(getBlock(this.world, q.x, q.y, q.z))) {
@@ -804,6 +812,8 @@ export class GameSession {
       ...(this.banidos.size ? { banidos: [...this.banidos] } : {}),
       // cp25: confinamento por área de grupo (só grava ligado)
       ...(this.confinamentoAtivo ? { confinamento: true } : {}),
+      // `/silenciar` (2026-08-27): só grava ligado (ausente = liberado)
+      ...(this.chatSilenciado ? { chatSilenciado: true } : {}),
       // quadros (2026-07-19): conteúdo autoral por posição (só grava se há)
       ...(this.quadros.size ? { quadros: [...this.quadros.values()] } : {}),
       // §🍖 F10: containers — só os que têm ALGUMA coisa dentro. Fornalha e baú
@@ -1501,6 +1511,13 @@ export class GameSession {
           this.sendServerChat(clientId, this.runCommand(clientId, text));
           return;
         }
+        // `/silenciar` (2026-08-27): só COMANDO passa — mensagem de jogador
+        // não broadcasta; o autor ouve o motivo (com freio, clique repetido
+        // não vira parede de aviso).
+        if (this.chatSilenciado) {
+          avisarChatSilenciado(this, clientId);
+          return;
+        }
         this.broadcast({ type: "chat", author: this.authorTag(clientId), text });
         break;
       }
@@ -1682,8 +1699,12 @@ export class GameSession {
         if (!professor) return "Somente o professor pode controlar o confinamento das áreas.";
         return runConfinar(this, parts);
       }
+      case "silenciar": {
+        if (!professor) return "Somente o professor pode silenciar o chat.";
+        return runSilenciar(this, parts);
+      }
       default:
-        return `Comando desconhecido: ${text}. Os comandos disponíveis são /bloco, /resetpin, /regiao, /objetivo, /grupo, /aula, /tp, /tpr, /tpa, /iniciar, /hora, /ciclo, /vento, /voo, /modo, /regra, /pvp, /dar, /claim, /amigos, /painel, /invisivel e /confinar.`;
+        return `Comando desconhecido: ${text}. Os comandos disponíveis são /bloco, /resetpin, /regiao, /objetivo, /grupo, /aula, /tp, /tpr, /tpa, /iniciar, /hora, /ciclo, /vento, /voo, /modo, /regra, /pvp, /dar, /claim, /amigos, /painel, /invisivel, /confinar e /silenciar.`;
     }
   }
 
@@ -2242,6 +2263,7 @@ export class GameSession {
     this.picoQueda.delete(clientId); // §🍖 quem volta não paga a queda de ontem
     this.ultimoAtaque.delete(clientId); // §🍖 F7: cooldown de soco é de sessão
     this.avisoPvp.delete(clientId);
+    this.avisoSilencio.delete(clientId);
     this.containerAberto.delete(clientId); // §🍖 F10: painel aberto é de sessão
     // (pedidos FEITOS por quem saiu são podados no /tpa — players.has(deId))
     const p = this.players.get(clientId);

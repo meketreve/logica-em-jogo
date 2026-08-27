@@ -18,3 +18,14 @@ export function avisarComFreio(ses: GameSession, clientId: number, texto: string
   ses.avisoMochila.set(clientId, agora);
   ses.sendServerChat(clientId, texto);
 }
+
+/** Aviso de "o chat está silenciado" com FREIO (`/silenciar`, 2026-08-27) —
+ *  mesma disciplina da mochila cheia e do pvp desligado: sem teto, cada
+ *  tentativa de falar vira um aviso a mais e a aula vira parede de texto. */
+export function avisarChatSilenciado(ses: GameSession, clientId: number): void {
+  const agora = ses.now();
+  const ultimo = ses.avisoSilencio.get(clientId) ?? -Infinity;
+  if (agora - ultimo < AVISO_MOCHILA_MS) return;
+  ses.avisoSilencio.set(clientId, agora);
+  ses.sendServerChat(clientId, "O chat está silenciado pelo professor — só comandos passam.");
+}

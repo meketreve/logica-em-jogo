@@ -96,6 +96,9 @@ export interface SaveMeta {
   /** Confinamento (cp25): aluno só edita na área do seu grupo? Ausente =
    *  desligado. Em mundo-aula o host força ligado no boot (não vem do save). */
   confinamento?: boolean;
+  /** `/silenciar` (2026-08-27): chat de turma mudo (só comandos passam)?
+   *  Ausente = liberado. Professor alterna; estado do MUNDO, como o ciclo. */
+  chatSilenciado?: boolean;
   /** Quadros (2026-07-19): conteúdo (texto/imagem) por posição. Ausente =
    *  nenhum quadro com conteúdo. */
   quadros?: QuadroConteudo[];
@@ -393,6 +396,8 @@ function readSaveMeta(
     ...(banidos.length ? { banidos } : {}),
     // cp25: confinamento por área de grupo (ausente = desligado)
     ...(m["confinamento"] === true ? { confinamento: true } : {}),
+    // `/silenciar` (2026-08-27): ausente = chat liberado
+    ...(m["chatSilenciado"] === true ? { chatSilenciado: true } : {}),
     ...(quadros.length ? { quadros } : {}),
     ...(containers.length ? { containers } : {}),
     // cp21: hora/ciclo ausentes ou inválidos = padrão do mundo novo (na sessão)

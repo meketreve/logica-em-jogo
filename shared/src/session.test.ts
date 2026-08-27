@@ -405,6 +405,76 @@ describe("GameSession (servidor autoritativo)", () => {
     expect(long.text).toHaveLength(MAX_CHAT_LENGTH);
   });
 
+  it("/silenciar (professor): mensagem de jogador para de broadcastar; comando sempre passa", () => {
+    const { sent, send } = collect();
+    const session = new GameSession(send, { dims: DIMS, singleplayer: true });
+    session.handleMessage(1, JSON.stringify({ type: "join", name: "prof" }));
+    session.handleMessage(2, JSON.stringify({ type: "join", name: "ana" }));
+    sent.length = 0;
+
+    session.handleMessage(1, JSON.stringify({ type: "chat", text: "/silenciar ligar" }));
+    // broadcast do aviso de turma (todos, autor "servidor") + resposta só pro autor
+    expect(
+      sent.some((s) => {
+        const m = parseServerMessage(s.data as string);
+        return m?.type === "chat" && m.author === "servidor" && m.text.includes("SILENCIADO");
+      }),
+    ).toBe(true);
+    sent.length = 0;
+
+    // mensagem de jogador: NINGUÉM recebe broadcast — só o autor ouve o motivo
+    session.handleMessage(2, JSON.stringify({ type: "chat", text: "oi gente" }));
+    expect(sent).toHaveLength(1);
+    expect(sent[0]?.clientId).toBe(2);
+    const aviso = parseServerMessage(sent[0]?.data as string);
+    if (aviso?.type !== "chat") throw new Error("esperava aviso de chat");
+    expect(aviso.text).toContain("silenciado");
+    sent.length = 0;
+
+    // comando continua passando normal (resposta só pro autor, sempre foi assim)
+    session.handleMessage(2, JSON.stringify({ type: "chat", text: "/hora" }));
+    expect(sent).toHaveLength(1);
+    expect(sent[0]?.clientId).toBe(2);
+    sent.length = 0;
+
+    // /silenciar desligar: chat volta a valer
+    session.handleMessage(1, JSON.stringify({ type: "chat", text: "/silenciar desligar" }));
+    sent.length = 0;
+    session.handleMessage(2, JSON.stringify({ type: "chat", text: "oi de novo" }));
+    expect(sent.map((s) => s.clientId).sort()).toEqual([1, 2]);
+  });
+
+  it("/silenciar: aluno não pode silenciar o chat", () => {
+    const { sent, send } = collect();
+    const session = new GameSession(send, { dims: DIMS, seed: 5, codigo: "sala" });
+    session.handleMessage(1, JSON.stringify({ type: "join", name: "ana", pin: "1111" }));
+    sent.length = 0;
+    session.handleMessage(1, JSON.stringify({ type: "chat", text: "/silenciar ligar" }));
+    const reply = parseServerMessage(sent[0]?.data as string);
+    if (reply?.type !== "chat") throw new Error("esperava resposta de chat");
+    expect(reply.text).toContain("Somente o professor");
+  });
+
+  it("/silenciar: persiste no save/restore (ausente = liberado)", () => {
+    const { send } = collect();
+    const s1 = new GameSession(send, { dims: DIMS, seed: 5, singleplayer: true });
+    s1.handleMessage(1, JSON.stringify({ type: "join", name: "prof" }));
+    expect(s1.toSave().chatSilenciado).toBeUndefined(); // liberado não ocupa bytes
+
+    s1.handleMessage(1, JSON.stringify({ type: "chat", text: "/silenciar ligar" }));
+    const meta = s1.toSave();
+    expect(meta.chatSilenciado).toBe(true);
+
+    const { sent: sent2, send: send2 } = collect();
+    const s2 = new GameSession(send2, { restore: { world: s1.world, ...meta }, singleplayer: true });
+    s2.handleMessage(7, JSON.stringify({ type: "join", name: "prof" }));
+    s2.handleMessage(8, JSON.stringify({ type: "join", name: "ana" }));
+    sent2.length = 0;
+    s2.handleMessage(8, JSON.stringify({ type: "chat", text: "oi" }));
+    expect(sent2).toHaveLength(1); // só o aviso pro autor — restaurou silenciado
+    expect(sent2[0]?.clientId).toBe(8);
+  });
+
   it("/bloco muda o mundo longe do jogador, responde SÓ ao autor e acorda a gravidade", () => {
     const { sent, send } = collect();
     const session = new GameSession(send, { dims: DIMS, seed: 5, singleplayer: true });
