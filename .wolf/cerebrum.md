@@ -167,6 +167,13 @@
 
 ## Key Learnings
 
+- [2026-08-28] **`iniciar-servidor.bat` ganhou Node.js portátil** (baixa `nodejs.org` só se
+  `where node` falhar, extrai em `.node-portatil\`, prepende no PATH da janela do script — não
+  instala nada no sistema). Reusa o mesmo `curl`/`tar` já provados no update por ZIP, MESMA
+  ausência de checagem de hash (o update por ZIP também não verifica). `LJ_NODE_VER=24.20.0`
+  fixo no topo do bloco — trocar é editar a variável, ninguém verifica sozinho se é a LTS atual.
+  Ver `todo.md` "Node.js portátil" pro raciocínio completo (por que sem hash, por que só o
+  `.bat`). **Teste real na escola ainda pendente** — não marcar como provado sem isso.
 - [2026-08-28] **`applySettings()` roda ANTES de `touchControls` existir** — `main.ts`: a
   primeira chamada é módulo-level, `touchControls` ainda é `null` (só nasce dentro do
   `startGame`, e só em dispositivo touch). Por isso `setScale`/`setLayout` (e qualquer setter

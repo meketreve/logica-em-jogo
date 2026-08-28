@@ -1,21 +1,21 @@
 # anatomy.md
 
-> Auto-maintained by OpenWolf. Last scanned: 2026-08-28T17:34:39.736Z
+> Auto-maintained by OpenWolf. Last scanned: 2026-08-28T19:02:44.959Z
 > Files: 365 tracked | Anatomy hits: 0 | Misses: 0
 
 ## ./
 
 - `.gitattributes` — LF em tudo (projeto vive no WSL/ext4; evita ruído CRLF de ferramentas Windows) (~31 tok)
-- `.gitignore` — Git ignore rules (~367 tok)
+- `.gitignore` — Git ignore rules (~393 tok)
 - `CLAUDE.md` — OpenWolf (~57 tok)
-- `iniciar-servidor.bat` (~4941 tok)
+- `iniciar-servidor.bat` (~5617 tok)
 - `iniciar-servidor.sh` — Lógica em Jogo — iniciar o servidor (Linux / WSL / macOS) (~6706 tok)
 - `LICENSE` — Licença de Uso — Lógica em Jogo (~1070 tok)
 - `package-lock.json` — npm lock file (~20120 tok)
 - `package.json` — Node.js package manifest (~487 tok)
 - `projeto.txt` (~4707 tok)
 - `README.md` — Project documentation (~2627 tok)
-- `todo.md` — Ideias para fazer (~24222 tok)
+- `todo.md` — Ideias para fazer (~24681 tok)
 - `tsconfig.base.json` (~130 tok)
 - `vitest.config.ts` — Config do vitest da RAIZ (2026-08-11, bug-612). (~335 tok)
 

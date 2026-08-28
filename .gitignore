@@ -3,6 +3,9 @@ node_modules/
 .env
 .env.*
 
+# Node.js portátil baixado pelo iniciar-servidor.bat (máquina sem Node instalado)
+.node-portatil/
+
 # temporários gerados por testes/ferramentas
 *.log
 .wolf/designqc-captures/

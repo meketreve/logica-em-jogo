@@ -2872,4 +2872,9 @@ fraude.
 | 14:31 | Session end: 16 writes across 5 files (todo.md, touch.ts, settings.ts, main.ts, menu.ts) | 10 reads | ~91411 tok |
 | 14:34 | Edited todo.md | modified o() | ~561 |
 | 14:35 | 5 presets de layout de toque (destro/canhoto/compacto/espalhado/direcional c/ D-pad), ancora vw/vh + escala auto por resolucao | client/src/{touch,settings,menu,main}.ts, todo.md, .wolf/cerebrum.md | ok — typecheck+build+936 testes+sonda CDP dos 5 verde | ~0 |
-| 14:35 | Session end: 17 writes across 5 files (todo.md, touch.ts, settings.ts, main.ts, menu.ts) | 12 reads | ~92032 tok |
+| 15:56 | Session end: 17 writes across 5 files (todo.md, touch.ts, settings.ts, main.ts, menu.ts) | 14 reads | ~98354 tok |
+| 15:59 | Edited iniciar-servidor.bat | modified portatil() | ~690 |
+| 16:00 | Edited .gitignore | 4→7 lines | ~48 |
+| 16:00 | Edited iniciar-servidor.bat | 2→2 lines | ~20 |
+| 16:02 | iniciar-servidor.bat: baixa Node.js portatil (nodejs.org, v24.20.0 win-x64) so quando o sistema NAO tem node — .node-portatil/ gitignorado, gate checar-launchers OK | iniciar-servidor.bat, .gitignore | ok — verify completo verde | ~0 |
+| 16:02 | Edited todo.md | expanded (+22 lines) | ~570 |

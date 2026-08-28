@@ -277,6 +277,72 @@ set "LJ_SRC=" & set "LJ_NOVA=" & set "LJ_ATUAL=" & set "LJ_XD="
 set "LJ_VER_ATUAL=" & set "LJ_VER_NOVA=" & set "LJ_MOTIVO="
 echo.
 
+REM ============================================================
+REM  Node.js portatil (so se a maquina NAO tiver Node instalado):
+REM  baixa o zip oficial de nodejs.org, extrai em ".node-portatil"
+REM  e usa esse Node dali pra frente NESTA janela (nao instala nada
+REM  no sistema, nao mexe no PATH de fora deste script). Quem ja
+REM  tem Node no PATH nao muda em nada - este bloco nem baixa nada.
+REM
+REM  Baixa so na 1a vez: da 2a em diante acha ".node-portatil\node.exe"
+REM  e pula direto pro PATH. Sem hash/checksum aqui de proposito -
+REM  o update por ZIP do GitHub, logo acima, tambem so confia no
+REM  "curl --fail"; nao ia fazer sentido este ser mais rigoroso.
+REM
+REM  Trocar a versao: mude LJ_NODE_VER (a de baixo continua valendo
+REM  ate alguem apagar ".node-portatil" a mao).
+REM ============================================================
+set "LJ_NODE_VER=24.20.0"
+set "LJ_NODE_DIR=%CD%\.node-portatil"
+set "LJ_NODE_ZIP=%TEMP%\lj-node.zip"
+set "LJ_NODE_TMP=%TEMP%\lj-node-tmp"
+
+where node >nul 2>nul
+if not errorlevel 1 goto :node_pronto
+if exist "%LJ_NODE_DIR%\node.exe" goto :node_usar_portatil
+
+echo Node.js nao encontrado nesta maquina.
+echo Baixando uma copia portatil - nao precisa instalar nada...
+where curl >nul 2>nul
+if errorlevel 1 (
+  echo curl.exe nao encontrado - nao da pra baixar o Node sozinho.
+  echo Instale o Node.js manualmente: https://nodejs.org
+  goto :node_pronto
+)
+where tar >nul 2>nul
+if errorlevel 1 (
+  echo tar.exe nao encontrado - nao da pra extrair o Node sozinho.
+  echo Instale o Node.js manualmente: https://nodejs.org
+  goto :node_pronto
+)
+if exist "%LJ_NODE_ZIP%" del "%LJ_NODE_ZIP%" >nul 2>nul
+if exist "%LJ_NODE_TMP%" rmdir /s /q "%LJ_NODE_TMP%" >nul 2>nul
+curl -L --max-time 300 --fail -o "%LJ_NODE_ZIP%" "https://nodejs.org/dist/v%LJ_NODE_VER%/node-v%LJ_NODE_VER%-win-x64.zip"
+if errorlevel 1 (
+  echo.
+  echo Falha ao baixar o Node.js portatil. Confira a internet, ou instale
+  echo a mao: https://nodejs.org
+  echo.
+  goto :node_pronto
+)
+mkdir "%LJ_NODE_TMP%" >nul 2>nul
+tar -xf "%LJ_NODE_ZIP%" -C "%LJ_NODE_TMP%"
+if errorlevel 1 (
+  echo Falha ao extrair o Node.js portatil.
+  goto :node_pronto
+)
+move "%LJ_NODE_TMP%\node-v%LJ_NODE_VER%-win-x64" "%LJ_NODE_DIR%" >nul
+del "%LJ_NODE_ZIP%" >nul 2>nul
+rmdir /s /q "%LJ_NODE_TMP%" >nul 2>nul
+echo Node.js portatil pronto em .node-portatil (fica ai - nao baixa de novo).
+echo.
+
+:node_usar_portatil
+set "PATH=%LJ_NODE_DIR%;%PATH%"
+
+:node_pronto
+set "LJ_NODE_VER=" & set "LJ_NODE_DIR=" & set "LJ_NODE_ZIP=" & set "LJ_NODE_TMP="
+
 REM --- Dependencias instaladas? (so na primeira vez) ---
 if not exist "node_modules" (
   echo Primeira vez: instalando dependencias. Isso demora alguns minutos...

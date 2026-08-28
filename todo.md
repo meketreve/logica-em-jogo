@@ -672,6 +672,28 @@ Singleplayer (Web Worker) não tem fs — chat não vira arquivo lá, como plane
   * **Escopo mínimo travável:** um prompt no launcher "procurar atualização? (Enter=sim)" →
     `git pull --ff-only` + `npm install` se o lock mudou → boot. Sem UI no jogo, sem daemon. A
     checagem de versão bonita (comparar tags, changelog) é fase 2.
+* \[x] **Node.js portátil no `iniciar-servidor.bat`** (pedido do usuário, 2026-08-28) — **FEITO,
+  TESTE NA ESCOLA PENDENTE.** Motivação: quem baixa o projeto sem saber instalar Node hoje bate
+  na mensagem "Confira se o Node.js está instalado" e trava. `where node` primeiro (quem já tem
+  Node **não muda em nada**, inclusive a escola piloteada); se faltar, baixa
+  `node-v24.20.0-win-x64.zip` de `nodejs.org` com `curl` (mesma ferramenta já usada/testada no
+  update por ZIP), extrai com `tar` (idem) em `.node-portatil\` (gitignorado) e prepende no
+  `PATH` **só desta janela do script** — não instala nada no sistema. Baixa só na 1ª vez (checa
+  `.node-portatil\node.exe` antes de baixar de novo).
+  - **Rede confirmada pelo usuário:** o `git` da escola falha por falta de credencial (por
+    isso o caminho real de lá já é o pacote ZIP, não clone), e `nodejs.org` **abre** de lá —
+    testado antes de eu escrever a versão fixa no script.
+  - **Decisão: sem checagem de hash/sha256.** O update por ZIP do GitHub, no mesmo arquivo, já
+    não verifica hash nenhum — só confia no `curl --fail`. Ia quebrar a simetria à toa, e o hash
+    que tentei recuperar (resumo de ferramenta, não bytes exatos) não era confiável o bastante
+    pra travar o launcher de todo mundo se estivesse errado.
+  - Versão pinada em `LJ_NODE_VER` no topo do bloco — trocar é editar essa linha; não
+    re-verifica sozinho contra a LTS atual.
+  - **Só o `.bat`** — `.sh` (casa/WSL) já supõe Node instalado, e `checar-launchers.mjs` não
+    exige paridade nisso (só ASCII/CRLF, capacidade do update e `npm run build` presente).
+  - Todo texto novo em **ASCII puro** (regra do bug-621, `checar-launchers.mjs` confere).
+    `npm run verify` inteiro verde depois de escrito.
+  - **Falta:** testar de verdade num PC da escola (é pra isso que este item existe).
 
 ## Sistema de sobrevivência (feature grande)
 

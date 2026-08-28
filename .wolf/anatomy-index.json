@@ -1,12 +1,12 @@
 {
   "version": 1,
   "meta": {
-    "lastScanned": "2026-08-28T17:34:39.736Z",
+    "lastScanned": "2026-08-28T19:02:44.959Z",
     "fileCount": 365,
     "hits": 0,
     "misses": 0,
-    "renderedHash": "78ed41e43571a33bf61465517f001629447797ebb04a3e69c402b7889d7a54a2",
-    "storeUpdatedAt": "2026-08-28T17:34:39.766Z"
+    "renderedHash": "82704f8160a881934bc42a2e385d65f56cd78b3aee9d54cbb6fc323e71d32290",
+    "storeUpdatedAt": "2026-08-28T19:02:44.993Z"
   },
   "files": {
     ".claude/commands/reframe.md": {
@@ -65,12 +65,12 @@
     },
     ".gitignore": {
       "description": "Git ignore rules",
-      "tokens": 367,
-      "hash": "397eecc4bfd3dce8",
-      "size": 1408,
-      "mtimeMs": 1786042029734.5027,
-      "updatedAt": "2026-08-27T19:29:49.653Z",
-      "source": "scan"
+      "tokens": 393,
+      "hash": "f98cf82d96f83a84",
+      "size": 1509,
+      "mtimeMs": 1787943616528.3167,
+      "updatedAt": "2026-08-28T19:00:16.656Z",
+      "source": "hook"
     },
     ".wolf.bak-pre-lean/anatomy-index.json": {
       "description": "",
@@ -3516,12 +3516,12 @@
     },
     "iniciar-servidor.bat": {
       "description": "",
-      "tokens": 4941,
-      "hash": "7f227fe00acc6465",
-      "size": 18528,
-      "mtimeMs": 1787495285552.3164,
-      "updatedAt": "2026-08-27T19:29:49.860Z",
-      "source": "scan"
+      "tokens": 5617,
+      "hash": "0111ec45febf4b11",
+      "size": 21061,
+      "mtimeMs": 1787943656428.3164,
+      "updatedAt": "2026-08-28T19:00:56.551Z",
+      "source": "hook"
     },
     "iniciar-servidor.sh": {
       "description": "Lógica em Jogo — iniciar o servidor (Linux / WSL / macOS)",
@@ -12537,11 +12537,11 @@
     },
     "todo.md": {
       "description": "Ideias para fazer",
-      "tokens": 24222,
-      "hash": "af6ea65e2ce295cf",
-      "size": 99910,
-      "mtimeMs": 1787938479604.315,
-      "updatedAt": "2026-08-28T17:34:39.735Z",
+      "tokens": 24681,
+      "hash": "4a747f3b7a1d968a",
+      "size": 101794,
+      "mtimeMs": 1787943764788.3171,
+      "updatedAt": "2026-08-28T19:02:44.958Z",
       "source": "hook"
     },
     "tsconfig.base.json": {
