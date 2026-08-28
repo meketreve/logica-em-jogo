@@ -1436,6 +1436,16 @@ nenhum** — sem essa declaração o Chrome renderiza a página em light mesmo c
 
 ## Do-Not-Repeat
 
+- [2026-08-27] **`sed -i 's#/comando#/novo#g'` em lote pega falso positivo em import
+  relativo e jargão com barra.** Na tradução `/claim` → `/terreno`, o mesmo sed que corrigia os
+  textos de uso/erro também reescreveu `} from "./claims";` pra `"./terrenos"` (a substring
+  "/claim" existe dentro de "./claims") — só o `npm run typecheck` (TS2307) pegou (bug-649).
+  Um segundo caso, sem erro de build: "rocha-matriz/claim" (jargão interno separado por barra,
+  não comando) virou "rocha-matriz/terreno" silenciosamente — só grep manual + leitura da linha
+  achou. **Depois de qualquer sed em lote num token curto com barra, rodar `git diff` e ler
+  CADA linha tocada** (não só `grep` pro padrão novo) — import path e comentário-jargão não
+  aparecem como erro de typecheck necessariamente.
+
 - [2026-08-27] **`todo.md` mente por atraso, não só por erro — checar `[ ]` contra `git log`/
   código antes de listar pendências.** Dois itens marcados `[ ]` (botão 📋 do HUD de toque +
   `/painel`, e painel de comandos em coluna lateral no dedo) já estavam commitados havia dias

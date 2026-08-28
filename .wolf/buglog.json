@@ -5548,6 +5548,24 @@
       ],
       "occurrences": 1,
       "last_seen": "2026-08-27T10:40:00-03:00"
+    },
+    {
+      "id": "bug-649",
+      "timestamp": "2026-08-27T16:22:00-03:00",
+      "error_message": "TS2307: Cannot find module './terrenos' or its corresponding type declarations. (shared/src/claims.test.ts)",
+      "file": "shared/src/claims.test.ts",
+      "root_cause": "Durante a tradução de comandos (/claim → /terreno), um `sed -i 's#/claim#/terreno#g'` rodado em lote nos arquivos de teste bateu também no import `} from \"./claims\";` — a substring \"/claim\" existe dentro de \"./claims\" (caminho relativo), então o sed reescreveu pra \"./terrenos\", um módulo que não existe.",
+      "fix": "Corrigido o import de volta pra \"./claims\" à mão. Confirmado com `npm run typecheck` (3/3 verde) depois.",
+      "tags": [
+        "sed",
+        "find-replace",
+        "import-path",
+        "typecheck",
+        "comandos"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-08-27T16:22:00-03:00"
     }
   ]
 }

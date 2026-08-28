@@ -18,8 +18,13 @@
 > `/terreno ligar` de verdade no navegador — proteção liga, botão "amigos" aparece).
 
 > ⚠️ Confira o sha do topo com `rtk proxy git rev-parse --short origin/main`, nunca com um sha
-> escrito aqui. **Nada commitado ainda nesta sessão** — árvore com mudanças pendentes (a
-> tradução de comandos abaixo). `origin/main` seguia em `9dca2e5` no início da sessão.
+> escrito aqui. **3 commits, EMPURRADOS** (conferido por `ls-remote`, não só ref local):
+> `1b87f67` docs(relatorio): revisa o deck da CRE · `a76468d` refactor(comandos): traduz /claim,
+> /resetpin, /tpr e /kicar pro português · `b436a83` docs(wolf): registra a sessão 91. Árvore
+> limpa. (`origin/main` estava em `9dca2e5` no início da sessão.)
+> ⚠️ Pós-push o hook `verify` reconstrói `client/dist`/`build-info.json` com o sha do commit que
+> acabou de subir (churn "off-by-one" já conhecido) — descartado com `git checkout -- client/
+> dist/ shared/src/build-info.json && git clean -fd client/dist/`, não commitado.
 
 > ### ✅ Entregue — tradução dos comandos de chat (item do `todo.md`, pedido de 2026-08-27)
 > Passada a régua em TODOS os comandos existentes (brainstorm com o usuário definiu o mapa
