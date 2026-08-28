@@ -1,12 +1,12 @@
 {
   "version": 1,
   "meta": {
-    "lastScanned": "2026-08-27T19:29:50.064Z",
+    "lastScanned": "2026-08-28T17:34:39.736Z",
     "fileCount": 365,
     "hits": 0,
     "misses": 0,
-    "renderedHash": "f1da588b3c7be246407b7cc1132aee8d68d99183fc11462e128447dcb71c0969",
-    "storeUpdatedAt": "2026-08-27T19:29:50.071Z"
+    "renderedHash": "78ed41e43571a33bf61465517f001629447797ebb04a3e69c402b7889d7a54a2",
+    "storeUpdatedAt": "2026-08-28T17:34:39.766Z"
   },
   "files": {
     ".claude/commands/reframe.md": {
@@ -2330,12 +2330,12 @@
     },
     "client/src/main.ts": {
       "description": "§💬 (2026-08-14) Fonte ÚNICA de \"a mira aponta pra algo que o clique direito",
-      "tokens": 33482,
-      "hash": "b1d689479b70b7eb",
-      "size": 119039,
-      "mtimeMs": 1787858375120.316,
-      "updatedAt": "2026-08-27T19:29:49.840Z",
-      "source": "scan",
+      "tokens": 33529,
+      "hash": "a74132a4fa8f2d2f",
+      "size": 119206,
+      "mtimeMs": 1787938246200.3167,
+      "updatedAt": "2026-08-28T17:30:46.387Z",
+      "source": "hook",
       "symbols": [
         {
           "name": "ehInterativo",
@@ -2355,197 +2355,197 @@
           "name": "applySettings",
           "kind": "fn",
           "startLine": 228,
-          "endLine": 309,
-          "tokens": 1279
+          "endLine": 310,
+          "tokens": 1303
         },
         {
           "name": "showOverlayMain",
           "kind": "fn",
-          "startLine": 310,
-          "endLine": 316,
+          "startLine": 311,
+          "endLine": 317,
           "tokens": 74
         },
         {
           "name": "menuDePausaAberto",
           "kind": "fn",
-          "startLine": 317,
-          "endLine": 320,
+          "startLine": 318,
+          "endLine": 321,
           "tokens": 32
         },
         {
           "name": "updateOverlay",
           "kind": "fn",
-          "startLine": 321,
-          "endLine": 372,
+          "startLine": 322,
+          "endLine": 373,
           "tokens": 911
         },
         {
           "name": "startPlay",
           "kind": "fn",
-          "startLine": 373,
-          "endLine": 405,
+          "startLine": 374,
+          "endLine": 406,
           "tokens": 374
         },
         {
           "name": "onSettingsChanged",
           "kind": "fn",
-          "startLine": 406,
-          "endLine": 427,
+          "startLine": 407,
+          "endLine": 428,
           "tokens": 294
         },
         {
           "name": "enviarRaio",
           "kind": "fn",
-          "startLine": 428,
-          "endLine": 471,
+          "startLine": 429,
+          "endLine": 472,
           "tokens": 589
         },
         {
           "name": "playerName",
           "kind": "fn",
-          "startLine": 472,
-          "endLine": 482,
+          "startLine": 473,
+          "endLine": 483,
           "tokens": 187
         },
         {
           "name": "abrirAmigosPorComando",
           "kind": "fn",
-          "startLine": 483,
-          "endLine": 492,
+          "startLine": 484,
+          "endLine": 493,
           "tokens": 151
         },
         {
           "name": "painelDoCp14Liberado",
           "kind": "fn",
-          "startLine": 493,
-          "endLine": 501,
+          "startLine": 494,
+          "endLine": 502,
           "tokens": 127
         },
         {
           "name": "alternarPainelCp14",
           "kind": "fn",
-          "startLine": 502,
-          "endLine": 515,
+          "startLine": 503,
+          "endLine": 516,
           "tokens": 200
         },
         {
           "name": "abrirPainelPorComando",
           "kind": "fn",
-          "startLine": 516,
-          "endLine": 530,
+          "startLine": 517,
+          "endLine": 531,
           "tokens": 191
         },
         {
           "name": "comoAbrirPainel",
           "kind": "fn",
-          "startLine": 531,
-          "endLine": 572,
+          "startLine": 532,
+          "endLine": 573,
           "tokens": 482
         },
         {
           "name": "registrarChegadaDeRede",
           "kind": "fn",
-          "startLine": 573,
-          "endLine": 580,
+          "startLine": 574,
+          "endLine": 581,
           "tokens": 60
         },
         {
           "name": "jitterDeRede",
           "kind": "fn",
-          "startLine": 581,
-          "endLine": 603,
+          "startLine": 582,
+          "endLine": 604,
           "tokens": 352
         },
         {
           "name": "podeVoar",
           "kind": "fn",
-          "startLine": 604,
-          "endLine": 613,
+          "startLine": 605,
+          "endLine": 614,
           "tokens": 164
         },
         {
           "name": "vitals",
           "kind": "fn",
-          "startLine": 614,
-          "endLine": 685,
+          "startLine": 615,
+          "endLine": 686,
           "tokens": 989
         },
         {
           "name": "pushPanelData",
           "kind": "fn",
-          "startLine": 686,
-          "endLine": 698,
+          "startLine": 687,
+          "endLine": 699,
           "tokens": 139
         },
         {
           "name": "pushFriendsData",
           "kind": "fn",
-          "startLine": 699,
-          "endLine": 709,
+          "startLine": 700,
+          "endLine": 710,
           "tokens": 96
         },
         {
           "name": "ownDone",
           "kind": "fn",
-          "startLine": 710,
-          "endLine": 718,
+          "startLine": 711,
+          "endLine": 719,
           "tokens": 90
         },
         {
           "name": "refreshObjectivesView",
           "kind": "fn",
-          "startLine": 719,
-          "endLine": 750,
+          "startLine": 720,
+          "endLine": 751,
           "tokens": 369
         },
         {
           "name": "drenarFilaTroca",
           "kind": "fn",
-          "startLine": 751,
-          "endLine": 758,
+          "startLine": 752,
+          "endLine": 759,
           "tokens": 79
         },
         {
           "name": "segurarAteATelaPintar",
           "kind": "fn",
-          "startLine": 759,
-          "endLine": 768,
+          "startLine": 760,
+          "endLine": 769,
           "tokens": 109
         },
         {
           "name": "handleServerData",
           "kind": "fn",
-          "startLine": 769,
-          "endLine": 1003,
+          "startLine": 770,
+          "endLine": 1004,
           "tokens": 3173
         },
         {
           "name": "connect",
           "kind": "fn",
-          "startLine": 1004,
-          "endLine": 1043,
+          "startLine": 1005,
+          "endLine": 1044,
           "tokens": 465
         },
         {
           "name": "startMultiplayer",
           "kind": "fn",
-          "startLine": 1044,
-          "endLine": 1061,
+          "startLine": 1045,
+          "endLine": 1062,
           "tokens": 223
         },
         {
           "name": "startSingleplayer",
           "kind": "fn",
-          "startLine": 1062,
-          "endLine": 1085,
+          "startLine": 1063,
+          "endLine": 1086,
           "tokens": 284
         },
         {
           "name": "persistWorld",
           "kind": "fn",
-          "startLine": 1086,
-          "endLine": 2497,
-          "tokens": 19591
+          "startLine": 1087,
+          "endLine": 2499,
+          "tokens": 19613
         }
       ]
     },
@@ -2569,103 +2569,103 @@
     },
     "client/src/menu.ts": {
       "description": "Menu principal (cp8) — HTML/CSS por cima do canvas, sem GUI de engine.",
-      "tokens": 7170,
-      "hash": "6f5a3644340e300a",
-      "size": 25400,
-      "mtimeMs": 1787858385736.316,
-      "updatedAt": "2026-08-27T19:29:49.841Z",
-      "source": "scan",
+      "tokens": 7460,
+      "hash": "c8d3921198eee28c",
+      "size": 26418,
+      "mtimeMs": 1787937712344.3164,
+      "updatedAt": "2026-08-28T17:21:52.495Z",
+      "source": "hook",
       "symbols": [
         {
           "name": "PlayWorldChoice",
           "kind": "section",
-          "startLine": 38,
-          "endLine": 55,
+          "startLine": 40,
+          "endLine": 57,
           "tokens": 221
         },
         {
           "name": "MultiAuth",
           "kind": "section",
-          "startLine": 56,
-          "endLine": 60,
+          "startLine": 58,
+          "endLine": 62,
           "tokens": 19
         },
         {
           "name": "MenuHandlers",
           "kind": "section",
-          "startLine": 61,
-          "endLine": 202,
+          "startLine": 63,
+          "endLine": 204,
           "tokens": 1568
         },
         {
           "name": "getPlayerName",
           "kind": "fn",
-          "startLine": 203,
-          "endLine": 211,
+          "startLine": 205,
+          "endLine": 213,
           "tokens": 120
         },
         {
           "name": "el",
           "kind": "fn",
-          "startLine": 212,
-          "endLine": 218,
+          "startLine": 214,
+          "endLine": 220,
           "tokens": 76
         },
         {
           "name": "flashError",
           "kind": "fn",
-          "startLine": 219,
-          "endLine": 225,
+          "startLine": 221,
+          "endLine": 227,
           "tokens": 52
         },
         {
           "name": "clearError",
           "kind": "fn",
-          "startLine": 226,
-          "endLine": 240,
+          "startLine": 228,
+          "endLine": 242,
           "tokens": 184
         },
         {
           "name": "posicionaSplash",
           "kind": "fn",
-          "startLine": 241,
-          "endLine": 261,
+          "startLine": 243,
+          "endLine": 263,
           "tokens": 300
         },
         {
           "name": "showMenu",
           "kind": "fn",
-          "startLine": 262,
-          "endLine": 479,
+          "startLine": 264,
+          "endLine": 481,
           "tokens": 2366
         },
         {
           "name": "buildConfigScreen",
           "kind": "fn",
-          "startLine": 480,
-          "endLine": 487,
+          "startLine": 482,
+          "endLine": 489,
           "tokens": 47
         },
         {
           "name": "backButton",
           "kind": "fn",
-          "startLine": 488,
-          "endLine": 504,
+          "startLine": 490,
+          "endLine": 506,
           "tokens": 153
         },
         {
           "name": "renderConfigRoot",
           "kind": "fn",
-          "startLine": 505,
-          "endLine": 525,
+          "startLine": 507,
+          "endLine": 527,
           "tokens": 215
         },
         {
           "name": "renderConfigPanel",
           "kind": "fn",
-          "startLine": 526,
-          "endLine": 688,
-          "tokens": 1589
+          "startLine": 528,
+          "endLine": 721,
+          "tokens": 1867
         }
       ]
     },
@@ -3017,53 +3017,60 @@
     },
     "client/src/settings.ts": {
       "description": "Configurações do jogador, persistidas em localStorage (por navegador).",
-      "tokens": 1530,
-      "hash": "a1873adff06f20cd",
-      "size": 5427,
-      "mtimeMs": 1785941724019.3196,
-      "updatedAt": "2026-08-27T19:29:49.849Z",
-      "source": "scan",
+      "tokens": 1815,
+      "hash": "658198798c073485",
+      "size": 6434,
+      "mtimeMs": 1787937658152.3164,
+      "updatedAt": "2026-08-28T17:20:58.290Z",
+      "source": "hook",
       "symbols": [
         {
           "name": "GameSettings",
           "kind": "section",
-          "startLine": 12,
-          "endLine": 90,
-          "tokens": 784
+          "startLine": 25,
+          "endLine": 106,
+          "tokens": 821
         },
         {
           "name": "num",
           "kind": "fn",
-          "startLine": 91,
-          "endLine": 94,
+          "startLine": 107,
+          "endLine": 110,
           "tokens": 49
         },
         {
           "name": "bool",
           "kind": "fn",
-          "startLine": 95,
-          "endLine": 98,
+          "startLine": 111,
+          "endLine": 114,
           "tokens": 28
+        },
+        {
+          "name": "oneOf",
+          "kind": "fn",
+          "startLine": 115,
+          "endLine": 118,
+          "tokens": 50
         },
         {
           "name": "loadSettings",
           "kind": "fn",
-          "startLine": 99,
-          "endLine": 128,
-          "tokens": 358
+          "startLine": 119,
+          "endLine": 151,
+          "tokens": 404
         },
         {
           "name": "saveSettings",
           "kind": "fn",
-          "startLine": 129,
-          "endLine": 133,
+          "startLine": 152,
+          "endLine": 156,
           "tokens": 52
         },
         {
           "name": "keyLabel",
           "kind": "fn",
-          "startLine": 134,
-          "endLine": 150,
+          "startLine": 157,
+          "endLine": 173,
           "tokens": 126
         }
       ]
@@ -3275,47 +3282,47 @@
     },
     "client/src/touch.ts": {
       "description": "Controles de toque (tablet) — joystick, arrasto de olhar e botões. SÓ",
-      "tokens": 5567,
-      "hash": "8da77e9af26521a5",
-      "size": 19820,
-      "mtimeMs": 1787340465655.4192,
-      "updatedAt": "2026-08-27T19:29:49.852Z",
-      "source": "scan",
+      "tokens": 6859,
+      "hash": "1c6bc082c344c08c",
+      "size": 24385,
+      "mtimeMs": 1787937694780.3167,
+      "updatedAt": "2026-08-28T17:21:34.916Z",
+      "source": "hook",
       "symbols": [
         {
           "name": "isTouchDevice",
           "kind": "fn",
-          "startLine": 15,
-          "endLine": 20,
+          "startLine": 16,
+          "endLine": 21,
           "tokens": 72
         },
         {
           "name": "TouchActions",
           "kind": "section",
-          "startLine": 21,
-          "endLine": 50,
+          "startLine": 22,
+          "endLine": 51,
           "tokens": 358
         },
         {
           "name": "solicitarTelaCheia",
           "kind": "fn",
-          "startLine": 51,
-          "endLine": 125,
-          "tokens": 1144
+          "startLine": 52,
+          "endLine": 159,
+          "tokens": 1711
         },
         {
           "name": "rotular",
           "kind": "fn",
-          "startLine": 126,
-          "endLine": 132,
+          "startLine": 160,
+          "endLine": 166,
           "tokens": 69
         },
         {
           "name": "TouchControls",
           "kind": "class",
-          "startLine": 133,
-          "endLine": 429,
-          "tokens": 3764
+          "startLine": 167,
+          "endLine": 514,
+          "tokens": 4476
         }
       ]
     },
@@ -12530,12 +12537,12 @@
     },
     "todo.md": {
       "description": "Ideias para fazer",
-      "tokens": 23890,
-      "hash": "f9c7fa1867364a4a",
-      "size": 98553,
-      "mtimeMs": 1787858811792.3167,
-      "updatedAt": "2026-08-27T19:29:50.036Z",
-      "source": "scan"
+      "tokens": 24222,
+      "hash": "af6ea65e2ce295cf",
+      "size": 99910,
+      "mtimeMs": 1787938479604.315,
+      "updatedAt": "2026-08-28T17:34:39.735Z",
+      "source": "hook"
     },
     "tsconfig.base.json": {
       "description": "",

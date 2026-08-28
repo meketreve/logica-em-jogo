@@ -9,6 +9,19 @@ export type KeyAction =
   | "forward" | "back" | "left" | "right" | "jump" | "correr" | "agachar"
   | "chat" | "hud" | "varinha" | "painel" | "inventario" | "amigos";
 
+/** Layouts dos controles de toque (2026-08-28, pedido do usuário). "destro" é
+ *  o padrão de sempre; "direcional" troca o joystick por um D-pad de 4
+ *  botões (sem diagonais). */
+export type TouchLayout = "destro" | "canhoto" | "compacto" | "espalhado" | "direcional";
+
+export const TOUCH_LAYOUT_LABEL: Record<TouchLayout, string> = {
+  destro: "Destro (padrão)",
+  canhoto: "Canhoto (espelhado)",
+  compacto: "Compacto (mais perto)",
+  espalhado: "Espalhado (mais afastado)",
+  direcional: "Direcional (sem joystick, botões)",
+};
+
 export interface GameSettings {
   /** Multiplicador da sensibilidade do mouse (1 = padrão). */
   sensitivity: number;
@@ -32,6 +45,8 @@ export interface GameSettings {
   /** Escala da UI de toque (2026-07-21): joystick e botões maiores/menores
    *  conforme o tamanho da tela do celular/tablet. 1 = padrão. Só afeta o toque. */
   uiScale: number;
+  /** Disposição dos controles de toque (2026-08-28). Só afeta o toque. */
+  touchLayout: TouchLayout;
   /** Nuvens no céu (§🌬️, 2026-07-27). Config de DESEMPENHO, não de gosto: é um
    *  plano transparente grande, e o custo dele é fill rate — justo o que já
    *  está no teto no notebook do laboratório. Desligar devolve esse fill. */
@@ -51,6 +66,7 @@ export const DEFAULT_SETTINGS: GameSettings = {
   raioRender: 6,
   meshMsPorFrame: 6,
   uiScale: 1,
+  touchLayout: "destro",
   nuvens: true,
   balanco: true,
   keys: {
@@ -96,6 +112,10 @@ function bool(v: unknown, def: boolean): boolean {
   return typeof v === "boolean" ? v : def;
 }
 
+function oneOf<T extends string>(v: unknown, def: T, valid: readonly T[]): T {
+  return typeof v === "string" && (valid as readonly string[]).includes(v) ? (v as T) : def;
+}
+
 export function loadSettings(): GameSettings {
   let raw: unknown = null;
   try {
@@ -120,6 +140,9 @@ export function loadSettings(): GameSettings {
     raioRender: num(s["raioRender"], DEFAULT_SETTINGS.raioRender, 2, 12),
     meshMsPorFrame: num(s["meshMsPorFrame"], DEFAULT_SETTINGS.meshMsPorFrame, 1, 16),
     uiScale: num(s["uiScale"], DEFAULT_SETTINGS.uiScale, 0.6, 1.8),
+    touchLayout: oneOf<TouchLayout>(s["touchLayout"], DEFAULT_SETTINGS.touchLayout, [
+      "destro", "canhoto", "compacto", "espalhado", "direcional",
+    ]),
     nuvens: bool(s["nuvens"], DEFAULT_SETTINGS.nuvens),
     balanco: bool(s["balanco"], DEFAULT_SETTINGS.balanco),
     keys,

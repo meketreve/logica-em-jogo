@@ -15,6 +15,8 @@ import {
   keyLabel,
   loadSettings,
   saveSettings,
+  TOUCH_LAYOUT_LABEL,
+  type TouchLayout,
 } from "./settings";
 import {
   type WorldRecord,
@@ -572,13 +574,44 @@ function renderConfigPanel(
     return input;
   }
 
+  function select<T extends string>(
+    label: string,
+    options: Record<T, string>,
+    value: T,
+    onChange: (v: T) => void,
+  ): HTMLSelectElement {
+    const row = document.createElement("label");
+    row.className = "config-row";
+    const span = document.createElement("span");
+    span.textContent = label;
+    const input = document.createElement("select");
+    for (const [v, texto] of Object.entries(options) as [T, string][]) {
+      const opt = document.createElement("option");
+      opt.value = v;
+      opt.textContent = texto;
+      opt.selected = v === value;
+      input.appendChild(opt);
+    }
+    input.addEventListener("change", () => {
+      onChange(input.value as T);
+      apply();
+    });
+    row.append(span, input);
+    body.appendChild(row);
+    return input;
+  }
+
   if (category === "controles") {
     slider("sensibilidade do mouse", 0.2, 3, 0.1, s.sensitivity, (v) => (s.sensitivity = v), (v) => `${v.toFixed(1)}×`);
-    // escala dos controles de toque (2026-07-21): só faz sentido no celular/tablet
+    // escala e layout dos controles de toque (2026-07-21 / 2026-08-28): só fazem sentido no celular/tablet
     if (isTouchDevice()) {
       slider(
         "escala dos controles (toque)", 0.6, 1.8, 0.1, s.uiScale,
         (v) => (s.uiScale = v), (v) => `${Math.round(v * 100)}%`,
+      );
+      select<TouchLayout>(
+        "disposição dos controles (toque)", TOUCH_LAYOUT_LABEL, s.touchLayout,
+        (v) => (s.touchLayout = v),
       );
     }
 

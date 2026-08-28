@@ -2851,3 +2851,25 @@ fraude.
 |------|--------|---------|---------|--------|
 | 09:47 | STATUS.md 295KB→16KB, histórico movido pra STATUS-archive.md + regra de arquivar no OPENWOLF.md | .wolf/STATUS.md, .wolf/STATUS-archive.md, .wolf/OPENWOLF.md | ok | ~0 |
 | 09:50 | remove archive: usuario disse handoff eh so turno, historico ja fica no git/cerebrum — STATUS.md fica so com sessao atual (175→168 linhas) | .wolf/STATUS.md, .wolf/OPENWOLF.md | ok | ~0 |
+| 09:54 | Edited todo.md | 1→2 lines | ~45 |
+| 09:54 | todo.md: fundo animado do menu marcado [x] — ja estava FEITO desde 4e0e3bf (2026-08-15), so checkbox mae ficou pra tras | todo.md | ok | ~0 |
+| 10:01 | Session end: 1 writes across 1 files (todo.md) | 5 reads | ~71687 tok |
+| 14:20 | Edited client/src/touch.ts | modified Direcional() | ~764 |
+| 14:20 | Edited client/src/settings.ts | expanded (+13 lines) | ~201 |
+| 14:20 | Edited client/src/settings.ts | modified toque() | ~81 |
+| 14:20 | Edited client/src/settings.ts | 2→3 lines | ~16 |
+| 14:20 | Edited client/src/settings.ts | modified bool() | ~78 |
+| 14:20 | Edited client/src/settings.ts | 1→4 lines | ~65 |
+| 14:21 | Edited client/src/touch.ts | added 1 import(s) | ~24 |
+| 14:21 | Edited client/src/touch.ts | 1→4 lines | ~59 |
+| 14:21 | Edited client/src/touch.ts | modified pad() | ~266 |
+| 14:21 | Edited client/src/touch.ts | 3→8 lines | ~111 |
+| 14:21 | Edited client/src/touch.ts | modified setScale() | ~464 |
+| 14:21 | Edited client/src/main.ts | 1→2 lines | ~46 |
+| 14:21 | Edited client/src/menu.ts | 8→10 lines | ~50 |
+| 14:21 | Edited client/src/menu.ts | modified select() | ~424 |
+| 14:30 | Edited client/src/main.ts | 1→2 lines | ~46 |
+| 14:31 | Session end: 16 writes across 5 files (todo.md, touch.ts, settings.ts, main.ts, menu.ts) | 10 reads | ~91411 tok |
+| 14:34 | Edited todo.md | modified o() | ~561 |
+| 14:35 | 5 presets de layout de toque (destro/canhoto/compacto/espalhado/direcional c/ D-pad), ancora vw/vh + escala auto por resolucao | client/src/{touch,settings,menu,main}.ts, todo.md, .wolf/cerebrum.md | ok — typecheck+build+936 testes+sonda CDP dos 5 verde | ~0 |
+| 14:35 | Session end: 17 writes across 5 files (todo.md, touch.ts, settings.ts, main.ts, menu.ts) | 12 reads | ~92032 tok |

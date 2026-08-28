@@ -1,4 +1,5 @@
 import type { Input } from "./input";
+import type { TouchLayout } from "./settings";
 
 /**
  * Controles de toque (tablet) — joystick, arrasto de olhar e botões. SÓ
@@ -69,8 +70,12 @@ const CSS = `
 :root { --ts: 1; }
 #touch-ui, #touch-ui * { touch-action: none; user-select: none; -webkit-user-select: none; }
 #touch-look { position: fixed; inset: 0; z-index: 4; }
+/* Ancoras em vw/vh, nao px: 2vw/1.6vw/14.7vh no tablet-regua (1024x600, o
+   mesmo do shots:tablet) caem quase exatas nos 20px/16px/88px de antes -
+   zero mudanca visual nesse aparelho, mas agora acompanha a resolucao real
+   em vez de um numero fixo (2026-08-28, pedido do usuario). */
 #touch-joy {
-  position: fixed; left: 20px; bottom: 88px;
+  position: fixed; left: 2vw; bottom: 14.7vh;
   width: calc(128px * var(--ts)); height: calc(128px * var(--ts));
   border-radius: 50%; background: rgba(255,255,255,0.08);
   border: 2px solid rgba(255,255,255,0.3); z-index: 8;
@@ -81,10 +86,39 @@ const CSS = `
   margin: calc(-26px * var(--ts)) 0 0 calc(-26px * var(--ts)); border-radius: 50%;
   background: rgba(255,255,255,0.4); pointer-events: none;
 }
+/* Direcional (2026-08-28): D-pad em cruz no lugar do joystick, mesma ancora.
+   Botao vazio de rotulo (holdButton com label "") nao usa o <small> - o
+   seletor abaixo evita o vao vazio dele. */
+#touch-dpad {
+  position: fixed; left: 2vw; bottom: 14.7vh; display: none;
+  grid-template-columns: repeat(3, calc(64px * var(--ts)));
+  grid-template-rows: repeat(3, calc(64px * var(--ts)));
+  grid-template-areas: ". up ." "left . right" ". down .";
+  gap: calc(6px * var(--ts)); z-index: 8;
+}
+#touch-dpad small:empty { display: none; }
+#touch-dpad button[data-dir="up"] { grid-area: up; }
+#touch-dpad button[data-dir="down"] { grid-area: down; }
+#touch-dpad button[data-dir="left"] { grid-area: left; }
+#touch-dpad button[data-dir="right"] { grid-area: right; }
 #touch-acoes {
-  position: fixed; right: 16px; bottom: 88px; display: grid;
+  position: fixed; right: 1.6vw; bottom: 14.7vh; display: grid;
   grid-template-columns: repeat(2, calc(64px * var(--ts))); gap: calc(10px * var(--ts)); z-index: 8;
 }
+/* Presets de layout (2026-08-28): atributo no #touch-ui, cada regra so
+   sobrescreve a ancora que muda. Destro = as regras base acima (sem
+   atributo), entao nao precisa de bloco proprio aqui. */
+#touch-ui[data-layout="canhoto"] #touch-joy { left: auto; right: 2vw; }
+#touch-ui[data-layout="canhoto"] #touch-dpad { left: auto; right: 2vw; }
+#touch-ui[data-layout="canhoto"] #touch-acoes { right: auto; left: 1.6vw; }
+#touch-ui[data-layout="compacto"] #touch-joy { left: 12vw; }
+#touch-ui[data-layout="compacto"] #touch-dpad { left: 12vw; }
+#touch-ui[data-layout="compacto"] #touch-acoes { right: 9vw; }
+#touch-ui[data-layout="espalhado"] #touch-joy { left: 0.5vw; }
+#touch-ui[data-layout="espalhado"] #touch-dpad { left: 0.5vw; }
+#touch-ui[data-layout="espalhado"] #touch-acoes { right: 0.3vw; }
+#touch-ui[data-layout="direcional"] #touch-joy { display: none; }
+#touch-ui[data-layout="direcional"] #touch-dpad { display: grid; }
 /* Com o 6º botão (📋, 2026-08-21) a fileira CHEIA mede 512px — em retrato de
    600px sobram só 41px de cada lado, folga curta demais pra apostar num
    aparelho mais estreito. O flex-wrap faz a fileira cair pra 2ª linha em vez de
@@ -152,6 +186,9 @@ export class TouchControls {
   /** Espelha o `ativo` da varinha pra decidir o que o ▣ faz (canto 2 manda na
    *  frente do comer). */
   private varinhaAtiva = false;
+  /** Multiplicador manual do slider (settings.uiScale) — o `--ts` final é
+   *  este × o fator automático da tela (recomputarEscala). */
+  private userScale = 1;
   private joyPointer: number | null = null;
   private lookPointer: number | null = null;
   private lookX = 0;
@@ -237,6 +274,23 @@ export class TouchControls {
     joy.addEventListener("pointerup", dropStick);
     joy.addEventListener("pointercancel", dropStick);
 
+    // D-pad (layout "direcional", 2026-08-28): 4 botões cardeais, SEM
+    // diagonal, reusando o holdButton (mesmo pressiona/solta do pular).
+    // Fica escondido por CSS até o preset "direcional" ligar.
+    const dpad = document.createElement("div");
+    dpad.id = "touch-dpad";
+    const dirBtn = (dir: "up" | "down" | "left" | "right", icon: string, keyOf: () => string) => {
+      const btn = this.holdButton(icon, "", keyOf);
+      btn.dataset.dir = dir;
+      return btn;
+    };
+    dpad.append(
+      dirBtn("up", "↑", () => this.actions.keys().forward),
+      dirBtn("left", "←", () => this.actions.keys().left),
+      dirBtn("right", "→", () => this.actions.keys().right),
+      dirBtn("down", "↓", () => this.actions.keys().back),
+    );
+
     // botões de ação (direita): quebrar/colocar = tap; pular = segurar
     const acoes = document.createElement("div");
     acoes.id = "touch-acoes";
@@ -292,15 +346,46 @@ export class TouchControls {
     this.btnVarinha.classList.add("hidden");
     this.btnAmigos.classList.add("hidden");
 
-    this.root.append(look, joy, acoes, topo);
+    this.root.dataset.layout = "destro" satisfies TouchLayout;
+    this.root.append(look, joy, dpad, acoes, topo);
     document.body.appendChild(this.root);
+
+    // recomputa o fator automático quando a tela muda de tamanho/orientação
+    // (mesmo padrão de invisivelUi.ts/menuFundo.ts: listener local ao módulo)
+    window.addEventListener("resize", () => this.recomputarEscala());
   }
 
-  /** Escala da UI de toque (settings.uiScale) — muda o tamanho de joystick e
-   *  botões via a var CSS `--ts`. Aplicada no boot e quando a config muda. */
+  /** Escala MANUAL da UI de toque (settings.uiScale, slider do menu) — vira o
+   *  multiplicador de cima do fator automático da tela (recomputarEscala).
+   *  Aplicada no boot e quando a config muda. */
   setScale(scale: number): void {
+    this.userScale = scale;
+    this.recomputarEscala();
+  }
+
+  /** Fator automático pela RESOLUÇÃO da tela (2026-08-28, pedido do usuário):
+   *  vmin da tela ÷ vmin do tablet-régua (1024×600, o mesmo do
+   *  `shots:tablet`) — nesse aparelho dá exatamente 1, zero mudança no que já
+   *  foi calibrado. Clampado pra não sumir num celular minúsculo nem virar
+   *  gigante num monitor. O `--ts` final = auto × manual, clampado de novo no
+   *  mesmo piso/teto que o slider já respeitava sozinho (0.6..2.7 > 0.6..1.8
+   *  porque agora o auto pode empurrar pra cima de tela grande). Recalculado
+   *  no `resize` — chamada pelo listener do construtor. */
+  private recomputarEscala(): void {
+    const vmin = Math.min(window.innerWidth, window.innerHeight);
+    const REF_VMIN = 600;
+    const autoFator = Math.min(1.5, Math.max(0.75, vmin / REF_VMIN));
+    const ts = Math.min(2.7, Math.max(0.6, autoFator * this.userScale));
     // no :root, não no #touch-ui — ver a nota do CSS acima (o #chat lê daqui)
-    document.documentElement.style.setProperty("--ts", String(scale));
+    document.documentElement.style.setProperty("--ts", String(ts));
+  }
+
+  /** Disposição dos controles de toque (settings.touchLayout). Solta tudo que
+   *  estava pressionado antes de trocar — evita tecla presa se o preset mudar
+   *  com o dedo em cima de um botão. */
+  setLayout(layout: TouchLayout): void {
+    this.releaseAll();
+    this.root.dataset.layout = layout;
   }
 
   /** A varinha serve a este jogador? (professor sempre; aluno só com a

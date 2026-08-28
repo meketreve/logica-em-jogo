@@ -245,6 +245,7 @@ function applySettings(): ReturnType<typeof loadSettings> {
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, s.pixelRatioCap));
   setUiVolume(s.volume);
   touchControls?.setScale(s.uiScale); // escala da UI de toque (2026-07-21)
+  touchControls?.setLayout(s.touchLayout); // disposição dos controles (2026-08-28)
   skyCycle.setNuvens(s.nuvens); // §🌬️ nuvens: config de DESEMPENHO (fill rate)
   return s;
 }
@@ -1688,6 +1689,7 @@ class GameRuntime {
       // playtest: o 🧱 do topo vira a mochila em sobrevivência (rótulo + ícone)
       touchControls.setMochilaRotulo(modoAtual === "sobrevivencia");
       touchControls.setScale(settings.uiScale); // aplica a escala salva de cara
+      touchControls.setLayout(settings.touchLayout); // idem, disposição salva
       this.atualizarComerToque(); // §🍖 F6: o ▣ pode já ser o "comer" no boot
       updateOverlay();
     }

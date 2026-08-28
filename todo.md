@@ -301,17 +301,29 @@ senão lado com parede; empate → base. Cliente inalterado.
 * \[x] varinha no celular (sem tecla R) — **FEITO** (2026-07-21): botão 🪄 na fileira do topo do touch UI liga/desliga o modo varinha (mesmo `toggleVarinha` da tecla R); aí os botões ⛏/▣ marcam canto 1/canto 2 (já roteiam pelo mesmo handler de clique esq/dir que checa `varinhaAtiva`).
 * \[x] botão de AGACHAR no celular — **FEITO** (2026-07-21): botão de SEGURAR ⤓ nas ações do touch, mantém a tecla `agachar` (Shift) pressionada — andando não cai da borda, voando DESCE (mesma `input.down(settings.keys.agachar)` do teclado).
 * \[x] **config no painel do mobile pra mudar a ESCALA da UI dos controles** — **FEITO** (2026-07-21): `settings.uiScale` (persistido, 60–180%), slider "escala dos controles (toque)" na aba controles (só em dispositivo touch). Aplicado por `--ts` (var CSS) nos tamanhos do `#touch-ui` via `calc()` — NÃO transform:scale() (o joystick lê getBoundingClientRect e o polegar se posiciona por px reais).
-* \[ ] **layouts diferentes pros controles do mobile** — o usuário escolhe a disposição
-  dos botões de toque (não só a escala). Refino:
-  * Presets nomeados (ex.: "destro"/"canhoto" espelham joystick↔botões de ação; "compacto"
-    junta as ações; "espalhado" separa) — `settings.touchLayout` (persistido, sibling do
-    `uiScale`), seletor na aba controles (só em touch).
-  * Implementar como CLASSE no `#touch-ui` (`data-layout="canhoto"`) + CSS por classe —
-    NÃO recriar os elementos. `touch.ts` já monta os botões uma vez; layout é só
-    posicionamento (grid-area / left↔right). Joystick lê getBoundingClientRect → posição
-    real por px continua valendo, como no uiScale.
-  * Escopo mínimo travável: só destro/canhoto (espelhar) — já cobre o pedido mais comum.
-    Botões reposicionáveis por arrasto = fase 2 (guarda x/y por botão no settings).
+* \[x] **layouts diferentes pros controles do mobile** — **FEITO** (2026-08-28): 5 presets —
+  destro (padrão) · canhoto (espelhado) · compacto · espalhado · **direcional** (pedido extra
+  do usuário: sem joystick, D-pad de 4 botões cardeais ↑↓←→, sem diagonal). `settings.touchLayout`
+  (persistido, sibling do `uiScale`) + seletor `<select>` na aba controles (só em touch).
+  Implementado como atributo `data-layout` no `#touch-ui` + CSS `#touch-ui[data-layout=...] #touch-joy{...}`
+  — `touch.ts` monta os elementos (joystick E o `#touch-dpad` novo) UMA VEZ, layout só troca
+  âncora/visibilidade. `#touch-dpad` reusa `holdButton()` (mesmo pressiona/solta do pular).
+  `TouchControls.setLayout()` novo, ligado em `main.ts` nos dois lugares que já ligavam o
+  `setScale` (boot em `startGame` + ao vivo em `applySettings`/`onSettingsChanged`).
+  - **Extra além do pedido original:** âncoras trocaram de px fixo pra `vw`/`vh` (canto
+    relativo à tela) e a ESCALA ganhou um fator automático pela resolução —
+    `--ts final = clamp(vmin(tela)/600, 0.75, 1.5) × sliderUsuário`, clampado em 0.6..2.7.
+    600 = vmin do tablet-régua (1024×600, o mesmo do `shots:tablet`) — nesse aparelho o fator
+    automático dá exatamente 1, zero mudança no que já era calibrado. Recalcula no `resize`
+    (listener local em `TouchControls`, mesmo padrão de `invisivelUi.ts`/`menuFundo.ts`).
+  - **Bug pego na verificação (não no `?bench` sozinho, no DOM):** `applySettings()` roda
+    ANTES de `touchControls` existir (é `null` até o `startGame`), então `setLayout`/`setScale`
+    só pegam de verdade quando chamados DE NOVO logo após o `new TouchControls(...)` — por
+    isso o `setScale` já existente tinha essa 2ª chamada, e o `setLayout` precisou da mesma.
+  - Verificado com sonda CDP descartável (`?bench&touch`, 1024×600 coarse): os 5 presets
+    conferidos por `getBoundingClientRect` real (não só visual) — `data-layout` bate, o
+    controle certo fica visível/escondido, nada estoura a janela, joystick/dpad não sobrepõe
+    as ações. `npm run typecheck` (3/3), `npm run build`, `npm test` (936/936) verdes.
 * \[x] **comer no tablet: o botão de COLOCAR vira de COMER quando tem comida no slot
   selecionado** — **FEITO** (sessão 59, commit `a70fb32`; `touch.ts` ganhou `setModoComer()` +
   `atualizarBtnColocar()`, que decide o rótulo ▣ entre varinha ② / comer 🍎 / colocar ▣;
@@ -914,7 +926,8 @@ ferramenta certa quebra rápido, gasta, e precisa ser refeita.
   * ✅ **A entrada do topo não leva `versao`** (2026-08-22) e o `npm version` relabela a tela
     sozinho — por isso **bump SEMPRE arrasta o painel de novidades**, que virou regra de workflow
     no cerebrum (2026-08-23).
-* \[ ] **fundo ANIMADO do menu principal (ideia do usuário, 2026-08-15)**. Três peças:
+* \[x] **fundo ANIMADO do menu principal (ideia do usuário, 2026-08-15)** — **FEITO** (2026-08-15,
+  commit `4e0e3bf`, tweaks até `6dbd9cd` no mesmo dia). Três peças:
   1. **Cena 3D de fundo BARATA — "câmera dentro de um cubo"**: um cubo coroado de OFFLINE
      gerada-ser-fashion (ou imagens) e câmera no MEIO, dando a impressão de um ambiente 3D de
      verdade por um custo mínimo (projeção das faces internas). Alternativa aceita: **carrosel

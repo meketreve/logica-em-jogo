@@ -167,6 +167,20 @@
 
 ## Key Learnings
 
+- [2026-08-28] **`applySettings()` roda ANTES de `touchControls` existir** — `main.ts`: a
+  primeira chamada é módulo-level, `touchControls` ainda é `null` (só nasce dentro do
+  `startGame`, e só em dispositivo touch). Por isso `setScale`/`setLayout` (e qualquer setter
+  novo de `TouchControls`) precisam de UMA 2ª chamada direta logo após o `new TouchControls(...)`
+  em `startGame` — a chamada via `applySettings()` sozinha só serve pra troca AO VIVO no menu de
+  pausa (quando a instância já existe). Peguei isso na verificação por DOM (`?bench&touch`), não
+  no typecheck nem no build — os dois passam mesmo com o setter mudo.
+- [2026-08-28] **Âncora relativa + escala automática pra UI de toque:** em vez de px fixo,
+  posições em `vw`/`vh` (`position:fixed` resolve % contra o viewport) e um fator de escala
+  calculado por `vmin(tela)/600` (600 = vmin do tablet-régua 1024×600, o mesmo do
+  `shots:tablet`) multiplicando o slider manual (`uiScale`) dentro do MESMO `--ts` que já
+  existia. No tablet-régua o fator dá exatamente 1 — zero regressão no que já era calibrado em
+  px. Ver `todo.md` "layouts diferentes pros controles do mobile" pro detalhe completo; padrão
+  reaproveitável se outra UI de toque pedir a mesma coisa.
 - [2026-08-26] **`.jog-row` do painel P é uma LINHA, não uma grade** — `display: flex` **sem
   `flex-wrap`**, desenhada para "nome + 2 botões". Usá-la para N botões faz o conteúdo passar da
   caixa pela DIREITA, e o `overflow: hidden` de altura fixa do `#jogadores` come o excedente **sem
