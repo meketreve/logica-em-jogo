@@ -23,6 +23,12 @@ You are working in an OpenWolf-managed project. These rules apply every turn.
 
 **The bar is HIGH for STATUS.md.** Stale STATUS.md = wasted next session. Always treat it as the handoff document.
 
+**Keep it short — replace, don't accumulate:** `STATUS.md` holds only the **current HANDOFF
+block** (the latest session) plus the evergreen sections (Arquitetura ativa, Pendências,
+Comandos, Referências). HANDOFF is a turn-to-turn handover note, not a log — when writing a
+new session's HANDOFF block, **overwrite the previous one**, don't append. Full history
+already lives in `git log` and `.wolf/cerebrum.md` (Decision Log); no separate archive file.
+
 ## File Navigation
 
 1. Check `.wolf/anatomy.md` BEFORE reading any file. It has a 2-3 line description and token estimate for every file in the project.

@@ -2839,3 +2839,15 @@ fraude.
 | 16:26 | Edited todo.md | modified hora() | ~430 |
 | 16:35 | Tradução de comandos: /claim→/terreno, /resetpin→/redefinirpin, /tpr→/tpp, /kicar→/expulsar | shared/session.ts, equipes.ts, tp.ts, protocol.ts, auth.ts, client/commands.ts, players.ts, hotbarUi.ts, main.ts, menu.ts, chat.ts, regras.ts, server/index.ts, testes, scripts | typecheck 3/3 · 936/936 · build · 16/16 smokes · cenarios 7/7 byte-idênticos · shots:tablet verde (/terreno ligar real no navegador) | ~180k |
 | 16:30 | Session end: 31 writes across 14 files (session.ts, equipes.ts, commands.ts, players.ts, hotbarUi.ts) | 14 reads | ~98535 tok |
+
+## Session: 2026-08-28 09:43
+
+| Time | Action | File(s) | Outcome | ~Tokens |
+|------|--------|---------|---------|--------|
+
+## Session: 2026-08-28 09:44
+
+| Time | Action | File(s) | Outcome | ~Tokens |
+|------|--------|---------|---------|--------|
+| 09:47 | STATUS.md 295KB→16KB, histórico movido pra STATUS-archive.md + regra de arquivar no OPENWOLF.md | .wolf/STATUS.md, .wolf/STATUS-archive.md, .wolf/OPENWOLF.md | ok | ~0 |
+| 09:50 | remove archive: usuario disse handoff eh so turno, historico ja fica no git/cerebrum — STATUS.md fica so com sessao atual (175→168 linhas) | .wolf/STATUS.md, .wolf/OPENWOLF.md | ok | ~0 |
