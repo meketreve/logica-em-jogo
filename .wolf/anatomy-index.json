@@ -1,12 +1,12 @@
 {
   "version": 1,
   "meta": {
-    "lastScanned": "2026-08-28T19:02:44.959Z",
+    "lastScanned": "2026-08-28T19:44:59.177Z",
     "fileCount": 365,
     "hits": 0,
     "misses": 0,
-    "renderedHash": "82704f8160a881934bc42a2e385d65f56cd78b3aee9d54cbb6fc323e71d32290",
-    "storeUpdatedAt": "2026-08-28T19:02:44.993Z"
+    "renderedHash": "dc8fd3a66fa7974ee400204dab7ec2f5417fea6ecc6cbf4e43adc4edd6b87ee1",
+    "storeUpdatedAt": "2026-08-28T19:44:59.202Z"
   },
   "files": {
     ".claude/commands/reframe.md": {
@@ -3516,11 +3516,11 @@
     },
     "iniciar-servidor.bat": {
       "description": "",
-      "tokens": 5617,
-      "hash": "0111ec45febf4b11",
-      "size": 21061,
-      "mtimeMs": 1787943656428.3164,
-      "updatedAt": "2026-08-28T19:00:56.551Z",
+      "tokens": 5605,
+      "hash": "c786955999f3f09d",
+      "size": 21018,
+      "mtimeMs": 1787946272424.3167,
+      "updatedAt": "2026-08-28T19:44:32.556Z",
       "source": "hook"
     },
     "iniciar-servidor.sh": {
@@ -12537,11 +12537,11 @@
     },
     "todo.md": {
       "description": "Ideias para fazer",
-      "tokens": 24681,
-      "hash": "4a747f3b7a1d968a",
-      "size": 101794,
-      "mtimeMs": 1787943764788.3171,
-      "updatedAt": "2026-08-28T19:02:44.958Z",
+      "tokens": 24764,
+      "hash": "6a20e0b05d3c9889",
+      "size": 102140,
+      "mtimeMs": 1787946299052.317,
+      "updatedAt": "2026-08-28T19:44:59.177Z",
       "source": "hook"
     },
     "tsconfig.base.json": {

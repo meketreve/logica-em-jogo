@@ -278,11 +278,12 @@ set "LJ_VER_ATUAL=" & set "LJ_VER_NOVA=" & set "LJ_MOTIVO="
 echo.
 
 REM ============================================================
-REM  Node.js portatil (so se a maquina NAO tiver Node instalado):
-REM  baixa o zip oficial de nodejs.org, extrai em ".node-portatil"
-REM  e usa esse Node dali pra frente NESTA janela (nao instala nada
-REM  no sistema, nao mexe no PATH de fora deste script). Quem ja
-REM  tem Node no PATH nao muda em nada - este bloco nem baixa nada.
+REM  Node.js portatil - SEMPRE usado, mesmo que a maquina ja tenha
+REM  Node instalado (decisao do usuario: versao unica e previsivel
+REM  pra todas as escolas, sem depender do que ja esta em cada PC).
+REM  Baixa o zip oficial de nodejs.org, extrai em ".node-portatil" e
+REM  usa esse Node dali pra frente NESTA janela - nao instala nada
+REM  no sistema, nao mexe no PATH de fora deste script.
 REM
 REM  Baixa so na 1a vez: da 2a em diante acha ".node-portatil\node.exe"
 REM  e pula direto pro PATH. Sem hash/checksum aqui de proposito -
@@ -297,12 +298,9 @@ set "LJ_NODE_DIR=%CD%\.node-portatil"
 set "LJ_NODE_ZIP=%TEMP%\lj-node.zip"
 set "LJ_NODE_TMP=%TEMP%\lj-node-tmp"
 
-where node >nul 2>nul
-if not errorlevel 1 goto :node_pronto
 if exist "%LJ_NODE_DIR%\node.exe" goto :node_usar_portatil
 
-echo Node.js nao encontrado nesta maquina.
-echo Baixando uma copia portatil - nao precisa instalar nada...
+echo Preparando o Node.js portatil do projeto ^(nodejs.org^)...
 where curl >nul 2>nul
 if errorlevel 1 (
   echo curl.exe nao encontrado - nao da pra baixar o Node sozinho.

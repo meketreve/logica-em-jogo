@@ -674,12 +674,16 @@ Singleplayer (Web Worker) não tem fs — chat não vira arquivo lá, como plane
     checagem de versão bonita (comparar tags, changelog) é fase 2.
 * \[x] **Node.js portátil no `iniciar-servidor.bat`** (pedido do usuário, 2026-08-28) — **FEITO,
   TESTE NA ESCOLA PENDENTE.** Motivação: quem baixa o projeto sem saber instalar Node hoje bate
-  na mensagem "Confira se o Node.js está instalado" e trava. `where node` primeiro (quem já tem
-  Node **não muda em nada**, inclusive a escola piloteada); se faltar, baixa
-  `node-v24.20.0-win-x64.zip` de `nodejs.org` com `curl` (mesma ferramenta já usada/testada no
-  update por ZIP), extrai com `tar` (idem) em `.node-portatil\` (gitignorado) e prepende no
-  `PATH` **só desta janela do script** — não instala nada no sistema. Baixa só na 1ª vez (checa
-  `.node-portatil\node.exe` antes de baixar de novo).
+  na mensagem "Confira se o Node.js está instalado" e trava. Baixa `node-v24.20.0-win-x64.zip`
+  de `nodejs.org` com `curl` (mesma ferramenta já usada/testada no update por ZIP), extrai com
+  `tar` (idem) em `.node-portatil\` (gitignorado) e prepende no `PATH` **só desta janela do
+  script** — não instala nada no sistema. Baixa só na 1ª vez (checa `.node-portatil\node.exe`
+  antes de baixar de novo).
+  - ✅ **Revisto no mesmo dia (pedido do usuário): SEMPRE usa o portátil, mesmo se a máquina já
+    tiver Node.** Tirei o `where node` que pulava o download — decisão explícita: versão única
+    e previsível (24.20.0) em toda escola, não depende do que já está instalado em cada PC.
+    Sem fallback silencioso pro Node do sistema se o download falhar (mesma mensagem de erro
+    de antes, sem tentar usar outro Node por baixo dos panos).
   - **Rede confirmada pelo usuário:** o `git` da escola falha por falta de credencial (por
     isso o caminho real de lá já é o pacote ZIP, não clone), e `nodejs.org` **abre** de lá —
     testado antes de eu escrever a versão fixa no script.

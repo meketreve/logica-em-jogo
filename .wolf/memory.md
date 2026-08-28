@@ -2878,3 +2878,7 @@ fraude.
 | 16:00 | Edited iniciar-servidor.bat | 2→2 lines | ~20 |
 | 16:02 | iniciar-servidor.bat: baixa Node.js portatil (nodejs.org, v24.20.0 win-x64) so quando o sistema NAO tem node — .node-portatil/ gitignorado, gate checar-launchers OK | iniciar-servidor.bat, .gitignore | ok — verify completo verde | ~0 |
 | 16:02 | Edited todo.md | expanded (+22 lines) | ~570 |
+| 16:03 | Session end: 21 writes across 7 files (todo.md, touch.ts, settings.ts, main.ts, menu.ts) | 15 reads | ~101129 tok |
+| 16:44 | Edited iniciar-servidor.bat | 27→25 lines | ~321 |
+| 16:44 | Edited todo.md | modified dia() | ~276 |
+| 16:46 | iniciar-servidor.bat: Node portatil vira o unico caminho (tirei o where node, sem fallback pro sistema) | iniciar-servidor.bat, todo.md, .wolf/cerebrum.md | ok — verify completo verde | ~0 |
