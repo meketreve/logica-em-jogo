@@ -2,57 +2,40 @@
 
 > Single source of truth for resuming work. Read this FIRST when starting a session.
 
-> ## 🧭 HANDOFF — SESSÃO 92 (2026-08-28 → 29) · layouts de toque, Node portátil, STATUS.md emagrece
+> ## 🧭 HANDOFF — SESSÃO 93 (2026-08-30) · README + changelog in-game postos em dia
 
-> **Bateria verde:** typecheck 3/3 · **936/936** · build · portão `checar-launchers` OK (a cada
-> commit desta sessão).
+> **Bateria verde:** typecheck 3/3 · **936/936** · build · portão `checar-launchers` OK.
+> ⚠️ Ainda **NÃO commitado nem empurrado** — confira `rtk proxy git rev-parse --short
+> origin/main` antes de assumir que subiu (era `0f5a040` no início desta sessão).
 
-> ⚠️ Confira o sha do topo com `rtk proxy git rev-parse --short origin/main`, nunca com um sha
-> escrito aqui. **EMPURRADO** (conferido por `ls-remote`, não só ref local): `origin/main` foi de
-> `b436a83` pra **`0f5a040`** (2 pushes). Commits desta sessão: `1b6fa2b` docs(wolf): STATUS.md
-> vira handoff de turno · `10f6c82` feat(mobile): 5 presets de layout de controles + escala
-> automática · `bf10ea0` feat(launcher): Node.js portátil (fallback) · `0f5a040`
-> fix(launcher): Node portátil vira o único caminho. Árvore limpa.
-> ⚠️ Pós-push o hook `verify` reconstrói `client/dist`/`build-info.json` com o sha do commit que
-> acabou de subir (churn "off-by-one" já conhecido) — descartado com `git checkout -- client/
-> dist/ shared/src/build-info.json && git clean -fd client/dist/`, não commitado.
+> ### ✅ Entregue — README.md documenta o que a sessão 92 tinha deixado sem doc
+> Tabela "O que precisa": Node.js só é pré-requisito pra host Linux/macOS/WSL agora — Windows
+> baixa sozinho (nota nova na seção Rodar explicando `.node-portatil\`, sem admin, sem instalar
+> no sistema). Seção do aluno ganhou os 5 layouts de toque (destro/canhoto/compacto/espalhado/
+> direcional) + escala automática.
 
-> ### ✅ Entregue — STATUS.md emagrece (~4000 linhas/295 KB → handoff único de sessão)
-> Virou log cumulativo sem fim: cada sessão empilhava seu bloco `HANDOFF` e nada saía. Tentei
-> archive (`.wolf/STATUS-archive.md`) primeiro; o usuário cortou: HANDOFF é troca de turno, não
-> log — histórico completo já mora no `git log`/`cerebrum.md`. Regra nova em `OPENWOLF.md`:
-> **sobrescrever o HANDOFF a cada sessão, nunca anexar.**
+> ### ✅ Entregue — tela "📜 novidades" (`client/src/changelog.ts`) atualizada
+> Estava **2 sessões atrasada**: faltavam os 5 layouts de toque, o Node portátil no launcher E a
+> tradução de comandos (`/claim`→`/terreno`, `/resetpin`→`/redefinirpin`, `/tpr`→`/tpp`,
+> `/kicar`→`/expulsar`, sessão 91) — nenhuma tinha entrado no registro que aluno/professor vê
+> dentro do jogo. 3 blocos novos + `data` fixa no que antes era "atual" (`Silêncio, por favor`,
+> agora 27/08/2026). Datas conferidas por `git show -s --format=%ai <sha>`, não chutadas.
 
-> ### ✅ Entregue — 5 layouts de controle de toque (item do `todo.md`, pedido de 2026-08-28)
-> Aba controles do menu: destro (padrão) · canhoto (espelhado) · compacto · espalhado ·
-> **direcional** (pedido extra: sem joystick, D-pad de 4 botões cardeais ↑↓←→, sem diagonal).
-> `settings.touchLayout` + atributo `data-layout` no `#touch-ui`, `touch.ts` monta os elementos
-> UMA VEZ, layout só troca âncora/visibilidade via CSS.
-> - **Junto (pedido do usuário):** âncoras de px fixo → `vw`/`vh` (canto relativo à tela) + fator
->   de escala automático pela RESOLUÇÃO real (`vmin(tela)/600 × slider manual`, 600 = vmin do
->   tablet-régua — zero regressão no que já era calibrado nesse aparelho).
-> - **Bug pego só na verificação por DOM** (não no typecheck/build): `applySettings()` roda ANTES
->   de `touchControls` existir — `setLayout`/`setScale` precisam de uma 2ª chamada direta dentro
->   do `startGame`, igual o `setScale` já fazia. Registrado no `cerebrum.md`.
-> - Verificado com sonda CDP descartável (`?bench&touch`, 1024×600 coarse) medindo
->   `getBoundingClientRect` real dos 5 presets — não só visual.
-
-> ### ✅ Entregue — Node.js portátil no `iniciar-servidor.bat` (pedido do usuário, 2026-08-28)
-> Baixa `node-v24.20.0-win-x64.zip` de `nodejs.org` (`curl`+`tar`, mesmas ferramentas já
-> provadas no update por ZIP), extrai em `.node-portatil\` (gitignorado), prepende no `PATH` só
-> da janela do script. **Revisado no mesmo dia: SEMPRE usa o portátil**, sem checar `where node`
-> primeiro — decisão do usuário, versão única e previsível em toda escola. Sem checagem de
-> hash/sha256 (o update por ZIP também não verifica; o hash que tentei recuperar via ferramenta
-> de resumo não era confiável o bastante pra travar o launcher de todo mundo). Só o `.bat` — `.sh`
-> de casa/WSL já supõe Node instalado, e `checar-launchers.mjs` não exige simetria nisso.
-> Rede da escola confirmada pelo usuário: `git` falha por credencial, `nodejs.org` abre.
-> **⚠️ TESTE REAL NA ESCOLA PENDENTE** — é pra isso que este launcher existe, não marcar como
-> provado sem isso.
+> ### ⚠️ Aprendido — `npx openwolf scan` ≠ `openwolf scan`
+> `npx` baixou `openwolf@2.5.1` (registro) em vez de usar o `2.0.1` já instalado (pnpm global,
+> no PATH) — a versão baixada excluía `.claude/` inteiro, anatomy.md caiu de 365 pra 238
+> arquivos. Revertido e re-rodado com o binário certo (`openwolf scan`, sem `npx`) → 365, diff
+> mínimo (só os 2 arquivos tocados nesta sessão). Registrado no `cerebrum.md` Do-Not-Repeat:
+> **nunca `npx openwolf`.**
 
 > ### 🚀 PRÓXIMA QUEST
-> **Prioridade imediata (fora do código):** testar o `iniciar-servidor.bat` num PC real da
+> **Passo imediato desta sessão:** commit + push do que está pendente (README.md, changelog.ts,
+> anatomy.md/anatomy-index.json, client/dist, shared/src/build-info.json, cerebrum.md,
+> memory.md) — o usuário já pediu, só falta executar.
+
+> **Depois — prioridade fora do código:** testar o `iniciar-servidor.bat` num PC real da
 > escola — baixa/extrai o Node, sobe o servidor sem instalar nada à mão. É o motivo do launcher
-> novo existir.
+> novo existir; ainda não foi provado em máquina real.
 >
 > Fila do `todo.md` (6 itens abertos): **ovelha + lã de verdade** (§🍖 F8 — mob, tosa, lã como
 > recurso, destrava cama/noite, a que destrava mais coisa) · sentar na cadeira · trocar modelo do

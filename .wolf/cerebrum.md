@@ -1460,6 +1460,14 @@ nenhum** — sem essa declaração o Chrome renderiza a página em light mesmo c
 
 ## Do-Not-Repeat
 
+- [2026-08-30] **`npx openwolf scan` baixa uma versão DIFERENTE da instalada** (puxou 2.5.1
+  do registro, `openwolf --version` no PATH real é `2.0.1` via pnpm global em
+  `~/.local/share/pnpm/bin/openwolf`). A versão baixada excluiu `.claude/` inteiro e não achou
+  mais o `.wolf.bak-pre-lean/` (que já tinha sido apagado — isso era legítimo), mas o corte de
+  `.claude/` era só diferença de versão, não do repo: 365→238 arquivos no `anatomy.md`,
+  `git diff` gigante. Revertido (`git checkout -- .wolf/anatomy.md .wolf/anatomy-index.json`) e
+  rodado de novo com `openwolf scan` (sem `npx`) — voltou a 365, diff mínimo. **Nunca usar
+  `npx openwolf`; sempre `openwolf` puro** (deve estar no PATH) pra rescan.
 - [2026-08-29] **O Stop hook do `cerebrum.md` deu falso-positivo** ("30h sem atualizar, 23
   arquivos mudaram") no fim da sessão 92, que tinha acabado de editar `cerebrum.md` 3× (commits
   `10f6c82`, `bf10ea0`, `0f5a040`, todos do mesmo dia — `git log -- .wolf/cerebrum.md` confirma).

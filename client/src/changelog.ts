@@ -43,6 +43,27 @@ interface Mudanca {
 const MUDANCAS: readonly Mudanca[] = [
   {
     // sem `data`: este é o build atual (ver rotuloDoBloco)
+    titulo: "Levar pra escola sem instalar nada",
+    itens: [
+      "no Windows, o iniciar-servidor.bat agora baixa o Node.js sozinho e guarda numa pastinha dentro do próprio projeto — não precisa mais ter Node instalado no computador do laboratório",
+    ],
+  },
+  {
+    data: "28/08/2026",
+    titulo: "5 jeitos de segurar o tablet",
+    itens: [
+      "nas opções: destro (padrão), canhoto (espelhado), compacto, espalhado ou direcional (setas em vez de manche) — e os botões ajustam o tamanho sozinhos conforme a tela do aparelho",
+    ],
+  },
+  {
+    data: "27/08/2026",
+    titulo: "Comandos em português",
+    itens: [
+      "/claim virou /terreno, /resetpin virou /redefinirpin, /tpr virou /tpp e /kicar virou /expulsar — os poucos comandos que ainda tinham nome em inglês",
+    ],
+  },
+  {
+    data: "27/08/2026",
     titulo: "Silêncio, por favor",
     itens: [
       "/silenciar: o professor liga e desliga o chat da turma inteira com um comando — mensagens de colega somem da tela de todo mundo, comandos continuam passando normal",

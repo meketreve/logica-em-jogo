@@ -1,6 +1,6 @@
 # anatomy.md
 
-> Auto-maintained by OpenWolf. Last scanned: 2026-08-28T19:44:59.177Z
+> Auto-maintained by OpenWolf. Last scanned: 2026-08-30T15:52:20.004Z
 > Files: 365 tracked | Anatomy hits: 0 | Misses: 0
 
 ## ./
@@ -14,7 +14,7 @@
 - `package-lock.json` — npm lock file (~20120 tok)
 - `package.json` — Node.js package manifest (~487 tok)
 - `projeto.txt` (~4707 tok)
-- `README.md` — Project documentation (~2627 tok)
+- `README.md` — Project documentation (~2838 tok)
 - `todo.md` — Ideias para fazer (~24764 tok)
 - `tsconfig.base.json` (~130 tok)
 - `vitest.config.ts` — Config do vitest da RAIZ (2026-08-11, bug-612). (~335 tok)
@@ -274,9 +274,9 @@
 - `blocksUi.ts` — Blocos colocáveis com nome em português — fonte única pra hotbar (main.ts) (~3693 tok)
   - section `PlaceableEntry` L55-231 (~3080 tok)
   - fn `placeableFor` L232-236 (~56 tok)
-- `changelog.ts` — Tela "📜 novidades" do menu principal — registro do que já foi feito no (~4320 tok)
-  - section `Mudanca` L36-322 (~3348 tok)
-  - fn `buildChangelogScreen` L323-366 (~426 tok)
+- `changelog.ts` — Tela "📜 novidades" do menu principal — registro do que já foi feito no (~4556 tok)
+  - section `Mudanca` L36-343 (~3583 tok)
+  - fn `buildChangelogScreen` L344-387 (~426 tok)
 - `chat.ts` — UI de chat em HTML/CSS por cima do canvas (regra: sem GUI de engine). (~3564 tok)
   - fn `acompanharTecladoVirtual` L102-114 (~138 tok)
   - class `ChatUi` L115-336 (~2335 tok)

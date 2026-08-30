@@ -2885,3 +2885,23 @@ fraude.
 | 16:46 | Session end: 23 writes across 7 files (todo.md, touch.ts, settings.ts, main.ts, menu.ts) | 15 reads | ~102219 tok |
 | 22:46 | Session end: STATUS.md sobrescrito p/ sessao 92 (handoff unico), pronto pro /clear | .wolf/STATUS.md, .wolf/memory.md | ok | ~0 |
 | 22:49 | Do-Not-Repeat: hook Stop de cerebrum.md deu falso-positivo (ja editado 3x na sessao) | .wolf/cerebrum.md | ok | ~0 |
+
+## Session: 2026-08-30 23:17
+
+| Time | Action | File(s) | Outcome | ~Tokens |
+|------|--------|---------|---------|--------|
+
+## Session: 2026-08-30 02:59
+
+| Time | Action | File(s) | Outcome | ~Tokens |
+|------|--------|---------|---------|--------|
+| 12:44 | Edited README.md | 3→3 lines | ~86 |
+| 12:44 | Edited README.md | expanded (+9 lines) | ~193 |
+| 12:44 | Edited README.md | 3→7 lines | ~132 |
+| 12:44 | README.md: doc Node portátil (.bat sem Node instalado) + 5 layouts toque | README.md | ok | ~1.2k |
+| 12:44 | Session end: 3 writes across 1 files (README.md) | 1 reads | ~3068 tok |
+| 12:51 | Edited client/src/changelog.ts | expanded (+21 lines) | ~340 |
+| 12:54 | changelog.ts: 3 blocos novos (layouts toque, Node portatil, comandos PT) + data fixa em "Silencio" | client/src/changelog.ts | ok — verify verde | ~450 |
+| 12:54 | openwolf scan (correto, sem npx): 365 arquivos, anatomy.md+anatomy-index.json | .wolf/anatomy.md, .wolf/anatomy-index.json | ok apos reverter scan errado do npx | ~200 |
+| 12:54 | cerebrum.md: Do-Not-Repeat sobre npx openwolf != openwolf do PATH | .wolf/cerebrum.md | ok | ~250 |
+| 12:54 | STATUS.md: handoff sessao 93 sobrescrito | .wolf/STATUS.md | ok | ~300 |

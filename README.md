@@ -25,7 +25,7 @@ curricular.
 | | |
 |-|-|
 | **Um notebook** | é ele que hospeda a aula (pode ser o do professor) |
-| **[Node.js](https://nodejs.org) 20 ou mais novo** | só na máquina que hospeda |
+| **[Node.js](https://nodejs.org) 20 ou mais novo** | só se o host for **Linux/macOS/WSL**; no **Windows** o launcher baixa o Node sozinho (veja [Rodar](#rodar)) |
 | **Rede local** | o roteador do laboratório basta — **internet não é necessária** |
 | **Navegador nos dispositivos dos alunos** | tablets e notebooks entram por um endereço |
 | **Git — *não* precisa** | o launcher se atualiza sozinho sem ele (veja [Atualizar](#atualizar)) |
@@ -50,6 +50,15 @@ O launcher pergunta o que precisa (qual mundo, código de professor, tamanho) e 
 servidor. Na primeira execução ele instala as dependências — isso demora alguns minutos.
 Para parar: feche a janela ou `Ctrl+C`.
 
+> **Windows:** `iniciar-servidor.bat` **não depende de Node já instalado**. Ele baixa um
+> Node.js portátil (`nodejs.org`) e extrai em `.node-portatil\` dentro da própria pasta do
+> projeto, sem instalar nada no Windows nem pedir admin — resolve o caso comum da escola,
+> onde o laboratório não tem Node e não dá para instalar. Usa sempre esse Node baixado (nunca
+> um Node do sistema), para toda máquina rodar a mesma versão. Precisa só de rede até o
+> `nodejs.org` na primeira vez — não precisa de git.
+
+
+
 ### Como o aluno entra
 
 O endereço aparece no console quando o servidor sobe, mais ou menos assim:
@@ -65,6 +74,10 @@ senha de serviço nenhum.
 O **professor** entra com o **código de professor** (o launcher pergunta; se você não
 definir, o servidor gera um e imprime no console em todo boot). O código libera o painel de
 autoria, os comandos de chat, os grupos e a moderação da turma.
+
+Em tablet/celular, o menu de opções tem **5 disposições de controle de toque** — Destro
+(padrão), Canhoto (espelhado), Compacto, Espalhado e Direcional (D-pad de 4 botões em vez de
+joystick) — e a escala dos botões se ajusta sozinha ao tamanho da tela.
 
 ### Atualizar
 
