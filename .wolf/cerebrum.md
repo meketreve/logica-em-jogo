@@ -1460,6 +1460,12 @@ nenhum** — sem essa declaração o Chrome renderiza a página em light mesmo c
 
 ## Do-Not-Repeat
 
+- [2026-08-29] **O Stop hook do `cerebrum.md` deu falso-positivo** ("30h sem atualizar, 23
+  arquivos mudaram") no fim da sessão 92, que tinha acabado de editar `cerebrum.md` 3× (commits
+  `10f6c82`, `bf10ea0`, `0f5a040`, todos do mesmo dia — `git log -- .wolf/cerebrum.md` confirma).
+  Mesma família do bug do Stop hook do buglog (2026-08-25): a checagem de frescor não está lendo
+  o estado real (git/mtime), só um contador próprio que não foi zerado. Não editar `cerebrum.md`
+  de novo só por causa do aviso — conferir primeiro com `git log -- .wolf/cerebrum.md`.
 - [2026-08-27] **`sed -i 's#/comando#/novo#g'` em lote pega falso positivo em import
   relativo e jargão com barra.** Na tradução `/claim` → `/terreno`, o mesmo sed que corrigia os
   textos de uso/erro também reescreveu `} from "./claims";` pra `"./terrenos"` (a substring

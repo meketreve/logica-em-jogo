@@ -2884,3 +2884,4 @@ fraude.
 | 16:46 | iniciar-servidor.bat: Node portatil vira o unico caminho (tirei o where node, sem fallback pro sistema) | iniciar-servidor.bat, todo.md, .wolf/cerebrum.md | ok — verify completo verde | ~0 |
 | 16:46 | Session end: 23 writes across 7 files (todo.md, touch.ts, settings.ts, main.ts, menu.ts) | 15 reads | ~102219 tok |
 | 22:46 | Session end: STATUS.md sobrescrito p/ sessao 92 (handoff unico), pronto pro /clear | .wolf/STATUS.md, .wolf/memory.md | ok | ~0 |
+| 22:49 | Do-Not-Repeat: hook Stop de cerebrum.md deu falso-positivo (ja editado 3x na sessao) | .wolf/cerebrum.md | ok | ~0 |
