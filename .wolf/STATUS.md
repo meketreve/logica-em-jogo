@@ -2,58 +2,62 @@
 
 > Single source of truth for resuming work. Read this FIRST when starting a session.
 
-> **Nota lateral (2026-08-27, fora da fila de código):** `relatorio/apresentacao-cre.html`
-> (deck de 20 slides pra CRE) foi revisado — mesclou os 2 slides de resultado/engajamento
-> que repetiam o mesmo achado, corrigiu números velhos (358→936 testes, 6→7 aulas — a
-> corrida entrou na tabela) e ganhou um slide novo (14): uso real **fora do piloto**, outra
-> professora (Geografia, 2º ano) usando cultivo/fabricação já existentes pra ensinar cadeia
-> produtiva do algodão e da madeira — prova de campo da tese "a pedagogia mora nos
-> cenários" do slide 5. Slide 13 (AEE) ganhou o relato do aluno que passou a digitar pra
-> buscar item no craft. Zero código tocado — não mexe na fila de quest abaixo.
+> ## 🧭 HANDOFF — SESSÃO 92 (2026-08-28 → 29) · layouts de toque, Node portátil, STATUS.md emagrece
 
-> ## 🧭 HANDOFF — SESSÃO 91 (2026-08-27) · comandos anglicismo viram português
-
-> **Bateria verde:** typecheck 3/3 · **936/936** · build · **16/16 smokes** (inclui o de
-> `/expulsar`) · `npm run cenarios` 7/7 byte-idênticos · `shots:tablet` verde (exercitou
-> `/terreno ligar` de verdade no navegador — proteção liga, botão "amigos" aparece).
+> **Bateria verde:** typecheck 3/3 · **936/936** · build · portão `checar-launchers` OK (a cada
+> commit desta sessão).
 
 > ⚠️ Confira o sha do topo com `rtk proxy git rev-parse --short origin/main`, nunca com um sha
-> escrito aqui. **3 commits, EMPURRADOS** (conferido por `ls-remote`, não só ref local):
-> `1b87f67` docs(relatorio): revisa o deck da CRE · `a76468d` refactor(comandos): traduz /claim,
-> /resetpin, /tpr e /kicar pro português · `b436a83` docs(wolf): registra a sessão 91. Árvore
-> limpa. (`origin/main` estava em `9dca2e5` no início da sessão.)
+> escrito aqui. **EMPURRADO** (conferido por `ls-remote`, não só ref local): `origin/main` foi de
+> `b436a83` pra **`0f5a040`** (2 pushes). Commits desta sessão: `1b6fa2b` docs(wolf): STATUS.md
+> vira handoff de turno · `10f6c82` feat(mobile): 5 presets de layout de controles + escala
+> automática · `bf10ea0` feat(launcher): Node.js portátil (fallback) · `0f5a040`
+> fix(launcher): Node portátil vira o único caminho. Árvore limpa.
 > ⚠️ Pós-push o hook `verify` reconstrói `client/dist`/`build-info.json` com o sha do commit que
 > acabou de subir (churn "off-by-one" já conhecido) — descartado com `git checkout -- client/
 > dist/ shared/src/build-info.json && git clean -fd client/dist/`, não commitado.
 
-> ### ✅ Entregue — tradução dos comandos de chat (item do `todo.md`, pedido de 2026-08-27)
-> Passada a régua em TODOS os comandos existentes (brainstorm com o usuário definiu o mapa
-> antes de codar). Maioria já era português e ficou igual; só 4 eram anglicismo:
-> `/claim`→**`/terreno`** · `/resetpin`→**`/redefinirpin`** · `/tpr`→**`/tpp`** (`/tpa` ficou,
-> já lê como "teleporte aceitar") · `/kicar`→**`/expulsar`**. **Corte na hora, sem alias** —
-> decisão do usuário: nome velho vira "comando desconhecido".
-> - Tocado: `shared/src/session.ts` (switch + lista de comandos + dicas), `session/equipes.ts` +
->   `session/tp.ts` (textos de uso/erro), `client/src/commands.ts` (autocomplete +
->   painel do dedo, mesma árvore), `players.ts` (botão expulsar), `server/src/index.ts`
->   (`/expulsar` é comando de HOST, fora do `session.ts`), testes que MANDAM o comando de
->   verdade (`claims.test.ts`, `gate-claim.test.ts`, `session.test.ts`, `tp.test.ts`),
->   `scripts/tablet-shots.mjs` e `_smoke-kicar.mjs`.
-> - **Decisão de escopo (técnica, não estética):** nomes internos ficaram — `claims.ts`, tipo
->   `Claim`, campo `ses.claims`/`claimsAtivo`. `claims` é chave **persistida no `.ljw`**;
->   trocar quebraria save antigo sem migração, e ninguém pediu isso. Comentário-jargão
->   ("rocha-matriz/claim") também ficou — não é referência a comando.
-> - **Registro histórico intocado de propósito:** `.wolf/STATUS.md` (sessões antigas),
->   `cerebrum.md` (Decision Log) e `client/src/changelog.ts` citam os nomes VELHOS porque
->   descrevem o que aconteceu QUANDO o comando ainda se chamava assim — reescrever apagaria
->   o registro do que de fato houve.
-> - `todo.md` fechado com o mapa completo e a lista do que mudou/não mudou.
+> ### ✅ Entregue — STATUS.md emagrece (~4000 linhas/295 KB → handoff único de sessão)
+> Virou log cumulativo sem fim: cada sessão empilhava seu bloco `HANDOFF` e nada saía. Tentei
+> archive (`.wolf/STATUS-archive.md`) primeiro; o usuário cortou: HANDOFF é troca de turno, não
+> log — histórico completo já mora no `git log`/`cerebrum.md`. Regra nova em `OPENWOLF.md`:
+> **sobrescrever o HANDOFF a cada sessão, nunca anexar.**
+
+> ### ✅ Entregue — 5 layouts de controle de toque (item do `todo.md`, pedido de 2026-08-28)
+> Aba controles do menu: destro (padrão) · canhoto (espelhado) · compacto · espalhado ·
+> **direcional** (pedido extra: sem joystick, D-pad de 4 botões cardeais ↑↓←→, sem diagonal).
+> `settings.touchLayout` + atributo `data-layout` no `#touch-ui`, `touch.ts` monta os elementos
+> UMA VEZ, layout só troca âncora/visibilidade via CSS.
+> - **Junto (pedido do usuário):** âncoras de px fixo → `vw`/`vh` (canto relativo à tela) + fator
+>   de escala automático pela RESOLUÇÃO real (`vmin(tela)/600 × slider manual`, 600 = vmin do
+>   tablet-régua — zero regressão no que já era calibrado nesse aparelho).
+> - **Bug pego só na verificação por DOM** (não no typecheck/build): `applySettings()` roda ANTES
+>   de `touchControls` existir — `setLayout`/`setScale` precisam de uma 2ª chamada direta dentro
+>   do `startGame`, igual o `setScale` já fazia. Registrado no `cerebrum.md`.
+> - Verificado com sonda CDP descartável (`?bench&touch`, 1024×600 coarse) medindo
+>   `getBoundingClientRect` real dos 5 presets — não só visual.
+
+> ### ✅ Entregue — Node.js portátil no `iniciar-servidor.bat` (pedido do usuário, 2026-08-28)
+> Baixa `node-v24.20.0-win-x64.zip` de `nodejs.org` (`curl`+`tar`, mesmas ferramentas já
+> provadas no update por ZIP), extrai em `.node-portatil\` (gitignorado), prepende no `PATH` só
+> da janela do script. **Revisado no mesmo dia: SEMPRE usa o portátil**, sem checar `where node`
+> primeiro — decisão do usuário, versão única e previsível em toda escola. Sem checagem de
+> hash/sha256 (o update por ZIP também não verifica; o hash que tentei recuperar via ferramenta
+> de resumo não era confiável o bastante pra travar o launcher de todo mundo). Só o `.bat` — `.sh`
+> de casa/WSL já supõe Node instalado, e `checar-launchers.mjs` não exige simetria nisso.
+> Rede da escola confirmada pelo usuário: `git` falha por credencial, `nodejs.org` abre.
+> **⚠️ TESTE REAL NA ESCOLA PENDENTE** — é pra isso que este launcher existe, não marcar como
+> provado sem isso.
 
 > ### 🚀 PRÓXIMA QUEST
-> Nada em aberto da tradução. A fila do `todo.md` manda: **ovelha + lã de verdade** (§🍖 F8 —
-> mob, tosa, lã como recurso, destrava cama/noite) · sentar na cadeira · layouts diferentes
-> pros controles do mobile · trocar modelo do player pra estilo Minecraft · Ferramentas v2
-> (durabilidade + slot selecionado + tempo de quebra — decidir `dano?` no Stack ANTES de codar).
-> Se o usuário não escolher, comece pela ovelha — é a que destrava mais coisa.
+> **Prioridade imediata (fora do código):** testar o `iniciar-servidor.bat` num PC real da
+> escola — baixa/extrai o Node, sobe o servidor sem instalar nada à mão. É o motivo do launcher
+> novo existir.
+>
+> Fila do `todo.md` (6 itens abertos): **ovelha + lã de verdade** (§🍖 F8 — mob, tosa, lã como
+> recurso, destrava cama/noite, a que destrava mais coisa) · sentar na cadeira · trocar modelo do
+> player pra estilo Minecraft · Ferramentas v2 (durabilidade + slot selecionado + tempo de
+> quebra — decidir `dano?` no Stack ANTES de codar).
 >
 > **Herdado, não urgente:** `mundo-livre.ljw.corrompido-1785704408442` em `mundos/mundo-livre/`
 > — sobra de um boot que achou o save inválido e o renomeou; ninguém investigou por quê.
