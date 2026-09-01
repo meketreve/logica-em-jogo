@@ -1175,10 +1175,19 @@ export class GameSession {
         // §🍖 F10: container (fornalha, baú) — o clique direito ABRE, não
         // alterna. O gate de claim/confinamento vem ANTES de responder o
         // conteúdo (§🍖 F10f): ler o baú alheio é pior que mexer nele.
-        if (containerTipoDe(id) !== null) {
+        const tipoContainer = containerTipoDe(id);
+        if (tipoContainer !== null) {
+          // Loja (2026-09-01): ler é o PONTO da feature — qualquer um abre
+          // pra COMPRAR. Só quem MEXE (mover/descartar/definir preço)
+          // continua travado, e é pelo `criador`, não pelo claim — ver
+          // `mover_container`/`descartar_container` abaixo e `session/loja.ts`.
+          // Confinamento de aula continua valendo pros dois: é regra física,
+          // não de dono do terreno.
           const bloqueio =
-            claimBloqueia(this, clientId, msg.x, msg.y, msg.z) ??
-            confinaBloqueia(this, clientId, msg.x, msg.y, msg.z);
+            tipoContainer === "loja"
+              ? confinaBloqueia(this, clientId, msg.x, msg.y, msg.z)
+              : (claimBloqueia(this, clientId, msg.x, msg.y, msg.z) ??
+                 confinaBloqueia(this, clientId, msg.x, msg.y, msg.z));
           if (bloqueio) {
             this.sendServerChat(clientId, bloqueio);
             return;
@@ -1450,6 +1459,10 @@ export class GameSession {
         const atual = getBlock(this.world, msg.x, msg.y, msg.z);
         const cont = containerDe(this, msg.x, msg.y, msg.z, atual);
         if (!cont) return;
+        // Loja: comprador abre pra LER (use_block já deixou), mas mexer no
+        // estoque continua sendo só o criador — senão o gate acima virou
+        // "qualquer um esvazia a loja de qualquer um".
+        if (cont.tipo === "loja" && cont.criador !== p.name) return;
         // slot de combustível só queima o que queima (pedido do playtest): o
         // mover recusa e a criança ouve o motivo — senão o item ficava preso
         // num slot que não cozinha nem queima, e ela não tinha como saber por quê.
@@ -1506,6 +1519,10 @@ export class GameSession {
         const atual = getBlock(this.world, msg.x, msg.y, msg.z);
         const cont = containerDe(this, msg.x, msg.y, msg.z, atual);
         if (!cont) return;
+        // Loja: comprador abre pra LER (use_block já deixou), mas mexer no
+        // estoque continua sendo só o criador — senão o gate acima virou
+        // "qualquer um esvazia a loja de qualquer um".
+        if (cont.tipo === "loja" && cont.criador !== p.name) return;
         const r = descartarEm(inventarioDe(this, p.name), cont, msg.slot, msg.qtd);
         if (!r) return; // índice inválido ou slot vazio
         this.inventarios.set(p.name, r.mochila);

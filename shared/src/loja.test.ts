@@ -85,3 +85,43 @@ describe("colocar o Baú-Loja grava o criador na hora", () => {
     expect(msg).toMatchObject({ type: "container", tipo: "loja" });
   });
 });
+
+describe("o gate — ler é o ponto da feature, mexer continua do criador", () => {
+  function turmaComLoja() {
+    const { sent, send } = collect();
+    const session = new GameSession(send, { dims: { x: 6, z: 6, y: 4 }, seed: 1, codigo: "sala" });
+    session.handleMessage(1, join("prof", "0000", "sala"));
+    const p = session.players.get(1)!;
+    const x = Math.floor(p.x);
+    const y = Math.floor(p.y);
+    const z = Math.floor(p.z) + 1;
+    session.handleMessage(1, JSON.stringify({ type: "place_block", x, y, z, blockId: BlockId.BauLoja }));
+    session.handleMessage(2, join("ana", "1111")); // aluna de FORA do terreno do prof
+    return { session, sent, x, y, z };
+  }
+
+  it("quem NÃO é do terreno abre pra COMPRAR mesmo assim (claimBloqueia não entra)", () => {
+    const { session, sent, x, y, z } = turmaComLoja();
+    sent.length = 0;
+    session.handleMessage(2, JSON.stringify({ type: "use_block", x, y, z }));
+    const msg = sent.find((s) => parseServerMessage(s.data as string)?.type === "container");
+    expect(msg).toBeDefined();
+  });
+
+  it("quem NÃO é o criador não move nem descarta estoque (silencioso, como todo gate)", () => {
+    const { session, x, y, z } = turmaComLoja();
+    session.handleMessage(1, JSON.stringify({
+      type: "place_block", x: x - 1, y, z, blockId: BlockId.MinerioFerro,
+    })); // ana precisa ter algo na mochila pra tentar mover
+    session.handleMessage(2, JSON.stringify({ type: "use_block", x, y, z }));
+    const antes = session.containers.get(`${x},${y},${z}`);
+    session.handleMessage(2, JSON.stringify({
+      type: "mover_container", x, y, z, de: 0, para: 27,
+    }));
+    session.handleMessage(2, JSON.stringify({
+      type: "descartar_container", x, y, z, slot: 27,
+    }));
+    const depois = session.containers.get(`${x},${y},${z}`);
+    expect(depois).toEqual(antes);
+  });
+});
