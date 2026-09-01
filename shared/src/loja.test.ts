@@ -336,3 +336,60 @@ function chatPara(sent: Sent, clientId: number): string {
   }
   return "";
 }
+
+describe("comprar — pagamento em DIMAS", () => {
+  function lojaComPrecoDimas() {
+    const { sent, send } = collect();
+    const session = new GameSession(send, { dims: { x: 6, z: 6, y: 4 }, seed: 1, codigo: "sala" });
+    session.handleMessage(1, join("prof", "0000", "sala"));
+    const p = session.players.get(1)!;
+    const x = Math.floor(p.x);
+    const y = Math.floor(p.y);
+    const z = Math.floor(p.z) + 1;
+    session.handleMessage(1, JSON.stringify({ type: "place_block", x, y, z, blockId: BlockId.BauLoja }));
+    session.handleMessage(2, join("ana", "1111"));
+    // comprar (e mover_container pra estocar) exige inventário AUTORITATIVO —
+    // só existe em sobrevivência (inventarioVale). Mundo nasce em criativo.
+    session.handleMessage(1, cmd("/modo sobrevivencia all"));
+    session.handleMessage(1, cmd("/modo sobrevivencia eu")); // `all` poupa quem digitou (§🍖 F1)
+    session.handleMessage(1, JSON.stringify({ type: "use_block", x, y, z }));
+    const inv = session.inventarios.get("prof") ?? new Array(27).fill(null);
+    const novo = inv.slice();
+    novo[0] = { id: BlockId.Planks, qtd: 10 };
+    session.inventarios.set("prof", novo as never);
+    session.handleMessage(1, JSON.stringify({ type: "mover_container", x, y, z, de: 0, para: 27 }));
+    session.handleMessage(1, JSON.stringify({
+      type: "definir_preco", x, y, z, item: BlockId.Planks, preco: { tipo: "dimas", qtd: 4 },
+    }));
+    session.handleMessage(2, JSON.stringify({ type: "use_block", x, y, z }));
+    return { session, sent, x, y, z };
+  }
+
+  it("compra em Dimas: debita o comprador, credita o criador, sem ocupar slot nenhum", () => {
+    const { session, x, y, z } = lojaComPrecoDimas();
+    expect(session.dimas.get("ana")).toBe(50); // DIMAS_INICIAL_PADRAO
+    expect(session.dimas.get("prof")).toBe(50);
+    session.handleMessage(2, JSON.stringify({ type: "comprar", x, y, z, item: BlockId.Planks, qtd: 5 }));
+    expect(session.dimas.get("ana")).toBe(50 - 5 * 4);
+    expect(session.dimas.get("prof")).toBe(50 + 5 * 4);
+    const cont = session.containers.get(`${x},${y},${z}`)!;
+    // pagamento em Dimas NUNCA aparece nos slots — só o estoque caiu
+    expect(cont.slots.reduce((s, sl) => s + (sl?.id === BlockId.Planks ? sl.qtd : 0), 0)).toBe(5);
+  });
+
+  it("recusa: saldo de Dimas insuficiente", () => {
+    const { session, sent, x, y, z } = lojaComPrecoDimas();
+    session.dimas.set("ana", 3); // preço é 4/unidade
+    sent.length = 0;
+    session.handleMessage(2, JSON.stringify({ type: "comprar", x, y, z, item: BlockId.Planks, qtd: 1 }));
+    expect(chatPara(sent, 2)).toContain("Dimas");
+    expect(session.dimas.get("prof")).toBe(50); // nada mudou de nenhum dos dois
+  });
+
+  it("o criador OFFLINE recebe o crédito mesmo assim", () => {
+    const { session, x, y, z } = lojaComPrecoDimas();
+    session.handleDisconnect(1); // prof (o criador) sai
+    session.handleMessage(2, JSON.stringify({ type: "comprar", x, y, z, item: BlockId.Planks, qtd: 2 }));
+    expect(session.dimas.get("prof")).toBe(50 + 2 * 4); // creditado por NOME, não por socket
+  });
+});
