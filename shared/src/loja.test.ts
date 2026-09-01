@@ -1,7 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { BlockId } from "./blocks";
+import { BlockId, MAX_BLOCK_ID } from "./blocks";
+import { CONTAINER_SLOTS } from "./containers";
 import { parseServerMessage } from "./protocol";
 import { GameSession } from "./session";
+import { getBlock } from "./world";
 
 type Sent = { clientId: number; data: string | ArrayBuffer }[];
 function collect(): { sent: Sent; send: (c: number, d: string | ArrayBuffer) => void } {
@@ -105,6 +107,64 @@ describe("colocar o Baú-Loja grava o criador na hora", () => {
     const msg = sent.find((s) => parseServerMessage(s.data as string)?.type === "container");
     const parsed = msg && parseServerMessage(msg.data as string);
     expect(parsed).toMatchObject({ loja: { criador: "prof", souOCriador: false } });
+  });
+});
+
+describe("C1 (2026-09-01): quebrar a loja — só ESTOQUE trava, não criador/preço", () => {
+  it("loja VAZIA (com criador, sem estoque) o próprio criador QUEBRA normalmente", () => {
+    const { send } = collect();
+    const session = new GameSession(send, { dims: { x: 4, z: 4, y: 4 }, seed: 1, codigo: "sala", flat: true });
+    session.handleMessage(1, join("prof", "0000", "sala"));
+    const p = session.players.get(1)!;
+    const x = Math.floor(p.x);
+    const y = Math.floor(p.y);
+    const z = Math.floor(p.z) + 1;
+    session.handleMessage(1, JSON.stringify({ type: "place_block", x, y, z, blockId: BlockId.BauLoja }));
+    // a loja nasceu com criador="prof" (Task 6) e SEM estoque nenhum — antes
+    // do fix, containerTemConteudo (que conta criador) travava a quebra aqui
+    session.handleMessage(1, JSON.stringify({ type: "break_block", x, y, z }));
+    expect(getBlock(session.world, x, y, z)).toBe(BlockId.Air);
+  });
+
+  it("loja com PREÇO definido mas ainda sem estoque também quebra", () => {
+    const { sent, send } = collect();
+    const session = new GameSession(send, { dims: { x: 4, z: 4, y: 4 }, seed: 1, codigo: "sala", flat: true });
+    session.handleMessage(1, join("prof", "0000", "sala"));
+    const p = session.players.get(1)!;
+    const x = Math.floor(p.x);
+    const y = Math.floor(p.y);
+    const z = Math.floor(p.z) + 1;
+    session.handleMessage(1, JSON.stringify({ type: "place_block", x, y, z, blockId: BlockId.BauLoja }));
+    session.handleMessage(1, JSON.stringify({ type: "use_block", x, y, z }));
+    session.handleMessage(1, JSON.stringify({
+      type: "definir_preco", x, y, z, item: BlockId.Planks, preco: { tipo: "dimas", qtd: 3 },
+    }));
+    sent.length = 0;
+    session.handleMessage(1, JSON.stringify({ type: "break_block", x, y, z }));
+    expect(getBlock(session.world, x, y, z)).toBe(BlockId.Air);
+  });
+
+  it("loja com ESTOQUE de verdade continua recusando quebra (mesmo aviso do baú)", () => {
+    const { sent, send } = collect();
+    const session = new GameSession(send, { dims: { x: 4, z: 4, y: 4 }, seed: 1, codigo: "sala", flat: true });
+    session.handleMessage(1, join("prof", "0000", "sala"));
+    const p = session.players.get(1)!;
+    const x = Math.floor(p.x);
+    const y = Math.floor(p.y);
+    const z = Math.floor(p.z) + 1;
+    // coloca o bloco AINDA em criativo (paleta infinita) — só troca pra
+    // sobrevivência DEPOIS, senão o place_block falharia por falta do item
+    // na mochila (mesma armadilha documentada nas tasks 7/9/10/14)
+    session.handleMessage(1, JSON.stringify({ type: "place_block", x, y, z, blockId: BlockId.BauLoja }));
+    session.handleMessage(1, cmd("/modo sobrevivencia all"));
+    session.handleMessage(1, cmd("/modo sobrevivencia eu"));
+    session.handleMessage(1, cmd(`/dar prof ${BlockId.MinerioFerro} 5`));
+    session.handleMessage(1, JSON.stringify({ type: "use_block", x, y, z }));
+    session.handleMessage(1, JSON.stringify({ type: "mover_container", x, y, z, de: 0, para: 27 }));
+    sent.length = 0;
+    session.handleMessage(1, JSON.stringify({ type: "break_block", x, y, z }));
+    expect(getBlock(session.world, x, y, z)).toBe(BlockId.BauLoja); // NÃO quebrou
+    expect(chatPara(sent, 1)).toContain("Tem coisa aí dentro");
   });
 });
 

@@ -106,19 +106,32 @@ export function containerVazio(tipo: ContainerTipo): Container {
   };
 }
 
-/** Tem alguma coisa dentro? É a pergunta que decide se o baú pode ser quebrado
- *  (§🍖 F10e: **baú com item NÃO quebra**) — e a que o save usa pra não gravar
- *  container vazio nenhum. Fogo aceso conta como conteúdo: a fornalha está
- *  trabalhando. */
+/** Tem alguma coisa dentro (estoque, fogo aceso, OU — só a loja — um criador
+ *  ou preço registrado)? É a pergunta que decide se o SAVE persiste o
+ *  container: uma loja com dono/preço mas estoque zerado AINDA precisa
+ *  gravar, senão vender tudo apaga o criador e a loja "esquece" quem é o
+ *  dono. **Não é** a pergunta de "pode quebrar" — ver `containerTemEstoque`
+ *  logo abaixo, que é a resposta certa pra isso (C1, 2026-09-01: usar esta
+ *  função pro gate de quebra deixava TODA loja, mesmo vazia, impossível de
+ *  quebrar mesmo pelo próprio criador). */
 export function containerTemConteudo(c: Container): boolean {
   return (
     c.slots.some((s) => s !== null) ||
     c.queimando > 0 ||
-    // loja com dono/preço mas estoque zerado AINDA precisa persistir — senão
-    // vender tudo apaga o criador e a loja "esquece" quem é o dono
     c.criador !== "" ||
     c.precos.size > 0
   );
+}
+
+/** Tem ESTOQUE de verdade — slot ocupado ou fogo aceso? É a pergunta que
+ *  decide se o bloco PODE SER QUEBRADO (§🍖 F10e: baú com item NÃO quebra,
+ *  estendido à fornalha e à loja pela mesma regra). Ao contrário de
+ *  `containerTemConteudo`, NÃO olha `criador`/`precos` — uma loja vazia
+ *  (mesmo com criador e preços definidos) quebra normalmente, exatamente como
+ *  o spec pede ("quebrar o bloco quebra a loja, junto com o estoque dentro,
+ *  igual qualquer container hoje"). */
+export function containerTemEstoque(c: Container): boolean {
+  return c.slots.some((s) => s !== null) || c.queimando > 0;
 }
 
 /** Chave canônica do mapa por posição (a mesma forma do `quadroKey`). */

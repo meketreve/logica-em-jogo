@@ -46,7 +46,7 @@ import {
   type Preco,
   containerDeSave,
   containerKey,
-  containerTemConteudo,
+  containerTemEstoque,
   containerTipoDe,
   containerVazio,
   descartarEm,
@@ -1323,7 +1323,7 @@ export class GameSession {
         // criativo: o professor que quebra um baú cheio também não quer isso.
         {
           const cont = containerDe(this, msg.x, msg.y, msg.z, current);
-          if (cont && containerTemConteudo(cont)) {
+          if (cont && containerTemEstoque(cont)) {
             avisarContainerCheio(this, clientId);
             return;
           }
