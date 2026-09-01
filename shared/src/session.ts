@@ -1844,7 +1844,27 @@ export class GameSession {
     // Loja (2026-09-01): seeda só na 1ª entrada — `dimas.has` é o mesmo teste
     // que `roster.get` faz pra "returning", só que num mapa PRÓPRIO (não dá
     // pra reusar `roster`: ele guarda posição, não saldo).
-    if (!this.dimas.has(name)) this.dimas.set(name, this.dimasInicial);
+    if (!this.dimas.has(name)) {
+      this.dimas.set(name, this.dimasInicial);
+      // I1 (2026-09-01): sem conta vinculada, qualquer nome novo com PIN
+      // válido ganha saldo de graça (`admitir` nunca recusa nome inédito) —
+      // um rework de autenticação é escopo grande demais pra este fix; a
+      // mitigação é deixar o professor VER a cada saldo novo cunhado, no
+      // mesmo padrão de "avisa TODOS os professores online" que
+      // `broadcastRegions` já usa (alunos não recebem). `id !== clientId`:
+      // não avisa o PRÓPRIO professor sobre o próprio join (singleplayer e
+      // multiplayer sempre fazem o 1º join de alguém virar professor sozinho
+      // na sala — narrar "você recebeu Dimas" pra si mesmo não ajuda a pegar
+      // nome falso de aluno, só polui o "Bem-vindo").
+      for (const [id, pl] of this.players) {
+        if (id !== clientId && pl.papel === "professor") {
+          this.sendServerChat(
+            id,
+            `${name} entrou pela primeira vez e recebeu ${this.dimasInicial} Dimas.`,
+          );
+        }
+      }
+    }
     sendDimas(this, clientId);
     if (modoDe(this, name) === "sobrevivencia") {
       sendVida(this, clientId);

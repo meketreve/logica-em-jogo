@@ -68,6 +68,24 @@ describe("Dimas (2026-09-01) — saldo por jogador", () => {
     s2.handleMessage(1, join("ana", "1111", "sala"));
     expect(ultimoDimas(sent2, 1)).toBe(12); // NÃO volta a seedar — já tinha saldo
   });
+
+  it("I1 (2026-09-01): professor é avisado quando um nome NOVO ganha saldo; aluno não vê o aviso", () => {
+    const { sent, send } = collect();
+    const session = new GameSession(send, { dims: { x: 2, z: 2, y: 2 }, seed: 1, codigo: "sala" });
+    session.handleMessage(1, join("prof", "0000", "sala")); // professor (codigo bate com o da sessão)
+    sent.length = 0;
+    session.handleMessage(2, join("ana", "1111")); // aluna, 1ª vez — sem conta vinculada, ganha saldo de graça
+    const avisoProf = chatPara(sent, 1);
+    expect(avisoProf).toContain("ana");
+    expect(avisoProf).toContain("50"); // DIMAS_INICIAL_PADRAO
+    // um SEGUNDO aluno (não-professor) não recebe o aviso de ninguém
+    session.handleMessage(3, join("bia", "2222"));
+    const chatsDaAna = sent
+      .filter((s) => s.clientId === 2)
+      .map((s) => parseServerMessage(s.data as string))
+      .filter((m) => m?.type === "chat");
+    expect(chatsDaAna.some((m) => (m as { text: string }).text.includes("bia"))).toBe(false);
+  });
 });
 
 describe("colocar o Baú-Loja grava o criador na hora", () => {
