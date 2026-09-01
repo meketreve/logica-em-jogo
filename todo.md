@@ -1149,6 +1149,30 @@ não tem filesystem; export de "pasta" no single fica de fora (não faz sentido 
   nome do aluno não é mais coletado (filename `perf-<timestamp>-<sufixo>.json`). profiles-escola/
   removido do tracking + gitignored; resumo agregado anônimo em `registros/perfilador-v0.8.0-escola.md`.
 
+## Loja (Baú-Loja, sessão 94, 2026-09-01)
+
+* \[x] **Baú-Loja implementado de ponta a ponta** — **FEITO** (14 tarefas, subagent-driven +
+  revisão final de branch inteira). Bloco craftável, terreno próprio, criador gerencia estoque
+  e preço, qualquer um compra (item-por-item ou Dimas — saldo numérico, moeda ainda em
+  votação com a turma, `docs/loja-perguntas-alunos.md`). Spec: `docs/superpowers/specs/
+  2026-08-31-loja-baus-design.md`. `npm run verify` limpo, 973/973.
+* \[ ] **Papel-cortante achado na revisão final, não bloqueou o merge:** escolher a moeda de
+  pagamento ANTES de digitar a quantidade no editor de preço descarta a escolha em silêncio
+  (`client/src/container.ts` — `enviar()` do seletor roda com `qtd` ainda vazia = 0 = manda
+  `null`; digitar a quantidade PRIMEIRO funciona certo). Corrigir quando alguém mexer nesse
+  arquivo de novo, ou antes do primeiro uso real em aula.
+* \[ ] **Aviso de Dimas nova ao professor fica barulhento em troca de turma.** `adotar` (troca
+  de mundo) pode reemitir "entrou pela primeira vez e recebeu N Dimas" pra cada aluno se o
+  mundo novo não tiver saldo salvo pra eles — 30 avisos numa troca de turma cheia. Verdadeiro,
+  só barulhento; considerar juntar num aviso só se incomodar na prática.
+* \[ ] **Save aceita preço fora dos limites se editado à mão.** O teto novo (`MAX_BLOCK_ID`,
+  27 preços por loja) só vale no caminho `definir_preco`; um `.ljw` editado à mão ainda carrega
+  id ou quantidade de preço fora da faixa pro `parsePrecoEntry` do save. Baixo risco (precisa
+  editar o arquivo à mão), mas o mesmo teto devia valer nos dois lados.
+* \[ ] **Quando a turma votar a moeda** (`docs/loja-perguntas-alunos.md`): se escolherem Dimas,
+  decidir a mitigação de "criar nome novo = Dimas de graça" além do aviso ao professor que já
+  existe (`shared/src/session.ts`, `admitir` — hoje só AVISA, não impede).
+
 ## Playtest na escola
 
 * \[x] **playtest na escola** (2026-08-07): sessão ao vivo na escola — **FEITO** no registro:
@@ -1178,3 +1202,10 @@ não tem filesystem; export de "pasta" no single fica de fora (não faz sentido 
   da célula da cama — reclicar a cama não acorda (`tentarDormir` recusa se já está deitado).
   Pedido do usuário: apertar o botão de PULAR, deitado, levanta. Precisa investigar o client
   primeiro (input de pulo enquanto deitado) antes de desenhar o caminho de rede.
+* \[ ] **bug-652 (2026-09-01, ABERTO) — pular e colocar bloco embaixo de si teleporta pro
+  lado.** Hipótese lida no código (`session.ts:946-966`, `case "move"`): todo `move` confere
+  `sobrepoeSolidos` na posição nova e, se der sólido, chama `acharEspacoVago` (o resgate de
+  soterramento do bug-605) — que teleporta pro vão livre mais próximo em vez de deixar a
+  colisão normal (pousar EM CIMA do bloco) resolver. Sequência provável: pula (célula dos pés
+  esvazia) → coloca bloco ali (`overlapsAnyPlayer` passa, já subiu) → ao cair, o `move`
+  aponta pra dentro do bloco novo → dispara o resgate. Sem repro ainda, só leitura.

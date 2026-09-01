@@ -2,58 +2,57 @@
 
 > Single source of truth for resuming work. Read this FIRST when starting a session.
 
-> ## 🧭 HANDOFF — SESSÃO 94 (2026-08-31) · bug-650: atraso de comandos com turma cheia (FIX)
+> ## 🧭 HANDOFF — SESSÃO 94 (2026-09-01) · Baú-Loja completo (14 tarefas + revisão final)
 
-> **Bateria verde:** typecheck 3/3 · **936/936** · build · `checar-launchers` OK · **carga real
-> retestada pós-fix** (não só unit test — ver abaixo).
-> ⚠️ Ainda **NÃO commitado nem empurrado** — isto empilha em cima do que a sessão 93 já tinha
-> deixado pendente (README.md, changelog.ts). Confira `rtk proxy git rev-parse --short
-> origin/main` antes de assumir que subiu (era `4325d07` no início desta sessão).
+> **Bateria verde:** typecheck 3/3 · **973/973** · build · `checar-launchers` OK. bug-650 (fix
+> anterior desta mesma sessão) e a loja inteira estão COMMITADOS na main. ⚠️ Ainda **não
+> empurrado** (push só a pedido) — confira `git rev-parse --short origin/main` antes de assumir
+> que subiu.
 
-> ### ✅ Provado — `iniciar-servidor.bat` (Node portátil) funcionou numa escola REAL
-> Pendência da sessão 93 fechada: usuário confirmou que rodou numa máquina real do lab e subiu
-> sem precisar instalar nada. Sem ação de código.
+> ### ✅ bug-650 fechado — atraso de comandos com turma cheia
+> Ver commits `bb56749`/`fix(rede)`. Retestado com carga real: 35 clientes 2555ms→12.9ms.
+> Continua **não verificado em aula real** (só localhost) — próximo teste de campo.
 
-> ### ✅ Feito — `mundo-livre.ljw.corrompido-1785704408442` deletado
-> Sobra órfã pedida pelo usuário. `mundo-livre.ljw` (2.0M, o save de verdade) intacto.
-
-> ### ✅ Corrigido — bug-650: comandos atrasados com turma de 35 ("como se não fosse tempo real")
-> **Causa (medida, não chutada):** `broadcastPose` relayava CADA `move` recebido NA HORA,
-> individualmente, pra todo mundo — O(N²) sends/s. Turma de 35 a 10Hz = ~12 mil sends/s na
-> thread única do Node. Bate com a sessão 89 (26/08) ter subido o teto de grupos de 20→35: só
-> aí o volume cruzou o teto da máquina. Provado com carga real simulada (`carga-movimento.mjs`,
-> ficou no scratchpad da sessão, não versionado): **5 clientes=3.7ms · 20=37ms · 35=2555ms com
-> 9/10 comandos em timeout.**
+> ### ✅ Baú-Loja implementado de ponta a ponta (bloco novo, `docs/superpowers/specs/2026-08-31-loja-baus-design.md`)
+> 14 tarefas via **subagent-driven-development** (implementador + revisor por tarefa, 1 modelo
+> mais capaz por revisão), commitadas direto na main (sem worktree/branch — confirmado com o
+> usuário pra esse volume também). Bloco craftável (baú + 2 minério de ouro), terreno próprio
+> (reusa o gate de claim que já existia), criador gerencia estoque/preço, QUALQUER UM compra —
+> mesmo fora do grupo de amigos. Preço = 1 item + quantidade, cobre item-por-item OU **Dimas**
+> (saldo numérico por jogador, não item — a moeda ainda está em votação com a turma,
+> `docs/loja-perguntas-alunos.md`).
 >
-> **Fix:** `move` para de broadcastar na hora — `session.ts` guarda a pose em `posesDirty` (Map
-> por autor) e `flushPoses()` no fim do `tick()` manda UM `players_moved` (tipo novo em
-> `protocol.ts`) por DESTINATÁRIO, com o mesmo gate do `/invisivel` que o `broadcastPose` já
-> tinha. Sends caem de O(N²) pra O(N). `main.ts` ganhou `aplicarPoseRemota()` compartilhado entre
-> o `player_moved` individual (que continua existindo — join/dormir/toggle `/invisivel`, raros,
-> não mexidos) e cada entrada do lote.
+> **A revisão final de branch inteira (não só por tarefa) achou 2 bugs reais** que nenhuma
+> revisão de tarefa isolada enxergaria — ambos corrigidos antes do commit fechar:
+> - Todo Baú-Loja nascia **inquebrável pra sempre**, até vazio: `containerTemConteudo` (Task 2)
+>   virou a MESMA função que decide "persiste no save" E "pode quebrar" — um loja com criador
+>   sempre `true` nas duas. Split em `containerTemConteudo` (save) vs `containerTemEstoque`
+>   (`break_block`, só estoque de verdade).
+> - O editor de preço só conseguia criar preço **sem sentido** ("pague 3 pranchas por 1
+>   prancha") — faltava seletor de item de pagamento na UI. Adicionado `<select>` (itens em
+>   estoque + Dimas, default Dimas).
+> - + 3 achados Important (Dimas mintava sem limite trocando de nome — mitigado com aviso ao
+>   professor, não bloqueio; `definir_preco` sem teto de id/quantidade — agora tem; 2 testes que
+>   o próprio spec pedia e faltavam — adicionados).
 >
-> **Reteste com a MESMA carga, pós-fix:** 20 clientes 37ms→**8.2ms** · 35 clientes 2555ms→
-> **12.9ms**, 0 timeouts. Registrado em `buglog.json` (bug-650) e `cerebrum.md` (Decision Log +
-> Do-Not-Repeat sobre broadcast-por-evento ser O(N²) esperando pra acontecer).
->
-> ⚠️ **Não verificado ainda:** a próxima aula real na escola. O reteste foi `localhost` — a rede
-> real (WSL mirrored, ver seção de rede abaixo) não entrou na medição. Se o atraso persistir com
-> a turma de verdade, o próximo suspeito é a CAMADA DE REDE (WSL↔Windows↔LAN), não mais o
-> broadcast em si.
+> **Pendência real, achada TARDE (depois da rodada de correção fechar, sem 2ª rodada por regra
+> do processo) — ver `todo.md` seção "Loja":** escolher a moeda no seletor ANTES de digitar a
+> quantidade descarta a escolha em silêncio (digitar quantidade primeiro funciona). bug-654,
+> aberto. Baixo risco, mas é o tipo de coisa que confunde num primeiro uso em aula.
 
 > ### 🚀 PRÓXIMA QUEST
-> **Passo imediato:** commit + push de tudo que está pendente (bug-650 + o que a sessão 93 já
-> tinha deixado: README.md, changelog.ts, anatomy.md/anatomy-index.json, client/dist,
-> shared/src/build-info.json, cerebrum.md, buglog.json, memory.md).
+> **Passo imediato:** decidir push (perguntei ao usuário, ver conversa) — nada empurrado ainda.
 >
-> **Depois — confirmar em campo:** a próxima aula com turma cheia é o teste real do bug-650. Se
-> o atraso sumiu, fechar de vez; se persistir, investigar a camada de rede (WSL mirrored, seção
-> abaixo) em vez de reabrir o broadcast.
+> **Depois — pendências herdadas, nenhuma bloqueante:**
+> - bug-654 (seletor de moeda perde a escolha se usado fora de ordem) — `todo.md` § Loja.
+> - Votação da turma sobre a moeda (`docs/loja-perguntas-alunos.md`) — quando decidirem, revisar
+>   a mitigação de "nome novo = Dimas de graça" se Dimas ganhar.
+> - bug-651 (não sair da cama) e bug-652 (pular+colocar bloco teleporta pro lado) — abertos,
+>   só lidos, não investigados a fundo.
+> - bug-650: confirmar em aula real com turma cheia (só localhost até agora).
 >
-> Fila do `todo.md` (6 itens abertos): **ovelha + lã de verdade** (§🍖 F8 — mob, tosa, lã como
-> recurso, destrava cama/noite, a que destrava mais coisa) · sentar na cadeira · trocar modelo do
-> player pra estilo Minecraft · Ferramentas v2 (durabilidade + slot selecionado + tempo de
-> quebra — decidir `dano?` no Stack ANTES de codar).
+> Fila do `todo.md`: ovelha+lã de verdade (§🍖 F8), sentar na cadeira, modelo do player estilo
+> Minecraft, Ferramentas v2 (durabilidade+slot+tempo de quebra).
 
 ---
 

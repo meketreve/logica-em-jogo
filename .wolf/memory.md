@@ -3209,3 +3209,4 @@ fraude.
 | 15:31 | Created .superpowers/sdd/2026-09-01-loja-baus/final-fix-report.md | — | ~4497 |
 | 15:34 | Session end: 209 writes across 46 files (projeto.txt, sequencia didatica.md, todo.md, loja-perguntas-alunos.md, 2026-08-31-loja-baus-design.md) | 104 reads | ~472068 tok |
 | 15:39 | Edited .superpowers/sdd/2026-09-01-loja-baus/progress.md | modified COMPLETE() | ~562 |
+| 15:40 | Edited todo.md | expanded (+24 lines) | ~506 |

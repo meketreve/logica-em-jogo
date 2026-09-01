@@ -5732,6 +5732,24 @@
       "related_bugs": [],
       "occurrences": 1,
       "last_seen": "2026-09-01T00:00:00.000Z"
+    },
+    {
+      "id": "bug-654",
+      "timestamp": "2026-09-01T00:00:00.000Z",
+      "error_message": "achado na revisao final de branch da loja (nao reportado por usuario ainda): escolher a moeda de pagamento ANTES de digitar a quantidade no editor de preco descarta a escolha em silencio",
+      "file": "client/src/container.ts",
+      "root_cause": "lojaPrecos() liga enviar() no change do <select> de pagamento E no change do input de quantidade. Se o select muda primeiro, o input de qtd ainda esta vazio -> Math.floor(Number(\"\")) = 0 -> cai no ramo qtd<1 -> manda definirPreco(...,null) -> aplicarDefinirPreco aceita e broadcast avisarContainer -> render() reconstroi o select do zero -> volta pro default (Dimas), perdendo a escolha do jogador. Digitar a quantidade PRIMEIRO funciona certo (nao aciona esse caminho).",
+      "fix": "NAO IMPLEMENTADO ainda (achado tarde, na revisao final, depois da rodada de correcao ja fechada — sem 2a rodada de fix por regra do subagent-driven-development). Fix sugerido pelo revisor: aplicarDefinirPreco (shared/src/session/loja.ts) devolver cedo quando preco===null && !cont.precos.has(item) — evita o broadcast que reseta o select. Anotado em todo.md (secao Loja).",
+      "tags": [
+        "loja",
+        "client",
+        "ui",
+        "preco",
+        "aberto"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-09-01T00:00:00.000Z"
     }
   ]
 }
