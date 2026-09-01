@@ -68,6 +68,10 @@ export interface SavedPlayer {
    *  mochila vazia, que é o padrão de quem nunca jogou sobrevivência, então
    *  mundo criativo e save antigo saem byte a byte como antes. */
   inventario?: SlotSalvo[];
+  /** Dimas (2026-09-01): saldo numérico, se a turma votou essa moeda. Ausente
+   *  = nunca entrou no mundo (mundos sem loja também ficam com todo mundo
+   *  ausente — o campo só existe se `GameSession.dimas` tiver a entrada). */
+  dimas?: number;
 }
 
 /** Metadados do save (a parte JSON — o mundo vai como snapshot binário). */
@@ -309,6 +313,14 @@ function readSaveMeta(
           e["fome"] >= 0 &&
           e["fome"] < FOME_MAX
             ? { fome: Math.floor(e["fome"]) }
+            : {}),
+          // Dimas (2026-09-01): inteiro ≥ 0 são; qualquer outra coisa e o
+          // jogador simplesmente ainda não tem saldo gravado (a sessão seeda
+          // de novo no próximo join — ver `admitir` em session.ts)
+          ...(typeof e["dimas"] === "number" &&
+          Number.isFinite(e["dimas"]) &&
+          e["dimas"] >= 0
+            ? { dimas: Math.floor(e["dimas"]) }
             : {}),
           // §🍖 F4: mochila só entra se sobrar algum slot depois do parse
           // defensivo (que pula slot doente um a um, sem derrubar os sadios)

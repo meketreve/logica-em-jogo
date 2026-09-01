@@ -27,6 +27,11 @@ export const HORA_PADRAO = 12;
  *  já assentado) não gasta orçamento. Configurável no host via LJ_AGUA_TICK. */
 export const AGUA_POR_TICK_PADRAO = 256;
 
+/** Loja (2026-09-01): saldo de Dimas que todo aluno recebe na 1ª vez que
+ *  entra no mundo — se a turma votar essa moeda (`docs/loja-perguntas-alunos.md`).
+ *  Host pode sobrepor com LJ_DIMAS_INICIAL. */
+export const DIMAS_INICIAL_PADRAO = 50;
+
 /** Alcance de interação (colocar/quebrar) em blocos, medido do olho do jogador. */
 export const PLAYER_REACH = 5;
 

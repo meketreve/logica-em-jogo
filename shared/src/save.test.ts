@@ -107,6 +107,28 @@ describe("identidade cp9 no save", () => {
   });
 });
 
+describe("Dimas no save (2026-09-01)", () => {
+  it("saldo faz roundtrip; ausente/negativo/fracionário é descartado", () => {
+    const world = generateWorld(DIMS, 42);
+    const meta = {
+      ...META,
+      roster: [
+        { name: "ana", x: 1, y: 2, z: 3, yaw: 0, pitch: 0, dimas: 37 },
+        { name: "bia", x: 4, y: 5, z: 6, yaw: 0, pitch: 0 }, // nunca comprou/vendeu
+      ],
+    };
+    const loaded = decodeSave(encodeSave(world, meta));
+    expect(loaded.roster[0]?.dimas).toBe(37);
+    expect(loaded.roster[1]?.dimas).toBeUndefined();
+
+    const lixo = {
+      ...META,
+      roster: [{ name: "cid", x: 0, y: 0, z: 0, yaw: 0, pitch: 0, dimas: -5 }],
+    } as never;
+    expect(decodeSave(encodeSave(world, lixo)).roster[0]?.dimas).toBeUndefined();
+  });
+});
+
 describe("ciclo dia/noite no save (cp21)", () => {
   it("hora/ciclo fazem roundtrip; save antigo sem eles = undefined (padrão na sessão)", () => {
     const world = generateWorld(DIMS, 42);
