@@ -1,4 +1,5 @@
-import { type Container, type Preco, containerKey } from "../containers";
+import { MAX_BLOCK_ID } from "../blocks";
+import { CONTAINER_SLOTS, type Container, type Preco, containerKey } from "../containers";
 import { adicionar, cabe, contar, remover } from "../inventario";
 import { type ServerMessage } from "../protocol";
 import type { GameSession } from "../session";
@@ -29,6 +30,15 @@ export function sendDimas(ses: GameSession, clientId: number): void {
 /**
  * O criador define (ou remove, `preco: null`) o preço de UM tipo de item.
  * Devolve o motivo da recusa em chat, ou `null` se aplicou.
+ *
+ * I2 (2026-09-01): duas travas que faltavam. (1) `item` — e, na trilha de
+ * pagamento em item, `preco.item` — não podem passar de `MAX_BLOCK_ID`: sem
+ * teto, um id inventado (bloco que nunca vai existir) entrava no save do
+ * mesmo jeito. (2) `precos.size` não pode passar de `CONTAINER_SLOTS.loja`
+ * (27) — não existem mais TIPOS distintos de item possíveis no estoque do
+ * que slots, então esse é o teto natural. O teto só barra uma entrada NOVA;
+ * atualizar (ou remover, `preco: null`) uma entrada JÁ EXISTENTE continua
+ * liberado mesmo no teto — não é a loja que fica presa, é só o crescimento.
  */
 export function aplicarDefinirPreco(
   ses: GameSession,
@@ -43,7 +53,16 @@ export function aplicarDefinirPreco(
   const p = ses.players.get(clientId);
   if (!p) return null;
   if (cont.criador !== p.name) return "Só quem criou esta loja define preço.";
-  if (!Number.isInteger(item) || item <= 0) return "Item inválido.";
+  if (!Number.isInteger(item) || item <= 0 || item > MAX_BLOCK_ID) return "Item inválido.";
+  if (
+    preco?.tipo === "item" &&
+    (!Number.isInteger(preco.item) || preco.item <= 0 || preco.item > MAX_BLOCK_ID)
+  ) {
+    return "Item de pagamento inválido.";
+  }
+  if (preco !== null && !cont.precos.has(item) && cont.precos.size >= CONTAINER_SLOTS.loja) {
+    return "Esta loja já tem o máximo de preços diferentes definidos.";
+  }
   const precosNovos = new Map(cont.precos);
   if (preco === null) precosNovos.delete(item);
   else precosNovos.set(item, preco);

@@ -317,6 +317,93 @@ describe("definir_preco", () => {
     }));
     expect(session.containers.get(`${x},${y},${z}`)?.precos.size ?? 0).toBe(0);
   });
+
+  it("I3 (2026-09-01): outro membro do MESMO grupo (com acesso de edição ao terreno) NÃO define preço — só o criador por NOME", () => {
+    const { sent, send } = collect();
+    const session = new GameSession(send, {
+      dims: { x: 20, z: 20, y: 4 }, seed: 1, codigo: "sala", flat: true,
+    });
+    session.handleMessage(1, join("prof", "0000", "sala"));
+    const p = session.players.get(1)!;
+    const bx = Math.floor(p.x);
+    const by = Math.floor(p.y);
+    const bz = Math.floor(p.z);
+    // prof reivindica um terreno (mesmo molde de gate-claim.test.ts)
+    session.handleMessage(1, cmd("/terreno ligar"));
+    session.handleMessage(1, JSON.stringify({ type: "wand_mark", corner: 1, x: bx - 3, y: by - 1, z: bz - 3 }));
+    session.handleMessage(1, JSON.stringify({ type: "wand_mark", corner: 2, x: bx + 3, y: by + 3, z: bz + 3 }));
+    session.handleMessage(1, cmd("/terreno criar"));
+    const x = bx + 1;
+    const y = by;
+    const z = bz;
+    session.handleMessage(1, JSON.stringify({ type: "place_block", x, y, z, blockId: BlockId.BauLoja }));
+
+    // ana entra no MESMO grupo de amigos de prof (/amigos convidar+aceitar,
+    // o comando real — ver claims.test.ts) e ganha direito de EDITAR o
+    // terreno (place/break dentro do claim) — mas NÃO colocou a loja.
+    session.handleMessage(2, join("ana", "1111"));
+    session.handleMessage(1, cmd("/amigos convidar ana"));
+    session.handleMessage(2, cmd("/amigos aceitar prof"));
+    // controle positivo: ana de fato tem edição do terreno (prova que ela
+    // está no grupo de verdade, não que um gate genérico bloqueou todo mundo)
+    // — célula ACIMA do chão (ar aberto num mundo flat), distinta da loja.
+    const dentroDoTerreno = { x: bx, y: by + 2, z: bz };
+    session.handleMessage(2, JSON.stringify({
+      type: "place_block", ...dentroDoTerreno, blockId: BlockId.Stone,
+    }));
+    expect(getBlock(session.world, dentroDoTerreno.x, dentroDoTerreno.y, dentroDoTerreno.z)).toBe(BlockId.Stone);
+
+    // ana tenta definir preço na loja de prof — recusado (não é a CRIADORA)
+    session.handleMessage(2, JSON.stringify({ type: "use_block", x, y, z }));
+    sent.length = 0;
+    session.handleMessage(2, JSON.stringify({
+      type: "definir_preco", x, y, z, item: BlockId.Planks, preco: { tipo: "dimas", qtd: 1 },
+    }));
+    expect(session.containers.get(`${x},${y},${z}`)?.precos.size ?? 0).toBe(0);
+  });
+
+  it("I2 (2026-09-01): rejeita item acima de MAX_BLOCK_ID (pra vender ou pra pagar)", () => {
+    const { session, x, y, z } = lojaAberta();
+    session.handleMessage(1, JSON.stringify({
+      type: "definir_preco", x, y, z, item: MAX_BLOCK_ID + 1, preco: { tipo: "dimas", qtd: 1 },
+    }));
+    expect(session.containers.get(`${x},${y},${z}`)?.precos.size ?? 0).toBe(0);
+
+    session.handleMessage(1, JSON.stringify({
+      type: "definir_preco", x, y, z, item: BlockId.Planks,
+      preco: { tipo: "item", item: MAX_BLOCK_ID + 1, qtd: 1 },
+    }));
+    expect(session.containers.get(`${x},${y},${z}`)?.precos.has(BlockId.Planks)).toBe(false);
+  });
+
+  it("I2 (2026-09-01): rejeita um preço NOVO quando precos.size já está no teto; atualizar/remover um existente continua liberado", () => {
+    const { session, x, y, z } = lojaAberta();
+    for (let i = 1; i <= CONTAINER_SLOTS.loja; i++) {
+      session.handleMessage(1, JSON.stringify({
+        type: "definir_preco", x, y, z, item: i, preco: { tipo: "dimas", qtd: 1 },
+      }));
+    }
+    expect(session.containers.get(`${x},${y},${z}`)?.precos.size).toBe(CONTAINER_SLOTS.loja);
+
+    // um item AINDA sem preço — recusado, a loja já está no teto de tipos
+    const novoItem = CONTAINER_SLOTS.loja + 1;
+    session.handleMessage(1, JSON.stringify({
+      type: "definir_preco", x, y, z, item: novoItem, preco: { tipo: "dimas", qtd: 1 },
+    }));
+    expect(session.containers.get(`${x},${y},${z}`)?.precos.size).toBe(CONTAINER_SLOTS.loja);
+    expect(session.containers.get(`${x},${y},${z}`)?.precos.has(novoItem)).toBe(false);
+
+    // atualizar um item JÁ precificado continua funcionando no teto
+    session.handleMessage(1, JSON.stringify({
+      type: "definir_preco", x, y, z, item: 1, preco: { tipo: "dimas", qtd: 9 },
+    }));
+    expect(session.containers.get(`${x},${y},${z}`)?.precos.get(1)).toEqual({ tipo: "dimas", qtd: 9 });
+
+    // remover um item JÁ precificado continua funcionando no teto
+    session.handleMessage(1, JSON.stringify({ type: "definir_preco", x, y, z, item: 1, preco: null }));
+    expect(session.containers.get(`${x},${y},${z}`)?.precos.has(1)).toBe(false);
+    expect(session.containers.get(`${x},${y},${z}`)?.precos.size).toBe(CONTAINER_SLOTS.loja - 1);
+  });
 });
 
 describe("comprar — pagamento em ITEM", () => {
