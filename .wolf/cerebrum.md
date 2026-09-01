@@ -167,6 +167,18 @@
 
 ## Key Learnings
 
+- [2026-09-01] **Padrão "qualquer um LÊ, só o dono MEXE" para container com dono
+  (`shared/src/session.ts`, `use_block`/`mover_container`/`descartar_container`).** O
+  gate de LEITURA (`use_block`) troca `claimBloqueia(...) ?? confinaBloqueia(...)` por um
+  `tipoContainer === "loja" ? confinaBloqueia(...) : (claim ?? confina)` — a loja PULA o
+  claim de terreno na leitura (confinamento de aula ainda vale, é física, não posse), porque
+  comprar é o ponto da feature. Os gates de MUTAÇÃO (`mover_container`/`descartar_container`)
+  continuam rodando o claim/confina de sempre (idênticos pros dois tipos) e GANHAM uma
+  checagem extra por CAMPO DO OBJETO — `if (cont.tipo === "loja" && cont.criador !== p.name)
+  return;` logo após `if (!cont) return;` — comparando pelo `criador` salvo no `Container`
+  (Task 2), não pelo claim. Ou seja: dois eixos de autorização independentes (claim de
+  terreno vs. `criador` do container) que se sobrepõem só na loja. Falha SILENCIOSA (early
+  `return`, sem chat) — o mesmo padrão de todo gate deste arquivo.
 - [2026-08-31] **Ambiente sem `unzip`/`pandoc`/`poppler-utils` — ler .docx/.pdf via `uv run
   --with python-docx`/`--with pypdf`.** `Read` tool recusa binário e o Read-tool de PDF depende
   de `pdftoppm` (ausente aqui). `uv run --with <pkg> python3 -c "..."` baixa o pacote na hora
