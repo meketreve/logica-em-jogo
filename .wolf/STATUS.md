@@ -37,14 +37,14 @@
 >
 > **Pendência real, achada TARDE (depois da rodada de correção fechar, sem 2ª rodada por regra
 > do processo) — ver `todo.md` seção "Loja":** escolher a moeda no seletor ANTES de digitar a
-> quantidade descarta a escolha em silêncio (digitar quantidade primeiro funciona). bug-654,
+> quantidade descarta a escolha em silêncio (digitar quantidade primeiro funciona). bug-659,
 > aberto. Baixo risco, mas é o tipo de coisa que confunde num primeiro uso em aula.
 
 > ### 🚀 PRÓXIMA QUEST
 > **Passo imediato:** decidir push (perguntei ao usuário, ver conversa) — nada empurrado ainda.
 >
 > **Depois — pendências herdadas, nenhuma bloqueante:**
-> - bug-654 (seletor de moeda perde a escolha se usado fora de ordem) — `todo.md` § Loja.
+> - bug-659 (seletor de moeda perde a escolha se usado fora de ordem) — `todo.md` § Loja.
 > - Votação da turma sobre a moeda (`docs/loja-perguntas-alunos.md`) — quando decidirem, revisar
 >   a mitigação de "nome novo = Dimas de graça" se Dimas ganhar.
 > - bug-651 (não sair da cama) e bug-652 (pular+colocar bloco teleporta pro lado) — abertos,

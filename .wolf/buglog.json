@@ -5734,7 +5734,7 @@
       "last_seen": "2026-09-01T00:00:00.000Z"
     },
     {
-      "id": "bug-654",
+      "id": "bug-659",
       "timestamp": "2026-09-01T00:00:00.000Z",
       "error_message": "achado na revisao final de branch da loja (nao reportado por usuario ainda): escolher a moeda de pagamento ANTES de digitar a quantidade no editor de preco descarta a escolha em silencio",
       "file": "client/src/container.ts",
