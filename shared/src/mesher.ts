@@ -320,6 +320,8 @@ const BLOCK_TILES: Record<number, FaceTiles> = {
   // §🍖 F10e: o baú NÃO é cubo cheio desde o refino — esta entrada alimenta só o
   // ícone 2D da hotbar; a forma de caixa (e o tile por face) vive no emitShape.
   [BlockId.Bau]: { top: TILE.bauTopo, bottom: TILE.bauTopo, side: TILE.bauLado },
+  // Baú-Loja (2026-09-01): mesmo ícone do baú até existir arte própria.
+  [BlockId.BauLoja]: { top: TILE.bauTopo, bottom: TILE.bauTopo, side: TILE.bauLado },
 };
 // §🍖 F10b + refino: fornalha — cubo cheio (o inventário dela mora fora do
 // byte). Chapa de pedra em cima e embaixo, tijolo liso nos três lados de trás e
@@ -490,7 +492,7 @@ export function blockSelectionBox(
   if (id === BlockId.Mesa) return [0, 0, 0, 1, 14 * P, 1];
   // §🍖 F10e (refino): a mira segue a CAIXA — o contorno preto rente à madeira
   // é o que diz ao aluno qual dos dois baús encostados ele vai abrir.
-  if (id === BlockId.Bau) return [P, 0, P, 15 * P, 14 * P, 15 * P];
+  if (id === BlockId.Bau || id === BlockId.BauLoja) return [P, 0, P, 15 * P, 14 * P, 15 * P];
   if (isCadeira(id)) return [3 * P, 0, 3 * P, 13 * P, 1, 13 * P];
   if (isSofa(id)) return [0, 0, 0, 1, 15 * P, 1];
   if (isCama(id)) return [0, 0, 0, 1, 9 * P, 1];
@@ -1094,7 +1096,8 @@ export function meshVizinhanca(viz: Uint8Array, luzViz?: Uint8Array | null): Chu
         }
         return true;
       }
-      case BlockId.Bau: {
+      case BlockId.Bau:
+      case BlockId.BauLoja: {
         // §🍖 F10e (refino): CAIXA de 14/16 de lado e 14/16 de altura, apoiada
         // no chão da célula — o número do Minecraft, e o que faz dois baús
         // vizinhos terem um VÃO entre eles em vez de virarem uma parede de

@@ -132,6 +132,11 @@ describe("formato de bloco/chunk (contrato de save e snapshot)", () => {
     // fornalha, não há estado nenhum pra guardar no byte.
     expect(BlockId.Bau).toBe(188);
     expect(isPlaceable(BlockId.Bau)).toBe(true);
+    // baú-loja (2026-09-01): append 246, mesma caixa 14/16 do baú comum —
+    // reusa a textura/forma dele até existir arte própria (ver mesher.ts).
+    expect(BlockId.BauLoja).toBe(246);
+    expect(isPlaceable(BlockId.BauLoja)).toBe(true);
+    expect(isFullCube(BlockId.BauLoja)).toBe(false);
     // algodão (§🍖 F10c 2026-08-05): append 189-193. Mesma regra da plantação
     // do F6 — só a MUDA se coloca; os estágios crescidos nascem do tick.
     expect(BlockId.Algodao0).toBe(189);

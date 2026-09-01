@@ -430,6 +430,7 @@ export const SEM_RECEITA: ReadonlyMap<number, string> = new Map([
   [BlockId.MudaIpe0, "muda de ipê: vem das folhas de ipê (1 em 10)"],
   [BlockId.MudaAraucaria0, "muda de araucária: vem das folhas de araucária (1 em 10)"],
   [BlockId.MudaPauBrasil0, "muda de pau-brasil: vem das folhas de pau-brasil (1 em 10)"],
+  [BlockId.BauLoja, "container: a receita e o preço são o que muda vs o baú comum — será definido na próxima fase"],
   [BlockId.Bedrock, "só do professor (`isProfessorOnly`) — nunca vai pra mochila"],
 ]);
 

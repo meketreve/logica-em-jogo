@@ -125,6 +125,9 @@ export const PLACEABLE: readonly PlaceableEntry[] = [
   // Baú (§🍖 F10e 2026-08-05): ao lado da fornalha, porque é o mesmo gesto —
   // clique direito abre um painel de conteúdo.
   { id: BlockId.Bau, name: "baú", cat: "mobilia" },
+  // Baú-Loja (2026-09-01): ao lado do baú comum — mesmo gesto (clique
+  // direito abre um painel), a diferença é o que o painel mostra.
+  { id: BlockId.BauLoja, name: "baú-loja", cat: "mobilia" },
   // Tapetes (2026-07-19): ordem = TapeteBranco..TapeteMarrom (âncora + offset)
   ...["branco", "preto", "vermelho", "laranja", "amarelo", "verde", "azul", "roxo",
       "rosa", "ciano", "cinza", "marrom"].map((cor, i) => ({

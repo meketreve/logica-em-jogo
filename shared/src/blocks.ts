@@ -305,6 +305,10 @@ export const BlockId = {
   MudaIpe0: 234, MudaIpe1: 235, MudaIpe2: 236, MudaIpe3: 237,
   MudaAraucaria0: 238, MudaAraucaria1: 239, MudaAraucaria2: 240, MudaAraucaria3: 241,
   MudaPauBrasil0: 242, MudaPauBrasil1: 243, MudaPauBrasil2: 244, MudaPauBrasil3: 245,
+  /** Baú-Loja (2026-09-01, pedido do usuário): terceiro tipo de container
+   *  (ver `containers.ts`) — reusa a caixa 14/16 e a textura do `Bau` até
+   *  existir arte própria (o craft/preço são o que muda, não o desenho). */
+  BauLoja: 246,
 } as const;
 
 export type BlockId = (typeof BlockId)[keyof typeof BlockId];
@@ -317,7 +321,7 @@ export type BlockId = (typeof BlockId)[keyof typeof BlockId];
  * dois arquivos, e esquecer significava um portão que deixava de olhar
  * justamente o bloco recém-criado — o oposto do que ele existe pra fazer.
  */
-export const MAX_BLOCK_ID = BlockId.MudaPauBrasil3;
+export const MAX_BLOCK_ID = BlockId.BauLoja;
 
 /** Água? Fonte (129) OU fluida (130-136) — atravessável e translúcida. */
 export function isAgua(id: number): boolean {
@@ -1032,6 +1036,7 @@ export function isFullCube(id: number): boolean {
     // é o que faz o vão entre dois baús existir — e, de brinde, a luz passa por
     // ele (como no Minecraft) e a cerca não se conecta a ele.
     id !== BlockId.Bau &&
+    id !== BlockId.BauLoja && // mesma caixa 14/16 do baú comum
     !isSlab(id) && // laje = meia altura (forma própria + colisão parcial)
     !isStairs(id) // escada = L (forma própria + colisão parcial)
   );
