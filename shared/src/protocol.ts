@@ -373,6 +373,14 @@ export type ServerMessage =
       queimando?: number;
       queimaTotal?: number;
       progresso?: number;
+      /** Loja (2026-09-01): ausente pros tipos fornalha/bau. */
+      loja?: {
+        criador: string;
+        precos: { porItem: number; preco: Preco }[];
+        /** Este DESTINATÁRIO é o criador? Calculado no servidor — evita o
+         *  cliente ter de saber o próprio nome só pra esta comparação. */
+        souOCriador: boolean;
+      };
     }
   | {
       /**
@@ -977,6 +985,25 @@ export function parseServerMessage(raw: string): ServerMessage | null {
       // seriam duas chances de divergir.
       const c = parseContainerSalvo(m);
       if (!c) return null;
+      // Loja (2026-09-01): `criador`/`precos`/`souOCriador` viajam ANINHADOS
+      // em `loja` (não como campos soltos — `sendContainer` não os duplica no
+      // topo), então o parse lê de `lojaRaw`, não de `c`.
+      const lojaRaw = m["loja"];
+      const lo = typeof lojaRaw === "object" && lojaRaw !== null
+        ? (lojaRaw as Record<string, unknown>)
+        : null;
+      const precos: { porItem: number; preco: Preco }[] = [];
+      if (lo && Array.isArray(lo["precos"])) {
+        for (const e of lo["precos"]) {
+          if (typeof e !== "object" || e === null) continue;
+          const r = e as Record<string, unknown>;
+          const porItem = r["porItem"];
+          const preco = parsePreco(r["preco"]);
+          if (typeof porItem === "number" && Number.isInteger(porItem) && porItem > 0 && preco) {
+            precos.push({ porItem, preco }); // entrada doente é pulada, não derruba a loja
+          }
+        }
+      }
       return {
         type: "container",
         x: c.x, y: c.y, z: c.z,
@@ -985,6 +1012,15 @@ export function parseServerMessage(raw: string): ServerMessage | null {
         ...(c.queimando ? { queimando: c.queimando } : {}),
         ...(c.queimaTotal ? { queimaTotal: c.queimaTotal } : {}),
         ...(c.progresso ? { progresso: c.progresso } : {}),
+        ...(c.tipo === "loja" && lo
+          ? {
+              loja: {
+                criador: typeof lo["criador"] === "string" ? lo["criador"] : "",
+                precos,
+                souOCriador: lo["souOCriador"] === true,
+              },
+            }
+          : {}),
       };
     }
     case "container_fechado":

@@ -83,7 +83,28 @@ describe("colocar o Baú-Loja grava o criador na hora", () => {
     session.handleMessage(1, JSON.stringify({ type: "use_block", x, y, z }));
     const painel = sent.find((s) => parseServerMessage(s.data as string)?.type === "container");
     const msg = painel && parseServerMessage(painel.data as string);
-    expect(msg).toMatchObject({ type: "container", tipo: "loja" });
+    expect(msg).toMatchObject({
+      type: "container",
+      tipo: "loja",
+      loja: { criador: "prof", precos: [], souOCriador: true },
+    });
+  });
+
+  it("um comprador (não-criador) vê souOCriador:false", () => {
+    const { sent, send } = collect();
+    const session = new GameSession(send, { dims: { x: 6, z: 6, y: 4 }, seed: 1, codigo: "sala" });
+    session.handleMessage(1, join("prof", "0000", "sala"));
+    const p = session.players.get(1)!;
+    const x = Math.floor(p.x);
+    const y = Math.floor(p.y);
+    const z = Math.floor(p.z) + 1;
+    session.handleMessage(1, JSON.stringify({ type: "place_block", x, y, z, blockId: BlockId.BauLoja }));
+    session.handleMessage(2, join("ana", "1111"));
+    sent.length = 0;
+    session.handleMessage(2, JSON.stringify({ type: "use_block", x, y, z }));
+    const msg = sent.find((s) => parseServerMessage(s.data as string)?.type === "container");
+    const parsed = msg && parseServerMessage(msg.data as string);
+    expect(parsed).toMatchObject({ loja: { criador: "prof", souOCriador: false } });
   });
 });
 

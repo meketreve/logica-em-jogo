@@ -67,6 +67,7 @@ export function sendContainer(
     return;
   }
   const s = containerParaSave(x, y, z, c);
+  const nome = ses.players.get(clientId)?.name;
   ses.send(
     clientId,
     JSON.stringify({
@@ -77,6 +78,15 @@ export function sendContainer(
       ...(s.queimando ? { queimando: s.queimando } : {}),
       ...(s.queimaTotal ? { queimaTotal: s.queimaTotal } : {}),
       ...(s.progresso ? { progresso: s.progresso } : {}),
+      ...(c.tipo === "loja"
+        ? {
+            loja: {
+              criador: c.criador,
+              precos: [...c.precos].map(([porItem, preco]) => ({ porItem, preco })),
+              souOCriador: nome === c.criador,
+            },
+          }
+        : {}),
     } satisfies ServerMessage),
   );
 }
