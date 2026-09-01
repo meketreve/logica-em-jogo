@@ -357,6 +357,13 @@ const FUNDICAO: readonly Receita[] = [
   // ele que resolve a mochila de 27 slots que enche no meio da aula, e uma
   // solução cara pro problema mais comum da turma seria a decisão errada.
   { saida: { id: BlockId.Bau, qtd: 1 }, custo: [{ id: BlockId.Planks, qtd: 8 }] },
+  // Baú-Loja (2026-09-01, pedido do usuário): upgrade de um baú já pronto —
+  // o ouro marca "isto é comércio", e é barato de ajustar depois (não é
+  // arquitetura, é o número de um recurso já existente).
+  { saida: { id: BlockId.BauLoja, qtd: 1 }, custo: [
+    { id: BlockId.Bau, qtd: 1 },
+    { id: BlockId.MinerioOuro, qtd: 2 },
+  ] },
   // §🍖 F10d: as PICARETAS. O formato é o do Minecraft (3 do material + 2
   // gravetos de cabo), e a ORDEM delas é a progressão da aula: cada uma só é
   // fabricável depois que a anterior abriu o material que ela cobra.
@@ -430,7 +437,6 @@ export const SEM_RECEITA: ReadonlyMap<number, string> = new Map([
   [BlockId.MudaIpe0, "muda de ipê: vem das folhas de ipê (1 em 10)"],
   [BlockId.MudaAraucaria0, "muda de araucária: vem das folhas de araucária (1 em 10)"],
   [BlockId.MudaPauBrasil0, "muda de pau-brasil: vem das folhas de pau-brasil (1 em 10)"],
-  [BlockId.BauLoja, "container: a receita e o preço são o que muda vs o baú comum — será definido na próxima fase"],
   [BlockId.Bedrock, "só do professor (`isProfessorOnly`) — nunca vai pra mochila"],
 ]);
 

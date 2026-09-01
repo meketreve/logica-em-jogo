@@ -164,6 +164,16 @@ describe("receitas — tabela", () => {
     for (let i = 0; i < 10; i++) expect(saidas.has(BlockId.Digit0 + i)).toBe(true);
   });
 
+  it("baú-loja (2026-09-01): craft a partir de um baú + 2 minério de ouro", () => {
+    const r = RECEITAS.find((r) => r.saida.id === BlockId.BauLoja);
+    expect(r).toBeDefined();
+    expect(r?.saida.qtd).toBe(1);
+    expect(r?.custo).toEqual([
+      { id: BlockId.Bau, qtd: 1 },
+      { id: BlockId.MinerioOuro, qtd: 2 },
+    ]);
+  });
+
   it("§🍖 F10: nenhuma receita cobra CUBO de minério de carvão — quem paga é o item", () => {
     // o minério de carvão deixou de cair como bloco (drops.ts), então uma
     // receita que ainda o pedisse ficaria inalcançável em silêncio.
