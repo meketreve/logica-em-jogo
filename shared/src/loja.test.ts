@@ -70,13 +70,12 @@ describe("Dimas (2026-09-01) — saldo por jogador", () => {
 describe("colocar o Baú-Loja grava o criador na hora", () => {
   it("quem coloca vira o criador — sem isto nem ele conseguiria gerenciar", () => {
     const { sent, send } = collect();
-    const session = new GameSession(send, { dims: { x: 16, z: 16, y: 8 }, seed: 1, codigo: "sala" });
+    const session = new GameSession(send, { dims: { x: 4, z: 4, y: 4 }, seed: 1, codigo: "sala", flat: true });
     session.handleMessage(1, join("prof", "0000", "sala"));
     const p = session.players.get(1)!;
-    // place block slightly closer to the player (2 blocks in front)
-    const x = Math.floor(p.x) + 1;
+    const x = Math.floor(p.x);
     const y = Math.floor(p.y);
-    const z = Math.floor(p.z) + 2;
+    const z = Math.floor(p.z) + 1; // célula na frente, dentro do alcance
     session.handleMessage(1, JSON.stringify({ type: "place_block", x, y, z, blockId: BlockId.BauLoja }));
 
     sent.length = 0;
