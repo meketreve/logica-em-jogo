@@ -27,7 +27,7 @@ import {
  */
 
 /** Que tipo de container é este bloco? `null` = a célula não é container. */
-export type ContainerTipo = "fornalha" | "bau";
+export type ContainerTipo = "fornalha" | "bau" | "loja";
 
 /** Quantos slots cada tipo tem. A fornalha tem 3 (entrada · combustível ·
  *  saída); o baú tem 27, uma mochila inteira — é o mais simples de desenhar
@@ -35,6 +35,8 @@ export type ContainerTipo = "fornalha" | "bau";
 export const CONTAINER_SLOTS: Readonly<Record<ContainerTipo, number>> = {
   fornalha: 3,
   bau: 27,
+  /** Loja (2026-09-01): mesma grade do baú comum — o estoque É o inventário. */
+  loja: 27,
 };
 
 /** Os 3 slots da fornalha, por nome. O índice é a identidade deles no fio. */
@@ -47,8 +49,20 @@ export const FORNALHA_SAIDA = 2;
  *  quebra e o save consultam esta função, e não uma lista própria cada um. */
 export function containerTipoDe(blockId: number): ContainerTipo | null {
   if (isFornalha(blockId)) return "fornalha";
-  return blockId === BlockId.Bau ? "bau" : null;
+  if (blockId === BlockId.Bau) return "bau";
+  if (blockId === BlockId.BauLoja) return "loja";
+  return null;
 }
+
+/**
+ * O preço de UMA unidade — sempre 1 item + quantidade, nunca uma cesta.
+ * Cobre os 3 formatos da votação da turma (item-por-item, recurso existente
+ * como moeda, e a "Dimas") sem mudar de forma quando a turma decidir —
+ * `docs/loja-perguntas-alunos.md`.
+ */
+export type Preco =
+  | { tipo: "item"; item: number; qtd: number }
+  | { tipo: "dimas"; qtd: number };
 
 /**
  * O conteúdo de UM container. Os três campos de fogo só a fornalha usa; o baú
@@ -67,6 +81,16 @@ export interface Container {
   readonly queimaTotal: number;
   /** Ticks já cozidos do item da entrada (0 = ainda não começou). */
   readonly progresso: number;
+  /** Loja (2026-09-01): nome de quem COLOCOU o bloco — só ele gerencia (define
+   *  preço, mexe no estoque livremente). "" pros tipos fornalha/bau, que não
+   *  têm dono — o mesmo "campo a mais custa menos que dois tipos" do resto
+   *  deste arquivo. */
+  readonly criador: string;
+  /** Loja: preço de 1 unidade por TIPO de item presente no estoque. Chave =
+   *  o item À VENDA; vazio pros tipos fornalha/bau, e pra tipo presente sem
+   *  entrada aqui (dono ainda não decidiu o preço — existe no baú, mas
+   *  ninguém compra). */
+  readonly precos: ReadonlyMap<number, Preco>;
 }
 
 /** Container recém-colocado: todos os slots vazios, fogo apagado. */
@@ -77,6 +101,8 @@ export function containerVazio(tipo: ContainerTipo): Container {
     queimando: 0,
     queimaTotal: 0,
     progresso: 0,
+    criador: "",
+    precos: new Map(),
   };
 }
 
@@ -85,7 +111,14 @@ export function containerVazio(tipo: ContainerTipo): Container {
  *  container vazio nenhum. Fogo aceso conta como conteúdo: a fornalha está
  *  trabalhando. */
 export function containerTemConteudo(c: Container): boolean {
-  return c.slots.some((s) => s !== null) || c.queimando > 0;
+  return (
+    c.slots.some((s) => s !== null) ||
+    c.queimando > 0 ||
+    // loja com dono/preço mas estoque zerado AINDA precisa persistir — senão
+    // vender tudo apaga o criador e a loja "esquece" quem é o dono
+    c.criador !== "" ||
+    c.precos.size > 0
+  );
 }
 
 /** Chave canônica do mapa por posição (a mesma forma do `quadroKey`). */
@@ -212,6 +245,8 @@ export interface ContainerSalvo {
   queimando?: number;
   queimaTotal?: number;
   progresso?: number;
+  criador?: string;
+  precos?: { porItem: number; preco: Preco }[];
 }
 
 /** Container → forma esparsa. */
@@ -232,12 +267,46 @@ export function containerParaSave(
     ...(c.queimando ? { queimando: c.queimando } : {}),
     ...(c.queimaTotal ? { queimaTotal: c.queimaTotal } : {}),
     ...(c.progresso ? { progresso: c.progresso } : {}),
+    ...(c.criador ? { criador: c.criador } : {}),
+    ...(c.precos.size
+      ? { precos: [...c.precos].map(([porItem, preco]) => ({ porItem, preco })) }
+      : {}),
   };
 }
 
 /** Inteiro ≥ 0 vindo de fora, ou 0. (Os três campos de fogo têm o mesmo parse.) */
 function inteiroNaoNegativo(v: unknown): number {
   return typeof v === "number" && Number.isInteger(v) && v >= 0 ? v : 0;
+}
+
+/** Um `Preco` vindo de fora, validado — `null` se a forma estiver quebrada. */
+function parsePreco(v: unknown): Preco | null {
+  if (typeof v !== "object" || v === null) return null;
+  const o = v as Record<string, unknown>;
+  if (o["tipo"] === "dimas") {
+    const qtd = o["qtd"];
+    if (typeof qtd !== "number" || !Number.isInteger(qtd) || qtd < 1) return null;
+    return { tipo: "dimas", qtd };
+  }
+  if (o["tipo"] === "item") {
+    const item = o["item"];
+    const qtd = o["qtd"];
+    if (typeof item !== "number" || !Number.isInteger(item) || item <= 0) return null;
+    if (typeof qtd !== "number" || !Number.isInteger(qtd) || qtd < 1) return null;
+    return { tipo: "item", item, qtd };
+  }
+  return null;
+}
+
+/** Uma entrada `{porItem, preco}` da lista de preços, validada. */
+function parsePrecoEntry(v: unknown): { porItem: number; preco: Preco } | null {
+  if (typeof v !== "object" || v === null) return null;
+  const o = v as Record<string, unknown>;
+  const porItem = o["porItem"];
+  if (typeof porItem !== "number" || !Number.isInteger(porItem) || porItem <= 0) return null;
+  const preco = parsePreco(o["preco"]);
+  if (!preco) return null;
+  return { porItem, preco };
 }
 
 /**
@@ -254,7 +323,7 @@ export function parseContainerSalvo(v: unknown): ContainerSalvo | null {
   if (typeof y !== "number" || !Number.isInteger(y)) return null;
   if (typeof z !== "number" || !Number.isInteger(z)) return null;
   const tipo = o["tipo"];
-  if (tipo !== "fornalha" && tipo !== "bau") return null;
+  if (tipo !== "fornalha" && tipo !== "bau" && tipo !== "loja") return null;
   const max = CONTAINER_SLOTS[tipo];
   const slots: SlotSalvo[] = [];
   if (Array.isArray(o["slots"])) {
@@ -275,6 +344,14 @@ export function parseContainerSalvo(v: unknown): ContainerSalvo | null {
   const queimando = inteiroNaoNegativo(o["queimando"]);
   const queimaTotal = inteiroNaoNegativo(o["queimaTotal"]);
   const progresso = inteiroNaoNegativo(o["progresso"]);
+  const criador = typeof o["criador"] === "string" ? o["criador"] : "";
+  const precos: { porItem: number; preco: Preco }[] = [];
+  if (Array.isArray(o["precos"])) {
+    for (const e of o["precos"]) {
+      const parsed = parsePrecoEntry(e);
+      if (parsed) precos.push(parsed); // entrada doente é pulada, não derruba a loja
+    }
+  }
   return {
     x, y, z, tipo, slots,
     ...(queimando ? { queimando } : {}),
@@ -282,6 +359,8 @@ export function parseContainerSalvo(v: unknown): ContainerSalvo | null {
     // chama restante, que é o pior caso honesto (barra cheia esvaziando)
     ...(queimaTotal || queimando ? { queimaTotal: queimaTotal || queimando } : {}),
     ...(progresso ? { progresso } : {}),
+    ...(criador ? { criador } : {}),
+    ...(precos.length ? { precos } : {}),
   };
 }
 
@@ -296,5 +375,7 @@ export function containerDeSave(s: ContainerSalvo): Container {
     queimando: s.queimando ?? 0,
     queimaTotal: s.queimaTotal ?? 0,
     progresso: s.progresso ?? 0,
+    criador: s.criador ?? "",
+    precos: new Map((s.precos ?? []).map((p) => [p.porItem, p.preco])),
   };
 }

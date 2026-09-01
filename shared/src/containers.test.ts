@@ -18,6 +18,7 @@ import {
   moverEntre,
   parseContainerSalvo,
   totalDeSlots,
+  type Preco,
 } from "./containers";
 import {
   INV_SLOTS,
@@ -317,5 +318,77 @@ describe("§🗑️ descartarEm — a lixeira também vale com o baú aberto", (
     expect(descartarEm(inventarioVazio(), c, -1)).toBeNull();
     expect(descartarEm(inventarioVazio(), c, totalDeSlots("bau"))).toBeNull(); // fora da faixa
     expect(descartarEm(inventarioVazio(), c, INV_SLOTS, 0)).toBeNull(); // qtd inválida
+  });
+});
+
+describe("loja (2026-09-01) — terceiro tipo de container", () => {
+  it("containerTipoDe reconhece o Baú-Loja; 27 slots, como o baú", () => {
+    expect(containerTipoDe(BlockId.BauLoja)).toBe("loja");
+    expect(CONTAINER_SLOTS.loja).toBe(27);
+  });
+
+  it("nasce sem criador nem preço; ganha os dois com a atribuição direta", () => {
+    const vazio = containerVazio("loja");
+    expect(vazio.criador).toBe("");
+    expect(vazio.precos.size).toBe(0);
+    expect(containerTemConteudo(vazio)).toBe(false);
+
+    const comCriador: Container = { ...vazio, criador: "ana" };
+    // criador sem estoque nem preço AINDA conta como "tem conteúdo" — senão a
+    // loja recém-criada (ou que vendeu tudo) evapora do save e perde o dono.
+    expect(containerTemConteudo(comCriador)).toBe(true);
+
+    const comPreco: Container = {
+      ...vazio,
+      precos: new Map([[BlockId.Planks, { tipo: "item", item: BlockId.MinerioFerro, qtd: 2 }]]),
+    };
+    expect(containerTemConteudo(comPreco)).toBe(true);
+  });
+
+  it("containerParaSave/parseContainerSalvo fazem roundtrip de criador+precos (item e dimas)", () => {
+    const c: Container = {
+      ...containerVazio("loja"),
+      criador: "ana",
+      precos: new Map<number, Preco>([
+        [BlockId.Planks, { tipo: "item", item: BlockId.MinerioFerro, qtd: 2 }],
+        [BlockId.MinerioOuro, { tipo: "dimas", qtd: 10 }],
+      ]),
+    };
+    const salvo = containerParaSave(1, 2, 3, c);
+    expect(salvo.criador).toBe("ana");
+    expect(salvo.precos).toEqual([
+      { porItem: BlockId.Planks, preco: { tipo: "item", item: BlockId.MinerioFerro, qtd: 2 } },
+      { porItem: BlockId.MinerioOuro, preco: { tipo: "dimas", qtd: 10 } },
+    ]);
+
+    const reparsed = parseContainerSalvo(JSON.parse(JSON.stringify(salvo)));
+    expect(reparsed).toEqual(salvo);
+    const devolta = containerDeSave(reparsed!);
+    expect(devolta.criador).toBe("ana");
+    expect(devolta.precos).toEqual(c.precos);
+  });
+
+  it("save/fio com criador ou preço quebrados descarta só a entrada doente", () => {
+    const raw = {
+      x: 0, y: 0, z: 0, tipo: "loja", slots: [],
+      criador: 42, // tipo errado — vira "" (sem dono, como o baú comum)
+      precos: [
+        { porItem: BlockId.Planks, preco: { tipo: "item", item: BlockId.MinerioFerro, qtd: 2 } },
+        { porItem: -1, preco: { tipo: "dimas", qtd: 5 } }, // porItem inválido — descartada
+        { porItem: BlockId.MinerioOuro, preco: { tipo: "dimas", qtd: 0 } }, // qtd<1 — descartada
+        "lixo",
+      ],
+    };
+    const parsed = parseContainerSalvo(raw);
+    expect(parsed?.criador).toBeUndefined();
+    expect(parsed?.precos).toEqual([
+      { porItem: BlockId.Planks, preco: { tipo: "item", item: BlockId.MinerioFerro, qtd: 2 } },
+    ]);
+  });
+
+  it("baú comum e fornalha continuam sem criador/preço (campos ausentes)", () => {
+    const salvo = containerParaSave(0, 0, 0, containerVazio("bau"));
+    expect(salvo.criador).toBeUndefined();
+    expect(salvo.precos).toBeUndefined();
   });
 });
