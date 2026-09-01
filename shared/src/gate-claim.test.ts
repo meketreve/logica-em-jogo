@@ -230,4 +230,24 @@ describe("§🍖 F10f — o PORTÃO do claim (o pedido do usuário virou teste)"
       .find((m) => m?.type === "chat");
     expect(aviso).toBeDefined();
   });
+
+  it("I3 (2026-09-01): CONFINAMENTO barra a loja também — a exceção do gate (T7) é só do claimBloqueia", () => {
+    // A loja É a exceção proposital do gate (spec: ler pra comprar não roda
+    // claimBloqueia) — mas confinamento é REGRA DE AULA (área do grupo), não
+    // regra de dono do terreno, e o T7 nunca prometeu dispensar essa. Mesmo
+    // setup do teste da porta logo acima, só trocando o bloco por um Baú-Loja.
+    const { session, sent, sx, sz, h } = turmaComClaimDaAna(true);
+    const loja = { x: sx - 1, y: h, z: sz - 1 };
+    setBlock(session.world, loja.x, loja.y, loja.z, BlockId.BauLoja);
+    const antes = retrato(session);
+    const marca = sent.length;
+    session.handleMessage(3, JSON.stringify({ type: "use_block", ...loja }));
+    expect(retrato(session)).toBe(antes); // nada mudou no mundo
+    const daBia = sent
+      .slice(marca)
+      .filter((s) => s.clientId === 3)
+      .map((s) => parseServerMessage(s.data as string));
+    expect(daBia.some((m) => m?.type === "container")).toBe(false); // painel NÃO abriu
+    expect(daBia.find((m) => m?.type === "chat")).toBeDefined(); // avisada, não erro solto
+  });
 });
