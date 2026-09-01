@@ -375,6 +375,9 @@ describe("comprar — pagamento em DIMAS", () => {
     const cont = session.containers.get(`${x},${y},${z}`)!;
     // pagamento em Dimas NUNCA aparece nos slots — só o estoque caiu
     expect(cont.slots.reduce((s, sl) => s + (sl?.id === BlockId.Planks ? sl.qtd : 0), 0)).toBe(5);
+    // ana recebeu os 5 Planks de verdade na mochila
+    const mochilaAna = session.inventarios.get("ana")!;
+    expect(mochilaAna.reduce((s, sl) => s + (sl?.id === BlockId.Planks ? sl.qtd : 0), 0)).toBe(5);
   });
 
   it("recusa: saldo de Dimas insuficiente", () => {
@@ -383,6 +386,7 @@ describe("comprar — pagamento em DIMAS", () => {
     sent.length = 0;
     session.handleMessage(2, JSON.stringify({ type: "comprar", x, y, z, item: BlockId.Planks, qtd: 1 }));
     expect(chatPara(sent, 2)).toContain("Dimas");
+    expect(session.dimas.get("ana")).toBe(3); // nada mudou
     expect(session.dimas.get("prof")).toBe(50); // nada mudou de nenhum dos dois
   });
 
