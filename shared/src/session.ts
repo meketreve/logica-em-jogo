@@ -43,10 +43,12 @@ import {
 import { MAX_QUADRO_TEXTO, type QuadroConteudo, quadroKey } from "./quadros";
 import {
   type Container,
+  type Preco,
   containerDeSave,
   containerKey,
   containerTemConteudo,
   containerTipoDe,
+  containerVazio,
   descartarEm,
   moverBloqueadoPorCombustivel,
   moverEntre,
@@ -1153,6 +1155,15 @@ export class GameSession {
           return;
         }
         this.applyBlock(msg.x, msg.y, msg.z, msg.blockId);
+        if (msg.blockId === BlockId.BauLoja) {
+          // Loja (2026-09-01): criador = quem COLOCOU, gravado JÁ — sem isto
+          // a 1ª leitura preguiçosa (`containerDe`) devolveria criador:"" e
+          // nem quem colocou conseguiria gerenciar a própria loja.
+          this.containers.set(
+            containerKey(msg.x, msg.y, msg.z),
+            { ...containerVazio("loja"), criador: p.name },
+          );
+        }
         break;
       }
       case "use_block": {
