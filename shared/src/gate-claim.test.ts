@@ -55,6 +55,10 @@ const SEM_GATE: ReadonlyMap<string, string> = new Map([
     "definir_preco",
     "loja: só o CRIADOR aplica de verdade (aplicarDefinirPreco confere o nome, não o claim) — gerenciar a própria loja não pode depender de continuar no grupo de amigos do terreno onde ela está.",
   ],
+  [
+    "comprar",
+    "loja: ler pra comprar é o PONTO da feature — qualquer um alcança, mesmo fora do grupo de amigos do terreno. containerAberto + confinaBloqueia + estoque/pagamento (aplicarCompra) são o gate de verdade, não o claim.",
+  ],
 ]);
 
 /** Os `type` da união `ClientMessage` que carregam uma coordenada `x`. */

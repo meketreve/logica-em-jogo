@@ -96,6 +96,12 @@ export type ClientMessage =
    * `session/loja.ts`.
    */
   | { type: "definir_preco"; x: number; y: number; z: number; item: number; preco: Preco | null }
+  /**
+   * Loja: compra `qtd` unidades de `item` (o item À VENDA, não o pagamento —
+   * o preço já diz o que se paga). Servidor confere estoque, pagamento e
+   * espaço — ver `session/loja.ts`.
+   */
+  | { type: "comprar"; x: number; y: number; z: number; item: number; qtd: number }
   | { type: "chat"; text: string }
   | {
       /**
@@ -685,6 +691,19 @@ export function parseClientMessage(raw: string): ClientMessage | null {
         z: m["z"] as number,
         item: m["item"] as number,
         preco,
+      };
+    }
+    case "comprar": {
+      const ints = [m["x"], m["y"], m["z"], m["item"], m["qtd"]];
+      if (!ints.every((n) => typeof n === "number" && Number.isInteger(n))) return null;
+      if ((m["qtd"] as number) < 1) return null;
+      return {
+        type: "comprar",
+        x: m["x"] as number,
+        y: m["y"] as number,
+        z: m["z"] as number,
+        item: m["item"] as number,
+        qtd: m["qtd"] as number,
       };
     }
     case "fabricar": {
