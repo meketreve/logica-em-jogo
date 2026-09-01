@@ -533,6 +533,18 @@ senão lado com parede; empate → base. Cliente inalterado.
     tablet); água infinita (2 fontes fazem fonte nova, estilo Minecraft) SIM/NÃO; nível
     vira altura visual no mesher SIM/NÃO (senão fica cubo cheio "degrau"). Feature grande —
     provavelmente depois do relatório/piloto.
+* \[ ] **`/regiao encher` não aceita água** (pedido do usuário, 2026-09-01): hoje não tem
+  como encher uma região com água pelo comando. Causa (lida em `session/regioes.ts:85-98`):
+  `case "encher"` recusa qualquer id que `isPlaceable()` reprove, e água é EXCLUÍDA de
+  propósito (`Água só entra por BALDE` — decisão registrada no cerebrum Do-Not-Repeat) —
+  `/bloco <id da água>` já é recusado pelo mesmo motivo. Segundo gap, menor: o comando só
+  aceita ID NUMÉRICO (`/regiao encher nome id`), não nome (`agua`) — `Number("agua")` dá
+  `NaN` e cai no "Uso:" antes mesmo de chegar no `isPlaceable`. Pra `/regiao encher nome
+  agua` funcionar precisa dos DOIS: (1) aceitar nome de bloco na tabela de nomes PT que já
+  existe (`client/src/blocksUi.ts` tem os nomes; falta um lookup nome→id do lado do
+  servidor, `shared/`) e (2) abrir uma exceção específica pra água dentro do `encher` — SEM
+  tocar no `isPlaceable()` geral, que é o gate que protege o aluno (`/bloco`); é ferramenta
+  de PROFESSOR/autoria, então a exceção é segura ali e não vaza pro aluno.
 
 ## Ferramentas de dev
 
@@ -1161,3 +1173,8 @@ não tem filesystem; export de "pasta" no single fica de fora (não faz sentido 
     construção — só não é mais matéria-prima de ninguém.
   * Os dois pedidos de FEATURE da mesma conversa (área do claim por membro e `/claim
     modificar`) estão na seção **Sistema anti-griefing**, acima.
+* \[ ] **bug-651 (2026-08-31, ABERTO) — não dá pra sair da cama.** Hoje a única saída é
+  `acordarSeSaiu` (`shared/src/session/dormir.ts`), disparada por um `move` que afasta os pés
+  da célula da cama — reclicar a cama não acorda (`tentarDormir` recusa se já está deitado).
+  Pedido do usuário: apertar o botão de PULAR, deitado, levanta. Precisa investigar o client
+  primeiro (input de pulo enquanto deitado) antes de desenhar o caminho de rede.

@@ -2,48 +2,58 @@
 
 > Single source of truth for resuming work. Read this FIRST when starting a session.
 
-> ## 🧭 HANDOFF — SESSÃO 93 (2026-08-30) · README + changelog in-game postos em dia
+> ## 🧭 HANDOFF — SESSÃO 94 (2026-08-31) · bug-650: atraso de comandos com turma cheia (FIX)
 
-> **Bateria verde:** typecheck 3/3 · **936/936** · build · portão `checar-launchers` OK.
-> ⚠️ Ainda **NÃO commitado nem empurrado** — confira `rtk proxy git rev-parse --short
-> origin/main` antes de assumir que subiu (era `0f5a040` no início desta sessão).
+> **Bateria verde:** typecheck 3/3 · **936/936** · build · `checar-launchers` OK · **carga real
+> retestada pós-fix** (não só unit test — ver abaixo).
+> ⚠️ Ainda **NÃO commitado nem empurrado** — isto empilha em cima do que a sessão 93 já tinha
+> deixado pendente (README.md, changelog.ts). Confira `rtk proxy git rev-parse --short
+> origin/main` antes de assumir que subiu (era `4325d07` no início desta sessão).
 
-> ### ✅ Entregue — README.md documenta o que a sessão 92 tinha deixado sem doc
-> Tabela "O que precisa": Node.js só é pré-requisito pra host Linux/macOS/WSL agora — Windows
-> baixa sozinho (nota nova na seção Rodar explicando `.node-portatil\`, sem admin, sem instalar
-> no sistema). Seção do aluno ganhou os 5 layouts de toque (destro/canhoto/compacto/espalhado/
-> direcional) + escala automática.
+> ### ✅ Provado — `iniciar-servidor.bat` (Node portátil) funcionou numa escola REAL
+> Pendência da sessão 93 fechada: usuário confirmou que rodou numa máquina real do lab e subiu
+> sem precisar instalar nada. Sem ação de código.
 
-> ### ✅ Entregue — tela "📜 novidades" (`client/src/changelog.ts`) atualizada
-> Estava **2 sessões atrasada**: faltavam os 5 layouts de toque, o Node portátil no launcher E a
-> tradução de comandos (`/claim`→`/terreno`, `/resetpin`→`/redefinirpin`, `/tpr`→`/tpp`,
-> `/kicar`→`/expulsar`, sessão 91) — nenhuma tinha entrado no registro que aluno/professor vê
-> dentro do jogo. 3 blocos novos + `data` fixa no que antes era "atual" (`Silêncio, por favor`,
-> agora 27/08/2026). Datas conferidas por `git show -s --format=%ai <sha>`, não chutadas.
+> ### ✅ Feito — `mundo-livre.ljw.corrompido-1785704408442` deletado
+> Sobra órfã pedida pelo usuário. `mundo-livre.ljw` (2.0M, o save de verdade) intacto.
 
-> ### ⚠️ Aprendido — `npx openwolf scan` ≠ `openwolf scan`
-> `npx` baixou `openwolf@2.5.1` (registro) em vez de usar o `2.0.1` já instalado (pnpm global,
-> no PATH) — a versão baixada excluía `.claude/` inteiro, anatomy.md caiu de 365 pra 238
-> arquivos. Revertido e re-rodado com o binário certo (`openwolf scan`, sem `npx`) → 365, diff
-> mínimo (só os 2 arquivos tocados nesta sessão). Registrado no `cerebrum.md` Do-Not-Repeat:
-> **nunca `npx openwolf`.**
+> ### ✅ Corrigido — bug-650: comandos atrasados com turma de 35 ("como se não fosse tempo real")
+> **Causa (medida, não chutada):** `broadcastPose` relayava CADA `move` recebido NA HORA,
+> individualmente, pra todo mundo — O(N²) sends/s. Turma de 35 a 10Hz = ~12 mil sends/s na
+> thread única do Node. Bate com a sessão 89 (26/08) ter subido o teto de grupos de 20→35: só
+> aí o volume cruzou o teto da máquina. Provado com carga real simulada (`carga-movimento.mjs`,
+> ficou no scratchpad da sessão, não versionado): **5 clientes=3.7ms · 20=37ms · 35=2555ms com
+> 9/10 comandos em timeout.**
+>
+> **Fix:** `move` para de broadcastar na hora — `session.ts` guarda a pose em `posesDirty` (Map
+> por autor) e `flushPoses()` no fim do `tick()` manda UM `players_moved` (tipo novo em
+> `protocol.ts`) por DESTINATÁRIO, com o mesmo gate do `/invisivel` que o `broadcastPose` já
+> tinha. Sends caem de O(N²) pra O(N). `main.ts` ganhou `aplicarPoseRemota()` compartilhado entre
+> o `player_moved` individual (que continua existindo — join/dormir/toggle `/invisivel`, raros,
+> não mexidos) e cada entrada do lote.
+>
+> **Reteste com a MESMA carga, pós-fix:** 20 clientes 37ms→**8.2ms** · 35 clientes 2555ms→
+> **12.9ms**, 0 timeouts. Registrado em `buglog.json` (bug-650) e `cerebrum.md` (Decision Log +
+> Do-Not-Repeat sobre broadcast-por-evento ser O(N²) esperando pra acontecer).
+>
+> ⚠️ **Não verificado ainda:** a próxima aula real na escola. O reteste foi `localhost` — a rede
+> real (WSL mirrored, ver seção de rede abaixo) não entrou na medição. Se o atraso persistir com
+> a turma de verdade, o próximo suspeito é a CAMADA DE REDE (WSL↔Windows↔LAN), não mais o
+> broadcast em si.
 
 > ### 🚀 PRÓXIMA QUEST
-> **Passo imediato desta sessão:** commit + push do que está pendente (README.md, changelog.ts,
-> anatomy.md/anatomy-index.json, client/dist, shared/src/build-info.json, cerebrum.md,
-> memory.md) — o usuário já pediu, só falta executar.
-
-> **Depois — prioridade fora do código:** testar o `iniciar-servidor.bat` num PC real da
-> escola — baixa/extrai o Node, sobe o servidor sem instalar nada à mão. É o motivo do launcher
-> novo existir; ainda não foi provado em máquina real.
+> **Passo imediato:** commit + push de tudo que está pendente (bug-650 + o que a sessão 93 já
+> tinha deixado: README.md, changelog.ts, anatomy.md/anatomy-index.json, client/dist,
+> shared/src/build-info.json, cerebrum.md, buglog.json, memory.md).
+>
+> **Depois — confirmar em campo:** a próxima aula com turma cheia é o teste real do bug-650. Se
+> o atraso sumiu, fechar de vez; se persistir, investigar a camada de rede (WSL mirrored, seção
+> abaixo) em vez de reabrir o broadcast.
 >
 > Fila do `todo.md` (6 itens abertos): **ovelha + lã de verdade** (§🍖 F8 — mob, tosa, lã como
 > recurso, destrava cama/noite, a que destrava mais coisa) · sentar na cadeira · trocar modelo do
 > player pra estilo Minecraft · Ferramentas v2 (durabilidade + slot selecionado + tempo de
 > quebra — decidir `dano?` no Stack ANTES de codar).
->
-> **Herdado, não urgente:** `mundo-livre.ljw.corrompido-1785704408442` em `mundos/mundo-livre/`
-> — sobra de um boot que achou o save inválido e o renomeou; ninguém investigou por quê.
 
 ---
 

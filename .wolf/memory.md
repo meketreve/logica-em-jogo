@@ -2905,3 +2905,84 @@ fraude.
 | 12:54 | openwolf scan (correto, sem npx): 365 arquivos, anatomy.md+anatomy-index.json | .wolf/anatomy.md, .wolf/anatomy-index.json | ok apos reverter scan errado do npx | ~200 |
 | 12:54 | cerebrum.md: Do-Not-Repeat sobre npx openwolf != openwolf do PATH | .wolf/cerebrum.md | ok | ~250 |
 | 12:54 | STATUS.md: handoff sessao 93 sobrescrito | .wolf/STATUS.md | ok | ~300 |
+| 12:56 | Session end: 4 writes across 2 files (README.md, changelog.ts) | 2 reads | ~7728 tok |
+
+## Session: 2026-08-31 08:35
+
+| Time | Action | File(s) | Outcome | ~Tokens |
+|------|--------|---------|---------|--------|
+| 08:54 | Edited shared/src/protocol.ts | expanded (+24 lines) | ~290 |
+| 08:54 | Edited shared/src/protocol.ts | added 4 condition(s) | ~367 |
+| 08:54 | Edited shared/src/session.ts | expanded (+8 lines) | ~152 |
+| 08:54 | Edited shared/src/session.ts | 12→12 lines | ~180 |
+| 08:54 | Edited shared/src/session.ts | 4→7 lines | ~71 |
+| 08:55 | Edited shared/src/session.ts | added 5 condition(s) | ~594 |
+| 08:55 | Edited client/src/main.ts | modified if() | ~97 |
+| 08:55 | Edited client/src/main.ts | added optional chaining | ~250 |
+| 08:55 | Edited shared/src/invisivel.test.ts | added 1 condition(s) | ~261 |
+| 08:56 | Edited shared/src/session.test.ts | expanded (+8 lines) | ~333 |
+| 08:57 | Edited shared/src/invisivel.test.ts | added 1 condition(s) | ~195 |
+| 08:30 | Usuário confirma: iniciar-servidor.bat (Node portátil) testado numa escola REAL, funcionou | — | ✅ provado em máquina real (era pendência da sessão 93) | ~1k |
+| 08:31 | Deletado mundo-livre.ljw.corrompido-1785704408442 (1.0M, sobra órfã, pedido do usuário) | mundos/mundo-livre/ | ok, .ljw bom (2.0M) intacto | ~1k |
+| 08:58 | bug-650 diagnosticado com carga REAL (não chute): script carga-movimento.mjs no scratchpad, 35 clientes a 10Hz — 5cli=3.7ms, 20cli=37ms, 35cli=2555ms com 9/10 timeouts. Causa: broadcastPose relayava CADA move na hora = O(N²) sends/s; bate com o teto de grupos ter subido 20→35 na sessão 89 | shared/src/session.ts (leitura), carga-movimento.mjs (scratchpad) | root cause confirmado antes de mexer em código | ~15k |
+| 09:00 | Fix: move vira players_moved em LOTE no fim do tick (posesDirty + flushPoses), 1 broadcast por destinatário em vez de 1 por move recebido; protocol.ts ganhou o tipo+parser, main.ts ganhou aplicarPoseRemota() compartilhado | shared/src/session.ts, protocol.ts, client/src/main.ts | O(N²)→O(N) sends | ~3k |
+| 09:01 | Testes atualizados pro lote: mover()+posesRecebidas() em invisivel.test.ts (tick() explícito, unpack players_moved), teste "move vira player_moved" em session.test.ts virou "players_moved no fim do tick" | shared/src/invisivel.test.ts, session.test.ts | 936/936 ✓ | ~1k |
+| 09:02 | Bateria verde: check:launchers ✓ · typecheck 3/3 ✓ · test 936/936 ✓ · build ✓ | — | portão completo | — |
+| 09:03 | RETESTE com a MESMA carga real pós-fix: 20cli 37ms→8.2ms, 35cli 2555ms→12.9ms, 0 timeouts | carga-movimento.mjs (scratchpad) | fix confirmado por medição, não só por teste unitário | ~1k |
+| 09:04 | openwolf scan (sem npx): 365 arquivos confirmados, anatomy.md/anatomy-index.json atualizados | .wolf/anatomy.md, anatomy-index.json | ok | ~200 |
+| 09:05 | bug-650 registrado no buglog.json; cerebrum.md ganhou Do-Not-Repeat (broadcast por evento é O(N²)) + Decision Log | .wolf/buglog.json, cerebrum.md | ok | ~1k |
+| — | Brainstorm arquitetural da loja em bloco (Baú-Loja): 6 perguntas ao usuário, 3 abordagens (usuário escolheu C — bloco novo, não comando em baú existente), spec escrita e commitada | docs/superpowers/specs/2026-08-31-loja-baus-design.md, docs/loja-perguntas-alunos.md | spec aprovada | ~40k |
+| — | Plano de implementação da loja: 14 tarefas, TDD, código real por passo. Self-review achou gate-claim.test.ts (audita todo ClientMessage com x:number) — definir_preco/comprar precisavam de entrada em SEM_GATE, senão quebrariam a suíte no commit que os introduz. Corrigido antes de fechar o plano | docs/superpowers/plans/2026-09-01-loja-baus.md | plano pronto p/ subagent-driven | ~60k |
+| — | Ideia anotada no todo.md: /regiao encher não aceita água (2 causas reais lidas no código — isPlaceable exclui água de propósito, e o comando só aceita id numérico, não nome) | todo.md (Água) | anotado, sem código | ~2k |
+| 09:01 | Session end: 11 writes across 5 files (protocol.ts, session.ts, main.ts, invisivel.test.ts, session.test.ts) | 9 reads | ~123012 tok |
+| 09:16 | Created docs/loja-perguntas-alunos.md | — | ~318 |
+
+## Session: 2026-08-31 09:23
+
+| Time | Action | File(s) | Outcome | ~Tokens |
+|------|--------|---------|---------|--------|
+| 10:30 | Preencheu modelo docx de sequência didática (CRE) com dados reais de `relatorio-aplicacao.md` + códigos BNCC Computação verificados (EF02CO01, EF15CO02-04, EF69CO03/04/06, EF07CO02) via python-docx (uv run --with) | `relatorio/Modelo sequência didática 2026.docx` | Campos xxx preenchidos (habilidades, objetos de conhecimento, relato, 4 momentos, avaliação, referências) | ~40k |
+| 10:45 | A pedido do usuário, citou Wing/Piaget/Gee/Kapp no corpo do relato (Wing no relato geral, Piaget no Momento 3, Gee+Kapp no Momento 4) e listou as 4 obras em ABNT no campo REFERÊNCIAS | `relatorio/Modelo sequência didática 2026.docx` | 4 citações + 4 refs ABNT gravadas | ~15k |
+| 10:51 | Corrigiu 5 referências bibliográficas incompletas/erradas no projeto de implantação (Piaget: editora certa Zahar 1977 em vez de "LTC" sem ano; Vygotsky: ano 1984; Dichev&Dicheva/Tokac et al/Boyle et al: vol+ano+páginas), todas verificadas por busca antes de escrever | `projeto.txt` | 5 edits aplicados; achado registrado em cerebrum.md Do-Not-Repeat | ~10k |
+| 11:05 | Verificou origem dos códigos EF*CO* (doc é "BNCC Computação", anexo nacional Resolução CNE/CEB nº1/2022, cópia municipal Irani-SC 2025 — códigos são padrão nacional, válidos p/ qualquer município SC) e substituiu "Todos componentes." por códigos reais no campo Habilidades do Currículo de Educação Digital | `relatorio/Modelo sequência didática 2026.docx` | campo antes vago agora cita EF02CO01/EF15CO02-04/EF69CO03-04-06/EF07CO02 | ~12k |
+| 11:30 | Baixou e leu o CBTC 2019 completo (476 pág., undime-sc.org.br) — confirmou que NÃO tem eixo Educação Digital (é anterior à BNCC Computação/2022) e que as tabelas de habilidade não trazem código nessa edição; achou 6 habilidades reais de Matemática (2º/3º/4º/6º/7º/8º ano — padrão, simetria, "algoritmo por fluxograma") batendo com as aulas aplicadas e reescreveu o campo Currículo Base com elas (removendo a duplicata dos códigos EF*CO*) | `relatorio/Modelo sequência didática 2026.docx` | campos Educação Digital (BNCC Computação) e Currículo Base (CBTC Matemática) agora citam documentos DIFERENTES, sem redundância | ~35k |
+| 12:15 | A pedido do usuário, mapeou habilidades do modo sobrevivência (mochila/inventário, ferramentas por tipo/família/nível, receitas+fornalha) pra 3 códigos novos de BNCC Computação (EF05CO01 lista, EF69CO01 classificação, EF69CO05 entrada/saída) + 2 do CBTC (Matemática 5º ano — "quantidades de ingredientes de receitas" — e Geografia 2º ano — atividades extrativas/minerais); anexou como "repertório adicional, ainda não aplicado com turma" nos 3 campos de habilidades/objetos, SEM tocar RELATO/Momentos (sobrevivência não esteve no piloto de 13-20/07) | `relatorio/Modelo sequência didática 2026.docx` | 3 campos ampliados, zip íntegro | ~30k |
+| 16:25 | Usuário exportou o docx pra `.md` (Word→Save As) e editou 3 coisas nele (INTERDISCIPLINARIDADE "Todas", removeu "celulares" dos materiais, RELATO com período 13/07-31/08/2026 em vez de 13-20/07) — reformatou com headers/negrito/listas markdown SEM reverter essas edições do usuário | `relatorio/sequencia didatica.md` | markdown limpo, conteúdo do usuário preservado | ~8k |
+| 17:10 | Usuário revelou fato novo: modo sobrevivência FOI aplicado (não é "futuro" como eu tinha assumido) — 4º/5º, 6º/7º, 8º/9º migraram pra sobrevivência exclusiva após implementação; 2º/3º ficou no criativo; comércio entre alunos surgiu espontâneo; engajamento maior que aulas dirigidas. Reestruturei os 4 Momentos (1=aulas pré-definidas, 2=construção livre/criativo, 3=introdução da sobrevivência, 4=aplicação contínua) + intro do relato + habilidades (tirei "ainda não aplicado") + critérios de avaliação (novo critério observacional pro modo sem contador) | `relatorio/sequencia didatica.md` | relato agora reflete o que de fato aconteceu, 4 momentos coerentes com a linha do tempo real | ~25k |
+| 17:35 | Sincronizou o conteúdo atualizado do .md de volta pro .docx original, convertendo listas/negrito markdown pra prosa corrida (o padrão do template — rótulo em negrito + texto plano, sem bullet nem header); também aplicou as 2 edições do usuário (INTERDISCIPLINARIDADE "Todas", materiais sem "celulares") que só estavam no .md | `relatorio/Modelo sequência didática 2026.docx` | 11 parágrafos atualizados, zip íntegro, .md e .docx agora equivalentes em conteúdo | ~20k |
+| 10:50 | Edited projeto.txt | inline fix | ~28 |
+| 10:50 | Edited projeto.txt | inline fix | ~21 |
+| 10:50 | Edited projeto.txt | inline fix | ~60 |
+| 10:50 | Edited projeto.txt | inline fix | ~55 |
+| 10:50 | Edited projeto.txt | inline fix | ~66 |
+| 10:51 | Session end: 5 writes across 1 files (projeto.txt) | 5 reads | ~42712 tok |
+| 16:20 | Created relatorio/sequencia didatica.md | — | ~2726 |
+| 16:20 | Session end: 6 writes across 2 files (projeto.txt, sequencia didatica.md) | 6 reads | ~45633 tok |
+| 16:46 | Edited relatorio/sequencia didatica.md | inline fix | ~153 |
+| 16:46 | Edited relatorio/sequencia didatica.md | 3→3 lines | ~140 |
+| 16:47 | Edited relatorio/sequencia didatica.md | inline fix | ~91 |
+| 16:47 | Edited relatorio/sequencia didatica.md | 19→19 lines | ~1634 |
+| 16:47 | Edited relatorio/sequencia didatica.md | 3→5 lines | ~143 |
+| 16:48 | Session end: 11 writes across 2 files (projeto.txt, sequencia didatica.md) | 7 reads | ~50963 tok |
+| 17:01 | Edited todo.md | 2→7 lines | ~160 |
+| 17:01 | Edited docs/loja-perguntas-alunos.md | 10→13 lines | ~224 |
+| 17:02 | Created docs/superpowers/specs/2026-08-31-loja-baus-design.md | — | ~1664 |
+| 17:03 | Edited docs/superpowers/specs/2026-08-31-loja-baus-design.md | added optional chaining | ~86 |
+| 09:10 | Session end: 15 writes across 5 files (projeto.txt, sequencia didatica.md, todo.md, loja-perguntas-alunos.md, 2026-08-31-loja-baus-design.md) | 18 reads | ~179061 tok |
+| 09:20 | Created docs/superpowers/plans/2026-09-01-loja-baus.md | — | ~24670 |
+| 09:22 | Edited docs/superpowers/plans/2026-09-01-loja-baus.md | modified map() | ~427 |
+| 09:22 | Edited docs/superpowers/plans/2026-09-01-loja-baus.md | 6→6 lines | ~58 |
+| 09:22 | Edited docs/superpowers/plans/2026-09-01-loja-baus.md | 9→9 lines | ~121 |
+| 09:22 | Edited docs/superpowers/plans/2026-09-01-loja-baus.md | modified feat() | ~78 |
+| 09:23 | Edited docs/superpowers/plans/2026-09-01-loja-baus.md | expanded (+16 lines) | ~292 |
+| 09:23 | Edited docs/superpowers/plans/2026-09-01-loja-baus.md | 7→6 lines | ~72 |
+| 09:23 | Edited docs/superpowers/plans/2026-09-01-loja-baus.md | 5 → 6 | ~14 |
+| 09:23 | Edited docs/superpowers/plans/2026-09-01-loja-baus.md | modified feat() | ~182 |
+| 09:24 | Edited docs/superpowers/plans/2026-09-01-loja-baus.md | modified ts() | ~362 |
+| 09:24 | Edited docs/superpowers/plans/2026-09-01-loja-baus.md | 3→3 lines | ~16 |
+| 09:24 | Edited docs/superpowers/plans/2026-09-01-loja-baus.md | removed 9 lines | ~15 |
+| 09:24 | Edited docs/superpowers/plans/2026-09-01-loja-baus.md | 3→3 lines | ~185 |
+| 09:25 | Edited docs/superpowers/plans/2026-09-01-loja-baus.md | 11→11 lines | ~168 |
+| 09:25 | Edited docs/superpowers/plans/2026-09-01-loja-baus.md | inline fix | ~19 |
+| 09:26 | Session end: 30 writes across 6 files (projeto.txt, sequencia didatica.md, todo.md, loja-perguntas-alunos.md, 2026-08-31-loja-baus-design.md) | 26 reads | ~259763 tok |
+| 09:35 | Edited todo.md | modified Causa() | ~301 |

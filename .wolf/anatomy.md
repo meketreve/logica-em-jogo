@@ -1,7 +1,7 @@
 # anatomy.md
 
-> Auto-maintained by OpenWolf. Last scanned: 2026-08-30T15:52:20.004Z
-> Files: 365 tracked | Anatomy hits: 0 | Misses: 0
+> Auto-maintained by OpenWolf. Last scanned: 2026-09-01T12:35:25.936Z
+> Files: 369 tracked | Anatomy hits: 0 | Misses: 0
 
 ## ./
 
@@ -13,9 +13,9 @@
 - `LICENSE` — Licença de Uso — Lógica em Jogo (~1070 tok)
 - `package-lock.json` — npm lock file (~20120 tok)
 - `package.json` — Node.js package manifest (~487 tok)
-- `projeto.txt` (~4707 tok)
+- `projeto.txt` (~4736 tok)
 - `README.md` — Project documentation (~2838 tok)
-- `todo.md` — Ideias para fazer (~24764 tok)
+- `todo.md` — Ideias para fazer (~25141 tok)
 - `tsconfig.base.json` (~130 tok)
 - `vitest.config.ts` — Config do vitest da RAIZ (2026-08-11, bug-612). (~335 tok)
 
@@ -340,7 +340,7 @@
   - section `LuzUniforms` L22-32 (~120 tok)
   - fn `criarLuzUniforms` L33-43 (~116 tok)
   - fn `aplicarLuz` L44-99 (~640 tok)
-- `main.ts` — §💬 (2026-08-14) Fonte ÚNICA de "a mira aponta pra algo que o clique direito (~33529 tok)
+- `main.ts` — §💬 (2026-08-14) Fonte ÚNICA de "a mira aponta pra algo que o clique direito (~33714 tok)
   - fn `ehInterativo` L119-127 (~107 tok)
   - fn `cachearMundos` L128-227 (~1334 tok)
   - fn `applySettings` L228-310 (~1303 tok)
@@ -359,18 +359,18 @@
   - fn `registrarChegadaDeRede` L574-581 (~60 tok)
   - fn `jitterDeRede` L582-604 (~352 tok)
   - fn `podeVoar` L605-614 (~164 tok)
-  - fn `vitals` L615-686 (~989 tok)
-  - fn `pushPanelData` L687-699 (~139 tok)
-  - fn `pushFriendsData` L700-710 (~96 tok)
-  - fn `ownDone` L711-719 (~90 tok)
-  - fn `refreshObjectivesView` L720-751 (~369 tok)
-  - fn `drenarFilaTroca` L752-759 (~79 tok)
-  - fn `segurarAteATelaPintar` L760-769 (~109 tok)
-  - fn `handleServerData` L770-1004 (~3173 tok)
-  - fn `connect` L1005-1044 (~465 tok)
-  - fn `startMultiplayer` L1045-1062 (~223 tok)
-  - fn `startSingleplayer` L1063-1086 (~284 tok)
-  - fn `persistWorld` L1087-2499 (~19613 tok)
+  - fn `vitals` L615-688 (~1026 tok)
+  - fn `aplicarPoseRemota` L689-709 (~176 tok)
+  - fn `pushPanelData` L710-722 (~139 tok)
+  - fn `pushFriendsData` L723-733 (~96 tok)
+  - fn `ownDone` L734-742 (~90 tok)
+  - fn `refreshObjectivesView` L743-774 (~369 tok)
+  - fn `drenarFilaTroca` L775-782 (~79 tok)
+  - fn `segurarAteATelaPintar` L783-792 (~109 tok)
+  - fn `handleServerData` L793-1025 (~3145 tok)
+  - fn `connect` L1026-1065 (~465 tok)
+  - fn `startMultiplayer` L1066-1083 (~223 tok)
+  - fn `startSingleplayer` L1084-2520 (~19897 tok)
 - `materiaisMundo.ts` — §🎨 Os TRÊS materiais do chunk — e o relógio que os anima. (~1829 tok)
   - class `MateriaisMundo` L23-131 (~1489 tok)
 - `menu.ts` — Menu principal (cp8) — HTML/CSS por cima do canvas, sem GUI de engine. (~7460 tok)
@@ -491,13 +491,19 @@
   - fn `downloadWorld` L60-69 (~121 tok)
   - fn `importWorldFile` L70-82 (~109 tok)
 
+## docs/
+
+- `loja-perguntas-alunos.md` — Loja nos baús — perguntas de design (~378 tok)
+
 ## docs/superpowers/plans/
 
 - `2026-08-17-copias-ao-vivo.md` — Cópias da área de atividade ajustáveis ao vivo — plano de implementação (~14326 tok)
+- `2026-09-01-loja-baus.md` — Loja em bloco — Implementation Plan (~23804 tok)
 
 ## docs/superpowers/specs/
 
 - `2026-08-17-copias-ao-vivo-design.md` — Cópias da área de atividade ajustáveis ao vivo — desenho (~4049 tok)
+- `2026-08-31-loja-baus-design.md` — Loja em bloco — design (~1588 tok)
 
 ## mundos/_smoke-coluna/
 
@@ -653,6 +659,7 @@
 
 - `apresentacao-cre.html` — Deck de 20 slides pra apresentar o projeto na CRE (pedagógico + demo + técnico). Um arquivo, offline, ← → navega e N mostra notas do apresentador; 3 prints em JPEG base64 no mapa `IMGS` do script. Slide 14 documenta uso real fora do piloto (Geografia, 2º ano). ⚠️ NÃO LER INTEIRO (base64) — editar por Edit ancorado em texto de slide (~79407 tok)
 - `relatorio-aplicacao.md` — Relatório de Aplicação — *Lógica em Jogo* (~5172 tok)
+- `sequencia didatica.md` — Lógica em jogo - jogo voxel 3D para estimular o raciocinio lógico (~3014 tok)
 
 ## scripts/
 
@@ -1286,19 +1293,19 @@
   - section `SlotSalvo` L315-321 (~38 tok)
   - fn `inventarioParaSave` L322-337 (~162 tok)
   - fn `parseInventario` L338-355 (~190 tok)
-- `invisivel.test.ts` — `/invisivel` (2026-08-22) — o professor some do corpo dos ALUNOS para (~3518 tok)
+- `invisivel.test.ts` — `/invisivel` (2026-08-22) — o professor some do corpo dos ALUNOS para (~3642 tok)
   - fn `collect` L23-26 (~55 tok)
   - fn `join` L27-28 (~34 tok)
   - fn `cmd` L29-30 (~20 tok)
   - fn `baseSave` L31-37 (~79 tok)
-  - fn `turma` L38-46 (~99 tok)
-  - fn `mover` L47-51 (~78 tok)
-  - fn `posesRecebidas` L52-62 (~120 tok)
-  - fn `saidasRecebidas` L63-72 (~79 tok)
-  - fn `ultimaChat` L73-81 (~82 tok)
-  - fn `ultimoInvisivel` L82-91 (~104 tok)
-  - fn `teleportesRecebidos` L92-101 (~74 tok)
-  - fn `ultimaVida` L102-304 (~2421 tok)
+  - fn `turma` L38-48 (~144 tok)
+  - fn `mover` L49-56 (~118 tok)
+  - fn `posesRecebidas` L57-70 (~159 tok)
+  - fn `saidasRecebidas` L71-80 (~79 tok)
+  - fn `ultimaChat` L81-89 (~82 tok)
+  - fn `ultimoInvisivel` L90-99 (~104 tok)
+  - fn `teleportesRecebidos` L100-109 (~74 tok)
+  - fn `ultimaVida` L110-312 (~2421 tok)
 - `luz.test.ts` — 3×3 colunas de chunk, 2 chunks de altura (32 blocos) — dá pra enterrar uma (~5090 tok)
   - fn `mundoComChao` L24-32 (~88 tok)
   - fn `acenderTudo` L33-434 (~4857 tok)
@@ -1398,19 +1405,19 @@
   - fn `moveAxisGuarded` L438-453 (~96 tok)
   - fn `stepPlayer` L454-547 (~1177 tok)
 - `protocol.test.ts` — Declares DIMS (~3650 tok)
-- `protocol.ts` — Protocolo v0 (checkpoint 2). Mensagens JSON dos dois lados + world_snapshot (~13766 tok)
-  - fn `parseClientMessage` L496-691 (~2078 tok)
-  - fn `parseCama` L692-699 (~112 tok)
-  - fn `parseServerMessage` L700-992 (~3484 tok)
-  - section `Snapshot` L993-997 (~18 tok)
-  - fn `encodeSnapshot` L998-1017 (~201 tok)
-  - fn `decodeSnapshot` L1018-1077 (~763 tok)
-  - fn `peekMagic` L1078-1082 (~40 tok)
-  - fn `encodeLazyInfo` L1083-1095 (~134 tok)
-  - fn `decodeLazyInfo` L1096-1120 (~245 tok)
-  - section `ColunaRef` L1121-1128 (~80 tok)
-  - fn `encodeColunas` L1129-1153 (~276 tok)
-  - fn `decodeColunas` L1154-1187 (~340 tok)
+- `protocol.ts` — Protocolo v0 (checkpoint 2). Mensagens JSON dos dois lados + world_snapshot (~14359 tok)
+  - fn `parseClientMessage` L520-715 (~2078 tok)
+  - fn `parseCama` L716-723 (~112 tok)
+  - fn `parseServerMessage` L724-1042 (~3828 tok)
+  - section `Snapshot` L1043-1047 (~18 tok)
+  - fn `encodeSnapshot` L1048-1067 (~201 tok)
+  - fn `decodeSnapshot` L1068-1127 (~763 tok)
+  - fn `peekMagic` L1128-1132 (~40 tok)
+  - fn `encodeLazyInfo` L1133-1145 (~134 tok)
+  - fn `decodeLazyInfo` L1146-1170 (~245 tok)
+  - section `ColunaRef` L1171-1178 (~80 tok)
+  - fn `encodeColunas` L1179-1203 (~276 tok)
+  - fn `decodeColunas` L1204-1237 (~340 tok)
 - `pvp.test.ts` — §🍖 F7 — pvp (2026-08-05). (~3732 tok)
   - fn `collect` L21-24 (~55 tok)
   - fn `join` L25-26 (~34 tok)
@@ -1531,13 +1538,13 @@
   - fn `parseObjective` L197-265 (~766 tok)
   - fn `parseScenarioMeta` L266-303 (~416 tok)
   - fn `parseObjectiveState` L304-361 (~576 tok)
-- `session.test.ts` — Testes de MECÂNICA rodam com singleplayer: true (join sem PIN) — a (~16341 tok)
-  - fn `collect` L12-1201 (~16197 tok)
-- `session.ts` — GameSession: o SERVIDOR autoritativo, independente de hospedeiro. (~31718 tok)
+- `session.test.ts` — Testes de MECÂNICA rodam com singleplayer: true (join sem PIN) — a (~16446 tok)
+  - fn `collect` L12-1209 (~16302 tok)
+- `session.ts` — GameSession: o SERVIDOR autoritativo, independente de hospedeiro. (~32290 tok)
   - section `SessionOptions` L233-285 (~721 tok)
   - section `SessionPlayer` L286-296 (~60 tok)
   - section `Identity` L297-301 (~19 tok)
-  - class `GameSession` L302-2466 (~29552 tok)
+  - class `GameSession` L302-2504 (~30124 tok)
 - `sobrevivencia.test.ts` — Professor (1) + ana (2). `modo` decide o padrão do mundo. (~9235 tok)
   - fn `collect` L42-45 (~55 tok)
   - fn `join` L46-47 (~34 tok)

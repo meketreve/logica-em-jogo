@@ -5566,6 +5566,46 @@
       "related_bugs": [],
       "occurrences": 1,
       "last_seen": "2026-08-27T16:22:00-03:00"
+    },
+    {
+      "id": "bug-650",
+      "timestamp": "2026-08-31T00:00:00.000Z",
+      "error_message": "usuário: atraso nos comandos, como se o servidor não ficasse mais em tempo real (turma de 35 na escola)",
+      "file": "shared/src/session.ts",
+      "root_cause": "broadcastPose relayava CADA move recebido na hora, individualmente, pra todo mundo (shared/src/session.ts, antigo case \"move\"). Turma de 35 andando a 10Hz gera O(N^2) sends/s (ate ~12 mil/s) na thread unica do Node — a fila do event loop enche e TODO comando atrasa, nao so a posicao de quem anda. Coincide com a sessao 89 (2026-08-26, b7e4d71) que subiu o teto de grupos de 20 para 35 — so ai o volume cruzou o teto da maquina. Medido com carga real (carga-movimento.mjs no scratchpad, nao versionado): 5 clientes=3.7ms, 20=37ms, 35=2555ms com 9/10 comandos em timeout.",
+      "fix": "Move deixou de broadcastar na hora: session.ts guarda a pose em posesDirty (Map por autor, so a ultima do tick sobrevive) e flushPoses() no fim do tick() manda UM players_moved por DESTINATARIO (novo tipo em protocol.ts), com o mesmo gate do /invisivel que o broadcastPose ja tinha (por autor). Sends caem de O(N^2) pra O(N). Client (main.ts) ganhou aplicarPoseRemota() compartilhado entre player_moved (raro: join/dormir/toggle invisivel, ficou como estava) e cada entrada do lote players_moved. Reteste com a MESMA carga real: 35 clientes 2555ms -> 12.9ms, 20 clientes 37ms -> 8.2ms, 0 timeouts.",
+      "tags": [
+        "performance",
+        "rede",
+        "broadcast",
+        "move",
+        "session",
+        "tick",
+        "O(N^2)",
+        "players_moved",
+        "protocol"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-08-31T00:00:00.000Z"
+    },
+    {
+      "id": "bug-651",
+      "timestamp": "2026-08-31T00:00:00.000Z",
+      "error_message": "usuário: bug que impede sair da cama",
+      "file": "shared/src/session/dormir.ts",
+      "root_cause": "ABERTO, NAO INVESTIGADO. Hipotese pela leitura do dormir.ts nesta sessao: a UNICA saida hoje e acordarSeSaiu(), chamada de dentro do handler de \"move\" quando os pes saem da celula da cama (tentarDormir recusa reprocessar dormir.has(clientId)==true, entao reclicar a cama NAO acorda). Se o cliente trava/simplifica o input enquanto deitado (sem WASD real), nunca existe um move que afaste os pes da cama -> nunca acorda. Precisa confirmar do lado do CLIENTE antes de mexer no servidor.",
+      "fix": "PEDIDO, NAO IMPLEMENTADO: usuario quer que apertar o botao de PULAR, estando deitado, levante o jogador. Investigar client (input de pulo, provavelmente main.ts/controleJogador.ts) + decidir a acao de rede: reusar acordar() do dormir.ts precisa de um caminho servidor novo (hoje so acorda por move saindo da celula ou acordarTodos), ja que pular deitado nao gera um move real.",
+      "tags": [
+        "sobrevivencia",
+        "dormir",
+        "cama",
+        "aberto",
+        "playtest"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-08-31T00:00:00.000Z"
     }
   ]
 }

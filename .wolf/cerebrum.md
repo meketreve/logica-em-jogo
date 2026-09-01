@@ -167,6 +167,28 @@
 
 ## Key Learnings
 
+- [2026-08-31] **Ambiente sem `unzip`/`pandoc`/`poppler-utils` — ler .docx/.pdf via `uv run
+  --with python-docx`/`--with pypdf`.** `Read` tool recusa binário e o Read-tool de PDF depende
+  de `pdftoppm` (ausente aqui). `uv run --with <pkg> python3 -c "..."` baixa o pacote na hora
+  numa venv efêmera sem precisar `pip install` (que falha sem `uv venv` antes). Pra `.docx`,
+  editar via `python-docx` preserva formatação (negrito etc.) — troque só `run.text`, nunca
+  `paragraph.text` (reescrever o parágrafo colapsa os runs e perde o negrito do rótulo).
+- [2026-08-31] **CBTC (2019) ≠ BNCC Computação (2022) — são documentos DIFERENTES, não citar como
+  se fossem a mesma fonte.** O CBTC (`Currículo Base do Território Catarinense`, PDF real em
+  `undime-sc.org.br/wp-content/uploads/2019/07/`, 476 pág.) é ANTERIOR à BNCC Computação e não
+  tem eixo Educação Digital/Pensamento Computacional — só menciona "cultura digital" solto
+  dentro de Língua Portuguesa. Suas tabelas de habilidade (Matemática, LP etc.) **não imprimem
+  código** nessa edição (`grep -oE "EF[0-9]{2}[A-Z]{2}[0-9]{2}"` deu zero match). Os códigos
+  EF\*CO\* (EF01CO01 etc.) são só da BNCC Computação nacional (Res. CNE/CEB nº1/2022) — SC adota
+  esses mesmos códigos no seu "Currículo de Educação Digital" (documento separado, pós-2022, sem
+  PDF direto achado nos sites da SED). Pra citar CBTC de verdade, tem que ir atrás do texto da
+  habilidade (sem código) por ano/componente dentro do PDF de 476 páginas.
+- [2026-08-31] **Pasta `relatorio/` (fora do escopo de código) guarda documentos pedagógicos
+  reais**: `projeto.txt` (proposta de implantação, fundamentação científica + refs ABNT prontas),
+  `relatorio-aplicacao.md` (relato já escrito com dados reais do piloto — 61 alunos, 4 turmas
+  multisseriadas, 13-20/07/2026) e o modelo oficial da CRE (`Modelo sequência didática
+  2026.docx`). Ao preencher formulário da CRE, reusar dados do `relatorio-aplicacao.md` em vez
+  de inventar — ele já tem a coleta de campo.
 - [2026-08-28] **`iniciar-servidor.bat` ganhou Node.js portátil, SEMPRE usado** (baixa
   `nodejs.org`, extrai em `.node-portatil\`, prepende no PATH da janela do script — não instala
   nada no sistema). **Não checa mais `where node` primeiro** — decisão revista no mesmo dia:
@@ -1460,6 +1482,11 @@ nenhum** — sem essa declaração o Chrome renderiza a página em light mesmo c
 
 ## Do-Not-Repeat
 
+- [2026-08-31] **`projeto.txt` cita PIAGET errado** — "Rio de Janeiro: LTC" sem ano. Real:
+  *A Psicologia da Inteligência*, trad. Nathanael C. Caixeiro, **Zahar, 1977** (verificado por
+  busca — a LTC publicou *O Nascimento da Inteligência na Criança*, obra diferente, em 1987).
+  Não copiar a referência do `projeto.txt` sem checar; usada a certa em
+  `relatorio/Modelo sequência didática 2026.docx`.
 - [2026-08-30] **`npx openwolf scan` baixa uma versão DIFERENTE da instalada** (puxou 2.5.1
   do registro, `openwolf --version` no PATH real é `2.0.1` via pnpm global em
   `~/.local/share/pnpm/bin/openwolf`). A versão baixada excluiu `.claude/` inteiro e não achou
@@ -2118,9 +2145,27 @@ nenhum** — sem essa declaração o Chrome renderiza a página em light mesmo c
 - [2026-08-25] **Marcar UI como FEITA sem sonda que a ENXERGUE no DOM.** O ✂ de 2026-08-08 entrou
   no todo.md como pronto e nunca existiu na tela (bug-646). Toda UI nova precisa de uma sonda que
   pergunte ao DOM se o elemento está lá — `querySelector` na classe, não só screenshot no olho.
+- [2026-08-31] **Broadcast POR EVENTO recebido (não por tick) é O(N²) esperando pra acontecer.**
+  `broadcastPose` relayava cada `move` na hora, individualmente, pra todo mundo — bug-650: turma
+  de 35 a 10Hz virou ~12 mil sends/s, latência de comando saltou de 8ms pra 2555ms com timeouts.
+  Só apareceu quando o teto de grupos subiu (2026-08-26) — o volume que EXISTE define o teto de
+  quem manda, não o que "parece pouco" testando sozinho. Antes de aceitar uma feature que
+  retransmite algo a cada MENSAGEM do cliente (não a cada TICK do servidor), perguntar: "isso
+  escala com N jogadores × frequência, e alguém já mediu com o TETO real de gente?" — 5 clientes
+  não denuncia nada; o cliff só aparece perto do teto (ver `flushPoses`/`posesDirty` em
+  `session.ts`, o padrão "acumula sujo, esvazia 1×/tick" que os blocos já usavam).
 
 ## Decision Log — índice das decisões ATIVAS
 
+- [2026-08-31] **`move` vira `players_moved` em LOTE no fim do tick, não `player_moved` na hora
+  (bug-650).** Sintoma da escola: comandos atrasados com turma de 35, "como se não fosse mais
+  tempo real". Medido com carga real (35 clientes a 10Hz): 2555ms de latência de comando, 9/10
+  timeouts. Causa: `broadcastPose` fazia 1 `JSON.stringify`+relay POR `move` recebido — O(N²)
+  sends/s. Fix: `posesDirty` (Map por autor, dedupe pra última pose do tick) + `flushPoses()` no
+  fim de `tick()`, 1 `players_moved` por DESTINATÁRIO com o mesmo gate do `/invisivel` que já
+  existia (por autor). Sends caem pra O(N); reteste com a MESMA carga: 12.9ms, 0 timeouts. Só o
+  caminho de 10Hz mudou — join/dormir/toggle `/invisivel` continuam mandando `player_moved`
+  individual na hora (raros, não são o gargalo, e mudar mexeria em mais teste à toa).
 - [2026-08-26] **Teto de aula = 35 grupos, e o preço em BYTE foi aceito de olho aberto.** O mundo
   de aula nasce do tamanho do TETO (decisão #4 de 2026-08-17, que tira o `inBounds` do caminho do
   professor), então subir o teto engorda TODO `.ljw`: 6,70 MB → **9,06 MB** nos 7 cenários, que é
