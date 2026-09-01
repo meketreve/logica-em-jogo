@@ -6,6 +6,7 @@ import {
   FORNALHA_SAIDA,
   HOTBAR_SLOTS,
   INV_SLOTS,
+  type Preco,
   type SlotSalvo,
   TICKS_POR_COZIMENTO,
 } from "@logica/shared";
@@ -43,6 +44,8 @@ export class ContainerPanel {
   private queimando = 0;
   private queimaTotal = 0;
   private progresso = 0;
+  /** Loja (2026-09-01): ausente pros tipos fornalha/bau. */
+  private loja: { criador: string; precos: { porItem: number; preco: Preco }[]; souOCriador: boolean } | null = null;
   /** Slot "pego" esperando destino, no índice UNIFICADO (ou null). */
   private pegando: number | null = null;
   /** §🧹 (playtest): quantas unidades a MÃO carrega numa pilha DIVIDIDA (clique
@@ -92,6 +95,18 @@ export class ContainerPanel {
       slot: number,
       qtd?: number,
     ) => void,
+    /** Loja: pede ao servidor pra mudar (ou remover, `preco: null`) o preço
+     *  de um item. Só o criador manda isto de verdade — o botão nem aparece
+     *  pros outros. */
+    private readonly definirPreco: (
+      x: number,
+      y: number,
+      z: number,
+      item: number,
+      preco: Preco | null,
+    ) => void,
+    /** Loja: pede pra comprar `qtd` unidades de `item`. */
+    private readonly comprar: (x: number, y: number, z: number, item: number, qtd: number) => void,
     /** Avisa o servidor que o painel fechou (senão ele manda o conteúdo pra sempre). */
     private readonly avisarFechado: () => void,
     private readonly onToggle: (open: boolean) => void,
@@ -174,6 +189,7 @@ export class ContainerPanel {
     queimando?: number;
     queimaTotal?: number;
     progresso?: number;
+    loja?: { criador: string; precos: { porItem: number; preco: Preco }[]; souOCriador: boolean };
   }): void {
     const trocouDeCelula =
       !this.pos || this.pos.x !== msg.x || this.pos.y !== msg.y || this.pos.z !== msg.z;
@@ -192,6 +208,7 @@ export class ContainerPanel {
     this.queimando = msg.queimando ?? 0;
     this.queimaTotal = msg.queimaTotal ?? 0;
     this.progresso = msg.progresso ?? 0;
+    this.loja = msg.loja ?? null;
     if (!this.isOpen) {
       this.isOpen = true;
       this.root?.classList.remove("hidden");
@@ -239,6 +256,122 @@ export class ContainerPanel {
     if (i === FORNALHA_ENTRADA) return "cozinhar";
     if (i === FORNALHA_COMBUSTIVEL) return "queimar";
     return "pronto";
+  }
+
+  /**
+   * Visão do COMPRADOR: um item por linha (estoque somado, preço, campo de
+   * quantidade, botão comprar). Nunca deixa o comprador tocar num slot cru —
+   * `mover_container`/`descartar_container` já são recusados pro servidor
+   * pra quem não é o criador (session.ts), então a UI nem oferece o gesto.
+   */
+  private lojaCompra(): HTMLElement {
+    const wrap = document.createElement("div");
+    wrap.className = "loja-compra";
+    if (!this.loja || this.loja.precos.length === 0) {
+      const vazio = document.createElement("p");
+      vazio.className = "inv-dica";
+      vazio.textContent = "Nada à venda aqui ainda.";
+      wrap.appendChild(vazio);
+      return wrap;
+    }
+    for (const { porItem, preco } of this.loja.precos) {
+      const emEstoque = this.slots.reduce((s, sl) => s + (sl?.id === porItem ? sl.qtd : 0), 0);
+      const linha = document.createElement("div");
+      linha.className = "loja-item";
+
+      const icone = document.createElement("img");
+      icone.src = this.icons.get(porItem) ?? "";
+      icone.alt = "";
+      linha.appendChild(icone);
+
+      const rotulo = document.createElement("span");
+      const custo = preco.tipo === "dimas" ? `${preco.qtd} Dimas` : `${preco.qtd}×`;
+      rotulo.textContent = `${emEstoque} em estoque — ${custo} cada`;
+      linha.appendChild(rotulo);
+
+      const qtdInput = document.createElement("input");
+      qtdInput.type = "number";
+      qtdInput.min = "1";
+      qtdInput.max = String(Math.max(1, emEstoque));
+      qtdInput.value = "1";
+      qtdInput.className = "loja-qtd";
+      linha.appendChild(qtdInput);
+
+      const botao = document.createElement("button");
+      botao.type = "button";
+      botao.textContent = "comprar";
+      botao.disabled = emEstoque === 0;
+      botao.addEventListener("click", () => {
+        if (!this.pos) return;
+        const qtd = Math.max(1, Math.floor(Number(qtdInput.value) || 1));
+        this.comprar(this.pos.x, this.pos.y, this.pos.z, porItem, qtd);
+      });
+      linha.appendChild(botao);
+
+      wrap.appendChild(linha);
+    }
+    return wrap;
+  }
+
+  /**
+   * Visão do CRIADOR: um preço editável por TIPO de item presente no
+   * estoque agora (não por slot — o preço é por tipo). Digitar e sair do
+   * campo (`change`) manda `definir_preco`; campo vazio remove o preço
+   * (o item continua no baú, só deixa de estar à venda).
+   */
+  private lojaPrecos(): HTMLElement {
+    const wrap = document.createElement("div");
+    wrap.className = "loja-precos";
+    const titulo = document.createElement("h3");
+    titulo.textContent = "preços";
+    wrap.appendChild(titulo);
+
+    const tipos = new Set(this.slots.filter((s) => s !== null).map((s) => s!.id));
+    if (tipos.size === 0) {
+      const vazio = document.createElement("p");
+      vazio.className = "inv-dica";
+      vazio.textContent = "Ponha algo no estoque (acima) pra poder definir um preço.";
+      wrap.appendChild(vazio);
+      return wrap;
+    }
+    for (const id of tipos) {
+      const atual = this.loja?.precos.find((p) => p.porItem === id)?.preco ?? null;
+      const linha = document.createElement("div");
+      linha.className = "loja-item";
+
+      const icone = document.createElement("img");
+      icone.src = this.icons.get(id) ?? "";
+      icone.alt = "";
+      linha.appendChild(icone);
+
+      const input = document.createElement("input");
+      input.type = "number";
+      input.min = "0";
+      input.placeholder = "sem preço";
+      input.value = atual ? String(atual.qtd) : "";
+      input.className = "loja-preco-input";
+      linha.appendChild(input);
+
+      // trilha de pagamento: por ora item-por-item (o pagamento em Dimas
+      // ganha o próprio campo quando a turma votar essa moeda — o preço já
+      // é `Preco`, o formulário é o que falta crescer)
+      input.addEventListener("change", () => {
+        if (!this.pos) return;
+        const qtd = Math.floor(Number(input.value));
+        if (!Number.isFinite(qtd) || qtd < 1) {
+          this.definirPreco(this.pos.x, this.pos.y, this.pos.z, id, null);
+          return;
+        }
+        const pagamento: Preco = atual?.tipo === "dimas"
+          ? { tipo: "dimas", qtd }
+          : { tipo: "item", item: atual?.tipo === "item" ? atual.item : id, qtd };
+        this.definirPreco(this.pos.x, this.pos.y, this.pos.z, id, pagamento);
+      });
+
+      linha.appendChild(input);
+      wrap.appendChild(linha);
+    }
+    return wrap;
   }
 
   /** Quantidade num slot do espaço unificado (mochila ou container). */
@@ -335,7 +468,8 @@ export class ContainerPanel {
     root.replaceChildren();
 
     const head = document.createElement("h2");
-    head.textContent = this.tipo === "fornalha" ? "fornalha" : "baú";
+    head.textContent =
+      this.tipo === "fornalha" ? "fornalha" : this.tipo === "loja" ? "loja" : "baú";
 
     const fechar = document.createElement("button");
     fechar.type = "button";
@@ -380,6 +514,11 @@ export class ContainerPanel {
       acoes.push(this.botaoLixeira(this.metadePegando ?? qtd));
     }
 
+    if (this.tipo === "loja" && this.loja && !this.loja.souOCriador) {
+      root.append(head, fechar, this.lojaCompra());
+      return;
+    }
+
     // --- o container, em cima ---
     const cima = document.createElement("div");
     cima.className = this.tipo === "fornalha" ? "cont-fornalha" : "cont-bau";
@@ -397,7 +536,15 @@ export class ContainerPanel {
       cima.appendChild(cel);
     }
 
-    root.append(head, fechar, dica, ...(acoes.length ? [linhaDeAcoes(acoes)] : []), cima);
+    const precoEditor =
+      this.tipo === "loja" && this.loja?.souOCriador ? this.lojaPrecos() : null;
+
+    root.append(
+      head, fechar, dica,
+      ...(acoes.length ? [linhaDeAcoes(acoes)] : []),
+      cima,
+      ...(precoEditor ? [precoEditor] : []),
+    );
 
     // --- a barra de fogo e a de cozimento (só a fornalha) ---
     if (this.tipo === "fornalha") {

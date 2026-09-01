@@ -1456,6 +1456,10 @@ class GameRuntime {
         this.activeConn.send(JSON.stringify({ type: "mover_container", x, y, z, de, para, qtd })),
       (x, y, z, slot, qtd) =>
         this.activeConn.send(JSON.stringify({ type: "descartar_container", x, y, z, slot, qtd })),
+      (x, y, z, item, preco) =>
+        this.activeConn.send(JSON.stringify({ type: "definir_preco", x, y, z, item, preco })),
+      (x, y, z, item, qtd) =>
+        this.activeConn.send(JSON.stringify({ type: "comprar", x, y, z, item, qtd })),
       () => this.activeConn.send(JSON.stringify({ type: "fechar_container" })),
       (open) => {
         if (open) {
