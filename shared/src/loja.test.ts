@@ -166,3 +166,56 @@ describe("o gate — ler é o ponto da feature, mexer continua do criador", () =
     expect(depoisDoCriador?.slots[0]).toBeNull(); // o criador esvaziou o próprio slot 0
   });
 });
+
+describe("definir_preco", () => {
+  function lojaAberta() {
+    const { sent, send } = collect();
+    const session = new GameSession(send, { dims: { x: 6, z: 6, y: 4 }, seed: 1, codigo: "sala" });
+    session.handleMessage(1, join("prof", "0000", "sala"));
+    const p = session.players.get(1)!;
+    const x = Math.floor(p.x);
+    const y = Math.floor(p.y);
+    const z = Math.floor(p.z) + 1;
+    session.handleMessage(1, JSON.stringify({ type: "place_block", x, y, z, blockId: BlockId.BauLoja }));
+    session.handleMessage(2, join("ana", "1111"));
+    session.handleMessage(1, JSON.stringify({ type: "use_block", x, y, z }));
+    return { session, sent, x, y, z };
+  }
+
+  it("o criador define um preço em item; a loja passa a mostrá-lo", () => {
+    const { session, x, y, z } = lojaAberta();
+    session.handleMessage(1, JSON.stringify({
+      type: "definir_preco", x, y, z,
+      item: BlockId.Planks,
+      preco: { tipo: "item", item: BlockId.MinerioFerro, qtd: 3 },
+    }));
+    const cont = session.containers.get(`${x},${y},${z}`)!;
+    expect(cont.precos.get(BlockId.Planks)).toEqual({ tipo: "item", item: BlockId.MinerioFerro, qtd: 3 });
+  });
+
+  it("o criador define um preço em Dimas", () => {
+    const { session, x, y, z } = lojaAberta();
+    session.handleMessage(1, JSON.stringify({
+      type: "definir_preco", x, y, z, item: BlockId.Planks, preco: { tipo: "dimas", qtd: 5 },
+    }));
+    expect(session.containers.get(`${x},${y},${z}`)?.precos.get(BlockId.Planks)).toEqual({ tipo: "dimas", qtd: 5 });
+  });
+
+  it("preco: null REMOVE o item da lista de comprável", () => {
+    const { session, x, y, z } = lojaAberta();
+    session.handleMessage(1, JSON.stringify({
+      type: "definir_preco", x, y, z, item: BlockId.Planks, preco: { tipo: "dimas", qtd: 5 },
+    }));
+    session.handleMessage(1, JSON.stringify({ type: "definir_preco", x, y, z, item: BlockId.Planks, preco: null }));
+    expect(session.containers.get(`${x},${y},${z}`)?.precos.has(BlockId.Planks)).toBe(false);
+  });
+
+  it("quem NÃO é o criador não define preço (silencioso)", () => {
+    const { session, x, y, z } = lojaAberta();
+    session.handleMessage(2, JSON.stringify({ type: "use_block", x, y, z })); // ana abre pra comprar
+    session.handleMessage(2, JSON.stringify({
+      type: "definir_preco", x, y, z, item: BlockId.Planks, preco: { tipo: "dimas", qtd: 1 },
+    }));
+    expect(session.containers.get(`${x},${y},${z}`)?.precos.size ?? 0).toBe(0);
+  });
+});

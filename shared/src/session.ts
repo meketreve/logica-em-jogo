@@ -138,7 +138,7 @@ import {
   tentarDormir,
   tickDormir,
 } from "./session/dormir";
-import { sendDimas } from "./session/loja";
+import { aplicarDefinirPreco, sendDimas } from "./session/loja";
 import { runRegiao } from "./session/regioes";
 import { ehFantasma, runInvisivel } from "./session/invisivel";
 import { avisarChatSilenciado, avisarComFreio } from "./session/avisos";
@@ -1530,6 +1530,21 @@ export class GameSession {
         sendInventario(this, clientId);
         // quem mais está com este container aberto vê o slot esvaziar na hora
         avisarContainer(this, msg.x, msg.y, msg.z);
+        break;
+      }
+      case "definir_preco": {
+        const p = this.players.get(clientId);
+        if (!p) return;
+        const aberto = this.containerAberto.get(clientId);
+        if (!aberto || aberto.x !== msg.x || aberto.y !== msg.y || aberto.z !== msg.z) return;
+        if (!inBounds(this.world, msg.x, msg.y, msg.z)) return;
+        if (!this.withinReach(p, msg.x, msg.y, msg.z)) return;
+        if (confinaBloqueia(this, clientId, msg.x, msg.y, msg.z)) return;
+        const atual = getBlock(this.world, msg.x, msg.y, msg.z);
+        const cont = containerDe(this, msg.x, msg.y, msg.z, atual);
+        if (!cont || cont.tipo !== "loja") return;
+        const erro = aplicarDefinirPreco(this, clientId, cont, msg.x, msg.y, msg.z, msg.item, msg.preco);
+        if (erro) this.sendServerChat(clientId, erro);
         break;
       }
       case "fechar_container": {

@@ -1,7 +1,7 @@
 import { type Papel } from "./auth";
 import { type Claim, parseClaim } from "./claims";
 import { type QuadroConteudo, parseQuadroConteudo } from "./quadros";
-import { type ContainerTipo, parseContainerSalvo } from "./containers";
+import { type ContainerTipo, type Preco, parseContainerSalvo, parsePreco } from "./containers";
 import { CHUNK_VOLUME, MAX_WORLD_CHUNKS } from "./constants";
 import { type GroupDef, parseGroups } from "./groups";
 import { type SlotSalvo, inventarioParaSave, parseInventario } from "./inventario";
@@ -90,6 +90,12 @@ export type ClientMessage =
   /** Container (§🍖 F10): o aluno fechou o painel. Sem isto o servidor
    *  continuaria mandando o conteúdo daquele bloco a cada tick pra sempre. */
   | { type: "fechar_container" }
+  /**
+   * Loja (2026-09-01): o criador define (ou remove, `preco: null`) o preço de
+   * UM tipo de item presente no estoque. Servidor confere `criador` — ver
+   * `session/loja.ts`.
+   */
+  | { type: "definir_preco"; x: number; y: number; z: number; item: number; preco: Preco | null }
   | { type: "chat"; text: string }
   | {
       /**
@@ -666,6 +672,21 @@ export function parseClientMessage(raw: string): ClientMessage | null {
     }
     case "fechar_container":
       return { type: "fechar_container" };
+    case "definir_preco": {
+      const ints = [m["x"], m["y"], m["z"], m["item"]];
+      if (!ints.every((n) => typeof n === "number" && Number.isInteger(n))) return null;
+      const precoRaw = m["preco"];
+      const preco = precoRaw === null ? null : parsePreco(precoRaw);
+      if (precoRaw !== null && preco === null) return null; // preço presente mas quebrado
+      return {
+        type: "definir_preco",
+        x: m["x"] as number,
+        y: m["y"] as number,
+        z: m["z"] as number,
+        item: m["item"] as number,
+        preco,
+      };
+    }
     case "fabricar": {
       const r = m["receita"];
       if (typeof r !== "number" || !Number.isInteger(r)) return null;

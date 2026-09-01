@@ -51,6 +51,10 @@ const SEM_GATE: ReadonlyMap<string, string> = new Map([
     "wand_mark",
     "marca um canto na tela de quem marcou. Não lê nem escreve nada do mundo; quem cria a área de verdade é o /terreno criar, que confere sobreposição.",
   ],
+  [
+    "definir_preco",
+    "loja: só o CRIADOR aplica de verdade (aplicarDefinirPreco confere o nome, não o claim) — gerenciar a própria loja não pode depender de continuar no grupo de amigos do terreno onde ela está.",
+  ],
 ]);
 
 /** Os `type` da união `ClientMessage` que carregam uma coordenada `x`. */

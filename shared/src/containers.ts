@@ -280,7 +280,7 @@ function inteiroNaoNegativo(v: unknown): number {
 }
 
 /** Um `Preco` vindo de fora, validado — `null` se a forma estiver quebrada. */
-function parsePreco(v: unknown): Preco | null {
+export function parsePreco(v: unknown): Preco | null {
   if (typeof v !== "object" || v === null) return null;
   const o = v as Record<string, unknown>;
   if (o["tipo"] === "dimas") {
