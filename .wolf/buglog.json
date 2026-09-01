@@ -5606,6 +5606,45 @@
       "related_bugs": [],
       "occurrences": 1,
       "last_seen": "2026-08-31T00:00:00.000Z"
+    },
+    {
+      "id": "bug-652",
+      "timestamp": "2026-09-01T00:00:00.000Z",
+      "error_message": "usuário: pula e coloca bloco embaixo dele, acaba sendo teleportado pro lado",
+      "file": "shared/src/session.ts",
+      "root_cause": "ABERTO, NAO INVESTIGADO A FUNDO (so leitura, sem repro). Hipotese com bom encaixe (session.ts:946-966, case move): TODO move confere sobrepoeSolidos(world, {msg.x,msg.y,msg.z}) e, se true, chama acharEspacoVago (o resgate de soterramento do bug-605) e TELEPORTA pro vao livre mais proximo (raio 2) em vez de deixar a colisao normal resolver. Sequencia provavel: jogador pula (fica no ar, a celula dos pes esvazia) -> coloca bloco NAQUELA celula (overlapsAnyPlayer passa pois o jogador ja subiu) -> ao cair, o proximo move do cliente aponta pra dentro do bloco novo -> sobrepoeSolidos()=true -> acharEspacoVago dispara o resgate e joga pro lado, em vez de so pousar EM CIMA do bloco (fisica normal de colisao). O gate foi desenhado pra soterramento de verdade (mundo gerado, parede de outro jogador), nao pra esse timing de pulo+build embaixo de si mesmo, que e jogada normal de qualquer jogo voxel.",
+      "fix": "NAO IMPLEMENTADO. Pedido do usuario foi so anotar. Investigar: acharEspacoVago (physics.ts:175) busca em que ordem (pode nao priorizar subir 1 celula antes de ir pro lado); e se da pra distinguir 'acabou de colocar bloco na propria celula anterior, deixa pousar em cima' do caso real de soterramento.",
+      "tags": [
+        "fisica",
+        "sufocamento",
+        "move",
+        "teleporte",
+        "bug-605",
+        "aberto"
+      ],
+      "related_bugs": [
+        "bug-605"
+      ],
+      "occurrences": 1,
+      "last_seen": "2026-09-01T00:00:00.000Z"
+    },
+    {
+      "id": "bug-653",
+      "timestamp": "2026-09-01T00:00:00.000Z",
+      "error_message": "usuário: erro no changelog, a última atualização ficou com data zerada",
+      "file": "scripts/gerar-build-info.mjs",
+      "root_cause": "gerar-build-info.mjs (roda ANTES de npm run build/dev) tinha placeholder fixo '0000-00-00'/'sem-git' pra quando o git falha ou não existe, e SEMPRE sobrescrevia shared/src/build-info.json com ele no catch, mesmo quando o arquivo JA TINHA um valor bom de um build anterior. O topo do changelog (client/src/changelog.ts) usa esse arquivo via rotuloDoBloco()/version.ts pra rotular a entrada mais nova; dataBr('0000-00-00') vira '00/00/0000' na tela = 'data zerada'. Cenario real: o launcher da escola (iniciar-servidor.bat) reconstroi client/dist depois de atualizar, rodando numa maquina que pode nao ter git no PATH (o launcher usa Node portatil justamente pra nao depender de nada pre-instalado) — cada rebuild sem git apagava a data boa e gravava o placeholder por cima.",
+      "fix": "gerar-build-info.mjs agora LÊ o build-info.json que já existe como ponto de partida (valorAtual()) antes de tentar o git — só cai no placeholder zerado se o arquivo nunca existiu (1ª vez de todas, sem git nenhuma vez). Falha de git preserva o valor stale anterior em vez de zerar. Verificado em dir isolado (scratchpad): sem .git com arquivo prévio -> mantém; sem .git sem arquivo prévio -> cai no placeholder (esperado); com git de verdade -> pega data/commit reais.",
+      "tags": [
+        "changelog",
+        "build-info",
+        "launcher",
+        "git",
+        "fixed"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-09-01T00:00:00.000Z"
     }
   ]
 }
