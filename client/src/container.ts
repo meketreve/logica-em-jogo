@@ -77,6 +77,11 @@ export class ContainerPanel {
 
   constructor(
     private readonly icons: Map<number, string>,
+    /** Loja (C2, 2026-09-01): nome em português de um item, pro rótulo das
+     *  opções do seletor de pagamento — mesma fonte que a mochila usa
+     *  (`hotbarUi.nome`), passada por fora pelo mesmo motivo de sempre: esta
+     *  classe não decide o que É um item, só desenha. */
+    private readonly nomeDe: (id: number) => string,
     private readonly mochila: Mochila,
     /** Pede ao servidor pra mover (índices UNIFICADOS). */
     private readonly mover: (
@@ -352,23 +357,56 @@ export class ContainerPanel {
       input.className = "loja-preco-input";
       linha.appendChild(input);
 
-      // trilha de pagamento: por ora item-por-item (o pagamento em Dimas
-      // ganha o próprio campo quando a turma votar essa moeda — o preço já
-      // é `Preco`, o formulário é o que falta crescer)
-      input.addEventListener("change", () => {
+      // C2 (2026-09-01): EM QUE moeda esta linha cobra — cada tipo presente
+      // no ESTOQUE da própria loja (trocar item por item), menos o item
+      // desta linha (pagar um item com ele mesmo continua sem sentido), mais
+      // Dimas — sempre oferecida, é moeda, não item de estoque. Sem isto um
+      // preço NOVO só nascia "pague N do mesmo item que vende".
+      const pagamento = document.createElement("select");
+      pagamento.className = "loja-pagamento";
+      const optDimas = document.createElement("option");
+      optDimas.value = "dimas";
+      optDimas.textContent = "Dimas";
+      pagamento.appendChild(optDimas);
+      const jaTemOpcao = new Set<number>();
+      for (const outroId of tipos) {
+        if (outroId === id) continue; // pagar um item com ele mesmo é nonsense
+        const opt = document.createElement("option");
+        opt.value = String(outroId);
+        opt.textContent = this.nomeDe(outroId);
+        pagamento.appendChild(opt);
+        jaTemOpcao.add(outroId);
+      }
+      // preço já gravado num item que não é mais opção válida (saiu do
+      // estoque, ou é dado antigo pagando com ele mesmo, de antes deste fix)
+      // — mantém a opção pra não desenhar valor diferente do que está salvo.
+      if (atual?.tipo === "item" && !jaTemOpcao.has(atual.item)) {
+        const opt = document.createElement("option");
+        opt.value = String(atual.item);
+        opt.textContent = this.nomeDe(atual.item);
+        pagamento.appendChild(opt);
+      }
+      // sem preço existente: Dimas é o padrão neutro (funciona sem exigir
+      // que a loja tenha ALGUM outro item em estoque pra precificar contra).
+      pagamento.value = atual?.tipo === "item" ? String(atual.item) : "dimas";
+      linha.appendChild(pagamento);
+
+      const enviar = (): void => {
         if (!this.pos) return;
         const qtd = Math.floor(Number(input.value));
         if (!Number.isFinite(qtd) || qtd < 1) {
           this.definirPreco(this.pos.x, this.pos.y, this.pos.z, id, null);
           return;
         }
-        const pagamento: Preco = atual?.tipo === "dimas"
-          ? { tipo: "dimas", qtd }
-          : { tipo: "item", item: atual?.tipo === "item" ? atual.item : id, qtd };
-        this.definirPreco(this.pos.x, this.pos.y, this.pos.z, id, pagamento);
-      });
+        const preco: Preco =
+          pagamento.value === "dimas"
+            ? { tipo: "dimas", qtd }
+            : { tipo: "item", item: Number(pagamento.value), qtd };
+        this.definirPreco(this.pos.x, this.pos.y, this.pos.z, id, preco);
+      };
+      input.addEventListener("change", enviar);
+      pagamento.addEventListener("change", enviar);
 
-      linha.appendChild(input);
       wrap.appendChild(linha);
     }
     return wrap;
