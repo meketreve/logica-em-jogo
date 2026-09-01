@@ -10,6 +10,7 @@ function collect(): { sent: Sent; send: (c: number, d: string | ArrayBuffer) => 
 }
 const join = (name: string, pin?: string, codigo?: string) =>
   JSON.stringify({ type: "join", name, pin, codigo });
+const cmd = (text: string) => JSON.stringify({ type: "chat", text });
 
 /** Última mensagem `dimas` que este cliente recebeu, ou `null`. */
 function ultimoDimas(sent: Sent, clientId: number): number | null {
@@ -123,5 +124,45 @@ describe("o gate — ler é o ponto da feature, mexer continua do criador", () =
     }));
     const depois = session.containers.get(`${x},${y},${z}`);
     expect(depois).toEqual(antes);
+  });
+
+  // O teste acima passa mesmo sem o fix, de graça: em modo criativo (padrão),
+  // `inventarioVale` já barra QUALQUER `mover_container`/`descartar_container`
+  // antes mesmo de chegar no `criador` — e o container nasce vazio, então
+  // "nada mudou" não prova nada. Este aqui estoca a loja de VERDADE (o
+  // criador em modo sobrevivência) e tenta mexer nesse estoque real — e ainda
+  // roda um CONTROLE POSITIVO: o próprio criador consegue mexer no que
+  // guardou, senão um gate invertido (bloqueando todo mundo) passaria batido.
+  it("com estoque REAL: ana não rouba nem descarta o que o criador guardou; o criador sim", () => {
+    const { session, x, y, z } = turmaComLoja();
+    session.handleMessage(1, cmd("/modo sobrevivencia all"));
+    session.handleMessage(1, cmd("/modo sobrevivencia eu")); // `all` poupa quem digitou (§🍖 F1)
+    session.handleMessage(1, cmd(`/dar prof ${BlockId.MinerioFerro} 5`));
+    session.handleMessage(1, JSON.stringify({ type: "use_block", x, y, z }));
+    // o criador estoca a loja de verdade (mochila slot 0 → container slot 0)
+    session.handleMessage(1, JSON.stringify({ type: "mover_container", x, y, z, de: 0, para: 27 }));
+    const antes = session.containers.get(`${x},${y},${z}`);
+    expect(antes?.slots[0]).not.toBeNull(); // sanity: a loja TEM estoque real agora
+
+    // ana (não-criadora) tenta roubar e tenta descartar o MESMO estoque
+    session.handleMessage(2, JSON.stringify({ type: "use_block", x, y, z }));
+    session.handleMessage(2, JSON.stringify({
+      type: "mover_container", x, y, z, de: 27, para: 0,
+    }));
+    session.handleMessage(2, JSON.stringify({
+      type: "descartar_container", x, y, z, slot: 27,
+    }));
+    const depoisDeAna = session.containers.get(`${x},${y},${z}`);
+    expect(depoisDeAna).toEqual(antes); // estoque intacto — nem roubou nem descartou
+    expect(depoisDeAna?.slots[0]).not.toBeNull();
+
+    // controle positivo: o CRIADOR mexe no PRÓPRIO estoque sem problema —
+    // prova que o gate não travou todo mundo (o erro oposto seria tão grave
+    // quanto ana conseguir mexer)
+    session.handleMessage(1, JSON.stringify({
+      type: "mover_container", x, y, z, de: 27, para: 1,
+    }));
+    const depoisDoCriador = session.containers.get(`${x},${y},${z}`);
+    expect(depoisDoCriador?.slots[0]).toBeNull(); // o criador esvaziou o próprio slot 0
   });
 });
