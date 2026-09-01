@@ -1,12 +1,12 @@
 {
   "version": 1,
   "meta": {
-    "lastScanned": "2026-09-01T12:35:25.936Z",
-    "fileCount": 369,
+    "lastScanned": "2026-09-01T18:39:00.564Z",
+    "fileCount": 387,
     "hits": 0,
     "misses": 0,
-    "renderedHash": "85cd9244b5031e97836c3876f72f33ea06d9d5b06f84f33cf99daa0e9b42db34",
-    "storeUpdatedAt": "2026-09-01T12:35:25.970Z"
+    "renderedHash": "38a801ca3a0243f5929804d34f60d1d4a0158b9ff1cf873d83fadb99e22d1e27",
+    "storeUpdatedAt": "2026-09-01T18:39:00.585Z"
   },
   "files": {
     ".claude/commands/reframe.md": {
@@ -1350,12 +1350,12 @@
     },
     "client/index.html": {
       "description": "Lógica em Jogo",
-      "tokens": 14981,
-      "hash": "6226e41fe6bd4f50",
-      "size": 56829,
-      "mtimeMs": 1787716095436.3147,
-      "updatedAt": "2026-08-31T11:59:58.758Z",
-      "source": "scan"
+      "tokens": 15042,
+      "hash": "4c274c3bca7d7d10",
+      "size": 57058,
+      "mtimeMs": 1788286810250.0286,
+      "updatedAt": "2026-09-01T18:20:10.346Z",
+      "source": "hook"
     },
     "client/package.json": {
       "description": "Node.js package manifest",
@@ -1773,25 +1773,25 @@
     },
     "client/src/blocksUi.ts": {
       "description": "Blocos colocáveis com nome em português — fonte única pra hotbar (main.ts)",
-      "tokens": 3693,
-      "hash": "f303b8b2e4a30b1d",
-      "size": 13141,
-      "mtimeMs": 1787320575055.4211,
-      "updatedAt": "2026-08-31T11:59:58.762Z",
-      "source": "scan",
+      "tokens": 3750,
+      "hash": "c654603ee1c38198",
+      "size": 13347,
+      "mtimeMs": 1788267524230.0261,
+      "updatedAt": "2026-09-01T12:58:44.330Z",
+      "source": "hook",
       "symbols": [
         {
           "name": "PlaceableEntry",
           "kind": "section",
           "startLine": 55,
-          "endLine": 231,
-          "tokens": 3080
+          "endLine": 234,
+          "tokens": 3137
         },
         {
           "name": "placeableFor",
           "kind": "fn",
-          "startLine": 232,
-          "endLine": 236,
+          "startLine": 235,
+          "endLine": 239,
           "tokens": 56
         }
       ]
@@ -1976,19 +1976,19 @@
     },
     "client/src/container.ts": {
       "description": "§🍖 F10 — O PAINEL DE TRANSFERÊNCIA (fornalha e baú).",
-      "tokens": 5118,
-      "hash": "d4ee363fe79236d4",
-      "size": 18116,
-      "mtimeMs": 1787689671932.3147,
-      "updatedAt": "2026-08-31T11:59:58.765Z",
-      "source": "scan",
+      "tokens": 7271,
+      "hash": "12fea9efbc0e823e",
+      "size": 25721,
+      "mtimeMs": 1788286798310.0283,
+      "updatedAt": "2026-09-01T18:19:58.403Z",
+      "source": "hook",
       "symbols": [
         {
           "name": "ContainerPanel",
           "kind": "class",
-          "startLine": 35,
-          "endLine": 472,
-          "tokens": 4745
+          "startLine": 36,
+          "endLine": 657,
+          "tokens": 6894
         }
       ]
     },
@@ -2330,12 +2330,12 @@
     },
     "client/src/main.ts": {
       "description": "§💬 (2026-08-14) Fonte ÚNICA de \"a mira aponta pra algo que o clique direito",
-      "tokens": 33714,
-      "hash": "82a1a6ddd037bb60",
-      "size": 119861,
-      "mtimeMs": 1788177348501.12,
-      "updatedAt": "2026-08-31T11:59:58.775Z",
-      "source": "scan",
+      "tokens": 33855,
+      "hash": "e75a9ea0090b060b",
+      "size": 120356,
+      "mtimeMs": 1788286813234.0286,
+      "updatedAt": "2026-09-01T18:20:13.337Z",
+      "source": "hook",
       "symbols": [
         {
           "name": "ehInterativo",
@@ -2523,29 +2523,29 @@
           "name": "handleServerData",
           "kind": "fn",
           "startLine": 793,
-          "endLine": 1025,
-          "tokens": 3145
+          "endLine": 1029,
+          "tokens": 3205
         },
         {
           "name": "connect",
           "kind": "fn",
-          "startLine": 1026,
-          "endLine": 1065,
+          "startLine": 1030,
+          "endLine": 1069,
           "tokens": 465
         },
         {
           "name": "startMultiplayer",
           "kind": "fn",
-          "startLine": 1066,
-          "endLine": 1083,
+          "startLine": 1070,
+          "endLine": 1087,
           "tokens": 223
         },
         {
           "name": "startSingleplayer",
           "kind": "fn",
-          "startLine": 1084,
-          "endLine": 2520,
-          "tokens": 19897
+          "startLine": 1088,
+          "endLine": 2529,
+          "tokens": 19977
         }
       ]
     },
@@ -3367,47 +3367,47 @@
     },
     "client/src/vitals.ts": {
       "description": "HUD de vida (§🍖 F2) e fome (§🍖 F3) — corações, coxas, bolhas de ar e o",
-      "tokens": 3226,
-      "hash": "c69387d0e311809a",
-      "size": 11405,
-      "mtimeMs": 1785714698481.5942,
-      "updatedAt": "2026-08-31T11:59:58.785Z",
-      "source": "scan",
+      "tokens": 3411,
+      "hash": "d9bf06fe27026903",
+      "size": 12055,
+      "mtimeMs": 1788284617554.0266,
+      "updatedAt": "2026-09-01T17:43:37.654Z",
+      "source": "hook",
       "symbols": [
         {
           "name": "svgUrl",
           "kind": "fn",
-          "startLine": 100,
-          "endLine": 127,
+          "startLine": 102,
+          "endLine": 129,
           "tokens": 500
         },
         {
           "name": "VidaInfo",
           "kind": "section",
-          "startLine": 128,
-          "endLine": 141,
+          "startLine": 130,
+          "endLine": 143,
           "tokens": 124
         },
         {
           "name": "criarLinha",
           "kind": "fn",
-          "startLine": 142,
-          "endLine": 170,
+          "startLine": 144,
+          "endLine": 172,
           "tokens": 262
         },
         {
           "name": "desenharBarra",
           "kind": "fn",
-          "startLine": 171,
-          "endLine": 181,
+          "startLine": 173,
+          "endLine": 183,
           "tokens": 120
         },
         {
           "name": "VitalsUi",
           "kind": "class",
-          "startLine": 182,
-          "endLine": 298,
-          "tokens": 1285
+          "startLine": 184,
+          "endLine": 315,
+          "tokens": 1445
         }
       ]
     },
@@ -4896,12 +4896,28 @@
     },
     "scripts/gerar-build-info.mjs": {
       "description": "GERA `shared/src/build-info.json` (2026-08-27).",
-      "tokens": 494,
-      "hash": "a227fdd8789e2099",
-      "size": 1887,
-      "mtimeMs": 1787850850952.317,
-      "updatedAt": "2026-08-31T11:59:58.910Z",
-      "source": "scan"
+      "tokens": 773,
+      "hash": "44b6862164f9a3cf",
+      "size": 2961,
+      "mtimeMs": 1788271822722.0266,
+      "updatedAt": "2026-09-01T14:10:22.818Z",
+      "source": "hook",
+      "symbols": [
+        {
+          "name": "git",
+          "kind": "fn",
+          "startLine": 35,
+          "endLine": 41,
+          "tokens": 94
+        },
+        {
+          "name": "valorAtual",
+          "kind": "fn",
+          "startLine": 42,
+          "endLine": 65,
+          "tokens": 226
+        }
+      ]
     },
     "scripts/git-hooks/pre-push": {
       "description": "hook que roda `npm run verify` antes de publicar. Ligar: `git config core.hooksPath scripts/git-hooks`. Escape: `LJ_SEM_VERIFY=1 git push`.",
@@ -6658,12 +6674,12 @@
     },
     "server/src/index.ts": {
       "description": "Hospedeiro Node+ws do servidor (LAN): embrulha a MESMA GameSession do Web",
-      "tokens": 6769,
-      "hash": "7524ab12489a3c6e",
-      "size": 23963,
-      "mtimeMs": 1787858415688.316,
-      "updatedAt": "2026-08-31T11:59:58.934Z",
-      "source": "scan",
+      "tokens": 6861,
+      "hash": "f944f5496cd7bb3f",
+      "size": 24287,
+      "mtimeMs": 1788268926966.028,
+      "updatedAt": "2026-09-01T13:22:07.059Z",
+      "source": "hook",
       "symbols": [
         {
           "name": "gerarCodigo",
@@ -6676,49 +6692,49 @@
           "name": "registrarChat",
           "kind": "fn",
           "startLine": 158,
-          "endLine": 238,
-          "tokens": 1052
+          "endLine": 243,
+          "tokens": 1144
         },
         {
           "name": "saveNow",
           "kind": "fn",
-          "startLine": 239,
-          "endLine": 300,
+          "startLine": 244,
+          "endLine": 305,
           "tokens": 775
         },
         {
           "name": "interceptarMundo",
           "kind": "fn",
-          "startLine": 301,
-          "endLine": 357,
+          "startLine": 306,
+          "endLine": 362,
           "tokens": 534
         },
         {
           "name": "interceptarKicar",
           "kind": "fn",
-          "startLine": 358,
-          "endLine": 426,
+          "startLine": 363,
+          "endLine": 431,
           "tokens": 636
         },
         {
           "name": "interceptarBanimento",
           "kind": "fn",
-          "startLine": 427,
-          "endLine": 510,
+          "startLine": 432,
+          "endLine": 515,
           "tokens": 788
         },
         {
           "name": "interceptarProfile",
           "kind": "fn",
-          "startLine": 511,
-          "endLine": 575,
+          "startLine": 516,
+          "endLine": 580,
           "tokens": 762
         },
         {
           "name": "enderecoDaRede",
           "kind": "fn",
-          "startLine": 576,
-          "endLine": 597,
+          "startLine": 581,
+          "endLine": 602,
           "tokens": 234
         }
       ]
@@ -7108,231 +7124,231 @@
     },
     "shared/src/blocks.test.ts": {
       "description": "Declares culturas",
-      "tokens": 3187,
-      "hash": "10c8c2248bb5c40e",
-      "size": 11285,
-      "mtimeMs": 1786147209086.9883,
-      "updatedAt": "2026-08-31T11:59:58.940Z",
-      "source": "scan"
+      "tokens": 3272,
+      "hash": "13a9f4859ebb12ce",
+      "size": 11587,
+      "mtimeMs": 1788267474398.0286,
+      "updatedAt": "2026-09-01T12:57:54.495Z",
+      "source": "hook"
     },
     "shared/src/blocks.ts": {
       "description": "IDs de bloco. Gravados como bytes crus nos chunks (Uint8Array), no save e no",
-      "tokens": 14323,
-      "hash": "916c7c8f54b7d84f",
-      "size": 51338,
-      "mtimeMs": 1787138993562.326,
-      "updatedAt": "2026-08-31T11:59:58.941Z",
-      "source": "scan",
+      "tokens": 14409,
+      "hash": "57cb7251e082c175",
+      "size": 51648,
+      "mtimeMs": 1788267500046.0283,
+      "updatedAt": "2026-09-01T12:58:20.150Z",
+      "source": "hook",
       "symbols": [
         {
           "name": "isAgua",
           "kind": "fn",
-          "startLine": 323,
-          "endLine": 328,
+          "startLine": 327,
+          "endLine": 332,
           "tokens": 75
         },
         {
           "name": "isAguaFonte",
           "kind": "fn",
-          "startLine": 329,
-          "endLine": 334,
+          "startLine": 333,
+          "endLine": 338,
           "tokens": 69
         },
         {
           "name": "aguaNivel",
           "kind": "fn",
-          "startLine": 335,
-          "endLine": 343,
+          "startLine": 339,
+          "endLine": 347,
           "tokens": 82
         },
         {
           "name": "aguaComNivel",
           "kind": "fn",
-          "startLine": 344,
-          "endLine": 455,
+          "startLine": 348,
+          "endLine": 459,
           "tokens": 1441
         },
         {
           "name": "isFerramenta",
           "kind": "fn",
-          "startLine": 456,
-          "endLine": 461,
+          "startLine": 460,
+          "endLine": 465,
           "tokens": 66
         },
         {
           "name": "isCarvao",
           "kind": "fn",
-          "startLine": 462,
-          "endLine": 483,
+          "startLine": 466,
+          "endLine": 487,
           "tokens": 295
         },
         {
           "name": "isFornalha",
           "kind": "fn",
-          "startLine": 484,
-          "endLine": 488,
+          "startLine": 488,
+          "endLine": 492,
           "tokens": 60
         },
         {
           "name": "fornalhaEstaAcesa",
           "kind": "fn",
-          "startLine": 489,
-          "endLine": 494,
+          "startLine": 493,
+          "endLine": 498,
           "tokens": 68
         },
         {
           "name": "fornalhaFrente",
           "kind": "fn",
-          "startLine": 495,
-          "endLine": 500,
+          "startLine": 499,
+          "endLine": 504,
           "tokens": 78
         },
         {
           "name": "fornalhaComFrente",
           "kind": "fn",
-          "startLine": 501,
-          "endLine": 507,
+          "startLine": 505,
+          "endLine": 511,
           "tokens": 94
         },
         {
           "name": "fornalhaComEstado",
           "kind": "fn",
-          "startLine": 508,
-          "endLine": 513,
+          "startLine": 512,
+          "endLine": 517,
           "tokens": 67
         },
         {
           "name": "isBalde",
           "kind": "fn",
-          "startLine": 514,
-          "endLine": 547,
+          "startLine": 518,
+          "endLine": 551,
           "tokens": 242
         },
         {
           "name": "isItem",
           "kind": "fn",
-          "startLine": 548,
-          "endLine": 560,
+          "startLine": 552,
+          "endLine": 564,
           "tokens": 174
         },
         {
           "name": "Planta",
           "kind": "section",
-          "startLine": 561,
-          "endLine": 605,
+          "startLine": 565,
+          "endLine": 609,
           "tokens": 730
         },
         {
           "name": "plantaDe",
           "kind": "fn",
-          "startLine": 606,
-          "endLine": 610,
+          "startLine": 610,
+          "endLine": 614,
           "tokens": 45
         },
         {
           "name": "isPlantacao",
           "kind": "fn",
-          "startLine": 611,
-          "endLine": 615,
+          "startLine": 615,
+          "endLine": 619,
           "tokens": 44
         },
         {
           "name": "estagioPlantacao",
           "kind": "fn",
-          "startLine": 616,
-          "endLine": 621,
+          "startLine": 620,
+          "endLine": 625,
           "tokens": 46
         },
         {
           "name": "isPlantacaoMadura",
           "kind": "fn",
-          "startLine": 622,
-          "endLine": 627,
+          "startLine": 626,
+          "endLine": 631,
           "tokens": 59
         },
         {
           "name": "isMudaDePlantacao",
           "kind": "fn",
-          "startLine": 628,
-          "endLine": 634,
+          "startLine": 632,
+          "endLine": 638,
           "tokens": 94
         },
         {
           "name": "plantaPorSelvagem",
           "kind": "fn",
-          "startLine": 635,
-          "endLine": 639,
+          "startLine": 639,
+          "endLine": 643,
           "tokens": 52
         },
         {
           "name": "isSelvagem",
           "kind": "fn",
-          "startLine": 640,
-          "endLine": 649,
+          "startLine": 644,
+          "endLine": 653,
           "tokens": 130
         },
         {
           "name": "isMuda",
           "kind": "fn",
-          "startLine": 650,
-          "endLine": 654,
+          "startLine": 654,
+          "endLine": 658,
           "tokens": 55
         },
         {
           "name": "mudaEspecie",
           "kind": "fn",
-          "startLine": 655,
-          "endLine": 660,
+          "startLine": 659,
+          "endLine": 664,
           "tokens": 74
         },
         {
           "name": "mudaTipo",
           "kind": "fn",
-          "startLine": 661,
-          "endLine": 665,
+          "startLine": 665,
+          "endLine": 669,
           "tokens": 57
         },
         {
           "name": "mudaEstagio",
           "kind": "fn",
-          "startLine": 666,
-          "endLine": 670,
+          "startLine": 670,
+          "endLine": 674,
           "tokens": 49
         },
         {
           "name": "isMudaMadura",
           "kind": "fn",
-          "startLine": 671,
-          "endLine": 675,
+          "startLine": 675,
+          "endLine": 679,
           "tokens": 51
         },
         {
           "name": "isMudaInicial",
           "kind": "fn",
-          "startLine": 676,
-          "endLine": 682,
+          "startLine": 680,
+          "endLine": 686,
           "tokens": 95
         },
         {
           "name": "mudaDaFolhagem",
           "kind": "fn",
-          "startLine": 683,
-          "endLine": 694,
+          "startLine": 687,
+          "endLine": 698,
           "tokens": 158
         },
         {
           "name": "isSolo",
           "kind": "fn",
-          "startLine": 695,
-          "endLine": 709,
+          "startLine": 699,
+          "endLine": 713,
           "tokens": 168
         },
         {
           "name": "isReplaceable",
           "kind": "fn",
-          "startLine": 710,
-          "endLine": 1093,
-          "tokens": 4656
+          "startLine": 714,
+          "endLine": 1098,
+          "tokens": 4675
         }
       ]
     },
@@ -7699,151 +7715,172 @@
     },
     "shared/src/constants.ts": {
       "description": "Aresta do chunk em blocos (16³ = 4096 bytes, 1 byte por bloco).",
-      "tokens": 510,
-      "hash": "45412e368dc7cda5",
-      "size": 1827,
-      "mtimeMs": 1784764145511.3923,
-      "updatedAt": "2026-08-31T11:59:58.945Z",
-      "source": "scan"
+      "tokens": 581,
+      "hash": "23d7088573685fa3",
+      "size": 2077,
+      "mtimeMs": 1788268569426.0264,
+      "updatedAt": "2026-09-01T13:16:09.515Z",
+      "source": "hook"
     },
     "shared/src/containers.test.ts": {
       "description": "Inventário com pilhas em slots escolhidos (o resto vazio).",
-      "tokens": 3412,
-      "hash": "df7e37d0aaa18679",
-      "size": 12061,
-      "mtimeMs": 1787688409112.3154,
-      "updatedAt": "2026-08-31T11:59:58.945Z",
-      "source": "scan",
+      "tokens": 4269,
+      "hash": "b74db0dba1a0bc43",
+      "size": 15086,
+      "mtimeMs": 1788267937186.0278,
+      "updatedAt": "2026-09-01T13:05:37.286Z",
+      "source": "hook",
       "symbols": [
         {
           "name": "inv",
           "kind": "fn",
-          "startLine": 30,
-          "endLine": 36,
+          "startLine": 31,
+          "endLine": 37,
           "tokens": 66
         },
         {
           "name": "forno",
           "kind": "fn",
-          "startLine": 37,
-          "endLine": 322,
-          "tokens": 3166
+          "startLine": 38,
+          "endLine": 395,
+          "tokens": 4020
         }
       ]
     },
     "shared/src/containers.ts": {
       "description": "§🍖 F10 (2026-08-05) — BLOCO COM INVENTÁRIO PRÓPRIO.",
-      "tokens": 3337,
-      "hash": "4a982df4f7d720e2",
-      "size": 11897,
-      "mtimeMs": 1787688428868.3157,
-      "updatedAt": "2026-08-31T11:59:58.945Z",
-      "source": "scan",
+      "tokens": 4516,
+      "hash": "86ebf4571bb08772",
+      "size": 16079,
+      "mtimeMs": 1788286562798.027,
+      "updatedAt": "2026-09-01T18:16:02.894Z",
+      "source": "hook",
       "symbols": [
         {
           "name": "containerTipoDe",
           "kind": "fn",
-          "startLine": 48,
-          "endLine": 58,
-          "tokens": 123
+          "startLine": 50,
+          "endLine": 72,
+          "tokens": 246
         },
         {
           "name": "Container",
           "kind": "section",
-          "startLine": 59,
-          "endLine": 72,
-          "tokens": 169
+          "startLine": 73,
+          "endLine": 96,
+          "tokens": 336
         },
         {
           "name": "containerVazio",
           "kind": "fn",
-          "startLine": 73,
-          "endLine": 86,
-          "tokens": 134
+          "startLine": 97,
+          "endLine": 116,
+          "tokens": 234
         },
         {
           "name": "containerTemConteudo",
           "kind": "fn",
-          "startLine": 87,
-          "endLine": 91,
+          "startLine": 117,
+          "endLine": 132,
+          "tokens": 194
+        },
+        {
+          "name": "containerTemEstoque",
+          "kind": "fn",
+          "startLine": 133,
+          "endLine": 137,
           "tokens": 57
         },
         {
           "name": "containerKey",
           "kind": "fn",
-          "startLine": 92,
-          "endLine": 104,
+          "startLine": 138,
+          "endLine": 150,
           "tokens": 160
         },
         {
           "name": "totalDeSlots",
           "kind": "fn",
-          "startLine": 105,
-          "endLine": 109,
+          "startLine": 151,
+          "endLine": 155,
           "tokens": 50
         },
         {
           "name": "ehSlotDeContainer",
           "kind": "fn",
-          "startLine": 110,
-          "endLine": 120,
+          "startLine": 156,
+          "endLine": 166,
           "tokens": 131
         },
         {
           "name": "moverBloqueadoPorCombustivel",
           "kind": "fn",
-          "startLine": 121,
-          "endLine": 149,
+          "startLine": 167,
+          "endLine": 195,
           "tokens": 376
         },
         {
           "name": "moverEntre",
           "kind": "fn",
-          "startLine": 150,
-          "endLine": 185,
+          "startLine": 196,
+          "endLine": 231,
           "tokens": 416
         },
         {
           "name": "descartarEm",
           "kind": "fn",
-          "startLine": 186,
-          "endLine": 205,
+          "startLine": 232,
+          "endLine": 251,
           "tokens": 224
         },
         {
           "name": "ContainerSalvo",
           "kind": "section",
-          "startLine": 206,
-          "endLine": 217,
-          "tokens": 64
+          "startLine": 252,
+          "endLine": 265,
+          "tokens": 83
         },
         {
           "name": "containerParaSave",
           "kind": "fn",
-          "startLine": 218,
-          "endLine": 238,
-          "tokens": 159
+          "startLine": 266,
+          "endLine": 290,
+          "tokens": 207
         },
         {
           "name": "inteiroNaoNegativo",
           "kind": "fn",
-          "startLine": 239,
-          "endLine": 248,
-          "tokens": 120
+          "startLine": 291,
+          "endLine": 295,
+          "tokens": 59
+        },
+        {
+          "name": "parsePreco",
+          "kind": "fn",
+          "startLine": 296,
+          "endLine": 314,
+          "tokens": 205
+        },
+        {
+          "name": "parsePrecoEntry",
+          "kind": "fn",
+          "startLine": 315,
+          "endLine": 330,
+          "tokens": 201
         },
         {
           "name": "parseContainerSalvo",
           "kind": "fn",
-          "startLine": 249,
-          "endLine": 288,
-          "tokens": 514
+          "startLine": 331,
+          "endLine": 380,
+          "tokens": 638
         },
         {
           "name": "containerDeSave",
           "kind": "fn",
-          "startLine": 289,
-          "endLine": 301,
-          "tokens": 103
+          "startLine": 381,
+          "endLine": 395,
+          "tokens": 132
         }
       ]
     },
@@ -8321,75 +8358,75 @@
     },
     "shared/src/gate-claim.test.ts": {
       "description": "§🍖 F10f — O PORTÃO DO CLAIM (pedido do usuário, 2026-08-05):",
-      "tokens": 2934,
-      "hash": "627a43179118a5a1",
-      "size": 10403,
-      "mtimeMs": 1787858431036.3157,
-      "updatedAt": "2026-08-31T11:59:58.952Z",
-      "source": "scan",
+      "tokens": 3396,
+      "hash": "084eb606b4199bb3",
+      "size": 12055,
+      "mtimeMs": 1788287178546.027,
+      "updatedAt": "2026-09-01T18:26:18.653Z",
+      "source": "hook",
       "symbols": [
         {
           "name": "tiposComCelula",
           "kind": "fn",
-          "startLine": 57,
-          "endLine": 75,
+          "startLine": 65,
+          "endLine": 83,
           "tokens": 216
         },
         {
           "name": "collect",
           "kind": "fn",
-          "startLine": 76,
-          "endLine": 79,
+          "startLine": 84,
+          "endLine": 87,
           "tokens": 55
         },
         {
           "name": "join",
           "kind": "fn",
-          "startLine": 80,
-          "endLine": 81,
+          "startLine": 88,
+          "endLine": 89,
           "tokens": 34
         },
         {
           "name": "cmd",
           "kind": "fn",
-          "startLine": 82,
-          "endLine": 82,
+          "startLine": 90,
+          "endLine": 90,
           "tokens": 20
         },
         {
           "name": "mark",
           "kind": "fn",
-          "startLine": 83,
-          "endLine": 84,
+          "startLine": 91,
+          "endLine": 92,
           "tokens": 35
         },
         {
           "name": "move",
           "kind": "fn",
-          "startLine": 85,
-          "endLine": 88,
+          "startLine": 93,
+          "endLine": 96,
           "tokens": 54
         },
         {
           "name": "retrato",
           "kind": "fn",
-          "startLine": 89,
-          "endLine": 96,
+          "startLine": 97,
+          "endLine": 104,
           "tokens": 83
         },
         {
           "name": "turmaComClaimDaAna",
           "kind": "fn",
-          "startLine": 97,
-          "endLine": 117,
+          "startLine": 105,
+          "endLine": 125,
           "tokens": 294
         },
         {
           "name": "mensagemPara",
           "kind": "fn",
-          "startLine": 118,
-          "endLine": 226,
-          "tokens": 1488
+          "startLine": 126,
+          "endLine": 254,
+          "tokens": 1816
         }
       ]
     },
@@ -9141,12 +9178,12 @@
     },
     "shared/src/mesher.ts": {
       "description": "Culled mesher: função PURA (bytes do mundo → geometria). Só emite faces que",
-      "tokens": 17742,
-      "hash": "5a9b956bbaddd5b9",
-      "size": 63148,
-      "mtimeMs": 1787139037186.3262,
-      "updatedAt": "2026-08-31T11:59:58.960Z",
-      "source": "scan",
+      "tokens": 17803,
+      "hash": "e1882e893d6ee778",
+      "size": 63366,
+      "mtimeMs": 1788267518514.0261,
+      "updatedAt": "2026-09-01T12:58:38.612Z",
+      "source": "hook",
       "symbols": [
         {
           "name": "FaceTiles",
@@ -9159,127 +9196,127 @@
           "name": "frenteDoBloco",
           "kind": "fn",
           "startLine": 242,
-          "endLine": 438,
-          "tokens": 2905
+          "endLine": 440,
+          "tokens": 2950
         },
         {
           "name": "blockIconTile",
           "kind": "fn",
-          "startLine": 439,
-          "endLine": 449,
+          "startLine": 441,
+          "endLine": 451,
           "tokens": 162
         },
         {
           "name": "ehCruzDeSprite",
           "kind": "fn",
-          "startLine": 450,
-          "endLine": 461,
+          "startLine": 452,
+          "endLine": 463,
           "tokens": 151
         },
         {
           "name": "blockSelectionBox",
           "kind": "fn",
-          "startLine": 462,
-          "endLine": 503,
-          "tokens": 553
+          "startLine": 464,
+          "endLine": 505,
+          "tokens": 560
         },
         {
           "name": "FaceCorner",
           "kind": "section",
-          "startLine": 504,
-          "endLine": 508,
+          "startLine": 506,
+          "endLine": 510,
           "tokens": 34
         },
         {
           "name": "Face",
           "kind": "section",
-          "startLine": 509,
-          "endLine": 573,
+          "startLine": 511,
+          "endLine": 575,
           "tokens": 470
         },
         {
           "name": "UvAxis",
           "kind": "section",
-          "startLine": 574,
-          "endLine": 578,
+          "startLine": 576,
+          "endLine": 580,
           "tokens": 17
         },
         {
           "name": "uvAxisOf",
           "kind": "fn",
-          "startLine": 579,
-          "endLine": 591,
+          "startLine": 581,
+          "endLine": 593,
           "tokens": 165
         },
         {
           "name": "FaceBase",
           "kind": "section",
-          "startLine": 592,
-          "endLine": 649,
+          "startLine": 594,
+          "endLine": 651,
           "tokens": 722
         },
         {
           "name": "tileAguaDaFace",
           "kind": "fn",
-          "startLine": 650,
-          "endLine": 679,
+          "startLine": 652,
+          "endLine": 681,
           "tokens": 424
         },
         {
           "name": "rotXZ",
           "kind": "fn",
-          "startLine": 680,
-          "endLine": 699,
+          "startLine": 682,
+          "endLine": 701,
           "tokens": 199
         },
         {
           "name": "swayDoBloco",
           "kind": "fn",
-          "startLine": 700,
-          "endLine": 705,
+          "startLine": 702,
+          "endLine": 707,
           "tokens": 41
         },
         {
           "name": "ChunkGeometry",
           "kind": "section",
-          "startLine": 706,
-          "endLine": 756,
+          "startLine": 708,
+          "endLine": 758,
           "tokens": 769
         },
         {
           "name": "vizIndex",
           "kind": "fn",
-          "startLine": 757,
-          "endLine": 782,
+          "startLine": 759,
+          "endLine": 784,
           "tokens": 287
         },
         {
           "name": "extrairVizinhanca",
           "kind": "fn",
-          "startLine": 783,
-          "endLine": 826,
+          "startLine": 785,
+          "endLine": 828,
           "tokens": 467
         },
         {
           "name": "extrairVizinhancaLuz",
           "kind": "fn",
-          "startLine": 827,
-          "endLine": 846,
+          "startLine": 829,
+          "endLine": 848,
           "tokens": 196
         },
         {
           "name": "meshChunk",
           "kind": "fn",
-          "startLine": 847,
-          "endLine": 866,
+          "startLine": 849,
+          "endLine": 868,
           "tokens": 183
         },
         {
           "name": "meshVizinhanca",
           "kind": "fn",
-          "startLine": 867,
-          "endLine": 1407,
-          "tokens": 7418
+          "startLine": 869,
+          "endLine": 1410,
+          "tokens": 7426
         }
       ]
     },
@@ -9398,12 +9435,12 @@
     },
     "shared/src/mudas.test.ts": {
       "description": "Dimensões do mundo-meta dos testes de sessão (mundo pequeno, 2×2×2 chunks).",
-      "tokens": 3027,
-      "hash": "c6437d1972059003",
-      "size": 10735,
-      "mtimeMs": 1786803059634.3774,
-      "updatedAt": "2026-08-31T11:59:58.961Z",
-      "source": "scan",
+      "tokens": 3025,
+      "hash": "91df65464ba2cc4e",
+      "size": 10728,
+      "mtimeMs": 1788267560750.0298,
+      "updatedAt": "2026-09-01T12:59:20.849Z",
+      "source": "hook",
       "symbols": [
         {
           "name": "ber",
@@ -9417,7 +9454,7 @@
           "kind": "fn",
           "startLine": 46,
           "endLine": 257,
-          "tokens": 2631
+          "tokens": 2629
         }
       ]
     },
@@ -9635,95 +9672,95 @@
     },
     "shared/src/protocol.ts": {
       "description": "Protocolo v0 (checkpoint 2). Mensagens JSON dos dois lados + world_snapshot",
-      "tokens": 14359,
-      "hash": "53eadf64f558cd22",
-      "size": 50887,
-      "mtimeMs": 1788177254297.1199,
-      "updatedAt": "2026-08-31T11:59:58.966Z",
-      "source": "scan",
+      "tokens": 15342,
+      "hash": "98f89eb063c8ce37",
+      "size": 54366,
+      "mtimeMs": 1788283934038.0276,
+      "updatedAt": "2026-09-01T17:32:14.132Z",
+      "source": "hook",
       "symbols": [
         {
           "name": "parseClientMessage",
           "kind": "fn",
-          "startLine": 520,
-          "endLine": 715,
-          "tokens": 2078
+          "startLine": 552,
+          "endLine": 775,
+          "tokens": 2364
         },
         {
           "name": "parseCama",
           "kind": "fn",
-          "startLine": 716,
-          "endLine": 723,
+          "startLine": 776,
+          "endLine": 783,
           "tokens": 112
         },
         {
           "name": "parseServerMessage",
           "kind": "fn",
-          "startLine": 724,
-          "endLine": 1042,
-          "tokens": 3828
+          "startLine": 784,
+          "endLine": 1131,
+          "tokens": 4190
         },
         {
           "name": "Snapshot",
           "kind": "section",
-          "startLine": 1043,
-          "endLine": 1047,
+          "startLine": 1132,
+          "endLine": 1136,
           "tokens": 18
         },
         {
           "name": "encodeSnapshot",
           "kind": "fn",
-          "startLine": 1048,
-          "endLine": 1067,
+          "startLine": 1137,
+          "endLine": 1156,
           "tokens": 201
         },
         {
           "name": "decodeSnapshot",
           "kind": "fn",
-          "startLine": 1068,
-          "endLine": 1127,
+          "startLine": 1157,
+          "endLine": 1216,
           "tokens": 763
         },
         {
           "name": "peekMagic",
           "kind": "fn",
-          "startLine": 1128,
-          "endLine": 1132,
+          "startLine": 1217,
+          "endLine": 1221,
           "tokens": 40
         },
         {
           "name": "encodeLazyInfo",
           "kind": "fn",
-          "startLine": 1133,
-          "endLine": 1145,
+          "startLine": 1222,
+          "endLine": 1234,
           "tokens": 134
         },
         {
           "name": "decodeLazyInfo",
           "kind": "fn",
-          "startLine": 1146,
-          "endLine": 1170,
+          "startLine": 1235,
+          "endLine": 1259,
           "tokens": 245
         },
         {
           "name": "ColunaRef",
           "kind": "section",
-          "startLine": 1171,
-          "endLine": 1178,
+          "startLine": 1260,
+          "endLine": 1267,
           "tokens": 80
         },
         {
           "name": "encodeColunas",
           "kind": "fn",
-          "startLine": 1179,
-          "endLine": 1203,
+          "startLine": 1268,
+          "endLine": 1292,
           "tokens": 276
         },
         {
           "name": "decodeColunas",
           "kind": "fn",
-          "startLine": 1204,
-          "endLine": 1237,
+          "startLine": 1293,
+          "endLine": 1326,
           "tokens": 340
         }
       ]
@@ -9980,12 +10017,12 @@
     },
     "shared/src/receitas.test.ts": {
       "description": "Inventário com pilhas em slots escolhidos (o resto vazio).",
-      "tokens": 4666,
-      "hash": "7597effb50857d69",
-      "size": 16553,
-      "mtimeMs": 1787139065474.3262,
-      "updatedAt": "2026-08-31T11:59:58.969Z",
-      "source": "scan",
+      "tokens": 4763,
+      "hash": "7bb76700538b1a52",
+      "size": 16895,
+      "mtimeMs": 1788268336442.027,
+      "updatedAt": "2026-09-01T13:12:16.550Z",
+      "source": "hook",
       "symbols": [
         {
           "name": "inv",
@@ -9998,19 +10035,19 @@
           "name": "receitaDe",
           "kind": "fn",
           "startLine": 45,
-          "endLine": 389,
-          "tokens": 4389
+          "endLine": 399,
+          "tokens": 4486
         }
       ]
     },
     "shared/src/receitas.ts": {
       "description": "§🍖 F5 — CRAFT POR LISTA (receitas puras).",
-      "tokens": 8178,
-      "hash": "eac9260974ac3acf",
-      "size": 29248,
-      "mtimeMs": 1787139022642.3262,
-      "updatedAt": "2026-08-31T11:59:58.969Z",
-      "source": "scan",
+      "tokens": 8276,
+      "hash": "e9db0b23ec911145",
+      "size": 29604,
+      "mtimeMs": 1788268353902.027,
+      "updatedAt": "2026-09-01T13:12:34.003Z",
+      "source": "hook",
       "symbols": [
         {
           "name": "Ingrediente",
@@ -10044,49 +10081,49 @@
           "name": "Cor",
           "kind": "section",
           "startLine": 171,
-          "endLine": 438,
-          "tokens": 4968
+          "endLine": 445,
+          "tokens": 5066
         },
         {
           "name": "receitaValida",
           "kind": "fn",
-          "startLine": 439,
-          "endLine": 444,
+          "startLine": 446,
+          "endLine": 451,
           "tokens": 79
         },
         {
           "name": "temDoIngrediente",
           "kind": "fn",
-          "startLine": 445,
-          "endLine": 451,
+          "startLine": 452,
+          "endLine": 458,
           "tokens": 68
         },
         {
           "name": "temIngredientes",
           "kind": "fn",
-          "startLine": 452,
-          "endLine": 461,
+          "startLine": 459,
+          "endLine": 468,
           "tokens": 133
         },
         {
           "name": "podeFabricar",
           "kind": "fn",
-          "startLine": 462,
-          "endLine": 471,
+          "startLine": 469,
+          "endLine": 478,
           "tokens": 115
         },
         {
           "name": "fabricar",
           "kind": "fn",
-          "startLine": 472,
-          "endLine": 501,
+          "startLine": 479,
+          "endLine": 508,
           "tokens": 423
         },
         {
           "name": "ingredientesDe",
           "kind": "fn",
-          "startLine": 502,
-          "endLine": 523,
+          "startLine": 509,
+          "endLine": 530,
           "tokens": 116
         }
       ]
@@ -10399,91 +10436,91 @@
     },
     "shared/src/save.test.ts": {
       "description": "Declares DIMS",
-      "tokens": 1454,
-      "hash": "c42c0647f0aa07d8",
-      "size": 5117,
-      "mtimeMs": 1784211046370.2214,
-      "updatedAt": "2026-08-31T11:59:58.972Z",
-      "source": "scan"
+      "tokens": 1674,
+      "hash": "2bbebdf667212a5a",
+      "size": 5890,
+      "mtimeMs": 1788268562762.0266,
+      "updatedAt": "2026-09-01T13:16:02.855Z",
+      "source": "hook"
     },
     "shared/src/save.ts": {
       "description": "Formato de save (.ljw) — MESMO arquivo em todos os hospedeiros: disco do",
-      "tokens": 5265,
-      "hash": "a719a7db507e6e78",
-      "size": 18671,
-      "mtimeMs": 1787836852552.316,
-      "updatedAt": "2026-08-31T11:59:58.973Z",
-      "source": "scan",
+      "tokens": 5452,
+      "hash": "2c2a4792eeeae86c",
+      "size": 19337,
+      "mtimeMs": 1788268583314.0264,
+      "updatedAt": "2026-09-01T13:16:23.409Z",
+      "source": "hook",
       "symbols": [
         {
           "name": "SavedPlayer",
           "kind": "section",
           "startLine": 49,
-          "endLine": 73,
-          "tokens": 285
+          "endLine": 77,
+          "tokens": 356
         },
         {
           "name": "SaveMeta",
           "kind": "section",
-          "startLine": 74,
-          "endLine": 132,
+          "startLine": 78,
+          "endLine": 136,
           "tokens": 884
         },
         {
           "name": "SaveData",
           "kind": "section",
-          "startLine": 133,
-          "endLine": 139,
+          "startLine": 137,
+          "endLine": 143,
           "tokens": 80
         },
         {
           "name": "encodeSave",
           "kind": "fn",
-          "startLine": 140,
-          "endLine": 153,
+          "startLine": 144,
+          "endLine": 157,
           "tokens": 198
         },
         {
           "name": "encodeLazySave",
           "kind": "fn",
-          "startLine": 154,
-          "endLine": 179,
+          "startLine": 158,
+          "endLine": 183,
           "tokens": 255
         },
         {
           "name": "isFinitePos",
           "kind": "fn",
-          "startLine": 180,
-          "endLine": 190,
+          "startLine": 184,
+          "endLine": 194,
           "tokens": 138
         },
         {
           "name": "inventarioComItem",
           "kind": "fn",
-          "startLine": 191,
-          "endLine": 197,
+          "startLine": 195,
+          "endLine": 201,
           "tokens": 88
         },
         {
           "name": "decodeSave",
           "kind": "fn",
-          "startLine": 198,
-          "endLine": 215,
+          "startLine": 202,
+          "endLine": 219,
           "tokens": 234
         },
         {
           "name": "decodeLazySave",
           "kind": "fn",
-          "startLine": 216,
-          "endLine": 254,
+          "startLine": 220,
+          "endLine": 258,
           "tokens": 453
         },
         {
           "name": "readSaveMeta",
           "kind": "fn",
-          "startLine": 255,
-          "endLine": 416,
-          "tokens": 1988
+          "startLine": 259,
+          "endLine": 428,
+          "tokens": 2103
         }
       ]
     },
@@ -10952,12 +10989,12 @@
     },
     "shared/src/session/containers.ts": {
       "description": "§🍖 F10 — containers (fornalha e baú) do lado do SERVIDOR.",
-      "tokens": 1632,
-      "hash": "cbaf1b0177d52bcd",
-      "size": 5783,
-      "mtimeMs": 1785989313760.6309,
-      "updatedAt": "2026-08-31T11:59:58.976Z",
-      "source": "scan",
+      "tokens": 1722,
+      "hash": "b21bc7a17ca70b2d",
+      "size": 6099,
+      "mtimeMs": 1788273387034.0283,
+      "updatedAt": "2026-09-01T14:36:27.128Z",
+      "source": "hook",
       "symbols": [
         {
           "name": "containerDe",
@@ -10977,42 +11014,42 @@
           "name": "sendContainer",
           "kind": "fn",
           "startLine": 57,
-          "endLine": 86,
-          "tokens": 235
+          "endLine": 96,
+          "tokens": 326
         },
         {
           "name": "avisarContainer",
           "kind": "fn",
-          "startLine": 87,
-          "endLine": 93,
+          "startLine": 97,
+          "endLine": 103,
           "tokens": 93
         },
         {
           "name": "fecharContainer",
           "kind": "fn",
-          "startLine": 94,
-          "endLine": 99,
+          "startLine": 104,
+          "endLine": 109,
           "tokens": 84
         },
         {
           "name": "fecharContainerEm",
           "kind": "fn",
-          "startLine": 100,
-          "endLine": 110,
+          "startLine": 110,
+          "endLine": 120,
           "tokens": 124
         },
         {
           "name": "avisarContainerCheio",
           "kind": "fn",
-          "startLine": 111,
-          "endLine": 127,
+          "startLine": 121,
+          "endLine": 137,
           "tokens": 212
         },
         {
           "name": "tickFornalhas",
           "kind": "fn",
-          "startLine": 128,
-          "endLine": 151,
+          "startLine": 138,
+          "endLine": 161,
           "tokens": 321
         }
       ]
@@ -11759,58 +11796,58 @@
     },
     "shared/src/session.test.ts": {
       "description": "Testes de MECÂNICA rodam com singleplayer: true (join sem PIN) — a",
-      "tokens": 16446,
-      "hash": "3797292f4fec1612",
-      "size": 57941,
-      "mtimeMs": 1788177395221.1196,
-      "updatedAt": "2026-08-31T11:59:58.982Z",
-      "source": "scan",
+      "tokens": 16551,
+      "hash": "b79cd4841e93bee1",
+      "size": 58313,
+      "mtimeMs": 1788269040366.0276,
+      "updatedAt": "2026-09-01T13:24:00.473Z",
+      "source": "hook",
       "symbols": [
         {
           "name": "collect",
           "kind": "fn",
           "startLine": 12,
-          "endLine": 1209,
-          "tokens": 16302
+          "endLine": 1216,
+          "tokens": 16407
         }
       ]
     },
     "shared/src/session.ts": {
       "description": "GameSession: o SERVIDOR autoritativo, independente de hospedeiro.",
-      "tokens": 32290,
-      "hash": "2f401f38fda98beb",
-      "size": 114799,
-      "mtimeMs": 1788177306913.1184,
-      "updatedAt": "2026-08-31T11:59:58.984Z",
-      "source": "scan",
+      "tokens": 33866,
+      "hash": "757c3724729bcb0d",
+      "size": 120387,
+      "mtimeMs": 1788287210806.027,
+      "updatedAt": "2026-09-01T18:26:50.925Z",
+      "source": "hook",
       "symbols": [
         {
           "name": "SessionOptions",
           "kind": "section",
-          "startLine": 233,
-          "endLine": 285,
-          "tokens": 721
+          "startLine": 237,
+          "endLine": 291,
+          "tokens": 750
         },
         {
           "name": "SessionPlayer",
           "kind": "section",
-          "startLine": 286,
-          "endLine": 296,
+          "startLine": 292,
+          "endLine": 302,
           "tokens": 60
         },
         {
           "name": "Identity",
           "kind": "section",
-          "startLine": 297,
-          "endLine": 301,
+          "startLine": 303,
+          "endLine": 307,
           "tokens": 19
         },
         {
           "name": "GameSession",
           "kind": "class",
-          "startLine": 302,
-          "endLine": 2504,
-          "tokens": 30124
+          "startLine": 308,
+          "endLine": 2603,
+          "tokens": 31633
         }
       ]
     },
@@ -12537,11 +12574,11 @@
     },
     "todo.md": {
       "description": "Ideias para fazer",
-      "tokens": 25141,
-      "hash": "ea52addc4cbbe0cc",
-      "size": 103707,
-      "mtimeMs": 1788266125822.0278,
-      "updatedAt": "2026-09-01T12:35:25.935Z",
+      "tokens": 25298,
+      "hash": "2e90fa74e58d5aad",
+      "size": 104361,
+      "mtimeMs": 1788268124198.0276,
+      "updatedAt": "2026-09-01T13:08:44.299Z",
       "source": "hook"
     },
     "tsconfig.base.json": {
@@ -12596,6 +12633,228 @@
       "size": 95837,
       "mtimeMs": 1788265515190.028,
       "updatedAt": "2026-09-01T12:25:15.282Z",
+      "source": "hook"
+    },
+    ".superpowers/sdd/2026-09-01-loja-baus/progress.md": {
+      "description": "SDD ledger — plan: docs/superpowers/plans/2026-09-01-loja-baus.md",
+      "tokens": 5104,
+      "hash": "41fd45fe591b6eb6",
+      "size": 20572,
+      "mtimeMs": 1788287940470.0283,
+      "updatedAt": "2026-09-01T18:39:00.563Z",
+      "source": "hook"
+    },
+    ".superpowers/sdd/2026-09-01-loja-baus/task-1-report.md": {
+      "description": "Task 1 Report: Register the `BauLoja` block",
+      "tokens": 822,
+      "hash": "066166c8053eea53",
+      "size": 3324,
+      "mtimeMs": 1788267664974.028,
+      "updatedAt": "2026-09-01T13:01:05.071Z",
+      "source": "hook"
+    },
+    ".superpowers/sdd/2026-09-01-loja-baus/task-2-report.md": {
+      "description": "Task 2 Report: `ContainerTipo` \"loja\" — the data model",
+      "tokens": 1075,
+      "hash": "0caf974e6f83d0fb",
+      "size": 4344,
+      "mtimeMs": 1788268072050.0276,
+      "updatedAt": "2026-09-01T13:07:52.141Z",
+      "source": "hook"
+    },
+    ".superpowers/sdd/2026-09-01-loja-baus/task-3-report.md": {
+      "description": "Task 3 Report: Craft recipe for `BauLoja`",
+      "tokens": 960,
+      "hash": "d7f24ced435a42cd",
+      "size": 3903,
+      "mtimeMs": 1788268433082.027,
+      "updatedAt": "2026-09-01T13:13:53.180Z",
+      "source": "hook"
+    },
+    ".superpowers/sdd/2026-09-01-loja-baus/task-4-report.md": {
+      "description": "Task 4 Report: Dimas in the Save Format",
+      "tokens": 820,
+      "hash": "075d1b5dcadc19bb",
+      "size": 3308,
+      "mtimeMs": 1788268637150.0264,
+      "updatedAt": "2026-09-01T13:17:17.243Z",
+      "source": "hook"
+    },
+    "shared/src/loja.test.ts": {
+      "description": "Última mensagem `dimas` que este cliente recebeu, ou `null`.",
+      "tokens": 9675,
+      "hash": "3cce788a8d0313e2",
+      "size": 34075,
+      "mtimeMs": 1788287057070.027,
+      "updatedAt": "2026-09-01T18:24:17.174Z",
+      "source": "hook",
+      "symbols": [
+        {
+          "name": "collect",
+          "kind": "fn",
+          "startLine": 9,
+          "endLine": 12,
+          "tokens": 55
+        },
+        {
+          "name": "join",
+          "kind": "fn",
+          "startLine": 13,
+          "endLine": 14,
+          "tokens": 34
+        },
+        {
+          "name": "cmd",
+          "kind": "fn",
+          "startLine": 15,
+          "endLine": 17,
+          "tokens": 40
+        },
+        {
+          "name": "ultimoDimas",
+          "kind": "fn",
+          "startLine": 18,
+          "endLine": 516,
+          "tokens": 7294
+        },
+        {
+          "name": "chatPara",
+          "kind": "fn",
+          "startLine": 517,
+          "endLine": 658,
+          "tokens": 2158
+        }
+      ]
+    },
+    "shared/src/session/loja.ts": {
+      "description": "§Loja (2026-09-01) — o lado do SERVIDOR do baú-loja: saldo de Dimas,",
+      "tokens": 1485,
+      "hash": "d1efc70a16faac13",
+      "size": 5260,
+      "mtimeMs": 1788287008890.0261,
+      "updatedAt": "2026-09-01T18:23:28.992Z",
+      "source": "hook",
+      "symbols": [
+        {
+          "name": "sendDimas",
+          "kind": "fn",
+          "startLine": 18,
+          "endLine": 42,
+          "tokens": 294
+        },
+        {
+          "name": "aplicarDefinirPreco",
+          "kind": "fn",
+          "startLine": 43,
+          "endLine": 82,
+          "tokens": 417
+        },
+        {
+          "name": "aplicarCompra",
+          "kind": "fn",
+          "startLine": 83,
+          "endLine": 135,
+          "tokens": 548
+        }
+      ]
+    },
+    ".superpowers/sdd/2026-09-01-loja-baus/task-5-report.md": {
+      "description": "Task 5 Report: `GameSession.dimas` — seed on join, persist on save/restore",
+      "tokens": 1817,
+      "hash": "0cab04964a3de540",
+      "size": 7330,
+      "mtimeMs": 1788269133446.0273,
+      "updatedAt": "2026-09-01T13:25:33.546Z",
+      "source": "hook"
+    },
+    ".superpowers/sdd/2026-09-01-loja-baus/task-6-report.md": {
+      "description": "Task 6 Report: Placing a `BauLoja` stamps the `criador`",
+      "tokens": 1706,
+      "hash": "877689c83bd8233a",
+      "size": 6853,
+      "mtimeMs": 1788270286678.028,
+      "updatedAt": "2026-09-01T13:44:46.782Z",
+      "source": "hook"
+    },
+    ".superpowers/sdd/2026-09-01-loja-baus/task-7-report.md": {
+      "description": "Task 7 Report — The gate exception: `use_block` opens for anyone, mutation stays criador-only",
+      "tokens": 1839,
+      "hash": "6b0b5ee050a137b0",
+      "size": 7430,
+      "mtimeMs": 1788271059262.0278,
+      "updatedAt": "2026-09-01T13:57:39.363Z",
+      "source": "hook"
+    },
+    ".superpowers/sdd/2026-09-01-loja-baus/task-8-report.md": {
+      "description": "Task 8 Report — `definir_preco`",
+      "tokens": 1680,
+      "hash": "ebe180a1fbda7981",
+      "size": 6784,
+      "mtimeMs": 1788271633974.027,
+      "updatedAt": "2026-09-01T14:07:14.073Z",
+      "source": "hook"
+    },
+    ".superpowers/sdd/2026-09-01-loja-baus/task-9-report.md": {
+      "description": "Task 9 Report — `comprar` (item payment path)",
+      "tokens": 1682,
+      "hash": "5f9caa97c2416a9e",
+      "size": 6790,
+      "mtimeMs": 1788272381022.0266,
+      "updatedAt": "2026-09-01T14:19:41.124Z",
+      "source": "hook"
+    },
+    ".superpowers/sdd/2026-09-01-loja-baus/task-10-report.md": {
+      "description": "Task 10 Report: `comprar` — Dimas Payment Path",
+      "tokens": 1315,
+      "hash": "73ec2092bbe85b69",
+      "size": 5290,
+      "mtimeMs": 1788273218738.0276,
+      "updatedAt": "2026-09-01T14:33:38.842Z",
+      "source": "hook"
+    },
+    ".superpowers/sdd/2026-09-01-loja-baus/task-11-report.md": {
+      "description": "Task 11 Report — `\"container\"` message gains `loja`",
+      "tokens": 2287,
+      "hash": "59961dc481657ea7",
+      "size": 9227,
+      "mtimeMs": 1788283996062.0278,
+      "updatedAt": "2026-09-01T17:33:16.169Z",
+      "source": "hook"
+    },
+    ".superpowers/sdd/2026-09-01-loja-baus/task-12-report.md": {
+      "description": "Task 12 Report — Client: `ContainerPanel` loja mode",
+      "tokens": 1437,
+      "hash": "0cc17955df35c444",
+      "size": 5808,
+      "mtimeMs": 1788284310886.027,
+      "updatedAt": "2026-09-01T17:38:30.979Z",
+      "source": "hook"
+    },
+    ".superpowers/sdd/2026-09-01-loja-baus/task-13-report.md": {
+      "description": "Task 13 Report — Client: Dimas balance in the HUD",
+      "tokens": 1061,
+      "hash": "4a81ac5a5010b00d",
+      "size": 4258,
+      "mtimeMs": 1788284694034.0266,
+      "updatedAt": "2026-09-01T17:44:54.132Z",
+      "source": "hook"
+    },
+    ".superpowers/sdd/2026-09-01-loja-baus/task-14-report.md": {
+      "description": "Task 14 Report — End-to-end scenario: the full spec, one story",
+      "tokens": 1749,
+      "hash": "a15d3482b64afc9a",
+      "size": 7064,
+      "mtimeMs": 1788285365610.0266,
+      "updatedAt": "2026-09-01T17:56:05.712Z",
+      "source": "hook"
+    },
+    ".superpowers/sdd/2026-09-01-loja-baus/final-fix-report.md": {
+      "description": "Final fix report — Baú-Loja whole-branch review (5 findings)",
+      "tokens": 4216,
+      "hash": "e92ee79831a86677",
+      "size": 17048,
+      "mtimeMs": 1788287486062.026,
+      "updatedAt": "2026-09-01T18:31:26.166Z",
       "source": "hook"
     }
   }

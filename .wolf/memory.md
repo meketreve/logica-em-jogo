@@ -3,6 +3,12 @@
 > Chronological action log. Hooks and AI append to this file automatically.
 > Old sessions are consolidated by the daemon weekly.
 
+## Session: 2026-09-01 (Task 6 — BauLoja criador stamp)
+
+| Time | Action | File(s) | Outcome | ~Tokens |
+|------|--------|---------|---------|--------|
+| 10:34 | Task 6: Placing BauLoja immediately writes container with criador=placer | shared/src/session.ts, shared/src/loja.test.ts | a09212a · 1 test added · 948/948 passing | ~8k |
+
 ## Session: 2026-08-07
 
 | Time | Action | File(s) | Outcome | ~Tokens |
@@ -2986,3 +2992,220 @@ fraude.
 | 09:25 | Edited docs/superpowers/plans/2026-09-01-loja-baus.md | inline fix | ~19 |
 | 09:26 | Session end: 30 writes across 6 files (projeto.txt, sequencia didatica.md, todo.md, loja-perguntas-alunos.md, 2026-08-31-loja-baus-design.md) | 26 reads | ~259763 tok |
 | 09:35 | Edited todo.md | modified Causa() | ~301 |
+| 09:55 | Created .superpowers/sdd/2026-09-01-loja-baus/progress.md | — | ~1102 |
+| 09:56 | Session end: 32 writes across 7 files (projeto.txt, sequencia didatica.md, todo.md, loja-perguntas-alunos.md, 2026-08-31-loja-baus-design.md) | 30 reads | ~264596 tok |
+| 09:57 | Edited shared/src/blocks.test.ts | modified loja() | ~170 |
+| 09:58 | Edited shared/src/blocks.ts | modified Loja() | ~160 |
+| 09:58 | Edited shared/src/blocks.ts | 9→9 lines | ~124 |
+| 09:58 | Edited shared/src/blocks.ts | modified F10() | ~182 |
+| 09:58 | Edited shared/src/mesher.ts | modified Loja() | ~116 |
+| 09:58 | Edited shared/src/mesher.ts | modified F10e() | ~166 |
+| 09:58 | Edited shared/src/mesher.ts | modified F10e() | ~106 |
+| 09:58 | Edited client/src/blocksUi.ts | modified Loja() | ~131 |
+| 09:59 | Edited shared/src/mudas.test.ts | 3→3 lines | ~39 |
+| 09:59 | Edited shared/src/receitas.ts | 3→4 lines | ~84 |
+| 10:01 | Created .superpowers/sdd/2026-09-01-loja-baus/task-1-report.md | — | ~877 |
+| 10:02 | Session end: 43 writes across 14 files (projeto.txt, sequencia didatica.md, todo.md, loja-perguntas-alunos.md, 2026-08-31-loja-baus-design.md) | 34 reads | ~282685 tok |
+| 10:04 | Edited .superpowers/sdd/2026-09-01-loja-baus/progress.md | 1→3 lines | ~135 |
+| 10:04 | Session end: 44 writes across 14 files (projeto.txt, sequencia didatica.md, todo.md, loja-perguntas-alunos.md, 2026-08-31-loja-baus-design.md) | 37 reads | ~286323 tok |
+| 10:05 | Edited shared/src/containers.test.ts | 21→22 lines | ~137 |
+| 10:05 | Edited shared/src/containers.test.ts | added optional chaining | ~982 |
+| 10:05 | Edited shared/src/containers.ts | 2→2 lines | ~39 |
+| 10:05 | Edited shared/src/containers.ts | modified Loja() | ~116 |
+| 10:05 | Edited shared/src/containers.ts | added 2 condition(s) | ~133 |
+| 10:06 | Edited shared/src/containers.ts | modified Loja() | ~496 |
+| 10:06 | Edited shared/src/containers.ts | modified containerVazio() | ~92 |
+| 10:06 | Edited shared/src/containers.ts | modified containerTemConteudo() | ~169 |
+| 10:06 | Edited shared/src/containers.ts | 13→15 lines | ~139 |
+| 10:06 | Edited shared/src/containers.ts | modified containerParaSave() | ~192 |
+| 10:06 | Edited shared/src/containers.ts | added 9 condition(s) | ~506 |
+| 10:06 | Edited shared/src/containers.ts | added 2 condition(s) | ~613 |
+| 10:07 | Edited shared/src/containers.ts | modified containerDeSave() | ~156 |
+| 10:07 | Created .superpowers/sdd/2026-09-01-loja-baus/task-2-report.md | — | ~1147 |
+| 10:08 | Edited todo.md | modified digo() | ~215 |
+| 10:09 | Session end: 59 writes across 17 files (projeto.txt, sequencia didatica.md, todo.md, loja-perguntas-alunos.md, 2026-08-31-loja-baus-design.md) | 38 reads | ~291929 tok |
+| 10:11 | Edited .superpowers/sdd/2026-09-01-loja-baus/progress.md | 1→3 lines | ~278 |
+| 10:11 | Session end: 60 writes across 17 files (projeto.txt, sequencia didatica.md, todo.md, loja-perguntas-alunos.md, 2026-08-31-loja-baus-design.md) | 40 reads | ~294159 tok |
+| 10:12 | Edited shared/src/receitas.test.ts | added optional chaining | ~208 |
+| 10:12 | Edited shared/src/receitas.ts | modified Loja() | ~209 |
+| 10:12 | Edited shared/src/receitas.ts | 4→3 lines | ~51 |
+| 10:13 | Created .superpowers/sdd/2026-09-01-loja-baus/task-3-report.md | — | ~1024 |
+| 10:14 | Session end: 64 writes across 19 files (projeto.txt, sequencia didatica.md, todo.md, loja-perguntas-alunos.md, 2026-08-31-loja-baus-design.md) | 41 reads | ~295758 tok |
+| 10:15 | Edited .superpowers/sdd/2026-09-01-loja-baus/progress.md | 1→3 lines | ~187 |
+| 10:15 | Session end: 65 writes across 19 files (projeto.txt, sequencia didatica.md, todo.md, loja-perguntas-alunos.md, 2026-08-31-loja-baus-design.md) | 43 reads | ~296982 tok |
+| 10:16 | Edited shared/src/save.test.ts | added optional chaining | ~369 |
+| 10:16 | Edited shared/src/constants.ts | modified Loja() | ~175 |
+| 10:16 | Edited shared/src/save.ts | modified Dimas() | ~143 |
+| 10:16 | Edited shared/src/save.ts | modified Dimas() | ~279 |
+| 10:17 | Created .superpowers/sdd/2026-09-01-loja-baus/task-4-report.md | — | ~875 |
+| 10:17 | Session end: 70 writes across 23 files (projeto.txt, sequencia didatica.md, todo.md, loja-perguntas-alunos.md, 2026-08-31-loja-baus-design.md) | 45 reads | ~299395 tok |
+| 10:19 | Edited .superpowers/sdd/2026-09-01-loja-baus/progress.md | modified Minor() | ~256 |
+| 10:20 | Session end: 71 writes across 23 files (projeto.txt, sequencia didatica.md, todo.md, loja-perguntas-alunos.md, 2026-08-31-loja-baus-design.md) | 47 reads | ~300676 tok |
+| 10:21 | Created shared/src/loja.test.ts | — | ~821 |
+| 10:21 | Created shared/src/session/loja.ts | — | ~217 |
+| 10:21 | Edited shared/src/protocol.ts | modified Loja() | ~98 |
+| 10:21 | Edited shared/src/protocol.ts | added 1 condition(s) | ~74 |
+| 10:21 | Edited shared/src/session.ts | modified Loja() | ~58 |
+| 10:21 | Edited shared/src/session.ts | 2→7 lines | ~117 |
+| 10:21 | Edited shared/src/session.ts | 2→3 lines | ~55 |
+| 10:21 | Edited shared/src/session.ts | 4→5 lines | ~29 |
+| 10:21 | Edited shared/src/session.ts | added 1 import(s) | ~26 |
+| 10:21 | Edited shared/src/session.ts | added 1 condition(s) | ~117 |
+| 10:21 | Edited shared/src/session.ts | added 1 condition(s) | ~118 |
+| 10:22 | Edited shared/src/session.ts | 2→4 lines | ~51 |
+| 10:22 | Edited server/src/index.ts | modified Loja() | ~147 |
+| 10:23 | Edited shared/src/session.test.ts | 26→31 lines | ~477 |
+| 10:23 | Edited shared/src/session.test.ts | 3→4 lines | ~98 |
+| 10:23 | Edited shared/src/session.test.ts | 2→2 lines | ~60 |
+| 10:24 | Edited shared/src/session.test.ts | 1→2 lines | ~59 |
+| 10:25 | Created .superpowers/sdd/2026-09-01-loja-baus/task-5-report.md | — | ~1938 |
+| 10:26 | Session end: 89 writes across 30 files (projeto.txt, sequencia didatica.md, todo.md, loja-perguntas-alunos.md, 2026-08-31-loja-baus-design.md) | 51 reads | ~331028 tok |
+| 10:28 | Edited .superpowers/sdd/2026-09-01-loja-baus/progress.md | modified Minor() | ~287 |
+| 10:29 | Session end: 90 writes across 30 files (projeto.txt, sequencia didatica.md, todo.md, loja-perguntas-alunos.md, 2026-08-31-loja-baus-design.md) | 53 reads | ~333153 tok |
+| 10:29 | Edited shared/src/loja.test.ts | added 1 import(s) | ~50 |
+| 10:30 | Edited shared/src/loja.test.ts | expanded (+19 lines) | ~494 |
+| 10:30 | Edited shared/src/session.ts | 10→12 lines | ~63 |
+| 10:30 | Edited shared/src/session.ts | added 1 condition(s) | ~258 |
+| 10:32 | Edited shared/src/loja.test.ts | expanded (+14 lines) | ~432 |
+| 10:32 | Edited shared/src/loja.test.ts | expanded (+6 lines) | ~181 |
+| 10:32 | Edited shared/src/loja.test.ts | 10→6 lines | ~117 |
+| 10:33 | Edited shared/src/loja.test.ts | reduced (-16 lines) | ~277 |
+| 10:34 | Edited shared/src/loja.test.ts | 18→19 lines | ~288 |
+| 10:35 | Created .superpowers/sdd/2026-09-01-loja-baus/task-6-report.md | — | ~1287 |
+| 10:35 | Edited .superpowers/sdd/2026-09-01-loja-baus/task-6-report.md | modified a09212a() | ~58 |
+| 10:36 | Session end: 101 writes across 31 files (projeto.txt, sequencia didatica.md, todo.md, loja-perguntas-alunos.md, 2026-08-31-loja-baus-design.md) | 58 reads | ~348078 tok |
+| 10:43 | Edited .superpowers/sdd/2026-09-01-loja-baus/progress.md | 1→3 lines | ~336 |
+| 10:43 | Session end: 102 writes across 31 files (projeto.txt, sequencia didatica.md, todo.md, loja-perguntas-alunos.md, 2026-08-31-loja-baus-design.md) | 59 reads | ~348438 tok |
+| 10:43 | Edited shared/src/loja.test.ts | 19→18 lines | ~281 |
+| 10:44 | Edited .superpowers/sdd/2026-09-01-loja-baus/task-6-report.md | world() → reach() | ~160 |
+| 10:44 | Edited .superpowers/sdd/2026-09-01-loja-baus/task-6-report.md | added 1 condition(s) | ~236 |
+| 10:44 | Edited .superpowers/sdd/2026-09-01-loja-baus/task-6-report.md | expanded (+31 lines) | ~424 |
+| 10:45 | Session end: 106 writes across 31 files (projeto.txt, sequencia didatica.md, todo.md, loja-perguntas-alunos.md, 2026-08-31-loja-baus-design.md) | 60 reads | ~349897 tok |
+| 10:46 | Edited .superpowers/sdd/2026-09-01-loja-baus/progress.md | 1→2 lines | ~108 |
+| 10:47 | Session end: 107 writes across 31 files (projeto.txt, sequencia didatica.md, todo.md, loja-perguntas-alunos.md, 2026-08-31-loja-baus-design.md) | 61 reads | ~350496 tok |
+| 10:47 | Edited shared/src/session.ts | modified do() | ~304 |
+| 10:48 | Edited shared/src/session.ts | added 1 condition(s) | ~147 |
+| 10:48 | Edited shared/src/session.ts | added 1 condition(s) | ~148 |
+| 10:48 | Edited shared/src/loja.test.ts | modified turmaComLoja() | ~627 |
+| 10:54 | Edited shared/src/loja.test.ts | 2→3 lines | ~54 |
+| 10:54 | Edited shared/src/loja.test.ts | added optional chaining | ~677 |
+| 10:55 | Edited shared/src/loja.test.ts | 2→3 lines | ~67 |
+| 10:57 | Created .superpowers/sdd/2026-09-01-loja-baus/task-7-report.md | — | ~1962 |
+| 10:58 | Session end: 115 writes across 32 files (projeto.txt, sequencia didatica.md, todo.md, loja-perguntas-alunos.md, 2026-08-31-loja-baus-design.md) | 65 reads | ~359283 tok |
+| 11:03 | Edited .superpowers/sdd/2026-09-01-loja-baus/progress.md | 1→3 lines | ~373 |
+| 11:03 | Session end: 116 writes across 32 files (projeto.txt, sequencia didatica.md, todo.md, loja-perguntas-alunos.md, 2026-08-31-loja-baus-design.md) | 66 reads | ~363042 tok |
+| 11:04 | Edited shared/src/loja.test.ts | added nullish coalescing | ~752 |
+| 11:04 | Edited shared/src/containers.ts | modified parsePreco() | ~39 |
+| 11:04 | Edited shared/src/protocol.ts | inline fix | ~28 |
+| 11:04 | Edited shared/src/protocol.ts | modified Loja() | ~102 |
+| 11:04 | Edited shared/src/protocol.ts | added 2 condition(s) | ~189 |
+| 11:05 | Edited shared/src/gate-claim.test.ts | 5→9 lines | ~118 |
+| 11:05 | Edited shared/src/session/loja.ts | added 2 import(s) | ~63 |
+| 11:05 | Edited shared/src/session/loja.ts | added 4 condition(s) | ~253 |
+| 11:05 | Edited shared/src/session.ts | inline fix | ~19 |
+| 11:05 | Edited shared/src/session.ts | added 7 condition(s) | ~354 |
+| 11:05 | Edited shared/src/session.ts | 23→23 lines | ~354 |
+| 11:07 | Created .superpowers/sdd/2026-09-01-loja-baus/task-8-report.md | — | ~1792 |
+| 11:07 | Session end: 128 writes across 34 files (projeto.txt, sequencia didatica.md, todo.md, loja-perguntas-alunos.md, 2026-08-31-loja-baus-design.md) | 68 reads | ~368248 tok |
+| 11:10 | Edited scripts/gerar-build-info.mjs | added 1 condition(s) | ~622 |
+| 11:11 | Edited .superpowers/sdd/2026-09-01-loja-baus/progress.md | modified 17f6c17() | ~235 |
+| 11:12 | Session end: 130 writes across 35 files (projeto.txt, sequencia didatica.md, todo.md, loja-perguntas-alunos.md, 2026-08-31-loja-baus-design.md) | 73 reads | ~376537 tok |
+| 11:14 | Edited shared/src/loja.test.ts | added 2 condition(s) | ~1353 |
+| 11:14 | Edited shared/src/protocol.ts | expanded (+6 lines) | ~120 |
+| 11:14 | Edited shared/src/protocol.ts | added 2 condition(s) | ~140 |
+| 11:14 | Edited shared/src/gate-claim.test.ts | 5→9 lines | ~136 |
+| 11:14 | Edited shared/src/session/loja.ts | added 2 import(s) | ~99 |
+| 11:14 | Edited shared/src/session/loja.ts | added nullish coalescing | ~709 |
+| 11:14 | Edited shared/src/session.ts | inline fix | ~23 |
+| 11:14 | Edited shared/src/session.ts | added 7 condition(s) | ~303 |
+| 11:16 | Edited shared/src/loja.test.ts | 4→8 lines | ~176 |
+| 11:17 | Edited shared/src/loja.test.ts | added optional chaining | ~244 |
+| 11:18 | Edited shared/src/loja.test.ts | expanded (+8 lines) | ~671 |
+| 11:19 | Created .superpowers/sdd/2026-09-01-loja-baus/task-9-report.md | — | ~1794 |
+| 11:20 | Session end: 142 writes across 36 files (projeto.txt, sequencia didatica.md, todo.md, loja-perguntas-alunos.md, 2026-08-31-loja-baus-design.md) | 74 reads | ~385311 tok |
+| 11:25 | Edited .superpowers/sdd/2026-09-01-loja-baus/progress.md | modified 17f6c17() | ~362 |
+| 11:26 | Session end: 143 writes across 36 files (projeto.txt, sequencia didatica.md, todo.md, loja-perguntas-alunos.md, 2026-08-31-loja-baus-design.md) | 76 reads | ~387381 tok |
+| 11:26 | Edited shared/src/loja.test.ts | added nullish coalescing | ~977 |
+| 11:27 | Created .superpowers/sdd/2026-09-01-loja-baus/task-10-report.md | — | ~936 |
+| 11:28 | Session end: 145 writes across 37 files (projeto.txt, sequencia didatica.md, todo.md, loja-perguntas-alunos.md, 2026-08-31-loja-baus-design.md) | 77 reads | ~389645 tok |
+| 11:32 | Edited .superpowers/sdd/2026-09-01-loja-baus/progress.md | 1→3 lines | ~447 |
+| 11:32 | Session end: 146 writes across 37 files (projeto.txt, sequencia didatica.md, todo.md, loja-perguntas-alunos.md, 2026-08-31-loja-baus-design.md) | 79 reads | ~392836 tok |
+| 11:32 | Edited shared/src/loja.test.ts | 11→14 lines | ~265 |
+| 11:32 | Edited shared/src/loja.test.ts | 8→9 lines | ~140 |
+| 11:33 | Edited .superpowers/sdd/2026-09-01-loja-baus/task-10-report.md | added optional chaining | ~547 |
+| 11:33 | Edited .superpowers/sdd/2026-09-01-loja-baus/task-10-report.md | modified test() | ~56 |
+| 11:34 | Session end: 150 writes across 37 files (projeto.txt, sequencia didatica.md, todo.md, loja-perguntas-alunos.md, 2026-08-31-loja-baus-design.md) | 79 reads | ~393887 tok |
+| 11:34 | Edited .superpowers/sdd/2026-09-01-loja-baus/progress.md | 1→2 lines | ~78 |
+| 11:35 | Session end: 151 writes across 37 files (projeto.txt, sequencia didatica.md, todo.md, loja-perguntas-alunos.md, 2026-08-31-loja-baus-design.md) | 80 reads | ~394483 tok |
+| 11:35 | Edited shared/src/loja.test.ts | added optional chaining | ~304 |
+| 11:35 | Edited shared/src/protocol.ts | modified Loja() | ~151 |
+| 11:36 | Edited shared/src/protocol.ts | added nullish coalescing | ~203 |
+| 11:36 | Edited shared/src/session/containers.ts | added optional chaining | ~202 |
+| 11:38 | Edited shared/src/protocol.ts | added 3 condition(s) | ~462 |
+| 11:39 | Created .superpowers/sdd/2026-09-01-loja-baus/task-11-report.md | — | ~1703 |
+| 14:29 | Session end: 157 writes across 38 files (projeto.txt, sequencia didatica.md, todo.md, loja-perguntas-alunos.md, 2026-08-31-loja-baus-design.md) | 83 reads | ~399634 tok |
+| 14:31 | Edited .superpowers/sdd/2026-09-01-loja-baus/progress.md | added nullish coalescing | ~268 |
+| 14:31 | Edited shared/src/containers.ts | modified parsePrecoEntry() | ~45 |
+| 14:31 | Session end: 158 writes across 38 files (projeto.txt, sequencia didatica.md, todo.md, loja-perguntas-alunos.md, 2026-08-31-loja-baus-design.md) | 83 reads | ~399921 tok |
+| 14:31 | Edited shared/src/protocol.ts | inline fix | ~29 |
+| 14:32 | Edited shared/src/protocol.ts | expanded (+6 lines) | ~36 |
+| 14:32 | Edited shared/src/protocol.ts | modified for() | ~128 |
+| 14:33 | Edited .superpowers/sdd/2026-09-01-loja-baus/task-11-report.md | added 3 condition(s) | ~860 |
+| 14:33 | Session end: 162 writes across 38 files (projeto.txt, sequencia didatica.md, todo.md, loja-perguntas-alunos.md, 2026-08-31-loja-baus-design.md) | 83 reads | ~401303 tok |
+| 14:34 | Edited .superpowers/sdd/2026-09-01-loja-baus/progress.md | 1→3 lines | ~145 |
+| 14:35 | Session end: 163 writes across 38 files (projeto.txt, sequencia didatica.md, todo.md, loja-perguntas-alunos.md, 2026-08-31-loja-baus-design.md) | 85 reads | ~402117 tok |
+| 14:35 | Edited client/src/container.ts | 3→4 lines | ~18 |
+| 14:35 | Edited client/src/container.ts | modified Loja() | ~79 |
+| 14:35 | Edited client/src/container.ts | expanded (+12 lines) | ~189 |
+| 14:35 | Edited client/src/container.ts | 4→5 lines | ~53 |
+| 14:35 | Edited client/src/container.ts | modified if() | ~28 |
+| 14:36 | Edited client/src/container.ts | 2→3 lines | ~44 |
+| 14:36 | Edited client/src/container.ts | added 1 condition(s) | ~65 |
+| 14:36 | Edited client/src/container.ts | added optional chaining | ~1305 |
+| 14:36 | Edited client/src/container.ts | added optional chaining | ~87 |
+| 14:36 | Edited client/src/main.ts | 3→7 lines | ~130 |
+| 14:36 | Edited client/index.html | 12→15 lines | ~128 |
+| 14:38 | Created .superpowers/sdd/2026-09-01-loja-baus/task-12-report.md | — | ~1533 |
+| 14:39 | Session end: 175 writes across 42 files (projeto.txt, sequencia didatica.md, todo.md, loja-perguntas-alunos.md, 2026-08-31-loja-baus-design.md) | 87 reads | ~423978 tok |
+| 14:42 | Edited .superpowers/sdd/2026-09-01-loja-baus/progress.md | 1→3 lines | ~368 |
+| 14:43 | Session end: 176 writes across 42 files (projeto.txt, sequencia didatica.md, todo.md, loja-perguntas-alunos.md, 2026-08-31-loja-baus-design.md) | 88 reads | ~424422 tok |
+| 14:43 | Edited client/src/vitals.ts | modified constructor() | ~34 |
+| 14:43 | Edited client/src/vitals.ts | 2→6 lines | ~84 |
+| 14:43 | Edited client/src/vitals.ts | added 1 condition(s) | ~117 |
+| 14:43 | Edited client/src/vitals.ts | 2→4 lines | ~60 |
+| 14:43 | Edited client/src/main.ts | added 1 condition(s) | ~77 |
+| 14:44 | Created .superpowers/sdd/2026-09-01-loja-baus/task-13-report.md | — | ~1131 |
+| 14:45 | Session end: 182 writes across 44 files (projeto.txt, sequencia didatica.md, todo.md, loja-perguntas-alunos.md, 2026-08-31-loja-baus-design.md) | 89 reads | ~426006 tok |
+| 14:49 | Edited .superpowers/sdd/2026-09-01-loja-baus/progress.md | 1→3 lines | ~380 |
+| 14:50 | Session end: 183 writes across 44 files (projeto.txt, sequencia didatica.md, todo.md, loja-perguntas-alunos.md, 2026-08-31-loja-baus-design.md) | 92 reads | ~427719 tok |
+| 14:54 | Edited shared/src/loja.test.ts | added optional chaining | ~1231 |
+| 14:56 | Created .superpowers/sdd/2026-09-01-loja-baus/task-14-report.md | — | ~1866 |
+| 14:56 | Session end: 185 writes across 45 files (projeto.txt, sequencia didatica.md, todo.md, loja-perguntas-alunos.md, 2026-08-31-loja-baus-design.md) | 93 reads | ~432181 tok |
+| 15:00 | Edited .superpowers/sdd/2026-09-01-loja-baus/progress.md | 1→5 lines | ~241 |
+| 15:01 | Session end: 186 writes across 45 files (projeto.txt, sequencia didatica.md, todo.md, loja-perguntas-alunos.md, 2026-08-31-loja-baus-design.md) | 98 reads | ~440802 tok |
+| 15:12 | Edited .superpowers/sdd/2026-09-01-loja-baus/progress.md | modified REVIEW() | ~827 |
+| 15:13 | Session end: 187 writes across 45 files (projeto.txt, sequencia didatica.md, todo.md, loja-perguntas-alunos.md, 2026-08-31-loja-baus-design.md) | 100 reads | ~441688 tok |
+| 15:16 | Edited shared/src/containers.ts | modified containerTemConteudo() | ~391 |
+| 15:16 | Edited shared/src/session.ts | 4→4 lines | ~22 |
+| 15:16 | Edited shared/src/session.ts | containerTemConteudo() → containerTemEstoque() | ~59 |
+| 15:16 | Edited shared/src/loja.test.ts | modified describe() | ~924 |
+| 15:16 | Edited shared/src/loja.test.ts | added 2 import(s) | ~78 |
+| 15:16 | Edited shared/src/loja.test.ts | 18→14 lines | ~241 |
+| 15:17 | Edited shared/src/loja.test.ts | 12→15 lines | ~274 |
+| 15:19 | Edited client/src/container.ts | modified constructor() | ~126 |
+| 15:19 | Edited client/src/container.ts | added 2 condition(s) | ~772 |
+| 15:20 | Edited client/index.html | 1→2 lines | ~25 |
+| 15:20 | Edited client/src/main.ts | 3→4 lines | ~36 |
+| 15:21 | Edited shared/src/session.ts | added 1 condition(s) | ~287 |
+| 15:21 | Edited shared/src/loja.test.ts | added optional chaining | ~331 |
+| 15:22 | Edited shared/src/session.ts | modified I1() | ~284 |
+| 15:23 | Edited shared/src/session/loja.ts | added 1 import(s) | ~38 |
+| 15:23 | Edited shared/src/session/loja.ts | added optional chaining | ~509 |
+| 15:23 | Edited shared/src/loja.test.ts | modified it() | ~1433 |
+| 15:24 | Edited shared/src/loja.test.ts | 7→8 lines | ~151 |
+| 15:26 | Edited shared/src/gate-claim.test.ts | modified it() | ~391 |
+| 15:26 | Edited shared/src/session.ts | 5→5 lines | ~72 |
+| 15:26 | Edited shared/src/session.ts | modified confinaBloqueia() | ~79 |
+| 15:31 | Created .superpowers/sdd/2026-09-01-loja-baus/final-fix-report.md | — | ~4497 |
+| 15:34 | Session end: 209 writes across 46 files (projeto.txt, sequencia didatica.md, todo.md, loja-perguntas-alunos.md, 2026-08-31-loja-baus-design.md) | 104 reads | ~472068 tok |
+| 15:39 | Edited .superpowers/sdd/2026-09-01-loja-baus/progress.md | modified COMPLETE() | ~562 |
