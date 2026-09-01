@@ -63,6 +63,8 @@ const CSS = `
 #lj-vitals .icone.meio { clip-path: inset(0 50% 0 0); }
 #lj-vitals .fundo { position: absolute; opacity: 0.35; }
 #lj-vitals .casa { position: relative; width: 18px; height: 18px; }
+#lj-dimas { font-weight: bold; margin-top: 4px; }
+#lj-dimas.vazia { display: none; }
 
 /* dano: vinheta vermelha curta nas bordas — sem cobrir o meio da tela, que é
    onde o aluno está mirando */
@@ -194,6 +196,8 @@ export class VitalsUi {
   /** Última vida desenhada — o "levou dano" sai da DIFERENÇA, não de adivinhar. */
   private ultimaVida = VIDA_MAX;
   private visivel = false;
+  private readonly dimas: HTMLDivElement;
+  private visivelDimas = false;
 
   constructor() {
     const estilo = document.createElement("style");
@@ -219,6 +223,10 @@ export class VitalsUi {
     barras.className = "barras";
     barras.append(this.linhaVida, this.linhaFome);
     this.raiz.append(this.linhaAr, barras);
+    this.dimas = document.createElement("div");
+    this.dimas.id = "lj-dimas";
+    this.dimas.classList.add("vazia"); // só aparece quando a 1ª mensagem `dimas` chegar
+    this.raiz.appendChild(this.dimas);
     document.body.appendChild(this.raiz);
 
     this.dano = document.createElement("div");
@@ -233,6 +241,15 @@ export class VitalsUi {
     this.visivel = v;
     this.raiz.classList.toggle("ativo", v);
     if (!v) this.esconderMorte();
+  }
+
+  /** Aplica a mensagem `dimas` do servidor — mostra o painel na 1ª vez. */
+  aplicarDimas(saldo: number): void {
+    if (!this.visivelDimas) {
+      this.visivelDimas = true;
+      this.dimas.classList.remove("vazia");
+    }
+    this.dimas.textContent = `${saldo} Dimas`;
   }
 
   /** Aplica a mensagem `vida` do servidor. */

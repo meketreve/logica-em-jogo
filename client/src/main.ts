@@ -979,6 +979,10 @@ function handleServerData(data: string | ArrayBuffer): void {
                   : "você não sobreviveu — voltou ao ponto de partida",
         );
       }
+    } else if (msg.type === "dimas") {
+      // Loja (2026-09-01): saldo NUNCA decidido pela UI — o servidor é dono,
+      // como toda vida/fome/inventário deste jogo.
+      vitals().aplicarDimas(msg.saldo);
     } else if (msg.type === "kicked") {
       // professor removeu (cp22): mesmo caminho do join_denied — motivo vira
       // banner no menu (sem alert nativo), o socket cai logo depois.
