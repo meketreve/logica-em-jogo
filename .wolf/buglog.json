@@ -5645,6 +5645,93 @@
       "related_bugs": [],
       "occurrences": 1,
       "last_seen": "2026-09-01T00:00:00.000Z"
+    },
+    {
+      "id": "bug-654",
+      "timestamp": "2026-09-01T00:00:00.000Z",
+      "error_message": "Toda Baú-Loja fica permanentemente impossível de quebrar, mesmo pelo próprio criador, mesmo vazia — 'Tem coisa aí dentro' num baú sem estoque nenhum.",
+      "file": "shared/src/containers.ts, shared/src/session.ts",
+      "root_cause": "containerTemConteudo() foi estendida (Task 2) pra contar criador/precos (pro save não perder o dono de uma loja vazia), mas essa MESMA função também era o predicado do gate de break_block em session.ts — como toda BauLoja tem criador setado desde que é colocada, containerTemConteudo() nunca mais voltava false pra uma loja.",
+      "fix": "Nova containerTemEstoque() em containers.ts, respondendo só 'slot ocupado ou fogo aceso?' (sem olhar criador/precos) — vira o predicado do break_block. containerTemConteudo() (com criador/precos) continua intacta pro save-persistence em session/containers.ts.",
+      "tags": [
+        "loja",
+        "containers",
+        "break_block",
+        "final-review",
+        "regression"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-09-01T00:00:00.000Z"
+    },
+    {
+      "id": "bug-655",
+      "timestamp": "2026-09-01T00:00:00.000Z",
+      "error_message": "Editor de preço do criador só cria preço novo como 'pague N do mesmo item que vende' (ex: 3 tábuas por 1 tábua) — sem UI pra escolher outro item ou Dimas.",
+      "file": "client/src/container.ts, client/src/main.ts, client/index.html",
+      "root_cause": "lojaPrecos() nunca tinha um controle pra ESCOLHER o item de pagamento — o código default do preço novo sempre reusava o próprio item à venda como pagamento (`item: id`), então todo preço novo nascia economicamente sem sentido.",
+      "fix": "Select .loja-pagamento por linha: um <option> por tipo distinto no estoque da loja (exceto o item da própria linha) + Dimas sempre disponível. Default = pagamento existente (editar preserva), ou 'dimas' pra preço novo. change no input de qtd OU no select manda definir_preco. ContainerPanel ganhou nomeDe injetado (hotbarUi.nome) pros rótulos.",
+      "tags": [
+        "loja",
+        "client",
+        "ui",
+        "final-review"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-09-01T00:00:00.000Z"
+    },
+    {
+      "id": "bug-656",
+      "timestamp": "2026-09-01T00:00:00.000Z",
+      "error_message": "Dimas minta saldo ilimitado por nome falso, sem vínculo de conta — 4 nomes inventados = 200 Dimas de graça, transferível via loja.",
+      "file": "shared/src/session.ts",
+      "root_cause": "admitir() seeda DIMAS_INICIAL_PADRAO pra qualquer nome inédito com PIN de formato válido; join/auth nunca recusa nome novo (só força o MESMO pin pra nome que já existe).",
+      "fix": "Rework de autenticação é escopo grande demais pro fix; mitigação: admitir() avisa em chat TODOS os professores online (exceto quem está entrando agora, se for o próprio professor) toda vez que um saldo NOVO é cunhado — mesmo padrão de broadcastRegions ('avisa todos os professores online').",
+      "tags": [
+        "loja",
+        "dimas",
+        "auth",
+        "final-review",
+        "exploit"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-09-01T00:00:00.000Z"
+    },
+    {
+      "id": "bug-657",
+      "timestamp": "2026-09-01T00:00:00.000Z",
+      "error_message": "definir_preco aceita item id sem teto (ex: 999999) e precos.size cresce sem limite.",
+      "file": "shared/src/session/loja.ts",
+      "root_cause": "aplicarDefinirPreco só validava item>0 (integer), sem comparar contra MAX_BLOCK_ID; nenhuma trava no tamanho do Map cont.precos.",
+      "fix": "item (e preco.item na trilha de pagamento em item) agora rejeitados acima de MAX_BLOCK_ID; uma entrada NOVA (item ainda sem preço) é rejeitada quando cont.precos.size >= CONTAINER_SLOTS.loja (27) — atualizar/remover uma entrada já existente continua liberado mesmo no teto.",
+      "tags": [
+        "loja",
+        "validation",
+        "final-review"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-09-01T00:00:00.000Z"
+    },
+    {
+      "id": "bug-658",
+      "timestamp": "2026-09-01T00:00:00.000Z",
+      "error_message": "2 cenários que o próprio spec (§Testes) exige nunca foram cobertos: membro do MESMO grupo tentando definir_preco, e confinaBloqueia ainda valendo pro use_block da loja.",
+      "file": "shared/src/loja.test.ts, shared/src/gate-claim.test.ts",
+      "root_cause": "Cobertura de teste ficou implícita — todo teste de rejeição de definir_preco usava um ESTRANHO ao grupo, nunca um membro de verdade com edição no terreno; e nenhum teste combinava confinamento LIGADO com use_block numa loja (só com porta).",
+      "fix": "Novo teste em loja.test.ts: ana entra no grupo de amigos de prof via /amigos convidar+aceitar, ganha edição real do terreno (controle positivo: place_block funciona), mas definir_preco continua recusado — prova que a trava é o NOME do criador, não claim/grupo. Novo teste em gate-claim.test.ts reusando turmaComClaimDaAna(true): loja fora da área confinada de bia é bloqueada mesmo sem claimBloqueia entrar. RED confirmado manualmente nos dois (bypass temporário da checagem correspondente fez os testes falharem).",
+      "tags": [
+        "loja",
+        "test-coverage",
+        "final-review",
+        "confinamento",
+        "claims"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-09-01T00:00:00.000Z"
     }
   ]
 }

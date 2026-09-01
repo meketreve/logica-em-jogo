@@ -1494,6 +1494,17 @@ nenhum** — sem essa declaração o Chrome renderiza a página em light mesmo c
 
 ## Do-Not-Repeat
 
+- [2026-09-01] **Notificação nova dentro de `admitir()` que itera `this.players`
+  pode acabar mandando pra si mesmo** (o cliente que ACABOU de entrar já está em
+  `this.players` no momento em que o resto de `admitir()` roda). No fix do I1
+  (aviso ao professor quando um Dimas novo é cunhado), a primeira versão iterava
+  `this.players` sem excluir `clientId` — quebrou 3 testes pré-existentes em
+  `session.test.ts` que assumiam "a 1ª/última mensagem de chat é o Bem-vindo",
+  porque singleplayer (e o próprio professor se auto-admitindo) mandava o aviso
+  pra si mesmo ANTES do Bem-vindo. Fix: `if (id !== clientId && ...)`. **Ao
+  adicionar qualquer broadcast/notificação dentro de `admitir()`, sempre excluir
+  o `clientId` que está entrando AGORA do loop de destinatários**, a menos que a
+  notificação seja genuinamente sobre outra pessoa.
 - [2026-08-31] **`projeto.txt` cita PIAGET errado** — "Rio de Janeiro: LTC" sem ano. Real:
   *A Psicologia da Inteligência*, trad. Nathanael C. Caixeiro, **Zahar, 1977** (verificado por
   busca — a LTC publicou *O Nascimento da Inteligência na Criança*, obra diferente, em 1987).
