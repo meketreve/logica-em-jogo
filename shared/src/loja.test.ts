@@ -418,3 +418,75 @@ describe("comprar — pagamento em DIMAS", () => {
     expect(session.dimas.get("prof")).toBe(50 + 2 * 4); // creditado por NOME, não por socket
   });
 });
+
+describe("história completa: terreno, loja, venda em item, venda em Dimas", () => {
+  it("prof reivindica terreno, coloca a loja, ana (de fora) compra dos dois jeitos", () => {
+    const { sent, send } = collect();
+    const session = new GameSession(send, {
+      dims: { x: 20, z: 20, y: 4 }, seed: 1, codigo: "sala", flat: true,
+    });
+    session.handleMessage(1, join("prof", "0000", "sala"));
+    const p = session.players.get(1)!;
+    const bx = Math.floor(p.x);
+    const bz = Math.floor(p.z);
+    const by = Math.floor(p.y);
+    // /terreno segue o molde de gate-claim.test.ts (turmaComClaimDaAna): liga
+    // a proteção, marca os 2 cantos com a varinha, e SÓ ENTÃO /terreno criar
+    // — não existe "/terreno" sozinho, e sem wand_mark a área fica vazia.
+    session.handleMessage(1, cmd("/terreno ligar"));
+    session.handleMessage(1, JSON.stringify({ type: "wand_mark", corner: 1, x: bx - 3, y: by - 1, z: bz - 3 }));
+    session.handleMessage(1, JSON.stringify({ type: "wand_mark", corner: 2, x: bx + 3, y: by + 3, z: bz + 3 }));
+    session.handleMessage(1, cmd("/terreno criar"));
+
+    const x = bx + 1;
+    const y = by;
+    const z = bz;
+    session.handleMessage(1, JSON.stringify({ type: "place_block", x, y, z, blockId: BlockId.BauLoja }));
+
+    // mover_container/comprar/descartar_container exigem inventário
+    // AUTORITATIVO — só existe em sobrevivência (inventarioVale). Mundo nasce
+    // em criativo, e `all` poupa quem digitou (§🍖 F1) — por isso o prof
+    // também precisa do `eu` pra conseguir estocar a loja.
+    session.handleMessage(1, cmd("/modo sobrevivencia all"));
+    session.handleMessage(1, cmd("/modo sobrevivencia eu"));
+
+    // estoque: 10 pranchas, 10 pedras
+    const inv = session.inventarios.get("prof") ?? new Array(27).fill(null);
+    const novo = inv.slice();
+    novo[0] = { id: BlockId.Planks, qtd: 10 };
+    novo[1] = { id: BlockId.Stone, qtd: 10 };
+    session.inventarios.set("prof", novo as never);
+    session.handleMessage(1, JSON.stringify({ type: "use_block", x, y, z }));
+    session.handleMessage(1, JSON.stringify({ type: "mover_container", x, y, z, de: 0, para: 27 }));
+    session.handleMessage(1, JSON.stringify({ type: "mover_container", x, y, z, de: 1, para: 28 }));
+    session.handleMessage(1, JSON.stringify({
+      type: "definir_preco", x, y, z, item: BlockId.Planks,
+      preco: { tipo: "item", item: BlockId.MinerioFerro, qtd: 1 },
+    }));
+    session.handleMessage(1, JSON.stringify({
+      type: "definir_preco", x, y, z, item: BlockId.Stone, preco: { tipo: "dimas", qtd: 2 },
+    }));
+
+    // ana, de FORA do grupo do prof, chega e abre a loja pra comprar
+    session.handleMessage(2, join("ana", "1111"));
+    const invAna = new Array(27).fill(null);
+    invAna[0] = { id: BlockId.MinerioFerro, qtd: 5 };
+    session.inventarios.set("ana", invAna as never);
+    session.handleMessage(2, JSON.stringify({ type: "use_block", x, y, z }));
+
+    session.handleMessage(2, JSON.stringify({ type: "comprar", x, y, z, item: BlockId.Planks, qtd: 4 }));
+    session.handleMessage(2, JSON.stringify({ type: "comprar", x, y, z, item: BlockId.Stone, qtd: 3 }));
+
+    const mochilaAna = session.inventarios.get("ana")!;
+    expect(mochilaAna.reduce((s, sl) => s + (sl?.id === BlockId.Planks ? sl.qtd : 0), 0)).toBe(4);
+    expect(mochilaAna.reduce((s, sl) => s + (sl?.id === BlockId.Stone ? sl.qtd : 0), 0)).toBe(3);
+    expect(mochilaAna.reduce((s, sl) => s + (sl?.id === BlockId.MinerioFerro ? sl.qtd : 0), 0)).toBe(1); // 5-4
+    expect(session.dimas.get("ana")).toBe(50 - 3 * 2);
+    expect(session.dimas.get("prof")).toBe(50 + 3 * 2);
+
+    // ana NÃO consegue mexer no estoque diretamente (não é a criadora)
+    const antes = session.containers.get(`${x},${y},${z}`);
+    session.handleMessage(2, JSON.stringify({ type: "descartar_container", x, y, z, slot: 27 }));
+    expect(session.containers.get(`${x},${y},${z}`)).toEqual(antes);
+  });
+});
