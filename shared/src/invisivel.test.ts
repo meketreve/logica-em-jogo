@@ -44,17 +44,25 @@ function turma(save: SaveData = baseSave()) {
   return { session, sent };
 }
 
+// bug-650: `move` só vira `players_moved` no FLUSH do tick — o `tick()` aqui
+// fecha o lote, senão `posesRecebidas` nunca veria nada (ainda em `posesDirty`).
 function mover(session: GameSession, clientId: number, x: number, y: number, z: number): void {
   session.handleMessage(clientId, JSON.stringify({ type: "move", x, y, z, yaw: 0, pitch: 0 }));
+  session.tick();
 }
 
-/** Todos os `player_moved` do jogador `de` que chegaram no cliente `para`. */
+/** Todas as poses do jogador `de` que chegaram no cliente `para` — do
+ *  `player_moved` (raro: join/dormir/toggle) e de dentro de QUALQUER
+ *  `players_moved` (lote do `move` no tick, bug-650). */
 function posesRecebidas(sent: Sent, para: number, de: number) {
   const out: { x: number; y: number; z: number }[] = [];
   for (const s of sent) {
     if (s.clientId !== para) continue;
     const m = parseServerMessage(s.data as string);
     if (m?.type === "player_moved" && m.id === de) out.push({ x: m.x, y: m.y, z: m.z });
+    if (m?.type === "players_moved") {
+      for (const mv of m.moves) if (mv.id === de) out.push({ x: mv.x, y: mv.y, z: mv.z });
+    }
   }
   return out;
 }

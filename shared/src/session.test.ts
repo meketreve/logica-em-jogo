@@ -820,7 +820,10 @@ describe("GameSession (servidor autoritativo)", () => {
     expect(biaTypes.indexOf("snapshot")).toBeLessThan(biaTypes.indexOf("player_moved"));
   });
 
-  it("move vira player_moved SÓ pros outros — autor nunca recebe eco", () => {
+  // bug-650: N `move` não viram mais N `player_moved` na hora — o servidor
+  // JUNTA num `players_moved` por destinatário, fechado no fim do tick (senão
+  // turma de 35 andando é O(N²) sends/s e todo comando atrasa).
+  it("move vira players_moved no FIM do tick, SÓ pros outros — autor nunca recebe eco", () => {
     const { sent, send } = collect();
     const session = new GameSession(send, { dims: DIMS, singleplayer: true });
     session.handleMessage(1, JSON.stringify({ type: "join", name: "ana" }));
@@ -830,10 +833,15 @@ describe("GameSession (servidor autoritativo)", () => {
     session.handleMessage(1, JSON.stringify({
       type: "move", x: 5.5, y: findSpawnY(session.world, 5, 6), z: 6.5, yaw: 1.2, pitch: -0.3,
     }));
+    expect(sent).toHaveLength(0); // ainda em posesDirty — só sai no tick
+    session.tick();
     expect(sent).toHaveLength(1);
     expect(sent[0]?.clientId).toBe(2);
     expect(parseServerMessage(sent[0]?.data as string)).toEqual({
-      type: "player_moved", id: 1, x: 5.5, y: findSpawnY(session.world, 5, 6), z: 6.5, yaw: 1.2, pitch: -0.3, name: "ana",
+      type: "players_moved",
+      moves: [
+        { id: 1, x: 5.5, y: findSpawnY(session.world, 5, 6), z: 6.5, yaw: 1.2, pitch: -0.3, name: "ana" },
+      ],
     });
   });
 

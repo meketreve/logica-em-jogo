@@ -401,6 +401,14 @@ export class GameSession {
   /** `/invisivel` (2026-08-22): professores que sumiram para os ALUNOS. Sessão-só,
    *  como o `dormindo` — quem cai e volta volta visível. Ver `session/invisivel.ts`. */
   readonly invisiveis = new Set<number>();
+  /** Poses de `move` esperando o PRÓXIMO tick virar `players_moved` (2026-08-31,
+   *  bug-650). Chave = autor; só a ÚLTIMA pose do tick sobrevive (Map dedupe) —
+   *  se o cliente mandar mais de um `move` no mesmo tick, os intermediários nunca
+   *  precisavam ir pro fio. Ver `flushPoses`. */
+  private readonly posesDirty = new Map<
+    number,
+    { x: number; y: number; z: number; yaw: number; pitch: number; dormindo?: boolean; cama?: { x: number; y: number; z: number } }
+  >();
   /** A noite está correndo acelerada? Ligado quando a MAIORIA dos online está
    *  deitada; desligado ao amanhecer ou quando alguém levanta. */
   pulandoNoite = false;
@@ -984,12 +992,12 @@ export class GameSession {
         }
         // Relay pros OUTROS (nunca ecoa pro autor — cliente não precisa saber
         // o próprio id). Validação de física vem depois do MVP.
-        this.broadcastPose(clientId, {
-          type: "player_moved",
-          id: clientId,
+        // bug-650: NÃO manda agora — só marca. `flushPoses` no fim do tick
+        // vira UM `players_moved` por destinatário (era um `player_moved` por
+        // MOVE recebido, O(N²) sends/s com a turma toda andando).
+        this.posesDirty.set(clientId, {
           x: msg.x, y: msg.y, z: msg.z,
           yaw: msg.yaw, pitch: msg.pitch,
-          name: p.name,
           ...(this.dormindo.has(clientId)
             ? { dormindo: true, cama: this.dormindo.get(clientId) }
             : {}),
@@ -2214,8 +2222,10 @@ export class GameSession {
    * recebe a mensagem, em vez de recebê-la e não desenhar. Se a filtragem fosse
    * do cliente, a posição do professor viajaria no fio e o devtools a mostraria.
    *
-   * Todo `player_moved` do jogo passa por aqui — o do `move` (10 Hz) e o do
-   * join. Quem mandar um por fora abre o vazamento de volta.
+   * Eventos RAROS de pose (join, deitar/levantar). O `move` de 10 Hz NÃO passa
+   * mais por aqui — vira `players_moved` em lote no fim do tick (`flushPoses`,
+   * bug-650) — mas o gate do invisível é o mesmo dos dois lados. Quem mandar
+   * pose por fora de um dos dois abre o vazamento de volta.
    */
   broadcastPose(autorId: number, msg: ServerMessage): void {
     const escondido = this.invisiveis.has(autorId);
@@ -2224,6 +2234,31 @@ export class GameSession {
       if (clientId === autorId) continue;
       if (escondido && p.papel !== "professor") continue;
       this.send(clientId, raw);
+    }
+  }
+
+  /**
+   * Fecha o tick: vira `posesDirty` em UM `players_moved` por destinatário
+   * (bug-650). Mesmo gate do `/invisivel` que o `broadcastPose` já tinha —
+   * por AUTOR, não por destinatário: cada pose entra ou sai da lista de cada
+   * um conforme quem a escreveu, não conforme quem a recebe.
+   */
+  private flushPoses(): void {
+    if (this.posesDirty.size === 0) return;
+    const autores = [...this.posesDirty];
+    this.posesDirty.clear();
+    for (const [destId, dest] of this.players) {
+      const moves: Extract<ServerMessage, { type: "players_moved" }>["moves"] = [];
+      for (const [autorId, pose] of autores) {
+        if (autorId === destId) continue; // nunca ecoa pro autor
+        if (this.invisiveis.has(autorId) && dest.papel !== "professor") continue;
+        const autor = this.players.get(autorId);
+        if (!autor) continue; // saiu no meio do tick
+        moves.push({ id: autorId, name: autor.name, ...pose });
+      }
+      if (moves.length > 0) {
+        this.send(destId, JSON.stringify({ type: "players_moved", moves } satisfies ServerMessage));
+      }
     }
   }
 
@@ -2413,6 +2448,9 @@ export class GameSession {
 
     // F2 streaming: mundo lazy manda colunas por raio de interesse
     if (this.lazy) streamColunas(this);
+
+    // bug-650: 1 broadcast por DESTINATÁRIO fecha o tick, não 1 por MOVE recebido
+    this.flushPoses();
 
     const ms = this.now() - t0;
     this.tickCount++;

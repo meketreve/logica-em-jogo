@@ -683,6 +683,29 @@ let proximoLazy = false;
 /** Nomes online (id→nome) pro autocomplete de comandos com nome de jogador. */
 const nomesOnline = new Map<number, string>();
 
+/** Uma pose de OUTRO jogador — vinda de `player_moved` (raro: join/dormir) ou
+ *  de UMA entrada do lote `players_moved` (10 Hz, bug-650). Mesmo aplicador
+ *  pros dois: o cliente não distingue a origem. */
+function aplicarPoseRemota(msg: {
+  id: number;
+  x: number;
+  y: number;
+  z: number;
+  yaw: number;
+  pitch: number;
+  name?: string;
+  dormindo?: boolean;
+  cama?: { x: number; y: number; z: number };
+}): void {
+  // autocomplete de nomes (Tab): quem está online, aprendido do relay
+  if (msg.name && nomesOnline.get(msg.id) !== msg.name) {
+    nomesOnline.set(msg.id, msg.name);
+    learnPlayers([...new Set(nomesOnline.values())]);
+    pushFriendsData(); // quem entrou vira candidato a convite
+  }
+  jogo?.applyPlayerMoved(msg);
+}
+
 /** Estado consolidado pros painéis — chamada sempre que algo deles muda. */
 function pushPanelData(): void {
   paineis.cp14?.update({
@@ -797,13 +820,11 @@ function handleServerData(data: string | ArrayBuffer): void {
     } else if (msg.type === "blocks_filled") {
       jogo?.applyBlocksFilled(msg);
     } else if (msg.type === "player_moved") {
-      // autocomplete de nomes (Tab): quem está online, aprendido do relay
-      if (msg.name && nomesOnline.get(msg.id) !== msg.name) {
-        nomesOnline.set(msg.id, msg.name);
-        learnPlayers([...new Set(nomesOnline.values())]);
-        pushFriendsData(); // quem entrou vira candidato a convite
-      }
-      jogo?.applyPlayerMoved(msg);
+      aplicarPoseRemota(msg);
+    } else if (msg.type === "players_moved") {
+      // bug-650: um `players_moved` por tick no lugar de N `player_moved` —
+      // mesmo aplicador, só que em lote.
+      for (const m of msg.moves) aplicarPoseRemota(m);
     } else if (msg.type === "dormindo") {
       jogo?.aoDormir(msg.dormindo, msg.cama);
     } else if (msg.type === "player_left") {

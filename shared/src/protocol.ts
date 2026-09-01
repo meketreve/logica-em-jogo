@@ -194,6 +194,30 @@ export type ServerMessage =
       cama?: { x: number; y: number; z: number };
     }
   | {
+      /**
+       * Lote de poses do tick (2026-08-31) — substitui N `player_moved`
+       * individuais (um por `move` recebido) por UM broadcast por destinatário
+       * a cada tick (10 Hz), sempre. Turma de 35 andando virava O(N²) sends/s
+       * (cada `move` relayado pra todo mundo na hora): a fila do servidor
+       * enchia e todo COMANDO atrasava, não só a posição de quem andava. O
+       * autor de cada pose já vem excluído (nunca ecoa) e o gate do
+       * `/invisivel` já filtrado — os DOIS por destinatário, como o
+       * `player_moved` fazia por autor.
+       */
+      type: "players_moved";
+      moves: {
+        id: number;
+        x: number;
+        y: number;
+        z: number;
+        yaw: number;
+        pitch: number;
+        name?: string;
+        dormindo?: boolean;
+        cama?: { x: number; y: number; z: number };
+      }[];
+    }
+  | {
       /** O PRÓPRIO jogador deitou ou levantou (2026-08-17). Só para o autor: o
        *  `player_moved` cobre os outros, mas o servidor nunca ecoa o move de
        *  quem o mandou, então a própria câmera precisa desta mensagem.
@@ -766,6 +790,32 @@ export function parseServerMessage(raw: string): ServerMessage | null {
         ...(m["dormindo"] === true ? { dormindo: true } : {}),
         ...(m["dormindo"] === true ? parseCama(m["cama"]) : {}),
       };
+    }
+    case "players_moved": {
+      if (!Array.isArray(m["moves"])) return null;
+      const moves: {
+        id: number; x: number; y: number; z: number; yaw: number; pitch: number;
+        name?: string; dormindo?: boolean; cama?: { x: number; y: number; z: number };
+      }[] = [];
+      for (const raw of m["moves"] as unknown[]) {
+        if (typeof raw !== "object" || raw === null) return null;
+        const mv = raw as Record<string, unknown>;
+        if (typeof mv["id"] !== "number" || !Number.isInteger(mv["id"])) return null;
+        const nums = [mv["x"], mv["y"], mv["z"], mv["yaw"], mv["pitch"]];
+        if (!nums.every((n) => typeof n === "number" && Number.isFinite(n))) return null;
+        moves.push({
+          id: mv["id"],
+          x: mv["x"] as number,
+          y: mv["y"] as number,
+          z: mv["z"] as number,
+          yaw: mv["yaw"] as number,
+          pitch: mv["pitch"] as number,
+          ...(typeof mv["name"] === "string" ? { name: mv["name"] } : {}),
+          ...(mv["dormindo"] === true ? { dormindo: true } : {}),
+          ...(mv["dormindo"] === true ? parseCama(mv["cama"]) : {}),
+        });
+      }
+      return { type: "players_moved", moves };
     }
     case "dormindo": {
       if (typeof m["dormindo"] !== "boolean") return null;
