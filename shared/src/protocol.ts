@@ -492,6 +492,12 @@ export type ServerMessage =
       fome?: number;
     }
   | {
+      /** Loja (2026-09-01): saldo de Dimas deste jogador. Mandado no join
+       *  (`admitir`) e sempre que uma compra/venda muda o saldo. */
+      type: "dimas";
+      saldo: number;
+    }
+  | {
       /**
        * Inventário do PRÓPRIO jogador (§🍖 F4) — estado do SERVIDOR, mandado
        * inteiro (27 slots são ~poucas centenas de bytes na forma esparsa, e um
@@ -1011,6 +1017,10 @@ export function parseServerMessage(raw: string): ServerMessage | null {
         ...(typeof folego === "number" && Number.isFinite(folego) ? { folego } : {}),
         ...(typeof fome === "number" && Number.isFinite(fome) ? { fome } : {}),
       };
+    }
+    case "dimas": {
+      if (typeof m["saldo"] !== "number" || !Number.isFinite(m["saldo"])) return null;
+      return { type: "dimas", saldo: m["saldo"] };
     }
     case "inventario": {
       // §🍖 F4: `slots` tem de ser LISTA (mochila vazia é lista vazia, e isso é

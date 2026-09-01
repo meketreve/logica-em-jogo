@@ -136,6 +136,7 @@ import {
   tentarDormir,
   tickDormir,
 } from "./session/dormir";
+import { sendDimas } from "./session/loja";
 import { runRegiao } from "./session/regioes";
 import { ehFantasma, runInvisivel } from "./session/invisivel";
 import { avisarChatSilenciado, avisarComFreio } from "./session/avisos";
@@ -148,6 +149,7 @@ import {
   CHUNK_SIZE,
   DEFAULT_WORLD_CHUNKS,
   DIA_SEGUNDOS,
+  DIMAS_INICIAL_PADRAO,
   HORA_PADRAO,
   MAX_CHAT_LENGTH,
   PLAYER_REACH,
@@ -268,6 +270,8 @@ export interface SessionOptions {
   /** Teto de células de água que MUDAM por tick (proteção de FPS na cascata
    *  gigante). Config de desempenho do host (LJ_AGUA_TICK). */
   aguaPorTick?: number;
+  /** Loja (2026-09-01): saldo de Dimas na 1ª entrada (LJ_DIMAS_INICIAL). */
+  dimasInicial?: number;
   /**
    * §🍖 F6: ticks entre dois estágios da plantação (LJ_CRESCIMENTO). O padrão
    * é `TICKS_POR_CRESCIMENTO` (20 s por estágio); abaixar é o que deixa o smoke
@@ -401,6 +405,11 @@ export class GameSession {
   /** `/invisivel` (2026-08-22): professores que sumiram para os ALUNOS. Sessão-só,
    *  como o `dormindo` — quem cai e volta volta visível. Ver `session/invisivel.ts`. */
   readonly invisiveis = new Set<number>();
+  /** Loja: saldo de Dimas por NOME, no mesmo padrão de `identity`/`vitais` —
+   *  sobrevive a desconexão (crédito de venda funciona com o criador
+   *  offline) e persiste no roster do save. */
+  readonly dimas = new Map<string, number>();
+  private readonly dimasInicial: number;
   /** Poses de `move` esperando o PRÓXIMO tick virar `players_moved` (2026-08-31,
    *  bug-650). Chave = autor; só a ÚLTIMA pose do tick sobrevive (Map dedupe) —
    *  se o cliente mandar mais de um `move` no mesmo tick, os intermediários nunca
@@ -561,6 +570,7 @@ export class GameSession {
     this.singleplayer = opts.singleplayer ?? false;
     this.colunasPorTick = Math.max(1, opts.colunasPorTick ?? COLUNAS_POR_TICK_PADRAO);
     this.aguaMaxPorTick = Math.max(1, opts.aguaPorTick ?? AGUA_POR_TICK_PADRAO);
+    this.dimasInicial = opts.dimasInicial ?? DIMAS_INICIAL_PADRAO;
     this.crescimentoPorEstagio = Math.max(
       1,
       opts.crescimentoPorEstagio ?? TICKS_POR_CRESCIMENTO,
@@ -607,6 +617,10 @@ export class GameSession {
             ...(p.fome !== undefined ? { fome: p.fome } : {}),
           });
         }
+        // Dimas (2026-09-01): ausente = essa pessoa nunca tinha saldo gravado
+        // (mundo sem loja, ou aluno que nunca chegou a jogar). `admitir`
+        // decide se seeda na próxima entrada.
+        if (p.dimas !== undefined) this.dimas.set(p.name, p.dimas);
         // §🍖 F4: mochila do save (ausente = vazia). O parse defensivo mora no
         // `parseInventario`, então o que chega aqui já está são.
         if (p.inventario?.length) {
@@ -782,6 +796,8 @@ export class GameSession {
           fome: vital && vital.fome < FOME_MAX ? vital.fome : undefined,
           // §🍖 F4: mochila vazia sai ausente — mundo criativo não engorda o save
           inventario: inventarioParaRoster(this, name),
+          // Loja: ausente = nunca teve saldo gravado (mundo sem loja)
+          dimas: this.dimas.get(name),
         };
       }),
       ...(this.codigo ? { codigo: this.codigo } : {}),
@@ -1767,6 +1783,11 @@ export class GameSession {
     sendModo(this, clientId);
     // §🍖 F2: entrar não é cair, e quem volta machucado precisa ver os corações
     this.picoQueda.set(clientId, start.y);
+    // Loja (2026-09-01): seeda só na 1ª entrada — `dimas.has` é o mesmo teste
+    // que `roster.get` faz pra "returning", só que num mapa PRÓPRIO (não dá
+    // pra reusar `roster`: ele guarda posição, não saldo).
+    if (!this.dimas.has(name)) this.dimas.set(name, this.dimasInicial);
+    sendDimas(this, clientId);
     if (modoDe(this, name) === "sobrevivencia") {
       sendVida(this, clientId);
       // §🍖 F4: a mochila é por NOME, então quem volta encontra o que cavou

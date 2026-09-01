@@ -214,6 +214,11 @@ let session = new GameSession(
     ...(Number.isFinite(Number(process.env["LJ_AGUA_TICK"])) && process.env["LJ_AGUA_TICK"]
       ? { aguaPorTick: Number(process.env["LJ_AGUA_TICK"]) }
       : {}),
+    // Loja (2026-09-01): saldo inicial de Dimas — config de balanceamento do
+    // host, mesmo padrão de LJ_AGUA_TICK/LJ_CRESCIMENTO acima.
+    ...(Number.isFinite(Number(process.env["LJ_DIMAS_INICIAL"])) && process.env["LJ_DIMAS_INICIAL"]
+      ? { dimasInicial: Number(process.env["LJ_DIMAS_INICIAL"]) }
+      : {}),
     // §🍖 F6 (2026-08-04): ticks por estágio da plantação. Padrão = 20 s; o
     // smoke abaixa pra não esperar um minuto, e serve de botão de playtest.
     ...(Number.isFinite(Number(process.env["LJ_CRESCIMENTO"])) && process.env["LJ_CRESCIMENTO"]

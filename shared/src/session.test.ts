@@ -20,8 +20,8 @@ describe("GameSession (servidor autoritativo)", () => {
     const session = new GameSession(send, { dims: DIMS, seed: 99, singleplayer: true });
     session.handleMessage(1, JSON.stringify({ type: "join", name: "ana" }));
 
-    // spawn + snapshot + time (cp21) + vento (§🌬️) + modo (§🍖) + boas-vindas
-    expect(sent).toHaveLength(6);
+    // spawn + snapshot + time (cp21) + vento (§🌬️) + modo (§🍖) + dimas (Loja) + boas-vindas
+    expect(sent).toHaveLength(7);
     expect(sent[0]?.clientId).toBe(1);
     expect(parseServerMessage(sent[0]?.data as string)).toEqual({
       // singleplayer: todo join é professor (cp9); papel viaja no spawn (cp11)
@@ -44,7 +44,12 @@ describe("GameSession (servidor autoritativo)", () => {
       efetivo: "criativo",
       pvp: false,
     });
-    const welcome = parseServerMessage(sent[5]?.data as string);
+    // sent[5] = saldo de Dimas (Loja, 2026-09-01) — seedado na 1ª entrada
+    expect(parseServerMessage(sent[5]?.data as string)).toEqual({
+      type: "dimas",
+      saldo: 50,
+    });
+    const welcome = parseServerMessage(sent[6]?.data as string);
     if (welcome?.type !== "chat") throw new Error("esperava chat de boas-vindas");
     expect(welcome.author).toBe("servidor");
     expect(welcome.text).toContain("ana#1");
@@ -862,7 +867,8 @@ describe("GameSession (servidor autoritativo)", () => {
 
     // "grava e recarrega" (encode/decode reais ficam no save.test — aqui o contrato da sessão)
     const save = { world: s1.world, ...s1.toSave() };
-    expect(save.roster).toEqual([{ name: "ana", x: 2.5, y: findSpawnY(s1.world, 2, 3), z: 3.5, yaw: 1.2, pitch: -0.3 }]);
+    // dimas: 50 = seedado na 1ª entrada (Loja, 2026-09-01)
+    expect(save.roster).toEqual([{ name: "ana", x: 2.5, y: findSpawnY(s1.world, 2, 3), z: 3.5, yaw: 1.2, pitch: -0.3, dimas: 50 }]);
 
     const { sent: sent2, send: send2 } = collect();
     const s2 = new GameSession(send2, { restore: save, singleplayer: true });
@@ -876,8 +882,8 @@ describe("GameSession (servidor autoritativo)", () => {
     const types = sent2.map((s) =>
       typeof s.data === "string" ? parseServerMessage(s.data)?.type : "snapshot",
     );
-    // time (cp21), vento (§🌬️) e modo (§🍖) entram depois do snapshot, antes do teleport
-    expect(types).toEqual(["spawn", "snapshot", "time", "vento", "modo", "teleport", "chat"]);
+    // time (cp21), vento (§🌬️), modo (§🍖) e dimas (Loja) entram depois do snapshot, antes do teleport
+    expect(types).toEqual(["spawn", "snapshot", "time", "vento", "modo", "dimas", "teleport", "chat"]);
     const tp = sent2
       .map((s) => (typeof s.data === "string" ? parseServerMessage(s.data) : null))
       .find((m) => m?.type === "teleport");
@@ -899,7 +905,8 @@ describe("GameSession (servidor autoritativo)", () => {
     session.handleMessage(1, JSON.stringify({
       type: "move", x: 9.5, y: findSpawnY(session.world, 9, 8), z: 8.5, yaw: 1, pitch: 0,
     }));
-    expect(session.toSave().roster).toEqual([{ name: "ana", x: 9.5, y: findSpawnY(session.world, 9, 8), z: 8.5, yaw: 1, pitch: 0 }]);
+    // dimas: 50 = seedado na 1ª entrada (Loja, 2026-09-01)
+    expect(session.toSave().roster).toEqual([{ name: "ana", x: 9.5, y: findSpawnY(session.world, 9, 8), z: 8.5, yaw: 1, pitch: 0, dimas: 50 }]);
   });
 
   it("disconnect vira player_left pra quem fica; id desconhecido é silêncio", () => {
