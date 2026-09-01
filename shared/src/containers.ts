@@ -299,7 +299,7 @@ export function parsePreco(v: unknown): Preco | null {
 }
 
 /** Uma entrada `{porItem, preco}` da lista de preços, validada. */
-function parsePrecoEntry(v: unknown): { porItem: number; preco: Preco } | null {
+export function parsePrecoEntry(v: unknown): { porItem: number; preco: Preco } | null {
   if (typeof v !== "object" || v === null) return null;
   const o = v as Record<string, unknown>;
   const porItem = o["porItem"];

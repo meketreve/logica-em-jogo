@@ -1,7 +1,13 @@
 import { type Papel } from "./auth";
 import { type Claim, parseClaim } from "./claims";
 import { type QuadroConteudo, parseQuadroConteudo } from "./quadros";
-import { type ContainerTipo, type Preco, parseContainerSalvo, parsePreco } from "./containers";
+import {
+  type ContainerTipo,
+  type Preco,
+  parseContainerSalvo,
+  parsePreco,
+  parsePrecoEntry,
+} from "./containers";
 import { CHUNK_VOLUME, MAX_WORLD_CHUNKS } from "./constants";
 import { type GroupDef, parseGroups } from "./groups";
 import { type SlotSalvo, inventarioParaSave, parseInventario } from "./inventario";
@@ -992,16 +998,13 @@ export function parseServerMessage(raw: string): ServerMessage | null {
       const lo = typeof lojaRaw === "object" && lojaRaw !== null
         ? (lojaRaw as Record<string, unknown>)
         : null;
+      // Mesma validação por entrada que o save usa (`parsePrecoEntry`) — uma
+      // só fonte de verdade pro que é um {porItem, preco} válido.
       const precos: { porItem: number; preco: Preco }[] = [];
       if (lo && Array.isArray(lo["precos"])) {
         for (const e of lo["precos"]) {
-          if (typeof e !== "object" || e === null) continue;
-          const r = e as Record<string, unknown>;
-          const porItem = r["porItem"];
-          const preco = parsePreco(r["preco"]);
-          if (typeof porItem === "number" && Number.isInteger(porItem) && porItem > 0 && preco) {
-            precos.push({ porItem, preco }); // entrada doente é pulada, não derruba a loja
-          }
+          const parsed = parsePrecoEntry(e);
+          if (parsed) precos.push(parsed); // entrada doente é pulada, não derruba a loja
         }
       }
       return {
