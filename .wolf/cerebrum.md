@@ -2180,6 +2180,18 @@ nenhum** — sem essa declaração o Chrome renderiza a página em light mesmo c
 
 ## Decision Log — índice das decisões ATIVAS
 
+- [2026-09-02] **Moeda da loja: só Dimas — item-por-item e recurso-como-moeda REMOVIDOS do
+  código, não a votação decidiu.** O usuário cortou a votação da turma (`docs/loja-perguntas-
+  alunos.md`) direto: Dimas é a ÚNICA moeda. `type Preco` (union de 2 braços, `containers.ts`)
+  virou `number` puro em toda a pilha — `Container.precos: ReadonlyMap<number, number>`,
+  `definir_preco`/`comprar` sem mais campo de "que item paga", `aplicarCompra` perdeu o ramo
+  inteiro de pagamento-em-item (remover item do comprador, somar no baú, checar espaço pro
+  pagamento — Dimas nunca ocupa slot, então essa checagem simplesmente deixou de existir). UI
+  do criador perdeu o `<select>` de moeda de pagamento (C2, achado na revisão final da SDD) —
+  volta a ser só o campo de quantidade, e isso FECHA o bug-659 (a escolha que sumia em silêncio
+  se o seletor fosse mexido antes da quantidade) por remoção da causa, não por patch. 969/969
+  testes depois da reescrita (era 973 com os testes de item-por-item, que foram removidos —
+  não adaptados, porque o caminho que testavam não existe mais).
 - [2026-08-31] **`move` vira `players_moved` em LOTE no fim do tick, não `player_moved` na hora
   (bug-650).** Sintoma da escola: comandos atrasados com turma de 35, "como se não fosse mais
   tempo real". Medido com carga real (35 clientes a 10Hz): 2555ms de latência de comando, 9/10

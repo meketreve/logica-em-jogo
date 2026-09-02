@@ -3210,3 +3210,41 @@ fraude.
 | 15:34 | Session end: 209 writes across 46 files (projeto.txt, sequencia didatica.md, todo.md, loja-perguntas-alunos.md, 2026-08-31-loja-baus-design.md) | 104 reads | ~472068 tok |
 | 15:39 | Edited .superpowers/sdd/2026-09-01-loja-baus/progress.md | modified COMPLETE() | ~562 |
 | 15:40 | Edited todo.md | expanded (+24 lines) | ~506 |
+| 10:23 | Session end: 211 writes across 46 files (projeto.txt, sequencia didatica.md, todo.md, loja-perguntas-alunos.md, 2026-08-31-loja-baus-design.md) | 104 reads | ~473879 tok |
+| 10:31 | Edited shared/src/containers.ts | removed 11 lines | ~1 |
+| 10:31 | Edited shared/src/containers.ts | 5→7 lines | ~122 |
+| 10:31 | Edited shared/src/containers.ts | 6→6 lines | ~39 |
+| 10:31 | Edited shared/src/containers.ts | 5→5 lines | ~34 |
+| 10:32 | Edited shared/src/containers.ts | parsePreco() → existe() | ~232 |
+| 10:32 | Edited shared/src/containers.ts | inline fix | ~18 |
+| 10:32 | Edited shared/src/containers.ts | 4→4 lines | ~31 |
+| 10:32 | Edited shared/src/containers.ts | inline fix | ~16 |
+| 10:32 | Edited shared/src/protocol.ts | 7→5 lines | ~28 |
+| 10:32 | Edited shared/src/protocol.ts | modified Loja() | ~181 |
+| 10:32 | Edited shared/src/protocol.ts | 3→4 lines | ~41 |
+| 10:33 | Edited shared/src/protocol.ts | 15→16 lines | ~163 |
+| 10:33 | Edited shared/src/protocol.ts | 3→3 lines | ~58 |
+| 10:33 | Edited shared/src/session/loja.ts | 2→2 lines | ~35 |
+| 10:34 | Edited shared/src/session/loja.ts | modified aplicarDefinirPreco() | ~1025 |
+| 10:34 | Edited shared/src/session.ts | inline fix | ~30 |
+| 10:34 | Edited shared/src/session.ts | 3→2 lines | ~11 |
+| 10:34 | Edited shared/src/session/containers.ts | inline fix | ~23 |
+| 10:34 | Edited shared/src/containers.test.ts | 4→3 lines | ~18 |
+| 10:35 | Edited shared/src/containers.test.ts | inline fix | ~18 |
+| 10:35 | Edited shared/src/containers.test.ts | 47→48 lines | ~484 |
+| 10:36 | Edited shared/src/loja.test.ts | 7→7 lines | ~84 |
+| 10:38 | Edited shared/src/loja.test.ts | modified lojaAberta() | ~3191 |
+| 10:38 | Edited shared/src/loja.test.ts | 24→21 lines | ~335 |
+| 10:38 | Edited shared/src/loja.test.ts | 2→2 lines | ~51 |
+| 10:39 | Edited client/src/container.ts | 4→3 lines | ~14 |
+| 10:39 | Edited client/src/container.ts | modified Loja() | ~73 |
+| 10:40 | Edited client/src/container.ts | 8→3 lines | ~30 |
+| 10:40 | Edited client/src/container.ts | 10→10 lines | ~97 |
+| 10:40 | Edited client/src/container.ts | inline fix | ~28 |
+| 10:40 | Edited client/src/container.ts | modified for() | ~166 |
+| 10:40 | Edited client/src/container.ts | modified lojaPrecos() | ~543 |
+| 10:40 | Edited client/src/main.ts | 10→9 lines | ~135 |
+| 10:41 | Edited client/index.html | 2→1 lines | ~14 |
+| 10:41 | Edited docs/loja-perguntas-alunos.md | 19→19 lines | ~251 |
+| 10:42 | Edited docs/superpowers/specs/2026-08-31-loja-baus-design.md | modified O() | ~316 |
+| 10:43 | Edited todo.md | 21→20 lines | ~458 |

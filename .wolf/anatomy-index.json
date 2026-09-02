@@ -1,12 +1,12 @@
 {
   "version": 1,
   "meta": {
-    "lastScanned": "2026-09-01T18:40:45.101Z",
+    "lastScanned": "2026-09-02T13:43:19.004Z",
     "fileCount": 387,
     "hits": 0,
     "misses": 0,
-    "renderedHash": "8dfcbfb51fe79c677e63002cbcf63edd19c80c80514f57f1da2429ea689a84a0",
-    "storeUpdatedAt": "2026-09-01T18:40:45.125Z"
+    "renderedHash": "e0d81989f93e924c87629a52ff751854b893c09327fbb77e533ad02f5ea54089",
+    "storeUpdatedAt": "2026-09-02T13:43:19.027Z"
   },
   "files": {
     ".claude/commands/reframe.md": {
@@ -1350,11 +1350,11 @@
     },
     "client/index.html": {
       "description": "Lógica em Jogo",
-      "tokens": 15042,
-      "hash": "4c274c3bca7d7d10",
-      "size": 57058,
-      "mtimeMs": 1788286810250.0286,
-      "updatedAt": "2026-09-01T18:20:10.346Z",
+      "tokens": 15031,
+      "hash": "a36704bdefed57b1",
+      "size": 57015,
+      "mtimeMs": 1788356468247.7478,
+      "updatedAt": "2026-09-02T13:41:08.348Z",
       "source": "hook"
     },
     "client/package.json": {
@@ -1976,19 +1976,19 @@
     },
     "client/src/container.ts": {
       "description": "§🍖 F10 — O PAINEL DE TRANSFERÊNCIA (fornalha e baú).",
-      "tokens": 7271,
-      "hash": "12fea9efbc0e823e",
-      "size": 25721,
-      "mtimeMs": 1788286798310.0283,
-      "updatedAt": "2026-09-01T18:19:58.403Z",
+      "tokens": 6595,
+      "hash": "233390eab3d50335",
+      "size": 23324,
+      "mtimeMs": 1788356437187.748,
+      "updatedAt": "2026-09-02T13:40:37.283Z",
       "source": "hook",
       "symbols": [
         {
           "name": "ContainerPanel",
           "kind": "class",
-          "startLine": 36,
-          "endLine": 657,
-          "tokens": 6894
+          "startLine": 35,
+          "endLine": 611,
+          "tokens": 6222
         }
       ]
     },
@@ -2330,11 +2330,11 @@
     },
     "client/src/main.ts": {
       "description": "§💬 (2026-08-14) Fonte ÚNICA de \"a mira aponta pra algo que o clique direito",
-      "tokens": 33855,
-      "hash": "e75a9ea0090b060b",
-      "size": 120356,
-      "mtimeMs": 1788286813234.0286,
-      "updatedAt": "2026-09-01T18:20:13.337Z",
+      "tokens": 33843,
+      "hash": "b26d6beb1c2974dc",
+      "size": 120314,
+      "mtimeMs": 1788356449703.7478,
+      "updatedAt": "2026-09-02T13:40:49.811Z",
       "source": "hook",
       "symbols": [
         {
@@ -2544,8 +2544,8 @@
           "name": "startSingleplayer",
           "kind": "fn",
           "startLine": 1088,
-          "endLine": 2529,
-          "tokens": 19977
+          "endLine": 2528,
+          "tokens": 19965
         }
       ]
     },
@@ -7724,163 +7724,156 @@
     },
     "shared/src/containers.test.ts": {
       "description": "Inventário com pilhas em slots escolhidos (o resto vazio).",
-      "tokens": 4269,
-      "hash": "b74db0dba1a0bc43",
-      "size": 15086,
-      "mtimeMs": 1788267937186.0278,
-      "updatedAt": "2026-09-01T13:05:37.286Z",
+      "tokens": 4195,
+      "hash": "a0b8a95fbe7c1a17",
+      "size": 14830,
+      "mtimeMs": 1788356131795.7495,
+      "updatedAt": "2026-09-02T13:35:31.897Z",
       "source": "hook",
       "symbols": [
         {
           "name": "inv",
           "kind": "fn",
-          "startLine": 31,
-          "endLine": 37,
+          "startLine": 30,
+          "endLine": 36,
           "tokens": 66
         },
         {
           "name": "forno",
           "kind": "fn",
-          "startLine": 38,
+          "startLine": 37,
           "endLine": 395,
-          "tokens": 4020
+          "tokens": 3946
         }
       ]
     },
     "shared/src/containers.ts": {
       "description": "§🍖 F10 (2026-08-05) — BLOCO COM INVENTÁRIO PRÓPRIO.",
-      "tokens": 4516,
-      "hash": "86ebf4571bb08772",
-      "size": 16079,
-      "mtimeMs": 1788286562798.027,
-      "updatedAt": "2026-09-01T18:16:02.894Z",
+      "tokens": 4337,
+      "hash": "8f3b595dc1b44db3",
+      "size": 15458,
+      "mtimeMs": 1788355948495.7493,
+      "updatedAt": "2026-09-02T13:32:28.586Z",
       "source": "hook",
       "symbols": [
         {
           "name": "containerTipoDe",
           "kind": "fn",
           "startLine": 50,
-          "endLine": 72,
-          "tokens": 246
+          "endLine": 62,
+          "tokens": 140
         },
         {
           "name": "Container",
           "kind": "section",
-          "startLine": 73,
-          "endLine": 96,
-          "tokens": 336
+          "startLine": 63,
+          "endLine": 88,
+          "tokens": 373
         },
         {
           "name": "containerVazio",
           "kind": "fn",
-          "startLine": 97,
-          "endLine": 116,
+          "startLine": 89,
+          "endLine": 108,
           "tokens": 234
         },
         {
           "name": "containerTemConteudo",
           "kind": "fn",
-          "startLine": 117,
-          "endLine": 132,
+          "startLine": 109,
+          "endLine": 124,
           "tokens": 194
         },
         {
           "name": "containerTemEstoque",
           "kind": "fn",
-          "startLine": 133,
-          "endLine": 137,
+          "startLine": 125,
+          "endLine": 129,
           "tokens": 57
         },
         {
           "name": "containerKey",
           "kind": "fn",
-          "startLine": 138,
-          "endLine": 150,
+          "startLine": 130,
+          "endLine": 142,
           "tokens": 160
         },
         {
           "name": "totalDeSlots",
           "kind": "fn",
-          "startLine": 151,
-          "endLine": 155,
+          "startLine": 143,
+          "endLine": 147,
           "tokens": 50
         },
         {
           "name": "ehSlotDeContainer",
           "kind": "fn",
-          "startLine": 156,
-          "endLine": 166,
+          "startLine": 148,
+          "endLine": 158,
           "tokens": 131
         },
         {
           "name": "moverBloqueadoPorCombustivel",
           "kind": "fn",
-          "startLine": 167,
-          "endLine": 195,
+          "startLine": 159,
+          "endLine": 187,
           "tokens": 376
         },
         {
           "name": "moverEntre",
           "kind": "fn",
-          "startLine": 196,
-          "endLine": 231,
+          "startLine": 188,
+          "endLine": 223,
           "tokens": 416
         },
         {
           "name": "descartarEm",
           "kind": "fn",
-          "startLine": 232,
-          "endLine": 251,
+          "startLine": 224,
+          "endLine": 243,
           "tokens": 224
         },
         {
           "name": "ContainerSalvo",
           "kind": "section",
-          "startLine": 252,
-          "endLine": 265,
+          "startLine": 244,
+          "endLine": 257,
           "tokens": 83
         },
         {
           "name": "containerParaSave",
           "kind": "fn",
-          "startLine": 266,
-          "endLine": 290,
-          "tokens": 207
+          "startLine": 258,
+          "endLine": 282,
+          "tokens": 206
         },
         {
           "name": "inteiroNaoNegativo",
           "kind": "fn",
-          "startLine": 291,
-          "endLine": 295,
-          "tokens": 59
-        },
-        {
-          "name": "parsePreco",
-          "kind": "fn",
-          "startLine": 296,
-          "endLine": 314,
-          "tokens": 205
+          "startLine": 283,
+          "endLine": 291,
+          "tokens": 131
         },
         {
           "name": "parsePrecoEntry",
           "kind": "fn",
-          "startLine": 315,
-          "endLine": 330,
-          "tokens": 201
+          "startLine": 292,
+          "endLine": 309,
+          "tokens": 222
         },
         {
           "name": "parseContainerSalvo",
           "kind": "fn",
-          "startLine": 331,
-          "endLine": 380,
+          "startLine": 310,
+          "endLine": 359,
           "tokens": 638
         },
         {
           "name": "containerDeSave",
           "kind": "fn",
-          "startLine": 381,
-          "endLine": 395,
-          "tokens": 132
+          "startLine": 360,
+          "endLine": 374,
+          "tokens": 131
         }
       ]
     },
@@ -9672,19 +9665,19 @@
     },
     "shared/src/protocol.ts": {
       "description": "Protocolo v0 (checkpoint 2). Mensagens JSON dos dois lados + world_snapshot",
-      "tokens": 15342,
-      "hash": "98f89eb063c8ce37",
-      "size": 54366,
-      "mtimeMs": 1788283934038.0276,
-      "updatedAt": "2026-09-01T17:32:14.132Z",
+      "tokens": 15366,
+      "hash": "6eca57b6a40609eb",
+      "size": 54448,
+      "mtimeMs": 1788356004427.749,
+      "updatedAt": "2026-09-02T13:33:24.526Z",
       "source": "hook",
       "symbols": [
         {
           "name": "parseClientMessage",
           "kind": "fn",
-          "startLine": 552,
+          "startLine": 551,
           "endLine": 775,
-          "tokens": 2364
+          "tokens": 2366
         },
         {
           "name": "parseCama",
@@ -10989,11 +10982,11 @@
     },
     "shared/src/session/containers.ts": {
       "description": "§🍖 F10 — containers (fornalha e baú) do lado do SERVIDOR.",
-      "tokens": 1722,
-      "hash": "b21bc7a17ca70b2d",
-      "size": 6099,
-      "mtimeMs": 1788273387034.0283,
-      "updatedAt": "2026-09-01T14:36:27.128Z",
+      "tokens": 1721,
+      "hash": "7e57798ed22ce57e",
+      "size": 6095,
+      "mtimeMs": 1788356083219.7488,
+      "updatedAt": "2026-09-02T13:34:43.311Z",
       "source": "hook",
       "symbols": [
         {
@@ -11015,7 +11008,7 @@
           "kind": "fn",
           "startLine": 57,
           "endLine": 96,
-          "tokens": 326
+          "tokens": 324
         },
         {
           "name": "avisarContainer",
@@ -11814,40 +11807,40 @@
     },
     "shared/src/session.ts": {
       "description": "GameSession: o SERVIDOR autoritativo, independente de hospedeiro.",
-      "tokens": 33866,
-      "hash": "757c3724729bcb0d",
-      "size": 120387,
-      "mtimeMs": 1788287210806.027,
-      "updatedAt": "2026-09-01T18:26:50.925Z",
+      "tokens": 33862,
+      "hash": "bd689175bf1032d4",
+      "size": 120371,
+      "mtimeMs": 1788356072239.7488,
+      "updatedAt": "2026-09-02T13:34:32.348Z",
       "source": "hook",
       "symbols": [
         {
           "name": "SessionOptions",
           "kind": "section",
-          "startLine": 237,
-          "endLine": 291,
+          "startLine": 236,
+          "endLine": 290,
           "tokens": 750
         },
         {
           "name": "SessionPlayer",
           "kind": "section",
-          "startLine": 292,
-          "endLine": 302,
+          "startLine": 291,
+          "endLine": 301,
           "tokens": 60
         },
         {
           "name": "Identity",
           "kind": "section",
-          "startLine": 303,
-          "endLine": 307,
+          "startLine": 302,
+          "endLine": 306,
           "tokens": 19
         },
         {
           "name": "GameSession",
           "kind": "class",
-          "startLine": 308,
-          "endLine": 2603,
-          "tokens": 31633
+          "startLine": 307,
+          "endLine": 2602,
+          "tokens": 31632
         }
       ]
     },
@@ -12574,11 +12567,11 @@
     },
     "todo.md": {
       "description": "Ideias para fazer",
-      "tokens": 25767,
-      "hash": "92fc5364eaadeff2",
-      "size": 106283,
-      "mtimeMs": 1788288044982.028,
-      "updatedAt": "2026-09-01T18:40:45.101Z",
+      "tokens": 25739,
+      "hash": "5cf4a7074cf01be1",
+      "size": 106169,
+      "mtimeMs": 1788356598911.7478,
+      "updatedAt": "2026-09-02T13:43:19.004Z",
       "source": "hook"
     },
     "tsconfig.base.json": {
@@ -12601,11 +12594,11 @@
     },
     "docs/loja-perguntas-alunos.md": {
       "description": "Loja nos baús — perguntas de design",
-      "tokens": 378,
-      "hash": "ef2b3b97a0110493",
-      "size": 1572,
-      "mtimeMs": 1788206518305.1199,
-      "updatedAt": "2026-08-31T20:01:58.421Z",
+      "tokens": 350,
+      "hash": "0c6b409cd3c9fc5f",
+      "size": 1474,
+      "mtimeMs": 1788356515727.7476,
+      "updatedAt": "2026-09-02T13:41:55.839Z",
       "source": "hook"
     },
     "relatorio/sequencia didatica.md": {
@@ -12619,11 +12612,11 @@
     },
     "docs/superpowers/specs/2026-08-31-loja-baus-design.md": {
       "description": "Loja em bloco — design",
-      "tokens": 1588,
-      "hash": "428c3944025d1ac6",
-      "size": 6574,
-      "mtimeMs": 1788206584545.1194,
-      "updatedAt": "2026-08-31T20:03:04.638Z",
+      "tokens": 1799,
+      "hash": "1332570632f77924",
+      "size": 7449,
+      "mtimeMs": 1788356536859.7476,
+      "updatedAt": "2026-09-02T13:42:16.960Z",
       "source": "hook"
     },
     "docs/superpowers/plans/2026-09-01-loja-baus.md": {
@@ -12682,11 +12675,11 @@
     },
     "shared/src/loja.test.ts": {
       "description": "Última mensagem `dimas` que este cliente recebeu, ou `null`.",
-      "tokens": 9675,
-      "hash": "3cce788a8d0313e2",
-      "size": 34075,
-      "mtimeMs": 1788287057070.027,
-      "updatedAt": "2026-09-01T18:24:17.174Z",
+      "tokens": 8114,
+      "hash": "c43048eb4a7d821e",
+      "size": 28588,
+      "mtimeMs": 1788356316503.7478,
+      "updatedAt": "2026-09-02T13:38:36.619Z",
       "source": "hook",
       "symbols": [
         {
@@ -12714,47 +12707,47 @@
           "name": "ultimoDimas",
           "kind": "fn",
           "startLine": 18,
-          "endLine": 516,
-          "tokens": 7294
+          "endLine": 392,
+          "tokens": 5401
         },
         {
           "name": "chatPara",
           "kind": "fn",
-          "startLine": 517,
-          "endLine": 658,
-          "tokens": 2158
+          "startLine": 393,
+          "endLine": 561,
+          "tokens": 2489
         }
       ]
     },
     "shared/src/session/loja.ts": {
       "description": "§Loja (2026-09-01) — o lado do SERVIDOR do baú-loja: saldo de Dimas,",
-      "tokens": 1485,
-      "hash": "d1efc70a16faac13",
-      "size": 5260,
-      "mtimeMs": 1788287008890.0261,
-      "updatedAt": "2026-09-01T18:23:28.992Z",
+      "tokens": 1326,
+      "hash": "a3d5c621f88443cf",
+      "size": 4706,
+      "mtimeMs": 1788356052663.7488,
+      "updatedAt": "2026-09-02T13:34:12.777Z",
       "source": "hook",
       "symbols": [
         {
           "name": "sendDimas",
           "kind": "fn",
           "startLine": 18,
-          "endLine": 42,
-          "tokens": 294
+          "endLine": 45,
+          "tokens": 326
         },
         {
           "name": "aplicarDefinirPreco",
           "kind": "fn",
-          "startLine": 43,
-          "endLine": 82,
-          "tokens": 417
+          "startLine": 46,
+          "endLine": 81,
+          "tokens": 399
         },
         {
           "name": "aplicarCompra",
           "kind": "fn",
-          "startLine": 83,
-          "endLine": 135,
-          "tokens": 548
+          "startLine": 82,
+          "endLine": 115,
+          "tokens": 380
         }
       ]
     },

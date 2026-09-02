@@ -5,6 +5,18 @@
 > `docs/loja-perguntas-alunos.md` — a moeda ainda vai a voto com a turma; este
 > documento cobre a arquitetura, que funciona pra qualquer resultado da
 > votação sem mudar de forma.
+>
+> **⚠️ ATUALIZAÇÃO (2026-09-02): moeda decidida — só Dimas.** O usuário
+> decidiu, fora da votação da turma, que "Dimas" é a ÚNICA moeda — as opções
+> de item-por-item e recurso-existente-como-moeda foram REMOVIDAS do código
+> (não ficaram como caminho morto). O `type Preco` do union de 2 braços virou
+> um `number` simples (sempre Dimas); o seletor de item de pagamento na UI do
+> criador foi removido (o campo volta a ser só quantidade). O resto deste
+> documento é o registro do desenho ORIGINAL (que suportava as 3 opções) —
+> útil pra entender POR QUE a arquitetura ficou desacoplada em `session/loja.ts`
+> e `containers.ts` do jeito que ficou, mas a seção "Dado" e os trechos que
+> falam de pagamento em item não refletem mais o código. Fonte de verdade
+> agora é `shared/src/containers.ts`/`shared/src/session/loja.ts` e os testes.
 
 ## O que é
 

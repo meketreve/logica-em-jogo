@@ -1153,25 +1153,24 @@ não tem filesystem; export de "pasta" no single fica de fora (não faz sentido 
 
 * \[x] **Baú-Loja implementado de ponta a ponta** — **FEITO** (14 tarefas, subagent-driven +
   revisão final de branch inteira). Bloco craftável, terreno próprio, criador gerencia estoque
-  e preço, qualquer um compra (item-por-item ou Dimas — saldo numérico, moeda ainda em
-  votação com a turma, `docs/loja-perguntas-alunos.md`). Spec: `docs/superpowers/specs/
-  2026-08-31-loja-baus-design.md`. `npm run verify` limpo, 973/973.
-* \[ ] **Papel-cortante achado na revisão final, não bloqueou o merge:** escolher a moeda de
-  pagamento ANTES de digitar a quantidade no editor de preço descarta a escolha em silêncio
-  (`client/src/container.ts` — `enviar()` do seletor roda com `qtd` ainda vazia = 0 = manda
-  `null`; digitar a quantidade PRIMEIRO funciona certo). Corrigir quando alguém mexer nesse
-  arquivo de novo, ou antes do primeiro uso real em aula.
+  e preço, qualquer um compra. Spec: `docs/superpowers/specs/2026-08-31-loja-baus-design.md`.
+* \[x] **Moeda: só Dimas** — **FECHADO** (2026-09-02, decisão do usuário, fora da votação da
+  turma). Item-por-item e recurso-como-moeda foram REMOVIDOS do código (não ficaram como
+  caminho morto) — `Preco` virou `number` puro em toda a pilha. `docs/loja-perguntas-alunos.md`
+  atualizado: só sobra "quanto cada aluno recebe" pra votar. `npm run verify` limpo, 969/969.
+* \[x] **bug-659 (seletor de pagamento perdia a escolha em silêncio)** — **FECHADO por remoção
+  da causa**, não por patch: o `<select>` que causava o bug foi removido junto com a
+  simplificação da moeda (só sobra o campo de quantidade).
+* \[x] **Save aceitava preço fora dos limites se editado à mão** — **FECHADO** junto da
+  reescrita: `parsePrecoEntry` (`shared/src/containers.ts`) ganhou o teto de `MAX_BLOCK_ID`
+  no `porItem`, testado em `containers.test.ts`.
 * \[ ] **Aviso de Dimas nova ao professor fica barulhento em troca de turma.** `adotar` (troca
   de mundo) pode reemitir "entrou pela primeira vez e recebeu N Dimas" pra cada aluno se o
   mundo novo não tiver saldo salvo pra eles — 30 avisos numa troca de turma cheia. Verdadeiro,
   só barulhento; considerar juntar num aviso só se incomodar na prática.
-* \[ ] **Save aceita preço fora dos limites se editado à mão.** O teto novo (`MAX_BLOCK_ID`,
-  27 preços por loja) só vale no caminho `definir_preco`; um `.ljw` editado à mão ainda carrega
-  id ou quantidade de preço fora da faixa pro `parsePrecoEntry` do save. Baixo risco (precisa
-  editar o arquivo à mão), mas o mesmo teto devia valer nos dois lados.
-* \[ ] **Quando a turma votar a moeda** (`docs/loja-perguntas-alunos.md`): se escolherem Dimas,
-  decidir a mitigação de "criar nome novo = Dimas de graça" além do aviso ao professor que já
-  existe (`shared/src/session.ts`, `admitir` — hoje só AVISA, não impede).
+* \[ ] **Mintar Dimas de graça criando nome novo** (`shared/src/session.ts`, `admitir`) — hoje
+  só AVISA o professor, não impede. Baixo risco numa sala com supervisão, mas vale revisar
+  antes de qualquer uso fora do piloto supervisionado.
 
 ## Playtest na escola
 

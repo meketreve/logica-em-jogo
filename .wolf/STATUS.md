@@ -2,51 +2,41 @@
 
 > Single source of truth for resuming work. Read this FIRST when starting a session.
 
-> ## 🧭 HANDOFF — SESSÃO 94 (2026-09-01) · Baú-Loja completo (14 tarefas + revisão final)
+> ## 🧭 HANDOFF — SESSÃO 94 (2026-09-02) · Baú-Loja completo, moeda decidida (só Dimas)
 
-> **Bateria verde:** typecheck 3/3 · **973/973** · build · `checar-launchers` OK. bug-650 (fix
-> anterior desta mesma sessão) e a loja inteira estão COMMITADOS na main. ⚠️ Ainda **não
-> empurrado** (push só a pedido) — confira `git rev-parse --short origin/main` antes de assumir
-> que subiu.
+> **Bateria verde:** typecheck 3/3 · **969/969** · build · `checar-launchers` OK. bug-650, a
+> loja (14 tarefas + revisão final) e a simplificação pra moeda-única estão COMMITADOS na main.
+> ⚠️ Confira `git rev-parse --short origin/main` antes de assumir que subiu.
 
 > ### ✅ bug-650 fechado — atraso de comandos com turma cheia
 > Ver commits `bb56749`/`fix(rede)`. Retestado com carga real: 35 clientes 2555ms→12.9ms.
 > Continua **não verificado em aula real** (só localhost) — próximo teste de campo.
 
-> ### ✅ Baú-Loja implementado de ponta a ponta (bloco novo, `docs/superpowers/specs/2026-08-31-loja-baus-design.md`)
-> 14 tarefas via **subagent-driven-development** (implementador + revisor por tarefa, 1 modelo
-> mais capaz por revisão), commitadas direto na main (sem worktree/branch — confirmado com o
-> usuário pra esse volume também). Bloco craftável (baú + 2 minério de ouro), terreno próprio
-> (reusa o gate de claim que já existia), criador gerencia estoque/preço, QUALQUER UM compra —
-> mesmo fora do grupo de amigos. Preço = 1 item + quantidade, cobre item-por-item OU **Dimas**
-> (saldo numérico por jogador, não item — a moeda ainda está em votação com a turma,
-> `docs/loja-perguntas-alunos.md`).
+> ### ✅ Baú-Loja implementado + moeda decidida = só Dimas (`docs/superpowers/specs/2026-08-31-loja-baus-design.md`)
+> 14 tarefas via **subagent-driven-development** (implementador + revisor por tarefa), commitadas
+> direto na main. Bloco craftável, terreno próprio, criador gerencia estoque/preço, QUALQUER UM
+> compra — mesmo fora do grupo de amigos.
 >
-> **A revisão final de branch inteira (não só por tarefa) achou 2 bugs reais** que nenhuma
-> revisão de tarefa isolada enxergaria — ambos corrigidos antes do commit fechar:
-> - Todo Baú-Loja nascia **inquebrável pra sempre**, até vazio: `containerTemConteudo` (Task 2)
->   virou a MESMA função que decide "persiste no save" E "pode quebrar" — um loja com criador
->   sempre `true` nas duas. Split em `containerTemConteudo` (save) vs `containerTemEstoque`
->   (`break_block`, só estoque de verdade).
-> - O editor de preço só conseguia criar preço **sem sentido** ("pague 3 pranchas por 1
->   prancha") — faltava seletor de item de pagamento na UI. Adicionado `<select>` (itens em
->   estoque + Dimas, default Dimas).
-> - + 3 achados Important (Dimas mintava sem limite trocando de nome — mitigado com aviso ao
->   professor, não bloqueio; `definir_preco` sem teto de id/quantidade — agora tem; 2 testes que
->   o próprio spec pedia e faltavam — adicionados).
+> **A revisão final de branch inteira achou 2 bugs Critical + 3 Important** que nenhuma revisão
+> de tarefa isolada enxergaria — todos corrigidos numa rodada de fix + re-revisão escopada:
+> loja nascia inquebrável pra sempre (predicado de save reusado como gate de quebra, split em
+> dois); editor de preço só criava preço sem sentido (fix original: seletor de item de
+> pagamento); Dimas mintava sem limite trocando de nome (mitigado com aviso ao professor);
+> `definir_preco` sem teto de id/tamanho (agora tem); 2 testes que o spec pedia e faltavam.
 >
-> **Pendência real, achada TARDE (depois da rodada de correção fechar, sem 2ª rodada por regra
-> do processo) — ver `todo.md` seção "Loja":** escolher a moeda no seletor ANTES de digitar a
-> quantidade descarta a escolha em silêncio (digitar quantidade primeiro funciona). bug-659,
-> aberto. Baixo risco, mas é o tipo de coisa que confunde num primeiro uso em aula.
+> **Depois disso, o usuário decidiu (fora da votação): a moeda é SEMPRE Dimas.** Item-por-item e
+> recurso-como-moeda foram REMOVIDOS do código (não guardados como caminho morto) —
+> `Preco` virou `number` puro em toda a pilha, o seletor de pagamento da UI (o fix acima) SAIU —
+> volta a ser só o campo de quantidade. Isso fechou o bug-659 (escolher moeda antes da
+> quantidade perdia a escolha em silêncio) por REMOÇÃO da causa, não por patch. `docs/loja-
+> perguntas-alunos.md` atualizado: só falta a turma votar QUANTO de Dimas cada um recebe.
 
 > ### 🚀 PRÓXIMA QUEST
-> **Passo imediato:** decidir push (perguntei ao usuário, ver conversa) — nada empurrado ainda.
->
-> **Depois — pendências herdadas, nenhuma bloqueante:**
-> - bug-659 (seletor de moeda perde a escolha se usado fora de ordem) — `todo.md` § Loja.
-> - Votação da turma sobre a moeda (`docs/loja-perguntas-alunos.md`) — quando decidirem, revisar
->   a mitigação de "nome novo = Dimas de graça" se Dimas ganhar.
+> **Pendências herdadas, nenhuma bloqueante:**
+> - Aviso de Dimas nova ao professor fica barulhento em troca de turma cheia — `todo.md` § Loja.
+> - Mintar Dimas de graça criando nome novo — hoje só avisa, não impede (baixo risco numa sala
+>   supervisionada) — `todo.md` § Loja.
+> - Votação da turma: só falta decidir QUANTO de Dimas cada aluno recebe ao entrar.
 > - bug-651 (não sair da cama) e bug-652 (pular+colocar bloco teleporta pro lado) — abertos,
 >   só lidos, não investigados a fundo.
 > - bug-650: confirmar em aula real com turma cheia (só localhost até agora).

@@ -7,25 +7,25 @@ por quanto; o inventário do baú continua sendo o estoque.
 Este arquivo junta as perguntas de design que ainda não foram fechadas — as
 que o professor quer levar pra votação com a turma ficam marcadas.
 
+## ✅ Decidido (2026-09-02) — não é mais votação
+
+**Comprador paga com o quê? "Dimas", sempre.** NÃO é um item (não craftável,
+não ocupa slot do inventário/baú) — "Dimas" não é apelido de "Diamante"
+(minério do jogo), é uma moeda de troca digital própria. É um saldo
+numérico — aparece só como um número mostrado no inventário do aluno, como
+vida/fome já aparecem. Todo aluno NASCE com uma quantidade fixa. Pagar em
+Dimas debita do comprador e credita direto no vendedor (mesmo se ele estiver
+offline). As opções de item-por-item e recurso-existente-como-moeda que
+estavam em votação foram descartadas — a arquitetura foi construída pra
+suportar as três, mas só uma entrou no jogo.
+
 ## 🗳️ Pra votação com a turma
 
-### 1. Comprador paga com o quê?
+### 1. Quanto cada aluno recebe de Dimas ao entrar pela primeira vez?
 
-- **Item-por-item (troca direta)** — sem moeda nova. Dono escolhe "X do item A
-  custam Y do item B". Comprador precisa ter o item B no inventário.
-- **Moeda nova: "Dimas"** — NÃO é um item (não craftável, não ocupa slot do
-  inventário/baú). É um saldo numérico — aparece só como um número mostrado no
-  inventário do aluno, como vida/fome já aparecem. Todo aluno NASCE com uma
-  quantidade fixa (decidido: sim, todo mundo entra com o mesmo valor inicial —
-  falta só a turma decidir QUANTO). Pagar em Dimas debita do comprador e
-  credita direto no vendedor (mesmo se ele estiver offline).
-- **Recurso existente vira moeda de fato** — sem item novo; a turma combina
-  que um recurso já existente (ferro, por exemplo) vale como dinheiro. Preço =
-  quantidade daquele recurso, e o pagamento cai fisicamente dentro do baú
-  junto do estoque (item de verdade, ocupa espaço).
-
-Se a turma escolher Dimas: **quanto cada aluno recebe ao entrar pela primeira
-vez?** (número pra votar/decidir.)
+Número pra votar/decidir. Hoje o padrão no código é 50 (constante
+`DIMAS_INICIAL_PADRAO`, ajustável pelo host sem mexer em código via
+`LJ_DIMAS_INICIAL`).
 
 ## ❓ Ainda em aberto (não é de votação — decisão de design)
 
