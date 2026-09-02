@@ -1,12 +1,12 @@
 {
   "version": 1,
   "meta": {
-    "lastScanned": "2026-09-02T13:43:19.004Z",
+    "lastScanned": "2026-09-02T17:37:06.865Z",
     "fileCount": 387,
     "hits": 0,
     "misses": 0,
-    "renderedHash": "e0d81989f93e924c87629a52ff751854b893c09327fbb77e533ad02f5ea54089",
-    "storeUpdatedAt": "2026-09-02T13:43:19.027Z"
+    "renderedHash": "ad38ddeac03ca78783248e6ae96024c58994b0f826dbb5b56713421ec3d668d5",
+    "storeUpdatedAt": "2026-09-02T17:37:06.903Z"
   },
   "files": {
     ".claude/commands/reframe.md": {
@@ -1798,25 +1798,25 @@
     },
     "client/src/changelog.ts": {
       "description": "Tela \"📜 novidades\" do menu principal — registro do que já foi feito no",
-      "tokens": 4556,
-      "hash": "b296caf322cd1a90",
-      "size": 16342,
-      "mtimeMs": 1788105060948.3152,
-      "updatedAt": "2026-08-31T11:59:58.762Z",
-      "source": "scan",
+      "tokens": 4796,
+      "hash": "5d1b09f8dcf73d8b",
+      "size": 17204,
+      "mtimeMs": 1788370626743.7498,
+      "updatedAt": "2026-09-02T17:37:06.857Z",
+      "source": "hook",
       "symbols": [
         {
           "name": "Mudanca",
           "kind": "section",
           "startLine": 36,
-          "endLine": 343,
-          "tokens": 3583
+          "endLine": 366,
+          "tokens": 3823
         },
         {
           "name": "buildChangelogScreen",
           "kind": "fn",
-          "startLine": 344,
-          "endLine": 387,
+          "startLine": 367,
+          "endLine": 410,
           "tokens": 426
         }
       ]
@@ -3516,21 +3516,21 @@
     },
     "iniciar-servidor.bat": {
       "description": "",
-      "tokens": 5605,
-      "hash": "c786955999f3f09d",
-      "size": 21018,
-      "mtimeMs": 1787946272424.3167,
-      "updatedAt": "2026-08-31T11:59:58.790Z",
-      "source": "scan"
+      "tokens": 5507,
+      "hash": "2b8502a0f2c52a9c",
+      "size": 20650,
+      "mtimeMs": 1788370517979.748,
+      "updatedAt": "2026-09-02T17:35:18.084Z",
+      "source": "hook"
     },
     "iniciar-servidor.sh": {
-      "description": "Lógica em Jogo — iniciar o servidor (Linux / WSL / macOS)",
-      "tokens": 6706,
-      "hash": "36dade138bd6bb07",
-      "size": 23972,
-      "mtimeMs": 1787495285552.3164,
-      "updatedAt": "2026-08-31T11:59:58.791Z",
-      "source": "scan"
+      "description": "============================================================",
+      "tokens": 6164,
+      "hash": "e674d9f355d8a5a7",
+      "size": 23603,
+      "mtimeMs": 1788370522547.748,
+      "updatedAt": "2026-09-02T17:35:22.647Z",
+      "source": "hook"
     },
     "LICENSE": {
       "description": "Licença de Uso — Lógica em Jogo",

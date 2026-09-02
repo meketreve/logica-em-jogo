@@ -515,13 +515,6 @@ if [ -z "$PULAR_TAMANHO" ] && [ "$LJ_TAMANHO" != "E" ]; then
   esac
 fi
 
-# --- Desempenho da água (opcional, só se o FPS cair) ---
-# Teto de células de água que FLUEM por tick. Menor = FPS mais estável numa
-# cascata grande (a água escorre um pouco mais devagar). Enter = padrão (256).
-echo
-read -r -p "Água por tick — só se o FPS cair em cascata grande (Enter = padrão 256): " AGUA
-[ -n "$AGUA" ] && export LJ_AGUA_TICK="$AGUA"
-
 # Cria o mundo caso ainda não exista (vale para o "mundo livre" na 1ª vez).
 export LJ_NOVO=1
 

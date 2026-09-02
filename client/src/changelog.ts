@@ -43,6 +43,29 @@ interface Mudanca {
 const MUDANCAS: readonly Mudanca[] = [
   {
     // sem `data`: este é o build atual (ver rotuloDoBloco)
+    titulo: "Loja: monte seu comércio",
+    itens: [
+      "crafte um Baú-Loja, coloque no seu terreno, e ele vira uma lojinha de verdade — você escolhe o que vende e por quanto",
+      "qualquer colega pode comprar de você, mesmo quem não é do seu grupo de amigos",
+      "pagamento é em Dimas, a moeda própria do jogo — todo aluno já começa com um saldo",
+    ],
+  },
+  {
+    data: "02/09/2026",
+    titulo: "Menos uma pergunta pra ligar o servidor",
+    itens: [
+      "o launcher não pergunta mais sobre \"água por tick\" — era um ajuste raro que quase ninguém usava",
+    ],
+  },
+  {
+    data: "01/09/2026",
+    titulo: "Servidor não trava mais com a turma toda",
+    itens: [
+      "com a turma inteira conectada e todo mundo andando ao mesmo tempo, os comandos ficavam atrasados — corrigido",
+    ],
+  },
+  {
+    data: "28/08/2026",
     titulo: "Levar pra escola sem instalar nada",
     itens: [
       "no Windows, o iniciar-servidor.bat agora baixa o Node.js sozinho e guarda numa pastinha dentro do próprio projeto — não precisa mais ter Node instalado no computador do laboratório",

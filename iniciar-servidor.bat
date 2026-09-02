@@ -425,14 +425,6 @@ if /i "%TAMANHO%"=="E" set "LJ_TAMANHO=E"
 if /i "%TAMANHO%"=="procedural" set "LJ_TAMANHO=E"
 :depois_tamanho
 
-REM --- Desempenho da agua (opcional, so se o FPS cair) ---
-REM Teto de celulas de agua que FLUEM por tick. Menor = FPS mais estavel numa
-REM cascata grande (a agua escorre um pouco mais devagar). Enter = padrao (256).
-echo.
-set "AGUA="
-set /p "AGUA=Agua por tick - so se o FPS cair em cascata grande (Enter = padrao 256): "
-if defined AGUA set "LJ_AGUA_TICK=%AGUA%"
-
 REM Cria o mundo caso ainda nao exista (vale para o "mundo livre" na 1a vez).
 set "LJ_NOVO=1"
 
