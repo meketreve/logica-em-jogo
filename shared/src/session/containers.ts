@@ -82,7 +82,7 @@ export function sendContainer(
         ? {
             loja: {
               criador: c.criador,
-              precos: [...c.precos].map(([porItem, preco]) => ({ porItem, preco })),
+              precos: [...c.precos].map(([porItem, qtd]) => ({ porItem, qtd })),
               souOCriador: nome === c.criador,
             },
           }

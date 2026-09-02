@@ -6,7 +6,6 @@ import {
   FORNALHA_SAIDA,
   HOTBAR_SLOTS,
   INV_SLOTS,
-  type Preco,
   type SlotSalvo,
   TICKS_POR_COZIMENTO,
 } from "@logica/shared";
@@ -44,8 +43,9 @@ export class ContainerPanel {
   private queimando = 0;
   private queimaTotal = 0;
   private progresso = 0;
-  /** Loja (2026-09-01): ausente pros tipos fornalha/bau. */
-  private loja: { criador: string; precos: { porItem: number; preco: Preco }[]; souOCriador: boolean } | null = null;
+  /** Loja (2026-09-01): ausente pros tipos fornalha/bau. `qtd` sempre em
+   *  Dimas (moeda decidida 2026-09-02 — sem item-por-item). */
+  private loja: { criador: string; precos: { porItem: number; qtd: number }[]; souOCriador: boolean } | null = null;
   /** Slot "pego" esperando destino, no índice UNIFICADO (ou null). */
   private pegando: number | null = null;
   /** §🧹 (playtest): quantas unidades a MÃO carrega numa pilha DIVIDIDA (clique
@@ -77,11 +77,6 @@ export class ContainerPanel {
 
   constructor(
     private readonly icons: Map<number, string>,
-    /** Loja (C2, 2026-09-01): nome em português de um item, pro rótulo das
-     *  opções do seletor de pagamento — mesma fonte que a mochila usa
-     *  (`hotbarUi.nome`), passada por fora pelo mesmo motivo de sempre: esta
-     *  classe não decide o que É um item, só desenha. */
-    private readonly nomeDe: (id: number) => string,
     private readonly mochila: Mochila,
     /** Pede ao servidor pra mover (índices UNIFICADOS). */
     private readonly mover: (
@@ -100,15 +95,15 @@ export class ContainerPanel {
       slot: number,
       qtd?: number,
     ) => void,
-    /** Loja: pede ao servidor pra mudar (ou remover, `preco: null`) o preço
-     *  de um item. Só o criador manda isto de verdade — o botão nem aparece
-     *  pros outros. */
+    /** Loja: pede ao servidor pra mudar (ou remover, `qtd: null`) o preço —
+     *  em Dimas — de um item. Só o criador manda isto de verdade — o campo
+     *  nem aparece pros outros. */
     private readonly definirPreco: (
       x: number,
       y: number,
       z: number,
       item: number,
-      preco: Preco | null,
+      qtd: number | null,
     ) => void,
     /** Loja: pede pra comprar `qtd` unidades de `item`. */
     private readonly comprar: (x: number, y: number, z: number, item: number, qtd: number) => void,
@@ -194,7 +189,7 @@ export class ContainerPanel {
     queimando?: number;
     queimaTotal?: number;
     progresso?: number;
-    loja?: { criador: string; precos: { porItem: number; preco: Preco }[]; souOCriador: boolean };
+    loja?: { criador: string; precos: { porItem: number; qtd: number }[]; souOCriador: boolean };
   }): void {
     const trocouDeCelula =
       !this.pos || this.pos.x !== msg.x || this.pos.y !== msg.y || this.pos.z !== msg.z;
@@ -279,7 +274,7 @@ export class ContainerPanel {
       wrap.appendChild(vazio);
       return wrap;
     }
-    for (const { porItem, preco } of this.loja.precos) {
+    for (const { porItem, qtd: precoUnitario } of this.loja.precos) {
       const emEstoque = this.slots.reduce((s, sl) => s + (sl?.id === porItem ? sl.qtd : 0), 0);
       const linha = document.createElement("div");
       linha.className = "loja-item";
@@ -290,8 +285,7 @@ export class ContainerPanel {
       linha.appendChild(icone);
 
       const rotulo = document.createElement("span");
-      const custo = preco.tipo === "dimas" ? `${preco.qtd} Dimas` : `${preco.qtd}×`;
-      rotulo.textContent = `${emEstoque} em estoque — ${custo} cada`;
+      rotulo.textContent = `${emEstoque} em estoque — ${precoUnitario} Dimas cada`;
       linha.appendChild(rotulo);
 
       const qtdInput = document.createElement("input");
@@ -319,16 +313,17 @@ export class ContainerPanel {
   }
 
   /**
-   * Visão do CRIADOR: um preço editável por TIPO de item presente no
-   * estoque agora (não por slot — o preço é por tipo). Digitar e sair do
-   * campo (`change`) manda `definir_preco`; campo vazio remove o preço
-   * (o item continua no baú, só deixa de estar à venda).
+   * Visão do CRIADOR: um preço editável (sempre em Dimas — moeda decidida,
+   * 2026-09-02) por TIPO de item presente no estoque agora (não por slot —
+   * o preço é por tipo). Digitar e sair do campo (`change`) manda
+   * `definir_preco`; campo vazio remove o preço (o item continua no baú, só
+   * deixa de estar à venda).
    */
   private lojaPrecos(): HTMLElement {
     const wrap = document.createElement("div");
     wrap.className = "loja-precos";
     const titulo = document.createElement("h3");
-    titulo.textContent = "preços";
+    titulo.textContent = "preços (em Dimas)";
     wrap.appendChild(titulo);
 
     const tipos = new Set(this.slots.filter((s) => s !== null).map((s) => s!.id));
@@ -340,7 +335,7 @@ export class ContainerPanel {
       return wrap;
     }
     for (const id of tipos) {
-      const atual = this.loja?.precos.find((p) => p.porItem === id)?.preco ?? null;
+      const atual = this.loja?.precos.find((p) => p.porItem === id)?.qtd ?? null;
       const linha = document.createElement("div");
       linha.className = "loja-item";
 
@@ -353,59 +348,18 @@ export class ContainerPanel {
       input.type = "number";
       input.min = "0";
       input.placeholder = "sem preço";
-      input.value = atual ? String(atual.qtd) : "";
+      input.value = atual !== null ? String(atual) : "";
       input.className = "loja-preco-input";
       linha.appendChild(input);
 
-      // C2 (2026-09-01): EM QUE moeda esta linha cobra — cada tipo presente
-      // no ESTOQUE da própria loja (trocar item por item), menos o item
-      // desta linha (pagar um item com ele mesmo continua sem sentido), mais
-      // Dimas — sempre oferecida, é moeda, não item de estoque. Sem isto um
-      // preço NOVO só nascia "pague N do mesmo item que vende".
-      const pagamento = document.createElement("select");
-      pagamento.className = "loja-pagamento";
-      const optDimas = document.createElement("option");
-      optDimas.value = "dimas";
-      optDimas.textContent = "Dimas";
-      pagamento.appendChild(optDimas);
-      const jaTemOpcao = new Set<number>();
-      for (const outroId of tipos) {
-        if (outroId === id) continue; // pagar um item com ele mesmo é nonsense
-        const opt = document.createElement("option");
-        opt.value = String(outroId);
-        opt.textContent = this.nomeDe(outroId);
-        pagamento.appendChild(opt);
-        jaTemOpcao.add(outroId);
-      }
-      // preço já gravado num item que não é mais opção válida (saiu do
-      // estoque, ou é dado antigo pagando com ele mesmo, de antes deste fix)
-      // — mantém a opção pra não desenhar valor diferente do que está salvo.
-      if (atual?.tipo === "item" && !jaTemOpcao.has(atual.item)) {
-        const opt = document.createElement("option");
-        opt.value = String(atual.item);
-        opt.textContent = this.nomeDe(atual.item);
-        pagamento.appendChild(opt);
-      }
-      // sem preço existente: Dimas é o padrão neutro (funciona sem exigir
-      // que a loja tenha ALGUM outro item em estoque pra precificar contra).
-      pagamento.value = atual?.tipo === "item" ? String(atual.item) : "dimas";
-      linha.appendChild(pagamento);
-
-      const enviar = (): void => {
+      input.addEventListener("change", () => {
         if (!this.pos) return;
         const qtd = Math.floor(Number(input.value));
-        if (!Number.isFinite(qtd) || qtd < 1) {
-          this.definirPreco(this.pos.x, this.pos.y, this.pos.z, id, null);
-          return;
-        }
-        const preco: Preco =
-          pagamento.value === "dimas"
-            ? { tipo: "dimas", qtd }
-            : { tipo: "item", item: Number(pagamento.value), qtd };
-        this.definirPreco(this.pos.x, this.pos.y, this.pos.z, id, preco);
-      };
-      input.addEventListener("change", enviar);
-      pagamento.addEventListener("change", enviar);
+        this.definirPreco(
+          this.pos.x, this.pos.y, this.pos.z, id,
+          Number.isFinite(qtd) && qtd >= 1 ? qtd : null,
+        );
+      });
 
       wrap.appendChild(linha);
     }

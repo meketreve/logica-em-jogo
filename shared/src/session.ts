@@ -43,7 +43,6 @@ import {
 import { MAX_QUADRO_TEXTO, type QuadroConteudo, quadroKey } from "./quadros";
 import {
   type Container,
-  type Preco,
   containerDeSave,
   containerKey,
   containerTemEstoque,
@@ -1543,7 +1542,7 @@ export class GameSession {
         const atual = getBlock(this.world, msg.x, msg.y, msg.z);
         const cont = containerDe(this, msg.x, msg.y, msg.z, atual);
         if (!cont || cont.tipo !== "loja") return;
-        const erro = aplicarDefinirPreco(this, clientId, cont, msg.x, msg.y, msg.z, msg.item, msg.preco);
+        const erro = aplicarDefinirPreco(this, clientId, cont, msg.x, msg.y, msg.z, msg.item, msg.qtd);
         if (erro) this.sendServerChat(clientId, erro);
         break;
       }

@@ -1455,14 +1455,13 @@ class GameRuntime {
     // quem decide se o aluno pode ler aquele baú é o gate de claim.
     paineis.container = new ContainerPanel(
       this.hotbarUi.icons,
-      (id) => this.hotbarUi.nome(id),
       mochila,
       (x, y, z, de, para, qtd) =>
         this.activeConn.send(JSON.stringify({ type: "mover_container", x, y, z, de, para, qtd })),
       (x, y, z, slot, qtd) =>
         this.activeConn.send(JSON.stringify({ type: "descartar_container", x, y, z, slot, qtd })),
-      (x, y, z, item, preco) =>
-        this.activeConn.send(JSON.stringify({ type: "definir_preco", x, y, z, item, preco })),
+      (x, y, z, item, qtd) =>
+        this.activeConn.send(JSON.stringify({ type: "definir_preco", x, y, z, item, qtd })),
       (x, y, z, item, qtd) =>
         this.activeConn.send(JSON.stringify({ type: "comprar", x, y, z, item, qtd })),
       () => this.activeConn.send(JSON.stringify({ type: "fechar_container" })),

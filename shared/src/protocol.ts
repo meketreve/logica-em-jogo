@@ -3,9 +3,7 @@ import { type Claim, parseClaim } from "./claims";
 import { type QuadroConteudo, parseQuadroConteudo } from "./quadros";
 import {
   type ContainerTipo,
-  type Preco,
   parseContainerSalvo,
-  parsePreco,
   parsePrecoEntry,
 } from "./containers";
 import { CHUNK_VOLUME, MAX_WORLD_CHUNKS } from "./constants";
@@ -97,15 +95,15 @@ export type ClientMessage =
    *  continuaria mandando o conteúdo daquele bloco a cada tick pra sempre. */
   | { type: "fechar_container" }
   /**
-   * Loja (2026-09-01): o criador define (ou remove, `preco: null`) o preço de
-   * UM tipo de item presente no estoque. Servidor confere `criador` — ver
-   * `session/loja.ts`.
+   * Loja (2026-09-01, moeda decidida 2026-09-02 — sempre Dimas): o criador
+   * define (ou remove, `qtd: null`) o preço de UM tipo de item presente no
+   * estoque. `qtd` é sempre em Dimas — não existe mais troca item-por-item.
+   * Servidor confere `criador` — ver `session/loja.ts`.
    */
-  | { type: "definir_preco"; x: number; y: number; z: number; item: number; preco: Preco | null }
+  | { type: "definir_preco"; x: number; y: number; z: number; item: number; qtd: number | null }
   /**
-   * Loja: compra `qtd` unidades de `item` (o item À VENDA, não o pagamento —
-   * o preço já diz o que se paga). Servidor confere estoque, pagamento e
-   * espaço — ver `session/loja.ts`.
+   * Loja: compra `qtd` unidades de `item` (o item À VENDA), pagando em
+   * Dimas. Servidor confere estoque e saldo — ver `session/loja.ts`.
    */
   | { type: "comprar"; x: number; y: number; z: number; item: number; qtd: number }
   | { type: "chat"; text: string }
@@ -382,7 +380,8 @@ export type ServerMessage =
       /** Loja (2026-09-01): ausente pros tipos fornalha/bau. */
       loja?: {
         criador: string;
-        precos: { porItem: number; preco: Preco }[];
+        /** `qtd` sempre em Dimas (2026-09-02). */
+        precos: { porItem: number; qtd: number }[];
         /** Este DESTINATÁRIO é o criador? Calculado no servidor — evita o
          *  cliente ter de saber o próprio nome só pra esta comparação. */
         souOCriador: boolean;
@@ -695,16 +694,17 @@ export function parseClientMessage(raw: string): ClientMessage | null {
     case "definir_preco": {
       const ints = [m["x"], m["y"], m["z"], m["item"]];
       if (!ints.every((n) => typeof n === "number" && Number.isInteger(n))) return null;
-      const precoRaw = m["preco"];
-      const preco = precoRaw === null ? null : parsePreco(precoRaw);
-      if (precoRaw !== null && preco === null) return null; // preço presente mas quebrado
+      const qtdRaw = m["qtd"];
+      if (qtdRaw !== null && (typeof qtdRaw !== "number" || !Number.isInteger(qtdRaw) || qtdRaw < 1)) {
+        return null; // qtd presente mas quebrada
+      }
       return {
         type: "definir_preco",
         x: m["x"] as number,
         y: m["y"] as number,
         z: m["z"] as number,
         item: m["item"] as number,
-        preco,
+        qtd: qtdRaw,
       };
     }
     case "comprar": {
@@ -999,8 +999,8 @@ export function parseServerMessage(raw: string): ServerMessage | null {
         ? (lojaRaw as Record<string, unknown>)
         : null;
       // Mesma validação por entrada que o save usa (`parsePrecoEntry`) — uma
-      // só fonte de verdade pro que é um {porItem, preco} válido.
-      const precos: { porItem: number; preco: Preco }[] = [];
+      // só fonte de verdade pro que é um {porItem, qtd} válido.
+      const precos: { porItem: number; qtd: number }[] = [];
       if (lo && Array.isArray(lo["precos"])) {
         for (const e of lo["precos"]) {
           const parsed = parsePrecoEntry(e);

@@ -1,4 +1,4 @@
-import { BlockId, isFornalha } from "./blocks";
+import { BlockId, MAX_BLOCK_ID, isFornalha } from "./blocks";
 import { ehCombustivel } from "./fornalha";
 import {
   INV_SLOTS,
@@ -55,16 +55,6 @@ export function containerTipoDe(blockId: number): ContainerTipo | null {
 }
 
 /**
- * O preço de UMA unidade — sempre 1 item + quantidade, nunca uma cesta.
- * Cobre os 3 formatos da votação da turma (item-por-item, recurso existente
- * como moeda, e a "Dimas") sem mudar de forma quando a turma decidir —
- * `docs/loja-perguntas-alunos.md`.
- */
-export type Preco =
-  | { tipo: "item"; item: number; qtd: number }
-  | { tipo: "dimas"; qtd: number };
-
-/**
  * O conteúdo de UM container. Os três campos de fogo só a fornalha usa; o baú
  * os carrega em zero. Um campo a mais num objeto é mais barato que dois tipos
  * que quem chama teria de distinguir a cada acesso — e o save só grava o que
@@ -86,11 +76,13 @@ export interface Container {
    *  têm dono — o mesmo "campo a mais custa menos que dois tipos" do resto
    *  deste arquivo. */
   readonly criador: string;
-  /** Loja: preço de 1 unidade por TIPO de item presente no estoque. Chave =
-   *  o item À VENDA; vazio pros tipos fornalha/bau, e pra tipo presente sem
-   *  entrada aqui (dono ainda não decidiu o preço — existe no baú, mas
-   *  ninguém compra). */
-  readonly precos: ReadonlyMap<number, Preco>;
+  /** Loja: preço de 1 unidade, em DIMAS, por TIPO de item presente no
+   *  estoque (2026-09-02: moeda decidida — Dimas é a ÚNICA, nunca
+   *  item-por-item; ver `docs/loja-perguntas-alunos.md`). Chave = o item À
+   *  VENDA; vazio pros tipos fornalha/bau, e pra tipo presente sem entrada
+   *  aqui (dono ainda não decidiu o preço — existe no baú, mas ninguém
+   *  compra). */
+  readonly precos: ReadonlyMap<number, number>;
 }
 
 /** Container recém-colocado: todos os slots vazios, fogo apagado. */
@@ -259,7 +251,7 @@ export interface ContainerSalvo {
   queimaTotal?: number;
   progresso?: number;
   criador?: string;
-  precos?: { porItem: number; preco: Preco }[];
+  precos?: { porItem: number; qtd: number }[];
 }
 
 /** Container → forma esparsa. */
@@ -282,7 +274,7 @@ export function containerParaSave(
     ...(c.progresso ? { progresso: c.progresso } : {}),
     ...(c.criador ? { criador: c.criador } : {}),
     ...(c.precos.size
-      ? { precos: [...c.precos].map(([porItem, preco]) => ({ porItem, preco })) }
+      ? { precos: [...c.precos].map(([porItem, qtd]) => ({ porItem, qtd })) }
       : {}),
   };
 }
@@ -292,34 +284,21 @@ function inteiroNaoNegativo(v: unknown): number {
   return typeof v === "number" && Number.isInteger(v) && v >= 0 ? v : 0;
 }
 
-/** Um `Preco` vindo de fora, validado — `null` se a forma estiver quebrada. */
-export function parsePreco(v: unknown): Preco | null {
-  if (typeof v !== "object" || v === null) return null;
-  const o = v as Record<string, unknown>;
-  if (o["tipo"] === "dimas") {
-    const qtd = o["qtd"];
-    if (typeof qtd !== "number" || !Number.isInteger(qtd) || qtd < 1) return null;
-    return { tipo: "dimas", qtd };
-  }
-  if (o["tipo"] === "item") {
-    const item = o["item"];
-    const qtd = o["qtd"];
-    if (typeof item !== "number" || !Number.isInteger(item) || item <= 0) return null;
-    if (typeof qtd !== "number" || !Number.isInteger(qtd) || qtd < 1) return null;
-    return { tipo: "item", item, qtd };
-  }
-  return null;
-}
-
-/** Uma entrada `{porItem, preco}` da lista de preços, validada. */
-export function parsePrecoEntry(v: unknown): { porItem: number; preco: Preco } | null {
+/** Uma entrada `{porItem, qtd}` da lista de preços, validada — `qtd` é
+ *  sempre em Dimas. `porItem` limitado a `MAX_BLOCK_ID`: sem isto um save
+ *  editado à mão podia gravar preço pra um id que não existe (achado na
+ *  revisão final da loja, 2026-09-01 — lá o teto só valia no caminho
+ *  `definir_preco`, não no save/fio). */
+export function parsePrecoEntry(v: unknown): { porItem: number; qtd: number } | null {
   if (typeof v !== "object" || v === null) return null;
   const o = v as Record<string, unknown>;
   const porItem = o["porItem"];
-  if (typeof porItem !== "number" || !Number.isInteger(porItem) || porItem <= 0) return null;
-  const preco = parsePreco(o["preco"]);
-  if (!preco) return null;
-  return { porItem, preco };
+  const qtd = o["qtd"];
+  if (typeof porItem !== "number" || !Number.isInteger(porItem) || porItem <= 0 || porItem > MAX_BLOCK_ID) {
+    return null;
+  }
+  if (typeof qtd !== "number" || !Number.isInteger(qtd) || qtd < 1) return null;
+  return { porItem, qtd };
 }
 
 /**
@@ -358,7 +337,7 @@ export function parseContainerSalvo(v: unknown): ContainerSalvo | null {
   const queimaTotal = inteiroNaoNegativo(o["queimaTotal"]);
   const progresso = inteiroNaoNegativo(o["progresso"]);
   const criador = typeof o["criador"] === "string" ? o["criador"] : "";
-  const precos: { porItem: number; preco: Preco }[] = [];
+  const precos: { porItem: number; qtd: number }[] = [];
   if (Array.isArray(o["precos"])) {
     for (const e of o["precos"]) {
       const parsed = parsePrecoEntry(e);
@@ -389,6 +368,6 @@ export function containerDeSave(s: ContainerSalvo): Container {
     queimaTotal: s.queimaTotal ?? 0,
     progresso: s.progresso ?? 0,
     criador: s.criador ?? "",
-    precos: new Map((s.precos ?? []).map((p) => [p.porItem, p.preco])),
+    precos: new Map((s.precos ?? []).map((p) => [p.porItem, p.qtd])),
   };
 }

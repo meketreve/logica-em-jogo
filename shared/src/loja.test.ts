@@ -155,7 +155,7 @@ describe("C1 (2026-09-01): quebrar a loja — só ESTOQUE trava, não criador/pr
     session.handleMessage(1, JSON.stringify({ type: "place_block", x, y, z, blockId: BlockId.BauLoja }));
     session.handleMessage(1, JSON.stringify({ type: "use_block", x, y, z }));
     session.handleMessage(1, JSON.stringify({
-      type: "definir_preco", x, y, z, item: BlockId.Planks, preco: { tipo: "dimas", qtd: 3 },
+      type: "definir_preco", x, y, z, item: BlockId.Planks, qtd: 3,
     }));
     sent.length = 0;
     session.handleMessage(1, JSON.stringify({ type: "break_block", x, y, z }));
@@ -266,7 +266,7 @@ describe("o gate — ler é o ponto da feature, mexer continua do criador", () =
   });
 });
 
-describe("definir_preco", () => {
+describe("definir_preco (2026-09-02: qtd sempre em Dimas — moeda decidida, sem item-por-item)", () => {
   function lojaAberta() {
     const { sent, send } = collect();
     const session = new GameSession(send, { dims: { x: 6, z: 6, y: 4 }, seed: 1, codigo: "sala" });
@@ -281,31 +281,20 @@ describe("definir_preco", () => {
     return { session, sent, x, y, z };
   }
 
-  it("o criador define um preço em item; a loja passa a mostrá-lo", () => {
-    const { session, x, y, z } = lojaAberta();
-    session.handleMessage(1, JSON.stringify({
-      type: "definir_preco", x, y, z,
-      item: BlockId.Planks,
-      preco: { tipo: "item", item: BlockId.MinerioFerro, qtd: 3 },
-    }));
-    const cont = session.containers.get(`${x},${y},${z}`)!;
-    expect(cont.precos.get(BlockId.Planks)).toEqual({ tipo: "item", item: BlockId.MinerioFerro, qtd: 3 });
-  });
-
   it("o criador define um preço em Dimas", () => {
     const { session, x, y, z } = lojaAberta();
     session.handleMessage(1, JSON.stringify({
-      type: "definir_preco", x, y, z, item: BlockId.Planks, preco: { tipo: "dimas", qtd: 5 },
+      type: "definir_preco", x, y, z, item: BlockId.Planks, qtd: 5,
     }));
-    expect(session.containers.get(`${x},${y},${z}`)?.precos.get(BlockId.Planks)).toEqual({ tipo: "dimas", qtd: 5 });
+    expect(session.containers.get(`${x},${y},${z}`)?.precos.get(BlockId.Planks)).toBe(5);
   });
 
-  it("preco: null REMOVE o item da lista de comprável", () => {
+  it("qtd: null REMOVE o item da lista de comprável", () => {
     const { session, x, y, z } = lojaAberta();
     session.handleMessage(1, JSON.stringify({
-      type: "definir_preco", x, y, z, item: BlockId.Planks, preco: { tipo: "dimas", qtd: 5 },
+      type: "definir_preco", x, y, z, item: BlockId.Planks, qtd: 5,
     }));
-    session.handleMessage(1, JSON.stringify({ type: "definir_preco", x, y, z, item: BlockId.Planks, preco: null }));
+    session.handleMessage(1, JSON.stringify({ type: "definir_preco", x, y, z, item: BlockId.Planks, qtd: null }));
     expect(session.containers.get(`${x},${y},${z}`)?.precos.has(BlockId.Planks)).toBe(false);
   });
 
@@ -313,7 +302,7 @@ describe("definir_preco", () => {
     const { session, x, y, z } = lojaAberta();
     session.handleMessage(2, JSON.stringify({ type: "use_block", x, y, z })); // ana abre pra comprar
     session.handleMessage(2, JSON.stringify({
-      type: "definir_preco", x, y, z, item: BlockId.Planks, preco: { tipo: "dimas", qtd: 1 },
+      type: "definir_preco", x, y, z, item: BlockId.Planks, qtd: 1,
     }));
     expect(session.containers.get(`${x},${y},${z}`)?.precos.size ?? 0).toBe(0);
   });
@@ -357,30 +346,24 @@ describe("definir_preco", () => {
     session.handleMessage(2, JSON.stringify({ type: "use_block", x, y, z }));
     sent.length = 0;
     session.handleMessage(2, JSON.stringify({
-      type: "definir_preco", x, y, z, item: BlockId.Planks, preco: { tipo: "dimas", qtd: 1 },
+      type: "definir_preco", x, y, z, item: BlockId.Planks, qtd: 1,
     }));
     expect(session.containers.get(`${x},${y},${z}`)?.precos.size ?? 0).toBe(0);
   });
 
-  it("I2 (2026-09-01): rejeita item acima de MAX_BLOCK_ID (pra vender ou pra pagar)", () => {
+  it("I2 (2026-09-01): rejeita item acima de MAX_BLOCK_ID", () => {
     const { session, x, y, z } = lojaAberta();
     session.handleMessage(1, JSON.stringify({
-      type: "definir_preco", x, y, z, item: MAX_BLOCK_ID + 1, preco: { tipo: "dimas", qtd: 1 },
+      type: "definir_preco", x, y, z, item: MAX_BLOCK_ID + 1, qtd: 1,
     }));
     expect(session.containers.get(`${x},${y},${z}`)?.precos.size ?? 0).toBe(0);
-
-    session.handleMessage(1, JSON.stringify({
-      type: "definir_preco", x, y, z, item: BlockId.Planks,
-      preco: { tipo: "item", item: MAX_BLOCK_ID + 1, qtd: 1 },
-    }));
-    expect(session.containers.get(`${x},${y},${z}`)?.precos.has(BlockId.Planks)).toBe(false);
   });
 
   it("I2 (2026-09-01): rejeita um preço NOVO quando precos.size já está no teto; atualizar/remover um existente continua liberado", () => {
     const { session, x, y, z } = lojaAberta();
     for (let i = 1; i <= CONTAINER_SLOTS.loja; i++) {
       session.handleMessage(1, JSON.stringify({
-        type: "definir_preco", x, y, z, item: i, preco: { tipo: "dimas", qtd: 1 },
+        type: "definir_preco", x, y, z, item: i, qtd: 1,
       }));
     }
     expect(session.containers.get(`${x},${y},${z}`)?.precos.size).toBe(CONTAINER_SLOTS.loja);
@@ -388,128 +371,21 @@ describe("definir_preco", () => {
     // um item AINDA sem preço — recusado, a loja já está no teto de tipos
     const novoItem = CONTAINER_SLOTS.loja + 1;
     session.handleMessage(1, JSON.stringify({
-      type: "definir_preco", x, y, z, item: novoItem, preco: { tipo: "dimas", qtd: 1 },
+      type: "definir_preco", x, y, z, item: novoItem, qtd: 1,
     }));
     expect(session.containers.get(`${x},${y},${z}`)?.precos.size).toBe(CONTAINER_SLOTS.loja);
     expect(session.containers.get(`${x},${y},${z}`)?.precos.has(novoItem)).toBe(false);
 
     // atualizar um item JÁ precificado continua funcionando no teto
     session.handleMessage(1, JSON.stringify({
-      type: "definir_preco", x, y, z, item: 1, preco: { tipo: "dimas", qtd: 9 },
+      type: "definir_preco", x, y, z, item: 1, qtd: 9,
     }));
-    expect(session.containers.get(`${x},${y},${z}`)?.precos.get(1)).toEqual({ tipo: "dimas", qtd: 9 });
+    expect(session.containers.get(`${x},${y},${z}`)?.precos.get(1)).toBe(9);
 
     // remover um item JÁ precificado continua funcionando no teto
-    session.handleMessage(1, JSON.stringify({ type: "definir_preco", x, y, z, item: 1, preco: null }));
+    session.handleMessage(1, JSON.stringify({ type: "definir_preco", x, y, z, item: 1, qtd: null }));
     expect(session.containers.get(`${x},${y},${z}`)?.precos.has(1)).toBe(false);
     expect(session.containers.get(`${x},${y},${z}`)?.precos.size).toBe(CONTAINER_SLOTS.loja - 1);
-  });
-});
-
-describe("comprar — pagamento em ITEM", () => {
-  function lojaComEstoque() {
-    const { sent, send } = collect();
-    const session = new GameSession(send, {
-      dims: { x: 6, z: 6, y: 4 }, seed: 1, codigo: "sala", singleplayer: true,
-    });
-    session.handleMessage(1, join("prof", "0000", "sala"));
-    const p = session.players.get(1)!;
-    const x = Math.floor(p.x);
-    const y = Math.floor(p.y);
-    const z = Math.floor(p.z) + 1;
-    session.handleMessage(1, JSON.stringify({ type: "place_block", x, y, z, blockId: BlockId.BauLoja }));
-    session.handleMessage(2, join("ana", "1111"));
-    // comprar (e mover_container pra estocar) exige inventário AUTORITATIVO —
-    // só existe em sobrevivência (inventarioVale). Mundo nasce em criativo.
-    session.handleMessage(1, cmd("/modo sobrevivencia all"));
-    session.handleMessage(1, cmd("/modo sobrevivencia eu")); // `all` poupa quem digitou (§🍖 F1)
-    session.handleMessage(1, JSON.stringify({ type: "use_block", x, y, z }));
-    // prof põe 10 pranchas no estoque, a 2 minério de ferro cada
-    session.handleMessage(1, JSON.stringify({
-      type: "mover_container", x, y, z, de: idxMochilaComItem(session, "prof", BlockId.Planks, 10), para: 27,
-    }));
-    session.handleMessage(1, JSON.stringify({
-      type: "definir_preco", x, y, z, item: BlockId.Planks,
-      preco: { tipo: "item", item: BlockId.MinerioFerro, qtd: 2 },
-    }));
-    session.handleMessage(2, JSON.stringify({ type: "use_block", x, y, z })); // ana abre pra comprar
-    return { session, sent, x, y, z };
-  }
-
-  // criativo dá qualquer item — usado só pra montar o cenário do teste,
-  // não faz parte do fluxo de compra em si
-  function idxMochilaComItem(session: GameSession, nome: string, id: number, qtd: number): number {
-    const inv = session.inventarios.get(nome) ?? new Array(27).fill(null);
-    const novo = inv.slice();
-    novo[0] = { id, qtd };
-    session.inventarios.set(nome, novo as never);
-    return 0;
-  }
-
-  /** Fotografia do estoque do baú + mochila da ana — self-review da atomicidade:
-   *  uma compra RECUSADA não pode mexer em nada disso, nem parcialmente. */
-  function fotoLoja(session: GameSession, x: number, y: number, z: number) {
-    const cont = session.containers.get(`${x},${y},${z}`);
-    return {
-      estoque: JSON.stringify(cont?.slots ?? []),
-      ana: JSON.stringify(session.inventarios.get("ana") ?? []),
-    };
-  }
-
-  it("compra com sucesso: estoque cai, mochila da ana ganha, pagamento entra no baú", () => {
-    const { session, x, y, z } = lojaComEstoque();
-    idxMochilaComItem(session, "ana", BlockId.MinerioFerro, 6);
-    session.handleMessage(2, JSON.stringify({ type: "comprar", x, y, z, item: BlockId.Planks, qtd: 3 }));
-    const cont = session.containers.get(`${x},${y},${z}`)!;
-    expect(cont.slots.reduce((s, sl) => s + (sl?.id === BlockId.Planks ? sl.qtd : 0), 0)).toBe(7); // 10-3
-    expect(cont.slots.reduce((s, sl) => s + (sl?.id === BlockId.MinerioFerro ? sl.qtd : 0), 0)).toBe(6); // 3×2
-    const mochilaAna = session.inventarios.get("ana")!;
-    expect(mochilaAna.reduce((s, sl) => s + (sl?.id === BlockId.Planks ? sl.qtd : 0), 0)).toBe(3);
-    expect(mochilaAna.reduce((s, sl) => s + (sl?.id === BlockId.MinerioFerro ? sl.qtd : 0), 0)).toBe(0);
-  });
-
-  it("recusa: item sem preço definido — nada muda (nem estoque, nem mochila)", () => {
-    const { session, sent, x, y, z } = lojaComEstoque();
-    idxMochilaComItem(session, "ana", BlockId.MinerioFerro, 10);
-    const antes = fotoLoja(session, x, y, z);
-    sent.length = 0;
-    session.handleMessage(2, JSON.stringify({ type: "comprar", x, y, z, item: BlockId.MinerioOuro, qtd: 1 }));
-    expect(chatPara(sent, 2)).toContain("não está à venda");
-    expect(fotoLoja(session, x, y, z)).toEqual(antes);
-  });
-
-  it("recusa: estoque insuficiente — nada muda (nem estoque, nem mochila)", () => {
-    const { session, sent, x, y, z } = lojaComEstoque();
-    idxMochilaComItem(session, "ana", BlockId.MinerioFerro, 100);
-    const antes = fotoLoja(session, x, y, z);
-    sent.length = 0;
-    session.handleMessage(2, JSON.stringify({ type: "comprar", x, y, z, item: BlockId.Planks, qtd: 50 }));
-    expect(chatPara(sent, 2)).toContain("estoque");
-    expect(fotoLoja(session, x, y, z)).toEqual(antes);
-  });
-
-  it("recusa: comprador sem pagamento suficiente — nada muda (nem estoque, nem mochila)", () => {
-    const { session, sent, x, y, z } = lojaComEstoque();
-    idxMochilaComItem(session, "ana", BlockId.MinerioFerro, 1); // precisa de 6
-    const antes = fotoLoja(session, x, y, z);
-    sent.length = 0;
-    session.handleMessage(2, JSON.stringify({ type: "comprar", x, y, z, item: BlockId.Planks, qtd: 3 }));
-    expect(chatPara(sent, 2)).toContain("pagamento");
-    expect(fotoLoja(session, x, y, z)).toEqual(antes);
-  });
-
-  it("recusa: baú sem espaço pro pagamento — nada muda (nem estoque, nem mochila)", () => {
-    const { session, sent, x, y, z } = lojaComEstoque();
-    idxMochilaComItem(session, "ana", BlockId.MinerioFerro, 6);
-    // enche o baú inteiro com outro item pra não sobrar espaço nenhum
-    const cont = session.containers.get(`${x},${y},${z}`)!;
-    const slotsCheios = cont.slots.map((s, i) => (i === 0 ? s : { id: BlockId.Stone, qtd: 64 }));
-    session.containers.set(`${x},${y},${z}`, { ...cont, slots: slotsCheios } as never);
-    const antes = fotoLoja(session, x, y, z);
-    sent.length = 0;
-    session.handleMessage(2, JSON.stringify({ type: "comprar", x, y, z, item: BlockId.Planks, qtd: 3 }));
-    expect(chatPara(sent, 2)).toContain("espaço");
-    expect(fotoLoja(session, x, y, z)).toEqual(antes);
   });
 });
 
@@ -523,8 +399,8 @@ function chatPara(sent: Sent, clientId: number): string {
   return "";
 }
 
-describe("comprar — pagamento em DIMAS", () => {
-  function lojaComPrecoDimas() {
+describe("comprar (2026-09-02: sempre em Dimas — o pagamento em item foi removido)", () => {
+  function lojaComEstoque() {
     const { sent, send } = collect();
     const session = new GameSession(send, { dims: { x: 6, z: 6, y: 4 }, seed: 1, codigo: "sala" });
     session.handleMessage(1, join("prof", "0000", "sala"));
@@ -539,20 +415,33 @@ describe("comprar — pagamento em DIMAS", () => {
     session.handleMessage(1, cmd("/modo sobrevivencia all"));
     session.handleMessage(1, cmd("/modo sobrevivencia eu")); // `all` poupa quem digitou (§🍖 F1)
     session.handleMessage(1, JSON.stringify({ type: "use_block", x, y, z }));
+    // prof põe 10 pranchas no estoque, a 4 Dimas cada
     const inv = session.inventarios.get("prof") ?? new Array(27).fill(null);
     const novo = inv.slice();
     novo[0] = { id: BlockId.Planks, qtd: 10 };
     session.inventarios.set("prof", novo as never);
     session.handleMessage(1, JSON.stringify({ type: "mover_container", x, y, z, de: 0, para: 27 }));
     session.handleMessage(1, JSON.stringify({
-      type: "definir_preco", x, y, z, item: BlockId.Planks, preco: { tipo: "dimas", qtd: 4 },
+      type: "definir_preco", x, y, z, item: BlockId.Planks, qtd: 4,
     }));
-    session.handleMessage(2, JSON.stringify({ type: "use_block", x, y, z }));
+    session.handleMessage(2, JSON.stringify({ type: "use_block", x, y, z })); // ana abre pra comprar
     return { session, sent, x, y, z };
   }
 
-  it("compra em Dimas: debita o comprador, credita o criador, sem ocupar slot nenhum", () => {
-    const { session, x, y, z } = lojaComPrecoDimas();
+  /** Fotografia do estoque + mochila da ana + saldo dos dois — self-review da
+   *  atomicidade: uma compra RECUSADA não pode mexer em nada disso. */
+  function fotoLoja(session: GameSession, x: number, y: number, z: number) {
+    const cont = session.containers.get(`${x},${y},${z}`);
+    return {
+      estoque: JSON.stringify(cont?.slots ?? []),
+      ana: JSON.stringify(session.inventarios.get("ana") ?? []),
+      dimasAna: session.dimas.get("ana"),
+      dimasProf: session.dimas.get("prof"),
+    };
+  }
+
+  it("compra com sucesso: estoque cai, mochila ganha, Dimas debita/credita, sem ocupar slot nenhum", () => {
+    const { session, x, y, z } = lojaComEstoque();
     expect(session.dimas.get("ana")).toBe(50); // DIMAS_INICIAL_PADRAO
     expect(session.dimas.get("prof")).toBe(50);
     session.handleMessage(2, JSON.stringify({ type: "comprar", x, y, z, item: BlockId.Planks, qtd: 5 }));
@@ -560,32 +449,49 @@ describe("comprar — pagamento em DIMAS", () => {
     expect(session.dimas.get("prof")).toBe(50 + 5 * 4);
     const cont = session.containers.get(`${x},${y},${z}`)!;
     // pagamento em Dimas NUNCA aparece nos slots — só o estoque caiu
-    expect(cont.slots.reduce((s, sl) => s + (sl?.id === BlockId.Planks ? sl.qtd : 0), 0)).toBe(5);
-    // ana recebeu os 5 Planks de verdade na mochila
+    expect(cont.slots.reduce((s, sl) => s + (sl?.id === BlockId.Planks ? sl.qtd : 0), 0)).toBe(5); // 10-5
     const mochilaAna = session.inventarios.get("ana")!;
     expect(mochilaAna.reduce((s, sl) => s + (sl?.id === BlockId.Planks ? sl.qtd : 0), 0)).toBe(5);
   });
 
-  it("recusa: saldo de Dimas insuficiente", () => {
-    const { session, sent, x, y, z } = lojaComPrecoDimas();
+  it("recusa: item sem preço definido — nada muda", () => {
+    const { session, sent, x, y, z } = lojaComEstoque();
+    const antes = fotoLoja(session, x, y, z);
+    sent.length = 0;
+    session.handleMessage(2, JSON.stringify({ type: "comprar", x, y, z, item: BlockId.MinerioOuro, qtd: 1 }));
+    expect(chatPara(sent, 2)).toContain("não está à venda");
+    expect(fotoLoja(session, x, y, z)).toEqual(antes);
+  });
+
+  it("recusa: estoque insuficiente — nada muda", () => {
+    const { session, sent, x, y, z } = lojaComEstoque();
+    const antes = fotoLoja(session, x, y, z);
+    sent.length = 0;
+    session.handleMessage(2, JSON.stringify({ type: "comprar", x, y, z, item: BlockId.Planks, qtd: 50 }));
+    expect(chatPara(sent, 2)).toContain("estoque");
+    expect(fotoLoja(session, x, y, z)).toEqual(antes);
+  });
+
+  it("recusa: saldo de Dimas insuficiente — nada muda", () => {
+    const { session, sent, x, y, z } = lojaComEstoque();
     session.dimas.set("ana", 3); // preço é 4/unidade
+    const antes = fotoLoja(session, x, y, z);
     sent.length = 0;
     session.handleMessage(2, JSON.stringify({ type: "comprar", x, y, z, item: BlockId.Planks, qtd: 1 }));
     expect(chatPara(sent, 2)).toContain("Dimas");
-    expect(session.dimas.get("ana")).toBe(3); // nada mudou
-    expect(session.dimas.get("prof")).toBe(50); // nada mudou de nenhum dos dois
+    expect(fotoLoja(session, x, y, z)).toEqual(antes);
   });
 
   it("o criador OFFLINE recebe o crédito mesmo assim", () => {
-    const { session, x, y, z } = lojaComPrecoDimas();
+    const { session, x, y, z } = lojaComEstoque();
     session.handleDisconnect(1); // prof (o criador) sai
     session.handleMessage(2, JSON.stringify({ type: "comprar", x, y, z, item: BlockId.Planks, qtd: 2 }));
     expect(session.dimas.get("prof")).toBe(50 + 2 * 4); // creditado por NOME, não por socket
   });
 });
 
-describe("história completa: terreno, loja, venda em item, venda em Dimas", () => {
-  it("prof reivindica terreno, coloca a loja, ana (de fora) compra dos dois jeitos", () => {
+describe("história completa: terreno, loja, dois itens precificados em Dimas", () => {
+  it("prof reivindica terreno, coloca a loja, ana (de fora) compra os dois itens", () => {
     const { sent, send } = collect();
     const session = new GameSession(send, {
       dims: { x: 20, z: 20, y: 4 }, seed: 1, codigo: "sala", flat: true,
@@ -625,18 +531,16 @@ describe("história completa: terreno, loja, venda em item, venda em Dimas", () 
     session.handleMessage(1, JSON.stringify({ type: "mover_container", x, y, z, de: 0, para: 27 }));
     session.handleMessage(1, JSON.stringify({ type: "mover_container", x, y, z, de: 1, para: 28 }));
     session.handleMessage(1, JSON.stringify({
-      type: "definir_preco", x, y, z, item: BlockId.Planks,
-      preco: { tipo: "item", item: BlockId.MinerioFerro, qtd: 1 },
+      type: "definir_preco", x, y, z, item: BlockId.Planks, qtd: 1,
     }));
     session.handleMessage(1, JSON.stringify({
-      type: "definir_preco", x, y, z, item: BlockId.Stone, preco: { tipo: "dimas", qtd: 2 },
+      type: "definir_preco", x, y, z, item: BlockId.Stone, qtd: 2,
     }));
 
-    // ana, de FORA do grupo do prof, chega e abre a loja pra comprar
+    // ana, de FORA do grupo do prof, chega e abre a loja pra comprar —
+    // paga em Dimas (a ÚNICA moeda, decisão de 2026-09-02), sem precisar de
+    // item nenhum na mochila além do que vai receber
     session.handleMessage(2, join("ana", "1111"));
-    const invAna = new Array(27).fill(null);
-    invAna[0] = { id: BlockId.MinerioFerro, qtd: 5 };
-    session.inventarios.set("ana", invAna as never);
     session.handleMessage(2, JSON.stringify({ type: "use_block", x, y, z }));
 
     session.handleMessage(2, JSON.stringify({ type: "comprar", x, y, z, item: BlockId.Planks, qtd: 4 }));
@@ -645,9 +549,8 @@ describe("história completa: terreno, loja, venda em item, venda em Dimas", () 
     const mochilaAna = session.inventarios.get("ana")!;
     expect(mochilaAna.reduce((s, sl) => s + (sl?.id === BlockId.Planks ? sl.qtd : 0), 0)).toBe(4);
     expect(mochilaAna.reduce((s, sl) => s + (sl?.id === BlockId.Stone ? sl.qtd : 0), 0)).toBe(3);
-    expect(mochilaAna.reduce((s, sl) => s + (sl?.id === BlockId.MinerioFerro ? sl.qtd : 0), 0)).toBe(1); // 5-4
-    expect(session.dimas.get("ana")).toBe(50 - 3 * 2);
-    expect(session.dimas.get("prof")).toBe(50 + 3 * 2);
+    expect(session.dimas.get("ana")).toBe(50 - 4 * 1 - 3 * 2);
+    expect(session.dimas.get("prof")).toBe(50 + 4 * 1 + 3 * 2);
 
     // ana NÃO consegue mexer no estoque diretamente (não é a criadora)
     const antes = session.containers.get(`${x},${y},${z}`);

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { BlockId, ITEM_CARVAO } from "./blocks";
+import { BlockId, ITEM_CARVAO, MAX_BLOCK_ID } from "./blocks";
 import {
   CONTAINER_SLOTS,
   type Container,
@@ -18,7 +18,6 @@ import {
   moverEntre,
   parseContainerSalvo,
   totalDeSlots,
-  type Preco,
 } from "./containers";
 import {
   INV_SLOTS,
@@ -340,25 +339,25 @@ describe("loja (2026-09-01) — terceiro tipo de container", () => {
 
     const comPreco: Container = {
       ...vazio,
-      precos: new Map([[BlockId.Planks, { tipo: "item", item: BlockId.MinerioFerro, qtd: 2 }]]),
+      precos: new Map([[BlockId.Planks, 2]]),
     };
     expect(containerTemConteudo(comPreco)).toBe(true);
   });
 
-  it("containerParaSave/parseContainerSalvo fazem roundtrip de criador+precos (item e dimas)", () => {
+  it("containerParaSave/parseContainerSalvo fazem roundtrip de criador+precos (sempre Dimas)", () => {
     const c: Container = {
       ...containerVazio("loja"),
       criador: "ana",
-      precos: new Map<number, Preco>([
-        [BlockId.Planks, { tipo: "item", item: BlockId.MinerioFerro, qtd: 2 }],
-        [BlockId.MinerioOuro, { tipo: "dimas", qtd: 10 }],
+      precos: new Map<number, number>([
+        [BlockId.Planks, 2],
+        [BlockId.MinerioOuro, 10],
       ]),
     };
     const salvo = containerParaSave(1, 2, 3, c);
     expect(salvo.criador).toBe("ana");
     expect(salvo.precos).toEqual([
-      { porItem: BlockId.Planks, preco: { tipo: "item", item: BlockId.MinerioFerro, qtd: 2 } },
-      { porItem: BlockId.MinerioOuro, preco: { tipo: "dimas", qtd: 10 } },
+      { porItem: BlockId.Planks, qtd: 2 },
+      { porItem: BlockId.MinerioOuro, qtd: 10 },
     ]);
 
     const reparsed = parseContainerSalvo(JSON.parse(JSON.stringify(salvo)));
@@ -373,16 +372,17 @@ describe("loja (2026-09-01) — terceiro tipo de container", () => {
       x: 0, y: 0, z: 0, tipo: "loja", slots: [],
       criador: 42, // tipo errado — vira "" (sem dono, como o baú comum)
       precos: [
-        { porItem: BlockId.Planks, preco: { tipo: "item", item: BlockId.MinerioFerro, qtd: 2 } },
-        { porItem: -1, preco: { tipo: "dimas", qtd: 5 } }, // porItem inválido — descartada
-        { porItem: BlockId.MinerioOuro, preco: { tipo: "dimas", qtd: 0 } }, // qtd<1 — descartada
+        { porItem: BlockId.Planks, qtd: 2 },
+        { porItem: -1, qtd: 5 }, // porItem inválido — descartada
+        { porItem: BlockId.MinerioOuro, qtd: 0 }, // qtd<1 — descartada
+        { porItem: MAX_BLOCK_ID + 1, qtd: 3 }, // acima do teto — descartada (achado na revisão final)
         "lixo",
       ],
     };
     const parsed = parseContainerSalvo(raw);
     expect(parsed?.criador).toBeUndefined();
     expect(parsed?.precos).toEqual([
-      { porItem: BlockId.Planks, preco: { tipo: "item", item: BlockId.MinerioFerro, qtd: 2 } },
+      { porItem: BlockId.Planks, qtd: 2 },
     ]);
   });
 
