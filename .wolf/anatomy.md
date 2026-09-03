@@ -1,6 +1,6 @@
 # anatomy.md
 
-> Auto-maintained by OpenWolf. Last scanned: 2026-09-02T17:37:06.865Z
+> Auto-maintained by OpenWolf. Last scanned: 2026-09-03T11:04:39.327Z
 > Files: 387 tracked | Anatomy hits: 0 | Misses: 0
 
 ## ./
@@ -8,8 +8,8 @@
 - `.gitattributes` — LF em tudo (projeto vive no WSL/ext4; evita ruído CRLF de ferramentas Windows) (~31 tok)
 - `.gitignore` — Git ignore rules (~393 tok)
 - `CLAUDE.md` — OpenWolf (~57 tok)
-- `iniciar-servidor.bat` (~5507 tok)
-- `iniciar-servidor.sh` — ============================================================ (~6164 tok)
+- `iniciar-servidor.bat` (~5754 tok)
+- `iniciar-servidor.sh` — ============================================================ (~6256 tok)
 - `LICENSE` — Licença de Uso — Lógica em Jogo (~1070 tok)
 - `package-lock.json` — npm lock file (~20120 tok)
 - `package.json` — Node.js package manifest (~487 tok)
@@ -777,9 +777,10 @@
   - fn `cdp` L94-99 (~50 tok)
   - fn `avaliar` L100-184 (~908 tok)
   - fn `tirar` L185-206 (~221 tok)
-- `gerar-build-info.mjs` — GERA `shared/src/build-info.json` (2026-08-27). (~773 tok)
-  - fn `git` L35-41 (~94 tok)
-  - fn `valorAtual` L42-65 (~226 tok)
+- `gerar-build-info.mjs` — GERA `shared/src/build-info.json` (2026-08-27). (~1089 tok)
+  - fn `git` L42-48 (~94 tok)
+  - fn `valorAtual` L49-63 (~184 tok)
+  - fn `tituloDoChangelog` L64-89 (~261 tok)
 - `grupos-shot.mjs` — Print + medição da ABA "grupos" DO PAINEL P (2026-08-26) — a grade de botões (~3121 tok)
   - fn `espera` L46-47 (~18 tok)
   - fn `acharChrome` L48-79 (~298 tok)

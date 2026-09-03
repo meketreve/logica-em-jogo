@@ -25,6 +25,13 @@
  * como o comentário acima já dizia); só falta git MESMO na primeira vez de
  * todas (pasta sem `.git` e sem `build-info.json` nenhum ainda) cai no
  * placeholder.
+ *
+ * ⚠️ **`titulo` (2026-09-03): o launcher parou de mostrar semver.** Ele
+ * precisava de um nome de novidade pra mostrar no lugar do "0.9.0", e ler o
+ * `changelog.ts` (texto livre, com dois-pontos/vírgula dentro do valor) em
+ * batch/shell puro é a mesma armadilha da aspa escapada — por isso o campo
+ * sai JÁ EXTRAÍDO daqui (Node, regex simples) e o launcher só lê um campo
+ * JSON comum, igual `data`/`commit`.
  */
 import { execFileSync } from "node:child_process";
 import { dirname, join } from "node:path";
@@ -42,14 +49,30 @@ const destino = join(RAIZ, "shared", "src", "build-info.json");
 function valorAtual() {
   try {
     const salvo = JSON.parse(readFileSync(destino, "utf8"));
-    if (typeof salvo.data === "string" && typeof salvo.commit === "string") return salvo;
+    if (typeof salvo.data === "string" && typeof salvo.commit === "string") {
+      return { data: salvo.data, commit: salvo.commit, titulo: typeof salvo.titulo === "string" ? salvo.titulo : "" };
+    }
   } catch {
     // 1ª vez de todas: sem build-info.json ainda
   }
-  return { data: "0000-00-00", commit: "sem-git" };
+  return { data: "0000-00-00", commit: "sem-git", titulo: "" };
 }
 
-let { data, commit } = valorAtual();
+/** O `titulo` do bloco do TOPO de `changelog.ts` — sem `data` escrita à mão é
+ *  sempre o build atual (ver o comentário lá). `changelog.ts` ilegível
+ *  mantém o `fallback` (o que já estava salvo), nunca zera. */
+function tituloDoChangelog(fallback) {
+  try {
+    const src = readFileSync(join(RAIZ, "client", "src", "changelog.ts"), "utf8");
+    const m = src.match(/titulo:\s*"((?:[^"\\]|\\.)*)"/);
+    if (m) return m[1].replace(/\\"/g, '"').replace(/\\\\/g, "\\");
+  } catch {
+    // changelog.ts ilegível - mantém o titulo que já estava salvo
+  }
+  return fallback;
+}
+
+let { data, commit, titulo } = valorAtual();
 try {
   if (git("rev-parse", "--is-inside-work-tree") === "true") {
     data = git("log", "-1", "--date=short", "--format=%ad");
@@ -59,6 +82,7 @@ try {
   // sem git, ou pasta que não é repositório — mantém o que já tinha (stale
   // por trás não é zerado, e é o que bug-653 corrigiu)
 }
+titulo = tituloDoChangelog(titulo);
 
-writeFileSync(destino, JSON.stringify({ data, commit }, null, 2) + "\n");
-console.log(`build-info: ${data} · ${commit}`);
+writeFileSync(destino, JSON.stringify({ data, commit, titulo }, null, 2) + "\n");
+console.log(`build-info: ${data} · ${commit} · ${titulo}`);

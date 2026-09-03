@@ -136,19 +136,25 @@ if "%LJ_ATUAL%"=="%LJ_NOVA%" (
   echo Ja esta na versao mais nova.
   goto :depois_update
 )
-REM A versao que a PESSOA le ("0.9.0") vem do campo "version" do package.json da
-REM raiz - a mesma que o jogo mostra. O sha continua sendo a identidade do
-REM update; o numero e o que o professor consegue ler na tela e repetir no
-REM telefone. O numero do lado de LA so se sabe depois de baixar.
-call :ler_versao "package.json" LJ_VER_ATUAL
+REM O rotulo que a PESSOA le (2026-09-03: "Loja: monte seu comercio
+REM (02/09/2026)", nao mais "0.9.0") vem de shared\src\build-info.json -
+REM data+titulo nascem do changelog.ts ja extraidos por
+REM scripts/gerar-build-info.mjs (Node), entao aqui e so campo JSON comum.
+REM O sha continua sendo a identidade do update; o rotulo e o que o
+REM professor consegue ler na tela e repetir no telefone. O rotulo do lado
+REM de LA so se sabe depois de baixar.
+call :ler_campo_json "data" "shared\src\build-info.json" LJ_DATA_ATUAL
+call :ler_campo_json "titulo" "shared\src\build-info.json" LJ_TITULO_ATUAL
+set "LJ_DATABR_ATUAL="
+if defined LJ_DATA_ATUAL set "LJ_DATABR_ATUAL=%LJ_DATA_ATUAL:~8,2%/%LJ_DATA_ATUAL:~5,2%/%LJ_DATA_ATUAL:~0,4%"
 echo.
 if not defined LJ_ATUAL (
   echo Nao da para saber que versao esta instalada aqui ^(falta o arquivo .lj-versao^).
-  echo A mais nova no GitHub e a %LJ_NOVA:~0,7% - baixar agora resolve isso de vez.
-) else if defined LJ_VER_ATUAL (
-  echo Existe versao nova: voce esta na %LJ_VER_ATUAL% ^(commit %LJ_ATUAL:~0,7%^) e o GitHub esta na %LJ_NOVA:~0,7%
+  echo A mais nova no GitHub e o commit %LJ_NOVA:~0,7% - baixar agora resolve isso de vez.
+) else if defined LJ_TITULO_ATUAL (
+  echo Existe atualizacao: voce esta em "%LJ_TITULO_ATUAL%" ^(%LJ_DATABR_ATUAL%, commit %LJ_ATUAL:~0,7%^) e o GitHub tem o commit %LJ_NOVA:~0,7%
 ) else (
-  echo Existe versao nova: %LJ_ATUAL:~0,7% -^> %LJ_NOVA:~0,7%
+  echo Existe atualizacao: %LJ_ATUAL:~0,7% -^> %LJ_NOVA:~0,7%
 )
 echo.
 set "UPD="
@@ -206,9 +212,12 @@ REM so seu (mundos\, node_modules\, .env, .ljw exportado solto na pasta).
 REM /XF do proprio .bat: o cmd.exe le este arquivo enquanto executa, entao
 REM troca-lo no meio da execucao corrompe a rodada. A troca dele vem depois,
 REM em :trocar_launcher, com o launcher ja fora do ar.
-REM O numero do pacote TEM de ser lido antes da copia: depois dela o
-REM package.json daqui ja e o novo, e a frase viraria "da 1.0.0 para a 1.0.0".
-call :ler_versao "%LJ_SRC%\package.json" LJ_VER_NOVA
+REM O rotulo do pacote TEM de ser lido antes da copia: depois dela o
+REM build-info daqui ja e o novo, e a frase viraria "de X para X".
+call :ler_campo_json "data" "%LJ_SRC%\shared\src\build-info.json" LJ_DATA_NOVA
+call :ler_campo_json "titulo" "%LJ_SRC%\shared\src\build-info.json" LJ_TITULO_NOVA
+set "LJ_DATABR_NOVA="
+if defined LJ_DATA_NOVA set "LJ_DATABR_NOVA=%LJ_DATA_NOVA:~8,2%/%LJ_DATA_NOVA:~5,2%/%LJ_DATA_NOVA:~0,4%"
 robocopy "%LJ_SRC%" "%CD%" /E /NFL /NDL /NJH /NJS /NP /R:1 /W:1 /XF "iniciar-servidor.bat" %LJ_XD% >nul
 if errorlevel 8 (
   echo ^(a copia falhou - seguindo com a versao instalada^)
@@ -216,17 +225,15 @@ if errorlevel 8 (
 )
 > ".lj-versao" echo %LJ_NOVA%
 REM Duas frases porque os dois casos sao diferentes na cabeca do professor:
-REM subir de 0.9.0 pra 1.0.0 e versao nova; receber correcao dentro da MESMA
-REM 0.9.0 e o caso comum, e "atualizado para a 0.9.0" faria parecer que nada
-REM aconteceu.
-if not defined LJ_VER_NOVA (
-  echo Atualizado para a %LJ_NOVA:~0,7%.
-) else if "%LJ_VER_ATUAL%"=="%LJ_VER_NOVA%" (
-  echo Atualizado - continua na versao %LJ_VER_NOVA%, com as correcoes mais novas ^(commit %LJ_NOVA:~0,7%^).
-) else if not defined LJ_VER_ATUAL (
-  echo Atualizado para a versao %LJ_VER_NOVA% ^(commit %LJ_NOVA:~0,7%^).
+REM chegou novidade NOVA (titulo mudou) e uma frase; ganhou so correcao por
+REM baixo do capo da MESMA novidade (titulo igual) e outra - senao
+REM "atualizado" parece que nada mudou.
+if not defined LJ_TITULO_NOVA (
+  echo Atualizado para o commit %LJ_NOVA:~0,7%.
+) else if "%LJ_TITULO_ATUAL%"=="%LJ_TITULO_NOVA%" (
+  echo Atualizado - continua em "%LJ_TITULO_NOVA%" ^(%LJ_DATABR_NOVA%^), com as correcoes mais novas ^(commit %LJ_NOVA:~0,7%^).
 ) else (
-  echo Atualizado da versao %LJ_VER_ATUAL% para a %LJ_VER_NOVA% ^(commit %LJ_NOVA:~0,7%^).
+  echo Atualizado! Novidade agora: "%LJ_TITULO_NOVA%" ^(%LJ_DATABR_NOVA%, commit %LJ_NOVA:~0,7%^).
 )
 echo Conferindo as dependencias...
 call npm install
@@ -274,7 +281,8 @@ rd /s /q "%LJ_TMP%" >nul 2>nul
 :depois_update
 set "LJ_DONO=" & set "LJ_NOME=" & set "LJ_RAMO=" & set "LJ_TMP=" & set "LJ_ZIP="
 set "LJ_SRC=" & set "LJ_NOVA=" & set "LJ_ATUAL=" & set "LJ_XD="
-set "LJ_VER_ATUAL=" & set "LJ_VER_NOVA=" & set "LJ_MOTIVO="
+set "LJ_DATA_ATUAL=" & set "LJ_DATA_NOVA=" & set "LJ_DATABR_ATUAL=" & set "LJ_DATABR_NOVA="
+set "LJ_TITULO_ATUAL=" & set "LJ_TITULO_NOVA=" & set "LJ_MOTIVO="
 echo.
 
 REM ============================================================
@@ -487,27 +495,31 @@ set "LJ_TAMANHO=E"
 echo ^(mundo procedural: mundos\%PNOME%\^)
 goto :eof
 
-REM --- Sub-rotina: ler o campo "version" de um package.json ---
-REM %1 = caminho do package.json, %2 = nome da variavel que recebe o numero.
-REM Batch nao le JSON, e nao precisa: o package.json da RAIZ e curto e o campo
-REM "version" vem no topo, entao o primeiro casamento e o certo. Arquivo que nao
-REM existe (ou sem o campo) deixa a variavel VAZIA, e quem chama cai na frase
-REM antiga com o commit - a mensagem piora, nada quebra.
-REM O padrao NAO tem aspas dentro: aspa escapada dentro de um for /f com crase e
-REM a receita de erro silencioso em batch. Cada "." do regex e a aspa do JSON -
-REM ^ *.version.: *.[0-9] casa exatamente '  "version": "0.9.0",'.
-:ler_versao
-set "%~2="
-if not exist "%~1" goto :eof
+REM --- Sub-rotina: ler um campo de texto de um build-info.json ---
+REM %1 = nome do campo (data|commit|titulo), %2 = caminho do build-info.json,
+REM %3 = nome da variavel que recebe o valor. Arquivo que nao existe (ou sem
+REM o campo) deixa a variavel VAZIA, e quem chama cai na frase antiga so com
+REM o commit - a mensagem piora, nada quebra.
+REM O padrao do findstr NAO tem aspas dentro: aspa escapada dentro de um for
+REM /f com crase e a receita de erro silencioso em batch. Cada "." do regex e
+REM a aspa do JSON - ^ *.campo.: *. acha a LINHA sem entrar nela.
+REM "titulo" pode ter dois-pontos/virgula DENTRO do valor (ex: "Loja: monte
+REM seu comercio") - por isso o valor sai com "tokens=1*", que so corta no
+REM PRIMEIRO ":" da linha (o que separa chave de valor) e devolve o resto
+REM inteiro, sem quebrar de novo nos dois-pontos do proprio texto.
+:ler_campo_json
+set "%~3="
+if not exist "%~2" goto :eof
+set "LJ_L="
+for /f "usebackq delims=" %%a in (`findstr /r /c:"^ *.%~1.: *." "%~2"`) do if not defined LJ_L set "LJ_L=%%a"
+if not defined LJ_L goto :eof
 set "LJ_V="
-for /f "usebackq tokens=2 delims=:," %%a in (`findstr /r /c:"^ *.version.: *.[0-9]" "%~1"`) do (
-  if not defined LJ_V set "LJ_V=%%a"
-)
+for /f "tokens=1* delims=:" %%a in ("%LJ_L%") do set "LJ_V=%%b"
 if not defined LJ_V goto :eof
-REM sem aspas no set: o valor e so digito e ponto, e "%VAR:"=%" dentro de um set
-REM entre aspas confunde a contagem de aspas do cmd.
+if "%LJ_V:~0,1%"==" " set "LJ_V=%LJ_V:~1%"
 set LJ_V=%LJ_V:"=%
-set LJ_V=%LJ_V: =%
-set "%~2=%LJ_V%"
+if "%LJ_V:~-1%"=="," set "LJ_V=%LJ_V:~0,-1%"
+set "%~3=%LJ_V%"
+set "LJ_L="
 set "LJ_V="
 goto :eof

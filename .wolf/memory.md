@@ -3252,3 +3252,14 @@ fraude.
 | 14:35 | Edited iniciar-servidor.bat | removed 11 lines | ~15 |
 | 14:35 | Edited iniciar-servidor.sh | removed 10 lines | ~11 |
 | 14:37 | Edited client/src/changelog.ts | expanded (+23 lines) | ~366 |
+| 14:38 | Session end: 251 writes across 49 files (projeto.txt, sequencia didatica.md, todo.md, loja-perguntas-alunos.md, 2026-08-31-loja-baus-design.md) | 106 reads | ~496095 tok |
+| 08:02 | Edited scripts/gerar-build-info.mjs | added 1 condition(s) | ~828 |
+| 08:02 | Edited iniciar-servidor.sh | modified rotulo_build() | ~439 |
+| 08:02 | Edited iniciar-servidor.sh | 13→13 lines | ~171 |
+| 08:03 | Edited iniciar-servidor.sh | 5→5 lines | ~78 |
+| 08:03 | Edited iniciar-servidor.sh | 6→6 lines | ~76 |
+| 08:03 | Edited iniciar-servidor.sh | 3→3 lines | ~40 |
+| 08:03 | Edited iniciar-servidor.bat | expanded (+6 lines) | ~320 |
+| 08:03 | Edited iniciar-servidor.bat | 21→22 lines | ~344 |
+| 08:04 | Edited iniciar-servidor.bat | 24→28 lines | ~355 |
+| 08:04 | Edited iniciar-servidor.bat | 1→2 lines | ~42 |

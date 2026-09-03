@@ -1,12 +1,12 @@
 {
   "version": 1,
   "meta": {
-    "lastScanned": "2026-09-02T17:37:06.865Z",
+    "lastScanned": "2026-09-03T11:04:39.327Z",
     "fileCount": 387,
     "hits": 0,
     "misses": 0,
-    "renderedHash": "ad38ddeac03ca78783248e6ae96024c58994b0f826dbb5b56713421ec3d668d5",
-    "storeUpdatedAt": "2026-09-02T17:37:06.903Z"
+    "renderedHash": "a035c4d8589e3f14a4cb83b185d2ce3dd0b3856fd775d2ce21b79b2c722c1553",
+    "storeUpdatedAt": "2026-09-03T11:04:39.348Z"
   },
   "files": {
     ".claude/commands/reframe.md": {
@@ -3516,20 +3516,20 @@
     },
     "iniciar-servidor.bat": {
       "description": "",
-      "tokens": 5507,
-      "hash": "2b8502a0f2c52a9c",
-      "size": 20650,
-      "mtimeMs": 1788370517979.748,
-      "updatedAt": "2026-09-02T17:35:18.084Z",
+      "tokens": 5754,
+      "hash": "190c6fc51089e61b",
+      "size": 21574,
+      "mtimeMs": 1788433479232.8694,
+      "updatedAt": "2026-09-03T11:04:39.327Z",
       "source": "hook"
     },
     "iniciar-servidor.sh": {
       "description": "============================================================",
-      "tokens": 6164,
-      "hash": "e674d9f355d8a5a7",
-      "size": 23603,
-      "mtimeMs": 1788370522547.748,
-      "updatedAt": "2026-09-02T17:35:22.647Z",
+      "tokens": 6256,
+      "hash": "ac95b3d21b901e08",
+      "size": 23957,
+      "mtimeMs": 1788433394112.871,
+      "updatedAt": "2026-09-03T11:03:14.211Z",
       "source": "hook"
     },
     "LICENSE": {
@@ -4896,26 +4896,33 @@
     },
     "scripts/gerar-build-info.mjs": {
       "description": "GERA `shared/src/build-info.json` (2026-08-27).",
-      "tokens": 773,
-      "hash": "44b6862164f9a3cf",
-      "size": 2961,
-      "mtimeMs": 1788271822722.0266,
-      "updatedAt": "2026-09-01T14:10:22.818Z",
+      "tokens": 1089,
+      "hash": "3bb4f5b0a3ebeaf5",
+      "size": 4170,
+      "mtimeMs": 1788433345724.871,
+      "updatedAt": "2026-09-03T11:02:25.828Z",
       "source": "hook",
       "symbols": [
         {
           "name": "git",
           "kind": "fn",
-          "startLine": 35,
-          "endLine": 41,
+          "startLine": 42,
+          "endLine": 48,
           "tokens": 94
         },
         {
           "name": "valorAtual",
           "kind": "fn",
-          "startLine": 42,
-          "endLine": 65,
-          "tokens": 226
+          "startLine": 49,
+          "endLine": 63,
+          "tokens": 184
+        },
+        {
+          "name": "tituloDoChangelog",
+          "kind": "fn",
+          "startLine": 64,
+          "endLine": 89,
+          "tokens": 261
         }
       ]
     },

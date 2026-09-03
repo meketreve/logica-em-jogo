@@ -80,28 +80,37 @@ listar_ate_10() {
 # baixa .zip porque o tar.exe do Windows lê zip; o tar do GNU NÃO lê zip, então
 # aqui o endereço é o .tar.gz. Mesmo conteúdo, mesma pasta de dentro
 # (<repo>-<ramo>), mesmo ".lj-versao" gravado no fim.
-# A versão que a PESSOA lê ("0.9.0") mora no campo `version` do package.json da
-# raiz — a mesma que o jogo mostra e que o perfilador anônimo carimba em cada
-# amostra (`shared/src/version.ts`). O sha de 40 caracteres continua sendo a
-# identidade do update (é ele que responde "estou na última?"); o número é o que
-# o professor consegue LER na tela e repetir no telefone. Um `sed` no primeiro
-# campo `"version"` basta: o package.json da raiz é curto e o campo vem no topo.
-versao_do_pacote() {
+# O rótulo que a PESSOA lê (2026-09-03: "Loja: monte seu comércio (02/09/2026)",
+# não mais "0.9.0") mora em `shared/src/build-info.json` — `data`+`titulo`
+# nascem do `changelog.ts` já extraídos por `scripts/gerar-build-info.mjs`
+# (Node), então aqui é só JSON simples de campo curto: nada de parsear texto
+# livre com dois-pontos dentro em shell puro. O sha de 40 caracteres continua
+# sendo a identidade do update (é ele que responde "estou na última?"); o
+# rótulo é o que o professor consegue LER na tela e repetir no telefone.
+rotulo_build() {
   [ -f "$1" ] || return 0
-  sed -n 's/.*"version"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/p' "$1" | head -n1
+  local data titulo
+  data="$(sed -n 's/.*"data"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/p' "$1" | head -n1)"
+  titulo="$(sed -n 's/.*"titulo"[[:space:]]*:[[:space:]]*"\(.*\)".*/\1/p' "$1" | head -n1)"
+  [ -n "$titulo" ] || return 0
+  if [ -n "$data" ]; then
+    echo "$titulo (${data:8:2}/${data:5:2}/${data:0:4})"
+  else
+    echo "$titulo"
+  fi
 }
 
-# Diz o que MUDOU, com o número na frente e o commit entre parênteses. Duas
-# frases porque os dois casos são diferentes na cabeça do professor: subir de
-# 0.9.0 pra 1.0.0 é versão nova, e receber correção dentro da MESMA 0.9.0 é o
-# caso comum — dizer "atualizado para a 0.9.0" quando ele já estava na 0.9.0
-# parece que nada aconteceu.
+# Diz o que MUDOU, com o rótulo na frente e o commit entre parênteses. Duas
+# frases porque os dois casos são diferentes na cabeça do professor: chegou
+# novidade NOVA (rótulo mudou) é uma frase; ganhou só correção por baixo do
+# capô da MESMA novidade (rótulo igual) é outra — senão "atualizado" parece
+# que nada mudou.
 anunciar_versao() {
   local antes="$1" depois="$2" commit="$3"
   if [ -n "$antes" ] && [ -n "$depois" ] && [ "$antes" != "$depois" ]; then
-    echo "Atualizado da versão $antes para a $depois (commit ${commit:0:7})."
+    echo "Atualizado! Novidade agora: $depois (commit ${commit:0:7})."
   elif [ -n "$depois" ]; then
-    echo "Atualizado — continua na versão $depois, com as correções mais novas (commit ${commit:0:7})."
+    echo "Atualizado — continua em $depois, com as correções mais novas (commit ${commit:0:7})."
   else
     echo "Atualizado para a ${commit:0:7}."
   fi
@@ -128,17 +137,17 @@ atualizar_pacote() {
   [ -f .lj-versao ] && atual="$(tr -d ' \r\n' < .lj-versao)"
   [ "$atual" = "$nova" ] && { echo "Já está na versão mais nova."; return; }
   local aqui
-  aqui="$(versao_do_pacote ./package.json)"
+  aqui="$(rotulo_build ./shared/src/build-info.json)"
   echo
   if [ -z "$atual" ]; then
     echo "Não dá para saber que versão está instalada aqui (falta o arquivo .lj-versao)."
-    echo "A mais nova no GitHub é a ${nova:0:7} — baixar agora resolve isso de vez."
+    echo "A mais nova no GitHub é o commit ${nova:0:7} — baixar agora resolve isso de vez."
   elif [ -n "$aqui" ]; then
-    # o número do LADO DE LÁ só se sabe depois de baixar (é o package.json do
-    # pacote), então aqui a comparação é de commit e o número é o de casa
-    echo "Existe versão nova: você está na $aqui (commit ${atual:0:7}) e o GitHub está na ${nova:0:7}"
+    # o rótulo do LADO DE LÁ só se sabe depois de baixar (é o build-info do
+    # pacote), então aqui a comparação é de commit e o rótulo é o de casa
+    echo "Existe atualização: você está em $aqui (commit ${atual:0:7}) e o GitHub tem o commit ${nova:0:7}"
   else
-    echo "Existe versão nova: ${atual:0:7} -> ${nova:0:7}"
+    echo "Existe atualização: ${atual:0:7} -> ${nova:0:7}"
   fi
   echo
   read -r -p "Atualizar agora? [S/n] (Enter = sim): " UPD
@@ -203,11 +212,11 @@ atualizar_pacote() {
   fi
   rm -f "$src/iniciar-servidor.sh"
 
-  # os dois números TÊM de ser lidos antes da cópia: depois dela o package.json
-  # de casa já é o novo, e a frase viraria "da 1.0.0 para a 1.0.0"
+  # os dois rótulos TÊM de ser lidos antes da cópia: depois dela o build-info
+  # de casa já é o novo, e a frase viraria "da X para a X"
   local ver_antes ver_depois
-  ver_antes="$(versao_do_pacote ./package.json)"
-  ver_depois="$(versao_do_pacote "$src/package.json")"
+  ver_antes="$(rotulo_build ./shared/src/build-info.json)"
+  ver_depois="$(rotulo_build "$src/shared/src/build-info.json")"
 
   echo "Aplicando a atualização..."
   # `cp -R origem/. destino` escreve por cima e acrescenta, nunca apaga o que é
@@ -335,10 +344,10 @@ atualizar() {
   # --ff-only: nunca cria commit de merge na máquina da escola; se divergiu,
   # avisa e segue jogando com o que já funciona.
   local saida ver_antes
-  ver_antes="$(versao_do_pacote ./package.json)"
+  ver_antes="$(rotulo_build ./shared/src/build-info.json)"
   if saida="$(git merge --ff-only origin/main 2>&1)"; then
     echo "$saida"
-    anunciar_versao "$ver_antes" "$(versao_do_pacote ./package.json)" \
+    anunciar_versao "$ver_antes" "$(rotulo_build ./shared/src/build-info.json)" \
       "$(git rev-parse HEAD 2>/dev/null)"
     concluir_atualizacao
     return
@@ -382,7 +391,7 @@ atualizar() {
     echo "Seguindo com a versão instalada."
     return
   fi
-  anunciar_versao "$ver_antes" "$(versao_do_pacote ./package.json)" \
+  anunciar_versao "$ver_antes" "$(rotulo_build ./shared/src/build-info.json)" \
     "$(git rev-parse HEAD 2>/dev/null)"
   # Sem `stash pop` automático: se o pop conflitar, a pasta fica em conflito no
   # meio da aula. Guardado é reversível; conflito na hora da aula, não.
