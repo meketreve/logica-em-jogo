@@ -3263,3 +3263,5 @@ fraude.
 | 08:03 | Edited iniciar-servidor.bat | 21→22 lines | ~344 |
 | 08:04 | Edited iniciar-servidor.bat | 24→28 lines | ~355 |
 | 08:04 | Edited iniciar-servidor.bat | 1→2 lines | ~42 |
+| 09:13 | Session end: 261 writes across 49 files (projeto.txt, sequencia didatica.md, todo.md, loja-perguntas-alunos.md, 2026-08-31-loja-baus-design.md) | 107 reads | ~499091 tok |
+| 09:30 | Launcher: semver → data+novidade+commit (gerar-build-info.mjs, iniciar-servidor.bat/.sh) | 4 files | verify 5/5, commit+push 87d9193+cd69ab1 | ~40k |

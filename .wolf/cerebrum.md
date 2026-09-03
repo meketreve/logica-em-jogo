@@ -167,6 +167,16 @@
 
 ## Key Learnings
 
+- [2026-09-03] **`shared/src/build-info.json`/`client/dist` ficam "sujos de novo" logo
+  depois de um `git commit`, sozinhos — algo (nunca achei o quê: sem git hook, sem husky,
+  sem dev server rodando, hooks do OpenWolf não chamam `gerar-build-info`/`vite build`)
+  reroda o build DEPOIS do commit, e como `build-info.json` carrega o SHA do HEAD, o
+  commit que acabou de acontecer já invalida o valor recém-commitado (mesma imprecisão
+  auto-referente que o próprio script já documenta — esperado, não bug). Aconteceu 2x
+  seguidas nesta sessão (commits `87d9193` e `cd69ab1`). **Não é preciso caçar a causa**:
+  só rodar `git checkout HEAD -- shared/src/build-info.json client/dist && git clean -f
+  client/dist && git checkout HEAD -- client/dist` antes de considerar a árvore limpa no
+  fim da sessão.
 - [2026-09-01] **Padrão "qualquer um LÊ, só o dono MEXE" para container com dono
   (`shared/src/session.ts`, `use_block`/`mover_container`/`descartar_container`).** O
   gate de LEITURA (`use_block`) troca `claimBloqueia(...) ?? confinaBloqueia(...)` por um
