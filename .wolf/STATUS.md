@@ -2,11 +2,24 @@
 
 > Single source of truth for resuming work. Read this FIRST when starting a session.
 
-> ## 🧭 HANDOFF — SESSÃO 94 (2026-09-02) · Baú-Loja completo, moeda decidida (só Dimas)
+> ## 🧭 HANDOFF — SESSÃO 94 (2026-09-03) · Baú-Loja completo, moeda decidida (só Dimas), launcher sem semver
 
 > **Bateria verde:** typecheck 3/3 · **969/969** · build · `checar-launchers` OK. bug-650, a
-> loja (14 tarefas + revisão final) e a simplificação pra moeda-única estão COMMITADOS na main.
-> ⚠️ Confira `git rev-parse --short origin/main` antes de assumir que subiu.
+> loja (14 tarefas + revisão final), a simplificação pra moeda-única e a troca do rótulo de
+> versão do launcher estão COMMITADOS e PUSHADOS na main (`87d9193`).
+
+> ### ✅ Launcher não mostra mais semver ("0.9.0") — mostra data+novidade+commit
+> `iniciar-servidor.bat`/`.sh` liam `package.json`'s `"version"` (ritual morto desde
+> 2026-08-27, ver `shared/src/version.ts`). Agora leem `shared/src/build-info.json`
+> (`data`+`titulo`), com `titulo` sendo o topo do `changelog.ts` — mas extraído em **Node**
+> por `scripts/gerar-build-info.mjs` (novo `tituloDoChangelog()`), NUNCA em batch/shell puro,
+> porque título é texto livre com dois-pontos/vírgula dentro ("Loja: monte seu comércio") e
+> parsear isso em `.bat` é a mesma armadilha de aspa-escapada que o `:ler_versao` original já
+> documentava. O `.bat` ganhou `:ler_campo_json` (genérico, corta só no PRIMEIRO ":" da linha
+> via `tokens=1*` — sobrevive a dois-pontos dentro do valor). O `.sh` ganhou `rotulo_build()`
+> via `sed` (não tem esse problema, regex captura por aspas). Commit continua vindo do SHA do
+> GitHub (`.lj-versao`), não mudou — só o rótulo humano trocou. Testado com simulação Python
+> do parser batch contra o `build-info.json` real, bateu byte-a-byte. `npm run verify` 5/5.
 
 > ### ✅ bug-650 fechado — atraso de comandos com turma cheia
 > Ver commits `bb56749`/`fix(rede)`. Retestado com carga real: 35 clientes 2555ms→12.9ms.

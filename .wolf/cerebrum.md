@@ -2180,6 +2180,16 @@ nenhum** — sem essa declaração o Chrome renderiza a página em light mesmo c
 
 ## Decision Log — índice das decisões ATIVAS
 
+- [2026-09-03] **Launcher trocou o rótulo de versão: semver → data+novidade+commit, com
+  `titulo` extraído em Node, nunca em batch/shell.** `iniciar-servidor.bat`/`.sh` liam
+  `package.json`'s `"version"` (que já não tinha função técnica desde 2026-08-27). Agora
+  `scripts/gerar-build-info.mjs` extrai o `titulo` do topo de `client/src/changelog.ts` (regex
+  em Node, tolera aspas/dois-pontos internos) e grava junto em `build-info.json`. O `.bat` só
+  lê um campo JSON já pronto (`:ler_campo_json`, corta no PRIMEIRO ":" da linha via
+  `tokens=1*` pra sobreviver a dois-pontos DENTRO do valor, ex: "Loja: monte seu comércio") —
+  nunca tentou parsear `changelog.ts` puro em batch. Regra geral: texto livre (título, prosa)
+  sempre passa por Node antes de chegar no launcher; batch/shell só lê campos JSON simples
+  (dígitos, hex, datas ISO) — ver Do-Not-Repeat de aspa-escapada-em-`for /f`-com-crase.
 - [2026-09-02] **Moeda da loja: só Dimas — item-por-item e recurso-como-moeda REMOVIDOS do
   código, não a votação decidiu.** O usuário cortou a votação da turma (`docs/loja-perguntas-
   alunos.md`) direto: Dimas é a ÚNICA moeda. `type Preco` (union de 2 braços, `containers.ts`)
