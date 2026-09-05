@@ -63,6 +63,8 @@ import {
   relevoPorClima,
   setBlock,
   stepPlayer,
+  type TipoEmote,
+  type TipoGesto,
 } from "@logica/shared";
 import { AguaFx } from "./aguaFx";
 import { initUiAudio, playUi, setUiVolume } from "./audio";
@@ -75,6 +77,14 @@ import { ColunasFaltando } from "./colunasFaltando";
 import { HotbarUi } from "./hotbarUi";
 import { LuzCliente } from "./luzCliente";
 import { RemotePlayersView } from "./remotePlayers";
+import { EmojiWheelPanel } from "./emojiWheel";
+import {
+  type Corpo,
+  type EstadoAnimacaoCorpo,
+  animarCorpo,
+  criarCorpo,
+  novoEstadoAnimacao,
+} from "./playerBody";
 import { learnPlayers, learnWorlds } from "./commands";
 import { SkyCycle } from "./daynight";
 import { VentoCliente } from "./vento";
@@ -102,7 +112,7 @@ import { FriendsPanel } from "./friends";
 import { PlayersPanel } from "./players";
 import { AuthorPanel, GroupPanel, type PanelData } from "./panels";
 import { RegionRenderer } from "./regions";
-import { keyLabel, loadSettings } from "./settings";
+import { keyLabel, loadSettings, saveSettings } from "./settings";
 import { QuadroEditor, QuadroRenderer } from "./quadros";
 import { armarGuardaDeAtalhos, desarmarGuardaDeAtalhos } from "./shortcutGuard";
 import { configurarTooltip } from "./tooltip";
@@ -255,6 +265,13 @@ function applySettings(): ReturnType<typeof loadSettings> {
 let touchControls: TouchControls | null = null;
 let settings = applySettings();
 initUiAudio(settings.volume);
+
+/** Tecla C (2026-09-03): alterna 3ª pessoa PERSISTENTE — separado do override
+ *  temporário do menu de emojis (esse não mexe em `settings`, só olha ele). */
+function alternarCameraMode(): void {
+  settings.cameraMode = settings.cameraMode === "primeira" ? "terceira" : "primeira";
+  saveSettings(settings);
+}
 
 /** Os painéis de tela cheia e a regra de UM MENU POR VEZ (§48). Nasce vazio: os
  *  painéis são criados no startGame (o cp14 depende do papel, o inventário do
@@ -827,6 +844,8 @@ function handleServerData(data: string | ArrayBuffer): void {
       for (const m of msg.moves) aplicarPoseRemota(m);
     } else if (msg.type === "dormindo") {
       jogo?.aoDormir(msg.dormindo, msg.cama);
+    } else if (msg.type === "gesto") {
+      jogo?.applyGesto(msg.id, msg.gesto);
     } else if (msg.type === "player_left") {
       nomesOnline.delete(msg.id);
       learnPlayers([...new Set(nomesOnline.values())]);
@@ -1224,6 +1243,15 @@ class GameRuntime {
   private readonly movimento: MovimentoDoJogador;
   private readonly progresso: ProgressoCarga;
   private readonly outros: RemotePlayersView;
+  /** Corpo do PRÓPRIO jogador (2026-09-03) — só existe/aparece em 3ª pessoa
+   *  (persistente ou durante um emoji). Criado sob demanda: em 1ª pessoa pura
+   *  (o normal do jogo) não custa nada. */
+  private corpoLocal: Corpo | null = null;
+  private readonly animLocal: EstadoAnimacaoCorpo = novoEstadoAnimacao();
+  /** Posição XZ do frame anterior — mede a distância andada pro corpo LOCAL,
+   *  mesma ideia do LERP remoto, mas direto da física (autoritativa, sem rede). */
+  private ultimoPosAnimX = 0;
+  private ultimoPosAnimZ = 0;
   /** Cama em que o PRÓPRIO jogador está deitado (2026-08-17), ou null em pé.
    *  Vem da mensagem `dormindo`; o servidor é quem decide. */
   private dormindo: { x: number; y: number; z: number } | null = null;
@@ -1345,6 +1373,13 @@ class GameRuntime {
     // porque amigos existe justamente em mundo livre, sem grupos de aula.
     paineis.amigos = new FriendsPanel(sendCmd, onPanelToggle);
     pushFriendsData();
+    // menu de emojis (2026-09-03): escolher um TOCA local na hora (sem
+    // esperar a rede — é puro cosmético, não muda estado de jogo nenhum) E
+    // avisa o servidor, que broadcasta pros OUTROS verem o mesmo gesto.
+    paineis.emojis = new EmojiWheelPanel((tipo) => {
+      this.animLocal.gesto = { tipo, t: 0 };
+      this.activeConn.send(JSON.stringify({ type: "emote", emote: tipo }));
+    }, onPanelToggle);
     paineis.cp14 =
       papel === "professor"
         ? new AuthorPanel(sendCmd, onPanelToggle, openPlayers)
@@ -1352,6 +1387,10 @@ class GameRuntime {
     pushPanelData();
     input.onKey(settings.keys.painel, alternarPainelCp14);
     input.onKey(settings.keys.amigos, () => paineis.alternar(paineis.amigos));
+    input.onKey(settings.keys.emogis, () => paineis.alternar(paineis.emojis));
+    // Tecla C (2026-09-03): 3ª pessoa PERSISTENTE — não passa pelo portão de
+    // menu, é câmera, não painel; funciona com qualquer painel fechado ou aberto.
+    input.onKey(settings.keys.terceiraPessoa, alternarCameraMode);
     if (papel === "professor") {
       chat.addMessage(
         "jogo",
@@ -1368,6 +1407,8 @@ class GameRuntime {
       z: this.world.sizeZ / 2 + 0.5,
     };
     this.player = createPlayer(this.spawn.x, this.spawn.y, this.spawn.z);
+    this.ultimoPosAnimX = this.spawn.x;
+    this.ultimoPosAnimZ = this.spawn.z;
     // §🎮 os duplo-toques (correr/voar), a altura do olho com degrau suave e o
     // odômetro do perfil. A REGRA mora no `shared/controleJogador.ts` (lá há onde
     // rodar teste); aqui fica a leitura do teclado, que só existe no cliente.
@@ -1485,6 +1526,7 @@ class GameRuntime {
       this.regionRenderer.setCorner(corner, t.x, t.y, t.z);
     };
     input.onMouseButton(0, () => {
+      if (this.emCameraNaoJogavel()) return;
       // §🍖 F7: soco vem ANTES do bloco — quem está mirado é gente, e o bloco
       // atrás dela não pode quebrar no mesmo clique. O cliente só manda a
       // intenção: regra, modo, alcance e cooldown são conferidos no servidor.
@@ -1505,6 +1547,7 @@ class GameRuntime {
       );
     });
     input.onMouseButton(2, () => {
+      if (this.emCameraNaoJogavel()) return;
       // §🍖 F6: comer vem ANTES do `if (!target)` — comer não precisa de bloco
       // mirado (olhar pro céu e morder tem de funcionar), e é o único uso do
       // clique direito que não tem célula. O servidor decide se a mordida vale
@@ -2160,6 +2203,61 @@ class GameRuntime {
       this.materiais.atualizar(dt, vento, skyCycle.nivelCeu, settings.balanco);
       // água (2026-07-26): névoa/tint quando o OLHO está submerso.
       this.aguaFx.update(this.world, camera.position.x, camera.position.y, camera.position.z);
+
+      // Corpo do PRÓPRIO jogador + câmera em 3ª pessoa (2026-09-03) — SEMPRE
+      // por ÚLTIMO, depois de mira/água acima (que precisam do OLHO de
+      // verdade): daqui pra baixo só muda o que a TELA mostra, nunca o que o
+      // jogo decide (mira/dano/quebrar continuam do olho, mesmo em 3ª pessoa
+      // — é por isso que a ação trava a câmera de volta, ver `emCameraNaoJogavel`).
+      const em3aAgora = settings.cameraMode === "terceira" || this.animLocal.gesto !== undefined;
+      if (em3aAgora) {
+        const corpo = this.corpoDoJogador();
+        corpo.grupo.visible = true;
+        const distXZAnimLocal = Math.hypot(
+          this.player.pos.x - this.ultimoPosAnimX,
+          this.player.pos.z - this.ultimoPosAnimZ,
+        );
+        animarCorpo(corpo, this.animLocal, distXZAnimLocal, dt, input.pitch);
+        corpo.grupo.position.set(this.player.pos.x, this.player.pos.y + PLAYER.height / 2, this.player.pos.z);
+        corpo.grupo.rotation.y = input.yaw;
+
+        // câmera atrás do jogador, na MESMA direção que ele olha — com
+        // colisão (reusa `raycastBlock`, o mesmo da mira) pra não atravessar
+        // parede quando o jogador encosta de costas nela.
+        const DIST_CAMERA_3A = 4.5;
+        const dx = -this.lookDir.x;
+        const dy = -this.lookDir.y;
+        const dz = -this.lookDir.z;
+        const bateu = raycastBlock(
+          this.world,
+          camera.position.x, camera.position.y, camera.position.z,
+          dx, dy, dz,
+          DIST_CAMERA_3A,
+        );
+        // RayHit não traz distância pronta — mede até o CENTRO do bloco atingido
+        // e recua meio bloco (a face) mais uma folga, pra câmera não ficar
+        // encostada na parede.
+        const dist = bateu
+          ? Math.max(
+              0.3,
+              Math.hypot(
+                bateu.x + 0.5 - camera.position.x,
+                bateu.y + 0.5 - camera.position.y,
+                bateu.z + 0.5 - camera.position.z,
+              ) - 0.6,
+            )
+          : DIST_CAMERA_3A;
+        camera.position.set(
+          camera.position.x + dx * dist,
+          camera.position.y + dy * dist + 0.3, // leve elevação — over-the-shoulder, não "colado na nuca"
+          camera.position.z + dz * dist,
+        );
+      } else if (this.corpoLocal) {
+        this.corpoLocal.grupo.visible = false;
+      }
+      this.ultimoPosAnimX = this.player.pos.x;
+      this.ultimoPosAnimZ = this.player.pos.z;
+
       // mede só o render: o resto do frame é lógica nossa (mesh, física, streaming).
       // `renderer.render` é síncrono do lado da CPU — o que a GPU faz depois não
       // entra aqui, mas é exatamente a fatia que nós controlamos.
@@ -2467,6 +2565,7 @@ class GameRuntime {
     y: number;
     z: number;
     yaw: number;
+    pitch: number;
     name?: string;
     dormindo?: boolean;
     cama?: { x: number; y: number; z: number };
@@ -2476,6 +2575,37 @@ class GameRuntime {
 
   applyPlayerLeft(id: number): void {
   this.outros.aoSair(id);
+  }
+
+  /** Bater/interagir/emoji de OUTRO jogador (2026-09-03) — só o gesto visual. */
+  applyGesto(id: number, gesto: TipoGesto): void {
+  this.outros.aoGesto(id, gesto);
+  }
+
+  /** Corpo do PRÓPRIO jogador, criado na PRIMEIRA vez que a câmera sai da 1ª
+   *  pessoa — em 1ª pessoa pura (o normal do jogo) isto nunca roda. */
+  private corpoDoJogador(): Corpo {
+    if (!this.corpoLocal) {
+      // cor neutra — é sempre VOCÊ vendo a si mesmo, não precisa do hash de id
+      const corpo = criarCorpo(new THREE.Color(0x8899aa));
+      corpo.grupo.visible = false;
+      scene.add(corpo.grupo);
+      this.corpoLocal = corpo;
+    }
+    return this.corpoLocal;
+  }
+
+  /** 3ª pessoa (persistente OU o override do emoji) trava clique de AÇÃO — mirar
+   *  por cima do ombro erraria bloco perto de parede, e é aula de bloco CERTO.
+   *  Emoji tocando: nem clique conta (não interrompe o gesto). 3ª persistente:
+   *  o clique VOLTA pra 1ª pessoa em vez de agir, igual o F5 do Minecraft. */
+  private emCameraNaoJogavel(): boolean {
+    if (this.animLocal.gesto) return true;
+    if (settings.cameraMode === "terceira") {
+      alternarCameraMode();
+      return true;
+    }
+    return false;
   }
 
   /** O PRÓPRIO jogador deitou ou levantou (2026-08-17). O servidor decide; aqui

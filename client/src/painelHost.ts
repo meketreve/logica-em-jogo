@@ -1,4 +1,5 @@
 import type { ContainerPanel } from "./container";
+import type { EmojiWheelPanel } from "./emojiWheel";
 import type { FriendsPanel } from "./friends";
 import type { InventoryPanel } from "./inventory";
 import type { GamePanel } from "./panels";
@@ -46,6 +47,8 @@ export class PainelHost {
   mochila: InventoryPanel | null = null;
   /** §🍖 F10: fornalha e baú. Sem tecla própria. */
   container: ContainerPanel | null = null;
+  /** Menu radial de emojis (2026-09-03, tecla V). */
+  emojis: EmojiWheelPanel | null = null;
 
   /**
    * @param bloqueado O que NÃO é painel mas também é menu: o menu de pausa e o
@@ -62,7 +65,8 @@ export class PainelHost {
       (this.mochila?.open ?? false) ||
       (this.jogadores?.open ?? false) ||
       (this.amigos?.open ?? false) ||
-      (this.container?.open ?? false)
+      (this.container?.open ?? false) ||
+      (this.emojis?.open ?? false)
     );
   }
 

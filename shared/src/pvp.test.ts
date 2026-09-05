@@ -45,6 +45,17 @@ function ultimaChat(sent: Sent, clientId: number): string | null {
   return null;
 }
 
+/** Todos os `gesto` que um clientId recebeu, na ordem em que chegaram. */
+function gestosDe(sent: Sent, clientId: number): { id: number; gesto: string }[] {
+  const out: { id: number; gesto: string }[] = [];
+  for (const s of sent) {
+    if (s.clientId !== clientId) continue;
+    const m = parseServerMessage(s.data as string);
+    if (m?.type === "gesto") out.push({ id: m.id, gesto: m.gesto });
+  }
+  return out;
+}
+
 function ultimaModo(sent: Sent, clientId: number) {
   for (let i = sent.length - 1; i >= 0; i--) {
     if (sent[i]?.clientId !== clientId) continue;
@@ -252,6 +263,32 @@ describe("§🍖 F7 — o servidor decide o soco", () => {
       expect(m.slots.every((s) => s.id === 0 || s.qtd === 0)).toBe(true);
       break;
     }
+  });
+});
+
+describe("2026-09-03 — o gesto de bater (visual, pra turma inteira ver o soco)", () => {
+  it("soco válido manda `gesto bater` pra TODO MUNDO, inclusive o próprio atacante", () => {
+    const { session, sent } = turma();
+    session.handleMessage(1, cmd("/pvp ligar"));
+    session.handleMessage(2, atacar(3));
+    for (const quem of [1, 2, 3]) {
+      expect(gestosDe(sent, quem)).toEqual([{ id: 2, gesto: "bater" }]);
+    }
+  });
+
+  it("o braço balança MESMO com o pvp desligado — só o dano é recusado", () => {
+    const { session, sent } = turma();
+    session.handleMessage(2, atacar(3)); // pvp começa desligado (padrão)
+    expect(gestosDe(sent, 1)).toEqual([{ id: 2, gesto: "bater" }]);
+    expect(ultimaVida(sent, 3)?.vida ?? VIDA_MAX).toBe(VIDA_MAX); // mas ninguém apanhou
+  });
+
+  it("bater em si mesmo ou em quem não existe não manda gesto nenhum", () => {
+    const { session, sent } = turma();
+    session.handleMessage(1, cmd("/pvp ligar"));
+    session.handleMessage(2, atacar(2));
+    session.handleMessage(2, atacar(99));
+    expect(gestosDe(sent, 1)).toEqual([]);
   });
 });
 

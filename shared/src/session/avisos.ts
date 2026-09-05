@@ -29,3 +29,17 @@ export function avisarChatSilenciado(ses: GameSession, clientId: number): void {
   ses.avisoSilencio.set(clientId, agora);
   ses.sendServerChat(clientId, "O chat está silenciado pelo professor — só comandos passam.");
 }
+
+/** Aviso de "os emojis estão desligados" com FREIO (menu radial, 2026-09-03) —
+ *  mesma disciplina do pvp desligado: abrir o menu e clicar de novo não pode
+ *  virar parede de aviso. */
+export function avisarEmogisDesligados(ses: GameSession, clientId: number): void {
+  const agora = ses.now();
+  const ultimo = ses.avisoEmogis.get(clientId) ?? -Infinity;
+  if (agora - ultimo < AVISO_MOCHILA_MS) return;
+  ses.avisoEmogis.set(clientId, agora);
+  ses.sendServerChat(
+    clientId,
+    "O menu de emojis está desligado neste mundo (o professor liga com /regra emogis ligar).",
+  );
+}

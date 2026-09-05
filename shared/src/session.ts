@@ -140,7 +140,7 @@ import {
 import { aplicarCompra, aplicarDefinirPreco, sendDimas } from "./session/loja";
 import { runRegiao } from "./session/regioes";
 import { ehFantasma, runInvisivel } from "./session/invisivel";
-import { avisarChatSilenciado, avisarComFreio } from "./session/avisos";
+import { avisarChatSilenciado, avisarComFreio, avisarEmogisDesligados } from "./session/avisos";
 import { runSilenciar } from "./session/silenciar";
 import { evictColunas, garantirColunas, gerarColuna, streamColunas } from "./session/streaming";
 import { faltaFerramenta } from "./ferramentas";
@@ -161,7 +161,7 @@ import {
   type Modo,
 } from "./modo";
 import { PLAYER, acharEspacoVago, sobrepoeSolidos } from "./physics";
-import { parseRegras, regrasParaSave } from "./regras";
+import { parseRegras, regrasParaSave, valorRegra } from "./regras";
 import {
   EXAUSTAO_POR_BLOCO_ANDADO,
   EXAUSTAO_POR_EDICAO,
@@ -375,6 +375,9 @@ export class GameSession {
   /** `/silenciar` (2026-08-27): quando cada cliente ouviu "o chat está
    *  silenciado". Freio do aviso, igual ao do pvp. */
   readonly avisoSilencio = new Map<number, number>();
+  /** Menu de emojis (2026-09-03): quando cada cliente ouviu "os emojis estão
+   *  desligados". Freio do aviso, igual ao do pvp. */
+  readonly avisoEmogis = new Map<number, number>();
 
   readonly players = new Map<number, SessionPlayer>();
   /** Última POSIÇÃO conhecida por nome: volta onde parou, olhando pra onde
@@ -1193,6 +1196,7 @@ export class GameSession {
           }
           this.containerAberto.set(clientId, { x: msg.x, y: msg.y, z: msg.z });
           sendContainer(this, clientId, msg.x, msg.y, msg.z);
+          this.broadcast({ type: "gesto", id: clientId, gesto: "interagir" });
           return;
         }
         // cama como ponto de spawn (2026-08-14): clicar define o PRÓPRIO
@@ -1222,6 +1226,7 @@ export class GameSession {
             clientId,
             "Ponto de nascimento definido nesta cama." + (recado ? ` ${recado}` : ""),
           );
+          this.broadcast({ type: "gesto", id: clientId, gesto: "interagir" });
           return;
         }
         if (!isInterativo(id)) return; // porta (cp23) e janela (2026-07-19)
@@ -1247,6 +1252,7 @@ export class GameSession {
         }
         this.applyBlock(msg.x, msg.y, msg.z, novo);
         if (yPar !== null) this.applyBlock(msg.x, yPar, msg.z, novo);
+        this.broadcast({ type: "gesto", id: clientId, gesto: "interagir" });
         break;
       }
       case "quadro_set": {
@@ -1418,6 +1424,18 @@ export class GameSession {
         // §🍖 F7: soco em outro jogador. O cliente manda só a INTENÇÃO (o id do
         // alvo); quem confere regra, modo, alcance e cooldown é aqui.
         atacar(this, clientId, msg.alvo);
+        break;
+      }
+      case "emote": {
+        // Menu de emojis (2026-09-03): sem efeito de jogo nenhum, só o gesto
+        // visual — por isso não checa modo/mundo de aula, só a regra do
+        // professor (ao contrário do pvp, que muda vida de verdade).
+        if (!this.players.has(clientId)) return;
+        if (!valorRegra(this.regras, "emogis")) {
+          avisarEmogisDesligados(this, clientId);
+          return;
+        }
+        this.broadcast({ type: "gesto", id: clientId, gesto: msg.emote });
         break;
       }
       case "mover_item": {
@@ -2397,6 +2415,7 @@ export class GameSession {
     this.ultimoAtaque.delete(clientId); // §🍖 F7: cooldown de soco é de sessão
     this.avisoPvp.delete(clientId);
     this.avisoSilencio.delete(clientId);
+    this.avisoEmogis.delete(clientId);
     this.containerAberto.delete(clientId); // §🍖 F10: painel aberto é de sessão
     // (pedidos FEITOS por quem saiu são podados no /tpa — players.has(deId))
     const p = this.players.get(clientId);

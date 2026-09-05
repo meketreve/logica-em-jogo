@@ -7,7 +7,11 @@
 
 export type KeyAction =
   | "forward" | "back" | "left" | "right" | "jump" | "correr" | "agachar"
-  | "chat" | "hud" | "varinha" | "painel" | "inventario" | "amigos";
+  | "chat" | "hud" | "varinha" | "painel" | "inventario" | "amigos"
+  | "terceiraPessoa" | "emogis";
+
+/** Modo de câmera (2026-09-03) — persiste como opção, não como estado de sessão. */
+export type CameraMode = "primeira" | "terceira";
 
 /** Layouts dos controles de toque (2026-08-28, pedido do usuário). "destro" é
  *  o padrão de sempre; "direcional" troca o joystick por um D-pad de 4
@@ -55,6 +59,10 @@ export interface GameSettings {
    *  no vertex shader do material do terreno (o custo é por VÉRTICE, não por
    *  pixel — bem mais barato que as nuvens, mas dá pra desligar junto). */
   balanco: boolean;
+  /** 3ª pessoa PERSISTENTE (2026-09-03, tecla F5 por padrão) — separado do
+   *  override temporário do menu de emojis, que força 3ª pessoa por alguns
+   *  segundos e depois volta pro que está aqui. */
+  cameraMode: CameraMode;
   keys: Record<KeyAction, string>;
 }
 
@@ -69,6 +77,7 @@ export const DEFAULT_SETTINGS: GameSettings = {
   touchLayout: "destro",
   nuvens: true,
   balanco: true,
+  cameraMode: "primeira",
   keys: {
     forward: "KeyW",
     back: "KeyS",
@@ -83,6 +92,8 @@ export const DEFAULT_SETTINGS: GameSettings = {
     painel: "KeyP",
     inventario: "KeyE",
     amigos: "KeyG",
+    terceiraPessoa: "KeyC",
+    emogis: "KeyV",
   },
 };
 
@@ -100,6 +111,8 @@ export const KEY_ACTION_LABEL: Record<KeyAction, string> = {
   painel: "painel (professor: autoria · aluno: grupo)",
   inventario: "inventário de blocos",
   amigos: "painel de amigos (áreas compartilhadas)",
+  terceiraPessoa: "câmera em 3ª pessoa (alternar)",
+  emogis: "menu de emojis",
 };
 
 const STORAGE_KEY = "lj-config";
@@ -145,6 +158,7 @@ export function loadSettings(): GameSettings {
     ]),
     nuvens: bool(s["nuvens"], DEFAULT_SETTINGS.nuvens),
     balanco: bool(s["balanco"], DEFAULT_SETTINGS.balanco),
+    cameraMode: oneOf<CameraMode>(s["cameraMode"], DEFAULT_SETTINGS.cameraMode, ["primeira", "terceira"]),
     keys,
   };
 }

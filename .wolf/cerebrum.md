@@ -167,6 +167,59 @@
 
 ## Key Learnings
 
+- [2026-09-03] **Um teste ISOLADO (HTML solto fora do jogo, corpo/câmera recriados à mão só
+  pra checar 1 coisa) deu o sinal ERRADO pro `rotation.x` da cabeça, e só o usuário jogando de
+  verdade pegou o erro** (pitch pra cima = rosto pra baixo — ao contrário do pretendido). O
+  teste isolado tinha um marcador visual (nariz vermelho) e parecia uma prova sólida, mas
+  reconstruía a cena à mão (câmera própria, posição própria) em vez de rodar o código/corpo
+  REAL do jogo — alguma diferença sutil de eixo entre o teste e o jogo real bastou pra inverter
+  a conclusão. Fix: tirar a inversão (`rotation.x = pitchAtual`, sem sinal de menos).
+  **Lição prática: teste isolado que recria a cena à mão vale menos que rodar o código real,
+  mesmo com marcador de orientação — prefira testar o comportamento DENTRO do jogo (bot real +
+  Chrome headless real) sempre que der, e trate teste isolado como hipótese a confirmar, não
+  como resposta fechada.** Braço (sentido -1, pendura pra baixo) segue confirmado: `+rotation.x`
+  = pra FRENTE (bug real, achado pelo usuário: comemorar/bater indo pras COSTAS com `-pico`).
+- [2026-09-03] **`raycastBlock` (`shared/src/raycast.ts`) devolve `RayHit` SEM campo de
+  distância** — só `{x,y,z,nx,ny,nz}` (o bloco inteiro atingido + normal de entrada). Quem
+  precisa de distância mede à mão (`Math.hypot` até o CENTRO do bloco, `+0.5` em cada eixo).
+  Bateu no typecheck ao construir a colisão da câmera de 3ª pessoa (`.dist` não existe).
+- [2026-09-03] **3ª pessoa: mira/quebrar/colocar/atacar têm de continuar calculados do OLHO
+  (`camera.position` no ponto em que já reflete a pose de 1ª pessoa), NUNCA da câmera
+  reposicionada pra trás.** O jeito seguro de garantir isso sem reescrever o raycast existente:
+  reposicionar a câmera pra 3ª pessoa por ÚLTIMO no loop de frame — depois de TODA a lógica que
+  lê `camera.position`/`camera.getWorldDirection()` (mira, água, highlight) já ter rodado, e
+  logo antes do `renderer.render`. Isso deixou o corpo/câmera de 3ª pessoa inteiro ADITIVO, sem
+  tocar uma linha do raycast/mira que já existia.
+- [2026-09-03] **Estado temporário deve VENCER estado persistente, e a forma mais simples de
+  garantir isso é o temporário não mexer no persistente.** O emoji força 3ª pessoa por alguns
+  segundos SEM tocar em `settings.cameraMode` — o efetivo é
+  `settings.cameraMode === "terceira" || animLocal.gesto !== undefined`. F5 durante um emoji
+  troca o `settings` mas o gesto ainda ganha (confirmado sem querer: um teste apertou F5 pra
+  "primeira" no meio de um aceno e o print seguinte AINDA mostrava 3ª pessoa, porque o gesto não
+  tinha acabado — comportamento certo, achado por acidente).
+- [2026-09-03] **Teste headless de clique de jogo (`input.onMouseButton`) SEM ter clicado uma
+  vez ANTES pra travar o ponteiro é um NO-OP silencioso** (`client/src/input.ts`: "primeiro
+  clique só trava o mouse", `if (!this.locked) return`). Um teste que dispara
+  `Input.dispatchMouseEvent` direto sem esse primeiro clique passa por engano (0 efeito parece
+  "bloqueado com sucesso", mas na verdade nada rodou). Sempre clicar 1x no centro do canvas e
+  confirmar `document.pointerLockElement !== null` antes de testar clique de verdade — mesma
+  lição que o `esc-shot.mjs` já documentava, bateu de novo aqui.
+- [2026-09-03] **Nem `atacar()` nem `use_block` (abrir baú/fornalha/loja, cama, porta/janela)
+  mandavam qualquer sinal pros OUTROS jogadores verem a ação** — `sendVida`/`sendContainer` são
+  privados (só o ator). Pra animar o braço de quem bate/interage nos clientes de QUEM ASSISTE,
+  precisou de mensagem NOVA no protocolo (`gesto`, broadcast). Padrão pra próxima animação
+  parecida (ex.: quebrar/colocar bloco): não assumir que "o servidor já me avisa" — conferir se
+  a ação broadcasta pra TODO MUNDO ou só responde ao autor antes de plugar animação visual.
+- [2026-09-03] **`server/src/static.ts` tem fallback de SPA (rota desconhecida → `index.html`,
+  200) — isso pode MASCARAR um `client/dist` dessincronizado como resposta HTML no lugar do
+  `.js` esperado**, em vez de um 404 limpo. Relevante porque `client/dist` já é conhecido por
+  ficar "sujo sozinho" (ver entrada logo abaixo) e o launcher só reconstrói o dist quando o
+  usuário ACEITA atualizar (`iniciar-servidor.bat:252` fica dentro do bloco de update — responder
+  "n" pula o `npm run build` de rede de segurança). Era teoria de trabalho pro bug-661
+  (singleplayer via launcher) — **bug-661 fechou SEM confirmar essa causa** (usuário testou
+  Linux+Windows atualizados, funcionou; relato original era de professor com versão provavelmente
+  desatualizada). O mecanismo do fallback continua real e vale a pena, só não foi PROVADO como
+  causa de nada ainda.
 - [2026-09-03] **`shared/src/build-info.json`/`client/dist` ficam "sujos de novo" logo
   depois de um `git commit`, sozinhos — algo (nunca achei o quê: sem git hook, sem husky,
   sem dev server rodando, hooks do OpenWolf não chamam `gerar-build-info`/`vite build`)
@@ -1504,6 +1557,16 @@ nenhum** — sem essa declaração o Chrome renderiza a página em light mesmo c
 
 ## Do-Not-Repeat
 
+- [2026-09-03] **Ctrl+C durante `set /p` no `.bat` NÃO é bug de código — é o
+  cmd.exe.** Batch não tem `trap`/handler de SIGINT. Ctrl+C dispara o prompt
+  nativo do console "Terminate batch job (Y/N)?"; se a resposta não for Y, o
+  cmd.exe RETOMA o script na linha seguinte com a variável do `set /p`
+  indefinida, e como os prompts tratam "indefinida = Enter = usar o padrão", o
+  script segue como se nada tivesse acontecido (bug-660: no menu principal isso
+  fazia o SERVIDOR SUBIR quando o usuário queria fechar). **Não tem conserto
+  "de dentro" do `.bat`** — a mitigação real é dar uma saída garantida por
+  teclado (`"sair"`/`"0"` + `exit /b 0`) nos prompts de maior risco, não tentar
+  interceptar o Ctrl+C. Ver [[bug-660]] no buglog.json.
 - [2026-09-01] **Notificação nova dentro de `admitir()` que itera `this.players`
   pode acabar mandando pra si mesmo** (o cliente que ACABOU de entrar já está em
   `this.players` no momento em que o resto de `admitir()` roda). No fix do I1

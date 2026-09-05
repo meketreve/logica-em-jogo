@@ -3265,3 +3265,142 @@ fraude.
 | 08:04 | Edited iniciar-servidor.bat | 1→2 lines | ~42 |
 | 09:13 | Session end: 261 writes across 49 files (projeto.txt, sequencia didatica.md, todo.md, loja-perguntas-alunos.md, 2026-08-31-loja-baus-design.md) | 107 reads | ~499091 tok |
 | 09:30 | Launcher: semver → data+novidade+commit (gerar-build-info.mjs, iniciar-servidor.bat/.sh) | 4 files | verify 5/5, commit+push 87d9193+cd69ab1 | ~40k |
+
+## Session: 2026-09-03 09:55
+
+| Time | Action | File(s) | Outcome | ~Tokens |
+|------|--------|---------|---------|--------|
+| 10:07 | Edited todo.md | expanded (+7 lines) | ~217 |
+| 10:07 | Edited todo.md | modified IDEIA() | ~167 |
+| 10:08 | Teste de carga bug-650 escalado 60→200 clientes (script scratchpad, não versionado) | todo.md | joelho da curva 100-150; 200 quase estoura timeout 8s | ~2500 |
+| 10:08 | Anotada ideia: doc único de comandos/mecânicas do jogo | todo.md | pendente, não iniciado | ~150 |
+| 10:08 | Session end: 2 writes across 1 files (todo.md) | 5 reads | ~81385 tok |
+| 10:14 | Edited iniciar-servidor.bat | 6→7 lines | ~52 |
+| 10:14 | Edited iniciar-servidor.bat | modified Enter() | ~210 |
+| 10:15 | bug-660: Ctrl+C no .bat durante set /p pula input, continua lógica (cmd.exe, não bug de código) — add "sair"/"0" com exit garantido no UPD e no menu ESCOLHA | iniciar-servidor.bat, buglog.json, cerebrum.md | corrigido (mitigação, não fix de causa — causa é do cmd.exe) | ~3200 |
+| 10:15 | Session end: 4 writes across 2 files (todo.md, iniciar-servidor.bat) | 6 reads | ~87568 tok |
+| 10:16 | Edited client/src/menu.ts | added 1 condition(s) | ~340 |
+| 10:18 | Enter em qualquer campo do painel "Jogar em rede" agora equivale a clicar em "entrar" (não era <form>) | client/src/menu.ts | verificado no Chrome headless de verdade, 3/3 ok | ~1800 |
+| 10:20 | Session end: 5 writes across 3 files (todo.md, iniciar-servidor.bat, menu.ts) | 10 reads | ~118111 tok |
+| 11:10 | Edited client/src/remotePlayers.ts | modified parte() | ~837 |
+| 11:10 | Edited client/src/remotePlayers.ts | modified if() | ~147 |
+| 11:10 | Edited client/src/remotePlayers.ts | added 1 condition(s) | ~125 |
+| 11:11 | Created ferramentas/editor-skin.html | — | ~2026 |
+| 11:15 | Edited todo.md | modified 661() | ~224 |
+| 11:15 | Corpo de 5 partes (cabeça/tronco/braços/pernas) no lugar do box, remotePlayers.ts | client/src/remotePlayers.ts | typecheck ok, verificado no jogo real (0 exceções) e na ferramenta standalone | ~4500 |
+| 11:15 | Ferramenta standalone de preview de skin (zero build, CDN three.js) | ferramentas/editor-skin.html | verificado no Chrome headless via file://, 4/4 peças ok | ~1200 |
+| 11:15 | bug-661 anotado (não confirmado): singleplayer não funciona via launcher — não reproduzi com dist limpo | buglog.json, todo.md | aberto, falta detalhe do usuário | ~2000 |
+| 11:16 | Session end: 10 writes across 5 files (todo.md, iniciar-servidor.bat, menu.ts, remotePlayers.ts, editor-skin.html) | 14 reads | ~156624 tok |
+| 11:26 | Edited client/src/remotePlayers.ts | expanded (+12 lines) | ~332 |
+| 11:27 | Edited client/src/remotePlayers.ts | modified parte() | ~953 |
+| 11:27 | Edited client/src/remotePlayers.ts | modified if() | ~198 |
+| 11:27 | Edited client/src/remotePlayers.ts | 6→7 lines | ~118 |
+| 11:27 | Edited client/src/remotePlayers.ts | added 1 condition(s) | ~367 |
+| 11:30 | Edited todo.md | modified 661() | ~168 |
+| 11:30 | Animação de andar/correr no corpo remoto (pivô no quadril/ombro, fase por distância, amplitude suavizada) | client/src/remotePlayers.ts | typecheck+testes+build ok, 0 exceção em ciclo andar->correr->parar (headless) | ~5000 |
+| 11:30 | bug-661: investiguei mais fundo (3 teorias descartadas), NÃO apliquei fix sem causa raiz confirmada | buglog.json, todo.md | segue aberto, pedido print/erro real do usuário | ~2500 |
+| 11:31 | Session end: 16 writes across 5 files (todo.md, iniciar-servidor.bat, menu.ts, remotePlayers.ts, editor-skin.html) | 15 reads | ~159531 tok |
+| 11:45 | Edited shared/src/protocol.ts | expanded (+13 lines) | ~216 |
+| 11:45 | Edited shared/src/protocol.ts | added 2 condition(s) | ~118 |
+| 11:45 | Edited shared/src/session/vitais.ts | modified atacar() | ~130 |
+| 11:45 | Edited shared/src/session.ts | 4→5 lines | ~71 |
+| 11:45 | Edited shared/src/session.ts | 7→8 lines | ~96 |
+| 11:45 | Edited shared/src/session.ts | 4→5 lines | ~64 |
+| 11:46 | Edited client/src/main.ts | added 1 condition(s) | ~62 |
+| 11:46 | Edited client/src/main.ts | modified applyPlayerLeft() | ~70 |
+| 11:46 | Edited client/src/remotePlayers.ts | 3→6 lines | ~91 |
+| 11:46 | Edited client/src/remotePlayers.ts | expanded (+8 lines) | ~150 |
+| 11:47 | Edited client/src/remotePlayers.ts | added 1 condition(s) | ~107 |
+| 11:47 | Edited client/src/remotePlayers.ts | added 2 condition(s) | ~244 |
+| 11:50 | Edited shared/src/pvp.test.ts | added optional chaining | ~135 |
+| 11:50 | Edited shared/src/pvp.test.ts | added optional chaining | ~329 |
+| 11:51 | Edited shared/src/cp23.test.ts | 18→22 lines | ~342 |
+| 11:51 | Edited shared/src/loja.test.ts | expanded (+7 lines) | ~206 |
+| 11:51 | Edited shared/src/cama-spawn.test.ts | 7→9 lines | ~157 |
+| 11:52 | Gestos bater/interagir: protocolo novo (gesto), broadcast no atacar()+use_block (3 pontos), cliente anima 1 braço por cima do andar | shared/src/protocol.ts, shared/src/session.ts, shared/src/session/vitais.ts, client/src/main.ts, client/src/remotePlayers.ts | 972/972 testes (6 novos/estendidos), typecheck+build ok, e2e real via headless (frame "gesto" chegou) | ~9000 |
+| 11:53 | Edited todo.md | expanded (+37 lines) | ~797 |
+| 11:53 | Session end: 34 writes across 13 files (todo.md, iniciar-servidor.bat, menu.ts, remotePlayers.ts, editor-skin.html) | 21 reads | ~190305 tok |
+| 20:12 | Edited todo.md | 7→4 lines | ~90 |
+| 20:12 | bug-661 fechado sem patch (usuário testou Linux+Win atualizados, funcionou; relato era de professor c/ versão provavelmente velha) | buglog.json, todo.md, cerebrum.md | fechado | ~800 |
+| 20:21 | Session end: 35 writes across 13 files (todo.md, iniciar-servidor.bat, menu.ts, remotePlayers.ts, editor-skin.html) | 23 reads | ~194360 tok |
+| 20:56 | Created client/src/playerBody.ts | — | ~2806 |
+| 20:57 | Created client/src/remotePlayers.ts | — | ~2297 |
+| 20:58 | Edited shared/src/protocol.ts | 13→14 lines | ~167 |
+| 20:58 | Edited shared/src/protocol.ts | expanded (+15 lines) | ~276 |
+| 20:58 | Edited shared/src/protocol.ts | added 1 condition(s) | ~133 |
+| 20:58 | Edited shared/src/protocol.ts | 5→6 lines | ~87 |
+| 20:58 | Edited client/src/playerBody.ts | 2→2 lines | ~26 |
+| 20:59 | Edited client/src/playerBody.ts | 3→1 lines | ~10 |
+| 20:59 | Edited client/src/remotePlayers.ts | 3→3 lines | ~63 |
+| 20:59 | Edited client/src/main.ts | 4→5 lines | ~25 |
+| 20:59 | Edited client/src/main.ts | modified applyGesto() | ~49 |
+| 21:00 | Edited shared/src/regras.ts | modified emojis() | ~188 |
+| 21:01 | Edited shared/src/session.ts | modified emojis() | ~105 |
+| 21:01 | Edited shared/src/session.ts | 2→3 lines | ~33 |
+| 21:01 | Edited shared/src/session/avisos.ts | added 1 condition(s) | ~336 |
+| 21:01 | Edited shared/src/session.ts | inline fix | ~28 |
+| 21:01 | Edited shared/src/session.ts | inline fix | ~20 |
+| 21:02 | Edited shared/src/session.ts | added 2 condition(s) | ~224 |
+| 21:03 | Created shared/src/emote.test.ts | — | ~1465 |
+| 21:03 | Edited shared/src/emote.test.ts | 13→14 lines | ~163 |
+| 21:04 | Edited client/src/settings.ts | 3→7 lines | ~96 |
+| 21:04 | Edited client/src/settings.ts | 3→7 lines | ~82 |
+| 21:04 | Edited client/src/settings.ts | 18→21 lines | ~112 |
+| 21:04 | Edited client/src/settings.ts | 3→5 lines | ~50 |
+| 21:05 | Edited client/src/settings.ts | 4→5 lines | ~68 |
+| 21:08 | Edited client/index.html | modified and() | ~487 |
+| 21:08 | Edited client/index.html | modified F10() | ~61 |
+| 21:08 | Created client/src/emojiWheel.ts | — | ~817 |
+| 21:09 | Edited client/index.html | removed 10 lines | ~4 |
+| 21:09 | Edited client/src/painelHost.ts | added 1 import(s) | ~84 |
+| 21:09 | Edited client/src/painelHost.ts | 2→4 lines | ~55 |
+| 21:09 | Edited client/src/painelHost.ts | 3→4 lines | ~35 |
+| 21:09 | Edited client/src/main.ts | inline fix | ~19 |
+| 21:09 | Edited client/src/main.ts | expanded (+9 lines) | ~70 |
+| 21:10 | Edited client/src/main.ts | 3→4 lines | ~22 |
+| 21:10 | Edited client/src/main.ts | modified alternarCameraMode() | ~106 |
+| 21:10 | Edited client/src/main.ts | expanded (+9 lines) | ~167 |
+| 21:10 | Edited client/src/main.ts | 1→3 lines | ~44 |
+| 21:11 | Edited client/src/main.ts | modified emojis() | ~322 |
+| 21:11 | Edited client/src/main.ts | added 1 condition(s) | ~107 |
+| 21:11 | Edited client/src/main.ts | added 1 condition(s) | ~46 |
+| 21:11 | Edited client/src/main.ts | added 2 condition(s) | ~200 |
+| 21:13 | Edited client/src/main.ts | added 2 condition(s) | ~643 |
+| 21:13 | Edited client/src/main.ts | added 1 condition(s) | ~162 |
+| 21:13 | Edited client/src/main.ts | inline fix | ~23 |
+| 21:13 | Edited client/src/main.ts | 8→7 lines | ~36 |
+| 21:13 | Edited client/src/main.ts | expanded (+12 lines) | ~196 |
+| 21:19 | Edited client/index.html | 6→6 lines | ~99 |
+| 21:19 | Edited todo.md | expanded (+30 lines) | ~972 |
+| 21:19 | Feature grande: corpo próprio + câmera 3ª pessoa (F5) + menu radial de emojis (V, 3 emotes) + regra emogis | client/src/{playerBody,remotePlayers,emojiWheel,main,settings,painelHost}.ts, shared/src/{protocol,regras,session,session/vitais,session/avisos}.ts + emote.test.ts | 979/979 testes, typecheck+build ok, e2e real (F5/V/clique confirmados no jogo, 0 exceção) | ~25000 |
+| 21:22 | Session end: 84 writes across 21 files (todo.md, iniciar-servidor.bat, menu.ts, remotePlayers.ts, editor-skin.html) | 29 reads | ~221718 tok |
+| 21:32 | Edited client/src/settings.ts | "F5" → "KeyC" | ~8 |
+| 21:33 | Edited client/src/main.ts | modified C() | ~46 |
+| 21:33 | Edited client/src/main.ts | modified C() | ~46 |
+| 21:33 | Edited client/index.html | inline fix | ~19 |
+| 21:34 | Tecla da câmera 3ª pessoa trocada de F5 pra C (F5 recarrega navegador) | client/src/settings.ts, main.ts, index.html + docs | typecheck+build ok, verificado no jogo real | ~1500 |
+| 21:34 | Session end: 88 writes across 21 files (todo.md, iniciar-servidor.bat, menu.ts, remotePlayers.ts, editor-skin.html) | 30 reads | ~223662 tok |
+| 21:44 | Edited client/src/playerBody.ts | modified membroComPivo() | ~772 |
+| 21:44 | Edited client/src/playerBody.ts | modified novoEstadoAnimacao() | ~100 |
+| 21:44 | Edited client/src/playerBody.ts | modified inteiro() | ~130 |
+| 21:45 | Edited client/src/playerBody.ts | modified animarCorpo() | ~502 |
+| 21:45 | Edited client/src/playerBody.ts | modified if() | ~446 |
+| 21:45 | Edited client/src/playerBody.ts | 6→6 lines | ~110 |
+| 21:45 | Edited client/src/remotePlayers.ts | 4→7 lines | ~72 |
+| 21:45 | Edited client/src/remotePlayers.ts | modified aoMover() | ~62 |
+| 21:46 | Edited client/src/remotePlayers.ts | 8→9 lines | ~63 |
+| 21:46 | Edited client/src/remotePlayers.ts | 4→5 lines | ~31 |
+| 21:46 | Edited client/src/remotePlayers.ts | inline fix | ~18 |
+| 21:46 | Edited client/src/main.ts | modified applyPlayerMoved() | ~74 |
+| 21:46 | Edited client/src/main.ts | inline fix | ~22 |
+| 21:51 | Edited client/src/playerBody.ts | modified INVERTIDO() | ~152 |
+| 21:53 | Corrigidos: comemorar ia pras costas (sinal invertido), aceno ia pra boca (agora estica pra frente + balança de lado), cabeça agora olha pro pitch (limite de pescoço 0.85rad) | client/src/playerBody.ts, remotePlayers.ts, main.ts | typecheck+testes+build ok, sinal do pitch verificado num teste isolado (nariz marcador) | ~6000 |
+| 21:54 | Edited todo.md | expanded (+10 lines) | ~298 |
+| 21:54 | Session end: 103 writes across 21 files (todo.md, iniciar-servidor.bat, menu.ts, remotePlayers.ts, editor-skin.html) | 36 reads | ~228558 tok |
+| 22:09 | Edited client/src/playerBody.ts | 7→8 lines | ~172 |
+| 22:10 | Edited todo.md | 4→5 lines | ~110 |
+| 22:11 | Invertido de volta o sinal do pitch da cabeça — jogo real mostrou olhar pra cima=cabeça pra baixo (o teste isolado tinha errado); corrigido registros no cerebrum/STATUS/todo | client/src/playerBody.ts, .wolf/cerebrum.md, .wolf/STATUS.md, todo.md | typecheck+build ok, 0 exceção no ciclo | ~2500 |
+| 22:11 | Session end: 105 writes across 21 files (todo.md, iniciar-servidor.bat, menu.ts, remotePlayers.ts, editor-skin.html) | 36 reads | ~229162 tok |
+| 22:11 | Edited client/src/playerBody.ts | inline fix | ~38 |
+| 22:12 | Velocidade da animação de andar/correr reduzida pela metade (CICLO_POR_METRO: 1,4m -> 2,8m por passada) | client/src/playerBody.ts | typecheck+build ok, 0 exceção | ~600 |
+| 22:12 | Session end: 106 writes across 21 files (todo.md, iniciar-servidor.bat, menu.ts, remotePlayers.ts, editor-skin.html) | 36 reads | ~229221 tok |

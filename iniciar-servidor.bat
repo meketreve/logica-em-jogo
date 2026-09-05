@@ -158,7 +158,8 @@ if not defined LJ_ATUAL (
 )
 echo.
 set "UPD="
-set /p "UPD=Atualizar agora? [S/n] (Enter = sim): "
+set /p "UPD=Atualizar agora? [S/n] (Enter = sim, 'sair' para fechar): "
+if /i "%UPD%"=="sair" exit /b 0
 if /i "%UPD%"=="n" (
   echo ^(mantendo a versao atual^)
   goto :depois_update
@@ -393,9 +394,17 @@ echo    [6] Aula 5 - Conserte o desenho
 echo    [7] Aula 6 - Siga o manual
 echo    [8] Carregar mundo salvo ^(da pasta mundos^)
 echo    [9] Criar mundo PROCEDURAL ^(gigante, gera conforme voce explora^)
+echo    [0] Sair sem iniciar o servidor
 echo.
 set "ESCOLHA="
-set /p "ESCOLHA=Digite o numero e tecle Enter (Enter direto = 1): "
+set /p "ESCOLHA=Digite o numero e tecle Enter (Enter direto = 1, '0' ou 'sair' para fechar): "
+REM Ctrl+C aqui NAO fecha de forma confiavel: o cmd.exe pergunta "Terminate
+REM batch job (Y/N)?" e, se a resposta nao for Y, RETOMA o script na proxima
+REM linha com ESCOLHA vazio - cai no default (opcao 1) e o servidor SOBE
+REM mesmo assim. E limitacao do proprio cmd.exe (bat nao tem trap de sinal),
+REM por isso "0"/"sair" existem como saida garantida por teclado.
+if /i "%ESCOLHA%"=="0" exit /b 0
+if /i "%ESCOLHA%"=="sair" exit /b 0
 
 if "%ESCOLHA%"=="2" set "LJ_SAVE=cenarios/aula1-sequencia.ljw"
 if "%ESCOLHA%"=="3" set "LJ_SAVE=cenarios/aula2-binario.ljw"

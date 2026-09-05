@@ -55,6 +55,13 @@ export const REGRAS: readonly RegraDef[] = [
     ajuda:
       "A barra de fome (as coxas) baixa com o esforço: andar, construir e se curar gastam. No zero, o jogador para de se regenerar e perde vida devagar — mas a fome NÃO mata enquanto não houver comida no jogo. Desligue para uma sobrevivência sem fome (fundamental 1).",
   },
+  {
+    nome: "emogis",
+    padrao: false,
+    ajuda:
+      "Menu radial de emojis (tecla V): aceno, comemorar, dança — a turma toda vê. Sem efeito de jogo nenhum, só o gesto visual. Desligada por padrão — ligue com /regra emogis ligar.",
+    // 2026-09-03: mecânica no `case "emote"` da session (`shared/src/session.ts`).
+  },
 ];
 
 export function regraDef(nome: string): RegraDef | undefined {

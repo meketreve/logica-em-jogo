@@ -449,7 +449,7 @@ export function showMenu(handlers: MenuHandlers): void {
   const pinInput = el<HTMLInputElement>("menu-pin");
   const codigoInput = el<HTMLInputElement>("menu-codigo");
   addr.value = localStorage.getItem("lj-endereco") ?? `ws://${location.hostname}:8080`;
-  el("menu-btn-conectar").addEventListener("click", () => {
+  const conectar = () => {
     const url = addr.value.trim();
     if (!/^wss?:\/\//.test(url)) {
       flashError("menu-multi-erro", "O endereço precisa começar com ws:// (exemplo: ws://192.168.0.10:8080).");
@@ -466,7 +466,15 @@ export function showMenu(handlers: MenuHandlers): void {
     menu.classList.add("hidden");
     fundo.encerrar();
     handlers.onPlayMulti(url, { pin, ...(codigo ? { codigo } : {}) });
-  });
+  };
+  el("menu-btn-conectar").addEventListener("click", conectar);
+  // Enter em qualquer campo do painel equivale a clicar em "entrar" (não é
+  // <form>, então o Enter nativo não faz isso sozinho).
+  for (const campo of [addr, pinInput, codigoInput]) {
+    campo.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" && !e.isComposing) conectar();
+    });
+  }
 
   buildConfigScreen(el("menu-config-body"), undefined, () => show("home"));
 }

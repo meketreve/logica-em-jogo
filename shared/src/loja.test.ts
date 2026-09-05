@@ -108,6 +108,13 @@ describe("colocar o Baú-Loja grava o criador na hora", () => {
       tipo: "loja",
       loja: { criador: "prof", precos: [], souOCriador: true },
     });
+    // 2026-09-03: abrir QUALQUER container manda o gesto "interagir"
+    const gesto = sent.find((s) => parseServerMessage(s.data as string)?.type === "gesto");
+    expect(gesto && parseServerMessage(gesto.data as string)).toEqual({
+      type: "gesto",
+      id: 1,
+      gesto: "interagir",
+    });
   });
 
   it("um comprador (não-criador) vê souOCriador:false", () => {

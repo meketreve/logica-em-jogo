@@ -5752,6 +5752,50 @@
       "related_bugs": [],
       "occurrences": 1,
       "last_seen": "2026-09-02T00:00:00.000Z"
+    },
+    {
+      "id": "bug-660",
+      "timestamp": "2026-09-03T00:00:00.000Z",
+      "error_message": "usuario: Ctrl+C no iniciar-servidor.bat durante uma pergunta [S/N] ou de menu nao fecha - pula o input e continua a logica (ex: cai no menu e SOBE o servidor mesmo assim)",
+      "file": "iniciar-servidor.bat",
+      "root_cause": "Limitacao do PROPRIO cmd.exe, nao bug no codigo: Ctrl+C durante qualquer comando de um .bat em execucao (inclusive set /p) dispara o prompt nativo do console \"Terminate batch job (Y/N)?\". Batch nao tem trap de sinal (SIGINT) como bash/Node - o script nao pode interceptar isso. Se a resposta nao for Y, o cmd.exe RETOMA a execucao na linha seguinte com a variavel do set /p NAO PREENCHIDA (indefinida) - e como quase todo prompt do launcher trata variavel indefinida como \"Enter = usar o padrao\", o script segue em frente como se o usuario tivesse aceitado o default. O pior caso e o menu principal (ESCOLHA): default indefinido cai na opcao [1] Mundo livre e o SERVIDOR SOBE, exatamente o oposto do que o Ctrl+C pretendia.",
+      "fix": "Nao da para fazer o cmd.exe honrar Ctrl+C durante set /p (limitacao do shell, sem solucao de dentro do .bat). Mitigacao real: os dois prompts de maior risco (\"Atualizar agora?\" logo no inicio, e o menu principal ESCOLHA) passaram a aceitar a palavra \"sair\" digitada (e \"0\" no menu) como saida GARANTIDA via exit /b 0 - uma forma de fechar que nao depende do Ctrl+C do console. Menu ganhou a linha \"[0] Sair sem iniciar o servidor\" e um REM documentando a causa raiz pra nenhuma sessao futura tentar \"consertar\" Ctrl+C em batch puro (nao existe trap). Prompts downstream (CODIGO/TAMANHO/N/PNOME) ficaram como estavam: o default deles e sempre inofensivo (so ajusta configuracao, nao inicia nem sobrescreve nada sozinho).",
+      "tags": [
+        "launcher",
+        "bat",
+        "ctrl-c",
+        "sigint",
+        "cmd.exe",
+        "set-p",
+        "terminate-batch-job",
+        "ux"
+      ],
+      "related_bugs": [
+        "bug-571"
+      ],
+      "occurrences": 1,
+      "last_seen": "2026-09-03T00:00:00.000Z"
+    },
+    {
+      "id": "bug-661",
+      "timestamp": "2026-09-03T00:00:00.000Z",
+      "error_message": "usuario: usando o launcher (servidor no ar), o jogo NAO deixa jogar no modo singleplayer",
+      "file": "client/src/main.ts (menu-btn-single), server/src/static.ts",
+      "root_cause": "NAO CONFIRMADO ainda - reproducao com dist RECEM-BUILDADO (npm run build) servido pelo host real (npx tsx server/src/index.ts, igual ao launcher) NAO reproduziu: menu carrega, \"Jogar sozinho\" abre a tela de mundos, criar mundo novo carrega sem excecao JS nem erro de rede (Chrome headless, script em scratchpad). Teoria de trabalho MAIS provavel, ainda por confirmar: client/dist fica DESSINCRONIZADO de client/src quando o usuario responde 'n' (nao atualizar) no launcher - esse caminho PULA o \"npm run build\" de rede de seguranca (iniciar-servidor.bat:252, so roda dentro do bloco de update). Um dist velho pode referenciar um asset (ex.: o worker do singleplayer, client/src/main.ts:1092) que nao bate com o que esta em dist/assets/, e o fallback de SPA do static.ts (servirCliente: rota desconhecida cai em index.html) devolveria HTML no lugar do .js esperado - erro classico de \"Failed to load module script\" so no NAVEGADOR REAL, que headless deste ambiente pode nao expor da mesma forma. NAO CONFIRMADO: falta o texto exato do erro/tela travada que o usuario viu. SEGUNDA RODADA (2026-09-03, pedido \"corrige o bug661\"): revisitei varias teorias arquiteturais antes de tentar qualquer fix (systematic-debugging, Fase 1) - dist desalinhado dos assets (SPA fallback do static.ts mascarando 404 como HTML), estado de WS/Worker deixado para tras ao trocar de singleplayer pra multiplayer no MESMO tab (descartada: \"voltar ao menu\" faz location.reload(), zera tudo), cache de asset por hash (descartada: hash muda, URL muda, sem colisao possivel). NENHUMA se sustentou o bastante pra virar fix sem confirmar. Sem acesso a Windows/cmd.exe neste ambiente (WSL/Linux) pra rodar o .bat de verdade - so consigo aproximar com tsx+Chrome headless, que roda limpo nos dois testes feitos. NAO EH SEGURO aplicar um fix as cegas (violaria a Lei de Ferro do debugging sistematico: sem causa raiz confirmada, sem fix). FECHADO (2026-09-03): usuario testou em Linux E Windows atualizados e funcionou nos dois. O relato original era de um PROFESSOR testando na maquina dele, possivelmente com versao desatualizada (nao confirmado qual). Sem reproducao em ambiente atualizado, e sem detalhe adicional do professor, fecha como PROVAVEL versao antiga/ambiente especifico, nao bug de codigo.",
+      "fix": "FECHADO sem patch — nao reproduziu em Linux nem Windows atualizados. Se voltar a acontecer, plano de repro ja documentado acima (Console F12 na hora da falha).",
+      "tags": [
+        "singleplayer",
+        "launcher",
+        "nao-confirmado",
+        "dist",
+        "static",
+        "worker",
+        "aberto",
+        "fechado-sem-repro"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-09-03T00:00:00.000Z"
     }
   ]
 }

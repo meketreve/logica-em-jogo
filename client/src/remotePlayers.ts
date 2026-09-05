@@ -1,19 +1,25 @@
 import * as THREE from "three";
-import { PLAYER } from "@logica/shared";
+import { PLAYER, type TipoGesto } from "@logica/shared";
+import { type Corpo, type EstadoAnimacaoCorpo, animarCorpo, criarCorpo, descartarCorpo, novoEstadoAnimacao } from "./playerBody";
 
 interface RemotePlayer {
-  mesh: THREE.Mesh;
+  /** Grupo com as 5 partes do corpo (cabeça, tronco, 2 braços, 2 pernas). */
+  corpo: Corpo;
+  anim: EstadoAnimacaoCorpo;
   target: THREE.Vector3;
   targetYaw: number;
+  /** Pitch de VERDADE de quem está mirando — a cabeça persegue isso, suavizado
+   *  (`anim.pitchAtual`), dentro do limite do pescoço. */
+  pitchAlvo: number;
   /** Plaquinha de nome sobre a cabeça (filha da mesh; Sprite sempre encara a câmera). */
   label?: THREE.Sprite;
   labelName?: string;
-  /** Deitado na cama (2026-08-17)? A caixa tomba e desce até a altura da cama. */
+  /** Deitado na cama (2026-08-17)? O corpo tomba e desce até a altura da cama. */
   dormindo?: boolean;
 }
 
 /**
- * Os OUTROS jogadores na tela: caixa colorida por id, plaquinha de nome e o
+ * Os OUTROS jogadores na tela: corpo colorido por id, plaquinha de nome e o
  * LERP que tira o serrilhado.
  *
  * O lerp existe por reclamação de playtest: as posições chegam a **10 Hz** e,
@@ -25,6 +31,11 @@ interface RemotePlayer {
  * do LERP, que é a que o aluno vê. Usar o `target` cru do servidor faria a mira
  * piscar 10×/s em cima de um alvo que na tela está em outro lugar. Por isso
  * `alvosParaMira()` mora aqui e não no chamador.
+ *
+ * A geometria/animação do corpo (5 partes, andar/correr/gestos) mora em
+ * `playerBody.ts` — compartilhada com o corpo do PRÓPRIO jogador em 3ª
+ * pessoa (2026-09-03). Aqui só sobra o que é ESPECÍFICO de gente remota:
+ * LERP de rede, plaquinha de nome, tombo de dormir.
  */
 export class RemotePlayersView {
   private readonly players = new Map<number, RemotePlayer>();
@@ -68,7 +79,7 @@ export class RemotePlayersView {
     if (!rp.label) return;
     rp.label.material.map?.dispose();
     rp.label.material.dispose();
-    rp.mesh.remove(rp.label);
+    rp.corpo.grupo.remove(rp.label);
     rp.label = undefined;
   }
 
@@ -78,23 +89,26 @@ export class RemotePlayersView {
     y: number;
     z: number;
     yaw: number;
+    pitch: number;
     name?: string;
     dormindo?: boolean;
     cama?: { x: number; y: number; z: number };
   }): void {
     let rp = this.players.get(msg.id);
     if (!rp) {
-      const mesh = new THREE.Mesh(
-        new THREE.BoxGeometry(PLAYER.width, PLAYER.height, PLAYER.width),
-        new THREE.MeshLambertMaterial({
-          color: new THREE.Color().setHSL((msg.id * 0.618034) % 1, 0.7, 0.5),
-        }),
-      );
+      const cor = new THREE.Color().setHSL((msg.id * 0.618034) % 1, 0.7, 0.5);
+      const corpo = criarCorpo(cor);
       // primeira vez: aparece JÁ no lugar (sem deslizar desde a origem)
-      mesh.position.set(msg.x, msg.y + PLAYER.height / 2, msg.z);
-      mesh.rotation.y = msg.yaw;
-      this.scene.add(mesh);
-      rp = { mesh, target: mesh.position.clone(), targetYaw: msg.yaw };
+      corpo.grupo.position.set(msg.x, msg.y + PLAYER.height / 2, msg.z);
+      corpo.grupo.rotation.y = msg.yaw;
+      this.scene.add(corpo.grupo);
+      rp = {
+        corpo,
+        anim: novoEstadoAnimacao(),
+        target: corpo.grupo.position.clone(),
+        targetYaw: msg.yaw,
+        pitchAlvo: msg.pitch,
+      };
       this.players.set(msg.id, rp);
     }
     // nome viaja no player_moved (ausente = host antigo, caixa fica sem nome)
@@ -102,7 +116,7 @@ export class RemotePlayersView {
       RemotePlayersView.soltarPlaca(rp);
       rp.label = RemotePlayersView.fazerPlaca(msg.name);
       rp.labelName = msg.name;
-      rp.mesh.add(rp.label);
+      rp.corpo.grupo.add(rp.label);
     }
     // deitado (2026-08-17): a caixa TOMBA e o centro desce, porque o corpo
     // deitado ocupa `width` de altura, não `height`.
@@ -118,15 +132,23 @@ export class RemotePlayersView {
       rp.target.set(msg.x, msg.y + PLAYER.height / 2, msg.z);
     }
     rp.targetYaw = msg.yaw;
+    rp.pitchAlvo = msg.pitch;
+  }
+
+  /** Bater/interagir/emoji de OUTRO jogador (2026-09-03) — reinicia o gesto;
+   *  um gesto novo sempre corta o anterior (sem fila, sem travar). */
+  aoGesto(id: number, tipo: TipoGesto): void {
+    const rp = this.players.get(id);
+    if (!rp) return;
+    rp.anim.gesto = { tipo, t: 0 };
   }
 
   aoSair(id: number): void {
     const rp = this.players.get(id);
     if (!rp) return;
-    RemotePlayersView.soltarPlaca(rp);
-    this.scene.remove(rp.mesh);
-    rp.mesh.geometry.dispose();
-    (rp.mesh.material as THREE.Material).dispose();
+    RemotePlayersView.soltarPlaca(rp); // primeiro: tira a placa antes de descartar o resto
+    this.scene.remove(rp.corpo.grupo);
+    descartarCorpo(rp.corpo);
     this.players.delete(id);
   }
 
@@ -135,14 +157,21 @@ export class RemotePlayersView {
     // fator exponencial = independente do FPS (~90% do caminho em ~190 ms)
     const k = 1 - Math.exp(-dt * 12);
     for (const rp of this.players.values()) {
-      rp.mesh.position.lerp(rp.target, k);
-      const dyaw = rp.targetYaw - rp.mesh.rotation.y;
-      rp.mesh.rotation.y += Math.atan2(Math.sin(dyaw), Math.cos(dyaw)) * k;
+      const antesX = rp.corpo.grupo.position.x;
+      const antesZ = rp.corpo.grupo.position.z;
+      rp.corpo.grupo.position.lerp(rp.target, k);
+      // andar/correr: mede a distância HORIZONTAL que o LERP andou neste frame
+      // (a mesma posição que o aluno vê) — cair (Y muda, XZ não) não bate perna.
+      const distXZ = Math.hypot(rp.corpo.grupo.position.x - antesX, rp.corpo.grupo.position.z - antesZ);
+      animarCorpo(rp.corpo, rp.anim, distXZ, dt, rp.pitchAlvo);
+
+      const dyaw = rp.targetYaw - rp.corpo.grupo.rotation.y;
+      rp.corpo.grupo.rotation.y += Math.atan2(Math.sin(dyaw), Math.cos(dyaw)) * k;
       // tombar/levantar também desliza — deitar de estalo destoaria do resto,
       // que é todo interpolado. `rotation.x` é local, então a caixa tomba PARA
       // ONDE ela olha, seja qual for o yaw.
       const alvoTomba = rp.dormindo ? -Math.PI / 2 : 0;
-      rp.mesh.rotation.x += (alvoTomba - rp.mesh.rotation.x) * k;
+      rp.corpo.grupo.rotation.x += (alvoTomba - rp.corpo.grupo.rotation.x) * k;
       // ⚠️ A plaquinha é FILHA da mesh, então a posição dela passa pela rotação
       // do pai. Com a caixa tombada -90° em X, o local +y vira -z no mundo e o
       // nome iria parar NA FRENTE do corpo. O offset que mapeia para o +y do
@@ -159,9 +188,9 @@ export class RemotePlayersView {
   alvosParaMira(): { id: number; x: number; y: number; z: number }[] {
     return [...this.players].map(([id, rp]) => ({
       id,
-      x: rp.mesh.position.x,
-      y: rp.mesh.position.y - PLAYER.height / 2, // mesh é centrada; a caixa quer os PÉS
-      z: rp.mesh.position.z,
+      x: rp.corpo.grupo.position.x,
+      y: rp.corpo.grupo.position.y - PLAYER.height / 2, // mesh é centrada; a caixa quer os PÉS
+      z: rp.corpo.grupo.position.z,
     }));
   }
 }

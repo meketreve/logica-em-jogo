@@ -1454,6 +1454,57 @@
           max-height: min(30dvh, calc(100dvh - var(--kb, 0px) - 26vh - 72px));
         }
       }
+
+      /* Menu radial de emojis (2026-09-03, tecla V) — regra `emogis` do
+         professor. Fundo escurece a tela (mesma linguagem visual do painel de
+         pausa); os botões ficam num círculo ao redor do centro. */
+      #emojis {
+        position: fixed;
+        inset: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(10, 16, 26, 0.55);
+        z-index: 25;
+      }
+      #emojis .roda {
+        position: relative;
+        width: 220px;
+        height: 220px;
+      }
+      #emojis button {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 84px;
+        height: 84px;
+        margin: -42px;
+        border-radius: 50%;
+        border: 1px solid rgba(255, 255, 255, 0.25);
+        background: rgba(10, 16, 26, 0.93);
+        color: #fff;
+        font-size: 2rem;
+        line-height: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: transform 0.1s, border-color 0.1s;
+      }
+      #emojis button:hover,
+      #emojis button:focus-visible {
+        border-color: #ffd75e;
+        transform: scale(1.08);
+      }
+      #emojis .rotulo {
+        position: absolute;
+        bottom: -22px;
+        left: 50%;
+        transform: translateX(-50%);
+        font-size: 0.7rem;
+        color: #ccc;
+        white-space: nowrap;
+      }
     </style>
   </head>
   <body>
@@ -1585,7 +1636,7 @@
             WASD move · espaço pula · Ctrl (ou 2× W) corre · Shift agacha ·
             botão esquerdo quebra · direito coloca · botão do meio copia o bloco mirado ·
             1–9 e scroll escolhem bloco · E inventário · Enter abre o chat · P painel ·
-            G amigos · F3 desempenho
+            G amigos · F3 desempenho · C câmera 3ª pessoa · V emojis
           </p>
         </div>
         <div id="overlay-config" class="hidden">
@@ -1616,6 +1667,8 @@
     <div id="amigos" class="hidden"></div>
     <!-- §🍖 F10 (2026-08-05): transferência mochila↔container (fornalha, baú) -->
     <div id="container" class="hidden"></div>
+    <!-- menu radial de emojis (2026-09-03, tecla V) -->
+    <div id="emojis" class="hidden"></div>
     <div id="hud" class="hidden">
       <pre id="hud-text"></pre>
       <button id="hud-export" type="button">exportar JSON</button>

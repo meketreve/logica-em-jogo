@@ -1036,6 +1036,13 @@ mundo mora em `mundos/<nome>/` com `<nome>.ljw` + `chat.log` (paths.ts: `pastaDo
 `savePathDoMundo`, `chatLogDoMundo`). Launcher migra layouts antigos e lista as pastas.
 Singleplayer (IndexedDB, export .ljw único via worldStore.ts) NÃO mudou — o navegador
 não tem filesystem; export de "pasta" no single fica de fora (não faz sentido lá).
+* \[x] **teto real do fix de bug-650, medido com carga sintética (60→200 clientes a 10Hz,
+  latência de comando por round-trip de chat)** — **FEITO** (2026-09-03). 35: 12,9ms (já
+  medido no bug-650) · 60: méd 88,8ms / máx 669ms, 0 timeout · 100: méd 173,3ms / máx 1366ms,
+  0 timeout · 150: méd 1156ms / máx 3536ms — degradação deixa de ser linear aqui · 175: méd
+  4923ms / máx 5844ms · 200: méd 7108ms / máx 7859ms, beirando o timeout de 8s do teste. Joelho
+  da curva fica entre 100 e 150 clientes — bem acima de qualquer turma real (máx 35 hoje).
+  Sem ação necessária agora; script não versionado (scratchpad, mesmo padrão do bug-650).
 
 
 ## Inventário
@@ -1148,6 +1155,10 @@ não tem filesystem; export de "pasta" no single fica de fora (não faz sentido 
 * \[x] perfilador anônimo + versão do jogo — **FEITO** (2026-07-23): saída carrega `versao:VERSION`,
   nome do aluno não é mais coletado (filename `perf-<timestamp>-<sufixo>.json`). profiles-escola/
   removido do tracking + gitignored; resumo agregado anônimo em `registros/perfilador-v0.8.0-escola.md`.
+* \[ ] **IDEIA (2026-09-03): documento único listando TODOS os comandos `/...` e funções/
+  mecânicas que o jogo tem até agora** — pra professor/aluno consultar (e pra apresentação).
+  Levantar a partir de `runCommand` (session.ts) pra comandos e do `todo.md` FEITO + specs em
+  `docs/` pra mecânicas. Ainda não iniciado.
 
 ## Loja (Baú-Loja, sessão 94, 2026-09-01)
 
@@ -1171,6 +1182,88 @@ não tem filesystem; export de "pasta" no single fica de fora (não faz sentido 
 * \[ ] **Mintar Dimas de graça criando nome novo** (`shared/src/session.ts`, `admitir`) — hoje
   só AVISA o professor, não impede. Baixo risco numa sala com supervisão, mas vale revisar
   antes de qualquer uso fora do piloto supervisionado.
+* \[x] **bug-661 — FECHADO sem patch (2026-09-03).** Usuário testou em Linux E Windows
+  atualizados, funcionou nos dois. Relato original era de um PROFESSOR na máquina dele,
+  provavelmente versão desatualizada — sem reprodução em ambiente atualizado. Plano de repro
+  documentado no `.wolf/buglog.json` bug-661 se voltar a acontecer.
+
+## Modelo do jogador / animações (sessão atual, 2026-09-03)
+
+Ideia original do usuário: aula com escolas diferentes jogando juntas (rede entre escolas —
+**adiado**, ver decisão da sessão: "esse PC pode virar servidor", ainda não desenhado),
+mini-campeonato com provas (**adiado**, atividades ainda por pensar), e uniforme por escola no
+modelo do jogador (**em andamento** — começou pelo corpo/animação, textura/skin ainda não).
+
+* \[x] **corpo de 5 partes** (cabeça/tronco/2 braços/2 pernas) no lugar do box liso —
+  `client/src/remotePlayers.ts`, função `criarCorpo`. Tamanhos HARDCODED ali (constantes no
+  topo do arquivo); mudar proporção é editar esse arquivo. 1 material pra todas as partes
+  (trocar cor de escola = 1 linha, ainda não feito).
+* \[x] **ferramenta de preview** `ferramentas/editor-skin.html` — zero build, abre com
+  duplo-clique, Three.js via CDN. Cor+textura por peça (cabeça/tronco/braços/pernas), formas
+  hardcoded em espelho manual dos números do `remotePlayers.ts` (documentado nos dois lados).
+* \[x] **andar/correr** — pivô de verdade no quadril/ombro (gira na JUNTA), fase por distância
+  horizontal andada (não por tempo — parado trava a pose), amplitude suavizada, marcha
+  contralateral. Blindado contra `/tp` (teleporte não anima como corrida).
+* \[x] **bater/interagir** — mensagem NOVA no protocolo (`gesto`, broadcast pra todo mundo,
+  `shared/src/protocol.ts`), disparada em `atacar()` (`shared/src/session/vitais.ts`, MESMO se
+  pvp/alcance/cooldown recusar o dano — só o braço balança) e nos 3 pontos de sucesso do
+  `use_block` (`shared/src/session.ts`): abrir container (baú/fornalha/loja), cama, porta/janela.
+  Cliente anima só o `bracoB` por cima do balanço de andar — o outro braço continua andando
+  normal. 972/972 testes (6 novos/estendidos em `pvp.test.ts`, `cp23.test.ts`, `loja.test.ts`,
+  `cama-spawn.test.ts`), verificado ponta a ponta com 2 clientes reais (o frame `gesto` chegou
+  no socket de quem assiste).
+* \[x] **corpo/animação extraídos pra `client/src/playerBody.ts`** — geometria (`criarCorpo`) +
+  matemática de balanço (`animarCorpo`, andar/correr/gestos) num módulo neutro, compartilhado
+  entre `remotePlayers.ts` (OUTROS jogadores) e o corpo do PRÓPRIO jogador (novo). Sem isso o
+  corpo local duplicaria toda a lógica de pivô/fase/amplitude já testada.
+* \[x] **corpo do PRÓPRIO jogador + câmera em 3ª pessoa** (2026-09-03) — `client/src/main.ts`.
+  Duas fontes pro modo 3ª pessoa, com prioridade clara: `settings.cameraMode` (PERSISTENTE,
+  tecla C, localStorage) e o override TEMPORÁRIO de um emoji tocando (`animLocal.gesto`), que
+  vence o C enquanto durar — confirmado por acidente num teste (print mostrou o corpo em 3ª
+  mesmo com C já revertido, porque o aceno ainda não tinha acabado). Câmera fica atrás do
+  jogador, MESMA direção que ele olha, com colisão contra o mundo (reusa `raycastBlock`, o
+  mesmo da mira) — não atravessa parede. **Mira/quebrar/colocar/atacar SEMPRE do olho** (nunca
+  da câmera): calculados ANTES do reposicionamento de 3ª pessoa no loop de frame, que só roda
+  por ÚLTIMO, logo antes do `renderer.render`. Clique de AÇÃO em 3ª pessoa PERSISTENTE não age —
+  só volta pra 1ª pessoa sozinho (igual o F5 do Minecraft); durante o gesto do emoji o clique
+  nem conta (não interrompe a animação). Verificado ponta a ponta: C liga/desliga
+  `localStorage`, clique em 3ª pessoa manda ZERO `break_block` e reverte a câmera sozinho.
+* \[x] **menu radial de emojis** (tecla V, `client/src/emojiWheel.ts`) — 3 emojis (aceno 👋,
+  comemorar 🙌, dança 💃), roda "um menu por vez" existente (`painelHost.ts`). Escolher toca
+  LOCAL na hora (otimista — cosmético, não espera a rede) e manda `{type:"emote"}` pro servidor
+  pros OUTROS verem (broadcast `gesto`, mesmo canal do bater/interagir). Regra nova `emogis`
+  (`shared/src/regras.ts`, padrão DESLIGADA) — `/regra emogis ligar`, mesmo padrão genérico de
+  `fome`/`pvp`. Decisão de projeto: mundo de AULA **não** bloqueia (sem efeito de jogo, ao
+  contrário do pvp que muda vida de verdade) — testado explicitamente. 979/979 testes
+  (`shared/src/emote.test.ts` novo, 7 casos: protocolo, regra ligada/desligada, freio de aviso,
+  aula não bloqueia). Verificado ponta a ponta: C → 3ª pessoa, V → 3 botões, clique → menu
+  fecha + manda `emote` real pro servidor, print mostra o corpo cinza fazendo o aceno.
+* \[x] **Correções de direção + cabeça olha pro alvo** (2026-09-03, achado jogando de verdade):
+  comemorar ia pras COSTAS (sinal errado, `-pico` → virou `+pico`); aceno levava a "mão" até a
+  boca (rotation.z levantando pro lado → virou braço esticado pra FRENTE em rotation.x + um
+  balanço de lado a lado por cima). **Cabeça agora olha pro pitch de quem está mirando**
+  (`corpo.cabeca`, novo pivô no pescoço, mesmo padrão dos membros — `sentido: +1` em vez de
+  `-1`), com limite de ±0,85 rad (~49°) imitando o pescoço de verdade, suavizado (não salta com
+  o pacote de rede a 10 Hz). `rotation.x = pitchAtual`, **sem inversão de sinal** — um teste
+  isolado fora do jogo (HTML solto, corpo recriado à mão) tinha indicado sinal invertido, mas
+  bateu errado no jogo real; foi o usuário jogando quem achou (câmera pra cima = cabeça olhando
+  pra baixo, ao contrário). Ver Key Learning em `cerebrum.md`: teste isolado vale menos que
+  rodar o código real dentro do jogo.
+* \[ ] **IDEIAS de animação ainda não pedidas** (lista de 2026-09-03, ainda válida — o que saiu
+  da lista foi só comemorar/dança/aceno, que viraram os 3 emojis acima): nadar (braçada na água —
+  reaproveita o sistema cíclico do andar), agachado/sneak (precisa de campo novo no
+  `player_moved` — hoje o servidor não avisa os OUTROS que alguém tá agachado), idle sutil
+  (balancinho parado), tomar dano (sacudida ao ser atingido — o evento já existe, F2). **Pulo**
+  ficou de fora por pedido explícito do usuário.
+* \[ ] **Bônus de graça**: o mesmo mecanismo de gesto de UM braço serve pra quebrar/colocar
+  bloco (mesmo swing do "bater", contexto diferente) — não implementado, não foi pedido.
+* \[ ] **Uniforme/skin por escola de verdade** (cor ou textura por peça, visível na PARTIDA, não
+  só na ferramenta de preview) — ainda não começado. Depende de decidir onde mora a associação
+  aluno↔escola (novo campo? grupo já existente reaproveitado?).
+* \[ ] **3ª pessoa: só a distância fixa atrás do jogador, sem elevação configurável nem ajuste
+  fino de colisão perto de teto baixo** — v1 funcional, não polido. Testar em aula real antes de
+  refinar (ângulo, distância, sensação) — julgamento estético pede gente jogando, não só teste
+  automatizado.
 
 ## Playtest na escola
 

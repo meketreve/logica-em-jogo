@@ -2,60 +2,79 @@
 
 > Single source of truth for resuming work. Read this FIRST when starting a session.
 
-> ## 🧭 HANDOFF — SESSÃO 94 (2026-09-03) · Baú-Loja completo, moeda decidida (só Dimas), launcher sem semver
+> ## 🧭 HANDOFF — SESSÃO 95 (2026-09-03) · Corpo do jogador, 3ª pessoa, menu de emojis
 
-> **Bateria verde:** typecheck 3/3 · **969/969** · build · `checar-launchers` OK. bug-650, a
-> loja (14 tarefas + revisão final), a simplificação pra moeda-única e a troca do rótulo de
-> versão do launcher estão COMMITADOS e PUSHADOS na main (`87d9193`).
+> **Bateria verde:** typecheck 3/3 · **979/979** · build · `checar-launchers`/`checar-dist` OK.
+> **NADA desta sessão foi commitado ainda** (regra do sistema: só commito se o usuário pedir) —
+> tudo abaixo é mudança em working tree, esperando o próximo passo do usuário (commitar? seguir
+> pro uniforme/skin de verdade? testar em aula?).
 
-> ### ✅ Launcher não mostra mais semver ("0.9.0") — mostra data+novidade+commit
-> `iniciar-servidor.bat`/`.sh` liam `package.json`'s `"version"` (ritual morto desde
-> 2026-08-27, ver `shared/src/version.ts`). Agora leem `shared/src/build-info.json`
-> (`data`+`titulo`), com `titulo` sendo o topo do `changelog.ts` — mas extraído em **Node**
-> por `scripts/gerar-build-info.mjs` (novo `tituloDoChangelog()`), NUNCA em batch/shell puro,
-> porque título é texto livre com dois-pontos/vírgula dentro ("Loja: monte seu comércio") e
-> parsear isso em `.bat` é a mesma armadilha de aspa-escapada que o `:ler_versao` original já
-> documentava. O `.bat` ganhou `:ler_campo_json` (genérico, corta só no PRIMEIRO ":" da linha
-> via `tokens=1*` — sobrevive a dois-pontos dentro do valor). O `.sh` ganhou `rotulo_build()`
-> via `sed` (não tem esse problema, regex captura por aspas). Commit continua vindo do SHA do
-> GitHub (`.lj-versao`), não mudou — só o rótulo humano trocou. Testado com simulação Python
-> do parser batch contra o `build-info.json` real, bateu byte-a-byte. `npm run verify` 5/5.
+> ### ✅ bug-660 fechado — Ctrl+C no `.bat` pulava input e continuava a lógica
+> Causa é do PRÓPRIO cmd.exe (bat não tem trap de SIGINT), não do código — não dá pra
+> "consertar" Ctrl+C de dentro do `.bat`. Mitigado: `"sair"`/`"0"` viram saída GARANTIDA no
+> prompt de update e no menu principal (`exit /b 0`), com REM documentando a causa raiz.
 
-> ### ✅ bug-650 fechado — atraso de comandos com turma cheia
-> Ver commits `bb56749`/`fix(rede)`. Retestado com carga real: 35 clientes 2555ms→12.9ms.
-> Continua **não verificado em aula real** (só localhost) — próximo teste de campo.
+> ### ✅ bug-661 fechado sem patch — singleplayer via launcher
+> Relato de um professor (versão provavelmente desatualizada); usuário testou Linux+Windows
+> atualizados e funcionou nos dois. Sem reprodução, sem causa confirmada — fechado como
+> ambiente/versão específica, não bug de código. Plano de repro documentado no buglog se voltar.
 
-> ### ✅ Baú-Loja implementado + moeda decidida = só Dimas (`docs/superpowers/specs/2026-08-31-loja-baus-design.md`)
-> 14 tarefas via **subagent-driven-development** (implementador + revisor por tarefa), commitadas
-> direto na main. Bloco craftável, terreno próprio, criador gerencia estoque/preço, QUALQUER UM
-> compra — mesmo fora do grupo de amigos.
->
-> **A revisão final de branch inteira achou 2 bugs Critical + 3 Important** que nenhuma revisão
-> de tarefa isolada enxergaria — todos corrigidos numa rodada de fix + re-revisão escopada:
-> loja nascia inquebrável pra sempre (predicado de save reusado como gate de quebra, split em
-> dois); editor de preço só criava preço sem sentido (fix original: seletor de item de
-> pagamento); Dimas mintava sem limite trocando de nome (mitigado com aviso ao professor);
-> `definir_preco` sem teto de id/tamanho (agora tem); 2 testes que o spec pedia e faltavam.
->
-> **Depois disso, o usuário decidiu (fora da votação): a moeda é SEMPRE Dimas.** Item-por-item e
-> recurso-como-moeda foram REMOVIDOS do código (não guardados como caminho morto) —
-> `Preco` virou `number` puro em toda a pilha, o seletor de pagamento da UI (o fix acima) SAIU —
-> volta a ser só o campo de quantidade. Isso fechou o bug-659 (escolher moeda antes da
-> quantidade perdia a escolha em silêncio) por REMOÇÃO da causa, não por patch. `docs/loja-
-> perguntas-alunos.md` atualizado: só falta a turma votar QUANTO de Dimas cada um recebe.
+> ### ✅ Corpo do jogador — de box liso pra 5 partes articuladas, com andar/correr/gestos
+> `client/src/playerBody.ts` (NOVO — geometria + animação extraídas de `remotePlayers.ts` pra
+> serem compartilhadas com o jogador LOCAL). Pivôs de verdade no quadril/ombro (gira na JUNTA).
+> Andar/correr: fase avança por DISTÂNCIA (não tempo), amplitude suavizada, marcha
+> contralateral. `ferramentas/editor-skin.html` (NOVO) — preview zero-build de cor/textura por
+> peça, formas em espelho manual das mesmas constantes.
+
+> ### ✅ Gestos visuais — bater/interagir E o menu de emojis, mesmo mecanismo
+> Protocolo novo `gesto`/`emote` (`shared/src/protocol.ts`) — nem `atacar()` nem `use_block`
+> avisavam os OUTROS jogadores da ação (só o autor recebia resposta). Agora broadcasta pra
+> turma inteira, mesmo quando o efeito de jogo é recusado (pvp desligado ainda balança o braço).
+> **Menu radial (tecla V, `client/src/emojiWheel.ts`, NOVO):** 3 emojis (aceno/comemorar/dança),
+> regra nova `emogis` (padrão DESLIGADA, `/regra emogis ligar` — mesmo padrão genérico de
+> fome/pvp). Decisão: mundo de AULA não bloqueia (sem efeito de jogo, ao contrário do pvp).
+
+> ### ✅ Câmera em 3ª pessoa — persistente (tecla C) E temporária (durante o emoji)
+> `client/src/main.ts`. Corpo do PRÓPRIO jogador só existe/aparece fora da 1ª pessoa (custo
+> zero no caminho normal). **Mira/quebrar/colocar/atacar sempre do OLHO**, nunca da câmera —
+> garantido reposicionando a câmera de 3ª pessoa por ÚLTIMO no loop de frame, depois de toda
+> lógica que já lia `camera.position`. Clique de ação em 3ª pessoa PERSISTENTE não age, só
+> volta pra 1ª pessoa sozinho (igual F5 do Minecraft); durante o gesto do emoji o clique nem
+> conta. Colisão de câmera reusa `raycastBlock` (mesmo da mira). Verificado ponta a ponta com
+> Chrome headless real: C, V, clique no emoji, lockout de ação — tudo confirmado, 0 exceção.
+
+> ### ✅ Correções de direção + cabeça olha pro alvo (achado jogando de verdade, 2 rodadas)
+> Comemorar ia pras COSTAS e aceno levava a "mão" até a boca — sinais errados nos gestos, agora
+> apontam pra FRENTE de verdade. Cabeça ganhou pivô próprio no pescoço e olha pro pitch de quem
+> mira, com limite de ~49° (imita o pescoço) — **sem inversão de sinal** (`rotation.x =
+> pitchAtual` direto). Um teste isolado (HTML solto, corpo recriado à mão) tinha indicado sinal
+> invertido; o jogo de verdade mostrou o contrário, e foi o usuário jogando quem pegou o erro.
+> Lição registrada no Key Learning: teste isolado que recria a cena à mão vale menos que rodar
+> o código real — prefira bot+Chrome headless DENTRO do jogo quando der.
 
 > ### 🚀 PRÓXIMA QUEST
+> **Decisão imediata do usuário:** commitar esta sessão (nada foi commitado ainda), ou seguir
+> direto pro próximo pedaço?
+>
+> **Pendências desta sessão, nenhuma bloqueante:**
+> - 3ª pessoa é v1 funcional, não polida — distância/ângulo fixos, sem teste em aula real ainda.
+> - Uniforme/skin por escola de verdade (cor/textura VISÍVEL na partida) — ainda não começado;
+>   a ferramenta de preview existe, mas nada liga ela ao jogo. Falta decidir onde mora a
+>   associação aluno↔escola.
+> - Ideias de animação anotadas, não pedidas: nadar, agachado/sneak, idle sutil, tomar dano.
+> - Cross-school networking e mini-campeonato (a ideia ORIGINAL que trouxe tudo isso) seguem
+>   adiados — usuário só confirmou "esse PC pode virar servidor", nada desenhado ainda.
+>
 > **Pendências herdadas, nenhuma bloqueante:**
 > - Aviso de Dimas nova ao professor fica barulhento em troca de turma cheia — `todo.md` § Loja.
-> - Mintar Dimas de graça criando nome novo — hoje só avisa, não impede (baixo risco numa sala
->   supervisionada) — `todo.md` § Loja.
+> - Mintar Dimas de graça criando nome novo — hoje só avisa, não impede.
 > - Votação da turma: só falta decidir QUANTO de Dimas cada aluno recebe ao entrar.
 > - bug-651 (não sair da cama) e bug-652 (pular+colocar bloco teleporta pro lado) — abertos,
 >   só lidos, não investigados a fundo.
 > - bug-650: confirmar em aula real com turma cheia (só localhost até agora).
 >
-> Fila do `todo.md`: ovelha+lã de verdade (§🍖 F8), sentar na cadeira, modelo do player estilo
-> Minecraft, Ferramentas v2 (durabilidade+slot+tempo de quebra).
+> Fila do `todo.md`: ovelha+lã de verdade (§🍖 F8), sentar na cadeira, Ferramentas v2
+> (durabilidade+slot+tempo de quebra).
 
 ---
 

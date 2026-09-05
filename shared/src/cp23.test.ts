@@ -218,7 +218,7 @@ describe("cp23 — física", () => {
 
 describe("cp23 — sessão (porta e tocha)", () => {
   it("place de porta materializa as 2 células; clique alterna as duas", () => {
-    const { session, send } = makeFlat();
+    const { session, send, msgs } = makeFlat();
     const y = SOLO + 1;
     send({ type: "place_block", x: 6, y, z: 5, blockId: BlockId.PortaZFechada });
     expect(getBlock(session.world, 6, y, 5)).toBe(BlockId.PortaZFechada);
@@ -227,6 +227,10 @@ describe("cp23 — sessão (porta e tocha)", () => {
     send({ type: "use_block", x: 6, y: y + 1, z: 5 });
     expect(getBlock(session.world, 6, y, 5)).toBe(BlockId.PortaZAberta);
     expect(getBlock(session.world, 6, y + 1, 5)).toBe(BlockId.PortaZAberta);
+    // 2026-09-03: abrir a porta manda o gesto "interagir" (a turma vê o braço)
+    expect(msgs().filter((m) => m["type"] === "gesto")).toEqual([
+      { type: "gesto", id: 1, gesto: "interagir" },
+    ]);
     // clique na metade de BAIXO fecha de volta
     send({ type: "use_block", x: 6, y, z: 5 });
     expect(getBlock(session.world, 6, y, 5)).toBe(BlockId.PortaZFechada);

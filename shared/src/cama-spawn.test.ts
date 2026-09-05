@@ -55,6 +55,8 @@ describe("cama como ponto de spawn", () => {
     const aviso = paraAna("chat").at(-1);
     expect((aviso as { text: string }).text).toContain("Ponto de nascimento");
     expect((aviso as { text: string }).text).toContain("cama");
+    // 2026-09-03: mesmo clique manda o gesto "interagir" (a turma vê o braço)
+    expect(paraAna("gesto")).toEqual([{ type: "gesto", id: 2, gesto: "interagir" }]);
   });
 
   it("a morte devolve pra CAMA (célula de ar acima), não pro spawn do mundo", () => {

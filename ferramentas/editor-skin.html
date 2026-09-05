@@ -1,0 +1,200 @@
+<!doctype html>
+<html lang="pt-br">
+<head>
+<meta charset="utf-8" />
+<title>Editor de skin — Lógica em Jogo</title>
+<style>
+  :root { color-scheme: dark; }
+  html, body { margin: 0; height: 100%; background: #1b1e24; font-family: system-ui, sans-serif; color: #e8e8ec; }
+  #viewport { position: fixed; inset: 0; }
+  #painel {
+    position: fixed; top: 0; right: 0; width: 300px; height: 100%; overflow-y: auto;
+    background: rgba(20, 22, 28, 0.92); border-left: 1px solid #333; padding: 16px; box-sizing: border-box;
+  }
+  #painel h1 { font-size: 15px; margin: 0 0 4px; }
+  #painel p.hint { font-size: 12px; color: #9aa; line-height: 1.5; margin: 0 0 16px; }
+  .peca { border: 1px solid #333; border-radius: 8px; padding: 10px; margin-bottom: 10px; }
+  .peca h2 { font-size: 13px; margin: 0 0 8px; }
+  .peca label { display: block; font-size: 12px; margin-bottom: 6px; color: #ccc; }
+  .peca input[type="color"] { width: 100%; height: 28px; border: none; background: none; padding: 0; cursor: pointer; }
+  .peca input[type="file"] { width: 100%; font-size: 11px; color: #ccc; }
+  .peca button.limpar { font-size: 11px; margin-top: 4px; background: #2a2d35; color: #ccc; border: 1px solid #444; border-radius: 4px; padding: 3px 8px; cursor: pointer; }
+  #medidas { font-size: 11px; color: #789; margin-top: 16px; line-height: 1.6; }
+  code { background: #2a2d35; padding: 1px 4px; border-radius: 3px; }
+</style>
+</head>
+<body>
+<div id="viewport"></div>
+<div id="painel">
+  <h1>Editor de skin (preview)</h1>
+  <p class="hint">
+    Gira com o mouse (arrastar), zoom com a roda. Cor ou imagem por peça —
+    NENHUMA forma/tamanho é editável aqui de propósito.
+  </p>
+  <div id="pecas"></div>
+  <div id="medidas">
+    Formas e tamanhos são HARDCODED em
+    <code>client/src/remotePlayers.ts</code> (função <code>criarCorpo</code>).
+    Editar lá pra mudar proporção — esta página tem uma CÓPIA manual dos
+    mesmos números, só pra visualizar sem subir o jogo inteiro. Mudou lá,
+    espelhe aqui também (ver constantes no topo do &lt;script&gt;).
+  </div>
+</div>
+
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://cdn.jsdelivr.net/npm/three@0.185.1/build/three.module.js",
+    "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.185.1/examples/jsm/"
+  }
+}
+</script>
+<script type="module">
+import * as THREE from "three";
+import { OrbitControls } from "three/addons/controls/OrbitControls.js";
+
+// ── Medidas — ESPELHO MANUAL de client/src/remotePlayers.ts (criarCorpo) ──
+// Mudou lá, muda aqui. Sem build entre os dois, não dá pra importar direto.
+const PLAYER_WIDTH = 0.6;
+const PLAYER_HEIGHT = 1.8;
+const PERNA_ALTURA = 0.7;
+const TRONCO_ALTURA = 0.7;
+const CABECA_ALTURA = 0.4; // PERNA_ALTURA + TRONCO_ALTURA + CABECA_ALTURA === PLAYER_HEIGHT
+const PERNA_LARGURA = 0.26;
+const PERNA_PROFUNDIDADE = 0.28;
+const TRONCO_PROFUNDIDADE = 0.3;
+const BRACO_LARGURA = 0.16;
+const BRACO_PROFUNDIDADE = 0.28;
+const CABECA_LADO = 0.4;
+
+// ── Cena ──
+const viewport = document.getElementById("viewport");
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x1b1e24);
+
+const camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.05, 100);
+camera.position.set(2.2, 1.6, 2.6);
+
+const renderer = new THREE.WebGLRenderer({ antialias: true });
+renderer.setPixelRatio(window.devicePixelRatio);
+renderer.setSize(window.innerWidth, window.innerHeight);
+viewport.appendChild(renderer.domElement);
+
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.target.set(0, PLAYER_HEIGHT / 2, 0);
+controls.enableDamping = true;
+controls.update();
+
+scene.add(new THREE.HemisphereLight(0xffffff, 0x444455, 1.2));
+const sol = new THREE.DirectionalLight(0xffffff, 1.0);
+sol.position.set(3, 5, 2);
+scene.add(sol);
+
+const chao = new THREE.GridHelper(6, 24, 0x555a66, 0x33363f);
+scene.add(chao);
+
+window.addEventListener("resize", () => {
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth, window.innerHeight);
+});
+
+// ── Corpo: mesmas 4 peças controláveis que uma skin por escola teria ──
+// (pernas contam como UMA peça — as duas pernas levam a mesma cor/textura —
+// o mesmo vale pros braços. Cabeça e tronco são únicos.)
+function material(cor) {
+  return new THREE.MeshLambertMaterial({ color: new THREE.Color(cor) });
+}
+const materiais = {
+  cabeca: material(0xf1c27d),
+  tronco: material(0x4a7fd6),
+  bracos: material(0xf1c27d),
+  pernas: material(0x2b2f38),
+};
+
+const grupo = new THREE.Group();
+const pes = -PLAYER_HEIGHT / 2;
+const yPernas = pes + PERNA_ALTURA / 2;
+const yTronco = pes + PERNA_ALTURA + TRONCO_ALTURA / 2;
+const yCabeca = pes + PERNA_ALTURA + TRONCO_ALTURA + CABECA_ALTURA / 2;
+
+function caixa(mat, w, h, d, x, y, z) {
+  const m = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), mat);
+  m.position.set(x, y, z);
+  grupo.add(m);
+  return m;
+}
+caixa(materiais.pernas, PERNA_LARGURA, PERNA_ALTURA, PERNA_PROFUNDIDADE, -PERNA_LARGURA / 2 - 0.01, yPernas, 0);
+caixa(materiais.pernas, PERNA_LARGURA, PERNA_ALTURA, PERNA_PROFUNDIDADE, PERNA_LARGURA / 2 + 0.01, yPernas, 0);
+caixa(materiais.tronco, PLAYER_WIDTH, TRONCO_ALTURA, TRONCO_PROFUNDIDADE, 0, yTronco, 0);
+caixa(materiais.bracos, BRACO_LARGURA, TRONCO_ALTURA, BRACO_PROFUNDIDADE, -(PLAYER_WIDTH / 2 + BRACO_LARGURA / 2), yTronco, 0);
+caixa(materiais.bracos, BRACO_LARGURA, TRONCO_ALTURA, BRACO_PROFUNDIDADE, PLAYER_WIDTH / 2 + BRACO_LARGURA / 2, yTronco, 0);
+caixa(materiais.cabeca, CABECA_LADO, CABECA_ALTURA, CABECA_LADO, 0, yCabeca, 0);
+
+grupo.position.y = PLAYER_HEIGHT / 2; // pés no chão, igual ao jogo (msg.y + height/2)
+scene.add(grupo);
+
+(function animar() {
+  requestAnimationFrame(animar);
+  controls.update();
+  renderer.render(scene, camera);
+})();
+
+// ── Painel: cor + textura por peça ──
+const PECAS = [
+  { chave: "cabeca", rotulo: "Cabeça" },
+  { chave: "tronco", rotulo: "Tronco (camisa)" },
+  { chave: "bracos", rotulo: "Braços" },
+  { chave: "pernas", rotulo: "Pernas (calção)" },
+];
+const pecasEl = document.getElementById("pecas");
+for (const { chave, rotulo } of PECAS) {
+  const mat = materiais[chave];
+  const bloco = document.createElement("div");
+  bloco.className = "peca";
+  bloco.innerHTML = `
+    <h2>${rotulo}</h2>
+    <label>Cor
+      <input type="color" value="#${mat.color.getHexString()}" />
+    </label>
+    <label>Textura (imagem)
+      <input type="file" accept="image/*" />
+    </label>
+    <button type="button" class="limpar">tirar textura</button>
+  `;
+  pecasEl.appendChild(bloco);
+
+  const corInput = bloco.querySelector('input[type="color"]');
+  const fileInput = bloco.querySelector('input[type="file"]');
+  const limparBtn = bloco.querySelector("button.limpar");
+
+  corInput.addEventListener("input", () => {
+    mat.color.set(corInput.value);
+    // com textura ativa, a cor MULTIPLICA a imagem — branco na textura já
+    // deixado como está; se quiser cor pura de novo, "tirar textura" primeiro.
+  });
+
+  fileInput.addEventListener("change", () => {
+    const file = fileInput.files?.[0];
+    if (!file) return;
+    const url = URL.createObjectURL(file);
+    new THREE.TextureLoader().load(url, (tex) => {
+      tex.colorSpace = THREE.SRGBColorSpace;
+      mat.map = tex;
+      mat.color.set(0xffffff); // deixa a imagem aparecer com a cor própria dela
+      corInput.value = "#ffffff";
+      mat.needsUpdate = true;
+      URL.revokeObjectURL(url);
+    });
+  });
+
+  limparBtn.addEventListener("click", () => {
+    mat.map?.dispose();
+    mat.map = null;
+    mat.needsUpdate = true;
+    fileInput.value = "";
+  });
+}
+</script>
+</body>
+</html>

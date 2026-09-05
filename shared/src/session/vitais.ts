@@ -160,6 +160,9 @@ export function atacar(ses: GameSession, clientId: number, alvoId: number): void
   const p = ses.players.get(clientId);
   const alvo = ses.players.get(alvoId);
   if (!p || !alvo || clientId === alvoId) return;
+  // gesto visual pros OUTROS verem o soco — mesmo se pvp/alcance/cooldown
+  // recusar o dano de verdade (Minecraft faz igual: o braço balança sempre).
+  ses.broadcast({ type: "gesto", id: clientId, gesto: "bater" });
   if (!temPvp(ses)) {
     avisarPvpDesligado(ses, clientId);
     return;

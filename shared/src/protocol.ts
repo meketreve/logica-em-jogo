@@ -144,11 +144,26 @@ export type ClientMessage =
    * a coluna (`enviadas.delete`) e o `streamColunas` do tick seguinte reenvia
    * pelo caminho normal, respeitando `colunasPorTick`.
    */
-  | { type: "pedir_coluna"; cx: number; cz: number };
+  | { type: "pedir_coluna"; cx: number; cz: number }
+  | {
+      /**
+       * Menu radial de emojis (2026-09-03, tecla V) — intenção do jogador,
+       * o servidor decide se vale (regra `emogis`) e broadcasta o `gesto`.
+       * Só o gesto visual: não tem efeito de jogo nenhum por trás.
+       */
+      type: "emote";
+      emote: TipoEmote;
+    };
 
 /** Teto do texto bruto de um profile_report (chars) — payload é só números e
  *  strings curtas (sem imagem); acima disso é lixo/abuso, não perfilação real. */
 export const MAX_PROFILE_REPORT_CHARS = 8192;
+
+/** Emojis do menu radial (2026-09-03) — o que o JOGADOR escolhe. */
+export type TipoEmote = "aceno" | "comemorar" | "danca";
+/** Todo gesto visual que a turma pode ver — os 2 que já existiam (bater do
+ *  pvp, interagir de baú/cama/porta) + os emojis escolhidos no menu. */
+export type TipoGesto = "bater" | "interagir" | TipoEmote;
 
 // --- Mensagens JSON servidor→cliente ---
 
@@ -241,6 +256,20 @@ export type ServerMessage =
       type: "dormindo";
       dormindo: boolean;
       cama?: { x: number; y: number; z: number };
+    }
+  | {
+      /**
+       * Gesto visual pros OUTROS jogadores verem (2026-09-03) — bater (soco
+       * do pvp, mesmo negado por regra/alcance/cooldown), interagir (abrir
+       * baú/fornalha/loja, cama, porta/janela) ou um emoji do menu (regra
+       * `emogis`, ver `TipoEmote`). SÓ o gesto: o efeito de verdade (se
+       * houver) já chega por outra mensagem (`vida`, `container`,
+       * `block_changed`…), então perder este pacote nunca quebra o jogo —
+       * só o colega não vê o braço balançar.
+       */
+      type: "gesto";
+      id: number;
+      gesto: TipoGesto;
     }
   | {
       /** Jogador desconectou — cliente remove a representação dele. */
@@ -766,6 +795,10 @@ export function parseClientMessage(raw: string): ClientMessage | null {
       if (!ints.every((n) => typeof n === "number" && Number.isInteger(n))) return null;
       return { type: "pedir_coluna", cx: m["cx"] as number, cz: m["cz"] as number };
     }
+    case "emote": {
+      if (m["emote"] !== "aceno" && m["emote"] !== "comemorar" && m["emote"] !== "danca") return null;
+      return { type: "emote", emote: m["emote"] };
+    }
     default:
       return null;
   }
@@ -883,6 +916,12 @@ export function parseServerMessage(raw: string): ServerMessage | null {
       // sem cama válida, "deitado" não tem para onde levar a câmera: vira em pé
       if (m["dormindo"] === true && !cama) return { type: "dormindo", dormindo: false };
       return { type: "dormindo", dormindo: m["dormindo"], ...(cama ? { cama } : {}) };
+    }
+    case "gesto": {
+      if (typeof m["id"] !== "number" || !Number.isInteger(m["id"])) return null;
+      const g = m["gesto"];
+      if (g !== "bater" && g !== "interagir" && g !== "aceno" && g !== "comemorar" && g !== "danca") return null;
+      return { type: "gesto", id: m["id"], gesto: g };
     }
     case "player_left": {
       if (typeof m["id"] !== "number" || !Number.isInteger(m["id"])) return null;
