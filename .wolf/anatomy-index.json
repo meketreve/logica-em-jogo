@@ -1,12 +1,12 @@
 {
   "version": 1,
   "meta": {
-    "lastScanned": "2026-09-06T16:33:43.813Z",
-    "fileCount": 377,
+    "lastScanned": "2026-09-06T17:20:58.841Z",
+    "fileCount": 378,
     "hits": 0,
     "misses": 0,
-    "renderedHash": "b2491a002f3477f08af40f73790d31afa853b8a7d3bd81504f5e8217da37e5a5",
-    "storeUpdatedAt": "2026-09-06T16:33:43.835Z"
+    "renderedHash": "799cc89ebd2bccf0354641931a10d08352a4d49b17d1a5f9eeade936f3035211",
+    "storeUpdatedAt": "2026-09-06T17:20:58.902Z"
   },
   "files": {
     ".claude/commands/reframe.md": {
@@ -12914,6 +12914,15 @@
       "mtimeMs": 1786448361124.3147,
       "updatedAt": "2026-09-04T00:20:44.289Z",
       "source": "scan"
+    },
+    "docs/manual.html": {
+      "description": "Manual — Lógica em Jogo",
+      "tokens": 7823,
+      "hash": "c64bee8fb8a9619c",
+      "size": 29831,
+      "mtimeMs": 1788715258747.4683,
+      "updatedAt": "2026-09-06T17:20:58.840Z",
+      "source": "hook"
     }
   }
 }

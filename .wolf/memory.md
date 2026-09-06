@@ -3416,3 +3416,6 @@ fraude.
 | 13:33 | Edited README.md | 6 → 7 | ~14 |
 | 13:34 | Session end: 3 writes across 1 files (README.md) | 4 reads | ~17814 tok |
 | 13:35 | README raiz: aula 7 (corrida) e texto de update (semver→rótulo) tavam desatualizados vs cenarios/README.md e o launcher real — sincronizados | README.md | fechado | ~18000 |
+| 14:20 | Created docs/manual.html | — | ~7823 |
+| 17:21 | Criado docs/manual.html — manual pro professor leigo: aulas, comandos, regras, ferramentas, blocos, FAQ | docs/manual.html | novo, self-contained, offline | ~9000 |
+| 14:21 | Session end: 4 writes across 2 files (README.md, manual.html) | 31 reads | ~191917 tok |

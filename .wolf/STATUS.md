@@ -59,9 +59,20 @@
 > `shared/src/build-info.json` regenerado no HEAD do push (`node scripts/gerar-build-info.mjs`).
 > Conferido: 40/41 blocos do changelog têm `data`; só o topo fica sem, de propósito.
 
+> ### ✅ Docs em dia — README corrigido + manual novo pro professor
+> README raiz tinha 2 pontos atrasados: tabela de aulas parada em 6 (faltava a aula 7 —
+> corrida) e o texto de "Atualizar" ainda com exemplo em semver (trocado por rótulo
+> data+novidade+commit em 2026-08-27). Corrigido e cruzado com `cenarios/README.md` +
+> `iniciar-servidor.sh` reais. Commitado e pushado (`8e2285b` + `1caa02c` dist).
+> **Novo:** `docs/manual.html` — manual pro professor LEIGO (não-programador), 1 arquivo HTML
+> autocontido (sem CDN, abre com duplo clique, sem internet): as 7 aulas, todos os comandos de
+> chat (professor/todos/moderação), `/regra`s, painéis/ferramentas, blocos especiais e FAQ com
+> 15 perguntas comuns. Ainda **não commitado** — decisão do usuário.
+
 > ### 🚀 PRÓXIMA QUEST
-> Nada pedido ainda. Opções na mesa: uniforme/skin de verdade por escola (a ferramenta de
-> preview já existe, falta ligar no jogo), testar tudo isso em aula real, ou seguir a fila.
+> Nada pedido ainda. Opções na mesa: commitar o manual novo, uniforme/skin de verdade por
+> escola (a ferramenta de preview já existe, falta ligar no jogo), testar tudo isso em aula
+> real, ou seguir a fila.
 >
 > **Pendências desta sessão, nenhuma bloqueante:**
 > - 3ª pessoa é v1 funcional, não polida — distância/ângulo fixos, sem teste em aula real ainda.

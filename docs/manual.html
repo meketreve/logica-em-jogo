@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Manual — Lógica em Jogo</title>
+<style>
+  :root {
+    --bg: #f7f6f2;
+    --bg-alt: #ffffff;
+    --ink: #1f2a24;
+    --ink-soft: #4b564f;
+    --brand: #1c6b4a;
+    --brand-dark: #144d36;
+    --accent: #b3701f;
+    --line: #dcd8cc;
+    --code-bg: #eef0e9;
+    --table-head: #e4ede7;
+    --callout-bg: #eef6f0;
+    --callout-border: #1c6b4a;
+    --warn-bg: #fbf1e1;
+    --warn-border: #b3701f;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #141815;
+      --bg-alt: #1c2119;
+      --ink: #e8ede8;
+      --ink-soft: #b6c0b8;
+      --brand: #5fbf8f;
+      --brand-dark: #4aa87a;
+      --accent: #e0a352;
+      --line: #333c34;
+      --code-bg: #232a24;
+      --table-head: #253028;
+      --callout-bg: #1b2b22;
+      --callout-border: #3f8f66;
+      --warn-bg: #2c2517;
+      --warn-border: #b3821f;
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font: 16px/1.6 -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  }
+  a { color: var(--brand-dark); }
+  @media (prefers-color-scheme: dark) { a { color: var(--brand); } }
+
+  header.top {
+    background: var(--brand);
+    color: #fff;
+    padding: 2rem 1.25rem 1.75rem;
+  }
+  header.top .flags img { height: 20px; vertical-align: middle; margin-right: 6px; border-radius: 2px; }
+  header.top .escola { font-size: 0.85rem; opacity: 0.9; margin: 0.4rem 0 1rem; }
+  header.top h1 { margin: 0.2rem 0 0.3rem; font-size: 1.9rem; }
+  header.top p.subtitulo { margin: 0; max-width: 46rem; opacity: 0.95; }
+
+  .wrap { max-width: 62rem; margin: 0 auto; padding: 0 1.25rem; }
+
+  nav.toc {
+    background: var(--bg-alt);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    margin: -1.25rem auto 2rem;
+    padding: 1rem 1.25rem 1.25rem;
+    max-width: 62rem;
+  }
+  nav.toc h2 { margin: 0 0 0.6rem; font-size: 1rem; color: var(--ink-soft); text-transform: uppercase; letter-spacing: 0.04em; }
+  nav.toc ol { columns: 2; column-gap: 2rem; margin: 0; padding-left: 1.2rem; }
+  nav.toc li { break-inside: avoid; margin-bottom: 0.3rem; }
+  @media (max-width: 560px) { nav.toc ol { columns: 1; } }
+
+  main { padding-bottom: 3rem; }
+
+  h2 {
+    margin-top: 2.6rem;
+    padding-bottom: 0.4rem;
+    border-bottom: 2px solid var(--brand);
+    font-size: 1.4rem;
+  }
+  h3 { margin-top: 1.6rem; font-size: 1.1rem; color: var(--brand-dark); }
+  @media (prefers-color-scheme: dark) { h3 { color: var(--brand); } }
+
+  p { color: var(--ink); }
+  .lead { color: var(--ink-soft); }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 0.8rem 0 1.4rem;
+    font-size: 0.94rem;
+  }
+  caption { text-align: left; font-size: 0.85rem; color: var(--ink-soft); margin-bottom: 0.3rem; }
+  th, td {
+    border: 1px solid var(--line);
+    padding: 0.5rem 0.6rem;
+    text-align: left;
+    vertical-align: top;
+  }
+  th { background: var(--table-head); }
+  td code, p code, li code { background: var(--code-bg); padding: 0.05rem 0.35rem; border-radius: 4px; font-size: 0.92em; }
+  tr:nth-child(even) td { background: color-mix(in srgb, var(--bg-alt) 60%, var(--bg) 40%); }
+
+  .callout, .warn {
+    border-left: 4px solid var(--callout-border);
+    background: var(--callout-bg);
+    padding: 0.8rem 1rem;
+    border-radius: 0 8px 8px 0;
+    margin: 1rem 0;
+  }
+  .warn { border-left-color: var(--warn-border); background: var(--warn-bg); }
+  .callout p:last-child, .warn p:last-child { margin-bottom: 0; }
+
+  details {
+    background: var(--bg-alt);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 0.6rem 1rem;
+    margin: 0.6rem 0;
+  }
+  details summary {
+    cursor: pointer;
+    font-weight: 600;
+    color: var(--brand-dark);
+  }
+  @media (prefers-color-scheme: dark) { details summary { color: var(--brand); } }
+  details[open] summary { margin-bottom: 0.5rem; }
+
+  footer {
+    border-top: 1px solid var(--line);
+    padding: 1.5rem 0 3rem;
+    color: var(--ink-soft);
+    font-size: 0.85rem;
+  }
+
+  .top-link { font-size: 0.82rem; }
+
+  @media print {
+    header.top { background: none !important; color: #000; }
+    nav.toc { break-after: page; }
+    details:not([open]) > *:not(summary) { display: block !important; }
+    a[href]::after { content: ""; }
+  }
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap">
+    <div class="flags">
+      <img src="bandeiras/brasil.png" alt=""><img src="bandeiras/santa-catarina.png" alt=""><img src="bandeiras/ararangua.png" alt="">
+    </div>
+    <p class="escola">E.E.B. Prof.ª Otília da Silva Berti — Araranguá / Santa Catarina</p>
+    <h1>Lógica em Jogo — Manual do Professor</h1>
+    <p class="subtitulo">Guia rápido pra quem nunca abriu o projeto: o que é, como jogar, cada aula, cada comando,
+    cada ferramenta — e uma resposta pra dúvida mais comum. <strong>Não precisa saber programar</strong> pra usar
+    nada disto.</p>
+  </div>
+</header>
+
+<nav class="toc">
+  <h2>Neste manual</h2>
+  <ol>
+    <li><a href="#o-que-e">O que é isto</a></li>
+    <li><a href="#requisitos">Antes de começar</a></li>
+    <li><a href="#entrar">Como o aluno entra</a></li>
+    <li><a href="#controles">Controles do jogo</a></li>
+    <li><a href="#aulas">As 7 aulas prontas</a></li>
+    <li><a href="#comandos-professor">Comandos do professor</a></li>
+    <li><a href="#comandos-todos">Comandos de todo mundo</a></li>
+    <li><a href="#comandos-moderacao">Moderação da turma</a></li>
+    <li><a href="#regras">Regras (ligar/desligar)</a></li>
+    <li><a href="#ferramentas">Ferramentas e painéis</a></li>
+    <li><a href="#blocos">Blocos com função especial</a></li>
+    <li><a href="#faq">Perguntas frequentes</a></li>
+  </ol>
+</nav>
+
+<main class="wrap">
+
+<section id="o-que-e">
+<h2>📘 O que é isto</h2>
+<p>Lógica em Jogo é um jogo <strong>sandbox voxel 3D</strong> (do estilo "construir com blocos") feito pra
+ensinar <strong>pensamento lógico e raciocínio computacional</strong> no Ensino Fundamental. A turma inteira
+joga junta, no navegador, dentro da rede da própria escola — <strong>sem internet, sem instalar nada no
+aparelho do aluno e sem pagar licença</strong>.</p>
+<p>A pedagogia mora nas <strong>aulas</strong> (chamadas de "cenários" no projeto), não no motor do jogo: o
+jogo já vem com 7 aulas prontas, cada uma corrigida automaticamente na hora (o aluno vê um contador tipo
+<code>4/12</code> e descobre sozinho se acertou), mas o professor também pode montar os próprios desafios
+dentro do jogo, sem programar — este manual ensina como.</p>
+<div class="callout">
+<p><strong>Este manual é sobre USAR o jogo já instalado.</strong> Pra baixar o projeto e ligar o servidor
+pela primeira vez, siga o <code>README.md</code> que vem junto na pasta — ele tem o passo a passo de
+instalação e o script de "duplo clique pra ligar". Aqui embaixo tem só um resumo rápido disso.</p>
+</div>
+</section>
+
+<section id="requisitos">
+<h2>🖥️ Antes de começar</h2>
+<table>
+<thead><tr><th>Precisa</th><th>Detalhe</th></tr></thead>
+<tbody>
+<tr><td>Um notebook</td><td>é ele que hospeda a aula (pode ser o do professor)</td></tr>
+<tr><td>Rede local</td><td>o roteador do laboratório basta — internet não é necessária durante a aula</td></tr>
+<tr><td>Navegador nos aparelhos dos alunos</td><td>tablets e notebooks entram digitando um endereço, nada pra instalar</td></tr>
+<tr><td>Node.js (só no host, e só às vezes)</td><td>no Windows o launcher baixa sozinho; em Linux/macOS precisa ter instalado</td></tr>
+</tbody>
+</table>
+<p><strong>Pra ligar:</strong> dê duplo clique no launcher da pasta do projeto — <code>iniciar-servidor.bat</code>
+(Windows) ou <code>iniciar-servidor.sh</code> (Linux/macOS). Ele pergunta qual mundo abrir, o código de
+professor e o tamanho, e depois mostra o endereço que os alunos vão digitar. Detalhes completos, atualização
+automática e solução de problemas: <code>README.md</code>.</p>
+</section>
+
+<section id="entrar">
+<h2>🚪 Como o aluno entra</h2>
+<p>O aluno abre o navegador no endereço que apareceu no console do servidor (algo como
+<code>http://192.168.0.10:8080</code>), digita um <strong>apelido</strong> e um <strong>PIN de 4 dígitos</strong>
+— os dois criados na hora, na primeira entrada dele. Não existe cadastro, conta ou senha de serviço nenhum;
+o PIN só serve pra um colega não conseguir entrar fingindo ser outro.</p>
+<p>O <strong>professor</strong> entra pelo mesmo lugar, mas preenche também o campo <strong>código de
+professor</strong> (perguntado pelo launcher ao ligar o servidor, ou impresso sozinho no console se ninguém
+definir um). Esse código libera o painel de autoria, os comandos de moderação e a criação de aulas.</p>
+<div class="warn">
+<p><strong>Guarde o código de professor.</strong> Sem ele você entra como um aluno qualquer e não consegue
+abrir o painel de autoria nem usar os comandos da seção seguinte. Ele aparece de novo toda vez que o
+servidor sobe, no console (a janela preta que abre atrás do jogo).</p>
+</div>
+</section>
+
+<section id="controles">
+<h2>🎮 Controles do jogo</h2>
+<h3>Teclado (computador)</h3>
+<table>
+<thead><tr><th>Tecla</th><th>Ação</th></tr></thead>
+<tbody>
+<tr><td><code>W A S D</code></td><td>andar (frente / trás / esquerda / direita)</td></tr>
+<tr><td><code>Espaço</code></td><td>pular — 2 toques rápidos voam, se o voo estiver liberado</td></tr>
+<tr><td><code>Ctrl</code> (esquerdo)</td><td>correr</td></tr>
+<tr><td><code>Shift</code> (esquerdo)</td><td>agachar — não cai de bordas</td></tr>
+<tr><td><code>1</code>–<code>9</code></td><td>escolher item da barra de baixo (hotbar)</td></tr>
+<tr><td>Roda do mouse</td><td>trocar de item na hotbar</td></tr>
+<tr><td>Clique esquerdo</td><td>quebrar bloco · atacar (se PVP ligado) · marcar o 1º canto da varinha</td></tr>
+<tr><td>Clique direito</td><td>colocar bloco · comer · abrir baú/fornalha/loja/porta · marcar o 2º canto da varinha</td></tr>
+<tr><td>Clique do meio</td><td>copiar o bloco mirado pra mão (só no modo criativo)</td></tr>
+<tr><td><code>E</code></td><td>abrir a mochila (inventário)</td></tr>
+<tr><td><code>P</code></td><td>abrir o painel — de autoria (professor) ou de grupo (aluno)</td></tr>
+<tr><td><code>G</code></td><td>abrir o painel de amigos</td></tr>
+<tr><td><code>R</code></td><td>varinha de seleção de área (usada por vários comandos abaixo)</td></tr>
+<tr><td><code>C</code></td><td>alternar câmera 1ª / 3ª pessoa</td></tr>
+<tr><td><code>V</code></td><td>menu de emojis (o professor precisa ligar a regra <code>emogis</code> primeiro)</td></tr>
+<tr><td><code>F3</code></td><td>painel técnico de desempenho (FPS, rede) — informação de debug, não de jogo</td></tr>
+<tr><td><code>Enter</code></td><td>abrir o chat, pra falar ou digitar um comando</td></tr>
+<tr><td><code>Esc</code></td><td>fecha o painel aberto; sem painel aberto, abre o menu de pausa</td></tr>
+</tbody>
+</table>
+<p class="lead">Toda tecla (menos WASD/Espaço/Ctrl/Shift) pode ser trocada no menu de pausa → configurações.</p>
+
+<h3>Toque (tablet/celular)</h3>
+<p>O menu de configurações tem 5 jeitos de arrumar os controles na tela, e o tamanho dos botões se ajusta
+sozinho ao aparelho:</p>
+<table>
+<thead><tr><th>Disposição</th><th>Pra que serve</th></tr></thead>
+<tbody>
+<tr><td><strong>Destro</strong> (padrão)</td><td>joystick à esquerda, botões de ação à direita</td></tr>
+<tr><td><strong>Canhoto</strong></td><td>o mesmo layout espelhado</td></tr>
+<tr><td><strong>Compacto</strong></td><td>controles mais colados ao centro — mãos/telas menores</td></tr>
+<tr><td><strong>Espalhado</strong></td><td>controles mais nas pontas da tela</td></tr>
+<tr><td><strong>Direcional</strong></td><td>troca o joystick por um D-pad de 4 botões (sem diagonal)</td></tr>
+</tbody>
+</table>
+</section>
+
+<section id="aulas">
+<h2>📚 As 7 aulas prontas</h2>
+<p>Ficam na pasta <code>cenarios/</code>, um arquivo por aula, prontas pra carregar no launcher. Todas têm
+correção automática — o aluno não depende do professor pra saber se acertou.</p>
+<table>
+<thead><tr><th>#</th><th>Aula</th><th>Pilar</th><th>Tarefa</th></tr></thead>
+<tbody>
+<tr><td>1</td><td>Continue a regra</td><td>Padrão + generalização</td><td>Continuar a sequência de cores</td></tr>
+<tr><td>2</td><td>Escreva 45 em binário</td><td>Abstração + representação</td><td>Acender bits (branco = 0 / preto = 1)</td></tr>
+<tr><td>3</td><td>Ache os 2 erros</td><td>Depuração</td><td>Achar os blocos que quebram a regra</td></tr>
+<tr><td>4</td><td>Decifre a mensagem</td><td>Representação + decodificação</td><td>Cifra de César</td></tr>
+<tr><td>5</td><td>Conserte o desenho</td><td>Decomposição + invariante</td><td>Corrigir um desenho simétrico</td></tr>
+<tr><td>6</td><td>Siga o manual</td><td>Executar algoritmo</td><td>Montar a sala seguindo os quadros</td></tr>
+<tr><td>7</td><td>A corrida dos 4 postos</td><td>Sequência</td><td>Percorrer 4 postos em ordem, equipe inteira na chegada</td></tr>
+<tr><td>—</td><td>Construção livre</td><td>Autonomia e criatividade</td><td>Construir no mundo aberto, sem objetivo</td></tr>
+</tbody>
+</table>
+<div class="callout">
+<p>O <strong>roteiro completo de cada aula</strong> — regra pro professor explicar, gabarito com a resposta
+certa e o que observar em cada grupo — está em <code>cenarios/README.md</code>. Vale a leitura antes de
+aplicar qualquer uma das 7.</p>
+</div>
+<p>Pra trocar de aula no meio do dia sem derrubar a turma, o professor digita no chat:
+<code>/mundo carregar nome-da-aula</code> (veja a lista com <code>/mundo lista</code>).</p>
+</section>
+
+<section id="comandos-professor">
+<h2>💬 Comandos do professor</h2>
+<p>Digitados no chat do jogo (tecla <code>Enter</code>), sempre começando com <code>/</code>. Só funcionam
+pra quem entrou com o código de professor.</p>
+<table>
+<thead><tr><th>Comando</th><th>Como usar</th><th>O que faz</th></tr></thead>
+<tbody>
+<tr><td><code>/bloco</code></td><td><code>/bloco x y z id</code></td><td>Coloca ou apaga um bloco à distância, sem precisar chegar perto (id 0 = ar/vazio)</td></tr>
+<tr><td><code>/regiao</code></td><td><code>criar nome</code> · <code>apagar nome</code> · <code>lista</code> · <code>encher nome id</code> · <code>carimbar modelo prefixo espaçamento</code></td><td>Marca e nomeia uma área do mapa (use a varinha, tecla <code>R</code>, pra escolher os 2 cantos antes) — é a base dos objetivos e das áreas de grupo</td></tr>
+<tr><td><code>/objetivo</code></td><td><code>add construir modelo alvo texto…</code> · <code>add chegar regiao texto…</code> · <code>lista</code> · <code>remover id</code> · <code>modo sequencial|livre</code> · <code>resetar</code></td><td>Cria os desafios da aula: construir uma cópia de um modelo, chegar a um lugar, ou limpar uma área — com o contador automático</td></tr>
+<tr><td><code>/aula</code></td><td><code>/aula grupos X</code></td><td>Ajusta o número de áreas de grupo NO MEIO da aula, sem apagar o progresso de quem já está jogando</td></tr>
+<tr><td><code>/iniciar</code></td><td><code>/iniciar</code></td><td>Atalho de "começar a aula": recria os grupos, zera o progresso e teleporta todo mundo pro lugar certo</td></tr>
+<tr><td><code>/tp</code></td><td><code>/tp grupos</code> · <code>/tp nome</code> · <code>/tp nome x y z</code></td><td>Teleporta você, um aluno, ou manda cada grupo pra sua própria área</td></tr>
+<tr><td><code>/redefinirpin</code></td><td><code>/redefinirpin nome</code></td><td>Apaga o PIN salvo de um aluno — ele escolhe um novo PIN no próximo login</td></tr>
+<tr><td><code>/dar</code></td><td><code>/dar eu|all|nome id [quantidade]</code></td><td>Coloca blocos/itens direto na mochila de alguém (ou de todos)</td></tr>
+<tr><td><code>/modo</code></td><td><code>/modo criativo|sobrevivencia [eu|all|nome]</code></td><td>Define se a turma (ou só você) joga com recursos infinitos (criativo) ou com fome/vida de verdade (sobrevivência)</td></tr>
+<tr><td><code>/regra</code></td><td><code>/regra</code> (lista) · <code>/regra nome ligar|desligar</code></td><td>Liga/desliga uma regra do jogo — veja a tabela completa mais abaixo</td></tr>
+<tr><td><code>/pvp</code></td><td><code>/pvp ligar|desligar</code></td><td>Atalho direto pra regra de PVP (deixar os alunos se atacarem)</td></tr>
+<tr><td><code>/voo</code></td><td><code>/voo ligar|desligar</code></td><td>Libera ou tranca o voo pra turma (o professor sempre pode voar)</td></tr>
+<tr><td><code>/confinar</code></td><td><code>/confinar ligar|desligar|status</code></td><td>"Modo prova": cada aluno só vê e mexe na área do próprio grupo, o resto do mundo some pra ele</td></tr>
+<tr><td><code>/invisivel</code></td><td><code>/invisivel</code></td><td>Você some da visão dos alunos e atravessa paredes — pra observar sem ser notado</td></tr>
+<tr><td><code>/silenciar</code></td><td><code>/silenciar ligar|desligar</code></td><td>Desliga o chat de conversa da turma (comandos continuam funcionando)</td></tr>
+<tr><td><code>/hora</code></td><td><code>dia|noite|amanhecer|entardecer|meio-dia|meia-noite|0..23</code></td><td>Define a hora do dia no mundo</td></tr>
+<tr><td><code>/ciclo</code></td><td><code>/ciclo ligar|desligar</code></td><td>Liga/desliga a passagem do tempo (dia virar noite sozinho)</td></tr>
+<tr><td><code>/vento</code></td><td><code>/vento ligar|desligar</code></td><td>Liga/desliga efeitos de ambiente (água, nuvens, folhas balançando)</td></tr>
+</tbody>
+</table>
+</section>
+
+<section id="comandos-todos">
+<h2>💬 Comandos de todo mundo</h2>
+<p>Estes qualquer jogador pode usar — aluno ou professor.</p>
+<table>
+<thead><tr><th>Comando</th><th>Como usar</th><th>O que faz</th></tr></thead>
+<tbody>
+<tr><td><code>/grupo</code></td><td><code>entrar n</code> · <code>sair</code> · <code>lista</code> (<code>criar</code> é só do professor)</td><td>Entra ou sai de um grupo de trabalho</td></tr>
+<tr><td><code>/terreno</code></td><td><code>criar [nome]</code> · <code>lista</code> · <code>remover [nome]</code></td><td>Protege uma área construída pelo próprio aluno contra colega mexer (marque com a varinha, tecla <code>R</code>, antes)</td></tr>
+<tr><td><code>/amigos</code></td><td><code>convidar nome</code> · <code>aceitar</code> · <code>sair</code> · <code>lista</code></td><td>Convida colegas pra construir juntos dentro do <code>/terreno</code> um do outro</td></tr>
+<tr><td><code>/tpp</code></td><td><code>/tpp nome</code></td><td>Pede pra se teleportar até outro jogador (o pedido expira em 60s)</td></tr>
+<tr><td><code>/tpa</code></td><td><code>/tpa</code></td><td>Aceita o pedido de teleporte mais recente</td></tr>
+<tr><td><code>/painel</code></td><td><code>/painel</code></td><td>Mesmo efeito da tecla <code>P</code> — abre o painel de autoria ou de grupo</td></tr>
+</tbody>
+</table>
+</section>
+
+<section id="comandos-moderacao">
+<h2>🛡️ Moderação da turma</h2>
+<p>Estes também são digitados no chat do jogo, e só funcionam pro professor — mas mexem na conexão do
+aluno, não no mundo, por isso ficam numa categoria à parte.</p>
+<table>
+<thead><tr><th>Comando</th><th>Como usar</th><th>O que faz</th></tr></thead>
+<tbody>
+<tr><td><code>/mundo</code></td><td><code>lista</code> · <code>atual</code> · <code>carregar nome</code></td><td>Troca a aula em andamento sem derrubar quem está conectado</td></tr>
+<tr><td><code>/expulsar</code></td><td><code>/expulsar nome</code></td><td>Tira um aluno da sessão agora — ele pode voltar a entrar com o mesmo PIN</td></tr>
+<tr><td><code>/banir</code></td><td><code>/banir nome</code></td><td>Impede aquele apelido de entrar de novo, até alguém desbanir</td></tr>
+<tr><td><code>/desbanir</code></td><td><code>/desbanir nome</code></td><td>Libera um apelido banido</td></tr>
+</tbody>
+</table>
+<div class="callout">
+<p><strong>Um comando é diferente de todos os outros:</strong> <code>/say</code> não se digita dentro do
+jogo. Ele é digitado direto na <strong>janela preta do servidor</strong> (o console que abre atrás do jogo
+quando você liga o launcher) e manda uma mensagem pra turma inteira, como se fosse um aviso do sistema — útil
+pra avisar algo mesmo sem estar logado como jogador.</p>
+</div>
+</section>
+
+<section id="regras">
+<h2>⚙️ Regras (ligar/desligar)</h2>
+<p>Comando <code>/regra nome ligar</code> ou <code>/regra nome desligar</code>. Digite só <code>/regra</code>
+pra ver a lista com o estado atual.</p>
+<table>
+<thead><tr><th>Regra</th><th>Padrão</th><th>O que faz</th></tr></thead>
+<tbody>
+<tr><td><code>manter-inventario</code></td><td>ligada</td><td>Ao morrer, o aluno mantém os itens da mochila (desligada = perde tudo)</td></tr>
+<tr><td><code>pvp</code></td><td>desligada</td><td>Alunos em modo sobrevivência podem se atacar (também dá pra usar <code>/pvp</code> direto)</td></tr>
+<tr><td><code>fome</code></td><td>ligada</td><td>A barra de fome desce com o esforço; sem comer, a vida vai regenerando mais devagar</td></tr>
+<tr><td><code>emogis</code></td><td>desligada</td><td>Libera o menu de emojis (tecla <code>V</code>) pra turma</td></tr>
+</tbody>
+</table>
+<p class="lead"><code>/voo</code>, <code>/ciclo</code>, <code>/confinar</code> e <code>/terreno</code> parecem
+regras mas são comandos próprios (não passam por <code>/regra</code>) — já estão nas tabelas acima.</p>
+</section>
+
+<section id="ferramentas">
+<h2>🛠️ Ferramentas e painéis</h2>
+<table>
+<thead><tr><th>Ferramenta</th><th>Como abrir</th><th>Pra que serve</th></tr></thead>
+<tbody>
+<tr><td><strong>Painel de autoria</strong></td><td>tecla <code>P</code>, ou botão 📋 no toque</td><td>Central do professor: iniciar a aula, criar/editar objetivos, criar/encher regiões, gerenciar grupos e jogadores — tudo sem digitar comando</td></tr>
+<tr><td><strong>Painel de grupo</strong></td><td>tecla <code>P</code>, ou botão no toque</td><td>Aluno vê os grupos existentes e entra clicando</td></tr>
+<tr><td><strong>Painel de jogadores</strong></td><td>botão "👥 jogadores" dentro do painel de autoria</td><td>Ver quem está conectado (expulsar/banir), quem está banido (desbanir) e ajustar o número de grupos</td></tr>
+<tr><td><strong>Varinha de região</strong></td><td>tecla <code>R</code></td><td>Marca 2 cantos no mundo (clique esquerdo/direito) pra alimentar <code>/regiao</code> ou <code>/terreno</code></td></tr>
+<tr><td><strong>Painel de amigos</strong></td><td>tecla <code>G</code></td><td>Convidar colegas pra construir juntos numa área protegida</td></tr>
+<tr><td><strong>Mochila (inventário)</strong></td><td>tecla <code>E</code></td><td>Ver e organizar os blocos e itens carregados</td></tr>
+<tr><td><strong>Painel de baú / loja</strong></td><td>clique direito num baú, fornalha ou Baú-Loja</td><td>Guardar/pegar itens; na loja, comprar (qualquer um) ou definir preços em Dimas (só quem criou aquele Baú-Loja)</td></tr>
+<tr><td><strong>Menu de emojis</strong></td><td>tecla <code>V</code> (precisa da regra <code>emogis</code> ligada)</td><td>Aceno, comemorar e dança — só gesto visual, sem efeito no jogo</td></tr>
+<tr><td><strong>Menu de pausa</strong></td><td><code>Esc</code></td><td>Sensibilidade, volume, campo de visão, disposição de toque, remapear teclas</td></tr>
+</tbody>
+</table>
+</section>
+
+<section id="blocos">
+<h2>🧱 Blocos com função especial</h2>
+<p>A maioria dos blocos é só material de construção. Estes têm comportamento próprio:</p>
+<table>
+<thead><tr><th>Bloco</th><th>O que faz</th></tr></thead>
+<tbody>
+<tr><td><strong>Baú</strong></td><td>Guarda 27 tipos de item — clique direito abre</td></tr>
+<tr><td><strong>Baú-Loja</strong></td><td>Como o baú, mas tem dono e preço em <strong>Dimas</strong> (a moeda do jogo): qualquer um compra, só o dono mexe no preço/estoque</td></tr>
+<tr><td><strong>Fornalha</strong></td><td>Cozinha item colocando combustível embaixo — acende sozinha e emite luz enquanto acesa</td></tr>
+<tr><td><strong>Cama</strong></td><td>Define onde o aluno renasce e permite dormir a noite (precisa da maioria da turma dormindo, à noite)</td></tr>
+<tr><td><strong>Porta / Janela</strong></td><td>Clique direito abre e fecha</td></tr>
+<tr><td><strong>Quadro</strong></td><td>Clique direito abre um editor de texto (até 300 caracteres) — usado nas placas da aula 6 e pra recados dos alunos</td></tr>
+<tr><td><strong>Tocha</strong></td><td>Ilumina; precisa de um bloco cheio embaixo pra ficar de pé</td></tr>
+<tr><td><strong>Balde</strong></td><td>Item (não bloco): clique direito pega ou despeja água</td></tr>
+</tbody>
+</table>
+</section>
+
+<section id="faq">
+<h2>❓ Perguntas frequentes</h2>
+
+<details>
+<summary>Preciso de internet durante a aula?</summary>
+<p>Não. O jogo roda inteiro na rede local da escola — o roteador do laboratório já basta. Internet só é
+usada (e é opcional) pro launcher checar se existe uma versão mais nova antes de ligar; dá pra pular isso.</p>
+</details>
+
+<details>
+<summary>Preciso instalar alguma coisa no computador ou tablet do aluno?</summary>
+<p>Não. O aluno só precisa de um navegador e do endereço que aparece no console quando o servidor sobe.
+Tudo roda direto na aba.</p>
+</details>
+
+<details>
+<summary>Se a internet da escola cair no meio da aula, o jogo para?</summary>
+<p>Não. A rede local (Wi-Fi/cabo dentro da escola) continua funcionando mesmo sem internet — é só isso que
+o jogo usa durante a partida.</p>
+</details>
+
+<details>
+<summary>Esqueci o código de professor. Como recupero?</summary>
+<p>Ele aparece de novo no console (a janela preta atrás do jogo) toda vez que o servidor liga. Se preferir
+um código fixo pra sempre lembrar, o launcher pergunta na hora de subir o servidor.</p>
+</details>
+
+<details>
+<summary>Um aluno esqueceu o próprio PIN. E agora?</summary>
+<p>Digite no chat <code>/redefinirpin nome-do-aluno</code>. Ele escolhe um PIN novo na próxima vez que
+entrar com o mesmo apelido.</p>
+</details>
+
+<details>
+<summary>Perco o progresso se desligar o computador sem querer?</summary>
+<p>O mundo salva sozinho a cada 30 segundos e também ao fechar certinho (<code>Ctrl+C</code> na janela do
+servidor). Se o computador travar entre um salvamento e outro, o pior caso é perder os últimos segundos —
+o mundo em si não corrompe.</p>
+</details>
+
+<details>
+<summary>Como eu divido a turma em grupos?</summary>
+<p><code>/grupo criar N</code> (N = quantos grupos) cria as equipes; cada aluno entra com
+<code>/grupo entrar N</code> ou clicando no painel (tecla <code>P</code>). Pra abrir a aula do zero já com
+grupos e áreas prontas, use <code>/iniciar</code>.</p>
+</details>
+
+<details>
+<summary>Um aluno está atrapalhando ou destruindo a construção dos outros. O que eu faço?</summary>
+<p>Pra uma prova/atividade fechada, <code>/confinar ligar</code> isola cada grupo na própria área — ninguém
+vê nem mexe fora dela. Pra proteger uma construção específica de um aluno, ele mesmo pode marcar com a
+varinha (tecla <code>R</code>) e usar <code>/terreno criar</code>. Em caso extremo,
+<code>/expulsar nome</code> tira o aluno da sessão, e <code>/banir nome</code> impede a volta.</p>
+</details>
+
+<details>
+<summary>Como eu crio meus próprios desafios, sem usar as 7 aulas prontas?</summary>
+<p>Abra o painel de autoria (tecla <code>P</code>): construa um modelo-gabarito em algum lugar do mapa,
+marque a área com a varinha (tecla <code>R</code>) e nomeie com <code>/regiao criar nome</code>, depois
+crie o objetivo com <code>/objetivo add construir modelo alvo enunciado</code>. Tudo isso também tem botão
+dentro do painel, sem precisar decorar o comando.</p>
+</details>
+
+<details>
+<summary>O que é "Dimas"?</summary>
+<p>É a moeda virtual do jogo, usada no Baú-Loja: um aluno guarda itens num Baú-Loja, define um preço em
+Dimas, e os colegas compram com clique direito. É uma ferramenta de comércio entre grupos, opcional.</p>
+</details>
+
+<details>
+<summary>Dá pra jogar sozinho em casa pra treinar antes da aula?</summary>
+<p>Sim — no menu do launcher existe a opção de mundo livre/singleplayer, sem precisar de rede nem de outros
+jogadores.</p>
+</details>
+
+<details>
+<summary>Preciso saber programar pra usar o jogo ou criar aulas?</summary>
+<p>Não. Tudo neste manual — aulas, comandos, painéis — é usado dentro do próprio jogo. Só quem for mexer no
+código-fonte do projeto (fora do escopo deste manual) precisa de conhecimento técnico.</p>
+</details>
+
+<details>
+<summary>É pago? Preciso de licença?</summary>
+<p>Não. O uso em qualquer escola é livre e gratuito. Modificar o código-fonte ou redistribuir uma versão
+alterada precisa de autorização do autor — os detalhes completos estão no <code>LICENSE</code> na raiz do
+projeto.</p>
+</details>
+
+<details>
+<summary>Funciona em Chromebook / tablet Android / iPad?</summary>
+<p>Sim, qualquer aparelho com navegador moderno entra normalmente. O menu de configurações tem 5 disposições
+de controle de toque pra ajustar ao aparelho (veja a seção de Controles).</p>
+</details>
+
+<details>
+<summary>Como eu troco de aula no meio do dia (outra turma, outro horário)?</summary>
+<p><code>/mundo lista</code> mostra as aulas disponíveis e <code>/mundo carregar nome</code> troca sem
+precisar reiniciar o servidor nem desconectar quem já está em outra sala.</p>
+</details>
+
+</section>
+
+</main>
+
+<footer class="wrap">
+  <p>Lógica em Jogo — desenvolvido por Leonardo De Jesus Silvano, E.E.B. Prof.ª Otília da Silva Berti, rede
+  estadual de ensino de Santa Catarina. Uso livre em qualquer escola; termos completos em
+  <code>LICENSE</code>. Detalhes de instalação e atualização: <code>README.md</code>. Roteiro de condução de
+  cada aula: <code>cenarios/README.md</code>.</p>
+</footer>
+
+</body>
+</html>

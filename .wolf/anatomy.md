@@ -1,7 +1,7 @@
 # anatomy.md
 
-> Auto-maintained by OpenWolf. Last scanned: 2026-09-06T16:33:43.813Z
-> Files: 377 tracked | Anatomy hits: 0 | Misses: 0
+> Auto-maintained by OpenWolf. Last scanned: 2026-09-06T17:20:58.841Z
+> Files: 378 tracked | Anatomy hits: 0 | Misses: 0
 
 ## ./
 
@@ -509,6 +509,7 @@
 ## docs/
 
 - `loja-perguntas-alunos.md` — Loja nos baús — perguntas de design (~350 tok)
+- `manual.html` — Manual — Lógica em Jogo (~7823 tok)
 
 ## docs/superpowers/plans/
 
