@@ -3420,3 +3420,6 @@ fraude.
 | 17:21 | Criado docs/manual.html — manual pro professor leigo: aulas, comandos, regras, ferramentas, blocos, FAQ | docs/manual.html | novo, self-contained, offline | ~9000 |
 | 14:21 | Session end: 4 writes across 2 files (README.md, manual.html) | 31 reads | ~191917 tok |
 | 17:52 | Arrumação da raiz: apagou .wolf.bak-pre-lean/.wolf.bak-pre-v2 (backups velhos), removeu PDF duplicado, moveu projeto.txt pra docs/ | STATUS.md, docs/projeto.txt | fechado | ~6000 |
+| 15:06 | Session end: 4 writes across 2 files (README.md, manual.html) | 32 reads | ~191917 tok |
+| 16:32 | Edited .gitignore | 4→9 lines | ~91 |
+| 16:40 | Migrou dev de WSL pra Windows nativo (C:\dev\logica-em-jogo): rsync + npm install + verify completo + commit/push nativos, abandonou rtk (hook e CLAUDE.md removidos nos 2 lados) | STATUS.md, cerebrum.md, .gitignore, package.json | fechado, 979/979 nos 2 lados | ~40000 |

@@ -1,12 +1,12 @@
 # anatomy.md
 
-> Auto-maintained by OpenWolf. Last scanned: 2026-09-06T17:50:41.957Z
+> Auto-maintained by OpenWolf. Last scanned: 2026-09-06T19:32:47.223Z
 > Files: 320 tracked | Anatomy hits: 0 | Misses: 0
 
 ## ./
 
 - `.gitattributes` — LF em tudo (projeto vive no WSL/ext4; evita ruído CRLF de ferramentas Windows) (~31 tok)
-- `.gitignore` — Git ignore rules (~393 tok)
+- `.gitignore` — Git ignore rules (~462 tok)
 - `CLAUDE.md` — OpenWolf (~57 tok)
 - `iniciar-servidor.bat` (~5902 tok)
 - `iniciar-servidor.sh` — ============================================================ (~6703 tok)

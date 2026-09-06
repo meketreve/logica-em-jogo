@@ -69,10 +69,34 @@
 > chat (professor/todos/moderação), `/regra`s, painéis/ferramentas, blocos especiais e FAQ com
 > 15 perguntas comuns. Ainda **não commitado** — decisão do usuário.
 
+> ### ✅ Dev migrou de WSL pra Windows nativo (2026-09-06) — rtk abandonado
+> Usuário decidiu parar de usar Claude dentro do WSL e ir só de Desktop app nativo Windows.
+> **`C:\dev\logica-em-jogo` é agora a cópia viva** (mesmo histórico git, `origin/main` em
+> `f063762`) — a de `/home/meketreve/logica-em-jogo` no WSL fica de reserva, não é mais onde
+> o trabalho acontece. `npm install`/`typecheck`/`test` (979/979)/`build`/push com hook de
+> pre-push, tudo verificado rodando NATIVO no Windows (PowerShell), sem WSL no meio.
+> - `rtk` abandonado por pedido do usuário: hook global `PreToolUse`→`rtk hook claude`
+>   removido de `~/.claude/settings.json` do WSL, `@RTK.md` tirado do `~/.claude/CLAUDE.md`
+>   do WSL. **O lado Windows nunca teve rtk** — config Windows já existia desde ~12/08,
+>   feita independente, com os mesmos plugins (caveman/superpowers/karpathy-skills, faltando só
+>   `supabase` — não usado neste projeto, sem problema).
+> - Achado no caminho, corrigido e commitado (`f063762`, direto do Windows): npm 11+ tem gate
+>   `allowScripts` pro postinstall do `esbuild` — sem aprovar, `npm install` trava pedindo
+>   confirmação manual (WSL também tem npm 11+, não é só coisa de Windows, por isso virou
+>   commit e não config local). E `.claude/settings.local.json` não tinha regra própria no
+>   `.gitignore` — só ficava fora do commit no WSL por causa do `excludesFile` GLOBAL do git
+>   de lá; em máquina nova (Windows nativo) aparecia como untracked. Corrigido.
+> - **Pendente, não bloqueante:** scripts de puppeteer (`bench:headless`, `shots:*`,
+>   `openwolf designqc`) precisam baixar Chrome de novo no Windows — `~/.cache/puppeteer`
+>   confirmado VAZIO lá; primeira chamada de qualquer um desses scripts deve disparar o
+>   download sozinha, não testado ainda.
+> - **Decisão do usuário, não tomada ainda:** por quanto tempo manter a cópia WSL como
+>   backup antes de apagar. Não apagar sem perguntar de novo quando chegar a hora.
+
 > ### 🚀 PRÓXIMA QUEST
-> Nada pedido ainda. Opções na mesa: commitar o manual novo, uniforme/skin de verdade por
-> escola (a ferramenta de preview já existe, falta ligar no jogo), testar tudo isso em aula
-> real, ou seguir a fila.
+> Nada pedido ainda. Opções na mesa: confirmar Chrome/puppeteer funcionando no Windows,
+> uniforme/skin de verdade por escola (a ferramenta de preview já existe, falta ligar no
+> jogo), testar tudo isso em aula real, ou seguir a fila.
 >
 > **Pendências desta sessão, nenhuma bloqueante:**
 > - 3ª pessoa é v1 funcional, não polida — distância/ângulo fixos, sem teste em aula real ainda.
@@ -117,6 +141,14 @@
   `drops.ts`, `receitas.ts` e `sobrevivencia.ts`: sem I/O, sem rede, testáveis sozinhos.
 
 ---
+
+## 🌐 Rede: WSL invisível na LAN (OBSOLETO — dev saiu do WSL em 2026-09-06, ver HANDOFF)
+
+> Todo o problema abaixo (WSL atrás de NAT, invisível pro resto da LAN) só existe quando o
+> HOST roda dentro do WSL. Com o dev migrado pra Windows nativo, hospedar a partir de lá não
+> tem NAT nenhum no meio — o `.wslconfig`/regras de firewall documentados aqui não são mais
+> necessários pro caso comum. Fica só como referência histórica / caminho B se algum dia
+> voltar a hospedar de dentro do WSL.
 
 ## 🌐 Rede: WSL invisível na LAN (em curso 2026-07-27)
 

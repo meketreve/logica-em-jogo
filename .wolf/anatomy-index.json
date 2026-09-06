@@ -1,12 +1,12 @@
 {
   "version": 1,
   "meta": {
-    "lastScanned": "2026-09-06T17:50:41.957Z",
+    "lastScanned": "2026-09-06T19:32:47.223Z",
     "fileCount": 320,
     "hits": 0,
     "misses": 0,
-    "renderedHash": "1e36e6957776f4ea2ad86202c0d4807a630dd49566ee7b7db67391c5d75a8016",
-    "storeUpdatedAt": "2026-09-06T17:50:41.962Z"
+    "renderedHash": "42c63c42fb50b99e305cc39acb9374491ec548f637ee7424e3a5aea0cadfeab0",
+    "storeUpdatedAt": "2026-09-06T19:32:47.258Z"
   },
   "files": {
     ".claude/commands/reframe.md": {
@@ -65,12 +65,12 @@
     },
     ".gitignore": {
       "description": "Git ignore rules",
-      "tokens": 393,
-      "hash": "f98cf82d96f83a84",
-      "size": 1509,
-      "mtimeMs": 1787943616528.3167,
-      "updatedAt": "2026-09-06T17:50:41.637Z",
-      "source": "scan"
+      "tokens": 462,
+      "hash": "c675c2b5f00bac24",
+      "size": 1778,
+      "mtimeMs": 1788723167127.4663,
+      "updatedAt": "2026-09-06T19:32:47.223Z",
+      "source": "hook"
     },
     ".superpowers/sdd/.gitignore": {
       "description": "Git ignore rules",

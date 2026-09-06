@@ -2271,6 +2271,23 @@ nenhum** — sem essa declaração o Chrome renderiza a página em light mesmo c
 
 ## Decision Log — índice das decisões ATIVAS
 
+- [2026-09-06] **Dev deste projeto migrou de "Claude dentro do WSL" pra "Desktop app nativo
+  Windows"; `C:\dev\logica-em-jogo` é a cópia viva agora, `/home/meketreve/logica-em-jogo`
+  (WSL) fica de reserva.** Motivo do usuário: sair do WSL de vez, abandonar `rtk`. Verificado
+  ponta a ponta ANTES de declarar pronto: `npm install` (aprovando o gate `allowScripts` novo
+  do npm 11+ pro postinstall do `esbuild` — achado e commitado, não é coisa só de Windows),
+  typecheck 3/3, 979/979 testes, build, e um commit+push REAL passando pelo hook de pre-push
+  — tudo nativo, sem WSL no meio. **Duas cópias do mesmo repo (WSL e Windows) só é seguro
+  enquanto uma delas para de receber commit** — daqui pra frente só a de Windows deveria
+  commitar; a do WSL virou histórico/backup. Efeito colateral bom: a seção "WSL invisível na
+  LAN" (`STATUS.md`, NAT do WSL2 escondendo o host do resto da rede) fica obsoleta — hospedar
+  a partir do Windows nativo não tem NAT nenhum no meio. `.gitignore` ganhou regra própria
+  pra `.claude/settings.local.json` (só ficava fora do commit no WSL por um `excludesFile`
+  GLOBAL do git de lá, que não existe numa instalação nova do git no Windows — sem a regra
+  NO REPO, uma máquina nova commitaria esse arquivo por engano). Pendência real, não
+  bloqueante: scripts de puppeteer (`bench:headless`, `shots:*`, `designqc`) vão precisar
+  baixar Chrome de novo no Windows na primeira chamada — `~/.cache/puppeteer` confirmado
+  vazio lá, não testado ainda.
 - [2026-09-03] **Launcher trocou o rótulo de versão: semver → data+novidade+commit, com
   `titulo` extraído em Node, nunca em batch/shell.** `iniciar-servidor.bat`/`.sh` liam
   `package.json`'s `"version"` (que já não tinha função técnica desde 2026-08-27). Agora
