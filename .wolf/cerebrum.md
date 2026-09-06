@@ -1575,6 +1575,15 @@ nenhum** — sem essa declaração o Chrome renderiza a página em light mesmo c
 
 ## Do-Not-Repeat
 
+- [2026-09-06] **`Move-Item` do PowerShell entre DISCOS (`C:` → `D:`) engasga em
+  `node_modules` de projeto com npm workspaces.** `node_modules/@logica/client` (e
+  `@logica/server`, `@logica/shared`) são junctions que o npm cria pros workspaces locais —
+  `Move-Item` tenta seguir/recriar a junction na travessia entre volumes e falha com
+  `DirectoryNotFoundException`, abortando o resto do move (itens depois de `node_modules` em
+  ordem alfabética nunca chegam a ser tentados). Não vale a pena reconciliar o `node_modules`
+  partido entre os dois discos — mais rápido: mover o resto normal (arquivos/pastas sem
+  symlink) e apagar+reinstalar `node_modules` do zero no destino (`npm install`, ~15s aqui).
+  Mesma lição vale pra `robocopy`/qualquer copiadora que não trate junction explicitamente.
 - [2026-09-03] **Ctrl+C durante `set /p` no `.bat` NÃO é bug de código — é o
   cmd.exe.** Batch não tem `trap`/handler de SIGINT. Ctrl+C dispara o prompt
   nativo do console "Terminate batch job (Y/N)?"; se a resposta não for Y, o
@@ -2272,7 +2281,9 @@ nenhum** — sem essa declaração o Chrome renderiza a página em light mesmo c
 ## Decision Log — índice das decisões ATIVAS
 
 - [2026-09-06] **Dev deste projeto migrou de "Claude dentro do WSL" pra "Desktop app nativo
-  Windows"; `C:\dev\logica-em-jogo` é a cópia viva agora, `/home/meketreve/logica-em-jogo`
+  Windows"; `D:\git-projeto\logica-em-jogo` é a cópia viva agora (mudou de
+  `C:\dev\logica-em-jogo` no mesmo dia — usuário mantém TODOS os projetos git em
+  `D:\git-projeto\`, `C:\dev\` foi engano meu), `/home/meketreve/logica-em-jogo`
   (WSL) fica de reserva.** Motivo do usuário: sair do WSL de vez, abandonar `rtk`. Verificado
   ponta a ponta ANTES de declarar pronto: `npm install` (aprovando o gate `allowScripts` novo
   do npm 11+ pro postinstall do `esbuild` — achado e commitado, não é coisa só de Windows),

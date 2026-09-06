@@ -3423,3 +3423,5 @@ fraude.
 | 15:06 | Session end: 4 writes across 2 files (README.md, manual.html) | 32 reads | ~191917 tok |
 | 16:32 | Edited .gitignore | 4→9 lines | ~91 |
 | 16:40 | Migrou dev de WSL pra Windows nativo (C:\dev\logica-em-jogo): rsync + npm install + verify completo + commit/push nativos, abandonou rtk (hook e CLAUDE.md removidos nos 2 lados) | STATUS.md, cerebrum.md, .gitignore, package.json | fechado, 979/979 nos 2 lados | ~40000 |
+| 16:38 | Session end: 5 writes across 3 files (README.md, manual.html, .gitignore) | 37 reads | ~193188 tok |
+| 16:55 | Corrigiu C:\dev pra D:\git-projeto\logica-em-jogo (convenção real do usuário) — Move-Item engasgou em junction do npm workspace, resolvido com reinstall | .wolf/STATUS.md, .wolf/cerebrum.md, filesystem Windows | fechado, verify passou em D: | ~15000 |

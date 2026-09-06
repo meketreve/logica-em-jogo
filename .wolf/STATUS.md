@@ -71,10 +71,15 @@
 
 > ### ✅ Dev migrou de WSL pra Windows nativo (2026-09-06) — rtk abandonado
 > Usuário decidiu parar de usar Claude dentro do WSL e ir só de Desktop app nativo Windows.
-> **`C:\dev\logica-em-jogo` é agora a cópia viva** (mesmo histórico git, `origin/main` em
-> `f063762`) — a de `/home/meketreve/logica-em-jogo` no WSL fica de reserva, não é mais onde
-> o trabalho acontece. `npm install`/`typecheck`/`test` (979/979)/`build`/push com hook de
-> pre-push, tudo verificado rodando NATIVO no Windows (PowerShell), sem WSL no meio.
+> **`D:\git-projeto\logica-em-jogo` é agora a cópia viva** (mesmo histórico git, `origin/main`
+> em `8716be4`) — a de `/home/meketreve/logica-em-jogo` no WSL fica de reserva, não é mais
+> onde o trabalho acontece. Passou primeiro por `C:\dev\` (engano meu — usuário guarda TODOS
+> os projetos git em `D:\git-projeto\`) e foi movida no mesmo dia; `Move-Item` engasgou numa
+> junction do npm workspaces (`node_modules\@logica\client`) na travessia entre discos —
+> resolvido movendo o resto na mão e reinstalando `node_modules` do zero no destino (mais
+> simples que reconciliar symlink partido entre discos). `npm install`/`typecheck`/`test`
+> (979/979)/`build`/push com hook de pre-push, tudo verificado rodando NATIVO no Windows
+> (PowerShell) a partir de `D:\git-projeto\logica-em-jogo`, sem WSL no meio.
 > - `rtk` abandonado por pedido do usuário: hook global `PreToolUse`→`rtk hook claude`
 >   removido de `~/.claude/settings.json` do WSL, `@RTK.md` tirado do `~/.claude/CLAUDE.md`
 >   do WSL. **O lado Windows nunca teve rtk** — config Windows já existia desde ~12/08,
