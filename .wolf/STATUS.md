@@ -204,6 +204,6 @@ não se confunde na pasta. Comparar com a régua do lab (`…-l9xf.json`).
 
 ## 📚 Referências (leia SE precisar)
 
-- `projeto.txt` — proposta pedagógica completa (BNCC, fundamentação, indicadores seção 14).
+- `docs/projeto.txt` — proposta pedagógica completa (BNCC, fundamentação, indicadores seção 14).
 - `.wolf/cerebrum.md` — Decision Log com o PORQUÊ de cada escolha.
 - `.wolf/anatomy.md` — índice de arquivos.

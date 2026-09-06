@@ -3419,3 +3419,4 @@ fraude.
 | 14:20 | Created docs/manual.html | — | ~7823 |
 | 17:21 | Criado docs/manual.html — manual pro professor leigo: aulas, comandos, regras, ferramentas, blocos, FAQ | docs/manual.html | novo, self-contained, offline | ~9000 |
 | 14:21 | Session end: 4 writes across 2 files (README.md, manual.html) | 31 reads | ~191917 tok |
+| 17:52 | Arrumação da raiz: apagou .wolf.bak-pre-lean/.wolf.bak-pre-v2 (backups velhos), removeu PDF duplicado, moveu projeto.txt pra docs/ | STATUS.md, docs/projeto.txt | fechado | ~6000 |
