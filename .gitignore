@@ -3,6 +3,11 @@ node_modules/
 .env
 .env.*
 
+# config local do Claude Code (permissões/preferências da máquina, não do repo).
+# Só saía do commit por causa do excludesFile GLOBAL do git no WSL — em máquina
+# nova (ex: Windows nativo) sem esse global, aparecia como untracked.
+.claude/settings.local.json
+
 # Node.js portátil baixado pelo iniciar-servidor.bat (máquina sem Node instalado)
 .node-portatil/
 

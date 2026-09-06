@@ -37,5 +37,8 @@
   "devDependencies": {
     "typescript": "^7.0.2",
     "vitest": "^4.1.10"
+  },
+  "allowScripts": {
+    "esbuild@0.28.1": true
   }
 }
