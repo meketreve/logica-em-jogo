@@ -2,12 +2,13 @@
 
 > Single source of truth for resuming work. Read this FIRST when starting a session.
 
-> ## 🧭 HANDOFF — SESSÃO 95 (2026-09-03) · Corpo do jogador, 3ª pessoa, menu de emojis
+> ## 🧭 HANDOFF — SESSÃO 95-96 (2026-09-05/06) · Corpo do jogador, 3ª pessoa, menu de emojis
 
 > **Bateria verde:** typecheck 3/3 · **979/979** · build · `checar-launchers`/`checar-dist` OK.
-> **NADA desta sessão foi commitado ainda** (regra do sistema: só commito se o usuário pedir) —
-> tudo abaixo é mudança em working tree, esperando o próximo passo do usuário (commitar? seguir
-> pro uniforme/skin de verdade? testar em aula?).
+> **COMMITADO E PUSHADO** (`0e13700` código, `2046644` changelog+dist) — main = origin/main.
+> Ficaram de fora do commit (não são desta sessão): `relatorio/*.docx` + `Zone.Identifier`
+> (arquivo pessoal do usuário) e `.wolf/hooks/_precompact-snapshot.json` (estado local do
+> OpenWolf, mesma família do `_session.json` já ignorado) — seguem untracked, de propósito.
 
 > ### ✅ bug-660 fechado — Ctrl+C no `.bat` pulava input e continuava a lógica
 > Causa é do PRÓPRIO cmd.exe (bat não tem trap de SIGINT), não do código — não dá pra
@@ -52,9 +53,15 @@
 > Lição registrada no Key Learning: teste isolado que recria a cena à mão vale menos que rodar
 > o código real — prefira bot+Chrome headless DENTRO do jogo quando der.
 
+> ### ✅ Changelog e build-info em dia
+> Novo bloco no topo de `client/src/changelog.ts` ("Seu personagem ganha corpo", sem `data`
+> escrita à mão — é sempre o build atual, por design). Loja desceu pra bloco datado 02/09.
+> `shared/src/build-info.json` regenerado no HEAD do push (`node scripts/gerar-build-info.mjs`).
+> Conferido: 40/41 blocos do changelog têm `data`; só o topo fica sem, de propósito.
+
 > ### 🚀 PRÓXIMA QUEST
-> **Decisão imediata do usuário:** commitar esta sessão (nada foi commitado ainda), ou seguir
-> direto pro próximo pedaço?
+> Nada pedido ainda. Opções na mesa: uniforme/skin de verdade por escola (a ferramenta de
+> preview já existe, falta ligar no jogo), testar tudo isso em aula real, ou seguir a fila.
 >
 > **Pendências desta sessão, nenhuma bloqueante:**
 > - 3ª pessoa é v1 funcional, não polida — distância/ângulo fixos, sem teste em aula real ainda.

@@ -96,9 +96,10 @@ do GitHub. Ele escolhe o caminho **pela própria pasta**:
   exportado solto na pasta);
 - se o pacote trouxer arquivos para `mundos/`, ele **pergunta antes**, e o padrão é **não
   sobrescrever** os mundos da turma;
-- ao terminar, diz o que mudou em número de versão: *"Atualizado da versão 0.9.0 para a
-  1.0.0"* — ou *"continua na versão 0.9.0, com as correções mais novas"* quando o conserto veio
-  dentro da mesma versão;
+- ao terminar, diz o que mudou — não mais em número de versão (o projeto não usa semver desde
+  2026-08-27): *"Atualizado! Novidade agora: Seu personagem ganha corpo (06/09/2026) (commit
+  0e13700)."* — ou *"Atualizado — continua em Seu personagem ganha corpo (06/09/2026), com as
+  correções mais novas (commit ...)."* quando o conserto veio sem novidade nova pra anunciar;
 - o `client/dist` é versionado, então o cliente vem **pronto no pacote**: não se compila nada.
 
 > ⚠️ Um `.git` **sobrando** na pasta (clone antigo, ou um ZIP extraído por cima de um) **não
@@ -128,9 +129,10 @@ do GitHub. Ele escolhe o caminho **pela própria pasta**:
 
 ## As aulas
 
-Seis aulas prontas em `cenarios/`, mais construção livre. Cada uma amarra um pilar do
-pensamento computacional a uma tarefa concreta com **correção automática** — o aluno vê um
-contador ao vivo (`4/12`) e descobre sozinho se acertou.
+Sete aulas prontas em `cenarios/`, mais construção livre. As 6 primeiras são de CONSTRUIR;
+a 7ª é uma CORRIDA em equipe, mundo próprio. Cada uma amarra um pilar do pensamento
+computacional a uma tarefa concreta com **correção automática** — o aluno vê um contador ao
+vivo (`4/12`) e descobre sozinho se acertou.
 
 | # | Aula | Pilar | Tarefa |
 |-|-|-|-|
@@ -140,6 +142,7 @@ contador ao vivo (`4/12`) e descobre sozinho se acertou.
 | 4 | Decifre a mensagem | Representação + decodificação | Cifra de César |
 | 5 | Conserte o desenho | Decomposição + invariante | Corrigir um desenho simétrico |
 | 6 | Siga o manual | Executar algoritmo | Montar a sala seguindo os quadros |
+| 7 | A corrida dos 4 postos | Sequência | Percorrer 4 postos em ordem, equipe inteira na chegada |
 | — | Construção livre | Autonomia e criatividade | Construir no mundo aberto |
 
 Roteiro de condução de cada aula (regra, gabarito, o que observar) em
@@ -161,7 +164,7 @@ shared/   lógica autoritativa (mundo, blocos, física, tick, regras, save, prot
           TS puro, zero dependência de navegador ou de Node — roda igual nos 3 hospedeiros.
 server/   embrulha o shared: Web Worker (singleplayer) ou Node + ws (rede local).
 client/   three.js. Só desenha e manda input. Nunca decide estado.
-cenarios/ as 6 aulas (.ljw) + o roteiro de condução.
+cenarios/ as 7 aulas (.ljw) + o roteiro de condução.
 scripts/  smoke de rede real e benchmark headless.
 ```
 

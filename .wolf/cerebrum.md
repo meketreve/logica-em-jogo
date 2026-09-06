@@ -167,6 +167,17 @@
 
 ## Key Learnings
 
+- [2026-09-06] **README raiz e `cenarios/README.md` podem divergir sem ninguém notar — o
+  segundo é atualizado junto do código (`server/src/cenarios/gerar.ts`/`corrida.ts`), o
+  primeiro só quando alguém lembra.** Achado ao revisar "o que precisa" + "as aulas": aula 7
+  (`aula7-corrida.ljw`, desde `89258f7`) já estava documentada em detalhe no
+  `cenarios/README.md` mas nunca chegou na tabela do README raiz ("Seis aulas" ficou parado em
+  6). Mesma sessão achou o texto de `Atualizar` citando exemplo em semver
+  (`"0.9.0 → 1.0.0"`) apesar do launcher ter trocado pra rótulo data+novidade+commit em
+  2026-08-27 (ver Decision Log 2026-09-03). **Ao revisar README por pedido de "tá
+  desatualizado": cruzar com `git log --oneline <sha-do-último-touch-no-README>..HEAD` e com os
+  READMEs satélite (`cenarios/README.md` etc.), não só reler o arquivo isolado** — o arquivo
+  sozinho lê como coerente mesmo estando defasado.
 - [2026-09-05] **Pedido genérico "commit e push" NÃO é `git add -A` cego.** A working tree
   tinha `relatorio/*.docx` + `Zone.Identifier` (arquivo pessoal do usuário, nada a ver com
   código) e `.wolf/hooks/_precompact-snapshot.json` (estado local do OpenWolf, mesma família

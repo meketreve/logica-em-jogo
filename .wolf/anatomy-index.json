@@ -1,12 +1,12 @@
 {
   "version": 1,
   "meta": {
-    "lastScanned": "2026-09-06T14:09:30.532Z",
+    "lastScanned": "2026-09-06T16:33:43.813Z",
     "fileCount": 377,
     "hits": 0,
     "misses": 0,
-    "renderedHash": "c2cec03b636287bd46ab4ee3e62db141795dc1de14f49176989a96aecaf039d4",
-    "storeUpdatedAt": "2026-09-06T14:09:30.567Z"
+    "renderedHash": "b2491a002f3477f08af40f73790d31afa853b8a7d3bd81504f5e8217da37e5a5",
+    "storeUpdatedAt": "2026-09-06T16:33:43.835Z"
   },
   "files": {
     ".claude/commands/reframe.md": {
@@ -4267,12 +4267,12 @@
     },
     "README.md": {
       "description": "Project documentation",
-      "tokens": 2838,
-      "hash": "d56eb6604255ec1f",
-      "size": 11658,
-      "mtimeMs": 1788104674976.3171,
-      "updatedAt": "2026-09-04T00:20:44.142Z",
-      "source": "scan"
+      "tokens": 2924,
+      "hash": "118aec28d039327d",
+      "size": 12009,
+      "mtimeMs": 1788712423719.4685,
+      "updatedAt": "2026-09-06T16:33:43.813Z",
+      "source": "hook"
     },
     "registros/perfilador-v0.8.0-escola.md": {
       "description": "Tabela agregada dos 52 perfis do piloto v0.8.0 (dispositivo/GPU/FPS/tick, sem nome de aluno)",
