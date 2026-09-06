@@ -167,6 +167,13 @@
 
 ## Key Learnings
 
+- [2026-09-05] **Pedido genérico "commit e push" NÃO é `git add -A` cego.** A working tree
+  tinha `relatorio/*.docx` + `Zone.Identifier` (arquivo pessoal do usuário, nada a ver com
+  código) e `.wolf/hooks/_precompact-snapshot.json` (estado local do OpenWolf, mesma família
+  do `_session.json` já ignorado). Nenhum dos dois é da sessão de trabalho. Resolvido listando
+  arquivo por arquivo no `git add` (só o que a sessão de fato mudou) em vez de `-A`/`.`, e
+  avisando no fim quais ficaram de fora e por quê. Regra geral: antes de um commit amplo,
+  `git status` completo e separar "mudança da sessão" de "arquivo solto que apareceu no meio".
 - [2026-09-03] **Um teste ISOLADO (HTML solto fora do jogo, corpo/câmera recriados à mão só
   pra checar 1 coisa) deu o sinal ERRADO pro `rotation.x` da cabeça, e só o usuário jogando de
   verdade pegou o erro** (pitch pra cima = rosto pra baixo — ao contrário do pretendido). O

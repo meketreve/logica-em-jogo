@@ -43,6 +43,18 @@ interface Mudanca {
 const MUDANCAS: readonly Mudanca[] = [
   {
     // sem `data`: este é o build atual (ver rotuloDoBloco)
+    titulo: "Seu personagem ganha corpo",
+    itens: [
+      "chega de caixinha lisa: agora você tem cabeça, tronco, braços e pernas, com braço e perna balançando de verdade ao andar e correr",
+      "tecla C liga a câmera em 3ª pessoa (pra ver o próprio corpo) — mirar, quebrar e colocar bloco continuam sempre pelo olho, não pela câmera",
+      "menu de emojis (tecla V, o professor liga com /regra emogis ligar): aceno, comemorar e dança — a câmera vira 3ª pessoa sozinha durante o gesto e a turma toda vê",
+      "dar um soco ou abrir baú/porta/cama agora mostra o gesto pros colegas também, não só pra você",
+      "sua cabeça acompanha pra onde você está mirando, com um limite de giro que imita o pescoço de verdade",
+      "Ctrl+C no iniciar-servidor.bat durante uma pergunta agora fecha de vez — antes pulava a pergunta e continuava rodando",
+    ],
+  },
+  {
+    data: "02/09/2026",
     titulo: "Loja: monte seu comércio",
     itens: [
       "crafte um Baú-Loja, coloque no seu terreno, e ele vira uma lojinha de verdade — você escolhe o que vende e por quanto",

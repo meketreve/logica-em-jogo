@@ -3404,3 +3404,5 @@ fraude.
 | 22:11 | Edited client/src/playerBody.ts | inline fix | ~38 |
 | 22:12 | Velocidade da animação de andar/correr reduzida pela metade (CICLO_POR_METRO: 1,4m -> 2,8m por passada) | client/src/playerBody.ts | typecheck+build ok, 0 exceção | ~600 |
 | 22:12 | Session end: 106 writes across 21 files (todo.md, iniciar-servidor.bat, menu.ts, remotePlayers.ts, editor-skin.html) | 36 reads | ~229221 tok |
+| 11:09 | Edited client/src/changelog.ts | modified emojis() | ~398 |
+| 11:11 | Session end: 107 writes across 22 files (todo.md, iniciar-servidor.bat, menu.ts, remotePlayers.ts, editor-skin.html) | 38 reads | ~234989 tok |

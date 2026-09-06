@@ -1,6 +1,6 @@
 # anatomy.md
 
-> Auto-maintained by OpenWolf. Last scanned: 2026-09-04T01:11:30.477Z
+> Auto-maintained by OpenWolf. Last scanned: 2026-09-06T14:09:30.532Z
 > Files: 377 tracked | Anatomy hits: 0 | Misses: 0
 
 ## ./
@@ -278,9 +278,9 @@
 - `blocksUi.ts` — Blocos colocáveis com nome em português — fonte única pra hotbar (main.ts) (~3750 tok)
   - section `PlaceableEntry` L55-234 (~3137 tok)
   - fn `placeableFor` L235-239 (~56 tok)
-- `changelog.ts` — Tela "📜 novidades" do menu principal — registro do que já foi feito no (~4796 tok)
-  - section `Mudanca` L36-366 (~3823 tok)
-  - fn `buildChangelogScreen` L367-410 (~426 tok)
+- `changelog.ts` — Tela "📜 novidades" do menu principal — registro do que já foi feito no (~5051 tok)
+  - section `Mudanca` L36-378 (~4078 tok)
+  - fn `buildChangelogScreen` L379-422 (~426 tok)
 - `chat.ts` — UI de chat em HTML/CSS por cima do canvas (regra: sem GUI de engine). (~3564 tok)
   - fn `acompanharTecladoVirtual` L102-114 (~138 tok)
   - class `ChatUi` L115-336 (~2335 tok)

@@ -1,12 +1,12 @@
 {
   "version": 1,
   "meta": {
-    "lastScanned": "2026-09-04T01:11:30.477Z",
+    "lastScanned": "2026-09-06T14:09:30.532Z",
     "fileCount": 377,
     "hits": 0,
     "misses": 0,
-    "renderedHash": "259656f48d8b6a79583c2bf618dedbcd4a9d1920693339ba40a71ea12460af37",
-    "storeUpdatedAt": "2026-09-04T01:11:30.499Z"
+    "renderedHash": "c2cec03b636287bd46ab4ee3e62db141795dc1de14f49176989a96aecaf039d4",
+    "storeUpdatedAt": "2026-09-06T14:09:30.567Z"
   },
   "files": {
     ".claude/commands/reframe.md": {
@@ -1807,25 +1807,25 @@
     },
     "client/src/changelog.ts": {
       "description": "Tela \"📜 novidades\" do menu principal — registro do que já foi feito no",
-      "tokens": 4796,
-      "hash": "5d1b09f8dcf73d8b",
-      "size": 17204,
-      "mtimeMs": 1788370626743.7498,
-      "updatedAt": "2026-09-04T00:20:43.973Z",
-      "source": "scan",
+      "tokens": 5051,
+      "hash": "dbec07f3991618a1",
+      "size": 18125,
+      "mtimeMs": 1788703770427.467,
+      "updatedAt": "2026-09-06T14:09:30.532Z",
+      "source": "hook",
       "symbols": [
         {
           "name": "Mudanca",
           "kind": "section",
           "startLine": 36,
-          "endLine": 366,
-          "tokens": 3823
+          "endLine": 378,
+          "tokens": 4078
         },
         {
           "name": "buildChangelogScreen",
           "kind": "fn",
-          "startLine": 367,
-          "endLine": 410,
+          "startLine": 379,
+          "endLine": 422,
           "tokens": 426
         }
       ]
