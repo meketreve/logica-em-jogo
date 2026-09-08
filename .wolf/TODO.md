@@ -492,6 +492,9 @@ gate de claim nos containers, junto de cada um) → F10c (algodão) → F10d (fe
 
 ## 💡 Later / backlog (not scheduled)
 
+- [ ] **Ideia anotada (2026-09-06): leitura de íris pra controle adaptativo.** Sem escopo
+      definido ainda — anotar e decidir depois.
+
 - [ ] **Ferramentas que ficaram de fora do §🧪** (avaliadas em 2026-07-26, gatilho anotado):
       `ast-grep`/`sg` para busca ESTRUTURAL (achar call site por forma, não por texto) —
       vale instalar quando grep começar a devolver 30+ hits por consulta;
