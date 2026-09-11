@@ -5796,6 +5796,82 @@
       "related_bugs": [],
       "occurrences": 1,
       "last_seen": "2026-09-03T00:00:00.000Z"
+    },
+    {
+      "id": "bug-662",
+      "timestamp": "2026-09-11T00:00:00.000Z",
+      "error_message": "usuario: 'colocar uma cama seguida da outra acaba nao formando corretamente a cama e permite duplicar quebrando bloco a bloco'",
+      "file": "shared/src/rules.ts:74 (camaRule), shared/src/session.ts:1137 (place_block da cama), shared/src/drops.ts:53",
+      "root_cause": "ABERTO — nao corrigido, teoria FORTE derivada da leitura do codigo (sem repro rodada ainda). `camaRule` descobre o PAR perguntando so 'a celula vizinha no eixo tem o MESMO id?', nos dois sentidos (+dx/+dz = sou o pe, -dx/-dz = sou a cabeceira). As 4 direcoes da cama sao UM id cada (CamaXP..CamaZN, blocks.ts:96) e as DUAS metades da mesma cama gravam o MESMO id — entao a regra NAO consegue distinguir 'meu par' de 'metade de OUTRA cama'. Duas camas encostadas na mesma orientacao viram uma CORRENTE: com dx=+1, cama A ocupa x=0 (pe) e x=1 (cabeceira), cama B ocupa x=2 e x=3, e todas as 4 celulas tem id igual. A cabeceira de A (x=1) olha x=2, ve o mesmo id e se declara 'pe com par' — quem a sustenta e o PE DA CAMA B, nao a propria cama. Quebrar o pe de A (x=0) deixa x=1 orfao de verdade, mas ele NAO evapora porque continua encostado em B. Cada metade sobrevivente vira uma cama inteira ao quebrar, porque `drops.ts:53` faz `if (isCama(id)) return BlockId.CamaXP` — TODA metade dropa uma cama completa. Resultado: 2 camas colocadas em fila = ate 4 camas de volta, quebrando celula a celula. O `place_block` (session.ts:1137) tambem nao barra o encadeamento: so checa se a celula da cabeceira e Air/replaceable, nunca se o vizinho ja e metade de outra cama. Consertar exige o par deixar de ser ambiguo — ids distintos de PE e CABECEIRA (como a porta faz com as metades) ou um bit de paridade, para `camaRule` so aceitar par de papel OPOSTO; so entao `drops` pode dropar uma cama por PAR e nao por metade.",
+      "fix": "PENDENTE — bug so ANOTADO a pedido do usuario (2026-09-11), nenhum patch aplicado. Ao atacar: (1) reproduzir colocando 2 camas encostadas na mesma direcao e quebrando metade por metade, contando os drops; (2) separar pe/cabeceira na identidade do bloco antes de mexer em drops.ts, senao o drop por par nao tem como saber qual metade e a 'dona'.",
+      "tags": [
+        "cama",
+        "duplicacao",
+        "rules",
+        "drops",
+        "place_block",
+        "par-horizontal",
+        "aberto",
+        "nao-confirmado"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-09-11T00:00:00.000Z"
+    },
+    {
+      "id": "bug-663",
+      "timestamp": "2026-09-11T00:00:00.000Z",
+      "error_message": "usuario: 'o bau-loja esta com problema na hora de salvar os precos dos itens a venda, tambem o layout dos paineis ficou muito aglomerado' / detalhe (2026-09-11): 'o ULTIMO item que tem o valor editado nao salva'",
+      "file": "client/src/container.ts:358 (change do .loja-preco-input), client/src/container.ts:232 (fecharSemAvisar), client/src/container.ts:455 (render/replaceChildren), client/index.html:698 (CSS .loja-item)",
+      "root_cause": "CAUSA RAIZ CONFIRMADA NA LEITURA DO CODIGO (falta so rodar a repro). O detalhe do usuario — 'o ULTIMO item editado nao salva' — e a assinatura de um edit que morre no TEARDOWN, nao de persistencia. O disco esta OK nos dois sentidos (containers.ts:276 serializa `precos`, :371 le de volta; `containerTemConteudo` conta `precos.size`, entao loja com preco nao e descartada do save). O que se perde e a ULTIMA edicao, e por DOIS caminhos: (A) FECHAR COM ESC — `input.addEventListener('change', ...)` (container.ts:358) so dispara no BLUR/Enter, e abre com o guarda `if (!this.pos) return`. `fecharSemAvisar()` (container.ts:232) faz `this.pos = null` na linha 236 e so DEPOIS `this.root?.classList.add('hidden')` na linha 243. Como `.hidden` e `display: none !important` (client/index.html:25), esconder o painel tira o foco do input — o browser dispara o `change` pendente NESSE instante, ou seja DEPOIS de `pos` ja ter virado null: o handler entra, bate no guarda e RETORNA EM SILENCIO. O `definirPreco` nunca e enviado. Cada campo anterior salvou porque mover o foco pro proximo input deu blur enquanto `pos` ainda existia — por isso so o ULTIMO some. Previsao testavel que separa as duas coisas: fechar pelo BOTAO 'fechar' (container.ts:470) SALVA, porque o mousedown no botao move o foco e dispara o `change` ANTES do click handler; fechar com ESC PERDE. (B) RE-RENDER NO MEIO DA EDICAO — `render()` (container.ts:455) faz `root.replaceChildren()` (:460) e remonta as linhas. Tirar do DOM um input focado NAO dispara `change` no Chrome: o valor digitado some sem nem chegar no handler. Qualquer `container` do servidor (`atualizar`, ex.: mexer no estoque) ou `inventario` novo (`refresh()`, main.ts:1451) durante a digitacao derruba o edit. Mesma classe do bug-573 (rolagem do craft morrendo no `replaceChildren`). AGRAVANTE de leitura: `lojaPrecos()` (container.ts:322) monta as linhas a partir dos ids presentes nos SLOTS DE ESTOQUE, nao da lista `precos` do servidor — item cujo estoque acabou perde a linha e o preco SOME DA TELA mesmo vivo no servidor, o que tambem se le como 'nao salvou'. Checar ainda o teto `precos.size >= CONTAINER_SLOTS.loja` (session/loja.ts:60), que recusa preco NOVO em silencio quando cheio. (C) LAYOUT AGLOMERADO: o painel empilha cabecalho + grade do container + mochila + editor de precos (container.ts:531-538) na mesma coluna; `.loja-item` e so um flex de `padding: 4px 0` com `gap: 8px` (client/index.html:698), sem separacao visual entre estoque e precos.",
+      "fix": "PENDENTE — nenhum patch aplicado (2026-09-11), bug so detalhado a pedido do usuario. Plano: (1) para (A), dar FLUSH no edit pendente ANTES do teardown — `this.root?.querySelector<HTMLInputElement>('.loja-preco-input:focus')?.blur()` como PRIMEIRA linha de `fecharSemAvisar()`, antes de `this.pos = null`; ou capturar `pos` no closure do listener (no render) em vez de ler `this.pos` na hora do evento. O closure sozinho conserta (A) mas NAO (B). (2) para (B), mesmo flush antes do `replaceChildren()` em `render()`. (3) listar as linhas de preco a partir de `this.loja.precos` UNIDO com os ids do estoque, pra preco de item sem estoque nao sumir da tela. (4) layout: separar estoque de precos (fieldset/regua) e dar respiro as linhas. Repro que confirma antes de mexer: abrir a loja como criador, digitar preco no ULTIMO campo e fechar com ESC (perde) vs fechar pelo botao 'fechar' (salva).",
+      "tags": [
+        "loja",
+        "bau-loja",
+        "precos",
+        "container",
+        "ui",
+        "layout",
+        "change-event",
+        "blur",
+        "teardown",
+        "replaceChildren",
+        "aberto",
+        "causa-confirmada"
+      ],
+      "related_bugs": [
+        "bug-573",
+        "bug-593"
+      ],
+      "occurrences": 1,
+      "last_seen": "2026-09-11T00:00:00.000Z"
+    },
+    {
+      "id": "bug-664",
+      "timestamp": "2026-09-11T00:00:00.000Z",
+      "error_message": "usuario: 'no bau-loja, se tiver muitos itens a venda nao da para rolar a pagina'",
+      "file": "client/index.html:198 (#container), client/index.html:698 (.loja-item; NAO existe regra pra .loja-compra/.loja-precos), client/src/container.ts:267 (lojaCompra), client/src/container.ts:322 (lojaPrecos)",
+      "root_cause": "CAUSA RAIZ CONFIRMADA NA LEITURA DO CSS. `#container` (client/index.html:198) tem altura FIXA (`height: min(560px, 84vh)`), `display: flex; flex-direction: column` e **`overflow: hidden`** — escolha deliberada de 2026-07-20 ('trocar de aba nao muda o tamanho do painel'), com o comentario dizendo que 'a GRADE rola por dentro quando nao cabe'. E rola: `.cont-bau` tem `max-height: 42%; overflow-y: auto` (client/index.html, bloco da grade). O problema e que **`.loja-compra` e `.loja-precos` nao tem regra CSS NENHUMA** — o unico seletor de loja no arquivo e `.loja-item`, `.loja-item img` e `.loja-qtd, .loja-preco-input` (index.html:698-700). Sem `max-height` e sem `overflow-y`, as duas listas crescem com o numero de itens, estouram a altura fixa do painel e o `overflow: hidden` do pai **corta o excedente sem gerar barra de rolagem**: o que passou do fim do painel fica inalcancavel, no mouse e no dedo. DOIS caminhos, com gravidade diferente: (A) COMPRADOR (`souOCriador === false`, container.ts:509): o render faz `root.append(head, fechar, this.lojaCompra()); return;` — a lista de compra e o unico corpo do painel, entao item alem do corte fica **impossivel de comprar**. E o caso que o usuario descreve ('muitos itens a venda'). (B) CRIADOR: `.loja-precos` entra no MEIO da pilha de irmaos (`head, fechar, dica, [acoes], cima(.cont-bau), precoEditor, divisor, grade(.inv-mochila), bar(.inv-hotbar)` — container.ts:531-578). Como `.loja-precos` nao tem teto de altura, com muitos tipos de item ela empurra o divisor, a MOCHILA e a hotbar pra fora do painel — o criador perde o acesso a propria mochila dentro da loja, nao so aos precos. Isso tambem alimenta a queixa de 'layout aglomerado' do bug-663: tudo disputa a mesma coluna de 560px sem ninguem ceder.",
+      "fix": "PENDENTE — bug so ANOTADO (2026-09-11), nenhum patch aplicado. Plano: dar as duas listas o MESMO tratamento que `.cont-bau` ja tem. Para o criador, `.loja-precos { max-height: <%>; overflow-y: auto; }` (copiar o padrao do `.cont-bau`, que usa `max-height` justamente pra escapar da armadilha do `min-height: auto` do flex item). Para o comprador, `.loja-compra { flex: 1 1 auto; min-height: 0; overflow-y: auto; }` — ali a lista e o unico corpo, entao o certo e ela ocupar a sobra e rolar; o `min-height: 0` e OBRIGATORIO, sem ele o flex item nao encolhe abaixo do conteudo e o `overflow-y` nunca vira barra. Verificar no tablet tambem (84vh corta mais cedo). Repro: loja com mais tipos de item do que cabe na altura do painel — abrir como COMPRADOR (pior caso) e tentar alcancar o ultimo item.",
+      "tags": [
+        "loja",
+        "bau-loja",
+        "scroll",
+        "overflow",
+        "css",
+        "ui",
+        "layout",
+        "container",
+        "flexbox",
+        "aberto",
+        "causa-confirmada"
+      ],
+      "related_bugs": [
+        "bug-663",
+        "bug-573"
+      ],
+      "occurrences": 1,
+      "last_seen": "2026-09-11T00:00:00.000Z"
     }
   ]
 }

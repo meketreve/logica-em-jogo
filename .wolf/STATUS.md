@@ -2,123 +2,120 @@
 
 > Single source of truth for resuming work. Read this FIRST when starting a session.
 
-> ## 🧭 HANDOFF — SESSÃO 95-96 (2026-09-05/06) · Corpo do jogador, 3ª pessoa, menu de emojis
+> ## 🧭 HANDOFF — SESSÃO 97 (2026-09-11) · Clone WSL ressincronizado + 3 bugs anotados (nenhum patch)
 
-> **Bateria verde:** typecheck 3/3 · **979/979** · build · `checar-launchers`/`checar-dist` OK.
-> **COMMITADO E PUSHADO** (`0e13700` código, `2046644` changelog+dist) — main = origin/main.
-> Ficaram de fora do commit (não são desta sessão): `relatorio/*.docx` + `Zone.Identifier`
-> (arquivo pessoal do usuário) e `.wolf/hooks/_precompact-snapshot.json` (estado local do
-> OpenWolf, mesma família do `_session.json` já ignorado) — seguem untracked, de propósito.
+> **SESSÃO DE ANOTAÇÃO, NÃO DE CÓDIGO.** Nenhum arquivo de `client/`, `server/` ou `shared/`
+> foi tocado. Nenhum teste rodado. As únicas mudanças são `.wolf/buglog.json`,
+> `.wolf/memory.md`, `.wolf/cerebrum.md` e este STATUS.
+>
+> **⚠️ ESTA SESSÃO RODOU NO CLONE WSL (`/home/meketreve/projetos/logica-em-jogo`), QUE É A
+> CÓPIA DE RESERVA.** A cópia VIVA continua sendo `D:\git-projeto\logica-em-jogo` (Windows
+> nativo). O clone WSL estava **236 commits atrás** (`package.json` em `0.8.0`, HEAD em
+> `553e49f` de 05/08) e foi ressincronizado com `git pull --ff-only` → **`c920f62`, v0.12.1**,
+> fast-forward limpo, 0 commits locais perdidos. Descartado antes do pull: um cabeçalho de
+> sessão VAZIO em `.wolf/memory.md` (única sujeira da árvore).
+> - **`npm install` NÃO foi rodado neste clone** e o `package-lock.json` mudou no pull
+>   (esbuild `0.28.1` + gate `allowScripts`). Rodar antes de qualquer `npm run dev`/`test` AQUI.
+> - Se o trabalho voltar pro Windows (o normal), **os 3 bugs abaixo precisam chegar lá por
+>   `git pull`** — eles só existem no buglog deste clone até serem commitados e pushados.
 
-> ### ✅ bug-660 fechado — Ctrl+C no `.bat` pulava input e continuava a lógica
-> Causa é do PRÓPRIO cmd.exe (bat não tem trap de SIGINT), não do código — não dá pra
-> "consertar" Ctrl+C de dentro do `.bat`. Mitigado: `"sair"`/`"0"` viram saída GARANTIDA no
-> prompt de update e no menu principal (`exit /b 0`), com REM documentando a causa raiz.
+> **🛏️ bug-662 — CAMA ENCOSTADA EM CAMA DUPLICA (causa raiz por leitura, repro não rodada).**
+> `camaRule` (`shared/src/rules.ts:74`) acha o par perguntando só *"a célula vizinha no eixo tem
+> o MESMO id?"*, nos dois sentidos. Mas as DUAS metades da mesma cama gravam o **mesmo id**
+> (`CamaXP..CamaZN`, `blocks.ts:96`) — a regra **não distingue "meu par" de "metade de OUTRA
+> cama"**. Com `dx=+1`: cama A em x=0,1 e cama B em x=2,3, quatro células com id igual viram uma
+> CORRENTE. A cabeceira de A (x=1) olha x=2, vê id igual e se declara "pé com par" — quem a
+> sustenta é o **pé da cama B**. Quebrar o pé de A deixa x=1 órfão de verdade, mas ele não
+> evapora. E `drops.ts:53` faz `if (isCama(id)) return BlockId.CamaXP` — **toda metade dropa
+> cama inteira**. 2 camas em fila → até 4 de volta, quebrando célula a célula.
+> `place_block` (`session.ts:1137`) não barra: só checa se a célula da cabeceira é
+> Air/replaceable, nunca se o vizinho já é metade de outra cama.
+> **Fix exige tirar a ambiguidade do par ANTES de mexer em drops:** ids distintos de PÉ e
+> CABECEIRA (como a porta faz com as metades) ou bit de paridade, pra `camaRule` só aceitar par
+> de papel OPOSTO. Só então `drops` pode dropar uma cama por PAR e não por metade.
 
-> ### ✅ bug-661 fechado sem patch — singleplayer via launcher
-> Relato de um professor (versão provavelmente desatualizada); usuário testou Linux+Windows
-> atualizados e funcionou nos dois. Sem reprodução, sem causa confirmada — fechado como
-> ambiente/versão específica, não bug de código. Plano de repro documentado no buglog se voltar.
+> **🏪 bug-663 — BAÚ-LOJA: O ÚLTIMO PREÇO EDITADO NÃO SALVA (causa raiz CONFIRMADA no código).**
+> Não é persistência — é **ordem de teardown**. O disco está OK nos dois sentidos
+> (`containers.ts:276` serializa `precos`, `:371` lê de volta). O listener do campo
+> (`client/src/container.ts:358`) é `change` — só dispara no **blur/Enter** — e abre com
+> `if (!this.pos) return`. `fecharSemAvisar()` (`container.ts:232`) faz `this.pos = null` na
+> linha 236 e só DEPOIS `classList.add("hidden")` na 243; como `.hidden` é
+> `display: none !important` (`client/index.html:25`), esconder o painel **tira o foco** → o
+> browser dispara o `change` pendente NESSE instante → o handler entra com `pos` já null e
+> **retorna em silêncio**. Os campos anteriores salvaram porque o foco indo pro próximo input
+> deu blur enquanto `pos` existia — **por isso só o ÚLTIMO some**.
+> - **Previsão testável que confirma em 30s:** fechar pelo botão `fechar` (`container.ts:470`)
+>   **SALVA** (o mousedown move o foco e dispara o `change` antes do click handler); fechar com
+>   **ESC PERDE**. Rodar isso ANTES de aplicar qualquer patch.
+> - **Segundo caminho de perda:** `render()` (`container.ts:455`) faz `root.replaceChildren()`.
+>   Tirar do DOM um input focado **não dispara `change`** no Chrome — o digitado some sem chegar
+>   no handler. Qualquer `container` do servidor ou `inventario` novo (`refresh()`,
+>   `main.ts:1451`) durante a digitação derruba o edit. Mesma classe do **bug-573** (rolagem do
+>   craft). **Atenção: capturar `pos` no closure conserta o caminho do ESC mas NÃO este** — aqui
+>   o `change` nunca chega a existir; precisa de flush explícito nos dois.
+> - **Agravante de leitura:** `lojaPrecos()` (`container.ts:322`) monta as linhas a partir dos ids
+>   nos SLOTS DE ESTOQUE, não da lista `precos` do servidor — item cujo estoque acabou perde a
+>   linha e o preço **some da tela** mesmo vivo no servidor. Também se lê como "não salvou".
+> - Checar ainda o teto `precos.size >= CONTAINER_SLOTS.loja` (`session/loja.ts:60`), que recusa
+>   preço NOVO **em silêncio** quando cheio.
 
-> ### ✅ Corpo do jogador — de box liso pra 5 partes articuladas, com andar/correr/gestos
-> `client/src/playerBody.ts` (NOVO — geometria + animação extraídas de `remotePlayers.ts` pra
-> serem compartilhadas com o jogador LOCAL). Pivôs de verdade no quadril/ombro (gira na JUNTA).
-> Andar/correr: fase avança por DISTÂNCIA (não tempo), amplitude suavizada, marcha
-> contralateral. `ferramentas/editor-skin.html` (NOVO) — preview zero-build de cor/textura por
-> peça, formas em espelho manual das mesmas constantes.
-
-> ### ✅ Gestos visuais — bater/interagir E o menu de emojis, mesmo mecanismo
-> Protocolo novo `gesto`/`emote` (`shared/src/protocol.ts`) — nem `atacar()` nem `use_block`
-> avisavam os OUTROS jogadores da ação (só o autor recebia resposta). Agora broadcasta pra
-> turma inteira, mesmo quando o efeito de jogo é recusado (pvp desligado ainda balança o braço).
-> **Menu radial (tecla V, `client/src/emojiWheel.ts`, NOVO):** 3 emojis (aceno/comemorar/dança),
-> regra nova `emogis` (padrão DESLIGADA, `/regra emogis ligar` — mesmo padrão genérico de
-> fome/pvp). Decisão: mundo de AULA não bloqueia (sem efeito de jogo, ao contrário do pvp).
-
-> ### ✅ Câmera em 3ª pessoa — persistente (tecla C) E temporária (durante o emoji)
-> `client/src/main.ts`. Corpo do PRÓPRIO jogador só existe/aparece fora da 1ª pessoa (custo
-> zero no caminho normal). **Mira/quebrar/colocar/atacar sempre do OLHO**, nunca da câmera —
-> garantido reposicionando a câmera de 3ª pessoa por ÚLTIMO no loop de frame, depois de toda
-> lógica que já lia `camera.position`. Clique de ação em 3ª pessoa PERSISTENTE não age, só
-> volta pra 1ª pessoa sozinho (igual F5 do Minecraft); durante o gesto do emoji o clique nem
-> conta. Colisão de câmera reusa `raycastBlock` (mesmo da mira). Verificado ponta a ponta com
-> Chrome headless real: C, V, clique no emoji, lockout de ação — tudo confirmado, 0 exceção.
-
-> ### ✅ Correções de direção + cabeça olha pro alvo (achado jogando de verdade, 2 rodadas)
-> Comemorar ia pras COSTAS e aceno levava a "mão" até a boca — sinais errados nos gestos, agora
-> apontam pra FRENTE de verdade. Cabeça ganhou pivô próprio no pescoço e olha pro pitch de quem
-> mira, com limite de ~49° (imita o pescoço) — **sem inversão de sinal** (`rotation.x =
-> pitchAtual` direto). Um teste isolado (HTML solto, corpo recriado à mão) tinha indicado sinal
-> invertido; o jogo de verdade mostrou o contrário, e foi o usuário jogando quem pegou o erro.
-> Lição registrada no Key Learning: teste isolado que recria a cena à mão vale menos que rodar
-> o código real — prefira bot+Chrome headless DENTRO do jogo quando der.
-
-> ### ✅ Changelog e build-info em dia
-> Novo bloco no topo de `client/src/changelog.ts` ("Seu personagem ganha corpo", sem `data`
-> escrita à mão — é sempre o build atual, por design). Loja desceu pra bloco datado 02/09.
-> `shared/src/build-info.json` regenerado no HEAD do push (`node scripts/gerar-build-info.mjs`).
-> Conferido: 40/41 blocos do changelog têm `data`; só o topo fica sem, de propósito.
-
-> ### ✅ Docs em dia — README corrigido + manual novo pro professor
-> README raiz tinha 2 pontos atrasados: tabela de aulas parada em 6 (faltava a aula 7 —
-> corrida) e o texto de "Atualizar" ainda com exemplo em semver (trocado por rótulo
-> data+novidade+commit em 2026-08-27). Corrigido e cruzado com `cenarios/README.md` +
-> `iniciar-servidor.sh` reais. Commitado e pushado (`8e2285b` + `1caa02c` dist).
-> **Novo:** `docs/manual.html` — manual pro professor LEIGO (não-programador), 1 arquivo HTML
-> autocontido (sem CDN, abre com duplo clique, sem internet): as 7 aulas, todos os comandos de
-> chat (professor/todos/moderação), `/regra`s, painéis/ferramentas, blocos especiais e FAQ com
-> 15 perguntas comuns. Ainda **não commitado** — decisão do usuário.
-
-> ### ✅ Dev migrou de WSL pra Windows nativo (2026-09-06) — rtk abandonado
-> Usuário decidiu parar de usar Claude dentro do WSL e ir só de Desktop app nativo Windows.
-> **`D:\git-projeto\logica-em-jogo` é agora a cópia viva** (mesmo histórico git, `origin/main`
-> em `8716be4`) — a de `/home/meketreve/logica-em-jogo` no WSL fica de reserva, não é mais
-> onde o trabalho acontece. Passou primeiro por `C:\dev\` (engano meu — usuário guarda TODOS
-> os projetos git em `D:\git-projeto\`) e foi movida no mesmo dia; `Move-Item` engasgou numa
-> junction do npm workspaces (`node_modules\@logica\client`) na travessia entre discos —
-> resolvido movendo o resto na mão e reinstalando `node_modules` do zero no destino (mais
-> simples que reconciliar symlink partido entre discos). `npm install`/`typecheck`/`test`
-> (979/979)/`build`/push com hook de pre-push, tudo verificado rodando NATIVO no Windows
-> (PowerShell) a partir de `D:\git-projeto\logica-em-jogo`, sem WSL no meio.
-> - `rtk` abandonado por pedido do usuário: hook global `PreToolUse`→`rtk hook claude`
->   removido de `~/.claude/settings.json` do WSL, `@RTK.md` tirado do `~/.claude/CLAUDE.md`
->   do WSL. **O lado Windows nunca teve rtk** — config Windows já existia desde ~12/08,
->   feita independente, com os mesmos plugins (caveman/superpowers/karpathy-skills, faltando só
->   `supabase` — não usado neste projeto, sem problema).
-> - Achado no caminho, corrigido e commitado (`f063762`, direto do Windows): npm 11+ tem gate
->   `allowScripts` pro postinstall do `esbuild` — sem aprovar, `npm install` trava pedindo
->   confirmação manual (WSL também tem npm 11+, não é só coisa de Windows, por isso virou
->   commit e não config local). E `.claude/settings.local.json` não tinha regra própria no
->   `.gitignore` — só ficava fora do commit no WSL por causa do `excludesFile` GLOBAL do git
->   de lá; em máquina nova (Windows nativo) aparecia como untracked. Corrigido.
-> - **Pendente, não bloqueante:** scripts de puppeteer (`bench:headless`, `shots:*`,
->   `openwolf designqc`) precisam baixar Chrome de novo no Windows — `~/.cache/puppeteer`
->   confirmado VAZIO lá; primeira chamada de qualquer um desses scripts deve disparar o
->   download sozinha, não testado ainda.
-> - **Decisão do usuário, não tomada ainda:** por quanto tempo manter a cópia WSL como
->   backup antes de apagar. Não apagar sem perguntar de novo quando chegar a hora.
+> **🏪 bug-664 — BAÚ-LOJA NÃO ROLA COM MUITOS ITENS (causa raiz CONFIRMADA no CSS).**
+> Ausência de regra, não bug de lógica. `#container` (`client/index.html:198`) tem altura FIXA
+> (`height: min(560px, 84vh)`), `flex-direction: column` e **`overflow: hidden`** — escolha
+> deliberada de 2026-07-20, cujo comentário diz que "a GRADE rola por dentro". E rola:
+> `.cont-bau` tem `max-height: 42%; overflow-y: auto`. Só que **`.loja-compra` e `.loja-precos`
+> não têm regra CSS NENHUMA** — os únicos seletores de loja são `.loja-item`, `.loja-item img` e
+> `.loja-qtd, .loja-preco-input` (`index.html:698-700`). Sem teto e sem `overflow-y`, as listas
+> estouram a altura fixa e o `overflow: hidden` do pai **corta sem gerar barra**.
+> - **Comprador** (`container.ts:509`): `root.append(head, fechar, this.lojaCompra()); return;` —
+>   a lista é o ÚNICO corpo do painel, então item além do corte fica **impossível de comprar**.
+> - **Criador:** `.loja-precos` entra no MEIO da pilha de irmãos (`container.ts:531-578`) sem teto
+>   de altura → empurra divisor, **MOCHILA** e hotbar pra fora do painel.
+> - **Fix:** `.loja-precos { max-height: 30%; overflow-y: auto; }` (copia o padrão do `.cont-bau`,
+>   que usa `max-height` justamente pra escapar da armadilha do `min-height: auto` do flex item) e
+>   `.loja-compra { flex: 1 1 auto; min-height: 0; overflow-y: auto; }` — o **`min-height: 0` é
+>   OBRIGATÓRIO**, sem ele o flex item não encolhe abaixo do conteúdo e o `overflow-y` nunca vira
+>   barra. Verificar no tablet (84vh corta mais cedo).
+> - Isto também resolve metade da queixa de "layout aglomerado" do bug-663.
 
 > ### 🚀 PRÓXIMA QUEST
-> Nada pedido ainda. Opções na mesa: confirmar Chrome/puppeteer funcionando no Windows,
-> uniforme/skin de verdade por escola (a ferramenta de preview já existe, falta ligar no
-> jogo), testar tudo isso em aula real, ou seguir a fila.
+> **Consertar bug-663 + bug-664 juntos** — mesmo arquivo (`client/src/container.ts` +
+> `client/index.html`), mesmo painel, e o 664 já derruba metade do "aglomerado" do 663.
+> Ordem sugerida:
+> 1. Rodar a repro ESC-vs-botão do bug-663 (confirma a causa antes de tocar em código).
+> 2. Flush do edit pendente como PRIMEIRA linha de `fecharSemAvisar()`
+>    (`.loja-preco-input:focus`→`blur()`), antes de `this.pos = null`; e o mesmo flush antes do
+>    `replaceChildren()` em `render()`.
+> 3. Listar as linhas de preço de `this.loja.precos` UNIDO com os ids do estoque.
+> 4. CSS do bug-664 (`.loja-precos` e `.loja-compra`) + respiro entre estoque e preços.
+> 5. `npm run verify` (agora encadeia `check:launchers → typecheck → test → build → check:dist`).
 >
-> **Pendências desta sessão, nenhuma bloqueante:**
-> - 3ª pessoa é v1 funcional, não polida — distância/ângulo fixos, sem teste em aula real ainda.
-> - Uniforme/skin por escola de verdade (cor/textura VISÍVEL na partida) — ainda não começado;
->   a ferramenta de preview existe, mas nada liga ela ao jogo. Falta decidir onde mora a
->   associação aluno↔escola.
-> - Ideias de animação anotadas, não pedidas: nadar, agachado/sneak, idle sutil, tomar dano.
-> - Cross-school networking e mini-campeonato (a ideia ORIGINAL que trouxe tudo isso) seguem
->   adiados — usuário só confirmou "esse PC pode virar servidor", nada desenhado ainda.
+> bug-662 (cama) é trabalho SEPARADO — mexe em `blocks.ts`/`rules.ts`/`drops.ts` e exige decidir
+> a identidade das metades; não misturar com a sessão de UI.
+>
+> **Pendências desta sessão:**
+> - `npm install` não rodado no clone WSL após o pull (lock mudou).
+> - Nada commitado ainda: `.wolf/buglog.json`, `.wolf/memory.md`, `.wolf/cerebrum.md`, `.wolf/STATUS.md`.
+> - Os 3 bugs foram achados por LEITURA de código, sem repro executada em nenhum deles.
 >
 > **Pendências herdadas, nenhuma bloqueante:**
-> - Aviso de Dimas nova ao professor fica barulhento em troca de turma cheia — `todo.md` § Loja.
+> - Scripts de puppeteer (`bench:headless`, `shots:*`, `openwolf designqc`) precisam baixar Chrome
+>   de novo no Windows — `~/.cache/puppeteer` confirmado VAZIO lá, download não testado ainda.
+> - **Decisão do usuário, não tomada:** por quanto tempo manter a cópia WSL como backup antes de
+>   apagar. **Não apagar sem perguntar de novo.**
+> - 3ª pessoa é v1 funcional, não polida — distância/ângulo fixos, sem teste em aula real.
+> - Uniforme/skin por escola de verdade (cor/textura VISÍVEL na partida) — não começado; a
+>   ferramenta de preview existe, mas nada liga ela ao jogo. Falta decidir onde mora a associação
+>   aluno↔escola.
+> - Cross-school networking e mini-campeonato seguem adiados.
+> - Aviso de Dimas nova ao professor fica barulhento em turma cheia — `todo.md` § Loja.
 > - Mintar Dimas de graça criando nome novo — hoje só avisa, não impede.
-> - Votação da turma: só falta decidir QUANTO de Dimas cada aluno recebe ao entrar.
-> - bug-651 (não sair da cama) e bug-652 (pular+colocar bloco teleporta pro lado) — abertos,
->   só lidos, não investigados a fundo.
+> - Votação da turma: falta decidir QUANTO de Dimas cada aluno recebe ao entrar.
+> - bug-651 (não sair da cama) e bug-652 (pular+colocar bloco teleporta pro lado) — abertos, só
+>   lidos, não investigados. **bug-651 pode ter parentesco com o bug-662** (mesma família de
+>   cama/par); olhar os dois juntos quando chegar a vez.
 > - bug-650: confirmar em aula real com turma cheia (só localhost até agora).
+> - bug-661: fechado sem repro (singleplayer pelo launcher) — reabrir só se voltar.
 >
 > Fila do `todo.md`: ovelha+lã de verdade (§🍖 F8), sentar na cadeira, Ferramentas v2
 > (durabilidade+slot+tempo de quebra).

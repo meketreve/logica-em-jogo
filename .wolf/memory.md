@@ -3441,3 +3441,13 @@ fraude.
 
 | Time | Action | File(s) | Outcome | ~Tokens |
 |------|--------|---------|---------|--------|
+
+## Session: 2026-09-11
+
+| Time | Action | File(s) | Outcome | ~Tokens |
+|------|--------|---------|---------|--------|
+| — | clone WSL estava 236 commits atras (v0.8.0) — descartou header vazio do memory.md e `git pull --ff-only` | (repo inteiro) | sincronizado em c920f62, v0.12.1 | ~6k |
+| — | anotou bug-662 (cama encostada em cama: par ambiguo em `camaRule` permite duplicar quebrando metade a metade) e bug-663 (bau-loja: preco nao salva + painel aglomerado) | .wolf/buglog.json | 2 bugs ABERTOS, sem patch | ~12k |
+| — | detalhe do usuario ("o ULTIMO item editado nao salva") fechou a causa raiz do bug-663: `fecharSemAvisar` zera `this.pos` ANTES do `.hidden` (display:none), o blur dispara o `change` pendente e o guarda `if (!this.pos) return` engole a edicao | .wolf/buglog.json | causa confirmada na leitura, sem patch | ~10k |
+| — | anotou bug-664 (loja com muitos itens nao rola: `.loja-compra`/`.loja-precos` nao tem NENHUMA regra CSS, e o `#container` e altura fixa + `overflow: hidden`) | .wolf/buglog.json | causa confirmada no CSS, sem patch | ~8k |
+| — | fechamento de sessao: HANDOFF do STATUS.md reescrito (sessao 97), 3 learnings + 2 do-not-repeat no cerebrum | .wolf/STATUS.md, .wolf/cerebrum.md | pronto pra handoff, nada commitado | ~9k |

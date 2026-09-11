@@ -1573,8 +1573,50 @@ nenhum** — sem essa declaração o Chrome renderiza a página em light mesmo c
   `pointerType` é ENGOLIDO** (nenhum `pointerup` chega ao documento; a resposta vem `{}` como se
   tivesse ido). Repita o envio até o documento ver o evento — defeito da sonda, não do jogo.
 
+- [2026-09-11] **O `#container` é uma CAIXA DE ALTURA FIXA COM TAMPA: todo bloco novo que você
+  pendurar nele precisa do PRÓPRIO teto de altura + rolagem.** `#container`
+  (`client/index.html:198`) é `height: min(560px, 84vh)` + `flex-direction: column` +
+  `overflow: hidden` — decisão deliberada de 2026-07-20 ("trocar de aba não muda o tamanho do
+  painel"). Quem rola é cada FILHO, não o painel: `.cont-bau` tem `max-height: 42%;
+  overflow-y: auto`. Filho sem essas duas propriedades **estoura e é CORTADO sem barra de
+  rolagem nenhuma** — e, se ele estiver no meio da pilha, empurra os irmãos de baixo
+  (divisor/mochila/hotbar) pra fora junto. Foi exatamente o que aconteceu com `.loja-compra` e
+  `.loja-precos`, que nasceram sem NENHUMA regra CSS ([[bug-664]]). Se usar `flex: 1 1 auto` em
+  vez de `max-height`, o **`min-height: 0` é OBRIGATÓRIO**: flex item nasce com
+  `min-height: auto`, não encolhe abaixo do conteúdo, e aí o `overflow-y` nunca vira barra.
+- [2026-09-11] **`change` de `<input>` dentro de painel que fecha ou re-renderiza perde a ÚLTIMA
+  edição, por dois caminhos diferentes.** (a) `change` só dispara no **blur/Enter**. Se o
+  teardown zera o estado que o handler consulta ANTES de tirar o foco, o evento chega tarde e o
+  guarda engole em silêncio — em `fecharSemAvisar()` (`container.ts:232`) o `this.pos = null`
+  vem 7 linhas ANTES do `classList.add("hidden")`, e como `.hidden` é `display: none !important`
+  é justamente esconder que dispara o blur ([[bug-663]]). (b) `replaceChildren()` no re-render
+  tira o input focado do DOM, e **remover do DOM NÃO dispara `change` no Chrome** — o digitado
+  some sem nem chegar no handler (mesma família do [[bug-573]], a rolagem do craft). Capturar o
+  estado no closure só resolve (a). O padrão que resolve os dois: **dar flush no campo focado
+  (`querySelector(":focus")?.blur()`) como PRIMEIRA coisa do teardown E antes do
+  `replaceChildren()`**. Sintoma que denuncia essa classe: "só o último item editado não salva".
+- [2026-09-11] **Bloco de 2 células que grava o MESMO id nas duas metades não consegue saber
+  quem é o par dele.** A cama usa um id por DIREÇÃO (`CamaXP..CamaZN`, `blocks.ts:96`) e as duas
+  metades compartilham esse id, então `camaRule` (`rules.ts:74`) — que só pergunta "o vizinho no
+  eixo tem o mesmo id?" — aceita a metade de uma cama VIZINHA como par e a corrente nunca
+  quebra. A PORTA não tem esse problema porque as metades têm identidade distinta. Regra geral:
+  par de células só é confiável se os dois papéis (pé/cabeceira, base/topo) forem distinguíveis
+  no id ou num bit de paridade. Ver [[bug-662]].
+
 ## Do-Not-Repeat
 
+- [2026-09-11] **Não assuma que o clone WSL (`/home/meketreve/projetos/logica-em-jogo`) está em
+  dia — ele é a CÓPIA DE RESERVA e envelhece sozinho.** Encontrado **236 commits atrás**
+  (`package.json` em `0.8.0`, HEAD de 05/08) enquanto `origin/main` estava em `v0.12.1`. Ler ou
+  editar código lá sem sincronizar = raciocinar sobre arquivos que não existem mais. **No início
+  de qualquer sessão nesse clone: `git fetch` + comparar `package.json` com
+  `git show origin/main:package.json`.** A cópia VIVA é `D:\git-projeto\logica-em-jogo` (Windows
+  nativo, desde 2026-09-06). Depois do pull, `npm install` também: o `package-lock.json` costuma
+  ter mudado (esbuild + gate `allowScripts` do npm 11+).
+- [2026-09-11] **Não pendure bloco novo dentro do `#container` sem `max-height` + `overflow-y:
+  auto` próprios** — o pai é altura fixa com `overflow: hidden` e corta o excedente SEM barra de
+  rolagem, além de empurrar os irmãos de baixo pra fora. `.loja-compra` e `.loja-precos`
+  nasceram sem nenhuma regra CSS e ficaram inalcançáveis com muitos itens ([[bug-664]]).
 - [2026-09-06] **`Move-Item` do PowerShell entre DISCOS (`C:` → `D:`) engasga em
   `node_modules` de projeto com npm workspaces.** `node_modules/@logica/client` (e
   `@logica/server`, `@logica/shared`) são junctions que o npm cria pros workspaces locais —
