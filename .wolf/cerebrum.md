@@ -179,6 +179,12 @@
   package.json').version"`) numa pasta do scratchpad e `cp -r` pra dentro de
   `node_modules/@scope/`. Chrome do sistema: `/usr/bin/google-chrome` (os scripts de shot o
   acham sozinhos; `~/.cache/puppeteer` não existe aqui).
+  **Push desse clone (2026-09-12):** o remoto é HTTPS e o Linux não tinha credencial nenhuma
+  (`fatal: could not read Username`). Instalado `gh` 2.100.0 em `~/.local/bin/gh` (binário
+  oficial, sem sudo — `sudo` pede senha aqui), `gh auth login --web` (device flow: o USUÁRIO
+  digita o código em github.com/login/device) e `gh auth setup-git` no `~/.gitconfig` global.
+  Se o push voltar a pedir usuário: `~/.local/bin/gh auth status`. O `gh` NÃO está no PATH
+  do shell do Claude — chamar pelo caminho completo.
 - [2026-09-12] **O Chrome DISPARA `change` no input focado que sai do DOM por
   `replaceChildren`** (medido com CDP, contradizendo a nota antiga do bug-663). Todo painel que
   redesenha por mensagem do servidor com campo de texto dentro precisa: trava durante o redesenho

@@ -3468,3 +3468,14 @@ fraude.
 | 20:05 | Edited client/src/changelog.ts | expanded (+9 lines) | ~191 |
 | 20:06 | Edited scripts/loja-shot.mjs | modified O() | ~167 |
 | 20:15 | sessao 98: bug-663 (preco da loja nao salvava: flush no fechar + render preserva foco/valor/cursor/rolagem com trava `redesenhando`) e bug-664 (listas da loja rolam, mochila com piso de 2 fileiras) consertados; sonda `scripts/loja-shot.mjs` (A/B 9 falhas -> 0); binarios linux copiados pro node_modules do SSD | client/src/container.ts, client/index.html, client/src/changelog.ts, scripts/loja-shot.mjs, package.json, .wolf/* | verify verde (979), shots:loja verde 1024x600 e 1366x768 | ~90k |
+
+## Session: 2026-09-12 20:11
+
+| Time | Action | File(s) | Outcome | ~Tokens |
+|------|--------|---------|---------|--------|
+
+## Session: 2026-09-12 20:16
+
+| Time | Action | File(s) | Outcome | ~Tokens |
+|------|--------|---------|---------|--------|
+| 20:40 | push do db44ed9 travou sem credencial (HTTPS, Linux sem helper) → gh 2.100.0 instalado em ~/.local/bin (checksum ok), login --web pelo usuario, `gh auth setup-git`; push ok (pre-push verify verde, 979); build-info/dist restaurados pro HEAD | ~/.local/bin/gh, ~/.gitconfig, .wolf/cerebrum.md | origin/main = db44ed9 | ~8k |
