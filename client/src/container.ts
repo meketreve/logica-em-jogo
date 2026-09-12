@@ -68,6 +68,9 @@ export class ContainerPanel {
    */
   private esperandoFechar = false;
 
+  /** Ligado só durante o `desenhar()` do `render()` — ver lá (bug-663). */
+  private redesenhando = false;
+
   private readonly onEsc = (e: KeyboardEvent): void => {
     if (e.code !== "Escape") return;
     e.preventDefault();
@@ -221,6 +224,11 @@ export class ContainerPanel {
   /** Fecha e AVISA o servidor (o gesto do aluno: Esc, botão ou tecla). */
   fechar(): void {
     if (!this.isOpen) return;
+    // bug-663: o preço sendo digitado ainda não virou `change` (só vira no
+    // blur/Enter). Esconder o painel dispara esse `change` DEPOIS de `pos` ter
+    // virado null, e o edit morria calado — sempre o do ÚLTIMO campo. Manda
+    // ANTES do `fechar_container`: o servidor só aceita preço com a loja aberta.
+    this.enviarPrecosPendentes();
     this.avisarFechado();
     this.fecharSemAvisar();
     // ...e o `container_fechado` do servidor é que solta este freio.
@@ -294,6 +302,7 @@ export class ContainerPanel {
       qtdInput.max = String(Math.max(1, emEstoque));
       qtdInput.value = "1";
       qtdInput.className = "loja-qtd";
+      qtdInput.dataset.item = String(porItem);
       linha.appendChild(qtdInput);
 
       const botao = document.createElement("button");
@@ -314,10 +323,11 @@ export class ContainerPanel {
 
   /**
    * Visão do CRIADOR: um preço editável (sempre em Dimas — moeda decidida,
-   * 2026-09-02) por TIPO de item presente no estoque agora (não por slot —
-   * o preço é por tipo). Digitar e sair do campo (`change`) manda
-   * `definir_preco`; campo vazio remove o preço (o item continua no baú, só
-   * deixa de estar à venda).
+   * 2026-09-02) por TIPO de item (não por slot — o preço é por tipo): os do
+   * estoque agora MAIS os que já têm preço sem estoque (bug-663: sem eles o
+   * preço sumia da tela quando o item esgotava, e se lia como "não salvou").
+   * Digitar e sair do campo (`change`/Enter) manda `definir_preco`; campo
+   * vazio remove o preço (o item continua no baú, só deixa de estar à venda).
    */
   private lojaPrecos(): HTMLElement {
     const wrap = document.createElement("div");
@@ -327,6 +337,8 @@ export class ContainerPanel {
     wrap.appendChild(titulo);
 
     const tipos = new Set(this.slots.filter((s) => s !== null).map((s) => s!.id));
+    const emEstoque = new Set(tipos);
+    for (const p of this.loja?.precos ?? []) tipos.add(p.porItem);
     if (tipos.size === 0) {
       const vazio = document.createElement("p");
       vazio.className = "inv-dica";
@@ -344,26 +356,57 @@ export class ContainerPanel {
       icone.alt = "";
       linha.appendChild(icone);
 
+      // texto + teclado numérico (e não `type="number"`): o re-render precisa
+      // devolver o cursor no lugar (`setSelectionRange`), e campo number não
+      // tem seleção — nem rodinha do mouse mudando o preço sem querer.
       const input = document.createElement("input");
-      input.type = "number";
-      input.min = "0";
+      input.type = "text";
+      input.inputMode = "numeric";
+      input.autocomplete = "off";
       input.placeholder = "sem preço";
       input.value = atual !== null ? String(atual) : "";
       input.className = "loja-preco-input";
+      input.dataset.item = String(id);
+      input.dataset.enviado = input.value;
       linha.appendChild(input);
 
-      input.addEventListener("change", () => {
-        if (!this.pos) return;
-        const qtd = Math.floor(Number(input.value));
-        this.definirPreco(
-          this.pos.x, this.pos.y, this.pos.z, id,
-          Number.isFinite(qtd) && qtd >= 1 ? qtd : null,
-        );
+      input.addEventListener("change", () => this.enviarPreco(input));
+      input.addEventListener("keydown", (e) => {
+        if (e.key === "Enter") this.enviarPreco(input);
       });
+
+      if (!emEstoque.has(id)) {
+        const aviso = document.createElement("small");
+        aviso.className = "loja-sem-estoque";
+        aviso.textContent = "sem estoque";
+        linha.appendChild(aviso);
+      }
 
       wrap.appendChild(linha);
     }
     return wrap;
+  }
+
+  /** Manda o preço do campo se ele mudou desde o último envio (ou desde que a
+   *  linha foi desenhada). O `dataset.enviado` segura o envio duplo quando o
+   *  mesmo edit chega por dois caminhos (Enter e depois o `change` do blur). */
+  private enviarPreco(input: HTMLInputElement): void {
+    if (!this.pos || this.redesenhando) return;
+    const valor = input.value.trim();
+    if (valor === input.dataset.enviado) return;
+    input.dataset.enviado = valor;
+    const qtd = Math.floor(Number(valor));
+    this.definirPreco(
+      this.pos.x, this.pos.y, this.pos.z, Number(input.dataset.item),
+      valor !== "" && Number.isFinite(qtd) && qtd >= 1 ? qtd : null,
+    );
+  }
+
+  /** Flush de todo campo de preço com edit ainda não enviado (bug-663). */
+  private enviarPrecosPendentes(): void {
+    for (const input of this.root?.querySelectorAll<HTMLInputElement>(".loja-preco-input") ?? []) {
+      this.enviarPreco(input);
+    }
   }
 
   /** Quantidade num slot do espaço unificado (mochila ou container). */
@@ -452,11 +495,75 @@ export class ContainerPanel {
     return b;
   }
 
+  /**
+   * O `replaceChildren` do render joga fora o campo em foco e as listas com
+   * rolagem. Chega `container` do servidor a cada mudança de estoque/preço
+   * (inclusive a resposta do PRÓPRIO `definir_preco` do campo anterior, ao
+   * dar Tab) — sem isto, o que o aluno digitava no campo seguinte sumia
+   * (bug-663) e a lista voltava pro topo a cada clique (a classe do bug-573).
+   */
   private render(): void {
-    // mão vazia = sem fantasma na tela (bug-609)
-    this.arrasto.sincronizar();
     const root = this.root;
     if (!root) return;
+    const rolagem = new Map<string, number>();
+    for (const sel of [".cont-bau", ".loja-precos", ".loja-compra"]) {
+      const el = root.querySelector(sel);
+      if (el) rolagem.set(sel, el.scrollTop);
+    }
+    const foco = document.activeElement;
+    const editando =
+      foco instanceof HTMLInputElement && root.contains(foco) && foco.dataset.item
+        ? foco
+        : null;
+    // lida ANTES do `replaceChildren`: campo fora do DOM perde a seleção (vira 0)
+    let cursor: [number | null, number | null] = [null, null];
+    try {
+      cursor = [editando?.selectionStart ?? null, editando?.selectionEnd ?? null];
+    } catch {
+      // `type="number"` (a quantidade do comprador) não tem seleção
+    }
+
+    // o Chrome DISPARA `change` no campo focado que o `replaceChildren` tira do
+    // DOM (medido na sonda de 2026-09-12): sem a trava, o meio-número ("1" de
+    // "15") ia pro servidor e o campo novo nascia com o valor velho e o cursor
+    // no 0. Com ela, o edit é carregado pro campo novo logo abaixo.
+    this.redesenhando = true;
+    try {
+      this.desenhar();
+    } finally {
+      this.redesenhando = false;
+    }
+
+    for (const [sel, top] of rolagem) {
+      const el = root.querySelector(sel);
+      if (el) el.scrollTop = top;
+    }
+    if (!editando) return;
+    const novo = root.querySelector<HTMLInputElement>(
+      `input.${editando.classList[0]}[data-item="${editando.dataset.item}"]`,
+    );
+    // campo de preço sem edit novo pega o valor do servidor (o mais fresco);
+    // a quantidade do comprador não tem "enviado" — o digitado sempre fica
+    const enviado = editando.dataset.enviado;
+    const sujo = enviado === undefined || editando.value.trim() !== enviado;
+    if (!novo) {
+      // a linha sumiu do painel com o edit ainda aberto: manda o que tinha
+      if (editando.classList.contains("loja-preco-input")) this.enviarPreco(editando);
+      return;
+    }
+    if (sujo) novo.value = editando.value;
+    novo.focus({ preventScroll: true });
+    try {
+      if (cursor[0] !== null) novo.setSelectionRange(cursor[0], cursor[1]);
+    } catch {
+      // idem
+    }
+  }
+
+  private desenhar(): void {
+    // mão vazia = sem fantasma na tela (bug-609)
+    this.arrasto.sincronizar();
+    const root = this.root!;
     root.replaceChildren();
 
     const head = document.createElement("h2");

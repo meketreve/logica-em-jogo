@@ -164,8 +164,35 @@
   *"pode commitar direto na main, sem branch"*). Vale pra doc e pra código — o histórico
   do repo sempre foi assim. Não abrir branch nem PR por conta própria; não empurrar `push`
   sem ele pedir.
+  **[2026-09-12] Reforçado, e agora com push:** *"não precisa fazer PR, é push na main e já
+  era"* — dito ao pedir o conserto de um bug. Quando o pedido é "conserta X" nesse tom, o
+  fecho esperado é commit + `git push` na main (o `pre-push` roda o verify), sem perguntar.
 
 ## Key Learnings
+
+- [2026-09-12] **Clone em `/mnt/SSD/git-projeto/logica-em-jogo` (Linux nativo) divide o
+  `node_modules` com o Windows** — ali só existem os binários nativos win32 (`@typescript/
+  typescript-win32-x64`, `@esbuild/win32-x64`, `@rolldown/binding-win32-x64-msvc`) e `tsc`/
+  build/vitest morrem com "Unable to resolve @typescript/typescript-linux-x64". **Não rodar
+  `npm install` ali** (poda os de Windows). Conserto aditivo: `npm install --ignore-scripts`
+  dos 3 pacotes linux NAS MESMAS versões (`node -p "require('./node_modules/<pkg win32>/
+  package.json').version"`) numa pasta do scratchpad e `cp -r` pra dentro de
+  `node_modules/@scope/`. Chrome do sistema: `/usr/bin/google-chrome` (os scripts de shot o
+  acham sozinhos; `~/.cache/puppeteer` não existe aqui).
+- [2026-09-12] **O Chrome DISPARA `change` no input focado que sai do DOM por
+  `replaceChildren`** (medido com CDP, contradizendo a nota antiga do bug-663). Todo painel que
+  redesenha por mensagem do servidor com campo de texto dentro precisa: trava durante o redesenho
+  (senão o meio-número vai pro servidor) + devolver valor/foco/cursor ao campo novo. E ler
+  `selectionStart` ANTES do `replaceChildren` — fora do DOM ele volta 0. Padrão pronto em
+  `ContainerPanel.render()` (container.ts).
+- [2026-09-12] **Sonda de UI tem de medir ALTURA de cada região, não só "rola"/"cabe".** O
+  primeiro patch do bug-664 passou em todos os números (lista rola, hotbar dentro do painel) e
+  o print mostrou a grade de 18 da mochila SUMIDA — `.inv-mochila` é `flex:1` + `overflow-y`
+  (vive de sobra) e a lista nova comeu a sobra. Olhar o PNG antes de fechar, sempre.
+- [2026-09-12] **`scripts/f10-shot.mjs` está quebrado** ("botão ▣ não encontrado" logo no
+  passo 3). Causa PROVÁVEL, não confirmada: o rótulo do botão de ação muda com o que está na
+  mão ("colocar" / "interagir" — visto na sonda da loja) e o script procura só "colocar". Não é
+  regressão do patch da loja (a sonda da loja cobre baú/fornalha no passo 9).
 
 - [2026-09-06] **README raiz e `cenarios/README.md` podem divergir sem ninguém notar — o
   segundo é atualizado junto do código (`server/src/cenarios/gerar.ts`/`corrida.ts`), o

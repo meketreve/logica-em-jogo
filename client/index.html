@@ -695,9 +695,66 @@
           rgba(127, 212, 255, 0.05)
         );
       }
-      .loja-item { display: flex; align-items: center; gap: 8px; padding: 4px 0; }
+      /* as duas listas da loja ROLAM por dentro (bug-664): o `#container` tem
+         altura fixa + `overflow: hidden`, e sem isto o excedente era cortado
+         sem barra — item fora do corte ficava impossível de comprar, e a lista
+         de preços do criador empurrava a mochila pra fora do painel.
+         ⚠️ `min-height` explícito não é enfeite: sem ele o item flex não encolhe
+         abaixo do conteúdo e o `overflow-y` nunca vira barra (ver `.painel-corpo`).
+         No tablet o `touch-action: none` do body não é herdado: rola no dedo. */
+      .loja-compra {
+        flex: 1 1 auto;
+        min-height: 0;
+        overflow-y: auto;
+        margin-top: 10px;
+      }
+      /* o criador divide a coluna com estoque, divisor e mochila: a lista de
+         preços RACHA a sobra com a `.inv-mochila` (as duas `flex: 1`, base 0) —
+         com base = conteúdo ela comia a sobra inteira e a mochila (que só vive
+         de sobra) sumia no 1024×600 (medido na sonda de 2026-09-12) */
+      .loja-precos {
+        flex: 1 1 0;
+        min-height: 124px; /* título + 2 linhas inteiras */
+        overflow-y: auto;
+        width: 100%;
+        max-width: 470px;
+        margin: 0 auto 8px;
+        padding-top: 8px;
+        border-top: 1px solid rgba(255, 255, 255, 0.15);
+      }
+      .loja-precos h3 {
+        margin: 0 0 6px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+        opacity: 0.75;
+      }
+      .loja-compra,
+      .loja-precos {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+      }
+      .loja-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex-shrink: 0;
+        padding: 4px 8px;
+        background: rgba(255, 255, 255, 0.06);
+        border-radius: 6px;
+      }
+      /* no painel de container a mochila divide a coluna com mais gente (a
+         loja põe a lista de preços no meio): 2 fileiras são o piso — é por
+         ela que o estoque entra, então sumir com ela trava o criador */
+      #container .inv-mochila {
+        min-height: calc(2 * 44px + 5px);
+      }
       .loja-item img { width: 32px; height: 32px; }
-      .loja-qtd, .loja-preco-input { width: 4em; }
+      .loja-compra .loja-item span { flex: 1; }
+      .loja-qtd, .loja-preco-input { width: 5em; }
+      .loja-sem-estoque { font-size: 11px; opacity: 0.6; }
       .cont-barra {
         display: flex;
         align-items: center;

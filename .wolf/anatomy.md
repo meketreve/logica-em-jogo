@@ -1,7 +1,7 @@
 # anatomy.md
 
-> Auto-maintained by OpenWolf. Last scanned: 2026-09-06T19:32:47.223Z
-> Files: 320 tracked | Anatomy hits: 0 | Misses: 0
+> Auto-maintained by OpenWolf. Last scanned: 2026-09-12T23:06:54.028Z
+> Files: 321 tracked | Anatomy hits: 0 | Misses: 0
 
 ## ./
 
@@ -43,7 +43,7 @@
 
 ## client/
 
-- `index.html` — Lógica em Jogo (~15443 tok)
+- `index.html` — Lógica em Jogo (~16021 tok)
 - `package.json` — Node.js package manifest (~102 tok)
 - `tsconfig.json` — TypeScript configuration (~39 tok)
 - `vite.config.ts` — Vite build configuration (~94 tok)
@@ -108,9 +108,9 @@
 - `blocksUi.ts` — Blocos colocáveis com nome em português — fonte única pra hotbar (main.ts) (~3750 tok)
   - section `PlaceableEntry` L55-234 (~3137 tok)
   - fn `placeableFor` L235-239 (~56 tok)
-- `changelog.ts` — Tela "📜 novidades" do menu principal — registro do que já foi feito no (~5051 tok)
-  - section `Mudanca` L36-378 (~4078 tok)
-  - fn `buildChangelogScreen` L379-422 (~426 tok)
+- `changelog.ts` — Tela "📜 novidades" do menu principal — registro do que já foi feito no (~5211 tok)
+  - section `Mudanca` L36-387 (~4238 tok)
+  - fn `buildChangelogScreen` L388-431 (~426 tok)
 - `chat.ts` — UI de chat em HTML/CSS por cima do canvas (regra: sem GUI de engine). (~3564 tok)
   - fn `acompanharTecladoVirtual` L102-114 (~138 tok)
   - class `ChatUi` L115-336 (~2335 tok)
@@ -130,8 +130,8 @@
   - section `Connection` L14-19 (~43 tok)
   - class `WorkerConnection` L20-87 (~653 tok)
   - class `WsConnection` L88-145 (~609 tok)
-- `container.ts` — §🍖 F10 — O PAINEL DE TRANSFERÊNCIA (fornalha e baú). (~6595 tok)
-  - class `ContainerPanel` L35-611 (~6222 tok)
+- `container.ts` — §🍖 F10 — O PAINEL DE TRANSFERÊNCIA (fornalha e baú). (~7947 tok)
+  - class `ContainerPanel` L35-718 (~7573 tok)
 - `daynight.ts` — Ciclo dia/noite (cp21; astros no backlog 2026-07-19) — SÓ visual. A hora é (~4582 tok)
   - section `Keyframe` L18-86 (~890 tok)
   - fn `latticeHash` L87-95 (~116 tok)
@@ -626,6 +626,31 @@
   - fn `clicar` L175-181 (~88 tok)
   - fn `foto` L182-211 (~318 tok)
   - fn `ok` L212-288 (~1114 tok)
+- `loja-shot.mjs` — Sonda do BAÚ-LOJA contra o host REAL + Chrome real (CDP) — nasceu do (~5942 tok)
+  - fn `espera` L42-42 (~18 tok)
+  - fn `diga` L43-43 (~15 tok)
+  - fn `acharChrome` L44-79 (~344 tok)
+  - fn `esperaPorta` L80-92 (~110 tok)
+  - fn `encerrar` L93-140 (~425 tok)
+  - fn `abrirAba` L141-170 (~293 tok)
+  - fn `cdp` L171-180 (~113 tok)
+  - fn `avaliar` L181-182 (~38 tok)
+  - fn `tecla` L183-187 (~82 tok)
+  - fn `dizer` L188-201 (~144 tok)
+  - fn `tocar` L202-208 (~90 tok)
+  - fn `botaoDeAcao` L209-219 (~169 tok)
+  - fn `limparChat` L220-221 (~28 tok)
+  - fn `foto` L222-229 (~90 tok)
+  - fn `ok` L230-244 (~206 tok)
+  - fn `ateQue` L245-277 (~249 tok)
+  - fn `tecla2` L278-280 (~75 tok)
+  - fn `digitar` L281-282 (~18 tok)
+  - fn `painelLoja` L283-290 (~98 tok)
+  - fn `campo` L291-291 (~25 tok)
+  - fn `valorDe` L292-300 (~112 tok)
+  - fn `entrar` L301-340 (~408 tok)
+  - fn `clicar` L341-359 (~218 tok)
+  - fn `layout` L360-503 (~2448 tok)
 - `luz-shots.mjs` — §💡 Verificação da LUZ VOXEL num Chrome headless (2026-07-28). (~3003 tok)
   - fn `decodificarPng` L45-108 (~650 tok)
   - fn `medir` L109-134 (~245 tok)

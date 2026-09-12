@@ -3451,3 +3451,20 @@ fraude.
 | — | detalhe do usuario ("o ULTIMO item editado nao salva") fechou a causa raiz do bug-663: `fecharSemAvisar` zera `this.pos` ANTES do `.hidden` (display:none), o blur dispara o `change` pendente e o guarda `if (!this.pos) return` engole a edicao | .wolf/buglog.json | causa confirmada na leitura, sem patch | ~10k |
 | — | anotou bug-664 (loja com muitos itens nao rola: `.loja-compra`/`.loja-precos` nao tem NENHUMA regra CSS, e o `#container` e altura fixa + `overflow: hidden`) | .wolf/buglog.json | causa confirmada no CSS, sem patch | ~8k |
 | — | fechamento de sessao: HANDOFF do STATUS.md reescrito (sessao 97), 3 learnings + 2 do-not-repeat no cerebrum | .wolf/STATUS.md, .wolf/cerebrum.md | pronto pra handoff, nada commitado | ~9k |
+| 19:40 | Edited client/src/container.ts | modified fechar() | ~121 |
+| 19:41 | Edited client/src/container.ts | added 3 condition(s) | ~1010 |
+| 19:41 | Edited client/src/container.ts | added error handling | ~542 |
+| 19:41 | Edited client/src/container.ts | 1→2 lines | ~25 |
+| 19:41 | Edited client/src/container.ts | 3→6 lines | ~104 |
+| 19:42 | Edited client/index.html | modified dentro() | ~507 |
+| 19:47 | Edited client/src/container.ts | added error handling | ~109 |
+| 19:47 | Edited client/src/container.ts | added 1 condition(s) | ~46 |
+| 19:53 | Edited client/src/container.ts | modified DOM() | ~134 |
+| 19:53 | Edited client/src/container.ts | modified enviarPreco() | ~30 |
+| 19:53 | Edited client/src/container.ts | 2→5 lines | ~42 |
+| 19:58 | Edited client/index.html | 6→7 lines | ~101 |
+| 19:58 | Edited client/index.html | modified gente() | ~96 |
+| 20:00 | Edited client/index.html | 3→3 lines | ~27 |
+| 20:05 | Edited client/src/changelog.ts | expanded (+9 lines) | ~191 |
+| 20:06 | Edited scripts/loja-shot.mjs | modified O() | ~167 |
+| 20:15 | sessao 98: bug-663 (preco da loja nao salvava: flush no fechar + render preserva foco/valor/cursor/rolagem com trava `redesenhando`) e bug-664 (listas da loja rolam, mochila com piso de 2 fileiras) consertados; sonda `scripts/loja-shot.mjs` (A/B 9 falhas -> 0); binarios linux copiados pro node_modules do SSD | client/src/container.ts, client/index.html, client/src/changelog.ts, scripts/loja-shot.mjs, package.json, .wolf/* | verify verde (979), shots:loja verde 1024x600 e 1366x768 | ~90k |

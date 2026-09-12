@@ -43,6 +43,15 @@ interface Mudanca {
 const MUDANCAS: readonly Mudanca[] = [
   {
     // sem `data`: este é o build atual (ver rotuloDoBloco)
+    titulo: "Loja arrumada: preço que fica e lista que rola",
+    itens: [
+      "o preço digitado no último item da loja não se perde mais ao fechar com Esc — e o que você está digitando não some quando o estoque muda no meio",
+      "loja com muitos itens agora rola: o comprador alcança até o último item, e o dono vê estoque, preços e mochila ao mesmo tempo",
+      "item com preço que acabou no estoque continua na lista de preços (marcado \"sem estoque\"), em vez de sumir como se o preço tivesse sido apagado",
+    ],
+  },
+  {
+    data: "03–06/09/2026",
     titulo: "Seu personagem ganha corpo",
     itens: [
       "chega de caixinha lisa: agora você tem cabeça, tronco, braços e pernas, com braço e perna balançando de verdade ao andar e correr",

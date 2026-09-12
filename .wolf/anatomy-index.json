@@ -1,12 +1,12 @@
 {
   "version": 1,
   "meta": {
-    "lastScanned": "2026-09-06T19:32:47.223Z",
-    "fileCount": 320,
+    "lastScanned": "2026-09-12T23:06:54.028Z",
+    "fileCount": 321,
     "hits": 0,
     "misses": 0,
-    "renderedHash": "42c63c42fb50b99e305cc39acb9374491ec548f637ee7424e3a5aea0cadfeab0",
-    "storeUpdatedAt": "2026-09-06T19:32:47.258Z"
+    "renderedHash": "80f1930fd48dd868f5c1c8cc509d7728f2a01ebd20448711634e0055b639f1f8",
+    "storeUpdatedAt": "2026-09-12T23:06:54.049Z"
   },
   "files": {
     ".claude/commands/reframe.md": {
@@ -110,12 +110,12 @@
     },
     "client/index.html": {
       "description": "Lógica em Jogo",
-      "tokens": 15443,
-      "hash": "2bfb459582577926",
-      "size": 58570,
-      "mtimeMs": 1788481993184.8616,
-      "updatedAt": "2026-09-06T17:50:41.655Z",
-      "source": "scan"
+      "tokens": 16021,
+      "hash": "848fff0a87cea099",
+      "size": 60764,
+      "mtimeMs": 1789254019544.5278,
+      "updatedAt": "2026-09-12T23:00:19.691Z",
+      "source": "hook"
     },
     "client/package.json": {
       "description": "Node.js package manifest",
@@ -558,25 +558,25 @@
     },
     "client/src/changelog.ts": {
       "description": "Tela \"📜 novidades\" do menu principal — registro do que já foi feito no",
-      "tokens": 5051,
-      "hash": "dbec07f3991618a1",
-      "size": 18125,
-      "mtimeMs": 1788703770427.467,
-      "updatedAt": "2026-09-06T17:50:41.664Z",
-      "source": "scan",
+      "tokens": 5211,
+      "hash": "34c1f265dd3a8de4",
+      "size": 18705,
+      "mtimeMs": 1789254311326.9377,
+      "updatedAt": "2026-09-12T23:05:11.619Z",
+      "source": "hook",
       "symbols": [
         {
           "name": "Mudanca",
           "kind": "section",
           "startLine": 36,
-          "endLine": 378,
-          "tokens": 4078
+          "endLine": 387,
+          "tokens": 4238
         },
         {
           "name": "buildChangelogScreen",
           "kind": "fn",
-          "startLine": 379,
-          "endLine": 422,
+          "startLine": 388,
+          "endLine": 431,
           "tokens": 426
         }
       ]
@@ -736,19 +736,19 @@
     },
     "client/src/container.ts": {
       "description": "§🍖 F10 — O PAINEL DE TRANSFERÊNCIA (fornalha e baú).",
-      "tokens": 6595,
-      "hash": "233390eab3d50335",
-      "size": 23324,
-      "mtimeMs": 1788356437187.748,
-      "updatedAt": "2026-09-06T17:50:41.669Z",
-      "source": "scan",
+      "tokens": 7947,
+      "hash": "c389b0cffa45c919",
+      "size": 28100,
+      "mtimeMs": 1789253617338.4822,
+      "updatedAt": "2026-09-12T22:53:37.603Z",
+      "source": "hook",
       "symbols": [
         {
           "name": "ContainerPanel",
           "kind": "class",
           "startLine": 35,
-          "endLine": 611,
-          "tokens": 6222
+          "endLine": 718,
+          "tokens": 7573
         }
       ]
     },
@@ -11674,6 +11674,185 @@
       "mtimeMs": 1786448361124.3147,
       "updatedAt": "2026-09-06T17:50:41.942Z",
       "source": "scan"
+    },
+    "scripts/loja-shot.mjs": {
+      "description": "Sonda do BAÚ-LOJA contra o host REAL + Chrome real (CDP) — nasceu do",
+      "tokens": 5942,
+      "hash": "440a5bfa5b153cba",
+      "size": 22472,
+      "mtimeMs": 1789254413889.1565,
+      "updatedAt": "2026-09-12T23:06:54.027Z",
+      "source": "hook",
+      "symbols": [
+        {
+          "name": "espera",
+          "kind": "fn",
+          "startLine": 42,
+          "endLine": 42,
+          "tokens": 18
+        },
+        {
+          "name": "diga",
+          "kind": "fn",
+          "startLine": 43,
+          "endLine": 43,
+          "tokens": 15
+        },
+        {
+          "name": "acharChrome",
+          "kind": "fn",
+          "startLine": 44,
+          "endLine": 79,
+          "tokens": 344
+        },
+        {
+          "name": "esperaPorta",
+          "kind": "fn",
+          "startLine": 80,
+          "endLine": 92,
+          "tokens": 110
+        },
+        {
+          "name": "encerrar",
+          "kind": "fn",
+          "startLine": 93,
+          "endLine": 140,
+          "tokens": 425
+        },
+        {
+          "name": "abrirAba",
+          "kind": "fn",
+          "startLine": 141,
+          "endLine": 170,
+          "tokens": 293
+        },
+        {
+          "name": "cdp",
+          "kind": "fn",
+          "startLine": 171,
+          "endLine": 180,
+          "tokens": 113
+        },
+        {
+          "name": "avaliar",
+          "kind": "fn",
+          "startLine": 181,
+          "endLine": 182,
+          "tokens": 38
+        },
+        {
+          "name": "tecla",
+          "kind": "fn",
+          "startLine": 183,
+          "endLine": 187,
+          "tokens": 82
+        },
+        {
+          "name": "dizer",
+          "kind": "fn",
+          "startLine": 188,
+          "endLine": 201,
+          "tokens": 144
+        },
+        {
+          "name": "tocar",
+          "kind": "fn",
+          "startLine": 202,
+          "endLine": 208,
+          "tokens": 90
+        },
+        {
+          "name": "botaoDeAcao",
+          "kind": "fn",
+          "startLine": 209,
+          "endLine": 219,
+          "tokens": 169
+        },
+        {
+          "name": "limparChat",
+          "kind": "fn",
+          "startLine": 220,
+          "endLine": 221,
+          "tokens": 28
+        },
+        {
+          "name": "foto",
+          "kind": "fn",
+          "startLine": 222,
+          "endLine": 229,
+          "tokens": 90
+        },
+        {
+          "name": "ok",
+          "kind": "fn",
+          "startLine": 230,
+          "endLine": 244,
+          "tokens": 206
+        },
+        {
+          "name": "ateQue",
+          "kind": "fn",
+          "startLine": 245,
+          "endLine": 277,
+          "tokens": 249
+        },
+        {
+          "name": "tecla2",
+          "kind": "fn",
+          "startLine": 278,
+          "endLine": 280,
+          "tokens": 75
+        },
+        {
+          "name": "digitar",
+          "kind": "fn",
+          "startLine": 281,
+          "endLine": 282,
+          "tokens": 18
+        },
+        {
+          "name": "painelLoja",
+          "kind": "fn",
+          "startLine": 283,
+          "endLine": 290,
+          "tokens": 98
+        },
+        {
+          "name": "campo",
+          "kind": "fn",
+          "startLine": 291,
+          "endLine": 291,
+          "tokens": 25
+        },
+        {
+          "name": "valorDe",
+          "kind": "fn",
+          "startLine": 292,
+          "endLine": 300,
+          "tokens": 112
+        },
+        {
+          "name": "entrar",
+          "kind": "fn",
+          "startLine": 301,
+          "endLine": 340,
+          "tokens": 408
+        },
+        {
+          "name": "clicar",
+          "kind": "fn",
+          "startLine": 341,
+          "endLine": 359,
+          "tokens": 218
+        },
+        {
+          "name": "layout",
+          "kind": "fn",
+          "startLine": 360,
+          "endLine": 503,
+          "tokens": 2448
+        }
+      ]
     }
   }
 }

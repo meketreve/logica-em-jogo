@@ -2,118 +2,54 @@
 
 > Single source of truth for resuming work. Read this FIRST when starting a session.
 
-> ## 🧭 HANDOFF — SESSÃO 97 (2026-09-11) · Clone WSL ressincronizado + 3 bugs anotados (nenhum patch)
+> ## 🧭 HANDOFF — SESSÃO 98 (2026-09-12) · Loja consertada (bug-663 + bug-664), sonda nova
 
-> **SESSÃO DE ANOTAÇÃO, NÃO DE CÓDIGO.** Nenhum arquivo de `client/`, `server/` ou `shared/`
-> foi tocado. Nenhum teste rodado. As únicas mudanças são `.wolf/buglog.json`,
-> `.wolf/memory.md`, `.wolf/cerebrum.md` e este STATUS.
->
-> **⚠️ ESTA SESSÃO RODOU NO CLONE WSL (`/home/meketreve/projetos/logica-em-jogo`), QUE É A
-> CÓPIA DE RESERVA.** A cópia VIVA continua sendo `D:\git-projeto\logica-em-jogo` (Windows
-> nativo). O clone WSL estava **236 commits atrás** (`package.json` em `0.8.0`, HEAD em
-> `553e49f` de 05/08) e foi ressincronizado com `git pull --ff-only` → **`c920f62`, v0.12.1**,
-> fast-forward limpo, 0 commits locais perdidos. Descartado antes do pull: um cabeçalho de
-> sessão VAZIO em `.wolf/memory.md` (única sujeira da árvore).
-> - **`npm install` NÃO foi rodado neste clone** e o `package-lock.json` mudou no pull
->   (esbuild `0.28.1` + gate `allowScripts`). Rodar antes de qualquer `npm run dev`/`test` AQUI.
-> - Se o trabalho voltar pro Windows (o normal), **os 3 bugs abaixo precisam chegar lá por
->   `git pull`** — eles só existem no buglog deste clone até serem commitados e pushados.
+> **Rodou no clone `/mnt/SSD/git-projeto/logica-em-jogo` (Linux nativo, `node_modules` do
+> Windows).** Sincronizado com `pull --ff-only` em `6322ea3` no começo. Pra rodar
+> tsc/build/vitest aqui foi preciso COPIAR os 3 binários nativos linux pro `node_modules`
+> (receita no cerebrum, Key Learnings 2026-09-12) — **não rodar `npm install` nesse clone.**
 
-> **🛏️ bug-662 — CAMA ENCOSTADA EM CAMA DUPLICA (causa raiz por leitura, repro não rodada).**
-> `camaRule` (`shared/src/rules.ts:74`) acha o par perguntando só *"a célula vizinha no eixo tem
-> o MESMO id?"*, nos dois sentidos. Mas as DUAS metades da mesma cama gravam o **mesmo id**
-> (`CamaXP..CamaZN`, `blocks.ts:96`) — a regra **não distingue "meu par" de "metade de OUTRA
-> cama"**. Com `dx=+1`: cama A em x=0,1 e cama B em x=2,3, quatro células com id igual viram uma
-> CORRENTE. A cabeceira de A (x=1) olha x=2, vê id igual e se declara "pé com par" — quem a
-> sustenta é o **pé da cama B**. Quebrar o pé de A deixa x=1 órfão de verdade, mas ele não
-> evapora. E `drops.ts:53` faz `if (isCama(id)) return BlockId.CamaXP` — **toda metade dropa
-> cama inteira**. 2 camas em fila → até 4 de volta, quebrando célula a célula.
-> `place_block` (`session.ts:1137`) não barra: só checa se a célula da cabeceira é
-> Air/replaceable, nunca se o vizinho já é metade de outra cama.
-> **Fix exige tirar a ambiguidade do par ANTES de mexer em drops:** ids distintos de PÉ e
-> CABECEIRA (como a porta faz com as metades) ou bit de paridade, pra `camaRule` só aceitar par
-> de papel OPOSTO. Só então `drops` pode dropar uma cama por PAR e não por metade.
-
-> **🏪 bug-663 — BAÚ-LOJA: O ÚLTIMO PREÇO EDITADO NÃO SALVA (causa raiz CONFIRMADA no código).**
-> Não é persistência — é **ordem de teardown**. O disco está OK nos dois sentidos
-> (`containers.ts:276` serializa `precos`, `:371` lê de volta). O listener do campo
-> (`client/src/container.ts:358`) é `change` — só dispara no **blur/Enter** — e abre com
-> `if (!this.pos) return`. `fecharSemAvisar()` (`container.ts:232`) faz `this.pos = null` na
-> linha 236 e só DEPOIS `classList.add("hidden")` na 243; como `.hidden` é
-> `display: none !important` (`client/index.html:25`), esconder o painel **tira o foco** → o
-> browser dispara o `change` pendente NESSE instante → o handler entra com `pos` já null e
-> **retorna em silêncio**. Os campos anteriores salvaram porque o foco indo pro próximo input
-> deu blur enquanto `pos` existia — **por isso só o ÚLTIMO some**.
-> - **Previsão testável que confirma em 30s:** fechar pelo botão `fechar` (`container.ts:470`)
->   **SALVA** (o mousedown move o foco e dispara o `change` antes do click handler); fechar com
->   **ESC PERDE**. Rodar isso ANTES de aplicar qualquer patch.
-> - **Segundo caminho de perda:** `render()` (`container.ts:455`) faz `root.replaceChildren()`.
->   Tirar do DOM um input focado **não dispara `change`** no Chrome — o digitado some sem chegar
->   no handler. Qualquer `container` do servidor ou `inventario` novo (`refresh()`,
->   `main.ts:1451`) durante a digitação derruba o edit. Mesma classe do **bug-573** (rolagem do
->   craft). **Atenção: capturar `pos` no closure conserta o caminho do ESC mas NÃO este** — aqui
->   o `change` nunca chega a existir; precisa de flush explícito nos dois.
-> - **Agravante de leitura:** `lojaPrecos()` (`container.ts:322`) monta as linhas a partir dos ids
->   nos SLOTS DE ESTOQUE, não da lista `precos` do servidor — item cujo estoque acabou perde a
->   linha e o preço **some da tela** mesmo vivo no servidor. Também se lê como "não salvou".
-> - Checar ainda o teto `precos.size >= CONTAINER_SLOTS.loja` (`session/loja.ts:60`), que recusa
->   preço NOVO **em silêncio** quando cheio.
-
-> **🏪 bug-664 — BAÚ-LOJA NÃO ROLA COM MUITOS ITENS (causa raiz CONFIRMADA no CSS).**
-> Ausência de regra, não bug de lógica. `#container` (`client/index.html:198`) tem altura FIXA
-> (`height: min(560px, 84vh)`), `flex-direction: column` e **`overflow: hidden`** — escolha
-> deliberada de 2026-07-20, cujo comentário diz que "a GRADE rola por dentro". E rola:
-> `.cont-bau` tem `max-height: 42%; overflow-y: auto`. Só que **`.loja-compra` e `.loja-precos`
-> não têm regra CSS NENHUMA** — os únicos seletores de loja são `.loja-item`, `.loja-item img` e
-> `.loja-qtd, .loja-preco-input` (`index.html:698-700`). Sem teto e sem `overflow-y`, as listas
-> estouram a altura fixa e o `overflow: hidden` do pai **corta sem gerar barra**.
-> - **Comprador** (`container.ts:509`): `root.append(head, fechar, this.lojaCompra()); return;` —
->   a lista é o ÚNICO corpo do painel, então item além do corte fica **impossível de comprar**.
-> - **Criador:** `.loja-precos` entra no MEIO da pilha de irmãos (`container.ts:531-578`) sem teto
->   de altura → empurra divisor, **MOCHILA** e hotbar pra fora do painel.
-> - **Fix:** `.loja-precos { max-height: 30%; overflow-y: auto; }` (copia o padrão do `.cont-bau`,
->   que usa `max-height` justamente pra escapar da armadilha do `min-height: auto` do flex item) e
->   `.loja-compra { flex: 1 1 auto; min-height: 0; overflow-y: auto; }` — o **`min-height: 0` é
->   OBRIGATÓRIO**, sem ele o flex item não encolhe abaixo do conteúdo e o `overflow-y` nunca vira
->   barra. Verificar no tablet (84vh corta mais cedo).
-> - Isto também resolve metade da queixa de "layout aglomerado" do bug-663.
+> **✅ Concluído nesta sessão (commitado + pushado na main):**
+> - **bug-663 (preço não salvava)** — `client/src/container.ts`: flush dos preços pendentes em
+>   `fechar()` ANTES do `fechar_container`; `render()` virou casca de `desenhar()` que preserva
+>   foco/valor/cursor do campo em edição + rolagem das listas, com trava `redesenhando` (o Chrome
+>   DISPARA `change` no campo que sai do DOM — a nota antiga dizia o contrário); campo de preço
+>   `type=text inputmode=numeric`; lista de preços = estoque ∪ `loja.precos` ("sem estoque").
+> - **bug-664 (loja não rolava)** — `client/index.html`: `.loja-compra` e `.loja-precos` rolam;
+>   `.loja-precos` racha a sobra com a mochila (`flex: 1 1 0`, piso 124px);
+>   `#container .inv-mochila` com piso de 2 fileiras; linhas viraram cartão.
+> - **`scripts/loja-shot.mjs` + `npm run shots:loja`** — host real + Chrome/CDP, 7 cenas com
+>   asserção (criador, re-render no meio da digitação, ESC no último campo, sem estoque,
+>   comprador de outro aluno, baú/fornalha comuns). A/B contra o código velho: 9 falhas → 0.
+>   Verde em 1024×600 e 1366×768. `npm run verify` verde (979 testes).
+> - Changelog: bloco novo no topo ("Loja arrumada…"); o do corpo ganhou `data: "03–06/09/2026"`.
 
 > ### 🚀 PRÓXIMA QUEST
-> **Consertar bug-663 + bug-664 juntos** — mesmo arquivo (`client/src/container.ts` +
-> `client/index.html`), mesmo painel, e o 664 já derruba metade do "aglomerado" do 663.
-> Ordem sugerida:
-> 1. Rodar a repro ESC-vs-botão do bug-663 (confirma a causa antes de tocar em código).
-> 2. Flush do edit pendente como PRIMEIRA linha de `fecharSemAvisar()`
->    (`.loja-preco-input:focus`→`blur()`), antes de `this.pos = null`; e o mesmo flush antes do
->    `replaceChildren()` em `render()`.
-> 3. Listar as linhas de preço de `this.loja.precos` UNIDO com os ids do estoque.
-> 4. CSS do bug-664 (`.loja-precos` e `.loja-compra`) + respiro entre estoque e preços.
-> 5. `npm run verify` (agora encadeia `check:launchers → typecheck → test → build → check:dist`).
->
-> bug-662 (cama) é trabalho SEPARADO — mexe em `blocks.ts`/`rules.ts`/`drops.ts` e exige decidir
-> a identidade das metades; não misturar com a sessão de UI.
->
-> **Pendências desta sessão:**
-> - `npm install` não rodado no clone WSL após o pull (lock mudou).
-> - Nada commitado ainda: `.wolf/buglog.json`, `.wolf/memory.md`, `.wolf/cerebrum.md`, `.wolf/STATUS.md`.
-> - Os 3 bugs foram achados por LEITURA de código, sem repro executada em nenhum deles.
->
+> **bug-662 — cama encostada em cama duplica** (causa por leitura, repro não rodada).
+> `camaRule` (`shared/src/rules.ts:74`) acha o par só por "vizinho no eixo tem o MESMO id?", e as
+> duas metades gravam o mesmo id (`CamaXP..CamaZN`, `blocks.ts:96`) → duas camas em fila viram
+> corrente; `drops.ts:53` dropa cama inteira por METADE. **Decisão a tomar antes de codar:** ids
+> distintos de PÉ e CABECEIRA (como a porta) vs bit de paridade — só então `drops` pode dropar
+> por PAR. `place_block` (`session.ts:1137`) também não barra vizinho que já é metade de outra
+> cama. **bug-651 (não sair da cama) pode ser da mesma família** — olhar junto.
+
+> **⚠️ Não verificado em tela pelo usuário:** o conserto da loja só foi visto no headless. Testar
+> na escola: digitar preço no último item e fechar com Esc; loja com muitos itens no tablet.
+
 > **Pendências herdadas, nenhuma bloqueante:**
-> - Scripts de puppeteer (`bench:headless`, `shots:*`, `openwolf designqc`) precisam baixar Chrome
->   de novo no Windows — `~/.cache/puppeteer` confirmado VAZIO lá, download não testado ainda.
+> - `scripts/f10-shot.mjs` quebrado ("botão ▣ não encontrado" no passo 3) — causa provável:
+>   rótulo do botão muda com o item na mão ("colocar"/"interagir"). Não investigado.
+> - Scripts de puppeteer no Windows precisam baixar Chrome (`~/.cache/puppeteer` vazio lá).
 > - **Decisão do usuário, não tomada:** por quanto tempo manter a cópia WSL como backup antes de
 >   apagar. **Não apagar sem perguntar de novo.**
 > - 3ª pessoa é v1 funcional, não polida — distância/ângulo fixos, sem teste em aula real.
-> - Uniforme/skin por escola de verdade (cor/textura VISÍVEL na partida) — não começado; a
->   ferramenta de preview existe, mas nada liga ela ao jogo. Falta decidir onde mora a associação
+> - Uniforme/skin por escola de verdade — não começado; falta decidir onde mora a associação
 >   aluno↔escola.
 > - Cross-school networking e mini-campeonato seguem adiados.
 > - Aviso de Dimas nova ao professor fica barulhento em turma cheia — `todo.md` § Loja.
 > - Mintar Dimas de graça criando nome novo — hoje só avisa, não impede.
 > - Votação da turma: falta decidir QUANTO de Dimas cada aluno recebe ao entrar.
-> - bug-651 (não sair da cama) e bug-652 (pular+colocar bloco teleporta pro lado) — abertos, só
->   lidos, não investigados. **bug-651 pode ter parentesco com o bug-662** (mesma família de
->   cama/par); olhar os dois juntos quando chegar a vez.
+> - bug-652 (pular+colocar bloco teleporta pro lado) — aberto, só lido.
 > - bug-650: confirmar em aula real com turma cheia (só localhost até agora).
 > - bug-661: fechado sem repro (singleplayer pelo launcher) — reabrir só se voltar.
 >
