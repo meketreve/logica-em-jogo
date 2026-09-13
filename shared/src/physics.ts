@@ -150,6 +150,30 @@ export function sobrepoeSolidos(world: World, pos: Vec3): boolean {
 }
 
 /**
+ * Os pés afundaram num bloco cujo TOPO está a no máximo `subidaMax` acima
+ * deles, e subir até esse topo resolve a colisão? Devolve a posição pousada
+ * (mesmo x/z), ou `null` — aí é soterramento de verdade e vai pro resgate.
+ *
+ * bug-652 (2026-09-12): é a torre de qualquer jogo voxel — pular e colocar o
+ * bloco na célula dos pés. O servidor aplica o bloco na hora, o cliente só
+ * sabe dele um instante depois, e o `move` desse meio tempo chega com os pés
+ * DENTRO do bloco novo. O `acharEspacoVago` prefere a mesma altura (bug-632),
+ * então jogava pro LADO; a física do próprio cliente resolveria pra CIMA
+ * (`moveAxis` pousa no maior topo sob os pés) assim que o bloco chegasse. Isto
+ * é essa mesma resposta, do lado do servidor: `resolveVertical` é a função que
+ * decide onde os pés pousam na queda, e só entram caixas com a base no ou
+ * abaixo dos pés — bloco na altura da CABEÇA (areia caindo, parede construída
+ * em volta) nunca vira "subida" e continua indo pro resgate.
+ */
+export function pousoAcima(world: World, pos: Vec3, subidaMax = 1): Vec3 | null {
+  if (!collides(world, pos)) return null;
+  const topo = resolveVertical(world, pos, -1);
+  if (Number.isNaN(topo) || topo <= pos.y || topo - pos.y > subidaMax + EPS) return null;
+  const pousado = { x: pos.x, y: topo + EPS, z: pos.z };
+  return collides(world, pousado) ? null : pousado;
+}
+
+/**
  * Vão livre mais próximo para tirar um jogador soterrado (bug-605). Busca **ao
  * redor do jogador**, em cascas de Chebyshev 3D do raio 0 pra fora, e devolve a
  * posição dos PÉS pronta pro `teleportar` — ou null se não houver vão.

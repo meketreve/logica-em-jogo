@@ -1,7 +1,7 @@
 # anatomy.md
 
-> Auto-maintained by OpenWolf. Last scanned: 2026-09-13T01:16:27.231Z
-> Files: 327 tracked | Anatomy hits: 0 | Misses: 0
+> Auto-maintained by OpenWolf. Last scanned: 2026-09-13T02:23:01.712Z
+> Files: 328 tracked | Anatomy hits: 0 | Misses: 0
 
 ## ./
 
@@ -1297,7 +1297,7 @@
 - `physics.test.ts` — Mundo 1 chunk com chão sólido em y ∈ [0,7]. (~4702 tok)
   - fn `flatWorld` L15-22 (~63 tok)
   - fn `simulate` L23-376 (~4555 tok)
-- `physics.ts` — Física do jogador (andar, gravidade, colisão AABB com o grid de voxels). (~6462 tok)
+- `physics.ts` — Física do jogador (andar, gravidade, colisão AABB com o grid de voxels). (~6854 tok)
   - section `Vec3` L11-58 (~527 tok)
   - fn `temColisaoParcial` L59-62 (~26 tok)
   - section `PlayerState` L63-72 (~97 tok)
@@ -1305,17 +1305,21 @@
   - fn `createPlayer` L90-96 (~117 tok)
   - fn `collides` L97-138 (~482 tok)
   - fn `apoiadoNoChao` L139-147 (~156 tok)
-  - fn `sobrepoeSolidos` L148-174 (~437 tok)
-  - fn `acharEspacoVago` L175-219 (~501 tok)
-  - fn `resolveVertical` L220-262 (~563 tok)
-  - fn `resolveHoriz` L263-302 (~497 tok)
-  - fn `moveAxis` L303-336 (~398 tok)
-  - fn `inWater` L337-350 (~114 tok)
-  - fn `hasSupport` L351-380 (~364 tok)
-  - fn `moveHoriz` L381-414 (~353 tok)
-  - fn `paredeAdjacente` L415-437 (~261 tok)
-  - fn `moveAxisGuarded` L438-453 (~96 tok)
-  - fn `stepPlayer` L454-547 (~1177 tok)
+  - fn `sobrepoeSolidos` L148-167 (~315 tok)
+  - fn `pousoAcima` L168-198 (~515 tok)
+  - fn `acharEspacoVago` L199-243 (~501 tok)
+  - fn `resolveVertical` L244-286 (~563 tok)
+  - fn `resolveHoriz` L287-326 (~497 tok)
+  - fn `moveAxis` L327-360 (~398 tok)
+  - fn `inWater` L361-374 (~114 tok)
+  - fn `hasSupport` L375-404 (~364 tok)
+  - fn `moveHoriz` L405-438 (~353 tok)
+  - fn `paredeAdjacente` L439-461 (~261 tok)
+  - fn `moveAxisGuarded` L462-477 (~96 tok)
+  - fn `stepPlayer` L478-571 (~1177 tok)
+- `pilar.test.ts` — bug-652 (2026-09-12): "pula e coloca bloco embaixo dele, acaba sendo (~1191 tok)
+  - fn `mundo` L20-41 (~228 tok)
+  - fn `move` L42-92 (~712 tok)
 - `protocol.test.ts` — Declares DIMS (~3650 tok)
 - `protocol.ts` — Protocolo v0 (checkpoint 2). Mensagens JSON dos dois lados + world_snapshot (~15852 tok)
   - fn `parseClientMessage` L580-808 (~2417 tok)

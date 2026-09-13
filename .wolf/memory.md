@@ -3537,3 +3537,6 @@ fraude.
 | Time | Action | File(s) | Outcome | ~Tokens |
 |------|--------|---------|---------|--------|
 | 23:55 | bug-651 consertado: msg `levantar` (pular deitado, teclado e tablet), dica no chat ao deitar, regua do acordarSeSaiu passou a ser onde os pes estavam ao deitar (`deitouDe`) — quem deitava de longe levantava sozinho; 6 testes + sonda real com vigia | shared/src/{protocol,session}.ts, session/dormir.ts, client/src/main.ts, dormir.test.ts, changelog | 1020 verdes | ~45k |
+| 23:22 | Created shared/src/pilar.test.ts | — | ~1191 |
+| 23:23 | Edited shared/src/physics.ts | added 2 condition(s) | ~414 |
+| 00:30 | bug-652 consertado: `pousoAcima` (physics.ts) no `move` — pés afundados num bloco que subiu por baixo pousam em cima sem teleporte; resgate só pro soterramento real. Repro: teste de sessão + sonda real com WebSocket atrasado 200 ms (emulação de rede do Chrome não atrasa WS) — velho 4/4 pro lado, novo 4/4 torre | shared/src/{physics,session}.ts, pilar.test.ts, changelog | 1024 verdes, smoke 16/16 | ~50k |

@@ -163,7 +163,7 @@ import {
   MODO_PADRAO,
   type Modo,
 } from "./modo";
-import { PLAYER, acharEspacoVago, sobrepoeSolidos } from "./physics";
+import { PLAYER, acharEspacoVago, pousoAcima, sobrepoeSolidos } from "./physics";
 import { parseRegras, regrasParaSave, valorRegra } from "./regras";
 import {
   EXAUSTAO_POR_BLOCO_ANDADO,
@@ -985,10 +985,17 @@ export class GameSession {
         // `/invisivel` (2026-08-22): o fantasma ATRAVESSA parede. Sem esta
         // saída o servidor quicaria o professor invisível na rocha e o noclip
         // do cliente não valeria nada — quem decide a posição é este portão.
-        if (!ehFantasma(this, clientId) && sobrepoeSolidos(this.world, { x: msg.x, y: msg.y, z: msg.z })) {
+        // bug-652: pés afundados num bloco que subiu por baixo (pular e
+        // colocar na própria célula — o cliente ainda não sabia do bloco)
+        // POUSAM em cima dele, como a física do cliente faria; sem teleporte.
+        // Só o que isso não resolve é soterramento e vai pro resgate.
+        const alvo = { x: msg.x, y: msg.y, z: msg.z };
+        const pouso = ehFantasma(this, clientId) ? null : pousoAcima(this.world, alvo);
+        if (pouso) alvo.y = pouso.y;
+        if (!ehFantasma(this, clientId) && sobrepoeSolidos(this.world, alvo)) {
           const vao = acharEspacoVago(
             this.world,
-            { x: msg.x, y: msg.y, z: msg.z },
+            alvo,
             2,
             (x, y, z) => this.overlapsAnyPlayer(x, y, z),
           );
@@ -1012,8 +1019,8 @@ export class GameSession {
         // §🍖 F3: o passo sai da MESMA amostra que fecha a queda (10 Hz), antes
         // de a posição nova sobrescrever a antiga. Só o plano horizontal conta:
         // cair não é esforço (e já se paga em dano).
-        const passo = Math.hypot(msg.x - p.x, msg.z - p.z);
-        p.x = msg.x; p.y = msg.y; p.z = msg.z;
+        const passo = Math.hypot(alvo.x - p.x, alvo.z - p.z);
+        p.x = alvo.x; p.y = alvo.y; p.z = alvo.z;
         p.yaw = msg.yaw; p.pitch = msg.pitch;
         // §🍖 F2: a queda se fecha AQUI — o servidor tem o mundo e não pergunta
         // ao cliente se pousou. Em criativo `machucar` é no-op.
@@ -1027,14 +1034,14 @@ export class GameSession {
         // vira UM `players_moved` por destinatário (era um `player_moved` por
         // MOVE recebido, O(N²) sends/s com a turma toda andando).
         this.posesDirty.set(clientId, {
-          x: msg.x, y: msg.y, z: msg.z,
+          x: alvo.x, y: alvo.y, z: alvo.z,
           yaw: msg.yaw, pitch: msg.pitch,
           ...(this.dormindo.has(clientId)
             ? { dormindo: true, cama: this.dormindo.get(clientId) }
             : {}),
         });
         // sair de cima da cama acorda (mexer o OLHAR não; andar sim)
-        acordarSeSaiu(this, clientId, msg.x, msg.y, msg.z);
+        acordarSeSaiu(this, clientId, alvo.x, alvo.y, alvo.z);
         // objetivo "chegar" (cp12/13): pisar dentro da região conclui
         checkChegar(this, clientId);
         break;

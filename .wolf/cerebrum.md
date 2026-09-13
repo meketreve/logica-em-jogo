@@ -170,6 +170,23 @@
 
 ## Key Learnings
 
+- [2026-09-12] **Corrida de rede se reproduz atrasando SÓ a volta (servidor → cliente) dentro da
+  página, não com a emulação de rede do Chrome.** `Network.emulateNetworkConditions` não atrasa
+  frame de WebSocket já aberto — a sonda do [[bug-652]] passou VERDE no código velho com ela. O
+  que discriminou (velho 4/4 jogado pro lado, novo 4/4 torre): embrulhar `window.WebSocket` via
+  `Page.addScriptToEvaluateOnNewDocument` e pôr `setTimeout(200)` no `onmessage` (o cliente usa
+  `onmessage`, `connection.ts:106`). Bug de "o servidor aplicou mas o cliente ainda não sabe" é
+  sempre dessa família.
+- [2026-09-12] **Sonda com 2º jogador: ele nasce no MESMO spawn** — ocupa a célula (o servidor
+  recusa bloco em célula com jogador) e tapa a câmera (o print parecia "céu azul" e era o corpo
+  dele por dentro). Mandar um `move` pra longe logo depois do join.
+- [2026-09-12] **`pitch` negativo = olhar pra BAIXO** no cliente (`camera.rotation.x = pitch`) e no
+  roster do save — `pitch: -1.5` salvo no `.ljw` faz o jogador entrar olhando o chão. Útil pra
+  sonda que precisa mirar sem mouse.
+- [2026-09-12] **Substituição em massa `msg.y` → `alvo.y` pegou `msg.yaw`** (prefixo). Em rename
+  por texto num handler, usar limite de palavra (`\bmsg\.y\b`) — o typecheck pegou, mas por sorte
+  do campo não existir.
+
 - [2026-09-12] **Sonda que checa "voltou ao estado X" precisa checar que SAIU de X antes do
   gesto.** A 1ª sonda do bug-651 passou verde ("apertou pular → levantou") e os prints mostravam
   a câmera EM PÉ nos dois: ela tinha levantado SOZINHA 1,7 s depois de deitar (outro bug, a régua

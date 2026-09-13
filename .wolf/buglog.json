@@ -5615,21 +5615,25 @@
       "timestamp": "2026-09-01T00:00:00.000Z",
       "error_message": "usuário: pula e coloca bloco embaixo dele, acaba sendo teleportado pro lado",
       "file": "shared/src/session.ts",
-      "root_cause": "ABERTO, NAO INVESTIGADO A FUNDO (so leitura, sem repro). Hipotese com bom encaixe (session.ts:946-966, case move): TODO move confere sobrepoeSolidos(world, {msg.x,msg.y,msg.z}) e, se true, chama acharEspacoVago (o resgate de soterramento do bug-605) e TELEPORTA pro vao livre mais proximo (raio 2) em vez de deixar a colisao normal resolver. Sequencia provavel: jogador pula (fica no ar, a celula dos pes esvazia) -> coloca bloco NAQUELA celula (overlapsAnyPlayer passa pois o jogador ja subiu) -> ao cair, o proximo move do cliente aponta pra dentro do bloco novo -> sobrepoeSolidos()=true -> acharEspacoVago dispara o resgate e joga pro lado, em vez de so pousar EM CIMA do bloco (fisica normal de colisao). O gate foi desenhado pra soterramento de verdade (mundo gerado, parede de outro jogador), nao pra esse timing de pulo+build embaixo de si mesmo, que e jogada normal de qualquer jogo voxel.",
-      "fix": "NAO IMPLEMENTADO. Pedido do usuario foi so anotar. Investigar: acharEspacoVago (physics.ts:175) busca em que ordem (pode nao priorizar subir 1 celula antes de ir pro lado); e se da pra distinguir 'acabou de colocar bloco na propria celula anterior, deixa pousar em cima' do caso real de soterramento.",
+      "root_cause": "CONFIRMADO 2026-09-12 — a hipotese do buglog estava certa. Corrida de rede: o servidor aplica o bloco na hora; o cliente so sabe dele depois do RTT e, nesse meio tempo, continua caindo e manda `move` com os pes DENTRO do bloco novo. O `move` ve `sobrepoeSolidos` e chama o resgate `acharEspacoVago`, que pesa |dy|*100 (bug-632: ficar na mesma profundidade) — a celula do LADO (peso 1) ganha da de CIMA do bloco (peso 100). A fisica do cliente, sozinha, pousaria em cima (moveAxis usa o maior topo sob os pes). Repro: teste de sessao (teleport pra x 3.5) e sonda no cliente real com as mensagens servidor->cliente atrasadas 200 ms: codigo velho 4 de 4 pulos jogados pro lado (z 32.5 -> 31.5), torre nao sobe.",
+      "fix": "APLICADO 2026-09-12. physics.ts `pousoAcima(world, pos, subidaMax=1)`: se os pes afundaram num bloco cujo topo esta a <= 1 acima e subir ate esse topo resolve a colisao, devolve a posicao pousada (mesmo x/z). Usa `resolveVertical(dir<0)`, que so considera caixas com a base no/abaixo dos pes — bloco na altura da CABECA nunca vira subida. session.ts `move`: antes do teste de soterramento, aplica o pouso e segue o fluxo normal com a posicao corrigida (sem teleporte); o resgate so roda se ainda sobrepoe. 4 testes em pilar.test.ts (2 falham no velho; os 2 de soterramento de verdade seguem no resgate). Sonda real com atraso de 200 ms: novo 4 de 4 torre (25->28), mesma coluna. 1024 verdes, smoke 16/16. Achado de aparato: a emulacao de rede do Chrome (Network.emulateNetworkConditions) NAO atrasa frame de WebSocket aberto — o A/B so discriminou com o WebSocket embrulhado via Page.addScriptToEvaluateOnNewDocument.",
       "tags": [
         "fisica",
         "sufocamento",
         "move",
         "teleporte",
         "bug-605",
-        "aberto"
+        "corrigido",
+        "pilar",
+        "torre",
+        "corrida",
+        "latencia"
       ],
       "related_bugs": [
         "bug-605"
       ],
       "occurrences": 1,
-      "last_seen": "2026-09-01T00:00:00.000Z"
+      "last_seen": "2026-09-13T00:30:00.000Z"
     },
     {
       "id": "bug-653",

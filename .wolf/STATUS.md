@@ -2,7 +2,7 @@
 
 > Single source of truth for resuming work. Read this FIRST when starting a session.
 
-> ## 🧭 HANDOFF — SESSÃO 98 (2026-09-12) · Loja, cama, porta, ids em 16 bits e levantar da cama
+> ## 🧭 HANDOFF — SESSÃO 98 (2026-09-12) · Loja, cama, porta, ids 16 bits, levantar e torre
 
 > **Rodou no clone `/mnt/SSD/git-projeto/logica-em-jogo` (Linux nativo, `node_modules` do
 > Windows).** Pra rodar tsc/build/vitest aqui foram COPIADOS os 3 binários nativos linux pro
@@ -34,20 +34,25 @@
 >   o chat avisa "Aperte pular para levantar." ao deitar. Achado junto: quem deitava clicando de
 >   LONGE levantava sozinho no 1º `move` — a distância agora é medida de onde os pés estavam ao
 >   deitar (`deitouDe`, folga 1 bloco). 6 testes novos, sonda real (deita, fica, pular levanta).
+> - **bug-652 (pular+colocar bloco jogava pro lado)** — corrida de rede: o `move` chegava com os pés
+>   dentro do bloco novo e o resgate de soterramento preferia o lado. `pousoAcima` (physics.ts) pousa
+>   em cima quando o topo está a ≤ 1 bloco e resolve; o resgate fica só pro soterramento real.
+>   4 testes + sonda real com atraso servidor→cliente de 200 ms: velho 4/4 pro lado, novo 4/4 torre.
 
 > ### 🚀 PRÓXIMA QUEST
 > **O 1º bloco de circuito lógico** — vai ser o 1º id ≥ 256 de verdade e fecha a Tarefa 4 do plano
 > dos 16 bits (colocar, salvar, streaming, mesher, luz, drop). Antes de codar: perguntar ao
 > usuário QUAL bloco (fio? alavanca? lâmpada?) e como ele funciona na aula — é produto, não
 > técnica. Também pendente: `npm run bench:headless` antes/depois dos 16 bits no notebook.
-> Alternativa se ele preferir: bug-652 (pular+colocar bloco teleporta pro lado) — aberto, só lido.
+> Não sobrou bug aberto do lote desta sessão (650 só falta confirmar em turma cheia).
 
 > **⚠️ Não verificado em tela pelo usuário:** loja e cama só foram vistas no headless. Testar na
 > escola: preço no último item + Esc; loja cheia no tablet; 2 camas em fila, e um mundo antigo
 > que já tinha cama (tem de abrir com as camas inteiras); porta em cima de porta (abrir a de baixo);
 > **abrir o mundo salvo da turma no host** (tem de aparecer `<nome>.antes-ids16.ljw` na pasta dele e
 > o mundo abrir igual) e um mundo do singleplayer num navegador que já jogava antes; deitar
-> na cama (de perto e de longe) e levantar com o pular, no PC e no tablet.
+> na cama (de perto e de longe) e levantar com o pular, no PC e no tablet; torre de pular+colocar
+> no Wi-Fi da escola (é onde a latência que causava o bug-652 aparece de verdade).
 
 > **Pendências herdadas, nenhuma bloqueante:**
 > - **Save no Ctrl+C/fechar janela disputa corrida com o `npx`/`tsx` que embrulha o host** (o sinal

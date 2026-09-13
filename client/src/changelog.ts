@@ -53,6 +53,7 @@ const MUDANCAS: readonly Mudanca[] = [
       "porta em cima de porta: abrir a de baixo não desmancha mais as duas, e quebrar não dá porta de graça",
       "deitado na cama, aperte PULAR pra levantar (no tablet, o botão ⤒) — antes só dava pra sair andando pra longe, e num quarto apertado a gente ficava preso",
       "deitar clicando na cama de longe não te levanta mais sozinho assim que você mexe o olhar",
+      "pular e colocar bloco embaixo de si agora sobe a torre direitinho — antes o jogo te jogava pro lado",
       "por dentro: o mundo agora tem espaço pra centenas de blocos novos (os circuitos lógicos vêm aí) — os mundos já salvos são convertidos sozinhos ao abrir, e uma cópia do original fica guardada",
     ],
   },

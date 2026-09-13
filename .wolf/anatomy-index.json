@@ -1,12 +1,12 @@
 {
   "version": 1,
   "meta": {
-    "lastScanned": "2026-09-13T01:16:27.231Z",
-    "fileCount": 327,
+    "lastScanned": "2026-09-13T02:23:01.712Z",
+    "fileCount": 328,
     "hits": 0,
     "misses": 0,
-    "renderedHash": "92ead730acc4615c7a729affee888d0d27da024a7a59d8db6a8f42947d262848",
-    "storeUpdatedAt": "2026-09-13T01:16:27.266Z"
+    "renderedHash": "77fe6fd54c9dbffbdede4a81fe87391a52a533076050b6c201c3e7d950aca045",
+    "storeUpdatedAt": "2026-09-13T02:23:01.732Z"
   },
   "files": {
     ".claude/commands/reframe.md": {
@@ -8540,12 +8540,12 @@
     },
     "shared/src/physics.ts": {
       "description": "Física do jogador (andar, gravidade, colisão AABB com o grid de voxels).",
-      "tokens": 6462,
-      "hash": "8f64631564a190b2",
-      "size": 22910,
-      "mtimeMs": 1787413468983.0542,
-      "updatedAt": "2026-09-06T17:50:41.906Z",
-      "source": "scan",
+      "tokens": 6854,
+      "hash": "d60a5f9fe0fa2405",
+      "size": 24317,
+      "mtimeMs": 1789266181597.7246,
+      "updatedAt": "2026-09-13T02:23:01.711Z",
+      "source": "hook",
       "symbols": [
         {
           "name": "Vec3",
@@ -8600,77 +8600,84 @@
           "name": "sobrepoeSolidos",
           "kind": "fn",
           "startLine": 148,
-          "endLine": 174,
-          "tokens": 437
+          "endLine": 167,
+          "tokens": 315
+        },
+        {
+          "name": "pousoAcima",
+          "kind": "fn",
+          "startLine": 168,
+          "endLine": 198,
+          "tokens": 515
         },
         {
           "name": "acharEspacoVago",
           "kind": "fn",
-          "startLine": 175,
-          "endLine": 219,
+          "startLine": 199,
+          "endLine": 243,
           "tokens": 501
         },
         {
           "name": "resolveVertical",
           "kind": "fn",
-          "startLine": 220,
-          "endLine": 262,
+          "startLine": 244,
+          "endLine": 286,
           "tokens": 563
         },
         {
           "name": "resolveHoriz",
           "kind": "fn",
-          "startLine": 263,
-          "endLine": 302,
+          "startLine": 287,
+          "endLine": 326,
           "tokens": 497
         },
         {
           "name": "moveAxis",
           "kind": "fn",
-          "startLine": 303,
-          "endLine": 336,
+          "startLine": 327,
+          "endLine": 360,
           "tokens": 398
         },
         {
           "name": "inWater",
           "kind": "fn",
-          "startLine": 337,
-          "endLine": 350,
+          "startLine": 361,
+          "endLine": 374,
           "tokens": 114
         },
         {
           "name": "hasSupport",
           "kind": "fn",
-          "startLine": 351,
-          "endLine": 380,
+          "startLine": 375,
+          "endLine": 404,
           "tokens": 364
         },
         {
           "name": "moveHoriz",
           "kind": "fn",
-          "startLine": 381,
-          "endLine": 414,
+          "startLine": 405,
+          "endLine": 438,
           "tokens": 353
         },
         {
           "name": "paredeAdjacente",
           "kind": "fn",
-          "startLine": 415,
-          "endLine": 437,
+          "startLine": 439,
+          "endLine": 461,
           "tokens": 261
         },
         {
           "name": "moveAxisGuarded",
           "kind": "fn",
-          "startLine": 438,
-          "endLine": 453,
+          "startLine": 462,
+          "endLine": 477,
           "tokens": 96
         },
         {
           "name": "stepPlayer",
           "kind": "fn",
-          "startLine": 454,
-          "endLine": 547,
+          "startLine": 478,
+          "endLine": 571,
           "tokens": 1177
         }
       ]
@@ -11999,6 +12006,31 @@
       "mtimeMs": 1789260062153.133,
       "updatedAt": "2026-09-13T00:41:02.264Z",
       "source": "hook"
+    },
+    "shared/src/pilar.test.ts": {
+      "description": "bug-652 (2026-09-12): \"pula e coloca bloco embaixo dele, acaba sendo",
+      "tokens": 1191,
+      "hash": "c12c86ed21f0735e",
+      "size": 4207,
+      "mtimeMs": 1789266154458.6428,
+      "updatedAt": "2026-09-13T02:22:34.564Z",
+      "source": "hook",
+      "symbols": [
+        {
+          "name": "mundo",
+          "kind": "fn",
+          "startLine": 20,
+          "endLine": 41,
+          "tokens": 228
+        },
+        {
+          "name": "move",
+          "kind": "fn",
+          "startLine": 42,
+          "endLine": 92,
+          "tokens": 712
+        }
+      ]
     }
   }
 }
