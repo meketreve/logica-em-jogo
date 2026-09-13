@@ -410,6 +410,10 @@ export class GameSession {
   /** Quem está DEITADO agora e em qual cama (2026-08-17). Sessão-só, como o
    *  `spawnCama`: dormir não sobrevive a fechar o mundo. */
   readonly dormindo = new Map<number, { x: number; y: number; z: number }>();
+  /** Onde os PÉS estavam quando o jogador deitou (bug-651). É contra ISTO que
+   *  "andou pra longe" é medido, não contra a cama: dá pra clicar na cama de
+   *  até ~5 blocos, e medir pela cama acordava no primeiro `move`. */
+  readonly deitouDe = new Map<number, { x: number; y: number; z: number }>();
   /** `/invisivel` (2026-08-22): professores que sumiram para os ALUNOS. Sessão-só,
    *  como o `dormindo` — quem cai e volta volta visível. Ver `session/invisivel.ts`. */
   readonly invisiveis = new Set<number>();
@@ -1589,6 +1593,12 @@ export class GameSession {
         if (erro) this.sendServerChat(clientId, erro);
         break;
       }
+      case "levantar": {
+        // bug-651: pular deitado levanta. Quem não está deitado: nada (o
+        // cliente só manda deitado, mas o fio não é confiável).
+        acordar(this, clientId);
+        break;
+      }
       case "fechar_container": {
         // CONFIRMA (bug-593). Sem a resposta o cliente não tem como saber quais
         // `container` ainda vêm por aí: a fornalha cozinhando manda 10×/s, e os
@@ -2420,6 +2430,7 @@ export class GameSession {
   handleDisconnect(clientId: number): void {
     this.stream.delete(clientId); // interesse de streaming morre com a conexão
     this.dormindo.delete(clientId); // quem saiu não conta na maioria (reavalia no fim)
+    this.deitouDe.delete(clientId);
     this.invisiveis.delete(clientId); // `/invisivel` é de sessão: quem volta volta visível
     this.wandMarks.delete(clientId); // rascunho de canto morre com a conexão
     this.tpPedidos.delete(clientId); // pedidos ENDEREÇADOS a quem saiu morrem

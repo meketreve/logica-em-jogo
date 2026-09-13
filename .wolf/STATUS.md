@@ -2,7 +2,7 @@
 
 > Single source of truth for resuming work. Read this FIRST when starting a session.
 
-> ## 🧭 HANDOFF — SESSÃO 98 (2026-09-12) · Loja, cama, porta empilhada e ids de bloco em 16 bits
+> ## 🧭 HANDOFF — SESSÃO 98 (2026-09-12) · Loja, cama, porta, ids em 16 bits e levantar da cama
 
 > **Rodou no clone `/mnt/SSD/git-projeto/logica-em-jogo` (Linux nativo, `node_modules` do
 > Windows).** Pra rodar tsc/build/vitest aqui foram COPIADOS os 3 binários nativos linux pro
@@ -30,19 +30,24 @@
 >   loja (denso) e mundo E (streaming) no cliente real, conversão no host real e no IndexedDB
 >   real. Regressão de desempenho do save achada e corrigida antes do commit ([[bug-666]]).
 >   Registro: `docs/superpowers/plans/2026-09-12-ids-16-bits.md`.
+> - **bug-651 (não sai da cama)** — PULAR deitado levanta (msg `levantar`; teclado e ⤒ do tablet),
+>   o chat avisa "Aperte pular para levantar." ao deitar. Achado junto: quem deitava clicando de
+>   LONGE levantava sozinho no 1º `move` — a distância agora é medida de onde os pés estavam ao
+>   deitar (`deitouDe`, folga 1 bloco). 6 testes novos, sonda real (deita, fica, pular levanta).
 
 > ### 🚀 PRÓXIMA QUEST
-> **bug-651 (não sai da cama)** — pedido do usuário: apertar PULAR deitado levanta. Hoje só acorda
-> saindo da célula por `move` (`dormir.ts:acordarSeSaiu`); pular deitado não gera move real, então
-> precisa de caminho novo no servidor (reusar `acordar()`). Investigar o input de pulo no cliente.
-> Depois: o **1º bloco de circuito** (vai ser o 1º id ≥ 256 de verdade — fecha a Tarefa 4 do plano
-> dos 16 bits: colocar, salvar, streaming, mesher, luz, drop) e o `bench:headless` antes/depois.
+> **O 1º bloco de circuito lógico** — vai ser o 1º id ≥ 256 de verdade e fecha a Tarefa 4 do plano
+> dos 16 bits (colocar, salvar, streaming, mesher, luz, drop). Antes de codar: perguntar ao
+> usuário QUAL bloco (fio? alavanca? lâmpada?) e como ele funciona na aula — é produto, não
+> técnica. Também pendente: `npm run bench:headless` antes/depois dos 16 bits no notebook.
+> Alternativa se ele preferir: bug-652 (pular+colocar bloco teleporta pro lado) — aberto, só lido.
 
 > **⚠️ Não verificado em tela pelo usuário:** loja e cama só foram vistas no headless. Testar na
 > escola: preço no último item + Esc; loja cheia no tablet; 2 camas em fila, e um mundo antigo
 > que já tinha cama (tem de abrir com as camas inteiras); porta em cima de porta (abrir a de baixo);
 > **abrir o mundo salvo da turma no host** (tem de aparecer `<nome>.antes-ids16.ljw` na pasta dele e
-> o mundo abrir igual) e um mundo do singleplayer num navegador que já jogava antes.
+> o mundo abrir igual) e um mundo do singleplayer num navegador que já jogava antes; deitar
+> na cama (de perto e de longe) e levantar com o pular, no PC e no tablet.
 
 > **Pendências herdadas, nenhuma bloqueante:**
 > - **Save no Ctrl+C/fechar janela disputa corrida com o `npx`/`tsx` que embrulha o host** (o sinal
@@ -60,7 +65,6 @@
 > - Aviso de Dimas nova ao professor fica barulhento em turma cheia — `todo.md` § Loja.
 > - Mintar Dimas de graça criando nome novo — hoje só avisa, não impede.
 > - Votação da turma: falta decidir QUANTO de Dimas cada aluno recebe ao entrar.
-> - bug-652 (pular+colocar bloco teleporta pro lado) — aberto, só lido.
 > - bug-650: confirmar em aula real com turma cheia (só localhost até agora).
 >
 > Fila do `todo.md`: ovelha+lã de verdade (§🍖 F8), sentar na cadeira, Ferramentas v2

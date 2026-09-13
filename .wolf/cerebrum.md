@@ -170,6 +170,15 @@
 
 ## Key Learnings
 
+- [2026-09-12] **Sonda que checa "voltou ao estado X" precisa checar que SAIU de X antes do
+  gesto.** A 1ª sonda do bug-651 passou verde ("apertou pular → levantou") e os prints mostravam
+  a câmera EM PÉ nos dois: ela tinha levantado SOZINHA 1,7 s depois de deitar (outro bug, a régua
+  da cama). Linha do tempo com timestamp de cada mudança de estado + asserção "ainda deitada
+  ANTES do pular" pegou. Mesma família do learning "medir altura de cada região, olhar o PNG".
+- [2026-09-12] **Estado de outro jogador visto de fora = um 2º WebSocket "vigia" na sonda.** A pose
+  deitada não tem DOM no cliente; o `player_moved` com `dormindo` que o servidor manda pros
+  OUTROS é a verdade observável. Serve pra qualquer estado de sessão sem UI.
+
 - [2026-09-12] **`Uint8Array.set(Uint16Array)` COMPILA e corta em silêncio** (conversão por módulo
   256). Trocar o tipo do chunk deixou o typecheck VERDE com a vizinhança do mesher ainda em
   `Uint8Array` — todo id ≥ 256 viraria outro bloco na tela. Ao alargar um typed array, caçar

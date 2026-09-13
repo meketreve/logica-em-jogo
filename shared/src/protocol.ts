@@ -95,6 +95,10 @@ export type ClientMessage =
   /** Container (§🍖 F10): o aluno fechou o painel. Sem isto o servidor
    *  continuaria mandando o conteúdo daquele bloco a cada tick pra sempre. */
   | { type: "fechar_container" }
+  /** Levantar da cama (bug-651, 2026-09-12): o aluno apertou PULAR deitado.
+   *  Antes a única saída era andar até ficar a 2 células da cama — às cegas
+   *  (a câmera fica no teto) e impossível em quarto apertado. */
+  | { type: "levantar" }
   /**
    * Loja (2026-09-01, moeda decidida 2026-09-02 — sempre Dimas): o criador
    * define (ou remove, `qtd: null`) o preço de UM tipo de item presente no
@@ -721,6 +725,8 @@ export function parseClientMessage(raw: string): ClientMessage | null {
     }
     case "fechar_container":
       return { type: "fechar_container" };
+    case "levantar":
+      return { type: "levantar" };
     case "definir_preco": {
       const ints = [m["x"], m["y"], m["z"], m["item"]];
       if (!ints.every((n) => typeof n === "number" && Number.isInteger(n))) return null;

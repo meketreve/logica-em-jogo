@@ -5594,18 +5594,21 @@
       "timestamp": "2026-08-31T00:00:00.000Z",
       "error_message": "usuário: bug que impede sair da cama",
       "file": "shared/src/session/dormir.ts",
-      "root_cause": "ABERTO, NAO INVESTIGADO. Hipotese pela leitura do dormir.ts nesta sessao: a UNICA saida hoje e acordarSeSaiu(), chamada de dentro do handler de \"move\" quando os pes saem da celula da cama (tentarDormir recusa reprocessar dormir.has(clientId)==true, entao reclicar a cama NAO acorda). Se o cliente trava/simplifica o input enquanto deitado (sem WASD real), nunca existe um move que afaste os pes da cama -> nunca acorda. Precisa confirmar do lado do CLIENTE antes de mexer no servidor.",
-      "fix": "PEDIDO, NAO IMPLEMENTADO: usuario quer que apertar o botao de PULAR, estando deitado, levante o jogador. Investigar client (input de pulo, provavelmente main.ts/controleJogador.ts) + decidir a acao de rede: reusar acordar() do dormir.ts precisa de um caminho servidor novo (hoje so acorda por move saindo da celula ou acordarTodos), ja que pular deitado nao gera um move real.",
+      "root_cause": "CONFIRMADO 2026-09-12 (sonda no cliente real + leitura): a unica saida era `acordarSeSaiu` no `move`, exigindo os pes a 2+ celulas da cama (tolerancia +-1). Deitado, a camera olha pro teto/ceu e o aluno anda as cegas; em quarto apertado (cama encostada em parede) nao ha 2 celulas pra onde ir — preso ate amanhecer. O cliente NAO travava o movimento (a hipotese antiga de 'input travado' estava errada). Achado junto, a mesma regua do avesso: como a distancia era medida a partir da CAMA e o clique alcanca ~5 blocos, quem deitava de longe LEVANTAVA no primeiro `move` (bastava mexer o mouse) — a sonda viu deitar aos 4053 ms e levantar sozinha aos 5773 ms.",
+      "fix": "APLICADO 2026-09-12. (1) Mensagem nova `levantar` (protocol.ts); session.ts chama `acordar()` (em pe: nada). (2) Cliente (main.ts): deitado + `cmd.jump` (teclado e o ⤒ do tablet caem no mesmo jump) manda `levantar` UMA vez por deitada (`levantarPedido`, zera no `aoDormir`). (3) Ao deitar, o jogador ouve 'Aperte pular para levantar.' (tentarDormir devolve a frase, que o use_block ja concatena). (4) Nova regua: `ses.deitouDe` guarda onde os PES estavam ao deitar; `acordarSeSaiu` acorda se andar > FOLGA_DEITADO (1 bloco) na horizontal ou > 2 na vertical DAQUELE ponto. Testes: 6 novos no dormir.test (pular levanta, quarto apertado, dica no chat, levantar em pe inofensivo, levantar para a noite, deitar de longe + mexer o olhar nao levanta) — A/B: 4 falham no codigo velho. Sonda no cliente real: deita (camera no ceu), continua deitada, segurar pular levanta em ~100 ms (vigia ve pelo player_moved).",
       "tags": [
         "sobrevivencia",
         "dormir",
         "cama",
-        "aberto",
-        "playtest"
+        "playtest",
+        "corrigido",
+        "cama",
+        "dormir",
+        "pular"
       ],
       "related_bugs": [],
       "occurrences": 1,
-      "last_seen": "2026-08-31T00:00:00.000Z"
+      "last_seen": "2026-09-12T23:50:00.000Z"
     },
     {
       "id": "bug-652",

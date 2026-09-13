@@ -3526,3 +3526,14 @@ fraude.
 | 22:04 | Edited shared/src/chunkCodec.ts | added 2 condition(s) | ~244 |
 | 22:16 | Edited shared/src/blocks.ts | modified bloco() | ~138 |
 | 23:15 | ids de bloco em 16 bits: Uint16Array + chunkCodec (largura por chunk), LJW1/LJC1/LJS3 lendo os antigos, conversao automatica (host .antes-ids16.ljw, singleplayer dataAntesIds16); bug-666 (encodeSave 8x mais lento perdia a corrida do SIGINT) corrigido com varredura u32; sondas reais: loja, mundo E, conversao host, IndexedDB | shared/src/{world,chunkCodec,protocol,save,mesher,luz,rules,blocks}.ts, server/src/{converterSave,index,mundos}.ts, client/src/{main,menu,worldStore,chunks,meshPool,meshWorker}.ts, smokes, docs | 1014 verdes, smoke 16/16 apos fix | ~150k |
+
+## Session: 2026-09-13 22:37
+
+| Time | Action | File(s) | Outcome | ~Tokens |
+|------|--------|---------|---------|--------|
+
+## Session: 2026-09-13 22:40
+
+| Time | Action | File(s) | Outcome | ~Tokens |
+|------|--------|---------|---------|--------|
+| 23:55 | bug-651 consertado: msg `levantar` (pular deitado, teclado e tablet), dica no chat ao deitar, regua do acordarSeSaiu passou a ser onde os pes estavam ao deitar (`deitouDe`) — quem deitava de longe levantava sozinho; 6 testes + sonda real com vigia | shared/src/{protocol,session}.ts, session/dormir.ts, client/src/main.ts, dormir.test.ts, changelog | 1020 verdes | ~45k |

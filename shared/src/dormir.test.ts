@@ -16,7 +16,8 @@ import { NOITE_FIM, NOITE_INICIO, dormindoAgora, ehNoite } from "./session/dormi
  * dois, que é a regra "todos" disfarçada.
  */
 function mundoComCama(quantos = 1) {
-  const session = new GameSession(() => {}, {
+  const enviados: { id: number; data: string }[] = [];
+  const session = new GameSession((id, data) => enviados.push({ id, data: String(data) }), {
     dims: { x: 2, z: 2, y: 2 },
     seed: 9,
     flat: true,
@@ -28,7 +29,8 @@ function mundoComCama(quantos = 1) {
   for (let i = 2; i <= quantos + 1; i++) send(i, { type: "join", name: `aluno${i}`, pin: "1111" });
 
   // UMA cama por jogador (cama ocupada por outro é recusada — ver o último
-  // teste). Cada uma é um PAR horizontal, os dois com o mesmo id.
+  // teste). Cada uma é um PAR horizontal: pé (`CamaXP`) e, na direção da
+  // cabeceira (−x pra essa direção), a CABECEIRA com id próprio (bug-662).
   const w = session.world;
   const cx = Math.floor(w.sizeX / 2);
   const cy = 4;
@@ -41,7 +43,7 @@ function mundoComCama(quantos = 1) {
   for (let i = 1; i <= quantos + 1; i++) {
     const c = camaDe(i);
     session.applyBlock(c.x, c.y, c.z, BlockId.CamaXP);
-    session.applyBlock(c.x + 1, c.y, c.z, BlockId.CamaXP);
+    session.applyBlock(c.x - 1, c.y, c.z, BlockId.CamaCabecaXP);
     // cada um fica perto da PRÓPRIA cama (use_block exige ALCANCE)
     send(i, { type: "move", x: c.x + 0.5, y: c.y, z: c.z + 1.5, yaw: 0, pitch: 0 });
   }
@@ -52,7 +54,13 @@ function mundoComCama(quantos = 1) {
     const c = camaDe(id);
     send(id, { type: "use_block", x: c.x, y: c.y, z: c.z });
   };
-  return { session, send, deitar, camaDe, cama: camaDe(1) };
+  /** Textos de chat que o servidor mandou pro cliente `id`. */
+  const chatsDe = (id: number): string[] =>
+    enviados
+      .filter((e) => e.id === id)
+      .map((e) => parseServerMessage(e.data))
+      .flatMap((m) => (m?.type === "chat" ? [m.text] : []));
+  return { session, send, deitar, camaDe, cama: camaDe(1), chatsDe };
 }
 
 describe("dormir na cama", () => {
@@ -148,6 +156,59 @@ describe("dormir na cama", () => {
     for (let i = 0; i < 400; i++) session.tick();
     expect(dormindoAgora(session, 1)).toBe(false);
     expect(dormindoAgora(session, 2)).toBe(false);
+  });
+
+  it("PULAR deitado levanta (bug-651) — a mensagem `levantar`", () => {
+    const { session, send, deitar } = mundoComCama();
+    deitar(1);
+    expect(dormindoAgora(session, 1)).toBe(true);
+    send(1, { type: "levantar" });
+    expect(dormindoAgora(session, 1)).toBe(false);
+  });
+
+  it("quarto apertado: andar até 1 célula não tira da cama, o pular tira (bug-651)", () => {
+    const { session, send, deitar, cama } = mundoComCama();
+    deitar(1);
+    // o máximo que dá pra se afastar num quarto do tamanho da cama
+    send(1, { type: "move", x: cama.x + 1.5, y: cama.y, z: cama.z + 1.5, yaw: 0, pitch: 0 });
+    expect(dormindoAgora(session, 1)).toBe(true);
+    send(1, { type: "levantar" });
+    expect(dormindoAgora(session, 1)).toBe(false);
+  });
+
+  it("deitar DE LONGE e mexer o olhar não levanta (bug-651: a régua era a cama)", () => {
+    const { session, send, deitar, cama } = mundoComCama();
+    // clica na cama a ~3 blocos (o alcance deixa) — antes, o 1º `move` já acordava
+    send(1, { type: "move", x: cama.x + 0.5, y: cama.y, z: cama.z + 3.5, yaw: 0, pitch: 0 });
+    deitar(1);
+    expect(dormindoAgora(session, 1)).toBe(true);
+    send(1, { type: "move", x: cama.x + 0.5, y: cama.y, z: cama.z + 3.5, yaw: 1.2, pitch: -0.3 });
+    expect(dormindoAgora(session, 1)).toBe(true);
+    // e andar de verdade pra longe de onde deitou continua acordando
+    send(1, { type: "move", x: cama.x + 0.5, y: cama.y, z: cama.z + 6, yaw: 1.2, pitch: 0 });
+    expect(dormindoAgora(session, 1)).toBe(false);
+  });
+
+  it("ao deitar, o jogador OUVE como levantar", () => {
+    const { deitar, chatsDe } = mundoComCama();
+    deitar(1);
+    expect(chatsDe(1).some((t) => t.includes("Aperte pular para levantar"))).toBe(true);
+  });
+
+  it("levantar EM PÉ não faz nada (o fio não é confiável)", () => {
+    const { session, send, chatsDe } = mundoComCama();
+    const antes = chatsDe(1).length;
+    send(1, { type: "levantar" });
+    expect(dormindoAgora(session, 1)).toBe(false);
+    expect(chatsDe(1)).toHaveLength(antes);
+  });
+
+  it("levantar antes do amanhecer PARA a noite de correr", () => {
+    const { session, send, deitar } = mundoComCama();
+    deitar(1);
+    expect(session.pulandoNoite).toBe(true);
+    send(1, { type: "levantar" });
+    expect(session.pulandoNoite).toBe(false);
   });
 
   it("sair da cama acorda", () => {

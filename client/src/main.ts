@@ -1281,6 +1281,8 @@ class GameRuntime {
   /** A última cama, mantida enquanto a animação de LEVANTAR corre — sem ela o
    *  destino sumiria no frame do acordar e a câmera saltaria de volta. */
   private ultimaCama: { x: number; y: number; z: number } | null = null;
+  /** Já pediu `levantar` nesta deitada? (bug-651 — zera a cada `dormindo`) */
+  private levantarPedido = false;
   /** Progresso da deitada, 0 = em pé, 1 = deitado. Persiste entre frames: é
    *  ELE que se interpola, porque a câmera é reescrita a cada frame. */
   private dormirT = 0;
@@ -1989,6 +1991,13 @@ class GameRuntime {
       // §🎮 teclado + os dois duplo-toques (correr engatado, alternar voo)
       const cmd = this.movimento.comando(now, { voando: flying, podeVoar: podeVoar() });
       flying = cmd.voando;
+      // bug-651: deitado, PULAR levanta (teclado e o ⤒ do tablet caem no mesmo
+      // `jump`). Uma mensagem por deitada — segurar o botão não repete; quem
+      // decide é o servidor, que responde com `dormindo: false`.
+      if (this.dormindo && cmd.jump && !this.levantarPedido) {
+        this.levantarPedido = true;
+        this.activeConn.send(JSON.stringify({ type: "levantar" }));
+      }
 
       // F2 streaming: processa a fila de mesh (N chunks/frame — config) e SÓ
       // simula física com o chão debaixo dos pés carregado (coluna ausente =
@@ -2635,6 +2644,7 @@ class GameRuntime {
    *  só guardamos a cama, e o laço de render leva a câmera até ela. */
   aoDormir(dormindo: boolean, cama?: { x: number; y: number; z: number }): void {
     this.dormindo = dormindo && cama ? cama : null;
+    this.levantarPedido = false;
     // guarda o destino para a volta: sem isto o alvo sumiria no frame em que
     // acorda e a câmera saltaria de pé em vez de se levantar
     if (this.dormindo) this.ultimaCama = this.dormindo;

@@ -69,6 +69,8 @@ export function tentarDormir(
     }
   }
   ses.dormindo.set(clientId, { x, y, z });
+  const pe = ses.players.get(clientId);
+  if (pe) ses.deitouDe.set(clientId, { x: pe.x, y: pe.y, z: pe.z });
   avisarPose(ses, clientId);
   const nome = ses.players.get(clientId)?.name ?? "alguém";
   const { dormem, acordados } = contagem(ses);
@@ -78,11 +80,15 @@ export function tentarDormir(
     text: `${nome} foi dormir (${dormem}/${acordados}).`,
   });
   reavaliar(ses);
-  return null;
+  // bug-651: a saída tem de ser dita — deitado, a câmera olha pro teto e o
+  // aluno não tem como descobrir sozinho que o gesto é o pular
+  return "Aperte pular para levantar.";
 }
 
-/** Tira o jogador da cama. `motivo` vazio = sem aviso (saída, amanhecer). */
+/** Tira o jogador da cama: andar pra longe (`acordarSeSaiu`), o pular
+ *  (mensagem `levantar`, bug-651), sair do jogo. Quem não dorme: nada. */
 export function acordar(ses: GameSession, clientId: number): void {
+  ses.deitouDe.delete(clientId);
   if (!ses.dormindo.delete(clientId)) return;
   avisarPose(ses, clientId);
   reavaliar(ses);
@@ -92,22 +98,30 @@ export function acordar(ses: GameSession, clientId: number): void {
 export function acordarTodos(ses: GameSession): void {
   const ids = [...ses.dormindo.keys()];
   ses.dormindo.clear();
+  ses.deitouDe.clear();
   ses.pulandoNoite = false;
   for (const id of ids) avisarPose(ses, id);
 }
 
+/** Quanto dá pra se mexer deitado sem levantar (blocos, na horizontal). */
+export const FOLGA_DEITADO = 1;
+
 /**
- * Chamado pelo `move`: sair de cima da cama acorda. Compara a célula dos pés
- * com a cama guardada — mexer o olhar não acorda, andar acorda.
+ * Chamado pelo `move`: ANDAR pra longe acorda — mexer o olhar ou se ajeitar no
+ * lugar, não. A distância é medida a partir de onde os pés estavam ao DEITAR
+ * (`deitouDe`), não da cama (bug-651): o clique alcança a cama de ~5 blocos, e
+ * com a régua na cama quem deitava de longe levantava no primeiro `move` —
+ * bastava mexer o mouse.
  */
 export function acordarSeSaiu(ses: GameSession, clientId: number, x: number, y: number, z: number): void {
-  const cama = ses.dormindo.get(clientId);
-  if (!cama) return;
-  const perto =
-    Math.abs(Math.floor(x) - cama.x) <= 1 &&
-    Math.abs(Math.floor(z) - cama.z) <= 1 &&
-    Math.abs(Math.floor(y) - cama.y) <= 1;
-  if (!perto) acordar(ses, clientId);
+  if (!ses.dormindo.has(clientId)) return;
+  const de = ses.deitouDe.get(clientId);
+  if (!de) return;
+  const saiu =
+    Math.abs(x - de.x) > FOLGA_DEITADO ||
+    Math.abs(z - de.z) > FOLGA_DEITADO ||
+    Math.abs(y - de.y) > 2;
+  if (saiu) acordar(ses, clientId);
 }
 
 /** Quantos dormem e quantos estão online. */
