@@ -8,6 +8,10 @@
 > Windows).** Pra rodar tsc/build/vitest aqui foram COPIADOS os 3 binários nativos linux pro
 > `node_modules` (receita no cerebrum) — **não rodar `npm install` nesse clone.** Push daqui
 > funciona via `~/.local/bin/gh` (login feito, `gh auth setup-git`). No Windows: `git pull`.
+>
+> **Árvore no fim da sessão:** HEAD = `origin/main` (último commit de código `2515433`, depois só
+> este handoff). Nada pendente. Único arquivo solto: `relatorio/…docx:Zone.Identifier` — é do
+> usuário (metadado do Windows), NÃO commitar.
 
 > **✅ Concluído nesta sessão (tudo pushado na main):**
 > - **bug-663 (preço da loja não salvava)** e **bug-664 (loja não rolava)** — `db44ed9`.
@@ -38,6 +42,15 @@
 >   dentro do bloco novo e o resgate de soterramento preferia o lado. `pousoAcima` (physics.ts) pousa
 >   em cima quando o topo está a ≤ 1 bloco e resolve; o resgate fica só pro soterramento real.
 >   4 testes + sonda real com atraso servidor→cliente de 200 ms: velho 4/4 pro lado, novo 4/4 torre.
+> - **Changelog:** a entrada do topo (build atual) fechada como **"Consertos de cama, porta, loja
+>   e torre"** — é o título que o `build-info` e o rótulo do launcher mostram. Próxima atualização
+>   = bloco NOVO no topo; este recebe `data: "12/09/2026"` nessa hora.
+>
+> **Sondas desta sessão:** só `npm run shots:loja` (`scripts/loja-shot.mjs`) ficou no repo. As da
+> cama (save antigo → migração), da porta, do mundo E, do singleplayer (IndexedDB), do dormir e da
+> torre eram AVULSAS no scratchpad e somem no `/clear` — o método está no cerebrum (Key Learnings
+> 2026-09-12: save gerado por `tsx` em `mundos/<nome>/<nome>.ljw`, 2º WebSocket "vigia", pitch
+> salvo no roster, WebSocket embrulhado pra atrasar a volta). Se valer, promover a `scripts/`.
 
 > ### 🚀 PRÓXIMA QUEST
 > **O 1º bloco de circuito lógico** — vai ser o 1º id ≥ 256 de verdade e fecha a Tarefa 4 do plano

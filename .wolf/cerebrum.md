@@ -160,6 +160,11 @@
   *"conseguiram fazer craft, plantar e comer"*). Ele não pediu número nenhum diferente — pediu
   o que FALTAVA (todas as receitas). Quando o playtest passa, a pergunta certa é "o que a turma
   não conseguiu alcançar?", não "que constante eu mexo?".
+- **[2026-09-12] Fim de lote = "commit e push tudo com entry de update nova no changelog".** Ele
+  quer o painel de novidades FECHADO no fim de uma leva de consertos: a entrada do topo (sem
+  `data`) com um título que cubra a leva inteira — não só o primeiro conserto, que é como ela
+  nasce e vai crescendo. O título importa além do painel: o `build-info` o extrai e o launcher
+  da escola mostra no rótulo da versão. Itens agrupados por assunto, linguagem de aluno.
 - **Commit vai DIRETO na `main`, sem branch** (2026-08-18, confirmado explicitamente:
   *"pode commitar direto na main, sem branch"*). Vale pra doc e pra código — o histórico
   do repo sempre foi assim. Não abrir branch nem PR por conta própria; não empurrar `push`
