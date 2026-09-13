@@ -75,7 +75,7 @@ describe("§🪵 — os 16 ids: espécie × estágio", () => {
   });
 
   it("o teto de ids alcança as mudas (o portão de drops varre até ele)", () => {
-    expect(MAX_BLOCK_ID).toBe(BlockId.BauLoja);
+    expect(MAX_BLOCK_ID).toBeGreaterThanOrEqual(BlockId.MudaPauBrasil3);
   });
 
   it("mudaDaFolhagem casa a folha com a MUDA DA PRÓPRIA espécie", () => {

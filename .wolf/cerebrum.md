@@ -170,6 +170,20 @@
 
 ## Key Learnings
 
+- [2026-09-12] **Migração de bytes de mundo pode ser IDEMPOTENTE sem marcador de versão** quando
+  o formato novo torna o padrão velho impossível. Cama: no formato novo um pé nunca tem outro pé
+  igual à frente, então "fileira de 2+ pés iguais" só existe em save antigo. Rodar a migração
+  todo restore (`migrarCamasLegado` em `shared/src/camas.ts`, antes do `indexarPlantacoes`) é
+  seguro e dispensa campo novo no `.ljw`. Antes de inventar marcador, procurar essa propriedade.
+- [2026-09-12] **Host carrega save de `mundos/<nome>/<nome>.ljw`, não de `mundos/<nome>.ljw`**
+  (`savePathDoMundo` em `server/src/paths.ts`) — `LJ_SAVE=mundos/x.ljw` só dá o NOME. Pra abrir
+  um save gerado por script numa sonda: gravar em `mundos/<nome>/<nome>.ljw` e passar
+  `LJ_SAVE=mundos/<nome>.ljw` sem `LJ_NOVO`. Gerar save "antigo" com `new GameSession` +
+  `setBlock` + `encodeSave` via `npx tsx` (sessão NOVA não roda a migração do restore).
+- [2026-09-12] **Bloco de 2 células precisa de recusa em `/bloco`, `/regiao encher` e
+  `/regiao sortear`** (3 lugares, mesma frase da porta): por comando sai metade órfã — e o
+  `encher` com cama era a fábrica da corrente que duplicava.
+
 - [2026-09-12] **Clone em `/mnt/SSD/git-projeto/logica-em-jogo` (Linux nativo) divide o
   `node_modules` com o Windows** — ali só existem os binários nativos win32 (`@typescript/
   typescript-win32-x64`, `@esbuild/win32-x64`, `@rolldown/binding-win32-x64-msvc`) e `tsc`/
@@ -1635,6 +1649,10 @@ nenhum** — sem essa declaração o Chrome renderiza a página em light mesmo c
   quebra. A PORTA não tem esse problema porque as metades têm identidade distinta. Regra geral:
   par de células só é confiável se os dois papéis (pé/cabeceira, base/topo) forem distinguíveis
   no id ou num bit de paridade. Ver [[bug-662]].
+  **[2026-09-12] RESOLVIDO** com ids próprios de cabeceira (ver Decision Log). ⚠️ Correção da
+  frase acima: a PORTA também grava o MESMO id nas duas metades (`doorRule` só olha y±1). Porta
+  empilhada em porta (4 células iguais na vertical) deve duplicar do mesmo jeito — por LEITURA,
+  não testado: quebrar a base da de baixo e o topo da de cima deixa o miolo vivo, 3 portas de 2.
 
 ## Do-Not-Repeat
 
@@ -2354,6 +2372,15 @@ nenhum** — sem essa declaração o Chrome renderiza a página em light mesmo c
   `session.ts`, o padrão "acumula sujo, esvazia 1×/tick" que os blocos já usavam).
 
 ## Decision Log — índice das decisões ATIVAS
+
+- [2026-09-12] **Cama: pé e cabeceira com ids DIFERENTES (bug-662), escolha do usuário entre 3
+  opções.** Cabeceira = `CamaCabecaXP..ZN` (247-250); `CamaXP..ZN` virou só o pé. Recusadas:
+  (a) barrar cama encostada em linha (0 id, mas proíbe o layout que ele tentou); (b) regra por
+  fileira sem id (a cama do meio seguiria sem travesseiro — o mesher só enxerga 1 célula de
+  casca — e quebrar o pé de uma cama da fila "andava" a vizinha). Custo aceito: **o byte de
+  bloco ficou com só 5 ids livres (251-255).** Na mesma conversa ele perguntou como aumentar
+  — resposta: chunk `Uint16Array` (recomendado, quest própria ANTES dos circuitos lógicos) ou
+  separar estado do id num 2º byte (mais trabalho, rende menos). Nada decidido ainda.
 
 - [2026-09-06] **Dev deste projeto migrou de "Claude dentro do WSL" pra "Desktop app nativo
   Windows"; `D:\git-projeto\logica-em-jogo` é a cópia viva agora (mudou de

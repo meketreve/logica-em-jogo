@@ -3,8 +3,11 @@ import {
   aguaComNivel,
   aguaNivel,
   apoioValido,
+  camaCabeca,
   camaHeadDir,
+  camaPe,
   isAgua,
+  isCamaCabeca,
   isAguaFonte,
   isFullCube,
   isMuda,
@@ -69,13 +72,20 @@ export const doorRule: BlockRule = (world, x, y, z) => {
 };
 
 /** Cama (2026-07-20): ocupa 2 células no horizontal (pé + cabeceira). A metade
- *  sem o PAR (mesma cama no eixo, de um lado OU do outro) evapora — quebrar uma
- *  derruba a outra no tick seguinte, sem código especial no break (igual à porta). */
+ *  sem o PAR evapora — quebrar uma derruba a outra no tick seguinte, sem código
+ *  especial no break (igual à porta).
+ *  ⚠️ O par é de PAPEL OPOSTO (bug-662): o pé só aceita a CABECEIRA da mesma
+ *  direção à frente, a cabeceira só aceita o PÉ atrás. Quando as duas metades
+ *  tinham o mesmo id, a ponta de uma cama vizinha em fila passava por par e a
+ *  corrente nunca evaporava (duplicava cama). */
 export const camaRule: BlockRule = (world, x, y, z) => {
   const id = getBlock(world, x, y, z);
   const { dx, dz } = camaHeadDir(id);
-  if (getBlock(world, x + dx, y, z + dz) === id) return null; // par na cabeceira (este é o pé)
-  if (getBlock(world, x - dx, y, z - dz) === id) return null; // par no pé (este é a cabeceira)
+  if (isCamaCabeca(id)) {
+    if (getBlock(world, x - dx, y, z - dz) === camaPe(id)) return null;
+  } else if (getBlock(world, x + dx, y, z + dz) === camaCabeca(id)) {
+    return null;
+  }
   return [{ x, y, z, blockId: BlockId.Air }];
 };
 
@@ -400,9 +410,11 @@ const rulesMap = new Map<number, BlockRule>([
   [BlockId.PortaZAbertaR, doorRule],
   [BlockId.Tocha, torchRule],
 ]);
-// Cama (2026-07-20): as 4 direções usam a regra de órfão do par horizontal.
-for (const id of [BlockId.CamaXP, BlockId.CamaZP, BlockId.CamaXN, BlockId.CamaZN]) {
-  rulesMap.set(id, camaRule);
+// Cama (2026-07-20): as 4 direções, pé E cabeceira, usam a regra de órfão do
+// par horizontal.
+for (let k = 0; k < 4; k++) {
+  rulesMap.set(BlockId.CamaXP + k, camaRule);
+  rulesMap.set(BlockId.CamaCabecaXP + k, camaRule);
 }
 // APOIO (2026-08-05): quem responde `precisaApoio` ganha o `torchRule`, e é
 // tudo. Antes eram quatro faixas de id escritas à mão aqui (tapete, flor,

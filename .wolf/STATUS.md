@@ -2,56 +2,55 @@
 
 > Single source of truth for resuming work. Read this FIRST when starting a session.
 
-> ## 🧭 HANDOFF — SESSÃO 98 (2026-09-12) · Loja consertada (bug-663 + bug-664), sonda nova
+> ## 🧭 HANDOFF — SESSÃO 98 (2026-09-12) · Loja (bug-663/664) + cama (bug-662) consertadas
 
 > **Rodou no clone `/mnt/SSD/git-projeto/logica-em-jogo` (Linux nativo, `node_modules` do
-> Windows).** Sincronizado com `pull --ff-only` em `6322ea3` no começo. Pra rodar
-> tsc/build/vitest aqui foi preciso COPIAR os 3 binários nativos linux pro `node_modules`
-> (receita no cerebrum, Key Learnings 2026-09-12) — **não rodar `npm install` nesse clone.**
+> Windows).** Pra rodar tsc/build/vitest aqui foram COPIADOS os 3 binários nativos linux pro
+> `node_modules` (receita no cerebrum) — **não rodar `npm install` nesse clone.** Push daqui
+> funciona via `~/.local/bin/gh` (login feito, `gh auth setup-git`). No Windows: `git pull`.
 
-> **✅ Concluído nesta sessão (commitado + pushado na main):**
-> - **bug-663 (preço não salvava)** — `client/src/container.ts`: flush dos preços pendentes em
->   `fechar()` ANTES do `fechar_container`; `render()` virou casca de `desenhar()` que preserva
->   foco/valor/cursor do campo em edição + rolagem das listas, com trava `redesenhando` (o Chrome
->   DISPARA `change` no campo que sai do DOM — a nota antiga dizia o contrário); campo de preço
->   `type=text inputmode=numeric`; lista de preços = estoque ∪ `loja.precos` ("sem estoque").
-> - **bug-664 (loja não rolava)** — `client/index.html`: `.loja-compra` e `.loja-precos` rolam;
->   `.loja-precos` racha a sobra com a mochila (`flex: 1 1 0`, piso 124px);
->   `#container .inv-mochila` com piso de 2 fileiras; linhas viraram cartão.
-> - **`scripts/loja-shot.mjs` + `npm run shots:loja`** — host real + Chrome/CDP, 7 cenas com
->   asserção (criador, re-render no meio da digitação, ESC no último campo, sem estoque,
->   comprador de outro aluno, baú/fornalha comuns). A/B contra o código velho: 9 falhas → 0.
->   Verde em 1024×600 e 1366×768. `npm run verify` verde (979 testes).
-> - Changelog: bloco novo no topo ("Loja arrumada…"); o do corpo ganhou `data: "03–06/09/2026"`.
+> **✅ Concluído nesta sessão (tudo pushado na main):**
+> - **bug-663 (preço da loja não salvava)** e **bug-664 (loja não rolava)** — `db44ed9`.
+>   `client/src/container.ts` + `client/index.html`; sonda `npm run shots:loja` (A/B 9 → 0).
+> - **bug-662 (cama em fila duplicava / cama do meio sem travesseiro)** — ids próprios de
+>   CABECEIRA `CamaCabecaXP..ZN` = **247-250** (escolha do usuário); `CamaXP..ZN` = só o pé.
+>   `camaRule` exige par de papel oposto; mesher decide pelo id; `/bloco` e `/regiao
+>   encher|sortear` recusam cama. **Migração** `shared/src/camas.ts` (`migrarCamasLegado`) roda
+>   em todo restore, idempotente sem marcador. Testes: repro (volta 2 camas), 6 de migração,
+>   recusa por comando — 989 verdes. Visto no cliente real: save ANTIGO com par + corrente de 4
+>   + corrente de 3 abre com 1+2+1 camas, todas com travesseiro.
 
 > ### 🚀 PRÓXIMA QUEST
-> **bug-662 — cama encostada em cama duplica** (causa por leitura, repro não rodada).
-> `camaRule` (`shared/src/rules.ts:74`) acha o par só por "vizinho no eixo tem o MESMO id?", e as
-> duas metades gravam o mesmo id (`CamaXP..CamaZN`, `blocks.ts:96`) → duas camas em fila viram
-> corrente; `drops.ts:53` dropa cama inteira por METADE. **Decisão a tomar antes de codar:** ids
-> distintos de PÉ e CABECEIRA (como a porta) vs bit de paridade — só então `drops` pode dropar
-> por PAR. `place_block` (`session.ts:1137`) também não barra vizinho que já é metade de outra
-> cama. **bug-651 (não sair da cama) pode ser da mesma família** — olhar junto.
+> **Decidir com o usuário: ids de bloco em 16 bits antes dos circuitos lógicos.** O byte de
+> bloco ficou com **só 5 ids livres (251-255)** depois da cama. Opção recomendada: chunk
+> `Uint16Array` (65k ids). Toca ~11 arquivos: `world.ts`, `save.ts` (formato novo + ler LJS1/LJS2
+> antigos), `protocol.ts` (envio de chunk), `mesher.ts`, `luz.ts`, `worldgen.ts`,
+> `client/src/chunks.ts`, `meshWorker.ts`, `meshPool.ts`, `server/src/cenarios/gerar.ts`. Memória
+> e save do bloco dobram (compressão alivia). Alternativa (2º byte de estado) rende menos e mexe
+> em mais regra. **Nada decidido** — perguntar antes de começar.
+> Se ele preferir outra coisa: **bug-651 (não sai da cama)** — pedido dele é PULAR deitado
+> levantar; hoje só acorda saindo da célula por `move` (`dormir.ts:acordarSeSaiu`).
 
-> **⚠️ Não verificado em tela pelo usuário:** o conserto da loja só foi visto no headless. Testar
-> na escola: digitar preço no último item e fechar com Esc; loja com muitos itens no tablet.
+> **⚠️ Não verificado em tela pelo usuário:** loja e cama só foram vistas no headless. Testar na
+> escola: preço no último item + Esc; loja cheia no tablet; 2 camas em fila, e um mundo antigo
+> que já tinha cama (tem de abrir com as camas inteiras).
 
 > **Pendências herdadas, nenhuma bloqueante:**
-> - `scripts/f10-shot.mjs` quebrado ("botão ▣ não encontrado" no passo 3) — causa provável:
->   rótulo do botão muda com o item na mão ("colocar"/"interagir"). Não investigado.
+> - **Porta empilhada em porta provavelmente duplica igual à cama** (mesmo id nas 2 metades,
+>   `doorRule` só olha y±1). Só por leitura — não testado, não corrigido.
+> - `scripts/f10-shot.mjs` quebrado ("botão ▣ não encontrado") — causa provável: rótulo do
+>   botão muda com o item na mão ("colocar"/"interagir"). Não investigado.
 > - Scripts de puppeteer no Windows precisam baixar Chrome (`~/.cache/puppeteer` vazio lá).
 > - **Decisão do usuário, não tomada:** por quanto tempo manter a cópia WSL como backup antes de
 >   apagar. **Não apagar sem perguntar de novo.**
 > - 3ª pessoa é v1 funcional, não polida — distância/ângulo fixos, sem teste em aula real.
-> - Uniforme/skin por escola de verdade — não começado; falta decidir onde mora a associação
->   aluno↔escola.
+> - Uniforme/skin por escola de verdade — não começado.
 > - Cross-school networking e mini-campeonato seguem adiados.
 > - Aviso de Dimas nova ao professor fica barulhento em turma cheia — `todo.md` § Loja.
 > - Mintar Dimas de graça criando nome novo — hoje só avisa, não impede.
 > - Votação da turma: falta decidir QUANTO de Dimas cada aluno recebe ao entrar.
 > - bug-652 (pular+colocar bloco teleporta pro lado) — aberto, só lido.
 > - bug-650: confirmar em aula real com turma cheia (só localhost até agora).
-> - bug-661: fechado sem repro (singleplayer pelo launcher) — reabrir só se voltar.
 >
 > Fila do `todo.md`: ovelha+lã de verdade (§🍖 F8), sentar na cadeira, Ferramentas v2
 > (durabilidade+slot+tempo de quebra).

@@ -1,4 +1,4 @@
-import { BlockId, isPlaceable, isPorta } from "../blocks";
+import { BlockId, isCama, isPlaceable, isPorta } from "../blocks";
 import { MAX_REGIONS, MAX_REGION_NAME, type NamedRegion, type Vec3i, regionDims, regionFromCorners } from "../regions";
 import { MAX_ENCHER_CELLS, MAX_OBJETIVO_CELLS, boxVolume } from "../scenario";
 import { getBlock, inBounds } from "../world";
@@ -97,6 +97,8 @@ export function runRegiao(ses: GameSession, clientId: number, parts: string[]): 
       if (!r) return `Não existe região chamada "${nome}".`;
       if (id !== BlockId.Air && !isPlaceable(id)) return `Não existe bloco com o id ${id}.`;
       if (isPorta(id)) return "A porta ocupa 2 blocos e se coloca com o clique direito, não por comando.";
+      // bug-662: cama também é par (pé+cabeceira) — por comando sairia meia cama
+      if (isCama(id)) return "A cama ocupa 2 blocos e se coloca com o clique direito, não por comando.";
       if (boxVolume(r) > MAX_ENCHER_CELLS) {
         return `A região é grande demais para encher (máximo de ${MAX_ENCHER_CELLS} blocos).`;
       }
@@ -213,6 +215,8 @@ export function runRegiao(ses: GameSession, clientId: number, parts: string[]): 
       for (const id of ids) {
         if (id !== BlockId.Air && !isPlaceable(id)) return `Não existe bloco com o id ${id}.`;
         if (isPorta(id)) return "A porta ocupa 2 blocos e se coloca com o clique direito, não por comando.";
+        // bug-662: cama também é par (pé+cabeceira) — por comando sairia meia cama
+        if (isCama(id)) return "A cama ocupa 2 blocos e se coloca com o clique direito, não por comando.";
       }
       if (boxVolume(r) > MAX_OBJETIVO_CELLS) {
         return `A região é grande demais para sortear (máximo de ${MAX_OBJETIVO_CELLS} blocos).`;

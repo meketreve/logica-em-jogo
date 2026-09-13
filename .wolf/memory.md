@@ -3479,3 +3479,26 @@ fraude.
 | Time | Action | File(s) | Outcome | ~Tokens |
 |------|--------|---------|---------|--------|
 | 20:40 | push do db44ed9 travou sem credencial (HTTPS, Linux sem helper) → gh 2.100.0 instalado em ~/.local/bin (checksum ok), login --web pelo usuario, `gh auth setup-git`; push ok (pre-push verify verde, 979); build-info/dist restaurados pro HEAD | ~/.local/bin/gh, ~/.gitconfig, .wolf/cerebrum.md | origin/main = db44ed9 | ~8k |
+| 21:03 | Edited shared/src/blocks.ts | expanded (+8 lines) | ~184 |
+| 21:03 | Edited shared/src/blocks.ts | inline fix | ~14 |
+| 21:03 | Edited shared/src/blocks.ts | modified isCama() | ~382 |
+| 21:03 | Edited shared/src/blocks.ts | modified isMovel() | ~57 |
+| 21:03 | Edited shared/src/blocks.ts | added 1 condition(s) | ~78 |
+| 21:03 | Edited shared/src/rules.ts | added 1 condition(s) | ~245 |
+| 21:04 | Edited shared/src/rules.ts | 2→5 lines | ~19 |
+| 21:04 | Edited shared/src/rules.ts | modified Cama() | ~65 |
+| 21:04 | Edited shared/src/session.ts | modified DIFERENTES() | ~106 |
+| 21:04 | Edited shared/src/session.ts | 3→4 lines | ~76 |
+| 21:04 | Edited shared/src/session.ts | 2→4 lines | ~12 |
+| 21:04 | Edited shared/src/mesher.ts | 2→3 lines | ~53 |
+| 21:04 | Edited shared/src/mesher.ts | modified cama() | ~108 |
+| 21:04 | Edited shared/src/mesher.ts | 2→2 lines | ~10 |
+| 21:04 | Edited shared/src/mesher.ts | 2→3 lines | ~10 |
+| 21:05 | Created shared/src/camas.ts | — | ~711 |
+| 21:05 | Edited shared/src/session.ts | 3→6 lines | ~82 |
+| 21:05 | Edited shared/src/session.ts | added 1 import(s) | ~41 |
+| 21:07 | Edited shared/src/inventario.test.ts | added nullish coalescing | ~477 |
+| 21:07 | Created shared/src/camas.test.ts | — | ~938 |
+| 21:09 | Edited shared/src/cp23.test.ts | expanded (+10 lines) | ~186 |
+| 21:12 | Edited client/src/changelog.ts | 8→10 lines | ~230 |
+| 21:25 | bug-662 consertado: cabeceira da cama com id proprio (247-250, escolha do usuario), camaRule por papel oposto, mesher pelo id, /bloco e /regiao recusam cama, migracao idempotente no restore (shared/src/camas.ts); save antigo visto no cliente real (1+2+1 camas com travesseiro); usuario perguntou como ganhar ids → recomendado Uint16 como quest propria | shared/src/{blocks,rules,session,mesher,camas}.ts, session/regioes.ts, testes, changelog | verify verde (989) | ~60k |

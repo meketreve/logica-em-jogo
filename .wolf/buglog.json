@@ -5802,8 +5802,8 @@
       "timestamp": "2026-09-11T00:00:00.000Z",
       "error_message": "usuario: 'colocar uma cama seguida da outra acaba nao formando corretamente a cama e permite duplicar quebrando bloco a bloco'",
       "file": "shared/src/rules.ts:74 (camaRule), shared/src/session.ts:1137 (place_block da cama), shared/src/drops.ts:53",
-      "root_cause": "ABERTO — nao corrigido, teoria FORTE derivada da leitura do codigo (sem repro rodada ainda). `camaRule` descobre o PAR perguntando so 'a celula vizinha no eixo tem o MESMO id?', nos dois sentidos (+dx/+dz = sou o pe, -dx/-dz = sou a cabeceira). As 4 direcoes da cama sao UM id cada (CamaXP..CamaZN, blocks.ts:96) e as DUAS metades da mesma cama gravam o MESMO id — entao a regra NAO consegue distinguir 'meu par' de 'metade de OUTRA cama'. Duas camas encostadas na mesma orientacao viram uma CORRENTE: com dx=+1, cama A ocupa x=0 (pe) e x=1 (cabeceira), cama B ocupa x=2 e x=3, e todas as 4 celulas tem id igual. A cabeceira de A (x=1) olha x=2, ve o mesmo id e se declara 'pe com par' — quem a sustenta e o PE DA CAMA B, nao a propria cama. Quebrar o pe de A (x=0) deixa x=1 orfao de verdade, mas ele NAO evapora porque continua encostado em B. Cada metade sobrevivente vira uma cama inteira ao quebrar, porque `drops.ts:53` faz `if (isCama(id)) return BlockId.CamaXP` — TODA metade dropa uma cama completa. Resultado: 2 camas colocadas em fila = ate 4 camas de volta, quebrando celula a celula. O `place_block` (session.ts:1137) tambem nao barra o encadeamento: so checa se a celula da cabeceira e Air/replaceable, nunca se o vizinho ja e metade de outra cama. Consertar exige o par deixar de ser ambiguo — ids distintos de PE e CABECEIRA (como a porta faz com as metades) ou um bit de paridade, para `camaRule` so aceitar par de papel OPOSTO; so entao `drops` pode dropar uma cama por PAR e nao por metade.",
-      "fix": "PENDENTE — bug so ANOTADO a pedido do usuario (2026-09-11), nenhum patch aplicado. Ao atacar: (1) reproduzir colocando 2 camas encostadas na mesma direcao e quebrando metade por metade, contando os drops; (2) separar pe/cabeceira na identidade do bloco antes de mexer em drops.ts, senao o drop por par nao tem como saber qual metade e a 'dona'.",
+      "root_cause": "CONFIRMADO E CORRIGIDO 2026-09-12 (repro em teste: 2 camas em fila, quebrando cabeca de B e pe de A, sobravam 3 camas). `camaRule` descobre o PAR perguntando so 'a celula vizinha no eixo tem o MESMO id?', nos dois sentidos (+dx/+dz = sou o pe, -dx/-dz = sou a cabeceira). As 4 direcoes da cama sao UM id cada (CamaXP..CamaZN, blocks.ts:96) e as DUAS metades da mesma cama gravam o MESMO id — entao a regra NAO consegue distinguir 'meu par' de 'metade de OUTRA cama'. Duas camas encostadas na mesma orientacao viram uma CORRENTE: com dx=+1, cama A ocupa x=0 (pe) e x=1 (cabeceira), cama B ocupa x=2 e x=3, e todas as 4 celulas tem id igual. A cabeceira de A (x=1) olha x=2, ve o mesmo id e se declara 'pe com par' — quem a sustenta e o PE DA CAMA B, nao a propria cama. Quebrar o pe de A (x=0) deixa x=1 orfao de verdade, mas ele NAO evapora porque continua encostado em B. Cada metade sobrevivente vira uma cama inteira ao quebrar, porque `drops.ts:53` faz `if (isCama(id)) return BlockId.CamaXP` — TODA metade dropa uma cama completa. Resultado: 2 camas colocadas em fila = ate 4 camas de volta, quebrando celula a celula. O `place_block` (session.ts:1137) tambem nao barra o encadeamento: so checa se a celula da cabeceira e Air/replaceable, nunca se o vizinho ja e metade de outra cama. Consertar exige o par deixar de ser ambiguo — ids distintos de PE e CABECEIRA (como a porta faz com as metades) ou um bit de paridade, para `camaRule` so aceitar par de papel OPOSTO; so entao `drops` pode dropar uma cama por PAR e nao por metade.",
+      "fix": "APLICADO 2026-09-12 (decisao do usuario: ids novos de cabeceira, gastando 4 dos 9 ids livres do byte). shared/src/blocks.ts: CamaCabecaXP..ZN = 247-250 (MAX_BLOCK_ID sobe); CamaXP..ZN passa a ser SEMPRE o pe; helpers isCamaPe/isCamaCabeca/camaDirecao/camaPe/camaCabeca; isCama e isMovel cobrem os dois trechos; isPlaceable recusa a cabeceira. rules.ts camaRule: par de PAPEL OPOSTO (pe exige cabeceira a frente, cabeceira exige pe atras). session place_block grava pe+cabeceira. mesher: pe/cabeceira pelo ID (a cama do meio de uma fila saia sem travesseiro). /bloco, /regiao encher e /regiao sortear recusam cama como ja recusavam porta (encher com cama criava a corrente). MIGRACAO shared/src/camas.ts migrarCamasLegado(world), chamada no restore da sessao antes do indexarPlantacoes: idempotente SEM marcador (no formato novo um pe nunca tem outro pe igual a frente) — fileira de 2+ pes iguais e emparelhada a partir da ponta do pe, sobra impar vira ar. Testes: repro no inventario.test (volta 2 camas), camas.test (6 casos incl. restore), cp23 (recusa por comando); A/B contra o codigo velho falha. Visto no cliente real: save ANTIGO com par, corrente de 4 e de 3 abre com 1+2+1 camas, todas com travesseiro.",
       "tags": [
         "cama",
         "duplicacao",
@@ -5811,12 +5811,14 @@
         "drops",
         "place_block",
         "par-horizontal",
-        "aberto",
-        "nao-confirmado"
+        "nao-confirmado",
+        "corrigido",
+        "migracao",
+        "ids"
       ],
       "related_bugs": [],
       "occurrences": 1,
-      "last_seen": "2026-09-11T00:00:00.000Z"
+      "last_seen": "2026-09-12T21:20:00.000Z"
     },
     {
       "id": "bug-663",

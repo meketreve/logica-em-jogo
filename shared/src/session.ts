@@ -3,7 +3,9 @@ import {
   BlockId,
   ITEM_BALDE_AGUA,
   ITEM_BALDE_VAZIO,
+  camaCabeca,
   camaHeadDir,
+  camaPe,
   isAgua,
   isAguaFonte,
   isBreakable,
@@ -143,6 +145,7 @@ import { ehFantasma, runInvisivel } from "./session/invisivel";
 import { avisarChatSilenciado, avisarComFreio, avisarEmogisDesligados } from "./session/avisos";
 import { runSilenciar } from "./session/silenciar";
 import { evictColunas, garantirColunas, gerarColuna, streamColunas } from "./session/streaming";
+import { migrarCamasLegado } from "./camas";
 import { faltaFerramenta } from "./ferramentas";
 import { RECEITAS, fabricar, receitaValida } from "./receitas";
 import {
@@ -604,6 +607,9 @@ export class GameSession {
           this.editedCols.add(cz * dims.x + cx); // coluna editada nunca é liberada
         }
       }
+      // bug-662: cama salva antes da cabeceira ter id próprio vira pé+cabeceira
+      // (idempotente — mundo já migrado passa sem mudar um byte)
+      migrarCamasLegado(this.world);
       // §🍖 F6: a horta do mundo salvo tem de voltar a crescer. O índice se
       // reconstrói dos BYTES (não há campo novo no `.ljw` — a verdade já está
       // no chunk), varrendo só o que o save materializou: no mundo lazy são os
@@ -1143,8 +1149,10 @@ export class GameSession {
           const alvoCama = getBlock(this.world, hx, msg.y, hz);
           if (alvoCama !== BlockId.Air && !isReplaceable(alvoCama)) return;
           if (this.overlapsAnyPlayer(hx, msg.y, hz)) return;
-          this.applyBlock(msg.x, msg.y, msg.z, msg.blockId);
-          this.applyBlock(hx, msg.y, hz, msg.blockId);
+          // pé e cabeceira com ids DIFERENTES (bug-662): é o que deixa a regra
+          // do par distinguir "minha outra metade" da ponta de outra cama
+          this.applyBlock(msg.x, msg.y, msg.z, camaPe(msg.blockId));
+          this.applyBlock(hx, msg.y, hz, camaCabeca(msg.blockId));
           break;
         }
         if (
@@ -1202,9 +1210,10 @@ export class GameSession {
         // cama como ponto de spawn (2026-08-14): clicar define o PRÓPRIO
         // nascimento; a morte passa a devolver pra cama em vez do `spawn`.
         // Mesmos gates do container — marcar spawn na cama/área do colega é
-        // editar o mundo dele. A cama é um PAR horizontal (pé+cabeceira) e os
-        // dois compartilham o MESMO id, então tanto faz qual metade foi clicada:
-        // o ponto guardado é a célula clicada, e o respawn cai em cima dela.
+        // editar o mundo dele. A cama é um PAR horizontal (pé+cabeceira; ids
+        // diferentes desde o bug-662, os dois `isCama`), então tanto faz qual
+        // metade foi clicada: o ponto guardado é a célula clicada, e o respawn
+        // cai em cima dela.
         if (isCama(id)) {
           {
             const bloqueio =
@@ -1689,6 +1698,8 @@ export class GameSession {
         if (!inBounds(this.world, x, y, z)) return `As coordenadas (${x}, ${y}, ${z}) estão fora do mundo.`;
         if (id !== BlockId.Air && !isPlaceable(id)) return `Não existe bloco com o id ${id}.`;
         if (isPorta(id)) return "A porta ocupa 2 blocos e se coloca com o clique direito, não por comando.";
+        // bug-662: cama também é par (pé+cabeceira) — por comando sairia meia cama
+        if (isCama(id)) return "A cama ocupa 2 blocos e se coloca com o clique direito, não por comando.";
         if (id !== BlockId.Air && this.overlapsAnyPlayer(x, y, z)) {
           return "Há um jogador nessa célula: o bloco não foi colocado.";
         }

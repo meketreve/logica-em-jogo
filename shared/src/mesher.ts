@@ -2,12 +2,13 @@ import {
   BlockId,
   FORNALHA_POR_FRENTE,
   aguaNivel,
-  camaHeadDir,
+  camaDirecao,
   collisionBoxes,
   fornalhaFrente,
   isAgua,
   isCadeira,
   isCama,
+  isCamaCabeca,
   isFlor,
   isFolhas,
   isGramaAlta,
@@ -366,6 +367,7 @@ for (let k = 0; k < 4; k++) {
   BLOCK_TILES[BlockId.CadeiraXP + k] = uniform(TILE.planks);
   BLOCK_TILES[BlockId.SofaXP + k] = uniform(TILE.estofado);
   BLOCK_TILES[BlockId.CamaXP + k] = uniform(TILE.colchao);
+  BLOCK_TILES[BlockId.CamaCabecaXP + k] = uniform(TILE.colchao);
   BLOCK_TILES[BlockId.QuadroXP + k] = uniform(TILE.quadro);
 }
 
@@ -1172,12 +1174,12 @@ export function meshVizinhanca(viz: Uint8Array, luzViz?: Uint8Array | null): Chu
         // móveis direcionais (2026-07-19): forma definida DE FRENTE PRA +x,
         // girada k×90° pro sufixo do id (XP=0, ZP=1, XN=2, ZN=3)
         // cama (2026-07-20): 2 células horizontais. Cabeceira (com travesseiro)
-        // ou pé, decidido pelo vizinho no eixo. Forma DE FRENTE PRA +x, girada k.
+        // ou pé, decidido pelo ID desde o bug-662 — antes era pelo vizinho no
+        // eixo, e a cama do meio de uma fila saía sem travesseiro. Forma DE
+        // FRENTE PRA +x, girada k.
         if (isCama(id)) {
-          const k = id - BlockId.CamaXP;
-          const { dx, dz } = camaHeadDir(id);
-          // é o PÉ se a cabeceira (mesma cama) está no vizinho da direção dela
-          const ehPe = bloco(lx + dx, ly, lz + dz) === id;
+          const k = camaDirecao(id);
+          const ehPe = !isCamaCabeca(id);
           const boxes: readonly (readonly [number, number, number, number, number, number, number])[] =
             ehPe
               ? [

@@ -309,6 +309,14 @@ export const BlockId = {
    *  (ver `containers.ts`) — reusa a caixa 14/16 e a textura do `Bau` até
    *  existir arte própria (o craft/preço são o que muda, não o desenho). */
   BauLoja: 246,
+  /** CABECEIRA da cama (2026-09-12, bug-662). Até aqui as duas metades
+   *  gravavam o MESMO id (`CamaXP..CamaZN`), e a regra do par não sabia se o
+   *  vizinho igual era a outra metade ou a ponta de OUTRA cama: duas camas em
+   *  fila viravam uma corrente que nunca evaporava, e cada metade dropava uma
+   *  cama inteira (duplicava). Agora `CamaXP..CamaZN` é SEMPRE o pé e estes
+   *  quatro, a cabeceira da mesma direção (mesma ordem: +x, +z, −x, −z). Mundo
+   *  salvo antes disto é migrado no restore (`migrarCamasLegado`). */
+  CamaCabecaXP: 247, CamaCabecaZP: 248, CamaCabecaXN: 249, CamaCabecaZN: 250,
 } as const;
 
 export type BlockId = (typeof BlockId)[keyof typeof BlockId];
@@ -321,7 +329,7 @@ export type BlockId = (typeof BlockId)[keyof typeof BlockId];
  * dois arquivos, e esquecer significava um portão que deixava de olhar
  * justamente o bloco recém-criado — o oposto do que ele existe pra fazer.
  */
-export const MAX_BLOCK_ID = BlockId.BauLoja;
+export const MAX_BLOCK_ID = BlockId.CamaCabecaZN;
 
 /** Água? Fonte (129) OU fluida (130-136) — atravessável e translúcida. */
 export function isAgua(id: number): boolean {
@@ -830,15 +838,35 @@ export function isCadeira(id: number): boolean {
 export function isSofa(id: number): boolean {
   return id >= BlockId.SofaXP && id <= BlockId.SofaZN;
 }
-/** Cama em qualquer direção? */
+/** Cama em qualquer direção, pé OU cabeceira? */
 export function isCama(id: number): boolean {
+  return isCamaPe(id) || isCamaCabeca(id);
+}
+/** Metade do PÉ da cama (os ids originais — é também a entrada da hotbar). */
+export function isCamaPe(id: number): boolean {
   return id >= BlockId.CamaXP && id <= BlockId.CamaZN;
+}
+/** Metade da CABECEIRA (travesseiro) — ver `CamaCabecaXP`. */
+export function isCamaCabeca(id: number): boolean {
+  return id >= BlockId.CamaCabecaXP && id <= BlockId.CamaCabecaZN;
+}
+/** Direção da cama, 0..3 (+x, +z, −x, −z), igual pro pé e pra cabeceira. */
+export function camaDirecao(id: number): number {
+  return isCamaCabeca(id) ? id - BlockId.CamaCabecaXP : id - BlockId.CamaXP;
+}
+/** O pé da mesma cama (pé devolve ele mesmo). */
+export function camaPe(id: number): number {
+  return BlockId.CamaXP + camaDirecao(id);
+}
+/** A cabeceira da mesma cama (cabeceira devolve ela mesma). */
+export function camaCabeca(id: number): number {
+  return BlockId.CamaCabecaXP + camaDirecao(id);
 }
 /** Cama ocupa 2 células no horizontal. Vetor do PÉ para a CABECEIRA
  *  (travesseiro), oposto da frente (que encara o jogador). Só faz sentido
- *  para um id de cama. */
+ *  para um id de cama (pé ou cabeceira — os dois dão o mesmo vetor). */
 export function camaHeadDir(id: number): { dx: number; dz: number } {
-  switch (id - BlockId.CamaXP) {
+  switch (camaDirecao(id)) {
     case 0: return { dx: -1, dz: 0 }; // frente +x → cabeceira −x
     case 1: return { dx: 0, dz: -1 }; // frente +z → cabeceira −z
     case 2: return { dx: 1, dz: 0 }; // frente −x → cabeceira +x
@@ -848,7 +876,8 @@ export function camaHeadDir(id: number): { dx: number; dz: number } {
 /** Móvel decorativo (mesa/cadeira/sofá/cama)? Forma própria no mesher,
  *  colisão de célula cheia (simplificação, mesmo racional da cerca). */
 export function isMovel(id: number): boolean {
-  return id >= BlockId.Mesa && id <= BlockId.CamaZN;
+  // a cabeceira da cama mora FORA da faixa (ids do fim — ver CamaCabecaXP)
+  return (id >= BlockId.Mesa && id <= BlockId.CamaZN) || isCamaCabeca(id);
 }
 
 /** Tapete de qualquer cor? */
@@ -1081,6 +1110,9 @@ export function isPlaceable(id: number): boolean {
   // acesas caem aqui: o refino que deu frente à fornalha não podia abrir quatro
   // buracos onde havia um.
   if (fornalhaEstaAcesa(id)) return false;
+  // cabeceira da cama só nasce do `place_block` do PÉ (as 2 metades juntas);
+  // pelo fio ela seria meia cama órfã
+  if (isCamaCabeca(id)) return false;
   return Number.isInteger(id) && id >= BlockId.Grass && id <= MAX_BLOCK_ID;
 }
 

@@ -604,14 +604,14 @@ describe("cama de 2 células (2026-07-20)", () => {
     // CamaXP: frente +x, cabeceira em −x → pé em (5,y,5), cabeceira em (4,y,5)
     send({ type: "place_block", x: 5, y, z: 5, blockId: BlockId.CamaXP });
     expect(getBlock(session.world, 5, y, 5)).toBe(BlockId.CamaXP); // pé
-    expect(getBlock(session.world, 4, y, 5)).toBe(BlockId.CamaXP); // cabeceira
+    expect(getBlock(session.world, 4, y, 5)).toBe(BlockId.CamaCabecaXP); // cabeceira (id próprio, bug-662)
     // par completo sobrevive aos ticks
     session.tick();
     session.tick();
-    expect(getBlock(session.world, 4, y, 5)).toBe(BlockId.CamaXP);
+    expect(getBlock(session.world, 4, y, 5)).toBe(BlockId.CamaCabecaXP);
     // quebra o pé → cabeceira fica órfã e evapora no tick seguinte
     send({ type: "break_block", x: 5, y, z: 5 });
-    expect(getBlock(session.world, 4, y, 5)).toBe(BlockId.CamaXP);
+    expect(getBlock(session.world, 4, y, 5)).toBe(BlockId.CamaCabecaXP);
     session.tick();
     expect(getBlock(session.world, 4, y, 5)).toBe(BlockId.Air);
   });
@@ -622,5 +622,15 @@ describe("cama de 2 células (2026-07-20)", () => {
     setBlock(session.world, 4, y, 5, BlockId.Stone); // ocupa a célula da cabeceira
     send({ type: "place_block", x: 5, y, z: 5, blockId: BlockId.CamaXP });
     expect(getBlock(session.world, 5, y, 5)).toBe(BlockId.Air); // não nasce pela metade
+  });
+
+  it("/bloco e /regiao encher recusam cama (bug-662: por comando saía meia cama ou corrente)", () => {
+    const { session, send } = makeFlat();
+    const y = SOLO + 1;
+    send({ type: "chat", text: `/bloco 5 ${y} 5 ${BlockId.CamaXP}` });
+    expect(getBlock(session.world, 5, y, 5)).toBe(BlockId.Air);
+    send({ type: "chat", text: `/regiao criar fila 2 ${y} 5 6 ${y} 5` });
+    send({ type: "chat", text: `/regiao encher fila ${BlockId.CamaXP}` });
+    for (let x = 2; x <= 6; x++) expect(getBlock(session.world, x, y, 5)).toBe(BlockId.Air);
   });
 });

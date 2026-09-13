@@ -333,8 +333,36 @@ describe("§🍖 F4 — colocar GASTA (e criativo segue infinito)", () => {
     session.handleMessage(1, cmd(`/dar ana ${BlockId.CamaXP} 2`));
     session.handleMessage(2, colocar(a.x, a.y, a.z, BlockId.CamaXP));
     expect(getBlock(session.world, a.x, a.y, a.z)).toBe(BlockId.CamaXP);
-    expect(getBlock(session.world, a.x + cabeceira.dx, a.y, a.z + cabeceira.dz)).toBe(BlockId.CamaXP);
+    expect(getBlock(session.world, a.x + cabeceira.dx, a.y, a.z + cabeceira.dz)).toBe(BlockId.CamaCabecaXP);
     expect(contar(ultimoInv(sent, 2) ?? inventarioVazio(), BlockId.CamaXP)).toBe(1);
+  });
+
+  it("duas camas em FILA não duplicam: quebrar célula a célula devolve 2, não 3 (bug-662)", () => {
+    const { session, sent } = turma("sobrevivencia");
+    const a = alvoLivre(session);
+    for (let dx = -3; dx <= 3; dx++) {
+      setBlock(session.world, a.x + dx, a.y, a.z, BlockId.Air);
+      setBlock(session.world, a.x + dx, a.y - 1, a.z, BlockId.Stone);
+    }
+    session.handleMessage(1, cmd(`/dar ana ${BlockId.CamaXP} 2`));
+    // CamaXP tem a cabeceira em −x: cama A = pé a.x+1 / cabeça a.x; cama B =
+    // pé a.x−1 / cabeça a.x−2 — o pé de B encosta na cabeceira de A
+    session.handleMessage(2, colocar(a.x + 1, a.y, a.z, BlockId.CamaXP));
+    session.handleMessage(2, colocar(a.x - 1, a.y, a.z, BlockId.CamaXP));
+    expect([a.x - 2, a.x - 1, a.x, a.x + 1].map((x) => getBlock(session.world, x, a.y, a.z))).toEqual([
+      BlockId.CamaCabecaXP, BlockId.CamaXP, BlockId.CamaCabecaXP, BlockId.CamaXP,
+    ]);
+    // a ordem do golpe: com o mesmo id nas 2 metades, o pé de B ficava vivo
+    // encostado na cabeceira de A, e a cabeceira de A no pé de B — 3 camas
+    session.handleMessage(2, quebrar(a.x - 2, a.y, a.z)); // cabeceira de B
+    session.tick();
+    session.tick();
+    expect(getBlock(session.world, a.x - 1, a.y, a.z)).toBe(BlockId.Air); // o pé de B evaporou
+    session.handleMessage(2, quebrar(a.x + 1, a.y, a.z)); // pé de A
+    session.tick();
+    session.tick();
+    expect(getBlock(session.world, a.x, a.y, a.z)).toBe(BlockId.Air); // a cabeceira de A evaporou
+    expect(contar(ultimoInv(sent, 2) ?? inventarioVazio(), BlockId.CamaXP)).toBe(2);
   });
 
   it("a mochila guarda a FORMA CANÔNICA: uma cama serve pras 4 direções", () => {
