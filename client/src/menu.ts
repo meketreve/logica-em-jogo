@@ -43,6 +43,9 @@ export interface PlayWorldChoice {
   createdAt: number;
   /** null = mundo novo (main gera seed); bytes = save carregado do IndexedDB. */
   data: ArrayBuffer | null;
+  /** Cópia do .ljw de antes dos ids de 16 bits, se o registro já tem uma
+   *  (`WorldRecord.dataAntesIds16`) — o `main` a preserva ao regravar. */
+  dataAntesIds16?: ArrayBuffer;
   /** Tipo do mundo NOVO (cp14): colinas, plano ou cabines. */
   preset?: WorldPreset;
   /** Tamanho do mundo NOVO (2026-07-19): P/M/G — save carrega as próprias dims. */

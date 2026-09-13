@@ -1,4 +1,5 @@
 import { existsSync, readFileSync, readdirSync } from "node:fs";
+import { guardarOriginalAntesDeConverter } from "./converterSave";
 import { basename, join } from "node:path";
 import { type GameSession, decodeSave } from "@logica/shared";
 import { PASTA_CENARIOS, PASTA_MUNDOS, mundoDeTrabalho, savePathDoMundo } from "./paths";
@@ -168,6 +169,14 @@ export function comandoMundo(
         `(${(err as Error).message}). A aula em curso continua no ar.`,
     );
     return undefined;
+  }
+
+  // Ids de 16 bits (2026-09-12): cópia viva no formato antigo — guarda o
+  // original antes que o autosave da sessão nova grave por cima no formato
+  // novo (a conversão em si é só gravar de novo; ver converterSave.ts).
+  if (novo.legado && fonte === vivo && !somenteLeitura) {
+    const copia = guardarOriginalAntesDeConverter(vivo);
+    if (copia) console.log(`[server] ${basename(vivo)} está no formato antigo — original guardado em ${copia}`);
   }
 
   // Daqui pra frente a troca ACONTECE (o arquivo já decodificou). Avisar ANTES

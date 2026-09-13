@@ -14,6 +14,10 @@ export interface WorldRecord {
   updatedAt: number;
   /** Bytes .ljw (LJS1). */
   data: ArrayBuffer;
+  /** O .ljw ORIGINAL de antes dos ids de 16 bits (2026-09-12), guardado na
+   *  primeira gravação por cima de um save antigo. Rede de segurança da
+   *  conversão automática — mesmo papel do `<nome>.antes-ids16.ljw` do host. */
+  dataAntesIds16?: ArrayBuffer;
 }
 
 const DB_NAME = "logica-em-jogo";

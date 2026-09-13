@@ -1,12 +1,12 @@
 {
   "version": 1,
   "meta": {
-    "lastScanned": "2026-09-13T00:23:15.654Z",
-    "fileCount": 324,
+    "lastScanned": "2026-09-13T01:16:27.231Z",
+    "fileCount": 327,
     "hits": 0,
     "misses": 0,
-    "renderedHash": "0fa6cf5f77040050c3a00b0adfdadbf245080c56718085732241cb7a39ea4fc7",
-    "storeUpdatedAt": "2026-09-13T00:23:15.676Z"
+    "renderedHash": "92ead730acc4615c7a729affee888d0d27da024a7a59d8db6a8f42947d262848",
+    "storeUpdatedAt": "2026-09-13T01:16:27.266Z"
   },
   "files": {
     ".claude/commands/reframe.md": {
@@ -6048,221 +6048,221 @@
     },
     "shared/src/blocks.ts": {
       "description": "IDs de bloco. Gravados como bytes crus nos chunks (Uint8Array), no save e no",
-      "tokens": 14922,
-      "hash": "c1a1516cf447a66d",
-      "size": 53483,
-      "mtimeMs": 1789257826204.59,
-      "updatedAt": "2026-09-13T00:03:46.314Z",
+      "tokens": 15024,
+      "hash": "2d358187db1417da",
+      "size": 53854,
+      "mtimeMs": 1789262187100.9836,
+      "updatedAt": "2026-09-13T01:16:27.230Z",
       "source": "hook",
       "symbols": [
         {
           "name": "isAgua",
           "kind": "fn",
-          "startLine": 335,
-          "endLine": 340,
+          "startLine": 341,
+          "endLine": 346,
           "tokens": 75
         },
         {
           "name": "isAguaFonte",
           "kind": "fn",
-          "startLine": 341,
-          "endLine": 346,
+          "startLine": 347,
+          "endLine": 352,
           "tokens": 69
         },
         {
           "name": "aguaNivel",
           "kind": "fn",
-          "startLine": 347,
-          "endLine": 355,
+          "startLine": 353,
+          "endLine": 361,
           "tokens": 82
         },
         {
           "name": "aguaComNivel",
           "kind": "fn",
-          "startLine": 356,
-          "endLine": 467,
+          "startLine": 362,
+          "endLine": 473,
           "tokens": 1441
         },
         {
           "name": "isFerramenta",
           "kind": "fn",
-          "startLine": 468,
-          "endLine": 473,
+          "startLine": 474,
+          "endLine": 479,
           "tokens": 66
         },
         {
           "name": "isCarvao",
           "kind": "fn",
-          "startLine": 474,
-          "endLine": 495,
+          "startLine": 480,
+          "endLine": 501,
           "tokens": 295
         },
         {
           "name": "isFornalha",
           "kind": "fn",
-          "startLine": 496,
-          "endLine": 500,
+          "startLine": 502,
+          "endLine": 506,
           "tokens": 60
         },
         {
           "name": "fornalhaEstaAcesa",
           "kind": "fn",
-          "startLine": 501,
-          "endLine": 506,
+          "startLine": 507,
+          "endLine": 512,
           "tokens": 68
         },
         {
           "name": "fornalhaFrente",
           "kind": "fn",
-          "startLine": 507,
-          "endLine": 512,
+          "startLine": 513,
+          "endLine": 518,
           "tokens": 78
         },
         {
           "name": "fornalhaComFrente",
           "kind": "fn",
-          "startLine": 513,
-          "endLine": 519,
+          "startLine": 519,
+          "endLine": 525,
           "tokens": 94
         },
         {
           "name": "fornalhaComEstado",
           "kind": "fn",
-          "startLine": 520,
-          "endLine": 525,
+          "startLine": 526,
+          "endLine": 531,
           "tokens": 67
         },
         {
           "name": "isBalde",
           "kind": "fn",
-          "startLine": 526,
-          "endLine": 559,
+          "startLine": 532,
+          "endLine": 565,
           "tokens": 242
         },
         {
           "name": "isItem",
           "kind": "fn",
-          "startLine": 560,
-          "endLine": 572,
+          "startLine": 566,
+          "endLine": 578,
           "tokens": 174
         },
         {
           "name": "Planta",
           "kind": "section",
-          "startLine": 573,
-          "endLine": 617,
+          "startLine": 579,
+          "endLine": 623,
           "tokens": 730
         },
         {
           "name": "plantaDe",
           "kind": "fn",
-          "startLine": 618,
-          "endLine": 622,
+          "startLine": 624,
+          "endLine": 628,
           "tokens": 45
         },
         {
           "name": "isPlantacao",
           "kind": "fn",
-          "startLine": 623,
-          "endLine": 627,
+          "startLine": 629,
+          "endLine": 633,
           "tokens": 44
         },
         {
           "name": "estagioPlantacao",
           "kind": "fn",
-          "startLine": 628,
-          "endLine": 633,
+          "startLine": 634,
+          "endLine": 639,
           "tokens": 46
         },
         {
           "name": "isPlantacaoMadura",
           "kind": "fn",
-          "startLine": 634,
-          "endLine": 639,
+          "startLine": 640,
+          "endLine": 645,
           "tokens": 59
         },
         {
           "name": "isMudaDePlantacao",
           "kind": "fn",
-          "startLine": 640,
-          "endLine": 646,
+          "startLine": 646,
+          "endLine": 652,
           "tokens": 94
         },
         {
           "name": "plantaPorSelvagem",
           "kind": "fn",
-          "startLine": 647,
-          "endLine": 651,
+          "startLine": 653,
+          "endLine": 657,
           "tokens": 52
         },
         {
           "name": "isSelvagem",
           "kind": "fn",
-          "startLine": 652,
-          "endLine": 661,
+          "startLine": 658,
+          "endLine": 667,
           "tokens": 130
         },
         {
           "name": "isMuda",
           "kind": "fn",
-          "startLine": 662,
-          "endLine": 666,
+          "startLine": 668,
+          "endLine": 672,
           "tokens": 55
         },
         {
           "name": "mudaEspecie",
           "kind": "fn",
-          "startLine": 667,
-          "endLine": 672,
+          "startLine": 673,
+          "endLine": 678,
           "tokens": 74
         },
         {
           "name": "mudaTipo",
           "kind": "fn",
-          "startLine": 673,
-          "endLine": 677,
+          "startLine": 679,
+          "endLine": 683,
           "tokens": 57
         },
         {
           "name": "mudaEstagio",
           "kind": "fn",
-          "startLine": 678,
-          "endLine": 682,
+          "startLine": 684,
+          "endLine": 688,
           "tokens": 49
         },
         {
           "name": "isMudaMadura",
           "kind": "fn",
-          "startLine": 683,
-          "endLine": 687,
+          "startLine": 689,
+          "endLine": 693,
           "tokens": 51
         },
         {
           "name": "isMudaInicial",
           "kind": "fn",
-          "startLine": 688,
-          "endLine": 694,
+          "startLine": 694,
+          "endLine": 700,
           "tokens": 95
         },
         {
           "name": "mudaDaFolhagem",
           "kind": "fn",
-          "startLine": 695,
-          "endLine": 706,
+          "startLine": 701,
+          "endLine": 712,
           "tokens": 158
         },
         {
           "name": "isSolo",
           "kind": "fn",
-          "startLine": 707,
-          "endLine": 721,
+          "startLine": 713,
+          "endLine": 727,
           "tokens": 168
         },
         {
           "name": "isReplaceable",
           "kind": "fn",
-          "startLine": 722,
-          "endLine": 1130,
+          "startLine": 728,
+          "endLine": 1136,
           "tokens": 5011
         }
       ]
@@ -11918,6 +11918,86 @@
       "size": 7049,
       "mtimeMs": 1789258981267.1392,
       "updatedAt": "2026-09-13T00:23:01.384Z",
+      "source": "hook"
+    },
+    "shared/src/chunkCodec.ts": {
+      "description": "Chunk no DISCO e no FIO (2026-09-12, ids de 16 bits). Na memória todo chunk é",
+      "tokens": 1237,
+      "hash": "9cc0645659a05bc6",
+      "size": 4378,
+      "mtimeMs": 1789261452805.0369,
+      "updatedAt": "2026-09-13T01:04:12.921Z",
+      "source": "hook",
+      "symbols": [
+        {
+          "name": "ehEstreito",
+          "kind": "fn",
+          "startLine": 31,
+          "endLine": 41,
+          "tokens": 132
+        },
+        {
+          "name": "bytesDoChunk",
+          "kind": "fn",
+          "startLine": 42,
+          "endLine": 47,
+          "tokens": 82
+        },
+        {
+          "name": "escreverChunk",
+          "kind": "fn",
+          "startLine": 48,
+          "endLine": 71,
+          "tokens": 256
+        },
+        {
+          "name": "lerChunk",
+          "kind": "fn",
+          "startLine": 72,
+          "endLine": 102,
+          "tokens": 314
+        },
+        {
+          "name": "lerChunkCru",
+          "kind": "fn",
+          "startLine": 103,
+          "endLine": 107,
+          "tokens": 52
+        }
+      ]
+    },
+    "shared/src/ids16.test.ts": {
+      "description": "Ids de bloco em 16 bits (2026-09-12). Um id ≥ 256 ainda não existe no jogo,",
+      "tokens": 2772,
+      "hash": "204916b61a6236c4",
+      "size": 9751,
+      "mtimeMs": 1789259949015.5276,
+      "updatedAt": "2026-09-13T00:39:09.140Z",
+      "source": "hook",
+      "symbols": [
+        {
+          "name": "cru",
+          "kind": "fn",
+          "startLine": 32,
+          "endLine": 143,
+          "tokens": 1228
+        },
+        {
+          "name": "snapshotV0",
+          "kind": "fn",
+          "startLine": 144,
+          "endLine": 246,
+          "tokens": 1164
+        }
+      ]
+    },
+    "server/src/converterSave.ts": {
+      "description": "Conversão AUTOMÁTICA dos saves de antes dos ids de 16 bits (2026-09-12).",
+      "tokens": 376,
+      "hash": "2ba196a89beb534c",
+      "size": 1348,
+      "mtimeMs": 1789260062153.133,
+      "updatedAt": "2026-09-13T00:41:02.264Z",
       "source": "hook"
     }
   }

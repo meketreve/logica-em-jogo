@@ -3510,3 +3510,19 @@ fraude.
 | 21:23 | Edited client/src/changelog.ts | "Loja arrumada e camas em " → "Loja arrumada, camas em f" | ~18 |
 | 21:23 | Edited client/src/changelog.ts | 2→3 lines | ~57 |
 | 21:55 | bug-665 (porta empilhada: duplicava e o toggle desmanchava as duas) consertado sem id novo — par por posicao a partir da base (`parDaPorta`); plano dos ids 16 bits em docs/superpowers/plans/2026-09-12-ids-16-bits.md + todo.md | shared/src/rules.ts, session.ts, testes, changelog, docs, todo.md | 996 verdes | ~40k |
+
+## Session: 2026-09-13 21:32
+
+| Time | Action | File(s) | Outcome | ~Tokens |
+|------|--------|---------|---------|--------|
+
+## Session: 2026-09-13 21:32
+
+| Time | Action | File(s) | Outcome | ~Tokens |
+|------|--------|---------|---------|--------|
+| 21:35 | Created shared/src/chunkCodec.ts | — | ~995 |
+| 21:39 | Created shared/src/ids16.test.ts | — | ~2772 |
+| 21:41 | Created server/src/converterSave.ts | — | ~376 |
+| 22:04 | Edited shared/src/chunkCodec.ts | added 2 condition(s) | ~244 |
+| 22:16 | Edited shared/src/blocks.ts | modified bloco() | ~138 |
+| 23:15 | ids de bloco em 16 bits: Uint16Array + chunkCodec (largura por chunk), LJW1/LJC1/LJS3 lendo os antigos, conversao automatica (host .antes-ids16.ljw, singleplayer dataAntesIds16); bug-666 (encodeSave 8x mais lento perdia a corrida do SIGINT) corrigido com varredura u32; sondas reais: loja, mundo E, conversao host, IndexedDB | shared/src/{world,chunkCodec,protocol,save,mesher,luz,rules,blocks}.ts, server/src/{converterSave,index,mundos}.ts, client/src/{main,menu,worldStore,chunks,meshPool,meshWorker}.ts, smokes, docs | 1014 verdes, smoke 16/16 apos fix | ~150k |

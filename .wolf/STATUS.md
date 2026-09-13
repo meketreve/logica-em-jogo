@@ -2,7 +2,7 @@
 
 > Single source of truth for resuming work. Read this FIRST when starting a session.
 
-> ## 🧭 HANDOFF — SESSÃO 98 (2026-09-12) · Loja (663/664), cama (662) e porta empilhada (665) consertadas
+> ## 🧭 HANDOFF — SESSÃO 98 (2026-09-12) · Loja, cama, porta empilhada e ids de bloco em 16 bits
 
 > **Rodou no clone `/mnt/SSD/git-projeto/logica-em-jogo` (Linux nativo, `node_modules` do
 > Windows).** Pra rodar tsc/build/vitest aqui foram COPIADOS os 3 binários nativos linux pro
@@ -22,22 +22,33 @@
 > - **bug-665 (porta empilhada duplicava e o toggle desmanchava as duas)** — SEM id novo: par por
 >   POSIÇÃO a partir da base da pilha (`parDaPorta`/`doorRule` em `rules.ts`, toggle do
 >   `use_block` usa a mesma função). 2 repros de sessão + 5 testes puros; 996 verdes.
-> - **Plano dos ids em 16 bits anotado:** `docs/superpowers/plans/2026-09-12-ids-16-bits.md`
->   (+ entrada no `todo.md` § Geração de mundo / performance).
+> - **Ids de bloco em 16 bits + conversão automática dos mundos antigos** (pedido do usuário). Chunk
+>   `Uint16Array`; disco/fio com largura por chunk (`chunkCodec.ts`) — mundo de hoje não cresce;
+>   formatos `LJW1`/`LJC1`/`LJS3`, os antigos lidos pra sempre. Teto: bloco < 900. Save antigo:
+>   host guarda `<nome>.antes-ids16.ljw` e regrava; singleplayer guarda `dataAntesIds16`.
+>   Provado: portão de hash dos `.ljw` reais, 18 testes novos (1014 verdes), smoke completo,
+>   loja (denso) e mundo E (streaming) no cliente real, conversão no host real e no IndexedDB
+>   real. Regressão de desempenho do save achada e corrigida antes do commit ([[bug-666]]).
+>   Registro: `docs/superpowers/plans/2026-09-12-ids-16-bits.md`.
 
 > ### 🚀 PRÓXIMA QUEST
-> **Ids de bloco em 16 bits — o plano está pronto, falta o SIM do usuário.** Ler
-> `docs/superpowers/plans/2026-09-12-ids-16-bits.md` e abrir a sessão perguntando se ele topa a
-> Opção A (chunk `Uint16Array` na memória, gravado/enviado estreito quando dá; bloco < 900 porque
-> os itens começam em 900). Sobram só **5 ids livres (251-255)** — os circuitos lógicos esbarram
-> nisso. Se ele preferir outra coisa: **bug-651 (não sai da cama)** — pedido dele é PULAR deitado
-> levantar; hoje só acorda saindo da célula por `move` (`dormir.ts:acordarSeSaiu`).
+> **bug-651 (não sai da cama)** — pedido do usuário: apertar PULAR deitado levanta. Hoje só acorda
+> saindo da célula por `move` (`dormir.ts:acordarSeSaiu`); pular deitado não gera move real, então
+> precisa de caminho novo no servidor (reusar `acordar()`). Investigar o input de pulo no cliente.
+> Depois: o **1º bloco de circuito** (vai ser o 1º id ≥ 256 de verdade — fecha a Tarefa 4 do plano
+> dos 16 bits: colocar, salvar, streaming, mesher, luz, drop) e o `bench:headless` antes/depois.
 
 > **⚠️ Não verificado em tela pelo usuário:** loja e cama só foram vistas no headless. Testar na
 > escola: preço no último item + Esc; loja cheia no tablet; 2 camas em fila, e um mundo antigo
-> que já tinha cama (tem de abrir com as camas inteiras); porta em cima de porta (abrir a de baixo).
+> que já tinha cama (tem de abrir com as camas inteiras); porta em cima de porta (abrir a de baixo);
+> **abrir o mundo salvo da turma no host** (tem de aparecer `<nome>.antes-ids16.ljw` na pasta dele e
+> o mundo abrir igual) e um mundo do singleplayer num navegador que já jogava antes.
 
 > **Pendências herdadas, nenhuma bloqueante:**
+> - **Save no Ctrl+C/fechar janela disputa corrida com o `npx`/`tsx` que embrulha o host** (o sinal
+>   vai pro grupo). Hoje ganha com folga (~6 ms de encode), mas é frágil — ver [[bug-666]]. Conserto
+>   de verdade: o host não depender do wrapper sobreviver (ex.: launcher chamar `node` direto).
+> - Singleplayer: o backup `dataAntesIds16` existe mas o menu não oferece restaurar.
 > - `scripts/f10-shot.mjs` quebrado ("botão ▣ não encontrado") — causa provável: rótulo do
 >   botão muda com o item na mão ("colocar"/"interagir"). Não investigado.
 > - Scripts de puppeteer no Windows precisam baixar Chrome (`~/.cache/puppeteer` vazio lá).

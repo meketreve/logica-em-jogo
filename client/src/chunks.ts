@@ -449,7 +449,7 @@ export class ChunkRenderer {
         this.caminho = c.carga ? "carga" : "fila";
         const t0 = performance.now();
         const versao = this.novaVersao(key);
-        let viz: Uint8Array | null;
+        let viz: Uint16Array | null;
         try {
           viz = extrairVizinhanca(this.world, c.cx, c.cy, c.cz);
         } catch (e) {

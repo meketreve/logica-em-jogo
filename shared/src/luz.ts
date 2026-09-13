@@ -34,7 +34,7 @@ import {
   isTransparentBlock,
 } from "./blocks";
 import { CHUNK_SIZE, CHUNK_VOLUME } from "./constants";
-import { type World, type WorldDims, blockIndex, colunaGerada, getBlock } from "./world";
+import { type ChunkBlocos, type World, type WorldDims, blockIndex, colunaGerada, getBlock } from "./world";
 
 /** Nível máximo de luz. 15 = céu aberto ao meio-dia. */
 export const LUZ_MAX = 15;
@@ -329,7 +329,7 @@ const CEU_CHEIO = LUZ_MAX << 4;
 
 /** O chunk é 100% ar? (mesmo fast path do `extrairVizinhanca`: no mundo G, 75%
  *  dos chunks são céu.) Ausente também conta — chunk que não existe é ar. */
-function chunkVazio(bytes: Uint8Array | undefined): boolean {
+function chunkVazio(bytes: ChunkBlocos | undefined): boolean {
   if (!bytes) return true;
   for (let i = 0; i < bytes.length; i++) if (bytes[i] !== 0) return false;
   return true;

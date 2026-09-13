@@ -22,18 +22,18 @@ const ok = (cond, msg) => {
 };
 const espera = (ms) => new Promise((r) => setTimeout(r, ms));
 
-const COLUNAS_MAGIC = 0x30434a4c; // "LJC0"
+const COLUNAS_MAGIC = 0x31434a4c; // "LJC1" (ids de 16 bits, 2026-09-12)
 const LAZY_MAGIC = 0x30454a4c; // "LJE0"
 
 function colunasDoLote(buf, dimsY) {
   const view = new DataView(buf);
   const n = view.getUint16(4, true);
-  const porColuna = 4 + dimsY * 4096;
   const out = [];
   let off = 8;
   for (let i = 0; i < n; i++) {
     out.push([view.getUint16(off, true), view.getUint16(off + 2, true)]);
-    off += porColuna;
+    off += 4;
+    for (let cy = 0; cy < dimsY; cy++) off += 1 + (view.getUint8(off) === 1 ? 8192 : 4096);
   }
   return out;
 }

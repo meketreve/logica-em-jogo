@@ -28,7 +28,8 @@ describe("snapshot binário", () => {
   it("header carrega as dimensões — cliente não assume tamanho", () => {
     const world = generateWorld({ x: 3, z: 2, y: 1 }, 7);
     const buf = encodeSnapshot(world, 7);
-    expect(buf.byteLength).toBe(SNAPSHOT_HEADER_BYTES + 6 * CHUNK_VOLUME);
+    // 1 byte de largura por chunk (2026-09-12); mundo sem id ≥ 256 = tudo estreito
+    expect(buf.byteLength).toBe(SNAPSHOT_HEADER_BYTES + 6 * (1 + CHUNK_VOLUME));
     const view = new DataView(buf);
     expect(view.getUint32(0, true)).toBe(SNAPSHOT_MAGIC);
     expect([view.getUint8(4), view.getUint8(5), view.getUint8(6)]).toEqual([3, 2, 1]);
@@ -42,7 +43,7 @@ describe("snapshot binário", () => {
 
   it("rejeita buffer truncado", () => {
     const buf = encodeSnapshot(generateWorld(DIMS, 1), 1);
-    expect(() => decodeSnapshot(buf.slice(0, buf.byteLength - 1))).toThrow(/tamanho/);
+    expect(() => decodeSnapshot(buf.slice(0, buf.byteLength - 1))).toThrow(/truncado/);
     expect(() => decodeSnapshot(buf.slice(0, 4))).toThrow(/header/);
   });
 

@@ -5897,6 +5897,32 @@
       ],
       "occurrences": 1,
       "last_seen": "2026-09-12T21:50:00.000Z"
+    },
+    {
+      "id": "bug-666",
+      "timestamp": "2026-09-12T23:10:00.000Z",
+      "error_message": "achado na sessao 98 (antes do commit dos ids de 16 bits): smoke sighup FALHOU — '✗ o host gravou o mundo ao receber SIGINT' / 'o mundo nao voltou depois do SIGINT'; instavel (2 de 6 no codigo novo, 8 de 8 OK no antigo)",
+      "file": "shared/src/chunkCodec.ts (ehEstreito)",
+      "root_cause": "O `ehEstreito` (todo id do chunk <= 255?) varria celula a celula com `c[i] > 0xff`: o encodeSave do mundo P (512 chunks, 2 M celulas) foi de ~4,5 ms pra ~35 ms (1a chamada, JIT frio, ainda pior). O save do Ctrl+C/fechar janela (bug-645) roda com o host EMBRULHADO em `npx tsx` — o sinal vai pro grupo inteiro e o wrapper morre junto; com 4 ms o save sempre ganhava a corrida, com 35 ms as vezes o processo caia antes de gravar (log sem 'mundo salvo', e numa das vezes nada no disco). Diagnostico: A/B do smoke (5x novo vs 5x antigo), depois latencia SIGINT->salvo medida (antigo ~30 ms sempre; novo 55 ms ou NUNCA), stderr/exit capturados, e cronometro in-process das fases (join, ticks, encodeSave) — so o encodeSave mudou.",
+      "fix": "`ehEstreito` olha 2 celulas por vez: `new Uint32Array(c.buffer, c.byteOffset, c.length >>> 1)` e testa `& 0xff00ff00` (os bytes altos das duas), com fallback celula a celula se o offset nao for multiplo de 4. encodeSave P: ~6 ms em regime (antigo 4); smoke sighup 5 de 5 OK. A CORRIDA em si (save no sinal x wrapper npx/tsx) continua existindo, so com folga — pendencia anotada no STATUS.",
+      "tags": [
+        "desempenho",
+        "save",
+        "sigint",
+        "sighup",
+        "smoke",
+        "ids16",
+        "chunk",
+        "corrida",
+        "npx",
+        "tsx",
+        "corrigido"
+      ],
+      "related_bugs": [
+        "bug-645"
+      ],
+      "occurrences": 1,
+      "last_seen": "2026-09-12T23:10:00.000Z"
     }
   ]
 }

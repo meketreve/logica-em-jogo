@@ -61,6 +61,7 @@ import {
   raycastBlock,
   raycastJogador,
   relevoPorClima,
+  saveEhLegado,
   setBlock,
   stepPlayer,
   type TipoEmote,
@@ -484,7 +485,15 @@ window.addEventListener("resize", () => {
 let conn: Connection | null = null;
 let serverHostLabel = "?";
 /** Mundo singleplayer atual (id/nome/criação — bytes vão pro IndexedDB). */
-let currentWorld: { id: string; name: string; createdAt: number } | null = null;
+let currentWorld: {
+  id: string;
+  name: string;
+  createdAt: number;
+  /** Bytes que foram CARREGADOS (null = mundo novo). Só serve pra decidir o
+   *  backup da conversão pros ids de 16 bits no `persistWorld`. */
+  carregado: ArrayBuffer | null;
+  dataAntesIds16?: ArrayBuffer;
+} | null = null;
 
 // Nome: ?nome=x força (testes); senão o do menu (localStorage — bug-061).
 function playerName(): string {
@@ -1105,7 +1114,13 @@ function startMultiplayer(url: string, auth: MultiAuth): void {
 }
 
 function startSingleplayer(choice: PlayWorldChoice, seedFixa?: number): void {
-  currentWorld = { id: choice.id, name: choice.name, createdAt: choice.createdAt };
+  currentWorld = {
+    id: choice.id,
+    name: choice.name,
+    createdAt: choice.createdAt,
+    carregado: choice.data,
+    ...(choice.dataAntesIds16 ? { dataAntesIds16: choice.dataAntesIds16 } : {}),
+  };
   serverHostLabel = `web-worker (${choice.name})`;
   const wc = new WorkerConnection(
     new Worker(new URL("../../server/src/worker.ts", import.meta.url), {
@@ -1131,7 +1146,15 @@ function startSingleplayer(choice: PlayWorldChoice, seedFixa?: number): void {
 async function persistWorld(): Promise<void> {
   if (!(conn instanceof WorkerConnection) || !currentWorld) return;
   const data = await conn.requestSave();
-  await putWorld({ ...currentWorld, updatedAt: Date.now(), data });
+  // ids de 16 bits (2026-09-12): o save carregado estava no formato antigo? O
+  // worker já devolve o formato novo — guarda o original na 1ª gravação por
+  // cima (o `carregado` é sempre o que foi LIDO do IndexedDB, então repetir é
+  // idempotente). Registro já convertido traz o backup no `dataAntesIds16`.
+  const { carregado, dataAntesIds16, ...registro } = currentWorld;
+  const backup = dataAntesIds16 ?? (carregado && saveEhLegado(carregado) ? carregado : undefined);
+  await putWorld({
+    ...registro, updatedAt: Date.now(), data, ...(backup ? { dataAntesIds16: backup } : {}),
+  });
 }
 
 // sair: singleplayer grava antes; rede só recarrega (host é quem salva)

@@ -1,5 +1,6 @@
 import {
   BlockId,
+  MAX_BLOCK_ID,
   aguaComNivel,
   aguaNivel,
   apoioValido,
@@ -452,7 +453,7 @@ for (let k = 0; k < 4; k++) {
 // cultivado e selvagem (bug-581) — o F10c pôs os 5 ids no `precisaApoio` e
 // nenhum aqui, então cavar debaixo do canteiro deixava o pé no ar. Planta nova
 // agora entra numa lista só.
-for (let id = 0; id < 256; id++) {
+for (let id = 0; id <= MAX_BLOCK_ID; id++) {
   if (precisaApoio(id) && !rulesMap.has(id)) rulesMap.set(id, torchRule);
 }
 // Água FLUIDA (2026-07-22): fonte (129) + os 7 níveis fluidos ticam pelo

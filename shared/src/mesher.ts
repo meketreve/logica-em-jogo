@@ -789,11 +789,13 @@ export function extrairVizinhanca(
   cx: number,
   cy: number,
   cz: number,
-): Uint8Array | null {
+): Uint16Array | null {
   const bytes = world.chunks[chunkIndex(world, cx, cy, cz)];
   if (!bytes || bytes.every((b) => b === 0)) return null;
 
-  const viz = new Uint8Array(VIZ_VOLUME);
+  // 16 bits como o chunk (2026-09-12): um Uint8Array aqui CORTARIA em
+  // silêncio todo id ≥ 256 — o `set` de typed array converte por módulo
+  const viz = new Uint16Array(VIZ_VOLUME);
   for (let ly = 0; ly < CHUNK_SIZE; ly++) {
     for (let lz = 0; lz < CHUNK_SIZE; lz++) {
       const src = (ly * CHUNK_SIZE + lz) * CHUNK_SIZE;
@@ -868,7 +870,7 @@ export function meshChunk(
  * verdes os testes e os caminhos que não têm grade de luz, e é exatamente a
  * aparência que o jogo tinha antes do §💡.
  */
-export function meshVizinhanca(viz: Uint8Array, luzViz?: Uint8Array | null): ChunkGeometry {
+export function meshVizinhanca(viz: Uint16Array, luzViz?: Uint8Array | null): ChunkGeometry {
   /** Luz da célula em coordenadas LOCAIS (−1 e CHUNK_SIZE leem a casca). */
   const luzDe = (lx: number, ly: number, lz: number): number =>
     luzViz ? (luzViz[vizIndex(lx, ly, lz)] ?? 0) : 0xff;

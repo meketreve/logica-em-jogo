@@ -328,6 +328,12 @@ export type BlockId = (typeof BlockId)[keyof typeof BlockId];
  * fixavam o teto à mão: cada bloco novo exigia lembrar de subir o número em
  * dois arquivos, e esquecer significava um portão que deixava de olhar
  * justamente o bloco recém-criado — o oposto do que ele existe pra fazer.
+ *
+ * ⚠️ TETO dos ids de bloco (2026-09-12): o chunk é de 16 bits, então bloco
+ * novo pode passar de 255 — mas tem de ficar ABAIXO de 900, onde começam os
+ * ITENS (`ITEM_BALDE_VAZIO`): os dois moram no mesmo espaço numérico da
+ * mochila. Há portão em `ids16.test.ts`. E id é byte de SAVE: nunca renumerar
+ * um id que já existe, só acrescentar no fim.
  */
 export const MAX_BLOCK_ID = BlockId.CamaCabecaZN;
 

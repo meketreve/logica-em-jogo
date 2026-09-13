@@ -158,7 +158,7 @@ export class MeshPool {
 
   /** Manda a vizinhança pro worker MENOS carregado. `viz` e `luzViz` são
    *  TRANSFERIDAS — quem chama não pode mais usá-las depois desta linha. */
-  enviar(viz: Uint8Array, luzViz?: Uint8Array | null): number {
+  enviar(viz: Uint16Array, luzViz?: Uint8Array | null): number {
     if (viz.length !== VIZ_VOLUME) throw new Error(`vizinhança ${viz.length} ≠ ${VIZ_VOLUME}`);
     if (luzViz && luzViz.length !== VIZ_VOLUME) {
       throw new Error(`vizinhança de luz ${luzViz.length} ≠ ${VIZ_VOLUME}`);

@@ -170,6 +170,23 @@
 
 ## Key Learnings
 
+- [2026-09-12] **`Uint8Array.set(Uint16Array)` COMPILA e corta em silêncio** (conversão por módulo
+  256). Trocar o tipo do chunk deixou o typecheck VERDE com a vizinhança do mesher ainda em
+  `Uint8Array` — todo id ≥ 256 viraria outro bloco na tela. Ao alargar um typed array, caçar
+  toda cópia (`.set`, `new XArray(outro)`) e ter teste com um valor de byte alto (258 = pedra
+  se cortar). O TS não ajuda aqui.
+- [2026-09-12] **O save no sinal (Ctrl+C / fechar janela, bug-645) disputa corrida com o
+  `npx`/`tsx` que embrulha o host** — o sinal vai pro grupo de processos. Com o encodeSave em
+  ~4 ms sempre ganhava; a 35 ms passou a perder às vezes ([[bug-666]]). Qualquer coisa que
+  deixe o `saveNow` mais lento pode reabrir o bug-645 na escola: medir `encodeSave` no mundo P
+  (cold e em regime) e rodar o `_smoke-sighup.mjs` ~5× — 1 rodada verde não prova nada.
+- [2026-09-12] **CDP `Runtime.evaluate` NÃO espera Promise sem `awaitPromise: true`** — o
+  `avaliar` dos scripts de shot devolve `{}` pra `(async () => …)()`. Sonda que mexe em
+  IndexedDB (ou qualquer API async) chama o `cdp` direto com `awaitPromise`.
+- [2026-09-12] **Sonda de CLIENTE depois de mexer em `client/src` exige `npm run build` antes**
+  (o host serve `client/dist`) — a sonda do singleplayer "falhou" no backup só porque o dist era
+  o de antes do patch. Já está no cabeçalho dos scripts de shot; vale pra sonda ad hoc também.
+
 - [2026-09-12] **Par de células com o MESMO id pode sair da POSIÇÃO, sem id novo, quando as duas
   metades são desenhadas iguais.** Porta ([[bug-665]]): numa coluna de portas iguais as portas
   são sempre inteiras, então pares a partir da BASE — (0,1),(2,3)… (`parDaPorta` em
@@ -2380,6 +2397,17 @@ nenhum** — sem essa declaração o Chrome renderiza a página em light mesmo c
   `session.ts`, o padrão "acumula sujo, esvazia 1×/tick" que os blocos já usavam).
 
 ## Decision Log — índice das decisões ATIVAS
+
+- [2026-09-12] **Ids de bloco em 16 bits FEITO (pedido: "pode fazer os ids em 16 bits e um plano
+  de auto converter os mundos antigos automaticamente").** Chunk `Uint16Array` na memória
+  (`ChunkBlocos`, `world.ts`); disco/fio com 1 byte de LARGURA por chunk (`chunkCodec.ts`:
+  estreito u8 quando todo id ≤ 255, largo u16 senão) — mundo de hoje cresce 1 byte por chunk.
+  Formatos: `LJW1`/`LJC1`/`LJS3` novos; `LJW0`/`LJC0`/`LJS2` lidos PRA SEMPRE (`legado: true`).
+  **Teto: bloco < 900** (itens começam em 900; portão em `ids16.test.ts`). Conversão
+  automática = regravar + guardar o original antes: host `<nome>.antes-ids16.ljw` na pasta do
+  mundo (boot converte já; troca ao vivo converte no autosave), singleplayer
+  `WorldRecord.dataAntesIds16`. `cenarios/` e aula (só leitura) nunca são escritos. Registro
+  completo: `docs/superpowers/plans/2026-09-12-ids-16-bits.md`.
 
 - [2026-09-12] **Cama: pé e cabeceira com ids DIFERENTES (bug-662), escolha do usuário entre 3
   opções.** Cabeceira = `CamaCabecaXP..ZN` (247-250); `CamaXP..ZN` virou só o pé. Recusadas:

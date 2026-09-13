@@ -41,3 +41,4 @@ export * from "./session";
 // session/* são handlers de comando e não têm consumidor fora daqui.
 export * from "./session/aula";
 export * from "./version";
+export * from "./chunkCodec";

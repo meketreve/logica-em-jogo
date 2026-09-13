@@ -9,7 +9,14 @@ export interface WorldDims {
 }
 
 /**
- * Mundo voxel: grade de chunks, cada chunk um Uint8Array plano (1 byte por
+ * Bloco de um chunk: 16 bits por célula desde 2026-09-12 (antes, 1 byte — o
+ * teto de 256 ids tinha só 5 livres). No disco e no fio o chunk vai ESTREITO
+ * (1 byte) quando todos os ids dele cabem em 255: ver `chunkCodec.ts`.
+ */
+export type ChunkBlocos = Uint16Array;
+
+/**
+ * Mundo voxel: grade de chunks, cada chunk um `ChunkBlocos` plano (16 bits por
  * bloco). Estrutura AUTORITATIVA — vive em /shared e roda igual no cliente,
  * no Web Worker e no Node.
  *
@@ -26,15 +33,15 @@ export interface World {
   readonly sizeY: number;
   readonly sizeZ: number;
   /** Chunks indexados por chunkIndex(); undefined = não gerado ainda. */
-  readonly chunks: (Uint8Array | undefined)[];
+  readonly chunks: (ChunkBlocos | undefined)[];
 }
 
 /** `alocar=false` cria o mundo VAZIO (todo slot undefined) pra geração
  *  preguiçosa por coluna — alocarColuna() materializa sob demanda. */
 export function createWorld(dims: WorldDims, alocar = true): World {
   const count = dims.x * dims.y * dims.z;
-  const chunks: (Uint8Array | undefined)[] = new Array(count);
-  if (alocar) for (let i = 0; i < count; i++) chunks[i] = new Uint8Array(CHUNK_VOLUME);
+  const chunks: (ChunkBlocos | undefined)[] = new Array(count);
+  if (alocar) for (let i = 0; i < count; i++) chunks[i] = new Uint16Array(CHUNK_VOLUME);
   return {
     dims,
     sizeX: dims.x * CHUNK_SIZE,
@@ -54,7 +61,7 @@ export function colunaGerada(world: World, cx: number, cz: number): boolean {
 export function alocarColuna(world: World, cx: number, cz: number): void {
   for (let cy = 0; cy < world.dims.y; cy++) {
     const i = chunkIndex(world, cx, cy, cz);
-    if (!world.chunks[i]) world.chunks[i] = new Uint8Array(CHUNK_VOLUME);
+    if (!world.chunks[i]) world.chunks[i] = new Uint16Array(CHUNK_VOLUME);
   }
 }
 
@@ -63,7 +70,7 @@ export function chunkIndex(world: World, cx: number, cy: number, cz: number): nu
   return (cy * world.dims.z + cz) * world.dims.x + cx;
 }
 
-/** Índice do bloco (coordenadas locais 0..CHUNK_SIZE-1) dentro do Uint8Array do chunk. */
+/** Índice do bloco (coordenadas locais 0..CHUNK_SIZE-1) dentro do array do chunk. */
 export function blockIndex(lx: number, ly: number, lz: number): number {
   return (ly * CHUNK_SIZE + lz) * CHUNK_SIZE + lx;
 }

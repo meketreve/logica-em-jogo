@@ -13,7 +13,7 @@ import { meshVizinhanca } from "@logica/shared";
 interface PedidoMesh {
   /** Id do job (o pool casa a resposta com o chunk; o worker não interpreta). */
   id: number;
-  viz: Uint8Array;
+  viz: Uint16Array;
   /** §💡 cubo 18³ de bytes de luz. Ausente = mundo sem grade de luz → o mesher
    *  monta tudo aceso (é como o jogo era antes do §💡). */
   luzViz?: Uint8Array;

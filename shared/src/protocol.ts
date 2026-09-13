@@ -6,6 +6,7 @@ import {
   parseContainerSalvo,
   parsePrecoEntry,
 } from "./containers";
+import { bytesDoChunk, escreverChunk, lerChunk, lerChunkCru } from "./chunkCodec";
 import { CHUNK_VOLUME, MAX_WORLD_CHUNKS } from "./constants";
 import { type GroupDef, parseGroups } from "./groups";
 import { type SlotSalvo, inventarioParaSave, parseInventario } from "./inventario";
@@ -1159,24 +1160,33 @@ export function parseServerMessage(raw: string): ServerMessage | null {
 // --- world_snapshot binário ---
 //
 // Layout (little-endian):
-//   u32  magic "LJW0" (0x304a574c lido como LE dos bytes L J W 0)
+//   u32  magic "LJW1" (0x314a574c lido como LE dos bytes L J W 1)
 //   u8   dims.x   u8 dims.z   u8 dims.y   u8 reservado(0)
 //   u32  seed (worldgen determinístico: mesma seed = mesmos bytes)
-//   depois: chunks concatenados na ordem de chunkIndex(), CHUNK_VOLUME bytes cada.
+//   depois: chunks na ordem de chunkIndex(), cada um CODIFICADO (`chunkCodec.ts`:
+//   1 byte de largura + u8 ou u16 por célula).
 // O header carrega as dimensões — o cliente NUNCA assume tamanho de mundo.
+// "LJW0" (até 2026-09-12, ids de 1 byte) tinha o mesmo header e os chunks crus
+// com CHUNK_VOLUME bytes cada — continua sendo LIDO pra sempre (saves antigos,
+// `.ljw` de cenário distribuído).
 
-export const SNAPSHOT_MAGIC = 0x304a574c; // bytes "LJW0" em little-endian
+export const SNAPSHOT_MAGIC = 0x314a574c; // bytes "LJW1" em little-endian
+/** Formato antigo (1 byte por bloco, sem largura por chunk). Só leitura. */
+export const SNAPSHOT_MAGIC_V0 = 0x304a574c; // bytes "LJW0"
 export const SNAPSHOT_HEADER_BYTES = 12;
 
 export interface Snapshot {
   world: World;
   seed: number;
+  /** Veio de um formato de antes dos ids de 16 bits (quem gravou não sabia
+   *  deles). Quem carregou do DISCO usa isto pra reescrever no formato novo. */
+  legado?: boolean;
 }
 
 export function encodeSnapshot(world: World, seed: number): ArrayBuffer {
-  const buf = new ArrayBuffer(
-    SNAPSHOT_HEADER_BYTES + world.chunks.length * CHUNK_VOLUME,
-  );
+  let total = SNAPSHOT_HEADER_BYTES;
+  for (const c of world.chunks) total += bytesDoChunk(c);
+  const buf = new ArrayBuffer(total);
   const view = new DataView(buf);
   view.setUint32(0, SNAPSHOT_MAGIC, true);
   view.setUint8(4, world.dims.x);
@@ -1184,21 +1194,21 @@ export function encodeSnapshot(world: World, seed: number): ArrayBuffer {
   view.setUint8(6, world.dims.y);
   view.setUint8(7, 0);
   view.setUint32(8, seed >>> 0, true);
-  const body = new Uint8Array(buf, SNAPSHOT_HEADER_BYTES);
-  for (let i = 0; i < world.chunks.length; i++) {
-    const chunk = world.chunks[i];
-    if (chunk) body.set(chunk, i * CHUNK_VOLUME);
-  }
+  const body = new Uint8Array(buf);
+  let off = SNAPSHOT_HEADER_BYTES;
+  for (const c of world.chunks) off = escreverChunk(body, off, c);
   return buf;
 }
 
-/** Decodifica e VALIDA um snapshot. Lança Error em dados inválidos. */
+/** Decodifica e VALIDA um snapshot (LJW1 ou o antigo LJW0). Lança Error em
+ *  dados inválidos. */
 export function decodeSnapshot(buf: ArrayBuffer): Snapshot {
   if (buf.byteLength < SNAPSHOT_HEADER_BYTES) {
     throw new Error(`snapshot menor que o header (${buf.byteLength} bytes)`);
   }
   const view = new DataView(buf);
-  if (view.getUint32(0, true) !== SNAPSHOT_MAGIC) {
+  const magic = view.getUint32(0, true);
+  if (magic !== SNAPSHOT_MAGIC && magic !== SNAPSHOT_MAGIC_V0) {
     throw new Error("snapshot com magic inválido — não é um world_snapshot");
   }
   const dims = { x: view.getUint8(4), z: view.getUint8(5), y: view.getUint8(6) };
@@ -1210,16 +1220,22 @@ export function decodeSnapshot(buf: ArrayBuffer): Snapshot {
   }
   const seed = view.getUint32(8, true);
   const world = createWorld(dims);
-  const expected = SNAPSHOT_HEADER_BYTES + world.chunks.length * CHUNK_VOLUME;
-  if (buf.byteLength !== expected) {
-    throw new Error(
-      `snapshot com tamanho errado: ${buf.byteLength} bytes (esperado ${expected})`,
-    );
+  const body = new Uint8Array(buf);
+  if (magic === SNAPSHOT_MAGIC_V0) {
+    const expected = SNAPSHOT_HEADER_BYTES + world.chunks.length * CHUNK_VOLUME;
+    if (buf.byteLength !== expected) {
+      throw new Error(
+        `snapshot com tamanho errado: ${buf.byteLength} bytes (esperado ${expected})`,
+      );
+    }
+    let off = SNAPSHOT_HEADER_BYTES;
+    for (const c of world.chunks) off = lerChunkCru(body, off, c);
+    return { world, seed, legado: true };
   }
-  for (let i = 0; i < world.chunks.length; i++) {
-    world.chunks[i]?.set(
-      new Uint8Array(buf, SNAPSHOT_HEADER_BYTES + i * CHUNK_VOLUME, CHUNK_VOLUME),
-    );
+  let off = SNAPSHOT_HEADER_BYTES;
+  for (const c of world.chunks) off = lerChunk(body, off, c, "snapshot");
+  if (off !== buf.byteLength) {
+    throw new Error(`snapshot com ${buf.byteLength - off} bytes sobrando depois dos chunks`);
   }
   return { world, seed };
 }
@@ -1293,7 +1309,10 @@ export function decodeLazyInfo(buf: ArrayBuffer): Snapshot {
   return { world: createWorld(dims, false), seed: view.getUint32(12, true) };
 }
 
-export const COLUNAS_MAGIC = 0x30434a4c; // "LJC0" em little-endian
+export const COLUNAS_MAGIC = 0x31434a4c; // "LJC1" em little-endian
+/** Lote antigo (chunks crus de 1 byte). O servidor novo nunca manda; o
+ *  decode aceita pra não quebrar ferramenta/smoke que ainda o monte. */
+export const COLUNAS_MAGIC_V0 = 0x30434a4c; // "LJC0"
 const COLUNAS_HEADER_BYTES = 8;
 
 export interface ColunaRef {
@@ -1302,11 +1321,17 @@ export interface ColunaRef {
 }
 
 /** Lote binário de colunas de chunks: header (magic + count) + por coluna
- *  [cx u16, cz u16, dims.y × CHUNK_VOLUME bytes]. Servidor SEMPRE manda
- *  coluna materializada (gera antes de enviar). */
+ *  [cx u16, cz u16, dims.y chunks CODIFICADOS (`chunkCodec.ts`)]. Servidor
+ *  SEMPRE manda coluna materializada (gera antes de enviar). */
 export function encodeColunas(world: World, colunas: readonly ColunaRef[]): ArrayBuffer {
-  const porColuna = 4 + world.dims.y * CHUNK_VOLUME;
-  const buf = new ArrayBuffer(COLUNAS_HEADER_BYTES + colunas.length * porColuna);
+  let total = COLUNAS_HEADER_BYTES;
+  for (const { cx, cz } of colunas) {
+    total += 4;
+    for (let cy = 0; cy < world.dims.y; cy++) {
+      total += bytesDoChunk(world.chunks[chunkIndex(world, cx, cy, cz)]);
+    }
+  }
+  const buf = new ArrayBuffer(total);
   const view = new DataView(buf);
   view.setUint32(0, COLUNAS_MAGIC, true);
   view.setUint16(4, colunas.length, true);
@@ -1318,47 +1343,49 @@ export function encodeColunas(world: World, colunas: readonly ColunaRef[]): Arra
     view.setUint16(off + 2, cz, true);
     off += 4;
     for (let cy = 0; cy < world.dims.y; cy++) {
-      const chunk = world.chunks[chunkIndex(world, cx, cy, cz)];
-      if (chunk) body.set(chunk, off);
-      off += CHUNK_VOLUME;
+      off = escreverChunk(body, off, world.chunks[chunkIndex(world, cx, cy, cz)]);
     }
   }
   return buf;
 }
 
-/** Decodifica e APLICA um lote LJC0 no mundo (aloca as colunas e copia os
- *  bytes). Devolve as colunas aplicadas (o cliente remesha essas + bordas).
- *  Lança Error em dados inválidos. */
+/** Decodifica e APLICA um lote LJC1 (ou o antigo LJC0) no mundo (aloca as
+ *  colunas e copia os blocos). Devolve as colunas aplicadas (o cliente remesha
+ *  essas + bordas). Lança Error em dados inválidos. */
 export function decodeColunas(buf: ArrayBuffer, world: World): ColunaRef[] {
   if (buf.byteLength < COLUNAS_HEADER_BYTES) {
-    throw new Error(`LJC0 menor que o header (${buf.byteLength} bytes)`);
+    throw new Error(`LJC menor que o header (${buf.byteLength} bytes)`);
   }
   const view = new DataView(buf);
-  if (view.getUint32(0, true) !== COLUNAS_MAGIC) {
-    throw new Error("LJC0 com magic inválido");
+  const magic = view.getUint32(0, true);
+  if (magic !== COLUNAS_MAGIC && magic !== COLUNAS_MAGIC_V0) {
+    throw new Error("LJC com magic inválido");
   }
+  const cru = magic === COLUNAS_MAGIC_V0;
   const n = view.getUint16(4, true);
-  const porColuna = 4 + world.dims.y * CHUNK_VOLUME;
-  if (buf.byteLength !== COLUNAS_HEADER_BYTES + n * porColuna) {
+  if (cru && buf.byteLength !== COLUNAS_HEADER_BYTES + n * (4 + world.dims.y * CHUNK_VOLUME)) {
     throw new Error(`LJC0 com tamanho errado (${buf.byteLength} bytes p/ ${n} colunas)`);
   }
+  const body = new Uint8Array(buf);
   const out: ColunaRef[] = [];
   let off = COLUNAS_HEADER_BYTES;
   for (let i = 0; i < n; i++) {
+    if (off + 4 > buf.byteLength) throw new Error(`LJC truncado na coluna ${i}`);
     const cx = view.getUint16(off, true);
     const cz = view.getUint16(off + 2, true);
     off += 4;
     if (cx >= world.dims.x || cz >= world.dims.z) {
-      throw new Error(`LJC0 com coluna fora do mundo: ${cx},${cz}`);
+      throw new Error(`LJC com coluna fora do mundo: ${cx},${cz}`);
     }
     alocarColuna(world, cx, cz);
     for (let cy = 0; cy < world.dims.y; cy++) {
-      world.chunks[chunkIndex(world, cx, cy, cz)]?.set(
-        new Uint8Array(buf, off, CHUNK_VOLUME),
-      );
-      off += CHUNK_VOLUME;
+      const dest = world.chunks[chunkIndex(world, cx, cy, cz)];
+      off = cru ? lerChunkCru(body, off, dest) : lerChunk(body, off, dest, "LJC");
     }
     out.push({ cx, cz });
+  }
+  if (off !== buf.byteLength) {
+    throw new Error(`LJC com ${buf.byteLength - off} bytes sobrando depois das colunas`);
   }
   return out;
 }

@@ -1,5 +1,6 @@
 import { randomInt } from "node:crypto";
 import { appendFileSync, existsSync, mkdirSync, readFileSync, renameSync, writeFileSync } from "node:fs";
+import { guardarOriginalAntesDeConverter } from "./converterSave";
 import { createServer } from "node:http";
 import { networkInterfaces } from "node:os";
 import { dirname, resolve } from "node:path";
@@ -258,6 +259,15 @@ function saveNow(reason: string): void {
 }
 
 setInterval(() => saveNow("autosave"), AUTOSAVE_MS);
+// Ids de 16 bits (2026-09-12): save ANTIGO carregado da cópia viva vira
+// formato novo JÁ, sem esperar o autosave — e o original fica guardado ao
+// lado antes da primeira gravação por cima (ver converterSave.ts). Modelo de
+// cenarios/ e mundo de aula não são escritos: seguem lidos no formato antigo.
+if (restore?.legado && CARREGAR_DE === SAVE_PATH && !somenteLeitura) {
+  const copia = guardarOriginalAntesDeConverter(SAVE_PATH);
+  if (copia) console.log(`[server] save no formato antigo (ids de 1 byte) — original guardado em ${copia}`);
+  saveNow("convertido pro formato de ids de 16 bits");
+}
 // Todo jeito de encerrar grava (bug-645, 2026-08-25). Só SIGINT e SIGTERM não
 // bastam: quem FECHA A JANELA do terminal manda SIGHUP, e o Node no Windows
 // emite SIGHUP quando o console fecha — que é justamente como a escola encerra
