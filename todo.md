@@ -1019,6 +1019,13 @@ ferramenta certa quebra rápido, gasta, e precisa ser refeita.
 
 ## Geração de mundo / performance
 
+* \[ ] **Ids de bloco em 16 bits** (anotado 2026-09-12, pedido do usuário) — o byte de bloco tem
+  só **5 ids livres (251-255)** depois da cabeceira da cama; os circuitos lógicos não cabem.
+  Plano completo com mapa de arquivos e tarefas: `docs/superpowers/plans/2026-09-12-ids-16-bits.md`.
+  Recomendação: chunk `Uint16Array` na memória, gravado/enviado ESTREITO (u8) quando todos os ids
+  do chunk ≤ 255 — mundos de hoje não crescem. Teto novo: bloco < 900 (itens começam em 900).
+  **Decisão pendente do usuário antes de codar.**
+
 * \[x] algoritmo de geração de terreno procedural pra mundos — **DUPLICATA** da linha "geração
   de terreno procedural — FEITO v1" (2026-07-20) lá embaixo, em *Inventário*; conferido e
   marcado em 2026-08-11. Os candidatos de v2 (altura por bioma, cavernas, mandacaru, madeira

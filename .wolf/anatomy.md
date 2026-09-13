@@ -1,7 +1,7 @@
 # anatomy.md
 
-> Auto-maintained by OpenWolf. Last scanned: 2026-09-13T00:12:36.222Z
-> Files: 323 tracked | Anatomy hits: 0 | Misses: 0
+> Auto-maintained by OpenWolf. Last scanned: 2026-09-13T00:23:15.654Z
+> Files: 324 tracked | Anatomy hits: 0 | Misses: 0
 
 ## ./
 
@@ -108,9 +108,9 @@
 - `blocksUi.ts` — Blocos colocáveis com nome em português — fonte única pra hotbar (main.ts) (~3750 tok)
   - section `PlaceableEntry` L55-234 (~3137 tok)
   - fn `placeableFor` L235-239 (~56 tok)
-- `changelog.ts` — Tela "📜 novidades" do menu principal — registro do que já foi feito no (~5272 tok)
-  - section `Mudanca` L36-389 (~4299 tok)
-  - fn `buildChangelogScreen` L390-433 (~426 tok)
+- `changelog.ts` — Tela "📜 novidades" do menu principal — registro do que já foi feito no (~5309 tok)
+  - section `Mudanca` L36-390 (~4336 tok)
+  - fn `buildChangelogScreen` L391-434 (~426 tok)
 - `chat.ts` — UI de chat em HTML/CSS por cima do canvas (regra: sem GUI de engine). (~3564 tok)
   - fn `acompanharTecladoVirtual` L102-114 (~138 tok)
   - class `ChatUi` L115-336 (~2335 tok)
@@ -346,6 +346,7 @@
 
 - `2026-08-17-copias-ao-vivo.md` — Cópias da área de atividade ajustáveis ao vivo — plano de implementação (~14326 tok)
 - `2026-09-01-loja-baus.md` — Loja em bloco — Implementation Plan (~23804 tok)
+- `2026-09-12-ids-16-bits.md` — Ids de bloco em 16 bits — Plano de implementação (~1719 tok)
 
 ## docs/superpowers/specs/
 
@@ -1154,7 +1155,7 @@
   - fn `criarRegiao` L51-325 (~3321 tok)
 - `groups.ts` — Grupos de alunos (cp13) — membros por NOME (mesma identidade do roster: (~280 tok)
 - `index.ts` (~388 tok)
-- `inventario.test.ts` — Inventário com pilhas em slots escolhidos (o resto vazio). (~8838 tok)
+- `inventario.test.ts` — Inventário com pilhas em slots escolhidos (o resto vazio). (~9476 tok)
   - fn `inv` L24-233 (~2422 tok)
   - fn `collect` L234-237 (~55 tok)
   - fn `join` L238-239 (~34 tok)
@@ -1166,8 +1167,8 @@
   - fn `chats` L260-269 (~78 tok)
   - fn `baseSave` L270-276 (~74 tok)
   - fn `turma` L277-287 (~148 tok)
-  - fn `alvoLivre` L288-486 (~2864 tok)
-  - fn `matarAna` L487-702 (~2726 tok)
+  - fn `alvoLivre` L288-525 (~3501 tok)
+  - fn `matarAna` L526-741 (~2726 tok)
 - `inventario.ts` — §🍖 F4 — INVENTÁRIO AUTORITATIVO (stacks puros). (~3768 tok)
   - section `Stack` L23-46 (~223 tok)
   - fn `tamanhoStack` L47-51 (~44 tok)
@@ -1395,16 +1396,18 @@
   - fn `parseRegras` L87-102 (~185 tok)
   - fn `regrasParaSave` L103-117 (~102 tok)
 - `rules.test.ts` — O PORTÃO DO APOIO (2026-08-05) — este teste é a razão de o registro ter (~1529 tok)
-- `rules.ts` — Sistema GENÉRICO de atualização de bloco por vizinhança — a REGRA DE OURO (~5623 tok)
-  - section `BlockChange` L32-196 (~2122 tok)
-  - fn `variaPorPosicao` L197-213 (~148 tok)
-  - fn `isGrama` L214-245 (~439 tok)
-  - fn `fontesLaterais` L246-257 (~146 tok)
-  - fn `nivelSuportado` L258-277 (~290 tok)
-  - fn `temQueda` L278-286 (~137 tok)
-  - fn `aguaAtravessa` L287-295 (~136 tok)
-  - fn `passosAteQueda` L296-444 (~1952 tok)
-  - fn `ruleFor` L445-448 (~28 tok)
+- `rules.ts` — Sistema GENÉRICO de atualização de bloco por vizinhança — a REGRA DE OURO (~6033 tok)
+  - section `BlockChange` L32-72 (~455 tok)
+  - fn `pilhaDePorta` L73-83 (~143 tok)
+  - fn `parDaPorta` L84-224 (~1934 tok)
+  - fn `variaPorPosicao` L225-241 (~148 tok)
+  - fn `isGrama` L242-273 (~439 tok)
+  - fn `fontesLaterais` L274-285 (~146 tok)
+  - fn `nivelSuportado` L286-305 (~290 tok)
+  - fn `temQueda` L306-314 (~137 tok)
+  - fn `aguaAtravessa` L315-323 (~136 tok)
+  - fn `passosAteQueda` L324-472 (~1952 tok)
+  - fn `ruleFor` L473-476 (~28 tok)
 - `save-lazy.test.ts` — Dims lazy de teste (33k chunks > teto denso) — mesmo caminho do tamanho E. (~1031 tok)
   - fn `novaLazy` L13-77 (~890 tok)
 - `save.test.ts` — Declares DIMS (~1674 tok)
@@ -1442,11 +1445,11 @@
   - fn `parseObjectiveState` L304-361 (~576 tok)
 - `session.test.ts` — Testes de MECÂNICA rodam com singleplayer: true (join sem PIN) — a (~16551 tok)
   - fn `collect` L12-1216 (~16407 tok)
-- `session.ts` — GameSession: o SERVIDOR autoritativo, independente de hospedeiro. (~34281 tok)
-  - section `SessionOptions` L239-293 (~750 tok)
-  - section `SessionPlayer` L294-304 (~60 tok)
-  - section `Identity` L305-309 (~19 tok)
-  - class `GameSession` L310-2630 (~32022 tok)
+- `session.ts` — GameSession: o SERVIDOR autoritativo, independente de hospedeiro. (~34352 tok)
+  - section `SessionOptions` L240-294 (~750 tok)
+  - section `SessionPlayer` L295-305 (~60 tok)
+  - section `Identity` L306-310 (~19 tok)
+  - class `GameSession` L311-2633 (~32088 tok)
 - `sobrevivencia.test.ts` — Professor (1) + ana (2). `modo` decide o padrão do mundo. (~9235 tok)
   - fn `collect` L42-45 (~55 tok)
   - fn `join` L46-47 (~34 tok)

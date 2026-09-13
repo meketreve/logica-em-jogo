@@ -1,12 +1,12 @@
 {
   "version": 1,
   "meta": {
-    "lastScanned": "2026-09-13T00:12:36.222Z",
-    "fileCount": 323,
+    "lastScanned": "2026-09-13T00:23:15.654Z",
+    "fileCount": 324,
     "hits": 0,
     "misses": 0,
-    "renderedHash": "c103be6d0045741060e11d1fc3c9c32030dbe1f541c6b20182da21546138abbe",
-    "storeUpdatedAt": "2026-09-13T00:12:36.252Z"
+    "renderedHash": "0fa6cf5f77040050c3a00b0adfdadbf245080c56718085732241cb7a39ea4fc7",
+    "storeUpdatedAt": "2026-09-13T00:23:15.676Z"
   },
   "files": {
     ".claude/commands/reframe.md": {
@@ -558,25 +558,25 @@
     },
     "client/src/changelog.ts": {
       "description": "Tela \"📜 novidades\" do menu principal — registro do que já foi feito no",
-      "tokens": 5272,
-      "hash": "dbccd0b6ca8e61d0",
-      "size": 18925,
-      "mtimeMs": 1789258356099.8806,
-      "updatedAt": "2026-09-13T00:12:36.222Z",
+      "tokens": 5309,
+      "hash": "a3085d5f70bb60fd",
+      "size": 19058,
+      "mtimeMs": 1789258995557.1199,
+      "updatedAt": "2026-09-13T00:23:15.654Z",
       "source": "hook",
       "symbols": [
         {
           "name": "Mudanca",
           "kind": "section",
           "startLine": 36,
-          "endLine": 389,
-          "tokens": 4299
+          "endLine": 390,
+          "tokens": 4336
         },
         {
           "name": "buildChangelogScreen",
           "kind": "fn",
-          "startLine": 390,
-          "endLine": 433,
+          "startLine": 391,
+          "endLine": 434,
           "tokens": 426
         }
       ]
@@ -7562,11 +7562,11 @@
     },
     "shared/src/inventario.test.ts": {
       "description": "Inventário com pilhas em slots escolhidos (o resto vazio).",
-      "tokens": 8838,
-      "hash": "55dfc83c2307f9ce",
-      "size": 31190,
-      "mtimeMs": 1789258029016.4282,
-      "updatedAt": "2026-09-13T00:07:09.121Z",
+      "tokens": 9476,
+      "hash": "eb8c7b6239fa62f5",
+      "size": 33428,
+      "mtimeMs": 1789258703424.9507,
+      "updatedAt": "2026-09-13T00:18:23.536Z",
       "source": "hook",
       "symbols": [
         {
@@ -7650,14 +7650,14 @@
           "name": "alvoLivre",
           "kind": "fn",
           "startLine": 288,
-          "endLine": 486,
-          "tokens": 2864
+          "endLine": 525,
+          "tokens": 3501
         },
         {
           "name": "matarAna",
           "kind": "fn",
-          "startLine": 487,
-          "endLine": 702,
+          "startLine": 526,
+          "endLine": 741,
           "tokens": 2726
         }
       ]
@@ -9365,74 +9365,88 @@
     },
     "shared/src/rules.ts": {
       "description": "Sistema GENÉRICO de atualização de bloco por vizinhança — a REGRA DE OURO",
-      "tokens": 5623,
-      "hash": "72c21b7e04ea7fc2",
-      "size": 20158,
-      "mtimeMs": 1789257845442.9106,
-      "updatedAt": "2026-09-13T00:04:05.607Z",
+      "tokens": 6033,
+      "hash": "0363d17c6620720e",
+      "size": 21615,
+      "mtimeMs": 1789258738439.041,
+      "updatedAt": "2026-09-13T00:18:58.562Z",
       "source": "hook",
       "symbols": [
         {
           "name": "BlockChange",
           "kind": "section",
           "startLine": 32,
-          "endLine": 196,
-          "tokens": 2122
+          "endLine": 72,
+          "tokens": 455
+        },
+        {
+          "name": "pilhaDePorta",
+          "kind": "fn",
+          "startLine": 73,
+          "endLine": 83,
+          "tokens": 143
+        },
+        {
+          "name": "parDaPorta",
+          "kind": "fn",
+          "startLine": 84,
+          "endLine": 224,
+          "tokens": 1934
         },
         {
           "name": "variaPorPosicao",
           "kind": "fn",
-          "startLine": 197,
-          "endLine": 213,
+          "startLine": 225,
+          "endLine": 241,
           "tokens": 148
         },
         {
           "name": "isGrama",
           "kind": "fn",
-          "startLine": 214,
-          "endLine": 245,
+          "startLine": 242,
+          "endLine": 273,
           "tokens": 439
         },
         {
           "name": "fontesLaterais",
           "kind": "fn",
-          "startLine": 246,
-          "endLine": 257,
+          "startLine": 274,
+          "endLine": 285,
           "tokens": 146
         },
         {
           "name": "nivelSuportado",
           "kind": "fn",
-          "startLine": 258,
-          "endLine": 277,
+          "startLine": 286,
+          "endLine": 305,
           "tokens": 290
         },
         {
           "name": "temQueda",
           "kind": "fn",
-          "startLine": 278,
-          "endLine": 286,
+          "startLine": 306,
+          "endLine": 314,
           "tokens": 137
         },
         {
           "name": "aguaAtravessa",
           "kind": "fn",
-          "startLine": 287,
-          "endLine": 295,
+          "startLine": 315,
+          "endLine": 323,
           "tokens": 136
         },
         {
           "name": "passosAteQueda",
           "kind": "fn",
-          "startLine": 296,
-          "endLine": 444,
+          "startLine": 324,
+          "endLine": 472,
           "tokens": 1952
         },
         {
           "name": "ruleFor",
           "kind": "fn",
-          "startLine": 445,
-          "endLine": 448,
+          "startLine": 473,
+          "endLine": 476,
           "tokens": 28
         }
       ]
@@ -10890,40 +10904,40 @@
     },
     "shared/src/session.ts": {
       "description": "GameSession: o SERVIDOR autoritativo, independente de hospedeiro.",
-      "tokens": 34281,
-      "hash": "dd29eba501d3822e",
-      "size": 121853,
-      "mtimeMs": 1789257920927.8494,
-      "updatedAt": "2026-09-13T00:05:21.040Z",
+      "tokens": 34352,
+      "hash": "76484b846f9653d6",
+      "size": 122105,
+      "mtimeMs": 1789258750183.8208,
+      "updatedAt": "2026-09-13T00:19:10.301Z",
       "source": "hook",
       "symbols": [
         {
           "name": "SessionOptions",
           "kind": "section",
-          "startLine": 239,
-          "endLine": 293,
+          "startLine": 240,
+          "endLine": 294,
           "tokens": 750
         },
         {
           "name": "SessionPlayer",
           "kind": "section",
-          "startLine": 294,
-          "endLine": 304,
+          "startLine": 295,
+          "endLine": 305,
           "tokens": 60
         },
         {
           "name": "Identity",
           "kind": "section",
-          "startLine": 305,
-          "endLine": 309,
+          "startLine": 306,
+          "endLine": 310,
           "tokens": 19
         },
         {
           "name": "GameSession",
           "kind": "class",
-          "startLine": 310,
-          "endLine": 2630,
-          "tokens": 32022
+          "startLine": 311,
+          "endLine": 2633,
+          "tokens": 32088
         }
       ]
     },
@@ -11896,6 +11910,15 @@
           "tokens": 770
         }
       ]
+    },
+    "docs/superpowers/plans/2026-09-12-ids-16-bits.md": {
+      "description": "Ids de bloco em 16 bits — Plano de implementação",
+      "tokens": 1719,
+      "hash": "50b8925843700537",
+      "size": 7049,
+      "mtimeMs": 1789258981267.1392,
+      "updatedAt": "2026-09-13T00:23:01.384Z",
+      "source": "hook"
     }
   }
 }

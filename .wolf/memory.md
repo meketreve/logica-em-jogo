@@ -3502,3 +3502,11 @@ fraude.
 | 21:09 | Edited shared/src/cp23.test.ts | expanded (+10 lines) | ~186 |
 | 21:12 | Edited client/src/changelog.ts | 8→10 lines | ~230 |
 | 21:25 | bug-662 consertado: cabeceira da cama com id proprio (247-250, escolha do usuario), camaRule por papel oposto, mesher pelo id, /bloco e /regiao recusam cama, migracao idempotente no restore (shared/src/camas.ts); save antigo visto no cliente real (1+2+1 camas com travesseiro); usuario perguntou como ganhar ids → recomendado Uint16 como quest propria | shared/src/{blocks,rules,session,mesher,camas}.ts, session/regioes.ts, testes, changelog | verify verde (989) | ~60k |
+| 21:18 | Edited shared/src/inventario.test.ts | added nullish coalescing | ~661 |
+| 21:18 | Edited shared/src/rules.ts | added 1 condition(s) | ~536 |
+| 21:19 | Edited shared/src/session.ts | 5→5 lines | ~111 |
+| 21:19 | Edited shared/src/session.ts | 3→4 lines | ~16 |
+| 21:23 | Created docs/superpowers/plans/2026-09-12-ids-16-bits.md | — | ~1834 |
+| 21:23 | Edited client/src/changelog.ts | "Loja arrumada e camas em " → "Loja arrumada, camas em f" | ~18 |
+| 21:23 | Edited client/src/changelog.ts | 2→3 lines | ~57 |
+| 21:55 | bug-665 (porta empilhada: duplicava e o toggle desmanchava as duas) consertado sem id novo — par por posicao a partir da base (`parDaPorta`); plano dos ids 16 bits em docs/superpowers/plans/2026-09-12-ids-16-bits.md + todo.md | shared/src/rules.ts, session.ts, testes, changelog, docs, todo.md | 996 verdes | ~40k |

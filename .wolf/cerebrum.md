@@ -170,6 +170,14 @@
 
 ## Key Learnings
 
+- [2026-09-12] **Par de células com o MESMO id pode sair da POSIÇÃO, sem id novo, quando as duas
+  metades são desenhadas iguais.** Porta ([[bug-665]]): numa coluna de portas iguais as portas
+  são sempre inteiras, então pares a partir da BASE — (0,1),(2,3)… (`parDaPorta` em
+  `rules.ts`). Regra de órfã: trecho ímpar → só a PONTA evapora (a vizinha do buraco é quem
+  acorda suja no tick; o miolo fica). Quem ALTERNA o par (toggle) tem de usar a MESMA função —
+  foi o toggle com "vizinho igual acima primeiro" que desmanchava duas portas. Não serve pra
+  cama: lá o mesher desenha pé ≠ cabeceira e só enxerga 1 célula de casca (daí os ids).
+
 - [2026-09-12] **Migração de bytes de mundo pode ser IDEMPOTENTE sem marcador de versão** quando
   o formato novo torna o padrão velho impossível. Cama: no formato novo um pé nunca tem outro pé
   igual à frente, então "fileira de 2+ pés iguais" só existe em save antigo. Rodar a migração
@@ -1650,9 +1658,9 @@ nenhum** — sem essa declaração o Chrome renderiza a página em light mesmo c
   par de células só é confiável se os dois papéis (pé/cabeceira, base/topo) forem distinguíveis
   no id ou num bit de paridade. Ver [[bug-662]].
   **[2026-09-12] RESOLVIDO** com ids próprios de cabeceira (ver Decision Log). ⚠️ Correção da
-  frase acima: a PORTA também grava o MESMO id nas duas metades (`doorRule` só olha y±1). Porta
-  empilhada em porta (4 células iguais na vertical) deve duplicar do mesmo jeito — por LEITURA,
-  não testado: quebrar a base da de baixo e o topo da de cima deixa o miolo vivo, 3 portas de 2.
+  frase acima: a PORTA também grava o MESMO id nas duas metades. Porta empilhada em porta
+  duplicava (3 de 2) E o toggle desmanchava as duas — **consertado no mesmo dia SEM id novo**
+  ([[bug-665]]), ver o learning "par por POSIÇÃO" abaixo.
 
 ## Do-Not-Repeat
 

@@ -2,7 +2,7 @@
 
 > Single source of truth for resuming work. Read this FIRST when starting a session.
 
-> ## 🧭 HANDOFF — SESSÃO 98 (2026-09-12) · Loja (bug-663/664) + cama (bug-662) consertadas
+> ## 🧭 HANDOFF — SESSÃO 98 (2026-09-12) · Loja (663/664), cama (662) e porta empilhada (665) consertadas
 
 > **Rodou no clone `/mnt/SSD/git-projeto/logica-em-jogo` (Linux nativo, `node_modules` do
 > Windows).** Pra rodar tsc/build/vitest aqui foram COPIADOS os 3 binários nativos linux pro
@@ -19,25 +19,25 @@
 >   em todo restore, idempotente sem marcador. Testes: repro (volta 2 camas), 6 de migração,
 >   recusa por comando — 989 verdes. Visto no cliente real: save ANTIGO com par + corrente de 4
 >   + corrente de 3 abre com 1+2+1 camas, todas com travesseiro.
+> - **bug-665 (porta empilhada duplicava e o toggle desmanchava as duas)** — SEM id novo: par por
+>   POSIÇÃO a partir da base da pilha (`parDaPorta`/`doorRule` em `rules.ts`, toggle do
+>   `use_block` usa a mesma função). 2 repros de sessão + 5 testes puros; 996 verdes.
+> - **Plano dos ids em 16 bits anotado:** `docs/superpowers/plans/2026-09-12-ids-16-bits.md`
+>   (+ entrada no `todo.md` § Geração de mundo / performance).
 
 > ### 🚀 PRÓXIMA QUEST
-> **Decidir com o usuário: ids de bloco em 16 bits antes dos circuitos lógicos.** O byte de
-> bloco ficou com **só 5 ids livres (251-255)** depois da cama. Opção recomendada: chunk
-> `Uint16Array` (65k ids). Toca ~11 arquivos: `world.ts`, `save.ts` (formato novo + ler LJS1/LJS2
-> antigos), `protocol.ts` (envio de chunk), `mesher.ts`, `luz.ts`, `worldgen.ts`,
-> `client/src/chunks.ts`, `meshWorker.ts`, `meshPool.ts`, `server/src/cenarios/gerar.ts`. Memória
-> e save do bloco dobram (compressão alivia). Alternativa (2º byte de estado) rende menos e mexe
-> em mais regra. **Nada decidido** — perguntar antes de começar.
-> Se ele preferir outra coisa: **bug-651 (não sai da cama)** — pedido dele é PULAR deitado
+> **Ids de bloco em 16 bits — o plano está pronto, falta o SIM do usuário.** Ler
+> `docs/superpowers/plans/2026-09-12-ids-16-bits.md` e abrir a sessão perguntando se ele topa a
+> Opção A (chunk `Uint16Array` na memória, gravado/enviado estreito quando dá; bloco < 900 porque
+> os itens começam em 900). Sobram só **5 ids livres (251-255)** — os circuitos lógicos esbarram
+> nisso. Se ele preferir outra coisa: **bug-651 (não sai da cama)** — pedido dele é PULAR deitado
 > levantar; hoje só acorda saindo da célula por `move` (`dormir.ts:acordarSeSaiu`).
 
 > **⚠️ Não verificado em tela pelo usuário:** loja e cama só foram vistas no headless. Testar na
 > escola: preço no último item + Esc; loja cheia no tablet; 2 camas em fila, e um mundo antigo
-> que já tinha cama (tem de abrir com as camas inteiras).
+> que já tinha cama (tem de abrir com as camas inteiras); porta em cima de porta (abrir a de baixo).
 
 > **Pendências herdadas, nenhuma bloqueante:**
-> - **Porta empilhada em porta provavelmente duplica igual à cama** (mesmo id nas 2 metades,
->   `doorRule` só olha y±1). Só por leitura — não testado, não corrigido.
 > - `scripts/f10-shot.mjs` quebrado ("botão ▣ não encontrado") — causa provável: rótulo do
 >   botão muda com o item na mão ("colocar"/"interagir"). Não investigado.
 > - Scripts de puppeteer no Windows precisam baixar Chrome (`~/.cache/puppeteer` vazio lá).
