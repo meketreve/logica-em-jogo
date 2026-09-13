@@ -365,6 +365,45 @@ describe("§🍖 F4 — colocar GASTA (e criativo segue infinito)", () => {
     expect(contar(ultimoInv(sent, 2) ?? inventarioVazio(), BlockId.CamaXP)).toBe(2);
   });
 
+  it("porta EMPILHADA em porta não duplica: quebrar as pontas devolve 2, não 3", () => {
+    const { session, sent } = turma("sobrevivencia");
+    const a = alvoLivre(session);
+    for (let dy = 0; dy <= 4; dy++) setBlock(session.world, a.x, a.y + dy, a.z, BlockId.Air);
+    session.handleMessage(1, cmd(`/dar ana ${BlockId.PortaXFechada} 2`));
+    session.handleMessage(2, colocar(a.x, a.y, a.z, BlockId.PortaXFechada)); // a.y, a.y+1
+    session.handleMessage(2, colocar(a.x, a.y + 2, a.z, BlockId.PortaXFechada)); // a.y+2, a.y+3
+    const pilha = () => [0, 1, 2, 3].map((dy) => getBlock(session.world, a.x, a.y + dy, a.z));
+    const p = pilha()[0]!;
+    expect(pilha()).toEqual([p, p, p, p]);
+    session.handleMessage(2, quebrar(a.x, a.y, a.z)); // base da de baixo
+    session.tick();
+    session.tick();
+    expect(getBlock(session.world, a.x, a.y + 1, a.z)).toBe(BlockId.Air); // o topo dela foi junto
+    session.handleMessage(2, quebrar(a.x, a.y + 3, a.z)); // topo da de cima
+    session.tick();
+    session.tick();
+    expect(getBlock(session.world, a.x, a.y + 2, a.z)).toBe(BlockId.Air); // a base dela foi junto
+    expect(contar(ultimoInv(sent, 2) ?? inventarioVazio(), BlockId.PortaXFechada)).toBe(2);
+  });
+
+  it("porta EMPILHADA: abrir a de baixo pelo topo dela não desmancha as duas", () => {
+    const { session } = turma("sobrevivencia");
+    const a = alvoLivre(session);
+    for (let dy = 0; dy <= 4; dy++) setBlock(session.world, a.x, a.y + dy, a.z, BlockId.Air);
+    session.handleMessage(1, cmd(`/dar ana ${BlockId.PortaXFechada} 2`));
+    session.handleMessage(2, colocar(a.x, a.y, a.z, BlockId.PortaXFechada));
+    session.handleMessage(2, colocar(a.x, a.y + 2, a.z, BlockId.PortaXFechada));
+    const fechada = getBlock(session.world, a.x, a.y, a.z);
+    session.handleMessage(2, JSON.stringify({ type: "use_block", x: a.x, y: a.y + 1, z: a.z }));
+    session.tick();
+    session.tick();
+    const aberta = getBlock(session.world, a.x, a.y, a.z);
+    expect(aberta).not.toBe(fechada); // a de BAIXO abriu inteira…
+    expect([0, 1, 2, 3].map((dy) => getBlock(session.world, a.x, a.y + dy, a.z))).toEqual([
+      aberta, aberta, fechada, fechada, // …e a de cima ficou fechada e inteira
+    ]);
+  });
+
   it("a mochila guarda a FORMA CANÔNICA: uma cama serve pras 4 direções", () => {
     const { session, sent } = turma("sobrevivencia");
     const a = alvoLivre(session);

@@ -7,8 +7,8 @@ import {
   isTapete,
   precisaApoio,
 } from "./blocks";
-import { fallingRule, ruleFor, torchRule } from "./rules";
-import { createWorld, setBlock } from "./world";
+import { doorRule, fallingRule, parDaPorta, ruleFor, torchRule } from "./rules";
+import { createWorld, getBlock, setBlock } from "./world";
 
 const DIMS = { x: 1, z: 1, y: 1 };
 
@@ -131,5 +131,52 @@ describe("apoio — quem precisa de chão TEM regra de tick (bug-558 / bug-581)"
     expect(torchRule(world, 5, 10, 5)).toEqual([
       { x: 5, y: 10, z: 5, blockId: BlockId.Air },
     ]);
+  });
+});
+
+describe("porta empilhada: pares a partir da BASE da pilha (2026-09-12)", () => {
+  const P = BlockId.PortaXFechada;
+  /** Coluna x=z=5 com `n` células de porta a partir de y=2. */
+  const pilha = (n: number) => {
+    const w = createWorld(DIMS);
+    for (let i = 0; i < n; i++) setBlock(w, 5, 2 + i, 5, P);
+    return w;
+  };
+
+  it("o par de cada célula de 3 portas empilhadas é a outra metade da MESMA porta", () => {
+    const w = pilha(6);
+    expect([2, 3, 4, 5, 6, 7].map((y) => parDaPorta(w, 5, y, 5))).toEqual([3, 2, 5, 4, 7, 6]);
+  });
+
+  it("pilha inteira não evapora nada", () => {
+    const w = pilha(6);
+    for (let y = 2; y <= 7; y++) expect(doorRule(w, 5, y, 5)).toBeNull();
+  });
+
+  it("quebrar a BASE da porta do meio: só o topo DELA fica sem par", () => {
+    const w = pilha(6);
+    setBlock(w, 5, 4, 5, BlockId.Air);
+    expect(doorRule(w, 5, 5, 5)).toEqual([{ x: 5, y: 5, z: 5, blockId: BlockId.Air }]); // a ponta vizinha do buraco
+    expect(doorRule(w, 5, 3, 5)).toBeNull(); // a porta de baixo segue inteira
+    setBlock(w, 5, 5, 5, BlockId.Air); // o que o tick faz com a ponta órfã
+    expect(parDaPorta(w, 5, 6, 5)).toBe(7); // e a de cima também
+    expect(doorRule(w, 5, 6, 5)).toBeNull();
+  });
+
+  it("quebrar o TOPO da porta do meio: só a base DELA fica sem par", () => {
+    const w = pilha(6);
+    setBlock(w, 5, 5, 5, BlockId.Air);
+    expect(doorRule(w, 5, 4, 5)).toEqual([{ x: 5, y: 4, z: 5, blockId: BlockId.Air }]);
+    expect(doorRule(w, 5, 6, 5)).toBeNull();
+    expect(getBlock(w, 5, 2, 5)).toBe(P);
+  });
+
+  it("porta sozinha: o par é o vizinho; metade órfã evapora", () => {
+    const w = pilha(2);
+    expect(parDaPorta(w, 5, 2, 5)).toBe(3);
+    expect(parDaPorta(w, 5, 3, 5)).toBe(2);
+    setBlock(w, 5, 3, 5, BlockId.Air);
+    expect(parDaPorta(w, 5, 2, 5)).toBeNull();
+    expect(doorRule(w, 5, 2, 5)).toEqual([{ x: 5, y: 2, z: 5, blockId: BlockId.Air }]);
   });
 });

@@ -61,13 +61,41 @@ export const fallingRule: BlockRule = (world, x, y, z) => {
   ];
 };
 
-/** Porta (cp23): metade sem o PAR (mesmo id logo acima OU logo abaixo)
- *  evapora — quebrar uma célula derruba a outra no tick seguinte, sem
- *  código especial no break_block. */
-export const doorRule: BlockRule = (world, x, y, z) => {
+/**
+ * Porta EMPILHADA em porta (2026-09-12): as duas metades gravam o MESMO id, e
+ * a porta não tem id livre pra separar base de topo (seriam 8 ids; o byte tem
+ * 5). Mas uma coluna de portas iguais é sempre feita de portas INTEIRAS, então
+ * o par sai da posição: emparelha a partir da BASE da pilha — (0,1), (2,3)…
+ * Antes, "tem vizinho igual acima OU abaixo" aceitava a porta de cima como par:
+ * quebrar as pontas duplicava, e abrir a de baixo pelo topo alternava o miolo
+ * e desmanchava as duas.
+ */
+function pilhaDePorta(world: World, x: number, y: number, z: number): { abaixo: number; acima: number } {
   const id = getBlock(world, x, y, z);
-  if (getBlock(world, x, y + 1, z) === id) return null;
-  if (getBlock(world, x, y - 1, z) === id) return null;
+  let abaixo = 0;
+  while (getBlock(world, x, y - abaixo - 1, z) === id) abaixo++;
+  let acima = 0;
+  while (getBlock(world, x, y + acima + 1, z) === id) acima++;
+  return { abaixo, acima };
+}
+
+/** Y da outra metade desta porta (pares a partir da base da pilha), ou `null`
+ *  se ela está sem par. Quem alterna a porta usa isto — não "o vizinho igual". */
+export function parDaPorta(world: World, x: number, y: number, z: number): number | null {
+  const { abaixo, acima } = pilhaDePorta(world, x, y, z);
+  if (abaixo % 2 === 1) return y - 1;
+  return acima > 0 ? y + 1 : null;
+}
+
+/** Porta (cp23): metade sem o PAR evapora — quebrar uma célula derruba a outra
+ *  no tick seguinte, sem código especial no break_block. Numa pilha, quebrar
+ *  uma célula deixa um trecho ÍMPAR, e quem sobra sem par é a PONTA vizinha do
+ *  buraco (a outra metade da porta quebrada) — é ela que acorda suja no tick.
+ *  O miolo de um trecho ímpar não se mexe: a ponta resolve. */
+export const doorRule: BlockRule = (world, x, y, z) => {
+  const { abaixo, acima } = pilhaDePorta(world, x, y, z);
+  if ((abaixo + 1 + acima) % 2 === 0) return null;
+  if (abaixo > 0 && acima > 0) return null;
   return [{ x, y, z, blockId: BlockId.Air }];
 };
 

@@ -201,6 +201,7 @@ import {
   crescerMuda,
   crescerPlantacao,
   isGrama,
+  parDaPorta,
   ruleFor,
 } from "./rules";
 import { type SaveData, type SaveMeta } from "./save";
@@ -1250,10 +1251,10 @@ export class GameSession {
         }
         const novo = interativoToggled(id);
         // par SÓ da porta (janela é 1 célula — duas janelas empilhadas com o
-        // mesmo id NÃO são um par, alternariam juntas por engano)
-        const yPar = !isPorta(id) ? null :
-          getBlock(this.world, msg.x, msg.y + 1, msg.z) === id ? msg.y + 1 :
-          getBlock(this.world, msg.x, msg.y - 1, msg.z) === id ? msg.y - 1 : null;
+        // mesmo id NÃO são um par, alternariam juntas por engano). Pares a
+        // partir da BASE da pilha: "o vizinho igual" pegava a porta de cima
+        // quando o clique era no topo da de baixo (ver `parDaPorta`)
+        const yPar = !isPorta(id) ? null : parDaPorta(this.world, msg.x, msg.y, msg.z);
         // fechar não pode emparedar: jogador em qualquer célula da porta cancela
         if (isSolidBlock(novo)) {
           if (this.overlapsAnyPlayer(msg.x, msg.y, msg.z)) return;

@@ -5874,6 +5874,29 @@
       ],
       "occurrences": 1,
       "last_seen": "2026-09-12T20:30:00.000Z"
+    },
+    {
+      "id": "bug-665",
+      "timestamp": "2026-09-12T21:50:00.000Z",
+      "error_message": "achado na sessao 98 ao consertar o bug-662 (nao reportado pelo usuario): porta empilhada em porta — quebrar as pontas devolve 3 portas de 2, e abrir a de baixo pelo TOPO dela desmancha as duas",
+      "file": "shared/src/rules.ts (doorRule), shared/src/session.ts (use_block, yPar)",
+      "root_cause": "Mesma familia do bug-662: as 2 metades da porta gravam o MESMO id e o par era 'vizinho igual acima OU abaixo'. Numa pilha de 2 portas (4 celulas iguais): (1) quebrar a base da de baixo deixava o topo dela vivo encostado na base da de cima (e simetrico no topo) — cada metade dropa uma porta, 3 de 2; (2) o toggle do use_block procurava o par ACIMA primeiro, entao clicar no topo da porta de baixo alternava o MIOLO (topo de baixo + base de cima), as pontas viravam orfas de id diferente e evaporavam: 2 portas viravam 1 aberta no meio, sem drop. Repro rodada (inventario.test) confirmou os dois.",
+      "fix": "Sem id novo (a porta precisaria de 8, o byte tem 5 livres): numa coluna de portas IGUAIS as portas sao sempre inteiras, entao o par sai da POSICAO — pares a partir da BASE da pilha, (0,1),(2,3)... `pilhaDePorta`/`parDaPorta` em rules.ts. doorRule: trecho par = fica; trecho impar = so a PONTA evapora (a ponta vizinha do buraco e quem acorda suja; o miolo nao se mexe). use_block usa parDaPorta. Mesher nao muda (as 2 metades sao desenhadas iguais). Testes: 2 repros de sessao (drop 2, toggle nao desmancha) + 5 puros da regra; A/B contra o codigo velho falha as 2 repros. Janela conhecida: entre a quebra e o tick seguinte, um trecho impar ainda nao resolvido pode dar par errado no toggle — mesma janela de 1 tick que a regra de orfa sempre teve.",
+      "tags": [
+        "porta",
+        "par",
+        "pilha",
+        "duplicacao",
+        "drop",
+        "toggle",
+        "rules",
+        "corrigido"
+      ],
+      "related_bugs": [
+        "bug-662"
+      ],
+      "occurrences": 1,
+      "last_seen": "2026-09-12T21:50:00.000Z"
     }
   ]
 }

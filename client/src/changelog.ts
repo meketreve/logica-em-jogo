@@ -43,13 +43,14 @@ interface Mudanca {
 const MUDANCAS: readonly Mudanca[] = [
   {
     // sem `data`: este é o build atual (ver rotuloDoBloco)
-    titulo: "Loja arrumada e camas em fila",
+    titulo: "Loja arrumada, camas em fila e portas empilhadas",
     itens: [
       "o preço digitado no último item da loja não se perde mais ao fechar com Esc — e o que você está digitando não some quando o estoque muda no meio",
       "loja com muitos itens agora rola: o comprador alcança até o último item, e o dono vê estoque, preços e mochila ao mesmo tempo",
       "item com preço que acabou no estoque continua na lista de preços (marcado \"sem estoque\"), em vez de sumir como se o preço tivesse sido apagado",
       "camas colocadas uma atrás da outra agora formam camas certinhas, cada uma com seu travesseiro — e quebrar a fila não dá mais cama de graça",
       "as camas dos mundos já salvos são arrumadas sozinhas quando o mundo abre",
+      "porta em cima de porta: abrir a de baixo não desmancha mais as duas, e quebrar não dá porta de graça",
     ],
   },
   {
