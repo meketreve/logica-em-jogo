@@ -5930,6 +5930,74 @@
       ],
       "occurrences": 1,
       "last_seen": "2026-09-12T23:10:00.000Z"
+    },
+    {
+      "id": "bug-667",
+      "timestamp": "2026-09-17T18:10:00.000Z",
+      "error_message": "a rachadura da quebra saiu um BORRÃO preto já no estágio 1 (sonda quebra-shot, print 2-rachando.png)",
+      "file": "client/src/quebraFx.ts",
+      "root_cause": "os 10 estágios da trinca eram desenhados no MESMO elemento canvas, e THREE.CanvasTexture guarda a REFERÊNCIA do canvas — como as 10 texturas nascem antes do 1º frame, todas subiram pra GPU com o desenho FINAL. O estágio 1 já mostrava a trinca completa.",
+      "fix": "um canvas NOVO por estágio dentro do laço. Junto, o desenho foi refeito: riscos de 1px partindo do centro até a borda (fendas), em vez de 2 riscos grossos por estágio nascendo todos no meio — o print mostrava uma aranha preta cobrindo a face.",
+      "tags": [
+        "ferramentas-v2",
+        "three",
+        "canvastexture",
+        "render",
+        "sonda",
+        "design"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-09-17T18:10:00.000Z"
+    },
+    {
+      "id": "bug-668",
+      "timestamp": "2026-09-17T16:40:00.000Z",
+      "error_message": "teste 'editar bloco também cansa' falhou — quebrar deixou de dar fome",
+      "file": "shared/src/session.ts",
+      "root_cause": "o esforço (§🍖 F3) era cobrado no FIM do handleMessage, comparando `edicoesAplicadas` antes/depois da mensagem. Com a quebra por tempo (§🔨 v2) o bloco cai dentro do `tick`, muito depois da mensagem que armou — então `mundoMudou` era sempre falso pro break_block.",
+      "fix": "`break_block` saiu da lista do handleMessage e o esforço passou a ser cobrado dentro de `quebrarCelula` (session/quebra.ts), onde a quebra realmente acontece. `place_block` e `balde` seguem no caminho antigo, que continua certo pra eles.",
+      "tags": [
+        "ferramentas-v2",
+        "sobrevivencia",
+        "fome",
+        "tick"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-09-17T16:40:00.000Z"
+    },
+    {
+      "id": "bug-669",
+      "timestamp": "2026-09-17T15:20:00.000Z",
+      "error_message": "teste 'picareta NÃO acelera terra' falhou: 150 ms em vez de 500",
+      "file": "shared/src/ferramentas.ts",
+      "root_cause": "o `tempoDeQuebraMs` acelerava sempre que o bloco NÃO exigia ferramenta (`exige === null || tipo bate`), então a picareta cavava terra 8× mais rápido — confundir 'o que é EXIGIDO' com 'o que ACELERA'.",
+      "fix": "`ferramentaIdealDe(blockId)` separa as duas coisas: só acelera quem é o ideal daquele bloco. É também o gancho por onde machado e pá entram sem virar obrigatórios.",
+      "tags": [
+        "ferramentas-v2",
+        "tempo-de-quebra",
+        "teste-pegou"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-09-17T15:20:00.000Z"
+    },
+    {
+      "id": "bug-670",
+      "timestamp": "2026-09-17T17:30:00.000Z",
+      "error_message": "smokes inventario/comida/fornalha falharam depois da quebra por tempo ('a célula ficou vazia' ✗)",
+      "file": "server/src/cenarios/_smoke-inventario.mjs",
+      "root_cause": "três coisas: (1) os cenários mandavam `break_block` e conferiam o mundo 400 ms depois — agora quebrar leva o tempo do bloco; (2) o `slot` (a MÃO) passou a decidir, e a picareta do `/dar` não cai no slot 0 quando a mochila já tem coisa; (3) no comida, a espera maior mudou a FASE do crescimento global e 'replantou' pegou o estágio 1.",
+      "fix": "helper `quebrar(cli, cel, slot)` que manda `break_start`, espera `QUEBRA_MS`, e `slotDe(cli, id)` pra achar a mão certa; a asserção do replantio aceita qualquer estágio, como a irmã dela 60 linhas abaixo já aceitava.",
+      "tags": [
+        "ferramentas-v2",
+        "smoke",
+        "rede"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-09-17T17:30:00.000Z"
     }
   ]
 }

@@ -26,6 +26,8 @@ export class Input {
   private keys = new Set<string>();
   private keyHandlers = new Map<string, () => void>();
   private mouseHandlers = new Map<number, () => void>();
+  /** §🔨 v2: quem quer saber que o botão FOI SOLTO (segurar pra quebrar). */
+  private mouseUpHandlers = new Map<number, () => void>();
   private wheelHandler: ((dir: 1 | -1) => void) | null = null;
 
   private static readonly SENSITIVITY = 0.0025;
@@ -70,6 +72,18 @@ export class Input {
       if (!this.locked) return; // primeiro clique só trava o mouse
       if (e.button === 1) e.preventDefault(); // botão do meio: sem autoscroll
       this.mouseHandlers.get(e.button)?.();
+    });
+
+    // §🔨 v2: quebrar virou SEGURAR. O `mousedown` continua sendo o gesto
+    // (quem escuta decide o que fazer com ele); o `mouseup` é a novidade, e ele
+    // escuta no DOCUMENTO de propósito: soltar o botão com o cursor fora do
+    // canvas não pode deixar a quebra "grudada" ligada.
+    document.addEventListener("mouseup", (e) => {
+      this.mouseUpHandlers.get(e.button)?.();
+    });
+    // perder o foco da aba solta tudo — senão a criança volta com o botão preso
+    window.addEventListener("blur", () => {
+      for (const fn of this.mouseUpHandlers.values()) fn();
     });
 
     canvas.addEventListener(
@@ -257,6 +271,12 @@ export class Input {
     this.mouseHandlers.get(button)?.();
   }
 
+  /** §🔨 v2: o par do `press` — o toque SOLTANDO o ⛏ vira o mesmo "soltou o
+   *  botão" do mouse, pra que o segurar-pra-quebrar seja um só nos dois. */
+  release(button: number): void {
+    this.mouseUpHandlers.get(button)?.();
+  }
+
   /** Registra atalho (ex.: F3 → HUD). preventDefault automático. */
   onKey(code: string, fn: () => void): void {
     this.keyHandlers.set(code, fn);
@@ -274,6 +294,11 @@ export class Input {
   /** Botão do mouse com pointer lock ativo (0 = esquerdo, 2 = direito). */
   onMouseButton(button: number, fn: () => void): void {
     this.mouseHandlers.set(button, fn);
+  }
+
+  /** §🔨 v2: SOLTAR o botão (fora do lock também — ver o listener). */
+  onMouseUp(button: number, fn: () => void): void {
+    this.mouseUpHandlers.set(button, fn);
   }
 
   /** Roda do mouse com pointer lock ativo (1 = baixo/próximo, -1 = cima/anterior). */

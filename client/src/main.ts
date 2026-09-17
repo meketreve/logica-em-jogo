@@ -32,6 +32,7 @@ import {
   getBlock,
   isBalde,
   isComida,
+  tempoDeQuebraMs,
   containerTipoDe,
   isCama,
   isInterativo,
@@ -68,7 +69,7 @@ import {
   type TipoGesto,
 } from "@logica/shared";
 import { AguaFx } from "./aguaFx";
-import { initUiAudio, playUi, setUiVolume } from "./audio";
+import { initUiAudio, playUi, setUiVolume, playUiPassive } from "./audio";
 import { BENCH_SEED, Bench, benchDaUrl, benchSettings } from "./bench";
 import { ContainerPanel } from "./container";
 import { InventoryPanel } from "./inventory";
@@ -119,6 +120,7 @@ import { armarGuardaDeAtalhos, desarmarGuardaDeAtalhos } from "./shortcutGuard";
 import { configurarTooltip } from "./tooltip";
 import { TorchGlow } from "./torchGlow";
 import { TouchControls, isTouchDevice, solicitarTelaCheia } from "./touch";
+import { QuebraFx } from "./quebraFx";
 import { putWorld } from "./worldStore";
 
 /**
@@ -983,6 +985,11 @@ function handleServerData(data: string | ArrayBuffer): void {
       // §🍖 F4: o servidor é dono da mochila; o cliente só espelha e redesenha.
       mochila.aplicar(msg.slots);
       jogo?.aoMudarMochila();
+    } else if (msg.type === "ferramenta_quebrou") {
+      // §🔨 v2: o `inventario` que veio junto já tirou a ferramenta da mão —
+      // aqui só o ESTALO, que é a parte que um slot vazio não conta. O aviso
+      // escrito vem pelo chat, do servidor.
+      playUiPassive("quebrou");
     } else if (msg.type === "vida") {
       // §🍖 F2: a UI nunca decide — quem machuca, cura e mata é o servidor
       if (vidaForcada !== null) return; // ?vida= congela o HUD (inspeção)
@@ -1287,6 +1294,21 @@ class GameRuntime {
    *  ELE que se interpola, porque a câmera é reescrita a cada frame. */
   private dormirT = 0;
   private readonly highlight: THREE.LineSegments;
+  /** §🔨 v2: a rachadura do bloco que está sendo quebrado. */
+  private readonly quebraFx: QuebraFx;
+  /**
+   * O que o jogador está segurando pra quebrar AGORA — previsão LOCAL, só pra
+   * desenhar. A verdade é do servidor (ele conta os mesmos ticks e manda o
+   * `block_changed`); se as duas contas discordarem, quem some com o bloco é
+   * ele, e a barra local no máximo enche antes ou depois de o bloco cair.
+   */
+  private quebra: {
+    cel: { x: number; y: number; z: number };
+    slot: number;
+    blockId: number;
+    inicio: number;
+    precisa: number;
+  } | null = null;
   private readonly lookDir = new THREE.Vector3();
   private readonly hotbarUi: HotbarUi;
   /** O F3/perfil. Público: a tela de carga e o `/raio` marcam fases nele. */
@@ -1463,6 +1485,15 @@ class GameRuntime {
     );
     this.highlight.visible = false;
     scene.add(this.highlight);
+    this.quebraFx = new QuebraFx(scene);
+    // §🔨 v2: gancho de SONDA (mesmo precedente do `__fotoApontar`): no
+    // headless não há olho pra ver a rachadura, e o cerebrum não deixa marcar
+    // UI como feita sem uma sonda que a ENXERGUE. Só LÊ estado que o cliente já
+    // tem — não muda nada e não abre atalho nenhum pro aluno.
+    (window as unknown as Record<string, unknown>)["__quebraEstado"] = () => ({
+      ...this.quebraFx.estado,
+      alvo: this.quebra ? { ...this.quebra.cel, precisa: this.quebra.precisa } : null,
+    });
     // cp16: hotbar virou 9 SLOTS configuráveis (persistem no navegador via
     // localStorage); o inventário (tecla E) escolhe o bloco de cada slot.
     // A lista de colocáveis segue em blocksUi.ts (painel de autoria usa a mesma).
@@ -1567,10 +1598,18 @@ class GameRuntime {
       // balde não quebra bloco em sobrevivência; em criativo o professor pode
       // quebrar com o balde na mão (clique direito segue despejando/recolhendo água).
       if (isBalde(this.hotbarUi.idNaMao() ?? -1) && modoAtual !== "criativo") return;
-      this.activeConn.send(
-        JSON.stringify({ type: "break_block", x: this.target.x, y: this.target.y, z: this.target.z }),
-      );
+      // §🔨 v2: em CRIATIVO segue 1 clique. Em sobrevivência o clique só ARMA —
+      // quem conta o tempo e derruba o bloco é o servidor; o que o cliente faz
+      // daqui pra frente é desenhar a rachadura enquanto o botão estiver preso.
+      if (modoAtual !== "sobrevivencia") {
+        this.activeConn.send(
+          JSON.stringify({ type: "break_block", x: this.target.x, y: this.target.y, z: this.target.z }),
+        );
+        return;
+      }
+      this.segurarQuebra();
     });
+    input.onMouseUp(0, () => this.soltarQuebra());
     input.onMouseButton(2, () => {
       if (this.emCameraNaoJogavel()) return;
       // §🍖 F6: comer vem ANTES do `if (!target)` — comer não precisa de bloco
@@ -1754,6 +1793,7 @@ class GameRuntime {
       touchControls = new TouchControls(input, {
         keys: () => settings.keys,
         quebrar: () => input.press(0),
+        soltarQuebra: () => input.release(0),
         colocar: () => input.press(2),
         // §🍖 F6 (playtest): o ▣ vira "comer" — manda a mordida direto (a
         // regra de "não comer de barriga cheia" é do servidor, como sempre)
@@ -2219,6 +2259,8 @@ class GameRuntime {
         this.highlight.scale.set(bx1 - bx0 + 0.004, by1 - by0 + 0.004, bz1 - bz0 + 0.004);
       }
 
+      this.atualizarQuebra(); // §🔨 v2: rachadura do bloco em quebra
+
       this.hud.setRemesh({
         count: this.chunkRenderer.remeshCount,
         totalMs: this.chunkRenderer.remeshMsTotal,
@@ -2625,6 +2667,70 @@ class GameRuntime {
       this.corpoLocal = corpo;
     }
     return this.corpoLocal;
+  }
+
+  /**
+   * §🔨 v2 — APERTOU o botão de quebrar em sobrevivência: avisa o servidor
+   * (`break_start`, com a mão) e começa a previsão local da rachadura.
+   *
+   * O tempo é calculado com o MESMO módulo puro do servidor, com as mesmas
+   * entradas (bloco + pilha da mão) — é isso que faz a barra do aluno bater com
+   * o momento em que o bloco cai, sem o servidor ter de mandar progresso pelo
+   * fio 10 vezes por segundo pra cada criança da turma.
+   */
+  private segurarQuebra(): void {
+    if (!this.target) return;
+    const cel = { x: this.target.x, y: this.target.y, z: this.target.z };
+    const blockId = getBlock(this.world, cel.x, cel.y, cel.z);
+    if (blockId === BlockId.Air) return;
+    const slot = this.hotbarUi.selected;
+    this.activeConn.send(JSON.stringify({ type: "break_start", ...cel, slot }));
+    this.quebra = {
+      cel,
+      slot,
+      blockId,
+      inicio: performance.now(),
+      precisa: tempoDeQuebraMs(blockId, mochila.estado()[slot] ?? null),
+    };
+  }
+
+  /** SOLTOU (ou mirou noutro lugar): o progresso some dos dois lados. */
+  private soltarQuebra(): void {
+    if (!this.quebra) return;
+    this.quebra = null;
+    this.quebraFx.atualizar(null, 0);
+    this.activeConn.send(JSON.stringify({ type: "break_cancel" }));
+  }
+
+  /**
+   * Um frame da quebra: confere se ainda é a MESMA célula, o mesmo bloco e a
+   * mesma mão (mirar noutro lugar ou trocar de slot recomeça, que é o que o
+   * servidor também faz) e desenha a rachadura no estágio previsto.
+   */
+  private atualizarQuebra(): void {
+    const q = this.quebra;
+    if (!q) return;
+    const t = this.target;
+    const mudouDeMao = this.hotbarUi.selected !== q.slot;
+    const mudouDeCelula =
+      !t || t.x !== q.cel.x || t.y !== q.cel.y || t.z !== q.cel.z;
+    const bloco = getBlock(this.world, q.cel.x, q.cel.y, q.cel.z);
+    if (bloco !== q.blockId) {
+      // o bloco caiu (ou virou outro): acabou, sem mandar cancelar — o
+      // servidor já sabe, foi ele quem mudou
+      this.quebra = null;
+      this.quebraFx.atualizar(null, 0);
+      return;
+    }
+    if (mudouDeCelula || mudouDeMao) {
+      this.quebra = null;
+      this.quebraFx.atualizar(null, 0);
+      if (t) this.segurarQuebra(); // arrastar a mira pro vizinho recomeça ali
+      else this.activeConn.send(JSON.stringify({ type: "break_cancel" }));
+      return;
+    }
+    const progresso = (performance.now() - q.inicio) / Math.max(1, q.precisa);
+    this.quebraFx.atualizar(q.cel, Math.min(1, progresso), blockSelectionBox(bloco));
   }
 
   /** 3ª pessoa (persistente OU o override do emoji) trava clique de AÇÃO — mirar

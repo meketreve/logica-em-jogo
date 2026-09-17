@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { segurarAteQuebrar } from "./quebraTeste";
 import { BlockId, ITEM_PICARETA_MADEIRA } from "./blocks";
 import { parseServerMessage } from "./protocol";
 import { type SaveData, decodeSave, encodeSave } from "./save";
@@ -450,7 +451,7 @@ describe("§🍖 F3 — fome na sessão", () => {
     session.handleMessage(1, cmd(`/dar ana ${ITEM_PICARETA_MADEIRA} 1`));
     session.handleMessage(1, cmd(`/bloco ${alvo.x} ${alvo.y} ${alvo.z} ${BlockId.Stone}`));
     expect(getBlock(session.world, alvo.x, alvo.y, alvo.z)).toBe(BlockId.Stone);
-    session.handleMessage(2, JSON.stringify({ type: "break_block", ...alvo }));
+    segurarAteQuebrar(session, 2, alvo, 0);
     expect(getBlock(session.world, alvo.x, alvo.y, alvo.z)).toBe(BlockId.Air);
     expect(ultimaVida(sent, 2)?.fome).toBe(FOME_MAX - 1);
   });

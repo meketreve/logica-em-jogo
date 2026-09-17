@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { segurarAteQuebrar } from "./quebraTeste";
 import { BlockId, MAX_BLOCK_ID } from "./blocks";
 import { CONTAINER_SLOTS } from "./containers";
 import { parseServerMessage } from "./protocol";
@@ -187,7 +188,7 @@ describe("C1 (2026-09-01): quebrar a loja — só ESTOQUE trava, não criador/pr
     session.handleMessage(1, JSON.stringify({ type: "use_block", x, y, z }));
     session.handleMessage(1, JSON.stringify({ type: "mover_container", x, y, z, de: 0, para: 27 }));
     sent.length = 0;
-    session.handleMessage(1, JSON.stringify({ type: "break_block", x, y, z }));
+    segurarAteQuebrar(session, 1, { x, y, z });
     expect(getBlock(session.world, x, y, z)).toBe(BlockId.BauLoja); // NÃO quebrou
     expect(chatPara(sent, 1)).toContain("Tem coisa aí dentro");
   });

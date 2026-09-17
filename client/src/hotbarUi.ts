@@ -24,6 +24,7 @@ import {
   ITEM_TRIGO,
 } from "@logica/shared";
 import { makeBlockIcons } from "./blockIcons";
+import { barraDeVidaHtml } from "./vidaFerramenta";
 import { PLACEABLE, type PlaceableEntry, placeableFor } from "./blocksUi";
 import type { Mochila } from "./mochila";
 
@@ -221,10 +222,12 @@ export class HotbarUi {
           return `<span class="slot${sel} vazio"><small>${i + 1}</small></span>`;
         const qtd = this.mochila.ativa ? this.mochila.qtdDoSlot(i) : 0;
         const conta = qtd > 1 ? `<b class="qtd">${qtd}</b>` : "";
+        // §🔨 v2: ferramenta gasta mostra a vida no pé do slot (só a gasta)
+        const vida = this.mochila.ativa ? barraDeVidaHtml(this.mochila.pilhaDoSlot(i)) : "";
         // §💬 `data-tip-id`: o tooltip próprio (`tooltip.ts`) escuta o documento
         // e se vira com o atributo. No PC a barra só é alcançável com o ponteiro
         // solto; no tablet é o toque-e-segure, que é onde ela mais serve.
-        return `<span class="slot${sel}" data-tip-id="${id}"><small>${i + 1}</small><img src="${this.icons.get(id) ?? ""}" alt="">${conta}</span>`;
+        return `<span class="slot${sel}" data-tip-id="${id}"><small>${i + 1}</small><img src="${this.icons.get(id) ?? ""}" alt="">${conta}${vida}</span>`;
       })
       .join("");
     const naMao = ids[this.sel];

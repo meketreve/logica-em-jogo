@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { segurarAteQuebrar } from "./quebraTeste";
 import {
   BlockId,
   ITEM_FRUTA,
@@ -238,7 +239,7 @@ describe("§🍖 F6 — pelo fio: plantar, crescer, colher, comer", () => {
     const c = canteiro(session);
     session.handleMessage(1, cmd(`/dar ana ${BlockId.Plantacao0} 4`));
     session.handleMessage(2, JSON.stringify({ type: "place_block", ...c, blockId: BlockId.Plantacao0 }));
-    session.handleMessage(2, JSON.stringify({ type: "break_block", x: c.x, y: c.y - 1, z: c.z }));
+    segurarAteQuebrar(session, 2, { x: c.x, y: c.y - 1, z: c.z });
     session.tick();
     session.tick();
     expect(getBlock(session.world, c.x, c.y, c.z)).toBe(BlockId.Air);
@@ -252,7 +253,7 @@ describe("§🍖 F6 — pelo fio: plantar, crescer, colher, comer", () => {
       session.handleMessage(2, JSON.stringify({ type: "place_block", ...c, blockId: BlockId.Plantacao0 }));
       for (let i = 0; i < TICKS_POR_CRESCIMENTO * 3; i++) session.tick();
       expect(getBlock(session.world, c.x, c.y, c.z)).toBe(BlockId.Plantacao3);
-      session.handleMessage(2, JSON.stringify({ type: "break_block", x: c.x, y: c.y, z: c.z }));
+      segurarAteQuebrar(session, 2, { x: c.x, y: c.y, z: c.z });
     }
     expect(naMochila(sent, 2, ITEM_TRIGO)).toBe(3);
     // A semente voltou toda vez, e desde 2026-08-05 ela vem de 1 a 3 (sorteio

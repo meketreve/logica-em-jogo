@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { segurarAteQuebrar } from "./quebraTeste";
 import {
   BlockId,
   ITEM_CARVAO,
@@ -204,7 +205,7 @@ describe("§🍖 F10b — a fornalha pelo fio", () => {
     // §🍖 F10d: a fornalha é pedregulho — sem picareta a recusa seria a OUTRA
     session.handleMessage(1, cmd(`/dar ana ${ITEM_PICARETA_MADEIRA} 1`));
     const antes = sent.length;
-    session.handleMessage(2, JSON.stringify({ type: "break_block", ...f }));
+    segurarAteQuebrar(session, 2, f, 0);
     expect(getBlock(session.world, f.x, f.y, f.z)).toBe(BlockId.Fornalha);
     const avisos = sent
       .slice(antes)
@@ -219,7 +220,7 @@ describe("§🍖 F10b — a fornalha pelo fio", () => {
     const f = poeFornalha(session);
     session.handleMessage(1, cmd(`/dar ana ${ITEM_PICARETA_MADEIRA} 1`)); // §🍖 F10d
     session.handleMessage(2, abrir(f.x, f.y, f.z));
-    session.handleMessage(2, JSON.stringify({ type: "break_block", ...f }));
+    segurarAteQuebrar(session, 2, f, 0);
     expect(getBlock(session.world, f.x, f.y, f.z)).toBe(BlockId.Air);
     expect(naMochila(sent, 2, BlockId.Fornalha)).toBe(1);
     // e o painel de quem estava com ela aberta FECHA (o bloco não existe mais)
@@ -299,11 +300,11 @@ describe("§🍖 F10b — a fornalha pelo fio", () => {
     session.handleMessage(1, cmd(`/dar ana ${BlockId.Cobblestone} 5`));
     session.handleMessage(2, abrir(b.x, b.y, b.z));
     session.handleMessage(2, mover(b.x, b.y, b.z, 0, INV_SLOTS + 0));
-    session.handleMessage(2, JSON.stringify({ type: "break_block", ...b }));
+    segurarAteQuebrar(session, 2, b);
     expect(getBlock(session.world, b.x, b.y, b.z)).toBe(BlockId.Bau);
     // esvaziado, quebra — e o pedregulho não se perdeu no caminho
     session.handleMessage(2, mover(b.x, b.y, b.z, INV_SLOTS + 0, 0));
-    session.handleMessage(2, JSON.stringify({ type: "break_block", ...b }));
+    segurarAteQuebrar(session, 2, b);
     expect(getBlock(session.world, b.x, b.y, b.z)).toBe(BlockId.Air);
     expect(naMochila(sent, 2, BlockId.Cobblestone)).toBe(5);
     expect(naMochila(sent, 2, BlockId.Bau)).toBe(1);

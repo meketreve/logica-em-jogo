@@ -22,7 +22,11 @@ export function isTouchDevice(): boolean {
 export interface TouchActions {
   /** Teclas configuradas AGORA (rebind ao vivo muda o retorno). */
   keys(): { forward: string; back: string; left: string; right: string; jump: string; agachar: string };
+  /** §🔨 v2: APERTOU o ⛏ (em sobrevivência isso ARMA a quebra; o bloco cai
+   *  quando o tempo passa). Em criativo segue quebrando na hora. */
   quebrar(): void;
+  /** §🔨 v2: SOLTOU o ⛏ — o progresso da quebra some. */
+  soltarQuebra(): void;
   colocar(): void;
   /** §🍖 F6 (playtest): o botão ▣ vira "comer" quando há comida na mão e fome
    *  pra gastar — manda `{type: comer}` pro servidor, que decide (barriga
@@ -300,7 +304,15 @@ export class TouchControls {
       // agachar (2026-07-21): segura = mesma tecla do Shift (andando não cai da
       // borda; voando DESCE). Segurar, como o pular.
       this.holdButton("⤓", "agachar", () => this.actions.keys().agachar),
-      (this.btnQuebrar = this.tapButton("⛏", "quebrar", () => this.actions.quebrar())),
+      // §🔨 v2: o ⛏ deixou de ser TAP e virou SEGURAR — quebrar leva tempo, e no
+      // tablet o dedo tem de ficar no botão do mesmo jeito que o botão do mouse
+      // fica apertado no PC.
+      (this.btnQuebrar = this.pressButton(
+        "⛏",
+        "quebrar",
+        () => this.actions.quebrar(),
+        () => this.actions.soltarQuebra(),
+      )),
     );
     // §🍖 F6 (playtest): o ▣ vira 🍎 "comer" com comida na mão e fome — o rótulo
     // muda por estado (mesmo mecanismo do setVarinha), e o TAP também: manda
@@ -481,6 +493,31 @@ export class TouchControls {
       e.preventDefault(); // sem clique sintetizado depois
       fn();
     });
+    return btn;
+  }
+
+  /**
+   * Botão de SEGURAR com dois callbacks (aperta / solta) — o ⛏ da v2. Difere do
+   * `holdButton` por não passar por tecla nenhuma: quebrar não é uma tecla do
+   * teclado, é uma intenção que vai pro servidor. O `pointercancel` solta junto
+   * porque o dedo que escorrega pra fora do botão não pode deixar a quebra
+   * presa (e, no tablet, escorregar é o caso comum).
+   */
+  private pressButton(
+    icon: string,
+    label: string,
+    aperta: () => void,
+    solta: () => void,
+  ): HTMLButtonElement {
+    const btn = this.makeButton(icon, label);
+    btn.addEventListener("pointerdown", (e) => {
+      e.preventDefault();
+      btn.setPointerCapture(e.pointerId);
+      aperta();
+    });
+    btn.addEventListener("pointerup", solta);
+    btn.addEventListener("pointercancel", solta);
+    btn.addEventListener("pointerleave", solta);
     return btn;
   }
 

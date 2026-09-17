@@ -159,6 +159,10 @@
 - `input.ts` — Teclado + mouse (pointer lock). SÓ coleta input — nenhuma decisão de (~3396 tok)
   - class `Input` L5-284 (~3349 tok)
 - `inventory.ts` — Chave de busca: sem espaço nas pontas, minúscula e **sem acento**. Ninguém (~7917 tok)
+- `quebraFx.ts` — §🔨 v2: a RACHADURA procedural no bloco em quebra (10 estágios, canvas próprio
+  por estágio — bug-667). Caixa única sobre a mira; não passa pelo mesher. (~1100 tok)
+- `vidaFerramenta.ts` — §🔨 v2: a barrinha de vida da ferramenta no slot (HTML pra hotbar, DOM
+  pro painel da mochila); verde → amarelo → vermelho, só em ferramenta gasta. (~450 tok)
   - class `InventoryPanel` L39-707 (~7446 tok)
 - `invisivelUi.ts` — Aviso permanente do `/invisivel` (2026-08-22) — a faixa que só o professor (~573 tok)
   - class `InvisivelUi` L17-52 (~392 tok)
@@ -1104,7 +1108,9 @@
   - fn `turma` L160-172 (~162 tok)
   - fn `pedra` L173-179 (~62 tok)
   - fn `chats` L180-231 (~674 tok)
-- `ferramentas.ts` — §🍖 F10d (2026-08-05) — FERRAMENTAS. As duas decisões vieram do usuário: (~2255 tok)
+- `ferramentas.ts` — §🍖 F10d (2026-08-05) FERRAMENTAS + §🔨 v2 (2026-09-17): durabilidade
+  (`DURABILIDADE`, `vidaDe`, `gastar`), tempo de quebra (`tempoDeQuebraMs`, `ticksDeQuebra`,
+  `ferramentaIdealDe`) e o gate pela MÃO (`faltaFerramentaNaMao`). (~4100 tok)
   - section `Ferramenta` L56-71 (~245 tok)
   - section `Exigencia` L72-110 (~453 tok)
   - fn `exigenciaDe` L111-136 (~342 tok)
@@ -1179,7 +1185,14 @@
   - fn `turma` L277-287 (~148 tok)
   - fn `alvoLivre` L288-525 (~3501 tok)
   - fn `matarAna` L526-741 (~2726 tok)
-- `inventario.ts` — §🍖 F4 — INVENTÁRIO AUTORITATIVO (stacks puros). (~3768 tok)
+- `inventario.ts` — §🍖 F4 — INVENTÁRIO AUTORITATIVO (stacks puros). §🔨 v2: a pilha ganhou
+  `dano?` e a regra `podeJuntar` (ferramenta nunca funde; pilhas iguais que não fundem TROCAM). (~4000 tok)
+- `quebraTeste.ts` — ajuda de TESTE do §🔨 v2: `segurarAteQuebrar` arma o `break_start` e roda
+  ticks até o bloco cair (os testes de quebra não são mais uma mensagem só). (~330 tok)
+- `quebra.test.ts` — §🔨 v2 pelo fio: tempo contado no servidor, cancelar, criativo em 1 clique,
+  durabilidade gasta/some, o desgaste atravessando o save. (~1900 tok)
+- `ferramentas-v2.test.ts` — §🔨 v2 puro: durabilidade, dano no save/fio, não-fusão de pilhas,
+  tempo de quebra e o gate pela mão. (~1750 tok)
   - section `Stack` L23-46 (~223 tok)
   - fn `tamanhoStack` L47-51 (~44 tok)
   - fn `inventarioVazio` L52-56 (~49 tok)
@@ -1658,6 +1671,9 @@
   - fn `broadcastGroups` L561-566 (~69 tok)
   - fn `runGrupo` L567-642 (~908 tok)
   - fn `runConfinar` L643-688 (~633 tok)
+- `quebra.ts` — §🔨 Ferramentas v2 (2026-09-17): a QUEBRA POR TEMPO contada no servidor.
+  `break_start` arma, cada tick desconta, o servidor quebra sozinho. Guarda também o gate
+  (mão, claim, container, alcance), o esforço da quebra e o gasto de durabilidade. (~2100 tok)
 - `inventario.ts` — §🍖 F4: teto de um `/dar` (27 slots × 64 = a mochila inteira de uma vez). (~1971 tok)
   - fn `inventarioDe` L35-46 (~118 tok)
   - fn `inventarioVale` L47-50 (~33 tok)

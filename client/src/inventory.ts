@@ -10,6 +10,7 @@ import { playUi } from "./audio";
 import { ABAS, type AbaInventario, type PlaceableEntry } from "./blocksUi";
 import type { Mochila } from "./mochila";
 import { ArrastoDeSlot, linhaDeAcoes, lixeiraSob, primeiroLugar, slotSob } from "./slotDrag";
+import { barraDeVidaEl } from "./vidaFerramenta";
 import { esconderTooltip, tipDeItem } from "./tooltip";
 
 /**
@@ -506,6 +507,9 @@ export class InventoryPanel {
           n.textContent = String(qtd);
           b.appendChild(n);
         }
+        // §🔨 v2: a mesma barra de vida da hotbar, pra ferramenta gasta
+        const vida = barraDeVidaEl(this.mochila.pilhaDoSlot(i));
+        if (vida) b.appendChild(vida);
       }
       // §🧹 (playtest): o botão entra no arrasto do PC (que reusa o `pegando`).
       // O clique SEM arrasto continua sendo o gesto de tocar-origem/destino.
@@ -560,6 +564,9 @@ export class InventoryPanel {
           n.textContent = String(qtd);
           b.appendChild(n);
         }
+        // §🔨 v2: a mesma barra de vida da hotbar, pra ferramenta gasta
+        const vida = barraDeVidaEl(this.mochila.pilhaDoSlot(i));
+        if (vida) b.appendChild(vida);
       }
       b.addEventListener("click", () => {
         this.select(i);

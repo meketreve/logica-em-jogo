@@ -19,6 +19,16 @@ const ok = (cond, msg) => {
 };
 const espera = (ms) => new Promise((r) => setTimeout(r, ms));
 
+/**
+ * §🔨 Ferramentas v2: quebrar virou SEGURAR. O cliente só ARMA (`break_start`,
+ * com o slot da mão) — quem conta os ticks e derruba o bloco é o servidor.
+ * O `await` que vem depois tem de cobrir o tempo de quebra do bloco, não só a
+ * ida e volta da rede: pedra com picareta de madeira leva ~1,1 s.
+ */
+const quebrar = (cli, cel, slot = 0) =>
+  cli.ws.send(JSON.stringify({ type: "break_start", ...cel, slot }));
+const QUEBRA_MS = 2600; // folga sobre o bloco mais lento que estes cenários usam
+
 // espelhos das constantes de /shared (o smoke fala JSON, não importa TS)
 const AR = 0;
 const GRAMA = 1;
@@ -47,6 +57,9 @@ function cliente(join) {
 }
 const enviar = (rec, text) => rec.ws.send(JSON.stringify({ type: "chat", text }));
 const ultimoInv = (rec) => rec.invs.at(-1) ?? null;
+/** §🔨 v2: em que slot está este item — a MÃO importa agora, e o `/dar` guarda
+ *  no primeiro lugar livre, que raramente é o slot 0. */
+const slotDe = (rec, id) => (ultimoInv(rec) ?? []).find((s) => s.id === id)?.slot ?? 0;
 const contar = (rec, id) =>
   (ultimoInv(rec) ?? []).reduce((n, s) => (s.id === id ? n + s.qtd : n), 0);
 const blocoEm = (rec, p) => rec.blocos.get(`${p.x},${p.y},${p.z}`);
@@ -99,16 +112,16 @@ enviar(prof, `/dar ana ${PICARETA_MADEIRA} 1`);
 await espera(400);
 enviar(prof, `/bloco ${alvo.x} ${alvo.y} ${alvo.z} ${PEDRA}`);
 await espera(300);
-ana.ws.send(JSON.stringify({ type: "break_block", ...alvo }));
-await espera(400);
+quebrar(ana, alvo, slotDe(ana, PICARETA_MADEIRA));
+await espera(QUEBRA_MS);
 ok(blocoEm(ana, alvo) === AR, "a célula ficou vazia");
 ok(contar(ana, PEDREGULHO) === 3, `e a pedra virou pedregulho na mochila (${contar(ana, PEDREGULHO)})`);
 
 console.log("== grama cai como TERRA (a exceção da tabela) ==");
 enviar(prof, `/bloco ${alvo.x} ${alvo.y} ${alvo.z} ${GRAMA}`);
 await espera(300);
-ana.ws.send(JSON.stringify({ type: "break_block", ...alvo }));
-await espera(400);
+quebrar(ana, alvo);
+await espera(QUEBRA_MS);
 ok(contar(ana, TERRA) === 1, `1 terra na mochila (${contar(ana, TERRA)})`);
 ok(contar(ana, GRAMA) === 0, "e nenhuma grama");
 
@@ -134,8 +147,8 @@ ok(cheia === teto, `a mochila da ana ficou cheia (${cheia}/${teto})`);
 enviar(prof, `/bloco ${alvo.x} ${alvo.y} ${alvo.z} ${PEDRA}`);
 await espera(300);
 const antesDoAviso = ana.chats.length;
-ana.ws.send(JSON.stringify({ type: "break_block", ...alvo }));
-await espera(400);
+quebrar(ana, alvo, slotDe(ana, PICARETA_MADEIRA));
+await espera(QUEBRA_MS);
 ok(blocoEm(ana, alvo) === PEDRA, "o bloco FICOU no mundo (a quebra foi recusada)");
 ok(
   ana.chats.slice(antesDoAviso).some((t) => t.includes("Mochila cheia")),

@@ -57,7 +57,7 @@ function blip(
   osc.stop(t1 + 0.01);
 }
 
-export type UiSound = "click" | "back" | "confirm" | "notify" | "denied";
+export type UiSound = "click" | "back" | "confirm" | "notify" | "denied" | "quebrou";
 
 export function playUi(kind: UiSound): void {
   if (!ensureCtx()) return;
@@ -78,6 +78,13 @@ export function playUi(kind: UiSound): void {
       break;
     case "denied": // recusa/erro: zumbido grave
       blip(220, 160, 180, "sawtooth", 0.15);
+      break;
+    // §🔨 v2: a ferramenta ACABOU. Estalo seco caindo — é a única notícia ruim
+    // que a barra de vida não conseguiu dar a tempo, então ela tem de soar
+    // diferente de tudo (nem o "denied", que é recusa, nem o "notify").
+    case "quebrou":
+      blip(420, 120, 120, "square", 0.2);
+      blip(180, 90, 220, "sawtooth", 0.16, 60);
       break;
   }
 }

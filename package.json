@@ -33,7 +33,8 @@
     "shots:esc": "node scripts/esc-shot.mjs",
     "shots:tooltip": "node scripts/tooltip-shot.mjs",
     "shots:fundo": "node scripts/fundo-shots.mjs",
-    "shots:loja": "node scripts/loja-shot.mjs"
+    "shots:loja": "node scripts/loja-shot.mjs",
+    "shots:quebra": "node scripts/quebra-shot.mjs"
   },
   "devDependencies": {
     "typescript": "^7.0.2",

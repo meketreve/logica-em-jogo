@@ -43,6 +43,19 @@ interface Mudanca {
 const MUDANCAS: readonly Mudanca[] = [
   {
     // sem `data`: este é o build atual (ver rotuloDoBloco)
+    titulo: "Quebrar bloco agora leva tempo — e a ferramenta gasta",
+    itens: [
+      "agora você SEGURA o botão pra quebrar um bloco, e vê a rachadura crescer nele até ele cair (no tablet, segure o ⛏)",
+      "a ferramenta certa quebra MUITO mais rápido: a picareta de diamante abre pedra num piscar, a de madeira demora",
+      "soltou o botão, a rachadura some e o bloco continua inteiro — nada de quebra pela metade guardada",
+      "a picareta precisa estar NA MÃO, não só na mochila: se ela estiver guardada, o jogo avisa pra você pegá-la",
+      "toda picareta tem vida: uma barrinha no cantinho do slot mostra quanto falta, verde → amarela → vermelha",
+      "quando a vida acaba, a picareta quebra e some da mão, com aviso e som — é hora de fabricar outra",
+      "cavar terra e areia com a picareta na mão não gasta a picareta (ela só gasta no que é serviço dela)",
+    ],
+  },
+  {
+    data: "12/09/2026",
     titulo: "Consertos de cama, porta, loja e torre",
     itens: [
       "deitado na cama, aperte PULAR pra levantar (no tablet, o botão ⤒) — antes só dava pra sair andando pra longe, e num quarto apertado a gente ficava preso",

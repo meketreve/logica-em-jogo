@@ -1,4 +1,11 @@
-import { HOTBAR_SLOTS, type Inventario, type SlotSalvo, inventarioVazio, parseInventario } from "@logica/shared";
+import {
+  HOTBAR_SLOTS,
+  type Inventario,
+  type Slot,
+  type SlotSalvo,
+  inventarioVazio,
+  parseInventario,
+} from "@logica/shared";
 
 /**
  * §🍖 F4 — a mochila do lado do CLIENTE: espelho do inventário autoritativo.
@@ -49,6 +56,12 @@ export class Mochila {
   /** Id do slot (null = vazio). */
   idDoSlot(i: number): number | null {
     return this.inv[i]?.id ?? null;
+  }
+
+  /** §🔨 v2: a PILHA do slot — id, quantidade e o `dano` da ferramenta. Quem
+   *  desenha a barra de vida precisa do objeto, não só do id. */
+  pilhaDoSlot(i: number): Slot {
+    return this.inv[i] ?? null;
   }
 
   /** Quantidade no slot (0 = vazio). */

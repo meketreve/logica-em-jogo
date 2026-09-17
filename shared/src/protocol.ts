@@ -40,7 +40,13 @@ export type ClientMessage =
     }
   | { type: "move"; x: number; y: number; z: number; yaw: number; pitch: number }
   | { type: "place_block"; x: number; y: number; z: number; blockId: number }
-  | { type: "break_block"; x: number; y: number; z: number }
+  | { type: "break_block"; x: number; y: number; z: number; slot?: number }
+  /** §🔨 v2: SEGUROU o botão nesta célula — o servidor conta os ticks de quebra
+   *  e quebra sozinho quando acabam. `slot` é a mão (a ferramenta que acelera e
+   *  que gasta). Trocar de célula ou de mão recomeça; `break_cancel` desiste. */
+  | { type: "break_start"; x: number; y: number; z: number; slot?: number }
+  /** §🔨 v2: SOLTOU o botão (ou mirou noutro lugar) — some com o progresso. */
+  | { type: "break_cancel" }
   /** Clique direito num bloco INTERATIVO (cp23: porta) — o servidor decide o
    *  efeito (alternar aberta/fechada) e responde com block_changed normais. */
   | { type: "use_block"; x: number; y: number; z: number }
@@ -572,6 +578,13 @@ export type ServerMessage =
       slots: SlotSalvo[];
     }
   | {
+      /** §🔨 v2: a ferramenta na mão acabou e SUMIU. O `inventario` que vem
+       *  junto já conta a verdade — esta mensagem existe pro cliente TOCAR o
+       *  som e piscar o aviso, que é a parte que um diff de slots não diz. */
+      type: "ferramenta_quebrou";
+      item: number;
+    }
+  | {
       /**
        * Aluno REMOVIDO da aula pelo professor (cp22, /expulsar). Cliente mostra o
        * motivo e volta pro menu — mesmo caminho do join_denied. O socket cai
@@ -627,16 +640,23 @@ export function parseClientMessage(raw: string): ClientMessage | null {
         blockId: m["blockId"] as number,
       };
     }
-    case "break_block": {
+    case "break_block":
+    case "break_start": {
       const ints = [m["x"], m["y"], m["z"]];
       if (!ints.every((n) => typeof n === "number" && Number.isInteger(n))) return null;
+      const slot = m["slot"];
       return {
-        type: "break_block",
+        type: m["type"] === "break_start" ? "break_start" : "break_block",
         x: m["x"] as number,
         y: m["y"] as number,
         z: m["z"] as number,
+        // §🔨 v2: slot inválido some (parse defensivo) — o servidor trata como
+        // mão vazia, e mão vazia não quebra pedra. Nunca confiar no índice.
+        ...(typeof slot === "number" && Number.isInteger(slot) && slot >= 0 ? { slot } : {}),
       };
     }
+    case "break_cancel":
+      return { type: "break_cancel" };
     case "use_block": {
       const ints = [m["x"], m["y"], m["z"]];
       if (!ints.every((n) => typeof n === "number" && Number.isInteger(n))) return null;
@@ -1146,6 +1166,11 @@ export function parseServerMessage(raw: string): ServerMessage | null {
     case "dimas": {
       if (typeof m["saldo"] !== "number" || !Number.isFinite(m["saldo"])) return null;
       return { type: "dimas", saldo: m["saldo"] };
+    }
+    case "ferramenta_quebrou": {
+      const item = m["item"];
+      if (typeof item !== "number" || !Number.isInteger(item)) return null;
+      return { type: "ferramenta_quebrou", item };
     }
     case "inventario": {
       // §🍖 F4: `slots` tem de ser LISTA (mochila vazia é lista vazia, e isso é

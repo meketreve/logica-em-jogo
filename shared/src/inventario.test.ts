@@ -225,6 +225,7 @@ describe("inventário — save (forma esparsa, parse defensivo)", () => {
 import { camaHeadDir } from "./blocks";
 import { parseServerMessage } from "./protocol";
 import { type SaveData, decodeSave, encodeSave } from "./save";
+import { segurarAteQuebrar } from "./quebraTeste";
 import { GameSession } from "./session";
 import { getBlock, setBlock } from "./world";
 
@@ -245,8 +246,11 @@ const colocar = (x: number, y: number, z: number, blockId: number) =>
  *  pedra passaria a medir a RECUSA por falta de ferramenta. */
 const darPicareta = (session: GameSession) =>
   session.handleMessage(1, cmd(`/dar ana ${ITEM_PICARETA_MADEIRA} 1`));
-const quebrar = (x: number, y: number, z: number) =>
-  JSON.stringify({ type: "break_block", x, y, z });
+/** §🔨 v2: quebrar deixou de ser UMA mensagem — o servidor conta os ticks de
+ *  quebra e derruba o bloco sozinho. `slot` é a MÃO (a picareta do
+ *  `darPicareta` cai no slot 0), porque o gate agora olha a mão, não a mochila. */
+const quebrar = (ses: GameSession, x: number, y: number, z: number, slot = 0) =>
+  segurarAteQuebrar(ses, 2, { x, y, z }, slot);
 
 /** Último inventário mandado a este cliente (null = nenhum — criativo). */
 function ultimoInv(sent: Sent, clientId: number): Inventario | null {
@@ -354,11 +358,11 @@ describe("§🍖 F4 — colocar GASTA (e criativo segue infinito)", () => {
     ]);
     // a ordem do golpe: com o mesmo id nas 2 metades, o pé de B ficava vivo
     // encostado na cabeceira de A, e a cabeceira de A no pé de B — 3 camas
-    session.handleMessage(2, quebrar(a.x - 2, a.y, a.z)); // cabeceira de B
+    quebrar(session, a.x - 2, a.y, a.z); // cabeceira de B
     session.tick();
     session.tick();
     expect(getBlock(session.world, a.x - 1, a.y, a.z)).toBe(BlockId.Air); // o pé de B evaporou
-    session.handleMessage(2, quebrar(a.x + 1, a.y, a.z)); // pé de A
+    quebrar(session, a.x + 1, a.y, a.z); // pé de A
     session.tick();
     session.tick();
     expect(getBlock(session.world, a.x, a.y, a.z)).toBe(BlockId.Air); // a cabeceira de A evaporou
@@ -375,11 +379,11 @@ describe("§🍖 F4 — colocar GASTA (e criativo segue infinito)", () => {
     const pilha = () => [0, 1, 2, 3].map((dy) => getBlock(session.world, a.x, a.y + dy, a.z));
     const p = pilha()[0]!;
     expect(pilha()).toEqual([p, p, p, p]);
-    session.handleMessage(2, quebrar(a.x, a.y, a.z)); // base da de baixo
+    quebrar(session, a.x, a.y, a.z); // base da de baixo
     session.tick();
     session.tick();
     expect(getBlock(session.world, a.x, a.y + 1, a.z)).toBe(BlockId.Air); // o topo dela foi junto
-    session.handleMessage(2, quebrar(a.x, a.y + 3, a.z)); // topo da de cima
+    quebrar(session, a.x, a.y + 3, a.z); // topo da de cima
     session.tick();
     session.tick();
     expect(getBlock(session.world, a.x, a.y + 2, a.z)).toBe(BlockId.Air); // a base dela foi junto
@@ -419,7 +423,7 @@ describe("§🍖 F4 — colocar GASTA (e criativo segue infinito)", () => {
     const a = alvoLivre(session);
     darPicareta(session); // §🍖 F10d: pedregulho exige picareta
     setBlock(session.world, a.x, a.y, a.z, BlockId.Cobblestone);
-    session.handleMessage(2, quebrar(a.x, a.y, a.z)); // ganha 1 pedregulho
+    quebrar(session, a.x, a.y, a.z); // ganha 1 pedregulho
     expect(contar(ultimoInv(sent, 2) ?? inventarioVazio(), BlockId.Cobblestone)).toBe(1);
     session.handleMessage(2, colocar(a.x, a.y, a.z, BlockId.Cobblestone));
     expect(getBlock(session.world, a.x, a.y, a.z)).toBe(BlockId.Cobblestone);
@@ -433,10 +437,10 @@ describe("§🍖 F4 — quebrar DÁ (pela tabela de drops)", () => {
     const a = alvoLivre(session);
     darPicareta(session); // §🍖 F10d: a grama sai com a mão, a PEDRA não
     setBlock(session.world, a.x, a.y, a.z, BlockId.Grass);
-    session.handleMessage(2, quebrar(a.x, a.y, a.z));
+    quebrar(session, a.x, a.y, a.z);
     expect(contar(ultimoInv(sent, 2) ?? inventarioVazio(), BlockId.Dirt)).toBe(1);
     setBlock(session.world, a.x, a.y, a.z, BlockId.Stone);
-    session.handleMessage(2, quebrar(a.x, a.y, a.z));
+    quebrar(session, a.x, a.y, a.z);
     expect(contar(ultimoInv(sent, 2) ?? inventarioVazio(), BlockId.Cobblestone)).toBe(1);
   });
 
@@ -444,7 +448,7 @@ describe("§🍖 F4 — quebrar DÁ (pela tabela de drops)", () => {
     const { session, sent } = turma("sobrevivencia");
     const a = alvoLivre(session);
     setBlock(session.world, a.x, a.y, a.z, BlockId.Leaves);
-    session.handleMessage(2, quebrar(a.x, a.y, a.z));
+    quebrar(session, a.x, a.y, a.z);
     expect(getBlock(session.world, a.x, a.y, a.z)).toBe(BlockId.Air);
     // a chance mora em `drops.ts` (e o teste dela injeta o sorteio); aqui o que
     // importa é que a folha NUNCA vira folha na mochila. Desde o §🪵 a folha
@@ -463,7 +467,7 @@ describe("§🍖 F4 — quebrar DÁ (pela tabela de drops)", () => {
     const { session, sent } = turma("criativo");
     const a = alvoLivre(session);
     setBlock(session.world, a.x, a.y, a.z, BlockId.Stone);
-    session.handleMessage(2, quebrar(a.x, a.y, a.z));
+    quebrar(session, a.x, a.y, a.z);
     expect(getBlock(session.world, a.x, a.y, a.z)).toBe(BlockId.Air);
     expect(ultimoInv(sent, 2)).toBeNull();
   });
@@ -475,10 +479,10 @@ describe("§🍖 F4 — quebrar DÁ (pela tabela de drops)", () => {
     darPicareta(session);
     session.handleMessage(1, cmd(`/dar ana ${BlockId.Sand} ${(INV_SLOTS - 1) * STACK_MAX}`));
     setBlock(session.world, a.x, a.y, a.z, BlockId.Stone);
-    session.handleMessage(2, quebrar(a.x, a.y, a.z));
+    quebrar(session, a.x, a.y, a.z);
     expect(getBlock(session.world, a.x, a.y, a.z)).toBe(BlockId.Stone); // NÃO quebrou
-    session.handleMessage(2, quebrar(a.x, a.y, a.z));
-    session.handleMessage(2, quebrar(a.x, a.y, a.z));
+    quebrar(session, a.x, a.y, a.z);
+    quebrar(session, a.x, a.y, a.z);
     const avisos = chats(sent, 2).filter((t) => t.includes("Mochila cheia"));
     expect(avisos).toHaveLength(1); // o freio segurou as repetições
   });
@@ -489,7 +493,7 @@ describe("§🍖 F4 — quebrar DÁ (pela tabela de drops)", () => {
     darPicareta(session); // §🍖 F10d: 1 slot pra ela, 26 pro pedregulho
     session.handleMessage(1, cmd(`/dar ana ${BlockId.Cobblestone} ${(INV_SLOTS - 1) * STACK_MAX - 1}`));
     setBlock(session.world, a.x, a.y, a.z, BlockId.Stone);
-    session.handleMessage(2, quebrar(a.x, a.y, a.z));
+    quebrar(session, a.x, a.y, a.z);
     expect(getBlock(session.world, a.x, a.y, a.z)).toBe(BlockId.Air);
     expect(contar(ultimoInv(sent, 2) ?? inventarioVazio(), BlockId.Cobblestone)).toBe(
       (INV_SLOTS - 1) * STACK_MAX,

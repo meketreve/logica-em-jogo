@@ -30,6 +30,7 @@ import { findSpawnY, setBlock } from "./world";
 const COM_GATE = [
   "place_block",
   "break_block",
+  "break_start",
   "use_block",
   "balde",
   "quadro_set",
@@ -129,6 +130,10 @@ function mensagemPara(tipo: string, cel: { x: number; y: number; z: number }): s
       return JSON.stringify({ type: "place_block", ...cel, blockId: BlockId.Cobblestone });
     case "break_block":
       return JSON.stringify({ type: "break_block", ...cel });
+    // §🔨 v2: segurar pra quebrar passa pelo MESMO gate, e no APERTO — o
+    // portão tem de barrar antes de a barrinha começar a encher
+    case "break_start":
+      return JSON.stringify({ type: "break_start", ...cel });
     case "use_block":
       return JSON.stringify({ type: "use_block", ...cel });
     case "balde":

@@ -19,6 +19,16 @@ const ok = (cond, msg) => {
 };
 const espera = (ms) => new Promise((r) => setTimeout(r, ms));
 
+/**
+ * §🔨 Ferramentas v2: quebrar virou SEGURAR. O cliente só ARMA (`break_start`,
+ * com o slot da mão) — quem conta os ticks e derruba o bloco é o servidor.
+ * O `await` que vem depois tem de cobrir o tempo de quebra do bloco, não só a
+ * ida e volta da rede: pedra com picareta de madeira leva ~1,1 s.
+ */
+const quebrar = (cli, cel, slot = 0) =>
+  cli.ws.send(JSON.stringify({ type: "break_start", ...cel, slot }));
+const QUEBRA_MS = 2600; // folga sobre o bloco mais lento que estes cenários usam
+
 // espelhos das constantes de /shared (o smoke fala JSON, não importa TS)
 const AR = 0;
 const COBBLE = 3;
@@ -161,8 +171,8 @@ console.log("== fornalha COM COISA DENTRO não quebra, e o aviso sai no chat =="
 enviar(prof, `/dar ana ${PICARETA_MADEIRA} 1`);
 await espera(400);
 const chatsAntes = ana.chats.length;
-ana.ws.send(JSON.stringify({ type: "break_block", ...cel }));
-await espera(450);
+quebrar(ana, cel, slotDe(ana, PICARETA_MADEIRA));
+await espera(QUEBRA_MS);
 ok(blocoEm(ana, cel) !== AR, "a fornalha continua de pé");
 ok(
   ana.chats.slice(chatsAntes).some((t) => t.includes("esvazie")),
@@ -176,8 +186,8 @@ transferir(ana, cel, C_ENTRADA, 26);
 await espera(400);
 ok((cont(ana, cel)?.slots ?? []).length === 0, "a fornalha ficou vazia");
 const antesQuebra = contar(ana, FORNALHA);
-ana.ws.send(JSON.stringify({ type: "break_block", ...cel }));
-await espera(500);
+quebrar(ana, cel, slotDe(ana, PICARETA_MADEIRA));
+await espera(QUEBRA_MS);
 ok(blocoEm(ana, cel) === AR, "a célula ficou vazia");
 ok(contar(ana, FORNALHA) === antesQuebra + 1, "e a fornalha voltou pra mochila");
 ok(ana.fechados > 0, "o painel de quem estava com ela aberta foi FECHADO pelo servidor");
@@ -200,14 +210,14 @@ ok(contar(ana, LINGOTE_FERRO) === 0, "o lingote foi guardado no baú");
 ok(noSlot(cont(ana, cel), 26)?.id === LINGOTE_FERRO, "e está no slot 26 dele");
 
 console.log("== baú COM COISA DENTRO não quebra (a decisão do usuário) ==");
-ana.ws.send(JSON.stringify({ type: "break_block", ...cel }));
-await espera(450);
+quebrar(ana, cel, slotDe(ana, PICARETA_MADEIRA));
+await espera(QUEBRA_MS);
 ok(blocoEm(ana, cel) === BAU, "o baú continua de pé");
 transferir(ana, cel, INV_SLOTS + 26, guardar);
 await espera(400);
 ok(contar(ana, LINGOTE_FERRO) === 1, "o lingote voltou pra mochila");
-ana.ws.send(JSON.stringify({ type: "break_block", ...cel }));
-await espera(450);
+quebrar(ana, cel, slotDe(ana, PICARETA_MADEIRA));
+await espera(QUEBRA_MS);
 ok(blocoEm(ana, cel) === AR, "e aí o baú vazio quebrou");
 
 for (const c of [prof, ana]) c.ws.close();

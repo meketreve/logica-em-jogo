@@ -146,7 +146,13 @@ import { avisarChatSilenciado, avisarComFreio, avisarEmogisDesligados } from "./
 import { runSilenciar } from "./session/silenciar";
 import { evictColunas, garantirColunas, gerarColuna, streamColunas } from "./session/streaming";
 import { migrarCamasLegado } from "./camas";
-import { faltaFerramenta } from "./ferramentas";
+import {
+  type Quebra,
+  cancelarQuebra,
+  iniciarQuebra,
+  quebrarCelula,
+  tickQuebras,
+} from "./session/quebra";
 import { RECEITAS, fabricar, receitaValida } from "./receitas";
 import {
   AGUA_POR_TICK_PADRAO,
@@ -328,6 +334,11 @@ export class GameSession {
    *  Nunca recalcular no join — o mundo pode já estar escavado (bug-010). */
   readonly spawn: { x: number; y: number; z: number };
   tickCount = 0;
+
+  /** §🔨 v2: quem está segurando o botão em qual célula, e quantos ticks
+   *  faltam. TRANSITÓRIO de propósito — não vai pro save: progresso de quebra
+   *  não sobrevive a recarregar a página, e nem deveria. */
+  readonly quebrando = new Map<number, Quebra>();
 
   /** Hora do dia (0..24) do ciclo dia/noite (cp21). Server-autoritativa; SÓ
    *  visual (não afeta física/jogo). Mundo NOVO nasce ao meio-dia; PERSISTE no
@@ -526,7 +537,9 @@ export class GameSession {
    * quebrar e recolocar a MESMA célula no mesmo tick não mexia no tamanho e a
    * colocação saía de graça (bloco infinito por clique rápido).
    */
-  private edicoesAplicadas = 0;
+  /** INTERNO (ver visibilidade no cabeçalho da classe): o `session/quebra.ts`
+   *  compara antes/depois pra saber se a quebra realmente mexeu no mundo. */
+  edicoesAplicadas = 0;
   /** F2 streaming: mundo LAZY (gigante) — colunas materializam sob demanda e
    *  viajam por raio de interesse; o join manda só o header LJE0. */
   private lazy = false;
@@ -1310,66 +1323,25 @@ export class GameSession {
         });
         break;
       }
-      case "break_block": {
-        const p = this.players.get(clientId);
-        if (!p) return;
-        if (!inBounds(this.world, msg.x, msg.y, msg.z)) return;
-        const current = getBlock(this.world, msg.x, msg.y, msg.z);
-        if (current === BlockId.Air) return;
-        if (!isBreakable(current)) return; // bedrock: só /bloco remove
-        if (!this.withinReach(p, msg.x, msg.y, msg.z)) return;
-        // cp24/cp25: área protegida por outro aluno (claim) OU fora da área do
-        // grupo (confinamento) — quebrar barrado
-        {
-          const bloqueio =
-            claimBloqueia(this, clientId, msg.x, msg.y, msg.z) ??
-            confinaBloqueia(this, clientId, msg.x, msg.y, msg.z);
-          if (bloqueio) {
-            this.sendServerChat(clientId, bloqueio);
-            return;
-          }
-        }
-        // §🍖 F10d: sem a ferramenta certa o bloco NÃO QUEBRA (decisão do
-        // usuário; o Minecraft quebra sem drop, mas lá existe tempo de quebra
-        // pra avisar antes — aqui é 1 clique, e "sumiu e não ganhei nada" é
-        // frustração de aula). ANTES do applyBlock, como a recusa por mochila
-        // cheia: recusa não pode deixar rastro no mundo. Criativo e mundo de
-        // aula ficam de fora pelo portão que já existe (`inventarioVale`).
+      case "break_block":
+      case "break_start": {
+        // §🔨 v2: em SOBREVIVÊNCIA quebrar leva tempo, e quem conta é o
+        // servidor — a mensagem só ARMA o cronômetro (`session/quebra.ts`). Em
+        // criativo segue 1 clique: o professor não espera 2 s por bloco.
+        //
+        // `break_block` cai aqui junto com `break_start` de propósito: um
+        // cliente que só saiba a mensagem velha ainda quebra (esperando o
+        // tempo), em vez de bater num silêncio que ninguém saberia diagnosticar.
         if (inventarioVale(this, clientId)) {
-          const falta = faltaFerramenta(inventarioDe(this, p.name), current);
-          if (falta) {
-            avisarComFreio(this, clientId, falta);
-            return;
-          }
+          iniciarQuebra(this, clientId, msg.x, msg.y, msg.z, msg.slot);
+          break;
         }
-        // §🍖 F10: container com coisa dentro NÃO QUEBRA (decisão do usuário
-        // pro baú, estendida à fornalha porque a regra é a mesma e a frase é a
-        // mesma). Sem isto, um clique perdia a mochila inteira que o colega
-        // guardou — e não existe item no chão pra devolver. Vale inclusive em
-        // criativo: o professor que quebra um baú cheio também não quer isso.
-        {
-          const cont = containerDe(this, msg.x, msg.y, msg.z, current);
-          if (cont && containerTemEstoque(cont)) {
-            avisarContainerCheio(this, clientId);
-            return;
-          }
-        }
-        // §🍖 F4: quebrar DÁ o que a tabela diz — e, se não couber, NÃO QUEBRA.
-        // Não existe item no chão (decisão travada no ROADMAP §🍖): recusar é
-        // mais honesto que fazer o bloco evaporar. A conferência vem ANTES do
-        // applyBlock justamente pra que a recusa não deixe rastro no mundo.
-        const drops = inventarioVale(this, clientId) ? dropsDe(current) : [];
-        if (drops.length && !cabemTodos(inventarioDe(this, p.name), drops)) {
-          avisarMochilaCheia(this, clientId);
-          return;
-        }
-        this.applyBlock(msg.x, msg.y, msg.z, BlockId.Air);
-        // Crédito DEPOIS do mundo mudar: a mochila e a célula andam juntas, e a
-        // segunda metade da porta/cama, que o `doorRule`/`camaRule` apaga no
-        // tick seguinte, NÃO passa por aqui (uma porta não vira duas).
-        guardarDrops(this, clientId, drops);
+        quebrarCelula(this, clientId, msg.x, msg.y, msg.z, msg.slot);
         break;
       }
+      case "break_cancel":
+        cancelarQuebra(this, clientId);
+        break;
       case "balde": {
         // balde (2026-07-22): despeja/recolhe FONTE de água. Mesma disciplina
         // de place/break: join, bounds, alcance, claim/confinamento.
@@ -1676,11 +1648,12 @@ export class GameSession {
     // células (porta, cama). Abrir porta (`use_block`) e teleoperação de
     // professor (`/bloco`, `/regiao encher`) NÃO cobram: não é o esforço do
     // aluno construindo.
+    // ⚠️ §🔨 v2: `break_block` SAIU desta lista. Com tempo de quebra o bloco cai
+    // dentro do `tick`, não dentro da mensagem — `mundoMudou` aqui seria sempre
+    // falso e quebrar deixaria de dar fome (um teste pegou). Quem cobra o
+    // esforço da quebra agora é o `quebrarCelula`, onde ela realmente acontece.
     const mundoMudou = this.edicoesAplicadas > mudancasAntes;
-    if (
-      (msg.type === "place_block" || msg.type === "break_block" || msg.type === "balde") &&
-      mundoMudou
-    ) {
+    if ((msg.type === "place_block" || msg.type === "balde") && mundoMudou) {
       esforcar(this, clientId, EXAUSTAO_POR_EDICAO);
     }
     // §🍖 F4: o DÉBITO mora no mesmo lugar e pelo mesmo motivo — "o mundo
@@ -2407,8 +2380,10 @@ export class GameSession {
     }
   }
 
-  /** Distância olho→centro do bloco, com folga (pos do move chega a 10 Hz). */
-  private withinReach(p: SessionPlayer, x: number, y: number, z: number): boolean {
+  /** Distância olho→centro do bloco, com folga (pos do move chega a 10 Hz).
+   *  INTERNO (não-`private` pelo motivo do cabeçalho da classe): o
+   *  `session/quebra.ts` confere o mesmo alcance a cada tick de quebra. */
+  withinReach(p: SessionPlayer, x: number, y: number, z: number): boolean {
     const dx = x + 0.5 - p.x;
     const dy = y + 0.5 - (p.y + PLAYER.eyeHeight);
     const dz = z + 0.5 - p.z;
@@ -2592,6 +2567,10 @@ export class GameSession {
 
     // §🍖 F2: fôlego e regeneração de quem está em sobrevivência
     tickVitais(this);
+
+    // §🔨 v2: quem está segurando o botão avança um passo da quebra (e o
+    // servidor quebra o bloco quando o tempo acaba)
+    tickQuebras(this);
 
     // F2 streaming: mundo lazy manda colunas por raio de interesse
     if (this.lazy) streamColunas(this);

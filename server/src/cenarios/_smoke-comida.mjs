@@ -20,6 +20,16 @@ const ok = (cond, msg) => {
   if (!cond) falhas++;
 };
 const espera = (ms) => new Promise((r) => setTimeout(r, ms));
+
+/**
+ * §🔨 Ferramentas v2: quebrar virou SEGURAR. O cliente só ARMA (`break_start`,
+ * com o slot da mão) — quem conta os ticks e derruba o bloco é o servidor.
+ * O `await` que vem depois tem de cobrir o tempo de quebra do bloco, não só a
+ * ida e volta da rede: pedra com picareta de madeira leva ~1,1 s.
+ */
+const quebrar = (cli, cel, slot = 0) =>
+  cli.ws.send(JSON.stringify({ type: "break_start", ...cel, slot }));
+const QUEBRA_MS = 2600; // folga sobre o bloco mais lento que estes cenários usam
 /** Espera uma CONDIÇÃO, não um relógio. Devolve true se ela ficou verdadeira
  *  dentro do teto. Onde o servidor pode estar com a fila cheia, `espera(n)`
  *  fixa vira um teste que depende da velocidade da máquina (bug-629). */
@@ -70,7 +80,6 @@ const mover = (rec, p) =>
   rec.ws.send(JSON.stringify({ type: "move", x: p.x, y: p.y, z: p.z, yaw: 0, pitch: 0 }));
 const plantar = (rec, p) =>
   rec.ws.send(JSON.stringify({ type: "place_block", ...p, blockId: PLANTACAO0 }));
-const quebrar = (rec, p) => rec.ws.send(JSON.stringify({ type: "break_block", ...p }));
 const comer = (rec, slot) => rec.ws.send(JSON.stringify({ type: "comer", slot }));
 const fomeDe = (rec) => rec.vidas.at(-1)?.fome;
 
@@ -119,7 +128,7 @@ ok(blocoEm(ana, cel) === PLANTACAO3, `a plantação está madura (${blocoEm(ana,
 
 console.log("== colher a madura dá trigo E devolve a muda ==");
 quebrar(ana, cel);
-await espera(400);
+await espera(QUEBRA_MS);
 ok(contar(ana, ITEM_TRIGO) === 1, `colheu 1 trigo (${contar(ana, ITEM_TRIGO)})`);
 // 2026-08-05: a colheita devolve 1–3 sementes (antes era 1 fixo), e o sorteio
 // aqui é o `Math.random` de verdade do servidor — então o que o fio prova é a
@@ -134,9 +143,19 @@ ok(blocoEm(ana, cel) === AR, "a célula ficou vazia");
 console.log("== cavar a terra debaixo derruba a horta (regra de apoio) ==");
 plantar(ana, cel);
 await espera(300);
-ok(blocoEm(ana, cel) === PLANTACAO0, "replantou");
+// qualquer estágio serve, pelo motivo já escrito lá embaixo: com
+// LJ_CRESCIMENTO=5 o passo de crescimento é GLOBAL (não começa no plantio), e
+// a muda pode ter virado estágio 1 entre o place e esta linha. A espera maior
+// da quebra por tempo (§🔨 v2) mudou a fase e fez isso aparecer.
+{
+  const naCelula = blocoEm(ana, cel);
+  ok(
+    naCelula >= PLANTACAO0 && naCelula <= PLANTACAO3,
+    `replantou (${naCelula}, mudas=${contar(ana, PLANTACAO0)})`,
+  );
+}
 quebrar(ana, base);
-await espera(600);
+await espera(QUEBRA_MS);
 ok(blocoEm(ana, cel) === AR, "sem terra embaixo, a planta sumiu no tick");
 
 console.log("== 3 trigo viram pão pela receita nova ==");

@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { segurarAteQuebrar } from "./quebraTeste";
 import {
   BlockId,
   ITEM_PICARETA_DIAMANTE,
@@ -198,11 +199,12 @@ describe("§🍖 F10d — o gate no break_block (pelo fio)", () => {
     expect(avisos).toHaveLength(1);
   });
 
-  it("com a picareta, quebra normal e o pedregulho vai pra mochila", () => {
+  it("com a picareta NA MÃO, quebra normal e o pedregulho vai pra mochila", () => {
     const { session, sent } = turma("sobrevivencia");
     const c = pedra(session);
     session.handleMessage(1, cmd(`/dar ana ${ITEM_PICARETA_MADEIRA} 1`));
-    session.handleMessage(2, JSON.stringify({ type: "break_block", ...c }));
+    // §🔨 v2: `slot` = a MÃO. O `/dar` guarda no primeiro slot livre (0).
+    expect(segurarAteQuebrar(session, 2, c, 0)).toBe(true);
     expect(getBlock(session.world, c.x, c.y, c.z)).toBe(BlockId.Air);
     const inv = sent
       .filter((e) => e.clientId === 2)
@@ -219,12 +221,22 @@ describe("§🍖 F10d — o gate no break_block (pelo fio)", () => {
     expect(getBlock(session.world, c.x, c.y, c.z)).toBe(BlockId.Air);
   });
 
-  it("a TERRA continua saindo com a mão em sobrevivência (a aula começa)", () => {
+  it("a TERRA continua saindo com a MÃO VAZIA em sobrevivência (a aula começa)", () => {
     const { session } = turma("sobrevivencia");
     const s = session.spawn;
     const c = { x: Math.floor(s.x) + 2, y: Math.floor(s.y), z: Math.floor(s.z) };
     setBlock(session.world, c.x, c.y, c.z, BlockId.Dirt);
-    session.handleMessage(2, JSON.stringify({ type: "break_block", ...c }));
+    expect(segurarAteQuebrar(session, 2, c)).toBe(true);
     expect(getBlock(session.world, c.x, c.y, c.z)).toBe(BlockId.Air);
+  });
+
+  it("§🔨 v2: picareta na MOCHILA e não na mão NÃO quebra a pedra — a decisão nova", () => {
+    const { session, sent } = turma("sobrevivencia");
+    const c = pedra(session);
+    session.handleMessage(1, cmd(`/dar ana ${ITEM_PICARETA_MADEIRA} 1`)); // slot 0
+    // a mão é o slot 5, que está vazio
+    expect(segurarAteQuebrar(session, 2, c, 5)).toBe(false);
+    expect(getBlock(session.world, c.x, c.y, c.z)).toBe(BlockId.Stone);
+    expect(chats(sent, 2).some((t) => t.includes("Pegue uma picareta"))).toBe(true);
   });
 });

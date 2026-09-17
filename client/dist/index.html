@@ -596,6 +596,28 @@
       .inv-slot {
         position: relative;
       }
+      /* §🔨 Ferramentas v2: a BARRA DE VIDA da ferramenta, no pé do slot.
+         Verde → amarelo → vermelho, porque a criança tem de perceber "vai
+         acabar" sem ler número nenhum. Só aparece em ferramenta JÁ GASTA: uma
+         barra cheia em toda picareta nova seria ruído em todo slot. */
+      #hotbar .slot .vida,
+      .inv-slot .vida {
+        position: absolute;
+        left: 3px;
+        right: 3px;
+        bottom: 2px;
+        height: 3px;
+        border-radius: 2px;
+        background: rgba(0, 0, 0, 0.75);
+        overflow: hidden;
+        pointer-events: none;
+      }
+      #hotbar .slot .vida i,
+      .inv-slot .vida i {
+        display: block;
+        height: 100%;
+        background: var(--vida-cor, #5bd75b);
+      }
       /* §🍖 F4: a grade da mochila (18 slots) — NOVE colunas, alinhadas com a
          faixa da hotbar logo abaixo: é o que faz "guardar na coluna de cima do
          slot 3" ser um gesto óbvio. Nove é o número certo sem media query,
@@ -1563,7 +1585,7 @@
         white-space: nowrap;
       }
     </style>
-    <script type="module" crossorigin src="/assets/index-DaOFWn8J.js"></script>
+    <script type="module" crossorigin src="/assets/index-CGhBAqiq.js"></script>
   </head>
   <body>
     <div id="menu" class="hidden">
