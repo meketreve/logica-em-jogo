@@ -2429,6 +2429,22 @@ nenhum** — sem essa declaração o Chrome renderiza a página em light mesmo c
 
 ## Decision Log — índice das decisões ATIVAS
 
+- [2026-09-17] **§🔨 Ferramentas v2: as 4 decisões, todas do usuário.** (1) Durabilidade mora
+  num CAMPO da pilha (`{id, qtd, dano?}`), com **barra de vida por ferramenta** no slot — não
+  em ids por faixa de desgaste. O medo antigo (`adicionar`/`moverEmArray` juntam pilhas por id)
+  não se realiza porque `tamanhoStack` já dá 1 por slot pra ferramenta desde o F10d. (2) A
+  ferramenta passa a valer só na **MÃO** (slot selecionado) — reabre de propósito a decisão do
+  F10d de olhar a mochila inteira; o preço é um aviso na tela, senão a criança fica com a
+  picareta na mochila achando o bloco inquebrável. (3) O progresso da quebra é **RACHADURA no
+  bloco**, não anel na mira — o usuário escolheu o caminho caro sabendo que mexe no render.
+  (4) Ao zerar, a ferramenta **SOME**, com aviso no chat e som (laço do Minecraft), em vez de
+  virar "quebrada" esperando conserto. **Machado e pá NÃO entram nesta quest** — são ids,
+  ícones e receitas novos e só fazem sentido depois que segurar→rachar→gastar estiver de pé.
+
+- [2026-09-17] **A cópia do WSL acabou: o dev formatou o PC e agora é só Linux.** Some a
+  pendência "por quanto tempo manter o backup do WSL". Nenhum passo de Windows precisa mais ser
+  mantido vivo em STATUS/plano.
+
 - [2026-09-12] **Ids de bloco em 16 bits FEITO (pedido: "pode fazer os ids em 16 bits e um plano
   de auto converter os mundos antigos automaticamente").** Chunk `Uint16Array` na memória
   (`ChunkBlocos`, `world.ts`); disco/fio com 1 byte de LARGURA por chunk (`chunkCodec.ts`:

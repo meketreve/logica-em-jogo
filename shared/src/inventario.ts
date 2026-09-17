@@ -19,10 +19,25 @@ import { isBalde, isFerramenta } from "./blocks";
  * quebrar — o servidor nunca cria item que não tem onde guardar.
  */
 
-/** Uma pilha: id (bloco ou item ≥ 900) + quantidade ≥ 1. */
+/**
+ * Uma pilha: id (bloco ou item ≥ 900) + quantidade ≥ 1.
+ *
+ * §🔨 Ferramentas v2 (2026-09-17): `dano` é o DESGASTE acumulado da ferramenta
+ * — quantas quebras ela já levou. **Ausente = zero**, e é por isso que ele é
+ * opcional: ferramenta recém-fabricada, bloco, comida e balde continuam sendo
+ * exatamente o objeto `{ id, qtd }` de antes, no save e no fio. Só quem já
+ * bateu em pedra carrega o campo.
+ *
+ * O medo anotado no `todo.md` — "durabilidade contamina todo empilhamento" —
+ * não se realizou: `tamanhoStack` já dá **1 por slot** pra ferramenta desde o
+ * F10d, então `adicionar` nunca teve duas picaretas pra juntar. O que mudou de
+ * verdade foi o `moverEmArray`: duas pilhas do mesmo id que NÃO podem juntar
+ * agora TROCAM de lugar (antes o gesto não fazia nada) — ver `podeJuntar`.
+ */
 export interface Stack {
   readonly id: number;
   readonly qtd: number;
+  readonly dano?: number;
 }
 
 /** Slot do inventário: uma pilha ou vazio. */
@@ -46,6 +61,21 @@ export const STACK_MAX = 64;
  */
 export function tamanhoStack(id: number): number {
   return isBalde(id) || isFerramenta(id) ? 1 : STACK_MAX;
+}
+
+/**
+ * Estas duas pilhas se FUNDEM numa só? (§🔨 Ferramentas v2)
+ *
+ * Só se forem do mesmo id, o teto deixar mais de uma por slot, e **nenhuma das
+ * duas tiver desgaste**. Duas picaretas nunca se fundem — cada uma tem a sua
+ * vida — e é isso que obriga o `moverEmArray` a TROCÁ-LAS em vez de tentar
+ * juntar. Balde cai na mesma regra pelo teto de 1, o que conserta de lambuja um
+ * gesto que antes não fazia nada (arrastar balde sobre balde).
+ */
+export function podeJuntar(a: Stack, b: Stack): boolean {
+  if (a.id !== b.id) return false;
+  if (tamanhoStack(a.id) <= 1) return false;
+  return a.dano === undefined && b.dano === undefined;
 }
 
 /** Inventário vazio (27 slots nulos). */
@@ -145,7 +175,7 @@ export function remover(
   for (const { s, i } of ordem) {
     if (resta <= 0) break;
     const tira = Math.min(s.qtd, resta);
-    slots[i] = s.qtd === tira ? null : { id, qtd: s.qtd - tira };
+    slots[i] = s.qtd === tira ? null : { ...s, qtd: s.qtd - tira };
     resta -= tira;
   }
   return { inv: slots, removido: qtd };
@@ -201,7 +231,8 @@ export function descartarEmArray(
   if (qtd !== undefined && (!Number.isInteger(qtd) || qtd <= 0)) return slots;
 
   const out = slots.slice();
-  out[slot] = qtd === undefined || qtd >= origem.qtd ? null : { id: origem.id, qtd: origem.qtd - qtd };
+  out[slot] =
+    qtd === undefined || qtd >= origem.qtd ? null : { ...origem, qtd: origem.qtd - qtd };
   return out;
 }
 
@@ -229,12 +260,12 @@ export function moverEmArray(
   if (origem === null) return slots;
 
   const out = slots.slice();
-  if (destino !== null && destino.id === origem.id) {
+  if (destino !== null && podeJuntar(origem, destino)) {
     const teto = tamanhoStack(origem.id);
     const leva = Math.min(teto - destino.qtd, origem.qtd);
     if (leva <= 0) return slots; // destino cheio: nem junta nem troca
     out[para] = { id: destino.id, qtd: destino.qtd + leva };
-    out[de] = origem.qtd === leva ? null : { id: origem.id, qtd: origem.qtd - leva };
+    out[de] = origem.qtd === leva ? null : { ...origem, qtd: origem.qtd - leva };
     return out;
   }
   out[para] = origem;
@@ -270,19 +301,19 @@ export function moverParteEmArray(
   const destino = slots[para] ?? null;
   const out = slots.slice();
   if (destino === null) {
-    out[para] = { id: origem.id, qtd };
-    out[de] = { id: origem.id, qtd: origem.qtd - qtd };
+    out[para] = { ...origem, qtd };
+    out[de] = { ...origem, qtd: origem.qtd - qtd };
     return out;
   }
-  if (destino.id === origem.id) {
+  if (podeJuntar(origem, destino)) {
     const teto = tamanhoStack(origem.id);
     const leva = Math.min(qtd, teto - destino.qtd);
     if (leva <= 0) return slots; // destino cheio: nada muda
     out[para] = { id: destino.id, qtd: destino.qtd + leva };
-    out[de] = origem.qtd === leva ? null : { id: origem.id, qtd: origem.qtd - leva };
+    out[de] = origem.qtd === leva ? null : { ...origem, qtd: origem.qtd - leva };
     return out;
   }
-  out[para] = { id: origem.id, qtd };
+  out[para] = { ...origem, qtd };
   out[de] = destino;
   return out;
 }
@@ -316,15 +347,35 @@ export interface SlotSalvo {
   slot: number;
   id: number;
   qtd: number;
+  /** §🔨 v2: desgaste da ferramenta. **Só aparece quando existe** — ferramenta
+   *  nova (e todo o resto do jogo) sai exatamente como saía antes. */
+  dano?: number;
 }
 
 /** Inventário → forma esparsa (ordenada por slot). */
 export function inventarioParaSave(inv: Inventario): SlotSalvo[] {
   const out: SlotSalvo[] = [];
   inv.forEach((s, i) => {
-    if (s) out.push({ slot: i, id: s.id, qtd: s.qtd });
+    if (s) out.push({ slot: i, id: s.id, qtd: s.qtd, ...(s.dano ? { dano: s.dano } : {}) });
   });
   return out;
+}
+
+/**
+ * O `dano` que veio do save/fio, se ele fizer sentido — senão NADA, e a
+ * ferramenta volta inteira.
+ *
+ * A conferência aqui é só ESTRUTURAL (inteiro ≥ 1, e só em ferramenta): o teto
+ * de verdade é a durabilidade daquela ferramenta, que mora no `ferramentas.ts`
+ * — e `ferramentas.ts` já importa este módulo, então importá-lo de volta faria
+ * ciclo. Quem clampa contra a durabilidade real é o `vidaDe` lá. Perder o campo
+ * devolve uma ferramenta nova, que é o erro seguro: o contrário (dano
+ * gigante) apagaria a ferramenta do aluno na primeira batida.
+ */
+function danoValido(id: number, raw: unknown): { dano?: number } {
+  if (!isFerramenta(id)) return {};
+  if (typeof raw !== "number" || !Number.isInteger(raw) || raw < 1) return {};
+  return { dano: raw };
 }
 
 /**
@@ -348,7 +399,7 @@ export function parseInventario(raw: unknown): Inventario {
     if (typeof id !== "number" || !Number.isInteger(id) || id <= 0) continue;
     if (typeof qtd !== "number" || !Number.isInteger(qtd) || qtd <= 0) continue;
     if (qtd > tamanhoStack(id)) continue;
-    slots[slot] = { id, qtd };
+    slots[slot] = { id, qtd, ...danoValido(id, r["dano"]) };
   }
   return slots;
 }

@@ -2,6 +2,17 @@
 
 > Single source of truth for resuming work. Read this FIRST when starting a session.
 
+> **Última atualização: 2026-09-17 (sessão 100).** A 99 só retomou contexto. Na 100 o usuário
+> **escolheu a próxima quest: §🔨 Ferramentas v2**, e tomou as 4 decisões de desenho dela (ver
+> 🚀 abaixo). O handoff da 98 continua valendo pro resto.
+>
+> **O dev formatou o PC e agora é SÓ LINUX** (2026-09-17, dito pelo usuário). Some daqui: a
+> decisão pendente sobre quando apagar a cópia do WSL (não existe mais cópia) e qualquer passo
+> de Windows. O `node_modules` deste clone ainda é o híbrido da sessão 98 (esbuild `win32-x64`
+> presente + os nativos linux copiados por cima) e **funciona** — `npx vitest --version` responde
+> `linux-x64`. Um `npm install` limpo agora seria legítimo, mas ninguém pediu: se rodar, confira
+> `npm run verify` logo depois.
+
 > ## 🧭 HANDOFF — SESSÃO 98 (2026-09-12) · Loja, cama, porta, ids 16 bits, levantar e torre
 
 > **Rodou no clone `/mnt/SSD/git-projeto/logica-em-jogo` (Linux nativo, `node_modules` do
@@ -53,11 +64,22 @@
 > salvo no roster, WebSocket embrulhado pra atrasar a volta). Se valer, promover a `scripts/`.
 
 > ### 🚀 PRÓXIMA QUEST
-> **O 1º bloco de circuito lógico** — vai ser o 1º id ≥ 256 de verdade e fecha a Tarefa 4 do plano
-> dos 16 bits (colocar, salvar, streaming, mesher, luz, drop). Antes de codar: perguntar ao
-> usuário QUAL bloco (fio? alavanca? lâmpada?) e como ele funciona na aula — é produto, não
-> técnica. Também pendente: `npm run bench:headless` antes/depois dos 16 bits no notebook.
-> Não sobrou bug aberto do lote desta sessão (650 só falta confirmar em turma cheia).
+> **§🔨 Ferramentas v2 — as 3 peças juntas** (escolhida pelo usuário em 2026-09-17, na frente do
+> bloco de circuito). As 4 decisões de desenho JÁ FORAM TOMADAS pelo usuário nesta data:
+> 1. **Durabilidade = campo na pilha** (`{id, qtd, dano?}`), com **barra de vida por ferramenta**
+>    no slot. Ferramenta nova não tem o campo → save antigo e protocolo não quebram. Ferramenta
+>    já ocupa 1 por slot (`tamanhoStack`), então `adicionar`/`moverEmArray` nunca juntam duas —
+>    o risco que o todo.md temia não existe.
+> 2. **Ferramenta tem de estar na MÃO** (slot selecionado), não só na mochila — reabre a decisão
+>    do F10d. Exige aviso na tela, senão vira enigma duplo pra criança.
+> 3. **Progresso da quebra = RACHADURA no bloco** (não anel na mira). Segurar o botão.
+> 4. **Ao acabar, a ferramenta SOME**, com aviso no chat e som.
+>
+> **Machado e pá ficam pra quest seguinte** — o tempo de quebra é o que os destrava, mas são ids,
+> ícones e receitas novos; entram depois que o laço (segurar → rachar → gastar) estiver de pé.
+>
+> O 1º bloco de circuito lógico segue na fila logo atrás (ainda falta o usuário dizer QUAL bloco
+> e como ele funciona na aula). Também pendente: `npm run bench:headless` antes/depois dos 16 bits.
 
 > **⚠️ Não verificado em tela pelo usuário:** loja e cama só foram vistas no headless. Testar na
 > escola: preço no último item + Esc; loja cheia no tablet; 2 camas em fila, e um mundo antigo
@@ -75,8 +97,6 @@
 > - `scripts/f10-shot.mjs` quebrado ("botão ▣ não encontrado") — causa provável: rótulo do
 >   botão muda com o item na mão ("colocar"/"interagir"). Não investigado.
 > - Scripts de puppeteer no Windows precisam baixar Chrome (`~/.cache/puppeteer` vazio lá).
-> - **Decisão do usuário, não tomada:** por quanto tempo manter a cópia WSL como backup antes de
->   apagar. **Não apagar sem perguntar de novo.**
 > - 3ª pessoa é v1 funcional, não polida — distância/ângulo fixos, sem teste em aula real.
 > - Uniforme/skin por escola de verdade — não começado.
 > - Cross-school networking e mini-campeonato seguem adiados.
@@ -85,8 +105,8 @@
 > - Votação da turma: falta decidir QUANTO de Dimas cada aluno recebe ao entrar.
 > - bug-650: confirmar em aula real com turma cheia (só localhost até agora).
 >
-> Fila do `todo.md`: ovelha+lã de verdade (§🍖 F8), sentar na cadeira, Ferramentas v2
-> (durabilidade+slot+tempo de quebra).
+> Fila do `todo.md` depois da quest atual: machado e pá (destravados pelo tempo de quebra),
+> ovelha+lã de verdade (§🍖 F8), sentar na cadeira.
 
 ---
 

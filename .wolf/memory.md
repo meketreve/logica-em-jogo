@@ -3542,3 +3542,14 @@ fraude.
 | 00:30 | bug-652 consertado: `pousoAcima` (physics.ts) no `move` — pés afundados num bloco que subiu por baixo pousam em cima sem teleporte; resgate só pro soterramento real. Repro: teste de sessão + sonda real com WebSocket atrasado 200 ms (emulação de rede do Chrome não atrasa WS) — velho 4/4 pro lado, novo 4/4 torre | shared/src/{physics,session}.ts, pilar.test.ts, changelog | 1024 verdes, smoke 16/16 | ~50k |
 | 00:40 | changelog: entrada da atualização fechada — título "Consertos de cama, porta, loja e torre" (o build-info/launcher mostra o título do topo), itens agrupados por assunto | client/src/changelog.ts, client/dist, build-info | verify verde (1024) | ~3k |
 | 00:50 | FECHAMENTO sessão 98: loja (663/664), cama em fila (662, ids de cabeceira + migração), porta empilhada (665), ids em 16 bits + conversão automática (bug-666 achado/corrigido no caminho), levantar da cama (651), torre pular+colocar (652), changelog fechado. HANDOFF reescrito; próxima quest = 1º bloco de circuito (perguntar qual) | .wolf/STATUS.md, cerebrum | tudo pushado, 1024 verdes, smoke 16/16 | — |
+
+## Session: 2026-09-13 08:13
+
+| Time | Action | File(s) | Outcome | ~Tokens |
+|------|--------|---------|---------|--------|
+| 08:15 | sessão 99: só retomada ("onde paramos?") — resumo do handoff da 98 pro usuário; nenhuma linha de código. Próxima quest segue esperando a resposta: QUAL bloco de circuito e como ele funciona na aula | .wolf/STATUS.md | handoff da 98 continua válido | ~2k |
+
+## Session: 2026-09-17 15:08
+
+| Time | Action | File(s) | Outcome | ~Tokens |
+|------|--------|---------|---------|--------|
