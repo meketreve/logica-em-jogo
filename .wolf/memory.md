@@ -3553,3 +3553,14 @@ fraude.
 
 | Time | Action | File(s) | Outcome | ~Tokens |
 |------|--------|---------|---------|--------|
+
+## Session: 2026-09-17 (sessão 100)
+
+| Time | Action | File(s) | Outcome | ~Tokens |
+|------|--------|---------|---------|--------|
+| 15:05 | usuário escolheu a quest (Ferramentas v2 na frente dos circuitos) e tomou as 4 decisões de desenho; WSL deixou de ser pendência (PC formatado, só Linux) | .wolf/STATUS.md, cerebrum | plano em docs/superpowers/plans/2026-09-17-ferramentas-v2.md | ~15k |
+| 15:20 | etapa 1 (pura): `Stack.dano?`, `podeJuntar`, DURABILIDADE/vidaDe/gastar, tempoDeQuebraMs/ticksDeQuebra, faltaFerramentaNaMao. Teste pegou picareta acelerando terra → `ferramentaIdealDe` (bug-669) | shared/src/{inventario,ferramentas}.ts, ferramentas-v2.test.ts | 1048 verdes, commit a7757ae | ~40k |
+| 16:40 | etapa 2 (servidor): session/quebra.ts — break_start arma, tick desconta, servidor quebra; gate no aperto e no fim; durabilidade só em bloco que pede a ferramenta; esforço mudou de lugar (bug-668). 17 testes existentes reescritos pro gesto novo | shared/src/session{.ts,/quebra.ts}, protocol.ts, quebraTeste.ts, quebra.test.ts | 1060 verdes | ~60k |
+| 17:30 | etapa 3 (cliente): segurar no mouse e no ⛏ (botão de segurar), quebraFx procedural, barra de vida no slot, som; 3 smokes reescritos (bug-670) | client/src/{main,input,touch,quebraFx,vidaFerramenta,hotbarUi,inventory,mochila,audio}.ts, index.html, server/src/cenarios/_smoke-* | 16/16 smokes | ~70k |
+| 18:10 | sonda real `npm run shots:quebra` (Chrome + host): pegou o gancho fora do dist e a trinca virando BORRÃO — os 10 estágios dividiam um canvas (bug-667). Traço refeito como fenda fina; sonda 14/14 | scripts/quebra-shot.mjs, client/src/quebraFx.ts | ✓ tudo certo | ~35k |
+| 18:30 | changelog (bloco novo no topo), anatomy, buglog (667-670), STATUS/cerebrum do handoff | changelog.ts, .wolf/* | commit 485d035; NÃO pushado (falta perguntar) | ~15k |

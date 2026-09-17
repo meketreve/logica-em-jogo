@@ -175,6 +175,25 @@
 
 ## Key Learnings
 
+- [2026-09-17] **Ação que leva TEMPO muda onde o efeito colateral mora.** A quebra da §🔨 v2
+  saiu do `handleMessage` e foi pro `tick`, e com ela o esforço/fome parou de ser cobrado: o
+  `mundoMudou` do fim do `handleMessage` compara edições DAQUELA mensagem ([[bug-668]]). Regra:
+  ao transformar uma mensagem instantânea em ação temporizada, procurar TODO efeito pendurado
+  no fim do `handleMessage` (esforço, débito de item, broadcast) e mover junto.
+
+- [2026-09-17] **`THREE.CanvasTexture` guarda a REFERÊNCIA do canvas, não uma cópia.** N texturas
+  desenhadas no mesmo canvas viram N texturas iguais (a última) assim que sobem pra GPU
+  ([[bug-667]]). Um canvas novo por textura.
+
+- [2026-09-17] **Sonda de quebra tem de caber DENTRO do tempo de quebra.** A 1ª rodada da
+  `quebra-shot` media a trinca por 1,9 s numa pedra que cai em 1,1 s — o bloco sumia no meio da
+  medição e o teste do cancelamento media a mochila errada. Ler o `precisa` do
+  `window.__quebraEstado()` antes de escolher a janela.
+
+- [2026-09-17] **Smoke que quebra bloco precisa do SLOT certo.** Com o gate pela mão, `/dar` não
+  garante slot 0 — os cenários usam `slotDe(cli, id)` sobre a última msg `inventario`. E espera
+  maior muda a FASE do crescimento global das plantas: asserção de horta aceita qualquer estágio.
+
 - [2026-09-12] **Corrida de rede se reproduz atrasando SÓ a volta (servidor → cliente) dentro da
   página, não com a emulação de rede do Chrome.** `Network.emulateNetworkConditions` não atrasa
   frame de WebSocket já aberto — a sonda do [[bug-652]] passou VERDE no código velho com ela. O

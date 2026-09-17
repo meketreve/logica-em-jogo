@@ -2,84 +2,57 @@
 
 > Single source of truth for resuming work. Read this FIRST when starting a session.
 
-> **Última atualização: 2026-09-17 (sessão 100).** A 99 só retomou contexto. Na 100 o usuário
-> **escolheu a próxima quest: §🔨 Ferramentas v2**, e tomou as 4 decisões de desenho dela (ver
-> 🚀 abaixo). O handoff da 98 continua valendo pro resto.
+> **Última atualização: 2026-09-17 (sessão 100).**
 >
-> **O dev formatou o PC e agora é SÓ LINUX** (2026-09-17, dito pelo usuário). Some daqui: a
-> decisão pendente sobre quando apagar a cópia do WSL (não existe mais cópia) e qualquer passo
-> de Windows. O `node_modules` deste clone ainda é o híbrido da sessão 98 (esbuild `win32-x64`
-> presente + os nativos linux copiados por cima) e **funciona** — `npx vitest --version` responde
-> `linux-x64`. Um `npm install` limpo agora seria legítimo, mas ninguém pediu: se rodar, confira
-> `npm run verify` logo depois.
+> **O dev formatou o PC e agora é SÓ LINUX** (dito pelo usuário). Some a decisão pendente sobre a
+> cópia do WSL: não existe mais. O `node_modules` deste clone segue o híbrido da sessão 98
+> (esbuild `win32-x64` + nativos linux copiados por cima) e **funciona** — `vitest` responde
+> `linux-x64`. Um `npm install` limpo agora seria legítimo; ninguém pediu.
 
-> ## 🧭 HANDOFF — SESSÃO 98 (2026-09-12) · Loja, cama, porta, ids 16 bits, levantar e torre
+> ## 🧭 HANDOFF — SESSÃO 100 (2026-09-17) · §🔨 Ferramentas v2
 
-> **Rodou no clone `/mnt/SSD/git-projeto/logica-em-jogo` (Linux nativo, `node_modules` do
-> Windows).** Pra rodar tsc/build/vitest aqui foram COPIADOS os 3 binários nativos linux pro
-> `node_modules` (receita no cerebrum) — **não rodar `npm install` nesse clone.** Push daqui
-> funciona via `~/.local/bin/gh` (login feito, `gh auth setup-git`). No Windows: `git pull`.
->
-> **Árvore no fim da sessão:** HEAD = `origin/main` (último commit de código `2515433`, depois só
-> este handoff). Nada pendente. Único arquivo solto: `relatorio/…docx:Zone.Identifier` — é do
-> usuário (metadado do Windows), NÃO commitar.
+> **Árvore no fim da sessão:** 2 commits novos na `main` local (`a7757ae` etapa 1, `485d035`
+> etapas 2+3), **AINDA NÃO PUSHADOS** — o usuário não foi perguntado. Também não pushado o
+> handoff da sessão 99 (ele foi absorvido nos commits desta). Único arquivo solto:
+> `relatorio/…docx:Zone.Identifier`, do usuário, NÃO commitar.
 
-> **✅ Concluído nesta sessão (tudo pushado na main):**
-> - **bug-663 (preço da loja não salvava)** e **bug-664 (loja não rolava)** — `db44ed9`.
->   `client/src/container.ts` + `client/index.html`; sonda `npm run shots:loja` (A/B 9 → 0).
-> - **bug-662 (cama em fila duplicava / cama do meio sem travesseiro)** — ids próprios de
->   CABECEIRA `CamaCabecaXP..ZN` = **247-250** (escolha do usuário); `CamaXP..ZN` = só o pé.
->   `camaRule` exige par de papel oposto; mesher decide pelo id; `/bloco` e `/regiao
->   encher|sortear` recusam cama. **Migração** `shared/src/camas.ts` (`migrarCamasLegado`) roda
->   em todo restore, idempotente sem marcador. Testes: repro (volta 2 camas), 6 de migração,
->   recusa por comando — 989 verdes. Visto no cliente real: save ANTIGO com par + corrente de 4
->   + corrente de 3 abre com 1+2+1 camas, todas com travesseiro.
-> - **bug-665 (porta empilhada duplicava e o toggle desmanchava as duas)** — SEM id novo: par por
->   POSIÇÃO a partir da base da pilha (`parDaPorta`/`doorRule` em `rules.ts`, toggle do
->   `use_block` usa a mesma função). 2 repros de sessão + 5 testes puros; 996 verdes.
-> - **Ids de bloco em 16 bits + conversão automática dos mundos antigos** (pedido do usuário). Chunk
->   `Uint16Array`; disco/fio com largura por chunk (`chunkCodec.ts`) — mundo de hoje não cresce;
->   formatos `LJW1`/`LJC1`/`LJS3`, os antigos lidos pra sempre. Teto: bloco < 900. Save antigo:
->   host guarda `<nome>.antes-ids16.ljw` e regrava; singleplayer guarda `dataAntesIds16`.
->   Provado: portão de hash dos `.ljw` reais, 18 testes novos (1014 verdes), smoke completo,
->   loja (denso) e mundo E (streaming) no cliente real, conversão no host real e no IndexedDB
->   real. Regressão de desempenho do save achada e corrigida antes do commit ([[bug-666]]).
->   Registro: `docs/superpowers/plans/2026-09-12-ids-16-bits.md`.
-> - **bug-651 (não sai da cama)** — PULAR deitado levanta (msg `levantar`; teclado e ⤒ do tablet),
->   o chat avisa "Aperte pular para levantar." ao deitar. Achado junto: quem deitava clicando de
->   LONGE levantava sozinho no 1º `move` — a distância agora é medida de onde os pés estavam ao
->   deitar (`deitouDe`, folga 1 bloco). 6 testes novos, sonda real (deita, fica, pular levanta).
-> - **bug-652 (pular+colocar bloco jogava pro lado)** — corrida de rede: o `move` chegava com os pés
->   dentro do bloco novo e o resgate de soterramento preferia o lado. `pousoAcima` (physics.ts) pousa
->   em cima quando o topo está a ≤ 1 bloco e resolve; o resgate fica só pro soterramento real.
->   4 testes + sonda real com atraso servidor→cliente de 200 ms: velho 4/4 pro lado, novo 4/4 torre.
-> - **Changelog:** a entrada do topo (build atual) fechada como **"Consertos de cama, porta, loja
->   e torre"** — é o título que o `build-info` e o rótulo do launcher mostram. Próxima atualização
->   = bloco NOVO no topo; este recebe `data: "12/09/2026"` nessa hora.
->
-> **Sondas desta sessão:** só `npm run shots:loja` (`scripts/loja-shot.mjs`) ficou no repo. As da
-> cama (save antigo → migração), da porta, do mundo E, do singleplayer (IndexedDB), do dormir e da
-> torre eram AVULSAS no scratchpad e somem no `/clear` — o método está no cerebrum (Key Learnings
-> 2026-09-12: save gerado por `tsx` em `mundos/<nome>/<nome>.ljw`, 2º WebSocket "vigia", pitch
-> salvo no roster, WebSocket embrulhado pra atrasar a volta). Se valer, promover a `scripts/`.
+> **✅ Concluído: §🔨 Ferramentas v2, as 3 peças juntas.** As 4 decisões foram do usuário
+> (ver Decision Log 2026-09-17). O laço fechou: segurar → rachar → gastar → quebrar.
+> - **Etapa 1, pura** (`a7757ae`): `Stack.dano?`, `podeJuntar` (ferramenta nunca funde; pilha
+>   igual que não funde TROCA), `DURABILIDADE` 59/131/250/1561, `vidaDe`, `gastar` (devolve
+>   `null` = acabou), `tempoDeQuebraMs`/`ticksDeQuebra` sobre DUREZA × fator 2/4/6/8, e
+>   `ferramentaIdealDe` separando "o que ACELERA" de "o que é EXIGIDO" ([[bug-669]]).
+> - **Etapa 2, servidor** (`485d035`): `shared/src/session/quebra.ts` — `break_start` arma,
+>   o tick desconta, **o servidor quebra sozinho**; `break_cancel` desiste. Não existe mensagem
+>   de "terminei", então não há cronômetro de cliente pra mentir. Criativo segue em 1 clique.
+>   O gate roda no APERTO e no fim. Durabilidade gasta só em bloco que pede a ferramenta.
+>   Esforço/fome mudou de lugar ([[bug-668]]).
+> - **Etapa 3, cliente**: segurar no mouse e no ⛏ do tablet (virou botão de segurar),
+>   `quebraFx.ts` com a trinca procedural ([[bug-667]]: os 10 estágios dividiam um canvas só),
+>   barra de vida no slot (hotbar + mochila), som próprio ao quebrar.
+> - **Changelog:** bloco NOVO no topo — "Quebrar bloco agora leva tempo — e a ferramenta gasta".
+>   O de 12/09 recebeu `data: "12/09/2026"`.
+> - **Provas:** 1060 testes verdes (24 + 11 novos), 16/16 smokes, e a sonda real
+>   **`npm run shots:quebra`** (`scripts/quebra-shot.mjs`, Chrome + host de verdade) — trinca
+>   aparece e cresce, soltar cancela, segurar dá o pedregulho, a barra encolhe, e sem picareta
+>   na mão o chat manda pegar uma. Prints em `.wolf/designqc-captures/quebra/`.
+> - Os 3 smokes que quebravam bloco foram reescritos pro gesto novo ([[bug-670]]).
+> - Gancho de sonda novo: `window.__quebraEstado()` (mesmo precedente do `__fotoApontar`).
 
 > ### 🚀 PRÓXIMA QUEST
-> **§🔨 Ferramentas v2 — as 3 peças juntas** (escolhida pelo usuário em 2026-09-17, na frente do
-> bloco de circuito). As 4 decisões de desenho JÁ FORAM TOMADAS pelo usuário nesta data:
-> 1. **Durabilidade = campo na pilha** (`{id, qtd, dano?}`), com **barra de vida por ferramenta**
->    no slot. Ferramenta nova não tem o campo → save antigo e protocolo não quebram. Ferramenta
->    já ocupa 1 por slot (`tamanhoStack`), então `adicionar`/`moverEmArray` nunca juntam duas —
->    o risco que o todo.md temia não existe.
-> 2. **Ferramenta tem de estar na MÃO** (slot selecionado), não só na mochila — reabre a decisão
->    do F10d. Exige aviso na tela, senão vira enigma duplo pra criança.
-> 3. **Progresso da quebra = RACHADURA no bloco** (não anel na mira). Segurar o botão.
-> 4. **Ao acabar, a ferramenta SOME**, com aviso no chat e som.
+> **Machado e pá** — é o que o tempo de quebra destravou, e o `ferramentaIdealDe` já é o gancho:
+> madeira ganha `"machado"` e terra/areia ganham `"pá"` **sem virarem obrigatórios** (exigir
+> machado pra tirar madeira seria um mundo onde ninguém começa — a razão está escrita no
+> cabeçalho do `ferramentas.ts`). São ids, ícones e receitas novos + `TipoFerramenta` deixando
+> de ser só `"picareta"`.
 >
-> **Machado e pá ficam pra quest seguinte** — o tempo de quebra é o que os destrava, mas são ids,
-> ícones e receitas novos; entram depois que o laço (segurar → rachar → gastar) estiver de pé.
->
-> O 1º bloco de circuito lógico segue na fila logo atrás (ainda falta o usuário dizer QUAL bloco
-> e como ele funciona na aula). Também pendente: `npm run bench:headless` antes/depois dos 16 bits.
+> Atrás dela: o **1º bloco de circuito lógico** (ainda falta o usuário dizer QUAL bloco e como
+> ele funciona na aula) e o `npm run bench:headless` antes/depois dos 16 bits.
+
+> **⚠️ Não verificado em tela pelo usuário (§🔨 v2):** quebrar segurando no PC e no tablet (o ⛏
+> virou botão de SEGURAR — dedo que escorrega solta), se o tempo da pedra parece justo pra turma,
+> se a rachadura é visível no projetor da sala, e se a barrinha de vida no slot é enxergável num
+> tablet de 1024×600. Tudo isso só foi visto no headless.
 
 > **⚠️ Não verificado em tela pelo usuário:** loja e cama só foram vistas no headless. Testar na
 > escola: preço no último item + Esc; loja cheia no tablet; 2 camas em fila, e um mundo antigo
