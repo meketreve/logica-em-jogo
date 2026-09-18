@@ -3564,3 +3564,9 @@ fraude.
 | 17:30 | etapa 3 (cliente): segurar no mouse e no ⛏ (botão de segurar), quebraFx procedural, barra de vida no slot, som; 3 smokes reescritos (bug-670) | client/src/{main,input,touch,quebraFx,vidaFerramenta,hotbarUi,inventory,mochila,audio}.ts, index.html, server/src/cenarios/_smoke-* | 16/16 smokes | ~70k |
 | 18:10 | sonda real `npm run shots:quebra` (Chrome + host): pegou o gancho fora do dist e a trinca virando BORRÃO — os 10 estágios dividiam um canvas (bug-667). Traço refeito como fenda fina; sonda 14/14 | scripts/quebra-shot.mjs, client/src/quebraFx.ts | ✓ tudo certo | ~35k |
 | 18:30 | changelog (bloco novo no topo), anatomy, buglog (667-670), STATUS/cerebrum do handoff | changelog.ts, .wolf/* | commit 485d035; NÃO pushado (falta perguntar) | ~15k |
+
+## Session: 2026-09-18 22:29
+
+| Time | Action | File(s) | Outcome | ~Tokens |
+|------|--------|---------|---------|--------|
+| 22:30 | push autorizado pelo usuário: os 3 commits da §🔨 Ferramentas v2 foram pra origin/main | — | main sincronizada | ~2k |

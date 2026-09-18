@@ -11,10 +11,9 @@
 
 > ## 🧭 HANDOFF — SESSÃO 100 (2026-09-17) · §🔨 Ferramentas v2
 
-> **Árvore no fim da sessão:** 2 commits novos na `main` local (`a7757ae` etapa 1, `485d035`
-> etapas 2+3), **AINDA NÃO PUSHADOS** — o usuário não foi perguntado. Também não pushado o
-> handoff da sessão 99 (ele foi absorvido nos commits desta). Único arquivo solto:
-> `relatorio/…docx:Zone.Identifier`, do usuário, NÃO commitar.
+> **Árvore no fim da sessão:** 3 commits novos **PUSHADOS** na `main` (`a7757ae` etapa 1,
+> `485d035` etapas 2+3, `a4b79af` este handoff). HEAD = `origin/main`, nada pendente. Único
+> arquivo solto: `relatorio/…docx:Zone.Identifier`, do usuário, NÃO commitar.
 
 > **✅ Concluído: §🔨 Ferramentas v2, as 3 peças juntas.** As 4 decisões foram do usuário
 > (ver Decision Log 2026-09-17). O laço fechou: segurar → rachar → gastar → quebrar.
