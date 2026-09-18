@@ -38,6 +38,13 @@
 > - Os 3 smokes que quebravam bloco foram reescritos pro gesto novo ([[bug-670]]).
 > - Gancho de sonda novo: `window.__quebraEstado()` (mesmo precedente do `__fotoApontar`).
 
+> **🐛 Conserto depois do handoff (2026-09-18): [[bug-671]] — a loja recusava preço de ITEM.**
+> `definir_preco` e `parsePrecoEntry` validavam com `id <= MAX_BLOCK_ID` (250), e todo item
+> começa em 900: pão, trigo, picareta, carvão, diamante e as culturas voltavam "Item inválido.".
+> A metade escondida era o PARSE DO SAVE — mesmo aceitando no comando, o preço de item sumiria
+> ao reabrir o mundo. Predicado único `podeEstarNaMochila` (blocks.ts) nas duas pontas.
+> 3 testes + passo 7b da sonda `npm run shots:loja` (pão no cliente real).
+
 > ### 🚀 PRÓXIMA QUEST
 > **Machado e pá** — é o que o tempo de quebra destravou, e o `ferramentaIdealDe` já é o gancho:
 > madeira ganha `"machado"` e terra/areia ganham `"pá"` **sem virarem obrigatórios** (exigir

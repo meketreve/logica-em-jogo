@@ -1122,6 +1122,20 @@ export function isPlaceable(id: number): boolean {
   return Number.isInteger(id) && id >= BlockId.Grass && id <= MAX_BLOCK_ID;
 }
 
+/**
+ * Este id pode ESTAR NUMA MOCHILA? (bloco que o aluno guarda e coloca, ou item
+ * da banda ≥900).
+ *
+ * Nasceu do bug-671: a loja validava preço com `id <= MAX_BLOCK_ID`, e como
+ * `MAX_BLOCK_ID` é 250 e todo ITEM começa em 900, pão, trigo, picareta e
+ * companhia — o que uma loja de aluno mais vende — voltavam "Item inválido.".
+ * A pergunta certa é esta, e ela é a mesma nos dois lados (o comando
+ * `definir_preco` e o parse do save), que era onde a régua tinha divergido.
+ */
+export function podeEstarNaMochila(id: number): boolean {
+  return isPlaceable(id) || isItem(id);
+}
+
 /** O jogador pode quebrar este ID? Bedrock não — só o comando /bloco remove. */
 export function isBreakable(id: number): boolean {
   return id !== BlockId.Bedrock;

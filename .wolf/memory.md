@@ -3570,3 +3570,4 @@ fraude.
 | Time | Action | File(s) | Outcome | ~Tokens |
 |------|--------|---------|---------|--------|
 | 22:30 | push autorizado pelo usuário: os 3 commits da §🔨 Ferramentas v2 foram pra origin/main | — | main sincronizada | ~2k |
+| 20:10 | bug-671 (relatado): loja recusava preço de ITEM com "Item inválido." — `item > MAX_BLOCK_ID` (250) contra itens que começam em 900. Metade escondida: `parsePrecoEntry` jogava o preço fora na RELEITURA do save. Predicado único `podeEstarNaMochila` nas duas pontas | shared/src/{blocks,containers}.ts, session/loja.ts, loja.test.ts, scripts/loja-shot.mjs | 1063 verdes; sonda da loja OK com o passo 7b (pão no cliente real) | ~45k |

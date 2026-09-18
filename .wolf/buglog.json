@@ -5998,6 +5998,28 @@
       "related_bugs": [],
       "occurrences": 1,
       "last_seen": "2026-09-17T17:30:00.000Z"
+    },
+    {
+      "id": "bug-671",
+      "timestamp": "2026-09-18T20:10:00.000Z",
+      "error_message": "usuário: 'a loja ainda continua com erro de não salvar o preço do item, agora no chat tem a mensagem de item inválido'",
+      "file": "shared/src/session/loja.ts",
+      "root_cause": "a trava do `definir_preco` era `item > MAX_BLOCK_ID` e o parse do save era `porItem > MAX_BLOCK_ID`. `MAX_BLOCK_ID` é 250 (CamaCabecaZN) e todo ITEM começa em 900 — então pão, trigo, picareta, carvão, diamante, algodão e as seis culturas (o que uma loja de aluno mais vende) eram recusados com 'Item inválido.'. A trava nasceu em 2026-09-01 pra barrar id inventado, mas confundiu 'é bloco?' com 'existe?'. A METADE ESCONDIDA era o `parsePrecoEntry`: mesmo aceitando no comando, o preço de item seria jogado fora na releitura do .ljw — o preço sumiria entre uma aula e outra. O bug-663 (sessão 98) consertou outra causa da mesma queixa (o Esc no último campo), então o usuário voltou dizendo 'ainda'.",
+      "fix": "`podeEstarNaMochila(id)` em blocks.ts (`isPlaceable(id) || isItem(id)`) — a pergunta certa é 'isto pode estar numa mochila?'. Usado nas DUAS pontas (`definir_preco` e `parsePrecoEntry`), que era onde a régua tinha divergido. De quebra barra o que a régua velha deixava passar: fornalha ACESA, porta ABERTA e cabeceira de cama são ids ≤250 que nunca estão numa mochila e tinham preço aceito. 3 testes novos + passo 7b na sonda `npm run shots:loja` (pão no cliente real: vira linha de preço, salva 12, sem 'Item inválido.', e campo vazio remove).",
+      "tags": [
+        "loja",
+        "preco",
+        "item",
+        "save",
+        "parse",
+        "relatado-pelo-usuario"
+      ],
+      "related_bugs": [
+        "bug-663",
+        "bug-664"
+      ],
+      "occurrences": 1,
+      "last_seen": "2026-09-18T20:10:00.000Z"
     }
   ]
 }

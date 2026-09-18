@@ -1,4 +1,4 @@
-import { MAX_BLOCK_ID } from "../blocks";
+import { podeEstarNaMochila } from "../blocks";
 import { CONTAINER_SLOTS, type Container, containerKey } from "../containers";
 import { adicionar, cabe, contar, remover } from "../inventario";
 import { type ServerMessage } from "../protocol";
@@ -34,15 +34,34 @@ export function sendDimas(ses: GameSession, clientId: number): void {
  * Moeda decidida em 2026-09-02: só Dimas, nunca item-por-item — o `Preco`
  * de duas trilhas (item/dimas) que existia antes disto foi removido junto.
  *
- * I2 (2026-09-01): duas travas que faltavam. (1) `item` não pode passar de
- * `MAX_BLOCK_ID`: sem teto, um id inventado (bloco que nunca vai existir)
- * entrava no save do mesmo jeito. (2) `precos.size` não pode passar de
+ * I2 (2026-09-01): duas travas que faltavam. (1) `item` tem de ser algo que
+ * EXISTE: sem trava, um id inventado entrava no save do mesmo jeito.
+ * ⚠️ **A 1ª versão dessa trava usava `item > MAX_BLOCK_ID` e derrubava todo
+ * ITEM** (bug-671, relatado pelo usuário): itens começam em 900 e
+ * `MAX_BLOCK_ID` é 250, então pão, trigo, picareta, carvão, diamante e as seis
+ * culturas — justamente o que uma loja de aluno vende — voltavam "Item
+ * inválido.". A pergunta certa não é "isto é bloco?", é **"isto pode estar
+ * numa mochila?"**: `isPlaceable` (bloco que o aluno guarda e coloca) OU
+ * `isItem` (a banda ≥900, que é um conjunto explícito, não um intervalo
+ * aberto). De quebra isso barra o que a trava velha deixava passar: fornalha
+ * ACESA, porta ABERTA e cabeceira de cama são ids ≤ 250 que nunca estão numa
+ * mochila, e tinham preço aceito. (2) `precos.size` não pode passar de
  * `CONTAINER_SLOTS.loja` (27) — não existem mais TIPOS distintos de item
  * possíveis no estoque do que slots, então esse é o teto natural. O teto só
  * barra uma entrada NOVA; atualizar (ou remover, `qtd: null`) uma entrada JÁ
  * EXISTENTE continua liberado mesmo no teto — não é a loja que fica presa,
  * é só o crescimento.
  */
+/**
+ * Este id pode receber preço? = **ele pode estar numa mochila** (bug-671).
+ * Bloco que o aluno guarda e coloca, ou item da banda ≥900. Nada mais entra no
+ * save de preços — nem id inventado, nem id que é ESTADO do mundo (fornalha
+ * acesa, porta aberta, cabeceira de cama).
+ */
+export function podeTerPreco(item: number): boolean {
+  return typeof item === "number" && podeEstarNaMochila(item);
+}
+
 export function aplicarDefinirPreco(
   ses: GameSession,
   clientId: number,
@@ -56,7 +75,7 @@ export function aplicarDefinirPreco(
   const p = ses.players.get(clientId);
   if (!p) return null;
   if (cont.criador !== p.name) return "Só quem criou esta loja define preço.";
-  if (!Number.isInteger(item) || item <= 0 || item > MAX_BLOCK_ID) return "Item inválido.";
+  if (!podeTerPreco(item)) return "Item inválido.";
   if (qtd !== null && !cont.precos.has(item) && cont.precos.size >= CONTAINER_SLOTS.loja) {
     return "Esta loja já tem o máximo de preços diferentes definidos.";
   }

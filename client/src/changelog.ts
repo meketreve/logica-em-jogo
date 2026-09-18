@@ -52,6 +52,7 @@ const MUDANCAS: readonly Mudanca[] = [
       "toda picareta tem vida: uma barrinha no cantinho do slot mostra quanto falta, verde → amarela → vermelha",
       "quando a vida acaba, a picareta quebra e some da mão, com aviso e som — é hora de fabricar outra",
       "cavar terra e areia com a picareta na mão não gasta a picareta (ela só gasta no que é serviço dela)",
+      "na loja, agora dá pra pôr preço em pão, trigo, picareta, carvão e nos outros itens — antes o jogo respondia \"Item inválido\" e o preço não colava",
     ],
   },
   {

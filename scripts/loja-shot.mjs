@@ -274,6 +274,7 @@ const AR = 0;
 const DIRT = 5;
 const BAU_LOJA = 246;
 const ITENS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 11, 12, 13, 14, 15, 16, 17];
+const ITEM_PAO = 904; // bug-671: item (≥900), não bloco
 
 const tecla2 = (key, code, vk, text) =>
   cdp("Input.dispatchKeyEvent", { type: "keyDown", key, code, windowsVirtualKeyCode: vk, ...(text ? { text } : {}) })
@@ -338,6 +339,7 @@ ok(p?.titulo === "loja" && p?.criador, `abriu a loja na visão do CRIADOR (${JSO
 if (!p) encerrar(1);
 
 diga("== 2. 16 tipos no estoque ==");
+// (usado de novo no passo 10)
 const clicar = (sel, i) =>
   avaliar(`(() => {
     const b = document.querySelector(${JSON.stringify(sel)})?.querySelectorAll('button.inv-slot')[${i}];
@@ -432,6 +434,64 @@ for (let i = 1; i < 15; i++) {
   await avaliar(`(() => { const c = ${campo(i)}; c.value = '${i + 2}'; c.dispatchEvent(new Event('change')); return 1; })()`);
   await espera(250);
 }
+
+diga("== 7b. bug-671: ITEM (pão, id 904) aceita preço — a queixa do usuário de 18/09 ==");
+// a loja de aluno vende PÃO, TRIGO, PICARETA: ids ≥900. A trava velha da loja
+// (`id <= MAX_BLOCK_ID`, e MAX_BLOCK_ID é 250) devolvia "Item inválido." no
+// chat, e o `parsePrecoEntry` jogava o preço fora na releitura do save.
+// ⚠️ Vem DEPOIS dos passos 5-7 de propósito: eles endereçam campo por ÍNDICE
+// ("o último"), e uma 17ª linha no meio faria todos medirem a linha errada.
+// Os cliques aqui são POR ID, não por posição: a esta altura o slot 0 da
+// hotbar já tem o item que o passo 6 tirou do estoque.
+// ⚠️ `querySelectorAll` com a vírgula, não `querySelector` de um pai só: o
+// `/dar` guarda no 1º slot livre, que a esta altura está na MOCHILA, e um
+// `querySelector('.inv-hotbar, .inv-mochila')` devolve só a hotbar.
+const clicarPorItem = (id) =>
+  avaliar(`(() => {
+    const b = document.querySelector(
+      '#container .inv-hotbar button.inv-slot[data-tip-id="${id}"],' +
+      '#container .inv-mochila button.inv-slot[data-tip-id="${id}"]');
+    if (!b) return false; b.click(); return true;
+  })()`);
+await dizer(`/dar eu ${ITEM_PAO} 5`);
+await espera(700);
+await limparChat();
+// o ÍCONE é a identidade da linha de preço: `.loja-item` não carrega
+// `data-tip-id` (só os slots carregam), e o ícone é o mesmo data-URL nos dois
+const iconePao = await avaliar(`document.querySelector(
+  '#container .inv-hotbar button.inv-slot[data-tip-id="${ITEM_PAO}"] img,' +
+  '#container .inv-mochila button.inv-slot[data-tip-id="${ITEM_PAO}"] img')?.src ?? null`);
+ok(!!iconePao, "achou o pão na mochila do painel");
+ok((await clicarPorItem(ITEM_PAO)) === true, "pegou o pão");
+await espera(250);
+await clicar("#container .cont-bau", ITENS.length); // 1º slot livre do estoque
+const linhaDoPao = await ateQue(
+  () => avaliar(`[...document.querySelectorAll('#container .loja-item')]
+    .findIndex(e => e.querySelector('img')?.src === ${JSON.stringify(iconePao)})`),
+  (i) => i >= 0,
+  4000,
+);
+ok(linhaDoPao >= 0, `o pão virou linha de preço (índice ${linhaDoPao})`);
+await avaliar(`${campo(linhaDoPao)}?.focus()`);
+await digitar("12");
+await tecla2("Enter", "Enter", 13);
+await espera(800);
+{
+  const chatDepois = await avaliar(`[...document.querySelectorAll('#chat-log *')].map(e => e.textContent).join(" ")`);
+  ok(!(chatDepois ?? "").includes("inválido"), `sem "Item inválido." no chat (${(chatDepois ?? "").slice(-70)})`);
+  const salvo = await ateQue(() => valorDe(linhaDoPao), (v) => v === "12", 3000);
+  ok(salvo === "12", `o preço do PÃO ficou salvo (${salvo})`);
+  await foto("05-preco-de-item.png");
+
+  // tira o preço do pão (campo vazio = remove) — o passo 8 conta a vitrine do
+  // comprador, e um 17º item à venda mudaria o número. De quebra, isto prova
+  // que REMOVER preço de item também funciona.
+  await avaliar(`(() => { const c = ${campo(linhaDoPao)}; c.focus(); c.value = '';
+    c.dispatchEvent(new Event('change', { bubbles: true })); return 1; })()`);
+  const semPreco = await ateQue(() => valorDe(linhaDoPao), (v) => v === "", 3000);
+  ok(semPreco === "", `e o campo vazio REMOVE o preço do item (${JSON.stringify(semPreco)})`);
+}
+
 // devolve o 17 pro estoque (senão ele fica "0 em estoque" pro comprador — vale também)
 await avaliar(`document.querySelector('#container .cont-fechar')?.click()`);
 ok((await ateQue(painelLoja, (p) => p === null)) === null, "fechou pelo botão");

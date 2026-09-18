@@ -1,4 +1,4 @@
-import { BlockId, MAX_BLOCK_ID, isFornalha } from "./blocks";
+import { BlockId, isFornalha, podeEstarNaMochila } from "./blocks";
 import { ehCombustivel } from "./fornalha";
 import {
   INV_SLOTS,
@@ -285,18 +285,20 @@ function inteiroNaoNegativo(v: unknown): number {
 }
 
 /** Uma entrada `{porItem, qtd}` da lista de preços, validada — `qtd` é
- *  sempre em Dimas. `porItem` limitado a `MAX_BLOCK_ID`: sem isto um save
- *  editado à mão podia gravar preço pra um id que não existe (achado na
- *  revisão final da loja, 2026-09-01 — lá o teto só valia no caminho
- *  `definir_preco`, não no save/fio). */
+ *  sempre em Dimas. `porItem` tem de ser algo que CABE NUMA MOCHILA: sem isto
+ *  um save editado à mão podia gravar preço pra um id que não existe (achado
+ *  na revisão final da loja, 2026-09-01 — lá o teto só valia no caminho
+ *  `definir_preco`, não no save/fio).
+ *  ⚠️ bug-671: a régua era `porItem > MAX_BLOCK_ID`, e ela jogava fora o preço
+ *  de todo ITEM (≥900) na RELEITURA do save. Era a metade escondida da queixa
+ *  "a loja não salva o preço": o servidor até aceitava depois do conserto, mas
+ *  o mundo reabria sem o preço. As duas pontas usam o mesmo predicado agora. */
 export function parsePrecoEntry(v: unknown): { porItem: number; qtd: number } | null {
   if (typeof v !== "object" || v === null) return null;
   const o = v as Record<string, unknown>;
   const porItem = o["porItem"];
   const qtd = o["qtd"];
-  if (typeof porItem !== "number" || !Number.isInteger(porItem) || porItem <= 0 || porItem > MAX_BLOCK_ID) {
-    return null;
-  }
+  if (typeof porItem !== "number" || !podeEstarNaMochila(porItem)) return null;
   if (typeof qtd !== "number" || !Number.isInteger(qtd) || qtd < 1) return null;
   return { porItem, qtd };
 }

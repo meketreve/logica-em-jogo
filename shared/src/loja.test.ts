@@ -1,7 +1,14 @@
 import { describe, expect, it } from "vitest";
 import { segurarAteQuebrar } from "./quebraTeste";
-import { BlockId, MAX_BLOCK_ID } from "./blocks";
-import { CONTAINER_SLOTS } from "./containers";
+import {
+  BlockId,
+  ITEM_DIAMANTE,
+  ITEM_PAO,
+  ITEM_PICARETA_MADEIRA,
+  ITEM_TRIGO,
+  MAX_BLOCK_ID,
+} from "./blocks";
+import { CONTAINER_SLOTS, parsePrecoEntry } from "./containers";
 import { parseServerMessage } from "./protocol";
 import { GameSession } from "./session";
 import { getBlock } from "./world";
@@ -295,6 +302,35 @@ describe("definir_preco (2026-09-02: qtd sempre em Dimas — moeda decidida, sem
       type: "definir_preco", x, y, z, item: BlockId.Planks, qtd: 5,
     }));
     expect(session.containers.get(`${x},${y},${z}`)?.precos.get(BlockId.Planks)).toBe(5);
+  });
+
+  it("bug-671: ITEM (pão, trigo, picareta) aceita preço — é o que uma loja de aluno vende", () => {
+    const { session, sent, x, y, z } = lojaAberta();
+    for (const item of [ITEM_PAO, ITEM_TRIGO, ITEM_PICARETA_MADEIRA, ITEM_DIAMANTE]) {
+      session.handleMessage(1, JSON.stringify({ type: "definir_preco", x, y, z, item, qtd: 7 }));
+      expect(session.containers.get(`${x},${y},${z}`)?.precos.get(item), `item ${item}`).toBe(7);
+    }
+    // e nenhum "Item inválido." no caminho — era a queixa do usuário
+    expect(chatPara(sent, 1)).not.toContain("Item inválido");
+  });
+
+  it("bug-671: id inventado e id que é ESTADO do mundo continuam recusados", () => {
+    const { session, x, y, z } = lojaAberta();
+    for (const item of [99999, -3, 0, 251, BlockId.FornalhaAcesa, BlockId.CamaCabecaXP]) {
+      session.handleMessage(1, JSON.stringify({ type: "definir_preco", x, y, z, item, qtd: 4 }));
+      expect(session.containers.get(`${x},${y},${z}`)?.precos.has(item), `item ${item}`).toBe(false);
+    }
+  });
+
+  it("bug-671: o preço de um ITEM entra no save E VOLTA dele (a metade escondida)", () => {
+    const { session, x, y, z } = lojaAberta();
+    session.handleMessage(1, JSON.stringify({ type: "definir_preco", x, y, z, item: ITEM_PAO, qtd: 9 }));
+    const salvo = session.toSave().containers?.find((c) => c.x === x && c.y === y && c.z === z);
+    expect(salvo?.precos?.find((p) => p.porItem === ITEM_PAO)?.qtd).toBe(9);
+    // a RELEITURA é onde o preço sumia entre uma aula e outra
+    expect(parsePrecoEntry({ porItem: ITEM_PAO, qtd: 9 })).toEqual({ porItem: ITEM_PAO, qtd: 9 });
+    expect(parsePrecoEntry({ porItem: 99999, qtd: 9 })).toBeNull();
+    expect(parsePrecoEntry({ porItem: BlockId.FornalhaAcesa, qtd: 9 })).toBeNull();
   });
 
   it("qtd: null REMOVE o item da lista de comprável", () => {
