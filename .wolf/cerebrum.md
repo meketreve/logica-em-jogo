@@ -175,6 +175,10 @@
 
 ## Key Learnings
 
+- [2026-09-22] **Achar código é com `grep`/`glob`, não com índice.** O `anatomy.md` (índice de
+  328 arquivos) foi removido: ele desatualizava a cada arquivo criado/apagado e custava
+  manutenção manual, enquanto a busca direta nunca mente. Não recriar.
+
 - [2026-09-22] **Ping de PROTOCOLO (WebSocket) não prova que o cliente está vivo.** A pilha de
   rede do aparelho responde o ping do protocolo mesmo com a aba congelada — ele diria "vivo"
   exatamente no caso que a gente quer pegar (tablet minimizado). Presença de verdade pede ping
@@ -2462,6 +2466,19 @@ nenhum** — sem essa declaração o Chrome renderiza a página em light mesmo c
   `session.ts`, o padrão "acumula sujo, esvazia 1×/tick" que os blocos já usavam).
 
 ## Decision Log — índice das decisões ATIVAS
+
+- [2026-09-22] **OpenWolf desmontado; sobraram 3 arquivos.** O usuário apagou o `.wolf/` inteiro
+  e, medido o uso real, ficou só o que se paga: **`STATUS.md`** (handoff), **`cerebrum.md`**
+  (este arquivo: o porquê das escolhas) e **`buglog.json`** (bugs escritos à mão). Saíram 2,1 MB
+  de andaime: `anatomy.md`/`anatomy-index.json` (índice de 328 arquivos que dava mais manutenção
+  do que economizava — `grep` nunca desatualiza), `memory.md` (duplicava o `git log`),
+  `history.md`/`ROADMAP.md`/`TODO.md`/`reframe-frameworks.md` (parados desde julho-agosto),
+  os `cron-*.json`, 3 arquivos vazios, e **os 12 hooks** — inclusive o detector automático de
+  bug, que tinha enchido o buglog de 148 entradas falsas (podadas junto: 324 → 176).
+  `.claude/settings.json` ficou sem gancho nenhum, `.claude/rules/openwolf.md` e o comando
+  `/reframe` foram apagados (a base de conhecimento dele era um dos arquivos removidos), e o
+  `CLAUDE.md` foi reescrito: agora ele mesmo manda ler STATUS → cerebrum → buglog, sem hook.
+  **Se uma sessão futura sentir falta de algo:** está tudo no git até `887c24a`.
 
 - [2026-09-17] **§🔨 Ferramentas v2: as 4 decisões, todas do usuário.** (1) Durabilidade mora
   num CAMPO da pilha (`{id, qtd, dano?}`), com **barra de vida por ferramenta** no slot — não

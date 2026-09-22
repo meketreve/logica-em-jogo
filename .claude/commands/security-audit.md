@@ -5,7 +5,7 @@ argument-hint: [path or scope, e.g. src/api — omit for whole project]
 
 Perform a layered security audit of: $ARGUMENTS (if empty: the whole project).
 
-Use `.wolf/anatomy.md` to target files instead of scanning blindly, and check
+Use `grep`/`glob` to target files instead of scanning blindly, and check
 `.wolf/buglog.json` for previously found security issues before re-reporting them.
 
 Work through the layers in order. For each, report findings before moving on:

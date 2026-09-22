@@ -217,4 +217,8 @@ não se confunde na pasta. Comparar com a régua do lab (`…-l9xf.json`).
 
 - `docs/projeto.txt` — proposta pedagógica completa (BNCC, fundamentação, indicadores seção 14).
 - `.wolf/cerebrum.md` — Decision Log com o PORQUÊ de cada escolha.
-- `.wolf/anatomy.md` — índice de arquivos.
+- `.wolf/buglog.json` — bugs já consertados, com causa raiz (leia antes de caçar um).
+
+> **2026-09-22:** o OpenWolf foi desmontado — sobraram estes três arquivos (STATUS, cerebrum,
+> buglog) e nenhum hook. O índice `anatomy.md` saiu junto: achar código é com `grep`. O
+> `CLAUDE.md` da raiz é quem manda ler isto agora. Ver Decision Log 2026-09-22.
