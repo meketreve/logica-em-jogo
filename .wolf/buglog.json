@@ -6020,6 +6020,25 @@
       ],
       "occurrences": 1,
       "last_seen": "2026-09-18T20:10:00.000Z"
+    },
+    {
+      "id": "bug-672",
+      "timestamp": "2026-09-22T19:00:00.000Z",
+      "error_message": "usuário: 'no tablet, se o jogador sair sem querer (minimizar ou fechar) não é feito o logout e o jogador continua conectado, impossibilitando reconectar'",
+      "file": "shared/src/session/presenca.ts",
+      "root_cause": "o servidor só tirava alguém de `players` no evento `close` do socket. No tablet, minimizar/fechar o navegador congela a aba SEM fechar o TCP — o socket fica meio aberto por minutos. Como o `authenticate` recusa nome já em jogo ('Já existe alguém em jogo com o nome X'), a própria criança ficava trancada do lado de fora. Nada no servidor perguntava se o cliente ainda estava vivo.",
+      "fix": "heartbeat de APLICAÇÃO: a cada HEARTBEAT_PING_MS (4 s) o servidor manda `ping` a quem está em jogo; QUALQUER mensagem de volta conta como sinal de vida; HEARTBEAT_TIMEOUT_MS (15 s) de silêncio = `handleDisconnect` (libera o nome na hora) + `aoDerrubar` (o hospedeiro fecha e, 1 s depois, `terminate` o socket meio-aberto). NÃO é o ping do protocolo WebSocket — aquele é respondido pela pilha de rede do aparelho mesmo com a aba congelada, que é justamente o caso a pegar. Singleplayer fica de fora (o 'servidor' é um worker na mesma página; trocar de aba não pode derrubar o dono do mundo). Cliente: responde no TRANSPORTE (connection.ts), fecha na hora no `pagehide`, e explica o código 4000 ('você ficou fora do jogo tempo demais'). Os 16 cenários/sondas com socket cru passaram a responder ping — um cliente de verdade responde.",
+      "tags": [
+        "rede",
+        "tablet",
+        "socket",
+        "heartbeat",
+        "presenca",
+        "relatado-pelo-usuario"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-09-22T19:00:00.000Z"
     }
   ]
 }

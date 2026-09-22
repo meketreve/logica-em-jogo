@@ -12,6 +12,29 @@ export const MAX_WORLD_CHUNKS = { x: 16, z: 16, y: 8 } as const;
 /** Tick fixo do servidor (desacoplado do render do cliente). */
 export const SERVER_TICK_RATE = 10;
 
+/**
+ * PRESENÇA (2026-09-22, bug-672) — o servidor pergunta "você ainda está aí?".
+ *
+ * Nasceu da queixa da escola: no tablet, quem MINIMIZA ou FECHA o navegador
+ * nem sempre fecha o socket (o aparelho congela a aba, e o TCP fica meio
+ * aberto por minutos). O nome continua na lista de jogadores, e como o join
+ * recusa nome repetido, a própria criança não consegue voltar.
+ *
+ * O ping é de APLICAÇÃO, não o do protocolo WebSocket, e isso é o ponto: o
+ * ping do protocolo é respondido pela pilha de rede do aparelho mesmo com a
+ * aba congelada — ele diria "vivo" justamente no caso que queremos pegar.
+ * Este aqui só é respondido por JavaScript rodando, que é a definição prática
+ * de "o aluno ainda está no jogo".
+ *
+ * Os números são de sala de aula: 4 s entre perguntas e 15 s de silêncio pra
+ * derrubar dão ~3 chances. Curto o bastante pra criança reabrir o navegador e
+ * já conseguir entrar; longo o bastante pra um engasgo do Wi-Fi da escola (ou
+ * um tablet velho trocando de app por uns segundos) não derrubar ninguém no
+ * meio da aula.
+ */
+export const HEARTBEAT_PING_MS = 4000;
+export const HEARTBEAT_TIMEOUT_MS = 15000;
+
 /** Ciclo dia/noite (cp21): duração de um dia completo em segundos reais.
  *  20 min (convenção Minecraft) — 10 min de sol pleno dá tempo de construir
  *  sem o céu correr (backlog 2026-07-19: 10 min ficava rápido demais). */

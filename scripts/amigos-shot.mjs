@@ -113,6 +113,9 @@ function aluna(name, pin) {
   ws.onmessage = (e) => {
     if (e.data instanceof ArrayBuffer) return;
     const m = JSON.parse(e.data);
+    // bug-672: um cliente de verdade RESPONDE o ping — sem isto o host derruba
+    // este cenário em 15 s de espera (cozimento, crescimento, streaming…)
+    if (m.type === "ping") ws.send(JSON.stringify({ type: "pong", t: m.t }));
     if (m.type === "chat") rec.chats.push(m.text);
     if (m.type === "spawn") {
       // presença emerge do move: sem isto ana nunca fica sabendo que ela existe

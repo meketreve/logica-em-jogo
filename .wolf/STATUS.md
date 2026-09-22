@@ -38,6 +38,16 @@
 > - Os 3 smokes que quebravam bloco foram reescritos pro gesto novo ([[bug-670]]).
 > - Gancho de sonda novo: `window.__quebraEstado()` (mesmo precedente do `__fotoApontar`).
 
+> **🐛 Conserto (2026-09-22): [[bug-672]] — tablet minimizado prendia o nome do aluno.**
+> Minimizar/fechar o navegador no tablet congela a aba SEM fechar o TCP; o servidor só tirava
+> alguém de `players` no `close` do socket, e o `join` recusa nome repetido — a própria criança
+> ficava trancada do lado de fora. Agora há HEARTBEAT de APLICAÇÃO (`session/presenca.ts`):
+> `ping` a cada 4 s, 15 s de silêncio derruba (libera o nome) e o host fecha/`terminate` o
+> socket. **Não é o ping do WebSocket** — aquele é respondido pela pilha de rede com a aba
+> congelada, que é o caso a pegar. Singleplayer fica de fora. Cliente: responde no TRANSPORTE,
+> fecha no `pagehide` e explica o código 4000. Smoke novo `presenca` (lento: espera os 15 s) e
+> os 16 cenários/sondas de socket cru passaram a responder ping.
+
 > **🐛 Conserto depois do handoff (2026-09-18): [[bug-671]] — a loja recusava preço de ITEM.**
 > `definir_preco` e `parsePrecoEntry` validavam com `id <= MAX_BLOCK_ID` (250), e todo item
 > começa em 900: pão, trigo, picareta, carvão, diamante e as culturas voltavam "Item inválido.".

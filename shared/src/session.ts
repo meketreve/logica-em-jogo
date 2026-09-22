@@ -146,6 +146,7 @@ import { avisarChatSilenciado, avisarComFreio, avisarEmogisDesligados } from "./
 import { runSilenciar } from "./session/silenciar";
 import { evictColunas, garantirColunas, gerarColuna, streamColunas } from "./session/streaming";
 import { migrarCamasLegado } from "./camas";
+import { esquecerSinal, marcarSinal, tickPresenca } from "./session/presenca";
 import {
   type Quebra,
   cancelarQuebra,
@@ -284,6 +285,13 @@ export interface SessionOptions {
   /** Loja (2026-09-01): saldo de Dimas na 1ª entrada (LJ_DIMAS_INICIAL). */
   dimasInicial?: number;
   /**
+   * Presença (bug-672): o hospedeiro FECHA o socket de quem a sessão derrubou
+   * por silêncio. A sessão não conhece transporte — ela tira o jogador da
+   * lista (liberando o nome) e chama isto pra que o socket meio-aberto do
+   * tablet minimizado não fique pendurado.
+   */
+  aoDerrubar?: (clientId: number) => void;
+  /**
    * §🍖 F6: ticks entre dois estágios da plantação (LJ_CRESCIMENTO). O padrão
    * é `TICKS_POR_CRESCIMENTO` (20 s por estágio); abaixar é o que deixa o smoke
    * ver a horta inteira amadurecer em segundos em vez de em um minuto, e é o
@@ -334,6 +342,15 @@ export class GameSession {
    *  Nunca recalcular no join — o mundo pode já estar escavado (bug-010). */
   readonly spawn: { x: number; y: number; z: number };
   tickCount = 0;
+
+  /** Presença (bug-672): quando cada cliente deu sinal de vida pela última
+   *  vez (QUALQUER mensagem conta, não só o `pong`). Transitório. */
+  readonly ultimoSinal = new Map<number, number>();
+  /** Quando saiu a última rodada de `ping` (uma pra todos, não uma por
+   *  jogador — a régua do §🌐: broadcast por TICK, nunca por evento). */
+  ultimoPing = 0;
+  /** O hospedeiro fecha o socket de quem foi derrubado por silêncio. */
+  readonly aoDerrubar?: (clientId: number) => void;
 
   /** §🔨 v2: quem está segurando o botão em qual célula, e quantos ticks
    *  faltam. TRANSITÓRIO de propósito — não vai pro save: progresso de quebra
@@ -511,7 +528,9 @@ export class GameSession {
   private readonly pinFails = new Map<string, { fails: number; lockedUntil: number }>();
   private codigoFails = 0;
   private codigoLockedUntil = 0;
-  private readonly singleplayer: boolean;
+  /** INTERNO (não-`private` pelo motivo do cabeçalho da classe): o
+   *  `session/presenca.ts` não vigia presença no singleplayer. */
+  readonly singleplayer: boolean;
   private readonly codigo: string | undefined;
   readonly now: () => number;
   private tickMsSum = 0;
@@ -593,6 +612,7 @@ export class GameSession {
   ) {
     this.now = opts.now ?? (() => Date.now());
     this.singleplayer = opts.singleplayer ?? false;
+    this.aoDerrubar = opts.aoDerrubar;
     this.colunasPorTick = Math.max(1, opts.colunasPorTick ?? COLUNAS_POR_TICK_PADRAO);
     this.aguaMaxPorTick = Math.max(1, opts.aguaPorTick ?? AGUA_POR_TICK_PADRAO);
     this.dimasInicial = opts.dimasInicial ?? DIMAS_INICIAL_PADRAO;
@@ -962,6 +982,12 @@ export class GameSession {
   handleMessage(clientId: number, raw: string): void {
     const msg = parseClientMessage(raw);
     if (!msg) return;
+    // Presença (bug-672): QUALQUER mensagem válida conta como sinal de vida —
+    // o `pong` é só a que existe pra quando não há mais nenhuma. Fica ANTES do
+    // switch de propósito: mensagem recusada mais adiante (sem alcance, sem
+    // permissão) ainda prova que tem alguém vivo do outro lado.
+    marcarSinal(this, clientId);
+    if (msg.type === "pong") return; // já cumpriu o papel dele acima
     // §🍖 F3: editar o mundo dá fome, e a cobrança mora NUM lugar só — depois do
     // switch. Cada caso já devolveu cedo quando recusou (bounds, alcance, claim,
     // confinamento), então "o mundo mudou" é o mesmo que "a edição valeu", e
@@ -1818,6 +1844,10 @@ export class GameSession {
    * `migrado` = o cliente já estava em jogo e o mundo trocou debaixo dele.
    */
   private admitir(clientId: number, name: string, papel: Papel, migrado: boolean): void {
+    // bug-672: o relógio da presença começa a contar AGORA. Sem isto, quem
+    // entrasse e ficasse parado (carregando o mundo, lendo o objetivo) já
+    // nasceria devendo silêncio.
+    marcarSinal(this, clientId);
     // mundo salvo lembra o jogador: volta onde parou (senão, spawn do mundo)
     const returning = this.roster.get(name);
     const start = returning ?? this.spawn;
@@ -2410,6 +2440,8 @@ export class GameSession {
   }
 
   handleDisconnect(clientId: number): void {
+    esquecerSinal(this, clientId); // bug-672: não vigiar quem já saiu
+    this.quebrando.delete(clientId); // §🔨 v2: quebra em curso morre com a conexão
     this.stream.delete(clientId); // interesse de streaming morre com a conexão
     this.dormindo.delete(clientId); // quem saiu não conta na maioria (reavalia no fim)
     this.deitouDe.delete(clientId);
@@ -2571,6 +2603,10 @@ export class GameSession {
     // §🔨 v2: quem está segurando o botão avança um passo da quebra (e o
     // servidor quebra o bloco quando o tempo acaba)
     tickQuebras(this);
+
+    // bug-672: pergunta "você ainda está aí?" e derruba quem não responde —
+    // é o que devolve o nome pro tablet que minimizou/fechou sem fechar o socket
+    tickPresenca(this);
 
     // F2 streaming: mundo lazy manda colunas por raio de interesse
     if (this.lazy) streamColunas(this);

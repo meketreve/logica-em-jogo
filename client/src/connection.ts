@@ -108,6 +108,18 @@ export class WsConnection implements Connection {
       if (typeof data === "string") {
         this.stats.msgsIn++;
         this.stats.bytesIn += data.length;
+        // bug-672: o `ping` do servidor é respondido AQUI, no transporte, e não
+        // na camada de jogo. Duas razões: ele tem de valer desde o primeiro
+        // instante (antes do mundo carregar, com o menu aberto, com um painel
+        // na frente), e o que o servidor quer saber é exatamente isto — se
+        // ainda há JavaScript rodando nesta página. Uma aba congelada pelo
+        // tablet não passa por aqui, e é assim que o host sabe que ela foi
+        // embora e libera o nome da criança.
+        // o filtro barato vem primeiro (mensagem curta que MENCIONA ping);
+        // só aí vale o custo de um JSON.parse, e o `type` é conferido de
+        // verdade — depender da ORDEM das chaves do JSON seria um acoplamento
+        // que quebraria calado no dia em que o servidor mudasse a mensagem.
+        if (data.length < 80 && data.includes('"ping"') && this.responderPing(data)) return;
         this.cb?.(data);
       } else if (data instanceof ArrayBuffer) {
         this.stats.msgsIn++;
@@ -115,13 +127,49 @@ export class WsConnection implements Connection {
         this.cb?.(data);
       }
     };
-    this.socket.onclose = () => {
-      console.warn(`[conn] conexão com ${url} fechou`);
-      this.falhou("a conexão com o servidor caiu");
+    this.socket.onclose = (e: CloseEvent) => {
+      console.warn(`[conn] conexão com ${url} fechou (código ${e.code})`);
+      // 4000 é o código que o host usa pra "você não respondeu ao ping"
+      // (bug-672): a criança que minimizou o tablet e voltou precisa ler o
+      // motivo e saber o que fazer — "a conexão caiu" faria ela achar que o
+      // Wi-Fi da escola tinha falhado.
+      this.falhou(
+        e.code === 4000
+          ? "você ficou fora do jogo tempo demais — entre de novo"
+          : "a conexão com o servidor caiu",
+      );
     };
+    // bug-672: FECHAR a página (ou o aparelho descartar a aba) avisa o host na
+    // hora, em vez de deixar o socket meio-aberto até o heartbeat estourar —
+    // o nome da criança fica livre imediatamente no caso mais comum da sala.
+    // `pagehide` e não `beforeunload`: no tablet o `beforeunload` muitas vezes
+    // não dispara. MINIMIZAR não entra aqui de propósito (é `visibilitychange`,
+    // e quem dá uma olhada noutro app por 5 s não pode perder a aula) — esse
+    // caso é justamente o que o heartbeat resolve.
+    window.addEventListener("pagehide", () => {
+      try {
+        this.socket.close(4001, "página fechada");
+      } catch {
+        /* já estava fechado */
+      }
+    });
     this.socket.onerror = () => {
       this.falhou("não deu pra falar com o servidor");
     };
+  }
+
+  /** Era um `ping`? Então devolve o `pong` com o mesmo carimbo `t` e diz que
+   *  sim — a mensagem não segue pra camada de jogo. */
+  private responderPing(bruto: string): boolean {
+    let m: { type?: unknown; t?: unknown };
+    try {
+      m = JSON.parse(bruto) as { type?: unknown; t?: unknown };
+    } catch {
+      return false; // não era JSON: segue o baile
+    }
+    if (m.type !== "ping") return false;
+    this.send(JSON.stringify({ type: "pong", ...(typeof m.t === "number" ? { t: m.t } : {}) }));
+    return true;
   }
 
   private falhou(motivo: string): void {

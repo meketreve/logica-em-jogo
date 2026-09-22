@@ -18,6 +18,9 @@ function cliente(nome, join) {
   ws.onmessage = (e) => {
     if (e.data instanceof ArrayBuffer) { rec.snapshots++; return; }
     const m = JSON.parse(e.data);
+    // bug-672: um cliente de verdade RESPONDE o ping — sem isto o host derruba
+    // este cenário em 15 s de espera (cozimento, crescimento, streaming…)
+    if (m.type === "ping") ws.send(JSON.stringify({ type: "pong", t: m.t }));
     if (m.type === "chat") rec.chats.push(m.text);
     if (m.type === "spawn") rec.spawns.push(m.papel);
     if (m.type === "objectives") rec.objetivos.push(m.objetivos[0]?.texto ?? "");

@@ -47,6 +47,9 @@ function aluno(nome) {
   ws.onmessage = (e) => {
     if (!(e.data instanceof ArrayBuffer)) {
       const m = JSON.parse(e.data);
+    // bug-672: um cliente de verdade RESPONDE o ping — sem isto o host derruba
+    // este cenário em 15 s de espera (cozimento, crescimento, streaming…)
+    if (m.type === "ping") ws.send(JSON.stringify({ type: "pong", t: m.t }));
       if (m.type === "spawn") rec.spawn = m;
       // §🕐 aviso que a troca começou — tem que chegar ANTES do mundo novo
       if (m.type === "mundo_trocando") rec.avisoTroca = Date.now();

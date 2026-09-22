@@ -175,6 +175,21 @@
 
 ## Key Learnings
 
+- [2026-09-22] **Ping de PROTOCOLO (WebSocket) não prova que o cliente está vivo.** A pilha de
+  rede do aparelho responde o ping do protocolo mesmo com a aba congelada — ele diria "vivo"
+  exatamente no caso que a gente quer pegar (tablet minimizado). Presença de verdade pede ping
+  de APLICAÇÃO, respondido por JavaScript rodando ([[bug-672]]).
+
+- [2026-09-22] **Heartbeat novo quebra TODO cliente de socket cru do repo.** Os 14 cenários de
+  smoke e as sondas abrem WebSocket na mão; quem esperava mais que o tempo limite (cozimento da
+  fornalha, crescimento da horta, streaming) passaria a ser derrubado no meio. Eles agora
+  respondem `pong` — um cliente de verdade responde, então isso é fidelidade, não gambiarra.
+  O `_smoke-presenca.mjs` é a exceção de propósito: o silêncio DELE é o teste.
+
+- [2026-09-22] **Timeout de presença é decisão de SALA, não de rede.** 15 s com ping de 4 s dá
+  ~3 chances: curto pra criança reabrir o navegador e já entrar, longo pra um engasgo do Wi-Fi
+  da escola não derrubar ninguém no meio da aula.
+
 - [2026-09-17] **Ação que leva TEMPO muda onde o efeito colateral mora.** A quebra da §🔨 v2
   saiu do `handleMessage` e foi pro `tick`, e com ela o esforço/fome parou de ser cobrado: o
   `mundoMudou` do fim do `handleMessage` compara edições DAQUELA mensagem ([[bug-668]]). Regra:

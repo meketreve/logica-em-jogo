@@ -47,6 +47,9 @@ export type ClientMessage =
   | { type: "break_start"; x: number; y: number; z: number; slot?: number }
   /** §🔨 v2: SOLTOU o botão (ou mirou noutro lugar) — some com o progresso. */
   | { type: "break_cancel" }
+  /** Presença (bug-672): resposta ao `ping` do servidor. `t` é o carimbo que
+   *  veio junto — devolvê-lo deixa medir a latência sem relógio combinado. */
+  | { type: "pong"; t?: number }
   /** Clique direito num bloco INTERATIVO (cp23: porta) — o servidor decide o
    *  efeito (alternar aberta/fechada) e responde com block_changed normais. */
   | { type: "use_block"; x: number; y: number; z: number }
@@ -578,6 +581,16 @@ export type ServerMessage =
       slots: SlotSalvo[];
     }
   | {
+      /**
+       * Presença (bug-672): "você ainda está aí?". O cliente responde `pong`
+       * com o mesmo `t`. Quem não responde por `HEARTBEAT_TIMEOUT_MS` é
+       * desconectado — é o que devolve o NOME pra criança que fechou o
+       * navegador do tablet sem querer.
+       */
+      type: "ping";
+      t: number;
+    }
+  | {
       /** §🔨 v2: a ferramenta na mão acabou e SUMIU. O `inventario` que vem
        *  junto já conta a verdade — esta mensagem existe pro cliente TOCAR o
        *  som e piscar o aviso, que é a parte que um diff de slots não diz. */
@@ -657,6 +670,10 @@ export function parseClientMessage(raw: string): ClientMessage | null {
     }
     case "break_cancel":
       return { type: "break_cancel" };
+    case "pong": {
+      const t = m["t"];
+      return { type: "pong", ...(typeof t === "number" && Number.isFinite(t) ? { t } : {}) };
+    }
     case "use_block": {
       const ints = [m["x"], m["y"], m["z"]];
       if (!ints.every((n) => typeof n === "number" && Number.isInteger(n))) return null;
@@ -1166,6 +1183,11 @@ export function parseServerMessage(raw: string): ServerMessage | null {
     case "dimas": {
       if (typeof m["saldo"] !== "number" || !Number.isFinite(m["saldo"])) return null;
       return { type: "dimas", saldo: m["saldo"] };
+    }
+    case "ping": {
+      const t = m["t"];
+      if (typeof t !== "number" || !Number.isFinite(t)) return null;
+      return { type: "ping", t };
     }
     case "ferramenta_quebrou": {
       const item = m["item"];

@@ -3571,3 +3571,25 @@ fraude.
 |------|--------|---------|---------|--------|
 | 22:30 | push autorizado pelo usuário: os 3 commits da §🔨 Ferramentas v2 foram pra origin/main | — | main sincronizada | ~2k |
 | 20:10 | bug-671 (relatado): loja recusava preço de ITEM com "Item inválido." — `item > MAX_BLOCK_ID` (250) contra itens que começam em 900. Metade escondida: `parsePrecoEntry` jogava o preço fora na RELEITURA do save. Predicado único `podeEstarNaMochila` nas duas pontas | shared/src/{blocks,containers}.ts, session/loja.ts, loja.test.ts, scripts/loja-shot.mjs | 1063 verdes; sonda da loja OK com o passo 7b (pão no cliente real) | ~45k |
+
+## Session: 2026-09-22 15:22
+
+| Time | Action | File(s) | Outcome | ~Tokens |
+|------|--------|---------|---------|--------|
+
+## Session: 2026-09-22 15:22
+
+| Time | Action | File(s) | Outcome | ~Tokens |
+|------|--------|---------|---------|--------|
+
+## Session: 2026-09-22 16:28
+
+| Time | Action | File(s) | Outcome | ~Tokens |
+|------|--------|---------|---------|--------|
+
+## Session: 2026-09-22 (sessão 101)
+
+| Time | Action | File(s) | Outcome | ~Tokens |
+|------|--------|---------|---------|--------|
+| 19:00 | bug-672 (relatado): tablet minimizado/fechado não solta o socket, nome fica preso e a criança não reconecta. Heartbeat de APLICAÇÃO: ping 4 s, 15 s de silêncio derruba + host fecha/terminate. Singleplayer fora. Cliente responde no transporte, fecha no `pagehide` e explica o código 4000 | shared/src/{constants,protocol,session}.ts, session/presenca.ts, server/src/index.ts, client/src/connection.ts | 1072 verdes; smoke `presenca` novo prova contra host real (9/9) | ~55k |
+| 19:40 | os 16 cenários/sondas de socket cru passaram a responder ping (menos o da presença, cujo silêncio É o teste) | server/src/cenarios/_smoke-*.mjs, scripts/*-shot.mjs | evita derrubada no meio das esperas longas | ~10k |

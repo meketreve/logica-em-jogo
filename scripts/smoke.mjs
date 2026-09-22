@@ -150,6 +150,26 @@ const SMOKES = [
     ],
   },
   {
+    nome: "presenca",
+    arquivo: `${DIR}/_smoke-presenca.mjs`,
+    prova:
+      "bug-672 — o servidor pergunta `ping` e derruba quem não responde: o tablet CONGELADO (socket de pé, ninguém respondendo) tem o socket fechado pelo host e o nome liberado, a criança volta com o mesmo nome, e quem responde `pong` não cai junto.",
+    lento: true, // espera o tempo limite de verdade (15 s) — é o que se prova
+    limpar: ["mundos/_smoke-presenca"],
+    servidores: [
+      {
+        porta: 8110,
+        env: {
+          LJ_SAVE: "mundos/_smoke-presenca.ljw",
+          LJ_NOVO: "1",
+          LJ_TAMANHO: "P",
+          LJ_CODIGO: "prof2026",
+          LJ_SEED: SEED,
+        },
+      },
+    ],
+  },
+  {
     nome: "vida",
     arquivo: `${DIR}/_smoke-vida.mjs`,
     prova:

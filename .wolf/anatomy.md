@@ -844,6 +844,9 @@
   - fn `ok` L16-19 (~29 tok)
   - fn `espera` L20-25 (~66 tok)
   - fn `colunasDoLote` L26-133 (~1138 tok)
+- `_smoke-presenca.mjs` — bug-672 contra o host REAL: cliente CONGELADO (socket de pé, sem
+  responder) tem o socket fechado pelo host, o nome libera e a criança volta com o mesmo nome;
+  quem responde `pong` não cai junto. Lento por natureza (espera os 15 s). (~1200 tok)
 - `_smoke-perfil-http.mjs` — Smoke do `POST /perfil` — a rota que faz o perfil do `?bench` cair na pasta (~966 tok)
   - fn `ok` L21-27 (~71 tok)
   - fn `novos` L28-29 (~28 tok)
@@ -1187,6 +1190,8 @@
   - fn `matarAna` L526-741 (~2726 tok)
 - `inventario.ts` — §🍖 F4 — INVENTÁRIO AUTORITATIVO (stacks puros). §🔨 v2: a pilha ganhou
   `dano?` e a regra `podeJuntar` (ferramenta nunca funde; pilhas iguais que não fundem TROCAM). (~4000 tok)
+- `presenca.test.ts` — bug-672 com relógio de mentira: ping sai, silêncio derruba, `pong` e
+  qualquer outra mensagem seguram, um calado não leva os outros, singleplayer imune. (~1500 tok)
 - `quebraTeste.ts` — ajuda de TESTE do §🔨 v2: `segurarAteQuebrar` arma o `break_start` e roda
   ticks até o bloco cair (os testes de quebra não são mais uma mensagem só). (~330 tok)
 - `quebra.test.ts` — §🔨 v2 pelo fio: tempo contado no servidor, cancelar, criativo em 1 clique,
@@ -1671,6 +1676,9 @@
   - fn `broadcastGroups` L561-566 (~69 tok)
   - fn `runGrupo` L567-642 (~908 tok)
   - fn `runConfinar` L643-688 (~633 tok)
+- `presenca.ts` — bug-672 (2026-09-22): heartbeat de APLICAÇÃO. `ping` a cada 4 s, 15 s de
+  silêncio derruba (libera o nome) e o hospedeiro fecha o socket pelo `aoDerrubar`. Não usa o
+  ping do WebSocket de propósito (aba congelada responderia). Singleplayer fica de fora. (~900 tok)
 - `quebra.ts` — §🔨 Ferramentas v2 (2026-09-17): a QUEBRA POR TEMPO contada no servidor.
   `break_start` arma, cada tick desconta, o servidor quebra sozinho. Guarda também o gate
   (mão, claim, container, alcance), o esforço da quebra e o gasto de durabilidade. (~2100 tok)

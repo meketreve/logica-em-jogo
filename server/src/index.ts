@@ -182,11 +182,42 @@ if (somenteLeitura) {
       `turma reaproveita esta aula sem mover arquivos.`,
   );
 }
+/**
+ * bug-672 — a sessão derrubou alguém por silêncio: aqui o socket meio-aberto
+ * é FECHADO de verdade.
+ *
+ * Esta é a metade que só o hospedeiro pode fazer (a `GameSession` não conhece
+ * transporte). Sem ela o tablet que minimizou continuaria com um socket
+ * pendurado no host, e a próxima mensagem dele cairia numa sessão que já não o
+ * conhece — o jogo travado na tela do aluno sem nenhuma explicação.
+ */
+function fecharPorSilencio(clientId: number): void {
+  const sock = sockets.get(clientId);
+  console.log(`[server] cliente ${clientId} não responde ao ping — desconectado`);
+  sockets.delete(clientId);
+  if (!sock) return;
+  try {
+    sock.close(4000, "sem resposta ao ping");
+  } catch {
+    /* socket já pode ter caído sozinho */
+  }
+  // o `close` educado pode nunca completar num socket meio-aberto (é o caso
+  // deste bug): o `terminate` garante que o descritor não fique pendurado.
+  setTimeout(() => {
+    try {
+      sock.terminate();
+    } catch {
+      /* já foi */
+    }
+  }, 1000);
+}
+
 let session = new GameSession(
   entregar,
   {
     seed: WORLD_SEED,
     now: () => performance.now(),
+    aoDerrubar: fecharPorSilencio,
     restore,
     codigo,
     // mundo de aula (read-only) nasce confinado — cada aluno na área do grupo (cp25)
@@ -341,6 +372,7 @@ function interceptarMundo(clientId: number, texto: string): boolean {
     novaSessao: (restore, somenteLeitura) =>
       new GameSession(entregar, {
         now: () => performance.now(),
+        aoDerrubar: fecharPorSilencio, // bug-672: vale também na aula trocada
         restore,
         codigo,
         somenteLeitura,
