@@ -342,20 +342,8 @@
 
 ## docs/
 
-- `loja-perguntas-alunos.md` — Loja nos baús — perguntas de design (~350 tok)
 - `manual.html` — Manual — Lógica em Jogo (~7823 tok)
 - `projeto.txt` (~4707 tok)
-
-## docs/superpowers/plans/
-
-- `2026-08-17-copias-ao-vivo.md` — Cópias da área de atividade ajustáveis ao vivo — plano de implementação (~14326 tok)
-- `2026-09-01-loja-baus.md` — Loja em bloco — Implementation Plan (~23804 tok)
-- `2026-09-12-ids-16-bits.md` — Ids de bloco em 16 bits — Plano de implementação (~1719 tok)
-
-## docs/superpowers/specs/
-
-- `2026-08-17-copias-ao-vivo-design.md` — Cópias da área de atividade ajustáveis ao vivo — desenho (~4049 tok)
-- `2026-08-31-loja-baus-design.md` — Loja em bloco — design (~1799 tok)
 
 ## ferramentas/
 

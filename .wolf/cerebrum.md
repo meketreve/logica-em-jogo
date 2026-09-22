@@ -2488,7 +2488,8 @@ nenhum** — sem essa declaração o Chrome renderiza a página em light mesmo c
   automática = regravar + guardar o original antes: host `<nome>.antes-ids16.ljw` na pasta do
   mundo (boot converte já; troca ao vivo converte no autosave), singleplayer
   `WorldRecord.dataAntesIds16`. `cenarios/` e aula (só leitura) nunca são escritos. Registro
-  completo: `docs/superpowers/plans/2026-09-12-ids-16-bits.md`.
+  completo: o commit `9241f07` e esta entrada (o plano em `docs/superpowers/` foi apagado pelo
+  usuário em 2026-09-22 — era papel de skill que o projeto não usa mais; a decisão mora AQUI).
 
 - [2026-09-12] **Cama: pé e cabeceira com ids DIFERENTES (bug-662), escolha do usuário entre 3
   opções.** Cabeceira = `CamaCabecaXP..ZN` (247-250); `CamaXP..ZN` virou só o pé. Recusadas:

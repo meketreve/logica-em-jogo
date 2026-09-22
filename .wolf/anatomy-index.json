@@ -2341,15 +2341,6 @@
       "updatedAt": "2026-09-06T17:50:41.695Z",
       "source": "scan"
     },
-    "docs/loja-perguntas-alunos.md": {
-      "description": "Loja nos baús — perguntas de design",
-      "tokens": 350,
-      "hash": "0c6b409cd3c9fc5f",
-      "size": 1474,
-      "mtimeMs": 1788356515727.7476,
-      "updatedAt": "2026-09-06T17:50:41.695Z",
-      "source": "scan"
-    },
     "docs/manual.html": {
       "description": "Manual — Lógica em Jogo",
       "tokens": 7823,
@@ -2366,42 +2357,6 @@
       "size": 19459,
       "mtimeMs": 1788437542944.8684,
       "updatedAt": "2026-09-06T17:50:41.696Z",
-      "source": "scan"
-    },
-    "docs/superpowers/plans/2026-08-17-copias-ao-vivo.md": {
-      "description": "Cópias da área de atividade ajustáveis ao vivo — plano de implementação",
-      "tokens": 14326,
-      "hash": "59be17d45c945bf6",
-      "size": 57866,
-      "mtimeMs": 1786974751360.1853,
-      "updatedAt": "2026-09-06T17:50:41.698Z",
-      "source": "scan"
-    },
-    "docs/superpowers/plans/2026-09-01-loja-baus.md": {
-      "description": "Loja em bloco — Implementation Plan",
-      "tokens": 23804,
-      "hash": "8fc3f81500ee9a1a",
-      "size": 95837,
-      "mtimeMs": 1788265515190.028,
-      "updatedAt": "2026-09-06T17:50:41.699Z",
-      "source": "scan"
-    },
-    "docs/superpowers/specs/2026-08-17-copias-ao-vivo-design.md": {
-      "description": "Cópias da área de atividade ajustáveis ao vivo — desenho",
-      "tokens": 4049,
-      "hash": "fedf43e2dbbdf2cd",
-      "size": 16585,
-      "mtimeMs": 1786974751360.1853,
-      "updatedAt": "2026-09-06T17:50:41.700Z",
-      "source": "scan"
-    },
-    "docs/superpowers/specs/2026-08-31-loja-baus-design.md": {
-      "description": "Loja em bloco — design",
-      "tokens": 1799,
-      "hash": "1332570632f77924",
-      "size": 7449,
-      "mtimeMs": 1788356536859.7476,
-      "updatedAt": "2026-09-06T17:50:41.700Z",
       "source": "scan"
     },
     "ferramentas/editor-skin.html": {
@@ -11917,15 +11872,6 @@
           "tokens": 770
         }
       ]
-    },
-    "docs/superpowers/plans/2026-09-12-ids-16-bits.md": {
-      "description": "Ids de bloco em 16 bits — Plano de implementação",
-      "tokens": 1719,
-      "hash": "50b8925843700537",
-      "size": 7049,
-      "mtimeMs": 1789258981267.1392,
-      "updatedAt": "2026-09-13T00:23:01.384Z",
-      "source": "hook"
     },
     "shared/src/chunkCodec.ts": {
       "description": "Chunk no DISCO e no FIO (2026-09-12, ids de 16 bits). Na memória todo chunk é",
