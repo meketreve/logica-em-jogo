@@ -2,58 +2,45 @@
 
 > Single source of truth for resuming work. Read this FIRST when starting a session.
 
-> **Última atualização: 2026-09-17 (sessão 100).**
+> ## 🧭 HANDOFF — SESSÃO 101 (2026-09-22/23)
+
+> **Árvore:** limpa, `HEAD` = `origin/main` (este handoff é o commit do topo). Único arquivo solto:
+> `relatorio/…docx:Zone.Identifier`, do usuário — **NÃO commitar**.
 >
-> **O dev formatou o PC e agora é SÓ LINUX** (dito pelo usuário). Some a decisão pendente sobre a
-> cópia do WSL: não existe mais. O `node_modules` deste clone segue o híbrido da sessão 98
-> (esbuild `win32-x64` + nativos linux copiados por cima) e **funciona** — `vitest` responde
-> `linux-x64`. Um `npm install` limpo agora seria legítimo; ninguém pediu.
+> **Ambiente:** só LINUX (o dev formatou o PC; a cópia do WSL não existe mais). O
+> `node_modules` deste clone é o híbrido da sessão 98 (esbuild `win32-x64` + nativos linux
+> copiados por cima) e **funciona**. Um `npm install` limpo seria legítimo; ninguém pediu.
 
-> ## 🧭 HANDOFF — SESSÃO 100 (2026-09-17) · §🔨 Ferramentas v2
+> **✅ Nesta sessão (tudo pushado):**
+> - **[[bug-672]] — tablet minimizado prendia o nome do aluno** (`3a1e9d0`). Minimizar/fechar o
+>   navegador no tablet congela a aba SEM fechar o TCP; o servidor só tirava alguém de `players`
+>   no `close` do socket, e o `join` recusa nome repetido — a criança ficava trancada do lado de
+>   fora. **Heartbeat de aplicação** em `shared/src/session/presenca.ts`: `ping` a cada 4 s,
+>   qualquer mensagem de volta conta como vida, 15 s de silêncio derruba (libera o nome) e o
+>   hospedeiro fecha/`terminate` o socket pelo `aoDerrubar`. **Não é o ping do WebSocket** —
+>   aquele é respondido pela pilha de rede com a aba congelada, que é o caso a pegar.
+>   Singleplayer fica de fora. Cliente responde no TRANSPORTE (`connection.ts`), fecha no
+>   `pagehide` e explica o código 4000. Smoke novo `presenca` (lento: espera os 15 s de verdade);
+>   os 16 cenários/sondas de socket cru passaram a responder ping.
+> - **[[bug-671]] — a loja recusava preço de ITEM** (`1ccda8c`). `definir_preco` e
+>   `parsePrecoEntry` validavam com `id <= MAX_BLOCK_ID` (250), e todo item começa em 900: pão,
+>   trigo, picareta, carvão e as culturas voltavam "Item inválido.". A metade escondida era o
+>   PARSE DO SAVE — o preço sumiria ao reabrir o mundo. Predicado único `podeEstarNaMochila`
+>   (blocks.ts) nas DUAS pontas. Passo 7b novo na sonda `npm run shots:loja`.
+> - **OpenWolf desmontado** (`887c24a`, `8cef404`): de 2,1 MB em 33 arquivos pra 508 KB em 3.
+>   Ficaram STATUS + cerebrum + buglog (podado de 324 pra 176: o resto era detector automático).
+>   Saíram os 12 hooks, o `anatomy.md`, o `memory.md` e os docs de skill. **Não existe mais
+>   hook nenhum** — quem manda ler estes arquivos é o `CLAUDE.md` da raiz, reescrito.
+>   Achar código é com `grep`. Ver Decision Log 2026-09-22.
+> - **Changelog:** o bloco do topo (build atual, ainda NÃO publicado pra escola) fechou com os
+>   três assuntos: quebra com tempo/rachadura/durabilidade, o heartbeat e o preço de item.
+>   Título = "Quebrar bloco agora leva tempo — e a ferramenta gasta".
 
-> **Árvore no fim da sessão:** 3 commits novos **PUSHADOS** na `main` (`a7757ae` etapa 1,
-> `485d035` etapas 2+3, `a4b79af` este handoff). HEAD = `origin/main`, nada pendente. Único
-> arquivo solto: `relatorio/…docx:Zone.Identifier`, do usuário, NÃO commitar.
-
-> **✅ Concluído: §🔨 Ferramentas v2, as 3 peças juntas.** As 4 decisões foram do usuário
-> (ver Decision Log 2026-09-17). O laço fechou: segurar → rachar → gastar → quebrar.
-> - **Etapa 1, pura** (`a7757ae`): `Stack.dano?`, `podeJuntar` (ferramenta nunca funde; pilha
->   igual que não funde TROCA), `DURABILIDADE` 59/131/250/1561, `vidaDe`, `gastar` (devolve
->   `null` = acabou), `tempoDeQuebraMs`/`ticksDeQuebra` sobre DUREZA × fator 2/4/6/8, e
->   `ferramentaIdealDe` separando "o que ACELERA" de "o que é EXIGIDO" ([[bug-669]]).
-> - **Etapa 2, servidor** (`485d035`): `shared/src/session/quebra.ts` — `break_start` arma,
->   o tick desconta, **o servidor quebra sozinho**; `break_cancel` desiste. Não existe mensagem
->   de "terminei", então não há cronômetro de cliente pra mentir. Criativo segue em 1 clique.
->   O gate roda no APERTO e no fim. Durabilidade gasta só em bloco que pede a ferramenta.
->   Esforço/fome mudou de lugar ([[bug-668]]).
-> - **Etapa 3, cliente**: segurar no mouse e no ⛏ do tablet (virou botão de segurar),
->   `quebraFx.ts` com a trinca procedural ([[bug-667]]: os 10 estágios dividiam um canvas só),
->   barra de vida no slot (hotbar + mochila), som próprio ao quebrar.
-> - **Changelog:** bloco NOVO no topo — "Quebrar bloco agora leva tempo — e a ferramenta gasta".
->   O de 12/09 recebeu `data: "12/09/2026"`.
-> - **Provas:** 1060 testes verdes (24 + 11 novos), 16/16 smokes, e a sonda real
->   **`npm run shots:quebra`** (`scripts/quebra-shot.mjs`, Chrome + host de verdade) — trinca
->   aparece e cresce, soltar cancela, segurar dá o pedregulho, a barra encolhe, e sem picareta
->   na mão o chat manda pegar uma. Prints em `.wolf/designqc-captures/quebra/`.
-> - Os 3 smokes que quebravam bloco foram reescritos pro gesto novo ([[bug-670]]).
-> - Gancho de sonda novo: `window.__quebraEstado()` (mesmo precedente do `__fotoApontar`).
-
-> **🐛 Conserto (2026-09-22): [[bug-672]] — tablet minimizado prendia o nome do aluno.**
-> Minimizar/fechar o navegador no tablet congela a aba SEM fechar o TCP; o servidor só tirava
-> alguém de `players` no `close` do socket, e o `join` recusa nome repetido — a própria criança
-> ficava trancada do lado de fora. Agora há HEARTBEAT de APLICAÇÃO (`session/presenca.ts`):
-> `ping` a cada 4 s, 15 s de silêncio derruba (libera o nome) e o host fecha/`terminate` o
-> socket. **Não é o ping do WebSocket** — aquele é respondido pela pilha de rede com a aba
-> congelada, que é o caso a pegar. Singleplayer fica de fora. Cliente: responde no TRANSPORTE,
-> fecha no `pagehide` e explica o código 4000. Smoke novo `presenca` (lento: espera os 15 s) e
-> os 16 cenários/sondas de socket cru passaram a responder ping.
-
-> **🐛 Conserto depois do handoff (2026-09-18): [[bug-671]] — a loja recusava preço de ITEM.**
-> `definir_preco` e `parsePrecoEntry` validavam com `id <= MAX_BLOCK_ID` (250), e todo item
-> começa em 900: pão, trigo, picareta, carvão, diamante e as culturas voltavam "Item inválido.".
-> A metade escondida era o PARSE DO SAVE — mesmo aceitando no comando, o preço de item sumiria
-> ao reabrir o mundo. Predicado único `podeEstarNaMochila` (blocks.ts) nas duas pontas.
-> 3 testes + passo 7b da sonda `npm run shots:loja` (pão no cliente real).
+> **Sessão 100 (2026-09-17), resumida:** §🔨 **Ferramentas v2** inteira — segurar pra quebrar com
+> rachadura no bloco, tempo por (bloco × ferramenta), ferramenta exigida na MÃO, durabilidade com
+> barra de vida no slot, e a ferramenta some quando acaba. Servidor conta o tempo
+> (`session/quebra.ts`), cliente só prevê pra desenhar. Bugs 667-670 no caminho. Detalhe completo:
+> `git log a7757ae..485d035` e o Decision Log de 2026-09-17.
 
 > ### 🚀 PRÓXIMA QUEST
 > **Machado e pá** — é o que o tempo de quebra destravou, e o `ferramentaIdealDe` já é o gancho:
@@ -65,18 +52,21 @@
 > Atrás dela: o **1º bloco de circuito lógico** (ainda falta o usuário dizer QUAL bloco e como
 > ele funciona na aula) e o `npm run bench:headless` antes/depois dos 16 bits.
 
-> **⚠️ Não verificado em tela pelo usuário (§🔨 v2):** quebrar segurando no PC e no tablet (o ⛏
-> virou botão de SEGURAR — dedo que escorrega solta), se o tempo da pedra parece justo pra turma,
-> se a rachadura é visível no projetor da sala, e se a barrinha de vida no slot é enxergável num
-> tablet de 1024×600. Tudo isso só foi visto no headless.
-
-> **⚠️ Não verificado em tela pelo usuário:** loja e cama só foram vistas no headless. Testar na
-> escola: preço no último item + Esc; loja cheia no tablet; 2 camas em fila, e um mundo antigo
-> que já tinha cama (tem de abrir com as camas inteiras); porta em cima de porta (abrir a de baixo);
-> **abrir o mundo salvo da turma no host** (tem de aparecer `<nome>.antes-ids16.ljw` na pasta dele e
-> o mundo abrir igual) e um mundo do singleplayer num navegador que já jogava antes; deitar
-> na cama (de perto e de longe) e levantar com o pular, no PC e no tablet; torre de pular+colocar
-> no Wi-Fi da escola (é onde a latência que causava o bug-652 aparece de verdade).
+> **⚠️ NADA disto foi visto em tela pelo usuário — testar na escola:**
+> - **§🔨 quebra (v2):** segurar pra quebrar no PC e no tablet (o ⛏ virou botão de SEGURAR, e
+>   dedo que escorrega solta), se o tempo da pedra parece justo pra turma, se a rachadura
+>   aparece no projetor da sala, e se a barrinha de vida no slot é enxergável em 1024×600.
+> - **Presença (bug-672):** fechar o navegador do tablet e entrar de novo com o mesmo nome; e
+>   minimizar por mais de 15 s pra ver o nome liberar. Conferir se 15 s não derruba ninguém no
+>   Wi-Fi da escola (é um número só, em `constants.ts`, se precisar afrouxar).
+> - **Loja:** preço de ITEM (pão, trigo, picareta), **e reabrir o mundo depois** — era na
+>   releitura do save que o preço sumia. Preço no último item + Esc; loja cheia no tablet.
+> - **Cama e porta:** 2 camas em fila; um mundo antigo que já tinha cama (tem de abrir com as
+>   camas inteiras); porta em cima de porta (abrir a de baixo).
+> - **Ids de 16 bits:** abrir o mundo salvo da turma no host (tem de aparecer
+>   `<nome>.antes-ids16.ljw` na pasta) e um mundo do singleplayer num navegador que já jogava.
+> - **Cama/torre:** deitar (de perto e de longe) e levantar com o pular, no PC e no tablet;
+>   torre de pular+colocar no Wi-Fi da escola (é onde a latência do bug-652 aparece de verdade).
 
 > **Pendências herdadas, nenhuma bloqueante:**
 > - **Save no Ctrl+C/fechar janela disputa corrida com o `npx`/`tsx` que embrulha o host** (o sinal
@@ -121,38 +111,6 @@
 
 ---
 
-## 🌐 Rede: WSL invisível na LAN (OBSOLETO — dev saiu do WSL em 2026-09-06, ver HANDOFF)
-
-> Todo o problema abaixo (WSL atrás de NAT, invisível pro resto da LAN) só existe quando o
-> HOST roda dentro do WSL. Com o dev migrado pra Windows nativo, hospedar a partir de lá não
-> tem NAT nenhum no meio — o `.wslconfig`/regras de firewall documentados aqui não são mais
-> necessários pro caso comum. Fica só como referência histórica / caminho B se algum dia
-> voltar a hospedar de dentro do WSL.
-
-## 🌐 Rede: WSL invisível na LAN (em curso 2026-07-27)
-
-O host roda no WSL2 → IP próprio (`172.28.17.24`) atrás de NAT. Windows entra por
-`localhost` (encaminhamento só vale pra conexão originada no Windows), **outro PC da rede
-não** — bate em `192.168.3.100:8080` e não há ninguém escutando.
-
-**Aplicado:** `C:\Users\Meketreve\.wslconfig` criado com `networkingMode=mirrored` +
-`hostAddressLoopback=true` (WSL 2.6.3, Windows 11 24H2 — suporta). Falta o usuário rodar
-`wsl --shutdown` e, em PowerShell ADMIN, as duas regras de firewall: `New-NetFirewallRule`
-(porta 8080, perfis Private/Domain — trocar por `Any` se a escola for rede Pública) e
-`New-NetFirewallHyperVRule` (VMCreatorId `{40E0AC32-46A5-438A-A0B2-2B479E8F2E90}`) — no modo
-espelhado o tráfego passa pelos DOIS firewalls.
-
-**✅ PEGOU (conferido em 2026-07-27, sessão 29):** `hostname -I` dentro do WSL devolve
-`192.168.3.100` — modo espelhado ativo, o `wsl --shutdown` já aconteceu. O que NÃO foi
-verificado é o par de regras de firewall (nenhum outro PC da rede foi testado contra a
-porta 8080); se o outro PC não abrir, é ali que falta.
-**Desfazer:** apagar o `.wslconfig` + `wsl --shutdown`.
-**Plano B** (sem mexer em config, mas o IP do WSL muda a cada boot): `netsh interface
-portproxy add v4tov4 listenport=8080 listenaddress=0.0.0.0 connectport=8080
-connectaddress=<IP do WSL>`.
-**Saída definitiva:** host nativo no Windows (o .exe portátil do professor já está no plano) —
-sem camada de WSL no meio.
-
 ## ⚠️ Pendências externas (não bloqueia coding)
 
 - Testar cedo num PC REAL do lab (usuário tem admin em todas as máquinas/escolas).
@@ -174,7 +132,12 @@ npm run smoke       # cenários de rede reais (--lista diz o que cada um prova)
 npm run bench:headless   # roda o ?bench num Chrome headless e imprime o perfil
 npm run shots:tablet     # mede+fotografa a UI em 1024×600 com pointer:coarse
 npm run shots:luz        # §💡 compara o MESMO bench ao meio-dia e à meia-noite
+npm run shots:loja       # loja: preços (inclusive de ITEM), rolagem, baú e fornalha
+npm run shots:quebra     # §🔨 v2: rachadura cresce, soltar cancela, barra de vida encolhe
 ```
+
+As sondas `shots:*` sobem um host de verdade e um Chrome de verdade, e **asseveram no DOM** —
+não são só print. Rode `npm run build` antes: elas servem o cliente COMPILADO.
 
 **Verificação da luz** (precisa do `npm run dev` rodando em outro terminal): mede a
 luminância de uma janela de terreno nas duas horas e falha se o meio-dia estiver escuro, se a
