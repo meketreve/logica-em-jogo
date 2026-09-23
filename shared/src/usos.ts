@@ -2,6 +2,7 @@ import { plantaDe } from "./blocks";
 import { isComida, saciedadeDe } from "./comida";
 import {
   FERRAMENTAS,
+  aceleradosPor,
   exigenciaDe,
   liberadosPor,
   nomeDaFerramenta,
@@ -26,8 +27,18 @@ import type { Stack } from "./inventario";
  * existir — é o lugar já preparado pra ela.
  */
 export type Uso =
-  /** É ferramenta: o nome dela e os blocos que ELA destrava (nível exato). */
-  | { readonly tipo: "ferramenta"; readonly nome: string; readonly libera: readonly number[] }
+  /**
+   * É ferramenta: o nome dela, os blocos que ELA destrava (nível exato) e os
+   * que ela só ACELERA. Os dois campos existem porque machado e pá (§🪓) não
+   * destravam nada — `libera` vazio neles é a regra, não a exceção, e sem
+   * `acelera` o tooltip deles não teria o que dizer.
+   */
+  | {
+      readonly tipo: "ferramenta";
+      readonly nome: string;
+      readonly libera: readonly number[];
+      readonly acelera: readonly number[];
+    }
   /** Come-se: quantos pontos de fome devolve (escala de `FOME_MAX` = 20). */
   | { readonly tipo: "comida"; readonly fome: number }
   /** Vira outra coisa na fornalha. */
@@ -50,7 +61,14 @@ export function usosDoItem(id: number): readonly Uso[] {
   const usos: Uso[] = [];
 
   const f = FERRAMENTAS.get(id);
-  if (f) usos.push({ tipo: "ferramenta", nome: f.nome, libera: liberadosPor(f.tipo, f.nivel) });
+  if (f) {
+    usos.push({
+      tipo: "ferramenta",
+      nome: f.nome,
+      libera: liberadosPor(f.tipo, f.nivel),
+      acelera: aceleradosPor(f.tipo),
+    });
+  }
 
   if (isComida(id)) usos.push({ tipo: "comida", fome: saciedadeDe(id) });
 

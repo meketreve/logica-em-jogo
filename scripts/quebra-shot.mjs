@@ -12,7 +12,11 @@
  *    cada pedra;
  * 5. sem a picareta NA MÃO a pedra não quebra, por mais que se segure (a
  *    decisão nova: a mochila não basta);
- * 6. a picareta ACABA: some da mão e o chat avisa.
+ * 6. a picareta ACABA: some da mão e o chat avisa;
+ * 7. §🪓 machado e pá: o ícone e o nome na barra são os DELES (não os da
+ *    picareta), o machado derruba o tronco em ~metade do tempo da mão errada,
+ *    e a barra de vida nasce no slot deles — isto é, eles GASTAM na madeira e
+ *    na terra, que é onde servem.
  *
  * Roda no modo TOQUE de propósito: o ⛏ do tablet chama o mesmo `input.press(0)`
  * / `release(0)` do botão do mouse, e no headless não há pointer lock pra
@@ -275,6 +279,10 @@ const AR = 0;
 const PEDRA = 2;
 const PEDREGULHO = 3;
 const PICARETA_MADEIRA = 912;
+const MACHADO_MADEIRA = 923;
+const PA_MADEIRA = 927;
+const TRONCO = 6;
+const TERRA = 5;
 
 /** O que a sonda do cliente vê da rachadura (gancho `__quebraEstado`). */
 const trinca = () => avaliar(`window.__quebraEstado ? window.__quebraEstado() : null`);
@@ -398,6 +406,91 @@ const vida2 = await vidaDoSlot(0);
 const pct = (v) => Number(String(v?.largura ?? "100%").replace("%", ""));
 ok(pct(vida2) < pct(vida1), `a vida caiu (${vida1?.largura} → ${vida2?.largura})`);
 await foto("5-barra-menor.png");
+
+diga("== 6. §🪓 o MACHADO no tronco: nome, ícone e METADE do tempo ==");
+/** O ÍNDICE do slot que guarda este item — nunca um número fixo: o `/dar`
+ *  escolhe o primeiro slot livre, e o pedregulho das pedras de cima já ocupou
+ *  um (foi o que fez a 1ª rodada desta sonda medir com a mão errada). */
+const slotDoItem = (id) =>
+  avaliar(`[...document.querySelectorAll('#hotbar .slot')]
+    .findIndex(e => e.dataset.tipId === String(${id}))`);
+/** Centro de um slot da hotbar (é assim que o tablet troca o que está na mão). */
+const slotEm = (i) =>
+  avaliar(`(() => {
+    const s = document.querySelectorAll('#hotbar .slot')[${i}];
+    if (!s) return null;
+    const r = s.getBoundingClientRect();
+    return { x: Math.round(r.left + r.width/2), y: Math.round(r.top + r.height/2) };
+  })()`);
+/** Põe este ITEM na mão. Devolve o índice do slot (−1 = não está na hotbar). */
+async function porNaMao(id) {
+  const i = await slotDoItem(id);
+  if (i < 0) return -1;
+  const r = await slotEm(i);
+  if (!r) return -1;
+  await tocar(r.x, r.y);
+  return i;
+}
+/** O nome que a barra mostra do que está NA MÃO (`.bar-nome`). */
+const nomeNaMao = () => avaliar(`document.querySelector('#hotbar .bar-nome')?.textContent ?? null`);
+/** O `src` do ícone do slot — data URL desenhada pelo `blockIcons`. */
+const iconeDoSlot = (i) =>
+  avaliar(`document.querySelectorAll('#hotbar .slot')[${i}]?.querySelector('img')?.src ?? null`);
+/** Quanto tempo (ms) o bloco levou pra cair, medido do dedo até a mochila. */
+async function cronometrar(idDrop) {
+  const antes = await naMochila(idDrop);
+  const t0 = Date.now();
+  await apertarQuebrar(btnQuebrar.x, btnQuebrar.y);
+  const fim = await ateQue(() => naMochila(idDrop), (n) => n > antes, 9000);
+  const ms = Date.now() - t0;
+  await soltarQuebrar();
+  return fim > antes ? ms : Infinity;
+}
+
+await dizer(`/dar eu ${MACHADO_MADEIRA} 1`); // slot 1 (o 0 é a picareta)
+await dizer(`/dar eu ${PA_MADEIRA} 1`); // slot 2
+await espera(500);
+
+// (a) com a PICARETA na mão o tronco sai no tempo da MÃO NUA (tipo errado)
+await dizer(`/bloco ~ ~1 ~-3 ${TRONCO}`);
+await espera(400);
+const tErrada = await cronometrar(TRONCO);
+ok(Number.isFinite(tErrada), `o tronco caiu com a picareta na mão (${tErrada} ms)`);
+
+// (b) o mesmo tronco com o MACHADO
+const slotMachado = await porNaMao(MACHADO_MADEIRA);
+ok(slotMachado >= 0, `tocar no slot ${slotMachado} põe o machado na mão`);
+const nomeMachado = await nomeNaMao();
+ok(nomeMachado === "machado de madeira", `a barra diz o nome certo (${JSON.stringify(nomeMachado)})`);
+const iconeMachado = await iconeDoSlot(slotMachado);
+const iconePicareta = await iconeDoSlot(await slotDoItem(PICARETA_MADEIRA));
+ok(
+  !!iconeMachado && iconeMachado !== iconePicareta,
+  "o ícone do machado foi DESENHADO e não é o da picareta (silhueta própria)",
+);
+await foto("6-machado-na-mao.png");
+await dizer(`/bloco ~ ~1 ~-3 ${TRONCO}`);
+await espera(400);
+const tMachado = await cronometrar(TRONCO);
+ok(
+  tMachado < tErrada * 0.8,
+  `o machado derruba o tronco bem mais rápido (${tErrada} → ${tMachado} ms)`,
+);
+const vidaMachado = await ateQue(() => vidaDoSlot(slotMachado), (v) => v !== null, 3000);
+ok(vidaMachado !== null, `e GASTOU na madeira — barra de vida no slot (${JSON.stringify(vidaMachado)})`);
+
+diga("== 7. §🪓 a PÁ na terra: nome próprio e desgaste ==");
+const slotPa = await porNaMao(PA_MADEIRA);
+ok(slotPa >= 0, `tocar no slot ${slotPa} põe a pá na mão`);
+const nomePa = await nomeNaMao();
+ok(nomePa === "pá de madeira", `a barra diz o nome certo (${JSON.stringify(nomePa)})`);
+await dizer(`/bloco ~ ~1 ~-3 ${TERRA}`);
+await espera(400);
+const tPa = await cronometrar(TERRA);
+ok(Number.isFinite(tPa), `a terra saiu com a pá na mão (${tPa} ms)`);
+const vidaPa = await ateQue(() => vidaDoSlot(slotPa), (v) => v !== null, 3000);
+ok(vidaPa !== null, `e a pá GASTOU cavando (${JSON.stringify(vidaPa)})`);
+await foto("7-pa-na-mao.png");
 
 diga(`\n${falhas === 0 ? "✓ tudo certo" : `✗ ${falhas} falha(s)`}`);
 encerrar(falhas === 0 ? 0 : 1);

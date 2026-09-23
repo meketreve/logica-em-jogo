@@ -1,10 +1,21 @@
 import {
   BlockId,
+  ITEM_MACHADO_DIAMANTE,
+  ITEM_MACHADO_FERRO,
+  ITEM_MACHADO_MADEIRA,
+  ITEM_MACHADO_PEDRA,
+  ITEM_PA_DIAMANTE,
+  ITEM_PA_FERRO,
+  ITEM_PA_MADEIRA,
+  ITEM_PA_PEDRA,
   ITEM_PICARETA_DIAMANTE,
   ITEM_PICARETA_FERRO,
   ITEM_PICARETA_MADEIRA,
   ITEM_PICARETA_PEDRA,
   isFornalha,
+  isMovel,
+  isPorta,
+  isQuadro,
   isSlab,
   isStairs,
   slabMaterial,
@@ -44,9 +55,15 @@ import { SERVER_TICK_RATE } from "./constants";
  *
  * A tabela abaixo já é por (tipo × família), então o dia em que houver tempo de
  * quebra os dois entram sem redesenho.
+ *
+ * ⏩ **2026-09-23 (§🪓): esse dia chegou.** O §🔨 v2 trouxe tempo de quebra, o
+ * que derruba a razão (2) — agora existe um número pra dividir. A razão (1)
+ * continua de pé e virou a forma do conserto: machado e pá entram SÓ na tabela
+ * do IDEAL (quem acelera), nunca na do EXIGE (quem barra). Ver `IDEAL_DIRETO`
+ * e `ferramentaIdealDe` no fim do arquivo.
  */
 
-export type TipoFerramenta = "picareta";
+export type TipoFerramenta = "picareta" | "machado" | "pá";
 
 /** Nível do material: cada um alcança tudo que os anteriores alcançam. */
 export const NIVEL_MADEIRA = 1;
@@ -61,12 +78,40 @@ export interface Ferramenta {
   readonly nome: string;
 }
 
-/** Item → o que ele é. Set explícito: a banda ≥900 não é intervalo aberto. */
+/** O material de cada nível escrito UMA vez — é ele que nomeia as 12
+ *  ferramentas, e é por isso que "de pedra" nunca sai diferente em duas. */
+const MATERIAL: ReadonlyMap<number, string> = new Map([
+  [NIVEL_MADEIRA, "madeira"],
+  [NIVEL_PEDRA, "pedra"],
+  [NIVEL_FERRO, "ferro"],
+  [NIVEL_DIAMANTE, "diamante"],
+]);
+
+/** Os 4 ids de um tipo, do mais barato ao mais caro — a ordem É a progressão. */
+const familia = (
+  tipo: TipoFerramenta,
+  ids: readonly [number, number, number, number],
+): readonly (readonly [number, Ferramenta])[] =>
+  ids.map((id, i) => {
+    const nivel = NIVEL_MADEIRA + i;
+    return [id, { tipo, nivel, nome: `${tipo} de ${MATERIAL.get(nivel)}` }] as const;
+  });
+
+/**
+ * Item → o que ele é. Set explícito: a banda ≥900 não é intervalo aberto.
+ *
+ * As três famílias são GERADAS (e não escritas linha a linha) desde o §🪓: 12
+ * linhas à mão são 12 chances de trocar um nível ou escrever "picareta de
+ * pedra" num machado — e o nome é o que a criança lê no aviso do chat.
+ */
 export const FERRAMENTAS: ReadonlyMap<number, Ferramenta> = new Map([
-  [ITEM_PICARETA_MADEIRA, { tipo: "picareta" as const, nivel: NIVEL_MADEIRA, nome: "picareta de madeira" }],
-  [ITEM_PICARETA_PEDRA, { tipo: "picareta" as const, nivel: NIVEL_PEDRA, nome: "picareta de pedra" }],
-  [ITEM_PICARETA_FERRO, { tipo: "picareta" as const, nivel: NIVEL_FERRO, nome: "picareta de ferro" }],
-  [ITEM_PICARETA_DIAMANTE, { tipo: "picareta" as const, nivel: NIVEL_DIAMANTE, nome: "picareta de diamante" }],
+  ...familia("picareta", [
+    ITEM_PICARETA_MADEIRA, ITEM_PICARETA_PEDRA, ITEM_PICARETA_FERRO, ITEM_PICARETA_DIAMANTE,
+  ]),
+  ...familia("machado", [
+    ITEM_MACHADO_MADEIRA, ITEM_MACHADO_PEDRA, ITEM_MACHADO_FERRO, ITEM_MACHADO_DIAMANTE,
+  ]),
+  ...familia("pá", [ITEM_PA_MADEIRA, ITEM_PA_PEDRA, ITEM_PA_FERRO, ITEM_PA_DIAMANTE]),
 ]);
 
 /** O que este bloco EXIGE pra ser quebrado (`null` = a mão nua dá conta). */
@@ -199,13 +244,21 @@ export function faltaFerramenta(inv: Inventario, blockId: number): string | null
  * Quantas quebras cada ferramenta aguenta — a régua do Minecraft, e ela é
  * pedagógica: a picareta de madeira (59) acaba dentro de uma aula, o que é o
  * ponto; a de diamante (1561) na prática não acaba, o que é a recompensa.
+ *
+ * É o MATERIAL que decide, não o tipo (§🪓): machado, pá e picareta de pedra
+ * aguentam os mesmos 131. Uma tabela por tipo seria três listas pra manter em
+ * sincronia sem nenhuma pergunta que elas respondessem diferente.
  */
-export const DURABILIDADE: ReadonlyMap<number, number> = new Map([
-  [ITEM_PICARETA_MADEIRA, 59],
-  [ITEM_PICARETA_PEDRA, 131],
-  [ITEM_PICARETA_FERRO, 250],
-  [ITEM_PICARETA_DIAMANTE, 1561],
+const POR_MATERIAL: ReadonlyMap<number, number> = new Map([
+  [NIVEL_MADEIRA, 59],
+  [NIVEL_PEDRA, 131],
+  [NIVEL_FERRO, 250],
+  [NIVEL_DIAMANTE, 1561],
 ]);
+
+export const DURABILIDADE: ReadonlyMap<number, number> = new Map(
+  [...FERRAMENTAS].map(([id, f]) => [id, POR_MATERIAL.get(f.nivel) ?? 59]),
+);
 
 /** Quantas quebras este item aguenta, ou `null` se ele não é ferramenta. */
 export function durabilidadeDe(id: number): number | null {
@@ -262,8 +315,23 @@ const DUREZA_PADRAO = 750;
 const DUREZA = new Map<number, number>([
   [BlockId.Dirt, 500],
   [BlockId.Grass, 600],
+  [BlockId.GramaSeca, 600],
+  [BlockId.GramaFria, 600],
+  [BlockId.Snow, 400],
   [BlockId.Sand, 500],
   [BlockId.Gravel, 600],
+  // §🪓 (2026-09-23): a MADEIRA ganhou linha. Ela caía no padrão de 750 ms
+  // desde sempre — o comentário acima já prometia "um segundo e meio", e a
+  // linha nunca existiu. Sem ela o machado não tinha o que acelerar: 750/4,
+  // 750/6 e 750/8 batem todos no piso de 150 ms e os quatro níveis empatam.
+  // **Preço, decidido pelo usuário:** derrubar árvore de mão nua passa de
+  // 0,75 s pra 1,5 s por bloco, e é a primeira coisa que a turma faz na aula —
+  // o machado de madeira devolve exatamente o tempo de antes.
+  [BlockId.Log, 1500],
+  [BlockId.LogIpe, 1500],
+  [BlockId.LogAraucaria, 1500],
+  [BlockId.LogPauBrasil, 1500],
+  [BlockId.Planks, 1000],
   [BlockId.Stone, 2250],
   [BlockId.Cobblestone, 2000],
   [BlockId.Sandstone, 1200],
@@ -300,8 +368,8 @@ export const QUEBRA_MINIMA_MS = 150;
  * lenta" seria mais um enigma invisível pra criança.
  */
 export function tempoDeQuebraMs(blockId: number, mao: Slot): number {
-  const base = DUREZA.get(blockId) ?? DUREZA_PADRAO;
   const ideal = ferramentaIdealDe(blockId);
+  const base = durezaDe(blockId, ideal);
   const f = ferramentaDe(mao);
   const acelera = f !== null && ideal !== null && f.tipo === ideal;
   const fator = acelera ? (FATOR_POR_NIVEL.get(f.nivel) ?? 1) : 1;
@@ -309,18 +377,84 @@ export function tempoDeQuebraMs(blockId: number, mao: Slot): number {
 }
 
 /**
+ * Dureza da célula. Quem não está na tabela cai no padrão — MENOS a família do
+ * machado, que tem um padrão próprio (§🪓): cerca, baú, porta, móvel, laje e
+ * escada de tábua são dezenas de ids de madeira trabalhada, e escrevê-los um a
+ * um na `DUREZA` seria a lista que esquece o móvel seguinte. O tronco e a
+ * tábua continuam com linha própria porque são os dois que a aula sente.
+ */
+const DUREZA_MADEIRA_TRABALHADA = 1000;
+
+function durezaDe(blockId: number, ideal: TipoFerramenta | null): number {
+  const direto = DUREZA.get(blockId);
+  if (direto !== undefined) return direto;
+  return ideal === "machado" ? DUREZA_MADEIRA_TRABALHADA : DUREZA_PADRAO;
+}
+
+/**
+ * Blocos que o MACHADO e a PÁ aceleram, e **só aceleram**: nenhum deles entra
+ * no `EXIGE`, então continuam saindo com a mão nua. Essa é a linha inteira do
+ * §🪓 — exigência (que barra a quebra) e ideal (que acelera) são coisas
+ * diferentes, e foi confundi-las que fez a terra ficar rápida com picareta.
+ *
+ * A **pá** pega o que se CAVA (terra, grama de todo clima, areia, cascalho,
+ * neve); o **machado**, o que é madeira — tronco, tábua e tudo que sai da
+ * tábua. Folha fica de fora: ela já sai num toque e um machado que derruba a
+ * copa inteira mais rápido tira da árvore o que ela tem de aula (subir, olhar,
+ * escolher). Vidro e janela também: são vidro, não madeira.
+ */
+const IDEAL_DIRETO: ReadonlyMap<number, TipoFerramenta> = new Map([
+  [BlockId.Dirt, "pá"],
+  [BlockId.Grass, "pá"],
+  [BlockId.GramaSeca, "pá"],
+  [BlockId.GramaFria, "pá"],
+  [BlockId.Sand, "pá"],
+  [BlockId.Gravel, "pá"],
+  [BlockId.Snow, "pá"],
+  [BlockId.Log, "machado"],
+  [BlockId.LogIpe, "machado"],
+  [BlockId.LogAraucaria, "machado"],
+  [BlockId.LogPauBrasil, "machado"],
+  [BlockId.Planks, "machado"],
+  [BlockId.Cerca, "machado"],
+  [BlockId.Bau, "machado"],
+  [BlockId.BauLoja, "machado"],
+]);
+
+/** Material 1 de laje/escada é TÁBUA (0 pedra, 2 tijolo) — ver `MATERIAL_DE_PEDRA`. */
+const MATERIAL_DE_TABUA = 1;
+
+/**
  * Qual ferramenta ACELERA este bloco (mesmo quando ela não é obrigatória).
  *
- * Hoje é exatamente quem EXIGE picareta — quem não exige nada sai no mesmo
- * tempo com a mão ou com a picareta, que é a régua do Minecraft (picareta não
- * cava terra mais rápido) e foi o que um teste pegou antes deste comentário
- * existir. **É por aqui que machado e pá entram na quest seguinte**: madeira
- * ganha `"machado"` e terra/areia ganham `"pá"` SEM virarem obrigatórios — a
- * exigência (que barra a quebra) e o ideal (que acelera) são coisas
- * diferentes, e foi confundi-las que fez a terra ficar rápida com picareta.
+ * A ordem importa: quem EXIGE picareta já respondeu (e nenhum bloco de pedra
+ * cai nas famílias abaixo). O resto deriva de FAMÍLIA pela mesma razão do
+ * `exigenciaDe` — escrever os 24 ids de escada à mão é a garantia de esquecer
+ * um.
  */
 export function ferramentaIdealDe(blockId: number): TipoFerramenta | null {
-  return exigenciaDe(blockId)?.tipo ?? null;
+  const exige = exigenciaDe(blockId);
+  if (exige) return exige.tipo;
+  const direto = IDEAL_DIRETO.get(blockId);
+  if (direto) return direto;
+  if (isSlab(blockId)) return slabMaterial(blockId) === MATERIAL_DE_TABUA ? "machado" : null;
+  if (isStairs(blockId)) return stairsMaterial(blockId) === MATERIAL_DE_TABUA ? "machado" : null;
+  if (isPorta(blockId) || isMovel(blockId) || isQuadro(blockId)) return "machado";
+  return null;
+}
+
+/**
+ * §💬 (tooltip) — os blocos que esta ferramenta ACELERA sem exigir. É o "serve
+ * pra quê" do machado e da pá, que não destravam nada e portanto teriam um
+ * `liberadosPor` vazio: sem esta lista o tooltip deles diria só "ferramenta".
+ *
+ * Só o `IDEAL_DIRETO`, e pela mesma razão do `liberadosPor`: as famílias
+ * derivadas apareceriam como dezenas de ids repetindo "escada de tábua".
+ */
+export function aceleradosPor(tipo: TipoFerramenta): readonly number[] {
+  const ids: number[] = [];
+  for (const [id, t] of IDEAL_DIRETO) if (t === tipo) ids.push(id);
+  return ids;
 }
 
 /** O mesmo tempo, contado em TICKS de servidor (é o relógio do autoritativo). */

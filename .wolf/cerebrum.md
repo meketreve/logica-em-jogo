@@ -2467,6 +2467,35 @@ nenhum** — sem essa declaração o Chrome renderiza a página em light mesmo c
 
 ## Decision Log — índice das decisões ATIVAS
 
+- [2026-09-23, sessão 102] **§🪓 Machado e pá: EXIGIR e ACELERAR viraram duas tabelas
+  diferentes.** O `ferramentaIdealDe` era um apelido do `exigenciaDe` (`exigenciaDe(id)?.tipo`),
+  e por isso "a ferramenta que acelera" e "a ferramenta que o bloco cobra" eram forçosamente a
+  mesma. Machado e pá não cabem nisso: eles têm de acelerar madeira e terra **sem barrar**
+  ninguém — exigir machado pra tirar madeira, quando o machado é feito DE madeira, é um mundo
+  onde ninguém começa (a razão (1) do F10d, que continua valendo; o que caiu foi a (2), porque
+  agora existe tempo de quebra pra dividir). Então nasceu o `IDEAL_DIRETO` ao lado do `EXIGE`,
+  com as mesmas derivações de FAMÍLIA do `exigenciaDe` (laje/escada pelo material, porta, móvel,
+  quadro). **Portão de teste**: `machado-pa.test.ts` varre todo id ≤ `MAX_BLOCK_ID` e falha se
+  qualquer bloco passar a exigir algo que não seja picareta — é o teste que protege a aula de
+  travar no dia em que alguém "arrumar" a tabela.
+
+- [2026-09-23, sessão 102] **A madeira ganhou DUREZA própria, e o preço foi decidido pelo
+  usuário.** Tronco e tábua nunca tiveram linha na `DUREZA` — caíam no padrão de 750 ms, embora
+  o comentário do arquivo já prometesse "um segundo e meio". Sem linha própria o machado não
+  teria o que acelerar: 750 dividido por 4, 6 e 8 bate no piso de 150 ms e os quatro níveis
+  empatam. Escolha do usuário entre três réguas: **tronco 1500 ms, madeira trabalhada 1000 ms**
+  (o padrão próprio da família do machado, pra não listar baú, porta, cerca e cada móvel novo à
+  mão). **Consequência a contar pro professor:** derrubar árvore de mão nua DOBROU de tempo, e é
+  a primeira coisa que a turma faz numa aula de sobrevivência — o machado de madeira devolve
+  exatamente o tempo de antes. É o número mais provável de precisar de ajuste depois da 1ª aula.
+
+- [2026-09-23, sessão 102] **Durabilidade é do MATERIAL, não do tipo; e o `gastarDurabilidade`
+  não mudou uma linha.** As 12 ferramentas saem de 3 famílias geradas em laço (nome = `${tipo} de
+  ${material}`), e a `DURABILIDADE` deriva da `FERRAMENTAS` — machado, pá e picareta de pedra
+  aguentam os mesmos 131. O desgaste já perguntava "esta ferramenta é a IDEAL deste bloco?", que
+  era a pergunta certa antes de existirem outras ferramentas: bastou a tabela nova pro machado
+  passar a gastar na madeira e a pá na terra, sem tocar no servidor.
+
 - [2026-09-22] **OpenWolf desmontado; sobraram 3 arquivos.** O usuário apagou o `.wolf/` inteiro
   e, medido o uso real, ficou só o que se paga: **`STATUS.md`** (handoff), **`cerebrum.md`**
   (este arquivo: o porquê das escolhas) e **`buglog.json`** (bugs escritos à mão). Saíram 2,1 MB

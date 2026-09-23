@@ -227,10 +227,12 @@ export function quebrarCelula(
 /**
  * Gasta 1 de vida da ferramenta que estava na mão — e só dela.
  *
- * **Só gasta em bloco que PEDE aquela ferramenta.** Cavar terra com a picareta
- * na mão não consome nada: se consumisse, a picareta de madeira (59 quebras)
- * morreria arrumando o jardim, e a criança aprenderia a guardá-la em vez de
- * usá-la — o contrário do que a durabilidade quer ensinar.
+ * **Só gasta no bloco que aquela ferramenta ACELERA** (`ferramentaIdealDe`).
+ * Cavar terra com a picareta na mão não consome nada: se consumisse, a
+ * picareta de madeira (59 quebras) morreria arrumando o jardim, e a criança
+ * aprenderia a guardá-la em vez de usá-la — o contrário do que a durabilidade
+ * quer ensinar. Desde o §🪓 a regra também é o que dá vida ao machado e à pá:
+ * eles gastam na madeira e na terra, que é justamente onde eles servem.
  *
  * Ao zerar, a ferramenta SOME (decisão do usuário), com aviso no chat e um
  * evento pro cliente tocar o som.

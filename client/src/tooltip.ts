@@ -254,9 +254,13 @@ function linhaDeUso(texto: string): HTMLElement {
 function frase(uso: Uso): string | null {
   switch (uso.tipo) {
     case "ferramenta":
-      return uso.libera.length === 0
-        ? "⛏ ferramenta"
-        : `⛏ quebra ${listar(uso.libera)}`;
+      // machado e pá (§🪓) não DESTRAVAM nada — só aceleram. Dizer "quebra
+      // madeira" neles seria mentira: a mão nua também quebra. Daí as duas
+      // frases diferentes, e a do acelera vem com o "mais rápido".
+      if (uso.libera.length > 0) return `⛏ quebra ${listar(uso.libera)}`;
+      return uso.acelera.length > 0
+        ? `⛏ quebra ${listar(uso.acelera)} mais rápido`
+        : "⛏ ferramenta";
     case "comida":
       return `🍗 comida — enche ${uso.fome} de fome`;
     case "funde":

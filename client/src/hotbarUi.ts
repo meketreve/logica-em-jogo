@@ -6,6 +6,14 @@ import {
   ITEM_BANANA,
   ITEM_BATATA,
   ITEM_BATATA_COZIDA,
+  ITEM_MACHADO_DIAMANTE,
+  ITEM_MACHADO_FERRO,
+  ITEM_MACHADO_MADEIRA,
+  ITEM_MACHADO_PEDRA,
+  ITEM_PA_DIAMANTE,
+  ITEM_PA_FERRO,
+  ITEM_PA_MADEIRA,
+  ITEM_PA_PEDRA,
   ITEM_BETERRABA,
   ITEM_CARVAO,
   ITEM_CARVAO_VEGETAL,
@@ -85,6 +93,9 @@ export class HotbarUi {
       ITEM_CARVAO, ITEM_DIAMANTE, ITEM_GRAVETO,
       ITEM_CARVAO_VEGETAL, ITEM_LINGOTE_FERRO, ITEM_LINGOTE_OURO, ITEM_ALGODAO,
       ITEM_PICARETA_MADEIRA, ITEM_PICARETA_PEDRA, ITEM_PICARETA_FERRO, ITEM_PICARETA_DIAMANTE,
+      // §🪓 (2026-09-23): o machado e a pá, nos mesmos 4 materiais
+      ITEM_MACHADO_MADEIRA, ITEM_MACHADO_PEDRA, ITEM_MACHADO_FERRO, ITEM_MACHADO_DIAMANTE,
+      ITEM_PA_MADEIRA, ITEM_PA_PEDRA, ITEM_PA_FERRO, ITEM_PA_DIAMANTE,
       // §🍖 F10h (2026-08-06): os comestíveis das seis culturas + a batata
       // assada da fornalha — o inventário mostra "5× cenoura" com o ícone.
       ITEM_CENOURA, ITEM_BATATA, ITEM_BATATA_COZIDA, ITEM_BETERRABA,
@@ -162,6 +173,14 @@ export class HotbarUi {
     if (id === ITEM_PICARETA_PEDRA) return "picareta de pedra";
     if (id === ITEM_PICARETA_FERRO) return "picareta de ferro";
     if (id === ITEM_PICARETA_DIAMANTE) return "picareta de diamante";
+    if (id === ITEM_MACHADO_MADEIRA) return "machado de madeira";
+    if (id === ITEM_MACHADO_PEDRA) return "machado de pedra";
+    if (id === ITEM_MACHADO_FERRO) return "machado de ferro";
+    if (id === ITEM_MACHADO_DIAMANTE) return "machado de diamante";
+    if (id === ITEM_PA_MADEIRA) return "pá de madeira";
+    if (id === ITEM_PA_PEDRA) return "pá de pedra";
+    if (id === ITEM_PA_FERRO) return "pá de ferro";
+    if (id === ITEM_PA_DIAMANTE) return "pá de diamante";
     return PLACEABLE.find((b) => b.id === id)?.name ?? "?";
   }
 

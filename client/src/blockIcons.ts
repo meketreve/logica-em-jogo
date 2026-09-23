@@ -17,6 +17,14 @@ import {
   ITEM_LINGOTE_FERRO,
   ITEM_LINGOTE_OURO,
   ITEM_MELANCIA,
+  ITEM_MACHADO_DIAMANTE,
+  ITEM_MACHADO_FERRO,
+  ITEM_MACHADO_MADEIRA,
+  ITEM_MACHADO_PEDRA,
+  ITEM_PA_DIAMANTE,
+  ITEM_PA_FERRO,
+  ITEM_PA_MADEIRA,
+  ITEM_PA_PEDRA,
   ITEM_PICARETA_DIAMANTE,
   ITEM_PICARETA_FERRO,
   ITEM_PICARETA_MADEIRA,
@@ -306,10 +314,12 @@ function drawItemF10(ctx: CanvasRenderingContext2D, px: number, id: number): voi
     ctx.fill();
     return;
   }
-  const corPicareta = COR_DA_PICARETA.get(id);
-  if (corPicareta) {
-    // cabo de madeira na diagonal + cabeça em arco. A FORMA é a mesma nas 4;
-    // o que muda é a cor da cabeça, que é a informação que importa.
+  const ferramenta = FERRAMENTA_DESENHADA.get(id);
+  if (ferramenta) {
+    // O CABO é o mesmo nas 12 (madeira, na diagonal) e a COR é a do material —
+    // o que distingue machado, pá e picareta é a CABEÇA, porque é a silhueta
+    // que a criança reconhece de relance num slot de 40px.
+    const { tipo, cor } = ferramenta;
     ctx.strokeStyle = "#7a5426";
     ctx.lineWidth = Math.max(1, px * 0.12);
     ctx.lineCap = "round";
@@ -317,12 +327,32 @@ function drawItemF10(ctx: CanvasRenderingContext2D, px: number, id: number): voi
     ctx.moveTo(px * 0.3, px * 0.86);
     ctx.lineTo(px * 0.66, px * 0.34);
     ctx.stroke();
-    ctx.strokeStyle = corPicareta;
-    ctx.lineWidth = Math.max(1, px * 0.14);
-    ctx.beginPath();
-    ctx.moveTo(px * 0.3, px * 0.32);
-    ctx.quadraticCurveTo(px * 0.62, px * 0.1, px * 0.9, px * 0.34);
-    ctx.stroke();
+    if (tipo === "picareta") {
+      ctx.strokeStyle = cor; // cabeça em ARCO: as duas pontas viradas pra baixo
+      ctx.lineWidth = Math.max(1, px * 0.14);
+      ctx.beginPath();
+      ctx.moveTo(px * 0.3, px * 0.32);
+      ctx.quadraticCurveTo(px * 0.62, px * 0.1, px * 0.9, px * 0.34);
+      ctx.stroke();
+    } else if (tipo === "machado") {
+      ctx.fillStyle = cor; // lâmina em CUNHA, de um lado só do cabo
+      ctx.beginPath();
+      ctx.moveTo(px * 0.66, px * 0.12);
+      ctx.lineTo(px * 0.3, px * 0.2);
+      ctx.quadraticCurveTo(px * 0.18, px * 0.36, px * 0.34, px * 0.5);
+      ctx.lineTo(px * 0.62, px * 0.4);
+      ctx.closePath();
+      ctx.fill();
+    } else {
+      ctx.fillStyle = cor; // pá: concha larga com a ponta pra cima
+      ctx.beginPath();
+      ctx.moveTo(px * 0.62, px * 0.42);
+      ctx.lineTo(px * 0.38, px * 0.36);
+      ctx.quadraticCurveTo(px * 0.34, px * 0.12, px * 0.58, px * 0.1);
+      ctx.quadraticCurveTo(px * 0.82, px * 0.12, px * 0.78, px * 0.34);
+      ctx.closePath();
+      ctx.fill();
+    }
     return;
   }
   if (id === ITEM_ALGODAO) {
@@ -371,16 +401,36 @@ const ITENS_F10: ReadonlySet<number> = new Set([
   ITEM_CARVAO, ITEM_CARVAO_VEGETAL, ITEM_DIAMANTE, ITEM_GRAVETO,
   ITEM_LINGOTE_FERRO, ITEM_LINGOTE_OURO, ITEM_ALGODAO,
   ITEM_PICARETA_MADEIRA, ITEM_PICARETA_PEDRA, ITEM_PICARETA_FERRO, ITEM_PICARETA_DIAMANTE,
+  ITEM_MACHADO_MADEIRA, ITEM_MACHADO_PEDRA, ITEM_MACHADO_FERRO, ITEM_MACHADO_DIAMANTE,
+  ITEM_PA_MADEIRA, ITEM_PA_PEDRA, ITEM_PA_FERRO, ITEM_PA_DIAMANTE,
 ]);
 
-/** Cor da CABEÇA de cada picareta — o cabo é sempre madeira, e é a cabeça que
- *  o aluno compara pra saber qual delas tem na mão. */
-const COR_DA_PICARETA: ReadonlyMap<number, string> = new Map([
-  [ITEM_PICARETA_MADEIRA, "#a8763a"],
-  [ITEM_PICARETA_PEDRA, "#8e8e94"],
-  [ITEM_PICARETA_FERRO, "#d8dae2"],
-  [ITEM_PICARETA_DIAMANTE, "#4fd6e0"],
-]);
+/** Cor da CABEÇA por MATERIAL — o cabo é sempre madeira, e é a cabeça que o
+ *  aluno compara pra saber qual ferramenta tem na mão. */
+const COR_DO_MATERIAL = ["#a8763a", "#8e8e94", "#d8dae2", "#4fd6e0"] as const;
+
+/**
+ * As 12 ferramentas que `drawItemF10` desenha: qual SILHUETA e qual COR.
+ *
+ * A tabela é gerada dos ids em ordem de material (madeira → diamante), que é
+ * a ordem em que eles nascem em `blocks.ts`. Escrever 12 linhas à mão seria
+ * 12 chances de dar ao machado de ferro a cor do de pedra — e cor errada aqui
+ * é a criança pegando a ferramenta errada no meio da aula.
+ */
+type FormaDeFerramenta = "picareta" | "machado" | "pá";
+
+const FERRAMENTA_DESENHADA: ReadonlyMap<number, { tipo: FormaDeFerramenta; cor: string }> =
+  new Map(
+    (
+      [
+        ["picareta", [ITEM_PICARETA_MADEIRA, ITEM_PICARETA_PEDRA, ITEM_PICARETA_FERRO, ITEM_PICARETA_DIAMANTE]],
+        ["machado", [ITEM_MACHADO_MADEIRA, ITEM_MACHADO_PEDRA, ITEM_MACHADO_FERRO, ITEM_MACHADO_DIAMANTE]],
+        ["pá", [ITEM_PA_MADEIRA, ITEM_PA_PEDRA, ITEM_PA_FERRO, ITEM_PA_DIAMANTE]],
+      ] as const
+    ).flatMap(([tipo, ids]) =>
+      ids.map((id, i) => [id, { tipo, cor: COR_DO_MATERIAL[i]! }] as const),
+    ),
+  );
 
 /** §🍖 F10c + F10h: a cor da semente de cada planta — o punhado que o aluno
  *  carrega na mochila (ver `drawSemente`). Trigo continua o marrom original;

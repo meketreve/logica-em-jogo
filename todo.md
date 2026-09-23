@@ -850,21 +850,36 @@ ACELERA não tem onde aparecer"). Fazer só a durabilidade seria punição sem r
 o tempo de quebra seria espera sem razão. As três juntas fecham o laço do Minecraft: a
 ferramenta certa quebra rápido, gasta, e precisa ser refeita.
 
-* \[ ] **durabilidade das ferramentas.** É a 1ª coisa do jogo que quebra o par `{id, qtd}` da
+> **As três FORAM FEITAS** (2026-09-17, sessão 100) e destravaram o §🪓 abaixo. Ficam escritas
+> aqui com o raciocínio original porque é ele que explica por que andaram juntas.
+
+* \[x] **durabilidade das ferramentas.** É a 1ª coisa do jogo que quebra o par `{id, qtd}` da
   pilha (o F10d anotou isso de propósito: "a pilha continua `{id, qtd}`, nenhum campo novo em
   lugar nenhum"). Decisão a tomar ANTES de codar: um campo `dano?` opcional no `Stack`
   (atravessa save, protocolo e todo `moverEmArray`/`adicionar`, que hoje juntam pilhas por id) ou
   ids separados por faixa de desgaste. **Ferramenta danificada não empilha com a inteira** — é
   essa consequência que decide o desenho.
-* \[ ] **exigir a ferramenta no slot SELECIONADO pra usar.** Hoje a picareta vale onde ESTIVER
+* \[x] **exigir a ferramenta no slot SELECIONADO pra usar.** Hoje a picareta vale onde ESTIVER
   na mochila, e isso foi decisão explícita do F10d ("precisa dela na MÃO é um 2º enigma, e o
   clique não diz qual dos dois falhou"). O pedido reabre a decisão — e ela só fica justa junto
   do tooltip e do aviso na tela, senão a criança fica com a picareta na mochila achando que o
   bloco é inquebrável.
-* \[ ] **tempo de quebra por (bloco × ferramenta).** A tabela do `ferramentas.ts` já é
+* \[x] **tempo de quebra por (bloco × ferramenta).** A tabela do `ferramentas.ts` já é
   (tipo × família), então o número entra sem redesenho. Isto é o que destrava **machado e pá**,
   que ficaram de fora do F10d. Precisa de progresso VISÍVEL (rachadura no bloco ou anel na mira)
   e de segurar o botão — o `mousedown`/`mouseup` hoje é um clique só, e no toque é um tap.
+
+### §🪓 Machado e pá — **FEITO** (2026-09-23, sessão 102)
+
+Os dois que o F10d barrou porque "ferramenta que só ACELERA não tem onde aparecer". O tempo de
+quebra do §🔨 v2 deu onde: 8 ids (923–930), 8 receitas, 8 ícones e `TipoFerramenta` deixando de
+ser só `"picareta"`. **Nenhum dos dois é obrigatório** — entram na tabela do IDEAL (quem
+acelera), nunca na do EXIGE (quem barra), e há um portão de teste varrendo todo id do jogo pra
+garantir que continue assim. O `ferramentaIdealDe` passou a derivar de família própria
+(`IDEAL_DIRETO` + laje/escada de tábua + porta/móvel/quadro) em vez de ser um apelido do
+`exigenciaDe`. A madeira ganhou dureza própria (tronco 1500 ms, madeira trabalhada 1000):
+sem ela os 4 níveis de machado empatariam no piso de 150 ms. Prova: `shared/src/machado-pa.test.ts`
+(22 testes, 3 deles pelo fio) + passos 6 e 7 da sonda `npm run shots:quebra`.
 
 ### §💬 UI de jogo (pedido do usuário, 2026-08-06)
 

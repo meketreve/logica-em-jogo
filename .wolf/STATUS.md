@@ -2,57 +2,57 @@
 
 > Single source of truth for resuming work. Read this FIRST when starting a session.
 
-> ## 🧭 HANDOFF — SESSÃO 101 (2026-09-22/23)
+> ## 🧭 HANDOFF — SESSÃO 102 (2026-09-23)
 
 > **Árvore:** limpa, `HEAD` = `origin/main` (este handoff é o commit do topo). Único arquivo solto:
 > `relatorio/…docx:Zone.Identifier`, do usuário — **NÃO commitar**.
 >
-> **Ambiente:** só LINUX (o dev formatou o PC; a cópia do WSL não existe mais). O
-> `node_modules` deste clone é o híbrido da sessão 98 (esbuild `win32-x64` + nativos linux
-> copiados por cima) e **funciona**. Um `npm install` limpo seria legítimo; ninguém pediu.
+> **Ambiente:** só LINUX. O `node_modules` deste clone é o híbrido da sessão 98 e **funciona**.
 
-> **✅ Nesta sessão (tudo pushado):**
-> - **[[bug-672]] — tablet minimizado prendia o nome do aluno** (`3a1e9d0`). Minimizar/fechar o
->   navegador no tablet congela a aba SEM fechar o TCP; o servidor só tirava alguém de `players`
->   no `close` do socket, e o `join` recusa nome repetido — a criança ficava trancada do lado de
->   fora. **Heartbeat de aplicação** em `shared/src/session/presenca.ts`: `ping` a cada 4 s,
->   qualquer mensagem de volta conta como vida, 15 s de silêncio derruba (libera o nome) e o
->   hospedeiro fecha/`terminate` o socket pelo `aoDerrubar`. **Não é o ping do WebSocket** —
->   aquele é respondido pela pilha de rede com a aba congelada, que é o caso a pegar.
->   Singleplayer fica de fora. Cliente responde no TRANSPORTE (`connection.ts`), fecha no
->   `pagehide` e explica o código 4000. Smoke novo `presenca` (lento: espera os 15 s de verdade);
->   os 16 cenários/sondas de socket cru passaram a responder ping.
-> - **[[bug-671]] — a loja recusava preço de ITEM** (`1ccda8c`). `definir_preco` e
->   `parsePrecoEntry` validavam com `id <= MAX_BLOCK_ID` (250), e todo item começa em 900: pão,
->   trigo, picareta, carvão e as culturas voltavam "Item inválido.". A metade escondida era o
->   PARSE DO SAVE — o preço sumiria ao reabrir o mundo. Predicado único `podeEstarNaMochila`
->   (blocks.ts) nas DUAS pontas. Passo 7b novo na sonda `npm run shots:loja`.
-> - **OpenWolf desmontado** (`887c24a`, `8cef404`): de 2,1 MB em 33 arquivos pra 508 KB em 3.
->   Ficaram STATUS + cerebrum + buglog (podado de 324 pra 176: o resto era detector automático).
->   Saíram os 12 hooks, o `anatomy.md`, o `memory.md` e os docs de skill. **Não existe mais
->   hook nenhum** — quem manda ler estes arquivos é o `CLAUDE.md` da raiz, reescrito.
->   Achar código é com `grep`. Ver Decision Log 2026-09-22.
-> - **Changelog:** o bloco do topo (build atual, ainda NÃO publicado pra escola) fechou com os
->   três assuntos: quebra com tempo/rachadura/durabilidade, o heartbeat e o preço de item.
->   Título = "Quebrar bloco agora leva tempo — e a ferramenta gasta".
+> **✅ Nesta sessão:**
+> - **§🪓 MACHADO E PÁ** — a quest que o tempo de quebra tinha destravado. 8 ids novos
+>   (923–930), 8 receitas, 8 ícones com silhueta própria, e `TipoFerramenta` deixou de ser só
+>   `"picareta"`. **Nenhum dos dois é obrigatório:** a grande mudança de desenho é que EXIGIR
+>   (quem barra a quebra) e ACELERAR (quem corta o tempo) viraram DUAS tabelas — o
+>   `ferramentaIdealDe` era um apelido do `exigenciaDe` e agora tem o `IDEAL_DIRETO` dele, com as
+>   mesmas derivações de família (laje/escada pelo material, porta, móvel, quadro). Portão de
+>   teste varre todo id do jogo e falha se algo passar a exigir machado ou pá.
+> - **A madeira ganhou dureza própria** (tronco 1500 ms, madeira trabalhada 1000 ms), escolhida
+>   pelo usuário entre três réguas — sem ela os 4 níveis de machado empatariam no piso de 150 ms.
+>   **Preço:** derrubar árvore de mão nua dobrou de tempo (era 750 ms); o machado de madeira
+>   devolve exatamente o tempo de antes. É o número mais provável de precisar de ajuste depois
+>   da 1ª aula, e ele mora numa linha só do `DUREZA` em `shared/src/ferramentas.ts`.
+> - **Durabilidade é do MATERIAL** (machado, pá e picareta de pedra = 131), e o
+>   `gastarDurabilidade` do servidor **não mudou uma linha**: ele já perguntava "esta é a
+>   ferramenta IDEAL deste bloco?", então o machado passou a gastar na madeira e a pá na terra de
+>   graça.
+> - **Prova:** `shared/src/machado-pa.test.ts` (22 testes, 3 deles pelo FIO, com sessão de
+>   verdade) + passos **6 e 7 novos** na sonda `npm run shots:quebra`, que medem no Chrome real o
+>   nome na barra, o ícone desenhado, o tronco caindo em ~910 ms com machado contra ~1590 ms sem,
+>   e a barra de vida nascendo no slot das duas ferramentas novas.
+> - **Changelog:** o bloco do topo (build atual, ainda NÃO publicado pra escola) ganhou as quatro
+>   linhas do machado e da pá — inclusive a do tronco mais lento de mão nua, que é a única
+>   mudança que a turma pode estranhar.
+> - **`todo.md`:** o §🔨 v2 foi marcado como feito (ficara com `[ ]` desde a sessão 100) e o §🪓
+>   entrou fechado.
 
-> **Sessão 100 (2026-09-17), resumida:** §🔨 **Ferramentas v2** inteira — segurar pra quebrar com
-> rachadura no bloco, tempo por (bloco × ferramenta), ferramenta exigida na MÃO, durabilidade com
-> barra de vida no slot, e a ferramenta some quando acaba. Servidor conta o tempo
-> (`session/quebra.ts`), cliente só prevê pra desenhar. Bugs 667-670 no caminho. Detalhe completo:
-> `git log a7757ae..485d035` e o Decision Log de 2026-09-17.
+> **Sessão 101, resumida:** heartbeat de presença ([[bug-672]] — tablet minimizado prendia o nome
+> do aluno), preço de ITEM na loja ([[bug-671]]) e o desmonte do OpenWolf (ficaram STATUS,
+> cerebrum e buglog). Detalhe: `git log 1ccda8c..c5aca06`.
 
 > ### 🚀 PRÓXIMA QUEST
-> **Machado e pá** — é o que o tempo de quebra destravou, e o `ferramentaIdealDe` já é o gancho:
-> madeira ganha `"machado"` e terra/areia ganham `"pá"` **sem virarem obrigatórios** (exigir
-> machado pra tirar madeira seria um mundo onde ninguém começa — a razão está escrita no
-> cabeçalho do `ferramentas.ts`). São ids, ícones e receitas novos + `TipoFerramenta` deixando
-> de ser só `"picareta"`.
+> **O 1º bloco de circuito lógico** — e ele ainda está BLOQUEADO numa pergunta ao usuário: QUAL
+> bloco e como ele funciona na aula. É a razão de os ids de 16 bits terem sido feitos.
 >
-> Atrás dela: o **1º bloco de circuito lógico** (ainda falta o usuário dizer QUAL bloco e como
-> ele funciona na aula) e o `npm run bench:headless` antes/depois dos 16 bits.
+> Atrás dela: `npm run bench:headless` antes/depois dos 16 bits, ovelha+lã de verdade (§🍖 F8) e
+> sentar na cadeira.
 
 > **⚠️ NADA disto foi visto em tela pelo usuário — testar na escola:**
+> - **§🪓 machado e pá (NOVO):** fabricar os dois na mesa (o machado cobra 3 do material, a pá
+>   1 — os dois com 2 gravetos); sentir se derrubar árvore **de mão nua** ficou chato demais pra
+>   turma (é o número a afrouxar, se for); ver se o ícone do machado e o da pá se distinguem do
+>   da picareta no slot de 1024×600; e conferir que terra e madeira continuam saindo de mão
+>   vazia pra quem não fabricou nada.
 > - **§🔨 quebra (v2):** segurar pra quebrar no PC e no tablet (o ⛏ virou botão de SEGURAR, e
 >   dedo que escorrega solta), se o tempo da pedra parece justo pra turma, se a rachadura
 >   aparece no projetor da sala, e se a barrinha de vida no slot é enxergável em 1024×600.
@@ -83,9 +83,6 @@
 > - Mintar Dimas de graça criando nome novo — hoje só avisa, não impede.
 > - Votação da turma: falta decidir QUANTO de Dimas cada aluno recebe ao entrar.
 > - bug-650: confirmar em aula real com turma cheia (só localhost até agora).
->
-> Fila do `todo.md` depois da quest atual: machado e pá (destravados pelo tempo de quebra),
-> ovelha+lã de verdade (§🍖 F8), sentar na cadeira.
 
 ---
 

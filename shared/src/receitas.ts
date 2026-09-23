@@ -8,6 +8,14 @@ import {
   ITEM_GRAVETO,
   ITEM_LINGOTE_FERRO,
   ITEM_PAO,
+  ITEM_MACHADO_DIAMANTE,
+  ITEM_MACHADO_FERRO,
+  ITEM_MACHADO_MADEIRA,
+  ITEM_MACHADO_PEDRA,
+  ITEM_PA_DIAMANTE,
+  ITEM_PA_FERRO,
+  ITEM_PA_MADEIRA,
+  ITEM_PA_PEDRA,
   ITEM_PICARETA_DIAMANTE,
   ITEM_PICARETA_FERRO,
   ITEM_PICARETA_MADEIRA,
@@ -371,6 +379,22 @@ const FUNDICAO: readonly Receita[] = [
   { saida: { id: ITEM_PICARETA_PEDRA, qtd: 1 }, custo: [{ id: BlockId.Cobblestone, qtd: 3 }, { id: ITEM_GRAVETO, qtd: 2 }] },
   { saida: { id: ITEM_PICARETA_FERRO, qtd: 1 }, custo: [{ id: ITEM_LINGOTE_FERRO, qtd: 3 }, { id: ITEM_GRAVETO, qtd: 2 }] },
   { saida: { id: ITEM_PICARETA_DIAMANTE, qtd: 1 }, custo: [{ id: ITEM_DIAMANTE, qtd: 3 }, { id: ITEM_GRAVETO, qtd: 2 }] },
+  // §🪓 (2026-09-23): o MACHADO e a PÁ. Entram AQUI EMBAIXO, depois das
+  // picaretas, porque o índice é a identidade no protocolo — ver o cabeçalho
+  // do FUNDICAO.
+  //
+  // O preço é o do Minecraft, e ele diz sozinho pra que serve cada uma: o
+  // machado cobra 3 do material (é a ferramenta larga) e a pá cobra 1 (é a
+  // mais barata do jogo). Quem já fez a picareta do mesmo material não aprende
+  // regra nova — muda só quanto, e o cabo continua sendo 2 gravetos.
+  { saida: { id: ITEM_MACHADO_MADEIRA, qtd: 1 }, custo: [{ id: BlockId.Planks, qtd: 3 }, { id: ITEM_GRAVETO, qtd: 2 }] },
+  { saida: { id: ITEM_MACHADO_PEDRA, qtd: 1 }, custo: [{ id: BlockId.Cobblestone, qtd: 3 }, { id: ITEM_GRAVETO, qtd: 2 }] },
+  { saida: { id: ITEM_MACHADO_FERRO, qtd: 1 }, custo: [{ id: ITEM_LINGOTE_FERRO, qtd: 3 }, { id: ITEM_GRAVETO, qtd: 2 }] },
+  { saida: { id: ITEM_MACHADO_DIAMANTE, qtd: 1 }, custo: [{ id: ITEM_DIAMANTE, qtd: 3 }, { id: ITEM_GRAVETO, qtd: 2 }] },
+  { saida: { id: ITEM_PA_MADEIRA, qtd: 1 }, custo: [{ id: BlockId.Planks, qtd: 1 }, { id: ITEM_GRAVETO, qtd: 2 }] },
+  { saida: { id: ITEM_PA_PEDRA, qtd: 1 }, custo: [{ id: BlockId.Cobblestone, qtd: 1 }, { id: ITEM_GRAVETO, qtd: 2 }] },
+  { saida: { id: ITEM_PA_FERRO, qtd: 1 }, custo: [{ id: ITEM_LINGOTE_FERRO, qtd: 1 }, { id: ITEM_GRAVETO, qtd: 2 }] },
+  { saida: { id: ITEM_PA_DIAMANTE, qtd: 1 }, custo: [{ id: ITEM_DIAMANTE, qtd: 1 }, { id: ITEM_GRAVETO, qtd: 2 }] },
 ];
 
 export const RECEITAS: readonly Receita[] = [

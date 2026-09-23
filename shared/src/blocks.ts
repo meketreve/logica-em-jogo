@@ -430,7 +430,7 @@ export const ITEM_ALGODAO = 911;
 /**
  * §🍖 F10d: as PICARETAS. Quatro níveis, e a ordem deles É a progressão da
  * aula — cada uma só existe depois que a anterior abriu o material dela.
- * Machado e pá ficaram de fora por decisão escrita em `ferramentas.ts`.
+ * Machado e pá entraram depois, no §🪓 (ids 923–930, logo abaixo).
  */
 export const ITEM_PICARETA_MADEIRA = 912;
 export const ITEM_PICARETA_PEDRA = 913;
@@ -459,20 +459,52 @@ export const ITEM_BANANA = 920;
 export const ITEM_AIPIM = 921;
 export const ITEM_BATATA_COZIDA = 922;
 
+/**
+ * §🪓 (2026-09-23): o MACHADO e a PÁ. Os dois que o F10d deixou de fora porque
+ * "ferramenta que só ACELERA não tem onde aparecer" — a quebra era um clique
+ * instantâneo. O §🔨 v2 trouxe tempo de quebra, e é ele que lhes deu onde
+ * aparecer: agora existe um número pra dividir.
+ *
+ * **Nenhum dos dois é OBRIGATÓRIO**, e isso é a decisão inteira: madeira é o
+ * começo de tudo e o machado é feito DE madeira, então exigi-lo seria um mundo
+ * onde ninguém começa. Eles entram só na tabela do IDEAL (quem acelera), nunca
+ * na do EXIGE (quem barra) — ver `ferramentas.ts`.
+ *
+ * Quatro níveis cada, o mesmo material da picareta do mesmo nível: quem já
+ * fabricou a picareta de pedra sabe fazer o machado de pedra sem aprender
+ * regra nova.
+ */
+export const ITEM_MACHADO_MADEIRA = 923;
+export const ITEM_MACHADO_PEDRA = 924;
+export const ITEM_MACHADO_FERRO = 925;
+export const ITEM_MACHADO_DIAMANTE = 926;
+export const ITEM_PA_MADEIRA = 927;
+export const ITEM_PA_PEDRA = 928;
+export const ITEM_PA_FERRO = 929;
+export const ITEM_PA_DIAMANTE = 930;
+
 /** Um dos itens de FERRAMENTA (§🍖 F10d)? Mora aqui, junto de `isBalde`, e não
  *  em `ferramentas.ts`, porque quem pergunta primeiro é o `tamanhoStack` do
  *  inventário — e `inventario.ts` importando `ferramentas.ts`, que importa
  *  `inventario.ts` de volta, seria um ciclo por nada. */
-const PICARETAS: ReadonlySet<number> = new Set([
+const FERRAMENTAS_ITENS: ReadonlySet<number> = new Set([
   ITEM_PICARETA_MADEIRA,
   ITEM_PICARETA_PEDRA,
   ITEM_PICARETA_FERRO,
   ITEM_PICARETA_DIAMANTE,
+  ITEM_MACHADO_MADEIRA,
+  ITEM_MACHADO_PEDRA,
+  ITEM_MACHADO_FERRO,
+  ITEM_MACHADO_DIAMANTE,
+  ITEM_PA_MADEIRA,
+  ITEM_PA_PEDRA,
+  ITEM_PA_FERRO,
+  ITEM_PA_DIAMANTE,
 ]);
 
 /** É ferramenta? (1 por slot, como o balde — ver `tamanhoStack`) */
 export function isFerramenta(id: number): boolean {
-  return PICARETAS.has(id);
+  return FERRAMENTAS_ITENS.has(id);
 }
 
 /** É brasa (mineral ou vegetal)? As duas acendem tocha e alimentam fornalha —
@@ -560,6 +592,14 @@ const ITENS: ReadonlySet<number> = new Set([
   ITEM_BANANA,
   ITEM_AIPIM,
   ITEM_BATATA_COZIDA,
+  ITEM_MACHADO_MADEIRA,
+  ITEM_MACHADO_PEDRA,
+  ITEM_MACHADO_FERRO,
+  ITEM_MACHADO_DIAMANTE,
+  ITEM_PA_MADEIRA,
+  ITEM_PA_PEDRA,
+  ITEM_PA_FERRO,
+  ITEM_PA_DIAMANTE,
 ]);
 
 /** É um item conhecido (não-bloco)? */
