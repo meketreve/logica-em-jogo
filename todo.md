@@ -145,7 +145,7 @@ senão lado com parede; empate → base. Cliente inalterado.
     `_smoke-kicar.mjs`.
   * **NÃO mudou de propósito:** nomes internos — `claims.ts`, tipo `Claim`, campo
     `ses.claims`/`claimsAtivo`, nome de arquivo de teste/smoke. `claims` é chave **persistida no
-    `.ljw`**; trocar quebraria save antigo sem migração, e não foi pedido. `.wolf/STATUS.md`,
+    `.ljw`**; trocar quebraria save antigo sem migração, e não foi pedido. `.claude/context/STATUS.md`,
     `cerebrum.md` (Decision Log) e `changelog.ts` também ficaram intocados — são registro
     histórico de quando o comando ainda tinha o nome velho.
   * Bateria: typecheck 3/3 · 936/936 · build · smokes.
@@ -1208,7 +1208,7 @@ não tem filesystem; export de "pasta" no single fica de fora (não faz sentido 
 * \[x] **bug-661 — FECHADO sem patch (2026-09-03).** Usuário testou em Linux E Windows
   atualizados, funcionou nos dois. Relato original era de um PROFESSOR na máquina dele,
   provavelmente versão desatualizada — sem reprodução em ambiente atualizado. Plano de repro
-  documentado no `.wolf/buglog.json` bug-661 se voltar a acontecer.
+  documentado no `.claude/context/BUGS.md` bug-661 se voltar a acontecer.
 
 ## Modelo do jogador / animações (sessão atual, 2026-09-03)
 
@@ -1291,11 +1291,11 @@ modelo do jogador (**em andamento** — começou pelo corpo/animação, textura/
 ## Playtest na escola
 
 * \[x] **playtest na escola** (2026-08-07): sessão ao vivo na escola — **FEITO** no registro:
-  os 6 bugs relatados (599-604) estão no `.wolf/buglog.json` e o resumo da sessão no
-  `.wolf/STATUS.md` (sessão 55). Os pedidos de conteúdo e a fila de consertos estão nas seções
+  os 6 bugs relatados (599-604) estão no `.claude/context/BUGS.md` e o resumo da sessão no
+  `.claude/context/STATUS.md` (sessão 55). Os pedidos de conteúdo e a fila de consertos estão nas seções
   de sobrevivência/backlog acima.
 * \[x] **playtest 2026-08-10 — 3 bugs relatados, os 3 consertados no mesmo dia** (bug-609/610/611
-  no `.wolf/buglog.json`; sessão 65 no `.wolf/STATUS.md`):
+  no `.claude/context/BUGS.md`; sessão 65 no `.claude/context/STATUS.md`):
   * \[x] **dividir pilha deixa o ícone flutuando no meio da tela (notebook/PC)** — bug-609.
     O fantasma era do ARRASTO e a divisão por clique direito o criava sem `cand`, então ele
     nascia sem `left`/`top` (medido: (0,457) numa tela de 1024×600), não seguia o cursor e

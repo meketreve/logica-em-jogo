@@ -10,7 +10,7 @@ repositório como memória de longo prazo (fora do log técnico do OpenWolf em `
   **gitignored** (não versionados) e podem conter dados de aparelho; aqui fica só
   a tabela agregada e ANÔNIMA (dispositivo/GPU/FPS por versão — sem nome de aluno).
   A partir da v0.9.0 a saída do perfilador já carrega o campo `versao` e não coleta
-  mais nome de jogador (ver `.wolf/cerebrum.md`).
+  mais nome de jogador (ver `.claude/context/LEARNINGS-completo.md`).
 - **`prints/`** — capturas de tela dos testes/marcos (quando houver). As capturas
   headless de desenvolvimento saem em pasta temporária; as que valem como registro
   são copiadas pra cá manualmente.

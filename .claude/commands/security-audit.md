@@ -6,7 +6,7 @@ argument-hint: [path or scope, e.g. src/api — omit for whole project]
 Perform a layered security audit of: $ARGUMENTS (if empty: the whole project).
 
 Use `grep`/`glob` to target files instead of scanning blindly, and check
-`.wolf/buglog.json` for previously found security issues before re-reporting them.
+`.claude/context/BUGS.md` for previously found security issues before re-reporting them.
 
 Work through the layers in order. For each, report findings before moving on:
 
@@ -32,7 +32,7 @@ CSRF posture, servers bound to 0.0.0.0 without auth.
 
 ## Layer 5 — Report
 Produce a severity-ranked table (Critical/High/Medium/Low): finding, file:line, attack
-scenario, concrete fix. Log confirmed vulnerabilities to `.wolf/buglog.json` with tag
+scenario, concrete fix. Log confirmed vulnerabilities to `.claude/context/BUGS.md` with tag
 "security". Offer to fix Critical and High items immediately.
 
 Rules: verify each finding against the actual code before reporting (no
