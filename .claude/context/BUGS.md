@@ -7,6 +7,31 @@
      modelo). São bugs ESCRITOS À MÃO: nada de detector automático — ele já encheu
      o arquivo de 148 entradas falsas uma vez, e elas foram podadas junto. -->
 
+## 2026-09-25 — bug-673: o portão do dist nunca podia falhar no pre-push (e a árvore sujava a cada push)
+- **Sintoma:** depois de todo `git push`, a árvore ficava suja com 8 arquivos (`client/dist/*` +
+  `shared/src/build-info.json`) sem uma linha de código ter mudado. E o `check:dist` respondia
+  sempre `· client/dist mudou junto com fonte ainda não commitada — normal`.
+- **Onde:** `scripts/gerar-build-info.mjs`, `scripts/checar-dist.mjs`, `shared/src/version.ts`
+- **Causa:** o `build-info.json` carimbava o sha do HEAD e é *inlined* no bundle, então o
+  `client/dist` — que é VERSIONADO — deixava de ser função da FONTE e virava função de "qual
+  commit é o HEAD agora". Como o hook de pre-push roda `npm run verify` DEPOIS do commit, o build
+  recarimbava o HEAD recém-criado e reescrevia o bundle inteiro. Pior: o `checar-dist.mjs`
+  desculpa um dist sujo quando existe "fonte ainda não commitada", e o `build-info.json` mora em
+  `shared/src` — a desculpa era SEMPRE verdadeira, então o portão **não conseguia falhar no único
+  caminho para o qual foi feito** (pegar "esqueci de reconstruir o dist", que chega na escola como
+  tela velha). O comentário do gerador desde 2026-08-27 tratava a defasagem como "esperado, não um
+  bug"; era, mas o efeito colateral no portão não tinha sido visto.
+- **Correção:** o sha saiu do rótulo (`ROTULO_BUILD` virou só a data DD/MM/AAAA) e do
+  `build-info.json`, que agora tem só `data` + `titulo`. A `data` só anda quando o `titulo` do
+  changelog muda (marco novo): se voltasse a seguir o HEAD, a árvore sujaria de novo na virada de
+  meia-noite e o portão passaria a BLOQUEAR push honesto. O `checar-dist.mjs` passou a excluir
+  `shared/src/build-info.json` da lista de "fonte". Os launchers `.sh`/`.bat` já liam só `data` e
+  `titulo`, e o commit que eles mostram vem do git/API — nenhum dos dois mudou. Provado nos dois
+  sentidos: (a) commit + `npm run build` logo depois deixa a árvore LIMPA; (b) commitando fonte que
+  muda o bundle sem o dist, o portão volta a acusar `✗ a escola rodaria a tela velha`. Portão de
+  teste novo em `version.test.ts` proíbe o rótulo de voltar a carregar sha.
+- **Tags:** build, dist, portao, pre-push, build-info, rotulo, auto-referencia
+
 ## 2026-09-22 — bug-672: usuário: 'no tablet, se o jogador sair sem querer (minimizar ou fechar) não é feito o logo
 - **Sintoma:** usuário: 'no tablet, se o jogador sair sem querer (minimizar ou fechar) não é feito o logout e o jogador continua conectado, impossibilitando reconectar'
 - **Onde:** `shared/src/session/presenca.ts`

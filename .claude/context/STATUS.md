@@ -36,6 +36,10 @@ Atrás dela: `npm run bench:headless` antes/depois dos ids de 16 bits, ovelha+l�
 
 ## Concluído (recente)
 
+- **2026-09-25:** contexto migrado pra `.claude/context/` (era `.wolf/`) e **bug-673** — o rótulo
+  de build carregava o sha do HEAD, o que fazia o `client/dist` versionado mudar sozinho a cada
+  commit e deixava o portão do dist desarmado justo no pre-push. Rótulo virou só a data.
+
 - **Sessão 102 (23/09):** §🪓 machado e pá — EXIGIR e ACELERAR viraram tabelas separadas, madeira
   ganhou dureza própria, 22 testes novos + passos 6/7 na sonda da quebra.
 - **Sessão 101 (22-23/09):** heartbeat de presença (bug-672, tablet minimizado prendia o nome do
