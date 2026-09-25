@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { COMMIT_BUILD, DATA_BUILD, ROTULO_BUILD, rotuloDoBloco } from "./version";
+import buildInfo from "./build-info.json";
+import { DATA_BUILD, ROTULO_BUILD, rotuloDoBloco } from "./version";
 
 /**
  * A tela "📜 novidades" (client/src/changelog.ts) tinha o bloco do topo
@@ -12,10 +13,17 @@ import { COMMIT_BUILD, DATA_BUILD, ROTULO_BUILD, rotuloDoBloco } from "./version
  * `npm run build`/`npm run dev` passam a relabelar a tela sozinhos.
  */
 describe("rótulo de build do changelog", () => {
-  it("a entrada SEM data fixa vira o build atual (data + commit)", () => {
+  it("a entrada SEM data fixa vira o build atual (a data do marco)", () => {
     expect(rotuloDoBloco()).toBe(ROTULO_BUILD);
     expect(rotuloDoBloco(undefined)).toBe(ROTULO_BUILD);
-    expect(ROTULO_BUILD).toContain(COMMIT_BUILD);
+  });
+
+  // §portão: o rótulo NÃO pode voltar a carregar o sha do HEAD. Ele é inlined
+  // no `client/dist`, que é versionado — um valor que muda a cada commit faz o
+  // bundle mudar sozinho e desarma o `checar-dist.mjs` (2026-09-25).
+  it("PORTÃO: o rótulo não carrega sha de commit — só a data DD/MM/AAAA", () => {
+    expect(ROTULO_BUILD).toMatch(/^\d{2}\/\d{2}\/\d{4}$/);
+    expect(Object.keys(buildInfo)).toEqual(["data", "titulo"]);
   });
 
   it("entrada histórica mantém a data que já tinha", () => {

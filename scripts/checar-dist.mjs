@@ -57,8 +57,25 @@ if (dist.length === 0) {
   process.exit(0);
 }
 
-// tudo que entra no bundle. `client/dist` fica de fora de propósito.
-const fonte = status("client/src", "shared/src", "client/index.html", "package.json", "package-lock.json");
+// Tudo que entra no bundle. `client/dist` fica de fora de propósito — e
+// `shared/src/build-info.json` também, porque ele é GERADO, não escrito.
+//
+// ⚠️ **Sem esse `:!` o portão ficava DESARMADO justo no pre-push** (2026-09-25).
+// O hook roda a bateria DEPOIS do commit; o build recarimbava o build-info, que
+// mora em `shared/src` — então "fonte ainda não commitada" era SEMPRE verdade,
+// e o portão imprimia "normal" e passava mesmo com o dist defasado de verdade.
+// Ele nunca podia falhar no único caminho para o qual foi feito. Excluir o
+// arquivo só é seguro porque ele parou de seguir o HEAD no mesmo dia (ver
+// `scripts/gerar-build-info.mjs`): se voltar a mudar a cada commit, isto aqui
+// passa a BLOQUEAR push honesto, que é o sintoma oposto e igualmente ruim.
+const fonte = status(
+  "client/src",
+  "shared/src",
+  ":!shared/src/build-info.json",
+  "client/index.html",
+  "package.json",
+  "package-lock.json",
+);
 if (fonte.length > 0) {
   console.log("  · client/dist mudou junto com fonte ainda não commitada — normal");
   console.log("      lembre de commitar os dois JUNTOS: a escola roda o dist, não o src");

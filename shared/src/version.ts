@@ -1,5 +1,6 @@
 /**
- * Rótulo de BUILD — data + commit curto do HEAD (2026-08-27).
+ * Rótulo de BUILD — a DATA do marco atual (2026-08-27; o commit saiu em
+ * 2026-09-25).
  *
  * Substitui o `npm version`/semver: este projeto não tem executável nem
  * artefato de release — o launcher da escola atualiza comparando COMMIT via
@@ -8,7 +9,16 @@
  * o jogador via na tela não correspondia a NADA que decidisse "está
  * atualizado" de verdade.
  *
- * `data`/`commit` vêm de `shared/src/build-info.json`, GERADO por
+ * ⚠️ **O COMMIT curto saiu do rótulo (2026-09-25).** Ele carimbava o HEAD e
+ * era inlined no bundle, então o `client/dist` — que é VERSIONADO — mudava
+ * sozinho a cada commit: árvore suja em todo push, e o portão do dist
+ * desarmado justo no pre-push (ele desculpa dist sujo quando há "fonte não
+ * commitada", e o build-info mora em `shared/src`). Um rótulo auto-referente
+ * dentro de um artefato versionado não fecha: ou o rótulo mente por um
+ * commit, ou o artefato nunca estabiliza. Quem precisa do sha tem o launcher
+ * (imprime ao atualizar) e o `git log`. Ver `scripts/gerar-build-info.mjs`.
+ *
+ * `data` vem de `shared/src/build-info.json`, GERADO por
  * `scripts/gerar-build-info.mjs` antes de `npm run build`/`npm run dev` (ver
  * package.json da raiz) — nunca editado à mão. Importado como named export do
  * JSON: roda igual no navegador (Vite), no Node do servidor (tsx) e nos
@@ -17,7 +27,6 @@
 import buildInfo from "./build-info.json";
 
 export const DATA_BUILD: string = buildInfo.data;
-export const COMMIT_BUILD: string = buildInfo.commit;
 
 /** "2026-08-27" (ISO do `git log --date=short`) → "27/08/2026". */
 function dataBr(iso: string): string {
@@ -25,8 +34,8 @@ function dataBr(iso: string): string {
   return ano && mes && dia ? `${dia}/${mes}/${ano}` : iso;
 }
 
-/** Rótulo pronto pra tela: "27/08/2026 · dd1619a". */
-export const ROTULO_BUILD: string = `${dataBr(DATA_BUILD)} · ${COMMIT_BUILD}`;
+/** Rótulo pronto pra tela: "27/08/2026". */
+export const ROTULO_BUILD: string = dataBr(DATA_BUILD);
 
 /**
  * Rótulo de um bloco da tela "📜 novidades" (`client/src/changelog.ts`).
