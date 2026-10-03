@@ -56,6 +56,7 @@ Atrás dela: `bench:headless` antes/depois dos ids de 16 bits, ovelha+lã (§�
 data: 2026-10-02
 
 ```
+09209f8 docs(contexto): migra os 7 arquivos pro formato de tiers da skill
 86df1d3 docs(contexto): registra o bug-673 (rótulo auto-referente) no BUGS.md
 d60f2cd fix(build): tira o sha do commit do rótulo — o dist parava de ser função da fonte
 cfda969 docs(contexto): migra .wolf para .claude/context com imports no CLAUDE.md
@@ -63,22 +64,7 @@ a089663 feat(ferramentas): machado e pá — aceleram sem exigir (§🪓)
 c5aca06 docs(status): handoff da sessão 101 — heartbeat, preço de item e OpenWolf desmontado
 8cef404 chore: desmonta o OpenWolf — ficam STATUS, cerebrum e buglog
 887c24a docs: remove planos/specs de skill e a folha de perguntas da loja
-3a1e9d0 fix(rede): heartbeat libera o nome de quem fechou o tablet sem sair (bug-672)
-1ccda8c fix(loja): preço de ITEM (pão, trigo, picareta) volta a salvar (bug-671)
-8d9b206 chore(dist): rebuild com o rótulo da atualização nova
-5754687 docs(wolf): marca o handoff da sessão 100 como pushado
-a4b79af docs(wolf): handoff da sessão 100 — §🔨 Ferramentas v2 (segurar, rachar, gastar)
-485d035 feat(ferramentas): quebrar leva tempo, a ferramenta gasta e a rachadura aparece (§🔨 v2)
-a7757ae feat(ferramentas): durabilidade e tempo de quebra, no módulo puro (§🔨 v2, etapa 1)
-bbbc793 docs(wolf): handoff da sessão 98 — loja, cama, porta, ids 16 bits, levantar e torre
 --- status ---
- M .claude/context/BUGS.md
- M .claude/context/LEARNINGS-completo.md
- M .claude/context/LEARNINGS.md
- M .claude/context/MAP.md
- M .claude/context/STATUS.md
- M .claude/context/TODO.md
- M .claude/context/WORKFLOW.md
 ?? "relatorio/C\303\263pia de C\303\263pia de Modelo sequ\303\252ncia did\303\241tica 2026.docx\357\200\272Zone.Identifier"
 ```
 <!-- auto:end -->
