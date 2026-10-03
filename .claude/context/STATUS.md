@@ -1,5 +1,5 @@
 ---
-updated: 2026-10-02
+updated: 2026-10-03
 tier: 3
 ---
 
@@ -9,20 +9,23 @@ tier: 3
 
 ## Estado atual
 
-Jogo voxel educacional rodando, testado com turma real. Árvore limpa, `main` **em sinc com o
-`origin`** (`86df1d3`). Único arquivo solto: `relatorio/…docx:Zone.Identifier`, do usuário —
-**não commitar**. Ambiente é só LINUX.
+Jogo voxel educacional rodando, testado com turma real. Árvore limpa, `main` em sinc com o
+`origin` (`346a955`). Ambiente é só LINUX.
 
-**O build com §🔨 quebra por tempo, §🪓 machado e pá, heartbeat de presença e preço de item
-acabou de ser PUSHADO (02/10)** — então o launcher da escola já baixa isso na próxima vez que
-rodar. Nada disso foi visto em tela pelo usuário ainda: a lista do que testar em aula está no
-`TODO.md`, e ela deixou de ser hipotética.
+**O build com §🔨 quebra por tempo, §🪓 machado e pá, heartbeat de presença e preço de item está
+PUSHADO** — o launcher da escola já baixa isso na próxima vez que rodar. **Nada disso foi visto
+em tela pelo usuário**: a lista do que testar em aula está no `TODO.md`, e ela deixou de ser
+hipotética. O retorno dessa aula é o que decide se algum número precisa afrouxar.
 
 ## Próxima fase
 
 **O 1º bloco de circuito lógico** — é a razão de os ids de 16 bits terem sido feitos, e está
-**bloqueado numa pergunta ao usuário**: QUAL bloco, e como ele funciona na aula. Perguntar antes
-de codar (feature grande = entrevista de escopo, ver `LEARNINGS.md`).
+**BLOQUEADO numa pergunta ao usuário**: QUAL bloco, e como ele funciona na aula. Feature grande =
+entrevista de escopo antes de codar (`LEARNINGS.md`). Não começar sem a resposta.
+
+Com a resposta na mão, o ponto de entrada é `shared/src/blocks.ts` (id novo abaixo de 900, nunca
+renumerar id que já existe) + um módulo PURO novo em `shared/src/`, no molde de `ferramentas.ts`
+→ **verify:** `npm run verify` verde e uma sonda `shots:*` que ENXERGUE o bloco na tela.
 
 Atrás dela: `bench:headless` antes/depois dos ids de 16 bits, ovelha+lã (§🍖 F8), sentar na cadeira.
 
@@ -39,6 +42,8 @@ Atrás dela: `bench:headless` antes/depois dos ids de 16 bits, ovelha+lã (§�
 
 ## Concluído (recente)
 
+- **03/10:** estes arquivos entraram nas convenções novas da skill (veredicto em LEARNINGS, teto
+  medido fora dos blocos `auto`, WORKFLOW em `etapa → verify:`).
 - **02/10:** push dos dois commits represados — o conserto do **bug-673** chegou ao repositório
   (era um conserto que não tinha saído daqui, e a escola roda o que está no repo).
 - **28/09–02/10:** skill `/contexto` migrada pro modelo de TIERS (3 aqui) e estes arquivos
@@ -53,18 +58,21 @@ Atrás dela: `bench:headless` antes/depois dos ids de 16 bits, ovelha+lã (§�
 ## Bruto do git (auto — não editar)
 
 <!-- auto:start -->
-data: 2026-10-02
+data: 2026-10-03
 
 ```
+346a955 docs(contexto): etapas do WORKFLOW no formato "etapa → verify: checagem"
+4954987 chore(git): ignora o Zone.Identifier que o Windows grava em arquivo baixado
+e310339 docs(contexto): regenera o bloco auto do STATUS (8 commits, status curto)
 09209f8 docs(contexto): migra os 7 arquivos pro formato de tiers da skill
 86df1d3 docs(contexto): registra o bug-673 (rótulo auto-referente) no BUGS.md
 d60f2cd fix(build): tira o sha do commit do rótulo — o dist parava de ser função da fonte
 cfda969 docs(contexto): migra .wolf para .claude/context com imports no CLAUDE.md
 a089663 feat(ferramentas): machado e pá — aceleram sem exigir (§🪓)
-c5aca06 docs(status): handoff da sessão 101 — heartbeat, preço de item e OpenWolf desmontado
-8cef404 chore: desmonta o OpenWolf — ficam STATUS, cerebrum e buglog
-887c24a docs: remove planos/specs de skill e a folha de perguntas da loja
 --- status ---
-?? "relatorio/C\303\263pia de C\303\263pia de Modelo sequ\303\252ncia did\303\241tica 2026.docx\357\200\272Zone.Identifier"
+ M .claude/context/LEARNINGS.md
+ M .claude/context/MAP.md
+ M .claude/context/STATUS.md
+ M .claude/context/TODO.md
 ```
 <!-- auto:end -->

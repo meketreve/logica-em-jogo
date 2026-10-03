@@ -1,5 +1,5 @@
 ---
-updated: 2026-10-02
+updated: 2026-10-03
 tier: 3
 ---
 
@@ -46,6 +46,15 @@ tier: 3
 
 ## Erros a não repetir
 
+- [2026-10-03] [build] [✗] Rótulo auto-referente (sha do HEAD) dentro de artefato VERSIONADO —
+  o `client/dist` virava função de "qual commit é o HEAD agora", sujava a árvore a cada push e
+  calava o portão do dist (bug-673). Ou o rótulo mente por um commit, ou o artefato nunca
+  estabiliza: carimbar data, não sha.
+- [2026-10-03] [teste] [✗] Provar que um portão PEGA algo usando mudança que a minificação
+  engole — acrescentei um comentário no `client/src` e o bundle saiu idêntico, então o "teste"
+  passou sem testar nada. Para exercitar o portão do dist, mexer em algo que chega no bundle
+  (uma string visível).
+
 - **Não aceitar "passou" de um teste sem rodar o CONTROLE NEGATIVO.** Um teste que passa com a
   feature desligada não está testando nada.
 - **Não confiar em "typecheck 0" escrito no STATUS sem rodar.**
@@ -60,7 +69,11 @@ tier: 3
 O Decision Log completo (todas as decisões ativas, com data e razão) está na seção
 `## Decision Log` de **`LEARNINGS-completo.md`**. As três mais quentes:
 
-- **[2026-09-23] EXIGIR e ACELERAR são tabelas diferentes** (`EXIGE` × `IDEAL_DIRETO` em
+- [2026-10-03] [jogo] [✓] Dureza própria pra madeira (tronco 1500 ms, trabalhada 1000) — sem ela
+  os 4 níveis de machado empatavam no piso de 150 ms. Decisão do usuário entre 3 réguas, e é **o
+  número mais provável de precisar afrouxar** depois da 1ª aula: derrubar árvore de mão nua
+  dobrou, e é a primeira coisa que a turma faz.
+- **[2026-09-23] [✓] EXIGIR e ACELERAR são tabelas diferentes** (`EXIGE` × `IDEAL_DIRETO` em
   `shared/src/ferramentas.ts`). Machado e pá aceleram sem barrar; há portão de teste varrendo
   todo id pra garantir que nada passe a exigir os dois.
 - **[2026-09-22] O andaime de contexto foi desmontado até o osso** — de 33 arquivos pra 3. Índice
