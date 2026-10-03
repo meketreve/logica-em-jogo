@@ -1,3 +1,8 @@
+---
+updated: 2026-10-02
+tier: 3
+---
+
 # Aprendizados
 
 > Só o que muda o que eu faço em TODA sessão — este arquivo é importado e carrega sempre.

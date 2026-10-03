@@ -1,3 +1,9 @@
+---
+updated: 2026-10-02
+tier: 3
+active: true
+---
+
 # TODO
 
 > O backlog DETALHADO (1300+ linhas, com spec de cada ideia) continua em **`todo.md`** na raiz.

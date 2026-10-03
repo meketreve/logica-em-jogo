@@ -1,3 +1,8 @@
+---
+updated: 2026-10-02
+tier: 3
+---
+
 # Workflow do projeto
 
 ## O portão antes de commitar

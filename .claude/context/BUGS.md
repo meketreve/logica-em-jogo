@@ -1,3 +1,8 @@
+---
+updated: 2026-10-02
+tier: 3
+---
+
 # Bugs resolvidos
 
 <!-- Um bloco por bug, do mais novo pro mais antigo. A MENSAGEM DE ERRO é literal,

@@ -1,3 +1,8 @@
+---
+updated: 2026-10-02
+tier: 3
+---
+
 # Cerebrum
 
 > OpenWolf's learning memory. Curated knowledge only: User Preferences, timeless Key Learnings, Do-Not-Repeat.
