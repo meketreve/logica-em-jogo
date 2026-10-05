@@ -111,7 +111,15 @@ export interface SaveMeta {
    *  desligado. Era estado só de runtime — o professor liberava e o mundo
    *  esquecia no boot seguinte, sempre voltando desligado. Mesmo desenho do
    *  `chatSilenciado`: interruptor do professor que pertence ao MUNDO. (O
-   *  professor voa sempre, independente disto.) */
+   *  professor voa sempre, independente disto.)
+   *
+   *  **Vale por SAVE, inclusive em mundo de AULA** (regra do usuário): a aula
+   *  nasce sem voo, e só abre voando se o MODELO dela tiver sido salvo com
+   *  `/voo ligar` (o gerador de `cenarios/` roda os mesmos comandos de chat do
+   *  professor, então basta ele emitir o comando pra aula nascer assim).
+   *  ⚠️ NÃO escrever aqui o equivalente ao override do `confinamento`
+   *  (`if (opts.somenteLeitura) …`) — há teste-portão em `session.test.ts`
+   *  justamente pra barrar isso. */
   vooLiberado?: boolean;
   /** Quadros (2026-07-19): conteúdo (texto/imagem) por posição. Ausente =
    *  nenhum quadro com conteúdo. */

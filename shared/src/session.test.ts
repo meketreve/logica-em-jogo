@@ -490,6 +490,32 @@ describe("GameSession (servidor autoritativo)", () => {
     expect(s2.toSave().vooLiberado).toBeUndefined();
   });
 
+  it("/voo em mundo de AULA: desligado por padrão, LIGADO se o modelo foi salvo assim", () => {
+    // A regra do usuário (2026-10-06): o estado do voo é de cada save. Aula
+    // nasce sem voo; se o MODELO foi criado com /voo ligar, a aula abre voando.
+    // ⚠️ PORTÃO: o confinamento tem override pra `somenteLeitura`
+    // (`if (opts.somenteLeitura) this.confinamentoAtivo = true`) — este teste
+    // existe pra que ninguém escreva o equivalente pro voo e force desligado.
+    const base = new GameSession(() => {}, { dims: DIMS, seed: 5, singleplayer: true });
+    const aulaSemVoo = new GameSession(() => {}, {
+      restore: { world: base.world, ...base.toSave() },
+      somenteLeitura: true,
+      singleplayer: true,
+    });
+    expect(aulaSemVoo.vooLiberado).toBe(false);
+
+    base.handleMessage(1, JSON.stringify({ type: "join", name: "prof" }));
+    base.handleMessage(1, JSON.stringify({ type: "chat", text: "/voo ligar" }));
+    const modelo = base.toSave();
+    expect(modelo.vooLiberado).toBe(true); // o MODELO leva o estado
+    const aulaComVoo = new GameSession(() => {}, {
+      restore: { world: base.world, ...modelo },
+      somenteLeitura: true,
+      singleplayer: true,
+    });
+    expect(aulaComVoo.vooLiberado).toBe(true);
+  });
+
   it("/silenciar: persiste no save/restore (ausente = liberado)", () => {
     const { send } = collect();
     const s1 = new GameSession(send, { dims: DIMS, seed: 5, singleplayer: true });

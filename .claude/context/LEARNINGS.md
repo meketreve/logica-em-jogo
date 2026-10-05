@@ -1,5 +1,5 @@
 ---
-updated: 2026-10-05
+updated: 2026-10-06
 tier: 3
 ---
 
@@ -50,6 +50,10 @@ tier: 3
   o `client/dist` virava função de "qual commit é o HEAD agora", sujava a árvore a cada push e
   calava o portão do dist (bug-673). Ou o rótulo mente por um commit, ou o artefato nunca
   estabiliza: carimbar data, não sha.
+- [2026-10-06] [voo] [✓] Estado do voo vale POR SAVE, aula incluída — nasce desligada, abre
+  voando só se o modelo foi salvo com `/voo ligar`. Nada a codar: o conserto do bug-674 já
+  produzia isso. Virou teste-portão porque o `confinamento` tem override pra `somenteLeitura` e
+  o voo não pode ganhar um igual.
 - [2026-10-05] [log] [✓] Antes de "resolver arquivo grande", MEDIR o que o enche — o chat.log de
   344 KB era 2434/2434 linhas de `servidor:`, zero de aluno. Só segmentar por data teria
   entregado dezenas de arquivinhos igualmente inúteis; o conserto foi separar fala de gente de
