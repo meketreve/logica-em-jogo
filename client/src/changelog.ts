@@ -43,7 +43,7 @@ interface Mudanca {
 const MUDANCAS: readonly Mudanca[] = [
   {
     // sem `data`: este é o build atual (ver rotuloDoBloco)
-    titulo: "Quebrar bloco agora leva tempo — e a ferramenta gasta",
+    titulo: "Cada ferramenta serve pra uma coisa",
     itens: [
       "agora você SEGURA o botão pra quebrar um bloco, e vê a rachadura crescer nele até ele cair (no tablet, segure o ⛏)",
       "a ferramenta certa quebra MUITO mais rápido: a picareta de diamante abre pedra num piscar, a de madeira demora",
