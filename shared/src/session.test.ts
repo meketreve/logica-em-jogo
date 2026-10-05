@@ -460,6 +460,36 @@ describe("GameSession (servidor autoritativo)", () => {
     expect(reply.text).toContain("Somente o professor");
   });
 
+  it("/voo: persiste no save/restore e o aluno que entra já é avisado (bug-674)", () => {
+    // O professor liberava o voo e o mundo esquecia no boot seguinte: era campo
+    // de runtime, fora do SaveMeta. Molde do /silenciar — interruptor do
+    // professor que pertence ao MUNDO.
+    const { send } = collect();
+    const s1 = new GameSession(send, { dims: DIMS, seed: 5, singleplayer: true });
+    s1.handleMessage(1, JSON.stringify({ type: "join", name: "prof" }));
+    expect(s1.toSave().vooLiberado).toBeUndefined(); // desligado não ocupa bytes
+
+    s1.handleMessage(1, JSON.stringify({ type: "chat", text: "/voo ligar" }));
+    const meta = s1.toSave();
+    expect(meta.vooLiberado).toBe(true);
+
+    // o mundo REABRE: o voo continua liberado, e quem entra recebe o aviso
+    const { sent: sent2, send: send2 } = collect();
+    const s2 = new GameSession(send2, { restore: { world: s1.world, ...meta }, singleplayer: true });
+    expect(s2.vooLiberado).toBe(true);
+    sent2.length = 0;
+    s2.handleMessage(8, JSON.stringify({ type: "join", name: "ana" }));
+    const avisos = sent2
+      .map((e) => parseServerMessage(e.data as string))
+      .filter((m): m is { type: "voo"; liberado: boolean } => m?.type === "voo");
+    expect(avisos.at(-1)?.liberado).toBe(true);
+
+    // e DESLIGAR também sobrevive (volta a ficar ausente no save)
+    s2.handleMessage(8, JSON.stringify({ type: "join", name: "prof" }));
+    s2.handleMessage(8, JSON.stringify({ type: "chat", text: "/voo desligar" }));
+    expect(s2.toSave().vooLiberado).toBeUndefined();
+  });
+
   it("/silenciar: persiste no save/restore (ausente = liberado)", () => {
     const { send } = collect();
     const s1 = new GameSession(send, { dims: DIMS, seed: 5, singleplayer: true });

@@ -708,6 +708,7 @@ export class GameSession {
       for (const n of opts.restore.banidos ?? []) this.banidos.add(n); // 2026-07-21
       this.confinamentoAtivo = opts.restore.confinamento ?? false; // cp25
       this.chatSilenciado = opts.restore.chatSilenciado ?? false; // `/silenciar`
+      this.vooLiberado = opts.restore.vooLiberado ?? false; // `/voo` (bug-674)
       // quadros (2026-07-19): só entra conteúdo cuja célula AINDA é quadro
       for (const q of opts.restore.quadros ?? []) {
         if (isQuadro(getBlock(this.world, q.x, q.y, q.z))) {
@@ -886,6 +887,8 @@ export class GameSession {
       ...(this.confinamentoAtivo ? { confinamento: true } : {}),
       // `/silenciar` (2026-08-27): só grava ligado (ausente = liberado)
       ...(this.chatSilenciado ? { chatSilenciado: true } : {}),
+      // bug-674: o voo liberado é do MUNDO e tem de sobreviver ao boot
+      ...(this.vooLiberado ? { vooLiberado: true } : {}),
       // quadros (2026-07-19): conteúdo autoral por posição (só grava se há)
       ...(this.quadros.size ? { quadros: [...this.quadros.values()] } : {}),
       // §🍖 F10: containers — só os que têm ALGUMA coisa dentro. Fornalha e baú

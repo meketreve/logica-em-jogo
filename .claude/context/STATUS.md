@@ -42,14 +42,11 @@ Atrás dela: `bench:headless` antes/depois dos ids de 16 bits, ovelha+lã (§�
 
 ## Concluído (recente)
 
-- **05/10:** **logs de sessão** — `mundos/<nome>/logs/`, um par por sessão (`-chat.log` de
-  gente, `-eventos.log` de servidor). O arquivo único chegou a 344 KB, 2434/2434 de sistema.
-- **03/10:** estes arquivos entraram nas convenções novas da skill (veredicto em LEARNINGS, teto
-  medido fora dos blocos `auto`, WORKFLOW em `etapa → verify:`).
-- **02/10:** push dos dois commits represados — o conserto do **bug-673** chegou ao repositório
-  (era um conserto que não tinha saído daqui, e a escola roda o que está no repo).
-- **28/09–02/10:** skill `/contexto` migrada pro modelo de TIERS (3 aqui) e estes arquivos
-  passaram a ter frontmatter + blocos `auto` do script.
+- **05/10:** **bug-674** (voo liberado voltava desligado a cada boot: era runtime, fora do
+  `SaveMeta`) e **logs de sessão** — `mundos/<nome>/logs/`, um par por sessão (`-chat.log` de
+  gente, `-eventos.log` de servidor); o arquivo único chegou a 344 KB, 2434/2434 de sistema.
+- **28/09–03/10:** skill `/contexto` migrada pro modelo de TIERS (3 aqui); estes arquivos ganharam
+  frontmatter, blocos `auto` e as convenções novas (veredicto, teto fora do `auto`, `→ verify:`).
 - **25/09:** contexto migrado de `.wolf/` pra `.claude/context/`; **bug-673** — o rótulo de build
   carregava o sha do HEAD, o `client/dist` versionado mudava sozinho a cada commit e o portão do
   dist ficava desarmado justo no pre-push. Rótulo virou só a data.

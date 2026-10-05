@@ -52,6 +52,7 @@ const MUDANCAS: readonly Mudanca[] = [
       "toda picareta tem vida: uma barrinha no cantinho do slot mostra quanto falta, verde → amarela → vermelha",
       "quando a vida acaba, a picareta quebra e some da mão, com aviso e som — é hora de fabricar outra",
       "cavar terra e areia com a picareta na mão não gasta a picareta (ela só gasta no que é serviço dela)",
+      "o voo liberado pelo professor agora fica salvo no mundo: antes, toda vez que o servidor era reiniciado o voo voltava desligado e precisava ser liberado de novo",
       "chegaram o MACHADO e a PÁ, nos mesmos quatro materiais da picareta (madeira, pedra, ferro e diamante) — o machado custa 3 do material + 2 gravetos, e a pá é a ferramenta mais barata do jogo: 1 do material + 2 gravetos",
       "o machado derruba árvore, tábua, cerca, porta, baú e móvel bem mais rápido; a pá cava terra, grama, areia, cascalho e neve",
       "nenhum dos dois é obrigatório: dá pra tirar madeira e cavar terra de mão nua como sempre — eles só deixam o serviço mais rápido (e só gastam no serviço deles)",

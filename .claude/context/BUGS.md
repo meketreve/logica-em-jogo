@@ -12,6 +12,26 @@ tier: 3
      modelo). São bugs ESCRITOS À MÃO: nada de detector automático — ele já encheu
      o arquivo de 148 entradas falsas uma vez, e elas foram podadas junto. -->
 
+## 2026-10-05 — bug-674: o voo liberado pelo professor voltava DESLIGADO a cada boot
+- **Sintoma:** usuário: "o status do voo (ligado ou desligado) não está sendo salvo no mundo,
+  sempre carrega como desligado".
+- **Onde:** `shared/src/session.ts`, `shared/src/save.ts`
+- **Causa:** `vooLiberado` era campo de RUNTIME puro na `GameSession` (`= false` na declaração),
+  fora do `SaveMeta`: nunca era escrito pelo `toSave()` nem lido no restore. O `/voo` do professor
+  mudava a sessão viva e avisava a turma, então dentro da aula funcionava — mas o host reiniciar
+  (ou o mundo reabrir no dia seguinte) recriava a sessão com o default `false`. Os interruptores
+  vizinhos do MESMO tipo (`chatSilenciado`, `ciclo`, `vento`) já persistiam; o voo tinha ficado
+  de fora.
+- **Correção:** `vooLiberado?: boolean` no `SaveMeta`, gravado só quando ligado
+  (`...(this.vooLiberado ? { vooLiberado: true } : {})` — save antigo e mundo com voo desligado
+  não ganham byte nenhum) e lido no restore (`?? false`). Molde exato do `chatSilenciado`. O
+  aviso a quem entra já existia (`if (this.vooLiberado) sendVoo(...)` no join) e passou a
+  disparar também no mundo restaurado. Teste novo em `session.test.ts` cobre os dois sentidos
+  (ligar → reabrir → continua ligado e o aluno que entra é avisado; desligar → volta a ausente),
+  conferido com CONTROLE NEGATIVO: sem a linha do `toSave` ele falha com "expected undefined to
+  be true".
+- **Tags:** voo, save, persistencia, professor, relatado-pelo-usuario
+
 ## 2026-09-25 — bug-673: o portão do dist nunca podia falhar no pre-push (e a árvore sujava a cada push)
 - **Sintoma:** depois de todo `git push`, a árvore ficava suja com 8 arquivos (`client/dist/*` +
   `shared/src/build-info.json`) sem uma linha de código ter mudado. E o `check:dist` respondia

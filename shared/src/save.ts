@@ -107,6 +107,12 @@ export interface SaveMeta {
   /** `/silenciar` (2026-08-27): chat de turma mudo (só comandos passam)?
    *  Ausente = liberado. Professor alterna; estado do MUNDO, como o ciclo. */
   chatSilenciado?: boolean;
+  /** `/voo` (2026-10-05, bug-674): voo criativo liberado pra TURMA? Ausente =
+   *  desligado. Era estado só de runtime — o professor liberava e o mundo
+   *  esquecia no boot seguinte, sempre voltando desligado. Mesmo desenho do
+   *  `chatSilenciado`: interruptor do professor que pertence ao MUNDO. (O
+   *  professor voa sempre, independente disto.) */
+  vooLiberado?: boolean;
   /** Quadros (2026-07-19): conteúdo (texto/imagem) por posição. Ausente =
    *  nenhum quadro com conteúdo. */
   quadros?: QuadroConteudo[];
