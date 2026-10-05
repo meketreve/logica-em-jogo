@@ -52,6 +52,8 @@ const MUDANCAS: readonly Mudanca[] = [
       "toda picareta tem vida: uma barrinha no cantinho do slot mostra quanto falta, verde → amarela → vermelha",
       "quando a vida acaba, a picareta quebra e some da mão, com aviso e som — é hora de fabricar outra",
       "cavar terra e areia com a picareta na mão não gasta a picareta (ela só gasta no que é serviço dela)",
+      "o jogo não desconecta mais a turma toda de uma vez quando o computador do professor trava ou dorme por um tempo — antes, quando ele voltava, todo mundo tinha sido posto pra fora sem ter feito nada",
+      "e se você for mesmo desconectado, o jogo agora te leva de volta ao painel inicial dizendo o motivo — antes a tela ficava parada num mundo que não respondia mais, e só recarregando a página dava pra voltar",
       "o voo liberado pelo professor agora fica salvo no mundo: antes, toda vez que o servidor era reiniciado o voo voltava desligado e precisava ser liberado de novo",
       "cada aula guarda o próprio voo: as aulas começam com ele desligado, e só nascem voando se a aula tiver sido criada assim",
       "o registro da aula virou uma pasta \"logs\" dentro da pasta do mundo, com um arquivo por aula marcado com a data e a hora — antes era um arquivo único que crescia sem parar (o maior aqui chegou a 344 KB e não abria direito no bloco de notas)",

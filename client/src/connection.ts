@@ -129,6 +129,11 @@ export class WsConnection implements Connection {
     };
     this.socket.onclose = (e: CloseEvent) => {
       console.warn(`[conn] conexão com ${url} fechou (código ${e.code})`);
+      // 4001 somos NÓS fechando no `pagehide` (a página já está indo embora).
+      // Tratar isso como queda faria o tratador tentar navegar durante o
+      // descarregamento — e, na volta do bfcache, mandar a criança pro menu
+      // sem nada ter acontecido.
+      if (e.code === 4001) return;
       // 4000 é o código que o host usa pra "você não respondeu ao ping"
       // (bug-672): a criança que minimizou o tablet e voltou precisa ler o
       // motivo e saber o que fazer — "a conexão caiu" faria ela achar que o

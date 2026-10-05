@@ -16,12 +16,16 @@
  *     LJ_PORT=8101 npm run start -w server
  *   node server/src/cenarios/_smoke-logs.mjs 8101
  */
-import { readdirSync, readFileSync, existsSync } from "node:fs";
+import { readdirSync, readFileSync, existsSync, rmSync } from "node:fs";
 import { resolve } from "node:path";
 
 const PORTA = process.argv[2] ?? "8080";
 const URL = `ws://localhost:${PORTA}`;
 const PASTA = resolve(process.cwd(), "mundos/_smoke-logs");
+// A pasta de logs SOBREVIVE entre rodadas (o mundo é recriado, `logs/` não),
+// e este cenário afirma "UM par nesta sessão" — sem limpar, a 2ª execução
+// encontra os arquivos da 1ª e reprova por um defeito que não existe.
+rmSync(resolve(PASTA, "logs"), { recursive: true, force: true });
 let falhas = 0;
 const ok = (cond, msg) => {
   console.log(`  ${cond ? "✓" : "✗"} ${msg}`);

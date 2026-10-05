@@ -1110,7 +1110,18 @@ function startMultiplayer(url: string, auth: MultiAuth): void {
   // §🕐 servidor fora do ar / IP errado: sem isto o aluno fica olhando o
   // spinner pra sempre. Queda EM JOGO segue como era (o mundo já está na tela).
   const aoFalhar = (motivo: string): void => {
-    if (jogo || !loading.ativo) return;
+    // Queda EM JOGO (bug-675): antes isto saía CALADO — o `if (jogo) return` era
+    // de quando só o Wi-Fi derrubava alguém e o mundo na tela ainda servia de
+    // consolo. Com o heartbeat o servidor derruba DE PROPÓSITO, e a criança
+    // ficava olhando um mundo congelado que não responde mais, sem saber que
+    // precisava recarregar a página na mão. Agora volta pro painel principal
+    // com o motivo escrito, que é de onde ela entra de novo.
+    if (jogo) {
+      sessionStorage.setItem("lj-erro", `${motivo} (${url})`);
+      location.href = location.pathname;
+      return;
+    }
+    if (!loading.ativo) return;
     loading.erro(motivo, () => {
       // mesmo caminho do join_denied: o motivo vira banner no menu depois do reload
       sessionStorage.setItem("lj-erro", `${motivo} (${url})`);

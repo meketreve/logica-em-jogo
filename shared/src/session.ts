@@ -349,6 +349,11 @@ export class GameSession {
   /** Quando saiu a última rodada de `ping` (uma pra todos, não uma por
    *  jogador — a régua do §🌐: broadcast por TICK, nunca por evento). */
   ultimoPing = 0;
+  /** Quando a vigília de presença rodou pela última vez (bug-675). Serve pra
+   *  perceber que o SERVIDOR é que ficou fora — máquina do professor dormiu,
+   *  travou, ou a troca de aula demorou — e não cobrar silêncio da turma por
+   *  um tempo em que ninguém foi perguntado. 0 = ainda não rodou. */
+  ultimoTickPresenca = 0;
   /** O hospedeiro fecha o socket de quem foi derrubado por silêncio. */
   readonly aoDerrubar?: (clientId: number) => void;
 

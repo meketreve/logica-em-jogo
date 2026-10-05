@@ -39,7 +39,11 @@ function sala() {
       session.tick();
     }
   };
-  return { session, sent, derrubados, avancar };
+  /** Avança o relógio SEM rodar tick — o host parado (bug-675). */
+  const pular = (ms: number) => {
+    agora += ms;
+  };
+  return { session, sent, derrubados, avancar, pular };
 }
 
 const pings = (sent: Sent, clientId: number) =>
@@ -70,6 +74,27 @@ describe("bug-672 — o servidor pergunta, e quem não responde cai", () => {
     avancar(2000);
     expect(nomesEmJogo(session)).toEqual([]);
     expect(derrubados).toEqual([1]); // o host fecha o socket meio-aberto
+  });
+
+  it("bug-675: o HOST é que parou — a turma inteira não pode cair por isso", () => {
+    // Máquina do professor dormiu / travou / troca de aula lenta: o relógio de
+    // parede anda, mas nenhum `ping` sai, então ninguém foi perguntado. Antes
+    // do conserto o tick seguinte derrubava 3 de 3 de uma vez.
+    const { session, derrubados, avancar, pular } = sala();
+    for (const [id, nome] of [[1, "ana"], [2, "bia"], [3, "caio"]] as const) {
+      session.handleMessage(id, join(nome, "1111", "sala"));
+    }
+    avancar(HEARTBEAT_PING_MS + 200);
+    expect(nomesEmJogo(session)).toHaveLength(3);
+
+    pular(HEARTBEAT_TIMEOUT_MS + 5000); // host fora do ar, sem tick nenhum
+    session.tick();
+    expect(nomesEmJogo(session)).toHaveLength(3);
+    expect(derrubados).toEqual([]);
+
+    // e a vigília volta a valer: quem continua calado DEPOIS da volta cai
+    avancar(HEARTBEAT_TIMEOUT_MS + 1000);
+    expect(nomesEmJogo(session)).toEqual([]);
   });
 
   it("A QUEIXA INTEIRA: o tablet minimizou, e a criança consegue voltar com o mesmo nome", () => {

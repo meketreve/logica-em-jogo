@@ -12,6 +12,31 @@ tier: 3
      modelo). São bugs ESCRITOS À MÃO: nada de detector automático — ele já encheu
      o arquivo de 148 entradas falsas uma vez, e elas foram podadas junto. -->
 
+## 2026-10-05 — bug-675: o heartbeat derrubava a turma inteira, e o cliente ficava preso no mundo morto
+- **Sintoma:** usuário: "o sistema de heartbeat tá desconectando muito os jogadores de forma
+  errada e não estão reiniciando o cliente para o painel principal".
+- **Onde:** `shared/src/session/presenca.ts`, `client/src/main.ts`, `client/src/connection.ts`
+- **Causa (duas, somadas):** (1) a vigília derrubava por relógio de PAREDE sem perceber que quem
+  tinha ficado fora era o SERVIDOR. Se o host parasse (máquina do professor dormindo, travada,
+  swap, troca de aula lenta), nenhum `ping` saía durante a parada — e no primeiro tick depois a
+  turma INTEIRA estourava o tempo de uma vez, sem ninguém ter tido chance de responder. Medido
+  antes do conserto: 20 s parado = 3 de 3 jogadores derrubados. (2) o cliente tratava queda EM
+  JOGO com `if (jogo) return` — um silêncio herdado de quando só o Wi-Fi derrubava alguém e o
+  mundo na tela ainda servia de consolo. Com o heartbeat derrubando DE PROPÓSITO, a criança
+  ficava olhando um mundo congelado que não responde, sem saber que precisava recarregar a mão.
+- **Correção:** (1) `PAUSA_DO_HOSPEDEIRO_MS` (2× o intervalo de ping): buraco maior que isso
+  entre duas rodadas da vigília é anomalia do HOST, não silêncio da turma — todo mundo ganha a
+  janela inteira de novo e um `ping` sai na hora. A régua normal (tick de ~100 ms) não dispara
+  isso, então o bug-672 segue valendo: cliente de fato congelado continua caindo. (2) queda em
+  jogo leva ao painel principal com o motivo escrito. (3) o `close` 4001 do nosso próprio
+  `pagehide` deixou de contar como queda — tratá-lo assim faria navegar durante o descarregamento
+  e, na volta do bfcache, mandar a criança pro menu sem nada ter acontecido.
+- **Prova:** teste novo em `presenca.test.ts` (host parado 20 s: ninguém cai, e a vigília volta a
+  valer depois) + sonda nova `npm run shots:queda`, que congela o cliente de verdade num Chrome
+  real (engole o que ele enviaria) com o host VIVO e vê a volta ao menu com a frase na tela. Os
+  dois conferidos com CONTROLE NEGATIVO.
+- **Tags:** heartbeat, presenca, rede, cliente, menu, relatado-pelo-usuario
+
 ## 2026-10-05 — bug-674: o voo liberado pelo professor voltava DESLIGADO a cada boot
 - **Sintoma:** usuário: "o status do voo (ligado ou desligado) não está sendo salvo no mundo,
   sempre carrega como desligado".

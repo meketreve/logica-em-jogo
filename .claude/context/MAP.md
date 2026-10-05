@@ -53,7 +53,7 @@ Acima é do script. O que ele **não** acha é o que manda aqui:
 | Um teste só | `npx vitest run --root shared src/<arquivo>.test.ts` |
 
 **Sondas** (`shots:tablet` a RÉGUA de 1024×600, `shots:quebra`, `shots:loja`, `shots:luz`,
-`bench:headless`): sobem host + Chrome de verdade e asseveram no DOM; `npm run build` antes.
+`shots:queda`, `bench:headless`): sobem host + Chrome de verdade e asseveram no DOM; `npm run build` antes.
 **Mudança de UI só é "feita" quando uma sonda a ENXERGA.** Detalhe no cabeçalho de cada script.
 
 ## Onde fica cada coisa

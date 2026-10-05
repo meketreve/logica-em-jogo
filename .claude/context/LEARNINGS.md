@@ -5,10 +5,9 @@ tier: 3
 
 # Aprendizados
 
-> Só o que muda o que eu faço em TODA sessão — este arquivo é importado e carrega sempre.
-> O registro completo (User Preferences, Key Learnings, Do-Not-Repeat e o Decision Log inteiro,
-> ~2900 linhas) está em **`.claude/context/LEARNINGS-completo.md`** — era o `.wolf/cerebrum.md`.
-> **Ler o completo antes de decidir arquitetura ou gerar código de um assunto novo.**
+> Só o que muda o que eu faço em TODA sessão (este arquivo carrega sempre). O registro completo
+> — Decision Log inteiro, ~2900 linhas — está em **`LEARNINGS-completo.md`**: **ler antes de
+> decidir arquitetura.** Busca: `~/.claude/skills/contexto/scripts/index.sh`.
 
 ## Preferências do usuário
 
@@ -24,14 +23,13 @@ tier: 3
 - **Feature grande ou "talvez" → ENTREVISTA de escopo antes de codar.** Quando marco algo como
   decisão dele, ele decide rápido e sem discussão — então marcar é barato e vale a pena.
 - **Quando vai ficar AFK, quer as perguntas TODAS de uma vez.** Perguntar cedo, em bloco.
-- **Não tem medo de churn** ("o projeto está em desenvolvimento"), mas antes de renomear coisa
-  VISÍVEL ao aluno quer o levantamento **com recomendação e custo medido** junto.
-- **Exige polimento de SENSAÇÃO, não só "funciona".** Convenções de Minecraft são o padrão
-  esperado em dúvida de UX. Uma tela = um botão "voltar".
-- **Dev é 100% vibecode: ele orquestra e não revisa código.** A arquitetura e os portões é que
-  carregam o peso — por isso os comentários explicam o PORQUÊ, não o quê.
-- Fala português; responde bem a blocos numerados.
-- **Mobile: a régua é 1024×600 (Kindle Fire).** Tablet maior herda.
+- **Não tem medo de churn**, mas renomear coisa VISÍVEL ao aluno pede levantamento **com
+  recomendação e custo medido** junto.
+- **Exige polimento de SENSAÇÃO, não só "funciona"**; convenção de Minecraft é o padrão em dúvida
+  de UX; uma tela = um botão "voltar".
+- **Dev é 100% vibecode: ele orquestra e não revisa código** — a arquitetura e os portões carregam
+  o peso, e os comentários explicam o PORQUÊ.
+- Fala português. **Mobile: a régua é 1024×600 (Kindle Fire)**, tablet maior herda.
 
 ## Pegadinhas
 
@@ -40,9 +38,8 @@ tier: 3
 - **Gesto de TOQUE só se testa com `Input.dispatchTouchEvent` do CDP**, nunca com clique
   sintético.
 - **`LJ_NOVO=1` NÃO recria mundo que já existe** — apagar a pasta antes.
-- **Headless a 1280×720 dá tela cinza intermitente**; `--virtual-time-budget` acelera os timers e
-  falseia qualquer medição de tempo.
-- **Resumo de bateria tem de sobreviver ao `| tail`** — o veredito vai no fim, não no meio.
+- **Headless a 1280×720 dá tela cinza intermitente**; `--virtual-time-budget` falseia tempo.
+- **Resumo de bateria tem de sobreviver ao `| tail`** — veredito no fim, nunca no meio.
 
 ## Erros a não repetir
 
@@ -50,6 +47,13 @@ tier: 3
   o `client/dist` virava função de "qual commit é o HEAD agora", sujava a árvore a cada push e
   calava o portão do dist (bug-673). Ou o rótulo mente por um commit, ou o artefato nunca
   estabiliza: carimbar data, não sha.
+- [2026-10-05] [smoke] [✗] Confiar em resultado de smoke sem conferir se há HOST ÓRFÃO na porta
+  — dois hosts meus de 5 h antes seguravam 8101/8102 e o `inventario` passou a "falhar" com
+  números que CRESCIAM a cada rodada (9→18→27→45). Parece bug do jogo e não é.
+  `ps -eo pid,cmd | grep server/src/index` antes de acreditar, e matar por PID.
+- [2026-10-05] [smoke] [✓] Cenário que afirma "UM arquivo" tem de LIMPAR a pasta dele no começo —
+  a pasta sobrevive entre rodadas mesmo com `LJ_NOVO=1`, e a 2ª execução reprova por defeito que
+  não existe. Foi o que aconteceu com o `_smoke-logs` que escrevi hoje.
 - [2026-10-05] [contexto] [✗] Carimbar data em entrada de LEARNINGS/BUGS de cabeça — escrevi
   2026-10-06 num dia 05 e desalinhei o `index.sh`, que ordena por data. Conferir com `date +%F`
   antes de datar.

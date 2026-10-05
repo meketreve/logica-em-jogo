@@ -1,4 +1,4 @@
-import { HEARTBEAT_PING_MS, HEARTBEAT_TIMEOUT_MS } from "../constants";
+import { HEARTBEAT_PING_MS, HEARTBEAT_TIMEOUT_MS, PAUSA_DO_HOSPEDEIRO_MS } from "../constants";
 import { type ServerMessage } from "../protocol";
 import type { GameSession } from "../session";
 
@@ -52,6 +52,20 @@ export function esquecerSinal(ses: GameSession, clientId: number): void {
 export function tickPresenca(ses: GameSession): void {
   if (ses.singleplayer) return;
   const agora = ses.now();
+
+  // bug-675: o SERVIDOR é que pode ter ficado fora. A vigília roda a cada tick
+  // (~100 ms); um buraco GRANDE entre duas rodadas significa que o host parou
+  // — máquina do professor dormiu, travou, swap, ou uma troca de aula lenta.
+  // Nesse buraco NINGUÉM FOI PERGUNTADO: nenhum `ping` saiu, então cobrar o
+  // silêncio da turma derruba todo mundo de uma vez por culpa do host. Medido
+  // antes do conserto: 20 s parado = 3 de 3 jogadores derrubados no tick
+  // seguinte. Quando isso acontece, todo mundo ganha a janela inteira de novo.
+  const anterior = ses.ultimoTickPresenca;
+  ses.ultimoTickPresenca = agora;
+  if (anterior !== 0 && agora - anterior > PAUSA_DO_HOSPEDEIRO_MS) {
+    for (const clientId of ses.players.keys()) ses.ultimoSinal.set(clientId, agora);
+    ses.ultimoPing = 0; // e pergunta JÁ, em vez de esperar o próximo intervalo
+  }
 
   const mortos: number[] = [];
   for (const clientId of ses.players.keys()) {

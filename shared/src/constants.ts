@@ -34,6 +34,13 @@ export const SERVER_TICK_RATE = 10;
  */
 export const HEARTBEAT_PING_MS = 4000;
 export const HEARTBEAT_TIMEOUT_MS = 15000;
+/**
+ * Buraco entre duas rodadas da vigília que denuncia que o HOSPEDEIRO parou
+ * (bug-675) — e não que a turma ficou calada. A vigília roda a cada tick
+ * (~100 ms), então qualquer coisa acima de uma rodada de `ping` já é anomalia
+ * do host; uso o dobro pra não disparar com um tick atrasado por carga normal.
+ */
+export const PAUSA_DO_HOSPEDEIRO_MS = HEARTBEAT_PING_MS * 2;
 
 /** Ciclo dia/noite (cp21): duração de um dia completo em segundos reais.
  *  20 min (convenção Minecraft) — 10 min de sol pleno dá tempo de construir
