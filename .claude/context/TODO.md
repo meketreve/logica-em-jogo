@@ -20,6 +20,9 @@ active: true
       sentir se derrubar árvore **de mão nua** ficou chato demais pra turma (dobrou pra 1,5 s —
       é uma linha só do `DUREZA` em `shared/src/ferramentas.ts` se precisar afrouxar); ver se os
       ícones se distinguem do da picareta em 1024×600.
+- [ ] **Heartbeat (bug-675) — o mais importante:** aula com turma cheia, e ver se alguém ainda
+      cai sem motivo. Se a máquina do professor travar/dormir, a turma tem de CONTINUAR em jogo.
+      E quem for desconectado de verdade tem de voltar ao painel inicial com o motivo na tela.
 - [ ] **Voo (bug-674):** liberar com `/voo`, **reiniciar o servidor** e conferir que continua
       liberado; e que uma aula abre com o voo desligado.
 - [ ] **Logs:** depois de uma aula, abrir `mundos/<nome>/logs/` — tem de haver o par com data e
