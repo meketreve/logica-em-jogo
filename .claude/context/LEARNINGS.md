@@ -50,6 +50,9 @@ tier: 3
   o `client/dist` virava função de "qual commit é o HEAD agora", sujava a árvore a cada push e
   calava o portão do dist (bug-673). Ou o rótulo mente por um commit, ou o artefato nunca
   estabiliza: carimbar data, não sha.
+- [2026-10-05] [contexto] [✗] Carimbar data em entrada de LEARNINGS/BUGS de cabeça — escrevi
+  2026-10-06 num dia 05 e desalinhei o `index.sh`, que ordena por data. Conferir com `date +%F`
+  antes de datar.
 - [2026-10-05] [voo] [✓] Estado do voo vale POR SAVE, aula incluída — nasce desligada, abre
   voando só se o modelo foi salvo com `/voo ligar`. Nada a codar: o conserto do bug-674 já
   produzia isso. Virou teste-portão porque o `confinamento` tem override pra `somenteLeitura` e

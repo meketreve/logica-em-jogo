@@ -20,6 +20,10 @@ active: true
       sentir se derrubar árvore **de mão nua** ficou chato demais pra turma (dobrou pra 1,5 s —
       é uma linha só do `DUREZA` em `shared/src/ferramentas.ts` se precisar afrouxar); ver se os
       ícones se distinguem do da picareta em 1024×600.
+- [ ] **Voo (bug-674):** liberar com `/voo`, **reiniciar o servidor** e conferir que continua
+      liberado; e que uma aula abre com o voo desligado.
+- [ ] **Logs:** depois de uma aula, abrir `mundos/<nome>/logs/` — tem de haver o par com data e
+      hora, o `-chat.log` só com fala de gente e pequeno o bastante pra ler.
 - [ ] **§🔨 quebra v2:** segurar pra quebrar no PC e no tablet, se o tempo da pedra parece justo,
       se a rachadura aparece no projetor da sala, e se a barrinha de vida é enxergável.
 - [ ] **Presença (bug-672):** fechar o navegador do tablet e reentrar com o mesmo nome; minimizar
