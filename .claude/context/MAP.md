@@ -1,5 +1,5 @@
 ---
-updated: 2026-10-03
+updated: 2026-10-05
 tier: 3
 ---
 
@@ -10,7 +10,7 @@ tier: 3
 ## Comandos
 
 <!-- auto:start -->
-gerado em: 2026-10-03
+gerado em: 2026-10-05
 
 | Ação | Comando |
 |---|---|
@@ -64,6 +64,8 @@ Só o não óbvio:
 - `shared/` — a lógica (servidor autoritativo). `session/` tem estado; o resto é PURO e testável.
 - `client/` — só renderiza. **`client/dist` é VERSIONADO**: a escola roda o dist, não o src.
 - `server/src/cenarios/` smokes · `scripts/` sondas e portões · `docs/projeto.txt` BNCC.
+- **Log de aula:** `mundos/<nome>/logs/<AAAA-MM-DD_HH-MM>-{chat,eventos}.log`, um par por sessão
+  do host (`paths.ts: logsDaSessao`). Ninguém LÊ esses arquivos no código — são só escrita.
 - **O hook de pre-push NÃO está em `.git/hooks`** — `core.hooksPath` aponta pra
   `scripts/git-hooks/pre-push` (roda o `verify` inteiro; escape: `LJ_SEM_VERIFY=1 git push`).
 

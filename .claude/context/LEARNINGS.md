@@ -1,5 +1,5 @@
 ---
-updated: 2026-10-03
+updated: 2026-10-05
 tier: 3
 ---
 
@@ -50,6 +50,13 @@ tier: 3
   o `client/dist` virava função de "qual commit é o HEAD agora", sujava a árvore a cada push e
   calava o portão do dist (bug-673). Ou o rótulo mente por um commit, ou o artefato nunca
   estabiliza: carimbar data, não sha.
+- [2026-10-05] [log] [✓] Antes de "resolver arquivo grande", MEDIR o que o enche — o chat.log de
+  344 KB era 2434/2434 linhas de `servidor:`, zero de aluno. Só segmentar por data teria
+  entregado dezenas de arquivinhos igualmente inúteis; o conserto foi separar fala de gente de
+  evento de sistema.
+- [2026-10-05] [shell] [✗] `pkill -f "tsx server/src/index.ts"` para encerrar um host de teste —
+  o padrão casa com a linha de comando do PRÓPRIO shell que o roda, que morre antes das linhas
+  seguintes (um restore de arquivo ficou pra trás assim). Matar por porta ou por PID guardado.
 - [2026-10-03] [teste] [✗] Provar que um portão PEGA algo usando mudança que a minificação
   engole — acrescentei um comentário no `client/src` e o bundle saiu idêntico, então o "teste"
   passou sem testar nada. Para exercitar o portão do dist, mexer em algo que chega no bundle
