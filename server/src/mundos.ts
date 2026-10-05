@@ -62,8 +62,8 @@ export interface TrocaDeMundo {
   savePath: string;
   /** Mundo de aula (reutilizável): não salva alterações. */
   somenteLeitura: boolean;
-  /** Log de chat da pasta do mundo novo (mundos/<nome>/chat.log). */
-  chatLog: string;
+  /** Nome do mundo novo — o host remonta `logsDaSessao` com ele. */
+  nome: string;
 }
 
 export interface ContextoMundo {
@@ -142,7 +142,7 @@ export function comandoMundo(
   // Modelo em cenarios/ nunca é aberto para escrita: vira uma cópia de trabalho
   // em mundos/. Se a cópia já existe (turma continuando), carrega dela; senão, do
   // modelo. O autosave grava sempre em `vivo`.
-  const { vivo, modelo, somenteLeitura, chatLog } = mundoDeTrabalho(encontrado);
+  const { vivo, modelo, somenteLeitura, nome } = mundoDeTrabalho(encontrado);
   if (vivo === ctx.savePath) {
     ctx.responder(`"${semExt(vivo)}" já é a aula em curso.`);
     return undefined;
@@ -192,7 +192,7 @@ export function comandoMundo(
   console.log(
     `[server] aula trocada para ${vivo} (de ${basename(fonte)}, ${jogadores.length} jogador(es) migrado(s))`,
   );
-  return { session: sessionNova, savePath: vivo, somenteLeitura, chatLog };
+  return { session: sessionNova, savePath: vivo, somenteLeitura, nome };
 }
 
 /** Anúncio da troca — a sessão nova já falou com cada um; isto é para o log/turma. */

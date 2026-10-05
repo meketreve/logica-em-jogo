@@ -412,7 +412,7 @@ fi
 
 # --- Pasta dos mundos salvos + migração de saves antigos ---
 mkdir -p mundos
-# Cada mundo virou uma PASTA própria: mundos/<nome>/<nome>.ljw + chat.log.
+# Cada mundo virou uma PASTA própria: mundos/<nome>/<nome>.ljw + logs/.
 # Migra layouts antigos pra esse formato na 1ª execução, sem perder a turma.
 # 1) world.ljw na raiz (layout mais antigo) -> mundos/mundo-livre/
 if [ -f world.ljw ] && [ ! -e mundos/mundo-livre/mundo-livre.ljw ]; then

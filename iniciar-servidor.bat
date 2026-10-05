@@ -366,7 +366,7 @@ if not exist "node_modules" (
 )
 
 REM --- Pasta dos mundos salvos + migracao de saves antigos ---
-REM Cada mundo virou uma PASTA: mundos\<nome>\<nome>.ljw + chat.log.
+REM Cada mundo virou uma PASTA: mundos\<nome>\<nome>.ljw + logs\.
 if not exist "mundos" mkdir "mundos"
 REM 1) world.ljw na raiz (layout mais antigo) -> mundos\mundo-livre\
 if exist "world.ljw" if not exist "mundos\mundo-livre\mundo-livre.ljw" (

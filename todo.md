@@ -570,7 +570,8 @@ downlink/rtt). Tudo no F3 + no relatório agregado. Ainda ABERTO (candidato): li
 (MAX_TEXTURE_SIZE), uso de storage (navigator.storage.estimate).
 * \[x] salvar o log do chat em arquivo (no servidor) — **FEITO** (2026-07-20): `registrarChat`
 no host (index.ts) engancha no `entregar` (ponto único server→cliente), deduplica o
-fan-out do broadcast e grava `mundos/<nome>/chat.log` (append, `\[ISO] autor: texto`).
+fan-out do broadcast e grava `mundos/<nome>/logs/<carimbo>-chat.log` e `-eventos.log`
+(append, `[HH:MM:SS] autor: texto`; o par por sessão do host nasceu em 2026-10-05).
 Singleplayer (Web Worker) não tem fs — chat não vira arquivo lá, como planejado.
 
 ## Deploy / auto-update
@@ -651,7 +652,7 @@ Singleplayer (Web Worker) não tem fs — chat não vira arquivo lá, como plane
     repo PÚBLICO (ou deploy key/token no PC da escola — pior de manter). Público resolve e ia
     acontecer de qualquer jeito. ⚠️ ANTES de tornar público: varrer histórico por segredo (não
     deve haver — PIN/código são texto simples por decisão, e mundos/profiles são gitignored; mas
-    conferir `chat.log`, saves e QUALQUER token). O README/licença viram públicos também.
+    conferir `mundos/*/logs/`, saves e QUALQUER token). O README/licença viram públicos também.
   * **Pré-requisito: a cópia da escola tem de ser um CLONE git, não ZIP.** bug-233: pasta de ZIP
     `-main` (baixada à mão) NÃO é repo git → `git pull` falha. O auto-update FORÇA padronizar em
     `git clone` no PC da escola (documentar no README/launcher; detectar `.git` ausente e avisar).
@@ -1055,8 +1056,8 @@ sem ela os 4 níveis de machado empatariam no piso de 150 ms. Prova: `shared/src
   workers** no cliente, com o mundo denso enfileirando em vez de meshar na main thread
   (bug-608, sessão 64: trava de 9,5 s → 99 ms na máquina real).
 * \[x] salvar mundo em PASTAS (uma pasta por mundo) — **FEITO** (2026-07-20, HOST): cada
-mundo mora em `mundos/<nome>/` com `<nome>.ljw` + `chat.log` (paths.ts: `pastaDoMundo`,
-`savePathDoMundo`, `chatLogDoMundo`). Launcher migra layouts antigos e lista as pastas.
+mundo mora em `mundos/<nome>/` com `<nome>.ljw` + `logs/` (paths.ts: `pastaDoMundo`,
+`savePathDoMundo`, `logsDaSessao`). Launcher migra layouts antigos e lista as pastas.
 Singleplayer (IndexedDB, export .ljw único via worldStore.ts) NÃO mudou — o navegador
 não tem filesystem; export de "pasta" no single fica de fora (não faz sentido lá).
 * \[x] **teto real do fix de bug-650, medido com carga sintética (60→200 clientes a 10Hz,

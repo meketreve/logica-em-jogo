@@ -22,7 +22,7 @@ import {
   parseWorldTamanho,
 } from "@logica/shared";
 import { comandoMundo } from "./mundos";
-import { daRaiz, mundoDeTrabalho } from "./paths";
+import { carimboDeSessao, daRaiz, horaDaLinha, logsDaSessao, mundoDeTrabalho } from "./paths";
 import { receberPerfilHttp, salvarPerfil } from "./perfis";
 import { clienteFoiBuildado, servirCliente } from "./static";
 
@@ -43,7 +43,7 @@ const {
   vivo: SAVE_PATH,
   modelo: MODELO,
   somenteLeitura: LEITURA_INICIAL,
-  chatLog: CHAT_LOG_INICIAL,
+  nome: MUNDO_INICIAL,
 } = mundoDeTrabalho(SAVE_ENV ?? "mundos/mundo-livre.ljw");
 // De onde carregar no boot. Mundo de AULA (só leitura) começa SEMPRE do modelo,
 // ignorando qualquer cópia viva da turma anterior — é reutilizável de graça.
@@ -142,19 +142,27 @@ const entregar = (clientId: number, data: string | ArrayBuffer): void => {
 // save sem derrubar ninguém. Tudo que usa `session`/`savePath` lê a variável na
 // hora da chamada, então continua apontando para o mundo em vigor.
 let savePath = SAVE_PATH;
-// Log de chat da pasta do mundo em vigor (mundos/<nome>/chat.log). `let`: a
-// troca de aula reaponta pro chat.log do mundo novo.
-let chatLogPath = CHAT_LOG_INICIAL;
+// Mundo em vigor, só pra montar o caminho dos logs. `let`: a troca de aula
+// (/mundo carregar) reaponta pra pasta logs/ do mundo novo, no MESMO carimbo
+// de sessão — trocar de aula no meio da aula não abre arquivo novo.
+let mundoAtual = MUNDO_INICIAL;
 // Mundo de aula (reutilizável) não salva. `let`: a troca de aula (/mundo
 // carregar) atualiza junto com savePath — a aula nova decide se persiste.
 let somenteLeitura = LEITURA_INICIAL;
 
-// --- Log do chat em arquivo (mundos/<nome>/chat.log) ---
+// --- Logs da sessão (mundos/<nome>/logs/<carimbo>-chat.log e -eventos.log) ---
 // Todo chat server→cliente passa por `entregar`. Um broadcast chama `entregar`
 // uma vez por destinatário com o MESMO payload; deduplico pelo payload
 // consecutivo pra não repetir a linha N vezes. Mora no HOST (não em /shared)
 // porque escrever arquivo é filesystem — a GameSession e o singleplayer
 // (Web Worker) não têm fs; lá o chat simplesmente não vira arquivo.
+//
+// **Fala de gente e evento de servidor vão para arquivos DIFERENTES** (ver o
+// porquê medido em `paths.ts`): o professor que quer saber o que a turma falou
+// abre o `-chat.log`, que é minúsculo, em vez de garimpar dentro de milhares de
+// banners de boas-vindas. Os dois nascem na primeira linha — aula muda sem
+// ninguém falar não deixa `-chat.log` vazio.
+const CARIMBO_SESSAO = carimboDeSessao();
 let ultimoChatLogado = "";
 function registrarChat(data: string): void {
   if (!data.includes('"type":"chat"')) return; // pré-filtro barato
@@ -168,12 +176,16 @@ function registrarChat(data: string): void {
   if (data === ultimoChatLogado) return; // mesma linha do broadcast anterior
   ultimoChatLogado = data;
   const autor = typeof msg.author === "string" ? msg.author : "?";
-  const linha = `[${new Date().toISOString()}] ${autor}: ${msg.text}\n`;
+  const logs = logsDaSessao(mundoAtual, CARIMBO_SESSAO);
+  // `author: "servidor"` é carimbado num lugar só (`sendServerChat`), então a
+  // separação é por CAMPO — nunca por procurar texto dentro da mensagem.
+  const destino = autor === "servidor" ? logs.eventos : logs.chat;
+  const linha = `[${horaDaLinha()}] ${autor}: ${msg.text}\n`;
   try {
-    mkdirSync(dirname(chatLogPath), { recursive: true });
-    appendFileSync(chatLogPath, linha);
+    mkdirSync(dirname(destino), { recursive: true });
+    appendFileSync(destino, linha);
   } catch (err) {
-    console.error(`[server] não consegui gravar o log do chat: ${(err as Error).message}`);
+    console.error(`[server] não consegui gravar o log da sessão: ${(err as Error).message}`);
   }
 }
 if (somenteLeitura) {
@@ -390,7 +402,7 @@ function interceptarMundo(clientId: number, texto: string): boolean {
   if (troca) {
     session = troca.session;
     savePath = troca.savePath;
-    chatLogPath = troca.chatLog;
+    mundoAtual = troca.nome;
     somenteLeitura = troca.somenteLeitura;
   }
   return true;

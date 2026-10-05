@@ -44,6 +44,19 @@ const SEED = "20260726";
  */
 const SMOKES = [
   {
+    nome: "logs",
+    arquivo: `${DIR}/_smoke-logs.mjs`,
+    prova:
+      "logs de sessão — mundos/<nome>/logs/ nasce com um par por sessão do host; fala de gente vai pro -chat.log e mensagem de servidor pro -eventos.log, sem vazar de um lado pro outro; nome AAAA-MM-DD_HH-MM ordena sozinho e a linha é [HH:MM:SS] em hora local.",
+    lento: false,
+    servidores: [
+      {
+        porta: 8101,
+        env: { LJ_SAVE: "mundos/_smoke-logs.ljw", LJ_NOVO: "1", LJ_TAMANHO: "P", LJ_CODIGO: "prof2026", LJ_SEED: SEED },
+      },
+    ],
+  },
+  {
     nome: "mundo",
     arquivo: `${DIR}/_smoke-mundo.mjs`,
     prova:
