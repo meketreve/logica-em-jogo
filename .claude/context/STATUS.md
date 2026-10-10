@@ -1,5 +1,5 @@
 ---
-updated: 2026-10-05
+updated: 2026-10-10
 tier: 3
 ---
 
@@ -10,15 +10,16 @@ tier: 3
 ## Estado atual
 
 Jogo voxel educacional rodando, testado com turma real. Árvore limpa, `main` em sinc com o
-`origin` (`dab46ce`). Ambiente é só LINUX.
+`origin` (`a2b8a76`). Ambiente é só LINUX.
 
-**O build está PUSHADO e rotulado "Cada ferramenta serve pra uma coisa · 05/10"** — o launcher
-da escola baixa na próxima vez que rodar. **Nada dele foi visto em tela pelo usuário**: a lista
-do que testar está no `TODO.md`, e o retorno da aula é o que decide se algum número afrouxa.
+O build "Cada ferramenta serve pra uma coisa · 05/10" **rodou em aula de verdade em 10/10** e o
+usuário aprovou quebra v2, cama/porta e o voo persistindo. **O resto da lista de teste continua
+sem ter sido visto em tela** (machado/pá, logs, presença, loja, ids de 16 bits) — está no `TODO.md`.
 
-⚠️ **O bug-675 (heartbeat) veio de queixa de AULA REAL, não de teste** — a turma caía junto
-quando a máquina do professor parava. O conserto está provado em teste e em sonda, mas a
-confirmação que importa é a próxima aula com a turma cheia.
+⚠️ **bug-675 (heartbeat) NÃO está fechado:** na aula de 10/10 as quedas **diminuíram mas não
+zeraram**. O conserto do host pegou a causa que a queixa original descrevia, mas sobrou queda
+sem explicação. Falta o detalhe da próxima aula (quantos, se viram o motivo na tela, se é sempre
+tablet no Wi-Fi) antes de caçar — os 15 s da presença em `constants.ts` são o primeiro suspeito.
 
 ## Próxima fase
 
@@ -34,15 +35,23 @@ Atrás dela: `bench:headless` antes/depois dos ids de 16 bits, ovelha+lã (§�
 
 ## Pendências e bloqueios
 
-- **Save no Ctrl+C disputa corrida com o `npx`/`tsx` que embrulha o host** (bug-666) — ganha por
-  ~6 ms, mas é frágil; conserto: o launcher chamar `node` direto.
-- `scripts/f10-shot.mjs` quebrado ("botão ▣ não encontrado") — o rótulo muda com o item na mão.
-- Singleplayer não oferece restaurar `dataAntesIds16`; 3ª pessoa é v1 não polida.
+- 3ª pessoa é v1 não polida.
 - **Decisões do USUÁRIO:** quanto de Dimas cada aluno recebe; se o aviso de Dimas nova cala.
 - Externas: distribuição pelo Drive; certificado de assinatura de código só se sair da piloto.
 
 ## Concluído (recente)
 
+- **10/10 (lote de 4 da fila):** **bug-666 fechado** — os launchers sobem o host com
+  `node --import tsx` (um processo só, sem `npm`/`tsx` no meio), com portão novo no
+  `checar-launchers` e o `_smoke-sighup` provando a via real (margem 52–61 ms, 3 de 3).
+  **bug-676** — o ▣ ganhou `data-acao` e as sondas pararam de procurar botão por TEXTO
+  (`f10-shot` voltou a rodar). **Botão "restaurar"** no menu do singleplayer, com sonda nova
+  `shots:restaurar` (13 asserções). E o A/B dos ids de 16 bits: no `bench:headless` o ruído do
+  SwiftShader come o sinal, mas no codec o retrato é limpo — .ljw +0,02%, RAM do mundo P
+  2 MB → 4 MB, decode 5,1 → 6,9 ms.
+- **10/10 (aula real):** quebra v2 aprovada ("ficou boa"), cama e porta aprovados, e o voo
+  liberado sobreviveu ao reinício do servidor (bug-674 confirmado EM AULA). Quedas do heartbeat
+  diminuíram — ver o ⚠️ acima. Nada de código nesta sessão.
 - **05/10:** **bug-675** — o heartbeat derrubava a turma inteira quando o HOST parava (ninguém
   era perguntado durante a parada) e o cliente ficava preso num mundo congelado; sonda nova
   `shots:queda`. **bug-674** (voo liberado voltava desligado: era runtime, fora do `SaveMeta`) +

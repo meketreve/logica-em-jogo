@@ -1,5 +1,5 @@
 ---
-updated: 2026-10-05
+updated: 2026-10-10
 tier: 3
 active: true
 ---
@@ -14,27 +14,27 @@ active: true
 - [ ] **1º bloco de circuito lógico** — BLOQUEADO: perguntar ao usuário QUAL bloco e como ele
       funciona na aula, antes de codar.
 
-## Testar na escola (o usuário faz; nada disto foi visto em tela)
+## Testar na escola (o usuário faz; aula de 10/10 cobriu parte)
+
+- [ ] **Lote de 10/10:** fechar o servidor com Ctrl+C num mundo cheio e reabrir (o mundo tem de
+      voltar inteiro); e, no singleplayer de um navegador que já jogava, ver o botão
+      **restaurar** no mundo convertido.
 
 - [ ] **§🪓 machado e pá:** fabricar os dois (machado = 3 do material + 2 gravetos, pá = 1 + 2);
       sentir se derrubar árvore **de mão nua** ficou chato demais pra turma (dobrou pra 1,5 s —
       é uma linha só do `DUREZA` em `shared/src/ferramentas.ts` se precisar afrouxar); ver se os
       ícones se distinguem do da picareta em 1024×600.
-- [ ] **Heartbeat (bug-675) — o mais importante:** aula com turma cheia, e ver se alguém ainda
-      cai sem motivo. Se a máquina do professor travar/dormir, a turma tem de CONTINUAR em jogo.
-      E quem for desconectado de verdade tem de voltar ao painel inicial com o motivo na tela.
-- [ ] **Voo (bug-674):** liberar com `/voo`, **reiniciar o servidor** e conferir que continua
-      liberado; e que uma aula abre com o voo desligado.
-- [ ] **Logs:** depois de uma aula, abrir `mundos/<nome>/logs/` — tem de haver o par com data e
+- [ ] **Heartbeat (bug-675) — AINDA ABERTO, o mais importante:** aula de 10/10 com turma cheia:
+      as quedas **diminuíram mas não zeraram**. Falta saber da próxima vez: quantos caíram, se
+      viram o MOTIVO na tela, e se cai sempre o mesmo aparelho (tablet no Wi-Fi) — a sobra pode
+      ser outra causa, não o heartbeat.
+- [ ] **Logs (não lidos ainda):** depois de uma aula, abrir `mundos/<nome>/logs/` — tem de haver o par com data e
       hora, o `-chat.log` só com fala de gente e pequeno o bastante pra ler.
-- [ ] **§🔨 quebra v2:** segurar pra quebrar no PC e no tablet, se o tempo da pedra parece justo,
-      se a rachadura aparece no projetor da sala, e se a barrinha de vida é enxergável.
 - [ ] **Presença (bug-672):** fechar o navegador do tablet e reentrar com o mesmo nome; minimizar
       por mais de 15 s pra ver o nome liberar. Conferir se 15 s não derruba ninguém no Wi-Fi da
       escola (é um número só, em `constants.ts`).
 - [ ] **Loja:** preço de ITEM (pão, trigo, picareta) **e reabrir o mundo depois** — era na
       releitura do save que o preço sumia. Loja cheia no tablet.
-- [ ] **Cama e porta:** 2 camas em fila; mundo antigo que já tinha cama; porta em cima de porta.
 - [ ] **Ids de 16 bits:** abrir o mundo salvo da turma no host (tem de nascer
       `<nome>.antes-ids16.ljw`) e um mundo do singleplayer num navegador que já jogava.
 - [ ] **Cama/torre:** deitar de perto e de longe e levantar com o pular; torre de pular+colocar
@@ -43,12 +43,8 @@ active: true
 
 ## Depois
 
-- [ ] `npm run bench:headless` antes/depois dos ids de 16 bits.
 - [ ] Ovelha + lã de verdade (§🍖 F8).
 - [ ] Sentar na cadeira.
-- [ ] Menu do singleplayer oferecer restaurar o backup `dataAntesIds16`.
-- [ ] Consertar `scripts/f10-shot.mjs` (rótulo do botão muda com o item na mão).
-- [ ] Launcher chamar `node` direto, pro save no Ctrl+C não depender do wrapper (bug-666).
 
 ## Ideias / talvez
 

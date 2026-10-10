@@ -1,5 +1,5 @@
 ---
-updated: 2026-10-05
+updated: 2026-10-10
 tier: 3
 ---
 
@@ -42,6 +42,18 @@ tier: 3
 - **Resumo de bateria tem de sobreviver ao `| tail`** — veredito no fim, nunca no meio.
 
 ## Erros a não repetir
+
+- [2026-10-10] [sonda] [✓] Rótulo de botão é ESTADO, não identidade — procurar elemento no DOM
+  pelo TEXTO quebra no instante em que a cena interessa (o ▣ vira "interagir" mirando uma
+  fornalha, e era isso que matava o `f10-shot`). Botão que muda de nome leva `data-acao`, e a
+  sonda busca por ele; o texto só serve pra AFIRMAR o que está escrito.
+- [2026-10-10] [bench] [✗] Esperar do `bench:headless` resposta sobre FPS — duas rodadas do
+  MESMO commit deram 4,3 s e 6,4 s de carga e 9 a 13 fps (SwiftShader). Custo de FORMATO se mede
+  em Node, sem GPU: o A/B dos ids de 16 bits só ficou legível no codec (arquivo +0,02%, RAM do
+  mundo 2 MB → 4 MB, decode 5,1 → 6,9 ms num mundo P).
+- [2026-10-10] [smoke] [✗] Acreditar em falha da bateria COMPLETA rodada junto com sonda/bench
+  pesado — `mundo` e `troca-raio` reprovaram com a máquina carregada e passaram sozinhos e na
+  rodada limpa (18/18). Repetir a bateria sozinha antes de caçar.
 
 - [2026-10-03] [build] [✗] Rótulo auto-referente (sha do HEAD) dentro de artefato VERSIONADO —
   o `client/dist` virava função de "qual commit é o HEAD agora", sujava a árvore a cada push e

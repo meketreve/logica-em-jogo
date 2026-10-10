@@ -54,15 +54,11 @@
  * sai JÁ EXTRAÍDO daqui (Node, regex simples) e o launcher só lê um campo
  * JSON comum, igual `data`.
  */
-import { execFileSync } from "node:child_process";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { readFileSync, writeFileSync } from "node:fs";
 
 const RAIZ = join(dirname(fileURLToPath(import.meta.url)), "..");
-const git = (...args) =>
-  execFileSync("git", args, { cwd: RAIZ, encoding: "utf8", stdio: ["ignore", "pipe", "ignore"] }).trim();
-
 const destino = join(RAIZ, "shared", "src", "build-info.json");
 
 /** O que já está commitado — o fallback de verdade (bug-653). Só cai no
@@ -99,15 +95,16 @@ const tituloNovo = tituloDoChangelog(titulo);
 // MARCO NOVO = título diferente do que estava salvo. Só aí a data anda — e é
 // isto que impede este arquivo (e o bundle que o inlina) de mudar sozinho a
 // cada commit. Marco que continua o mesmo mantém a data em que nasceu.
+// A data é a de HOJE, não a do último commit (2026-10-10). O marco nasce
+// ANTES do commit que o carrega — com `git log -1` o rótulo saía com a data do
+// commit ANTERIOR, e o marco de hoje aparecia na escola carimbado dias atrás.
+// Continua estável entre commits pela MESMA razão de sempre: só entra aqui
+// quando o TÍTULO muda. E deixa de depender de git, que era o caminho do
+// bug-653 (máquina da escola sem git escrevia "0000-00-00" por cima).
 if (tituloNovo !== titulo || data === "0000-00-00") {
-  try {
-    if (git("rev-parse", "--is-inside-work-tree") === "true") {
-      data = git("log", "-1", "--date=short", "--format=%ad");
-    }
-  } catch {
-    // sem git, ou pasta que não é repositório — mantém o que já tinha (não
-    // zera o que estava bom, que é o que bug-653 corrigiu)
-  }
+  const hoje = new Date();
+  const pad = (n) => String(n).padStart(2, "0");
+  data = `${hoje.getFullYear()}-${pad(hoje.getMonth() + 1)}-${pad(hoje.getDate())}`;
 }
 titulo = tituloNovo;
 

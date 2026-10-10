@@ -454,7 +454,16 @@ echo  Para PARAR: feche esta janela ou Ctrl+C.
 echo --------------------------------------------
 echo.
 
-call npm run start -w server
+REM O host sobe com `node` DIRETO, sem `npm run start` e sem o CLI do `tsx`
+REM (bug-666). Aquele caminho punha 3 processos entre a janela e o servidor
+REM (npm -> sh -c tsx -> cli.mjs do tsx -> node): o Ctrl+C e o fechar-janela vao
+REM pro GRUPO inteiro, os embrulhos morrem na hora e o `saveNow` do sinal corria
+REM contra eles - ganhava por ~6 ms, e perder significa a aula voltar do
+REM autosave de ate 30 s atras. `--import tsx` carrega o MESMO loader dentro
+REM deste unico processo, que e quem recebe o sinal e grava sem ninguem poder
+REM derruba-lo no meio. Os caminhos do mundo nao dependem do cwd
+REM (`server/src/paths.ts` resolve pela raiz do repo).
+node --import tsx server/src/index.ts
 
 echo.
 echo O servidor parou.

@@ -1,5 +1,5 @@
 ---
-updated: 2026-10-05
+updated: 2026-10-10
 tier: 3
 ---
 
@@ -11,6 +11,68 @@ tier: 3
      Convertido de `.wolf/buglog.json` em 2026-09-25 (mesmo conteúdo, formato do
      modelo). São bugs ESCRITOS À MÃO: nada de detector automático — ele já encheu
      o arquivo de 148 entradas falsas uma vez, e elas foram podadas junto. -->
+
+## 2026-10-10 — bug-677: marco novo nascia carimbado com a data do commit ANTERIOR
+- **Sintoma:** o bloco novo do changelog ("Dá pra voltar atrás", escrito em 10/10) saía do
+  `npm run build` como `build-info: 2026-10-05` — a tela "📜 novidades" e o launcher da escola
+  mostrariam o marco de hoje com a data de cinco dias atrás. Já tinha sido notado uma vez, como
+  "a data do build andou sozinha".
+- **Onde:** `scripts/gerar-build-info.mjs`
+- **Causa:** a data vinha de `git log -1 --date=short`. O marco nasce ANTES do commit que o
+  carrega — na hora do build o HEAD ainda é o commit passado, então a data só podia estar
+  errada. Reconstruir DEPOIS de commitar também não resolve: a data só é recalculada quando o
+  TÍTULO muda, e aí ele já não mudou mais.
+- **Correção:** a data do marco é a de HOJE (relógio local), ainda só recalculada quando o
+  título muda — a estabilidade entre commits, que é o que o portão do dist exige, vem dessa
+  condição e não do git. De quebra o gerador deixou de depender de `git`, que era justamente o
+  caminho do bug-653 (máquina da escola sem git escrevia "0000-00-00" por cima de um valor bom).
+- **Tags:** build, changelog, rotulo, data, dist, portao, corrigido
+- **Relacionados:** bug-673, bug-653
+
+## 2026-10-10 — bug-676: o f10-shot morria em "botão ▣ não encontrado na barra de ações"
+- **Sintoma:** `npm run shots:f10` saía com `✗ botão ▣ não encontrado na barra de ações` e não
+  tirava print nenhum do §🍖 F10. O botão SEMPRE esteve na tela.
+- **Onde:** `scripts/f10-shot.mjs (botaoDeAcao)`, `client/src/touch.ts (makeButton, atualizarBtnColocar)`
+- **Causa:** o script achava o botão pelo TEXTO do `<small>` (`=== "colocar"`), e o rótulo do ▣ é
+  ESTADO: `atualizarBtnColocar` o troca pra "canto 2" (varinha), "comer" (comida na mão) e
+  "interagir" (mira em baú/fornalha/porta/cama). O passo 3 do script monta uma parede de
+  FORNALHA e mira nela — ou seja, no instante exato da busca o rótulo era "interagir", e nunca
+  mais seria "colocar". O `loja-shot.mjs` já convivia com isso tentando "interagir" e caindo pra
+  "colocar", o que mostra que o problema era do método de busca, não daquele script.
+- **Correção:** o botão ganhou IDENTIDADE no DOM — `makeButton` grava `data-acao` com o rótulo
+  INICIAL e nunca mexe nele (o ▣ é `colocar` mesmo escrito "interagir"). As três sondas que
+  procuravam por texto (`f10`, `loja`, `quebra`) passaram a usar
+  `#touch-acoes button[data-acao="…"]`, e o `rotuloDaAcao()` ficou para quem quer afirmar o que
+  está ESCRITO — é o que o loja-shot espera antes de tocar (tocar com "colocar" na tela poria um
+  bloco em vez de abrir o painel). Controle no próprio f10-shot: ele agora AFIRMA que o rótulo é
+  "interagir" naquele ponto, que é a prova de que a busca velha devolvia null ali.
+- **Tags:** sonda, f10, touch, rotulo, data-acao, dom, corrigido
+
+## 2026-10-10 — bug-666 (2ª parte): o save do Ctrl+C disputava corrida com o embrulho do host
+- **Sintoma:** herdado do bug-666 de 2026-09-12 — `✗ o host gravou o mundo ao receber SIGINT` /
+  `o mundo nao voltou depois do SIGINT`, instável. Em 09/12 o `encodeSave` foi acelerado e a
+  corrida passou a ser ganha por folga, mas CONTINUAVA existindo (pendência anotada no STATUS).
+- **Onde:** `iniciar-servidor.sh`, `iniciar-servidor.bat`, `scripts/checar-launchers.mjs`,
+  `server/src/cenarios/_smoke-sighup.mjs`
+- **Causa:** `npm run start -w server` punha TRÊS processos entre o terminal e o servidor —
+  medido: `npm exec` → `sh -c tsx` → `node .../tsx/dist/cli.mjs` → `node` (o host). Ctrl+C e
+  fechar-janela mandam o sinal pro GRUPO inteiro: os embrulhos morrem na hora, e o `saveNow` do
+  handler (bug-645) tinha de terminar antes de o processo ser levado junto.
+- **Correção:** os launchers sobem o host com `node --import tsx server/src/index.ts` — UM
+  processo, que é quem recebe o sinal (o `.sh` ainda usa `exec`, pra nem o bash ficar no meio).
+  Os caminhos do mundo não dependem do cwd (`server/src/paths.ts` resolve pela raiz pelo
+  `import.meta.url`), então rodar da raiz é igual a rodar de dentro de `server/`. Portão novo no
+  `checar-launchers.mjs` (os dois launchers têm de usar `node --import tsx` e nenhum pode conter
+  `npm run start`/`npx tsx` fora de comentário) — com controle negativo: devolvendo o `npm run
+  start`, ele acusa. O `_smoke-sighup.mjs` passou a subir o host do MESMO jeito (antes provava um
+  caminho que a escola não usa mais) e agora imprime a MARGEM do save: 52–61 ms em 3 rodadas
+  seguidas, SIGHUP e SIGINT, 3 de 3 verdes.
+- **Pegadinha achada no caminho:** trocar a espera fixa de 2,5 s depois do sinal por um poll que
+  sai em ~50 ms fez o host SEGUINTE subir enquanto o anterior ainda segurava a porta — o
+  `esperaPorta` respondia "abriu" pelo host velho e o novo caía sem log nenhum. A espera certa é
+  pelo `exit` do processo, não por tempo.
+- **Tags:** save, sigint, sighup, launcher, tsx, npm, corrida, smoke, portao, corrigido
+- **Relacionados:** bug-666, bug-645
 
 ## 2026-10-05 — bug-675: o heartbeat derrubava a turma inteira, e o cliente ficava preso no mundo morto
 - **Sintoma:** usuário: "o sistema de heartbeat tá desconectando muito os jogadores de forma

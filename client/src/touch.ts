@@ -536,10 +536,19 @@ export class TouchControls {
     return btn;
   }
 
+  /**
+   * Botão de toque. O `data-acao` nasce do rótulo INICIAL e nunca muda: o
+   * rótulo visível é estado (o ▣ vira "interagir", "comer" ou "canto 2"), e
+   * quem procura o botão pelo texto acha `null` na hora em que ele mais importa
+   * — foi o que quebrou o `scripts/f10-shot.mjs`, que mirava numa fornalha e
+   * procurava "colocar". O `data-acao` é a IDENTIDADE do botão: o ▣ é sempre
+   * `colocar`, não importa o que esteja escrito nele.
+   */
   private makeButton(icon: string, label: string): HTMLButtonElement {
     const btn = document.createElement("button");
     btn.type = "button";
     btn.className = "touch-btn";
+    if (label) btn.dataset.acao = label;
     const ico = document.createElement("span");
     ico.textContent = icon;
     const nome = document.createElement("small");

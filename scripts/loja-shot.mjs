@@ -205,15 +205,24 @@ async function tocar(x, y) {
   await cdp("Input.dispatchTouchEvent", { type: "touchEnd", touchPoints: [] });
   await espera(600);
 }
-/** Centro de um botão de ação da direita, pelo rótulo do `<small>`. */
-const botaoDeAcao = (nome) =>
+/**
+ * Centro de um botão de ação da direita, pela IDENTIDADE (`data-acao`).
+ *
+ * NÃO pelo rótulo: o ▣ é `colocar` no DOM mas se chama "interagir" mirando um
+ * baú/fornalha, "comer" com pão na mão e "canto 2" com a varinha — procurar
+ * pelo texto achava `null` justamente nas cenas que estes prints montam.
+ */
+const seletorDaAcao = (acao) => `#touch-acoes button[data-acao=${JSON.stringify(acao)}]`;
+const botaoDeAcao = (acao) =>
   avaliar(`(() => {
-    const b = [...document.querySelectorAll('#touch-acoes button')]
-      .find(e => e.querySelector('small')?.textContent === ${JSON.stringify(nome)});
+    const b = document.querySelector(${JSON.stringify(seletorDaAcao(acao))});
     if (!b) return null;
     const r = b.getBoundingClientRect();
     return { x: Math.round(r.left + r.width/2), y: Math.round(r.top + r.height/2) };
   })()`);
+/** O rótulo VISÍVEL do botão — é o que o aluno lê, e ele muda por estado. */
+const rotuloDaAcao = (acao) =>
+  avaliar(`document.querySelector(${JSON.stringify(seletorDaAcao(acao))})?.querySelector('small')?.textContent ?? null`);
 /** Esvazia o log do chat antes de um print de MUNDO: o `/bloco` e o `/regiao`
  *  do estúdio deixam uma dúzia de linhas de "Bloco (…) definido como …" no meio
  *  da tela, e elas não são a foto — são o andaime que a montou. */
@@ -502,7 +511,11 @@ if (!(await entrar("nome=aluno&pin=4321"))) {
   console.error("✗ aluno não entrou");
   encerrar(1);
 }
-const btn2 = await ateQue(() => botaoDeAcao("interagir"), (b) => !!b, 6000);
+// O ▣ é sempre `data-acao="colocar"`; o que se ESPERA aqui é o RÓTULO virar
+// "interagir" — é o sinal de que o cliente já sabe que a mira está na loja.
+// Tocar antes disso COLOCARIA um bloco em vez de abrir o painel.
+await ateQue(() => rotuloDaAcao("colocar"), (r) => r === "interagir", 6000);
+const btn2 = await botaoDeAcao("colocar");
 if (!btn2) {
   diga(`  · botões de ação: ${JSON.stringify(await avaliar(`[...document.querySelectorAll('#touch-acoes button small')].map(e => e.textContent)`))}`);
   await foto("99-aluno-sem-botao.png");
@@ -537,7 +550,9 @@ if (!(await entrar("nome=profa&pin=1234&codigo=prof2026"))) encerrar(1);
 for (const [bloco, nome] of [[188, "baú"], [186, "fornalha"]]) {
   for (const dy of [0, 1, 2]) await dizer(`/bloco ~ ~${dy} ~-2 ${bloco}`);
   await espera(600);
-  const b = await ateQue(() => botaoDeAcao("interagir") .then((x) => x ?? botaoDeAcao("colocar")), (x) => !!x, 6000);
+  // mesma espera do passo 8: o rótulo é que diz que a mira já pegou o bloco
+  await ateQue(() => rotuloDaAcao("colocar"), (r) => r === "interagir", 6000);
+  const b = await botaoDeAcao("colocar");
   await tocar(b.x, b.y);
   const q = await ateQue(painelLoja, (p) => p?.titulo === nome, 6000);
   ok(q?.titulo === nome, `abriu o painel "${nome}" (${q?.titulo})`);

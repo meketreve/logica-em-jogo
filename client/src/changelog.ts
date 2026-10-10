@@ -43,6 +43,16 @@ interface Mudanca {
 const MUDANCAS: readonly Mudanca[] = [
   {
     // sem `data`: este é o build atual (ver rotuloDoBloco)
+    titulo: "Dá pra voltar atrás",
+    itens: [
+      "no menu \"meus mundos\", quem tem um mundo antigo que o jogo converteu sozinho ganhou o botão RESTAURAR: ele traz de volta uma cópia do mundo como ele era antes da conversão",
+      "e traz como cópia NOVA, ao lado: o mundo que você vem jogando continua intacto, e aí é só escolher qual dos dois abrir (e apagar o outro, se quiser)",
+      "o botão só aparece no mundo que realmente tem essa cópia guardada — nos outros a lista continua igual",
+      "quando o professor encerra o servidor (Ctrl+C ou fechando a janela), o mundo agora é gravado com folga de sobra: a gravação disputava corrida com o programa que embrulhava o servidor, e num mundo grande dava pra perder os últimos segundos da aula",
+    ],
+  },
+  {
+    data: "05/10/2026",
     titulo: "Cada ferramenta serve pra uma coisa",
     itens: [
       "agora você SEGURA o botão pra quebrar um bloco, e vê a rachadura crescer nele até ele cair (no tablet, segure o ⛏)",

@@ -28,8 +28,11 @@ const ok = (cond, msg) => {
 };
 const espera = (ms) => new Promise((r) => setTimeout(r, ms));
 
+// Sobe o host DO MESMO JEITO que os launchers (bug-666): `node --import tsx`,
+// um processo só. Com `npx tsx` havia 3 embrulhos entre o sinal e o servidor, e
+// a prova deste cenário valia para um caminho que a escola não usa mais.
 function sobe(novo) {
-  const proc = spawn("npx", ["tsx", "server/src/index.ts"], {
+  const proc = spawn(process.execPath, ["--import", "tsx", "server/src/index.ts"], {
     env: {
       ...process.env,
       LJ_PORT: String(PORTA),
@@ -44,7 +47,11 @@ function sobe(novo) {
   let saida = "";
   proc.stdout.on("data", (d) => (saida += d));
   proc.stderr.on("data", (d) => (saida += d));
-  return { proc, log: () => saida };
+  // Promessa de MORTE: subir o host seguinte antes de o anterior largar a porta
+  // faz o `esperaPorta` responder "abriu" pelo host velho e o novo cai com
+  // EADDRINUSE sem log nenhum. Esperar a condição, nunca um `sleep` seco.
+  const morreu = new Promise((r) => proc.once("exit", r));
+  return { proc, log: () => saida, morreu };
 }
 
 async function esperaPorta(ms) {
@@ -103,9 +110,17 @@ async function rodada(sinal) {
 
   // o mundo é NOVO e a rodada leva menos que os 30 s do autosave: o único
   // caminho pro disco é o desligamento. É exatamente isso que se mede.
+  // Mede a MARGEM do save no sinal (bug-666): quanto tempo o host leva entre
+  // receber o sinal e ter o mundo no disco. Com embrulho isso às vezes era
+  // "nunca"; o número impresso é o que diz se a folga continua existindo.
+  const t0 = Date.now();
   process.kill(-host.proc.pid, sinal);
-  await espera(2500);
-  ok(/mundo salvo/.test(host.log()), `o host gravou o mundo ao receber ${sinal}`);
+  const limite = Date.now() + 2500;
+  while (Date.now() < limite && !/mundo salvo/.test(host.log())) await espera(10);
+  const margem = Date.now() - t0;
+  ok(/mundo salvo/.test(host.log()), `o host gravou o mundo ao receber ${sinal} (${margem} ms)`);
+  // e só então o host seguinte — o velho ainda tem a porta na mão até sair.
+  await Promise.race([host.morreu, espera(5000)]);
 
   host = sobe(false); // sem LJ_NOVO: se nada foi salvo, o host recusa subir
   const subiu = await esperaPorta(60_000);

@@ -536,4 +536,14 @@ echo " Para PARAR: Ctrl+C."
 echo "--------------------------------------------"
 echo
 
-npm run start -w server
+# O host sobe com `node` DIRETO, sem `npm run start` e sem o CLI do `tsx`
+# (bug-666). Aquele caminho punha 3 processos entre o terminal e o servidor
+# (npm -> sh -c tsx -> cli.mjs do tsx -> node): o Ctrl+C vai pro GRUPO inteiro,
+# os embrulhos morrem na hora e o `saveNow` do sinal corria contra eles —
+# ganhava por ~6 ms, e perder significa a aula voltar do autosave de até 30 s
+# atrás. `--import tsx` carrega o MESMO loader dentro deste único processo, que
+# é quem recebe o sinal e grava sem ninguém podendo derrubá-lo no meio.
+# `exec` para nem o bash ficar no caminho. Os caminhos do mundo não dependem do
+# cwd (`server/src/paths.ts` resolve pela raiz do repo), então rodar da raiz é
+# igual a rodar de dentro de server/.
+exec node --import tsx server/src/index.ts

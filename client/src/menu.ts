@@ -401,7 +401,38 @@ export function showMenu(handlers: MenuHandlers): void {
         }, 3000);
       });
 
-      row.append(name, when, play, exp, del);
+      // Restaurar o original de antes dos ids de 16 bits (2026-09-12). Só
+      // aparece no mundo que TEM backup, e é NÃO destrutivo: grava um registro
+      // NOVO ao lado em vez de sobrescrever — quem converteu pode ter jogado
+      // horas depois, e o host faz o mesmo deixando `<nome>.antes-ids16.ljw`
+      // ao lado do save em vez de trocar o save. Qual jogar (e qual apagar) é
+      // escolha de quem está no menu.
+      const backup = w.dataAntesIds16;
+      const rest = backup ? document.createElement("button") : null;
+      if (rest && backup) {
+        rest.type = "button";
+        rest.textContent = "restaurar";
+        rest.title =
+          "cria uma CÓPIA deste mundo como ele era antes da conversão pros ids de 16 bits — o mundo atual fica como está";
+        rest.addEventListener("click", () => {
+          rest.disabled = true;
+          const agora = Date.now();
+          void putWorld({
+            id: crypto.randomUUID(),
+            name: `${w.name} (antes dos ids 16)`,
+            createdAt: w.createdAt,
+            updatedAt: agora,
+            data: backup,
+          })
+            .then(refreshWorlds)
+            .catch(() => {
+              rest.disabled = false;
+              flashError("menu-worlds-erro", "Não consegui gravar a cópia restaurada.");
+            });
+        });
+      }
+
+      row.append(name, when, play, exp, ...(rest ? [rest] : []), del);
       listEl.appendChild(row);
     }
   }

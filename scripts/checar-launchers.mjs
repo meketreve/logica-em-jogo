@@ -115,5 +115,41 @@ console.log("portão dos launchers (bug-621):");
   }
 }
 
+// --- 6. o host sobe SEM embrulho (bug-666) ------------------------------
+// `npm run start -w server` punha 3 processos entre o terminal e o servidor
+// (npm -> sh -c tsx -> cli.mjs do tsx -> node). O Ctrl+C e o fechar-janela vão
+// pro GRUPO inteiro: os embrulhos morrem na hora e o `saveNow` do sinal
+// (bug-645) corria contra eles — ganhava por ~6 ms, e perder significa a turma
+// voltar do autosave de até 30 s atrás. Voltar ao `npm run start` por
+// comodidade recria a corrida sem quebrar teste nenhum — daí o portão.
+{
+  // Só a linha de COMANDO conta: os comentários dos dois arquivos citam o
+  // `npm run start` justamente para contar por que ele saiu.
+  const semComentario = (txt, marca) =>
+    txt
+      .split("\n")
+      .map((l) => l.trim())
+      .filter((l) => l && !l.startsWith(marca))
+      .join("\n");
+  const arquivos = [
+    ["bat", semComentario(ler("iniciar-servidor.bat").toString("utf8"), "REM")],
+    ["sh", semComentario(ler("iniciar-servidor.sh").toString("utf8"), "#")],
+  ];
+  for (const [nome, cmd] of arquivos) {
+    const direto = /(^|\n)(exec )?node --import tsx server[/\\]src[/\\]index\.ts/.test(cmd);
+    ok(
+      direto,
+      `iniciar-servidor.${nome} sobe o host com node direto (--import tsx)`,
+      direto ? "" : "o host tem de ser o PRÓPRIO processo que recebe o sinal, senão o save do Ctrl+C disputa corrida com o embrulho (bug-666)",
+    );
+    const embrulho = /npm run start|npx +tsx|(?<!--import )\btsx +server/.exec(cmd);
+    ok(
+      !embrulho,
+      `iniciar-servidor.${nome} não embrulha o host em npm/npx/tsx`,
+      embrulho ? `achei \`${embrulho[0]}\` na linha de comando — é o embrulho do bug-666` : "",
+    );
+  }
+}
+
 console.log(falhas === 0 ? "  launchers OK" : `  ✗ ${falhas} falha(s) no portão dos launchers`);
 process.exit(falhas === 0 ? 0 : 1);

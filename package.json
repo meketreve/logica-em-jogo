@@ -35,7 +35,8 @@
     "shots:fundo": "node scripts/fundo-shots.mjs",
     "shots:loja": "node scripts/loja-shot.mjs",
     "shots:queda": "node scripts/queda-shot.mjs",
-    "shots:quebra": "node scripts/quebra-shot.mjs"
+    "shots:quebra": "node scripts/quebra-shot.mjs",
+    "shots:restaurar": "node scripts/restaurar-shot.mjs"
   },
   "devDependencies": {
     "typescript": "^7.0.2",

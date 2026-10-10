@@ -209,15 +209,24 @@ async function tocar(x, y) {
   await cdp("Input.dispatchTouchEvent", { type: "touchEnd", touchPoints: [] });
   await espera(600);
 }
-/** Centro de um botão de ação da direita, pelo rótulo do `<small>`. */
-const botaoDeAcao = (nome) =>
+/**
+ * Centro de um botão de ação da direita, pela IDENTIDADE (`data-acao`).
+ *
+ * NÃO pelo rótulo: o ▣ é `colocar` no DOM mas se chama "interagir" mirando um
+ * baú/fornalha, "comer" com pão na mão e "canto 2" com a varinha — procurar
+ * pelo texto achava `null` justamente nas cenas que estes prints montam.
+ */
+const seletorDaAcao = (acao) => `#touch-acoes button[data-acao=${JSON.stringify(acao)}]`;
+const botaoDeAcao = (acao) =>
   avaliar(`(() => {
-    const b = [...document.querySelectorAll('#touch-acoes button')]
-      .find(e => e.querySelector('small')?.textContent === ${JSON.stringify(nome)});
+    const b = document.querySelector(${JSON.stringify(seletorDaAcao(acao))});
     if (!b) return null;
     const r = b.getBoundingClientRect();
     return { x: Math.round(r.left + r.width/2), y: Math.round(r.top + r.height/2) };
   })()`);
+/** O rótulo VISÍVEL do botão — é o que o aluno lê, e ele muda por estado. */
+const rotuloDaAcao = (acao) =>
+  avaliar(`document.querySelector(${JSON.stringify(seletorDaAcao(acao))})?.querySelector('small')?.textContent ?? null`);
 /** Esvazia o log do chat antes de um print de MUNDO: o `/bloco` e o `/regiao`
  *  do estúdio deixam uma dúzia de linhas de "Bloco (…) definido como …" no meio
  *  da tela, e elas não são a foto — são o andaime que a montou. */
