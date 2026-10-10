@@ -10,7 +10,7 @@ tier: 3
 ## Estado atual
 
 Jogo voxel educacional rodando, testado com turma real. Árvore limpa, `main` em sinc com o
-`origin` (`a2b8a76`). Ambiente é só LINUX.
+`origin` (`7e8ce9b`). Ambiente é só LINUX.
 
 O build "Cada ferramenta serve pra uma coisa · 05/10" **rodou em aula de verdade em 10/10** e o
 usuário aprovou quebra v2, cama/porta e o voo persistindo. **O resto da lista de teste continua
