@@ -83,10 +83,18 @@ process.on("unhandledRejection", (e) => (console.error(e), encerrar(1)));
 if (!(await esperaPorta(PORTA_WS))) { console.error("o host não subiu"); encerrar(1); }
 
 const LIBS = join(homedir(), ".local/chrome-libs/usr/lib/x86_64-linux-gnu");
+// Perfil temporário do Chrome (2026-10-10): são ~57 MB por rodada em /tmp e
+// ninguém os apagava — o `exit` cobre tanto o fim normal quanto o
+// `process.exit()` do encerrar(). E Ctrl+C passa pelo encerrar() também: matar
+// só ESTE processo deixava o Chrome órfão segurando memória por horas.
+const PERFIL = mkdtempSync(join(tmpdir(), "lj-queda-"));
+process.on("exit", () => rmSync(PERFIL, { recursive: true, force: true }));
+for (const sinal of ["SIGINT", "SIGTERM"]) process.on(sinal, () => encerrar(130));
+
 chrome = spawn(acharChrome(), [
   "--headless=new", "--no-sandbox", "--disable-gpu", "--enable-unsafe-swiftshader",
   `--window-size=${L},${A}`, `--remote-debugging-port=${PORTA_CDP}`,
-  `--user-data-dir=${mkdtempSync(join(tmpdir(), "lj-queda-"))}`, "about:blank",
+  `--user-data-dir=${PERFIL}`, "about:blank",
 ], { stdio: ["ignore", "ignore", "pipe"],
      env: existsSync(LIBS) ? { ...process.env, LD_LIBRARY_PATH: `${LIBS}:${process.env["LD_LIBRARY_PATH"] ?? ""}` } : process.env });
 async function abrirAba() {

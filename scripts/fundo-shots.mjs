@@ -13,7 +13,7 @@
  * menuFundo.ts carrega como textura das faces.
  */
 import { spawn } from "node:child_process";
-import { existsSync, mkdirSync, mkdtempSync, readdirSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, mkdtempSync, readdirSync, rmSync, writeFileSync } from "node:fs";
 import { homedir, tmpdir } from "node:os";
 import { join } from "node:path";
 
@@ -43,6 +43,23 @@ const CHROME = acharChrome();
 mkdirSync(SAIDA, { recursive: true });
 console.log(`▶ ${BASE}/?foto=${SEED} → ${SAIDA}`);
 
+// Perfil temporário do Chrome (2026-10-10): são ~57 MB por rodada em /tmp e
+// ninguém os apagava — o `exit` cobre tanto o fim normal quanto o
+// `process.exit()`. E Ctrl+C passa a MATAR o Chrome antes de sair: matar só
+// ESTE processo deixava o navegador órfão segurando memória por horas.
+const PERFIL = mkdtempSync(join(tmpdir(), "lj-fundo-"));
+process.on("exit", () => rmSync(PERFIL, { recursive: true, force: true }));
+for (const sinal of ["SIGINT", "SIGTERM"]) {
+  process.on(sinal, () => {
+    try {
+      chrome?.kill("SIGKILL");
+    } catch {
+      /* já morreu */
+    }
+    process.exit(130);
+  });
+}
+
 const chrome = spawn(
   CHROME,
   [
@@ -52,7 +69,7 @@ const chrome = spawn(
     "--enable-unsafe-swiftshader",
     `--window-size=${L},${A}`,
     `--remote-debugging-port=${PORTA}`,
-    `--user-data-dir=${mkdtempSync(join(tmpdir(), "lj-fundo-"))}`,
+    `--user-data-dir=${PERFIL}`,
     "about:blank",
   ],
   { stdio: ["ignore", "ignore", "pipe"] },

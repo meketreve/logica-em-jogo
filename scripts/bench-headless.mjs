@@ -20,7 +20,7 @@
  *   CHROME=/caminho/do/chrome node scripts/bench-headless.mjs
  */
 import { spawn } from "node:child_process";
-import { existsSync, mkdtempSync, readdirSync } from "node:fs";
+import { existsSync, mkdtempSync, readdirSync, rmSync } from "node:fs";
 import { homedir, tmpdir } from "node:os";
 import { join } from "node:path";
 
@@ -47,6 +47,23 @@ function acharChrome() {
 
 const espera = (ms) => new Promise((r) => setTimeout(r, ms));
 
+// Perfil temporário do Chrome (2026-10-10): são ~57 MB por rodada em /tmp e
+// ninguém os apagava — o `exit` cobre tanto o fim normal quanto o
+// `process.exit()`. E Ctrl+C passa a MATAR o Chrome antes de sair: matar só
+// ESTE processo deixava o navegador órfão segurando memória por horas.
+const PERFIL = mkdtempSync(join(tmpdir(), "lj-bench-"));
+process.on("exit", () => rmSync(PERFIL, { recursive: true, force: true }));
+for (const sinal of ["SIGINT", "SIGTERM"]) {
+  process.on(sinal, () => {
+    try {
+      chrome?.kill("SIGKILL");
+    } catch {
+      /* já morreu */
+    }
+    process.exit(130);
+  });
+}
+
 const chrome = spawn(
   acharChrome(),
   [
@@ -57,7 +74,7 @@ const chrome = spawn(
     // 800×450: a 1280×720 o SwiftShader devolve tela cinza em ~40% das rodadas
     "--window-size=800,450",
     `--remote-debugging-port=${PORTA}`,
-    `--user-data-dir=${mkdtempSync(join(tmpdir(), "lj-bench-"))}`,
+    `--user-data-dir=${PERFIL}`,
     "about:blank",
   ],
   { stdio: ["ignore", "ignore", "pipe"] },

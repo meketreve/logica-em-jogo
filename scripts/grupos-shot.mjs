@@ -117,12 +117,20 @@ if (!(await esperaPorta(PORTA_WS))) {
 
 // --- navegador como PROFESSOR (é o código, não o PIN, que dá o papel) ---
 const LIBS = join(homedir(), ".local/chrome-libs/usr/lib/x86_64-linux-gnu");
+// Perfil temporário do Chrome (2026-10-10): são ~57 MB por rodada em /tmp e
+// ninguém os apagava — o `exit` cobre tanto o fim normal quanto o
+// `process.exit()` do encerrar(). E Ctrl+C passa pelo encerrar() também: matar
+// só ESTE processo deixava o Chrome órfão segurando memória por horas.
+const PERFIL = mkdtempSync(join(tmpdir(), "lj-grupos-"));
+process.on("exit", () => rmSync(PERFIL, { recursive: true, force: true }));
+for (const sinal of ["SIGINT", "SIGTERM"]) process.on(sinal, () => encerrar(130));
+
 const chrome = spawn(
   acharChrome(),
   [
     "--headless=new", "--no-sandbox", "--disable-gpu", "--enable-unsafe-swiftshader",
     `--window-size=${L},${A}`, `--remote-debugging-port=${PORTA_CDP}`,
-    `--user-data-dir=${mkdtempSync(join(tmpdir(), "lj-grupos-"))}`, "about:blank",
+    `--user-data-dir=${PERFIL}`, "about:blank",
   ],
   {
     stdio: ["ignore", "ignore", "pipe"],
