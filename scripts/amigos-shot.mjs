@@ -142,6 +142,20 @@ const LIBS = join(homedir(), ".local/chrome-libs/usr/lib/x86_64-linux-gnu");
 // só ESTE processo deixava o Chrome órfão segurando memória por horas.
 const PERFIL = mkdtempSync(join(tmpdir(), "lj-amigos-"));
 process.on("exit", () => rmSync(PERFIL, { recursive: true, force: true }));
+/** Mata o Chrome INTEIRO. Ele tem filhos (gpu, rede, renderer) e matar só o
+ *  PAI deixava um deles regravando o perfil DEPOIS do rmSync — sobrava um
+ *  esqueleto de 28 KB por rodada em /tmp. Daí o spawn ser `detached`: grupo
+ *  próprio, e o SIGKILL no grupo não dá a ninguém a chance de gravar de volta.
+ *  É `function` (içada) e o try/catch abraça TUDO de propósito: o encerrar()
+ *  pode ser chamado antes de o Chrome subir — o host que não abre a porta é um
+ *  caminho desses — e aí o próprio `chrome` ainda não existe. */
+function matarChrome() {
+  try {
+    process.kill(-chrome.pid, "SIGKILL");
+  } catch {
+    /* ainda não subiu, ou já morreu */
+  }
+}
 for (const sinal of ["SIGINT", "SIGTERM"]) process.on(sinal, () => encerrar(130));
 
 const chrome = spawn(
@@ -152,7 +166,7 @@ const chrome = spawn(
     `--user-data-dir=${PERFIL}`, "about:blank",
   ],
   {
-    stdio: ["ignore", "ignore", "pipe"],
+    detached: true, stdio: ["ignore", "ignore", "pipe"],
     env: existsSync(LIBS)
       ? { ...process.env, LD_LIBRARY_PATH: `${LIBS}:${process.env["LD_LIBRARY_PATH"] ?? ""}` }
       : process.env,
@@ -296,6 +310,6 @@ for (const c of [bia, caio]) {
   c.ws.close();
 }
 ws.close();
-chrome.kill("SIGKILL");
+matarChrome();
 console.log(falhas === 0 ? "\nPAINEL DE AMIGOS OK" : `\nFALHOU (${falhas})`);
 encerrar(falhas === 0 ? 0 : 1);

@@ -62,13 +62,23 @@ const espera = (ms) => new Promise((r) => setTimeout(r, ms));
 // ESTE processo deixava o navegador órfão segurando memória por horas.
 const PERFIL = mkdtempSync(join(tmpdir(), "lj-tip-"));
 process.on("exit", () => rmSync(PERFIL, { recursive: true, force: true }));
+/** Mata o Chrome INTEIRO. Ele tem filhos (gpu, rede, renderer) e matar só o
+ *  PAI deixava um deles regravando o perfil DEPOIS do rmSync — sobrava um
+ *  esqueleto de 28 KB por rodada em /tmp. Daí o spawn ser `detached`: grupo
+ *  próprio, e o SIGKILL no grupo não dá a ninguém a chance de gravar de volta.
+ *  É `function` (içada) e o try/catch abraça TUDO de propósito: o encerrar()
+ *  pode ser chamado antes de o Chrome subir — o host que não abre a porta é um
+ *  caminho desses — e aí o próprio `chrome` ainda não existe. */
+function matarChrome() {
+  try {
+    process.kill(-chrome.pid, "SIGKILL");
+  } catch {
+    /* ainda não subiu, ou já morreu */
+  }
+}
 for (const sinal of ["SIGINT", "SIGTERM"]) {
   process.on(sinal, () => {
-    try {
-      chrome?.kill("SIGKILL");
-    } catch {
-      /* já morreu */
-    }
+    matarChrome();
     process.exit(130);
   });
 }
@@ -77,7 +87,7 @@ const chrome = spawn(acharChrome(), [
   "--headless=new", "--no-sandbox", "--disable-gpu", "--enable-unsafe-swiftshader",
   `--window-size=${L},${A}`, `--remote-debugging-port=${PORTA}`,
   `--user-data-dir=${PERFIL}`, "about:blank",
-], { stdio: ["ignore", "ignore", "pipe"] });
+], { detached: true, stdio: ["ignore", "ignore", "pipe"] });
 
 async function abrirAba() {
   for (let i = 0; i < 40; i++) {
@@ -268,5 +278,5 @@ console.log(excecoes.length ? `✗ exceções: ${excecoes.join(" | ")}` : "✓ s
 if (excecoes.length) falhas++;
 console.log(falhas === 0 ? "\n✓ tooltip: todas as asserções passaram" : `\n✗ tooltip: ${falhas} falha(s)`);
 ws.close();
-chrome.kill("SIGKILL");
+matarChrome();
 process.exit(falhas === 0 ? 0 : 1);

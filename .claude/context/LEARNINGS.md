@@ -62,9 +62,9 @@ tier: 3
 - [2026-10-05] [smoke] [✗] Confiar em resultado de smoke sem conferir se há HOST ÓRFÃO na porta
   — dois hosts meus de 5 h antes seguravam 8101/8102 e o `inventario` passou a "falhar" com
   números que CRESCIAM a cada rodada (9→18→27→45). Parece bug do jogo e não é.
-  `ps -eo pid,cmd | grep server/src/index` antes de acreditar, e matar por PID. Matar a SONDA
-  por PID deixava o Chrome dela órfão — desde 10/10 as 17 sondas tratam SIGINT/SIGTERM e apagam
-  o `--user-data-dir` no `exit`, então Ctrl+C nelas já limpa tudo.
+  `ps -eo pid,cmd | grep server/src/index` antes de acreditar, e matar por PID. Desde 10/10 as 17
+  sondas tratam SIGINT/SIGTERM e apagam o `--user-data-dir` no `exit` — e matam o Chrome pelo
+  GRUPO (`detached` + `kill(-pid)`): matar só o pai deixa um filho regravar o perfil depois.
 - [2026-10-05] [smoke] [✓] Cenário que afirma "UM arquivo" tem de LIMPAR a pasta dele no começo —
   a pasta sobrevive entre rodadas mesmo com `LJ_NOVO=1`, e a 2ª execução reprova por defeito que
   não existe. Foi o que aconteceu com o `_smoke-logs` que escrevi hoje.

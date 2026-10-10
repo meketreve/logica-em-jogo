@@ -60,13 +60,23 @@ const espera = (ms) => new Promise((r) => setTimeout(r, ms));
 // ESTE processo deixava o navegador órfão segurando memória por horas.
 const PERFIL = mkdtempSync(join(tmpdir(), "lj-tablet-"));
 process.on("exit", () => rmSync(PERFIL, { recursive: true, force: true }));
+/** Mata o Chrome INTEIRO. Ele tem filhos (gpu, rede, renderer) e matar só o
+ *  PAI deixava um deles regravando o perfil DEPOIS do rmSync — sobrava um
+ *  esqueleto de 28 KB por rodada em /tmp. Daí o spawn ser `detached`: grupo
+ *  próprio, e o SIGKILL no grupo não dá a ninguém a chance de gravar de volta.
+ *  É `function` (içada) e o try/catch abraça TUDO de propósito: o encerrar()
+ *  pode ser chamado antes de o Chrome subir — o host que não abre a porta é um
+ *  caminho desses — e aí o próprio `chrome` ainda não existe. */
+function matarChrome() {
+  try {
+    process.kill(-chrome.pid, "SIGKILL");
+  } catch {
+    /* ainda não subiu, ou já morreu */
+  }
+}
 for (const sinal of ["SIGINT", "SIGTERM"]) {
   process.on(sinal, () => {
-    try {
-      chrome?.kill("SIGKILL");
-    } catch {
-      /* já morreu */
-    }
+    matarChrome();
     process.exit(130);
   });
 }
@@ -83,7 +93,7 @@ const chrome = spawn(
     `--user-data-dir=${PERFIL}`,
     "about:blank",
   ],
-  { stdio: ["ignore", "ignore", "pipe"] },
+  { detached: true, stdio: ["ignore", "ignore", "pipe"] },
 );
 chrome.stderr.on("data", (d) => {
   if (/FATAL/.test(String(d))) process.stderr.write(`[chrome] ${d}`);
@@ -568,5 +578,5 @@ await tirar("11-jogo-barra-varinha");
 console.log("\n=== fim ===");
 console.log(`imagens em ${SAIDA}`);
 ws.close();
-chrome.kill("SIGKILL");
+matarChrome();
 process.exit(0);

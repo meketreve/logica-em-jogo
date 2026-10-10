@@ -97,11 +97,7 @@ async function esperaPorta(porta) {
 }
 let chrome = null;
 function encerrar(codigo) {
-  try {
-    chrome?.kill();
-  } catch {
-    /* já morreu */
-  }
+  matarChrome();
   try {
     process.kill(-servidor.pid, "SIGTERM");
   } catch {
@@ -131,6 +127,20 @@ const LIBS = join(homedir(), ".local/chrome-libs/usr/lib/x86_64-linux-gnu");
 // só ESTE processo deixava o Chrome órfão segurando memória por horas.
 const PERFIL = mkdtempSync(join(tmpdir(), "lj-escbug-"));
 process.on("exit", () => rmSync(PERFIL, { recursive: true, force: true }));
+/** Mata o Chrome INTEIRO. Ele tem filhos (gpu, rede, renderer) e matar só o
+ *  PAI deixava um deles regravando o perfil DEPOIS do rmSync — sobrava um
+ *  esqueleto de 28 KB por rodada em /tmp. Daí o spawn ser `detached`: grupo
+ *  próprio, e o SIGKILL no grupo não dá a ninguém a chance de gravar de volta.
+ *  É `function` (içada) e o try/catch abraça TUDO de propósito: o encerrar()
+ *  pode ser chamado antes de o Chrome subir — o host que não abre a porta é um
+ *  caminho desses — e aí o próprio `chrome` ainda não existe. */
+function matarChrome() {
+  try {
+    process.kill(-chrome.pid, "SIGKILL");
+  } catch {
+    /* ainda não subiu, ou já morreu */
+  }
+}
 for (const sinal of ["SIGINT", "SIGTERM"]) process.on(sinal, () => encerrar(130));
 
 chrome = spawn(
@@ -146,7 +156,7 @@ chrome = spawn(
     "about:blank",
   ],
   {
-    stdio: ["ignore", "ignore", "pipe"],
+    detached: true, stdio: ["ignore", "ignore", "pipe"],
     env: existsSync(LIBS)
       ? { ...process.env, LD_LIBRARY_PATH: `${LIBS}:${process.env["LD_LIBRARY_PATH"] ?? ""}` }
       : process.env,
