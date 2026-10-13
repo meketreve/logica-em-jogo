@@ -1,5 +1,5 @@
 ---
-updated: 2026-10-10
+updated: 2026-10-13
 tier: 3
 ---
 
@@ -20,6 +20,8 @@ sem ter sido visto em tela** (machado/pá, logs, presença, loja, ids de 16 bits
 zeraram**. O conserto do host pegou a causa que a queixa original descrevia, mas sobrou queda
 sem explicação. Falta o detalhe da próxima aula (quantos, se viram o motivo na tela, se é sempre
 tablet no Wi-Fi) antes de caçar — os 15 s da presença em `constants.ts` são o primeiro suspeito.
+*(13/10: a **sobra do host abaixo do limiar de 8 s** foi endurecida e está no ar — `dcd599e`,
+queda agora exige 3 perguntas de verdade; os 15 s seguem o suspeito nº 1 do que restar.)*
 
 ## Próxima fase
 
