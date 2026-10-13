@@ -1,5 +1,5 @@
 ---
-updated: 2026-10-10
+updated: 2026-10-13
 tier: 3
 active: true
 ---
@@ -27,7 +27,9 @@ active: true
 - [ ] **Heartbeat (bug-675) — AINDA ABERTO, o mais importante:** aula de 10/10 com turma cheia:
       as quedas **diminuíram mas não zeraram**. Falta saber da próxima vez: quantos caíram, se
       viram o MOTIVO na tela, e se cai sempre o mesmo aparelho (tablet no Wi-Fi) — a sobra pode
-      ser outra causa, não o heartbeat.
+      ser outra causa, não o heartbeat. *(13/10: a sobra do host abaixo do limiar de 8 s foi
+      endurecida — queda por silêncio agora exige 3 perguntas de verdade; a observação em aula
+      continua valendo.)*
 - [ ] **Logs (não lidos ainda):** depois de uma aula, abrir `mundos/<nome>/logs/` — tem de haver o par com data e
       hora, o `-chat.log` só com fala de gente e pequeno o bastante pra ler.
 - [ ] **Presença (bug-672):** fechar o navegador do tablet e reentrar com o mesmo nome; minimizar

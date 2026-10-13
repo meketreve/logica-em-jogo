@@ -1,5 +1,5 @@
 ---
-updated: 2026-10-10
+updated: 2026-10-13
 tier: 3
 ---
 
@@ -11,6 +11,30 @@ tier: 3
      Convertido de `.wolf/buglog.json` em 2026-09-25 (mesmo conteúdo, formato do
      modelo). São bugs ESCRITOS À MÃO: nada de detector automático — ele já encheu
      o arquivo de 148 entradas falsas uma vez, e elas foram podadas junto. -->
+
+## 2026-10-13 — bug-675 (sobra): parada MÉDIA do host ainda derrubava quem tinha engasgado a rede
+- **Sintoma:** usuário: "estou tendo alguns casos de desconecção onde o cliente não pede o wifi mas o
+  server fecha a conexão" — a sobra que ficou depois do conserto de 05/10 (a aula de 10/10 "diminuiu
+  mas não zerou"). O fecho vem do servidor (código 4000, "fora do jogo tempo demais") com o Wi-Fi do
+  aparelho de pé.
+- **Onde:** `shared/src/session/presenca.ts`, `shared/src/constants.ts`
+- **Causa:** o silêncio era cobrado em relógio de PAREDE. O reset do bug-675 só reconhece buraco
+  ACIMA de `PAUSA_DO_HOSPEDEIRO_MS` (8 s) — um buraco médio do host (autosave, GC, troca de aula
+  curta: 2–8 s) não reseta ninguém, mas come tempo do aluno: um engasgo de rede de verdade (uma ou
+  duas perguntas perdidas) somava com ele e estourava os 15 s num tick em que ninguém tinha sido
+  perguntado de novo — queda no exato instante em que a resposta ia chegar. Reproduzido no controle
+  negativo: ana responde à 1ª pergunta, engasga nas duas seguintes, host trava 7,8 s → derrubada no
+  tick da volta, com a 3ª pergunta ainda por sair.
+- **Correção:** o silêncio passou a ser cobrado por PERGUNTAS, não por relógio: derrubar exige
+  `HEARTBEAT_PERGUNTAS_PARA_DERRUBAR` (3) rodadas de `ping` carimbadas depois do último sinal, e a
+  última já com a janela de resposta decorrida. Buraco do host não conta como chance que o aluno
+  deixou passar. A régua de sala (4 s / 15 s) não mudou: quem congelou de fato continua caindo
+  (~1 s mais tarde, na 3ª pergunta sem resposta).
+- **Prova:** teste novo em `presenca.test.ts` rodado como controle negativo — VERMELHO com o código
+  velho (`derrubados [1]`), verde com o conserto; 11/11 na suíte de presença; e `npm run smoke --
+  presenca` verde em host real (socket congelado cai e o nome libera; quem responde fica).
+- **Tags:** heartbeat, presenca, rede, host, relatado-pelo-usuario
+- **Relacionados:** bug-675, bug-672
 
 ## 2026-10-10 — bug-677: marco novo nascia carimbado com a data do commit ANTERIOR
 - **Sintoma:** o bloco novo do changelog ("Dá pra voltar atrás", escrito em 10/10) saía do

@@ -349,6 +349,11 @@ export class GameSession {
   /** Quando saiu a última rodada de `ping` (uma pra todos, não uma por
    *  jogador — a régua do §🌐: broadcast por TICK, nunca por evento). */
   ultimoPing = 0;
+  /** Carimbos das últimas rodadas de `ping` (bug-675, sobra): é o que permite
+   *  cobrar silêncio por PERGUNTAS feitas, não por relógio de parede — um
+   *  buraco do host não conta como chance que o aluno deixou passar. Capado
+   *  (só as últimas importam: a régua são 3). */
+  readonly perguntasFeitas: number[] = [];
   /** Quando a vigília de presença rodou pela última vez (bug-675). Serve pra
    *  perceber que o SERVIDOR é que ficou fora — máquina do professor dormiu,
    *  travou, ou a troca de aula demorou — e não cobrar silêncio da turma por

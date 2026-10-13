@@ -1,4 +1,9 @@
-import { HEARTBEAT_PING_MS, HEARTBEAT_TIMEOUT_MS, PAUSA_DO_HOSPEDEIRO_MS } from "../constants";
+import {
+  HEARTBEAT_PERGUNTAS_PARA_DERRUBAR,
+  HEARTBEAT_PING_MS,
+  HEARTBEAT_TIMEOUT_MS,
+  PAUSA_DO_HOSPEDEIRO_MS,
+} from "../constants";
 import { type ServerMessage } from "../protocol";
 import type { GameSession } from "../session";
 
@@ -23,6 +28,15 @@ import type { GameSession } from "../session";
  * de rede do aparelho, sem JavaScript nenhum rodando — ele responderia "vivo"
  * exatamente no caso que este módulo existe pra pegar (aba congelada). Este
  * `ping` só volta se o cliente estiver de fato executando.
+ *
+ * **O silêncio é cobrado por PERGUNTAS, não por relógio (sobra do bug-675,
+ * 2026-10-13).** Um buraco do host abaixo de `PAUSA_DO_HOSPEDEIRO_MS` não
+ * dispara o reset — e somado a um engasgo de rede do aluno estourava os 15 s
+ * num tick em que ninguém tinha sido perguntado de novo: queda sem causa do
+ * lado dele, no instante em que voltaria a responder. Derrubar exige
+ * `HEARTBEAT_PERGUNTAS_PARA_DERRUBAR` perguntas atrás do último sinal, e a
+ * última já com a janela de resposta — parada do host não conta como chance
+ * que o aluno deixou passar.
  *
  * **Singleplayer fica de fora.** Lá o "servidor" é um Web Worker dentro da
  * mesma página: quando o aluno troca de aba, o navegador estrangula a página e
@@ -71,12 +85,28 @@ export function tickPresenca(ses: GameSession): void {
   for (const clientId of ses.players.keys()) {
     // quem nunca deu sinal começa a contar do join (o `admitir` carimba)
     const ultimo = ses.ultimoSinal.get(clientId) ?? agora;
-    if (agora - ultimo >= HEARTBEAT_TIMEOUT_MS) mortos.push(clientId);
+    // bug-675 (sobra): o silêncio não basta — ele tem de ser cobrado por
+    // PERGUNTAS que saíram depois do último sinal (buraco do host come tempo
+    // e não pergunta), e a última precisa ter tido a janela pra ser
+    // respondida. Sem isto, um buraco abaixo do limiar somava com um engasgo
+    // de rede e derrubava quem estava vivo (ver o teste da sobra).
+    const perguntas = ses.perguntasFeitas.filter((quando) => quando > ultimo).length;
+    if (
+      agora - ultimo >= HEARTBEAT_TIMEOUT_MS &&
+      perguntas >= HEARTBEAT_PERGUNTAS_PARA_DERRUBAR &&
+      agora - ses.ultimoPing >= HEARTBEAT_PING_MS
+    ) {
+      mortos.push(clientId);
+    }
   }
   for (const clientId of mortos) derrubar(ses, clientId);
 
   if (agora - ses.ultimoPing < HEARTBEAT_PING_MS) return;
   ses.ultimoPing = agora;
+  // a pergunta que SAIU fica carimbada: é a régua do "quantas chances ele
+  // teve de verdade" (só as últimas importam — a régua são 3)
+  ses.perguntasFeitas.push(agora);
+  if (ses.perguntasFeitas.length > 8) ses.perguntasFeitas.shift();
   for (const clientId of ses.players.keys()) {
     ses.send(clientId, JSON.stringify({ type: "ping", t: agora } satisfies ServerMessage));
   }

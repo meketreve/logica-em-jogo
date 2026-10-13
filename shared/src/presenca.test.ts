@@ -97,6 +97,30 @@ describe("bug-672 — o servidor pergunta, e quem não responde cai", () => {
     expect(nomesEmJogo(session)).toEqual([]);
   });
 
+  it("bug-675 (sobra): a parada MÉDIA do host não come a janela do aluno", () => {
+    // O reset do bug-675 só dispara com buraco > PAUSA_DO_HOSPEDEIRO_MS (8 s).
+    // Um buraco de 7,8 s NÃO reseta — e se o aluno tinha engasgado a rede
+    // (perdeu uma ou duas perguntas), o silêncio COMPOSTO estoura os 15 s num
+    // tick que roda com o host recém-voltado: ele paga por um tempo em que
+    // ninguém o perguntou, e cai no instante em que voltaria a responder. A
+    // ana responde à 1ª pergunta, engasga nas duas seguintes, o host trava
+    // 7,8 s — e o tick da volta NÃO pode derrubá-la: com três perguntas de
+    // verdade é que se cobra silêncio, e a 3ª ainda nem saiu.
+    const { session, derrubados, avancar, pular } = sala();
+    session.handleMessage(1, join("ana", "1111", "sala"));
+    avancar(HEARTBEAT_PING_MS + 200); // 1ª rodada de ping sai
+    session.handleMessage(1, JSON.stringify({ type: "pong", t: 1 })); // ela responde
+    avancar(HEARTBEAT_PING_MS * 2); // 2ª e 3ª rodadas saem; a rede dela engasgou
+    pular(7800); // host travado 7,8 s — abaixo do limiar, sem reset
+    session.tick(); // o tick da volta
+    expect(derrubados).toEqual([]);
+    expect(nomesEmJogo(session)).toEqual(["ana"]);
+    // e a vigília segue pra ela: responde à pergunta que saiu agora e continua
+    session.handleMessage(1, JSON.stringify({ type: "pong", t: 1 }));
+    avancar(HEARTBEAT_PING_MS + 200);
+    expect(nomesEmJogo(session)).toEqual(["ana"]);
+  });
+
   it("A QUEIXA INTEIRA: o tablet minimizou, e a criança consegue voltar com o mesmo nome", () => {
     const { session, avancar } = sala();
     session.handleMessage(1, join("ana", "1111", "sala"));

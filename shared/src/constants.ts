@@ -35,6 +35,16 @@ export const SERVER_TICK_RATE = 10;
 export const HEARTBEAT_PING_MS = 4000;
 export const HEARTBEAT_TIMEOUT_MS = 15000;
 /**
+ * bug-675 (sobra, 2026-10-13): o silêncio só se cobra com esta quantidade de
+ * PERGUNTAS atrás do último sinal. O tempo era cobrado em relógio de parede,
+ * então um buraco do host abaixo de `PAUSA_DO_HOSPEDEIRO_MS` (7,8 s, sem
+ * reset) somava com um engasgo de rede do aluno e estourava os 15 s num tick
+ * em que ninguém foi perguntado de novo — queda sem causa do lado do aluno.
+ * Três perguntas com a janela de resposta = três chances; aí sim o silêncio
+ * é dele, e o host pode travar o quanto for que ninguém paga por isso.
+ */
+export const HEARTBEAT_PERGUNTAS_PARA_DERRUBAR = 3;
+/**
  * Buraco entre duas rodadas da vigília que denuncia que o HOSPEDEIRO parou
  * (bug-675) — e não que a turma ficou calada. A vigília roda a cada tick
  * (~100 ms), então qualquer coisa acima de uma rodada de `ping` já é anomalia
