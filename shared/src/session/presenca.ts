@@ -13,8 +13,11 @@ import type { GameSession } from "../session";
  * A queixa da escola: no tablet, minimizar ou fechar o navegador nem sempre
  * fecha o socket. O aparelho congela a aba e o TCP fica meio aberto; pro
  * servidor o aluno continua em jogo, e como o `join` recusa nome repetido
- * ("Já existe alguém em jogo com o nome X"), a própria criança fica trancada
- * do lado de fora até o socket morrer sozinho — o que pode levar minutos.
+ * ("Já existe alguém em jogo com o nome X"), a própria criança ficava trancada
+ * do lado de fora até o socket morrer sozinho — o que podia levar minutos.
+ * Desde 2026-10-13 o join também TOMA POSSE do nome quando o PIN confere (ver
+ * `substituir` em `session.ts`): quem voltou entra na hora. Esta vigília fica
+ * como rede de segurança pra quando NINGUÉM volta — aí o nome libera sozinho.
  *
  * O desenho é o mais simples que resolve:
  *
@@ -123,6 +126,7 @@ function derrubar(ses: GameSession, clientId: number): void {
   ses.handleDisconnect(clientId);
   esquecerSinal(ses, clientId);
   // quem fecha socket (e quem escreve no console do professor) é o hospedeiro:
-  // a sessão não conhece transporte nenhum
-  ses.aoDerrubar?.(clientId);
+  // a sessão não conhece transporte nenhum — e o motivo importa (silêncio leva
+  // o código 4000 com o motivo na tela; posse do nome é fecho mais manso)
+  ses.aoDerrubar?.(clientId, "silencio");
 }

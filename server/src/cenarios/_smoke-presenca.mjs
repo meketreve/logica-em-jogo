@@ -6,7 +6,8 @@
  *
  * O que ele prova:
  * 1. o servidor manda `ping` de tempos em tempos;
- * 2. quem RESPONDE `pong` fica em jogo além do tempo limite;
+ * 2. o nome é protegido pelo PIN: PIN errado é recusado; e quem volta com o
+ *    PIN certo TOMA POSSE na hora (o socket antigo é fechado pelo host);
  * 3. quem CALA (o tablet congelado — socket vivo, ninguém respondendo) é
  *    desconectado: o host FECHA o socket dele;
  * 4. e aí o mesmo nome entra de novo — a queixa original, resolvida;
@@ -64,24 +65,33 @@ console.log("== 1. o servidor manda `ping` ==");
 await espera(5000);
 ok(ana.pings >= 1, `a ana recebeu ping (${ana.pings})`);
 
-console.log("== 2. o nome fica PRESO enquanto ela está mesmo em jogo ==");
-const intrusa = cliente({ name: "ana", pin: "1111" });
+console.log("== 2. o nome é protegido pelo PIN — e quem volta com ele TOMA POSSE ==");
+// PIN errado: a porta fica fechada — ninguém entra no lugar de quem está jogando
+const intrusa = cliente({ name: "ana", pin: "0000" });
 await espera(1200);
 ok(
-  typeof intrusa.negado === "string" && intrusa.negado.includes("Já existe"),
-  `entrar com o nome de quem está jogando é recusado (${intrusa.negado})`,
+  typeof intrusa.negado === "string" && intrusa.negado.includes("PIN incorreto"),
+  `PIN errado para nome em jogo é recusado (${intrusa.negado})`,
 );
 intrusa.ws.close();
+// A MESMA pessoa, de outro aparelho (ou reabrindo o navegador) e com o PIN
+// dela: entra NA HORA e o socket antigo cai. Antes ela era recusada até o
+// silêncio completar — a queixa da escola de 2026-10-13.
+const anaDeVolta = cliente({ name: "ana", pin: "1111" });
+await espera(1200);
+ok(anaDeVolta.entrou, "com o PIN certo, o nome volta pra criança na hora");
+ok(ana.fechou, `e o socket antigo é fechado pelo host (código ${ana.codigoFecho})`);
 
 console.log("== 3. o tablet CONGELA: socket de pé, ninguém responde ==");
-// a bia é a aba congelada; a ana continua respondendo (prova que não cai junto)
+// a bia é a aba congelada; a ana (a que voltou) continua respondendo — prova
+// que quem responde não cai junto
 const bia = cliente({ name: "bia", pin: "2222" }, false);
 await espera(1500);
 ok(bia.entrou, "a bia entrou antes de congelar");
 await espera(HEARTBEAT_TIMEOUT_MS + 3000);
 ok(bia.fechou, `o host FECHOU o socket da bia (código ${bia.codigoFecho})`);
-ok(!ana.fechou, "e a ana, que responde, continua conectada");
-ok(ana.pings >= 3, `a ana seguiu recebendo ping o tempo todo (${ana.pings})`);
+ok(!anaDeVolta.fechou, "e a ana, que responde, continua conectada");
+ok(anaDeVolta.pings >= 3, `a ana seguiu recebendo ping o tempo todo (${anaDeVolta.pings})`);
 
 console.log("== 4. a QUEIXA: a criança volta com o mesmo nome ==");
 const biaDeVolta = cliente({ name: "bia", pin: "2222" });
@@ -89,7 +99,7 @@ await espera(1500);
 ok(biaDeVolta.entrou, "a bia entrou de novo com o MESMO nome");
 ok(biaDeVolta.negado === null, `e sem recusa (${biaDeVolta.negado})`);
 
-ana.ws.close();
+anaDeVolta.ws.close();
 biaDeVolta.ws.close();
 await espera(300);
 console.log(falhas === 0 ? "\nSMOKE /presenca OK" : `\nSMOKE /presenca FALHOU (${falhas})`);

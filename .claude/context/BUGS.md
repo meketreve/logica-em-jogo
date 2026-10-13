@@ -12,6 +12,31 @@ tier: 3
      modelo). São bugs ESCRITOS À MÃO: nada de detector automático — ele já encheu
      o arquivo de 148 entradas falsas uma vez, e elas foram podadas junto. -->
 
+## 2026-10-13 — bug-672 (sobra): fechar o navegador e VOLTAR era recusado com "Já existe alguém em jogo"
+- **Sintoma:** usuário: "o aluno fecha o navegador e o servidor não desconecta ele, quando o aluno
+  voltava recebia a mensagem de que ele ainda estava conectado." É a queixa ORIGINAL do bug-672
+  viva no caso mais comum da sala: a criança fecha e reabre o navegador em SEGUNDOS.
+- **Onde:** `shared/src/session.ts` (authenticate), `server/src/index.ts`
+- **Causa:** o gate de nome repetido (bug-061) recusava QUALQUER segundo join com o nome online
+  ANTES de olhar o PIN: `"Já existe alguém em jogo com o nome X. Escolha outro nome."` O fantasma
+  do socket meio-aberto segurava o nome até o silêncio completar (~15 s de heartbeat) — e quem
+  voltava antes disso lia a mensagem de "ainda conectado". Com o `pagehide`/close que não chega
+  (tablet), a criança ficava presa até o relógio — e no meio da aula isso é perder a vez.
+- **Correção:** com o PIN certo, quem volta TOMA POSSE do nome na hora: o gate do nome online
+  virou o ÚLTIMO passo da validação e a posse derruba a conexão antiga (aviso `kicked` + o host
+  fecha o socket com o motivo `substituido` — fecho mais manso que o 4000 do silêncio, pra não
+  contar a notícia errada pra quem só trocou de aparelho). O bug-061 segue fechado: o antigo cai
+  ANTES do `admitir` do novo, nunca há dois no roster. PIN errado continua recusando; nome em
+  jogo SEM identidade (migrado de troca de aula, sem PIN a conferir) mantém a recusa clássica —
+  posse ali seria porta aberta pra tomar o nome de um colega.
+- **Prova:** 3 testes novos/reescritos em `session.test.ts` e `presenca.test.ts` rodados como
+  controle negativo (vermelhos no código velho — exatamente eles — e verdes com o conserto);
+  `npm run smoke -- presenca` atualizado e verde em host real (PIN errado recusa; PIN certo toma
+  posse e o socket antigo cai); `kicar` verde; suíte 1100/1101 (só o `ids16` do sandbox, que
+  depende de `server/world.ljw` local); typecheck verde.
+- **Tags:** rede, tablet, nome, pin, join, presenca, relatado-pelo-usuario
+- **Relacionados:** bug-672, bug-675, bug-061
+
 ## 2026-10-13 — bug-675 (sobra): parada MÉDIA do host ainda derrubava quem tinha engasgado a rede
 - **Sintoma:** usuário: "estou tendo alguns casos de desconecção onde o cliente não pede o wifi mas o
   server fecha a conexão" — a sobra que ficou depois do conserto de 05/10 (a aula de 10/10 "diminuiu

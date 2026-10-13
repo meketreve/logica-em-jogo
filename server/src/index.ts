@@ -9,6 +9,7 @@ import { WebSocketServer, type WebSocket } from "ws";
 import {
   GameSession,
   SERVER_TICK_RATE,
+  type MotivoDerrubar,
   type SaveData,
   type ServerMessage,
   ROTULO_BUILD,
@@ -195,24 +196,42 @@ if (somenteLeitura) {
   );
 }
 /**
- * bug-672 — a sessão derrubou alguém por silêncio: aqui o socket meio-aberto
- * é FECHADO de verdade.
+ * bug-672 — a sessão derrubou alguém: aqui o socket é FECHADO de verdade.
+ * Dois motivos (ver `MotivoDerrubar`): `silencio` — o tablet minimizado de
+ * verdade, com o código 4000 pro aluno ler o motivo na tela — e
+ * `substituido` (2026-10-13: o mesmo nome entrou com o PIN certo; o aviso
+ * `kicked` já foi mandado e o fecho é mais manso, pra não virar "ficou fora
+ * tempo demais" na tela de quem só trocou de aparelho).
  *
  * Esta é a metade que só o hospedeiro pode fazer (a `GameSession` não conhece
  * transporte). Sem ela o tablet que minimizou continuaria com um socket
  * pendurado no host, e a próxima mensagem dele cairia numa sessão que já não o
  * conhece — o jogo travado na tela do aluno sem nenhuma explicação.
  */
-function fecharPorSilencio(clientId: number): void {
+function fecharCliente(clientId: number, motivo: MotivoDerrubar = "silencio"): void {
   const sock = sockets.get(clientId);
-  console.log(`[server] cliente ${clientId} não responde ao ping — desconectado`);
+  console.log(
+    motivo === "silencio"
+      ? `[server] cliente ${clientId} não responde ao ping — desconectado`
+      : `[server] cliente ${clientId} substituído — o mesmo nome entrou em outro aparelho`,
+  );
   sockets.delete(clientId);
   if (!sock) return;
-  try {
-    sock.close(4000, "sem resposta ao ping");
-  } catch {
-    /* socket já pode ter caído sozinho */
-  }
+  const fechar = (): void => {
+    try {
+      // o 4000 é o código que o cliente traduz em "você ficou fora do jogo
+      // tempo demais — entre de novo"; na posse, fecho SEM código: quem perdeu
+      // a vez já recebeu o texto certo pelo `kicked` (o 4000 daria a notícia
+      // errada pra quem só trocou de aparelho)
+      if (motivo === "silencio") sock.close(4000, "sem resposta ao ping");
+      else sock.close();
+    } catch {
+      /* socket já pode ter caído sozinho */
+    }
+  };
+  // posse: o `kicked` precisa sair ANTES do fecho (mesmo compasso do /expulsar)
+  if (motivo === "silencio") fechar();
+  else setTimeout(fechar, 150);
   // o `close` educado pode nunca completar num socket meio-aberto (é o caso
   // deste bug): o `terminate` garante que o descritor não fique pendurado.
   setTimeout(() => {
@@ -229,7 +248,7 @@ let session = new GameSession(
   {
     seed: WORLD_SEED,
     now: () => performance.now(),
-    aoDerrubar: fecharPorSilencio,
+    aoDerrubar: fecharCliente,
     restore,
     codigo,
     // mundo de aula (read-only) nasce confinado — cada aluno na área do grupo (cp25)
@@ -384,7 +403,7 @@ function interceptarMundo(clientId: number, texto: string): boolean {
     novaSessao: (restore, somenteLeitura) =>
       new GameSession(entregar, {
         now: () => performance.now(),
-        aoDerrubar: fecharPorSilencio, // bug-672: vale também na aula trocada
+        aoDerrubar: fecharCliente, // bug-672: vale também na aula trocada
         restore,
         codigo,
         somenteLeitura,

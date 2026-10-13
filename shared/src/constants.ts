@@ -17,8 +17,10 @@ export const SERVER_TICK_RATE = 10;
  *
  * Nasceu da queixa da escola: no tablet, quem MINIMIZA ou FECHA o navegador
  * nem sempre fecha o socket (o aparelho congela a aba, e o TCP fica meio
- * aberto por minutos). O nome continua na lista de jogadores, e como o join
- * recusa nome repetido, a própria criança não consegue voltar.
+ * aberto por minutos). O nome fica na lista de jogadores, e a própria criança
+ * não conseguia voltar — hoje o join TOMA POSSE do nome com o PIN certo
+ * (2026-10-13) e esta vigília fica pra quando NINGUÉM volta: aí o nome tem de
+ * liberar sozinho.
  *
  * O ping é de APLICAÇÃO, não o do protocolo WebSocket, e isso é o ponto: o
  * ping do protocolo é respondido pela pilha de rede do aparelho mesmo com a

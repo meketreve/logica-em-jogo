@@ -21,7 +21,9 @@ zeraram**. O conserto do host pegou a causa que a queixa original descrevia, mas
 sem explicação. Falta o detalhe da próxima aula (quantos, se viram o motivo na tela, se é sempre
 tablet no Wi-Fi) antes de caçar — os 15 s da presença em `constants.ts` são o primeiro suspeito.
 *(13/10: a **sobra do host abaixo do limiar de 8 s** foi endurecida e está no ar — `dcd599e`,
-queda agora exige 3 perguntas de verdade; os 15 s seguem o suspeito nº 1 do que restar.)*
+queda agora exige 3 perguntas de verdade; e quem reabre o navegador e volta com o MESMO nome
+agora **toma posse na hora** — não espera os 15 s nem leva "Já existe alguém em jogo". Os 15 s
+seguem o suspeito nº 1 do que restar.)*
 
 ## Próxima fase
 

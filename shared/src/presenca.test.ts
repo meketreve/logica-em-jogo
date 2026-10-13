@@ -122,18 +122,15 @@ describe("bug-672 — o servidor pergunta, e quem não responde cai", () => {
   });
 
   it("A QUEIXA INTEIRA: o tablet minimizou, e a criança consegue voltar com o mesmo nome", () => {
-    const { session, avancar } = sala();
+    // 2026-10-13: nem precisa esperar o fantasma cair — com o PIN certo, quem
+    // volta TOMA POSSE do nome na hora (o socket antigo é derrubado aqui). A
+    // vigília segue como rede de segurança pra quando NINGUÉM volta.
+    const { session, derrubados } = sala();
     session.handleMessage(1, join("ana", "1111", "sala"));
-    // antes do conserto, o socket fantasma segurava o nome e isto era recusado
     session.handleMessage(2, join("ana", "1111", "sala"));
-    const negado = (id: number) =>
-      session.jogadoresConectados().some((j) => j.id === id) === false;
-    expect(negado(2)).toBe(true); // com o fantasma vivo, entrar é recusado MESMO
-
-    avancar(HEARTBEAT_TIMEOUT_MS + 1000); // o fantasma cai
-    session.handleMessage(3, join("ana", "1111", "sala"));
     expect(nomesEmJogo(session)).toEqual(["ana"]);
-    expect(session.jogadoresConectados()[0]?.id).toBe(3);
+    expect(session.jogadoresConectados()[0]?.id).toBe(2); // o nome é dela de novo
+    expect(derrubados).toEqual([1]); // e o fantasma foi derrubado na hora
   });
 
   it("o `pong` segura o jogador em jogo indefinidamente", () => {

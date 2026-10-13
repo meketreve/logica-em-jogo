@@ -244,6 +244,13 @@ import {
 
 export type SendFn = (clientId: number, data: string | ArrayBuffer) => void;
 
+/**
+ * Por que a sessão está pedindo que o hospedeiro feche um socket: `silencio`
+ * = a vigília de presença (bug-672); `substituido` = o mesmo nome entrou com
+ * o PIN certo e a conexão antiga perdeu a vez (2026-10-13, ver `substituir`).
+ */
+export type MotivoDerrubar = "silencio" | "substituido";
+
 export interface SessionOptions {
   dims?: WorldDims;
   seed?: number;
@@ -286,11 +293,12 @@ export interface SessionOptions {
   dimasInicial?: number;
   /**
    * Presença (bug-672): o hospedeiro FECHA o socket de quem a sessão derrubou
-   * por silêncio. A sessão não conhece transporte — ela tira o jogador da
+   * — por silêncio OU por posse do nome (o mesmo nome entrou com o PIN certo,
+   * 2026-10-13). A sessão não conhece transporte — ela tira o jogador da
    * lista (liberando o nome) e chama isto pra que o socket meio-aberto do
    * tablet minimizado não fique pendurado.
    */
-  aoDerrubar?: (clientId: number) => void;
+  aoDerrubar?: (clientId: number, motivo: MotivoDerrubar) => void;
   /**
    * §🍖 F6: ticks entre dois estágios da plantação (LJ_CRESCIMENTO). O padrão
    * é `TICKS_POR_CRESCIMENTO` (20 s por estágio); abaixar é o que deixa o smoke
@@ -359,8 +367,10 @@ export class GameSession {
    *  travou, ou a troca de aula demorou — e não cobrar silêncio da turma por
    *  um tempo em que ninguém foi perguntado. 0 = ainda não rodou. */
   ultimoTickPresenca = 0;
-  /** O hospedeiro fecha o socket de quem foi derrubado por silêncio. */
-  readonly aoDerrubar?: (clientId: number) => void;
+  /** O hospedeiro fecha o socket de quem foi derrubado — o MOTIVO muda o
+   *  fecho (silêncio leva o código 4000 com o motivo na tela; posse é mais
+   *  manso, ver `fecharCliente` no host). */
+  readonly aoDerrubar?: (clientId: number, motivo: MotivoDerrubar) => void;
 
   /** §🔨 v2: quem está segurando o botão em qual célula, e quantos ticks
    *  faltam. TRANSITÓRIO de propósito — não vai pro save: progresso de quebra
@@ -937,19 +947,21 @@ export class GameSession {
    * Valida a entrada (PIN + código de professor) e, se aceita, registra
    * PIN novo/papel no identity. Devolve o MOTIVO da recusa, ou null se ok.
    * Nunca chamada no singleplayer.
+   *
+   * `clientId` entra aqui por causa da POSSE do nome (2026-10-13): quando o
+   * nome já está online, o gate precisa saber se é o MESMO socket pedindo de
+   * novo ou a criança voltando de outro aparelho.
    */
   private authenticate(
     name: string,
     pin: string | undefined,
     codigo: string | undefined,
+    clientId: number,
   ): string | null {
     // banido (2026-07-21): recusa antes de tudo — nem chega a pedir PIN certo.
     if (this.estaBanido(name)) return "Você foi banido desta sala pelo professor.";
-    // nome já ONLINE: segundo cliente com o mesmo nome fundiria os dois no
-    // roster (bug-061 — o PIN fecha o resto do caso)
-    for (const p of this.players.values()) {
-      if (p.name === name) return `Já existe alguém em jogo com o nome "${name}". Escolha outro nome.`;
-    }
+    // ⚠️ o gate do nome já ONLINE mudou de lugar (2026-10-13): ele só pode
+    // decidir depois do PIN conferido — ver o bloco de posse no fim da função.
     const gate = this.pinFails.get(name);
     if (gate && gate.lockedUntil > this.now()) {
       return "Muitas tentativas com o PIN errado. Aguarde 30 segundos e tente de novo.";
@@ -986,9 +998,42 @@ export class GameSession {
       this.codigoFails = 0;
       papel = "professor";
     }
+    // nome já ONLINE (2026-10-13): quem chega com o PIN certo do nome TOMA
+    // POSSE dele. Antes isto recusava — e era a queixa da escola: o aluno
+    // fechava o navegador, o socket ficava meio aberto, e ao voltar levava
+    // "Já existe alguém em jogo com o nome X" até o silêncio completar. A
+    // posse derruba o antigo AQUI, antes do `admitir` do dono novo: nunca há
+    // dois no roster (o bug-061 segue fechado). Um nome migrado numa troca de
+    // aula pode estar online SEM identidade — aí não há PIN a conferir, e a
+    // recusa clássica fica de pé (senão qualquer um tomaria o nome de alguém).
+    const emJogo = [...this.players.entries()].find(([, p]) => p.name === name);
+    if (emJogo && emJogo[0] !== clientId) {
+      if (!id?.pin) return `Já existe alguém em jogo com o nome "${name}". Escolha outro nome.`;
+      this.substituir(emJogo[0]);
+    }
     // 1ª entrada com o nome registra o PIN; papel fica gravado pro rejoin
     this.identity.set(name, { pin: id?.pin ?? pin, papel });
     return null;
+  }
+
+  /**
+   * Toma posse do nome: a conexão NOVA entra e a ANTIGA cai. Pedido da escola
+   * (2026-10-13): o aluno fechava o navegador, o socket ficava meio aberto, e
+   * ao voltar era RECUSADO ("Já existe alguém em jogo com o nome X") até o
+   * silêncio completar — com o PIN certo, o nome tem de voltar na hora. Quem
+   * perdeu a vez recebe o aviso `kicked` e o host fecha o socket dele
+   * (motivo `substituido`, fecho mais manso que o do silêncio).
+   */
+  private substituir(clientId: number): void {
+    this.send(
+      clientId,
+      JSON.stringify({
+        type: "kicked",
+        reason: "Outra conexão com este nome entrou no jogo.",
+      } satisfies ServerMessage),
+    );
+    this.handleDisconnect(clientId);
+    this.aoDerrubar?.(clientId, "substituido");
   }
 
   /** Mensagem crua vinda do transporte. Inválida = descartada em silêncio. */
@@ -1013,7 +1058,7 @@ export class GameSession {
         // (mundo do próprio jogador) e todo join é professor.
         let papel: Papel = "professor";
         if (!this.singleplayer) {
-          const denied = this.authenticate(name, msg.pin, msg.codigo);
+          const denied = this.authenticate(name, msg.pin, msg.codigo, clientId);
           if (denied !== null) {
             this.send(
               clientId,

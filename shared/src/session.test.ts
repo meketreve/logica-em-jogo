@@ -1025,18 +1025,60 @@ describe("identidade cp9: PIN + papel (default = estrito, PIN exigido)", () => {
     expect(parseServerMessage(sent[0]?.data as string)?.type).toBe("spawn");
   });
 
-  it("nome já ONLINE → recusado mesmo com o PIN certo (fecha o bug-061)", () => {
+  it("nome já ONLINE + PIN certo → TOMADA DE POSSE: o fantasma cai e quem voltou entra (2026-10-13)", () => {
+    // Queixa da escola: o aluno fechava o navegador, o socket ficava meio
+    // aberto, e ao voltar levava "Já existe alguém em jogo" até o silêncio
+    // completar. Com o PIN certo, o nome tem de voltar NA HORA — e o antigo
+    // cai com aviso e socket fechado (motivo `substituido`).
+    const { sent, send } = collect();
+    const derrubados: [number, string][] = [];
+    const session = new GameSession(send, {
+      dims: DIMS,
+      aoDerrubar: (id, motivo) => derrubados.push([id, motivo]),
+    });
+    session.handleMessage(1, join("ana", "1234"));
+    sent.length = 0;
+
+    session.handleMessage(2, join("ana", "1234"));
+    // quem voltou entrou de verdade (spawn pro 2, sem recusa)
+    expect(
+      sent.some((s) => s.clientId === 2 && parseServerMessage(s.data as string)?.type === "spawn"),
+    ).toBe(true);
+    // e o antigo recebeu o `kicked` e foi derrubado por POSSE
+    const aviso = sent.find((s) => s.clientId === 1);
+    expect(parseServerMessage(aviso?.data as string)?.type).toBe("kicked");
+    expect(derrubados).toEqual([[1, "substituido"]]);
+    // o nome é do dono novo, e só dele — nunca há dois (bug-061 segue fechado)
+    expect(session.jogadoresConectados().map((j) => [j.id, j.name])).toEqual([[2, "ana"]]);
+  });
+
+  it("nome já ONLINE + PIN ERRADO → recusado e o antigo fica (posse não é porta aberta)", () => {
     const { sent, send } = collect();
     const session = new GameSession(send, { dims: DIMS });
     session.handleMessage(1, join("ana", "1234"));
     sent.length = 0;
 
+    session.handleMessage(2, join("ana", "9999"));
+    expect(parseServerMessage(sent[0]?.data as string)).toEqual({
+      type: "join_denied", reason: "PIN incorreto para este nome.",
+    });
+    expect(session.jogadoresConectados().map((j) => j.id)).toEqual([1]);
+  });
+
+  it("nome em jogo SEM identidade (migrado de troca de aula) → recusa clássica (bug-061)", () => {
+    // `adotar` não passa pelo authenticate: num mundo novo, o nome migrado
+    // pode estar online sem PIN registrado. Aí não há o que conferir — e posse
+    // seria porta aberta pra tomar o nome de um colega.
+    const { sent, send } = collect();
+    const session = new GameSession(send, { dims: DIMS });
+    session.adotar(1, "ana", "aluno");
+    sent.length = 0;
+
     session.handleMessage(2, join("ana", "1234"));
-    expect(sent).toHaveLength(1);
-    expect(sent[0]?.clientId).toBe(2);
     const deny = parseServerMessage(sent[0]?.data as string);
     if (deny?.type !== "join_denied") throw new Error("esperava join_denied");
     expect(deny.reason).toContain("Já existe alguém em jogo");
+    expect(session.jogadoresConectados().map((j) => j.id)).toEqual([1]);
   });
 
   it("rate-limit: 5 PINs errados travam o nome por 30 s — até com o PIN certo", () => {

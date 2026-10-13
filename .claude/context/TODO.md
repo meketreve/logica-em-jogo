@@ -32,9 +32,10 @@ active: true
       continua valendo.)*
 - [ ] **Logs (não lidos ainda):** depois de uma aula, abrir `mundos/<nome>/logs/` — tem de haver o par com data e
       hora, o `-chat.log` só com fala de gente e pequeno o bastante pra ler.
-- [ ] **Presença (bug-672):** fechar o navegador do tablet e reentrar com o mesmo nome; minimizar
-      por mais de 15 s pra ver o nome liberar. Conferir se 15 s não derruba ninguém no Wi-Fi da
-      escola (é um número só, em `constants.ts`).
+- [ ] **Presença (bug-672):** fechar o navegador do tablet e reentrar com o mesmo nome — 13/10: com
+      o PIN certo a volta agora é **na hora** (tomada de posse; o fantasma cai e o socket antigo é
+      fechado) — conferir em aula. Minimizar por mais de 15 s pra ver o nome liberar sozinho;
+      conferir se 15 s não derruba ninguém no Wi-Fi da escola (é um número só, em `constants.ts`).
 - [ ] **Loja:** preço de ITEM (pão, trigo, picareta) **e reabrir o mundo depois** — era na
       releitura do save que o preço sumia. Loja cheia no tablet.
 - [ ] **Ids de 16 bits:** abrir o mundo salvo da turma no host (tem de nascer
