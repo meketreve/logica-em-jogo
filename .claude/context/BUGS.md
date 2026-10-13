@@ -12,6 +12,14 @@ tier: 3
      modelo). São bugs ESCRITOS À MÃO: nada de detector automático — ele já encheu
      o arquivo de 148 entradas falsas uma vez, e elas foram podadas junto. -->
 
+## 2026-10-13 — portão do ids16 derrubava a suíte num clone sem o save local (`server/world.ljw`)
+- **Sintoma:** `npm test` vermelho em clone limpo: `Error: ENOENT: no such file or directory, open '/.../server/world.ljw'` em `ids16.test.ts > portão: .ljw REAIS de antes da mudança abrem com os MESMOS blocos > server/world.ljw`.
+- **Onde:** `shared/src/ids16.test.ts`
+- **Causa:** o caso lê o save REAL que serviu de padrão à migração de ids — mas ele é dado de RUNTIME (morava em `server/`, nunca foi versionado). Quem clona não tem o arquivo, e o portão cobrava um artefato que não está no git.
+- **Correção:** `it.skipIf(!existsSync(...))` com o porquê no comentário — na máquina que tem o save o portão vale igual; clone sem ele PULA em vez de falhar por um arquivo que nunca esteve lá. A cobertura incondicional fica com `cenarios/aula1-sequencia.ljw` (versionado).
+- **Tags:** teste, portao, ids16, fixture, clone, corrigido
+- **Relacionados:** —
+
 ## 2026-10-13 — bug-672 (sobra): fechar o navegador e VOLTAR era recusado com "Já existe alguém em jogo"
 - **Sintoma:** usuário: "o aluno fecha o navegador e o servidor não desconecta ele, quando o aluno
   voltava recebia a mensagem de que ele ainda estava conectado." É a queixa ORIGINAL do bug-672

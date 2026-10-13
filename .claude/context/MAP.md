@@ -1,5 +1,5 @@
 ---
-updated: 2026-10-10
+updated: 2026-10-13
 tier: 3
 ---
 
@@ -10,7 +10,7 @@ tier: 3
 ## Comandos
 
 <!-- auto:start -->
-gerado em: 2026-10-05
+gerado em: 2026-10-13
 
 | Ação | Comando |
 |---|---|
@@ -21,9 +21,7 @@ gerado em: 2026-10-05
 primeiro nível:
 
 ```
-AGENTS.md
 cenarios
-CLAUDE.md
 client
 docs
 ferramentas
@@ -50,6 +48,7 @@ Acima é do script. O que ele **não** acha é o que manda aqui:
 |---|---|
 | **Portão antes de commitar** | `npm run verify` (typecheck+testes+build+portão do dist) |
 | Rede de verdade | `npm run smoke` (`--lista` diz o que cada cenário prova) |
+| Um smoke só | `npm run smoke -- <nome>` (filtra por nome; ex.: `-- presenca kicar`) |
 | Um teste só | `npx vitest run --root shared src/<arquivo>.test.ts` |
 
 **Sondas** (`shots:tablet` a RÉGUA de 1024×600, `shots:quebra`, `shots:loja`, `shots:luz`,
@@ -78,3 +77,6 @@ Só o não óbvio:
   aluno; WebAssembly não contorna.
 - **Container** (`containers.ts`): o `use_block` pede e é a resposta do SERVIDOR que abre o
   painel — quem decide se o aluno pode ler aquele baú é o gate de claim.
+- **Nome/presença:** nome em jogo + PIN certo = **posse** (o socket antigo cai e quem volta
+  entra na hora); silêncio só derruba após 3 perguntas de verdade depois do último sinal
+  (`shared/src/session/presenca.ts` + `substituir` no `session.ts`).

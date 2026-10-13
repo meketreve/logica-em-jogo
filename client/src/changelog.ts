@@ -43,6 +43,15 @@ interface Mudanca {
 const MUDANCAS: readonly Mudanca[] = [
   {
     // sem `data`: este é o build atual (ver rotuloDoBloco)
+    titulo: "Seu nome volta com você",
+    itens: [
+      "se o navegador fechar sem sair do jogo, voltar com o mesmo nome agora é NA HORA: você entra direto e a sessão que tinha ficado pendurada se fecha sozinha — antes o jogo respondia \"já existe alguém em jogo com esse nome\" e a criança ficava trancada esperando",
+      "quem tentar entrar no seu lugar sem saber o seu PIN continua de fora",
+      "e o jogo ficou mais justo para te desconectar: ele só considera \"silêncio\" depois de perguntar três vezes de verdade, e engasgo do computador do professor não conta contra você",
+    ],
+  },
+  {
+    data: "10/10/2026",
     titulo: "Dá pra voltar atrás",
     itens: [
       "no menu \"meus mundos\", quem tem um mundo antigo que o jogo converteu sozinho ganhou o botão RESTAURAR: ele traz de volta uma cópia do mundo como ele era antes da conversão",

@@ -9,33 +9,28 @@ tier: 3
 
 ## Estado atual
 
-Jogo voxel educacional rodando, testado com turma real. Árvore limpa, `main` em sinc com o
-`origin` (`7e8ce9b`). Ambiente é só LINUX.
+Jogo voxel educacional rodando, testado com turma real. `main` em sinc com o `origin`
+(`c237b88` + o lote deste handoff). Ambiente é só LINUX.
 
-O build "Cada ferramenta serve pra uma coisa · 05/10" **rodou em aula de verdade em 10/10** e o
-usuário aprovou quebra v2, cama/porta e o voo persistindo. **O resto da lista de teste continua
-sem ter sido visto em tela** (machado/pá, logs, presença, loja, ids de 16 bits) — está no `TODO.md`.
+O lote de 13/10 fechou as duas pontas da presença: **quem reabre o navegador volta NA HORA**
+(PIN certo = posse do nome) e **silêncio virou 3 perguntas de verdade** — controle negativo +
+smoke em host real; marco novo: "Seu nome volta com você · 13/10". **O resto da lista de teste
+de 10/10 segue sem ter sido visto em tela** (machado/pá, logs, loja, ids de 16 bits) — `TODO.md`.
 
 ⚠️ **bug-675 (heartbeat) NÃO está fechado:** na aula de 10/10 as quedas **diminuíram mas não
-zeraram**. O conserto do host pegou a causa que a queixa original descrevia, mas sobrou queda
-sem explicação. Falta o detalhe da próxima aula (quantos, se viram o motivo na tela, se é sempre
-tablet no Wi-Fi) antes de caçar — os 15 s da presença em `constants.ts` são o primeiro suspeito.
-*(13/10: a **sobra do host abaixo do limiar de 8 s** foi endurecida e está no ar — `dcd599e`,
-queda agora exige 3 perguntas de verdade; e quem reabre o navegador e volta com o MESMO nome
-agora **toma posse na hora** — não espera os 15 s nem leva "Já existe alguém em jogo". Os 15 s
-seguem o suspeito nº 1 do que restar.)*
+zeraram**. Os consertos de 13/10 atacam causas reais (host travado + nome preso); o que restar
+aponta pro **15 s** derrubando tablet que engasgou de verdade (Wi-Fi de pé, página parada). A
+próxima aula decide: quantos caíram, se viram o motivo na tela, se é sempre o mesmo tablet.
 
 ## Próxima fase
 
-**O 1º bloco de circuito lógico** — é a razão de os ids de 16 bits terem sido feitos, e está
-**BLOQUEADO numa pergunta ao usuário**: QUAL bloco, e como ele funciona na aula. Feature grande =
-entrevista de escopo antes de codar (`LEARNINGS.md`). Não começar sem a resposta.
+**O 1º bloco de circuito lógico** — a razão de os ids de 16 bits terem sido feitos; **BLOQUEADO
+numa pergunta ao usuário**: QUAL bloco e como funciona na aula (entrevista de escopo antes de
+codar). Não começar sem a resposta.
 
-Com a resposta na mão, o ponto de entrada é `shared/src/blocks.ts` (id novo abaixo de 900, nunca
-renumerar id que já existe) + um módulo PURO novo em `shared/src/`, no molde de `ferramentas.ts`
-→ **verify:** `npm run verify` verde e uma sonda `shots:*` que ENXERGUE o bloco na tela.
-
-Atrás dela: `bench:headless` antes/depois dos ids de 16 bits, ovelha+lã (§🍖 F8), sentar na cadeira.
+Com a resposta: `shared/src/blocks.ts` (id novo abaixo de 900, nunca renumerar) + módulo PURO no
+molde de `ferramentas.ts` → **verify:** `npm run verify` verde + sonda `shots:*` que ENXERGUE o
+bloco. Atrás: `bench:headless` dos ids de 16 bits, ovelha+lã (§🍖 F8), cadeira.
 
 ## Pendências e bloqueios
 
@@ -45,46 +40,47 @@ Atrás dela: `bench:headless` antes/depois dos ids de 16 bits, ovelha+lã (§�
 
 ## Concluído (recente)
 
-- **10/10 (lote de 4 da fila):** **bug-666 fechado** — os launchers sobem o host com
-  `node --import tsx` (um processo só, sem `npm`/`tsx` no meio), com portão novo no
-  `checar-launchers` e o `_smoke-sighup` provando a via real (margem 52–61 ms, 3 de 3).
-  **bug-676** — o ▣ ganhou `data-acao` e as sondas pararam de procurar botão por TEXTO
-  (`f10-shot` voltou a rodar). **Botão "restaurar"** no menu do singleplayer, com sonda nova
-  `shots:restaurar` (13 asserções). E o A/B dos ids de 16 bits: no `bench:headless` o ruído do
-  SwiftShader come o sinal, mas no codec o retrato é limpo — .ljw +0,02%, RAM do mundo P
-  2 MB → 4 MB, decode 5,1 → 6,9 ms.
-- **10/10 (aula real):** quebra v2 aprovada ("ficou boa"), cama e porta aprovados, e o voo
-  liberado sobreviveu ao reinício do servidor (bug-674 confirmado EM AULA). Quedas do heartbeat
-  diminuíram — ver o ⚠️ acima. Nada de código nesta sessão.
-- **05/10:** **bug-675** — o heartbeat derrubava a turma inteira quando o HOST parava (ninguém
-  era perguntado durante a parada) e o cliente ficava preso num mundo congelado; sonda nova
-  `shots:queda`. **bug-674** (voo liberado voltava desligado: era runtime, fora do `SaveMeta`) +
-  portão de que aula nasce sem voo salvo modelo criado assim; changelog com os 3 itens que
-  faltavam e título novo (a data do build andou sozinha). E **logs de sessão** — `mundos/<nome>/logs/`, um par por sessão (`-chat.log` de
-  gente, `-eventos.log` de servidor); o arquivo único chegou a 344 KB, 2434/2434 de sistema.
-- **28/09–03/10:** skill `/contexto` migrada pro modelo de TIERS; estes arquivos ganharam
-  frontmatter, blocos `auto` e as convenções novas.
-- **25/09:** contexto migrado de `.wolf/`; **bug-673** — o rótulo de build carregava o sha do
-  HEAD, o `dist` versionado mudava sozinho e o portão ficava desarmado no pre-push.
-- **17-23/09 (100-102):** §🔨 ferramentas v2 (segurar, rachar, gastar), §🪓 machado e pá,
-  heartbeat de presença (bug-672) e preço de ITEM na loja (bug-671).
+- **13/10 (presença — 2 consertos + marco):** **posse do nome** (bug-672, `c237b88`) e
+  **silêncio por perguntas** (bug-675 sobra, `dcd599e`) — controle negativo + smoke em host real;
+  marco "Seu nome volta com você". O portão do ids16 parou de depender de `server/world.ljw`.
+- **10/10 (lote de 4 + aula real):** launchers sobem o host com `node --import tsx` (bug-666;
+  portão no `checar-launchers` + `_smoke-sighup`); ▣ com `data-acao` (bug-676, `f10-shot` de
+  volta); botão "restaurar" (`shots:restaurar`, 13 asserções); A/B dos ids de 16 bits medido no
+  codec (.ljw +0,02%, decode 5,1→6,9 ms). Na aula: quebra v2, cama/porta e voo aprovados.
+- **05/10:** **bug-675** — heartbeat derrubava a turma toda quando o HOST parava; sonda
+  `shots:queda`. **bug-674** (voo voltava desligado: runtime fora do `SaveMeta`) + portão da aula
+  sem voo; changelog do lote. E **logs de sessão** por arquivo (`-chat.log` × `-eventos.log`; o
+  único chegava a 344 KB, 2434/2434 de sistema).
+- **28/09–25/09:** skill `/contexto` migrada pros TIERS (frontmatter + blocos `auto`); contexto
+  saiu de `.wolf/`; **bug-673** — rótulo de build com sha do HEAD desarmava o portão do dist.
+- **17-23/09 (100-102):** §🔨 ferramentas v2, §🪓 machado e pá, heartbeat (bug-672) e preço de
+  ITEM na loja (bug-671).
 
 ## Bruto do git (auto — não editar)
 
 <!-- auto:start -->
-data: 2026-10-05
+data: 2026-10-13
 
 ```
-dab46ce fix(presenca): o heartbeat parou de punir a turma pela parada do HOST (bug-675)
-4fc8db4 docs(contexto): handoff de fim de sessão
-1c7cbd5 docs(changelog): o lote vira marco próprio — 'Cada ferramenta serve pra uma coisa'
-1d90d17 docs(changelog): voo por aula e os logs de sessão, que foram sem entrada
-6d561c2 test(voo): portão — aula nasce sem voo, e abre voando se o MODELO foi salvo assim
-c87591c fix(voo): o voo liberado pelo professor persiste no mundo (bug-674)
-b855994 docs(contexto): logs de sessão no STATUS/MAP e dois aprendizados novos
-2b8d2f9 feat(logs): log de sessão por arquivo, e fala de gente separada de evento
+c237b88 fix(presenca): quem volta com o mesmo nome TOMA POSSE na hora (bug-672, sobra)
+9f27bc2 docs(contexto): STATUS aponta a sobra do host corrigida (dcd599e) e os 15 s como suspeito n. 1
+dcd599e fix(presenca): o silêncio passou a ser cobrado por PERGUNTAS, não por relógio (bug-675, sobra)
+99f32bd fix(sondas): matar o Chrome pelo GRUPO, senão um filho regrava o perfil
+0cf03ad fix(sondas): perfil do Chrome some no fim, e Ctrl+C não deixa navegador órfão
+fad2f1a docs(contexto): sonda morta por PID deixa Chrome órfão
+4ce6ed4 docs(contexto): STATUS aponta o commit do lote
+7e8ce9b feat(lote): launcher sem embrulho, sondas por data-acao e restaurar no menu
 --- status ---
+ M .claude/context/BUGS.md
+ M .claude/context/LEARNINGS.md
+ M .claude/context/MAP.md
  M .claude/context/STATUS.md
- M .claude/context/TODO.md
+ M .claude/context/WORKFLOW.md
+ D client/dist/assets/index-9xSkBqKR.js
+ D client/dist/assets/meshWorker-BlrOUtJG.js
+ D client/dist/assets/worker-il4g686D.js
+ M client/dist/index.html
+ M client/src/changelog.ts
+... +5
 ```
 <!-- auto:end -->
