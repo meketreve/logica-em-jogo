@@ -12,6 +12,14 @@ tier: 3
      modelo). São bugs ESCRITOS À MÃO: nada de detector automático — ele já encheu
      o arquivo de 148 entradas falsas uma vez, e elas foram podadas junto. -->
 
+## 2026-10-13 — o pre-push era IGNORADO: hook versionado sem bit de execução
+- **Sintoma:** `git push` publicava SEM rodar o `verify`, com o aviso baixinho do git: `hint: The 'scripts/git-hooks/pre-push' hook was ignored because it's not set as executable.`
+- **Onde:** `scripts/git-hooks/pre-push` (modo no índice: `100644`)
+- **Causa:** hook versionado sem o bit `+x`, e a ligação documentada é só `git config core.hooksPath scripts/git-hooks` (uma vez por clone) — num clone Linux o portão nunca armava de verdade. Provado com experimento controlado: mesmo com o `hooksPath` configurado, modo 644 = push passa sem rodar; 755 = roda.
+- **Correção:** `chmod +x` e o modo (`100755`) vai no commit. No Windows nada muda (`core.fileMode` ignora o bit e o hook roda igual) — é o caso da escola.
+- **Tags:** git, hook, pre-push, portao, modo, corrigido
+- **Relacionados:** bug-673
+
 ## 2026-10-13 — portão do ids16 derrubava a suíte num clone sem o save local (`server/world.ljw`)
 - **Sintoma:** `npm test` vermelho em clone limpo: `Error: ENOENT: no such file or directory, open '/.../server/world.ljw'` em `ids16.test.ts > portão: .ljw REAIS de antes da mudança abrem com os MESMOS blocos > server/world.ljw`.
 - **Onde:** `shared/src/ids16.test.ts`
