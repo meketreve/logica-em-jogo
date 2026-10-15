@@ -1,5 +1,5 @@
 ---
-updated: 2026-10-13
+updated: 2026-10-15
 tier: 3
 ---
 
@@ -10,7 +10,7 @@ tier: 3
 ## Estado atual
 
 Jogo voxel educacional rodando, testado com turma real. `main` em sinc com o `origin`
-(`c237b88` + o lote deste handoff). Ambiente é só LINUX.
+(`9abedf0`), árvore limpa. Ambiente é só LINUX.
 
 O lote de 13/10 fechou as duas pontas da presença: **quem reabre o navegador volta NA HORA**
 (PIN certo = posse do nome) e **silêncio virou 3 perguntas de verdade** — controle negativo +
@@ -46,41 +46,34 @@ bloco. Atrás: `bench:headless` dos ids de 16 bits, ovelha+lã (§🍖 F8), cade
 - **10/10 (lote de 4 + aula real):** launchers sobem o host com `node --import tsx` (bug-666;
   portão no `checar-launchers` + `_smoke-sighup`); ▣ com `data-acao` (bug-676, `f10-shot` de
   volta); botão "restaurar" (`shots:restaurar`, 13 asserções); A/B dos ids de 16 bits medido no
-  codec (.ljw +0,02%, decode 5,1→6,9 ms). Na aula: quebra v2, cama/porta e voo aprovados.
+  codec (.ljw +0,02%, decode 5,1→6,9 ms); as 17 sondas passaram a matar o Chrome pelo GRUPO e
+  apagar o perfil (nem Ctrl+C deixa órfão) — **bateria 17/17 verde, duas vezes**. Na aula:
+  quebra v2, cama/porta e voo aprovados.
 - **05/10:** **bug-675** — heartbeat derrubava a turma toda quando o HOST parava; sonda
   `shots:queda`. **bug-674** (voo voltava desligado: runtime fora do `SaveMeta`) + portão da aula
   sem voo; changelog do lote. E **logs de sessão** por arquivo (`-chat.log` × `-eventos.log`; o
   único chegava a 344 KB, 2434/2434 de sistema).
-- **28/09–25/09:** skill `/contexto` migrada pros TIERS (frontmatter + blocos `auto`); contexto
-  saiu de `.wolf/`; **bug-673** — rótulo de build com sha do HEAD desarmava o portão do dist.
-- **17-23/09 (100-102):** §🔨 ferramentas v2, §🪓 machado e pá, heartbeat (bug-672) e preço de
-  ITEM na loja (bug-671).
+- **17-28/09:** `/contexto` nos TIERS e contexto fora do `.wolf/`; **bug-673** (sha do HEAD no
+  rótulo desarmava o portão do dist); §🔨 ferramentas v2, §🪓 machado e pá, bug-672 e bug-671.
 
 ## Bruto do git (auto — não editar)
 
 <!-- auto:start -->
-data: 2026-10-13
+data: 2026-10-15
 
 ```
+9abedf0 fix(hooks): o pre-push ganha bit de execução — sem ele o git IGNORAVA o gate
+a9e0564 chore(lote): marco "Seu nome volta com você" e o portão do ids16 sem fixture local
 c237b88 fix(presenca): quem volta com o mesmo nome TOMA POSSE na hora (bug-672, sobra)
 9f27bc2 docs(contexto): STATUS aponta a sobra do host corrigida (dcd599e) e os 15 s como suspeito n. 1
 dcd599e fix(presenca): o silêncio passou a ser cobrado por PERGUNTAS, não por relógio (bug-675, sobra)
 99f32bd fix(sondas): matar o Chrome pelo GRUPO, senão um filho regrava o perfil
 0cf03ad fix(sondas): perfil do Chrome some no fim, e Ctrl+C não deixa navegador órfão
 fad2f1a docs(contexto): sonda morta por PID deixa Chrome órfão
-4ce6ed4 docs(contexto): STATUS aponta o commit do lote
-7e8ce9b feat(lote): launcher sem embrulho, sondas por data-acao e restaurar no menu
 --- status ---
- M .claude/context/BUGS.md
  M .claude/context/LEARNINGS.md
  M .claude/context/MAP.md
  M .claude/context/STATUS.md
- M .claude/context/WORKFLOW.md
- D client/dist/assets/index-9xSkBqKR.js
- D client/dist/assets/meshWorker-BlrOUtJG.js
- D client/dist/assets/worker-il4g686D.js
- M client/dist/index.html
- M client/src/changelog.ts
-... +5
+ M .claude/context/TODO.md
 ```
 <!-- auto:end -->

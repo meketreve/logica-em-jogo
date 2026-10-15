@@ -1,5 +1,5 @@
 ---
-updated: 2026-10-13
+updated: 2026-10-15
 tier: 3
 ---
 
@@ -45,6 +45,12 @@ tier: 3
 - [2026-10-13] [presenca] [✓] Queda por silêncio se cobra por PERGUNTAS, nunca por relógio: host travado não conta contra o aluno — 3 perguntas carimbadas + janela da última (sobra do bug-675).
 - [2026-10-13] [presenca] [✓] Nome em jogo + PIN certo = TOMADA DE POSSE (quem volta entra na hora, o fantasma cai); o gate do bug-061 vira o ÚLTIMO passo — recusa clássica só pra nome online SEM identidade.
 - [2026-10-13] [teste] [✓] Portão que lê artefato de RUNTIME não versionado (`server/world.ljw`) derruba clone limpo — `it.skipIf(!existsSync(...))` com o porquê; a cobertura incondicional fica com o que está no git.
+- [2026-10-15] [sonda] [✗] Rodar a bateria inteira sem olhar `git status` depois — `shots:fundo`
+  é GERADORA: reescreveu as 6 faces do menu (`client/public/menu-fundo/*.png` + dist, ~5 MB
+  versionados) e isso entraria no commit sem ninguém ter decidido.
+- [2026-10-10] [sonda] [✓] Matar processo filho não basta: o Chrome tem gpu/rede/renderer e um
+  deles regrava o perfil DEPOIS do `rmSync` (sobrava esqueleto de 28 KB). `detached` + SIGKILL no
+  GRUPO. As 17 sondas já limpam sozinhas, inclusive no Ctrl+C.
 - [2026-10-10] [sonda] [✓] Rótulo de botão é ESTADO, não identidade: buscar elemento pelo TEXTO
   quebra quando ele muda (o ▣ vira "interagir"); botão que muda de nome leva `data-acao`.
 - [2026-10-10] [bench] [✗] Esperar FPS do `bench:headless` — SwiftShader varia 4,3–6,4 s e 9–13

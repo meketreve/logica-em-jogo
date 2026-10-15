@@ -1,5 +1,5 @@
 ---
-updated: 2026-10-13
+updated: 2026-10-15
 tier: 3
 ---
 
@@ -10,7 +10,7 @@ tier: 3
 ## Comandos
 
 <!-- auto:start -->
-gerado em: 2026-10-13
+gerado em: 2026-10-15
 
 | Ação | Comando |
 |---|---|
@@ -55,6 +55,13 @@ Acima é do script. O que ele **não** acha é o que manda aqui:
 `shots:queda`, `shots:restaurar`, `bench:headless` — este só prova ENCANAMENTO, o FPS dele é
 ruído de SwiftShader): sobem host + Chrome de verdade e asseveram no DOM; `npm run build` antes.
 **Mudança de UI só é "feita" quando uma sonda a ENXERGA.** Detalhe no cabeçalho de cada script.
+
+**Bateria completa (17), uma de cada vez** — em paralelo a máquina carrega e asserção de tempo
+mente: 9 sobem host próprio (`f10 loja quebra queda restaurar amigos grupos toque esc`); 7 pedem
+`BASE=` de um host servindo o `dist` (`tablet craft comida tooltip fundo`, mais `luz` e
+`bench-headless`, que tomam a URL como argv); `corrida` quer a aula 7 (`LJ_SAVE=cenarios/aula7-corrida.ljw LJ_PORT=8090`).
+⚠️ **`shots:fundo` GERA**: reescreve `client/public/menu-fundo/*.png` e as cópias no `dist` (~5 MB
+versionados). Conferir `git status` depois da bateria e reverter se fundo novo não era o pedido.
 
 ## Onde fica cada coisa
 
