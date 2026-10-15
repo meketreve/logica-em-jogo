@@ -194,7 +194,6 @@
       #painel,
       #inventario,
       #jogadores,
-      #amigos,
       #container {
         position: fixed;
         left: 50%;
@@ -218,13 +217,11 @@
       #painel h2,
       #inventario h2,
       #jogadores h2,
-      #amigos h2,
       #container h2 {
         margin: 0;
         font-size: 1.25rem;
       }
-      #painel h3,
-      #amigos h3 {
+      #painel h3 {
         margin: 12px 0 2px;
         padding-top: 10px;
         font-size: 1rem;
@@ -235,6 +232,30 @@
         align-items: center;
         justify-content: space-between;
         gap: 8px;
+      }
+      /* ABAS DO PAINEL (2026-10-15, unificação com o painel de amigos). Mesma
+         pele das abas do inventário (`.inv-abas`) de propósito: é a MESMA
+         pergunta de interface na cabeça do aluno — "qual lista estou vendo" —
+         e inventar um segundo visual pra ela só obrigaria a decorar dois.
+         Fica FORA do `.painel-corpo` (ver `render` em panels.ts): trocar de aba
+         tem de dar com a lista rolada até o fim, igual ao "✕ fechar".
+         A seleção é `.aba-ativa` e não um estilo no texto do botão: rótulo é
+         estado, identidade é o `data-aba`. */
+      .painel-abas {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 4px;
+        margin: 8px 0 10px;
+        padding-bottom: 8px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+      }
+      .painel-abas button {
+        opacity: 0.7;
+      }
+      .painel-abas button.aba-ativa {
+        opacity: 1;
+        background: rgba(90, 140, 220, 0.35) !important;
+        outline: 1px solid rgba(120, 170, 255, 0.6);
       }
       /* CORPO ROLÁVEL do painel (2026-08-21). O `#painel` divide a moldura de
          altura FIXA (`min(560px, 84vh)` + `overflow: hidden`) com o inventário
@@ -264,7 +285,6 @@
       #painel button,
       #inventario button,
       #jogadores button,
-      #amigos button,
       #container button {
         font: inherit;
         font-size: 0.82rem;
@@ -278,7 +298,6 @@
       #painel button:hover:not(:disabled),
       #inventario button:hover:not(:disabled),
       #jogadores button:hover:not(:disabled),
-      #amigos button:hover:not(:disabled),
       #container button:hover:not(:disabled) {
         background: rgba(255, 255, 255, 0.22);
       }
@@ -1388,8 +1407,7 @@
            campo + botão), e com flex-wrap a falta de largura vira ALTURA, que é
            exatamente o que falta em 600px. Alargar devolve linha por linha. */
         #painel,
-        #jogadores,
-        #amigos {
+        #jogadores {
           width: min(760px, 94vw);
         }
       }
@@ -1400,7 +1418,6 @@
         .world-row button,
         #painel button,
         #jogadores button,
-        #amigos button,
         #hud button {
           min-height: 40px;
           padding: 8px 12px;
@@ -1417,9 +1434,7 @@
         #painel input,
         #painel select,
         #jogadores input,
-        #jogadores select,
-        #amigos input,
-        #amigos select {
+        #jogadores select {
           min-height: 40px;
           padding: 6px 10px;
         }
@@ -1585,7 +1600,7 @@
         white-space: nowrap;
       }
     </style>
-    <script type="module" crossorigin src="/assets/index-DlXPsePL.js"></script>
+    <script type="module" crossorigin src="/assets/index-B-sLcE4F.js"></script>
   </head>
   <body>
     <div id="menu" class="hidden">
@@ -1743,8 +1758,6 @@
     <div id="painel" class="hidden"></div>
     <div id="inventario" class="hidden"></div>
     <div id="jogadores" class="hidden"></div>
-    <!-- painel de amigos (2026-08-04): grupo de amigos do PRÓPRIO jogador -->
-    <div id="amigos" class="hidden"></div>
     <!-- §🍖 F10 (2026-08-05): transferência mochila↔container (fornalha, baú) -->
     <div id="container" class="hidden"></div>
     <!-- menu radial de emojis (2026-09-03, tecla V) -->

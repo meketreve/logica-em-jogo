@@ -244,9 +244,20 @@ const estado = () =>
       return e.checkVisibility() ? 'VISIVEL' : 'escondido';
     };
     return {
-      menu: vis('#overlay'), barra: vis('#touch-topo'), amigos: vis('#amigos'),
+      menu: vis('#overlay'), barra: vis('#touch-topo'),
       mochila: vis('#inventario'), chat: vis('#chat-input'), painel: vis('#painel'),
       invisivel: vis('#invisivel'),
+      // AMIGOS virou ABA do #painel (2026-10-15): nao ha mais um root proprio
+      // pra olhar. "VISIVEL" = painel na tela E a aba de amigos selecionada —
+      // o data-aba e a identidade; o rotulo e so o texto (pegadinha 2026-10-10).
+      amigos: (() => {
+        const p = document.querySelector('#painel');
+        if (!p || !p.checkVisibility()) return 'escondido';
+        const a = p.querySelector('[data-aba="amigos"]');
+        // sem BARRA de abas o painel tem UMA aba so, e nela e a de amigos
+        if (!a) return p.querySelector('.painel-abas') ? 'escondido' : 'VISIVEL';
+        return a.classList.contains('aba-ativa') ? 'VISIVEL' : 'escondido';
+      })(),
     };
   })()`);
 const foto = async (nome) => {
@@ -626,7 +637,10 @@ ok(painelApareceu === true, `o painel de comandos apareceu junto do chat (${pain
 // e escrita a mao — e exatamente o que o `acompanharTecladoVirtual()` do
 // chat.ts faz quando o Android abre o teclado. Nenhum resize de visualViewport
 // dispara em headless, entao o valor gruda ate a gente apagar.
-const KB = 280; // medido no tablet da escola, 1024x600 deitado
+// Teclado virtual EMULADO. Deitado a escola mede 280px; em RETRATO o teclado
+// do Android pega ~45% da altura (a 600x1024 sao ~460px), e era so o caso
+// deitado que esta sonda olhava. `LJ_KB=` forca um valor pra investigar.
+const KB = Number(process.env["LJ_KB"] ?? (L >= A ? 280 : Math.round(A * 0.45)));
 const medir = () =>
   avaliar(`(() => {
     const cx = (id) => document.getElementById(id);
@@ -647,7 +661,20 @@ const medir = () =>
       campoFundo: r(campo).b,
       cruzaOChat: cruza(rp, rchat),
       painelTopo: rp.t,
+      painelFundo: rp.b,
       painelDireita: rp.r,
+      // os BOTOES, nao a caixa: a caixa pode estar acima do teclado com os
+      // botoes transbordando dela (ou atras dele). E isto que o aluno toca.
+      botoes: [...p.querySelectorAll('button')].map((b) => {
+        const rb = b.getBoundingClientRect();
+        return { nome: b.textContent, t: Math.round(rb.top), b: Math.round(rb.bottom),
+                 l: Math.round(rb.left), r: Math.round(rb.right) };
+      }),
+      // quantos dao pra TOCAR sem rolar a caixa (dentro dela e dentro da tela)
+      aVista: [...p.querySelectorAll('button')].filter((b) => {
+        const rb = b.getBoundingClientRect();
+        return rb.top >= rp.t - 1 && rb.bottom <= rp.b + 1 && rb.top >= 0;
+      }).length,
     };
   })()`);
 await avaliar(`document.documentElement.style.setProperty('--kb', '${KB}px')`);
@@ -676,6 +703,36 @@ if (kb !== "AUSENTE") {
   ok(
     kb.chatTopo >= 0,
     `o bloco do chat nao sai pelo topo da tela (topo ${kb.chatTopo} >= 0)`,
+  );
+  // ⚠️ A ASSERCAO QUE FALTAVA (2026-10-15, queixa da escola: "os botoes de
+  // comando ficam escondidos atras do teclado"). As de cima olham o CAMPO e a
+  // caixa; nenhuma olhava os BOTOES, que sao o que o dedo procura. Um botao
+  // abaixo da linha do teclado nao e so invisivel: o tap cai no teclado, o
+  // chat perde o foco e o aluno conclui que "o comando nao funciona".
+  // A CAIXA e que decide: ela ROLA, e botao rolado pra fora dela nao esta
+  // "atras do teclado" — esta a uma rolagem de distancia, que e o contrato do
+  // painel desde 2026-08-14. O que nao pode e a caixa TERMINAR depois da linha
+  // do teclado: ai o que ela desenha na ultima faixa fica atras dele, e o tap
+  // cai no teclado (o chat perde o foco e o aluno conclui "nao funciona").
+  ok(
+    kb.painelFundo <= linhaDoTeclado,
+    `a caixa de comandos termina acima do teclado (fundo ${kb.painelFundo} <= ${linhaDoTeclado})`,
+  );
+  const atrasDoTeclado = kb.botoes.filter((b) => b.t >= linhaDoTeclado && b.t <= kb.painelFundo);
+  ok(
+    atrasDoTeclado.length === 0,
+    `nenhum botao DESENHADO fica atras do teclado (${atrasDoTeclado.length} de ` +
+      `${kb.botoes.length}${atrasDoTeclado.length ? `: ${atrasDoTeclado.map((b) => b.nome).join(" ")}` : ""})`,
+  );
+  const foraDaTela = kb.botoes.filter((b) => b.b < 0 || b.r > L || b.l < 0);
+  ok(
+    foraDaTela.length === 0,
+    `nenhum botao nasce fora da janela (${foraDaTela.length}${foraDaTela.length ? `: ${foraDaTela.map((b) => b.nome).join(" ")}` : ""})`,
+  );
+  // e um punhado tem de dar pra tocar SEM rolar: a lista do aluno tem 10 itens
+  ok(
+    kb.aVista >= 6,
+    `pelo menos 6 comandos a vista sem rolar com o teclado aberto (${kb.aVista} de ${kb.botoes.length})`,
   );
   if (L >= 900) {
     // painel LATERAL: sai do empilhamento e vira coluna fixa no vao entre o

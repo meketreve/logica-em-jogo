@@ -1,6 +1,5 @@
 import type { ContainerPanel } from "./container";
 import type { EmojiWheelPanel } from "./emojiWheel";
-import type { FriendsPanel } from "./friends";
 import type { InventoryPanel } from "./inventory";
 import type { GamePanel } from "./panels";
 import type { PlayersPanel } from "./players";
@@ -9,6 +8,14 @@ import type { PlayersPanel } from "./players";
 interface MenuDeTela {
   readonly open: boolean;
   toggle(): void;
+}
+
+/** Abrir, fechar ou TROCAR a aba — o gesto que as três portas do painel fazem.
+ *  Tocar na porta da aba que já está à vista FECHA (é o que a tecla sempre
+ *  fez); na de outra aba, TROCA sem fechar. */
+function alternarAba(p: GamePanel, aba: string): void {
+  if (p.open && p.abaVisivel === aba) p.hide();
+  else p.abrirNaAba(aba);
 }
 
 /**
@@ -37,12 +44,12 @@ interface MenuDeTela {
  * tela.
  */
 export class PainelHost {
-  /** cp14: autoria (professor) ou grupos (aluno). */
+  /** O PAINEL (cp14): autoria do professor ou a aula do aluno, mais a aba de
+   *  AMIGOS que até 2026-10-15 era um painel à parte (`#amigos`). Um menu a
+   *  menos na cascata de `hide()` — a regra de um menu por vez ficou menor. */
   cp14: GamePanel | null = null;
   /** Só professor (expulsar/banir/desbanir), aberto pelo 👥 do painel de autoria. */
   jogadores: PlayersPanel | null = null;
-  /** De todo jogador — a interface do `/amigos`. */
-  amigos: FriendsPanel | null = null;
   /** Inventário de blocos (cp16). */
   mochila: InventoryPanel | null = null;
   /** §🍖 F10: fornalha e baú. Sem tecla própria. */
@@ -64,7 +71,6 @@ export class PainelHost {
       (this.cp14?.open ?? false) ||
       (this.mochila?.open ?? false) ||
       (this.jogadores?.open ?? false) ||
-      (this.amigos?.open ?? false) ||
       (this.container?.open ?? false) ||
       (this.emojis?.open ?? false)
     );
@@ -96,25 +102,28 @@ export class PainelHost {
   trocarParaJogadores(): void {
     this.cp14?.hide();
     this.mochila?.hide();
-    this.amigos?.hide();
     this.jogadores?.show();
   }
 
   /**
-   * `/amigos` sem subcomando (§48): a única porta que serve no PC e no tablet —
-   * a tecla G não existe no dedo e o botão 👥 só aparece com a proteção ligada.
-   * É TROCA, como o 👥, e não passa pelo portão: quem digitou o comando já está
-   * com o chat aberto, e o chat bloqueia tudo.
+   * `/amigos` sem subcomando (§48), a tecla G e o 👥 do dedo: abrem o painel JÁ
+   * NA ABA de amigos. Antes abriam um painel próprio (`#amigos`); desde a
+   * unificação de 2026-10-15 é a mesma moldura com a aba trocada.
+   *
+   * **Não passa pelo portão de um menu por vez, e não passa pelo gate de
+   * grupos**, de propósito nos dois casos: quem digitou o comando já está com o
+   * chat aberto (e o chat conta como menu, então `podeAbrir` diria não), e
+   * amigos é de TODO jogador — existe justamente em mundo livre, sem grupos de
+   * aula. É TROCA, como o 👥 do painel de jogadores.
    *
    * Devolve `false` se não há painel ainda (antes do join) — aí o comando segue
    * pro servidor, que responde no chat.
    */
   trocarParaAmigos(): boolean {
-    if (!this.amigos) return false;
-    this.cp14?.hide();
+    if (!this.cp14) return false;
     this.mochila?.hide();
     this.jogadores?.hide();
-    this.amigos.toggle();
+    alternarAba(this.cp14, "amigos");
     return true;
   }
 
@@ -133,8 +142,8 @@ export class PainelHost {
     if (!this.cp14) return false;
     this.mochila?.hide();
     this.jogadores?.hide();
-    this.amigos?.hide();
-    this.cp14.toggle();
+    // a aba da aula; sem grupos ela não existe e o painel cai na de amigos
+    alternarAba(this.cp14, "aula");
     return true;
   }
 
@@ -146,7 +155,6 @@ export class PainelHost {
   aoAbrirContainer(): void {
     this.cp14?.hide();
     this.jogadores?.hide();
-    this.amigos?.hide();
     this.mochila?.hide();
   }
 }

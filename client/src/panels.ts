@@ -7,6 +7,7 @@ import {
 } from "@logica/shared";
 import { playUi } from "./audio";
 import { PLACEABLE } from "./blocksUi";
+import { AMIGOS_VAZIO, type FriendsData, linhaDeNome, renderAmigos } from "./friends";
 
 /**
  * Painéis HTML do cp14 — açúcar visual sobre os comandos de chat: cada botão
@@ -28,12 +29,37 @@ export interface PanelData {
   grupos: GroupDef[];
   /** Grupo do PRÓPRIO jogador (null = sem grupo). */
   myGrupo: number | null;
+  /** Grupo de AMIGOS (aba própria, 2026-10-15) — ver `friends.ts`. */
+  amigos: FriendsData;
+}
+
+/**
+ * Uma ABA do painel (2026-10-15). O painel de amigos era um segundo painel de
+ * tela cheia, com root (`#amigos`), tecla, botão de dedo e cópia da fábrica de
+ * controles próprios; agora é uma aba daqui. O que isso compra, além de um
+ * `<div>` a menos: UM menu por vez fica mais fácil de manter (era mais um na
+ * cascata de `hide()` do `painelHost.ts`), e o aluno de tablet para de ter dois
+ * caminhos diferentes pra duas metades da mesma coisa ("meu grupo da aula" e
+ * "meus amigos").
+ */
+export interface AbaDePainel {
+  /** Identidade estável — é por ela que o `painelHost` pede uma aba, e ela
+   *  vira `data-aba` no botão. Rótulo é ESTADO, id é identidade (a pegadinha
+   *  de 2026-10-10: sonda que busca botão por TEXTO quebra quando o texto
+   *  muda). */
+  id: string;
+  rotulo: string;
+  render(corpo: HTMLElement): void;
 }
 
 /** O que o main.ts precisa de qualquer painel (professor OU aluno). */
 export interface GamePanel {
   readonly open: boolean;
+  /** Qual aba está à vista ("" se o painel nem existe ainda). */
+  readonly abaVisivel: string;
   toggle(): void;
+  /** Abre o painel JÁ nesta aba (ou só troca de aba, se já estiver aberto). */
+  abrirNaAba(id: string): void;
   hide(): void;
   update(data: PanelData): void;
 }
@@ -46,6 +72,7 @@ abstract class Panel implements GamePanel {
     objetivos: [],
     grupos: [],
     myGrupo: null,
+    amigos: AMIGOS_VAZIO,
   };
   private isOpen = false;
   private dirty = false;
@@ -60,7 +87,7 @@ abstract class Panel implements GamePanel {
    *  painel INTEIRO, e sem guardar isto o professor que rolou até "regiões"
    *  voltava pro topo cada vez que um aluno entrasse ou um grupo mudasse.
    *  Mesma disciplina do `scrollCraft` do inventário. */
-  private scrollCorpo = 0;
+  protected scrollCorpo = 0;
 
   private readonly onEsc = (e: KeyboardEvent): void => {
     if (e.code !== "Escape") return;
@@ -131,10 +158,81 @@ abstract class Panel implements GamePanel {
     this.onToggle(false);
   }
 
-  protected abstract render(): void;
+  /** As abas DESTE painel, na ordem. Com uma só, a barra não aparece. */
+  protected abstract abas(): AbaDePainel[];
+
+  /** O título do cabeçalho. */
+  protected abstract titulo(): string;
+
+  /** Qual aba está à vista. Vazio = a primeira que existir. */
+  private abaAtiva = "";
+
+  /** Abre o painel JÁ numa aba (o `/amigos`, a tecla G e o 👥 do dedo). */
+  abrirNaAba(id: string): void {
+    this.abaAtiva = id;
+    if (this.open) this.redesenhar();
+    else this.show();
+  }
+
+  get abaVisivel(): string {
+    return this.abaAtual(this.abas())?.id ?? "";
+  }
+
+  /** A aba à vista agora (a pedida, se ainda existir; senão a primeira). */
+  private abaAtual(abas: AbaDePainel[]): AbaDePainel | undefined {
+    return abas.find((a) => a.id === this.abaAtiva) ?? abas[0];
+  }
+
+  /**
+   * Monta cabeçalho + barra de abas + corpo e pinta a aba à vista. Os painéis
+   * não sobrescrevem mais o `render`: eles declaram `abas()`.
+   */
+  protected render(): void {
+    const corpo = this.abrir(this.titulo());
+    if (!corpo) return;
+    const abas = this.abas();
+    const atual = this.abaAtual(abas);
+    if (abas.length > 1) {
+      const barra = document.createElement("div");
+      barra.className = "painel-abas";
+      for (const aba of abas) {
+        const b = this.btn(aba.rotulo, () => {
+          if (this.abaAtiva === aba.id) return;
+          this.abaAtiva = aba.id;
+          this.scrollCorpo = 0; // aba nova começa no topo, não na rolagem da outra
+          this.render();
+        });
+        b.dataset["aba"] = aba.id;
+        if (aba.id === atual?.id) b.classList.add("aba-ativa");
+        barra.append(b);
+      }
+      // a barra fica FORA do corpo rolável, junto do cabeçalho: trocar de aba
+      // tem de ser possível com a lista rolada até o fim (molde do ✕ fechar)
+      this.root?.insertBefore(barra, corpo);
+    }
+    atual?.render(corpo);
+  }
+
+  /** A aba de AMIGOS — igual nos dois painéis (é de todo jogador), então mora
+   *  aqui em vez de repetida nas duas subclasses. */
+  protected abaDeAmigos(): AbaDePainel {
+    return {
+      id: "amigos",
+      rotulo: "amigos",
+      render: (corpo) =>
+        renderAmigos(corpo, this.data.amigos, {
+          send: (cmd) => this.send(cmd),
+          sec: (t) => this.sec(t),
+          btn: (l, f) => this.btn(l, f),
+          armedBtn: (l, f) => this.armedBtn(l, f),
+          hint: (t) => this.hint(t),
+          linha: (nome, ...bs) => linhaDeNome(nome, ...bs),
+        }),
+    };
+  }
 
   /** Re-renderiza preservando a rolagem do corpo (ver `scrollCorpo`). */
-  private redesenhar(): void {
+  protected redesenhar(): void {
     this.scrollCorpo = this.corpo?.scrollTop ?? this.scrollCorpo;
     this.render();
     if (this.corpo) this.corpo.scrollTop = this.scrollCorpo;
@@ -192,6 +290,10 @@ abstract class Panel implements GamePanel {
     const b = document.createElement("button");
     b.type = "button";
     b.textContent = label;
+    // RÓTULO É ESTADO, NÃO IDENTIDADE (2026-10-10, bug-676): este botão troca o
+    // texto por "confirma?" no 1º clique, então sonda que o procurasse por
+    // TEXTO só o acharia desarmado. O `data-acao` é o nome que não muda.
+    b.dataset["acao"] = label;
     b.addEventListener("click", () => {
       if (b.dataset["armado"]) {
         onConfirm();
@@ -337,9 +439,18 @@ export class AuthorPanel extends Panel {
     return o.completo ? "✓ concluído" : o.ativo ? "ativo" : "aguardando";
   }
 
-  protected render(): void {
-    const root = this.abrir("painel de autoria");
-    if (!root) return;
+  protected titulo(): string {
+    return "painel de autoria";
+  }
+
+  protected abas(): AbaDePainel[] {
+    return [
+      { id: "autoria", rotulo: "autoria", render: (corpo) => this.renderAutoria(corpo) },
+      this.abaDeAmigos(),
+    ];
+  }
+
+  private renderAutoria(root: HTMLElement): void {
     if (this.onOpenPlayers) {
       root.append(this.row(this.btn("👥 jogadores (expulsar / banir)", () => this.onOpenPlayers?.())));
     }
@@ -648,13 +759,24 @@ export class AuthorPanel extends Panel {
 // --- Painel de grupo (aluno) ---
 
 export class GroupPanel extends Panel {
-  protected render(): void {
-    const root = this.abrir("grupos");
-    if (!root) return;
-    if (this.data.grupos.length === 0) {
-      root.append(this.hint("o professor ainda não criou grupos"));
-      return;
-    }
+  protected titulo(): string {
+    return "meu painel";
+  }
+
+  /** A aba da AULA só existe quando há grupos: o aluno em mundo livre abre o
+   *  painel pela tecla G ou pelo `/amigos` e não tem o que ver em "aula" —
+   *  mostrar uma aba que só sabe dizer "o professor ainda não criou grupos"
+   *  seria um beco. Com grupos, ela é a primeira (é a aula). */
+  protected abas(): AbaDePainel[] {
+    const aula: AbaDePainel = {
+      id: "aula",
+      rotulo: "aula",
+      render: (corpo) => this.renderGrupos(corpo),
+    };
+    return this.data.grupos.length ? [aula, this.abaDeAmigos()] : [this.abaDeAmigos()];
+  }
+
+  private renderGrupos(root: HTMLElement): void {
     const meu = this.data.myGrupo;
     root.append(
       this.hint(

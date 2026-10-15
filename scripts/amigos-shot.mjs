@@ -216,7 +216,7 @@ const tecla = (code) =>
  *  primeiro da lista, que pode ser outra pessoa). `dobro` = botão armado. */
 const clicarNaLinha = (nome, rotulo, dobro = false) =>
   avaliar(`(() => {
-  const linha = [...document.querySelectorAll('#amigos .jog-row')]
+  const linha = [...document.querySelectorAll('#painel .jog-row')]
     .find(r => (r.querySelector('.jog-nome')?.textContent ?? '').startsWith(${JSON.stringify(nome)}));
   if (!linha) return 'sem linha de ' + ${JSON.stringify(nome)};
   const b = [...linha.querySelectorAll('button')]
@@ -227,8 +227,8 @@ const clicarNaLinha = (nome, rotulo, dobro = false) =>
 /** Rótulos dos botões do painel — o texto inteiro tem a DICA do chat, que cita
  *  todos os subcomandos e faria qualquer `includes("expulsar")` passar sozinho. */
 const botoes = () =>
-  avaliar(`[...document.querySelectorAll('#amigos button')].map(b => b.textContent)`);
-const texto = () => avaliar(`document.getElementById('amigos')?.innerText ?? ''`);
+  avaliar(`[...document.querySelectorAll('#painel button')].map(b => b.textContent)`);
+const texto = () => avaliar(`document.getElementById('painel')?.innerText ?? ''`);
 const foto = async (nome) => {
   const r = await cdp("Page.captureScreenshot", { format: "png" });
   if (!r.result?.data) return;
@@ -269,15 +269,29 @@ bia.cmd("/amigos convidar ana");
 await espera(700);
 await tecla("KeyG");
 await espera(600);
-const aberto = await avaliar(`!document.getElementById('amigos').classList.contains('hidden')`);
-ok(aberto === true, "a tecla G abriu o #amigos");
+// AMIGOS virou ABA do #painel (2026-10-15, unificação pedida pelo usuário): a
+// tecla G abre o MESMO painel da aula, já na aba certa. ana é ALUNA e esta aula
+// não tem grupos, então a aba da aula nem existe (seria um beco que só sabe
+// dizer "o professor ainda não criou grupos") e o painel abre sem barra de abas.
+const aberto = await avaliar(`(() => {
+  const p = document.getElementById('painel');
+  if (!p || p.classList.contains('hidden')) return 'fechado';
+  const barra = p.querySelector('.painel-abas');
+  const ativa = p.querySelector('[data-aba].aba-ativa');
+  if (!barra) return 'aba unica';
+  return ativa?.dataset.aba === 'amigos' ? 'aba amigos' : 'aba ' + ativa?.dataset.aba;
+})()`);
+ok(
+  aberto === "aba unica" || aberto === "aba amigos",
+  `a tecla G abriu o painel na aba de amigos (${aberto})`,
+);
 const a = (await texto()) ?? "";
 ok(a.includes("bia convidou você"), "o convite de bia aparece na tela");
 const btnA = (await botoes()) ?? [];
 ok(btnA.includes("aceitar") && btnA.includes("recusar"), "com os botões aceitar e recusar");
 ok(a.includes("caio"), "caio (online, sem grupo) aparece na lista de convidar");
 const alvos = await avaliar(`(() => {
-  const bs = [...document.querySelectorAll('#amigos button')];
+  const bs = [...document.querySelectorAll('#painel button')];
   return bs.length ? Math.min(...bs.map(b => Math.round(b.getBoundingClientRect().height))) : 0;
 })()`);
 ok(alvos >= 40, `menor alvo de toque do painel = ${alvos}px (piso de 40 em pointer:coarse)`);
@@ -302,6 +316,64 @@ ok(
   "e o botão de sair avisa que DESFAZ o grupo",
 );
 await foto("amigos-grupo.png");
+
+console.log("== C: o painel de comandos do chat visto por um ALUNO (2026-10-15) ==");
+// Por que AQUI e não no `toque-shot`: a ana desta sonda é a única cliente de
+// navegador do projeto que entra SEM o código de professor — ou seja, a única
+// que vê a árvore de comandos como a turma vê. O `toque-shot` entra com
+// `?codigo=prof2026` (é o que destrava o `/dar`) e mede a lista do PROFESSOR.
+//
+// A queixa da escola era "os botões de comando ficam escondidos atrás do
+// teclado no mobile": a geometria estava certa (o `toque-shot` mede a caixa
+// acima da linha do teclado com 280, 460 e 600px de teclado), o que não estava
+// era a LISTA — 26 botões para todo mundo, e os 10 que o servidor aceita de um
+// aluno espalhados por ela, os últimos atrás de uma rolagem.
+await tecla("Escape"); // fecha o painel: o chat não abre com menu na tela
+await espera(400);
+await avaliar(`document.getElementById('chat-input')?.classList.contains('hidden') === false
+  || window.dispatchEvent(new KeyboardEvent('keydown', { code: 'Enter', bubbles: true }))`);
+await espera(600);
+const KB_ALUNO = 280; // o mesmo teclado medido no tablet da escola, deitado
+await avaliar(`document.documentElement.style.setProperty('--kb', '${KB_ALUNO}px')`);
+await espera(300);
+const cmd = await avaliar(`(() => {
+  const p = document.getElementById('chat-painel');
+  if (!p) return 'AUSENTE';
+  const rp = p.getBoundingClientRect();
+  const bs = [...p.querySelectorAll('button')];
+  return {
+    rotulos: bs.map(b => b.textContent),
+    // "a vista" = desenhado DENTRO da caixa (ela rola) e dentro da janela
+    aVista: bs.filter(b => {
+      const r = b.getBoundingClientRect();
+      return r.top >= rp.top - 1 && r.bottom <= rp.bottom + 1 && r.top >= 0;
+    }).length,
+    caixaFundo: Math.round(rp.bottom),
+  };
+})()`);
+ok(cmd !== "AUSENTE" && typeof cmd === "object", "o painel de comandos do chat apareceu pra aluna");
+if (cmd && typeof cmd === "object") {
+  const DO_PROFESSOR = ["/confinar", "/silenciar", "/regiao", "/objetivo", "/dar", "/tp", "/bloco",
+                        "/aula", "/iniciar", "/invisivel", "/ciclo", "/vento", "/voo", "/mundo",
+                        "/expulsar", "/redefinirpin"];
+  const vazou = DO_PROFESSOR.filter((c) => cmd.rotulos.includes(c));
+  ok(vazou.length === 0, `nenhum comando de professor na lista da aluna (${vazou.join(" ") || "nenhum"})`);
+  const DELA = ["/painel", "/amigos", "/grupo", "/terreno", "/tpp", "/tpa", "/hora", "/modo", "/regra", "/pvp"];
+  const faltam = DELA.filter((c) => !cmd.rotulos.includes(c));
+  ok(faltam.length === 0, `os dez comandos dela estão na lista (faltam: ${faltam.join(" ") || "nenhum"})`);
+  // ⚠️ A ASSERÇÃO DA QUEST: todos à vista SEM ROLAR, com o teclado aberto. É o
+  // que o filtro por papel compra — com os 26 do professor, 5 ficavam fora.
+  ok(
+    cmd.aVista === cmd.rotulos.length,
+    `todos os comandos da aluna à vista sem rolar com o teclado aberto (${cmd.aVista} de ${cmd.rotulos.length})`,
+  );
+  ok(
+    cmd.caixaFundo <= A - KB_ALUNO,
+    `a caixa de comandos termina acima do teclado (fundo ${cmd.caixaFundo} <= ${A - KB_ALUNO})`,
+  );
+}
+await foto("amigos-comandos-aluna.png");
+await avaliar(`document.documentElement.style.removeProperty('--kb')`);
 
 console.log(excecoes.length ? `✗ exceções: ${excecoes.join(" | ")}` : "✓ sem exceção no console");
 if (excecoes.length) falhas++;

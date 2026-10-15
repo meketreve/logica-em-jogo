@@ -12,10 +12,11 @@ tier: 3
 Jogo voxel educacional rodando, testado com turma real. `main` em sinc com o `origin`
 (`9abedf0`), árvore limpa. Ambiente é só LINUX.
 
-O lote de 13/10 fechou as duas pontas da presença: **quem reabre o navegador volta NA HORA**
-(PIN certo = posse do nome) e **silêncio virou 3 perguntas de verdade** — controle negativo +
-smoke em host real; marco novo: "Seu nome volta com você · 13/10". **O resto da lista de teste
-de 10/10 segue sem ter sido visto em tela** (machado/pá, logs, loja, ids de 16 bits) — `TODO.md`.
+O lote de 15/10 mexeu na UI do aluno: o **painel de amigos virou ABA do painel** (um root, uma
+tecla, um ✕) e a **árvore de comandos passou a filtrar por PAPEL** — o aluno vê 10 em vez de 26,
+e os 10 cabem na tela com o teclado aberto. Marco novo: "Um painel só, e o chat sem bagunça".
+**O resto da lista de teste de 10/10 segue sem ter sido visto em tela** (machado/pá, logs, loja,
+ids de 16 bits) — `TODO.md`.
 
 ⚠️ **bug-675 (heartbeat) NÃO está fechado:** na aula de 10/10 as quedas **diminuíram mas não
 zeraram**. Os consertos de 13/10 atacam causas reais (host travado + nome preso); o que restar
@@ -40,21 +41,24 @@ bloco. Atrás: `bench:headless` dos ids de 16 bits, ovelha+lã (§🍖 F8), cade
 
 ## Concluído (recente)
 
+- **15/10 (UI do aluno — 2 mudanças):** amigos virou **aba** do `#painel` (`friends.ts` deixou de
+  ser painel: vira `renderAmigos` + a fábrica de controles do `panels.ts`; `#amigos` sumiu do
+  index e do `painelHost`), e a árvore de comandos foi pro **shared** (`comandos.ts`) com o papel
+  de cada comando — 38 testes, incluindo paridade com a lista do "Comando desconhecido" e os
+  gates checados contra uma sessão de VERDADE. Sondas: `toque` mede a caixa de comandos contra a
+  linha do teclado (280/460/600px, deitado e em pé) e `amigos` ganhou a visão da ALUNA (10 de 10
+  à vista, zero comando de professor). **A queixa "botões atrás do teclado" NÃO era geometria.**
 - **13/10 (presença — 2 consertos + marco):** **posse do nome** (bug-672, `c237b88`) e
   **silêncio por perguntas** (bug-675 sobra, `dcd599e`) — controle negativo + smoke em host real;
   marco "Seu nome volta com você". O portão do ids16 parou de depender de `server/world.ljw`.
-- **10/10 (lote de 4 + aula real):** launchers sobem o host com `node --import tsx` (bug-666;
-  portão no `checar-launchers` + `_smoke-sighup`); ▣ com `data-acao` (bug-676, `f10-shot` de
-  volta); botão "restaurar" (`shots:restaurar`, 13 asserções); A/B dos ids de 16 bits medido no
-  codec (.ljw +0,02%, decode 5,1→6,9 ms); as 17 sondas passaram a matar o Chrome pelo GRUPO e
-  apagar o perfil (nem Ctrl+C deixa órfão) — **bateria 17/17 verde, duas vezes**. Na aula:
-  quebra v2, cama/porta e voo aprovados.
-- **05/10:** **bug-675** — heartbeat derrubava a turma toda quando o HOST parava; sonda
-  `shots:queda`. **bug-674** (voo voltava desligado: runtime fora do `SaveMeta`) + portão da aula
-  sem voo; changelog do lote. E **logs de sessão** por arquivo (`-chat.log` × `-eventos.log`; o
-  único chegava a 344 KB, 2434/2434 de sistema).
-- **17-28/09:** `/contexto` nos TIERS e contexto fora do `.wolf/`; **bug-673** (sha do HEAD no
-  rótulo desarmava o portão do dist); §🔨 ferramentas v2, §🪓 machado e pá, bug-672 e bug-671.
+- **10/10 (lote de 4 + aula real):** launchers com `node --import tsx` (bug-666); ▣ com
+  `data-acao` (bug-676); botão "restaurar" (`shots:restaurar`); A/B dos ids de 16 bits no codec
+  (.ljw +0,02%, decode 5,1→6,9 ms); as 17 sondas matam o Chrome pelo GRUPO — **bateria 17/17
+  verde, duas vezes**. Na aula: quebra v2, cama/porta e voo aprovados.
+- **05/10:** bug-675 (heartbeat derrubava a turma quando o HOST parava; sonda `shots:queda`),
+  bug-674 (voo voltava desligado) e os **logs de sessão** separados (`-chat` × `-eventos`).
+- **17-28/09:** `/contexto` nos TIERS; bug-673 (sha do HEAD desarmava o portão do dist); §🔨
+  ferramentas v2, §🪓 machado e pá, bug-672 e bug-671.
 
 ## Bruto do git (auto — não editar)
 

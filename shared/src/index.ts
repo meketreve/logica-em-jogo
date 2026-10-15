@@ -4,6 +4,7 @@ export * from "./biomas";
 export * from "./blocks";
 export * from "./claims";
 export * from "./colunas";
+export * from "./comandos";
 export * from "./envioPose";
 export * from "./comida";
 export * from "./constants";

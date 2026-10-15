@@ -42,6 +42,9 @@ tier: 3
 
 ## Erros a não repetir
 
+- [2026-10-15] [comandos] [✓] A árvore de comandos mora no SHARED (`comandos.ts`), ao lado do gate de `runCommand`: é o único lugar onde `npm test` roda, e o portão de paridade lê a lista do "Comando desconhecido" — comando novo no servidor sem entrada na tabela reprova no mesmo commit.
+- [2026-10-15] [sonda] [✗] Contar botão ROLADO pra fora da caixa como "atrás do teclado" — a caixa de comandos rola de propósito desde 2026-08-14; o que se mede é o FUNDO DA CAIXA contra a linha do teclado.
+- [2026-10-15] [mobile] [✓] "Botão escondido atrás do teclado" era LISTA, não geometria: com teclado de 280, 460 e 600px, deitado e em retrato, a caixa sempre terminou acima do teclado — o que sumia eram os comandos do aluno no meio dos 26 do professor.
 - [2026-10-13] [presenca] [✓] Queda por silêncio se cobra por PERGUNTAS, nunca por relógio: host travado não conta contra o aluno — 3 perguntas carimbadas + janela da última (sobra do bug-675).
 - [2026-10-13] [presenca] [✓] Nome em jogo + PIN certo = TOMADA DE POSSE (quem volta entra na hora, o fantasma cai); o gate do bug-061 vira o ÚLTIMO passo — recusa clássica só pra nome online SEM identidade.
 - [2026-10-13] [teste] [✓] Portão que lê artefato de RUNTIME não versionado (`server/world.ljw`) derruba clone limpo — `it.skipIf(!existsSync(...))` com o porquê; a cobertura incondicional fica com o que está no git.
@@ -53,10 +56,8 @@ tier: 3
   GRUPO. As 17 sondas já limpam sozinhas, inclusive no Ctrl+C.
 - [2026-10-10] [sonda] [✓] Rótulo de botão é ESTADO, não identidade: buscar elemento pelo TEXTO
   quebra quando ele muda (o ▣ vira "interagir"); botão que muda de nome leva `data-acao`.
-- [2026-10-10] [bench] [✗] Esperar FPS do `bench:headless` — SwiftShader varia 4,3–6,4 s e 9–13
-  fps no MESMO commit; custo de FORMATO se mede no codec, em Node, sem GPU.
-- [2026-10-10] [smoke] [✗] Acreditar em falha da bateria COMPLETA com a máquina carregada —
-  `mundo`/`troca-raio` reprovaram carregados e passaram sozinhos (18/18): repetir sozinha.
+- [2026-10-10] [bench] [✗] Esperar FPS do `bench:headless` (SwiftShader varia 4,3–6,4 s no MESMO commit) — custo de FORMATO se mede no codec, em Node.
+- [2026-10-10] [smoke] [✗] Acreditar em falha da bateria COMPLETA com a máquina carregada — repetir a sonda SOZINHA antes de caçar.
 - [2026-10-03] [build] [✗] Rótulo auto-referente (sha do HEAD) em artefato VERSIONADO — o dist
   virava função do HEAD, sujava a árvore e calava o portão (bug-673). Carimbar data, não sha.
 - [2026-10-05] [smoke] [✗] Confiar em smoke sem conferir HOST ÓRFÃO na porta — dois hosts de 5 h

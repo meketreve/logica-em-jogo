@@ -141,7 +141,7 @@ await cdp("Emulation.setDeviceMetricsOverride", {
 // sem HUD: o que interessa é o MUNDO, e o F3/crosshair/hotbar sujariam as faces
 const limparHud = `(() => {
   for (const sel of ['#hotbar', '#crosshair', '#chat', '#hud', '#objetivos',
-                     '#painel', '#inventario', '#jogadores', '#amigos', '#overlay']) {
+                     '#painel', '#inventario', '#jogadores', '#overlay']) {
     const e = document.querySelector(sel);
     if (e) e.remove();
   }

@@ -87,7 +87,7 @@ import {
   criarCorpo,
   novoEstadoAnimacao,
 } from "./playerBody";
-import { learnPlayers, learnWorlds } from "./commands";
+import { learnPapel, learnPlayers, learnWorlds } from "./commands";
 import { SkyCycle } from "./daynight";
 import { VentoCliente } from "./vento";
 import { MateriaisMundo } from "./materiaisMundo";
@@ -110,7 +110,6 @@ import { ObjectivesUi } from "./objectivesUi";
 import { InvisivelUi } from "./invisivelUi";
 import { Mochila } from "./mochila";
 import { type VidaInfo, VitalsUi } from "./vitals";
-import { FriendsPanel } from "./friends";
 import { PlayersPanel } from "./players";
 import { AuthorPanel, GroupPanel, type PanelData } from "./panels";
 import { RegionRenderer } from "./regions";
@@ -729,12 +728,20 @@ function aplicarPoseRemota(msg: {
   if (msg.name && nomesOnline.get(msg.id) !== msg.name) {
     nomesOnline.set(msg.id, msg.name);
     learnPlayers([...new Set(nomesOnline.values())]);
-    pushFriendsData(); // quem entrou vira candidato a convite
+    pushPanelData(); // quem entrou vira candidato a convite
   }
   jogo?.applyPlayerMoved(msg);
 }
 
-/** Estado consolidado pros painéis — chamada sempre que algo deles muda. */
+/**
+ * Estado consolidado pro painel — chamada sempre que algo dele muda.
+ *
+ * Desde a unificação (2026-10-15) ela leva os AMIGOS junto: eram dois `update`
+ * para dois painéis, e o de amigos era chamado de cinco lugares diferentes
+ * (`friends`, player_moved, player_left, join, troca de aula). Um painel, uma
+ * entrega — quem esquecer de empurrar um dos dois lados esquece os dois, que é
+ * um defeito visível em vez de uma aba desatualizada em silêncio.
+ */
 function pushPanelData(): void {
   paineis.cp14?.update({
     regions: latestRegions,
@@ -742,20 +749,14 @@ function pushPanelData(): void {
     objetivos: latestObjectives?.objetivos ?? [],
     grupos: latestGroups,
     myGrupo,
+    amigos: {
+      eu: playerName(),
+      equipe: latestFriends.equipe,
+      convites: latestFriends.convites,
+      enviados: latestFriends.enviados,
+      online: [...new Set(nomesOnline.values())].sort(),
+    },
   } satisfies PanelData);
-}
-
-/** Painel de amigos: o `friends` do servidor + quem está online agora (que o
- *  main aprende do relay). Chamado dos DOIS lados — o feed muda quando o grupo
- *  muda, e a lista de online muda quando alguém entra ou sai da aula. */
-function pushFriendsData(): void {
-  paineis.amigos?.update({
-    eu: playerName(),
-    equipe: latestFriends.equipe,
-    convites: latestFriends.convites,
-    enviados: latestFriends.enviados,
-    online: [...new Set(nomesOnline.values())].sort(),
-  });
 }
 
 /** Concluído NO MEU escopo (meu grupo; professor/sem grupos = agregado). */
@@ -860,11 +861,15 @@ function handleServerData(data: string | ArrayBuffer): void {
     } else if (msg.type === "player_left") {
       nomesOnline.delete(msg.id);
       learnPlayers([...new Set(nomesOnline.values())]);
-      pushFriendsData(); // quem saiu some da lista de convidar
+      pushPanelData(); // quem saiu some da lista de convidar
       jogo?.applyPlayerLeft(msg.id);
     } else if (msg.type === "spawn") {
       serverSpawn = { x: msg.x, y: msg.y, z: msg.z };
       papel = msg.papel ?? "aluno";
+      // a árvore de comandos do chat (Tab e painel do dedo) mostra só o que o
+      // servidor aceita DESTE papel — sem isto o aluno rolava 26 botões pra
+      // chegar nos 10 que são dele (comandos.ts no shared)
+      learnPapel(papel);
     } else if (msg.type === "regions") {
       latestRegions = msg.regions;
       jogo?.applyRegions(msg.regions);
@@ -914,7 +919,7 @@ function handleServerData(data: string | ArrayBuffer): void {
       // cp24: grupo de amigos + convites. O feedback textual segue chegando por
       // chat do servidor; o PAINEL (2026-08-04) é puro consumo deste estado.
       latestFriends = { equipe: msg.equipe, convites: msg.convites, enviados: msg.enviados };
-      pushFriendsData();
+      pushPanelData();
     } else if (msg.type === "players") {
       // 2026-07-21: painel de jogadores do professor (conectados + banidos)
       paineis.jogadores?.update({ conectados: msg.conectados, banidos: msg.banidos });
@@ -1426,11 +1431,6 @@ class GameRuntime {
     if (papel === "professor") paineis.jogadores = new PlayersPanel(sendCmd, onPanelToggle);
     // troca do painel de autoria pro de jogadores — não é "abrir por cima"
     const openPlayers = (): void => paineis.trocarParaJogadores();
-    // painel de amigos (2026-08-04): de TODO jogador — é o dono de área quem
-    // convide quem pode construir junto. Sem gate de grupos (o de aluno tem),
-    // porque amigos existe justamente em mundo livre, sem grupos de aula.
-    paineis.amigos = new FriendsPanel(sendCmd, onPanelToggle);
-    pushFriendsData();
     // menu de emojis (2026-09-03): escolher um TOCA local na hora (sem
     // esperar a rede — é puro cosmético, não muda estado de jogo nenhum) E
     // avisa o servidor, que broadcasta pros OUTROS verem o mesmo gesto.
@@ -1444,7 +1444,13 @@ class GameRuntime {
         : new GroupPanel(sendCmd, onPanelToggle);
     pushPanelData();
     input.onKey(settings.keys.painel, alternarPainelCp14);
-    input.onKey(settings.keys.amigos, () => paineis.alternar(paineis.amigos));
+    // tecla G: a ABA de amigos do mesmo painel (2026-10-15). Não passa pelo
+    // portão de um menu por vez porque não ABRE um segundo menu — troca a aba
+    // do que já está na tela; com a mochila ou um baú aberto, aí sim o portão
+    // vale, e é o `trocarParaAmigos` que recusa quando não há painel.
+    input.onKey(settings.keys.amigos, () => {
+      if (paineis.podeAbrir || paineis.cp14?.open === true) paineis.trocarParaAmigos();
+    });
     input.onKey(settings.keys.emogis, () => paineis.alternar(paineis.emojis));
     // Tecla C (2026-09-03): 3ª pessoa PERSISTENTE — não passa pelo portão de
     // menu, é câmera, não painel; funciona com qualquer painel fechado ou aberto.
@@ -1826,7 +1832,9 @@ class GameRuntime {
         },
         hud: () => this.hud.toggle(),
         varinha: () => this.hotbarUi.toggleVarinha(),
-        amigos: () => paineis.alternar(paineis.amigos),
+        amigos: () => {
+          if (paineis.podeAbrir || paineis.cp14?.open === true) paineis.trocarParaAmigos();
+        },
         painel: () => alternarPainelCp14(),
       });
       // os dois botões condicionais nascem escondidos: aqui é o 1º estado real
@@ -2363,8 +2371,8 @@ class GameRuntime {
     // ?painel na URL: abre o painel já no boot (verificação headless do cp14)
     if (new URLSearchParams(location.search).has("painel")) paineis.cp14?.toggle();
     if (new URLSearchParams(location.search).has("inv")) paineis.mochila?.toggle();
-    // ?amigos na URL: abre o painel de amigos no boot (verificação headless)
-    if (new URLSearchParams(location.search).has("amigos")) paineis.amigos?.toggle();
+    // ?amigos na URL: abre o painel JÁ na aba de amigos (verificação headless)
+    if (new URLSearchParams(location.search).has("amigos")) paineis.cp14?.abrirNaAba("amigos");
     // ?touch (teste no desktop/headless): entra direto no modo toque, sem tap
     if (bootParams.has("touch")) startPlay();
   }

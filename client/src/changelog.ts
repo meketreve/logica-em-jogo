@@ -43,6 +43,16 @@ interface Mudanca {
 const MUDANCAS: readonly Mudanca[] = [
   {
     // sem `data`: este é o build atual (ver rotuloDoBloco)
+    titulo: "Um painel só, e o chat sem bagunça",
+    itens: [
+      "o painel de AMIGOS virou uma aba do seu painel: a aula e os amigos moram no mesmo lugar, com a mesma tecla, o mesmo botão e o mesmo \u2715 fechar — nada de dois painéis parecidos pra decorar",
+      "no tablet, os botões de comando que aparecem quando você abre o chat passaram a mostrar SÓ os comandos que são seus: eram 26 para todo mundo, e os que a turma pode usar ficavam espalhados no meio (alguns só rolando a lista) — agora são 10, e todos cabem na tela mesmo com o teclado aberto",
+      "ver a hora, o modo de jogo ou as regras virou UM toque: antes o botão abria uma lista de opções que o servidor ia recusar de você",
+      "o professor continua com a lista inteira, e os comandos de dar aula vêm primeiro",
+    ],
+  },
+  {
+    data: "13/10/2026",
     titulo: "Seu nome volta com você",
     itens: [
       "se o navegador fechar sem sair do jogo, voltar com o mesmo nome agora é NA HORA: você entra direto e a sessão que tinha ficado pendurada se fecha sozinha — antes o jogo respondia \"já existe alguém em jogo com esse nome\" e a criança ficava trancada esperando",

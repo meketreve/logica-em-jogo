@@ -16,6 +16,13 @@ active: true
 
 ## Testar na escola (o usuário faz; aula de 10/10 cobriu parte)
 
+- [ ] **Lote de 15/10 (o painel e o chat):** no tablet, abrir o chat e conferir se a lista de
+      comandos do ALUNO (10) aparece inteira **sem rolar e sem ficar atrás do teclado** — era a
+      queixa. Se AINDA ficar escondida, a causa não é a lista: anotar se o CAMPO de digitar
+      também some (aí o `--kb` do aparelho é que está errado, `chat.ts`) e em qual orientação.
+      Conferir também o painel unificado: tecla G / botão 👥 / `/amigos` têm de abrir o MESMO
+      painel na aba "amigos", e o professor tem de ver as abas "autoria" e "amigos".
+
 - [ ] **Lote de 10/10:** fechar o servidor com Ctrl+C num mundo cheio e reabrir (o mundo tem de
       voltar inteiro); e, no singleplayer de um navegador que já jogava, ver o botão
       **restaurar** no mundo convertido.

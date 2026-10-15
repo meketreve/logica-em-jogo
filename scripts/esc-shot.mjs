@@ -264,7 +264,7 @@ const aberto = (id) =>
 /** Menu de pausa na tela? Painel na tela? Jogo com o ponteiro? */
 const estado = () => avaliar(`(() => ({
   pausa: ${aberto("overlay")},
-  painel: ['inventario','container','amigos','painel','jogadores'].some(
+  painel: ['inventario','container','painel','jogadores'].some(
     id => { const e = document.getElementById(id); return !!e && !e.classList.contains('hidden'); }),
   travado: document.pointerLockElement !== null,
 }))()`);
