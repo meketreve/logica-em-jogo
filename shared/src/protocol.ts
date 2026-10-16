@@ -368,6 +368,25 @@ export type ServerMessage =
     }
   | {
       /**
+       * Quem tem pedido de TELEPORTE aberto para ESTE jogador (2026-10-15).
+       *
+       * Existe por causa do painel de comandos do dedo: o `/tpa` listava TODA
+       * a turma, porque o pedido chegava só como texto no chat e o cliente não
+       * tinha como saber quem de fato pediu. Tocar em quem não pediu dava
+       * recusa do servidor — barulho numa lista que existe justamente pra não
+       * errar. Agora o servidor diz, e a lista mostra só quem pediu.
+       *
+       * `emMs` é o que FALTA do prazo, não um horário: relógio de tablet não
+       * bate com o do host, e um `expira` absoluto viraria pedido eterno ou
+       * nascido morto. O cliente soma ao relógio dele e poda sozinho.
+       * Host antigo não manda nada → lista vazia, que é o comportamento de
+       * antes (o `/tpa` sozinho aceita o mais recente).
+       */
+      type: "tp_pedidos";
+      pedidos: { de: string; emMs: number }[];
+    }
+  | {
+      /**
        * Painel de jogadores (2026-07-21) — SÓ para o professor: quem está
        * conectado agora + a lista de nicks banidos. No join do professor e a
        * cada join/saída/banimento. O painel manda /expulsar, /banir, /desbanir.
@@ -1038,6 +1057,18 @@ export function parseServerMessage(raw: string): ServerMessage | null {
         convites: onlyStrings(m["convites"]),
         enviados: onlyStrings(m["enviados"]),
       };
+    }
+    case "tp_pedidos": {
+      const pedidos: { de: string; emMs: number }[] = [];
+      if (Array.isArray(m["pedidos"])) {
+        for (const entry of m["pedidos"]) {
+          if (!entry || typeof entry !== "object") continue;
+          const o = entry as Record<string, unknown>;
+          if (typeof o["de"] !== "string" || typeof o["emMs"] !== "number") continue;
+          pedidos.push({ de: o["de"], emMs: o["emMs"] });
+        }
+      }
+      return { type: "tp_pedidos", pedidos };
     }
     case "players": {
       if (!Array.isArray(m["conectados"]) || !Array.isArray(m["banidos"])) return null;

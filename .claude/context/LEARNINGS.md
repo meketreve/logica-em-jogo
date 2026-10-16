@@ -43,6 +43,7 @@ tier: 3
 ## Erros a não repetir
 
 - [2026-10-15] [ui] [✓] Painel com ABAS: a porta da aba que está À VISTA fecha, a de OUTRA aba troca — uma regra pras três portas (tecla, botão do dedo, comando). `toggle()` cego fechava a tela que o aluno tinha acabado de pedir; e comparar com a aba PEDIDA (não com a resolvida) deixa a porta só abrindo quando a aba não existe.
+- [2026-10-15] [protocolo] [✓] Estado que a UI precisa não se lê do CHAT: o pedido de `/tpp` só existia como texto, então o painel oferecia a turma toda no `/tpa`. Mensagem própria (`tp_pedidos`), com o que FALTA do prazo (`emMs`) e não um horário — relógio de tablet não bate com o do host.
 - [2026-10-15] [comandos] [✓] No painel do dedo, LISTA ganha de digitação: nó com candidatos vira NÍVEL (a turma em `/tpp`, `/amigos convidar`, `/expulsar`), e `preencher` só sobra onde ninguém pode listar (id e quantidade do `/dar`, sala vazia). Mandar o aluno pro teclado é o que o painel existe pra evitar.
 - [2026-10-15] [comandos] [✓] A árvore de comandos mora no SHARED (`comandos.ts`), ao lado do gate de `runCommand`: é o único lugar onde `npm test` roda, e o portão de paridade lê a lista do "Comando desconhecido" — comando novo no servidor sem entrada na tabela reprova no mesmo commit.
 - [2026-10-15] [sonda] [✗] Contar botão ROLADO pra fora da caixa como "atrás do teclado" — a caixa de comandos rola de propósito desde 2026-08-14; o que se mede é o FUNDO DA CAIXA contra a linha do teclado.
@@ -74,10 +75,8 @@ tier: 3
 - [2026-10-05] [log] [✓] Antes de "resolver arquivo grande", MEDIR o que o enche — o chat.log de
   344 KB era 2434/2434 linhas de `servidor:`, zero de aluno; o conserto foi separar fala de
   gente de evento de sistema.
-- [2026-10-05] [shell] [✗] `pkill -f "tsx server/src/index.ts"` casa com o PRÓPRIO shell que o
-  roda e morre antes das linhas seguintes. Matar por porta ou por PID guardado.
-- [2026-10-03] [teste] [✗] Provar portão do dist com mudança que a minificação engole (um
-  comentário) — o bundle sai idêntico e o "teste" passa sem testar. Mexer em string visível.
+- [2026-10-05] [shell] [✗] `pkill -f "tsx server/src/index.ts"` casa com o PRÓPRIO shell que o roda — matar por porta ou PID.
+- [2026-10-03] [teste] [✗] Provar portão do dist com mudança que a minificação engole — mexer em string VISÍVEL.
 - **Não aceitar "passou" sem CONTROLE NEGATIVO** — teste que passa com a feature desligada não testa nada.
 - **Não confiar em "typecheck 0" escrito no STATUS sem rodar.**
 - **Duas listas do mesmo conjunto é um bug esperando a próxima feature** — derivar de uma tabela só (§🪓 EXIGIR × ACELERAR).

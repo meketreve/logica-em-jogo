@@ -133,6 +133,9 @@ export interface ContextoVivo {
   mundos: string[];
   /** Quem está online agora. */
   jogadores: string[];
+  /** Quem tem pedido de teleporte aberto PARA MIM (msg `tp_pedidos`, já podada
+   *  pelo prazo no cliente). Vazia em host antigo, que não manda a mensagem. */
+  pedidosTp?: string[];
 }
 
 const SEM_CONTEXTO: ContextoVivo = { mundos: [], jogadores: [] };
@@ -191,6 +194,10 @@ export function candidatosPara(
   const cmd = (completos[0] ?? "").replace(/^\//, "");
   if (papel === "aluno" && !comandosPara("aluno").includes(cmd)) return [];
   if (completos.length === 1) {
+    // `/tpa` não oferece a turma: oferece QUEM PEDIU (2026-10-15). Listar todo
+    // mundo era barulho — tocar em quem não pediu só rende recusa do servidor
+    // numa lista que existe pra não errar.
+    if (cmd === "tpa") return vivo.pedidosTp ?? [];
     if (CMD_COM_NOME.has(cmd)) return vivo.jogadores;
     if (cmd === "tp") return ["grupos", ...vivo.jogadores];
     if (cmd === "dar") return ["eu", "all", ...vivo.jogadores];
@@ -256,6 +263,14 @@ export function destinoDeToquePara(
   vivo: ContextoVivo = SEM_CONTEXTO,
 ): DestinoDeToque {
   const cmd = (caminho[0] ?? "").replace(/^\//, "");
+  // `/tpa` é o único nó cuja lista NÃO abre sozinha, e é decisão do usuário
+  // (2026-10-15): com UM pedido aberto, escolher entre uma opção só seria um
+  // toque a troco de nada — `/tpa` sem nome já aceita aquele. A lista aparece
+  // quando ela resolve alguma coisa: DOIS ou mais pedidos ao mesmo tempo, que
+  // é quando "o mais recente" vira adivinhação.
+  if (cmd === "tpa" && caminho.length === 1) {
+    return (vivo.pedidosTp ?? []).length > 1 ? "nivel" : "enviar";
+  }
   if (candidatosPara(caminho, papel, vivo).length) return "nivel";
   if (exigeArgumento(cmd, caminho)) return "preencher";
   return "enviar";

@@ -208,16 +208,26 @@ describe("LISTA ganha de digitação (pedido do usuário, 2026-10-15)", () => {
     expect(destinoDeToquePara(["/dar", "eu"], "professor", turma)).toBe("preencher");
   });
 
-  it("/tpa também lista — e tocar no nome aceita o pedido DAQUELA pessoa", () => {
-    expect(destinoDeToquePara(["/tpa"], "aluno", turma)).toBe("nivel");
-    expect(candidatosPara(["/tpa"], "aluno", turma)).toEqual(["bia", "caio"]);
-    expect(destinoDeToquePara(["/tpa", "bia"], "aluno", turma)).toBe("enviar");
+  it("/tpa lista QUEM PEDIU, não a turma (o servidor avisa em tp_pedidos)", () => {
+    // listar todo mundo era barulho: tocar em quem não pediu só rende recusa
+    const doisPedidos = { ...turma, pedidosTp: ["bia", "caio"] };
+    expect(candidatosPara(["/tpa"], "aluno", doisPedidos)).toEqual(["bia", "caio"]);
+    expect(destinoDeToquePara(["/tpa"], "aluno", doisPedidos)).toBe("nivel");
+    expect(destinoDeToquePara(["/tpa", "bia"], "aluno", doisPedidos)).toBe("enviar");
+    // e a turma inteira NÃO vaza pra cá nem quando não há pedido nenhum
+    expect(candidatosPara(["/tpa"], "aluno", turma)).toEqual([]);
   });
 
-  it("…mas com a sala vazia ele MANDA sozinho (aceita o pedido mais recente)", () => {
+  it("com UM pedido só, /tpa manda sozinho — a lista não resolveria nada", () => {
+    const umPedido = { ...turma, pedidosTp: ["bia"] };
+    expect(destinoDeToquePara(["/tpa"], "aluno", umPedido)).toBe("enviar");
+  });
+
+  it("e sem pedido nenhum também manda (o servidor explica no chat)", () => {
     // é o único comando de nome que vale sem nome: preencher "/tpa " num campo
     // seria pedir pra digitar um nome que não há
     expect(destinoDeToquePara(["/tpa"], "aluno")).toBe("enviar");
+    expect(destinoDeToquePara(["/tpa"], "aluno", turma)).toBe("enviar");
   });
 
   it("tocar em /terreno troca os botões pelas opções DELE, filtradas", () => {

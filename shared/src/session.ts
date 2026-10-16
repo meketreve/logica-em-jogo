@@ -89,6 +89,7 @@ import {
   sendGroups,
 } from "./session/equipes";
 import {
+  avisarPedidosDeQuemSaiu,
   runIniciar,
   runTp,
   runTpa,
@@ -2512,13 +2513,18 @@ export class GameSession {
     this.avisoSilencio.delete(clientId);
     this.avisoEmogis.delete(clientId);
     this.containerAberto.delete(clientId); // §🍖 F10: painel aberto é de sessão
-    // (pedidos FEITOS por quem saiu são podados no /tpa — players.has(deId))
     const p = this.players.get(clientId);
     if (!p) return;
     // mundo lembra onde o jogador parou (vai pro save; volta aqui no rejoin)
     this.roster.set(p.name, { x: p.x, y: p.y, z: p.z, yaw: p.yaw, pitch: p.pitch });
     // delete ANTES do broadcast — quem saiu não recebe (socket já fechou).
     this.players.delete(clientId);
+    // ⚠️ DEPOIS do `players.delete`, e é a ordem que faz o aviso funcionar: a
+    // poda derruba o pedido por `players.has(deId)`, então enquanto quem saiu
+    // ainda estivesse no mapa o nome dele continuaria na lista. Os pedidos que
+    // ele FEZ sobrevivem na fila dos outros até o /tpa podar — o que basta pro
+    // comando, mas não pro painel do dedo, que ofereceria um nome morto.
+    avisarPedidosDeQuemSaiu(this, clientId);
     this.broadcast({ type: "player_left", id: clientId });
     this.broadcastPlayers(); // painel dos professores (2026-07-21)
     // sair pode COMPLETAR a maioria: travar a noite porque alguém fechou a aba

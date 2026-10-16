@@ -43,6 +43,77 @@ function makeTp(opts: SessionOptions = {}) {
   return { session, send, chat, msgsTo, lastChat, lastTeleport, clock };
 }
 
+describe("o servidor AVISA quem tem pedido aberto (msg tp_pedidos, 2026-10-15)", () => {
+  /** A última lista que ESTE cliente recebeu (ou null se nunca recebeu uma). */
+  const ultimaLista = (s: ReturnType<typeof makeTp>, id: number): string[] | null => {
+    const m = s.msgsTo(id).filter((x) => x["type"] === "tp_pedidos").at(-1);
+    if (!m) return null;
+    return (m["pedidos"] as { de: string }[]).map((p) => p.de);
+  };
+
+  it("quem recebe o pedido passa a saber QUEM pediu", () => {
+    // o pedido chegava só como texto no chat: o painel do dedo oferecia a
+    // turma inteira no /tpa porque o cliente não tinha como saber
+    const s = makeTp();
+    expect(ultimaLista(s, 3)).toBeNull();
+    s.chat(2, "/tpp bia");
+    expect(ultimaLista(s, 3)).toEqual(["ana"]);
+    expect(ultimaLista(s, 2)).toBeNull(); // quem PEDE não ganha lista nenhuma
+  });
+
+  it("dois pedidos ao mesmo tempo chegam os dois, na ordem em que foram feitos", () => {
+    const s = makeTp();
+    s.chat(2, "/tpp bia");
+    s.chat(1, "/tpp bia");
+    expect(ultimaLista(s, 3)).toEqual(["ana", "prof"]);
+  });
+
+  it("aceitar TIRA da lista na hora", () => {
+    const s = makeTp();
+    s.chat(2, "/tpp bia");
+    s.chat(1, "/tpp bia");
+    s.chat(3, "/tpa ana");
+    expect(ultimaLista(s, 3)).toEqual(["prof"]);
+    s.chat(3, "/tpa");
+    expect(ultimaLista(s, 3)).toEqual([]);
+  });
+
+  it("o prazo vai como o que FALTA, não como horário (relógio de tablet não bate)", () => {
+    const s = makeTp();
+    s.chat(2, "/tpp bia");
+    const m = s.msgsTo(3).filter((x) => x["type"] === "tp_pedidos").at(-1);
+    const pedidos = m?.["pedidos"] as { de: string; emMs: number }[];
+    expect(pedidos[0]?.emMs).toBe(TP_PEDIDO_MS);
+  });
+
+  it("pedido EXPIRADO some da lista no próximo aviso", () => {
+    const s = makeTp();
+    s.chat(2, "/tpp bia");
+    s.clock.t += TP_PEDIDO_MS + 1;
+    s.chat(1, "/tpp bia"); // um pedido novo força o aviso
+    expect(ultimaLista(s, 3)).toEqual(["prof"]);
+  });
+
+  it("quem SAI do mundo some da lista de quem ele tinha pedido", () => {
+    // sem isto o tablet de bia oferece "ana" depois de ana fechar a aba, e o
+    // toque só rende recusa — o contrário do que a lista existe pra fazer
+    const s = makeTp();
+    s.chat(2, "/tpp bia");
+    expect(ultimaLista(s, 3)).toEqual(["ana"]);
+    s.session.handleDisconnect(2);
+    expect(ultimaLista(s, 3)).toEqual([]);
+  });
+
+  it("CONTROLE NEGATIVO: sem pedido nenhum ninguém recebe lista", () => {
+    const s = makeTp();
+    s.chat(3, "/tpa"); // tentativa sem pedido: responde no chat…
+    expect(s.lastChat(3)).toContain("Não há pedido");
+    expect(ultimaLista(s, 3)).toEqual([]); // …e a lista vazia é a verdade
+    expect(ultimaLista(s, 1)).toBeNull();
+    expect(ultimaLista(s, 2)).toBeNull();
+  });
+});
+
 describe("/tpp e /tpa — pedido e aceite", () => {
   it("fluxo feliz: ana pede, bia aceita, ana aparece na bia; pedido é consumido", () => {
     const s = makeTp();

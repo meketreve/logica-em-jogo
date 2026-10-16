@@ -20,7 +20,20 @@ import {
  */
 export type { DestinoDeToque };
 
-const vivo: ContextoVivo = { mundos: [], jogadores: [] };
+const vivo: ContextoVivo = { mundos: [], jogadores: [], pedidosTp: [] };
+
+/** Pedidos de teleporte abertos PRA MIM, com a hora em que cada um morre.
+ *  O servidor manda o que FALTA do prazo (`emMs`) e não um horário: o relógio
+ *  do tablet não bate com o do host. */
+let pedidosTp: { de: string; validoAte: number }[] = [];
+
+/** Joga fora o que venceu desde a última mensagem — o host avisa quando a fila
+ *  MUDA, não a cada segundo, então quem expira em silêncio é podado aqui. */
+function pedidosVivos(): string[] {
+  const agora = Date.now();
+  pedidosTp = pedidosTp.filter((p) => p.validoAte > agora);
+  return pedidosTp.map((p) => p.de);
+}
 
 /** Papel de quem está jogando — o `main.ts` carimba no join. Começa como aluno
  *  de propósito: enquanto não se sabe, mostrar comando de professor seria
@@ -37,6 +50,12 @@ export function learnPlayers(nomes: string[]): void {
   vivo.jogadores = nomes;
 }
 
+/** Quem pediu teleporte pra mim (msg `tp_pedidos` do servidor). */
+export function learnPedidosTp(pedidos: { de: string; emMs: number }[]): void {
+  const agora = Date.now();
+  pedidosTp = pedidos.map((p) => ({ de: p.de, validoAte: agora + p.emMs }));
+}
+
 /** O papel do jogador local (join / troca de aula). */
 export function learnPapel(papel: Papel): void {
   papelAtual = papel;
@@ -48,10 +67,12 @@ export function learnPapel(papel: Papel): void {
  * PAPEL: o Tab do aluno não oferece o que o servidor recusa dele.
  */
 export function candidatos(completos: string[]): string[] {
+  vivo.pedidosTp = pedidosVivos();
   return candidatosPara(completos, papelAtual, vivo);
 }
 
 /** O que acontece ao TOCAR num nó da árvore (painel de comandos do dedo). */
 export function destinoDeToque(caminho: string[]): DestinoDeToque {
+  vivo.pedidosTp = pedidosVivos();
   return destinoDeToquePara(caminho, papelAtual, vivo);
 }

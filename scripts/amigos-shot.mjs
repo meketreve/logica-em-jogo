@@ -465,18 +465,31 @@ const pediu = await avaliar(
 );
 ok(pediu === true, "o toque no nome ENVIOU /tpp bia (o servidor respondeu)");
 await foto("amigos-comandos-tpp.png");
-// o /tpa segue a MESMA regra desde 2026-10-15 (antes era a exceção que mandava
-// sozinho): com gente online ele LISTA, e o toque no nome aceita o pedido
-// daquela pessoa — importa quando dois colegas pedem ao mesmo tempo
+// O /tpa lista QUEM PEDIU, não a turma (2026-10-15): o servidor avisa a fila
+// por `tp_pedidos`. Duas colegas pedem a ana; a terceira (dani) está online e
+// NÃO pediu — é ela que prova que a lista não é a turma.
+bia.cmd("/tpp ana");
+caio.cmd("/tpp ana");
+await espera(900);
 await tecla("Enter"); // o envio do /tpp fechou o chat
-await espera(500);
+await espera(600);
 ok((await toqueNoPainel("/tpa")) === "ok", "tocou em /tpa no painel");
 await espera(400);
 const aposTpa = (await rotulos()) ?? [];
 ok(
   aposTpa.includes("bia") && aposTpa.includes("caio"),
-  `o /tpa também trocou os botões pela turma (${aposTpa.join(" ")})`,
+  `o /tpa mostra quem pediu (${aposTpa.join(" ")})`,
 );
+ok(
+  !aposTpa.includes("dani"),
+  `e NÃO mostra quem está online sem ter pedido (dani fora: ${!aposTpa.includes("dani")})`,
+);
+ok((await toqueNoPainel("bia")) === "ok", "tocou no nome de quem pediu");
+await espera(800);
+const aceitou = await avaliar(
+  `[...document.querySelectorAll('#chat-log .msg')].some(d => /aceitou o pedido de bia/i.test(d.textContent || ''))`,
+);
+ok(aceitou === true, "o toque no nome ACEITOU o pedido daquela pessoa (/tpa bia)");
 await foto("amigos-comandos-tpa.png");
 await avaliar(`document.documentElement.style.removeProperty('--kb')`);
 

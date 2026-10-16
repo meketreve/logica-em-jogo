@@ -117,6 +117,42 @@ export function runTp(ses: GameSession, clientId: number, parts: string[]): stri
   return `${nome} foi teleportado para (${x}, ${y}, ${z}).`;
 }
 
+/**
+ * Poda a fila de quem recebeu pedidos e AVISA o dono dela (2026-10-15).
+ *
+ * O aviso existe pro painel de comandos do dedo: o `/tpa` listava a turma
+ * inteira porque o pedido só chegava como texto no chat. Agora a fila é um
+ * estado que o cliente conhece, e a lista mostra quem pediu de verdade.
+ *
+ * Poda e aviso andam JUNTOS de propósito: o `runTpa` já podava expirado e quem
+ * saiu do mundo, e uma poda sem aviso deixaria o tablet oferecendo um nome que
+ * o servidor acabou de descartar.
+ */
+export function avisarPedidosTp(ses: GameSession, clientId: number): void {
+  const agora = ses.now();
+  const fila = (ses.tpPedidos.get(clientId) ?? []).filter(
+    (p) => p.expira > agora && ses.players.has(p.deId),
+  );
+  if (fila.length) ses.tpPedidos.set(clientId, fila);
+  else ses.tpPedidos.delete(clientId);
+  if (!ses.players.has(clientId)) return;
+  ses.send(
+    clientId,
+    JSON.stringify({
+      type: "tp_pedidos",
+      pedidos: fila.map((p) => ({ de: p.deNome, emMs: p.expira - agora })),
+    } satisfies ServerMessage),
+  );
+}
+
+/** Quem saiu do mundo tinha pedidos FEITOS a outros: as filas deles mudaram, e
+ *  quem está com o tablet aberto precisa saber antes de tocar num nome morto. */
+export function avisarPedidosDeQuemSaiu(ses: GameSession, deId: number): void {
+  for (const [alvoId, fila] of ses.tpPedidos) {
+    if (fila.some((p) => p.deId === deId)) avisarPedidosTp(ses, alvoId);
+  }
+}
+
 /** `/tpp nome` (todos): pede para se teleportar até o jogador — ele aceita
  *  com /tpa. Um pedido por solicitante (o novo substitui o antigo). */
 export function runTpr(ses: GameSession, clientId: number, parts: string[]): string {
@@ -136,6 +172,7 @@ export function runTpr(ses: GameSession, clientId: number, parts: string[]): str
     alvoId,
     `${de.name} quer se teleportar até você. Digite /tpa para aceitar — o pedido expira em ${TP_PEDIDO_MS / 1000} segundos.`,
   );
+  avisarPedidosTp(ses, alvoId); // o painel do dedo passa a oferecer este nome
   return `Pedido enviado a ${nome}. Ele tem ${TP_PEDIDO_MS / 1000} segundos para aceitar com /tpa.`;
 }
 
@@ -153,11 +190,13 @@ export function runTpa(ses: GameSession, clientId: number, parts: string[]): str
   const pedido = nome ? fila.find((p) => p.deNome === nome) : fila.at(-1);
   if (!pedido) {
     ses.tpPedidos.set(clientId, fila);
+    avisarPedidosTp(ses, clientId); // a poda acima pode ter mudado a lista
     return nome
       ? `Não há pedido de teleporte de "${nome}" — pode ter expirado (o prazo é de ${TP_PEDIDO_MS / 1000} segundos).`
       : `Não há pedido de teleporte pendente. Peça com /tpp nome (o pedido dura ${TP_PEDIDO_MS / 1000} segundos).`;
   }
   ses.tpPedidos.set(clientId, fila.filter((p) => p !== pedido));
+  avisarPedidosTp(ses, clientId); // aceito: sai da lista do painel na hora
   teleportar(ses, pedido.deId, eu.x, eu.y, eu.z);
   ses.sendServerChat(pedido.deId, `${eu.name} aceitou: você foi teleportado.`);
   return `Você aceitou o pedido de ${pedido.deNome}.`;

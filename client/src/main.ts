@@ -87,7 +87,7 @@ import {
   criarCorpo,
   novoEstadoAnimacao,
 } from "./playerBody";
-import { learnPapel, learnPlayers, learnWorlds } from "./commands";
+import { learnPapel, learnPedidosTp, learnPlayers, learnWorlds } from "./commands";
 import { SkyCycle } from "./daynight";
 import { VentoCliente } from "./vento";
 import { MateriaisMundo } from "./materiaisMundo";
@@ -867,6 +867,10 @@ function handleServerData(data: string | ArrayBuffer): void {
       learnPlayers([...new Set(nomesOnline.values())]);
       pushPanelData(); // quem saiu some da lista de convidar
       jogo?.applyPlayerLeft(msg.id);
+    } else if (msg.type === "tp_pedidos") {
+      // quem pediu teleporte pra mim — é a lista que o /tpa oferece no painel
+      // do dedo (2026-10-15). Sem isto ele ofereceria a turma inteira.
+      learnPedidosTp(msg.pedidos);
     } else if (msg.type === "spawn") {
       serverSpawn = { x: msg.x, y: msg.y, z: msg.z };
       papel = msg.papel ?? "aluno";
