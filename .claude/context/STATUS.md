@@ -10,11 +10,13 @@ tier: 3
 ## Estado atual
 
 Jogo voxel educacional rodando, testado com turma real. `main` em sinc com o `origin`
-(`9abedf0`), árvore limpa. Ambiente é só LINUX.
+(`d3af433`), árvore limpa. Ambiente é só LINUX.
 
 O lote de 15/10 mexeu na UI do aluno: o **painel de amigos virou ABA do painel** (um root, uma
-tecla, um ✕) e a **árvore de comandos passou a filtrar por PAPEL** — o aluno vê 10 em vez de 26,
-e os 10 cabem na tela com o teclado aberto. Marco novo: "Um painel só, e o chat sem bagunça".
+tecla, um ✕), a **árvore de comandos filtra por PAPEL** (o aluno vê 10 em vez de 26, todos à
+vista com o teclado aberto) e no painel do dedo **LISTA ganha de digitação** — `/tpp` mostra a
+turma, `/tpa` mostra só QUEM PEDIU (mensagem nova `tp_pedidos`). Marco: "Um painel só, e o chat
+sem bagunça".
 **O resto da lista de teste de 10/10 segue sem ter sido visto em tela** (machado/pá, logs, loja,
 ids de 16 bits) — `TODO.md`.
 
@@ -48,6 +50,10 @@ bloco. Atrás: `bench:headless` dos ids de 16 bits, ovelha+lã (§🍖 F8), cade
   gates checados contra uma sessão de VERDADE. Sondas: `toque` mede a caixa de comandos contra a
   linha do teclado (280/460/600px, deitado e em pé) e `amigos` ganhou a visão da ALUNA (10 de 10
   à vista, zero comando de professor). **A queixa "botões atrás do teclado" NÃO era geometria.**
+  Depois: regra "lista ganha de digitação" no painel do dedo e `tp_pedidos` (o servidor avisa
+  quem pediu teleporte, e o `/tpa` só lista esses; a lista só abre com 2+ pedidos). Achados na
+  varredura do próprio lote: o 📋/tecla P FECHAVAM o painel em vez de trocar de aba (`8078681`),
+  e a barra de abas do aluno não tinha sonda (`22ba7b5`).
 - **13/10 (presença — 2 consertos + marco):** **posse do nome** (bug-672, `c237b88`) e
   **silêncio por perguntas** (bug-675 sobra, `dcd599e`) — controle negativo + smoke em host real;
   marco "Seu nome volta com você". O portão do ids16 parou de depender de `server/world.ljw`.
