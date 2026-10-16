@@ -530,7 +530,11 @@ function painelDoCp14Liberado(): boolean {
 function alternarPainelCp14(): void {
   if (!paineis.podeAlternar(paineis.cp14)) return;
   if (!painelDoCp14Liberado()) return;
-  paineis.cp14?.toggle();
+  // `trocarParaPainel` e não `toggle()` (2026-10-15): com o painel ABERTO na
+  // aba de amigos, o `toggle` fechava — o aluno tocava no 📋 "pra ver a aula" e
+  // a tela sumia. A regra é UMA pras três portas (tecla, 📋 e `/painel`): a
+  // porta da aba que você está vendo FECHA, a de outra aba TROCA.
+  paineis.trocarParaPainel();
 }
 
 /** `/painel` sem subcomando abre/fecha o painel NO CLIENTE (molde do `/amigos`,

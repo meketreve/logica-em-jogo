@@ -359,6 +359,23 @@ const voltou = await avaliar(`(() => {
 })()`);
 ok(/grupo de ana/.test(voltou ?? ""), "e voltar pra aba de amigos reencontra o grupo de ana intacto");
 await foto("amigos-abas-aluna.png");
+// UMA REGRA PRAS TRÊS PORTAS (2026-10-15): a porta da aba que está à vista
+// FECHA, a de outra aba TROCA. Antes da unificação cada porta abria um painel
+// diferente, então "a tecla P fecha o painel" era sempre certo; com abas, P
+// (e o 📋) com a aba de amigos na tela fechava a tela que o aluno acabara de
+// pedir. A aba de amigos está à vista agora (o `voltou` acima).
+await tecla("KeyP");
+await espera(400);
+const pTrocou = await avaliar(`(() => {
+  const p = document.getElementById('painel');
+  if (!p || p.classList.contains('hidden')) return 'FECHOU';
+  return p.querySelector('[data-aba].aba-ativa')?.dataset.aba ?? 'sem aba';
+})()`);
+ok(pTrocou === "aula", `a tecla P com a aba de amigos à vista TROCA pra aula (${pTrocou})`);
+await tecla("KeyP");
+await espera(400);
+const pFechou = await avaliar(`document.getElementById('painel')?.classList.contains('hidden')`);
+ok(pFechou === true, "e a tecla P na aba que já está à vista fecha o painel");
 await tecla("Escape");
 await espera(400);
 

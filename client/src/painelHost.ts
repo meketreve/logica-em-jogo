@@ -14,7 +14,11 @@ interface MenuDeTela {
  *  Tocar na porta da aba que já está à vista FECHA (é o que a tecla sempre
  *  fez); na de outra aba, TROCA sem fechar. */
 function alternarAba(p: GamePanel, aba: string): void {
-  if (p.open && p.abaVisivel === aba) p.hide();
+  // ⚠️ compara com a aba RESOLVIDA, não com a pedida: a aba da aula não existe
+  // sem grupos (ver `abas()` do GroupPanel), e aí pedir "aula" mostra a de
+  // amigos. Comparar com o pedido deixaria a porta só ABRINDO — o painel nunca
+  // fecharia na segunda vez, porque "aula" nunca seria a aba à vista.
+  if (p.open && p.abaVisivel === p.abaResolvida(aba)) p.hide();
   else p.abrirNaAba(aba);
 }
 

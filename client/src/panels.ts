@@ -57,6 +57,8 @@ export interface GamePanel {
   readonly open: boolean;
   /** Qual aba está à vista ("" se o painel nem existe ainda). */
   readonly abaVisivel: string;
+  /** Qual aba este id MOSTRARIA de verdade (a pedida, ou a 1ª se ela não existe). */
+  abaResolvida(id: string): string;
   toggle(): void;
   /** Abre o painel JÁ nesta aba (ou só troca de aba, se já estiver aberto). */
   abrirNaAba(id: string): void;
@@ -176,6 +178,11 @@ abstract class Panel implements GamePanel {
 
   get abaVisivel(): string {
     return this.abaAtual(this.abas())?.id ?? "";
+  }
+
+  abaResolvida(id: string): string {
+    const abas = this.abas();
+    return (abas.find((a) => a.id === id) ?? abas[0])?.id ?? "";
   }
 
   /** A aba à vista agora (a pedida, se ainda existir; senão a primeira). */
