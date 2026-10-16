@@ -1,5 +1,5 @@
 ---
-updated: 2026-10-15
+updated: 2026-10-16
 tier: 3
 ---
 
@@ -10,7 +10,7 @@ tier: 3
 ## Comandos
 
 <!-- auto:start -->
-gerado em: 2026-10-15
+gerado em: 2026-10-16
 
 | Ação | Comando |
 |---|---|

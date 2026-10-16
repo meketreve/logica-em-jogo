@@ -1,5 +1,5 @@
 ---
-updated: 2026-10-15
+updated: 2026-10-16
 tier: 3
 active: true
 ---
@@ -11,45 +11,42 @@ active: true
 
 ## Agora
 
-- [ ] **1º bloco de circuito lógico** — BLOQUEADO: perguntar ao usuário QUAL bloco e como ele
-      funciona na aula, antes de codar.
+- [ ] **§🔌 o OBJETIVO que CHECA o circuito** — a 2ª metade do pedido ("acender com a combinação
+      certa" + objetivo verificável). Tipo novo em `shared/src/session/cenario.ts`, no molde de
+      construir/chegar, com progresso por grupo → **verify:** teste de sessão que fecha o
+      objetivo ao acender a lâmpada e NÃO fecha com uma alavanca só.
 
 ## Testar na escola (o usuário faz; aula de 10/10 cobriu parte)
 
-- [ ] **Lote de 15/10 (o painel e o chat):** no tablet, abrir o chat e conferir se a lista de
-      comandos do ALUNO (10) aparece inteira **sem rolar e sem ficar atrás do teclado** — era a
-      queixa. Se AINDA ficar escondida, a causa não é a lista: anotar se o CAMPO de digitar
-      também some (aí o `--kb` do aparelho é que está errado, `chat.ts`) e em qual orientação.
-      Conferir também o painel unificado: tecla G / botão 👥 / `/amigos` têm de abrir o MESMO
-      painel na aba "amigos", e o professor tem de ver as abas "autoria" e "amigos".
+- [ ] **§🔌 CIRCUITO (16/10), o mais novo:** fabricar as quatro peças na bancada; montar
+      alavanca→fio→lâmpada e ver acender; montar a porta E com duas alavancas e conferir que só
+      acende com as DUAS. No tablet: a alavanca é fácil de acertar com o dedo (ela tem 12/16 de
+      altura) e dá pra distinguir ligada de desligada **de longe**? E em mundo com proteção
+      ligada, o aluno sem terreno tem de ser barrado com a frase do chat.
 
-- [ ] **Lote de 10/10:** fechar o servidor com Ctrl+C num mundo cheio e reabrir (o mundo tem de
-      voltar inteiro); e, no singleplayer de um navegador que já jogava, ver o botão
-      **restaurar** no mundo convertido.
+- [ ] **Lote de 15/10:** no tablet, a lista de comandos do ALUNO (10) tem de caber **sem rolar e
+      sem sumir atrás do teclado**. Se ainda sumir, anotar **se o CAMPO de digitar some junto**
+      (aí é o `--kb` do aparelho, em `chat.ts`) e a orientação. E o painel unificado: G / 👥 /
+      `/amigos` abrem o MESMO painel na aba "amigos".
 
-- [ ] **§🪓 machado e pá:** fabricar os dois (machado = 3 do material + 2 gravetos, pá = 1 + 2);
-      sentir se derrubar árvore **de mão nua** ficou chato demais pra turma (dobrou pra 1,5 s —
-      é uma linha só do `DUREZA` em `shared/src/ferramentas.ts` se precisar afrouxar); ver se os
-      ícones se distinguem do da picareta em 1024×600.
+- [ ] **Lote de 10/10:** Ctrl+C num mundo cheio e reabrir (tem de voltar inteiro); e o botão
+      **restaurar** no mundo convertido do singleplayer.
+- [ ] **§🪓 machado e pá:** fabricar os dois; sentir se derrubar árvore de MÃO NUA ficou chato
+      (1,5 s — uma linha do `DUREZA` em `ferramentas.ts`); ícones distinguíveis a 1024×600.
 - [ ] **Heartbeat (bug-675) — AINDA ABERTO, o mais importante:** aula de 10/10 com turma cheia:
       as quedas **diminuíram mas não zeraram**. Falta saber da próxima vez: quantos caíram, se
       viram o MOTIVO na tela, e se cai sempre o mesmo aparelho (tablet no Wi-Fi) — a sobra pode
       ser outra causa, não o heartbeat. *(13/10: a sobra do host abaixo do limiar de 8 s foi
       endurecida — queda por silêncio agora exige 3 perguntas de verdade; a observação em aula
       continua valendo.)*
-- [ ] **Logs (não lidos ainda):** depois de uma aula, abrir `mundos/<nome>/logs/` — tem de haver o par com data e
-      hora, o `-chat.log` só com fala de gente e pequeno o bastante pra ler.
-- [ ] **Presença (bug-672):** fechar o navegador do tablet e reentrar com o mesmo nome — 13/10: com
-      o PIN certo a volta agora é **na hora** (tomada de posse; o fantasma cai e o socket antigo é
-      fechado) — conferir em aula. Minimizar por mais de 15 s pra ver o nome liberar sozinho;
-      conferir se 15 s não derruba ninguém no Wi-Fi da escola (é um número só, em `constants.ts`).
-- [ ] **Loja:** preço de ITEM (pão, trigo, picareta) **e reabrir o mundo depois** — era na
-      releitura do save que o preço sumia. Loja cheia no tablet.
-- [ ] **Ids de 16 bits:** abrir o mundo salvo da turma no host (tem de nascer
-      `<nome>.antes-ids16.ljw`) e um mundo do singleplayer num navegador que já jogava.
-- [ ] **Cama/torre:** deitar de perto e de longe e levantar com o pular; torre de pular+colocar
-      no Wi-Fi da escola (é onde a latência do bug-652 aparece de verdade).
-- [ ] **bug-650:** confirmar em aula com turma cheia (só localhost até agora).
+- [ ] **Logs (não lidos ainda):** `mundos/<nome>/logs/` — o par com data/hora, e o `-chat.log` só
+      com fala de gente.
+- [ ] **Presença (bug-672):** fechar o navegador e reentrar com o mesmo nome (a volta tem de ser
+      NA HORA); e conferir se os 15 s não derrubam ninguém no Wi-Fi da escola (`constants.ts`).
+- [ ] **Loja:** preço de ITEM **e reabrir o mundo** (era na releitura do save que sumia).
+- [ ] **Ids de 16 bits:** abrir o mundo da turma no host (tem de nascer `<nome>.antes-ids16.ljw`).
+- [ ] **Cama/torre:** deitar perto e longe, levantar pulando; torre de pular+colocar no Wi-Fi da
+      escola (onde a latência do bug-652 aparece). E o **bug-650** com turma cheia.
 
 ## Depois
 

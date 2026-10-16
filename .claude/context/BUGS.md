@@ -1,5 +1,5 @@
 ---
-updated: 2026-10-15
+updated: 2026-10-16
 tier: 3
 ---
 
@@ -11,6 +11,34 @@ tier: 3
      Convertido de `.wolf/buglog.json` em 2026-09-25 (mesmo conteúdo, formato do
      modelo). São bugs ESCRITOS À MÃO: nada de detector automático — ele já encheu
      o arquivo de 148 entradas falsas uma vez, e elas foram podadas junto. -->
+
+## 2026-10-16 — receita nova no MEIO do índice trocou a fornalha de todo mundo
+- **Sintoma:** smoke `fornalha` vermelho em 11 asserções, a primeira sendo `✗ nasceu 1 fornalha (0)` — a ana tinha os 8 pedregulhos, pedia a fornalha na bancada e não saía nada.
+- **Onde:** `shared/src/receitas.ts` (as 4 receitas do §🔌 acrescentadas no fim do array `MATERIAIS`, que é o 2º de nove na composição de `RECEITAS`)
+- **Causa:** o ÍNDICE da receita é a identidade dela no protocolo (o cliente manda "fabricar a receita n"). Inserir no meio empurrou todas as seguintes uma casa — o aluno pedia uma coisa e recebia a vizinha. O arquivo já avisava disso num comentário da receita APOSENTADA do vidro, que existe só pra não deslocar as picaretas logo abaixo.
+- **Correção:** lista própria `CIRCUITOS`, entrando por ÚLTIMO em `RECEITAS`, com o porquê escrito em cima dela.
+- **Tags:** receitas, indice, protocolo, smoke, fornalha, circuito, corrigido
+
+## 2026-10-16 — o ▣ oferecia "colocar" em cima da alavanca (e o aluno punha bloco em vez de acionar)
+- **Sintoma:** na sonda, `✗ mirando a alavanca, o ▣ se oferece pra INTERAGIR (colocar)`. No tablet isso seria: tocar na alavanca planta um bloco na frente dela e o circuito nunca liga.
+- **Onde:** `client/src/main.ts: ehInterativo` (fonte única do rótulo do ▣ e do gesto de clique direito)
+- **Causa:** o bloco novo entrou no servidor (`use_block` trata a alavanca) e não na lista do cliente — o par clássico de "duas listas do mesmo conjunto". O servidor sabia; a barra do dedo, não.
+- **Correção:** `isAlavanca` entrou no `ehInterativo`. Quem achou foi a sonda medindo o RÓTULO do botão, não o olho.
+- **Tags:** circuito, alavanca, toque, interagir, ui, corrigido
+
+## 2026-10-16 — fio e alavanca saíam CUBO CHEIO (o fio virava parede na mesa)
+- **Sintoma:** no print da sonda, as três peças apareciam como cubos de 1×1×1; o fio, uma parede vermelha atravessando a bancada. Nenhum teste reprovou — a lógica estava certa e só o desenho estava errado.
+- **Onde:** `shared/src/blocks.ts: isFullCube`
+- **Causa:** o mesher só chama `emitShape` pra quem NÃO é cubo cheio (`if (!isFullCube(id))`). As formas novas existiam no `emitShape` e nunca eram alcançadas.
+- **Correção:** fio e alavanca fora do `isFullCube`. Junto: a alavanca de 8/16 de altura passava POR BAIXO da mira (o olho fica em pé+1,6) e virou 12/16.
+- **Tags:** circuito, mesher, forma, isFullCube, mira, corrigido
+
+## 2026-10-15 — o 📋 e a tecla P FECHAVAM o painel em vez de trocar de aba
+- **Sintoma:** com o painel aberto na aba "amigos", tocar no 📋 (ou apertar P) fazia a tela sumir. Tocar de novo abria na aula — então parecia o jogo piscando, não defeito.
+- **Onde:** `client/src/main.ts: alternarPainelCp14` (chamava `toggle()` cego) e `client/src/painelHost.ts: alternarAba`
+- **Causa:** a unificação do painel de amigos deu ABAS ao painel, e três portas (tecla, botão do dedo, comando) ficaram com duas regras diferentes — `/amigos` e `/painel` trocavam de aba, a tecla e o botão ainda fechavam. Latente junto: o `alternarAba` comparava com a aba PEDIDA e não com a RESOLVIDA, então uma porta pra aba que não existe (a "aula" sem grupos) só abriria, nunca fecharia.
+- **Correção:** uma regra pras três portas — a porta da aba À VISTA fecha, a de OUTRA aba troca —, comparando com `abaResolvida`. Portão: `amigos-shot` assevera as duas metades.
+- **Tags:** painel, abas, toque, tecla, regressao, corrigido
 
 ## 2026-10-13 — o pre-push era IGNORADO: hook versionado sem bit de execução
 - **Sintoma:** `git push` publicava SEM rodar o `verify`, com o aviso baixinho do git: `hint: The 'scripts/git-hooks/pre-push' hook was ignored because it's not set as executable.`
