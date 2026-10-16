@@ -47,6 +47,7 @@ const MUDANCAS: readonly Mudanca[] = [
     itens: [
       "o painel de AMIGOS virou uma aba do seu painel: a aula e os amigos moram no mesmo lugar, com a mesma tecla, o mesmo botão e o mesmo \u2715 fechar — nada de dois painéis parecidos pra decorar",
       "no tablet, os botões de comando que aparecem quando você abre o chat passaram a mostrar SÓ os comandos que são seus: eram 26 para todo mundo, e os que a turma pode usar ficavam espalhados no meio (alguns só rolando a lista) — agora são 10, e todos cabem na tela mesmo com o teclado aberto",
+      "e os botões ficaram mais espertos: tocar num comando que precisa do nome de alguém (como /tpp, pedir teleporte até um colega) agora mostra a LISTA de quem está na aula — é só tocar no nome, sem digitar nada",
       "ver a hora, o modo de jogo ou as regras virou UM toque: antes o botão abria uma lista de opções que o servidor ia recusar de você",
       "o professor continua com a lista inteira, e os comandos de dar aula vêm primeiro",
     ],

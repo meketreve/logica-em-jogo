@@ -43,6 +43,7 @@ tier: 3
 ## Erros a não repetir
 
 - [2026-10-15] [ui] [✓] Painel com ABAS: a porta da aba que está À VISTA fecha, a de OUTRA aba troca — uma regra pras três portas (tecla, botão do dedo, comando). `toggle()` cego fechava a tela que o aluno tinha acabado de pedir; e comparar com a aba PEDIDA (não com a resolvida) deixa a porta só abrindo quando a aba não existe.
+- [2026-10-15] [comandos] [✓] No painel do dedo, LISTA ganha de digitação: nó com candidatos vira NÍVEL (a turma em `/tpp`, `/amigos convidar`, `/expulsar`), e `preencher` só sobra onde ninguém pode listar (id e quantidade do `/dar`, sala vazia). Mandar o aluno pro teclado é o que o painel existe pra evitar.
 - [2026-10-15] [comandos] [✓] A árvore de comandos mora no SHARED (`comandos.ts`), ao lado do gate de `runCommand`: é o único lugar onde `npm test` roda, e o portão de paridade lê a lista do "Comando desconhecido" — comando novo no servidor sem entrada na tabela reprova no mesmo commit.
 - [2026-10-15] [sonda] [✗] Contar botão ROLADO pra fora da caixa como "atrás do teclado" — a caixa de comandos rola de propósito desde 2026-08-14; o que se mede é o FUNDO DA CAIXA contra a linha do teclado.
 - [2026-10-15] [mobile] [✓] "Botão escondido atrás do teclado" era LISTA, não geometria: com teclado de 280, 460 e 600px, deitado e em retrato, a caixa sempre terminou acima do teclado — o que sumia eram os comandos do aluno no meio dos 26 do professor.

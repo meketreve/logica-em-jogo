@@ -164,6 +164,62 @@ describe("o que o aluno VÊ no painel do dedo", () => {
   });
 });
 
+describe("LISTA ganha de digitação (pedido do usuário, 2026-10-15)", () => {
+  /** A turma online, que é o que o cliente sabe e a tabela não. */
+  const turma = { mundos: [], jogadores: ["bia", "caio"] };
+
+  it("/tpp abre a LISTA da turma em vez de mandar digitar o nome", () => {
+    // era `preencher`: o painel punha "/tpp " no campo e devolvia o aluno pro
+    // teclado — justamente o que o painel existe pra evitar
+    expect(destinoDeToquePara(["/tpp"], "aluno", turma)).toBe("nivel");
+    expect(candidatosPara(["/tpp"], "aluno", turma)).toEqual(["bia", "caio"]);
+    expect(destinoDeToquePara(["/tpp", "bia"], "aluno", turma)).toBe("enviar");
+  });
+
+  it("o mesmo vale pros convites de amigos", () => {
+    expect(destinoDeToquePara(["/amigos", "convidar"], "aluno", turma)).toBe("nivel");
+    expect(candidatosPara(["/amigos", "convidar"], "aluno", turma)).toEqual(["bia", "caio"]);
+    expect(destinoDeToquePara(["/amigos", "convidar", "bia"], "aluno", turma)).toBe("enviar");
+  });
+
+  it("e pros comandos de nome do professor", () => {
+    for (const cmd of ["expulsar", "redefinirpin"]) {
+      expect(destinoDeToquePara([`/${cmd}`], "professor", turma)).toBe("nivel");
+      expect(destinoDeToquePara([`/${cmd}`, "bia"], "professor", turma)).toBe("enviar");
+    }
+    expect(destinoDeToquePara(["/modo", "criativo"], "professor", turma)).toBe("nivel");
+    expect(candidatosPara(["/modo", "criativo"], "professor", turma)).toEqual([
+      "eu",
+      "all",
+      "bia",
+      "caio",
+    ]);
+  });
+
+  it("SEM ninguém online o painel volta a preencher — não há o que listar", () => {
+    // o fallback é o ponto: lista vazia não pode virar um nível vazio, que é um
+    // beco sem saída no meio do comando
+    expect(destinoDeToquePara(["/tpp"], "aluno")).toBe("preencher");
+    expect(destinoDeToquePara(["/amigos", "convidar"], "aluno")).toBe("preencher");
+  });
+
+  it("o que NINGUÉM pode listar continua digitado (id e quantidade do /dar)", () => {
+    expect(destinoDeToquePara(["/dar"], "professor", turma)).toBe("nivel"); // eu/all/turma
+    expect(destinoDeToquePara(["/dar", "eu"], "professor", turma)).toBe("preencher");
+  });
+
+  it("/tpa segue inteiro de um toque (aceita o pedido mais recente)", () => {
+    expect(destinoDeToquePara(["/tpa"], "aluno", turma)).toBe("enviar");
+  });
+
+  it("tocar em /terreno troca os botões pelas opções DELE, filtradas", () => {
+    expect(destinoDeToquePara(["/terreno"], "aluno", turma)).toBe("nivel");
+    expect(candidatosPara(["/terreno"], "aluno", turma)).toEqual(["criar", "remover", "lista"]);
+    expect(candidatosPara(["/terreno"], "professor", turma)).toContain("ligar");
+    expect(destinoDeToquePara(["/terreno", "lista"], "aluno", turma)).toBe("enviar");
+  });
+});
+
 describe("o papel muda o que um TOQUE faz", () => {
   it("/hora é um toque só pro aluno e um nível pro professor", () => {
     // é o ponto todo do filtro: consultar a hora não deve custar dois toques e
@@ -191,8 +247,8 @@ describe("o papel muda o que um TOQUE faz", () => {
     }
   });
 
-  it("/tpp pede nome pros dois (mandar sem nome é erro de uso)", () => {
-    expect(destinoDeToquePara(["/tpp"], "aluno")).toBe("preencher");
+  it("/tpa é inteiro sozinho; /tpp com a sala vazia cai no campo", () => {
     expect(destinoDeToquePara(["/tpa"], "aluno")).toBe("enviar");
+    expect(destinoDeToquePara(["/tpp"], "aluno")).toBe("preencher"); // ninguém online
   });
 });

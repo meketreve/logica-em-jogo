@@ -435,6 +435,36 @@ if (cmd && typeof cmd === "object") {
   );
 }
 await foto("amigos-comandos-aluna.png");
+// LISTA GANHA DE DIGITAÇÃO (pedido do usuário): tocar num comando que pede NOME
+// tem de trocar os botões pela TURMA, não jogar o aluno de volta no teclado.
+const toqueNoPainel = (nome) =>
+  avaliar(`(() => {
+    const p = document.getElementById('chat-painel');
+    const b = [...p.querySelectorAll('button')].find(e => e.textContent === ${JSON.stringify(nome)});
+    if (!b) return 'sem botao ' + ${JSON.stringify(nome)};
+    b.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true, cancelable: true }));
+    return 'ok';
+  })()`);
+const rotulos = () =>
+  avaliar(`[...document.querySelectorAll('#chat-painel button')].map(b => b.textContent)`);
+ok((await toqueNoPainel("/tpp")) === "ok", "tocou em /tpp no painel de comandos");
+await espera(400);
+const apos = (await rotulos()) ?? [];
+ok(
+  apos.includes("bia") && apos.includes("caio"),
+  `o /tpp trocou os botões pela TURMA (${apos.join(" ")})`,
+);
+const campo = await avaliar(`document.getElementById('chat-input')?.value ?? ''`);
+ok(campo === "", `e não jogou o aluno de volta no teclado (campo: "${campo}")`);
+ok(apos.includes("/tpp"), "o caminho navegado fica à mostra pra voltar atrás");
+// tocar no NOME manda o comando inteiro
+ok((await toqueNoPainel("bia")) === "ok", "tocou no nome da colega");
+await espera(700);
+const pediu = await avaliar(
+  `[...document.querySelectorAll('#chat-log .msg')].some(d => /teleport|pedido|bia/i.test(d.textContent || ''))`,
+);
+ok(pediu === true, "o toque no nome ENVIOU /tpp bia (o servidor respondeu)");
+await foto("amigos-comandos-tpp.png");
 await avaliar(`document.documentElement.style.removeProperty('--kb')`);
 
 console.log(excecoes.length ? `✗ exceções: ${excecoes.join(" | ")}` : "✓ sem exceção no console");

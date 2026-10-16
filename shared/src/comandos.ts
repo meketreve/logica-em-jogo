@@ -204,14 +204,39 @@ export function candidatosPara(
 export type DestinoDeToque = "enviar" | "nivel" | "preencher";
 
 /**
+ * Nós que ficam INCOMPLETOS sem um argumento digitado (um id, uma quantidade,
+ * um nome que não está online). Só valem quando NÃO há lista pra mostrar —
+ * havendo lista, quem manda é a lista.
+ */
+function exigeArgumento(cmd: string, caminho: string[]): boolean {
+  const sub = caminho[1] ?? "";
+  if (caminho.length === 1) return CMD_COM_NOME.has(cmd) || cmd === "dar";
+  if (caminho.length === 2) {
+    if (cmd === "dar") return true; // §🍖 F4: /dar <alvo> <id> <qtd> — o id é digitado
+    if (cmd === "amigos") return AMIGOS_COM_NOME.has(sub);
+    if (cmd === "modo") return sub === "criativo" || sub === "sobrevivencia";
+  }
+  return false;
+}
+
+/**
  * Dado o caminho já navegado (o 1º item tem a barra: ["/tpp"]):
+ *  - `nivel`  — há o que ESCOLHER no próximo passo (subcomando fixo, nome de
+ *    quem está online, mundo, regra): o painel troca os botões pelas opções
+ *    daquele comando;
  *  - `enviar` — comando inteiro, manda na hora;
- *  - `nivel`  — ainda há subcomando pra escolher (abre o próximo nível);
- *  - `preencher` — o próximo argumento é um NOME (jogador/regra/modo), então o
- *    painel preenche o campo pra digitar o resto (o tap não manda sozinho —
- *    mandar "/tpp" sem nome é erro de uso no servidor).
+ *  - `preencher` — falta um argumento que NINGUÉM pode listar (um id de item,
+ *    uma quantidade, o nome de quem não está online): o painel põe o começo no
+ *    campo e o aluno digita o resto.
  *
- * O PAPEL muda o destino, e é o ponto todo do filtro: `/hora` tem seis
+ * **A regra é "lista ganha de digitação"** (pedido do usuário, 2026-10-15:
+ * *"para comandos como /tpp quero que apareça a lista de alunos para facilitar
+ * o uso"*). Antes, todo comando que pedia NOME caía em `preencher` — `/tpp`
+ * botava "/tpp " no campo e devolvia o aluno pro teclado, que é justamente o
+ * que o painel existe pra evitar. Agora qualquer nó que tenha candidatos vira
+ * um NÍVEL, e `preencher` só sobra onde não há o que listar.
+ *
+ * O PAPEL muda o destino, e é parte do mesmo ponto: `/hora` tem seis
  * subcomandos pro professor (`nivel`) e nenhum pro aluno, pra quem consultar a
  * hora é um comando inteiro de UM toque (`enviar`).
  */
@@ -221,27 +246,13 @@ export function destinoDeToquePara(
   vivo: ContextoVivo = SEM_CONTEXTO,
 ): DestinoDeToque {
   const cmd = (caminho[0] ?? "").replace(/^\//, "");
-  if (caminho.length === 1) {
-    if (cmd === "tpa") return "enviar"; // aceita o pedido mais recente — inteiro
-    if (cmd === "dar") return "preencher"; // §🍖 F4: /dar <nome> <id> — nome 1º
-    if (CMD_COM_NOME.has(cmd)) return "preencher"; // expulsar/redefinirpin/tpp pedem nome
-    if (cmd === "tp") return "nivel"; // abre a lista: grupos + quem está online
-    if (subcomandosPara(cmd, papel).length) return "nivel"; // há subcomando pra escolher
-    return "enviar"; // /iniciar, /hora do aluno, /mundo atual… sem próximo token
-  }
-  if (caminho.length === 2) {
-    const sub = caminho[1] ?? "";
-    if (cmd === "tpa") return "enviar"; // /tpa nome aceita o pedido DAQUELE nome
-    if (cmd === "dar") return "preencher"; // /dar eu <id> <qtd> ainda tem o id
-    if (cmd === "tp") return "enviar"; // /tp grupos ou /tp <nome> — inteiros
-    if (cmd === "amigos" && AMIGOS_COM_NOME.has(sub)) return "preencher";
-    if (cmd === "modo" && (sub === "criativo" || sub === "sobrevivencia")) {
-      return "preencher"; // /modo <modo> <eu|all|nome>
-    }
-    // o nível 3 do /regra é só do professor: pro aluno `/regra <nome>` é inteiro
-    if (nivel3Para(cmd, sub, papel, vivo).length) return "nivel";
-    return "enviar"; // /regiao lista, /amigos lista, /grupo criar… inteiros
-  }
+  // `/tpa` é a exceção declarada: sozinho ele já ACEITA o pedido mais recente,
+  // então listar nomes custaria um toque a mais no gesto mais comum. Com nome
+  // (`/tpa bia`) ele aceita o daquela pessoa — e esse caminho continua vindo
+  // da lista, porque `candidatosPara` oferece os nomes a quem digita.
+  if (cmd === "tpa") return "enviar";
+  if (candidatosPara(caminho, papel, vivo).length) return "nivel";
+  if (exigeArgumento(cmd, caminho)) return "preencher";
   return "enviar";
 }
 
