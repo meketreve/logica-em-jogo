@@ -57,14 +57,11 @@ bloco. Atrás: `bench:headless` dos ids de 16 bits, ovelha+lã (§🍖 F8), cade
 - **13/10 (presença — 2 consertos + marco):** **posse do nome** (bug-672, `c237b88`) e
   **silêncio por perguntas** (bug-675 sobra, `dcd599e`) — controle negativo + smoke em host real;
   marco "Seu nome volta com você". O portão do ids16 parou de depender de `server/world.ljw`.
-- **10/10 (lote de 4 + aula real):** launchers com `node --import tsx` (bug-666); ▣ com
-  `data-acao` (bug-676); botão "restaurar" (`shots:restaurar`); A/B dos ids de 16 bits no codec
-  (.ljw +0,02%, decode 5,1→6,9 ms); as 17 sondas matam o Chrome pelo GRUPO — **bateria 17/17
-  verde, duas vezes**. Na aula: quebra v2, cama/porta e voo aprovados.
-- **05/10:** bug-675 (heartbeat derrubava a turma quando o HOST parava; sonda `shots:queda`),
-  bug-674 (voo voltava desligado) e os **logs de sessão** separados (`-chat` × `-eventos`).
-- **17-28/09:** `/contexto` nos TIERS; bug-673 (sha do HEAD desarmava o portão do dist); §🔨
-  ferramentas v2, §🪓 machado e pá, bug-672 e bug-671.
+- **10/10:** launchers com `node --import tsx` (bug-666), ▣ com `data-acao` (bug-676), botão
+  "restaurar", A/B dos ids16 no codec (.ljw +0,02%), sondas matando o Chrome pelo GRUPO —
+  **bateria 17/17 verde**. Na aula: quebra v2, cama/porta e voo aprovados.
+- **05/10 e 17-28/09:** bug-675 (host parado derrubava a turma), bug-674, logs separados;
+  `/contexto` nos TIERS, bug-673, §🔨 ferramentas v2, §🪓 machado e pá, bug-672 e bug-671.
 
 ## Bruto do git (auto — não editar)
 
