@@ -31,13 +31,6 @@ export interface ComandoDef {
   nome: string;
   /** Quem pode USAR (o gate do servidor é a verdade). */
   de: DonoDeComando;
-  /**
-   * Por que o aluno vê um comando cujo subcomando é todo do professor
-   * (`/hora`, `/modo`, `/regra`, `/pvp`): porque CONSULTAR é de todos — o
-   * servidor só exige professor quando vem argumento (`parts.length > 1`).
-   * Para o aluno eles são comandos INTEIROS, de um toque.
-   */
-  consulta?: true;
 }
 
 /**
@@ -57,10 +50,15 @@ const COMANDOS: ComandoDef[] = [
   { nome: "terreno", de: "todos" },
   { nome: "tpp", de: "todos" },
   { nome: "tpa", de: "todos" },
-  { nome: "hora", de: "todos", consulta: true },
-  { nome: "modo", de: "todos", consulta: true },
-  { nome: "regra", de: "todos", consulta: true },
-  { nome: "pvp", de: "todos", consulta: true },
+  // Estes quatro são "de todos" porque CONSULTAR é de todos: o servidor só
+  // exige professor quando vem argumento (`parts.length > 1` no `runCommand`).
+  // Quem corta o argumento pro aluno é o `SUB_SO_PROFESSOR` abaixo — e é lá que
+  // mora a diferença do `/regra`, cujo 2º token (o nome da regra) ainda é
+  // consulta e só o 3º (`ligar`/`desligar`) é do professor.
+  { nome: "hora", de: "todos" },
+  { nome: "modo", de: "todos" },
+  { nome: "regra", de: "todos" },
+  { nome: "pvp", de: "todos" },
   // --- só do professor ---
   { nome: "objetivo", de: "professor" },
   { nome: "regiao", de: "professor" },

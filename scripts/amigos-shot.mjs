@@ -105,11 +105,13 @@ if (!(await esperaPorta(PORTA_WS))) {
 
 /** Aluna de mentira: entra, se mexe (é o `move` que ensina o nome aos outros)
  *  e obedece comandos de chat que o script mandar. */
-function aluna(name, pin) {
+function aluna(name, pin, codigo) {
   const ws = new WebSocket(`ws://localhost:${PORTA_WS}`);
   ws.binaryType = "arraybuffer";
   const rec = { ws, chats: [] };
-  ws.onopen = () => ws.send(JSON.stringify({ type: "join", name, pin }));
+  // `codigo` promove a PROFESSORA (session.ts: authenticate) — é o que permite
+  // criar grupos de aula sem um segundo navegador
+  ws.onopen = () => ws.send(JSON.stringify({ type: "join", name, pin, ...(codigo ? { codigo } : {}) }));
   ws.onmessage = (e) => {
     if (e.data instanceof ArrayBuffer) return;
     const m = JSON.parse(e.data);
@@ -130,6 +132,7 @@ function aluna(name, pin) {
 }
 const bia = aluna("bia", "2222");
 const caio = aluna("caio", "3333");
+const dani = aluna("dani", "4444", "prof2026"); // a professora da seção D
 await espera(1500);
 
 // --- navegador como "ana" ---
@@ -317,6 +320,48 @@ ok(
 );
 await foto("amigos-grupo.png");
 
+console.log("== D: com grupos de aula, a ALUNA ganha a BARRA DE ABAS (2026-10-15) ==");
+// O caminho que nenhuma sonda via: a barra de abas do ALUNO. O `toque-shot`
+// mede o painel do PROFESSOR (autoria|amigos) e a seção A acima mede a aluna
+// SEM grupos, que tem uma aba só — de propósito, porque uma aba "aula" que só
+// sabe dizer "o professor ainda não criou grupos" é um beco. Faltava o meio:
+// aluna COM grupos, que é o estado de toda aula de verdade.
+dani.cmd("/grupo criar 2");
+await espera(1200);
+const abas = await avaliar(`(() => {
+  const p = document.getElementById('painel');
+  if (!p || p.classList.contains('hidden')) return 'painel fechado';
+  const bs = [...p.querySelectorAll('.painel-abas [data-aba]')];
+  return { ids: bs.map(b => b.dataset.aba), ativa: bs.find(b => b.classList.contains('aba-ativa'))?.dataset.aba ?? null };
+})()`);
+ok(
+  abas && abas.ids && abas.ids.join(",") === "aula,amigos",
+  `a barra tem as duas abas, a da aula primeiro (${abas?.ids?.join(",") ?? abas})`,
+);
+ok(abas?.ativa === "amigos", `e a aba de AMIGOS continua a que está à vista (${abas?.ativa})`);
+// trocar de aba NÃO fecha o painel nem perde o grupo de amigos montado em B
+const trocou = await avaliar(`(() => {
+  document.querySelector('#painel [data-aba="aula"]')?.click();
+  const p = document.getElementById('painel');
+  return {
+    aberto: !p.classList.contains('hidden'),
+    ativa: p.querySelector('[data-aba].aba-ativa')?.dataset.aba ?? null,
+    texto: p.innerText,
+  };
+})()`);
+ok(trocou?.ativa === "aula", `o toque na aba "aula" trocou de aba (${trocou?.ativa})`);
+ok(trocou?.aberto === true, "e o painel continuou aberto (é troca de aba, não fechar e abrir)");
+ok(/grupo 1/.test(trocou?.texto ?? ""), "a aba da aula mostra os grupos que a professora criou");
+const voltou = await avaliar(`(() => {
+  document.querySelector('#painel [data-aba="amigos"]')?.click();
+  const p = document.getElementById('painel');
+  return p.innerText;
+})()`);
+ok(/grupo de ana/.test(voltou ?? ""), "e voltar pra aba de amigos reencontra o grupo de ana intacto");
+await foto("amigos-abas-aluna.png");
+await tecla("Escape");
+await espera(400);
+
 console.log("== C: o painel de comandos do chat visto por um ALUNO (2026-10-15) ==");
 // Por que AQUI e não no `toque-shot`: a ana desta sonda é a única cliente de
 // navegador do projeto que entra SEM o código de professor — ou seja, a única
@@ -377,7 +422,7 @@ await avaliar(`document.documentElement.style.removeProperty('--kb')`);
 
 console.log(excecoes.length ? `✗ exceções: ${excecoes.join(" | ")}` : "✓ sem exceção no console");
 if (excecoes.length) falhas++;
-for (const c of [bia, caio]) {
+for (const c of [bia, caio, dani]) {
   clearInterval(c.timer);
   c.ws.close();
 }

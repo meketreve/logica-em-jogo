@@ -42,10 +42,6 @@ export function learnPapel(papel: Papel): void {
   papelAtual = papel;
 }
 
-export function papelLocal(): Papel {
-  return papelAtual;
-}
-
 /**
  * Candidatos para a palavra que está sendo digitada, dadas as palavras JÁ
  * completas antes dela (a primeira inclui a barra: "/objetivo"). Filtrados pelo
