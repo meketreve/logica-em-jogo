@@ -35,6 +35,7 @@ import {
   slabMaterial,
   stairsMaterial,
 } from "./blocks";
+import { frenteDaPortaE, isAlavanca, isFio } from "./circuitos";
 import { CHUNK_SIZE } from "./constants";
 import { type LuzWorld, luzByte } from "./luz";
 import { setorDaDirecao } from "./vento";
@@ -208,6 +209,15 @@ export const TILE = {
   mudaIpe0: 169, mudaIpe1: 170, mudaIpe2: 171, mudaIpe3: 172,
   mudaAraucaria0: 173, mudaAraucaria1: 174, mudaAraucaria2: 175, mudaAraucaria3: 176,
   mudaPauBrasil0: 177, mudaPauBrasil1: 178, mudaPauBrasil2: 179, mudaPauBrasil3: 180,
+  /** §🔌 circuitos (2026-10-16). Cada peça tem o par DESLIGADO/LIGADO logo ao
+   *  lado: a leitura "apagado × aceso" é a coisa que o aluno mais faz na aula,
+   *  e no atlas eles ficam vizinhos pra quem pintar um não esquecer o outro. */
+  alavancaDesligada: 181, alavancaLigada: 182,
+  fioDesligado: 183, fioLigado: 184,
+  lampadaApagada: 185, lampadaAcesa: 186,
+  portaETopoDesligada: 187, portaETopoLigada: 188,
+  portaELadoDesligada: 189, portaELadoLigada: 190,
+  portaEFrenteDesligada: 191, portaEFrenteLigada: 192,
 } as const;
 
 /** cp20: blocos-glifo. Letras A–Z e dígitos 0–9 ocupam tiles consecutivos a
@@ -241,9 +251,25 @@ const DIR_XZ: readonly (readonly [number, number])[] = [[1, 0], [0, 1], [-1, 0],
  *  Hoje só a fornalha responde — mas a pergunta é do MESHER (que face recebe o
  *  tile diferente?) e não da fornalha, então quem entrar depois entra aqui. */
 function frenteDoBloco(id: number): readonly [number, number] | null {
+  // §🔌 a porta E tem frente pelo MESMO motivo da fornalha, e é por isso que
+  // este `if` entra aqui em vez de virar um caminho novo: o aluno precisa VER
+  // por onde o resultado sai, senão a direção só existe no servidor.
+  const frente = frenteDaPortaE(id);
+  if (frente) {
+    const k = { XP: 0, ZP: 1, XN: 2, ZN: 3 }[frente];
+    return DIR_XZ[k] ?? null;
+  }
   const k = fornalhaFrente(id);
   return k < 0 ? null : (DIR_XZ[k] ?? null);
 }
+
+/** As faces de uma porta E no estado dado (topo marcado, frente diferente). */
+const portaETiles = (ligada: boolean): FaceTiles => ({
+  top: ligada ? TILE.portaETopoLigada : TILE.portaETopoDesligada,
+  bottom: ligada ? TILE.portaELadoLigada : TILE.portaELadoDesligada,
+  side: ligada ? TILE.portaELadoLigada : TILE.portaELadoDesligada,
+  frente: ligada ? TILE.portaEFrenteLigada : TILE.portaEFrenteDesligada,
+});
 
 const BLOCK_TILES: Record<number, FaceTiles> = {
   [BlockId.Grass]: { top: TILE.grassTop, bottom: TILE.dirt, side: TILE.grassSide },
@@ -289,6 +315,23 @@ const BLOCK_TILES: Record<number, FaceTiles> = {
   [BlockId.PortaZFechadaR]: uniform(TILE.portaCima),
   [BlockId.PortaZAbertaR]: uniform(TILE.portaCima),
   [BlockId.Tocha]: uniform(TILE.tocha),
+  // §🔌 circuitos: alavanca e fio têm FORMA própria (emitShape), então estas
+  // duas entradas alimentam só o ícone 2D da hotbar; a lâmpada e a porta E são
+  // cubos de verdade e passam pelo caminho normal de faces.
+  [BlockId.AlavancaDesligada]: uniform(TILE.alavancaDesligada),
+  [BlockId.AlavancaLigada]: uniform(TILE.alavancaLigada),
+  [BlockId.FioDesligado]: uniform(TILE.fioDesligado),
+  [BlockId.FioLigado]: uniform(TILE.fioLigado),
+  [BlockId.LampadaApagada]: uniform(TILE.lampadaApagada),
+  [BlockId.LampadaAcesa]: uniform(TILE.lampadaAcesa),
+  [BlockId.PortaEXPDesligada]: portaETiles(false),
+  [BlockId.PortaEZPDesligada]: portaETiles(false),
+  [BlockId.PortaEXNDesligada]: portaETiles(false),
+  [BlockId.PortaEZNDesligada]: portaETiles(false),
+  [BlockId.PortaEXPLigada]: portaETiles(true),
+  [BlockId.PortaEZPLigada]: portaETiles(true),
+  [BlockId.PortaEXNLigada]: portaETiles(true),
+  [BlockId.PortaEZNLigada]: portaETiles(true),
   [BlockId.JanelaXFechada]: uniform(TILE.janela),
   [BlockId.JanelaXAberta]: uniform(TILE.janela),
   [BlockId.JanelaZFechada]: uniform(TILE.janela),
@@ -471,6 +514,8 @@ export function blockSelectionBox(
   }
   if (isTapete(id)) return [0, 0, 0, 1, P, 1];
   if (id === BlockId.Tocha) return [7 * P, 0, 7 * P, 9 * P, 10 * P, 9 * P];
+  if (isFio(id)) return [0, 0, 0, 1, P, 1]; // §🔌 lâmina de chão, como o tapete
+  if (isAlavanca(id)) return [5 * P, 0, 5 * P, 11 * P, 12 * P, 11 * P];
   if (id === BlockId.Cerca) return [6 * P, 0, 6 * P, 10 * P, 1, 10 * P];
   if (isPorta(id)) {
     if (!isPortaAberta(id))
@@ -1076,6 +1121,30 @@ export function meshVizinhanca(viz: Uint16Array, luzViz?: Uint8Array | null): Ch
       }
       case BlockId.Tocha: {
         emitBox(lx, ly, lz, id, TILE.tocha, 7 * P, 0, 7 * P, 9 * P, 10 * P, 9 * P);
+        return true;
+      }
+      // §🔌 o FIO é uma lâmina no chão (a forma do tapete): ele tem de passar
+      // DEBAIXO do aluno sem virar degrau, senão um circuito na mesa viraria
+      // uma pista de obstáculos.
+      case BlockId.FioDesligado:
+      case BlockId.FioLigado: {
+        emitBox(lx, ly, lz, id, id === BlockId.FioLigado ? TILE.fioLigado : TILE.fioDesligado,
+                0, 0, 0, 1, P, 1);
+        return true;
+      }
+      // …e a ALAVANCA é um pino baixo (a forma da tocha, mais gorda): o aluno
+      // tem de distinguir ligada de desligada de longe, e a diferença mora na
+      // TEXTURA (o pino não se inclina — inclinar pediria 4 direções no id).
+      case BlockId.AlavancaDesligada:
+      case BlockId.AlavancaLigada: {
+        // ⚠️ 12/16 de ALTURA, e não 8: a mira do jogador sai na altura do OLHO
+        // (pé + 1,6) e passava reto por cima de um pino baixo — o ▣ oferecia
+        // "colocar" em cima da alavanca e o aluno punha um bloco na frente dela
+        // em vez de acionar. Quem mediu foi a sonda, no rótulo do botão.
+        // É também o tamanho que se enxerga do outro lado da sala.
+        emitBox(lx, ly, lz, id,
+                id === BlockId.AlavancaLigada ? TILE.alavancaLigada : TILE.alavancaDesligada,
+                5 * P, 0, 5 * P, 11 * P, 12 * P, 11 * P);
         return true;
       }
       case BlockId.JanelaXFechada:

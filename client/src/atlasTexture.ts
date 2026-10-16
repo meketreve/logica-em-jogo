@@ -246,6 +246,79 @@ function paintTocha(ctx: CanvasRenderingContext2D, tile: number): void {
   paintNoise(ctx, tile, [122, 92, 56], 10, 10, ATLAS.tilePx); // cabo
 }
 
+// ── §🔌 CIRCUITOS (2026-10-16) ───────────────────────────────────────────────
+// A regra de desenho das quatro peças: **a diferença entre LIGADO e DESLIGADO
+// tem de ser visível de longe e sem cor sozinha.** Vermelho × cinza some num
+// projetor ruim e some pra quem não distingue as duas cores — então o ligado
+// também fica mais CLARO e ganha um miolo aceso. Quem olha a mesa da turma
+// enxerga o caminho do sinal sem precisar chegar perto.
+
+/** Alavanca: base de pedra com um pino de madeira. Ligada, o pino acende. */
+function paintAlavanca(ctx: CanvasRenderingContext2D, tile: number, ligada: boolean): void {
+  paintNoise(ctx, tile, [120, 120, 126], 10); // base de pedra
+  const [ox, oy] = tileOrigin(tile);
+  ctx.fillStyle = ligada ? "rgb(255,214,92)" : "rgb(122,92,56)";
+  ctx.fillRect(ox + 6, oy + 3, 4, 10); // o pino
+  if (ligada) {
+    ctx.fillStyle = "rgb(255,246,198)";
+    ctx.fillRect(ox + 7, oy + 2, 2, 3); // a ponta brilhando
+  }
+}
+
+/** Fio: trilha fina. Desligado é um risco escuro; ligado, uma linha quente. */
+function paintFio(ctx: CanvasRenderingContext2D, tile: number, ligado: boolean): void {
+  paintNoise(ctx, tile, ligado ? [96, 36, 30] : [58, 50, 48], 8);
+  const [ox, oy] = tileOrigin(tile);
+  ctx.fillStyle = ligado ? "rgb(255,120,92)" : "rgb(104,92,88)";
+  ctx.fillRect(ox, oy + 6, ATLAS.tilePx, 4); // a trilha, de borda a borda
+  if (ligado) {
+    ctx.fillStyle = "rgb(255,206,160)";
+    ctx.fillRect(ox, oy + 7, ATLAS.tilePx, 2); // o miolo aceso
+  }
+}
+
+/** Lâmpada: vidro em moldura de ferro; acesa, o vidro vira luz. */
+function paintLampada(ctx: CanvasRenderingContext2D, tile: number, acesa: boolean): void {
+  paintNoise(ctx, tile, acesa ? [250, 232, 150] : [128, 128, 134], 10);
+  const [ox, oy] = tileOrigin(tile);
+  ctx.fillStyle = "rgb(92,92,98)"; // moldura de ferro
+  ctx.fillRect(ox, oy, ATLAS.tilePx, 2);
+  ctx.fillRect(ox, oy + ATLAS.tilePx - 2, ATLAS.tilePx, 2);
+  ctx.fillRect(ox, oy, 2, ATLAS.tilePx);
+  ctx.fillRect(ox + ATLAS.tilePx - 2, oy, 2, ATLAS.tilePx);
+  if (acesa) {
+    ctx.fillStyle = "rgb(255,252,224)";
+    ctx.fillRect(ox + 5, oy + 5, 6, 6); // o filamento
+  }
+}
+
+/** Porta E — três faces. O TOPO leva o "E" desenhado (é por cima que o aluno
+ *  lê a mesa), a FRENTE leva a seta da saída, e o lado é só a carcaça. */
+function paintPortaE(
+  ctx: CanvasRenderingContext2D,
+  tile: number,
+  ligada: boolean,
+  face: "topo" | "lado" | "frente",
+): void {
+  paintNoise(ctx, tile, ligada ? [108, 96, 72] : [84, 84, 90], 10);
+  const [ox, oy] = tileOrigin(tile);
+  const tinta = ligada ? "rgb(255,214,92)" : "rgb(176,176,182)";
+  ctx.fillStyle = tinta;
+  if (face === "topo") {
+    // um "E" de 3 barras, legível a 16×16
+    ctx.fillRect(ox + 4, oy + 3, 2, 10);
+    ctx.fillRect(ox + 4, oy + 3, 8, 2);
+    ctx.fillRect(ox + 4, oy + 7, 6, 2);
+    ctx.fillRect(ox + 4, oy + 11, 8, 2);
+  } else if (face === "frente") {
+    // seta apontando pra fora: é POR AQUI que o resultado sai
+    ctx.fillRect(ox + 7, oy + 4, 2, 8);
+    for (let i = 0; i < 4; i++) ctx.fillRect(ox + 4 + i, oy + 8 + i, 8 - 2 * i, 2);
+  } else {
+    ctx.fillRect(ox + 2, oy + 7, ATLAS.tilePx - 4, 2); // faixa de carcaça
+  }
+}
+
 /** Janela (2026-07-19): moldura de madeira + cruz central; o vidro é
  *  AUSÊNCIA (cutout, mesmo truque do vidro/porta) com brilhos diagonais. */
 function paintJanela(ctx: CanvasRenderingContext2D, tile: number): void {
@@ -891,6 +964,19 @@ export function createAtlasTexture(): THREE.Texture {
   paintPorta(ctx, TILE.portaBaixo, false);
   paintPorta(ctx, TILE.portaCima, true);
   paintTocha(ctx, TILE.tocha);
+  // §🔌 circuitos (2026-10-16): cada peça com os dois estados lado a lado
+  paintAlavanca(ctx, TILE.alavancaDesligada, false);
+  paintAlavanca(ctx, TILE.alavancaLigada, true);
+  paintFio(ctx, TILE.fioDesligado, false);
+  paintFio(ctx, TILE.fioLigado, true);
+  paintLampada(ctx, TILE.lampadaApagada, false);
+  paintLampada(ctx, TILE.lampadaAcesa, true);
+  paintPortaE(ctx, TILE.portaETopoDesligada, false, "topo");
+  paintPortaE(ctx, TILE.portaETopoLigada, true, "topo");
+  paintPortaE(ctx, TILE.portaELadoDesligada, false, "lado");
+  paintPortaE(ctx, TILE.portaELadoLigada, true, "lado");
+  paintPortaE(ctx, TILE.portaEFrenteDesligada, false, "frente");
+  paintPortaE(ctx, TILE.portaEFrenteLigada, true, "frente");
   // 2026-07-19: janela + móveis + quadro
   paintJanela(ctx, TILE.janela);
   paintEstofado(ctx, TILE.estofado);

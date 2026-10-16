@@ -188,3 +188,38 @@ describe("ancoraDeCopia é o caminho de VOLTA de orientarParaColocar", () => {
     }
   });
 });
+
+describe("§🔌 porta E: a SAÍDA aponta pra onde o aluno olha", () => {
+  // é a convenção INVERSA da cadeira e da fornalha, que encaram quem colocou:
+  // a porta lógica não tem rosto, tem resultado — "o sinal vai por ali"
+  it("cada direção do olhar coloca a porta com a frente pra lá", () => {
+    const casos = [
+      [OLHANDO.maisX, BlockId.PortaEXPDesligada],
+      [OLHANDO.maisZ, BlockId.PortaEZPDesligada],
+      [OLHANDO.menosX, BlockId.PortaEXNDesligada],
+      [OLHANDO.menosZ, BlockId.PortaEZNDesligada],
+    ] as const;
+    for (const [yaw, esperado] of casos) {
+      expect(orientarParaColocar(BlockId.PortaEXPDesligada, yaw, false)).toBe(esperado);
+    }
+  });
+
+  it("e qualquer variante volta pra UMA entrada na mochila", () => {
+    for (const id of [
+      BlockId.PortaEXPDesligada,
+      BlockId.PortaEZPDesligada,
+      BlockId.PortaEXNDesligada,
+      BlockId.PortaEZNDesligada,
+      BlockId.PortaEZNLigada,
+    ]) {
+      expect(ancoraDeCopia(id)).toBe(BlockId.PortaEXPDesligada);
+    }
+  });
+
+  it("CONTROLE NEGATIVO: a cadeira continua ENCARANDO quem coloca", () => {
+    // se a regra nova tivesse vazado pros móveis, o aluno sentaria de costas
+    expect(orientarParaColocar(BlockId.CadeiraXP, OLHANDO.maisX, false)).toBe(
+      BlockId.CadeiraXN,
+    );
+  });
+});

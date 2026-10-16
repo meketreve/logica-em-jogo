@@ -397,6 +397,33 @@ const FUNDICAO: readonly Receita[] = [
   { saida: { id: ITEM_PA_DIAMANTE, qtd: 1 }, custo: [{ id: ITEM_DIAMANTE, qtd: 1 }, { id: ITEM_GRAVETO, qtd: 2 }] },
 ];
 
+/**
+ * §🔌 CIRCUITOS (2026-10-16) — lista PRÓPRIA, e entra por ÚLTIMO na composição.
+ *
+ * ⚠️ Não é organização: o ÍNDICE da receita é a identidade dela no protocolo
+ * (o cliente manda "fabricar a receita n"). A primeira versão deste lote
+ * acrescentou as quatro no fim do `MATERIAIS`, no meio da composição — e
+ * empurrou TODAS as receitas seguintes uma casa pra frente. O smoke da
+ * fornalha reprovou na hora com "nasceu 1 fornalha (0)": a ana pediu a
+ * fornalha e recebeu outra coisa.
+ */
+const CIRCUITOS: readonly Receita[] = [
+  // ── §🔌 CIRCUITOS (2026-10-16) ─────────────────────────────────────────────
+  // A régua: o circuito é a AULA, então o caminho até ele não pode ser a parte
+  // difícil. Tudo sai de material que o aluno já tem no primeiro dia (graveto,
+  // pedregulho, ferro) e em QUANTIDADE — fio de 1 em 1 faria a criança fabricar
+  // vinte vezes pra ligar duas pontas da mesa.
+  /** Entrada: o gesto do aluno. Graveto + pedregulho, o par do interruptor. */
+  { saida: { id: BlockId.AlavancaDesligada, qtd: 2 }, custo: [{ id: ITEM_GRAVETO, qtd: 1 }, { id: BlockId.Cobblestone, qtd: 1 }] },
+  /** Condutor: 8 por lingote — é o que cobre uma mesa inteira sem voltar à bancada. */
+  { saida: { id: BlockId.FioDesligado, qtd: 8 }, custo: [{ id: ITEM_LINGOTE_FERRO, qtd: 1 }] },
+  /** Saída: vidro + ferro. O vidro vem da fornalha, que o aluno já usa. */
+  { saida: { id: BlockId.LampadaApagada, qtd: 1 }, custo: [{ id: BlockId.Glass, qtd: 1 }, { id: ITEM_LINGOTE_FERRO, qtd: 1 }] },
+  /** A REGRA. Mais cara de propósito: é a peça que pensa, e o preço faz o aluno
+   *  planejar onde põe em vez de encher a mesa de portas. */
+  { saida: { id: BlockId.PortaEXPDesligada, qtd: 1 }, custo: [{ id: BlockId.Cobblestone, qtd: 2 }, { id: ITEM_LINGOTE_FERRO, qtd: 2 }] },
+];
+
 export const RECEITAS: readonly Receita[] = [
   ...BASE,
   ...MATERIAIS,
@@ -407,6 +434,7 @@ export const RECEITAS: readonly Receita[] = [
   ...NATUREZA,
   ...GLIFOS,
   ...FUNDICAO,
+  ...CIRCUITOS, // §🔌 sempre no FIM: índice é identidade (ver a lista)
 ];
 
 /**

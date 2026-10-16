@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  blocoExiste,
   BlockId,
   ITEM_CARVAO,
   ITEM_DIAMANTE,
@@ -112,6 +113,11 @@ describe("drops — a tabela", () => {
     // dois ramos das exceções sorteadas em vez de depender da sorte
     for (const sorteio of [() => 0, () => 0.999]) {
       for (let id = 1; id <= MAX_BLOCK_ID; id++) {
+        // ⚠️ 2026-10-16: varrer o INTERVALO deixou de ser o mesmo que varrer os
+        // blocos — os circuitos começam em 256 e os ids 251-255 ficaram vazios.
+        // Um id que não existe "cai nele mesmo" pela regra padrão e reprovava o
+        // portão por um bloco que ninguém criou.
+        if (!blocoExiste(id)) continue;
         for (const d of dropsDe(id, sorteio)) {
           expect(
             isPlaceable(d.id) || isItem(d.id),

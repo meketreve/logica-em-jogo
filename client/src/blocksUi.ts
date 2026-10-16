@@ -16,6 +16,7 @@ export type Categoria =
   | "mobilia"
   | "minerios"
   | "ferramentas"
+  | "circuito"
   | "glifos";
 
 /** Categorias CURADAS, na ordem de exibição. */
@@ -25,6 +26,10 @@ export const CATEGORIAS: readonly { id: Categoria; label: string }[] = [
   { id: "mobilia", label: "mobília" },
   { id: "minerios", label: "minérios" },
   { id: "ferramentas", label: "ferramentas" },
+  // §🔌 2026-10-16: categoria PRÓPRIA, e não um canto da mobília — é a razão de
+  // ser do jogo, e as quatro peças só fazem sentido juntas (quem acha a
+  // lâmpada tem de achar o fio na mesma tela).
+  { id: "circuito", label: "circuito" },
   { id: "glifos", label: "letras e números" },
 ];
 
@@ -110,6 +115,12 @@ export const PLACEABLE: readonly PlaceableEntry[] = [
   { id: BlockId.Cerca, name: "cerca", cat: "blocos" },
   { id: BlockId.PortaXFechada, name: "porta", cat: "mobilia" },
   { id: BlockId.Tocha, name: "tocha", cat: "mobilia" },
+  // §🔌 circuitos (2026-10-16). UMA entrada por peça: o estado (ligado/aceso) e
+  // a direção da porta E não vão pra mochila — ver `formaCanonica`.
+  { id: BlockId.AlavancaDesligada, name: "alavanca", cat: "circuito" },
+  { id: BlockId.FioDesligado, name: "fio", cat: "circuito" },
+  { id: BlockId.LampadaApagada, name: "lâmpada", cat: "circuito" },
+  { id: BlockId.PortaEXPDesligada, name: "porta E", cat: "circuito" },
   // janela: entrada única, eixo escolhido pelo olhar (igual porta)
   { id: BlockId.JanelaXFechada, name: "janela", cat: "mobilia" },
   // móveis (2026-07-19): entrada única; direção escolhida pelo olhar no place

@@ -31,6 +31,13 @@ import {
   precisaApoio,
   apoioValido,
 } from "./blocks";
+import {
+  comEstado,
+  estaLigado,
+  isAlavanca,
+  isCircuito,
+  recalcularCircuitos,
+} from "./circuitos";
 import { isComida, saciedadeDe } from "./comida";
 import { dropsDe, formaCanonica } from "./drops";
 import {
@@ -76,6 +83,7 @@ import {
 } from "./session/cenario";
 import {
   broadcastGroups,
+  circuitoForaDoTerreno,
   claimBloqueia,
   confinaBloqueia,
   equipeDe,
@@ -566,6 +574,13 @@ export class GameSession {
   private regrasCelulasMax = 0;
   private regrasMudancasSum = 0;
   private regrasAguaSum = 0;
+  /** §🔌 Células que são PEÇA DE CIRCUITO (alavanca, fio, lâmpada, porta E).
+   *  Índice de sessão alimentado pelo `applyBlockQuieto`, igual ao das
+   *  plantações — e reconstruído na leitura do save pelo `reindexar`. */
+  readonly circuitos = new Set<number>();
+  /** Alguma peça mudou desde o último recálculo? O motor só roda quando sim:
+   *  circuito parado custa ZERO por tick, que é o caso de 99% da aula. */
+  private circuitosSujos = false;
   /** Células a examinar no próximo tick (fila de vizinhança — regra de ouro). */
   private dirty = new Set<number>();
   /** Células já alteradas neste tick (máx. 1 mudança por célula por tick). */
@@ -1215,6 +1230,11 @@ export class GameSession {
           // e cama (horizontal, direção da cabeceira).
           const camaDir = isCama(msg.blockId) ? camaHeadDir(msg.blockId) : null;
           const bloqueio =
+            // §🔌 circuito tem uma regra A MAIS que os outros blocos: não basta
+            // não ser terreno alheio, tem de ser o SEU (ver a função)
+            (isCircuito(msg.blockId)
+              ? circuitoForaDoTerreno(this, clientId, msg.x, msg.y, msg.z)
+              : null) ??
             claimBloqueia(this, clientId, msg.x, msg.y, msg.z) ??
             (isPorta(msg.blockId) ? claimBloqueia(this, clientId, msg.x, msg.y + 1, msg.z) : null) ??
             (camaDir ? claimBloqueia(this, clientId, msg.x + camaDir.dx, msg.y, msg.z + camaDir.dz) : null) ??
@@ -1345,6 +1365,22 @@ export class GameSession {
             clientId,
             "Ponto de nascimento definido nesta cama." + (recado ? ` ${recado}` : ""),
           );
+          this.broadcast({ type: "gesto", id: clientId, gesto: "interagir" });
+          return;
+        }
+        // §🔌 ALAVANCA: é a única ENTRADA do circuito que o aluno controla, e o
+        // clique só troca o byte — quem decide o que acende é o motor, no tick
+        // seguinte (`recalcularCircuitos`). Mesmos gates da porta e da cama:
+        // acionar a alavanca do colega é mexer no circuito dele.
+        if (isAlavanca(id)) {
+          const bloqueio =
+            claimBloqueia(this, clientId, msg.x, msg.y, msg.z) ??
+            confinaBloqueia(this, clientId, msg.x, msg.y, msg.z);
+          if (bloqueio) {
+            this.sendServerChat(clientId, bloqueio);
+            return;
+          }
+          this.applyBlock(msg.x, msg.y, msg.z, comEstado(id, !estaLigado(id)));
           this.broadcast({ type: "gesto", id: clientId, gesto: "interagir" });
           return;
         }
@@ -2328,6 +2364,22 @@ export class GameSession {
       if (isPlantacao(blockId) || isMuda(blockId)) this.plantacoes.add(key);
       else this.plantacoes.delete(key);
     }
+    // §🔌 o índice das peças de circuito segue o byte, pela MESMA engrenagem:
+    // toda mudança de mundo passa por aqui, então não existe circuito fora do
+    // índice. E qualquer mudança DE PEÇA suja o circuito: o motor roda no tick
+    // seguinte, nunca aqui (colocar fio não pode custar uma varredura por
+    // bloco colocado — o aluno põe fio aos montes).
+    {
+      const key = this.packCoord(x, y, z);
+      const eraCircuito = this.circuitos.has(key);
+      if (isCircuito(blockId)) {
+        this.circuitos.add(key);
+        this.circuitosSujos = true;
+      } else if (eraCircuito) {
+        this.circuitos.delete(key);
+        this.circuitosSujos = true;
+      }
+    }
     setBlock(this.world, x, y, z, blockId);
     this.edicoesAplicadas++;
     this.changedThisTick.add(this.packCoord(x, y, z));
@@ -2370,18 +2422,32 @@ export class GameSession {
           const chunk = this.world.chunks[chunkIndex(this.world, cx, cy, cz)];
           if (!chunk) continue;
           for (let i = 0; i < chunk.length; i++) {
-            if (!isPlantacao(chunk[i]!)) continue;
+            const id = chunk[i]!;
+            // §🔌 o circuito é indexado NA MESMA VARREDURA, e não na dele: são
+            // os mesmos chunks, o mesmo laço e o mesmo custo — duas varreduras
+            // do mundo inteiro pra duas perguntas sobre a mesma célula é o tipo
+            // de duplicata que envelhece em silêncio quando uma das duas ganha
+            // um caso novo.
+            const ehPlantacao = isPlantacao(id);
+            const ehCircuito = isCircuito(id);
+            if (!ehPlantacao && !ehCircuito) continue;
             const lx = i % CHUNK_SIZE;
             const resto = (i - lx) / CHUNK_SIZE;
             const lz = resto % CHUNK_SIZE;
             const ly = (resto - lz) / CHUNK_SIZE;
-            this.plantacoes.add(
-              this.packCoord(
-                cx * CHUNK_SIZE + lx,
-                cy * CHUNK_SIZE + ly,
-                cz * CHUNK_SIZE + lz,
-              ),
+            const key = this.packCoord(
+              cx * CHUNK_SIZE + lx,
+              cy * CHUNK_SIZE + ly,
+              cz * CHUNK_SIZE + lz,
             );
+            if (ehPlantacao) this.plantacoes.add(key);
+            if (ehCircuito) {
+              this.circuitos.add(key);
+              // mundo que volta do save recalcula UMA vez: o estado salvo é o
+              // de quando gravou, e no meio pode ter entrado uma conversão de
+              // id ou um bloco removido por outra regra
+              this.circuitosSujos = true;
+            }
           }
         }
       }
@@ -2634,6 +2700,26 @@ export class GameSession {
     // §🍖 F10b: as fornalhas. Fora da fila de vizinhança pela MESMA razão da
     // plantação — o fogo anda por TEMPO, não porque alguém mexeu do lado.
     tickFornalhas(this);
+
+    // §🔌 CIRCUITOS: recalcula só quando alguma peça mudou (alguém acionou uma
+    // alavanca, colocou ou quebrou um bloco). Fora da fila de vizinhança como a
+    // fornalha e a horta, e pela razão oposta à delas: o circuito não anda por
+    // TEMPO, mas a conta é GLOBAL — quem muda uma ponta pode acender a outra, e
+    // a fila de vizinhança só acorda quem está ao lado.
+    if (this.circuitosSujos) {
+      this.circuitosSujos = false;
+      const mudancas = recalcularCircuitos(
+        { bloco: (x, y, z) => getBlock(this.world, x, y, z) },
+        [...this.circuitos].map((k) => this.unpackCoord(k)),
+      );
+      // ⚠️ `applyBlock` reentra no `applyBlockQuieto`, que marcaria o circuito
+      // sujo de novo e faria o motor rodar a cada tick pra sempre. O estado
+      // novo É o resultado desta conta: sujar por causa dela seria recalcular
+      // pra achar exatamente o mesmo. Por isso o flag é limpo ANTES e re-limpo
+      // depois do laço.
+      for (const m of mudancas) this.applyBlock(m.x, m.y, m.z, m.blockId);
+      this.circuitosSujos = false;
+    }
 
     // cp12/13: recheca objetivos tocados por mudanças (dos jogadores E das
     // regras acima — areia caindo dentro do alvo também conta/desconta)

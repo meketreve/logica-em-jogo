@@ -10,7 +10,7 @@ tier: 3
 ## Estado atual
 
 Jogo voxel educacional rodando, testado com turma real. `main` em sinc com o `origin`
-(`d3af433`), árvore limpa. Ambiente é só LINUX.
+(`937f357`), árvore limpa. Ambiente é só LINUX.
 
 O lote de 15/10 mexeu na UI do aluno: o **painel de amigos virou ABA do painel** (um root, uma
 tecla, um ✕), a **árvore de comandos filtra por PAPEL** (o aluno vê 10 em vez de 26, todos à
@@ -27,13 +27,11 @@ próxima aula decide: quantos caíram, se viram o motivo na tela, se é sempre o
 
 ## Próxima fase
 
-**O 1º bloco de circuito lógico** — a razão de os ids de 16 bits terem sido feitos; **BLOQUEADO
-numa pergunta ao usuário**: QUAL bloco e como funciona na aula (entrevista de escopo antes de
-codar). Não começar sem a resposta.
-
-Com a resposta: `shared/src/blocks.ts` (id novo abaixo de 900, nunca renumerar) + módulo PURO no
-molde de `ferramentas.ts` → **verify:** `npm run verify` verde + sonda `shots:*` que ENXERGUE o
-bloco. Atrás: `bench:headless` dos ids de 16 bits, ovelha+lã (§🍖 F8), cadeira.
+**§🔌 o OBJETIVO que checa o circuito** — a 2ª metade da resposta do usuário em 16/10 ("acender a
+lâmpada com a combinação certa" + "objetivo novo que CHECA"): hoje o professor monta o desafio e
+olha; falta o servidor conferir sozinho, com progresso por grupo como os de construir/chegar
+(`shared/src/session/cenario.ts`). Atrás: porta NÃO e OU (⚠️ a NÃO quebra o ponto fixo do motor —
+ver o cabeçalho de `circuitos.ts`), `bench:headless` dos ids16, ovelha+lã (§🍖 F8), cadeira.
 
 ## Pendências e bloqueios
 
@@ -43,20 +41,19 @@ bloco. Atrás: `bench:headless` dos ids de 16 bits, ovelha+lã (§🍖 F8), cade
 
 ## Concluído (recente)
 
-- **15/10 (UI do aluno — 2 mudanças):** amigos virou **aba** do `#painel` (`friends.ts` deixou de
-  ser painel: vira `renderAmigos` + a fábrica de controles do `panels.ts`; `#amigos` sumiu do
-  index e do `painelHost`), e a árvore de comandos foi pro **shared** (`comandos.ts`) com o papel
-  de cada comando — 38 testes, incluindo paridade com a lista do "Comando desconhecido" e os
-  gates checados contra uma sessão de VERDADE. Sondas: `toque` mede a caixa de comandos contra a
-  linha do teclado (280/460/600px, deitado e em pé) e `amigos` ganhou a visão da ALUNA (10 de 10
-  à vista, zero comando de professor). **A queixa "botões atrás do teclado" NÃO era geometria.**
-  Depois: regra "lista ganha de digitação" no painel do dedo e `tp_pedidos` (o servidor avisa
-  quem pediu teleporte, e o `/tpa` só lista esses; a lista só abre com 2+ pedidos). Achados na
-  varredura do próprio lote: o 📋/tecla P FECHAVAM o painel em vez de trocar de aba (`8078681`),
-  e a barra de abas do aluno não tinha sonda (`22ba7b5`).
-- **13/10 (presença — 2 consertos + marco):** **posse do nome** (bug-672, `c237b88`) e
-  **silêncio por perguntas** (bug-675 sobra, `dcd599e`) — controle negativo + smoke em host real;
-  marco "Seu nome volta com você". O portão do ids16 parou de depender de `server/world.ljw`.
+- **16/10 (§🔌 o 1º CIRCUITO LÓGICO):** alavanca, fio, lâmpada e porta E — **os primeiros ids
+  ≥ 256**, que é pra isso que os 16 bits foram feitos. Motor PURO (`circuitos.ts`, ponto fixo que
+  só roda quando uma peça muda) + índice e tick na `session.ts`, receitas, regra de "só no SEU
+  terreno", aba própria na mochila e a sonda `shots:circuito`, que mede a tabela-verdade **em
+  pixel** (1E1 = 136,7 contra 91,3 nas outras três linhas). 18 testes novos.
+
+- **15/10 (UI do aluno):** amigos virou **aba** do `#painel` (`#amigos` sumiu); árvore de
+  comandos foi pro shared (`comandos.ts`) com o PAPEL de cada um — o aluno vê 10, não 26; e
+  "lista ganha de digitação" no painel do dedo (`/tpp` mostra a turma; `/tpa`, só quem pediu, via
+  `tp_pedidos`). A queixa "botões atrás do teclado" NÃO era geometria. Achados na varredura do
+  próprio lote: 📋/tecla P FECHAVAM o painel em vez de trocar de aba.
+- **13/10 (presença):** posse do nome (bug-672) e silêncio cobrado por PERGUNTAS (sobra do
+  bug-675); marco "Seu nome volta com você".
 - **10/10:** launchers com `node --import tsx` (bug-666), ▣ com `data-acao` (bug-676), botão
   "restaurar", A/B dos ids16 no codec (.ljw +0,02%), sondas matando o Chrome pelo GRUPO —
   **bateria 17/17 verde**. Na aula: quebra v2, cama/porta e voo aprovados.

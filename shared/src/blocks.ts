@@ -317,6 +317,40 @@ export const BlockId = {
    *  quatro, a cabeceira da mesma direção (mesma ordem: +x, +z, −x, −z). Mundo
    *  salvo antes disto é migrado no restore (`migrarCamasLegado`). */
   CamaCabecaXP: 247, CamaCabecaZP: 248, CamaCabecaXN: 249, CamaCabecaZN: 250,
+  // ── §🔌 CIRCUITOS LÓGICOS (2026-10-16) ────────────────────────────────────
+  // **Os PRIMEIROS ids ≥ 256**, e é o motivo de os ids de bloco terem virado
+  // 16 bits em 2026-09-12: sobravam 5 bytes livres (251-255) e os circuitos não
+  // cabiam. Começam em 256 de propósito — deixar os 5 últimos bytes pra quem
+  // precisar deles não custa nada, e nascer do outro lado da fronteira exercita
+  // o formato novo em produção, que é o que o portão do `ids16.test.ts` promete.
+  //
+  // O ESTADO MORA NO ID, como na porta, na janela e na fornalha: ligar a
+  // alavanca é trocar o byte por `block_changed`, a mesma engrenagem de tudo.
+  // Nada de tabela paralela — ela teria de entrar no save, no snapshot e na
+  // conversão, e sairia de sincronia com o mundo na primeira falha de rede.
+  /** Entrada do circuito: o aluno aciona no clique direito. Fica NO CHÃO (pede
+   *  cubo cheio embaixo, igual à tocha) — alavanca de parede pediria forma e
+   *  direção novas no mesher, e o 1º lote não precisa disso pra ensinar. */
+  AlavancaDesligada: 256,
+  AlavancaLigada: 257,
+  /** Condutor. Ligado = está levando sinal AGORA (não é escolha do aluno: quem
+   *  troca o id é o motor, no tick). */
+  FioDesligado: 258,
+  FioLigado: 259,
+  /** Saída visível: acende quando recebe sinal. */
+  LampadaApagada: 260,
+  LampadaAcesa: 261,
+  /** Porta lógica E: tem FRENTE (o sufixo, como os móveis: XP=+x, ZP=+z,
+   *  XN=−x, ZN=−z) — a saída sai pela frente e as duas ENTRADAS são as
+   *  laterais perpendiculares a ela. Ligada = as duas entradas com sinal. */
+  PortaEXPDesligada: 262,
+  PortaEZPDesligada: 263,
+  PortaEXNDesligada: 264,
+  PortaEZNDesligada: 265,
+  PortaEXPLigada: 266,
+  PortaEZPLigada: 267,
+  PortaEXNLigada: 268,
+  PortaEZNLigada: 269,
 } as const;
 
 export type BlockId = (typeof BlockId)[keyof typeof BlockId];
@@ -335,7 +369,38 @@ export type BlockId = (typeof BlockId)[keyof typeof BlockId];
  * mochila. Há portão em `ids16.test.ts`. E id é byte de SAVE: nunca renumerar
  * um id que já existe, só acrescentar no fim.
  */
-export const MAX_BLOCK_ID = BlockId.CamaCabecaZN;
+export const MAX_BLOCK_ID = BlockId.PortaEZNLigada;
+
+/**
+ * Os ids que EXISTEM de verdade.
+ *
+ * Nasceu em 2026-10-16, com os circuitos: eles começam em 256 e deixaram
+ * **251-255 vazios** — e até aqui "id válido" era o INTERVALO `1..MAX`, que de
+ * repente passou a aceitar cinco bytes que não desenham nada. O portão das
+ * receitas pegou na hora (bloco colocável sem caminho em sobrevivência), mas o
+ * estrago maior seria no `place_block`: fio adulterado colocando o id 253 e
+ * cada cliente inventando uma textura pra ele.
+ *
+ * Derivado da tabela, nunca escrito à mão: id novo entra aqui sozinho.
+ */
+const IDS_EXISTENTES: ReadonlySet<number> = new Set<number>(Object.values(BlockId));
+
+/** Este número é um bloco do jogo? (e não um buraco na numeração) */
+export function blocoExiste(id: number): boolean {
+  return IDS_EXISTENTES.has(id);
+}
+
+/** Peça de circuito no estado LIGADO/ACESO (§🔌). Mesma disciplina da porta
+ *  ABERTA e da plantação crescida: é RESULTADO (do motor, no tick), não escolha
+ *  — nunca se coloca na mão nem se vende na loja. */
+export function isCircuitoLigado(id: number): boolean {
+  return (
+    id === BlockId.AlavancaLigada ||
+    id === BlockId.FioLigado ||
+    id === BlockId.LampadaAcesa ||
+    (id >= BlockId.PortaEXPLigada && id <= BlockId.PortaEZNLigada)
+  );
+}
 
 /** Água? Fonte (129) OU fluida (130-136) — atravessável e translúcida. */
 export function isAgua(id: number): boolean {
@@ -1113,7 +1178,15 @@ export function isFullCube(id: number): boolean {
     id !== BlockId.Bau &&
     id !== BlockId.BauLoja && // mesma caixa 14/16 do baú comum
     !isSlab(id) && // laje = meia altura (forma própria + colisão parcial)
-    !isStairs(id) // escada = L (forma própria + colisão parcial)
+    !isStairs(id) && // escada = L (forma própria + colisão parcial)
+    // §🔌 fio (lâmina de chão) e alavanca (pino) têm forma própria. Sem esta
+    // linha o `emitShape` nem era chamado e os dois saíam CUBO CHEIO — o fio
+    // virava uma parede vermelha no meio da mesa. Quem viu foi a sonda, no
+    // print: a lógica estava certa e o desenho, não.
+    id !== BlockId.FioDesligado &&
+    id !== BlockId.FioLigado &&
+    id !== BlockId.AlavancaDesligada &&
+    id !== BlockId.AlavancaLigada
   );
 }
 
@@ -1125,6 +1198,12 @@ export function isSolidBlock(id: number): boolean {
     !isPortaAberta(id) && // porta aberta (base OU R) atravessa
     !isJanelaAberta(id) && // janela aberta (base OU R) atravessa
     id !== BlockId.Tocha &&
+    // §🔌 fio e alavanca são rasteiros: o circuito atravessa a mesa e o aluno
+    // anda por cima sem tropeçar (a lâmpada e a porta E, essas são cubos)
+    id !== BlockId.FioDesligado &&
+    id !== BlockId.FioLigado &&
+    id !== BlockId.AlavancaDesligada &&
+    id !== BlockId.AlavancaLigada &&
     !isTapete(id) &&
     !isQuadro(id) &&
     !isFlor(id) &&
@@ -1159,7 +1238,8 @@ export function isPlaceable(id: number): boolean {
   // cabeceira da cama só nasce do `place_block` do PÉ (as 2 metades juntas);
   // pelo fio ela seria meia cama órfã
   if (isCamaCabeca(id)) return false;
-  return Number.isInteger(id) && id >= BlockId.Grass && id <= MAX_BLOCK_ID;
+  if (isCircuitoLigado(id)) return false; // §🔌 estado, não escolha (ver a função)
+  return Number.isInteger(id) && id >= BlockId.Grass && blocoExiste(id);
 }
 
 /**

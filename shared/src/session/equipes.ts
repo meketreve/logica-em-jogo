@@ -113,6 +113,39 @@ export function claimBloqueia(ses: GameSession, clientId: number, x: number, y: 
 }
 
 /**
+ * §🔌 CIRCUITO só dentro do PRÓPRIO terreno (decisão do usuário, 2026-10-16:
+ * *"em save de mundo aberto pode ser colocado só dentro do terreno do aluno"*).
+ *
+ * É mais forte que o `claimBloqueia`, e a diferença é o ponto: aquele recusa o
+ * terreno DOS OUTROS e libera a terra de ninguém; este EXIGE estar dentro de um
+ * terreno seu (ou do grupo de amigos, que constrói junto por definição). Um
+ * circuito é barulho visível de longe — lâmpada piscando no meio do mundo é de
+ * quem passar por ali, e ninguém tem como desfazer.
+ *
+ * Com a proteção de áreas DESLIGADA não existe "terreno do aluno", então a
+ * regra não tem como valer e o bloco é livre — é o mundo sem dono, onde o
+ * colega já podia quebrar tudo de qualquer jeito. Em aula o confinamento já
+ * prende o aluno na área do grupo, e lá esta regra não acrescenta nada.
+ */
+export function circuitoForaDoTerreno(
+  ses: GameSession,
+  clientId: number,
+  x: number,
+  y: number,
+  z: number,
+): string | null {
+  if (!ses.claimsAtivo) return null; // sem proteção não há terreno pra exigir
+  const p = ses.players.get(clientId);
+  if (!p || p.papel === "professor") return null; // o professor monta onde quiser
+  const c = claimEm(ses, x, y, z);
+  if (c && (c.dono === p.name || mesmaEquipe(ses, p.name, c.dono))) return null;
+  return (
+    "Peças de circuito só dentro do SEU terreno. Marque o seu com a varinha (tecla R) " +
+    "e /terreno criar — ou peça pro dono daqui te convidar com /amigos."
+  );
+}
+
+/**
  * Todas as caixas de trabalho do grupo: para CADA objetivo, a área do grupo
  * (`alvos[g-1]`, per-grupo) ou a área compartilhada (o próprio objetivo). O
  * aluno confinado edita dentro de QUALQUER uma (todos os objetivos do seu

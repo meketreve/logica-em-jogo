@@ -133,9 +133,29 @@ describe("formatos NOVOS: ida e volta com o maior id existente (e o tamanho de h
     expect(d.editedChunks?.[0]?.bytes).toBeInstanceOf(Uint16Array);
   });
 
-  it("snapshot de mundo sem id ≥ 256 custa só 1 byte a mais por chunk", () => {
+  it("mundo SÓ DE BYTES custa 1 byte a mais por chunk (a largura)", () => {
+    // ⚠️ 2026-10-16: este teste usava o `mundo()` acima, e passou a reprovar no
+    // commit dos CIRCUITOS — o `MAX_BLOCK_ID` virou 269 e o mundo do fixture
+    // deixou de caber em byte. Foi o portão fazendo exatamente o que promete:
+    // avisar quando o jogo atravessa a fronteira dos 256. O fixture é que tinha
+    // de ser explícito, porque o que ele mede é o mundo ESTREITO.
+    const w = createWorld({ x: 2, y: 1, z: 2 });
+    cru(w, 1, 1, 1, BlockId.CamaCabecaZN); // 250: o maior id que ainda é byte
+    expect(encodeSnapshot(w, 1).byteLength).toBe(
+      SNAPSHOT_HEADER_BYTES + w.chunks.length * (1 + CHUNK_VOLUME),
+    );
+  });
+
+  it("e só o CHUNK que tem o id ≥ 256 engorda — a largura é por chunk", () => {
+    // é o ponto todo do formato: um circuito num canto do mundo não dobra o
+    // mundo inteiro. O `mundo()` põe o MAX_BLOCK_ID (≥ 256 desde os circuitos)
+    // num chunk e um id de byte noutro.
     const w = mundo();
-    expect(encodeSnapshot(w, 1).byteLength).toBe(SNAPSHOT_HEADER_BYTES + w.chunks.length * (1 + CHUNK_VOLUME));
+    expect(MAX_BLOCK_ID).toBeGreaterThan(255);
+    const estreitos = w.chunks.length - 1;
+    expect(encodeSnapshot(w, 1).byteLength).toBe(
+      SNAPSHOT_HEADER_BYTES + estreitos * (1 + CHUNK_VOLUME) + (1 + CHUNK_VOLUME * 2),
+    );
   });
 });
 

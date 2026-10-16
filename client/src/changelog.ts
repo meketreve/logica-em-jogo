@@ -43,6 +43,19 @@ interface Mudanca {
 const MUDANCAS: readonly Mudanca[] = [
   {
     // sem `data`: este é o build atual (ver rotuloDoBloco)
+    titulo: "A luz acende quando você manda",
+    itens: [
+      "chegaram os PRIMEIROS BLOCOS DE LÓGICA, na aba \u201ccircuito\u201d da mochila: alavanca, fio, lâmpada e a porta E",
+      "a alavanca liga e desliga no clique (ou no ▣ do tablet); o fio leva o sinal pela mesa, pelo chão e até subindo a parede; e a lâmpada acende quando o sinal chega",
+      "encostar também funciona: alavanca colada na lâmpada já acende — o fio serve pra ESPALHAR o circuito, não é pedágio",
+      "a PORTA E é a peça que pensa: ela só deixa o sinal passar quando as DUAS entradas (os lados dela) estão ligadas. A saída é a seta, e ela aponta pra onde você estava olhando quando colocou",
+      "dá pra ligar uma porta na outra: com duas, a lâmpada só acende com as três alavancas ligadas",
+      "as receitas estão na bancada: alavanca (graveto + pedregulho), fio (8 por lingote de ferro), lâmpada (vidro + ferro) e porta E (2 pedregulhos + 2 ferros)",
+      "em mundo com proteção de áreas ligada, as peças de circuito só entram DENTRO do seu terreno (ou do terreno de quem te convidou pro grupo de amigos)",
+    ],
+  },
+  {
+    data: "15/10/2026",
     titulo: "Um painel só, e o chat sem bagunça",
     itens: [
       "o painel de AMIGOS virou uma aba do seu painel: a aula e os amigos moram no mesmo lugar, com a mesma tecla, o mesmo botão e o mesmo \u2715 fechar — nada de dois painéis parecidos pra decorar",

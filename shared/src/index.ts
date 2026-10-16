@@ -3,6 +3,7 @@ export * from "./auth";
 export * from "./biomas";
 export * from "./blocks";
 export * from "./claims";
+export * from "./circuitos";
 export * from "./colunas";
 export * from "./comandos";
 export * from "./envioPose";

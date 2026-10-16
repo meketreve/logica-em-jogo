@@ -117,6 +117,7 @@ import { keyLabel, loadSettings, saveSettings } from "./settings";
 import { QuadroEditor, QuadroRenderer } from "./quadros";
 import { armarGuardaDeAtalhos, desarmarGuardaDeAtalhos } from "./shortcutGuard";
 import { configurarTooltip } from "./tooltip";
+import { isAlavanca } from "@logica/shared";
 import { TorchGlow } from "./torchGlow";
 import { TouchControls, isTouchDevice, solicitarTelaCheia } from "./touch";
 import { QuebraFx } from "./quebraFx";
@@ -129,7 +130,16 @@ import { putWorld } from "./worldStore";
  * AQUI: uma definição, senão a barra e o clique divergem no primeiro bloco novo.
  */
 function ehInterativo(alvoId: number): boolean {
-  return containerTipoDe(alvoId) !== null || isInterativo(alvoId) || isCama(alvoId);
+  return (
+    containerTipoDe(alvoId) !== null ||
+    isInterativo(alvoId) ||
+    isCama(alvoId) ||
+    // §🔌 a ALAVANCA (2026-10-16): sem esta linha o ▣ do tablet oferecia
+    // "colocar" em cima dela e o clique direito do PC punha um bloco por cima
+    // em vez de acionar — o aluno não tinha como ligar o circuito no dedo. Quem
+    // encontrou foi a sonda, medindo o rótulo do botão.
+    isAlavanca(alvoId)
+  );
 }
 
 /**

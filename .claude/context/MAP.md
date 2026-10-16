@@ -52,7 +52,7 @@ Acima é do script. O que ele **não** acha é o que manda aqui:
 | Um teste só | `npx vitest run --root shared src/<arquivo>.test.ts` |
 
 **Sondas** (`shots:tablet` a RÉGUA de 1024×600, `shots:quebra`, `shots:loja`, `shots:luz`,
-`shots:queda`, `shots:restaurar`, `bench:headless` — este só prova ENCANAMENTO, o FPS dele é
+`shots:queda`, `shots:restaurar`, `shots:circuito`, `bench:headless` — este só prova ENCANAMENTO, o FPS dele é
 ruído de SwiftShader): sobem host + Chrome de verdade e asseveram no DOM; `npm run build` antes.
 **Mudança de UI só é "feita" quando uma sonda a ENXERGA.** Detalhe no cabeçalho de cada script.
 
@@ -69,6 +69,9 @@ versionados). Conferir `git status` depois da bateria e reverter se fundo novo n
 Só o não óbvio:
 
 - `shared/` — a lógica (servidor autoritativo). `session/` tem estado; o resto é PURO e testável.
+- **§🔌 circuito:** motor PURO em `shared/src/circuitos.ts` (ponto fixo, roda no tick da
+  `session.ts` só quando uma peça muda); ids ≥ 256 em `blocks.ts`; forma e textura em
+  `mesher.ts` + `client/src/atlasTexture.ts`. Sonda: `npm run shots:circuito` (mede PIXEL).
 - `client/` — só renderiza. **`client/dist` é VERSIONADO**: a escola roda o dist, não o src.
 - `server/src/cenarios/` smokes · `scripts/` sondas e portões · `docs/projeto.txt` BNCC.
 - **Log de aula:** `mundos/<nome>/logs/<AAAA-MM-DD_HH-MM>-{chat,eventos}.log`, um par por sessão
