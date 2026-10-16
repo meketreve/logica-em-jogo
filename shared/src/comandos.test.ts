@@ -208,8 +208,16 @@ describe("LISTA ganha de digitação (pedido do usuário, 2026-10-15)", () => {
     expect(destinoDeToquePara(["/dar", "eu"], "professor", turma)).toBe("preencher");
   });
 
-  it("/tpa segue inteiro de um toque (aceita o pedido mais recente)", () => {
-    expect(destinoDeToquePara(["/tpa"], "aluno", turma)).toBe("enviar");
+  it("/tpa também lista — e tocar no nome aceita o pedido DAQUELA pessoa", () => {
+    expect(destinoDeToquePara(["/tpa"], "aluno", turma)).toBe("nivel");
+    expect(candidatosPara(["/tpa"], "aluno", turma)).toEqual(["bia", "caio"]);
+    expect(destinoDeToquePara(["/tpa", "bia"], "aluno", turma)).toBe("enviar");
+  });
+
+  it("…mas com a sala vazia ele MANDA sozinho (aceita o pedido mais recente)", () => {
+    // é o único comando de nome que vale sem nome: preencher "/tpa " num campo
+    // seria pedir pra digitar um nome que não há
+    expect(destinoDeToquePara(["/tpa"], "aluno")).toBe("enviar");
   });
 
   it("tocar em /terreno troca os botões pelas opções DELE, filtradas", () => {
@@ -247,8 +255,7 @@ describe("o papel muda o que um TOQUE faz", () => {
     }
   });
 
-  it("/tpa é inteiro sozinho; /tpp com a sala vazia cai no campo", () => {
-    expect(destinoDeToquePara(["/tpa"], "aluno")).toBe("enviar");
-    expect(destinoDeToquePara(["/tpp"], "aluno")).toBe("preencher"); // ninguém online
+  it("/tpp com a sala vazia cai no campo (não há o que listar)", () => {
+    expect(destinoDeToquePara(["/tpp"], "aluno")).toBe("preencher");
   });
 });

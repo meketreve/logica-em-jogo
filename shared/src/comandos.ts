@@ -210,6 +210,11 @@ export type DestinoDeToque = "enviar" | "nivel" | "preencher";
  */
 function exigeArgumento(cmd: string, caminho: string[]): boolean {
   const sub = caminho[1] ?? "";
+  // `/tpa` é o único comando de nome que vale SOZINHO: sem nome ele aceita o
+  // pedido mais recente. Então ele nunca "exige argumento" — com gente online
+  // ele lista (a regra geral), e com a sala vazia ele MANDA em vez de botar
+  // "/tpa " num campo que ninguém teria como completar.
+  if (cmd === "tpa") return false;
   if (caminho.length === 1) return CMD_COM_NOME.has(cmd) || cmd === "dar";
   if (caminho.length === 2) {
     if (cmd === "dar") return true; // §🍖 F4: /dar <alvo> <id> <qtd> — o id é digitado
@@ -229,6 +234,11 @@ function exigeArgumento(cmd: string, caminho: string[]): boolean {
  *    uma quantidade, o nome de quem não está online): o painel põe o começo no
  *    campo e o aluno digita o resto.
  *
+ * Não há exceção por comando: até o `/tpa`, que vale sozinho, LISTA quando há
+ * gente online (pedido do usuário, 2026-10-15) — tocar no nome de quem pediu é
+ * mais direto do que confiar em "o mais recente", principalmente quando dois
+ * colegas pedem ao mesmo tempo. Com a sala vazia ele volta a mandar sozinho.
+ *
  * **A regra é "lista ganha de digitação"** (pedido do usuário, 2026-10-15:
  * *"para comandos como /tpp quero que apareça a lista de alunos para facilitar
  * o uso"*). Antes, todo comando que pedia NOME caía em `preencher` — `/tpp`
@@ -246,11 +256,6 @@ export function destinoDeToquePara(
   vivo: ContextoVivo = SEM_CONTEXTO,
 ): DestinoDeToque {
   const cmd = (caminho[0] ?? "").replace(/^\//, "");
-  // `/tpa` é a exceção declarada: sozinho ele já ACEITA o pedido mais recente,
-  // então listar nomes custaria um toque a mais no gesto mais comum. Com nome
-  // (`/tpa bia`) ele aceita o daquela pessoa — e esse caminho continua vindo
-  // da lista, porque `candidatosPara` oferece os nomes a quem digita.
-  if (cmd === "tpa") return "enviar";
   if (candidatosPara(caminho, papel, vivo).length) return "nivel";
   if (exigeArgumento(cmd, caminho)) return "preencher";
   return "enviar";

@@ -465,6 +465,19 @@ const pediu = await avaliar(
 );
 ok(pediu === true, "o toque no nome ENVIOU /tpp bia (o servidor respondeu)");
 await foto("amigos-comandos-tpp.png");
+// o /tpa segue a MESMA regra desde 2026-10-15 (antes era a exceção que mandava
+// sozinho): com gente online ele LISTA, e o toque no nome aceita o pedido
+// daquela pessoa — importa quando dois colegas pedem ao mesmo tempo
+await tecla("Enter"); // o envio do /tpp fechou o chat
+await espera(500);
+ok((await toqueNoPainel("/tpa")) === "ok", "tocou em /tpa no painel");
+await espera(400);
+const aposTpa = (await rotulos()) ?? [];
+ok(
+  aposTpa.includes("bia") && aposTpa.includes("caio"),
+  `o /tpa também trocou os botões pela turma (${aposTpa.join(" ")})`,
+);
+await foto("amigos-comandos-tpa.png");
 await avaliar(`document.documentElement.style.removeProperty('--kb')`);
 
 console.log(excecoes.length ? `✗ exceções: ${excecoes.join(" | ")}` : "✓ sem exceção no console");
