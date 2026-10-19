@@ -1,5 +1,13 @@
 import { describe, expect, it } from "vitest";
-import { BlockId, createWorld, isFullCube, meshChunk, setBlock, blockSelectionBox } from "./index";
+import {
+  BlockId,
+  blockSelectionBox,
+  createWorld,
+  isFullCube,
+  isSolidBlock,
+  meshChunk,
+  setBlock,
+} from "./index";
 import { TILE } from "./mesher";
 
 /**
@@ -106,6 +114,26 @@ describe("fio: o braço só aparece onde o SINAL passa", () => {
     const sozinho = vertices(BlockId.FioDesligado);
     expect(vertices(BlockId.FioDesligado, [[0, 1, 0, BlockId.FioDesligado]])).toBeGreaterThan(
       sozinho,
+    );
+  });
+});
+
+describe("placa de pressão: pisável e rasteira", () => {
+  it("NÃO é sólida — senão o servidor resgata quem pisa e a peça nunca liga", () => {
+    // foi o teste de sessão que pegou isto: com a placa sólida, o portão do
+    // bug-605 ("jogador dentro de bloco sólido") tirava a pessoa de cima dela
+    for (const id of [BlockId.PlacaDesligada, BlockId.PlacaLigada]) {
+      expect(isSolidBlock(id)).toBe(false);
+      expect(isFullCube(id)).toBe(false);
+    }
+  });
+
+  it("afunda quando pisada, e a mira NÃO muda junto", () => {
+    expect(alturaDe(BlockId.PlacaDesligada)).toBeCloseTo(2 / 16, 5);
+    expect(alturaDe(BlockId.PlacaLigada)).toBeCloseTo(1 / 16, 5);
+    // a caixa de mira é a mesma: afundar não pode mudar onde se clica pra quebrar
+    expect(blockSelectionBox(BlockId.PlacaLigada)).toEqual(
+      blockSelectionBox(BlockId.PlacaDesligada),
     );
   });
 });

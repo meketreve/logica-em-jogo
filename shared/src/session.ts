@@ -36,6 +36,7 @@ import {
   estaLigado,
   isAlavanca,
   isCircuito,
+  isPlaca,
   recalcularCircuitos,
 } from "./circuitos";
 import { isComida, saciedadeDe } from "./comida";
@@ -2710,6 +2711,27 @@ export class GameSession {
     // §🍖 F10b: as fornalhas. Fora da fila de vizinhança pela MESMA razão da
     // plantação — o fogo anda por TEMPO, não porque alguém mexeu do lado.
     tickFornalhas(this);
+
+    // §🔌 PLACAS DE PRESSÃO: a única peça cujo estado não vem de um clique, e
+    // sim do CORPO de quem está em cima. Roda antes do motor pra a mudança
+    // valer já neste tick.
+    //
+    // Custa zero no mundo sem placa (o `for` nem entra), que é a regra da casa
+    // — mas ele É uma varredura por tick, e isso é consciente: a alternativa
+    // seria acordar por movimento, e movimento é o que mais chega do fio. Com
+    // dezenas de placas e uma turma, continua sendo dezenas × trinta contas de
+    // caixa por tick. Se um dia pesar, o caminho é indexar placa por coluna.
+    for (const key of this.circuitos) {
+      const c = this.unpackCoord(key);
+      const id = getBlock(this.world, c.x, c.y, c.z);
+      if (!isPlaca(id)) continue;
+      // `overlapsAnyPlayer` é a MESMA caixa que impede colocar bloco em cima de
+      // alguém — inclusive o `/invisivel`, que não ocupa célula: o professor
+      // fantasma atravessa a sala sem disparar as placas da aula, e isso é o
+      // que se quer (ele está observando, não jogando).
+      const pisada = this.overlapsAnyPlayer(c.x, c.y, c.z);
+      if (pisada !== estaLigado(id)) this.applyBlock(c.x, c.y, c.z, comEstado(id, pisada));
+    }
 
     // §🔌 CIRCUITOS: recalcula só quando alguma peça mudou (alguém acionou uma
     // alavanca, colocou ou quebrou um bloco). Fora da fila de vizinhança como a

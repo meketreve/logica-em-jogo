@@ -22,7 +22,8 @@ caíram, se viram o motivo na tela, se é sempre o mesmo tablet.
 
 ## Próxima fase
 
-**§🔌 a porta NÃO** — ⚠️ ela **quebra o ponto fixo** do motor (hoje o passo só LIGA; um NÃO
+**§🔌 fase 1 do `todo.md`** — botão (pulso, precisa de prazo por célula) e porta automática (a
+1ª saída que não é luz). Depois, **a porta NÃO** — ⚠️ ela **quebra o ponto fixo** do motor (hoje o passo só LIGA; um NÃO
 ligado em si mesmo oscila pra sempre), então exige estado por tick de verdade: ver o cabeçalho de
 `circuitos.ts` e a seção §🔌 do `todo.md`. Da iluminação (pedido dele, 19/10) a
 **suavização por vértice já entrou**; falta decidir LUZ COLORIDA (lote próprio, caro) e a curva
@@ -35,27 +36,26 @@ de brilho pro projetor — que só se afina vendo. Atrás: `bench:headless`, ove
 
 ## Concluído (recente)
 
+- **19/10 (§🔌 placa de pressão):** a 1ª entrada que não é a mão — o estado vem do TICK
+  (`overlapsAnyPlayer`), não do clique. Teve de sair do `isSolidBlock`: sólida, o portão do
+  bug-605 resgatava quem pisasse e ela nunca ligava. Sonda C3, câmera parada: 112,2 → 155,5.
+
 - **19/10 (§🔌 modelos melhores + §💡 luz suave):** o doc do usuário inteiro. Lâmpada ACESA
-  **ilumina 14, igual à tocha** (escolha dele); fio no molde da cerca; porta virou **CHIP** com
-  pino de saída e dois de entrada que **acendem sozinhos**; alavanca em pé × deitada. "Conecta?"
-  é UMA função, usada pelo motor e pelo mesher. E a **luz virou suave por vértice** (média de até
-  4 células por canto; o atributo virou Uint16 em 1/16 de nível). Saíram 2 bugs do motor de LUZ,
-  os dois da fornalha desde o §🍖 F10b.
+  **ilumina 14, igual à tocha**; fio no molde da cerca; porta virou **CHIP** com pino de saída e
+  dois de entrada que **acendem sozinhos**; alavanca em pé × deitada. "Conecta?" é UMA função,
+  do motor e do mesher. A **luz virou suave por vértice** (atributo Uint16, 1/16 de nível).
+  Saíram 2 bugs do motor de LUZ, os dois da fornalha desde o §🍖 F10b.
 
-- **19/10 (§🔌 porta OU):** as portas viraram TABELA (`PORTAS` + `LIGA`) e a OU entrou sem um
-  `if` novo no motor (`every` → `some`). Ids 270-277.
+- **19/10 (§🔌 porta OU):** as portas viraram TABELA (`PORTAS` + `LIGA`); a OU entrou sem um `if`
+  novo no motor. Ids 270-277.
 
-- **19/10 (§🔌 o OBJETIVO `acender`):** o add FOTOGRAFA a área (uma por grupo) e conclui quando
-  toda lâmpada acende **com o circuito intacto** — só ALAVANCA pode mudar (decisão do usuário);
-  `extras` = peças fora do lugar. 12 testes; seção E da sonda.
+- **19/10 (§🔌 objetivo `acender`):** o add FOTOGRAFA a área e conclui quando toda lâmpada acende
+  **com o circuito intacto** — só ALAVANCA pode mudar.
 
-- **19/10 (chat):** teto PAR (caractere + byte, `texto.ts`) e teto do FRAME cru antes do
-  `JSON.parse`, na `session` e no `maxPayload` do `ws`. Smoke `chat-tamanho`.
 
 - **16/10 (§🔌 o 1º CIRCUITO):** alavanca, fio, lâmpada e porta E — **os primeiros ids ≥ 256**.
-  Motor PURO (ponto fixo que só roda quando uma peça muda), receitas, "só no SEU terreno".
-- **15/10:** amigos virou aba do `#painel`; comandos no shared com o PAPEL (o aluno vê 10, não
-  26). **13/10:** posse do nome (bug-672). **10/10:** launchers (bug-666), ▣ (bug-676), ids16.
+- **15/10:** amigos virou aba do `#painel`; comandos com o PAPEL (o aluno vê 10, não 26).
+  **13/10:** posse do nome (bug-672). **10/10:** launchers (bug-666), ▣ (bug-676), ids16.
 
 ## Bruto do git (auto — não editar)
 

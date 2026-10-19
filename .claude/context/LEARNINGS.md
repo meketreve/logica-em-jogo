@@ -42,6 +42,7 @@ tier: 3
 
 ## Erros a não repetir
 
+- [2026-10-19] [circuito] [✓] Peça que se PISA tem de sair do `isSolidBlock`: sólida, o portão do bug-605 ("jogador dentro de bloco sólido") RESGATA quem pisar e a peça nunca liga. E o `/bloco` (como o `place_block`) recusa criar bloco em célula com jogador — não dá pra nascer sob os próprios pés, o que muda o arranjo de qualquer sonda que a teste.
 - [2026-10-19] [luz] [✓] Luz suavizada por vértice = média de até 4 células POR CANTO, e as células que VEDAM são puladas (não contadas como zero): contá-las dá oclusão de canto, que é outra decisão de aparência e empasta em projetor. O atributo teve de virar Uint16 (dois canais em 1/16 de nível) — arredondar a média pro nível inteiro devolve o degrau que a suavização veio tirar.
 - [2026-10-19] [desenho] [✓] Diferença de estado que mora só na COR não existe em aula: projetor ruim, 1024×600 e daltonismo comem as três (alavanca ligada×desligada, fio, pino). A diferença tem de ser SILHUETA ou LUZ — e isso se prova no mesher (geometria, exata), não na sonda de pixel, que não separa cor de forma.
 - [2026-10-19] [desenho] [✓] "Conecta?" é UMA função (`ligacaoDoCondutor`), usada pelo motor E pelo mesher: desenho que não é a topologia do motor mostra fio ligado onde o sinal não passa — o pior defeito possível num jogo cujo produto é ENXERGAR a lógica.
@@ -73,9 +74,7 @@ tier: 3
 - [2026-10-05] [contexto] [✗] Carimbar data de cabeça em LEARNINGS/BUGS — escrevi 06 num dia 05
   e desalinhei o `index.sh`, que ordena por data. Conferir com `date +%F`.
 - [2026-10-05] [voo] [✓] Estado do voo vale POR SAVE: nasce desligada, abre voando só se o modelo foi salvo com `/voo ligar` (o confinamento tem override pra `somenteLeitura`; o voo não pode ganhar um igual).
-- [2026-10-05] [log] [✓] Antes de "resolver arquivo grande", MEDIR o que o enche — o chat.log de
-  344 KB era 2434/2434 linhas de `servidor:`, zero de aluno; o conserto foi separar fala de
-  gente de evento de sistema.
+- [2026-10-05] [log] [✓] Antes de "resolver arquivo grande", MEDIR o que o enche (o chat.log de 344 KB era 2434 linhas de `servidor:` e zero de aluno).
 - [2026-10-05] [shell] [✗] `pkill -f "tsx server/src/index.ts"` casa com o PRÓPRIO shell que o roda — matar por porta ou PID.
 - [2026-10-03] [teste] [✗] Provar portão do dist com mudança que a minificação engole — mexer em string VISÍVEL.
 - **Não aceitar "passou" sem CONTROLE NEGATIVO** — teste que passa com a feature desligada não testa nada.

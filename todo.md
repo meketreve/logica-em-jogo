@@ -1051,11 +1051,11 @@ sem ela os 4 níveis de machado empatariam no piso de 150 ms. Prova: `shared/src
   laterais = entradas), e a conta muda de "as duas entregam" pra "alguma entrega" — `every` →
   `some`. Ids 270-277, receita no FIM de `CIRCUITOS`. O par E/OU lado a lado é metade da aula:
   mesma peça, mesma forma, regra diferente.
-* \[ ] **placa de pressão** — a entrada que não é a mão: o ALUNO pisa e o circuito liga; saiu
-  de cima, desliga. Vira entrada do corpo, não do dedo, e abre o desafio "a porta só abre se os
-  DOIS pisarem juntos" (lógica + trabalho em grupo na mesma peça). Custo: o estado não vem do
-  clique, vem do tick comparando a posição dos jogadores com a célula — é a 1ª peça cujo estado
-  o `use_block` não decide. **Recomendada como o próximo lote.**
+* \[x] **placa de pressão** — **FEITO 2026-10-19.** Ids 278-279, estado no tick por
+  `overlapsAnyPlayer` (a mesma caixa que impede colocar bloco em cima de alguém, então o
+  `/invisivel` não pisa). Dois achados do caminho: ela precisou sair do `isSolidBlock` (sólida, o
+  portão do bug-605 RESGATAVA quem pisasse e a peça nunca ligava) e o `/bloco` recusa criá-la sob
+  os próprios pés, o que mudou o arranjo da sonda.
 * \[ ] **botão** — pulso: liga e volta sozinho depois de N ticks. Precisa de um prazo por célula
   (o motor hoje não tem relógio nenhum); o mais barato é o botão ligado entrar na fila de
   vizinhança com um contador, como a água. Depois da placa, que é mais simples.

@@ -11,16 +11,19 @@ active: true
 
 ## Agora
 
-- [ ] **Iluminação, o que falta** (19/10): a SUAVIZAÇÃO por vértice entrou. Em aberto: **luz
-      colorida** (3 canais na grade, no save e na propagação — lote grande, decisão dele) e a
-      **curva de brilho** no projetor da escola, que só se afina olhando.
+- [ ] **Iluminação, o que falta** (19/10): em aberto, **luz colorida** (3 canais na grade, no
+      save e na propagação — lote grande, decisão dele) e a **curva de brilho** no projetor.
 
 
 ## Testar na escola (o usuário faz; aula de 10/10 cobriu parte)
 
+- [ ] **§🔌 a PLACA DE PRESSÃO (19/10):** fabricar (2 pedregulhos), pôr no chão e pisar. No
+      tablet: dá pra ver que ela afundou? Duas placas numa porta E, com DOIS alunos — funciona
+      como desafio de grupo ou vira correria? E ela atrapalha quem só quer andar pela sala?
+
 - [ ] **§🔌 o DESENHO novo (19/10):** a alavanca em pé × deitada se lê **de longe e no projetor**?
-      O braço do fio ajuda a seguir o caminho? Os pinos de entrada acesos são notados pelo aluno
-      antes da lâmpada? E a lâmpada iluminando 14 não atrapalha a leitura da sala de noite?
+      Os pinos de entrada acesos são notados antes da lâmpada? A lâmpada de 14 não "lava" a sala
+      de noite? E a luz suave melhorou ou só deixou tudo mais claro?
 
 - [ ] **§🔌 o OBJETIVO acender (19/10), o mais novo:** montar o circuito numa região e criar o
       objetivo (painel do professor → tipo "acender", ou `/objetivo add acender <regiao> <texto>`).

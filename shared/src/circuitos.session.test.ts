@@ -60,6 +60,94 @@ function sala(opts: { claims?: boolean } = {}) {
   return { session, send, bloco, por, trocasNaRede, ultimaFala };
 }
 
+describe("a PLACA DE PRESSÃO: o corpo é a entrada (2026-10-19)", () => {
+  // ⚠️ a placa fica EM CIMA do chão (y=5), não embutida nele como as outras
+  // peças destes testes: é o único jeito de alguém pisar nela. O chão deste
+  // mundo plano termina em y=4, então quem anda tem os pés em y=5.
+  //
+  // ⚠️ e TODO MUNDO sai de cima antes: o `sala()` põe os dois jogadores em
+  // (4.5, 5, 4.5) pra ficarem no alcance das peças, que é exatamente onde
+  // estas placas ficam. Sem o `afastar` o teste nasce com a placa pisada e a
+  // primeira asserção mente.
+  const afastar = (s: ReturnType<typeof sala>, ...ids: number[]): void => {
+    for (const id of ids) s.send(id, { type: "move", x: 12.5, y: 5, z: 12.5, yaw: 0, pitch: 0 });
+  };
+  it("pisar LIGA e sair DESLIGA — e quem decide é o tick, não o clique", () => {
+    const s = sala();
+    afastar(s, 1, 2);
+    s.por(4, 5, 4, BlockId.PlacaDesligada);
+    s.por(5, 5, 4, BlockId.LampadaApagada);
+    // ninguém em cima: nada acontece por mais que o tick rode
+    s.session.tick();
+    expect(s.bloco(4, 5, 4)).toBe(BlockId.PlacaDesligada);
+    expect(s.bloco(5, 5, 4)).toBe(BlockId.LampadaApagada);
+
+    // ela PISA: a placa liga no tick seguinte e a lâmpada acende
+    s.send(2, { type: "move", x: 4.5, y: 5, z: 4.5, yaw: 0, pitch: 0 });
+    s.session.tick();
+    expect(s.bloco(4, 5, 4)).toBe(BlockId.PlacaLigada);
+    expect(s.bloco(5, 5, 4)).toBe(BlockId.LampadaAcesa);
+
+    // e SAIR de cima desliga as duas
+    s.send(2, { type: "move", x: 12.5, y: 5, z: 12.5, yaw: 0, pitch: 0 });
+    s.session.tick();
+    expect(s.bloco(4, 5, 4)).toBe(BlockId.PlacaDesligada);
+    expect(s.bloco(5, 5, 4)).toBe(BlockId.LampadaApagada);
+  });
+
+  it("CONTROLE NEGATIVO: estar no bloco de CIMA não pisa a placa", () => {
+    const s = sala();
+    afastar(s, 1, 2);
+    s.por(4, 5, 4, BlockId.PlacaDesligada);
+    s.send(2, { type: "move", x: 4.5, y: 6, z: 4.5, yaw: 0, pitch: 0 });
+    s.session.tick();
+    expect(s.bloco(4, 5, 4)).toBe(BlockId.PlacaDesligada);
+  });
+
+  it("a rede recebe a placa mudando (o cliente não adivinha quem pisou)", () => {
+    const s = sala();
+    afastar(s, 1, 2);
+    s.por(4, 5, 4, BlockId.PlacaDesligada);
+    s.send(2, { type: "move", x: 4.5, y: 5, z: 4.5, yaw: 0, pitch: 0 });
+    s.trocasNaRede();
+    s.session.tick();
+    expect(s.trocasNaRede()).toContainEqual({ x: 4, y: 5, z: 4, blockId: BlockId.PlacaLigada });
+  });
+
+  it("DUAS placas numa porta E: só acende com os DOIS alunos em cima", () => {
+    // é o desafio de grupo que a peça existe pra permitir
+    const s = sala();
+    s.send(3, { type: "join", name: "bia", pin: "3333" });
+    afastar(s, 1, 2, 3);
+    s.por(5, 5, 3, BlockId.PlacaDesligada); // entradas da porta E (frente +x)
+    s.por(5, 5, 5, BlockId.PlacaDesligada);
+    s.por(5, 5, 4, BlockId.PortaEXPDesligada);
+    s.por(6, 5, 4, BlockId.LampadaApagada);
+
+    s.send(2, { type: "move", x: 5.5, y: 5, z: 3.5, yaw: 0, pitch: 0 }); // só a ana
+    s.session.tick();
+    expect(s.bloco(6, 5, 4)).toBe(BlockId.LampadaApagada);
+
+    s.send(3, { type: "move", x: 5.5, y: 5, z: 5.5, yaw: 0, pitch: 0 }); // a bia também
+    s.session.tick();
+    expect(s.bloco(6, 5, 4)).toBe(BlockId.LampadaAcesa);
+
+    s.send(2, { type: "move", x: 12.5, y: 5, z: 12.5, yaw: 0, pitch: 0 }); // a ana sai
+    s.session.tick();
+    expect(s.bloco(6, 5, 4)).toBe(BlockId.LampadaApagada);
+  });
+
+  it("o `/invisivel` NÃO pisa: o professor fantasma atravessa a aula", () => {
+    const s = sala();
+    afastar(s, 1, 2);
+    s.por(4, 5, 4, BlockId.PlacaDesligada);
+    s.send(1, { type: "chat", text: "/invisivel" });
+    s.send(1, { type: "move", x: 4.5, y: 5, z: 4.5, yaw: 0, pitch: 0 });
+    s.session.tick();
+    expect(s.bloco(4, 5, 4)).toBe(BlockId.PlacaDesligada);
+  });
+});
+
 describe("a porta OU pelo fio (2026-10-19)", () => {
   it("o aluno coloca a OU virada pro OLHAR, como a E", () => {
     const s = sala();

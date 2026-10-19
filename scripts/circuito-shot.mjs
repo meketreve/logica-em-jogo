@@ -17,6 +17,7 @@
  * 4. a PORTA E só deixa passar com as DUAS entradas ligadas — a tabela-verdade
  *    inteira, vista na tela;
  * 4b. a PORTA OU, no MESMO arranjo, acende com UMA — a comparação lado a lado;
+ * 4c. a PLACA DE PRESSÃO acende a lâmpada quando alguém está EM CIMA dela;
  * 5. o aluno não planta circuito no mundo aberto sem terreno (o servidor
  *    explica no chat).
  *
@@ -412,7 +413,7 @@ if (!(await entrar("nome=profa&pin=1234&codigo=prof2026"))) {
 
 // ids do §🔌 (shared/src/blocks.ts) — a sonda monta o circuito por comando,
 // que é o jeito de ter a MESMA cena toda rodada
-const AR = 0, ALAVANCA = 256, FIO = 258, LAMPADA = 260, PORTA_E = 262, PORTA_OU = 270;
+const AR = 0, ALAVANCA = 256, FIO = 258, LAMPADA = 260, PORTA_E = 262, PORTA_OU = 270, PLACA = 278;
 
 await dizer("/modo criativo eu");
 await dizer("/hora meio-dia");
@@ -596,6 +597,49 @@ await virar(PX); // A desligada
 await dizer(`/bloco ${PX} ${Y_OLHO} ${Z0} ${PORTA_E}`);
 await virar(PX - 3); // B ligada de novo
 await espera(700);
+
+diga("== C3: a PLACA DE PRESSÃO — o pé liga o circuito (2026-10-19) ==");
+// ⚠️ COLUNA PRÓPRIA (PX+3), e não a do meio: a seção C montou a porta E na
+// coluna PX e trouxe a entrada A por um fio em (PX, Y_OLHO, PZ−3). A 1ª versão
+// desta seção pôs a lâmpada exatamente ali, apagou aquele fio e derrubou a
+// seção E três telas adiante — o sintoma foi o A/B dar o MESMO número duas
+// vezes, que nesta sonda é a assinatura de estar medindo outra coisa.
+const PX_PLACA = PX + 3;
+const Z_PLACA = PZ - 1;
+// o caminho: placa → fio no chão → fio sob a lâmpada → lâmpada na altura do olho
+for (const dz of [2, 3]) await dizer(`/bloco ${PX_PLACA} ${PY} ${PZ - dz} ${FIO}`);
+await dizer(`/bloco ${PX_PLACA} ${Y_OLHO} ${PZ - 3} ${LAMPADA}`);
+// ⚠️ a placa entra ANTES de alguém pisar nela: o `/bloco` (como o `place_block`)
+// recusa célula com jogador dentro, e a 1ª versão desta seção tentava criá-la
+// sob os próprios pés — ela simplesmente não nascia, e o A/B comparava duas
+// telas com a lâmpada apagada.
+await dizer(`/bloco ${PX_PLACA} ${PY} ${Z_PLACA} ${PLACA}`);
+await dizer(`/tp profa ${PX_PLACA} ${PY} ${Z_PLACA}`);
+await espera(1200);
+await limparChat();
+await espera(500);
+const pisada = (await brilho(...JANELA)).media;
+await foto("11-placa-pisada.png");
+// ⚠️ o A/B é da MESMA câmera, e é por isso que o controle é TIRAR a placa de
+// sob os pés em vez de sair de cima dela: andar um bloco muda o tamanho da
+// lâmpada na tela e contaminaria a medida. (Apagar a célula é permitido mesmo
+// com jogador dentro — o que o gate recusa é criar bloco ali.) Que SAIR de cima
+// desliga está provado no `circuitos.session.test.ts`, onde não há câmera.
+await dizer(`/bloco ${PX_PLACA} ${PY} ${Z_PLACA} 0`);
+await espera(1000);
+await limparChat();
+await espera(400);
+const semPlaca = (await brilho(...JANELA)).media;
+await foto("12-placa-tirada.png");
+ok(
+  pisada > semPlaca + 4,
+  `com o pé na placa a lâmpada ACENDE (sem placa ${semPlaca.toFixed(1)} → pisada ${pisada.toFixed(1)})`,
+);
+// limpa o que a seção criou: a lâmpada daqui cairia DENTRO da região que a
+// seção E fotografa, e ela afirma "1 lâmpada"
+for (const dz of [1, 2, 3]) await dizer(`/bloco ${PX_PLACA} ${PY} ${PZ - dz} 0`);
+await dizer(`/bloco ${PX_PLACA} ${Y_OLHO} ${PZ - 3} 0`);
+await espera(600);
 
 diga("== E: o OBJETIVO que CHECA o circuito (2026-10-19) ==");
 // Aqui a prova não é pixel: é o TEXTO do HUD, que é o que o aluno lê pra saber

@@ -15,7 +15,7 @@ import {
   slabTop,
   stairsMaterial,
 } from "./blocks";
-import { baseDaPorta, isPortaLogica } from "./circuitos";
+import { baseDaPorta, isPlaca, isPortaLogica } from "./circuitos";
 
 /**
  * A regra de ORIENTAÇÃO na hora de colocar, e o caminho de volta.
@@ -118,6 +118,8 @@ export function orientarParaColocar(blockId: number, yaw: number, porBaixo: bool
  */
 export function ancoraDeCopia(id: number): number {
   if (isPortaLogica(id)) return baseDaPorta(id) as number; // §🔌 (não é "porta": 262+, não 66-69)
+  // §🔌 pisada é ESTADO: copiar a placa com o pé em cima tem de dar a placa
+  if (isPlaca(id)) return BlockId.PlacaDesligada;
   if (isPorta(id)) return BlockId.PortaXFechada;
   if (isJanela(id)) return BlockId.JanelaXFechada;
   if (isCadeira(id)) return BlockId.CadeiraXP;

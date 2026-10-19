@@ -364,6 +364,23 @@ function paintPino(ctx: CanvasRenderingContext2D, tile: number, aceso: boolean):
   ctx.fillRect(ox + 3, oy + 3, ATLAS.tilePx - 6, 2); // um realce só, pra ter volume
 }
 
+/**
+ * §🔌 PLACA DE PRESSÃO (2026-10-19): pedra com uma marca de pé no meio.
+ *
+ * A marca existe porque a placa fica no CHÃO e, de pé ao lado dela, o aluno vê
+ * o topo em perspectiva rasa — sem um símbolo ela viraria uma laje qualquer.
+ * Pisada, a pedra clareia: a confirmação é a cor E o afundar da geometria,
+ * nessa ordem de importância invertida (quem lê de longe lê a lâmpada).
+ */
+function paintPlaca(ctx: CanvasRenderingContext2D, tile: number, pisada: boolean): void {
+  paintNoise(ctx, tile, pisada ? [150, 150, 158] : [112, 112, 120], 10);
+  const [ox, oy] = tileOrigin(tile);
+  ctx.fillStyle = pisada ? "rgba(252,246,214,0.9)" : "rgba(78,78,86,0.9)";
+  // uma sola: o calcanhar e a ponta, que a 16×16 é tudo o que cabe de "pé"
+  ctx.fillRect(ox + 6, oy + 4, 4, 5);
+  ctx.fillRect(ox + 6, oy + 10, 4, 3);
+}
+
 /** Janela (2026-07-19): moldura de madeira + cruz central; o vidro é
  *  AUSÊNCIA (cutout, mesmo truque do vidro/porta) com brilhos diagonais. */
 function paintJanela(ctx: CanvasRenderingContext2D, tile: number): void {
@@ -1022,6 +1039,8 @@ export function createAtlasTexture(): THREE.Texture {
   paintPortaE(ctx, TILE.portaELadoLigada, true, "lado");
   paintPortaE(ctx, TILE.portaOUTopoDesligada, false, "topo", "OU");
   paintPortaE(ctx, TILE.portaOUTopoLigada, true, "topo", "OU");
+  paintPlaca(ctx, TILE.placaDesligada, false);
+  paintPlaca(ctx, TILE.placaLigada, true);
   paintPino(ctx, TILE.portaPinoDesligado, false);
   paintPino(ctx, TILE.portaPinoLigado, true);
   // 2026-07-19: janela + móveis + quadro

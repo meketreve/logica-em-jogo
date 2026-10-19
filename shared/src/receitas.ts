@@ -426,6 +426,11 @@ const CIRCUITOS: readonly Receita[] = [
    *  duas tem de ser decisão de LÓGICA, não de economia. E entra no fim da
    *  lista porque índice é identidade no protocolo (ver o topo). */
   { saida: { id: BlockId.PortaOUXPDesligada, qtd: 1 }, custo: [{ id: BlockId.Cobblestone, qtd: 2 }, { id: ITEM_LINGOTE_FERRO, qtd: 2 }] },
+  /** A placa é a peça mais BARATA do circuito (2 pedregulhos, sem ferro), e de
+   *  propósito: o desafio em grupo quer várias espalhadas pela sala, e uma
+   *  entrada cara vira uma entrada que ninguém usa. Entra no fim: índice é
+   *  identidade (ver o topo). */
+  { saida: { id: BlockId.PlacaDesligada, qtd: 1 }, custo: [{ id: BlockId.Cobblestone, qtd: 2 }] },
 ];
 
 export const RECEITAS: readonly Receita[] = [

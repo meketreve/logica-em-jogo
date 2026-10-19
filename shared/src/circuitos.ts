@@ -109,6 +109,18 @@ export function isPortaLogica(id: number): boolean {
   return tipoDaPorta(id) !== null;
 }
 
+/**
+ * §🔌 PLACA DE PRESSÃO: entrada acionada pelo CORPO (2026-10-19).
+ *
+ * Do ponto de vista do motor ela é uma alavanca — fonte, entrega e não recebe.
+ * A diferença mora fora daqui: quem troca o byte dela é o tick da sessão,
+ * comparando a posição dos jogadores com a célula, e não o clique do aluno. O
+ * motor continua PURO: ele lê o byte e não sabe de onde veio.
+ */
+export function isPlaca(id: number): boolean {
+  return id === BlockId.PlacaDesligada || id === BlockId.PlacaLigada;
+}
+
 export function isPortaE(id: number): boolean {
   return tipoDaPorta(id) === "E";
 }
@@ -119,7 +131,7 @@ export function isPortaOU(id: number): boolean {
 
 /** Qualquer peça de circuito? (é o que o índice do servidor guarda). */
 export function isCircuito(id: number): boolean {
-  return isAlavanca(id) || isFio(id) || isLampada(id) || isPortaLogica(id);
+  return isAlavanca(id) || isFio(id) || isLampada(id) || isPortaLogica(id) || isPlaca(id);
 }
 
 /** A direção da FRENTE de uma porta lógica (por onde sai o resultado). */
@@ -139,6 +151,7 @@ export function baseDaPorta(id: number): number | null {
 /** A peça está LIGADA/ACESA agora? (o estado mora no id) */
 export function estaLigado(id: number): boolean {
   if (isAlavanca(id)) return id === BlockId.AlavancaLigada;
+  if (isPlaca(id)) return id === BlockId.PlacaLigada;
   if (isFio(id)) return id === BlockId.FioLigado;
   if (isLampada(id)) return id === BlockId.LampadaAcesa;
   const tipo = tipoDaPorta(id);
@@ -150,6 +163,7 @@ export function estaLigado(id: number): boolean {
  *  motor escreve no tick. Devolve o próprio id se ele não tem dois estados. */
 export function comEstado(id: number, ligado: boolean): number {
   if (isAlavanca(id)) return ligado ? BlockId.AlavancaLigada : BlockId.AlavancaDesligada;
+  if (isPlaca(id)) return ligado ? BlockId.PlacaLigada : BlockId.PlacaDesligada;
   if (isFio(id)) return ligado ? BlockId.FioLigado : BlockId.FioDesligado;
   if (isLampada(id)) return ligado ? BlockId.LampadaAcesa : BlockId.LampadaApagada;
   const tipo = tipoDaPorta(id);
@@ -185,7 +199,8 @@ export function ligacaoDoCondutor(
   dz: number,
 ): { recebe: boolean; entrega: boolean } {
   const nada = { recebe: false, entrega: false };
-  if (isAlavanca(idVizinho)) return { recebe: true, entrega: false };
+  // fontes: entregam e não recebem. A placa é uma alavanca que o PÉ aciona.
+  if (isAlavanca(idVizinho) || isPlaca(idVizinho)) return { recebe: true, entrega: false };
   if (isFio(idVizinho)) return { recebe: true, entrega: true };
   if (isLampada(idVizinho)) return { recebe: false, entrega: true };
   const frente = frenteDaPorta(idVizinho);
@@ -285,9 +300,9 @@ export function recalcularCircuitos(
 
   /** Quem está energizado AGORA, na conta (não no mundo). */
   const energizado = new Set<string>();
-  /** A alavanca é a única fonte que o aluno controla; ela entra ligada da vez. */
+  /** As FONTES (alavanca e placa) entram já ligadas, se estiverem. */
   for (const [k, p] of pecas) {
-    if (isAlavanca(p.id) && estaLigado(p.id)) energizado.add(k);
+    if ((isAlavanca(p.id) || isPlaca(p.id)) && estaLigado(p.id)) energizado.add(k);
   }
 
   /** Uma célula ENTREGA sinal aos vizinhos? */
@@ -307,7 +322,7 @@ export function recalcularCircuitos(
     let acendeu = false;
     for (const [k, p] of pecas) {
       if (energizado.has(k)) continue;
-      if (isAlavanca(p.id)) continue; // fonte: só o aluno liga
+      if (isAlavanca(p.id) || isPlaca(p.id)) continue; // fontes: quem liga é o aluno
       const tipo = tipoDaPorta(p.id);
       if (tipo) {
         const frente = frenteDaPorta(p.id);

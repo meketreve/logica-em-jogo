@@ -43,6 +43,16 @@ interface Mudanca {
 const MUDANCAS: readonly Mudanca[] = [
   {
     // sem `data`: este é o build atual (ver rotuloDoBloco)
+    titulo: "O circuito sente o seu pé",
+    itens: [
+      "pe\u00e7a NOVA na aba circuito: a **placa de press\u00e3o**. Voc\u00ea PISA nela e o circuito liga; sai de cima e desliga \u2014 \u00e9 a primeira entrada que n\u00e3o se aciona com a m\u00e3o",
+      "com ela d\u00e1 pra montar desafio de grupo: duas placas ligadas numa porta E s\u00f3 acendem a l\u00e2mpada se DUAS pessoas pisarem ao mesmo tempo",
+      "ela \u00e9 fininha e fica no ch\u00e3o: d\u00e1 pra andar por cima sem tropeçar, e ela afunda um tiquinho quando algu\u00e9m est\u00e1 em cima",
+      "na bancada: 2 pedregulhos (\u00e9 a pe\u00e7a mais barata do circuito, pra dar pra espalhar v\u00e1rias pela sala)",
+    ],
+  },
+  {
+    data: "19/10/2026",
     titulo: "Agora dá pra ver o circuito",
     itens: [
       "a L\u00c2MPADA ACESA ILUMINA de verdade, e com a mesma for\u00e7a de uma tocha: o circuito aceso clareia a sala \u2014 d\u00e1 pra usar o circuito pra iluminar o que voc\u00ea construiu",

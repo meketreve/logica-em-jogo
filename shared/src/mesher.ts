@@ -43,6 +43,7 @@ import {
   frenteDaPorta,
   isAlavanca,
   isFio,
+  isPlaca,
   passoDe,
   vizinhoEntrega,
 } from "./circuitos";
@@ -236,6 +237,7 @@ export const TILE = {
    *  independentes do estado da porta — é a entrada que já chegou, não o
    *  resultado. É a linha da tabela-verdade desenhada no próprio bloco. */
   portaPinoDesligado: 195, portaPinoLigado: 196,
+  placaDesligada: 197, placaLigada: 198,
 } as const;
 
 /** cp20: blocos-glifo. Letras A–Z e dígitos 0–9 ocupam tiles consecutivos a
@@ -548,6 +550,9 @@ export function blockSelectionBox(
   if (isTapete(id)) return [0, 0, 0, 1, P, 1];
   if (id === BlockId.Tocha) return [7 * P, 0, 7 * P, 9 * P, 10 * P, 9 * P];
   if (isFio(id)) return [0, 0, 0, 1, P, 1]; // §🔌 lâmina de chão, como o tapete
+  // §🔌 a placa: a mira é a MESMA nos dois estados (afundar não pode mudar onde
+  // se clica pra quebrar), e generosa — alvo de dedo no chão
+  if (isPlaca(id)) return [P, 0, P, 15 * P, 2 * P, 15 * P];
   // §🔌 a alavanca DEITADA (desligada) desenha baixa, mas a caixa de mira segue
   // 12/16 nos DOIS estados, de propósito: é o raycast que decide o rótulo do ▣,
   // e uma caixa baixa traria de volta o "colocar" por cima dela (bug-676). Mira
@@ -1293,6 +1298,17 @@ export function meshVizinhanca(viz: Uint16Array, luzViz?: Uint8Array | null): Ch
         // era invisível. O poste sobe do pad até o teto da célula e encosta na
         // lâmina de cima.
         if (liga(0, 1, 0)) emitBox(lx, ly, lz, id, tile, a, h, a, b, 1, b);
+        return true;
+      }
+      // §🔌 a PLACA DE PRESSÃO: lâmina de chão com uma borda, e ela AFUNDA
+      // quando alguém está em cima — 2/16 de altura vira 1/16. O movimento é
+      // pequeno de propósito: ele confirma o que o aluno acabou de fazer com o
+      // pé, enquanto quem lê de longe lê a LÂMPADA, que é a saída.
+      case BlockId.PlacaDesligada:
+      case BlockId.PlacaLigada: {
+        const pisada = id === BlockId.PlacaLigada;
+        const t = pisada ? TILE.placaLigada : TILE.placaDesligada;
+        emitBox(lx, ly, lz, id, t, P, 0, P, 15 * P, pisada ? P : 2 * P, 15 * P);
         return true;
       }
       // §🔌 a PORTA LÓGICA é um CHIP (2026-10-19): corpo recuado 2/16, pino de

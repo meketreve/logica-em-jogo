@@ -364,6 +364,13 @@ export const BlockId = {
   PortaOUZPLigada: 275,
   PortaOUXNLigada: 276,
   PortaOUZNLigada: 277,
+  /** §🔌 PLACA DE PRESSÃO (2026-10-19): a 1ª entrada que não é a mão. Quem a
+   *  liga é o CORPO do aluno — o tick compara a posição dos jogadores com a
+   *  célula —, e por isso ela é a única peça de circuito cujo estado o
+   *  `use_block` não decide. Lâmina de chão como o tapete: dá pra andar por
+   *  cima sem tropeçar. */
+  PlacaDesligada: 278,
+  PlacaLigada: 279,
 } as const;
 
 export type BlockId = (typeof BlockId)[keyof typeof BlockId];
@@ -382,7 +389,7 @@ export type BlockId = (typeof BlockId)[keyof typeof BlockId];
  * mochila. Há portão em `ids16.test.ts`. E id é byte de SAVE: nunca renumerar
  * um id que já existe, só acrescentar no fim.
  */
-export const MAX_BLOCK_ID = BlockId.PortaOUZNLigada;
+export const MAX_BLOCK_ID = BlockId.PlacaLigada;
 
 /**
  * Os ids que EXISTEM de verdade.
@@ -425,7 +432,8 @@ export function isCircuitoLigado(id: number): boolean {
     id === BlockId.FioLigado ||
     id === BlockId.LampadaAcesa ||
     (id >= BlockId.PortaEXPLigada && id <= BlockId.PortaEZNLigada) ||
-    (id >= BlockId.PortaOUXPLigada && id <= BlockId.PortaOUZNLigada)
+    (id >= BlockId.PortaOUXPLigada && id <= BlockId.PortaOUZNLigada) ||
+    id === BlockId.PlacaLigada
   );
 }
 
@@ -1215,6 +1223,8 @@ export function isFullCube(id: number): boolean {
     // é o que permite a forma — e, de brinde, a luz passa pelo vão (como no
     // baú), o que ajuda a lâmpada do circuito a se fazer ver.
     !ehPortaLogica(id) &&
+    id !== BlockId.PlacaDesligada && // §🔌 lâmina de chão, como o tapete
+    id !== BlockId.PlacaLigada &&
     id !== BlockId.FioDesligado &&
     id !== BlockId.FioLigado &&
     id !== BlockId.AlavancaDesligada &&
@@ -1236,6 +1246,12 @@ export function isSolidBlock(id: number): boolean {
     id !== BlockId.FioLigado &&
     id !== BlockId.AlavancaDesligada &&
     id !== BlockId.AlavancaLigada &&
+    // §🔌 e a PLACA DE PRESSÃO mais que todas: ela existe PRA SER PISADA.
+    // Sólida, o servidor resgatava quem pisasse (o portão do bug-605 vê
+    // "jogador dentro de bloco sólido" e tira a pessoa de lá), e a peça nunca
+    // ligava — quem pegou foi o teste de sessão.
+    id !== BlockId.PlacaDesligada &&
+    id !== BlockId.PlacaLigada &&
     !isTapete(id) &&
     !isQuadro(id) &&
     !isFlor(id) &&
