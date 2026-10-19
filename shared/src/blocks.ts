@@ -351,6 +351,19 @@ export const BlockId = {
   PortaEZPLigada: 267,
   PortaEXNLigada: 268,
   PortaEZNLigada: 269,
+  /** Porta lógica OU (2026-10-19): MESMA geometria da E — frente = saída, as
+   *  duas laterais = entradas —, e só a regra muda ("alguma" no lugar de "as
+   *  duas"). O bloco de 8 ids segue o mesmo desenho da E de propósito: as 4
+   *  direções desligadas, depois as 4 ligadas, `base + 4` = ligada. É isso que
+   *  deixa `circuitos.ts` tratar porta por TABELA em vez de por `if` por tipo. */
+  PortaOUXPDesligada: 270,
+  PortaOUZPDesligada: 271,
+  PortaOUXNDesligada: 272,
+  PortaOUZNDesligada: 273,
+  PortaOUXPLigada: 274,
+  PortaOUZPLigada: 275,
+  PortaOUXNLigada: 276,
+  PortaOUZNLigada: 277,
 } as const;
 
 export type BlockId = (typeof BlockId)[keyof typeof BlockId];
@@ -369,7 +382,7 @@ export type BlockId = (typeof BlockId)[keyof typeof BlockId];
  * mochila. Há portão em `ids16.test.ts`. E id é byte de SAVE: nunca renumerar
  * um id que já existe, só acrescentar no fim.
  */
-export const MAX_BLOCK_ID = BlockId.PortaEZNLigada;
+export const MAX_BLOCK_ID = BlockId.PortaOUZNLigada;
 
 /**
  * Os ids que EXISTEM de verdade.
@@ -398,7 +411,8 @@ export function isCircuitoLigado(id: number): boolean {
     id === BlockId.AlavancaLigada ||
     id === BlockId.FioLigado ||
     id === BlockId.LampadaAcesa ||
-    (id >= BlockId.PortaEXPLigada && id <= BlockId.PortaEZNLigada)
+    (id >= BlockId.PortaEXPLigada && id <= BlockId.PortaEZNLigada) ||
+    (id >= BlockId.PortaOUXPLigada && id <= BlockId.PortaOUZNLigada)
   );
 }
 

@@ -1,10 +1,12 @@
 import { describe, expect, it } from "vitest";
-import { BlockId } from "./blocks";
+import { BlockId, isPlaceable } from "./blocks";
+import { formaCanonica } from "./drops";
+import { ancoraDeCopia } from "./orientacao";
 import {
   type Celula,
   comEstado,
   estaLigado,
-  frenteDaPortaE,
+  frenteDaPorta,
   isCircuito,
   recalcularCircuitos,
 } from "./circuitos";
@@ -98,6 +100,162 @@ describe("o básico: alavanca, fio e lâmpada", () => {
   });
 });
 
+describe("a OU é uma peça PRÓPRIA, não um estado da E", () => {
+  it("o drop e a âncora da mochila devolvem a OU, não a E", () => {
+    // é o erro que uma tabela compartilhada convida: as duas portas têm o
+    // mesmo desenho de ids, então "voltar pro id base" podia cair na base ERRADA
+    for (const id of [
+      BlockId.PortaOUXPDesligada,
+      BlockId.PortaOUZNDesligada,
+      BlockId.PortaOUXNLigada,
+      BlockId.PortaOUZNLigada,
+    ]) {
+      expect(formaCanonica(id)).toBe(BlockId.PortaOUXPDesligada);
+      expect(ancoraDeCopia(id)).toBe(BlockId.PortaOUXPDesligada);
+    }
+    for (const id of [BlockId.PortaEXPDesligada, BlockId.PortaEZNLigada]) {
+      expect(formaCanonica(id)).toBe(BlockId.PortaEXPDesligada);
+      expect(ancoraDeCopia(id)).toBe(BlockId.PortaEXPDesligada);
+    }
+  });
+
+  it("estaLigado e comEstado acertam a direção dentro de cada família", () => {
+    for (const [desligada, ligada] of [
+      [BlockId.PortaOUXPDesligada, BlockId.PortaOUXPLigada],
+      [BlockId.PortaOUZNDesligada, BlockId.PortaOUZNLigada],
+      [BlockId.PortaEZPDesligada, BlockId.PortaEZPLigada],
+    ] as const) {
+      expect(estaLigado(desligada)).toBe(false);
+      expect(estaLigado(ligada)).toBe(true);
+      expect(comEstado(desligada, true)).toBe(ligada);
+      expect(comEstado(ligada, false)).toBe(desligada);
+      // a frente é a MESMA nos dois estados (estado não vira a peça)
+      expect(frenteDaPorta(desligada)).toBe(frenteDaPorta(ligada));
+    }
+  });
+
+  it("a OU é colocável e indexada como circuito; a LIGADA não se coloca", () => {
+    expect(isCircuito(BlockId.PortaOUXPDesligada)).toBe(true);
+    expect(isCircuito(BlockId.PortaOUZNLigada)).toBe(true);
+    expect(isPlaceable(BlockId.PortaOUXPDesligada)).toBe(true);
+    expect(isPlaceable(BlockId.PortaOUXPLigada)).toBe(false); // estado, não escolha
+  });
+});
+
+describe("a tabela-verdade da porta OU (2026-10-19)", () => {
+  /** A MESMA bancada da porta E, trocando só a peça do meio — é esse o ponto:
+   *  mesma forma, mesma frente, mesmas entradas, regra diferente. */
+  function bancada(a: boolean, b: boolean) {
+    return mundinho([
+      { x: 0, y: 0, z: 1, id: a ? BlockId.AlavancaLigada : BlockId.AlavancaDesligada },
+      { x: 0, y: 0, z: -1, id: b ? BlockId.AlavancaLigada : BlockId.AlavancaDesligada },
+      { x: 0, y: 0, z: 0, id: BlockId.PortaOUXPDesligada },
+      { x: 1, y: 0, z: 0, id: BlockId.LampadaApagada },
+    ]);
+  }
+
+  for (const [a, b, esperado] of [
+    [false, false, false], // o controle negativo: OU que acende sempre não é OU
+    [true, false, true],
+    [false, true, true],
+    [true, true, true],
+  ] as const) {
+    it(`${a ? "1" : "0"} OU ${b ? "1" : "0"} = ${esperado ? "1" : "0"}`, () => {
+      const m = bancada(a, b);
+      m.tick();
+      expect(m.aceso(0, 0, 0)).toBe(esperado);
+      expect(m.aceso(1, 0, 0)).toBe(esperado);
+    });
+  }
+
+  it("as DUAS linhas em que E e OU discordam são as que a aula usa", () => {
+    // 1E0=0 mas 1OU0=1 — é a comparação lado a lado que ensina a diferença
+    const e = mundinho([
+      { x: 0, y: 0, z: 1, id: BlockId.AlavancaLigada },
+      { x: 0, y: 0, z: -1, id: BlockId.AlavancaDesligada },
+      { x: 0, y: 0, z: 0, id: BlockId.PortaEXPDesligada },
+      { x: 1, y: 0, z: 0, id: BlockId.LampadaApagada },
+    ]);
+    const ou = bancada(true, false);
+    e.tick();
+    ou.tick();
+    expect(e.aceso(1, 0, 0)).toBe(false);
+    expect(ou.aceso(1, 0, 0)).toBe(true);
+  });
+
+  it("a OU também só ENTREGA pela frente", () => {
+    // com UMA alavanca a OU liga de verdade — então, sem esta regra, o sinal
+    // sairia pela lateral e acenderia a lâmpada posta na outra ENTRADA
+    const m = mundinho([
+      { x: 0, y: 0, z: 1, id: BlockId.AlavancaLigada },
+      { x: 0, y: 0, z: 0, id: BlockId.PortaOUXPDesligada },
+      { x: 0, y: 0, z: -1, id: BlockId.LampadaApagada },
+    ]);
+    m.tick();
+    expect(m.aceso(0, 0, 0)).toBe(true); // a porta LIGA (1 OU 0 = 1)…
+    expect(m.aceso(0, 0, -1)).toBe(false); // …e mesmo assim não acende a lateral
+  });
+
+  it("as quatro direções da OU: muda pra onde sai, não a regra", () => {
+    for (const f of [
+      { id: BlockId.PortaOUZPDesligada, saida: { x: 0, z: 1 }, lado: { x: 1, z: 0 } },
+      { id: BlockId.PortaOUXNDesligada, saida: { x: -1, z: 0 }, lado: { x: 0, z: 1 } },
+      { id: BlockId.PortaOUZNDesligada, saida: { x: 0, z: -1 }, lado: { x: 1, z: 0 } },
+    ]) {
+      const m = mundinho([
+        { x: f.lado.x, y: 0, z: f.lado.z, id: BlockId.AlavancaLigada }, // UMA só
+        { x: 0, y: 0, z: 0, id: f.id },
+        { x: f.saida.x, y: 0, z: f.saida.z, id: BlockId.LampadaApagada },
+      ]);
+      m.tick();
+      expect(m.aceso(f.saida.x, 0, f.saida.z)).toBe(true);
+    }
+  });
+
+  it("E alimentando OU: o resultado de uma vira ENTRADA da outra", () => {
+    // ⚠️ a saída de uma porta tem de cair num LADO da outra, nunca nas costas:
+    // porta lê as duas laterais e mais nada. Aqui a E (virada pro −z) entrega
+    // num fio que ESTÁ na lateral da OU — foi a 1ª versão deste teste que
+    // esbarrou nisso, encostando a E nas costas da OU e não acendendo nada.
+    //
+    //   planta:        alavanca              alavanca
+    //                      │                     │
+    //        z+2      [lev A]──[  E  ↓ ]──[lev B]
+    //        z+1                 [fio]
+    //        z0       [solta]─[ OU → ]─[LÂMPADA]
+    const m = mundinho([
+      { x: 1, y: 0, z: 2, id: BlockId.AlavancaDesligada }, // entradas da E
+      { x: -1, y: 0, z: 2, id: BlockId.AlavancaDesligada },
+      { x: 0, y: 0, z: 2, id: BlockId.PortaEZNDesligada }, // E, saída pro −z
+      { x: 0, y: 0, z: 1, id: BlockId.FioDesligado }, // saída da E = lateral da OU
+      { x: 0, y: 0, z: 0, id: BlockId.PortaOUXPDesligada }, // OU, saída pro +x
+      { x: 0, y: 0, z: -1, id: BlockId.AlavancaDesligada }, // a outra lateral da OU
+      { x: 1, y: 0, z: 0, id: BlockId.LampadaApagada },
+    ]);
+    m.tick();
+    expect(m.aceso(1, 0, 0)).toBe(false); // nada ligado: apagada
+
+    // só a alavanca solta: 0 OU 1 = 1, a lâmpada acende sem a E participar
+    m.ligar(0, 0, -1, true);
+    m.tick();
+    expect(m.aceso(1, 0, 0)).toBe(true);
+
+    // desliga a solta e liga as DUAS da E: a E entrega pelo fio e a OU repassa
+    m.ligar(0, 0, -1, false);
+    m.ligar(1, 0, 2, true);
+    m.ligar(-1, 0, 2, true);
+    m.tick();
+    expect(m.aceso(0, 0, 2)).toBe(true); // a E
+    expect(m.aceso(1, 0, 0)).toBe(true); // a lâmpada, pelo caminho todo
+
+    // CONTROLE NEGATIVO: com UMA entrada da E, o caminho inteiro apaga
+    m.ligar(-1, 0, 2, false);
+    m.tick();
+    expect(m.aceso(0, 0, 2)).toBe(false);
+    expect(m.aceso(1, 0, 0)).toBe(false);
+  });
+});
+
 describe("a tabela-verdade da porta E (é a aula)", () => {
   /** Duas alavancas nas laterais de uma porta E virada pro +x, lâmpada à frente. */
   function bancada(a: boolean, b: boolean) {
@@ -150,7 +308,7 @@ describe("a tabela-verdade da porta E (é a aula)", () => {
         { x: f.saida.x, y: 0, z: f.saida.z, id: BlockId.LampadaApagada },
       ]);
       m.tick();
-      expect(m.aceso(f.saida.x, 0, f.saida.z), `frente ${frenteDaPortaE(f.id)}`).toBe(true);
+      expect(m.aceso(f.saida.x, 0, f.saida.z), `frente ${frenteDaPorta(f.id)}`).toBe(true);
     }
   });
 

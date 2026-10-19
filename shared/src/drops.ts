@@ -24,7 +24,7 @@ import {
   slabMaterial,
   stairsMaterial,
 } from "./blocks";
-import { isAlavanca, isFio, isLampada, isPortaE } from "./circuitos";
+import { baseDaPorta, isAlavanca, isFio, isLampada, isPortaLogica } from "./circuitos";
 import type { Stack } from "./inventario";
 
 /**
@@ -76,7 +76,7 @@ export function formaCanonica(id: number): number {
   if (isAlavanca(id)) return BlockId.AlavancaDesligada;
   if (isFio(id)) return BlockId.FioDesligado;
   if (isLampada(id)) return BlockId.LampadaApagada;
-  if (isPortaE(id)) return BlockId.PortaEXPDesligada;
+  if (isPortaLogica(id)) return baseDaPorta(id) as number;
   return id;
 }
 

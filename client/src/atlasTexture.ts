@@ -299,12 +299,22 @@ function paintPortaE(
   tile: number,
   ligada: boolean,
   face: "topo" | "lado" | "frente",
+  regra: "E" | "OU" = "E",
 ): void {
   paintNoise(ctx, tile, ligada ? [108, 96, 72] : [84, 84, 90], 10);
   const [ox, oy] = tileOrigin(tile);
   const tinta = ligada ? "rgb(255,214,92)" : "rgb(176,176,182)";
   ctx.fillStyle = tinta;
-  if (face === "topo") {
+  if (face === "topo" && regra === "OU") {
+    // §🔌 "OU" não cabe legível em 16×16 (duas letras dariam 6px cada), então
+    // o topo da OU é um CÍRCULO vazado — e o da E, barras retas. A diferença
+    // tem de ser lida de CIMA e de longe, na mesa, por criança de 10 anos:
+    // forma redonda × forma quadrada decide antes de a letra ser decifrada.
+    ctx.fillRect(ox + 5, oy + 3, 6, 2);
+    ctx.fillRect(ox + 5, oy + 11, 6, 2);
+    ctx.fillRect(ox + 3, oy + 5, 2, 6);
+    ctx.fillRect(ox + 11, oy + 5, 2, 6);
+  } else if (face === "topo") {
     // um "E" de 3 barras, legível a 16×16
     ctx.fillRect(ox + 4, oy + 3, 2, 10);
     ctx.fillRect(ox + 4, oy + 3, 8, 2);
@@ -976,6 +986,8 @@ export function createAtlasTexture(): THREE.Texture {
   paintPortaE(ctx, TILE.portaELadoDesligada, false, "lado");
   paintPortaE(ctx, TILE.portaELadoLigada, true, "lado");
   paintPortaE(ctx, TILE.portaEFrenteDesligada, false, "frente");
+  paintPortaE(ctx, TILE.portaOUTopoDesligada, false, "topo", "OU");
+  paintPortaE(ctx, TILE.portaOUTopoLigada, true, "topo", "OU");
   paintPortaE(ctx, TILE.portaEFrenteLigada, true, "frente");
   // 2026-07-19: janela + móveis + quadro
   paintJanela(ctx, TILE.janela);

@@ -45,6 +45,9 @@ const MUDANCAS: readonly Mudanca[] = [
     // sem `data`: este é o build atual (ver rotuloDoBloco)
     titulo: "O jogo confere o seu circuito",
     itens: [
+      "peça NOVA na aba circuito: a **porta OU** \u2014 ela deixa o sinal passar quando ALGUMA das duas entradas está ligada (a porta E exige as DUAS)",
+      "a OU tem a mesma forma e a mesma seta da E, e custa o mesmo: o que muda é só a REGRA \u2014 dá pra trocar uma pela outra na mesa e ver a diferença na hora",
+      "de cima, a E tem barras retas e a OU tem um anel redondo: dá pra saber qual é qual olhando a mesa de longe",
       "objetivo NOVO para o professor: \u201cacender\u201d \u2014 ele monta um circuito na \u00e1rea, cria o objetivo, e o jogo confere sozinho quando a l\u00e2mpada acende",
       "e confere DIREITO: o jogo fotografa as pe\u00e7as na hora de criar o desafio, ent\u00e3o vale acender mexendo nas ALAVANCAS \u2014 encostar uma alavanca na l\u00e2mpada, ou puxar um fio por fora da porta E, n\u00e3o ganha",
       "se voc\u00ea mexer no circuito sem querer, o HUD avisa quantas pe\u00e7as est\u00e3o fora do lugar: \u00e9 s\u00f3 devolver como estava",

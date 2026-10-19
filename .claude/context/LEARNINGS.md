@@ -42,6 +42,7 @@ tier: 3
 
 ## Erros a não repetir
 
+- [2026-10-19] [circuito] [✓] Porta lógica se descreve por TABELA (`PORTAS` com o id base + `LIGA` com a regra), nunca por `isPortaX` por tipo: a OU entrou sem um `if` novo no motor, e `base + 4 + direção` deixou estado e frente saírem da aritmética. Porta nova = duas entradas na tabela.
 - [2026-10-19] [objetivo] [✓] Objetivo que checa CIRCUITO confere contra a FOTO da área, não contra o mundo: o alvo ("1 lâmpada") vem da foto, senão quebrar a lâmpada fechava o objetivo em 0/0. `comEstado(id, false)` canoniza o estado — ligado/desligado é o que o aluno TEM o direito de mudar; peça trocada é que é "fora do lugar".
 - [2026-10-19] [teste] [✗] `toContain` em frase que o SERVIDOR monta — deixou passar "objetivo concluído: objetivo concluído: X" (prefixo dos dois lados) e quem viu foi o PRINT da sonda. Frase inteira se afirma com `toEqual`.
 - [2026-10-19] [protocolo] [✓] CARACTERE não é byte: todo teto de texto contava caractere (`MAX_CHAT_LENGTH`, `MAX_QUADRO_TEXTO`) e emoji custa 4 — teto novo de texto vem em PAR (caracteres + bytes, o menor ganha, `cortarEmBytes` corta em fronteira de code point). E teto por CAMPO só vale depois do parse: o do frame cru mora no funil da `GameSession` **e** no `maxPayload` do `ws` (os interceptadores do host parseiam antes dela).

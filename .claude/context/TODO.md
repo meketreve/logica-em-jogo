@@ -1,7 +1,7 @@
 ---
 updated: 2026-10-19
 tier: 3
-active: false
+active: true
 ---
 
 # TODO
@@ -10,6 +10,11 @@ active: false
 > Aqui fica só a fila de trabalho. Ideia nova do usuário vai pro `todo.md`, não para cá.
 
 ## Agora
+
+- [ ] **§🔌 modelos melhores das peças** (doc `Circuitos modelos melhores.md`, 19/10): lâmpada que
+      ilumina, fio conectado (molde da cerca), porta como CHIP com pinos, alavanca em pé/deitada.
+      ANTES da NÃO, senão o redesenho (e a sonda) se paga duas vezes → **verify:** a
+      `shots:circuito` re-calibrada enxergando cada mudança.
 
 - [x] ~~**§🔌 o OBJETIVO que CHECA o circuito**~~ — feito em 19/10 (tipo `acender`: foto do
       circuito no add, só alavanca pode mudar, progresso por grupo). Falta ver em AULA (abaixo).
@@ -21,31 +26,26 @@ active: false
       Ver o jogo fechar sozinho. Conferir se a frase "peça(s) fora do lugar" é entendida por
       criança de 10 anos, e se "zerar progresso" deixa o desafio pronto pro grupo seguinte.
 
-- [ ] **§🔌 CIRCUITO (16/10):** fabricar as quatro peças na bancada; montar
-      alavanca→fio→lâmpada e ver acender; montar a porta E com duas alavancas e conferir que só
-      acende com as DUAS. No tablet: a alavanca é fácil de acertar com o dedo (ela tem 12/16 de
-      altura) e dá pra distinguir ligada de desligada **de longe**? E em mundo com proteção
-      ligada, o aluno sem terreno tem de ser barrado com a frase do chat.
+- [ ] **§🔌 CIRCUITO (16/10) + porta OU (19/10):** fabricar as peças na bancada; montar
+      alavanca→fio→lâmpada; a porta E só com as DUAS, a OU com UMA. No tablet: a alavanca é fácil
+      de acertar com o dedo e dá pra distinguir ligada de desligada **de longe**? Dá pra
+      diferenciar E de OU olhando a mesa? E o aluno sem terreno é barrado com a frase do chat.
 
 - [ ] **Lote de 15/10:** no tablet, a lista de comandos do ALUNO (10) tem de caber **sem rolar e
       sem sumir atrás do teclado**. Se ainda sumir, anotar **se o CAMPO de digitar some junto**
       (aí é o `--kb` do aparelho, em `chat.ts`) e a orientação. E o painel unificado: G / 👥 /
       `/amigos` abrem o MESMO painel na aba "amigos".
 
-- [ ] **Lote de 10/10:** Ctrl+C num mundo cheio e reabrir (tem de voltar inteiro); e o botão
-      **restaurar** no mundo convertido do singleplayer.
-- [ ] **§🪓 machado e pá:** fabricar os dois; sentir se derrubar árvore de MÃO NUA ficou chato
-      (1,5 s — uma linha do `DUREZA` em `ferramentas.ts`); ícones distinguíveis a 1024×600.
-- [ ] **Heartbeat (bug-675) — AINDA ABERTO, o mais importante:** aula de 10/10 com turma cheia:
-      as quedas **diminuíram mas não zeraram**. Falta saber da próxima vez: quantos caíram, se
-      viram o MOTIVO na tela, e se cai sempre o mesmo aparelho (tablet no Wi-Fi) — a sobra pode
-      ser outra causa, não o heartbeat. *(13/10: a sobra do host abaixo do limiar de 8 s foi
-      endurecida — queda por silêncio agora exige 3 perguntas de verdade; a observação em aula
-      continua valendo.)*
+- [ ] **Lote de 10/10:** Ctrl+C num mundo cheio e reabrir; e o botão **restaurar** no mundo convertido do singleplayer.
+- [ ] **§🪓 machado e pá:** fabricar os dois; sentir se árvore de MÃO NUA ficou chata (1,5 s, `DUREZA`); ícones distinguíveis a 1024×600.
+- [ ] **Heartbeat (bug-675) — AINDA ABERTO, o mais importante:** em 10/10 as quedas diminuíram
+      mas não zeraram. Falta saber: quantos caíram, se viram o MOTIVO na tela, e se cai sempre o
+      mesmo aparelho — a sobra pode ser outra causa. *(13/10: queda por silêncio agora exige 3
+      perguntas de verdade.)*
 - [ ] **Logs (não lidos ainda):** `mundos/<nome>/logs/` — o par com data/hora, e o `-chat.log` só com fala de gente.
 - [ ] **Presença (bug-672):** reentrar com o mesmo nome (a volta tem de ser NA HORA); e se os 15 s não derrubam ninguém no Wi-Fi da escola (`constants.ts`).
-- [ ] **Loja:** preço de ITEM **e reabrir o mundo** (era na releitura do save que sumia).
-- [ ] **Ids de 16 bits:** abrir o mundo da turma no host (tem de nascer `<nome>.antes-ids16.ljw`).
+- [ ] **Loja:** preço de ITEM e reabrir o mundo (sumia na releitura do save).
+- [ ] **Ids 16 bits:** abrir o mundo da turma no host (nasce `<nome>.antes-ids16.ljw`).
 - [ ] **Cama/torre:** deitar perto e longe, levantar pulando; torre de pular+colocar no Wi-Fi da escola (latência do bug-652). E o **bug-650** com turma cheia.
 
 ## Depois

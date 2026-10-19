@@ -35,7 +35,7 @@ import {
   slabMaterial,
   stairsMaterial,
 } from "./blocks";
-import { frenteDaPortaE, isAlavanca, isFio } from "./circuitos";
+import { frenteDaPorta, isAlavanca, isFio } from "./circuitos";
 import { CHUNK_SIZE } from "./constants";
 import { type LuzWorld, luzByte } from "./luz";
 import { setorDaDirecao } from "./vento";
@@ -218,6 +218,11 @@ export const TILE = {
   portaETopoDesligada: 187, portaETopoLigada: 188,
   portaELadoDesligada: 189, portaELadoLigada: 190,
   portaEFrenteDesligada: 191, portaEFrenteLigada: 192,
+  /** §🔌 a porta OU (2026-10-19) compartilha LADO e FRENTE com a E: a carcaça é
+   *  a mesma peça e a seta quer dizer a mesma coisa ("o resultado sai por
+   *  aqui"). Só o TOPO muda, porque é de cima que o aluno lê a mesa — e é ali
+   *  que ele precisa saber se aquela é a porta do "as duas" ou a do "alguma". */
+  portaOUTopoDesligada: 193, portaOUTopoLigada: 194,
 } as const;
 
 /** cp20: blocos-glifo. Letras A–Z e dígitos 0–9 ocupam tiles consecutivos a
@@ -251,10 +256,10 @@ const DIR_XZ: readonly (readonly [number, number])[] = [[1, 0], [0, 1], [-1, 0],
  *  Hoje só a fornalha responde — mas a pergunta é do MESHER (que face recebe o
  *  tile diferente?) e não da fornalha, então quem entrar depois entra aqui. */
 function frenteDoBloco(id: number): readonly [number, number] | null {
-  // §🔌 a porta E tem frente pelo MESMO motivo da fornalha, e é por isso que
+  // §🔌 a porta lógica tem frente pelo MESMO motivo da fornalha, e é por isso que
   // este `if` entra aqui em vez de virar um caminho novo: o aluno precisa VER
   // por onde o resultado sai, senão a direção só existe no servidor.
-  const frente = frenteDaPortaE(id);
+  const frente = frenteDaPorta(id);
   if (frente) {
     const k = { XP: 0, ZP: 1, XN: 2, ZN: 3 }[frente];
     return DIR_XZ[k] ?? null;
@@ -263,13 +268,18 @@ function frenteDoBloco(id: number): readonly [number, number] | null {
   return k < 0 ? null : (DIR_XZ[k] ?? null);
 }
 
-/** As faces de uma porta E no estado dado (topo marcado, frente diferente). */
-const portaETiles = (ligada: boolean): FaceTiles => ({
-  top: ligada ? TILE.portaETopoLigada : TILE.portaETopoDesligada,
+/** As faces de uma porta lógica no estado dado (topo marcado = qual regra,
+ *  frente = por onde sai o resultado). O topo é o único tile por TIPO. */
+const portaTiles = (topoDesligado: number, topoLigado: number, ligada: boolean): FaceTiles => ({
+  top: ligada ? topoLigado : topoDesligado,
   bottom: ligada ? TILE.portaELadoLigada : TILE.portaELadoDesligada,
   side: ligada ? TILE.portaELadoLigada : TILE.portaELadoDesligada,
   frente: ligada ? TILE.portaEFrenteLigada : TILE.portaEFrenteDesligada,
 });
+const portaETiles = (ligada: boolean): FaceTiles =>
+  portaTiles(TILE.portaETopoDesligada, TILE.portaETopoLigada, ligada);
+const portaOUTiles = (ligada: boolean): FaceTiles =>
+  portaTiles(TILE.portaOUTopoDesligada, TILE.portaOUTopoLigada, ligada);
 
 const BLOCK_TILES: Record<number, FaceTiles> = {
   [BlockId.Grass]: { top: TILE.grassTop, bottom: TILE.dirt, side: TILE.grassSide },
@@ -332,6 +342,14 @@ const BLOCK_TILES: Record<number, FaceTiles> = {
   [BlockId.PortaEZPLigada]: portaETiles(true),
   [BlockId.PortaEXNLigada]: portaETiles(true),
   [BlockId.PortaEZNLigada]: portaETiles(true),
+  [BlockId.PortaOUXPDesligada]: portaOUTiles(false),
+  [BlockId.PortaOUZPDesligada]: portaOUTiles(false),
+  [BlockId.PortaOUXNDesligada]: portaOUTiles(false),
+  [BlockId.PortaOUZNDesligada]: portaOUTiles(false),
+  [BlockId.PortaOUXPLigada]: portaOUTiles(true),
+  [BlockId.PortaOUZPLigada]: portaOUTiles(true),
+  [BlockId.PortaOUXNLigada]: portaOUTiles(true),
+  [BlockId.PortaOUZNLigada]: portaOUTiles(true),
   [BlockId.JanelaXFechada]: uniform(TILE.janela),
   [BlockId.JanelaXAberta]: uniform(TILE.janela),
   [BlockId.JanelaZFechada]: uniform(TILE.janela),

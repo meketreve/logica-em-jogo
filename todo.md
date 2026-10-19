@@ -1033,6 +1033,56 @@ sem ela os 4 níveis de machado empatariam no piso de 150 ms. Prova: `shared/src
        100×70 via Chrome headless, porque `<img>` de PNG renderiza no GitHub sem depender de
        como ele serve SVG. ⚠️ Mudou a bandeira no jogo? Reextraia os dois, senão o README mente.
 
+## §🔌 Circuitos lógicos
+
+> Nasceu em 2026-10-16 com o 1º lote (alavanca, fio, lâmpada, porta E) — os primeiros ids ≥ 256,
+> que é pra isso que os 16 bits de 2026-09-12 foram feitos. Esta seção foi escrita em 2026-10-19,
+> a pedido do usuário, porque até então o roadmap era uma linha no STATUS.
+>
+> **A ordem aqui não é estética, é do MOTOR.** `shared/src/circuitos.ts` é um ponto fixo
+> MONOTÔNICO: cada passo só LIGA o que estava desligado, então ele sempre termina (no máximo uma
+> volta por peça) e circuito parado custa zero. Peça que só acende (OU, botão, placa) entra sem
+> encostar nisso. A **porta NÃO não cabe nesse motor** — um NÃO ligado em si mesmo oscila pra
+> sempre —, e é ela que obriga a reescrever a conta. Daí as fases.
+
+### Fase 1 — o que não mexe no motor
+
+* \[x] **porta OU** — **FEITO 2026-10-19.** Mesma geometria da E (frente = saída, as duas
+  laterais = entradas), e a conta muda de "as duas entregam" pra "alguma entrega" — `every` →
+  `some`. Ids 270-277, receita no FIM de `CIRCUITOS`. O par E/OU lado a lado é metade da aula:
+  mesma peça, mesma forma, regra diferente.
+* \[ ] **placa de pressão** — a entrada que não é a mão: o ALUNO pisa e o circuito liga; saiu
+  de cima, desliga. Vira entrada do corpo, não do dedo, e abre o desafio "a porta só abre se os
+  DOIS pisarem juntos" (lógica + trabalho em grupo na mesma peça). Custo: o estado não vem do
+  clique, vem do tick comparando a posição dos jogadores com a célula — é a 1ª peça cujo estado
+  o `use_block` não decide. **Recomendada como o próximo lote.**
+* \[ ] **botão** — pulso: liga e volta sozinho depois de N ticks. Precisa de um prazo por célula
+  (o motor hoje não tem relógio nenhum); o mais barato é o botão ligado entrar na fila de
+  vizinhança com um contador, como a água. Depois da placa, que é mais simples.
+* \[ ] **porta automática** — a 1ª saída que não é luz: o circuito ABRE a porta (os ids 66-69 já
+  existem e já alternam no clique). É o que faz o desafio virar "consequência" em vez de
+  "acendeu". Mexe no gate de claim: quem é dono do circuito abre a porta de quem?
+
+### Fase 2 — a porta NÃO, que reescreve o motor
+
+* \[ ] **porta NÃO (inversor)** — ⚠️ **quebra o ponto fixo.** Com negação o passo deixa de ser
+  monótono e a conta pode oscilar pra sempre (NÃO alimentando a própria entrada). A saída é
+  trocar o ponto fixo por ESTADO POR TICK de verdade: a peça lê o estado do tick ANTERIOR e
+  escreve o do próximo. Dois efeitos colaterais, os dois bons de explicar em aula: (a) o sinal
+  passa a levar "um tiquinho" por peça, então fio comprido atrasa — hoje não atrasa; (b) o
+  oscilador vira uma coisa que o aluno PODE construir de propósito (pisca-pisca), em vez de um
+  travamento do servidor. **Teste obrigatório:** circuito oscilante roda 1000 ticks sem travar e
+  sem estourar a fila. Está escrito no cabeçalho de `circuitos.ts` desde 16/10.
+* \[ ] **repetidor / atraso** — cai de graça junto com a Fase 2 (o atraso passa a existir no
+  motor); antes dela, não tem onde morar.
+
+### O que NÃO vai ter, e por quê
+
+* \[ ] ~~XOR, NE, NOU como BLOCOS~~ — **decidido em 2026-10-19 (recomendação minha, confirmar
+  com o usuário antes de fechar):** com E, OU e NÃO o aluno monta qualquer uma delas, e montar
+  **é** o exercício. Bloco pronto pra cada porta transforma lógica em decorar peça. Reabrir só se
+  a aula mostrar que a montagem do XOR é longa demais pro tempo de uma oficina.
+
 ## Geração de mundo / performance
 
 * \[x] **Ids de bloco em 16 bits** — **FEITO 2026-09-12** (mesmo dia; ver o plano, que virou registro). Anotado a pedido do usuário — o byte de bloco tem

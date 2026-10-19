@@ -60,6 +60,39 @@ function sala(opts: { claims?: boolean } = {}) {
   return { session, send, bloco, por, trocasNaRede, ultimaFala };
 }
 
+describe("a porta OU pelo fio (2026-10-19)", () => {
+  it("o aluno coloca a OU virada pro OLHAR, como a E", () => {
+    const s = sala();
+    // o place_block passa pela orientação: a porta encara pra onde o aluno
+    // olhava. yaw 0 = +x no `quadranteDoOlhar`, que é o que a E já faz.
+    s.send(2, { type: "move", x: 4.5, y: 5, z: 4.5, yaw: 0, pitch: 0 });
+    s.por(4, 4, 4, BlockId.PortaOUZNDesligada); // posta já virada pro −z
+    expect(estaLigado(s.bloco(4, 4, 4))).toBe(false);
+    // UMA alavanca numa lateral basta — é esta a diferença pra E
+    s.por(5, 4, 4, BlockId.AlavancaDesligada);
+    s.por(4, 4, 3, BlockId.LampadaApagada);
+    s.send(2, { type: "use_block", x: 5, y: 4, z: 4 });
+    s.session.tick();
+    expect(s.bloco(4, 4, 3)).toBe(BlockId.LampadaAcesa);
+    expect(estaLigado(s.bloco(4, 4, 4))).toBe(true);
+  });
+
+  it("e a rede recebe a porta OU mudando de estado", () => {
+    const s = sala();
+    s.por(4, 4, 4, BlockId.PortaOUXPDesligada);
+    s.por(4, 4, 5, BlockId.AlavancaDesligada);
+    s.send(2, { type: "use_block", x: 4, y: 4, z: 5 });
+    s.trocasNaRede();
+    s.session.tick();
+    expect(s.trocasNaRede()).toContainEqual({
+      x: 4,
+      y: 4,
+      z: 4,
+      blockId: BlockId.PortaOUXPLigada,
+    });
+  });
+});
+
 describe("a alavanca acende a lâmpada pelo fio", () => {
   it("o clique troca o byte, e é o TICK que acende o resto", () => {
     const s = sala();

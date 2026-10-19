@@ -53,18 +53,34 @@ const LADOS: Record<Direcao, Direcao[]> = {
   ZN: ["XP", "XN"],
 };
 
-const PORTA_E_DESLIGADA: Record<Direcao, number> = {
-  XP: BlockId.PortaEXPDesligada,
-  ZP: BlockId.PortaEZPDesligada,
-  XN: BlockId.PortaEXNDesligada,
-  ZN: BlockId.PortaEZNDesligada,
+/** As quatro direções, na ORDEM dos ids (frente XP, ZP, XN, ZN). */
+const DIRECOES = ["XP", "ZP", "XN", "ZN"] as const;
+
+/** Que porta lógica é esta? A regra de cada uma está em `LIGA`, abaixo. */
+export type TipoDePorta = "E" | "OU";
+
+/**
+ * As portas, por TABELA — e é a tabela que define tudo.
+ *
+ * Cada porta ocupa 8 ids consecutivos a partir de `base`: as 4 direções
+ * DESLIGADAS, depois as 4 LIGADAS (`base + 4 + direção`). Porta nova entra
+ * aqui e em `LIGA`, e nada mais no motor muda: foi assim que a OU entrou em
+ * 2026-10-19 sem um `if` novo em lugar nenhum. (A alternativa — um `isPortaX`
+ * por tipo — vira duas listas do mesmo conjunto, que é o bug esperando a
+ * próxima peça.)
+ */
+const PORTAS: Record<TipoDePorta, { base: number }> = {
+  E: { base: BlockId.PortaEXPDesligada },
+  OU: { base: BlockId.PortaOUXPDesligada },
 };
 
-const PORTA_E_LIGADA: Record<Direcao, number> = {
-  XP: BlockId.PortaEXPLigada,
-  ZP: BlockId.PortaEZPLigada,
-  XN: BlockId.PortaEXNLigada,
-  ZN: BlockId.PortaEZNLigada,
+/**
+ * A REGRA de cada porta, e a única diferença entre a E e a OU: `every` × `some`
+ * sobre as DUAS entradas laterais. É esta linha que a aula inteira ensina.
+ */
+const LIGA: Record<TipoDePorta, (entradas: boolean[]) => boolean> = {
+  E: (entradas) => entradas.every(Boolean),
+  OU: (entradas) => entradas.some(Boolean),
 };
 
 export function isAlavanca(id: number): boolean {
@@ -79,20 +95,45 @@ export function isLampada(id: number): boolean {
   return id === BlockId.LampadaApagada || id === BlockId.LampadaAcesa;
 }
 
+/** O tipo da porta neste id, ou null se o id não é porta lógica. */
+export function tipoDaPorta(id: number): TipoDePorta | null {
+  for (const tipo of Object.keys(PORTAS) as TipoDePorta[]) {
+    const base = PORTAS[tipo].base;
+    if (id >= base && id < base + 8) return tipo;
+  }
+  return null;
+}
+
+/** Qualquer porta lógica (E, OU, …). */
+export function isPortaLogica(id: number): boolean {
+  return tipoDaPorta(id) !== null;
+}
+
 export function isPortaE(id: number): boolean {
-  return id >= BlockId.PortaEXPDesligada && id <= BlockId.PortaEZNLigada;
+  return tipoDaPorta(id) === "E";
+}
+
+export function isPortaOU(id: number): boolean {
+  return tipoDaPorta(id) === "OU";
 }
 
 /** Qualquer peça de circuito? (é o que o índice do servidor guarda). */
 export function isCircuito(id: number): boolean {
-  return isAlavanca(id) || isFio(id) || isLampada(id) || isPortaE(id);
+  return isAlavanca(id) || isFio(id) || isLampada(id) || isPortaLogica(id);
 }
 
-/** A direção da FRENTE de uma porta E. */
-export function frenteDaPortaE(id: number): Direcao | null {
-  if (!isPortaE(id)) return null;
-  const base = (id - BlockId.PortaEXPDesligada) % 4;
-  return (["XP", "ZP", "XN", "ZN"] as const)[base] ?? null;
+/** A direção da FRENTE de uma porta lógica (por onde sai o resultado). */
+export function frenteDaPorta(id: number): Direcao | null {
+  const tipo = tipoDaPorta(id);
+  if (!tipo) return null;
+  return DIRECOES[(id - PORTAS[tipo].base) % 4] ?? null;
+}
+
+/** O id BASE (desligado, frente XP) da porta deste id — o que o drop devolve e
+ *  o que a mochila guarda: direção e estado são escolha do mundo, não do item. */
+export function baseDaPorta(id: number): number | null {
+  const tipo = tipoDaPorta(id);
+  return tipo ? PORTAS[tipo].base : null;
 }
 
 /** A peça está LIGADA/ACESA agora? (o estado mora no id) */
@@ -100,7 +141,8 @@ export function estaLigado(id: number): boolean {
   if (isAlavanca(id)) return id === BlockId.AlavancaLigada;
   if (isFio(id)) return id === BlockId.FioLigado;
   if (isLampada(id)) return id === BlockId.LampadaAcesa;
-  if (isPortaE(id)) return id >= BlockId.PortaEXPLigada;
+  const tipo = tipoDaPorta(id);
+  if (tipo) return id - PORTAS[tipo].base >= 4; // as 4 ligadas vêm depois das 4 desligadas
   return false;
 }
 
@@ -110,8 +152,11 @@ export function comEstado(id: number, ligado: boolean): number {
   if (isAlavanca(id)) return ligado ? BlockId.AlavancaLigada : BlockId.AlavancaDesligada;
   if (isFio(id)) return ligado ? BlockId.FioLigado : BlockId.FioDesligado;
   if (isLampada(id)) return ligado ? BlockId.LampadaAcesa : BlockId.LampadaApagada;
-  const frente = frenteDaPortaE(id);
-  if (frente) return (ligado ? PORTA_E_LIGADA : PORTA_E_DESLIGADA)[frente];
+  const tipo = tipoDaPorta(id);
+  if (tipo) {
+    const direcao = (id - PORTAS[tipo].base) % 4;
+    return PORTAS[tipo].base + direcao + (ligado ? 4 : 0);
+  }
   return id;
 }
 
@@ -179,7 +224,7 @@ export function recalcularCircuitos(
     return energizado.has(k);
   };
 
-  /** A saída de uma porta E energiza só a célula da FRENTE. */
+  /** A saída de uma porta lógica energiza só a célula da FRENTE. */
   const saidaDaPorta = (c: Celula, frente: Direcao): string =>
     chave(c.x + PASSO[frente].dx, c.y, c.z + PASSO[frente].dz);
 
@@ -191,16 +236,17 @@ export function recalcularCircuitos(
     for (const [k, p] of pecas) {
       if (energizado.has(k)) continue;
       if (isAlavanca(p.id)) continue; // fonte: só o aluno liga
-      if (isPortaE(p.id)) {
-        const frente = frenteDaPortaE(p.id);
+      const tipo = tipoDaPorta(p.id);
+      if (tipo) {
+        const frente = frenteDaPorta(p.id);
         if (!frente) continue;
-        // ligada quando AS DUAS laterais entregam sinal — é a regra que a aula
-        // ensina, e a tabela-verdade do E sai dela inteira
-        const todas = LADOS[frente].every((lado) => {
-          const v = chave(p.c.x + PASSO[lado].dx, p.c.y, p.c.z + PASSO[lado].dz);
-          return entrega(v);
-        });
-        if (todas) {
+        // As DUAS entradas são as laterais; o que muda de uma porta pra outra é
+        // só a REGRA (`LIGA`): "as duas entregam" na E, "alguma entrega" na OU.
+        // A tabela-verdade de cada uma sai inteira daqui.
+        const entradas = LADOS[frente].map((lado) =>
+          entrega(chave(p.c.x + PASSO[lado].dx, p.c.y, p.c.z + PASSO[lado].dz)),
+        );
+        if (LIGA[tipo](entradas)) {
           energizado.add(k);
           acendeu = true;
         }
@@ -211,10 +257,10 @@ export function recalcularCircuitos(
         const v = chave(p.c.x + d.x, p.c.y + d.y, p.c.z + d.z);
         const viz = pecas.get(v);
         if (!viz || !entrega(v)) continue;
-        // …com UMA exceção: a porta E só entrega pela frente. Pela lateral ou
+        // …com UMA exceção: porta lógica só entrega pela frente. Pela lateral ou
         // por trás ela é entrada, não saída — sem isto o sinal voltaria pela
         // própria entrada e a porta ligaria sozinha.
-        const frenteViz = frenteDaPortaE(viz.id);
+        const frenteViz = frenteDaPorta(viz.id);
         if (frenteViz && saidaDaPorta(viz.c, frenteViz) !== k) continue;
         energizado.add(k);
         acendeu = true;

@@ -23,38 +23,38 @@ caíram, se viram o motivo na tela, se é sempre o mesmo tablet.
 
 ## Próxima fase
 
-**§🔌 porta NÃO e OU** — as duas peças que faltam pra lógica fechar. ⚠️ **A NÃO quebra o ponto
-fixo do motor** (hoje o passo só LIGA o que estava desligado; um NÃO ligado em si mesmo oscila
-pra sempre) — ver o cabeçalho de `circuitos.ts`: vai precisar de estado por tick de verdade.
-Atrás: `bench:headless` dos ids16, ovelha+lã (§🍖 F8), cadeira.
+**§🔌 modelos melhores das peças** (doc do usuário, 19/10): lâmpada que ILUMINA, fio conectado
+no molde da cerca, porta como CHIP com pinos e alavanca em pé/deitada — antes da NÃO, pra não
+pagar o redesenho duas vezes. Seção §🔌 no `todo.md`. Depois: a **porta NÃO**, que ⚠️ **quebra o
+ponto fixo** do motor e exige estado por tick. Atrás: `bench:headless`, ovelha+lã, cadeira.
 
 ## Pendências e bloqueios
 
-- 3ª pessoa é v1 não polida.
 - **Decisões do USUÁRIO:** quanto de Dimas cada aluno recebe; se o aviso de Dimas nova cala.
 - Externas: distribuição pelo Drive; certificado de assinatura de código só se sair da piloto.
 
 ## Concluído (recente)
 
-- **19/10 (§🔌 o OBJETIVO que CHECA o circuito):** fecha o pedido de 16/10. Tipo `acender`
-  (`scenario.ts` + `session/cenario.ts`): o add FOTOGRAFA a área (uma por grupo) e o servidor
-  conclui quando toda lâmpada acende **com o circuito intacto** — só ALAVANCA pode mudar, decisão
-  do usuário. `extras` = peças fora do lugar, e o HUD explica. Opção no painel do professor; 12
-  testes; seção E da `shots:circuito`. No print saiu o "objetivo concluído:" duplicado (bug velho,
-  `toContain` deixava passar).
+- **19/10 (§🔌 porta OU):** 2ª regra do jogo. As portas viraram TABELA no `circuitos.ts` (`PORTAS`
+  + `LIGA`): a OU entrou sem um `if` novo no motor — `every` → `some` — e `isPortaE`/`frenteDaPortaE`
+  viraram `tipoDaPorta`/`frenteDaPorta`. Ids 270-277, topo com anel (a E tem barras), receita no
+  fim. Seção C2 da sonda: 1 OU 0 = 136,7 onde a E ficou em 91,3.
 
-- **19/10 (teto de BYTES no chat):** o chat media CARACTERES e emoji custa 4 bytes — agora o teto
-  é PAR (`MAX_CHAT_BYTES` 512, corte em fronteira de code point, `shared/src/texto.ts`) e o frame
-  cru tem teto antes do `JSON.parse`, na `session` **e** no `maxPayload` do `ws`. Smoke novo
-  `chat-tamanho`; o `shots:tablet` vê o campo parar em 510.
+- **19/10 (§🔌 o OBJETIVO que CHECA o circuito):** tipo `acender` (`scenario.ts` +
+  `session/cenario.ts`): o add FOTOGRAFA a área (uma por grupo) e conclui quando toda lâmpada
+  acende **com o circuito intacto** — só ALAVANCA pode mudar, decisão do usuário. `extras` = peças
+  fora do lugar. 12 testes; seção E da sonda. Saiu junto o "objetivo concluído:" duplicado.
+
+- **19/10 (teto de BYTES no chat):** teto PAR (caractere + byte, `MAX_CHAT_BYTES` 512,
+  `shared/src/texto.ts`) e teto do FRAME cru antes do `JSON.parse`, na `session` e no `maxPayload`
+  do `ws`. Smoke `chat-tamanho`.
 
 - **16/10 (§🔌 o 1º CIRCUITO LÓGICO):** alavanca, fio, lâmpada e porta E — **os primeiros ids
   ≥ 256**. Motor PURO (`circuitos.ts`, ponto fixo que só roda quando uma peça muda), receitas,
   "só no SEU terreno", aba na mochila, e a `shots:circuito` mede a tabela-verdade **em pixel**.
-- **15/10 (UI do aluno):** amigos virou **aba** do `#painel`; árvore de comandos no shared
-  (`comandos.ts`) com o PAPEL de cada um — o aluno vê 10, não 26. "Botões atrás do teclado" NÃO
-  era geometria. **13/10:** posse do nome (bug-672) e silêncio cobrado por PERGUNTAS (bug-675).
-- **10/10:** launchers com `node --import tsx` (bug-666), ▣ com `data-acao` (bug-676), "restaurar", A/B dos ids16. Na aula: quebra v2 e voo OK.
+- **15/10 (UI do aluno):** amigos virou **aba** do `#painel`; comandos no shared com o PAPEL de
+  cada um (o aluno vê 10, não 26). **13/10:** posse do nome (bug-672) e silêncio por PERGUNTAS.
+  **10/10:** launchers com `node --import tsx` (bug-666), ▣ com `data-acao` (bug-676), ids16.
 
 ## Bruto do git (auto — não editar)
 

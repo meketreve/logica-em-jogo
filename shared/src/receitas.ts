@@ -422,6 +422,10 @@ const CIRCUITOS: readonly Receita[] = [
   /** A REGRA. Mais cara de propósito: é a peça que pensa, e o preço faz o aluno
    *  planejar onde põe em vez de encher a mesa de portas. */
   { saida: { id: BlockId.PortaEXPDesligada, qtd: 1 }, custo: [{ id: BlockId.Cobblestone, qtd: 2 }, { id: ITEM_LINGOTE_FERRO, qtd: 2 }] },
+  /** A OU (2026-10-19) custa o MESMO que a E, de propósito: escolher entre as
+   *  duas tem de ser decisão de LÓGICA, não de economia. E entra no fim da
+   *  lista porque índice é identidade no protocolo (ver o topo). */
+  { saida: { id: BlockId.PortaOUXPDesligada, qtd: 1 }, custo: [{ id: BlockId.Cobblestone, qtd: 2 }, { id: ITEM_LINGOTE_FERRO, qtd: 2 }] },
 ];
 
 export const RECEITAS: readonly Receita[] = [

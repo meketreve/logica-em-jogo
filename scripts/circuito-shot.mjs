@@ -16,6 +16,7 @@
  * 3. desligar APAGA (o sinal não fica preso no fio);
  * 4. a PORTA E só deixa passar com as DUAS entradas ligadas — a tabela-verdade
  *    inteira, vista na tela;
+ * 4b. a PORTA OU, no MESMO arranjo, acende com UMA — a comparação lado a lado;
  * 5. o aluno não planta circuito no mundo aberto sem terreno (o servidor
  *    explica no chat).
  *
@@ -411,7 +412,7 @@ if (!(await entrar("nome=profa&pin=1234&codigo=prof2026"))) {
 
 // ids do §🔌 (shared/src/blocks.ts) — a sonda monta o circuito por comando,
 // que é o jeito de ter a MESMA cena toda rodada
-const AR = 0, ALAVANCA = 256, FIO = 258, LAMPADA = 260, PORTA_E = 262;
+const AR = 0, ALAVANCA = 256, FIO = 258, LAMPADA = 260, PORTA_E = 262, PORTA_OU = 270;
 
 await dizer("/modo criativo eu");
 await dizer("/hora meio-dia");
@@ -567,6 +568,34 @@ diga(`  luminância da lâmpada: 0E0=${m00.toFixed(1)} 1E0=${m10.toFixed(1)} 1E1
 ok(m11 > m00 + 4, `1 E 1 ACENDE (${m00.toFixed(1)} → ${m11.toFixed(1)})`);
 ok(m10 < m00 + 4, `1 E 0 NÃO acende (${m10.toFixed(1)})`);
 ok(m01 < m00 + 4, `0 E 1 NÃO acende (${m01.toFixed(1)})`);
+
+diga("== C2: a porta OU — UMA alavanca basta (2026-10-19) ==");
+// Mesmo arranjo da seção C, trocando SÓ a peça do meio: é essa comparação lado
+// a lado que a sonda precisa provar em pixel. Na E, "1 E 0" ficou em 91,3
+// (apagada); aqui a mesma meia-entrada tem de ACENDER.
+// ⚠️ a seção C termina com a entrada B LIGADA (a última linha medida foi
+// "0 E 1"). Sem desligar B aqui, o "0 OU 0" nasceria sendo 0 OU 1 = ACESO e as
+// duas asserções abaixo mentiriam juntas — foi o que aconteceu na 1ª rodada.
+await virar(PX - 3); // B desligada: agora as duas entradas estão em 0
+await dizer(`/bloco ${PX} ${Y_OLHO} ${Z0} ${PORTA_OU}`); // troca a E pela OU, mesma frente
+await espera(700);
+const ou00 = await medirDoCentro();
+await foto("05b-ou-nenhuma.png");
+await virar(PX); // liga a entrada A, e só ela
+const ou10 = await medirDoCentro();
+await foto("06b-ou-uma-so.png");
+diga(`  luminância com a OU: 0OU0=${ou00.toFixed(1)} 1OU0=${ou10.toFixed(1)}`);
+ok(ou00 < m00 + 4, `0 OU 0 continua APAGADA (${ou00.toFixed(1)})`);
+ok(
+  ou10 > ou00 + 4,
+  `1 OU 0 ACENDE — onde a E ficou em ${m10.toFixed(1)}, a OU vai a ${ou10.toFixed(1)}`,
+);
+// devolve TUDO ao estado em que a seção C terminou (E no lugar, A desligada e
+// B ligada), que é de onde a seção E parte
+await virar(PX); // A desligada
+await dizer(`/bloco ${PX} ${Y_OLHO} ${Z0} ${PORTA_E}`);
+await virar(PX - 3); // B ligada de novo
+await espera(700);
 
 diga("== E: o OBJETIVO que CHECA o circuito (2026-10-19) ==");
 // Aqui a prova não é pixel: é o TEXTO do HUD, que é o que o aluno lê pra saber

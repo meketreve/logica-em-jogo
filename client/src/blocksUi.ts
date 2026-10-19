@@ -121,6 +121,7 @@ export const PLACEABLE: readonly PlaceableEntry[] = [
   { id: BlockId.FioDesligado, name: "fio", cat: "circuito" },
   { id: BlockId.LampadaApagada, name: "lâmpada", cat: "circuito" },
   { id: BlockId.PortaEXPDesligada, name: "porta E", cat: "circuito" },
+  { id: BlockId.PortaOUXPDesligada, name: "porta OU", cat: "circuito" },
   // janela: entrada única, eixo escolhido pelo olhar (igual porta)
   { id: BlockId.JanelaXFechada, name: "janela", cat: "mobilia" },
   // móveis (2026-07-19): entrada única; direção escolhida pelo olhar no place

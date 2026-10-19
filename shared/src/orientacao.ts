@@ -15,7 +15,7 @@ import {
   slabTop,
   stairsMaterial,
 } from "./blocks";
-import { isPortaE } from "./circuitos";
+import { baseDaPorta, isPortaLogica } from "./circuitos";
 
 /**
  * A regra de ORIENTAÇÃO na hora de colocar, e o caminho de volta.
@@ -91,7 +91,12 @@ export function orientarParaColocar(blockId: number, yaw: number, porBaixo: bool
   // colocou (é o rosto delas); a porta lógica não tem rosto, tem RESULTADO, e
   // o gesto natural é "o sinal vai por ali". As entradas são as laterais, que
   // ficam nos dois lados do braço do aluno.
-  if (isPortaE(blockId)) return BlockId.PortaEXPDesligada + quadranteDoOlhar(yaw);
+  // vale pra TODA porta lógica (E, OU, …): o bloco de 8 ids começa na frente
+  // XP desligada, então base + quadrante é a direção certa, seja qual for a regra
+  {
+    const base = baseDaPorta(blockId);
+    if (base !== null) return base + quadranteDoOlhar(yaw);
+  }
   // laje (2026-07-25): mirou por BAIXO → laje de CIMA; senão laje de baixo
   // (piso). A hotbar guarda a âncora "baixo".
   if (isSlab(blockId)) {
@@ -112,7 +117,7 @@ export function orientarParaColocar(blockId: number, yaw: number, porBaixo: bool
  * Id sem família direcional volta igual.
  */
 export function ancoraDeCopia(id: number): number {
-  if (isPortaE(id)) return BlockId.PortaEXPDesligada; // §🔌 (não é "porta": 262+, não 66-69)
+  if (isPortaLogica(id)) return baseDaPorta(id) as number; // §🔌 (não é "porta": 262+, não 66-69)
   if (isPorta(id)) return BlockId.PortaXFechada;
   if (isJanela(id)) return BlockId.JanelaXFechada;
   if (isCadeira(id)) return BlockId.CadeiraXP;
