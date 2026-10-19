@@ -43,6 +43,18 @@ interface Mudanca {
 const MUDANCAS: readonly Mudanca[] = [
   {
     // sem `data`: este é o build atual (ver rotuloDoBloco)
+    titulo: "Agora dá pra ver o circuito",
+    itens: [
+      "a L\u00c2MPADA ACESA ILUMINA de verdade, e com a mesma for\u00e7a de uma tocha: o circuito aceso clareia a sala \u2014 d\u00e1 pra usar o circuito pra iluminar o que voc\u00ea construiu",
+      "o FIO virou um caminho mesmo: ele se liga ao vizinho e faz curva, T e cruzamento \u2014 e quando sobe, aparece um poste. O desenho mostra EXATAMENTE por onde o sinal passa, nem um tracinho a mais",
+      "as portas E e OU viraram CHIPS: corpo recuado, com o pino de SA\u00cdDA na frente e dois pinos de ENTRADA nos lados. Dá pra ver pra onde a porta aponta de qualquer \u00e2ngulo, sem precisar ler a letra",
+      "e cada pino de entrada ACENDE sozinho quando aquele lado j\u00e1 recebeu sinal: a linha da tabela-verdade aparece na pr\u00f3pria pe\u00e7a, antes mesmo da l\u00e2mpada",
+      "a ALAVANCA agora fica EM P\u00c9 quando est\u00e1 ligada e DEITADA quando est\u00e1 desligada \u2014 a diferen\u00e7a deixou de ser s\u00f3 a cor",
+      "de cima, cada porta mostra a letra E (ou o anel da OU) e uma SETA que aponta pra sa\u00edda",
+    ],
+  },
+  {
+    data: "19/10/2026",
     titulo: "O jogo confere o seu circuito",
     itens: [
       "peça NOVA na aba circuito: a **porta OU** \u2014 ela deixa o sinal passar quando ALGUMA das duas entradas está ligada (a porta E exige as DUAS)",

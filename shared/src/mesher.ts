@@ -25,6 +25,7 @@ import {
   isSlab,
   isSofa,
   isStairs,
+  ehPortaLogica,
   isTapete,
   isTransparentBlock,
   isVidroColorido,
@@ -35,7 +36,16 @@ import {
   slabMaterial,
   stairsMaterial,
 } from "./blocks";
-import { frenteDaPorta, isAlavanca, isFio } from "./circuitos";
+import {
+  conectaCondutor,
+  entradasDaPorta,
+  estaLigado,
+  frenteDaPorta,
+  isAlavanca,
+  isFio,
+  passoDe,
+  vizinhoEntrega,
+} from "./circuitos";
 import { CHUNK_SIZE } from "./constants";
 import { type LuzWorld, luzByte } from "./luz";
 import { setorDaDirecao } from "./vento";
@@ -217,12 +227,15 @@ export const TILE = {
   lampadaApagada: 185, lampadaAcesa: 186,
   portaETopoDesligada: 187, portaETopoLigada: 188,
   portaELadoDesligada: 189, portaELadoLigada: 190,
-  portaEFrenteDesligada: 191, portaEFrenteLigada: 192,
   /** §🔌 a porta OU (2026-10-19) compartilha LADO e FRENTE com a E: a carcaça é
    *  a mesma peça e a seta quer dizer a mesma coisa ("o resultado sai por
    *  aqui"). Só o TOPO muda, porque é de cima que o aluno lê a mesa — e é ali
    *  que ele precisa saber se aquela é a porta do "as duas" ou a do "alguma". */
   portaOUTopoDesligada: 193, portaOUTopoLigada: 194,
+  /** §🔌 os PINOS do chip (2026-10-19): acesos ou apagados, um tile cada, e
+   *  independentes do estado da porta — é a entrada que já chegou, não o
+   *  resultado. É a linha da tabela-verdade desenhada no próprio bloco. */
+  portaPinoDesligado: 195, portaPinoLigado: 196,
 } as const;
 
 /** cp20: blocos-glifo. Letras A–Z e dígitos 0–9 ocupam tiles consecutivos a
@@ -256,17 +269,17 @@ const DIR_XZ: readonly (readonly [number, number])[] = [[1, 0], [0, 1], [-1, 0],
  *  Hoje só a fornalha responde — mas a pergunta é do MESHER (que face recebe o
  *  tile diferente?) e não da fornalha, então quem entrar depois entra aqui. */
 function frenteDoBloco(id: number): readonly [number, number] | null {
-  // §🔌 a porta lógica tem frente pelo MESMO motivo da fornalha, e é por isso que
-  // este `if` entra aqui em vez de virar um caminho novo: o aluno precisa VER
-  // por onde o resultado sai, senão a direção só existe no servidor.
-  const frente = frenteDaPorta(id);
-  if (frente) {
-    const k = { XP: 0, ZP: 1, XN: 2, ZN: 3 }[frente];
-    return DIR_XZ[k] ?? null;
-  }
+  // §🔌 a porta lógica saiu daqui em 2026-10-19: ela virou CHIP, tem forma
+  // própria no `emitShape` e não passa mais pelo caminho de cubo cheio.
   const k = fornalhaFrente(id);
   return k < 0 ? null : (DIR_XZ[k] ?? null);
 }
+
+/** O quarto de volta que leva o TOPO do tile a apontar pra `frente` — os
+ *  tiles são desenhados com a seta pro +x (XP), que é a 1ª direção da ordem
+ *  dos ids. */
+const quadranteDaFrente = (frente: "XP" | "ZP" | "XN" | "ZN"): number =>
+  ({ XP: 0, ZP: 1, XN: 2, ZN: 3 })[frente];
 
 /** As faces de uma porta lógica no estado dado (topo marcado = qual regra,
  *  frente = por onde sai o resultado). O topo é o único tile por TIPO. */
@@ -274,7 +287,9 @@ const portaTiles = (topoDesligado: number, topoLigado: number, ligada: boolean):
   top: ligada ? topoLigado : topoDesligado,
   bottom: ligada ? TILE.portaELadoLigada : TILE.portaELadoDesligada,
   side: ligada ? TILE.portaELadoLigada : TILE.portaELadoDesligada,
-  frente: ligada ? TILE.portaEFrenteLigada : TILE.portaEFrenteDesligada,
+  // sem `frente` (2026-10-19): a seta morava numa face VERTICAL e, lá, apontava
+  // pra BAIXO em vez de pra fora — ela nunca disse a direção. Quem diz agora é
+  // o pino de saída (geometria) e a seta do TOPO, que gira com a peça.
 });
 const portaETiles = (ligada: boolean): FaceTiles =>
   portaTiles(TILE.portaETopoDesligada, TILE.portaETopoLigada, ligada);
@@ -533,7 +548,15 @@ export function blockSelectionBox(
   if (isTapete(id)) return [0, 0, 0, 1, P, 1];
   if (id === BlockId.Tocha) return [7 * P, 0, 7 * P, 9 * P, 10 * P, 9 * P];
   if (isFio(id)) return [0, 0, 0, 1, P, 1]; // §🔌 lâmina de chão, como o tapete
+  // §🔌 a alavanca DEITADA (desligada) desenha baixa, mas a caixa de mira segue
+  // 12/16 nos DOIS estados, de propósito: é o raycast que decide o rótulo do ▣,
+  // e uma caixa baixa traria de volta o "colocar" por cima dela (bug-676). Mira
+  // generosa num alvo de dedo é recurso, não defeito.
   if (isAlavanca(id)) return [5 * P, 0, 5 * P, 11 * P, 12 * P, 11 * P];
+  // §🔌 o chip: a mira segue o CORPO (os pinos ficam de fora, como a travessa
+  // da cerca) — o contorno preto rente ao corpo é o que diz ao aluno qual das
+  // duas portas encostadas ele vai quebrar
+  if (ehPortaLogica(id)) return [2 * P, 0, 2 * P, 14 * P, 1, 14 * P];
   if (id === BlockId.Cerca) return [6 * P, 0, 6 * P, 10 * P, 1, 10 * P];
   if (isPorta(id)) {
     if (!isPortaAberta(id))
@@ -989,6 +1012,16 @@ export function meshVizinhanca(viz: Uint16Array, luzViz?: Uint8Array | null): Ch
      *  cullar a face do meio deixaria um "buraco" visível por baixo. A face
      *  lateral (X/Z) entre vizinhos no mesmo Y continua fundindo, como sempre. */
     fundeVertical = true,
+    /**
+     * Giro das faces de CIMA e de BAIXO, em quartos de volta (0..3).
+     *
+     * §🔌 nasceu com o chip da porta lógica (2026-10-19): o topo dela traz a
+     * letra E / o anel da OU **e a seta da frente**, e a seta só diz a verdade
+     * se girar com a peça. A alternativa era 4 tiles por porta por estado (16
+     * tiles pra duas portas) — num atlas de 256 slots, e com uma 3ª porta a
+     * caminho. Gira o UV, não o atlas. Faces laterais não mudam.
+     */
+    rotY = 0,
   ): void => {
     const lo = [x0, y0, z0] as const;
     const hi = [x1, y1, z1] as const;
@@ -1025,8 +1058,17 @@ export function meshVizinhanca(viz: Uint16Array, luzViz?: Uint8Array | null): Ch
                                      : (a.flip ? lo[a.axis] : hi[a.axis]);
           return a.flip ? 1 - world01 : world01;
         };
-        const uf = fracOf(axes.u, corner.uv[0]);
-        const vf = fracOf(axes.v, corner.uv[1]);
+        let uf = fracOf(axes.u, corner.uv[0]);
+        let vf = fracOf(axes.v, corner.uv[1]);
+        if (rotY && face.dir[1] !== 0) {
+          // quartos de volta no quadrado do tile; `rotY = 0` não toca em nada,
+          // que é o que mantém TODO o resto do mesher igual ao que era
+          for (let giro = 0; giro < (rotY & 3); giro++) {
+            const u0 = uf;
+            uf = vf;
+            vf = 1 - u0;
+          }
+        }
         uvs.push(
           col / n + inset + uf * (1 / n - 2 * inset),
           1 - (row + 1) / n + inset + vf * (1 / n - 2 * inset),
@@ -1144,10 +1186,79 @@ export function meshVizinhanca(viz: Uint16Array, luzViz?: Uint8Array | null): Ch
       // §🔌 o FIO é uma lâmina no chão (a forma do tapete): ele tem de passar
       // DEBAIXO do aluno sem virar degrau, senão um circuito na mesa viraria
       // uma pista de obstáculos.
+      //
+      // Desenho CONECTADO (2026-10-19), no molde da cerca: pad central + um
+      // braço por vizinho que TROCA SINAL de verdade. Antes era uma faixa
+      // pintada num eixo fixo do tile, igual em toda célula: fio no outro eixo
+      // virava escada de traços, e curva e T não se desenhavam — o aluno não
+      // via o caminho que o motor usa.
+      //
+      // ⚠️ quem responde "conecta?" é a `conectaCondutor`, do `circuitos.ts`, a
+      // MESMA que o motor usa. Não existe segunda regra: braço até uma porta
+      // lógica só aparece na frente e nas laterais dela, nunca nas costas,
+      // porque é isso que o sinal faz.
       case BlockId.FioDesligado:
       case BlockId.FioLigado: {
-        emitBox(lx, ly, lz, id, id === BlockId.FioLigado ? TILE.fioLigado : TILE.fioDesligado,
-                0, 0, 0, 1, P, 1);
+        const tile = id === BlockId.FioLigado ? TILE.fioLigado : TILE.fioDesligado;
+        const liga = (dx: number, dy: number, dz: number): boolean =>
+          conectaCondutor(bloco(lx + dx, ly + dy, lz + dz), dx, dy, dz);
+        // 2/16 de altura (era 1/16): a 1/16 o fio sumia num projetor ruim e na
+        // tela de 1024×600. Não é sólido, então a colisão não muda.
+        const h = 2 * P;
+        const a = 6 * P, b = 10 * P; // o pad central, 4/16
+        emitBox(lx, ly, lz, id, tile, a, 0, a, b, h, b);
+        if (liga(-1, 0, 0)) emitBox(lx, ly, lz, id, tile, 0, 0, a, a, h, b);
+        if (liga(1, 0, 0)) emitBox(lx, ly, lz, id, tile, b, 0, a, 1, h, b);
+        if (liga(0, 0, -1)) emitBox(lx, ly, lz, id, tile, a, 0, 0, b, h, a);
+        if (liga(0, 0, 1)) emitBox(lx, ly, lz, id, tile, a, 0, b, b, h, 1);
+        // POSTE: o motor conduz em 6 direções, mas cada fio é lâmina no piso da
+        // célula — dois empilhados deixavam 14/16 de vão e a ligação vertical
+        // era invisível. O poste sobe do pad até o teto da célula e encosta na
+        // lâmina de cima.
+        if (liga(0, 1, 0)) emitBox(lx, ly, lz, id, tile, a, h, a, b, 1, b);
+        return true;
+      }
+      // §🔌 a PORTA LÓGICA é um CHIP (2026-10-19): corpo recuado 2/16, pino de
+      // SAÍDA na frente e dois pinos de ENTRADA nas laterais. Antes era um cubo
+      // cheio cujo topo trazia a letra e nenhuma direção — a peça que ensina
+      // escondia as regras dela. Agora a direção vem da GEOMETRIA (legível de
+      // qualquer ângulo, inclusive pra quem não lê a letra a 16×16), e cada
+      // pino de entrada ACENDE sozinho quando aquele lado já entrega sinal: a
+      // linha da tabela-verdade aparece no bloco, não só na lâmpada lá longe.
+      case BlockId.PortaEXPDesligada: case BlockId.PortaEZPDesligada:
+      case BlockId.PortaEXNDesligada: case BlockId.PortaEZNDesligada:
+      case BlockId.PortaEXPLigada: case BlockId.PortaEZPLigada:
+      case BlockId.PortaEXNLigada: case BlockId.PortaEZNLigada:
+      case BlockId.PortaOUXPDesligada: case BlockId.PortaOUZPDesligada:
+      case BlockId.PortaOUXNDesligada: case BlockId.PortaOUZNDesligada:
+      case BlockId.PortaOUXPLigada: case BlockId.PortaOUZPLigada:
+      case BlockId.PortaOUXNLigada: case BlockId.PortaOUZNLigada: {
+        const frente = frenteDaPorta(id);
+        if (!frente) return false;
+        const faces = BLOCK_TILES[id] ?? uniform(TILE.portaELadoDesligada);
+        const lado = faces.side ?? TILE.portaELadoDesligada;
+        const topo = faces.top ?? lado;
+        const c = 2 * P; // o recuo do corpo: é ele que faz o pino aparecer
+        // o corpo vai até o teto da célula pra mira do aluno não passar por
+        // cima dele (a mesma razão dos 12/16 da alavanca)
+        emitBox(lx, ly, lz, id, lado, c, 0, c, 1 - c, 1, 1 - c, topo, false,
+                quadranteDaFrente(frente));
+        /** Um pino de 4/16, na meia altura, do corpo até a borda da célula. */
+        const pino = (d: { dx: number; dz: number }, aceso: boolean): void => {
+          const t = aceso ? TILE.portaPinoLigado : TILE.portaPinoDesligado;
+          const a = 6 * P, b = 10 * P, y0 = 5 * P, y1 = 11 * P;
+          if (d.dx > 0) emitBox(lx, ly, lz, id, t, 1 - c, y0, a, 1, y1, b, t, false);
+          else if (d.dx < 0) emitBox(lx, ly, lz, id, t, 0, y0, a, c, y1, b, t, false);
+          else if (d.dz > 0) emitBox(lx, ly, lz, id, t, a, y0, 1 - c, b, y1, 1, t, false);
+          else emitBox(lx, ly, lz, id, t, a, y0, 0, b, y1, c, t, false);
+        };
+        // SAÍDA: acesa quando a porta está ligada — é o resultado dela
+        pino(passoDe(frente), estaLigado(id));
+        // ENTRADAS: cada uma acende pelo SEU lado, independente do resultado
+        for (const lateral of entradasDaPorta(id)) {
+          const d = passoDe(lateral);
+          pino(d, vizinhoEntrega(bloco(lx + d.dx, ly, lz + d.dz), d.dx, 0, d.dz));
+        }
         return true;
       }
       // …e a ALAVANCA é um pino baixo (a forma da tocha, mais gorda): o aluno
@@ -1155,14 +1266,33 @@ export function meshVizinhanca(viz: Uint16Array, luzViz?: Uint8Array | null): Ch
       // TEXTURA (o pino não se inclina — inclinar pediria 4 direções no id).
       case BlockId.AlavancaDesligada:
       case BlockId.AlavancaLigada: {
-        // ⚠️ 12/16 de ALTURA, e não 8: a mira do jogador sai na altura do OLHO
-        // (pé + 1,6) e passava reto por cima de um pino baixo — o ▣ oferecia
-        // "colocar" em cima da alavanca e o aluno punha um bloco na frente dela
-        // em vez de acionar. Quem mediu foi a sonda, no rótulo do botão.
-        // É também o tamanho que se enxerga do outro lado da sala.
-        emitBox(lx, ly, lz, id,
-                id === BlockId.AlavancaLigada ? TILE.alavancaLigada : TILE.alavancaDesligada,
-                5 * P, 0, 5 * P, 11 * P, 12 * P, 11 * P);
+        // A ALAVANCA: base fixa + punho que fica EM PÉ (ligada) ou DEITADO
+        // (desligada) — 2026-10-19.
+        //
+        // Antes os dois estados tinham a MESMA silhueta e a diferença era a cor
+        // do pino: some num projetor ruim, some pra quem não distingue as cores
+        // e some de longe, que é justamente quando o aluno precisa saber se a
+        // entrada está ligada. Altura não depende de ângulo nem de cor.
+        //
+        // Deitada num EIXO FIXO (não inclinada como no Minecraft) porque
+        // inclinar só diz alguma coisa de alguns ângulos: olhando ao longo do
+        // eixo da inclinação, os dois estados voltam a ser iguais. Por direção
+        // custaria 4× ids, e a alavanca não tem direção no motor.
+        const ligada = id === BlockId.AlavancaLigada;
+        const tile = ligada ? TILE.alavancaLigada : TILE.alavancaDesligada;
+        // base: a peça presa ao chão, igual nos dois estados (é a âncora que o
+        // olho usa pra comparar)
+        emitBox(lx, ly, lz, id, tile, 5 * P, 0, 5 * P, 11 * P, 3 * P, 11 * P);
+        if (ligada) {
+          // ⚠️ o punho vai a 12/16: a mira do jogador sai na altura do OLHO
+          // (pé + 1,6) e passava reto por cima de um pino baixo — o ▣ oferecia
+          // "colocar" em cima da alavanca e o aluno punha um bloco na frente
+          // dela em vez de acionar (quem mediu foi a sonda, no rótulo do botão)
+          emitBox(lx, ly, lz, id, tile, 6 * P, 3 * P, 6 * P, 10 * P, 12 * P, 10 * P);
+        } else {
+          // deitado: o MESMO punho tombado pro +x, rente à base
+          emitBox(lx, ly, lz, id, tile, 6 * P, 3 * P, 6 * P, 15 * P, 6 * P, 10 * P);
+        }
         return true;
       }
       case BlockId.JanelaXFechada:

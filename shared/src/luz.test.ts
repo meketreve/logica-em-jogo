@@ -59,8 +59,15 @@ describe("opacidade e emissão por bloco", () => {
     }
   });
 
-  it("só a tocha emite (por ora)", () => {
+  it("os emissores e a escala (lâmpada EMPATA com a tocha; fornalha abaixo)", () => {
     expect(luzEmitida(BlockId.Tocha)).toBe(14);
+    // decisão do usuário (2026-10-19): a lâmpada ilumina IGUAL à tocha — ela é
+    // a saída do circuito e tem de se ver de longe
+    expect(luzEmitida(BlockId.LampadaAcesa)).toBe(14);
+    expect(luzEmitida(BlockId.FornalhaAcesaXP)).toBeLessThan(luzEmitida(BlockId.Tocha));
+    // controle negativo: APAGADA não emite — senão o circuito iluminaria igual
+    // ligado e desligado, que é justamente o que esta mudança veio resolver
+    expect(luzEmitida(BlockId.LampadaApagada)).toBe(0);
     expect(luzEmitida(BlockId.Stone)).toBe(0);
     expect(luzEmitida(BlockId.Air)).toBe(0);
   });
@@ -171,6 +178,27 @@ describe("luz de bloco (tocha)", () => {
     expect(luzBloco(luz, 23, 10, 22)).toBe(13);
     expect(luzBloco(luz, 26, 10, 22)).toBe(10);
     expect(luzBloco(luz, 22 + 14, 10, 22)).toBe(0); // alcance acabou
+  });
+
+  it("§🔌 a lâmpada ACENDE a sala quando o circuito liga, e APAGA quando desliga", () => {
+    // é o teste que prova a razão da mudança: a saída do circuito tem de ser
+    // vista do outro lado da sala, não só na cor do tile
+    const world = mundoComChao(20);
+    for (let x = 10; x <= 34; x++) setBlock(world, x, 10, 22, BlockId.Air);
+    setBlock(world, 22, 10, 22, BlockId.LampadaApagada);
+    const luz = acenderTudo(world);
+    expect(luzBloco(luz, 24, 10, 22)).toBe(0); // apagada: caverna escura
+
+    // o motor acende (trocar o byte é tudo o que ele faz)
+    setBlock(world, 22, 10, 22, BlockId.LampadaAcesa);
+    atualizarBloco(world, luz, 22, 10, 22);
+    expect(luzBloco(luz, 22, 10, 22)).toBe(14);
+    expect(luzBloco(luz, 24, 10, 22)).toBe(12); // dois blocos adiante
+
+    // e desligar não deixa rastro (o mesmo caminho da tocha quebrada)
+    setBlock(world, 22, 10, 22, BlockId.LampadaApagada);
+    atualizarBloco(world, luz, 22, 10, 22);
+    for (let x = 10; x <= 34; x++) expect(luzBloco(luz, x, 10, 22)).toBe(0);
   });
 
   it("quebrar a tocha apaga TUDO (sem rastro de luz órfã)", () => {
@@ -289,7 +317,19 @@ describe("incremental × recálculo do zero", () => {
     expect(divergencias(world, luz)).toEqual([]); // o palco já tem de bater
 
     const sorteio = rng(596);
-    const paleta = [BlockId.Air, BlockId.Stone, BlockId.Tocha, BlockId.Glass];
+    // ⚠️ a paleta inclui EMISSOR OPACO (lâmpada acesa, fornalha acesa): eles
+    // são cubo cheio e emitem, e era justamente essa combinação que os dois
+    // motores calculavam diferente — o incremental se recusava a semear a
+    // célula opaca e o do zero não (2026-10-19).
+    const paleta = [
+      BlockId.Air,
+      BlockId.Stone,
+      BlockId.Tocha,
+      BlockId.Glass,
+      BlockId.LampadaAcesa,
+      BlockId.LampadaApagada,
+      BlockId.FornalhaAcesaXP,
+    ];
     for (let i = 0; i < 200; i++) {
       const x = 16 + ((sorteio() * 15) | 0);
       const z = 16 + ((sorteio() * 15) | 0);

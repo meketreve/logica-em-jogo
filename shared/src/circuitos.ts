@@ -160,6 +160,82 @@ export function comEstado(id: number, ligado: boolean): number {
   return id;
 }
 
+/**
+ * A LIGAÇÃO entre um condutor (fio ou lâmpada) e a peça vizinha, vista da
+ * célula do condutor. `d` é o deslocamento até o vizinho.
+ *
+ * ⚠️ **Esta é a ÚNICA definição de "conecta" do projeto**, e é de propósito: o
+ * motor decide por ela quem energiza quem, e o mesher desenha o braço do fio
+ * por ela. Fossem duas funções, o desenho divergiria da topologia na primeira
+ * peça nova — e o aluno veria um fio ligado onde o sinal não passa, que é o
+ * pior defeito possível num jogo cujo produto é ENXERGAR a lógica.
+ *
+ * - alavanca: entrega, não recebe (é fonte);
+ * - fio: os dois lados;
+ * - lâmpada: recebe e não repassa (senão viraria fio e não daria pra fechar o
+ *   circuito num ponto só);
+ * - porta lógica: entrega SÓ pela frente e recebe SÓ pelas duas laterais. Pelas
+ *   costas não há ligação nenhuma — e é essa a casa que a porta NÃO vai ocupar
+ *   quando existir (entrada na traseira, oposta à frente).
+ */
+export function ligacaoDoCondutor(
+  idVizinho: number,
+  dx: number,
+  dy: number,
+  dz: number,
+): { recebe: boolean; entrega: boolean } {
+  const nada = { recebe: false, entrega: false };
+  if (isAlavanca(idVizinho)) return { recebe: true, entrega: false };
+  if (isFio(idVizinho)) return { recebe: true, entrega: true };
+  if (isLampada(idVizinho)) return { recebe: false, entrega: true };
+  const frente = frenteDaPorta(idVizinho);
+  if (!frente) return nada;
+  if (dy !== 0) return nada; // porta só fala com o plano dela
+  // o condutor está, visto DA PORTA, no deslocamento oposto
+  const deDentro = { dx: -dx, dz: -dz };
+  const saida = PASSO[frente];
+  if (saida.dx === deDentro.dx && saida.dz === deDentro.dz) {
+    return { recebe: true, entrega: false }; // o condutor está NA FRENTE dela
+  }
+  for (const lado of LADOS[frente]) {
+    const p = PASSO[lado];
+    if (p.dx === deDentro.dx && p.dz === deDentro.dz) {
+      return { recebe: false, entrega: true }; // o condutor é ENTRADA dela
+    }
+  }
+  return nada; // as costas
+}
+
+/**
+ * A peça vizinha ENTREGA sinal a esta célula AGORA? (estado + topologia)
+ *
+ * É o que o mesher pergunta pra acender cada PINO DE ENTRADA da porta: o aluno
+ * vê, na própria peça, qual das duas entradas já chegou — a linha da
+ * tabela-verdade desenhada no bloco. Como o estado mora no id, isto é função
+ * pura dos bytes e o mesher responde sem falar com o motor.
+ */
+export function vizinhoEntrega(idVizinho: number, dx: number, dy: number, dz: number): boolean {
+  if (!estaLigado(idVizinho)) return false;
+  return ligacaoDoCondutor(idVizinho, dx, dy, dz).recebe;
+}
+
+/** As duas direções de ENTRADA de uma porta (as laterais da frente dela). */
+export function entradasDaPorta(id: number): Direcao[] {
+  const frente = frenteDaPorta(id);
+  return frente ? [...LADOS[frente]] : [];
+}
+
+/** O deslocamento de uma direção — o mesher precisa dele pra desenhar o pino. */
+export function passoDe(d: Direcao): { dx: number; dz: number } {
+  return PASSO[d];
+}
+
+/** O condutor e o vizinho trocam sinal? (é o que o mesher desenha) */
+export function conectaCondutor(idVizinho: number, dx: number, dy: number, dz: number): boolean {
+  const l = ligacaoDoCondutor(idVizinho, dx, dy, dz);
+  return l.recebe || l.entrega;
+}
+
 /** O mundo, como o motor precisa dele: só ler uma célula. */
 export interface MundoDeCircuito {
   bloco(x: number, y: number, z: number): number;
@@ -224,10 +300,6 @@ export function recalcularCircuitos(
     return energizado.has(k);
   };
 
-  /** A saída de uma porta lógica energiza só a célula da FRENTE. */
-  const saidaDaPorta = (c: Celula, frente: Direcao): string =>
-    chave(c.x + PASSO[frente].dx, c.y, c.z + PASSO[frente].dz);
-
   // Ponto fixo monótono: cada passo só ACENDE. Para quando um passo não acende
   // mais nada — e no pior caso isso leva uma volta por peça (ver o cabeçalho:
   // vale enquanto não houver NEGAÇÃO).
@@ -252,16 +324,14 @@ export function recalcularCircuitos(
         }
         continue;
       }
-      // fio e lâmpada: qualquer vizinho de face que ENTREGUE serve…
+      // fio e lâmpada: acende se ALGUM vizinho de face entrega sinal — e quem
+      // decide se há ligação é a `ligacaoDoCondutor`, a MESMA que o mesher usa
+      // pra desenhar o braço. Desenho e topologia não podem divergir.
       for (const d of VIZINHOS) {
         const v = chave(p.c.x + d.x, p.c.y + d.y, p.c.z + d.z);
         const viz = pecas.get(v);
         if (!viz || !entrega(v)) continue;
-        // …com UMA exceção: porta lógica só entrega pela frente. Pela lateral ou
-        // por trás ela é entrada, não saída — sem isto o sinal voltaria pela
-        // própria entrada e a porta ligaria sozinha.
-        const frenteViz = frenteDaPorta(viz.id);
-        if (frenteViz && saidaDaPorta(viz.c, frenteViz) !== k) continue;
+        if (!ligacaoDoCondutor(viz.id, d.x, d.y, d.z).recebe) continue;
         energizado.add(k);
         acendeu = true;
         break;

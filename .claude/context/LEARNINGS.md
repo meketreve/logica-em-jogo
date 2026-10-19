@@ -42,6 +42,8 @@ tier: 3
 
 ## Erros a não repetir
 
+- [2026-10-19] [desenho] [✓] Diferença de estado que mora só na COR não existe em aula: projetor ruim, 1024×600 e daltonismo comem as três (alavanca ligada×desligada, fio, pino). A diferença tem de ser SILHUETA ou LUZ — e isso se prova no mesher (geometria, exata), não na sonda de pixel, que não separa cor de forma.
+- [2026-10-19] [desenho] [✓] "Conecta?" é UMA função (`ligacaoDoCondutor`), usada pelo motor E pelo mesher: desenho que não é a topologia do motor mostra fio ligado onde o sinal não passa — o pior defeito possível num jogo cujo produto é ENXERGAR a lógica.
 - [2026-10-19] [circuito] [✓] Porta lógica se descreve por TABELA (`PORTAS` com o id base + `LIGA` com a regra), nunca por `isPortaX` por tipo: a OU entrou sem um `if` novo no motor, e `base + 4 + direção` deixou estado e frente saírem da aritmética. Porta nova = duas entradas na tabela.
 - [2026-10-19] [objetivo] [✓] Objetivo que checa CIRCUITO confere contra a FOTO da área, não contra o mundo: o alvo ("1 lâmpada") vem da foto, senão quebrar a lâmpada fechava o objetivo em 0/0. `comEstado(id, false)` canoniza o estado — ligado/desligado é o que o aluno TEM o direito de mudar; peça trocada é que é "fora do lugar".
 - [2026-10-19] [teste] [✗] `toContain` em frase que o SERVIDOR monta — deixou passar "objetivo concluído: objetivo concluído: X" (prefixo dos dois lados) e quem viu foi o PRINT da sonda. Frase inteira se afirma com `toEqual`.

@@ -266,14 +266,30 @@ function paintAlavanca(ctx: CanvasRenderingContext2D, tile: number, ligada: bool
 }
 
 /** Fio: trilha fina. Desligado é um risco escuro; ligado, uma linha quente. */
+/**
+ * §🔌 Fio: COBRE LISO, sem trilha pintada (2026-10-19).
+ *
+ * A trilha de borda a borda existia porque o fio era uma lâmina só, e ela
+ * fingia o caminho num eixo FIXO do tile — fio no outro eixo virava escada de
+ * traços, e curva e T não se desenhavam. Agora quem desenha o caminho é a
+ * GEOMETRIA (pad + braços, no `mesher.ts`), então a textura só precisa dizer
+ * "metal" e "ligado × desligado". Pintar trilha por cima da geometria daria
+ * duas respostas pra mesma pergunta — e discordando nas curvas.
+ */
 function paintFio(ctx: CanvasRenderingContext2D, tile: number, ligado: boolean): void {
-  paintNoise(ctx, tile, ligado ? [96, 36, 30] : [58, 50, 48], 8);
+  paintNoise(ctx, tile, ligado ? [214, 86, 58] : [122, 92, 72], 10);
   const [ox, oy] = tileOrigin(tile);
-  ctx.fillStyle = ligado ? "rgb(255,120,92)" : "rgb(104,92,88)";
-  ctx.fillRect(ox, oy + 6, ATLAS.tilePx, 4); // a trilha, de borda a borda
-  if (ligado) {
-    ctx.fillStyle = "rgb(255,206,160)";
-    ctx.fillRect(ox, oy + 7, ATLAS.tilePx, 2); // o miolo aceso
+  // brilho esparso de metal batido — o mesmo truque do lingote, sem direção
+  ctx.fillStyle = ligado ? "rgba(255,214,160,0.75)" : "rgba(186,148,118,0.6)";
+  for (const [dx, dy] of [
+    [2, 3],
+    [9, 2],
+    [5, 8],
+    [12, 10],
+    [3, 12],
+    [10, 13],
+  ] as const) {
+    ctx.fillRect(ox + dx, oy + dy, 2, 1);
   }
 }
 
@@ -305,28 +321,47 @@ function paintPortaE(
   const [ox, oy] = tileOrigin(tile);
   const tinta = ligada ? "rgb(255,214,92)" : "rgb(176,176,182)";
   ctx.fillStyle = tinta;
+  /** A SETA do topo: aponta pro +x (XP), e o `emitBox` gira o UV conforme a
+   *  frente da peça. É a redundância da direção — o pino de saída já a mostra
+   *  em geometria, e quem olha de cima lê os dois. */
+  const seta = (): void => {
+    ctx.fillRect(ox + 3, oy + 7, 7, 2);
+    for (let i = 0; i < 4; i++) ctx.fillRect(ox + 9 + i, oy + 5 + i, 2, 6 - 2 * i);
+  };
   if (face === "topo" && regra === "OU") {
     // §🔌 "OU" não cabe legível em 16×16 (duas letras dariam 6px cada), então
     // o topo da OU é um CÍRCULO vazado — e o da E, barras retas. A diferença
     // tem de ser lida de CIMA e de longe, na mesa, por criança de 10 anos:
     // forma redonda × forma quadrada decide antes de a letra ser decifrada.
-    ctx.fillRect(ox + 5, oy + 3, 6, 2);
-    ctx.fillRect(ox + 5, oy + 11, 6, 2);
-    ctx.fillRect(ox + 3, oy + 5, 2, 6);
-    ctx.fillRect(ox + 11, oy + 5, 2, 6);
+    // anel vazado, à ESQUERDA do tile pra sobrar lugar pra seta
+    ctx.fillRect(ox + 3, oy + 2, 5, 2);
+    ctx.fillRect(ox + 3, oy + 12, 5, 2);
+    ctx.fillRect(ox + 1, oy + 4, 2, 8);
+    ctx.fillRect(ox + 8, oy + 4, 2, 8);
+    ctx.fillStyle = tinta;
+    seta();
   } else if (face === "topo") {
-    // um "E" de 3 barras, legível a 16×16
-    ctx.fillRect(ox + 4, oy + 3, 2, 10);
-    ctx.fillRect(ox + 4, oy + 3, 8, 2);
-    ctx.fillRect(ox + 4, oy + 7, 6, 2);
-    ctx.fillRect(ox + 4, oy + 11, 8, 2);
-  } else if (face === "frente") {
-    // seta apontando pra fora: é POR AQUI que o resultado sai
-    ctx.fillRect(ox + 7, oy + 4, 2, 8);
-    for (let i = 0; i < 4; i++) ctx.fillRect(ox + 4 + i, oy + 8 + i, 8 - 2 * i, 2);
+    // um "E" de 3 barras à esquerda, e a seta da frente à direita
+    ctx.fillRect(ox + 2, oy + 2, 2, 12);
+    ctx.fillRect(ox + 2, oy + 2, 6, 2);
+    ctx.fillRect(ox + 2, oy + 7, 5, 2);
+    ctx.fillRect(ox + 2, oy + 12, 6, 2);
+    seta();
   } else {
     ctx.fillRect(ox + 2, oy + 7, ATLAS.tilePx - 4, 2); // faixa de carcaça
   }
+}
+
+/**
+ * §🔌 PINO do chip (2026-10-19): metal escuro, e aceso quando aquele lado já
+ * recebeu sinal. Liso de propósito — o pino é pequeno na tela e o que precisa
+ * ser lido nele é UMA coisa: claro ou escuro.
+ */
+function paintPino(ctx: CanvasRenderingContext2D, tile: number, aceso: boolean): void {
+  paintNoise(ctx, tile, aceso ? [252, 206, 96] : [92, 92, 100], 8);
+  const [ox, oy] = tileOrigin(tile);
+  ctx.fillStyle = aceso ? "rgba(255,246,206,0.85)" : "rgba(140,140,150,0.6)";
+  ctx.fillRect(ox + 3, oy + 3, ATLAS.tilePx - 6, 2); // um realce só, pra ter volume
 }
 
 /** Janela (2026-07-19): moldura de madeira + cruz central; o vidro é
@@ -985,10 +1020,10 @@ export function createAtlasTexture(): THREE.Texture {
   paintPortaE(ctx, TILE.portaETopoLigada, true, "topo");
   paintPortaE(ctx, TILE.portaELadoDesligada, false, "lado");
   paintPortaE(ctx, TILE.portaELadoLigada, true, "lado");
-  paintPortaE(ctx, TILE.portaEFrenteDesligada, false, "frente");
   paintPortaE(ctx, TILE.portaOUTopoDesligada, false, "topo", "OU");
   paintPortaE(ctx, TILE.portaOUTopoLigada, true, "topo", "OU");
-  paintPortaE(ctx, TILE.portaEFrenteLigada, true, "frente");
+  paintPino(ctx, TILE.portaPinoDesligado, false);
+  paintPino(ctx, TILE.portaPinoLigado, true);
   // 2026-07-19: janela + móveis + quadro
   paintJanela(ctx, TILE.janela);
   paintEstofado(ctx, TILE.estofado);

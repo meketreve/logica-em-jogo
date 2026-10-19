@@ -12,9 +12,8 @@ tier: 3
 Jogo voxel educacional rodando, testado com turma real. `main` em sinc com o `origin`
 (`90b9295`), árvore limpa. Ambiente é só LINUX.
 
-16/10 entrou o **§🔌 1º circuito lógico** (alavanca, fio, lâmpada, porta E — os primeiros ids
-≥ 256) e 19/10 fechou com o **objetivo que CHECA** o circuito. Antes, em 15/10, a UI do aluno.
-**Nada desses lotes foi visto em aula ainda** — nem o resto da lista de 10/10 — `TODO.md`.
+O §🔌 dominou 16/10 e 19/10: as peças, a porta OU, o objetivo que CHECA o circuito e o redesenho
+das peças. **Nada disso foi visto em aula ainda** — nem o resto da lista de 10/10 (`TODO.md`).
 
 ⚠️ **bug-675 (heartbeat) NÃO está fechado:** na aula de 10/10 as quedas **diminuíram mas não
 zeraram**. Os consertos de 13/10 atacam causas reais (host travado + nome preso); o que restar
@@ -23,10 +22,10 @@ caíram, se viram o motivo na tela, se é sempre o mesmo tablet.
 
 ## Próxima fase
 
-**§🔌 modelos melhores das peças** (doc do usuário, 19/10): lâmpada que ILUMINA, fio conectado
-no molde da cerca, porta como CHIP com pinos e alavanca em pé/deitada — antes da NÃO, pra não
-pagar o redesenho duas vezes. Seção §🔌 no `todo.md`. Depois: a **porta NÃO**, que ⚠️ **quebra o
-ponto fixo** do motor e exige estado por tick. Atrás: `bench:headless`, ovelha+lã, cadeira.
+**§🔌 a porta NÃO** — ⚠️ ela **quebra o ponto fixo** do motor (hoje o passo só LIGA; um NÃO
+ligado em si mesmo oscila pra sempre), então exige estado por tick de verdade: ver o cabeçalho de
+`circuitos.ts` e a seção §🔌 do `todo.md`. Pedido aberto do usuário junto: **melhorar o código de
+iluminação** (`luz.ts`) — falta ele dizer o que incomoda. Atrás: `bench:headless`, ovelha+lã.
 
 ## Pendências e bloqueios
 
@@ -35,26 +34,27 @@ ponto fixo** do motor e exige estado por tick. Atrás: `bench:headless`, ovelha+
 
 ## Concluído (recente)
 
-- **19/10 (§🔌 porta OU):** 2ª regra do jogo. As portas viraram TABELA no `circuitos.ts` (`PORTAS`
-  + `LIGA`): a OU entrou sem um `if` novo no motor — `every` → `some` — e `isPortaE`/`frenteDaPortaE`
-  viraram `tipoDaPorta`/`frenteDaPorta`. Ids 270-277, topo com anel (a E tem barras), receita no
-  fim. Seção C2 da sonda: 1 OU 0 = 136,7 onde a E ficou em 91,3.
+- **19/10 (§🔌 modelos melhores):** o doc do usuário aplicado inteiro. Lâmpada ACESA **ilumina
+  14, igual à tocha** (escolha dele); fio no molde da cerca (pad + braço por vizinho que troca
+  sinal + poste vertical); porta virou **CHIP** com pino de saída e dois de entrada que **acendem
+  sozinhos**; alavanca em pé × deitada. "Conecta?" é UMA função usada pelo motor e pelo mesher.
+  `emitBox` ganhou giro de UV das faces Y (a seta do topo gira com a peça, em vez de 4 tiles por
+  porta). Saíram 2 bugs do motor de LUZ, os dois da fornalha desde o §🍖 F10b.
 
-- **19/10 (§🔌 o OBJETIVO que CHECA o circuito):** tipo `acender` (`scenario.ts` +
-  `session/cenario.ts`): o add FOTOGRAFA a área (uma por grupo) e conclui quando toda lâmpada
-  acende **com o circuito intacto** — só ALAVANCA pode mudar, decisão do usuário. `extras` = peças
-  fora do lugar. 12 testes; seção E da sonda. Saiu junto o "objetivo concluído:" duplicado.
+- **19/10 (§🔌 porta OU):** 2ª regra. As portas viraram TABELA (`PORTAS` + `LIGA`): a OU entrou
+  sem um `if` novo no motor (`every` → `some`). Ids 270-277. Sonda: 1 OU 0 acende onde a E não.
 
-- **19/10 (teto de BYTES no chat):** teto PAR (caractere + byte, `MAX_CHAT_BYTES` 512,
-  `shared/src/texto.ts`) e teto do FRAME cru antes do `JSON.parse`, na `session` e no `maxPayload`
-  do `ws`. Smoke `chat-tamanho`.
+- **19/10 (§🔌 o OBJETIVO `acender`):** o add FOTOGRAFA a área (uma por grupo) e conclui quando
+  toda lâmpada acende **com o circuito intacto** — só ALAVANCA pode mudar (decisão do usuário);
+  `extras` = peças fora do lugar. 12 testes; seção E da sonda.
 
-- **16/10 (§🔌 o 1º CIRCUITO LÓGICO):** alavanca, fio, lâmpada e porta E — **os primeiros ids
-  ≥ 256**. Motor PURO (`circuitos.ts`, ponto fixo que só roda quando uma peça muda), receitas,
-  "só no SEU terreno", aba na mochila, e a `shots:circuito` mede a tabela-verdade **em pixel**.
-- **15/10 (UI do aluno):** amigos virou **aba** do `#painel`; comandos no shared com o PAPEL de
-  cada um (o aluno vê 10, não 26). **13/10:** posse do nome (bug-672) e silêncio por PERGUNTAS.
-  **10/10:** launchers com `node --import tsx` (bug-666), ▣ com `data-acao` (bug-676), ids16.
+- **19/10 (chat):** teto PAR (caractere + byte, `texto.ts`) e teto do FRAME cru antes do
+  `JSON.parse`, na `session` e no `maxPayload` do `ws`. Smoke `chat-tamanho`.
+
+- **16/10 (§🔌 o 1º CIRCUITO):** alavanca, fio, lâmpada e porta E — **os primeiros ids ≥ 256**.
+  Motor PURO (ponto fixo que só roda quando uma peça muda), receitas, "só no SEU terreno".
+- **15/10:** amigos virou aba do `#painel`; comandos no shared com o PAPEL (o aluno vê 10, não
+  26). **13/10:** posse do nome (bug-672). **10/10:** launchers (bug-666), ▣ (bug-676), ids16.
 
 ## Bruto do git (auto — não editar)
 

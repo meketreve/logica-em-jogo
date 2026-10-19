@@ -12,6 +12,14 @@ tier: 3
      modelo). São bugs ESCRITOS À MÃO: nada de detector automático — ele já encheu
      o arquivo de 148 entradas falsas uma vez, e elas foram podadas junto. -->
 
+## 2026-10-19 — emissor OPACO não acendia pelo caminho incremental (fornalha inclusive)
+- **Sintoma:** teste de paridade com paleta mista reprovando com `(17,12,22) céu 0≠0 · bloco 0≠12` — o motor incremental dava 0 onde o recálculo do zero dava 12. Em jogo: acender a fornalha (ou a lâmpada do §🔌) não iluminava nada até algo forçar o recálculo da coluna.
+- **Onde:** `shared/src/luz.ts` (`atualizarBloco` e `apagar`)
+- **Causa:** DOIS defeitos somados, os dois pré-existentes e escondidos porque até aqui só havia tocha (14) e fornalha (13). (1) `atualizarBloco` só semeava o emissor com `op < OPACO`, e fornalha e lâmpada são CUBO CHEIO — o `acenderColuna` nunca teve essa guarda, então os dois caminhos calculavam funções diferentes dos mesmos bytes. (2) o `apagar` desce por "o vizinho é mais fraco que eu, logo é filho meu", e um emissor MAIS FRACO que a fonte apagada (lâmpada 12 dentro do alcance de uma tocha 14) era zerado como se fosse reflexo; ele não entrava em `reacender` e, mesmo entrando, o `propagar` ignora célula de nível 0.
+- **Correção:** a guarda de opacidade saiu da semeadura (o `propagar` olha a opacidade do ALVO, nunca da origem) e o `apagar` passou a recolher os emissores que apagou, repondo o nível PRÓPRIO deles como semente ao fim do varrimento. Paleta do teste de paridade ganhou lâmpada e fornalha acesas — é ela que pega a família inteira.
+- **Como apareceu:** fazendo a lâmpada do §🔌 emitir luz (1 linha). O bug era da fornalha desde o §🍖 F10b.
+- **Tags:** luz, emissor-opaco, incremental, paridade, fornalha, lampada, circuito, corrigido
+
 ## 2026-10-19 — "objetivo concluído: objetivo concluído: …" no chat da turma
 - **Sintoma:** no chat, ao fechar um objetivo: `<servidor> objetivo concluído: objetivo concluído: Acenda a lampada com as duas alavancas`. Por grupo saía `objetivo concluído: grupo 2 concluiu: …`, que lê pior ainda.
 - **Onde:** `shared/src/session/cenario.ts` (`completeObjetivo` × `broadcastObjectives`)

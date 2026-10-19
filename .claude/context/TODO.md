@@ -11,15 +11,15 @@ active: true
 
 ## Agora
 
-- [ ] **§🔌 modelos melhores das peças** (doc `Circuitos modelos melhores.md`, 19/10): lâmpada que
-      ilumina, fio conectado (molde da cerca), porta como CHIP com pinos, alavanca em pé/deitada.
-      ANTES da NÃO, senão o redesenho (e a sonda) se paga duas vezes → **verify:** a
-      `shots:circuito` re-calibrada enxergando cada mudança.
+- [ ] **Melhorar o código de iluminação** (pedido do usuário, 19/10) — falta ele dizer o que
+      incomoda: custo por tick, clareza do `luz.ts`, ou o modelo (luz colorida, suavização).
 
-- [x] ~~**§🔌 o OBJETIVO que CHECA o circuito**~~ — feito em 19/10 (tipo `acender`: foto do
-      circuito no add, só alavanca pode mudar, progresso por grupo). Falta ver em AULA (abaixo).
 
 ## Testar na escola (o usuário faz; aula de 10/10 cobriu parte)
+
+- [ ] **§🔌 o DESENHO novo (19/10):** a alavanca em pé × deitada se lê **de longe e no projetor**?
+      O braço do fio ajuda a seguir o caminho? Os pinos de entrada acesos são notados pelo aluno
+      antes da lâmpada? E a lâmpada iluminando 14 não atrapalha a leitura da sala de noite?
 
 - [ ] **§🔌 o OBJETIVO acender (19/10), o mais novo:** montar o circuito numa região e criar o
       objetivo (painel do professor → tipo "acender", ou `/objetivo add acender <regiao> <texto>`).

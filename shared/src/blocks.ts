@@ -403,6 +403,19 @@ export function blocoExiste(id: number): boolean {
   return IDS_EXISTENTES.has(id);
 }
 
+/**
+ * Porta lógica (§🔌) — a faixa CONTÍGUA das portas, E e OU.
+ *
+ * Mora aqui, e não no `circuitos.ts`, porque o `blocks.ts` é a raiz: ele não
+ * importa ninguém (o `circuitos.ts` é que importa ele), e o `isFullCube`
+ * precisa da resposta. O `circuitos.ts` tem a tabela POR TIPO, mais rica —
+ * e um portão em `circuitos.test.ts` varre todo id conferindo que as duas
+ * concordam, que é o que impede isto de virar duas listas do mesmo conjunto.
+ */
+export function ehPortaLogica(id: number): boolean {
+  return id >= BlockId.PortaEXPDesligada && id <= BlockId.PortaOUZNLigada;
+}
+
 /** Peça de circuito no estado LIGADO/ACESO (§🔌). Mesma disciplina da porta
  *  ABERTA e da plantação crescida: é RESULTADO (do motor, no tick), não escolha
  *  — nunca se coloca na mão nem se vende na loja. */
@@ -1197,6 +1210,11 @@ export function isFullCube(id: number): boolean {
     // linha o `emitShape` nem era chamado e os dois saíam CUBO CHEIO — o fio
     // virava uma parede vermelha no meio da mesa. Quem viu foi a sonda, no
     // print: a lógica estava certa e o desenho, não.
+    // §🔌 e a PORTA LÓGICA virou um CHIP (2026-10-19): corpo recuado 2/16 com
+    // pino de saída na frente e dois pinos de entrada nas laterais. Sair daqui
+    // é o que permite a forma — e, de brinde, a luz passa pelo vão (como no
+    // baú), o que ajuda a lâmpada do circuito a se fazer ver.
+    !ehPortaLogica(id) &&
     id !== BlockId.FioDesligado &&
     id !== BlockId.FioLigado &&
     id !== BlockId.AlavancaDesligada &&

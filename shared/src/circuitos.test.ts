@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { BlockId, isPlaceable } from "./blocks";
+import { BlockId, MAX_BLOCK_ID, ehPortaLogica, isPlaceable } from "./blocks";
 import { formaCanonica } from "./drops";
 import { ancoraDeCopia } from "./orientacao";
 import {
@@ -7,7 +7,10 @@ import {
   comEstado,
   estaLigado,
   frenteDaPorta,
+  conectaCondutor,
   isCircuito,
+  ligacaoDoCondutor,
+  tipoDaPorta,
   recalcularCircuitos,
 } from "./circuitos";
 
@@ -100,6 +103,51 @@ describe("o básico: alavanca, fio e lâmpada", () => {
   });
 });
 
+describe("a ligação do condutor é UMA regra só (motor e desenho)", () => {
+  // o mesher desenha o braço do fio por esta função, e o motor decide por ela
+  // quem energiza quem: a divergência entre as duas é o pior defeito possível
+  // num jogo cujo produto é ENXERGAR a lógica
+  it("alavanca entrega; lâmpada recebe e não repassa; fio faz os dois", () => {
+    expect(ligacaoDoCondutor(BlockId.AlavancaLigada, 1, 0, 0)).toEqual({ recebe: true, entrega: false });
+    expect(ligacaoDoCondutor(BlockId.LampadaApagada, 1, 0, 0)).toEqual({ recebe: false, entrega: true });
+    expect(ligacaoDoCondutor(BlockId.FioDesligado, 1, 0, 0)).toEqual({ recebe: true, entrega: true });
+    // e em TODA direção, inclusive pra cima e pra baixo (o motor conduz em 6)
+    for (const [dx, dy, dz] of [[1,0,0],[-1,0,0],[0,1,0],[0,-1,0],[0,0,1],[0,0,-1]] as const) {
+      expect(conectaCondutor(BlockId.FioLigado, dx, dy, dz)).toBe(true);
+    }
+  });
+
+  it("porta lógica: entrega SÓ pela frente, recebe SÓ pelas laterais, costas NADA", () => {
+    // porta virada pro +x em (1,0,0); o fio está na origem, então o fio está
+    // nas COSTAS dela (a saída dela aponta pro lado oposto ao fio)
+    expect(conectaCondutor(BlockId.PortaEXPDesligada, 1, 0, 0)).toBe(false);
+    // porta virada pro −x em (1,0,0): agora a saída dela cai no fio
+    expect(ligacaoDoCondutor(BlockId.PortaEXNDesligada, 1, 0, 0)).toEqual({ recebe: true, entrega: false });
+    // porta virada pro +x em (0,0,1): o fio está numa LATERAL dela (entrada)
+    expect(ligacaoDoCondutor(BlockId.PortaEXPDesligada, 0, 0, 1)).toEqual({ recebe: false, entrega: true });
+    // a OU segue a MESMA convenção (é a tabela que manda, não o tipo)
+    expect(ligacaoDoCondutor(BlockId.PortaOUXNDesligada, 1, 0, 0)).toEqual({ recebe: true, entrega: false });
+    expect(ligacaoDoCondutor(BlockId.PortaOUXPDesligada, 0, 0, 1)).toEqual({ recebe: false, entrega: true });
+    // porta nunca fala pra cima nem pra baixo
+    expect(conectaCondutor(BlockId.PortaEXPDesligada, 0, 1, 0)).toBe(false);
+    expect(conectaCondutor(BlockId.PortaEXPDesligada, 0, -1, 0)).toBe(false);
+  });
+
+  it("bloco comum não conecta com nada (o braço não aparece)", () => {
+    for (const id of [BlockId.Stone, BlockId.Air, BlockId.Glass, BlockId.Tocha]) {
+      expect(conectaCondutor(id, 1, 0, 0)).toBe(false);
+    }
+  });
+
+  it("CONTROLE NEGATIVO: a ligação não é simétrica — costas × frente", () => {
+    // é o que impede o sinal de voltar pela própria entrada da porta
+    const pelaFrente = ligacaoDoCondutor(BlockId.PortaEXNDesligada, 1, 0, 0);
+    const pelasCostas = ligacaoDoCondutor(BlockId.PortaEXPDesligada, 1, 0, 0);
+    expect(pelaFrente.recebe).toBe(true);
+    expect(pelasCostas.recebe).toBe(false);
+  });
+});
+
 describe("a OU é uma peça PRÓPRIA, não um estado da E", () => {
   it("o drop e a âncora da mochila devolvem a OU, não a E", () => {
     // é o erro que uma tabela compartilhada convida: as duas portas têm o
@@ -131,6 +179,14 @@ describe("a OU é uma peça PRÓPRIA, não um estado da E", () => {
       expect(comEstado(ligada, false)).toBe(desligada);
       // a frente é a MESMA nos dois estados (estado não vira a peça)
       expect(frenteDaPorta(desligada)).toBe(frenteDaPorta(ligada));
+    }
+  });
+
+  it("PORTÃO: a faixa do `blocks.ts` e a tabela do `circuitos.ts` concordam em TODO id", () => {
+    // as duas existem por um motivo (o `blocks.ts` é a raiz e não pode importar
+    // o `circuitos.ts`), então o que as mantém honestas é esta varredura
+    for (let id = 0; id <= MAX_BLOCK_ID + 8; id++) {
+      expect(ehPortaLogica(id)).toBe(tipoDaPorta(id) !== null);
     }
   });
 

@@ -75,9 +75,24 @@ export function opacidadeLuz(id: number): number {
  *  §🍖 F10b: a fornalha ACESA emite 13 — um degrau abaixo da tocha, porque a
  *  boca do fogo ilumina menos que uma chama pendurada, e porque a fornalha não
  *  deve virar a tocha barata de quem não quer fabricar tocha. Sai de graça: a
- *  luz é função PURA dos bytes, e o tick já troca o byte quando o fogo pega. */
+ *  luz é função PURA dos bytes, e o tick já troca o byte quando o fogo pega.
+ *
+ *  §🔌 a LÂMPADA ACESA emite 14, o MESMO que a tocha (decisão do usuário,
+ *  2026-10-19 — a proposta era 12, um degrau abaixo da fornalha). O motivo é
+ *  de LEITURA, não de ambientação: a saída do circuito precisa ser vista do
+ *  outro lado da sala, em projetor ruim e por quem não distingue as cores —
+ *  até aqui "acesa" era só a cor do tile, e a sonda mediu a diferença em
+ *  luminância de PIXEL justamente porque a olho ela é discreta. No teto da
+ *  escala ela vira também a luz que o aluno FABRICA pra iluminar a sala, o que
+ *  dá um segundo motivo pra montar circuito.
+ *
+ *  ⚠️ No dia da porta NÃO: um oscilador troca o byte a cada tick e a luz
+ *  repropaga a cada troca (até 15 blocos de alcance, vários chunks). Se isso
+ *  pesar, o teto é por LÂMPADA (atualizar a luz no máximo a cada N ticks),
+ *  não desligar o emissor. */
 export function luzEmitida(id: number): number {
   if (id === BlockId.Tocha) return 14;
+  if (id === BlockId.LampadaAcesa) return 14;
   // as QUATRO direções acesas iluminam igual: a frente é textura, não física
   return fornalhaEstaAcesa(id) ? 13 : 0;
 }
@@ -283,6 +298,22 @@ function apagar(
   const fila: number[] = [empacotar(luz, x0, y0, z0)];
   const niveis: number[] = [nivel0];
   setCanal(luz, x0, y0, z0, canal, 0, sujos);
+  /**
+   * EMISSORES apagados junto com a região (2026-10-19).
+   *
+   * O apagamento desce por "o vizinho é mais fraco que eu, logo é filho meu" —
+   * e um emissor MAIS FRACO que a fonte apagada cai nessa conta: a lâmpada de
+   * 12 dentro do alcance de uma tocha de 14 é zerada como se fosse só reflexo
+   * dela. Ela não entra em `reacender` (que só recebe quem NÃO foi apagado) e,
+   * mesmo que entrasse, o `propagar` ignora célula de nível 0. Resultado: a
+   * lâmpada ficava apagada pra sempre no caminho incremental, enquanto o
+   * recálculo do zero a acendia — e os dois calculam a MESMA função.
+   *
+   * Até aqui não aparecia porque os emissores que existiam eram tocha (14) e
+   * fornalha (13), e nenhum ficava dentro do alcance do outro com nível menor
+   * na prática. Quem revelou foi a paleta mista do teste de paridade.
+   */
+  const emissoresApagados: number[] = [];
 
   for (let head = 0; head < fila.length; head++) {
     const p = fila[head]!;
@@ -307,10 +338,29 @@ function apagar(
         setCanal(luz, nx, ny, nz, canal, 0, sujos);
         fila.push(empacotar(luz, nx, ny, nz));
         niveis.push(viz);
+        // apaga NORMALMENTE (o que ela alimentava também tem de sumir) e só
+        // depois do varrimento ela volta ao nível PRÓPRIO dela — ver acima
+        if (canal === CANAL_BLOCO && luzEmitida(getBlock(world, nx, ny, nz)) > 0) {
+          emissoresApagados.push(empacotar(luz, nx, ny, nz));
+        }
       } else {
         reacender.push(empacotar(luz, nx, ny, nz));
       }
     }
+  }
+
+  // o varrimento acabou: os emissores que foram apagados junto voltam ao nível
+  // PRÓPRIO e entram como semente (o `propagar` pula célula de nível 0, então
+  // repor o nível é parte da semeadura, não um detalhe).
+  for (const p of emissoresApagados) {
+    const y = p % luz.sizeY;
+    const r = (p - y) / luz.sizeY;
+    const z = r % luz.sizeZ;
+    const x = (r - z) / luz.sizeZ;
+    const emite = luzEmitida(getBlock(world, x, y, z));
+    if (emite <= 0) continue; // mudou no meio do caminho: não é mais emissor
+    setCanal(luz, x, y, z, canal, emite, sujos);
+    reacender.push(p);
   }
 }
 
@@ -626,7 +676,15 @@ export function atualizarBloco(
   const reacenderBloco: number[] = [];
   apagar(world, luz, x, y, z, CANAL_BLOCO, sujos, reacenderBloco);
   const emite = luzEmitida(id);
-  if (emite > 0 && op < OPACO) {
+  // ⚠️ sem `op < OPACO` de propósito (2026-10-19): EMISSOR OPACO existe — a
+  // fornalha acesa e a lâmpada do §🔌 são cubo cheio — e o `acenderColuna`
+  // (recálculo do zero) sempre os semeou sem olhar opacidade. Com a guarda
+  // aqui, os dois caminhos calculavam funções DIFERENTES dos mesmos bytes:
+  // acender a fornalha em jogo não iluminava nada, e só voltava ao certo
+  // quando algo forçasse o recálculo da coluna. O `propagar` olha a opacidade
+  // do ALVO, nunca da origem, então semear a célula opaca é seguro — a luz sai
+  // dela pros vizinhos abertos e para em qualquer parede.
+  if (emite > 0) {
     setCanal(luz, x, y, z, CANAL_BLOCO, emite, sujos);
     reacenderBloco.push(empacotar(luz, x, y, z));
   }
