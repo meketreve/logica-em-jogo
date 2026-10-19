@@ -1,4 +1,5 @@
 import { BlockId } from "./blocks";
+import { comEstado, isLampada } from "./circuitos";
 import { type Vec3i, parseVec3i } from "./regions";
 import { type World, getBlock } from "./world";
 
@@ -14,11 +15,16 @@ import { type World, getBlock } from "./world";
  *   apaga o modelo depois de fotografar, senão o objetivo já nasce completo).
  * - chegar: um jogador pisar dentro da região.
  * - limpar: a região ficar 100% ar.
+ * - acender: §🔌 toda lâmpada da área acesa COM O CIRCUITO INTACTO — o jogo
+ *   fotografa a área no add e o aluno só pode mexer nas ALAVANCAS. É o
+ *   "acender com a combinação certa": sem a trava, colar uma alavanca na
+ *   lâmpada mataria o desafio (e "monte você um circuito que acenda" já é um
+ *   construir, porque a lâmpada ACESA é um id de bloco como outro qualquer).
  *
  * Persiste no meta JSON do .ljw (cresce sem re-versionar, desenho do cp7).
  */
 
-export type ObjectiveKind = "construir" | "chegar" | "limpar";
+export type ObjectiveKind = "construir" | "chegar" | "limpar" | "acender";
 export type ScenarioModo = "sequencial" | "livre";
 
 export interface Box {
@@ -49,11 +55,19 @@ export interface Objective {
    *  (online) dentro da região ao mesmo tempo. */
   regra?: "um" | "todos";
   /**
-   * Estado AUTORAL das áreas (construir/limpar) — uma fotografia por área na
-   * ordem canônica y→z→x, alinhada com `alvos` (ou uma só, a compartilhada).
-   * Capturado no /objetivo add e PERSISTIDO: reiniciar a atividade restaura as
-   * áreas a isto (a faixa da aula de sequência volta aos blocos-semente, não
-   * fica vazia). Ausente = chegar, ou save antigo (reiniciar não mexe nos blocos).
+   * Estado AUTORAL das áreas (construir/limpar/acender) — uma fotografia por
+   * área na ordem canônica y→z→x, alinhada com `alvos` (ou uma só, a
+   * compartilhada). Capturado no /objetivo add e PERSISTIDO: reiniciar a
+   * atividade restaura as áreas a isto (a faixa da aula de sequência volta aos
+   * blocos-semente, não fica vazia; o circuito volta com as alavancas como o
+   * professor deixou). Ausente = chegar, ou save antigo (reiniciar não mexe nos
+   * blocos).
+   *
+   * ⚠️ No `acender` ele não é só conforto: é a FOTO contra a qual o circuito é
+   * conferido, uma por área — daí ser OBRIGATÓRIO ali (ver `parseObjective`),
+   * enquanto nos outros tipos malformado só é descartado. Per-grupo cada área
+   * tem a sua, então o professor pode montar o desafio em cada terreno sem
+   * precisar alinhar as peças célula a célula entre eles.
    */
   baseline?: number[][];
 }
@@ -92,11 +106,14 @@ export interface ObjectiveState {
   completo: boolean;
   /** sequencial: só o primeiro incompleto; livre: todos os incompletos. */
   ativo: boolean;
-  /** construir: blocos corretos; limpar: blocos que FALTAM limpar; chegar: 0. */
+  /** construir: blocos corretos; limpar: blocos que FALTAM limpar;
+   *  acender: lâmpadas ACESAS; chegar: 0. */
   atual: number;
-  /** construir: alvo (blocos não-ar do gabarito); demais: 0. */
+  /** construir: alvo (blocos não-ar do gabarito); acender: lâmpadas da foto;
+   *  demais: 0. */
   total: number;
-  /** construir: blocos onde o gabarito pede ar (sobras); demais: 0. */
+  /** construir: blocos onde o gabarito pede ar (sobras); acender: peças FORA
+   *  DO LUGAR (o circuito foi mexido); demais: 0. */
   extras: number;
   /** cp13: presente quando o mundo tem grupos — cliente escolhe a SUA linha. */
   porGrupo?: GroupObjectiveState[];
@@ -167,6 +184,44 @@ export function matchRegion(world: World, b: Box, gabarito: number[]): MatchResu
   return { corretos, alvo, extras };
 }
 
+export interface CircuitoResult {
+  /** Lâmpadas da FOTO que estão acesas agora. */
+  acesas: number;
+  /** Lâmpadas que a foto tem (não as que estão lá: quebrar a lâmpada não
+   *  diminui o alvo, senão apagar tudo fecharia o objetivo em 0/0). */
+  lampadas: number;
+  /** Células onde o circuito saiu do lugar — peça trocada, tirada ou posta. */
+  fora: number;
+}
+
+/**
+ * §🔌 Compara a área com a foto IGNORANDO ligado/desligado: a peça é a mesma,
+ * o estado dela é o que o aluno tem o direito de mudar. `comEstado(id, false)`
+ * é o canonizador (devolve o próprio id pra quem não tem dois estados), então
+ * alavanca ligada = alavanca, lâmpada acesa = lâmpada, e ninguém é acusado de
+ * "mexer no circuito" por ter resolvido o desafio.
+ */
+export function matchCircuito(world: World, b: Box, foto: number[]): CircuitoResult {
+  let acesas = 0;
+  let lampadas = 0;
+  let fora = 0;
+  let i = 0;
+  for (let y = b.min.y; y <= b.max.y; y++) {
+    for (let z = b.min.z; z <= b.max.z; z++) {
+      for (let x = b.min.x; x <= b.max.x; x++) {
+        const want = foto[i++] ?? BlockId.Air;
+        const cur = getBlock(world, x, y, z);
+        if (comEstado(want, false) !== comEstado(cur, false)) fora++;
+        if (isLampada(want)) {
+          lampadas++;
+          if (cur === BlockId.LampadaAcesa) acesas++;
+        }
+      }
+    }
+  }
+  return { acesas, lampadas, fora };
+}
+
 /** Quantas células da região ainda têm bloco (objetivo limpar: 0 = pronto). */
 export function countSolid(world: World, b: Box): number {
   let n = 0;
@@ -181,7 +236,7 @@ export function countSolid(world: World, b: Box): number {
 }
 
 function isKind(v: unknown): v is ObjectiveKind {
-  return v === "construir" || v === "chegar" || v === "limpar";
+  return v === "construir" || v === "chegar" || v === "limpar" || v === "acender";
 }
 
 /** Caixa min/max válida (inteiros, min ≤ max) ou null. */
@@ -247,6 +302,10 @@ export function parseObjective(v: unknown): Objective | null {
       baseline = listas as number[][];
     }
   }
+  // §🔌 acender CONFERE contra a foto: sem ela coerente o objetivo não é
+  // recuperável (mesma régua do gabarito do construir). Um `baseline` quebrado
+  // nos outros tipos só custa o "reiniciar"; aqui custaria a verificação.
+  if (o["kind"] === "acender" && !baseline) return null;
   return {
     id: o["id"],
     kind: o["kind"],

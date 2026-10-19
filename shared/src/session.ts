@@ -2744,7 +2744,8 @@ export class GameSession {
         // sequencial: futuro só vale quando ativar (por grupo, se houver)
         if (!activeIdsFor(this, g).has(id)) continue;
         const box = g > 0 && o.alvos ? o.alvos[g - 1] : o;
-        if (box && isObjectiveDone(this, o, box)) {
+        const k = g > 0 && o.alvos ? g - 1 : 0; // índice da área (foto do acender)
+        if (box && isObjectiveDone(this, o, box, k)) {
           completeObjetivo(this, o, g); // ativo + feito = conclusão nova
           avancaram.add(g);
         }

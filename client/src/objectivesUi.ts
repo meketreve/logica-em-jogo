@@ -81,6 +81,14 @@ export class ObjectivesUi {
             if (g.completo) return `g${g.grupo} ✓`;
             if (o.kind === "construir") return `g${g.grupo} ${g.atual}/${g.total}`;
             if (o.kind === "limpar") return `g${g.grupo} faltam ${g.atual}`;
+            // §🔌 acender: o professor precisa ver as DUAS contas — as lâmpadas
+            // acesas e o circuito mexido, que é o motivo mais provável de um
+            // grupo estar "1/1" e ainda não ter fechado.
+            if (o.kind === "acender") {
+              return (
+                `g${g.grupo} 💡${g.atual}/${g.total}` + (g.extras > 0 ? ` ⚠${g.extras}` : "")
+              );
+            }
             return `g${g.grupo} …`;
           })
           .join(" · ");
@@ -109,6 +117,14 @@ export class ObjectivesUi {
           `blocos corretos: ${atual}/${total}` + (extras > 0 ? ` · ${extras} sobrando` : "");
       } else if (o.kind === "limpar") {
         prog.textContent = `faltam ${atual} bloco(s)`;
+      } else if (o.kind === "acender") {
+        // A frase do `extras` é o que impede o "mas a lâmpada tá acesa!": o
+        // circuito foi mexido, e o aluno não tem como adivinhar isso do HUD.
+        prog.textContent =
+          `lâmpadas acesas: ${atual}/${total}` +
+          (extras > 0
+            ? ` · ${extras} peça(s) fora do lugar — devolva o circuito como estava e mexa só nas alavancas`
+            : "");
       } else {
         prog.textContent =
           "chegue até a área marcada em verde" + (temGrupos ? " (do seu grupo)" : "");

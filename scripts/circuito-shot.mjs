@@ -568,6 +568,49 @@ ok(m11 > m00 + 4, `1 E 1 ACENDE (${m00.toFixed(1)} → ${m11.toFixed(1)})`);
 ok(m10 < m00 + 4, `1 E 0 NÃO acende (${m10.toFixed(1)})`);
 ok(m01 < m00 + 4, `0 E 1 NÃO acende (${m01.toFixed(1)})`);
 
+diga("== E: o OBJETIVO que CHECA o circuito (2026-10-19) ==");
+// Aqui a prova não é pixel: é o TEXTO do HUD, que é o que o aluno lê pra saber
+// por que o objetivo não fechou. A sonda enxerga as três frases que importam —
+// "0/1", "peça(s) fora do lugar" (o atalho recusado) e o troféu do fim.
+const hud = async () =>
+  (await avaliar(`document.getElementById('objetivos')?.textContent ?? ''`)) ?? "";
+// o estado deixado pela seção C: A desligada, B ligada → lâmpada APAGADA
+await dizer(`/regiao criar desafio ${PX - 4} ${Y_OLHO} ${Z0 - 2} ${PX + 2} ${Y_OLHO} ${Z0 + 3}`);
+await dizer("/objetivo add acender desafio Acenda a lampada com as duas alavancas");
+await espera(900);
+const hudInicial = await hud();
+ok(
+  /l[âa]mpadas acesas: 0\/1/.test(hudInicial),
+  `o HUD mostra o progresso do acender ("${hudInicial.slice(0, 80)}")`,
+);
+
+// O ATALHO: um FIO que liga a rede já energizada (a entrada B, ligada na seção
+// C) direto na lâmpada, passando POR FORA da porta E. A lâmpada acende e o
+// objetivo continua aberto — é isto que o torna um objetivo e não um enfeite.
+// (A alavanca JÁ LIGADA não serve de atalho aqui: `/bloco 257` é recusado de
+// propósito — peça ligada é ESTADO, não escolha, ver `isPlaceable`.)
+await dizer(`/bloco ${PX + 1} ${Y_OLHO} ${Z0 - 1} ${FIO}`);
+await espera(1000);
+const hudAtalho = await hud();
+ok(
+  /1\/1/.test(hudAtalho) && /fora do lugar/.test(hudAtalho),
+  `acender rewirando NÃO fecha: o HUD acusa a peça fora do lugar ("${hudAtalho.slice(0, 110)}")`,
+);
+ok(!/cenário completo/.test(hudAtalho), "e o cenário NÃO é dado como completo");
+
+// desfaz o atalho e resolve de verdade: liga a alavanca A que faltava
+await dizer(`/bloco ${PX + 1} ${Y_OLHO} ${Z0 - 1} 0`);
+await virar(PX);
+await espera(1000);
+const hudFim = await hud();
+ok(
+  /cenário completo/.test(hudFim),
+  `com a COMBINAÇÃO certa o servidor fecha o objetivo sozinho ("${hudFim.slice(0, 80)}")`,
+);
+await foto("09-objetivo-acender.png");
+await dizer("/objetivo remover 1");
+await espera(400);
+
 diga("== D: no mundo aberto, o aluno só planta circuito no terreno DELE ==");
 await dizer("/terreno ligar");
 await dizer("/modo sobrevivencia eu");

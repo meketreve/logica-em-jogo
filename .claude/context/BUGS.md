@@ -1,5 +1,5 @@
 ---
-updated: 2026-10-16
+updated: 2026-10-19
 tier: 3
 ---
 
@@ -11,6 +11,14 @@ tier: 3
      Convertido de `.wolf/buglog.json` em 2026-09-25 (mesmo conteúdo, formato do
      modelo). São bugs ESCRITOS À MÃO: nada de detector automático — ele já encheu
      o arquivo de 148 entradas falsas uma vez, e elas foram podadas junto. -->
+
+## 2026-10-19 — "objetivo concluído: objetivo concluído: …" no chat da turma
+- **Sintoma:** no chat, ao fechar um objetivo: `<servidor> objetivo concluído: objetivo concluído: Acenda a lampada com as duas alavancas`. Por grupo saía `objetivo concluído: grupo 2 concluiu: …`, que lê pior ainda.
+- **Onde:** `shared/src/session/cenario.ts` (`completeObjetivo` × `broadcastObjectives`)
+- **Causa:** os DOIS lados prefixavam. O `completeObjetivo` já monta a frase inteira — e ela MUDA com o escopo ("objetivo concluído: X" no mundo, "grupo N concluiu: X" por grupo) — mas o `broadcastObjectives` carimbava "objetivo concluído: " de novo em cima. Nenhum teste pegou: todos usavam `toContain`, que passa com o prefixo repetido.
+- **Correção:** o broadcast manda o texto COMO VEIO; quem decide a frase é só o `completeObjetivo`. Teste novo em `acender.test.ts` com `toEqual` numa lista de uma frase (é o `toContain` que deixava passar).
+- **Como apareceu:** no PRINT da sonda `shots:circuito`, não num teste — a frase estava na tela, visível pra turma, há quanto tempo ninguém sabe.
+- **Tags:** cenario, objetivo, chat, prefixo-duplicado, toContain, sonda, corrigido
 
 ## 2026-10-16 — receita nova no MEIO do índice trocou a fornalha de todo mundo
 - **Sintoma:** smoke `fornalha` vermelho em 11 asserções, a primeira sendo `✗ nasceu 1 fornalha (0)` — a ana tinha os 8 pedregulhos, pedia a fornalha na bancada e não saía nada.

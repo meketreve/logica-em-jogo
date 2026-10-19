@@ -171,7 +171,7 @@ export function nivel3Para(
   vivo: ContextoVivo = SEM_CONTEXTO,
 ): string[] {
   if (papel === "aluno" && NIVEL3_SO_PROFESSOR.has(cmd)) return [];
-  if (cmd === "objetivo" && sub === "add") return ["construir", "chegar", "limpar"];
+  if (cmd === "objetivo" && sub === "add") return ["construir", "chegar", "limpar", "acender"];
   if (cmd === "objetivo" && sub === "modo") return ["sequencial", "livre"];
   if (cmd === "mundo" && sub === "carregar") return vivo.mundos;
   if (cmd === "amigos" && AMIGOS_COM_NOME.has(sub)) return vivo.jogadores;

@@ -386,7 +386,7 @@ export class AuthorPanel extends Panel {
 
   /** Rascunho dos formulários — sobrevive aos re-renders dos broadcasts. */
   private draft = {
-    objKind: "construir" as "construir" | "chegar" | "limpar",
+    objKind: "construir" as "construir" | "chegar" | "limpar" | "acender",
     objModelo: "",
     objAlvo: "",
     objRegra: "um" as "um" | "todos",
@@ -551,10 +551,11 @@ export class AuthorPanel extends Panel {
         { value: "construir", label: "construir (copiar um modelo)" },
         { value: "chegar", label: "chegar (ir até uma área)" },
         { value: "limpar", label: "limpar (esvaziar uma área)" },
+        { value: "acender", label: "acender (§🔌 acender a lâmpada do circuito)" },
       ],
       this.draft.objKind,
       (v) => {
-        this.draft.objKind = v as "construir" | "chegar" | "limpar";
+        this.draft.objKind = v as "construir" | "chegar" | "limpar" | "acender";
       },
     );
     kindSel.addEventListener("change", () => this.render()); // campos mudam com o tipo
@@ -594,6 +595,14 @@ export class AuthorPanel extends Panel {
           );
           root.append(this.row("conclui quando:", regraSel));
         }
+        if (this.draft.objKind === "acender") {
+          root.append(
+            this.hint(
+              "monte o circuito na área ANTES, com as alavancas desligadas: o jogo fotografa " +
+                "as peças agora e o aluno só pode mexer nas alavancas",
+            ),
+          );
+        }
       }
       const texto = this.textInput(
         "texto que o aluno vê (ex.: Copie o padrão do modelo)",
@@ -615,7 +624,7 @@ export class AuthorPanel extends Panel {
           const regra = this.draft.objRegra === "todos" ? "todos " : "";
           this.cmd(`/objetivo add chegar ${this.draft.objAlvo} ${regra}${t}`);
         } else {
-          this.cmd(`/objetivo add limpar ${this.draft.objAlvo} ${t}`);
+          this.cmd(`/objetivo add ${k} ${this.draft.objAlvo} ${t}`);
         }
         this.draft.objTexto = "";
         this.render();

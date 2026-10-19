@@ -1,7 +1,7 @@
 ---
-updated: 2026-10-16
+updated: 2026-10-19
 tier: 3
-active: true
+active: false
 ---
 
 # TODO
@@ -11,14 +11,17 @@ active: true
 
 ## Agora
 
-- [ ] **§🔌 o OBJETIVO que CHECA o circuito** — a 2ª metade do pedido ("acender com a combinação
-      certa" + objetivo verificável). Tipo novo em `shared/src/session/cenario.ts`, no molde de
-      construir/chegar, com progresso por grupo → **verify:** teste de sessão que fecha o
-      objetivo ao acender a lâmpada e NÃO fecha com uma alavanca só.
+- [x] ~~**§🔌 o OBJETIVO que CHECA o circuito**~~ — feito em 19/10 (tipo `acender`: foto do
+      circuito no add, só alavanca pode mudar, progresso por grupo). Falta ver em AULA (abaixo).
 
 ## Testar na escola (o usuário faz; aula de 10/10 cobriu parte)
 
-- [ ] **§🔌 CIRCUITO (16/10), o mais novo:** fabricar as quatro peças na bancada; montar
+- [ ] **§🔌 o OBJETIVO acender (19/10), o mais novo:** montar o circuito numa região e criar o
+      objetivo (painel do professor → tipo "acender", ou `/objetivo add acender <regiao> <texto>`).
+      Ver o jogo fechar sozinho. Conferir se a frase "peça(s) fora do lugar" é entendida por
+      criança de 10 anos, e se "zerar progresso" deixa o desafio pronto pro grupo seguinte.
+
+- [ ] **§🔌 CIRCUITO (16/10):** fabricar as quatro peças na bancada; montar
       alavanca→fio→lâmpada e ver acender; montar a porta E com duas alavancas e conferir que só
       acende com as DUAS. No tablet: a alavanca é fácil de acertar com o dedo (ela tem 12/16 de
       altura) e dá pra distinguir ligada de desligada **de longe**? E em mundo com proteção
@@ -39,14 +42,11 @@ active: true
       ser outra causa, não o heartbeat. *(13/10: a sobra do host abaixo do limiar de 8 s foi
       endurecida — queda por silêncio agora exige 3 perguntas de verdade; a observação em aula
       continua valendo.)*
-- [ ] **Logs (não lidos ainda):** `mundos/<nome>/logs/` — o par com data/hora, e o `-chat.log` só
-      com fala de gente.
-- [ ] **Presença (bug-672):** fechar o navegador e reentrar com o mesmo nome (a volta tem de ser
-      NA HORA); e conferir se os 15 s não derrubam ninguém no Wi-Fi da escola (`constants.ts`).
+- [ ] **Logs (não lidos ainda):** `mundos/<nome>/logs/` — o par com data/hora, e o `-chat.log` só com fala de gente.
+- [ ] **Presença (bug-672):** reentrar com o mesmo nome (a volta tem de ser NA HORA); e se os 15 s não derrubam ninguém no Wi-Fi da escola (`constants.ts`).
 - [ ] **Loja:** preço de ITEM **e reabrir o mundo** (era na releitura do save que sumia).
 - [ ] **Ids de 16 bits:** abrir o mundo da turma no host (tem de nascer `<nome>.antes-ids16.ljw`).
-- [ ] **Cama/torre:** deitar perto e longe, levantar pulando; torre de pular+colocar no Wi-Fi da
-      escola (onde a latência do bug-652 aparece). E o **bug-650** com turma cheia.
+- [ ] **Cama/torre:** deitar perto e longe, levantar pulando; torre de pular+colocar no Wi-Fi da escola (latência do bug-652). E o **bug-650** com turma cheia.
 
 ## Depois
 

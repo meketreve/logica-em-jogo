@@ -42,6 +42,8 @@ tier: 3
 
 ## Erros a não repetir
 
+- [2026-10-19] [objetivo] [✓] Objetivo que checa CIRCUITO confere contra a FOTO da área, não contra o mundo: o alvo ("1 lâmpada") vem da foto, senão quebrar a lâmpada fechava o objetivo em 0/0. `comEstado(id, false)` canoniza o estado — ligado/desligado é o que o aluno TEM o direito de mudar; peça trocada é que é "fora do lugar".
+- [2026-10-19] [teste] [✗] `toContain` em frase que o SERVIDOR monta — deixou passar "objetivo concluído: objetivo concluído: X" (prefixo dos dois lados) e quem viu foi o PRINT da sonda. Frase inteira se afirma com `toEqual`.
 - [2026-10-19] [protocolo] [✓] CARACTERE não é byte: todo teto de texto contava caractere (`MAX_CHAT_LENGTH`, `MAX_QUADRO_TEXTO`) e emoji custa 4 — teto novo de texto vem em PAR (caracteres + bytes, o menor ganha, `cortarEmBytes` corta em fronteira de code point). E teto por CAMPO só vale depois do parse: o do frame cru mora no funil da `GameSession` **e** no `maxPayload` do `ws` (os interceptadores do host parseiam antes dela).
 - [2026-10-16] [receitas] [✗] Acrescentar receita no MEIO da composição de `receitas.ts` — o ÍNDICE é a identidade no protocolo, e as 4 do circuito no fim do `MATERIAIS` empurraram todas as seguintes (o smoke: "nasceu 1 fornalha (0)"). Lista nova entra por ÚLTIMO.
 - [2026-10-16] [circuito] [✓] Bloco novo com FORMA própria precisa sair do `isFullCube` — sem isso o `emitShape` nem é chamado e ele sai CUBO CHEIO (o fio virou parede). E forma baixa demais passa por baixo da MIRA (olho = pé+1,6): a alavanca tem 12/16 porque com 8/16 o ▣ oferecia "colocar" em cima dela.
@@ -57,8 +59,7 @@ tier: 3
 - [2026-10-13] [presenca] [✓] Nome em jogo + PIN certo = TOMADA DE POSSE (quem volta entra na hora, o fantasma cai); o gate do bug-061 vira o ÚLTIMO passo — recusa clássica só pra nome online SEM identidade.
 - [2026-10-13] [teste] [✓] Portão que lê artefato de RUNTIME não versionado (`server/world.ljw`) derruba clone limpo — `it.skipIf(!existsSync(...))` com o porquê; a cobertura incondicional fica com o que está no git.
 - [2026-10-15] [sonda] [✗] Bateria inteira sem olhar `git status` depois — `shots:fundo` é GERADORA (reescreve `menu-fundo/*.png`, ~5 MB versionados).
-- [2026-10-10] [sonda] [✓] Matar o Chrome pelo GRUPO (`detached` + SIGKILL): um filho regrava o perfil depois do `rmSync`.
-- [2026-10-10] [sonda] [✓] Rótulo de botão é ESTADO, não identidade — botão que muda de nome leva `data-acao`.
+- [2026-10-10] [sonda] [✓] Matar o Chrome pelo GRUPO (`detached` + SIGKILL — um filho regrava o perfil depois do `rmSync`); e rótulo de botão é ESTADO, não identidade: quem muda de nome leva `data-acao`.
 - [2026-10-10] [bench] [✗] Esperar FPS do `bench:headless` (SwiftShader varia 4,3–6,4 s no MESMO commit) — custo de FORMATO se mede no codec, em Node.
 - [2026-10-10] [smoke] [✗] Acreditar em falha da bateria COMPLETA com a máquina carregada — repetir a sonda SOZINHA antes de caçar.
 - [2026-10-03] [build] [✗] Rótulo auto-referente (sha do HEAD) em artefato VERSIONADO — o dist
@@ -69,9 +70,7 @@ tier: 3
   começo — ela sobrevive mesmo com `LJ_NOVO=1` e a 2ª rodada reprova por defeito que não existe.
 - [2026-10-05] [contexto] [✗] Carimbar data de cabeça em LEARNINGS/BUGS — escrevi 06 num dia 05
   e desalinhei o `index.sh`, que ordena por data. Conferir com `date +%F`.
-- [2026-10-05] [voo] [✓] Estado do voo vale POR SAVE (aula incluída): nasce desligada, abre
-  voando só se o modelo foi salvo com `/voo ligar` — o confinamento tem override pra
-  `somenteLeitura` e o voo não pode ganhar um igual.
+- [2026-10-05] [voo] [✓] Estado do voo vale POR SAVE: nasce desligada, abre voando só se o modelo foi salvo com `/voo ligar` (o confinamento tem override pra `somenteLeitura`; o voo não pode ganhar um igual).
 - [2026-10-05] [log] [✓] Antes de "resolver arquivo grande", MEDIR o que o enche — o chat.log de
   344 KB era 2434/2434 linhas de `servidor:`, zero de aluno; o conserto foi separar fala de
   gente de evento de sistema.

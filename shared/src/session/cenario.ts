@@ -1,4 +1,5 @@
 import { BlockId } from "../blocks";
+import { isLampada } from "../circuitos";
 import { type ServerMessage } from "../protocol";
 import { type NamedRegion, regionContains, regionDims } from "../regions";
 import {
@@ -11,6 +12,7 @@ import {
   type ObjectiveState,
   boxVolume,
   countSolid,
+  matchCircuito,
   matchRegion,
   snapshotRegion,
 } from "../scenario";
@@ -130,7 +132,7 @@ export function runObjetivo(ses: GameSession, parts: string[]): string {
         const alvoTotal = gabarito.filter((b) => b !== BlockId.Air).length;
         return `Objetivo #${o.id} criado: construir em "${alvoNome}" — ${alvoTotal} blocos, modelo "${modelo.nome}".`;
       }
-      if (kind === "chegar" || kind === "limpar") {
+      if (kind === "chegar" || kind === "limpar" || kind === "acender") {
         // chegar aceita regra opcional depois da região: todos | um (default)
         const regra =
           kind === "chegar" && (parts[4] === "todos" || parts[4] === "um")
@@ -154,13 +156,32 @@ export function runObjetivo(ses: GameSession, parts: string[]): string {
           );
         }
         const caixas = res.porGrupo ?? [res.shared as NamedRegion];
-        if (kind === "limpar") {
+        if (kind === "limpar" || kind === "acender") {
           for (const caixa of caixas) {
             if (boxVolume(caixa) > MAX_OBJETIVO_CELLS) {
               return `A região é grande demais (máximo de ${MAX_OBJETIVO_CELLS} blocos).`;
             }
-            if (countSolid(ses.world, caixa) === 0) {
+            if (kind === "limpar" && countSolid(ses.world, caixa) === 0) {
               return `A região "${caixa.nome}" já está vazia: não há nada para limpar.`;
+            }
+            if (kind === "acender") {
+              // §🔌 as duas recusas que impedem objetivo IMPOSSÍVEL (sem
+              // lâmpada, nada pra acender) e objetivo JÁ GANHO (o professor
+              // montou com as alavancas ligadas e esqueceu de desligar).
+              const foto = snapshotRegion(ses.world, caixa);
+              const lampadas = foto.filter(isLampada);
+              if (lampadas.length === 0) {
+                return (
+                  `Não há lâmpada na região "${caixa.nome}": o objetivo acender precisa de ` +
+                  "pelo menos uma (monte o circuito na área antes de criar o objetivo)."
+                );
+              }
+              if (lampadas.every((id) => id === BlockId.LampadaAcesa)) {
+                return (
+                  `As lâmpadas de "${caixa.nome}" já estão ACESAS: o objetivo nasceria ` +
+                  "concluído. Desligue as alavancas e crie o objetivo de novo."
+                );
+              }
             }
           }
         }
@@ -177,7 +198,9 @@ export function runObjetivo(ses: GameSession, parts: string[]): string {
             : {}),
           ...(regra ? { regra } : {}),
         };
-        if (kind === "limpar") capturarBaseline(ses, o); // reiniciar recompõe a bagunça
+        // limpar: reiniciar recompõe a bagunça. acender: a foto é a VERIFICAÇÃO
+        // (o circuito conferido peça por peça), não só o reiniciar.
+        if (kind === "limpar" || kind === "acender") capturarBaseline(ses, o);
         ses.scenario.objetivos.push(o);
         broadcastObjectives(ses);
         const detalhe =
@@ -185,14 +208,17 @@ export function runObjetivo(ses: GameSession, parts: string[]): string {
             ? " — o grupo inteiro precisa estar na região ao mesmo tempo"
             : regra === "um"
               ? " — basta um integrante do grupo chegar"
-              : "";
+              : kind === "acender"
+                ? ` — ${(o.baseline?.[0] ?? []).filter(isLampada).length} lâmpada(s) para acender; ` +
+                  "o circuito foi fotografado e só as ALAVANCAS podem mudar"
+                : "";
         return `Objetivo #${o.id} criado: ${kind} em "${o.regiao}"${detalhe}.`;
       }
-      return "Uso: /objetivo add construir|chegar|limpar … — digite /objetivo para ver a lista completa.";
+      return "Uso: /objetivo add construir|chegar|limpar|acender … — digite /objetivo para ver a lista completa.";
     }
     case "lista": {
       if (ses.scenario.objetivos.length === 0) {
-        return "Nenhum objetivo foi criado ainda. Use /objetivo add construir|chegar|limpar.";
+        return "Nenhum objetivo foi criado ainda. Use /objetivo add construir|chegar|limpar|acender.";
       }
       const ativos = activeIdsFor(ses, 0);
       return ses.scenario.objetivos
@@ -271,7 +297,7 @@ export function runObjetivo(ses: GameSession, parts: string[]): string {
     }
     default:
       return (
-        "Uso: /objetivo add construir modelo alvo enunciado… · /objetivo add chegar|limpar regiao enunciado… · " +
+        "Uso: /objetivo add construir modelo alvo enunciado… · /objetivo add chegar|limpar|acender regiao enunciado… · " +
         "/objetivo lista · /objetivo texto id novo enunciado… · /objetivo mover id posição · " +
         "/objetivo remover id · /objetivo modo sequencial|livre · /objetivo resetar"
       );
@@ -394,12 +420,24 @@ export function isCompleteFor(ses: GameSession, o: Objective, grupo: number): bo
   return grupo > 0 && ses.completosGrupo.has(`${o.id}:${grupo}`);
 }
 
-export function isObjectiveDone(ses: GameSession, o: Objective, box: Box): boolean {
+/**
+ * O objetivo está cumprido NESTA área? `k` é o índice da área (0 quando é
+ * compartilhada) — o `acender` precisa dele porque confere contra a foto
+ * DAQUELA área, e não contra um gabarito único como o construir.
+ */
+export function isObjectiveDone(ses: GameSession, o: Objective, box: Box, k = 0): boolean {
   if (o.kind === "construir" && o.gabarito) {
     const m = matchRegion(ses.world, box, o.gabarito);
     return m.corretos === m.alvo && m.extras === 0;
   }
   if (o.kind === "limpar") return countSolid(ses.world, box) === 0;
+  if (o.kind === "acender") {
+    const foto = o.baseline?.[k];
+    if (!foto) return false; // sem foto não há o que conferir (nunca conclui)
+    const c = matchCircuito(ses.world, box, foto);
+    // as três condições: tudo aceso, havia o que acender, e o circuito INTACTO
+    return c.lampadas > 0 && c.acesas === c.lampadas && c.fora === 0;
+  }
   return false; // chegar conclui pelo move, não por estado do mundo
 }
 
@@ -461,7 +499,11 @@ export function buildObjectiveStates(ses: GameSession): ObjectiveState[] {
   if (temGrupos) {
     for (const g of ses.grupos.keys()) ativosPorGrupo.set(g, activeIdsFor(ses, g));
   }
-  const progresso = (o: Objective, box: Box): { atual: number; total: number; extras: number } => {
+  const progresso = (
+    o: Objective,
+    box: Box,
+    k = 0,
+  ): { atual: number; total: number; extras: number } => {
     if (o.kind === "construir" && o.gabarito) {
       const m = matchRegion(ses.world, box, o.gabarito);
       return { atual: m.corretos, total: m.alvo, extras: m.extras };
@@ -469,15 +511,23 @@ export function buildObjectiveStates(ses: GameSession): ObjectiveState[] {
     if (o.kind === "limpar") {
       return { atual: countSolid(ses.world, box), total: 0, extras: 0 };
     }
+    if (o.kind === "acender") {
+      const foto = o.baseline?.[k];
+      if (!foto) return { atual: 0, total: 0, extras: 0 };
+      const c = matchCircuito(ses.world, box, foto);
+      // `extras` = peças fora do lugar: é o que explica no HUD por que a
+      // lâmpada acesa ainda não fechou o objetivo (o aluno rewirou o circuito).
+      return { atual: c.acesas, total: c.lampadas, extras: c.fora };
+    }
     return { atual: 0, total: 0, extras: 0 };
   };
   return ses.scenario.objetivos.map((o) => {
-    const base = progresso(o, o.alvos?.[0] ?? o);
+    const base = progresso(o, o.alvos?.[0] ?? o, 0);
     let porGrupo: GroupObjectiveState[] | undefined;
     if (temGrupos) {
       porGrupo = [...ses.grupos.keys()].map((g) => {
         const box = o.alvos?.[g - 1] ?? o;
-        const prog = o.alvos ? progresso(o, box) : base;
+        const prog = o.alvos ? progresso(o, box, g - 1) : base;
         return {
           grupo: g,
           min: box.min,
@@ -529,7 +579,11 @@ export function broadcastObjectives(ses: GameSession, force = false): void {
   }
   // anúncio de conclusão SEMPRE depois do estado novo
   for (const texto of ses.pendingCompletionTexts) {
-    ses.broadcast({ type: "chat", author: "servidor", text: `objetivo concluído: ${texto}` });
+    // ⚠️ A frase chega PRONTA do `completeObjetivo` (ela muda com o escopo:
+    // "objetivo concluído: X" no mundo, "grupo 2 concluiu: X" por grupo).
+    // Prefixar aqui saía "objetivo concluído: objetivo concluído: X" no chat —
+    // dava pra ler no print da sonda do circuito.
+    ses.broadcast({ type: "chat", author: "servidor", text: texto });
   }
   ses.pendingCompletionTexts = [];
 }

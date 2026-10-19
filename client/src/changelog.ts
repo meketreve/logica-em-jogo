@@ -43,6 +43,17 @@ interface Mudanca {
 const MUDANCAS: readonly Mudanca[] = [
   {
     // sem `data`: este é o build atual (ver rotuloDoBloco)
+    titulo: "O jogo confere o seu circuito",
+    itens: [
+      "objetivo NOVO para o professor: \u201cacender\u201d \u2014 ele monta um circuito na \u00e1rea, cria o objetivo, e o jogo confere sozinho quando a l\u00e2mpada acende",
+      "e confere DIREITO: o jogo fotografa as pe\u00e7as na hora de criar o desafio, ent\u00e3o vale acender mexendo nas ALAVANCAS \u2014 encostar uma alavanca na l\u00e2mpada, ou puxar um fio por fora da porta E, n\u00e3o ganha",
+      "se voc\u00ea mexer no circuito sem querer, o HUD avisa quantas pe\u00e7as est\u00e3o fora do lugar: \u00e9 s\u00f3 devolver como estava",
+      "cada grupo tem o SEU desafio e o seu progresso, como nos objetivos de construir e de chegar; e \u201czerar progresso\u201d desliga as alavancas e apaga a l\u00e2mpada, deixando o desafio pronto pra pr\u00f3xima turma",
+      "o aviso de objetivo conclu\u00eddo parou de sair com a frase repetida (\u201cobjetivo conclu\u00eddo: objetivo conclu\u00eddo: \u2026\u201d)",
+    ],
+  },
+  {
+    data: "16/10/2026",
     titulo: "A luz acende quando você manda",
     itens: [
       "chegaram os PRIMEIROS BLOCOS DE LÓGICA, na aba \u201ccircuito\u201d da mochila: alavanca, fio, lâmpada e a porta E",
