@@ -98,6 +98,19 @@ const SMOKES = [
     ],
   },
   {
+    nome: "chat-tamanho",
+    arquivo: `${DIR}/_smoke-chat-tamanho.mjs`,
+    prova:
+      "teto de BYTES do chat no fio — frase com acento passa inteira, parede de 3 bytes é cortada sem partir caractere, e frame acima de MAX_FRAME_BYTES fecha o socket com 1009 sem o host parsear nada (nem cair).",
+    lento: false,
+    servidores: [
+      {
+        porta: 8111,
+        env: { LJ_SAVE: "mundos/_smoke-chat.ljw", LJ_NOVO: "1", LJ_TAMANHO: "P", LJ_SEED: SEED },
+      },
+    ],
+  },
+  {
     nome: "pedir-coluna",
     arquivo: `${DIR}/_smoke-pedir-coluna.mjs`,
     prova:

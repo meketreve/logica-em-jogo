@@ -52,6 +52,7 @@ const MUDANCAS: readonly Mudanca[] = [
       "dá pra ligar uma porta na outra: com duas, a lâmpada só acende com as três alavancas ligadas",
       "as receitas estão na bancada: alavanca (graveto + pedregulho), fio (8 por lingote de ferro), lâmpada (vidro + ferro) e porta E (2 pedregulhos + 2 ferros)",
       "em mundo com proteção de áreas ligada, as peças de circuito só entram DENTRO do seu terreno (ou do terreno de quem te convidou pro grupo de amigos)",
+      "e uma de arrumação: o chat agora tem teto de TAMANHO de verdade — frase com acento cabe inteira como sempre, mas parede de emoji para de crescer no meio do caminho",
     ],
   },
   {

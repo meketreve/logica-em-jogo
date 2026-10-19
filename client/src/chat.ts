@@ -1,4 +1,4 @@
-import { MAX_CHAT_LENGTH } from "@logica/shared";
+import { MAX_CHAT_BYTES, MAX_CHAT_LENGTH, cortarEmBytes } from "@logica/shared";
 import { candidatos, destinoDeToque } from "./commands";
 import { isTouchDevice } from "./touch";
 
@@ -135,6 +135,16 @@ export class ChatUi {
   ) {
     if (!this.field) return;
     this.field.maxLength = MAX_CHAT_LENGTH;
+    // O `maxLength` conta UNIDADES UTF-16, não bytes — então ele sozinho deixa
+    // passar 200 emojis (800 bytes). O servidor corta em `MAX_CHAT_BYTES` de
+    // qualquer jeito; cortar aqui também é pra o aluno VER o campo parar em vez
+    // de descobrir no broadcast que a frase chegou pela metade.
+    this.field.addEventListener("input", () => {
+      const f = this.field;
+      if (!f) return;
+      const cortado = cortarEmBytes(f.value, MAX_CHAT_BYTES);
+      if (cortado !== f.value) f.value = cortado;
+    });
     acompanharTecladoVirtual();
     if (isTouchDevice()) this.montarPainel();
     this.field.addEventListener("keydown", (e) => {

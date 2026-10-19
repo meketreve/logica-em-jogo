@@ -32,6 +32,7 @@ export * from "./raycast";
 export * from "./quadros";
 export * from "./regions";
 export * from "./rules";
+export * from "./texto";
 export * from "./vento";
 export * from "./scenario";
 export * from "./protocol";

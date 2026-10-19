@@ -80,5 +80,24 @@ export const PLAYER_REACH = 5;
 /** Tamanho máximo de mensagem de chat (o servidor corta o excedente). */
 export const MAX_CHAT_LENGTH = 200;
 
+/**
+ * Teto de BYTES da mensagem de chat (2026-10-19). Vive ao lado do teto de
+ * CARACTERES porque os dois medem coisas diferentes e o menor dos dois ganha:
+ * 200 caracteres de português são ~220 bytes e passam inteiros, mas 200 emojis
+ * são 800 bytes — é esse caso que o número abaixo corta. Folgado de propósito:
+ * ele existe contra abuso, não para encurtar frase com acento.
+ */
+export const MAX_CHAT_BYTES = 512;
+
+/**
+ * Teto de BYTES do frame CRU vindo do cliente, cobrado antes do `JSON.parse`
+ * (2026-10-19). Os tetos por campo (chat, quadro, nome) só valem DEPOIS do
+ * parse, então sem este um aluno com o console aberto fazia o host parsear
+ * megabytes para o texto ser cortado a 512 bytes no fim. A maior mensagem
+ * legítima é o `quadro_set` com imagem (`MAX_QUADRO_IMAGEM_CHARS` = 32 KiB de
+ * data URL, ASCII), daí a folga de ~2× em cima dela.
+ */
+export const MAX_FRAME_BYTES = 64 * 1024;
+
 /** Tamanho máximo de nome de jogador (o servidor corta o excedente). */
 export const MAX_NAME_LENGTH = 24;

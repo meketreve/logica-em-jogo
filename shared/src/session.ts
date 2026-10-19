@@ -50,6 +50,7 @@ import {
   remover,
 } from "./inventario";
 import { MAX_QUADRO_TEXTO, type QuadroConteudo, quadroKey } from "./quadros";
+import { bytesUtf8, cortarEmBytes } from "./texto";
 import {
   type Container,
   containerDeSave,
@@ -171,7 +172,9 @@ import {
   DIA_SEGUNDOS,
   DIMAS_INICIAL_PADRAO,
   HORA_PADRAO,
+  MAX_CHAT_BYTES,
   MAX_CHAT_LENGTH,
+  MAX_FRAME_BYTES,
   PLAYER_REACH,
   SERVER_TICK_RATE,
 } from "./constants";
@@ -1054,6 +1057,11 @@ export class GameSession {
 
   /** Mensagem crua vinda do transporte. Inválida = descartada em silêncio. */
   handleMessage(clientId: number, raw: string): void {
+    // Teto de BYTES do frame, cobrado ANTES do parse (2026-10-19): os tetos
+    // por campo só existem depois dele, então é aqui — o funil por onde os 3
+    // hospedeiros passam — que o host se recusa a parsear megabytes. Frame
+    // gigante nem conta como sinal de vida: cai antes do `marcarSinal`.
+    if (bytesUtf8(raw) > MAX_FRAME_BYTES) return;
     const msg = parseClientMessage(raw);
     if (!msg) return;
     // Presença (bug-672): QUALQUER mensagem válida conta como sinal de vida —
@@ -1723,7 +1731,9 @@ export class GameSession {
       }
       case "chat": {
         if (!this.players.has(clientId)) return;
-        const text = msg.text.trim().slice(0, MAX_CHAT_LENGTH);
+        // Dois tetos, o menor ganha: CARACTERES (o que o aluno conta na tela)
+        // e BYTES (o que vai no fio e no `-chat.log`) — ver `constants.ts`.
+        const text = cortarEmBytes(msg.text.trim().slice(0, MAX_CHAT_LENGTH), MAX_CHAT_BYTES);
         if (!text) return;
         if (text.startsWith("/")) {
           // comando: executa no servidor, resposta SÓ pro autor

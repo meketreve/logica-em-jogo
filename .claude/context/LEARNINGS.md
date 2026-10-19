@@ -1,5 +1,5 @@
 ---
-updated: 2026-10-16
+updated: 2026-10-19
 tier: 3
 ---
 
@@ -42,6 +42,7 @@ tier: 3
 
 ## Erros a não repetir
 
+- [2026-10-19] [protocolo] [✓] CARACTERE não é byte: todo teto de texto contava caractere (`MAX_CHAT_LENGTH`, `MAX_QUADRO_TEXTO`) e emoji custa 4 — teto novo de texto vem em PAR (caracteres + bytes, o menor ganha, `cortarEmBytes` corta em fronteira de code point). E teto por CAMPO só vale depois do parse: o do frame cru mora no funil da `GameSession` **e** no `maxPayload` do `ws` (os interceptadores do host parseiam antes dela).
 - [2026-10-16] [receitas] [✗] Acrescentar receita no MEIO da composição de `receitas.ts` — o ÍNDICE é a identidade no protocolo, e as 4 do circuito no fim do `MATERIAIS` empurraram todas as seguintes (o smoke: "nasceu 1 fornalha (0)"). Lista nova entra por ÚLTIMO.
 - [2026-10-16] [circuito] [✓] Bloco novo com FORMA própria precisa sair do `isFullCube` — sem isso o `emitShape` nem é chamado e ele sai CUBO CHEIO (o fio virou parede). E forma baixa demais passa por baixo da MIRA (olho = pé+1,6): a alavanca tem 12/16 porque com 8/16 o ▣ oferecia "colocar" em cima dela.
 - [2026-10-16] [sonda] [✗] Medir pixel numa janela que pega mais de uma peça — a "tabela-verdade" da porta E passava medindo o brilho da ALAVANCA ao lado. Janela em cima do que MUDA, e arranjo que isola.

@@ -8,12 +8,14 @@ import { createInterface } from "node:readline";
 import { WebSocketServer, type WebSocket } from "ws";
 import {
   GameSession,
+  MAX_FRAME_BYTES,
   SERVER_TICK_RATE,
   type MotivoDerrubar,
   type SaveData,
   type ServerMessage,
   ROTULO_BUILD,
   TAMANHO_CHUNKS,
+  bytesUtf8,
   decodeSave,
   ehPresetSobrevivencia,
   encodeLazySave,
@@ -615,9 +617,23 @@ const http = createServer((req, res) => {
 // pra ~40 KB (terreno é MUITO repetitivo) — turma inteira entrando junto na
 // LAN caía de 160 MB pra <1 MB. threshold poupa as mensagens pequenas (move/
 // chat) do custo de CPU; o navegador negocia sozinho.
+// maxPayload (2026-10-19): o teto de BYTES do frame cobrado no TRANSPORTE —
+// o `ws` recusa e fecha (1009) sem nem montar a string, e com
+// `perMessageDeflate` ligado ele cobra o tamanho DESCOMPRIMIDO, o que também
+// mata frame comprimido que explode. É só o sentido cliente→servidor; o
+// snapshot de 8 MB que o host MANDA não passa por aqui. A `GameSession` cobra
+// o mesmo teto no funil dela (vale pro Worker do singleplayer).
+//
+// ⚠️ Quem estoura o teto é DESCONECTADO sem motivo na tela (o `ws` derruba o
+// TCP; o cliente só vê fechamento anormal). Hoje nenhuma mensagem legítima
+// chega perto — a maior é o `quadro_set` com imagem, ~33 KB —, mas mensagem
+// nova do cliente que cresça acima de 64 KB vira "o tablet caiu sozinho", que
+// é a classe de bug mais cara de achar em aula (bug-675). Mensagem grande
+// nova: ou cabe aqui, ou vai partida.
 const wss = new WebSocketServer({
   server: http,
   perMessageDeflate: { threshold: 1024 },
+  maxPayload: MAX_FRAME_BYTES,
 });
 
 wss.on("connection", (socket, req) => {
@@ -628,7 +644,11 @@ wss.on("connection", (socket, req) => {
   socket.on("message", (data, isBinary) => {
     // Protocolo cliente→servidor é 100% JSON; frame binário é lixo/ataque.
     if (isBinary) return;
+    // Os interceptadores do HOST parseiam ANTES da `GameSession`, então o teto
+    // de bytes se repete aqui: o `maxPayload` acima já derruba o frame gigante,
+    // isto é o cinto para quando o transporte não for este `ws`.
     const texto = data.toString();
+    if (bytesUtf8(texto) > MAX_FRAME_BYTES) return;
     if (interceptarMundo(id, texto)) return; // /mundo é do HOST (mexe em arquivo)
     if (interceptarKicar(id, texto)) return; // /expulsar é do HOST (fecha socket)
     if (interceptarBanimento(id, texto)) return; // /banir·/desbanir do HOST (fecha socket + estado na session)

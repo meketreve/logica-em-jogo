@@ -1,6 +1,12 @@
 import { describe, expect, it } from "vitest";
 import { BlockId, aguaNivel } from "./blocks";
-import { MAX_CHAT_LENGTH, SERVER_TICK_RATE } from "./constants";
+import {
+  MAX_CHAT_BYTES,
+  MAX_CHAT_LENGTH,
+  MAX_FRAME_BYTES,
+  SERVER_TICK_RATE,
+} from "./constants";
+import { bytesUtf8 } from "./texto";
 import { decodeSnapshot, parseServerMessage } from "./protocol";
 import { GameSession } from "./session";
 import { findSpawnY, getBlock, setBlock } from "./world";
@@ -408,6 +414,62 @@ describe("GameSession (servidor autoritativo)", () => {
     const long = parseServerMessage(sent[0]?.data as string);
     if (long?.type !== "chat") throw new Error("esperava chat");
     expect(long.text).toHaveLength(MAX_CHAT_LENGTH);
+  });
+
+  it("chat: o teto de BYTES corta onde o de caracteres não alcança", () => {
+    const { sent, send } = collect();
+    const session = new GameSession(send, { dims: DIMS, singleplayer: true });
+    session.handleMessage(1, JSON.stringify({ type: "join", name: "ana" }));
+    sent.length = 0;
+
+    // 200 ideogramas são 200 CARACTERES (passam no teto de caracteres) e 600
+    // bytes: quem corta é o MAX_CHAT_BYTES, e corta em 170 (510 bytes — o 171º
+    // estouraria), prova de que o corte é em fronteira de code point.
+    session.handleMessage(1, JSON.stringify({ type: "chat", text: "日".repeat(200) }));
+    const m = parseServerMessage(sent[0]?.data as string);
+    if (m?.type !== "chat") throw new Error("esperava chat");
+    expect([...m.text]).toHaveLength(170);
+    expect(bytesUtf8(m.text)).toBe(510);
+    expect(bytesUtf8(m.text)).toBeLessThanOrEqual(MAX_CHAT_BYTES);
+    sent.length = 0;
+
+    // emoji é 1 code point mas DOIS unidades UTF-16, então nele quem morde
+    // primeiro é o `.slice` do teto de caracteres — e mesmo assim nenhum par
+    // substituto sai partido (viraria \uFFFD no JSON).
+    session.handleMessage(1, JSON.stringify({ type: "chat", text: "😀".repeat(200) }));
+    const e = parseServerMessage(sent[0]?.data as string);
+    if (e?.type !== "chat") throw new Error("esperava chat");
+    expect(bytesUtf8(e.text)).toBeLessThanOrEqual(MAX_CHAT_BYTES);
+    expect(e.text).not.toMatch(/[\uD800-\uDFFF]/u);
+    sent.length = 0;
+
+    // controle negativo: frase de português com acento NÃO é tocada pelo teto
+    // de bytes (é pra isso que ele é folgado) — 200 caracteres passam inteiros.
+    const acentos = "ç".repeat(MAX_CHAT_LENGTH);
+    session.handleMessage(1, JSON.stringify({ type: "chat", text: acentos }));
+    const n = parseServerMessage(sent[0]?.data as string);
+    if (n?.type !== "chat") throw new Error("esperava chat");
+    expect(n.text).toBe(acentos);
+    expect(bytesUtf8(n.text)).toBe(2 * MAX_CHAT_LENGTH); // 400 < 512
+  });
+
+  it("frame cru acima de MAX_FRAME_BYTES é descartado ANTES do parse", () => {
+    const { sent, send } = collect();
+    const session = new GameSession(send, { dims: DIMS, singleplayer: true });
+    session.handleMessage(1, JSON.stringify({ type: "join", name: "ana" }));
+    sent.length = 0;
+
+    // frame válido em TUDO, menos no tamanho: nada sai do host
+    const gigante = JSON.stringify({ type: "chat", text: "x".repeat(MAX_FRAME_BYTES) });
+    expect(bytesUtf8(gigante)).toBeGreaterThan(MAX_FRAME_BYTES);
+    session.handleMessage(1, gigante);
+    expect(sent).toHaveLength(0);
+
+    // controle negativo: o MESMO frame logo abaixo do teto passa e broadcasta
+    const cabe = JSON.stringify({ type: "chat", text: "x".repeat(MAX_FRAME_BYTES - 100) });
+    expect(bytesUtf8(cabe)).toBeLessThan(MAX_FRAME_BYTES);
+    session.handleMessage(1, cabe);
+    expect(sent).toHaveLength(1);
   });
 
   it("/silenciar (professor): mensagem de jogador para de broadcastar; comando sempre passa", () => {

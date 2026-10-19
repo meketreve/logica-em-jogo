@@ -390,6 +390,36 @@ const colisao = await avaliar(`(() => {
 console.log(
   `  ${"chat × hotbar".padEnd(22)} ${colisao ? `✗ sobrepõe ${colisao}px` : "✓ sem sobreposição"}`,
 );
+// Teto de BYTES do campo de chat (2026-10-19). O `maxLength` do input conta
+// unidade UTF-16, não byte, então quem segura o tamanho de verdade é o
+// listener de `input` — e isso é DOM, não dá teste unitário. Aqui a sonda
+// ENXERGA: 400 ideogramas (3 bytes cada) entram no campo e o que sobra tem de
+// caber em 512 bytes; a frase com acento é o controle negativo, ela não pode
+// ser tocada.
+const bytesDoCampo = `(() => {
+  const f = document.getElementById('chat-input');
+  f.dispatchEvent(new Event('input', { bubbles: true }));
+  return new TextEncoder().encode(f.value).length;
+})()`;
+await avaliar(`document.getElementById('chat-input').value = '日'.repeat(400), 1`);
+const bytesCheio = await avaliar(bytesDoCampo);
+console.log(
+  `  ${"campo ≤ 512 bytes".padEnd(22)} ${
+    bytesCheio <= 512 ? `✓ parou em ${bytesCheio}` : `✗ deixou passar ${bytesCheio}`
+  }`,
+);
+const FRASE = "vamos acender a lâmpada com a combinação certa";
+await avaliar(`document.getElementById('chat-input').value = ${JSON.stringify(FRASE)}, 1`);
+const bytesFrase = await avaliar(bytesDoCampo);
+const intacta = await avaliar(
+  `document.getElementById('chat-input').value === ${JSON.stringify(FRASE)}`,
+);
+console.log(
+  `  ${"frase com acento".padEnd(22)} ${
+    intacta ? `✓ intacta (${bytesFrase} bytes)` : `✗ foi cortada (${bytesFrase} bytes)`
+  }`,
+);
+await avaliar(`document.getElementById('chat-input').value = '', 1`);
 await tirar("07-jogo-chat");
 
 console.log("— inventário —");

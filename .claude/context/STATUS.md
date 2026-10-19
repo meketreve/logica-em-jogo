@@ -1,5 +1,5 @@
 ---
-updated: 2026-10-16
+updated: 2026-10-19
 tier: 3
 ---
 
@@ -39,21 +39,22 @@ ver o cabeçalho de `circuitos.ts`), `bench:headless` dos ids16, ovelha+lã (§�
 
 ## Concluído (recente)
 
-- **16/10 (§🔌 o 1º CIRCUITO LÓGICO):** alavanca, fio, lâmpada e porta E — **os primeiros ids
-  ≥ 256**, que é pra isso que os 16 bits foram feitos. Motor PURO (`circuitos.ts`, ponto fixo que
-  só roda quando uma peça muda) + índice e tick na `session.ts`, receitas, regra de "só no SEU
-  terreno", aba própria na mochila e a sonda `shots:circuito`, que mede a tabela-verdade **em
-  pixel** (1E1 = 136,7 contra 91,3 nas outras três linhas). 18 testes novos.
+- **19/10 (teto de BYTES no chat):** o chat media CARACTERES (200) e emoji custa 4 bytes — agora
+  o teto é PAR (`MAX_CHAT_BYTES` 512, corte em fronteira de code point, `shared/src/texto.ts`) e
+  o frame cru tem teto antes do `JSON.parse`, no funil da `session` **e** no `maxPayload` do `ws`.
+  Smoke novo `chat-tamanho` (19/19) e o `shots:tablet` vê o campo parar em 510.
 
-- **15/10 (UI do aluno):** amigos virou **aba** do `#painel` (`#amigos` sumiu); árvore de
-  comandos foi pro shared (`comandos.ts`) com o PAPEL de cada um — o aluno vê 10, não 26; e
-  "lista ganha de digitação" no painel do dedo (`/tpp` mostra a turma; `/tpa`, só quem pediu, via
-  `tp_pedidos`). A queixa "botões atrás do teclado" NÃO era geometria. Achados na varredura do
-  próprio lote: 📋/tecla P FECHAVAM o painel em vez de trocar de aba.
+- **16/10 (§🔌 o 1º CIRCUITO LÓGICO):** alavanca, fio, lâmpada e porta E — **os primeiros ids
+  ≥ 256**. Motor PURO (`circuitos.ts`, ponto fixo que só roda quando uma peça muda) + tick na
+  `session.ts`, receitas, "só no SEU terreno", aba na mochila e a sonda `shots:circuito`, que mede
+  a tabela-verdade **em pixel** (1E1 = 136,7 contra 91,3 nas outras três). 18 testes novos.
+
+- **15/10 (UI do aluno):** amigos virou **aba** do `#painel`; árvore de comandos no shared
+  (`comandos.ts`) com o PAPEL de cada um — o aluno vê 10, não 26; e "lista ganha de digitação" no
+  painel do dedo (`tp_pedidos`). A queixa "botões atrás do teclado" NÃO era geometria.
 - **13/10:** posse do nome (bug-672) e silêncio cobrado por PERGUNTAS (sobra do bug-675).
 - **10/10:** launchers com `node --import tsx` (bug-666), ▣ com `data-acao` (bug-676), botão
-  "restaurar", A/B dos ids16 no codec (.ljw +0,02%), sondas matando o Chrome pelo GRUPO —
-  **bateria 17/17 verde**. Na aula: quebra v2, cama/porta e voo aprovados.
+  "restaurar", A/B dos ids16 no codec, Chrome morto pelo GRUPO. Na aula: quebra v2 e voo OK.
 
 ## Bruto do git (auto — não editar)
 
