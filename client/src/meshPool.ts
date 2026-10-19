@@ -60,8 +60,8 @@ export interface ResultadoMesh {
   uvs?: Float32Array;
   /** §🌬️ balanço por vértice (byte normalizado) — ver ChunkGeometry.sway. */
   sway?: Uint8Array;
-  /** §💡 luz por vértice (byte cru `(ceu << 4) | bloco`) — ver ChunkGeometry.luz. */
-  luz?: Uint8Array;
+  /** §💡 luz por vértice (`ceu16 << 8 | bloco16`) — ver ChunkGeometry.luz. */
+  luz?: Uint16Array;
   indices?: Uint32Array;
   opaqueIndexCount?: number;
   aguaIndexCount?: number;

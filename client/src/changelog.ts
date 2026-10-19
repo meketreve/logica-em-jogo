@@ -51,6 +51,7 @@ const MUDANCAS: readonly Mudanca[] = [
       "e cada pino de entrada ACENDE sozinho quando aquele lado j\u00e1 recebeu sinal: a linha da tabela-verdade aparece na pr\u00f3pria pe\u00e7a, antes mesmo da l\u00e2mpada",
       "a ALAVANCA agora fica EM P\u00c9 quando est\u00e1 ligada e DEITADA quando est\u00e1 desligada \u2014 a diferen\u00e7a deixou de ser s\u00f3 a cor",
       "de cima, cada porta mostra a letra E (ou o anel da OU) e uma SETA que aponta pra sa\u00edda",
+      "e a ILUMINA\u00c7\u00c3O ficou suave: a luz passou a variar DENTRO de cada bloco em vez de mudar de degrau em degrau \u2014 o halo de uma tocha (ou de uma l\u00e2mpada) vira um c\u00edrculo macio no ch\u00e3o, n\u00e3o um quadrado",
     ],
   },
   {

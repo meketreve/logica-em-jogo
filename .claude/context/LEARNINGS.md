@@ -42,6 +42,7 @@ tier: 3
 
 ## Erros a não repetir
 
+- [2026-10-19] [luz] [✓] Luz suavizada por vértice = média de até 4 células POR CANTO, e as células que VEDAM são puladas (não contadas como zero): contá-las dá oclusão de canto, que é outra decisão de aparência e empasta em projetor. O atributo teve de virar Uint16 (dois canais em 1/16 de nível) — arredondar a média pro nível inteiro devolve o degrau que a suavização veio tirar.
 - [2026-10-19] [desenho] [✓] Diferença de estado que mora só na COR não existe em aula: projetor ruim, 1024×600 e daltonismo comem as três (alavanca ligada×desligada, fio, pino). A diferença tem de ser SILHUETA ou LUZ — e isso se prova no mesher (geometria, exata), não na sonda de pixel, que não separa cor de forma.
 - [2026-10-19] [desenho] [✓] "Conecta?" é UMA função (`ligacaoDoCondutor`), usada pelo motor E pelo mesher: desenho que não é a topologia do motor mostra fio ligado onde o sinal não passa — o pior defeito possível num jogo cujo produto é ENXERGAR a lógica.
 - [2026-10-19] [circuito] [✓] Porta lógica se descreve por TABELA (`PORTAS` com o id base + `LIGA` com a regra), nunca por `isPortaX` por tipo: a OU entrou sem um `if` novo no motor, e `base + 4 + direção` deixou estado e frente saírem da aritmética. Porta nova = duas entradas na tabela.
@@ -56,7 +57,6 @@ tier: 3
 - [2026-10-15] [protocolo] [✓] Estado que a UI precisa não se lê do CHAT: o pedido de `/tpp` só existia como texto, então o painel oferecia a turma toda no `/tpa`. Mensagem própria (`tp_pedidos`), com o que FALTA do prazo (`emMs`) e não um horário — relógio de tablet não bate com o do host.
 - [2026-10-15] [comandos] [✓] No painel do dedo, LISTA ganha de digitação: nó com candidatos vira NÍVEL (a turma em `/tpp`, `/amigos convidar`, `/expulsar`), e `preencher` só sobra onde ninguém pode listar (id e quantidade do `/dar`, sala vazia). Mandar o aluno pro teclado é o que o painel existe pra evitar.
 - [2026-10-15] [comandos] [✓] A árvore de comandos mora no SHARED (`comandos.ts`), ao lado do gate de `runCommand`: é o único lugar onde `npm test` roda, e o portão de paridade lê a lista do "Comando desconhecido" — comando novo no servidor sem entrada na tabela reprova no mesmo commit.
-- [2026-10-15] [sonda] [✗] Contar botão ROLADO pra fora da caixa como "atrás do teclado" — a caixa de comandos rola de propósito desde 2026-08-14; o que se mede é o FUNDO DA CAIXA contra a linha do teclado.
 - [2026-10-15] [mobile] [✓] "Botão escondido atrás do teclado" era LISTA, não geometria: com teclado de 280, 460 e 600px, deitado e em retrato, a caixa sempre terminou acima do teclado — o que sumia eram os comandos do aluno no meio dos 26 do professor.
 - [2026-10-13] [presenca] [✓] Queda por silêncio se cobra por PERGUNTAS, nunca por relógio: host travado não conta contra o aluno — 3 perguntas carimbadas + janela da última (sobra do bug-675).
 - [2026-10-13] [presenca] [✓] Nome em jogo + PIN certo = TOMADA DE POSSE (quem volta entra na hora, o fantasma cai); o gate do bug-061 vira o ÚLTIMO passo — recusa clássica só pra nome online SEM identidade.
@@ -64,7 +64,6 @@ tier: 3
 - [2026-10-15] [sonda] [✗] Bateria inteira sem olhar `git status` depois — `shots:fundo` é GERADORA (reescreve `menu-fundo/*.png`, ~5 MB versionados).
 - [2026-10-10] [sonda] [✓] Matar o Chrome pelo GRUPO (`detached` + SIGKILL — um filho regrava o perfil depois do `rmSync`); e rótulo de botão é ESTADO, não identidade: quem muda de nome leva `data-acao`.
 - [2026-10-10] [bench] [✗] Esperar FPS do `bench:headless` (SwiftShader varia 4,3–6,4 s no MESMO commit) — custo de FORMATO se mede no codec, em Node.
-- [2026-10-10] [smoke] [✗] Acreditar em falha da bateria COMPLETA com a máquina carregada — repetir a sonda SOZINHA antes de caçar.
 - [2026-10-03] [build] [✗] Rótulo auto-referente (sha do HEAD) em artefato VERSIONADO — o dist
   virava função do HEAD, sujava a árvore e calava o portão (bug-673). Carimbar data, não sha.
 - [2026-10-05] [smoke] [✗] Confiar em smoke sem conferir HOST ÓRFÃO na porta — dois hosts de 5 h

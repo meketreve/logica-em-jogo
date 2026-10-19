@@ -809,9 +809,15 @@ export interface ChunkGeometry {
    */
   sway: Uint8Array;
   /**
-   * §💡 Luz por VÉRTICE, byte cru `(ceu << 4) | bloco` (ver `luz.ts`). NÃO é
-   * normalizado: o shader separa os dois canais e aplica a hora do dia só no
-   * canal do céu — 1 byte normalizado não daria pra desempacotar.
+   * §💡 Luz por VÉRTICE, `(ceu16 << 8) | bloco16` — cada canal em DEZESSEIS
+   * avos de nível (0..240). NÃO é normalizado: o shader separa os dois canais e
+   * aplica a hora do dia só no canal do céu.
+   *
+   * Era 1 byte com um nível inteiro por canal até 2026-10-19, quando a luz
+   * passou a ser SUAVIZADA por vértice: a média de até 4 células cai em 13,25,
+   * e arredondar pra 13 traria de volta o degrau que a suavização veio tirar.
+   * Os 4 bits de fração custam 1 byte por vértice e são o que faz o gradiente
+   * existir.
    *
    * O valor é o da célula que a face ENCARA (o vizinho na direção da normal),
    * não o da célula que emite a face: o bloco opaco tem luz 0 por definição, e
@@ -819,7 +825,7 @@ export interface ChunkGeometry {
    * lateral de uma laje, a cruz da flor) usam a luz da PRÓPRIA célula, que
    * nesses casos é transparente e portanto iluminada.
    */
-  luz: Uint8Array;
+  luz: Uint16Array;
   /** Índices OPACOS primeiro, ÁGUA depois, VIDRO COLORIDO por último
    *  (concatenados). O cliente fatia em 3 grupos: [0, opaqueIndexCount) =
    *  material opaco (cutout); os `aguaIndexCount` seguintes = material da água;
@@ -853,7 +859,7 @@ const GEOMETRIA_VAZIA = (): ChunkGeometry => ({
   normals: new Float32Array(0),
   uvs: new Float32Array(0),
   sway: new Uint8Array(0),
-  luz: new Uint8Array(0),
+  luz: new Uint16Array(0),
   indices: new Uint32Array(0),
   opaqueIndexCount: 0,
   aguaIndexCount: 0,
@@ -977,12 +983,63 @@ export function meshVizinhanca(viz: Uint16Array, luzViz?: Uint8Array | null): Ch
   const pushSway = (n: number): void => {
     for (let i = 0; i < n; i++) sway.push(swayAtual);
   };
-  // §💡 luz por vértice (byte cru). Também escrita em PARALELO a `positions`:
-  // é sempre a MESMA para os 4 vértices de uma face (iluminação por face, não
-  // interpolada — suavizar por vértice é refino futuro, não muda o pipeline).
+  // §💡 luz por vértice. Também escrita em PARALELO a `positions`.
   const luzVert: number[] = [];
+  /** Empacota dois canais FRACIONÁRIOS (0..15) no formato da GPU. */
+  const empacotarLuz = (ceu: number, bloco: number): number =>
+    Math.round(ceu * 16) * 256 + Math.round(bloco * 16);
   const pushLuz = (n: number, valor: number): void => {
-    for (let i = 0; i < n; i++) luzVert.push(valor);
+    const ceu = valor >> 4;
+    const bloco = valor & 15;
+    const v = empacotarLuz(ceu, bloco);
+    for (let i = 0; i < n; i++) luzVert.push(v);
+  };
+  /** A célula é PAREDE pra luz? (a mesma régua do `opacidadeLuz`) */
+  const vedaLuz = (lx: number, ly: number, lz: number): boolean => {
+    const id = bloco(lx, ly, lz);
+    return isFullCube(id) && !isTransparentBlock(id);
+  };
+  /**
+   * §💡 LUZ SUAVIZADA por vértice (2026-10-19).
+   *
+   * Até aqui os 4 vértices de uma face carregavam o MESMO valor — a luz era
+   * chapada por face, e a sombra do voxel saía dura: cada célula um degrau,
+   * com a borda marcada no chão. Aqui cada canto recebe a MÉDIA das até 4
+   * células que ele toca do lado de fora da face, e o gradiente aparece.
+   *
+   * Células que VEDAM a luz são puladas, não contadas como zero: contá-las
+   * daria escurecimento de canto (a oclusão ambiente do Minecraft), que é uma
+   * decisão de aparência maior — e numa sala de aula com projetor ruim o risco
+   * de empastar é real. Fica como botão pra depois.
+   *
+   * `base` é a célula que a face encara (ou a própria, nas faces internas);
+   * se nenhuma vizinha servir, o valor é o dela, que é exatamente o
+   * comportamento antigo.
+   */
+  const luzDoCanto = (
+    bx: number, by: number, bz: number,
+    eixoA: 0 | 1 | 2, passoA: number,
+    eixoB: 0 | 1 | 2, passoB: number,
+  ): number => {
+    let somaCeu = 0, somaBloco = 0, n = 0;
+    for (const a of passoA === 0 ? [0] : [0, passoA]) {
+      for (const b of passoB === 0 ? [0] : [0, passoB]) {
+        const c: [number, number, number] = [bx, by, bz];
+        c[eixoA] = c[eixoA] + a;
+        c[eixoB] = c[eixoB] + b;
+        const [cx, cy, cz] = c;
+        if ((a !== 0 || b !== 0) && vedaLuz(cx, cy, cz)) continue;
+        const v = luzDe(cx, cy, cz);
+        somaCeu += v >> 4;
+        somaBloco += v & 15;
+        n++;
+      }
+    }
+    if (n === 0) {
+      const v = luzDe(bx, by, bz);
+      return empacotarLuz(v >> 4, v & 15);
+    }
+    return empacotarLuz(somaCeu / n, somaBloco / n);
   };
   // Água (2026-07-22): faces vão pra ESTE array separado → 2º grupo/material
   // (transparente de verdade, blend). Concatenado depois de `indices`.
@@ -1040,9 +1097,14 @@ export function meshVizinhanca(viz: Uint16Array, luzViz?: Uint8Array | null): Ch
       }
       // §💡 face rente à borda vê o VIZINHO; face interna (topo de laje, tampo
       // de mesa) vê a própria célula, que nesses casos não é opaca.
-      const luzFace = flush
-        ? luzDe(lx + face.dir[0], ly + face.dir[1], lz + face.dir[2])
-        : luzDe(lx, ly, lz);
+      const baseX = lx + (flush ? face.dir[0] : 0);
+      const baseY = ly + (flush ? face.dir[1] : 0);
+      const baseZ = lz + (flush ? face.dir[2] : 0);
+      // os dois eixos DENTRO do plano da face — é por eles que o canto busca as
+      // vizinhas pra média
+      const eixoNormal: 0 | 1 | 2 = face.dir[0] !== 0 ? 0 : face.dir[1] !== 0 ? 1 : 2;
+      const planares: [0 | 1 | 2, 0 | 1 | 2] =
+        eixoNormal === 0 ? [1, 2] : eixoNormal === 1 ? [0, 2] : [0, 1];
       const tileDaFace = face.dir[1] !== 0 ? tileY : tile;
       const col = tileDaFace % n;
       const row = (tileDaFace / n) | 0;
@@ -1053,6 +1115,22 @@ export function meshVizinhanca(viz: Uint16Array, luzViz?: Uint8Array | null): Ch
         const pz = corner.pos[2] === 0 ? z0 : z1;
         positions.push(lx + px, ly + py, lz + pz);
         normals.push(face.dir[0], face.dir[1], face.dir[2]);
+        // §💡 cada CANTO busca as vizinhas do lado de fora da face: o passo é
+        // −1 quando o vértice está na face baixa da célula, +1 na alta, e 0 no
+        // meio (forma recuada — aí a média degenera na própria célula, que é o
+        // comportamento de antes).
+        {
+          const pl: [number, number, number] = [lx + px, ly + py, lz + pz];
+          const passo = (eixo: 0 | 1 | 2): number => {
+            const v = pl[eixo]!;
+            const frac = v - Math.floor(v);
+            if (frac > 1e-6) return 0; // não está numa aresta de célula
+            const dentro = eixo === 0 ? lx : eixo === 1 ? ly : lz;
+            return Math.floor(v) <= dentro ? -1 : 1;
+          };
+          const [ea, eb] = planares;
+          luzVert.push(luzDoCanto(baseX, baseY, baseZ, ea, passo(ea), eb, passo(eb)));
+        }
         const fracOf = (a: UvAxis, flag: 0 | 1): number => {
           const world01 = flag === 0 ? (a.flip ? hi[a.axis] : lo[a.axis])
                                      : (a.flip ? lo[a.axis] : hi[a.axis]);
@@ -1075,7 +1153,6 @@ export function meshVizinhanca(viz: Uint16Array, luzViz?: Uint8Array | null): Ch
         );
       }
       pushSway(4);
-      pushLuz(4, luzFace);
       indices.push(base, base + 1, base + 2, base + 2, base + 1, base + 3);
     }
   };
@@ -1590,6 +1667,13 @@ export function meshVizinhanca(viz: Uint16Array, luzViz?: Uint8Array | null): Ch
           const v1 = 1 - row / n - inset;
 
           const base = positions.length / 3;
+          // §💡 a base da luz é o que a face ENCARA (a própria célula é opaca e
+          // está em 0); os dois eixos do PLANO da face são por onde cada canto
+          // busca as vizinhas pra média.
+          const bx = lx + face.dir[0], by = ly + face.dir[1], bz = lz + face.dir[2];
+          const eixoNormal: 0 | 1 | 2 = face.dir[0] !== 0 ? 0 : face.dir[1] !== 0 ? 1 : 2;
+          const planares: [0 | 1 | 2, 0 | 1 | 2] =
+            eixoNormal === 0 ? [1, 2] : eixoNormal === 1 ? [0, 2] : [0, 1];
           for (const corner of face.corners) {
             // topo da água: y=1 vira a altura do canto (mesma conta nos 2 lados
             // da fronteira → superfície contínua). Vale pro quad de topo E pro
@@ -1601,11 +1685,14 @@ export function meshVizinhanca(viz: Uint16Array, luzViz?: Uint8Array | null): Ch
             positions.push(lx + corner.pos[0], ly + cy, lz + corner.pos[2]);
             normals.push(face.dir[0], face.dir[1], face.dir[2]);
             uvs.push(corner.uv[0] === 1 ? u1 : u0, corner.uv[1] === 1 ? v1 : v0);
+            // o canto do cubo está sempre numa aresta de célula: 0 = lado
+            // baixo (passo −1), 1 = lado alto (passo +1)
+            const passo = (eixo: 0 | 1 | 2): number =>
+              eixo === eixoNormal ? 0 : (corner.pos[eixo] === 1 ? 1 : -1);
+            const [ea, eb] = planares;
+            luzVert.push(luzDoCanto(bx, by, bz, ea, passo(ea), eb, passo(eb)));
           }
           pushSway(4); // §🌬️ cubo balança inteiro (folhas) ou nada (o resto)
-          // §💡 cubo cheio: a face mostra a luz do que ela ENCARA (a própria
-          // célula é opaca e está em 0).
-          pushLuz(4, luzDe(lx + face.dir[0], ly + face.dir[1], lz + face.dir[2]));
           idxTarget.push(base, base + 1, base + 2, base + 2, base + 1, base + 3);
         }
       }
@@ -1619,7 +1706,7 @@ export function meshVizinhanca(viz: Uint16Array, luzViz?: Uint8Array | null): Ch
       : indices;
   return {
     sway: new Uint8Array(sway.map((v) => Math.round(v * 255))),
-    luz: new Uint8Array(luzVert),
+    luz: new Uint16Array(luzVert),
     positions: new Float32Array(positions),
     normals: new Float32Array(normals),
     uvs: new Float32Array(uvs),

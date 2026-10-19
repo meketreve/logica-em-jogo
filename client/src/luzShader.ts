@@ -48,16 +48,18 @@ export function aplicarLuz(material: THREE.Material, uniforms: LuzUniforms): voi
     shader.uniforms["nivelCeu"] = uniforms.nivelCeu;
     shader.uniforms["luzMin"] = uniforms.luzMin;
 
-    // ⚠️ O desempacotamento dos dois nibbles roda no VERTEX shader, e isso NÃO é
+    // ⚠️ O desempacotamento dos dois canais roda no VERTEX shader, e isso NÃO é
     // otimização — é correção (bug-544). Fazer `floor(vLuz / 16.0)` no FRAGMENT
     // significa aplicar `floor` a um valor INTERPOLADO: os 4 vértices da face
     // carregam o mesmo byte, mas a interpolação perspectiva devolve 239,9999 em
     // parte dos pixels, o `floor` derruba um nível inteiro de luz e a superfície
     // fica chuviscada entre dois brilhos — o que na tela lê como z-fighting.
     // Medido: 1,69% dos pixels em padrão ABAB contra 0,09% com `?semluz`.
-    // Aqui em cima `luz` é o byte exato do atributo, então o `floor` é exato; o
-    // que atravessa pro fragmento já é o brilho final, e interpolar um valor
-    // constante entre 4 vértices iguais só pode errar na 7ª casa.
+    // Aqui em cima `luz` é o valor exato do atributo (inteiro até 61 680, que o
+    // float32 representa sem erro), então o `floor` é exato; o que atravessa
+    // pro fragmento já é o brilho final. Com a luz suavizada os 4 vértices
+    // deixaram de ser iguais, e é justamente a interpolação DO BRILHO entre
+    // eles que faz o gradiente — o `floor` continua acontecendo antes dela.
     shader.vertexShader = shader.vertexShader
       .replace(
         "#include <common>",
@@ -71,9 +73,14 @@ uniform float luzMin;`,
         "#include <begin_vertex>",
         `#include <begin_vertex>
 {
-  // byte cru 0..255 (atributo NÃO normalizado): céu no nibble alto, bloco no baixo
-  float nCeu = floor(luz / 16.0);
-  float nBloco = luz - nCeu * 16.0;
+  // §💡 dois canais em DEZESSEIS avos de nível (0..240 cada), empacotados como
+  // ceu16 * 256 + bloco16. Era um byte com um nível inteiro por canal até a
+  // luz virar SUAVIZADA por vértice (2026-10-19): a média de 4 células dá
+  // 13,25, e arredondar devolveria o degrau que a suavização veio tirar.
+  float ceu16 = floor(luz / 256.0);
+  float bloco16 = luz - ceu16 * 256.0;
+  float nCeu = ceu16 / 16.0;
+  float nBloco = bloco16 / 16.0;
   float efetivo = max(nCeu * nivelCeu, nBloco);
   // curva geométrica (0,86 por nível), não linear: é ela que faz os 3 ou 4
   // últimos blocos antes do breu caírem depressa e a boca da caverna ler como

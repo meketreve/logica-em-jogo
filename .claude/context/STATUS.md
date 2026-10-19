@@ -24,8 +24,9 @@ caíram, se viram o motivo na tela, se é sempre o mesmo tablet.
 
 **§🔌 a porta NÃO** — ⚠️ ela **quebra o ponto fixo** do motor (hoje o passo só LIGA; um NÃO
 ligado em si mesmo oscila pra sempre), então exige estado por tick de verdade: ver o cabeçalho de
-`circuitos.ts` e a seção §🔌 do `todo.md`. Pedido aberto do usuário junto: **melhorar o código de
-iluminação** (`luz.ts`) — falta ele dizer o que incomoda. Atrás: `bench:headless`, ovelha+lã.
+`circuitos.ts` e a seção §🔌 do `todo.md`. Da iluminação (pedido dele, 19/10) a
+**suavização por vértice já entrou**; falta decidir LUZ COLORIDA (lote próprio, caro) e a curva
+de brilho pro projetor — que só se afina vendo. Atrás: `bench:headless`, ovelha+lã.
 
 ## Pendências e bloqueios
 
@@ -34,15 +35,15 @@ iluminação** (`luz.ts`) — falta ele dizer o que incomoda. Atrás: `bench:hea
 
 ## Concluído (recente)
 
-- **19/10 (§🔌 modelos melhores):** o doc do usuário aplicado inteiro. Lâmpada ACESA **ilumina
-  14, igual à tocha** (escolha dele); fio no molde da cerca (pad + braço por vizinho que troca
-  sinal + poste vertical); porta virou **CHIP** com pino de saída e dois de entrada que **acendem
-  sozinhos**; alavanca em pé × deitada. "Conecta?" é UMA função usada pelo motor e pelo mesher.
-  `emitBox` ganhou giro de UV das faces Y (a seta do topo gira com a peça, em vez de 4 tiles por
-  porta). Saíram 2 bugs do motor de LUZ, os dois da fornalha desde o §🍖 F10b.
+- **19/10 (§🔌 modelos melhores + §💡 luz suave):** o doc do usuário inteiro. Lâmpada ACESA
+  **ilumina 14, igual à tocha** (escolha dele); fio no molde da cerca; porta virou **CHIP** com
+  pino de saída e dois de entrada que **acendem sozinhos**; alavanca em pé × deitada. "Conecta?"
+  é UMA função, usada pelo motor e pelo mesher. E a **luz virou suave por vértice** (média de até
+  4 células por canto; o atributo virou Uint16 em 1/16 de nível). Saíram 2 bugs do motor de LUZ,
+  os dois da fornalha desde o §🍖 F10b.
 
-- **19/10 (§🔌 porta OU):** 2ª regra. As portas viraram TABELA (`PORTAS` + `LIGA`): a OU entrou
-  sem um `if` novo no motor (`every` → `some`). Ids 270-277. Sonda: 1 OU 0 acende onde a E não.
+- **19/10 (§🔌 porta OU):** as portas viraram TABELA (`PORTAS` + `LIGA`) e a OU entrou sem um
+  `if` novo no motor (`every` → `some`). Ids 270-277.
 
 - **19/10 (§🔌 o OBJETIVO `acender`):** o add FOTOGRAFA a área (uma por grupo) e conclui quando
   toda lâmpada acende **com o circuito intacto** — só ALAVANCA pode mudar (decisão do usuário);

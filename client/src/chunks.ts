@@ -32,7 +32,7 @@ const VAZIA: ChunkGeometry = {
   normals: new Float32Array(0),
   uvs: new Float32Array(0),
   sway: new Uint8Array(0),
-  luz: new Uint8Array(0),
+  luz: new Uint16Array(0),
   indices: new Uint32Array(0),
   opaqueIndexCount: 0,
   aguaIndexCount: 0,
@@ -300,6 +300,7 @@ export class ChunkRenderer {
     geometry.setAttribute("sway", new THREE.BufferAttribute(g.sway, 1, true));
     // §💡 luz: byte CRU (não normalizado). O shader precisa dos dois nibbles
     // separados — céu e bloco — e normalizar jogaria os dois num float só.
+    // §💡 Uint16: dois canais de 8 bits (nível × 16) desde a luz suavizada
     geometry.setAttribute("luz", new THREE.BufferAttribute(g.luz, 1, false));
     geometry.setIndex(new THREE.BufferAttribute(g.indices, 1));
     // 3 grupos: opaco + água + vidro colorido, nessa ordem. Grupo com count 0

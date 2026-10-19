@@ -11,8 +11,9 @@ active: true
 
 ## Agora
 
-- [ ] **Melhorar o código de iluminação** (pedido do usuário, 19/10) — falta ele dizer o que
-      incomoda: custo por tick, clareza do `luz.ts`, ou o modelo (luz colorida, suavização).
+- [ ] **Iluminação, o que falta** (19/10): a SUAVIZAÇÃO por vértice entrou. Em aberto: **luz
+      colorida** (3 canais na grade, no save e na propagação — lote grande, decisão dele) e a
+      **curva de brilho** no projetor da escola, que só se afina olhando.
 
 
 ## Testar na escola (o usuário faz; aula de 10/10 cobriu parte)
