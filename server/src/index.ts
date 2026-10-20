@@ -198,6 +198,35 @@ if (somenteLeitura) {
   );
 }
 /**
+ * §📱 (2026-10-20) Escreve UMA linha no `-eventos.log` da sessão, no mesmo
+ * formato das falas de servidor — o professor abre um arquivo só.
+ *
+ * Nasceu da pergunta do usuário "os tablets caem; será que é a criança
+ * apertando um botão sem querer?". Ela **não tinha resposta**: o
+ * `-eventos.log` só recebia `author: "servidor"`, ninguém anunciava saída, e os
+ * motivos existiam apenas como `console.log` no stdout — ou seja, na janela do
+ * launcher, que ninguém lê depois da aula.
+ */
+function registrarEvento(texto: string): void {
+  const logs = logsDaSessao(mundoAtual, CARIMBO_SESSAO);
+  try {
+    mkdirSync(dirname(logs.eventos), { recursive: true });
+    appendFileSync(logs.eventos, `[${horaDaLinha()}] servidor: ${texto}\n`);
+  } catch (err) {
+    console.error(`[server] não consegui gravar o log da sessão: ${(err as Error).message}`);
+  }
+}
+
+/**
+ * §📱 Por que ESTE cliente está saindo, quando quem decidiu foi o servidor.
+ *
+ * O `close` do socket chega DEPOIS do `fecharCliente` e não sabe de nada: sem
+ * isto, a queda que o host provocou sairia no log como "a conexão caiu", que é
+ * justamente a confusão que o lote veio desfazer.
+ */
+const motivoDaSaida = new Map<number, string>();
+
+/**
  * bug-672 — a sessão derrubou alguém: aqui o socket é FECHADO de verdade.
  * Dois motivos (ver `MotivoDerrubar`): `silencio` — o tablet minimizado de
  * verdade, com o código 4000 pro aluno ler o motivo na tela — e
@@ -216,6 +245,13 @@ function fecharCliente(clientId: number, motivo: MotivoDerrubar = "silencio"): v
     motivo === "silencio"
       ? `[server] cliente ${clientId} não responde ao ping — desconectado`
       : `[server] cliente ${clientId} substituído — o mesmo nome entrou em outro aparelho`,
+  );
+  // §📱 o `close` que vem em seguida não saberia disto sozinho
+  motivoDaSaida.set(
+    clientId,
+    motivo === "silencio"
+      ? "ficou sem responder (aparelho minimizado, fora da tela ou sem rede)"
+      : "entrou de novo em outro aparelho (o nome mudou de dono)",
   );
   sockets.delete(clientId);
   if (!sock) return;
@@ -656,10 +692,25 @@ wss.on("connection", (socket, req) => {
     session.handleMessage(id, texto);
   });
 
-  socket.on("close", () => {
+  socket.on("close", (codigo: number) => {
+    // §📱 o NOME tem de ser lido ANTES do `handleDisconnect`, que apaga o
+    // jogador da sessão — depois dele só sobra o número do cliente, que não diz
+    // nada a um professor lendo o log da aula.
+    const quem = session.jogadoresConectados().find((j) => j.id === id)?.name;
     sockets.delete(id);
     session.handleDisconnect(id);
-    console.log(`[server] cliente ${id} desconectou`);
+    console.log(`[server] cliente ${id} desconectou (código ${codigo})`);
+    if (quem === undefined) return; // caiu antes de entrar: não é saída de ninguém
+    // O 4001 é o próprio cliente avisando no `pagehide` (`connection.ts`): a
+    // página foi fechada ou saiu do ar — é o caso do "voltar"/Home do tablet, e
+    // era exatamente ele que não dava pra distinguir de queda de rede.
+    const porque =
+      motivoDaSaida.get(id) ??
+      (codigo === 4001
+        ? "fechou a página (saiu do jogo, ou o aparelho descartou a aba)"
+        : `a conexão caiu (código ${codigo})`);
+    motivoDaSaida.delete(id);
+    registrarEvento(`${quem} saiu: ${porque}`);
   });
 
   // Sem handler de error o ws derruba o processo inteiro; close vem em seguida.

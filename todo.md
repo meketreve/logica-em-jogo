@@ -1281,19 +1281,28 @@ não tem filesystem; export de "pasta" no single fica de fora (não faz sentido 
 * \[ ] **Luz colorida e curva de brilho no projetor** continuam pendentes de decisão dele
   (ver §💡) — não têm relação com venda, só estavam na mesma fila.
 
-## §🔌 Quedas de tablet: é o aluno apertando "sair"? (2026-10-20)
+## §📱 Quedas de tablet: a barra de navegação do Android (2026-10-20)
 
-* \[ ] **O log não responde a pergunta hoje, e devia.** O usuário desconfia (2026-10-20) que
-  parte das quedas que sobraram do bug-675 é aluno tocando em `💾 salvar e voltar ao menu` sem
-  querer. **Não dá pra confirmar nem negar:** o `-eventos.log` não registra saída nenhuma — só
-  fala de servidor (`author: "servidor"`) vira linha, e ninguém anuncia "X saiu". Os motivos
-  (`silencio`, `substituido`) existem só como `console.log` no stdout do host, ou seja, na
-  janela do launcher que ninguém lê depois.
-  **Lote proposto (2 arquivos):** (1) registrar a saída no `-eventos.log` com o MOTIVO — botão ×
-  silêncio × substituído × socket caiu; (2) **confirmação no botão de sair quando está em
-  REDE** (no singleplayer não precisa: ele salva mesmo). O botão fica no mesmo overlay de pausa
-  do `▶ voltar ao jogo`, sem confirmação nenhuma — `client/index.html:1728`.
-  → **verify:** uma aula com o log novo diz quantos saíram por botão e quantos por silêncio.
+* \[x] **Causa encontrada e atacada — FEITO (2026-10-20).** A pista que fechou o caso foi dele:
+  **"não acontece isso nas turmas dos mais velhos"**. Não é rede nem o botão de sair do jogo — é a
+  **palma da mão na barra de navegação**, que criança de 10 anos cobre segurando o tablet. A tela
+  cheia (que esconde a barra) já era pedida ao entrar, mas **ninguém a restaurava quando caía**, e
+  no Chrome do Android o 1º "voltar" SAI da tela cheia em vez de sair da página: ela não nota, a
+  barra reapareceu, e daí toda palma alcança Home. Entrou: (1) tela cheia que se **segura**
+  (`fullscreenchange` arma, o próximo toque restaura — `requestFullscreen` exige gesto);
+  (2) **"voltar" vira menu de pausa**, com a entrada de histórico re-empurrada a cada `popstate`;
+  (3) o host escreve `<nome> saiu: <motivo>` no `-eventos.log`. Sondas: `shots:toque` A3/A4;
+  smoke `logs`. Detalhe completo no `BUGS.md` (bug-675, 2026-10-20).
+* \[ ] **Confirmar na aula — o lote ataca a causa provável, não a confirma.** O que ler:
+  quantas linhas `fechou a página` × `ficou sem responder` no `-eventos.log`. Se sobrar
+  "sem responder", a parte de rede/15 s continua viva; se zerar, bug-675 fecha.
+* \[ ] **Home não dá pra interceptar** (é do sistema) e isso não vai mudar. O que resolve Home é
+  a tela cheia SEGURAR, tirando o botão da tela — e, se for apertado, a posse pelo PIN (bug-672)
+  devolve a criança na hora. Se a aula mostrar que Home ainda derruba muito, a saída seria
+  instalar como PWA (ícone na tela inicial, sem barra de endereço) — é lote próprio.
+* \[ ] **Confirmação no botão "salvar e voltar ao menu"** — eu tinha proposto isto como conserto,
+  e o relato dele mostrou que era o botão ERRADO (não é o do jogo, é o do aparelho). Fica como
+  ideia solta, de valor baixo: só vale se a aula mostrar criança saindo por ele de propósito.
 
 ## Modelo do jogador / animações (sessão atual, 2026-09-03)
 

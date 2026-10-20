@@ -16,25 +16,23 @@ aqui o dinheiro era estoque FIXO (50 na 1ª entrada, só circulando pelo baú-lo
 ficava sem jeito de ganhar. **Nada do §🔌 nem do §💰 foi visto em aula** — sete lotes. É o maior
 acúmulo de não-testado do projeto, e a próxima aula vale mais que o próximo lote.
 
-⚠️ **bug-675 (heartbeat) NÃO está fechado**, e 20/10 trouxe pista dele: desconfia que parte das
-quedas é **aluno tocando em "salvar e voltar ao menu" sem querer**. Conferi: **o log de hoje não
-responde isso** — o `-eventos.log` não registra saída nenhuma. Lote proposto no `todo.md`.
+⚠️ **bug-675: a CAUSA apareceu em 20/10, pela pista dele** — cai **só nas turmas pequenas**, e
+é a palma da mão na BARRA DE NAVEGAÇÃO do Android (não rede, não o botão de sair do jogo). A
+tela cheia já era pedida ao entrar mas **ninguém a restaurava quando caía**. Atacado hoje; quem
+**confirma é a próxima aula**, agora com o log dizendo por qual porta cada um saiu.
 
 **Aprovado em aula:** comandos no chat com PAPEL + painel do dedo ("ficaram bons, muito bons").
-
 ## Próxima fase
 
-**Levar à aula antes de codar mais.** Depois disso, a **fase 1 do §🔌** (seção própria no
-`todo.md`): o **botão** (pulso — precisa de prazo por célula, que o motor não tem) e a **porta
-automática** (1ª saída que não é luz; mexe no gate de claim).
+**Levar à aula antes de codar mais** — e, nela, **ler o `-eventos.log`**: é ele que confirma (ou
+derruba) a causa do bug-675. Depois, a **fase 1 do §🔌** (seção própria no `todo.md`): o **botão**
+(pulso — precisa de prazo por célula, que o motor não tem) e a **porta automática** (1ª saída que
+não é luz; mexe no gate de claim).
 → **verify:** `shots:circuito` com seção nova vendo a peça, como a C3 da placa.
 
 Atrás: a **porta NÃO**, que ⚠️ **quebra o ponto fixo** do motor (o passo só LIGA; um NÃO ligado
 em si mesmo oscila pra sempre) e exige estado por tick — cabeçalho de `circuitos.ts`. Da
 iluminação, **luz colorida** e **curva de brilho** esperam decisão dele. Atrás: `bench:headless`.
-
-**Barato e com retorno de diagnóstico:** o lote das quedas (motivo da saída no `-eventos.log`
-+ confirmação no botão de sair quando em rede). Ele responde a desconfiança dele em UMA aula.
 
 ## Pendências e bloqueios
 
@@ -43,6 +41,11 @@ iluminação, **luz colorida** e **curva de brilho** esperam decisão dele. Atr�
 
 ## Concluído (recente)
 
+- **20/10 — §📱 a barra de navegação do tablet (bug-675).** Tela cheia que se **segura** (cai →
+  arma → volta no próximo toque; `requestFullscreen` exige gesto) · **"voltar" vira menu de
+  pausa**, com a entrada de histórico **re-empurrada a cada `popstate`** (sem re-armar valeria
+  uma vez só) · e o host passou a escrever `<nome> saiu: <motivo>` no `-eventos.log`, que até
+  aqui **não registrava saída nenhuma**. Sondas: `shots:toque` seções A3/A4; smoke `logs`.
 - **20/10 — §💰 `/vender`, o balcão.** 4º tipo do `ContainerPanel` e o 1º que **não é bloco**:
   o balcão é do JOGADOR (sem posição, fora do save, devolve ao fechar). Preço unitário sob cada
   slot + total no rodapé, e só então vender — o Dimas é **criado** ali. Dele: escala baixa, sem
@@ -50,12 +53,9 @@ iluminação, **luz colorida** e **curva de brilho** esperam decisão dele. Atr�
   mochila; precificar todos abriria o cano de lavagem). ⚠️ **Quem sustenta a tabela é o PORTÃO**:
   varre `RECEITAS` + `COZIMENTO` e reprova saída que vale mais que a entrada — pegou 3 canos, um
   (`1 tronco → 4 FOLHAS`) que eu não tinha visto. Sonda `shots:venda`, 25 asserções.
-- **19/10 — o §🔌 em seis lotes:** objetivo `acender` (fotografa a área, cobra circuito INTACTO)
-  · porta **OU** (portas viraram TABELA `PORTAS`+`LIGA`, ids 270-277) · modelos melhores do doc
-  dele · luz suave por vértice (atributo virou Uint16) · placa de pressão (278-279, pelo TICK).
-- **16/10:** o 1º CIRCUITO — alavanca, fio, lâmpada, porta E (**os primeiros ids ≥ 256**).
-  **15/10:** amigos virou aba do `#painel`; comandos com o PAPEL. **13/10:** posse do nome
-  (bug-672). **10/10:** launchers (bug-666), ▣ (bug-676), ids16.
+- **19/10 — o §🔌 em seis lotes:** objetivo `acender` · porta **OU** (portas viraram TABELA
+  `PORTAS`+`LIGA`, 270-277) · modelos do doc dele · luz suave por vértice (Uint16) · placa de
+  pressão (278-279). **16/10:** o 1º circuito, ids ≥ 256. **13/10:** posse do nome (bug-672).
 
 ## Bruto do git (auto — não editar)
 

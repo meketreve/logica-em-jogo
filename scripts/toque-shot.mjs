@@ -312,6 +312,24 @@ await avaliar(`document.getElementById('overlay-voltar')?.click()`);
 await espera(1500);
 
 let falhas = 0;
+/**
+ * Espera uma condição do DOM, sondando a cada 100 ms (2026-10-20).
+ *
+ * `espera()` seca passa na máquina rápida e falha na carregada — e o
+ * `history.back()` do §📱 é assíncrono por natureza (o `popstate` vem num
+ * microtask do navegador, não na volta da chamada). Devolve o último valor
+ * lido, satisfeito ou não: a asserção é de quem chamou.
+ */
+async function ateQue(ler, satisfeito, limiteMs = 4000) {
+  const fim = Date.now() + limiteMs;
+  let v = await ler();
+  while (!satisfeito(v) && Date.now() < fim) {
+    await espera(100);
+    v = await ler();
+  }
+  return v;
+}
+
 const ok = (cond, msg) => {
   diga(`  ${cond ? "✓" : "✗"} ${msg}`);
   if (!cond) falhas++;
@@ -351,6 +369,109 @@ await espera(900);
 s = await estado();
 ok(s.barra === "VISIVEL", "a barra de toque voltou");
 ok(s.menu === "escondido", "o menu saiu");
+
+diga("== A3: §📱 o 'voltar' do APARELHO abre o menu de pausa (2026-10-20) ==");
+// Relato do usuário: tablet caindo do jogo, e SÓ nas turmas dos pequenos — eles
+// seguram o aparelho com a palma em cima da barra de navegação do Android.
+// Antes disto o "voltar" levava a criança pra fora da página e o nome dela
+// ficava pendurado no host até o heartbeat estourar.
+const urlAntes = await avaliar(`location.href`);
+await avaliar(`history.back(), 1`);
+s = await ateQue(estado, (a) => a.menu === "VISIVEL", 3000);
+ok(s.menu === "VISIVEL", "o 'voltar' abriu o menu de pausa em vez de sair da página");
+ok(
+  (await avaliar(`location.href`)) === urlAntes && (await avaliar(`!!document.getElementById('hotbar')`)) === true,
+  "e a página continua VIVA (mesma URL, o jogo ainda na tela)",
+);
+await foto("01b-voltar-abriu-a-pausa.png");
+
+// ⚠️ ESTE é o ponto do conserto: sem RE-ARMAR o histórico ele valeria uma vez
+// só — e isso é pior que não ter, porque a criança aprende que "voltar" é
+// inofensivo e o segundo toque a joga pra fora de verdade.
+await avaliar(`document.getElementById('overlay-voltar')?.click()`);
+await espera(900);
+s = await ateQue(estado, (a) => a.barra === "VISIVEL", 3000);
+ok(s.barra === "VISIVEL", "voltou pro jogo");
+await avaliar(`history.back(), 1`);
+s = await ateQue(estado, (a) => a.menu === "VISIVEL", 3000);
+ok(s.menu === "VISIVEL", "o SEGUNDO 'voltar' também abre a pausa (o histórico se re-armou)");
+ok(
+  (await avaliar(`location.href`)) === urlAntes,
+  "e a página continua a mesma no segundo toque — é aqui que a criança escapava",
+);
+
+// com a pausa JÁ aberta, mais um "voltar" não pode levar ninguém embora
+await avaliar(`history.back(), 1`);
+await espera(600);
+ok(
+  (await avaliar(`!!document.getElementById('hotbar')`)) === true &&
+    (await estado()).menu === "VISIVEL",
+  "com a pausa aberta, outro 'voltar' não faz nada (nem sai, nem fecha o menu)",
+);
+
+// devolve a cena pro estado em que as próximas seções esperam encontrá-la
+await avaliar(`document.getElementById('overlay-voltar')?.click()`);
+await espera(900);
+s = await ateQue(estado, (a) => a.barra === "VISIVEL", 3000);
+ok(s.barra === "VISIVEL" && s.menu === "escondido", "a cena voltou ao jogo pras seções seguintes");
+
+diga("== A4: §📱 a tela cheia se SEGURA — ela volta no toque seguinte ==");
+// A causa raiz do relato: a tela cheia JÁ era pedida ao entrar, mas ninguém a
+// trazia de volta quando caía — e no Chrome do Android o 1º 'voltar' SAI da tela
+// cheia em vez de sair da página. A criança não nota, mas a barra de navegação
+// reapareceu, e daí em diante toda palma da mão alcança Home e Voltar de verdade.
+//
+// ⚠️ A 1ª versão desta seção DISPARAVA um `fullscreenchange` sintético e dava
+// falso negativo: o headless **está** em tela cheia de verdade (o `startPlay`
+// consegue), então "caiu" era mentira e o jogo, com razão, não armava nada. O
+// teste honesto é SAIR da tela cheia — o evento nasce do navegador, como no
+// tablet.
+ok(
+  (await avaliar(`document.fullscreenElement !== null`)) === true,
+  "entrar no jogo CONCEDEU a tela cheia (é o que esconde a barra de navegação)",
+);
+await avaliar(`window.__fsPedidos = 0, 1`);
+await avaliar(`(() => {
+  const orig = Element.prototype.requestFullscreen;
+  window.__fsOrig = orig;
+  Element.prototype.requestFullscreen = function (...a) {
+    window.__fsPedidos++;
+    return orig.apply(this, a);
+  };
+})()`);
+// a tela cheia CAI — é o que o Android faz no 1º toque em 'voltar'
+await avaliar(`document.exitFullscreen?.(), 1`);
+const armado = await ateQue(
+  () => avaliar(`document.documentElement.dataset.ljTelaCheia ?? ""`),
+  (v) => v === "caiu",
+  3000,
+);
+ok(armado === "caiu", `o jogo PERCEBEU que a tela cheia caiu (${JSON.stringify(armado)})`);
+ok(
+  (await avaliar(`window.__fsPedidos`)) === 0,
+  "e não pediu nada na hora — `requestFullscreen` exige gesto do usuário",
+);
+await foto("01c-tela-cheia-caiu.png");
+
+// ...e o PRÓXIMO toque no jogo a restaura. É este o conserto: sem ele a barra
+// de navegação ficava na tela pelo resto da aula.
+const centro = { x: Math.round(L / 2), y: Math.round(A * 0.75) };
+await tocar(centro.x, centro.y);
+const pedidosFs = await ateQue(() => avaliar(`window.__fsPedidos`), (n) => n > 0, 3000);
+ok(pedidosFs > 0, `o toque seguinte pediu a tela cheia de volta (pedidos=${pedidosFs})`);
+ok(
+  (await avaliar(`document.documentElement.dataset.ljTelaCheia ?? "limpo"`)) === "limpo",
+  "e desarmou: o toque seguinte não pede de novo à toa",
+);
+await avaliar(`(Element.prototype.requestFullscreen = window.__fsOrig, 1)`);
+
+// devolve a cena pro estado que as próximas seções esperam
+if ((await estado()).menu === "VISIVEL") {
+  await avaliar(`document.getElementById('overlay-voltar')?.click()`);
+  await espera(900);
+}
+s = await ateQue(estado, (a) => a.barra === "VISIVEL", 3000);
+ok(s.barra === "VISIVEL" && s.menu === "escondido", "a cena voltou ao jogo pras seções seguintes");
 
 diga("== B: /amigos abre o painel (mesmo caminho no PC e no tablet) ==");
 await dizer("/amigos");

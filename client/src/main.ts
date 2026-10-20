@@ -399,6 +399,90 @@ document.addEventListener("pointerlockchange", updateOverlay);
 // estado — a ordem de registro é a ordem de execução.
 document.addEventListener("pointerlockerror", updateOverlay);
 
+/**
+ * §📱 A BARRA DE NAVEGAÇÃO DO TABLET (2026-10-20) — por que as crianças caíam.
+ *
+ * Relato do usuário: tablet caindo do jogo, **e só nas turmas dos pequenos**.
+ * A causa não é rede nem o botão de sair do jogo: é a palma da mão na barra de
+ * botões do Android. Criança de 10 anos segura o tablet com a mão em cima da
+ * barra; aluno mais velho, não — e é exatamente essa a assinatura do relato.
+ *
+ * O que faltava: a tela cheia JÁ era pedida ao entrar (o `startPlay` abaixo),
+ * mas **ninguém a trazia de volta quando ela caía** — e no Chrome do Android o
+ * primeiro toque em "voltar" SAI DA TELA CHEIA em vez de sair da página. A
+ * criança não nota nada, mas a barra reapareceu, e daí em diante toda palma
+ * alcança Home e Voltar de verdade.
+ *
+ * ⚠️ `requestFullscreen` exige GESTO do usuário: não dá pra chamá-lo de dentro
+ * do `fullscreenchange`. Por isso o conserto é em dois tempos — anota que caiu,
+ * e restaura no PRÓXIMO toque, que é o primeiro gesto disponível.
+ */
+let telaCheiaCaiu = false;
+/** O jogo está rodando num aparelho de toque? (no PC nada disto se aplica — a
+ *  barra de navegação do Android é que é o problema). */
+function emJogoDeToque(): boolean {
+  return jogo !== null && isTouchDevice() && !loading.ativo;
+}
+/** Arma (ou desarma) a restauração, e DEIXA ISSO VISÍVEL no DOM: sem o
+ *  atributo, "a tela cheia caiu e vai voltar" é estado só de variável, que
+ *  nenhuma sonda enxerga — a mesma razão do `data-acao` e do `data-slot`. */
+function armarTelaCheia(ligado: boolean): void {
+  telaCheiaCaiu = ligado;
+  if (ligado) document.documentElement.dataset["ljTelaCheia"] = "caiu";
+  else delete document.documentElement.dataset["ljTelaCheia"];
+}
+document.addEventListener("fullscreenchange", () => {
+  if (document.fullscreenElement !== null || !emJogoDeToque()) return;
+  armarTelaCheia(true);
+});
+// captura, e no `document`: o toque que restaura a tela cheia é o MESMO toque
+// que o jogo usa pra andar/cavar — ele não pode ser engolido aqui.
+document.addEventListener(
+  "pointerdown",
+  () => {
+    if (!telaCheiaCaiu || !emJogoDeToque()) return;
+    armarTelaCheia(false);
+    solicitarTelaCheia();
+  },
+  true,
+);
+
+/**
+ * §📱 O "voltar" do aparelho vira o MENU DE PAUSA (decisão do usuário,
+ * 2026-10-20), em vez de levar a criança pra fora da página.
+ *
+ * O truque é uma entrada de SACRIFÍCIO no histórico: com ela empurrada, o
+ * "voltar" cai no `popstate` desta página em vez de desempilhar pra fora. E a
+ * cada `popstate` ela é empurrada DE NOVO — senão o conserto valeria uma vez só,
+ * que é pior que não ter, porque a criança aprende que "voltar" é inofensivo e
+ * o segundo toque a joga fora.
+ *
+ * Quem quer sair de verdade continua saindo pelo "💾 salvar e voltar ao menu" —
+ * ele chama `location.reload()` e não passa por aqui.
+ *
+ * ⚠️ O Home do aparelho **ninguém** intercepta (é do sistema). O que resolve
+ * Home é a tela cheia acima, que tira o botão da tela — e, se ele for apertado
+ * mesmo assim, a posse pelo PIN (bug-672) devolve a criança na hora.
+ */
+function armarVoltar(): void {
+  try {
+    // sem URL: a barra de endereço não muda, e o `location.reload()` do botão
+    // de sair continua funcionando igual
+    history.pushState({ lj: "jogo" }, "");
+  } catch {
+    /* navegador sem History API: o "voltar" volta a ser do navegador */
+  }
+}
+window.addEventListener("popstate", () => {
+  if (jogo === null) return; // no menu, "voltar" é do navegador mesmo
+  armarVoltar(); // re-arma: o PRÓXIMO "voltar" também cai aqui
+  if (menuDePausaAberto()) return; // já pausado: um 2º toque não faz nada
+  // o mesmo que o botão ☰ da barra de toque faz
+  input.touch = false;
+  showOverlayMain();
+  updateOverlay();
+});
+
 /** Entrar no jogo: desktop trava o mouse; tablet liga o modo toque. */
 function startPlay(): void {
   if (isTouchDevice()) {
@@ -2846,4 +2930,5 @@ function startGame(snap: Snapshot): void {
   if (!activeConn) return; // snapshot só chega depois do connect()
   jogo = new GameRuntime(snap, activeConn);
   jogo.iniciar();
+  armarVoltar(); // §📱 a partir daqui, "voltar" é do JOGO, não do navegador
 }

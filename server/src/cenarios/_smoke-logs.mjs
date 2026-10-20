@@ -10,7 +10,12 @@
  *    (o `chat.log` antigo era 2434 linhas, 2434 delas do servidor);
  * 4. os dois arquivos carregam o MESMO carimbo de sessão, e o nome começa
  *    pela data (ordena sozinho no explorador);
- * 5. a linha é `[HH:MM:SS] autor: texto` — hora LOCAL, sem a data repetida.
+ * 5. a linha é `[HH:MM:SS] autor: texto` — hora LOCAL, sem a data repetida;
+ * 6. §📱 (2026-10-20) a SAÍDA de cada pessoa vira linha, com o NOME e o MOTIVO
+ *    — e os motivos se distinguem. Era a pergunta sem resposta do usuário
+ *    ("os tablets caem; será que é a criança apertando um botão sem querer?"):
+ *    até aqui o log não registrava saída nenhuma, e "fechou a página" (o
+ *    voltar/Home do tablet, código 4001) era idêntico a queda de rede.
  *
  *   LJ_TAMANHO=P LJ_NOVO=1 LJ_SAVE=mundos/_smoke-logs.ljw LJ_CODIGO=prof2026 \
  *     LJ_PORT=8101 npm run start -w server
@@ -96,7 +101,32 @@ const primeira = chat.split("\n")[0] ?? "";
 ok(/^\[\d{2}:\d{2}:\d{2}\] \S+: /.test(primeira), `linha é [HH:MM:SS] autor: texto (${primeira.slice(0, 40)})`);
 ok(!/\d{4}-\d{2}-\d{2}T/.test(chat), "nenhuma linha repete a data em ISO/UTC");
 
-console.log(falhas === 0 ? "\n✓ tudo certo" : `\n✗ ${falhas} falha(s)`);
+// ⚠️ §📱 esta seção é a ÚLTIMA de propósito: ela fecha os sockets, e nenhuma
+// asserção depois disso teria cliente pra medir.
+console.log("== §📱 a SAÍDA vira linha, com nome e motivo ==");
+ok(!eventos.includes("saiu:"), "antes de ninguém sair, não há linha de saída");
+// 4001 é o código que o cliente usa no `pagehide` — o "voltar"/Home do tablet
+ana.ws.close(4001, "página fechada");
+// e a profa sai pelo caminho comum (sem código próprio): é a OUTRA porta, e as
+// duas têm de aparecer DIFERENTES no log — se saírem iguais, o professor
+// continua sem saber se o tablet caiu ou se a criança esbarrou num botão
 prof.ws.close();
-ana.ws.close();
+await espera(800);
+const depois = ler(deEventos[0]);
+const linhasDeSaida = depois.split("\n").filter((l) => l.includes("saiu:"));
+ok(linhasDeSaida.length === 2, `as duas saídas viraram linha (${linhasDeSaida.length})`);
+ok(depois.includes("ana saiu:"), "a linha traz o NOME, não o número do cliente");
+ok(depois.includes("profa saiu:"), "e a da profa também");
+const daAna = linhasDeSaida.find((l) => l.includes("ana saiu:")) ?? "";
+ok(/fechou a p[áa]gina/.test(daAna), `o 4001 é lido como "fechou a página" (${daAna.slice(11, 70)})`);
+// CONTROLE NEGATIVO: os dois motivos não podem ser a MESMA frase — foi
+// exatamente essa indistinção que deixou a pergunta do usuário sem resposta
+const motivo = (l) => l.replace(/^.*saiu: /, "");
+ok(
+  linhasDeSaida.length === 2 && motivo(linhasDeSaida[0]) !== motivo(linhasDeSaida[1]),
+  "portas diferentes dão motivos DIFERENTES (senão o log não responde nada)",
+);
+ok(!chat.includes("saiu:"), "e saída é EVENTO: não suja o -chat.log do professor");
+
+console.log(falhas === 0 ? "\n✓ tudo certo" : `\n✗ ${falhas} falha(s)`);
 process.exit(falhas === 0 ? 0 : 1);

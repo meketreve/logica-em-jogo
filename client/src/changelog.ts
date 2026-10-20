@@ -43,6 +43,15 @@ interface Mudanca {
 const MUDANCAS: readonly Mudanca[] = [
   {
     // sem `data`: este é o build atual (ver rotuloDoBloco)
+    titulo: "O tablet para de cair do jogo",
+    itens: [
+      "**a tela cheia agora se SEGURA**: quando ela caía (e no tablet ela cai só de encostar no “voltar”), a barra de botões do aparelho reaparecia e ninguém a trazia de volta — bastava uma palma da mão na barra pra criança sair do jogo sem querer. Agora o jogo volta pra tela cheia sozinho no toque seguinte",
+      "**o “voltar” do tablet abre o menu de pausa** em vez de levar você embora do jogo: se esbarrou, é só tocar em “▶ voltar ao jogo”. Quem quer sair de verdade continua saindo pelo “💾 salvar e voltar ao menu”",
+      "pro professor: o registro da aula (`logs/…-eventos.log`) agora anota **por que** cada pessoa saiu — fechou a página, ficou sem responder, ou entrou de novo noutro aparelho. Antes ele não anotava saída nenhuma, e não dava pra saber se um tablet caiu ou se a criança apertou um botão sem querer",
+    ],
+  },
+  {
+    data: "20/10/2026",
     titulo: "Vender o que você colheu",
     itens: [
       "comando NOVO pra todo mundo: **`/vender`** — ele abre um balcão de venda, e o que você puser lá o jogo COMPRA de você em Dimas",

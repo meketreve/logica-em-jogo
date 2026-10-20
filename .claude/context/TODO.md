@@ -47,9 +47,14 @@ active: true
 
 - [ ] **Lote de 10/10:** Ctrl+C num mundo cheio e reabrir; e o botão **restaurar** no mundo convertido do singleplayer.
 - [ ] **§🪓 machado e pá:** fabricar os dois; sentir se árvore de MÃO NUA ficou chata (1,5 s, `DUREZA`); ícones distinguíveis a 1024×600.
-- [ ] **Heartbeat (bug-675) — AINDA ABERTO:** em 10/10 as quedas diminuíram mas não zeraram.
-      Falta: quantos caíram, se viram o MOTIVO na tela, se cai sempre o mesmo aparelho.
-- [ ] **Logs (não lidos ainda):** `mundos/<nome>/logs/` — o par com data/hora, e o `-chat.log` só com fala de gente.
+- [ ] **Heartbeat (bug-675) — a AULA que confirma a causa.** 20/10 atacou o que a pista dele
+      aponta (palma na barra de navegação, só nas turmas pequenas): tela cheia que se SEGURA e
+      "voltar" virando menu de pausa. Agora o `-eventos.log` diz **por qual porta** cada um
+      saiu — **ler esse arquivo é o item**: quantas linhas "fechou a página" × "ficou sem
+      responder". Se sobrar "sem responder", aí sim é rede/15 s. E perguntar à turma se alguém
+      viu o menu de pausa abrir sozinho (é o "voltar" fazendo efeito).
+- [ ] **Logs (não lidos ainda):** `mundos/<nome>/logs/` — o par com data/hora, o `-chat.log` só
+      com fala de gente, e agora as linhas `<nome> saiu: <motivo>` no `-eventos.log`.
 - [ ] **Presença (bug-672):** reentrar com o mesmo nome (a volta tem de ser NA HORA); e se os 15 s não derrubam ninguém no Wi-Fi da escola (`constants.ts`).
 - [ ] **Loja:** preço de ITEM e reabrir o mundo (sumia na releitura do save).
 - [ ] **Ids 16 bits:** abrir o mundo da turma no host (nasce `<nome>.antes-ids16.ljw`).

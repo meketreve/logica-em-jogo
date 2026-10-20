@@ -20,6 +20,16 @@ tier: 3
 - **Lição irmã:** o `/bloco` (como o `place_block`) recusa criar bloco em célula com jogador — a placa não nasce sob os próprios pés. Apagar a célula, essa é permitida.
 - **Tags:** circuito, placa, isSolidBlock, bug-605, resgate, corrigido
 
+## 2026-10-20 — bug-675 (a CAUSA que faltava): a barra de navegação do tablet, e só nas turmas pequenas
+- **Sintoma:** usuário, depois da aula de 10/10: "alguns tablets ainda caem, mas ainda desconfio que são os alunos clicando pra sair sem quere" — e, decisivo, **"não acontece isso nas turmas dos mais velhos"**. É a sobra que o conserto de 13/10 (relógio → perguntas) não zerou.
+- **Onde:** `client/src/main.ts` (tela cheia e histórico), `server/src/index.ts` (log da saída)
+- **Causa:** não é rede, e não é o botão de sair do JOGO. É a **palma da mão na barra de navegação do Android**: criança de 10 anos segura o tablet com a mão em cima da barra, aluno mais velho não — é exatamente essa a assinatura "só nas turmas pequenas". A tela cheia (que esconde a barra) **já era pedida ao entrar** (`startPlay`), mas **ninguém a restaurava quando ela caía**, e no Chrome do Android o PRIMEIRO toque em "voltar" sai da tela cheia em vez de sair da página: a criança não nota nada, a barra reapareceu, e daí em diante toda palma alcança Home e Voltar de verdade. Não havia um `fullscreenchange` no cliente inteiro, nem interceptação de "voltar".
+- **Diagnóstico impossível até aqui:** o `-eventos.log` **não registrava saída nenhuma** (só `author: "servidor"` virava linha, e ninguém anunciava quem saiu); os motivos (`silencio`, `substituido`) existiam só como `console.log` no stdout — a janela do launcher, que ninguém lê depois da aula. "Fechou a página" (código 4001, o voltar/Home) era indistinguível de queda de rede.
+- **Correção:** (1) `fullscreenchange` arma a restauração e o PRÓXIMO toque a executa — `requestFullscreen` exige gesto do usuário, então não dá pra pedir de dentro do evento; o estado armado sai no DOM (`data-lj-tela-cheia`) pra sonda enxergar. (2) "Voltar" vira **menu de pausa** via entrada de sacrifício no histórico, **re-empurrada a cada `popstate`** — sem re-armar, o conserto valeria uma vez só, o que é pior que não ter. (3) O host passou a escrever `<nome> saiu: <motivo>` no `-eventos.log`, com motivos DIFERENTES por porta.
+- **Lição irmã:** o Home do aparelho **ninguém** intercepta (é do sistema) — o que resolve Home é a tela cheia segurar, tirando o botão da tela; e se for apertado mesmo assim, a posse pelo PIN (bug-672) devolve a criança na hora.
+- **Ainda aberto:** isto ataca a causa provável, **não confirma nada** — quem confirma é a próxima aula, agora com o log dizendo por qual porta cada um saiu.
+- **Tags:** bug-675, tablet, tela cheia, fullscreen, popstate, barra de navegação, android, logs, eventos.log, 4001, presença, corrigido-parcial
+
 ## 2026-10-19 — emissor OPACO não acendia pelo caminho incremental (fornalha inclusive)
 - **Sintoma:** teste de paridade com paleta mista reprovando com `(17,12,22) céu 0≠0 · bloco 0≠12` — o motor incremental dava 0 onde o recálculo do zero dava 12. Em jogo: acender a fornalha (ou a lâmpada do §🔌) não iluminava nada até algo forçar o recálculo da coluna.
 - **Onde:** `shared/src/luz.ts` (`atualizarBloco` e `apagar`)
