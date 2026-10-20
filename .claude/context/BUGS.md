@@ -1,5 +1,5 @@
 ---
-updated: 2026-10-19
+updated: 2026-10-20
 tier: 3
 ---
 
@@ -11,6 +11,14 @@ tier: 3
      Convertido de `.wolf/buglog.json` em 2026-09-25 (mesmo conteúdo, formato do
      modelo). São bugs ESCRITOS À MÃO: nada de detector automático — ele já encheu
      o arquivo de 148 entradas falsas uma vez, e elas foram podadas junto. -->
+
+## 2026-10-19 — a placa de pressão SÓLIDA expulsava quem pisava nela (e nunca ligava)
+- **Sintoma:** `circuitos.session.test.ts` vermelho em 3 asserções — `AssertionError: expected 278 to be 279`: o aluno andava até a placa, o tick rodava e ela continuava desligada. Em jogo seria "piso nela e não acontece nada".
+- **Onde:** `shared/src/blocks.ts` (`isSolidBlock`)
+- **Causa:** a placa nasceu fora da lista de não-sólidos, então o portão do bug-605 ("jogador dentro de bloco sólido não anda por dentro dele") via a pessoa DENTRO dela e a RESGATAVA pro vão livre mais próximo — ela nunca chegava a ficar em cima. O `overlapsAnyPlayer` do tick então respondia "ninguém aí", corretamente.
+- **Correção:** `isSolidBlock` passou a excluir `PlacaDesligada`/`PlacaLigada`, ao lado do fio e da alavanca. Teste de desenho novo afirma `isSolidBlock === false` pras duas.
+- **Lição irmã:** o `/bloco` (como o `place_block`) recusa criar bloco em célula com jogador — a placa não nasce sob os próprios pés. Apagar a célula, essa é permitida.
+- **Tags:** circuito, placa, isSolidBlock, bug-605, resgate, corrigido
 
 ## 2026-10-19 — emissor OPACO não acendia pelo caminho incremental (fornalha inclusive)
 - **Sintoma:** teste de paridade com paleta mista reprovando com `(17,12,22) céu 0≠0 · bloco 0≠12` — o motor incremental dava 0 onde o recálculo do zero dava 12. Em jogo: acender a fornalha (ou a lâmpada do §🔌) não iluminava nada até algo forçar o recálculo da coluna.

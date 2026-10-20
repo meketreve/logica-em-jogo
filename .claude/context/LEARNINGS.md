@@ -1,5 +1,5 @@
 ---
-updated: 2026-10-19
+updated: 2026-10-20
 tier: 3
 ---
 
@@ -42,6 +42,8 @@ tier: 3
 
 ## Erros a não repetir
 
+- [2026-10-20] [sonda] [✗] Seção nova numa sonda de MUNDO COMPARTILHADO sem coluna própria e sem limpar o que criou — a da placa pôs a lâmpada em cima do fio da porta E e derrubou uma seção TRÊS telas adiante. O sintoma foi o A/B dar o MESMO número duas vezes, que nesta sonda é a assinatura de medir outra coisa.
+- [2026-10-20] [sonda] [✓] A/B de pixel exige CÂMERA PARADA: andar um bloco muda o tamanho da peça na tela e contamina a medida. Na placa, o controle virou TIRAR a peça de sob os pés (apagar célula com jogador dentro é permitido; criar não é).
 - [2026-10-19] [circuito] [✓] Peça que se PISA tem de sair do `isSolidBlock`: sólida, o portão do bug-605 ("jogador dentro de bloco sólido") RESGATA quem pisar e a peça nunca liga. E o `/bloco` (como o `place_block`) recusa criar bloco em célula com jogador — não dá pra nascer sob os próprios pés, o que muda o arranjo de qualquer sonda que a teste.
 - [2026-10-19] [luz] [✓] Luz suavizada por vértice = média de até 4 células POR CANTO, e as células que VEDAM são puladas (não contadas como zero): contá-las dá oclusão de canto, que é outra decisão de aparência e empasta em projetor. O atributo teve de virar Uint16 (dois canais em 1/16 de nível) — arredondar a média pro nível inteiro devolve o degrau que a suavização veio tirar.
 - [2026-10-19] [desenho] [✓] Diferença de estado que mora só na COR não existe em aula: projetor ruim, 1024×600 e daltonismo comem as três (alavanca ligada×desligada, fio, pino). A diferença tem de ser SILHUETA ou LUZ — e isso se prova no mesher (geometria, exata), não na sonda de pixel, que não separa cor de forma.
@@ -52,21 +54,20 @@ tier: 3
 - [2026-10-19] [protocolo] [✓] CARACTERE não é byte: todo teto de texto contava caractere (`MAX_CHAT_LENGTH`, `MAX_QUADRO_TEXTO`) e emoji custa 4 — teto novo de texto vem em PAR (caracteres + bytes, o menor ganha, `cortarEmBytes` corta em fronteira de code point). E teto por CAMPO só vale depois do parse: o do frame cru mora no funil da `GameSession` **e** no `maxPayload` do `ws` (os interceptadores do host parseiam antes dela).
 - [2026-10-16] [receitas] [✗] Acrescentar receita no MEIO da composição de `receitas.ts` — o ÍNDICE é a identidade no protocolo, e as 4 do circuito no fim do `MATERIAIS` empurraram todas as seguintes (o smoke: "nasceu 1 fornalha (0)"). Lista nova entra por ÚLTIMO.
 - [2026-10-16] [circuito] [✓] Bloco novo com FORMA própria precisa sair do `isFullCube` — sem isso o `emitShape` nem é chamado e ele sai CUBO CHEIO (o fio virou parede). E forma baixa demais passa por baixo da MIRA (olho = pé+1,6): a alavanca tem 12/16 porque com 8/16 o ▣ oferecia "colocar" em cima dela.
-- [2026-10-16] [sonda] [✗] Medir pixel numa janela que pega mais de uma peça — a "tabela-verdade" da porta E passava medindo o brilho da ALAVANCA ao lado. Janela em cima do que MUDA, e arranjo que isola.
+- [2026-10-16] [sonda] [✗] Janela de pixel que pega mais de uma peça — a "tabela-verdade" da porta E passava medindo a ALAVANCA ao lado. Janela no que MUDA, arranjo que isola.
 - [2026-10-16] [ids] [✓] O intervalo `1..MAX_BLOCK_ID` deixou de ser o conjunto dos blocos (os circuitos começam em 256 e 251-255 ficaram vazios): quem varre ids usa `blocoExiste`, derivado da tabela.
 - [2026-10-15] [ui] [✓] Painel com ABAS: a porta da aba que está À VISTA fecha, a de OUTRA aba troca — uma regra pras três portas (tecla, botão do dedo, comando). `toggle()` cego fechava a tela que o aluno tinha acabado de pedir; e comparar com a aba PEDIDA (não com a resolvida) deixa a porta só abrindo quando a aba não existe.
 - [2026-10-15] [protocolo] [✓] Estado que a UI precisa não se lê do CHAT: o pedido de `/tpp` só existia como texto, então o painel oferecia a turma toda no `/tpa`. Mensagem própria (`tp_pedidos`), com o que FALTA do prazo (`emMs`) e não um horário — relógio de tablet não bate com o do host.
 - [2026-10-15] [comandos] [✓] No painel do dedo, LISTA ganha de digitação: nó com candidatos vira NÍVEL (a turma em `/tpp`, `/amigos convidar`, `/expulsar`), e `preencher` só sobra onde ninguém pode listar (id e quantidade do `/dar`, sala vazia). Mandar o aluno pro teclado é o que o painel existe pra evitar.
 - [2026-10-15] [comandos] [✓] A árvore de comandos mora no SHARED (`comandos.ts`), ao lado do gate de `runCommand`: é o único lugar onde `npm test` roda, e o portão de paridade lê a lista do "Comando desconhecido" — comando novo no servidor sem entrada na tabela reprova no mesmo commit.
-- [2026-10-15] [mobile] [✓] "Botão escondido atrás do teclado" era LISTA, não geometria: com teclado de 280, 460 e 600px, deitado e em retrato, a caixa sempre terminou acima do teclado — o que sumia eram os comandos do aluno no meio dos 26 do professor.
+- [2026-10-15] [mobile] [✓] "Botão escondido atrás do teclado" era LISTA, não geometria: a caixa sempre terminou acima do teclado — o que sumia eram os comandos do aluno no meio dos 26 do professor.
 - [2026-10-13] [presenca] [✓] Queda por silêncio se cobra por PERGUNTAS, nunca por relógio: host travado não conta contra o aluno — 3 perguntas carimbadas + janela da última (sobra do bug-675).
 - [2026-10-13] [presenca] [✓] Nome em jogo + PIN certo = TOMADA DE POSSE (quem volta entra na hora, o fantasma cai); o gate do bug-061 vira o ÚLTIMO passo — recusa clássica só pra nome online SEM identidade.
-- [2026-10-13] [teste] [✓] Portão que lê artefato de RUNTIME não versionado (`server/world.ljw`) derruba clone limpo — `it.skipIf(!existsSync(...))` com o porquê; a cobertura incondicional fica com o que está no git.
+- [2026-10-13] [teste] [✓] Portão que lê artefato de RUNTIME não versionado derruba clone limpo — `it.skipIf(!existsSync(...))`; a cobertura incondicional fica com o que está no git.
 - [2026-10-15] [sonda] [✗] Bateria inteira sem olhar `git status` depois — `shots:fundo` é GERADORA (reescreve `menu-fundo/*.png`, ~5 MB versionados).
 - [2026-10-10] [sonda] [✓] Matar o Chrome pelo GRUPO (`detached` + SIGKILL — um filho regrava o perfil depois do `rmSync`); e rótulo de botão é ESTADO, não identidade: quem muda de nome leva `data-acao`.
 - [2026-10-10] [bench] [✗] Esperar FPS do `bench:headless` (SwiftShader varia 4,3–6,4 s no MESMO commit) — custo de FORMATO se mede no codec, em Node.
-- [2026-10-03] [build] [✗] Rótulo auto-referente (sha do HEAD) em artefato VERSIONADO — o dist
-  virava função do HEAD, sujava a árvore e calava o portão (bug-673). Carimbar data, não sha.
+- [2026-10-03] [build] [✗] Rótulo auto-referente (sha do HEAD) em artefato VERSIONADO — o dist virava função do HEAD e calava o portão (bug-673). Carimbar data, não sha.
 - [2026-10-05] [smoke] [✗] Confiar em smoke sem conferir HOST ÓRFÃO na porta — dois hosts de 5 h
   atrás faziam o `inventario` "falhar" com números CRESCENTES. `ps` antes; matar por PID.
 - [2026-10-05] [smoke] [✓] Cenário que afirma "UM arquivo" tem de LIMPAR a própria pasta no

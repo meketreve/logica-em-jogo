@@ -1,5 +1,5 @@
 ---
-updated: 2026-10-19
+updated: 2026-10-20
 tier: 3
 active: true
 ---
@@ -11,41 +11,36 @@ active: true
 
 ## Agora
 
-- [ ] **Iluminação, o que falta** (19/10): em aberto, **luz colorida** (3 canais na grade, no
-      save e na propagação — lote grande, decisão dele) e a **curva de brilho** no projetor.
+> ⚠️ **A fila de código está PARADA de propósito.** São seis lotes do §🔌 sem aula nenhuma; a
+> próxima aula vale mais que o próximo lote. O que está abaixo só começa depois dela.
+
+- [ ] **§🔌 fase 1** (spec na seção §🔌 do `todo.md` da raiz): **botão** (pulso — precisa de
+      prazo por célula, que o motor não tem) e **porta automática** (1ª saída que não é luz;
+      mexe no gate de claim) → **verify:** seção nova na `shots:circuito`, no molde da C3.
+- [ ] **Decisões dele, pendentes:** luz COLORIDA (3 canais na grade, no save e na propagação —
+      lote grande) e a curva de brilho no projetor (só se afina vendo).
 
 
 ## Testar na escola (o usuário faz; aula de 10/10 cobriu parte)
 
-- [ ] **§🔌 a PLACA DE PRESSÃO (19/10):** fabricar (2 pedregulhos), pôr no chão e pisar. No
-      tablet: dá pra ver que ela afundou? Duas placas numa porta E, com DOIS alunos — funciona
-      como desafio de grupo ou vira correria? E ela atrapalha quem só quer andar pela sala?
+- [ ] **§🔌 — a AULA que decide tudo (6 lotes sem teste).** Roteiro, do mais novo pro mais velho:
+      **placa** (fabricar com 2 pedregulhos, pisar; dá pra ver que afundou? duas placas numa
+      porta E com DOIS alunos vira desafio ou correria? atrapalha quem só anda?) · **desenho**
+      (a alavanca em pé × deitada se lê de longe no projetor? os pinos de entrada acesos são
+      notados antes da lâmpada? a lâmpada de 14 "lava" a sala de noite? a luz suave melhorou ou
+      só clareou tudo?) · **objetivo `acender`** (criar pelo painel → tipo "acender"; "peça(s)
+      fora do lugar" é entendido por criança de 10 anos? "zerar progresso" deixa pronto pro
+      grupo seguinte?) · **peças** (E só com as DUAS, OU com UMA; dá pra diferenciar E de OU
+      olhando a mesa? aluno sem terreno é barrado com a frase do chat?).
 
-- [ ] **§🔌 o DESENHO novo (19/10):** a alavanca em pé × deitada se lê **de longe e no projetor**?
-      Os pinos de entrada acesos são notados antes da lâmpada? A lâmpada de 14 não "lava" a sala
-      de noite? E a luz suave melhorou ou só deixou tudo mais claro?
-
-- [ ] **§🔌 o OBJETIVO acender (19/10), o mais novo:** montar o circuito numa região e criar o
-      objetivo (painel do professor → tipo "acender", ou `/objetivo add acender <regiao> <texto>`).
-      Ver o jogo fechar sozinho. Conferir se a frase "peça(s) fora do lugar" é entendida por
-      criança de 10 anos, e se "zerar progresso" deixa o desafio pronto pro grupo seguinte.
-
-- [ ] **§🔌 CIRCUITO (16/10) + porta OU (19/10):** fabricar as peças na bancada; montar
-      alavanca→fio→lâmpada; a porta E só com as DUAS, a OU com UMA. No tablet: a alavanca é fácil
-      de acertar com o dedo e dá pra distinguir ligada de desligada **de longe**? Dá pra
-      diferenciar E de OU olhando a mesa? E o aluno sem terreno é barrado com a frase do chat.
-
-- [ ] **Lote de 15/10:** no tablet, a lista de comandos do ALUNO (10) tem de caber **sem rolar e
-      sem sumir atrás do teclado**. Se ainda sumir, anotar **se o CAMPO de digitar some junto**
-      (aí é o `--kb` do aparelho, em `chat.ts`) e a orientação. E o painel unificado: G / 👥 /
-      `/amigos` abrem o MESMO painel na aba "amigos".
+- [ ] **Lote de 15/10:** no tablet, a lista de comandos do ALUNO (10) cabe **sem rolar e sem
+      sumir atrás do teclado**? Se sumir, anotar **se o CAMPO de digitar some junto** (aí é o
+      `--kb` do aparelho, em `chat.ts`). E G / 👥 / `/amigos` abrem o MESMO painel.
 
 - [ ] **Lote de 10/10:** Ctrl+C num mundo cheio e reabrir; e o botão **restaurar** no mundo convertido do singleplayer.
 - [ ] **§🪓 machado e pá:** fabricar os dois; sentir se árvore de MÃO NUA ficou chata (1,5 s, `DUREZA`); ícones distinguíveis a 1024×600.
-- [ ] **Heartbeat (bug-675) — AINDA ABERTO, o mais importante:** em 10/10 as quedas diminuíram
-      mas não zeraram. Falta saber: quantos caíram, se viram o MOTIVO na tela, e se cai sempre o
-      mesmo aparelho — a sobra pode ser outra causa. *(13/10: queda por silêncio agora exige 3
-      perguntas de verdade.)*
+- [ ] **Heartbeat (bug-675) — AINDA ABERTO:** em 10/10 as quedas diminuíram mas não zeraram.
+      Falta: quantos caíram, se viram o MOTIVO na tela, se cai sempre o mesmo aparelho.
 - [ ] **Logs (não lidos ainda):** `mundos/<nome>/logs/` — o par com data/hora, e o `-chat.log` só com fala de gente.
 - [ ] **Presença (bug-672):** reentrar com o mesmo nome (a volta tem de ser NA HORA); e se os 15 s não derrubam ninguém no Wi-Fi da escola (`constants.ts`).
 - [ ] **Loja:** preço de ITEM e reabrir o mundo (sumia na releitura do save).

@@ -1,5 +1,5 @@
 ---
-updated: 2026-10-16
+updated: 2026-10-20
 tier: 3
 ---
 
@@ -10,7 +10,7 @@ tier: 3
 ## Comandos
 
 <!-- auto:start -->
-gerado em: 2026-10-16
+gerado em: 2026-10-20
 
 | Ação | Comando |
 |---|---|
@@ -51,17 +51,15 @@ Acima é do script. O que ele **não** acha é o que manda aqui:
 | Um smoke só | `npm run smoke -- <nome>` (filtra por nome; ex.: `-- presenca kicar`) |
 | Um teste só | `npx vitest run --root shared src/<arquivo>.test.ts` |
 
-**Sondas** (`shots:tablet` a RÉGUA de 1024×600, `shots:quebra`, `shots:loja`, `shots:luz`,
-`shots:queda`, `shots:restaurar`, `shots:circuito`, `bench:headless` — este só prova ENCANAMENTO, o FPS dele é
-ruído de SwiftShader): sobem host + Chrome de verdade e asseveram no DOM; `npm run build` antes.
-**Mudança de UI só é "feita" quando uma sonda a ENXERGA.** Detalhe no cabeçalho de cada script.
+**Sondas** (`scripts/*-shot.mjs`; `shots:tablet` é a RÉGUA de 1024×600, `bench:headless` só prova
+ENCANAMENTO): sobem host + Chrome de verdade e asseveram no DOM; `npm run build` antes. **Mudança
+de UI só é "feita" quando uma sonda a ENXERGA.** Detalhe no cabeçalho de cada script.
 
-**Bateria completa (17), uma de cada vez** — em paralelo a máquina carrega e asserção de tempo
-mente: 9 sobem host próprio (`f10 loja quebra queda restaurar amigos grupos toque esc`); 7 pedem
-`BASE=` de um host servindo o `dist` (`tablet craft comida tooltip fundo`, mais `luz` e
-`bench-headless`, que tomam a URL como argv); `corrida` quer a aula 7 (`LJ_SAVE=cenarios/aula7-corrida.ljw LJ_PORT=8090`).
-⚠️ **`shots:fundo` GERA**: reescreve `client/public/menu-fundo/*.png` e as cópias no `dist` (~5 MB
-versionados). Conferir `git status` depois da bateria e reverter se fundo novo não era o pedido.
+**Bateria completa (17), uma de cada vez** (em paralelo a máquina carrega e asserção de tempo
+mente): 9 sobem host próprio; 7 pedem `BASE=` de um host servindo o `dist` (`luz` e
+`bench-headless` tomam a URL como argv); `corrida` quer a aula 7.
+⚠️ **`shots:fundo` GERA**: reescreve `menu-fundo/*.png` e as cópias no `dist` (~5 MB versionados).
+Conferir `git status` depois da bateria.
 
 ## Onde fica cada coisa
 
@@ -72,21 +70,23 @@ Só o não óbvio:
 - **§🔌 circuito:** motor PURO em `shared/src/circuitos.ts` (ponto fixo, roda no tick da
   `session.ts` só quando uma peça muda); ids ≥ 256 em `blocks.ts`; forma e textura em
   `mesher.ts` + `client/src/atlasTexture.ts`. Sonda: `npm run shots:circuito` (mede PIXEL).
+  Porta nova = 2 linhas nas tabelas `PORTAS`/`LIGA`; "conecta?" é só a `ligacaoDoCondutor`.
+- **§💡 a luz, de ponta a ponta** (4 arquivos, e achar isso custou meia sessão): propagação em
+  `shared/src/luz.ts` (`acenderColuna` = do zero, `atualizarBloco` = incremental — **os dois têm
+  de calcular a MESMA função**, há teste de paridade) → luz por VÉRTICE no `mesher.ts`
+  (`luzDoCanto`, e o cubo cheio emite num laço SEPARADO do `emitBox`) → atributo `luz` Uint16 →
+  `client/src/luzShader.ts` (desempacota no VERTEX shader, nunca no fragmento: bug-544).
 - `client/` — só renderiza. **`client/dist` é VERSIONADO**: a escola roda o dist, não o src.
 - `server/src/cenarios/` smokes · `scripts/` sondas e portões · `docs/projeto.txt` BNCC.
-- **Log de aula:** `mundos/<nome>/logs/<AAAA-MM-DD_HH-MM>-{chat,eventos}.log`, um par por sessão
-  do host (`paths.ts: logsDaSessao`). Ninguém LÊ esses arquivos no código — são só escrita.
-- **O hook de pre-push NÃO está em `.git/hooks`** — `core.hooksPath` aponta pra
-  `scripts/git-hooks/pre-push` (roda o `verify` inteiro; escape: `LJ_SEM_VERIFY=1 git push`).
+- **Log de aula:** `mundos/<nome>/logs/<data>-{chat,eventos}.log`, um par por sessão do host
+  (`paths.ts: logsDaSessao`). Ninguém LÊ esses arquivos no código — são só escrita.
+- **Pre-push NÃO está em `.git/hooks`** — `core.hooksPath` → `scripts/git-hooks/pre-push` (roda o `verify` inteiro; escape: `LJ_SEM_VERIFY=1 git push`).
 
 ## Fluxos principais
 
-- **UM módulo roda em 3 hospedeiros sem reescrita** (Worker do singleplayer, .exe do professor,
-  Node dedicado), WebSocket, mensagens iguais nos três.
-- **A aba não abre socket de escuta nem executa binário** — "abrir pra LAN" é do HOST, não do
-  aluno; WebAssembly não contorna.
+- **UM módulo roda em 3 hospedeiros sem reescrita** (Worker, .exe do professor, Node dedicado).
+- **A aba não abre socket de escuta nem executa binário** — "abrir pra LAN" é do HOST.
 - **Container** (`containers.ts`): o `use_block` pede e é a resposta do SERVIDOR que abre o
-  painel — quem decide se o aluno pode ler aquele baú é o gate de claim.
-- **Nome/presença:** nome em jogo + PIN certo = **posse** (o socket antigo cai e quem volta
-  entra na hora); silêncio só derruba após 3 perguntas de verdade depois do último sinal
-  (`shared/src/session/presenca.ts` + `substituir` no `session.ts`).
+  painel — quem decide se o aluno lê aquele baú é o gate de claim.
+- **Nome/presença:** nome em jogo + PIN certo = **posse** (o socket antigo cai, quem volta entra
+  na hora); silêncio só derruba após 3 perguntas de verdade (`session/presenca.ts`).
