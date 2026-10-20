@@ -2,9 +2,11 @@ import { type Papel } from "./auth";
 import { type Claim, parseClaim } from "./claims";
 import { type QuadroConteudo, parseQuadroConteudo } from "./quadros";
 import {
+  CONTAINER_SLOTS,
   type ContainerTipo,
   parseContainerSalvo,
   parsePrecoEntry,
+  parseSlotsSalvos,
 } from "./containers";
 import { bytesDoChunk, escreverChunk, lerChunk, lerChunkCru } from "./chunkCodec";
 import { CHUNK_VOLUME, MAX_WORLD_CHUNKS } from "./constants";
@@ -104,6 +106,24 @@ export type ClientMessage =
   /** Container (§🍖 F10): o aluno fechou o painel. Sem isto o servidor
    *  continuaria mandando o conteúdo daquele bloco a cada tick pra sempre. */
   | { type: "fechar_container" }
+  /**
+   * §💰 BALCÃO DE VENDA (2026-10-20) — move item entre a mochila e o balcão, no
+   * índice UNIFICADO (`0..26` mochila, `27 + i` balcão), igual ao
+   * `mover_container`. **Sem x/y/z de propósito**: o balcão é do JOGADOR, não
+   * de uma célula do mundo, então o endereço é quem mandou a mensagem — e é por
+   * isso que não há gate de alcance nem de claim pra conferir aqui.
+   *
+   * O balcão tem de estar ABERTO (o `/vender` é que abre); fora disso o
+   * servidor ignora, como faz com o container fechado.
+   */
+  | { type: "mover_venda"; de: number; para: number; qtd?: number }
+  /** §💰 O aluno apertou **vender**: tudo que está no balcão vira Dimas. O
+   *  valor NÃO viaja na mensagem — quem soma é o servidor, senão o preço na
+   *  tela viraria o preço pago. */
+  | { type: "vender" }
+  /** §💰 Fechou o balcão. O que ficou dentro volta pra mochila (nada se perde),
+   *  e é o SERVIDOR que devolve — o cliente só fecha a tela. */
+  | { type: "fechar_venda" }
   /** Levantar da cama (bug-651, 2026-09-12): o aluno apertou PULAR deitado.
    *  Antes a única saída era andar até ficar a 2 células da cama — às cegas
    *  (a câmera fica no teto) e impossível em quarto apertado. */
@@ -451,6 +471,34 @@ export type ServerMessage =
     }
   | {
       /**
+       * §💰 BALCÃO DE VENDA (2026-10-20) — o estado do balcão DESTE jogador.
+       *
+       * Por JOGADOR, e não por posição como o `container`: dois alunos nunca
+       * olham o mesmo balcão, então não existe o problema de "item sumiu na
+       * cara do colega" que obrigou o `container` a ser endereçado por célula.
+       *
+       * ⚠️ **O `total` vem do servidor calculado.** O cliente poderia somar
+       * `precos` × quantidade sozinho, e aí haveria DUAS contas do mesmo número
+       * — o aluno confere na tela um total que não é o que o servidor vai pagar.
+       * A conta é uma só (`totalDoBalcao`), e ela mora no mesmo lado que paga.
+       */
+      type: "balcao";
+      slots: SlotSalvo[];
+      /** Preço unitário de cada id que está no balcão — é o que a tela mostra
+       *  ao lado de cada pilha. Só dos ids PRESENTES: a tabela inteira não
+       *  interessa a quem já escolheu o que vender. */
+      precos: { porItem: number; qtd: number }[];
+      /** O que o aluno vai receber se apertar vender AGORA, em Dimas. */
+      total: number;
+    }
+  | {
+      /** §💰 O servidor está FECHANDO o balcão deste cliente (vendeu, pediu pra
+       *  fechar, ou caiu). O que estava dentro já voltou pra mochila, e o
+       *  `inventario` novo vem junto. */
+      type: "balcao_fechado";
+    }
+  | {
+      /**
        * Container (§🍖 F10): o servidor está FECHANDO o painel deste cliente —
        * o bloco foi quebrado, o aluno se afastou, ou o claim mudou de dono. O
        * cliente fecha sem perguntar; sem isto, o painel ficaria aberto sobre
@@ -781,6 +829,24 @@ export function parseClientMessage(raw: string): ClientMessage | null {
     }
     case "fechar_container":
       return { type: "fechar_container" };
+    case "mover_venda": {
+      // §💰 Mesma régua do `mover_container`, sem a célula: o par de índices
+      // unificados, e a FAIXA deles fica pro `moverEntre` (que conhece o
+      // tamanho do balcão).
+      const ints = [m["de"], m["para"]];
+      if (!ints.every((n) => typeof n === "number" && Number.isInteger(n))) return null;
+      const qtd = m["qtd"];
+      return {
+        type: "mover_venda",
+        de: m["de"] as number,
+        para: m["para"] as number,
+        ...(typeof qtd === "number" && Number.isInteger(qtd) && qtd >= 1 ? { qtd } : {}),
+      };
+    }
+    case "vender":
+      return { type: "vender" };
+    case "fechar_venda":
+      return { type: "fechar_venda" };
     case "levantar":
       return { type: "levantar" };
     case "definir_preco": {
@@ -1142,6 +1208,28 @@ export function parseServerMessage(raw: string): ServerMessage | null {
     }
     case "container_fechado":
       return { type: "container_fechado" };
+    case "balcao": {
+      // §💰 Reusa os dois parses que já existem — `parseSlotsSalvos` (a mesma
+      // forma esparsa do save) e `parsePrecoEntry`. O `total` é conferido como
+      // inteiro ≥ 0: um total negativo na tela diria ao aluno que vender CUSTA.
+      const total = m["total"];
+      if (typeof total !== "number" || !Number.isInteger(total) || total < 0) return null;
+      const precos: { porItem: number; qtd: number }[] = [];
+      if (Array.isArray(m["precos"])) {
+        for (const e of m["precos"]) {
+          const parsed = parsePrecoEntry(e);
+          if (parsed) precos.push(parsed);
+        }
+      }
+      return {
+        type: "balcao",
+        slots: parseSlotsSalvos(m["slots"], CONTAINER_SLOTS.venda),
+        precos,
+        total,
+      };
+    }
+    case "balcao_fechado":
+      return { type: "balcao_fechado" };
     case "chat":
       if (typeof m["author"] !== "string" || typeof m["text"] !== "string") return null;
       return { type: "chat", author: m["author"], text: m["text"] };

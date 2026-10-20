@@ -43,6 +43,18 @@ interface Mudanca {
 const MUDANCAS: readonly Mudanca[] = [
   {
     // sem `data`: este é o build atual (ver rotuloDoBloco)
+    titulo: "Vender o que você colheu",
+    itens: [
+      "comando NOVO pra todo mundo: **`/vender`** — ele abre um balcão de venda, e o que você puser lá o jogo COMPRA de você em Dimas",
+      "o preço aparece ANTES: cada coisa que entra no balcão mostra quanto vale a unidade, e embaixo fica o total do que você vai receber. Só depois é que você aperta **vender**",
+      "o dinheiro sai do próprio jogo, não do bolso de um colega: até agora os Dimas da turma eram só os 50 da primeira entrada, e quem gastasse ficava sem jeito de ganhar mais. Agora dá pra plantar, colher e vender",
+      "os preços são BAIXOS de propósito (terra, pedra e madeira valem 1 Dimas; trigo 2; pão e carvão 3; lingote de ferro 6; ouro 10; diamante 20) — juntar pra comprar na loja do colega continua custando trabalho",
+      "tem preço o que você COLHE, cria ou derrete: bloco do chão, madeira, as plantações, algodão, carvão e os lingotes. Coisa FABRICADA (mesa, cama, porta, peça de circuito, picareta) não se vende — o balcão devolve e avisa",
+      "e nada se perde: o que ficar no balcão quando você fechar volta sozinho pra sua mochila",
+    ],
+  },
+  {
+    data: "20/10/2026",
     titulo: "O circuito sente o seu pé",
     itens: [
       "pe\u00e7a NOVA na aba circuito: a **placa de press\u00e3o**. Voc\u00ea PISA nela e o circuito liga; sai de cima e desliga \u2014 \u00e9 a primeira entrada que n\u00e3o se aciona com a m\u00e3o",

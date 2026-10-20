@@ -48,6 +48,7 @@ const COMANDOS: ComandoDef[] = [
   { nome: "amigos", de: "todos" },
   { nome: "grupo", de: "todos" },
   { nome: "terreno", de: "todos" },
+  { nome: "vender", de: "todos" },
   { nome: "tpp", de: "todos" },
   { nome: "tpa", de: "todos" },
   // Estes quatro são "de todos" porque CONSULTAR é de todos: o servidor só

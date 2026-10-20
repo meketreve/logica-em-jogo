@@ -1,5 +1,6 @@
 import { BlockId, isFornalha, podeEstarNaMochila } from "./blocks";
 import { ehCombustivel } from "./fornalha";
+import { podeSerVendido } from "./venda";
 import {
   INV_SLOTS,
   type Inventario,
@@ -26,8 +27,18 @@ import {
  * ordem do F10: fazer o baú antes obrigaria a escrever isto duas vezes.
  */
 
-/** Que tipo de container é este bloco? `null` = a célula não é container. */
-export type ContainerTipo = "fornalha" | "bau" | "loja";
+/**
+ * Que tipo de container é este bloco? `null` = a célula não é container.
+ *
+ * ⚠️ **"venda" é o único que NÃO é bloco** (§💰 2026-10-20): o balcão do
+ * `/vender` não fica no mundo, ele é do JOGADOR — mora em `ses.balcoes`, por
+ * nome, e nunca entra no save nem no mapa por posição. Ele é um `ContainerTipo`
+ * de todo jeito porque difere dos outros nas MESMAS três coisas de sempre
+ * (quantos slots, o que o destino aceita, como se desenha) e em nada mais: o
+ * `moverEntre`, o índice unificado e o painel do cliente servem aos quatro sem
+ * uma linha nova. `containerTipoDe` nunca o devolve — há teste disso.
+ */
+export type ContainerTipo = "fornalha" | "bau" | "loja" | "venda";
 
 /** Quantos slots cada tipo tem. A fornalha tem 3 (entrada · combustível ·
  *  saída); o baú tem 27, uma mochila inteira — é o mais simples de desenhar
@@ -37,6 +48,11 @@ export const CONTAINER_SLOTS: Readonly<Record<ContainerTipo, number>> = {
   bau: 27,
   /** Loja (2026-09-01): mesma grade do baú comum — o estoque É o inventário. */
   loja: 27,
+  /** §💰 Balcão de venda (2026-10-20): UMA linha de 9, não um baú de 27. É o
+   *  que caber de uma vez na conta que a criança confere antes de apertar
+   *  "vender" — e 9 é a largura da grade que a mochila já desenha, então a
+   *  linha sai inteira no tablet de 1024×600 sem rolar. */
+  venda: 9,
 };
 
 /** Os 3 slots da fornalha, por nome. O índice é a identidade deles no fio. */
@@ -51,6 +67,8 @@ export function containerTipoDe(blockId: number): ContainerTipo | null {
   if (isFornalha(blockId)) return "fornalha";
   if (blockId === BlockId.Bau) return "bau";
   if (blockId === BlockId.BauLoja) return "loja";
+  // §💰 NUNCA "venda": o balcão não é bloco nenhum. Se um dia virar bloco, é
+  // aqui que ele entra — e o teste que afirma isto é que vai pedir a mudança.
   return null;
 }
 
@@ -171,6 +189,30 @@ export function moverBloqueadoPorCombustivel(
 }
 
 /**
+ * §💰 (2026-10-20): o BALCÃO de venda só aceita o que tem preço. Devolve `true`
+ * quando o mover deve ser RECUSADO por isso — mesmo contrato do
+ * `moverBloqueadoPorCombustivel`, e pelo mesmo motivo: a session usa esta
+ * função pra dizer à criança POR QUE o item voltou, em vez de ela ver o item
+ * pular de volta sem explicação.
+ *
+ * Tirar do balcão é sempre livre (é desistir da venda); a trava é só na
+ * ENTRADA, exatamente como a do combustível.
+ */
+export function moverBloqueadoPorSemPreco(
+  mochila: Inventario,
+  c: Container,
+  de: number,
+  para: number,
+): boolean {
+  if (c.tipo !== "venda" || !ehSlotDeContainer(para)) return false;
+  const total = totalDeSlots(c.tipo);
+  if (!Number.isInteger(de) || de < 0 || para < 0 || de >= total || para >= total) return false;
+  const juntos: readonly Slot[] = [...mochila, ...c.slots];
+  const origem = juntos[de] ?? null;
+  return origem !== null && !podeSerVendido(origem.id);
+}
+
+/**
  * Move do índice unificado `de` pro `para`, atravessando (ou não) a fronteira
  * entre a mochila e o container. Devolve `null` quando NADA mudou — índice
  * fora da faixa, origem vazia, destino cheio da mesma pilha, ou o destino
@@ -184,6 +226,9 @@ export function moverBloqueadoPorCombustivel(
  * **O slot de combustível só queima o que queima.** Mesmo motivo: lenha e
  * carvão entram; grama, picareta e comida ficam de fora (o aviso pra criança
  * sai pela session, que usa `moverBloqueadoPorCombustivel`).
+ *
+ * **O balcão de venda só aceita o que tem preço** (§💰): mesma forma das duas
+ * regras acima — a UI não decide, ela só mostra o que o servidor devolveu.
  */
 export function moverEntre(
   mochila: Inventario,
@@ -197,6 +242,7 @@ export function moverEntre(
   if (de < 0 || para < 0 || de >= total || para >= total) return null;
   if (c.tipo === "fornalha" && para === INV_SLOTS + FORNALHA_SAIDA) return null;
   if (moverBloqueadoPorCombustivel(mochila, c, de, para)) return null;
+  if (moverBloqueadoPorSemPreco(mochila, c, de, para)) return null;
 
   const juntos: readonly Slot[] = [...mochila, ...c.slots];
   // §🧹 (playtest): `qtd` opcional = move só parte da pilha (a divisão do PC);
@@ -309,6 +355,35 @@ export function parsePrecoEntry(v: unknown): { porItem: number; qtd: number } | 
  * o mundo), e slot inválido dentro de um container válido é pulado sozinho —
  * uma pilha corrompida não custa o baú inteiro.
  */
+/**
+ * Lista ESPARSA de slots vinda do save ou do fio → só as entradas válidas.
+ * Slot doente é pulado, nunca derruba a lista: uma pilha corrompida não custa
+ * o baú inteiro.
+ *
+ * Extraído de `parseContainerSalvo` em 2026-10-20, quando o balcão de venda
+ * (§💰) passou a precisar do MESMO parse por outra mensagem. Duas cópias desta
+ * validação seriam duas chances de divergir — a mesma razão de `parsePrecoEntry`
+ * existir.
+ */
+export function parseSlotsSalvos(v: unknown, max: number): SlotSalvo[] {
+  const slots: SlotSalvo[] = [];
+  if (!Array.isArray(v)) return slots;
+  for (const e of v) {
+    if (typeof e !== "object" || e === null) continue;
+    const r = e as Record<string, unknown>;
+    const slot = r["slot"];
+    const id = r["id"];
+    const qtd = r["qtd"];
+    if (typeof slot !== "number" || !Number.isInteger(slot)) continue;
+    if (slot < 0 || slot >= max) continue;
+    if (typeof id !== "number" || !Number.isInteger(id) || id <= 0) continue;
+    if (typeof qtd !== "number" || !Number.isInteger(qtd) || qtd <= 0) continue;
+    if (qtd > tamanhoStack(id)) continue;
+    slots.push({ slot, id, qtd });
+  }
+  return slots;
+}
+
 export function parseContainerSalvo(v: unknown): ContainerSalvo | null {
   if (typeof v !== "object" || v === null) return null;
   const o = v as Record<string, unknown>;
@@ -318,23 +393,7 @@ export function parseContainerSalvo(v: unknown): ContainerSalvo | null {
   if (typeof z !== "number" || !Number.isInteger(z)) return null;
   const tipo = o["tipo"];
   if (tipo !== "fornalha" && tipo !== "bau" && tipo !== "loja") return null;
-  const max = CONTAINER_SLOTS[tipo];
-  const slots: SlotSalvo[] = [];
-  if (Array.isArray(o["slots"])) {
-    for (const e of o["slots"]) {
-      if (typeof e !== "object" || e === null) continue;
-      const r = e as Record<string, unknown>;
-      const slot = r["slot"];
-      const id = r["id"];
-      const qtd = r["qtd"];
-      if (typeof slot !== "number" || !Number.isInteger(slot)) continue;
-      if (slot < 0 || slot >= max) continue;
-      if (typeof id !== "number" || !Number.isInteger(id) || id <= 0) continue;
-      if (typeof qtd !== "number" || !Number.isInteger(qtd) || qtd <= 0) continue;
-      if (qtd > tamanhoStack(id)) continue;
-      slots.push({ slot, id, qtd });
-    }
-  }
+  const slots = parseSlotsSalvos(o["slots"], CONTAINER_SLOTS[tipo]);
   const queimando = inteiroNaoNegativo(o["queimando"]);
   const queimaTotal = inteiroNaoNegativo(o["queimaTotal"]);
   const progresso = inteiroNaoNegativo(o["progresso"]);

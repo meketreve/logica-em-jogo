@@ -796,6 +796,35 @@
       .loja-compra .loja-item span { flex: 1; }
       .loja-qtd, .loja-preco-input { width: 5em; }
       .loja-sem-estoque { font-size: 11px; opacity: 0.6; }
+      /* §💰 o rodapé do BALCÃO de venda (2026-10-20): o total e o botão.
+         Lado a lado e no MESMO lugar sempre — o aluno confere o número e aperta
+         ao lado, sem rolar. Em 1024×600 (a régua) a linha de 9 slots + este
+         rodapé caem acima da mochila. */
+      .venda-rodape {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+        flex-wrap: wrap;
+        width: 100%;
+        max-width: 470px;
+        margin: 6px auto 4px;
+      }
+      .venda-total {
+        margin: 0;
+        font-size: 15px;
+        font-weight: 600;
+        /* o total é o número que o aluno confere: ele não compete com o resto
+           do painel por atenção */
+        color: #ffd86b;
+      }
+      .venda-btn {
+        padding: 8px 16px;
+        font-size: 15px;
+        font-weight: 600;
+      }
+      /* desligado, não escondido: escondido faria a criança procurar o botão */
+      .venda-btn:disabled { opacity: 0.45; cursor: default; }
       .cont-barra {
         display: flex;
         align-items: center;

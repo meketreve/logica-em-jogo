@@ -133,6 +133,18 @@ export class ArrastoDeSlot {
   /** Liga ponteiro + clique a UM slot. O painel chama por botão, a cada render. */
   anexar(b: HTMLButtonElement, slot: number, id: number | null, qtd: number): void {
     b.dataset["slot"] = String(slot);
+    // O QUE está no slot, legível de fora (2026-10-20). O `data-slot` sozinho
+    // diz onde, nunca o quê: a sonda do balcão de venda tinha de deduzir o item
+    // pelo `src` do ícone, que é caminho de arquivo e não identidade. A regra do
+    // projeto é que UI só está feita quando uma sonda a ENXERGA — então o que a
+    // sonda precisa ver vem no DOM, não em heurística.
+    if (id === null) {
+      delete b.dataset["item"];
+      delete b.dataset["qtd"];
+    } else {
+      b.dataset["item"] = String(id);
+      b.dataset["qtd"] = String(qtd);
+    }
     b.addEventListener("pointerdown", (e) => this.pressionar(slot, id, qtd, e));
     b.addEventListener("click", (e) => this.clique(slot, id === null, e));
   }

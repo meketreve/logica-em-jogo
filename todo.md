@@ -1261,6 +1261,40 @@ não tem filesystem; export de "pasta" no single fica de fora (não faz sentido 
   provavelmente versão desatualizada — sem reprodução em ambiente atualizado. Plano de repro
   documentado no `.claude/context/BUGS.md` bug-661 se voltar a acontecer.
 
+## §💰 Venda ao sistema (2026-10-20)
+
+* \[x] **`/vender` — balcão de venda, de ponta a ponta — FEITO (2026-10-20).** Comando de
+  TODOS abre um painel (4º tipo do `ContainerPanel`); o aluno move item pra dentro, vê o preço
+  unitário sob cada slot e o TOTAL no rodapé, e só então aperta vender. O Dimas é **criado** —
+  é a primeira FONTE da economia (até aqui era só o saldo inicial, estoque fixo). Decisões dele:
+  escala baixa (chão/madeira 1 · plantação 2 · pão e carvão 3 · ferro 6 · ouro 10 · diamante 20),
+  **sem teto**, e ferramenta **não** se vende (durabilidade). Sonda: `npm run shots:venda`.
+* \[ ] **Compra do sistema: NÃO existe, e é decisão.** Quem vende item é a loja do colega — o
+  sistema só compra. Sem isso o baú-loja perde a razão de existir, que é o aluno precisar do
+  aluno. Se um dia virar pedido, é feature nova, não um "faltou".
+* \[ ] **Teto de venda por aluno/aula** — recusado em 2026-10-20 ("sem teto"). Reabrir só se a
+  aula mostrar aluno muito mais rico que a turma a ponto de a loja do colega perder a graça.
+  O que medir: quanto o mais rico tem no fim da aula × a mediana.
+* \[ ] **Preço que CAI conforme vende** (o 10º trigo vale menos que o 1º) — descartado por ser
+  o mais justo E o mais difícil de explicar pra criança de 10 anos. Fica anotado como a saída
+  caso o "sem teto" desande.
+* \[ ] **Luz colorida e curva de brilho no projetor** continuam pendentes de decisão dele
+  (ver §💡) — não têm relação com venda, só estavam na mesma fila.
+
+## §🔌 Quedas de tablet: é o aluno apertando "sair"? (2026-10-20)
+
+* \[ ] **O log não responde a pergunta hoje, e devia.** O usuário desconfia (2026-10-20) que
+  parte das quedas que sobraram do bug-675 é aluno tocando em `💾 salvar e voltar ao menu` sem
+  querer. **Não dá pra confirmar nem negar:** o `-eventos.log` não registra saída nenhuma — só
+  fala de servidor (`author: "servidor"`) vira linha, e ninguém anuncia "X saiu". Os motivos
+  (`silencio`, `substituido`) existem só como `console.log` no stdout do host, ou seja, na
+  janela do launcher que ninguém lê depois.
+  **Lote proposto (2 arquivos):** (1) registrar a saída no `-eventos.log` com o MOTIVO — botão ×
+  silêncio × substituído × socket caiu; (2) **confirmação no botão de sair quando está em
+  REDE** (no singleplayer não precisa: ele salva mesmo). O botão fica no mesmo overlay de pausa
+  do `▶ voltar ao jogo`, sem confirmação nenhuma — `client/index.html:1728`.
+  → **verify:** uma aula com o log novo diz quantos saíram por botão e quantos por silêncio.
+
 ## Modelo do jogador / animações (sessão atual, 2026-09-03)
 
 Ideia original do usuário: aula com escolas diferentes jogando juntas (rede entre escolas —

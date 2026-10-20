@@ -916,6 +916,14 @@ function handleServerData(data: string | ArrayBuffer): void {
       paineis.container?.atualizar(msg);
     } else if (msg.type === "container_fechado") {
       paineis.container?.fecharSemAvisar();
+    } else if (msg.type === "balcao") {
+      // §💰 O balcão de venda deste jogador. Mesma disciplina do `container`: é
+      // esta mensagem que ABRE o painel (o `/vender` só pede), e ela volta a
+      // cada mover com o total novo — o número que o aluno confere é sempre o
+      // que o servidor vai pagar.
+      paineis.container?.atualizarBalcao(msg);
+    } else if (msg.type === "balcao_fechado") {
+      paineis.container?.fecharSemAvisar();
     } else if (msg.type === "claims") {
       // cp24: proteção de áreas — wireframes pra todo mundo + habilita a varinha
       // do aluno quando ligada. O servidor é quem barra a edição de fato.
@@ -1605,6 +1613,14 @@ class GameRuntime {
           document.exitPointerLock();
         } else input.lock();
         updateOverlay();
+      },
+      // §💰 as três do BALCÃO: sem x/y/z, porque o balcão é do jogador e não de
+      // uma célula do mundo (ver `session/venda.ts`).
+      {
+        mover: (de, para, qtd) =>
+          this.activeConn.send(JSON.stringify({ type: "mover_venda", de, para, qtd })),
+        vender: () => this.activeConn.send(JSON.stringify({ type: "vender" })),
+        fechar: () => this.activeConn.send(JSON.stringify({ type: "fechar_venda" })),
       },
     );
 

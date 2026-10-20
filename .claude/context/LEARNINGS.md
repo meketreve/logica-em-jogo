@@ -11,6 +11,8 @@ tier: 3
 
 ## Preferências do usuário
 
+- **Comandos no chat com PAPEL e painel do dedo: APROVADO em aula** (2026-10-20, ele:
+  "ficaram bons, muito bons"). O padrão "lista ganha de digitação" se repete sem perguntar.
 - **Ele é o TI da escola e testa NA ESCOLA logo depois de cada push**, reportando na hora: eu
   empurro → ele joga com a turma → volta com bug e pedido misturados num parágrafo só. Separar
   o parágrafo em itens é comigo.
@@ -42,12 +44,13 @@ tier: 3
 
 ## Erros a não repetir
 
+- [2026-10-20] [economia] [✓] Venda ao sistema com preço escolhido no olho é máquina de Dimas: o PORTÃO (`venda.test.ts`) varre toda `RECEITAS` e toda `COZIMENTO` e reprova saída que vale mais que a entrada. Ele pegou 3 canos — `1 tronco → 4 tábuas`, `1 pedregulho → 2 cascalhos` e `1 tronco → 4 FOLHAS` (este eu não tinha visto). Preço é LISTA DE PERMISSÃO do que se COLHE: 233 ids podem estar numa mochila, precificar todos é insustentável e abre o cano.
+- [2026-10-20] [ui] [✓] Tipo novo no `ContainerPanel` se procura em TODO o `desenhar`, não só na lógica: o balcão nasceu com a faixa dizendo "▲ BAÚ" (ela deriva do tipo noutro trecho), e quem viu foi o PRINT, não a asserção. E slot de painel só tinha `data-slot` (ONDE) — `data-item`/`data-qtd` (O QUÊ) entraram pra sonda não deduzir item pelo `src` do ícone.
 - [2026-10-20] [sonda] [✗] Seção nova numa sonda de MUNDO COMPARTILHADO sem coluna própria e sem limpar o que criou — a da placa pôs a lâmpada em cima do fio da porta E e derrubou uma seção TRÊS telas adiante. O sintoma foi o A/B dar o MESMO número duas vezes, que nesta sonda é a assinatura de medir outra coisa.
 - [2026-10-20] [sonda] [✓] A/B de pixel exige CÂMERA PARADA: andar um bloco muda o tamanho da peça na tela e contamina a medida. Na placa, o controle virou TIRAR a peça de sob os pés (apagar célula com jogador dentro é permitido; criar não é).
 - [2026-10-19] [circuito] [✓] Peça que se PISA tem de sair do `isSolidBlock`: sólida, o portão do bug-605 ("jogador dentro de bloco sólido") RESGATA quem pisar e a peça nunca liga. E o `/bloco` (como o `place_block`) recusa criar bloco em célula com jogador — não dá pra nascer sob os próprios pés, o que muda o arranjo de qualquer sonda que a teste.
 - [2026-10-19] [luz] [✓] Luz suavizada por vértice = média de até 4 células POR CANTO, e as células que VEDAM são puladas (não contadas como zero): contá-las dá oclusão de canto, que é outra decisão de aparência e empasta em projetor. O atributo teve de virar Uint16 (dois canais em 1/16 de nível) — arredondar a média pro nível inteiro devolve o degrau que a suavização veio tirar.
-- [2026-10-19] [desenho] [✓] Diferença de estado que mora só na COR não existe em aula: projetor ruim, 1024×600 e daltonismo comem as três (alavanca ligada×desligada, fio, pino). A diferença tem de ser SILHUETA ou LUZ — e isso se prova no mesher (geometria, exata), não na sonda de pixel, que não separa cor de forma.
-- [2026-10-19] [desenho] [✓] "Conecta?" é UMA função (`ligacaoDoCondutor`), usada pelo motor E pelo mesher: desenho que não é a topologia do motor mostra fio ligado onde o sinal não passa — o pior defeito possível num jogo cujo produto é ENXERGAR a lógica.
+- [2026-10-19] [desenho] [✓] Estado que mora só na COR não existe em aula (projetor, 1024×600, daltonismo): tem de ser SILHUETA ou LUZ, e isso se prova no mesher (geometria), não na sonda de pixel. E "conecta?" é UMA função (`ligacaoDoCondutor`) usada pelo motor E pelo mesher — desenho fora da topologia mostra fio ligado onde o sinal não passa.
 - [2026-10-19] [circuito] [✓] Porta lógica se descreve por TABELA (`PORTAS` com o id base + `LIGA` com a regra), nunca por `isPortaX` por tipo: a OU entrou sem um `if` novo no motor, e `base + 4 + direção` deixou estado e frente saírem da aritmética. Porta nova = duas entradas na tabela.
 - [2026-10-19] [objetivo] [✓] Objetivo que checa CIRCUITO confere contra a FOTO da área, não contra o mundo: o alvo ("1 lâmpada") vem da foto, senão quebrar a lâmpada fechava o objetivo em 0/0. `comEstado(id, false)` canoniza o estado — ligado/desligado é o que o aluno TEM o direito de mudar; peça trocada é que é "fora do lugar".
 - [2026-10-19] [teste] [✗] `toContain` em frase que o SERVIDOR monta — deixou passar "objetivo concluído: objetivo concluído: X" (prefixo dos dois lados) e quem viu foi o PRINT da sonda. Frase inteira se afirma com `toEqual`.
@@ -61,8 +64,7 @@ tier: 3
 - [2026-10-15] [comandos] [✓] No painel do dedo, LISTA ganha de digitação: nó com candidatos vira NÍVEL (a turma em `/tpp`, `/amigos convidar`, `/expulsar`), e `preencher` só sobra onde ninguém pode listar (id e quantidade do `/dar`, sala vazia). Mandar o aluno pro teclado é o que o painel existe pra evitar.
 - [2026-10-15] [comandos] [✓] A árvore de comandos mora no SHARED (`comandos.ts`), ao lado do gate de `runCommand`: é o único lugar onde `npm test` roda, e o portão de paridade lê a lista do "Comando desconhecido" — comando novo no servidor sem entrada na tabela reprova no mesmo commit.
 - [2026-10-15] [mobile] [✓] "Botão escondido atrás do teclado" era LISTA, não geometria: a caixa sempre terminou acima do teclado — o que sumia eram os comandos do aluno no meio dos 26 do professor.
-- [2026-10-13] [presenca] [✓] Queda por silêncio se cobra por PERGUNTAS, nunca por relógio: host travado não conta contra o aluno — 3 perguntas carimbadas + janela da última (sobra do bug-675).
-- [2026-10-13] [presenca] [✓] Nome em jogo + PIN certo = TOMADA DE POSSE (quem volta entra na hora, o fantasma cai); o gate do bug-061 vira o ÚLTIMO passo — recusa clássica só pra nome online SEM identidade.
+- [2026-10-13] [presenca] [✓] Queda por silêncio se cobra por PERGUNTAS, nunca por relógio (3 carimbadas + janela da última); e nome em jogo + PIN certo = TOMADA DE POSSE — quem volta entra na hora, o fantasma cai, e o gate do bug-061 vira o ÚLTIMO passo.
 - [2026-10-13] [teste] [✓] Portão que lê artefato de RUNTIME não versionado derruba clone limpo — `it.skipIf(!existsSync(...))`; a cobertura incondicional fica com o que está no git.
 - [2026-10-15] [sonda] [✗] Bateria inteira sem olhar `git status` depois — `shots:fundo` é GERADORA (reescreve `menu-fundo/*.png`, ~5 MB versionados).
 - [2026-10-10] [sonda] [✓] Matar o Chrome pelo GRUPO (`detached` + SIGKILL — um filho regrava o perfil depois do `rmSync`); e rótulo de botão é ESTADO, não identidade: quem muda de nome leva `data-acao`.
@@ -76,10 +78,8 @@ tier: 3
   e desalinhei o `index.sh`, que ordena por data. Conferir com `date +%F`.
 - [2026-10-05] [voo] [✓] Estado do voo vale POR SAVE: nasce desligada, abre voando só se o modelo foi salvo com `/voo ligar` (o confinamento tem override pra `somenteLeitura`; o voo não pode ganhar um igual).
 - [2026-10-05] [log] [✓] Antes de "resolver arquivo grande", MEDIR o que o enche (o chat.log de 344 KB era 2434 linhas de `servidor:` e zero de aluno).
-- [2026-10-05] [shell] [✗] `pkill -f "tsx server/src/index.ts"` casa com o PRÓPRIO shell que o roda — matar por porta ou PID.
-- [2026-10-03] [teste] [✗] Provar portão do dist com mudança que a minificação engole — mexer em string VISÍVEL.
-- **Não aceitar "passou" sem CONTROLE NEGATIVO** — teste que passa com a feature desligada não testa nada.
-- **Não confiar em "typecheck 0" escrito no STATUS sem rodar.**
+- [2026-10-05] [shell] [✗] `pkill -f "tsx server/src/index.ts"` casa com o PRÓPRIO shell — matar por porta ou PID. E [2026-10-03] [teste] [✗] provar portão do dist com mudança que a minificação engole: mexer em string VISÍVEL.
+- **Não aceitar "passou" sem CONTROLE NEGATIVO** — teste que passa com a feature desligada não testa nada; e não confiar em "typecheck 0" escrito no STATUS sem rodar.
 - **Duas listas do mesmo conjunto é um bug esperando a próxima feature** — derivar de uma tabela só (§🪓 EXIGIR × ACELERAR).
 - **Asserção de smoke não pode correr contra o TICK** — esperar a condição, nunca um `sleep` seco.
 - **Nada de detector automático de bug** — `BUGS.md` é escrito à mão ou não é escrito.

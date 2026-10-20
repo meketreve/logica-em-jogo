@@ -37,7 +37,8 @@
     "shots:queda": "node scripts/queda-shot.mjs",
     "shots:quebra": "node scripts/quebra-shot.mjs",
     "shots:circuito": "node scripts/circuito-shot.mjs",
-    "shots:restaurar": "node scripts/restaurar-shot.mjs"
+    "shots:restaurar": "node scripts/restaurar-shot.mjs",
+    "shots:venda": "node scripts/venda-shot.mjs"
   },
   "devDependencies": {
     "typescript": "^7.0.2",

@@ -140,10 +140,15 @@ describe("o que o aluno VÊ no painel do dedo", () => {
     }
   });
 
-  it("vê os dez que são dele, com /painel e /amigos na frente", () => {
+  it("vê os onze que são dele, com /painel e /amigos na frente", () => {
     const lista = comandosPara("aluno");
     expect(lista.slice(0, 2)).toEqual(["painel", "amigos"]);
-    expect(lista).toHaveLength(10);
+    // ⚠️ O número é AFIRMADO de propósito: a lista do aluno tem de caber na
+    // caixa do tablet (1024×600) sem rolar, e foi um teste assim que pegou o
+    // §💰 `/vender` fazendo ela crescer de 10 pra 11. Comando novo "de todos"
+    // mexe neste número — e é aqui que alguém tem de olhar pro tablet de novo.
+    expect(lista).toHaveLength(11);
+    expect(lista).toContain("vender");
   });
 
   it("CONTROLE NEGATIVO: o professor continua vendo a lista inteira", () => {

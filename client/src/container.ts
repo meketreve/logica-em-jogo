@@ -46,6 +46,11 @@ export class ContainerPanel {
   /** Loja (2026-09-01): ausente pros tipos fornalha/bau. `qtd` sempre em
    *  Dimas (moeda decidida 2026-09-02 — sem item-por-item). */
   private loja: { criador: string; precos: { porItem: number; qtd: number }[]; souOCriador: boolean } | null = null;
+  /** §💰 Balcão de venda: o preço de cada id que está lá dentro e o TOTAL que o
+   *  servidor vai pagar. O total vem CALCULADO do servidor de propósito — somar
+   *  aqui daria duas contas do mesmo número, e o aluno confere na tela um
+   *  número que tem de ser o que ele recebe. */
+  private balcao: { precos: { porItem: number; qtd: number }[]; total: number } | null = null;
   /** Slot "pego" esperando destino, no índice UNIFICADO (ou null). */
   private pegando: number | null = null;
   /** §🧹 (playtest): quantas unidades a MÃO carrega numa pilha DIVIDIDA (clique
@@ -113,6 +118,17 @@ export class ContainerPanel {
     /** Avisa o servidor que o painel fechou (senão ele manda o conteúdo pra sempre). */
     private readonly avisarFechado: () => void,
     private readonly onToggle: (open: boolean) => void,
+    /**
+     * §💰 As três pontas do BALCÃO de venda (2026-10-20). Elas vêm juntas num
+     * objeto, e não como três parâmetros soltos, porque são do MESMO painel:
+     * o balcão é o 4º tipo deste mesmo componente, e o que ele tem de diferente
+     * é só não ter célula no mundo — então as mensagens dele não levam x/y/z.
+     */
+    private readonly venda: {
+      mover: (de: number, para: number, qtd?: number) => void;
+      vender: () => void;
+      fechar: () => void;
+    },
   ) {
     this.root?.addEventListener("click", (e) => {
       const btn = e.target instanceof HTMLElement ? e.target.closest("button") : null;
@@ -142,11 +158,11 @@ export class ContainerPanel {
         this.metadePegando = q;
       },
       mover: (de, para, qtd) => {
-        if (this.pos) this.mover(this.pos.x, this.pos.y, this.pos.z, de, para, qtd);
+        this.moverSlot(de, para, qtd);
       },
       sobreLixeira: (x, y) => lixeiraSob(x, y),
       descartar: (slot, qtd) => {
-        if (this.pos) this.descartar(this.pos.x, this.pos.y, this.pos.z, slot, qtd);
+        this.descartarSlot(slot, qtd);
       },
       redesenhar: () => this.render(),
       aoClicar: (slot, vazio, shift) => this.clicar(slot, vazio, shift),
@@ -162,8 +178,8 @@ export class ContainerPanel {
     b.textContent = `🗑️ descartar (${quantos})`;
     b.addEventListener("click", () => {
       const slot = this.pegando;
-      if (slot === null || !this.pos) return;
-      this.descartar(this.pos.x, this.pos.y, this.pos.z, slot, this.metadePegando ?? undefined);
+      if (slot === null) return;
+      this.descartarSlot(slot, this.metadePegando ?? undefined);
       this.pegando = null;
       this.metadePegando = null;
       this.render();
@@ -173,6 +189,36 @@ export class ContainerPanel {
 
   get open(): boolean {
     return this.isOpen;
+  }
+
+  /**
+   * §💰 Pede o MOVER ao servidor pela ponta certa deste tipo de painel.
+   *
+   * Antes de 2026-10-20 todo mover era `this.mover(pos…)`, e o `if (this.pos)`
+   * estava repetido em quatro lugares. O balcão de venda não tem célula no
+   * mundo — ele é do JOGADOR —, então "tem endereço?" deixou de ser a mesma
+   * pergunta que "tem posição?". Com as duas pontas num lugar só, o resto do
+   * painel (toque, arrasto, shift+clique) não sabe nem precisa saber a diferença.
+   */
+  private moverSlot(de: number, para: number, qtd?: number): void {
+    if (this.tipo === "venda") {
+      this.venda.mover(de, para, qtd);
+      return;
+    }
+    if (!this.pos) return;
+    this.mover(this.pos.x, this.pos.y, this.pos.z, de, para, qtd);
+  }
+
+  /** Joga fora — e o BALCÃO não tem lixeira: o aluno veio vender, não descartar
+   *  (e o que ele tirar do balcão volta pra mochila de graça). */
+  private descartarSlot(slot: number, qtd?: number): void {
+    if (this.tipo === "venda" || !this.pos) return;
+    this.descartar(this.pos.x, this.pos.y, this.pos.z, slot, qtd);
+  }
+
+  /** O painel tem pra onde mandar mensagem? O balcão TEM, mesmo sem `pos`. */
+  private get enderecavel(): boolean {
+    return this.tipo === "venda" || this.pos !== null;
   }
 
   /**
@@ -221,6 +267,37 @@ export class ContainerPanel {
     this.render();
   }
 
+  /**
+   * §💰 Conteúdo novo do BALCÃO de venda (`balcao`). Como no `atualizar`, é o
+   * servidor que ABRE o painel — aqui quem pede é o `/vender`.
+   *
+   * Não há "trocou de célula" pra conferir: o balcão é um só por jogador. E o
+   * `pos` fica NULL de propósito — é o que faz o `descartarSlot` e o campo de
+   * preço (coisas de célula) ficarem naturalmente de fora.
+   */
+  atualizarBalcao(msg: { slots: SlotSalvo[]; precos: { porItem: number; qtd: number }[]; total: number }): void {
+    if (this.esperandoFechar) return; // mensagem de ANTES do fechar não reabre
+    if (this.tipo !== "venda") this.pegando = null; // o item pego era de outro painel
+    this.pos = null;
+    this.tipo = "venda";
+    this.slots = new Array<SlotSalvo | null>(CONTAINER_SLOTS.venda).fill(null);
+    for (const sl of msg.slots) {
+      if (sl.slot >= 0 && sl.slot < this.slots.length) this.slots[sl.slot] = sl;
+    }
+    this.queimando = 0;
+    this.queimaTotal = 0;
+    this.progresso = 0;
+    this.loja = null;
+    this.balcao = { precos: msg.precos, total: msg.total };
+    if (!this.isOpen) {
+      this.isOpen = true;
+      this.root?.classList.remove("hidden");
+      window.addEventListener("keydown", this.onEsc, true);
+      this.onToggle(true);
+    }
+    this.render();
+  }
+
   /** Fecha e AVISA o servidor (o gesto do aluno: Esc, botão ou tecla). */
   fechar(): void {
     if (!this.isOpen) return;
@@ -229,7 +306,11 @@ export class ContainerPanel {
     // virado null, e o edit morria calado — sempre o do ÚLTIMO campo. Manda
     // ANTES do `fechar_container`: o servidor só aceita preço com a loja aberta.
     this.enviarPrecosPendentes();
-    this.avisarFechado();
+    // §💰 O balcão fecha pela porta dele: o servidor DEVOLVE o que ficou dentro
+    // (o `fechar_container` não devolveria nada, e o trabalho da criança ficaria
+    // preso num painel que ninguém vê).
+    if (this.tipo === "venda") this.venda.fechar();
+    else this.avisarFechado();
     this.fecharSemAvisar();
     // ...e o `container_fechado` do servidor é que solta este freio.
     this.esperandoFechar = true;
@@ -242,6 +323,7 @@ export class ContainerPanel {
     if (!this.isOpen) return;
     this.isOpen = false;
     this.pos = null;
+    this.balcao = null;
     this.pegando = null;
     // sem isto o fantasma da divisão (clique direito) ficava na tela depois de
     // o painel sumir — bug-609, o mesmo do inventário
@@ -260,6 +342,16 @@ export class ContainerPanel {
 
   /** Rótulo do slot da fornalha — sem ele os 3 quadrados são um enigma. */
   private rotuloDoSlot(i: number): string {
+    if (this.tipo === "venda") {
+      // §💰 O rótulo do slot do balcão é o PREÇO UNITÁRIO daquela pilha. Ele
+      // fica embaixo de cada quadrado (onde a fornalha põe "cozinhar"), e é o
+      // que responde "por que o diamante vale mais que o trigo?" sem o aluno
+      // ter de somar nada de cabeça.
+      const sl = this.slots[i] ?? null;
+      if (!sl) return "";
+      const p = this.balcao?.precos.find((e) => e.porItem === sl.id);
+      return p ? `${p.qtd} cada` : "";
+    }
     if (this.tipo !== "fornalha") return "";
     if (i === FORNALHA_ENTRADA) return "cozinhar";
     if (i === FORNALHA_COMBUSTIVEL) return "queimar";
@@ -427,8 +519,8 @@ export class ContainerPanel {
     } else if (this.pegando === unificado) {
       this.pegando = null; // tocar de novo solta
       this.metadePegando = null;
-    } else if (this.pos) {
-      this.mover(this.pos.x, this.pos.y, this.pos.z, this.pegando, unificado, this.metadePegando ?? undefined);
+    } else if (this.enderecavel) {
+      this.moverSlot(this.pegando, unificado, this.metadePegando ?? undefined);
       this.metadePegando = null;
       this.pegando = null;
     }
@@ -441,7 +533,7 @@ export class ContainerPanel {
    * hotbar/grade. O servidor valida e aplica; se nada aceitar, nada muda.
    */
   private moverRapido(unificado: number): void {
-    if (this.pos === null) return;
+    if (!this.enderecavel) return;
     const naMochila = unificado < INV_SLOTS;
     let id: number | null;
     let qtd: number;
@@ -462,12 +554,12 @@ export class ContainerPanel {
         id,
       );
       if (para === null) return;
-      this.mover(this.pos.x, this.pos.y, this.pos.z, unificado, INV_SLOTS + para);
+      this.moverSlot(unificado, INV_SLOTS + para);
     } else {
       const inv = this.mochila.estado();
       const para = primeiroLugar(inv, 0, INV_SLOTS, id);
       if (para === null) return;
-      this.mover(this.pos.x, this.pos.y, this.pos.z, unificado, para);
+      this.moverSlot(unificado, para);
     }
   }
 
@@ -560,6 +652,39 @@ export class ContainerPanel {
     }
   }
 
+  /**
+   * §💰 O rodapé do balcão: quanto o aluno recebe, e o botão.
+   *
+   * O TOTAL vem do servidor (`balcao.total`) — não é somado aqui. O botão fica
+   * DESLIGADO com o balcão vazio em vez de escondido: escondido faria a criança
+   * procurar o que fazer; desligado, ela vê que falta pôr coisa.
+   */
+  private balcaoRodape(): HTMLElement {
+    const wrap = document.createElement("div");
+    wrap.className = "venda-rodape";
+    const total = this.balcao?.total ?? 0;
+
+    const conta = document.createElement("p");
+    conta.className = "venda-total";
+    conta.dataset["total"] = String(total); // a SONDA lê este número
+    conta.textContent = total > 0 ? `você recebe ${total} Dimas` : "balcão vazio";
+    wrap.appendChild(conta);
+
+    const b = document.createElement("button");
+    b.type = "button";
+    b.className = "venda-btn";
+    b.dataset["acao"] = "vender"; // rótulo é ESTADO; a identidade é o data-acao
+    b.textContent = total > 0 ? `💰 vender por ${total}` : "💰 vender";
+    b.disabled = total <= 0;
+    b.addEventListener("click", () => {
+      this.pegando = null; // vendeu: a mão esvazia junto com o balcão
+      this.metadePegando = null;
+      this.venda.vender();
+    });
+    wrap.appendChild(b);
+    return wrap;
+  }
+
   private desenhar(): void {
     // mão vazia = sem fantasma na tela (bug-609)
     this.arrasto.sincronizar();
@@ -568,7 +693,13 @@ export class ContainerPanel {
 
     const head = document.createElement("h2");
     head.textContent =
-      this.tipo === "fornalha" ? "fornalha" : this.tipo === "loja" ? "loja" : "baú";
+      this.tipo === "fornalha"
+        ? "fornalha"
+        : this.tipo === "loja"
+          ? "loja"
+          : this.tipo === "venda"
+            ? "balcão de venda"
+            : "baú";
 
     const fechar = document.createElement("button");
     fechar.type = "button";
@@ -580,7 +711,9 @@ export class ContainerPanel {
     dica.className = "inv-dica";
     dica.textContent =
       this.pegando === null
-        ? "toque num item para pegar, depois toque onde ele deve ficar"
+        ? this.tipo === "venda"
+          ? "ponha aqui o que você quer vender — o total aparece embaixo, e nada é vendido até você apertar vender"
+          : "toque num item para pegar, depois toque onde ele deve ficar"
         : this.metadePegando !== null
           ? `agora toque no destino (leva ${this.metadePegando} do item) — ou no mesmo item para soltar`
           : "agora toque no destino (ou no mesmo item para soltar)";
@@ -645,6 +778,9 @@ export class ContainerPanel {
       ...(precoEditor ? [precoEditor] : []),
     );
 
+    // --- §💰 o TOTAL e o botão vender (só o balcão) ---
+    if (this.tipo === "venda") root.appendChild(this.balcaoRodape());
+
     // --- a barra de fogo e a de cozimento (só a fornalha) ---
     if (this.tipo === "fornalha") {
       root.appendChild(
@@ -661,7 +797,20 @@ export class ContainerPanel {
     // primeira vez não tem como saber onde acaba um e começa o outro — e o erro
     // é caro, porque tirar da metade errada é dar o item pro baú da colega.
     // Uma faixa com o nome dos dois lados resolve sem custar altura de painel.
-    root.append(this.divisor(this.tipo === "fornalha" ? "fornalha" : "baú", "sua mochila"));
+    // O lado de CIMA tem o nome do painel: "baú" sobre o balcão de venda diria à
+    // criança que ela está guardando coisa, que é o contrário do que ela faz ali.
+    root.append(
+      this.divisor(
+        this.tipo === "fornalha"
+          ? "fornalha"
+          : this.tipo === "loja"
+            ? "loja"
+            : this.tipo === "venda"
+              ? "balcão"
+              : "baú",
+        "sua mochila",
+      ),
+    );
 
     // --- a mochila, embaixo: a grade de 18 e a faixa da hotbar de 9 ---
     const grade = document.createElement("div");

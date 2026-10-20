@@ -151,6 +151,13 @@ import {
   tickDormir,
 } from "./session/dormir";
 import { aplicarCompra, aplicarDefinirPreco, sendDimas } from "./session/loja";
+import {
+  abrirBalcao,
+  aplicarMoverVenda,
+  aplicarVender,
+  esquecerBalcao,
+  fecharBalcao,
+} from "./session/venda";
 import { runRegiao } from "./session/regioes";
 import { ehFantasma, runInvisivel } from "./session/invisivel";
 import { avisarChatSilenciado, avisarComFreio, avisarEmogisDesligados } from "./session/avisos";
@@ -482,6 +489,19 @@ export class GameSession {
    *  sobrevive a desconexão (crédito de venda funciona com o criador
    *  offline) e persiste no roster do save. */
   readonly dimas = new Map<string, number>();
+  /**
+   * §💰 O balcão de venda de cada jogador, por NOME (2026-10-20).
+   *
+   * ⚠️ **NÃO vai pro save, de propósito.** O conteúdo volta pra mochila quando
+   * o painel fecha (inclusive na queda de conexão), então não há nada pra
+   * persistir — ver o cabeçalho de `session/venda.ts`. Por nome (e não por
+   * clientId) só pra sobreviver ao fecho do painel quando a mochila está cheia:
+   * o resto fica guardado até o aluno abrir o `/vender` de novo.
+   */
+  readonly balcoes = new Map<string, Container>();
+  /** Quem está com o balcão de venda ABERTO. É o único gate do `mover_venda`
+   *  e do `vender` — o balcão não tem posição pra conferir alcance. */
+  readonly balcaoAberto = new Set<number>();
   private readonly dimasInicial: number;
   /** Poses de `move` esperando o PRÓXIMO tick virar `players_moved` (2026-08-31,
    *  bug-650). Chave = autor; só a ÚLTIMA pose do tick sobrevive (Map dedupe) —
@@ -1708,6 +1728,29 @@ export class GameSession {
         acordar(this, clientId);
         break;
       }
+      case "mover_venda": {
+        // §💰 Balcão de venda: sem célula, sem alcance, sem claim — o balcão é
+        // do JOGADOR. O que sobra de gate é o painel estar ABERTO e o
+        // inventário valer (criativo tem paleta infinita; vender dela seria
+        // imprimir Dimas do nada).
+        if (!this.players.has(clientId) || !inventarioVale(this, clientId)) return;
+        const erro = aplicarMoverVenda(this, clientId, msg.de, msg.para, msg.qtd);
+        if (erro) this.sendServerChat(clientId, erro);
+        break;
+      }
+      case "vender": {
+        if (!this.players.has(clientId) || !inventarioVale(this, clientId)) return;
+        const erro = aplicarVender(this, clientId);
+        if (erro) this.sendServerChat(clientId, erro);
+        break;
+      }
+      case "fechar_venda": {
+        // Devolve o que ficou no balcão e CONFIRMA o fecho — mesma razão do
+        // `fechar_container` (bug-593): sem a resposta o cliente não sabe que
+        // os `balcao` ainda no fio são de um painel que o servidor esqueceu.
+        fecharBalcao(this, clientId);
+        break;
+      }
       case "fechar_container": {
         // CONFIRMA (bug-593). Sem a resposta o cliente não tem como saber quais
         // `container` ainda vêm por aí: a fornalha cozinhando manda 10×/s, e os
@@ -1913,6 +1956,23 @@ export class GameSession {
       }
       case "terreno":
         return runClaim(this, clientId, parts);
+      case "vender": {
+        // §💰 (2026-10-20) Abre o BALCÃO de venda deste aluno. O comando não
+        // vende nada sozinho de propósito: o aluno põe no balcão, CONFERE o
+        // total na tela e só então aperta vender — decisão do usuário, e é o
+        // que impede "vendi sem ver quanto" numa turma de 10 anos.
+        //
+        // Fora da sobrevivência não vende: no criativo a paleta é infinita, e
+        // vender dela seria imprimir Dimas do nada.
+        if (!inventarioVale(this, clientId)) {
+          return "No modo criativo não dá pra vender: você já tem todos os blocos. O balcão é do modo sobrevivência.";
+        }
+        abrirBalcao(this, clientId);
+        // `runCommand` sempre responde em chat (o retorno VAI pro chat), então
+        // a resposta é a instrução — e ela é curta porque o painel já mostra o
+        // preço de cada pilha e o total.
+        return "Balcão aberto: ponha nele o que você quer vender e confira o total antes de apertar vender.";
+      }
       case "amigos":
         return runAmigos(this, clientId, parts);
       case "painel": {
@@ -1937,7 +1997,7 @@ export class GameSession {
         return runSilenciar(this, parts);
       }
       default:
-        return `Comando desconhecido: ${text}. Os comandos disponíveis são /bloco, /redefinirpin, /regiao, /objetivo, /grupo, /aula, /tp, /tpp, /tpa, /iniciar, /hora, /ciclo, /vento, /voo, /modo, /regra, /pvp, /dar, /terreno, /amigos, /painel, /invisivel, /confinar e /silenciar.`;
+        return `Comando desconhecido: ${text}. Os comandos disponíveis são /bloco, /redefinirpin, /regiao, /objetivo, /grupo, /aula, /tp, /tpp, /tpa, /iniciar, /hora, /ciclo, /vento, /voo, /modo, /regra, /pvp, /dar, /terreno, /vender, /amigos, /painel, /invisivel, /confinar e /silenciar.`;
     }
   }
 
@@ -2577,6 +2637,7 @@ export class GameSession {
 
   handleDisconnect(clientId: number): void {
     esquecerSinal(this, clientId); // bug-672: não vigiar quem já saiu
+    esquecerBalcao(this, clientId); // §💰 o que estava no balcão volta pra mochila
     this.quebrando.delete(clientId); // §🔨 v2: quebra em curso morre com a conexão
     this.stream.delete(clientId); // interesse de streaming morre com a conexão
     this.dormindo.delete(clientId); // quem saiu não conta na maioria (reavalia no fim)

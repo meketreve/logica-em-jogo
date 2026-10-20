@@ -14,6 +14,10 @@ active: true
 > ⚠️ **A fila de código está PARADA de propósito.** São seis lotes do §🔌 sem aula nenhuma; a
 > próxima aula vale mais que o próximo lote. O que está abaixo só começa depois dela.
 
+- [x] **§💰 `/vender` — o balcão de venda** (2026-10-20): a primeira FONTE de Dimas. Painel
+      (4º tipo do `ContainerPanel`), preço unitário sob cada slot, total no rodapé, vender
+      CRIA o Dimas. Portão varre toda receita/cozimento contra máquina de Dimas.
+      ✓ verify + `npm run shots:venda` (25 asserções).
 - [ ] **§🔌 fase 1** (spec na seção §🔌 do `todo.md` da raiz): **botão** (pulso — precisa de
       prazo por célula, que o motor não tem) e **porta automática** (1ª saída que não é luz;
       mexe no gate de claim) → **verify:** seção nova na `shots:circuito`, no molde da C3.
@@ -33,8 +37,12 @@ active: true
       grupo seguinte?) · **peças** (E só com as DUAS, OU com UMA; dá pra diferenciar E de OU
       olhando a mesa? aluno sem terreno é barrado com a frase do chat?).
 
-- [ ] **Lote de 15/10:** no tablet, a lista de comandos do ALUNO (10) cabe **sem rolar e sem
-      sumir atrás do teclado**? Se sumir, anotar **se o CAMPO de digitar some junto** (aí é o
+- [ ] **§💰 o balcão, na aula:** `/vender` com trigo na mão — a criança entende que pôr no
+      balcão **não** é vender? O total em amarelo é lido antes de ela apertar? O "2 cada" sob o
+      slot responde "por que diamante vale mais"? E a frase da tábua recusada ("só compra o que
+      você COLHE") faz sentido pra ela, ou ela acha que o jogo travou?
+- [ ] **Lote de 15/10:** no tablet, a lista de comandos do ALUNO — agora **11**, o `/vender`
+      entrou — cabe **sem rolar e sem sumir atrás do teclado**? Se sumir, anotar **se o CAMPO de digitar some junto** (aí é o
       `--kb` do aparelho, em `chat.ts`). E G / 👥 / `/amigos` abrem o MESMO painel.
 
 - [ ] **Lote de 10/10:** Ctrl+C num mundo cheio e reabrir; e o botão **restaurar** no mundo convertido do singleplayer.
