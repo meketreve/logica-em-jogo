@@ -444,6 +444,55 @@ criar_procedural() {
   echo "(mundo procedural: mundos/$PNOME/)"
 }
 
+# --- Sub-rotina: criar um mundo PLANO (base para montar aulas) --------------
+# Pedido do usuário (2026-10-20): "um mundo plano pra ser usado como base para
+# aulas". O servidor já sabia fazer (`LJ_PRESET=plano`); o que faltava era o
+# professor conseguir pedir sem digitar variável de ambiente.
+#
+# ⚠️ **O plano NÃO aceita o tamanho E (procedural).** Mundo gigante é LAZY: ele
+# nasce vazio e o terreno é gerado conforme o aluno anda, e esse caminho ignora
+# o preset (`generateWorldForPreset`: `if (ehMundoLazy(dims)) return ...`). Pedir
+# "plano gigante" devolveria um mundo com morro, que é o contrário do pedido —
+# por isso o tamanho é perguntado AQUI, só com P/M/G, e o menu geral é pulado.
+criar_plano() {
+  echo
+  echo "Mundo PLANO: terreno todo liso, sem morro, caverna nem árvore."
+  echo "É a folha em branco pra você montar a aula em cima."
+  read -r -p "Nome do mundo (Enter = 'base-aula'): " PLNOME
+  [ -z "$PLNOME" ] && PLNOME="base-aula"
+  PLNOME="${PLNOME// /-}"   # sem espaços (o nome vira a pasta em mundos/)
+  # ⚠️ Nome começado em "aula" = mundo REUTILIZÁVEL (`ehMundoDeAula`, em
+  # `server/src/paths.ts`): ele nunca salva o que a turma fez, e começa sempre
+  # do modelo. Pra uma aula PRONTA isso é a graça; pra uma base que o professor
+  # ainda vai CONSTRUIR é a perda do trabalho dele — e sem este aviso o defeito
+  # só apareceria no fim da tarde, com tudo apagado.
+  while [ "$(printf '%s' "$PLNOME" | cut -c1-4 | tr 'A-Z' 'a-z')" = "aula" ]; do
+    echo
+    echo "ATENÇÃO: mundo cujo nome começa com \"aula\" é REUTILIZÁVEL — ele volta"
+    echo "ao estado original a cada turma e NÃO guarda o que for construído nele."
+    echo "Pra montar a base da aula você precisa de um mundo que SALVE."
+    read -r -p "Escolha outro nome (Enter = 'base-aula'): " PLNOME
+    [ -z "$PLNOME" ] && PLNOME="base-aula"
+    PLNOME="${PLNOME// /-}"
+  done
+  export LJ_SAVE="mundos/$PLNOME/$PLNOME.ljw"
+  export LJ_PRESET="plano"
+  echo
+  echo "Tamanho do mundo plano:"
+  echo "   [P] pequeno 128x128        (padrão)"
+  echo "   [M] médio 192x192"
+  echo "   [G] grande 256x256         (exige PC melhor)"
+  read -r -p "Escolha P/M/G (Enter = P pequeno): " PLTAM
+  case "$PLTAM" in
+    [mM]) export LJ_TAMANHO="M" ;;
+    [gG]) export LJ_TAMANHO="G" ;;
+    *) export LJ_TAMANHO="P" ;;
+  esac
+  PULAR_TAMANHO=1   # o tamanho já foi escolhido aqui (e sem a opção E)
+  echo
+  echo "(mundo plano: mundos/$PLNOME/ — reabra depois pela opção [8])"
+}
+
 # --- Qual mundo abrir ---
 echo "Escolha o mundo:"
 echo "   [1] Mundo livre (construção livre)   <-- padrão"
@@ -455,6 +504,7 @@ echo "   [6] Aula 5 — Conserte o desenho"
 echo "   [7] Aula 6 — Siga o manual"
 echo "   [8] Carregar mundo salvo (da pasta mundos/)"
 echo "   [9] Criar mundo PROCEDURAL (gigante, gera conforme você explora)"
+echo "  [10] Criar mundo PLANO (terreno liso — base para montar aulas)"
 echo
 read -r -p "Digite o número e tecle Enter (Enter direto = 1): " ESCOLHA
 
@@ -497,6 +547,7 @@ case "$ESCOLHA" in
     fi
     ;;
   9) criar_procedural ;;
+  10) criar_plano ;;
   *) export LJ_SAVE="mundos/mundo-livre/mundo-livre.ljw" ;;
 esac
 

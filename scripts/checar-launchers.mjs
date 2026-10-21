@@ -151,5 +151,48 @@ console.log("portão dos launchers (bug-621):");
   }
 }
 
+// --- 7. opção de mundo existe nos DOIS launchers -----------------------
+// Mesma razão do teste 5: a escola roda `.bat` no laboratório e `.sh` no
+// notebook do professor. Opção de menu que entra num só deixa metade das
+// máquinas sem ela, e nada quebra — some em silêncio, que é o pior jeito.
+//
+// ⚠️ Também se confere o que o plano NÃO pode ter: o preset "plano" é ignorado
+// no tamanho E (mundo lazy nasce vazio e gera o terreno andando —
+// `generateWorldForPreset`). Se alguém oferecer "plano gigante", o professor
+// recebe um mundo com morro e nenhum teste reclamaria.
+{
+  const bat = ler("iniciar-servidor.bat").toString("utf8");
+  const sh = ler("iniciar-servidor.sh").toString("utf8");
+  for (const [nome, txt] of [["bat", bat], ["sh", sh]]) {
+    // ⚠️ A ATRIBUIÇÃO, não a menção. A 1ª versão deste portão pedia
+    // `includes("LJ_PRESET") && /plano/i` e PASSAVA com a feature desligada: os
+    // dois achados estavam nos COMENTÁRIOS que explicam a opção. Foi o controle
+    // negativo (tirar `set "LJ_PRESET=plano"` do .bat) que mostrou.
+    const atribui =
+      nome === "bat" ? /set "LJ_PRESET=plano"/ : /export LJ_PRESET="plano"/;
+    const temPlano = atribui.test(txt);
+    ok(
+      temPlano,
+      `iniciar-servidor.${nome} oferece o mundo PLANO (base de aula)`,
+      temPlano ? "" : "a opção de mundo plano tem de existir nos DOIS launchers, senão metade das máquinas fica sem ela",
+    );
+    // A pergunta de tamanho DO PLANO não pode listar o E.
+    // ⚠️ Procura a DEFINIÇÃO da sub-rotina, não a primeira menção: no `.bat` a
+    // 1ª ocorrência é a CHAMADA (`call :criar_plano`), lá no menu, e a janela
+    // seguinte pega o menu de tamanho GERAL — que oferece o E com toda razão.
+    // Foi esse o falso positivo da 1ª versão deste portão.
+    const def = nome === "bat" ? /\n:criar_plano\b/ : /\ncriar_plano\(\)/;
+    const i = txt.search(def);
+    const corpo = i < 0 ? "" : txt.slice(i, i + 2000);
+    const ofereceE = /Escolha P\/M\/G\/E/i.test(corpo);
+    ok(i >= 0, `iniciar-servidor.${nome} define a sub-rotina do mundo plano`);
+    ok(
+      !ofereceE,
+      `iniciar-servidor.${nome} não oferece tamanho E pro mundo plano`,
+      ofereceE ? "mundo lazy (E) IGNORA o preset: 'plano gigante' devolveria terreno com morro" : "",
+    );
+  }
+}
+
 console.log(falhas === 0 ? "  launchers OK" : `  ✗ ${falhas} falha(s) no portão dos launchers`);
 process.exit(falhas === 0 ? 0 : 1);

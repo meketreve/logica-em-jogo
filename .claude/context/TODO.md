@@ -25,7 +25,7 @@ active: true
       lote grande) e a curva de brilho no projetor (só se afina vendo).
 
 
-## Testar na escola (o usuário faz; aula de 10/10 cobriu parte)
+## Testar na escola — **AULA DE 21/10, ele traz os logs**
 
 - [ ] **§🔌 — a AULA que decide tudo (6 lotes sem teste).** Roteiro, do mais novo pro mais velho:
       **placa** (fabricar com 2 pedregulhos, pisar; dá pra ver que afundou? duas placas numa
@@ -37,6 +37,9 @@ active: true
       grupo seguinte?) · **peças** (E só com as DUAS, OU com UMA; dá pra diferenciar E de OU
       olhando a mesa? aluno sem terreno é barrado com a frase do chat?).
 
+- [ ] **Launcher [10] mundo PLANO:** criar um, construir a base da aula em cima, reabrir pela
+      opção [8] e conferir que o que ele construiu está lá. (O terreno liso e a recusa do nome
+      "aula" já foram provados aqui; o que falta é o uso real.)
 - [ ] **§💰 o balcão, na aula:** `/vender` com trigo na mão — a criança entende que pôr no
       balcão **não** é vender? O total em amarelo é lido antes de ela apertar? O "2 cada" sob o
       slot responde "por que diamante vale mais"? E a frase da tábua recusada ("só compra o que

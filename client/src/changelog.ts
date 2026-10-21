@@ -43,6 +43,16 @@ interface Mudanca {
 const MUDANCAS: readonly Mudanca[] = [
   {
     // sem `data`: este é o build atual (ver rotuloDoBloco)
+    titulo: "Um mundo PLANO para montar a sua aula",
+    itens: [
+      "opção nova no iniciar-servidor (**[10] Criar mundo PLANO**): um terreno todo liso, sem morro, caverna nem árvore — a folha em branco para você montar a aula em cima",
+      "você dá um nome e escolhe o tamanho; o mundo nasce em modo criativo, com todos os blocos à mão, e fica salvo em `mundos/` como qualquer outro (reabre pela opção [8])",
+      "o plano não tem tamanho “procedural”: um mundo que se gera conforme você anda não pode ser liso, então aqui as opções são pequeno, médio e grande",
+      "e o launcher avisa se você der ao mundo um nome começado em “aula”: esses são os mundos REUTILIZÁVEIS, que voltam ao estado original a cada turma — e por isso não guardariam nada do que você construísse",
+    ],
+  },
+  {
+    data: "20/10/2026",
     titulo: "O tablet para de cair do jogo",
     itens: [
       "**a tela cheia agora se SEGURA**: quando ela caía (e no tablet ela cai só de encostar no “voltar”), a barra de botões do aparelho reaparecia e ninguém a trazia de volta — bastava uma palma da mão na barra pra criança sair do jogo sem querer. Agora o jogo volta pra tela cheia sozinho no toque seguinte",

@@ -394,6 +394,7 @@ echo    [6] Aula 5 - Conserte o desenho
 echo    [7] Aula 6 - Siga o manual
 echo    [8] Carregar mundo salvo ^(da pasta mundos^)
 echo    [9] Criar mundo PROCEDURAL ^(gigante, gera conforme voce explora^)
+echo   [10] Criar mundo PLANO ^(terreno liso - base para montar aulas^)
 echo    [0] Sair sem iniciar o servidor
 echo.
 set "ESCOLHA="
@@ -414,6 +415,7 @@ if "%ESCOLHA%"=="6" set "LJ_SAVE=cenarios/aula5-simetria.ljw"
 if "%ESCOLHA%"=="7" set "LJ_SAVE=cenarios/aula6-manual.ljw"
 if "%ESCOLHA%"=="8" call :carregar_salvo
 if "%ESCOLHA%"=="9" call :criar_procedural
+if "%ESCOLHA%"=="10" call :criar_plano
 if not defined LJ_SAVE set "LJ_SAVE=mundos/mundo-livre/mundo-livre.ljw"
 
 REM --- Codigo do professor (opcional) ---
@@ -511,6 +513,58 @@ set "PNOME=%PNOME: =-%"
 set "LJ_SAVE=mundos/%PNOME%/%PNOME%.ljw"
 set "LJ_TAMANHO=E"
 echo ^(mundo procedural: mundos\%PNOME%\^)
+goto :eof
+
+REM --- Sub-rotina: criar um mundo PLANO (base para montar aulas) ---
+REM Pedido do usuario (2026-10-20): "um mundo plano pra ser usado como base
+REM para aulas". O servidor ja sabia fazer (LJ_PRESET=plano); faltava o
+REM professor conseguir pedir sem digitar variavel de ambiente.
+REM
+REM ATENCAO: o plano NAO aceita o tamanho E (procedural). Mundo gigante e LAZY:
+REM nasce vazio e o terreno e gerado conforme o aluno anda, e esse caminho
+REM ignora o preset (generateWorldForPreset). Pedir "plano gigante" devolveria
+REM um mundo com morro, que e o contrario do pedido - por isso o tamanho e
+REM perguntado AQUI, so com P/M/G, e o menu geral e pulado.
+:criar_plano
+echo.
+echo Mundo PLANO: terreno todo liso, sem morro, caverna nem arvore.
+echo E a folha em branco pra voce montar a aula em cima.
+:pedir_nome_plano
+set "PLNOME="
+set /p "PLNOME=Nome do mundo (Enter = 'base-aula'): "
+if not defined PLNOME set "PLNOME=base-aula"
+REM sem espacos no nome (vira o nome da pasta em mundos\)
+set "PLNOME=%PLNOME: =-%"
+REM Nome comecado em "aula" = mundo REUTILIZAVEL (ehMundoDeAula, em
+REM server/src/paths.ts): ele nunca salva o que a turma fez e comeca sempre do
+REM modelo. Pra uma aula PRONTA isso e a graca; pra uma base que o professor
+REM ainda vai CONSTRUIR e a perda do trabalho dele - e sem este aviso o defeito
+REM so apareceria no fim da tarde, com tudo apagado.
+set "PLQUATRO=%PLNOME:~0,4%"
+if /i "%PLQUATRO%"=="aula" (
+  echo.
+  echo ATENCAO: mundo cujo nome comeca com "aula" e REUTILIZAVEL - ele volta
+  echo ao estado original a cada turma e NAO guarda o que for construido nele.
+  echo Pra montar a base da aula voce precisa de um mundo que SALVE.
+  echo Escolha outro nome.
+  goto :pedir_nome_plano
+)
+set "LJ_SAVE=mundos/%PLNOME%/%PLNOME%.ljw"
+set "LJ_PRESET=plano"
+echo.
+echo Tamanho do mundo plano:
+echo    [P] pequeno 128x128        ^(padrao^)
+echo    [M] medio 192x192
+echo    [G] grande 256x256         ^(exige PC melhor^)
+set "PLTAM="
+set /p "PLTAM=Escolha P/M/G (Enter = P pequeno): "
+set "LJ_TAMANHO=P"
+if /i "%PLTAM%"=="M" set "LJ_TAMANHO=M"
+if /i "%PLTAM%"=="G" set "LJ_TAMANHO=G"
+REM o tamanho ja foi escolhido aqui (e sem a opcao E)
+set "PULAR_TAMANHO=1"
+echo.
+echo ^(mundo plano: mundos\%PLNOME%\ - reabra depois pela opcao [8]^)
 goto :eof
 
 REM --- Sub-rotina: ler um campo de texto de um build-info.json ---

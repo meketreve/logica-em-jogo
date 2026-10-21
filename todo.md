@@ -1281,6 +1281,23 @@ não tem filesystem; export de "pasta" no single fica de fora (não faz sentido 
 * \[ ] **Luz colorida e curva de brilho no projetor** continuam pendentes de decisão dele
   (ver §💡) — não têm relação com venda, só estavam na mesma fila.
 
+## Launcher: mundos de base para aula (2026-10-20)
+
+* \[x] **[10] Criar mundo PLANO — FEITO (2026-10-20).** Pedido dele: "um mundo plano pra ser
+  usado como base para aulas". O servidor já sabia (`LJ_PRESET=plano`); faltava o professor
+  pedir sem digitar variável de ambiente. Nome + tamanho **P/M/G** (o E é lazy e IGNORA o
+  preset — "plano gigante" entregaria morro, e há portão disso), nasce em criativo, salva em
+  `mundos/` e reabre pela opção [8]. Recusa nome começado em "aula" e explica por quê.
+* \[ ] **O menu NÃO lista a pasta `cenarios/`.** As seis aulas estão escritas à mão nas opções
+  [2]–[7]; um cenário NOVO (`cenarios/aula7-*.ljw`) não aparece em lugar nenhum — a opção [8] só
+  varre `mundos/`. Então hoje não existe caminho pelo launcher pra transformar uma base pronta
+  em aula reutilizável: é cópia de arquivo à mão. **Lote natural:** [8] passar a listar as duas
+  pastas (marcando qual é reutilizável), e as opções [2]–[7] saírem da varredura em vez da
+  lista fixa. → **verify:** criar `cenarios/aula7-teste.ljw` e ele aparecer no menu.
+* \[ ] **"Publicar como aula" pelo launcher** — opção que copia `mundos/<nome>/<nome>.ljw` pra
+  `cenarios/aula<N>-<nome>.ljw`, deixando-a reutilizável (volta ao original a cada turma). Só
+  vale depois do item acima; sem ele a aula publicada ficaria invisível no menu.
+
 ## §📱 Quedas de tablet: a barra de navegação do Android (2026-10-20)
 
 * \[x] **Causa encontrada e atacada — FEITO (2026-10-20).** A pista que fechou o caso foi dele:
