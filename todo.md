@@ -1281,22 +1281,25 @@ não tem filesystem; export de "pasta" no single fica de fora (não faz sentido 
 * \[ ] **Luz colorida e curva de brilho no projetor** continuam pendentes de decisão dele
   (ver §💡) — não têm relação com venda, só estavam na mesma fila.
 
-## Launcher: mundos de base para aula (2026-10-20)
+## Launcher: o ciclo da AULA (2026-10-20)
 
-* \[x] **[10] Criar mundo PLANO — FEITO (2026-10-20).** Pedido dele: "um mundo plano pra ser
-  usado como base para aulas". O servidor já sabia (`LJ_PRESET=plano`); faltava o professor
-  pedir sem digitar variável de ambiente. Nome + tamanho **P/M/G** (o E é lazy e IGNORA o
-  preset — "plano gigante" entregaria morro, e há portão disso), nasce em criativo, salva em
-  `mundos/` e reabre pela opção [8]. Recusa nome começado em "aula" e explica por quê.
-* \[ ] **O menu NÃO lista a pasta `cenarios/`.** As seis aulas estão escritas à mão nas opções
-  [2]–[7]; um cenário NOVO (`cenarios/aula7-*.ljw`) não aparece em lugar nenhum — a opção [8] só
-  varre `mundos/`. Então hoje não existe caminho pelo launcher pra transformar uma base pronta
-  em aula reutilizável: é cópia de arquivo à mão. **Lote natural:** [8] passar a listar as duas
-  pastas (marcando qual é reutilizável), e as opções [2]–[7] saírem da varredura em vez da
-  lista fixa. → **verify:** criar `cenarios/aula7-teste.ljw` e ele aparecer no menu.
-* \[ ] **"Publicar como aula" pelo launcher** — opção que copia `mundos/<nome>/<nome>.ljw` pra
-  `cenarios/aula<N>-<nome>.ljw`, deixando-a reutilizável (volta ao original a cada turma). Só
-  vale depois do item acima; sem ele a aula publicada ficaria invisível no menu.
+* \[x] **[10] Criar mundo PLANO — FEITO.** Pedido dele: "um mundo plano pra ser usado como base
+  para aulas". O servidor já sabia (`LJ_PRESET=plano`); faltava pedir sem variável de ambiente.
+  Nome + tamanho **P/M/G** (o E é lazy e IGNORA o preset — "plano gigante" entregaria morro, e há
+  portão disso), nasce em criativo, salva em `mundos/`. Recusa nome começado em "aula".
+* \[x] **[11] Publicar um mundo como AULA — FEITO.** Copia `mundos/<nome>/<nome>.ljw` pra
+  `cenarios/`, **forçando o prefixo "aula"** — é o nome, não a pasta, que torna o mundo
+  reutilizável (`ehMundoDeAula`). O original continua editável; publicar de novo sobrescreve com
+  confirmação. Abre a aula logo depois, pra ele conferir.
+* \[x] **[8] passou a listar `cenarios/` — FEITO.** `cenarios/aula7-corrida.ljw` vinha no pacote
+  e estava **invisível no menu inteiro** (as opções [2]–[7] são escritas à mão e param na 6).
+  Mundo `_*` (fixture de smoke/sonda) foi filtrado da lista: eram 20 empurrando os de verdade
+  pro fim.
+* \[ ] **As opções [2]–[7] continuam escritas à mão.** Não saíram da varredura de propósito: elas
+  têm título amigável ("Aula 1 — Continue a regra") que o nome do arquivo não carrega, e
+  renumerar o menu que o professor usa toda semana é churn sem ganho enquanto as seis forem
+  fixas. Elas aparecem DUAS vezes agora (nas opções fixas e na lista da [8]) — se incomodar na
+  aula, a saída é uma tabela slug→título no launcher, com o nome do arquivo como reserva.
 
 ## §📱 Quedas de tablet: a barra de navegação do Android (2026-10-20)
 

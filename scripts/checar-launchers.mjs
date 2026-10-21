@@ -186,6 +186,42 @@ console.log("portão dos launchers (bug-621):");
     const corpo = i < 0 ? "" : txt.slice(i, i + 2000);
     const ofereceE = /Escolha P\/M\/G\/E/i.test(corpo);
     ok(i >= 0, `iniciar-servidor.${nome} define a sub-rotina do mundo plano`);
+
+    // [11] publicar como AULA: o prefixo "aula" é o que torna o mundo
+    // reutilizável (`ehMundoDeAula`, por NOME de arquivo). Publicar sem forçar
+    // o prefixo entrega uma cópia COMUM, e o professor só descobre no fim da
+    // 2ª turma — por isso o portão exige a escrita em `cenarios/`.
+    const defPub = nome === "bat" ? /\n:publicar_aula\b/ : /\npublicar_aula\(\)/;
+    const iPub = txt.search(defPub);
+    ok(iPub >= 0, `iniciar-servidor.${nome} define a sub-rotina de publicar aula`);
+    const corpoPub = iPub < 0 ? "" : txt.slice(iPub, iPub + 3000);
+    // ⚠️ A linha que PREPENDE, não qualquer "aula-" no corpo: a 1ª versão deste
+    // check usava `/aula-/` e passava com o prefixo removido, porque o TEXTO do
+    // prompt ("Nome da aula (Enter = 'aula-…')") também casa. Mesmo erro do
+    // check do `LJ_PRESET` — sinal fraco passa com a feature desligada.
+    const prepende =
+      nome === "bat"
+        ? /set "PA_NOME=aula-!PA_NOME!"/
+        : /PA_NOME="aula-\$PA_NOME"/;
+    const forcaPrefixo = prepende.test(corpoPub) && /cenarios/.test(corpoPub);
+    ok(
+      forcaPrefixo,
+      `iniciar-servidor.${nome} publica em cenarios/ com o prefixo "aula"`,
+      forcaPrefixo ? "" : "sem o prefixo a cópia vira mundo COMUM: salva a turma e a próxima não começa do zero",
+    );
+
+    // [8] varre as DUAS pastas: `cenarios/aula7-corrida.ljw` vinha no pacote
+    // desde sempre e não aparecia em menu nenhum (as opções [2]-[7] são à mão e
+    // param na aula 6). Some a varredura e a aula publicada some junto.
+    const defAbrir = nome === "bat" ? /\n:carregar_salvo\b/ : /\n *8\)/;
+    const iAbrir = txt.search(defAbrir);
+    const corpoAbrir = iAbrir < 0 ? "" : txt.slice(iAbrir, iAbrir + 2500);
+    const varreCenarios = /cenarios[\\/]\*\.ljw/.test(corpoAbrir);
+    ok(
+      varreCenarios,
+      `iniciar-servidor.${nome} lista as AULAS (cenarios/) na opção de abrir`,
+      varreCenarios ? "" : "sem isto, aula que não está nas opções [2]-[7] fica invisível — foi o caso da aula 7 por meses",
+    );
     ok(
       !ofereceE,
       `iniciar-servidor.${nome} não oferece tamanho E pro mundo plano`,

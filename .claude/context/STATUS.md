@@ -40,23 +40,23 @@ iluminação, **luz colorida** e **curva de brilho** esperam decisão dele. Atr�
 
 ## Concluído (recente)
 
-- **20/10 — launcher: [10] mundo PLANO** (base pra montar aula). Nome + P/M/G — o E é lazy e
-  **ignora o preset**, então "plano gigante" entregaria morro (portão novo). Recusa nome
-  começado em "aula", que é mundo REUTILIZÁVEL e não guardaria o que ele construísse.
+- **20/10 — launcher: o ciclo da AULA, de ponta a ponta.** **[10] mundo PLANO** (base pra montar;
+  nome + P/M/G, porque o E é lazy e **ignora o preset** — "plano gigante" daria morro) ·
+  **[11] publicar como AULA** (copia pra `cenarios/` FORÇANDO o prefixo "aula", que é o que
+  torna o mundo reutilizável; o original fica editável) · e a **[8] agora varre as DUAS pastas**
+  — `cenarios/aula7-corrida.ljw` vinha no pacote e estava **invisível no menu inteiro**.
 - **20/10 — §📱 a barra de navegação do tablet (bug-675).** Tela cheia que se **segura** (cai →
   arma → volta no próximo toque; `requestFullscreen` exige gesto) · **"voltar" vira menu de
-  pausa**, com a entrada de histórico **re-empurrada a cada `popstate`** (sem re-armar valeria
-  uma vez só) · e o host passou a escrever `<nome> saiu: <motivo>` no `-eventos.log`, que até
-  aqui **não registrava saída nenhuma**. Sondas: `shots:toque` seções A3/A4; smoke `logs`.
+  pausa**, com a entrada de histórico re-empurrada a cada `popstate` · e o host escreve
+  `<nome> saiu: <motivo>` no `-eventos.log`, que **não registrava saída nenhuma**.
 - **20/10 — §💰 `/vender`, o balcão.** 4º tipo do `ContainerPanel` e o 1º que **não é bloco**: é
   do JOGADOR (sem posição, fora do save, devolve ao fechar). Preço unitário sob cada slot +
   total no rodapé, e só então vender — o Dimas é **criado** ali. Dele: escala baixa, sem teto,
   ferramenta não vende. Preço é **lista de permissão do que se COLHE**. ⚠️ **Quem sustenta a
   tabela é o PORTÃO**: varre `RECEITAS` + `COZIMENTO` e reprova saída que vale mais que a
   entrada — pegou 3 canos, um (`1 tronco → 4 FOLHAS`) que eu não tinha visto.
-- **19/10 — o §🔌 em seis lotes:** objetivo `acender` · porta **OU** (viraram TABELA
-  `PORTAS`+`LIGA`, 270-277) · modelos do doc dele · luz suave (Uint16) · placa (278-279).
-  **16/10:** o 1º circuito, ids ≥ 256. **13/10:** posse do nome (bug-672).
+- **19/10 — o §🔌 em seis lotes:** objetivo `acender` · porta **OU** (TABELA `PORTAS`+`LIGA`) ·
+  modelos do doc dele · luz suave (Uint16) · placa. **16/10:** o 1º circuito, ids ≥ 256.
 
 ## Bruto do git (auto — não editar)
 

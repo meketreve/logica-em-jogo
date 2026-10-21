@@ -49,6 +49,8 @@ const MUDANCAS: readonly Mudanca[] = [
       "você dá um nome e escolhe o tamanho; o mundo nasce em modo criativo, com todos os blocos à mão, e fica salvo em `mundos/` como qualquer outro (reabre pela opção [8])",
       "o plano não tem tamanho “procedural”: um mundo que se gera conforme você anda não pode ser liso, então aqui as opções são pequeno, médio e grande",
       "e o launcher avisa se você der ao mundo um nome começado em “aula”: esses são os mundos REUTILIZÁVEIS, que voltam ao estado original a cada turma — e por isso não guardariam nada do que você construísse",
+      "quando a base virar aula, a opção **[11] Publicar um mundo como AULA** fecha o ciclo: ela copia o seu mundo para a pasta das aulas e o deixa REUTILIZÁVEL — cada turma entra nele do jeito que você montou, e o que uma turma mexer não atrapalha a seguinte",
+      "e a opção **[8]** agora mostra as AULAS também, não só os mundos salvos: a aula 7 (a corrida) existia desde sempre no pacote e não aparecia em lugar nenhum do menu — quem quisesse abrir tinha de saber o nome do arquivo",
     ],
   },
   {

@@ -493,6 +493,80 @@ criar_plano() {
   echo "(mundo plano: mundos/$PLNOME/ — reabra depois pela opção [8])"
 }
 
+# --- Sub-rotina: PUBLICAR um mundo como AULA (reutilizável) -----------------
+# Fecha o ciclo aberto pela [10] (2026-10-20): o professor monta a aula num
+# mundo plano e, pronta, a publica. Publicar = copiar o `.ljw` pra `cenarios/`
+# com nome começado em "aula".
+#
+# **É o nome que faz a mágica, não a pasta** (`ehMundoDeAula`, por NOME de
+# arquivo): mundo "aula*" nunca salva a turma e carrega SEMPRE do modelo, então
+# cada turma entra do jeito que o professor montou e o que uma mexer não
+# atrapalha a seguinte. Por isso o prefixo é FORÇADO aqui — sem ele a cópia
+# seria só mais um mundo comum, e o professor descobriria no fim da 2ª turma.
+#
+# O original em `mundos/` NÃO é tocado: continua lá, editável, pra quando ele
+# quiser mudar a aula e publicar de novo.
+publicar_aula() {
+  echo
+  echo "Publicar uma AULA: copia um mundo seu pra pasta das aulas e o deixa"
+  echo "REUTILIZÁVEL — cada turma entra nele como você montou, e o que uma"
+  echo "turma mexer não atrapalha a seguinte (o original continua editável)."
+  echo
+  echo "Qual mundo publicar?"
+  local origens=() d nome
+  for d in mundos/*/; do
+    [ -d "$d" ] || continue
+    nome="$(basename "$d")"
+    [ -f "$d$nome.ljw" ] || continue
+    case "$nome" in _*) continue ;; esac   # mundo de teste (smoke/sonda)
+    origens+=("$nome")
+    echo "   [${#origens[@]}] $nome"
+  done
+  if [ ${#origens[@]} -eq 0 ]; then
+    echo "   (nenhum mundo salvo ainda — monte um pela opção [10] primeiro)"
+    return
+  fi
+  echo
+  read -r -p "Número do mundo (Enter = 1): " PA_N
+  [ -z "$PA_N" ] && PA_N=1
+  local orig="${origens[$((PA_N - 1))]}"
+  [ -z "$orig" ] && { echo "(número inválido — nada publicado)"; return; }
+
+  read -r -p "Nome da aula (Enter = 'aula-$orig'): " PA_NOME
+  [ -z "$PA_NOME" ] && PA_NOME="aula-$orig"
+  PA_NOME="${PA_NOME// /-}"
+  # Prefixo FORÇADO: é ele que torna o mundo reutilizável (ver o cabeçalho).
+  case "$(printf '%s' "$PA_NOME" | cut -c1-4 | tr 'A-Z' 'a-z')" in
+    aula) ;;
+    *) PA_NOME="aula-$PA_NOME"; echo "(o nome tem de começar com \"aula\" — ficou \"$PA_NOME\")" ;;
+  esac
+
+  local destino="cenarios/$PA_NOME.ljw"
+  # As 7 aulas que vêm no pacote moram aqui e são versionadas: sobrescrever uma
+  # sem querer apagaria material distribuído, e o professor só veria na aula.
+  if [ -e "$destino" ]; then
+    echo
+    echo "ATENÇÃO: já existe uma aula chamada \"$PA_NOME\"."
+    read -r -p "  Sobrescrever? [s/N] (Enter = não): " PA_SOBR
+    case "$PA_SOBR" in
+      [sS]*) ;;
+      *) echo "  (nada publicado — escolha outro nome)"; return ;;
+    esac
+  fi
+  mkdir -p cenarios
+  if ! cp "mundos/$orig/$orig.ljw" "$destino"; then
+    echo "(não deu para copiar — nada publicado)"
+    return
+  fi
+  echo
+  echo "Publicada: $destino"
+  echo "A partir de agora ela aparece na opção [8], marcada como AULA."
+  echo "O seu mundo \"$orig\" continua em mundos/, do jeito que estava."
+  # Abre a aula recém-publicada: é o jeito de ele CONFERIR que ficou como queria.
+  export LJ_SAVE="$destino"
+  PULAR_TAMANHO=1
+}
+
 # --- Qual mundo abrir ---
 echo "Escolha o mundo:"
 echo "   [1] Mundo livre (construção livre)   <-- padrão"
@@ -502,9 +576,10 @@ echo "   [4] Aula 3 — Ache os 2 erros"
 echo "   [5] Aula 4 — Decifre a mensagem"
 echo "   [6] Aula 5 — Conserte o desenho"
 echo "   [7] Aula 6 — Siga o manual"
-echo "   [8] Carregar mundo salvo (da pasta mundos/)"
+echo "   [8] Abrir outro mundo: salvo ou AULA"
 echo "   [9] Criar mundo PROCEDURAL (gigante, gera conforme você explora)"
 echo "  [10] Criar mundo PLANO (terreno liso — base para montar aulas)"
+echo "  [11] Publicar um mundo como AULA (reutilizável a cada turma)"
 echo
 read -r -p "Digite o número e tecle Enter (Enter direto = 1): " ESCOLHA
 
@@ -517,24 +592,39 @@ case "$ESCOLHA" in
   7) export LJ_SAVE="cenarios/aula6-manual.ljw" ;;
   8)
     echo
-    echo "Mundos salvos em mundos/:"
+    # ⚠️ As DUAS pastas (2026-10-20). Antes só `mundos/` era varrida, e por isso
+    # `cenarios/aula7-corrida.ljw` — distribuída no pacote desde sempre — não
+    # aparecia em lugar NENHUM do menu: as opções [2]–[7] são escritas à mão e
+    # param na aula 6. Aula publicada pela [11] cairia no mesmo buraco.
     SAVES=()
+    echo "Mundos salvos (o que a turma construiu):"
+    tinha=0
     for d in mundos/*/; do
       [ -d "$d" ] || continue
       nome="$(basename "$d")"
-      [ -f "$d$nome.ljw" ] && SAVES+=("mundos/$nome/$nome.ljw")
+      [ -f "$d$nome.ljw" ] || continue
+      # `_*` é mundo de TESTE (os smokes e as sondas criam `_smoke-…`, `_shot-…`):
+      # vinte deles empurravam os mundos de verdade pro fim da lista na máquina de
+      # quem roda a bateria. Na escola não existem — aqui, atrapalham.
+      case "$nome" in _*) continue ;; esac
+      SAVES+=("mundos/$nome/$nome.ljw")
+      echo "   [${#SAVES[@]}] $nome"
+      tinha=1
+    done
+    [ "$tinha" = "0" ] && echo "   (nenhum ainda)"
+    echo
+    echo "AULAS (reutilizáveis — voltam ao original a cada turma):"
+    for f in cenarios/*.ljw; do
+      [ -f "$f" ] || continue
+      SAVES+=("$f")
+      echo "   [${#SAVES[@]}] $(basename "${f%.ljw}")"
     done
     if [ ${#SAVES[@]} -eq 0 ]; then
       echo "   (nenhum mundo salvo ainda — abrindo o mundo livre)"
       export LJ_SAVE="mundos/mundo-livre/mundo-livre.ljw"
     else
-      i=1
-      for f in "${SAVES[@]}"; do
-        echo "   [$i] $(basename "$(dirname "$f")")"
-        i=$((i + 1))
-      done
       echo
-      read -r -p "Número do mundo salvo (Enter = 1): " N
+      read -r -p "Número do mundo (Enter = 1): " N
       [ -z "$N" ] && N=1
       SEL="${SAVES[$((N - 1))]}"
       if [ -n "$SEL" ]; then
@@ -548,6 +638,7 @@ case "$ESCOLHA" in
     ;;
   9) criar_procedural ;;
   10) criar_plano ;;
+  11) publicar_aula ;;
   *) export LJ_SAVE="mundos/mundo-livre/mundo-livre.ljw" ;;
 esac
 

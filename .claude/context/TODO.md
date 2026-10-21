@@ -37,9 +37,10 @@ active: true
       grupo seguinte?) · **peças** (E só com as DUAS, OU com UMA; dá pra diferenciar E de OU
       olhando a mesa? aluno sem terreno é barrado com a frase do chat?).
 
-- [ ] **Launcher [10] mundo PLANO:** criar um, construir a base da aula em cima, reabrir pela
-      opção [8] e conferir que o que ele construiu está lá. (O terreno liso e a recusa do nome
-      "aula" já foram provados aqui; o que falta é o uso real.)
+- [ ] **Launcher — o ciclo da AULA:** [10] criar o plano → construir a aula em cima → [11]
+      publicar → abrir a publicada com DUAS turmas seguidas e conferir que a 2ª entra do jeito
+      que ele montou (o que a 1ª mexeu não pode aparecer). O ciclo foi provado aqui com arquivo;
+      o que falta é com turma. E se a aula 7 (corrida), agora visível na [8], abre certo.
 - [ ] **§💰 o balcão, na aula:** `/vender` com trigo na mão — a criança entende que pôr no
       balcão **não** é vender? O total em amarelo é lido antes de ela apertar? O "2 cada" sob o
       slot responde "por que diamante vale mais"? E a frase da tábua recusada ("só compra o que

@@ -392,9 +392,10 @@ echo    [4] Aula 3 - Ache os 2 erros
 echo    [5] Aula 4 - Decifre a mensagem
 echo    [6] Aula 5 - Conserte o desenho
 echo    [7] Aula 6 - Siga o manual
-echo    [8] Carregar mundo salvo ^(da pasta mundos^)
+echo    [8] Abrir outro mundo: salvo ou AULA
 echo    [9] Criar mundo PROCEDURAL ^(gigante, gera conforme voce explora^)
 echo   [10] Criar mundo PLANO ^(terreno liso - base para montar aulas^)
+echo   [11] Publicar um mundo como AULA ^(reutilizavel a cada turma^)
 echo    [0] Sair sem iniciar o servidor
 echo.
 set "ESCOLHA="
@@ -416,6 +417,7 @@ if "%ESCOLHA%"=="7" set "LJ_SAVE=cenarios/aula6-manual.ljw"
 if "%ESCOLHA%"=="8" call :carregar_salvo
 if "%ESCOLHA%"=="9" call :criar_procedural
 if "%ESCOLHA%"=="10" call :criar_plano
+if "%ESCOLHA%"=="11" call :publicar_aula
 if not defined LJ_SAVE set "LJ_SAVE=mundos/mundo-livre/mundo-livre.ljw"
 
 REM --- Codigo do professor (opcional) ---
@@ -476,19 +478,37 @@ REM --- Sub-rotina: listar e escolher um mundo salvo em mundos/ ---
 :carregar_salvo
 setlocal enabledelayedexpansion
 echo.
-echo Mundos salvos em mundos/:
+REM As DUAS pastas (2026-10-20). Antes so mundos/ era varrida, e por isso
+REM cenarios/aula7-corrida.ljw - distribuida no pacote desde sempre - nao
+REM aparecia em lugar NENHUM do menu: as opcoes [2]-[7] sao escritas a mao e
+REM param na aula 6. Aula publicada pela [11] cairia no mesmo buraco.
+echo Mundos salvos (o que a turma construiu):
 set "i=0"
 for /d %%d in ("mundos\*") do (
   if exist "%%d\%%~nxd.ljw" (
-    set /a i+=1
-    set "SAVE[!i!]=mundos/%%~nxd/%%~nxd.ljw"
-    echo    [!i!] %%~nxd
+    REM _* e mundo de TESTE (os smokes e as sondas criam _smoke-... e _shot-...):
+    REM vinte deles empurravam os mundos de verdade pro fim da lista na maquina
+    REM de quem roda a bateria. Na escola nao existem; aqui, atrapalham.
+    set "EHTESTE=%%~nxd"
+    if not "!EHTESTE:~0,1!"=="_" (
+      set /a i+=1
+      set "SAVE[!i!]=mundos/%%~nxd/%%~nxd.ljw"
+      echo    [!i!] %%~nxd
+    )
   )
+)
+if !i!==0 echo    ^(nenhum ainda^)
+echo.
+echo AULAS (reutilizaveis - voltam ao original a cada turma):
+for %%f in ("cenarios\*.ljw") do (
+  set /a i+=1
+  set "SAVE[!i!]=cenarios/%%~nxf"
+  echo    [!i!] %%~nf
 )
 if !i!==0 goto :cs_livre
 echo.
 set "N="
-set /p "N=Numero do mundo salvo (Enter = 1): "
+set /p "N=Numero do mundo (Enter = 1): "
 if not defined N set "N=1"
 set "PICK=!SAVE[%N%]!"
 if not defined PICK goto :cs_invalido
@@ -565,6 +585,91 @@ REM o tamanho ja foi escolhido aqui (e sem a opcao E)
 set "PULAR_TAMANHO=1"
 echo.
 echo ^(mundo plano: mundos\%PLNOME%\ - reabra depois pela opcao [8]^)
+goto :eof
+
+REM --- Sub-rotina: PUBLICAR um mundo como AULA (reutilizavel) ---
+REM Fecha o ciclo aberto pela [10] (2026-10-20): o professor monta a aula num
+REM mundo plano e, pronta, a publica. Publicar = copiar o .ljw pra cenarios/
+REM com nome comecado em "aula".
+REM
+REM E o NOME que faz a magica, nao a pasta (ehMundoDeAula, por NOME de arquivo):
+REM mundo "aula*" nunca salva a turma e carrega SEMPRE do modelo, entao cada
+REM turma entra do jeito que o professor montou e o que uma mexer nao atrapalha
+REM a seguinte. Por isso o prefixo e FORCADO aqui - sem ele a copia seria so
+REM mais um mundo comum, e o professor descobriria no fim da 2a turma.
+REM
+REM O original em mundos/ NAO e tocado: continua la, editavel.
+:publicar_aula
+setlocal enabledelayedexpansion
+echo.
+echo Publicar uma AULA: copia um mundo seu pra pasta das aulas e o deixa
+echo REUTILIZAVEL - cada turma entra nele como voce montou, e o que uma
+echo turma mexer nao atrapalha a seguinte (o original continua editavel).
+echo.
+echo Qual mundo publicar?
+set "i=0"
+for /d %%d in ("mundos\*") do (
+  if exist "%%d\%%~nxd.ljw" (
+    set "EHTESTE=%%~nxd"
+    if not "!EHTESTE:~0,1!"=="_" (
+      set /a i+=1
+      set "ORIG[!i!]=%%~nxd"
+      echo    [!i!] %%~nxd
+    )
+  )
+)
+if !i!==0 (
+  echo    ^(nenhum mundo salvo ainda - monte um pela opcao [10] primeiro^)
+  endlocal
+  goto :eof
+)
+echo.
+set "PA_N="
+set /p "PA_N=Numero do mundo (Enter = 1): "
+if not defined PA_N set "PA_N=1"
+set "PA_ORIG=!ORIG[%PA_N%]!"
+if not defined PA_ORIG (
+  echo ^(numero invalido - nada publicado^)
+  endlocal
+  goto :eof
+)
+set "PA_NOME="
+set /p "PA_NOME=Nome da aula (Enter = 'aula-!PA_ORIG!'): "
+if not defined PA_NOME set "PA_NOME=aula-!PA_ORIG!"
+set "PA_NOME=!PA_NOME: =-!"
+REM Prefixo FORCADO: e ele que torna o mundo reutilizavel (ver o cabecalho).
+set "PA_QUATRO=!PA_NOME:~0,4!"
+if /i not "!PA_QUATRO!"=="aula" (
+  set "PA_NOME=aula-!PA_NOME!"
+  echo ^(o nome tem de comecar com "aula" - ficou "!PA_NOME!"^)
+)
+set "PA_DEST=cenarios\!PA_NOME!.ljw"
+REM As 7 aulas que vem no pacote moram aqui e sao versionadas: sobrescrever uma
+REM sem querer apagaria material distribuido, e o professor so veria na aula.
+if exist "!PA_DEST!" (
+  echo.
+  echo ATENCAO: ja existe uma aula chamada "!PA_NOME!".
+  set "PA_SOBR="
+  set /p "PA_SOBR=  Sobrescrever? [s/N] (Enter = nao): "
+  if /i not "!PA_SOBR:~0,1!"=="s" (
+    echo   ^(nada publicado - escolha outro nome^)
+    endlocal
+    goto :eof
+  )
+)
+if not exist "cenarios" mkdir "cenarios"
+copy /y "mundos\!PA_ORIG!\!PA_ORIG!.ljw" "!PA_DEST!" >nul
+if errorlevel 1 (
+  echo ^(nao deu para copiar - nada publicado^)
+  endlocal
+  goto :eof
+)
+echo.
+echo Publicada: cenarios/!PA_NOME!.ljw
+echo A partir de agora ela aparece na opcao [8], marcada como AULA.
+echo O seu mundo "!PA_ORIG!" continua em mundos\, do jeito que estava.
+REM Abre a aula recem-publicada: e o jeito de ele CONFERIR que ficou como queria.
+endlocal & set "LJ_SAVE=cenarios/%PA_NOME%.ljw" & set "PULAR_TAMANHO=1"
 goto :eof
 
 REM --- Sub-rotina: ler um campo de texto de um build-info.json ---
