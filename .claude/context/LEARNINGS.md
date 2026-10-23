@@ -44,6 +44,7 @@ tier: 3
 
 ## Erros a não repetir
 
+- [2026-10-23] [ui] [✓] Tecla de UI que mora SÓ no `keydown` do campo morre no primeiro clique fora (relato dele: chat do PC preso aberto com Enter e Esc). O par é um listener de janela em CAPTURA, ativo só com a UI aberta, ignorando alvo que seja campo de texto. ⚠️ E keydown cujo alvo é a **própria janela** (o que toda sonda dispara) **não tem captura nem bolha**: os listeners de `window` viram "no alvo" e correm na ordem de REGISTRO — o `Input` registra primeiro e ABRE, o meu fechava no mesmo evento. Guarda: comparar `e.timeStamp` com o instante da abertura, nunca confiar na fase.
 - [2026-10-23] [contexto] [✗] Cortar linha de DENTRO do bloco `<!-- auto -->` pra caber no teto — levei o `auto:end` junto e o `--check` acusou "unbalanced auto markers": a partir daí o `init.sh` **não toca mais no arquivo**. O teto conta só o que está FORA do bloco, então é de lá que se corta. E rewrap não corta: o teto é LINHA, não caractere — tem de fundir ou apagar linha inteira.
 - [2026-10-20] [portão] [✗] Portão de SCRIPT por menção passa com a feature desligada, e eu caí nisso DUAS vezes no mesmo dia: `includes("LJ_PRESET") && /plano/i` casava com os comentários que explicam a opção, e `/aula-/` casava com o TEXTO do prompt. Confere a ATRIBUIÇÃO exata (`set "X=..."`, `X="aula-$X"`), e a janela de busca começa na DEFINIÇÃO da sub-rotina (no .bat a 1ª menção é a `call`, e a janela seguinte pega o menu GERAL). **Controle negativo em portão de texto não é opcional** — foi ele que pegou as duas.
 - [2026-10-20] [launcher] [✓] Menu com lista de opções ESCRITA À MÃO apodrece calada: as aulas [2]–[7] param na 6 e `cenarios/aula7-corrida.ljw` vinha no pacote **invisível no menu inteiro** (só `mundos/` era varrida). Opção de abrir varre as DUAS pastas; mundo `_*` (fixture de smoke/sonda) sai da lista.
@@ -72,10 +73,7 @@ tier: 3
 - [2026-10-13] [teste] [✓] Portão que lê artefato de RUNTIME não versionado derruba clone limpo — `it.skipIf(!existsSync(...))`. E [2026-10-15] [sonda] [✗] bateria sem olhar `git status` depois: `shots:fundo` é GERADORA (~5 MB versionados).
 - [2026-10-10] [sonda] [✓] Matar o Chrome pelo GRUPO (`detached` + SIGKILL — um filho regrava o perfil depois do `rmSync`); rótulo de botão é ESTADO, não identidade (quem muda de nome leva `data-acao`). E [bench] [✗] esperar FPS do `bench:headless` (SwiftShader varia 4,3–6,4 s no MESMO commit) — custo de FORMATO se mede no codec, em Node.
 - [2026-10-03] [build] [✗] Rótulo auto-referente (sha do HEAD) em artefato VERSIONADO — o dist virava função do HEAD e calava o portão (bug-673). Carimbar data, não sha.
-- [2026-10-05] [smoke] [✗] Confiar em smoke sem conferir HOST ÓRFÃO na porta — dois hosts de 5 h
-  atrás faziam o `inventario` "falhar" com números CRESCENTES. `ps` antes; matar por PID.
-- [2026-10-05] [smoke] [✓] Cenário que afirma "UM arquivo" tem de LIMPAR a própria pasta no
-  começo — ela sobrevive mesmo com `LJ_NOVO=1` e a 2ª rodada reprova por defeito que não existe.
+- [2026-10-05] [smoke] Dois jeitos de o smoke mentir: [✗] HOST ÓRFÃO na porta (dois hosts de 5 h atrás faziam o `inventario` "falhar" com números CRESCENTES — `ps` antes, matar por PID); [✓] cenário que afirma "UM arquivo" tem de LIMPAR a própria pasta no começo (ela sobrevive ao `LJ_NOVO=1` e a 2ª rodada reprova por defeito que não existe).
 - [2026-10-05] [contexto] [✗] Carimbar data de cabeça em LEARNINGS/BUGS — escrevi 06 num dia 05
   e desalinhei o `index.sh`, que ordena por data. Conferir com `date +%F`.
 - [2026-10-05] [voo] [✓] Estado do voo vale POR SAVE: nasce desligada, abre voando só se o modelo foi salvo com `/voo ligar` (o confinamento tem override pra `somenteLeitura`; o voo não pode ganhar um igual).

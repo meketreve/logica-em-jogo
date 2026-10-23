@@ -1063,6 +1063,54 @@ sem ela os 4 níveis de machado empatariam no piso de 150 ms. Prova: `shared/src
   existem e já alternam no clique). É o que faz o desafio virar "consequência" em vez de
   "acendeu". Mexe no gate de claim: quem é dono do circuito abre a porta de quem?
 
+### Fase 1b — o circuito SAI DO CHÃO (parede e teto)
+
+> Ideia dele, **2026-10-23**: "permitir que os circuitos sejam postos em paredes e tetos".
+> Hoje o circuito é uma maquete de MESA — e é isso que limita a aula a desenhar no chão, onde a
+> turma inteira tem de se debruçar pra ver. Na parede o circuito fica NA ALTURA DOS OLHOS e
+> aparece no projetor, que é o critério de sempre.
+
+**O motor já está pronto.** `circuitos.ts` conduz nas 6 direções de face desde 16/10 (o poste
+vertical do fio, de 19/10, é a prova visível), e lâmpada e portas lógicas são **cubos cheios** —
+essas duas já se colocam em parede e teto hoje. O que falta é **FORMA + IDS + APOIO**, não sinal.
+
+* \[ ] **fio de parede e de teto** — o 1º passo, e o que sozinho já entrega a ideia (subir o
+  circuito pela parede). Hoje o fio é uma lâmina de 2/16 no PISO da célula: a face é implícita.
+  Como o estado mora no id, a face também tem de morar nele — 5 faces novas (4 paredes + teto)
+  × 2 estados = **10 ids novos**, append depois de 279, nunca renumerar.
+  → **o custo real é o APOIO, não o desenho:** `precisaApoio`/`apoioValido` (`blocks.ts`) só
+  sabem olhar a célula de BAIXO, e a mesma regra derruba quem perdeu o apoio. Fio de parede
+  precisa de "o vizinho da MINHA face", o que generaliza o gate do `place_block` **e** a regra de
+  vizinhança — é aí que mora o risco de quebrar tocha, flor e tapete, que usam o mesmo caminho.
+  → **topologia:** `conectaCondutor` passa a depender da FACE. Recomendação: dois fios de faces
+  diferentes conectam quando as faces se encontram numa ARESTA (o fio subindo a parede, como no
+  Minecraft) — senão o aluno vê fio colado que não passa sinal, que é o pecado de 19/10
+  ("desenho fora da topologia mostra fio ligado onde o sinal não passa").
+  → **mesher:** seria a 1ª forma ROTACIONADA do projeto (hoje cada `emitShape` é escrito no
+  eixo). O barato é uma função que gira a caixa pela face antes do `emitBox`, usada só aqui.
+* \[ ] **alavanca de parede e de teto** — hoje ela "pede cubo cheio embaixo, igual à tocha", e o
+  comentário no `blocks.ts:256` já diz que alavanca de parede ficou de fora do 1º lote por pedir
+  forma e direção novas. Mesma conta: 5 faces × 2 estados = **10 ids novos**. Vem DEPOIS do fio —
+  o fio é o que destrava a ideia; a alavanca é conforto.
+* \[ ] **o que NÃO sai do chão** (recomendação minha, confirmar):
+  - **placa de pressão** fica só no piso: quem a liga é o CORPO em cima dela — na parede e no
+    teto ela nunca ligaria, e peça que não funciona onde o jogo deixa colocar é pior que peça
+    que não se coloca.
+  - **portas lógicas continuam HORIZONTAIS** (4 direções). Frente pra cima/baixo são 2 direções
+    novas, e isso estoura a aritmética `base + 4 + direção` que faz a tabela `PORTAS` existir —
+    seria reescrever o endereçamento das portas por conforto de montagem. Parede e teto só
+    precisam das portas como CUBO, que elas já são.
+
+**Decisões dele, antes de codar:** (a) teto entra junto ou só parede? (o teto dobra o desenho e é
+onde o aluno menos olha); (b) a placa fica de fora, como recomendado? (c) as portas continuam
+horizontais?
+
+**verify:** seção nova na `shots:circuito`, **coluna própria** e limpando o que criar (a dívida
+de 20/10), com A/B de pixel e **câmera parada** — um circuito que sobe a parede e acende a
+lâmpada no alto, e o controle negativo de um fio na parede que NÃO encosta (lâmpada apagada).
+Mais um portão em `circuitos.test.ts` varrendo todo id novo: o `formaCanonica` de toda face
+devolve UM fio (como a porta devolve UMA porta).
+
 ### Fase 2 — a porta NÃO, que reescreve o motor
 
 * \[ ] **porta NÃO (inversor)** — ⚠️ **quebra o ponto fixo.** Com negação o passo deixa de ser

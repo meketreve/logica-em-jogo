@@ -43,6 +43,15 @@ interface Mudanca {
 const MUDANCAS: readonly Mudanca[] = [
   {
     // sem `data`: este é o build atual (ver rotuloDoBloco)
+    titulo: "O chat do computador ganha a lista de comandos",
+    itens: [
+      "a **lista de comandos** que só existia no chat do tablet agora aparece no computador também: abra o chat e os comandos estão ali, para clicar em vez de decorar — e quem preferir digitar continua tendo o Tab para completar",
+      "o chat **fecha com Enter ou Esc mesmo depois de um clique fora da caixa de texto**: antes, se o clique tirasse o foco do campo, nenhuma das duas teclas respondia e o chat ficava preso aberto",
+      "as peças de lógica agora se chamam **porta lógica E** e **porta lógica OU** (eram “porta E” e “porta OU”): na mochila, logo acima da porta de madeira, o nome curto não dizia que aquilo era a peça da aula de lógica",
+    ],
+  },
+  {
+    data: "20/10/2026",
     titulo: "Um mundo PLANO para montar a sua aula",
     itens: [
       "opção nova no iniciar-servidor (**[10] Criar mundo PLANO**): um terreno todo liso, sem morro, caverna nem árvore — a folha em branco para você montar a aula em cima",

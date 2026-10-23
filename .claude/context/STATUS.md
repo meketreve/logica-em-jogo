@@ -10,8 +10,9 @@ tier: 3
 
 Jogo voxel educacional rodando, testado com turma real. `main` em sinc, árvore limpa. Só LINUX.
 
-**NOVE lotes empurrados sem aula nenhuma** — os seis do §🔌 (16–19/10) e três de 20/10
-(`/vender`, barra de navegação, ciclo da aula no launcher). Maior acúmulo de não-testado daqui.
+**DEZ lotes empurrados sem aula nenhuma** — os seis do §🔌 (16–19/10), três de 20/10
+(`/vender`, barra de navegação, ciclo da aula no launcher) e o chat do PC (23/10). Maior acúmulo
+de não-testado daqui.
 
 ⚠️ **Ele disse em 20/10 que testaria em 21/10 e traria os logs. Hoje é 23/10 e nenhum retorno
 chegou até aqui.** Pode ter acontecido sem relato, ou a aula ter mudado de data — **perguntar
@@ -42,19 +43,18 @@ brilho**, que esperam decisão dele.
 
 ## Concluído (recente)
 
-- **20/10 — launcher: o ciclo da AULA.** `[10]` mundo PLANO (nome + P/M/G: o E é lazy e
-  **ignora o preset**) · `[11]` publicar como AULA (copia pra `cenarios/` FORÇANDO o prefixo
-  `aula`, que é o que torna reutilizável) · `[8]` varre as DUAS pastas — `aula7-corrida.ljw`
-  vinha no pacote **invisível no menu inteiro**.
+- **23/10 — o chat do PC (3 pedidos dele).** Enter/Esc **com o campo sem foco** (bug em
+  `BUGS.md`) · a **lista de comandos** saiu do tablet pro PC (o layout lateral segue do dedo) ·
+  as peças viraram **porta lógica E/OU**. Seção B4 nova no `shots:esc`.
+- **20/10 — launcher: o ciclo da AULA.** `[10]` mundo PLANO (P/M/G: o E é lazy e **ignora o
+  preset**) · `[11]` publicar como AULA (`cenarios/` com o prefixo `aula` FORÇADO) · `[8]` varre
+  as DUAS pastas — `aula7-corrida.ljw` vinha no pacote **invisível no menu inteiro**.
 - **20/10 — §📱 barra de navegação do tablet (bug-675).** Tela cheia que se **segura** (cai →
-  arma → volta no próximo toque; `requestFullscreen` exige gesto) · **"voltar" vira menu de
-  pausa** (re-armado a cada `popstate`) · host escreve `<nome> saiu: <motivo>`.
+  arma → volta no próximo toque) · **"voltar" vira menu de pausa** · host escreve o MOTIVO da saída.
 - **20/10 — §💰 `/vender`, o balcão.** 4º tipo do `ContainerPanel` e o 1º que **não é bloco**: é
-  do JOGADOR (sem posição, fora do save, devolve ao fechar). O Dimas é **criado** ali — 1ª fonte
-  da economia. ⚠️ Quem sustenta a tabela de preço é o **PORTÃO** (saída ≤ entrada em toda receita
-  e cozimento): pegou 3 canos, um (`1 tronco → 4 FOLHAS`) que eu não tinha visto.
-- **19/10 — o §🔌 em seis lotes:** objetivo `acender` · porta **OU** (TABELA `PORTAS`+`LIGA`) ·
-  modelos dele · luz suave (Uint16) · placa. **16/10:** o 1º circuito, ids ≥ 256.
+  do JOGADOR (fora do save) e a 1ª FONTE de Dimas. Quem sustenta o preço é o **PORTÃO** (saída ≤
+  entrada em toda receita e cozimento): pegou 3 canos, um que eu não tinha visto.
+- **19/10 — o §🔌 em seis lotes:** objetivo `acender` · porta **OU** (TABELA `PORTAS`+`LIGA`) · modelos dele · luz suave (Uint16) · placa. **16/10:** o 1º circuito, ids ≥ 256.
 
 ## Bruto do git (auto — não editar)
 

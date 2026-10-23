@@ -23,8 +23,10 @@ active: true
 - [ ] **Decisões dele, pendentes:** luz COLORIDA (3 canais na grade, no save e na propagação —
       lote grande) e a curva de brilho no projetor (só se afina vendo).
 
-## Testar na escola (o usuário faz) — **9 lotes acumulados**
+## Testar na escola (o usuário faz) — **10 lotes acumulados**
 
+- [ ] **Chat do PC (23/10):** a lista de comandos no PC ajuda ou atrapalha quem já usa Tab, e
+      cabe na tela com o histórico? "porta lógica E/OU" corta no botão da mochila?
 - [ ] **Heartbeat (bug-675) — a aula CONFIRMA ou derruba a causa.** Ler o `-eventos.log`:
       quantas linhas `fechou a página` × `ficou sem responder`. Sobrou "sem responder" → é
       rede/15 s de verdade. E perguntar se alguém viu o menu de pausa abrir sozinho (é o
@@ -34,21 +36,22 @@ active: true
       antes da lâmpada? a luz suave melhorou ou só clareou?) · objetivo `acender` ("peça fora do
       lugar" é entendido por criança de 10 anos?) · peças (dá pra diferenciar E de OU na mesa?).
 - [ ] **§💰 o balcão:** a criança entende que pôr no balcão **não** é vender? O total amarelo é
-      lido antes de apertar? O "2 cada" responde "por que diamante vale mais"? A frase da tábua
-      recusada faz sentido, ou ela acha que travou?
+      lido antes de apertar? A frase da tábua recusada faz sentido, ou ela acha que travou?
 - [ ] **Launcher — o ciclo da AULA:** [10] plano → construir → [11] publicar → abrir com DUAS
-      turmas seguidas (a 2ª tem de entrar como ele montou). E a aula 7 (corrida), agora visível
-      na [8], abre certo? **E o `.bat` no Windows do laboratório — não dá pra rodar aqui.**
+      turmas seguidas; a aula 7 (corrida) abre pela [8]? **E o `.bat` no Windows do laboratório.**
 - [ ] **Lote de 15/10:** a lista do ALUNO (agora **11**, o `/vender` entrou) cabe sem rolar e sem
       sumir atrás do teclado? Se sumir, anotar se o CAMPO some junto (aí é o `--kb`, em `chat.ts`).
-- [ ] **Lote de 10/10:** Ctrl+C num mundo cheio e reabrir; botão **restaurar** no convertido.
-- [ ] **§🪓 machado e pá:** fabricar os dois; árvore de mão nua ficou chata (1,5 s)? ícones a 1024×600.
+- [ ] **Lote de 10/10:** Ctrl+C num mundo cheio e reabrir; **restaurar** no convertido. **§🪓
+      machado e pá:** fabricar os dois (árvore de mão nua ficou chata? ícones a 1024×600).
 - [ ] **Presença (bug-672):** reentrar com o mesmo nome (volta NA HORA); 15 s no Wi-Fi da escola.
 - [ ] **Loja:** preço de ITEM e reabrir o mundo. **Ids 16 bits:** abrir o mundo da turma (nasce
       `<nome>.antes-ids16.ljw`). **Cama/torre:** deitar/levantar, torre no Wi-Fi (bug-652, bug-650).
 
 ## Depois
 
+- [ ] **§🔌 fase 1b — circuito na PAREDE e no TETO** (ideia dele, 23/10; spec em `todo.md`,
+      "Fase 1b"): o motor já conduz nas 6 direções — o custo é FORMA + ids por face e o APOIO,
+      que hoje só sabe olhar pra baixo. Tem 3 decisões dele pendentes na spec.
 - [ ] Ovelha + lã de verdade (§🍖 F8) · sentar na cadeira.
 
 ## Ideias / talvez

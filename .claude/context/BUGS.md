@@ -12,6 +12,14 @@ tier: 3
      modelo). São bugs ESCRITOS À MÃO: nada de detector automático — ele já encheu
      o arquivo de 148 entradas falsas uma vez, e elas foram podadas junto. -->
 
+## 2026-10-23 — o chat do PC ficava PRESO aberto depois de um clique fora da caixa de texto
+- **Sintoma:** usuário: "ao abrir o chat no pc, se clicar fora da caixa de texto e apertar enter ou esc não fecha o chat". Nenhum erro no console — as teclas simplesmente não respondiam, e nem o atalho de abrir resolvia (ele sai cedo quando `chat.open`).
+- **Onde:** `client/src/chat.ts` (`ChatUi`)
+- **Causa:** Enter e Esc tinham UM handler só, o `keydown` do PRÓPRIO campo. Qualquer clique que tirasse o foco (o canvas, um botão) mandava o keydown pro `<body>`, onde ninguém ouvia pelo chat — o `window` tinha só o handler do `Input`, que ignora teclas sem atalho. No dedo o caso não existe: lá tocar fora já fechava o chat (o `pointerdown` do canvas, main.ts).
+- **Correção:** listener de `keydown` em CAPTURA na janela, ativo só com o chat aberto: Enter/Esc fecham, `stopPropagation` evita que a mesma tecla vire ação do jogo, e o alvo sendo campo de texto o listener não faz nada (quem manda a frase é o handler do campo).
+- **Pegadinha que a sonda pegou:** a 1ª versão ABRIA E FECHAVA o chat no mesmo keydown, e derrubou de tabela a seção B2 do `shots:esc` (bug-610). Motivo: keydown cujo alvo é a própria JANELA não tem captura nem bolha — os dois listeners de `window` viram "no alvo" e correm na ordem de REGISTRO, e o `Input` registra primeiro (abre), o chat depois (fecha). Guarda: comparar `e.timeStamp` com o instante da abertura (`abertoEm`) — keydown mais antigo que a abertura é o que a abriu.
+- **Tags:** chat, PC, Enter, Esc, foco, blur, keydown, captura, timeStamp, shots:esc, corrigido
+
 ## 2026-10-19 — a placa de pressão SÓLIDA expulsava quem pisava nela (e nunca ligava)
 - **Sintoma:** `circuitos.session.test.ts` vermelho em 3 asserções — `AssertionError: expected 278 to be 279`: o aluno andava até a placa, o tick rodava e ela continuava desligada. Em jogo seria "piso nela e não acontece nada".
 - **Onde:** `shared/src/blocks.ts` (`isSolidBlock`)

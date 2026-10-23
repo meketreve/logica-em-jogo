@@ -1,6 +1,5 @@
 import { MAX_CHAT_BYTES, MAX_CHAT_LENGTH, cortarEmBytes } from "@logica/shared";
 import { candidatos, destinoDeToque } from "./commands";
-import { isTouchDevice } from "./touch";
 
 /**
  * UI de chat em HTML/CSS por cima do canvas (regra: sem GUI de engine).
@@ -14,11 +13,18 @@ const MESSAGE_VISIBLE_MS = 10_000;
 const MAX_MESSAGES = 50;
 
 /**
- * Painel de COMANDOS RÁPIDOS no chat do MOBILE (2026-08-14): sem Tab no dedo,
- * os comandos são MUITOS pra decorar. Reusa a MESMA árvore do autocomplete
- * (candidatos/destinoDeToque em commands.ts) — uma fonte só, sem lista curada.
- * Regras: o tap em comando inteiro ENVIA; comando que pede NOME preenche o
- * campo pra digitar o resto. Só existe em aparelho de dedo (isTouchDevice).
+ * Painel de COMANDOS RÁPIDOS do chat (2026-08-14): os comandos são MUITOS pra
+ * decorar. Reusa a MESMA árvore do autocomplete (candidatos/destinoDeToque em
+ * commands.ts) — uma fonte só, sem lista curada. Regras: o clique/tap em
+ * comando inteiro ENVIA; comando que pede NOME preenche o campo pra digitar o
+ * resto.
+ *
+ * Nasceu só no dedo (lá não há Tab), e em 2026-10-23 passou a valer no
+ * COMPUTADOR também, a pedido do usuário: o Tab só ajuda quem já sabe o nome
+ * do comando — a lista é o que ensina QUAIS existem, e ela não tinha por que
+ * ser privilégio do tablet. O layout LATERAL continua sendo do dedo (a media
+ * query abaixo pede `pointer: coarse`); no mouse o painel fica empilhado,
+ * acima do campo.
  */
 const PAINEL_CSS = `
 #chat-painel {
@@ -47,6 +53,12 @@ const PAINEL_CSS = `
 }
 #chat-painel button:active {
   background: rgba(255, 215, 74, 0.3);
+}
+/* no mouse o realce é o hover (no dedo não existe hover, e :active basta) */
+@media (hover: hover) {
+  #chat-painel button:hover {
+    background: rgba(255, 215, 74, 0.25);
+  }
 }
 #chat-painel button.pnl-volta {
   border-color: #ffd74a;
@@ -125,8 +137,12 @@ export class ChatUi {
   /** O caminho navegado no painel de comandos (["/tpp"] → ["/tpp","bia"]). */
   private painelCaminho: string[] = [];
 
-  /** O painel de comandos rápidos (só em aparelho de dedo). */
+  /** O painel de comandos rápidos (dedo e mouse — ver PAINEL_CSS). */
   private painel: HTMLDivElement | null = null;
+
+  /** Quando o chat abriu (performance.now). Serve a UMA pergunta: este keydown
+   *  é mais antigo que a abertura? Ver o listener de janela no construtor. */
+  private abertoEm = 0;
 
   constructor(
     onSend: (text: string) => void,
@@ -146,7 +162,7 @@ export class ChatUi {
       if (cortado !== f.value) f.value = cortado;
     });
     acompanharTecladoVirtual();
-    if (isTouchDevice()) this.montarPainel();
+    this.montarPainel();
     this.field.addEventListener("keydown", (e) => {
       e.stopPropagation(); // digitar no chat NUNCA vira input do jogo (WASD, hotbar…)
       if (e.code === "Tab") {
@@ -165,6 +181,42 @@ export class ChatUi {
         this.resetCycle(); // digitou outra coisa: o próximo Tab recomeça do zero
       }
     });
+    /**
+     * Enter/Esc com o chat aberto e o campo SEM foco (2026-10-23, relato dele
+     * no PC): um clique fora da caixa — no canvas, num botão do painel que
+     * roubou o foco — e as duas teclas paravam de responder, porque o único
+     * handler morava no `keydown` do próprio campo. O chat ficava preso aberto,
+     * e nem o atalho de abrir resolvia (ele sai cedo quando `chat.open`).
+     *
+     * Em CAPTURA na janela pra chegar antes do `keydown` do Input (que é de
+     * bolha): o `stopPropagation` evita que a mesma tecla vire ação do jogo.
+     * O guarda do alvo é o que não pode faltar — captura na janela vê TAMBÉM
+     * a tecla digitada no campo, e aí fechar aqui atropelaria o envio.
+     *
+     * ⚠️ E o guarda do TEMPO (`abertoEm`) existe porque a tecla que ABRE o chat
+     * é a MESMA que o fecha aqui (Enter, por padrão): quem abre é o Input, de
+     * bolha, e um keydown cujo alvo é a própria JANELA não tem captura nem
+     * bolha — os dois listeners viram "no alvo" e correm na ordem de registro,
+     * que é a do Input primeiro. Resultado: o chat abria e fechava no mesmo
+     * evento (foi o que a sonda `shots:esc` acusou). Comparar o carimbo do
+     * evento com o instante da abertura resolve sem depender de fase: keydown
+     * mais ANTIGO que a abertura é o que a abriu, e não fecha nada.
+     */
+    window.addEventListener(
+      "keydown",
+      (e) => {
+        if (!this.open) return;
+        if (this.abertoEm > e.timeStamp) return; // foi este keydown que abriu o chat
+        // o campo (e qualquer outro campo de texto na tela) cuida das suas teclas
+        if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
+        if (e.code === "Enter" || e.key === "Enter" || e.code === "Escape") {
+          e.preventDefault();
+          e.stopPropagation();
+          this.close();
+        }
+      },
+      true,
+    );
   }
 
   get open(): boolean {
@@ -181,6 +233,7 @@ export class ChatUi {
     this.renderPainel();
     this.painel?.classList.remove("hidden");
     this.field.focus();
+    this.abertoEm = performance.now();
     this.scrollarFim(); // em tela baixa o log vira caixa rolável: abre no fim
     this.onToggle(true);
   }
@@ -199,10 +252,12 @@ export class ChatUi {
   }
 
   /**
-   * Painel de comandos rápidos (mobile). Nasce no primeiro chat com o #chat do
+   * Painel de comandos rápidos. Nasce no primeiro chat com o #chat do
    * index.html já pronto (é um filho dele), e pinta os botões da árvore em
    * commands.ts ao abrir. Cada tap: ENVIA se o comando está inteiro, desce um
    * nível se ainda há subcomando, ou PREENCHE o campo pra digitar o nome.
+   * O `pointerdown` com `preventDefault` serve aos dois aparelhos: no mouse é
+   * ele que impede o botão de ROUBAR o foco do campo a cada clique.
    */
   private montarPainel(): void {
     if (!this.root) return;

@@ -434,7 +434,7 @@ await espera(400);
 // o nome visível mora num <small> dentro do botão `.inv-bloco` (inventory.ts)
 const pecas = await avaliar(`[...document.querySelectorAll('#inventario .inv-grid .inv-bloco small')].map(e => (e.textContent || '').trim())`);
 const nomes = (pecas ?? []).join(" ");
-for (const p of ["alavanca", "fio", "lâmpada", "porta E"]) {
+for (const p of ["alavanca", "fio", "lâmpada", "porta lógica E"]) {
   ok(nomes.includes(p), `a aba mostra "${p}" (${nomes || "vazia"})`);
 }
 await foto("01-aba-circuito.png");

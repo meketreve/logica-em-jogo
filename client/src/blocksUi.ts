@@ -120,8 +120,11 @@ export const PLACEABLE: readonly PlaceableEntry[] = [
   { id: BlockId.AlavancaDesligada, name: "alavanca", cat: "circuito" },
   { id: BlockId.FioDesligado, name: "fio", cat: "circuito" },
   { id: BlockId.LampadaApagada, name: "lâmpada", cat: "circuito" },
-  { id: BlockId.PortaEXPDesligada, name: "porta E", cat: "circuito" },
-  { id: BlockId.PortaOUXPDesligada, name: "porta OU", cat: "circuito" },
+  // "porta LÓGICA E/OU" (2026-10-23, pedido dele): a mochila também tem a porta
+  // de madeira, e "porta E" lido de relance virava "porta" — o nome tem de dizer
+  // que ali está a peça da aula de lógica.
+  { id: BlockId.PortaEXPDesligada, name: "porta lógica E", cat: "circuito" },
+  { id: BlockId.PortaOUXPDesligada, name: "porta lógica OU", cat: "circuito" },
   { id: BlockId.PlacaDesligada, name: "placa de pressão", cat: "circuito" },
   // janela: entrada única, eixo escolhido pelo olhar (igual porta)
   { id: BlockId.JanelaXFechada, name: "janela", cat: "mobilia" },

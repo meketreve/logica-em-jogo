@@ -478,6 +478,57 @@ const limpo = await avaliar(
   `[...document.querySelectorAll('.arrasto-fantasma')].every(e => e.childElementCount === 0)`,
 );
 ok(limpo === true, "fechar o painel apagou o fantasma (nada sobra flutuando)");
+
+diga("== B4: o chat do PC — a lista de comandos, e Enter/Esc com o campo SEM foco ==");
+// relato dele (2026-10-23): "ao abrir o chat no pc, se clicar fora da caixa de
+// texto e apertar enter ou esc não fecha o chat". O handler das duas teclas
+// morava SÓ no `keydown` do campo, então qualquer clique que tirasse o foco
+// deixava o chat preso aberto. E o painel de comandos — o que no tablet ensina
+// QUAIS comandos existem — nascia só em `isTouchDevice()`.
+await tecla("Enter");
+await espera(400);
+const chatPc = await avaliar(
+  `!document.getElementById('chat-input').classList.contains('hidden')`,
+);
+ok(chatPc === true, "o chat abriu no desktop");
+const painelPc = await avaliar(`(() => {
+  const p = document.getElementById('chat-painel');
+  if (!p) return 'AUSENTE';
+  if (!p.checkVisibility()) return 'invisível';
+  return p.querySelectorAll('button').length;
+})()`);
+ok(
+  typeof painelPc === "number" && painelPc > 0,
+  `a lista de comandos apareceu no MOUSE também (${painelPc} botões)`,
+);
+await foto("05-chat-do-pc-com-a-lista.png");
+// o caso do relato é o campo SEM foco: `blur()` é o que o clique fora faz, e
+// sem ele as teclas chegam ao campo e o handler antigo já bastava (seria ✓ com
+// o bug de volta).
+const foraDoCampo = await avaliar(`(() => {
+  const f = document.getElementById('chat-input');
+  f.blur();
+  return document.activeElement === f ? 'ainda focado' : 'fora';
+})()`);
+ok(foraDoCampo === "fora", `o foco saiu do campo, como no clique fora (${foraDoCampo})`);
+await tecla("Escape");
+await espera(300);
+const fechouNoEsc = await avaliar(
+  `document.getElementById('chat-input').classList.contains('hidden')`,
+);
+ok(fechouNoEsc === true, "Esc fechou o chat com o campo sem foco");
+// a outra metade do relato: o Enter. ⚠️ ele é TAMBÉM a tecla que abre o chat —
+// se o fechar deixasse o evento seguir pro Input, o chat reabriria no mesmo
+// keydown e isto aqui acusaria.
+await tecla("Enter");
+await espera(400);
+await avaliar(`document.getElementById('chat-input').blur()`);
+await tecla("Enter");
+await espera(300);
+const fechouNoEnter = await avaliar(
+  `document.getElementById('chat-input').classList.contains('hidden')`,
+);
+ok(fechouNoEnter === true, "e o Enter também fecha (sem reabrir o chat atrás)");
 // devolve o estado que o C espera receber: pausado, sem ponteiro (é o que o B
 // deixava antes desta seção existir)
 await espera(1500);

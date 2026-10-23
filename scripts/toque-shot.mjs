@@ -723,9 +723,9 @@ await tecla("KeyG");
 await espera(400);
 
 diga("== E: painel de COMANDOS RÁPIDOS no chat (2026-08-14) ==");
-// o painel é este: o panccel nasce quando isTouchDevice() — e é exatamente o
-// que a sonda emula (coarse). Verifica a ÁRVORE, não um botão: o caminho de
-// navegação precisa REPETIR o que o chat.ts renderiza.
+// o painel nasce nos DOIS aparelhos desde 2026-10-23 (o `shots:esc` cobre o
+// mouse); aqui o que se mede é o layout LATERAL e a ÁRVORE, não um botão: o
+// caminho de navegação precisa REPETIR o que o chat.ts renderiza.
 // ⚠️ O `scrollIntoView` não é zelo: a caixa do painel é `max-height: 26vh` com
 // overflow, e com ~24 comandos os últimos ficam FORA da vista. Sem rolar, o
 // `getBoundingClientRect` devolve coordenadas de um botão invisível, o dedo cai
