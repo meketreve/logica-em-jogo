@@ -40,6 +40,7 @@ import {
   isProfessorOnly,
   isQuadro,
   ancoraDeCopia,
+  faceDoClique,
   orientarParaColocar,
   type QuadroConteudo,
   type ColunaRef,
@@ -1845,8 +1846,18 @@ class GameRuntime {
       const naMao = this.hotbarUi.idNaMao();
       if (naMao === null) return;
       // eixo da porta/janela, frente do móvel e da fornalha, metade da laje,
-      // direção da escada: a regra inteira é pura e mora em `shared/orientacao.ts`
-      const blockId = orientarParaColocar(naMao, input.yaw, this.target.ny < 0);
+      // direção da escada: a regra inteira é pura e mora em `shared/orientacao.ts`.
+      // O agachado entra por último (§🔌): ele INVERTE a frente da porta lógica,
+      // e a tecla é a mesma nos dois aparelhos (o botão ⤓ do dedo segura o Shift).
+      const blockId = orientarParaColocar(
+        naMao,
+        input.yaw,
+        this.target.ny < 0,
+        input.down(settings.keys.agachar),
+        // §🔌 a FACE do fio e da alavanca sai da cara clicada: a peça cola no
+        // lado por onde o bloco mirado está (parede e teto, 2026-10-23)
+        faceDoClique(this.target.nx, this.target.ny, this.target.nz),
+      );
       this.activeConn.send(
         JSON.stringify({
           type: "place_block",

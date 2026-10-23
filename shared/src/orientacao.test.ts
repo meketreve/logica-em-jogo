@@ -204,6 +204,33 @@ describe("§🔌 porta E: a SAÍDA aponta pra onde o aluno olha", () => {
     }
   });
 
+  it("AGACHADO inverte a frente (2026-10-23): olhando pro norte, a saída vai pro sul", () => {
+    const casos = [
+      [OLHANDO.maisX, BlockId.PortaEXNDesligada],
+      [OLHANDO.maisZ, BlockId.PortaEZNDesligada],
+      [OLHANDO.menosX, BlockId.PortaEXPDesligada],
+      [OLHANDO.menosZ, BlockId.PortaEZPDesligada],
+    ] as const;
+    for (const [yaw, esperado] of casos) {
+      expect(orientarParaColocar(BlockId.PortaEXPDesligada, yaw, false, true)).toBe(esperado);
+    }
+    // a OU anda pela MESMA aritmética (é o ponto da tabela PORTAS)
+    expect(orientarParaColocar(BlockId.PortaOUXPDesligada, OLHANDO.maisX, false, true)).toBe(
+      BlockId.PortaOUXNDesligada,
+    );
+  });
+
+  it("e o agachado NÃO mexe em quem encara quem colocou (cadeira, fornalha, escada)", () => {
+    // controle negativo: se o inverso valesse pra todo mundo, a cadeira ficaria
+    // de costas pro aluno sempre que ele colocasse agachado — e isso não é bug
+    // de circuito, é a mesa toda errada.
+    for (const id of [BlockId.CadeiraXP, BlockId.Fornalha, BlockId.EscadaPedraXP]) {
+      expect(orientarParaColocar(id, OLHANDO.maisX, false, true)).toBe(
+        orientarParaColocar(id, OLHANDO.maisX, false, false),
+      );
+    }
+  });
+
   it("e qualquer variante volta pra UMA entrada na mochila", () => {
     for (const id of [
       BlockId.PortaEXPDesligada,

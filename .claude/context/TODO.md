@@ -17,14 +17,16 @@ active: true
 - [ ] **Esperando o retorno da aula.** Ele disse em 20/10 que testaria em 21/10 e traria os logs.
       **Hoje é 23/10 e nenhum retorno chegou até aqui** — pode ter acontecido e não ter sido
       relatado, ou a aula ter mudado de data. **Perguntar antes de supor qualquer coisa.**
-- [ ] **§🔌 fase 1** (spec na seção §🔌 do `todo.md`): **botão** (pulso — precisa de prazo por
+- [ ] **§🔌 resto da fase 1** (spec no `todo.md`): **botão** (pulso — precisa de prazo por
       célula, que o motor não tem) e **porta automática** (1ª saída que não é luz; mexe no gate
-      de claim) → **verify:** seção nova na `shots:circuito`, no molde da C3.
-- [ ] **Decisões dele, pendentes:** luz COLORIDA (3 canais na grade, no save e na propagação —
-      lote grande) e a curva de brilho no projetor (só se afina vendo).
+      de claim) → **verify:** seção nova na `shots:circuito`, no molde da C3/C4.
+- [ ] **Decisões dele, pendentes:** luz COLORIDA (3 canais — lote grande) e a curva de brilho.
 
 ## Testar na escola (o usuário faz) — **10 lotes acumulados**
 
+- [ ] **Circuito em PAREDE e TETO (23/10):** dá pra montar o circuito na parede na frente da
+      turma — lê melhor no projetor que no chão? O fio de teto é entendido, ou vira enfeite? E o
+      **agachar invertendo a porta** é descoberto sozinho ou precisa ser dito?
 - [ ] **Chat do PC (23/10):** a lista de comandos no PC ajuda ou atrapalha quem já usa Tab, e
       cabe na tela com o histórico? "porta lógica E/OU" corta no botão da mochila?
 - [ ] **Heartbeat (bug-675) — a aula CONFIRMA ou derruba a causa.** Ler o `-eventos.log`:
@@ -49,9 +51,6 @@ active: true
 
 ## Depois
 
-- [ ] **§🔌 fase 1b — circuito na PAREDE e no TETO** (ideia dele, 23/10; spec em `todo.md`,
-      "Fase 1b"): o motor já conduz nas 6 direções — o custo é FORMA + ids por face e o APOIO,
-      que hoje só sabe olhar pra baixo. Tem 3 decisões dele pendentes na spec.
 - [ ] Ovelha + lã de verdade (§🍖 F8) · sentar na cadeira.
 
 ## Ideias / talvez

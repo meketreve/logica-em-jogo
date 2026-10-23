@@ -18,6 +18,8 @@
  *    inteira, vista na tela;
  * 4b. a PORTA OU, no MESMO arranjo, acende com UMA — a comparação lado a lado;
  * 4c. a PLACA DE PRESSÃO acende a lâmpada quando alguém está EM CIMA dela;
+ * 4d. o FIO colado no TETO e na PAREDE conduz igual ao do chão (2026-10-23) —
+ *     com o controle negativo de tirar o fio e a lâmpada apagar;
  * 5. o aluno não planta circuito no mundo aberto sem terreno (o servidor
  *    explica no chat).
  *
@@ -639,6 +641,78 @@ ok(
 // seção E fotografa, e ela afirma "1 lâmpada"
 for (const dz of [1, 2, 3]) await dizer(`/bloco ${PX_PLACA} ${PY} ${PZ - dz} 0`);
 await dizer(`/bloco ${PX_PLACA} ${Y_OLHO} ${PZ - 3} 0`);
+await espera(600);
+
+diga("== C4: o circuito na PAREDE e no TETO (2026-10-23) ==");
+// Pedido dele: "permitir que os circuitos sejam postos em paredes e tetos". O
+// arranjo é a MESMA bancada da seção B — alavanca → fio → lâmpada, em fila na
+// altura do olho —, trocando só o fio do CHÃO pelo mesmo fio colado no teto e,
+// depois, na parede do fundo. É essa comparação que prova que a face é
+// aparência e apoio, e não topologia: o sinal atravessa igual.
+//
+// ⚠️ PALCO PRÓPRIO, 20 blocos à direita (a dívida de 20/10): a seção C3 pôs a
+// lâmpada numa célula da seção C e derrubou a E três telas adiante. Aqui nada
+// encosta no palco das outras, e no fim a seção apaga o que criou.
+const XW = PX + 20;
+const FIO_TETO = 288; // FioTetoDesligado — colado no teto da célula
+const FIO_ZN = 286; // FioZNDesligado — colado na parede do lado −z
+const Z_FILA = PZ - 3; // a fila fica onde a mira de quem chega cai
+await limparChat();
+for (let dx = -1; dx <= 1; dx++) {
+  for (let dz = -1; dz <= 1; dz++) await dizer(`/bloco ${XW + dx} ${PY - 1} ${PZ + dz} 2`);
+}
+for (let dx = -1; dx <= 3; dx++) {
+  for (let dy = 0; dy <= 3; dy++) await dizer(`/bloco ${XW + dx} ${PY + dy} ${PZ - 5} ${FUNDO}`);
+}
+// os APOIOS do fio: o teto da célula do meio, e a parede atrás dela
+await dizer(`/bloco ${XW + 1} ${Y_OLHO + 1} ${Z_FILA} ${FUNDO}`);
+await dizer(`/bloco ${XW + 1} ${Y_OLHO} ${Z_FILA - 1} ${FUNDO}`);
+await dizer(`/bloco ${XW} ${Y_OLHO} ${Z_FILA} ${ALAVANCA}`);
+await dizer(`/bloco ${XW + 2} ${Y_OLHO} ${Z_FILA} ${LAMPADA}`);
+/** Mede a lâmpada desta bancada SEMPRE da mesma posição (câmera parada: andar
+ *  um bloco muda o tamanho da peça na tela e contamina o A/B). */
+const medirNaParede = async () => {
+  await dizer(`/tp profa ${XW} ${PY} ${PZ}`);
+  await espera(800);
+  await limparChat();
+  await espera(500);
+  return (await brilho(...JANELA)).media;
+};
+for (const [nome, idDoFio, arquivo] of [
+  ["TETO", FIO_TETO, "13-fio-de-teto"],
+  ["PAREDE", FIO_ZN, "14-fio-de-parede"],
+]) {
+  await dizer(`/bloco ${XW + 1} ${Y_OLHO} ${Z_FILA} ${idDoFio}`);
+  await espera(600);
+  const antes = await medirNaParede();
+  await foto(`${arquivo}-apagada.png`);
+  await virar(XW); // liga a alavanca pelo ▣, o mesmo gesto do aluno
+  const depois = await medirNaParede();
+  await foto(`${arquivo}-acesa.png`);
+  ok(
+    depois > antes + 4,
+    `o fio de ${nome} conduz: a lâmpada ACENDE (${antes.toFixed(1)} → ${depois.toFixed(1)})`,
+  );
+  // CONTROLE NEGATIVO da própria seção: tirar o fio do meio (a alavanca fica
+  // LIGADA) tem de apagar. Sem isto, uma alavanca que alcançasse a lâmpada por
+  // conta própria daria ✓ com o fio de parede sem funcionar nada.
+  await dizer(`/bloco ${XW + 1} ${Y_OLHO} ${Z_FILA} ${AR}`);
+  await espera(900);
+  const semFio = await medirNaParede();
+  ok(
+    semFio < depois - 4,
+    `e sem o fio de ${nome} ela apaga, com a alavanca ainda ligada (${depois.toFixed(1)} → ${semFio.toFixed(1)})`,
+  );
+  await virar(XW); // desliga pra próxima volta começar do zero
+}
+// limpa o palco: a lâmpada e a alavanca daqui não entram em nenhuma região,
+// mas a seção E conta peças e a próxima rodada do script reusa o mundo
+for (const cel of [
+  [XW, Y_OLHO, Z_FILA], [XW + 2, Y_OLHO, Z_FILA],
+  [XW + 1, Y_OLHO + 1, Z_FILA], [XW + 1, Y_OLHO, Z_FILA - 1],
+]) {
+  await dizer(`/bloco ${cel[0]} ${cel[1]} ${cel[2]} ${AR}`);
+}
 await espera(600);
 
 diga("== E: o OBJETIVO que CHECA o circuito (2026-10-19) ==");

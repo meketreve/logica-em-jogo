@@ -43,6 +43,17 @@ interface Mudanca {
 const MUDANCAS: readonly Mudanca[] = [
   {
     // sem `data`: este é o build atual (ver rotuloDoBloco)
+    titulo: "O circuito sobe a parede",
+    itens: [
+      "o **fio** e a **alavanca** agora podem ser postos em **parede e teto**, não só no chão: a peça cola na cara do bloco em que você clicou, então o circuito pode subir pelo muro, atravessar o teto e descer do outro lado",
+      "é a mesma peça da mochila nos seis lados — você não precisa fabricar “fio de parede”, e quebrar qualquer um deles devolve um fio comum",
+      "a **lâmpada** e as **portas lógicas** já iam pra parede e pro teto desde sempre (são blocos inteiros), então agora o circuito todo sai do chão",
+      "a **placa de pressão** continua só no chão, de propósito: quem a liga é o pé de quem pisa nela, e na parede ela nunca ligaria",
+      "e as **portas lógicas** ganharam o atalho do agachar: a saída aponta pra onde você olha, e **segurando Shift (ou o botão ⤓ no tablet) ela aponta pro lado contrário** — dá pra montar a bancada de frente pro aluno sem ter de dar a volta por trás dela",
+    ],
+  },
+  {
+    data: "23/10/2026",
     titulo: "O chat do computador ganha a lista de comandos",
     itens: [
       "a **lista de comandos** que só existia no chat do tablet agora aparece no computador também: abra o chat e os comandos estão ali, para clicar em vez de decorar — e quem preferir digitar continua tendo o Tab para completar",

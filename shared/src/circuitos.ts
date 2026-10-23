@@ -83,12 +83,114 @@ const LIGA: Record<TipoDePorta, (entradas: boolean[]) => boolean> = {
   OU: (entradas) => entradas.some(Boolean),
 };
 
+/**
+ * §🔌 A FACE em que uma peça rasteira se cola (2026-10-23).
+ *
+ * "piso" é a de sempre (a lâmina no chão da célula, o pino em pé); as outras
+ * cinco são o pedido dele de parede e teto. O nome é o lado da CÉLULA onde
+ * está o apoio: `XP` está grudada na parede do lado +x e aponta pra −x.
+ */
+export type FaceDaPeca = "piso" | "XP" | "ZP" | "XN" | "ZN" | "teto";
+
+/** As 5 faces novas, NA ORDEM DOS IDS (`FioXPDesligado` em diante). O piso fica
+ *  fora porque o par dele é mais antigo e mora em outro trecho da numeração. */
+export const FACES_DE_PECA = ["XP", "ZP", "XN", "ZN", "teto"] as const;
+
+/**
+ * As duas famílias de peça rasteira, por TABELA — e é a tabela que define tudo,
+ * como `PORTAS` fez pelas portas lógicas.
+ *
+ * `piso` é o par antigo (desligado, ligado = +1) e `faces` é o começo do bloco
+ * de 10 ids novos: para a i-ésima face de `FACES_DE_PECA`, desligado =
+ * `faces + 2*i` e ligado = esse +1. Peça rasteira nova (um botão de parede, um
+ * repetidor) entra aqui e em `blocks.ts`, e nem o motor nem o mesher mudam.
+ */
+const RASTEIRAS = {
+  fio: { piso: BlockId.FioDesligado, faces: BlockId.FioXPDesligado },
+  alavanca: { piso: BlockId.AlavancaDesligada, faces: BlockId.AlavancaXPDesligada },
+} as const;
+
+type FamiliaRasteira = keyof typeof RASTEIRAS;
+
+/** A família deste id (ou null): a pergunta que `isFio`/`isAlavanca` fazem. */
+function familiaRasteira(id: number): FamiliaRasteira | null {
+  for (const nome of Object.keys(RASTEIRAS) as FamiliaRasteira[]) {
+    const f = RASTEIRAS[nome];
+    if (id === f.piso || id === f.piso + 1) return nome;
+    if (id >= f.faces && id < f.faces + FACES_DE_PECA.length * 2) return nome;
+  }
+  return null;
+}
+
 export function isAlavanca(id: number): boolean {
-  return id === BlockId.AlavancaDesligada || id === BlockId.AlavancaLigada;
+  return familiaRasteira(id) === "alavanca";
 }
 
 export function isFio(id: number): boolean {
-  return id === BlockId.FioDesligado || id === BlockId.FioLigado;
+  return familiaRasteira(id) === "fio";
+}
+
+/** Peça rasteira (fio ou alavanca), de qualquer face. */
+export function ehRasteira(id: number): boolean {
+  return familiaRasteira(id) !== null;
+}
+
+/** A face em que esta peça está colada — null se o id não é peça rasteira. */
+export function faceDaPeca(id: number): FaceDaPeca | null {
+  const nome = familiaRasteira(id);
+  if (!nome) return null;
+  const f = RASTEIRAS[nome];
+  if (id === f.piso || id === f.piso + 1) return "piso";
+  return FACES_DE_PECA[(id - f.faces) >> 1] ?? null;
+}
+
+/**
+ * A MESMA peça colada em outra face, mantendo o estado.
+ *
+ * É o que a orientação chama na hora de colocar (a mochila guarda a peça do
+ * piso, e a face sai do GESTO — a cara do clique), e é o caminho de ida do
+ * `formaCanonica`, que traz tudo de volta pro piso.
+ */
+export function comFace(id: number, face: FaceDaPeca): number {
+  const nome = familiaRasteira(id);
+  if (!nome) return id;
+  const f = RASTEIRAS[nome];
+  const ligado = estaLigado(id) ? 1 : 0;
+  if (face === "piso") return f.piso + ligado;
+  const i = FACES_DE_PECA.indexOf(face);
+  return i < 0 ? id : f.faces + i * 2 + ligado;
+}
+
+/**
+ * A face em que a peça vai se colar, dada a NORMAL da face clicada (o
+ * `target.n*` do cliente, que aponta do bloco mirado pra célula nova).
+ *
+ * A peça cola no lado por onde está o bloco clicado, que é o OPOSTO da normal:
+ * clicar no TOPO de um bloco põe a peça no piso da célula de cima (o gesto de
+ * sempre), e clicar na parede põe na parede. Função pura aqui porque é a mesma
+ * pergunta no clique do mouse e no dedo.
+ */
+export function faceDoClique(nx: number, ny: number, nz: number): FaceDaPeca {
+  if (ny > 0) return "piso";
+  if (ny < 0) return "teto";
+  if (nx > 0) return "XN"; // nasceu a +x do bloco → o apoio está a −x dela
+  if (nx < 0) return "XP";
+  if (nz > 0) return "ZN";
+  if (nz < 0) return "ZP";
+  return "piso"; // normal zerada (não acontece pelo clique): o chão é o padrão
+}
+
+/** Pra onde a peça rasteira APONTA (o oposto da face em que ela se cola): é por
+ *  aqui que sai o punho da alavanca e o poste do fio. */
+export function normalDaFace(face: FaceDaPeca): { dx: number; dy: number; dz: number } {
+  switch (face) {
+    case "piso": return { dx: 0, dy: 1, dz: 0 };
+    case "teto": return { dx: 0, dy: -1, dz: 0 };
+    case "XP": return { dx: -1, dy: 0, dz: 0 };
+    case "XN": return { dx: 1, dy: 0, dz: 0 };
+    case "ZP": return { dx: 0, dy: 0, dz: -1 };
+    case "ZN": return { dx: 0, dy: 0, dz: 1 };
+  }
 }
 
 export function isLampada(id: number): boolean {
@@ -150,9 +252,10 @@ export function baseDaPorta(id: number): number | null {
 
 /** A peça está LIGADA/ACESA agora? (o estado mora no id) */
 export function estaLigado(id: number): boolean {
-  if (isAlavanca(id)) return id === BlockId.AlavancaLigada;
+  // peça rasteira: o ligado é sempre o id ÍMPAR do par, em toda face (é a
+  // regularidade que a numeração de 2026-10-23 existe pra garantir)
+  if (ehRasteira(id)) return id % 2 === 1;
   if (isPlaca(id)) return id === BlockId.PlacaLigada;
-  if (isFio(id)) return id === BlockId.FioLigado;
   if (isLampada(id)) return id === BlockId.LampadaAcesa;
   const tipo = tipoDaPorta(id);
   if (tipo) return id - PORTAS[tipo].base >= 4; // as 4 ligadas vêm depois das 4 desligadas
@@ -162,9 +265,9 @@ export function estaLigado(id: number): boolean {
 /** O MESMO bloco no outro estado — é o que a alavanca faz no clique e o que o
  *  motor escreve no tick. Devolve o próprio id se ele não tem dois estados. */
 export function comEstado(id: number, ligado: boolean): number {
-  if (isAlavanca(id)) return ligado ? BlockId.AlavancaLigada : BlockId.AlavancaDesligada;
+  // peça rasteira: troca o bit baixo do par e a FACE fica onde está
+  if (ehRasteira(id)) return (id - (id % 2)) + (ligado ? 1 : 0);
   if (isPlaca(id)) return ligado ? BlockId.PlacaLigada : BlockId.PlacaDesligada;
-  if (isFio(id)) return ligado ? BlockId.FioLigado : BlockId.FioDesligado;
   if (isLampada(id)) return ligado ? BlockId.LampadaAcesa : BlockId.LampadaApagada;
   const tipo = tipoDaPorta(id);
   if (tipo) {

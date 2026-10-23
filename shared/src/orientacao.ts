@@ -15,7 +15,14 @@ import {
   slabTop,
   stairsMaterial,
 } from "./blocks";
-import { baseDaPorta, isPlaca, isPortaLogica } from "./circuitos";
+import {
+  baseDaPorta,
+  comFace,
+  ehRasteira,
+  type FaceDaPeca,
+  isPlaca,
+  isPortaLogica,
+} from "./circuitos";
 
 /**
  * A regra de ORIENTAÇÃO na hora de colocar, e o caminho de volta.
@@ -53,8 +60,21 @@ export function quadranteDoOlhar(yaw: number): number {
  * @param blockId  o que está na mão (a âncora da família)
  * @param yaw      pra onde o jogador olha
  * @param porBaixo clicou na face de BAIXO do bloco mirado (`target.ny < 0`)
+ * @param agachado o Shift (ou o botão ⤓ do dedo) estava segurado no clique
+ * @param face     §🔌 a face em que a peça rasteira se cola (`faceDoClique`)
  */
-export function orientarParaColocar(blockId: number, yaw: number, porBaixo: boolean): number {
+export function orientarParaColocar(
+  blockId: number,
+  yaw: number,
+  porBaixo: boolean,
+  agachado = false,
+  face: FaceDaPeca = "piso",
+): number {
+  // §🔌 2026-10-23: fio e alavanca vão pra PAREDE e pro TETO. A mochila guarda
+  // a peça do piso (uma entrada por família, como a porta), e a face sai do
+  // GESTO: a cara do bloco que o aluno clicou. Fica antes de todo o resto
+  // porque é a única família cuja variante não vem do olhar.
+  if (ehRasteira(blockId)) return comFace(blockId, face);
   // porta/janela: o EIXO sai da direção do olhar (a lâmina fecha a passagem que
   // o jogador está encarando). Aqui basta o eixo, não o sentido — por isso a
   // comparação é entre |sin| e |cos| e não passa pelo quadrante.
@@ -93,9 +113,16 @@ export function orientarParaColocar(blockId: number, yaw: number, porBaixo: bool
   // ficam nos dois lados do braço do aluno.
   // vale pra TODA porta lógica (E, OU, …): o bloco de 8 ids começa na frente
   // XP desligada, então base + quadrante é a direção certa, seja qual for a regra
+  //
+  // AGACHADO INVERTE a frente (2026-10-23, decisão dele): "se o jogador estiver
+  // olhando para o norte e estiver agachado a saída da porta fica virada para o
+  // sul". Vale pra ele e pra montar a mesa: colocar a porta de frente pro aluno
+  // exigia dar a volta por trás da bancada, ou colocar e quebrar até acertar.
+  // O gesto é o mesmo do Minecraft (Shift muda o que o clique direito faz) e
+  // existe nos dois aparelhos — no dedo o botão ⤓ segura a mesma tecla.
   {
     const base = baseDaPorta(blockId);
-    if (base !== null) return base + quadranteDoOlhar(yaw);
+    if (base !== null) return base + ((quadranteDoOlhar(yaw) + (agachado ? 2 : 0)) % 4);
   }
   // laje (2026-07-25): mirou por BAIXO → laje de CIMA; senão laje de baixo
   // (piso). A hotbar guarda a âncora "baixo".
@@ -118,6 +145,9 @@ export function orientarParaColocar(blockId: number, yaw: number, porBaixo: bool
  */
 export function ancoraDeCopia(id: number): number {
   if (isPortaLogica(id)) return baseDaPorta(id) as number; // §🔌 (não é "porta": 262+, não 66-69)
+  // §🔌 fio/alavanca de parede ou teto copiam pra peça do PISO desligada: a
+  // face é escolha do próximo clique, como a direção da porta (2026-10-23)
+  if (ehRasteira(id)) return comFace(id - (id % 2), "piso");
   // §🔌 pisada é ESTADO: copiar a placa com o pé em cima tem de dar a placa
   if (isPlaca(id)) return BlockId.PlacaDesligada;
   if (isPorta(id)) return BlockId.PortaXFechada;

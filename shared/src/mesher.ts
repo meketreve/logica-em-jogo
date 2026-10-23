@@ -38,12 +38,16 @@ import {
 } from "./blocks";
 import {
   conectaCondutor,
+  ehRasteira,
   entradasDaPorta,
   estaLigado,
+  type FaceDaPeca,
+  faceDaPeca,
   frenteDaPorta,
   isAlavanca,
   isFio,
   isPlaca,
+  normalDaFace,
   passoDe,
   vizinhoEntrega,
 } from "./circuitos";
@@ -417,6 +421,19 @@ for (const { apagada, acesa } of FORNALHA_POR_FRENTE) {
     side: TILE.fornalhaCostas, frente: TILE.fornalhaLadoAcesa,
   };
 }
+// §🔌 fio e alavanca de PAREDE e TETO (2026-10-23): a forma vive no emitShape
+// (girada pela face), então estas entradas alimentam só o tile das caixas e o
+// ícone 2D — que é o MESMO da peça de piso, porque na mochila existe uma
+// entrada por família e o aluno escolhe a face no clique. Em laço, pela mesma
+// razão da fornalha: 20 entradas à mão seriam 20 chances de trocar um tile e
+// ninguém ver até a aula.
+for (let i = 0; i < 5; i++) {
+  BLOCK_TILES[BlockId.FioXPDesligado + i * 2] = uniform(TILE.fioDesligado);
+  BLOCK_TILES[BlockId.FioXPDesligado + i * 2 + 1] = uniform(TILE.fioLigado);
+  BLOCK_TILES[BlockId.AlavancaXPDesligada + i * 2] = uniform(TILE.alavancaDesligada);
+  BLOCK_TILES[BlockId.AlavancaXPDesligada + i * 2 + 1] = uniform(TILE.alavancaLigada);
+}
+
 // água fluida (2026-07-22): os 7 níveis usam o MESMO tile da fonte (v1 cubo
 // cheio; a altura-por-nível é refino futuro).
 for (let id = BlockId.AguaFluida1; id <= BlockId.AguaFluida7; id++) {
@@ -541,6 +558,32 @@ function ehCruzDeSprite(id: number): boolean {
  *  cada não-cubo devolve a caixa que ENVOLVE a forma do mesher, então o
  *  contorno segue a textura (estilo Minecraft). PURA — estado/direção moram no
  *  próprio id (porta/janela aberta, quadro/móvel direcional). */
+/**
+ * §🔌 A caixa escrita no PLANO de uma face, levada pros eixos do mundo (2026-10-23).
+ *
+ * `u` e `v` andam DENTRO da face e `e` é a profundidade a partir dela (0 =
+ * rente ao apoio). No piso é a identidade — u=x, v=z, e=y —, e é por isso que a
+ * peça de chão continua saindo exatamente como antes do fio e da alavanca
+ * ganharem parede e teto.
+ *
+ * ÚNICA fonte do giro: a usam a forma (`emitShape`) e a caixa de MIRA
+ * (`blockSelectionBox`). Fossem duas, o contorno preto do ▣ apareceria num
+ * lugar e a peça em outro — o defeito que o aluno lê como "não dá pra clicar".
+ */
+export function giroDaFace(
+  face: FaceDaPeca,
+  u0: number, v0: number, e0: number, u1: number, v1: number, e1: number,
+): readonly [number, number, number, number, number, number] {
+  switch (face) {
+    case "piso": return [u0, e0, v0, u1, e1, v1];
+    case "teto": return [u0, 1 - e1, v0, u1, 1 - e0, v1];
+    case "XP": return [1 - e1, v0, u0, 1 - e0, v1, u1];
+    case "XN": return [e0, v0, u0, e1, v1, u1];
+    case "ZP": return [u0, v0, 1 - e1, u1, v1, 1 - e0];
+    case "ZN": return [u0, v0, e0, u1, v1, e1];
+  }
+}
+
 export function blockSelectionBox(
   id: number,
 ): readonly [number, number, number, number, number, number] {
@@ -549,7 +592,9 @@ export function blockSelectionBox(
   }
   if (isTapete(id)) return [0, 0, 0, 1, P, 1];
   if (id === BlockId.Tocha) return [7 * P, 0, 7 * P, 9 * P, 10 * P, 9 * P];
-  if (isFio(id)) return [0, 0, 0, 1, P, 1]; // §🔌 lâmina de chão, como o tapete
+  // §🔌 lâmina rente ao apoio, como o tapete — e na parede/teto a MESMA lâmina
+  // girada (2026-10-23), senão o contorno do ▣ ficaria no chão e a peça na parede
+  if (isFio(id)) return giroDaFace(faceDaPeca(id) ?? "piso", 0, 0, 0, 1, 1, P);
   // §🔌 a placa: a mira é a MESMA nos dois estados (afundar não pode mudar onde
   // se clica pra quebrar), e generosa — alvo de dedo no chão
   if (isPlaca(id)) return [P, 0, P, 15 * P, 2 * P, 15 * P];
@@ -557,7 +602,9 @@ export function blockSelectionBox(
   // 12/16 nos DOIS estados, de propósito: é o raycast que decide o rótulo do ▣,
   // e uma caixa baixa traria de volta o "colocar" por cima dela (bug-676). Mira
   // generosa num alvo de dedo é recurso, não defeito.
-  if (isAlavanca(id)) return [5 * P, 0, 5 * P, 11 * P, 12 * P, 11 * P];
+  if (isAlavanca(id)) {
+    return giroDaFace(faceDaPeca(id) ?? "piso", 5 * P, 5 * P, 0, 11 * P, 11 * P, 12 * P);
+  }
   // §🔌 o chip: a mira segue o CORPO (os pinos ficam de fora, como a travessa
   // da cerca) — o contorno preto rente ao corpo é o que diz ao aluno qual das
   // duas portas encostadas ele vai quebrar
@@ -1217,7 +1264,122 @@ export function meshVizinhanca(viz: Uint16Array, luzViz?: Uint8Array | null): Ch
   };
 
   /** Geometria das formas não-cubo (cp23). true = era forma, célula emitida. */
+  /**
+   * §🔌 PEÇA RASTEIRA EM QUALQUER FACE (2026-10-23) — a caixa escrita no PLANO
+   * da face, e girada pra ela na saída.
+   *
+   * O fio e a alavanca nasceram presos ao piso, com a forma escrita direto nos
+   * eixos do mundo (x, z no plano; y na altura). Pra eles irem pra parede e pro
+   * teto havia dois caminhos: escrever cinco formas novas à mão, ou escrever UMA
+   * e girá-la. Com cinco cópias, melhorar o desenho da alavanca viraria seis
+   * edições e a sexta ficaria diferente das outras — foi o que já aconteceu com
+   * os menus escritos à mão (launcher, 20/10).
+   *
+   * As coordenadas do plano: `u` e `v` andam DENTRO da face e `e` é a
+   * profundidade a partir dela (0 = rente ao apoio). No piso isto é exatamente
+   * o que já estava escrito (u=x, v=z, e=y), e é por isso que a peça de chão sai
+   * byte a byte igual à de antes — o que importa, porque o A/B de pixel da
+   * `shots:circuito` mede justamente ela.
+   */
+  const caixaNaFace = (
+    face: FaceDaPeca,
+    lx: number, ly: number, lz: number, id: number, tile: number,
+    u0: number, v0: number, e0: number, u1: number, v1: number, e1: number,
+  ): void => {
+    const [x0, y0, z0, x1, y1, z1] = giroDaFace(face, u0, v0, e0, u1, v1, e1);
+    emitBox(lx, ly, lz, id, tile, x0, y0, z0, x1, y1, z1);
+  };
+
+  /** Os dois eixos do plano da face, em deslocamento de MUNDO: é por eles que a
+   *  peça pergunta "o vizinho deste lado conecta?" sem sair do plano dela. */
+  const eixosDaFace = (
+    face: FaceDaPeca,
+  ): { u: [number, number, number]; v: [number, number, number] } =>
+    face === "piso" || face === "teto"
+      ? { u: [1, 0, 0], v: [0, 0, 1] }
+      : face === "XP" || face === "XN"
+        ? { u: [0, 0, 1], v: [0, 1, 0] }
+        : { u: [1, 0, 0], v: [0, 1, 0] };
+
+  /**
+   * §🔌 O FIO e a ALAVANCA, em qualquer face. Uma função, seis orientações.
+   *
+   * O FIO é uma lâmina rente ao apoio (a forma do tapete): ele tem de passar
+   * DEBAIXO do aluno sem virar degrau, senão um circuito na mesa viraria uma
+   * pista de obstáculos. Desenho CONECTADO (2026-10-19), no molde da cerca: pad
+   * central + um braço por vizinho que TROCA SINAL de verdade — antes era uma
+   * faixa pintada num eixo fixo do tile, igual em toda célula, e curva e T não
+   * se desenhavam.
+   *
+   * ⚠️ quem responde "conecta?" é a `conectaCondutor`, do `circuitos.ts`, a
+   * MESMA que o motor usa. Não existe segunda regra: braço até uma porta lógica
+   * só aparece na frente e nas laterais dela, nunca nas costas, porque é isso
+   * que o sinal faz. **O motor não olha a face**: fio é fio, conduz nas 6
+   * direções em qualquer parede — a face é APARÊNCIA e apoio, não topologia.
+   *
+   * A ALAVANCA é base + punho, e o punho fica EM PÉ (ligada) ou DEITADO
+   * (desligada) — 2026-10-19: antes os dois estados tinham a MESMA silhueta e a
+   * diferença era a cor do pino, que some num projetor ruim, some pra quem não
+   * distingue as cores e some de longe. "Em pé" agora quer dizer **saindo da
+   * face**: na parede o punho aponta pro meio do corredor, e a leitura de longe
+   * continua sendo silhueta.
+   */
+  const emitRasteira = (id: number, lx: number, ly: number, lz: number): boolean => {
+    const face = faceDaPeca(id);
+    if (!face) return false;
+    const ligado = estaLigado(id);
+    const posta = (
+      tile: number,
+      u0: number, v0: number, e0: number, u1: number, v1: number, e1: number,
+    ): void => caixaNaFace(face, lx, ly, lz, id, tile, u0, v0, e0, u1, v1, e1);
+    if (isFio(id)) {
+      const tile = ligado ? TILE.fioLigado : TILE.fioDesligado;
+      // 2/16 de altura (era 1/16): a 1/16 o fio sumia num projetor ruim e na
+      // tela de 1024×600. Não é sólido, então a colisão não muda.
+      const h = 2 * P;
+      const a = 6 * P, b = 10 * P; // o pad central, 4/16
+      const liga = (dx: number, dy: number, dz: number): boolean =>
+        conectaCondutor(bloco(lx + dx, ly + dy, lz + dz), dx, dy, dz);
+      const { u, v } = eixosDaFace(face);
+      posta(tile, a, a, 0, b, b, h);
+      // os 4 braços DENTRO do plano da face
+      if (liga(-u[0], -u[1], -u[2])) posta(tile, 0, a, 0, a, b, h);
+      if (liga(u[0], u[1], u[2])) posta(tile, b, a, 0, 1, b, h);
+      if (liga(-v[0], -v[1], -v[2])) posta(tile, a, 0, 0, b, a, h);
+      if (liga(v[0], v[1], v[2])) posta(tile, a, b, 0, b, 1, h);
+      // POSTE: o motor conduz em 6 direções, mas cada fio é uma lâmina rente à
+      // sua face — dois fios de piso empilhados deixavam 14/16 de vão e a
+      // ligação vertical era invisível. O poste atravessa a célula a partir do
+      // pad, SAINDO da face, e encosta na lâmina do outro lado. Na parede ele é
+      // o mesmo gesto, deitado: o fio que vira a esquina mostra que virou.
+      const n = normalDaFace(face);
+      if (liga(n.dx, n.dy, n.dz)) posta(tile, a, a, h, b, b, 1);
+      return true;
+    }
+    const tile = ligado ? TILE.alavancaLigada : TILE.alavancaDesligada;
+    // base: a peça presa à face, igual nos dois estados (é a âncora que o olho
+    // usa pra comparar)
+    posta(tile, 5 * P, 5 * P, 0, 11 * P, 11 * P, 3 * P);
+    if (ligado) {
+      // ⚠️ o punho vai a 12/16: a mira do jogador sai na altura do OLHO (pé +
+      // 1,6) e passava reto por cima de um pino baixo — o ▣ oferecia "colocar"
+      // em cima da alavanca e o aluno punha um bloco na frente dela em vez de
+      // acionar (quem mediu foi a sonda, no rótulo do botão)
+      posta(tile, 6 * P, 6 * P, 3 * P, 10 * P, 10 * P, 12 * P);
+    } else {
+      // deitado: o MESMO punho tombado pro +u, rente à base. Num eixo FIXO (não
+      // inclinado como no Minecraft) porque inclinar só diz alguma coisa de
+      // alguns ângulos — olhando ao longo do eixo da inclinação, os dois
+      // estados voltam a ser iguais.
+      posta(tile, 6 * P, 6 * P, 3 * P, 15 * P, 10 * P, 6 * P);
+    }
+    return true;
+  };
+
   const emitShape = (id: number, lx: number, ly: number, lz: number): boolean => {
+    // §🔌 fio e alavanca: 24 ids (6 faces × 2 estados × 2 peças) numa função só,
+    // fora do `switch` — a face vem do id e a forma é a mesma, girada
+    if (ehRasteira(id)) return emitRasteira(id, lx, ly, lz);
     switch (id) {
       case BlockId.Cerca: {
         // poste central + travessas (2 alturas) até cada vizinho conectável
@@ -1263,41 +1425,6 @@ export function meshVizinhanca(viz: Uint16Array, luzViz?: Uint8Array | null): Ch
       }
       case BlockId.Tocha: {
         emitBox(lx, ly, lz, id, TILE.tocha, 7 * P, 0, 7 * P, 9 * P, 10 * P, 9 * P);
-        return true;
-      }
-      // §🔌 o FIO é uma lâmina no chão (a forma do tapete): ele tem de passar
-      // DEBAIXO do aluno sem virar degrau, senão um circuito na mesa viraria
-      // uma pista de obstáculos.
-      //
-      // Desenho CONECTADO (2026-10-19), no molde da cerca: pad central + um
-      // braço por vizinho que TROCA SINAL de verdade. Antes era uma faixa
-      // pintada num eixo fixo do tile, igual em toda célula: fio no outro eixo
-      // virava escada de traços, e curva e T não se desenhavam — o aluno não
-      // via o caminho que o motor usa.
-      //
-      // ⚠️ quem responde "conecta?" é a `conectaCondutor`, do `circuitos.ts`, a
-      // MESMA que o motor usa. Não existe segunda regra: braço até uma porta
-      // lógica só aparece na frente e nas laterais dela, nunca nas costas,
-      // porque é isso que o sinal faz.
-      case BlockId.FioDesligado:
-      case BlockId.FioLigado: {
-        const tile = id === BlockId.FioLigado ? TILE.fioLigado : TILE.fioDesligado;
-        const liga = (dx: number, dy: number, dz: number): boolean =>
-          conectaCondutor(bloco(lx + dx, ly + dy, lz + dz), dx, dy, dz);
-        // 2/16 de altura (era 1/16): a 1/16 o fio sumia num projetor ruim e na
-        // tela de 1024×600. Não é sólido, então a colisão não muda.
-        const h = 2 * P;
-        const a = 6 * P, b = 10 * P; // o pad central, 4/16
-        emitBox(lx, ly, lz, id, tile, a, 0, a, b, h, b);
-        if (liga(-1, 0, 0)) emitBox(lx, ly, lz, id, tile, 0, 0, a, a, h, b);
-        if (liga(1, 0, 0)) emitBox(lx, ly, lz, id, tile, b, 0, a, 1, h, b);
-        if (liga(0, 0, -1)) emitBox(lx, ly, lz, id, tile, a, 0, 0, b, h, a);
-        if (liga(0, 0, 1)) emitBox(lx, ly, lz, id, tile, a, 0, b, b, h, 1);
-        // POSTE: o motor conduz em 6 direções, mas cada fio é lâmina no piso da
-        // célula — dois empilhados deixavam 14/16 de vão e a ligação vertical
-        // era invisível. O poste sobe do pad até o teto da célula e encosta na
-        // lâmina de cima.
-        if (liga(0, 1, 0)) emitBox(lx, ly, lz, id, tile, a, h, a, b, 1, b);
         return true;
       }
       // §🔌 a PLACA DE PRESSÃO: lâmina de chão com uma borda, e ela AFUNDA
@@ -1351,40 +1478,6 @@ export function meshVizinhanca(viz: Uint16Array, luzViz?: Uint8Array | null): Ch
         for (const lateral of entradasDaPorta(id)) {
           const d = passoDe(lateral);
           pino(d, vizinhoEntrega(bloco(lx + d.dx, ly, lz + d.dz), d.dx, 0, d.dz));
-        }
-        return true;
-      }
-      // …e a ALAVANCA é um pino baixo (a forma da tocha, mais gorda): o aluno
-      // tem de distinguir ligada de desligada de longe, e a diferença mora na
-      // TEXTURA (o pino não se inclina — inclinar pediria 4 direções no id).
-      case BlockId.AlavancaDesligada:
-      case BlockId.AlavancaLigada: {
-        // A ALAVANCA: base fixa + punho que fica EM PÉ (ligada) ou DEITADO
-        // (desligada) — 2026-10-19.
-        //
-        // Antes os dois estados tinham a MESMA silhueta e a diferença era a cor
-        // do pino: some num projetor ruim, some pra quem não distingue as cores
-        // e some de longe, que é justamente quando o aluno precisa saber se a
-        // entrada está ligada. Altura não depende de ângulo nem de cor.
-        //
-        // Deitada num EIXO FIXO (não inclinada como no Minecraft) porque
-        // inclinar só diz alguma coisa de alguns ângulos: olhando ao longo do
-        // eixo da inclinação, os dois estados voltam a ser iguais. Por direção
-        // custaria 4× ids, e a alavanca não tem direção no motor.
-        const ligada = id === BlockId.AlavancaLigada;
-        const tile = ligada ? TILE.alavancaLigada : TILE.alavancaDesligada;
-        // base: a peça presa ao chão, igual nos dois estados (é a âncora que o
-        // olho usa pra comparar)
-        emitBox(lx, ly, lz, id, tile, 5 * P, 0, 5 * P, 11 * P, 3 * P, 11 * P);
-        if (ligada) {
-          // ⚠️ o punho vai a 12/16: a mira do jogador sai na altura do OLHO
-          // (pé + 1,6) e passava reto por cima de um pino baixo — o ▣ oferecia
-          // "colocar" em cima da alavanca e o aluno punha um bloco na frente
-          // dela em vez de acionar (quem mediu foi a sonda, no rótulo do botão)
-          emitBox(lx, ly, lz, id, tile, 6 * P, 3 * P, 6 * P, 10 * P, 12 * P, 10 * P);
-        } else {
-          // deitado: o MESMO punho tombado pro +x, rente à base
-          emitBox(lx, ly, lz, id, tile, 6 * P, 3 * P, 6 * P, 15 * P, 6 * P, 10 * P);
         }
         return true;
       }

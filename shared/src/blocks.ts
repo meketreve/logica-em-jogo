@@ -371,6 +371,50 @@ export const BlockId = {
    *  cima sem tropeçar. */
   PlacaDesligada: 278,
   PlacaLigada: 279,
+  /**
+   * §🔌 O CIRCUITO SAI DO CHÃO (2026-10-23, pedido dele: "permitir que os
+   * circuitos sejam postos em paredes e tetos").
+   *
+   * Lâmpada e porta lógica já iam pra parede e pro teto desde sempre — são
+   * cubos, e cubo se coloca em qualquer lugar. Quem ficava preso no chão era o
+   * FIO (lâmina no piso da célula) e a ALAVANCA (pino em pé): a face em que
+   * eles se colam era IMPLÍCITA, e implícito não se guarda no save. Então ela
+   * virou id, como o eixo da porta e a frente da fornalha.
+   *
+   * **As 5 faces novas, na ordem `FACES_DE_PECA` do `circuitos.ts`** (XP, ZP,
+   * XN, ZN, teto) e com o **ligado sempre em id+1**, igual ao par do piso —
+   * é essa regularidade que deixa `estaLigado`/`comEstado` serem uma conta e
+   * não uma tabela de 24 linhas. O nome diz a face EM QUE A PEÇA SE COLA: o
+   * `FioXP` está grudado na parede do lado +x da sua célula e aponta pra −x.
+   *
+   * O par do PISO continua em 258/259 (fio) e 256/257 (alavanca): id é byte de
+   * save, não se renumera — a faixa nova vem depois, e os dois pedaços se
+   * reúnem em `ehFio`/`ehAlavanca`.
+   *
+   * A PLACA não entra: quem a liga é o corpo em cima dela, então na parede e
+   * no teto ela nunca ligaria — peça que o jogo deixa colocar e não funciona é
+   * pior que peça que não se coloca (decisão dele, 2026-10-23).
+   */
+  FioXPDesligado: 280,
+  FioXPLigado: 281,
+  FioZPDesligado: 282,
+  FioZPLigado: 283,
+  FioXNDesligado: 284,
+  FioXNLigado: 285,
+  FioZNDesligado: 286,
+  FioZNLigado: 287,
+  FioTetoDesligado: 288,
+  FioTetoLigado: 289,
+  AlavancaXPDesligada: 290,
+  AlavancaXPLigada: 291,
+  AlavancaZPDesligada: 292,
+  AlavancaZPLigada: 293,
+  AlavancaXNDesligada: 294,
+  AlavancaXNLigada: 295,
+  AlavancaZNDesligada: 296,
+  AlavancaZNLigada: 297,
+  AlavancaTetoDesligada: 298,
+  AlavancaTetoLigada: 299,
 } as const;
 
 export type BlockId = (typeof BlockId)[keyof typeof BlockId];
@@ -389,7 +433,7 @@ export type BlockId = (typeof BlockId)[keyof typeof BlockId];
  * mochila. Há portão em `ids16.test.ts`. E id é byte de SAVE: nunca renumerar
  * um id que já existe, só acrescentar no fim.
  */
-export const MAX_BLOCK_ID = BlockId.PlacaLigada;
+export const MAX_BLOCK_ID = BlockId.AlavancaTetoLigada;
 
 /**
  * Os ids que EXISTEM de verdade.
@@ -423,13 +467,43 @@ export function ehPortaLogica(id: number): boolean {
   return id >= BlockId.PortaEXPDesligada && id <= BlockId.PortaOUZNLigada;
 }
 
+/**
+ * §🔌 Fio e alavanca, em QUALQUER face (piso ou as 5 de 2026-10-23).
+ *
+ * Moram aqui, como `ehPortaLogica` e pelo mesmo motivo: o `blocks.ts` é a raiz
+ * (não importa ninguém) e `isFullCube`/`isSolidBlock` precisam da resposta. O
+ * `circuitos.ts` tem a tabela POR FACE, mais rica, e um portão em
+ * `circuitos.test.ts` varre todo id conferindo que as duas concordam — é o que
+ * impede isto de virar duas listas do mesmo conjunto.
+ *
+ * Dois pedaços de faixa de propósito: o par do PISO é de 2026-10-16 e id é byte
+ * de save (nunca se renumera), então as faces novas vieram no fim.
+ */
+export function ehFio(id: number): boolean {
+  return (
+    id === BlockId.FioDesligado ||
+    id === BlockId.FioLigado ||
+    (id >= BlockId.FioXPDesligado && id <= BlockId.FioTetoLigado)
+  );
+}
+
+/** §🔌 Alavanca em qualquer face — ver `ehFio`. */
+export function ehAlavanca(id: number): boolean {
+  return (
+    id === BlockId.AlavancaDesligada ||
+    id === BlockId.AlavancaLigada ||
+    (id >= BlockId.AlavancaXPDesligada && id <= BlockId.AlavancaTetoLigada)
+  );
+}
+
 /** Peça de circuito no estado LIGADO/ACESO (§🔌). Mesma disciplina da porta
  *  ABERTA e da plantação crescida: é RESULTADO (do motor, no tick), não escolha
  *  — nunca se coloca na mão nem se vende na loja. */
 export function isCircuitoLigado(id: number): boolean {
+  // fio e alavanca: o LIGADO é sempre o id ímpar do par (piso e as 5 faces
+  // novas seguem a mesma regra — ver o comentário dos ids)
+  if (ehFio(id) || ehAlavanca(id)) return id % 2 === 1;
   return (
-    id === BlockId.AlavancaLigada ||
-    id === BlockId.FioLigado ||
     id === BlockId.LampadaAcesa ||
     (id >= BlockId.PortaEXPLigada && id <= BlockId.PortaEZNLigada) ||
     (id >= BlockId.PortaOUXPLigada && id <= BlockId.PortaOUZNLigada) ||
@@ -1225,10 +1299,11 @@ export function isFullCube(id: number): boolean {
     !ehPortaLogica(id) &&
     id !== BlockId.PlacaDesligada && // §🔌 lâmina de chão, como o tapete
     id !== BlockId.PlacaLigada &&
-    id !== BlockId.FioDesligado &&
-    id !== BlockId.FioLigado &&
-    id !== BlockId.AlavancaDesligada &&
-    id !== BlockId.AlavancaLigada
+    // §🔌 2026-10-23: `ehFio`/`ehAlavanca` no lugar dos 4 ids soltos — a peça
+    // de PAREDE e de TETO é a mesma forma girada, e um id novo fora desta
+    // linha sairia cubo cheio (o defeito que a sonda pegou em 16/10)
+    !ehFio(id) &&
+    !ehAlavanca(id)
   );
 }
 
@@ -1241,11 +1316,12 @@ export function isSolidBlock(id: number): boolean {
     !isJanelaAberta(id) && // janela aberta (base OU R) atravessa
     id !== BlockId.Tocha &&
     // §🔌 fio e alavanca são rasteiros: o circuito atravessa a mesa e o aluno
-    // anda por cima sem tropeçar (a lâmpada e a porta E, essas são cubos)
-    id !== BlockId.FioDesligado &&
-    id !== BlockId.FioLigado &&
-    id !== BlockId.AlavancaDesligada &&
-    id !== BlockId.AlavancaLigada &&
+    // anda por cima sem tropeçar (a lâmpada e a porta E, essas são cubos). Na
+    // parede e no teto (2026-10-23) o motivo é outro e igualmente forte: peça
+    // sólida numa parede estreitaria o corredor e o portão do bug-605
+    // resgataria quem passasse rente a ela.
+    !ehFio(id) &&
+    !ehAlavanca(id) &&
     // §🔌 e a PLACA DE PRESSÃO mais que todas: ela existe PRA SER PISADA.
     // Sólida, o servidor resgatava quem pisasse (o portão do bug-605 vê
     // "jogador dentro de bloco sólido" e tira a pessoa de lá), e a peça nunca

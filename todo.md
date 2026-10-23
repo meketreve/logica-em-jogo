@@ -1074,25 +1074,29 @@ sem ela os 4 níveis de machado empatariam no piso de 150 ms. Prova: `shared/src
 vertical do fio, de 19/10, é a prova visível), e lâmpada e portas lógicas são **cubos cheios** —
 essas duas já se colocam em parede e teto hoje. O que falta é **FORMA + IDS + APOIO**, não sinal.
 
-* \[ ] **fio de parede e de teto** — o 1º passo, e o que sozinho já entrega a ideia (subir o
-  circuito pela parede). Hoje o fio é uma lâmina de 2/16 no PISO da célula: a face é implícita.
-  Como o estado mora no id, a face também tem de morar nele — 5 faces novas (4 paredes + teto)
-  × 2 estados = **10 ids novos**, append depois de 279, nunca renumerar.
-  → **o custo real é o APOIO, não o desenho:** `precisaApoio`/`apoioValido` (`blocks.ts`) só
-  sabem olhar a célula de BAIXO, e a mesma regra derruba quem perdeu o apoio. Fio de parede
-  precisa de "o vizinho da MINHA face", o que generaliza o gate do `place_block` **e** a regra de
-  vizinhança — é aí que mora o risco de quebrar tocha, flor e tapete, que usam o mesmo caminho.
-  → **topologia:** `conectaCondutor` passa a depender da FACE. Recomendação: dois fios de faces
-  diferentes conectam quando as faces se encontram numa ARESTA (o fio subindo a parede, como no
-  Minecraft) — senão o aluno vê fio colado que não passa sinal, que é o pecado de 19/10
-  ("desenho fora da topologia mostra fio ligado onde o sinal não passa").
-  → **mesher:** seria a 1ª forma ROTACIONADA do projeto (hoje cada `emitShape` é escrito no
-  eixo). O barato é uma função que gira a caixa pela face antes do `emitBox`, usada só aqui.
-* \[ ] **alavanca de parede e de teto** — hoje ela "pede cubo cheio embaixo, igual à tocha", e o
-  comentário no `blocks.ts:256` já diz que alavanca de parede ficou de fora do 1º lote por pedir
-  forma e direção novas. Mesma conta: 5 faces × 2 estados = **10 ids novos**. Vem DEPOIS do fio —
-  o fio é o que destrava a ideia; a alavanca é conforto.
-* \[ ] **o que NÃO sai do chão** (recomendação minha, confirmar):
+* \[x] **fio e alavanca de parede e de teto** — **FEITO 2026-10-23** (os dois no mesmo lote: a
+  forma girada serve às duas, e separar daria duas edições da mesma função). Ids 280-299, append
+  depois de 279, **ligado sempre em id+1** como o par do piso — é essa regularidade que deixa
+  `estaLigado`/`comEstado` serem uma conta. Tabela `RASTEIRAS` no `circuitos.ts`, faixa gêmea
+  (`ehFio`/`ehAlavanca`) no `blocks.ts` com portão varrendo todo id.
+  → **o APOIO não era o custo, e a spec errava nisso:** peça de circuito **nunca** entrou no
+  `precisaApoio` — o fio de chão já flutuava desde 16/10. Nada a generalizar, e tocha/flor/tapete
+  não foram tocados. A face é escolha do GESTO (`faceDoClique`: a peça cola no lado por onde está
+  o bloco clicado, o OPOSTO da normal), não uma regra de física.
+  → **a topologia NÃO mudou:** o motor conduz nas 6 direções pra qualquer fio, em qualquer face —
+  a face é aparência e apoio. Era o caminho mais barato e o único que mantém `ligacaoDoCondutor`
+  como ÚNICA definição de "conecta"; o poste do fio (o braço que sai da face) é o que mostra que
+  ele virou a esquina.
+  → **mesher:** entrou a 1ª forma ROTACIONADA do projeto — `giroDaFace` (uma caixa escrita no
+  PLANO da face: u, v e profundidade), usada pela forma **e** pela caixa de mira, e desenhada pra
+  ser a IDENTIDADE no piso (a peça de chão sai byte a byte igual, com teste de regressão).
+  → **verify:** `circuitos.faces.test.ts` (17 asserções, sabotagem conferida) + seção C4 da
+  `shots:circuito`, palco próprio 20 blocos ao lado e controle negativo de tirar o fio.
+* \[x] **a porta lógica AGACHADA inverte a frente** — **FEITO 2026-10-23**, decisão dele no meio
+  do lote: "se o jogador estiver olhando para o norte e estiver agachado a saída da porta fica
+  virada para o sul". Uma linha na aritmética (`+2 % 4`) e o Shift chegando do cliente; a cadeira
+  e a fornalha, que encaram QUEM COLOCOU, ficam de fora (controle negativo no teste).
+* \[x] **o que NÃO saiu do chão** (decisão dele, 2026-10-23):
   - **placa de pressão** fica só no piso: quem a liga é o CORPO em cima dela — na parede e no
     teto ela nunca ligaria, e peça que não funciona onde o jogo deixa colocar é pior que peça
     que não se coloca.
@@ -1101,15 +1105,12 @@ essas duas já se colocam em parede e teto hoje. O que falta é **FORMA + IDS + 
     seria reescrever o endereçamento das portas por conforto de montagem. Parede e teto só
     precisam das portas como CUBO, que elas já são.
 
-**Decisões dele, antes de codar:** (a) teto entra junto ou só parede? (o teto dobra o desenho e é
-onde o aluno menos olha); (b) a placa fica de fora, como recomendado? (c) as portas continuam
-horizontais?
+**Decisões dele, respondidas em 2026-10-23:** (a) **parede E teto**, os dois; (b) a placa fica
+de fora; (c) as portas seguem nas 4 horizontais — e no lugar do eixo vertical veio o agachar.
 
-**verify:** seção nova na `shots:circuito`, **coluna própria** e limpando o que criar (a dívida
-de 20/10), com A/B de pixel e **câmera parada** — um circuito que sobe a parede e acende a
-lâmpada no alto, e o controle negativo de um fio na parede que NÃO encosta (lâmpada apagada).
-Mais um portão em `circuitos.test.ts` varrendo todo id novo: o `formaCanonica` de toda face
-devolve UM fio (como a porta devolve UMA porta).
+**O que ficou de fora e pode voltar:** fio e alavanca de parede **flutuam** se o apoio for
+quebrado (herdam a regra do fio de chão, que nunca pediu apoio). Virar isso em "cai quando perde
+a parede" é entrar no `precisaApoio` com a face — lote próprio, e só se a aula pedir.
 
 ### Fase 2 — a porta NÃO, que reescreve o motor
 

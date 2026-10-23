@@ -2472,6 +2472,30 @@ nenhum** — sem essa declaração o Chrome renderiza a página em light mesmo c
 
 ## Decision Log — índice das decisões ATIVAS
 
+- [2026-10-23] **§🔌 O circuito saiu do chão: a FACE virou id, e o motor continua cego pra ela.**
+  Pedido dele ("permitir que os circuitos sejam postos em paredes e tetos"). Lâmpada e porta
+  lógica já iam (são cubos); o fio e a alavanca estavam presos porque a face em que se colam era
+  IMPLÍCITA — e implícito não entra no save. Três decisões no caminho:
+  (1) **a face mora no id**, 10 ids por família (5 faces × 2 estados, `ligado = id+1` como o par
+  antigo do piso) e as duas famílias numa TABELA (`RASTEIRAS`), no molde do que `PORTAS` fez
+  pelas portas lógicas: peça rasteira nova entra na tabela e nem o motor nem o mesher mudam.
+  (2) **o motor NÃO olha a face** — fio é fio, conduz nas 6 direções em qualquer parede. A
+  alternativa (conectar só por aresta, como o redstone de parede) custaria mexer em
+  `ligacaoDoCondutor`, que é a ÚNICA definição de "conecta" do projeto e é compartilhada com o
+  desenho; o ganho seria realismo, e o preço, a chance de o fio desenhado divergir do sinal.
+  (3) **um GIRO só** (`giroDaFace`: caixa escrita no plano da face — u, v e profundidade), usado
+  pela forma E pela caixa de mira, e desenhado pra ser a IDENTIDADE no piso. Cinco formas
+  escritas à mão seriam cinco lugares pra melhorar o desenho da alavanca, e a sexta sairia
+  diferente — foi o que já aconteceu com os menus do launcher.
+  **O que a spec errava:** o "custo real seria o APOIO". Não era: peça de circuito nunca entrou
+  no `precisaApoio` (o fio de chão flutua desde 16/10), então nada de tocha/flor/tapete foi
+  tocado. Fio e alavanca de parede flutuam se a parede cair — entrar no apoio COM face é lote
+  próprio, e só se a aula pedir.
+  **Decisões dele no mesmo dia:** a PLACA fica só no piso (quem a liga é o corpo em cima dela) e
+  as portas lógicas seguem nas 4 direções horizontais; no lugar da frente vertical veio o
+  **agachar INVERTE a frente** da porta lógica ("olhando pro norte e agachado, a saída vai pro
+  sul"), que é o gesto do Minecraft e serve pra montar a bancada de frente pro aluno.
+
 - [2026-09-23, sessão 102] **§🪓 Machado e pá: EXIGIR e ACELERAR viraram duas tabelas
   diferentes.** O `ferramentaIdealDe` era um apelido do `exigenciaDe` (`exigenciaDe(id)?.tipo`),
   e por isso "a ferramenta que acelera" e "a ferramenta que o bloco cobra" eram forçosamente a

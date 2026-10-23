@@ -70,9 +70,10 @@ export function formaCanonica(id: number): number {
   if (isMuda(id)) return BlockId.MudaComum0 + ((id - BlockId.MudaComum0) & ~3);
   // §🍖 F10b: fornalha acesa volta como fornalha — o fogo é estado, não item.
   if (isFornalha(id)) return BlockId.Fornalha;
-  // §🔌 circuito: o ESTADO (ligado/aceso) e a DIREÇÃO da porta E não vão pra
-  // mochila — uma entrada por peça, como os móveis e a fornalha. O aluno guarda
-  // "uma lâmpada", não "uma lâmpada acesa virada pro norte".
+  // §🔌 circuito: o ESTADO (ligado/aceso), a DIREÇÃO da porta E e a FACE do fio
+  // e da alavanca (parede/teto, 2026-10-23) não vão pra mochila — uma entrada
+  // por peça, como os móveis e a fornalha. O aluno guarda "uma lâmpada", não
+  // "uma lâmpada acesa virada pro norte", e "um fio", não "um fio de teto".
   if (isAlavanca(id)) return BlockId.AlavancaDesligada;
   if (isFio(id)) return BlockId.FioDesligado;
   if (isLampada(id)) return BlockId.LampadaApagada;
