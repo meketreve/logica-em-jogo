@@ -1059,6 +1059,18 @@ sem ela os 4 níveis de machado empatariam no piso de 150 ms. Prova: `shared/src
 * \[ ] **botão** — pulso: liga e volta sozinho depois de N ticks. Precisa de um prazo por célula
   (o motor hoje não tem relógio nenhum); o mais barato é o botão ligado entrar na fila de
   vizinhança com um contador, como a água. Depois da placa, que é mais simples.
+  → **BOTÃO DE PAREDE** (ideia dele, 2026-10-23, depois da Fase 1b): ele **nasce com as 6 faces**,
+  não com uma. Nada a inventar — entra como 3ª família na tabela `RASTEIRAS` (`circuitos.ts`),
+  ganha a faixa gêmea em `blocks.ts` e usa o `giroDaFace` que já existe: 12 ids (6 faces × 2
+  estados, `ligado = id+1`), append depois de 299. É a 1ª peça a estrear a engrenagem de face, e
+  é o teste dela: se o botão precisar de UMA linha fora das tabelas, a Fase 1b não generalizou o
+  que prometeu.
+  → o que é dele e só dele continua sendo o PRAZO (o pulso), que é o item acima — a parede não
+  muda nada disso. Na parede, aliás, é onde o botão faz mais sentido em aula: botão de campainha
+  na altura da mão, ao lado da porta automática, em vez de uma peça no chão pra pisar.
+  → **verify:** seção na `shots:circuito` no molde da C4 (palco próprio, A/B de pixel com câmera
+  parada) provando o pulso: acende no toque e **apaga sozinho** sem ninguém mexer — é a asserção
+  que a placa não tem, porque o controle dela é o pé.
 * \[ ] **porta automática** — a 1ª saída que não é luz: o circuito ABRE a porta (os ids 66-69 já
   existem e já alternam no clique). É o que faz o desafio virar "consequência" em vez de
   "acendeu". Mexe no gate de claim: quem é dono do circuito abre a porta de quem?

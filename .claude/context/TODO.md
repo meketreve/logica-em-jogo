@@ -17,9 +17,10 @@ active: true
 - [ ] **Esperando o retorno da aula.** Ele disse em 20/10 que testaria em 21/10 e traria os logs.
       **Hoje é 23/10 e nenhum retorno chegou até aqui** — pode ter acontecido e não ter sido
       relatado, ou a aula ter mudado de data. **Perguntar antes de supor qualquer coisa.**
-- [ ] **§🔌 resto da fase 1** (spec no `todo.md`): **botão** (pulso — precisa de prazo por
-      célula, que o motor não tem) e **porta automática** (1ª saída que não é luz; mexe no gate
-      de claim) → **verify:** seção nova na `shots:circuito`, no molde da C3/C4.
+- [ ] **§🔌 resto da fase 1** (spec no `todo.md`): **botão** — pulso (prazo por célula, que o
+      motor não tem) e, pedido dele em 23/10, **de PAREDE**: nasce com as 6 faces, 3ª família na
+      tabela `RASTEIRAS` — e **porta automática** (1ª saída que não é luz; mexe no gate de
+      claim) → **verify:** seção nova na `shots:circuito`, no molde da C3/C4.
 - [ ] **Decisões dele, pendentes:** luz COLORIDA (3 canais — lote grande) e a curva de brilho.
 
 ## Testar na escola (o usuário faz) — **10 lotes acumulados**
