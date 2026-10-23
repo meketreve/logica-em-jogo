@@ -1,12 +1,11 @@
 ---
-updated: 2026-10-20
+updated: 2026-10-23
 tier: 3
 ---
 
 # Mapa do projeto
 
 <!-- TETO: 60 linhas. Bloco auto pertence ao script. -->
-
 ## Comandos
 
 <!-- auto:start -->
@@ -42,7 +41,7 @@ vitest.config.ts
 ```
 <!-- auto:end -->
 
-Acima é do script. O que ele **não** acha é o que manda aqui:
+O que o script **não** acha é o que manda aqui:
 
 | Ação | Comando |
 |---|---|
@@ -51,44 +50,43 @@ Acima é do script. O que ele **não** acha é o que manda aqui:
 | Um smoke só | `npm run smoke -- <nome>` (filtra por nome; ex.: `-- presenca kicar`) |
 | Um teste só | `npx vitest run --root shared src/<arquivo>.test.ts` |
 
-**Sondas** (`scripts/*-shot.mjs`; `shots:tablet` é a RÉGUA de 1024×600): sobem host + Chrome de
-verdade e asseveram no DOM; `npm run build` antes. **UI só é "feita" quando uma sonda a ENXERGA.**
-
-**Bateria completa (18), uma de cada vez** (em paralelo a máquina carrega e asserção de tempo
-mente): 9 sobem host próprio; 7 pedem `BASE=` de um host servindo o `dist` (`luz` e
-`bench-headless` tomam a URL como argv); `corrida` quer a aula 7.
-⚠️ **`shots:fundo` GERA**: reescreve `menu-fundo/*.png` e as cópias no `dist` (~5 MB). Conferir
-`git status` depois da bateria.
+**Sondas** (`scripts/*-shot.mjs`, `shots:tablet` é a RÉGUA de 1024×600): host + Chrome reais, e
+asseveram no DOM (`npm run build` antes). **UI só é "feita" quando uma sonda a ENXERGA.** Bateria
+de **18**, uma por vez (em paralelo a asserção de tempo mente): 9 sobem host próprio, 7 pedem
+`BASE=`, `corrida` quer a aula 7. ⚠️ **`shots:fundo` GERA** ~5 MB versionados — `git status` depois.
 
 ## Onde fica cada coisa
 
-**Não existe índice de arquivos, e é decisão** (Decision Log 2026-09-22) — achar é com `grep`.
-Só o não óbvio:
+**Não existe índice de arquivos, e é decisão** (2026-09-22) — achar é com `grep`. Só o não óbvio:
 
-- `shared/` — a lógica (servidor autoritativo). `session/` tem estado; o resto é PURO e testável.
-- **§🔌 circuito:** motor PURO em `shared/src/circuitos.ts` (ponto fixo, roda no tick só quando
-  uma peça muda); ids ≥ 256 em `blocks.ts`; forma/textura em `mesher.ts` + `atlasTexture.ts`.
-  Sonda `shots:circuito` (PIXEL). Porta nova = 2 linhas em `PORTAS`/`LIGA`.
-- **§💰 venda ao sistema:** tabela de preço PURA em `shared/src/venda.ts` (lista de permissão
-  do que se COLHE) · balcão por jogador em `shared/src/session/venda.ts` (fora do save; devolve
-  ao fechar) · painel é o 4º tipo do `client/src/container.ts`. Sonda: `npm run shots:venda`.
-  ⚠️ Preço novo tem de passar pelo portão de `venda.test.ts` (saída ≤ entrada em toda receita).
-- **§💡 a luz, de ponta a ponta** (4 arquivos, e achar isso custou meia sessão): propagação em
-  `shared/src/luz.ts` (`acenderColuna` = do zero, `atualizarBloco` = incremental — **os dois têm
-  de calcular a MESMA função**, há teste de paridade) → luz por VÉRTICE no `mesher.ts`
-  (`luzDoCanto`, e o cubo cheio emite num laço SEPARADO do `emitBox`) → atributo `luz` Uint16 →
-  `client/src/luzShader.ts` (desempacota no VERTEX shader, nunca no fragmento: bug-544).
-- `client/` — só renderiza. **`client/dist` é VERSIONADO**: a escola roda o dist, não o src.
+- `shared/` — a lógica (servidor autoritativo): `session/` tem estado, o resto é PURO e testável.
+  `client/` só renderiza, e **`client/dist` é VERSIONADO** (a escola roda o dist, não o src).
+- **§🔌 circuito:** motor PURO em `circuitos.ts` (ponto fixo, roda no tick só quando uma peça
+  muda); ids ≥ 256 em `blocks.ts`; forma/textura em `mesher.ts` + `atlasTexture.ts`. Sonda
+  `shots:circuito` (PIXEL). Porta nova = 2 linhas em `PORTAS`/`LIGA`.
+- **§💰 venda:** preço PURO em `venda.ts` (permissão do que se COLHE) · balcão por jogador em
+  `session/venda.ts` (fora do save) · painel no `container.ts`. Sonda `shots:venda`. ⚠️ Preço
+  novo passa pelo portão de `venda.test.ts` (saída ≤ entrada em TODA receita e cozimento).
+- **§💡 a luz** (4 arquivos, achar custou meia sessão): `shared/src/luz.ts` (`acenderColuna` do
+  zero × `atualizarBloco` incremental — **calculam a MESMA função**, há paridade) → vértice no
+  `mesher.ts` (`luzDoCanto`; cubo cheio em laço SEPARADO) → atributo Uint16 → `luzShader.ts`
+  (desempacota no VERTEX, nunca no fragmento: bug-544).
 - `server/src/cenarios/` smokes · `scripts/` sondas e portões · `docs/projeto.txt` BNCC.
 - **Log de aula:** `mundos/<nome>/logs/<data>-{chat,eventos}.log` (`paths.ts: logsDaSessao`).
-  Só escrita, e ⚠️ **só fala de servidor vira linha** — saída de jogador NÃO é registrada.
-- **Pre-push NÃO está em `.git/hooks`** — `core.hooksPath` → `scripts/git-hooks/pre-push` (roda o `verify` inteiro; escape: `LJ_SEM_VERIFY=1 git push`).
+  Gente no `-chat.log`, servidor no `-eventos.log` — e desde 20/10 a **SAÍDA com o MOTIVO**
+  (`registrarEvento`/`motivoDaSaida`, `server/src/index.ts`): fechou a página (4001 = voltar/Home
+  do tablet) × sem responder × substituído × queda de rede.
+- **Pre-push NÃO está em `.git/hooks`** — `core.hooksPath` → `scripts/git-hooks/pre-push` (roda
+  o `verify`; escape: `LJ_SEM_VERIFY=1 git push`).
 
 ## Fluxos principais
-
-- **UM módulo roda em 3 hospedeiros sem reescrita** (Worker, .exe do professor, Node dedicado);
-  a aba não abre socket de escuta nem executa binário — "abrir pra LAN" é do HOST.
+- **UM módulo em 3 hospedeiros sem reescrita** (Worker, .exe, Node); a aba não abre socket de
+  escuta nem executa binário — "abrir pra LAN" é do HOST.
 - **Container** (`containers.ts`): o `use_block` pede e é a resposta do SERVIDOR que abre o
-  painel — quem decide se o aluno lê aquele baú é o gate de claim.
-- **Nome/presença:** nome em jogo + PIN certo = **posse** (o socket antigo cai, quem volta entra
-  na hora); silêncio só derruba após 3 perguntas de verdade (`session/presenca.ts`).
+  painel — o gate de claim decide quem lê aquele baú. O **balcão de venda** é o 4º tipo e o
+  único que NÃO é bloco: endereçado pelo jogador, fora do save.
+- **Ciclo da AULA pelo launcher:** `[10]` plano → construir → `[11]` publicar (copia pra
+  `cenarios/` com prefixo `aula`, que é o que torna REUTILIZÁVEL) → `[8]` abre as duas pastas.
+  Portão de paridade `.sh`×`.bat`: `scripts/checar-launchers.mjs`.
+- **Nome/presença:** nome + PIN certo = **posse** (o socket antigo cai, quem volta entra na
+  hora); silêncio só derruba após 3 perguntas de verdade (`session/presenca.ts`).

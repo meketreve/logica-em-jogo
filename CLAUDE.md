@@ -16,8 +16,9 @@ Os quatro abaixo carregam sozinhos e substituem reconstruir contexto lendo códi
 
 Dois NÃO carregam — são grandes e se consultam sob demanda:
 
-- **`.claude/context/BUGS.md` — leia antes de caçar um bug.** 176 bugs já consertados, com causa
-  raiz. Fazer `grep` pela mensagem de erro: o conserto pode já estar escrito ali.
+- **`.claude/context/BUGS.md` — leia antes de caçar um bug.** Quase 200 bugs com causa raiz
+  (contar à mão envelhece: `grep -cE '^## [0-9]{4}-'`). `grep` pela mensagem de erro primeiro —
+  o conserto pode já estar escrito ali.
 - **`.claude/context/LEARNINGS-completo.md` — leia antes de decidir arquitetura.** O registro
   inteiro: preferências do usuário, Key Learnings, Do-Not-Repeat e o Decision Log com o *porquê*
   de cada escolha. O `LEARNINGS.md` importado é só a casca.
