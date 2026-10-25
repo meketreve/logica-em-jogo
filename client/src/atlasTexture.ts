@@ -253,15 +253,48 @@ function paintTocha(ctx: CanvasRenderingContext2D, tile: number): void {
 // também fica mais CLARO e ganha um miolo aceso. Quem olha a mesa da turma
 // enxerga o caminho do sinal sem precisar chegar perto.
 
-/** Alavanca: base de pedra com um pino de madeira. Ligada, o pino acende. */
+/**
+ * Alavanca — o ÍCONE 2D da mochila (2026-10-25).
+ *
+ * A peça no mundo agora é pedregulho + cabo de madeira que TOMBA (ver
+ * `ALAVANCA_POSE`, no mesher), e o ícone tem de contar a mesma história: base
+ * larga embaixo, cabo inclinado em cima. Desligada ele cai pro lado, ligada
+ * sobe quase em pé — a mesma diferença de altura que a silhueta tem no mundo.
+ */
 function paintAlavanca(ctx: CanvasRenderingContext2D, tile: number, ligada: boolean): void {
-  paintNoise(ctx, tile, [120, 120, 126], 10); // base de pedra
+  paintNoise(ctx, tile, [128, 128, 132], 14); // pedregulho, grão mais grosso
   const [ox, oy] = tileOrigin(tile);
-  ctx.fillStyle = ligada ? "rgb(255,214,92)" : "rgb(122,92,56)";
-  ctx.fillRect(ox + 6, oy + 3, 4, 10); // o pino
+  // a base: uma faixa escura rente ao pé do tile, pra o cabo não nascer do nada
+  ctx.fillStyle = "rgba(72,72,78,0.9)";
+  ctx.fillRect(ox + 2, oy + 12, 11, 4);
+  // o cabo, desenhado em degraus (é o que um tile de 16×16 consegue dizer de
+  // uma inclinação): ligada sobe quase reto, desligada deita pro lado
+  ctx.fillStyle = ligada ? "rgb(214,150,74)" : "rgb(140,102,60)";
+  const passos: readonly [number, number][] = ligada
+    ? [[6, 10], [6, 8], [7, 6], [7, 4], [8, 2]]
+    : [[6, 10], [8, 9], [10, 8], [12, 7], [14, 6]];
+  for (const [x, y] of passos) ctx.fillRect(ox + x, oy + y, 2, 2);
   if (ligada) {
-    ctx.fillStyle = "rgb(255,246,198)";
-    ctx.fillRect(ox + 7, oy + 2, 2, 3); // a ponta brilhando
+    ctx.fillStyle = "rgb(255,246,198)"; // a ponta acesa: reforço, não a informação
+    ctx.fillRect(ox + 8, oy + 1, 2, 2);
+  }
+}
+
+/**
+ * O CABO da alavanca no MUNDO (2026-10-25): madeira de veio vertical, que é o
+ * que a caixa inclinada amostra. Ligado, a mesma madeira em BRASA — o reforço
+ * de cor por cima da silhueta, nunca no lugar dela (projetor, daltonismo).
+ */
+function paintAlavancaCabo(ctx: CanvasRenderingContext2D, tile: number, ligado: boolean): void {
+  paintNoise(ctx, tile, ligado ? [198, 126, 52] : [124, 90, 54], 12);
+  const [ox, oy] = tileOrigin(tile);
+  // veio: duas listras verticais mais escuras, pra a madeira não virar chapado
+  ctx.fillStyle = ligado ? "rgba(140,74,24,0.45)" : "rgba(72,50,28,0.5)";
+  for (const x of [4, 10]) ctx.fillRect(ox + x, oy, 2, ATLAS.tilePx);
+  if (ligado) {
+    // o miolo quente, no meio do tile: é a parte que o cabo amostra de verdade
+    ctx.fillStyle = "rgba(255,226,150,0.55)";
+    ctx.fillRect(ox + 6, oy, 4, ATLAS.tilePx);
   }
 }
 
@@ -1029,6 +1062,8 @@ export function createAtlasTexture(): THREE.Texture {
   // §🔌 circuitos (2026-10-16): cada peça com os dois estados lado a lado
   paintAlavanca(ctx, TILE.alavancaDesligada, false);
   paintAlavanca(ctx, TILE.alavancaLigada, true);
+  paintAlavancaCabo(ctx, TILE.alavancaCaboDesligado, false);
+  paintAlavancaCabo(ctx, TILE.alavancaCaboLigado, true);
   paintFio(ctx, TILE.fioDesligado, false);
   paintFio(ctx, TILE.fioLigado, true);
   paintLampada(ctx, TILE.lampadaApagada, false);

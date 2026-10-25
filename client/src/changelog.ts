@@ -43,6 +43,15 @@ interface Mudanca {
 const MUDANCAS: readonly Mudanca[] = [
   {
     // sem `data`: este é o build atual (ver rotuloDoBloco)
+    titulo: "A alavanca de verdade",
+    itens: [
+      "a **alavanca ganhou modelo novo**, no estilo do Minecraft: uma base de **pedregulho** com um **cabo de madeira** que tomba de um lado para o outro — em vez do pino chapado de antes",
+      "desligada o cabo fica **caído**; ligada ele sobe **quase em pé** e a madeira fica em brasa: continua dando para ver de longe, e no projetor, qual alavanca está ligada — a diferença é de ALTURA, não só de cor",
+      "vale nas seis faces: a alavanca de parede e a de teto tombam para o lado delas, como a do chão",
+    ],
+  },
+  {
+    data: "23/10/2026",
     titulo: "O circuito sobe a parede",
     itens: [
       "o **fio** e a **alavanca** agora podem ser postos em **parede e teto**, não só no chão: a peça cola na cara do bloco em que você clicou, então o circuito pode subir pelo muro, atravessar o teto e descer do outro lado",

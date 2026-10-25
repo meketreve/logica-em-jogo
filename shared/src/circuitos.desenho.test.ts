@@ -60,14 +60,37 @@ function verticesDoFio(id: number, vizinhos: [number, number, number, number][] 
 }
 const vertices = verticesDoFio;
 
+/** O quanto a malha de UMA peça avança no +x (o eixo pra onde o cabo tomba). */
+function alcanceEmX(id: number): number {
+  const w = createWorld(DIMS);
+  setBlock(w, 8, 8, 8, id);
+  const g = meshChunk(w, 0, 0, 0);
+  let maxX = 0;
+  for (let i = 0; i < g.positions.length; i += 3) maxX = Math.max(maxX, g.positions[i]! - 8);
+  return maxX;
+}
+
 describe("alavanca: a diferença é a SILHUETA, não a cor", () => {
-  it("ligada fica EM PÉ e desligada fica DEITADA", () => {
+  it("ligada fica quase EM PÉ e desligada CAI pro lado (pose do Minecraft)", () => {
+    // 2026-10-25, pedido dele: o cabo passou a TOMBAR, como no Minecraft. O que
+    // não podia mudar é a leitura: as duas poses continuam com ALTURAS bem
+    // diferentes, senão de frente pro eixo da inclinação os estados voltam a
+    // ser parecidos e sobra a cor — o motivo pelo qual a inclinação tinha sido
+    // recusada em 19/10 (ver ALAVANCA_POSE, no mesher).
     const emPe = alturaDe(BlockId.AlavancaLigada);
-    const deitada = alturaDe(BlockId.AlavancaDesligada);
-    expect(emPe).toBeCloseTo(12 / 16, 5);
-    expect(deitada).toBeCloseTo(6 / 16, 5);
-    // o dobro de altura: é o que se lê do outro lado da sala, sem cor nenhuma
-    expect(emPe).toBeGreaterThan(deitada * 1.8);
+    const caida = alturaDe(BlockId.AlavancaDesligada);
+    expect(emPe).toBeCloseTo(12.04 / 16, 3); // cabo a 10° do vertical
+    expect(caida).toBeCloseTo(6.3 / 16, 3); // …e a 75°
+    // quase o dobro de altura: é o que se lê do outro lado da sala, sem cor
+    expect(emPe).toBeGreaterThan(caida * 1.8);
+  });
+
+  it("e a INCLINAÇÃO aparece: caída, ela avança pro lado; em pé, fica sobre a base", () => {
+    // é o que a silhueta de antes não tinha — e o que faz a peça parecer uma
+    // alavanca de verdade em vez de um pino que encolhe
+    expect(alcanceEmX(BlockId.AlavancaDesligada)).toBeGreaterThan(14 / 16);
+    // em pé o cabo para dentro da base (11/16): nada avança além dela
+    expect(alcanceEmX(BlockId.AlavancaLigada)).toBeCloseTo(11 / 16, 5);
   });
 
   it("mas a CAIXA DE MIRA é a mesma nos dois (o ▣ não pode voltar a 'colocar')", () => {

@@ -247,13 +247,29 @@ function alturaNaFace(id: number): number {
 }
 
 describe("o DESENHO gira com a face (silhueta, não cor)", () => {
-  it("a alavanca LIGADA sai 12/16 da face, e a desligada 6/16 — nas seis", () => {
+  it("a alavanca LIGADA sai ~12/16 da face, e a caída ~6/16 — nas seis", () => {
     // a regra de 19/10 ("a diferença é a SILHUETA") tinha de sobreviver ao giro:
-    // "em pé" na parede quer dizer SAINDO da parede, pro meio do corredor
+    // "em pé" na parede quer dizer SAINDO da parede, pro meio do corredor. E
+    // sobreviveu à pose do Minecraft (2026-10-25): o cabo tomba, mas a altura
+    // continua sendo o que separa os dois estados em qualquer face.
     for (const face of TODAS) {
       const desligada = comFace(BlockId.AlavancaDesligada, face);
-      expect(alturaNaFace(comEstado(desligada, true))).toBeCloseTo(12 / 16, 5);
-      expect(alturaNaFace(desligada)).toBeCloseTo(6 / 16, 5);
+      expect(alturaNaFace(comEstado(desligada, true))).toBeCloseTo(12.04 / 16, 3);
+      expect(alturaNaFace(desligada)).toBeCloseTo(6.3 / 16, 3);
+    }
+  });
+
+  it("e o cabo caído tomba pro +u DA FACE — o lado muda com ela", () => {
+    // o eixo u de cada face, escrito à mão de propósito: o teste tem de dizer o
+    // que ESPERA, não perguntar ao código quem é o u (senão concorda com o bug)
+    const EIXO_U: Record<string, 0 | 1 | 2> = {
+      piso: 0, teto: 0, XP: 2, XN: 2, ZP: 0, ZN: 0, // x, x, z, z, x, x
+    };
+    for (const face of TODAS) {
+      const { max } = caixaDaMalha(comFace(BlockId.AlavancaDesligada, face));
+      const eixo = EIXO_U[face]!;
+      // caída, ela avança além da base (11/16) no eixo u daquela face
+      expect(max[eixo]!).toBeGreaterThan(14 / 16);
     }
   });
 
@@ -266,15 +282,18 @@ describe("o DESENHO gira com a face (silhueta, não cor)", () => {
   it("a peça de PISO saiu exatamente como antes do giro existir", () => {
     // controle de regressão: o A/B de pixel da `shots:circuito` mede a peça de
     // chão, e o giro foi escrito pra ser a IDENTIDADE no piso — se esta caixa
-    // andar, a sonda acusa uma diferença que não é da mudança
-    expect(caixaDaMalha(BlockId.AlavancaLigada)).toEqual({
-      min: [5 * P, 0, 5 * P],
-      max: [11 * P, 12 * P, 11 * P],
-    });
+    // andar, a sonda acusa uma diferença que não é da mudança. O FIO não mudou
+    // nada desde 19/10, então ele é o controle mais puro que existe aqui.
     expect(caixaDaMalha(BlockId.FioDesligado)).toEqual({
       min: [6 * P, 0, 6 * P],
       max: [10 * P, 2 * P, 10 * P],
     });
+    // a alavanca MUDOU em 2026-10-25 (pose do Minecraft), e a caixa nova é
+    // esta: base de pedregulho 5..11 e o cabo tombando 10° do vertical
+    const ligada = caixaDaMalha(BlockId.AlavancaLigada);
+    expect(ligada.min).toEqual([5 * P, 0, 5 * P]);
+    expect(ligada.max[0]).toBeCloseTo(11 * P, 5);
+    expect(ligada.max[1]).toBeCloseTo(12.04 * P, 3);
   });
 
   it("e a MIRA acompanha: o contorno fica onde a peça está", () => {

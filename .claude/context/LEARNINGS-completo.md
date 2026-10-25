@@ -2472,6 +2472,23 @@ nenhum** — sem essa declaração o Chrome renderiza a página em light mesmo c
 
 ## Decision Log — índice das decisões ATIVAS
 
+- [2026-10-25] **§🔌 A alavanca virou pedregulho + cabo que TOMBA — e a inclinação, recusada em
+  19/10, voltou com uma condição.** Pedido dele: "faz uma estilo minecraft". A recusa de 19/10
+  era boa e continua sendo: a pose do Minecraft são dois 45° ESPELHADOS, de mesma altura — olhando
+  ao longo do eixo da inclinação os dois estados ficam parecidos e sobra a COR, que é o que não
+  existe em projetor nem pra quem não distingue cores. Entre as três opções que ofereci, ele
+  escolheu a que guarda as duas coisas: **o cabo tomba (10° ligado, 75° desligado), e as alturas
+  seguem muito diferentes** (12/16 × 6,3/16, razão 1,9). A silhueta passou a mudar de tamanho
+  **e** de ângulo, então ganhou informação sem perder a que já tinha.
+  **O que isso custou no motor de desenho:** o `emitBox` só sabe caixa alinhada aos eixos, então
+  nasceu o `emitCaixaInclinada` — a caixa é escrita no plano da face (u, v, profundidade), tomba
+  em torno do eixo v e cada um dos 8 cantos vai pro mundo pelo `pontoNaFace`/`direcaoNaFace` (o
+  `giroDaFace`, que já existia, é esse mesmo mapa aplicado a dois cantos opostos). Três atalhos
+  conscientes, todos porque a peça é pequena e nunca encosta na borda da célula: sem culling, luz
+  da própria célula e UV mapeado ANTES de tombar (senão o veio da madeira vira borrão diagonal).
+  **Portão:** o teste de desenho passou a exigir as duas coisas — a altura (que a aula lê) e o
+  ALCANCE lateral (que é a inclinação), nas seis faces.
+
 - [2026-10-23] **§🔌 O circuito saiu do chão: a FACE virou id, e o motor continua cego pra ela.**
   Pedido dele ("permitir que os circuitos sejam postos em paredes e tetos"). Lâmpada e porta
   lógica já iam (são cubos); o fio e a alavanca estavam presos porque a face em que se colam era

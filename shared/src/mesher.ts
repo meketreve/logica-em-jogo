@@ -242,6 +242,12 @@ export const TILE = {
    *  resultado. É a linha da tabela-verdade desenhada no próprio bloco. */
   portaPinoDesligado: 195, portaPinoLigado: 196,
   placaDesligada: 197, placaLigada: 198,
+  /** §🔌 o CABO da alavanca (2026-10-25): a peça virou pedregulho + cabo de
+   *  madeira, no molde do Minecraft, e por isso o cabo passou a ter tile
+   *  PRÓPRIO — a base usa o `cobblestone` de verdade. Desligado é madeira
+   *  crua; ligado é a mesma madeira em brasa, que é o reforço de COR em cima
+   *  da diferença de silhueta (nunca no lugar dela). */
+  alavancaCaboDesligado: 199, alavancaCaboLigado: 200,
 } as const;
 
 /** cp20: blocos-glifo. Letras A–Z e dígitos 0–9 ocupam tiles consecutivos a
@@ -581,6 +587,74 @@ export function giroDaFace(
     case "XN": return [e0, v0, u0, e1, v1, u1];
     case "ZP": return [u0, v0, 1 - e1, u1, v1, 1 - e0];
     case "ZN": return [u0, v0, e0, u1, v1, e1];
+  }
+}
+
+/**
+ * §🔌 A POSE da alavanca, estilo Minecraft (2026-10-25, pedido dele).
+ *
+ * Até aqui a peça era base + punho que ficava EM PÉ (ligada) ou DEITADO
+ * (desligada) num eixo fixo. A decisão de 19/10 tinha sido essa de propósito:
+ * inclinação à moda do Minecraft (as duas poses a 45°, espelhadas) **some
+ * quando o aluno olha ao longo do eixo dela** — de frente, os dois estados
+ * voltam a ser parecidos e sobra a cor, que é o que não existe em projetor.
+ *
+ * A pose nova (escolha dele entre três) guarda as duas coisas: o cabo TOMBA
+ * como no Minecraft, e os dois estados continuam tendo ALTURAS diferentes —
+ * ligada quase em pé (10° do vertical, ~12/16 de altura), desligada caída
+ * (75°, ~6/16). A silhueta muda de tamanho **e** de ângulo, então ela
+ * sobrevive ao ângulo ruim e ao projetor; a cor do cabo é reforço, não a
+ * informação.
+ *
+ * O pivô fica ATRÁS do centro (u = 6,5/16) porque o cabo caído precisa de
+ * espaço: a 75° ele avança ~8,7/16 e ainda assim para dentro da célula. E a
+ * caixa de mira continua 12/16 nos dois estados (`blockSelectionBox`), que é o
+ * conserto do bug-676 e não depende da pose.
+ */
+const ALAVANCA_POSE = (ligado: boolean) => ({
+  pivoU: 6.5 / 16,
+  pivoE: 3 / 16,
+  /** O cabo em pé, antes de tombar: 2/16 de grossura, 9/16 de comprimento. */
+  cabo: { u0: 5.5 / 16, v0: 7 / 16, e0: 3 / 16, u1: 7.5 / 16, v1: 9 / 16, e1: 12 / 16 },
+  rad: ((ligado ? 10 : 75) * Math.PI) / 180,
+});
+
+/**
+ * §🔌 Um PONTO do plano da face, nos eixos do mundo (2026-10-25).
+ *
+ * O `giroDaFace` gira uma CAIXA, e caixa girada continua alinhada aos eixos —
+ * serve pro fio e pra base da alavanca. O cabo da alavanca INCLINA, e aí não há
+ * caixa: o que se gira são os oito cantos, um a um. Mesmo mapa das duas
+ * funções, escrito ponto a ponto (`giroDaFace` é este mapa aplicado a dois
+ * cantos opostos).
+ */
+export function pontoNaFace(
+  face: FaceDaPeca,
+  u: number, v: number, e: number,
+): readonly [number, number, number] {
+  switch (face) {
+    case "piso": return [u, e, v];
+    case "teto": return [u, 1 - e, v];
+    case "XP": return [1 - e, v, u];
+    case "XN": return [e, v, u];
+    case "ZP": return [u, v, 1 - e];
+    case "ZN": return [u, v, e];
+  }
+}
+
+/** A mesma troca de eixos do `pontoNaFace`, mas pra uma DIREÇÃO (sem o
+ *  deslocamento): é o que leva a normal de cada face do cabo pro mundo. */
+export function direcaoNaFace(
+  face: FaceDaPeca,
+  du: number, dv: number, de: number,
+): readonly [number, number, number] {
+  switch (face) {
+    case "piso": return [du, de, dv];
+    case "teto": return [du, -de, dv];
+    case "XP": return [-de, dv, du];
+    case "XN": return [de, dv, du];
+    case "ZP": return [du, dv, -de];
+    case "ZN": return [du, dv, de];
   }
 }
 
@@ -1290,6 +1364,73 @@ export function meshVizinhanca(viz: Uint16Array, luzViz?: Uint8Array | null): Ch
     emitBox(lx, ly, lz, id, tile, x0, y0, z0, x1, y1, z1);
   };
 
+  /**
+   * §🔌 CAIXA INCLINADA no plano da face (2026-10-25) — o cabo da alavanca.
+   *
+   * A caixa é escrita em pé, nas mesmas coordenadas de plano do `caixaNaFace`
+   * (u e v dentro da face, `e` saindo dela), e então TOMBA um ângulo em torno
+   * do eixo v, com o pivô na base. Cada um dos oito cantos é girado e levado
+   * pro mundo pelo `pontoNaFace` — não dá pra reusar o `emitBox`, que só sabe
+   * caixa alinhada aos eixos.
+   *
+   * Três simplificações, todas de propósito e todas baratas porque a peça é
+   * pequena e nunca encosta na borda da célula:
+   *  - **sem culling**: nenhuma face do cabo é rente à célula, então não há o
+   *    que esconder (o `emitBox` só culla o que está rente);
+   *  - **luz da PRÓPRIA célula** nos quatro cantos, que é o mesmo que o
+   *    `emitBox` já faz em toda forma recuada (tampo de mesa, corpo do chip);
+   *  - **UV da caixa EM PÉ**: a textura é mapeada antes de tombar, senão o veio
+   *    da madeira giraria junto e o tile de 16×16 viraria borrão diagonal.
+   */
+  const emitCaixaInclinada = (
+    face: FaceDaPeca,
+    lx: number, ly: number, lz: number, id: number, tile: number,
+    u0: number, v0: number, e0: number, u1: number, v1: number, e1: number,
+    /** Pivô (no plano) e quanto o cabo tomba a partir do "em pé", em radianos. */
+    pivoU: number, pivoE: number, rad: number,
+  ): void => {
+    const cos = Math.cos(rad), sen = Math.sin(rad);
+    /** Tomba o ponto do plano: em pé é 0, e o cabo cai pro lado do +u. */
+    const tombar = (u: number, e: number): [number, number] => {
+      const du = u - pivoU, de = e - pivoE;
+      return [pivoU + du * cos + de * sen, pivoE + de * cos - du * sen];
+    };
+    const lo = [u0, e0, v0] as const; // na ordem x,y,z do espaço de PISO
+    const hi = [u1, e1, v1] as const;
+    const col = tile % n;
+    const row = (tile / n) | 0;
+    for (let i = 0; i < FACES.length; i++) {
+      const faceDaCaixa = FACES[i];
+      const axes = FACE_UVS[i];
+      if (!faceDaCaixa || !axes) continue;
+      const [ndu, nde, ndv] = faceDaCaixa.dir; // no espaço de piso: x=u, y=e, z=v
+      const [tdu, tde] = [ndu! * cos + nde! * sen, nde! * cos - ndu! * sen];
+      const [nx, ny, nz] = direcaoNaFace(face, tdu, ndv!, tde);
+      const base = positions.length / 3;
+      for (const corner of faceDaCaixa.corners) {
+        const u = corner.pos[0] === 0 ? u0 : u1;
+        const e = corner.pos[1] === 0 ? e0 : e1;
+        const v = corner.pos[2] === 0 ? v0 : v1;
+        const [tu, te] = tombar(u, e);
+        const [px, py, pz] = pontoNaFace(face, tu, v, te);
+        positions.push(lx + px, ly + py, lz + pz);
+        normals.push(nx, ny, nz);
+        luzVert.push(luzDoCanto(lx, ly, lz, 0, 0, 1, 0));
+        const fracOf = (a: UvAxis, flag: 0 | 1): number => {
+          const world01 = flag === 0 ? (a.flip ? hi[a.axis] : lo[a.axis])
+                                     : (a.flip ? lo[a.axis] : hi[a.axis]);
+          return a.flip ? 1 - world01 : world01;
+        };
+        uvs.push(
+          col / n + inset + fracOf(axes.u, corner.uv[0]) * (1 / n - 2 * inset),
+          1 - (row + 1) / n + inset + fracOf(axes.v, corner.uv[1]) * (1 / n - 2 * inset),
+        );
+      }
+      pushSway(4);
+      indices.push(base, base + 1, base + 2, base + 2, base + 1, base + 3);
+    }
+  };
+
   /** Os dois eixos do plano da face, em deslocamento de MUNDO: é por eles que a
    *  peça pergunta "o vizinho deste lado conecta?" sem sair do plano dela. */
   const eixosDaFace = (
@@ -1356,23 +1497,17 @@ export function meshVizinhanca(viz: Uint16Array, luzViz?: Uint8Array | null): Ch
       if (liga(n.dx, n.dy, n.dz)) posta(tile, a, a, h, b, b, 1);
       return true;
     }
-    const tile = ligado ? TILE.alavancaLigada : TILE.alavancaDesligada;
-    // base: a peça presa à face, igual nos dois estados (é a âncora que o olho
-    // usa pra comparar)
-    posta(tile, 5 * P, 5 * P, 0, 11 * P, 11 * P, 3 * P);
-    if (ligado) {
-      // ⚠️ o punho vai a 12/16: a mira do jogador sai na altura do OLHO (pé +
-      // 1,6) e passava reto por cima de um pino baixo — o ▣ oferecia "colocar"
-      // em cima da alavanca e o aluno punha um bloco na frente dela em vez de
-      // acionar (quem mediu foi a sonda, no rótulo do botão)
-      posta(tile, 6 * P, 6 * P, 3 * P, 10 * P, 10 * P, 12 * P);
-    } else {
-      // deitado: o MESMO punho tombado pro +u, rente à base. Num eixo FIXO (não
-      // inclinado como no Minecraft) porque inclinar só diz alguma coisa de
-      // alguns ângulos — olhando ao longo do eixo da inclinação, os dois
-      // estados voltam a ser iguais.
-      posta(tile, 6 * P, 6 * P, 3 * P, 15 * P, 10 * P, 6 * P);
-    }
+    // base de PEDREGULHO, igual nos dois estados: é a âncora que o olho usa pra
+    // comparar, e é o mesmo material da alavanca do Minecraft (2026-10-25)
+    posta(TILE.cobblestone, 5 * P, 5 * P, 0, 11 * P, 11 * P, 3 * P);
+    // …e o CABO de madeira, que TOMBA — ver ALAVANCA_POSE
+    const { pivoU, pivoE, cabo, rad } = ALAVANCA_POSE(ligado);
+    emitCaixaInclinada(
+      face, lx, ly, lz, id,
+      ligado ? TILE.alavancaCaboLigado : TILE.alavancaCaboDesligado,
+      cabo.u0, cabo.v0, cabo.e0, cabo.u1, cabo.v1, cabo.e1,
+      pivoU, pivoE, rad,
+    );
     return true;
   };
 
