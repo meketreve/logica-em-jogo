@@ -1,5 +1,5 @@
 ---
-updated: 2026-10-23
+updated: 2026-10-25
 tier: 3
 ---
 
@@ -9,7 +9,7 @@ tier: 3
 ## Comandos
 
 <!-- auto:start -->
-gerado em: 2026-10-20
+gerado em: 2026-10-25
 
 | Ação | Comando |
 |---|---|
@@ -59,25 +59,25 @@ de **18**, uma por vez (em paralelo a asserção de tempo mente): 9 sobem host p
 
 **Não existe índice de arquivos, e é decisão** (2026-09-22) — achar é com `grep`. Só o não óbvio:
 
-- `shared/` — a lógica (servidor autoritativo): `session/` tem estado, o resto é PURO e testável.
-  `client/` só renderiza, e **`client/dist` é VERSIONADO** (a escola roda o dist, não o src).
+- `shared/` — a lógica (servidor autoritativo): `session/` tem estado, o resto é PURO. `client/` só renderiza, e **`client/dist` é VERSIONADO** (a escola roda o dist).
 - **§🔌 circuito:** motor PURO em `circuitos.ts` (ponto fixo, roda no tick só quando uma peça
   muda); ids ≥ 256 em `blocks.ts`; forma/textura em `mesher.ts` + `atlasTexture.ts`. Sonda
-  `shots:circuito` (PIXEL). Porta nova = 2 linhas em `PORTAS`/`LIGA`.
+  `shots:circuito` (PIXEL). Porta nova = 2 linhas em `PORTAS`/`LIGA`; peça rasteira nova = 1 em
+  `RASTEIRAS` + faixa gêmea em `blocks.ts`. **Peça colada numa FACE** (parede/teto): a face mora
+  no id e o desenho sai de UM giro — `giroDaFace` (caixa alinhada, serve forma E mira) e
+  `emitCaixaInclinada` (8 cantos, o cabo que tomba), sobre `pontoNaFace`/`direcaoNaFace`.
 - **§💰 venda:** preço PURO em `venda.ts` (permissão do que se COLHE) · balcão por jogador em
   `session/venda.ts` (fora do save) · painel no `container.ts`. Sonda `shots:venda`. ⚠️ Preço
   novo passa pelo portão de `venda.test.ts` (saída ≤ entrada em TODA receita e cozimento).
-- **§💡 a luz** (4 arquivos, achar custou meia sessão): `shared/src/luz.ts` (`acenderColuna` do
-  zero × `atualizarBloco` incremental — **calculam a MESMA função**, há paridade) → vértice no
-  `mesher.ts` (`luzDoCanto`; cubo cheio em laço SEPARADO) → atributo Uint16 → `luzShader.ts`
-  (desempacota no VERTEX, nunca no fragmento: bug-544).
-- `server/src/cenarios/` smokes · `scripts/` sondas e portões · `docs/projeto.txt` BNCC.
+- **§💡 a luz** (4 arquivos, achar custou meia sessão): `shared/src/luz.ts` (`acenderColuna` ×
+  `atualizarBloco` — **a MESMA função**, com paridade) → vértice no `mesher.ts` (`luzDoCanto`;
+  cubo cheio em laço SEPARADO) → Uint16 → `luzShader.ts` (desempacota no VERTEX: bug-544).
+- `server/src/cenarios/` smokes · `scripts/` sondas/portões · `docs/projeto.txt` BNCC. **Pre-push
+  NÃO está em `.git/hooks`** — `core.hooksPath` → `scripts/git-hooks/pre-push` (roda o `verify`;
+  escape: `LJ_SEM_VERIFY=1 git push`).
 - **Log de aula:** `mundos/<nome>/logs/<data>-{chat,eventos}.log` (`paths.ts: logsDaSessao`).
   Gente no `-chat.log`, servidor no `-eventos.log` — e desde 20/10 a **SAÍDA com o MOTIVO**
-  (`registrarEvento`/`motivoDaSaida`, `server/src/index.ts`): fechou a página (4001 = voltar/Home
-  do tablet) × sem responder × substituído × queda de rede.
-- **Pre-push NÃO está em `.git/hooks`** — `core.hooksPath` → `scripts/git-hooks/pre-push` (roda
-  o `verify`; escape: `LJ_SEM_VERIFY=1 git push`).
+  (`registrarEvento`/`motivoDaSaida`): fechou a página (4001) × sem responder × substituído × rede.
 
 ## Fluxos principais
 - **UM módulo em 3 hospedeiros sem reescrita** (Worker, .exe, Node); a aba não abre socket de
