@@ -36,6 +36,7 @@ Atrás: a **porta NÃO** (⚠️ quebra o ponto fixo — cabeçalho de `circuito
 
 - **26/10 — §🔌 a alavanca não trava mais:** cada `block_changed` remontava o chunk na hora
   (30 fios = 338 ms por clique). Agora cada chunk sai 1× por quadro (`descarregarSujos`). Sonda C5.
+  E o motor do servidor deixou de ser ponto fixo quadrático: o sinal anda por FILA das fontes.
 
 - **26/10 — §📱 bug-675: o jogo volta sozinho** depois da queda, e o log diz se a tela estava
   escondida. A tela de carga ganhou portão próprio (marcava "100% pronto!" com o mundo velho).

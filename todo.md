@@ -1085,6 +1085,13 @@ sem ela os 4 níveis de machado empatariam no piso de 150 ms. Prova: `shared/src
   próximo recálculo?) ou a porta energizada fica TRAVADA? (3) vale pra **janela** também (ela
   alterna no clique pelo mesmo caminho)? (4) jogador no vão quando o sinal FECHA: cancela, como o
   clique já faz (`overlapsAnyPlayer`)?
+  → **Respostas dele, 2026-10-26:** (1) "**alavanca ligada**"; (2) **sim**, o clique continua
+  funcionando com sinal; (3) janela **ainda não**; (4) **sim**, jogador no vão cancela o
+  fechamento, como o clique. Leitura de (2): o motor só recalcula quando uma PEÇA muda, então o
+  clique vale até o sinal mudar de novo — não é desfeito no tick seguinte.
+  ⚠️ **Falta UMA confirmação antes de codar:** em (1), vale só a alavanca **encostada** na
+  porta, ou também a alavanca ligada chegando **por fio** (e pela saída de porta E/OU)? Do
+  segundo jeito a porta vira saída de lógica de verdade, que é o que a aula usa.
   → Técnico: a porta tem 2 células (`parDaPorta`) — o sinal em QUALQUER uma das duas move o
   par inteiro; e é a 1ª saída do motor que não é `comEstado` de peça de circuito, então o
   `recalcularCircuitos` precisa devolver mudança pra um bloco que NÃO está no índice

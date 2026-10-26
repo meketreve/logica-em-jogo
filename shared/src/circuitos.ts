@@ -27,8 +27,9 @@ import { BlockId } from "./blocks";
  *
  * **POR QUE DÁ PRA RODAR ATÉ ESTABILIZAR, sem medo de travar:** com alavanca,
  * fio e porta E não existe NEGAÇÃO. Tudo que o passo faz é LIGAR o que estava
- * desligado — nunca o contrário —, então a conta só cresce e para sozinha em
- * no máximo um passo por célula. ⚠️ **No dia em que entrar a porta NÃO, isto
+ * desligado — nunca o contrário —, então a conta só cresce, cada peça acende
+ * no máximo uma vez e a fila que leva o sinal (`recalcularCircuitos`) esvazia
+ * sozinha. ⚠️ **No dia em que entrar a porta NÃO, isto
  * deixa de valer** (um NÃO ligado em si mesmo oscila pra sempre) e o motor vai
  * precisar de estado por tick de verdade, não de ponto fixo. Está escrito aqui
  * porque é o tipo de coisa que se descobre com o servidor travado numa aula.
@@ -384,11 +385,20 @@ const chave = (x: number, y: number, z: number): string => `${x},${y},${z}`;
  * Recalcula o circuito inteiro a partir das células que o servidor indexou e
  * devolve SÓ o que mudou de estado (o chamador troca os blocos e avisa a rede).
  *
- * A conta é um ponto fixo começando do TUDO DESLIGADO, e não do estado atual:
- * sem isso, desligar a alavanca deixaria o fio aceso pra sempre, porque cada
- * pedaço continuaria achando que o vizinho o alimenta — o laço que a gente
- * chamaria de "sinal preso" na aula. Recomeçar do zero resolve isso sem
- * precisar rastrear quem alimenta quem.
+ * A conta começa do TUDO DESLIGADO, e não do estado atual: sem isso, desligar
+ * a alavanca deixaria o fio aceso pra sempre, porque cada pedaço continuaria
+ * achando que o vizinho o alimenta — o laço que a gente chamaria de "sinal
+ * preso" na aula. Recomeçar do zero resolve isso sem precisar rastrear quem
+ * alimenta quem.
+ *
+ * **O sinal ANDA a partir das fontes** (2026-10-26), por uma fila: só quem
+ * acabou de acender faz os vizinhos se perguntarem se acendem também. Cada
+ * peça acende uma vez só e olha seus 6 vizinhos, então a conta é LINEAR no
+ * tamanho do circuito. Antes era um ponto fixo que varria TODAS as peças a
+ * cada volta, e um fio na ordem ruim levava uma volta por pedaço — quadrático:
+ * ~28 ms por tick num fio de 400. O resultado é o mesmo (é o MENOR conjunto
+ * aceso que se sustenta, e com só-acender a ordem não muda o fim), e um teste
+ * confere os dois motores em circuitos sorteados.
  */
 export function recalcularCircuitos(
   mundo: MundoDeCircuito,
@@ -403,9 +413,15 @@ export function recalcularCircuitos(
 
   /** Quem está energizado AGORA, na conta (não no mundo). */
   const energizado = new Set<string>();
+  /** Quem acendeu e ainda não avisou os vizinhos. */
+  const fila: string[] = [];
+  const acender = (k: string): void => {
+    energizado.add(k);
+    fila.push(k);
+  };
   /** As FONTES (alavanca e placa) entram já ligadas, se estiverem. */
   for (const [k, p] of pecas) {
-    if ((isAlavanca(p.id) || isPlaca(p.id)) && estaLigado(p.id)) energizado.add(k);
+    if ((isAlavanca(p.id) || isPlaca(p.id)) && estaLigado(p.id)) acender(k);
   }
 
   /** Uma célula ENTREGA sinal aos vizinhos? */
@@ -418,13 +434,15 @@ export function recalcularCircuitos(
     return energizado.has(k);
   };
 
-  // Ponto fixo monótono: cada passo só ACENDE. Para quando um passo não acende
-  // mais nada — e no pior caso isso leva uma volta por peça (ver o cabeçalho:
-  // vale enquanto não houver NEGAÇÃO).
-  for (let volta = 0; volta <= pecas.size; volta++) {
-    let acendeu = false;
-    for (const [k, p] of pecas) {
-      if (energizado.has(k)) continue;
+  // `fila` cresce enquanto é lida; o índice evita o `shift`, que é O(n).
+  for (let i = 0; i < fila.length; i++) {
+    const origem = fila[i]!;
+    if (!entrega(origem)) continue; // lâmpada acesa: não acorda ninguém
+    const o = pecas.get(origem)!;
+    for (const d of VIZINHOS) {
+      const k = chave(o.c.x + d.x, o.c.y + d.y, o.c.z + d.z);
+      const p = pecas.get(k);
+      if (!p || energizado.has(k)) continue;
       if (isAlavanca(p.id) || isPlaca(p.id)) continue; // fontes: quem liga é o aluno
       const tipo = tipoDaPorta(p.id);
       if (tipo) {
@@ -432,30 +450,21 @@ export function recalcularCircuitos(
         if (!frente) continue;
         // As DUAS entradas são as laterais; o que muda de uma porta pra outra é
         // só a REGRA (`LIGA`): "as duas entregam" na E, "alguma entrega" na OU.
-        // A tabela-verdade de cada uma sai inteira daqui.
+        // A tabela-verdade de cada uma sai inteira daqui. A porta é perguntada
+        // de novo a cada vizinho que acende, então a E acende quando chega a
+        // SEGUNDA entrada, venha ela na ordem que vier.
         const entradas = LADOS[frente].map((lado) =>
           entrega(chave(p.c.x + PASSO[lado].dx, p.c.y, p.c.z + PASSO[lado].dz)),
         );
-        if (LIGA[tipo](entradas)) {
-          energizado.add(k);
-          acendeu = true;
-        }
+        if (LIGA[tipo](entradas)) acender(k);
         continue;
       }
-      // fio e lâmpada: acende se ALGUM vizinho de face entrega sinal — e quem
-      // decide se há ligação é a `ligacaoDoCondutor`, a MESMA que o mesher usa
-      // pra desenhar o braço. Desenho e topologia não podem divergir.
-      for (const d of VIZINHOS) {
-        const v = chave(p.c.x + d.x, p.c.y + d.y, p.c.z + d.z);
-        const viz = pecas.get(v);
-        if (!viz || !entrega(v)) continue;
-        if (!ligacaoDoCondutor(viz.id, d.x, d.y, d.z).recebe) continue;
-        energizado.add(k);
-        acendeu = true;
-        break;
-      }
+      // fio e lâmpada: acendem se a ORIGEM entrega pra eles — e quem decide se
+      // há ligação é a `ligacaoDoCondutor`, a MESMA que o mesher usa pra
+      // desenhar o braço. Desenho e topologia não podem divergir. Vista da
+      // peça `k`, a origem está no deslocamento OPOSTO a `d`.
+      if (ligacaoDoCondutor(o.id, -d.x, -d.y, -d.z).recebe) acender(k);
     }
-    if (!acendeu) break;
   }
 
   const mudancas: MudancaDeCircuito[] = [];
