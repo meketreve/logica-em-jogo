@@ -19,10 +19,14 @@ active: true
       motor não tem) e, pedido dele em 23/10, **de PAREDE**: nasce com as 6 faces, 3ª família na
       tabela `RASTEIRAS` — e **porta automática** (1ª saída que não é luz; mexe no gate de
       claim) → **verify:** seção nova na `shots:circuito`, no molde da C3/C4.
+- [ ] **Porta controlada pelo sinal** (anotado 26/10, spec e perguntas no `todo.md`, na porta
+      automática) — entrevista de escopo antes de codar.
 - [ ] **Decisões dele, pendentes:** luz COLORIDA (3 canais — lote grande) e a curva de brilho.
 
 ## Testar na escola (o usuário faz)
 
+- [ ] **§🔌 Alavanca sem lag (26/10):** clicar rápido numa alavanca com fio comprido — o
+      tablet ainda engasga? (No PC caiu de 338 ms pra 14 ms por clique; no tablet não foi medido.)
 - [ ] **§📱 Volta sozinho (26/10) — FECHA o bug-675.** Ler o `-eventos.log`: quantos `voltou
       sozinho` × `voltou pelo menu`, e `tela ESCONDIDA` × `à vista`. A criança nota o "a conexão
       caiu — voltando ao jogo"? Alguém ficou PRESO nessa tela?

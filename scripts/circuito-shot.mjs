@@ -20,6 +20,8 @@
  * 4c. a PLACA DE PRESSÃO acende a lâmpada quando alguém está EM CIMA dela;
  * 4d. o FIO colado no TETO e na PAREDE conduz igual ao do chão (2026-10-23) —
  *     com o controle negativo de tirar o fio e a lâmpada apagar;
+ * 4e. clicar a alavanca de um fio de 30 peças remonta MENOS chunks do que
+ *     peças mudaram (2026-10-26: o lag de clicar rápido);
  * 5. o aluno não planta circuito no mundo aberto sem terreno (o servidor
  *    explica no chat).
  *
@@ -712,6 +714,48 @@ for (const cel of [
   [XW + 1, Y_OLHO + 1, Z_FILA], [XW + 1, Y_OLHO, Z_FILA - 1],
 ]) {
   await dizer(`/bloco ${cel[0]} ${cel[1]} ${cel[2]} ${AR}`);
+}
+await espera(600);
+
+diga("== C5: clicar a alavanca de um fio COMPRIDO não trava (2026-10-26) ==");
+// Relato dele: "se um jogador ficar clicando rápido para ativar e desativar a
+// alavanca cria muito lag se ela estiver conectada a um circuito". Medido: cada
+// peça que muda chega num `block_changed` próprio e o cliente remontava o chunk
+// NA HORA, uma vez por peça — 30 fios = 77 remontagens, 338 ms de main thread
+// por clique. A prova aqui é a CONTAGEM (o gancho `__remeshPorBloco`): um
+// clique que acende 30 fios e uma lâmpada tem de remontar MENOS chunks do que
+// peças mudaram. FPS não serve de régua (o SwiftShader varia 50% no mesmo commit).
+//
+// ⚠️ PALCO PRÓPRIO, 40 blocos à direita, e a seção apaga o que criou.
+const XC = PX + 40;
+const PECAS_C5 = 30;
+await limparChat();
+// chão sob quem chega pelo `/tp` (no céu, sem ele a profa cai e a mira erra)
+for (let dx = -1; dx <= 1; dx++) {
+  for (let dz = -1; dz <= 1; dz++) await dizer(`/bloco ${XC + dx} ${PY - 1} ${PZ + dz} 2`);
+}
+await dizer(`/bloco ${XC} ${Y_OLHO} ${Z_FILA} ${ALAVANCA}`);
+for (let i = 1; i <= PECAS_C5; i++) await dizer(`/bloco ${XC + i} ${Y_OLHO} ${Z_FILA} ${FIO}`);
+await dizer(`/bloco ${XC + PECAS_C5 + 1} ${Y_OLHO} ${Z_FILA} ${LAMPADA}`);
+await espera(900);
+const remeshBloco = () => avaliar(`window.__remeshPorBloco?.() ?? -1`);
+for (const sentido of ["liga", "desliga"]) {
+  await dizer(`/tp profa ${XC} ${PY} ${PZ}`);
+  await espera(800);
+  const antes = await remeshBloco();
+  await virar(XC); // o ▣, o mesmo gesto do aluno — espera o tick do motor
+  await espera(600);
+  const depois = await remeshBloco();
+  const n = depois - antes;
+  ok(antes >= 0, `o gancho __remeshPorBloco existe (${antes})`);
+  ok(
+    n > 0 && n < PECAS_C5,
+    `o clique que ${sentido.toUpperCase()} ${PECAS_C5} fios e a lâmpada remontou ${n} chunk(s) — menos que as ${PECAS_C5 + 1} peças que mudaram`,
+  );
+}
+for (let i = 0; i <= PECAS_C5 + 1; i++) await dizer(`/bloco ${XC + i} ${Y_OLHO} ${Z_FILA} ${AR}`);
+for (let dx = -1; dx <= 1; dx++) {
+  for (let dz = -1; dz <= 1; dz++) await dizer(`/bloco ${XC + dx} ${PY - 1} ${PZ + dz} ${AR}`);
 }
 await espera(600);
 

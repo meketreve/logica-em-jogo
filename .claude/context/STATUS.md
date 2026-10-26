@@ -11,7 +11,8 @@ o chat do PC. Leitura do bug-675 em `BUGS.md` (entrada de 26/10): **zero "sem re
 1006** — no Android, Home/tela bloqueada matam o socket na hora (o recreio provou), então o log do
 host não separava tela escondida de rede. A criança caía no menu e redigitava nome e PIN.
 
-**26/10 — lote empurrado:** a página conta COMO caiu (tela escondida × à vista) no join da volta,
+**26/10 — dois lotes empurrados:** (1) a alavanca de circuito comprido parou de travar o cliente
+(remontagem 1× por chunk por quadro — `BUGS.md`). (2) a página conta COMO caiu (tela escondida × à vista) no join da volta,
 e o jogo **reconecta sozinho** (5 tentativas, espera a tela voltar; esgotou → menu como antes).
 Provado em `shots:queda` (host morto e ressuscitado, aba escondida de verdade, heartbeat mudo) e no
 smoke `logs`. **Não testado em aula.**
@@ -32,6 +33,9 @@ Atrás: a **porta NÃO** (⚠️ quebra o ponto fixo — cabeçalho de `circuito
 - **Dele:** quanto de Dimas cada aluno recebe; o aviso de Dimas nova cala? **Externas:** Drive; certificado de assinatura só se sair da piloto.
 
 ## Concluído (recente)
+
+- **26/10 — §🔌 a alavanca não trava mais:** cada `block_changed` remontava o chunk na hora
+  (30 fios = 338 ms por clique). Agora cada chunk sai 1× por quadro (`descarregarSujos`). Sonda C5.
 
 - **26/10 — §📱 bug-675: o jogo volta sozinho** depois da queda, e o log diz se a tela estava
   escondida. A tela de carga ganhou portão próprio (marcava "100% pronto!" com o mundo velho).

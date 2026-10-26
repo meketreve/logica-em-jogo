@@ -12,6 +12,15 @@ tier: 3
      modelo). São bugs ESCRITOS À MÃO: nada de detector automático — ele já encheu
      o arquivo de 148 entradas falsas uma vez, e elas foram podadas junto. -->
 
+## 2026-10-26 — clicar rápido na alavanca de um circuito comprido TRAVAVA o cliente
+- **Sintoma:** usuário: "se um jogador ficar clicando rapido para ativar e desativar a alavanca cria muito lag se ela estiver conectada a um circuito". Sem erro no console — o quadro congelava.
+- **Onde:** `client/src/chunks.ts` (`remeshBlock`/`remeshSujos`/`remeshBox`), laço de render em `client/src/main.ts`
+- **Causa:** o servidor manda UM `block_changed` por peça que muda de estado, e o cliente remontava o chunk **na hora**, de forma síncrona, a cada um — o mesmo chunk montado dezenas de vezes seguidas, mais os chunks que a luz da lâmpada (14) suja. Medido em Node (`meshChunk` + `atualizarBloco`): fio de 30 peças = 77 remontagens, **338 ms** de main thread por clique; fio de 100 = 231, **924 ms**. O servidor NÃO era o gargalo (1,4 ms e 4 ms pela mesma alternância) e a luz também não (~6 ms).
+- **Correção:** as três portas de remesh por mudança passaram a só MARCAR o chunk (`sujar`: sobe a versão na hora, pra job do worker não voltar com geometria velha) num `Map` do quadro; `descarregarSujos()` monta cada um UMA vez, logo antes do `renderer.render` — mesmo quadro de antes, então colocar bloco não ganhou atraso. O mesmo clique: 14 ms (6 chunks).
+- **Prova:** `shots:circuito` seção C5 — gancho `__remeshPorBloco` lido antes e depois de UM clique (o ▣) numa alavanca com 30 fios e lâmpada: 16 remontagens. Controle negativo (`sujar` remontando na hora): 95 e 131 — reprova.
+- **Ainda de pé (medido, não atacado):** o `recalcularCircuitos` do servidor é ponto fixo em laço — quadrático no pior caso (fio de ~400 peças na ordem ruim: ~28 ms por tick). Roda no máximo 1×/tick, então só pesa em circuito ENORME; o caminho é propagar por fila a partir das fontes.
+- **Tags:** circuito, alavanca, lag, travando, remesh, block_changed, chunk, main thread, desempenho, corrigido
+
 ## 2026-10-26 — bug-675 (o que o log das aulas mostrou): no Android a queda é o socket morrendo SECO, e a criança redigitava tudo
 - **Sintoma:** logs de 23/10 (6º/7º) e 26/10 (6º/7º e 2º/3º), todos depois do conserto de 20/10: **zero** `ficou sem responder`, 9 `fechou a página` e **39 `a conexão caiu (código 1006)`** — o Adriam 10× em 50 min, a Tilapia 7×, cada um voltando 15 s–4 min depois. Usuário: o tablet chega a ele "apenas com o aviso 'a conexão do servidor caiu'" (página VIVA, não crash), os tablets são todos iguais, e as 4 quedas no mesmo segundo às 10:00 foram o sinal do RECREIO.
 - **Onde:** `client/src/connection.ts` (`WsConnection`), `client/src/main.ts` (`aoFalhar`, `tentarVoltar`), `server/src/index.ts` (linha da volta), `shared/src/queda.ts`

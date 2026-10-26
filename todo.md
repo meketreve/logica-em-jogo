@@ -1074,6 +1074,21 @@ sem ela os 4 níveis de machado empatariam no piso de 150 ms. Prova: `shared/src
 * \[ ] **porta automática** — a 1ª saída que não é luz: o circuito ABRE a porta (os ids 66-69 já
   existem e já alternam no clique). É o que faz o desafio virar "consequência" em vez de
   "acendeu". Mexe no gate de claim: quem é dono do circuito abre a porta de quem?
+  → **Pedido dele, 2026-10-26:** "interação entre sinal forte do circuito e portas, permitir que
+  o sinal controle o estado de aberto ou fechado da porta". Lido como: a porta **SEGUE** o sinal
+  (energizada = aberta, sem sinal = fechada), como a lâmpada segue — e não "o sinal ALTERNA a
+  porta", que deixaria o estado depender de quantas vezes o sinal subiu. É a convenção do
+  Minecraft.
+  → **Perguntar na entrevista de escopo:** (1) "sinal **forte**" é qualquer peça energizada
+  encostada na porta, ou só a saída de porta lógica / alavanca diretamente (o "forte" do
+  redstone)? (2) com sinal, o **clique** na porta ainda funciona (e o sinal a fecha de novo no
+  próximo recálculo?) ou a porta energizada fica TRAVADA? (3) vale pra **janela** também (ela
+  alterna no clique pelo mesmo caminho)? (4) jogador no vão quando o sinal FECHA: cancela, como o
+  clique já faz (`overlapsAnyPlayer`)?
+  → Técnico: a porta tem 2 células (`parDaPorta`) — o sinal em QUALQUER uma das duas move o
+  par inteiro; e é a 1ª saída do motor que não é `comEstado` de peça de circuito, então o
+  `recalcularCircuitos` precisa devolver mudança pra um bloco que NÃO está no índice
+  `circuitos` (a porta é lida como vizinha das peças energizadas).
 
 ### Fase 1b — o circuito SAI DO CHÃO (parede e teto)
 

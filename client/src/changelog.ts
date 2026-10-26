@@ -43,6 +43,14 @@ interface Mudanca {
 const MUDANCAS: readonly Mudanca[] = [
   {
     // sem `data`: este é o build atual (ver rotuloDoBloco)
+    titulo: "A alavanca não trava mais o jogo",
+    itens: [
+      "clicar várias vezes seguidas numa **alavanca ligada a um circuito comprido** deixava o jogo travando: cada pedaço de fio que acendia ou apagava redesenhava o pedaço do mundo em volta dele, um de cada vez — com 30 fios, um clique custava mais de um terço de segundo",
+      "agora o jogo junta tudo o que mudou e redesenha cada pedaço do mundo **uma vez só** antes de mostrar a tela: o mesmo clique ficou umas vinte vezes mais leve, e a lâmpada continua acendendo na mesma hora",
+    ],
+  },
+  {
+    data: "26/10/2026",
     titulo: "Caiu a conexão? O jogo volta sozinho",
     itens: [
       "quando a conexão com o servidor cai no meio do jogo, o tablet agora **tenta entrar de novo sozinho**, com o mesmo nome e PIN: aparece “reconectando…” e, em alguns segundos, você está de volta no mesmo lugar — antes ia direto para o menu, com o aviso “a conexão com o servidor caiu”, e era preciso digitar tudo de novo",

@@ -93,6 +93,22 @@ export class ChunkRenderer {
   /** Quem está pedindo o remesh corrente (o `remesh` público é chamado de
    *  vários lugares; a tag acompanha a chamada em vez de virar parâmetro). */
   private caminho: "fila" | "bloco" | "area" | "carga" = "bloco";
+  /**
+   * §🔌 Chunks que uma mudança de bloco SUJOU neste quadro, à espera do
+   * `descarregarSujos` (chamado logo antes do render). Cada chunk entra UMA vez.
+   *
+   * Antes cada `block_changed` remontava o chunk na hora. Alternar uma alavanca
+   * ligada a 30 peças de fio são 30+ `block_changed` no mesmo lote do servidor
+   * — e o MESMO chunk era montado dezenas de vezes seguidas, mais os da luz da
+   * lâmpada: 338 ms de main thread por clique no PC (77 remontagens), quase um
+   * segundo com 100 peças. Clicar rápido travava o jogo (relato dele, 26/10).
+   * Montando cada chunk uma vez por quadro, o mesmo clique custa 14 ms.
+   *
+   * Continua SÍNCRONO no quadro: a mensagem chega entre dois quadros e o
+   * descarregar roda antes do próximo desenho — o aluno vê o bloco no mesmo
+   * quadro de antes (é por isso que este caminho não foi pro worker).
+   */
+  private sujosDoQuadro = new Map<number, { cx: number; cy: number; cz: number; caminho: "bloco" | "area" }>();
 
   /**
    * §💡 Grade de luz do mundo corrente. `undefined` = sem luz voxel (o mesher
@@ -228,6 +244,7 @@ export class ChunkRenderer {
     this.fila.length = 0;
     this.filaSet.clear();
     this.sujosEmVoo.clear(); // `key` do mundo velho não vale no novo
+    this.sujosDoQuadro.clear();
     this.chavesEmVoo.clear();
     this.world = novo;
     this.luz = luz; // grade de luz do mundo VELHO não vale no novo
@@ -244,10 +261,38 @@ export class ChunkRenderer {
    * ficar parado na tela.
    */
   remeshSujos(sujos: Iterable<number>): void {
-    this.caminho = "bloco";
     for (const i of sujos) {
       const { cx, cy, cz } = luzChunkCoords(this.world.dims, i);
-      this.remesh(cx, cy, cz);
+      this.sujar(cx, cy, cz, "bloco");
+    }
+  }
+
+  /**
+   * Marca o chunk pra remontar antes do próximo render (`sujosDoQuadro`). A
+   * versão sobe JÁ: um job do worker que volte antes do descarregar traria a
+   * geometria de antes da mudança.
+   */
+  private sujar(cx: number, cy: number, cz: number, caminho: "bloco" | "area"): void {
+    const key = chunkIndex(this.world, cx, cy, cz);
+    this.novaVersao(key);
+    if (!this.sujosDoQuadro.has(key)) this.sujosDoQuadro.set(key, { cx, cy, cz, caminho });
+  }
+
+  /** Remonta, uma vez cada, os chunks sujos do quadro. O laço de render chama
+   *  isto logo antes de desenhar. */
+  descarregarSujos(): void {
+    if (this.sujosDoQuadro.size === 0) return;
+    const sujos = [...this.sujosDoQuadro.values()];
+    this.sujosDoQuadro.clear(); // ANTES: um remesh que lance não pode deixar o chunk preso aqui
+    for (const c of sujos) {
+      this.caminho = c.caminho;
+      // roda DENTRO do laço de render agora: um chunk que lance não pode
+      // derrubar o quadro (antes a exceção morria no tratador da mensagem)
+      try {
+        this.remesh(c.cx, c.cy, c.cz);
+      } catch (e) {
+        console.warn(`[mesh] chunk ${c.cx},${c.cy},${c.cz} falhou:`, e);
+      }
     }
   }
 
@@ -337,7 +382,6 @@ export class ChunkRenderer {
    * borda. Cada chunk remesha UMA vez, não uma vez por bloco.
    */
   remeshBox(min: { x: number; y: number; z: number }, max: { x: number; y: number; z: number }): void {
-    this.caminho = "area";
     const c = (v: number, hi: number): number =>
       Math.max(0, Math.min(Math.floor(v / CHUNK_SIZE), hi - 1));
     const cx0 = c(min.x - 1, this.world.dims.x);
@@ -348,7 +392,7 @@ export class ChunkRenderer {
     const cz1 = c(max.z + 1, this.world.dims.z);
     for (let cy = cy0; cy <= cy1; cy++)
       for (let cz = cz0; cz <= cz1; cz++)
-        for (let cx = cx0; cx <= cx1; cx++) this.remesh(cx, cy, cz);
+        for (let cx = cx0; cx <= cx1; cx++) this.sujar(cx, cy, cz, "area");
   }
 
   /** Enfileira os chunks da coluna (cx,cz) recém-chegada + os vizinhos JÁ
@@ -527,20 +571,19 @@ export class ChunkRenderer {
   }
 
   remeshBlock(x: number, y: number, z: number): void {
-    this.caminho = "bloco";
     const cx = (x / CHUNK_SIZE) | 0;
     const cy = (y / CHUNK_SIZE) | 0;
     const cz = (z / CHUNK_SIZE) | 0;
-    this.remesh(cx, cy, cz);
+    this.sujar(cx, cy, cz, "bloco");
 
     const lx = x - cx * CHUNK_SIZE;
     const ly = y - cy * CHUNK_SIZE;
     const lz = z - cz * CHUNK_SIZE;
-    if (lx === 0 && cx > 0) this.remesh(cx - 1, cy, cz);
-    if (lx === CHUNK_SIZE - 1 && cx < this.world.dims.x - 1) this.remesh(cx + 1, cy, cz);
-    if (ly === 0 && cy > 0) this.remesh(cx, cy - 1, cz);
-    if (ly === CHUNK_SIZE - 1 && cy < this.world.dims.y - 1) this.remesh(cx, cy + 1, cz);
-    if (lz === 0 && cz > 0) this.remesh(cx, cy, cz - 1);
-    if (lz === CHUNK_SIZE - 1 && cz < this.world.dims.z - 1) this.remesh(cx, cy, cz + 1);
+    if (lx === 0 && cx > 0) this.sujar(cx - 1, cy, cz, "bloco");
+    if (lx === CHUNK_SIZE - 1 && cx < this.world.dims.x - 1) this.sujar(cx + 1, cy, cz, "bloco");
+    if (ly === 0 && cy > 0) this.sujar(cx, cy - 1, cz, "bloco");
+    if (ly === CHUNK_SIZE - 1 && cy < this.world.dims.y - 1) this.sujar(cx, cy + 1, cz, "bloco");
+    if (lz === 0 && cz > 0) this.sujar(cx, cy, cz - 1, "bloco");
+    if (lz === CHUNK_SIZE - 1 && cz < this.world.dims.z - 1) this.sujar(cx, cy, cz + 1, "bloco");
   }
 }

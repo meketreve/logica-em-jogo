@@ -1708,6 +1708,11 @@ class GameRuntime {
       ...this.quebraFx.estado,
       alvo: this.quebra ? { ...this.quebra.cel, precisa: this.quebra.precisa } : null,
     });
+    // §🔌 gancho de SONDA (mesmo precedente): quantas remontagens o caminho
+    // "bloco" já fez. A `shots:circuito` (C5) lê isto antes e depois de UM
+    // clique na alavanca pra provar que cada chunk sai uma vez, não uma por peça.
+    (window as unknown as Record<string, unknown>)["__remeshPorBloco"] = () =>
+      this.chunkRenderer.porCaminho.bloco.n;
     // cp16: hotbar virou 9 SLOTS configuráveis (persistem no navegador via
     // localStorage); o inventário (tecla E) escolhe o bloco de cada slot.
     // A lista de colocáveis segue em blocksUi.ts (painel de autoria usa a mesma).
@@ -2576,6 +2581,9 @@ class GameRuntime {
       // entra aqui, mas é exatamente a fatia que nós controlamos.
       // §📊 tempo de GPU: a consulta abraça o render (só amostra com o F3 aberto
       // ou gravando; o resultado chega alguns frames depois, colhido em `frame`)
+      // §🔌 os chunks que as mensagens deste intervalo sujaram, UMA vez cada
+      // (ver `sujosDoQuadro`) — antes do render, pra mudança sair neste quadro
+      this.chunkRenderer.descarregarSujos();
       const tRender = performance.now();
       this.hud.gpuInicio();
       renderer.render(scene, camera);
