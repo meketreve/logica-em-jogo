@@ -1,41 +1,31 @@
----
-updated: 2026-10-25
-tier: 3
----
-
 # Status — tier 3
 
-<!-- TETO: 60 linhas. Resumir "Concluído" quando crescer. -->
 ## Estado atual
 
-Jogo voxel educacional rodando, testado com turma real. `main` em sinc, árvore limpa. Só LINUX.
-⚠️ **O SSD vai ser FORMATADO (25/10)** — tudo deste repo está no GitHub; a cópia local volta por
-clone, e o que não está versionado (`.wolf/designqc-captures`, `mundos/`) se perde e não faz falta.
+Jogo voxel educacional rodando, testado com turma real. Só LINUX. O SSD foi formatado em 25/10 e o
+repo voltou por clone (`npm ci` refeito; Chrome das sondas = `CHROME=/usr/bin/google-chrome`, o
+cache do puppeteer se foi).
 
-**DOZE lotes empurrados sem aula nenhuma** — os seis do §🔌 (16–19/10), três de 20/10
-(`/vender`, barra de navegação, ciclo da aula), dois de 23/10 (chat do PC, circuito em parede e
-teto) e a alavanca nova (25/10). Maior acúmulo de não-testado daqui.
+**Chegaram os logs (26/10, zip dos `mundos/`):** aulas de 23/10 e 26/10 rodaram com os lotes até
+o chat do PC. Leitura do bug-675 em `BUGS.md` (entrada de 26/10): **zero "sem responder", 39 quedas
+1006** — no Android, Home/tela bloqueada matam o socket na hora (o recreio provou), então o log do
+host não separava tela escondida de rede. A criança caía no menu e redigitava nome e PIN.
 
-⚠️ **Ele disse em 20/10 que testaria em 21/10 e traria os logs. Hoje é 25/10 e nenhum retorno
-chegou até aqui** — cinco dias. Pode ter acontecido sem relato, ou a aula ter mudado de data —
-**perguntar antes de supor**. Nada abaixo foi confirmado em sala.
-
-⚠️ **bug-675: a causa APARECEU, mas não foi confirmada.** Pela pista dele ("não acontece nas
-turmas dos mais velhos"), é a palma da mão na BARRA DE NAVEGAÇÃO do Android. Atacado em 20/10;
-**quem confirma é o `-eventos.log`**. E o **`.bat` do launcher nunca foi executado** (não roda no
-Linux): passa no portão de paridade, quem confirma é a máquina do laboratório. **Aprovado em
-aula:** comandos no chat com PAPEL + painel do dedo.
+**26/10 — lote empurrado:** a página conta COMO caiu (tela escondida × à vista) no join da volta,
+e o jogo **reconecta sozinho** (5 tentativas, espera a tela voltar; esgotou → menu como antes).
+Provado em `shots:queda` (host morto e ressuscitado, aba escondida de verdade, heartbeat mudo) e no
+smoke `logs`. **Não testado em aula.**
 
 ## Próxima fase
 
-**Ler os logs quando ele trouxer** — `mundos/<turma>/logs/<data>-eventos.log`, contando
-`fechou a página` × `ficou sem responder`. Fecha (ou reabre) o bug-675.
+**A próxima aula fecha o bug-675:** no `-eventos.log`, contar `voltou sozinho` × `voltou pelo
+menu`, e `tela ESCONDIDA` × `à vista`. Muito "ESCONDIDA" nas turmas pequenas = a palma na barra
+confirmada. E perguntar se a criança notou o "a conexão caiu — voltando ao jogo".
 
-Depois, o resto da **fase 1 do §🔌** (`todo.md`): **botão** (pulso — precisa de prazo por
-célula, que o motor não tem) e **porta automática** (1ª saída que não é luz; mexe no gate de
-claim). → **verify:** `shots:circuito` com seção nova vendo a peça, como a C3 e a C4.
-Atrás: a **porta NÃO**, que ⚠️ **quebra o ponto fixo** do motor (um NÃO ligado em si mesmo
-oscila pra sempre) — cabeçalho de `circuitos.ts`. E **luz colorida** + **curva de brilho**.
+Depois, o resto da **fase 1 do §🔌** (`todo.md`): **botão de parede** (pulso — prazo por célula,
+que o motor não tem) e **porta automática** (1ª saída que não é luz; mexe no gate de claim).
+Atrás: a **porta NÃO** (⚠️ quebra o ponto fixo — cabeçalho de `circuitos.ts`), **luz colorida** e
+**curva de brilho** (decisões dele).
 
 ## Pendências e bloqueios
 
@@ -43,18 +33,14 @@ oscila pra sempre) — cabeçalho de `circuitos.ts`. E **luz colorida** + **curv
 
 ## Concluído (recente)
 
+- **26/10 — §📱 bug-675: o jogo volta sozinho** depois da queda, e o log diz se a tela estava
+  escondida. A tela de carga ganhou portão próprio (marcava "100% pronto!" com o mundo velho).
 - **25/10 — a ALAVANCA estilo Minecraft.** Pedregulho + cabo que TOMBA (10° ligada, 75°
-  desligada): a inclinação recusada em 19/10 voltou **com a altura preservada** (12/16 × 6,3/16),
-  que sobrevive ao projetor. Nasceu o `emitCaixaInclinada`.
-- **23/10 — §🔌 o circuito SAIU DO CHÃO.** Fio e alavanca em parede e teto: a FACE virou id
-  (280-299), tabela `RASTEIRAS` + faixa gêmea no `blocks.ts`, e **um giro só** (`giroDaFace`) pra
-  forma E mira. O motor **não olha a face**. Dele: placa só no piso, portas horizontais,
-  **agachar inverte a frente**. Seção C4. **E o chat do PC:** Enter/Esc sem foco (bug em
-  `BUGS.md`) · lista de comandos no PC · **porta lógica E/OU**.
-- **20/10 — launcher: o ciclo da AULA.** `[10]` plano · `[11]` publicar (prefixo `aula`) · `[8]` varre as duas pastas.
-- **20/10 — §📱 bug-675:** tela cheia que se **segura** · "voltar" vira menu de pausa · host
-  escreve o MOTIVO da saída. **§💰 `/vender`:** o balcão do JOGADOR (fora do save), 1ª FONTE de
-  Dimas, com o PORTÃO de preço (saída ≤ entrada) que pegou 3 canos.
+  desligada), com a altura preservada (12/16 × 6,3/16). Nasceu o `emitCaixaInclinada`.
+- **23/10 — §🔌 o circuito SAIU DO CHÃO** (fio e alavanca em parede e teto; `giroDaFace`) e o
+  **chat do PC** (Enter/Esc sem foco, lista de comandos, porta lógica E/OU).
+- **20/10 — launcher: o ciclo da AULA** (`[10]` plano · `[11]` publicar · `[8]` as duas pastas) ·
+  **§💰 `/vender`** (o balcão, 1ª FONTE de Dimas, portão de preço).
 
 ## Bruto do git (auto — não editar)
 

@@ -1,6 +1,7 @@
 import { type Papel } from "./auth";
 import { type Claim, parseClaim } from "./claims";
 import { type QuadroConteudo, parseQuadroConteudo } from "./quadros";
+import { type RelatoQueda, lerRelatoQueda } from "./queda";
 import {
   CONTAINER_SLOTS,
   type ContainerTipo,
@@ -39,6 +40,8 @@ export type ClientMessage =
       name: string;
       pin?: string;
       codigo?: string;
+      /** §📱 bug-675: a conexão ANTERIOR caiu, e é assim que ela caiu (ver `queda.ts`). */
+      queda?: RelatoQueda;
     }
   | { type: "move"; x: number; y: number; z: number; yaw: number; pitch: number }
   | { type: "place_block"; x: number; y: number; z: number; blockId: number }
@@ -690,11 +693,14 @@ export function parseClientMessage(raw: string): ClientMessage | null {
       // pin/codigo são opcionais, mas se vierem TÊM que ser string
       if (m["pin"] !== undefined && typeof m["pin"] !== "string") return null;
       if (m["codigo"] !== undefined && typeof m["codigo"] !== "string") return null;
+      // relato torto some em silêncio — nunca recusa o join (ver `queda.ts`)
+      const queda = lerRelatoQueda(m["queda"]);
       return {
         type: "join",
         name: m["name"],
         ...(typeof m["pin"] === "string" ? { pin: m["pin"] } : {}),
         ...(typeof m["codigo"] === "string" ? { codigo: m["codigo"] } : {}),
+        ...(queda ? { queda } : {}),
       };
     }
     case "move": {

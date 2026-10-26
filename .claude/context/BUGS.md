@@ -1,5 +1,5 @@
 ---
-updated: 2026-10-25
+updated: 2026-10-26
 tier: 3
 ---
 
@@ -11,6 +11,16 @@ tier: 3
      Convertido de `.wolf/buglog.json` em 2026-09-25 (mesmo conteúdo, formato do
      modelo). São bugs ESCRITOS À MÃO: nada de detector automático — ele já encheu
      o arquivo de 148 entradas falsas uma vez, e elas foram podadas junto. -->
+
+## 2026-10-26 — bug-675 (o que o log das aulas mostrou): no Android a queda é o socket morrendo SECO, e a criança redigitava tudo
+- **Sintoma:** logs de 23/10 (6º/7º) e 26/10 (6º/7º e 2º/3º), todos depois do conserto de 20/10: **zero** `ficou sem responder`, 9 `fechou a página` e **39 `a conexão caiu (código 1006)`** — o Adriam 10× em 50 min, a Tilapia 7×, cada um voltando 15 s–4 min depois. Usuário: o tablet chega a ele "apenas com o aviso 'a conexão do servidor caiu'" (página VIVA, não crash), os tablets são todos iguais, e as 4 quedas no mesmo segundo às 10:00 foram o sinal do RECREIO.
+- **Onde:** `client/src/connection.ts` (`WsConnection`), `client/src/main.ts` (`aoFalhar`, `tentarVoltar`), `server/src/index.ts` (linha da volta), `shared/src/queda.ts`
+- **Causa (do diagnóstico):** no Android, ir pra tela inicial ou bloquear a tela **mata o socket na hora** — o host vê 1006, idêntico a Wi-Fi caindo, e o heartbeat nunca chega a perguntar. O recreio provou: tela bloqueada saiu como 1006, não como "sem responder". Então "zero sem responder" **não derrubava** a hipótese da palma na barra (eu li errado na 1ª passada) — o log do host simplesmente não tinha como separar "tela escondida" de "rede". Só a PÁGINA sabe se estava à vista. E o custo pra criança era o caminho de 20/10: queda em jogo → menu → nome e PIN de novo, dez vezes por aula.
+- **Correção:** (1) a página mede a própria visibilidade (`visibilitychange`) e o silêncio do servidor, e conta no `join` da volta (`queda`, validado em `lerRelatoQueda`; relato torto some sem recusar o join). O host escreve `<nome> voltou sozinho|pelo menu: tinha caído com a tela ESCONDIDA havia N s | à vista e SEM Wi-Fi | à vista (rede ou servidor)` — só depois do join ACEITO. (2) **Reconexão automática**: queda 1006/4000 em jogo reabre o socket na mesma `WsConnection` (o PIN nunca sai da memória, cp9), espera a tela voltar à vista, 5 tentativas (0/1/2/4/8 s, prazo de 6 s até a 1ª RESPOSTA do jogo), e o mundo chega pelo `reloadWorld` da troca de aula. Esgotou → menu com o motivo ORIGINAL e o relato em `sessionStorage` (`lj-queda`) pro próximo join. Expulsão e troca de aparelho fecham com outro código e NÃO reconectam (brigariam com o professor / com o outro tablet).
+- **Pegadinha que o PRINT pegou:** a tela "voltando ao jogo" marcava "100% pronto!" e fechava em 400 ms — o portão da tela de carga olha o mundo ATUAL, e o velho está inteiro. Portão ganhou `volta === null`; a sonda afirma que a tela FICA com o host fora (controle negativo derrubou a asserção).
+- **Prova:** `shots:queda` (host SIGKILL e de volta: sem recarregar, sem menu, log "à vista"; com OUTRA aba na frente — aba escondida de verdade —: não tenta enquanto escondida, volta ao vir pra frente, log "tela ESCONDIDA havia 2 s"; heartbeat com cliente mudo: esgota e cai no menu com o motivo do heartbeat). Smoke `logs`: linha da volta, e join recusado (PIN errado) NÃO vira "voltou". Três controles negativos no cliente, dois no host.
+- **Ainda aberto:** quem confirma a CAUSA é a próxima aula — contar `tela ESCONDIDA` × `à vista` no `-eventos.log`.
+- **Tags:** bug-675, 1006, android, tela inicial, Home, recreio, visibilitychange, reconexão, reconectar, voltou sozinho, eventos.log, loading, portão, corrigido-parcial
 
 ## 2026-10-23 — o chat do PC ficava PRESO aberto depois de um clique fora da caixa de texto
 - **Sintoma:** usuário: "ao abrir o chat no pc, se clicar fora da caixa de texto e apertar enter ou esc não fecha o chat". Nenhum erro no console — as teclas simplesmente não respondiam, e nem o atalho de abrir resolvia (ele sai cedo quando `chat.open`).

@@ -17,6 +17,7 @@ import {
   TAMANHO_CHUNKS,
   bytesUtf8,
   decodeSave,
+  descreverVolta,
   ehPresetSobrevivencia,
   encodeLazySave,
   encodeSave,
@@ -689,7 +690,17 @@ wss.on("connection", (socket, req) => {
     if (interceptarKicar(id, texto)) return; // /expulsar é do HOST (fecha socket)
     if (interceptarBanimento(id, texto)) return; // /banir·/desbanir do HOST (fecha socket + estado na session)
     if (interceptarProfile(id, texto)) return; // profile_report é do HOST (grava arquivo)
+    // §📱 bug-675: o join de quem VOLTA traz como a conexão anterior caiu — só a
+    // página sabia se a tela estava à vista. Filtro barato antes do parse (o
+    // `move` chega dezenas de vezes por segundo); a linha sai DEPOIS do
+    // `handleMessage`, com o nome que a sessão admitiu — join recusado não
+    // vira "voltou" no log.
+    const volta = texto.includes('"queda"') ? parseClientMessage(texto) : null;
     session.handleMessage(id, texto);
+    if (volta?.type === "join" && volta.queda) {
+      const quem = session.jogadoresConectados().find((j) => j.id === id)?.name;
+      if (quem !== undefined) registrarEvento(descreverVolta(quem, volta.queda));
+    }
   });
 
   socket.on("close", (codigo: number) => {

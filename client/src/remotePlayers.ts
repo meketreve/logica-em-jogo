@@ -152,6 +152,12 @@ export class RemotePlayersView {
     this.players.delete(id);
   }
 
+  /** Tira todo mundo de cena (§📱 a volta depois de uma queda: os `player_left`
+   *  de quem saiu nesse meio-tempo nunca chegaram aqui). */
+  limpar(): void {
+    for (const id of [...this.players.keys()]) this.aoSair(id);
+  }
+
   /** Desliza todo mundo até o último update. `dt` em segundos. */
   interpolar(dt: number): void {
     // fator exponencial = independente do FPS (~90% do caminho em ~190 ms)

@@ -15,7 +15,9 @@
  *    — e os motivos se distinguem. Era a pergunta sem resposta do usuário
  *    ("os tablets caem; será que é a criança apertando um botão sem querer?"):
  *    até aqui o log não registrava saída nenhuma, e "fechou a página" (o
- *    voltar/Home do tablet, código 4001) era idêntico a queda de rede.
+ *    voltar/Home do tablet, código 4001) era idêntico a queda de rede;
+ * 7. §📱 bug-675 (2026-10-26) quem VOLTA conta como caiu (o `queda` do join),
+ *    e isso vira linha com o NOME admitido — join RECUSADO não vira "voltou".
  *
  *   LJ_TAMANHO=P LJ_NOVO=1 LJ_SAVE=mundos/_smoke-logs.ljw LJ_CODIGO=prof2026 \
  *     LJ_PORT=8101 npm run start -w server
@@ -127,6 +129,36 @@ ok(
   "portas diferentes dão motivos DIFERENTES (senão o log não responde nada)",
 );
 ok(!chat.includes("saiu:"), "e saída é EVENTO: não suja o -chat.log do professor");
+
+console.log("== §📱 bug-675: quem VOLTA conta como caiu ==");
+// clientes NOVOS (os de cima já fecharam): a bia entra, cai e volta contando
+const bia = cliente({ name: "bia", pin: "3333" });
+const caio = cliente({ name: "caio", pin: "2222" });
+await espera(800);
+bia.ws.close();
+caio.ws.close();
+await espera(400);
+const RELATO = { codigo: 1006, escondidaMs: 41_200, semNoticiaMs: 2_400, online: true, como: "sozinho" };
+const biaDeVolta = cliente({ name: "bia", pin: "3333", queda: RELATO });
+// CONTROLE NEGATIVO: o caio "volta" com o PIN ERRADO — o join é recusado, e
+// uma linha "caio voltou" aí seria o log mentindo sobre quem está no jogo
+const caioErrado = cliente({ name: "caio", pin: "9999", queda: RELATO });
+await espera(800);
+const comVolta = ler(deEventos[0]);
+const linhasDeVolta = comVolta.split("\n").filter((l) => l.includes(" voltou "));
+ok(
+  linhasDeVolta.some((l) =>
+    l.endsWith(
+      "servidor: bia voltou sozinho: tinha caído com a tela ESCONDIDA havia 41 s (botão Home, tela bloqueada ou outro app) — 2 s sem notícia do servidor, código 1006",
+    ),
+  ),
+  `a volta da bia virou linha, com a causa (${(linhasDeVolta[0] ?? "—").slice(11, 80)})`,
+);
+ok(linhasDeVolta.length === 1, `só UMA linha de volta — a entrada normal e o join recusado não contam (${linhasDeVolta.length})`);
+ok(!comVolta.includes("caio voltou"), "o join recusado do caio NÃO virou \"voltou\"");
+ok(!ler(doChat[0]).includes("voltou"), "e a volta é EVENTO: não suja o -chat.log");
+biaDeVolta.ws.close();
+caioErrado.ws.close();
 
 console.log(falhas === 0 ? "\n✓ tudo certo" : `\n✗ ${falhas} falha(s)`);
 process.exit(falhas === 0 ? 0 : 1);

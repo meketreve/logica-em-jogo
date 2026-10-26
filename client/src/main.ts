@@ -68,6 +68,8 @@ import {
   stepPlayer,
   type TipoEmote,
   type TipoGesto,
+  type RelatoQueda,
+  lerRelatoQueda,
 } from "@logica/shared";
 import { AguaFx } from "./aguaFx";
 import { initUiAudio, playUi, setUiVolume, playUiPassive } from "./audio";
@@ -95,7 +97,7 @@ import { MateriaisMundo } from "./materiaisMundo";
 import { MovimentoDoJogador } from "./movimentoJogador";
 import { PainelHost } from "./painelHost";
 import { ProgressoCarga } from "./progressoCarga";
-import { type Connection, WorkerConnection, WsConnection } from "./connection";
+import { type Connection, type QuedaVista, WorkerConnection, WsConnection } from "./connection";
 import { emitGameEvent } from "./events";
 import { Hud } from "./hud";
 import { Input } from "./input";
@@ -1168,9 +1170,13 @@ function handleServerData(data: string | ArrayBuffer): void {
     return proximoLazy ? decodeLazyInfo(data) : decodeSnapshot(data);
   };
   if (jogo) {
-    // segundo snapshot EM JOGO = o professor trocou a aula (cp19). O que vem
-    // depois (regiões, grupos, objetivos, teleporte) repovoa a tela.
-    jogo.reloadWorld(decodificar());
+    // segundo snapshot EM JOGO = o professor trocou a aula (cp19) — ou §📱 a
+    // reconexão automática deu certo e o servidor mandou o mundo de novo. O
+    // que vem depois (regiões, grupos, objetivos, teleporte) repovoa a tela.
+    const voltou = volta !== null;
+    volta = null;
+    if (voltou) nomesOnline.clear(); // quem saiu enquanto estávamos fora não avisou A NÓS
+    jogo.reloadWorld(decodificar(), voltou ? "volta" : "troca");
     return;
   }
   startGame(decodificar());
@@ -1203,19 +1209,91 @@ function connect(c: Connection, auth?: MultiAuth): void {
     document.exitPointerLock();
     chat.openInput();
   });
-  // singleplayer (sem auth) entra sem PIN — o worker é professor automático
-  c.send(
-    JSON.stringify({
-      type: "join",
-      name: playerName(),
-      ...(auth ? { pin: auth.pin } : {}),
-      ...(auth?.codigo ? { codigo: auth.codigo } : {}),
-    }),
-  );
+  // singleplayer (sem auth) entra sem PIN — o worker é professor automático.
+  // §📱 bug-675: quem chega pelo menu DEPOIS de uma volta automática que não
+  // deu certo traz o relato da queda — o log da aula conta essas também.
+  let queda: RelatoQueda | null = null;
+  if (auth) {
+    try {
+      const bruto = sessionStorage.getItem("lj-queda");
+      sessionStorage.removeItem("lj-queda");
+      queda = bruto ? lerRelatoQueda(JSON.parse(bruto)) : null;
+    } catch {
+      /* relato ilegível: entra sem ele */
+    }
+  }
+  c.send(mensagemDeJoin(auth, queda));
   // F2 streaming: raio de interesse (config de desempenho) — depois do join
   // (transporte preserva ordem); em mundo denso o servidor só ignora
   raioEnviado = -1; // conexão nova = servidor novo, reanuncia mesmo se igual
   enviarRaio();
+}
+
+function mensagemDeJoin(auth: MultiAuth | undefined, queda: RelatoQueda | null): string {
+  return JSON.stringify({
+    type: "join",
+    name: playerName(),
+    ...(auth ? { pin: auth.pin } : {}),
+    ...(auth?.codigo ? { codigo: auth.codigo } : {}),
+    ...(queda ? { queda } : {}),
+  });
+}
+
+// --- §📱 bug-675: a queda EM JOGO volta sozinha ---
+//
+// As aulas de 23 e 26/10 mostraram que o que derruba o tablet é o socket
+// morrendo seco (1006) com a PÁGINA viva: a criança via "a conexão com o
+// servidor caiu" no menu e digitava nome e PIN de novo — dez vezes numa aula,
+// no caso do Adriam. Com a página viva, o PIN ainda está na memória (ele nunca
+// vai pro storage, cp9): dá pra entrar de novo sem ela fazer nada. O mundo
+// chega como chega na troca de aula (`reloadWorld`), e nome + PIN certo é
+// POSSE (2026-10-13) — ela volta no mesmo lugar, mesmo se o host ainda a
+// achar conectada.
+
+/** Espera antes de cada tentativa. A 1ª é imediata: quando a página volta à
+ *  vista, o Home do tablet já passou; as outras dão tempo ao Wi-Fi. A soma
+ *  (~15 s + prazos) cobre o roteador que reinicia, não o servidor desligado. */
+const ESPERAS_VOLTA_MS = [0, 1000, 2000, 4000, 8000];
+/** Tentativa sem RESPOSTA nisso é dada como falha (ver `WsConnection.reabrir`). */
+const PRAZO_VOLTA_MS = 6000;
+
+/** A volta em andamento (null = jogando normal). `queda` é a PRIMEIRA, a que
+ *  importa — as tentativas que falham depois não são a causa. */
+let volta: { tentativa: number; queda: RelatoQueda; motivo: string } | null = null;
+
+/** Agenda a próxima tentativa; `false` = não há volta possível (desistir). */
+function tentarVoltar(
+  ws: WsConnection,
+  auth: MultiAuth,
+  motivo: string,
+  queda: QuedaVista,
+  reconectavel: boolean,
+): boolean {
+  if (!jogo) return false;
+  if (volta === null) {
+    if (!reconectavel) return false;
+    volta = { tentativa: 0, queda: { ...queda, como: "sozinho" }, motivo };
+    jogo.iniciarVolta();
+  } else {
+    volta.tentativa++;
+  }
+  if (volta.tentativa >= ESPERAS_VOLTA_MS.length) return false;
+  const pendente = volta;
+  const tentar = (): void => {
+    if (volta !== pendente) return; // o mundo já chegou (ou desistimos)
+    // tela escondida: o Android nem deixaria o socket viver — espera a
+    // criança voltar, e aí a 1ª tentativa sai na hora
+    if (document.hidden) {
+      document.addEventListener("visibilitychange", tentar, { once: true });
+      return;
+    }
+    ws.reabrir(PRAZO_VOLTA_MS);
+    ws.send(mensagemDeJoin(auth, pendente.queda));
+    raioEnviado = -1; // sessão nova no host = raio padrão; reanuncia
+    enviarRaio();
+  };
+  window.setTimeout(tentar, ESPERAS_VOLTA_MS[volta.tentativa]);
+  return true;
 }
 
 function startMultiplayer(url: string, auth: MultiAuth): void {
@@ -1225,15 +1303,22 @@ function startMultiplayer(url: string, auth: MultiAuth): void {
   if (sair) sair.textContent = "voltar ao menu";
   // §🕐 servidor fora do ar / IP errado: sem isto o aluno fica olhando o
   // spinner pra sempre. Queda EM JOGO segue como era (o mundo já está na tela).
-  const aoFalhar = (motivo: string): void => {
+  const aoFalhar = (motivo: string, queda: QuedaVista, reconectavel: boolean): void => {
     // Queda EM JOGO (bug-675): antes isto saía CALADO — o `if (jogo) return` era
     // de quando só o Wi-Fi derrubava alguém e o mundo na tela ainda servia de
     // consolo. Com o heartbeat o servidor derruba DE PROPÓSITO, e a criança
     // ficava olhando um mundo congelado que não responde mais, sem saber que
     // precisava recarregar a página na mão. Agora volta pro painel principal
     // com o motivo escrito, que é de onde ela entra de novo.
+    //
+    // §📱 bug-675: e antes do menu, tenta VOLTAR sozinho (ver `tentarVoltar`).
+    // O menu só aparece quando as tentativas acabam — aí com o motivo da queda
+    // ORIGINAL (não o da última tentativa) e o relato guardado pro próximo join.
     if (jogo) {
-      sessionStorage.setItem("lj-erro", `${motivo} (${url})`);
+      if (tentarVoltar(ws, auth, motivo, queda, reconectavel)) return;
+      if (volta) sessionStorage.setItem("lj-queda", JSON.stringify({ ...volta.queda, como: "menu" }));
+      sessionStorage.setItem("lj-erro", `${volta?.motivo ?? motivo} (${url})`);
+      volta = null;
       location.href = location.pathname;
       return;
     }
@@ -1244,7 +1329,8 @@ function startMultiplayer(url: string, auth: MultiAuth): void {
       location.href = location.pathname;
     });
   };
-  connect(new WsConnection(url, aoFalhar), auth);
+  const ws = new WsConnection(url, aoFalhar);
+  connect(ws, auth);
 }
 
 function startSingleplayer(choice: PlayWorldChoice, seedFixa?: number): void {
@@ -2272,8 +2358,13 @@ class GameRuntime {
       // Vale pros DOIS mundos desde o bug-608: no denso o `raioCompleto` é
       // trivialmente true (total 0) e a `filaLuz` já está vazia, então quem
       // segura a tela é só o `filaPendente` do `buildAll`.
+      // §📱 E nada de fechar com uma VOLTA em andamento: o mundo velho está
+      // inteiro e pronto, então o resto do portão passaria na hora — a tela
+      // marcava "100% pronto!" e sumia, devolvendo a criança a um mundo que
+      // não fala mais com ninguém (foi o print da sonda que mostrou).
       if (
         loading.ativo &&
+        volta === null &&
         this.progresso.raioCompleto &&
         this.luz.filaVazia &&
         this.chunkRenderer.filaPendente === 0
@@ -2657,7 +2748,26 @@ class GameRuntime {
    * mundo anterior ficaria de fantasma na tela. Por isso zeramos aqui e deixamos
    * as mensagens seguintes (regiões, grupo, objetivos, teleporte) repovoarem.
    */
-  reloadWorld(novo: Snapshot): void {
+  /**
+   * §📱 bug-675 — a conexão caiu EM JOGO e a volta automática começou. Mesma
+   * tela da troca de aula, com o título que diz o que aconteceu: o mundo
+   * congelado atrás dela não responde, e sem aviso a criança tentaria jogar.
+   */
+  iniciarVolta(): void {
+    this.progresso.indeterminar();
+    loading.abrir({
+      host: serverHostLabel,
+      rede: true,
+      titulo: "a conexão caiu — voltando ao jogo",
+    });
+    this.progresso.observar();
+    loading.setFase("conectando");
+    this.hud.setFase("carregando");
+    this.hud.marcar("conexão caiu", "voltando sozinho");
+    updateOverlay();
+  }
+
+  reloadWorld(novo: Snapshot, por: "troca" | "volta" = "troca"): void {
     this.world = novo.world;
     this.worldSeed = novo.seed; // F3 mostra clima/bioma — a seed muda com a aula
     this.mundoLazy = proximoLazy; // aula nova pode ser mundo ENORME (ou deixar de ser)
@@ -2694,7 +2804,14 @@ class GameRuntime {
     // de segurança caso ele se perca (mundo novo pode ser menor que o antigo)
     this.spawn = serverSpawn ?? this.spawn;
     this.respawn();
-    chat.addMessage("jogo", "a aula mudou — mundo novo carregado");
+    if (por === "volta") {
+      // §📱 quem saiu enquanto estávamos fora não mandou o `player_left` A NÓS:
+      // sem isto o boneco dele ficaria parado no mundo pra sempre
+      this.outros.limpar();
+      chat.addMessage("jogo", "a conexão caiu — você voltou ao jogo");
+    } else {
+      chat.addMessage("jogo", "a aula mudou — mundo novo carregado");
+    }
 
     // O servidor criou uma SESSÃO NOVA e o `admitir` zera o raio de interesse
     // pra RAIO_PADRAO — sem reanunciar, tudo além de RAIO_PADRAO+FOLGA nunca

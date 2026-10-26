@@ -36,6 +36,7 @@ export * from "./texto";
 export * from "./vento";
 export * from "./scenario";
 export * from "./protocol";
+export * from "./queda";
 export * from "./save";
 export * from "./session";
 // único módulo de session/* no barrel, de propósito: `copiarCelula` é o

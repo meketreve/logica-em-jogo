@@ -43,6 +43,16 @@ interface Mudanca {
 const MUDANCAS: readonly Mudanca[] = [
   {
     // sem `data`: este é o build atual (ver rotuloDoBloco)
+    titulo: "Caiu a conexão? O jogo volta sozinho",
+    itens: [
+      "quando a conexão com o servidor cai no meio do jogo, o tablet agora **tenta entrar de novo sozinho**, com o mesmo nome e PIN: aparece “reconectando…” e, em alguns segundos, você está de volta no mesmo lugar — antes ia direto para o menu, com o aviso “a conexão com o servidor caiu”, e era preciso digitar tudo de novo",
+      "se o tablet foi para a tela inicial ou teve a tela bloqueada, ele espera você voltar para o jogo e só então reconecta",
+      "se depois de algumas tentativas não der (servidor desligado, Wi-Fi fora), aí sim volta para o menu com o aviso, como antes",
+      "para o professor: o registro da aula (`-eventos.log`) agora diz **como** a conexão caiu — com a tela escondida (botão Home, tela bloqueada, outro app) ou com a tela à vista (rede) — e quando o aluno voltou",
+    ],
+  },
+  {
+    data: "25/10/2026",
     titulo: "A alavanca de verdade",
     itens: [
       "a **alavanca ganhou modelo novo**, no estilo do Minecraft: uma base de **pedregulho** com um **cabo de madeira** que tomba de um lado para o outro — em vez do pino chapado de antes",
