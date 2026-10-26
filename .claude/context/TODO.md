@@ -20,7 +20,8 @@ active: true
       tabela `RASTEIRAS` — e **porta automática** (1ª saída que não é luz; mexe no gate de
       claim) → **verify:** seção nova na `shots:circuito`, no molde da C3/C4.
 - [ ] **Porta controlada pelo sinal** (anotado 26/10, spec e perguntas no `todo.md`, na porta
-      automática) — 4 respostas dele em 26/10; falta só: alavanca ENCOSTADA ou também por fio/porta?
+      automática) — **escopo FECHADO em 26/10** (segue o sinal; por fio e porta E/OU também;
+      clique continua; janela não; vão ocupado cancela). Pronto pra codar quando ele pedir.
 - [ ] **Decisões dele, pendentes:** luz COLORIDA (3 canais — lote grande) e a curva de brilho.
 
 ## Testar na escola (o usuário faz)

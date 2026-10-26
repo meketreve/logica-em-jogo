@@ -1089,9 +1089,11 @@ sem ela os 4 níveis de machado empatariam no piso de 150 ms. Prova: `shared/src
   funcionando com sinal; (3) janela **ainda não**; (4) **sim**, jogador no vão cancela o
   fechamento, como o clique. Leitura de (2): o motor só recalcula quando uma PEÇA muda, então o
   clique vale até o sinal mudar de novo — não é desfeito no tick seguinte.
-  ⚠️ **Falta UMA confirmação antes de codar:** em (1), vale só a alavanca **encostada** na
-  porta, ou também a alavanca ligada chegando **por fio** (e pela saída de porta E/OU)? Do
-  segundo jeito a porta vira saída de lógica de verdade, que é o que a aula usa.
+  → **E o (1) fechado, 2026-10-26:** "também por fio e pela saída de porta E/OU: qualquer sinal
+  de alavanca ligada que chegue até a porta". A porta é SAÍDA de lógica, igual à lâmpada:
+  recebe de quem a `ligacaoDoCondutor` deixaria entregar a uma lâmpada naquela célula (alavanca
+  encostada, fio, frente de porta E/OU). Suposição minha, a confirmar no teste: a **placa** conta
+  junto (é "uma alavanca que o pé aciona" no motor). **Escopo fechado — pronto pra codar.**
   → Técnico: a porta tem 2 células (`parDaPorta`) — o sinal em QUALQUER uma das duas move o
   par inteiro; e é a 1ª saída do motor que não é `comEstado` de peça de circuito, então o
   `recalcularCircuitos` precisa devolver mudança pra um bloco que NÃO está no índice
