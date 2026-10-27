@@ -841,7 +841,9 @@ Singleplayer (Web Worker) não tem fs — chat não vira arquivo lá, como plane
     contínuo leva à morte — não fica preso pra sempre.
   * Servidor já é autoridade de dano/vida; falta o detector de overlap no tick da sessão
     (`session.ts`, ao lado do `overlapsAnyPlayer` ~1977).
-* \[ ] mobs (§🍖 F8) — fora do lite, 3+ sessões, com o aviso de GPU do laboratório
+* \[ ] mobs (§🍖 F8) — fora do lite, com o aviso de GPU do laboratório. **Orçado em 2026-10-27**
+  na seção **§🧱 Entidades, mobs e pistão** (o "3+ sessões" daqui era só o bicho; com a base de
+  entidades que ainda não existe, são 4,5–5 pra uma ovelha).
 
 ### §🔨 Ferramentas v2 — as 3 peças que faltam (pedido do usuário, 2026-08-06)
 
@@ -1160,6 +1162,8 @@ a parede" é entrar no `precisaApoio` com a face — lote próprio, e só se a a
   sem estourar a fila. Está escrito no cabeçalho de `circuitos.ts` desde 16/10.
 * \[ ] **repetidor / atraso** — cai de graça junto com a Fase 2 (o atraso passa a existir no
   motor); antes dela, não tem onde morar.
+* \[ ] **pistão** — também exige o motor por tick (move fio e alavanca = muda o próprio
+  circuito). Orçado em **§🧱 Entidades, mobs e pistão**, logo abaixo.
 
 ### O que NÃO vai ter, e por quê
 
@@ -1167,6 +1171,72 @@ a parede" é entrar no `precisaApoio` com a face — lote próprio, e só se a a
   com o usuário antes de fechar):** com E, OU e NÃO o aluno monta qualquer uma delas, e montar
   **é** o exercício. Bloco pronto pra cada porta transforma lógica em decorar peça. Reabrir só se
   a aula mostrar que a montagem do XOR é longa demais pro tempo de uma oficina.
+
+## §🧱 Entidades, mobs e pistão — ORÇAMENTO (pedido do usuário, 2026-10-27)
+
+> Orçamento, não spec fechada: as perguntas do fim são DELE e decidem o escopo. Unidade = sessão.
+> Lido no código em 27/10 (motor de circuito, física, protocolo, save, streaming).
+
+**O que existe hoje (e por que custa o que custa):**
+
+* **Nenhuma entidade além do jogador.** Areia caindo é REGRA DE BLOCO (`fallingRule`), não objeto.
+* **O servidor não simula física de ninguém.** O cliente move o próprio jogador e o servidor só
+  confere (`sobrepoeSolidos` + `teleport`); o `stepPlayer` mora no `shared/` mas só o cliente o
+  chama. Mob = a 1ª coisa que o SERVIDOR move sozinho, a 10 Hz, nos 3 hospedeiros.
+* **O motor de circuito é ponto fixo MONÓTONO** (só liga). O pistão o quebra pelo mesmo motivo
+  da porta NÃO: move fio e alavanca, então muda o próprio circuito — pistão empurrando a
+  própria fonte oscila pra sempre.
+
+### 1. A base de entidades (pré-requisito dos mobs) — 3–3,5 sessões
+
+* \[ ] **Física no servidor** (0,5): tirar do `stepPlayer` uma versão pra qualquer caixa; rodar no tick.
+* \[ ] **Protocolo** (0,5): `entidades_moved` no molde do `players_moved`, nascer/sumir, por
+  interesse de coluna.
+* \[ ] **Streaming/eviction** (0,5): mob em coluna que sai da RAM congela ou some; volta junto.
+* \[ ] **Save no `.ljw`** (0,5): seção nova; mundo antigo abre sem ela.
+* \[ ] **Cliente** (0,5–1): lerp (o do `remotePlayers`), `InstancedMesh` por TIPO pra não somar draw call.
+* \[ ] **Smoke + sonda** (0,5): sem isso não é "feito".
+
+### 2. Mobs em cima da base
+
+* \[ ] **Bicho passivo** — ovelha: anda à toa, foge, dá lã (+1,5). Destrava "ovelha + lã de
+  verdade" (`TODO.md`, Depois). Cada bicho passivo a mais: +0,5 (modelo, textura, drop).
+* \[ ] **Hostil** — persegue e bate (+2–3): caminho em voxel (A\*), dano por `aplicarDano`
+  (causa nova `"mob"` — a porta única já prevê), spawn só no escuro e só em mundo de exploração
+  (decisão de 2026-07-27).
+* \[ ] **Mob que obedece ao circuito** (+1) — ex.: bicho que segue o sinal. É onde mob vira LÓGICA.
+* ⚠️ **GPU:** o notebook dos alunos acabou de ir de 31 → ~51 fps (27/10). Cada tipo de mob custa
+  ≥ 1 draw call instanciado, 1 POR BICHO se não for. Passar no `bench:lab` antes da aula.
+
+### 3. Pistão — 3,5–5,5 sessões
+
+* \[ ] **Motor por TICK** (1,5–2) — **pré-requisito**, e é o MESMO da porta NÃO (Fase 2 do §🔌)
+  e do botão de pulso (prazo por célula). Pago uma vez, destrava os três.
+* \[ ] **Pistão que empurra, sem animação** (1,5): até N blocos, o bloco "teleporta". Recusa
+  baú, porta (par com identidade), quadro, alavanca colada, área de claim e peça travada.
+* \[ ] **Empurrar o jogador** (0,5): servidor manda o empurrão; o gate de sufocamento já existe.
+* \[ ] **Grudento** — puxa de volta (+0,5).
+* \[ ] **Animação suave** (+1): bloco andando = entidade temporária, então usa a BASE da seção 1.
+  Sem a base, o bloco pula de uma vez.
+
+### Pacotes
+
+* **A — só pistão, sem animação: ~4 sessões.** Leva o motor por tick, que já destrava NÃO e botão.
+* **B — pistão + ovelha: ~8.** A base fica pronta e a animação do pistão sai quase de graça.
+* **C — tudo, com hostil: ~11–13**, mais as baterias de GPU no lab.
+* **Recomendação minha: A primeiro** — pistão é lógica pura, o motor por tick já estava na fila
+  pela NÃO e pelo botão, e não pesa na GPU. Mob depois, se a aula pedir.
+
+### Decisões DELE (perguntar todas juntas)
+
+1. Pra que serve o mob na aula: recompensa/vida no mundo (ovelha), perigo (hostil) ou peça de
+   lógica (bicho que reage ao circuito)?
+2. Hostil entra? A decisão de 2026-07-27 dizia "só em mundo de exploração" — continua?
+3. O pistão precisa andar SUAVE, ou o bloco pulando basta na 1ª versão?
+4. Pistão grudento na 1ª versão ou depois?
+5. O pistão empurra ALUNO? (Graça × mais um jeito de "fiquei preso".)
+6. Pagar o motor por tick agora? Muda o cabeçalho de `circuitos.ts` e tira a garantia de
+   "nunca trava" que o ponto fixo dá hoje.
 
 ## Geração de mundo / performance
 

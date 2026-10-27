@@ -22,6 +22,8 @@ active: true
       segue o sinal já saiu em 27/10 — sobra o botão.)
 - [x] ~~Porta controlada pelo sinal~~ — feita em 27/10 (sonda C6). Janela fica pra depois (dele).
 - [ ] **Decisões dele, pendentes:** luz COLORIDA (3 canais — lote grande) e a curva de brilho.
+- [ ] **Orçamento de mobs/entidades/pistão (27/10)** — 6 perguntas dele no fim da seção
+      **§🧱** do `todo.md`; recomendação: pacote A (pistão sem animação, ~4 sessões).
 
 ## Testar na escola (o usuário faz)
 
