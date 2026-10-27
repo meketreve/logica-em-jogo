@@ -46,7 +46,7 @@ export interface Conferencia {
  * à frente da porta"). Desde 2026-07-19 a área pode ter ALTURA (parede de
  * pixel-art da aula 5): a base continua rente ao chão.
  */
-function conferirGeometria(world: World, alvos: Box[], problemas: string[]): void {
+export function conferirGeometria(world: World, alvos: Box[], problemas: string[]): void {
   const y = FLAT_SURFACE_Y + 1;
   alvos.forEach((a, i) => {
     const g = i + 1;

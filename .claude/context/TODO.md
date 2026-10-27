@@ -25,6 +25,10 @@ active: true
 
 ## Testar na escola (o usuário faz)
 
+- [ ] **§🔌 Aula 8 — circuitos (27/10):** a marca verde/vermelha é entendida sem explicar? O
+      contador que COMEÇA em 9/16 confunde? A fase 4 trava os grupos (dica: comece pela
+      vermelha)? Os quadros são lidos? Quanto tempo leva cada fase?
+
 - [ ] **§📊 2ª bateria no notebook (27/10):** `npm run bench:lab` de novo — agora a `base` já
       vem sem antialias e com o recorte separado. Esperado: base perto de 11 ms de GPU; o
       `comaa` mede o custo de quem ligar a chave. E: as bordas serrilhadas incomodam no projetor?

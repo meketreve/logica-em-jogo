@@ -78,6 +78,13 @@ export class Autoria {
     this.cmd(`/regiao criar ${nome}`, `Região "${nome}" criada`);
   }
 
+  /** Clique direito num bloco (alavanca, porta) — o MESMO `use_block` do jogo.
+   *  Exige alcance, então o autor chega perto antes. */
+  usar(x: number, y: number, z: number): void {
+    this.afastar(x - 2, y, z + 0.5);
+    this.send({ type: "use_block", x, y, z });
+  }
+
   /** Quadro com conteúdo (aula 6): coloca o bloco e escreve o texto —
    *  `quadro_set` exige ALCANCE, então o autor chega perto antes. */
   quadro(x: number, y: number, z: number, id: number, texto: string): void {

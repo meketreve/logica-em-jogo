@@ -43,6 +43,16 @@ interface Mudanca {
 const MUDANCAS: readonly Mudanca[] = [
   {
     // sem `data`: este é o build atual (ver rotuloDoBloco)
+    titulo: "Aula nova: os circuitos",
+    itens: [
+      "**aula 8 — “Acenda só as lâmpadas certas”**: 4 fases, uma por peça — o fio, a porta E, a porta OU e as duas juntas. O circuito já vem montado com as alavancas desligadas; cada grupo tem a sua cópia",
+      "lâmpada com bloco **verde** em cima tem de acender, com bloco **vermelho** tem de ficar apagada: ligar todas as alavancas não resolve, é preciso pensar em qual ligar",
+      "um quadro ao lado de cada fase explica a peça nova e o desafio",
+      "abra pelo launcher, na opção de abrir mundo (ela já lista a pasta das aulas)",
+    ],
+  },
+  {
+    data: "27/10/2026",
     titulo: "O jogo ficou mais leve no notebook",
     itens: [
       "no notebook da turma o jogo passou de uns **30 para uns 50 quadros por segundo**: medimos na própria máquina, e quase metade do trabalho da placa de vídeo ia para **suavizar as bordas** dos blocos",

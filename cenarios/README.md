@@ -1,7 +1,7 @@
 # Cenários pedagógicos — 6º ao 9º ano
 
-Sete aulas prontas, uma por arquivo `.ljw`. Seis são de CONSTRUIR (aulas 1–6); a sétima é uma
-CORRIDA e tem mundo próprio. As de construir são o **mesmo mundo de cabines**: uma cabine para o
+Oito aulas prontas, uma por arquivo `.ljw`. Seis são de CONSTRUIR (aulas 1–6); a sétima é uma
+CORRIDA e tem mundo próprio; a oitava é de CIRCUITOS (as cabines de novo, com circuitos prontos). As de construir são o **mesmo mundo de cabines**: uma cabine para o
 professor (no centro, onde todo mundo nasce) e uma cabine por grupo, na fileira logo à frente.
 
 Os `.ljw` **são versionados no git** (decisão 2026-07-16: o git é o canal de sync
@@ -9,7 +9,7 @@ casa↔escola). A fonte da verdade continua sendo o gerador: `server/src/cenario
 — mudou algo nele, rode `npm run cenarios` e commite os arquivos novos.
 
 ```bash
-npm run cenarios                      # gera os 7 .ljw em cenarios/ (5 grupos)
+npm run cenarios                      # gera os 8 .ljw em cenarios/ (5 grupos)
 npm run cenarios -- --grupos 6        # outra quantidade de grupos (1 a 8)
 npm run cenarios -- --codigo suaSenha # código de professor gravado no mundo
 npm run cenarios -- --revelar         # deixa o gabarito À VISTA (vira cópia — turma mais nova)
@@ -199,6 +199,51 @@ diagonal da curva que dava pra driblar, e um fundo de buraco partido em dois pel
 
 ---
 
+## Aula 8 — `aula8-circuitos.ljw` · "Acenda só as lâmpadas certas" · **4 FASES**
+
+**Pilar:** lógica booleana — entrada, saída e as portas E e OU; ler um circuito antes de mexer.
+
+Mundo de cabines, modo **sequencial**. Cada grupo tem na sua área uma **cópia** dos 4 circuitos,
+já montados e com todas as alavancas **desligadas**. Ninguém constrói: a tarefa é decidir **quais
+alavancas ligar**. Em cima de cada lâmpada há uma marca: **verde = tem de acender**, **vermelho =
+tem de ficar apagada**. Um **quadro** no fim de cada fase explica a peça nova e o desafio.
+
+| fase | circuito | resposta | a lição |
+|---|---|---|---|
+| **1 — o fio** | 2 alavancas, cada uma com seu fio até uma lâmpada | só a **A** (a da lâmpada verde) | alavanca = entrada, fio leva o sinal, lâmpada = saída |
+| **2 — porta E** | A e B entram numa porta E, que acende a lâmpada | **A e B** | E só manda sinal com as DUAS entradas |
+| **3 — porta OU** | A e B entram numa OU; a **B** também acende uma lâmpada vermelha | só a **A** | OU basta uma — mas a escolha tem consequência |
+| **4 — E e OU juntos** | A e B → E → verde; B e C → OU → verde; C acende a vermelha | **A e B** | a alavanca do meio alimenta as duas portas; comece pela vermelha |
+
+**Por que a lâmpada vermelha:** sem porta NÃO, ligar alavanca nunca apaga nada — "liga tudo"
+acenderia qualquer circuito. A vermelha é o que obriga a pensar: ela acende junto com a escolha
+errada. Só na fase 2 "liga tudo" resolve, e é de propósito: é a regra da porta E.
+
+**O contador** (`9/16` no começo da fase 1) conta os blocos que já estão no estado certo —
+alavancas, fios e lâmpadas. Ligar a alavanca errada **baixa** o número (os fios dela acendem
+onde deviam ficar apagados): use isso como pista.
+
+**Antes de começar:** peça que cada grupo **siga o fio com o dedo** e diga em voz alta o que vai
+acontecer **antes** de clicar. A fase 4 é a discussão boa: "qual alavanca NÃO pode ligar?"
+
+**Para aumentar a turma na hora:** `/aula grupos X` cria as áreas novas copiando a área original.
+Grupo que quebrou uma peça: o contador não fecha mais. Não há reinício de UM grupo só —
+`/objetivo resetar` volta TODAS as áreas ao começo e zera o progresso da turma; para um grupo,
+recoloque a peça na mão (a área do grupo vizinho mostra como era).
+
+**Fechamento:** "o que a E e a OU têm de diferente?" e "dá pra fazer um circuito em que ligar uma
+alavanca APAGUE uma lâmpada?" (não dá, com estas peças — é a porta NÃO, que ainda não existe no
+jogo: boa pergunta para a próxima aula).
+
+### Como mudar os circuitos
+
+Os circuitos são desenhos em texto em `server/src/cenarios/circuitos.ts` (`A` alavanca, `-` fio,
+`E`/`O` porta, `g`/`r` lâmpada verde/vermelha). ⚠️ **O gerador exige resposta ÚNICA:** ele testa
+todas as combinações de alavancas e recusa a fase se mais de uma acender o padrão pedido — senão
+um grupo acharia a outra, veria as lâmpadas certas e o contador não fecharia.
+
+---
+
 ## O que observar (indicadores da seção 14 do projeto)
 
 - O grupo enuncia a regra antes de construir, ou vai por tentativa e erro?
@@ -206,3 +251,4 @@ diagonal da curva que dava pra driblar, e um fundo de buraco partido em dois pel
 - Divisão de trabalho dentro do grupo (quem constrói, quem confere).
 - Aula 3: procuram sistematicamente (varrendo a faixa) ou aleatoriamente?
 - Aula 7: quando a chegada passa a exigir a equipe inteira, quem volta a buscar quem ficou?
+- Aula 8: o grupo prevê o efeito antes de clicar, ou liga alavancas ao acaso até o contador subir?

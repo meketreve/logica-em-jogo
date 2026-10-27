@@ -46,6 +46,13 @@ import {
   gerarCorrida,
   resumoCorrida,
 } from "./corrida";
+import {
+  ARQUIVO_CIRCUITOS,
+  TITULO_CIRCUITOS,
+  conferirCircuitos,
+  gerarCircuitos,
+  resumoCircuitos,
+} from "./circuitos";
 import { conferir } from "./verificar";
 
 const SEED = 20260714;
@@ -436,7 +443,7 @@ function parseArgs(argv: string[]): Opcoes {
 const o = parseArgs(process.argv.slice(2));
 mkdirSync(o.saida, { recursive: true });
 console.log(
-  `gerando ${CENARIOS.length + 1} cenário(s) — ${o.grupos} grupos, código de professor "${o.codigo}"` +
+  `gerando ${CENARIOS.length + 2} cenário(s) — ${o.grupos} grupos, código de professor "${o.codigo}"` +
     (o.revelar ? ", gabarito À VISTA" : ""),
 );
 let falhou = false;
@@ -473,6 +480,25 @@ for (const c of CENARIOS) {
     writeFileSync(caminho, new Uint8Array(buf));
     console.log(
       `  ✓ ${caminho} — "${TITULO_CORRIDA}" (${(buf.byteLength / 1024).toFixed(0)} kB, ${resumoCorrida(buf)})`,
+    );
+  }
+}
+// §🔌 a aula de CIRCUITOS (2026-10-27): objetivo construir como as outras, mas o
+// gabarito sai do MOTOR (alavancas clicadas, lâmpadas acesas no tick) e a
+// conferência resolve clicando alavancas — gerador e verificador próprios
+{
+  const opc = { grupos: o.grupos, codigo: o.codigo, revelar: o.revelar };
+  const buf = gerarCircuitos(opc);
+  const problemas = conferirCircuitos(buf, opc);
+  if (problemas.length) {
+    falhou = true;
+    console.error(`  ✗ ${ARQUIVO_CIRCUITOS} — aula NÃO é jogável, arquivo não foi gravado:`);
+    for (const p of problemas) console.error(`      · ${p}`);
+  } else {
+    const caminho = join(o.saida, ARQUIVO_CIRCUITOS);
+    writeFileSync(caminho, new Uint8Array(buf));
+    console.log(
+      `  ✓ ${caminho} — "${TITULO_CIRCUITOS}" (${(buf.byteLength / 1024).toFixed(0)} kB, ${resumoCircuitos()})`,
     );
   }
 }
