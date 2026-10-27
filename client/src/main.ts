@@ -1568,6 +1568,8 @@ class GameRuntime {
     this.materiais = new MateriaisMundo();
     if (experimentos.has("semdescarte")) this.materiais.recorte.alphaTest = 0;
     this.materiais.aguaParada = experimentos.has("aguaparada");
+    // todo tile "tem furo": tudo cai no recorte, como antes de 2026-10-27
+    if (experimentos.has("recorteunico")) this.materiais.furos.fill(1);
 
     // ?atlas na URL: pendura o canvas do texture atlas no canto (inspeção visual)
     if (new URLSearchParams(location.search).has("atlas")) {

@@ -30,7 +30,7 @@ active: true
       vermelha)? Os quadros são lidos? Quanto tempo leva cada fase?
 
 - [x] ~~2ª bateria~~ (27/10 10:42): base 12,9 ms / 49 fps; AA ligado custa +90%. **Aberto:** o
-      recorte separado (+193 draw calls) pagou? Falta o A/B `recorteunico` na mesma rodada.
+      recorte separado (+193 draw calls) pagou? **Rodar `npm run bench:lab` de novo** (~25 min): a variante `recorteunico` é o jeito antigo na MESMA rodada.
 - [ ] **As bordas serrilhadas (sem antialias) incomodam no projetor?**
 
 - [x] ~~`npm run bench:lab`~~ — rodado em 27/10 (`registros/bench-lab/`): MSAA −52%, recorte −15%.

@@ -49,7 +49,7 @@ O que o script **não** acha é o que manda aqui:
 | Rede de verdade | `npm run smoke` (`--lista` diz o que cada cenário prova) |
 | Um smoke só | `npm run smoke -- <nome>` (filtra por nome; ex.: `-- presenca kicar`) |
 | Um teste só | `npx vitest run --root shared src/<arquivo>.test.ts` |
-| **Bateria de GPU (no LAB)** | `npm run bench:lab` — `?bench` com chaves (`semaa`, `semdescarte`, `aguaparada`, `semvida`) intercaladas; resultado em `registros/bench-lab/` |
+| **Bateria de GPU (no LAB)** | `npm run bench:lab` — `?bench` com chaves (`comaa`, `semdescarte`, `aguaparada`, `semvida`, `recorteunico`) intercaladas; resultado em `registros/bench-lab/` |
 
 **Sondas** (`scripts/*-shot.mjs`, `shots:tablet` é a RÉGUA de 1024×600): host + Chrome reais, e
 asseveram no DOM (`npm run build` antes). **UI só é "feita" quando uma sonda a ENXERGA.** Bateria

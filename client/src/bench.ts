@@ -107,9 +107,13 @@ export interface BenchOpts {
  *  - `semdescarte`: o material de RECORTE sem `alphaTest` — folha e flor viram
  *    quadrado. Desde 2026-10-27 o recorte é material próprio e o terreno não
  *    descarta mais; isto mede o que SOBROU de custo nas folhas;
- *  - `aguaparada`: a água não repinta o atlas (sem reenvio de 262 KB à GPU).
+ *  - `aguaparada`: a água não repinta o atlas (sem reenvio de 262 KB à GPU);
+ *  - `recorteunico`: o JEITO ANTIGO — todo o terreno no material de recorte,
+ *    com descarte em todo pixel e sem o grupo a mais por chunk. É o lado A
+ *    do recorte separado (2026-10-27): ele tirou o descarte do terreno mas
+ *    somou ~190 draw calls, e só a mesma rodada diz qual dos dois ganhou.
  */
-export const EXPERIMENTOS_BENCH = ["comaa", "semdescarte", "aguaparada"] as const;
+export const EXPERIMENTOS_BENCH = ["comaa", "semdescarte", "aguaparada", "recorteunico"] as const;
 export type ExperimentoBench = (typeof EXPERIMENTOS_BENCH)[number];
 
 /** Os experimentos pedidos na URL — vazio fora do `?bench`. */

@@ -15,6 +15,8 @@
  *   aguaparada   a água não reenvia o atlas à GPU
  *   semvida      sem nuvens e sem balanço do vento (o A/B antigo do §🌬️)
  *   tudo         sem descarte e com a água parada (o piso do que dá pra tirar)
+ *   recorteunico o terreno TODO no material de recorte, como era antes de
+ *                27/10 — mede se separar o recorte pagou as draw calls a mais
  *
  * Como se lê o resultado: o número que importa é o TEMPO DE GPU (média e p95),
  * não o FPS — com VSYNC o FPS gruda em 60 e esconde a folga. As variantes
@@ -24,7 +26,7 @@
  * rodadas da própria `base`: ganho menor que o dobro dele não se distingue.
  *
  * Uso (na pasta do jogo, com o launcher FECHADO — ele disputa a GPU):
- *   npm run bench:lab                     # 3 rodadas de 30 s (~20 min)
+ *   npm run bench:lab                     # 3 rodadas de 30 s (~25 min)
  *   npm run bench:lab -- --rodadas 2      # mais rápido, menos confiável
  *   npm run bench:lab -- --so base,comaa  # só algumas variantes
  *   CHROME="C:\\caminho\\chrome.exe" npm run bench:lab
@@ -46,6 +48,7 @@ const VARIANTES = {
   aguaparada: "&aguaparada",
   semvida: "&semvida",
   tudo: "&semdescarte&aguaparada",
+  recorteunico: "&recorteunico",
 };
 
 // --- argumentos ---
