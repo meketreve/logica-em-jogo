@@ -1,0 +1,21 @@
+Bateria de GPU — 27/10/2026, 10:42:28 — meketreve-not
+navegador: C:\Program Files\Google\Chrome\Application\chrome.exe
+3 rodada(s) × 30 s · viewport 1920×945
+dispositivo: {"nucleos":8,"ramGB":8,"dpr":1,"tela":"1920×1080","gpu":"ANGLE (Intel, Intel(R) UHD Graphics (0x00009B41) Direct3D11 vs_5_0 ps_5_0, D3D11)","bateria":{"nivelPct":100,"carregando":true}}
+
+variante      GPU média  GPU p95   quadro p95  fps   vs base
+base             12.92     19.47      28.00    49   
+comaa            24.60     31.12      43.40    29   90.4%
+semdescarte      12.40     19.10      27.20    50   -4.0%
+aguaparada       12.33     18.15      26.50    51   -4.6%
+semvida          12.91     19.63      28.10    50   -0.1%
+tudo             11.33     18.00      26.70    51   -12.3%
+
+ruído (dispersão da base entre rodadas): 4.9%
+
+VEREDITO (métrica: tempo médio de GPU):
+  comaa        custa 90.4% — PESA (acima do ruído)
+  semdescarte  economiza 4.0% — não se distingue do ruído
+  aguaparada   economiza 4.6% — não se distingue do ruído
+  semvida      economiza 0.1% — não se distingue do ruído
+  tudo         economiza 12.3% — PESA (acima do ruído)

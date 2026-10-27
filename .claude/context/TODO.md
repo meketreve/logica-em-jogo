@@ -29,9 +29,9 @@ active: true
       contador que COMEÇA em 9/16 confunde? A fase 4 trava os grupos (dica: comece pela
       vermelha)? Os quadros são lidos? Quanto tempo leva cada fase?
 
-- [ ] **§📊 2ª bateria no notebook (27/10):** `npm run bench:lab` de novo — agora a `base` já
-      vem sem antialias e com o recorte separado. Esperado: base perto de 11 ms de GPU; o
-      `comaa` mede o custo de quem ligar a chave. E: as bordas serrilhadas incomodam no projetor?
+- [x] ~~2ª bateria~~ (27/10 10:42): base 12,9 ms / 49 fps; AA ligado custa +90%. **Aberto:** o
+      recorte separado (+193 draw calls) pagou? Falta o A/B `recorteunico` na mesma rodada.
+- [ ] **As bordas serrilhadas (sem antialias) incomodam no projetor?**
 
 - [x] ~~`npm run bench:lab`~~ — rodado em 27/10 (`registros/bench-lab/`): MSAA −52%, recorte −15%.
 
