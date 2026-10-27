@@ -637,7 +637,84 @@ function interceptarProfile(clientId: number, texto: string): boolean {
 
   const nomeArquivo = salvarPerfil(msg.stats);
   console.log(`[server] perfil recebido → profiles/${nomeArquivo}`);
-  falarCom(clientId, `Perfil salvo no servidor: ${nomeArquivo}`);
+  // o do `/perfil` chega de quem NÃO apertou nada: o nome de arquivo não diz
+  // nada ao aluno, só que acabou
+  const pedido = typeof msg.stats["pedido"] === "object" && msg.stats["pedido"] !== null;
+  falarCom(clientId, pedido ? "Pronto: o professor recebeu a medição do seu jogo." : `Perfil salvo no servidor: ${nomeArquivo}`);
+  return true;
+}
+
+/** `/perfil`: quanto cada cliente grava, em segundos. 10 é o do botão do F3;
+ *  o teto existe porque o aluno segue jogando com a gravação correndo. */
+const PERFIL_S_PADRAO = 10;
+const PERFIL_S_MIN = 5;
+const PERFIL_S_MAX = 60;
+
+/**
+ * `/perfil [nome|todos] [segundos]` (2026-10-27) — o professor manda os
+ * clientes gravarem o perfil do F3 SEM ninguém apertar botão: a turma inteira
+ * de uma vez (ou um aluno só), pra achar o tablet que trava sem andar de mesa
+ * em mesa. Mora no HOST pelo mesmo motivo do `profile_report`: o resultado é
+ * arquivo em `profiles/`, e a GameSession não tem sistema de arquivos (no
+ * singleplayer não há pra onde mandar). Quem pediu não grava — ele tem o F3.
+ */
+function interceptarPedirPerfil(clientId: number, texto: string): boolean {
+  let msg: { type?: unknown; text?: unknown };
+  try {
+    msg = JSON.parse(texto) as { type?: unknown; text?: unknown };
+  } catch {
+    return false;
+  }
+  if (msg.type !== "chat" || typeof msg.text !== "string") return false;
+  const partes = msg.text.trim().split(/\s+/);
+  if (partes[0] !== "/perfil") return false;
+
+  const quem = session.jogadoresConectados().find((j) => j.id === clientId);
+  if (!quem) {
+    falarCom(clientId, "Entre no mundo primeiro.");
+    return true;
+  }
+  if (quem.papel !== "professor") {
+    falarCom(clientId, "Somente o professor pode pedir o perfil de desempenho da turma.");
+    return true;
+  }
+
+  const args = partes.slice(1);
+  let segundos = PERFIL_S_PADRAO;
+  const ultimo = args[args.length - 1];
+  if (ultimo !== undefined && /^\d+$/.test(ultimo)) {
+    segundos = Number(ultimo);
+    args.pop();
+  }
+  if (segundos < PERFIL_S_MIN || segundos > PERFIL_S_MAX) {
+    falarCom(
+      clientId,
+      `Uso: /perfil [nome|todos] [segundos] — a gravação vai de ${PERFIL_S_MIN} a ${PERFIL_S_MAX} segundos (sem número, ${PERFIL_S_PADRAO}).`,
+    );
+    return true;
+  }
+  const alvoNome = args.join(" ").trim();
+  const todos = alvoNome === "" || alvoNome.toLowerCase() === "todos";
+  const alvos = session
+    .jogadoresConectados()
+    .filter((j) => j.id !== clientId && (todos || j.name.toLowerCase() === alvoNome.toLowerCase()));
+  if (alvos.length === 0) {
+    falarCom(
+      clientId,
+      todos ? "Não há mais ninguém conectado para gravar o perfil." : `Ninguém chamado "${alvoNome}" está conectado agora.`,
+    );
+    return true;
+  }
+
+  const lote = Math.random().toString(36).slice(2, 8);
+  const pedido = JSON.stringify({ type: "pedir_perfil", duracaoMs: segundos * 1000, lote } satisfies ServerMessage);
+  for (const alvo of alvos) entregar(alvo.id, pedido);
+  console.log(`[server] /perfil: pedido a ${alvos.length} cliente(s), ${segundos} s, lote ${lote}`);
+  falarCom(
+    clientId,
+    `Pedi o perfil de ${segundos} s a ${alvos.length === 1 ? "1 jogador" : `${alvos.length} jogadores`}. ` +
+      `Os arquivos chegam na pasta profiles/ do servidor como perf-turma-${lote}-…`,
+  );
   return true;
 }
 
@@ -690,6 +767,7 @@ wss.on("connection", (socket, req) => {
     if (interceptarKicar(id, texto)) return; // /expulsar é do HOST (fecha socket)
     if (interceptarBanimento(id, texto)) return; // /banir·/desbanir do HOST (fecha socket + estado na session)
     if (interceptarProfile(id, texto)) return; // profile_report é do HOST (grava arquivo)
+    if (interceptarPedirPerfil(id, texto)) return; // /perfil é do HOST (o destino é arquivo)
     // §📱 bug-675: o join de quem VOLTA traz como a conexão anterior caiu — só a
     // página sabia se a tela estava à vista. Filtro barato antes do parse (o
     // `move` chega dezenas de vezes por segundo); a linha sai DEPOIS do

@@ -1050,6 +1050,8 @@ function handleServerData(data: string | ArrayBuffer): void {
       // a nova (segundos). Sem isto a tela só aparecia no fim, "quase pronta".
       jogo?.iniciarTroca(msg.nome);
       segurarAteATelaPintar(); // e o snapshot espera a tela pintar
+    } else if (msg.type === "pedir_perfil") {
+      jogo?.gravarPerfilPedido(msg.duracaoMs, msg.lote);
     } else if (msg.type === "teleport") {
       jogo?.applyTeleport(msg);
     } else if (msg.type === "time") {
@@ -2173,6 +2175,30 @@ class GameRuntime {
       this.hud.luz = this.luz.medidas; // §💡
       lastNet = { ...s };
     }, 1000);
+  }
+
+  /**
+   * `/perfil` do professor (2026-10-27): grava o perfil do F3 SEM abrir o F3 e
+   * devolve pelo mesmo `profile_report` do botão, carimbado com o lote da
+   * rodada (o host batiza os arquivos por ele). O aluno é avisado: o jogo não
+   * mede escondido. Já gravando (o F3 dele, outro pedido) = este pedido cai.
+   */
+  gravarPerfilPedido(duracaoMs: number, lote: string): void {
+    const comecou = this.hud.record(
+      (report) => {
+        this.activeConn.send(
+          JSON.stringify({ type: "profile_report", stats: { ...report, pedido: { lote } } }),
+        );
+      },
+      duracaoMs,
+      false,
+    );
+    if (comecou) {
+      chat.addMessage(
+        "jogo",
+        `o professor pediu uma medição de desempenho: o jogo vai se medir por ${Math.round(duracaoMs / 1000)} s — pode continuar jogando`,
+      );
+    }
   }
 
   /**

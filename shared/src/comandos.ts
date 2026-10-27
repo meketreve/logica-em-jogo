@@ -77,6 +77,7 @@ const COMANDOS: ComandoDef[] = [
   { nome: "silenciar", de: "professor" },
   { nome: "expulsar", de: "professor" },
   { nome: "redefinirpin", de: "professor" },
+  { nome: "perfil", de: "professor" },
 ];
 
 /** Todos os subcomandos de cada comando (2º token). */
@@ -203,6 +204,8 @@ export function candidatosPara(
     if (CMD_COM_NOME.has(cmd)) return vivo.jogadores;
     if (cmd === "tp") return ["grupos", ...vivo.jogadores];
     if (cmd === "dar") return ["eu", "all", ...vivo.jogadores];
+    // `/perfil` sozinho já vale (a turma toda); a lista é pra escolher UM
+    if (cmd === "perfil") return ["todos", ...vivo.jogadores];
     return subcomandosPara(cmd, papel);
   }
   if (completos.length === 2) return nivel3Para(cmd, completos[1] ?? "", papel, vivo);

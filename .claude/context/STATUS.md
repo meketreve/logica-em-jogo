@@ -34,6 +34,12 @@ Atrás: a **porta NÃO** (⚠️ quebra o ponto fixo — cabeçalho de `circuito
 
 ## Concluído (recente)
 
+- **27/10 — `/perfil` (pedido dele):** o professor manda a turma gravar o perfil do F3 sem
+  ninguém apertar botão (`/perfil [nome|todos] [segundos]`, 5–60 s, padrão 10). Mora no HOST
+  (`interceptarPedirPerfil`, `server/src/index.ts`); o cliente grava com o F3 FECHADO e devolve
+  pelo `profile_report` com `pedido.lote` → `profiles/perf-turma-<lote>-*.json`. Smoke
+  `perfil-turma` + sonda `shots:perfil` (com controle negativo nos dois). **Não testado em aula.**
+
 - **27/10 — §🔌 PEÇAS TRAVADAS**, regra nova do cenário (`/objetivo pecas travadas|livres`,
   `scenario.pecasTravadas`, salva no mundo): nas áreas dos objetivos o aluno só aciona ALAVANCA —
   colocar, quebrar, balde, quadro e clicar o resto são recusados com aviso (`pecaTravada`, em

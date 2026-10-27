@@ -2024,8 +2024,16 @@ export class GameSession {
         if (!professor) return "Somente o professor pode silenciar o chat.";
         return runSilenciar(this, parts);
       }
+      case "perfil": {
+        // ⚠️ `/perfil` é do HOST (`server/index.ts`: o destino é a pasta
+        // `profiles/`), e o host o engole antes de chegar aqui. Chegar aqui é
+        // o jogo SOZINHO (Web Worker): não há servidor pra onde mandar, e
+        // "Comando desconhecido" mentiria — então dizemos onde ele vale.
+        if (!professor) return "Somente o professor pode pedir o perfil de desempenho da turma.";
+        return "O /perfil pede a medição a quem está conectado num servidor e grava na pasta profiles/ dele. No jogo sozinho não há servidor: use a tecla F3 → exportar.";
+      }
       default:
-        return `Comando desconhecido: ${text}. Os comandos disponíveis são /bloco, /redefinirpin, /regiao, /objetivo, /grupo, /aula, /tp, /tpp, /tpa, /iniciar, /hora, /ciclo, /vento, /voo, /modo, /regra, /pvp, /dar, /terreno, /vender, /amigos, /painel, /invisivel, /confinar e /silenciar.`;
+        return `Comando desconhecido: ${text}. Os comandos disponíveis são /bloco, /redefinirpin, /regiao, /objetivo, /grupo, /aula, /tp, /tpp, /tpa, /iniciar, /hora, /ciclo, /vento, /voo, /modo, /regra, /pvp, /dar, /terreno, /vender, /amigos, /painel, /invisivel, /confinar, /silenciar e /perfil.`;
     }
   }
 

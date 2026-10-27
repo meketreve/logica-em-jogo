@@ -43,6 +43,15 @@ interface Mudanca {
 const MUDANCAS: readonly Mudanca[] = [
   {
     // sem `data`: este é o build atual (ver rotuloDoBloco)
+    titulo: "O professor mede o jogo da turma",
+    itens: [
+      "comando novo do professor: **/perfil** pede a medição de desempenho a **todos** os conectados de uma vez — sem ninguém apertar F3. Cada aparelho se mede por 10 segundos e o resultado cai na pasta **profiles/** do servidor",
+      "**/perfil nome** mede um aluno só, e um número no fim muda o tempo: **/perfil 30**, **/perfil ana 20** (de 5 a 60 segundos)",
+      "os arquivos da mesma rodada saem juntos, com o nome **perf-turma-…**; o aluno vê um aviso no chat e pode continuar jogando — o painel do F3 não abre na tela dele",
+    ],
+  },
+  {
+    data: "27/10/2026",
     titulo: "Aula nova: os circuitos",
     itens: [
       "**regra nova: peças travadas.** Nas áreas da atividade o aluno só liga e desliga **alavancas** — não quebra, não coloca e não mexe em mais nada ali. A aula 8 já nasce com ela; em qualquer mundo o professor liga com **/objetivo pecas travadas** e desliga com **/objetivo pecas livres**",

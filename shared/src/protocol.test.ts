@@ -262,4 +262,18 @@ describe("pedir_coluna (§🔁 rede de segurança do streaming)", () => {
     expect(parseClientMessage('{"type":"pedir_coluna","cx":3,"cz":1.5}')).toBeNull();
     expect(parseClientMessage('{"type":"pedir_coluna","cx":"3","cz":7}')).toBeNull();
   });
+
+  it("pedir_perfil (/perfil): o lote só passa com a forma que vira NOME de arquivo", () => {
+    expect(parseServerMessage('{"type":"pedir_perfil","duracaoMs":10000,"lote":"k3x9az"}')).toEqual({
+      type: "pedir_perfil",
+      duracaoMs: 10000,
+      lote: "k3x9az",
+    });
+    // o lote vai parar no nome do arquivo no host: nada de caminho nem maiúscula
+    expect(parseServerMessage('{"type":"pedir_perfil","duracaoMs":10000,"lote":"../x"}')).toBeNull();
+    expect(parseServerMessage('{"type":"pedir_perfil","duracaoMs":10000,"lote":""}')).toBeNull();
+    expect(parseServerMessage('{"type":"pedir_perfil","duracaoMs":10000,"lote":"ABC"}')).toBeNull();
+    expect(parseServerMessage('{"type":"pedir_perfil","duracaoMs":0,"lote":"abc"}')).toBeNull();
+    expect(parseServerMessage('{"type":"pedir_perfil","duracaoMs":"10","lote":"abc"}')).toBeNull();
+  });
 });

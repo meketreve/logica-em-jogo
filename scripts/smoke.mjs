@@ -142,6 +142,19 @@ const SMOKES = [
     ],
   },
   {
+    nome: "perfil-turma",
+    arquivo: `${DIR}/_smoke-perfil-turma.mjs`,
+    prova:
+      "/perfil — o professor manda a turma gravar o perfil do F3: o pedido chega a todos menos a ele (ou a um nome só), a resposta vira perf-turma-<lote>- em profiles/; aluno não pede, 999 s é recusado, lote forjado não entra no nome do arquivo.",
+    lento: false,
+    servidores: [
+      {
+        porta: 8112,
+        env: { LJ_SAVE: "mundos/_smoke-perfil-turma.ljw", LJ_NOVO: "1", LJ_CODIGO: "prof2026", LJ_SEED: SEED },
+      },
+    ],
+  },
+  {
     nome: "modo",
     arquivo: `${DIR}/_smoke-modo.mjs`,
     args: ["_smoke-modob"],

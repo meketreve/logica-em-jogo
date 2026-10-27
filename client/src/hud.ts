@@ -433,11 +433,13 @@ export class Hud {
 
   /**
    * Grava `duracaoMs` (padrão RECORD_MS) de frames e chama `onDone` com o
-   * relatório agregado. Ignora se já está gravando. Garante o HUD visível pra
-   * mostrar a contagem. O modo `?bench` grava o trajeto inteiro (30 s).
+   * relatório agregado. Ignora (e devolve false) se já está gravando. Garante
+   * o HUD visível pra mostrar a contagem — menos com `mostrar` falso, o
+   * `/perfil` do professor: o F3 aberto na tela do aluno o atrapalha E pesa
+   * no próprio número medido. O modo `?bench` grava o trajeto inteiro (30 s).
    */
-  record(onDone: (report: object) => void, duracaoMs = RECORD_MS): void {
-    if (this.recording) return;
+  record(onDone: (report: object) => void, duracaoMs = RECORD_MS, mostrar = true): boolean {
+    if (this.recording) return false;
     this.recording = {
       frames: [],
       memSamples: [],
@@ -449,8 +451,9 @@ export class Hud {
       contextoStart: this.contexto?.() ?? null,
       marcadoresStart: this.marcadores.length,
     };
-    if (!this.visible) this.toggle();
+    if (mostrar && !this.visible) this.toggle();
     this.refresh();
+    return true;
   }
 
   private frameStats() {

@@ -192,6 +192,11 @@ export type ClientMessage =
       emote: TipoEmote;
     };
 
+/** Forma do rótulo de rodada do `/perfil`. Ele volta do CLIENTE dentro do
+ *  `profile_report` e o host o põe no NOME do arquivo — por isso a forma é
+ *  conferida nas duas pontas, nunca confiada (nada de `..` nem `/`). */
+export const LOTE_DE_PERFIL = /^[a-z0-9]{1,12}$/;
+
 /** Teto do texto bruto de um profile_report (chars) — payload é só números e
  *  strings curtas (sem imagem); acima disso é lixo/abuso, não perfilação real. */
 export const MAX_PROFILE_REPORT_CHARS = 8192;
@@ -571,6 +576,20 @@ export type ServerMessage =
       type: "mundo_trocando";
       /** Nome da aula que está entrando (sem .ljw) — vai na tela. */
       nome: string;
+    }
+  | {
+      /**
+       * `/perfil` (2026-10-27): o PROFESSOR pede que o cliente grave o perfil
+       * do F3 sem ninguém apertar botão — a turma inteira de uma vez, pra
+       * achar o tablet que trava sem andar de mesa em mesa. O cliente grava
+       * `duracaoMs` em silêncio (o F3 NÃO abre na tela do aluno) e devolve
+       * pelo `profile_report` de sempre, com `stats.pedido.lote` = este lote:
+       * é o que deixa o host batizar os arquivos da MESMA rodada juntos.
+       */
+      type: "pedir_perfil";
+      duracaoMs: number;
+      /** Rótulo da rodada, gerado pelo HOST (`[a-z0-9]{1,12}`). */
+      lote: string;
     }
   | {
       /**
@@ -1270,6 +1289,12 @@ export function parseServerMessage(raw: string): ServerMessage | null {
     case "mundo_trocando":
       if (typeof m["nome"] !== "string") return null;
       return { type: "mundo_trocando", nome: m["nome"] };
+    case "pedir_perfil": {
+      const d = m["duracaoMs"];
+      if (typeof d !== "number" || !Number.isFinite(d) || d <= 0) return null;
+      if (typeof m["lote"] !== "string" || !LOTE_DE_PERFIL.test(m["lote"])) return null;
+      return { type: "pedir_perfil", duracaoMs: d, lote: m["lote"] };
+    }
     case "voo":
       if (typeof m["liberado"] !== "boolean") return null;
       return { type: "voo", liberado: m["liberado"] };

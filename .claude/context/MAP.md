@@ -53,7 +53,7 @@ O que o script **não** acha é o que manda aqui:
 
 **Sondas** (`scripts/*-shot.mjs`, `shots:tablet` é a RÉGUA de 1024×600): host + Chrome reais, e
 asseveram no DOM (`npm run build` antes). **UI só é "feita" quando uma sonda a ENXERGA.** Bateria
-de **18**, uma por vez (em paralelo a asserção de tempo mente): 9 sobem host próprio, 7 pedem
+de **19**, uma por vez (em paralelo a asserção de tempo mente): 10 sobem host próprio, 7 pedem
 `BASE=`, `corrida` quer a aula 7. ⚠️ **`shots:fundo` GERA** ~5 MB versionados — `git status` depois.
 
 ## Onde fica cada coisa
@@ -75,6 +75,9 @@ de **18**, uma por vez (em paralelo a asserção de tempo mente): 9 sobem host p
 - **§💡 a luz** (4 arquivos, achar custou meia sessão): `shared/src/luz.ts` (`acenderColuna` ×
   `atualizarBloco` — **a MESMA função**, com paridade) → vértice no `mesher.ts` (`luzDoCanto`;
   cubo cheio em laço SEPARADO) → Uint16 → `luzShader.ts` (desempacota no VERTEX: bug-544).
+- **Perfil de desempenho** (F3): o botão manda `profile_report`, o `?bench` faz `POST /perfil`,
+  e o **`/perfil`** do professor pede a TODOS (`pedir_perfil`) — os três caem em `profiles/` do
+  host pelo `salvarPerfil` (`server/src/perfis.ts`), que batiza pelo prefixo (`bench-`, `turma-<lote>-`).
 - `server/src/cenarios/` smokes · `scripts/` sondas/portões · `docs/projeto.txt` BNCC. **Pre-push
   NÃO está em `.git/hooks`** — `core.hooksPath` → `scripts/git-hooks/pre-push` (roda o `verify`;
   escape: `LJ_SEM_VERIFY=1 git push`).

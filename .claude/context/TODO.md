@@ -27,6 +27,10 @@ active: true
 
 ## Testar na escola (o usuário faz)
 
+- [ ] **`/perfil` (27/10):** rodar com a turma toda conectada — chegam N arquivos
+      `perf-turma-*` em `profiles/`? O aviso no chat assusta ou passa batido? Tablet com a tela
+      apagada só devolve quando acender (a gravação anda por QUADRO pintado).
+
 - [ ] **§🔌 Aula 8 — circuitos (27/10):** o aviso das PEÇAS TRAVADAS aparece demais (spam no chat)? A marca verde/vermelha é entendida sem explicar? O
       contador que COMEÇA em 9/16 confunde? A fase 4 trava os grupos (dica: comece pela
       vermelha)? Os quadros são lidos? Quanto tempo leva cada fase?

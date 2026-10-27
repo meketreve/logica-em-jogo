@@ -1,6 +1,7 @@
 import { mkdirSync, writeFileSync } from "node:fs";
 import type { IncomingMessage, ServerResponse } from "node:http";
 import { resolve } from "node:path";
+import { LOTE_DE_PERFIL } from "@logica/shared";
 import { PASTA_PROFILES } from "./paths";
 
 /**
@@ -53,8 +54,16 @@ export function salvarPerfil(stats: Record<string, unknown>): string {
   const ehBench = bench !== undefined;
   const semVida =
     typeof bench === "object" && bench !== null && (bench as Record<string, unknown>)["semVida"] === true;
+  // `/perfil` (2026-10-27): a rodada pedida pelo professor ganha
+  // `perf-turma-<lote>-`, pra os 25 tablets da mesma rodada ficarem juntos no
+  // `ls`. O lote volta do CLIENTE, então só entra no nome se tiver a forma que
+  // o host gerou — fora dela o perfil é gravado como manual.
+  const pedido = stats["pedido"];
+  const lote =
+    typeof pedido === "object" && pedido !== null ? (pedido as Record<string, unknown>)["lote"] : undefined;
+  const turma = typeof lote === "string" && LOTE_DE_PERFIL.test(lote) ? `turma-${lote}-` : "";
   const sufixo = Math.random().toString(36).slice(2, 6);
-  const nome = `perf-${ehBench ? "bench-" : ""}${semVida ? "semvida-" : ""}${Date.now()}-${sufixo}.json`;
+  const nome = `perf-${turma}${ehBench ? "bench-" : ""}${semVida ? "semvida-" : ""}${Date.now()}-${sufixo}.json`;
   mkdirSync(PASTA_PROFILES, { recursive: true });
   writeFileSync(resolve(PASTA_PROFILES, nome), JSON.stringify(stats, null, 2));
   return nome;
