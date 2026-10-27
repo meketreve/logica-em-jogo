@@ -744,6 +744,9 @@ function renderConfigPanel(
     };
     toggle("nuvens no céu", s.nuvens, (v) => (s.nuvens = v));
     toggle("balanço de folhas e grama", s.balanco, (v) => (s.balanco = v));
+    // MSAA: metade da GPU do notebook dos alunos (bench:lab de 2026-10-27).
+    // O renderer nasce com ele — por isso o "ao reabrir" no rótulo.
+    toggle("bordas suaves (pesa no PC fraco; vale ao reabrir o jogo)", s.antialias, (v) => (s.antialias = v));
 
     // streaming (mundo procedural): quanto mundo carrega em volta + custo por frame
     slider(

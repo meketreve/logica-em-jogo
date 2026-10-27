@@ -1,5 +1,5 @@
 import * as THREE from "three";
-import { AGUA_FRAMES, animarAguaAtlas, createAtlasTexture } from "./atlasTexture";
+import { AGUA_FRAMES, animarAguaAtlas, createAtlasTexture, tilesComFuro } from "./atlasTexture";
 import { type LuzUniforms, aplicarLuz, criarLuzUniforms } from "./luzShader";
 import { type BalancoUniforms, type VentoCliente, aplicarBalanco, criarBalancoUniforms } from "./vento";
 
@@ -23,9 +23,17 @@ import { type BalancoUniforms, type VentoCliente, aplicarBalanco, criarBalancoUn
 export class MateriaisMundo {
   /** Textura do atlas — o canvas é repintado pela animação da água. */
   readonly atlas: THREE.Texture;
-  /** alphaTest = cutout dos transparentes (vidro/folhas): pixel opaco ou
-   *  descartado — sem blending, sem sorting, mesmo draw call por chunk (cp18) */
+  /** O terreno SEM furo (pedra, terra, tábua…): sem `alphaTest`. Até
+   *  2026-10-27 este material descartava pixel em TODO bloco por causa das
+   *  folhas — e shader que pode descartar faz a GPU integrada desligar o teste
+   *  de profundidade antecipado pro terreno inteiro (bench:lab: até −15%). */
   readonly opaco: THREE.MeshLambertMaterial;
+  /** alphaTest = cutout dos tiles com FURO (folha, flor, grama alta, vidro
+   *  incolor): pixel opaco ou descartado — sem blending, sem sorting (cp18).
+   *  Quem é furo sai dos pixels do atlas (`furos`), não de uma lista. */
+  readonly recorte: THREE.MeshLambertMaterial;
+  /** 1 = o tile tem furo e vai pro `recorte` (índice = número do tile). */
+  readonly furos: Uint8Array;
   /** água (2026-07-22): material SEPARADO, transparente DE VERDADE (blend) — sem
    *  os furos xadrez. Mesma textura do atlas (as UVs do tile da água batem).
    *  depthWrite:false = várias faces de água blendam sem brigar pelo z-buffer;
@@ -55,7 +63,10 @@ export class MateriaisMundo {
 
   constructor() {
     this.atlas = createAtlasTexture();
-    this.opaco = new THREE.MeshLambertMaterial({ map: this.atlas, alphaTest: 0.5 });
+    this.opaco = new THREE.MeshLambertMaterial({ map: this.atlas });
+    this.recorte = new THREE.MeshLambertMaterial({ map: this.atlas, alphaTest: 0.5 });
+    // ANTES da 1ª repintura da água: os furos são do atlas recém-pintado
+    this.furos = tilesComFuro(this.atlas.image as HTMLCanvasElement);
     this.agua = new THREE.MeshLambertMaterial({
       map: this.atlas,
       transparent: true,
@@ -71,16 +82,21 @@ export class MateriaisMundo {
     // ORDEM: balanço primeiro, luz depois — ver o bloco no topo da classe.
     // Trocar as duas linhas NÃO dá erro de shader: o `shots:luz` é quem pega
     // (A/B da sessão 52 — a razão noite/dia salta de 0,35 pra 0,74).
+    // o balanço vai nos DOIS: o `sway` é por vértice, e um bloco que balança
+    // com tile sem furo (se um dia houver) não pode parar de balançar por isso
     aplicarBalanco(this.opaco, this.balanco);
+    aplicarBalanco(this.recorte, this.balanco);
     aplicarLuz(this.opaco, this.luz);
+    aplicarLuz(this.recorte, this.luz);
     aplicarLuz(this.agua, this.luz);
     aplicarLuz(this.vidro, this.luz);
   }
 
-  /** Os três materiais na ORDEM que o `ChunkRenderer` espera (opaco, água, vidro)
-   *  — é a mesma ordem dos grupos que o mesher emite. */
-  get paraChunks(): [THREE.Material, THREE.Material, THREE.Material] {
-    return [this.opaco, this.agua, this.vidro];
+  /** Os materiais na ORDEM que o `ChunkRenderer` espera: opaco, água, vidro
+   *  (os grupos do mesher) e o RECORTE por último — ele é separado do opaco no
+   *  cliente, que é quem sabe quais tiles têm furo. */
+  get paraChunks(): [THREE.Material, THREE.Material, THREE.Material, THREE.Material] {
+    return [this.opaco, this.agua, this.vidro, this.recorte];
   }
 
   /** O canvas do atlas — a hotbar recorta os ícones dele, e o `?atlas` o pendura

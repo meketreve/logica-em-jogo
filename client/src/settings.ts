@@ -59,6 +59,11 @@ export interface GameSettings {
    *  no vertex shader do material do terreno (o custo é por VÉRTICE, não por
    *  pixel — bem mais barato que as nuvens, mas dá pra desligar junto). */
   balanco: boolean;
+  /** Antialias (MSAA) — DESLIGADO por padrão (2026-10-27): na 1ª bateria
+   *  `bench:lab`, no notebook dos alunos, ele sozinho custava METADE do tempo
+   *  de GPU (22,8 → 11,0 ms; 31 → 52 fps). O renderer nasce com ele, então
+   *  mudar só vale ao reabrir o jogo. */
+  antialias: boolean;
   /** 3ª pessoa PERSISTENTE (2026-09-03, tecla F5 por padrão) — separado do
    *  override temporário do menu de emojis, que força 3ª pessoa por alguns
    *  segundos e depois volta pro que está aqui. */
@@ -77,6 +82,7 @@ export const DEFAULT_SETTINGS: GameSettings = {
   touchLayout: "destro",
   nuvens: true,
   balanco: true,
+  antialias: false,
   cameraMode: "primeira",
   keys: {
     forward: "KeyW",
@@ -158,6 +164,7 @@ export function loadSettings(): GameSettings {
     ]),
     nuvens: bool(s["nuvens"], DEFAULT_SETTINGS.nuvens),
     balanco: bool(s["balanco"], DEFAULT_SETTINGS.balanco),
+    antialias: bool(s["antialias"], DEFAULT_SETTINGS.antialias),
     cameraMode: oneOf<CameraMode>(s["cameraMode"], DEFAULT_SETTINGS.cameraMode, ["primeira", "terceira"]),
     keys,
   };

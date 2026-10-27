@@ -80,6 +80,8 @@ export const BENCH_SETTINGS = {
   // mede o jogo que o aluno joga. O A/B sai por `?bench&semvida` (abaixo).
   nuvens: true,
   balanco: true,
+  // o padrão do JOGO (desligado desde 2026-10-27); `?bench&comaa` mede o custo
+  antialias: false,
 } as const;
 
 export interface BenchOpts {
@@ -99,14 +101,15 @@ export interface BenchOpts {
  * pra medir quanto ela pesa na máquina do laboratório (`npm run bench:lab`
  * roda a bateria). Só valem junto com `?bench` — nenhum é configuração de
  * jogo, e dois deles estragam o visual de propósito:
- *  - `semaa`: renderer sem antialias (MSAA);
- *  - `semdescarte`: o material opaco sem `alphaTest` — folha e flor viram
- *    quadrado. Mede o TETO do ganho de separar o recorte do terreno: com o
- *    descarte no shader de TODO pixel, a GPU desliga o teste de profundidade
- *    antecipado;
+ *  - `comaa`: renderer COM antialias (MSAA) — desligado no jogo desde
+ *    2026-10-27, quando a 1ª bateria (então `semaa`) mostrou que ele custava
+ *    metade da GPU do notebook dos alunos;
+ *  - `semdescarte`: o material de RECORTE sem `alphaTest` — folha e flor viram
+ *    quadrado. Desde 2026-10-27 o recorte é material próprio e o terreno não
+ *    descarta mais; isto mede o que SOBROU de custo nas folhas;
  *  - `aguaparada`: a água não repinta o atlas (sem reenvio de 262 KB à GPU).
  */
-export const EXPERIMENTOS_BENCH = ["semaa", "semdescarte", "aguaparada"] as const;
+export const EXPERIMENTOS_BENCH = ["comaa", "semdescarte", "aguaparada"] as const;
 export type ExperimentoBench = (typeof EXPERIMENTOS_BENCH)[number];
 
 /** Os experimentos pedidos na URL — vazio fora do `?bench`. */
@@ -135,6 +138,7 @@ export function benchSettings(opts: { semVida: boolean }): {
   fov: number;
   nuvens: boolean;
   balanco: boolean;
+  antialias: boolean;
 } {
   return opts.semVida
     ? { ...BENCH_SETTINGS, nuvens: false, balanco: false }

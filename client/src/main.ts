@@ -120,7 +120,7 @@ import { keyLabel, loadSettings, saveSettings } from "./settings";
 import { QuadroEditor, QuadroRenderer } from "./quadros";
 import { armarGuardaDeAtalhos, desarmarGuardaDeAtalhos } from "./shortcutGuard";
 import { configurarTooltip } from "./tooltip";
-import { isAlavanca } from "@logica/shared";
+import { TILE, isAlavanca } from "@logica/shared";
 import { TorchGlow } from "./torchGlow";
 import { TouchControls, isTouchDevice, solicitarTelaCheia } from "./touch";
 import { QuebraFx } from "./quebraFx";
@@ -172,7 +172,14 @@ function cachearMundos(text: string): void {
 // --- Render (independente do mundo) ---
 /** §📊 experimentos de GPU do `?bench` (vazio fora dele) — ver `bench.ts`. */
 const experimentos = experimentosDaUrl(new URLSearchParams(location.search));
-const renderer = new THREE.WebGLRenderer({ antialias: !experimentos.has("semaa") });
+// antialias: o do jogador, menos no `?bench` — lá vale a config canônica
+// (desligado) e o experimento `comaa` liga. Lido AQUI porque o renderer nasce
+// com ele: trocar em Configurações só vale ao reabrir.
+const renderer = new THREE.WebGLRenderer({
+  antialias: new URLSearchParams(location.search).has("bench")
+    ? experimentos.has("comaa")
+    : loadSettings().antialias,
+});
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
@@ -1559,7 +1566,7 @@ class GameRuntime {
     // os dois relógios da água. A ordem interna importa (balanço antes da luz) e
     // está escrita lá; aqui só se constrói e se chama `atualizar` 1×/frame.
     this.materiais = new MateriaisMundo();
-    if (experimentos.has("semdescarte")) this.materiais.opaco.alphaTest = 0;
+    if (experimentos.has("semdescarte")) this.materiais.recorte.alphaTest = 0;
     this.materiais.aguaParada = experimentos.has("aguaparada");
 
     // ?atlas na URL: pendura o canvas do texture atlas no canto (inspeção visual)
@@ -1582,6 +1589,7 @@ class GameRuntime {
     this.chunkRenderer = new ChunkRenderer(
       this.world,
       this.materiais.paraChunks,
+      this.materiais.furos,
       scene,
       !semWorker,
       Number.isFinite(meshDepth) && meshDepth > 0 ? meshDepth : undefined,
@@ -1717,6 +1725,19 @@ class GameRuntime {
     // clique na alavanca pra provar que cada chunk sai uma vez, não uma por peça.
     (window as unknown as Record<string, unknown>)["__remeshPorBloco"] = () =>
       this.chunkRenderer.porCaminho.bloco.n;
+    // §📊 o recorte separado do terreno: os furos LIDOS do atlas (alguns tiles
+    // de referência) e o tamanho de cada grupo. Só lê.
+    (window as unknown as Record<string, unknown>)["__recorte"] = () => ({
+      furos: {
+        folhas: this.materiais.furos[TILE.leaves],
+        vidro: this.materiais.furos[TILE.glass],
+        flor: this.materiais.furos[TILE.florVermelha],
+        pedra: this.materiais.furos[TILE.stone],
+        gramaLado: this.materiais.furos[TILE.grassSide],
+        tabua: this.materiais.furos[TILE.planks],
+      },
+      grupos: this.chunkRenderer.contarGrupos(),
+    });
     // §🔌 e o BYTE de uma célula como o cliente o tem (C6: a porta que o sinal
     // abre tem de CHEGAR no tablet, não só mudar no host). Só lê.
     (window as unknown as Record<string, unknown>)["__blocoEm"] = (x: number, y: number, z: number) =>

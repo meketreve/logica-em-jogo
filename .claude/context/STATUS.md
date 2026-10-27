@@ -34,6 +34,11 @@ Atrás: a **porta NÃO** (⚠️ quebra o ponto fixo — cabeçalho de `circuito
 
 ## Concluído (recente)
 
+- **27/10 — §📊 o jogo mais leve no notebook:** antialias DESLIGADO por padrão (chave em
+  Configurações) e o recorte das folhas em material próprio — o terreno parou de descartar
+  pixel. Prova: `recorte.test.ts` + `__recorte` no `bench:headless`. **Falta a 2ª bateria no
+  notebook** pra confirmar o ganho (e o custo das ~170 draw calls a mais).
+
 - **27/10 — §📊 bateria de GPU pro lab** (`npm run bench:lab`): três suspeitas lidas no código —
   `alphaTest` no material de TODO o terreno, MSAA fixo, água reenviando o atlas — viraram chaves
   do `?bench`. Número só vale da máquina do lab (aqui é SwiftShader).

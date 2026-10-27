@@ -9,6 +9,7 @@ import {
   extrairVizinhancaLuz,
   luzChunkCoords,
   meshChunk,
+  separarRecorte,
 } from "@logica/shared";
 import { MeshPool } from "./meshPool";
 
@@ -179,15 +180,19 @@ export class ChunkRenderer {
    *  daqui (e existe mesmo sem pool, no caminho síncrono). */
   private emCarga = false;
 
-  /** `materials[0]` = opaco (cutout), `materials[1]` = água (transparente/blend),
-   *  `materials[2]` = vidro colorido (blend, 2026-07-25). O mesher fatia os
-   *  índices em 3 grupos por `opaqueIndexCount` + `aguaIndexCount`.
+  /** `materials[0]` = opaco SEM furo, `materials[1]` = água (transparente/blend),
+   *  `materials[2]` = vidro colorido (blend, 2026-07-25), `materials[3]` =
+   *  RECORTE (cutout, 2026-10-27). O mesher fatia os índices em 3 grupos por
+   *  `opaqueIndexCount` + `aguaIndexCount`, e o `separarRecorte` parte o 1º.
    *
    *  `usarWorkers=false` força o caminho síncrono (testes, e o fallback quando
    *  o pool colapsa). */
   constructor(
     private world: World,
-    private materials: [THREE.Material, THREE.Material, THREE.Material],
+    /** opaco, água, vidro e RECORTE (`MateriaisMundo.paraChunks`). */
+    private materials: [THREE.Material, THREE.Material, THREE.Material, THREE.Material],
+    /** Os tiles com furo (`tilesComFuro`): decidem o que vai pro recorte. */
+    private furos: Uint8Array,
     private scene: THREE.Scene,
     usarWorkers = true,
     profundidadeJogo?: number,
@@ -347,17 +352,30 @@ export class ChunkRenderer {
     // separados — céu e bloco — e normalizar jogaria os dois num float só.
     // §💡 Uint16: dois canais de 8 bits (nível × 16) desde a luz suavizada
     geometry.setAttribute("luz", new THREE.BufferAttribute(g.luz, 1, false));
-    geometry.setIndex(new THREE.BufferAttribute(g.indices, 1));
-    // 3 grupos: opaco + água + vidro colorido, nessa ordem. Grupo com count 0
-    // (chunk sem água / sem vidro) não gera draw call.
+    // 4 grupos: o "opaco" do mesher se parte em SÓLIDO + RECORTE (aqui), e
+    // depois vêm água e vidro colorido. Grupo com count 0 não gera draw call.
+    const { indices, solidos } = separarRecorte(g.indices, g.opaqueIndexCount, g.uvs, this.furos);
+    geometry.setIndex(new THREE.BufferAttribute(indices, 1));
     const vidroStart = g.opaqueIndexCount + g.aguaIndexCount;
-    geometry.addGroup(0, g.opaqueIndexCount, 0);
+    geometry.addGroup(0, solidos, 0);
+    geometry.addGroup(solidos, g.opaqueIndexCount - solidos, 3);
     geometry.addGroup(g.opaqueIndexCount, g.aguaIndexCount, 1);
     geometry.addGroup(vidroStart, g.indices.length - vidroStart, 2);
     const mesh = new THREE.Mesh(geometry, this.materials);
     mesh.position.set(cx * CHUNK_SIZE, cy * CHUNK_SIZE, cz * CHUNK_SIZE);
     this.scene.add(mesh);
     this.meshes.set(key, mesh);
+  }
+
+  /** §📊 quantos índices estão em cada grupo, somando os chunks montados —
+   *  é o que a sonda lê pra saber que o recorte saiu do terreno de verdade. */
+  contarGrupos(): { solido: number; recorte: number; agua: number; vidro: number } {
+    const t = { solido: 0, recorte: 0, agua: 0, vidro: 0 };
+    const nome = ["solido", "agua", "vidro", "recorte"] as const;
+    for (const m of this.meshes.values()) {
+      for (const g of m.geometry.groups) t[nome[g.materialIndex ?? 0]!] += g.count;
+    }
+    return t;
   }
 
   /** Custo de MAIN THREAD de um chunk. No caminho do worker isso é só extrair a
@@ -587,3 +605,4 @@ export class ChunkRenderer {
     if (lz === CHUNK_SIZE - 1 && cz < this.world.dims.z - 1) this.sujar(cx, cy, cz + 1, "bloco");
   }
 }
+

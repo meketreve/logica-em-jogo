@@ -8,17 +8,17 @@
  *
  * Cada VARIANTE é o mesmo `?bench` (seed, trajeto e config fixos — ver
  * `client/src/bench.ts`) com UMA coisa desligada:
- *   base         o jogo como o aluno joga
- *   semaa        sem antialias (MSAA)
- *   semdescarte  terreno sem o `alphaTest` das folhas (folha vira quadrado:
- *                é o TETO do ganho de separar o recorte do terreno)
+ *   base         o jogo como o aluno joga (antialias DESLIGADO desde 27/10)
+ *   comaa        COM antialias (MSAA) — o custo de ligá-lo em Configurações
+ *   semdescarte  o material de recorte sem `alphaTest` (folha vira quadrado:
+ *                o que ainda custam as folhas, flores e vidro)
  *   aguaparada   a água não reenvia o atlas à GPU
  *   semvida      sem nuvens e sem balanço do vento (o A/B antigo do §🌬️)
- *   tudo         as três primeiras juntas (quanto sobra se todas valerem)
+ *   tudo         sem descarte e com a água parada (o piso do que dá pra tirar)
  *
  * Como se lê o resultado: o número que importa é o TEMPO DE GPU (média e p95),
  * não o FPS — com VSYNC o FPS gruda em 60 e esconde a folga. As variantes
- * rodam INTERCALADAS em várias rodadas (base, semaa, … de novo) pra que o
+ * rodam INTERCALADAS em várias rodadas (base, comaa, … de novo) pra que o
  * aquecimento da máquina não caia todo numa variante só, e a 1ª corrida é
  * descartada (shader compilando, cache frio). O RUÍDO é a diferença entre as
  * rodadas da própria `base`: ganho menor que o dobro dele não se distingue.
@@ -26,7 +26,7 @@
  * Uso (na pasta do jogo, com o launcher FECHADO — ele disputa a GPU):
  *   npm run bench:lab                     # 3 rodadas de 30 s (~20 min)
  *   npm run bench:lab -- --rodadas 2      # mais rápido, menos confiável
- *   npm run bench:lab -- --so base,semaa  # só algumas variantes
+ *   npm run bench:lab -- --so base,comaa  # só algumas variantes
  *   CHROME="C:\\caminho\\chrome.exe" npm run bench:lab
  *
  * Durante a bateria: NÃO mexer no PC (a janela do Chrome tem de ficar na
@@ -41,11 +41,11 @@ import { join } from "node:path";
 
 const VARIANTES = {
   base: "",
-  semaa: "&semaa",
+  comaa: "&comaa",
   semdescarte: "&semdescarte",
   aguaparada: "&aguaparada",
   semvida: "&semvida",
-  tudo: "&semaa&semdescarte&aguaparada",
+  tudo: "&semdescarte&aguaparada",
 };
 
 // --- argumentos ---

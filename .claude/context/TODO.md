@@ -25,6 +25,10 @@ active: true
 
 ## Testar na escola (o usuário faz)
 
+- [ ] **§📊 2ª bateria no notebook (27/10):** `npm run bench:lab` de novo — agora a `base` já
+      vem sem antialias e com o recorte separado. Esperado: base perto de 11 ms de GPU; o
+      `comaa` mede o custo de quem ligar a chave. E: as bordas serrilhadas incomodam no projetor?
+
 - [x] ~~`npm run bench:lab`~~ — rodado em 27/10 (`registros/bench-lab/`): MSAA −52%, recorte −15%.
 
 - [ ] **§🔌 O circuito abre a PORTA (27/10):** a criança descobre sozinha que o fio "liga" na
