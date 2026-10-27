@@ -205,7 +205,8 @@ diagonal da curva que dava pra driblar, e um fundo de buraco partido em dois pel
 
 Mundo de cabines, modo **sequencial**. Cada grupo tem na sua área uma **cópia** dos 4 circuitos,
 já montados e com todas as alavancas **desligadas**. Ninguém constrói: a tarefa é decidir **quais
-alavancas ligar**. Em cima de cada lâmpada há uma marca: **verde = tem de acender**, **vermelho =
+alavancas ligar**. A aula nasce com as **peças travadas** — nas áreas o aluno só liga e desliga
+alavancas; quebrar ou colocar bloco ali é recusado com um aviso. Em cima de cada lâmpada há uma marca: **verde = tem de acender**, **vermelho =
 tem de ficar apagada**. Um **quadro** no fim de cada fase explica a peça nova e o desafio.
 
 | fase | circuito | resposta | a lição |
@@ -227,9 +228,9 @@ onde deviam ficar apagados): use isso como pista.
 acontecer **antes** de clicar. A fase 4 é a discussão boa: "qual alavanca NÃO pode ligar?"
 
 **Para aumentar a turma na hora:** `/aula grupos X` cria as áreas novas copiando a área original.
-Grupo que quebrou uma peça: o contador não fecha mais. Não há reinício de UM grupo só —
-`/objetivo resetar` volta TODAS as áreas ao começo e zera o progresso da turma; para um grupo,
-recoloque a peça na mão (a área do grupo vizinho mostra como era).
+**Peças travadas** é uma regra do mundo, não só desta aula: `/objetivo pecas livres` solta (o
+aluno volta a colocar e quebrar nas áreas) e `/objetivo pecas travadas` trava de novo. Serve em
+qualquer aula de circuito pronto. O professor nunca é travado.
 
 **Fechamento:** "o que a E e a OU têm de diferente?" e "dá pra fazer um circuito em que ligar uma
 alavanca APAGUE uma lâmpada?" (não dá, com estas peças — é a porta NÃO, que ainda não existe no

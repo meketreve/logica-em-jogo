@@ -74,6 +74,10 @@ export interface Objective {
 
 export interface ScenarioMeta {
   modo: ScenarioModo;
+  /** §🔌 PEÇAS TRAVADAS (2026-10-27): nas áreas dos objetivos o aluno só liga
+   *  e desliga alavancas — não coloca, não quebra, não usa mais nada. É a
+   *  regra das aulas de circuito pronto (aula 8). Ausente = livre. */
+  pecasTravadas?: boolean;
   objetivos: Objective[];
   /** Ids concluídos (modo turma / objetivo compartilhado). Contadores NÃO
    *  persistem — o mundo salvo já carrega o estado; recontar é de graça. */
@@ -353,6 +357,7 @@ export function parseScenarioMeta(v: unknown): ScenarioMeta | null {
   }
   return {
     modo: o["modo"] === "livre" ? "livre" : "sequencial",
+    ...(o["pecasTravadas"] === true ? { pecasTravadas: true } : {}),
     objetivos,
     completos,
     ...(completosGrupos.length ? { completosGrupos } : {}),

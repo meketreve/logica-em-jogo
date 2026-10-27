@@ -82,7 +82,7 @@ const COMANDOS: ComandoDef[] = [
 /** Todos os subcomandos de cada comando (2º token). */
 const SUBCOMANDOS: Record<string, string[]> = {
   regiao: ["criar", "apagar", "lista", "encher", "sortear", "carimbar"],
-  objetivo: ["add", "lista", "texto", "mover", "remover", "modo", "resetar"],
+  objetivo: ["add", "lista", "texto", "mover", "remover", "modo", "pecas", "resetar"],
   grupo: ["criar", "entrar", "sair", "lista"],
   aula: ["grupos"],
   mundo: ["lista", "atual", "carregar"],
@@ -174,6 +174,7 @@ export function nivel3Para(
   if (papel === "aluno" && NIVEL3_SO_PROFESSOR.has(cmd)) return [];
   if (cmd === "objetivo" && sub === "add") return ["construir", "chegar", "limpar", "acender"];
   if (cmd === "objetivo" && sub === "modo") return ["sequencial", "livre"];
+  if (cmd === "objetivo" && sub === "pecas") return ["travadas", "livres"];
   if (cmd === "mundo" && sub === "carregar") return vivo.mundos;
   if (cmd === "amigos" && AMIGOS_COM_NOME.has(sub)) return vivo.jogadores;
   // §🍖 F1: /modo <modo> [eu|all|nome] — os alvos fixos primeiro, depois a turma

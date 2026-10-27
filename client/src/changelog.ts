@@ -45,6 +45,7 @@ const MUDANCAS: readonly Mudanca[] = [
     // sem `data`: este é o build atual (ver rotuloDoBloco)
     titulo: "Aula nova: os circuitos",
     itens: [
+      "**regra nova: peças travadas.** Nas áreas da atividade o aluno só liga e desliga **alavancas** — não quebra, não coloca e não mexe em mais nada ali. A aula 8 já nasce com ela; em qualquer mundo o professor liga com **/objetivo pecas travadas** e desliga com **/objetivo pecas livres**",
       "**aula 8 — “Acenda só as lâmpadas certas”**: 4 fases, uma por peça — o fio, a porta E, a porta OU e as duas juntas. O circuito já vem montado com as alavancas desligadas; cada grupo tem a sua cópia",
       "lâmpada com bloco **verde** em cima tem de acender, com bloco **vermelho** tem de ficar apagada: ligar todas as alavancas não resolve, é preciso pensar em qual ligar",
       "um quadro ao lado de cada fase explica a peça nova e o desafio",

@@ -91,6 +91,7 @@ import {
   circuitoForaDoTerreno,
   claimBloqueia,
   confinaBloqueia,
+  pecaTravada,
   equipeDe,
   grupoDe,
   runAmigos,
@@ -520,9 +521,11 @@ export class GameSession {
   /** Cenário (cp12): objetivos + progresso do MUNDO. Persiste no save. */
   readonly scenario: {
     modo: ScenarioModo;
+    /** §🔌 aluno só mexe em ALAVANCA dentro das áreas (`pecaTravada`). */
+    pecasTravadas: boolean;
     objetivos: Objective[];
     completos: Set<number>;
-  } = { modo: "sequencial", objetivos: [], completos: new Set() };
+  } = { modo: "sequencial", pecasTravadas: false, objetivos: [], completos: new Set() };
   nextObjetivoId = 1;
   /** Objetivos a rechecar no fim do tick (applyBlock marca — regra de ouro:
    *  detecção acorda por MUDANÇA, nunca por varredura periódica do mundo).
@@ -751,6 +754,7 @@ export class GameSession {
       for (const r of opts.restore.regioes ?? []) this.regions.set(r.nome, r);
       if (opts.restore.cenario) {
         this.scenario.modo = opts.restore.cenario.modo;
+        this.scenario.pecasTravadas = opts.restore.cenario.pecasTravadas === true;
         this.scenario.objetivos = [...opts.restore.cenario.objetivos];
         this.scenario.completos = new Set(opts.restore.cenario.completos);
         for (const g of opts.restore.cenario.completosGrupos ?? []) {
@@ -923,6 +927,7 @@ export class GameSession {
         ? {
             cenario: {
               modo: this.scenario.modo,
+              ...(this.scenario.pecasTravadas ? { pecasTravadas: true } : {}),
               objetivos: this.scenario.objetivos,
               completos: [...this.scenario.completos],
               ...(this.completosGrupo.size
@@ -1273,6 +1278,10 @@ export class GameSession {
               ? circuitoForaDoTerreno(this, clientId, msg.x, msg.y, msg.z)
               : null) ??
             claimBloqueia(this, clientId, msg.x, msg.y, msg.z) ??
+            // §🔌 peças travadas: nem a 2ª célula da porta/cama entra na área
+            pecaTravada(this, clientId, msg.x, msg.y, msg.z) ??
+            (isPorta(msg.blockId) ? pecaTravada(this, clientId, msg.x, msg.y + 1, msg.z) : null) ??
+            (camaDir ? pecaTravada(this, clientId, msg.x + camaDir.dx, msg.y, msg.z + camaDir.dz) : null) ??
             (isPorta(msg.blockId) ? claimBloqueia(this, clientId, msg.x, msg.y + 1, msg.z) : null) ??
             (camaDir ? claimBloqueia(this, clientId, msg.x + camaDir.dx, msg.y, msg.z + camaDir.dz) : null) ??
             confinaBloqueia(this, clientId, msg.x, msg.y, msg.z) ??
@@ -1349,6 +1358,15 @@ export class GameSession {
         if (!inBounds(this.world, msg.x, msg.y, msg.z)) return;
         if (!this.withinReach(p, msg.x, msg.y, msg.z)) return;
         const id = getBlock(this.world, msg.x, msg.y, msg.z);
+        // §🔌 peças travadas: na área da atividade só a ALAVANCA responde ao
+        // clique — porta, baú, cama e o resto ficam como o professor deixou
+        if (!isAlavanca(id)) {
+          const travada = pecaTravada(this, clientId, msg.x, msg.y, msg.z);
+          if (travada) {
+            this.sendServerChat(clientId, travada);
+            return;
+          }
+        }
         // §🍖 F10: container (fornalha, baú) — o clique direito ABRE, não
         // alterna. O gate de claim/confinamento vem ANTES de responder o
         // conteúdo (§🍖 F10f): ler o baú alheio é pior que mexer nele.
@@ -1458,6 +1476,7 @@ export class GameSession {
         {
           const bloqueio =
             claimBloqueia(this, clientId, msg.x, msg.y, msg.z) ??
+            pecaTravada(this, clientId, msg.x, msg.y, msg.z) ??
             confinaBloqueia(this, clientId, msg.x, msg.y, msg.z);
           if (bloqueio) {
             this.sendServerChat(clientId, bloqueio);
@@ -1510,6 +1529,7 @@ export class GameSession {
         {
           const bloqueio =
             claimBloqueia(this, clientId, msg.x, msg.y, msg.z) ??
+            pecaTravada(this, clientId, msg.x, msg.y, msg.z) ??
             confinaBloqueia(this, clientId, msg.x, msg.y, msg.z);
           if (bloqueio) {
             this.sendServerChat(clientId, bloqueio);

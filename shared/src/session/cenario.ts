@@ -289,6 +289,17 @@ export function runObjetivo(ses: GameSession, parts: string[]): string {
       broadcastObjectives(ses);
       return `Modo do cenário: ${modo}.`;
     }
+    case "pecas": {
+      // §🔌 2026-10-27: a regra das aulas de circuito pronto (ver `pecaTravada`)
+      const estado = parts[2];
+      if (estado !== "travadas" && estado !== "livres") {
+        return "Uso: /objetivo pecas travadas|livres — travadas: nas áreas dos objetivos o aluno só liga e desliga as ALAVANCAS.";
+      }
+      ses.scenario.pecasTravadas = estado === "travadas";
+      return ses.scenario.pecasTravadas
+        ? "Peças travadas: nas áreas dos objetivos o aluno só liga e desliga as ALAVANCAS (não coloca nem quebra nada)."
+        : "Peças livres: nas áreas dos objetivos o aluno volta a colocar e quebrar blocos.";
+    }
     case "resetar": {
       const mudados = zerarProgresso(ses);
       return mudados > 0
@@ -299,7 +310,7 @@ export function runObjetivo(ses: GameSession, parts: string[]): string {
       return (
         "Uso: /objetivo add construir modelo alvo enunciado… · /objetivo add chegar|limpar|acender regiao enunciado… · " +
         "/objetivo lista · /objetivo texto id novo enunciado… · /objetivo mover id posição · " +
-        "/objetivo remover id · /objetivo modo sequencial|livre · /objetivo resetar"
+        "/objetivo remover id · /objetivo modo sequencial|livre · /objetivo pecas travadas|livres · /objetivo resetar"
       );
   }
 }

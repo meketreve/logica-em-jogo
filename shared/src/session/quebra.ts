@@ -8,7 +8,7 @@ import {
 } from "../ferramentas";
 import { definirSlot, slotValido } from "../inventario";
 import { dropsDe } from "../drops";
-import { claimBloqueia, confinaBloqueia } from "./equipes";
+import { claimBloqueia, confinaBloqueia, pecaTravada } from "./equipes";
 import { avisarComFreio } from "./avisos";
 import { EXAUSTAO_POR_EDICAO } from "../sobrevivencia";
 import { esforcar } from "./vitais";
@@ -95,7 +95,9 @@ function podeQuebrar(
   if (!ses.withinReach(p, x, y, z)) return false;
 
   const bloqueio =
-    claimBloqueia(ses, clientId, x, y, z) ?? confinaBloqueia(ses, clientId, x, y, z);
+    claimBloqueia(ses, clientId, x, y, z) ??
+    pecaTravada(ses, clientId, x, y, z) ??
+    confinaBloqueia(ses, clientId, x, y, z);
   if (bloqueio) {
     if (avisar) ses.sendServerChat(clientId, bloqueio);
     return false;

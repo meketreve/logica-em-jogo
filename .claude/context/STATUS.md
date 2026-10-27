@@ -34,6 +34,11 @@ Atrás: a **porta NÃO** (⚠️ quebra o ponto fixo — cabeçalho de `circuito
 
 ## Concluído (recente)
 
+- **27/10 — §🔌 PEÇAS TRAVADAS**, regra nova do cenário (`/objetivo pecas travadas|livres`,
+  `scenario.pecasTravadas`, salva no mundo): nas áreas dos objetivos o aluno só aciona ALAVANCA —
+  colocar, quebrar, balde, quadro e clicar o resto são recusados com aviso (`pecaTravada`, em
+  `session/equipes.ts`). Professor passa. A aula 8 nasce com ela.
+
 - **27/10 — §🔌 AULA 8, os circuitos** (`aula8-circuitos.ljw`, `server/src/cenarios/circuitos.ts`):
   4 fases (fio, E, OU, E+OU), circuito pronto e alavancas desligadas; lâmpada com marca VERDE
   acende, VERMELHA fica apagada. Objetivo `construir` contra gabarito montado pelo MOTOR; o

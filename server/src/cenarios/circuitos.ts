@@ -340,6 +340,9 @@ export function gerarCircuitos(o: OpcoesCircuitos): ArrayBuffer {
   for (let t = 0; t < 3; t++) a.session.tick();
 
   a.cmd("/objetivo modo sequencial", "Modo do cenário: sequencial");
+  // PEÇAS TRAVADAS: nas áreas o aluno só liga e desliga alavancas — quebrar um
+  // fio aqui só deixaria o contador sem como fechar, e não ensina nada
+  a.cmd("/objetivo pecas travadas", "Peças travadas");
   FASES.forEach((f, idx) => {
     a.cmd(`/objetivo add construir modelo${sufixo(idx)} area${sufixo(idx)} ${f.texto}`, "criado: construir em");
   });
@@ -366,6 +369,7 @@ export function conferirCircuitos(buf: ArrayBuffer, o: OpcoesCircuitos): string[
   exigir(save.roster.length === 0, "o save carrega identidade do autor");
   exigir(save.grupos?.length === o.grupos, `esperava ${o.grupos} grupos no save`);
   exigir(save.cenario?.modo === "sequencial", "a aula devia estar em modo sequencial");
+  exigir(save.cenario?.pecasTravadas === true, "a aula devia nascer com as peças travadas");
   const objetivos = save.cenario?.objetivos ?? [];
   exigir(objetivos.length === FASES.length, `esperava ${FASES.length} objetivos, veio ${objetivos.length}`);
   for (const obj of objetivos) conferirGeometria(save.world, obj.alvos ?? [], problemas);
@@ -413,6 +417,29 @@ export function conferirCircuitos(buf: ArrayBuffer, o: OpcoesCircuitos): string[
     s.tick();
     s.tick();
   };
+
+  // peças travadas: a aluna tenta QUEBRAR o fio da fase 1 e colocar pedra na
+  // área — nada muda (e a fase segue resolvível só pelas alavancas, abaixo)
+  {
+    const alvo = objetivos[0]!.alvos![0]!;
+    const fio = pecasDe(FASES[0]!).find((p) => p.id === BlockId.FioDesligado)!;
+    const c = { x: alvo.min.x + fio.i, y: alvo.min.y, z: alvo.min.z + fio.k };
+    // CRIATIVO: quebrar é 1 clique e colocar não pede item — assim a ÚNICA coisa
+    // que pode barrar a aluna é a regra (o controle negativo pegou isto: em
+    // sobrevivência, sem picareta e sem pedra, ela não conseguia nem SEM a regra)
+    send(1, { type: "chat", text: "/modo criativo ana" });
+    send(2, { type: "move", x: c.x - 1.5, y: c.y, z: c.z + 0.5, yaw: 0, pitch: 0 });
+    send(2, { type: "break_start", ...c, slot: 0 });
+    send(2, { type: "break_block", ...c });
+    const vazio = { x: alvo.min.x + 1, y: alvo.min.y, z: alvo.min.z + 1 };
+    send(2, { type: "place_block", ...vazio, blockId: BlockId.Stone });
+    for (let t = 0; t < 40; t++) s.tick(); // mais que o tempo de quebrar qualquer bloco
+    exigir(
+      getBlock(s.world, c.x, c.y, c.z) === BlockId.FioDesligado &&
+        getBlock(s.world, vazio.x, vazio.y, vazio.z) === BlockId.Air,
+      "peças travadas: a aluna quebrou ou colocou bloco dentro da área",
+    );
+  }
 
   FASES.forEach((f, n) => {
     // "liga tudo" NÃO pode resolver (menos na porta E, onde é a própria lição)

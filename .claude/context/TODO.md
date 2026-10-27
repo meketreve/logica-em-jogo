@@ -25,7 +25,7 @@ active: true
 
 ## Testar na escola (o usuário faz)
 
-- [ ] **§🔌 Aula 8 — circuitos (27/10):** a marca verde/vermelha é entendida sem explicar? O
+- [ ] **§🔌 Aula 8 — circuitos (27/10):** o aviso das PEÇAS TRAVADAS aparece demais (spam no chat)? A marca verde/vermelha é entendida sem explicar? O
       contador que COMEÇA em 9/16 confunde? A fase 4 trava os grupos (dica: comece pela
       vermelha)? Os quadros são lidos? Quanto tempo leva cada fase?
 

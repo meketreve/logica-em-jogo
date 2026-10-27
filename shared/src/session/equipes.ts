@@ -188,6 +188,35 @@ export function confinaBloqueia(ses: GameSession, clientId: number, x: number, y
   return "Modo confinamento: você só pode construir e quebrar na área do seu grupo. Use /tp grupos ou siga a caixa verde do seu objetivo.";
 }
 
+/**
+ * §🔌 PEÇAS TRAVADAS (2026-10-27): com a regra ligada, a célula dentro de
+ * QUALQUER área de objetivo (de qualquer grupo, ou compartilhada) é intocável
+ * pro aluno — só a ALAVANCA se aciona, e quem chama este gate já deixou ela
+ * passar. Vale pras áreas que o `/aula grupos` cria depois, porque ele estende
+ * os `alvos` do objetivo. O professor passa sempre (ele conserta a aula).
+ *
+ * Por que existe: na aula de circuito pronto, quebrar um fio ou trocar uma
+ * porta deixa o contador sem como fechar ("peça fora do lugar") e não ensina
+ * nada — a atividade é DECIDIR quais alavancas ligar.
+ */
+export function pecaTravada(ses: GameSession, clientId: number, x: number, y: number, z: number): string | null {
+  if (!ses.scenario.pecasTravadas) return null;
+  const p = ses.players.get(clientId);
+  if (!p || p.papel === "professor") return null;
+  for (const o of ses.scenario.objetivos) {
+    for (const a of o.alvos ?? [o]) {
+      if (
+        x >= a.min.x && x <= a.max.x &&
+        y >= a.min.y && y <= a.max.y &&
+        z >= a.min.z && z <= a.max.z
+      ) {
+        return "Nesta atividade as peças estão travadas: aqui você só liga e desliga as ALAVANCAS.";
+      }
+    }
+  }
+  return null;
+}
+
 /** O nome é conhecido nesta aula? (online, roster salvo ou identidade). Evita
  *  convidar/remover um nome que nunca existiu. */
 export function nomeConhecido(ses: GameSession, name: string): boolean {
