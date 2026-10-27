@@ -25,9 +25,7 @@ active: true
 
 ## Testar na escola (o usuário faz)
 
-- [ ] **§📊 `npm run bench:lab` no PC do laboratório** (27/10), com o launcher FECHADO e sem
-      mexer no PC (~20 min). Trazer o `registros/bench-lab/<data>-<pc>.txt`. Decide se vale
-      separar o recorte do terreno, pôr chave de antialias e tirar a água do atlas.
+- [x] ~~`npm run bench:lab`~~ — rodado em 27/10 (`registros/bench-lab/`): MSAA −52%, recorte −15%.
 
 - [ ] **§🔌 O circuito abre a PORTA (27/10):** a criança descobre sozinha que o fio "liga" na
       porta? O clique que vale até o sinal mudar confunde ("liguei a alavanca e a porta não
