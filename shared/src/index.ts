@@ -46,4 +46,3 @@ export * from "./session";
 export * from "./session/aula";
 export * from "./version";
 export * from "./chunkCodec";
-export * from "./recorte";

@@ -1,0 +1,607 @@
+{
+  "rodadas": 3,
+  "duracaoS": 30,
+  "navegador": "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
+  "corridas": [
+    {
+      "rodada": 1,
+      "variante": "base",
+      "antialias": false,
+      "experimentos": [],
+      "semVida": false,
+      "gpuMedioMs": 12.89,
+      "gpuP95Ms": 19.33,
+      "frameP50Ms": 19.3,
+      "frameP95Ms": 28.3,
+      "fps": 49,
+      "framesLentos50ms": 2,
+      "drawCalls": 774,
+      "triangulos": 234950,
+      "viewport": "1920×945",
+      "dispositivo": {
+        "nucleos": 8,
+        "ramGB": 8,
+        "dpr": 1,
+        "tela": "1920×1080",
+        "gpu": "ANGLE (Intel, Intel(R) UHD Graphics (0x00009B41) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+        "bateria": {
+          "nivelPct": 100,
+          "carregando": true
+        }
+      }
+    },
+    {
+      "rodada": 1,
+      "variante": "comaa",
+      "antialias": true,
+      "experimentos": [
+        "comaa"
+      ],
+      "semVida": false,
+      "gpuMedioMs": 24.08,
+      "gpuP95Ms": 30.53,
+      "frameP50Ms": 33.1,
+      "frameP95Ms": 43.4,
+      "fps": 30,
+      "framesLentos50ms": 11,
+      "drawCalls": 778,
+      "triangulos": 234552,
+      "viewport": "1920×945",
+      "dispositivo": {
+        "nucleos": 8,
+        "ramGB": 8,
+        "dpr": 1,
+        "tela": "1920×1080",
+        "gpu": "ANGLE (Intel, Intel(R) UHD Graphics (0x00009B41) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+        "bateria": {
+          "nivelPct": 100,
+          "carregando": true
+        }
+      }
+    },
+    {
+      "rodada": 1,
+      "variante": "semdescarte",
+      "antialias": false,
+      "experimentos": [
+        "semdescarte"
+      ],
+      "semVida": false,
+      "gpuMedioMs": 12.41,
+      "gpuP95Ms": 19.75,
+      "frameP50Ms": 18.6,
+      "frameP95Ms": 28.3,
+      "fps": 50,
+      "framesLentos50ms": 2,
+      "drawCalls": 774,
+      "triangulos": 234950,
+      "viewport": "1920×945",
+      "dispositivo": {
+        "nucleos": 8,
+        "ramGB": 8,
+        "dpr": 1,
+        "tela": "1920×1080",
+        "gpu": "ANGLE (Intel, Intel(R) UHD Graphics (0x00009B41) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+        "bateria": {
+          "nivelPct": 100,
+          "carregando": true
+        }
+      }
+    },
+    {
+      "rodada": 1,
+      "variante": "aguaparada",
+      "antialias": false,
+      "experimentos": [
+        "aguaparada"
+      ],
+      "semVida": false,
+      "gpuMedioMs": 13,
+      "gpuP95Ms": 22.38,
+      "frameP50Ms": 20.6,
+      "frameP95Ms": 33.2,
+      "fps": 46,
+      "framesLentos50ms": 5,
+      "drawCalls": 774,
+      "triangulos": 234950,
+      "viewport": "1920×945",
+      "dispositivo": {
+        "nucleos": 8,
+        "ramGB": 8,
+        "dpr": 1,
+        "tela": "1920×1080",
+        "gpu": "ANGLE (Intel, Intel(R) UHD Graphics (0x00009B41) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+        "bateria": {
+          "nivelPct": 100,
+          "carregando": true
+        }
+      }
+    },
+    {
+      "rodada": 1,
+      "variante": "semvida",
+      "antialias": false,
+      "experimentos": [],
+      "semVida": true,
+      "gpuMedioMs": 12.35,
+      "gpuP95Ms": 19.22,
+      "frameP50Ms": 18.8,
+      "frameP95Ms": 27.6,
+      "fps": 50,
+      "framesLentos50ms": 3,
+      "drawCalls": 772,
+      "triangulos": 234946,
+      "viewport": "1920×945",
+      "dispositivo": {
+        "nucleos": 8,
+        "ramGB": 8,
+        "dpr": 1,
+        "tela": "1920×1080",
+        "gpu": "ANGLE (Intel, Intel(R) UHD Graphics (0x00009B41) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+        "bateria": {
+          "nivelPct": 100,
+          "carregando": true
+        }
+      }
+    },
+    {
+      "rodada": 1,
+      "variante": "tudo",
+      "antialias": false,
+      "experimentos": [
+        "semdescarte",
+        "aguaparada"
+      ],
+      "semVida": false,
+      "gpuMedioMs": 11.2,
+      "gpuP95Ms": 17.19,
+      "frameP50Ms": 17.7,
+      "frameP95Ms": 25.6,
+      "fps": 52,
+      "framesLentos50ms": 3,
+      "drawCalls": 774,
+      "triangulos": 234950,
+      "viewport": "1920×945",
+      "dispositivo": {
+        "nucleos": 8,
+        "ramGB": 8,
+        "dpr": 1,
+        "tela": "1920×1080",
+        "gpu": "ANGLE (Intel, Intel(R) UHD Graphics (0x00009B41) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+        "bateria": {
+          "nivelPct": 100,
+          "carregando": true
+        }
+      }
+    },
+    {
+      "rodada": 1,
+      "variante": "recorteunico",
+      "antialias": false,
+      "experimentos": [
+        "recorteunico"
+      ],
+      "semVida": false,
+      "gpuMedioMs": 12.36,
+      "gpuP95Ms": 20.52,
+      "frameP50Ms": 19.7,
+      "frameP95Ms": 30.4,
+      "fps": 48,
+      "framesLentos50ms": 3,
+      "drawCalls": 778,
+      "triangulos": 236288,
+      "viewport": "1920×945",
+      "dispositivo": {
+        "nucleos": 8,
+        "ramGB": 8,
+        "dpr": 1,
+        "tela": "1920×1080",
+        "gpu": "ANGLE (Intel, Intel(R) UHD Graphics (0x00009B41) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+        "bateria": {
+          "nivelPct": 100,
+          "carregando": true
+        }
+      }
+    },
+    {
+      "rodada": 2,
+      "variante": "comaa",
+      "antialias": true,
+      "experimentos": [
+        "comaa"
+      ],
+      "semVida": false,
+      "gpuMedioMs": 24.11,
+      "gpuP95Ms": 31.64,
+      "frameP50Ms": 32.8,
+      "frameP95Ms": 43.5,
+      "fps": 30,
+      "framesLentos50ms": 12,
+      "drawCalls": 774,
+      "triangulos": 234950,
+      "viewport": "1920×945",
+      "dispositivo": {
+        "nucleos": 8,
+        "ramGB": 8,
+        "dpr": 1,
+        "tela": "1920×1080",
+        "gpu": "ANGLE (Intel, Intel(R) UHD Graphics (0x00009B41) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+        "bateria": {
+          "nivelPct": 100,
+          "carregando": true
+        }
+      }
+    },
+    {
+      "rodada": 2,
+      "variante": "semdescarte",
+      "antialias": false,
+      "experimentos": [
+        "semdescarte"
+      ],
+      "semVida": false,
+      "gpuMedioMs": 12.41,
+      "gpuP95Ms": 19.22,
+      "frameP50Ms": 18.7,
+      "frameP95Ms": 27.3,
+      "fps": 50,
+      "framesLentos50ms": 1,
+      "drawCalls": 774,
+      "triangulos": 234950,
+      "viewport": "1920×945",
+      "dispositivo": {
+        "nucleos": 8,
+        "ramGB": 8,
+        "dpr": 1,
+        "tela": "1920×1080",
+        "gpu": "ANGLE (Intel, Intel(R) UHD Graphics (0x00009B41) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+        "bateria": {
+          "nivelPct": 100,
+          "carregando": true
+        }
+      }
+    },
+    {
+      "rodada": 2,
+      "variante": "aguaparada",
+      "antialias": false,
+      "experimentos": [
+        "aguaparada"
+      ],
+      "semVida": false,
+      "gpuMedioMs": 11.66,
+      "gpuP95Ms": 18.11,
+      "frameP50Ms": 18.3,
+      "frameP95Ms": 27.1,
+      "fps": 50,
+      "framesLentos50ms": 2,
+      "drawCalls": 774,
+      "triangulos": 234950,
+      "viewport": "1920×945",
+      "dispositivo": {
+        "nucleos": 8,
+        "ramGB": 8,
+        "dpr": 1,
+        "tela": "1920×1080",
+        "gpu": "ANGLE (Intel, Intel(R) UHD Graphics (0x00009B41) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+        "bateria": {
+          "nivelPct": 100,
+          "carregando": true
+        }
+      }
+    },
+    {
+      "rodada": 2,
+      "variante": "semvida",
+      "antialias": false,
+      "experimentos": [],
+      "semVida": true,
+      "gpuMedioMs": 12.7,
+      "gpuP95Ms": 19.6,
+      "frameP50Ms": 19.3,
+      "frameP95Ms": 27.8,
+      "fps": 49,
+      "framesLentos50ms": 2,
+      "drawCalls": 772,
+      "triangulos": 234946,
+      "viewport": "1920×945",
+      "dispositivo": {
+        "nucleos": 8,
+        "ramGB": 8,
+        "dpr": 1,
+        "tela": "1920×1080",
+        "gpu": "ANGLE (Intel, Intel(R) UHD Graphics (0x00009B41) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+        "bateria": {
+          "nivelPct": 100,
+          "carregando": true
+        }
+      }
+    },
+    {
+      "rodada": 2,
+      "variante": "tudo",
+      "antialias": false,
+      "experimentos": [
+        "semdescarte",
+        "aguaparada"
+      ],
+      "semVida": false,
+      "gpuMedioMs": 11.48,
+      "gpuP95Ms": 17.88,
+      "frameP50Ms": 18.2,
+      "frameP95Ms": 26.6,
+      "fps": 51,
+      "framesLentos50ms": 2,
+      "drawCalls": 774,
+      "triangulos": 234950,
+      "viewport": "1920×945",
+      "dispositivo": {
+        "nucleos": 8,
+        "ramGB": 8,
+        "dpr": 1,
+        "tela": "1920×1080",
+        "gpu": "ANGLE (Intel, Intel(R) UHD Graphics (0x00009B41) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+        "bateria": {
+          "nivelPct": 100,
+          "carregando": true
+        }
+      }
+    },
+    {
+      "rodada": 2,
+      "variante": "recorteunico",
+      "antialias": false,
+      "experimentos": [
+        "recorteunico"
+      ],
+      "semVida": false,
+      "gpuMedioMs": 11.3,
+      "gpuP95Ms": 18.86,
+      "frameP50Ms": 18.1,
+      "frameP95Ms": 27.3,
+      "fps": 51,
+      "framesLentos50ms": 1,
+      "drawCalls": 778,
+      "triangulos": 236288,
+      "viewport": "1920×945",
+      "dispositivo": {
+        "nucleos": 8,
+        "ramGB": 8,
+        "dpr": 1,
+        "tela": "1920×1080",
+        "gpu": "ANGLE (Intel, Intel(R) UHD Graphics (0x00009B41) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+        "bateria": {
+          "nivelPct": 100,
+          "carregando": true
+        }
+      }
+    },
+    {
+      "rodada": 2,
+      "variante": "base",
+      "antialias": false,
+      "experimentos": [],
+      "semVida": false,
+      "gpuMedioMs": 12.65,
+      "gpuP95Ms": 19.71,
+      "frameP50Ms": 19.1,
+      "frameP95Ms": 27.3,
+      "fps": 49,
+      "framesLentos50ms": 3,
+      "drawCalls": 774,
+      "triangulos": 234950,
+      "viewport": "1920×945",
+      "dispositivo": {
+        "nucleos": 8,
+        "ramGB": 8,
+        "dpr": 1,
+        "tela": "1920×1080",
+        "gpu": "ANGLE (Intel, Intel(R) UHD Graphics (0x00009B41) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+        "bateria": {
+          "nivelPct": 100,
+          "carregando": true
+        }
+      }
+    },
+    {
+      "rodada": 3,
+      "variante": "semdescarte",
+      "antialias": false,
+      "experimentos": [
+        "semdescarte"
+      ],
+      "semVida": false,
+      "gpuMedioMs": 12.94,
+      "gpuP95Ms": 19.93,
+      "frameP50Ms": 19.1,
+      "frameP95Ms": 28.2,
+      "fps": 49,
+      "framesLentos50ms": 1,
+      "drawCalls": 774,
+      "triangulos": 234950,
+      "viewport": "1920×945",
+      "dispositivo": {
+        "nucleos": 8,
+        "ramGB": 8,
+        "dpr": 1,
+        "tela": "1920×1080",
+        "gpu": "ANGLE (Intel, Intel(R) UHD Graphics (0x00009B41) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+        "bateria": {
+          "nivelPct": 100,
+          "carregando": true
+        }
+      }
+    },
+    {
+      "rodada": 3,
+      "variante": "aguaparada",
+      "antialias": false,
+      "experimentos": [
+        "aguaparada"
+      ],
+      "semVida": false,
+      "gpuMedioMs": 11.37,
+      "gpuP95Ms": 17.61,
+      "frameP50Ms": 18.3,
+      "frameP95Ms": 26.2,
+      "fps": 51,
+      "framesLentos50ms": 2,
+      "drawCalls": 774,
+      "triangulos": 234950,
+      "viewport": "1920×945",
+      "dispositivo": {
+        "nucleos": 8,
+        "ramGB": 8,
+        "dpr": 1,
+        "tela": "1920×1080",
+        "gpu": "ANGLE (Intel, Intel(R) UHD Graphics (0x00009B41) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+        "bateria": {
+          "nivelPct": 100,
+          "carregando": true
+        }
+      }
+    },
+    {
+      "rodada": 3,
+      "variante": "semvida",
+      "antialias": false,
+      "experimentos": [],
+      "semVida": true,
+      "gpuMedioMs": 12.52,
+      "gpuP95Ms": 19.67,
+      "frameP50Ms": 19.1,
+      "frameP95Ms": 28,
+      "fps": 49,
+      "framesLentos50ms": 3,
+      "drawCalls": 772,
+      "triangulos": 234946,
+      "viewport": "1920×945",
+      "dispositivo": {
+        "nucleos": 8,
+        "ramGB": 8,
+        "dpr": 1,
+        "tela": "1920×1080",
+        "gpu": "ANGLE (Intel, Intel(R) UHD Graphics (0x00009B41) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+        "bateria": {
+          "nivelPct": 100,
+          "carregando": true
+        }
+      }
+    },
+    {
+      "rodada": 3,
+      "variante": "tudo",
+      "antialias": false,
+      "experimentos": [
+        "semdescarte",
+        "aguaparada"
+      ],
+      "semVida": false,
+      "gpuMedioMs": 11.33,
+      "gpuP95Ms": 18.04,
+      "frameP50Ms": 17.8,
+      "frameP95Ms": 27.5,
+      "fps": 51,
+      "framesLentos50ms": 2,
+      "drawCalls": 774,
+      "triangulos": 234950,
+      "viewport": "1920×945",
+      "dispositivo": {
+        "nucleos": 8,
+        "ramGB": 8,
+        "dpr": 1,
+        "tela": "1920×1080",
+        "gpu": "ANGLE (Intel, Intel(R) UHD Graphics (0x00009B41) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+        "bateria": {
+          "nivelPct": 100,
+          "carregando": true
+        }
+      }
+    },
+    {
+      "rodada": 3,
+      "variante": "recorteunico",
+      "antialias": false,
+      "experimentos": [
+        "recorteunico"
+      ],
+      "semVida": false,
+      "gpuMedioMs": 11.4,
+      "gpuP95Ms": 18.67,
+      "frameP50Ms": 18.3,
+      "frameP95Ms": 27.2,
+      "fps": 51,
+      "framesLentos50ms": 1,
+      "drawCalls": 774,
+      "triangulos": 234950,
+      "viewport": "1920×945",
+      "dispositivo": {
+        "nucleos": 8,
+        "ramGB": 8,
+        "dpr": 1,
+        "tela": "1920×1080",
+        "gpu": "ANGLE (Intel, Intel(R) UHD Graphics (0x00009B41) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+        "bateria": {
+          "nivelPct": 100,
+          "carregando": true
+        }
+      }
+    },
+    {
+      "rodada": 3,
+      "variante": "base",
+      "antialias": false,
+      "experimentos": [],
+      "semVida": false,
+      "gpuMedioMs": 13.07,
+      "gpuP95Ms": 20.34,
+      "frameP50Ms": 19.4,
+      "frameP95Ms": 28.8,
+      "fps": 48,
+      "framesLentos50ms": 1,
+      "drawCalls": 778,
+      "triangulos": 236288,
+      "viewport": "1920×945",
+      "dispositivo": {
+        "nucleos": 8,
+        "ramGB": 8,
+        "dpr": 1,
+        "tela": "1920×1080",
+        "gpu": "ANGLE (Intel, Intel(R) UHD Graphics (0x00009B41) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+        "bateria": {
+          "nivelPct": 100,
+          "carregando": true
+        }
+      }
+    },
+    {
+      "rodada": 3,
+      "variante": "comaa",
+      "antialias": true,
+      "experimentos": [
+        "comaa"
+      ],
+      "semVida": false,
+      "gpuMedioMs": 24.17,
+      "gpuP95Ms": 30.98,
+      "frameP50Ms": 33.1,
+      "frameP95Ms": 42.9,
+      "fps": 30,
+      "framesLentos50ms": 13,
+      "drawCalls": 774,
+      "triangulos": 234440,
+      "viewport": "1920×945",
+      "dispositivo": {
+        "nucleos": 8,
+        "ramGB": 8,
+        "dpr": 1,
+        "tela": "1920×1080",
+        "gpu": "ANGLE (Intel, Intel(R) UHD Graphics (0x00009B41) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+        "bateria": {
+          "nivelPct": 100,
+          "carregando": true
+        }
+      }
+    }
+  ]
+}

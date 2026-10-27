@@ -46,9 +46,8 @@ Atrás: a **porta NÃO** (⚠️ quebra o ponto fixo — cabeçalho de `circuito
   verificador roda `/aula grupos` e confere a cópia). **Não testada em aula.**
 
 - **27/10 — §📊 o jogo mais leve no notebook:** antialias DESLIGADO por padrão (chave em
-  Configurações) e o recorte das folhas em material próprio — o terreno parou de descartar
-  pixel. Prova: `recorte.test.ts` + `__recorte` no `bench:headless`. **Falta a 2ª bateria no
-  notebook** pra confirmar o ganho (e o custo das ~170 draw calls a mais).
+  Configurações): 31 → ~51 fps no notebook dos alunos. O recorte das folhas em material
+  próprio foi tentado e DESFEITO — a 3ª bateria mediu o jeito antigo 11,6% mais rápido.
 
 - **27/10 — §📊 bateria de GPU pro lab** (`npm run bench:lab`): três suspeitas lidas no código —
   `alphaTest` no material de TODO o terreno, MSAA fixo, água reenviando o atlas — viraram chaves

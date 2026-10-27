@@ -104,16 +104,14 @@ export interface BenchOpts {
  *  - `comaa`: renderer COM antialias (MSAA) — desligado no jogo desde
  *    2026-10-27, quando a 1ª bateria (então `semaa`) mostrou que ele custava
  *    metade da GPU do notebook dos alunos;
- *  - `semdescarte`: o material de RECORTE sem `alphaTest` — folha e flor viram
- *    quadrado. Desde 2026-10-27 o recorte é material próprio e o terreno não
- *    descarta mais; isto mede o que SOBROU de custo nas folhas;
- *  - `aguaparada`: a água não repinta o atlas (sem reenvio de 262 KB à GPU);
- *  - `recorteunico`: o JEITO ANTIGO — todo o terreno no material de recorte,
- *    com descarte em todo pixel e sem o grupo a mais por chunk. É o lado A
- *    do recorte separado (2026-10-27): ele tirou o descarte do terreno mas
- *    somou ~190 draw calls, e só a mesma rodada diz qual dos dois ganhou.
+ *  - `semdescarte`: o terreno sem `alphaTest` — folha e flor viram quadrado.
+ *    É o TETO do que o descarte custa. Separar o recorte num material próprio
+ *    pra tirá-lo do resto do terreno foi tentado em 2026-10-27 e saiu PIOR
+ *    (3ª bateria: o jeito antigo 11,6% mais rápido — as ~190 draw calls a
+ *    mais comeram o ganho);
+ *  - `aguaparada`: a água não repinta o atlas (sem reenvio de 262 KB à GPU).
  */
-export const EXPERIMENTOS_BENCH = ["comaa", "semdescarte", "aguaparada", "recorteunico"] as const;
+export const EXPERIMENTOS_BENCH = ["comaa", "semdescarte", "aguaparada"] as const;
 export type ExperimentoBench = (typeof EXPERIMENTOS_BENCH)[number];
 
 /** Os experimentos pedidos na URL — vazio fora do `?bench`. */

@@ -58,7 +58,6 @@ const MUDANCAS: readonly Mudanca[] = [
     itens: [
       "no notebook da turma o jogo passou de uns **30 para uns 50 quadros por segundo**: medimos na própria máquina, e quase metade do trabalho da placa de vídeo ia para **suavizar as bordas** dos blocos",
       "a suavização agora vem **desligada**. As bordas ficam um pouco mais serrilhadas, como no Minecraft. Quem tiver um PC forte e preferir pode ligar em **Configurações → Desempenho → bordas suaves** (vale ao reabrir o jogo)",
-      "pedra, terra e todo bloco sem buraco deixaram de pagar o custo das folhas: só folha, flor, grama alta e vidro passam pelo recorte. Nada muda na tela",
     ],
   },
   {

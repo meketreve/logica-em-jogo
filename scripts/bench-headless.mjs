@@ -170,19 +170,6 @@ if (perfil) {
   linha("regras", JSON.stringify(perfil.regrasServidor));
   linha("marcadores", (perfil.marcadores ?? []).map((m) => `${m.emS}s ${m.evento}`).join(" · "));
   linha("dispositivo", JSON.stringify(perfil.dispositivo));
-  // §📊 o recorte separado do terreno (2026-10-27): os furos vêm dos PIXELS do
-  // atlas, então só um navegador de verdade confere que folha=1 e pedra=0 — e
-  // que os dois grupos existem no mundo montado
-  const rec = await avaliar("JSON.stringify(window.__recorte?.() ?? null)");
-  linha("recorte", rec ?? "sem o gancho __recorte");
-  const r = rec ? JSON.parse(rec) : null;
-  const furosOk =
-    r && r.furos.folhas === 1 && r.furos.vidro === 1 && r.furos.flor === 1 &&
-    r.furos.pedra === 0 && r.furos.gramaLado === 0 && r.furos.tabua === 0;
-  const gruposOk = r && r.grupos.solido > 0 && r.grupos.recorte > 0;
-  console.log(`  ${furosOk ? "✓" : "✗"} furos lidos do atlas: folha/vidro/flor = 1, pedra/grama/tábua = 0`);
-  console.log(`  ${gruposOk ? "✓" : "✗"} o mundo montado tem os DOIS grupos (sólido e recorte)`);
-  if (!furosOk || !gruposOk) perfil = null;
 } else {
   console.log(`✗ o bench não exportou perfil em ${TETO_S}s`);
 }

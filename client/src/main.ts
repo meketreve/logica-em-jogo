@@ -120,7 +120,7 @@ import { keyLabel, loadSettings, saveSettings } from "./settings";
 import { QuadroEditor, QuadroRenderer } from "./quadros";
 import { armarGuardaDeAtalhos, desarmarGuardaDeAtalhos } from "./shortcutGuard";
 import { configurarTooltip } from "./tooltip";
-import { TILE, isAlavanca } from "@logica/shared";
+import { isAlavanca } from "@logica/shared";
 import { TorchGlow } from "./torchGlow";
 import { TouchControls, isTouchDevice, solicitarTelaCheia } from "./touch";
 import { QuebraFx } from "./quebraFx";
@@ -1566,10 +1566,8 @@ class GameRuntime {
     // os dois relógios da água. A ordem interna importa (balanço antes da luz) e
     // está escrita lá; aqui só se constrói e se chama `atualizar` 1×/frame.
     this.materiais = new MateriaisMundo();
-    if (experimentos.has("semdescarte")) this.materiais.recorte.alphaTest = 0;
+    if (experimentos.has("semdescarte")) this.materiais.opaco.alphaTest = 0;
     this.materiais.aguaParada = experimentos.has("aguaparada");
-    // todo tile "tem furo": tudo cai no recorte, como antes de 2026-10-27
-    if (experimentos.has("recorteunico")) this.materiais.furos.fill(1);
 
     // ?atlas na URL: pendura o canvas do texture atlas no canto (inspeção visual)
     if (new URLSearchParams(location.search).has("atlas")) {
@@ -1591,7 +1589,6 @@ class GameRuntime {
     this.chunkRenderer = new ChunkRenderer(
       this.world,
       this.materiais.paraChunks,
-      this.materiais.furos,
       scene,
       !semWorker,
       Number.isFinite(meshDepth) && meshDepth > 0 ? meshDepth : undefined,
@@ -1727,19 +1724,6 @@ class GameRuntime {
     // clique na alavanca pra provar que cada chunk sai uma vez, não uma por peça.
     (window as unknown as Record<string, unknown>)["__remeshPorBloco"] = () =>
       this.chunkRenderer.porCaminho.bloco.n;
-    // §📊 o recorte separado do terreno: os furos LIDOS do atlas (alguns tiles
-    // de referência) e o tamanho de cada grupo. Só lê.
-    (window as unknown as Record<string, unknown>)["__recorte"] = () => ({
-      furos: {
-        folhas: this.materiais.furos[TILE.leaves],
-        vidro: this.materiais.furos[TILE.glass],
-        flor: this.materiais.furos[TILE.florVermelha],
-        pedra: this.materiais.furos[TILE.stone],
-        gramaLado: this.materiais.furos[TILE.grassSide],
-        tabua: this.materiais.furos[TILE.planks],
-      },
-      grupos: this.chunkRenderer.contarGrupos(),
-    });
     // §🔌 e o BYTE de uma célula como o cliente o tem (C6: a porta que o sinal
     // abre tem de CHEGAR no tablet, não só mudar no host). Só lê.
     (window as unknown as Record<string, unknown>)["__blocoEm"] = (x: number, y: number, z: number) =>

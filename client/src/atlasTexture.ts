@@ -998,33 +998,6 @@ export function animarAguaAtlas(
   texture.needsUpdate = true;
 }
 
-/**
- * Os tiles com FURO: algum pixel abaixo de 50% de opacidade — exatamente o que
- * o `alphaTest: 0.5` descartaria (2026-10-27). Lido dos PIXELS, não de uma
- * lista: quem pinta um tile novo com buraco não tem de lembrar de cadastrá-lo,
- * e um tile sem buraco não paga o recorte. Índice = número do tile; 1 = furo.
- */
-export function tilesComFuro(canvas: HTMLCanvasElement): Uint8Array {
-  const ctx = canvas.getContext("2d");
-  const furos = new Uint8Array(ATLAS.tilesPerRow * ATLAS.tilesPerRow);
-  if (!ctx) return furos.fill(1); // sem leitura: tudo no recorte (o jeito antigo)
-  const px = ATLAS.tilePx;
-  const dados = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
-  for (let t = 0; t < furos.length; t++) {
-    const ox = (t % ATLAS.tilesPerRow) * px;
-    const oy = ((t / ATLAS.tilesPerRow) | 0) * px;
-    procura: for (let y = 0; y < px; y++) {
-      for (let x = 0; x < px; x++) {
-        if (dados[((oy + y) * canvas.width + ox + x) * 4 + 3]! < 128) {
-          furos[t] = 1;
-          break procura;
-        }
-      }
-    }
-  }
-  return furos;
-}
-
 export function createAtlasTexture(): THREE.Texture {
   const size = ATLAS.tilesPerRow * ATLAS.tilePx;
   const canvas = document.createElement("canvas");
