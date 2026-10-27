@@ -34,6 +34,10 @@ Atrás: a **porta NÃO** (⚠️ quebra o ponto fixo — cabeçalho de `circuito
 
 ## Concluído (recente)
 
+- **27/10 — §📊 bateria de GPU pro lab** (`npm run bench:lab`): três suspeitas lidas no código —
+  `alphaTest` no material de TODO o terreno, MSAA fixo, água reenviando o atlas — viraram chaves
+  do `?bench`. Número só vale da máquina do lab (aqui é SwiftShader).
+
 - **27/10 — §🔌 o circuito ABRE A PORTA** (pedido dele, escopo fechado em 26/10): a porta é
   saída como a lâmpada (`propagarSinal` devolve as portas alcançadas) e SEGUE o sinal só nas
   bordas — o clique vale até o sinal mudar; vão ocupado cancela o fechamento. Sonda C6 (um

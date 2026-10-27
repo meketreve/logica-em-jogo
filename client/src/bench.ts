@@ -94,6 +94,27 @@ export interface BenchOpts {
   semVida: boolean;
 }
 
+/**
+ * Os EXPERIMENTOS de GPU (2026-10-27): cada um desliga UMA suspeita de custo
+ * pra medir quanto ela pesa na máquina do laboratório (`npm run bench:lab`
+ * roda a bateria). Só valem junto com `?bench` — nenhum é configuração de
+ * jogo, e dois deles estragam o visual de propósito:
+ *  - `semaa`: renderer sem antialias (MSAA);
+ *  - `semdescarte`: o material opaco sem `alphaTest` — folha e flor viram
+ *    quadrado. Mede o TETO do ganho de separar o recorte do terreno: com o
+ *    descarte no shader de TODO pixel, a GPU desliga o teste de profundidade
+ *    antecipado;
+ *  - `aguaparada`: a água não repinta o atlas (sem reenvio de 262 KB à GPU).
+ */
+export const EXPERIMENTOS_BENCH = ["semaa", "semdescarte", "aguaparada"] as const;
+export type ExperimentoBench = (typeof EXPERIMENTOS_BENCH)[number];
+
+/** Os experimentos pedidos na URL — vazio fora do `?bench`. */
+export function experimentosDaUrl(params: URLSearchParams): Set<ExperimentoBench> {
+  if (!params.has("bench")) return new Set();
+  return new Set(EXPERIMENTOS_BENCH.filter((e) => params.has(e)));
+}
+
 /** Lê `?bench` / `?bench=45` / `?bench&semvida`. `null` = modo desligado. */
 export function benchDaUrl(params: URLSearchParams): BenchOpts | null {
   if (!params.has("bench")) return null;
@@ -230,6 +251,8 @@ export class Bench {
       // etiqueta do experimento: sem isto o par A/B do §🌬️ vira dois JSON
       // indistinguíveis (mesma lição do campo `mesher` do bug-529)
       semVida: this.semVida,
+      // §📊 os experimentos de GPU da corrida (ver EXPERIMENTOS_BENCH)
+      experimentos: [...experimentosDaUrl(new URLSearchParams(location.search))],
       viewport: `${window.innerWidth}×${window.innerHeight}`,
       dpr: window.devicePixelRatio,
     };

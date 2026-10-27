@@ -18,6 +18,7 @@
     "check:launchers": "node scripts/checar-launchers.mjs",
     "smoke": "node scripts/checar-launchers.mjs && node scripts/smoke.mjs",
     "bench:headless": "node scripts/bench-headless.mjs",
+    "bench:lab": "node scripts/bench-lab.mjs",
     "shots:tablet": "node scripts/tablet-shots.mjs",
     "shots:luz": "node scripts/luz-shots.mjs",
     "shots:craft": "node scripts/craft-shot.mjs",

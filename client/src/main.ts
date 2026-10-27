@@ -73,7 +73,7 @@ import {
 } from "@logica/shared";
 import { AguaFx } from "./aguaFx";
 import { initUiAudio, playUi, setUiVolume, playUiPassive } from "./audio";
-import { BENCH_SEED, Bench, benchDaUrl, benchSettings } from "./bench";
+import { BENCH_SEED, Bench, benchDaUrl, benchSettings, experimentosDaUrl } from "./bench";
 import { ContainerPanel } from "./container";
 import { InventoryPanel } from "./inventory";
 import { ChatUi } from "./chat";
@@ -170,7 +170,9 @@ function cachearMundos(text: string): void {
  */
 
 // --- Render (independente do mundo) ---
-const renderer = new THREE.WebGLRenderer({ antialias: true });
+/** §📊 experimentos de GPU do `?bench` (vazio fora dele) — ver `bench.ts`. */
+const experimentos = experimentosDaUrl(new URLSearchParams(location.search));
+const renderer = new THREE.WebGLRenderer({ antialias: !experimentos.has("semaa") });
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
@@ -1557,6 +1559,8 @@ class GameRuntime {
     // os dois relógios da água. A ordem interna importa (balanço antes da luz) e
     // está escrita lá; aqui só se constrói e se chama `atualizar` 1×/frame.
     this.materiais = new MateriaisMundo();
+    if (experimentos.has("semdescarte")) this.materiais.opaco.alphaTest = 0;
+    this.materiais.aguaParada = experimentos.has("aguaparada");
 
     // ?atlas na URL: pendura o canvas do texture atlas no canto (inspeção visual)
     if (new URLSearchParams(location.search).has("atlas")) {

@@ -44,6 +44,8 @@ export class MateriaisMundo {
   /** §💡 luz voxel nos TRÊS materiais do chunk. */
   private readonly luz: LuzUniforms = criarLuzUniforms();
 
+  /** §📊 experimento `?bench&aguaparada`: a água não repinta o atlas. */
+  aguaParada = false;
   private aguaQuadroParada = -1;
   /** Relógio da água CORRENTE — independente do vento (8 fps fixos). Serve
    *  também de relógio do TETO de repintura (ver `atualizar`). */
@@ -118,6 +120,7 @@ export class MateriaisMundo {
     // sem o teto. 12/s já não se distingue a olho e devolve metade do upload na
     // GPU do laboratório. Sem repintura nenhuma quando os dois quadros param.
     if (
+      !this.aguaParada &&
       (quadroParada !== this.aguaQuadroParada || quadroFluxo !== this.aguaQuadroFluxo) &&
       this.aguaFluxoRelogio - this.aguaUltimaPintura >= 1 / 12
     ) {
