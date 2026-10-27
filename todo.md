@@ -1071,7 +1071,7 @@ sem ela os 4 níveis de machado empatariam no piso de 150 ms. Prova: `shared/src
   → **verify:** seção na `shots:circuito` no molde da C4 (palco próprio, A/B de pixel com câmera
   parada) provando o pulso: acende no toque e **apaga sozinho** sem ninguém mexer — é a asserção
   que a placa não tem, porque o controle dela é o pé.
-* \[ ] **porta automática** — a 1ª saída que não é luz: o circuito ABRE a porta (os ids 66-69 já
+* \[x] **porta automática** (FEITO 2026-10-27: `propagarSinal` + `moverPortasPeloSinal`, sonda C6) — a 1ª saída que não é luz: o circuito ABRE a porta (os ids 66-69 já
   existem e já alternam no clique). É o que faz o desafio virar "consequência" em vez de
   "acendeu". Mexe no gate de claim: quem é dono do circuito abre a porta de quem?
   → **Pedido dele, 2026-10-26:** "interação entre sinal forte do circuito e portas, permitir que

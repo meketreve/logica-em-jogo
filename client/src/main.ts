@@ -1713,6 +1713,10 @@ class GameRuntime {
     // clique na alavanca pra provar que cada chunk sai uma vez, não uma por peça.
     (window as unknown as Record<string, unknown>)["__remeshPorBloco"] = () =>
       this.chunkRenderer.porCaminho.bloco.n;
+    // §🔌 e o BYTE de uma célula como o cliente o tem (C6: a porta que o sinal
+    // abre tem de CHEGAR no tablet, não só mudar no host). Só lê.
+    (window as unknown as Record<string, unknown>)["__blocoEm"] = (x: number, y: number, z: number) =>
+      getBlock(this.world, x, y, z);
     // cp16: hotbar virou 9 SLOTS configuráveis (persistem no navegador via
     // localStorage); o inventário (tecla E) escolhe o bloco de cada slot.
     // A lista de colocáveis segue em blocksUi.ts (painel de autoria usa a mesma).

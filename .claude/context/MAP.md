@@ -66,6 +66,8 @@ de **18**, uma por vez (em paralelo a asserção de tempo mente): 9 sobem host p
   `RASTEIRAS` + faixa gêmea em `blocks.ts`. **Peça colada numa FACE** (parede/teto): a face mora
   no id e o desenho sai de UM giro — `giroDaFace` (caixa alinhada, serve forma E mira) e
   `emitCaixaInclinada` (8 cantos, o cabo que tomba), sobre `pontoNaFace`/`direcaoNaFace`.
+  **Saída que não é peça** (a porta de passagem): `propagarSinal` a devolve como vizinha
+  alimentada; abrir/fechar o par é da sessão (`moverPortasPeloSinal`, pela borda do sinal).
 - **§💰 venda:** preço PURO em `venda.ts` (permissão do que se COLHE) · balcão por jogador em
   `session/venda.ts` (fora do save) · painel no `container.ts`. Sonda `shots:venda`. ⚠️ Preço
   novo passa pelo portão de `venda.test.ts` (saída ≤ entrada em TODA receita e cozimento).

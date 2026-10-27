@@ -759,6 +759,65 @@ for (let dx = -1; dx <= 1; dx++) {
 }
 await espera(600);
 
+diga("== C6: o circuito ABRE a porta (2026-10-27) ==");
+// Pedido dele: "permitir que o sinal controle o estado de aberto ou fechado da
+// porta". A prova é o BYTE que chega no cliente (`__blocoEm`), nas DUAS
+// metades: alavanca → 2 fios → porta; ligou, abre; desligou, fecha.
+//
+// ⚠️ A porta não se põe por `/bloco` (é par, o comando recusa de propósito):
+// quem põe é um ROBÔ conectado no mesmo host, pelo `place_block` — o mesmo
+// clique direito do aluno. PALCO PRÓPRIO, 60 à direita, apagado no fim.
+const XD = PX + 60;
+const PORTA_X = 66, PORTA_X_ABERTA = 67;
+await limparChat();
+for (let dx = -1; dx <= 4; dx++) {
+  for (let dz = -1; dz <= 1; dz++) await dizer(`/bloco ${XD + dx} ${PY - 1} ${PZ + dz} 2`);
+}
+await dizer(`/bloco ${XD + 3} ${Y_OLHO - 1} ${Z_FILA} 2`); // o chão da porta
+await dizer(`/bloco ${XD} ${Y_OLHO} ${Z_FILA} ${ALAVANCA}`);
+await dizer(`/bloco ${XD + 1} ${Y_OLHO} ${Z_FILA} ${FIO}`);
+await dizer(`/bloco ${XD + 2} ${Y_OLHO} ${Z_FILA} ${FIO}`);
+const robo = new WebSocket(`ws://localhost:${PORTA_WS}`);
+await new Promise((r, f) => ((robo.onopen = r), (robo.onerror = f)));
+robo.onmessage = (e) => {
+  if (typeof e.data !== "string") return;
+  const m = JSON.parse(e.data);
+  if (m.type === "ping") robo.send(JSON.stringify({ type: "pong", t: m.t }));
+};
+robo.send(JSON.stringify({ type: "join", name: "robo", pin: "4321", codigo: "prof2026" }));
+await espera(1000);
+robo.send(JSON.stringify({ type: "move", x: XD + 3.5, y: PY, z: PZ + 0.5, yaw: 0, pitch: 0 }));
+await espera(300);
+robo.send(JSON.stringify({ type: "place_block", x: XD + 3, y: Y_OLHO, z: Z_FILA, blockId: PORTA_X }));
+await dizer(`/tp profa ${XD} ${PY} ${PZ}`);
+await espera(1200);
+const portaNoCliente = async () => [
+  await avaliar(`window.__blocoEm?.(${XD + 3}, ${Y_OLHO}, ${Z_FILA}) ?? -1`),
+  await avaliar(`window.__blocoEm?.(${XD + 3}, ${Y_OLHO + 1}, ${Z_FILA}) ?? -1`),
+];
+const p0 = await portaNoCliente();
+ok(p0[0] === PORTA_X && p0[1] === PORTA_X, `o robô pôs a porta FECHADA, as duas metades (${p0})`);
+await virar(XD);
+await espera(800);
+const p1 = await portaNoCliente();
+ok(
+  p1[0] === PORTA_X_ABERTA && p1[1] === PORTA_X_ABERTA,
+  `alavanca LIGADA: a porta ABRIU, as duas metades, no cliente (${p1})`,
+);
+await foto("09-porta-aberta.png");
+await virar(XD);
+await espera(800);
+const p2 = await portaNoCliente();
+ok(p2[0] === PORTA_X && p2[1] === PORTA_X, `alavanca DESLIGADA: a porta FECHOU (${p2})`);
+robo.close();
+for (const [x, y] of [[XD + 3, Y_OLHO + 1], [XD + 3, Y_OLHO], [XD + 3, Y_OLHO - 1], [XD + 2, Y_OLHO], [XD + 1, Y_OLHO], [XD, Y_OLHO]]) {
+  await dizer(`/bloco ${x} ${y} ${Z_FILA} ${AR}`);
+}
+for (let dx = -1; dx <= 4; dx++) {
+  for (let dz = -1; dz <= 1; dz++) await dizer(`/bloco ${XD + dx} ${PY - 1} ${PZ + dz} ${AR}`);
+}
+await espera(600);
+
 diga("== E: o OBJETIVO que CHECA o circuito (2026-10-19) ==");
 // Aqui a prova não é pixel: é o TEXTO do HUD, que é o que o aluno lê pra saber
 // por que o objetivo não fechou. A sonda enxerga as três frases que importam —

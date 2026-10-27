@@ -15,6 +15,7 @@ import {
   isPlantacao,
   isMuda,
   isPorta,
+  isPortaAberta,
   isInterativo,
   isJanela,
   isProfessorOnly,
@@ -28,6 +29,7 @@ import {
   portaComHinge,
   portaEixoX,
   portaHingeAlta,
+  portaToggled,
   precisaApoio,
   apoioValido,
 } from "./blocks";
@@ -37,7 +39,8 @@ import {
   isAlavanca,
   isCircuito,
   isPlaca,
-  recalcularCircuitos,
+  propagarSinal,
+  type Celula,
 } from "./circuitos";
 import { isComida, saciedadeDe } from "./comida";
 import { dropsDe, formaCanonica } from "./drops";
@@ -605,6 +608,11 @@ export class GameSession {
   /** Alguma peça mudou desde o último recálculo? O motor só roda quando sim:
    *  circuito parado custa ZERO por tick, que é o caso de 99% da aula. */
   private circuitosSujos = false;
+  /** §🔌 As portas de passagem (chave da célula de BAIXO do par) que tinham
+   *  sinal no último recálculo. A porta SEGUE o sinal, mas só quando ele MUDA:
+   *  o clique do aluno continua valendo até o sinal subir ou cair de novo
+   *  (decisão dele, 2026-10-26). Por isso se guarda o sinal, não o estado. */
+  private portasComSinal = new Set<number>();
   /** Células a examinar no próximo tick (fila de vizinhança — regra de ouro). */
   private dirty = new Set<number>();
   /** Células já alteradas neste tick (máx. 1 mudança por célula por tick). */
@@ -2443,6 +2451,13 @@ export class GameSession {
     {
       const key = this.packCoord(x, y, z);
       const eraCircuito = this.circuitos.has(key);
+      // §🔌 porta que NASCE ou SOME perto de um circuito também suja: posta
+      // ao lado de um fio aceso, ela tem de abrir sem ninguém mexer na
+      // alavanca. Abrir/fechar não muda o "é porta?" e não suja (seria o
+      // motor rodando por causa do próprio resultado).
+      if (this.circuitos.size > 0 && isPorta(blockId) !== isPorta(getBlock(this.world, x, y, z))) {
+        this.circuitosSujos = true;
+      }
       if (isCircuito(blockId)) {
         this.circuitos.add(key);
         this.circuitosSujos = true;
@@ -2614,6 +2629,44 @@ export class GameSession {
     const dy = y + 0.5 - (p.y + PLAYER.eyeHeight);
     const dz = z + 0.5 - p.z;
     return Math.hypot(dx, dy, dz) <= PLAYER_REACH + 2;
+  }
+
+  /**
+   * §🔌 A porta de passagem SEGUE o sinal (2026-10-27): abre quando ele chega,
+   * fecha quando ele some — e só nessas bordas. Porta cujo sinal não mudou
+   * fica como o aluno deixou.
+   *
+   * O sinal numa metade move o PAR inteiro, que é identificado pela célula de
+   * BAIXO (`parDaPorta`, a mesma conta do clique). Fechar segue a regra do
+   * clique: alguém no vão CANCELA (decisão dele, 2026-10-26), e a porta fica
+   * aberta até o sinal mudar de novo. Sem gate de claim: o sinal não tem dono,
+   * e quem liga o fio na porta já teve de poder COLOCAR o fio ali (a única
+   * brecha é o fio colado pela borda do terreno — aceita; o dono vê e quebra).
+   */
+  private moverPortasPeloSinal(celulas: Celula[]): void {
+    const agora = new Map<number, Celula>();
+    for (const c of celulas) {
+      const yPar = parDaPorta(this.world, c.x, c.y, c.z);
+      const y = yPar === null ? c.y : Math.min(c.y, yPar);
+      agora.set(this.packCoord(c.x, y, c.z), { x: c.x, y, z: c.z });
+    }
+    for (const [k, c] of agora) if (!this.portasComSinal.has(k)) this.porPorta(c, true);
+    for (const k of this.portasComSinal) if (!agora.has(k)) this.porPorta(this.unpackCoord(k), false);
+    this.portasComSinal = new Set(agora.keys());
+  }
+
+  /** Deixa a porta (as duas metades) aberta ou fechada; quebrada ou trocada, nada faz. */
+  private porPorta(c: Celula, aberta: boolean): void {
+    const id = getBlock(this.world, c.x, c.y, c.z);
+    if (!isPorta(id) || isPortaAberta(id) === aberta) return;
+    const yPar = parDaPorta(this.world, c.x, c.y, c.z);
+    if (!aberta) {
+      if (this.overlapsAnyPlayer(c.x, c.y, c.z)) return;
+      if (yPar !== null && this.overlapsAnyPlayer(c.x, yPar, c.z)) return;
+    }
+    const novo = portaToggled(id);
+    this.applyBlock(c.x, c.y, c.z, novo);
+    if (yPar !== null) this.applyBlock(c.x, yPar, c.z, novo);
   }
 
   /** Célula (x,y,z) sobrepõe o AABB de algum jogador? (não emparedar ninguém) */
@@ -2801,7 +2854,7 @@ export class GameSession {
     // a fila de vizinhança só acorda quem está ao lado.
     if (this.circuitosSujos) {
       this.circuitosSujos = false;
-      const mudancas = recalcularCircuitos(
+      const { mudancas, portasComSinal } = propagarSinal(
         { bloco: (x, y, z) => getBlock(this.world, x, y, z) },
         [...this.circuitos].map((k) => this.unpackCoord(k)),
       );
@@ -2811,6 +2864,7 @@ export class GameSession {
       // pra achar exatamente o mesmo. Por isso o flag é limpo ANTES e re-limpo
       // depois do laço.
       for (const m of mudancas) this.applyBlock(m.x, m.y, m.z, m.blockId);
+      this.moverPortasPeloSinal(portasComSinal);
       this.circuitosSujos = false;
     }
 

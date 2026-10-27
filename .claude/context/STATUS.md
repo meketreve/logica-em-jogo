@@ -24,7 +24,7 @@ menu`, e `tela ESCONDIDA` × `à vista`. Muito "ESCONDIDA" nas turmas pequenas =
 confirmada. E perguntar se a criança notou o "a conexão caiu — voltando ao jogo".
 
 Depois, o resto da **fase 1 do §🔌** (`todo.md`): **botão de parede** (pulso — prazo por célula,
-que o motor não tem) e **porta automática** (1ª saída que não é luz; mexe no gate de claim).
+que o motor não tem). A porta automática saiu em 27/10.
 Atrás: a **porta NÃO** (⚠️ quebra o ponto fixo — cabeçalho de `circuitos.ts`), **luz colorida** e
 **curva de brilho** (decisões dele).
 
@@ -33,6 +33,11 @@ Atrás: a **porta NÃO** (⚠️ quebra o ponto fixo — cabeçalho de `circuito
 - **Dele:** quanto de Dimas cada aluno recebe; o aviso de Dimas nova cala? **Externas:** Drive; certificado de assinatura só se sair da piloto.
 
 ## Concluído (recente)
+
+- **27/10 — §🔌 o circuito ABRE A PORTA** (pedido dele, escopo fechado em 26/10): a porta é
+  saída como a lâmpada (`propagarSinal` devolve as portas alcançadas) e SEGUE o sinal só nas
+  bordas — o clique vale até o sinal mudar; vão ocupado cancela o fechamento. Sonda C6 (um
+  robô põe a porta pelo `place_block`, a porta não sai por `/bloco`).
 
 - **26/10 — §🔌 a alavanca não trava mais:** cada `block_changed` remontava o chunk na hora
   (30 fios = 338 ms por clique). Agora cada chunk sai 1× por quadro (`descarregarSujos`). Sonda C5.

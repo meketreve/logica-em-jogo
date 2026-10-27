@@ -18,13 +18,17 @@ active: true
 - [ ] **§🔌 resto da fase 1** (spec no `todo.md`): **botão** — pulso (prazo por célula, que o
       motor não tem) e, pedido dele em 23/10, **de PAREDE**: nasce com as 6 faces, 3ª família na
       tabela `RASTEIRAS` — e **porta automática** (1ª saída que não é luz; mexe no gate de
-      claim) → **verify:** seção nova na `shots:circuito`, no molde da C3/C4.
-- [ ] **Porta controlada pelo sinal** (anotado 26/10, spec e perguntas no `todo.md`, na porta
-      automática) — **escopo FECHADO em 26/10** (segue o sinal; por fio e porta E/OU também;
-      clique continua; janela não; vão ocupado cancela). Pronto pra codar quando ele pedir.
+      claim) → **verify:** seção nova na `shots:circuito`, no molde da C3/C4. (A porta que
+      segue o sinal já saiu em 27/10 — sobra o botão.)
+- [x] ~~Porta controlada pelo sinal~~ — feita em 27/10 (sonda C6). Janela fica pra depois (dele).
 - [ ] **Decisões dele, pendentes:** luz COLORIDA (3 canais — lote grande) e a curva de brilho.
 
 ## Testar na escola (o usuário faz)
+
+- [ ] **§🔌 O circuito abre a PORTA (27/10):** a criança descobre sozinha que o fio "liga" na
+      porta? O clique que vale até o sinal mudar confunde ("liguei a alavanca e a porta não
+      abriu" = ela tinha aberto na mão antes)? Alguém ficou preso com a porta aberta no vão?
+      E a **placa** abrindo a porta (suposição minha — ele não disse) é bem-vinda?
 
 - [ ] **§🔌 Alavanca sem lag (26/10):** clicar rápido numa alavanca com fio comprido — o
       tablet ainda engasga? (No PC caiu de 338 ms pra 14 ms por clique; no tablet não foi medido.)

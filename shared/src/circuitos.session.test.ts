@@ -306,3 +306,111 @@ describe("o circuito sobrevive ao save", () => {
     expect(getBlock(nova.world, 5, 4, 4)).toBe(BlockId.FioDesligado);
   });
 });
+
+describe("§🔌 a PORTA que segue o sinal (2026-10-27)", () => {
+  // A porta fica em (7,4..5,4): a metade de baixo no nível das peças, a de cima
+  // no nível dos pés. O fio chega pela metade de BAIXO; a de cima tem de vir junto.
+  const montar = (opts: { colada?: boolean } = {}) => {
+    const s = sala();
+    s.por(4, 4, 4, BlockId.AlavancaDesligada);
+    s.por(5, 4, 4, BlockId.FioDesligado);
+    s.por(6, 4, 4, opts.colada === false ? BlockId.Stone : BlockId.FioDesligado);
+    s.por(7, 4, 4, BlockId.PortaXFechada);
+    s.por(7, 5, 4, BlockId.PortaXFechada);
+    s.session.tick();
+    const porta = (): [number, number] => [s.bloco(7, 4, 4), s.bloco(7, 5, 4)];
+    const alavanca = (): void => s.send(2, { type: "use_block", x: 4, y: 4, z: 4 });
+    return { ...s, porta, alavanca };
+  };
+  const ABERTA: [number, number] = [BlockId.PortaXAberta, BlockId.PortaXAberta];
+  const FECHADA: [number, number] = [BlockId.PortaXFechada, BlockId.PortaXFechada];
+
+  it("alavanca ligada ABRE as duas metades; desligada FECHA", () => {
+    const s = montar();
+    expect(s.porta()).toEqual(FECHADA);
+    s.alavanca();
+    s.session.tick();
+    expect(s.porta()).toEqual(ABERTA);
+    s.alavanca();
+    s.session.tick();
+    expect(s.porta()).toEqual(FECHADA);
+  });
+
+  it("CONTROLE NEGATIVO: fio interrompido, a porta não mexe", () => {
+    const s = montar({ colada: false });
+    s.alavanca();
+    s.session.tick();
+    expect(s.bloco(5, 4, 4)).toBe(BlockId.FioLigado); // o sinal andou até o buraco
+    expect(s.porta()).toEqual(FECHADA);
+  });
+
+  it("o CLIQUE continua valendo até o sinal MUDAR de novo", () => {
+    const s = montar();
+    s.alavanca();
+    s.session.tick();
+    expect(s.porta()).toEqual(ABERTA);
+    // a aluna fecha com sinal ligado: fica fechada, por mais ticks que passem
+    s.send(2, { type: "use_block", x: 7, y: 4, z: 4 });
+    expect(s.porta()).toEqual(FECHADA);
+    // …e mesmo se OUTRO circuito recalcular (o motor roda, o sinal desta não muda)
+    s.por(4, 4, 6, BlockId.AlavancaLigada);
+    s.por(5, 4, 6, BlockId.LampadaApagada);
+    for (let i = 0; i < 3; i++) s.session.tick();
+    expect(s.bloco(5, 4, 6)).toBe(BlockId.LampadaAcesa); // prova que o motor rodou
+    expect(s.porta()).toEqual(FECHADA);
+    // o sinal cai e volta: aí a porta obedece de novo
+    s.alavanca();
+    s.session.tick();
+    s.alavanca();
+    s.session.tick();
+    expect(s.porta()).toEqual(ABERTA);
+  });
+
+  it("alguém no VÃO cancela o fechamento, como no clique", () => {
+    const s = montar();
+    s.alavanca();
+    s.session.tick();
+    expect(s.porta()).toEqual(ABERTA);
+    s.send(1, { type: "move", x: 7.5, y: 5, z: 4.5, yaw: 0, pitch: 0 }); // no vão
+    s.alavanca();
+    s.session.tick();
+    expect(s.porta()).toEqual(ABERTA);
+    // saiu: continua aberta (foi cancelado, não adiado) até o sinal mudar de novo
+    s.send(1, { type: "move", x: 4.5, y: 5, z: 4.5, yaw: 0, pitch: 0 });
+    s.session.tick();
+    expect(s.porta()).toEqual(ABERTA);
+    s.alavanca();
+    s.session.tick();
+    s.alavanca();
+    s.session.tick();
+    expect(s.porta()).toEqual(FECHADA);
+  });
+
+  it("porta POSTA ao lado de um fio já aceso abre sozinha; o sinal na metade de CIMA move as duas", () => {
+    const s = sala();
+    s.send(1, { type: "move", x: 1.5, y: 5, z: 1.5, yaw: 0, pitch: 0 });
+    s.send(2, { type: "move", x: 1.5, y: 5, z: 1.5, yaw: 0, pitch: 0 });
+    s.por(5, 4, 4, BlockId.AlavancaLigada);
+    s.por(6, 4, 4, BlockId.LampadaApagada); // um circuito qualquer, pra o índice não estar vazio
+    s.session.tick();
+    // alavanca encostada SÓ na metade de cima
+    s.por(6, 5, 8, BlockId.AlavancaLigada);
+    s.session.tick();
+    // pelo caminho do JOGO (o `por` grava o byte antes, e a sessão não veria a porta NASCER)
+    s.session.applyBlock(7, 4, 8, BlockId.PortaZFechada);
+    s.session.applyBlock(7, 5, 8, BlockId.PortaZFechada);
+    s.session.tick();
+    expect([s.bloco(7, 4, 8), s.bloco(7, 5, 8)]).toEqual([BlockId.PortaZAberta, BlockId.PortaZAberta]);
+  });
+
+  it("CONTROLE NEGATIVO: a lâmpada acesa encostada NÃO abre a porta (ela consome)", () => {
+    const s = sala();
+    s.por(4, 4, 4, BlockId.AlavancaLigada);
+    s.por(5, 4, 4, BlockId.LampadaApagada);
+    s.por(6, 4, 4, BlockId.PortaXFechada);
+    s.por(6, 5, 4, BlockId.PortaXFechada);
+    s.session.tick();
+    expect(s.bloco(5, 4, 4)).toBe(BlockId.LampadaAcesa);
+    expect(s.bloco(6, 4, 4)).toBe(BlockId.PortaXFechada);
+  });
+});

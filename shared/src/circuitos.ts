@@ -1,4 +1,4 @@
-import { BlockId } from "./blocks";
+import { BlockId, isPorta } from "./blocks";
 
 /**
  * §🔌 CIRCUITOS LÓGICOS (2026-10-16) — o motor de sinal.
@@ -291,7 +291,7 @@ export function comEstado(id: number, ligado: boolean): number {
  * - alavanca: entrega, não recebe (é fonte);
  * - fio: os dois lados;
  * - lâmpada: recebe e não repassa (senão viraria fio e não daria pra fechar o
- *   circuito num ponto só);
+ *   circuito num ponto só) — e a PORTA de passagem, idem;
  * - porta lógica: entrega SÓ pela frente e recebe SÓ pelas duas laterais. Pelas
  *   costas não há ligação nenhuma — e é essa a casa que a porta NÃO vai ocupar
  *   quando existir (entrada na traseira, oposta à frente).
@@ -307,6 +307,11 @@ export function ligacaoDoCondutor(
   if (isAlavanca(idVizinho) || isPlaca(idVizinho)) return { recebe: true, entrega: false };
   if (isFio(idVizinho)) return { recebe: true, entrega: true };
   if (isLampada(idVizinho)) return { recebe: false, entrega: true };
+  // §🔌 a PORTA de passagem (2026-10-27) é saída como a lâmpada: recebe de
+  // qualquer lado e não repassa. Não é peça de circuito (não mora no índice),
+  // mas o braço do fio até ela TEM de aparecer — é o aluno vendo que o fio
+  // chega na porta.
+  if (isPorta(idVizinho)) return { recebe: false, entrega: true };
   const frente = frenteDaPorta(idVizinho);
   if (!frente) return nada;
   if (dy !== 0) return nada; // porta só fala com o plano dela
@@ -404,12 +409,33 @@ export function recalcularCircuitos(
   mundo: MundoDeCircuito,
   celulas: Iterable<Celula>,
 ): MudancaDeCircuito[] {
+  return propagarSinal(mundo, celulas).mudancas;
+}
+
+/**
+ * O motor inteiro: as peças que mudam E as células de PORTA de passagem que o
+ * sinal alcança (2026-10-27, pedido dele: "permitir que o sinal controle o
+ * estado de aberto ou fechado da porta").
+ *
+ * A porta não é peça de circuito e não mora no índice — ela é achada aqui como
+ * VIZINHA de quem entrega sinal, pela mesma `ligacaoDoCondutor` que acende a
+ * lâmpada. Por isso vale tudo que acende lâmpada: alavanca ou placa encostada,
+ * fio, a frente de uma porta E/OU. O motor só diz QUEM TEM SINAL; abrir,
+ * fechar, o par de células e o vão ocupado são da sessão, que tem o mundo e
+ * os jogadores.
+ */
+export function propagarSinal(
+  mundo: MundoDeCircuito,
+  celulas: Iterable<Celula>,
+): { mudancas: MudancaDeCircuito[]; portasComSinal: Celula[] } {
   const pecas = new Map<string, { c: Celula; id: number }>();
   for (const c of celulas) {
     const id = mundo.bloco(c.x, c.y, c.z);
     if (isCircuito(id)) pecas.set(chave(c.x, c.y, c.z), { c, id });
   }
-  if (pecas.size === 0) return [];
+  if (pecas.size === 0) return { mudancas: [], portasComSinal: [] };
+  /** Células de porta alcançadas (chave → célula), sem repetir. */
+  const portas = new Map<string, Celula>();
 
   /** Quem está energizado AGORA, na conta (não no mundo). */
   const energizado = new Set<string>();
@@ -442,7 +468,20 @@ export function recalcularCircuitos(
     for (const d of VIZINHOS) {
       const k = chave(o.c.x + d.x, o.c.y + d.y, o.c.z + d.z);
       const p = pecas.get(k);
-      if (!p || energizado.has(k)) continue;
+      if (!p) {
+        // fora do índice: só interessa se for PORTA que esta origem alimenta
+        // (vista da porta, a origem está no deslocamento oposto a `d`)
+        const v = { x: o.c.x + d.x, y: o.c.y + d.y, z: o.c.z + d.z };
+        if (
+          !portas.has(k) &&
+          isPorta(mundo.bloco(v.x, v.y, v.z)) &&
+          ligacaoDoCondutor(o.id, -d.x, -d.y, -d.z).recebe
+        ) {
+          portas.set(k, v);
+        }
+        continue;
+      }
+      if (energizado.has(k)) continue;
       if (isAlavanca(p.id) || isPlaca(p.id)) continue; // fontes: quem liga é o aluno
       const tipo = tipoDaPorta(p.id);
       if (tipo) {
@@ -472,5 +511,5 @@ export function recalcularCircuitos(
     const alvo = comEstado(p.id, energizado.has(k));
     if (alvo !== p.id) mudancas.push({ x: p.c.x, y: p.c.y, z: p.c.z, blockId: alvo });
   }
-  return mudancas;
+  return { mudancas, portasComSinal: [...portas.values()] };
 }

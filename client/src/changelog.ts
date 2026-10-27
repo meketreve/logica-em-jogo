@@ -43,6 +43,18 @@ interface Mudanca {
 const MUDANCAS: readonly Mudanca[] = [
   {
     // sem `data`: este é o build atual (ver rotuloDoBloco)
+    titulo: "O circuito abre a porta",
+    itens: [
+      "ligue um circuito numa **porta**: com sinal ela **abre**, sem sinal ela **fecha** — do mesmo jeito que a lâmpada acende e apaga",
+      "vale tudo que acende lâmpada: alavanca ou placa encostada na porta, fio chegando nela, ou a saída de uma porta lógica E/OU. Basta o sinal chegar em **uma das duas metades** da porta",
+      "o fio desenha o braço até a porta, pra dar pra ver que ele chegou nela",
+      "o clique na porta continua funcionando: abriu ou fechou na mão, ela fica assim até o sinal mudar de novo",
+      "se alguém estiver no vão quando o sinal apaga, a porta **não fecha** em cima da pessoa — fica aberta (igual a quando se tenta fechar no clique)",
+      "o circuito também ficou mais leve no servidor: um fio muito comprido não pesa mais a cada clique",
+    ],
+  },
+  {
+    data: "26/10/2026",
     titulo: "A alavanca não trava mais o jogo",
     itens: [
       "clicar várias vezes seguidas numa **alavanca ligada a um circuito comprido** deixava o jogo travando: cada pedaço de fio que acendia ou apagava redesenhava o pedaço do mundo em volta dele, um de cada vez — com 30 fios, um clique custava mais de um terço de segundo",

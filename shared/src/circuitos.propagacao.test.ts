@@ -12,6 +12,7 @@ import {
   isPlaca,
   ligacaoDoCondutor,
   passoDe,
+  propagarSinal,
   recalcularCircuitos,
   tipoDaPorta,
 } from "./circuitos";
@@ -173,5 +174,27 @@ describe("§🔌 a propagação a partir das fontes", () => {
     expect(ms.find((m) => m.x === 5000)?.blockId).toBe(BlockId.LampadaAcesa);
     // um tick tem 100 ms (`SERVER_TICK_RATE` 10); o ponto fixo levava 20 s aqui
     expect(gasto).toBeLessThan(50);
+  });
+
+  it("a PORTA de passagem é saída: a frente de uma porta E alimenta, a lateral não", () => {
+    // porta E em (0,0,0) virada pra +x, as duas entradas ligadas por alavanca
+    const base = new Map<string, number>([
+      [chave(0, 0, 0), BlockId.PortaEXPDesligada],
+      [chave(0, 0, -1), BlockId.AlavancaLigada],
+      [chave(0, 0, 1), BlockId.AlavancaLigada],
+    ]);
+    const lista = [...base.keys()].map((k) => {
+      const [x, y, z] = k.split(",").map(Number);
+      return { x: x!, y: y!, z: z! };
+    });
+    const comPortaEm = (x: number, z: number) => {
+      const mapa = new Map(base);
+      mapa.set(chave(x, 0, z), BlockId.PortaXFechada);
+      return propagarSinal(mundoDe(mapa), lista).portasComSinal;
+    };
+    expect(comPortaEm(1, 0)).toEqual([{ x: 1, y: 0, z: 0 }]); // na FRENTE
+    expect(comPortaEm(-1, 0)).toEqual([]); // nas COSTAS
+    // a porta não entra no índice e nem por isso some: a ALAVANCA encostada também conta
+    expect(comPortaEm(0, -2)).toEqual([{ x: 0, y: 0, z: -2 }]);
   });
 });
