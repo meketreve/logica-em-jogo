@@ -616,6 +616,11 @@ export class GameSession {
    *  o clique do aluno continua valendo até o sinal subir ou cair de novo
    *  (decisão dele, 2026-10-26). Por isso se guarda o sinal, não o estado. */
   private portasComSinal = new Set<number>();
+  /** §🔌 O 1º recálculo depois do RESTORE só anota quem tem sinal, sem mexer
+   *  em porta: o `portasComSinal` não vai pro save, e sem esta semente toda
+   *  porta com sinal parecia borda nova e abria sozinha ao reabrir o mundo —
+   *  desfazendo o clique de quem a fechou (revisão pré-aula, 2026-10-30). */
+  private semearPortas = false;
   /** Células a examinar no próximo tick (fila de vizinhança — regra de ouro). */
   private dirty = new Set<number>();
   /** Células já alteradas neste tick (máx. 1 mudança por célula por tick). */
@@ -2561,6 +2566,7 @@ export class GameSession {
               // de quando gravou, e no meio pode ter entrado uma conversão de
               // id ou um bloco removido por outra regra
               this.circuitosSujos = true;
+              this.semearPortas = true;
             }
           }
         }
@@ -2677,6 +2683,11 @@ export class GameSession {
       const yPar = parDaPorta(this.world, c.x, c.y, c.z);
       const y = yPar === null ? c.y : Math.min(c.y, yPar);
       agora.set(this.packCoord(c.x, y, c.z), { x: c.x, y, z: c.z });
+    }
+    if (this.semearPortas) {
+      this.semearPortas = false;
+      this.portasComSinal = new Set(agora.keys());
+      return;
     }
     for (const [k, c] of agora) if (!this.portasComSinal.has(k)) this.porPorta(c, true);
     for (const k of this.portasComSinal) if (!agora.has(k)) this.porPorta(this.unpackCoord(k), false);

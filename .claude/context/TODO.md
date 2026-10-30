@@ -31,6 +31,15 @@ active: true
       `perf-turma-*` em `profiles/`? O aviso no chat assusta ou passa batido? Tablet com a tela
       apagada só devolve quando acender (a gravação anda por QUADRO pintado).
 
+- [ ] **§🔌 Aula 8 — o que a revisão de 30/10 pede pra olhar** (o código passou nos testes de
+      turma: 5 grupos, aluno a mais, confinamento entre grupos, posse no meio da fase):
+      (a) **alavanca da fase seguinte ligada antes da hora VOLTA a desligar** quando a fase
+      atual fecha (é o sequencial repondo a partida) — a criança que clica em tudo acha que o
+      jogo "desfez"? Avisar a turma antes, ou pedir pra mudar; (b) **`/grupo entrar n`** deixa o
+      aluno pular pro grupo do colega e mexer nas alavancas dele — alguém fez?; (c) **Ctrl+C no
+      meio da aula 8 zera o progresso** de todos (mundo `aula*` volta do modelo) — não fechar a
+      janela do servidor durante a aula; (d) quem volta sozinho depois da queda continua no
+      MESMO grupo e com as alavancas como deixou? (o teste diz que sim).
 - [ ] **§🔌 Aula 8 — circuitos (27/10):** o aviso das PEÇAS TRAVADAS aparece demais (spam no chat)? A marca verde/vermelha é entendida sem explicar? O
       contador que COMEÇA em 9/16 confunde? A fase 4 trava os grupos (dica: comece pela
       vermelha)? Os quadros são lidos? Quanto tempo leva cada fase?

@@ -1,5 +1,5 @@
 ---
-updated: 2026-10-26
+updated: 2026-10-30
 tier: 3
 ---
 
@@ -11,6 +11,13 @@ tier: 3
      Convertido de `.wolf/buglog.json` em 2026-09-25 (mesmo conteúdo, formato do
      modelo). São bugs ESCRITOS À MÃO: nada de detector automático — ele já encheu
      o arquivo de 148 entradas falsas uma vez, e elas foram podadas junto. -->
+
+## 2026-10-30 — porta fechada à mão com sinal ABRIA SOZINHA quando o mundo reabria
+- **Sintoma:** achado na revisão pré-aula (nenhuma aula viu ainda): teste `porta FECHADA à mão com sinal continua fechada quando o mundo reabre` — `expected [ 67, 67 ] to deeply equal [ 66, 66 ]` (PortaXAberta no lugar de PortaXFechada).
+- **Onde:** `shared/src/session.ts` (`moverPortasPeloSinal`, `indexarPlantacoes`)
+- **Causa:** a porta segue o sinal pela BORDA (`portasComSinal`), e esse conjunto não vai pro save. No restore ele nasce vazio e o `indexarPlantacoes` suja o circuito, então o 1º recálculo via TODA porta com sinal como borda nova e a abria — desfazendo o clique de quem a fechou com o sinal ligado (que a regra da borda existe pra respeitar). Vale pra Ctrl+C e reabrir e `/mundo carregar`; o mundo-aula (`aula*`) sempre volta do modelo, então lá não se via.
+- **Correção:** flag `semearPortas`, ligada pelo restore junto com o `circuitosSujos`: o 1º recálculo só ANOTA quem tem sinal, sem mexer em porta. Controle: porta que o sinal abriu continua aberta e FECHA quando ele cai no mundo reaberto (sem a semente lembrar o sinal, não fecharia).
+- **Tags:** circuito, porta, sinal, borda, save, restore, reabrir, portasComSinal, corrigido
 
 ## 2026-10-26 — clicar rápido na alavanca de um circuito comprido TRAVAVA o cliente
 - **Sintoma:** usuário: "se um jogador ficar clicando rapido para ativar e desativar a alavanca cria muito lag se ela estiver conectada a um circuito". Sem erro no console — o quadro congelava.

@@ -414,3 +414,93 @@ describe("§🔌 a PORTA que segue o sinal (2026-10-27)", () => {
     expect(s.bloco(6, 4, 4)).toBe(BlockId.PortaXFechada);
   });
 });
+
+/**
+ * §🔌 REVISÃO PRÉ-AULA (2026-10-30): o que acontece com o circuito quando a
+ * aula não é um teste de um aluno só — o mundo reabre no meio (Ctrl+C e abrir
+ * de novo, `/mundo carregar`), e criança sai do jogo em cima de uma peça.
+ */
+describe("§🔌 circuito numa aula de verdade: reabrir o mundo e sair do jogo", () => {
+  it("porta FECHADA à mão com sinal continua fechada quando o mundo reabre", () => {
+    // A borda do sinal (`portasComSinal`) não vai pro save. Sem semear no
+    // primeiro recálculo depois do restore, toda porta com sinal parecia ter
+    // "acabado de receber" e abria sozinha — desfazendo o clique da aluna
+    // que a regra da borda existe pra respeitar.
+    const s = sala();
+    s.por(4, 4, 4, BlockId.AlavancaDesligada);
+    s.por(5, 4, 4, BlockId.FioDesligado);
+    s.por(6, 4, 4, BlockId.FioDesligado);
+    s.por(7, 4, 4, BlockId.PortaXFechada);
+    s.por(7, 5, 4, BlockId.PortaXFechada);
+    s.session.tick();
+    s.send(2, { type: "use_block", x: 4, y: 4, z: 4 });
+    s.session.tick();
+    expect(s.bloco(7, 4, 4)).toBe(BlockId.PortaXAberta);
+    s.send(2, { type: "use_block", x: 7, y: 4, z: 4 }); // fecha na mão, com sinal
+    expect(s.bloco(7, 4, 4)).toBe(BlockId.PortaXFechada);
+
+    const nova = new GameSession(() => {}, {
+      restore: decodeSave(encodeSave(s.session.world, s.session.toSave())),
+      codigo: "prof42",
+    });
+    for (let i = 0; i < 3; i++) nova.tick();
+    expect([getBlock(nova.world, 7, 4, 4), getBlock(nova.world, 7, 5, 4)]).toEqual([
+      BlockId.PortaXFechada,
+      BlockId.PortaXFechada,
+    ]);
+    // …e a borda continua viva no mundo reaberto: o sinal cai e volta, ela obedece
+    nova.applyBlock(4, 4, 4, BlockId.AlavancaDesligada);
+    nova.tick();
+    nova.applyBlock(4, 4, 4, BlockId.AlavancaLigada);
+    nova.tick();
+    expect(getBlock(nova.world, 7, 4, 4)).toBe(BlockId.PortaXAberta);
+  });
+
+  it("CONTROLE: porta que o sinal ABRIU continua aberta ao reabrir, e fecha quando ele cai", () => {
+    const s = sala();
+    s.por(4, 4, 4, BlockId.AlavancaLigada);
+    s.por(5, 4, 4, BlockId.FioDesligado);
+    s.por(6, 4, 4, BlockId.PortaXFechada);
+    s.por(6, 5, 4, BlockId.PortaXFechada);
+    s.session.tick();
+    expect(s.bloco(6, 4, 4)).toBe(BlockId.PortaXAberta);
+    const nova = new GameSession(() => {}, {
+      restore: decodeSave(encodeSave(s.session.world, s.session.toSave())),
+      codigo: "prof42",
+    });
+    nova.tick();
+    expect(getBlock(nova.world, 6, 4, 4)).toBe(BlockId.PortaXAberta);
+    // a semente tem de ter LEMBRADO do sinal: sem ela, desligar não fecharia
+    nova.applyBlock(4, 4, 4, BlockId.AlavancaDesligada);
+    nova.tick();
+    expect(getBlock(nova.world, 6, 4, 4)).toBe(BlockId.PortaXFechada);
+  });
+
+  it("aluna que SAI do jogo em cima da placa a solta no tick seguinte", () => {
+    const s = sala();
+    s.send(1, { type: "move", x: 12.5, y: 5, z: 12.5, yaw: 0, pitch: 0 });
+    s.por(4, 5, 4, BlockId.PlacaDesligada);
+    s.por(5, 5, 4, BlockId.LampadaApagada);
+    s.send(2, { type: "move", x: 4.5, y: 5, z: 4.5, yaw: 0, pitch: 0 });
+    s.session.tick();
+    expect(s.bloco(5, 5, 4)).toBe(BlockId.LampadaAcesa);
+    s.session.handleDisconnect(2); // o tablet caiu com ela em cima
+    s.session.tick();
+    expect(s.bloco(4, 5, 4)).toBe(BlockId.PlacaDesligada);
+    expect(s.bloco(5, 5, 4)).toBe(BlockId.LampadaApagada);
+  });
+
+  it("aluna que VOLTA (posse do nome) não deixa fantasma pisando a placa", () => {
+    const s = sala();
+    s.send(1, { type: "move", x: 12.5, y: 5, z: 12.5, yaw: 0, pitch: 0 });
+    s.por(4, 5, 4, BlockId.PlacaDesligada);
+    s.send(2, { type: "move", x: 4.5, y: 5, z: 4.5, yaw: 0, pitch: 0 });
+    s.session.tick();
+    expect(s.bloco(4, 5, 4)).toBe(BlockId.PlacaLigada);
+    // volta sozinha (bug-675): socket novo, mesmo nome e PIN — o antigo cai
+    s.send(3, { type: "join", name: "ana", pin: "2222" });
+    s.send(3, { type: "move", x: 12.5, y: 5, z: 12.5, yaw: 0, pitch: 0 });
+    s.session.tick();
+    expect(s.bloco(4, 5, 4)).toBe(BlockId.PlacaDesligada);
+  });
+});
