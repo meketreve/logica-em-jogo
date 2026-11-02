@@ -143,6 +143,9 @@ describe("§🐄 vozDoBicho — o gancho dos mobs", () => {
     expect(vozDoBicho("vaca")).toBe("vaca");
     expect(vozDoBicho("vaca-malhada")).toBe("vaca");
     expect(vozDoBicho("galinha_caipira")).toBe("galinha");
+    // o nome que o servidor dos mobs manda: com ESPAÇO, e o vira-lata é cachorro
+    expect(vozDoBicho("vaca malhada")).toBe("vaca");
+    expect(vozDoBicho("vira-lata caramelo")).toBe("cachorro");
     // controle: prefixo SEM separador não é variante (vacaria ≠ vaca)
     expect(vozDoBicho("vacaria")).toBeNull();
     expect(vozDoBicho("dragao")).toBeNull();

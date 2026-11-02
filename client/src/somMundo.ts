@@ -638,6 +638,12 @@ class SomMundo {
           lfo.stop(t1 + 0.02);
           break;
         }
+        case "cachorro": // au-au: dois latidos curtos (um só no dano)
+          for (let i = 0; i < (evento === "ambiente" ? 2 : 1); i++) {
+            this.tom(v, i * 0.22, 0.11 * dur * 1.3, "sawtooth", 520 * k, 300 * k, 0.12, 0.004);
+            this.ruidoF(v, i * 0.22, 0.08, "bandpass", 900 * k, 600 * k, 2, 0.14);
+          }
+          break;
         default: // bicho sem voz conhecida: um resmungo neutro
           this.tom(v, 0, 0.3 * dur, "triangle", 300 * k, 200 * k, 0.12, 0.02);
       }
@@ -753,6 +759,20 @@ class SomMundo {
 /** O som de mundo da página (um por aba, como o AudioContext). */
 export const somMundo = new SomMundo();
 somMundo.ligarEventos();
+
+/**
+ * §🐄 A ponte com os mobs (branch claude/project-thread-kqj92e): o main.ts de
+ * lá reemite o `bicho_evento` do servidor como o CustomEvent "lj-bicho" com
+ * `{ nome, evento, x, y, z }`. Escutar aqui deixa o som sem tocar no main de
+ * ninguém. Dano e morte têm voz própria; o resto (ordenha, ovo, tosquia,
+ * comeu, cria, domou, bola, "voz" periódica) é o bicho "falando".
+ */
+window.addEventListener("lj-bicho", (e) => {
+  const d = (e as CustomEvent<{ nome?: unknown; evento?: unknown; x?: unknown; y?: unknown; z?: unknown }>).detail;
+  if (!d || typeof d.nome !== "string" || typeof d.x !== "number" || typeof d.y !== "number" || typeof d.z !== "number") return;
+  const ev = d.evento === "dano" || d.evento === "morte" ? d.evento : "ambiente";
+  somMundo.somDeBicho(d.nome, ev, d.x, d.y, d.z);
+});
 
 /** Volumes do menu (0..1). Valem já; antes do 1º gesto ficam guardados e os
  *  barramentos nascem com eles. */

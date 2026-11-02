@@ -285,7 +285,7 @@ export class Passadas {
  * VARIANTES (cor e área de spawn diferentes, mesmo comportamento) — a variante
  * "vaca-malhada" herda a voz da "vaca" por PREFIXO, sem linha nova aqui.
  */
-export const VOZES_DE_BICHO = ["vaca", "porco", "galinha", "ovelha"] as const;
+export const VOZES_DE_BICHO = ["vaca", "porco", "galinha", "ovelha", "cachorro"] as const;
 export type VozDeBicho = (typeof VOZES_DE_BICHO)[number];
 
 /** O que o bicho está fazendo quando soa. */
@@ -297,8 +297,12 @@ export type EventoDeBicho = "ambiente" | "dano" | "morte" | "passo";
  * (o cliente usa a voz genérica e não quebra).
  */
 export function vozDoBicho(tipo: string): VozDeBicho | null {
+  // o servidor dos mobs manda o NOME da variante com espaço ("vaca malhada")
+  const t = tipo.toLowerCase();
+  // o vira-lata é cachorro (variante com nome próprio, sem o prefixo)
+  if (t === "vira-lata" || t.startsWith("vira-lata ") || t.startsWith("cão") || t.startsWith("cao ")) return "cachorro";
   for (const v of VOZES_DE_BICHO) {
-    if (tipo === v || tipo.startsWith(`${v}-`) || tipo.startsWith(`${v}_`)) return v;
+    if (t === v || t.startsWith(`${v}-`) || t.startsWith(`${v}_`) || t.startsWith(`${v} `)) return v;
   }
   return null;
 }
