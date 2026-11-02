@@ -17,13 +17,14 @@ e o jogo **reconecta sozinho** (5 tentativas, espera a tela voltar; esgotou → 
 Provado em `shots:queda` (host morto e ressuscitado, aba escondida de verdade, heartbeat mudo) e no
 smoke `logs`. **Não testado em aula.**
 
-**02/11 — §🐄 MOBS PASSIVOS, numa BRANCH** (`claude/project-thread-kqj92e`, pedido dele: "deixa
-como branch"; NÃO está na `main`): vaca, galinha, ovelha, cão, gato, tatu, peixe, arara, com
-variantes por bioma, A*, máquina de estados, tesoura/balde/ovo/domar/cria, lã em 12 blocos,
-leite e bolo, `/bicho` e `/bichos`, e o perfilador com custo POR SISTEMA (servidor e cliente).
-Depois, na mesma branch: `/bichos fila|parar|soltar`, `?bench&bichosparados` (mede o desenho sem a
-IA), sonda `shots:vitrine` e a aba **comida** no inventário do criativo.
-Spec e decisões: `todo.md` §🐄. **Não testado em aula** — ele testa na escola e traz as leituras.
+**02/11 — A GRANDE ATUALIZAÇÃO na `main`** (pedido dele: "pode unir as branchs, sai como grande
+atualização"): as branches dos §🐄 bichos (`kqj92e`) e do §🔊 som (`nba77z`) fundidas num bloco só
+do changelog. Bichos: 8 espécies com variantes por bioma, A*, máquina de estados, tesoura/balde/
+ovo/domar/cria, lã em 12 blocos, leite e bolo, `/bicho`, `/bichos ligar|desligar|limpar|parar|
+soltar|fila`, aba **comida** no criativo, `?bench&bichosparados`, custo POR SISTEMA no F3. **Mundo
+que já existia NÃO ganha bicho sozinho** (só mundo novo procedural; decisão dele na fusão). Prints
+em `docs/img/` (README) e seções novas no `docs/manual.html`. Launcher: só o texto da `[9]`.
+Spec: `todo.md` §🐄 e §🔊. **Não testado em aula.**
 
 ## Próxima fase
 
@@ -42,8 +43,12 @@ Atrás: a **porta NÃO** (⚠️ quebra o ponto fixo — cabeçalho de `circuito
 
 ## Concluído (recente)
 
-- **02/11 — §🐄 bichos (branch)** — ver acima. 300 bichos + 25 alunos = 2,7 ms/tick no Node.
+- **02/11 — §🐄 bichos (na main desde a fusão)** — ver acima. 300 bichos + 25 alunos = 2,7 ms/tick no Node.
   Smoke `bichos` com controle negativo (lã forçada branca → falha).
+- **02/11 — §🔊 o mundo tem som** (pedido dele, item 12; na main desde a fusão): bloco por material, ferramenta rachando, passos, água, portas, alavanca, baú,
+  comer, moeda, dano, ambiente (vento/pássaro/grilo/riacho) e o gancho `somDeBicho` pros mobs.
+  Volumes novos (mundo, ambiente) e `som` no perfil do F3. Sonda `shots:som` (com controle
+  negativo). **Não testado em aula.**
 
 - **27/10 — `/perfil` (pedido dele):** o professor manda a turma gravar o perfil do F3 sem
   ninguém apertar botão (`/perfil [nome|todos] [segundos]`, 5–60 s, padrão 10). Mora no HOST

@@ -1,14 +1,15 @@
 /**
- * Gatilhos de som (checkpoint 6): pontos de evento do jogo onde o áudio vai
- * plugar DEPOIS (som está fora do MVP v0). Hoje ninguém escuta — o valor é
- * os emits já estarem nos lugares certos quando o som chegar.
+ * Gatilhos de som (checkpoint 6). Quem escuta: `audio.ts` (objetivo, chat) e
+ * `somMundo.ts` (dano, morte). O som de BLOCO não passa mais por aqui — ele
+ * precisa do id de ANTES da troca (`somDaTroca`), que este evento não carrega;
+ * `block_placed`/`block_broken` seguem emitidos pra quem quiser só o fato.
  */
 export type GameEvent =
   | { kind: "block_placed"; blockId: number }
   | { kind: "block_broken" }
   | { kind: "chat_message" }
   | { kind: "objective_complete" }
-  /** §🍖 F2: levou dano / morreu. O som pluga aqui junto com os outros. */
+  /** §🍖 F2: levou dano / morreu — o `somMundo` toca o "uf" e a queda. */
   | { kind: "dano" }
   | { kind: "morte" };
 

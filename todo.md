@@ -1586,6 +1586,38 @@ modelo do jogador (**em andamento** — começou pelo corpo/animação, textura/
   refinar (ângulo, distância, sensação) — julgamento estético pede gente jogando, não só teste
   automatizado.
 
+## §🔊 Som de mundo (2026-11-02, branch `claude/project-thread-nba77z`)
+
+Pedido dele (item 12 da entrevista dos mobs): "sessão própria, e já faz o resto dos sons que o
+jogo não tem". Até aqui só existia som de INTERFACE (`audio.ts`); o mundo era mudo.
+
+* \[x] **Feito, esperando aula** — tudo sintetizado (zero asset), regra pura em
+  `shared/src/sons.ts` (testada), síntese em `client/src/somMundo.ts`, sonda `shots:som`:
+  * bloco por MATERIAL (8 vozes: pedra, madeira, terra, areia, vidro, planta, tecido, metal),
+    derivado da ferramenta ideal + família — id novo ganha voz sozinho (portão no teste);
+  * quebrar / colocar / o "toc" da ferramenta rachando (4/s) / passos / baque de queda;
+  * água: splash, braçada, abafado submerso, balde; porta e janela (inclusive pelo circuito),
+    alavanca, placa, fornalha acendendo; baú/fornalha abrindo e fechando; comer (pela fome que
+    SOBE — o servidor é quem aceita), fabricar, moeda (Dimas), teleporte, cama, dano, morte, soco;
+  * ambiente 1 Hz: vento (força do vento autoritativo, só a céu aberto), pássaros de dia, grilos
+    à noite, gota em caverna, riacho (água FLUIDA perto; lago parado é silêncio);
+  * motor não faz barulho: fio, lâmpada, porta lógica, água nivelando, plantação crescendo =
+    silêncio (`somDaTroca` é por TRANSIÇÃO antes→depois);
+  * orçamento: 14 vozes, 24 blocos de alcance, junta repetido em 60 ms, pan estéreo barato
+    (sem HRTF); perfil do F3 ganhou `som` (vozes/pico, descartes, ms de main, trocas
+    soaram × caladas) e `gravacao.som` (o custo DENTRO dos 10 s).
+* \[ ] **§🐄 gancho dos bichos pronto, sem bicho:** `somDeBicho(tipo, evento, x, y, z)` em
+  `somMundo.ts` (eventos `ambiente | dano | morte | passo`). Vozes: vaca, porco, galinha,
+  ovelha, cachorro, gato, tatu, peixe (só splash), arara/tucano e papagaio/periquito; VARIANTE herda pelo prefixo (`vaca malhada` → vaca, `vira-lata …` →
+  cachorro). Ponte já ligada: o `somMundo.ts` escuta o CustomEvent `lj-bicho` que o main.ts da
+  branch dos mobs (`claude/project-thread-kqj92e`) reemite do `bicho_evento` (inclusive o `voz` periódico, ~30 s); dano/morte têm voz
+  própria, o resto é o bicho "falando". Mugido ao acaso depende de um evento `voz` no servidor.
+* \[ ] **Decisão minha, dele revisar:** passos dos OUTROS jogadores ficaram de fora — 30
+  tablets na mesma sala, cada um tocando os passos da turma em volta, é ruído de sala de aula.
+  Se ele quiser, é ler o deslocamento do `remotePlayers` no mesmo `Passadas`.
+* \[ ] **Talvez:** som de item caindo/pego (o jogo não tem item no chão), bolha de fôlego,
+  música. Nenhum foi pedido.
+
 ## Playtest na escola
 
 * \[x] **playtest na escola** (2026-08-07): sessão ao vivo na escola — **FEITO** no registro:

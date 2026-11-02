@@ -16,6 +16,28 @@ professor cria o mundo e os objetivos **dentro do próprio jogo**, sem programar
 o resultado como um arquivo `.ljw`. Um motor, muitas aulas — de qualquer componente
 curricular.
 
+### Novidade: bichos e sons (novembro/2026)
+
+O mundo ganhou **oito espécies de bichos** — vaca, galinha, ovelha, cão, gato, tatu, peixe e
+arara —, cada uma com raças e cores conforme o bioma (vaca nelore, galinha carijó, vira-lata
+caramelo, gato frajola, tucano, tambaqui…). Tesoura na ovelha dá lã, balde na vaca dá leite,
+a galinha bota ovo, o cão e o gato se domam, e dois bichos alimentados fazem filhote. E o
+mundo passou a ter **som**: cada bloco do seu jeito, passos, água, portas, alavanca e as vozes
+dos bichos, com volume próprio pra ambiente.
+
+<p align="center">
+  <img src="docs/img/bichos-vitrine.png" alt="Os oito bichos enfileirados, uma fileira por espécie, todas as raças" width="80%">
+</p>
+<p align="center">
+  <img src="docs/img/bichos-perto.png" alt="Galinhas e ovelhas de perto: branca, preta, marrom e cinza, com filhotes" width="49%">
+  <img src="docs/img/aba-comida.png" alt="A aba comida no inventário do criativo" width="49%">
+</p>
+
+Os bichos aparecem sozinhos só em **mundo novo com relevo**; mundo que já existia, mundo plano e
+mundo de aula ficam sem bicho até o professor trazer (`/bicho vaca 3`) ou ligar
+(`/bichos ligar`). A foto de cima sai de `/bichos fila`, a vitrine com um de cada raça.
+Detalhes no [manual do professor](docs/manual.html#bichos).
+
 ---
 
 ## Para o professor: usar em aula

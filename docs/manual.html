@@ -176,6 +176,8 @@
     <li><a href="#regras">Regras (ligar/desligar)</a></li>
     <li><a href="#ferramentas">Ferramentas e painéis</a></li>
     <li><a href="#blocos">Blocos com função especial</a></li>
+    <li><a href="#bichos">Bichos</a></li>
+    <li><a href="#sons">Sons</a></li>
     <li><a href="#faq">Perguntas frequentes</a></li>
   </ol>
 </nav>
@@ -245,7 +247,7 @@ servidor sobe, no console (a janela preta que abre atrás do jogo).</p>
 <tr><td><code>1</code>–<code>9</code></td><td>escolher item da barra de baixo (hotbar)</td></tr>
 <tr><td>Roda do mouse</td><td>trocar de item na hotbar</td></tr>
 <tr><td>Clique esquerdo</td><td>quebrar bloco · atacar (se PVP ligado) · marcar o 1º canto da varinha</td></tr>
-<tr><td>Clique direito</td><td>colocar bloco · comer · abrir baú/fornalha/loja/porta · marcar o 2º canto da varinha</td></tr>
+<tr><td>Clique direito</td><td>colocar bloco · comer · abrir baú/fornalha/loja/porta · usar o item da mão num bicho (tesoura, balde, comida) · marcar o 2º canto da varinha</td></tr>
 <tr><td>Clique do meio</td><td>copiar o bloco mirado pra mão (só no modo criativo)</td></tr>
 <tr><td><code>E</code></td><td>abrir a mochila (inventário)</td></tr>
 <tr><td><code>P</code></td><td>abrir o painel — de autoria (professor) ou de grupo (aluno)</td></tr>
@@ -326,6 +328,8 @@ pra quem entrou com o código de professor.</p>
 <tr><td><code>/hora</code></td><td><code>dia|noite|amanhecer|entardecer|meio-dia|meia-noite|0..23</code></td><td>Define a hora do dia no mundo</td></tr>
 <tr><td><code>/ciclo</code></td><td><code>/ciclo ligar|desligar</code></td><td>Liga/desliga a passagem do tempo (dia virar noite sozinho)</td></tr>
 <tr><td><code>/vento</code></td><td><code>/vento ligar|desligar</code></td><td>Liga/desliga efeitos de ambiente (água, nuvens, folhas balançando)</td></tr>
+<tr><td><code>/bicho</code></td><td><code>/bicho tipo [quantidade] [variante] [filhote]</code></td><td>Traz bichos pra perto de você: <code>/bicho vaca 3</code>, <code>/bicho tucano</code>, <code>/bicho galinha 2 filhote</code>. Tipos: vaca, galinha, ovelha, cão, gato, tatu, peixe, arara — ou o nome da raça de uma palavra só (tucano, lambari, tatu-bola)</td></tr>
+<tr><td><code>/bichos</code></td><td><code>ligar</code> · <code>desligar</code> · <code>limpar [tipo|todos] [raio]</code> · <code>parar</code> · <code>soltar</code> · <code>fila</code></td><td>Liga/desliga os bichos que aparecem sozinhos, tira bichos do mundo, congela todos onde estão (<code>parar</code>/<code>soltar</code>) e monta uma <strong>vitrine</strong> com um de cada raça enfileirado na sua frente (<code>fila</code>)</td></tr>
 </tbody>
 </table>
 </section>
@@ -378,6 +382,7 @@ pra ver a lista com o estado atual.</p>
 <tr><td><code>pvp</code></td><td>desligada</td><td>Alunos em modo sobrevivência podem se atacar (também dá pra usar <code>/pvp</code> direto)</td></tr>
 <tr><td><code>fome</code></td><td>ligada</td><td>A barra de fome desce com o esforço; sem comer, a vida vai regenerando mais devagar</td></tr>
 <tr><td><code>emogis</code></td><td>desligada</td><td>Libera o menu de emojis (tecla <code>V</code>) pra turma</td></tr>
+<tr><td><code>machucar-bichos</code></td><td>ligada</td><td>Na sobrevivência, o clique esquerdo machuca os bichos e eles deixam carne, couro e pena. No criativo e no mundo de aula ninguém machuca bicho. Bicho domado de outro aluno só apanha com o <code>pvp</code> ligado</td></tr>
 </tbody>
 </table>
 <p class="lead"><code>/voo</code>, <code>/ciclo</code>, <code>/confinar</code> e <code>/terreno</code> parecem
@@ -394,10 +399,10 @@ regras mas são comandos próprios (não passam por <code>/regra</code>) — já
 <tr><td><strong>Painel de jogadores</strong></td><td>botão "👥 jogadores" dentro do painel de autoria</td><td>Ver quem está conectado (expulsar/banir), quem está banido (desbanir) e ajustar o número de grupos</td></tr>
 <tr><td><strong>Varinha de região</strong></td><td>tecla <code>R</code></td><td>Marca 2 cantos no mundo (clique esquerdo/direito) pra alimentar <code>/regiao</code> ou <code>/terreno</code></td></tr>
 <tr><td><strong>Painel de amigos</strong></td><td>tecla <code>G</code></td><td>Convidar colegas pra construir juntos numa área protegida</td></tr>
-<tr><td><strong>Mochila (inventário)</strong></td><td>tecla <code>E</code></td><td>Ver e organizar os blocos e itens carregados</td></tr>
+<tr><td><strong>Mochila (inventário)</strong></td><td>tecla <code>E</code></td><td>Ver e organizar os blocos e itens carregados. No criativo as abas separam blocos, vegetação, mobília, minérios, ferramentas, <strong>comida</strong>, circuito e letras</td></tr>
 <tr><td><strong>Painel de baú / loja</strong></td><td>clique direito num baú, fornalha ou Baú-Loja</td><td>Guardar/pegar itens; na loja, comprar (qualquer um) ou definir preços em Dimas (só quem criou aquele Baú-Loja)</td></tr>
 <tr><td><strong>Menu de emojis</strong></td><td>tecla <code>V</code> (precisa da regra <code>emogis</code> ligada)</td><td>Aceno, comemorar e dança — só gesto visual, sem efeito no jogo</td></tr>
-<tr><td><strong>Menu de pausa</strong></td><td><code>Esc</code></td><td>Sensibilidade, volume, campo de visão, disposição de toque, remapear teclas</td></tr>
+<tr><td><strong>Menu de pausa</strong></td><td><code>Esc</code></td><td>Sensibilidade, volume (geral, <strong>sons do mundo</strong> e <strong>ambiente</strong>), campo de visão, disposição de toque, remapear teclas</td></tr>
 </tbody>
 </table>
 </section>
@@ -415,9 +420,48 @@ regras mas são comandos próprios (não passam por <code>/regra</code>) — já
 <tr><td><strong>Porta / Janela</strong></td><td>Clique direito abre e fecha</td></tr>
 <tr><td><strong>Quadro</strong></td><td>Clique direito abre um editor de texto (até 300 caracteres) — usado nas placas da aula 6 e pra recados dos alunos</td></tr>
 <tr><td><strong>Tocha</strong></td><td>Ilumina; precisa de um bloco cheio embaixo pra ficar de pé</td></tr>
-<tr><td><strong>Balde</strong></td><td>Item (não bloco): clique direito pega ou despeja água</td></tr>
+<tr><td><strong>Balde</strong></td><td>Item (não bloco): clique direito pega ou despeja água · na vaca dá <strong>leite</strong> · com água, no peixe, leva o peixe junto</td></tr>
+<tr><td><strong>Lã</strong></td><td>Bloco de construção em 12 cores, tirado da ovelha com a tesoura</td></tr>
 </tbody>
 </table>
+</section>
+
+<section id="bichos">
+<h2>🐄 Bichos</h2>
+<p>Oito espécies, cada uma com raças e cores conforme o bioma: <strong>vaca, galinha, ovelha, cão, gato,
+tatu, peixe e arara</strong> (a arara tem tucano, papagaio e periquito; o peixe, tambaqui e outros). Eles
+passeiam, fogem de quem bate, o tatu vira bola quando assusta, o peixe nada e a arara voa.</p>
+<div class="callout">
+<p><strong>Onde aparecem sozinhos:</strong> só em mundo <strong>novo</strong> com relevo, criado depois desta
+versão. Mundo que <strong>já existia</strong>, mundo <strong>plano</strong> e mundo de <strong>aula</strong> não
+ganham bicho sozinho — o professor traz com <code>/bicho</code>, ou liga o aparecimento com
+<code>/bichos ligar</code>.</p>
+</div>
+<table>
+<thead><tr><th>Com isto na mão</th><th>No bicho</th><th>Acontece</th></tr></thead>
+<tbody>
+<tr><td>Tesoura (2 barras de ferro)</td><td>ovelha</td><td>tira lã da cor da ovelha, sem machucar; a lã cresce de novo em alguns minutos</td></tr>
+<tr><td>Balde vazio</td><td>vaca</td><td>balde de leite (beber mata a fome e devolve o balde); a vaca enche de novo com o tempo</td></tr>
+<tr><td>Balde de água</td><td>peixe</td><td>leva o peixe no balde; despejar solta ele</td></tr>
+<tr><td>Trigo / semente</td><td>vaca, ovelha / galinha</td><td>eles seguem quem segura; dois alimentados perto um do outro fazem um <strong>filhote</strong> (até 12 por curral)</td></tr>
+<tr><td>Carne / peixe cru</td><td>cão / gato</td><td><strong>doma</strong>: o domado segue o dono, e senta/levanta com um clique</td></tr>
+<tr><td>Nada (clique esquerdo)</td><td>qualquer um</td><td>na sobrevivência, machuca; o bicho deixa carne, frango, peixe, couro ou pena (tatu, cão e gato não dão carne). Regra <code>machucar-bichos</code></td></tr>
+</tbody>
+</table>
+<p>A galinha bota <strong>ovo</strong>. <strong>Bolo</strong> = 1 leite + 1 ovo + 2 trigos. Carne crua se assa na
+fornalha. Bicho em cima de uma <strong>placa de pressão</strong> aperta a placa.</p>
+<p class="lead">No modo criativo, a aba <strong>comida</strong> da mochila (tecla <code>E</code>) dá trigo, carne, ovo,
+leite e o resto — é com eles na mão que se doma e se cria bicho no criativo.</p>
+</section>
+
+<section id="sons">
+<h2>🔊 Sons</h2>
+<p>Cada bloco soa do seu jeito ao quebrar e ao colocar; há passos, baque de queda, água, portas, alavanca,
+baú, fornalha, comer, moedas de Dimas, dano e as vozes dos bichos. O som vem do lado de onde aconteceu e
+some com a distância.</p>
+<p>No menu de pausa (<code>Esc</code>) › som há dois controles novos: <strong>sons do mundo</strong> e
+<strong>ambiente</strong> (vento, pássaros, grilos). Com a turma inteira na sala, se ficar barulhento,
+ponha o <strong>ambiente no zero</strong> — ele desliga de vez.</p>
 </section>
 
 <section id="faq">

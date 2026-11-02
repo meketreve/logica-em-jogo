@@ -393,7 +393,7 @@ echo    [5] Aula 4 - Decifre a mensagem
 echo    [6] Aula 5 - Conserte o desenho
 echo    [7] Aula 6 - Siga o manual
 echo    [8] Abrir outro mundo: salvo ou AULA
-echo    [9] Criar mundo PROCEDURAL ^(gigante, gera conforme voce explora^)
+echo    [9] Criar mundo PROCEDURAL ^(gigante, gera conforme voce explora, nasce com bichos^)
 echo   [10] Criar mundo PLANO ^(terreno liso - base para montar aulas^)
 echo   [11] Publicar um mundo como AULA ^(reutilizavel a cada turma^)
 echo    [0] Sair sem iniciar o servidor

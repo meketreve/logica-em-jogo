@@ -43,7 +43,7 @@ interface Mudanca {
 const MUDANCAS: readonly Mudanca[] = [
   {
     // sem `data`: este é o build atual (ver rotuloDoBloco)
-    titulo: "Chegaram os bichos",
+    titulo: "A grande atualização: bichos e sons",
     itens: [
       "o mundo agora tem **bichos**: vaca, galinha, ovelha, cão, gato, tatu, peixe e arara — cada um com as suas raças e cores (vaca nelore, galinha carijó, vira-lata caramelo, gato frajola, tucano, tambaqui…), e cada bioma tem os seus",
       "eles passeiam, fogem de quem bate, o tatu **vira bola** quando assusta, o peixe nada e a arara voa. A galinha segue quem segura **semente** e a vaca e a ovelha seguem o **trigo** na mão",
@@ -57,6 +57,13 @@ const MUDANCAS: readonly Mudanca[] = [
       "o **F3** e o **/perfil** agora dizem quanto cada parte do servidor gasta, e quanto os bichos custam pra desenhar",
       "aba nova **comida** no inventário do criativo: trigo, pão, ovo, leite, bolo, carnes, peixe e as frutas e legumes — é com eles na mão que se doma, se atrai e se cria bicho. A **tesoura** e o **balde com peixe** entraram em ferramentas",
       "**/bichos fila** põe um bicho de cada raça enfileirado na frente do professor (uma fileira por espécie, com um filhote no fim), e todos ficam parados pra olhar; **/bichos parar** congela todos onde estão e **/bichos soltar** devolve o passeio",
+      "**cada bloco soa do seu jeito** ao quebrar e ao colocar: pedra, madeira, terra, areia, vidro (com cacos!), planta, lã e metal. Segurando a picareta, a ferramenta faz **toc-toc** enquanto racha",
+      "**passos** no chão de cada material, mais espaçados correndo; **baque** quando cai de alto; **splash** ao entrar na água e braçadas nadando — e debaixo d'água o som fica **abafado**",
+      "**portas e janelas** rangem abrindo e batem fechando (também quando um circuito abre a porta); a **alavanca** dá um clique e a **placa** um toque. Fio e lâmpada acendendo ficam em silêncio de propósito",
+      "**baú e fornalha** abrindo e fechando, fornalha **acendendo**, **comer**, **fabricar**, **balde** enchendo e esvaziando, **moedas** de Dimas entrando e saindo, **teleporte**, **deitar na cama**, levar **dano** e o soco no PvP",
+      "**ambiente**: vento (mais forte com a ventania), pássaros de dia, grilos à noite, gotas na caverna e o barulho de **água correndo** perto",
+      "o som vem **do lado** de onde aconteceu e diminui com a distância — longe demais nem toca",
+      "em **Configurações › som** há dois controles novos: **sons do mundo** e **ambiente** (no zero, o ambiente desliga de vez)",
     ],
   },
   {

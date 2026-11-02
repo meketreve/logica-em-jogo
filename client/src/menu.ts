@@ -8,6 +8,7 @@ import {
   sanitizeName,
 } from "@logica/shared";
 import { playUi, setUiVolume } from "./audio";
+import { setVolumesMundo, somMundo } from "./somMundo";
 import {
   DEFAULT_SETTINGS,
   KEY_ACTION_LABEL,
@@ -708,6 +709,29 @@ function renderConfigPanel(
     );
     // amostra ao SOLTAR o slider (no input tocaria uma metralhadora)
     vol.addEventListener("change", () => playUi("notify"));
+    // §🔊 som de mundo e ambiente: controles SEPARADOS — o professor cala o
+    // vento/pássaro da sala inteira sem perder o clique da quebra
+    const mundo = slider(
+      "volume dos sons do mundo (blocos, passos, portas)",
+      0, 1, 0.05,
+      s.volumeMundo,
+      (v) => {
+        s.volumeMundo = v;
+        setVolumesMundo(v, s.volumeAmbiente);
+      },
+      (v) => `${Math.round(v * 100)}%`,
+    );
+    mundo.addEventListener("change", () => somMundo.material("colocar", "madeira", null));
+    slider(
+      "volume do ambiente (vento, pássaros, grilos)",
+      0, 1, 0.05,
+      s.volumeAmbiente,
+      (v) => {
+        s.volumeAmbiente = v;
+        setVolumesMundo(s.volumeMundo, v);
+      },
+      (v) => (v === 0 ? "desligado" : `${Math.round(v * 100)}%`),
+    );
   } else {
     slider("campo de visão (FOV)", 60, 100, 1, s.fov, (v) => (s.fov = v), (v) => `${v}°`);
 

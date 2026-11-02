@@ -53,7 +53,7 @@ O que o script **não** acha é o que manda aqui:
 
 **Sondas** (`scripts/*-shot.mjs`, `shots:tablet` é a RÉGUA de 1024×600): host + Chrome reais, e
 asseveram no DOM (`npm run build` antes). **UI só é "feita" quando uma sonda a ENXERGA.** Bateria
-de **21**, uma por vez (em paralelo a asserção de tempo mente): 12 sobem host próprio, 7 pedem
+de **22**, uma por vez (em paralelo a asserção de tempo mente): 13 sobem host próprio, 7 pedem
 `BASE=`, `corrida` quer a aula 7. ⚠️ **`shots:fundo` GERA** ~5 MB versionados — `git status` depois.
 
 ## Onde fica cada coisa
@@ -81,6 +81,10 @@ de **21**, uma por vez (em paralelo a asserção de tempo mente): 12 sobem host 
 - **§💡 a luz** (4 arquivos, achar custou meia sessão): `shared/src/luz.ts` (`acenderColuna` ×
   `atualizarBloco` — **a MESMA função**, com paridade) → vértice no `mesher.ts` (`luzDoCanto`;
   cubo cheio em laço SEPARADO) → Uint16 → `luzShader.ts` (desempacota no VERTEX: bug-544).
+- **§🔊 som:** INTERFACE em `audio.ts` (dono do AudioContext, armado no 1º `pointerdown`);
+  MUNDO em `somMundo.ts` (síntese, orçamento, ambiente 1 Hz, gancho `somDeBicho`); a regra de
+  QUANDO soa é pura em `shared/src/sons.ts` (`somDaTroca` antes→depois, `materialSonoro`,
+  `Passadas`). Sonda `shots:som` lê `window.__som` (os contadores do perfil).
 - **Perfil de desempenho** (F3): o botão manda `profile_report`, o `?bench` faz `POST /perfil`,
   e o **`/perfil`** do professor pede a TODOS (`pedir_perfil`) — os três caem em `profiles/` do
   host pelo `salvarPerfil` (`server/src/perfis.ts`), que batiza pelo prefixo (`bench-`, `turma-<lote>-`).

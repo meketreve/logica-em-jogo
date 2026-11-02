@@ -27,12 +27,17 @@ active: true
 
 ## Testar na escola (o usuário faz)
 
-- [ ] **§🐄 Bichos (02/11, BRANCH `claude/project-thread-kqj92e`):** abrir um mundo procedural —
+- [ ] **§🐄 Bichos (02/11):** abrir um mundo procedural —
       os bichos aparecem perto? Tesoura na ovelha, balde na vaca, ovo, domar o cão. O F3 mostra a
       linha "bichos:" e "servidor por sistema" — mandar o `/perfil` da turma com bichos à vista
       (é a leitura que ele pediu) e um `?bench` × `?bench&bichosparados` (IA × desenho). A aba
-      **comida** do criativo: com trigo na mão a vaca segue? O tablet aguenta? A placa no curral? Se aprovar, merge na `main`.
+      **comida** do criativo: com trigo na mão a vaca segue? O tablet aguenta? A placa no curral?
 
+- [ ] **§🔊 O mundo tem som (02/11):** com 30 tablets na sala o
+      som vira bagunça? (se sim: ambiente a 0 em Configurações › som, ou baixar o padrão). O
+      toc-toc da picareta ajuda a criança a saber que está quebrando? Passos e baque cansam?
+      **Perfil:** `/perfil` com a turma andando e quebrando — ler `som` e `gravacao.som`
+      (`msMain`, `descartados`, `vozesPico`); se `descartadosTeto` subir, o teto de 14 vozes é baixo.
 - [ ] **`/perfil` (27/10):** rodar com a turma toda conectada — chegam N arquivos
       `perf-turma-*` em `profiles/`? O aviso no chat assusta ou passa batido? Tablet com a tela
       apagada só devolve quando acender (a gravação anda por QUADRO pintado).
