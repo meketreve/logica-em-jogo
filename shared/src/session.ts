@@ -920,14 +920,17 @@ export class GameSession {
     }
     // §🐄 bichos (2026-11-02, decisão dele): mundo PROCEDURAL nasce com bichos;
     // mundo de AULA não tem nenhum, só o que o professor puser com `/bicho`.
-    // O preset não vai pro save, então o save guarda a decisão (`natural`); save
-    // de ANTES dos bichos decide pelo terreno (`pareceProcedural`).
+    // O preset não vai pro save, então o save guarda a decisão (`natural`).
+    // Save de ANTES dos bichos NÃO ganha spawn natural (decisão dele, na
+    // fusão de 02/11: "mundos que já existem não criam bichos sozinhos") — o
+    // mundo da turma não muda de cara na aula seguinte. `/bichos ligar` liga
+    // na mão, e aí o save passa a guardar `natural: true`.
     if (opts.restore) {
       const salvo = opts.restore.bichos;
       this.bichos = novoEstadoBichos(
         this.seed,
         !this.somenteLeitura &&
-          (opts.bichosNaturais ?? (salvo ? salvo.natural : this.pareceProcedural())),
+          (opts.bichosNaturais ?? (salvo ? salvo.natural : false)),
       );
       if (salvo) restaurarBichos(this, salvo);
     } else {
@@ -937,27 +940,6 @@ export class GameSession {
         !this.somenteLeitura && (opts.bichosNaturais ?? preset === "normal"),
       );
     }
-  }
-
-  /**
-   * §🐄 Save de antes dos bichos: o mundo é procedural (ganha bichos) ou plano?
-   * O preset não é gravado, então se lê o TERRENO: mundo lazy só nasce do
-   * gerador normal; no denso, 9 colunas ao redor do centro com 3+ alturas
-   * diferentes = relevo (plano/cabines têm uma altura só).
-   */
-  private pareceProcedural(): boolean {
-    if (this.lazy) return true;
-    const alturas = new Set<number>();
-    const cx = Math.floor(this.world.sizeX / 2);
-    const cz = Math.floor(this.world.sizeZ / 2);
-    for (const dx of [-40, 0, 40]) {
-      for (const dz of [-40, 0, 40]) {
-        const x = Math.min(Math.max(cx + dx, 0), this.world.sizeX - 1);
-        const z = Math.min(Math.max(cz + dz, 0), this.world.sizeZ - 1);
-        alturas.add(findSpawnY(this.world, x, z));
-      }
-    }
-    return alturas.size >= 3;
   }
 
   /**

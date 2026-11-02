@@ -441,7 +441,7 @@ describe("§🐄 save", () => {
     expect(save.bichos?.lista).toHaveLength(1);
   });
 
-  it("save de ANTES dos bichos: plano não liga o spawn, procedural liga", () => {
+  it("save de ANTES dos bichos não liga o spawn — nem o procedural (só mundo NOVO)", () => {
     const plano = sala();
     const meta = JSON.parse(JSON.stringify(plano.session.toSave())) as SaveData;
     delete meta.bichos;
@@ -451,7 +451,13 @@ describe("§🐄 save", () => {
     const m2 = JSON.parse(JSON.stringify(proc.toSave())) as SaveData;
     delete m2.bichos;
     const r2 = new GameSession(() => {}, { restore: { ...m2, world: proc.world } });
-    expect(r2.bichos.natural).toBe(true);
+    expect(r2.bichos.natural).toBe(false);
+    // CONTROLE: o MESMO procedural salvo DEPOIS dos bichos volta com spawn —
+    // é o campo do save que decide, não o terreno
+    expect(proc.bichos.natural).toBe(true);
+    const m3 = JSON.parse(JSON.stringify(proc.toSave())) as SaveData;
+    const r3 = new GameSession(() => {}, { restore: { ...m3, world: proc.world } });
+    expect(r3.bichos.natural).toBe(true);
   });
 
   it("CONTROLE NEGATIVO: mundo sem bicho e sem spawn não ganha campo no save", () => {
