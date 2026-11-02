@@ -3,8 +3,9 @@ import { onGameEvent } from "./events";
 /**
  * Som de INTERFACE (menus, botões, notificações) — sintetizado com WebAudio,
  * zero assets externos (restrição do projeto: engine e assets próprios).
- * Som de MUNDO (blocos, passos) fica pra depois; os gatilhos já existem em
- * events.ts — aqui só a notificação de chat escuta.
+ * Som de MUNDO (blocos, passos, ambiente, bichos) mora em `somMundo.ts`, que
+ * pega o MESMO AudioContext daqui (`contextoDeAudio`) — um contexto por página
+ * é o teto prático do navegador, e é este arquivo que o arma no 1º gesto.
  */
 
 let ctx: AudioContext | null = null;
@@ -24,6 +25,16 @@ function ensureCtx(): AudioContext | null {
     }
   }
   if (ctx.state === "suspended") void ctx.resume();
+  return ctx;
+}
+
+/**
+ * O contexto JÁ armado, ou `null` — nunca cria. O som de mundo é sempre
+ * "passivo" (a rede manda, o motor muda), e criar contexto fora de gesto viola
+ * a política de autoplay. Quem arma é o `pointerdown` do `initUiAudio`.
+ */
+export function contextoDeAudio(): AudioContext | null {
+  if (ctx && ctx.state === "suspended") void ctx.resume();
   return ctx;
 }
 

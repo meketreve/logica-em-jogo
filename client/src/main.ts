@@ -70,9 +70,15 @@ import {
   type TipoGesto,
   type RelatoQueda,
   lerRelatoQueda,
+  isAgua,
+  luzCeu,
+  materialSonoro,
+  Passadas,
+  somDaTroca,
 } from "@logica/shared";
 import { AguaFx } from "./aguaFx";
 import { initUiAudio, playUi, setUiVolume, playUiPassive } from "./audio";
+import { setVolumesMundo, somMundo } from "./somMundo";
 import { BENCH_SEED, Bench, benchDaUrl, benchSettings, experimentosDaUrl } from "./bench";
 import { ContainerPanel } from "./container";
 import { InventoryPanel } from "./inventory";
@@ -278,6 +284,7 @@ function applySettings(): ReturnType<typeof loadSettings> {
   camera.updateProjectionMatrix();
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, s.pixelRatioCap));
   setUiVolume(s.volume);
+  setVolumesMundo(s.volumeMundo, s.volumeAmbiente); // §🔊
   touchControls?.setScale(s.uiScale); // escala da UI de toque (2026-07-21)
   touchControls?.setLayout(s.touchLayout); // disposição dos controles (2026-08-28)
   skyCycle.setNuvens(s.nuvens); // §🌬️ nuvens: config de DESEMPENHO (fill rate)
@@ -755,6 +762,11 @@ function vitals(): VitalsUi {
 }
 /** Última mensagem `vida` do servidor — o HUD F3 lê daqui (§🍖 F3). */
 let ultimaVida: VidaInfo | null = null;
+/** §🔊 Estado anterior pra som de DIFERENÇA: fome subiu = comeu, saldo mudou =
+ *  moeda, e o container aberto (pra tampa bater ao fechar). */
+let ultimaFome: number | null = null;
+let ultimoSaldo: number | null = null;
+let containerAberto: { tipo: string; x: number; y: number; z: number } | null = null;
 // ?vida=7 (ou ?vida=7,45 com fôlego, ou ?vida=7,45,12 com fome) na URL: mostra o
 // HUD de vida com valores FIXOS, sem servidor — é o par do ?hora/?vento/?atlas,
 // pra inspeção visual e screenshot headless dos corações, bolhas e coxas. NÃO
@@ -1009,6 +1021,12 @@ function handleServerData(data: string | ArrayBuffer): void {
       // §🍖 F10: o conteúdo do bloco que este jogador tem aberto. É ESTA
       // mensagem que abre o painel (o clique direito só pede) — e ela continua
       // chegando enquanto a fornalha cozinha, que é o que faz a barrinha andar.
+      // §🔊 a tampa soa quando o painel ABRE (a mensagem segue chegando
+      // enquanto a fornalha cozinha — só a 1ª é abertura)
+      if (paineis.container && !paineis.container.open) {
+        somMundo.container(msg.tipo, true, msg.x, msg.y, msg.z);
+        containerAberto = { tipo: msg.tipo, x: msg.x, y: msg.y, z: msg.z };
+      }
       paineis.container?.atualizar(msg);
     } else if (msg.type === "container_fechado") {
       paineis.container?.fecharSemAvisar();
@@ -1126,6 +1144,14 @@ function handleServerData(data: string | ArrayBuffer): void {
       vitals().aplicar(msg);
       jogo?.atualizarComerToque(); // §🍖 F6: comer some quando a barra enche
       if (msg.causa) emitGameEvent({ kind: "dano" });
+      // §🔊 a fome SUBIU = comeu (o servidor é quem aceita a mordida; tocar
+      // no clique faria barulho de comer com a barriga cheia, que ele recusa)
+      if (msg.fome !== undefined && ultimaFome !== null && msg.fome > ultimaFome && !msg.morreu) {
+        somMundo.comer();
+      }
+      // morreu: o `matar` do servidor manda OUTRO `vida` com a fome cheia do
+      // renascer — sem zerar a base aqui, renascer soaria como comer
+      ultimaFome = msg.morreu ? null : (msg.fome ?? null);
       if (msg.morreu) {
         emitGameEvent({ kind: "morte" });
         chat.addMessage(
@@ -1147,6 +1173,9 @@ function handleServerData(data: string | ArrayBuffer): void {
       // Loja (2026-09-01): saldo NUNCA decidido pela UI — o servidor é dono,
       // como toda vida/fome/inventário deste jogo.
       vitals().aplicarDimas(msg.saldo);
+      // §🔊 moeda: ganhou × gastou (o 1º saldo é só o estado, não toca)
+      if (ultimoSaldo !== null && msg.saldo !== ultimoSaldo) somMundo.moeda(msg.saldo > ultimoSaldo);
+      ultimoSaldo = msg.saldo;
     } else if (msg.type === "kicked") {
       // professor removeu (cp22): mesmo caminho do join_denied — motivo vira
       // banner no menu (sem alert nativo), o socket cai logo depois.
@@ -1532,7 +1561,14 @@ class GameRuntime {
     blockId: number;
     inicio: number;
     precisa: number;
+    /** §🔊 Quando sai o próximo "toc" da ferramenta (performance.now). */
+    proxGolpe: number;
   } | null = null;
+  /** §🔊 Odômetro das passadas e estado da água/ambiente do jogador local. */
+  private readonly passadas = new Passadas();
+  private jaTeleportou = false;
+  private pesNaAguaAntes = false;
+  private proxAmbiente = 0;
   private readonly lookDir = new THREE.Vector3();
   private readonly hotbarUi: HotbarUi;
   /** O F3/perfil. Público: a tela de carga e o `/raio` marcam fases nele. */
@@ -1721,6 +1757,10 @@ class GameRuntime {
       ...this.quebraFx.estado,
       alvo: this.quebra ? { ...this.quebra.cel, precisa: this.quebra.precisa } : null,
     });
+    // §🔊 gancho de SONDA: os contadores do som de mundo (a `shots:som` lê
+    // antes e depois de cada cena — som não se vê no DOM nem no pixel)
+    (window as unknown as Record<string, unknown>)["__som"] = () =>
+      JSON.parse(JSON.stringify(somMundo.medidas)) as unknown;
     // §🔌 gancho de SONDA (mesmo precedente): quantas remontagens o caminho
     // "bloco" já fez. A `shots:circuito` (C5) lê isto antes e depois de UM
     // clique na alavanca pra provar que cada chunk sai uma vez, não uma por peça.
@@ -1779,7 +1819,11 @@ class GameRuntime {
       (slot, qtd) =>
         this.activeConn.send(JSON.stringify({ type: "descartar_item", slot, qtd })),
       (id) => this.hotbarUi.nome(id),
-      (receita) => this.activeConn.send(JSON.stringify({ type: "fabricar", receita })),
+      (receita) => {
+        // §🔊 a lista só deixa tocar receita que DÁ pra fabricar (`podeFabricar`)
+        somMundo.fabricar();
+        this.activeConn.send(JSON.stringify({ type: "fabricar", receita }));
+      },
     );
     input.onKey(settings.keys.inventario, () => paineis.alternar(paineis.mochila));
 
@@ -1804,7 +1848,15 @@ class GameRuntime {
           // servidor, e a verdade dele ganha da tela.
           paineis.aoAbrirContainer();
           document.exitPointerLock();
-        } else input.lock();
+        } else {
+          input.lock();
+          // §🔊 fechou (pelo aluno OU pelo servidor): a tampa bate
+          if (containerAberto) {
+            const c = containerAberto;
+            somMundo.container(c.tipo, false, c.x, c.y, c.z);
+            containerAberto = null;
+          }
+        }
         updateOverlay();
       },
       // §💰 as três do BALCÃO: sem x/y/z, porque o balcão é do jogador e não de
@@ -1832,6 +1884,7 @@ class GameRuntime {
       // intenção: regra, modo, alcance e cooldown são conferidos no servidor.
       if (this.alvoJogador && !this.hotbarUi.varinhaAtiva) {
         this.activeConn.send(JSON.stringify({ type: "atacar", alvo: this.alvoJogador.id }));
+        somMundo.golpePvp(); // §🔊 o soco; o "uf" de quem leva vem pelo `vida` dele
         return;
       }
       if (!this.target) return;
@@ -1915,6 +1968,7 @@ class GameRuntime {
               }),
             );
             if (!mochila.ativa) this.hotbarUi.definirSlotLocal(ITEM_BALDE_VAZIO); // esvaziou (local)
+            somMundo.balde(false); // §🔊
           } else {
             // só recolhe se mirou numa FONTE (id Agua); fluxo derivado não coleta
             if (getBlock(this.world, this.target.x, this.target.y, this.target.z) !== BlockId.Agua) return;
@@ -1929,6 +1983,7 @@ class GameRuntime {
               }),
             );
             if (!mochila.ativa) this.hotbarUi.definirSlotLocal(ITEM_BALDE_AGUA); // encheu (local)
+            somMundo.balde(true); // §🔊
           }
           return;
         }
@@ -2015,7 +2070,11 @@ class GameRuntime {
       distanciaTotal: this.movimento.distanciaTotal,
       colunasRecebidas: this.colunasRecebidas,
       bytesRecebidos: this.activeConn.stats.bytesIn,
+      somTocados: somMundo.medidas.tocados,
+      somMs: somMundo.medidas.ms,
+      somDescartados: somMundo.medidas.descartadosTeto + somMundo.medidas.descartadosLonge,
     });
+    this.hud.som = somMundo.medidas; // §🔊 mutado no lugar: basta a referência
     this.hud.setRemesh({
       count: this.chunkRenderer.remeshCount,
       totalMs: this.chunkRenderer.remeshMsTotal,
@@ -2434,6 +2493,8 @@ class GameRuntime {
         }
       }
       const yAntesDoPasso = this.player.pos.y;
+      const xAntesDoPasso = this.player.pos.x;
+      const zAntesDoPasso = this.player.pos.z;
       if (chaoCarregado && !this.bench?.ativo && !this.foto) {
         stepPlayer(this.world, this.player, { ...cmd, noclip: invisivelAtivo }, dt);
       }
@@ -2441,6 +2502,9 @@ class GameRuntime {
       // é medida contra o `y` de antes do passo, e um teleporte no meio viraria
       // "degrau" de 40 blocos
       this.movimento.aposOPasso(dt, this.player, yAntesDoPasso, cmd);
+      if (!this.bench?.ativo && !this.foto) {
+        this.somDoPasso(xAntesDoPasso, zAntesDoPasso, cmd.fly);
+      }
       if (this.player.pos.y < -16) this.respawn(); // caiu da borda do mundo
 
       // jogadores remotos deslizam até o último update (suave mesmo a 10 Hz)
@@ -2456,6 +2520,11 @@ class GameRuntime {
       }
       camera.position.set(this.player.pos.x, this.player.pos.y + this.movimento.alturaOlho, this.player.pos.z);
       camera.rotation.set(input.pitch, input.yaw, 0);
+      somMundo.ouvinte(camera.position.x, camera.position.y, camera.position.z, input.yaw); // §🔊
+      if (now >= this.proxAmbiente) {
+        this.proxAmbiente = now + 1000; // §🔊 o ambiente é máquina de 1 Hz, não laço por frame
+        this.somAmbiente();
+      }
       // dormindo (2026-08-17): a câmera desce até a cama e olha pra cima.
       //
       // ⚠️ O PROGRESSO é que se interpola, NÃO a câmera (bug-627). As duas
@@ -2699,7 +2768,70 @@ class GameRuntime {
       this.mundoLazy,
     );
 
+  /**
+   * §🔊 Passada, aterrissagem, splash e braçada do jogador LOCAL. A cadência é
+   * do `Passadas` (shared, testado); aqui só ler o mundo sob os pés.
+   */
+  private somDoPasso(xAntes: number, zAntes: number, voando: boolean): void {
+    const p = this.player.pos;
+    const fx = Math.floor(p.x);
+    const fz = Math.floor(p.z);
+    const pesNaAgua = isAgua(getBlock(this.world, fx, Math.floor(p.y + 0.1), fz));
+    if (pesNaAgua && !this.pesNaAguaAntes && !voando) somMundo.splash(this.player.vel.y < -6);
+    this.pesNaAguaAntes = pesNaAgua;
+    const dx = p.x - xAntes;
+    const dz = p.z - zAntes;
+    if (pesNaAgua) {
+      // nadando: a braçada usa a MESMA cadência, contada à parte (fora do chão)
+      if (dx * dx + dz * dz > 1e-6 && this.passadas.passo(dx, dz, p.y, {
+        noChao: true, voando: false, naAgua: false, correndo: false,
+      })) somMundo.nadar();
+      return;
+    }
+    const s = this.passadas.passo(dx, dz, p.y, {
+      noChao: this.player.onGround,
+      voando,
+      naAgua: false,
+      correndo: this.player.sprinting,
+    });
+    if (!s) return;
+    // o bloco sob os pés; na beirada (pé meio no ar) cai no de baixo do centro
+    const sob = getBlock(this.world, fx, Math.floor(p.y - 0.05), fz);
+    const mat = materialSonoro(sob) ?? "terra";
+    if (s.tipo === "aterrissar") somMundo.aterrissar(s.altura, mat, p.x, p.y, p.z);
+    else somMundo.material("passo", mat, p.x, p.y, p.z);
+  }
+
+  /**
+   * §🔊 Lê o que o ambiente precisa (1×/s): dia, céu na cabeça, vento, água
+   * corrente perto. A varredura da água é 9×5×9 = 405 `getBlock` — um
+   * décimo de ms, uma vez por segundo.
+   */
+  private somAmbiente(): void {
+    const cx = Math.floor(camera.position.x);
+    const cy = Math.floor(camera.position.y);
+    const cz = Math.floor(camera.position.z);
+    let aguaPerto = 0;
+    for (let y = cy - 2; y <= cy + 2; y++)
+      for (let z = cz - 4; z <= cz + 4; z++)
+        for (let x = cx - 4; x <= cx + 4; x++) {
+          const id = getBlock(this.world, x, y, z);
+          // só a CORRENTE soa (fluida); lago parado é silêncio
+          if (isAgua(id) && id !== BlockId.Agua) aguaPerto++;
+        }
+    const grade = this.luz.paraMesher;
+    somMundo.ambiente({
+      dia: skyCycle.nivelCeu,
+      // sem luz (?semluz) conta como céu aberto: melhor vento a mais que mudo
+      ceu: grade ? luzCeu(grade, cx, cy, cz) : 15,
+      vento: vento.ativo ? vento.forca : 0,
+      aguaPerto,
+      submerso: isAgua(getBlock(this.world, cx, cy, cz)),
+    });
+  }
+
   private respawn(): void {
+    this.passadas.zerar(this.spawn.y);
     this.player.pos.x = this.spawn.x;
     this.player.pos.y = this.spawn.y;
     this.player.pos.z = this.spawn.z;
@@ -2889,6 +3021,11 @@ class GameRuntime {
 
   // servidor manda posição E orientação (volta-onde-parou; futuro /tp)
   applyTeleport(pos: { x: number; y: number; z: number; yaw: number; pitch: number }): void {
+    // §🔊 o zumbido só no /tp de verdade: o 1º teleporte é o spawn do join
+    const salto = Math.hypot(pos.x - this.player.pos.x, pos.y - this.player.pos.y, pos.z - this.player.pos.z);
+    if (this.jaTeleportou && salto > 3) somMundo.teleporte();
+    this.jaTeleportou = true;
+    this.passadas.zerar(pos.y);
     this.player.pos.x = pos.x;
     this.player.pos.y = pos.y;
     this.player.pos.z = pos.z;
@@ -2901,6 +3038,10 @@ class GameRuntime {
   // servidor mandou block_changed (nossa ação OU de outro jogador OU gravidade
   // — cliente não distingue): aplica na cópia local e remesh
   applyBlockChanged(msg: { x: number; y: number; z: number; blockId: number }): void {
+    // §🔊 a troca ANTES→DEPOIS é que diz se soa (`somDaTroca`): o motor
+    // (água, fio, plantação) gera a maioria destas mensagens e não faz barulho
+    const somTroca = somDaTroca(getBlock(this.world, msg.x, msg.y, msg.z), msg.blockId);
+    somMundo.trocaRecebida(somTroca, msg.x, msg.y, msg.z);
     setBlock(this.world, msg.x, msg.y, msg.z, msg.blockId);
     this.chunkRenderer.remeshBlock(msg.x, msg.y, msg.z);
     // §💡 a luz mudou onde ela ALCANÇA (até 15 blocos), não só no ±1 do bloco:
@@ -2924,6 +3065,14 @@ class GameRuntime {
   x1: number; y1: number; z1: number;
   blockId: number;
   }): void {
+      // §🔊 UM som pro lote inteiro, no meio da caixa (o lote é do professor)
+      {
+        const mx = (msg.x0 + msg.x1) >> 1;
+        const my = (msg.y0 + msg.y1) >> 1;
+        const mz = (msg.z0 + msg.z1) >> 1;
+        const somLote = somDaTroca(getBlock(this.world, mx, my, mz), msg.blockId);
+        if (somLote) somMundo.troca(somLote, mx, my, mz);
+      }
       for (let y = msg.y0; y <= msg.y1; y++)
         for (let z = msg.z0; z <= msg.z1; z++)
           for (let x = msg.x0; x <= msg.x1; x++) setBlock(this.world, x, y, z, msg.blockId);
@@ -3005,6 +3154,7 @@ class GameRuntime {
       blockId,
       inicio: performance.now(),
       precisa: tempoDeQuebraMs(blockId, mochila.estado()[slot] ?? null),
+      proxGolpe: performance.now(),
     };
   }
 
@@ -3043,8 +3193,15 @@ class GameRuntime {
       else this.activeConn.send(JSON.stringify({ type: "break_cancel" }));
       return;
     }
-    const progresso = (performance.now() - q.inicio) / Math.max(1, q.precisa);
+    const agora = performance.now();
+    const progresso = (agora - q.inicio) / Math.max(1, q.precisa);
     this.quebraFx.atualizar(q.cel, Math.min(1, progresso), blockSelectionBox(bloco));
+    // §🔊 o "toc" da ferramenta a cada 250 ms enquanto racha (Minecraft: ~4/s)
+    if (agora >= q.proxGolpe && progresso < 1) {
+      q.proxGolpe = agora + 250;
+      const mat = materialSonoro(bloco);
+      if (mat) somMundo.material("golpe", mat, q.cel.x + 0.5, q.cel.y + 0.5, q.cel.z + 0.5);
+    }
   }
 
   /** 3ª pessoa (persistente OU o override do emoji) trava clique de AÇÃO — mirar
@@ -3063,6 +3220,7 @@ class GameRuntime {
   /** O PRÓPRIO jogador deitou ou levantou (2026-08-17). O servidor decide; aqui
    *  só guardamos a cama, e o laço de render leva a câmera até ela. */
   aoDormir(dormindo: boolean, cama?: { x: number; y: number; z: number }): void {
+    if ((this.dormindo !== null) !== (dormindo && !!cama)) somMundo.dormir(dormindo); // §🔊
     this.dormindo = dormindo && cama ? cama : null;
     this.levantarPedido = false;
     // guarda o destino para a volta: sem isto o alvo sumiria no frame em que

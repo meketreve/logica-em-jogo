@@ -1,5 +1,5 @@
 ---
-updated: 2026-10-30
+updated: 2026-11-02
 tier: 3
 ---
 
@@ -11,6 +11,13 @@ tier: 3
      Convertido de `.wolf/buglog.json` em 2026-09-25 (mesmo conteúdo, formato do
      modelo). São bugs ESCRITOS À MÃO: nada de detector automático — ele já encheu
      o arquivo de 148 entradas falsas uma vez, e elas foram podadas junto. -->
+
+## 2026-11-02 — smoke troca-raio reprovava uma ordem CERTA quando as duas mensagens chegavam no mesmo ms
+- **Sintoma:** `[troca-raio] ✗ §🕐 aviso "mundo_trocando" chegou 0 ms ANTES do mundo novo` — intermitente, 1 em 3 rodadas seguidas (e 1 vez na bateria inteira), com o lote do som de mundo, que não toca em servidor.
+- **Onde:** `server/src/cenarios/_smoke-troca-raio.mjs`
+- **Causa:** "antes" era medido por `Date.now()` com `<` estrito. O aviso e o header do mundo novo chegam em sequência; num mundo pequeno e máquina livre os dois caem no MESMO milissegundo e a asserção reprova uma ordem que está certa. Defeito do teste, não do host.
+- **Correção:** contador de mensagens (`seq`) — a asserção é de ORDEM de chegada; o ms segue impresso, só como informação. 5 de 5 verdes depois.
+- **Tags:** smoke, intermitente, relogio, ordem, mundo_trocando, troca-raio, corrigido
 
 ## 2026-10-30 — porta fechada à mão com sinal ABRIA SOZINHA quando o mundo reabria
 - **Sintoma:** achado na revisão pré-aula (nenhuma aula viu ainda): teste `porta FECHADA à mão com sinal continua fechada quando o mundo reabre` — `expected [ 67, 67 ] to deeply equal [ 66, 66 ]` (PortaXAberta no lugar de PortaXFechada).

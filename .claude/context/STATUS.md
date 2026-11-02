@@ -34,6 +34,12 @@ Atrás: a **porta NÃO** (⚠️ quebra o ponto fixo — cabeçalho de `circuito
 
 ## Concluído (recente)
 
+- **02/11 — §🔊 o mundo tem som** (pedido dele, item 12; **branch** `claude/project-thread-nba77z`,
+  não a main): bloco por material, ferramenta rachando, passos, água, portas, alavanca, baú,
+  comer, moeda, dano, ambiente (vento/pássaro/grilo/riacho) e o gancho `somDeBicho` pros mobs.
+  Volumes novos (mundo, ambiente) e `som` no perfil do F3. Sonda `shots:som` (com controle
+  negativo). **Não testado em aula.**
+
 - **27/10 — `/perfil` (pedido dele):** o professor manda a turma gravar o perfil do F3 sem
   ninguém apertar botão (`/perfil [nome|todos] [segundos]`, 5–60 s, padrão 10). Mora no HOST
   (`interceptarPedirPerfil`, `server/src/index.ts`); o cliente grava com o F3 FECHADO e devolve

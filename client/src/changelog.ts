@@ -43,6 +43,19 @@ interface Mudanca {
 const MUDANCAS: readonly Mudanca[] = [
   {
     // sem `data`: este é o build atual (ver rotuloDoBloco)
+    titulo: "O mundo tem som",
+    itens: [
+      "**cada bloco soa do seu jeito** ao quebrar e ao colocar: pedra, madeira, terra, areia, vidro (com cacos!), planta, lã e metal. Segurando a picareta, a ferramenta faz **toc-toc** enquanto racha",
+      "**passos** no chão de cada material, mais espaçados correndo; **baque** quando cai de alto; **splash** ao entrar na água e braçadas nadando — e debaixo d'água o som fica **abafado**",
+      "**portas e janelas** rangem abrindo e batem fechando (também quando um circuito abre a porta); a **alavanca** dá um clique e a **placa** um toque. Fio e lâmpada acendendo ficam em silêncio de propósito",
+      "**baú e fornalha** abrindo e fechando, fornalha **acendendo**, **comer**, **fabricar**, **balde** enchendo e esvaziando, **moedas** de Dimas entrando e saindo, **teleporte**, **deitar na cama**, levar **dano** e o soco no PvP",
+      "**ambiente**: vento (mais forte com a ventania), pássaros de dia, grilos à noite, gotas na caverna e o barulho de **água correndo** perto",
+      "o som vem **do lado** de onde aconteceu e diminui com a distância — longe demais nem toca",
+      "em **Configurações › som** há dois controles novos: **sons do mundo** e **ambiente** (no zero, o ambiente desliga de vez)",
+    ],
+  },
+  {
+    data: "30/10/2026",
     titulo: "O professor mede o jogo da turma",
     itens: [
       "comando novo do professor: **/perfil** pede a medição de desempenho a **todos** os conectados de uma vez — sem ninguém apertar F3. Cada aparelho se mede por 10 segundos e o resultado cai na pasta **profiles/** do servidor",

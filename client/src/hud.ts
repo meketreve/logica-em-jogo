@@ -118,6 +118,10 @@ export interface ContextoPerfil {
   distanciaTotal: number;
   colunasRecebidas: number;
   bytesRecebidos: number;
+  /** §🔊 Acumulados do som (viram delta: "o som custou X ms nos 10 s"). */
+  somTocados: number;
+  somMs: number;
+  somDescartados: number;
 }
 
 /** Fase da sessão. Sem isto, "158 long tasks" não diz se travou CARREGANDO
@@ -177,6 +181,13 @@ export class Hud {
    *  isto, um pico de luz no PC do laboratório sairia como "long task" anônima —
    *  que foi exatamente como o custo do mesher se escondeu até a sessão 27. */
   luz = { colunas: 0, totalMs: 0, fila: 0 };
+  /** §🔊 Custo do som de mundo (vozes, descartes, ms de main thread). Objeto do
+   *  `somMundo` (mutado no lugar) — o perfil copia no retrato. */
+  som: {
+    tocados: number; descartadosTeto: number; descartadosLonge: number; juntados: number;
+    vozes: number; vozesPico: number; ms: number; porTipo: Record<string, number | undefined>;
+    contexto: string; lacos: number; trocasSoaram: number; trocasCaladas: number;
+  } | null = null;
   /** Custo das regras no servidor (último `debug_stats`) — alimentado pelo main.ts. */
   regras: RegrasServidor | null = null;
   /** Tempo de carga da tela §🕐 por fase — alimentado pelo main.ts (a tela já
@@ -608,6 +619,8 @@ export class Hud {
       video: { geometrias: info.memory.geometries, texturas: info.memory.textures },
       stream: { ...this.stream },
       luz: { ...this.luz },
+      // §🔊 retrato do som: vozes agora/pico, descartes e ms acumulados
+      som: this.som ? { ...this.som, ms: +this.som.ms.toFixed(1), porTipo: { ...this.som.porTipo } } : null,
       // custo das regras do outro lado (água/areia por tick) — ver `regras`
       regrasServidor: this.regras,
       rede: this.conexao(),
@@ -644,12 +657,28 @@ export class Hud {
             };
           })()
         : null;
+    // §🔊 o que o SOM custou dentro da janela (main thread; a síntese em si
+    // roda na thread de áudio do navegador e não entra no frametime)
+    const som =
+      ini && fim
+        ? (() => {
+            const tocados = fim.somTocados - ini.somTocados;
+            const ms = fim.somMs - ini.somMs;
+            return {
+              tocados,
+              descartados: fim.somDescartados - ini.somDescartados,
+              msMain: +ms.toFixed(2),
+              msPorSom: tocados > 0 ? +(ms / tocados).toFixed(3) : 0,
+            };
+          })()
+        : null;
     return {
       ...base,
       gravacao: {
         duracaoS: +segundos.toFixed(1),
         frames: n,
         movimento,
+        som,
         fpsMedio: Math.round(n / (sum / 1000)),
         frametimeMs: {
           min: +(sorted[0] ?? 0).toFixed(2),
@@ -691,6 +720,9 @@ export class Hud {
       `remesh ${s.remeshCount}× / ${s.remeshTotalMs}ms main / ${s.remeshWorkerMs ?? 0}ms worker / ${s.remeshLastMs}ms último`,
       `stream ${s.stream.colunas} colunas · fila ${s.stream.fila} · faltando ${s.stream.faltando} · repedidas ${s.stream.repedidas}`,
       `malha ${s.stream.ultimoLote} chunks no último frame (orçamento ${s.config?.meshMsPorFrame ?? "?"} ms)`,
+      s.som
+        ? `som ${s.som.vozes} vozes (pico ${s.som.vozesPico}) · ${s.som.tocados} tocados · ${s.som.descartadosTeto} teto · ${s.som.descartadosLonge} longe · ${s.som.ms}ms main · trocas ${s.som.trocasSoaram} soaram / ${s.som.trocasCaladas} caladas · ${s.som.contexto}`
+        : "som n/d",
       `luz ${s.luz.colunas} colunas · ${Math.round(s.luz.totalMs)}ms main · ${s.luz.colunas ? (s.luz.totalMs / s.luz.colunas).toFixed(2) : "0"}ms/coluna · fila ${s.luz.fila}`,
       s.remeshPorCaminho
         ? `remesh por caminho: fila ${s.remeshPorCaminho.fila.n}× (${Math.round(s.remeshPorCaminho.fila.ms)}ms) · bloco ${s.remeshPorCaminho.bloco.n}× (${Math.round(s.remeshPorCaminho.bloco.ms)}ms) · área ${s.remeshPorCaminho.area.n}× (${Math.round(s.remeshPorCaminho.area.ms)}ms)`

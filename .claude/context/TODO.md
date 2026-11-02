@@ -27,6 +27,11 @@ active: true
 
 ## Testar na escola (o usuário faz)
 
+- [ ] **§🔊 O mundo tem som (02/11, branch — não está na main):** com 30 tablets na sala o
+      som vira bagunça? (se sim: ambiente a 0 em Configurações › som, ou baixar o padrão). O
+      toc-toc da picareta ajuda a criança a saber que está quebrando? Passos e baque cansam?
+      **Perfil:** `/perfil` com a turma andando e quebrando — ler `som` e `gravacao.som`
+      (`msMain`, `descartados`, `vozesPico`); se `descartadosTeto` subir, o teto de 14 vozes é baixo.
 - [ ] **`/perfil` (27/10):** rodar com a turma toda conectada — chegam N arquivos
       `perf-turma-*` em `profiles/`? O aviso no chat assusta ou passa batido? Tablet com a tela
       apagada só devolve quando acender (a gravação anda por QUADRO pintado).

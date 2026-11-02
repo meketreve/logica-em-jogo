@@ -40,7 +40,8 @@
     "shots:circuito": "node scripts/circuito-shot.mjs",
     "shots:restaurar": "node scripts/restaurar-shot.mjs",
     "shots:venda": "node scripts/venda-shot.mjs",
-    "shots:perfil": "node scripts/perfil-shot.mjs"
+    "shots:perfil": "node scripts/perfil-shot.mjs",
+    "shots:som": "node scripts/som-shot.mjs"
   },
   "devDependencies": {
     "typescript": "^7.0.2",

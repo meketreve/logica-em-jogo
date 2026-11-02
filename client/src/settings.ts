@@ -2,7 +2,9 @@
  * Configurações do jogador, persistidas em localStorage (por navegador).
  * Carregamento DEFENSIVO: campo faltando/inválido cai no default — atualizar
  * o jogo nunca quebra a config antiga de ninguém.
- * Som: volume vale pros sons de INTERFACE (audio.ts) — som de mundo vem depois.
+ * Som: `volume` vale pros sons de INTERFACE (audio.ts); `volumeMundo` e
+ * `volumeAmbiente` pro som de MUNDO (somMundo.ts) — três controles porque o
+ * professor quer calar o ambiente da sala sem perder o clique dos botões.
  */
 
 export type KeyAction =
@@ -35,6 +37,11 @@ export interface GameSettings {
   pixelRatioCap: number;
   /** Volume 0..1 dos sons de interface (menus, botões, notificações). */
   volume: number;
+  /** §🔊 Volume 0..1 do som de MUNDO (blocos, passos, água, portas, corpo). */
+  volumeMundo: number;
+  /** §🔊 Volume 0..1 do AMBIENTE (vento, pássaros, grilos, riacho). 0 = nem
+   *  cria os laços — é também a chave de desempenho do som. */
+  volumeAmbiente: number;
   /** Streaming (mundo ENORME): raio de render em COLUNAS de chunks — quanto
    *  do mundo fica carregado em volta do jogador. Config de desempenho. */
   raioRender: number;
@@ -76,6 +83,8 @@ export const DEFAULT_SETTINGS: GameSettings = {
   fov: 75,
   pixelRatioCap: 2,
   volume: 0.8,
+  volumeMundo: 0.8,
+  volumeAmbiente: 0.5,
   raioRender: 6,
   meshMsPorFrame: 6,
   uiScale: 1,
@@ -156,6 +165,8 @@ export function loadSettings(): GameSettings {
     fov: num(s["fov"], DEFAULT_SETTINGS.fov, 60, 100),
     pixelRatioCap: num(s["pixelRatioCap"], DEFAULT_SETTINGS.pixelRatioCap, 1, 2),
     volume: num(s["volume"], DEFAULT_SETTINGS.volume, 0, 1),
+    volumeMundo: num(s["volumeMundo"], DEFAULT_SETTINGS.volumeMundo, 0, 1),
+    volumeAmbiente: num(s["volumeAmbiente"], DEFAULT_SETTINGS.volumeAmbiente, 0, 1),
     raioRender: num(s["raioRender"], DEFAULT_SETTINGS.raioRender, 2, 12),
     meshMsPorFrame: num(s["meshMsPorFrame"], DEFAULT_SETTINGS.meshMsPorFrame, 1, 16),
     uiScale: num(s["uiScale"], DEFAULT_SETTINGS.uiScale, 0.6, 1.8),
