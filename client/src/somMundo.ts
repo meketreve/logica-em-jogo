@@ -644,6 +644,25 @@ class SomMundo {
             this.ruidoF(v, i * 0.22, 0.08, "bandpass", 900 * k, 600 * k, 2, 0.14);
           }
           break;
+        case "gato": // miau: sobe e desce, nasal
+          this.tom(v, 0, 0.18 * dur, "sawtooth", 600 * k, 900 * k, 0.07, 0.03);
+          this.tom(v, 0.18 * dur, 0.3 * dur, "sawtooth", 900 * k, 520 * k, 0.07, 0.01);
+          break;
+        case "tatu": // fungada curta: o tatu não "fala"
+          this.ruidoF(v, 0, 0.12, "bandpass", 1800 * k, 1100 * k, 3, 0.1);
+          this.ruidoF(v, 0.16, 0.1, "bandpass", 1600 * k, 1000 * k, 3, 0.08);
+          break;
+        case "peixe": // só o splash pequeno (dano/morte); peixe não tem voz
+          this.ruidoF(v, 0, 0.15, "lowpass", 1800, 400, 0.8, 0.12);
+          this.tom(v, 0.04, 0.06, "sine", 500 * k, 1100 * k, 0.07);
+          break;
+        case "arara": // grito rouco e agudo
+          this.tom(v, 0, 0.22 * dur, "sawtooth", 1300 * k, 900 * k, 0.09, 0.01);
+          this.ruidoF(v, 0, 0.2 * dur, "bandpass", 2200 * k, 1500 * k, 2, 0.1);
+          break;
+        case "passarinho": // trinado curto
+          for (let i = 0; i < 3; i++) this.tom(v, i * 0.07, 0.05, "sine", 3000 * k, 3800 * k, 0.07, 0.003);
+          break;
         default: // bicho sem voz conhecida: um resmungo neutro
           this.tom(v, 0, 0.3 * dur, "triangle", 300 * k, 200 * k, 0.12, 0.02);
       }

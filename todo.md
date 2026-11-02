@@ -1579,9 +1579,9 @@ jogo não tem". Até aqui só existia som de INTERFACE (`audio.ts`); o mundo era
     soaram × caladas) e `gravacao.som` (o custo DENTRO dos 10 s).
 * \[ ] **§🐄 gancho dos bichos pronto, sem bicho:** `somDeBicho(tipo, evento, x, y, z)` em
   `somMundo.ts` (eventos `ambiente | dano | morte | passo`). Vozes: vaca, porco, galinha,
-  ovelha, cachorro; VARIANTE herda pelo prefixo (`vaca malhada` → vaca, `vira-lata …` →
+  ovelha, cachorro, gato, tatu, peixe (só splash), arara/tucano e papagaio/periquito; VARIANTE herda pelo prefixo (`vaca malhada` → vaca, `vira-lata …` →
   cachorro). Ponte já ligada: o `somMundo.ts` escuta o CustomEvent `lj-bicho` que o main.ts da
-  branch dos mobs (`claude/project-thread-kqj92e`) reemite do `bicho_evento`; dano/morte têm voz
+  branch dos mobs (`claude/project-thread-kqj92e`) reemite do `bicho_evento` (inclusive o `voz` periódico, ~30 s); dano/morte têm voz
   própria, o resto é o bicho "falando". Mugido ao acaso depende de um evento `voz` no servidor.
 * \[ ] **Decisão minha, dele revisar:** passos dos OUTROS jogadores ficaram de fora — 30
   tablets na mesma sala, cada um tocando os passos da turma em volta, é ruído de sala de aula.
