@@ -12,6 +12,7 @@ import { regrasParaSave, parseRegras } from "./regras";
 import { FOME_MAX, VIDA_MAX } from "./sobrevivencia";
 import { type NamedRegion, parseNamedRegion } from "./regions";
 import { type ScenarioMeta, parseScenarioMeta } from "./scenario";
+import { type BichosSalvos, parseBichosSalvos } from "./bichos";
 import { type ChunkBlocos, type World, type WorldDims, createWorld } from "./world";
 
 /**
@@ -147,6 +148,10 @@ export interface SaveMeta {
    *  no registro não mexe no formato nem re-versiona nada. Ausente (e nome
    *  ausente dentro dele) = padrão do registro. */
   regras?: Record<string, boolean>;
+  /** §🐄 Bichos (2026-11-02): a lista, o spawn natural ligado e as colunas já
+   *  povoadas. Ausente = save de antes dos bichos (a sessão decide pelo terreno)
+   *  ou mundo sem nenhum (aula). */
+  bichos?: BichosSalvos;
   /** Dimensões do mundo em chunks — GRAVADO só no save esparso (lazy), onde
    *  não há snapshot binário pra carregar as dims. Denso as tira do LJW0. */
   dims?: WorldDims;
@@ -437,6 +442,8 @@ function readSaveMeta(
   // regras de mundo: o registro é quem valida (nome desconhecido é pulado) e
   // só o que difere do padrão sobrevive ao round-trip
   const regras = regrasParaSave(parseRegras(m["regras"]));
+  // §🐄 bichos: parse defensivo (bicho doente é pulado, como o resto)
+  const bichos = parseBichosSalvos(m["bichos"]);
   const meta: SaveMeta = {
     seed: m["seed"],
     spawn: { x: m["spawn"].x, y: m["spawn"].y, z: m["spawn"].z },
@@ -466,6 +473,7 @@ function readSaveMeta(
     ...(parseModo(m["modo"]) ? { modo: parseModo(m["modo"]) as Modo } : {}),
     ...(modosPorJogador ? { modosPorJogador } : {}),
     ...(regras ? { regras } : {}),
+    ...(bichos ? { bichos } : {}),
   };
   return { jsonLen, m, meta };
 }

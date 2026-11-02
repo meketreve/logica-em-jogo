@@ -62,6 +62,13 @@ export const REGRAS: readonly RegraDef[] = [
       "Menu radial de emojis (tecla V): aceno, comemorar, dança — a turma toda vê. Sem efeito de jogo nenhum, só o gesto visual. Desligada por padrão — ligue com /regra emogis ligar.",
     // 2026-09-03: mecânica no `case "emote"` da session (`shared/src/session.ts`).
   },
+  {
+    nome: "machucar-bichos",
+    padrao: true,
+    ajuda:
+      "Na sobrevivência, o clique esquerdo machuca os bichos (vaca, galinha...) e eles deixam carne, couro, pena. No criativo e no mundo de aula ninguém machuca bicho. Desligue para uma turma em que os bichos só se cuidam.",
+    // §🐄 2026-11-02 (decisão dele): mecânica no `baterBicho` (`session/bichos.ts`).
+  },
 ];
 
 export function regraDef(nome: string): RegraDef | undefined {

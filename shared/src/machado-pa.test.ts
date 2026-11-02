@@ -67,7 +67,7 @@ describe("§🪓 — as 8 ferramentas novas existem como ITEM, igual às picaret
     expect(durabilidadeDe(ITEM_MACHADO_MADEIRA)).toBe(59);
     expect(durabilidadeDe(ITEM_MACHADO_DIAMANTE)).toBe(1561);
     expect(durabilidadeDe(ITEM_PA_FERRO)).toBe(250);
-    expect(DURABILIDADE.size).toBe(FERRAMENTAS.size);
+    expect(DURABILIDADE.size).toBe(FERRAMENTAS.size + 1); // §🐄 + a tesoura
   });
 });
 

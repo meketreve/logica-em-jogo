@@ -1,6 +1,7 @@
 export * from "./arvores";
 export * from "./auth";
 export * from "./biomas";
+export * from "./bichos";
 export * from "./blocks";
 export * from "./claims";
 export * from "./circuitos";

@@ -17,6 +17,12 @@ e o jogo **reconecta sozinho** (5 tentativas, espera a tela voltar; esgotou → 
 Provado em `shots:queda` (host morto e ressuscitado, aba escondida de verdade, heartbeat mudo) e no
 smoke `logs`. **Não testado em aula.**
 
+**02/11 — §🐄 MOBS PASSIVOS, numa BRANCH** (`claude/project-thread-kqj92e`, pedido dele: "deixa
+como branch"; NÃO está na `main`): vaca, galinha, ovelha, cão, gato, tatu, peixe, arara, com
+variantes por bioma, A*, máquina de estados, tesoura/balde/ovo/domar/cria, lã em 12 blocos,
+leite e bolo, `/bicho` e `/bichos`, e o perfilador com custo POR SISTEMA (servidor e cliente).
+Spec e decisões: `todo.md` §🐄. **Não testado em aula** — ele testa na escola e traz as leituras.
+
 ## Próxima fase
 
 **A próxima aula fecha o bug-675:** no `-eventos.log`, contar `voltou sozinho` × `voltou pelo
@@ -33,6 +39,9 @@ Atrás: a **porta NÃO** (⚠️ quebra o ponto fixo — cabeçalho de `circuito
 - **Dele:** quanto de Dimas cada aluno recebe; o aviso de Dimas nova cala? **Externas:** Drive; certificado de assinatura só se sair da piloto.
 
 ## Concluído (recente)
+
+- **02/11 — §🐄 bichos (branch)** — ver acima. 300 bichos + 25 alunos = 2,7 ms/tick no Node.
+  Smoke `bichos` com controle negativo (lã forçada branca → falha).
 
 - **27/10 — `/perfil` (pedido dele):** o professor manda a turma gravar o perfil do F3 sem
   ninguém apertar botão (`/perfil [nome|todos] [segundos]`, 5–60 s, padrão 10). Mora no HOST

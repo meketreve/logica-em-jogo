@@ -2,6 +2,12 @@ import {
   BlockId,
   ITEM_BATATA,
   ITEM_BATATA_COZIDA,
+  ITEM_CARNE_ASSADA,
+  ITEM_CARNE_CRUA,
+  ITEM_FRANGO_ASSADO,
+  ITEM_FRANGO_CRU,
+  ITEM_PEIXE_ASSADO,
+  ITEM_PEIXE_CRU,
   ITEM_CARVAO,
   ITEM_CARVAO_VEGETAL,
   ITEM_LINGOTE_FERRO,
@@ -64,6 +70,10 @@ export const COZIMENTO: ReadonlyMap<number, Stack> = new Map<number, Stack>([
   [BlockId.LogPauBrasil, { id: ITEM_CARVAO_VEGETAL, qtd: 1 }],
   [BlockId.Sand, { id: BlockId.Glass, qtd: 1 }],
   [ITEM_BATATA, { id: ITEM_BATATA_COZIDA, qtd: 1 }],
+  // §🐄 (2026-11-02): as carnes dos bichos — o mesmo empurrão da batata
+  [ITEM_CARNE_CRUA, { id: ITEM_CARNE_ASSADA, qtd: 1 }],
+  [ITEM_FRANGO_CRU, { id: ITEM_FRANGO_ASSADO, qtd: 1 }],
+  [ITEM_PEIXE_CRU, { id: ITEM_PEIXE_ASSADO, qtd: 1 }],
 ]);
 
 /**

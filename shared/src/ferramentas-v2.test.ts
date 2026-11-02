@@ -67,7 +67,11 @@ describe("§🔨 v2 — durabilidade", () => {
   });
 
   it("toda ferramenta do jogo tem durabilidade (ninguém entra na tabela pela metade)", () => {
-    for (const id of DURABILIDADE.keys()) expect(ferramentaDe({ id, qtd: 1 })).not.toBeNull();
+    // §🐄 a tesoura é a única exceção: gasta, mas não é picareta/machado/pá
+    for (const id of DURABILIDADE.keys()) {
+      if (id === 931) continue; // ITEM_TESOURA
+      expect(ferramentaDe({ id, qtd: 1 })).not.toBeNull();
+    }
   });
 });
 

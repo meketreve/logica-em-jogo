@@ -14,6 +14,7 @@
  *                é o TETO do que o descarte custa)
  *   aguaparada   a água não reenvia o atlas à GPU
  *   semvida      sem nuvens e sem balanço do vento (o A/B antigo do §🌬️)
+ *   sembichos    os bichos não são desenhados (§🐄 — o custo de render deles)
  *   tudo         sem descarte e com a água parada (o piso do que dá pra tirar)
  *
  * Como se lê o resultado: o número que importa é o TEMPO DE GPU (média e p95),
@@ -45,6 +46,7 @@ const VARIANTES = {
   semdescarte: "&semdescarte",
   aguaparada: "&aguaparada",
   semvida: "&semvida",
+  sembichos: "&sembichos",
   tudo: "&semdescarte&aguaparada",
 };
 

@@ -79,6 +79,16 @@ export type ClientMessage =
    *  `pvp`, o modo dos dois, o alcance e o intervalo entre socos é o servidor,
    *  como em toda ação desde o F2. Recusa é silenciosa. */
   | { type: "atacar"; alvo: number }
+  /** §🐄 Bater num BICHO (clique esquerdo na mira) — o servidor confere regra,
+   *  modo, alcance e cooldown, como no `atacar`. */
+  | { type: "bater_bicho"; id: number }
+  /** §🐄 Usar o que está na mão NUM BICHO (clique direito): tesoura, balde,
+   *  isca, domar, sentar, recolher o ovo. O servidor decide pelo item do slot. */
+  | { type: "usar_bicho"; id: number; slot?: number }
+  /** §🐄 O que o jogador SEGURA agora (id, ou null = mão vazia). Mandado só
+   *  quando muda. Serve à IA (a vaca segue quem tem trigo na mão) e ao criativo
+   *  (lá a paleta é do cliente) — nunca a dar item: quem gasta e ganha é o slot. */
+  | { type: "mao"; id: number | null }
   /** Quadro (2026-07-19): define o CONTEÚDO do quadro naquela célula (texto
    *  e/ou imagem data URL pequena). Servidor valida célula/alcance/gates e
    *  responde com quadro_changed broadcast. Texto vazio sem imagem = limpa. */
@@ -207,6 +217,28 @@ export type TipoEmote = "aceno" | "comemorar" | "danca";
  *  pvp, interagir de baú/cama/porta) + os emojis escolhidos no menu. */
 export type TipoGesto = "bater" | "interagir" | TipoEmote;
 
+/** §🐄 Um bicho no fio: `[id, tipo, variante, x, y, z, yaw, flags]`. */
+export type BichoNoFio = [number, number, number, number, number, number, number, number];
+
+/** §🐄 O que pode acontecer num bicho (som + efeito no cliente). */
+export type EventoBicho =
+  | "dano"
+  | "morte"
+  | "tosquia"
+  | "ordenha"
+  | "ovo"
+  | "domou"
+  | "nao_domou"
+  | "comeu"
+  | "cria"
+  | "bola"
+  /** §🐄 o bicho "fala" (mugido, cacarejo) — de vez em quando, perto de alguém. */
+  | "voz";
+
+const EVENTOS_BICHO: readonly EventoBicho[] = [
+  "dano", "morte", "tosquia", "ordenha", "ovo", "domou", "nao_domou", "comeu", "cria", "bola", "voz",
+];
+
 // --- Mensagens JSON servidor→cliente ---
 
 export type ServerMessage =
@@ -224,6 +256,44 @@ export type ServerMessage =
       regrasCelulasMax?: number;
       regrasMudancasAvg?: number;
       regrasAguaAvg?: number;
+      /**
+       * §📊 (2026-11-02, pedido dele: "o perfilador precisa saber o que está
+       * consumindo quanto"): ms MÉDIOS por tick de cada SISTEMA do servidor na
+       * janela — `bichos`, `regras`, `circuitos`, `streaming`… A soma não fecha
+       * no `tickAvgMs` de propósito: só entra o que tem nome.
+       */
+      sistemas?: Record<string, number>;
+      /** §🐄 Os bichos na janela: quantos existem, quantos foram simulados por
+       *  tick (perto de alguém) e quanto o caminho custou (buscas e nós/s). */
+      bichos?: { total: number; simulados: number; buscasPorS: number; nosPorS: number };
+    }
+  | {
+      /**
+       * §🐄 Bichos que ENTRARAM na vista deste cliente (nasceram, ou ele chegou
+       * perto). Cada um é uma lista curta: `[id, tipo, variante, x, y, z, yaw,
+       * flags]` — tipo é o índice de `TIPOS_BICHO`, flags os bits de `FLAG_BICHO`.
+       */
+      type: "bichos";
+      add: BichoNoFio[];
+    }
+  | {
+      /** §🐄 Movimento/estado dos bichos que este cliente já conhece, em UMA
+       *  lista plana: 6 números por bicho (`id, x, y, z, yaw, flags`). É o
+       *  `players_moved` dos bichos — 1 mensagem por tick por destinatário. */
+      type: "bichos_movidos";
+      m: number[];
+    }
+  | {
+      /** §🐄 Saíram da vista (morreram, foram removidos, ou longe demais). */
+      type: "bichos_sumiram";
+      ids: number[];
+    }
+  | {
+      /** §🐄 Um ACONTECIMENTO num bicho — o gancho do som e do efeito visual
+       *  (a thread de sons pendura o áudio aqui). */
+      type: "bicho_evento";
+      id: number;
+      evento: EventoBicho;
     }
   | {
       /** Bloco mudou no mundo autoritativo (ação de jogador OU regra do tick — o cliente não distingue). */
@@ -696,6 +766,34 @@ export type ServerMessage =
       reason: string;
     };
 
+/** §📊 `sistemas` do `debug_stats`: só nome → número finito sobrevive. */
+function parseSistemas(raw: unknown): { sistemas: Record<string, number> } | null {
+  if (typeof raw !== "object" || raw === null || Array.isArray(raw)) return null;
+  const out: Record<string, number> = {};
+  for (const [k, v] of Object.entries(raw as Record<string, unknown>)) {
+    if (typeof v === "number" && Number.isFinite(v)) out[k] = v;
+  }
+  return { sistemas: out };
+}
+
+/** §🐄 resumo dos bichos do `debug_stats` (tudo ou nada). */
+function parseResumoBichos(
+  raw: unknown,
+): { bichos: { total: number; simulados: number; buscasPorS: number; nosPorS: number } } | null {
+  if (typeof raw !== "object" || raw === null) return null;
+  const r = raw as Record<string, unknown>;
+  const k = ["total", "simulados", "buscasPorS", "nosPorS"] as const;
+  if (!k.every((c) => typeof r[c] === "number" && Number.isFinite(r[c]))) return null;
+  return {
+    bichos: {
+      total: r["total"] as number,
+      simulados: r["simulados"] as number,
+      buscasPorS: r["buscasPorS"] as number,
+      nosPorS: r["nosPorS"] as number,
+    },
+  };
+}
+
 /** Parse defensivo: servidor autoritativo nunca confia no que chega do fio. */
 export function parseClientMessage(raw: string): ClientMessage | null {
   let msg: unknown;
@@ -918,6 +1016,23 @@ export function parseClientMessage(raw: string): ClientMessage | null {
       if (typeof a !== "number" || !Number.isInteger(a)) return null;
       return { type: "atacar", alvo: a };
     }
+    case "mao": {
+      const id = m["id"];
+      if (id !== null && (typeof id !== "number" || !Number.isInteger(id))) return null;
+      return { type: "mao", id };
+    }
+    case "bater_bicho": {
+      const id = m["id"];
+      if (typeof id !== "number" || !Number.isInteger(id)) return null;
+      return { type: "bater_bicho", id };
+    }
+    case "usar_bicho": {
+      const id = m["id"];
+      if (typeof id !== "number" || !Number.isInteger(id)) return null;
+      const slot = m["slot"];
+      if (slot !== undefined && (typeof slot !== "number" || !Number.isInteger(slot))) return null;
+      return { type: "usar_bicho", id, ...(slot !== undefined ? { slot } : {}) };
+    }
     case "chat":
       if (typeof m["text"] !== "string") return null;
       return { type: "chat", text: m["text"] };
@@ -995,7 +1110,37 @@ export function parseServerMessage(raw: string): ServerMessage | null {
         ...(opc("regrasCelulasMax") !== undefined ? { regrasCelulasMax: opc("regrasCelulasMax") } : {}),
         ...(opc("regrasMudancasAvg") !== undefined ? { regrasMudancasAvg: opc("regrasMudancasAvg") } : {}),
         ...(opc("regrasAguaAvg") !== undefined ? { regrasAguaAvg: opc("regrasAguaAvg") } : {}),
+        ...(parseSistemas(m["sistemas"]) ?? {}),
+        ...(parseResumoBichos(m["bichos"]) ?? {}),
       };
+    }
+    case "bichos": {
+      if (!Array.isArray(m["add"])) return null;
+      const add: BichoNoFio[] = [];
+      for (const b of m["add"] as unknown[]) {
+        if (!Array.isArray(b) || b.length !== 8) return null;
+        if (!b.every((n) => typeof n === "number" && Number.isFinite(n))) return null;
+        add.push(b as BichoNoFio);
+      }
+      return { type: "bichos", add };
+    }
+    case "bichos_movidos": {
+      const v = m["m"];
+      if (!Array.isArray(v) || v.length % 6 !== 0) return null;
+      if (!v.every((n) => typeof n === "number" && Number.isFinite(n))) return null;
+      return { type: "bichos_movidos", m: v as number[] };
+    }
+    case "bichos_sumiram": {
+      const v = m["ids"];
+      if (!Array.isArray(v) || !v.every((n) => typeof n === "number" && Number.isInteger(n))) return null;
+      return { type: "bichos_sumiram", ids: v as number[] };
+    }
+    case "bicho_evento": {
+      const id = m["id"];
+      const ev = m["evento"];
+      if (typeof id !== "number" || !Number.isInteger(id)) return null;
+      if (!EVENTOS_BICHO.includes(ev as EventoBicho)) return null;
+      return { type: "bicho_evento", id, evento: ev as EventoBicho };
     }
     case "block_changed": {
       const ints = [m["x"], m["y"], m["z"], m["blockId"]];

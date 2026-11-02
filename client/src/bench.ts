@@ -109,9 +109,13 @@ export interface BenchOpts {
  *    pra tirá-lo do resto do terreno foi tentado em 2026-10-27 e saiu PIOR
  *    (3ª bateria: o jeito antigo 11,6% mais rápido — as ~190 draw calls a
  *    mais comeram o ganho);
- *  - `aguaparada`: a água não repinta o atlas (sem reenvio de 262 KB à GPU).
+ *  - `aguaparada`: a água não repinta o atlas (sem reenvio de 262 KB à GPU);
+ *  - `sembichos` (§🐄 2026-11-02): os bichos não são DESENHADOS (o mundo do
+ *    bench é procedural, então tem bicho). O servidor segue simulando — o A/B
+ *    mede só o que eles custam de render/GPU; o custo de CPU do servidor sai
+ *    no `sistemas` do perfil.
  */
-export const EXPERIMENTOS_BENCH = ["comaa", "semdescarte", "aguaparada"] as const;
+export const EXPERIMENTOS_BENCH = ["comaa", "semdescarte", "aguaparada", "sembichos"] as const;
 export type ExperimentoBench = (typeof EXPERIMENTOS_BENCH)[number];
 
 /** Os experimentos pedidos na URL — vazio fora do `?bench`. */

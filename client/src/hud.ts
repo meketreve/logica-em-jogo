@@ -84,6 +84,29 @@ export interface Marcador {
 
 /** Custo das REGRAS no servidor (água/areia), vindo do `debug_stats`. Liga o
  *  custo de `remesh(bloco)` no cliente à causa real do outro lado. */
+/** §📊 (2026-11-02, pedido dele: "saber o que está consumindo quanto") — o
+ *  custo de cada SISTEMA, dos dois lados. O servidor manda ms/tick por sistema
+ *  no `debug_stats`; o cliente mede o que ele mesmo desenha à parte. Assim o
+ *  "travou" do perfil vira "os bichos custaram X do quadro". */
+export interface CustoSistemas {
+  /** ms médios por tick de cada sistema do servidor (último `debug_stats`). */
+  servidor: Record<string, number> | null;
+  /** Os bichos do lado do servidor: quantos existem, quantos foram simulados,
+   *  buscas de caminho e nós do A* por segundo. */
+  bichosServidor: { total: number; simulados: number; buscasPorS: number; nosPorS: number } | null;
+  /** Os bichos do lado do cliente: CPU do quadro deles (média móvel) e a
+   *  parte deles na GPU (draw calls, triângulos, instâncias). */
+  bichosCliente: {
+    cpuMs: number;
+    cpuMsMedio: number;
+    drawCalls: number;
+    triangulos: number;
+    instancias: number;
+    tipos: number;
+    visivel: boolean;
+  } | null;
+}
+
 export interface RegrasServidor {
   celulasPorTick: number;
   celulasMaxTick: number;
@@ -179,6 +202,8 @@ export class Hud {
   luz = { colunas: 0, totalMs: 0, fila: 0 };
   /** Custo das regras no servidor (último `debug_stats`) — alimentado pelo main.ts. */
   regras: RegrasServidor | null = null;
+  /** §📊 custo por sistema (servidor e bichos do cliente) — alimentado pelo main.ts. */
+  sistemas: CustoSistemas = { servidor: null, bichosServidor: null, bichosCliente: null };
   /** Tempo de carga da tela §🕐 por fase — alimentado pelo main.ts (a tela já
    *  mede tudo; aqui só entra no JSON). Vira "quanto o aluno espera" por PC. */
   carga: (() => object | null) | null = null;
@@ -610,6 +635,12 @@ export class Hud {
       luz: { ...this.luz },
       // custo das regras do outro lado (água/areia por tick) — ver `regras`
       regrasServidor: this.regras,
+      // §📊 quanto CADA sistema custa (servidor por tick, bichos no quadro)
+      sistemas: {
+        servidor: this.sistemas.servidor ? { ...this.sistemas.servidor } : null,
+        bichosServidor: this.sistemas.bichosServidor ? { ...this.sistemas.bichosServidor } : null,
+        bichosCliente: this.sistemas.bichosCliente ? { ...this.sistemas.bichosCliente } : null,
+      },
       rede: this.conexao(),
       dispositivo: this.dispositivo(),
       net: { ...this.net },
@@ -702,6 +733,8 @@ export class Hud {
       s.regrasServidor
         ? `regras (servidor) ${s.regrasServidor.celulasPorTick} cél/tick (máx ${s.regrasServidor.celulasMaxTick}) · ${s.regrasServidor.mudancasPorTick} mudanças · água ${s.regrasServidor.aguaPorTick}`
         : "regras (servidor): n/d",
+      linhaSistemasServidor(s.sistemas.servidor, s.net.tickAvgMs),
+      linhaBichos(s.sistemas, s.drawCalls, s.triangles),
       mem ? `RAM (JS) ${mem.usadaMB}/${mem.limiteMB} MB` : "RAM (JS): n/d (só no Chrome)",
       `vídeo ${s.video.geometrias} geometrias · ${s.video.texturas} texturas`,
       `rede ${s.net.msgsPerSec} msg/s  ${s.net.bytesPerSec} B/s  jitter ${s.net.jitterMs}ms  tick ${s.net.tickAvgMs}/${s.net.tickMaxMs}ms`,
@@ -724,4 +757,27 @@ export class Hud {
     a.click();
     URL.revokeObjectURL(a.href);
   }
+}
+
+/** §📊 "servidor por sistema": os sistemas do tick, do mais caro pro mais barato,
+ *  com a fatia de cada um no tick inteiro. */
+function linhaSistemasServidor(sis: Record<string, number> | null, tickMs: number): string {
+  if (!sis) return "servidor por sistema: n/d (host antigo)";
+  const ord = Object.entries(sis).sort((a, b) => b[1] - a[1]);
+  const pct = (v: number): string => (tickMs > 0 ? ` ${Math.round((v / tickMs) * 100)}%` : "");
+  return `servidor por sistema (ms/tick): ${ord.map(([n, v]) => `${n} ${v.toFixed(2)}${pct(v)}`).join(" · ")}`;
+}
+
+/** §🐄📊 a linha dos bichos: o que custam no servidor e no quadro daqui, e a
+ *  fatia deles nas draw calls e triângulos do quadro inteiro. */
+function linhaBichos(s: CustoSistemas, drawCalls: number, triangulos: number): string {
+  const sv = s.bichosServidor;
+  const cl = s.bichosCliente;
+  const lado = sv
+    ? `servidor ${sv.total} vivos · ${sv.simulados} simulados/tick · ${sv.buscasPorS} caminhos/s (${sv.nosPorS} nós)`
+    : "servidor n/d";
+  const aqui = cl
+    ? `cliente ${cl.cpuMsMedio.toFixed(2)}ms/quadro · ${cl.drawCalls}/${drawCalls} draw calls · ${cl.triangulos}/${triangulos} triângulos · ${cl.instancias} na tela${cl.visivel ? "" : " (DESLIGADOS)"}`
+    : "cliente n/d";
+  return `bichos: ${lado} | ${aqui}`;
 }

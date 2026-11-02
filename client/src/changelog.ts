@@ -43,6 +43,22 @@ interface Mudanca {
 const MUDANCAS: readonly Mudanca[] = [
   {
     // sem `data`: este é o build atual (ver rotuloDoBloco)
+    titulo: "Chegaram os bichos",
+    itens: [
+      "o mundo agora tem **bichos**: vaca, galinha, ovelha, cão, gato, tatu, peixe e arara — cada um com as suas raças e cores (vaca nelore, galinha carijó, vira-lata caramelo, gato frajola, tucano, tambaqui…), e cada bioma tem os seus",
+      "eles passeiam, fogem de quem bate, o tatu **vira bola** quando assusta, o peixe nada e a arara voa. A galinha segue quem segura **semente** e a vaca e a ovelha seguem o **trigo** na mão",
+      "**tesoura** (2 barras de ferro) na ovelha tira a **lã** sem machucar — ovelha preta dá lã preta. A lã cresce de novo em alguns minutos. A lã é bloco novo, em 12 cores (lã branca + corante)",
+      "**balde vazio na vaca** dá **balde de leite**: beber mata a fome e devolve o balde. Leite + ovo + 2 trigos fazem um **bolo**",
+      "a galinha bota **ovo**; **balde de água no peixe** leva o peixe junto, e despejar o balde solta ele de novo",
+      "o **cão** se doma com carne e o **gato** com peixe cru: o domado senta e levanta com um clique e segue o dono",
+      "duas vacas (ou ovelhas, galinhas…) alimentadas perto uma da outra fazem um **filhote** — até 12 por curral",
+      "na sobrevivência dá pra caçar: carne, frango, peixe, **couro** e **pena**. Carne crua se assa na fornalha. Bicho domado de outro aluno só apanha com o pvp ligado; o professor desliga a caça com **/regra machucar-bichos desligar**",
+      "mundo de **aula** não tem bicho sozinho: o professor traz com **/bicho vaca 3** (ou **/bicho tucano**) e tira com **/bichos limpar**. Bicho em cima da **placa** aperta a placa",
+      "o **F3** e o **/perfil** agora dizem quanto cada parte do servidor gasta, e quanto os bichos custam pra desenhar",
+    ],
+  },
+  {
+    data: "27/10/2026",
     titulo: "O professor mede o jogo da turma",
     itens: [
       "comando novo do professor: **/perfil** pede a medição de desempenho a **todos** os conectados de uma vez — sem ninguém apertar F3. Cada aparelho se mede por 10 segundos e o resultado cai na pasta **profiles/** do servidor",

@@ -12,6 +12,13 @@ tier: 3
      modelo). São bugs ESCRITOS À MÃO: nada de detector automático — ele já encheu
      o arquivo de 148 entradas falsas uma vez, e elas foram podadas junto. -->
 
+## 2026-11-02 — smoke troca-raio reprovou com os bichos: "aviso chegou 0 ms ANTES do mundo novo"
+- **Sintoma:** `[troca-raio] ✗ §🕐 aviso "mundo_trocando" chegou 0 ms ANTES do mundo novo`, 3 de 3 rodadas na branch dos bichos; na `main` (stash) passava.
+- **Onde:** `server/src/cenarios/_smoke-troca-raio.mjs` (a asserção), não o host.
+- **Causa:** o smoke comparava `Date.now()` de chegada com `<` estrito. O aviso e o mundo novo saem do host no MESMO handler síncrono (aviso → salvar → sessão nova → snapshot), e a ordem é garantida pelo TCP; com o socket mais cheio (bichos chegando + streaming) os dois passaram a sair no mesmo pacote e o relógio empatou. A ordem nunca esteve errada — o cliente já segura as duas no mesmo quadro (`segurarAteATelaPintar`).
+- **Correção:** o smoke mede ORDEM (contador de mensagens), e o ms vira só informação na frase.
+- **Tags:** smoke, troca de aula, mundo_trocando, relógio, ordem, bichos, corrigido
+
 ## 2026-10-30 — porta fechada à mão com sinal ABRIA SOZINHA quando o mundo reabria
 - **Sintoma:** achado na revisão pré-aula (nenhuma aula viu ainda): teste `porta FECHADA à mão com sinal continua fechada quando o mundo reabre` — `expected [ 67, 67 ] to deeply equal [ 66, 66 ]` (PortaXAberta no lugar de PortaXFechada).
 - **Onde:** `shared/src/session.ts` (`moverPortasPeloSinal`, `indexarPlantacoes`)

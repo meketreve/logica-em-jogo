@@ -4,6 +4,7 @@ import {
   ITEM_AIPIM,
   ITEM_ALGODAO,
   ITEM_BALDE_AGUA,
+  ITEM_BALDE_VAZIO,
   ITEM_BANANA,
   ITEM_BATATA,
   ITEM_BATATA_COZIDA,
@@ -30,6 +31,19 @@ import {
   ITEM_PICARETA_MADEIRA,
   ITEM_PICARETA_PEDRA,
   ITEM_TRIGO,
+  ITEM_BALDE_LEITE,
+  ITEM_BALDE_PEIXE,
+  ITEM_BOLO,
+  ITEM_CARNE_ASSADA,
+  ITEM_CARNE_CRUA,
+  ITEM_COURO,
+  ITEM_FRANGO_ASSADO,
+  ITEM_FRANGO_CRU,
+  ITEM_OVO,
+  ITEM_PEIXE_ASSADO,
+  ITEM_PEIXE_CRU,
+  ITEM_PENA,
+  ITEM_TESOURA,
   blockIconTile,
   isBalde,
   isComida,
@@ -37,7 +51,12 @@ import {
 
 /** Ícone procedural do balde (item, não tem tile no atlas): balde cinza em
  *  perspectiva; se cheio, água azul dentro. Desenhado na resolução do tile. */
-function drawBalde(ctx: CanvasRenderingContext2D, px: number, cheio: boolean): void {
+function drawBalde(
+  ctx: CanvasRenderingContext2D,
+  px: number,
+  cheio: boolean,
+  conteudo: "agua" | "leite" | "peixe" = "agua",
+): void {
   ctx.clearRect(0, 0, px, px);
   const topY = px * 0.28;
   const botY = px * 0.82;
@@ -47,7 +66,8 @@ function drawBalde(ctx: CanvasRenderingContext2D, px: number, cheio: boolean): v
   const botR = px * 0.68;
   if (cheio) {
     // água: da borda de cima pra dentro do balde
-    ctx.fillStyle = "#2e6fd6";
+    // §🐄 o leite é BRANCO e o peixe é a água com o peixinho dentro
+    ctx.fillStyle = conteudo === "leite" ? "#f4f2ea" : "#2e6fd6";
     ctx.beginPath();
     ctx.moveTo(topL + px * 0.03, topY + px * 0.03);
     ctx.lineTo(topR - px * 0.03, topY + px * 0.03);
@@ -72,7 +92,137 @@ function drawBalde(ctx: CanvasRenderingContext2D, px: number, cheio: boolean): v
   ctx.beginPath();
   ctx.arc(px * 0.5, topY, (topR - topL) / 2, Math.PI, 2 * Math.PI);
   ctx.stroke();
+  if (conteudo === "peixe") {
+    // o peixinho laranja atravessado: sem ele é só mais um balde de água
+    ctx.fillStyle = "#f08a30";
+    ctx.beginPath();
+    ctx.ellipse(px * 0.5, px * 0.56, px * 0.16, px * 0.08, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.beginPath();
+    ctx.moveTo(px * 0.64, px * 0.56);
+    ctx.lineTo(px * 0.76, px * 0.48);
+    ctx.lineTo(px * 0.76, px * 0.64);
+    ctx.closePath();
+    ctx.fill();
+  }
 }
+
+/**
+ * §🐄 Os itens dos BICHOS (2026-11-02). A mesma régua dos outros: silhueta que
+ * se lê num slot de 40 px. Cru × assado é a MESMA forma com a cor cozida (a
+ * lição da batata: é a mesma carne, passada pelo fogo).
+ */
+function drawItemBicho(ctx: CanvasRenderingContext2D, px: number, id: number): void {
+  ctx.clearRect(0, 0, px, px);
+  const elipse = (cx: number, cy: number, rx: number, ry: number, cor: string, rot = 0): void => {
+    ctx.fillStyle = cor;
+    ctx.beginPath();
+    ctx.ellipse(px * cx, px * cy, px * rx, px * ry, rot, 0, Math.PI * 2);
+    ctx.fill();
+  };
+  if (id === ITEM_TESOURA) {
+    // duas lâminas cruzadas em X e dois aros: a silhueta da tesoura de verdade
+    ctx.strokeStyle = "#c8ccd4";
+    ctx.lineWidth = Math.max(1, px * 0.1);
+    ctx.lineCap = "round";
+    ctx.beginPath();
+    ctx.moveTo(px * 0.3, px * 0.62);
+    ctx.lineTo(px * 0.82, px * 0.16);
+    ctx.moveTo(px * 0.7, px * 0.62);
+    ctx.lineTo(px * 0.18, px * 0.16);
+    ctx.stroke();
+    ctx.strokeStyle = "#c0392b";
+    ctx.lineWidth = Math.max(1, px * 0.08);
+    for (const cx of [0.26, 0.74]) {
+      ctx.beginPath();
+      ctx.arc(px * cx, px * 0.76, px * 0.12, 0, Math.PI * 2);
+      ctx.stroke();
+    }
+    return;
+  }
+  if (id === ITEM_OVO) {
+    elipse(0.5, 0.56, 0.24, 0.3, "#f2ead8");
+    elipse(0.42, 0.44, 0.06, 0.09, "#ffffff"); // brilho
+    return;
+  }
+  if (id === ITEM_CARNE_CRUA || id === ITEM_CARNE_ASSADA) {
+    const assada = id === ITEM_CARNE_ASSADA;
+    elipse(0.5, 0.54, 0.34, 0.26, assada ? "#8a4a26" : "#c83c3c", -0.3);
+    elipse(0.4, 0.5, 0.12, 0.08, assada ? "#b8743c" : "#f0e0d0", -0.3); // a gordura/osso
+    return;
+  }
+  if (id === ITEM_FRANGO_CRU || id === ITEM_FRANGO_ASSADO) {
+    // coxa: bolota + ossinho
+    const assado = id === ITEM_FRANGO_ASSADO;
+    ctx.strokeStyle = "#f0e8d8";
+    ctx.lineWidth = Math.max(1, px * 0.1);
+    ctx.lineCap = "round";
+    ctx.beginPath();
+    ctx.moveTo(px * 0.56, px * 0.5);
+    ctx.lineTo(px * 0.82, px * 0.18);
+    ctx.stroke();
+    elipse(0.42, 0.62, 0.24, 0.2, assado ? "#b8742e" : "#f0b8a8", -0.6);
+    return;
+  }
+  if (id === ITEM_PEIXE_CRU || id === ITEM_PEIXE_ASSADO) {
+    const assado = id === ITEM_PEIXE_ASSADO;
+    const cor = assado ? "#a8743a" : "#8ca8b8";
+    elipse(0.46, 0.52, 0.28, 0.16, cor);
+    ctx.fillStyle = cor;
+    ctx.beginPath();
+    ctx.moveTo(px * 0.7, px * 0.52);
+    ctx.lineTo(px * 0.9, px * 0.34);
+    ctx.lineTo(px * 0.9, px * 0.7);
+    ctx.closePath();
+    ctx.fill();
+    ctx.fillStyle = "#1e1e22";
+    ctx.fillRect(px * 0.28, px * 0.46, px * 0.06, px * 0.06); // olho
+    return;
+  }
+  if (id === ITEM_BOLO) {
+    ctx.fillStyle = "#e8d0a0"; // massa
+    ctx.fillRect(px * 0.16, px * 0.46, px * 0.68, px * 0.34);
+    ctx.fillStyle = "#f8f4ee"; // cobertura
+    ctx.fillRect(px * 0.14, px * 0.36, px * 0.72, px * 0.14);
+    ctx.fillStyle = "#d83a38"; // as cerejas
+    for (const cx of [0.3, 0.5, 0.7]) ctx.fillRect(px * cx - px * 0.04, px * 0.28, px * 0.08, px * 0.08);
+    return;
+  }
+  if (id === ITEM_COURO) {
+    ctx.fillStyle = "#8a5a32";
+    ctx.beginPath();
+    ctx.moveTo(px * 0.22, px * 0.24);
+    ctx.lineTo(px * 0.78, px * 0.2);
+    ctx.lineTo(px * 0.84, px * 0.72);
+    ctx.lineTo(px * 0.5, px * 0.84);
+    ctx.lineTo(px * 0.16, px * 0.7);
+    ctx.closePath();
+    ctx.fill();
+    ctx.fillStyle = "#a8743e";
+    ctx.fillRect(px * 0.34, px * 0.36, px * 0.3, px * 0.08);
+    return;
+  }
+  // pena: haste diagonal + barbas
+  ctx.strokeStyle = "#e8e4dc";
+  ctx.lineWidth = Math.max(1, px * 0.16);
+  ctx.lineCap = "round";
+  ctx.beginPath();
+  ctx.moveTo(px * 0.3, px * 0.78);
+  ctx.quadraticCurveTo(px * 0.44, px * 0.4, px * 0.74, px * 0.18);
+  ctx.stroke();
+  ctx.strokeStyle = "#9a948a";
+  ctx.lineWidth = Math.max(1, px * 0.04);
+  ctx.beginPath();
+  ctx.moveTo(px * 0.24, px * 0.86);
+  ctx.quadraticCurveTo(px * 0.44, px * 0.4, px * 0.76, px * 0.16);
+  ctx.stroke();
+}
+
+/** Os itens que `drawItemBicho` desenha. */
+const ITENS_BICHO: ReadonlySet<number> = new Set([
+  ITEM_TESOURA, ITEM_OVO, ITEM_CARNE_CRUA, ITEM_CARNE_ASSADA, ITEM_FRANGO_CRU,
+  ITEM_FRANGO_ASSADO, ITEM_PEIXE_CRU, ITEM_PEIXE_ASSADO, ITEM_BOLO, ITEM_COURO, ITEM_PENA,
+]);
 
 /**
  * Comida (§🍖 F6): ícone desenhado, como o do balde — item não tem tile no
@@ -465,12 +615,19 @@ export function makeBlockIcons(
   if (!ctx) return out;
   for (const id of ids) {
     if (isBalde(id)) {
-      drawBalde(ctx, px, id === ITEM_BALDE_AGUA); // item: ícone desenhado
+      // item: ícone desenhado (§🐄 o balde ganhou leite e peixe)
+      const conteudo = id === ITEM_BALDE_LEITE ? "leite" : id === ITEM_BALDE_PEIXE ? "peixe" : "agua";
+      drawBalde(ctx, px, id !== ITEM_BALDE_VAZIO, conteudo);
       out.set(id, c.toDataURL());
       continue;
     }
     if (SEMENTES.has(id)) {
       drawSemente(ctx, px, SEMENTES.get(id)!); // semente: ícone desenhado
+      out.set(id, c.toDataURL());
+      continue;
+    }
+    if (ITENS_BICHO.has(id)) {
+      drawItemBicho(ctx, px, id);
       out.set(id, c.toDataURL());
       continue;
     }

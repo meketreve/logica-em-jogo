@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!--
+      §🐄 PRÉVIA dos bichos — só no `vite` de desenvolvimento (abre em
+      /bichos.html). NÃO entra no build: o `vite build` só empacota o
+      index.html, e o client/dist (versionado, é o que a escola roda) não muda.
+      Parâmetros: ?hora=21 · ?vista=geral|vaca|galinha|… · ?caixas=1 (a caixa
+      de colisão da tabela) · ?manual=1 (o relógio só anda por __previa.ate(t)).
+    -->
+    <title>Prévia dos bichos</title>
+    <style>
+      html,
+      body {
+        margin: 0;
+        height: 100%;
+        overflow: hidden;
+        background: #87ceeb;
+        font-family: system-ui, sans-serif;
+      }
+      canvas {
+        display: block;
+      }
+      #hud {
+        position: fixed;
+        left: 8px;
+        top: 8px;
+        padding: 4px 8px;
+        background: rgba(0, 0, 0, 0.55);
+        color: #fff;
+        font: 12px/1.4 ui-monospace, monospace;
+        white-space: pre;
+        border-radius: 4px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="hud"></div>
+    <script type="module" src="/src/bichos/previa.ts"></script>
+  </body>
+</html>

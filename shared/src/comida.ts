@@ -1,4 +1,5 @@
 import {
+  ITEM_BALDE_VAZIO,
   ITEM_AIPIM,
   ITEM_BANANA,
   ITEM_BATATA,
@@ -8,6 +9,14 @@ import {
   ITEM_FRUTA,
   ITEM_MELANCIA,
   ITEM_PAO,
+  ITEM_BALDE_LEITE,
+  ITEM_BOLO,
+  ITEM_CARNE_ASSADA,
+  ITEM_CARNE_CRUA,
+  ITEM_FRANGO_ASSADO,
+  ITEM_FRANGO_CRU,
+  ITEM_PEIXE_ASSADO,
+  ITEM_PEIXE_CRU,
 } from "./blocks";
 
 /**
@@ -39,12 +48,32 @@ const SACIEDADE = new Map<number, number>([
   [ITEM_MELANCIA, 2],
   [ITEM_BANANA, 4],
   [ITEM_AIPIM, 4],
+  // §🐄 (2026-11-02): o que vem dos bichos. Cru alimenta pouco, assado como o
+  // pão ou mais (números do Minecraft: bife 3/8, frango 2/6, peixe 2/5). O
+  // leite mata a fome (pedido dele — no Minecraft ele só cura efeito) e o
+  // BALDE VOLTA vazio pra mão. O bolo é o topo: 1 leite + 1 ovo + 2 trigo.
+  [ITEM_CARNE_CRUA, 3],
+  [ITEM_CARNE_ASSADA, 8],
+  [ITEM_FRANGO_CRU, 2],
+  [ITEM_FRANGO_ASSADO, 6],
+  [ITEM_PEIXE_CRU, 2],
+  [ITEM_PEIXE_ASSADO, 5],
+  [ITEM_BALDE_LEITE, 3],
+  [ITEM_BOLO, 8],
 ]);
 
 /** Este item se come? (O trigo NÃO: é ingrediente do pão — é essa dependência
  *  que faz a plantação ensinar sequência em vez de virar um botão.) */
 export function isComida(id: number): boolean {
   return SACIEDADE.has(id);
+}
+
+/**
+ * O que FICA na mão depois de comer/beber (§🐄): o balde de leite devolve o
+ * balde vazio. `null` = o item some inteiro, que é o caso de toda outra comida.
+ */
+export function recipienteDe(id: number): number | null {
+  return id === ITEM_BALDE_LEITE ? ITEM_BALDE_VAZIO : null;
 }
 
 /** Pontos de fome que o item devolve (0 se não for comida). */

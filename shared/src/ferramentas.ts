@@ -1,6 +1,7 @@
 import {
   BlockId,
   ITEM_MACHADO_DIAMANTE,
+  ITEM_TESOURA,
   ITEM_MACHADO_FERRO,
   ITEM_MACHADO_MADEIRA,
   ITEM_MACHADO_PEDRA,
@@ -256,9 +257,12 @@ const POR_MATERIAL: ReadonlyMap<number, number> = new Map([
   [NIVEL_DIAMANTE, 1561],
 ]);
 
-export const DURABILIDADE: ReadonlyMap<number, number> = new Map(
-  [...FERRAMENTAS].map(([id, f]) => [id, POR_MATERIAL.get(f.nivel) ?? 59]),
-);
+export const DURABILIDADE: ReadonlyMap<number, number> = new Map([
+  ...[...FERRAMENTAS].map(([id, f]): [number, number] => [id, POR_MATERIAL.get(f.nivel) ?? 59]),
+  // §🐄 a tesoura (2026-11-02): não quebra bloco, mas gasta a cada tosquia —
+  // 238 é o número do Minecraft (uma turma inteira tosquia sem acabar)
+  [ITEM_TESOURA, 238],
+]);
 
 /** Quantas quebras este item aguenta, ou `null` se ele não é ferramenta. */
 export function durabilidadeDe(id: number): number | null {

@@ -1172,6 +1172,35 @@ a parede" é entrar no `precisaApoio` com a face — lote próprio, e só se a a
   **é** o exercício. Bloco pronto pra cada porta transforma lógica em decorar peça. Reabrir só se
   a aula mostrar que a montagem do XOR é longa demais pro tempo de uma oficina.
 
+## §🐄 Mobs passivos — FEITO na branch `claude/project-thread-kqj92e` (2026-11-02)
+
+> Pedido dele: "galinha, vaca, cão, algum pássaro, gato, peixe, tatu", com interação (tesoura
+> na ovelha, balde na vaca), pathfind, IA simples, drop, vida. Levantamento e questionário
+> respondidos no mesmo dia. **Não testado em aula.** Substitui a parte "mobs" do orçamento §🧱
+> abaixo (a base de entidades saiu mais enxuta: sem física, movimento cinemático na grade).
+
+**Decisões dele (questionário, 02/11):** (1) aluno mata bicho na sobrevivência; criativo e aula
+não — regra `machucar-bichos` pra desligar · (2) bicho DOMADO de outro só apanha com pvp ·
+(3) reprodução já, com teto (12 do tipo em 16 blocos) · (4) lã = 12 BLOCOS novos (ids 300–311,
+mesma ordem de cor do algodão) · (5) leite: a vaca recarrega em ~5 min · (6) variantes por cor e
+bioma · (7) tatu, cão e gato NÃO dão carne · (8) mundo de aula sem bicho natural, só `/bicho`;
+procedural tem por padrão · (9) couro sem receita ainda (armadura depois) · (10) teto livre,
+otimizado (máquina de estados) · (11) bicho aperta a placa · (12) sons em thread própria
+(gancho: evento de janela `lj-bicho` no cliente, vindo do `bicho_evento`) · (13) branch.
+
+**Onde mora:** tabela pura `shared/src/bichos.ts` · A* `bichos-caminho.ts` · sessão
+`session/bichos.ts` · desenho `client/src/bichos/` · testes `bichos.test.ts` · smoke `bichos`.
+**Medido (Node, 02/11):** 300 bichos + 25 alunos = 2,7 ms/tick (o tick tem 100 ms).
+
+**Depois (não feito):**
+- [ ] Sons dos bichos (a thread de sons liga no `lj-bicho`).
+- [ ] Armadura de couro (decisão 9), cama/almofada com pena.
+- [ ] Ovelha tingida (corante na ovelha viva) — hoje só a lã solta se tinge.
+- [ ] Curral no playtest: a cerca não serve de chão pro A* (o bicho não sobe nela — teste
+      "a cerca segura"), mas o EMPURRÃO do golpe e a queda não passam pelo A*: conferir se alguma
+      vaca escapa do curral apanhando encostada na cerca.
+- [ ] Se o professor pedir: `/bicho` com nome próprio (plaquinha) pro bicho da turma.
+
 ## §🧱 Entidades, mobs e pistão — ORÇAMENTO (pedido do usuário, 2026-10-27)
 
 > Orçamento, não spec fechada: as perguntas do fim são DELE e decidem o escopo. Unidade = sessão.

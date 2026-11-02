@@ -131,6 +131,47 @@ export function raycastJogador(
   return melhor;
 }
 
+/** §🐄 Um bicho como alvo da mira: pés no centro (x,z), caixa da TABELA. */
+export interface AlvoBicho {
+  id: number;
+  x: number;
+  y: number;
+  z: number;
+  largura: number;
+  altura: number;
+}
+
+/**
+ * §🐄 O bicho mais perto na linha do olhar, até `maxDist`. Mesma conta do
+ * `raycastJogador`, com a caixa de cada bicho (a galinha é baixinha, a vaca
+ * não). Como lá, é só a MIRA: quem confere alcance é o servidor.
+ */
+export function raycastBicho(
+  ox: number, oy: number, oz: number,
+  dx: number, dy: number, dz: number,
+  alvos: Iterable<AlvoBicho>,
+  maxDist: number,
+): { id: number; dist: number } | null {
+  const len = Math.hypot(dx, dy, dz);
+  if (len === 0 || !Number.isFinite(len)) return null;
+  dx /= len;
+  dy /= len;
+  dz /= len;
+  let melhor: { id: number; dist: number } | null = null;
+  for (const a of alvos) {
+    const half = a.largura / 2;
+    const t = rayAabb(
+      ox, oy, oz, dx, dy, dz,
+      a.x - half, a.y, a.z - half,
+      a.x + half, a.y + a.altura, a.z + half,
+      maxDist,
+    );
+    if (t === null) continue;
+    if (!melhor || t < melhor.dist) melhor = { id: a.id, dist: t };
+  }
+  return melhor;
+}
+
 /** Slab test contra uma AABB de MUNDO. Devolve a distância de entrada (0 se a
  *  origem está dentro), ou null se erra / passa do alcance. */
 function rayAabb(

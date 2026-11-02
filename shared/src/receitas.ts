@@ -21,6 +21,10 @@ import {
   ITEM_PICARETA_MADEIRA,
   ITEM_PICARETA_PEDRA,
   ITEM_TRIGO,
+  ITEM_BALDE_LEITE,
+  ITEM_BOLO,
+  ITEM_OVO,
+  ITEM_TESOURA,
 } from "./blocks";
 import {
   type Inventario,
@@ -91,6 +95,12 @@ export interface Receita {
    * painel aberto clicaria numa e receberia outra.
    */
   readonly aposentada?: string;
+  /**
+   * §🐄 O RECIPIENTE que volta (2026-11-02): o bolo gasta o LEITE, mas o
+   * balde é só a vasilha — ele volta vazio pra mochila, como no Minecraft.
+   * Entra junto com a saída, tudo ou nada: sem lugar pros dois, não fabrica.
+   */
+  readonly devolve?: Stack;
 }
 
 /** A receita ainda vale? (aposentada continua ocupando o índice, mas não
@@ -433,6 +443,37 @@ const CIRCUITOS: readonly Receita[] = [
   { saida: { id: BlockId.PlacaDesligada, qtd: 1 }, custo: [{ id: BlockId.Cobblestone, qtd: 2 }] },
 ];
 
+/**
+ * §🐄 MOBS PASSIVOS (2026-11-02) — lista PRÓPRIA, depois dos circuitos: o
+ * índice é identidade no protocolo (ver o topo dos `CIRCUITOS`).
+ *
+ * - a TESOURA é o par do balde: 2 lingotes de ferro (o número do Minecraft);
+ * - o BOLO é a primeira receita com RECIPIENTE: gasta o leite e devolve o
+ *   balde vazio (`devolve`). 1 leite + 1 ovo + 2 trigo — a vaca, a galinha e
+ *   a horta numa receita só, que é a cadeia que a fazenda ensina;
+ * - a LÃ colorida: lã branca + o MESMO corante do algodão daquela cor. A
+ *   ordem dos `BlockId.La*` é a ordem de `CORES`, então o índice da cor é o
+ *   deslocamento a partir da `LaBranca`.
+ */
+const BICHOS_RECEITAS: readonly Receita[] = [
+  { saida: { id: ITEM_TESOURA, qtd: 1 }, custo: [{ id: ITEM_LINGOTE_FERRO, qtd: 2 }] },
+  {
+    saida: { id: ITEM_BOLO, qtd: 1 },
+    custo: [
+      { id: ITEM_BALDE_LEITE, qtd: 1 },
+      { id: ITEM_OVO, qtd: 1 },
+      { id: ITEM_TRIGO, qtd: 2 },
+    ],
+    devolve: { id: ITEM_BALDE_VAZIO, qtd: 1 },
+  },
+  ...CORES.map((c, i) => ({ c, la: BlockId.LaBranca + i }))
+    .filter(({ la }) => la !== BlockId.LaBranca)
+    .map(({ c, la }) => ({
+      saida: { id: la, qtd: 1 },
+      custo: [{ id: BlockId.LaBranca, qtd: 1 }, ...c.corante],
+    })),
+];
+
 export const RECEITAS: readonly Receita[] = [
   ...BASE,
   ...MATERIAIS,
@@ -443,7 +484,8 @@ export const RECEITAS: readonly Receita[] = [
   ...NATUREZA,
   ...GLIFOS,
   ...FUNDICAO,
-  ...CIRCUITOS, // §🔌 sempre no FIM: índice é identidade (ver a lista)
+  ...CIRCUITOS, // §🔌 índice é identidade (ver a lista)
+  ...BICHOS_RECEITAS, // §🐄 sempre no FIM, pela mesma razão
 ];
 
 /**
@@ -499,6 +541,7 @@ export const SEM_RECEITA: ReadonlyMap<number, string> = new Map([
   [BlockId.MudaAraucaria0, "muda de araucária: vem das folhas de araucária (1 em 10)"],
   [BlockId.MudaPauBrasil0, "muda de pau-brasil: vem das folhas de pau-brasil (1 em 10)"],
   [BlockId.Bedrock, "só do professor (`isProfessorOnly`) — nunca vai pra mochila"],
+  [BlockId.LaBranca, "lã: sai da OVELHA branca pela tesoura — as outras cores se tingem dela"],
 ]);
 
 /** A receita existe E ainda vale? (o índice veio pelo fio — aqui é onde ele
@@ -559,7 +602,12 @@ export function fabricar(inv: Inventario, receita: Receita): Inventario | null {
     if (falta > 0) return null;
   }
   if (!cabe(atual, receita.saida.id, receita.saida.qtd)) return null;
-  return adicionar(atual, receita.saida.id, receita.saida.qtd).inv;
+  atual = adicionar(atual, receita.saida.id, receita.saida.qtd).inv;
+  if (receita.devolve) {
+    if (!cabe(atual, receita.devolve.id, receita.devolve.qtd)) return null;
+    atual = adicionar(atual, receita.devolve.id, receita.devolve.qtd).inv;
+  }
+  return atual;
 }
 
 /** Quanto FALTA de cada ingrediente (`have`/`need` por id), pra a lista mostrar

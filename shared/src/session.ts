@@ -2,6 +2,7 @@ import { MAX_PIN_ATTEMPTS, PIN_LOCKOUT_MS, type Papel, isValidPin, sanitizeName 
 import {
   BlockId,
   ITEM_BALDE_AGUA,
+  ITEM_BALDE_PEIXE,
   ITEM_BALDE_VAZIO,
   camaCabeca,
   camaHeadDir,
@@ -42,10 +43,11 @@ import {
   propagarSinal,
   type Celula,
 } from "./circuitos";
-import { isComida, saciedadeDe } from "./comida";
+import { isComida, recipienteDe, saciedadeDe } from "./comida";
 import { dropsDe, formaCanonica } from "./drops";
 import {
   type Inventario,
+  adicionar,
   contar,
   definirSlot,
   descartarSlot,
@@ -168,6 +170,20 @@ import { avisarChatSilenciado, avisarComFreio, avisarEmogisDesligados } from "./
 import { runSilenciar } from "./session/silenciar";
 import { evictColunas, garantirColunas, gerarColuna, streamColunas } from "./session/streaming";
 import { migrarCamasLegado } from "./camas";
+import {
+  type EstadoBichos,
+  baterBicho,
+  bichoNaCelula,
+  bichosParaSave,
+  esquecerBichosDoCliente,
+  novoEstadoBichos,
+  restaurarBichos,
+  runBicho,
+  runBichos,
+  soltarPeixe,
+  tickBichos,
+  usarBicho,
+} from "./session/bichos";
 import { esquecerSinal, marcarSinal, tickPresenca } from "./session/presenca";
 import {
   type Quebra,
@@ -307,6 +323,11 @@ export interface SessionOptions {
   /** Mundo de aula/atividade (read-only, cp19): o host passa true. Aqui liga
    *  o CONFINAMENTO (cp25) por padrão — cada aluno só edita na área do grupo. */
   somenteLeitura?: boolean;
+  /** §🐄 Força o spawn natural de bichos (ligado/desligado), passando por cima
+   *  do preset e do save. Ausente = a regra do mundo (procedural sim, aula não).
+   *  Os testes que contam mensagens exatas desligam — bicho nascendo do lado
+   *  manda `bichos` pro cliente. */
+  bichosNaturais?: boolean;
   /** Streaming (F2): colunas de chunks enviadas por TICK por jogador —
    *  config de desempenho do host (LJ_COLUNAS_TICK). Só vale em mundo lazy. */
   colunasPorTick?: number;
@@ -604,6 +625,12 @@ export class GameSession {
   private regrasCelulasMax = 0;
   private regrasMudancasSum = 0;
   private regrasAguaSum = 0;
+  /** §📊 (2026-11-02, pedido dele: "saber o que está consumindo quanto"): ms
+   *  ACUMULADOS na janela de 1 s por sistema do tick. Vai no `debug_stats`
+   *  como média por tick — o `tickAvgMs` diz QUANTO, isto diz ONDE. */
+  private readonly sistemasMs: Record<string, number> = {};
+  /** §🐄 Os bichos (estado, IA, fio). Ver `session/bichos.ts`. */
+  readonly bichos: EstadoBichos;
   /** §🔌 Células que são PEÇA DE CIRCUITO (alavanca, fio, lâmpada, porta E).
    *  Índice de sessão alimentado pelo `applyBlockQuieto`, igual ao das
    *  plantações — e reconstruído na leitura do save pelo `reindexar`. */
@@ -891,6 +918,46 @@ export class GameSession {
       this.modoMundo = "criativo";
       this.modosPorJogador.clear();
     }
+    // §🐄 bichos (2026-11-02, decisão dele): mundo PROCEDURAL nasce com bichos;
+    // mundo de AULA não tem nenhum, só o que o professor puser com `/bicho`.
+    // O preset não vai pro save, então o save guarda a decisão (`natural`); save
+    // de ANTES dos bichos decide pelo terreno (`pareceProcedural`).
+    if (opts.restore) {
+      const salvo = opts.restore.bichos;
+      this.bichos = novoEstadoBichos(
+        this.seed,
+        !this.somenteLeitura &&
+          (opts.bichosNaturais ?? (salvo ? salvo.natural : this.pareceProcedural())),
+      );
+      if (salvo) restaurarBichos(this, salvo);
+    } else {
+      const preset = opts.preset ?? (opts.flat ? "plano" : "normal");
+      this.bichos = novoEstadoBichos(
+        this.seed,
+        !this.somenteLeitura && (opts.bichosNaturais ?? preset === "normal"),
+      );
+    }
+  }
+
+  /**
+   * §🐄 Save de antes dos bichos: o mundo é procedural (ganha bichos) ou plano?
+   * O preset não é gravado, então se lê o TERRENO: mundo lazy só nasce do
+   * gerador normal; no denso, 9 colunas ao redor do centro com 3+ alturas
+   * diferentes = relevo (plano/cabines têm uma altura só).
+   */
+  private pareceProcedural(): boolean {
+    if (this.lazy) return true;
+    const alturas = new Set<number>();
+    const cx = Math.floor(this.world.sizeX / 2);
+    const cz = Math.floor(this.world.sizeZ / 2);
+    for (const dx of [-40, 0, 40]) {
+      for (const dz of [-40, 0, 40]) {
+        const x = Math.min(Math.max(cx + dx, 0), this.world.sizeX - 1);
+        const z = Math.min(Math.max(cz + dz, 0), this.world.sizeZ - 1);
+        alturas.add(findSpawnY(this.world, x, z));
+      }
+    }
+    return alturas.size >= 3;
   }
 
   /**
@@ -986,6 +1053,9 @@ export class GameSession {
         ? { modosPorJogador: Object.fromEntries(this.modosPorJogador) }
         : {}),
       ...(regrasSalvas ? { regras: regrasSalvas } : {}),
+      // §🐄 só grava quando há bicho ou spawn natural (mundo de aula sem bicho
+      // sai byte a byte como antes)
+      ...(this.bichos.natural || this.bichos.lista.size ? { bichos: bichosParaSave(this) } : {}),
     };
   }
 
@@ -1547,9 +1617,18 @@ export class GameSession {
         // da mochila cheia recusando a quebra): o slot informado tem de segurar
         // o balde do estado certo (vazio pra recolher, cheio pra despejar).
         const survival = inventarioVale(this, clientId);
+        // §🐄 o balde COM PEIXE despeja como o de água e solta o peixe junto. Em
+        // sobrevivência quem diz é o slot; no criativo (sem mochila no
+        // servidor), a mão que o cliente anunciou.
+        const naMao = survival
+          ? msg.slot !== undefined
+            ? inventarioDe(this, p.name)[msg.slot]?.id
+            : undefined
+          : this.bichos.mao.get(clientId);
+        const comPeixe = !msg.encher && naMao === ITEM_BALDE_PEIXE;
         if (survival) {
-          const precisa = msg.encher ? ITEM_BALDE_VAZIO : ITEM_BALDE_AGUA;
-          if (msg.slot === undefined || inventarioDe(this, p.name)[msg.slot]?.id !== precisa) return;
+          const precisa = msg.encher ? ITEM_BALDE_VAZIO : comPeixe ? ITEM_BALDE_PEIXE : ITEM_BALDE_AGUA;
+          if (msg.slot === undefined || naMao !== precisa) return;
         }
         if (msg.encher) {
           // balde VAZIO: só recolhe uma FONTE (o fluxo derivado seca sozinho)
@@ -1559,6 +1638,7 @@ export class GameSession {
           // balde CHEIO: célula vazia OU água substituível vira FONTE
           if (alvo !== BlockId.Air && !isReplaceable(alvo)) return;
           this.applyBlock(msg.x, msg.y, msg.z, BlockId.Agua);
+          if (comPeixe) soltarPeixe(this, msg.x, msg.y, msg.z);
         }
         // §🍖 F5: troca vazio↔cheio NO MESMO slot e reenvia a mochila (o cliente
         // não escreve o próprio inventário em sobrevivência).
@@ -1586,14 +1666,40 @@ export class GameSession {
         const antes = vitalDe(this, p.name);
         const depois = saciar(antes, saciedadeDe(item.id));
         if (depois === antes) return; // barriga cheia (ou morto): não gasta
-        const { inv, removido } = remover(inventarioDe(this, p.name), item.id, 1);
+        const { inv: semComida, removido } = remover(inventarioDe(this, p.name), item.id, 1);
         if (!removido) return;
+        // §🐄 o leite devolve o BALDE (beber não some com o balde). A mordida
+        // acabou de liberar o lugar — mas se o leite estava numa pilha, o
+        // balde pode não caber: aí recusa tudo, como a mochila cheia na quebra.
+        const resto = recipienteDe(item.id);
+        let inv = semComida;
+        if (resto !== null) {
+          const r = adicionar(inv, resto, 1);
+          if (r.sobra > 0) return;
+          inv = r.inv;
+        }
         // os dois lados mudam JUNTOS ou nenhum muda: a barra só sobe depois de
         // a comida sair da mochila de verdade
         this.inventarios.set(p.name, inv);
         this.vitais.set(p.name, depois);
         sendInventario(this, clientId);
         sendVida(this, clientId);
+        break;
+      }
+      case "bater_bicho": {
+        // §🐄 clique ESQUERDO num bicho: a sessão confere regra, modo, alcance
+        baterBicho(this, clientId, msg.id);
+        break;
+      }
+      case "usar_bicho": {
+        // §🐄 clique DIREITO num bicho: tesoura, balde, isca, domar, sentar
+        usarBicho(this, clientId, msg.id, msg.slot);
+        break;
+      }
+      case "mao": {
+        // §🐄 o que o jogador segura (a galinha segue o trigo NA MÃO, não na mochila)
+        if (!this.players.has(clientId)) return;
+        this.bichos.mao.set(clientId, msg.id);
         break;
       }
       case "atacar": {
@@ -2017,6 +2123,13 @@ export class GameSession {
         // existe, só não é daqui. Então respondemos ONDE ele mora.
         return "O painel abre no seu próprio aparelho, não no servidor: tecla P no computador, ou o botão 📋 da barra de cima no tablet. Se você digitou /painel e nada aconteceu, recarregue a página.";
       }
+      case "bichos":
+        // §🐄 do professor (consulta inclusive) — o gate mora no handler
+        return runBichos(this, clientId, parts, professor);
+      case "bicho": {
+        if (!professor) return "Somente o professor pode trazer bichos.";
+        return runBicho(this, clientId, parts);
+      }
       case "invisivel": {
         if (!professor) return "Somente o professor pode ficar invisível.";
         return runInvisivel(this, clientId);
@@ -2038,7 +2151,7 @@ export class GameSession {
         return "O /perfil pede a medição a quem está conectado num servidor e grava na pasta profiles/ dele. No jogo sozinho não há servidor: use a tecla F3 → exportar.";
       }
       default:
-        return `Comando desconhecido: ${text}. Os comandos disponíveis são /bloco, /redefinirpin, /regiao, /objetivo, /grupo, /aula, /tp, /tpp, /tpa, /iniciar, /hora, /ciclo, /vento, /voo, /modo, /regra, /pvp, /dar, /terreno, /vender, /amigos, /painel, /invisivel, /confinar, /silenciar e /perfil.`;
+        return `Comando desconhecido: ${text}. Os comandos disponíveis são /bloco, /redefinirpin, /regiao, /objetivo, /grupo, /aula, /tp, /tpp, /tpa, /iniciar, /hora, /ciclo, /vento, /voo, /modo, /regra, /pvp, /dar, /terreno, /vender, /amigos, /painel, /invisivel, /confinar, /silenciar, /perfil, /bichos e /bicho.`;
     }
   }
 
@@ -2743,6 +2856,7 @@ export class GameSession {
     this.avisoSilencio.delete(clientId);
     this.avisoEmogis.delete(clientId);
     this.containerAberto.delete(clientId); // §🍖 F10: painel aberto é de sessão
+    esquecerBichosDoCliente(this, clientId); // §🐄 vista e mão são de conexão
     const p = this.players.get(clientId);
     if (!p) return;
     // mundo lembra onde o jogador parou (vai pro save; volta aqui no rejoin)
@@ -2839,6 +2953,7 @@ export class GameSession {
     this.regrasMudancasSum += mudancas;
     this.regrasAguaSum += aguaCelulas;
     if (celulas > this.regrasCelulasMax) this.regrasCelulasMax = celulas;
+    let tm = this.medir("regras", t0);
 
     // §🍖 F6: PULSO DE CRESCIMENTO. Fora da fila de vizinhança de propósito —
     // crescer não é reação a vizinho, é tempo passando (ver `crescerPlantacao`).
@@ -2863,7 +2978,9 @@ export class GameSession {
 
     // §🍖 F10b: as fornalhas. Fora da fila de vizinhança pela MESMA razão da
     // plantação — o fogo anda por TEMPO, não porque alguém mexeu do lado.
+    tm = this.medir("plantas", tm);
     tickFornalhas(this);
+    tm = this.medir("fornalhas", tm);
 
     // §🔌 PLACAS DE PRESSÃO: a única peça cujo estado não vem de um clique, e
     // sim do CORPO de quem está em cima. Roda antes do motor pra a mudança
@@ -2882,7 +2999,8 @@ export class GameSession {
       // alguém — inclusive o `/invisivel`, que não ocupa célula: o professor
       // fantasma atravessa a sala sem disparar as placas da aula, e isso é o
       // que se quer (ele está observando, não jogando).
-      const pisada = this.overlapsAnyPlayer(c.x, c.y, c.z);
+      // §🐄 (decisão dele) o BICHO em cima também aperta a placa
+      const pisada = this.overlapsAnyPlayer(c.x, c.y, c.z) || bichoNaCelula(this, c.x, c.y, c.z);
       if (pisada !== estaLigado(id)) this.applyBlock(c.x, c.y, c.z, comEstado(id, pisada));
     }
 
@@ -2906,6 +3024,7 @@ export class GameSession {
       this.moverPortasPeloSinal(portasComSinal);
       this.circuitosSujos = false;
     }
+    tm = this.medir("circuitos", tm);
 
     // cp12/13: recheca objetivos tocados por mudanças (dos jogadores E das
     // regras acima — areia caindo dentro do alvo também conta/desconta)
@@ -2933,6 +3052,7 @@ export class GameSession {
       }
       broadcastObjectives(this); // contadores mudaram mesmo sem conclusão
     }
+    tm = this.medir("objetivos", tm);
 
     // §🍖 F2: fôlego e regeneração de quem está em sobrevivência
     tickVitais(this);
@@ -2944,12 +3064,19 @@ export class GameSession {
     // bug-672: pergunta "você ainda está aí?" e derruba quem não responde —
     // é o que devolve o nome pro tablet que minimizou/fechou sem fechar o socket
     tickPresenca(this);
+    tm = this.medir("jogadores", tm);
+
+    // §🐄 os bichos: IA, caminho, spawn e o fio deles (ver `session/bichos.ts`)
+    tickBichos(this);
+    tm = this.medir("bichos", tm);
 
     // F2 streaming: mundo lazy manda colunas por raio de interesse
     if (this.lazy) streamColunas(this);
+    tm = this.medir("streaming", tm);
 
     // bug-650: 1 broadcast por DESTINATÁRIO fecha o tick, não 1 por MOVE recebido
     this.flushPoses();
+    this.medir("poses", tm);
 
     const ms = this.now() - t0;
     this.tickCount++;
@@ -2958,6 +3085,13 @@ export class GameSession {
     if (ms > this.tickMsMax) this.tickMsMax = ms;
 
     if (this.ticksInWindow >= SERVER_TICK_RATE) {
+      // §📊 ms médios por tick de cada sistema (zera a janela)
+      const sistemas: Record<string, number> = {};
+      for (const [nome, soma] of Object.entries(this.sistemasMs)) {
+        sistemas[nome] = +(soma / this.ticksInWindow).toFixed(3);
+        this.sistemasMs[nome] = 0;
+      }
+      const b = this.bichos.resumo;
       this.broadcast({
         type: "debug_stats",
         tickAvgMs: +(this.tickMsSum / this.ticksInWindow).toFixed(3),
@@ -2968,6 +3102,8 @@ export class GameSession {
         regrasCelulasMax: this.regrasCelulasMax,
         regrasMudancasAvg: +(this.regrasMudancasSum / this.ticksInWindow).toFixed(1),
         regrasAguaAvg: +(this.regrasAguaSum / this.ticksInWindow).toFixed(1),
+        sistemas,
+        bichos: { total: b.total, simulados: b.simulados, buscasPorS: b.buscasPorS, nosPorS: b.nosPorS },
       });
       // hora nova 1×/s: o cliente interpola o céu localmente entre estas (cp21)
       broadcastTime(this);
@@ -2981,6 +3117,14 @@ export class GameSession {
       this.regrasCelulasSum = this.regrasCelulasMax = 0;
       this.regrasMudancasSum = this.regrasAguaSum = 0;
     }
+  }
+
+  /** §📊 soma `agora − desde` no sistema `nome` e devolve `agora` (o próximo
+   *  trecho mede a partir dele — um `now()` por fronteira, não dois). */
+  private medir(nome: string, desde: number): number {
+    const agora = this.now();
+    this.sistemasMs[nome] = (this.sistemasMs[nome] ?? 0) + (agora - desde);
+    return agora;
   }
 
   /** Mundo lazy (streaming F2)? Host escolhe o formato de save (esparso = F3). */

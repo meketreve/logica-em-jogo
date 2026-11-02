@@ -27,6 +27,11 @@ active: true
 
 ## Testar na escola (o usuário faz)
 
+- [ ] **§🐄 Bichos (02/11, BRANCH `claude/project-thread-kqj92e`):** abrir um mundo procedural —
+      os bichos aparecem perto? Tesoura na ovelha, balde na vaca, ovo, domar o cão. O F3 mostra a
+      linha "bichos:" e "servidor por sistema" — mandar o `/perfil` da turma com bichos à vista
+      (é a leitura que ele pediu). O tablet aguenta? A placa no curral? Se aprovar, merge na `main`.
+
 - [ ] **`/perfil` (27/10):** rodar com a turma toda conectada — chegam N arquivos
       `perf-turma-*` em `profiles/`? O aviso no chat assusta ou passa batido? Tablet com a tela
       apagada só devolve quando acender (a gravação anda por QUADRO pintado).

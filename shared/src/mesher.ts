@@ -248,6 +248,10 @@ export const TILE = {
    *  crua; ligado é a mesma madeira em brasa, que é o reforço de COR em cima
    *  da diferença de silhueta (nunca no lugar dela). */
   alavancaCaboDesligado: 199, alavancaCaboLigado: 200,
+  /** §🐄 a LÃ (2026-11-02): 12 cores, na ordem dos `BlockId.La*`. */
+  laBranca: 201, laPreta: 202, laVermelha: 203, laLaranja: 204,
+  laAmarela: 205, laVerde: 206, laAzul: 207, laRoxa: 208,
+  laRosa: 209, laCiana: 210, laCinza: 211, laMarrom: 212,
 } as const;
 
 /** cp20: blocos-glifo. Letras A–Z e dígitos 0–9 ocupam tiles consecutivos a
@@ -538,6 +542,10 @@ const TAPETE_TILES: readonly number[] = [
 ];
 for (let i = 0; i < TAPETE_TILES.length; i++) {
   BLOCK_TILES[BlockId.TapeteBranco + i] = uniform(TAPETE_TILES[i]!);
+}
+/** §🐄 a lã: 12 tiles contíguos a partir de `laBranca`, na ordem dos ids. */
+for (let i = 0; i < 12; i++) {
+  BLOCK_TILES[BlockId.LaBranca + i] = uniform(TILE.laBranca + i);
 }
 
 /** Tile usado como ÍCONE 2D do bloco (hotbar/inventário do cliente) — a face lateral. */

@@ -361,6 +361,26 @@ const SMOKES = [
     ],
   },
   {
+    nome: "bichos",
+    arquivo: `${DIR}/_smoke-bichos.mjs`,
+    prova:
+      "§🐄 os bichos pelo fio: o mundo procedural chega com bichos no join, o id do clique sai do `bichos {add}`, o movimento vem em lote, `/bichos limpar` some tudo da vista, só o professor traz bicho, tesoura na ovelha preta dá lã PRETA sem dano, balde vazio na vaca vira leite, cinco golpes derrubam a vaca e põem carne na mochila, e o `debug_stats` traz o custo do sistema `bichos`.",
+    lento: false,
+    limpar: ["mundos/_smoke-bichos"],
+    servidores: [
+      {
+        porta: 8113,
+        env: {
+          LJ_SAVE: "mundos/_smoke-bichos.ljw",
+          LJ_NOVO: "1",
+          LJ_TAMANHO: "P",
+          LJ_CODIGO: "prof2026",
+          LJ_SEED: SEED,
+        },
+      },
+    ],
+  },
+  {
     nome: "fornalha",
     arquivo: `${DIR}/_smoke-fornalha.mjs`,
     prova:

@@ -415,6 +415,24 @@ export const BlockId = {
   AlavancaZNLigada: 297,
   AlavancaTetoDesligada: 298,
   AlavancaTetoLigada: 299,
+  /**
+   * §🐄 LÃ (2026-11-02): a lã de verdade, da ovelha — 12 blocos próprios, na
+   * mesma ordem de cor do algodão (decisão dele: "são blocos novos"). É o que
+   * a tesoura tira: a ovelha branca dá lã branca, a preta dá preta. As outras
+   * cores saem da lã branca + corante, no molde do algodão.
+   */
+  LaBranca: 300,
+  LaPreta: 301,
+  LaVermelha: 302,
+  LaLaranja: 303,
+  LaAmarela: 304,
+  LaVerde: 305,
+  LaAzul: 306,
+  LaRoxa: 307,
+  LaRosa: 308,
+  LaCiana: 309,
+  LaCinza: 310,
+  LaMarrom: 311,
 } as const;
 
 export type BlockId = (typeof BlockId)[keyof typeof BlockId];
@@ -433,7 +451,7 @@ export type BlockId = (typeof BlockId)[keyof typeof BlockId];
  * mochila. Há portão em `ids16.test.ts`. E id é byte de SAVE: nunca renumerar
  * um id que já existe, só acrescentar no fim.
  */
-export const MAX_BLOCK_ID = BlockId.AlavancaTetoLigada;
+export const MAX_BLOCK_ID = BlockId.LaMarrom;
 
 /**
  * Os ids que EXISTEM de verdade.
@@ -657,6 +675,34 @@ export const ITEM_PA_PEDRA = 928;
 export const ITEM_PA_FERRO = 929;
 export const ITEM_PA_DIAMANTE = 930;
 
+/**
+ * §🐄 MOBS PASSIVOS (2026-11-02): o que os bichos dão e o que se faz com eles.
+ * APPEND no fim da banda, como todo item (o número é byte de save e de fio).
+ *
+ * - `tesoura`: a única ferramenta que não quebra bloco — tosquia a ovelha sem
+ *   machucar. Tem durabilidade (238, o número do Minecraft) e por isso mora
+ *   em `FERRAMENTAS_ITENS` (1 por slot), mas NÃO na tabela de picareta/machado/pá.
+ * - `balde de leite` e `balde com peixe`: o balde ganha dois conteúdos novos.
+ *   Beber o leite (e usá-lo no bolo) DEVOLVE o balde vazio.
+ * - carnes cruas → assadas na fornalha, no molde da batata: crua alimenta
+ *   pouco, assada alimenta como o pão.
+ * - `couro` (vaca) e `pena` (galinha, arara): ainda sem receita — o couro é
+ *   da armadura que vem depois (decisão dele, 2026-11-02).
+ */
+export const ITEM_TESOURA = 931;
+export const ITEM_BALDE_LEITE = 932;
+export const ITEM_OVO = 933;
+export const ITEM_CARNE_CRUA = 934;
+export const ITEM_CARNE_ASSADA = 935;
+export const ITEM_FRANGO_CRU = 936;
+export const ITEM_FRANGO_ASSADO = 937;
+export const ITEM_PEIXE_CRU = 938;
+export const ITEM_PEIXE_ASSADO = 939;
+export const ITEM_BALDE_PEIXE = 940;
+export const ITEM_BOLO = 941;
+export const ITEM_COURO = 942;
+export const ITEM_PENA = 943;
+
 /** Um dos itens de FERRAMENTA (§🍖 F10d)? Mora aqui, junto de `isBalde`, e não
  *  em `ferramentas.ts`, porque quem pergunta primeiro é o `tamanhoStack` do
  *  inventário — e `inventario.ts` importando `ferramentas.ts`, que importa
@@ -674,6 +720,8 @@ const FERRAMENTAS_ITENS: ReadonlySet<number> = new Set([
   ITEM_PA_PEDRA,
   ITEM_PA_FERRO,
   ITEM_PA_DIAMANTE,
+  // §🐄 a tesoura: 1 por slot e com durabilidade, mas não quebra bloco
+  ITEM_TESOURA,
 ]);
 
 /** É ferramenta? (1 por slot, como o balde — ver `tamanhoStack`) */
@@ -736,7 +784,12 @@ export function fornalhaComEstado(id: number, acesa: boolean): number {
 
 /** É o item balde (cheio ou vazio)? */
 export function isBalde(id: number): boolean {
-  return id === ITEM_BALDE_VAZIO || id === ITEM_BALDE_AGUA;
+  return (
+    id === ITEM_BALDE_VAZIO ||
+    id === ITEM_BALDE_AGUA ||
+    id === ITEM_BALDE_LEITE ||
+    id === ITEM_BALDE_PEIXE
+  );
 }
 
 /** Todo item que EXISTE (a banda ≥ 900 não é um intervalo aberto: id fora desta
@@ -774,6 +827,20 @@ const ITENS: ReadonlySet<number> = new Set([
   ITEM_PA_PEDRA,
   ITEM_PA_FERRO,
   ITEM_PA_DIAMANTE,
+  // §🐄 mobs passivos (2026-11-02)
+  ITEM_TESOURA,
+  ITEM_BALDE_LEITE,
+  ITEM_OVO,
+  ITEM_CARNE_CRUA,
+  ITEM_CARNE_ASSADA,
+  ITEM_FRANGO_CRU,
+  ITEM_FRANGO_ASSADO,
+  ITEM_PEIXE_CRU,
+  ITEM_PEIXE_ASSADO,
+  ITEM_BALDE_PEIXE,
+  ITEM_BOLO,
+  ITEM_COURO,
+  ITEM_PENA,
 ]);
 
 /** É um item conhecido (não-bloco)? */

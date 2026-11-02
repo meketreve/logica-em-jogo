@@ -42,9 +42,15 @@ function colunasDoLote(buf, dimsY) {
 function aluno(nome) {
   const ws = new WebSocket(URL);
   ws.binaryType = "arraybuffer";
-  const rec = { ws, colunas: [], dims: null, spawn: null, mundos: 0, avisoTroca: 0, mundo2: 0 };
+  // §🕐 ORDEM de chegada (um contador por mensagem), não relógio: o aviso e o
+  // mundo novo saem do host no MESMO handler síncrono, e com o socket cheio
+  // (bichos + streaming, 2026-11-02) os dois chegam no mesmo milissegundo —
+  // `Date.now()` empatava e reprovava uma ordem que o TCP garante.
+  let seq = 0;
+  const rec = { ws, colunas: [], dims: null, spawn: null, mundos: 0, avisoTroca: 0, mundo2: 0, msAviso: 0, msMundo2: 0 };
   ws.onopen = () => ws.send(JSON.stringify({ type: "join", name: nome, pin: "1111" }));
   ws.onmessage = (e) => {
+    seq++;
     if (!(e.data instanceof ArrayBuffer)) {
       const m = JSON.parse(e.data);
     // bug-672: um cliente de verdade RESPONDE o ping — sem isto o host derruba
@@ -52,7 +58,7 @@ function aluno(nome) {
     if (m.type === "ping") ws.send(JSON.stringify({ type: "pong", t: m.t }));
       if (m.type === "spawn") rec.spawn = m;
       // §🕐 aviso que a troca começou — tem que chegar ANTES do mundo novo
-      if (m.type === "mundo_trocando") rec.avisoTroca = Date.now();
+      if (m.type === "mundo_trocando") (rec.avisoTroca = seq), (rec.msAviso = Date.now());
       return;
     }
     const v = new DataView(e.data);
@@ -60,7 +66,7 @@ function aluno(nome) {
     if (magic === LAZY_MAGIC) {
       rec.dims = { x: v.getUint16(4, true), z: v.getUint16(6, true), y: v.getUint16(8, true) };
       rec.mundos++;
-      if (rec.mundos === 2) rec.mundo2 = Date.now();
+      if (rec.mundos === 2) (rec.mundo2 = seq), (rec.msMundo2 = Date.now());
       rec.colunas = []; // mundo novo: contagem recomeça
       return;
     }
@@ -104,7 +110,7 @@ console.log("== depois da troca, SEM reanunciar o raio ==");
 ok(a.mundos === 2, "aluno recebeu o mundo novo sem reconectar");
 ok(
   a.avisoTroca > 0 && a.mundo2 > 0 && a.avisoTroca < a.mundo2,
-  `§🕐 aviso "mundo_trocando" chegou ${a.mundo2 - a.avisoTroca} ms ANTES do mundo novo`,
+  `§🕐 aviso "mundo_trocando" chegou ANTES do mundo novo (${a.mundo2 - a.avisoTroca} mensagem(ns) e ${a.msMundo2 - a.msAviso} ms antes)`,
 );
 const anelDepois = anelMax(a);
 ok(

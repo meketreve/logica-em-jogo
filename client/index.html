@@ -104,6 +104,23 @@
         color: #ff5a5a;
         font-size: 26px;
       }
+      /* §🐄 bicho na mira: amarela (não é ataque — o clique direito cuida, tosquia,
+         ordenha) e o NOME embaixo, pra criança saber o que é antes de clicar. */
+      #crosshair.bicho {
+        color: #ffd84a;
+      }
+      #crosshair.bicho::after {
+        content: attr(data-bicho);
+        position: absolute;
+        left: 50%;
+        top: 120%;
+        transform: translateX(-50%);
+        white-space: nowrap;
+        font: 600 13px/1.2 system-ui, sans-serif;
+        padding: 2px 6px;
+        border-radius: 4px;
+        background: rgba(0, 0, 0, 0.55);
+      }
       #hotbar {
         position: fixed;
         bottom: 12px;

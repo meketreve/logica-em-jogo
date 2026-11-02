@@ -169,12 +169,12 @@ describe("§🍖 F10c — a fibra honesta", () => {
   it("o bloco de algodão branco sai de 3 ALGODÃO, e nenhuma receita cobra trigo pra vestir", () => {
     const la = RECEITAS.find((r) => r.saida.id === BlockId.BlocoAlgodaoBranco && receitaAtiva(r));
     expect(la?.custo).toEqual([{ id: ITEM_ALGODAO, qtd: 3 }]);
-    // o trigo volta a ser SÓ comida: a única receita que o cobra é o pão
+    // o trigo volta a ser SÓ comida: quem o cobra é o pão e (§🐄, 2026-11-02)
+    // o bolo — nenhuma receita de VESTIR
     const comTrigo = RECEITAS.filter(
       (r) => receitaAtiva(r) && r.custo.some((c) => c.id === ITEM_TRIGO),
     );
-    expect(comTrigo).toHaveLength(1);
-    expect(comTrigo[0]!.saida.id).toBe(904); // ITEM_PAO
+    expect(comTrigo.map((r) => r.saida.id).sort()).toEqual([904, 941]); // ITEM_PAO, ITEM_BOLO
   });
 
   it("os 11 blocos de algodão coloridos saem da FIBRA + corante (2026-08-10: sem a etapa do branco)", () => {

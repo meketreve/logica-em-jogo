@@ -87,7 +87,12 @@ describe("GameSession (servidor autoritativo)", () => {
   it("emite debug_stats a cada SERVER_TICK_RATE ticks, só pra quem entrou", () => {
     const { sent, send } = collect();
     let t = 0;
-    const session = new GameSession(send, { dims: DIMS, singleplayer: true, now: () => (t += 2) });
+    const session = new GameSession(send, {
+      dims: DIMS,
+      singleplayer: true,
+      now: () => (t += 2),
+      bichosNaturais: false, // §🐄 conta mensagens exatas
+    });
     session.handleMessage(7, JSON.stringify({ type: "join", name: "ana" }));
     sent.length = 0; // descarta o snapshot do join
 
@@ -101,8 +106,15 @@ describe("GameSession (servidor autoritativo)", () => {
       .find((m) => m?.type === "debug_stats");
     if (stats?.type !== "debug_stats") throw new Error("esperava debug_stats");
     expect(stats.tps).toBe(SERVER_TICK_RATE);
-    expect(stats.tickAvgMs).toBe(2); // relógio fake avança 2 ms por chamada
-    expect(stats.tickMaxMs).toBe(2);
+    // §📊 relógio fake avança 2 ms por CHAMADA: cada sistema do tick custa uma
+    // chamada (2 ms), e o total é o início + uma por sistema + a do fim
+    const sistemas = Object.values(stats.sistemas ?? {});
+    expect(sistemas.length).toBeGreaterThanOrEqual(8);
+    expect(sistemas.every((v) => v === 2)).toBe(true);
+    expect(stats.tickAvgMs).toBe(2 * (sistemas.length + 1));
+    expect(stats.tickMaxMs).toBe(stats.tickAvgMs);
+    // o resumo dos bichos vai junto (zero aqui: o teste desligou o spawn)
+    expect(stats.bichos).toEqual({ total: 0, simulados: 0, buscasPorS: 0, nosPorS: 0 });
     expect(sent.some((s) => parseServerMessage(s.data as string)?.type === "time")).toBe(true);
 
     // janela zera: próximo lote só depois de mais SERVER_TICK_RATE ticks
@@ -204,7 +216,8 @@ describe("GameSession (servidor autoritativo)", () => {
 
   it("balde: despeja FONTE de água e recolhe SÓ a fonte (fluxo não é coletável)", () => {
     const { send } = collect();
-    const session = new GameSession(send, { dims: DIMS, seed: 5, singleplayer: true });
+    // §🐄 sem bichos: o teste conta as mensagens do tick uma a uma
+    const session = new GameSession(send, { dims: DIMS, seed: 5, singleplayer: true, bichosNaturais: false });
     session.handleMessage(1, JSON.stringify({ type: "join", name: "ana" }));
     const world = session.world;
     const sx = Math.floor(world.sizeX / 2);
@@ -258,7 +271,8 @@ describe("GameSession (servidor autoritativo)", () => {
 
   it("place sobre líquido substituível (água) troca direto, sem quebrar antes", () => {
     const { sent, send } = collect();
-    const session = new GameSession(send, { dims: DIMS, seed: 5, singleplayer: true });
+    // §🐄 sem bichos: o teste conta as mensagens do tick uma a uma
+    const session = new GameSession(send, { dims: DIMS, seed: 5, singleplayer: true, bichosNaturais: false });
     session.handleMessage(1, JSON.stringify({ type: "join", name: "ana" }));
     const world = session.world;
     const sx = Math.floor(world.sizeX / 2);
@@ -282,7 +296,8 @@ describe("GameSession (servidor autoritativo)", () => {
 
   it("areia cai no tick do servidor: 1 célula por tick, em cascata, e para no chão", () => {
     const { sent, send } = collect();
-    const session = new GameSession(send, { dims: DIMS, seed: 5, singleplayer: true });
+    // §🐄 sem bichos: o teste conta as mensagens do tick uma a uma
+    const session = new GameSession(send, { dims: DIMS, seed: 5, singleplayer: true, bichosNaturais: false });
     session.handleMessage(1, JSON.stringify({ type: "join", name: "ana" }));
     const world = session.world;
     const sx = Math.floor(world.sizeX / 2);
@@ -328,7 +343,8 @@ describe("GameSession (servidor autoritativo)", () => {
 
   it("bloco sem regra não cai; place fora do mundo é rejeitado (bug-004)", () => {
     const { sent, send } = collect();
-    const session = new GameSession(send, { dims: DIMS, seed: 5, singleplayer: true });
+    // §🐄 sem bichos: o teste conta as mensagens do tick uma a uma
+    const session = new GameSession(send, { dims: DIMS, seed: 5, singleplayer: true, bichosNaturais: false });
     session.handleMessage(1, JSON.stringify({ type: "join", name: "ana" }));
     const world = session.world;
     const sx = Math.floor(world.sizeX / 2);
@@ -643,7 +659,8 @@ describe("GameSession (servidor autoritativo)", () => {
 
   it("bedrock: jogador não quebra; /bloco coloca e remove (caminho do professor)", () => {
     const { sent, send } = collect();
-    const session = new GameSession(send, { dims: DIMS, seed: 5, singleplayer: true });
+    // §🐄 sem bichos: o teste conta as mensagens do tick uma a uma
+    const session = new GameSession(send, { dims: DIMS, seed: 5, singleplayer: true, bichosNaturais: false });
     session.handleMessage(1, JSON.stringify({ type: "join", name: "ana" }));
     const world = session.world;
     const sx = Math.floor(world.sizeX / 2);
@@ -687,7 +704,8 @@ describe("GameSession (servidor autoritativo)", () => {
 
   it("cascalho cai igual areia — regra de queda é genérica", () => {
     const { send } = collect();
-    const session = new GameSession(send, { dims: DIMS, seed: 5, singleplayer: true });
+    // §🐄 sem bichos: o teste conta as mensagens do tick uma a uma
+    const session = new GameSession(send, { dims: DIMS, seed: 5, singleplayer: true, bichosNaturais: false });
     session.handleMessage(1, JSON.stringify({ type: "join", name: "ana" }));
     const world = session.world;
     const sx = Math.floor(world.sizeX / 2);
@@ -714,7 +732,7 @@ describe("GameSession (servidor autoritativo)", () => {
       "/bloco 1 2",                       // args faltando
       "/bloco 1.5 2 3 4",                 // não inteiro
       "/bloco 999 0 0 1",                 // fora do mundo
-      "/bloco 5 5 5 300",                 // id inválido (200 agora é a cenoura do §🍖 F10h)
+      "/bloco 5 5 5 899",                 // id inválido (300 virou a lã branca do §🐄)
     ];
     for (const text of bad) {
       session.handleMessage(1, JSON.stringify({ type: "chat", text }));

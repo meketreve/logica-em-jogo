@@ -19,6 +19,7 @@ import {
   type ScenarioModo,
   type Snapshot,
   ITEM_BALDE_AGUA,
+  ITEM_BALDE_PEIXE,
   ITEM_BALDE_VAZIO,
   acenderColuna,
   atualizarBloco,
@@ -61,7 +62,11 @@ import {
   peekMagic,
   podeVoarNoModo,
   raycastBlock,
+  luzByte,
+  raycastBicho,
   raycastJogador,
+  tipoPorIndice,
+  type EventoBicho,
   relevoPorClima,
   saveEhLegado,
   setBlock,
@@ -82,6 +87,7 @@ import { ColunasFaltando } from "./colunasFaltando";
 import { HotbarUi } from "./hotbarUi";
 import { LuzCliente } from "./luzCliente";
 import { RemotePlayersView } from "./remotePlayers";
+import { BichosView, brilhoDaLuzVoxel } from "./bichos/render";
 import { EmojiWheelPanel } from "./emojiWheel";
 import {
   type Corpo,
@@ -696,6 +702,9 @@ renderer.domElement.addEventListener("pointerdown", () => {
 });
 
 let debugStats = { tickAvgMs: 0, tickMaxMs: 0 };
+/** §📊 custo por sistema do servidor + o resumo dos bichos (último `debug_stats`). */
+let sistemasServidor: Record<string, number> | null = null;
+let bichosServidor: { total: number; simulados: number; buscasPorS: number; nosPorS: number } | null = null;
 /** §📊 custo das REGRAS no servidor (última janela de 1 s) — só existe se o host
  *  for desta versão; host antigo não manda os campos e isto fica null. */
 let regrasServidor: {
@@ -943,6 +952,8 @@ function handleServerData(data: string | ArrayBuffer): void {
     if (!msg) return;
     if (msg.type === "debug_stats") {
       debugStats = { tickAvgMs: msg.tickAvgMs, tickMaxMs: msg.tickMaxMs };
+      sistemasServidor = msg.sistemas ?? null;
+      bichosServidor = msg.bichos ?? null;
       // §📊 regras (água/areia) do outro lado: liga o remesh caro daqui à causa
       // de lá. Campos opcionais — host de versão antiga simplesmente não manda.
       regrasServidor =
@@ -968,6 +979,14 @@ function handleServerData(data: string | ArrayBuffer): void {
       jogo?.aoDormir(msg.dormindo, msg.cama);
     } else if (msg.type === "gesto") {
       jogo?.applyGesto(msg.id, msg.gesto);
+    } else if (msg.type === "bichos") {
+      jogo?.aoChegarBichos(msg.add);
+    } else if (msg.type === "bichos_movidos") {
+      jogo?.aoMoverBichos(msg.m);
+    } else if (msg.type === "bichos_sumiram") {
+      jogo?.aoSumirBichos(msg.ids);
+    } else if (msg.type === "bicho_evento") {
+      jogo?.aoEventoBicho(msg.id, msg.evento);
     } else if (msg.type === "player_left") {
       nomesOnline.delete(msg.id);
       learnPlayers([...new Set(nomesOnline.values())]);
@@ -1543,6 +1562,16 @@ class GameRuntime {
    *  mesmo lugar que o `target` do bloco, e é ele que decide se o clique
    *  esquerdo vira soco em vez de quebra. */
   private alvoJogador: { id: number; dist: number } | null = null;
+  /** §🐄 bicho mirado neste frame (mesma regra do jogador: só se estiver mais
+   *  perto que o bloco). Ganha os dois cliques: esquerdo bate, direito usa. */
+  private alvoBicho: { id: number; dist: number } | null = null;
+  /** §🐄 os bichos (um InstancedMesh por tipo, animação no shader). */
+  private readonly bichos: BichosView;
+  /** §🐄 o último item na mão que o servidor ouviu (`mao`). `undefined` = ainda
+   *  não mandou nesta sessão do servidor (a troca de aula zera). */
+  private maoEnviada: number | null | undefined = undefined;
+  /** §📊 média móvel do CPU dos bichos por quadro (o instantâneo pula muito). */
+  private bichosCpuMedio = 0;
   /** §💬 (2026-08-14): último id que esteve na mira — quando ele M UDA o rótulo
    *  do ▣ do tablet é reavaliado (vira "interagir"). Id fora da faixa = nunca
    *  mirado. */
@@ -1702,6 +1731,40 @@ class GameRuntime {
     loading.setFase(this.mundoLazy ? "mundo" : "malha");
     // §👥 Os outros jogadores (caixa + plaquinha + LERP) moram em RemotePlayersView.
     this.outros = new RemotePlayersView(scene);
+    // §🐄 os bichos. `?bench&sembichos` desliga o DESENHO — o servidor segue
+    // mandando: o A/B mede só o custo de render deles.
+    this.bichos = new BichosView(scene, {
+      // a luz VOXEL do lugar (caverna escura, tocha) — a mesma curva do terreno.
+      // Byte 0 = coluna ainda não acesa: aí vale claro, senão o bicho que chega
+      // antes da luz da coluna nasceria preto.
+      luzEm: (x, y, z) => {
+        const grade = this.luz.paraMesher;
+        if (!grade) return 1;
+        const b = luzByte(grade, Math.floor(x), Math.floor(y), Math.floor(z));
+        return b === 0 ? 1 : brilhoDaLuzVoxel(b, skyCycle.nivelCeu);
+      },
+    });
+    if (experimentos.has("sembichos")) this.bichos.setVisivel(false);
+    // gancho de SONDA (o precedente do `__quebraEstado`): só LÊ o que o cliente
+    // já sabe — quantos bichos, o mirado e o custo do último quadro.
+    (window as unknown as Record<string, unknown>)["__bichosEstado"] = () => ({
+      n: [...this.bichos.alvos()].length,
+      alvos: [...this.bichos.alvos()].map((a) => ({ ...a, nome: this.bichos.nome(a.id) })),
+      mirado: this.alvoBicho ? { ...this.alvoBicho, nome: this.bichos.nome(this.alvoBicho.id) } : null,
+      maoEnviada: this.maoEnviada ?? null,
+      custo: this.bichos.custo(),
+    });
+    // §🐄 gancho de SONDA: aponta o OLHO pra um ponto do mundo (só a câmera — o
+    // mesmo que o aluno faz com o mouse; o `__fotoApontar` só existe no `?foto`).
+    // É o que deixa a `shots:bichos` mirar um bicho que anda.
+    (window as unknown as Record<string, unknown>)["__mirar"] = (x: number, y: number, z: number) => {
+      const dx = x - camera.position.x;
+      const dy = y - camera.position.y;
+      const dz = z - camera.position.z;
+      input.yaw = Math.atan2(-dx, -dz);
+      input.pitch = Math.atan2(dy, Math.hypot(dx, dz));
+      return true;
+    };
 
     // --- Mira + colocar/quebrar ---
     // Cubo unitário centrado na origem: o loop o REESCALA/reposiciona pela
@@ -1834,6 +1897,12 @@ class GameRuntime {
         this.activeConn.send(JSON.stringify({ type: "atacar", alvo: this.alvoJogador.id }));
         return;
       }
+      // §🐄 bicho na mira: o clique é dele (o bloco atrás não quebra). Quem
+      // decide se machuca (modo, regra, dono, alcance) é o servidor.
+      if (this.alvoBicho && !this.hotbarUi.varinhaAtiva) {
+        this.activeConn.send(JSON.stringify({ type: "bater_bicho", id: this.alvoBicho.id }));
+        return;
+      }
       if (!this.target) return;
       if (this.hotbarUi.varinhaAtiva) {
         wandMark(1, this.target);
@@ -1856,6 +1925,19 @@ class GameRuntime {
     input.onMouseUp(0, () => this.soltarQuebra());
     input.onMouseButton(2, () => {
       if (this.emCameraNaoJogavel()) return;
+      // §🐄 bicho na mira: tesoura, balde, isca, domar, sentar — o ITEM decide,
+      // e quem decide o efeito é o servidor. Vem antes de comer: com a carne na
+      // mão e o cão na mira, o clique é pra domar (regra Minecraft).
+      if (this.alvoBicho && !this.hotbarUi.varinhaAtiva) {
+        this.activeConn.send(
+          JSON.stringify({
+            type: "usar_bicho",
+            id: this.alvoBicho.id,
+            ...(mochila.ativa ? { slot: this.hotbarUi.selected } : {}),
+          }),
+        );
+        return;
+      }
       // §🍖 F6: comer vem ANTES do `if (!target)` — comer não precisa de bloco
       // mirado (olhar pro céu e morder tem de funcionar), e é o único uso do
       // clique direito que não tem célula. O servidor decide se a mordida vale
@@ -1903,7 +1985,8 @@ class GameRuntime {
         const held = this.hotbarUi.idNaMao();
         if (isBalde(held ?? -1)) {
           const slot = mochila.ativa ? { slot: this.hotbarUi.selected } : {};
-          if (held === ITEM_BALDE_AGUA) {
+          // §🐄 o balde com peixe despeja igual ao de água (o servidor solta o peixe)
+          if (held === ITEM_BALDE_AGUA || held === ITEM_BALDE_PEIXE) {
             this.activeConn.send(
               JSON.stringify({
                 type: "balde",
@@ -2164,6 +2247,13 @@ class GameRuntime {
         jitterMs: jitterDeRede(),
       };
       this.hud.regras = regrasServidor; // §📊 custo das regras no servidor (F3 + perfil)
+      // §📊 custo por sistema: o servidor (por tick) e os bichos daqui (por quadro)
+      const cb = this.bichos.custo();
+      this.hud.sistemas = {
+        servidor: sistemasServidor,
+        bichosServidor,
+        bichosCliente: { ...cb, cpuMsMedio: +this.bichosCpuMedio.toFixed(3), visivel: this.bichos.visivel },
+      };
       // streaming (mundo procedural): colunas carregadas + fila de remesh
       this.hud.stream = {
         colunas: this.colunasCarregadas.size,
@@ -2501,10 +2591,7 @@ class GameRuntime {
       const idMirado = this.target
         ? getBlock(this.world, this.target.x, this.target.y, this.target.z)
         : null;
-      if (idMirado !== this.ultimoIdMirado) {
-        this.ultimoIdMirado = idMirado ?? -1;
-        touchControls?.setModoInteragir(idMirado !== null && ehInterativo(idMirado));
-      }
+      // (o rótulo do ▣ é reavaliado mais abaixo, junto com a mira do bicho)
       // §🍖 F7: jogador na frente? Só onde o soco valeria (sobrevivência + pvp
       // ligado), e só se ele estiver MAIS PERTO que o bloco mirado — senão dava
       // pra bater em quem está atrás da parede. Quem está mirado ganha o clique
@@ -2528,9 +2615,57 @@ class GameRuntime {
         );
         if (this.alvoJogador.dist > dBloco) this.alvoJogador = null; // o bloco está na frente
       }
+      // §🐄 bicho na frente? Igual ao jogador, sem a condição do pvp (clique
+      // direito num bicho vale em qualquer modo) — e só se ninguém e nenhum
+      // bloco estiver mais perto.
+      this.alvoBicho = input.active
+        ? raycastBicho(
+            camera.position.x, camera.position.y, camera.position.z,
+            this.lookDir.x, this.lookDir.y, this.lookDir.z,
+            this.bichos.alvos(),
+            PLAYER_REACH,
+          )
+        : null;
+      if (this.alvoBicho) {
+        const dBloco = this.target
+          ? Math.hypot(
+              this.target.x + 0.5 - camera.position.x,
+              this.target.y + 0.5 - camera.position.y,
+              this.target.z + 0.5 - camera.position.z,
+            )
+          : Infinity;
+        if (this.alvoBicho.dist > dBloco) this.alvoBicho = null;
+        else if (this.alvoJogador && this.alvoJogador.dist < this.alvoBicho.dist) this.alvoBicho = null;
+        else if (this.alvoJogador) this.alvoJogador = null; // o bicho está na frente da pessoa
+      }
       crosshairEl?.classList.toggle("alvo", this.alvoJogador !== null);
+      crosshairEl?.classList.toggle("bicho", this.alvoBicho !== null);
+      if (crosshairEl) {
+        // o nome do bicho mirado ("vaca malhada") — a criança sabe o que é antes de clicar
+        const nome = this.alvoBicho ? this.bichos.nome(this.alvoBicho.id) : null;
+        if ((crosshairEl.dataset["bicho"] ?? "") !== (nome ?? "")) {
+          if (nome) crosshairEl.dataset["bicho"] = nome;
+          else delete crosshairEl.dataset["bicho"];
+        }
+      }
+      // §🐄 o ▣ do tablet vira "interagir" com bicho na mira, como com o baú
+      const interagirAgora = this.alvoBicho !== null ? -2 : (idMirado ?? -1);
+      if (interagirAgora !== this.ultimoIdMirado) {
+        this.ultimoIdMirado = interagirAgora;
+        touchControls?.setModoInteragir(
+          this.alvoBicho !== null || (idMirado !== null && ehInterativo(idMirado)),
+        );
+      }
+      // §🐄 a mão: o servidor só sabe o que o jogador SEGURA se a gente contar
+      // (a galinha segue o trigo na mão, não o da mochila). Só quando muda.
+      const maoAgora = this.hotbarUi.idNaMao();
+      if (maoAgora !== this.maoEnviada) {
+        this.maoEnviada = maoAgora;
+        this.activeConn.send(JSON.stringify({ type: "mao", id: maoAgora }));
+      }
 
-      this.highlight.visible = this.target !== null && this.alvoJogador === null;
+      this.highlight.visible =
+        this.target !== null && this.alvoJogador === null && this.alvoBicho === null;
       if (this.target) {
         const [bx0, by0, bz0, bx1, by1, bz1] = blockSelectionBox(
           getBlock(this.world, this.target.x, this.target.y, this.target.z),
@@ -2625,6 +2760,9 @@ class GameRuntime {
       // §🔌 os chunks que as mensagens deste intervalo sujaram, UMA vez cada
       // (ver `sujosDoQuadro`) — antes do render, pra mudança sair neste quadro
       this.chunkRenderer.descarregarSujos();
+      // §🐄 interpolação + animação + instâncias dos bichos, com a câmera final
+      this.bichos.quadro(dt, camera);
+      this.bichosCpuMedio = this.bichosCpuMedio * 0.95 + this.bichos.custo().cpuMs * 0.05;
       const tRender = performance.now();
       this.hud.gpuInicio();
       renderer.render(scene, camera);
@@ -2853,6 +2991,11 @@ class GameRuntime {
     // de segurança caso ele se perca (mundo novo pode ser menor que o antigo)
     this.spawn = serverSpawn ?? this.spawn;
     this.respawn();
+    // §🐄 sessão nova no servidor = vista nova: os bichos do mundo velho saem e
+    // os do novo chegam na 1ª passada; a mão é reanunciada no próximo quadro
+    this.bichos.limpar();
+    this.alvoBicho = null;
+    this.maoEnviada = undefined;
     if (por === "volta") {
       // §📱 quem saiu enquanto estávamos fora não mandou o `player_left` A NÓS:
       // sem isto o boneco dele ficaria parado no mundo pra sempre
@@ -2959,6 +3102,46 @@ class GameRuntime {
     cama?: { x: number; y: number; z: number };
   }): void {
   this.outros.aoMover(msg);
+  }
+
+  /** §🐄 bichos que entraram na vista (aparecem já no lugar). */
+  aoChegarBichos(add: readonly (readonly number[])[]): void {
+    for (const e of add) {
+      const tipo = tipoPorIndice(e[1]);
+      if (!tipo) continue; // host mais novo com bicho que este cliente não conhece
+      this.bichos.adicionar({
+        id: e[0]!, tipo, variante: e[2]!, x: e[3]!, y: e[4]!, z: e[5]!, yaw: e[6]!, flags: e[7]!,
+      });
+    }
+  }
+
+  /** §🐄 o lote do tick: 6 números por bicho que mudou (id,x,y,z,yaw,flags). */
+  aoMoverBichos(m: readonly number[]): void {
+    for (let i = 0; i + 5 < m.length; i += 6) {
+      this.bichos.mover(m[i]!, m[i + 1]!, m[i + 2]!, m[i + 3]!, m[i + 4]!, m[i + 5]!);
+    }
+  }
+
+  aoSumirBichos(ids: readonly number[]): void {
+    for (const id of ids) this.bichos.remover(id);
+  }
+
+  /**
+   * §🐄 Algo aconteceu com um bicho (dano, tosquia, ovo, domou...). O desenho do
+   * estado já vem nas FLAGS; aqui é o gancho do SOM (outra frente: os sons dos
+   * bichos) — sai como evento de janela pra ela se ligar sem mexer no main.
+   */
+  aoEventoBicho(id: number, evento: EventoBicho): void {
+    const alvo = [...this.bichos.alvos()].find((a) => a.id === id);
+    if (!alvo) return;
+    const dist = Math.hypot(
+      alvo.x - this.player.pos.x,
+      alvo.y - this.player.pos.y,
+      alvo.z - this.player.pos.z,
+    );
+    window.dispatchEvent(
+      new CustomEvent("lj-bicho", { detail: { ...alvo, id, evento, nome: this.bichos.nome(id), dist } }),
+    );
   }
 
   applyPlayerLeft(id: number): void {

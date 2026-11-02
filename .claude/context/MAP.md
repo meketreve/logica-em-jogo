@@ -53,7 +53,7 @@ O que o script **não** acha é o que manda aqui:
 
 **Sondas** (`scripts/*-shot.mjs`, `shots:tablet` é a RÉGUA de 1024×600): host + Chrome reais, e
 asseveram no DOM (`npm run build` antes). **UI só é "feita" quando uma sonda a ENXERGA.** Bateria
-de **19**, uma por vez (em paralelo a asserção de tempo mente): 10 sobem host próprio, 7 pedem
+de **20**, uma por vez (em paralelo a asserção de tempo mente): 11 sobem host próprio, 7 pedem
 `BASE=`, `corrida` quer a aula 7. ⚠️ **`shots:fundo` GERA** ~5 MB versionados — `git status` depois.
 
 ## Onde fica cada coisa
@@ -69,6 +69,10 @@ de **19**, uma por vez (em paralelo a asserção de tempo mente): 10 sobem host 
   `emitCaixaInclinada` (8 cantos, o cabo que tomba), sobre `pontoNaFace`/`direcaoNaFace`.
   **Saída que não é peça** (a porta de passagem): `propagarSinal` a devolve como vizinha
   alimentada; abrir/fechar o par é da sessão (`moverPortasPeloSinal`, pela borda do sinal).
+- **§🐄 bichos:** tabela PURA `shared/src/bichos.ts` (tipos, variantes, drops, save) · A*
+  `bichos-caminho.ts` · sessão `session/bichos.ts` (IA por estado, spawn por coluna, fio, cliques)
+  · desenho `client/src/bichos/` (InstancedMesh por tipo) · mira `raycastBicho`. Ordem de
+  `TIPOS_BICHO` e de `variantes` é IDENTIDADE no fio e no save (só acrescenta no fim).
 - **§💰 venda:** preço PURO em `venda.ts` (permissão do que se COLHE) · balcão por jogador em
   `session/venda.ts` (fora do save) · painel no `container.ts`. Sonda `shots:venda`. ⚠️ Preço
   novo passa pelo portão de `venda.test.ts` (saída ≤ entrada em TODA receita e cozimento).

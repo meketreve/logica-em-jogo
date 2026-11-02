@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { BlockId } from "./blocks";
-import { raycastBlock } from "./raycast";
+import { raycastBicho, raycastBlock } from "./raycast";
 import { createWorld, setBlock } from "./world";
 
 const DIMS = { x: 1, z: 1, y: 1 };
@@ -85,5 +85,20 @@ describe("raycastBlock (DDA de voxel)", () => {
     // z=4.1 fica FORA do poste (< 0.375) → o raio erra a cerca e segue
     const hit = raycastBlock(world, 4.5, 10.5, 4.1, 1, 0, 0, 20);
     expect(hit).toEqual({ x: 10, y: 10, z: 4, nx: -1, ny: 0, nz: 0 });
+  });
+});
+
+describe("§🐄 raycastBicho — a mira acha o bicho pela caixa DELE", () => {
+  const galinha = { id: 7, x: 3.5, y: 0, z: 0.5, largura: 0.5, altura: 0.7 };
+  it("acerta a galinha baixinha olhando pra baixo", () => {
+    const r = raycastBicho(0.5, 1.6, 0.5, 3, -1.2, 0, [galinha], 5);
+    expect(r?.id).toBe(7);
+  });
+  it("CONTROLE NEGATIVO: na altura do olho passa por cima dela", () => {
+    expect(raycastBicho(0.5, 1.6, 0.5, 1, 0, 0, [galinha], 5)).toBeNull();
+  });
+  it("o mais perto ganha", () => {
+    const vaca = { id: 8, x: 2.5, y: 0, z: 0.5, largura: 0.9, altura: 1.4 };
+    expect(raycastBicho(0.5, 1, 0.5, 1, 0, 0, [galinha, vaca], 5)?.id).toBe(8);
   });
 });

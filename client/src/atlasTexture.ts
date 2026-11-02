@@ -39,6 +39,21 @@ function paintNoise(
   }
 }
 
+/** §🐄 A trama da lã: laçadas diagonais escurecidas, em zigue-zague, que
+ *  separam a lã do algodão liso a qualquer distância. */
+function paintLaTrama(ctx: CanvasRenderingContext2D, tile: number): void {
+  const px = ATLAS.tilePx;
+  const ox = (tile % ATLAS.tilesPerRow) * px;
+  const oy = ((tile / ATLAS.tilesPerRow) | 0) * px;
+  for (let y = 0; y < px; y += 4) {
+    for (let x = 0; x < px; x++) {
+      const fase = ((x >> 1) + (y >> 2)) & 1;
+      ctx.fillStyle = fase ? "rgba(0,0,0,0.16)" : "rgba(255,255,255,0.10)";
+      ctx.fillRect(ox + x, oy + y + (x & 1), 1, 1);
+    }
+  }
+}
+
 /** Linhas de "argamassa" escuras por cima do ruído de pedra. */
 function paintCobbleCracks(ctx: CanvasRenderingContext2D, tile: number): void {
   const px = ATLAS.tilePx;
@@ -1049,6 +1064,22 @@ export function createAtlasTexture(): THREE.Texture {
   paintNoise(ctx, TILE.blocoAlgodaoCiano, [70, 178, 190], 8);
   paintNoise(ctx, TILE.blocoAlgodaoCinza, [130, 130, 134], 6);
   paintNoise(ctx, TILE.blocoAlgodaoMarrom, [110, 80, 54], 8);
+
+  // §🐄 a LÃ (2026-11-02): mesma paleta do algodão, mas com a TRAMA de fio
+  // torcido por cima — de longe as duas famílias têm de se distinguir pela
+  // textura, não só por um tom (o projetor come diferença de cor).
+  const LAS: readonly (readonly [number, readonly [number, number, number]])[] = [
+    [TILE.laBranca, [236, 236, 230]], [TILE.laPreta, [34, 32, 36]],
+    [TILE.laVermelha, [178, 48, 44]], [TILE.laLaranja, [226, 128, 40]],
+    [TILE.laAmarela, [232, 206, 58]], [TILE.laVerde, [74, 164, 62]],
+    [TILE.laAzul, [58, 94, 194]], [TILE.laRoxa, [142, 72, 182]],
+    [TILE.laRosa, [226, 140, 170]], [TILE.laCiana, [70, 178, 190]],
+    [TILE.laCinza, [130, 130, 134]], [TILE.laMarrom, [110, 80, 54]],
+  ];
+  for (const [tile, rgb] of LAS) {
+    paintNoise(ctx, tile, [rgb[0], rgb[1], rgb[2]], 6);
+    paintLaTrama(ctx, tile);
+  }
 
   // cp18: transparentes (cutout — alphaTest no material do cliente)
   paintGlass(ctx, TILE.glass);

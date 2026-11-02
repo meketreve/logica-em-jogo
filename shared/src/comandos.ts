@@ -1,4 +1,5 @@
 import { type Papel } from "./auth";
+import { BICHOS, TIPOS_BICHO, tipoPorNome } from "./bichos";
 import { nomesDeRegra } from "./regras";
 
 /**
@@ -78,6 +79,10 @@ const COMANDOS: ComandoDef[] = [
   { nome: "expulsar", de: "professor" },
   { nome: "redefinirpin", de: "professor" },
   { nome: "perfil", de: "professor" },
+  { nome: "bicho", de: "professor" },
+  // §🐄 até a consulta é do professor: a lista do aluno tem de caber no
+  // tablet sem rolar (teste "vê os onze"), e contar bicho não é coisa de aula
+  { nome: "bichos", de: "professor" },
 ];
 
 /** Todos os subcomandos de cada comando (2º token). */
@@ -99,6 +104,9 @@ const SUBCOMANDOS: Record<string, string[]> = {
   terreno: ["ligar", "desligar", "criar", "remover", "lista"],
   amigos: ["convidar", "aceitar", "recusar", "sair", "expulsar", "lista"],
   pvp: ["ligar", "desligar"],
+  bichos: ["ligar", "desligar", "limpar"],
+  // §🐄 o 2º token do `/bicho` é o TIPO (o id, sem acento: é o que se toca)
+  bicho: [...TIPOS_BICHO],
 };
 
 /**
@@ -177,6 +185,12 @@ export function nivel3Para(
   if (cmd === "objetivo" && sub === "modo") return ["sequencial", "livre"];
   if (cmd === "objetivo" && sub === "pecas") return ["travadas", "livres"];
   if (cmd === "mundo" && sub === "carregar") return vivo.mundos;
+  if (cmd === "bichos" && sub === "limpar") return ["todos", ...TIPOS_BICHO];
+  if (cmd === "bicho") {
+    // a variante, com `_` no lugar do espaço (o servidor desfaz)
+    const tipo = tipoPorNome(sub);
+    return tipo ? BICHOS[tipo].variantes.map((v) => v.nome.replace(/ /g, "_")) : [];
+  }
   if (cmd === "amigos" && AMIGOS_COM_NOME.has(sub)) return vivo.jogadores;
   // §🍖 F1: /modo <modo> [eu|all|nome] — os alvos fixos primeiro, depois a turma
   if (cmd === "modo") return ["eu", "all", ...vivo.jogadores];

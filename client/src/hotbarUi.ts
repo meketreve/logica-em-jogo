@@ -30,7 +30,39 @@ import {
   ITEM_PICARETA_MADEIRA,
   ITEM_PICARETA_PEDRA,
   ITEM_TRIGO,
+  ITEM_BALDE_LEITE,
+  ITEM_BALDE_PEIXE,
+  ITEM_BOLO,
+  ITEM_CARNE_ASSADA,
+  ITEM_CARNE_CRUA,
+  ITEM_COURO,
+  ITEM_FRANGO_ASSADO,
+  ITEM_FRANGO_CRU,
+  ITEM_OVO,
+  ITEM_PEIXE_ASSADO,
+  ITEM_PEIXE_CRU,
+  ITEM_PENA,
+  ITEM_TESOURA,
 } from "@logica/shared";
+
+/** §🐄 Os nomes dos itens dos bichos (2026-11-02) — tabela, não mais um `if`
+ *  por item: é ela que gera o ícone E o nome, as duas listas não se separam. */
+const NOME_ITEM_BICHO: ReadonlyMap<number, string> = new Map([
+  [ITEM_TESOURA, "tesoura"],
+  [ITEM_BALDE_LEITE, "balde de leite"],
+  [ITEM_BALDE_PEIXE, "balde com peixe"],
+  [ITEM_OVO, "ovo"],
+  [ITEM_CARNE_CRUA, "carne crua"],
+  [ITEM_CARNE_ASSADA, "carne assada"],
+  [ITEM_FRANGO_CRU, "frango cru"],
+  [ITEM_FRANGO_ASSADO, "frango assado"],
+  [ITEM_PEIXE_CRU, "peixe cru"],
+  [ITEM_PEIXE_ASSADO, "peixe assado"],
+  [ITEM_BOLO, "bolo"],
+  [ITEM_COURO, "couro"],
+  [ITEM_PENA, "pena"],
+]);
+const ITENS_DOS_BICHOS: readonly number[] = [...NOME_ITEM_BICHO.keys()];
 import { makeBlockIcons } from "./blockIcons";
 import { barraDeVidaHtml } from "./vidaFerramenta";
 import { PLACEABLE, type PlaceableEntry, placeableFor } from "./blocksUi";
@@ -100,6 +132,8 @@ export class HotbarUi {
       // assada da fornalha — o inventário mostra "5× cenoura" com o ícone.
       ITEM_CENOURA, ITEM_BATATA, ITEM_BATATA_COZIDA, ITEM_BETERRABA,
       ITEM_MELANCIA, ITEM_BANANA, ITEM_AIPIM,
+      // §🐄 (2026-11-02): o que vem dos bichos e o que se usa neles
+      ...ITENS_DOS_BICHOS,
     ]);
     // Toque (2026-07-27, layouts mobile): tocar num slot escolhe o bloco. No
     // tablet não existe 1–9 nem scroll do mouse, então sem isto trocar de bloco
@@ -181,6 +215,8 @@ export class HotbarUi {
     if (id === ITEM_PA_PEDRA) return "pá de pedra";
     if (id === ITEM_PA_FERRO) return "pá de ferro";
     if (id === ITEM_PA_DIAMANTE) return "pá de diamante";
+    const doBicho = NOME_ITEM_BICHO.get(id);
+    if (doBicho) return doBicho;
     return PLACEABLE.find((b) => b.id === id)?.name ?? "?";
   }
 
