@@ -44,6 +44,8 @@ tier: 3
 
 ## Erros a não repetir
 
+- [2026-11-02] [sonda] [✗] `/tp nome x y z` com FRAÇÃO é recusado ("Não entendi as coordenadas") e a sonda segue: as 4 fotos "de perto" da vitrine saíram TODAS do mesmo ponto e eu achei que só a geral estava errada. Câmera mudada se CONFERE (o `__mirar` devolve de onde mirou) antes da foto.
+
 - [2026-11-02] [bichos] [✓] Mob sem física: movimento CINEMÁTICO sobre células que o A* já provou (gravidade só sem chão), A* com teto de nós e de buscas por tick (fila), LOD por distância do jogador mais perto e congelado em coluna não gerada. 300 bichos + 25 alunos = 2,7 ms/tick. E o preset NÃO vai pro save: o save guarda `bichos.natural`, e save antigo decide pelo TERRENO (lazy ou 3+ alturas = procedural).
 - [2026-11-02] [teste] [✗] Teste de "mundo X não povoa" passando porque o jogador NEM ENTROU (join sem `singleplayer` nem PIN é recusado) — zero bichos por motivo errado. Controle negativo de "nada acontece" afirma primeiro que a pré-condição existe (`players.size === 1`).
 - [2026-10-27] [portão] [✗] Controle negativo que "passou" por outro motivo, DUAS vezes no mesmo lote: o balde sem `encher` nem parseava (o teste via ar com ou sem a regra), e no verificador da aula 8 a aluna em SOBREVIVÊNCIA não quebrava nem colocava nada sem a regra (sem picareta, sem pedra). Pior: o verificador sai no 1º problema, então a sabotagem que derruba a checagem do SAVE nunca chega na da sessão. Sabotagem tem de derrubar SÓ a coisa testada, e o teste tem de pôr o aluno onde a ÚNICA barreira é o portão (criativo).

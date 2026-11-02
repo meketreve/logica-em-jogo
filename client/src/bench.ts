@@ -113,9 +113,14 @@ export interface BenchOpts {
  *  - `sembichos` (§🐄 2026-11-02): os bichos não são DESENHADOS (o mundo do
  *    bench é procedural, então tem bicho). O servidor segue simulando — o A/B
  *    mede só o que eles custam de render/GPU; o custo de CPU do servidor sai
- *    no `sistemas` do perfil.
+ *    no `sistemas` do perfil;
+ *  - `bichosparados` (§🐄 2026-11-02, pedido dele): a IA dos bichos DESLIGADA
+ *    (`/bichos parar` no início da corrida) — eles continuam desenhados, mas
+ *    ninguém pensa nem anda. O A/B contra a `base` é o custo da IA no Worker
+ *    (o mesmo processador da página no singleplayer), e é o modo da foto da
+ *    vitrine (`/bichos fila`).
  */
-export const EXPERIMENTOS_BENCH = ["comaa", "semdescarte", "aguaparada", "sembichos"] as const;
+export const EXPERIMENTOS_BENCH = ["comaa", "semdescarte", "aguaparada", "sembichos", "bichosparados"] as const;
 export type ExperimentoBench = (typeof EXPERIMENTOS_BENCH)[number];
 
 /** Os experimentos pedidos na URL — vazio fora do `?bench`. */

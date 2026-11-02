@@ -1,4 +1,30 @@
-import { BlockId, GLYPH, ITEM_BALDE_AGUA, isProfessorOnly } from "@logica/shared";
+import {
+  BlockId,
+  GLYPH,
+  ITEM_AIPIM,
+  ITEM_BALDE_AGUA,
+  ITEM_BALDE_LEITE,
+  ITEM_BALDE_PEIXE,
+  ITEM_BANANA,
+  ITEM_BATATA,
+  ITEM_BATATA_COZIDA,
+  ITEM_BETERRABA,
+  ITEM_BOLO,
+  ITEM_CARNE_ASSADA,
+  ITEM_CARNE_CRUA,
+  ITEM_CENOURA,
+  ITEM_FRANGO_ASSADO,
+  ITEM_FRANGO_CRU,
+  ITEM_FRUTA,
+  ITEM_MELANCIA,
+  ITEM_OVO,
+  ITEM_PAO,
+  ITEM_PEIXE_ASSADO,
+  ITEM_PEIXE_CRU,
+  ITEM_TESOURA,
+  ITEM_TRIGO,
+  isProfessorOnly,
+} from "@logica/shared";
 
 /**
  * Blocos colocáveis com nome em português — fonte única pra hotbar (main.ts)
@@ -16,6 +42,7 @@ export type Categoria =
   | "mobilia"
   | "minerios"
   | "ferramentas"
+  | "comida"
   | "circuito"
   | "glifos";
 
@@ -26,6 +53,11 @@ export const CATEGORIAS: readonly { id: Categoria; label: string }[] = [
   { id: "mobilia", label: "mobília" },
   { id: "minerios", label: "minérios" },
   { id: "ferramentas", label: "ferramentas" },
+  // §🐄 2026-11-02 (pedido dele): sem esta aba, quem joga no CRIATIVO não tinha
+  // como pôr trigo, carne ou ovo na mão — e é a mão que doma, cria e atrai os
+  // bichos (`mao` → `usarBicho`). No criativo a fome não corre: aqui a comida é
+  // ISCA e vitrine, não refeição.
+  { id: "comida", label: "comida" },
   // §🔌 2026-10-16: categoria PRÓPRIA, e não um canto da mobília — é a razão de
   // ser do jogo, e as quatro peças só fazem sentido juntas (quem acha a
   // lâmpada tem de achar o fio na mesma tela).
@@ -256,6 +288,33 @@ export const PLACEABLE: readonly PlaceableEntry[] = [
   // esvazia na mão → clique direito numa fonte RECOLHE. A água só entra no
   // mundo por aqui (o id de bloco saiu da hotbar). Ver ITEM_BALDE_* em blocks.ts.
   { id: ITEM_BALDE_AGUA, name: "balde de água", cat: "ferramentas" },
+  // §🐄 (2026-11-02): o que se USA nos bichos — tesoura na ovelha, e o balde
+  // com peixe que solta o peixe na água (o vazio sai do de água, como sempre).
+  { id: ITEM_TESOURA, name: "tesoura", cat: "ferramentas" },
+  { id: ITEM_BALDE_PEIXE, name: "balde com peixe", cat: "ferramentas" },
+  // A aba "comida": a cadeia inteira, do cru ao pronto. O TRIGO entra mesmo sem
+  // se comer — é a isca da vaca/ovelha/galinha e o ingrediente do pão e do bolo.
+  // ITENS, não blocos: quem os põe no mundo é o clique direito do bicho, nunca o
+  // `place_block` (o cliente nem pede — `blocoExiste` no clique direito).
+  { id: ITEM_TRIGO, name: "trigo", cat: "comida" },
+  { id: ITEM_PAO, name: "pão", cat: "comida" },
+  { id: ITEM_FRUTA, name: "fruta", cat: "comida" },
+  { id: ITEM_CENOURA, name: "cenoura", cat: "comida" },
+  { id: ITEM_BATATA, name: "batata crua", cat: "comida" },
+  { id: ITEM_BATATA_COZIDA, name: "batata assada", cat: "comida" },
+  { id: ITEM_BETERRABA, name: "beterraba", cat: "comida" },
+  { id: ITEM_MELANCIA, name: "melancia", cat: "comida" },
+  { id: ITEM_BANANA, name: "banana", cat: "comida" },
+  { id: ITEM_AIPIM, name: "aipim", cat: "comida" },
+  { id: ITEM_OVO, name: "ovo", cat: "comida" },
+  { id: ITEM_BALDE_LEITE, name: "balde de leite", cat: "comida" },
+  { id: ITEM_BOLO, name: "bolo", cat: "comida" },
+  { id: ITEM_CARNE_CRUA, name: "carne crua", cat: "comida" },
+  { id: ITEM_CARNE_ASSADA, name: "carne assada", cat: "comida" },
+  { id: ITEM_FRANGO_CRU, name: "frango cru", cat: "comida" },
+  { id: ITEM_FRANGO_ASSADO, name: "frango assado", cat: "comida" },
+  { id: ITEM_PEIXE_CRU, name: "peixe cru", cat: "comida" },
+  { id: ITEM_PEIXE_ASSADO, name: "peixe assado", cat: "comida" },
 ];
 
 /** Colocáveis visíveis PARA ESTE PAPEL: o aluno não vê rocha-matriz (autoria

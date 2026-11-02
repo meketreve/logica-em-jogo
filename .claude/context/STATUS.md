@@ -21,6 +21,8 @@ smoke `logs`. **Não testado em aula.**
 como branch"; NÃO está na `main`): vaca, galinha, ovelha, cão, gato, tatu, peixe, arara, com
 variantes por bioma, A*, máquina de estados, tesoura/balde/ovo/domar/cria, lã em 12 blocos,
 leite e bolo, `/bicho` e `/bichos`, e o perfilador com custo POR SISTEMA (servidor e cliente).
+Depois, na mesma branch: `/bichos fila|parar|soltar`, `?bench&bichosparados` (mede o desenho sem a
+IA), sonda `shots:vitrine` e a aba **comida** no inventário do criativo.
 Spec e decisões: `todo.md` §🐄. **Não testado em aula** — ele testa na escola e traz as leituras.
 
 ## Próxima fase

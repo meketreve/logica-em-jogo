@@ -1,6 +1,7 @@
 import * as THREE from "three";
 import {
   BlockId,
+  blocoExiste,
   type Claim,
   colunaDaPosicao,
   colunaDeKey,
@@ -1763,7 +1764,9 @@ class GameRuntime {
       const dz = z - camera.position.z;
       input.yaw = Math.atan2(-dx, -dz);
       input.pitch = Math.atan2(dy, Math.hypot(dx, dz));
-      return true;
+      // devolve de ONDE mirou: a sonda confere que o `/tp` já chegou na câmera
+      // (mirar da posição velha aponta pro lugar errado e a foto sai do chão)
+      return { x: camera.position.x, y: camera.position.y, z: camera.position.z };
     };
 
     // --- Mira + colocar/quebrar ---
@@ -2036,6 +2039,9 @@ class GameRuntime {
       // manda pedido nenhum (o servidor recusaria calado de qualquer jeito).
       const naMao = this.hotbarUi.idNaMao();
       if (naMao === null) return;
+      // §🐄 item que não é bloco (comida, tesoura — a aba "comida" do criativo
+      // os põe na hotbar) não se coloca: o servidor recusaria calado.
+      if (!blocoExiste(naMao)) return;
       // eixo da porta/janela, frente do móvel e da fornalha, metade da laje,
       // direção da escada: a regra inteira é pura e mora em `shared/orientacao.ts`.
       // O agachado entra por último (§🔌): ele INVERTE a frente da porta lógica,
@@ -2331,6 +2337,12 @@ class GameRuntime {
       `${opts.duracaoS}s · raio ${bench.trajeto.raio}${opts.semVida ? " · sem vida ambiental" : ""}`,
     );
     benchRodando = true;
+    // §🐄 `?bench&bichosparados`: a IA dos bichos para no começo da corrida. É
+    // COMANDO (o bench é professor no singleplayer), não opção do Worker: assim
+    // vale igual contra um host de verdade, e o professor desfaz com /bichos soltar.
+    if (experimentos.has("bichosparados")) {
+      this.activeConn.send(JSON.stringify({ type: "chat", text: "/bichos parar" }));
+    }
     // mesma razão do `__benchPerfil` abaixo: automação headless precisa saber
     // que o trajeto COMEÇOU (a verificação da luz fotografa em pleno voo, não
     // no fim, então não pode esperar o perfil).

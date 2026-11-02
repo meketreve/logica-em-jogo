@@ -104,7 +104,7 @@ const SUBCOMANDOS: Record<string, string[]> = {
   terreno: ["ligar", "desligar", "criar", "remover", "lista"],
   amigos: ["convidar", "aceitar", "recusar", "sair", "expulsar", "lista"],
   pvp: ["ligar", "desligar"],
-  bichos: ["ligar", "desligar", "limpar"],
+  bichos: ["fila", "parar", "soltar", "ligar", "desligar", "limpar"],
   // §🐄 o 2º token do `/bicho` é o TIPO (o id, sem acento: é o que se toca)
   bicho: [...TIPOS_BICHO],
 };

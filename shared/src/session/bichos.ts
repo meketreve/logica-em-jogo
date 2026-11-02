@@ -189,6 +189,11 @@ export interface EstadoBichos {
   proximoId: number;
   /** Spawn natural ligado (mundo procedural). Mundo de aula: sempre falso. */
   natural: boolean;
+  /** IA DESLIGADA (`/bichos parar`, ou `?bench&bichosparados`): ninguém pensa,
+   *  anda, cai nem fala — o bicho fica onde está. É pro bench (custo de
+   *  DESENHO sem o de simular, e a foto sem ninguém saindo do lugar) e pro
+   *  professor montar uma vitrine. Da sessão, fora do save. */
+  parados: boolean;
   /** Colunas que já passaram pelo spawn natural (chave cz*dims.x+cx). */
   readonly povoadas: Set<number>;
   /** Índice espacial: coluna → ids. */
@@ -215,6 +220,7 @@ export function novoEstadoBichos(seed: number, natural: boolean): EstadoBichos {
     lista: new Map(),
     proximoId: 1,
     natural,
+    parados: false,
     povoadas: new Set(),
     porColuna: new Map(),
     vistos: new Map(),
@@ -602,6 +608,13 @@ export function tickBichos(ses: GameSession): void {
   } else {
     // cliente novo não espera o segundo cheio pra ver os bichos
     for (const clientId of ses.players.keys()) if (!st.vistos.has(clientId)) passarVista(ses, clientId);
+  }
+  if (st.parados) {
+    // parados: ninguém pensa nem anda, mas o que MUDOU por fora (o giro da
+    // vitrine, a tosquia, o domado) ainda tem de chegar ao cliente
+    enviarMovidos(ses);
+    fecharJanela(st, segundo);
+    return;
   }
   if (st.lista.size === 0) {
     fecharJanela(st, segundo);
@@ -1504,6 +1517,14 @@ export function runBichos(ses: GameSession, clientId: number, parts: string[], p
         : "NÃO nascem sozinhos (o professor liga com /bichos ligar)";
     return `Bichos: ${lista}. ${nat[0]!.toUpperCase()}${nat.slice(1)}.`;
   }
+  if (sub === "parar" || sub === "soltar") {
+    st.parados = sub === "parar";
+    if (st.parados) for (const b of st.lista.values()) pararDeAndar(b);
+    return st.parados
+      ? "Os bichos PARARAM: ninguém anda, foge nem cai até /bichos soltar (os cliques continuam valendo)."
+      : "Os bichos voltaram a andar.";
+  }
+  if (sub === "fila") return enfileirar(ses, clientId);
   if (sub === "ligar" || sub === "desligar") {
     if (ses.somenteLeitura && sub === "ligar") {
       return "Mundo de aula não tem bicho nascendo sozinho — use /bicho <tipo> pra trazer um.";
@@ -1529,7 +1550,55 @@ export function runBichos(ses: GameSession, clientId: number, parts: string[], p
     }
     return `${n} bicho(s) removido(s).`;
   }
-  return "Uso: /bichos [ligar|desligar|limpar [tipo|todos] [raio]]";
+  return "Uso: /bichos [ligar|desligar|parar|soltar|fila|limpar [tipo|todos] [raio]]";
+}
+
+/**
+ * `/bichos fila` — a VITRINE: toda espécie numa fileira, cada variante lado a
+ * lado, à frente do professor (pra onde ele olha, no eixo mais próximo), e a
+ * IA para junto (senão a fila se desfaz em segundos). Os peixes ganham um
+ * rego de água cavado no chão — fonte num buraco não escorre. A última coluna
+ * de cada fileira é um FILHOTE da 1ª variante, pra comparar o tamanho.
+ */
+function enfileirar(ses: GameSession, clientId: number): string {
+  const p = ses.players.get(clientId);
+  if (!p) return "Entre no mundo antes de usar /bichos fila.";
+  const st = ses.bichos;
+  st.parados = true;
+  for (const b of st.lista.values()) pararDeAndar(b);
+  // o eixo pra onde o professor olha (yaw 0 = −Z): fileiras se afastam nele,
+  // as variantes correm no eixo de lado
+  const fx = -Math.sin(p.yaw);
+  const fz = -Math.cos(p.yaw);
+  const [ax, az] = Math.abs(fx) > Math.abs(fz) ? [Math.sign(fx), 0] : [0, Math.sign(fz)];
+  const [lx, lz] = [-az, ax]; // a lateral (90° do eixo)
+  const ox = Math.floor(p.x);
+  const oz = Math.floor(p.z);
+  let n = 0;
+  TIPOS_BICHO.forEach((tipo, fila) => {
+    const def = BICHOS[tipo];
+    const dist = 4 + fila * 3; // 3 blocos entre fileiras: a vaca tem 1,5 de comprimento
+    const colunas = [...def.variantes.keys(), -1]; // −1 = o filhote
+    colunas.forEach((v, k) => {
+      const lado = (k - (colunas.length - 1) / 2) * 2;
+      const x = ox + ax * dist + Math.round(lx * lado);
+      const z = oz + az * dist + Math.round(lz * lado);
+      const c = celulaDePe(ses.world, x, Math.floor(p.y), z, { ...CORPOS.get(tipo)!, nada: false }, 4, 6);
+      if (!c) return;
+      let y = c.piso;
+      if (def.meio === "agua") {
+        const fundo = Math.floor(c.piso) - 1;
+        if (!ses.somenteLeitura) ses.applyBlock(x, fundo, z, BlockId.Agua);
+        if (!isAgua(getBlock(ses.world, x, fundo, z))) return;
+        y = fundo + 0.2;
+      }
+      const b = nascerBicho(ses, tipo, v < 0 ? 0 : v, x + 0.5, y, z + 0.5, { filhote: v < 0 });
+      // todos olhando pro professor
+      b.yaw = Math.atan2(ax, az);
+      n++;
+    });
+  });
+  return `Vitrine: ${n} bichos em ${TIPOS_BICHO.length} fileiras, parados (/bichos soltar pra andarem).`;
 }
 
 /** `/bicho <tipo> [quantidade] [variante] [filhote]` — traz bichos pra perto do professor. */

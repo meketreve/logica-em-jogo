@@ -55,6 +55,8 @@ const MUDANCAS: readonly Mudanca[] = [
       "na sobrevivência dá pra caçar: carne, frango, peixe, **couro** e **pena**. Carne crua se assa na fornalha. Bicho domado de outro aluno só apanha com o pvp ligado; o professor desliga a caça com **/regra machucar-bichos desligar**",
       "mundo de **aula** não tem bicho sozinho: o professor traz com **/bicho vaca 3** (ou **/bicho tucano**) e tira com **/bichos limpar**. Bicho em cima da **placa** aperta a placa",
       "o **F3** e o **/perfil** agora dizem quanto cada parte do servidor gasta, e quanto os bichos custam pra desenhar",
+      "aba nova **comida** no inventário do criativo: trigo, pão, ovo, leite, bolo, carnes, peixe e as frutas e legumes — é com eles na mão que se doma, se atrai e se cria bicho. A **tesoura** e o **balde com peixe** entraram em ferramentas",
+      "**/bichos fila** põe um bicho de cada raça enfileirado na frente do professor (uma fileira por espécie, com um filhote no fim), e todos ficam parados pra olhar; **/bichos parar** congela todos onde estão e **/bichos soltar** devolve o passeio",
     ],
   },
   {

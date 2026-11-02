@@ -53,7 +53,7 @@ O que o script **não** acha é o que manda aqui:
 
 **Sondas** (`scripts/*-shot.mjs`, `shots:tablet` é a RÉGUA de 1024×600): host + Chrome reais, e
 asseveram no DOM (`npm run build` antes). **UI só é "feita" quando uma sonda a ENXERGA.** Bateria
-de **20**, uma por vez (em paralelo a asserção de tempo mente): 11 sobem host próprio, 7 pedem
+de **21**, uma por vez (em paralelo a asserção de tempo mente): 12 sobem host próprio, 7 pedem
 `BASE=`, `corrida` quer a aula 7. ⚠️ **`shots:fundo` GERA** ~5 MB versionados — `git status` depois.
 
 ## Onde fica cada coisa
@@ -73,6 +73,8 @@ de **20**, uma por vez (em paralelo a asserção de tempo mente): 11 sobem host 
   `bichos-caminho.ts` · sessão `session/bichos.ts` (IA por estado, spawn por coluna, fio, cliques)
   · desenho `client/src/bichos/` (InstancedMesh por tipo) · mira `raycastBicho`. Ordem de
   `TIPOS_BICHO` e de `variantes` é IDENTIDADE no fio e no save (só acrescenta no fim).
+  `/bichos fila` monta a VITRINE parada (print: `shots:vitrine`; o `?bench&bichosparados` manda
+  `/bichos parar`). Item que não é bloco na hotbar do criativo (aba `comida`) usa `blocoExiste`.
 - **§💰 venda:** preço PURO em `venda.ts` (permissão do que se COLHE) · balcão por jogador em
   `session/venda.ts` (fora do save) · painel no `container.ts`. Sonda `shots:venda`. ⚠️ Preço
   novo passa pelo portão de `venda.test.ts` (saída ≤ entrada em TODA receita e cozimento).

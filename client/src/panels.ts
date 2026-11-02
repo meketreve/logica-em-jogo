@@ -3,6 +3,7 @@ import {
   type NamedRegion,
   type ObjectiveState,
   type ScenarioModo,
+  blocoExiste,
   regionDims,
 } from "@logica/shared";
 import { playUi } from "./audio";
@@ -677,7 +678,9 @@ export class AuthorPanel extends Panel {
       });
       const blocoOpts = [
         { value: "0", label: "ar (limpar)" },
-        ...PLACEABLE.map((b) => ({ value: String(b.id), label: b.name })),
+        // só BLOCO enche região: o balde, a tesoura e a comida estão em
+        // PLACEABLE pela hotbar do criativo, mas não são células do mundo
+        ...PLACEABLE.filter((b) => blocoExiste(b.id)).map((b) => ({ value: String(b.id), label: b.name })),
       ];
       const encherBloco = this.select(blocoOpts, this.draft.encherBloco, (v) => {
         this.draft.encherBloco = v;

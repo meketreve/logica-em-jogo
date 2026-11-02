@@ -503,3 +503,60 @@ describe("§🐄 orçamento (o notebook do professor)", () => {
     expect(b.ate).toBe(ate0);
   });
 });
+
+// ---------------------------------------------------------------------------
+
+describe("§🐄 /bichos parar e /bichos fila (o bench e a vitrine)", () => {
+  function comProf() {
+    const s = sala();
+    s.send(2, { type: "join", name: "prof", pin: "1111", codigo: "prof42" });
+    const prof = s.session.players.get(2)!;
+    return { ...s, prof, chatProf: (t: string) => s.send(2, { type: "chat", text: t }) };
+  }
+
+  it("parados, ninguém sai do lugar; soltos, andam", () => {
+    const s = comProf();
+    for (let i = 0; i < 6; i++) s.bicho("vaca");
+    s.chatProf("/bichos parar");
+    const antes = [...s.session.bichos.lista.values()].map((b) => `${b.x},${b.z}`).join(" ");
+    for (let i = 0; i < 300; i++) s.session.tick();
+    const depois = [...s.session.bichos.lista.values()].map((b) => `${b.x},${b.z}`).join(" ");
+    expect(depois).toBe(antes);
+    // CONTROLE NEGATIVO: soltos, em 30 s alguém passeia
+    s.chatProf("/bichos soltar");
+    for (let i = 0; i < 300; i++) s.session.tick();
+    const solto = [...s.session.bichos.lista.values()].map((b) => `${b.x},${b.z}`).join(" ");
+    expect(solto).not.toBe(antes);
+  });
+
+  it("a fila põe TODA espécie e variante (+ um filhote por fileira), parada", () => {
+    // mundo maior que a `sala`: 8 fileiras a 3 blocos chegam a 25 do professor
+    const ses = new GameSession(() => {}, {
+      dims: { x: 6, z: 6, y: 2 }, seed: 5, flat: true, singleplayer: true, bichosNaturais: false,
+    });
+    ses.handleMessage(1, JSON.stringify({ type: "join", name: "prof" }));
+    const s = { session: ses };
+    ses.handleMessage(1, JSON.stringify({ type: "chat", text: "/bichos fila" }));
+    const lista = [...s.session.bichos.lista.values()];
+    const esperado = TIPOS_BICHO.reduce((n, t) => n + BICHOS[t].variantes.length + 1, 0);
+    expect(lista).toHaveLength(esperado);
+    for (const t of TIPOS_BICHO) {
+      const vs = new Set(lista.filter((b) => b.tipo === t && b.filhoteAte === 0).map((b) => b.variante));
+      expect(vs.size).toBe(BICHOS[t].variantes.length);
+    }
+    expect(s.session.bichos.parados).toBe(true);
+    // o peixe ficou NA água (o rego cavado), e a água não escorreu
+    for (const b of lista.filter((o) => o.tipo === "peixe")) {
+      expect(getBlock(s.session.world, Math.floor(b.x), Math.floor(b.y), Math.floor(b.z))).toBe(BlockId.Agua);
+    }
+    for (let i = 0; i < 30; i++) s.session.tick();
+    expect(s.session.bichos.lista.size).toBe(esperado); // ninguém morreu (peixe parado não sufoca)
+  });
+
+  it("aluno não para nem enfileira", () => {
+    const s = comProf();
+    s.send(1, { type: "chat", text: "/bichos fila" });
+    expect(s.session.bichos.lista.size).toBe(0);
+    expect(s.session.bichos.parados).toBe(false);
+  });
+});
