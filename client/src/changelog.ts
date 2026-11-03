@@ -51,6 +51,7 @@ const MUDANCAS: readonly Mudanca[] = [
       "a lista de **quem está conectado**, um campo de **recado** que vai pro chat de todos, e o **código do professor** escondido até clicar em **mostrar** (dá pra trocar ali mesmo)",
       "**trocar de aula** e **parar** pelo botão, sem Ctrl+C — o mundo é salvo antes. **Criar mundo** (gigante com bichos, plano ou normal) e **publicar como aula** também estão lá",
       "a faixa do topo conta se o jogo **acabou de atualizar** (com as novidades), se está **sem internet** ou se tem **versão nova** — o botão de atualizar só vale com a aula parada",
+      "**🎮 Entrar no jogo** abre o jogo numa aba nova, pro professor entrar sem digitar endereço",
       "**Dúvidas? Clique aqui!** no canto abre o manual, que funciona sem internet",
       "a página só abre **no computador do professor**: o aluno na mesma rede não consegue entrar nela. O menu antigo de números continua de reserva (**iniciar-servidor --texto**)",
     ],

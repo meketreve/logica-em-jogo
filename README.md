@@ -80,7 +80,8 @@ o servidor.
 - com a aula no ar: o **endereço grande + QR code** pros alunos entrarem pela câmera do
   tablet, **quem está conectado**, o **código do professor** (escondido até você clicar em
   "mostrar" — o painel pode ir pro projetor), um campo pra **mandar recado** no chat de todos e
-  o botão **📽️ Mostrar pra turma** (tela cheia só com endereço e QR);
+  o botão **📽️ Mostrar pra turma** (tela cheia só com endereço e QR) e o **🎮 Entrar no jogo**,
+  que abre o jogo numa aba nova pro próprio professor;
 - **trocar de aula** e **parar** sem `Ctrl+C` (o mundo é salvo antes);
 - **criar mundo** (gigante com bichos, plano pra montar aula, ou normal) e **publicar como
   aula** um mundo seu;

@@ -220,6 +220,7 @@ function desenharNoAr(e) {
     ? "Aula reutilizável: cada turma começa do zero, nada é salvo."
     : "O que a turma construir fica salvo sozinho (a cada 30 s e ao parar).";
   $("endereco").textContent = e.endereco;
+  $("entrar-jogo").href = `http://localhost:${e.portaJogo}/`;
   $("projetar-endereco").textContent = e.endereco;
   desenharQr(e.endereco);
   const outros = e.enderecos.slice(1);

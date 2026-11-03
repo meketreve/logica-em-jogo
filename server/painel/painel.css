@@ -75,6 +75,7 @@ h2 { font-size: 1.35rem; margin: 2rem 0 .6rem; }
 }
 .botao:hover:not(:disabled) { border-color: var(--brand); }
 .botao:disabled { opacity: .55; cursor: not-allowed; }
+a.botao { text-decoration: none; display: inline-block; }
 .botao-forte { background: var(--brand); border-color: var(--brand); color: #fff; font-weight: 600; }
 .botao-forte:hover:not(:disabled) { background: var(--brand-dark); }
 .botao-perigo { color: var(--perigo); border-color: var(--perigo); }

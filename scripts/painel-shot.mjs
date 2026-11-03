@@ -156,6 +156,9 @@ const end = await avaliar(`document.getElementById('endereco').textContent`);
 ok(new RegExp(`^http://[\\d.]+:${PORTA_JOGO}$`).test(end) || end === `http://localhost:${PORTA_JOGO}`, `endereço grande: ${end}`);
 const qr = await avaliar(`(() => { const s = document.querySelector('#qr svg'); if (!s) return null; const r = s.getBoundingClientRect(); return { w: r.width, path: !!s.querySelector('path, rect') }; })()`);
 ok(qr?.path && qr.w >= 150, `QR desenhado (${qr?.w?.toFixed(0)} px)`);
+const entrar = await avaliar(`(() => { const a = document.getElementById('entrar-jogo'); const r = a.getBoundingClientRect(); return { href: a.href, alvo: a.target, visivel: r.width > 0 && r.top >= 0 && r.bottom <= innerHeight }; })()`);
+ok(entrar.href === `http://localhost:${PORTA_JOGO}/` && entrar.alvo === "_blank" && entrar.visivel, `"Entrar no jogo" à vista, abre ${entrar.href} em outra aba`);
+ok((await (await fetch(entrar.href)).status) === 200, "e o jogo responde nesse endereço");
 ok((await avaliar(`document.querySelector('.cartao.atual')?.dataset.caminho`)) === "cenarios/aula1-sequencia.ljw", "o cartão da aula no ar fica marcado");
 // 4
 const cod = await avaliar(`document.getElementById('codigo').textContent`);
