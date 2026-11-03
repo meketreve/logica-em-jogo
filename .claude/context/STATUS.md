@@ -31,7 +31,8 @@ o `.bat`/`.sh` confere o Node, atualiza SOZINHO (perguntas caem no Enter; no `.s
 recusado) e sobe `server/src/painel.ts` (localhost:8070), que abre o navegador e sobe o jogo como
 FILHO (`fork` + IPC: jogadores 1×/s, "pare e grave"). Cartões das 8 aulas com foto
 (`npm run miniaturas`), IP + QR, conectados, código escondido, recado, projetor, trocar/parar,
-criar/publicar, faixa de versão, "Dúvidas? Clique aqui!" → `docs/manual.html#painel`. Menu de
+criar/publicar, faixa de versão, botão **🎮 Entrar no jogo** (abre `http://localhost:8080/` numa
+aba nova — o professor joga no mesmo PC), "Dúvidas? Clique aqui!" → `docs/manual.html#painel`. Menu de
 texto = reserva (`--texto`, ou cai sozinho se o painel morrer). Smoke `painel` + sonda
 `shots:painel` (controle negativo nos dois). **`.bat` não testado no Windows do lab.**
 
@@ -112,20 +113,17 @@ Atrás: a **porta NÃO** (⚠️ quebra o ponto fixo — cabeçalho de `circuito
 ## Bruto do git (auto — não editar)
 
 <!-- auto:start -->
-data: 2026-10-25
+data: 2026-11-03
 
 ```
-d837350 feat(circuito): §🔌 a alavanca estilo Minecraft — pedregulho e um cabo que TOMBA
-e16a849 docs(todo): §🔌 o botão de PAREDE — a ideia dele, e o que ela testa
-30992f3 feat(circuito): §🔌 o circuito SAI DO CHÃO — fio e alavanca em parede e teto
-68cba8e fix(chat): o chat do PC — Enter/Esc sem foco, a lista de comandos e a porta LÓGICA
-25fe60e docs(contexto): handoff — nove lotes esperando aula, e o MAP que mentia
-983aa0b feat(launcher): [11] publicar como AULA, e a [8] enxergando a pasta cenarios/
-a52fb53 feat(launcher): [10] criar mundo PLANO — a base pra montar aula
-d327530 fix(mobile): §📱 bug-675 — a barra de navegação do tablet, e o log que dizia nada
+c0da7cf feat(som): §🔊 sons v2 — amostras GRAVADAS (CC0), síntese da v1 como reserva
+6150e34 feat(painel): §🖥️ botão "Entrar no jogo" pro professor
+f998658 feat(launcher): §🖥️ o painel do professor no navegador
+1a81a0f docs(todo): §🖥️ o launcher gráfico no navegador — escopo fechado com ele
+1d3c037 docs: a aula 8 (circuitos) no README e no manual — eram 8, diziam 7
+0ce9330 merge: a grande atualização — bichos e sons na main
+2b43b30 feat(bichos): §🐄 mundo que já existe não cria bicho sozinho
+5f6a532 feat(bichos): §🐄 vitrine parada pro bench e aba comida no inventário
 --- status ---
- M .claude/context/LEARNINGS.md
- M .claude/context/MAP.md
- M .claude/context/TODO.md
 ```
 <!-- auto:end -->

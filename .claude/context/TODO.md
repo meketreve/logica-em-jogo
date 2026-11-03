@@ -1,5 +1,5 @@
 ---
-updated: 2026-10-25
+updated: 2026-11-03
 tier: 3
 active: true
 ---
@@ -33,7 +33,8 @@ active: true
       está na síntese). A RAM aguenta (+~4 MB)? A ovelha/cão/gato gravados ganham da síntese?
 
 - [ ] **§🖥️ Painel do professor (03/11) — NO WINDOWS DO LAB primeiro:** duplo clique no `.bat`
-      abre o navegador sozinho? (o `start ""` do cmd) A faixa diz "atualizado/sem internet"? O
+      abre o navegador sozinho? (o `start ""` do cmd) O **🎮 Entrar no jogo** abre o jogo
+      numa aba nova no PC do professor? A faixa diz "atualizado/sem internet"? O
       QR é lido pela câmera dos tablets? Fechar a JANELA PRETA com aula no ar salva o mundo (o
       Windows manda o fechamento pros dois processos)? O professor acha o "Dúvidas?"? O código
       escondido incomoda? Se algo falhar: `iniciar-servidor.bat --texto` é o menu antigo.

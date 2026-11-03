@@ -1,5 +1,5 @@
 ---
-updated: 2026-10-25
+updated: 2026-11-03
 tier: 3
 ---
 
@@ -9,7 +9,7 @@ tier: 3
 ## Comandos
 
 <!-- auto:start -->
-gerado em: 2026-10-25
+gerado em: 2026-11-03
 
 | Ação | Comando |
 |---|---|
@@ -20,6 +20,7 @@ gerado em: 2026-10-25
 primeiro nível:
 
 ```
+AGENTS.md
 cenarios
 client
 docs
@@ -77,7 +78,8 @@ de **23**, uma por vez (em paralelo a asserção de tempo mente): 13 sobem host 
   `/bichos parar`). Item que não é bloco na hotbar do criativo (aba `comida`) usa `blocoExiste`.
 - **§🖥️ painel do professor** (o launcher desde 03/11): supervisor `server/src/painel.ts`
   (127.0.0.1:8070, sobe o jogo por `fork` com IPC — o host fala com ele em `relatarAoPainel`,
-  no fim do `index.ts`) · regras de mundo `painelMundos.ts` (as do menu de texto, num lugar
+  no fim do `index.ts`; o botão **Entrar no jogo** aponta `localhost:<portaJogo>`, 8080 por
+  padrão, `LJ_PORT`) · regras de mundo `painelMundos.ts` (as do menu de texto, num lugar
   só) · página SEM build em `server/painel/` (QR: `vendor/qrcode.mjs`, MIT) · miniaturas
   `npm run miniaturas`. Saída 42 = "atualizar agora" (o launcher atualiza e relança). Smoke
   `painel`, sonda `shots:painel`.
@@ -91,6 +93,10 @@ de **23**, uma por vez (em paralelo a asserção de tempo mente): 13 sobem host 
   MUNDO em `somMundo.ts` (síntese, orçamento, ambiente 1 Hz, gancho `somDeBicho`); a regra de
   QUANDO soa é pura em `shared/src/sons.ts` (`somDaTroca` antes→depois, `materialSonoro`,
   `Passadas`). Sonda `shots:som` lê `window.__som` (os contadores do perfil).
+  **v2 (03/11):** amostras GRAVADAS CC0 — tabela pura `shared/src/sonsAmostras.ts` (portão:
+  arquivo existe, tem crédito, nada sobra, ≤ 700 KB), OGG em `client/public/sons/` +
+  `CREDITOS.md`, refeitos por `scripts/preparar-sons.mjs`. A síntese da v1 é a RESERVA
+  (arquivo que não chega → toca sintetizado; `shots:som` 7–8 prova com 404).
 - **Perfil de desempenho** (F3): o botão manda `profile_report`, o `?bench` faz `POST /perfil`,
   e o **`/perfil`** do professor pede a TODOS (`pedir_perfil`) — os três caem em `profiles/` do
   host pelo `salvarPerfil` (`server/src/perfis.ts`), que batiza pelo prefixo (`bench-`, `turma-<lote>-`).
