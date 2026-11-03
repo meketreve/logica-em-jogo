@@ -1485,6 +1485,40 @@ não tem filesystem; export de "pasta" no single fica de fora (não faz sentido 
   fixas. Elas aparecem DUAS vezes agora (nas opções fixas e na lista da [8]) — se incomodar na
   aula, a saída é uma tabela slug→título no launcher, com o nome do arquivo como reserva.
 
+## §🖥️ Launcher GRÁFICO: o painel no navegador (pedido dele, 2026-11-03) — ESCOPO FECHADO
+
+Pedido: "queria fazer um launcher melhor, que fosse mais gráfico e menos texto". Comparados
+três caminhos (painel no navegador × .exe Electron/Tauri × menu de texto caprichado); **ele
+escolheu o painel no navegador.** O .exe caiu por peso (+150 MB ou Rust) e por SmartScreen
+sem certificado (pendência externa); o texto caprichado continua sendo texto.
+
+Decisões dele (2026-11-03, todas respondidas de uma vez):
+* **O `.bat`/`.sh` abre o navegador SOZINHO** numa página pro professor ir acompanhando — "deixa
+  isso intuitivo". O script encolhe pro mínimo: confere o Node → ATUALIZA (tem de ser ANTES de o
+  painel subir: a atualização troca o código do próprio painel; sem rede desiste rápido, nunca
+  trava a aula) → sobe o Node do painel → abre `localhost`.
+* **A página mostra o resultado da atualização** numa faixa no topo: "✅ atualizado hoje —
+  novidades" (o bloco do topo do `changelog.ts`) · "📴 sem internet — rodando a versão de dd/mm"
+  · "⬇️ versão nova disponível [atualizar agora]" — o botão só ativo SEM aula rodando (atualizar
+  reinicia o servidor; o script relança em laço por um código de saída combinado).
+* **1. O painel fica aberto DURANTE a aula: SIM.** Mostra IP grande + **QR code** pro aluno entrar
+  pela câmera, quem está conectado, e os botões **trocar de aula** e **parar** — sem Ctrl+C (tira
+  o risco da aula 8 zerar o progresso ao fechar a janela; ver TODO "Aula 8 (c)").
+* **2. Quem acessa: SÓ o PC do professor** (`localhost`/127.0.0.1 — o aluno está na mesma rede;
+  o painel recusa conexão de fora, e isso pede portão no smoke).
+* **3. O menu de TEXTO fica como reserva: SIM**, por um tempo ("tem pouca gente usando agora,
+  mudar vai ser fácil") — opção/variável pra cair no menu antigo se o navegador der problema.
+* **Botão "Dúvidas? — Clique aqui!"** num canto, abrindo o `docs/manual.html` (servido pelo
+  painel, funciona sem internet).
+
+O que a página tem de cobrir (paridade com o menu de hoje, `iniciar-servidor.sh`):
+cartões das aulas 1–8 com título amigável e MINIATURA (as sondas já tiram prints) + mundo livre;
+abrir outro mundo (`mundos/` e `cenarios/`, sem os `_*`); criar mundo PROCEDURAL (nasce com
+bichos) e PLANO (P/M/G — o E ignora o preset); publicar como AULA (força prefixo "aula").
+A lógica sai do `.sh`×`.bat` duplicado pra UM lugar em JS — o `checar-launchers.mjs` encolhe
+junto. Sonda nova no molde das outras (host + Chrome reais, assevera no DOM), com controle
+negativo; e testar o `.bat` NO WINDOWS DO LAB (PowerShell bloqueia `npm` — chamar `node` direto).
+
 ## §📱 Quedas de tablet: a barra de navegação do Android (2026-10-20)
 
 * \[x] **Causa encontrada e atacada — FEITO (2026-10-20).** A pista que fechou o caso foi dele:
