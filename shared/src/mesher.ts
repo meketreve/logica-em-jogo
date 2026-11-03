@@ -252,6 +252,8 @@ export const TILE = {
   laBranca: 201, laPreta: 202, laVermelha: 203, laLaranja: 204,
   laAmarela: 205, laVerde: 206, laAzul: 207, laRoxa: 208,
   laRosa: 209, laCiana: 210, laCinza: 211, laMarrom: 212,
+  /** §🐄 a casca do ovo que a galinha bota (2026-11-03). */
+  ovo: 213,
 } as const;
 
 /** cp20: blocos-glifo. Letras A–Z e dígitos 0–9 ocupam tiles consecutivos a
@@ -548,6 +550,8 @@ for (let i = 0; i < 12; i++) {
   BLOCK_TILES[BlockId.LaBranca + i] = uniform(TILE.laBranca + i);
 }
 
+BLOCK_TILES[BlockId.OvoNoChao] = uniform(TILE.ovo);
+
 /** Tile usado como ÍCONE 2D do bloco (hotbar/inventário do cliente) — a face lateral. */
 export function blockIconTile(id: number): number {
   // a FRENTE ganha do lado quando existe: o ícone da fornalha na hotbar tem de
@@ -716,6 +720,7 @@ export function blockSelectionBox(
   // é o que diz ao aluno qual dos dois baús encostados ele vai abrir.
   if (id === BlockId.Bau || id === BlockId.BauLoja) return [P, 0, P, 15 * P, 14 * P, 15 * P];
   if (isCadeira(id)) return [3 * P, 0, 3 * P, 13 * P, 1, 13 * P];
+  if (id === BlockId.OvoNoChao) return [6 * P, 0, 6 * P, 10 * P, 6 * P, 10 * P];
   if (isSofa(id)) return [0, 0, 0, 1, 15 * P, 1];
   if (isCama(id)) return [0, 0, 0, 1, 9 * P, 1];
   // laje = a própria metade (a mira atravessa a metade vazia, estilo Minecraft);
@@ -1568,6 +1573,13 @@ export function meshVizinhanca(viz: Uint16Array, luzViz?: Uint8Array | null): Ch
       }
       case BlockId.Tocha: {
         emitBox(lx, ly, lz, id, TILE.tocha, 7 * P, 0, 7 * P, 9 * P, 10 * P, 9 * P);
+        return true;
+      }
+      // §🐄 o ovo no chão: corpo 4×5×4 e a ponta 2×1×2 — pequeno de propósito
+      // (é o ovo, não um bloco), no meio da célula onde a galinha estava
+      case BlockId.OvoNoChao: {
+        emitBox(lx, ly, lz, id, TILE.ovo, 6 * P, 0, 6 * P, 10 * P, 5 * P, 10 * P);
+        emitBox(lx, ly, lz, id, TILE.ovo, 7 * P, 5 * P, 7 * P, 9 * P, 6 * P, 9 * P);
         return true;
       }
       // §🔌 a PLACA DE PRESSÃO: lâmina de chão com uma borda, e ela AFUNDA

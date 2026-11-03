@@ -444,6 +444,8 @@ export const FLAG_BICHO = {
   sentado: 4,
   bola: 8,
   voando: 16,
+  /** APOSENTADO (2026-11-03): era o ovo preso aos pés da galinha; ela agora
+   *  bota o ovo no chão (bloco `OvoNoChao`). O bit fica reservado no fio. */
   ovo: 32,
   domado: 64,
   ferido: 128,
@@ -470,7 +472,7 @@ export interface BichoSalvo {
   filhote?: number;
   tosquia?: number;
   leite?: number;
-  /** Prazo do próximo ovo; −1 = o ovo já está pronto. */
+  /** Prazo do próximo ovo botado no chão (−1 em save antigo = estava pronto). */
   ovo?: number;
   descanso?: number;
   dono?: string;

@@ -38,10 +38,10 @@ import {
   ITEM_BALDE_LEITE,
   ITEM_BALDE_PEIXE,
   ITEM_BALDE_VAZIO,
-  ITEM_OVO,
   ITEM_TESOURA,
   isAgua,
   isFolhas,
+  isFullCube,
   isSolidBlock,
 } from "../blocks";
 import { CHUNK_SIZE, PLAYER_REACH, SERVER_TICK_RATE } from "../constants";
@@ -166,8 +166,8 @@ export interface Bicho {
   filhoteAte: number;
   tosquiadaAte: number;
   leiteEm: number;
+  /** Tick em que a galinha BOTA o próximo ovo no chão (0 = não bota). */
   ovoEm: number;
-  ovoPronto: boolean;
   amorAte: number;
   descansoAte: number;
   dono: string | null;
@@ -293,7 +293,6 @@ function flagsDe(b: Bicho, tick: number): number {
   if (b.sentado) f |= FLAG_BICHO.sentado;
   if (b.estado === Estado.Bola) f |= FLAG_BICHO.bola;
   if (b.estado === Estado.Voando) f |= FLAG_BICHO.voando;
-  if (b.ovoPronto) f |= FLAG_BICHO.ovo;
   if (b.dono !== null) f |= FLAG_BICHO.domado;
   if (b.feridoAte > tick) f |= FLAG_BICHO.ferido;
   if (b.amorAte > tick) f |= FLAG_BICHO.amor;
@@ -360,7 +359,6 @@ export function nascerBicho(
     tosquiadaAte: 0,
     leiteEm: 0,
     ovoEm: tipo === "galinha" ? t + TICKS_OVO_MIN + Math.floor(rand(st) * (TICKS_OVO_MAX - TICKS_OVO_MIN)) : 0,
-    ovoPronto: false,
     amorAte: 0,
     descansoAte: 0,
     dono: opts.dono ?? null,
@@ -782,10 +780,59 @@ function pensar(ses: GameSession, b: Bicho, perto: { id: number; d: number }, dt
   // relógios de jogo (independem do estado)
   if (b.filhoteAte !== 0 && b.filhoteAte <= t) b.filhoteAte = 0;
   if (b.tosquiadaAte !== 0 && b.tosquiadaAte <= t) b.tosquiadaAte = 0;
-  if (b.tipo === "galinha" && !b.ovoPronto && b.filhoteAte === 0 && b.ovoEm !== 0 && b.ovoEm <= t) b.ovoPronto = true;
+  if (b.tipo === "galinha" && b.filhoteAte === 0 && b.ovoEm !== 0 && b.ovoEm <= t) botarOvo(ses, b);
   if (b.def.meio === "agua") return pensarPeixe(ses, b, dt);
   if (b.def.meio === "ar") return pensarArara(ses, b, perto);
   pensarTerra(ses, b, perto);
+}
+
+/** Quantos ovos parados já bastam em volta (5×3×5) pra galinha não botar
+ *  outro: ovo no chão não some sozinho, e um galinheiro esquecido não pode
+ *  virar um tapete de ovos. */
+const MAX_OVOS_PERTO = 3;
+/** Sem lugar pra botar agora (voando, na água, célula ocupada): tenta de novo
+ *  daqui a 10 s, em vez de perder o ovo ou esperar o prazo inteiro. */
+const TICKS_OVO_TENTAR = 100;
+
+function proximoOvo(ses: GameSession): number {
+  return ses.tickCount + TICKS_OVO_MIN + Math.floor(rand(ses.bichos) * (TICKS_OVO_MAX - TICKS_OVO_MIN));
+}
+
+/**
+ * §🐄 A galinha BOTA o ovo (2026-11-03): ele vira o bloco `OvoNoChao` na célula
+ * dos pés dela e fica PARADO lá — quem pega é quem quebra (cai `ITEM_OVO`).
+ * Até aqui o ovo era uma silhueta presa ao modelo e se colhia clicando na
+ * galinha, e por isso ele andava com ela ("a galinha carrega o ovo", relato
+ * dele). Mundo de aula (`somenteLeitura`) não ganha bloco nenhum: só reagenda.
+ */
+function botarOvo(ses: GameSession, b: Bicho): void {
+  const x = Math.floor(b.x);
+  const y = Math.floor(b.y + 0.01);
+  const z = Math.floor(b.z);
+  if (ses.somenteLeitura || contarOvosPerto(ses, x, y, z) >= MAX_OVOS_PERTO) {
+    b.ovoEm = proximoOvo(ses);
+    return;
+  }
+  const abaixo = getBlock(ses.world, x, y - 1, z);
+  if (getBlock(ses.world, x, y, z) !== BlockId.Air || !isSolidBlock(abaixo) || !isFullCube(abaixo)) {
+    b.ovoEm = ses.tickCount + TICKS_OVO_TENTAR;
+    return;
+  }
+  ses.applyBlock(x, y, z, BlockId.OvoNoChao);
+  b.ovoEm = proximoOvo(ses);
+  evento(ses, b, "ovo");
+}
+
+function contarOvosPerto(ses: GameSession, x: number, y: number, z: number): number {
+  let n = 0;
+  for (let dy = -1; dy <= 1; dy++) {
+    for (let dx = -2; dx <= 2; dx++) {
+      for (let dz = -2; dz <= 2; dz++) {
+        if (getBlock(ses.world, x + dx, y + dy, z + dz) === BlockId.OvoNoChao) n++;
+      }
+    }
+  }
+  return n;
 }
 
 function pensarTerra(ses: GameSession, b: Bicho, perto: { id: number; d: number }): void {
@@ -1368,14 +1415,8 @@ export function usarBicho(ses: GameSession, clientId: number, id: number, slot: 
     b.estado = b.sentado ? Estado.Sentado : Estado.Parado;
     return;
   }
-  // 2) o ovo da galinha
-  if (b.tipo === "galinha" && b.ovoPronto && !(item !== null && ehIsca(b.tipo, item))) {
-    if (!dar(ses, clientId, p.name, ITEM_OVO, 1)) return;
-    b.ovoPronto = false;
-    b.ovoEm = t + TICKS_OVO_MIN + Math.floor(rand(ses.bichos) * (TICKS_OVO_MAX - TICKS_OVO_MIN));
-    evento(ses, b, "ovo");
-    return;
-  }
+  // (o ovo da galinha não se colhe NELA desde 2026-11-03: ela bota no chão —
+  // `botarOvo` — e o ovo se pega quebrando o bloco)
   if (item === null) return;
   // 3) a tesoura na ovelha
   if (item === ITEM_TESOURA && b.tipo === "ovelha") {
@@ -1689,7 +1730,7 @@ export function bichosParaSave(ses: GameSession): BichosSalvos {
     if (tq !== undefined) s.tosquia = tq;
     const l = resta(b.leiteEm);
     if (l !== undefined) s.leite = l;
-    if (b.tipo === "galinha") s.ovo = b.ovoPronto ? -1 : Math.max(0, b.ovoEm - t);
+    if (b.tipo === "galinha") s.ovo = Math.max(0, b.ovoEm - t);
     const d = resta(b.descansoAte);
     if (d !== undefined) s.descanso = d;
     if (b.dono !== null) s.dono = b.dono;
@@ -1719,10 +1760,8 @@ export function restaurarBichos(ses: GameSession, salvo: BichosSalvos): void {
     if (s.filhote) b.filhoteAte = t + s.filhote;
     if (s.tosquia) b.tosquiadaAte = t + s.tosquia;
     if (s.leite) b.leiteEm = t + s.leite;
-    if (s.ovo !== undefined) {
-      if (s.ovo < 0) b.ovoPronto = true;
-      else b.ovoEm = t + s.ovo;
-    }
+    // −1 era o ovo PRONTO preso nela (save de antes de 03/11): bota já
+    if (s.ovo !== undefined) b.ovoEm = t + Math.max(1, s.ovo);
     if (s.descanso) b.descansoAte = t + s.descanso;
     if (s.sentado) b.sentado = true;
   }

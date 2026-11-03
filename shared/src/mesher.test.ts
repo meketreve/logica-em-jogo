@@ -64,6 +64,16 @@ describe("culled mesher (função pura: bytes → geometria)", () => {
     expect(g.positions.length).toBe(0);
   });
 
+  it("§🐄 o ovo no chão é PEQUENO (2 caixas, 12 faces) — nunca cubo cheio", () => {
+    const w = createWorld(DIMS);
+    setBlock(w, 8, 8, 8, BlockId.OvoNoChao);
+    const g = meshChunk(w, 0, 0, 0);
+    expect(g.positions.length).toBe(48 * 3);
+    let maxY = -Infinity;
+    for (let i = 1; i < g.positions.length; i += 3) maxY = Math.max(maxY, g.positions[i]!);
+    expect(maxY).toBeCloseTo(8 + 6 / 16, 5);
+  });
+
   it("1 bloco isolado = 6 faces (24 vértices, 36 índices)", () => {
     const w = createWorld(DIMS);
     setBlock(w, 8, 8, 8, BlockId.Stone);

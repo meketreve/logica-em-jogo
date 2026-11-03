@@ -91,6 +91,7 @@ const DIRETO: ReadonlyMap<number, MaterialSonoro> = new Map<number, MaterialSono
   [BlockId.LampadaAcesa, "vidro"],
   [BlockId.PlacaDesligada, "metal"],
   [BlockId.PlacaLigada, "metal"],
+  [BlockId.OvoNoChao, "planta"], // §🐄 pegar o ovo é um toque macio, não pedra
 ]);
 
 /** Algodão (bloco de cor): os 16 ids não são contíguos (vieram em 2 lotes). */

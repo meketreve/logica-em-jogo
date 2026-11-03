@@ -3,6 +3,7 @@ import {
   ITEM_CARVAO,
   ITEM_DIAMANTE,
   ITEM_FRUTA,
+  ITEM_OVO,
   escadaId,
   isAgua,
   isCadeira,
@@ -106,6 +107,8 @@ const EXCECOES = new Map<number, number | null>([
   [BlockId.Bedrock, null],
   [BlockId.MinerioCarvao, ITEM_CARVAO],
   [BlockId.MinerioDiamante, ITEM_DIAMANTE],
+  // §🐄 o ovo que a galinha botou: quebrar é PEGAR — vem o item de comida
+  [BlockId.OvoNoChao, ITEM_OVO],
 ]);
 
 /**

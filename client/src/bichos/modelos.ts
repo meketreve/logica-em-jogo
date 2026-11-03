@@ -320,7 +320,7 @@ function vaca(vs: readonly VarianteBicho[]): DefModelo {
 }
 
 // ═════════════════════════════════════════════════════════════════════════════
-// GALINHA — branca, carijó (barrada), caipira (pescoço dourado, ovo vermelho)
+// GALINHA — branca, carijó (barrada), caipira (pescoço dourado)
 // caixa 0,45 × 0,7 = 7,2 × 11,2 px
 // ═════════════════════════════════════════════════════════════════════════════
 function galinha(_vs: readonly VarianteBicho[]): DefModelo {
@@ -358,10 +358,6 @@ function galinha(_vs: readonly VarianteBicho[]): DefModelo {
     if (/caipira/.test(p.nome)) return granulado(hexRgb("#26302a"), t, 8); // verde-preto do rabo do galo
     return escala(plumagem(t, p), 0.92);
   };
-  const ovo: Pintor = (t, p) => {
-    const c = /caipira/.test(p.nome) ? hexRgb("#d4a070") : hexRgb("#f6f0e2");
-    return hash3(t.x * 3, t.y * 3, t.z * 3, 9) > 0.9 ? escala(c, 0.88) : granulado(c, t, 3);
-  };
 
   const caixas: Caixa[] = [];
   for (const [papel, x] of [[P.pernaFE, -1.2], [P.pernaFD, 1.2]] as const) {
@@ -386,9 +382,8 @@ function galinha(_vs: readonly VarianteBicho[]): DefModelo {
   // asas: penduradas no ombro, abrem em Z (o bater de asa do Minecraft)
   const asaD = cx([2.5, 4, -1.6], [3.5, 7.6, 3], P.asaD, asa, { mascara: M.preso, pivo: [2.5, 7.6, 0.5] });
   caixas.push(asaD, espelho(asaD, P.asaE));
-  // o ovo no chão, nos pés dela, à frente e de lado (de frente e de lado se vê)
-  caixas.push(cx([0.9, 0, -5.4], [3.1, 1.9, -3.2], P.ovo, ovo, { mascara: M.soOvo, pivo: [2, 0, -4.3] }));
-  caixas.push(cx([1.3, 1.9, -5], [2.7, 2.8, -3.6], P.ovo, ovo, { mascara: M.soOvo, pivo: [2, 0, -4.3] }));
+  // (o ovo NÃO mora mais no modelo desde 2026-11-03: ela o bota no chão como
+  // bloco, `OvoNoChao` — preso aos pés, ele andava junto com ela)
   caixas.push(...coracoes());
 
   return {

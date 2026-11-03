@@ -1,5 +1,5 @@
 ---
-updated: 2026-11-02
+updated: 2026-11-03
 tier: 3
 ---
 
@@ -11,6 +11,13 @@ tier: 3
      Convertido de `.wolf/buglog.json` em 2026-09-25 (mesmo conteúdo, formato do
      modelo). São bugs ESCRITOS À MÃO: nada de detector automático — ele já encheu
      o arquivo de 148 entradas falsas uma vez, e elas foram podadas junto. -->
+
+## 2026-11-03 — a galinha "carrega" o ovo (relato dele: "isso não faz sentido nenhum")
+- **Sintoma:** o ovo pronto aparecia nos pés da galinha e ANDAVA junto com ela; pegava-se clicando na galinha.
+- **Onde:** era DESENHO, não bug de lógica: `client/src/bichos/modelos.ts` (2 caixas `M.soOvo` no modelo dela, ligadas pela `FLAG_BICHO.ovo`) + `usarBicho` dando o `ITEM_OVO` no clique.
+- **Causa:** o §🐄 modelou o ovo como ESTADO da galinha (`ovoPronto`), e estado de bicho se desenha preso ao bicho.
+- **Correção:** bloco novo `OvoNoChao` (312): vencido o prazo, `botarOvo` (`session/bichos.ts`) põe o bloco na célula dos pés dela e ele FICA; quebrar (dureza no piso de 150 ms) dá o `ITEM_OVO`. Teto de 3 ovos em 5×3×5 (ovo no chão não some sozinho), sem lugar → tenta de novo em 10 s, mundo de aula só reagenda. Save antigo com `ovo: -1` bota logo ao carregar. Não se coloca pelo fio (`isPlaceable` false). O bit `FLAG_BICHO.ovo` ficou reservado.
+- **Tags:** bichos, galinha, ovo, modelo, bloco novo, corrigido
 
 ## 2026-11-02 — smoke troca-raio reprovou com os bichos: "aviso chegou 0 ms ANTES do mundo novo"
 - **Sintoma:** `[troca-raio] ✗ §🕐 aviso "mundo_trocando" chegou 0 ms ANTES do mundo novo`, 3 de 3 rodadas na branch dos bichos; na `main` (stash) passava.

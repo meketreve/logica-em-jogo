@@ -9,13 +9,15 @@ import {
   ITEM_BALDE_VAZIO,
   ITEM_CARNE_CRUA,
   ITEM_COURO,
+  ITEM_OVO,
   ITEM_TESOURA,
   ITEM_TRIGO,
 } from "./blocks";
 import { inventarioVazio } from "./inventario";
 import { type SaveData, decodeSave, encodeSave } from "./save";
 import { GameSession } from "./session";
-import { nascerBicho } from "./session/bichos";
+import { nascerBicho, restaurarBichos } from "./session/bichos";
+import { segurarAteQuebrar } from "./quebraTeste";
 import { createWorld, findSpawnY, getBlock, setBlock } from "./world";
 
 /**
@@ -28,13 +30,13 @@ import { createWorld, findSpawnY, getBlock, setBlock } from "./world";
 
 const PLANO = { x: 2, z: 2, y: 2 };
 
-function sala(opts: { sobrevivencia?: boolean; bichosNaturais?: boolean } = {}) {
+function sala(opts: { sobrevivencia?: boolean; bichosNaturais?: boolean; somenteLeitura?: boolean } = {}) {
   const sent: { id: number; data: string }[] = [];
   const session = new GameSession(
     (id, data) => {
       if (typeof data === "string") sent.push({ id, data });
     },
-    { dims: PLANO, seed: 5, flat: true, codigo: "prof42", bichosNaturais: opts.bichosNaturais ?? false },
+    { dims: PLANO, seed: 5, flat: true, codigo: "prof42", bichosNaturais: opts.bichosNaturais ?? false, somenteLeitura: opts.somenteLeitura ?? false },
   );
   const send = (id: number, msg: unknown): void => session.handleMessage(id, JSON.stringify(msg));
   send(1, { type: "join", name: "ana", pin: "2222" });
@@ -388,6 +390,86 @@ describe("§🐄 clique direito (as interações)", () => {
 });
 
 // ---------------------------------------------------------------------------
+
+describe("§🐄 a galinha BOTA o ovo no chão (relato dele: ela 'carregava' o ovo)", () => {
+  /** Galinha sentada em (x,chao,z): não sai do lugar, então o ovo cai NA célula dela. */
+  const galinhaParada = (s: ReturnType<typeof sala>, dx: number) => {
+    const x = Math.floor(s.p.x) + dx;
+    const z = Math.floor(s.p.z);
+    const b = nascerBicho(s.session, "galinha", 0, x + 0.5, s.chao, z + 0.5);
+    b.estado = 4 as never;
+    b.sentado = true;
+    return { b, x, z };
+  };
+
+  it("vencido o prazo, o ovo vira BLOCO na célula dela e FICA lá quando ela sai", () => {
+    const s = sala({ sobrevivencia: true });
+    const { b, x, z } = galinhaParada(s, 3);
+    expect(getBlock(s.session.world, x, s.chao, z)).toBe(BlockId.Air);
+    b.ovoEm = s.session.tickCount + 1;
+    s.session.tick();
+    s.session.tick();
+    expect(getBlock(s.session.world, x, s.chao, z)).toBe(BlockId.OvoNoChao);
+    // o próximo ovo foi reagendado (não bota um por tick)
+    expect(b.ovoEm).toBeGreaterThan(s.session.tickCount + 100);
+    // ela anda pra longe; o ovo não vai junto
+    b.x += 6;
+    s.session.tick();
+    expect(getBlock(s.session.world, x, s.chao, z)).toBe(BlockId.OvoNoChao);
+    // pegar = quebrar: vem 1 ovo de comida
+    expect(segurarAteQuebrar(s.session, 1, { x, y: s.chao, z })).toBe(true);
+    expect(s.conta(ITEM_OVO)).toBe(1);
+  });
+
+  it("CONTROLE NEGATIVO: clicar na galinha não dá ovo nenhum (o ovo não mora mais nela)", () => {
+    const s = sala({ sobrevivencia: true });
+    const { b } = galinhaParada(s, 2);
+    b.ovoEm = s.session.tickCount + 1_000_000;
+    s.send(1, { type: "usar_bicho", id: b.id, slot: 0 });
+    expect(s.conta(ITEM_OVO)).toBe(0);
+  });
+
+  it("CONTROLE NEGATIVO: mundo de aula não ganha ovo no chão (só reagenda)", () => {
+    const s = sala({ somenteLeitura: true });
+    const { b, x, z } = galinhaParada(s, 3);
+    expect(s.session.players.size).toBe(1);
+    b.ovoEm = s.session.tickCount + 1;
+    s.session.tick();
+    s.session.tick();
+    expect(getBlock(s.session.world, x, s.chao, z)).toBe(BlockId.Air);
+    expect(b.ovoEm).toBeGreaterThan(s.session.tickCount + 100);
+  });
+
+  it("galinheiro esquecido não vira tapete: com 3 ovos em volta, ela não bota o 4º", () => {
+    const s = sala({ sobrevivencia: true });
+    const { b, x, z } = galinhaParada(s, 3);
+    for (const dz of [-2, -1, 1]) setBlock(s.session.world, x + 1, s.chao, z + dz, BlockId.OvoNoChao);
+    b.ovoEm = s.session.tickCount + 1;
+    s.session.tick();
+    s.session.tick();
+    expect(getBlock(s.session.world, x, s.chao, z)).toBe(BlockId.Air);
+    // e com só 2 em volta ela bota (o teto é o que segurou, não outra coisa)
+    setBlock(s.session.world, x + 1, s.chao, z - 2, BlockId.Air);
+    b.ovoEm = s.session.tickCount + 1;
+    s.session.tick();
+    s.session.tick();
+    expect(getBlock(s.session.world, x, s.chao, z)).toBe(BlockId.OvoNoChao);
+  });
+
+  it("save antigo com o ovo PRONTO preso nela (−1) bota logo depois de carregar", () => {
+    const s = sala({ sobrevivencia: true });
+    const x = Math.floor(s.p.x) + 3;
+    const z = Math.floor(s.p.z);
+    const salvo = parseBichosSalvos({
+      natural: false,
+      proximoId: 50,
+      lista: [{ t: TIPOS_BICHO.indexOf("galinha"), v: 0, x: x + 0.5, y: s.chao, z: z + 0.5, yaw: 0, vida: 4, ovo: -1 }],
+    })!;
+    restaurarBichos(s.session, salvo);
+    const b = [...s.session.bichos.lista.values()].find((g) => g.tipo === "galinha")!;
+    expect(b.ovoEm).toBeLessThanOrEqual(s.session.tickCount + 1);
+  });
+});
 
 describe("§🐄 placa de pressão (decisão 11)", () => {
   it("o bicho em cima liga a placa", () => {

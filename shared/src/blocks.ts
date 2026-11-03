@@ -433,6 +433,14 @@ export const BlockId = {
   LaCiana: 309,
   LaCinza: 310,
   LaMarrom: 311,
+  /**
+   * §🐄 o OVO NO CHÃO (2026-11-03): a galinha BOTA o ovo — ele fica parado na
+   * célula onde ela estava e quem pega é quem quebra (cai 1 `ITEM_OVO`). Antes
+   * o ovo era uma silhueta presa aos pés do modelo dela e se colhia clicando na
+   * galinha: ele ANDAVA junto ("a galinha carrega o ovo" — relato dele, que
+   * achou sem sentido nenhum). Não se coloca pelo fio: só a galinha bota.
+   */
+  OvoNoChao: 312,
 } as const;
 
 export type BlockId = (typeof BlockId)[keyof typeof BlockId];
@@ -451,7 +459,7 @@ export type BlockId = (typeof BlockId)[keyof typeof BlockId];
  * mochila. Há portão em `ids16.test.ts`. E id é byte de SAVE: nunca renumerar
  * um id que já existe, só acrescentar no fim.
  */
-export const MAX_BLOCK_ID = BlockId.LaMarrom;
+export const MAX_BLOCK_ID = BlockId.OvoNoChao;
 
 /**
  * Os ids que EXISTEM de verdade.
@@ -1370,7 +1378,8 @@ export function isFullCube(id: number): boolean {
     // de PAREDE e de TETO é a mesma forma girada, e um id novo fora desta
     // linha sairia cubo cheio (o defeito que a sonda pegou em 16/10)
     !ehFio(id) &&
-    !ehAlavanca(id)
+    !ehAlavanca(id) &&
+    id !== BlockId.OvoNoChao // §🐄 um ovo pequeno no chão, não um cubo
   );
 }
 
@@ -1402,7 +1411,8 @@ export function isSolidBlock(id: number): boolean {
     !isPlantacao(id) && // a plantação também: pisar na horta não empurra o aluno
     !isSelvagem(id) && // idem (pé selvagem do gen)
     !isMuda(id) && // idem (muda de árvore do §🪵)
-    !isAgua(id) // água atravessa — o jogador entra e nada (physics.ts)
+    !isAgua(id) && // água atravessa — o jogador entra e nada (physics.ts)
+    id !== BlockId.OvoNoChao // §🐄 o ovo não é degrau: aluno e bicho passam por ele
   );
 }
 
@@ -1430,6 +1440,8 @@ export function isPlaceable(id: number): boolean {
   // pelo fio ela seria meia cama órfã
   if (isCamaCabeca(id)) return false;
   if (isCircuitoLigado(id)) return false; // §🔌 estado, não escolha (ver a função)
+  // §🐄 só a galinha bota; quebrar devolve o ITEM ovo (comida), não o bloco
+  if (id === BlockId.OvoNoChao) return false;
   return Number.isInteger(id) && id >= BlockId.Grass && blocoExiste(id);
 }
 

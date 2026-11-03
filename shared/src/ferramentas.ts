@@ -346,6 +346,8 @@ const DUREZA = new Map<number, number>([
   [BlockId.MinerioOuro, 3000],
   [BlockId.MinerioDiamante, 3000],
   [BlockId.Obsidian, 12000],
+  // §🐄 pegar o ovo do chão é um toque (o piso de 150 ms), não uma escavação
+  [BlockId.OvoNoChao, 0],
 ]);
 
 /**

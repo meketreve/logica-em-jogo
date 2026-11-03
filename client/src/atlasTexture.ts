@@ -1081,6 +1081,9 @@ export function createAtlasTexture(): THREE.Texture {
     paintLaTrama(ctx, tile);
   }
 
+  // §🐄 a casca do ovo no chão: creme quase liso, com pintinhas
+  paintNoise(ctx, TILE.ovo, [244, 236, 214], 5);
+
   // cp18: transparentes (cutout — alphaTest no material do cliente)
   paintGlass(ctx, TILE.glass);
   paintLeaves(ctx, TILE.leaves);

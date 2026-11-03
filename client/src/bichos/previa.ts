@@ -145,8 +145,8 @@ const LINHAS: { tipo: TipoBicho; itens: Item[] }[] = [
     tipo: "galinha",
     itens: [
       v("galinha", 0), v("galinha", 1), v("galinha", 2),
-      v("galinha", 0, F.filhote, { rotulo: "pintinho" }), v("galinha", 2, F.ovo, { rotulo: "ovo caipira" }),
-      v("galinha", 0, F.ovo, { rotulo: "ovo" }), v("galinha", 1, F.voando, { rotulo: "voando", y: 0.5 }),
+      v("galinha", 0, F.filhote, { rotulo: "pintinho" }),
+      v("galinha", 1, F.voando, { rotulo: "voando", y: 0.5 }),
       v("galinha", 2, F.movendo, { rotulo: "andando" }),
     ],
   },

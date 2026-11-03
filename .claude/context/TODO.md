@@ -27,6 +27,9 @@ active: true
 
 ## Testar na escola (o usuário faz)
 
+- [ ] **§🐄 Ovo no chão (03/11):** a galinha deixa o ovo no chão e vai embora? A criança
+      descobre que se pega QUEBRANDO (um toque)? O ovo pequeno se vê de longe no tablet?
+
 - [ ] **§🔊 Sons v2 (03/11) — gravados:** o volume de cada um está BOM? (os ganhos saíram da
       conta, não do ouvido — anotar o que ficou alto/baixo: passo, golpe, quebrar, porta, bicho).
       O F3 mostra `amostras 58/58` no tablet? (se `falharam`, o Silk não decodifica Vorbis e ele
