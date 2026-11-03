@@ -167,6 +167,7 @@
   <ol>
     <li><a href="#o-que-e">O que é isto</a></li>
     <li><a href="#requisitos">Antes de começar</a></li>
+    <li><a href="#painel">O painel do professor</a></li>
     <li><a href="#entrar">Como o aluno entra</a></li>
     <li><a href="#controles">Controles do jogo</a></li>
     <li><a href="#aulas">As 8 aulas prontas</a></li>
@@ -213,24 +214,54 @@ instalação e o script de "duplo clique pra ligar". Aqui embaixo tem só um res
 </tbody>
 </table>
 <p><strong>Pra ligar:</strong> dê duplo clique no launcher da pasta do projeto — <code>iniciar-servidor.bat</code>
-(Windows) ou <code>iniciar-servidor.sh</code> (Linux/macOS). Ele pergunta qual mundo abrir, o código de
-professor e o tamanho, e depois mostra o endereço que os alunos vão digitar. Detalhes completos, atualização
-automática e solução de problemas: <code>README.md</code>.</p>
+(Windows) ou <code>iniciar-servidor.sh</code> (Linux/macOS). Ele se atualiza sozinho e abre o
+<a href="#painel">painel do professor</a> no navegador. Detalhes completos e solução de problemas:
+<code>README.md</code>.</p>
+</section>
+
+<section id="painel">
+<h2>🖥️ O painel do professor</h2>
+<p>É a página que abre sozinha no navegador quando você liga o jogo (o endereço é
+<code>http://localhost:8070</code>). Ela só abre <strong>neste computador</strong> — o aluno, mesmo na
+mesma rede, não consegue entrar nela. A <strong>janela preta</strong> que abre junto é o servidor:
+deixe-a aberta durante a aula.</p>
+<table>
+<thead><tr><th>O que você quer</th><th>Onde fica</th></tr></thead>
+<tbody>
+<tr><td>Começar uma aula</td><td>clique no cartão da aula (1 a 8) ou no <strong>Mundo livre</strong></td></tr>
+<tr><td>Que os alunos entrem</td><td>o <strong>endereço grande</strong> e o <strong>QR code</strong> aparecem assim que a aula está no ar; <strong>📽️ Mostrar pra turma</strong> põe só os dois em tela cheia, pro projetor</td></tr>
+<tr><td>Saber quem entrou</td><td>a lista de <strong>conectados</strong>, ao lado do endereço (🎓 = professor)</td></tr>
+<tr><td>Entrar como professor</td><td>o <strong>código do professor</strong> fica escondido — clique em <em>mostrar</em> (e em <em>trocar</em> pra escolher outro)</td></tr>
+<tr><td>Avisar a turma</td><td>o campo <strong>💬 recado</strong> manda a mensagem pro chat de todos</td></tr>
+<tr><td>Trocar de aula</td><td>clique em outro cartão; o painel pergunta antes e salva o mundo atual</td></tr>
+<tr><td>Terminar</td><td><strong>⏹ Parar aula</strong> (salva antes). Pra desligar tudo: <em>Fechar o painel e o servidor</em>, no rodapé</td></tr>
+<tr><td>Voltar a um mundo da turma</td><td><strong>Meus mundos</strong> — o que as turmas construíram, do mais recente pro mais antigo</td></tr>
+<tr><td>Montar uma aula sua</td><td><strong>Criar um mundo novo › Plano</strong>, construa, e depois <strong>📤 Publicar como aula</strong> em Meus mundos: ela vira um cartão e cada turma entra do jeito que você montou</td></tr>
+</tbody>
+</table>
+<p>A faixa no topo conta da versão: <strong>✅ atualizado</strong> (com as novidades), <strong>📴 sem
+internet</strong> (a aula funciona normalmente — só não deu pra procurar versão nova) ou <strong>⬇️ versão
+nova</strong>, com o botão <em>Atualizar agora</em>, que só funciona com a aula parada.</p>
+<div class="callout">
+<p><strong>O navegador deu problema?</strong> Abra o launcher com <code>--texto</code>
+(<code>iniciar-servidor.bat --texto</code>) e ele mostra o menu antigo, de números, que pergunta tudo
+na janela preta. Se o painel parar sozinho com defeito, o launcher já cai nesse menu.</p>
+</div>
 </section>
 
 <section id="entrar">
 <h2>🚪 Como o aluno entra</h2>
-<p>O aluno abre o navegador no endereço que apareceu no console do servidor (algo como
-<code>http://192.168.0.10:8080</code>), digita um <strong>apelido</strong> e um <strong>PIN de 4 dígitos</strong>
+<p>O aluno abre o navegador no endereço que aparece grande no <a href="#painel">painel do professor</a>
+(ou aponta a câmera do tablet pro QR code) — algo como
+<code>http://192.168.0.10:8080</code> —, digita um <strong>apelido</strong> e um <strong>PIN de 4 dígitos</strong>
 — os dois criados na hora, na primeira entrada dele. Não existe cadastro, conta ou senha de serviço nenhum;
 o PIN só serve pra um colega não conseguir entrar fingindo ser outro.</p>
 <p>O <strong>professor</strong> entra pelo mesmo lugar, mas preenche também o campo <strong>código de
-professor</strong> (perguntado pelo launcher ao ligar o servidor, ou impresso sozinho no console se ninguém
-definir um). Esse código libera o painel de autoria, os comandos de moderação e a criação de aulas.</p>
+professor</strong> (no painel do professor, em <em>mostrar</em>). Esse código libera o painel de autoria, os comandos de moderação e a criação de aulas.</p>
 <div class="warn">
 <p><strong>Guarde o código de professor.</strong> Sem ele você entra como um aluno qualquer e não consegue
-abrir o painel de autoria nem usar os comandos da seção seguinte. Ele aparece de novo toda vez que o
-servidor sobe, no console (a janela preta que abre atrás do jogo).</p>
+abrir o painel de autoria nem usar os comandos da seção seguinte. Ele fica no painel do professor
+(clique em <em>mostrar</em>) — escondido de propósito, porque o painel pode estar no projetor.</p>
 </div>
 </section>
 
@@ -488,8 +519,8 @@ o jogo usa durante a partida.</p>
 
 <details>
 <summary>Esqueci o código de professor. Como recupero?</summary>
-<p>Ele aparece de novo no console (a janela preta atrás do jogo) toda vez que o servidor liga. Se preferir
-um código fixo pra sempre lembrar, o launcher pergunta na hora de subir o servidor.</p>
+<p>Ele está no <a href="#painel">painel do professor</a>, com a aula no ar: clique em <em>mostrar</em>.
+Pra um código fixo, fácil de lembrar, clique em <em>trocar</em> ali do lado.</p>
 </details>
 
 <details>

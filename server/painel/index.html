@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Painel do professor — Lógica em Jogo</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎮</text></svg>">
+<link rel="stylesheet" href="painel.css">
+</head>
+<body>
+
+<a class="duvidas" href="/docs/manual.html" target="_blank" rel="noopener" data-acao="duvidas">
+  <span class="duvidas-icone">?</span>
+  <span><strong>Dúvidas?</strong> Clique aqui!</span>
+</a>
+
+<header class="topo">
+  <h1>🎮 Lógica em Jogo <span>· painel do professor</span></h1>
+</header>
+
+<!-- faixa da versão: atualizado / sem internet / versão nova -->
+<section id="faixa" class="faixa faixa-verificando" data-estado="verificando">
+  <span id="faixa-texto">🔎 Procurando atualização…</span>
+  <button id="faixa-novidades" class="link" data-acao="novidades" hidden>ver novidades</button>
+  <button id="faixa-atualizar" class="botao botao-claro" data-acao="atualizar" hidden>⬇️ Atualizar agora</button>
+  <ul id="novidades" class="novidades" hidden></ul>
+</section>
+
+<div id="erro" class="erro" role="alert" hidden></div>
+
+<!-- ================= AULA NO AR ================= -->
+<section id="no-ar" class="no-ar" hidden>
+  <div class="no-ar-cabeca">
+    <div>
+      <div class="selo" id="no-ar-selo">● NO AR</div>
+      <h2 id="no-ar-titulo">—</h2>
+      <p id="no-ar-tipo" class="suave"></p>
+    </div>
+    <div class="no-ar-botoes">
+      <button class="botao" data-acao="projetar">📽️ Mostrar pra turma</button>
+      <button class="botao" data-acao="trocar">🔄 Trocar de aula</button>
+      <button class="botao botao-perigo" data-acao="parar">⏹ Parar aula</button>
+    </div>
+  </div>
+
+  <div class="no-ar-corpo">
+    <div class="entrar">
+      <p class="rotulo">Os alunos abrem no navegador:</p>
+      <p id="endereco" class="endereco">—</p>
+      <div id="qr" class="qr" aria-label="QR code do endereço"></div>
+      <p class="suave pequeno">ou apontam a câmera do tablet pro QR code</p>
+      <p id="outros-enderecos" class="suave pequeno" hidden></p>
+    </div>
+
+    <div class="turma">
+      <div class="codigo">
+        <p class="rotulo">Código do professor <span class="suave">(pra entrar como professor)</span></p>
+        <div class="codigo-linha">
+          <span id="codigo" class="codigo-valor" data-oculto="1">••••</span>
+          <button class="link" data-acao="mostrar-codigo">mostrar</button>
+          <button class="link" data-acao="trocar-codigo">trocar</button>
+        </div>
+        <form id="form-codigo" class="linha" hidden>
+          <input id="codigo-novo" maxlength="32" placeholder="código novo" autocomplete="off">
+          <button class="botao" type="submit">Salvar</button>
+        </form>
+      </div>
+
+      <p class="rotulo" id="conectados-titulo">Ninguém conectado</p>
+      <ul id="conectados" class="conectados"></ul>
+      <p id="conectados-vazio" class="suave">Quando os alunos entrarem, os nomes aparecem aqui.</p>
+
+      <form id="form-falar" class="linha falar">
+        <input id="falar-texto" maxlength="200" placeholder="💬 Escrever um recado no chat de todos…" autocomplete="off">
+        <button class="botao" type="submit">Enviar</button>
+      </form>
+    </div>
+  </div>
+</section>
+
+<section id="subindo" class="subindo" hidden>
+  <div class="giro"></div>
+  <p><strong id="subindo-texto">Abrindo o mundo…</strong></p>
+  <p class="suave">Mundo grande pode levar alguns segundos.</p>
+</section>
+
+<!-- ================= ESCOLHER ================= -->
+<main id="escolher">
+  <h2 id="titulo-escolher">1. Escolha a aula</h2>
+  <div id="aulas" class="cartoes"></div>
+
+  <h2>Meus mundos</h2>
+  <p class="suave">O que as turmas construíram fica salvo aqui. Mundo de <strong>aula</strong> não aparece: ele volta ao original a cada turma.</p>
+  <ul id="mundos" class="mundos"></ul>
+
+  <h2>Criar um mundo novo</h2>
+  <form id="form-criar" class="criar">
+    <div class="tipos" role="radiogroup">
+      <label class="tipo">
+        <input type="radio" name="tipo" value="procedural" checked>
+        <span class="tipo-cara">🌎<strong>Gigante, com bichos</strong><small>Gera o terreno conforme a turma explora. Só o que for construído é salvo.</small></span>
+      </label>
+      <label class="tipo">
+        <input type="radio" name="tipo" value="plano">
+        <span class="tipo-cara">⬜<strong>Plano</strong><small>Terreno liso, sem morro nem árvore — a folha em branco pra montar uma aula.</small></span>
+      </label>
+      <label class="tipo">
+        <input type="radio" name="tipo" value="normal">
+        <span class="tipo-cara">⛰️<strong>Normal</strong><small>Morros, árvores e cavernas, num tamanho fixo.</small></span>
+      </label>
+    </div>
+    <div class="linha">
+      <label>Nome <input id="criar-nome" maxlength="60" placeholder="ex.: turma-6a" autocomplete="off" required></label>
+      <label id="criar-tamanho-rotulo">Tamanho
+        <select id="criar-tamanho">
+          <option value="P">pequeno (128×128)</option>
+          <option value="M">médio (192×192)</option>
+          <option value="G">grande (256×256) — PC melhor</option>
+        </select>
+      </label>
+      <button class="botao botao-forte" type="submit" data-acao="criar">➕ Criar e abrir</button>
+    </div>
+  </form>
+</main>
+
+<details class="registro">
+  <summary>Registro do servidor (pra quem for consertar algo)</summary>
+  <pre id="registro"></pre>
+</details>
+
+<footer class="rodape">
+  <button class="link" data-acao="encerrar">Fechar o painel e o servidor</button>
+  <span class="suave" id="rodape-versao"></span>
+</footer>
+
+<!-- tela cheia pro projetor: SÓ endereço e QR (o código do professor nunca aparece aqui) -->
+<div id="projetar" class="projetar" hidden>
+  <p class="projetar-titulo">Entre no jogo:</p>
+  <p id="projetar-endereco" class="projetar-endereco"></p>
+  <div id="projetar-qr" class="projetar-qr"></div>
+  <button class="botao" data-acao="fechar-projetar">Fechar</button>
+</div>
+
+<!-- confirmação (nada de confirm() do navegador) -->
+<div id="modal" class="modal" hidden>
+  <div class="modal-caixa" role="dialog" aria-modal="true">
+    <p id="modal-texto"></p>
+    <div id="modal-extra"></div>
+    <div class="modal-botoes">
+      <button class="botao" id="modal-nao" data-acao="modal-nao">Cancelar</button>
+      <button class="botao botao-forte" id="modal-sim" data-acao="modal-sim">OK</button>
+    </div>
+  </div>
+</div>
+
+<div id="fora" class="fora" hidden>
+  <div class="fora-caixa">
+    <p id="fora-titulo"><strong>O painel não está respondendo</strong></p>
+    <p id="fora-texto" class="suave">A janela preta do servidor foi fechada? Para abrir de novo, dê duplo clique em <code>iniciar-servidor</code> na pasta do jogo. Esta página volta sozinha quando ele voltar.</p>
+  </div>
+</div>
+
+<script type="module" src="painel.js"></script>
+</body>
+</html>

@@ -443,6 +443,16 @@ const SMOKES = [
     servidores: [],
     porta: 8106,
   },
+  {
+    nome: "painel",
+    arquivo: `${DIR}/_smoke-painel.mjs`,
+    prova:
+      "§🖥️ painel do professor — só este PC (o IP da rede não conecta no painel e conecta no jogo; Host de fora e ação sem o cabeçalho da página = 403); as regras do menu de texto (nome aula…/_… e plano gigante recusados, publicar força o prefixo e não sobrescreve calado); abrir → aluno aparece na lista → recado chega → atualizar recusado com aula no ar → parar grava e solta a porta → Ctrl+C no painel grava e não deixa o jogo órfão.",
+    lento: false,
+    // o smoke sobe o PRÓPRIO painel (que sobe o jogo na porta+1)
+    servidores: [],
+    porta: 8114,
+  },
 ];
 
 const espera = (ms) => new Promise((r) => setTimeout(r, ms));

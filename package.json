@@ -43,7 +43,9 @@
     "shots:perfil": "node scripts/perfil-shot.mjs",
     "shots:bichos": "node scripts/bichos-shot.mjs",
     "shots:vitrine": "node scripts/bichos-vitrine-shot.mjs",
-    "shots:som": "node scripts/som-shot.mjs"
+    "shots:som": "node scripts/som-shot.mjs",
+    "shots:painel": "node scripts/painel-shot.mjs",
+    "miniaturas": "node scripts/miniaturas-aulas.mjs"
   },
   "devDependencies": {
     "typescript": "^7.0.2",

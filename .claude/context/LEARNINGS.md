@@ -44,6 +44,9 @@ tier: 3
 
 ## Erros a não repetir
 
+- [2026-11-03] [smoke] [✗] Testar cabeçalho `Host` com `fetch` — o undici IGNORA o Host (cabeçalho proibido) e o "403 pra Host de fora" reprovou com o painel certo. Pedido cru com `http.request`, e o controle (mesmo pedido com Host localhost = 200) junto.
+- [2026-11-03] [painel] [✓] Supervisor que sobe o host como FILHO não embrulha nada se usar `fork` + `--import tsx` (é o próprio node, bug-666) e um canal IPC: no Windows não existe sinal entre processos, então "pare e grave" vai pelo IPC; e o host que perde o pai (`disconnect`) grava e sai — senão segura a porta e a reserva (menu de texto) nem sobe.
+
 - [2026-11-02] [sonda] [✗] `/tp nome x y z` com FRAÇÃO é recusado ("Não entendi as coordenadas") e a sonda segue: as 4 fotos "de perto" da vitrine saíram TODAS do mesmo ponto e eu achei que só a geral estava errada. Câmera mudada se CONFERE (o `__mirar` devolve de onde mirou) antes da foto.
 
 - [2026-11-02] [bichos] [✓] Mob sem física: movimento CINEMÁTICO sobre células que o A* já provou (gravidade só sem chão), A* com teto de nós e de buscas por tick (fila), LOD por distância do jogador mais perto e congelado em coluna não gerada. 300 bichos + 25 alunos = 2,7 ms/tick. E o preset NÃO vai pro save: o save guarda `bichos.natural`, e save ANTIGO (sem o campo) nasce SEM spawn natural — decisão dele na fusão: mundo que já existe não muda de cara; `/bichos ligar` liga na mão.

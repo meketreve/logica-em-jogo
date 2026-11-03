@@ -820,7 +820,39 @@ function enderecoDaRede(): string {
   return "localhost";
 }
 
+/**
+ * §🖥️ Painel do professor (2026-11-03). Quando quem me subiu foi o PAINEL
+ * (`painel.ts`, com `fork`), existe um canal IPC: por ele eu conto 1×/s quem
+ * está conectado e em que mundo, e recebo o "pare e grave" — que no Windows
+ * não tem como chegar por sinal. Subido pelo terminal (menu de texto, smoke),
+ * `process.send` não existe e nada disto roda.
+ */
+function relatarAoPainel(tipo: "estado" | "no-ar"): void {
+  process.send?.({
+    tipo,
+    mundo: mundoAtual,
+    aula: somenteLeitura,
+    codigo,
+    jogadores: session.jogadoresConectados().map((j) => ({ nome: j.name, papel: j.papel })),
+  });
+}
+if (process.send) {
+  setInterval(() => relatarAoPainel("estado"), 1000);
+  process.on("message", (m: unknown) => {
+    if ((m as { tipo?: unknown } | null)?.tipo !== "parar") return;
+    saveNow("parado pelo painel");
+    process.exit(0);
+  });
+  // o painel morreu sem me avisar: sem ele ninguém mais me para, e eu ficaria
+  // segurando a porta 8080 — o menu de texto (a reserva) nem subiria
+  process.on("disconnect", () => {
+    saveNow("o painel fechou");
+    process.exit(0);
+  });
+}
+
 http.listen(PORT, () => {
+  relatarAoPainel("no-ar");
   const onde = restore ? `mundo de ${CARREGAR_DE}` : `mundo novo, seed ${WORLD_SEED}`;
   console.log(`[server] Lógica em Jogo — build ${ROTULO_BUILD}`);
   console.log(`[server] no ar — ${onde}, tick alvo ${SERVER_TICK_RATE} tps`);

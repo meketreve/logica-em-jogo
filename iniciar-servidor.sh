@@ -12,6 +12,45 @@ echo "============================================"
 echo
 
 # ============================================================
+#  PAINEL NO NAVEGADOR × menu de texto (2026-11-03)
+#
+#  O padrão agora é o PAINEL: este script confere o Node, atualiza SOZINHO
+#  (sem perguntar — cada pergunta abaixo cai no "Enter", que é sempre a
+#  resposta segura) e sobe `server/src/painel.ts`, que abre o navegador numa
+#  página só do professor (localhost). Lá ele escolhe a aula, vê o endereço +
+#  QR code e quem entrou, e PARA sem Ctrl+C.
+#
+#  O menu de TEXTO de antes continua aqui, inteiro, como RESERVA (decisão
+#  dele, por 1-2 meses): `./iniciar-servidor.sh --texto` ou LJ_MENU_TEXTO=1.
+#  E se o painel morrer com defeito, o script cai nele sozinho.
+# ============================================================
+LJ_MODO="painel"
+case "$1" in --texto|texto) LJ_MODO="texto" ;; esac
+[ -n "$LJ_MENU_TEXTO" ] && LJ_MODO="texto"
+LJ_AUTO=""
+[ "$LJ_MODO" = "painel" ] && LJ_AUTO=1
+
+# `perguntar VAR "texto" [resposta-automática]`: no menu de texto é o `read`
+# de sempre; no modo painel ninguém está olhando o terminal, então responde
+# sozinho — o Enter, que é a resposta segura, ou a 3ª palavra quando o Enter
+# MEXERIA em algo da pessoa (guardar mudança local no stash: sem ninguém pra
+# ler o aviso, a mudança some da pasta sem explicação).
+perguntar() {
+  if [ -n "$LJ_AUTO" ]; then
+    echo "$2${3:-}(automático)"
+    printf -v "$1" '%s' "${3:-}"
+  else
+    read -r -p "$2" "$1"
+  fi
+}
+
+command -v node >/dev/null 2>&1 || {
+  echo "ERRO: o Node.js não está instalado nesta máquina."
+  echo "Instale (https://nodejs.org) e rode este arquivo de novo."
+  exit 1
+}
+
+# ============================================================
 #  Atualização — só a máquina do PROFESSOR atualiza: o aluno abre o navegador e
 #  recebe o cliente DESTE servidor. `client/dist` é versionado, então não há
 #  nada pra compilar aqui.
@@ -107,6 +146,9 @@ rotulo_build() {
 # que nada mudou.
 anunciar_versao() {
   local antes="$1" depois="$2" commit="$3"
+  # o painel lê isto pra faixa "✅ atualizado agora" (todo update que deu
+  # certo, pelos dois caminhos, passa por aqui)
+  export LJ_ATUALIZOU=1
   if [ -n "$antes" ] && [ -n "$depois" ] && [ "$antes" != "$depois" ]; then
     echo "Atualizado! Novidade agora: $depois (commit ${commit:0:7})."
   elif [ -n "$depois" ]; then
@@ -124,7 +166,8 @@ atualizar_pacote() {
   # O cabeçalho "Accept: ...github.sha" faz a API responder o commit em texto
   # puro, só os 40 caracteres — assim não é preciso ler JSON no shell.
   local nova atual
-  nova="$(curl -sL --max-time 15 -H 'Accept: application/vnd.github.sha' \
+  # teto CURTO: sem internet o painel tem de abrir em segundos, não em 15 s
+  nova="$(curl -sL --connect-timeout 5 --max-time 10 -H 'Accept: application/vnd.github.sha' \
     "https://api.github.com/repos/$LJ_DONO/$LJ_NOME/commits/$LJ_RAMO" 2>/dev/null | tr -d ' \r\n')"
   # Resposta boa = exatamente 40 caracteres hexadecimais. Erro da API volta como
   # JSON, que nunca passa nas duas conferências.
@@ -150,7 +193,7 @@ atualizar_pacote() {
     echo "Existe atualização: ${atual:0:7} -> ${nova:0:7}"
   fi
   echo
-  read -r -p "Atualizar agora? [S/n] (Enter = sim): " UPD
+  perguntar UPD "Atualizar agora? [S/n] (Enter = sim): "
   case "$UPD" in
     [nN]*) echo "(mantendo a versão atual)"; return ;;
   esac
@@ -187,7 +230,7 @@ atualizar_pacote() {
     echo "ATENÇÃO: esta atualização TRAZ arquivos para a pasta dos mundos salvos (mundos/):"
     listar_ate_10 "$(ls -1 "$src/mundos")"
     echo "  Os mundos que a sua turma construiu podem ser SOBRESCRITOS."
-    read -r -p "  Sobrescrever os mundos salvos? [s/N] (Enter = não): " SOBR
+    perguntar SOBR "  Sobrescrever os mundos salvos? [s/N] (Enter = não): "
     case "$SOBR" in
       [sS]*) echo "  (ok — a atualização vai sobrescrever mundos/)" ;;
       *) rm -rf "$src/mundos"; echo "  (ok — os mundos salvos ficam como estão)" ;;
@@ -305,7 +348,11 @@ atualizar() {
     return
   }
   echo "Procurando atualização..."
-  git fetch --quiet origin || { echo "(sem conexão com o servidor do código — seguindo com a versão instalada)"; return; }
+  # `timeout`: sem rede o git pode ficar pendurado por minutos (não existe no
+  # macOS — lá vai sem teto, como sempre foi)
+  local teto=""
+  command -v timeout >/dev/null 2>&1 && teto="timeout 20"
+  $teto git fetch --quiet origin || { echo "(sem conexão com o servidor do código — seguindo com a versão instalada)"; return; }
   local atras
   atras="$(git rev-list --count HEAD..origin/main 2>/dev/null || echo 0)"
   [ "$atras" != "0" ] || { echo "Já está na versão mais nova."; return; }
@@ -326,7 +373,7 @@ atualizar() {
     echo "ATENÇÃO: esta atualização MEXE na pasta dos mundos salvos (mundos/):"
     listar_ate_10 "$mundos_tocados"
     echo "  Os mundos que a sua turma construiu podem ser SOBRESCRITOS."
-    read -r -p "  Sobrescrever os mundos salvos? [s/N] (Enter = não): " SOBR
+    perguntar SOBR "  Sobrescrever os mundos salvos? [s/N] (Enter = não): "
     case "$SOBR" in
       [sS]*) echo "  (ok — a atualização vai sobrescrever mundos/)" ;;
       *) echo "  (mantendo os mundos salvos — atualização cancelada)"; return ;;
@@ -336,7 +383,7 @@ atualizar() {
   fi
 
   echo
-  read -r -p "Atualizar agora? [S/n] (Enter = sim): " UPD
+  perguntar UPD "Atualizar agora? [S/n] (Enter = sim): "
   case "$UPD" in
     [nN]*) echo "(mantendo a versão atual)"; return ;;
   esac
@@ -372,7 +419,7 @@ atualizar() {
   echo "que a atualização também mexe:"
   listar_ate_10 "$sujo"
   echo
-  read -r -p "  Guardar essas mudanças e atualizar mesmo assim? [S/n] (Enter = sim): " GUARDAR
+  perguntar GUARDAR "  Guardar essas mudanças e atualizar mesmo assim? [S/n] (Enter = sim): " n
   case "$GUARDAR" in
     [nN]*) echo "  (mantendo a versão atual — nada foi mexido)"; return ;;
   esac
@@ -566,6 +613,35 @@ publicar_aula() {
   export LJ_SAVE="$destino"
   PULAR_TAMANHO=1
 }
+
+# --- O PAINEL no navegador (o padrão desde 2026-11-03) ----------------------
+# Códigos de saída do painel: 0 = o professor fechou (ou Ctrl+C — o servidor
+# do jogo, filho dele, grava sozinho) · 42 = "atualizar agora" na página: este
+# script atualiza e sobe o painel de novo (a aba aberta se reconecta sozinha)
+# · outro = defeito: cai no menu de texto abaixo, que é a reserva.
+if [ "$LJ_MODO" = "painel" ]; then
+  while true; do
+    node --import tsx server/src/painel.ts
+    LJ_SAIDA=$?
+    if [ "$LJ_SAIDA" = "0" ]; then
+      exit 0
+    elif [ "$LJ_SAIDA" = "42" ]; then
+      echo
+      echo "Atualizando a pedido do painel..."
+      export LJ_REABERTO=1
+      unset LJ_ATUALIZOU
+      atualizar
+      echo
+    else
+      echo
+      echo "O painel no navegador parou com erro (código $LJ_SAIDA)."
+      echo "Abrindo o menu de texto antigo no lugar dele..."
+      echo
+      LJ_AUTO=""
+      break
+    fi
+  done
+fi
 
 # --- Qual mundo abrir ---
 echo "Escolha o mundo:"

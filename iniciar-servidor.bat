@@ -14,6 +14,29 @@ echo ============================================
 echo.
 
 REM ============================================================
+REM  PAINEL NO NAVEGADOR x menu de texto (2026-11-03)
+REM
+REM  O padrao agora e o PAINEL: este arquivo prepara o Node, atualiza SOZINHO
+REM  (sem perguntar - cada pergunta cai no Enter, que e sempre a resposta
+REM  segura) e sobe server/src/painel.ts, que abre o navegador numa pagina so
+REM  do professor (localhost). La ele escolhe a aula, ve o endereco + QR code
+REM  e quem entrou, e PARA sem Ctrl+C.
+REM
+REM  O menu de TEXTO de antes continua aqui, inteiro, como RESERVA (decisao
+REM  dele, por 1-2 meses): "iniciar-servidor.bat --texto" ou set LJ_MENU_TEXTO=1.
+REM  Se o painel morrer com defeito, o arquivo cai nele sozinho.
+REM ============================================================
+set "LJ_MODO=painel"
+if /i "%~1"=="--texto" set "LJ_MODO=texto"
+if /i "%~1"=="texto" set "LJ_MODO=texto"
+if defined LJ_MENU_TEXTO set "LJ_MODO=texto"
+set "LJ_AUTO="
+if "%LJ_MODO%"=="painel" set "LJ_AUTO=1"
+
+REM O "atualizar agora" do painel volta para ESTE ponto (ver :painel).
+:inicio_update
+
+REM ============================================================
 REM  Atualizacao (SEM git) - so a maquina do PROFESSOR atualiza:
 REM  o aluno abre o navegador e recebe o cliente deste servidor.
 REM  client\dist e VERSIONADO, entao vem pronto no ZIP e nao se compila nada.
@@ -110,7 +133,7 @@ echo Procurando atualizacao...
 REM O cabecalho "Accept: ...github.sha" faz a API responder o commit em texto
 REM puro, so os 40 caracteres - batch nao tem como ler JSON.
 del "%TEMP%\lj-versao-remota.txt" >nul 2>nul
-curl -sL --max-time 15 -H "Accept: application/vnd.github.sha" -o "%TEMP%\lj-versao-remota.txt" "https://api.github.com/repos/%LJ_DONO%/%LJ_NOME%/commits/%LJ_RAMO%"
+curl -sL --connect-timeout 5 --max-time 10 -H "Accept: application/vnd.github.sha" -o "%TEMP%\lj-versao-remota.txt" "https://api.github.com/repos/%LJ_DONO%/%LJ_NOME%/commits/%LJ_RAMO%"
 if errorlevel 1 (
   echo ^(sem conexao com o GitHub - seguindo com a versao instalada^)
   del "%TEMP%\lj-versao-remota.txt" >nul 2>nul
@@ -158,7 +181,10 @@ if not defined LJ_ATUAL (
 )
 echo.
 set "UPD="
+REM No modo painel ninguem esta olhando esta janela: vale o Enter (= sim).
+if defined LJ_AUTO goto :upd_respondido
 set /p "UPD=Atualizar agora? [S/n] (Enter = sim, 'sair' para fechar): "
+:upd_respondido
 if /i "%UPD%"=="sair" exit /b 0
 if /i "%UPD%"=="n" (
   echo ^(mantendo a versao atual^)
@@ -197,7 +223,10 @@ echo ATENCAO: esta atualizacao TRAZ arquivos para a pasta dos mundos salvos ^(mu
 dir /b "%LJ_SRC%\mundos"
 echo   Os mundos que a sua turma construiu podem ser SOBRESCRITOS.
 set "SOBR="
+REM No modo painel vale o Enter (= NAO sobrescrever): os mundos ficam.
+if defined LJ_AUTO goto :sobr_respondido
 set /p "SOBR=  Sobrescrever os mundos salvos? [s/N] (Enter = nao): "
+:sobr_respondido
 if /i "%SOBR%"=="s" goto :mundos_decidido
 if /i "%SOBR%"=="sim" goto :mundos_decidido
 set "LJ_XD=/XD mundos"
@@ -225,6 +254,8 @@ if errorlevel 8 (
   goto :limpar_update
 )
 > ".lj-versao" echo %LJ_NOVA%
+REM o painel le isto pra faixa "atualizado agora"
+set "LJ_ATUALIZOU=1"
 REM Duas frases porque os dois casos sao diferentes na cabeca do professor:
 REM chegou novidade NOVA (titulo mudou) e uma frase; ganhou so correcao por
 REM baixo do capo da MESMA novidade (titulo igual) e outra - senao
@@ -383,7 +414,10 @@ for %%f in ("mundos\*.ljw") do (
   )
 )
 
+if "%LJ_MODO%"=="painel" goto :painel
+
 REM --- Qual mundo abrir ---
+:menu_texto
 echo Escolha o mundo:
 echo    [1] Mundo livre ^(construcao livre^)   ^<-- padrao
 echo    [2] Aula 1 - Continue a regra
@@ -473,6 +507,30 @@ echo.
 echo O servidor parou.
 pause
 exit /b 0
+
+REM --- O PAINEL no navegador (o padrao desde 2026-11-03) ---
+REM Codigos de saida do painel: 0 = o professor fechou (ou Ctrl+C - o servidor
+REM do jogo, filho dele, grava sozinho) / 42 = "atualizar agora" na pagina:
+REM volta pro :inicio_update e sobe o painel de novo (a aba aberta se reconecta
+REM sozinha) / outro = defeito: cai no menu de texto, que e a reserva.
+REM Chama `node` DIRETO (nada de npm): o PowerShell da escola bloqueia o npm.ps1.
+:painel
+node --import tsx server/src/painel.ts
+set "LJ_SAIDA=%errorlevel%"
+if "%LJ_SAIDA%"=="0" exit /b 0
+if not "%LJ_SAIDA%"=="42" goto :painel_falhou
+echo.
+echo Atualizando a pedido do painel...
+set "LJ_REABERTO=1"
+set "LJ_ATUALIZOU="
+goto :inicio_update
+:painel_falhou
+echo.
+echo O painel no navegador parou com erro - codigo %LJ_SAIDA%.
+echo Abrindo o menu de texto antigo no lugar dele...
+set "LJ_MODO=texto"
+set "LJ_AUTO="
+goto :menu_texto
 
 REM --- Sub-rotina: listar e escolher um mundo salvo em mundos/ ---
 :carregar_salvo

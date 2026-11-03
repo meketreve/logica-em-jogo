@@ -68,9 +68,32 @@ Duplo clique no launcher, na pasta do projeto:
 - **Windows:** `iniciar-servidor.bat`
 - **Linux / macOS / WSL:** `./iniciar-servidor.sh` (na primeira vez: `chmod +x iniciar-servidor.sh`)
 
-O launcher pergunta o que precisa (qual mundo, código de professor, tamanho) e sobe o
-servidor. Na primeira execução ele instala as dependências — isso demora alguns minutos.
-Para parar: feche a janela ou `Ctrl+C`.
+O launcher confere o Node, **atualiza sozinho** (sem internet ele desiste em segundos) e
+**abre o painel do professor no navegador** (`http://localhost:8070`). Na primeira execução
+ele instala as dependências — isso demora alguns minutos. Deixe a janela preta aberta: ela é
+o servidor.
+
+**O painel do professor** é uma página só deste PC (o aluno na rede nem consegue abri-la):
+
+- **cartões das aulas** (1 a 8, com uma foto de cada), o **mundo livre** e os **seus mundos**
+  salvos — um clique abre;
+- com a aula no ar: o **endereço grande + QR code** pros alunos entrarem pela câmera do
+  tablet, **quem está conectado**, o **código do professor** (escondido até você clicar em
+  "mostrar" — o painel pode ir pro projetor), um campo pra **mandar recado** no chat de todos e
+  o botão **📽️ Mostrar pra turma** (tela cheia só com endereço e QR);
+- **trocar de aula** e **parar** sem `Ctrl+C` (o mundo é salvo antes);
+- **criar mundo** (gigante com bichos, plano pra montar aula, ou normal) e **publicar como
+  aula** um mundo seu;
+- uma faixa no topo diz se o jogo **acabou de atualizar**, se está **sem internet** ou se tem
+  **versão nova** — o botão "atualizar agora" só funciona com a aula parada;
+- **"Dúvidas? Clique aqui!"** no canto abre o manual (`docs/manual.html`), sem internet.
+
+Fechar o painel: o link "Fechar o painel e o servidor" no rodapé, ou `Ctrl+C` na janela preta
+(o mundo é salvo nos dois).
+
+> **Menu de texto antigo (reserva):** `iniciar-servidor.bat --texto` /
+> `./iniciar-servidor.sh --texto` (ou `LJ_MENU_TEXTO=1`) abre o menu numerado de antes, que
+> pergunta tudo no terminal. Se o painel parar com defeito, o launcher cai nele sozinho.
 
 > **Windows:** `iniciar-servidor.bat` **não depende de Node já instalado**. Ele baixa um
 > Node.js portátil (`nodejs.org`) e extrai em `.node-portatil\` dentro da própria pasta do
@@ -83,7 +106,7 @@ Para parar: feche a janela ou `Ctrl+C`.
 
 ### Como o aluno entra
 
-O endereço aparece no console quando o servidor sobe, mais ou menos assim:
+O endereço aparece grande no painel do professor (com o QR code) e no console, mais ou menos assim:
 
 ```
 http://192.168.0.10:8080
@@ -93,8 +116,8 @@ O aluno abre esse endereço no navegador, digita **apelido + PIN de 4 dígitos**
 hora, na primeira entrada) e já está no mundo, dentro de um grupo. Não há cadastro, conta ou
 senha de serviço nenhum.
 
-O **professor** entra com o **código de professor** (o launcher pergunta; se você não
-definir, o servidor gera um e imprime no console em todo boot). O código libera o painel de
+O **professor** entra com o **código de professor** (aparece no painel, em "mostrar"; dá pra
+trocar ali mesmo — se ninguém definir, o servidor gera um). O código libera o painel de
 autoria, os comandos de chat, os grupos e a moderação da turma.
 
 Em tablet/celular, o menu de opções tem **5 disposições de controle de toque** — Destro
@@ -103,7 +126,8 @@ joystick) — e a escala dos botões se ajusta sozinha ao tamanho da tela.
 
 ### Atualizar
 
-O launcher **procura atualização antes de subir** e pergunta se quer aplicar (Enter = sim).
+O launcher **procura atualização antes de subir** e aplica sozinho (no menu de texto, `--texto`,
+ele pergunta; Enter = sim).
 **Isso funciona mesmo sem git** — que é o caso da escola, onde a pasta veio de um ZIP baixado
 do GitHub. Ele escolhe o caminho **pela própria pasta**:
 
@@ -116,8 +140,8 @@ do GitHub. Ele escolhe o caminho **pela própria pasta**:
   launcher avisa e baixa uma vez para acertar o marco;
 - copia **por cima, sem apagar** o que é só seu (`mundos/`, `node_modules/`, `.env`, um `.ljw`
   exportado solto na pasta);
-- se o pacote trouxer arquivos para `mundos/`, ele **pergunta antes**, e o padrão é **não
-  sobrescrever** os mundos da turma;
+- se o pacote trouxer arquivos para `mundos/`, ele **pergunta antes** (no modo painel ninguém
+  responde e vale o padrão), e o padrão é **não sobrescrever** os mundos da turma;
 - ao terminar, diz o que mudou — não mais em número de versão (o projeto não usa semver desde
   2026-08-27): *"Atualizado! Novidade agora: Seu personagem ganha corpo (06/09/2026) (commit
   0e13700)."* — ou *"Atualizado — continua em Seu personagem ganha corpo (06/09/2026), com as
@@ -134,7 +158,8 @@ do GitHub. Ele escolhe o caminho **pela própria pasta**:
 
 - só atualiza no branch `main`, e só por *fast-forward* (nunca cria merge na máquina da escola);
 - se houver mudança local nos arquivos que a atualização mexe, ele **pergunta** e guarda no
-  `git stash` (nada é apagado; volta com `git stash pop`);
+  `git stash` (nada é apagado; volta com `git stash pop`). No modo painel ele **não** guarda
+  sozinho: a atualização fica pra depois e a mudança local continua onde está;
 - copiar por cima aqui seria pisar no trabalho de quem desenvolve — por isso o caminho é outro.
 
 **Nos dois casos:**

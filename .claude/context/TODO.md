@@ -27,6 +27,12 @@ active: true
 
 ## Testar na escola (o usuário faz)
 
+- [ ] **§🖥️ Painel do professor (03/11) — NO WINDOWS DO LAB primeiro:** duplo clique no `.bat`
+      abre o navegador sozinho? (o `start ""` do cmd) A faixa diz "atualizado/sem internet"? O
+      QR é lido pela câmera dos tablets? Fechar a JANELA PRETA com aula no ar salva o mundo (o
+      Windows manda o fechamento pros dois processos)? O professor acha o "Dúvidas?"? O código
+      escondido incomoda? Se algo falhar: `iniciar-servidor.bat --texto` é o menu antigo.
+
 - [ ] **§🐄 Bichos (02/11):** abrir um mundo procedural —
       os bichos aparecem perto? Tesoura na ovelha, balde na vaca, ovo, domar o cão. O F3 mostra a
       linha "bichos:" e "servidor por sistema" — mandar o `/perfil` da turma com bichos à vista

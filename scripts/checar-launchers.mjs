@@ -230,5 +230,39 @@ console.log("portão dos launchers (bug-621):");
   }
 }
 
+// --- 8. o PAINEL no navegador é o padrão, e o menu de texto é a reserva ----
+// (2026-11-03, decisão dele). Quatro coisas que se perdem caladas, e só a
+// escola veria: (a) o painel sobe com node DIRETO (bug-666; e no Windows o
+// PowerShell bloqueia o npm); (b) o 42 do "atualizar agora" volta pra
+// ATUALIZAÇÃO — sem isso o botão fecha o painel e nada acontece; (c) painel
+// com defeito cai no menu de texto, não numa janela fechada; (d) `--texto`
+// continua chegando no menu antigo.
+{
+  const semComentario = (txt, marca) =>
+    txt.split("\n").map((l) => l.trim()).filter((l) => l && !l.startsWith(marca)).join("\n");
+  const bat = semComentario(ler("iniciar-servidor.bat").toString("utf8"), "REM");
+  const sh = semComentario(ler("iniciar-servidor.sh").toString("utf8"), "#");
+  const exige = {
+    bat: [
+      [/(^|\n)node --import tsx server[/\\]src[/\\]painel\.ts/, "sobe o painel com node direto"],
+      [/if not "%LJ_SAIDA%"=="42" goto :painel_falhou\n[\s\S]{0,200}goto :inicio_update/, "o código 42 volta pra atualização"],
+      [/:painel_falhou[\s\S]{0,300}goto :menu_texto/, "painel com defeito cai no menu de texto"],
+      [/if \/i "%~1"=="--texto" set "LJ_MODO=texto"/, "--texto abre o menu antigo"],
+      [/if defined LJ_AUTO goto :upd_respondido/, "no modo painel a atualização não espera o teclado"],
+    ],
+    sh: [
+      [/(^|\n)node --import tsx server\/src\/painel\.ts/, "sobe o painel com node direto"],
+      [/"\$LJ_SAIDA" = "42" \]; then[\s\S]{0,200}\natualizar\n/, "o código 42 volta pra atualização"],
+      [/Abrindo o menu de texto antigo[\s\S]{0,100}\nbreak/, "painel com defeito cai no menu de texto"],
+      [/--texto\|texto\) LJ_MODO="texto"/, "--texto abre o menu antigo"],
+      // sem ninguém olhando, o stash tiraria a mudança da pasta sem explicação
+      [/perguntar GUARDAR "[^"]*" n(\n|$)/, "no modo painel NÃO guarda mudança local no stash"],
+    ],
+  };
+  for (const [nome, txt] of [["bat", bat], ["sh", sh]]) {
+    for (const [re, texto] of exige[nome]) ok(re.test(txt), `iniciar-servidor.${nome}: ${texto}`);
+  }
+}
+
 console.log(falhas === 0 ? "  launchers OK" : `  ✗ ${falhas} falha(s) no portão dos launchers`);
 process.exit(falhas === 0 ? 0 : 1);

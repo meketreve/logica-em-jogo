@@ -1487,6 +1487,13 @@ não tem filesystem; export de "pasta" no single fica de fora (não faz sentido 
 
 ## §🖥️ Launcher GRÁFICO: o painel no navegador (pedido dele, 2026-11-03) — ESCOPO FECHADO
 
+* \[x] **Feito em 2026-11-03, esperando o lab** — tudo da lista abaixo, menos o teste do `.bat`
+  no Windows. Decisões minhas pra ele revisar: porta do painel **8070**; o **código do professor
+  nasce escondido** (o painel vai pro projetor); **trocar de aula reinicia o host** (os alunos
+  reconectam) em vez do `/mundo carregar` do jogo; no modo painel o `.sh` **não** guarda mudança
+  local no stash sozinho; as miniaturas das aulas 1–6 saem parecidas (é o mesmo mundo de
+  cabines) — o número no canto da foto é o que distingue.
+
 Pedido: "queria fazer um launcher melhor, que fosse mais gráfico e menos texto". Comparados
 três caminhos (painel no navegador × .exe Electron/Tauri × menu de texto caprichado); **ele
 escolheu o painel no navegador.** O .exe caiu por peso (+150 MB ou Rust) e por SmartScreen

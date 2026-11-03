@@ -43,6 +43,20 @@ interface Mudanca {
 const MUDANCAS: readonly Mudanca[] = [
   {
     // sem `data`: este é o build atual (ver rotuloDoBloco)
+    titulo: "O painel do professor no navegador",
+    itens: [
+      "o launcher agora **abre sozinho uma página no navegador** pro professor: nada mais de menu de números na janela preta. Ele se **atualiza sozinho** antes (sem internet, desiste em segundos)",
+      "**cartões das aulas**, de 1 a 8, cada um com uma **foto** de como a aula começa, mais o **mundo livre** e os **mundos salvos** das turmas — um clique abre",
+      "com a aula no ar, o **endereço aparece grande** junto de um **QR code**: o aluno aponta a câmera do tablet e entra. **📽️ Mostrar pra turma** põe os dois em tela cheia pro projetor",
+      "a lista de **quem está conectado**, um campo de **recado** que vai pro chat de todos, e o **código do professor** escondido até clicar em **mostrar** (dá pra trocar ali mesmo)",
+      "**trocar de aula** e **parar** pelo botão, sem Ctrl+C — o mundo é salvo antes. **Criar mundo** (gigante com bichos, plano ou normal) e **publicar como aula** também estão lá",
+      "a faixa do topo conta se o jogo **acabou de atualizar** (com as novidades), se está **sem internet** ou se tem **versão nova** — o botão de atualizar só vale com a aula parada",
+      "**Dúvidas? Clique aqui!** no canto abre o manual, que funciona sem internet",
+      "a página só abre **no computador do professor**: o aluno na mesma rede não consegue entrar nela. O menu antigo de números continua de reserva (**iniciar-servidor --texto**)",
+    ],
+  },
+  {
+    data: "02/11/2026",
     titulo: "A grande atualização: bichos e sons",
     itens: [
       "o mundo agora tem **bichos**: vaca, galinha, ovelha, cão, gato, tatu, peixe e arara — cada um com as suas raças e cores (vaca nelore, galinha carijó, vira-lata caramelo, gato frajola, tucano, tambaqui…), e cada bioma tem os seus",

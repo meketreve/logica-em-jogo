@@ -26,6 +26,15 @@ que já existia NÃO ganha bicho sozinho** (só mundo novo procedural; decisão 
 em `docs/img/` (README) e seções novas no `docs/manual.html`. Launcher: só o texto da `[9]`.
 Spec: `todo.md` §🐄 e §🔊. **Não testado em aula.**
 
+**03/11 — §🖥️ O LAUNCHER VIROU PAINEL NO NAVEGADOR** (pedido dele: "mais gráfico e menos texto"):
+o `.bat`/`.sh` confere o Node, atualiza SOZINHO (perguntas caem no Enter; no `.sh` o stash é
+recusado) e sobe `server/src/painel.ts` (localhost:8070), que abre o navegador e sobe o jogo como
+FILHO (`fork` + IPC: jogadores 1×/s, "pare e grave"). Cartões das 8 aulas com foto
+(`npm run miniaturas`), IP + QR, conectados, código escondido, recado, projetor, trocar/parar,
+criar/publicar, faixa de versão, "Dúvidas? Clique aqui!" → `docs/manual.html#painel`. Menu de
+texto = reserva (`--texto`, ou cai sozinho se o painel morrer). Smoke `painel` + sonda
+`shots:painel` (controle negativo nos dois). **`.bat` não testado no Windows do lab.**
+
 ## Próxima fase
 
 **A próxima aula fecha o bug-675:** no `-eventos.log`, contar `voltou sozinho` × `voltou pelo

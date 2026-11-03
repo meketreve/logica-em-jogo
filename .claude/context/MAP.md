@@ -53,7 +53,7 @@ O que o script **não** acha é o que manda aqui:
 
 **Sondas** (`scripts/*-shot.mjs`, `shots:tablet` é a RÉGUA de 1024×600): host + Chrome reais, e
 asseveram no DOM (`npm run build` antes). **UI só é "feita" quando uma sonda a ENXERGA.** Bateria
-de **22**, uma por vez (em paralelo a asserção de tempo mente): 13 sobem host próprio, 7 pedem
+de **23**, uma por vez (em paralelo a asserção de tempo mente): 13 sobem host próprio, 7 pedem
 `BASE=`, `corrida` quer a aula 7. ⚠️ **`shots:fundo` GERA** ~5 MB versionados — `git status` depois.
 
 ## Onde fica cada coisa
@@ -75,6 +75,12 @@ de **22**, uma por vez (em paralelo a asserção de tempo mente): 13 sobem host 
   `TIPOS_BICHO` e de `variantes` é IDENTIDADE no fio e no save (só acrescenta no fim).
   `/bichos fila` monta a VITRINE parada (print: `shots:vitrine`; o `?bench&bichosparados` manda
   `/bichos parar`). Item que não é bloco na hotbar do criativo (aba `comida`) usa `blocoExiste`.
+- **§🖥️ painel do professor** (o launcher desde 03/11): supervisor `server/src/painel.ts`
+  (127.0.0.1:8070, sobe o jogo por `fork` com IPC — o host fala com ele em `relatarAoPainel`,
+  no fim do `index.ts`) · regras de mundo `painelMundos.ts` (as do menu de texto, num lugar
+  só) · página SEM build em `server/painel/` (QR: `vendor/qrcode.mjs`, MIT) · miniaturas
+  `npm run miniaturas`. Saída 42 = "atualizar agora" (o launcher atualiza e relança). Smoke
+  `painel`, sonda `shots:painel`.
 - **§💰 venda:** preço PURO em `venda.ts` (permissão do que se COLHE) · balcão por jogador em
   `session/venda.ts` (fora do save) · painel no `container.ts`. Sonda `shots:venda`. ⚠️ Preço
   novo passa pelo portão de `venda.test.ts` (saída ≤ entrada em TODA receita e cozimento).
