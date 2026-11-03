@@ -461,6 +461,8 @@ function readSaveMeta(
     ...(m["confinamento"] === true ? { confinamento: true } : {}),
     // `/silenciar` (2026-08-27): ausente = chat liberado
     ...(m["chatSilenciado"] === true ? { chatSilenciado: true } : {}),
+    // `/voo` (bug-674, e o bug-678: o encode gravava e ESTA lista não lia)
+    ...(m["vooLiberado"] === true ? { vooLiberado: true } : {}),
     ...(quadros.length ? { quadros } : {}),
     ...(containers.length ? { containers } : {}),
     // cp21: hora/ciclo ausentes ou inválidos = padrão do mundo novo (na sessão)

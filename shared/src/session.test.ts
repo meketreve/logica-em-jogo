@@ -8,6 +8,7 @@ import {
 } from "./constants";
 import { bytesUtf8 } from "./texto";
 import { decodeSnapshot, parseServerMessage } from "./protocol";
+import { decodeSave, encodeSave } from "./save";
 import { GameSession } from "./session";
 import { findSpawnY, getBlock, setBlock } from "./world";
 
@@ -551,9 +552,13 @@ describe("GameSession (servidor autoritativo)", () => {
     const meta = s1.toSave();
     expect(meta.vooLiberado).toBe(true);
 
-    // o mundo REABRE: o voo continua liberado, e quem entra recebe o aviso
+    // o mundo REABRE PELO ARQUIVO (bug-678: passar o `meta` direto pulava o
+    // decoder, que não lia o campo — o teste passava e o mundo esquecia o voo)
     const { sent: sent2, send: send2 } = collect();
-    const s2 = new GameSession(send2, { restore: { world: s1.world, ...meta }, singleplayer: true });
+    const s2 = new GameSession(send2, {
+      restore: decodeSave(encodeSave(s1.world, meta)),
+      singleplayer: true,
+    });
     expect(s2.vooLiberado).toBe(true);
     sent2.length = 0;
     s2.handleMessage(8, JSON.stringify({ type: "join", name: "ana" }));
@@ -566,6 +571,26 @@ describe("GameSession (servidor autoritativo)", () => {
     s2.handleMessage(8, JSON.stringify({ type: "join", name: "prof" }));
     s2.handleMessage(8, JSON.stringify({ type: "chat", text: "/voo desligar" }));
     expect(s2.toSave().vooLiberado).toBeUndefined();
+  });
+
+  it("PORTÃO: todo campo que o toSave() escreve volta do ARQUIVO (bug-678)", () => {
+    // O encode grava o meta inteiro, mas o decoder é uma LISTA à mão
+    // (`readSaveMeta`): campo novo no SaveMeta que não entra nela some no
+    // boot seguinte, calado. Os testes de persistência restauravam do objeto
+    // em memória e nunca passavam por ela. Aqui liga-se o que dá e compara-se
+    // o que sai do arquivo com o que entrou.
+    const s1 = new GameSession(() => {}, { dims: DIMS, seed: 5, singleplayer: true });
+    s1.handleMessage(1, JSON.stringify({ type: "join", name: "prof" }));
+    for (const cmd of ["/voo ligar", "/silenciar ligar", "/vento desligar", "/ciclo desligar"]) {
+      s1.handleMessage(1, JSON.stringify({ type: "chat", text: cmd }));
+    }
+    const meta = s1.toSave();
+    expect(meta.vooLiberado).toBe(true);
+    expect(meta.chatSilenciado).toBe(true);
+    const lido = decodeSave(encodeSave(s1.world, meta)) as unknown as Record<string, unknown>;
+    for (const [campo, valor] of Object.entries(meta)) {
+      expect({ campo, valor: lido[campo] }).toEqual({ campo, valor });
+    }
   });
 
   it("/voo em mundo de AULA: desligado por padrão, LIGADO se o modelo foi salvo assim", () => {

@@ -12,6 +12,23 @@ tier: 3
      modelo). São bugs ESCRITOS À MÃO: nada de detector automático — ele já encheu
      o arquivo de 148 entradas falsas uma vez, e elas foram podadas junto. -->
 
+## 2026-11-03 — bug-678: o voo continuava voltando DESLIGADO (o conserto do bug-674 nunca funcionou)
+- **Sintoma:** usuário, 03/11: "o bug de não salvar se o voo está ativo ou não ainda continua".
+- **Onde:** `shared/src/save.ts` (`readSaveMeta`)
+- **Causa:** o bug-674 pôs `vooLiberado` no `SaveMeta`, no `toSave()` e no restore — mas o
+  DECODER do arquivo é uma lista escrita à mão (`readSaveMeta`, um spread por campo) e o campo
+  nunca entrou nela (`git log -S'm["vooLiberado"]'` vazio). O `.ljw` gravava `vooLiberado: true`
+  e a leitura jogava fora. O teste do bug-674 restaurava do OBJETO em memória
+  (`restore: { world, ...meta }`), sem passar pelo `encodeSave`/`decodeSave`, então passava — e o
+  controle negativo dele (tirar a linha do `toSave`) não tocava no decoder.
+- **Correção:** a linha `m["vooLiberado"] === true` no `readSaveMeta` (molde do `chatSilenciado`).
+  O teste do bug-674 agora reabre pelo ARQUIVO, e um PORTÃO novo em `session.test.ts` liga
+  `/voo`, `/silenciar`, `/vento` e `/ciclo`, passa o `toSave()` por `encodeSave`→`decodeSave` e
+  exige que TODO campo volte igual — campo novo do `SaveMeta` esquecido no decoder reprova ali.
+  Controle negativo: sem a linha do decoder, os dois falham ("expected false to be true" e
+  "expected { campo: 'vooLiberado', …(1) } to deeply equal { campo: 'vooLiberado', valor: true }").
+- **Tags:** voo, save, persistencia, decoder, professor, relatado-pelo-usuario, regressao-de-conserto
+
 ## 2026-11-03 — a galinha "carrega" o ovo (relato dele: "isso não faz sentido nenhum")
 - **Sintoma:** o ovo pronto aparecia nos pés da galinha e ANDAVA junto com ela; pegava-se clicando na galinha.
 - **Onde:** era DESENHO, não bug de lógica: `client/src/bichos/modelos.ts` (2 caixas `M.soOvo` no modelo dela, ligadas pela `FLAG_BICHO.ovo`) + `usarBicho` dando o `ITEM_OVO` no clique.

@@ -52,6 +52,7 @@ const MUDANCAS: readonly Mudanca[] = [
       "se o tablet não conseguir baixar os sons, o jogo **toca os sons antigos** no lugar — nunca fica mudo",
       "todos os sons são livres (CC0); de onde veio cada um está em **client/public/sons/CREDITOS.md**",
       "a **galinha** não carrega mais o ovo grudado no pé: ela **bota o ovo no chão** e vai embora. Pra pegar, é só quebrar o ovo (um toque). Se já tiver 3 ovos perto dela, ela espera alguém recolher",
+      "o **/voo ligar** agora fica **salvo no mundo** de verdade: fechou e abriu o jogo, a turma continua podendo voar (antes ele voltava desligado a cada vez que o mundo abria)",
     ],
   },
   {

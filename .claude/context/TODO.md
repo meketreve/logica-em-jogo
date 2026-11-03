@@ -27,6 +27,8 @@ active: true
 
 ## Testar na escola (o usuário faz)
 
+- [ ] **`/voo` salvo (bug-678, 03/11):** `/voo ligar`, parar o host, abrir de novo — o aluno
+      ainda voa sem o professor religar?
 - [ ] **§🐄 Ovo no chão (03/11):** a galinha deixa o ovo no chão e vai embora? A criança
       descobre que se pega QUEBRANDO (um toque)? O ovo pequeno se vê de longe no tablet?
 

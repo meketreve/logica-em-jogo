@@ -44,6 +44,7 @@ tier: 3
 
 ## Erros a não repetir
 
+- [2026-11-03] [save] [✗] Teste de persistência que restaura do OBJETO (`restore: { world, ...meta }`) em vez do ARQUIVO: o decoder do `.ljw` é lista à mão e o `vooLiberado` nunca entrou nela — o bug-674 ficou "consertado" 4 semanas com teste verde (bug-678). Persistência se prova por `encodeSave`→`decodeSave`; o portão de round-trip em `session.test.ts` cobre todo campo do `toSave()`.
 - [2026-11-03] [sons] [✓] kenney.nl responde 403 a qualquer cliente que não é navegador (nginx do site, não o proxy) e mascarar o User-Agent é proibido aqui — os pacotes OFICIAIS do Kenney também moram no OpenGameArt (usuário `kenney`; o RPG Audio é "50 RPG sound effects", mesmo zip). E Vorbis q0 em impacto curto estoura até +5 dB no decode: igualar a −20 dBFS de média com teto de pico em −3, não −1.
 
 - [2026-11-03] [smoke] [✗] Testar cabeçalho `Host` com `fetch` — o undici IGNORA o Host (cabeçalho proibido) e o "403 pra Host de fora" reprovou com o painel certo. Pedido cru com `http.request`, e o controle (mesmo pedido com Host localhost = 200) junto.

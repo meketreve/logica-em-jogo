@@ -17,6 +17,11 @@ e o jogo **reconecta sozinho** (5 tentativas, espera a tela voltar; esgotou → 
 Provado em `shots:queda` (host morto e ressuscitado, aba escondida de verdade, heartbeat mudo) e no
 smoke `logs`. **Não testado em aula.**
 
+**03/11 — bug-678: o `/voo` FINALMENTE fica salvo** (relato dele: "ainda continua"). O conserto do
+bug-674 (05/10) nunca funcionou: o leitor do `.ljw` (`readSaveMeta`) não lia `vooLiberado`, e o
+teste restaurava do objeto em memória. Portão novo de round-trip pelo ARQUIVO em `session.test.ts`.
+**Testar:** `/voo ligar`, fechar o host, reabrir — a turma continua voando.
+
 **02/11 — A GRANDE ATUALIZAÇÃO na `main`** (pedido dele: "pode unir as branchs, sai como grande
 atualização"): as branches dos §🐄 bichos (`kqj92e`) e do §🔊 som (`nba77z`) fundidas num bloco só
 do changelog. Bichos: 8 espécies com variantes por bioma, A*, máquina de estados, tesoura/balde/
