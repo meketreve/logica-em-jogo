@@ -151,8 +151,8 @@ do GitHub. Ele escolhe o caminho **pela própria pasta**:
 
 ## As aulas
 
-Sete aulas prontas em `cenarios/`, mais construção livre. As 6 primeiras são de CONSTRUIR;
-a 7ª é uma CORRIDA em equipe, mundo próprio. Cada uma amarra um pilar do pensamento
+Oito aulas prontas em `cenarios/`, mais construção livre. As 6 primeiras são de CONSTRUIR;
+a 7ª é uma CORRIDA em equipe, mundo próprio; a 8ª é de CIRCUITOS (fio, porta E e porta OU). Cada uma amarra um pilar do pensamento
 computacional a uma tarefa concreta com **correção automática** — o aluno vê um contador ao
 vivo (`4/12`) e descobre sozinho se acertou.
 
@@ -165,6 +165,7 @@ vivo (`4/12`) e descobre sozinho se acertou.
 | 5 | Conserte o desenho | Decomposição + invariante | Corrigir um desenho simétrico |
 | 6 | Siga o manual | Executar algoritmo | Montar a sala seguindo os quadros |
 | 7 | A corrida dos 4 postos | Sequência | Percorrer 4 postos em ordem, equipe inteira na chegada |
+| 8 | Acenda só as lâmpadas certas | Lógica booleana (E, OU) | Ligar as alavancas certas: lâmpada verde acesa, vermelha apagada — 4 fases |
 | — | Construção livre | Autonomia e criatividade | Construir no mundo aberto |
 
 Roteiro de condução de cada aula (regra, gabarito, o que observar) em
@@ -186,7 +187,7 @@ shared/   lógica autoritativa (mundo, blocos, física, tick, regras, save, prot
           TS puro, zero dependência de navegador ou de Node — roda igual nos 3 hospedeiros.
 server/   embrulha o shared: Web Worker (singleplayer) ou Node + ws (rede local).
 client/   three.js. Só desenha e manda input. Nunca decide estado.
-cenarios/ as 7 aulas (.ljw) + o roteiro de condução.
+cenarios/ as 8 aulas (.ljw) + o roteiro de condução.
 scripts/  smoke de rede real e benchmark headless.
 ```
 
