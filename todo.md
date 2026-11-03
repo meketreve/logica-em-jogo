@@ -1658,6 +1658,19 @@ jogo não tem". Até aqui só existia som de INTERFACE (`audio.ts`); o mundo era
   Se ele quiser, é ler o deslocamento do `remotePlayers` no mesmo `Passadas`.
 * \[ ] **Talvez:** som de item caindo/pego (o jogo não tem item no chão), bolha de fôlego,
   música. Nenhum foi pedido.
+* \[x] **Sons v2 (2026-11-03, pedido dele: "a versão 2 dos sons", plano HÍBRIDO escolhido
+  por ele)** — amostra GRAVADA CC0 onde a síntese soava falsa: blocos (quebrar/colocar/golpe
+  de pedra, madeira, vidro, metal; terra e planta pelo próprio passo; tecido farfalha),
+  passos, porta, baú, Dimas, grilo e 5 bichos (vaca, ovelha, galinha, cão, gato). Síntese
+  da v1 fica no RESTO (vento, riacho, água, alavanca, placa, fogo, fabricar, teleporte,
+  AREIA, porco, tatu, peixe, arara, passarinho) e como RESERVA quando o arquivo não chega.
+  58 OGG mono, 352 KB (≈ 4 MB de PCM decodificado). Tabela pura `shared/src/sonsAmostras.ts`
+  (portão: arquivo existe, tem crédito, nada sobra, ≤ 700 KB); arquivos e créditos saem do
+  `scripts/preparar-sons.mjs`. Fontes: Kenney RPG Audio (via OpenGameArt — kenney.nl dá 403
+  a robô), rubberduck "75 CC0 breaking/falling/hit" (no lugar do Impact Sounds do Kenney,
+  inalcançável), TinyWorlds "Different steps", BigSoundBank (CC0 conferido página a
+  página). Sonda `shots:som` seções 7–8 (controle negativo: 404 em `/sons/*` → síntese).
+  **Os GANHOS saíram da conta, não do ouvido** — primeiro número a mexer depois da aula.
 
 ## Playtest na escola
 

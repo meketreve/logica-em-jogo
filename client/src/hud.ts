@@ -210,6 +210,8 @@ export class Hud {
     tocados: number; descartadosTeto: number; descartadosLonge: number; juntados: number;
     vozes: number; vozesPico: number; ms: number; porTipo: Record<string, number | undefined>;
     contexto: string; lacos: number; trocasSoaram: number; trocasCaladas: number;
+    amostras: { total: number; carregadas: number; falhas: number; kb: number; gravadas: number; sintetizadas: number };
+    origemPorTipo: Record<string, string | undefined>;
   } | null = null;
   /** Custo das regras no servidor (último `debug_stats`) — alimentado pelo main.ts. */
   regras: RegrasServidor | null = null;
@@ -645,7 +647,7 @@ export class Hud {
       stream: { ...this.stream },
       luz: { ...this.luz },
       // §🔊 retrato do som: vozes agora/pico, descartes e ms acumulados
-      som: this.som ? { ...this.som, ms: +this.som.ms.toFixed(1), porTipo: { ...this.som.porTipo } } : null,
+      som: this.som ? { ...this.som, ms: +this.som.ms.toFixed(1), porTipo: { ...this.som.porTipo }, amostras: { ...this.som.amostras }, origemPorTipo: { ...this.som.origemPorTipo } } : null,
       // custo das regras do outro lado (água/areia por tick) — ver `regras`
       regrasServidor: this.regras,
       // §📊 quanto CADA sistema custa (servidor por tick, bichos no quadro)
@@ -752,7 +754,7 @@ export class Hud {
       `stream ${s.stream.colunas} colunas · fila ${s.stream.fila} · faltando ${s.stream.faltando} · repedidas ${s.stream.repedidas}`,
       `malha ${s.stream.ultimoLote} chunks no último frame (orçamento ${s.config?.meshMsPorFrame ?? "?"} ms)`,
       s.som
-        ? `som ${s.som.vozes} vozes (pico ${s.som.vozesPico}) · ${s.som.tocados} tocados · ${s.som.descartadosTeto} teto · ${s.som.descartadosLonge} longe · ${s.som.ms}ms main · trocas ${s.som.trocasSoaram} soaram / ${s.som.trocasCaladas} caladas · ${s.som.contexto}`
+        ? `som ${s.som.vozes} vozes (pico ${s.som.vozesPico}) · ${s.som.tocados} tocados · ${s.som.descartadosTeto} teto · ${s.som.descartadosLonge} longe · ${s.som.ms}ms main · trocas ${s.som.trocasSoaram} soaram / ${s.som.trocasCaladas} caladas · ${s.som.contexto} · amostras ${s.som.amostras.carregadas}/${s.som.amostras.total}${s.som.amostras.falhas ? ` (${s.som.amostras.falhas} falharam)` : ""} ${s.som.amostras.kb} KB · ${s.som.amostras.gravadas} gravadas / ${s.som.amostras.sintetizadas} sintetizadas`
         : "som n/d",
       `luz ${s.luz.colunas} colunas · ${Math.round(s.luz.totalMs)}ms main · ${s.luz.colunas ? (s.luz.totalMs / s.luz.colunas).toFixed(2) : "0"}ms/coluna · fila ${s.luz.fila}`,
       s.remeshPorCaminho

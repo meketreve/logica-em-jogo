@@ -35,6 +35,13 @@ criar/publicar, faixa de versão, "Dúvidas? Clique aqui!" → `docs/manual.html
 texto = reserva (`--texto`, ou cai sozinho se o painel morrer). Smoke `painel` + sonda
 `shots:painel` (controle negativo nos dois). **`.bat` não testado no Windows do lab.**
 
+**03/11 — §🔊 SONS V2** (pedido dele: "a versão 2 dos sons", plano híbrido escolhido por ele):
+amostras GRAVADAS CC0 em blocos, passos, porta, baú, Dimas, grilo e vaca/ovelha/galinha/cão/gato;
+a síntese da v1 fica no resto e como RESERVA (arquivo que não chega → toca sintetizado). 58 OGG,
+352 KB, ~4 MB de PCM. Tabela `shared/src/sonsAmostras.ts`, arquivos e créditos do
+`scripts/preparar-sons.mjs` → `client/public/sons/CREDITOS.md`. Sonda `shots:som` 7–8 (controle
+negativo com 404). **Ganhos na conta, não no ouvido. Não testado em aula.**
+
 ## Próxima fase
 
 **A próxima aula fecha o bug-675:** no `-eventos.log`, contar `voltou sozinho` × `voltou pelo

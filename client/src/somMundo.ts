@@ -1,11 +1,28 @@
 /**
  * §🔊 Som de MUNDO — blocos, passos, água, corpo, peças, ambiente e bichos.
  *
- * Tudo SINTETIZADO com WebAudio, como o som de interface (`audio.ts`): zero
- * asset (restrição do projeto), e o pacote da escola não engorda um byte de
- * áudio. A regra de QUANDO soa (que troca de bloco faz barulho, qual o
- * material, quando é passo) é pura e mora em `shared/src/sons.ts`, testada;
- * aqui só a síntese e o orçamento.
+ * A v1 (02/11) era toda SINTETIZADA com WebAudio. A **v2** (03/11, pedido
+ * dele: "a versão 2 dos sons") toca AMOSTRA GRAVADA (CC0: Kenney, rubberduck,
+ * TinyWorlds, BigSoundBank — origem de cada uma em `client/public/sons/
+ * CREDITOS.md`) em blocos, passos, porta, baú, Dimas, grilo e 5 bichos. QUAL
+ * amostra é tabela pura em `shared/src/sonsAmostras.ts`; a síntese ficou no
+ * resto e é a RESERVA: amostra que não carregou (rede, 404, navegador sem
+ * Vorbis) cai na receita da v1, então o jogo nunca fica mudo por arquivo.
+ *
+ * A regra de QUANDO soa (que troca de bloco faz barulho, qual o material,
+ * quando é passo) é pura e mora em `shared/src/sons.ts`, testada; aqui só o
+ * timbre (amostra ou síntese) e o orçamento.
+ *
+ * ## As amostras
+ *
+ * - **Baixam DEPOIS do 1º gesto**, quando o `audio.ts` arma o contexto: sem
+ *   contexto não há som, e baixar antes só disputaria banda com a carga do
+ *   mundo. ~350 KB, 58 arquivos, em paralelo e sem esperar ninguém — o que
+ *   ainda não chegou toca sintetizado.
+ * - **Variação**: take sorteado (nunca o mesmo da vez anterior) e velocidade
+ *   ±6% — 10 passos seguidos não podem soar como metralhadora.
+ * - Mesmo orçamento da v1: a amostra também é UMA voz (`voz()`), com teto,
+ *   alcance e "junta repetido".
  *
  * ## Orçamento (o notebook do lab é o teto)
  *
@@ -30,10 +47,16 @@
  */
 
 import {
+  type ConjuntoDeAmostra,
   type EventoDeBicho,
   type MaterialSonoro,
   type SomDeBloco,
   type VozDeBicho,
+  amostraDoBicho,
+  amostraDoMaterial,
+  arquivosDoConjunto,
+  CONJUNTOS_DE_AMOSTRA,
+  PASTA_SONS,
   vozDoBicho,
 } from "@logica/shared";
 import { contextoDeAudio } from "./audio";
@@ -113,7 +136,23 @@ interface Medidas {
    *  "Caladas" alto e "soaram" baixo é o motor trabalhando (água, circuito). */
   trocasSoaram: number;
   trocasCaladas: number;
+  /** §🔊 v2: as amostras gravadas — quantas chegaram, quantas falharam (aí
+   *  toca a síntese), o PCM decodificado na RAM (KB) e quantas vozes saíram de
+   *  cada ORIGEM. "sintetizadas" subindo com `falhas` > 0 = a reserva agindo. */
+  amostras: {
+    total: number;
+    carregadas: number;
+    falhas: number;
+    kb: number;
+    gravadas: number;
+    sintetizadas: number;
+  };
+  /** De onde saiu a ÚLTIMA voz de cada tipo — a sonda pergunta "o colocar
+   *  tocou gravado?" sem o ambiente (que toca sozinho) sujar a conta. */
+  origemPorTipo: Partial<Record<Rotulo, Origem>>;
 }
+
+type Origem = "amostra" | "sintese";
 
 /** Contexto do jogador que o ambiente lê 1×/s (o main monta, sem alocar muito). */
 export interface ContextoAmbiente {
@@ -164,7 +203,15 @@ class SomMundo {
     tocados: 0, descartadosTeto: 0, descartadosLonge: 0, juntados: 0,
     vozes: 0, vozesPico: 0, ms: 0, porTipo: {}, contexto: "sem", lacos: 0,
     trocasSoaram: 0, trocasCaladas: 0,
+    amostras: { total: 0, carregadas: 0, falhas: 0, kb: 0, gravadas: 0, sintetizadas: 0 },
+    origemPorTipo: {},
   };
+
+  /** Takes decodificados por conjunto (só os que CHEGARAM). */
+  private readonly takes = new Map<ConjuntoDeAmostra, AudioBuffer[]>();
+  /** Último take tocado por conjunto — o próximo sorteio o evita. */
+  private readonly ultimoTake = new Map<ConjuntoDeAmostra, AudioBuffer>();
+  private baixando = false;
 
   /** Pega o contexto do `audio.ts` (nunca cria) e monta os barramentos 1×. */
   private pronto(): AudioContext | null {
@@ -186,9 +233,86 @@ class SomMundo {
       this.ruido = ctx.createBuffer(1, n, ctx.sampleRate);
       const d = this.ruido.getChannelData(0);
       for (let i = 0; i < n; i++) d[i] = Math.random() * 2 - 1;
+      this.carregarAmostras(ctx);
     }
     this.medidas.contexto = ctx.state;
     return ctx;
+  }
+
+  /**
+   * Baixa e decodifica TODAS as amostras, 1× por página. Cada uma entra no
+   * conjunto quando chega — não há "pronto" global: o que falta toca
+   * sintetizado. Falha (404, rede, codec) só conta; nunca joga erro.
+   */
+  private carregarAmostras(ctx: AudioContext): void {
+    if (this.baixando || typeof fetch !== "function") return;
+    this.baixando = true;
+    const m = this.medidas.amostras;
+    for (const c of Object.keys(CONJUNTOS_DE_AMOSTRA) as ConjuntoDeAmostra[]) {
+      for (const arq of arquivosDoConjunto(c)) {
+        m.total++;
+        fetch(`/${PASTA_SONS}/${arq}`)
+          .then((r) => {
+            if (!r.ok) throw new Error(`${r.status}`);
+            return r.arrayBuffer();
+          })
+          // a forma de callback: Safari/WebView antigo não devolve promessa
+          .then((ab) => new Promise<AudioBuffer>((ok, erro) => void ctx.decodeAudioData(ab, ok, erro)))
+          .then((buf) => {
+            const lista = this.takes.get(c) ?? [];
+            lista.push(buf);
+            this.takes.set(c, lista);
+            m.carregadas++;
+            m.kb = Math.round(m.kb + (buf.length * buf.numberOfChannels * 4) / 1024);
+          })
+          .catch(() => {
+            m.falhas++;
+          });
+      }
+    }
+  }
+
+  /** Um take do conjunto (≠ do anterior quando há 2+), ou `null` se nenhum chegou. */
+  private take(c: ConjuntoDeAmostra): AudioBuffer | null {
+    const lista = this.takes.get(c);
+    if (!lista || lista.length === 0) return null;
+    const antes = this.ultimoTake.get(c);
+    let b = lista[Math.floor(Math.random() * lista.length)]!;
+    if (b === antes && lista.length > 1) b = lista[(lista.indexOf(b) + 1) % lista.length]!;
+    this.ultimoTake.set(c, b);
+    return b;
+  }
+
+  /**
+   * Toca um take como UMA voz (mesmo teto/alcance/junta da síntese).
+   * Devolve false se não havia take — quem chamou cai na receita sintetizada.
+   * `tom` é a velocidade de leitura; ±6% de sorteio vai por cima.
+   */
+  private gravado(
+    c: ConjuntoDeAmostra | null,
+    rotulo: Rotulo,
+    ganho: number,
+    tom: number,
+    x: number | null,
+    y = 0,
+    z = 0,
+    bus: "mundo" | "ambiente" = "mundo",
+  ): boolean {
+    const buf = c ? this.take(c) : null;
+    if (!buf) return false;
+    this.medir(() => {
+      const rate = tom * rnd(0.94, 1.06);
+      const v = this.voz(rotulo, buf.duration / rate, x, y, z, bus, "amostra");
+      if (!v) return;
+      const src = v.ctx.createBufferSource();
+      src.buffer = buf;
+      src.playbackRate.value = rate;
+      const g = v.ctx.createGain();
+      g.gain.value = ganho;
+      src.connect(g).connect(v.saida);
+      src.start(v.t0);
+    });
+    return true;
   }
 
   setVolumes(mundo: number, ambiente: number): void {
@@ -222,6 +346,7 @@ class SomMundo {
     y = 0,
     z = 0,
     bus: "mundo" | "ambiente" = "mundo",
+    origem: Origem = "sintese",
   ): { ctx: AudioContext; t0: number; saida: AudioNode } | null {
     const ctx = this.pronto();
     const destino = bus === "mundo" ? this.mundo : this.ambienteBus;
@@ -258,6 +383,9 @@ class SomMundo {
     if (this.fins.length > this.medidas.vozesPico) this.medidas.vozesPico = this.fins.length;
     this.medidas.tocados++;
     this.medidas.porTipo[rotulo] = (this.medidas.porTipo[rotulo] ?? 0) + 1;
+    if (origem === "amostra") this.medidas.amostras.gravadas++;
+    else this.medidas.amostras.sintetizadas++;
+    this.medidas.origemPorTipo[rotulo] = origem;
 
     // a voz desmonta sozinha: nó sem fonte tocando é coletado pelo navegador
     const g = ctx.createGain();
@@ -341,6 +469,8 @@ class SomMundo {
 
   /** Som de material (quebrar, colocar, golpe da picareta, passo). */
   material(uso: UsoDeBloco, mat: MaterialSonoro, x: number | null, y = 0, z = 0): void {
+    const a = amostraDoMaterial(uso, mat);
+    if (a && this.gravado(a.conjunto, uso, a.ganho, a.tom, x, y, z)) return;
     this.medir(() => {
       const r = RECEITAS[mat];
       const u = USO[uso];
@@ -384,6 +514,7 @@ class SomMundo {
         this.material(s.tipo, s.material, cx, cy, cz);
         return;
       case "porta":
+        if (this.gravado(s.abriu ? "porta-abrir" : "porta-fechar", "porta", 0.45, 1, cx, cy, cz)) return;
         return this.medir(() => {
           const v = this.voz("porta", 0.32, cx, cy, cz);
           if (!v) return;
@@ -503,6 +634,8 @@ class SomMundo {
 
   /** Baú/fornalha/loja abrindo ou fechando (o painel é quem sabe). */
   container(tipo: string, abriu: boolean, x: number, y: number, z: number): void {
+    // a fornalha é pedra arrastando: fica na síntese (nenhum pacote tinha)
+    if (tipo !== "fornalha" && this.gravado(abriu ? "bau-abrir" : "bau-fechar", "container", 0.42, 1, x + 0.5, y + 0.5, z + 0.5)) return;
     this.medir(() => {
       const v = this.voz("container", 0.35, x + 0.5, y + 0.5, z + 0.5);
       if (!v) return;
@@ -531,6 +664,7 @@ class SomMundo {
 
   /** Dimas: ganhou (2 notas subindo) × gastou (2 descendo). */
   moeda(ganhou: boolean): void {
+    if (this.gravado(ganhou ? "moeda-ganhou" : "moeda-gastou", "moeda", 0.4, 1, null)) return;
     this.medir(() => {
       const v = this.voz("moeda", 0.45, null);
       if (!v) return;
@@ -588,10 +722,13 @@ class SomMundo {
       this.material("passo", vozDoBicho(tipo) === "vaca" ? "terra" : "planta", x, y, z);
       return;
     }
+    const voz: VozDeBicho | null = vozDoBicho(tipo);
+    // gravado: dano = mais agudo e curto; morte = mais grave e longo
+    const tomGravado = evento === "dano" ? 1.25 : evento === "morte" ? 0.8 : 1;
+    if (this.gravado(amostraDoBicho(voz), "bicho", 0.5, tomGravado, x, y, z)) return;
     this.medir(() => {
       const v = this.voz("bicho", 1, x, y, z);
       if (!v) return;
-      const voz: VozDeBicho | null = vozDoBicho(tipo);
       // dano = curto e mais agudo; morte = longo e caindo
       const tom = evento === "dano" ? 1.3 : evento === "morte" ? 0.85 : 1;
       const dur = evento === "dano" ? 0.35 : evento === "morte" ? 1.1 : 1;
@@ -752,7 +889,8 @@ class SomMundo {
     }
     if (fora > 0.6 && c.dia < 0.3 && !c.submerso && t >= this.proxGrilo) {
       this.proxGrilo = t + rnd(1.5, 4.5);
-      const v = this.voz("ambiente", 0.4, px, this.oy, pz, "ambiente");
+      const gravou = this.gravado("grilo", "ambiente", 0.22, 1, px, this.oy, pz, "ambiente");
+      const v = gravou ? null : this.voz("ambiente", 0.4, px, this.oy, pz, "ambiente");
       if (v) {
         const f = rnd(4200, 4800);
         for (let i = 0; i < 6; i++) this.tom(v, i * 0.035, 0.018, "sine", f, f, 0.045, 0.002);

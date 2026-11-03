@@ -20,6 +20,10 @@
  * 4. bloco a 40 blocos nem cria voz (descartado por distância);
  * 5. segurando a picareta, sai o "toc" da ferramenta (golpe) enquanto racha;
  * 6. o F3 mostra a linha "som …".
+ * 7. §🔊 v2: as amostras GRAVADAS chegam todas (zero falha) e o colocar, o
+ *    golpe tocaram GRAVADO; a alavanca segue sintetizada;
+ * 8. controle negativo da v2: com `/sons/*` respondendo 404 (interceptado no
+ *    CDP), todas falham e o MESMO colocar cai na síntese — o jogo não emudece.
  *
  * ⚠️ Serve o cliente COMPILADO: `npm run build` antes.
  * ⚠️ Mundo descartável em `mundos/_shot-som` (LJ_SAVE — nunca o world.ljw).
@@ -463,6 +467,49 @@ const linha = await ateQue(
 );
 ok(!!linha && /vozes/.test(linha), `a linha do som no F3: ${JSON.stringify(linha)}`);
 await foto("6-f3.png");
+
+diga("== 7. sons v2: as amostras gravadas chegaram e tocam ==");
+const carregou = (m) => m?.amostras && m.amostras.total > 0 && m.amostras.carregadas + m.amostras.falhas >= m.amostras.total;
+let am = await ateQue(som, carregou, 20000);
+ok((am?.amostras?.total ?? 0) >= 50, `o jogo pediu as amostras (${am?.amostras?.total})`);
+ok(am?.amostras?.falhas === 0 && am?.amostras?.carregadas === am?.amostras?.total, `todas chegaram e decodificaram (${am?.amostras?.carregadas}/${am?.amostras?.total}, ${am?.amostras?.falhas} falhas, ${am?.amostras?.kb} KB de PCM)`);
+ok(am?.origemPorTipo?.golpe === "amostra", `o toc-toc da picareta (seção 5) saiu GRAVADO (${am?.origemPorTipo?.golpe})`);
+await dizer(`/modo criativo eu`);
+await dizer(`/bloco ~ ~ ~-2 ${AR}`);
+await espera(400);
+a = await som();
+await dizer(`/bloco ~ ~ ~-2 ${PEDRA}`);
+b = await ateQue(som, (m) => delta(a, m, "colocar") >= 1, 3000);
+ok(delta(a, b, "colocar") === 1 && b?.origemPorTipo?.colocar === "amostra", `colocar pedra tocou GRAVADO (${b?.origemPorTipo?.colocar})`);
+ok(b.amostras.gravadas > a.amostras.gravadas, `o contador de gravadas subiu (${a.amostras.gravadas} → ${b.amostras.gravadas})`);
+ok(b?.origemPorTipo?.alavanca === "sintese", `a alavanca segue SINTETIZADA, como no plano (${b?.origemPorTipo?.alavanca})`);
+await dizer(`/bloco ~ ~ ~-2 ${AR}`);
+
+diga("== 8. controle negativo: sem os arquivos, a síntese assume ==");
+// toda requisição de /sons/ responde 404 — o "arquivo ausente" de verdade
+ws.addEventListener("message", (ev) => {
+  const m = JSON.parse(ev.data);
+  if (m.method === "Fetch.requestPaused") {
+    ws.send(JSON.stringify({ id: ++id, method: "Fetch.fulfillRequest", params: { requestId: m.params.requestId, responseCode: 404, body: "" } }));
+  }
+});
+await cdp("Fetch.enable", { patterns: [{ urlPattern: "*/sons/*" }] });
+if (!(await entrar("nome=profa&pin=1234&codigo=prof2026"))) {
+  ok(false, "o mundo não voltou pra o controle negativo");
+} else {
+  await avaliar(`(window.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true })), 1)`);
+  am = await ateQue(som, carregou, 20000);
+  ok(am?.amostras?.carregadas === 0 && am?.amostras?.falhas === am?.amostras?.total && am?.amostras?.total > 0,
+    `todas falharam com 404 (${am?.amostras?.carregadas} carregadas, ${am?.amostras?.falhas}/${am?.amostras?.total} falhas)`);
+  await dizer(`/bloco ~ ~ ~-2 ${AR}`);
+  await espera(400);
+  a = await som();
+  await dizer(`/bloco ~ ~ ~-2 ${PEDRA}`);
+  b = await ateQue(som, (m) => delta(a, m, "colocar") >= 1, 3000);
+  ok(delta(a, b, "colocar") === 1, `o colocar AINDA soou (${delta(a, b, "colocar")})`);
+  ok(b?.origemPorTipo?.colocar === "sintese", `e saiu da SÍNTESE (${b?.origemPorTipo?.colocar})`);
+  ok((b?.amostras?.gravadas ?? 0) === 0, `zero vozes gravadas sem os arquivos (${b?.amostras?.gravadas})`);
+}
 
 if (excecoes.length) diga(`  ⚠ exceções na página: ${excecoes.slice(0, 3).join(" | ")}`);
 ok(excecoes.length === 0, "nenhuma exceção na página");

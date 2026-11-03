@@ -27,6 +27,11 @@ active: true
 
 ## Testar na escola (o usuário faz)
 
+- [ ] **§🔊 Sons v2 (03/11) — gravados:** o volume de cada um está BOM? (os ganhos saíram da
+      conta, não do ouvido — anotar o que ficou alto/baixo: passo, golpe, quebrar, porta, bicho).
+      O F3 mostra `amostras 58/58` no tablet? (se `falharam`, o Silk não decodifica Vorbis e ele
+      está na síntese). A RAM aguenta (+~4 MB)? A ovelha/cão/gato gravados ganham da síntese?
+
 - [ ] **§🖥️ Painel do professor (03/11) — NO WINDOWS DO LAB primeiro:** duplo clique no `.bat`
       abre o navegador sozinho? (o `start ""` do cmd) A faixa diz "atualizado/sem internet"? O
       QR é lido pela câmera dos tablets? Fechar a JANELA PRETA com aula no ar salva o mundo (o

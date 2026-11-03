@@ -43,6 +43,18 @@ interface Mudanca {
 const MUDANCAS: readonly Mudanca[] = [
   {
     // sem `data`: este é o build atual (ver rotuloDoBloco)
+    titulo: "Sons de verdade",
+    itens: [
+      "os sons do mundo agora são **gravados**, não feitos pelo computador: quebrar e colocar **pedra, madeira, vidro e metal**, o **toc-toc** da ferramenta, os **passos** em pedra, madeira, terra e grama",
+      "a **porta** range de verdade, o **baú** abre e fecha com a tampa de madeira e os **Dimas** tilintam como moeda",
+      "a **vaca** muge, a **ovelha** bale, a **galinha** cacareja, o **cão** late e o **gato** mia — com a voz de bicho de verdade. E de noite o **grilo** canta",
+      "cada som tem **duas ou três gravações** que se revezam, então andar não soa como uma metralhadora",
+      "se o tablet não conseguir baixar os sons, o jogo **toca os sons antigos** no lugar — nunca fica mudo",
+      "todos os sons são livres (CC0); de onde veio cada um está em **client/public/sons/CREDITOS.md**",
+    ],
+  },
+  {
+    data: "03/11/2026",
     titulo: "O painel do professor no navegador",
     itens: [
       "o launcher agora **abre sozinho uma página no navegador** pro professor: nada mais de menu de números na janela preta. Ele se **atualiza sozinho** antes (sem internet, desiste em segundos)",

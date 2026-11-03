@@ -37,6 +37,7 @@ export * from "./texto";
 export * from "./vento";
 export * from "./scenario";
 export * from "./sons";
+export * from "./sonsAmostras";
 export * from "./protocol";
 export * from "./queda";
 export * from "./save";

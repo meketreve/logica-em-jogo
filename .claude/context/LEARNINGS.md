@@ -44,6 +44,8 @@ tier: 3
 
 ## Erros a não repetir
 
+- [2026-11-03] [sons] [✓] kenney.nl responde 403 a qualquer cliente que não é navegador (nginx do site, não o proxy) e mascarar o User-Agent é proibido aqui — os pacotes OFICIAIS do Kenney também moram no OpenGameArt (usuário `kenney`; o RPG Audio é "50 RPG sound effects", mesmo zip). E Vorbis q0 em impacto curto estoura até +5 dB no decode: igualar a −20 dBFS de média com teto de pico em −3, não −1.
+
 - [2026-11-03] [smoke] [✗] Testar cabeçalho `Host` com `fetch` — o undici IGNORA o Host (cabeçalho proibido) e o "403 pra Host de fora" reprovou com o painel certo. Pedido cru com `http.request`, e o controle (mesmo pedido com Host localhost = 200) junto.
 - [2026-11-03] [painel] [✓] Supervisor que sobe o host como FILHO não embrulha nada se usar `fork` + `--import tsx` (é o próprio node, bug-666) e um canal IPC: no Windows não existe sinal entre processos, então "pare e grave" vai pelo IPC; e o host que perde o pai (`disconnect`) grava e sai — senão segura a porta e a reserva (menu de texto) nem sobe.
 

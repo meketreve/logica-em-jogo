@@ -28,6 +28,8 @@ const TIPOS: Record<string, string> = {
   ".svg": "image/svg+xml",
   ".ico": "image/x-icon",
   ".woff2": "font/woff2",
+  ".ogg": "audio/ogg", // §🔊 sons v2 (client/public/sons)
+  ".md": "text/markdown; charset=utf-8", // o CREDITOS.md dos sons
 };
 
 export const clienteFoiBuildado = (): boolean => existsSync(join(DIST, "index.html"));
