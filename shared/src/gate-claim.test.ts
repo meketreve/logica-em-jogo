@@ -57,6 +57,10 @@ const SEM_GATE: ReadonlyMap<string, string> = new Map([
     "loja: só o CRIADOR aplica de verdade (aplicarDefinirPreco confere o nome, não o claim) — gerenciar a própria loja não pode depender de continuar no grupo de amigos do terreno onde ela está.",
   ],
   [
+    "pescar",
+    "§🎣 a pesca não lê nem escreve bloco: a boia só boia na água (a célula é conferida como ÁGUA, nada muda nela). Lago dentro de terreno de outro grupo não é construção dele — barrar aqui seria cobrar claim de olhar.",
+  ],
+  [
     "comprar",
     "loja: ler pra comprar é o PONTO da feature — qualquer um alcança, mesmo fora do grupo de amigos do terreno. containerAberto + confinaBloqueia + estoque/pagamento (aplicarCompra) são o gate de verdade, não o claim.",
   ],

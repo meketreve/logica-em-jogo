@@ -1,3 +1,11 @@
+import {
+  type EstadoPesca,
+  boiasParaQuemEntra,
+  esquecerPescaDoCliente,
+  novoEstadoPesca,
+  pescar,
+  tickPesca,
+} from "./session/pesca";
 import { MAX_PIN_ATTEMPTS, PIN_LOCKOUT_MS, type Papel, isValidPin, sanitizeName } from "./auth";
 import {
   BlockId,
@@ -631,6 +639,8 @@ export class GameSession {
   private readonly sistemasMs: Record<string, number> = {};
   /** §🐄 Os bichos (estado, IA, fio). Ver `session/bichos.ts`. */
   readonly bichos: EstadoBichos;
+  /** §🎣 as boias na água, por conexão (fora do save). */
+  readonly pesca: EstadoPesca;
   /** §🔌 Células que são PEÇA DE CIRCUITO (alavanca, fio, lâmpada, porta E).
    *  Índice de sessão alimentado pelo `applyBlockQuieto`, igual ao das
    *  plantações — e reconstruído na leitura do save pelo `reindexar`. */
@@ -933,12 +943,14 @@ export class GameSession {
           (opts.bichosNaturais ?? (salvo ? salvo.natural : false)),
       );
       if (salvo) restaurarBichos(this, salvo);
+      this.pesca = novoEstadoPesca(this.seed);
     } else {
       const preset = opts.preset ?? (opts.flat ? "plano" : "normal");
       this.bichos = novoEstadoBichos(
         this.seed,
         !this.somenteLeitura && (opts.bichosNaturais ?? preset === "normal"),
       );
+      this.pesca = novoEstadoPesca(this.seed);
     }
   }
 
@@ -1678,6 +1690,11 @@ export class GameSession {
         usarBicho(this, clientId, msg.id, msg.slot);
         break;
       }
+      case "pescar": {
+        // §🎣 lança a boia ou puxa (ver `session/pesca.ts`)
+        pescar(this, clientId, msg, msg.slot);
+        break;
+      }
       case "mao": {
         // §🐄 o que o jogador segura (a galinha segue o trigo NA MÃO, não na mochila)
         if (!this.players.has(clientId)) return;
@@ -2179,6 +2196,7 @@ export class GameSession {
       if (this.invisiveis.has(outroId) && papel !== "professor") continue;
       this.send(clientId, JSON.stringify({ type: "mao_de", id: outroId, item } satisfies ServerMessage));
     }
+    boiasParaQuemEntra(this, clientId, papel === "professor"); // §🎣
     if (this.lazy) {
       // F2 streaming: mundo gigante NÃO viaja inteiro — só o header; as
       // colunas chegam por raio de interesse no tick (o entorno do jogador
@@ -2848,6 +2866,7 @@ export class GameSession {
     this.avisoSilencio.delete(clientId);
     this.avisoEmogis.delete(clientId);
     this.containerAberto.delete(clientId); // §🍖 F10: painel aberto é de sessão
+    esquecerPescaDoCliente(this, clientId); // §🎣 a boia é da conexão (antes da mão sumir)
     esquecerBichosDoCliente(this, clientId); // §🐄 vista e mão são de conexão
     const p = this.players.get(clientId);
     if (!p) return;
@@ -3061,6 +3080,9 @@ export class GameSession {
     // §🐄 os bichos: IA, caminho, spawn e o fio deles (ver `session/bichos.ts`)
     tickBichos(this);
     tm = this.medir("bichos", tm);
+    // §🎣 as boias: a mordida, o peixe que escapa, quem largou a vara
+    tickPesca(this);
+    tm = this.medir("pesca", tm);
 
     // F2 streaming: mundo lazy manda colunas por raio de interesse
     if (this.lazy) streamColunas(this);

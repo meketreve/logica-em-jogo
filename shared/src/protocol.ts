@@ -89,6 +89,10 @@ export type ClientMessage =
    *  quando muda. Serve à IA (a vaca segue quem tem trigo na mão) e ao criativo
    *  (lá a paleta é do cliente) — nunca a dar item: quem gasta e ganha é o slot. */
   | { type: "mao"; id: number | null }
+  /** §🎣 Clique de PESCAR com a vara: a 1ª vez LANÇA a boia na célula de água
+   *  mirada (x,y,z); com a boia na água, PUXA. O servidor decide tudo (vara no
+   *  slot, água, alcance, a janela da fisgada). */
+  | { type: "pescar"; x: number; y: number; z: number; slot?: number }
   /** Quadro (2026-07-19): define o CONTEÚDO do quadro naquela célula (texto
    *  e/ou imagem data URL pequena). Servidor valida célula/alcance/gates e
    *  responde com quadro_changed broadcast. Texto vazio sem imagem = limpa. */
@@ -767,6 +771,29 @@ export type ServerMessage =
       item: number | null;
     }
   | {
+      /** §🎣 A boia de `id` está (ou voltou a estar) boiando nesta célula de
+       *  água. Mandado ao lançar e quando o peixe escapa sem puxão. */
+      type: "boia";
+      id: number;
+      x: number;
+      y: number;
+      z: number;
+    }
+  | {
+      /** §🎣 O peixe MORDEU a boia de `id`: ela afunda e a janela de puxar abre. */
+      type: "boia_fisgou";
+      id: number;
+    }
+  | {
+      /** §🎣 A boia de `id` saiu da água: `pegou` (com `item` só no CRIATIVO,
+       *  pro cliente pôr na hotbar — em sobrevivência a mochila já veio),
+       *  `vazia` (puxou fora da hora) ou `recolheu` (largou a vara, foi longe…). */
+      type: "boia_fim";
+      id: number;
+      motivo: "pegou" | "vazia" | "recolheu";
+      item?: number;
+    }
+  | {
       /**
        * Aluno REMOVIDO da aula pelo professor (cp22, /expulsar). Cliente mostra o
        * motivo e volta pro menu — mesmo caminho do join_denied. O socket cai
@@ -1030,6 +1057,19 @@ export function parseClientMessage(raw: string): ClientMessage | null {
       const id = m["id"];
       if (id !== null && (typeof id !== "number" || !Number.isInteger(id))) return null;
       return { type: "mao", id };
+    }
+    case "pescar": {
+      const c = [m["x"], m["y"], m["z"]];
+      if (!c.every((n) => typeof n === "number" && Number.isInteger(n))) return null;
+      const slot = m["slot"];
+      if (slot !== undefined && (typeof slot !== "number" || !Number.isInteger(slot))) return null;
+      return {
+        type: "pescar",
+        x: m["x"] as number,
+        y: m["y"] as number,
+        z: m["z"] as number,
+        ...(slot !== undefined ? { slot } : {}),
+      };
     }
     case "bater_bicho": {
       const id = m["id"];
@@ -1498,6 +1538,25 @@ export function parseServerMessage(raw: string): ServerMessage | null {
       const item = m["item"];
       if (typeof item !== "number" || !Number.isInteger(item)) return null;
       return { type: "ferramenta_quebrou", item };
+    }
+    case "boia": {
+      const c = [m["id"], m["x"], m["y"], m["z"]];
+      if (!c.every((n) => typeof n === "number" && Number.isInteger(n))) return null;
+      return { type: "boia", id: m["id"] as number, x: m["x"] as number, y: m["y"] as number, z: m["z"] as number };
+    }
+    case "boia_fisgou": {
+      const id = m["id"];
+      if (typeof id !== "number" || !Number.isInteger(id)) return null;
+      return { type: "boia_fisgou", id };
+    }
+    case "boia_fim": {
+      const id = m["id"];
+      const motivo = m["motivo"];
+      const item = m["item"];
+      if (typeof id !== "number" || !Number.isInteger(id)) return null;
+      if (motivo !== "pegou" && motivo !== "vazia" && motivo !== "recolheu") return null;
+      if (item !== undefined && (typeof item !== "number" || !Number.isInteger(item))) return null;
+      return { type: "boia_fim", id, motivo, ...(item !== undefined ? { item } : {}) };
     }
     case "mao_de": {
       const id = m["id"];
