@@ -1425,6 +1425,19 @@ servidor (a trena nada, a bússola só o ponto do professor), então são as mai
 **Vara inteira: ~3,5–4 sessões.** Depois, se ele quiser: **trena** (0,5) → **bússola +
 relógio** (0,75) → **item na mão** (1–1,5) → **C, o peixe vindo à boia** (0,5) → luneta.
 
+### ✅ Respostas dele (2026-11-09)
+
+1. **Abstrata (A).** · 2. **Sim, clica na fisgada** (janela de 2 s). · 3. **Sem tesouro.**
+4. **No criativo DÁ peixe** — diverge da regra dos bichos ("nada se ganha"). ⚠️ No criativo
+   não existe mochila no servidor (`inventarioVale` falso; a hotbar é local): o peixe tem de
+   entrar pelo CLIENTE (`definirSlotLocal`/1º slot vazio da hotbar, no molde do balde em
+   criativo), com o servidor só mandando `boia {fim: "pegou"}`. +0,25 sessão no E3.
+5. **Receita 3 gravetos + 2 algodão e durabilidade 64: sim.**
+6. **Não sabe** — fica a minha recomendação (trena, depois bússola + relógio), a perguntar de
+   novo quando a vara sair.
+7. **Item na mão ANTES** → a ordem vira: E1 (item) → **item na mão (1–1,5)** → E2 → E3 (a linha
+   já sai da mão do boneco, não do canto da tela) → E4 → E5 → E6. Total ~5–5,5 sessões.
+
 ### Decisões DELE (perguntar todas juntas)
 
 1. Peixe abstrato (**A**, recomendado), o peixe-bicho vindo à boia (B) ou híbrido (C) já na v1?
