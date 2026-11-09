@@ -1,5 +1,7 @@
 import * as THREE from "three";
 import {
+  ALCANCE_PESCA,
+  ITEM_VARA_PESCAR,
   BlockId,
   blocoExiste,
   type Claim,
@@ -95,6 +97,7 @@ import { HotbarUi } from "./hotbarUi";
 import { LuzCliente } from "./luzCliente";
 import { RemotePlayersView } from "./remotePlayers";
 import { BalancoDaMao, type EncaixeDaMao, encaixeNaCamera, encaixeNoBraco } from "./itemNaMao";
+import { BoiasView } from "./boias";
 import { BichosView, brilhoDaLuzVoxel } from "./bichos/render";
 import { EmojiWheelPanel } from "./emojiWheel";
 import {
@@ -1153,6 +1156,12 @@ function handleServerData(data: string | ArrayBuffer): void {
       // §🍖 F4: o servidor é dono da mochila; o cliente só espelha e redesenha.
       mochila.aplicar(msg.slots);
       jogo?.aoMudarMochila();
+    } else if (msg.type === "boia") {
+      jogo?.aoBoia(msg.id, msg.x, msg.y, msg.z, msg.sua === true); // §🎣
+    } else if (msg.type === "boia_fisgou") {
+      jogo?.aoBoiaFisgou(msg.id, msg.sua === true);
+    } else if (msg.type === "boia_fim") {
+      jogo?.aoBoiaFim(msg.id, msg.motivo, msg.item, msg.sua === true);
     } else if (msg.type === "mao_de") {
       jogo?.applyMaoDe(msg.id, msg.item); // §🎣 o item na mão do colega
     } else if (msg.type === "ferramenta_quebrou") {
@@ -1557,6 +1566,15 @@ class GameRuntime {
   private maoPrimeira: EncaixeDaMao | null = null;
   private maoNoCorpo: EncaixeDaMao | null = null;
   private readonly balancoMao = new BalancoDaMao();
+  /** §🎣 as boias na água (a minha e a dos colegas) e a linha até a vara. */
+  private boias!: BoiasView;
+  /** O id da MINHA boia na água (o servidor marca `sua`), ou null. */
+  private minhaBoia: number | null = null;
+  private minhaBoiaCel: { x: number; y: number; z: number } | null = null;
+  /** A água que a vara alcança (12 blocos), mirada agora — null sem vara. */
+  private alvoPesca: RayHit | null = null;
+  /** Câmera em 3ª pessoa neste quadro? (de onde sai a linha da MINHA vara) */
+  private em3a = false;
   private readonly animLocal: EstadoAnimacaoCorpo = novoEstadoAnimacao();
   /** Posição XZ do frame anterior — mede a distância andada pro corpo LOCAL,
    *  mesma ideia do LERP remoto, mas direto da física (autoritativa, sem rede). */
@@ -1775,6 +1793,13 @@ class GameRuntime {
     loading.setFase(this.mundoLazy ? "mundo" : "malha");
     // §👥 Os outros jogadores (caixa + plaquinha + LERP) moram em RemotePlayersView.
     this.outros = new RemotePlayersView(scene);
+    // §🎣 a linha sai da PONTA do item na mão: a minha (câmera ou corpo, pela
+    // câmera do quadro) ou a do colega (o braço dele)
+    this.boias = new BoiasView(scene, (id, alvo) =>
+      id === this.minhaBoia
+        ? ((this.em3a ? this.maoNoCorpo : this.maoPrimeira)?.pontaNoMundo(alvo) ?? null)
+        : this.outros.pontaDaMao(id, alvo),
+    );
     // §🐄 os bichos. `?bench&sembichos` desliga o DESENHO — o servidor segue
     // mandando: o A/B mede só o custo de render deles.
     this.bichos = new BichosView(scene, {
@@ -1869,6 +1894,11 @@ class GameRuntime {
       primeiraVisivel: this.maoPrimeira?.pai.visible ?? false,
       corpo: this.maoNoCorpo?.id ?? null,
       colegas: this.outros.maosNaTela(),
+    });
+    (window as unknown as Record<string, unknown>)["__pesca"] = () => ({
+      alvo: this.alvoPesca ? { x: this.alvoPesca.x, y: this.alvoPesca.y, z: this.alvoPesca.z } : null,
+      minha: this.minhaBoia,
+      boias: this.boias.estado(),
     });
     // §💬 o tooltip de item (mochila, baú, hotbar e lista de craft). Ele só
     // precisa de duas coisas do jogo: o nome PT de um id e se a partida é de
@@ -2014,6 +2044,22 @@ class GameRuntime {
           }),
         );
         return;
+      }
+      // §🎣 a VARA: com a boia na água, o clique PUXA (em qualquer lugar,
+      // como no Minecraft — a janela da mordida é curta); sem boia, LANÇA na
+      // água mirada, mas baú/porta na mira continuam abrindo (bug-601)
+      if (this.idNaMaoVisivel() === ITEM_VARA_PESCAR) {
+        const slot = mochila.ativa ? { slot: this.hotbarUi.selected } : {};
+        if (this.minhaBoia !== null && this.minhaBoiaCel) {
+          this.activeConn.send(JSON.stringify({ type: "pescar", ...this.minhaBoiaCel, ...slot }));
+          return;
+        }
+        const naMira = this.target ? getBlock(this.world, this.target.x, this.target.y, this.target.z) : null;
+        if (this.alvoPesca && !(naMira !== null && ehInterativo(naMira))) {
+          const { x, y, z } = this.alvoPesca;
+          this.activeConn.send(JSON.stringify({ type: "pescar", x, y, z, ...slot }));
+          return;
+        }
       }
       // §🍖 F6: comer vem ANTES do `if (!target)` — comer não precisa de bloco
       // mirado (olhar pro céu e morder tem de funcionar), e é o único uso do
@@ -2687,6 +2733,19 @@ class GameRuntime {
             this.hotbarUi.idNaMao() === ITEM_BALDE_VAZIO, // balde vazio mira a água (recolher)
           )
         : null;
+      // §🎣 com a vara na mão, a água ao alcance da VARA (12, não o da mão):
+      // só serve se o raio parar na água — terra no caminho não é lance
+      this.alvoPesca = null;
+      if (input.active && this.idNaMaoVisivel() === ITEM_VARA_PESCAR) {
+        const h = raycastBlock(
+          this.world,
+          camera.position.x, camera.position.y, camera.position.z,
+          this.lookDir.x, this.lookDir.y, this.lookDir.z,
+          ALCANCE_PESCA,
+          true,
+        );
+        if (h && isAgua(getBlock(this.world, h.x, h.y, h.z))) this.alvoPesca = h;
+      }
       // §💬 (2026-08-14): sempre que o id MI RADO muda, o ▣ do tablet reavalia o
       // rótulo — vira "interagir" sobre container/interativo/cama. Exige guarda
       // (o raycast roda 1×/frame): sem ela o rotular escreveria no DOM sem parar.
@@ -2806,6 +2865,7 @@ class GameRuntime {
       // jogo decide (mira/dano/quebrar continuam do olho, mesmo em 3ª pessoa
       // — é por isso que a ação trava a câmera de volta, ver `emCameraNaoJogavel`).
       const em3aAgora = settings.cameraMode === "terceira" || this.animLocal.gesto !== undefined;
+      this.em3a = em3aAgora;
       if (em3aAgora) {
         const corpo = this.corpoDoJogador();
         corpo.grupo.visible = true;
@@ -2874,6 +2934,16 @@ class GameRuntime {
       this.chunkRenderer.descarregarSujos();
       // §🐄 interpolação + animação + instâncias dos bichos, com a câmera final
       this.bichos.quadro(dt, camera);
+      this.boias.quadro(dt); // §🎣 depois da câmera e das mãos: a linha sai da ponta
+      touchControls?.setModoPesca(
+        this.idNaMaoVisivel() !== ITEM_VARA_PESCAR
+          ? null
+          : this.minhaBoia !== null
+            ? "puxar"
+            : this.alvoPesca
+              ? "lancar"
+              : null,
+      );
       this.bichosCpuMedio = this.bichosCpuMedio * 0.95 + this.bichos.custo().cpuMs * 0.05;
       const tRender = performance.now();
       this.hud.gpuInicio();
@@ -3175,6 +3245,9 @@ class GameRuntime {
       // §📱 quem saiu enquanto estávamos fora não mandou o `player_left` A NÓS:
       // sem isto o boneco dele ficaria parado no mundo pra sempre
       this.outros.limpar();
+      this.boias.limpar(); // §🎣 a boia era da conexão que caiu
+      this.minhaBoia = null;
+      this.minhaBoiaCel = null;
       chat.addMessage("jogo", "a conexão caiu — você voltou ao jogo");
     } else {
       chat.addMessage("jogo", "a aula mudou — mundo novo carregado");
@@ -3334,6 +3407,38 @@ class GameRuntime {
     window.dispatchEvent(
       new CustomEvent("lj-bicho", { detail: { ...alvo, id, evento, nome: this.bichos.nome(id), dist } }),
     );
+  }
+
+  /** §🎣 uma boia caiu (ou voltou a boiar) na água. */
+  aoBoia(id: number, x: number, y: number, z: number, sua: boolean): void {
+    this.boias.lancar(id, x, y, z);
+    if (sua) {
+      this.minhaBoia = id;
+      this.minhaBoiaCel = { x, y, z };
+    }
+  }
+
+  /** §🎣 o peixe mordeu: a boia afunda (e o tablet vibra, se for a minha). */
+  aoBoiaFisgou(id: number, sua: boolean): void {
+    this.boias.fisgou(id);
+    if (sua) {
+      try {
+        navigator.vibrate?.(120);
+      } catch {
+        /* sem vibração: a boia afundando basta */
+      }
+    }
+  }
+
+  /** §🎣 a boia saiu da água. No CRIATIVO o que veio chega aqui (`item`) e
+   *  vai pra hotbar — lá a mochila não existe no servidor (decisão dele: o
+   *  criativo também ganha o peixe). */
+  aoBoiaFim(id: number, _motivo: string, item: number | undefined, sua: boolean): void {
+    this.boias.tirar(id);
+    if (!sua) return;
+    this.minhaBoia = null;
+    this.minhaBoiaCel = null;
+    if (item !== undefined && !mochila.ativa) this.hotbarUi.guardarLocal(item);
   }
 
   /** §🎣 o colega trocou o que segura. */

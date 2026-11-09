@@ -64,10 +64,15 @@ function rand(st: EstadoPesca): number {
 }
 
 /** Manda pra todo mundo que PODE ver o pescador (o gate do `/invisivel` é o
- *  da pose) e pro próprio pescador. */
-function anunciar(ses: GameSession, autor: number, msg: ServerMessage): void {
+ *  da pose) e pro próprio pescador — esse com `sua: true`, porque o cliente
+ *  não sabe o próprio id e é a boia DELE que o ▣ puxa. */
+function anunciar(
+  ses: GameSession,
+  autor: number,
+  msg: Extract<ServerMessage, { type: "boia" | "boia_fisgou" | "boia_fim" }>,
+): void {
   ses.broadcastPose(autor, msg);
-  ses.send(autor, JSON.stringify(msg));
+  ses.send(autor, JSON.stringify({ ...msg, sua: true }));
 }
 
 /** O jogador está com a vara na mão? Sobrevivência: a pilha do slot dito;

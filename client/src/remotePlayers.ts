@@ -63,6 +63,11 @@ export class RemotePlayersView {
     if (rp) this.aplicarMao(id, rp);
   }
 
+  /** §🎣 a ponta do item na mão do colega, no mundo (de onde a linha sai). */
+  pontaDaMao(id: number, alvo: THREE.Vector3): THREE.Vector3 | null {
+    return this.players.get(id)?.mao?.pontaNoMundo(alvo) ?? null;
+  }
+
   /** O que cada colega segura NA TELA agora (sonda): id do jogador → item. */
   maosNaTela(): Record<number, number | null> {
     const out: Record<number, number | null> = {};

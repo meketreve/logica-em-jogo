@@ -187,6 +187,9 @@ export class TouchControls {
    *  que o clique direito USA em vez de colocar — quem decide é o main.ts via
    *  setModoInteragir, realimentado pelo id mirado). */
   private modoInteragir = false;
+  /** §🎣 a vara na mão: o ▣ vira 🎣 "lançar" (água na mira) ou "puxar" (a
+   *  boia na água — vence o interagir, porque o clique puxa em qualquer lugar). */
+  private modoPesca: "lancar" | "puxar" | null = null;
   /** Espelha o `ativo` da varinha pra decidir o que o ▣ faz (canto 2 manda na
    *  frente do comer). */
   private varinhaAtiva = false;
@@ -442,6 +445,12 @@ export class TouchControls {
    *  o clique direito USA em vez de colocar (baú/fornalha/porta/janela/cama).
    *  Quem alimenta é o main.ts, no frame em que o id mirado muda. Guarda por
    *  igualdade: o main pode chamar de novo com o mesmo valor sem re-render. */
+  setModoPesca(modo: "lancar" | "puxar" | null): void {
+    if (this.modoPesca === modo) return;
+    this.modoPesca = modo;
+    this.atualizarBtnColocar();
+  }
+
   setModoInteragir(interagir: boolean): void {
     if (this.modoInteragir === interagir) return;
     this.modoInteragir = interagir;
@@ -461,7 +470,9 @@ export class TouchControls {
   private atualizarBtnColocar(): void {
     if (!this.btnColocar) return;
     if (this.varinhaAtiva) rotular(this.btnColocar, "②", "canto 2");
+    else if (this.modoPesca === "puxar") rotular(this.btnColocar, "🎣", "puxar");
     else if (this.modoInteragir) rotular(this.btnColocar, "👆", "interagir");
+    else if (this.modoPesca === "lancar") rotular(this.btnColocar, "🎣", "lançar");
     else if (this.modoComer) rotular(this.btnColocar, "🍎", "comer");
     else rotular(this.btnColocar, "▣", "colocar");
   }

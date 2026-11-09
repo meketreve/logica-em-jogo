@@ -241,6 +241,20 @@ export class HotbarUi {
     this.refresh();
   }
 
+  /**
+   * §🎣 O criativo GANHOU um item (o peixe da pesca — decisão dele): se ele
+   * já está na barra, nada muda; senão entra no 1º slot vazio, ou no slot
+   * SEGUINTE ao da mão (nunca no da mão: lá está a vara que pescou).
+   */
+  guardarLocal(id: number): void {
+    if (this.slots.includes(id)) return;
+    let i = this.slots.findIndex((s) => !s);
+    if (i < 0) i = (this.sel + 1) % this.slots.length;
+    this.slots[i] = id;
+    localStorage.setItem(HotbarUi.KEY, JSON.stringify(this.slots));
+    this.refresh();
+  }
+
   /** professor: varinha p/ regiões (sempre). aluno: só com a proteção de áreas
    *  ligada (cp24), pra marcar o próprio claim. */
   toggleVarinha(): void {

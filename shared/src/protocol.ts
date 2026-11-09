@@ -778,11 +778,14 @@ export type ServerMessage =
       x: number;
       y: number;
       z: number;
+      /** Só no que vai pro PRÓPRIO pescador (o cliente não sabe o próprio id). */
+      sua?: true;
     }
   | {
       /** §🎣 O peixe MORDEU a boia de `id`: ela afunda e a janela de puxar abre. */
       type: "boia_fisgou";
       id: number;
+      sua?: true;
     }
   | {
       /** §🎣 A boia de `id` saiu da água: `pegou` (com `item` só no CRIATIVO,
@@ -792,6 +795,7 @@ export type ServerMessage =
       id: number;
       motivo: "pegou" | "vazia" | "recolheu";
       item?: number;
+      sua?: true;
     }
   | {
       /**
@@ -1542,12 +1546,19 @@ export function parseServerMessage(raw: string): ServerMessage | null {
     case "boia": {
       const c = [m["id"], m["x"], m["y"], m["z"]];
       if (!c.every((n) => typeof n === "number" && Number.isInteger(n))) return null;
-      return { type: "boia", id: m["id"] as number, x: m["x"] as number, y: m["y"] as number, z: m["z"] as number };
+      return {
+        type: "boia",
+        id: m["id"] as number,
+        x: m["x"] as number,
+        y: m["y"] as number,
+        z: m["z"] as number,
+        ...(m["sua"] === true ? { sua: true as const } : {}),
+      };
     }
     case "boia_fisgou": {
       const id = m["id"];
       if (typeof id !== "number" || !Number.isInteger(id)) return null;
-      return { type: "boia_fisgou", id };
+      return { type: "boia_fisgou", id, ...(m["sua"] === true ? { sua: true as const } : {}) };
     }
     case "boia_fim": {
       const id = m["id"];
@@ -1556,7 +1567,13 @@ export function parseServerMessage(raw: string): ServerMessage | null {
       if (typeof id !== "number" || !Number.isInteger(id)) return null;
       if (motivo !== "pegou" && motivo !== "vazia" && motivo !== "recolheu") return null;
       if (item !== undefined && (typeof item !== "number" || !Number.isInteger(item))) return null;
-      return { type: "boia_fim", id, motivo, ...(item !== undefined ? { item } : {}) };
+      return {
+        type: "boia_fim",
+        id,
+        motivo,
+        ...(item !== undefined ? { item } : {}),
+        ...(m["sua"] === true ? { sua: true as const } : {}),
+      };
     }
     case "mao_de": {
       const id = m["id"];

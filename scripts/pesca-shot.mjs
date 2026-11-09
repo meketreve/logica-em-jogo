@@ -8,6 +8,12 @@
  *    3ª pessoa e passa pro braço do próprio corpo; o colega (um robô no fio,
  *    `mao`) aparece segurando o que ele segura — e CONTROLE NEGATIVO: mão
  *    vazia nos dois lados zera o desenho.
+ * B. a PESCA no CRIATIVO (decisão dele: dá peixe): o balde faz a água, a vara
+ *    mira a água (o ▣ vira 🎣 "lançar"), a boia cai e a LINHA aparece, a
+ *    boia AFUNDA na mordida (o ▣ vira "puxar"), puxar tira o que veio e ele
+ *    entra na HOTBAR local.
+ * C. a PESCA na SOBREVIVÊNCIA: o que veio entra na MOCHILA e a vara gasta;
+ *    CONTROLE NEGATIVO: puxar antes da mordida não traz nada.
  *
  * ⚠️ Serve o cliente COMPILADO: `npm run build` antes.
  * Uso: npm run build && npm run shots:pesca
@@ -333,6 +339,10 @@ async function porNaMao(id) {
 
 
 diga(`▶ ${BASE} em ${L}×${A}\n`);
+// a hotbar do CRIATIVO é do navegador (localStorage): vara no 1, balde de água no 2
+await cdp("Page.navigate", { url: `${BASE}/` });
+await espera(1500);
+await avaliar(`localStorage.setItem('lj-hotbar', JSON.stringify([944, 901, 1, 2, 3, 4, 5, 6, 7])), 1`);
 if (!(await entrar("nome=profa&pin=1234&codigo=prof2026"))) {
   console.error("✗ o mundo não ficou pronto");
   encerrar(1);
@@ -400,6 +410,114 @@ ok(livre >= 0, `achei um slot vazio na hotbar (${livre})`);
 ok(m4?.primeira === null, `a 1ª pessoa não desenha nada (${m4?.primeira})`);
 ok(Object.values(m4?.colegas ?? {}).every((v) => v === null), `o colega ficou de mão vazia (${JSON.stringify(m4?.colegas)})`);
 bot.fechar();
+
+
+const AGUA = 129;
+const SAI = [938, 28, 943, 942]; // peixe cru, folhas, pena, couro (SAI_DA_PESCA)
+const pesca = () => avaliar(`window.__pesca ? window.__pesca() : null`);
+const bloco = (x, y, z) => avaliar(`window.__blocoEm(${x}, ${y}, ${z})`);
+const tocarSlot = async (i) => {
+  const r = await slotEm(i);
+  if (r) await tocar(r.x, r.y);
+};
+const tocarAcao = async () => {
+  const b = await botaoDeAcao("colocar");
+  if (b) await tocar(b.x, b.y);
+};
+const idsNaHotbar = () =>
+  avaliar(`[...document.querySelectorAll('#hotbar .slot')].map(e => Number(e.dataset.tipId ?? 0))`);
+
+/** Faz uma poça a 3 blocos (o balde é o único jeito de pôr água — `/bloco`
+ *  recusa o 129) e devolve a célula da água. */
+async function fazerPoca(slotBalde) {
+  const cam = await avaliar(`window.__mirar(0, 0, 0)`);
+  // a 3 blocos, num lado cujo chão NÃO é água (a poça de antes escorre morro abaixo)
+  for (const [dx, dz] of [[3, 0], [0, 3], [0, -3], [-3, 0], [3, 3], [-3, -3]]) {
+    const x = Math.floor(cam.x) + dx;
+    const z = Math.floor(cam.z) + dz;
+    let g = Math.floor(cam.y) + 1;
+    for (let i = 0; i < 12 && (await bloco(x, g, z)) === 0; i++) g--;
+    if ((await bloco(x, g, z)) === AGUA) continue;
+    // o chão da coluna é `g`; a água nasce em cima dele
+    await tocarSlot(slotBalde);
+    await avaliar(`window.__mirar(${x + 0.5}, ${g + 1.0}, ${z + 0.5})`);
+    await espera(250);
+    await tocarAcao();
+    const virou = await ateQue(() => bloco(x, g + 1, z), (id) => id === AGUA, 3000);
+    if (virou === AGUA) return { x, y: g + 1, z };
+  }
+  return null;
+}
+
+/** Lança, espera a mordida (5–20 s no servidor) e puxa. */
+async function pescarUmaVez(poca, nomeFoto) {
+  await avaliar(`window.__mirar(${poca.x + 0.5}, ${poca.y + 0.5}, ${poca.z + 0.5})`);
+  await espera(300);
+  const mira = await pesca();
+  ok(mira?.alvo !== null, `a vara mira a água (${JSON.stringify(mira?.alvo)})`);
+  const rot = await rotuloDaAcao("colocar");
+  ok(/lançar/.test(rot ?? ""), `o ▣ diz "${rot}"`);
+  await tocarAcao();
+  const lancou = await ateQue(pesca, (p) => p?.minha !== null && p?.minha !== undefined, 3000);
+  const minha = lancou?.minha;
+  const b = minha != null ? lancou.boias[minha] : null;
+  ok(b !== null && b?.x === poca.x && b?.z === poca.z, `a boia caiu na poça (${JSON.stringify(b)})`);
+  ok(b?.linha === true, "e a LINHA vai da vara até ela");
+  const rotP = await rotuloDaAcao("colocar");
+  ok(/puxar/.test(rotP ?? ""), `com a boia na água o ▣ diz "${rotP}"`);
+  await limparChat();
+  if (nomeFoto) await foto(`${nomeFoto}-boia.png`);
+  const mordeu = await ateQue(pesca, (p) => p?.boias?.[minha]?.afundada === true, 26000);
+  ok(mordeu?.boias?.[minha]?.afundada === true, "o peixe MORDEU: a boia afundou");
+  if (nomeFoto) await foto(`${nomeFoto}-mordida.png`);
+  await tocarAcao();
+  const saiu = await ateQue(pesca, (p) => p?.minha === null, 3000);
+  ok(saiu?.minha === null && !saiu?.boias?.[minha], "puxou: a boia saiu da água");
+}
+
+diga("== B. a pesca no CRIATIVO: o que veio entra na hotbar ==");
+await dizer("/modo criativo eu"); // a seção A deixou em sobrevivência
+await ateQue(idsNaHotbar, (ids) => ids[0] === 944 && ids[1] === 901, 3000);
+const pocaB = await fazerPoca(1);
+ok(pocaB !== null, `o balde fez a poça (${JSON.stringify(pocaB)})`);
+if (pocaB) {
+  await tocarSlot(0);
+  const antes = await idsNaHotbar();
+  await pescarUmaVez(pocaB, "B");
+  const depois = await ateQue(idsNaHotbar, (ids) => ids.some((id, i) => id !== antes[i]), 3000);
+  const novo = depois.find((id, i) => id !== antes[i]);
+  ok(SAI.includes(novo), `entrou na hotbar o que a pesca dá (${novo})`);
+  ok(depois[0] === 944, "e a vara continua na mão (slot 1)");
+  await foto("B-depois.png");
+}
+
+diga("== C. a pesca na SOBREVIVÊNCIA: mochila, vara gasta, e o controle ==");
+await dizer("/modo sobrevivencia eu");
+await dizer(`/dar eu ${VARA} 1`);
+await espera(600);
+// a mesma poça do B (a água é do mundo, não do modo)
+const pocaC = pocaB && (await bloco(pocaB.x, pocaB.y, pocaB.z)) === AGUA ? pocaB : null;
+ok(pocaC !== null, `a poça continua lá (${JSON.stringify(pocaC)})`);
+if (pocaC) {
+  await porNaMao(VARA);
+  // CONTROLE NEGATIVO: lança e puxa na hora → nada vem
+  await avaliar(`window.__mirar(${pocaC.x + 0.5}, ${pocaC.y + 0.5}, ${pocaC.z + 0.5})`);
+  await espera(300);
+  const antes = await idsNaHotbar();
+  await tocarAcao();
+  const fora = await ateQue(pesca, (p) => p?.minha != null, 3000);
+  ok(fora?.minha != null, "pré-condição do controle: a boia ESTAVA na água");
+  await tocarAcao();
+  await ateQue(pesca, (p) => p?.minha === null, 3000);
+  await espera(600);
+  const igual = await idsNaHotbar();
+  ok(JSON.stringify(igual) === JSON.stringify(antes), "puxar ANTES da mordida não trouxe nada");
+  await pescarUmaVez(pocaC, null);
+  const depois = await ateQue(idsNaHotbar, (ids) => ids.some((id) => SAI.includes(id)), 3000);
+  ok(depois.some((id) => SAI.includes(id)), `entrou na MOCHILA o que a pesca dá (${depois})`);
+  const vida = await avaliar(`!!document.querySelector('#hotbar .slot[data-tip-id="944"] .vida, #hotbar .slot[data-tip-id="944"] [class*=vida]')`);
+  ok(vida === true, "a vara ganhou a barra de vida (gastou 1)");
+}
 
 ok(excecoes.length === 0, `sem exceção no console (${excecoes.slice(0, 2).join(" | ")})`);
 diga(`\n${falhas === 0 ? "✓ tudo certo" : `✗ ${falhas} falha(s)`}`);

@@ -62,7 +62,7 @@ describe("§🎣 lançar", () => {
     pescar(s, { ...agua, y: agua.y - 1 }); // mirou a de baixo
     expect(s.pesca.porCliente.get(2)).toMatchObject({ x: agua.x, y: agua.y, z: agua.z });
     expect(msgs(sent, 1, "boia")).toEqual([{ type: "boia", id: 2, ...agua }]);
-    expect(msgs(sent, 2, "boia")).toEqual([{ type: "boia", id: 2, ...agua }]);
+    expect(msgs(sent, 2, "boia")).toEqual([{ type: "boia", id: 2, ...agua, sua: true }]); // o próprio sabe que é a dele
   });
 
   it("CONTROLE NEGATIVO: sem a vara no slot, nada é lançado", () => {
@@ -91,7 +91,7 @@ describe("§🎣 puxar", () => {
     expect(s.pesca.porCliente.size).toBe(1);
     pescar(s, agua);
     expect(s.pesca.porCliente.size).toBe(0);
-    expect(msgs(sent, 2, "boia_fim")).toEqual([{ type: "boia_fim", id: 2, motivo: "vazia" }]);
+    expect(msgs(sent, 2, "boia_fim")).toEqual([{ type: "boia_fim", id: 2, motivo: "vazia", sua: true }]);
     const inv = s.inventarios.get("ana")!;
     expect(inv[0]).toEqual({ id: VARA, qtd: 1 });
     expect(inv.filter((x) => x !== null)).toHaveLength(1);
@@ -103,7 +103,8 @@ describe("§🎣 puxar", () => {
     morder(s);
     expect(msgs(sent, 1, "boia_fisgou")).toEqual([{ type: "boia_fisgou", id: 2 }]);
     pescar(s, agua);
-    expect(msgs(sent, 2, "boia_fim")).toEqual([{ type: "boia_fim", id: 2, motivo: "pegou" }]);
+    expect(msgs(sent, 2, "boia_fim")).toEqual([{ type: "boia_fim", id: 2, motivo: "pegou", sua: true }]);
+    expect(msgs(sent, 1, "boia_fim")).toEqual([{ type: "boia_fim", id: 2, motivo: "pegou" }]); // os outros: sem `sua`
     const inv = s.inventarios.get("ana")!;
     expect(inv[0]).toEqual({ id: VARA, qtd: 1, dano: 1 });
     const veio = inv.filter((x) => x !== null && x.id !== VARA);
@@ -137,7 +138,7 @@ describe("§🎣 puxar", () => {
     expect(msgs(sent, 1, "boia")).toHaveLength(2); // o lançamento e a volta
     expect(s.pesca.porCliente.get(2)!.fisgaEm).toBeGreaterThan(s.tickCount);
     pescar(s, agua); // puxar agora é fora da hora
-    expect(msgs(sent, 2, "boia_fim").at(-1)).toEqual({ type: "boia_fim", id: 2, motivo: "vazia" });
+    expect(msgs(sent, 2, "boia_fim").at(-1)).toEqual({ type: "boia_fim", id: 2, motivo: "vazia", sua: true });
   });
 
   it("a vara ACABA: com 63 de dano, o próximo peixe a quebra", () => {
