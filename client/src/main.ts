@@ -94,6 +94,7 @@ import { ColunasFaltando } from "./colunasFaltando";
 import { HotbarUi } from "./hotbarUi";
 import { LuzCliente } from "./luzCliente";
 import { RemotePlayersView } from "./remotePlayers";
+import { BalancoDaMao, type EncaixeDaMao, encaixeNaCamera, encaixeNoBraco } from "./itemNaMao";
 import { BichosView, brilhoDaLuzVoxel } from "./bichos/render";
 import { EmojiWheelPanel } from "./emojiWheel";
 import {
@@ -1152,6 +1153,8 @@ function handleServerData(data: string | ArrayBuffer): void {
       // §🍖 F4: o servidor é dono da mochila; o cliente só espelha e redesenha.
       mochila.aplicar(msg.slots);
       jogo?.aoMudarMochila();
+    } else if (msg.type === "mao_de") {
+      jogo?.applyMaoDe(msg.id, msg.item); // §🎣 o item na mão do colega
     } else if (msg.type === "ferramenta_quebrou") {
       // §🔨 v2: o `inventario` que veio junto já tirou a ferramenta da mão —
       // aqui só o ESTALO, que é a parte que um slot vazio não conta. O aviso
@@ -1550,6 +1553,10 @@ class GameRuntime {
    *  (persistente ou durante um emoji). Criado sob demanda: em 1ª pessoa pura
    *  (o normal do jogo) não custa nada. */
   private corpoLocal: Corpo | null = null;
+  /** §🎣 o item na mão: na câmera (1ª pessoa) e no braço do próprio corpo (3ª). */
+  private maoPrimeira: EncaixeDaMao | null = null;
+  private maoNoCorpo: EncaixeDaMao | null = null;
+  private readonly balancoMao = new BalancoDaMao();
   private readonly animLocal: EstadoAnimacaoCorpo = novoEstadoAnimacao();
   /** Posição XZ do frame anterior — mede a distância andada pro corpo LOCAL,
    *  mesma ideia do LERP remoto, mas direto da física (autoritativa, sem rede). */
@@ -1851,6 +1858,18 @@ class GameRuntime {
       },
     });
     this.hotbarUi.refresh();
+    // §🎣 o item na mão (1ª pessoa presa na câmera; a câmera entra na cena
+    // pra que os filhos dela sejam desenhados) e o dos colegas
+    if (!camera.parent) scene.add(camera);
+    this.maoPrimeira = encaixeNaCamera(camera, this.hotbarUi.icons);
+    this.outros.usarIcones(this.hotbarUi.icons);
+    // §🎣 gancho de SONDA: o que cada mão mostra (o id), sem ler pixel
+    (window as unknown as Record<string, unknown>)["__mao"] = () => ({
+      primeira: this.maoPrimeira?.id ?? null,
+      primeiraVisivel: this.maoPrimeira?.pai.visible ?? false,
+      corpo: this.maoNoCorpo?.id ?? null,
+      colegas: this.outros.maosNaTela(),
+    });
     // §💬 o tooltip de item (mochila, baú, hotbar e lista de craft). Ele só
     // precisa de duas coisas do jogo: o nome PT de um id e se a partida é de
     // SOBREVIVÊNCIA — em criativo não há exigência de ferramenta, e a linha
@@ -1945,6 +1964,7 @@ class GameRuntime {
     };
     input.onMouseButton(0, () => {
       if (this.emCameraNaoJogavel()) return;
+      this.balancoMao.disparar(); // §🎣 a mão bate junto (só tela)
       // §🍖 F7: soco vem ANTES do bloco — quem está mirado é gente, e o bloco
       // atrás dela não pode quebrar no mesmo clique. O cliente só manda a
       // intenção: regra, modo, alcance e cooldown são conferidos no servidor.
@@ -1981,6 +2001,7 @@ class GameRuntime {
     input.onMouseUp(0, () => this.soltarQuebra());
     input.onMouseButton(2, () => {
       if (this.emCameraNaoJogavel()) return;
+      this.balancoMao.disparar(); // §🎣 idem pro usar/colocar
       // §🐄 bicho na mira: tesoura, balde, isca, domar, sentar — o ITEM decide,
       // e quem decide o efeito é o servidor. Vem antes de comer: com a carne na
       // mão e o cão na mira, o clique é pra domar (regra Minecraft).
@@ -2793,6 +2814,8 @@ class GameRuntime {
           this.player.pos.z - this.ultimoPosAnimZ,
         );
         animarCorpo(corpo, this.animLocal, distXZAnimLocal, dt, input.pitch);
+        this.maoNoCorpo ??= encaixeNoBraco(corpo, this.hotbarUi.icons);
+        this.maoNoCorpo.definir(this.idNaMaoVisivel());
         corpo.grupo.position.set(this.player.pos.x, this.player.pos.y + PLAYER.height / 2, this.player.pos.z);
         corpo.grupo.rotation.y = input.yaw;
 
@@ -2829,6 +2852,14 @@ class GameRuntime {
         );
       } else if (this.corpoLocal) {
         this.corpoLocal.grupo.visible = false;
+      }
+      // §🎣 a mão da 1ª pessoa: some em 3ª (lá quem segura é o corpo). Segurar
+      // pra quebrar repete o balanço, como bater de verdade.
+      if (this.maoPrimeira) {
+        this.maoPrimeira.pai.visible = !em3aAgora;
+        this.maoPrimeira.definir(em3aAgora ? null : this.idNaMaoVisivel());
+        if (this.quebra && !this.balancoMao.ativo) this.balancoMao.disparar();
+        this.maoPrimeira.pai.rotation.x = this.balancoMao.passo(dt);
       }
       this.ultimoPosAnimX = this.player.pos.x;
       this.ultimoPosAnimZ = this.player.pos.z;
@@ -3303,6 +3334,16 @@ class GameRuntime {
     window.dispatchEvent(
       new CustomEvent("lj-bicho", { detail: { ...alvo, id, evento, nome: this.bichos.nome(id), dist } }),
     );
+  }
+
+  /** §🎣 o colega trocou o que segura. */
+  applyMaoDe(id: number, item: number | null): void {
+    this.outros.aoMao(id, item);
+  }
+
+  /** O que a mão MOSTRA: a varinha do professor não é item (fica vazia). */
+  private idNaMaoVisivel(): number | null {
+    return this.hotbarUi.varinhaAtiva ? null : this.hotbarUi.idNaMao();
   }
 
   applyPlayerLeft(id: number): void {

@@ -45,6 +45,7 @@
     "shots:vitrine": "node scripts/bichos-vitrine-shot.mjs",
     "shots:som": "node scripts/som-shot.mjs",
     "shots:painel": "node scripts/painel-shot.mjs",
+    "shots:pesca": "node scripts/pesca-shot.mjs",
     "miniaturas": "node scripts/miniaturas-aulas.mjs"
   },
   "devDependencies": {

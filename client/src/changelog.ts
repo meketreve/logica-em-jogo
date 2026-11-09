@@ -46,6 +46,8 @@ const MUDANCAS: readonly Mudanca[] = [
     titulo: "A vara de pescar",
     itens: [
       "nova ferramenta: a **vara de pescar** — **3 gravetos + 2 algodão** na bancada (o algodão é a linha). Ela aguenta **64 peixes** e depois quebra, como as outras ferramentas",
+      "agora dá pra **ver o que está na mão**: a picareta, o machado, a vara, o bloco que você vai colocar — no canto da tela, e ela **balança** quando você bate ou usa",
+      "e os **colegas também**: cada um aparece segurando o que tem na mão (na câmera de 3ª pessoa, tecla C, você vê a sua)",
     ],
   },
   {

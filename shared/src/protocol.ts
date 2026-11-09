@@ -758,6 +758,16 @@ export type ServerMessage =
     }
   | {
       /**
+       * §🎣 O que um COLEGA segura (2026-11-09, o item na mão). É o `mao` do
+       * cliente repassado aos outros — só quando muda, e quem entra recebe o
+       * de todo mundo. Mesmo gate do `/invisivel` da pose (`broadcastPose`).
+       */
+      type: "mao_de";
+      id: number;
+      item: number | null;
+    }
+  | {
+      /**
        * Aluno REMOVIDO da aula pelo professor (cp22, /expulsar). Cliente mostra o
        * motivo e volta pro menu — mesmo caminho do join_denied. O socket cai
        * logo depois; ele pode entrar de novo com o PIN.
@@ -1488,6 +1498,13 @@ export function parseServerMessage(raw: string): ServerMessage | null {
       const item = m["item"];
       if (typeof item !== "number" || !Number.isInteger(item)) return null;
       return { type: "ferramenta_quebrou", item };
+    }
+    case "mao_de": {
+      const id = m["id"];
+      const item = m["item"];
+      if (typeof id !== "number" || !Number.isInteger(id)) return null;
+      if (item !== null && (typeof item !== "number" || !Number.isInteger(item))) return null;
+      return { type: "mao_de", id, item };
     }
     case "inventario": {
       // §🍖 F4: `slots` tem de ser LISTA (mochila vazia é lista vazia, e isso é

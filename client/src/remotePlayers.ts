@@ -1,6 +1,7 @@
 import * as THREE from "three";
 import { PLAYER, type TipoGesto } from "@logica/shared";
 import { type Corpo, type EstadoAnimacaoCorpo, animarCorpo, criarCorpo, descartarCorpo, novoEstadoAnimacao } from "./playerBody";
+import { type EncaixeDaMao, encaixeNoBraco } from "./itemNaMao";
 
 interface RemotePlayer {
   /** Grupo com as 5 partes do corpo (cabeça, tronco, 2 braços, 2 pernas). */
@@ -16,6 +17,8 @@ interface RemotePlayer {
   labelName?: string;
   /** Deitado na cama (2026-08-17)? O corpo tomba e desce até a altura da cama. */
   dormindo?: boolean;
+  /** §🎣 o item na mão direita (o `mao_de` do servidor). */
+  mao?: EncaixeDaMao;
 }
 
 /**
@@ -39,8 +42,39 @@ interface RemotePlayer {
  */
 export class RemotePlayersView {
   private readonly players = new Map<number, RemotePlayer>();
+  /** §🎣 o que cada colega segura — guardado mesmo antes da 1ª pose chegar
+   *  (o `mao_de` do join pode vir antes do corpo existir). */
+  private readonly maos = new Map<number, number | null>();
+  private icones: ReadonlyMap<number, string> | null = null;
 
   constructor(private readonly scene: THREE.Scene) {}
+
+  /** Os ícones da hotbar viram o desenho do item na mão (chegam depois: a
+   *  hotbar nasce depois desta view). */
+  usarIcones(icones: ReadonlyMap<number, string>): void {
+    this.icones = icones;
+    for (const [id, rp] of this.players) this.aplicarMao(id, rp);
+  }
+
+  /** §🎣 o colega trocou o que segura. */
+  aoMao(id: number, item: number | null): void {
+    this.maos.set(id, item);
+    const rp = this.players.get(id);
+    if (rp) this.aplicarMao(id, rp);
+  }
+
+  /** O que cada colega segura NA TELA agora (sonda): id do jogador → item. */
+  maosNaTela(): Record<number, number | null> {
+    const out: Record<number, number | null> = {};
+    for (const [id, rp] of this.players) out[id] = rp.mao?.id ?? null;
+    return out;
+  }
+
+  private aplicarMao(id: number, rp: RemotePlayer): void {
+    if (!this.icones) return;
+    rp.mao ??= encaixeNoBraco(rp.corpo, this.icones);
+    rp.mao.definir(this.maos.get(id) ?? null);
+  }
 
   /**
    * Plaquinha desenhada num canvas (zero assets, mesma regra do atlas): texto
@@ -110,6 +144,7 @@ export class RemotePlayersView {
         pitchAlvo: msg.pitch,
       };
       this.players.set(msg.id, rp);
+      this.aplicarMao(msg.id, rp);
     }
     // nome viaja no player_moved (ausente = host antigo, caixa fica sem nome)
     if (msg.name && msg.name !== rp.labelName) {
@@ -147,6 +182,8 @@ export class RemotePlayersView {
     const rp = this.players.get(id);
     if (!rp) return;
     RemotePlayersView.soltarPlaca(rp); // primeiro: tira a placa antes de descartar o resto
+    rp.mao?.descartar(); // antes do corpo: o `descartarCorpo` varre os meshes filhos
+    this.maos.delete(id);
     this.scene.remove(rp.corpo.grupo);
     descartarCorpo(rp.corpo);
     this.players.delete(id);
@@ -156,6 +193,7 @@ export class RemotePlayersView {
    *  de quem saiu nesse meio-tempo nunca chegaram aqui). */
   limpar(): void {
     for (const id of [...this.players.keys()]) this.aoSair(id);
+    this.maos.clear();
   }
 
   /** Desliza todo mundo até o último update. `dt` em segundos. */

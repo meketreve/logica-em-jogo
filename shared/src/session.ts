@@ -1681,7 +1681,10 @@ export class GameSession {
       case "mao": {
         // §🐄 o que o jogador segura (a galinha segue o trigo NA MÃO, não na mochila)
         if (!this.players.has(clientId)) return;
+        // §🎣 o item na mão: os colegas veem o que ele segura — só quando MUDA
+        const antes = this.bichos.mao.get(clientId) ?? null;
         this.bichos.mao.set(clientId, msg.id);
+        if (antes !== msg.id) this.broadcastPose(clientId, { type: "mao_de", id: clientId, item: msg.id });
         break;
       }
       case "atacar": {
@@ -2169,6 +2172,13 @@ export class GameSession {
       clientId,
       JSON.stringify({ type: "spawn", ...this.spawn, papel } satisfies ServerMessage),
     );
+    // §🎣 o que cada colega já segura (só os visíveis pra este papel — o
+    // mesmo gate do `broadcastPose`)
+    for (const [outroId, item] of this.bichos.mao) {
+      if (outroId === clientId || item === null || !this.players.has(outroId)) continue;
+      if (this.invisiveis.has(outroId) && papel !== "professor") continue;
+      this.send(clientId, JSON.stringify({ type: "mao_de", id: outroId, item } satisfies ServerMessage));
+    }
     if (this.lazy) {
       // F2 streaming: mundo gigante NÃO viaja inteiro — só o header; as
       // colunas chegam por raio de interesse no tick (o entorno do jogador
