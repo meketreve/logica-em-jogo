@@ -22,12 +22,17 @@ active: true
       segue o sinal já saiu em 27/10 — sobra o botão.)
 - [x] ~~Porta controlada pelo sinal~~ — feita em 27/10 (sonda C6). Janela fica pra depois (dele).
 - [ ] **Decisões dele, pendentes:** luz COLORIDA (3 canais — lote grande) e a curva de brilho.
-- [ ] **§🎣 Vara de pescar e instrumentos (09/11):** plano no `todo.md` (§🎣) — RESPONDIDO em 09/11
-      (abstrata, fisgada, sem tesouro, peixe no criativo, item na mão ANTES); ~5–5,5 sessões.
+- [x] ~~§🎣 Vara de pescar (09/11)~~ — feita (E0–E6 + item na mão). Instrumentos (trena →
+      bússola + relógio) seguem no `todo.md` §🎣, esperando ele.
 - [ ] **Orçamento de mobs/entidades/pistão (27/10)** — 6 perguntas dele no fim da seção
       **§🧱** do `todo.md`; recomendação: pacote A (pistão sem animação, ~4 sessões).
 
 ## Testar na escola (o usuário faz)
+
+- [ ] **§🎣 Vara de pescar (09/11):** a criança PERCEBE a mordida (boia afunda + som + vibração)
+      e dá conta dos **2 s** no Wi-Fi da escola? (se perder muito: alargar `JANELA_FISGADA_TICKS`).
+      O item na mão aparece no tablet e o TAMANHO está bom? O ▣ "lançar/puxar" é entendido? Os
+      colegas veem a boia e a linha? O volume da pesca. Pescar parado vira farm (só peixe, sem Dimas)?
 
 - [ ] **`/voo` salvo (bug-678, 03/11):** `/voo ligar`, parar o host, abrir de novo — o aluno
       ainda voa sem o professor religar?

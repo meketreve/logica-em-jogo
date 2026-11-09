@@ -1267,8 +1267,12 @@ otimizado (máquina de estados) · (11) bicho aperta a placa · (12) sons em thr
 6. Pagar o motor por tick agora? Muda o cabeçalho de `circuitos.ts` e tira a garantia de
    "nunca trava" que o ponto fixo dá hoje.
 
-## §🎣 Ferramentas novas: a VARA DE PESCAR e os instrumentos — PLANO (pedido dele, 2026-11-09)
+## §🎣 Ferramentas novas: a VARA DE PESCAR e os instrumentos — ✅ VARA FEITA em 09/11 (instrumentos: depois)
 
+> ✅ **09/11: E0–E6 + item na mão FEITOS** (`shared/src/pesca.ts`, `session/pesca.ts`, `client/src/boias.ts`,
+> `itemNaMao.ts`; sonda `shots:pesca`, smoke `pesca`). Os sons foram provados na `shots:pesca`
+> (não numa seção da `shots:som`). Instrumentos (trena, bússola, relógio) seguem só plano.
+>
 > Plano, não spec fechada: as perguntas do fim são DELE e fecham o escopo. Lido no código em
 > 09/11 (`ferramentas.ts`, `blocks.ts` banda ≥900, `session/bichos.ts`, `main.ts` clique
 > direito, `raycast.ts`, `venda.ts`, `receitas.ts`, save). Unidade = sessão. **Nada codado.**
@@ -1403,23 +1407,23 @@ servidor (a trena nada, a bússola só o ponto do professor), então são as mai
 
 ### 6. Ordem de implementação (lotes pequenos, cada um com `verify` + smoke/sonda)
 
-* \[ ] **E0 — decisões dele** (abaixo, todas juntas).
-* \[ ] **E1 — o item** (0,5): id 944, `FERRAMENTAS_ITENS`, `DURABILIDADE` 64, receita no fim,
+* \[x] **E0 — decisões dele** (abaixo, todas juntas).
+* \[x] **E1 — o item** (0,5): id 944, `FERRAMENTAS_ITENS`, `DURABILIDADE` 64, receita no fim,
   ícone, nome, aba criativo, tooltip. → verify: `receitas.test` (índices antigos intactos),
   `venda.test` verde, round-trip do save com a vara gasta (`dano` volta igual).
-* \[ ] **E2 — a regra pura + sessão** (1): `pesca.ts` (tabela, espera, janela) e o estado por
+* \[x] **E2 — a regra pura + sessão** (1): `pesca.ts` (tabela, espera, janela) e o estado por
   jogador; `pescar`, `boia`, `boia_fisgou` no `protocol.ts` (parse + teste); limpeza nas 7
   saídas; gasto e quebra. → verify: vitest com CONTROLE NEGATIVO (sem vara recusa; clique fora
   da janela não dá peixe; água recolhida derruba a boia — e a pré-condição "a boia existia"
   afirmada antes, a lição do "jogador nem entrou").
-* \[ ] **E3 — o cliente** (1): raycast de 12 com a vara, a fila do clique direito, boia +
+* \[x] **E3 — o cliente** (1): raycast de 12 com a vara, a fila do clique direito, boia +
   linha + afundar, ▣ 🎣 no tablet. → verify: sonda `shots:pesca` (estado em `window.__pesca`,
   1024×600, com toque pelo CDP) — "UI só é feita quando uma sonda a enxerga".
-* \[ ] **E4 — sons** (0,5): os 4 de cima, na síntese. → verify: seção nova na `shots:som` com
+* \[x] **E4 — sons** (0,5): os 4 de cima, na síntese. → verify: seção nova na `shots:som` com
   controle negativo (o contador sobe só com a boia de verdade, não com `/bloco`).
-* \[ ] **E5 — smoke `pesca`** (0,5): dois clientes reais; o colega VÊ a boia; pega peixe; troca
+* \[x] **E5 — smoke `pesca`** (0,5): dois clientes reais; o colega VÊ a boia; pega peixe; troca
   de mão recolhe; host morto não deixa boia no save.
-* \[ ] **E6 — changelog + manual** (0,25): bloco no `changelog.ts` ANTES de codar o E1 (ordem
+* \[x] **E6 — changelog + manual** (0,25): bloco no `changelog.ts` ANTES de codar o E1 (ordem
   do WORKFLOW), seção no `docs/manual.html`, print no README.
 
 **Vara inteira: ~3,5–4 sessões.** Depois, se ele quiser: **trena** (0,5) → **bússola +

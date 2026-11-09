@@ -76,6 +76,11 @@ de **23**, uma por vez (em paralelo a asserção de tempo mente): 13 sobem host 
   `TIPOS_BICHO` e de `variantes` é IDENTIDADE no fio e no save (só acrescenta no fim).
   `/bichos fila` monta a VITRINE parada (print: `shots:vitrine`; o `?bench&bichosparados` manda
   `/bichos parar`). Item que não é bloco na hotbar do criativo (aba `comida`) usa `blocoExiste`.
+- **§🎣 pesca e item na mão (09/11):** regra PURA `shared/src/pesca.ts` (espera, janela, sorteio,
+  lixo sem preço — portão em `pesca.test.ts`) · estado por CONEXÃO `session/pesca.ts` (fora do
+  save; `boia`/`boia_fisgou`/`boia_fim`, com `sua: true` só pro pescador) · boia e linha
+  `client/src/boias.ts` · o item na mão `client/src/itemNaMao.ts` (ícone da hotbar num plano;
+  1ª pessoa presa na câmera, 3ª no `bracoB`; colegas pelo `mao_de`). Sonda `shots:pesca`, smoke `pesca`.
 - **§🖥️ painel do professor** (o launcher desde 03/11): supervisor `server/src/painel.ts`
   (127.0.0.1:8070, sobe o jogo por `fork` com IPC — o host fala com ele em `relatarAoPainel`,
   no fim do `index.ts`; o botão **Entrar no jogo** aponta `localhost:<portaJogo>`, 8080 por

@@ -17,6 +17,13 @@ e o jogo **reconecta sozinho** (5 tentativas, espera a tela voltar; esgotou → 
 Provado em `shots:queda` (host morto e ressuscitado, aba escondida de verdade, heartbeat mudo) e no
 smoke `logs`. **Não testado em aula.**
 
+**09/11 — §🎣 A VARA DE PESCAR** (pedido dele: "pode aplicar tudo", decisões de 09/11): item 944
+(3 gravetos + 2 algodão, durabilidade 64), pesca ABSTRATA em qualquer água, espera 5–20 s, a boia
+afunda e há **2 s** pra puxar (relógio do SERVIDOR), 85% peixe com a espécie do bioma, o resto lixo
+SEM preço (portão de venda). Criativo dá peixe (o cliente guarda). E, antes dela, **o item na mão**:
+1ª pessoa, 3ª e nos colegas (`mao_de`), a linha sai da ponta da vara. 4 sons novos. Sonda
+`shots:pesca` + smoke `pesca` (controles negativos). **Não testado em aula.**
+
 **03/11 — bug-678: o `/voo` FINALMENTE fica salvo** (relato dele: "ainda continua"). O conserto do
 bug-674 (05/10) nunca funcionou: o leitor do `.ljw` (`readSaveMeta`) não lia `vooLiberado`, e o
 teste restaurava do objeto em memória. Portão novo de round-trip pelo ARQUIVO em `session.test.ts`.

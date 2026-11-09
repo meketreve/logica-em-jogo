@@ -44,6 +44,10 @@ tier: 3
 
 ## Erros a não repetir
 
+- [2026-11-09] [git] [✗] Commit encadeado com `;` depois do `npm run verify` — o E2 da pesca subiu pra `main` com o verify VERMELHO (TS nos testes). Portão e commit se encadeiam com `&&`, sempre.
+- [2026-11-09] [som] [✓] Duas vozes do MESMO rótulo no mesmo lugar dentro do `JUNTAR_MS` viram uma ("juntados"): o lançar + o plop da boia contavam 1. Evento que soa em duas partes é UMA voz com as duas partes dentro.
+- [2026-11-09] [economia] [✓] O portão de venda pegou o graveto (1 Dimas) no lixo da pesca — tabela de sorteio nova também lê o `precoDeVenda` de verdade, com controle negativo.
+
 - [2026-11-03] [save] [✗] Teste de persistência que restaura do OBJETO (`restore: { world, ...meta }`) em vez do ARQUIVO: o decoder do `.ljw` é lista à mão e o `vooLiberado` nunca entrou nela — o bug-674 ficou "consertado" 4 semanas com teste verde (bug-678). Persistência se prova por `encodeSave`→`decodeSave`; o portão de round-trip em `session.test.ts` cobre todo campo do `toSave()`.
 - [2026-11-03] [sons] [✓] kenney.nl responde 403 a qualquer cliente que não é navegador (nginx do site, não o proxy) e mascarar o User-Agent é proibido aqui — os pacotes OFICIAIS do Kenney também moram no OpenGameArt (usuário `kenney`; o RPG Audio é "50 RPG sound effects", mesmo zip). E Vorbis q0 em impacto curto estoura até +5 dB no decode: igualar a −20 dBFS de média com teto de pico em −3, não −1.
 
