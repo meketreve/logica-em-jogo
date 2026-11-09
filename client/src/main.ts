@@ -3411,6 +3411,9 @@ class GameRuntime {
 
   /** §🎣 uma boia caiu (ou voltou a boiar) na água. */
   aoBoia(id: number, x: number, y: number, z: number, sua: boolean): void {
+    // §🔊 boia nova = lançou (zunido + plop); boia que já estava = o peixe
+    // escapou e ela voltou a boiar (só o plop)
+    somMundo.pesca(this.boias.tem(id) ? "boiaCaiu" : "lancar", x + 0.5, y + 1, z + 0.5);
     this.boias.lancar(id, x, y, z);
     if (sua) {
       this.minhaBoia = id;
@@ -3420,6 +3423,8 @@ class GameRuntime {
 
   /** §🎣 o peixe mordeu: a boia afunda (e o tablet vibra, se for a minha). */
   aoBoiaFisgou(id: number, sua: boolean): void {
+    const b = this.boias.estado()[id];
+    if (b) somMundo.pesca("fisgou", b.x + 0.5, b.y + 1, b.z + 0.5); // §🔊 o alerta
     this.boias.fisgou(id);
     if (sua) {
       try {
@@ -3433,7 +3438,11 @@ class GameRuntime {
   /** §🎣 a boia saiu da água. No CRIATIVO o que veio chega aqui (`item`) e
    *  vai pra hotbar — lá a mochila não existe no servidor (decisão dele: o
    *  criativo também ganha o peixe). */
-  aoBoiaFim(id: number, _motivo: string, item: number | undefined, sua: boolean): void {
+  aoBoiaFim(id: number, motivo: string, item: number | undefined, sua: boolean): void {
+    const b = this.boias.estado()[id];
+    // §🔊 a carretilha (e o splash do que saiu da água, quando veio algo);
+    // a linha recolhida sozinha (largou a vara, foi longe) sai calada
+    if (b && motivo !== "recolheu") somMundo.pesca("puxar", b.x + 0.5, b.y + 1, b.z + 0.5, motivo === "pegou");
     this.boias.tirar(id);
     if (!sua) return;
     this.minhaBoia = null;

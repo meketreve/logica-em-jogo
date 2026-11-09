@@ -14,6 +14,9 @@
  *    entra na HOTBAR local.
  * C. a PESCA na SOBREVIVÊNCIA: o que veio entra na MOCHILA e a vara gasta;
  *    CONTROLE NEGATIVO: puxar antes da mordida não traz nada.
+ * D. o SOM (contadores do `__som`, como a `shots:som`): lançar soa 1 (zunido +
+ *    plop numa voz), a mordida 1, puxar 1; CONTROLE NEGATIVO: a linha recolhida
+ *    sozinha (trocou de item) fica calada.
  *
  * ⚠️ Serve o cliente COMPILADO: `npm run build` antes.
  * Uso: npm run build && npm run shots:pesca
@@ -415,6 +418,7 @@ bot.fechar();
 const AGUA = 129;
 const SAI = [938, 28, 943, 942]; // peixe cru, folhas, pena, couro (SAI_DA_PESCA)
 const pesca = () => avaliar(`window.__pesca ? window.__pesca() : null`);
+const sonsPesca = async () => (await avaliar(`window.__som ? window.__som().porTipo.pesca ?? 0 : -1`)) ?? 0;
 const bloco = (x, y, z) => avaliar(`window.__blocoEm(${x}, ${y}, ${z})`);
 const tocarSlot = async (i) => {
   const r = await slotEm(i);
@@ -457,8 +461,11 @@ async function pescarUmaVez(poca, nomeFoto) {
   ok(mira?.alvo !== null, `a vara mira a água (${JSON.stringify(mira?.alvo)})`);
   const rot = await rotuloDaAcao("colocar");
   ok(/lançar/.test(rot ?? ""), `o ▣ diz "${rot}"`);
+  const som0 = await sonsPesca();
   await tocarAcao();
   const lancou = await ateQue(pesca, (p) => p?.minha !== null && p?.minha !== undefined, 3000);
+  const som1 = await ateQue(sonsPesca, (n) => n >= som0 + 1, 1500);
+  ok(som1 - som0 === 1, `🔊 lançar soou (zunido + plop, uma voz): ${som1 - som0}`);
   const minha = lancou?.minha;
   const b = minha != null ? lancou.boias[minha] : null;
   ok(b !== null && b?.x === poca.x && b?.z === poca.z, `a boia caiu na poça (${JSON.stringify(b)})`);
@@ -469,10 +476,14 @@ async function pescarUmaVez(poca, nomeFoto) {
   if (nomeFoto) await foto(`${nomeFoto}-boia.png`);
   const mordeu = await ateQue(pesca, (p) => p?.boias?.[minha]?.afundada === true, 26000);
   ok(mordeu?.boias?.[minha]?.afundada === true, "o peixe MORDEU: a boia afundou");
+  const som2 = await sonsPesca();
+  ok(som2 - som1 === 1, `🔊 a mordida soou o alerta: ${som2 - som1}`);
   if (nomeFoto) await foto(`${nomeFoto}-mordida.png`);
   await tocarAcao();
   const saiu = await ateQue(pesca, (p) => p?.minha === null, 3000);
   ok(saiu?.minha === null && !saiu?.boias?.[minha], "puxou: a boia saiu da água");
+  const som3 = await ateQue(sonsPesca, (n) => n >= som2 + 1, 1500);
+  ok(som3 - som2 === 1, `🔊 puxar soou a carretilha: ${som3 - som2}`);
 }
 
 diga("== B. a pesca no CRIATIVO: o que veio entra na hotbar ==");
@@ -517,6 +528,24 @@ if (pocaC) {
   ok(depois.some((id) => SAI.includes(id)), `entrou na MOCHILA o que a pesca dá (${depois})`);
   const vida = await avaliar(`!!document.querySelector('#hotbar .slot[data-tip-id="944"] .vida, #hotbar .slot[data-tip-id="944"] [class*=vida]')`);
   ok(vida === true, "a vara ganhou a barra de vida (gastou 1)");
+}
+
+diga("== D. CONTROLE NEGATIVO do som: a linha recolhida sozinha fica calada ==");
+if (pocaC) {
+  await porNaMao(VARA);
+  await avaliar(`window.__mirar(${pocaC.x + 0.5}, ${pocaC.y + 0.5}, ${pocaC.z + 0.5})`);
+  await espera(300);
+  await tocarAcao();
+  const fora = await ateQue(pesca, (p) => p?.minha != null, 3000);
+  ok(fora?.minha != null, "pré-condição: a boia está na água");
+  await espera(400);
+  const antes = await sonsPesca();
+  const livre = await avaliar(`[...document.querySelectorAll('#hotbar .slot')].findIndex(e => !e.dataset.tipId)`);
+  await tocarSlot(livre); // largou a vara: o servidor recolhe a linha
+  const sumiu = await ateQue(pesca, (p) => p?.minha === null, 4000);
+  ok(sumiu?.minha === null, "trocar de item recolheu a linha");
+  await espera(500);
+  ok((await sonsPesca()) === antes, "e ela voltou CALADA (nada de carretilha)");
 }
 
 ok(excecoes.length === 0, `sem exceção no console (${excecoes.slice(0, 2).join(" | ")})`);

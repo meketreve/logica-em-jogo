@@ -110,7 +110,8 @@ type UsoDeBloco = keyof typeof USO;
 type Rotulo =
   | UsoDeBloco | "porta" | "alavanca" | "placa" | "fogo" | "aterrissar" | "agua"
   | "nadar" | "balde" | "dano" | "morte" | "comer" | "container" | "fabricar"
-  | "moeda" | "teleporte" | "dormir" | "golpePvp" | "ambiente" | "bicho";
+  | "moeda" | "teleporte" | "dormir" | "golpePvp" | "ambiente" | "bicho"
+  | "pesca";
 
 interface Medidas {
   /** Sons tocados desde o boot. */
@@ -579,6 +580,39 @@ class SomMundo {
       const v = this.voz("nadar", 0.3, null);
       if (!v) return;
       this.ruidoF(v, 0, 0.28, "lowpass", 1200, 400, 0.7, 0.14);
+    });
+  }
+
+  /**
+   * §🎣 A PESCA (2026-11-09), na síntese — 4 momentos, todos com POSIÇÃO
+   * (o lago da turma toda soa onde está). O som AJUDA mas não pode ser
+   * necessário: 30 tablets e volume baixo — a mordida se VÊ (a boia afunda).
+   * - `lancar`: o zunido da linha cortando o ar (ruído passa-banda subindo) e
+   *   o plop da boia no fim — UMA voz: duas no mesmo lugar seriam juntadas;
+   * - `boiaCaiu`: o plop curto da boia (o "agua" encolhido);
+   * - `fisgou`: o ALERTA — respingo forte + dois blips descendo;
+   * - `puxar`: a carretilha (cliques secos rápidos) e, se veio algo, o splash.
+   */
+  pesca(momento: "lancar" | "boiaCaiu" | "fisgou" | "puxar", x: number, y: number, z: number, veio = false): void {
+    this.medir(() => {
+      const dur = momento === "puxar" || momento === "lancar" ? 0.6 : momento === "fisgou" ? 0.5 : 0.35;
+      const v = this.voz("pesca", dur, x, y, z);
+      if (!v) return;
+      if (momento === "lancar") {
+        this.ruidoF(v, 0, 0.3, "bandpass", 900, 3200, 2.5, 0.22);
+        this.ruidoF(v, 0.34, 0.16, "lowpass", 2400, 400, 0.8, 0.22);
+        this.tom(v, 0.35, 0.08, "sine", 520, 1100, 0.1);
+      } else if (momento === "boiaCaiu") {
+        this.ruidoF(v, 0, 0.16, "lowpass", 2400, 400, 0.8, 0.22);
+        this.tom(v, 0.01, 0.08, "sine", 520, 1100, 0.1);
+      } else if (momento === "fisgou") {
+        this.ruidoF(v, 0, 0.4, "lowpass", 3600, 500, 0.9, 0.5);
+        this.tom(v, 0.02, 0.09, "square", 880, 620, 0.08);
+        this.tom(v, 0.14, 0.12, "square", 660, 440, 0.08);
+      } else {
+        for (let i = 0; i < 6; i++) this.ruidoF(v, i * 0.045, 0.02, "highpass", 3000, 2500, 1, 0.14);
+        if (veio) this.ruidoF(v, 0.28, 0.3, "lowpass", 3000, 350, 0.8, 0.35);
+      }
     });
   }
 

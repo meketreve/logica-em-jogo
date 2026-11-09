@@ -47,8 +47,9 @@ const MUDANCAS: readonly Mudanca[] = [
     itens: [
       "nova ferramenta: a **vara de pescar** — **3 gravetos + 2 algodão** na bancada (o algodão é a linha). Ela aguenta **64 peixes** e depois quebra, como as outras ferramentas",
       "**pescar**: com a vara na mão, mire a **água** (até 12 blocos) e aperte o botão de usar (no tablet o ▣ vira **🎣 lançar**). A **boia** cai na água com a linha até a vara",
-      "espere: quando o peixe **morde**, a boia **afunda e treme** (o tablet vibra). Aí você tem **2 segundos** pra **puxar** (🎣 puxar). Puxou antes, a linha volta vazia; demorou, o peixe escapa e a boia volta a boiar",
+      "espere: quando o peixe **morde**, a boia **afunda e treme** (o tablet vibra e soa um **respingo**). Aí você tem **2 segundos** pra **puxar** (🎣 puxar). Puxou antes, a linha volta vazia; demorou, o peixe escapa e a boia volta a boiar",
       "quase sempre vem **peixe** — e o jogo conta **qual**: lambari, tambaqui, tilápia ou pacu, conforme o **bioma** do lago. Às vezes vem só **folha, pena ou couro velho**",
+      "a pesca tem **som**: o zunido da linha, o plop da boia, o respingo da mordida e a carretilha puxando",
       "no **criativo** também dá peixe (ele entra na barra). Trocar de item, se afastar ou a água sumir **recolhe a linha** sozinha",
       "agora dá pra **ver o que está na mão**: a picareta, o machado, a vara, o bloco que você vai colocar — no canto da tela, e ela **balança** quando você bate ou usa",
       "e os **colegas também**: cada um aparece segurando o que tem na mão (na câmera de 3ª pessoa, tecla C, você vê a sua)",
