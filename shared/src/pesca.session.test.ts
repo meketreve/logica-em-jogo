@@ -32,7 +32,7 @@ function sala(modo: "sobrevivencia" | "criativo") {
   setBlock(s.world, agua.x, agua.y, agua.z, BlockId.Agua);
   setBlock(s.world, agua.x, agua.y - 1, agua.z, BlockId.Agua);
   if (modo === "sobrevivencia") {
-    const inv: Slot[] = inventarioVazio();
+    const inv: Slot[] = [...inventarioVazio()];
     inv[0] = { id: VARA, qtd: 1 };
     s.inventarios.set("ana", inv);
   }
@@ -142,7 +142,9 @@ describe("§🎣 puxar", () => {
 
   it("a vara ACABA: com 63 de dano, o próximo peixe a quebra", () => {
     const { s, sent, agua } = sala("sobrevivencia");
-    s.inventarios.get("ana")![0] = { id: VARA, qtd: 1, dano: 63 };
+    const inv: Slot[] = [...s.inventarios.get("ana")!];
+    inv[0] = { id: VARA, qtd: 1, dano: 63 };
+    s.inventarios.set("ana", inv);
     pescar(s, agua);
     morder(s);
     pescar(s, agua);
