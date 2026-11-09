@@ -1267,6 +1267,175 @@ otimizado (máquina de estados) · (11) bicho aperta a placa · (12) sons em thr
 6. Pagar o motor por tick agora? Muda o cabeçalho de `circuitos.ts` e tira a garantia de
    "nunca trava" que o ponto fixo dá hoje.
 
+## §🎣 Ferramentas novas: a VARA DE PESCAR e os instrumentos — PLANO (pedido dele, 2026-11-09)
+
+> Plano, não spec fechada: as perguntas do fim são DELE e fecham o escopo. Lido no código em
+> 09/11 (`ferramentas.ts`, `blocks.ts` banda ≥900, `session/bichos.ts`, `main.ts` clique
+> direito, `raycast.ts`, `venda.ts`, `receitas.ts`, save). Unidade = sessão. **Nada codado.**
+
+### O que já existe e o plano aproveita
+
+* **Ferramenta = id na banda ≥900 + `FERRAMENTAS_ITENS` (1 por slot) + `DURABILIDADE`.** A
+  pilha já carrega `dano` e o save já grava (`{id, qtd, dano}`): **a vara não muda o formato do
+  `.ljw`**. A tesoura (931) é o molde exato: ferramenta com durabilidade que NÃO quebra bloco.
+* **O peixe já existe** como bicho (`peixe`, 4 variantes por bioma: lambari, tambaqui, tilápia,
+  pacu) e como item (`ITEM_PEIXE_CRU` 938 → assado 939). Hoje só sai MATANDO o bicho ou levando
+  no balde — e o peixe **não reproduz** (`reproduz: false`) e cada coluna passa pelo spawn
+  natural UMA vez: **lago pescado a golpe fica vazio pra sempre**. O gato doma com peixe cru.
+  A vara é a 1ª fonte RENOVÁVEL de peixe — é o argumento de jogo dela, não só "mais um item".
+* **O servidor já sabe o que está na mão** (`mao`, enviado quando muda — `main.ts:2745`) e o
+  clique direito já tem a fila de prioridade (bicho → comer → interativo → balde → …).
+* **O raycast já para na água** quando pedido (`pararNaAgua`, o balde vazio usa).
+* **O peixe NÃO tem preço** em `venda.ts` → pescar não vira cano de Dimas (se a tabela de
+  pesca não trouxer nada vendável — ver risco 3).
+* **NÃO existe item na mão desenhado** (nem 1ª nem 3ª pessoa): ninguém vê a picareta hoje. A
+  linha da vara tem de nascer de algum ponto — ver E3 e o lote opcional "item na mão".
+
+### 1. A vara de pescar
+
+**Obter:** receita `3 gravetos + 2 algodão` (algodão faz o papel da linha; é a do Minecraft com
+o material daqui). `ITEM_VARA_PESCAR = 944` (APPEND no fim da banda — o número é byte de fio e
+de save) e receita no FIM de `RECEITAS` (o índice é identidade — erro de 16/10). Aba
+`ferramentas` do criativo. Durabilidade **64** (Minecraft): gasta 1 por peixe tirado da água.
+
+**Usar (sobrevivência):**
+1. Clique direito / ▣ com a vara na mão mirando ÁGUA (alcance da vara **12**, não o
+   `PLAYER_REACH` de 5 — só pra este raycast) → `pescar {x,y,z,slot}`.
+2. O servidor confere (vara no slot, célula é água, distância ≤ 12, sem boia já lançada) e
+   anuncia `boia {id, x,y,z}` pra quem está perto. A boia boia na superfície.
+3. Espera sorteada no SERVIDOR (**5–20 s**). Ao fisgar: `boia_fisgou {id}` — a boia AFUNDA
+   (movimento, não cor: estado que mora só na cor não existe no projetor), respingo e som.
+4. Janela de **2 s** (Wi-Fi da escola; o Minecraft dá menos): o 2º clique dentro dela tira o
+   peixe; fora dela só recolhe a linha vazia ("escapou!"). O relógio é do servidor, medido na
+   CHEGADA do clique — o tablet não decide nada.
+5. Recolhe sozinha (sem gastar) se: o jogador trocar o item da mão (`mao`), andar > 16 blocos,
+   morrer, dormir, teleportar, sair; a água da boia sumir (balde); a coluna sair da RAM.
+
+**O que sai (tabela PURA `shared/src/pesca.ts`, sorteio com o `rand` da sessão):**
+* ~85% **peixe cru**, e o chat diz a ESPÉCIE do bioma pela tabela que já existe
+  (`variantesDoBioma("peixe", bioma)`): "Você pescou um tambaqui!" — o item é o mesmo 938.
+* ~15% **lixo** que já existe e não vale Dimas: graveto, folha, pena (não existe alga no jogo).
+* **Sem "tesouro" na v1** (decisão dele — risco 3).
+
+**Criativo:** pela regra dos bichos ("nada se gasta, nada se ganha") a pesca DEMONSTRA (boia,
+fisgada, som) e não entrega item — o professor mostra pra turma. Pergunta 4.
+
+**Persistência:** a boia NÃO vai pro save (estado de sessão, como o balcão de venda: `Map`
+por clientId). A vara é pilha comum com `dano` → entra no portão de round-trip pelo ARQUIVO de
+`session.test.ts` (`encodeSave`→`decodeSave`, a lição do bug-678), mesmo sem campo novo.
+
+**Protocolo (3 mensagens):** cliente `pescar {x,y,z,slot?}` (o 2º envio é "puxar");
+servidor `boia {id, x,y,z} | {id, fim: "pegou"|"vazia"|"recolheu"}` e `boia_fisgou {id}`. Só
+eventos — o balanço da boia é animação do cliente. 25 boias = dezenas de bytes por minuto.
+
+**UI:** ícone no `blockIcons.ts` (molde da tesoura), nome, tooltip pelo `usos.ts` (tipo novo
+`pesca`, lendo a tabela de `pesca.ts` — "lambari, tilápia… e às vezes lixo"), barra de vida
+(`vidaFerramenta.ts`, já genérica). **Tablet:** o ▣ vira 🎣 "lançar" / "puxar" com a vara na
+mão (molde do 🍎 "comer" em `touch.ts`). Barra de vida, aviso "a vara quebrou" e som pelo
+`ferramenta_quebrou` que a tesoura já usa.
+
+**Desenho:** boia = 1 mesh pequeno branco/vermelho (InstancedMesh se passar de ~10), linha =
+`THREE.Line` de 2–8 pontos (curva). Origem da linha: na 1ª pessoa, um ponto fixo no canto
+inferior direito da câmera; na 3ª e nos colegas, o pivô do braço direito do `playerBody`.
+
+**Sons (`somMundo.ts` + `sons.ts`):** lançar (zunido, síntese), boia cai (plop — o "agua" que
+já existe, mais curto), fisgou (respingo forte; é o ALERTA), puxar (carretilha: cliques
+sintetizados), peixe na mão (o som de comer/pegar item que já existir; conferir no `somMundo.ts`). Amostras gravadas CC0 só se a síntese não
+convencer — passam pelo `preparar-sons.mjs` + `CREDITOS.md` e pelo portão de ≤ 700 KB
+(hoje 352 KB). O som AJUDA mas não pode ser necessário: 30 tablets, volume baixo.
+
+### 2. Comparação: de onde vem o peixe — recomendo A
+
+| | **A — abstrata (Minecraft)** | **B — o peixe-bicho vem à boia** | **C — híbrida** |
+|---|---|---|---|
+| Como | timer no servidor, qualquer água | o bicho mais perto (≤ 6) nada até a boia; morde ao chegar; sai do lago | A sempre; se houver peixe-bicho perto ele nada até a boia (só visual) |
+| Sensação | boa (fisgada clássica) | ótima: a criança VÊ o peixe vir | ótima |
+| Mundo de aula (sem bicho natural) | funciona | **não funciona** sem `/bicho peixe` | funciona |
+| Lago esgota | não | **sim, pra sempre** (peixe não reproduz) | não |
+| `/bichos parar`, `?bench&bichosparados` | indiferente | quebra | só some o visual |
+| Custo | ~1 sessão (E2) | +1 (estado "indo à boia" no `pensarPeixe`, reprodução/repovoamento) | +0,5 sobre A |
+
+**A na v1, C depois** se o playtest pedir: B transforma "o lago acabou" numa aula de
+sustentabilidade, mas num mundo onde o peixe não volta isso é só frustração — teria de vir
+junto com repovoamento, que é outra decisão. Confiança: alta no custo de A, média no de C.
+
+### 3. Outras ferramentas coerentes com o jogo (ranking por valor de aula ÷ custo)
+
+| # | Ferramenta | O que faz | Valor na aula | Custo | Veredito |
+|---|---|---|---|---|---|
+| 1 | **Trena** | clique direito marca A, 2º marca B: "Δx 5, Δy 2, Δz 3 · 10 blocos de caminho · caixa de 6×3×4 = 72" | **alto** — medida, coordenada, área, volume, direto na construção | ~0,5 (só cliente + o desenho da marca da varinha) | **recomendada** |
+| 2 | **Bússola** | agulha na mão/HUD aponta pra cama, pro nascimento ou pro ponto que o professor marcar (`/bussola x z`) | **alto** — pontos cardeais, orientação (precisa fixar o NORTE do mundo: −z, como o `mesher.test`) | ~0,5–0,75 | **recomendada** |
+| 3 | **Relógio** | mostra a hora do mundo (o `time` que já chega) | médio — hora, duração do dia | ~0,25 | junto com a bússola |
+| 4 | **Luneta** | zoom (FOV) segurando | baixo-médio — exploração | ~0,25 | se sobrar |
+| — | Enxada | arar antes de plantar | **negativo**: alonga a cadeia de plantio que a aula já usa sem dar decisão nova | ~0,5 | **não** |
+| — | Isqueiro/pederneira | acender | nulo: tocha e fornalha já resolvem | ~0,5 | não |
+| — | Laço/rede pra bicho | puxar/pegar bicho | baixo; mexe na IA e no curral | ~1 | não agora |
+
+**Trena e bússola valem mais pra AULA que a vara** — a vara é vida no mundo (pedido dele e
+fonte renovável de peixe); as duas são matemática e geografia na mão da criança. Não exigem
+servidor (a trena nada, a bússola só o ponto do professor), então são as mais baratas também.
+
+### 4. Impacto educacional (honesto)
+
+* **Vara:** probabilidade e coleta de dados — o professor pede 20 pescas anotadas num quadro e
+  a turma calcula a frequência de cada espécie; biomas × espécies brasileiras (Ciências). Valor
+  direto em LÓGICA: baixo. Vale como motor de engajamento e de economia (peixe → gato, comida).
+* **Objetivo de cenário "pescar N"/"coletar item"** fecharia a ponte com as aulas — fica pra
+  depois (o motor de objetivos tem `construir`/`acender`; coletar é tipo novo).
+* **Trena/bússola:** conteúdo curricular de verdade (medida, plano cartesiano, orientação).
+
+### 5. Riscos
+
+1. **Latência** na janela da fisgada: 2 s medidos no servidor. Se reclamarem, alargar — nunca
+   mover a decisão pro cliente.
+2. **Sem item na mão desenhado:** a linha sai "do nada" no canto. Aceitável na v1; o lote
+   "item na mão" (1–1,5 sessão) serve TODAS as ferramentas e é a próxima coisa de sensação.
+3. **Cano de Dimas:** qualquer coisa vendável na tabela de pesca (lingote, diamante) vira renda
+   infinita de AFK. Regra: o portão de `venda.test.ts` ganha uma checagem — nada que sai da
+   pesca tem preço (ou o preço entra contado no tempo médio de uma pescaria).
+4. **Prioridade do clique direito:** a vara entra DEPOIS de bicho e de interativo (baú/porta),
+   ANTES do balde/colocar — senão "pescar" abre o baú do lado do lago (bug-601).
+5. **Alcance 12** só no raycast da pesca; quebrar/colocar continuam em 5 (portão no teste).
+6. **Boia órfã:** toda saída (troca de mão, morte, `/tp`, queda de conexão, coluna fora da
+   RAM, água recolhida) tem de limpar — smoke com a lista inteira, um caso por saída.
+7. **Peça travada / claim:** a pesca não muda bloco → não passa pelo gate. Decidido assim, a
+   menos que ele queira lago "do grupo".
+
+### 6. Ordem de implementação (lotes pequenos, cada um com `verify` + smoke/sonda)
+
+* \[ ] **E0 — decisões dele** (abaixo, todas juntas).
+* \[ ] **E1 — o item** (0,5): id 944, `FERRAMENTAS_ITENS`, `DURABILIDADE` 64, receita no fim,
+  ícone, nome, aba criativo, tooltip. → verify: `receitas.test` (índices antigos intactos),
+  `venda.test` verde, round-trip do save com a vara gasta (`dano` volta igual).
+* \[ ] **E2 — a regra pura + sessão** (1): `pesca.ts` (tabela, espera, janela) e o estado por
+  jogador; `pescar`, `boia`, `boia_fisgou` no `protocol.ts` (parse + teste); limpeza nas 7
+  saídas; gasto e quebra. → verify: vitest com CONTROLE NEGATIVO (sem vara recusa; clique fora
+  da janela não dá peixe; água recolhida derruba a boia — e a pré-condição "a boia existia"
+  afirmada antes, a lição do "jogador nem entrou").
+* \[ ] **E3 — o cliente** (1): raycast de 12 com a vara, a fila do clique direito, boia +
+  linha + afundar, ▣ 🎣 no tablet. → verify: sonda `shots:pesca` (estado em `window.__pesca`,
+  1024×600, com toque pelo CDP) — "UI só é feita quando uma sonda a enxerga".
+* \[ ] **E4 — sons** (0,5): os 4 de cima, na síntese. → verify: seção nova na `shots:som` com
+  controle negativo (o contador sobe só com a boia de verdade, não com `/bloco`).
+* \[ ] **E5 — smoke `pesca`** (0,5): dois clientes reais; o colega VÊ a boia; pega peixe; troca
+  de mão recolhe; host morto não deixa boia no save.
+* \[ ] **E6 — changelog + manual** (0,25): bloco no `changelog.ts` ANTES de codar o E1 (ordem
+  do WORKFLOW), seção no `docs/manual.html`, print no README.
+
+**Vara inteira: ~3,5–4 sessões.** Depois, se ele quiser: **trena** (0,5) → **bússola +
+relógio** (0,75) → **item na mão** (1–1,5) → **C, o peixe vindo à boia** (0,5) → luneta.
+
+### Decisões DELE (perguntar todas juntas)
+
+1. Peixe abstrato (**A**, recomendado), o peixe-bicho vindo à boia (B) ou híbrido (C) já na v1?
+2. Precisa clicar na hora da fisgada (recomendado: sim, janela de 2 s) ou o peixe vem sozinho?
+3. O que sai: só peixe + lixo (recomendado) ou tem tesouro? Se tem, NÃO vendável.
+4. No criativo a pesca dá o peixe ou só demonstra (recomendado: só demonstra, como os bichos)?
+5. Receita `3 gravetos + 2 algodão` e durabilidade 64 servem?
+6. Quais instrumentos entram depois da vara: trena, bússola, relógio, luneta? (recomendo trena
+   e bússola)
+7. O "item na mão" visível (serve picareta, machado, vara…) entra antes ou depois?
+
 ## Geração de mundo / performance
 
 * \[x] **Ids de bloco em 16 bits** — **FEITO 2026-09-12** (mesmo dia; ver o plano, que virou registro). Anotado a pedido do usuário — o byte de bloco tem

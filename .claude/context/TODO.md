@@ -22,6 +22,8 @@ active: true
       segue o sinal já saiu em 27/10 — sobra o botão.)
 - [x] ~~Porta controlada pelo sinal~~ — feita em 27/10 (sonda C6). Janela fica pra depois (dele).
 - [ ] **Decisões dele, pendentes:** luz COLORIDA (3 canais — lote grande) e a curva de brilho.
+- [ ] **§🎣 Vara de pescar e instrumentos (09/11):** plano no `todo.md` (§🎣) — 7 perguntas dele
+      no fim da seção; recomendação: pesca abstrata, ~3,5–4 sessões; depois trena e bússola.
 - [ ] **Orçamento de mobs/entidades/pistão (27/10)** — 6 perguntas dele no fim da seção
       **§🧱** do `todo.md`; recomendação: pacote A (pistão sem animação, ~4 sessões).
 
