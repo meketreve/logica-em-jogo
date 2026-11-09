@@ -381,6 +381,26 @@ const SMOKES = [
     ],
   },
   {
+    nome: "pesca",
+    arquivo: `${DIR}/_smoke-pesca.mjs`,
+    prova:
+      "§🎣 a pesca pelo fio, com três clientes: o balde faz a poça, o colega vê a vara na mão (`mao_de`) e a boia (só o pescador recebe `sua`), a mordida chega SOZINHA pelo tick em 5–20 s, puxar na hora põe peixe/lixo na mochila e gasta a vara, largar a vara recolhe a linha sem dar nada, e quem sai do jogo leva a boia junto.",
+    lento: false,
+    limpar: ["mundos/_smoke-pesca"],
+    servidores: [
+      {
+        porta: 8115,
+        env: {
+          LJ_SAVE: "mundos/_smoke-pesca.ljw",
+          LJ_NOVO: "1",
+          LJ_TAMANHO: "P",
+          LJ_CODIGO: "prof2026",
+          LJ_SEED: SEED,
+        },
+      },
+    ],
+  },
+  {
     nome: "fornalha",
     arquivo: `${DIR}/_smoke-fornalha.mjs`,
     prova:
