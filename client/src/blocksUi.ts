@@ -22,6 +22,7 @@ import {
   ITEM_PEIXE_ASSADO,
   ITEM_PEIXE_CRU,
   ITEM_TESOURA,
+  ITEM_VARA_PESCAR,
   ITEM_TRIGO,
   isProfessorOnly,
 } from "@logica/shared";
@@ -291,6 +292,8 @@ export const PLACEABLE: readonly PlaceableEntry[] = [
   // §🐄 (2026-11-02): o que se USA nos bichos — tesoura na ovelha, e o balde
   // com peixe que solta o peixe na água (o vazio sai do de água, como sempre).
   { id: ITEM_TESOURA, name: "tesoura", cat: "ferramentas" },
+  // §🎣 (2026-11-09): a vara — lança na água e tira peixe (no criativo também dá)
+  { id: ITEM_VARA_PESCAR, name: "vara de pescar", cat: "ferramentas" },
   { id: ITEM_BALDE_PEIXE, name: "balde com peixe", cat: "ferramentas" },
   // A aba "comida": a cadeia inteira, do cru ao pronto. O TRIGO entra mesmo sem
   // se comer — é a isca da vaca/ovelha/galinha e o ingrediente do pão e do bolo.

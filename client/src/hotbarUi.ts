@@ -43,6 +43,7 @@ import {
   ITEM_PEIXE_CRU,
   ITEM_PENA,
   ITEM_TESOURA,
+  ITEM_VARA_PESCAR,
 } from "@logica/shared";
 
 /** §🐄 Os nomes dos itens dos bichos (2026-11-02) — tabela, não mais um `if`
@@ -61,6 +62,7 @@ const NOME_ITEM_BICHO: ReadonlyMap<number, string> = new Map([
   [ITEM_BOLO, "bolo"],
   [ITEM_COURO, "couro"],
   [ITEM_PENA, "pena"],
+  [ITEM_VARA_PESCAR, "vara de pescar"],
 ]);
 const ITENS_DOS_BICHOS: readonly number[] = [...NOME_ITEM_BICHO.keys()];
 import { makeBlockIcons } from "./blockIcons";

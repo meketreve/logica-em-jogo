@@ -711,6 +711,13 @@ export const ITEM_BOLO = 941;
 export const ITEM_COURO = 942;
 export const ITEM_PENA = 943;
 
+/**
+ * §🎣 A VARA DE PESCAR (2026-11-09): ferramenta com durabilidade (64, o número
+ * do Minecraft) que não quebra bloco — lança a boia na água e tira peixe. A
+ * regra mora em `pesca.ts` (pura) e `session/pesca.ts`. APPEND no fim da banda.
+ */
+export const ITEM_VARA_PESCAR = 944;
+
 /** Um dos itens de FERRAMENTA (§🍖 F10d)? Mora aqui, junto de `isBalde`, e não
  *  em `ferramentas.ts`, porque quem pergunta primeiro é o `tamanhoStack` do
  *  inventário — e `inventario.ts` importando `ferramentas.ts`, que importa
@@ -730,6 +737,8 @@ const FERRAMENTAS_ITENS: ReadonlySet<number> = new Set([
   ITEM_PA_DIAMANTE,
   // §🐄 a tesoura: 1 por slot e com durabilidade, mas não quebra bloco
   ITEM_TESOURA,
+  // §🎣 a vara: idem — gasta por peixe tirado da água
+  ITEM_VARA_PESCAR,
 ]);
 
 /** É ferramenta? (1 por slot, como o balde — ver `tamanhoStack`) */
@@ -849,6 +858,8 @@ const ITENS: ReadonlySet<number> = new Set([
   ITEM_BOLO,
   ITEM_COURO,
   ITEM_PENA,
+  // §🎣 (2026-11-09)
+  ITEM_VARA_PESCAR,
 ]);
 
 /** É um item conhecido (não-bloco)? */

@@ -43,6 +43,13 @@ interface Mudanca {
 const MUDANCAS: readonly Mudanca[] = [
   {
     // sem `data`: este é o build atual (ver rotuloDoBloco)
+    titulo: "A vara de pescar",
+    itens: [
+      "nova ferramenta: a **vara de pescar** — **3 gravetos + 2 algodão** na bancada (o algodão é a linha). Ela aguenta **64 peixes** e depois quebra, como as outras ferramentas",
+    ],
+  },
+  {
+    data: "03/11/2026",
     titulo: "Sons de verdade",
     itens: [
       "os sons do mundo agora são **gravados**, não feitos pelo computador: quebrar e colocar **pedra, madeira, vidro e metal**, o **toc-toc** da ferramenta, os **passos** em pedra, madeira, terra e grama",

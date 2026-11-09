@@ -28,6 +28,7 @@ import {
   faltaFerramentaNaMao,
   ferramentaIdealDe,
   tempoDeQuebraMs,
+  FERRAMENTAS_DE_USO,
 } from "./ferramentas";
 import { type Slot, tamanhoStack } from "./inventario";
 import { parseServerMessage } from "./protocol";
@@ -67,7 +68,7 @@ describe("§🪓 — as 8 ferramentas novas existem como ITEM, igual às picaret
     expect(durabilidadeDe(ITEM_MACHADO_MADEIRA)).toBe(59);
     expect(durabilidadeDe(ITEM_MACHADO_DIAMANTE)).toBe(1561);
     expect(durabilidadeDe(ITEM_PA_FERRO)).toBe(250);
-    expect(DURABILIDADE.size).toBe(FERRAMENTAS.size + 1); // §🐄 + a tesoura
+    expect(DURABILIDADE.size).toBe(FERRAMENTAS.size + FERRAMENTAS_DE_USO.size); // §🐄 tesoura, §🎣 vara
   });
 });
 

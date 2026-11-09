@@ -18,6 +18,7 @@ import {
   tempoDeQuebraMs,
   ticksDeQuebra,
   vidaDe,
+  FERRAMENTAS_DE_USO,
 } from "./ferramentas";
 import {
   type Slot,
@@ -67,9 +68,10 @@ describe("§🔨 v2 — durabilidade", () => {
   });
 
   it("toda ferramenta do jogo tem durabilidade (ninguém entra na tabela pela metade)", () => {
-    // §🐄 a tesoura é a única exceção: gasta, mas não é picareta/machado/pá
+    // §🐄/§🎣 tesoura e vara são as exceções nomeadas: gastam, mas não são
+    // picareta/machado/pá
     for (const id of DURABILIDADE.keys()) {
-      if (id === 931) continue; // ITEM_TESOURA
+      if (FERRAMENTAS_DE_USO.has(id)) continue;
       expect(ferramentaDe({ id, qtd: 1 })).not.toBeNull();
     }
   });

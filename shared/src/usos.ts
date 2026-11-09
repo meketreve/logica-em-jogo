@@ -1,4 +1,4 @@
-import { plantaDe } from "./blocks";
+import { ITEM_VARA_PESCAR, plantaDe } from "./blocks";
 import { isComida, saciedadeDe } from "./comida";
 import {
   FERRAMENTAS,
@@ -9,6 +9,7 @@ import {
 } from "./ferramentas";
 import { COMBUSTIVEIS, COZIMENTO, TICKS_POR_COZIMENTO } from "./fornalha";
 import type { Stack } from "./inventario";
+import { SAI_DA_PESCA } from "./pesca";
 
 /**
  * §💬 UI de jogo — "SERVE PRA QUÊ?", a resposta que o tooltip mostra.
@@ -39,6 +40,8 @@ export type Uso =
       readonly libera: readonly number[];
       readonly acelera: readonly number[];
     }
+  /** §🎣 Pesca: o que a linha pode trazer (lido da tabela de `pesca.ts`). */
+  | { readonly tipo: "pesca"; readonly sai: readonly number[] }
   /** Come-se: quantos pontos de fome devolve (escala de `FOME_MAX` = 20). */
   | { readonly tipo: "comida"; readonly fome: number }
   /** Vira outra coisa na fornalha. */
@@ -69,6 +72,8 @@ export function usosDoItem(id: number): readonly Uso[] {
       acelera: aceleradosPor(f.tipo),
     });
   }
+
+  if (id === ITEM_VARA_PESCAR) usos.push({ tipo: "pesca", sai: SAI_DA_PESCA });
 
   if (isComida(id)) usos.push({ tipo: "comida", fome: saciedadeDe(id) });
 

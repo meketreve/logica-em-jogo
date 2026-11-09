@@ -44,6 +44,7 @@ import {
   ITEM_PEIXE_CRU,
   ITEM_PENA,
   ITEM_TESOURA,
+  ITEM_VARA_PESCAR,
   blockIconTile,
   isBalde,
   isComida,
@@ -140,6 +141,26 @@ function drawItemBicho(ctx: CanvasRenderingContext2D, px: number, id: number): v
     }
     return;
   }
+  if (id === ITEM_VARA_PESCAR) {
+    // §🎣 a vara em diagonal (madeira), a linha caindo da ponta e a boia
+    // vermelha/branca: a boia é o que distingue da picareta/graveto no slot
+    ctx.lineCap = "round";
+    ctx.strokeStyle = "#8a5a2b";
+    ctx.lineWidth = Math.max(1, px * 0.09);
+    ctx.beginPath();
+    ctx.moveTo(px * 0.16, px * 0.86);
+    ctx.lineTo(px * 0.8, px * 0.14);
+    ctx.stroke();
+    ctx.strokeStyle = "#e8e8e8";
+    ctx.lineWidth = Math.max(1, px * 0.03);
+    ctx.beginPath();
+    ctx.moveTo(px * 0.8, px * 0.14);
+    ctx.quadraticCurveTo(px * 0.86, px * 0.4, px * 0.78, px * 0.62);
+    ctx.stroke();
+    elipse(0.78, 0.68, 0.08, 0.08, "#d03a2c");
+    elipse(0.78, 0.74, 0.08, 0.04, "#f4f4f4");
+    return;
+  }
   if (id === ITEM_OVO) {
     elipse(0.5, 0.56, 0.24, 0.3, "#f2ead8");
     elipse(0.42, 0.44, 0.06, 0.09, "#ffffff"); // brilho
@@ -222,6 +243,7 @@ function drawItemBicho(ctx: CanvasRenderingContext2D, px: number, id: number): v
 const ITENS_BICHO: ReadonlySet<number> = new Set([
   ITEM_TESOURA, ITEM_OVO, ITEM_CARNE_CRUA, ITEM_CARNE_ASSADA, ITEM_FRANGO_CRU,
   ITEM_FRANGO_ASSADO, ITEM_PEIXE_CRU, ITEM_PEIXE_ASSADO, ITEM_BOLO, ITEM_COURO, ITEM_PENA,
+  ITEM_VARA_PESCAR,
 ]);
 
 /**

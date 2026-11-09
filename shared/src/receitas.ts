@@ -25,6 +25,7 @@ import {
   ITEM_BOLO,
   ITEM_OVO,
   ITEM_TESOURA,
+  ITEM_VARA_PESCAR,
 } from "./blocks";
 import {
   type Inventario,
@@ -474,6 +475,18 @@ const BICHOS_RECEITAS: readonly Receita[] = [
     })),
 ];
 
+/**
+ * §🎣 PESCA (2026-11-09) — lista PRÓPRIA, depois dos bichos (índice é
+ * identidade). A vara: 3 gravetos + 2 algodão — o algodão faz o papel da linha
+ * (decisão dele, 09/11).
+ */
+const PESCA_RECEITAS: readonly Receita[] = [
+  {
+    saida: { id: ITEM_VARA_PESCAR, qtd: 1 },
+    custo: [{ id: ITEM_GRAVETO, qtd: 3 }, { id: ITEM_ALGODAO, qtd: 2 }],
+  },
+];
+
 export const RECEITAS: readonly Receita[] = [
   ...BASE,
   ...MATERIAIS,
@@ -485,7 +498,8 @@ export const RECEITAS: readonly Receita[] = [
   ...GLIFOS,
   ...FUNDICAO,
   ...CIRCUITOS, // §🔌 índice é identidade (ver a lista)
-  ...BICHOS_RECEITAS, // §🐄 sempre no FIM, pela mesma razão
+  ...BICHOS_RECEITAS, // §🐄 depois dos circuitos, pela mesma razão
+  ...PESCA_RECEITAS, // §🎣 sempre no FIM
 ];
 
 /**

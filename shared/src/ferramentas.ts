@@ -2,6 +2,7 @@ import {
   BlockId,
   ITEM_MACHADO_DIAMANTE,
   ITEM_TESOURA,
+  ITEM_VARA_PESCAR,
   ITEM_MACHADO_FERRO,
   ITEM_MACHADO_MADEIRA,
   ITEM_MACHADO_PEDRA,
@@ -257,11 +258,20 @@ const POR_MATERIAL: ReadonlyMap<number, number> = new Map([
   [NIVEL_DIAMANTE, 1561],
 ]);
 
+/**
+ * As ferramentas que GASTAM mas não quebram bloco (não são picareta, machado
+ * nem pá): a tesoura (§🐄) e a vara de pescar (§🎣). Lista nomeada pra os
+ * portões de durabilidade não escreverem exceção id a id.
+ */
+export const FERRAMENTAS_DE_USO: ReadonlySet<number> = new Set([ITEM_TESOURA, ITEM_VARA_PESCAR]);
+
 export const DURABILIDADE: ReadonlyMap<number, number> = new Map([
   ...[...FERRAMENTAS].map(([id, f]): [number, number] => [id, POR_MATERIAL.get(f.nivel) ?? 59]),
   // §🐄 a tesoura (2026-11-02): não quebra bloco, mas gasta a cada tosquia —
   // 238 é o número do Minecraft (uma turma inteira tosquia sem acabar)
   [ITEM_TESOURA, 238],
+  // §🎣 a vara (2026-11-09): gasta 1 por peixe tirado — 64, o do Minecraft
+  [ITEM_VARA_PESCAR, 64],
 ]);
 
 /** Quantas quebras este item aguenta, ou `null` se ele não é ferramenta. */

@@ -261,6 +261,11 @@ function frase(uso: Uso): string | null {
       return uso.acelera.length > 0
         ? `⛏ quebra ${listar(uso.acelera)} mais rápido`
         : "⛏ ferramenta";
+    case "pesca":
+      // §🎣 o peixe primeiro, o lixo depois — é a ordem da chance
+      return uso.sai.length > 1
+        ? `🎣 na água pesca ${deps.nameOf(uso.sai[0]!)} — às vezes ${listar(uso.sai.slice(1))}`
+        : `🎣 na água pesca ${listar(uso.sai)}`;
     case "comida":
       return `🍗 comida — enche ${uso.fome} de fome`;
     case "funde":

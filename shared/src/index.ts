@@ -17,6 +17,7 @@ export * from "./ferramentas";
 export * from "./grade";
 export * from "./groups";
 export * from "./drops";
+export * from "./pesca";
 export * from "./inventario";
 export * from "./usos";
 export * from "./world";
